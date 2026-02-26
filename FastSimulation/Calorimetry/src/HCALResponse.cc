@@ -17,72 +17,72 @@ using namespace edm;
 
 HCALResponse::HCALResponse(const edm::ParameterSet& pset) {
   //switches
-  debug = pset.getParameter<bool>("debug");
-  usemip = pset.getParameter<bool>("usemip");
+  debug_ = pset.getParameter<bool>("debug");
+  usemip_ = pset.getParameter<bool>("usemip");
 
   //values for "old" response parameterizations
   //--------------------------------------------------------------------
-  RespPar[HCAL][0][0] = pset.getParameter<double>("HadronBarrelResolution_Stochastic");
-  RespPar[HCAL][0][1] = pset.getParameter<double>("HadronBarrelResolution_Constant");
-  RespPar[HCAL][0][2] = pset.getParameter<double>("HadronBarrelResolution_Noise");
+  respPar_[HCAL][0][0] = pset.getParameter<double>("HadronBarrelResolution_Stochastic");
+  respPar_[HCAL][0][1] = pset.getParameter<double>("HadronBarrelResolution_Constant");
+  respPar_[HCAL][0][2] = pset.getParameter<double>("HadronBarrelResolution_Noise");
 
-  RespPar[HCAL][1][0] = pset.getParameter<double>("HadronEndcapResolution_Stochastic");
-  RespPar[HCAL][1][1] = pset.getParameter<double>("HadronEndcapResolution_Constant");
-  RespPar[HCAL][1][2] = pset.getParameter<double>("HadronEndcapResolution_Noise");
+  respPar_[HCAL][1][0] = pset.getParameter<double>("HadronEndcapResolution_Stochastic");
+  respPar_[HCAL][1][1] = pset.getParameter<double>("HadronEndcapResolution_Constant");
+  respPar_[HCAL][1][2] = pset.getParameter<double>("HadronEndcapResolution_Noise");
 
-  RespPar[VFCAL][0][0] = pset.getParameter<double>("HadronForwardResolution_Stochastic");
-  RespPar[VFCAL][0][1] = pset.getParameter<double>("HadronForwardResolution_Constant");
-  RespPar[VFCAL][0][2] = pset.getParameter<double>("HadronForwardResolution_Noise");
+  respPar_[VFCAL][0][0] = pset.getParameter<double>("HadronForwardResolution_Stochastic");
+  respPar_[VFCAL][0][1] = pset.getParameter<double>("HadronForwardResolution_Constant");
+  respPar_[VFCAL][0][2] = pset.getParameter<double>("HadronForwardResolution_Noise");
 
-  RespPar[VFCAL][1][0] = pset.getParameter<double>("ElectronForwardResolution_Stochastic");
-  RespPar[VFCAL][1][1] = pset.getParameter<double>("ElectronForwardResolution_Constant");
-  RespPar[VFCAL][1][2] = pset.getParameter<double>("ElectronForwardResolution_Noise");
+  respPar_[VFCAL][1][0] = pset.getParameter<double>("ElectronForwardResolution_Stochastic");
+  respPar_[VFCAL][1][1] = pset.getParameter<double>("ElectronForwardResolution_Constant");
+  respPar_[VFCAL][1][2] = pset.getParameter<double>("ElectronForwardResolution_Noise");
 
-  eResponseScale[0] = pset.getParameter<double>("eResponseScaleHB");
-  eResponseScale[1] = pset.getParameter<double>("eResponseScaleHE");
-  eResponseScale[2] = pset.getParameter<double>("eResponseScaleHF");
+  eResponseScale_[0] = pset.getParameter<double>("eResponseScaleHB");
+  eResponseScale_[1] = pset.getParameter<double>("eResponseScaleHE");
+  eResponseScale_[2] = pset.getParameter<double>("eResponseScaleHF");
 
-  eResponsePlateau[0] = pset.getParameter<double>("eResponsePlateauHB");
-  eResponsePlateau[1] = pset.getParameter<double>("eResponsePlateauHE");
-  eResponsePlateau[2] = pset.getParameter<double>("eResponsePlateauHF");
+  eResponsePlateau_[0] = pset.getParameter<double>("eResponsePlateauHB");
+  eResponsePlateau_[1] = pset.getParameter<double>("eResponsePlateauHE");
+  eResponsePlateau_[2] = pset.getParameter<double>("eResponsePlateauHF");
 
-  eResponseExponent = pset.getParameter<double>("eResponseExponent");
-  eResponseCoefficient = pset.getParameter<double>("eResponseCoefficient");
+  eResponseExponent_ = pset.getParameter<double>("eResponseExponent");
+  eResponseCoefficient_ = pset.getParameter<double>("eResponseCoefficient");
 
   //pion parameters
   //--------------------------------------------------------------------
   //energy values
-  maxHDe[0] = pset.getParameter<int>("maxHBe");
-  maxHDe[1] = pset.getParameter<int>("maxHEe");
-  maxHDe[2] = pset.getParameter<int>("maxHFe");
-  maxHDe[3] = pset.getParameter<int>("maxHFlowe");
+  maxHDe_[0] = pset.getParameter<int>("maxHBe");
+  maxHDe_[1] = pset.getParameter<int>("maxHEe");
+  maxHDe_[2] = pset.getParameter<int>("maxHFe");
+  maxHDe_[3] = pset.getParameter<int>("maxHFlowe");
 
-  eGridHD[0] = pset.getParameter<vec1>("eGridHB");
-  eGridHD[1] = pset.getParameter<vec1>("eGridHE");
-  eGridHD[2] = pset.getParameter<vec1>("eGridHF");
-  eGridHD[3] = pset.getParameter<vec1>("loweGridHF");
+  eGridHD_[0] = pset.getParameter<vec1>("eGridHB");
+  eGridHD_[1] = pset.getParameter<vec1>("eGridHE");
+  eGridHD_[2] = pset.getParameter<vec1>("eGridHF");
+  eGridHD_[3] = pset.getParameter<vec1>("loweGridHF");
 
   //region eta indices calculated from eta values
-  etaStep = pset.getParameter<double>("etaStep");
+  etaStep_ = pset.getParameter<double>("etaStep");
   //eta boundaries
-  HDeta[0] = abs((int)(pset.getParameter<double>("HBeta") / etaStep));
-  HDeta[1] = abs((int)(pset.getParameter<double>("HEeta") / etaStep));
-  HDeta[2] = abs((int)(pset.getParameter<double>("HFeta") / etaStep));
-  HDeta[3] = abs((int)(pset.getParameter<double>("maxHDeta") / etaStep));  //add 1 because this is the max index
+  etaHD_[0] = abs((int)(pset.getParameter<double>("HBeta") / etaStep_));
+  etaHD_[1] = abs((int)(pset.getParameter<double>("HEeta") / etaStep_));
+  etaHD_[2] = abs((int)(pset.getParameter<double>("HFeta") / etaStep_));
+  etaHD_[3] = abs((int)(pset.getParameter<double>("maxHDeta") / etaStep_));  //add 1 because this is the max index
   //eta ranges
-  maxHDetas[0] = HDeta[1] - HDeta[0];
-  maxHDetas[1] = HDeta[2] - HDeta[1];
-  maxHDetas[2] = HDeta[3] - HDeta[2];
+  maxEtasHD_[0] = etaHD_[1] - etaHD_[0];
+  maxEtasHD_[1] = etaHD_[2] - etaHD_[1];
+  maxEtasHD_[2] = etaHD_[3] - etaHD_[2];
 
   //parameter info
-  nPar = pset.getParameter<int>("nPar");
-  parNames = pset.getParameter<std::vector<std::string> >("parNames");
+  nPar_ = pset.getParameter<int>("nPar");
+  const auto& parNames = pset.getParameter<std::vector<std::string> >("parNames");
   std::string detNames[] = {"_HB", "_HE", "_HF"};
   std::string mipNames[] = {"_mip", "_nomip", ""};
   std::string fraction = "f";
   //setup parameters (5D vector)
-  parameters = vec5(nPar, vec4(3, vec3(3)));
-  for (int p = 0; p < nPar; p++) {   //loop over parameters
+  parameters_ = vec5(nPar_, vec4(3, vec3(3)));
+  for (int p = 0; p < nPar_; p++) {  //loop over parameters
     for (int m = 0; m < 3; m++) {    //loop over mip, nomip, total
       for (int d = 0; d < 3; d++) {  //loop over dets: HB, HE, HF
         //get from python
@@ -90,15 +90,15 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset) {
         vec1 tmp = pset.getParameter<vec1>(pname);
 
         //resize vector for energy range of det d
-        parameters[p][m][d].resize(maxHDe[d]);
+        parameters_[p][m][d].resize(maxHDe_[d]);
 
-        for (int i = 0; i < maxHDe[d]; i++) {  //loop over energy for det d
+        for (int i = 0; i < maxHDe_[d]; i++) {  //loop over energy for det d
           //resize vector for eta range of det d
-          parameters[p][m][d][i].resize(maxHDetas[d]);
+          parameters_[p][m][d][i].resize(maxEtasHD_[d]);
 
-          for (int j = 0; j < maxHDetas[d]; j++) {  //loop over eta for det d
+          for (int j = 0; j < maxEtasHD_[d]; j++) {  //loop over eta for det d
             //fill in parameters vector from python
-            parameters[p][m][d][i][j] = tmp[i * maxHDetas[d] + j];
+            parameters_[p][m][d][i][j] = tmp[i * maxEtasHD_[d] + j];
           }
         }
       }
@@ -106,89 +106,89 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset) {
   }
   //set up Poisson parameters for low energy Hadrons in HF
   //----------------------------------------------------------------------
-  PoissonParameters = vec3(4);
+  poissonParameters_ = vec3(4);
   std::string PoissonParName[] = {"mean_overall", "shift_overall", "mean_between", "shift_between"};
   for (int d = 0; d < 4; d++) {  //loop over Poisson parameteres
     vec1 tmp1 = pset.getParameter<vec1>(PoissonParName[d]);
-    for (int i = 0; i < maxHDe[3]; i++) {  //loop over energy for low HF energy points
-      PoissonParameters[d].resize(maxHDe[3]);
-      for (int j = 0; j < maxHDetas[2]; j++) {  //loop over HF eta points
-        PoissonParameters[d][i].resize(maxHDetas[2]);
-        PoissonParameters[d][i][j] = tmp1[i * maxHDetas[2] + j];
+    for (int i = 0; i < maxHDe_[3]; i++) {  //loop over energy for low HF energy points
+      poissonParameters_[d].resize(maxHDe_[3]);
+      for (int j = 0; j < maxEtasHD_[2]; j++) {  //loop over HF eta points
+        poissonParameters_[d][i].resize(maxEtasHD_[2]);
+        poissonParameters_[d][i][j] = tmp1[i * maxEtasHD_[2] + j];
       }
     }
   }
 
   //MIP fraction fill in 3d vector
   ////--------------------------------------------------------------------
-  mipfraction = vec3(3);
+  mipfraction_ = vec3(3);
   for (int d = 0; d < 3; d++) {  //loop over dets: HB, HE, HF
     //get from python
     std::string mipname = fraction + mipNames[0] + detNames[d];
     vec1 tmp1 = pset.getParameter<vec1>(mipname);
-    mipfraction[d].resize(maxHDe[d]);
-    for (int i = 0; i < maxHDe[d]; i++) {  //loop over energy for det d
+    mipfraction_[d].resize(maxHDe_[d]);
+    for (int i = 0; i < maxHDe_[d]; i++) {  //loop over energy for det d
       //resize vector for eta range of det d
-      mipfraction[d][i].resize(maxHDetas[d]);
-      for (int j = 0; j < maxHDetas[d]; j++) {  //loop over eta for det d
+      mipfraction_[d][i].resize(maxEtasHD_[d]);
+      for (int j = 0; j < maxEtasHD_[d]; j++) {  //loop over eta for det d
         //fill in parameters vector from python
-        mipfraction[d][i][j] = tmp1[i * maxHDetas[d] + j];
+        mipfraction_[d][i][j] = tmp1[i * maxEtasHD_[d] + j];
       }
     }
   }
 
   // MUON probability histos for bin size = 0.25 GeV (0-10 GeV, 40 bins)
   //--------------------------------------------------------------------
-  muStep = pset.getParameter<double>("muStep");
-  maxMUe = pset.getParameter<int>("maxMUe");
-  maxMUeta = pset.getParameter<int>("maxMUeta");
-  maxMUbin = pset.getParameter<int>("maxMUbin");
-  eGridMU = pset.getParameter<vec1>("eGridMU");
-  etaGridMU = pset.getParameter<vec1>("etaGridMU");
+  muStep_ = pset.getParameter<double>("muStep");
+  maxMUe_ = pset.getParameter<int>("maxMUe");
+  maxMUeta_ = pset.getParameter<int>("maxMUeta");
+  maxMUbin_ = pset.getParameter<int>("maxMUbin");
+  eGridMU_ = pset.getParameter<vec1>("eGridMU");
+  etaGridMU_ = pset.getParameter<vec1>("etaGridMU");
   vec1 _responseMU[2] = {pset.getParameter<vec1>("responseMUBarrel"), pset.getParameter<vec1>("responseMUEndcap")};
 
   //get muon region eta indices from the eta grid
   double _barrelMUeta = pset.getParameter<double>("barrelMUeta");
   double _endcapMUeta = pset.getParameter<double>("endcapMUeta");
-  barrelMUeta = endcapMUeta = maxMUeta;
-  for (int i = 0; i < maxMUeta; i++) {
-    if (fabs(_barrelMUeta) <= etaGridMU[i]) {
-      barrelMUeta = i;
+  barrelMUeta_ = endcapMUeta_ = maxMUeta_;
+  for (int i = 0; i < maxMUeta_; i++) {
+    if (fabs(_barrelMUeta) <= etaGridMU_[i]) {
+      barrelMUeta_ = i;
       break;
     }
   }
-  for (int i = 0; i < maxMUeta; i++) {
-    if (fabs(_endcapMUeta) <= etaGridMU[i]) {
-      endcapMUeta = i;
+  for (int i = 0; i < maxMUeta_; i++) {
+    if (fabs(_endcapMUeta) <= etaGridMU_[i]) {
+      endcapMUeta_ = i;
       break;
     }
   }
-  int maxMUetas[] = {endcapMUeta - barrelMUeta, maxMUeta - endcapMUeta};
+  int maxMUetas[] = {endcapMUeta_ - barrelMUeta_, maxMUeta_ - endcapMUeta_};
 
   //initialize 3D vector
-  responseMU = vec3(maxMUe, vec2(maxMUeta, vec1(maxMUbin, 0)));
+  responseMU_ = vec3(maxMUe_, vec2(maxMUeta_, vec1(maxMUbin_, 0)));
 
   //fill in 3D vector
   //(complementary cumulative distribution functions, from normalized response distributions)
   int loc, eta_loc;
   loc = eta_loc = -1;
-  for (int i = 0; i < maxMUe; i++) {
-    for (int j = 0; j < maxMUeta; j++) {
+  for (int i = 0; i < maxMUe_; i++) {
+    for (int j = 0; j < maxMUeta_; j++) {
       //check location - barrel, endcap, or forward
-      if (j == barrelMUeta) {
+      if (j == barrelMUeta_) {
         loc = 0;
-        eta_loc = barrelMUeta;
-      } else if (j == endcapMUeta) {
+        eta_loc = barrelMUeta_;
+      } else if (j == endcapMUeta_) {
         loc = 1;
-        eta_loc = endcapMUeta;
+        eta_loc = endcapMUeta_;
       }
 
-      for (int k = 0; k < maxMUbin; k++) {
-        responseMU[i][j][k] = _responseMU[loc][i * maxMUetas[loc] * maxMUbin + (j - eta_loc) * maxMUbin + k];
+      for (int k = 0; k < maxMUbin_; k++) {
+        responseMU_[i][j][k] = _responseMU[loc][i * maxMUetas[loc] * maxMUbin_ + (j - eta_loc) * maxMUbin_ + k];
 
-        if (debug) {
+        if (debug_) {
           //cout.width(6);
-          LogInfo("FastCalorimetry") << " responseMU " << i << " " << j << " " << k << " = " << responseMU[i][j][k]
+          LogInfo("FastCalorimetry") << " responseMU " << i << " " << j << " " << k << " = " << responseMU_[i][j][k]
                                      << std::endl;
         }
       }
@@ -197,93 +197,91 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset) {
 
   // values for EM response in HF
   //--------------------------------------------------------------------
-  maxEMe = pset.getParameter<int>("maxEMe");
-  maxEMeta = maxHDetas[2];
-  respFactorEM = pset.getParameter<double>("respFactorEM");
-  eGridEM = pset.getParameter<vec1>("eGridEM");
+  maxEMe_ = pset.getParameter<int>("maxEMe");
+  maxEMeta_ = maxEtasHD_[2];
+  respFactorEM_ = pset.getParameter<double>("respFactorEM");
+  eGridEM_ = pset.getParameter<vec1>("eGridEM");
 
   // e-gamma mean response and sigma in HF
   vec1 _meanEM = pset.getParameter<vec1>("meanEM");
   vec1 _sigmaEM = pset.getParameter<vec1>("sigmaEM");
 
   //fill in 2D vectors (w/ correction factor applied)
-  meanEM = vec2(maxEMe, vec1(maxEMeta, 0));
-  sigmaEM = vec2(maxEMe, vec1(maxEMeta, 0));
-  for (int i = 0; i < maxEMe; i++) {
-    for (int j = 0; j < maxEMeta; j++) {
-      meanEM[i][j] = respFactorEM * _meanEM[i * maxEMeta + j];
-      sigmaEM[i][j] = respFactorEM * _sigmaEM[i * maxEMeta + j];
+  meanEM_ = vec2(maxEMe_, vec1(maxEMeta_, 0));
+  sigmaEM_ = vec2(maxEMe_, vec1(maxEMeta_, 0));
+  for (int i = 0; i < maxEMe_; i++) {
+    for (int j = 0; j < maxEMeta_; j++) {
+      meanEM_[i][j] = respFactorEM_ * _meanEM[i * maxEMeta_ + j];
+      sigmaEM_[i][j] = respFactorEM_ * _sigmaEM[i * maxEMeta_ + j];
     }
   }
 
   // HF correction for SL
   //---------------------
-  maxEta = pset.getParameter<int>("maxEta");
-  maxEne = pset.getParameter<int>("maxEne");
-  energyHF = pset.getParameter<vec1>("energyHF");
+  maxEta_ = pset.getParameter<int>("maxEta");
+  maxEne_ = pset.getParameter<int>("maxEne");
+  energyHF_ = pset.getParameter<vec1>("energyHF");
   vec1 _corrHFgEm = pset.getParameter<vec1>("corrHFgEm");
   vec1 _corrHFgHad = pset.getParameter<vec1>("corrHFgHad");
   vec1 _corrHFhEm = pset.getParameter<vec1>("corrHFhEm");
   vec1 _corrHFhHad = pset.getParameter<vec1>("corrHFhHad");
-  corrHFem = vec1(maxEta, 0);
-  corrHFhad = vec1(maxEta, 0);
 
   // initialize 2D vector corrHFgEm[energy][eta]
-  corrHFgEm = vec2(maxEne, vec1(maxEta, 0));
-  corrHFgHad = vec2(maxEne, vec1(maxEta, 0));
-  corrHFhEm = vec2(maxEne, vec1(maxEta, 0));
-  corrHFhHad = vec2(maxEne, vec1(maxEta, 0));
+  corrHFgEm_ = vec2(maxEne_, vec1(maxEta_, 0));
+  corrHFgHad_ = vec2(maxEne_, vec1(maxEta_, 0));
+  corrHFhEm_ = vec2(maxEne_, vec1(maxEta_, 0));
+  corrHFhHad_ = vec2(maxEne_, vec1(maxEta_, 0));
   // Fill
-  for (int i = 0; i < maxEne; i++) {
-    for (int j = 0; j < maxEta; j++) {
-      corrHFgEm[i][j] = _corrHFgEm[i * maxEta + j];
-      corrHFgHad[i][j] = _corrHFgHad[i * maxEta + j];
-      corrHFhEm[i][j] = _corrHFhEm[i * maxEta + j];
-      corrHFhHad[i][j] = _corrHFhHad[i * maxEta + j];
+  for (int i = 0; i < maxEne_; i++) {
+    for (int j = 0; j < maxEta_; j++) {
+      corrHFgEm_[i][j] = _corrHFgEm[i * maxEta_ + j];
+      corrHFgHad_[i][j] = _corrHFgHad[i * maxEta_ + j];
+      corrHFhEm_[i][j] = _corrHFhEm[i * maxEta_ + j];
+      corrHFhHad_[i][j] = _corrHFhHad[i * maxEta_ + j];
     }
   }
 }
 
-double HCALResponse::getMIPfraction(double energy, double eta) {
-  int ieta = abs((int)(eta / etaStep));
+double HCALResponse::getMIPfraction(double energy, double eta) const {
+  int ieta = abs((int)(eta / etaStep_));
   int ie = -1;
   //check eta and det
   int det = getDet(ieta);
-  int deta = ieta - HDeta[det];
-  if (deta >= maxHDetas[det])
-    deta = maxHDetas[det] - 1;
+  int deta = ieta - etaHD_[det];
+  if (deta >= maxEtasHD_[det])
+    deta = maxEtasHD_[det] - 1;
   else if (deta < 0)
     deta = 0;
   //find energy range
-  for (int i = 0; i < maxHDe[det]; i++) {
-    if (energy < eGridHD[det][i]) {
+  for (int i = 0; i < maxHDe_[det]; i++) {
+    if (energy < eGridHD_[det][i]) {
       if (i == 0)
-        return mipfraction[det][0][deta];  // less than minimal - the first value is used instead of extrapolating
+        return mipfraction_[det][0][deta];  // less than minimal - the first value is used instead of extrapolating
       else
         ie = i - 1;
       break;
     }
   }
   if (ie == -1)
-    return mipfraction[det][maxHDe[det] - 1]
-                      [deta];  // more than maximal - the last value is used instead of extrapolating
+    return mipfraction_[det][maxHDe_[det] - 1]
+                       [deta];  // more than maximal - the last value is used instead of extrapolating
   double y1, y2;
-  double x1 = eGridHD[det][ie];
-  double x2 = eGridHD[det][ie + 1];
-  y1 = mipfraction[det][ie][deta];
-  y2 = mipfraction[det][ie + 1][deta];
+  double x1 = eGridHD_[det][ie];
+  double x2 = eGridHD_[det][ie + 1];
+  y1 = mipfraction_[det][ie][deta];
+  y2 = mipfraction_[det][ie + 1][deta];
   double mean = 0;
   mean = (y1 * (x2 - energy) + y2 * (energy - x1)) / (x2 - x1);
   return mean;
 }
 
 double HCALResponse::responseHCAL(
-    int _mip, double energy, double eta, int partype, RandomEngineAndDistribution const* random) {
-  int ieta = abs((int)(eta / etaStep));
+    int _mip, double energy, double eta, int partype, RandomEngineAndDistribution const* random) const {
+  int ieta = abs((int)(eta / etaStep_));
   int ie = -1;
 
   int mip;
-  if (usemip)
+  if (usemip_)
     mip = _mip;
   else
     mip = 2;  //ignore mip, use only overall (mip + nomip) parameters
@@ -293,16 +291,16 @@ double HCALResponse::responseHCAL(
   // e/gamma in HF
   if (partype == 0) {
     //check eta
-    ieta -= HDeta[2];  // HF starts at ieta=30 till ieta=51
+    ieta -= etaHD_[2];  // HF starts at ieta=30 till ieta=51
     // but resp.vector from index=0 through 20
-    if (ieta >= maxEMeta)
-      ieta = maxEMeta - 1;
+    if (ieta >= maxEMeta_)
+      ieta = maxEMeta_ - 1;
     else if (ieta < 0)
       ieta = 0;
 
     //find energy range
-    for (int i = 0; i < maxEMe; i++) {
-      if (energy < eGridEM[i]) {
+    for (int i = 0; i < maxEMe_; i++) {
+      if (energy < eGridEM_[i]) {
         if (i == 0)
           ie = 0;  // less than minimal - back extrapolation with the 1st interval
         else
@@ -311,7 +309,7 @@ double HCALResponse::responseHCAL(
       }
     }
     if (ie == -1)
-      ie = maxEMe - 2;  // more than maximum - extrapolation with last interval
+      ie = maxEMe_ - 2;  // more than maximum - extrapolation with last interval
 
     //do smearing
     mean = interEM(energy, ie, ieta, random);
@@ -321,15 +319,15 @@ double HCALResponse::responseHCAL(
   else if (partype == 1) {
     //check eta and det
     int det = getDet(ieta);
-    int deta = ieta - HDeta[det];
-    if (deta >= maxHDetas[det])
-      deta = maxHDetas[det] - 1;
+    int deta = ieta - etaHD_[det];
+    if (deta >= maxEtasHD_[det])
+      deta = maxEtasHD_[det] - 1;
     else if (deta < 0)
       deta = 0;
 
     //find energy range
-    for (int i = 0; i < maxHDe[det]; i++) {
-      if (energy < eGridHD[det][i]) {
+    for (int i = 0; i < maxHDe_[det]; i++) {
+      if (energy < eGridHD_[det][i]) {
         if (i == 0)
           ie = 0;  // less than minimal - back extrapolation with the 1st interval
         else
@@ -338,12 +336,12 @@ double HCALResponse::responseHCAL(
       }
     }
     if (ie == -1)
-      ie = maxHDe[det] - 2;  // more than maximum - extrapolation with last interval
+      ie = maxHDe_[det] - 2;  // more than maximum - extrapolation with last interval
 
     //different energy smearing for low energy hadrons in HF
     if (det == 2 && energy < 20 && deta > 5) {
-      for (int i = 0; i < maxHDe[3]; i++) {
-        if (energy < eGridHD[3][i]) {
+      for (int i = 0; i < maxHDe_[3]; i++) {
+        if (energy < eGridHD_[3][i]) {
           if (i == 0)
             ie = 0;  // less than minimal - back extrapolation with the 1st interval
           else
@@ -359,9 +357,9 @@ double HCALResponse::responseHCAL(
   // muons
   else if (partype == 2) {
     //check eta
-    ieta = maxMUeta;
-    for (int i = 0; i < maxMUeta; i++) {
-      if (fabs(eta) < etaGridMU[i]) {
+    ieta = maxMUeta_;
+    for (int i = 0; i < maxMUeta_; i++) {
+      if (fabs(eta) < etaGridMU_[i]) {
         ieta = i;
         break;
       }
@@ -369,10 +367,10 @@ double HCALResponse::responseHCAL(
     if (ieta < 0)
       ieta = 0;
 
-    if (ieta < maxMUeta) {  // HB-HE
+    if (ieta < maxMUeta_) {  // HB-HE
       //find energy range
-      for (int i = 0; i < maxMUe; i++) {
-        if (energy < eGridMU[i]) {
+      for (int i = 0; i < maxMUe_; i++) {
+        if (energy < eGridMU_[i]) {
           if (i == 0)
             ie = 0;  // less than minimal - back extrapolation with the 1st interval
           else
@@ -381,7 +379,7 @@ double HCALResponse::responseHCAL(
         }
       }
       if (ie == -1)
-        ie = maxMUe - 2;  // more than maximum - extrapolation with last interval
+        ie = maxMUe_ - 2;  // more than maximum - extrapolation with last interval
 
       //do smearing
       mean = interMU(energy, ie, ieta, random);
@@ -391,7 +389,7 @@ double HCALResponse::responseHCAL(
   }
 
   // debugging
-  if (debug) {
+  if (debug_) {
     //  cout.width(6);
     LogInfo("FastCalorimetry") << std::endl
                                << " HCALResponse::responseHCAL, partype = " << partype << " E, eta = " << energy << " "
@@ -401,30 +399,30 @@ double HCALResponse::responseHCAL(
   return mean;
 }
 
-double HCALResponse::interMU(double e, int ie, int ieta, RandomEngineAndDistribution const* random) {
+double HCALResponse::interMU(double e, int ie, int ieta, RandomEngineAndDistribution const* random) const {
   double x = random->flatShoot();
 
-  int bin1 = maxMUbin;
-  for (int i = 0; i < maxMUbin; i++) {
-    if (x > responseMU[ie][ieta][i]) {
+  int bin1 = maxMUbin_;
+  for (int i = 0; i < maxMUbin_; i++) {
+    if (x > responseMU_[ie][ieta][i]) {
       bin1 = i - 1;
       break;
     }
   }
-  int bin2 = maxMUbin;
-  for (int i = 0; i < maxMUbin; i++) {
-    if (x > responseMU[ie + 1][ieta][i]) {
+  int bin2 = maxMUbin_;
+  for (int i = 0; i < maxMUbin_; i++) {
+    if (x > responseMU_[ie + 1][ieta][i]) {
       bin2 = i - 1;
       break;
     }
   }
 
-  double x1 = eGridMU[ie];
-  double x2 = eGridMU[ie + 1];
-  double y1 = (bin1 + random->flatShoot()) * muStep;
-  double y2 = (bin2 + random->flatShoot()) * muStep;
+  double x1 = eGridMU_[ie];
+  double x2 = eGridMU_[ie + 1];
+  double y1 = (bin1 + random->flatShoot()) * muStep_;
+  double y2 = (bin2 + random->flatShoot()) * muStep_;
 
-  if (debug) {
+  if (debug_) {
     //  cout.width(6);
     LogInfo("FastCalorimetry") << std::endl
                                << " HCALResponse::interMU  " << std::endl
@@ -435,7 +433,7 @@ double HCALResponse::interMU(double e, int ie, int ieta, RandomEngineAndDistribu
   //linear interpolation
   double mean = (y1 * (x2 - e) + y2 * (e - x1)) / (x2 - x1);
 
-  if (debug) {
+  if (debug_) {
     //cout.width(6);
     LogInfo("FastCalorimetry") << std::endl
                                << " HCALResponse::interMU " << std::endl
@@ -446,22 +444,23 @@ double HCALResponse::interMU(double e, int ie, int ieta, RandomEngineAndDistribu
   return mean;
 }
 
-double HCALResponse::interHD(int mip, double e, int ie, int ieta, int det, RandomEngineAndDistribution const* random) {
+double HCALResponse::interHD(
+    int mip, double e, int ie, int ieta, int det, RandomEngineAndDistribution const* random) const {
   double x1, x2;
   double y1, y2;
   if (det == 2)
     mip = 2;  //ignore mip status for HF
   double mean = 0;
-  vec1 pars(nPar, 0);
+  vec1 pars(nPar_, 0);
 
   // for ieta < 5 there is overlap between HE and HF, and measurement comes from HE
   if (det == 2 && ieta > 5 && e < 20) {
     for (int p = 0; p < 4; p++) {
-      y1 = PoissonParameters[p][ie][ieta];
-      y2 = PoissonParameters[p][ie + 1][ieta];
+      y1 = poissonParameters_[p][ie][ieta];
+      y2 = poissonParameters_[p][ie + 1][ieta];
       if (e > 5) {
-        x1 = eGridHD[det + 1][ie];
-        x2 = eGridHD[det + 1][ie + 1];
+        x1 = eGridHD_[det + 1][ie];
+        x2 = eGridHD_[det + 1][ie + 1];
         pars[p] = (y1 * (x2 - e) + y2 * (e - x1)) / (x2 - x1);
       } else
         pars[p] = y1;
@@ -474,13 +473,13 @@ double HCALResponse::interHD(int mip, double e, int ie, int ieta, int det, Rando
   }
 
   else {
-    x1 = eGridHD[det][ie];
-    x2 = eGridHD[det][ie + 1];
+    x1 = eGridHD_[det][ie];
+    x2 = eGridHD_[det][ie + 1];
 
     //calculate all parameters
-    for (int p = 0; p < nPar; p++) {
-      y1 = parameters[p][mip][det][ie][ieta];
-      y2 = parameters[p][mip][det][ie + 1][ieta];
+    for (int p = 0; p < nPar_; p++) {
+      y1 = parameters_[p][mip][det][ie][ieta];
+      y2 = parameters_[p][mip][det][ie + 1][ieta];
 
       //par-specific checks
       double custom = 0;
@@ -514,21 +513,21 @@ double HCALResponse::interHD(int mip, double e, int ie, int ieta, int det, Rando
     }
 
     //random smearing
-    if (nPar == 6)
+    if (nPar_ == 6)
       mean = cballShootNoNegative(pars[0], pars[1], pars[2], pars[3], pars[4], pars[5], random);
-    else if (nPar == 2)
+    else if (nPar_ == 2)
       mean = gaussShootNoNegative(pars[0], pars[1], random);  //gaussian fallback
   }
   return mean;
 }
 
-double HCALResponse::interEM(double e, int ie, int ieta, RandomEngineAndDistribution const* random) {
-  double y1 = meanEM[ie][ieta];
-  double y2 = meanEM[ie + 1][ieta];
-  double x1 = eGridEM[ie];
-  double x2 = eGridEM[ie + 1];
+double HCALResponse::interEM(double e, int ie, int ieta, RandomEngineAndDistribution const* random) const {
+  double y1 = meanEM_[ie][ieta];
+  double y2 = meanEM_[ie + 1][ieta];
+  double x1 = eGridEM_[ie];
+  double x2 = eGridEM_[ie + 1];
 
-  if (debug) {
+  if (debug_) {
     //  cout.width(6);
     LogInfo("FastCalorimetry") << std::endl
                                << " HCALResponse::interEM mean " << std::endl
@@ -539,10 +538,10 @@ double HCALResponse::interEM(double e, int ie, int ieta, RandomEngineAndDistribu
   //linear interpolation
   double mean = (y1 * (x2 - e) + y2 * (e - x1)) / (x2 - x1);
 
-  y1 = sigmaEM[ie][ieta];
-  y2 = sigmaEM[ie + 1][ieta];
+  y1 = sigmaEM_[ie][ieta];
+  y2 = sigmaEM_[ie + 1][ieta];
 
-  if (debug) {
+  if (debug_) {
     //  cout.width(6);
     LogInfo("FastCalorimetry") << std::endl
                                << " HCALResponse::interEM sigma" << std::endl
@@ -560,12 +559,12 @@ double HCALResponse::interEM(double e, int ie, int ieta, RandomEngineAndDistribu
 }
 
 // Old parameterization of the calo response to hadrons
-double HCALResponse::getHCALEnergyResponse(double e, int hit, RandomEngineAndDistribution const* random) {
+double HCALResponse::getHCALEnergyResponse(double e, int hit, RandomEngineAndDistribution const* random) const {
   //response
-  double s = eResponseScale[hit];
-  double n = eResponseExponent;
-  double p = eResponsePlateau[hit];
-  double c = eResponseCoefficient;
+  double s = eResponseScale_[hit];
+  double n = eResponseExponent_;
+  double p = eResponsePlateau_[hit];
+  double c = eResponseCoefficient_;
 
   double response = e * p / (1 + c * exp(n * log(s / e)));
 
@@ -576,10 +575,10 @@ double HCALResponse::getHCALEnergyResponse(double e, int hit, RandomEngineAndDis
   double resolution;
   if (hit == hcforward)
     resolution =
-        e * sqrt(RespPar[VFCAL][1][0] * RespPar[VFCAL][1][0] / e + RespPar[VFCAL][1][1] * RespPar[VFCAL][1][1]);
+        e * sqrt(respPar_[VFCAL][1][0] * respPar_[VFCAL][1][0] / e + respPar_[VFCAL][1][1] * respPar_[VFCAL][1][1]);
   else
-    resolution =
-        e * sqrt(RespPar[HCAL][hit][0] * RespPar[HCAL][hit][0] / (e) + RespPar[HCAL][hit][1] * RespPar[HCAL][hit][1]);
+    resolution = e * sqrt(respPar_[HCAL][hit][0] * respPar_[HCAL][hit][0] / (e) +
+                          respPar_[HCAL][hit][1] * respPar_[HCAL][hit][1]);
 
   //random smearing
   double rndm = gaussShootNoNegative(response, resolution, random);
@@ -588,10 +587,10 @@ double HCALResponse::getHCALEnergyResponse(double e, int hit, RandomEngineAndDis
 }
 
 //find subdet and eta offset
-int HCALResponse::getDet(int ieta) {
+int HCALResponse::getDet(int ieta) const {
   int d;
   for (d = 0; d < 2; d++) {
-    if (ieta < HDeta[d + 1]) {
+    if (ieta < etaHD_[d + 1]) {
       break;
     }
   }
@@ -599,7 +598,7 @@ int HCALResponse::getDet(int ieta) {
 }
 
 // Remove (most) hits with negative energies
-double HCALResponse::gaussShootNoNegative(double e, double sigma, RandomEngineAndDistribution const* random) {
+double HCALResponse::gaussShootNoNegative(double e, double sigma, RandomEngineAndDistribution const* random) const {
   double out = random->gaussShoot(e, sigma);
   if (e >= 0.) {
     while (out < 0.)
@@ -611,18 +610,23 @@ double HCALResponse::gaussShootNoNegative(double e, double sigma, RandomEngineAn
 }
 
 // Remove (most) hits with negative energies
-double HCALResponse::cballShootNoNegative(
-    double mu, double sigma, double aL, double nL, double aR, double nR, RandomEngineAndDistribution const* random) {
-  double out = cball.shoot(mu, sigma, aL, nL, aR, nR, random);
+double HCALResponse::cballShootNoNegative(double mu,
+                                          double sigma,
+                                          double aL,
+                                          double nL,
+                                          double aR,
+                                          double nR,
+                                          RandomEngineAndDistribution const* random) const {
+  double out = cball_.shoot(mu, sigma, aL, nL, aR, nR, random);
   if (mu >= 0.) {
     while (out < 0.)
-      out = cball.shoot(mu, sigma, aL, nL, aR, nR, random);
+      out = cball_.shoot(mu, sigma, aL, nL, aR, nR, random);
   }
   //else give up on re-trying, otherwise too much time can be lost before emeas comes out positive
 
   return out;
 }
-double HCALResponse::PoissonShootNoNegative(double e, double sigma, RandomEngineAndDistribution const* random) {
+double HCALResponse::PoissonShootNoNegative(double e, double sigma, RandomEngineAndDistribution const* random) const {
   double out = -1;
   while (out < 0.) {
     out = random->poissonShoot(e);
@@ -631,49 +635,53 @@ double HCALResponse::PoissonShootNoNegative(double e, double sigma, RandomEngine
   return out;
 }
 
-void HCALResponse::correctHF(double ee, int type) {
+std::pair<vec1, vec1> HCALResponse::correctHF(double ee, int type) const {
   int jmin = 0;
-  for (int i = 0; i < maxEne; i++) {
-    if (ee >= energyHF[i])
+  for (int i = 0; i < maxEne_; i++) {
+    if (ee >= energyHF_[i])
       jmin = i;
   }
 
   double x1, x2;
   double y1em, y2em;
   double y1had, y2had;
-  for (int i = 0; i < maxEta; ++i) {
-    if (ee < energyHF[0]) {
+  vec1 corrHFem(maxEta_, 0);
+  vec1 corrHFhad(maxEta_, 0);
+  for (int i = 0; i < maxEta_; ++i) {
+    if (ee < energyHF_[0]) {
       if (abs(type) == 11 || abs(type) == 22) {
-        corrHFem[i] = corrHFgEm[0][i];
-        corrHFhad[i] = corrHFgHad[0][i];
+        corrHFem[i] = corrHFgEm_[0][i];
+        corrHFhad[i] = corrHFgHad_[0][i];
       } else {
-        corrHFem[i] = corrHFhEm[0][i];
-        corrHFhad[i] = corrHFhHad[0][i];
+        corrHFem[i] = corrHFhEm_[0][i];
+        corrHFhad[i] = corrHFhHad_[0][i];
       }
-    } else if (jmin >= maxEne - 1) {
+    } else if (jmin >= maxEne_ - 1) {
       if (abs(type) == 11 || abs(type) == 22) {
-        corrHFem[i] = corrHFgEm[maxEta][i];
-        corrHFhad[i] = corrHFgHad[maxEta][i];
+        corrHFem[i] = corrHFgEm_[maxEta_][i];
+        corrHFhad[i] = corrHFgHad_[maxEta_][i];
       } else {
-        corrHFem[i] = corrHFhEm[maxEta][i];
-        corrHFhad[i] = corrHFhHad[maxEta][i];
+        corrHFem[i] = corrHFhEm_[maxEta_][i];
+        corrHFhad[i] = corrHFhHad_[maxEta_][i];
       }
     } else {
-      x1 = energyHF[jmin];
-      x2 = energyHF[jmin + 1];
+      x1 = energyHF_[jmin];
+      x2 = energyHF_[jmin + 1];
       if (abs(type) == 11 || abs(type) == 22) {
-        y1em = corrHFgEm[jmin][i];
-        y2em = corrHFgEm[jmin + 1][i];
-        y1had = corrHFgHad[jmin][i];
-        y2had = corrHFgHad[jmin + 1][i];
+        y1em = corrHFgEm_[jmin][i];
+        y2em = corrHFgEm_[jmin + 1][i];
+        y1had = corrHFgHad_[jmin][i];
+        y2had = corrHFgHad_[jmin + 1][i];
       } else {
-        y1em = corrHFhEm[jmin][i];
-        y2em = corrHFhEm[jmin + 1][i];
-        y1had = corrHFhHad[jmin][i];
-        y2had = corrHFhHad[jmin + 1][i];
+        y1em = corrHFhEm_[jmin][i];
+        y2em = corrHFhEm_[jmin + 1][i];
+        y1had = corrHFhHad_[jmin][i];
+        y2had = corrHFhHad_[jmin + 1][i];
       }
       corrHFem[i] = y1em + (ee - x1) * ((y2em - y1em) / (x2 - x1));
       corrHFhad[i] = y1had + (ee - x1) * ((y2had - y1had) / (x2 - x1));
     }
   }
+
+  return std::make_pair(corrHFem, corrHFhad);
 }

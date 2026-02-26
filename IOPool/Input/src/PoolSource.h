@@ -27,7 +27,7 @@ namespace edm {
   class FileCatalogItem;
   class RootPrimaryFileSequence;
   class RootSecondaryFileSequence;
-  class RunHelperBase;
+  class InputSourceRunHelperBase;
 
   class PoolSource : public InputSource {
   public:
@@ -45,7 +45,7 @@ namespace edm {
     unsigned int nStreams() const { return nStreams_; }
     int treeMaxVirtualSize() const { return treeMaxVirtualSize_; }
     ProductSelectorRules const& productSelectorRules() const { return productSelectorRules_; }
-    RunHelperBase* runHelper() { return runHelper_.get(); }
+    InputSourceRunHelperBase* runHelper() { return runHelper_.get(); }
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
@@ -91,7 +91,7 @@ namespace edm {
     bool labelRawDataLikeMC_;
     bool delayReadingEventProducts_;
 
-    edm::propagate_const<std::unique_ptr<RunHelperBase>> runHelper_;
+    edm::propagate_const<std::unique_ptr<InputSourceRunHelperBase>> runHelper_;
     std::unique_ptr<SharedResourcesAcquirer>
         resourceSharedWithDelayedReaderPtr_;  // We do not use propagate_const because the acquirer is itself mutable.
     std::shared_ptr<std::recursive_mutex> mutexSharedWithDelayedReader_;

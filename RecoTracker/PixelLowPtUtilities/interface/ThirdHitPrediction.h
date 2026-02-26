@@ -18,9 +18,10 @@ typedef Vector2DBase<float, GlobalTag> Global2DVector;
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+
 class DetLayer;
 class OrderedHitPair;
-class TrackingRecHit;
 
 class MagneticField;
 class TransientTrackingRecHitBuilder;

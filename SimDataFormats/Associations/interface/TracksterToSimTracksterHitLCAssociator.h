@@ -6,15 +6,16 @@
 #include <memory>
 
 // user include files
-
 #include "SimDataFormats/Associations/interface/TracksterToSimTracksterHitLCAssociatorBaseImpl.h"
+#include "DataFormats/Common/interface/Uninitialized.h"
 
 namespace ticl {
 
   class TracksterToSimTracksterHitLCAssociator {
   public:
     TracksterToSimTracksterHitLCAssociator(std::unique_ptr<ticl::TracksterToSimTracksterHitLCAssociatorBaseImpl>);
-    TracksterToSimTracksterHitLCAssociator() = default;
+    TracksterToSimTracksterHitLCAssociator() = delete;
+    explicit TracksterToSimTracksterHitLCAssociator(edm::Uninitialized) noexcept {};
     TracksterToSimTracksterHitLCAssociator(TracksterToSimTracksterHitLCAssociator &&) = default;
     TracksterToSimTracksterHitLCAssociator &operator=(TracksterToSimTracksterHitLCAssociator &&) = default;
     TracksterToSimTracksterHitLCAssociator(const TracksterToSimTracksterHitLCAssociator &) = delete;

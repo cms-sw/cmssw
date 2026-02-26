@@ -1,5 +1,5 @@
 #define CATCH_CONFIG_MAIN
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <numbers>
 #include <vector>
 
@@ -12,7 +12,7 @@ using namespace cms::alpakatools;
 using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 
 struct phiFuncsUnitTestsKernel {
-  template <typename TAcc, typename T>
+  template <alpaka::concepts::Acc TAcc, typename T>
   ALPAKA_FN_ACC void operator()(TAcc const& acc, T* out) const {
     // Unit circle typical values
     out[0] = phi<TAcc, T>(acc, 1.0, 0.0);          // x = 1.0, y = 0.0 => phi = 0

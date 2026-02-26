@@ -9,7 +9,7 @@
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
+#include "DataFormats/Common/interface/MultiSpan.h"
 
 #include <Eigen/Core>
 
@@ -77,8 +77,8 @@ namespace ticl {
     inline void setRawEmPt(float value) { raw_em_pt_ = value; }
     inline void calculateRawEmPt() { raw_em_pt_ = raw_em_energy_ / std::cosh(barycenter_.eta()); }
     inline void setBarycenter(Vector value) { barycenter_ = value; }
-    inline void setTrackIdx(int index) { track_idx_ = index; }
-    int trackIdx() const { return track_idx_; }
+    inline void addTrackIdx(int index) { track_idxs_.push_back(index); }
+    int trackIdx(int index = 0) const { return track_idxs_.empty() ? -1 : track_idxs_[index]; }
     inline bool isHadronic(float th = 0.5f) const {
       return id_probability(Trackster::ParticleType::photon) + id_probability(Trackster::ParticleType::electron) < th;
     }
@@ -117,7 +117,7 @@ namespace ticl {
       calculateRawEmPt();
     }
     template <typename T>
-    inline void mergeTracksters(const MultiVectorManager<Trackster> &allTracksters, const std::vector<T> &others) {
+    inline void mergeTracksters(const edm::MultiSpan<Trackster> &allTracksters, const std::vector<T> &others) {
       for (auto &other : others) {
         *this += allTracksters[other];
       }
@@ -198,6 +198,7 @@ namespace ticl {
     inline const std::array<float, 3> &sigmasPCA() const { return sigmasPCA_; }
     inline const std::array<float, 8> &id_probabilities() const { return id_probabilities_; }
     inline const float id_probabilities(int index) const { return id_probabilities_[index]; }
+    inline const std::vector<int> &trackIdxs() const { return track_idxs_; }
 
     // convenience method to return the ID probability for a certain particle type
     inline float id_probability(ParticleType type) const {
@@ -236,7 +237,7 @@ namespace ticl {
     // created the trackster. For track-based seeding the pointer to the track
     // can be cooked using the previous ProductID and this index.
     int seedIndex_;
-    int track_idx_ = -1;
+    std::vector<int> track_idxs_;
 
     std::array<Vector, 3> eigenvectors_;
     std::array<float, 3> eigenvalues_;

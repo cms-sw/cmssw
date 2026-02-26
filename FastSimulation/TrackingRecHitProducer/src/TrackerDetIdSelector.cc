@@ -8,7 +8,7 @@
 #include <boost/spirit/include/qi_grammar.hpp>
 #include <boost/phoenix.hpp>
 
-#define DETIDFCT(NAME) NAME, [](const TrackerTopology& trackerTopology, const DetId& detId) -> int
+#define DETIDFCT(NAME) NAME, [](const TrackerTopology& trackerTopology, const DetId& detId)->int
 
 #define TOPOFCT(NAME) \
   #NAME, [](const TrackerTopology& trackerTopology, const DetId& detId) -> int { return trackerTopology.NAME(detId); }

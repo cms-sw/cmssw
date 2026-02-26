@@ -54,7 +54,11 @@ std::string clangcms::support::getQualifiedName(const clang::NamedDecl &d) {
   LangOpts.CPlusPlus = true;
   PrintingPolicy Policy(LangOpts);
   Policy.FullyQualifiedName = true;
+#if LLVM_VERSION_MAJOR >= 21
+  Policy.PrintAsCanonical = true;
+#else
   Policy.PrintCanonicalTypes = true;
+#endif
   const DeclContext *ctx = d.getDeclContext();
   if (ctx->isFunctionOrMethod() && isa<NamedDecl>(ctx)) {
     // This is a local variable.
@@ -177,14 +181,21 @@ bool clangcms::support::isDataClass(const std::string &name) {
     const std::string tname("/src/Utilities/StaticAnalyzers/scripts/bloom.bin");
     const std::string fname1 = lname + tname;
     const std::string fname2 = rname + tname;
-    if (!(FM.getFile(fname1) || FM.getFile(fname2))) {
+#if LLVM_VERSION_MAJOR >= 21
+    auto FE1 = FM.getFileRef(fname1);
+    auto FE2 = FM.getFileRef(fname2);
+#else
+    auto FE1 = FM.getFile(fname1);
+    auto FE2 = FM.getFile(fname2);
+#endif
+    if (FE1) {
+      iname = fname1;
+    } else if (FE2) {
+      iname = fname2;
+    } else {
       llvm::errs() << "\n\nChecker cannot find bloom filter file" << fname1 << " or " << fname2 << "\n\n\n";
       exit(1);
     }
-    if (FM.getFile(fname1))
-      iname = fname1;
-    else
-      iname = fname2;
   }
 
   CMS_SA_ALLOW static scaling_bloom_t *blmflt = new_scaling_bloom_from_file(CAPACITY, ERROR_RATE, iname.c_str());

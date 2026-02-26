@@ -86,18 +86,10 @@ void TestETLNavigation::analyze(edm::StreamID, edm::Event const&, edm::EventSetu
       for (const auto& imod : isector->basicComponents()) {
         imodInd++;
         ETLDetId modId(imod->geographicalId().rawId());
-        LogVerbatim("MTDLayerDumpFull") << std::fixed << std::setw(5) << imodInd << " ETLDetId " << modId.rawId()
-                                        << " side = " << std::setw(4) << modId.mtdSide()
-                                        << " Disc/Side/Sector = " << std::setw(4) << modId.nDisc() << " "
-                                        << std::setw(4) << modId.discSide() << " " << std::setw(4) << modId.sector()
-                                        << " mod/type = " << std::setw(4) << modId.module() << " " << std::setw(4)
-                                        << modId.modType() << " pos = " << fvecround(imod->position(), 4);
-        LogVerbatim("MTDLayerDump") << std::fixed << std::setw(5) << imodInd << " ETLDetId " << modId.rawId()
-                                    << " side = " << std::setw(4) << modId.mtdSide()
-                                    << " Disc/Side/Sector = " << std::setw(4) << modId.nDisc() << " " << std::setw(4)
-                                    << modId.discSide() << " " << std::setw(4) << modId.sector()
-                                    << " mod/type = " << std::setw(4) << modId.module() << " " << std::setw(4)
-                                    << modId.modType() << " pos = " << fvecround(imod->position(), 2);
+        LogVerbatim("MTDLayerDumpFull") << std::fixed << std::setw(5) << imodInd << printETLDetId(modId.rawId()).str()
+                                        << " pos = " << fvecround(imod->position(), 4);
+        LogVerbatim("MTDLayerDump") << std::fixed << std::setw(5) << imodInd << printETLDetId(modId.rawId()).str()
+                                    << " pos = " << fvecround(imod->position(), 2);
         for (int iside = -1; iside <= 1; iside += 2) {
           size_t idetNew = isector->hshift(modId, iside);
           if (idetNew >= isector->basicComponents().size()) {
@@ -108,17 +100,11 @@ void TestETLNavigation::analyze(edm::StreamID, edm::Event const&, edm::EventSetu
           } else {
             ETLDetId newId(isector->basicComponents()[idetNew]->geographicalId().rawId());
             LogVerbatim("MTDLayerDumpFull")
-                << std::fixed << "...............hshift= " << std::setw(2) << iside << " ETLDetId " << newId.rawId()
-                << " side = " << std::setw(4) << newId.mtdSide() << " Disc/Side/Sector = " << std::setw(4)
-                << newId.nDisc() << " " << std::setw(4) << newId.discSide() << " " << std::setw(4) << newId.sector()
-                << " mod/type = " << std::setw(4) << newId.module() << " " << std::setw(4) << newId.modType()
+                << std::fixed << "...............hshift= " << std::setw(2) << iside
+                << printETLDetId(newId.rawId()).str()
                 << " pos = " << fvecround(isector->basicComponents()[idetNew]->position(), 4);
             LogVerbatim("MTDLayerDump") << std::fixed << "...............hshift= " << std::setw(2) << iside
-                                        << " side = " << std::setw(4) << newId.mtdSide()
-                                        << " Disc/Side/Sector = " << std::setw(4) << newId.nDisc() << " "
-                                        << std::setw(4) << newId.discSide() << " " << std::setw(4) << newId.sector()
-                                        << " mod/type = " << std::setw(4) << newId.module() << " " << std::setw(4)
-                                        << newId.modType()
+                                        << printETLDetId(newId.rawId()).str()
                                         << " pos = " << fvecround(isector->basicComponents()[idetNew]->position(), 2);
           }
         }
@@ -133,32 +119,21 @@ void TestETLNavigation::analyze(edm::StreamID, edm::Event const&, edm::EventSetu
             if (closest < isector->basicComponents().size()) {
               ETLDetId newId(isector->basicComponents()[closest]->geographicalId().rawId());
               LogVerbatim("MTDLayerDumpFull")
-                  << std::fixed << ".......closest.vshift= " << std::setw(2) << iside << " ETLDetId " << newId.rawId()
-                  << " side = " << std::setw(4) << newId.mtdSide() << " Disc/Side/Sector = " << std::setw(4)
-                  << newId.nDisc() << " " << std::setw(4) << newId.discSide() << " " << std::setw(4) << newId.sector()
-                  << " mod/type = " << std::setw(4) << newId.module() << " " << std::setw(4) << newId.modType()
+                  << std::fixed << ".......closest.vshift= " << std::setw(2) << iside
+                  << printETLDetId(newId.rawId()).str()
                   << " pos = " << fvecround(isector->basicComponents()[closest]->position(), 4);
-              LogVerbatim("MTDLayerDump")
-                  << std::fixed << ".......closest.vshift= " << std::setw(2) << iside << " side = " << std::setw(4)
-                  << newId.mtdSide() << " Disc/Side/Sector = " << std::setw(4) << newId.nDisc() << " " << std::setw(4)
-                  << newId.discSide() << " " << std::setw(4) << newId.sector() << " mod/type = " << std::setw(4)
-                  << newId.module() << " " << std::setw(4) << newId.modType()
-                  << " pos = " << fvecround(isector->basicComponents()[closest]->position(), 2);
+              LogVerbatim("MTDLayerDump") << std::fixed << ".......closest.vshift= " << std::setw(2) << iside
+                                          << printETLDetId(newId.rawId()).str()
+                                          << " pos = " << fvecround(isector->basicComponents()[closest]->position(), 2);
             }
           } else {
             ETLDetId newId(isector->basicComponents()[idetNew]->geographicalId().rawId());
             LogVerbatim("MTDLayerDumpFull")
-                << std::fixed << "...............vshift= " << std::setw(2) << iside << " ETLDetId " << newId.rawId()
-                << " side = " << std::setw(4) << newId.mtdSide() << " Disc/Side/Sector = " << std::setw(4)
-                << newId.nDisc() << " " << std::setw(4) << newId.discSide() << " " << std::setw(4) << newId.sector()
-                << " mod/type = " << std::setw(4) << newId.module() << " " << std::setw(4) << newId.modType()
+                << std::fixed << "...............vshift= " << std::setw(2) << iside
+                << printETLDetId(newId.rawId()).str()
                 << " pos = " << fvecround(isector->basicComponents()[idetNew]->position(), 4);
             LogVerbatim("MTDLayerDump") << std::fixed << "...............vshift= " << std::setw(2) << iside
-                                        << " side = " << std::setw(4) << newId.mtdSide()
-                                        << " Disc/Side/Sector = " << std::setw(4) << newId.nDisc() << " "
-                                        << std::setw(4) << newId.discSide() << " " << std::setw(4) << newId.sector()
-                                        << " mod/type = " << std::setw(4) << newId.module() << " " << std::setw(4)
-                                        << newId.modType()
+                                        << printETLDetId(newId.rawId()).str()
                                         << " pos = " << fvecround(isector->basicComponents()[idetNew]->position(), 2);
           }
         }

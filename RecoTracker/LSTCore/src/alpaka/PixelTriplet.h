@@ -15,7 +15,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runTripletDefaultAlgoPPBB(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 ObjectRangesConst ranges,
@@ -32,7 +32,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                                 unsigned int thirdMDIndex,
                                                                 unsigned int fourthMDIndex,
                                                                 const float ptCut);
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runTripletDefaultAlgoPPEE(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 ObjectRangesConst ranges,
@@ -74,9 +74,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     pixelTriplets.pixelSegmentIndices()[pixelTripletIndex] = pixelSegmentIndex;
     pixelTriplets.tripletIndices()[pixelTripletIndex] = tripletIndex;
     pixelTriplets.pixelRadius()[pixelTripletIndex] = __F2H(pixelRadius);
-    pixelTriplets.pixelRadiusError()[pixelTripletIndex] = __F2H(pixelRadiusError);
     pixelTriplets.tripletRadius()[pixelTripletIndex] = __F2H(tripletRadius);
+#ifdef CUT_VALUE_DEBUG
+    pixelTriplets.pixelRadiusError()[pixelTripletIndex] = __F2H(pixelRadiusError);
     pixelTriplets.pt()[pixelTripletIndex] = __F2H(pt);
+#endif
     pixelTriplets.eta()[pixelTripletIndex] = __F2H(eta);
     pixelTriplets.phi()[pixelTripletIndex] = __F2H(phi);
     pixelTriplets.eta_pix()[pixelTripletIndex] = __F2H(eta_pix);
@@ -112,12 +114,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     pixelTriplets.hitIndices()[pixelTripletIndex][7] = triplets.hitIndices()[tripletIndex][3];
     pixelTriplets.hitIndices()[pixelTripletIndex][8] = triplets.hitIndices()[tripletIndex][4];
     pixelTriplets.hitIndices()[pixelTripletIndex][9] = triplets.hitIndices()[tripletIndex][5];
+#ifdef CUT_VALUE_DEBUG
     pixelTriplets.rPhiChiSquared()[pixelTripletIndex] = rPhiChiSquared;
     pixelTriplets.rPhiChiSquaredInwards()[pixelTripletIndex] = rPhiChiSquaredInwards;
     pixelTriplets.rzChiSquared()[pixelTripletIndex] = rzChiSquared;
+#endif
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runPixelTrackletDefaultAlgopT3(TAcc const& acc,
                                                                      ModulesConst modules,
                                                                      ObjectRangesConst ranges,
@@ -230,7 +234,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   //TODO: merge this one and the pT5 function later into a single function
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float computePT3RPhiChiSquared(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 uint16_t* lowerModuleIndices,
@@ -312,107 +316,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return chiSquared;
   }
 
-  //90pc threshold
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passPT3RPhiChiSquaredCuts(ModulesConst modules,
-                                                                uint16_t lowerModuleIndex1,
-                                                                uint16_t lowerModuleIndex2,
-                                                                uint16_t lowerModuleIndex3,
-                                                                float chiSquared) {
-    const int layer1 =
-        modules.layers()[lowerModuleIndex1] + 6 * (modules.subdets()[lowerModuleIndex1] == Endcap) +
-        5 * (modules.subdets()[lowerModuleIndex1] == Endcap and modules.moduleType()[lowerModuleIndex1] == TwoS);
-    const int layer2 =
-        modules.layers()[lowerModuleIndex2] + 6 * (modules.subdets()[lowerModuleIndex2] == Endcap) +
-        5 * (modules.subdets()[lowerModuleIndex2] == Endcap and modules.moduleType()[lowerModuleIndex2] == TwoS);
-    const int layer3 =
-        modules.layers()[lowerModuleIndex3] + 6 * (modules.subdets()[lowerModuleIndex3] == Endcap) +
-        5 * (modules.subdets()[lowerModuleIndex3] == Endcap and modules.moduleType()[lowerModuleIndex3] == TwoS);
-
-    if (layer1 == 8 and layer2 == 9 and layer3 == 10) {
-      return chiSquared < 7.003f;
-    } else if (layer1 == 8 and layer2 == 9 and layer3 == 15) {
-      return chiSquared < 0.5f;
-    } else if (layer1 == 7 and layer2 == 8 and layer3 == 9) {
-      return chiSquared < 8.046f;
-    } else if (layer1 == 7 and layer2 == 8 and layer3 == 14) {
-      return chiSquared < 0.575f;
-    } else if (layer1 == 1 and layer2 == 2 and layer3 == 7) {
-      return chiSquared < 5.304f;
-    } else if (layer1 == 1 and layer2 == 2 and layer3 == 3) {
-      return chiSquared < 10.6211f;
-    } else if (layer1 == 1 and layer2 == 7 and layer3 == 8) {
-      return chiSquared < 4.617f;
-    } else if (layer1 == 2 and layer2 == 7 and layer3 == 8) {
-      return chiSquared < 8.046f;
-    } else if (layer1 == 2 and layer2 == 7 and layer3 == 13) {
-      return chiSquared < 0.435f;
-    } else if (layer1 == 2 and layer2 == 3 and layer3 == 7) {
-      return chiSquared < 9.244f;
-    } else if (layer1 == 2 and layer2 == 3 and layer3 == 12) {
-      return chiSquared < 0.287f;
-    } else if (layer1 == 2 and layer2 == 3 and layer3 == 4) {
-      return chiSquared < 18.509f;
-    }
-
-    return true;
-  }
-
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passPT3RPhiChiSquaredInwardsCuts(ModulesConst modules,
-                                                                       uint16_t lowerModuleIndex1,
-                                                                       uint16_t lowerModuleIndex2,
-                                                                       uint16_t lowerModuleIndex3,
-                                                                       float chiSquared) {
-    const int layer1 =
-        modules.layers()[lowerModuleIndex1] + 6 * (modules.subdets()[lowerModuleIndex1] == Endcap) +
-        5 * (modules.subdets()[lowerModuleIndex1] == Endcap and modules.moduleType()[lowerModuleIndex1] == TwoS);
-    const int layer2 =
-        modules.layers()[lowerModuleIndex2] + 6 * (modules.subdets()[lowerModuleIndex2] == Endcap) +
-        5 * (modules.subdets()[lowerModuleIndex2] == Endcap and modules.moduleType()[lowerModuleIndex2] == TwoS);
-    const int layer3 =
-        modules.layers()[lowerModuleIndex3] + 6 * (modules.subdets()[lowerModuleIndex3] == Endcap) +
-        5 * (modules.subdets()[lowerModuleIndex3] == Endcap and modules.moduleType()[lowerModuleIndex3] == TwoS);
-
-    if (layer1 == 7 and layer2 == 8 and layer3 == 9)  // endcap layer 1,2,3, ps
-    {
-      return chiSquared < 22016.8055f;
-    } else if (layer1 == 7 and layer2 == 8 and layer3 == 14)  // endcap layer 1,2,3 layer3->2s
-    {
-      return chiSquared < 935179.56807f;
-    } else if (layer1 == 8 and layer2 == 9 and layer3 == 10)  // endcap layer 2,3,4
-    {
-      return chiSquared < 29064.12959f;
-    } else if (layer1 == 8 and layer2 == 9 and layer3 == 15)  // endcap layer 2,3,4, layer3->2s
-    {
-      return chiSquared < 935179.5681f;
-    } else if (layer1 == 1 and layer2 == 2 and layer3 == 3)  // barrel 1,2,3
-    {
-      return chiSquared < 1370.0113195101474f;
-    } else if (layer1 == 1 and layer2 == 2 and layer3 == 7)  // barrel 1,2 endcap 1
-    {
-      return chiSquared < 5492.110048314815f;
-    } else if (layer1 == 2 and layer2 == 3 and layer3 == 4)  // barrel 2,3,4
-    {
-      return chiSquared < 4160.410806470067f;
-    } else if (layer1 == 1 and layer2 == 7 and layer3 == 8)  // barrel 1, endcap 1,2
-    {
-      return chiSquared < 29064.129591225726f;
-    } else if (layer1 == 2 and layer2 == 3 and layer3 == 7)  // barrel 2,3 endcap 1
-    {
-      return chiSquared < 12634.215376250893f;
-    } else if (layer1 == 2 and layer2 == 3 and layer3 == 12)  // barrel 2,3, endcap 1->2s
-    {
-      return chiSquared < 353821.69361145404f;
-    } else if (layer1 == 2 and layer2 == 7 and layer3 == 8)  // barrel2, endcap 1,2
-    {
-      return chiSquared < 33393.26076341235f;
-    } else if (layer1 == 2 and layer2 == 7 and layer3 == 13)  //barrel 2, endcap 1, endcap2->2s
-    {
-      return chiSquared < 935179.5680742573f;
-    }
-
-    return true;
-  }
-
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool checkIntervalOverlappT3(float firstMin,
                                                               float firstMax,
                                                               float secondMin,
@@ -421,7 +324,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   /*bounds for high Pt taken from : http://uaf-10.t2.ucsd.edu/~bsathian/SDL/T5_efficiency/efficiencies/new_efficiencies/efficiencies_20210513_T5_recovering_high_Pt_efficiencies/highE_radius_matching/highE_bounds.txt */
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passRadiusCriterionBBB(TAcc const& acc,
                                                              float pixelRadius,
                                                              float pixelRadiusError,
@@ -445,7 +348,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return checkIntervalOverlappT3(tripletRadiusInvMin, tripletRadiusInvMax, pixelRadiusInvMin, pixelRadiusInvMax);
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passRadiusCriterionBBE(TAcc const& acc,
                                                              float pixelRadius,
                                                              float pixelRadiusError,
@@ -469,7 +372,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return checkIntervalOverlappT3(tripletRadiusInvMin, tripletRadiusInvMax, pixelRadiusInvMin, pixelRadiusInvMax);
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passRadiusCriterionBEE(TAcc const& acc,
                                                              float pixelRadius,
                                                              float pixelRadiusError,
@@ -495,7 +398,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return checkIntervalOverlappT3(tripletRadiusInvMin, tripletRadiusInvMax, pixelRadiusInvMin, pixelRadiusInvMax);
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passRadiusCriterionEEE(TAcc const& acc,
                                                              float pixelRadius,
                                                              float pixelRadiusError,
@@ -521,7 +424,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return checkIntervalOverlappT3(tripletRadiusInvMin, tripletRadiusInvMax, pixelRadiusInvMin, pixelRadiusInvMax);
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passRadiusCriterion(TAcc const& acc,
                                                           ModulesConst modules,
                                                           float pixelRadius,
@@ -541,7 +444,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float computePT3RZChiSquared(TAcc const& acc,
                                                               ModulesConst modules,
                                                               const uint16_t* lowerModuleIndices,
@@ -630,7 +533,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return RMSE;
   }
 
-  template <typename TAcc>
+  template <typename WP = dnn::pt3dnn::pT3WP, alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runPixelTripletDefaultAlgo(TAcc const& acc,
                                                                  ModulesConst modules,
                                                                  ObjectRangesConst ranges,
@@ -771,30 +674,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
       rPhiChiSquared =
           computePT3RPhiChiSquared(acc, modules, lowerModuleIndices, pixelG, pixelF, pixelRadiusPCA, xs, ys);
-      if (runChiSquaredCuts && pixelSegmentPt < 5.0f) {
-        if (!passPT3RPhiChiSquaredCuts(modules, lowerModuleIndex, middleModuleIndex, upperModuleIndex, rPhiChiSquared))
-          return false;
-      }
 
       rPhiChiSquaredInwards = computePT3RPhiChiSquaredInwards(g, f, tripletRadius, xPix, yPix);
-      if (runChiSquaredCuts && pixelSegmentPt < 5.0f) {
-        if (!passPT3RPhiChiSquaredInwardsCuts(
-                modules, lowerModuleIndex, middleModuleIndex, upperModuleIndex, rPhiChiSquaredInwards))
-          return false;
-      }
     }
 
     centerX = 0;
     centerY = 0;
 
-    if (runDNN and !lst::pt3dnn::runInference(acc,
-                                              rPhiChiSquared,
-                                              tripletRadius,
-                                              pixelRadius,
-                                              pixelRadiusError,
-                                              rzChiSquared,
-                                              pixelSeeds.eta()[pixelSegmentArrayIndex],
-                                              pixelSegmentPt)) {
+    // Module type of last anchor hit for the T3.
+    const int module_type_3 = modules.moduleType()[upperModuleIndex];
+
+    if (runDNN and !lst::pt3dnn::runInference<WP>(acc,
+                                                  rPhiChiSquared,
+                                                  tripletRadius,
+                                                  pixelRadius,
+                                                  pixelRadiusError,
+                                                  rzChiSquared,
+                                                  pixelSeeds.eta()[pixelSegmentArrayIndex],
+                                                  pixelSegmentPt,
+                                                  module_type_3)) {
       return false;
     }
 
@@ -942,7 +840,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   };
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runTripletDefaultAlgoPPBB(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 ObjectRangesConst ranges,
@@ -1201,7 +1099,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return dBeta * dBeta <= dBetaCut2;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runTripletDefaultAlgoPPEE(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 ObjectRangesConst ranges,

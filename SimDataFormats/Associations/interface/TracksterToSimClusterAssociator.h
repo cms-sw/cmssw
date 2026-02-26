@@ -6,8 +6,8 @@
 #include <memory>
 
 // user include files
-
 #include "SimDataFormats/Associations/interface/TracksterToSimClusterAssociatorBaseImpl.h"
+#include "DataFormats/Common/interface/Uninitialized.h"
 
 // forward declarations
 
@@ -16,7 +16,8 @@ namespace ticl {
   class TracksterToSimClusterAssociator {
   public:
     TracksterToSimClusterAssociator(std::unique_ptr<ticl::TracksterToSimClusterAssociatorBaseImpl>);
-    TracksterToSimClusterAssociator() = default;
+    TracksterToSimClusterAssociator() = delete;
+    explicit TracksterToSimClusterAssociator(edm::Uninitialized) noexcept {};
     TracksterToSimClusterAssociator(TracksterToSimClusterAssociator &&) = default;
     TracksterToSimClusterAssociator &operator=(TracksterToSimClusterAssociator &&) = default;
     TracksterToSimClusterAssociator(const TracksterToSimClusterAssociator &) = delete;                   // stop default

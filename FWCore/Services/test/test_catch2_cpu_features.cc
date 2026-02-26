@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "cpu_features/cpu_features_macros.h"
 
@@ -12,6 +12,8 @@
 #include "cpu_features/cpuinfo_aarch64.h"
 #elif defined(CPU_FEATURES_ARCH_PPC)
 #include "cpu_features/cpuinfo_ppc.h"
+#elif defined(CPU_FEATURES_ARCH_RISCV)
+#include "cpu_features/cpuinfo_riscv.h"
 #endif
 
 TEST_CASE("Test cpu_features library", "[cpu_features]") {

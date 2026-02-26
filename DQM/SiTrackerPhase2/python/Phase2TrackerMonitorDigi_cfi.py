@@ -5,7 +5,7 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
                         Verbosity = cms.bool(False),
                         TopFolderName = cms.string("Ph2TkDigi"),
                         PixelPlotFillingFlag = cms.bool(False),
-                        StandAloneClusteriserFlag = cms.bool(False),                    
+                        StandAloneClusteriserFlag = cms.bool(False),
                         InnerPixelDigiSource   = cms.InputTag("simSiPixelDigis","Pixel"),
                         OuterTrackerDigiSource = cms.InputTag("mix", "Tracker"),
                         GeometryType = cms.string('idealForDigi'),
@@ -36,10 +36,19 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
                             ymax   = cms.double(1350.5),
                             switch = cms.bool(True)
                         ),
-                        PositionOfDigisSH = cms.PSet(
+                        PositionOfDigisSH2S = cms.PSet(
                             Nxbins = cms.int32(1016),
                             xmin   = cms.double(0.5),
                             xmax   = cms.double(1016.5),
+                            Nybins = cms.int32(2),
+                            ymin   = cms.double(0.5),
+                            ymax   = cms.double(2.5),
+                            switch = cms.bool(True)
+                        ),
+                        PositionOfDigisSHPS = cms.PSet(
+                            Nxbins = cms.int32(960),
+                            xmin   = cms.double(0.5),
+                            xmax   = cms.double(960.5),
                             Nybins = cms.int32(2),
                             ymin   = cms.double(0.5),
                             ymax   = cms.double(2.5),
@@ -65,7 +74,7 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
                             xmin   = cms.double(-0.5),
                             xmax   = cms.double(15.5),
                             switch = cms.bool(True)
-                        ), 
+                        ),
                         TotalNumberOfDigisPerLayerH = cms.PSet(
                             Nbins = cms.int32(5000),
                             xmin   = cms.double(0.0),
@@ -95,11 +104,20 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
                             xmin   = cms.double(0.5),
                             xmax   = cms.double(1024.5),
                             switch = cms.bool(True)
-                        ),  
-                        ClusterPositionSH = cms.PSet(
+                        ),
+                        ClusterPositionSH2S = cms.PSet(
                             Nxbins = cms.int32(1016),
                             xmin   = cms.double(0.5),
                             xmax   = cms.double(1016.5),
+                            Nybins = cms.int32(2),
+                            ymin   = cms.double(0.5),
+                            ymax   = cms.double(2.5),
+                            switch = cms.bool(True)
+                        ),
+                        ClusterPositionSHPS = cms.PSet(
+                            Nxbins = cms.int32(960),
+                            xmin   = cms.double(0.5),
+                            xmax   = cms.double(960.5),
                             Nybins = cms.int32(2),
                             ymin   = cms.double(0.5),
                             ymax   = cms.double(2.5),
@@ -116,21 +134,30 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
                         ),
                         XYPositionMapH = cms.PSet(
                             Nxbins = cms.int32(1250),
-                            xmin   = cms.double(-1250.),
-                            xmax   = cms.double(1250.),
+                            xmin   = cms.double(-125.),
+                            xmax   = cms.double(125.),
                             Nybins = cms.int32(1250),
-                            ymin   = cms.double(-1250.),
-                            ymax   = cms.double(1250.),
+                            ymin   = cms.double(-125.),
+                            ymax   = cms.double(125.),
                             switch = cms.bool(True)
                         ),
                         RZPositionMapH = cms.PSet(
                             Nxbins = cms.int32(3000),
-                            xmin   = cms.double(-3000.),
-                            xmax   = cms.double(3000.),
+                            xmin   = cms.double(-300.),
+                            xmax   = cms.double(300.),
                             Nybins = cms.int32(1250),
                             ymin   = cms.double(0.),
-                            ymax   = cms.double(1250.),
+                            ymax   = cms.double(125.),
                             switch = cms.bool(True)
+                        ),
+                        CrackOverview = cms.PSet(
+                            name = cms.string('Crack_Overview_digis'),
+                            title = cms.string('Crack_Overview_digis;Module;Layer'),
+                            xmin   = cms.double(0),
+                            xmax   = cms.double(13.5),
+                            ymin   = cms.double(0),
+                            ymax   = cms.double(7.5),
+                            switch = cms.bool(False)
                         )
                     )
 
@@ -139,3 +166,4 @@ premix_stage2.toModify(digiMon,
                        InnerPixelDigiSource = "mixData:Pixel",
                        OuterTrackerDigiSource="mixData:Tracker"
                                                                  )
+

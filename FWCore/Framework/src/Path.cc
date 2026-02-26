@@ -213,7 +213,7 @@ namespace edm {
     printedException_ = false;
     if (actReg_) {
       ServiceRegistry::Operate guard(iToken);
-      actReg_->prePathEventSignal_(*iStreamContext, pathContext_);
+      actReg_->prePathEventSignal_.emit(*iStreamContext, pathContext_);
     }
     //If the Path succeeds, these are the values we have at the end
     state_ = hlt::Pass;
@@ -312,13 +312,13 @@ namespace edm {
       }
       if (pathStatusInserterWorker_) {
         std::exception_ptr jException =
-            pathStatusInserterWorker_->runModuleDirectly<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
+            pathStatusInserterWorker_->runModuleDirectly<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
                 iInfo, streamID, ParentContext(iContext), iContext);
         if (jException && not iException) {
           iException = jException;
         }
       }
-      actReg_->postPathEventSignal_(*iContext, pathContext_, status);
+      actReg_->postPathEventSignal_.emit(*iContext, pathContext_, status);
     } catch (...) {
       if (not iException) {
         iException = std::current_exception();
@@ -345,7 +345,7 @@ namespace edm {
                                             std::exception_ptr const* iException) {
         this->workerFinished(iException, lastModuleIndex, info, weakToken.lock(), iID, iContext, iGroup);
       });
-      workers_[lastModuleIndex].runWorkerAsync<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(
+      workers_[lastModuleIndex].runWorkerAsync<OccurrenceTraits<EventPrincipal, TransitionActionStreamBegin>>(
           WaitingTaskHolder(iGroup, nextTask), iInfo, iToken, iID, iContext);
     }
   }

@@ -8,7 +8,7 @@
 
 #include <fmt/core.h>
 
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include "FWCore/AbstractServices/interface/ResourceInformation.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"

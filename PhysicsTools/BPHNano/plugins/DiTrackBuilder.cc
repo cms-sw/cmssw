@@ -158,9 +158,6 @@ void DiTrackBuilder::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
       ditrack_cand.addUserFloat("fitted_mass_piK", fitter_piK.fitted_candidate().mass());
       ditrack_cand.addUserFloat("fitted_mass_piK_Err",
                                 sqrt(fitter_piK.fitted_candidate().kinematicParametersError().matrix()(6, 6)));
-      ditrack_cand.addUserFloat("fitted_mass_piK", fitter_piK.fitted_candidate().mass());
-      ditrack_cand.addUserFloat("fitted_mass_piK_Err",
-                                sqrt(fitter_piK.fitted_candidate().kinematicParametersError().matrix()(6, 6)));
 
       ditrack_cand.setVertex(
           reco::Candidate::Point(fitter.fitted_vtx().x(), fitter.fitted_vtx().y(), fitter.fitted_vtx().z()));

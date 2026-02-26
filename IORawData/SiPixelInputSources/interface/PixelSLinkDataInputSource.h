@@ -30,9 +30,9 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
-#include "Utilities/StorageFactory/interface/Storage.h"
-#include "Utilities/StorageFactory/interface/StorageAccount.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "FWStorage/StorageFactory/interface/Storage.h"
+#include "FWStorage/StorageFactory/interface/StorageAccount.h"
+#include "FWStorage/StorageFactory/interface/StorageFactory.h"
 
 class FEDRawDataCollection;
 

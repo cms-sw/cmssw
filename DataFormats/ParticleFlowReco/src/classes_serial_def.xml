@@ -1,29 +1,29 @@
 <lcgdict>
+  <class name="reco::CaloRecHitHostCollection" rntupleStreamerMode="true"/>
+  <!-- reco::CaloRecHitHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="reco::CaloRecHitHostCollection::Layout"/>
   <class name="reco::CaloRecHitSoA"/>
   <class name="reco::CaloRecHitSoA::View"/>
-  <class name="reco::CaloRecHitHostCollection" ClassVersion="3">
-    <version ClassVersion="3" checksum="1876594952"/>
-  </class>
   <class name="edm::Wrapper<reco::CaloRecHitHostCollection>" splitLevel="0"/>
 
+  <class name="reco::PFRecHitHostCollection" rntupleStreamerMode="true"/>
+  <!-- reco::PFRecHitHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="reco::PFRecHitHostCollection::Layout"/>
   <class name="reco::PFRecHitSoA"/>
   <class name="reco::PFRecHitSoA::View"/>
-  <class name="reco::PFRecHitHostCollection" ClassVersion="3">
-    <version ClassVersion="3" checksum="1936051484"/>
-  </class>
   <class name="edm::Wrapper<reco::PFRecHitHostCollection>" splitLevel="0"/>
 
+  <class name="reco::PFClusterHostCollection" rntupleStreamerMode="true"/>
+  <!-- reco::PFClusterHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="reco::PFClusterHostCollection::Layout"/>
   <class name="reco::PFClusterSoA"/>
   <class name="reco::PFClusterSoA::View"/>
-  <class name="reco::PFClusterHostCollection" ClassVersion="3">
-    <version ClassVersion="3" checksum="1232566394"/>
-  </class>
   <class name="edm::Wrapper<reco::PFClusterHostCollection>" splitLevel="0"/>
 
+  <class name="reco::PFRecHitFractionHostCollection" rntupleStreamerMode="true"/>
+  <!-- reco::PFRecHitFractionHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="reco::PFRecHitFractionHostCollection::Layout"/>
   <class name="reco::PFRecHitFractionSoA"/>
   <class name="reco::PFRecHitFractionSoA::View"/>
-  <class name="reco::PFRecHitFractionHostCollection" ClassVersion="3">
-    <version ClassVersion="3" checksum="2181211668"/>
-  </class>
   <class name="edm::Wrapper<reco::PFRecHitFractionHostCollection>" splitLevel="0"/>
 </lcgdict>

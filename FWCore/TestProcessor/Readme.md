@@ -167,7 +167,7 @@ int main() {
 ```cpp
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 ...
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 TEST_CASE("FooProd tests", "[FooProd]") {
   //The python configuration

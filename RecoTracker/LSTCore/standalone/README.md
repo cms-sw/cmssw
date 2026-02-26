@@ -154,25 +154,19 @@ Follow the instructions in the ["Setting up LST within CMSSW" section](#setting-
 
 ## Run the LST reconstruction in CMSSW (read to the end, before running)
 
-Two complete workflows have been implemented within CMSSW to run a two-iteration, tracking-only reconstruction with LST:
- - 24834.703 (CPU)
- - 24834.704 (GPU)
+A two-iteration, tracking-only offline workflow with PU, running LST (on GPU if available, otherwise on CPU), 34634.712, has been implemented within CMSSW. More LST workflows can be found in https://github.com/cms-sw/cmssw/tree/master/Configuration/PyReleaseValidation.
 
-We will use the second one in the example below. To get the commands of this workflow, one can run:
+To get the commands for the workflow mentioned above, one can run:
 
-    runTheMatrix.py -w upgrade -n -e -l 24834.704
-
-For convenience, the workflow has been run for 100 events and the output is stored here:
-
-    /data2/segmentlinking/step2_29834.1_100Events.root
+    runTheMatrix.py -w upgrade -n -e -l 34634.712
 
 The input files in each step may need to be properly adjusted to match the ones produced by the previous step/provided externally, hence it is better to run the commands with the `--no_exec` option included.
 
 Running the configuration file with `cmsRun`, the output file will have a name starting with `DQM`. The name is the same every time this step runs,
-so it is good practice to rename the file, e.g. to `step4_24834.704.root`.
+so it is good practice to rename the file, e.g. to `step4_34634.712.root`.
 The MTV plots can be produced with the command:
 
-    makeTrackValidationPlots.py --extended step4_24834.704.root
+    makeTrackValidationPlots.py --extended step4_34634.712.root
 
 Comparison plots can be made by including multiple ROOT files as arguments.
 

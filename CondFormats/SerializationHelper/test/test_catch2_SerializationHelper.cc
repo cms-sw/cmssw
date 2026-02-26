@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 // user include files
 #include "CondFormats/SerializationHelper/interface/SerializationHelper.h"

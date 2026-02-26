@@ -8,6 +8,12 @@
 BATCH_DIR=$(pwd)
 echo -e "Running at $(date) \n        on ${HOSTNAME} \n        in directory ${BATCH_DIR}."
 
+# in singularity containers, source baseline setup script
+if [[ ! -z "${SINGULARITY_NAME}" ]] 
+then 
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+fi 
+
 # set up the CMS environment
 cd CMSSW_RELEASE_AREA
 eval `scram runtime -sh`

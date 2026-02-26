@@ -45,20 +45,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // - a buffer fot the content/storage itself sized as the number of many
 
     auto const &algoParams = m_params.algoParams_;
-    int outerHits =
+    uint32_t outerHits =
         nHits - offsetBPIX2;  // the number of hits that may be used as outer hits for a cell (so not on bpix1)
 
     // These hold the max number of associations needed
-    int nHitsToTracks = std::max(int(maxTuples * algoParams.avgHitsPerTrack_), 1);
-    int nHitsToCells = std::max(int(outerHits * algoParams.avgCellsPerHit_), 1);
-    int nCellsToCells = std::max(int(maxDoublets * algoParams.avgCellsPerCell_), 1);
-    int nCellsToTracks = std::max(int(maxDoublets * algoParams.avgTracksPerCell_), 1);
+    uint32_t nHitsToTracks = std::max(uint32_t(maxTuples * algoParams.avgHitsPerTrack_), 1u);
+    uint32_t nHitsToCells = std::max(uint32_t(outerHits * algoParams.avgCellsPerHit_), 1u);
+    uint32_t nCellsToCells = std::max(uint32_t(maxDoublets * algoParams.avgCellsPerCell_), 1u);
+    uint32_t nCellsToTracks = std::max(uint32_t(maxDoublets * algoParams.avgTracksPerCell_), 1u);
 
 #ifdef GPU_DEBUG
     std::cout << "Allocation for tuple building with: " << std::endl;
     std::cout << "- nHits          = " << nHits << std::endl;
-    std::cout << "- maxDoublets    = " << maxTuples << std::endl;
-    std::cout << "- maxTracks      = " << maxDoublets << std::endl;
+    std::cout << "- outerHits      = " << outerHits << std::endl;
+    std::cout << "- maxDoublets    = " << maxDoublets << std::endl;
+    std::cout << "- maxTracks      = " << maxTuples << std::endl;
 
     std::cout << "- nCellsToCells  = " << nCellsToCells << std::endl;
     std::cout << "- nHitsToCells   = " << nHitsToCells << std::endl;
@@ -73,7 +74,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device_hitToTupleView_ = {device_hitToTuple_->data(),
                               device_hitToTupleOffsets_->data(),
                               device_hitToTupleStorage_->data(),
-                              int(nHits + 1),
+                              nHits + 1,
                               nHitsToTracks};
 
     HitToTuple::template launchZero<Acc1D>(device_hitToTupleView_, queue);
@@ -93,7 +94,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Hits Phi Histograms: one histogram per layer
     device_hitPhiHist_ = cms::alpakatools::make_device_buffer<PhiBinner>(queue);
     device_phiBinnerStorage_ = cms::alpakatools::make_device_buffer<hindex_type[]>(queue, nHits);
-    device_hitPhiView_ = {device_hitPhiHist_->data(), nullptr, device_phiBinnerStorage_->data(), -1, int(nHits)};
+    device_hitPhiView_ = {
+        device_hitPhiHist_->data(), nullptr, device_phiBinnerStorage_->data(), cms::alpakatools::kDynamicSize, nHits};
     // This will hold where each layer starts in the hit soa
     device_layerStarts_ = cms::alpakatools::make_device_buffer<hindex_type[]>(queue, nLayers + 1);
 
@@ -106,7 +108,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device_cellToNeighborsView_ = {device_cellToNeighbors_->data(),
                                    device_cellToNeighborsOffsets_->data(),
                                    device_cellToNeighborsStorage_->data(),
-                                   int(maxDoublets + 1),
+                                   maxDoublets + 1,
                                    nCellsToCells};
 
     CellToCell::template launchZero<Acc1D>(device_cellToNeighborsView_, queue);
@@ -120,7 +122,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device_cellToTracksView_ = {device_cellToTracks_->data(),
                                 device_cellToTracksOffsets_->data(),
                                 device_cellToTracksStorage_->data(),
-                                int(maxDoublets + 1),
+                                maxDoublets + 1,
                                 nCellsToTracks};
 
     CellToTrack::template launchZero<Acc1D>(device_cellToTracksView_, queue);
@@ -136,7 +138,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device_hitContainerView_ = {device_hitContainer_->data(),
                                 device_hitContainerOffsets_->data(),
                                 device_hitContainerStorage_->data(),
-                                int(maxTuples + 1),
+                                maxTuples + 1,
                                 nHitsToTracks};
 
     HitContainer::template launchZero<Acc1D>(device_hitContainerView_, queue);
@@ -151,8 +153,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         device_tupleMultiplicity_->data(),
         device_tupleMultiplicityOffsets_->data(),
         device_tupleMultiplicityStorage_->data(),
-        int(TrackerTraits::maxHitsOnTrack + 1),  //TODO: this could become configurable with some work
-        int(maxTuples)};
+        TrackerTraits::maxHitsOnTrack + 1,  //TODO: this could become configurable with some work
+        maxTuples};
     TupleMultiplicity::template launchZero<Acc1D>(device_tupleMultiplicityView_, queue);
 
     // Structures and Counters Storage
@@ -168,8 +170,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device_nCellTracks_ =
         cms::alpakatools::make_device_view(queue, *reinterpret_cast<uint32_t *>(device_extraStorage_->data() + 4));
 
-    deviceTriplets_ = CAPairSoACollection(maxDoublets * algoParams.avgCellsPerCell_, queue);
-    deviceTracksCells_ = CAPairSoACollection(nCellsToTracks, queue);
+    deviceTriplets_ = CAPairSoACollection(queue, std::lrint(maxDoublets * algoParams.avgCellsPerCell_));
+    deviceTracksCells_ = CAPairSoACollection(queue, nCellsToTracks);
 
     //TODO: if doStats?
     alpaka::memset(queue, *counters_, 0);
@@ -199,7 +201,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     cms::alpakatools::fillManyFromVector<Acc1D>(device_hitPhiHist_->data(),
                                                 device_hitPhiView_,
                                                 TrackerTraits::numberOfLayers,  // could be ll.metadata().size() - 1
-                                                hh.iphi(),
+                                                hh.iphi().data(),
                                                 this->device_layerStarts_->data(),
                                                 hh.metadata().size(),
                                                 (uint32_t)256,
@@ -215,13 +217,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void CAHitNtupletGeneratorKernels<TrackerTraits>::launchKernels(const HitsConstView &hh,
                                                                   uint32_t offsetBPIX2,
                                                                   uint16_t nLayers,
-                                                                  TkSoAView &tracks_view,
-                                                                  TkHitsSoAView &tracks_hits_view,
+                                                                  TkSoABlocksView &view,
                                                                   const reco::CALayersSoAConstView &ll,
                                                                   const reco::CAGraphSoAConstView &cc,
                                                                   Queue &queue) {
     using namespace caPixelDoublets;
     using namespace caHitNtupletGeneratorKernels;
+
+    auto tracks_view = view.tracks();
+    auto tracks_hits_view = view.trackHits();
 
     uint32_t nhits = hh.metadata().size();
     auto const maxDoublets = this->maxNumberOfDoublets_;
@@ -271,7 +275,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
     auto threadsPerBlock = 1024;
-    auto blocks = cms::alpakatools::divide_up_by(maxDoublets * m_params.algoParams_.avgCellsPerCell_, threadsPerBlock);
+    auto blocks = cms::alpakatools::divide_up_by(std::lrint(maxDoublets * m_params.algoParams_.avgCellsPerCell_),
+                                                 threadsPerBlock);
     auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock);
 
     alpaka::exec<Acc1D>(queue,
@@ -336,7 +341,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     CellToTracks::template launchFinalize<Acc1D>(this->device_cellToTracksView_, queue);
 
-    blocks = cms::alpakatools::divide_up_by(maxDoublets * m_params.algoParams_.avgCellsPerCell_, threadsPerBlock);
+    blocks = cms::alpakatools::divide_up_by(std::lrint(maxDoublets * m_params.algoParams_.avgCellsPerCell_),
+                                            threadsPerBlock);
     workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock);
 
     alpaka::exec<Acc1D>(queue,
@@ -387,8 +393,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::exec<Acc1D>(queue,
                         workDiv1D,
                         Kernel_fillNLayers<TrackerTraits>{},
-                        tracks_view,
-                        tracks_hits_view,
+                        view,
                         this->device_layerStarts_->data(),
                         nLayers,
                         this->device_hitTuple_apc_);
@@ -761,7 +766,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     {
       std::lock_guard<std::mutex> guard(lock);
       ++iev;
-      for (int k = 0; k < 20000; k += 500) {
+      for (uint32_t k = 0; k < 20000; k += 500) {
         alpaka::exec<Acc1D>(queue,
                             workDiv1D,
                             Kernel_print_found_ntuplets<TrackerTraits>{},
@@ -800,6 +805,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template class CAHitNtupletGeneratorKernels<pixelTopology::Phase1>;
   template class CAHitNtupletGeneratorKernels<pixelTopology::Phase2>;
+  template class CAHitNtupletGeneratorKernels<pixelTopology::Phase2OT>;
   template class CAHitNtupletGeneratorKernels<pixelTopology::HIonPhase1>;
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

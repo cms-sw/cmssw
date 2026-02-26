@@ -6,6 +6,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Common/interface/DeviceProduct.h"
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
@@ -46,6 +47,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // TODO: Returning non-const reference here is BAD
     Queue& queue() const { return *queue_; }
 
+    // Used by ProducerBase to reuse the product's queue for enqueueing
+    // the host copy.
+    std::shared_ptr<Queue> shared_queue() const { return queue_; }
+
     void recordEvent() {}
     void discardEvent() {}
 
@@ -58,11 +63,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #else
   // All backends with an asynchronous queue
 
-  class EDMetadata {
+  class EDMetadata : public edm::DeviceProductMetadataBase {
   public:
     EDMetadata(std::shared_ptr<Queue> queue, std::shared_ptr<Event> event)
         : queue_(std::move(queue)), event_(std::move(event)) {}
-    ~EDMetadata();
+    ~EDMetadata() noexcept override;
 
     Device device() const { return alpaka::getDev(*queue_); }
 
@@ -70,13 +75,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // TODO: Returning non-const reference here is BAD
     Queue& queue() const { return *queue_; }
 
+    // Used by ProducerBase to reuse the product's queue for enqueueing
+    // the host copy.
+    std::shared_ptr<Queue> shared_queue() const { return queue_; }
+
     void enqueueCallback(edm::WaitingTaskWithArenaHolder holder);
 
     void recordEvent() { alpaka::enqueue(*queue_, *event_); }
     void discardEvent() { event_.reset(); }
 
     /**
+     * Synchronizes 'this' metadata wrt. host (caller)
+     * This is always a blocking call. It is intended to be called from
+     * edm::DeviceProduct destructor.
+     */
+    void synchronize() const noexcept final;
+
+    /**
      * Synchronizes 'consumer' metadata wrt. 'this' in the event product
+     * This is a non-blocking call. At the worst case the queue of the 'consumer'
+     * will wait for the event of 'this' to complete.
      */
     void synchronize(EDMetadata& consumer, bool tryReuseQueue) const;
 

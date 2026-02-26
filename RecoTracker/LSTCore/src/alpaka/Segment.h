@@ -85,7 +85,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return moduleSeparation;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void dAlphaThreshold(TAcc const& acc,
                                                       float* dAlphaThresholdValues,
                                                       ModulesConst modules,
@@ -186,13 +186,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                          uint16_t outerLowerModuleIndex,
                                                          unsigned int innerMDAnchorHitIndex,
                                                          unsigned int outerMDAnchorHitIndex,
-                                                         float dPhi,
-                                                         float dPhiMin,
-                                                         float dPhiMax,
                                                          float dPhiChange,
                                                          float dPhiChangeMin,
                                                          float dPhiChangeMax,
 #ifdef CUT_VALUE_DEBUG
+                                                         float dPhi,
+                                                         float dPhiMin,
+                                                         float dPhiMax,
                                                          float zHi,
                                                          float zLo,
                                                          float rtHi,
@@ -209,10 +209,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     segments.innerMiniDoubletAnchorHitIndices()[idx] = innerMDAnchorHitIndex;
     segments.outerMiniDoubletAnchorHitIndices()[idx] = outerMDAnchorHitIndex;
 
+    segments.dPhiChanges()[idx] = __F2H(dPhiChange);
+#ifdef CUT_VALUE_DEBUG
     segments.dPhis()[idx] = __F2H(dPhi);
     segments.dPhiMins()[idx] = __F2H(dPhiMin);
     segments.dPhiMaxs()[idx] = __F2H(dPhiMax);
-    segments.dPhiChanges()[idx] = __F2H(dPhiChange);
+#endif
     segments.dPhiChangeMins()[idx] = __F2H(dPhiChangeMin);
     segments.dPhiChangeMaxs()[idx] = __F2H(dPhiChangeMax);
 
@@ -227,7 +229,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 #endif
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addPixelSegmentToMemory(TAcc const& acc,
                                                               Segments segments,
                                                               PixelSegments pixelSegments,
@@ -306,7 +308,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passDeltaPhiCutsBarrel(TAcc const& acc,
                                                              ModulesConst modules,
                                                              MiniDoubletsConst mds,
@@ -336,7 +338,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return alpaka::math::abs(acc, dPhiChange) < sdCut;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passDeltaPhiCutsEndcap(TAcc const& acc,
                                                              ModulesConst modules,
                                                              MiniDoubletsConst mds,
@@ -361,7 +363,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return alpaka::math::abs(acc, dPhiChange) < sdSlope;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runSegmentDefaultAlgoBarrel(TAcc const& acc,
                                                                   ModulesConst modules,
                                                                   MiniDoubletsConst mds,
@@ -465,7 +467,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return alpaka::math::abs(acc, dAlphaInnerMDOuterMD) < dAlphaInnerMDOuterMDThreshold;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runSegmentDefaultAlgoEndcap(TAcc const& acc,
                                                                   ModulesConst modules,
                                                                   MiniDoubletsConst mds,
@@ -600,7 +602,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return alpaka::math::abs(acc, dAlphaInnerMDOuterMD) < dAlphaInnerMDOuterMDThreshold;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runSegmentDefaultAlgo(TAcc const& acc,
                                                             ModulesConst modules,
                                                             MiniDoubletsConst mds,
@@ -771,13 +773,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                    outerLowerModuleIndex,
                                    innerMiniDoubletAnchorHitIndex,
                                    outerMiniDoubletAnchorHitIndex,
-                                   dPhi,
-                                   dPhiMin,
-                                   dPhiMax,
                                    dPhiChange,
                                    dPhiChangeMin,
                                    dPhiChangeMax,
 #ifdef CUT_VALUE_DEBUG
+                                   dPhi,
+                                   dPhiMin,
+                                   dPhiMax,
                                    zHi,
                                    zLo,
                                    rtHi,
@@ -795,7 +797,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   };
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passDeltaPhiCutsSelector(TAcc const& acc,
                                                                ModulesConst modules,
                                                                MiniDoubletsConst mds,

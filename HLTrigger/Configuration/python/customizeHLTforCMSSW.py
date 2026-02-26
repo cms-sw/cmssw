@@ -37,157 +37,164 @@ def customiseForOffline(process):
 
     return process
 
-def customizeHLTfor47611(process):
-    """ This customizer
-        - cleans up the CANtupletAlpaka producers paramters;
-        - adds the geometry paramters used to fill the CAGeometry;
-        - adds the average sizes paramters to the CANtupletAlpaka producers;
-        - for pp and HIN hlt setups.
-    """
- 
-    ca_producers_pp = ['CAHitNtupletAlpakaPhase1@alpaka','alpaka_serial_sync::CAHitNtupletAlpakaPhase1']
-    ca_producers_hi = ['CAHitNtupletAlpakaHIonPhase1@alpaka','alpaka_serial_sync::CAHitNtupletAlpakaHIonPhase1']
-    ca_producers = ca_producers_pp + ca_producers_hi
-    ca_parameters = [ 'CAThetaCutBarrel', 'CAThetaCutForward', 
-        'dcaCutInnerTriplet', 'dcaCutOuterTriplet', 
-        'doPtCut', 'doZ0Cut', 'idealConditions', 
-        'includeJumpingForwardDoublets', 'phiCuts','doClusterCut','CPE'] 
+def replace_all_pixel_seed_inputtags(process):
+    import FWCore.ParameterSet.Config as cms
 
-    has_pp_producers = False
-    has_hi_producers = False
+    replacements = {
+        "hltEgammaElectronPixelSeeds": "hltEgammaFittedElectronPixelSeeds",
+        "hltEgammaElectronPixelSeedsUnseeded": "hltEgammaFittedElectronPixelSeedsUnseeded",
+        "hltEgammaElectronPixelSeedsForBParkingUnseeded": "hltEgammaFittedElectronPixelSeedsForBParkingUnseeded",
+    }
 
-    for ca_producer in ca_producers:
-        for prod in producers_by_type(process, ca_producer):
+    InputTag = cms.InputTag
+    skip_modules = set(replacements.values())
 
-            for par in ca_parameters:
-                if hasattr(prod, par):
-                    delattr(prod,par)
+    def replace_in_module(name, module):
+        # ! Skip the module that PRODUCES the product we are renaming
+        if name in skip_modules:
+            return
 
-            if not hasattr(prod, 'dzdrFact'):
-                setattr(prod, 'dzdrFact', cms.double(8.0 * 0.0285 / 0.015))
-            if not hasattr(prod, 'maxDYsize12'):
-                setattr(prod, 'maxDYsize12', cms.int32(28))
-            if not hasattr(prod, 'maxDYsize'):
-                setattr(prod, 'maxDYsize', cms.int32(20))
-            if not hasattr(prod, 'maxDYPred'):
-                setattr(prod, 'maxDYPred', cms.int32(20))
-            
-            if hasattr(prod, 'maxNumberOfDoublets'):
-                v = getattr(prod, 'maxNumberOfDoublets')
-                delattr(prod, 'maxNumberOfDoublets')
-                setattr(prod, 'maxNumberOfDoublets', cms.string(str(v.value())))
-            
-    for ca_producer in ca_producers_pp:
-        for prod in producers_by_type(process, ca_producer):
+        for pName in module.parameters_():
+            val = getattr(module, pName)
 
-            has_pp_producers = True
+            # --- Case 1: a single InputTag ---
+            if isinstance(val, InputTag):
+                old_mod = val.getModuleLabel()
+                if old_mod in replacements:
+                    setattr(module, pName,
+                            cms.InputTag(replacements[old_mod],
+                                         val.getProductInstanceLabel(),
+                                         val.getProcessName()))
+            # --- Case 2: VInputTag / list of InputTag ---
+            elif isinstance(val, (cms.VInputTag, list, tuple)):
+                new_list = []
+                changed = False
+                for it in val:
+                    if isinstance(it, InputTag) and it.getModuleLabel() in replacements:
+                        old_mod = it.getModuleLabel()
+                        it = cms.InputTag(replacements[old_mod],
+                                          it.getProductInstanceLabel(),
+                                          it.getProcessName())
+                        changed = True
+                    new_list.append(it)
+                if changed:
+                    setattr(module, pName, type(val)(new_list))
 
-            if not hasattr(prod, 'maxNumberOfTuples'):
-                setattr(prod,'maxNumberOfTuples',cms.string(str(32*1024)))
-                
-            if not hasattr(prod, 'avgCellsPerCell'):
-                setattr(prod, 'avgCellsPerCell', cms.double(0.071))
-            
-            if not hasattr(prod, 'avgCellsPerHit'):
-                setattr(prod, 'avgCellsPerHit', cms.double(27))
-            
-            if not hasattr(prod, 'avgHitsPerTrack'):
-                setattr(prod, 'avgHitsPerTrack', cms.double(4.5))
-            
-            if not hasattr(prod, 'avgTracksPerCell'):
-                setattr(prod, 'avgTracksPerCell', cms.double(0.127))
-            
-            if not hasattr(prod, 'geometry'):
+            # --- Case 3: nested PSet ---
+            elif hasattr(val, "parameters_"):
+                replace_in_pset(val)
 
-                geometryPS = cms.PSet(
-                    startingPairs = cms.vuint32( [i for i in range(8)] + [i for i in range(13,20)]),
-                    caDCACuts = cms.vdouble( [0.0918113099491] + [0.420724617835] * 9),
-                    caThetaCuts = cms.vdouble([0.00123302705499] * 4 + [0.00355691321774] * 6),
-                    pairGraph = cms.vuint32( 
-                        0, 1, 0, 4, 0,
-                        7, 1, 2, 1, 4,
-                        1, 7, 4, 5, 7,
-                        8, 2, 3, 2, 4,
-                        2, 7, 5, 6, 8,
-                        9, 0, 2, 1, 3,
-                        0, 5, 0, 8, 
-                        4, 6, 7, 9 
-                    ),
-                    phiCuts = cms.vint32( 
-                        965, 1241, 395, 698, 1058,
-                        1211, 348, 782, 1016, 810,
-                        463, 755, 694, 531, 770,
-                        471, 592, 750, 348
-                    ),
-                    minZ = cms.vdouble(
-                        -20., 0., -30., -22., 10., 
-                        -30., -70., -70., -22., 15., 
-                        -30, -70., -70., -20., -22., 
-                        0, -30., -70., -70.
-                    ),
-                    maxZ = cms.vdouble( 20., 30., 0., 22., 30., 
-                        -10., 70., 70., 22., 30., 
-                        -15., 70., 70., 20., 22., 
-                        30., 0., 70., 70.),
-                    maxR = cms.vdouble(20., 9., 9., 20., 7., 
-                        7., 5., 5., 20., 6., 
-                        6., 5., 5., 20., 20., 
-                        9., 9., 9., 9.)
+    def replace_in_pset(pset):
+        for pName in pset.parameters_():
+            val = getattr(pset, pName)
+            if isinstance(val, InputTag):
+                old_mod = val.getModuleLabel()
+                if old_mod in replacements:
+                    setattr(pset, pName,
+                            cms.InputTag(replacements[old_mod],
+                                         val.getProductInstanceLabel(),
+                                         val.getProcessName()))
+            elif isinstance(val, (cms.VInputTag, list, tuple)):
+                new_list = []
+                changed = False
+                for it in val:
+                    if isinstance(it, InputTag) and it.getModuleLabel() in replacements:
+                        old_mod = it.getModuleLabel()
+                        it = cms.InputTag(replacements[old_mod],
+                                          it.getProductInstanceLabel(),
+                                          it.getProcessName())
+                        changed = True
+                    new_list.append(it)
+                if changed:
+                    setattr(pset, pName, type(val)(new_list))
+            elif hasattr(val, "parameters_"):
+                replace_in_pset(val)
+
+    # Apply to all modules
+    for name,mod in process.producers_().items():
+        replace_in_module(name,mod)
+    for name,mod in process.filters_().items():
+        replace_in_module(name,mod)
+    for name,mod in process.analyzers_().items():
+        replace_in_module(name,mod)
+
+    # also walk top-level PSets
+    for pset in process.psets_().values():
+        replace_in_pset(pset)
+
+def customizeHLTfor49436(process):
+
+    # Replace Ele Pixel Seeds Doublets/Triplets
+    replacements = {
+        "hltElePixelSeedsDoublets": ("hltElePixelHitDoublets"),
+        "hltElePixelSeedsDoubletsUnseeded": ("hltElePixelHitDoubletsUnseeded"),
+        "hltElePixelSeedsTriplets": ("hltElePixelHitTriplets"),
+        "hltElePixelSeedsTripletsUnseeded": ("hltElePixelHitTripletsUnseeded"),
+    }
+
+    for module_name, hitset in replacements.items():
+        if hasattr(process, module_name):
+            setattr(
+                process,
+                module_name,
+                cms.EDProducer(
+                    "FakeStateSeedCreatorFromRegionConsecutiveHitsEDProducer",
+                    seedingHitSets=cms.InputTag(hitset),
+                    SeedComparitorPSet=cms.PSet(
+                        ComponentName=cms.string("none")
+                    )
                 )
-                
-                setattr(prod, 'geometry', geometryPS)
+            )
 
-    for ca_producer in ca_producers_hi:
-        for prod in producers_by_type(process, ca_producer):
-            
-            has_hi_producers = True
-            
-            if not hasattr(prod, 'maxNumberOfTuples'):
-                setattr(prod,'maxNumberOfTuples',cms.string(str(256 * 1024))) # way too much, could be ~20k
-                
-            if not hasattr(prod, 'avgCellsPerCell'):
-                setattr(prod, 'avgCellsPerCell', cms.double(0.5))
-            
-            if not hasattr(prod, 'avgCellsPerHit'):
-                setattr(prod, 'avgCellsPerHit', cms.double(40))
-            
-            if not hasattr(prod, 'avgHitsPerTrack'):
-                setattr(prod, 'avgHitsPerTrack', cms.double(5.0))
-            
-            if not hasattr(prod, 'avgTracksPerCell'):
-                setattr(prod, 'avgTracksPerCell', cms.double(0.5))
+    # Add new ElectronSeedFitter modules
+    fitter_configs = {
+        "hltEgammaFittedElectronPixelSeeds": "hltEgammaElectronPixelSeeds",
+        "hltEgammaFittedElectronPixelSeedsUnseeded": "hltEgammaElectronPixelSeedsUnseeded",
+        "hltEgammaFittedElectronPixelSeedsForBParkingUnseeded": "hltEgammaElectronPixelSeedsForBParkingUnseeded",
+    }
 
-            if not hasattr(prod, 'geometry'):
+    for mod_name, input_collection in fitter_configs.items():
+        setattr(
+            process,
+            mod_name,
+            cms.EDProducer(
+                "ElectronSeedFitter",
+                eleSeedCollection=cms.InputTag(input_collection),
+                propagator=cms.string("PropagatorWithMaterialParabolicMf"),
+                SeedMomentumForBOFF=cms.double(5.0),
+                OriginTransverseErrorMultiplier=cms.double(1.0),
+                MinOneOverPtError=cms.double(1.0),
+                TTRHBuilder=cms.string("hltESPTTRHBWithTrackAngle"),
+                magneticField=cms.string("ParabolicMf"),
+            )
+        )
 
-                geometryPS = cms.PSet(
-                    caDCACuts = cms.vdouble(
-                        0.05, 0.1, 0.1, 0.1, 0.1,
-                        0.1, 0.1, 0.1, 0.1, 0.1
-                    ),
-                    caThetaCuts = cms.vdouble(
-                        0.001, 0.001, 0.001, 0.001, 0.002,
-                        0.002, 0.002, 0.002, 0.002, 0.002
-                    ),
+    # Global replacements of pixel seed producers
+    replace_all_pixel_seed_inputtags(process)
 
-                    ## This are the defaults actually
-                    startingPairs = cms.vuint32(0,1,2),
-                    pairGraph = cms.vuint32(0, 1, 0, 4, 0, 7, 1, 2, 1, 4, 1, 7, 4, 5, 7, 8, 2, 3, 2, 4, 2, 7, 5, 6, 8, 9, 0, 2, 1, 3, 0, 5, 0, 8, 4, 6, 7, 9),
-                    phiCuts = cms.vint32(522, 730, 730, 522, 626, 626, 522, 522, 626, 626, 626, 522, 522, 522, 522, 522, 522, 522, 522),
-                    minZ = cms.vdouble(-20, 0, -30, -22, 10, -30, -70, -70, -22, 15, -30, -70, -70, -20, -22, 0, -30, -70, -70),
-                    maxZ = cms.vdouble(20, 30, 0, 22, 30, -10, 70, 70, 22, 30, -15, 70, 70, 20, 22, 30, 0, 70, 70),
-                    maxR = cms.vdouble(20, 9, 9, 20, 7, 7, 5, 5, 20, 6, 6, 5, 5, 20, 20, 9, 9, 9, 9)
-                )
+    # Insert new modules into the 3 sequences
+    # Mapping of sequences -> (new module, pixelMatchVars module)
+    seq_updates = [
+        ("HLTElePixelMatchSequence",
+         "hltEgammaFittedElectronPixelSeeds",
+         "hltEgammaPixelMatchVars"),
 
-                setattr(prod, 'geometry', geometryPS)
+        ("HLTElePixelMatchUnseededSequence",
+         "hltEgammaFittedElectronPixelSeedsUnseeded",
+         "hltEgammaPixelMatchVarsUnseeded"),
 
-    return process
+        ("HLTElePixelMatchUnseededSequenceForBParking",
+         "hltEgammaFittedElectronPixelSeedsForBParkingUnseeded",
+         "hltEgammaPixelMatchVarsForBParkingUnseeded"),
+    ]
 
-def customizeHLTfor48957(process):
-    for filt in filters_by_type(process, "HLTL1NumberFilter"):
-        if hasattr(filt, "fedId"):
-            value = filt.fedId.value()
-            del filt.fedId
-            filt.fedIds = cms.vint32([value])
+    for seq_name, new_mod, match_mod in seq_updates:
+        if hasattr(process, seq_name) and hasattr(process, new_mod) and hasattr(process, match_mod):
+            seq = getattr(process, seq_name)
+            new_module = getattr(process, new_mod)
+            match_module = getattr(process, match_mod)
+            # Insert the new module immediately before pixelMatchVars
+            seq.replace(match_module, new_module + match_module)
 
     return process
 
@@ -195,12 +202,9 @@ def customizeHLTfor48957(process):
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     process = customiseForOffline(process)
-
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    
-    process = customizeHLTfor47611(process)
-    process = customizeHLTfor48957(process)
+
+    # process = customizeHLTfor49436(process)
 
     return process
-

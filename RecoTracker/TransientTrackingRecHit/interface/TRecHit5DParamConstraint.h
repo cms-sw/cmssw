@@ -58,7 +58,7 @@ public:
   }
 
   /// ????
-  virtual RecHitPointer clone(const TrajectoryStateOnSurface& tsos) const {
+  RecHitPointer clone(const TrajectoryStateOnSurface& tsos) const {
     return RecHitPointer(new TRecHit5DParamConstraint(tsos));
   }
 

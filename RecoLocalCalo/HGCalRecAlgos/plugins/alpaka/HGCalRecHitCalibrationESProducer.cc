@@ -4,6 +4,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // includes for Alpaka
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
@@ -95,8 +96,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         edm::LogInfo("HGCalCalibrationESProducer") << "produce: filename=" << filename_.fullPath().c_str();
 
         // load dense indexing
-        const uint32_t nchans = moduleIndexer.getMaxDataSize();  // channel-level size
-        hgcalrechit::HGCalCalibParamHost product(nchans, cms::alpakatools::host());
+        const uint32_t nchans = moduleIndexer.maxDataSize();  // channel-level size
+        hgcalrechit::HGCalCalibParamHost product(cms::alpakatools::host(), nchans);
 
         // load calib parameters from JSON
         std::ifstream infile(filename_.fullPath().c_str());
@@ -114,7 +115,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const std::vector<float> energylosses = energy_data["dEdx"].get<std::vector<float>>();
 
         // loop over all module typecodes, e.g. "ML-F3PT-TX-0003"
-        for (const auto& [module, ids] : moduleIndexer.getTypecodeMap()) {
+        for (const auto& [module, ids] : moduleIndexer.typecodeMap()) {
           const auto [fedid, modid] = ids;
 
           // retrieve matching key (glob patterns allowed)
@@ -172,26 +173,30 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             fill_SoA_eigen_row<float>(vi.TOA_TW(), calib_data_["TOA_TW"], n);
           }
 
-          // average energy loss of absorption layers that sandwich the sensors (do not average last layer)
+          // energy loss of absorption layers that sandwich the sensors is provided already averaged
           // https://twiki.cern.ch/twiki/pub/CMS/HGCALSimulationAndPerformance/CalibratedRecHits.pdf
           const int layer = moduleMapper.view().plane()[imod];  // counts from 1
-          float dEdx =
-              (layer < nlayers ? (energylosses[layer - 1] + energylosses[layer]) / 2 : energylosses[nlayers - 1]);
+          float dEdx = energylosses[layer - 1];
 
           // compute thickness correction
-          float sf;
+          float sf_from_config;
           const bool isSiPM = moduleMapper.view().isSiPM()[imod];
           const int celltype = moduleMapper.view().celltype()[imod];
           const uint32_t detid = moduleMapper.view().detid()[imod];
           if (isSiPM)  // scintillator
-            sf = energy_data["SF_thickness_SiPM"][0];
+            sf_from_config = energy_data["SF_thickness_SiPM"][0];
           else  // Si module
-            sf = getThicknessCorrection(energy_data["SF_thickness_Si"], detid, celltype, filenameEnergy_.fullPath());
+            sf_from_config =
+                getThicknessCorrection(energy_data["SF_thickness_Si"], detid, celltype, filenameEnergy_.fullPath());
           edm::LogInfo("HGCalCalibrationESProducer")
-              << "layer=" << layer << ", celltype=" << celltype << ", isSiPM=" << isSiPM << ", dEdx=" << dEdx
-              << ", sf=" << sf << std::endl;
-          dEdx *= sf * 1e3;  // apply correction and convert from MeV to GeV
-          fill_SoA_column_single<float>(product.view().EM_scale(), dEdx, offset, nrows);
+              << "layer = " << layer << ", celltype = " << celltype << ", isSiPM = " << isSiPM << ", dEdx = " << dEdx
+              << ", sf_from_config = " << sf_from_config << std::endl;
+          if (sf_from_config <= 0)
+            throw cms::Exception("ConfigError") << "EM reconstruction scale factor (SF_thickness_Si) is not positive.";
+
+          float sf = 1. / sf_from_config;
+          dEdx *= sf * 1e-3;  // apply correction and convert from MeV to GeV
+          fill_SoA_column_single<float>(product.view().EM_scale().data(), dEdx, offset, nrows);
 
         }  // end of loop over modules
 

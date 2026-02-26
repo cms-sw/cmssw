@@ -1,12 +1,12 @@
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 
-#include <fmt/format.h>
+#include <format>
 
 #include <iostream>
 #include <string_view>
@@ -17,8 +17,8 @@ namespace {
   std::string makeResolverConfig(bool enableOther, std::string_view accelerator, std::string_view variant) {
     const std::string appendOther = enableOther ? "self._enabled.append('other')" : "";
     const std::string explicitVariant =
-        variant.empty() ? std::string(variant) : fmt::format(", variant=cms.untracked.string('{}')", variant);
-    return fmt::format(
+        variant.empty() ? std::string(variant) : std::format(", variant=cms.untracked.string('{}')", variant);
+    return std::format(
         R"_(from FWCore.TestProcessor.TestProcess import *
 import FWCore.ParameterSet.Config as cms
 
@@ -93,7 +93,7 @@ TEST_CASE("Configuration with ModuleTypeResolver", s_tag) {
     edm::makeParameterSets(baseConfigOtherDisabled_auto, psetOtherDisabled_auto);
     edm::makeParameterSets(baseConfigOtherDisabled_cpu, psetOtherDisabled_cpu);
     REQUIRE_THROWS_WITH(edm::makeParameterSets(baseConfigOtherDisabled_other, psetOtherDisabled_other),
-                        Catch::Contains("UnavailableAccelerator"));
+                        Catch::Matchers::ContainsSubstring("UnavailableAccelerator"));
     pset_auto->registerIt();
     pset_cpu->registerIt();
     pset_other->registerIt();

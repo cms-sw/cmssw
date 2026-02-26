@@ -1,0 +1,13 @@
+<library file="SiteLocalConfigServiceTester.cc SiteLocalConfigServiceCatalogTester.cc" name="SiteLocalConfigUnitTestClient">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWStorage/Services"/>
+  <use name="FWCore/Framework"/>
+</library>
+
+<test name="TestFWStorageServicesDriver_sitelocalconfig" command="test_sitelocalconfig.sh"/>
+
+<bin file="test_catch2_*.cc" name="testFWStorageServicesCatch2">
+  <use name="catch2"/>
+  <use name="FWStorage/Services"/>
+  <use name="FWCore/PluginManager"/>
+</bin>

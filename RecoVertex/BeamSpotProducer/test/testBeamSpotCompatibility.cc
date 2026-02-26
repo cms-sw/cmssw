@@ -3,7 +3,7 @@
 #include "RecoVertex/BeamSpotProducer/plugins/BeamSpotCompatibilityChecker.cc"
 
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 //_________________________________________________________
 TEST_CASE("Significance Calculation", "[Significance]") {
@@ -16,7 +16,7 @@ TEST_CASE("Significance Calculation", "[Significance]") {
   float significance = sig.getSig(false);
 
   // Correct the expected value based on actual calculation
-  REQUIRE(significance == Approx(1.1094).epsilon(10e-6));
+  REQUIRE_THAT(significance, Catch::Matchers::WithinRel(1.1094, 10e-6));
 }
 
 //_________________________________________________________
@@ -54,10 +54,10 @@ TEST_CASE("BeamSpot Compatibility Checker", "[compareBS]") {
     std::cout << "Significance[" << i << "]: " << significances[i] << std::endl;
   }
 
-  REQUIRE(significances[0] == Approx(0.57735).epsilon(10e-6));    // x0 significance
-  REQUIRE(significances[1] == Approx(0.288675).epsilon(10e-6));   // y0 significance
-  REQUIRE(significances[2] == Approx(0.19245).epsilon(10e-6));    // z0 significance
-  REQUIRE(significances[3] == Approx(0.0164957).epsilon(10e-6));  // sigmaX significance
-  REQUIRE(significances[4] == Approx(0.0164957).epsilon(10e-6));  // sigmaY significance
-  REQUIRE(significances[5] == Approx(0.288675).epsilon(10e-6));   // sigmaZ significance
+  REQUIRE_THAT(significances[0], Catch::Matchers::WithinRel(0.57735, 10e-6));    // x0 significance
+  REQUIRE_THAT(significances[1], Catch::Matchers::WithinRel(0.288675, 10e-6));   // y0 significance
+  REQUIRE_THAT(significances[2], Catch::Matchers::WithinRel(0.19245, 10e-6));    // z0 significance
+  REQUIRE_THAT(significances[3], Catch::Matchers::WithinRel(0.0164957, 10e-6));  // sigmaX significance
+  REQUIRE_THAT(significances[4], Catch::Matchers::WithinRel(0.0164957, 10e-6));  // sigmaY significance
+  REQUIRE_THAT(significances[5], Catch::Matchers::WithinRel(0.288675, 10e-6));   // sigmaZ significance
 }

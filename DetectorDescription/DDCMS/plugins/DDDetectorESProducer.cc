@@ -1,4 +1,4 @@
-// -*- C++ -*-
+/// -*- C++ -*-
 //
 // Package:    DetectorDescription/DDDetectorESProducer
 // Class:      DDDetectorESProducer
@@ -22,6 +22,9 @@
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/DescriptionCloner.h"
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Common/interface/FileBlob.h"
@@ -101,10 +104,9 @@ void DDDetectorESProducer::fillDescriptions(ConfigurationDescriptions& descripti
   desc.add<bool>("fromDB", false);
   descriptions.add("DDDetectorESProducer", desc);
 
-  edm::ParameterSetDescription descDB;
-  descDB.add<string>("rootDDName", "cms:OCMS");
-  descDB.add<string>("label", "Extended");
-  descDB.add<bool>("fromDB", true);
+  edm::DescriptionCloner descDB;
+  descDB.set<string>("label", "Extended");
+  descDB.set<bool>("fromDB", true);
   descriptions.add("DDDetectorESProducerFromDB", descDB);
 }
 

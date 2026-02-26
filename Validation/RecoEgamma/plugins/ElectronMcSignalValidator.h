@@ -1,4 +1,3 @@
-
 #ifndef Validation_RecoEgamma_ElectronMcSignalValidator_h
 #define Validation_RecoEgamma_ElectronMcSignalValidator_h
 
@@ -14,13 +13,11 @@ class MagneticField;
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-namespace reco {
-  class BeamSpot;
-}
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
 
 class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase {
 public:
@@ -39,16 +36,10 @@ private:
   edm::EDGetTokenT<reco::ElectronSeedCollection> electronSeedCollection_;
   edm::EDGetTokenT<reco::VertexCollection> offlineVerticesCollection_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
-  bool readAOD_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
+  edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > particleBasedIso_token;
 
-  edm::EDGetTokenT<edm::ValueMap<double> > isoFromDepsTk03Tag_;
-  edm::EDGetTokenT<edm::ValueMap<double> > isoFromDepsTk04Tag_;
-  edm::EDGetTokenT<edm::ValueMap<double> > isoFromDepsEcalFull03Tag_;
-  edm::EDGetTokenT<edm::ValueMap<double> > isoFromDepsEcalFull04Tag_;
-  edm::EDGetTokenT<edm::ValueMap<double> > isoFromDepsEcalReduced03Tag_;
-  edm::EDGetTokenT<edm::ValueMap<double> > isoFromDepsEcalReduced04Tag_;
-  edm::EDGetTokenT<edm::ValueMap<double> > isoFromDepsHcal03Tag_;
-  edm::EDGetTokenT<edm::ValueMap<double> > isoFromDepsHcal04Tag_;
+  bool readAOD_;
 
   edm::ESHandle<TrackerGeometry> pDD;
   edm::ESHandle<MagneticField> theMagField;
@@ -67,6 +58,7 @@ private:
   std::string outputFile_;
   std::string inputInternalPath_;
   std::string outputInternalPath_;
+  //std::string valueMapElectronsPFCandIso_;
 
   // histos limits and binning
 
@@ -140,6 +132,10 @@ private:
   int seed_nbin;
   double seed_min;
   double seed_max;
+  double et_IsolationConeSize;
+  int et_NbinsDeltaRPlot;
+  double et_RMaxDeltaRPlot;
+  double et_RMinDeltaRPlot;
 
   // histos
 
@@ -553,6 +549,15 @@ private:
   MonitorElement *h1_ele_photonRelativeIso_mAOD;
   MonitorElement *h1_ele_photonRelativeIso_mAOD_barrel;
   MonitorElement *h1_ele_photonRelativeIso_mAOD_endcaps;
+  MonitorElement *h1_ele_dRElectronsPFcand_ChHad_unCleaned;
+  MonitorElement *h1_ele_dRElectronsPFcand_ChHad_unCleaned_barrel;
+  MonitorElement *h1_ele_dRElectronsPFcand_ChHad_unCleaned_endcaps;
+  MonitorElement *h1_ele_dRElectronsPFcand_NeuHad_unCleaned;
+  MonitorElement *h1_ele_dRElectronsPFcand_NeuHad_unCleaned_barrel;
+  MonitorElement *h1_ele_dRElectronsPFcand_NeuHad_unCleaned_endcaps;
+  MonitorElement *h1_ele_dRElectronsPFcand_Pho_unCleaned;
+  MonitorElement *h1_ele_dRElectronsPFcand_Pho_unCleaned_barrel;
+  MonitorElement *h1_ele_dRElectronsPFcand_Pho_unCleaned_endcaps;
   // isolation
   MonitorElement *h1_ele_tkSumPt_dr03;
   MonitorElement *h1_ele_tkSumPt_dr03_barrel;

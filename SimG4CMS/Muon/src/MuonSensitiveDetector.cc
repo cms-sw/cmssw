@@ -247,9 +247,13 @@ void MuonSensitiveDetector::createHit(const G4Step* aStep) {
   int thePID = std::abs(theTrack->GetDefinition()->GetPDGEncoding());
   //---VI - in parameters cut in energy is declared but applied to momentum
   if (thePabs > ePersistentCutGeV_ || (thePID == 13 && allMuonsPersistent_)) {
-    TrackInformation* info = cmsTrackInformation(theTrack);
-    info->setStoreTrack();
-    info->setIdLastStoredAncestor(theTrack->GetTrackID());
+    auto info = cmsTrackInformation(theTrack);
+    if (nullptr != info) {
+      info->setStoreTrack();
+      if (info->idLastStoredAncestor() == theTrack->GetParentID()) {
+        info->setIdLastStoredAncestor(theTrack->GetTrackID());
+      }
+    }
   }
 
 #ifdef EDM_ML_DEBUG

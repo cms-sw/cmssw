@@ -10,11 +10,17 @@
   <class name="reco::VertexToTrackingVertexAssociator" persistent="false"/>
   <class name="edm::Wrapper<reco::VertexToTrackingVertexAssociator>" persistent="false"/>
 
-  <class name="ticl::LayerClusterToCaloParticleAssociator" persistent="false"/>
-  <class name="edm::Wrapper<ticl::LayerClusterToCaloParticleAssociator>" persistent="false"/>
+  <class name="ticl::LayerClusterToCaloParticleAssociatorT<reco::CaloClusterCollection>" persistent="false"/>
+  <class name="edm::Wrapper<ticl::LayerClusterToCaloParticleAssociatorT<reco::CaloClusterCollection>>" persistent="false"/>
 
-  <class name="ticl::LayerClusterToSimClusterAssociator" persistent="false"/>
-  <class name="edm::Wrapper<ticl::LayerClusterToSimClusterAssociator>" persistent="false"/>
+  <class name="ticl::LayerClusterToCaloParticleAssociatorT<reco::PFClusterCollection>" persistent="false"/>
+  <class name="edm::Wrapper<ticl::LayerClusterToCaloParticleAssociatorT<reco::PFClusterCollection>>" persistent="false"/>
+
+  <class name="ticl::LayerClusterToSimClusterAssociatorT<reco::CaloClusterCollection>" persistent="false"/>
+  <class name="edm::Wrapper<ticl::LayerClusterToSimClusterAssociatorT<reco::CaloClusterCollection>>" persistent="false"/>
+
+  <class name="ticl::LayerClusterToSimClusterAssociatorT<reco::PFClusterCollection>" persistent="false"/>
+  <class name="edm::Wrapper<ticl::LayerClusterToSimClusterAssociatorT<reco::PFClusterCollection>>" persistent="false"/>
 
   <class name="ticl::TracksterToSimClusterAssociator" persistent="false"/>
   <class name="edm::Wrapper<ticl::TracksterToSimClusterAssociator>" persistent="false"/>
@@ -97,16 +103,21 @@
     <field name="transientMap_" transient="true"/>
   </class>
   <class name="edm::Wrapper<reco::VertexRecoToSimCollection>" />
-
-
-  <class name="ticl::SimToRecoCollection" >
+  
+  
+  <class name="ticl::SimToRecoCollectionT<reco::CaloClusterCollection>" >
     <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<ticl::SimToRecoCollection>" />
-  <class name="ticl::RecoToSimCollection" >
+  <class name="ticl::SimToRecoCollectionT<reco::PFClusterCollection>" >
     <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<ticl::RecoToSimCollection>" />
+  <class name="edm::Wrapper<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>>" />
+  <class name="edm::Wrapper<ticl::SimToRecoCollectionT<reco::PFClusterCollection>>" />
+  <class name="ticl::RecoToSimCollectionT<reco::CaloClusterCollection>" >
+    <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<ticl::RecoToSimCollectionT<reco::CaloClusterCollection>>" />
+  <class name="edm::Wrapper<ticl::RecoToSimCollectionT<reco::PFClusterCollection>>" />
 
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<CaloParticle> >,edm::RefProd<vector<reco::CaloCluster> > >" />
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::CaloCluster> >,edm::RefProd<vector<CaloParticle> > >" />
@@ -114,14 +125,22 @@
   <class name="vector<pair<unsigned int,pair<float,float> > >" />
 
 
-  <class name="ticl::SimToRecoCollectionWithSimClusters" >
+  <class name="ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>" >
    <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<ticl::SimToRecoCollectionWithSimClusters>" />
-  <class name="ticl::RecoToSimCollectionWithSimClusters" >
+  <class name="ticl::SimToRecoCollectionWithSimClustersT<reco::PFClusterCollection>" >
    <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::Wrapper<ticl::RecoToSimCollectionWithSimClusters>" />
+  <class name="edm::Wrapper<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>>" />
+  <class name="edm::Wrapper<ticl::SimToRecoCollectionWithSimClustersT<reco::PFClusterCollection>>" />
+  <class name="ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>" >
+   <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="ticl::RecoToSimCollectionWithSimClustersT<reco::PFClusterCollection>" >
+   <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>>" />
+  <class name="edm::Wrapper<ticl::RecoToSimCollectionWithSimClustersT<reco::PFClusterCollection>>" />
 
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<SimCluster> >, edm::RefProd<vector<ticl::Trackster> > >" />
   <class name="edm::helpers::KeyVal<edm::RefProd<vector<ticl::Trackster> >, edm::RefProd<vector<SimCluster> > >" />
@@ -149,7 +168,44 @@
    <field name="transientMap_" transient="true"/>
   </class>
 
+  <class name="edm::RefProd<std::vector<reco::PFCluster>>"/>
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<SimCluster> >,edm::RefProd<vector<reco::PFCluster> > >" />
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::PFCluster> >,edm::RefProd<vector<SimCluster> > >" />
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<CaloParticle> >,edm::RefProd<vector<reco::PFCluster> > >" />
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::PFCluster> >,edm::RefProd<vector<CaloParticle> > >" />
 
+  <class name="edm::AssociationMap<edm::OneToManyWithQualityGeneric<
+               std::vector<SimCluster>, std::vector<reco::PFCluster>, std::pair<float,float>, unsigned int,
+               edm ::RefProd<std::vector<SimCluster>>, edm::RefProd<std::vector<reco::PFCluster>>,
+               edm::Ref<std::vector<SimCluster>>, edm::Ref<std::vector<reco::PFCluster>>
+			   >>">
+		 <field name="transientMap_" transient="true"/>
+  </class>
+  
+  <class name="edm::AssociationMap<edm::OneToManyWithQualityGeneric<
+               std::vector<reco::PFCluster>, std::vector<SimCluster>, float, unsigned int,
+               edm::RefProd<std::vector<reco::PFCluster>>, edm::RefProd<std::vector<SimCluster>>,
+               edm::Ref<std::vector<reco::PFCluster>>, edm::Ref<std::vector<SimCluster>>
+			   >>" >
+		 <field name="transientMap_" transient="true"/>
+  </class>
+  
+  <class name="edm::AssociationMap<edm::OneToManyWithQualityGeneric<
+               std::vector<CaloParticle>, std::vector<reco::PFCluster>, std::pair<float,float>, unsigned int,
+               edm::RefProd<std::vector<CaloParticle>>, edm::RefProd<std::vector<reco::PFCluster>>,
+               edm::Ref<std::vector<CaloParticle>>, edm::Ref<std::vector<reco::PFCluster>>
+			   >>" >
+		 <field name="transientMap_" transient="true"/>
+  </class>
+
+  <class name="edm::AssociationMap<edm::OneToManyWithQualityGeneric<
+               std::vector<reco::PFCluster>, std::vector<CaloParticle>, float, unsigned int,
+               edm::RefProd<std::vector<reco::PFCluster>>, edm::RefProd<std::vector<CaloParticle>>,
+               edm::Ref<std::vector<reco::PFCluster>>, edm::Ref<std::vector<CaloParticle>>
+			   >>" >
+		 <field name="transientMap_" transient="true"/>
+  </class>
+		
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQualityGeneric<edm::View<reco::Track>,vector<TrackingParticle>,double,unsigned int,edm::RefToBaseProd<reco::Track>,edm::RefProd<vector<TrackingParticle> >,edm::RefToBase<reco::Track>,edm::Ref<vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<vector<TrackingParticle>,TrackingParticle> > > > >" />
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToManyWithQualityGeneric<vector<TrackingParticle>,edm::View<reco::Track>,double,unsigned int,edm::RefProd<vector<TrackingParticle> >,edm::RefToBaseProd<reco::Track>,edm::Ref<vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<vector<TrackingParticle>,TrackingParticle> >,edm::RefToBase<reco::Track> > > >" />
 

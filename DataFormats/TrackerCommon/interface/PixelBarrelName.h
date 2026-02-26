@@ -7,10 +7,10 @@
 
 #include "DataFormats/SiPixelDetId/interface/PixelModuleName.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 
 #include <string>
 
-class DetId;
 class TrackerTopology;
 
 class PixelBarrelName : public PixelModuleName {

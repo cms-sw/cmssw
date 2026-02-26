@@ -20,7 +20,7 @@ public:
   // Access to topologies
   const Topology& topology() const override { return *theTopology; }
 
-  virtual const TopologyType& specificTopology() const { return *theTopology; }
+  const TopologyType& specificTopology() const { return *theTopology; }
 
   PixelGeomDetType& operator=(const PixelGeomDetType& other) = delete;
   PixelGeomDetType(const PixelGeomDetType& other) = delete;

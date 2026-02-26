@@ -15,6 +15,7 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/RunningAverage.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
@@ -35,6 +36,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 // #define GPU_DEBUG
 
@@ -47,21 +49,42 @@ namespace reco {
           pairGraph_(iConfig.getParameter<std::vector<unsigned int>>("pairGraph")),
           startingPairs_(iConfig.getParameter<std::vector<unsigned int>>("startingPairs")),
           phiCuts_(iConfig.getParameter<std::vector<int>>("phiCuts")),
-          minZ_(iConfig.getParameter<std::vector<double>>("minZ")),
-          maxZ_(iConfig.getParameter<std::vector<double>>("maxZ")),
-          maxR_(iConfig.getParameter<std::vector<double>>("maxR")) {}
+          ptCuts_(iConfig.getParameter<std::vector<double>>("ptCuts")),
+          minInner_(iConfig.getParameter<std::vector<double>>("minInner")),
+          maxInner_(iConfig.getParameter<std::vector<double>>("maxInner")),
+          minOuter_(iConfig.getParameter<std::vector<double>>("minOuter")),
+          maxOuter_(iConfig.getParameter<std::vector<double>>("maxOuter")),
+          maxDZ_(iConfig.getParameter<std::vector<double>>("maxDZ")),
+          minDZ_(iConfig.getParameter<std::vector<double>>("minDZ")),
+          maxDR_(iConfig.getParameter<std::vector<double>>("maxDR")) {
+      startNoBPix1_ = false;
+      for (const unsigned int& i : startingPairs_) {
+        if (pairGraph_[2 * i] > 0) {
+          startNoBPix1_ = true;
+          break;
+        }
+      }
+    }
 
     // Layers params
     const std::vector<double> caThetaCuts_;
     const std::vector<double> caDCACuts_;
+    const std::vector<int> isBarrel_;
 
     // Cells params
     const std::vector<unsigned int> pairGraph_;
     const std::vector<unsigned int> startingPairs_;
     const std::vector<int> phiCuts_;
-    const std::vector<double> minZ_;
-    const std::vector<double> maxZ_;
-    const std::vector<double> maxR_;
+    const std::vector<double> ptCuts_;
+    const std::vector<double> minInner_;
+    const std::vector<double> maxInner_;
+    const std::vector<double> minOuter_;
+    const std::vector<double> maxOuter_;
+    const std::vector<double> maxDZ_;
+    const std::vector<double> minDZ_;
+    const std::vector<double> maxDR_;
+
+    bool startNoBPix1_;
 
     mutable edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tokenGeometry_;
     mutable edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tokenTopology_;
@@ -104,9 +127,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     static std::shared_ptr<CAGeometryCache> globalBeginRun(edm::Run const& iRun,
                                                            edm::EventSetup const& iSetup,
                                                            GlobalCache const* iCache) {
-      assert(iCache->minZ_.size() == iCache->maxZ_.size());
-      assert(iCache->minZ_.size() == iCache->maxR_.size());
-      assert(iCache->minZ_.size() == iCache->phiCuts_.size());
+      assert(iCache->maxDR_.size() == iCache->minInner_.size());
+      assert(iCache->maxDR_.size() == iCache->maxInner_.size());
+      assert(iCache->maxDR_.size() == iCache->minOuter_.size());
+      assert(iCache->maxDR_.size() == iCache->maxOuter_.size());
+      assert(iCache->maxDR_.size() == iCache->maxDZ_.size());
+      assert(iCache->maxDR_.size() == iCache->minDZ_.size());
+      assert(iCache->maxDR_.size() == iCache->phiCuts_.size());
+      assert(iCache->maxDR_.size() == iCache->ptCuts_.size());
 
       assert(iCache->caThetaCuts_.size() == iCache->caDCACuts_.size());
 
@@ -119,78 +147,153 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::cout << "No. Pairs to be used = " << n_pairs << std::endl;
 #endif
 
-      assert(int(n_pairs) == int(iCache->minZ_.size()));
-      assert(int(*std::max_element(iCache->startingPairs_.begin(), iCache->startingPairs_.end())) <= n_pairs);
+      assert(int(n_pairs) == int(iCache->maxDR_.size()));
+      assert(int(*std::max_element(iCache->startingPairs_.begin(), iCache->startingPairs_.end())) < n_pairs);
       assert(int(*std::max_element(iCache->pairGraph_.begin(), iCache->pairGraph_.end())) < n_layers);
 
-      const auto& trackerGeometry = iSetup.getData(iCache->tokenGeometry_);
-      const auto& trackerTopology = iSetup.getData(iCache->tokenTopology_);
+      auto const& trackerGeometry = iSetup.getData(iCache->tokenGeometry_);
+      auto const& trackerTopology = iSetup.getData(iCache->tokenTopology_);
       auto const& dets = trackerGeometry.dets();
 
 #ifdef GPU_DEBUG
-      auto subSystem = 1;
+      auto subSystem = 0;
       auto subSystemName = GeomDetEnumerators::tkDetEnum[subSystem];
-      auto subSystemOffset = trackerGeometry.offsetDU(subSystemName);
       std::cout
           << "========================================================================================================="
           << std::endl;
-      std::cout << " ===================== Subsystem: " << subSystemName << std::endl;
-      subSystemName = GeomDetEnumerators::tkDetEnum[++subSystem];
-      subSystemOffset = trackerGeometry.offsetDU(subSystemName);
 #endif
 
       auto oldLayer = 0u;
       auto layerCount = 0u;
 
+      std::vector<bool> layerIsBarrel(n_layers);
       std::vector<int> layerStarts(n_layers + 1);
       //^ why n_layers + 1? This is a cumulative sum of the number
       // of modules each layer has. And we need the  extra spot
       // at the end to hold the total number of modules.
 
+      std::vector<int> moduleToindexInDets;
+
+      auto isPinPSinOTBarrel = [&](DetId detId) {
+        // Select only P-hits from the OT barrel
+        return (trackerGeometry.getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP &&
+                detId.subdetId() == StripSubdetector::TOB);
+      };
+      auto isPixel = [&](DetId detId) {
+        auto subId = detId.subdetId();
+        return (subId == PixelSubdetector::PixelBarrel || subId == PixelSubdetector::PixelEndcap);
+      };
+      auto isBarrel = [&](DetId detId) {
+        auto subId = detId.subdetId();
+        auto subDetector = trackerGeometry.geomDetSubDetector(subId);
+        return GeomDetEnumerators::isBarrel(subDetector);
+      };
+
+      // loop over all detector modules and build the CA layers
+      int counter = 0;
       for (auto& det : dets) {
         DetId detid = det->geographicalId();
+        auto layer = trackerTopology.layer(detid);
+        // Logic:
+        // - if we are not inside pixels, we need to ignore anything **but** the OT.
+        // - for the time being, this is assuming that the CA extension will
+        //   only cover the OT barrel part, and will ignore the OT forward.
+
 #ifdef GPU_DEBUG
-        if (n_modules >= int(subSystemOffset)) {
-          subSystemName = GeomDetEnumerators::tkDetEnum[++subSystem];
-          subSystemOffset = trackerGeometry.offsetDU(subSystemName);
+        auto subId = detid.subdetId();
+        if (subSystemName != trackerGeometry.geomDetSubDetector(subId)) {
+          subSystemName = trackerGeometry.geomDetSubDetector(subId);
           std::cout << " ===================== Subsystem: " << subSystemName << std::endl;
         }
 #endif
 
-        auto layer = trackerTopology.layer(detid);
-
-        if (layer != oldLayer) {
-          layerStarts[layerCount++] = n_modules;
-
-          if (layerCount >= layerStarts.size())
-            break;
-
-          oldLayer = layer;
+        // Modules of the pixel layers
+        if (isPixel(detid)) {
+          if (layer != oldLayer) {
 #ifdef GPU_DEBUG
-          std::cout << " > New layer at module : " << n_modules << " (detId: " << detid << ")" << std::endl;
+            std::cout << "Pixel LayerStart: CA layer " << layerCount << " at subdetector layer " << layer
+                      << " starts at module " << n_modules << " and is " << (isBarrel(detid) ? "barrel" : "not barrel")
+                      << std::endl;
 #endif
+            layerIsBarrel[layerCount] = isBarrel(detid);
+            layerStarts[layerCount++] = n_modules;
+            if (layerCount >= layerStarts.size())
+              break;
+            oldLayer = layer;
+          }
+          moduleToindexInDets.push_back(counter);
+          n_modules++;
         }
 
-        n_modules++;
+        // if we are using the CA extension for Phase-2,
+        // we also have to collect the modules from the considered OT layers
+        if constexpr (std::is_same_v<pixelTopology::Phase2OT, TrackerTraits>) {
+          auto const& detUnits = det->components();
+          for (auto& detUnit : detUnits) {
+            DetId unitDetId(detUnit->geographicalId());
+            // Modules of the considered OT layers
+            if (isPinPSinOTBarrel(unitDetId)) {
+              if (layer != oldLayer) {
+#ifdef GPU_DEBUG
+                std::cout << "OT LayerStart: CA layer " << layerCount << " at subdetector layer " << layer
+                          << " starts at module " << n_modules << " and is "
+                          << (isBarrel(detid) ? "barrel" : "not barrel") << std::endl;
+#endif
+                layerIsBarrel[layerCount] = isBarrel(detid);
+                layerStarts[layerCount++] = n_modules;
+                if (layerCount >= layerStarts.size())
+                  break;
+                oldLayer = layer;
+              }
+              moduleToindexInDets.push_back(counter);
+              n_modules++;
+            }
+          }
+        }
+        counter++;
       }
 
-      reco::CAGeometryHost product{{{n_layers + 1, n_pairs, n_modules}}, cms::alpakatools::host()};
+#ifdef GPU_DEBUG
+      std::cout << "Full CA LayerStart: " << n_layers << " layers with " << n_modules << " modules in total."
+                << std::endl;
+#endif
+      layerStarts[n_layers] = n_modules;
 
-      auto layerSoA = product.view();
-      auto cellSoA = product.view<::reco::CAGraphSoA>();
-      auto modulesSoA = product.view<::reco::CAModulesSoA>();
+      reco::CAGeometryHost product{cms::alpakatools::host(), n_layers + 1, n_pairs, n_modules};
+
+      auto layerSoA = product.view().layers();
+      auto cellSoA = product.view().graph();
+      auto modulesSoA = product.view().modules();
 
       for (int i = 0; i < n_modules; ++i) {
-        auto det = dets[i];
+        auto idx = moduleToindexInDets[i];
+        auto det = dets[idx];
         auto vv = det->surface().position();
         auto rr = Rotation(det->surface().rotation());
         modulesSoA[i].detFrame() = Frame(vv.x(), vv.y(), vv.z(), rr);
+#ifdef GPU_DEBUG
+        auto const& detUnits = det->components();
+        for (auto& detUnit : detUnits) {
+          DetId unitDetId(detUnit->geographicalId());
+          if (isPinPSinOTBarrel(unitDetId)) {
+            std::cout << "Filling frame at index " << idx << " in SoA position " << i << " for det "
+                      << det->geographicalId() << " and detUnit->index: " << detUnit->index() << std::endl;
+          }
+        }
+        std::cout << "Filling frame at index " << idx << " in SoA position " << i << " for det "
+                  << det->geographicalId() << std::endl;
+        std::cout << "Position: " << vv << " with Rotation: " << det->surface().rotation() << std::endl;
+        std::cout << "Rotation in z-r plane: "
+                  << atan2(det->surface().normalVector().perp(), det->surface().normalVector().z()) * 180. / M_PI
+                  << std::endl;
+#endif
       }
 
       for (int i = 0; i < n_layers; ++i) {
         layerSoA.layerStarts()[i] = layerStarts[i];
         layerSoA.caThetaCut()[i] = iCache->caThetaCuts_[i];
         layerSoA.caDCACut()[i] = iCache->caDCACuts_[i];
+        layerSoA.isBarrel()[i] = layerIsBarrel[i];
       }
 
       layerSoA.layerStarts()[n_layers] = layerStarts[n_layers];
@@ -198,9 +301,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       for (int i = 0; i < n_pairs; ++i) {
         cellSoA.graph()[i] = {{uint32_t(iCache->pairGraph_[2 * i]), uint32_t(iCache->pairGraph_[2 * i + 1])}};
         cellSoA.phiCuts()[i] = iCache->phiCuts_[i];
-        cellSoA.minz()[i] = iCache->minZ_[i];
-        cellSoA.maxz()[i] = iCache->maxZ_[i];
-        cellSoA.maxr()[i] = iCache->maxR_[i];
+        // convert ptCut in curvature radius in cm
+        // 1 GeV track has 1 GeV/c / (e * 3.8T) ~ 87 cm radius in a 3.8T field
+        const float minRadius = iCache->ptCuts_[i] * 87.78f;
+        // Use minRadius^2/4 in the CA to avoid sqrt
+        const float minRadius2T4 = 4.f * minRadius * minRadius;
+        cellSoA.ptCuts()[i] = minRadius2T4;
+        cellSoA.minInner()[i] = iCache->minInner_[i];
+        cellSoA.maxInner()[i] = iCache->maxInner_[i];
+        cellSoA.minOuter()[i] = iCache->minOuter_[i];
+        cellSoA.maxOuter()[i] = iCache->maxOuter_[i];
+        cellSoA.maxDZ()[i] = iCache->maxDZ_[i];
+        cellSoA.minDZ()[i] = iCache->minDZ_[i];
+        cellSoA.maxDR()[i] = iCache->maxDR_[i];
         cellSoA.startingPair()[i] = false;
       }
 
@@ -256,19 +369,37 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto const& geometry = runCache()->get(iEvent.queue());
     auto const& hits = iEvent.get(tokenHit_);
 
-    std::array<double, 1> nHitsV = {{double(hits.nHits())}};
-    std::array<double, 1> emptyV;
+    /// Don't bother if no hits on BPix1 and no good graph for that
+    /// (so no staring pair without BPix1 as first layer).
+    /// TODO: this could be extended to a more general check for
+    /// no hits on any of the starting layers.
 
-    uint32_t const maxTuples = maxNumberOfTuples_.evaluate(nHitsV, emptyV);
-    uint32_t const maxDoublets = maxNumberOfDoublets_.evaluate(nHitsV, emptyV);
+    if (globalCache()->startNoBPix1_ or hits.offsetBPIX2() > 0) {
+      std::array<double, 1> nHitsV = {{double(hits.nHits())}};
+      std::array<double, 1> emptyV;
 
-    iEvent.emplace(tokenTrack_,
-                   deviceAlgo_.makeTuplesAsync(hits, geometry, bf, maxDoublets, maxTuples, iEvent.queue()));
+      uint32_t const maxTuples = maxNumberOfTuples_.evaluate(nHitsV, emptyV);
+      uint32_t const maxDoublets = maxNumberOfDoublets_.evaluate(nHitsV, emptyV);
+
+      iEvent.emplace(tokenTrack_,
+                     deviceAlgo_.makeTuplesAsync(hits, geometry, bf, maxDoublets, maxTuples, iEvent.queue()));
+
+    } else {
+      edm::LogWarning("CAHitNtupletAlpaka") << "No hit on BPix1 (" << hits.offsetBPIX2()
+                                            << ") and all the starting pairs has BPix1 as inner layer.\nIt's useless "
+                                            << "to run the CA. Returning with 0 tracks!";
+      auto& queue = iEvent.queue();
+      reco::TracksSoACollection tracks(queue, 0, 0);
+      auto ntracks_d = cms::alpakatools::make_device_view(queue, tracks.view().tracks().nTracks());
+      alpaka::memset(queue, ntracks_d, 0);
+      iEvent.emplace(tokenTrack_, std::move(tracks));
+    }
   }
 
   using CAHitNtupletAlpakaPhase1 = CAHitNtupletAlpaka<pixelTopology::Phase1>;
   using CAHitNtupletAlpakaHIonPhase1 = CAHitNtupletAlpaka<pixelTopology::HIonPhase1>;
   using CAHitNtupletAlpakaPhase2 = CAHitNtupletAlpaka<pixelTopology::Phase2>;
+  using CAHitNtupletAlpakaPhase2OT = CAHitNtupletAlpaka<pixelTopology::Phase2OT>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
@@ -276,3 +407,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 DEFINE_FWK_ALPAKA_MODULE(CAHitNtupletAlpakaPhase1);
 DEFINE_FWK_ALPAKA_MODULE(CAHitNtupletAlpakaHIonPhase1);
 DEFINE_FWK_ALPAKA_MODULE(CAHitNtupletAlpakaPhase2);
+DEFINE_FWK_ALPAKA_MODULE(CAHitNtupletAlpakaPhase2OT);

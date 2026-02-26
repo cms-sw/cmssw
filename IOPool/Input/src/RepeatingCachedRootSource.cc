@@ -38,16 +38,15 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
+#include "FWCore/Sources/interface/InputSourceRunHelper.h"
 
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 
-#include "RunHelper.h"
 #include "RootFile.h"
 #include "InputFile.h"
 #include "DuplicateChecker.h"
 
 namespace edm {
-  class RunHelperBase;
 
   class RepeatingCachedRootSource : public InputSource {
   public:
@@ -142,7 +141,7 @@ namespace edm {
 
     RootServiceChecker rootServiceChecker_;
     ProductSelectorRules selectorRules_;
-    edm::propagate_const<std::unique_ptr<RunHelperBase>> runHelper_;
+    edm::propagate_const<std::unique_ptr<InputSourceRunHelperBase>> runHelper_;
     std::unique_ptr<RootFile> rootFile_;
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;
     std::vector<std::vector<std::shared_ptr<edm::WrapperBase>>> cachedWrappers_;
@@ -176,7 +175,7 @@ using namespace edm;
 RepeatingCachedRootSource::RepeatingCachedRootSource(ParameterSet const& pset, InputSourceDescription const& desc)
     : InputSource(pset, desc),
       selectorRules_(pset, "inputCommands", "InputSource"),
-      runHelper_(std::make_unique<DefaultRunHelper>()),
+      runHelper_(std::make_unique<DefaultInputSourceRunHelper>()),
       cachedWrappers_(pset.getUntrackedParameter<unsigned int>("repeatNEvents")),
       eventAuxs_(cachedWrappers_.size()),
       provRetriever_(0),

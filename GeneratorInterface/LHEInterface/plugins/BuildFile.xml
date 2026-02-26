@@ -1,4 +1,3 @@
-<use name="stdcxx-fs"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>

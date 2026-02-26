@@ -12,6 +12,7 @@
 #include "TArrayD.h"
 #include "TGraph.h"
 #include <cassert>
+#include <cmath>
 #include <map>
 
 class BTagPerformance {

@@ -24,6 +24,26 @@ std::chrono::steady_clock::time_point TimingServiceBase::jobStartTime() {
   return s_jobStartTime;
 }
 
+void TimingServiceBase::pythonStarting() { (void)pythonStartTime(); }
+void TimingServiceBase::pythonFinished() { (void)pythonEndTime(); }
+
+void TimingServiceBase::servicesStarting() { (void)servicesStartTime(); }
+
+std::chrono::steady_clock::time_point TimingServiceBase::pythonStartTime() {
+  static const std::chrono::steady_clock::time_point s_pythonStartTime = std::chrono::steady_clock::now();
+  return s_pythonStartTime;
+}
+
+std::chrono::steady_clock::time_point TimingServiceBase::pythonEndTime() {
+  static const std::chrono::steady_clock::time_point s_pythonEndTime = std::chrono::steady_clock::now();
+  return s_pythonEndTime;
+}
+
+std::chrono::steady_clock::time_point TimingServiceBase::servicesStartTime() {
+  static const std::chrono::steady_clock::time_point s_servicesStartTime = std::chrono::steady_clock::now();
+  return s_servicesStartTime;
+}
+
 //
 // constructors and destructor
 //

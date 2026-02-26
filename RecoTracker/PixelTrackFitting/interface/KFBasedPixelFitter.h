@@ -4,19 +4,16 @@
 #include "RecoTracker/PixelTrackFitting/interface/PixelFitterBase.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpotFwd.h"
 
 #include <vector>
-
-namespace reco {
-  class Track;
-  class BeamSpot;
-}  // namespace reco
 
 class TransientTrackingRecHitBuilder;
 class TrackerGeometry;
 class MagneticField;
 class TrackingRegion;
-class TrackingRecHit;
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 class Propagator;
 
 class KFBasedPixelFitter : public PixelFitterBase {

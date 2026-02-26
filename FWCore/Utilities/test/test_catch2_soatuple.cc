@@ -5,7 +5,7 @@ Changed by Viji on 29-06-2005
 
  ----------------------------------------------------------------------*/
 
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <cassert>
 #include <cstdint>
 #include <iostream>
@@ -298,20 +298,20 @@ TEST_CASE("edm::SoATuple", "[SoATuple]") {
   }
 
   SECTION("alignmentTest") {
-    REQUIRE((alignof(double) == edm::soahelper::SoATupleHelper<2, double, bool>::max_alignment));
-    REQUIRE((alignof(double) == edm::soahelper::SoATupleHelper<2, bool, double>::max_alignment));
-    REQUIRE((alignof(float) == edm::soahelper::SoATupleHelper<2, float, bool>::max_alignment));
-    REQUIRE((alignof(float) == edm::soahelper::SoATupleHelper<2, bool, float>::max_alignment));
-    REQUIRE((alignof(CharDummy) == edm::soahelper::SoATupleHelper<2, char, CharDummy>::max_alignment));
-    REQUIRE((alignof(CharDummy) == edm::soahelper::SoATupleHelper<2, CharDummy, char>::max_alignment));
-    REQUIRE((alignof(ComplexDummy) == edm::soahelper::SoATupleHelper<2, char, ComplexDummy>::max_alignment));
-    REQUIRE((alignof(ComplexDummy) == edm::soahelper::SoATupleHelper<2, ComplexDummy, char>::max_alignment));
+    REQUIRE((alignof(double) == edm::soahelper::SoATupleHelper<double, bool>::max_alignment));
+    REQUIRE((alignof(double) == edm::soahelper::SoATupleHelper<bool, double>::max_alignment));
+    REQUIRE((alignof(float) == edm::soahelper::SoATupleHelper<float, bool>::max_alignment));
+    REQUIRE((alignof(float) == edm::soahelper::SoATupleHelper<bool, float>::max_alignment));
+    REQUIRE((alignof(CharDummy) == edm::soahelper::SoATupleHelper<char, CharDummy>::max_alignment));
+    REQUIRE((alignof(CharDummy) == edm::soahelper::SoATupleHelper<CharDummy, char>::max_alignment));
+    REQUIRE((alignof(ComplexDummy) == edm::soahelper::SoATupleHelper<char, ComplexDummy>::max_alignment));
+    REQUIRE((alignof(ComplexDummy) == edm::soahelper::SoATupleHelper<ComplexDummy, char>::max_alignment));
 
-    REQUIRE((alignof(float) == edm::soahelper::SoATupleHelper<2, float, float>::max_alignment));
-    REQUIRE((16 == edm::soahelper::SoATupleHelper<2, edm::AlignedVec<float>, edm::AlignedVec<float>>::max_alignment));
+    REQUIRE((alignof(float) == edm::soahelper::SoATupleHelper<float, float>::max_alignment));
+    REQUIRE((16 == edm::soahelper::SoATupleHelper<edm::AlignedVec<float>, edm::AlignedVec<float>>::max_alignment));
 
-    REQUIRE((alignof(double) == edm::soahelper::SoATupleHelper<2, double, double>::max_alignment));
-    REQUIRE((16 == edm::soahelper::SoATupleHelper<2, edm::AlignedVec<double>, edm::AlignedVec<double>>::max_alignment));
+    REQUIRE((alignof(double) == edm::soahelper::SoATupleHelper<double, double>::max_alignment));
+    REQUIRE((16 == edm::soahelper::SoATupleHelper<edm::AlignedVec<double>, edm::AlignedVec<double>>::max_alignment));
 
     edm::SoATuple<edm::AlignedVec<float>, edm::AlignedVec<float>, edm::AlignedVec<float>> vFloats;
     vFloats.reserve(50);

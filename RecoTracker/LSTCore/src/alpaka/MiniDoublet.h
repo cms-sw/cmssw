@@ -13,7 +13,7 @@
 #include "RecoTracker/LSTCore/interface/ObjectRangesSoA.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addMDToMemory(TAcc const& acc,
                                                     MiniDoublets mds,
                                                     HitsBaseConst hitsBase,
@@ -51,15 +51,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
 
     mds.dphichanges()[idx] = dPhiChange;
-
     mds.dphis()[idx] = dPhi;
     mds.dzs()[idx] = dz;
+#ifdef CUT_VALUE_DEBUG
     mds.shiftedXs()[idx] = shiftedX;
     mds.shiftedYs()[idx] = shiftedY;
     mds.shiftedZs()[idx] = shiftedZ;
 
     mds.noShiftedDphis()[idx] = noShiftedDphi;
     mds.noShiftedDphiChanges()[idx] = noShiftedDPhiChange;
+#endif
 
     mds.anchorX()[idx] = hitsBase.xs()[anchorHitIndex];
     mds.anchorY()[idx] = hitsBase.ys()[anchorHitIndex];
@@ -77,6 +78,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     mds.outerX()[idx] = hitsBase.xs()[outerHitIndex];
     mds.outerY()[idx] = hitsBase.ys()[outerHitIndex];
     mds.outerZ()[idx] = hitsBase.zs()[outerHitIndex];
+#ifdef CUT_VALUE_DEBUG
     mds.outerRt()[idx] = hitsExtended.rts()[outerHitIndex];
     mds.outerPhi()[idx] = hitsExtended.phis()[outerHitIndex];
     mds.outerEta()[idx] = hitsExtended.etas()[outerHitIndex];
@@ -84,6 +86,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     mds.outerHighEdgeY()[idx] = hitsExtended.highEdgeYs()[outerHitIndex];
     mds.outerLowEdgeX()[idx] = hitsExtended.lowEdgeXs()[outerHitIndex];
     mds.outerLowEdgeY()[idx] = hitsExtended.lowEdgeYs()[outerHitIndex];
+#endif
   }
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool isTighterTiltedModules(ModulesConst modules, uint16_t moduleIndex) {
@@ -128,7 +131,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return moduleSeparation;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float dPhiThreshold(TAcc const& acc,
                                                      float rt,
                                                      ModulesConst modules,
@@ -192,7 +195,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_INLINE ALPAKA_FN_ACC void shiftStripHits(TAcc const& acc,
                                                      ModulesConst modules,
                                                      uint16_t lowerModuleIndex,
@@ -250,10 +253,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float absdzprime;  // The distance between the two points after shifting
     const float& drdz_ = modules.drdzs()[lowerModuleIndex];
     // Assign hit pointers based on their hit type
+    bool pHitInverted = false;
     if (modules.moduleType()[lowerModuleIndex] == PS) {
       // TODO: This is somewhat of an mystery.... somewhat confused why this is the case
-      if (modules.subdets()[lowerModuleIndex] == Barrel ? modules.moduleLayerType()[lowerModuleIndex] != Pixel
-                                                        : modules.moduleLayerType()[lowerModuleIndex] == Pixel) {
+      if (modules.moduleLayerType()[lowerModuleIndex] == Pixel) {
         xo = xUpper;
         yo = yUpper;
         xp = xLower;
@@ -267,6 +270,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         yp = yUpper;
         zp = zUpper;
         rtp = rtUpper;
+        pHitInverted = true;
       }
     } else {
       xo = xUpper;
@@ -293,7 +297,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     moduleSeparation = moduleGapSize(modules, lowerModuleIndex);
 
     // Sign flips if the pixel is later layer
-    if (modules.moduleType()[lowerModuleIndex] == PS and modules.moduleLayerType()[lowerModuleIndex] != Pixel) {
+    if (modules.isGloballyInner()[lowerModuleIndex] == pHitInverted) {
       moduleSeparation *= -1;
     }
 
@@ -359,7 +363,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     shiftedCoords[2] = zn;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC bool runMiniDoubletDefaultAlgoBarrel(TAcc const& acc,
                                                      ModulesConst modules,
                                                      uint16_t lowerModuleIndex,
@@ -456,7 +460,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     // Ref to original code: https://github.com/slava77/cms-tkph2-ntuple/blob/184d2325147e6930030d3d1f780136bc2dd29ce6/doubletAnalysis.C#L3076
     if (modules.sides()[lowerModuleIndex] != Center) {
       // When it is tilted, use the new shifted positions
-      if (modules.moduleLayerType()[lowerModuleIndex] != Pixel) {
+      if (modules.moduleLayerType()[lowerModuleIndex] == Pixel) {
         // dPhi Change should be calculated so that the upper hit has higher rt.
         // In principle, this kind of check rt_lower < rt_upper should not be necessary because the hit shifting should have taken care of this.
         // (i.e. the strip hit is shifted to be aligned in the line of sight from interaction point to pixel hit of PS module guaranteeing rt ordering)
@@ -487,7 +491,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return alpaka::math::abs(acc, dPhiChange) < miniCut;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC bool runMiniDoubletDefaultAlgoEndcap(TAcc const& acc,
                                                      ModulesConst modules,
                                                      uint16_t lowerModuleIndex,
@@ -599,7 +603,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return alpaka::math::abs(acc, dPhiChange) < miniCut;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC bool runMiniDoubletDefaultAlgo(TAcc const& acc,
                                                ModulesConst modules,
                                                uint16_t lowerModuleIndex,
@@ -622,7 +626,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                float yUpper,
                                                float zUpper,
                                                float rtUpper,
-                                               const float ptCut) {
+                                               const float ptCut,
+                                               uint16_t clustSizeLower,
+                                               uint16_t clustSizeUpper,
+                                               const uint16_t clustSizeCut) {
+    if (clustSizeLower > clustSizeCut or clustSizeUpper > clustSizeCut) {
+      return false;
+    }
     if (modules.subdets()[lowerModuleIndex] == Barrel) {
       return runMiniDoubletDefaultAlgoBarrel(acc,
                                              modules,
@@ -683,7 +693,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   MiniDoublets mds,
                                   MiniDoubletsOccupancy mdsOccupancy,
                                   ObjectRangesConst ranges,
-                                  const float ptCut) const {
+                                  const float ptCut,
+                                  const uint16_t clustSizeCut) const {
       for (uint16_t lowerModuleIndex : cms::alpakatools::uniform_elements_y(acc, modules.nLowerModules())) {
         uint16_t upperModuleIndex = modules.partnerModuleIndices()[lowerModuleIndex];
         int nLowerHits = hitsRanges.hitRangesnLower()[lowerModuleIndex];
@@ -711,6 +722,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           float yUpper = hitsBase.ys()[upperHitArrayIndex];
           float zUpper = hitsBase.zs()[upperHitArrayIndex];
           float rtUpper = hitsExtended.rts()[upperHitArrayIndex];
+          uint16_t clustSizeLower = hitsBase.clustsize()[lowerHitArrayIndex];
+          uint16_t clustSizeUpper = hitsBase.clustsize()[upperHitArrayIndex];
 
           float dz, dphi, dphichange, shiftedX, shiftedY, shiftedZ, noShiftedDphi, noShiftedDphiChange;
           bool success = runMiniDoubletDefaultAlgo(acc,
@@ -735,7 +748,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                    yUpper,
                                                    zUpper,
                                                    rtUpper,
-                                                   ptCut);
+                                                   ptCut,
+                                                   clustSizeLower,
+                                                   clustSizeUpper,
+                                                   clustSizeCut);
           if (success) {
             int totOccupancyMDs = alpaka::atomicAdd(
                 acc, &mdsOccupancy.totOccupancyMDs()[lowerModuleIndex], 1u, alpaka::hierarchy::Threads{});

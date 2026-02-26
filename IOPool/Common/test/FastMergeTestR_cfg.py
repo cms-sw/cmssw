@@ -11,7 +11,7 @@ process.CPU = cms.Service("CPU",
     disableJobReportOutput = cms.untracked.bool(True)
 )
 
-process.AdaptorConfig = cms.Service("AdaptorConfig",
+process.TFileAdaptor = cms.Service("TFileAdaptor",
     stats = cms.untracked.bool(False)
 )
 

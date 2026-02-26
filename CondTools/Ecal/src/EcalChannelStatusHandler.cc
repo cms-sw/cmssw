@@ -454,7 +454,7 @@ void popcon::EcalChannelStatusHandler::daqOut(const RunIOV& _myRun) {
                                              "EE_crystal_number");
 
       for (size_t mycrys = 0; mycrys < badCrystals.size(); mycrys++) {
-        EcalLogicID ecid_xt = badCrystals[mycrys];
+        const EcalLogicID& ecid_xt = badCrystals[mycrys];
         int zSide = 999;
         int log_id = ecid_xt.getLogicID();
         int yt2 = log_id % 1000;              //  EE_crystal_number:   2010100060 -> z=-1, x=100, y=60
@@ -488,7 +488,7 @@ void popcon::EcalChannelStatusHandler::daqOut(const RunIOV& _myRun) {
                                              "EB_crystal_number");
 
       for (size_t mycrys = 0; mycrys < badCrystals.size(); mycrys++) {
-        EcalLogicID ecid_xt = badCrystals[mycrys];
+        const EcalLogicID& ecid_xt = badCrystals[mycrys];
         int sm_num = ecid_xt.getID1();
         int log_id = ecid_xt.getLogicID();
         int xt2_num = log_id % 10000;

@@ -23,7 +23,7 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
-    unsigned int trackSize_;
+    const unsigned int trackSize_;
     edm::EDPutTokenT<::reco::TracksHost> putToken_;
   };
 
@@ -31,11 +31,12 @@ namespace edmtest {
       : trackSize_(iPSet.getParameter<unsigned int>("trackSize")), putToken_(produces()) {}
 
   void TestWriteHostTrackSoA::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
-    ::reco::TracksHost tracks({{int(trackSize_), int(4 * trackSize_)}}, cms::alpakatools::host());
-    auto tracksView = tracks.view();
+    ::reco::TracksHost tracks(cms::alpakatools::host(), trackSize_, 4 * trackSize_);
+    auto tracksBlocksView = tracks.view();
     for (unsigned int i = 0; i < trackSize_; ++i) {
-      tracksView[i].eta() = float(i);
+      tracksBlocksView.tracks()[i].eta() = float(i);
     }
+    tracksBlocksView.tracks().nTracks() = trackSize_;
     iEvent.emplace(putToken_, std::move(tracks));
   }
 

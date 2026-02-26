@@ -36,25 +36,23 @@
 #include <map>
 #include <vector>
 #include <memory>
+
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProductFwd.h"
+
 /** \class PhotonValidator
  **
  **
  **  $Id: PhotonValidator
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
- ***/
+ **/
 
 // forward declarations
-namespace edm {
-  class HepMCProduct;
-}
 class TFile;
 class TH1F;
 class TH2F;
 class TProfile;
 class TTree;
-class SimVertex;
-class SimTrack;
 
 class PhotonValidator : public DQMOneEDAnalyzer<> {
 public:

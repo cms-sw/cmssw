@@ -23,12 +23,13 @@ ETLDeviceSim::ETLDeviceSim(const edm::ParameterSet& pset, edm::ConsumesCollector
       lgadGainDegradation_(pset.getParameter<std::string>("LGADGainDegradation")),
       applyDegradation_(pset.getParameter<bool>("applyDegradation")),
       bxTime_(pset.getParameter<double>("bxTime")),
-      tofDelay_(pset.getParameter<double>("tofDelay")),
       MPVMuon_(pset.getParameter<std::string>("MPVMuon")),
       MPVPion_(pset.getParameter<std::string>("MPVPion")),
       MPVKaon_(pset.getParameter<std::string>("MPVKaon")),
       MPVElectron_(pset.getParameter<std::string>("MPVElectron")),
-      MPVProton_(pset.getParameter<std::string>("MPVProton")) {}
+      MPVProton_(pset.getParameter<std::string>("MPVProton")),
+      tdcWindowStart_(pset.getParameter<double>("tdcWindowStart")),
+      tdcWindowEnd_(pset.getParameter<double>("tdcWindowEnd")) {}
 
 void ETLDeviceSim::getEventSetup(const edm::EventSetup& evs) { geom_ = &evs.getData(geomToken_); }
 
@@ -73,7 +74,7 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
     const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
-    const float toa = std::get<2>(hitRefs[i]) + tofDelay_;
+    const float toa = std::get<2>(hitRefs[i]);
     const PSimHit& hit = hits->at(hitidx);
     float charge = convertGeVToMeV(hit.energyLoss()) * MIPPerMeV_;
 
@@ -132,9 +133,13 @@ void ETLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     auto simHitIt =
         simHitAccumulator->emplace(mtd_digitizer::MTDCellId(id, row, col), mtd_digitizer::MTDCellInfo()).first;
 
+    // Check if toa is within the ETROC TDC window [12.5 ns nominal]
+    if (toa < tdcWindowStart_ || toa > tdcWindowEnd_)
+      continue;
+
     // Accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
-    const int itime = std::floor(toa / bxTime_) + 9;
-    if (itime < 0 || itime > 14)
+    const int itime = std::floor(toa / bxTime_) + mtd_digitizer::kInTimeBX;
+    if (itime < 0 || itime >= mtd_digitizer::kNumberOfBX)
       continue;
 
     // Check if time index is ok and store energy

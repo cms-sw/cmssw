@@ -38,7 +38,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Reflection/interface/DictionaryTools.h"
 
 namespace edm {
@@ -84,6 +83,11 @@ namespace edm {
       origBranchIDLists_ = desc.branchIDLists_;
     }
 
+    bool OutputModuleCore::finalSelection(ProductDescription const& desc) const {
+      // by defauilt, if the class of the branch is marked transient, output nothing
+      return desc.transient() == false;
+    }
+
     void OutputModuleCore::selectProducts(ProductRegistry const& preg,
                                           ThinnedAssociationsHelper const& thinnedAssociationsHelper,
                                           ProcessBlockHelperBase const& processBlockHelper) {
@@ -103,17 +107,18 @@ namespace edm {
 
       for (auto const& it : preg.productList()) {
         ProductDescription const& desc = it.second;
-        if (desc.transient()) {
-          // if the class of the branch is marked transient, output nothing
-        } else if (!desc.present() && !desc.produced()) {
+        if (!desc.present() && !desc.produced()) {
           // else if the branch containing the product has been previously dropped,
           // output nothing
         } else if (desc.unwrappedType() == typeid(ThinnedAssociation)) {
           associationDescriptions.push_back(&desc);
         } else if (selected(desc)) {
-          keepThisBranch(desc, trueBranchIDToKeptBranchDesc, keptProductsInEvent);
-          insertSelectedProcesses(
-              desc, processesWithSelectedMergeableRunProducts, processesWithKeptProcessBlockProducts);
+          //allow inheriting classes to have final say on selection
+          if (finalSelection(desc)) {
+            keepThisBranch(desc, trueBranchIDToKeptBranchDesc, keptProductsInEvent);
+            insertSelectedProcesses(
+                desc, processesWithSelectedMergeableRunProducts, processesWithKeptProcessBlockProducts);
+          }
         } else {
           // otherwise, output nothing,
           // and mark the fact that there is a newly dropped branch of this type.

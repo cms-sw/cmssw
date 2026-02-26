@@ -26,5 +26,8 @@ process.load("GeneratorInterface.RivetInterface.mergedGenParticles_cfi")
 process.load("GeneratorInterface.RivetInterface.genParticles2HepMC_cfi")
 process.genParticles2HepMC.genParticles = cms.InputTag("mergedGenParticles")
 
+# Turn on to write HepMC file
+#process.genParticles2HepMC.writeHepMC = cms.untracked.bool(True)
+
 process.path = cms.Path(process.mergedGenParticles*process.genParticles2HepMC)
 

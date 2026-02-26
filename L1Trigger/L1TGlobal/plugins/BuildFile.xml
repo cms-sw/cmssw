@@ -10,6 +10,7 @@
 <use name="CondFormats/DataRecord"/>
 <use name="xerces-c"/>
 <use name="utm"/>
+<use name="fmt"/>
 <use name="L1Trigger/L1TGlobal"/>
 <use name="L1Trigger/L1TCommon"/>
 <library file="*.cc" name="L1TriggerL1TGlobalPlugins">

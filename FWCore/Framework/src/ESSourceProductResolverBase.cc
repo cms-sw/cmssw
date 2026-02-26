@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <fmt/format.h>
+#include <format>
 
 // user include files
 #include "FWCore/Framework/interface/ESSourceProductResolverBase.h"
@@ -51,7 +51,7 @@ void edm::eventsetup::ESSourceProductResolverBase::doPrefetchAndSignals(
   try {
     convertException::wrap([&] { prefetch(iKey, EventSetupRecordDetails(&iRecord)); });
   } catch (cms::Exception& iException) {
-    iException.addContext(fmt::format(
+    iException.addContext(std::format(
         "Retrieving data product {} '{}' in record {}", iKey.type().name(), iKey.name().value(), iRecord.key().name()));
     exceptionContext(iException, context);
     throw;

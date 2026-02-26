@@ -79,7 +79,7 @@ void HLTTauDQMTagAndProbePlotter::bookHistograms(HistoWrapper& iWrapper,
 HLTTauDQMTagAndProbePlotter::~HLTTauDQMTagAndProbePlotter() = default;
 
 LV HLTTauDQMTagAndProbePlotter::findTrgObject(std::string pathName, const trigger::TriggerEvent& triggerEvent) {
-  trigger::TriggerObjectCollection trigObjs = triggerEvent.getObjects();
+  const trigger::TriggerObjectCollection& trigObjs = triggerEvent.getObjects();
   const unsigned moduleIndex = moduleLabels.size() - 2;
 
   const unsigned hltFilterIndex = triggerEvent.filterIndex(edm::InputTag(moduleLabels[moduleIndex], "", "HLT"));

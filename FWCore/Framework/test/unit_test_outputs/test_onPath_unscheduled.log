@@ -1,3 +1,6 @@
+++ finished: construction of Services
+++ starting: construction of EventSetup modules
+++ finished: construction of EventSetup modules
 ++ starting: constructing source: EmptySource
 ++ finished: constructing source: EmptySource
 ++++ starting: constructing module with label 'TriggerResults' id = 1
@@ -12,7 +15,17 @@
 ++++ finished: constructing module with label 'two' id = 5
 ++++ starting: constructing module with label 'getTwo' id = 6
 ++++ finished: constructing module with label 'getTwo' id = 6
+++ starting: finalize Schedule
+++ finished: finalize Schedule
+++ starting: creation of Run, LuminosityBlock, and Event Principals
+++ finished: creation of Run, LuminosityBlock, and Event Principals
 ++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
+++ starting: schedule consistency check
+++ finished: schedule consistency check
+++ starting: finalize EventSetup configuration
+++ finished: finalize EventSetup configuration
+++ starting: finalize EDModules' initialization
+++ finished: finalize EDModules' initialization
 ++ starting: begin job
 ++++ starting: begin job for module with label 'TriggerResults' id = 1
 ++++ finished: begin job for module with label 'TriggerResults' id = 1

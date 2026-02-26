@@ -23,10 +23,16 @@ from HLTrigger.NGTScouting.hltTaus_cfi import *
 from HLTrigger.NGTScouting.hltTracksters_cfi import *
 from HLTrigger.NGTScouting.hltTICLCandidates_cfi import *
 from HLTrigger.NGTScouting.hltTICLSuperClusters_cfi import *
+from HLTrigger.NGTScouting.hltLayerClusters_cfi import * 
 from HLTrigger.NGTScouting.hltSums_cfi import *
 from HLTrigger.NGTScouting.hltTriggerAcceptFilter_cfi import hltTriggerAcceptFilter,dstTriggerAcceptFilter
 
-NanoGenTable = cms.Sequence(
+######################################
+# Tables 
+######################################
+
+# Produce and store gen particles and gen jets
+NanoGenTables = cms.Sequence(
     prunedGenParticlesWithStatusOne
     + prunedGenParticles
     + finalGenParticles
@@ -42,12 +48,12 @@ NanoGenTable = cms.Sequence(
     + genJetFlavourTable
 )
 
-hltNanoProducer = cms.Sequence(
-    NanoGenTable
-    #+ hltTriggerAcceptFilter
-    + hltVertexTable
-    + hltPixelTrackTable
+# Store hlt objects for NGT scouting
+NanoHltTables = cms.Sequence(
+    hltVertexTable
+    + hltPixelVertexTable
     + hltGeneralTrackTable
+    + hltGeneralTrackExtTable
     + hltEgammaPacker
     + hltPhotonTable
     + hltElectronTable
@@ -55,38 +61,80 @@ hltNanoProducer = cms.Sequence(
     + hltMuonTable
     + hltPFCandidateTable
     + hltJetTable
-    + hltTrackstersTableSequence
-    + hltTiclCandidateTable
-    + hltTiclCandidateExtraTable
-    + hltTiclSuperClustersTable
     + hltTauTable
     + hltTauExtTable
     + METTable
     + HTTable
 )
 
-dstNanoProducer = cms.Sequence(
-    NanoGenTable
-    + dstTriggerAcceptFilter
-    + hltVertexTable
-    + hltPixelTrackTable
-    + hltGeneralTrackTable
-    + hltEgammaPacker
-    + hltPhotonTable
-    + hltElectronTable
-    + hltPhase2L3MuonIdTracks
-    + hltMuonTable
-    + hltPFCandidateTable
-    + hltJetTable
-    + hltTauTable
-    + hltTrackstersTableSequence
+# Store HGCal lower-level objects
+NanoHGCalTables = cms.Sequence(
+    hltTrackstersTableSequence
     + hltTiclCandidateTable
     + hltTiclCandidateExtraTable
     + hltTiclSuperClustersTable
-    + hltTauExtTable
-    + METTable
-    + HTTable
 )
+
+# Store PixelTracks objects
+NanoPixelTables = cms.Sequence(
+    pixelTrackAssoc
+    + hltPixelTrackTable
+    + hltPixelTrackExtTable
+    + hltPixelTrackRecHitsTable
+)
+
+# Store variables and associators for validation purposes
+NanoValTables = cms.Sequence(
+    hltTiclAssociationsTableSequence
+    + hltSimTracksterSequence
+    + hltSimTiclCandidateTable
+    + hltSimTiclCandidateExtraTable
+    + hltLayerClustersTableSequence
+)
+
+######################################
+# Sequences for Nano flavours
+######################################
+
+# NGT Scouting Nano flavour (NANO:@NGTScouting)
+dstNanoFlavour = cms.Sequence(
+    dstTriggerAcceptFilter
+    + NanoHltTables
+)
+
+# NGT Scouting Nano flavour with MC/HGCal info (NANO:@NGTScoutingVal)
+dstValidationNanoFlavour = cms.Sequence(
+    NanoGenTables
+    + dstTriggerAcceptFilter
+    + NanoHltTables
+    + NanoPixelTables
+    + NanoHGCalTables
+    + NanoValTables
+)
+
+# Phase-2 HLT Nano flavour (NANO:@Phase2HLT)
+hltNanoFlavour = cms.Sequence(
+    NanoHltTables
+)
+
+# Phase-2 HLT Nano flavour with MC/HGCal info (NANO:@Phase2HLTVal)
+hltValidationNanoFlavour = cms.Sequence(
+    NanoGenTables
+    + NanoHltTables
+    + NanoPixelTables
+    + NanoHGCalTables
+    + NanoValTables
+)
+
+# Phase-2 HLT Nano flavour for pixel tracking validation / optimization
+hltPixelOnlyNanoFlavour = cms.Sequence(
+    NanoGenTables
+    + NanoPixelTables
+)
+
+######################################
+# Customization
+######################################
 
 def hltNanoCustomize(process):
 
@@ -102,12 +150,5 @@ def hltNanoCustomize(process):
                 [p for p in process.paths if p.startswith('HLT_') or p.startswith('MC_') or p.startswith('DST_')]
             )
         )
-
-    return process
-
-def hltNanoValCustomize(process):
-    if hasattr(process, "dstNanoProducer"):
-
-        process.dstNanoProducer += (process.hltTiclAssociationsTableSequence + process.hltSimTracksterSequence + process.hltSimTiclCandidateTable + process.hltSimTiclCandidateExtraTable )
 
     return process

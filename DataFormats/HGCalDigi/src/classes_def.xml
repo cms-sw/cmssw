@@ -41,24 +41,35 @@
   </class>
   <class name="edm::Wrapper<HGCalSlinkEmulatorInfo>"/>
 
+  <class name="hgcaldigi::HGCalDigiHost"  rntupleStreamerMode="true"/>
+  <!-- ::Layout alias must be listed before the aliased-to type -->
+  <class name="hgcaldigi::HGCalDigiHost::Layout"/>
   <class name="hgcaldigi::HGCalDigiSoA"/>
   <class name="hgcaldigi::HGCalDigiSoA::View"/>
-  <class name="hgcaldigi::HGCalDigiHost"/>
 
   <class name="hgcaldigi::HGCalDigiSoALayout<128,false>"/>
   <class name="edm::Wrapper<PortableHostCollection<hgcaldigi::HGCalDigiSoALayout<128,false> > >" splitLevel="0"/>
 
-  <!-- Recursive templates implementing the association of indices and layouts, and containing the data -->
-  <class name="portablecollection::CollectionLeaf<0, hgcaldigi::HGCalDigiSoALayout<128, false>>"/>
-
+  <class name="hgcaldigi::HGCalECONDPacketInfoHost" rntupleStreamerMode="true"/>
+  <!-- ::Layout alias must be listed before the aliased-to type -->
+  <class name="hgcaldigi::HGCalECONDPacketInfoHost::Layout"/>
   <class name="hgcaldigi::HGCalECONDPacketInfoSoA"/>
   <class name="hgcaldigi::HGCalECONDPacketInfoSoA::View"/>
-  <class name="hgcaldigi::HGCalECONDPacketInfoHost"/>
   <class name="edm::Wrapper<hgcaldigi::HGCalECONDPacketInfoHost>" splitLevel="0"/>
 
+  <class name="hgcaldigi::HGCalFEDPacketInfoHost" rntupleStreamerMode="true"/>
+  <!-- ::Layout alias must be listed before the aliased-to type -->
+  <class name="hgcaldigi::HGCalFEDPacketInfoHost::Layout"/>
   <class name="hgcaldigi::HGCalFEDPacketInfoSoA"/>
   <class name="hgcaldigi::HGCalFEDPacketInfoSoA::View"/>
-  <class name="hgcaldigi::HGCalFEDPacketInfoHost"/>
   <class name="edm::Wrapper<hgcaldigi::HGCalFEDPacketInfoHost>" splitLevel="0"/>
 
+  <class name="hgcaldigi::HGCalDigiTriggerHost" rntupleStreamerMode="true"/>
+  <!-- ::Layout alias must be listed before the aliased-to type -->
+  <class name="hgcaldigi::HGCalDigiTriggerHost::Layout"/>
+  <class name="hgcaldigi::HGCalDigiTriggerSoA"/>
+  <class name="hgcaldigi::HGCalDigiTriggerSoA::View"/>
+  <class name="hgcaldigi::HGCalDigiTriggerSoALayout<128,false>"/>
+  <class name="edm::Wrapper<PortableHostCollection<hgcaldigi::HGCalDigiTriggerSoALayout<128,false> > >" splitLevel="0"/>
+  
 </lcgdict>

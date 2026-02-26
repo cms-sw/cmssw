@@ -1,6 +1,7 @@
 #ifndef RecoTracker_DeDx_LikelihoodFitDeDxEstimator_h
 #define RecoTracker_DeDx_LikelihoodFitDeDxEstimator_h
 
+#include <cmath>
 #include "RecoTracker/DeDx/interface/BaseDeDxEstimator.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 
@@ -36,9 +37,9 @@ private:
 };
 
 /*****************************************************************************/
-void LikelihoodFitDeDxEstimator::calculate_wrt_epsilon(const reco::DeDxHit& h,
-                                                       const double& epsilon,
-                                                       std::array<double, 3>& value) {
+inline void LikelihoodFitDeDxEstimator::calculate_wrt_epsilon(const reco::DeDxHit& h,
+                                                              const double& epsilon,
+                                                              std::array<double, 3>& value) {
   const auto& ls = h.pathLength();
   const auto& sn = h.error();      // energy sigma
   const auto y = h.charge() * ls;  // = g * y
@@ -83,17 +84,17 @@ void LikelihoodFitDeDxEstimator::calculate_wrt_epsilon(const reco::DeDxHit& h,
 }
 
 /*****************************************************************************/
-void LikelihoodFitDeDxEstimator::functionEpsilon(const reco::DeDxHitCollection& Hits,
-                                                 const double& epsilon,
-                                                 std::array<double, 3>& val) {
+inline void LikelihoodFitDeDxEstimator::functionEpsilon(const reco::DeDxHitCollection& Hits,
+                                                        const double& epsilon,
+                                                        std::array<double, 3>& val) {
   val = {{0, 0, 0}};
   for (const auto& h : Hits)
     calculate_wrt_epsilon(h, epsilon, val);
 }
 
 /*****************************************************************************/
-double LikelihoodFitDeDxEstimator::minimizeAllSaturated(const reco::DeDxHitCollection& Hits,
-                                                        std::array<double, 2>& value) {
+inline double LikelihoodFitDeDxEstimator::minimizeAllSaturated(const reco::DeDxHitCollection& Hits,
+                                                               std::array<double, 2>& value) {
   int nStep(0);
   double par(3.0);  // input MeV/cm
 
@@ -112,8 +113,8 @@ double LikelihoodFitDeDxEstimator::minimizeAllSaturated(const reco::DeDxHitColle
 }
 
 /*****************************************************************************/
-double LikelihoodFitDeDxEstimator::newtonMethodEpsilon(const reco::DeDxHitCollection& Hits,
-                                                       std::array<double, 2>& value) {
+inline double LikelihoodFitDeDxEstimator::newtonMethodEpsilon(const reco::DeDxHitCollection& Hits,
+                                                              std::array<double, 2>& value) {
   int nStep(0);
   double par(3.0);  // input MeV/cm
   double dpar(0);
@@ -139,7 +140,7 @@ double LikelihoodFitDeDxEstimator::newtonMethodEpsilon(const reco::DeDxHitCollec
 }
 
 /*****************************************************************************/
-double LikelihoodFitDeDxEstimator::estimate(const reco::DeDxHitCollection& Hits, std::array<double, 2>& value) {
+inline double LikelihoodFitDeDxEstimator::estimate(const reco::DeDxHitCollection& Hits, std::array<double, 2>& value) {
   // use newton method if at least one hit is not saturated
   for (const auto& h : Hits)
     if (h.rawDetId() == 0)

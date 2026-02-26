@@ -32,9 +32,8 @@ def customiseTrackingNtupleTool(process, isRECO = True, mergeIters = False):
     if not isRECO:
         if not hasattr(process,"hltMultiTrackValidation"):
             process.load("Validation.RecoTrack.HLTmultiTrackValidator_cff")
-        process.trackingNtupleSequence = process.hltMultiTrackValidation.copy()
+        process.trackingNtupleSequence = cms.Sequence(process.hltMultiTrackValidationTask)
         process.trackingNtupleSequence.insert(0,process.trackingParticlesIntime+process.simHitTPAssocProducer)
-        process.trackingNtupleSequence.remove(process.hltTrackValidator)
 
         if hasattr(process, "HLTIterativeTrackingIter02"):
             if not hasattr(process, "hltSiStripRecHits"):
@@ -164,13 +163,7 @@ def customiseTrackingNtupleHLT(process):
 
     process.trackingNtuple.trackCandidates = ["hltIter0PFlowCkfTrackCandidates", "hltDoubletRecoveryPFlowCkfTrackCandidates"]
     trackingPhase2PU140.toModify(process.trackingNtuple, trackCandidates = ["hltInitialStepTrackCandidates", "hltHighPtTripletStepTrackCandidates"])
-    (singleIterPatatrack & (~trackingLST | seedingLST)).toModify(process.trackingNtuple, trackCandidates = ["hltInitialStepTrackCandidates"])
-    (singleIterPatatrack & trackingLST & ~seedingLST).toModify(process.trackingNtuple,
-        trackCandidates = ["hltInitialStepTrackCandidates:pTCsLST", "hltInitialStepTrackCandidates:t5TCsLST"])
-    (~singleIterPatatrack & trackingLST & ~seedingLST).toModify(process.trackingNtuple,
-        trackCandidates = ["hltInitialStepTrackCandidates:pTCsLST", "hltInitialStepTrackCandidates:t5TCsLST", "hltHighPtTripletStepTrackCandidates"])
-    (~singleIterPatatrack & trackingLST & seedingLST).toModify(process.trackingNtuple,
-        trackCandidates = ["hltInitialStepTrackCandidates:pTTCsLST", "hltInitialStepTrackCandidates:t5TCsLST", "hltHighPtTripletStepTrackCandidatespLSTCLST"])
+    singleIterPatatrack.toModify(process.trackingNtuple, trackCandidates = ["hltInitialStepTrackCandidates"])
 
     process.trackingNtuple.clusterMasks = [dict(index = getattr(_algo,"pixelPairStep"), src = "hltDoubletRecoveryClustersRefRemoval")]
     trackingPhase2PU140.toModify(process.trackingNtuple, clusterMasks = [dict(index = getattr(_algo,"highPtTripletStep"), src = "hltHighPtTripletStepClusters")])

@@ -96,7 +96,7 @@ namespace {
     namespace mpt = Matriplex;
     using MPF = MPlexQF;
 
-    MPF alpha = s * mpt::fast_sin(inPar(5, 0)) * inPar(3, 0) * kinv;
+    const MPF alpha = s * mpt::fast_sin(inPar(5, 0)) * inPar(3, 0) * kinv;
 
     MPF sinah, cosah;
     if constexpr (Config::useTrigApprox) {
@@ -147,9 +147,6 @@ namespace {
     // use code from AnalyticalCurvilinearJacobian::computeFullJacobian for error propagation in curvilinear coordinates, then convert to CCS
     // main difference from the above function is that we assume that the magnetic field is purely along z (which also implies that there is no change in pz)
     // this simplifies significantly the code
-
-    MPlex55 errorPropCurv;
-
     const MPF qbp = mpt::negate_if_ltz(sinT * inPar(3, 0), inChg);
     // calculate transport matrix
     // Origin: TRPRFN
@@ -184,6 +181,8 @@ namespace {
     // now prepare the transport matrix
     const MPF omcost = 1.f - cost;
     const MPF tmsint = theta - sint;
+
+    MPlex55 errorPropCurv{0.0f};
     //   1/p - doesn't change since |p1| = |p2|
     errorPropCurv.aij(0, 0) = 1.f;
     for (int i = 1; i < 5; ++i)
@@ -209,7 +208,7 @@ namespace {
 
     //   yt
     for (int n = 0; n < N_proc; ++n) {
-      float cutCriterion = fabs(s[n] * sinT[n] * inPar(n, 3, 0));
+      const float cutCriterion = std::abs(s[n] * sinT[n] * inPar(n, 3, 0));
       const float limit = 5.f;  // valid for propagations with effectively float precision
       if (cutCriterion > limit) {
         const float pp = 1.f / qbp[n];
@@ -364,18 +363,18 @@ namespace {
              float cosP,
              float sinT,
              float cosT,
-             float pt,
+             float ipt,
              int q,
              float kinv) {
-    float A = delta0 * eta0 + delta1 * eta1 + delta2 * eta2;
-    float ip = sinT / pt;
-    float p0[3] = {pt * cosP, pt * sinP, cosT / ip};
-    float B = (p0[0] * eta0 + p0[1] * eta1 + p0[2] * eta2) * ip;
-    float rho = kinv * ip;
-    float C = (eta0 * p0[1] - eta1 * p0[0]) * rho * 0.5f * ip;
-    float sqb2m4ac = std::sqrt(B * B - 4.f * A * C);
-    float s1 = (-B + sqb2m4ac) * 0.5f / C;
-    float s2 = (-B - sqb2m4ac) * 0.5f / C;
+    const float A = delta0 * eta0 + delta1 * eta1 + delta2 * eta2;
+    const float ip = sinT * ipt;
+    const float p0[3] = {cosP / ipt, sinP / ipt, cosT / ip};
+    const float B = (p0[0] * eta0 + p0[1] * eta1 + p0[2] * eta2) * ip;
+    const float rho = kinv * ip;
+    const float C = -(eta0 * p0[1] - eta1 * p0[0]) * rho * 0.5f * ip;
+    const float sqb2m4ac = std::sqrt(B * B - 4.f * A * C);
+    const float s1 = (-B + sqb2m4ac) * 0.5f / C;
+    const float s2 = (-B - sqb2m4ac) * 0.5f / C;
 #ifdef DEBUG
     if (debug)
       std::cout << "A=" << A << " B=" << B << " C=" << C << " s1=" << s1 << " s2=" << s2 << std::endl;
@@ -400,12 +399,12 @@ namespace {
 #ifdef DEBUG
     for (int n = 0; n < N_proc; ++n) {
       dprint_np(n,
-                "input parameters"
-                    << " inPar(n, 0, 0)=" << std::setprecision(9) << inPar(n, 0, 0) << " inPar(n, 1, 0)="
-                    << std::setprecision(9) << inPar(n, 1, 0) << " inPar(n, 2, 0)=" << std::setprecision(9)
-                    << inPar(n, 2, 0) << " inPar(n, 3, 0)=" << std::setprecision(9) << inPar(n, 3, 0)
-                    << " inPar(n, 4, 0)=" << std::setprecision(9) << inPar(n, 4, 0)
-                    << " inPar(n, 5, 0)=" << std::setprecision(9) << inPar(n, 5, 0));
+                "input parameters" << " inPar(n, 0, 0)=" << std::setprecision(9) << inPar(n, 0, 0)
+                                   << " inPar(n, 1, 0)=" << std::setprecision(9) << inPar(n, 1, 0)
+                                   << " inPar(n, 2, 0)=" << std::setprecision(9) << inPar(n, 2, 0)
+                                   << " inPar(n, 3, 0)=" << std::setprecision(9) << inPar(n, 3, 0)
+                                   << " inPar(n, 4, 0)=" << std::setprecision(9) << inPar(n, 4, 0)
+                                   << " inPar(n, 5, 0)=" << std::setprecision(9) << inPar(n, 5, 0));
     }
 #endif
 
@@ -449,10 +448,9 @@ namespace {
                                              : (plPnt.constAt(n, 2, 0) - inPar.constAt(n, 2, 0)) / cosT[n]);
     }
 
-    MPlexLV outParTmp;
-
-    CMS_UNROLL_LOOP_COUNT(Config::Niter - 1)
-    for (int i = 0; i < Config::Niter - 1; ++i) {
+    CMS_UNROLL_LOOP_COUNT(Config::nSStepsInProp2Plane - 1)
+    for (int i = 0; i < Config::nSStepsInProp2Plane - 1; ++i) {
+      MPlexLV outParTmp{0.0f};
       parsFromPathL_impl(inPar, outParTmp, kinv, s);
 
       delta0 = outParTmp(0, 0) - plPnt(0, 0);
@@ -539,8 +537,8 @@ namespace mkfit {
     outErr = inErr;
     outPar = inPar;
 
-    MPlexQF pathL;
-    MPlexLL errorProp;
+    MPlexQF pathL{0.0f};
+    MPlexLL errorProp{0.0f};
 
     helixAtPlane(inPar, inChg, plPnt, plNrm, pathL, outPar, errorProp, outFailFlag, N_proc, pflags);
 
@@ -601,7 +599,7 @@ namespace mkfit {
 
     // Matriplex version of:
     // result.errors = ROOT::Math::Similarity(errorProp, outErr);
-    MPlexLL temp;
+    MPlexLL temp{0.0f};
     MultHelixPlaneProp(errorProp, outErr, temp);
     MultHelixPlanePropTransp(errorProp, temp, outErr);
     // MultHelixPropFull(errorProp, outErr, temp);
@@ -658,13 +656,14 @@ namespace mkfit {
         if (n >= N_proc || (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0))) {
           hitsRl(n, 0, 0) = 0.f;
           hitsXi(n, 0, 0) = 0.f;
+          propSign(n, 0, 0) = -1.f;
         } else {
           const float hypo = hipo(outPar(n, 0, 0), outPar(n, 1, 0));
           const auto mat = tinfo.material_checked(std::abs(outPar(n, 2, 0)), hypo);
           hitsRl(n, 0, 0) = mat.radl;
           hitsXi(n, 0, 0) = mat.bbxi;
+          propSign(n, 0, 0) = (pathL(n, 0, 0) > 0.f ? 1.f : -1.f);
         }
-        propSign(n, 0, 0) = (pathL(n, 0, 0) > 0.f ? 1.f : -1.f);
       }
       applyMaterialEffects(hitsRl, hitsXi, propSign, plNrm, outErr, outPar, N_proc);
 #ifdef DEBUG

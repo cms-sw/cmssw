@@ -96,6 +96,7 @@ namespace {
       {"l1t::CondEnergySum", l1t::CondEnergySum},
       {"l1t::CondEnergySumZdc", l1t::CondEnergySumZdc},
       {"l1t::CondAXOL1TL", l1t::CondAXOL1TL},
+      {"l1t::CondTOPO", l1t::CondTOPO},
       {"l1t::CondCICADA", l1t::CondCICADA},
       {"l1t::CondCorrelation", l1t::CondCorrelation},
       {"l1t::CondCorrelationThreeBody", l1t::CondCorrelationThreeBody},

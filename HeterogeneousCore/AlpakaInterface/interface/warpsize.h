@@ -13,15 +13,9 @@ namespace cms::alpakatools {
   inline constexpr int warpSize = 32;
 #elif defined(__HIP_DEVICE_COMPILE__)
   // HIP/ROCm may have a warp size of 32 or 64 depending on the target device
-#if defined(__gfx900__) or defined(__gfx902__) or defined(__gfx903__) or defined(__gfx906__) or defined(__gfx908__) or \
-    defined(__gfx909__) or defined(__gfx90a__) or defined(__gfx90c__) or defined(__gfx942__) or defined(__gfx950__)
+#if defined(__GFX9__)
   inline constexpr int warpSize = 64;
-#elif defined(__gfx1010__) or defined(__gfx1011__) or defined(__gfx1012__) or defined(__gfx1013__) or \
-    defined(__gfx1030__) or defined(__gfx1031__) or defined(__gfx1032__) or defined(__gfx1033__) or   \
-    defined(__gfx1034__) or defined(__gfx1035__) or defined(__gfx1036__) or defined(__gfx1100__) or   \
-    defined(__gfx1101__) or defined(__gfx1102__) or defined(__gfx1103__) or defined(__gfx1150__) or   \
-    defined(__gfx1151__) or defined(__gfx1152__) or defined(__gfx1153__) or defined(__gfx1200__) or   \
-    defined(__gfx1201__) or defined(__gfx1250__) or defined(__gfx1251__)
+#elif defined(__GFX10__) or defined(__GFX11__) or defined(__GFX12__)
   inline constexpr int warpSize = 32;
 #else
 #error "Unknown AMDGCN architecture"

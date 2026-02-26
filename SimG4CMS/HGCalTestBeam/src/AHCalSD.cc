@@ -1,6 +1,5 @@
 #include "SimG4CMS/HGCalTestBeam/interface/AHCalSD.h"
 #include "SimG4CMS/HGCalTestBeam/interface/AHCalDetId.h"
-#include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "Geometry/HGCalCommonData/interface/AHCalParameters.h"
 
 #include "DataFormats/DetId/interface/DetId.h"

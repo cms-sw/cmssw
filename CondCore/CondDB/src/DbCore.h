@@ -622,7 +622,7 @@ namespace cond {
         if (m_tables.find(Col::tableName()) == m_tables.end()) {
           std::string const tb{Col::tableName()};
           m_coralQuery->addToTableList(std::string(tb));
-          m_tables.insert(std::move(tb));
+          m_tables.insert(tb);
         }
         return *this;
       }

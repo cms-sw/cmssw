@@ -52,7 +52,7 @@ public:
   DetId getClosestCell(const GlobalPoint& r) const override;
 
   // Get closest cell in arbitrary plane (1 or 2)
-  virtual DetId getClosestCellInPlane(const GlobalPoint& r, int plane) const;
+  DetId getClosestCellInPlane(const GlobalPoint& r, int plane) const;
 
   void initializeParms() override;
   unsigned int numberOfTransformParms() const override { return 3; }

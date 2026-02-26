@@ -18,7 +18,9 @@
 
 #include "TMath.h"
 
-#include "TGLIncludes.h"
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 #include "TGLFBO.h"
 #include "TGLWidget.h"
 
@@ -141,10 +143,6 @@ TGLFBO* FWTGLViewer::GenerateFbo(Int_t w, Int_t h, Float_t pixel_object_scale) {
   // Generate FBO -- function that does the actual work.
 
   static const TString eh("FWTGLViewer::SavePictureUsingFBO");
-
-  if (!GLEW_EXT_framebuffer_object) {
-    ::Warning(eh, "Missing FBO support.");
-  }
 
   if (!TakeLock(kDrawLock)) {
     ::Error(eh, "viewer locked - try later.");

@@ -52,7 +52,7 @@ TrgMatchMuonTable = simplePATMuonFlatTableProducer.clone(
         isPFcand    = Var("isPFMuon", bool, doc="muon is PF candidate"),
         isGlobal    = Var("isGlobalMuon", bool, doc="muon is global muon"),
         isTracker   = Var("isTrackerMuon", bool, doc="muon is tracker muon"),
-        looseId     = Var("passed('CutBasedIdLoose')", bool, doc="cut-based ID, medium WP"),
+        looseId     = Var("passed('CutBasedIdLoose')", bool, doc="cut-based ID, loose WP"),
         mediumId    = Var("passed('CutBasedIdMedium')", bool, doc="cut-based ID, medium WP"),
         # tightId     = Var("passed('CutBasedIdTight')", bool, doc="cut-based ID, tight WP"),
         triggerIdLoose  = Var("passed('TriggerIdLoose')", bool, doc="TriggerIdLoose ID"),

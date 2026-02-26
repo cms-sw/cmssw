@@ -210,7 +210,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
         classification = fKill;
       } else {
         const G4Track* mother = m_trackInterface->getCurrentTrack();
-        MCTruthUtil::secondary(track, *mother, 0);
+        MCTruthUtil::secondary(track, mother, 0);
       }
 
     } else if (isItOutOfTimeWindow(reg, time)) {
@@ -257,10 +257,13 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
           if (killInCalo && classification != fKill && isThisRegion(reg, caloRegions)) {
             classification = fKill;
           }
-          if (killInCaloEfH && classification != fKill) {
-            int pdgMother = std::abs(m_trackInterface->getCurrentTrack()->GetDefinition()->GetPDGEncoding());
-            if ((pdg == 22 || abspdg == 11) && pdgMother != 11 && pdgMother != 22 && isThisRegion(reg, caloRegions)) {
-              classification = fKill;
+          if (killInCaloEfH && classification != fKill && (pdg == 22 || abspdg == 11)) {
+            auto mother = m_trackInterface->getCurrentTrack();
+            if (nullptr != mother) {
+              int pdgMother = std::abs(mother->GetDefinition()->GetPDGEncoding());
+              if (pdgMother != 11 && pdgMother != 22 && isThisRegion(reg, caloRegions)) {
+                classification = fKill;
+              }
             }
           }
         }
@@ -270,16 +273,16 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
           const G4Track* mother = m_trackInterface->getCurrentTrack();
           int flag = 0;
           if (savePDandCinAll) {
-            flag = isItPrimaryDecayProductOrConversion(subType, *mother);
+            flag = isItPrimaryDecayProductOrConversion(subType, mother);
           } else {
             if ((savePDandCinTracker && isThisRegion(reg, trackerRegions)) ||
                 (savePDandCinCalo && isThisRegion(reg, caloRegions)) ||
                 (savePDandCinMuon && isThisRegion(reg, muonRegions))) {
-              flag = isItPrimaryDecayProductOrConversion(subType, *mother);
+              flag = isItPrimaryDecayProductOrConversion(subType, mother);
             }
           }
           if (saveFirstSecondary && 0 == flag) {
-            flag = isItFromPrimary(*mother, flag);
+            flag = isItFromPrimary(mother, flag);
           }
 
           // Russian roulette
@@ -315,7 +318,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
               } else if (gRRactive && pdg == 22) {
                 elim = gRusRoEnerLim;
                 if (reg == regionEcal || reg == regionPreShower) {
-                  if (rrApplicable(aTrack, *mother)) {
+                  if (rrApplicable(aTrack, mother)) {
                     if (reg == regionEcal) {
                       prob = gRusRoEcal;
                     } else {
@@ -348,7 +351,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
             }
           }
           if (classification != fKill) {
-            MCTruthUtil::secondary(track, *mother, flag);
+            MCTruthUtil::secondary(track, mother, flag);
           }
           LogDebug("SimG4CoreApplication")
               << "StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent " << aTrack->GetParentID()
@@ -363,10 +366,6 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
   }
   return classification;
 }
-
-void StackingAction::NewStage() {}
-
-void StackingAction::PrepareNewEvent() {}
 
 void StackingAction::initPointer() {
   // prepare region vector
@@ -448,9 +447,16 @@ bool StackingAction::isThisRegion(const G4Region* reg, std::vector<const G4Regio
   return flag;
 }
 
-int StackingAction::isItPrimaryDecayProductOrConversion(const int stype, const G4Track& mother) const {
+int StackingAction::isItPrimaryDecayProductOrConversion(const int stype, const G4Track* mother) const {
   int flag = 0;
-  auto motherInfo = static_cast<const TrackInformation*>(mother.GetUserInformation());
+  if (nullptr == mother) {
+    return flag;
+  }
+  auto motherInfo = dynamic_cast<const TrackInformation*>(mother->GetUserInformation());
+  if (nullptr == motherInfo) {
+    return flag;
+  }
+
   // Check whether mother is a primary
   if (motherInfo->isPrimary()) {
     if (stype == fDecay) {
@@ -462,19 +468,25 @@ int StackingAction::isItPrimaryDecayProductOrConversion(const int stype, const G
   return flag;
 }
 
-bool StackingAction::rrApplicable(const G4Track* aTrack, const G4Track& mother) const {
-  auto motherInfo = static_cast<const TrackInformation*>(mother.GetUserInformation());
+bool StackingAction::rrApplicable(const G4Track* aTrack, const G4Track* mother) const {
+  if (nullptr == mother) {
+    return true;
+  }
+  auto motherInfo = dynamic_cast<const TrackInformation*>(mother->GetUserInformation());
+  if (nullptr == motherInfo) {
+    return true;
+  }
 
   // Check whether mother is gamma, e+, e-
   const int genID = motherInfo->genParticlePID();
   return (22 != genID && 11 != std::abs(genID));
 }
 
-int StackingAction::isItFromPrimary(const G4Track& mother, int flagIn) const {
+int StackingAction::isItFromPrimary(const G4Track* mother, int flagIn) const {
   int flag = flagIn;
-  if (flag != 1) {
-    auto ptr = static_cast<const TrackInformation*>(mother.GetUserInformation());
-    if (ptr->isPrimary()) {
+  if (flag != 1 && nullptr != mother) {
+    auto ptr = dynamic_cast<const TrackInformation*>(mother->GetUserInformation());
+    if (nullptr != ptr && ptr->isPrimary()) {
       flag = 3;
     }
   }

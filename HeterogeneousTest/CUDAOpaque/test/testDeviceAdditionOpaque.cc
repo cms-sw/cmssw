@@ -4,7 +4,7 @@
 #include <vector>
 
 #define CATCH_CONFIG_MAIN
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #include "HeterogeneousTest/CUDAOpaque/interface/DeviceAdditionOpaque.h"

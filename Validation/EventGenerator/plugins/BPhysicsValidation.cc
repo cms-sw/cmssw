@@ -18,7 +18,7 @@ BPhysicsValidation::BPhysicsValidation(const edm::ParameterSet& iPSet)
   genparticleCollectionToken_ = consumes<reco::GenParticleCollection>(genparticleCollection_);
   std::vector<std::string> daughterNames = iPSet.getParameter<std::vector<std::string> >("daughters");
   for (unsigned int i = 0; i < daughterNames.size(); i++) {
-    std::string curSet = daughterNames[i];
+    const std::string& curSet = daughterNames[i];
     daughters.push_back(ParticleMonitor(name + curSet, iPSet.getUntrackedParameter<ParameterSet>(curSet)));
   }
 }

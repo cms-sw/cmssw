@@ -23,13 +23,14 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace edm;
-using namespace std::rel_ops;
 
 namespace edmtest {
   class ViewAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     explicit ViewAnalyzer(edm::ParameterSet const& /* no parameters*/);
     void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const& /* unused */) const override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     template <typename P, typename V>
     void testProduct(edm::Event const& e, std::string const& moduleLabel) const;
@@ -92,6 +93,11 @@ namespace edmtest {
     consumes<edm::View<IntProduct>>(edm::InputTag{"intvecstdvecuniqptr"});
 
     mayConsume<edm::View<int>>(edm::InputTag{"intvecptrvecdoesNotExist"});
+  }
+
+  void ViewAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    descriptions.addDefault(desc);
   }
 
   template <typename P, typename V = typename P::value_type>

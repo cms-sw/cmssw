@@ -57,7 +57,7 @@ void ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>
   float refGsfPtMode = refGsf->ptMode();
 
   const reco::PFRecTrackRef& pfTrackRef = gsfpfrectk.kfPFRecTrackRef();
-  vector<PFBrem> primPFBrem = gsfpfrectk.PFRecBrem();
+  const vector<PFBrem>& primPFBrem = gsfpfrectk.PFRecBrem();
 
   const PFRecTrackCollection& PfRTkColl = *(thePfRecTrackCol.product());
   reco::PFRecTrackCollection::const_iterator pft = PfRTkColl.begin();

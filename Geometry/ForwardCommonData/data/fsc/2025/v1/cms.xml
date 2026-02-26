@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="cms.xml" eval="true">
+ <Constant name="Rmin"         value="[cmsextent:Rmin]"/>
+ <Constant name="Zmin"         value="[cmsextent:Zmin]"/>
+ <Constant name="CMSR1"        value="[cmsextent:CMSR1]"/>
+ <Constant name="CMSR2"        value="[cmsextent:CMSR2]"/>
+ <Constant name="CMSZ1"        value="[cmsextent:CMSZ1]"/>
+ <Constant name="CMSZ2"        value="[cmsextent:CMSZ2]"/>
+</ConstantsSection>
+
+<SolidSection label="cms.xml">
+ <Box name="OCMS" dx="5*m" dy="5*m" dz="5*m"/>
+</SolidSection>
+
+<LogicalPartSection label="cms.xml">
+ <LogicalPart name="World" category="unspecified">
+  <rSolid name="OCMS"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="OCMS" category="unspecified">
+  <rSolid name="OCMS"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="MCMS" category="unspecified">
+  <rSolid name="OCMS"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="CMSE" category="unspecified">
+  <rSolid name="OCMS"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+</DDDefinition>

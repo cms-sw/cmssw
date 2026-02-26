@@ -27,14 +27,22 @@ namespace edmtest {
 
   private:
     edm::EDGetTokenT<HitsOnHost> getToken_;
+    const unsigned int hitSize_;
+    const unsigned int offsetBPIX2_;
   };
 
   TestReadHostHitSoA::TestReadHostHitSoA(edm::ParameterSet const& iPSet)
-      : getToken_(consumes(iPSet.getParameter<edm::InputTag>("input"))) {}
+      : getToken_(consumes(iPSet.getParameter<edm::InputTag>("input"))),
+        hitSize_(iPSet.getParameter<unsigned int>("hitSize")),
+        offsetBPIX2_(iPSet.getParameter<unsigned int>("offsetBPIX2")) {}
 
   void TestReadHostHitSoA::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
     auto const& hits = iEvent.get(getToken_);
-    auto hitsView = hits.view();
+    auto hitsView = hits.view().trackingHits();
+
+    std::cout << "hitsView.metadata().size() = " << hitsView.metadata().size() << std::endl;
+    assert(hitsView.metadata().size() == int(hitSize_));
+    assert(hitsView.offsetBPIX2() == int(offsetBPIX2_));
 
     for (int i = 0; i < hitsView.metadata().size(); ++i) {
       if (hitsView[i].xGlobal() != float(i)) {
@@ -46,6 +54,8 @@ namespace edmtest {
   void TestReadHostHitSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("input");
+    desc.add<unsigned int>("hitSize", 1000);
+    desc.add<unsigned int>("offsetBPIX2", 50);
     descriptions.addDefault(desc);
   }
 }  // namespace edmtest

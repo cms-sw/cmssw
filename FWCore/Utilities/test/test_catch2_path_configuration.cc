@@ -1,5 +1,5 @@
 #include "FWCore/Utilities/interface/path_configuration.h"
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 using namespace edm::path_configuration;
 TEST_CASE("Test path_configuration", "[path_configuration]") {

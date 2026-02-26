@@ -3,6 +3,7 @@
 #include <iostream>
 #include <typeinfo>
 #include <map>
+#include <cmath>
 #include <sstream>
 #include <sys/time.h>
 

@@ -5,40 +5,40 @@
 
 #include <alpaka/alpaka.hpp>
 
-#include "DataFormats/Portable/interface/PortableHostObject.h"
 #include "DataFormats/Portable/interface/PortableDeviceObject.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/concepts.h"
+#include "DataFormats/Portable/interface/PortableHostObject.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/concepts.h"
 
 namespace traits {
 
   // trait for a generic struct-based product
-  template <typename T, typename TDev, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
+  template <typename TDev, typename T, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
   struct PortableObjectTrait {
-    using ProductType = PortableDeviceObject<T, TDev>;
+    using ProductType = PortableDeviceObject<TDev, T>;
   };
 
   // specialise for host device
   template <typename T>
-  struct PortableObjectTrait<T, alpaka_common::DevHost> {
+  struct PortableObjectTrait<alpaka_common::DevHost, T> {
     using ProductType = PortableHostObject<T>;
   };
 
 }  // namespace traits
 
 // type alias for a generic struct-based product
-template <typename T, typename TDev, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
-using PortableObject = typename traits::PortableObjectTrait<T, TDev>::ProductType;
+template <typename TDev, typename T, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
+using PortableObject = typename traits::PortableObjectTrait<TDev, T>::ProductType;
 
 // define how to copy PortableObject between host and device
 namespace cms::alpakatools {
-  template <typename TProduct, typename TDevice>
+  template <typename TDevice, typename TProduct>
     requires alpaka::isDevice<TDevice>
-  struct CopyToHost<PortableDeviceObject<TProduct, TDevice>> {
+  struct CopyToHost<PortableDeviceObject<TDevice, TProduct>> {
     template <typename TQueue>
       requires alpaka::isQueue<TQueue>
-    static auto copyAsync(TQueue& queue, PortableDeviceObject<TProduct, TDevice> const& srcData) {
+    static auto copyAsync(TQueue& queue, PortableDeviceObject<TDevice, TProduct> const& srcData) {
       PortableHostObject<TProduct> dstData(queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
       return dstData;
@@ -50,7 +50,7 @@ namespace cms::alpakatools {
     template <cms::alpakatools::NonCPUQueue TQueue>
     static auto copyAsync(TQueue& queue, PortableHostObject<TProduct> const& srcData) {
       using TDevice = typename alpaka::trait::DevType<TQueue>::type;
-      PortableDeviceObject<TProduct, TDevice> dstData(queue);
+      PortableDeviceObject<TDevice, TProduct> dstData(queue);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
       return dstData;
     }

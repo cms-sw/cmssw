@@ -1,11 +1,6 @@
 #ifndef BarrelValidator_h
 #define BarrelValidator_h
 
-/** \class BarrelValidator
- *  Class that produces histograms to validate HGCal Reconstruction performances
- *
- *  \author HGCal
- */
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -32,9 +27,10 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
-#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
+#include "DataFormats/Common/interface/RefProdVector.h"
+#include "DataFormats/Common/interface/MultiSpan.h"
 
-class PileupSummaryInfo;
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfoFwd.h"
 
 struct BarrelValidatorHistograms {
   BarrelVHistoProducerAlgoHistograms histoProducerAlgo;
@@ -66,7 +62,7 @@ public:
                                 std::vector<size_t>& selected_cPeff,
                                 unsigned int layers,
                                 std::unordered_map<DetId, const unsigned int> const&,
-                                MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
+                                edm::MultiSpan<reco::PFRecHit> const& barrelHits) const;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -79,9 +75,9 @@ protected:
   const bool doCaloParticlePlots_;
   const bool doCaloParticleSelection_;
   const bool doSimClustersPlots_;
-  edm::InputTag label_SimClustersPlots_, label_SimClustersLevel_;
+  std::string label_SimClustersPlots_, label_SimClustersLevel_;
   const bool doLayerClustersPlots_;
-  edm::InputTag label_layerClustersPlots_, label_LCToCPLinking_;
+  std::string label_layerClustersPlots_, label_LCToCPLinking_;
   std::vector<edm::InputTag> label_clustersmask;
 
   std::vector<edm::EDGetTokenT<reco::CaloClusterCollection>> labelToken;
@@ -92,13 +88,14 @@ protected:
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
   std::vector<edm::EDGetTokenT<std::vector<float>>> clustersMaskTokens_;
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> barrelHitMap_;
-  std::vector<edm::EDGetTokenT<ticl::RecoToSimCollection>> associatorMapRtS;
-  std::vector<edm::EDGetTokenT<ticl::SimToRecoCollection>> associatorMapStR;
-  std::vector<edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClusters>> associatorMapSimtR;
-  std::vector<edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClusters>> associatorMapRtSim;
+  std::vector<edm::EDGetTokenT<ticl::RecoToSimCollectionT<reco::CaloClusterCollection>>> associatorMapRtS;
+  std::vector<edm::EDGetTokenT<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>>> associatorMapStR;
+  std::vector<edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>>>
+      associatorMapSimtR;
+  std::vector<edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>>>
+      associatorMapRtSim;
   std::unique_ptr<BarrelVHistoProducerAlgo> histoProducerAlgo_;
-  std::vector<edm::InputTag> barrel_hits_label_;
-  std::vector<edm::EDGetTokenT<std::vector<reco::PFRecHit>>> barrel_hits_tokens_;
+  edm::EDGetTokenT<edm::RefProdVector<reco::PFRecHitCollection>> hitsToken_;
   edm::EDGetTokenT<SimClusterToCaloParticleMap> scToCpMapToken_;
 
 private:

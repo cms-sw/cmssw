@@ -2,17 +2,17 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
 
 options = VarParsing.VarParsing ('standard')
 options.register('inputFile', 'step3_inDQM.root', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Input file")
-options.register ('globalTag', 'auto:phase2_realistic_T33', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobalTag")
+options.register ('globalTag', 'auto:phase2_realistic_T35', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "GlobalTag")
 options.parseArguments()
 
 print("Input file: ", options.inputFile)
 print("GlobalTag: ", options.globalTag)
 
-process = cms.Process('HARVESTING',Phase2C17I13M9)
+process = cms.Process('HARVESTING',Phase2C22I13M9)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -20,7 +20,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D121Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.DQMSaverAtRunEnd_cff')
 process.load('Configuration.StandardSequences.Harvesting_cff')

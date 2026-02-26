@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "FWCore/Framework/src/ModuleHolderFactory.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -86,10 +86,10 @@ TEST_CASE("test edm::Factory", "[Factory]") {
     pset.addParameter<std::string>("@module_type", "DoesNotExistModule");
     pset.addParameter<std::string>("@module_edm_type", "EDProducer");
     edm::test::SimpleTestTypeResolverMaker resolver;
-    using Catch::Matchers::Contains;
+    using Catch::Matchers::ContainsSubstring;
     CHECK_THROWS_WITH(
         factory->makeModule(MakeModuleParams(&pset, prodReg, &preallocConfig, procConfig), &resolver, pre, post),
-        Contains("DoesNotExistModule"));
+        ContainsSubstring("DoesNotExistModule"));
   }
   SECTION("test missing plugin with complex resolver") {
     auto factory = ModuleHolderFactory::get();
@@ -97,11 +97,11 @@ TEST_CASE("test edm::Factory", "[Factory]") {
     pset.addParameter<std::string>("@module_type", "generic::DoesNotExistModule");
     pset.addParameter<std::string>("@module_edm_type", "EDProducer");
     edm::test::ComplexTestTypeResolverMaker resolver;
-    using Catch::Matchers::Contains;
+    using Catch::Matchers::ContainsSubstring;
     CHECK_THROWS_WITH(
         factory->makeModule(MakeModuleParams(&pset, prodReg, &preallocConfig, procConfig), &resolver, pre, post),
-        Contains("generic::DoesNotExistModule") && Contains("edm::test::other::DoesNotExistModule") &&
-            Contains("edm::test::cpu::DoesNotExistModule"));
+        ContainsSubstring("generic::DoesNotExistModule") && ContainsSubstring("edm::test::other::DoesNotExistModule") &&
+            ContainsSubstring("edm::test::cpu::DoesNotExistModule"));
   }
   SECTION("test missing plugin with configurable resolver") {
     auto factory = ModuleHolderFactory::get();
@@ -110,29 +110,32 @@ TEST_CASE("test edm::Factory", "[Factory]") {
     pset.addParameter<std::string>("@module_edm_type", "EDProducer");
     SECTION("default behavior") {
       edm::test::ConfigurableTestTypeResolverMaker resolver;
-      using Catch::Matchers::Contains;
+      using Catch::Matchers::ContainsSubstring;
       CHECK_THROWS_WITH(
           factory->makeModule(MakeModuleParams(&pset, prodReg, &preallocConfig, procConfig), &resolver, pre, post),
-          Contains("generic::DoesNotExistModule") && Contains("edm::test::other::DoesNotExistModule") &&
-              Contains("edm::test::cpu::DoesNotExistModule"));
+          ContainsSubstring("generic::DoesNotExistModule") &&
+              ContainsSubstring("edm::test::other::DoesNotExistModule") &&
+              ContainsSubstring("edm::test::cpu::DoesNotExistModule"));
     }
     SECTION("set variant to other") {
       pset.addUntrackedParameter<std::string>("variant", "other");
       edm::test::ConfigurableTestTypeResolverMaker resolver;
-      using Catch::Matchers::Contains;
+      using Catch::Matchers::ContainsSubstring;
       CHECK_THROWS_WITH(
           factory->makeModule(MakeModuleParams(&pset, prodReg, &preallocConfig, procConfig), &resolver, pre, post),
-          Contains("generic::DoesNotExistModule") && Contains("edm::test::other::DoesNotExistModule") &&
-              not Contains("edm::test::cpu::DoesNotExistModule"));
+          ContainsSubstring("generic::DoesNotExistModule") &&
+              ContainsSubstring("edm::test::other::DoesNotExistModule") &&
+              not ContainsSubstring("edm::test::cpu::DoesNotExistModule"));
     }
     SECTION("set variant to cpu") {
       pset.addUntrackedParameter<std::string>("variant", "cpu");
       edm::test::ConfigurableTestTypeResolverMaker resolver;
-      using Catch::Matchers::Contains;
+      using Catch::Matchers::ContainsSubstring;
       CHECK_THROWS_WITH(
           factory->makeModule(MakeModuleParams(&pset, prodReg, &preallocConfig, procConfig), &resolver, pre, post),
-          Contains("generic::DoesNotExistModule") && not Contains("edm::test::other::DoesNotExistModule") &&
-              Contains("edm::test::cpu::DoesNotExistModule"));
+          ContainsSubstring("generic::DoesNotExistModule") &&
+              not ContainsSubstring("edm::test::other::DoesNotExistModule") &&
+              ContainsSubstring("edm::test::cpu::DoesNotExistModule"));
     }
   }
 

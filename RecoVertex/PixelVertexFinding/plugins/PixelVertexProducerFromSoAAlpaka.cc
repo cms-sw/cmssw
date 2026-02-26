@@ -3,6 +3,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexSoA/interface/ZVertexHost.h"
@@ -31,7 +32,7 @@ public:
 private:
   void produce(edm::StreamID streamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const override;
 
-  edm::EDGetTokenT<ZVertexHost> tokenVertex_;
+  edm::EDGetTokenT<reco::ZVertexHost> tokenVertex_;
   edm::EDGetTokenT<reco::BeamSpot> tokenBeamSpot_;
   edm::EDGetTokenT<reco::TrackCollection> tokenTracks_;
   edm::EDGetTokenT<IndToEdm> tokenIndToEdm_;
@@ -81,7 +82,7 @@ void PixelVertexProducerFromSoAAlpaka::produce(edm::StreamID streamID,
 
   auto const &soa = iEvent.get(tokenVertex_);
 
-  int nv = soa.view().nvFinal();
+  int nv = soa.view().zvertex().nvFinal();
 
 #ifdef PIXVERTEX_DEBUG_PRODUCE
   std::cout << "converting " << nv << " vertices "
@@ -90,20 +91,20 @@ void PixelVertexProducerFromSoAAlpaka::produce(edm::StreamID streamID,
 
   std::set<uint32_t> uind;  // for verifing index consistency
   for (int j = nv - 1; j >= 0; --j) {
-    auto i = soa.view()[j].sortInd();  // on gpu sorted in ascending order....
+    auto i = soa.view().zvertex()[j].sortInd();  // on gpu sorted in ascending order....
     assert(i < nv);
     uind.insert(i);
     assert(itrk.empty());
-    auto z = soa.view()[i].zv();
+    auto z = soa.view().zvertex()[i].zv();
     auto x = x0 + dxdz * z;
     auto y = y0 + dydz * z;
     z += z0;
     reco::Vertex::Error err;
-    err(2, 2) = 1.f / soa.view()[i].wv();
+    err(2, 2) = 1.f / soa.view().zvertex()[i].wv();
     err(2, 2) *= 2.;  // artifically inflate error
     //Copy also the tracks (no intention to be efficient....)
     for (auto k = 0U; k < indToEdm.size(); ++k) {
-      if (soa.view<reco::ZVertexTracksSoA>()[k].idv() == int16_t(i))
+      if (soa.view().zvertexTracks()[k].idv() == int16_t(i))
         itrk.push_back(k);
     }
     auto nt = itrk.size();
@@ -118,15 +119,20 @@ void PixelVertexProducerFromSoAAlpaka::produce(edm::StreamID streamID,
       continue;
     }  // remove outliers
     (*vertexes).emplace_back(
-        reco::Vertex::Point(x, y, z), err, soa.view()[i].chi2(), soa.view<reco::ZVertexTracksSoA>()[i].ndof(), nt);
+        reco::Vertex::Point(x, y, z), err, soa.view().zvertex()[i].chi2(), soa.view().zvertexTracks()[i].ndof(), nt);
     auto &v = (*vertexes).back();
     v.reserve(itrk.size());
     for (auto it : itrk) {
       assert(it < int(indToEdm.size()));
       auto k = indToEdm[it];
       if (k > tracksSize) {
-        edm::LogWarning("PixelVertexProducer") << "oops track " << it << " does not exists on CPU " << k;
-        continue;
+        if (k == pixelTrack::skippedTrack) {
+          LogDebug("PixelVertexProducer") << "Track " << it << " conversion to legacy was skipped ";
+          continue;
+        } else {
+          edm::LogWarning("PixelVertexProducer") << "oops track " << it << " does not exists on CPU " << k;
+          continue;
+        }
       }
       auto tk = reco::TrackRef(tracksHandle, k);
       v.add(tk);

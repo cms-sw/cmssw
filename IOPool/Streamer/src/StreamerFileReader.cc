@@ -125,7 +125,6 @@ namespace edm::streamer {
       return;
     }
     streamReader_->openNextFile();
-    // FDEBUG(6) << "A new file has been opened and we must compare Headers here !!" << std::endl;
     // A new file has been opened and we must compare Heraders here !!
     //Get header/init from reader
     updateMetaData(true);

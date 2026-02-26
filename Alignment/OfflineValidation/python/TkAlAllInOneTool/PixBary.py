@@ -81,7 +81,7 @@ def PixBary(config, validationDir, verbose=False):
                     "exe": "extractBaryCentre.py",
                     "config": {
                         "input": os.path.join(singleConfig["config"]["output"], "PixelBaryCentre.root"),
-                        "output": os.path.join(out_base, jobType, jobName),
+                        "output": os.path.join(out_base, jobType, jobName, singleName, alignment, IOV),
                         "styles": jobConfig.get("styles", ["csv", "twiki"])
                         },
                     "flavour": "espresso" # So fast that anything else would not make sense

@@ -4,6 +4,8 @@
 #include "DQM/RPCMonitorDigi/interface/RPCRawDataCountsHistoMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <format>
+
 RPCFEDIntegrity::RPCFEDIntegrity(const edm::ParameterSet& ps) {
   edm::LogVerbatim("rpcfedintegrity") << "[RPCFEDIntegrity]: Constructor";
 
@@ -70,7 +72,7 @@ void RPCFEDIntegrity::labelBins(MonitorElement* myMe) {
     return;
 
   for (int i = 0; i < xbins; i++) {
-    const std::string xLabel = fmt::format("{}", minFEDNum_ + i);
+    const std::string xLabel = std::format("{}", minFEDNum_ + i);
     myMe->setBinLabel(i + 1, xLabel, 1);
   }
 }

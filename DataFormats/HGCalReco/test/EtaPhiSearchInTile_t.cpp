@@ -5,7 +5,7 @@
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 
 #define CATCH_CONFIG_MAIN
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 using namespace ticl;
 

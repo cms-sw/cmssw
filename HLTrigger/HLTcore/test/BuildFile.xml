@@ -10,6 +10,11 @@
   <use name="catch2"/>
 </bin>
 
+<bin file="test_catch2_defaultModuleLabel.cc" name="testHLTriggerHLTcoreDefaultModuleLabelCatch2">
+  <use name="HLTrigger/HLTcore"/>
+  <use name="catch2"/>
+</bin>
+
 <!-- test the HLTPrescaleExample plugin -->
 <test name="testHLTPrescaleExample" command="testHLTPrescaleExample.sh"/>
 

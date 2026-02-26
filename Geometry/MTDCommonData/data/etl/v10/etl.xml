@@ -2872,7 +2872,7 @@
       <Numeric name="StartCopyNo" value="420"/>
       <Numeric name="IncrCopyNo" value="1"/>
       <Numeric name="Delta" value="([Module_X]+[DeltaX])"/>
-      <Vector  name="Base" type="numeric" nEntries="3"> ([x_start_front_1]+2*[Module_X]+2*[DeltaX]), ([y_start_back_1]+51*[DeltaY_ServiceModule]+52*[DeltaY]), ([Module_translation_z]) </Vector>
+      <Vector  name="Base" type="numeric" nEntries="3"> ([x_start_front_1]+2*[Module_X]+2*[DeltaX]), ([y_start_back_1]+51*[DeltaY_ServiceModule]+51*[DeltaY]), ([Module_translation_z]) </Vector>
       <Numeric name="Theta" value="90.*deg"/>
       <Numeric name="Phi" value="0.*deg"/>
       <Numeric name="Theta_obj" value="90.*deg"/>
@@ -3511,7 +3511,7 @@
     <Numeric name="StartCopyNo" value="275"/>
     <Numeric name="IncrCopyNo" value="1"/>
     <Numeric name="Delta" value="([Module_X]+[DeltaX])"/>
-    <Vector  name="Base" type="numeric" nEntries="3"> ([x_start_front_1]+3*[Module_X]+3*[DeltaX]), ([y_start_front]+34*[DeltaY_ServiceModule]+34*[DeltaY]), ([Module_translation_z]) </Vector>
+    <Vector  name="Base" type="numeric" nEntries="3"> ([x_start_front_1]+2*[Module_X]+2*[DeltaX]), ([y_start_front]+34*[DeltaY_ServiceModule]+34*[DeltaY]), ([Module_translation_z]) </Vector>
     <Numeric name="Theta" value="90.*deg"/>
     <Numeric name="Phi" value="0.*deg"/>
     <Numeric name="Theta_obj" value="90.*deg"/>
@@ -4086,7 +4086,7 @@
       <Numeric name="StartCopyNo" value="65"/>
       <Numeric name="IncrCopyNo" value="1"/>
       <Numeric name="Delta" value="([Module_X]+[DeltaX])"/>
-      <Vector  name="Base" type="numeric" nEntries="3"> ([x_start_front_1]+9*[Module_X]+9*[DeltaX]), ([y_start_back_1]+23*[DeltaY_ServiceModule]+23*[DeltaY]), ([Module_translation_z]) </Vector>
+      <Vector  name="Base" type="numeric" nEntries="3"> ([x_start_front_1]+6*[Module_X]+6*[DeltaX]), ([y_start_back_1]+23*[DeltaY_ServiceModule]+23*[DeltaY]), ([Module_translation_z]) </Vector>
       <Numeric name="Theta" value="90.*deg"/>
       <Numeric name="Phi" value="0.*deg"/>
       <Numeric name="Theta_obj" value="90.*deg"/>
@@ -4242,7 +4242,7 @@
       <Numeric name="StartCopyNo" value="103"/>
       <Numeric name="IncrCopyNo" value="1"/>
       <Numeric name="Delta" value="([Module_X]+[DeltaX])"/>
-      <Vector  name="Base" type="numeric" nEntries="3"> ([x_start_front_1]+9*[Module_X]+9*[DeltaX]), ([y_start_back_1]+31*[DeltaY_ServiceModule]+31*[DeltaY]), ([Module_translation_z]) </Vector>
+      <Vector  name="Base" type="numeric" nEntries="3"> ([x_start_front_1]+6*[Module_X]+6*[DeltaX]), ([y_start_back_1]+31*[DeltaY_ServiceModule]+31*[DeltaY]), ([Module_translation_z]) </Vector>
       <Numeric name="Theta" value="90.*deg"/>
       <Numeric name="Phi" value="0.*deg"/>
       <Numeric name="Theta_obj" value="90.*deg"/>

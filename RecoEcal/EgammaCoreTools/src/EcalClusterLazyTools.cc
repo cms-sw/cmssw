@@ -18,12 +18,12 @@
 EcalClusterLazyToolsBase::EcalClusterLazyToolsBase(const edm::Event &ev,
                                                    ESData const &esData,
                                                    edm::EDGetTokenT<EcalRecHitCollection> token1,
-                                                   edm::EDGetTokenT<EcalRecHitCollection> token2,
+                                                   std::optional<edm::EDGetTokenT<EcalRecHitCollection>> token2,
                                                    std::optional<edm::EDGetTokenT<EcalRecHitCollection>> token3)
     : geometry_(&esData.caloGeometry),
       topology_(&esData.caloTopology),
       ebRecHits_(&edm::get(ev, token1)),
-      eeRecHits_(&edm::get(ev, token2)) {
+      eeRecHits_{token2 ? &edm::get(ev, *token2) : nullptr} {
   if (token3) {
     if (geometry_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower)) {
       ecalPS_topology_ = std::make_unique<EcalPreshowerTopology>();
@@ -82,6 +82,11 @@ const EcalRecHitCollection *EcalClusterLazyToolsBase::getEcalRecHitCollection(co
   if (id.subdetId() == EcalBarrel) {
     recHits = ebRecHits_;
   } else if (id.subdetId() == EcalEndcap) {
+    if (!eeRecHits_) {
+      throw cms::Exception("MissingCollection")
+          << "The subdetId() " << id.subdetId()
+          << " corresponds to the ECALEndcap but no ECALEndcap RecHit collection is set up";
+    }
     recHits = eeRecHits_;
   } else {
     throw cms::Exception("InvalidSubdetector")

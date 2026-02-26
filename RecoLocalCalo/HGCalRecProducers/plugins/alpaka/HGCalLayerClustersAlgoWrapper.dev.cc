@@ -25,30 +25,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     CLUEAlgoAlpaka<ALPAKA_ACCELERATOR_NAMESPACE::Acc1D, Queue, HGCalSiliconTilesConstants, kHGCalLayers> algoStandalone(
         queue, dc, kappa, outlierDeltaFactor, false);
 
-    // Initialize output memory to 0
-    auto delta = cms::alpakatools::make_device_view<float>(queue, outputs.delta(), size);
-    alpaka::memset(queue, delta, 0x0);
-    auto rho = cms::alpakatools::make_device_view<float>(queue, outputs.rho(), size);
-    alpaka::memset(queue, rho, 0x0);
-    auto nearestHigher = cms::alpakatools::make_device_view<unsigned int>(queue, outputs.nearestHigher(), size);
-    alpaka::memset(queue, nearestHigher, 0x0);
-    auto clusterIndex = cms::alpakatools::make_device_view<int>(queue, outputs.clusterIndex(), size);
-    alpaka::memset(queue, clusterIndex, kInvalidClusterByte);
-    auto isSeed = cms::alpakatools::make_device_view<uint8_t>(queue, outputs.isSeed(), size);
-    alpaka::memset(queue, isSeed, 0x0);
-
     algoStandalone.makeClustersCMSSW(size,
-                                     inputs.dim1(),
-                                     inputs.dim2(),
-                                     inputs.layer(),
-                                     inputs.energy(),
-                                     inputs.sigmaNoise(),
-                                     inputs.detid(),
-                                     outputs.rho(),
-                                     outputs.delta(),
-                                     outputs.nearestHigher(),
-                                     outputs.clusterIndex(),
-                                     outputs.isSeed(),
+                                     inputs.dim1().data(),
+                                     inputs.dim2().data(),
+                                     inputs.layer().data(),
+                                     inputs.energy().data(),
+                                     inputs.sigmaNoise().data(),
+                                     inputs.detid().data(),
+                                     outputs.rho().data(),
+                                     outputs.delta().data(),
+                                     outputs.nearestHigher().data(),
+                                     outputs.clusterIndex().data(),
+                                     outputs.isSeed().data(),
                                      &outputs.numberOfClustersScalar());
   }
 

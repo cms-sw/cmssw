@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "DQMOffline/Trigger/interface/EgHLTComCodes.h"
 #include "DQMOffline/Trigger/interface/EgHLTEgCutCodes.h"

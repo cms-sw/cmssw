@@ -4,12 +4,15 @@
 #include <alpaka/alpaka.hpp>
 #include "DataFormats/Common/interface/StdArray.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
+#include "DataFormats/SoATemplate/interface/SoABlocks.h"
 
 #include "RecoTracker/LSTCore/interface/Common.h"
 
 namespace lst {
   GENERATE_SOA_LAYOUT(TripletsSoALayout,
-                      SOA_COLUMN(ArrayUx2, segmentIndices),                        // inner and outer segment indices
+                      SOA_COLUMN(ArrayUx2,
+                                 preAllocatedSegmentIndices),  // pre-allocated the theoretical max segment indices
+                      SOA_COLUMN(ArrayUx2, segmentIndices),    // inner and outer segment indices
                       SOA_COLUMN(Params_T3::ArrayU16xLayers, lowerModuleIndices),  // lower module index in each layer
                       SOA_COLUMN(Params_T3::ArrayU8xLayers, logicalLayers),        // layer ID
                       SOA_COLUMN(Params_T3::ArrayUxHits, hitIndices),              // hit indices
@@ -21,9 +24,9 @@ namespace lst {
                       SOA_COLUMN(float, promptScore),          // DNN confidence score for real (prompt) t3
                       SOA_COLUMN(float, displacedScore),       // DNN confidence score for real (displaced) t3
                       SOA_COLUMN(unsigned int, connectedMax),  // number of outer-triplets that pass the MD-equality cut
+                      SOA_COLUMN(unsigned int, connectedLSMax),  // n of outer-triplets that pass the LS-equality cut
+                      SOA_COLUMN(short, charge),
 #ifdef CUT_VALUE_DEBUG
-                      SOA_COLUMN(float, zOut),
-                      SOA_COLUMN(float, rtOut),
                       SOA_COLUMN(float, betaInCut),
 #endif
                       SOA_COLUMN(bool, partOfPT5),   // is it used in a pT5
@@ -41,6 +44,28 @@ namespace lst {
   using TripletsOccupancySoA = TripletsOccupancySoALayout<>;
   using TripletsOccupancy = TripletsOccupancySoA::View;
   using TripletsOccupancyConst = TripletsOccupancySoA::ConstView;
+
+  GENERATE_SOA_BLOCKS(TripletsSoABlocksLayout,
+                      SOA_BLOCK(triplets, TripletsSoALayout),
+                      SOA_BLOCK(tripletsOccupancy, TripletsOccupancySoALayout))
+
+  using TripletsSoABlocks = TripletsSoABlocksLayout<>;
+  using TripletsSoABlocksView = TripletsSoABlocks::View;
+  using TripletsSoABlocksConstView = TripletsSoABlocks::ConstView;
+
+  // Template based accessor for getting specific SoA views. Needed in LSTEvent.dev.cc
+  template <typename TSoA>
+  struct TripletsViewAccessor;
+
+  template <>
+  struct TripletsViewAccessor<TripletsSoA> {
+    static constexpr auto get(auto const& v) { return v.triplets(); }
+  };
+
+  template <>
+  struct TripletsViewAccessor<TripletsOccupancySoA> {
+    static constexpr auto get(auto const& v) { return v.tripletsOccupancy(); }
+  };
 
 }  // namespace lst
 #endif

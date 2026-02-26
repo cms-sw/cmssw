@@ -82,6 +82,7 @@
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/Transition.h"
+#include "FWCore/Utilities/interface/Signal.h"
 
 #include <array>
 #include <map>
@@ -323,6 +324,8 @@ namespace edm {
 
     std::vector<std::string> const* pathNames_;
     std::vector<std::string> const* endPathNames_;
+    edm::signalslot::Signal<void()> preModulesInitializationFinalizedSignal_;
+    edm::signalslot::Signal<void()> postModulesInitializationFinalizedSignal_;
     bool wantSummary_;
   };
 

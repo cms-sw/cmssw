@@ -3,7 +3,6 @@
 #include "classlib/iobase/LocalServerSocket.h"
 #include "classlib/sysapi/InetSocket.h"  // for completing InetAddress
 #include "classlib/utils/SystemError.h"
-#include "classlib/utils/Regexp.h"
 #include <fmt/format.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -29,8 +28,6 @@
 #define SOCKET_READ_GROWTH (SOCKET_BUF_SIZE)
 
 using namespace lat;
-
-static const Regexp s_rxmeval("<(.*)>(i|f|s|qr)=(.*)</\\1>");
 
 // TODO: Can't include the header file since that leads to ambiguities.
 namespace dqm {

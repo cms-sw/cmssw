@@ -96,7 +96,7 @@ End
             'SLHA:minMassSM = 1000.', 
             'ParticleDecays:limitTau0 = on', 
             'ParticleDecays:tau0Max = 10', 
-            'ParticleDecays:allowPhotonRadiation = on')
+            'HadronLevel:QED = on')
     ),
     comEnergy = cms.double(13000.0),
     maxEventsToPrint = cms.untracked.int32(0),

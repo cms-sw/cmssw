@@ -1,5 +1,5 @@
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigData.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

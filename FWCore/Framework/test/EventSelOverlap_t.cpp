@@ -3,7 +3,7 @@
 //   maskTriggerResults
 
 // Note - work in progress - only very cursory testing is done right now!
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -194,7 +194,7 @@ namespace {
         << "pathspecs = " << ps.path << "\n"
         << "trigger results = " << tr << "\n";
     }
-    REQUIRE_THAT(ok, Catch::Predicate<bool>([](bool iValue) { return iValue; }, s.str()));
+    REQUIRE_THAT(ok, Catch::Matchers::Predicate<bool>([](bool iValue) { return iValue; }, s.str()));
   }
 }  // namespace
 TEST_CASE("test EventSelector overlap", "[EventSelector overlap]") {

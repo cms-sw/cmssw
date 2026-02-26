@@ -98,10 +98,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
     private:
-      friend ESProducer;
-
-      std::shared_ptr<Queue> queuePtr() const { return queue_; }
-
       TRecord const& record_;
       std::shared_ptr<Queue> queue_;
     };

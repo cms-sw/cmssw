@@ -36,6 +36,9 @@
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::SuperCluster>,reco::SuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SuperCluster>,reco::SuperCluster> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::SuperCluster>,reco::SuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SuperCluster>,reco::SuperCluster> > >"/>
   <class name="edm::Wrapper<std::vector<edm::Ref<std::vector<reco::SuperCluster>,reco::SuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SuperCluster>,reco::SuperCluster> > > >"/>
+  <class name="edm::AtomicPtrCache<std::vector<reco::SuperCluster> >">
+   <field name="m_data" transient="true"/>
+  </class>
 
   <class name="reco::ClusterShape" ClassVersion="11">
    <version ClassVersion="11" checksum="3739311734"/>
@@ -131,6 +134,7 @@
   </class>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::BasicCluster> >, edm::RefProd<std::vector<reco::ClusterShape> > >"/>
 
+  <class name="edm::OneToOne<std::vector<reco::SuperCluster>, std::vector<reco::HFEMClusterShape>, unsigned int >"/>
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::SuperCluster>, std::vector<reco::HFEMClusterShape>, unsigned int > >">
     <field name="transientMap_" transient="true" />
   </class>

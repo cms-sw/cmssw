@@ -7,5 +7,4 @@
 <use name="HLTrigger/HLTcore"/>
 <use name="Utilities/Xerces"/>
 <use name="xerces-c"/>
-<use name="stdcxx-fs"/>
 <flags EDM_PLUGIN="1"/>

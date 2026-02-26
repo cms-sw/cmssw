@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "DataFormats/Common/interface/DetSetNew.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
@@ -207,7 +207,7 @@ TEST_CASE("DetSetNew", "[DetSetNew]") {
 
     // test error conditions
     REQUIRE_THROWS_MATCHES(
-        detsets.insert(22, 6), edm::Exception, Catch::Predicate<edm::Exception>([](edm::Exception const &e) {
+        detsets.insert(22, 6), edm::Exception, Catch::Matchers::Predicate<edm::Exception>([](edm::Exception const &e) {
           return e.categoryCode() == edm::errors::InvalidReference;
         }));
   }
@@ -286,7 +286,9 @@ TEST_CASE("DetSetNew", "[DetSetNew]") {
     }
     REQUIRE(detsets.size() == 5);
     REQUIRE(!detsets.exists(31));
-    { FF ff1(detsets, 32, true); }
+    {
+      FF ff1(detsets, 32, true);
+    }
     REQUIRE(detsets.size() == 6);
 
     DSTV detsets2(detsets);
@@ -307,7 +309,7 @@ TEST_CASE("DetSetNew", "[DetSetNew]") {
 
     // test error conditions
     REQUIRE_THROWS_MATCHES(
-        FF(detsets, 22), edm::Exception, Catch::Predicate<edm::Exception>([](edm::Exception const &e) {
+        FF(detsets, 22), edm::Exception, Catch::Matchers::Predicate<edm::Exception>([](edm::Exception const &e) {
           return e.categoryCode() == edm::errors::InvalidReference;
         }));
     REQUIRE_THROWS_MATCHES(
@@ -316,7 +318,7 @@ TEST_CASE("DetSetNew", "[DetSetNew]") {
           FF ff2(d, 45);
         }(detsets),
         edm::Exception,
-        Catch::Predicate<edm::Exception>(
+        Catch::Matchers::Predicate<edm::Exception>(
             [](edm::Exception const &e) { return e.categoryCode() == edm::errors::LogicError; }));
   }
 
@@ -378,7 +380,7 @@ TEST_CASE("DetSetNew", "[DetSetNew]") {
     }
     SECTION("error conditions") {
       REQUIRE_THROWS_MATCHES(
-          TSFF(detsets, 22), edm::Exception, Catch::Predicate<edm::Exception>([](edm::Exception const &e) {
+          TSFF(detsets, 22), edm::Exception, Catch::Matchers::Predicate<edm::Exception>([](edm::Exception const &e) {
             return e.categoryCode() == edm::errors::InvalidReference;
           }));
       REQUIRE_THROWS_MATCHES(
@@ -387,7 +389,7 @@ TEST_CASE("DetSetNew", "[DetSetNew]") {
             TSFF ff2(d, 45);
           }(detsets),
           edm::Exception,
-          Catch::Predicate<edm::Exception>(
+          Catch::Matchers::Predicate<edm::Exception>(
               [](edm::Exception const &e) { return e.categoryCode() == edm::errors::LogicError; }));
     }
   }
@@ -439,9 +441,10 @@ TEST_CASE("DetSetNew", "[DetSetNew]") {
       REQUIRE(p == detsets.end());
     }
     SECTION("invalid index") {
-      REQUIRE_THROWS_MATCHES(detsets[44], edm::Exception, Catch::Predicate<edm::Exception>([](edm::Exception const &e) {
-                               return e.categoryCode() == edm::errors::InvalidReference;
-                             }));
+      REQUIRE_THROWS_MATCHES(
+          detsets[44], edm::Exception, Catch::Matchers::Predicate<edm::Exception>([](edm::Exception const &e) {
+            return e.categoryCode() == edm::errors::InvalidReference;
+          }));
     }
   }
 
@@ -535,9 +538,10 @@ TEST_CASE("DetSetNew", "[DetSetNew]") {
     }
 
     SECTION("invalid index") {
-      REQUIRE_THROWS_MATCHES(detsets[22], edm::Exception, Catch::Predicate<edm::Exception>([](edm::Exception const &e) {
-                               return e.categoryCode() == edm::errors::InvalidReference;
-                             }));
+      REQUIRE_THROWS_MATCHES(
+          detsets[22], edm::Exception, Catch::Matchers::Predicate<edm::Exception>([](edm::Exception const &e) {
+            return e.categoryCode() == edm::errors::InvalidReference;
+          }));
     }
     DSTV detsets2;
     detsets2.swap(detsets);

@@ -31,9 +31,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
                                   float errmax,  // max error to be "seed"
                                   float chi2max  // max normalized distance to cluster
     ) const {
-      // workaround for #47808
-      debug::do_not_optimise(ws);
-
       constexpr bool verbose = false;
 
       if constexpr (verbose) {
@@ -45,11 +42,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
       ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= ws.metadata().size());
       ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= trkdata.metadata().size());
 
-      float const* __restrict__ zt = ws.zt();
-      float const* __restrict__ ezt2 = ws.ezt2();
-      uint8_t* __restrict__ izt = ws.izt();
-      int32_t* __restrict__ iv = ws.iv();
-      int32_t* __restrict__ nn = trkdata.ndof();
+      float const* __restrict__ zt = ws.zt().data();
+      float const* __restrict__ ezt2 = ws.ezt2().data();
+      uint8_t* __restrict__ izt = ws.izt().data();
+      int32_t* __restrict__ iv = ws.iv().data();
+      int32_t* __restrict__ nn = trkdata.ndof().data();
       ALPAKA_ASSERT_ACC(zt);
       ALPAKA_ASSERT_ACC(ezt2);
       ALPAKA_ASSERT_ACC(izt);
@@ -73,8 +70,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::vertexFinder {
           printf("booked hist with %d bins, size %d for %d tracks\n", hist.nbins(), hist.capacity(), nt);
       }
 
-      ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= std::numeric_limits<Hist::index_type>::max());
-      ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= hist.capacity());
+      ALPAKA_ASSERT_ACC(static_cast<int>(nt) <= std::numeric_limits<Hist::value_type>::max());
+      ALPAKA_ASSERT_ACC(nt <= hist.capacity());
       ALPAKA_ASSERT_ACC(eps <= 0.1f);  // see below
 
       // fill hist (bin shall be wider than "eps")

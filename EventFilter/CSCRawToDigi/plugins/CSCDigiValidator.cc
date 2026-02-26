@@ -36,13 +36,14 @@
 
 #include "DataFormats/L1CSCTrackFinder/interface/L1Track.h"
 
-class CSCWireDigi;
-class CSCStripDigi;
-class CSCComparatorDigi;
-class CSCCLCTDigi;
-class CSCALCTDigi;
-class CSCCorrelatedLCTDigi;
-class CSCDetId;
+#include "DataFormats/CSCDigi/interface/CSCWireDigiFwd.h"
+#include "DataFormats/CSCDigi/interface/CSCStripDigiFwd.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiFwd.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiFwd.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiFwd.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiFwd.h"
+#include "DataFormats/MuonDetId/interface/CSCDetIdFwd.h"
+
 class CSCChamberMap;
 
 class CSCDigiValidator : public edm::one::EDFilter<> {

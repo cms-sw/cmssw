@@ -5,17 +5,11 @@
 <use name="DataFormats/Math"/>
 <use name="DataFormats/Portable"/>
 <use name="DataFormats/SoATemplate"/>
-<use name="HeterogeneousCore/CUDACore"/>
-<use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="boost"/>
 <use name="boost_serialization"/>
 <use name="rootmath"/>
 <use name="clhep"/>
-<iftool name="cuda">
-  <use name="cuda"/>
-<else/>
-  <flags SKIP_FILES="%GPU.cc"/>
-</iftool>
+<use name="eigen"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
 <flags ALPAKA_BACKENDS="!serial"/>
 <export>

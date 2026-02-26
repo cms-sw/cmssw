@@ -5,7 +5,7 @@
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include <vector>
 #include <filesystem>
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 static constexpr auto s_tag = "[PoolOutputSource]";
 
@@ -39,6 +39,7 @@ process = TestSourceProcess()
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(''))
 process.add_(cms.Service("InitRootHandlers"))
 process.add_(cms.Service("SiteLocalConfigService"))
+process.add_(cms.Service("ScitagConfig"))
 process.add_(cms.Service("JobReportService"))
     )_"};
 

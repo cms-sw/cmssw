@@ -74,15 +74,20 @@ autoNANO = {
               'customize': 'DPGAnalysis/MuonTools/muNtupleProducer_cff.muDPGNanoCustomize'},
     'MUDPGBKG': {'sequence': 'DPGAnalysis/MuonTools/muNtupleProducerBkg_cff.muDPGNanoProducerBkg',
                  'customize': 'DPGAnalysis/MuonTools/muNtupleProducerBkg_cff.muDPGNanoBkgCustomize'},
-    # HLT Nano
-    'Phase2HLT' : {'sequence': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoProducer',
-             'customize': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoCustomize'},
+    # HLT Phase-2 Nano
+    'Phase2HLT' : {'sequence': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoFlavour',
+                   'customize': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoCustomize'},
+    'Phase2HLTVal' : {'sequence': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltValidationNanoFlavour',
+                      'customize': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoCustomize'},
 
+    # HLT Nano PixelOnly with TP association
+    'Phase2HLTPixelOnly' : {'sequence': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltPixelOnlyNanoFlavour',
+                            'customize': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoCustomize'},
     # NGT scouting Nano
-    'NGTScouting' : {'sequence': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.dstNanoProducer',
+    'NGTScouting' : {'sequence': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.dstNanoFlavour',
                      'customize': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoCustomize'},
-    'NGTScoutingVal' : {'sequence': '@NGTScouting',
-                        'customize': ','.join(['HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoCustomize', 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoValCustomize'])},
+    'NGTScoutingVal' : {'sequence': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.dstValidationNanoFlavour',
+                        'customize': 'HLTrigger/NGTScouting/HLTNanoProducer_cff.hltNanoCustomize'},
     # Muon High Level Trigger
     'MUHLT' : {'sequence': 'DPGAnalysis/MuonTools/muNtupleProducerHlt_cff.hltMuNanoProducer',
                'customize': 'DPGAnalysis/MuonTools/muNtupleProducerHlt_cff.hltMuNanoCustomize'},
@@ -110,4 +115,7 @@ autoNANO = {
     # NANOGEN (from MiniAOD)
     'GENFromMini': {'sequence': 'PhysicsTools/NanoAOD/nanogen_cff.nanogenSequence',
                     'customize': 'PhysicsTools/NanoAOD/nanogen_cff.customizeNanoGENFromMini'},
+    # Tau embedding NanoAOD (includes Data as well as MC tables with an addition tau embedding table)
+    'TauEmbedding': {'sequence': '@PHYS+PhysicsTools/NanoAOD/nano_cff.nanoSequenceFS+TauAnalysis/MCEmbeddingTools/Nano_cff.embeddingTable_seq',
+                     'customize': '@PHYS'},
 }

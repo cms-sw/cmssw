@@ -69,7 +69,7 @@ public:
   float radius() const { return theDistToBeam; }
 
 protected:
-  virtual float shiftOffset(float pitch_fraction);
+  float shiftOffset(float pitch_fraction);
 
 private:
   int theNumberOfStrips;

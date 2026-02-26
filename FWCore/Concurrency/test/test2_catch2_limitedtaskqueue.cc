@@ -6,7 +6,7 @@
 //
 
 #include <iostream>
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <chrono>
 #include <memory>
 #include <atomic>
@@ -65,17 +65,17 @@ TEST_CASE("LimitedTaskQueue", "[LimitedTaskQueue]") {
         oneapi::tbb::task_group group;
         edm::FinalWaitingTask lastTask(group);
         edm::WaitingTaskHolder waitingTask(group, &lastTask);
-        queue.push(group, [&count, waitingTask, kMax] {
+        queue.push(group, [&count, waitingTask] {
           SAFE_REQUIRE(count++ < kMax);
           std::this_thread::sleep_for(10us);
           --count;
         });
-        queue.push(group, [&count, waitingTask, kMax] {
+        queue.push(group, [&count, waitingTask] {
           SAFE_REQUIRE(count++ < kMax);
           std::this_thread::sleep_for(10us);
           --count;
         });
-        queue.push(group, [&count, lastTask = std::move(waitingTask), kMax] {
+        queue.push(group, [&count, lastTask = std::move(waitingTask)] {
           SAFE_REQUIRE(count++ < kMax);
           std::this_thread::sleep_for(10us);
           --count;
@@ -159,11 +159,11 @@ TEST_CASE("LimitedTaskQueue", "[LimitedTaskQueue]") {
       {
         edm::WaitingTaskHolder waitingTask(group, &lastTask);
 
-        group.run([&queue, &waitToStart, &group, waitingTask, &count, &nRunningTasks, kMax] {
+        group.run([&queue, &waitToStart, &group, waitingTask, &count, &nRunningTasks] {
           while (waitToStart) {
           }
           for (unsigned int i = 0; i < nTasks; ++i) {
-            queue.push(group, [&count, waitingTask, &nRunningTasks, kMax] {
+            queue.push(group, [&count, waitingTask, &nRunningTasks] {
               auto nrt = nRunningTasks++;
               if (nrt >= kMax) {
                 std::cout << "ERROR " << nRunningTasks << " >= " << kMax << std::endl;
@@ -174,10 +174,10 @@ TEST_CASE("LimitedTaskQueue", "[LimitedTaskQueue]") {
             });
           }
         });
-        group.run([&queue, &waitToStart, &group, waitingTask, &count, &nRunningTasks, kMax] {
+        group.run([&queue, &waitToStart, &group, waitingTask, &count, &nRunningTasks] {
           waitToStart = false;
           for (unsigned int i = 0; i < nTasks; ++i) {
-            queue.push(group, [&count, waitingTask, &nRunningTasks, kMax] {
+            queue.push(group, [&count, waitingTask, &nRunningTasks] {
               auto nrt = nRunningTasks++;
               if (nrt >= kMax) {
                 std::cout << "ERROR " << nRunningTasks << " >= " << kMax << std::endl;

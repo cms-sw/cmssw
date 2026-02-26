@@ -210,6 +210,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     digiMorphingConfig_.applyDigiMorphing = iConfig.getParameter<bool>("DoDigiMorphing");
     digiMorphingConfig_.maxFakesInModule = iConfig.getParameter<uint32_t>("MaxFakesInModule");
 
+    if (digiMorphingConfig_.maxFakesInModule > TrackerTraits::maxPixInModuleForMorphing) {
+      throw cms::Exception("Configuration")
+          << "[SiPixelDigiMorphing]:"
+          << " maxFakesInModule should be <= " << TrackerTraits::maxPixInModuleForMorphing
+          << " (TrackerTraits::maxPixInModuleForMorphing)"
+          << " while " << digiMorphingConfig_.maxFakesInModule << " was provided at config level.\n";
+    }
+
     // regions
     if (!iConfig.getParameter<edm::ParameterSet>("Regions").getParameterNames().empty()) {
       regions_ = std::make_unique<PixelUnpackingRegions>(iConfig, consumesCollector());
@@ -233,7 +241,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<double>("VCaltoElectronOffset", -60.f);
     desc.add<double>("VCaltoElectronOffset_L1", -670.f);
     desc.add<bool>("DoDigiMorphing", false);
-    desc.add<uint32_t>("MaxFakesInModule", TrackerTraits::maxPixInModule * 2 / 5);
+    desc.add<uint32_t>("MaxFakesInModule", TrackerTraits::maxPixInModuleForMorphing);
 
     desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
     {
@@ -269,18 +277,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const TrackerTopology* tTopo_ = &iSetup.getData(trackerTopologyToken_);
       // collect morphing module ids on host, then copy once to device
       std::vector<uint32_t> morphingModulesHost;
-      for (const auto& connection : cablingMap_->det2fedMap()) {
-        auto rawId = connection.first;
-        if (rawId == 0)
-          continue;
-        DetId detId(rawId);
-        if (!SiPixelRawToCluster::skipDetId(tTopo_, detId, theBarrelRegions_, theEndcapRegions_)) {
-          morphingModulesHost.push_back(rawId);
+      if (digiMorphingConfig_.applyDigiMorphing) {
+        for (const auto& connection : cablingMap_->det2fedMap()) {
+          auto rawId = connection.first;
+          if (rawId == 0)
+            continue;
+          DetId detId(rawId);
+          if (!SiPixelRawToCluster::skipDetId(tTopo_, detId, theBarrelRegions_, theEndcapRegions_)) {
+            morphingModulesHost.push_back(rawId);
+          }
         }
-      }
 
-      // Sort once on CPU for efficient binary search on device later
-      std::sort(morphingModulesHost.begin(), morphingModulesHost.end());
+        // Sort once on CPU for efficient binary search on device later
+        std::sort(morphingModulesHost.begin(), morphingModulesHost.end());
+      }
 
       // update count in config and copy module ids to device buffer once
       digiMorphingConfig_.numMorphingModules = morphingModulesHost.size();
@@ -308,7 +318,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           *(regions_->modulesToUnpack()), cabling_.get(), fedIds_, iEvent.queue());
       modulesToUnpack = modulesToUnpackRegional->data();
     } else {
-      modulesToUnpack = hMap->modToUnpDefault();
+      modulesToUnpack = hMap->modToUnpDefault().data();
     }
 
     const auto& buffers = iEvent.get(rawGetToken_);

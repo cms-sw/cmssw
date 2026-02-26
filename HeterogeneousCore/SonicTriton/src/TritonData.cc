@@ -84,7 +84,12 @@ std::string TritonOutputData::xput() const {
 }
 
 template <typename IO>
-tc::InferenceServerGrpcClient* TritonData<IO>::client() {
+TritonClient* TritonData<IO>::client() {
+  return client_;
+}
+
+template <typename IO>
+tc::InferenceServerGrpcClient* TritonData<IO>::grpcClient() {
   return client_->client();
 }
 

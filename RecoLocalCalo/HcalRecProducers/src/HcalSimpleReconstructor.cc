@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/DescriptionCloner.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
@@ -131,15 +132,11 @@ void HcalSimpleReconstructor::fillDescriptions(edm::ConfigurationDescriptions& d
   descriptions.add("hosimplereco", descHO);
 
   // hfreco
-  edm::ParameterSetDescription descHF;
-  descHF.add<double>("correctionPhaseNS", 0.0);
-  descHF.add<edm::InputTag>("digiLabel", edm::InputTag("hcalDigis"));
-  descHF.add<bool>("tsFromDB", true);
-  descHF.add<int>("samplesToAdd", 2);
-  descHF.add<std::string>("Subdetector", "HF");
-  descHF.add<bool>("correctForTimeslew", false);
-  descHF.add<bool>("dropZSmarkedPassed", true);
-  descHF.add<bool>("correctForPhaseContainment", false);
-  descHF.add<int>("firstSample", 4);
+  edm::DescriptionCloner descHF;
+  descHF.set<double>("correctionPhaseNS", 0.0);
+  descHF.set<int>("samplesToAdd", 2);
+  descHF.set<std::string>("Subdetector", "HF");
+  descHF.set<bool>("correctForTimeslew", false);
+  descHF.set<bool>("correctForPhaseContainment", false);
   descriptions.add("hfsimplereco", descHF);
 }

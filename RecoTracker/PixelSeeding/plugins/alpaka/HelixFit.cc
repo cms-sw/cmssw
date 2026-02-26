@@ -12,7 +12,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     ALPAKA_ASSERT_ACC(tuples_);
     ALPAKA_ASSERT_ACC(tupleMultiplicity_);
-    ALPAKA_ASSERT_ACC(helix_fit_results.pt());
+    ALPAKA_ASSERT_ACC(helix_fit_results.pt().data());
   }
 
   template <typename TrackerTraits>
@@ -20,5 +20,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template class HelixFit<pixelTopology::Phase1>;
   template class HelixFit<pixelTopology::Phase2>;
+  template class HelixFit<pixelTopology::Phase2OT>;
   template class HelixFit<pixelTopology::HIonPhase1>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

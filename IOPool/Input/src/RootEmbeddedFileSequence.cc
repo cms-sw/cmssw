@@ -25,7 +25,7 @@
 
 namespace {
   std::atomic<unsigned int> badFilesSkipped_{0};
-  auto operator"" _uz(unsigned long long i) -> std::size_t { return std::size_t{i}; }  // uz will be in C++23
+  auto operator""_uz(unsigned long long i) -> std::size_t { return std::size_t{i}; }  // uz will be in C++23
 }  // namespace
 
 namespace edm {

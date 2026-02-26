@@ -40,5 +40,11 @@ namespace edm::service::monitor_file_utilities {
                        char moduleIdSymbol,
                        std::string const& iIDHeader,
                        std::string const& iLabelHeader);
+  void moduleIdToLabel(std::ostream&,
+                       std::vector<std::pair<std::string, std::string>> const& iModules,
+                       char moduleIdSymbol,
+                       std::string const& iIDHeader,
+                       std::string const& iLabelHeader,
+                       std::string const& iTypeHeader);
 }  // namespace edm::service::monitor_file_utilities
 #endif

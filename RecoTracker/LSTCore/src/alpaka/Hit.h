@@ -11,7 +11,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE float deltaPhiChange(TAcc const& acc, float x1, float y1, float x2, float y2) {
     return cms::alpakatools::deltaPhi(acc, x1, y1, x2 - x1, y2 - y1);
   }
@@ -64,17 +64,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             alpaka::math::acosh(acc,
                                 alpaka::math::sqrt(acc, ihit_x * ihit_x + ihit_y * ihit_y + ihit_z * ihit_z) /
                                     hitsExtended.rts()[ihit]);
-        auto found_pointer = alpaka_std::lower_bound(modules.mapdetId(), modules.mapdetId() + nModules, iDetId);
-        ALPAKA_ASSERT_ACC(found_pointer != modules.mapdetId() + nModules);
-        int found_index = std::distance(modules.mapdetId(), found_pointer);
+        auto found_pointer =
+            alpaka_std::lower_bound(modules.mapdetId().data(), modules.mapdetId().data() + nModules, iDetId);
+        ALPAKA_ASSERT_ACC(found_pointer != modules.mapdetId().data() + nModules);
+        int found_index = std::distance(modules.mapdetId().data(), found_pointer);
         uint16_t lastModuleIndex = modules.mapIdx()[found_index];
 
         hitsExtended.moduleIndices()[ihit] = lastModuleIndex;
 
         if (modules.subdets()[lastModuleIndex] == Endcap && modules.moduleType()[lastModuleIndex] == TwoS) {
-          found_pointer = alpaka_std::lower_bound(geoMapDetId, geoMapDetId + nEndCapMap, iDetId);
-          ALPAKA_ASSERT_ACC(found_pointer != geoMapDetId + nEndCapMap);
-          found_index = std::distance(geoMapDetId, found_pointer);
+          found_pointer = alpaka_std::lower_bound(geoMapDetId.data(), geoMapDetId.data() + nEndCapMap, iDetId);
+          ALPAKA_ASSERT_ACC(found_pointer != geoMapDetId.data() + nEndCapMap);
+          found_index = std::distance(geoMapDetId.data(), found_pointer);
           float phi = geoMapPhi[found_index];
           float cos_phi = alpaka::math::cos(acc, phi);
           hitsExtended.highEdgeXs()[ihit] = ihit_x + 2.5f * cos_phi;

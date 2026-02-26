@@ -38,7 +38,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       unsigned int k = (childName.size() == 1) ? 0 : copy;
       ++copy;
       if (k < childName.size() && (childName[k] != " " && childName[k] != "Null")) {
-        std::string child = childName[k];
+        const std::string& child = childName[k];
         dd4hep::Position tran(xoff + i * deltaX, yoff + j * deltaY, centre[2]);
         parent.placeVolume(ns.volume(child), copy, tran);
 #ifdef EDM_ML_DEBUG

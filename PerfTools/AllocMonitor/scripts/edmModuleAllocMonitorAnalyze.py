@@ -19,29 +19,29 @@ To Use: Add the ModuleAllocMonitor Service to the cmsRun job use something like 
   This script will output a more human readable form of the data in the log file.'''
     return s
 
-#these values come from moduleALloc_setupFile.cc
-#enum class Step : char {
-#  preSourceTransition = 'S',
-#  postSourceTransition = 's',
-#  preModulePrefetching = 'P',
-#  postModulePrefetching = 'p',
-#  preModuleEventAcquire = 'A',
-#  postModuleEventAcquire = 'a',
-#  preModuleTransition = 'M',
-#  preEventReadFromSource = 'R',
-#  postEventReadFromSource = 'r',
-#  preModuleEventDelayedGet = 'D',
-#  postModuleEventDelayedGet = 'd',
-#  postModuleTransition = 'm',
-#  preESModulePrefetching = 'Q',
-#  postESModulePrefetching = 'q',
-#  preESModule = 'N',
-#  postESModule = 'n',
-#  preESModuleAcquire = 'B',
-#  postESModuleAcquire = 'b',
-#  preFrameworkTransition = 'F',
-#  postFrameworkTransition = 'f'
-#};
+# These values come from moduleAlloc_setupFile.cc
+# enum class Step : char {
+#   preSourceTransition = 'S',
+#   postSourceTransition = 's',
+#   preModulePrefetching = 'P',
+#   postModulePrefetching = 'p',
+#   preModuleEventAcquire = 'A',
+#   postModuleEventAcquire = 'a',
+#   preModuleTransition = 'M',
+#   preEventReadFromSource = 'R',
+#   postEventReadFromSource = 'r',
+#   preModuleEventDelayedGet = 'D',
+#   postModuleEventDelayedGet = 'd',
+#   postModuleTransition = 'm',
+#   preESModulePrefetching = 'Q',
+#   postESModulePrefetching = 'q',
+#   preESModule = 'N',
+#   postESModule = 'n',
+#   preESModuleAcquire = 'B',
+#   postESModuleAcquire = 'b',
+#   preFrameworkTransition = 'F',
+#   postFrameworkTransition = 'f'
+# };
 
 
 kMicroToSec = 0.000001
@@ -192,6 +192,16 @@ def textPrefix_(time, indentLevel):
     return f'{time:>11} '+"++"*indentLevel
 
 class AllocInfo(object):
+    """Container for memory allocation information from CMSSW module transitions.
+    
+    Attributes:
+        nAllocs: Number of memory allocations
+        nDeallocs: Number of memory deallocations  
+        added: Net memory added (in bytes)
+        minTemp: Minimum temporary memory usage
+        maxTemp: Maximum temporary memory usage
+        max1Alloc: Largest single allocation
+    """
     def __init__(self,payload):
         self.nAllocs = int(payload[0])
         self.nDeallocs = int(payload[1])
@@ -245,7 +255,7 @@ class SyncValues(object):
             return self.lumiFor(index)
         if transition == Phase.getNextTransition:
             return ()
-        if transition == Phase.writeProcessBlock:
+        if transition == Phase.writeProcessBlock or transition == Phase.beginProcessBlock or transition == Phase.endProcessBlock or transition == Phase.accessInputProcessBlock:
             return ()
         if transition == Phase.beginStream:
             self.setStream(index, 0,0,0)
@@ -333,6 +343,7 @@ class ModuleCentricModuleData(object):
             l = None
             if m == 'source':
                 l = dct['source']
+                cpptypes[m]=self._cpptypes[m]
             elif m == 'clearEvent':
                 l = dct['clearEvent']
             else:
@@ -526,7 +537,7 @@ class PostFrameworkTransitionParser (FrameworkTransitionParser):
 
 
 class SourceTransitionParser(object):
-    def __init__(self, payload):
+    def __init__(self, payload, sourceInfos):
         self.transition = int(payload[0])
         if self.transition == Phase.getNextTransition:
             self.time = int(payload[1])
@@ -556,9 +567,10 @@ class SourceTransitionParser(object):
         return f'{self.textPrefix()} {self.textSpecial()}: {self.textPostfix()}'
 
 class PreSourceTransitionParser(SourceTransitionParser):
-    def __init__(self, payload, moduleCentric):
+    def __init__(self, payload, sourceInfos, moduleCentric):
         self._moduleCentric = moduleCentric
-        super().__init__(payload)
+        super().__init__(payload, sourceInfos)
+        self._sourceInfo = sourceInfos[0]
     def textSpecial(self):
         return "starting"
     def jsonInfo(self, syncs, temp, data):
@@ -607,22 +619,23 @@ class PreSourceTransitionParser(SourceTransitionParser):
                 data.findOpenSlotInModGlobals(index,0).append(container[-1])
 
 class PostSourceTransitionParser(SourceTransitionParser):
-    def __init__(self, payload, moduleCentric):
-        super().__init__(payload)
+    def __init__(self, payload, sourceInfos, moduleCentric):
+        super().__init__(payload, sourceInfos)
         if self.index == -1:
             self.allocInfo = AllocInfo(payload[2:])
         else:
             self.allocInfo = AllocInfo(payload[3:])
         self._moduleCentric = moduleCentric
+        self._sourceInfo = sourceInfos[0]
     def textSpecial(self):
         return "finished"
     def jsonInfo(self, syncs, temp, data):
         start = temp.findTime("source", self.transition, self.index)
         #we do not know the sync yet so have to wait until the framework transition
         if self.transition in [ Phase.construction, Phase.getNextTransition, Phase.destruction, Phase.openFile]:
-            data.insert( "source" , "sourceType", start, self.time, self.transition, self.index, (0,) , Activity.process, self.allocInfo)
+            data.insert( "source" , self._sourceInfo._cpptype, start, self.time, self.transition, self.index, (0,) , Activity.process, self.allocInfo)
         else:
-            data.insert( "source" , "sourceType", start, self.time, self.transition, self.index, self.index , Activity.process, self.allocInfo)
+            data.insert( "source" , self._sourceInfo._cpptype, start, self.time, self.transition, self.index, self.index , Activity.process, self.allocInfo)
     def jsonVisInfo(self,  data):
         index = self.index
         if self.transition == Phase.Event:
@@ -812,7 +825,7 @@ class PostEventReadFromSourceParser(EDModuleTransitionParser):
         return self._postJsonVis(data, self.allocInfo)
     def jsonInfo(self, syncs, temp, data):
         start = temp.findTime(self.moduleInfo._name+'source', self.transition, self.index)
-        data.insert( "source" , "sourceType", start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , Activity.delayedGet, self.allocInfo)
+        data.insert( "source" , self.moduleInfo._cpptype, start, self.time, self.transition, self.index, syncs.get(self.transition, self.index) , Activity.delayedGet, self.allocInfo)
 
 class ESModuleTransitionParser(object):
     def __init__(self, payload, moduleInfos, esModuleInfos, recordNames):
@@ -821,7 +834,10 @@ class ESModuleTransitionParser(object):
         self.moduleID = int(payload[2])
         self.moduleInfo = esModuleInfos[self.moduleID]
         self.recordID = int(payload[3])
-        self.recordName = recordNames[self.recordID]
+        if not self.recordID:
+            self.recordName = ''
+        else:
+            self.recordName = recordNames[self.recordID]
         self.callID = int(payload[4])
         self.time = int(payload[5])
     def baseIndentLevel(self):
@@ -900,16 +916,16 @@ class PostESModuleAcquireParser(ESModuleTransitionParser):
         return self._postJsonVis(data, self.allocInfo)
 
 
-def lineParserFactory (step, payload, moduleInfos, esModuleInfos, recordNames, moduleCentric):
+def lineParserFactory (step, payload, moduleInfos, esModuleInfos, sourceInfos, recordNames, moduleCentric):
     if step == 'F':
         parser = PreFrameworkTransitionParser(payload)
         return parser
     if step == 'f':
         return PostFrameworkTransitionParser(payload)
     if step == 'S':
-        return PreSourceTransitionParser(payload, moduleCentric)
+        return PreSourceTransitionParser(payload, sourceInfos, moduleCentric)
     if step == 's':
-        return PostSourceTransitionParser(payload, moduleCentric)
+        return PostSourceTransitionParser(payload, sourceInfos, moduleCentric)
     if step == 'M':
         return PreEDModuleTransitionParser(payload, moduleInfos, moduleCentric)
     if step == 'm':
@@ -934,10 +950,10 @@ def lineParserFactory (step, payload, moduleInfos, esModuleInfos, recordNames, m
         return PreESModuleAcquireParser(payload, moduleInfos, esModuleInfos, recordNames)
     if step == 'b':
         return PostESModuleAcquireParser(payload, moduleInfos, esModuleInfos, recordNames)
-    raise LogicError("Unknown step '{}'".format(step))
+    raise ValueError("Unknown step '{}'".format(step))
     
 #----------------------------------------------
-def processingStepsFromFile(f, moduleInfos, esModuleInfos, recordNames, moduleCentric):
+def processingStepsFromFile(f, moduleInfos, esModuleInfos, sourceInfos, recordNames, moduleCentric):
     for rawl in f:
         l = rawl.strip()
         if not l or l[0] == '#':
@@ -945,7 +961,7 @@ def processingStepsFromFile(f, moduleInfos, esModuleInfos, recordNames, moduleCe
         (step,payload) = tuple(l.split(None,1))
         payload=payload.split()
 
-        parser = lineParserFactory(step, payload, moduleInfos, esModuleInfos, recordNames, moduleCentric)
+        parser = lineParserFactory(step, payload, moduleInfos, esModuleInfos, sourceInfos, recordNames, moduleCentric)
         if parser:
             yield parser
     return
@@ -958,6 +974,7 @@ class ModuleAllocCompactFileParser(object):
         moduleInfos = {}
         esModuleInfos = {}
         recordNames = {}
+        sourceInfos = {}
         for rawl in f:
             l = rawl.strip()
             if l and l[0] == 'M':
@@ -978,6 +995,10 @@ class ModuleAllocCompactFileParser(object):
                 (id,name,mType)=tuple(l[2:].split())
                 esModuleInfos[int(id)] = ModuleInfo(name,mType)
                 continue
+            if len(l) > 5 and l[0:2] == "#S":
+                (id,name,sType)=tuple(l[2:].split())
+                sourceInfos[0] = ModuleInfo(name,sType)
+                continue
             if len(l) > 5 and l[0:2] == "#R":
                 (id,name)=tuple(l[2:].split())
                 recordNames[int(id)] = name
@@ -990,6 +1011,7 @@ class ModuleAllocCompactFileParser(object):
         self.numStreams =numStreams
         self._moduleInfos = moduleInfos
         self._esModuleInfos = esModuleInfos
+        self._sourceInfos = sourceInfos
         self._recordNames = recordNames
         self.maxNameSize =0
         for n in moduleInfos.items():
@@ -1004,12 +1026,21 @@ class ModuleAllocCompactFileParser(object):
         Using a generator reduces the memory overhead when parsing a large file.
             """
         self._f.seek(0)
-        return processingStepsFromFile(self._f,self._moduleInfos, self._esModuleInfos, self._recordNames, self._moduleCentric)
+        return processingStepsFromFile(self._f,self._moduleInfos, self._esModuleInfos, self._sourceInfos, self._recordNames, self._moduleCentric)
 
 def textOutput( parser ):
     context = {}
     for p in parser.processingSteps():
         print(p.text(context))
+
+def showSourceTypes( parser ):
+    print("Source Module Types:")
+    print("===================")
+    if hasattr(parser, '_sourceInfos') and parser._sourceInfos:
+        for id, info in parser._sourceInfos.items():
+            print(f"  Source ID {id}: {info._name} (type: {info._cpptype})")
+    else:
+        print("  No source module types found in log file.")
     
 class VisualizationContainers(object):
     def __init__(self):
@@ -1281,7 +1312,7 @@ def jsonVisualizationInfo(parser):
                         time += t["finish"]-t["start"]
             modules[-1]['time']=time
         modules.sort(key= lambda x : x['time'], reverse=True)
-        final['transitions'].append({"name": "source", "slots":sourceSlot})
+        final['transitions'].append({"name": "source", "cpptype": parser._sourceInfos[0]._cpptype, "slots":sourceSlot})
         for m in modules:
             final['transitions'].append(m)
 
@@ -1327,6 +1358,7 @@ class TestModuleCommand(unittest.TestCase):
             '#R 1 Record',
             '#M 1 Module ModuleType',
             '#N 1 ESModule ESModuleType',
+            '#S 1 Source SourceType',
              f'F {Phase.startTracing} 0 0 0 0 {incr(t)}',
              f'S {Phase.construction} 0 {incr(t)}',
              f's {Phase.construction} 0 {incr(t)} 1 1 10 0 10 10',
@@ -1493,6 +1525,7 @@ if __name__=="__main__":
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
                                      epilog=printHelp())
     parser.add_argument('filename',
+                        nargs='?',  # Make filename optional
                         type=argparse.FileType('r'), # open file
                         help='file to process')
     parser.add_argument('-j', '--json',
@@ -1501,7 +1534,7 @@ if __name__=="__main__":
     parser.add_argument('-s', '--sortBy',
                         default = '',
                         type = str,
-                        help="sort modules by attribute. Alloed values 'nAllocs', 'nDeallocs', 'added', 'minTemp', maxTemp', and 'max1Alloc'")
+                        help="sort modules by attribute. Allowed values 'nAllocs', 'nDeallocs', 'added', 'minTemp', 'maxTemp', and 'max1Alloc'")
 #    parser.add_argument('-w', '--web',
 #                        action='store_true',
 #                        help='''Writes data.js file that can be used with the web based inspector. To use, copy directory ${CMSSW_RELEASE_BASE}/src/FWCore/Services/template/web to a web accessible area and move data.js into that directory.''')
@@ -1511,11 +1544,17 @@ if __name__=="__main__":
     parser.add_argument('-T', '--test',
                         action='store_true',
                         help='''Run internal tests.''')
+    parser.add_argument('--showSourceTypes',
+                        action='store_true', 
+                        help='''Display source module types.''')
 
     args = parser.parse_args()
 
     if args.test:
         runTests()
+    elif args.filename is None:
+        parser.print_help()
+        sys.exit(1)
     else :
         parser = ModuleAllocCompactFileParser(args.filename, not args.timeOrdered)
 #        if args.json or args.web:
@@ -1528,5 +1567,7 @@ if __name__=="__main__":
 #                f.close()
         elif args.sortBy:
             print(json.dumps(sortByAttribute(parser, args.sortBy), indent=2))
+        elif args.showSourceTypes:
+            showSourceTypes(parser)
         else:
             textOutput(parser)

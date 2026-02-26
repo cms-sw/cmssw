@@ -189,11 +189,13 @@ int main(int argc, const char* argv[]) {
       }
       std::shared_ptr<edm::ProcessDesc> processDesc;
       try {
+        edm::TimingServiceBase::pythonStarting();
         std::unique_ptr<edm::ParameterSet> parameterSet;
         if (!fileName.empty())
           parameterSet = edm::readConfig(fileName, pythonOptValues);
         else
           edm::makeParameterSets(cmdString, parameterSet);
+        edm::TimingServiceBase::pythonFinished();
         processDesc = std::make_shared<edm::ProcessDesc>(std::move(parameterSet));
       } catch (edm::Exception const&) {
         throw;

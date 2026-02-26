@@ -105,9 +105,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::string line = "HGCalRecHitESProducersTest::produce " + std::string(90, '-');
     if (configWatcher_.check(iSetup)) {
       std::cout << line << std::endl;
-      std::cout << "HGCalRecHitESProducersTest::produce: moduleIndexer.getMaxDataSize()="
-                << moduleIndexer.getMaxDataSize() << ", moduleIndexer.getMaxERxSize()=" << moduleIndexer.getMaxERxSize()
-                << std::endl;
+      std::cout << "HGCalRecHitESProducersTest::produce: moduleIndexer.maxDataSize()=" << moduleIndexer.maxDataSize()
+                << ", moduleIndexer.maxERxSize()=" << moduleIndexer.maxERxSize() << std::endl;
 
       // ESProducer for global HGCal configuration (structs) with header markers, etc.
       auto nfeds = config.feds.size();  // number of FEDs
@@ -145,7 +144,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       int imod = 0;
       std::cout << "HGCalRecHitESProducersTest::produce: calibration constants per module:" << std::endl;
       std::cout << "  imod          typecode   idx    hex     ADC_ped   CM_slope   CM_ped   EM_scale" << std::endl;
-      for (const auto& [typecode, ids] : moduleIndexer.getTypecodeMap()) {
+      for (const auto& [typecode, ids] : moduleIndexer.typecodeMap()) {
         const auto [fedid, modid] = ids;
         if (imod >= maxmods_)
           break;

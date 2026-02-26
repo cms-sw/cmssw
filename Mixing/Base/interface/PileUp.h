@@ -7,6 +7,7 @@
 #include <optional>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Sources/interface/SciTagCategoryForEmbeddedSources.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -47,7 +48,8 @@ namespace edm {
     explicit PileUp(ParameterSet const& pset,
                     const std::shared_ptr<PileUpConfig>& config,
                     edm::ConsumesCollector iC,
-                    const bool mixingConfigFromDB);
+                    const bool mixingConfigFromDB,
+                    SciTagCategoryForEmbeddedSources cat = SciTagCategoryForEmbeddedSources::Embedded);
     ~PileUp();
 
     template <typename T>

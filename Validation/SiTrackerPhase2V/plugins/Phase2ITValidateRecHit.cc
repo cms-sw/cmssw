@@ -168,7 +168,7 @@ void Phase2ITValidateRecHit::fillDescriptions(edm::ConfigurationDescriptions& de
   edm::ParameterSetDescription desc;
 
   // call the base fillPsetDescription for the plots bookings
-  Phase2ITValidateRecHitBase::fillPSetDescription(desc);
+  Phase2ITValidateRecHitBase::fillPSetDescription(desc, false);
 
   //to be used in TrackerHitAssociator
   desc.add<bool>("associatePixel", true);

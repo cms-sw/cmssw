@@ -1,5 +1,5 @@
 #define CATCH_CONFIG_MAIN
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include "HeterogeneousCore/AlpakaInterface/interface/Backend.h"
 
@@ -12,7 +12,8 @@ TEST_CASE("Test cms::alpakatools::toBackend", "cms::alpakatools::Backend") {
   }
   SECTION("Invalid string") {
     REQUIRE_THROWS_WITH(cms::alpakatools::toBackend("Nonexistent"),
-                        Catch::Contains("EnumNotFound") and Catch::Contains("Invalid backend name"));
+                        Catch::Matchers::ContainsSubstring("EnumNotFound") and
+                            Catch::Matchers::ContainsSubstring("Invalid backend name"));
   }
 }
 
@@ -25,6 +26,7 @@ TEST_CASE("Test cms::alpakatools::toString", "cms::alpakatools::Backend") {
   }
   SECTION("Invalid enum") {
     REQUIRE_THROWS_WITH(cms::alpakatools::toString(cms::alpakatools::Backend::size),
-                        Catch::Contains("InvalidEnumValue") and Catch::Contains("Invalid backend enum value"));
+                        Catch::Matchers::ContainsSubstring("InvalidEnumValue") and
+                            Catch::Matchers::ContainsSubstring("Invalid backend enum value"));
   }
 }

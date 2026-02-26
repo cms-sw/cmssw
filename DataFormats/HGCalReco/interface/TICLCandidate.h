@@ -2,6 +2,7 @@
 #define DataFormats_HGCalReco_TICLCandidate_h
 
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -20,7 +21,14 @@ public:
   TICLCandidate(Charge q, const LorentzVector& p4)
       : LeafCandidate(q, p4), idProbabilities_{}, time_(0.f), timeError_(-1.f), rawEnergy_(0.f) {}
 
-  TICLCandidate() : LeafCandidate(), idProbabilities_{}, time_(0.f), timeError_(-1.f), rawEnergy_(0.f) {}
+  TICLCandidate()
+      : LeafCandidate(),
+        idProbabilities_{},
+        time_(0.f),
+        timeError_(-1.f),
+        MTDtime_{0.f},
+        MTDtimeError_{-1.f},
+        rawEnergy_(0.f) {}
 
   TICLCandidate(const edm::Ptr<ticl::Trackster>& trackster)
       : LeafCandidate(),
@@ -33,8 +41,8 @@ public:
         rawEnergy_(0.f) {}
 
   TICLCandidate(const edm::Ptr<reco::Track> trackPtr, const edm::Ptr<ticl::Trackster>& tracksterPtr)
-      : LeafCandidate(), tracksters_{}, trackPtr_(trackPtr), time_(0.f), timeError_(-1.f) {
-    if (trackPtr_.isNull() and tracksterPtr.isNull())
+      : LeafCandidate(), tracksters_{}, trackPtrs_{}, time_(0.f), timeError_(-1.f) {
+    if (trackPtr.isNull() and tracksterPtr.isNull())
       throw cms::Exception("NullPointerError")
           << "TICLCandidate constructor: at least one between track and trackster must be valid";
 
@@ -42,9 +50,10 @@ public:
       tracksters_.push_back(tracksterPtr);
       auto const& trackster = tracksters_[0].get();
       idProbabilities_ = trackster->id_probabilities();
-      if (trackPtr_.isNonnull()) {
+      if (trackPtr.isNonnull()) {
+        trackPtrs_.push_back(trackPtr);
         auto pdgId = trackster->isHadronic() ? 211 : 11;
-        auto const& tk = trackPtr_.get();
+        auto const& tk = trackPtr.get();
         setPdgId(pdgId * tk->charge());
         setCharge(tk->charge());
         rawEnergy_ = trackster->raw_energy();
@@ -69,7 +78,8 @@ public:
       }
     } else {
       //candidate from track only
-      auto const& tk = trackPtr_.get();
+      trackPtrs_.push_back(trackPtr);
+      auto const& tk = trackPtr.get();
       setPdgId(211 * tk->charge());
       setCharge(tk->charge());
       const float energy = std::sqrt(tk->p() * tk->p() + ticl::mpion2);
@@ -95,15 +105,18 @@ public:
     MTDtimeError_ = timeError;
   };
 
-  inline const edm::Ptr<reco::Track> trackPtr() const { return trackPtr_; }
-  void setTrackPtr(const edm::Ptr<reco::Track>& trackPtr) { trackPtr_ = trackPtr; }
+  inline const edm::Ptr<reco::Track> trackPtr(int index = 0) const {
+    return trackPtrs_.empty() ? edm::Ptr<reco::Track>() : trackPtrs_[index];
+  }
+  inline const std::vector<edm::Ptr<reco::Track>> trackPtrs() const { return trackPtrs_; }
+  void addTrackPtr(const edm::Ptr<reco::Track>& trackPtr) { trackPtrs_.push_back(trackPtr); }
 
   inline float rawEnergy() const { return rawEnergy_; }
   void setRawEnergy(float rawEnergy) { rawEnergy_ = rawEnergy; }
 
-  inline const std::vector<edm::Ptr<ticl::Trackster> > tracksters() const { return tracksters_; };
+  inline const std::vector<edm::Ptr<ticl::Trackster>> tracksters() const { return tracksters_; };
 
-  void setTracksters(const std::vector<edm::Ptr<ticl::Trackster> >& tracksters) { tracksters_ = tracksters; }
+  void setTracksters(const std::vector<edm::Ptr<ticl::Trackster>>& tracksters) { tracksters_ = tracksters; }
   void addTrackster(const edm::Ptr<ticl::Trackster>& trackster) {
     tracksters_.push_back(trackster);
     time_ = trackster->time();
@@ -129,8 +142,8 @@ public:
 private:
   // vector of Ptr so Tracksters can come from different collections
   // and there can be derived classes
-  std::vector<edm::Ptr<ticl::Trackster> > tracksters_;
-  edm::Ptr<reco::Track> trackPtr_;
+  std::vector<edm::Ptr<ticl::Trackster>> tracksters_;
+  std::vector<edm::Ptr<reco::Track>> trackPtrs_;
   // Since it contains multiple tracksters, duplicate the probability interface
   std::array<float, 8> idProbabilities_;
 

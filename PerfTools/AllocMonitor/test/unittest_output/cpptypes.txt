@@ -1,0 +1,8 @@
+"DoodadESSource": "DoodadESSource"
+"OtherThing": "OtherThingProducer"
+"Thing": "ThingProducer"
+"WhatsItESProducer": "WhatsItESProducer"
+"get": "WhatsItAnalyzer"
+"out": "AsciiOutputModule"
+"source": "EmptySource"
+"thingProducer": "ThingProducer"

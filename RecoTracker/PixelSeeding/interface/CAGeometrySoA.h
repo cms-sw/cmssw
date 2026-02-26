@@ -4,6 +4,7 @@
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
+#include "DataFormats/SoATemplate/interface/SoABlocks.h"
 #include "DataFormats/GeometrySurface/interface/SOARotation.h"
 
 namespace reco {
@@ -32,15 +33,26 @@ namespace reco {
   GENERATE_SOA_LAYOUT(CALayersLayout,
                       SOA_COLUMN(uint32_t, layerStarts),
                       SOA_COLUMN(float, caThetaCut),
-                      SOA_COLUMN(float, caDCACut))
+                      SOA_COLUMN(float, caDCACut),
+                      SOA_COLUMN(bool, isBarrel))
 
   GENERATE_SOA_LAYOUT(CAGraphLayout,
                       SOA_COLUMN(GraphNode, graph),
                       SOA_COLUMN(bool, startingPair),
                       SOA_COLUMN(int16_t, phiCuts),
-                      SOA_COLUMN(float, minz),
-                      SOA_COLUMN(float, maxz),
-                      SOA_COLUMN(float, maxr))
+                      SOA_COLUMN(float, minInner),
+                      SOA_COLUMN(float, maxInner),
+                      SOA_COLUMN(float, minOuter),
+                      SOA_COLUMN(float, maxOuter),
+                      SOA_COLUMN(float, maxDZ),
+                      SOA_COLUMN(float, minDZ),
+                      SOA_COLUMN(float, maxDR),
+                      SOA_COLUMN(float, ptCuts))
+
+  GENERATE_SOA_BLOCKS(CALayoutTemplate,
+                      SOA_BLOCK(layers, CALayersLayout),
+                      SOA_BLOCK(graph, CAGraphLayout),
+                      SOA_BLOCK(modules, CAModulesLayout))
 
   using CALayersSoA = CALayersLayout<>;
   using CALayersSoAView = CALayersSoA::View;
@@ -53,6 +65,10 @@ namespace reco {
   using CAModulesSoA = CAModulesLayout<>;
   using CAModulesView = CAModulesSoA::View;
   using CAModulesConstView = CAModulesSoA::ConstView;
+
+  using CALayout = CALayoutTemplate<>;
+  using CALayoutView = CALayout::View;
+  using CALayoutConstView = CALayout::ConstView;
 
 }  // namespace reco
 #endif  // RecoTracker_PixelSeeding_interface_CAGeometry_h

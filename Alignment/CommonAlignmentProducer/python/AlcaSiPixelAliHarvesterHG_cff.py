@@ -7,7 +7,7 @@ SiPixelAliMilleFileExtractorHG = cms.EDAnalyzer("MillePedeFileExtractor",
     # file as real binary files to disk, so that the pede step can read them.
     # This includes the formatting directive "%04d" which will be expanded to
     # 0000, 0001, 0002,...
-    outputBinaryFile = cms.string('pedeBinaryHG%04d.dat'))
+    outputBinaryFile = cms.string('pedeBinaryHG%04d.dat.gz'))
 
 from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi import *
 from Alignment.CommonAlignmentProducer.AlignmentProducerAsAnalyzer_cff import AlignmentProducer
@@ -69,6 +69,7 @@ SiPixelAliDQMModuleHG = SiPixelAliDQMModule.clone()
 SiPixelAliDQMModuleHG.outputFolder = "AlCaReco/SiPixelAliHG"
 SiPixelAliDQMModuleHG.MillePedeFileReader.fileDir = "HGalignment/"
 SiPixelAliDQMModuleHG.MillePedeFileReader.isHG = True
+SiPixelAliDQMModuleHG.alignmentTokenSrc = "SiPixelAliPedeAlignmentProducerHG"
 
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 dqmEnvSiPixelAliHG = DQMEDHarvester('DQMHarvestingMetadata',

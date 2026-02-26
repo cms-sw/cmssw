@@ -1,6 +1,6 @@
 <use name="curl"/>
-<use name="stdcxx-fs"/>
 <use name="tbb"/>
+<use name="fmt"/>
 <use name="DataFormats/FEDRawData"/>
 <use name="DataFormats/L1ScoutingRawData"/>
 <use name="DataFormats/TCDS"/>

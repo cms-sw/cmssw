@@ -88,6 +88,7 @@ private:
 
   int microSleep_;
   unsigned int frdFileVersion_;
+  unsigned int dataType_;
   bool writeEoR_;
   bool writeToOpen_;
 

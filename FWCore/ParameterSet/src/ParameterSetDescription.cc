@@ -76,12 +76,13 @@ namespace edm {
   }
 
   void ParameterSetDescription::validate(ParameterSet& pset) const {
-    using std::placeholders::_1;
     if (unknown_)
       return;
 
     std::set<std::string> validatedLabels;
-    for_all(entries_, std::bind(&ParameterSetDescription::validateNode, _1, std::ref(pset), std::ref(validatedLabels)));
+    for (auto const& entry : entries_) {
+      validateNode(entry, pset, validatedLabels);
+    }
 
     std::vector<std::string> parameterNames = pset.getParameterNames();
     if (validatedLabels.size() != parameterNames.size()) {
@@ -226,12 +227,14 @@ namespace edm {
       throw edm::Exception(errors::Configuration)
           << "Illegal parameter found in configuration.  The parameter is named:\n"
           << ss.str() << "You could be trying to use a parameter name that is not\n"
-          << "allowed for this plugin or it could be misspelled.\n";
+          << "allowed for this plugin, or it could be misspelled, or this parameter\n"
+          << "needs to be defined in the fillDescriptions() method of the plugin.\n";
     } else {
       throw edm::Exception(errors::Configuration)
           << "Illegal parameters found in configuration.  The parameters are named:\n"
           << ss.str() << "You could be trying to use parameter names that are not\n"
-          << "allowed for this plugin or they could be misspelled.\n";
+          << "allowed for this plugin, or they could be misspelled, or these parameters\n"
+          << "need to be defined in the fillDescriptions() method of the plugin.\n";
     }
   }
 
@@ -255,6 +258,19 @@ namespace edm {
     } else {
       entry.node()->printNestedContent(os, entry.optional(), dfh);
     }
+  }
+
+  cfi::Trackiness ParameterSetDescription::trackiness(std::string_view path) const {
+    for (auto const& e : entries_) {
+      cfi::Trackiness t = e.node()->trackiness(path);
+      if (t != cfi::Trackiness::kNotAllowed) {
+        return t;
+      }
+    }
+    if (anythingAllowed()) {
+      return cfi::Trackiness::kUnknown;
+    }
+    return cfi::Trackiness::kNotAllowed;
   }
 
   void ParameterSetDescription::throwIfLabelsAlreadyUsed(std::set<std::string> const& nodeLabels) {

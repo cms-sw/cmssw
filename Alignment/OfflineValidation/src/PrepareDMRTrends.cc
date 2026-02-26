@@ -1,7 +1,8 @@
 #include "Alignment/OfflineValidation/interface/PrepareDMRTrends.h"
+#include <filesystem>
 
 using namespace std;
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 namespace pt = boost::property_tree;
 
 PrepareDMRTrends::PrepareDMRTrends(const char *outputFileName, pt::ptree &json) : outputFileName_(outputFileName) {
@@ -123,9 +124,7 @@ void PrepareDMRTrends::compileDMRTrends(vector<int> IOVlist,
             "mu", "sigma", "muplus", "sigmaplus", "muminus", "sigmaminus", "deltamu", "sigmadeltamu"};
         vector<float> runs = geom.Run();
         size_t n = runs.size();
-        vector<float> emptyvec;
-        for (size_t i = 0; i < runs.size(); i++)
-          emptyvec.push_back(0.);
+        vector<float> emptyvec(n, 0);
         for (size_t iVar = 0; iVar < variables.size(); iVar++) {
           Trend trend = trends.at(iVar);
           g = new TGraphErrors(n, runs.data(), (geom.*trend)().data(), emptyvec.data(), emptyvec.data());

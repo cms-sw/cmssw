@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// Package:    SiPixelMonitorTrackSoA
+// Package:    DQM/SiPixelHetrogeneous
 // Class:      SiPixelMonitorTrackSoA
 //
 /**\class SiPixelMonitorTrackSoA SiPixelMonitorTrackSoA.cc
@@ -7,195 +7,267 @@
 //
 // Author: Suvankar Roy Chowdhury
 //
+
+// system includes
+#include <fmt/printf.h>
+
+// user includes
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/TrackSoA/interface/TracksHost.h"
+#include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-// DQM Histograming
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
-#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
-// for string manipulations
-#include <fmt/printf.h>
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-template <typename T>
 class SiPixelMonitorTrackSoA : public DQMEDAnalyzer {
 public:
-  using PixelTrackHeterogeneous = TrackSoAHeterogeneousHost<T>;
+  using PixelTrackHeterogeneous = reco::TracksHost;
   explicit SiPixelMonitorTrackSoA(const edm::ParameterSet&);
   ~SiPixelMonitorTrackSoA() override = default;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  edm::EDGetTokenT<PixelTrackHeterogeneous> tokenSoATrack_;
-  std::string topFolderName_;
-  bool useQualityCut_;
-  pixelTrack::Quality minQuality_;
-  MonitorElement* hnTracks;
-  MonitorElement* hnLooseAndAboveTracks;
-  MonitorElement* hnHits;
-  MonitorElement* hnHitsVsPhi;
-  MonitorElement* hnHitsVsEta;
-  MonitorElement* hnLayers;
-  MonitorElement* hnLayersVsPhi;
-  MonitorElement* hnLayersVsEta;
-  MonitorElement* hchi2;
-  MonitorElement* hChi2VsPhi;
-  MonitorElement* hChi2VsEta;
-  MonitorElement* hpt;
-  MonitorElement* hCurvature;
-  MonitorElement* heta;
-  MonitorElement* hphi;
-  MonitorElement* hz;
-  MonitorElement* htip;
+  const edm::EDGetTokenT<PixelTrackHeterogeneous> tokenSoATrack_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const std::string topFolderName_;
+
+  std::vector<std::string> qualityDefinitions_;
+  const TrackerGeometry* tkGeom_ = nullptr;
+  bool isPhase2_;
+
+  // Global histogram for the quality distribution of ALL tracks
   MonitorElement* hquality;
+
+  // Struct to hold histograms for a specific quality level
+  struct QualityHistograms {
+    pixelTrack::Quality minQuality;
+    std::string qualityName;
+
+    MonitorElement* hnTracks;
+    MonitorElement* hnHits;
+    MonitorElement* hnHitsVsPhi;
+    MonitorElement* hnHitsVsEta;
+    MonitorElement* hnLayers;
+    MonitorElement* hnLayersVsPhi;
+    MonitorElement* hnLayersVsEta;
+    MonitorElement* hchi2;
+    MonitorElement* hChi2VsPhi;
+    MonitorElement* hChi2VsEta;
+    MonitorElement* hpt;
+    MonitorElement* hCurvature;
+    MonitorElement* heta;
+    MonitorElement* hphi;
+    MonitorElement* hz;
+    MonitorElement* htip;
+  };
+
+  std::vector<QualityHistograms> histograms_;
 };
 
-//
-// constructors
-//
+SiPixelMonitorTrackSoA::SiPixelMonitorTrackSoA(const edm::ParameterSet& iConfig)
+    : tokenSoATrack_{consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"))},
+      geomToken_{esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()},
+      topFolderName_{iConfig.getParameter<std::string>("topFolderName")},
+      qualityDefinitions_{iConfig.getParameter<std::vector<std::string>>("qualityDefinitions")},
+      isPhase2_{false} {}
 
-template <typename T>
-SiPixelMonitorTrackSoA<T>::SiPixelMonitorTrackSoA(const edm::ParameterSet& iConfig) {
-  tokenSoATrack_ = consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
-  topFolderName_ = iConfig.getParameter<std::string>("topFolderName");  //"SiPixelHeterogeneous/PixelTrackSoA";
-  useQualityCut_ = iConfig.getParameter<bool>("useQualityCut");
-  minQuality_ = pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"));
+void SiPixelMonitorTrackSoA::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  tkGeom_ = &iSetup.getData(geomToken_);
+  if ((tkGeom_->isThere(GeomDetEnumerators::P2PXB)) || (tkGeom_->isThere(GeomDetEnumerators::P2PXEC))) {
+    isPhase2_ = true;
+  }
 }
 
-//
-// -- Analyze
-//
-template <typename T>
-void SiPixelMonitorTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelMonitorTrackSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& tsoaHandle = iEvent.getHandle(tokenSoATrack_);
   if (!tsoaHandle.isValid()) {
     edm::LogWarning("SiPixelMonitorTrackSoA") << "No Track SoA found \n returning!" << std::endl;
     return;
   }
 
-  using helper = TracksUtilities<T>;
   auto const& tsoa = *tsoaHandle.product();
-  auto maxTracks = tsoa.view().metadata().size();
-  auto const* quality = tsoa.view().quality();
-  int32_t nTracks = 0;
-  int32_t nLooseAndAboveTracks = 0;
+  auto maxTracks = tsoa.view().tracks().metadata().size();
+  auto const quality = tsoa.view().tracks().quality();
+
+  // Initialize counters for this event for each configured quality level
+  std::vector<int32_t> nTracksPerQuality(histograms_.size(), 0);
 
   for (int32_t it = 0; it < maxTracks; ++it) {
-    auto nHits = helper::nHits(tsoa.const_view(), it);
-    auto nLayers = tsoa.view()[it].nLayers();
+    auto nHits = reco::nHits(tsoa.const_view().tracks(), it);
+    auto nLayers = tsoa.view().tracks()[it].nLayers();
     if (nHits == 0)
       break;  // this is a guard
-    float pt = tsoa.view()[it].pt();
+    float pt = tsoa.view().tracks()[it].pt();
     if (!(pt > 0.))
       continue;
 
-    // fill the quality for all tracks
+    // fill the global quality for all tracks
     pixelTrack::Quality qual = quality[it];
     hquality->Fill(int(qual));
-    nTracks++;
 
-    if (useQualityCut_ && quality[it] < minQuality_)
-      continue;
+    // Loop over the configured histogram sets
+    for (size_t i = 0; i < histograms_.size(); ++i) {
+      auto& histSet = histograms_[i];
 
-    // fill parameters only for quality >= loose
-    float chi2 = tsoa.view()[it].chi2();
-    float phi = helper::phi(tsoa.const_view(), it);
-    float zip = helper::zip(tsoa.const_view(), it);
-    float eta = tsoa.view()[it].eta();
-    float tip = helper::tip(tsoa.const_view(), it);
-    auto charge = helper::charge(tsoa.const_view(), it);
+      // Check if track meets this specific quality requirement
+      if (qual < histSet.minQuality)
+        continue;
 
-    hchi2->Fill(chi2);
-    hChi2VsPhi->Fill(phi, chi2);
-    hChi2VsEta->Fill(eta, chi2);
-    hnHits->Fill(nHits);
-    hnLayers->Fill(nLayers);
-    hnHitsVsPhi->Fill(phi, nHits);
-    hnHitsVsEta->Fill(eta, nHits);
-    hnLayersVsPhi->Fill(phi, nLayers);
-    hnLayersVsEta->Fill(eta, nLayers);
-    hpt->Fill(pt);
-    hCurvature->Fill(charge / pt);
-    heta->Fill(eta);
-    hphi->Fill(phi);
-    hz->Fill(zip);
-    htip->Fill(tip);
-    nLooseAndAboveTracks++;
+      nTracksPerQuality[i]++;
+
+      // Retrieve track parameters
+      auto track = tsoa.view().tracks()[it];
+      float chi2 = track.chi2();
+      float phi = track.state()(0);
+      float zip = track.state()(4);
+      float eta = track.eta();
+      float tip = track.state()(1);
+      auto charge = reco::charge(tsoa.view().tracks(), it);
+
+      // Fill histograms for this quality set
+      histSet.hchi2->Fill(chi2);
+      histSet.hChi2VsPhi->Fill(phi, chi2);
+      histSet.hChi2VsEta->Fill(eta, chi2);
+      histSet.hnHits->Fill(nHits);
+      histSet.hnLayers->Fill(nLayers);
+      histSet.hnHitsVsPhi->Fill(phi, nHits);
+      histSet.hnHitsVsEta->Fill(eta, nHits);
+      histSet.hnLayersVsPhi->Fill(phi, nLayers);
+      histSet.hnLayersVsEta->Fill(eta, nLayers);
+      histSet.hpt->Fill(pt);
+      histSet.hCurvature->Fill(charge / pt);
+      histSet.heta->Fill(eta);
+      histSet.hphi->Fill(phi);
+      histSet.hz->Fill(zip);
+      histSet.htip->Fill(tip);
+    }
   }
-  hnTracks->Fill(nTracks);
-  hnLooseAndAboveTracks->Fill(nLooseAndAboveTracks);
+
+  // Fill event-level counts
+  for (size_t i = 0; i < histograms_.size(); ++i) {
+    histograms_[i].hnTracks->Fill(nTracksPerQuality[i]);
+  }
 }
 
-//
-// -- Book Histograms
-//
-template <typename T>
-void SiPixelMonitorTrackSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
-                                               edm::Run const& iRun,
-                                               edm::EventSetup const& iSetup) {
+void SiPixelMonitorTrackSoA::bookHistograms(DQMStore::IBooker& iBook,
+                                            edm::Run const& iRun,
+                                            edm::EventSetup const& iSetup) {
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
 
-  // clang-format off
-  std::string toRep = "Number of tracks";
-  hnTracks = iBook.book1D("nTracks", fmt::sprintf(";%s per event;#events",toRep), 1001, -0.5, 2001.5);
-  hnLooseAndAboveTracks = iBook.book1D("nLooseAndAboveTracks", fmt::sprintf(";%s (quality #geq loose) per event;#events",toRep), 1001, -0.5, 2001.5);
-
-  toRep = "Number of all RecHits per track (quality #geq loose)";
-  hnHits = iBook.book1D("nRecHits", fmt::sprintf(";%s;#tracks",toRep), 15, -0.5, 14.5);
-  hnHitsVsPhi = iBook.bookProfile("nHitsPerTrackVsPhi", fmt::sprintf("%s vs track #phi;Track #phi;%s",toRep,toRep), 30, -M_PI, M_PI,0., 15.);
-  hnHitsVsEta = iBook.bookProfile("nHitsPerTrackVsEta", fmt::sprintf("%s vs track #eta;Track #eta;%s",toRep,toRep), 30, -3., 3., 0., 15.);
-
-  toRep = "Number of all layers per track (quality #geq loose)";
-  hnLayers = iBook.book1D("nLayers", fmt::sprintf(";%s;#tracks",toRep), 15, -0.5, 14.5);
-  hnLayersVsPhi = iBook.bookProfile("nLayersPerTrackVsPhi", fmt::sprintf("%s vs track #phi;Track #phi;%s",toRep,toRep), 30, -M_PI, M_PI,0., 15.);
-  hnLayersVsEta = iBook.bookProfile("nLayersPerTrackVsEta", fmt::sprintf("%s vs track #eta;Track #eta;%s",toRep,toRep), 30, -3., 3., 0., 15.);
-
-  toRep = "Track (quality #geq loose) #chi^{2}/ndof";
-  hchi2 = iBook.book1D("nChi2ndof", fmt::sprintf(";%s;#tracks",toRep), 40, 0., 20.);
-  hChi2VsPhi = iBook.bookProfile("nChi2ndofVsPhi", fmt::sprintf("%s vs track #phi;Track #phi;%s",toRep,toRep), 30, -M_PI, M_PI, 0., 20.);
-  hChi2VsEta = iBook.bookProfile("nChi2ndofVsEta", fmt::sprintf("%s vs track #eta;Track #eta;%s",toRep,toRep), 30, -3., 3., 0., 20.);
-  // clang-format on
-
-  hpt = iBook.book1D("pt", ";Track (quality #geq loose) p_{T} [GeV];#tracks", 200, 0., 200.);
-  hCurvature = iBook.book1D("curvature", ";Track (quality #geq loose) q/p_{T} [GeV^{-1}];#tracks", 100, -3., 3.);
-  heta = iBook.book1D("eta", ";Track (quality #geq loose) #eta;#tracks", 30, -3., 3.);
-  hphi = iBook.book1D("phi", ";Track (quality #geq loose) #phi;#tracks", 30, -M_PI, M_PI);
-  hz = iBook.book1D("z", ";Track (quality #geq loose) z [cm];#tracks", 30, -30., 30.);
-  htip = iBook.book1D("tip", ";Track (quality #geq loose) TIP [cm];#tracks", 100, -0.5, 0.5);
+  // Global Quality Histogram
   hquality = iBook.book1D("quality", ";Track Quality;#tracks", 7, -0.5, 6.5);
   uint i = 1;
   for (const auto& q : pixelTrack::qualityName) {
-    hquality->setBinLabel(i, q, 1);
+    hquality->setBinLabel(i, q.data(), 1);
     i++;
+  }
+
+  // Loop over user defined qualities
+  for (const auto& qName : qualityDefinitions_) {
+    QualityHistograms histSet;
+    histSet.qualityName = qName;
+    histSet.minQuality = pixelTrack::qualityByName(qName);
+
+    // Create a sub-folder for this quality to avoid name clashes
+    iBook.setCurrentFolder(topFolderName_ + "/" + qName);
+
+    std::string toRep = fmt::format("Number of tracks (quality #geq {})", qName);
+    histSet.hnTracks = iBook.book1D("nTracks", fmt::format(";{} per event;#events", toRep), 1001, -0.5, 2001.5);
+
+    // N.B.: we need to book explicitly profiles with the option "" (default) in order to get the error on the mean
+    // (see https://root.cern.ch/doc/master/classTProfile.html), otherwise the default in DQMServices/Core/interface/DQMStore.h
+    // uses the option "s" (i.e. standard deviation on all y values)
+
+    const double etaMax = isPhase2_ ? 4.1 : 3.;
+
+    toRep = fmt::format("Number of all RecHits per track (quality #geq {})", qName);
+    histSet.hnHits = iBook.book1D("nRecHits", fmt::format(";{};#tracks", toRep), 15, -0.5, 14.5);
+    histSet.hnHitsVsPhi = iBook.bookProfile("nHitsPerTrackVsPhi",
+                                            fmt::format("{} vs track #phi [rad];Track #phi [rad];{}", toRep, toRep),
+                                            30,
+                                            -M_PI,
+                                            M_PI,
+                                            0.,
+                                            15.,
+                                            "");
+    histSet.hnHitsVsEta = iBook.bookProfile("nHitsPerTrackVsEta",
+                                            fmt::format("{} vs track #eta;Track #eta;{}", toRep, toRep),
+                                            30,
+                                            -etaMax,
+                                            etaMax,
+                                            0.,
+                                            15.,
+                                            "");
+
+    toRep = fmt::format("Number of all layers per track (quality #geq {})", qName);
+    histSet.hnLayers = iBook.book1D("nLayers", fmt::format(";{};#tracks", toRep), 15, -0.5, 14.5);
+    histSet.hnLayersVsPhi = iBook.bookProfile("nLayersPerTrackVsPhi",
+                                              fmt::format("{} vs track #phi [rad];Track #phi [rad];{}", toRep, toRep),
+                                              30,
+                                              -M_PI,
+                                              M_PI,
+                                              0.,
+                                              15.,
+                                              "");
+    histSet.hnLayersVsEta = iBook.bookProfile("nLayersPerTrackVsEta",
+                                              fmt::format("{} vs track #eta;Track #eta;{}", toRep, toRep),
+                                              30,
+                                              -etaMax,
+                                              etaMax,
+                                              0.,
+                                              15.,
+                                              "");
+
+    toRep = fmt::format("Track (quality #geq {}) #chi^{{2}}/ndof", qName);
+    histSet.hchi2 = iBook.book1D("nChi2ndof", fmt::format(";{};#tracks", toRep), 40, 0., 20.);
+    histSet.hChi2VsPhi = iBook.bookProfile("nChi2ndofVsPhi",
+                                           fmt::format("{} vs track #phi [rad];Track #phi [rad];{}", toRep, toRep),
+                                           30,
+                                           -M_PI,
+                                           M_PI,
+                                           0.,
+                                           20.,
+                                           "");
+    histSet.hChi2VsEta = iBook.bookProfile(
+        "nChi2ndofVsEta", fmt::format("{} vs track #eta;Track #eta;{}", toRep, toRep), 30, -etaMax, etaMax, 0., 20., "");
+
+    // Standard kinematic plots
+    std::string label = fmt::format("Track (quality #geq {})", qName);
+    histSet.hpt = iBook.book1D("pt", fmt::format(";{} p_{{T}} [GeV];#tracks", label), 200, 0., 200.);
+    histSet.hCurvature =
+        iBook.book1D("curvature", fmt::format(";{} q/p_{{T}} [GeV^{{-1}}];#tracks", label), 100, -3., 3.);
+    histSet.heta = iBook.book1D("eta", fmt::format(";{} #eta;#tracks", label), 30, -etaMax, etaMax);
+    histSet.hphi = iBook.book1D("phi", fmt::format(";{} #phi [rad];#tracks", label), 30, -M_PI, M_PI);
+    histSet.hz = iBook.book1D("z", fmt::format(";{} z [cm];#tracks", label), 30, -30., 30.);
+    histSet.htip = iBook.book1D("tip", fmt::format(";{} TIP [cm];#tracks", label), 100, -0.5, 0.5);
+
+    histograms_.push_back(histSet);
   }
 }
 
-template <typename T>
-void SiPixelMonitorTrackSoA<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // monitorpixelTrackSoA
+void SiPixelMonitorTrackSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("pixelTracksSoA"));
-  desc.add<std::string>("topFolderName", "SiPixelHeterogeneous/PixelTrackSoA");
-  desc.add<bool>("useQualityCut", true);
-  desc.add<std::string>("minQuality", "loose");
+  desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("pixelTracksAlpaka"));
+  desc.add<std::string>("topFolderName", "SiPixelHeterogeneous/PixelTrackAlpaka");
+  // Default configuration now accepts a list.
+  desc.add<std::vector<std::string>>("qualityDefinitions", {"loose", "highPurity"});
   descriptions.addWithDefaultLabel(desc);
 }
 
-using SiPixelPhase1MonitorTrackSoA = SiPixelMonitorTrackSoA<pixelTopology::Phase1>;
-using SiPixelPhase2MonitorTrackSoA = SiPixelMonitorTrackSoA<pixelTopology::Phase2>;
-using SiPixelHIonPhase1MonitorTrackSoA = SiPixelMonitorTrackSoA<pixelTopology::HIonPhase1>;
-
-DEFINE_FWK_MODULE(SiPixelPhase1MonitorTrackSoA);
-DEFINE_FWK_MODULE(SiPixelPhase2MonitorTrackSoA);
-DEFINE_FWK_MODULE(SiPixelHIonPhase1MonitorTrackSoA);
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SiPixelMonitorTrackSoA);

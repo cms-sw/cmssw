@@ -16,7 +16,8 @@
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
+#include "DataFormats/Common/interface/RefProdVector.h"
+#include "DataFormats/Common/interface/MultiSpan.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 
@@ -34,8 +35,7 @@ private:
   const edm::EDGetTokenT<std::vector<CaloParticle>> caloParticleToken_;
 
   const edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMapToken_;
-  const std::vector<edm::InputTag> hitsTags_;
-  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hitsTokens_;
+  edm::EDGetTokenT<edm::RefProdVector<HGCRecHitCollection>> hitsToken_;
 };
 
 #endif

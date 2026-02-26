@@ -669,12 +669,14 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
   if (doChebyshevFit_) {
     const int npar = order_ + 1;
     auto cheb = std::make_unique<siPixelLACalibration::Chebyshev>(order_, theFitRange_.first, theFitRange_.second);
-    f1_ = std::make_unique<TF1>("f1", cheb.release(), theFitRange_.first, theFitRange_.second, npar, "Chebyshev");
+    f1_ = std::make_unique<TF1>(
+        "f1", cheb.release(), theFitRange_.first, theFitRange_.second, npar, 1, TF1::EAddToList::kNo);
   } else {
     f1_ = std::make_unique<TF1>("f1",
                                 "[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x + [5]*x*x*x*x*x",
                                 theFitRange_.first,
-                                theFitRange_.second);
+                                theFitRange_.second,
+                                TF1::EAddToList::kNo);
   }
 
   // DO NOT REMOVE

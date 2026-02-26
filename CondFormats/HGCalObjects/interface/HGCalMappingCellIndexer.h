@@ -19,9 +19,9 @@ public:
   HGCalMappingCellIndexer() = default;
 
   /**
-     adds to map of type codes (= module types) to handle and updatest the max. number of eRx 
+     adds to map of type codes (= module types) to handle and updatest the max. number of eRx
    */
-  void processNewCell(std::string typecode, uint16_t chip, uint16_t half) {
+  void processNewCell(std::string const& typecode, uint16_t chip, uint16_t half) {
     //assign index to this typecode and resize the max e-Rx vector
     if (typeCodeIndexer_.count(typecode) == 0) {
       typeCodeIndexer_[typecode] = typeCodeIndexer_.size();
@@ -44,17 +44,14 @@ public:
       uint16_t nerx = maxErx_[idx];
       di_[idx].updateRanges({{nerx, maxChPerErx_}});
       if (idx < n - 1)
-        offsets_[idx + 1] = di_[idx].getMaxIndex();
+        offsets_[idx + 1] = di_[idx].maxIndex() + offsets_[idx];
     }
-
-    //accumulate the offsets in the array
-    std::partial_sum(offsets_.begin(), offsets_.end(), offsets_.begin());
   }
 
   /**
      @short gets index given typecode string
    */
-  size_t getEnumFromTypecode(std::string typecode) const {
+  size_t getEnumFromTypecode(std::string const& typecode) const {
     auto it = typeCodeIndexer_.find(typecode);
     if (it == typeCodeIndexer_.end())
       throw cms::Exception("ValueError") << " unable to find typecode=" << typecode << " in cell indexer";
@@ -74,7 +71,7 @@ public:
   /**
      @short returns the dense indexer for a typecode
    */
-  HGCalDenseIndexerBase getDenseIndexFor(std::string typecode) const {
+  HGCalDenseIndexerBase getDenseIndexFor(std::string const& typecode) const {
     return getDenseIndexerFor(getEnumFromTypecode(typecode));
   }
 
@@ -91,10 +88,10 @@ public:
   /**
      @short builders for the dense index
    */
-  uint32_t denseIndex(std::string typecode, uint32_t chip, uint32_t half, uint32_t seq) const {
+  uint32_t denseIndex(std::string const& typecode, uint32_t chip, uint32_t half, uint32_t seq) const {
     return denseIndex(getEnumFromTypecode(typecode), chip, half, seq);
   }
-  uint32_t denseIndex(std::string typecode, uint32_t erx, uint32_t seq) const {
+  uint32_t denseIndex(std::string const& typecode, uint32_t erx, uint32_t seq) const {
     return denseIndex(getEnumFromTypecode(typecode), erx, seq);
   }
   uint32_t denseIndex(size_t idx, uint32_t chip, uint32_t half, uint32_t seq) const {
@@ -108,7 +105,7 @@ public:
   /**
      @short decodes the dense index code
    */
-  uint32_t elecIdFromIndex(uint32_t rtn, std::string typecode) const {
+  uint32_t elecIdFromIndex(uint32_t rtn, std::string const& typecode) const {
     return elecIdFromIndex(rtn, getEnumFromTypecode(typecode));
   }
   uint32_t elecIdFromIndex(uint32_t rtn, size_t idx) const {
@@ -133,7 +130,7 @@ public:
   /**
      @short gets the number of words for a given typecode
   */
-  size_t getNWordsExpectedFor(std::string typecode) const {
+  size_t getNWordsExpectedFor(std::string const& typecode) const {
     auto it = getEnumFromTypecode(typecode);
     return getNWordsExpectedFor(it);
   }
@@ -142,7 +139,7 @@ public:
   /**
      @short gets the number of e-Rx for a given typecode
   */
-  size_t getNErxExpectedFor(std::string typecode) const {
+  size_t getNErxExpectedFor(std::string const& typecode) const {
     auto it = getEnumFromTypecode(typecode);
     return getNErxExpectedFor(it);
   }
@@ -151,7 +148,7 @@ public:
   constexpr static char maxHalfPerROC_ = 2;
   constexpr static uint16_t maxChPerErx_ = 37;  //36 channels + 1 calib
 
-  std::map<std::string, size_t> typeCodeIndexer_;
+  std::unordered_map<std::string, size_t> typeCodeIndexer_;
   std::vector<uint16_t> maxErx_;
   std::vector<uint32_t> offsets_;
   std::vector<HGCalDenseIndexerBase> di_;

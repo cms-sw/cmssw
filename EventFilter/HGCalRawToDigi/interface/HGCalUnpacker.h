@@ -12,7 +12,7 @@
 #define EventFilter_HGCalRawToDigi_HGCalUnpacker_h
 
 #include "DataFormats/HGCalDigi/interface/HGCalRawDataDefinitions.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/RawDataBuffer.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalFEDPacketInfoHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
@@ -34,13 +34,36 @@ public:
   // HGCalUnpacker(HGCalUnpackerConfig config);
 
   uint16_t parseFEDData(unsigned fedId,
-                        const FEDRawData& fed_data,
+                        const RawFragmentWrapper& fed_data,
                         const HGCalMappingModuleIndexer& moduleIndexer,
                         const HGCalConfiguration& config,
                         hgcaldigi::HGCalDigiHost& digis,
                         hgcaldigi::HGCalFEDPacketInfoHost& fedPacketInfo,
                         hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo,
                         bool headerOnlyMode = false);
+
+  uint16_t parseFEDData(unsigned fedId,
+                        const unsigned char* start_fed_data,
+                        size_t fed_data_size,
+                        const HGCalMappingModuleIndexer& moduleIndexer,
+                        const HGCalConfiguration& config,
+                        hgcaldigi::HGCalDigiHost& digis,
+                        hgcaldigi::HGCalFEDPacketInfoHost& fedPacketInfo,
+                        hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo,
+                        bool headerOnlyMode);
+
+  /**
+     @short the 10-bit TOT word is decompressed back to 12 bit word
+     In case truncation occurred the word is shifted by 2 bit
+  */
+  uint16_t decompressToT(uint16_t totraw) const {
+    uint16_t totout(totraw & 0x1ff);
+    if (totraw & 0x200) {
+      totout = ((totraw & 0x1ff) << 3);
+      totout += (1 << 2);
+    }
+    return totout;
+  }
 
 private:
   constexpr static uint8_t tctp_[16] = {

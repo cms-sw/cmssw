@@ -1,5 +1,6 @@
 from builtins import range, object
 import inspect
+import sys
 from typing import Union
 
 class _ConfigureComponent(object):
@@ -300,6 +301,9 @@ class _Parameterizable(object):
 
         items = d.items() if isinstance(d, dict) else d.parameters_().items()
         for k,v in items:
+            if v is None:
+                delattr(self, k)
+            else:
                 setattr(self, k, v)
 
 
@@ -539,7 +543,10 @@ class _Labelable(object):
     """A 'mixin' used to denote that the class can be paired with a label (e.g. an EDProducer)"""
     def label_(self) -> str:
         if not hasattr(self, "_Labelable__label"):
-           raise RuntimeError("module has no label.  Perhaps it wasn't inserted into the process?")
+           if hasattr(self, '_filename'):
+              raise RuntimeError("module has no label.  Perhaps it wasn't inserted into the process?\n The module was defined at "+self._filename+":"+str(self._lineNumber))
+           else:
+              raise RuntimeError("module has no label.  Perhaps it wasn't inserted into the process?")
         return self.__label
     def hasLabel_(self) -> bool:
         return hasattr(self, "_Labelable__label") and self.__label is not None
@@ -731,10 +738,9 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
         return (converter(x).value() for x in strings)
 
 def saveOrigin(obj, level):
-    import sys
-    fInfo = inspect.getframeinfo(sys._getframe(level+1))
-    obj._filename = fInfo.filename
-    obj._lineNumber =fInfo.lineno
+    frame = sys._getframe(level+1)
+    obj._filename = frame.f_code.co_filename
+    obj._lineNumber = frame.f_lineno
 
 def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
     if len(newParams):
@@ -874,6 +880,9 @@ if __name__ == "__main__":
             a.update_(__PSet(a=__TestType(5)))
             self.assertEqual(a.a.value(), 5)
             self.assertRaises(TypeError, lambda: a.update_(dict(c=6)))
+            self.assertTrue(hasattr(a, "a"))
+            a.update_(dict(a=None))
+            self.assertFalse(hasattr(a, "a"))
 
         def testCopy(self):
             class __Test(_TypedParameterizable):

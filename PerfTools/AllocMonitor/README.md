@@ -70,6 +70,26 @@ This service registers a monitor at the end of beginJob (after all modules have 
 
 This service is multi-thread safe. Note that when run multi-threaded the maximum reported value will vary from job to job.
 
+### PhaseAllocMonitor
+
+This service registers a monitor at the end of service construction, and on a predefined set of other signals that correspond to framework's "phases". Each such signal corresponds to a global synchronization point of the framework. This can be useful to understand how memory is being used in different phases of a job. The monitor reports the following quantities measured during the period from the previous signal to the current signal
+
+| Field | Description |
+|-------|-------------|
+| `requested` | Total amount of bytes requested by all allocation calls since the previous signal |
+| `max alloc` | The largest single memory allocation since the previous signal |
+| `presentActual` | The amount of _used_ memory (i.e. actual size) at the time of the signal |
+| `peak` | The maximum amount of _used_ allocated memory that was in use at one time since the previous signal |
+| `added ` | The amount of _used_ memory added by the allocations and deallocations since the previous signal. Can be negative if memory allocated in earlier phases is deleted in the current phase. |
+| `nAlloc` | Number of calls made to allocation functions since the previous signal |
+| `nDealloc` | Number of calls made to deallocation functions since the previous signal |
+
+
+The service has the following configuration parameters:
+- `showSignals`: names of [`ActivityRegistry`](../../FWCore/ServiceRegistry/interface/ActivityRegistry.h) signals to measure. Empty vector (default) shows for all the predefined signals. For a list of possible values see the [code](plugins/PhaseAllocMonitor.cc).
+
+This service is multi-thread safe. Note that when run multi-threaded the maximum reported value will vary from job to job.
+
 ### HistogrammingAllocMonitor
 This service registers a monitor when the service is created (after python parsing is finished but before any modules
 have been loaded into cmsRun) and reports its accumulated information when the service is destroyed (services are the
@@ -110,6 +130,7 @@ list of module names, and  an optional number of initial events to skip are spec
 service in the configuration. The parameters are
 - `filename`: name of file to which to write reports
 - `moduleNames`: list of modules which should have their information added to the file. An empty list specifies all modules should be included.
+- `skippedModuleNames`: list of module which should have their information skipped. 
 - `nEventsToSkip`: the number of initial events that must be processed before reporting happens.
 
 The beginning of the file contains a description of the structure and contents of the file.
@@ -138,6 +159,7 @@ This service is multi-thread safe.
 
 This service registers a monitor when the service is created (after python parsing is finished, but before any modules have been loaded into cmsRun). The user can then start the monitoring in their code as shown in the example below. The monitoring stops, in an RAII fashion, at the end of the scope and the results of the memory operations are printed with the [MessageLogger](../../FWCore/MessageService/Readme.md) with an `IntrusiveAllocMonitor` message category.
 
+Example how to use the `IntrusiveAllocMonitor` in C++ code
 ```cpp
 #include "FWCore/AbstractServices/interface/IntrusiveMonitorBase.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -146,7 +168,7 @@ This service registers a monitor when the service is created (after python parsi
 void someFunction() {
   {
     edm::Service<IntrusiveMonitorBase> monitor;
-    auto guard = monitor.startMeasurement("Measurement description");
+    auto guard = monitor->startMonitoring("Measurement description");
 
     // more code doing memory allocations
   }
@@ -164,4 +186,27 @@ The message will print
 | `nAlloc` | Number of memory allocations |
 | `nDealloc` | Number of memory deallocations |
 
-This service is multi-thread safe, and concurrent measurements can be done in different threads. Nested measurements are not supported (i.e. one thread can be doing only one measurement at a time), and neither are measurements started in one thread and ended in different thread.
+This service is multi-thread safe, and concurrent measurements can be done in different threads. The service is re-entrant, i.e. measurements in nested scopes or function calls can be done within one thread. In case of nested measurements the numbers for the outer scope exclude the numbers of the inner scope. For the inner scope measurement the message will contain the description strings of all outer measurements in a strack-trace-like format.
+
+Note that if an `std::string` is passed to `startMeasurement()`, the memory allocations from the string formatting will be accounted by a possible outer scope measurements. In that case the measurement printout of the outer scope will denote that along with the minimum amount of allocated memory and the number of allocations for the strings, but generally the numbers can not be obtained precisely. Therefore it is recommended to use `std::string` overload only when really necessary.
+
+Allocations done in different thread where the `startMeasurement()` is called are not recorded. Measurements started in one thread and ended in different thread are not supported.
+
+### ThresholdAbortAllocMonitor
+
+This service registers a monitor when the service is created and will abort the job (which will normally trigger a stack trace) if a memory request falling within a certain memory range is seen for a specified number of times. The service accepts the following parameters
+
+- `minThreshold` : the minimum number of bytes an allocation request must reach before an abort might be triggered.
+- `maxThreshold` : the maximum number of bytes an allocation request must stay below (or equal) before an abort might be triggered. A value of `0` means there is no such limit.
+- `skipCount` : the number of times allocations have satisfied the `minThreshold` to `maxThreshold` range before the next time will trigger an abort. A value of `0` will trigger the first time the range is met.
+
+This service is multi-thread safe although it may not yield consistent results if multiple threads reach the criteria at the same time. Using `skipCount` concurrently will likely make the inconsistency worse.
+
+### PresentThresholdAbortAllocMonitor
+
+This service registers a monitor when the service is created and will abort the job (which will normally trigger a stack trace) if the actual presently allocated memory would grow above a threshold for a specified number of times. The service accepts the following parameters
+
+- `threshold` : the number of bytes the actual presently allocated memory must reach before an abort might be triggered.
+- `skipCount` : the number of times the `threshold` condition is crossed  before the next time will trigger an abort. A value of `0` will trigger the first time the `threshold` is met.
+
+This service is multi-thread safe although it may not yield consistent results if multiple threads reach the criteria at the same time. Using `skipCount` concurrently will likely make the inconsistency worse.

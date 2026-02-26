@@ -9,7 +9,6 @@
 
 #include "SimG4CMS/Forward/interface/TimingSD.h"
 
-#include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 
@@ -104,8 +103,7 @@ bool TimingSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   edeposit = aStep->GetTotalEnergyDeposit();
   if (edeposit > 0.f) {
     getStepInfo(aStep);
-    // (primaryID = -2) means ECAL GFlash spot inside MTD
-    if (-1 <= primaryID && !hitExists(aStep)) {
+    if (!hitExists(aStep)) {
       createNewHit(aStep);
     }
   }
@@ -114,12 +112,6 @@ bool TimingSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
 
 void TimingSD::getStepInfo(const G4Step* aStep) {
   const G4Track* newTrack = aStep->GetTrack();
-  // exclude ECAL gflash spots inside MTD detectors,
-  // which not possible correctly handle
-  primaryID = getTrackID(newTrack);
-  if (primaryID < -1) {
-    return;
-  }
 
   preStepPoint = aStep->GetPreStepPoint();
   postStepPoint = aStep->GetPostStepPoint();
@@ -159,24 +151,21 @@ void TimingSD::getStepInfo(const G4Step* aStep) {
   // should MC truth be saved
   if (newTrack != theTrack) {
     theTrack = newTrack;
-    TrackInformation* info = nullptr;
-    if (incidentEnergy > energyCut) {
-      info = cmsTrackInformation(theTrack);
-      info->setStoreTrack();
-      info->setIdLastStoredAncestor(theTrack->GetTrackID());
-    }
-    if (incidentEnergy > energyHistoryCut) {
-      if (nullptr == info) {
-        info = cmsTrackInformation(theTrack);
+    TrackInformation* info = cmsTrackInformation(theTrack);
+    if (nullptr != info) {
+      if (incidentEnergy > energyCut) {
+        info->setStoreTrack();
+        if (info->idLastStoredAncestor() == theTrack->GetParentID())
+          info->setIdLastStoredAncestor(theTrack->GetTrackID());
       }
-      info->putInHistory();
-    }
+      if (incidentEnergy > energyHistoryCut) {
+        info->putInHistory();
+      }
 #ifdef EDM_ML_DEBUG
-    if (info != nullptr) {
       LogDebug("TimingSim") << "TrackInformation for ID = " << theTrack->GetTrackID();
       info->Print();
-    }
 #endif
+    }
   }
 
   edeposit *= invgev;
@@ -193,6 +182,7 @@ void TimingSD::getStepInfo(const G4Step* aStep) {
 
   setHitClassID(aStep);
   unitID = setDetUnitId(aStep);
+  primaryID = getTrackID(theTrack);
 }
 
 bool TimingSD::hitExists(const G4Step* aStep) {

@@ -26,10 +26,13 @@
     <![CDATA[refsCollectionCache_.clear();refsCollectionCache_.resize(onfile.refsInfo_.size(),0); ]]>
   </ioread>
 
-
+   <class name="edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> >">
+     <field name="m_data" transient="true"/>
+  </class>
   <class name="std::vector<reco::PFCandidate>"/>
   <class name="edm::Wrapper<reco::PFCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::PFCandidate> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate>"/>
   <class name="reco::PFCandidateRef"/>
   <class name="reco::PFCandidateRefProd"/>
   <class name="reco::PFCandidateRefVector"/>

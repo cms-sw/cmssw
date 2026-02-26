@@ -12,7 +12,6 @@
 
 class CaloGeometry;
 class CaloSubdetectorGeometry;
-class DetId;
 
 namespace edm {
   class Event;
@@ -88,7 +87,7 @@ namespace hgcal {
     float getPt(const DetId& id, const float& hitEnergy, const float& vertex_z = 0.) const;
     int getScintMaxIphi(const DetId& id) const;
 
-    inline const CaloGeometry* getGeometry() const { return geom_; };
+    inline const CaloGeometry* geometry() const { return geom_; };
     unsigned int lastLayerEE(bool nose = false) const { return (nose ? HFNoseDetId::HFNoseLayerEEmax : fhOffset_); }
     unsigned int lastLayerFH() const { return fhLastLayer_; }
     unsigned int firstLayerBH() const { return bhFirstLayer_; }
@@ -112,6 +111,7 @@ namespace hgcal {
 
   private:
     const CaloGeometry* geom_;
+    void checkGeometry() const;
     unsigned int eeOffset_, fhOffset_, bhFirstLayer_, bhLastLayer_, bhOffset_, fhLastLayer_, noseLastLayer_;
     unsigned int hcalBarrelFirstLayer_, hcalBarrelLastLayer_, ecalBarrelFirstLayer_, ecalBarrelLastLayer_;
     unsigned int maxNumberOfWafersPerLayer_, maxNumberOfWafersNose_;

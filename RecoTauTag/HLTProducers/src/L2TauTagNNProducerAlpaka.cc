@@ -147,6 +147,7 @@ struct L2TauNNProducerAlpakaCacheData {
 class L2TauNNProducerAlpaka : public edm::stream::EDProducer<edm::GlobalCache<L2TauNNProducerAlpakaCacheData>> {
 public:
   using TracksHost = reco::TracksHost;
+  using ZVertexHost = reco::ZVertexHost;
 
   struct caloRecHitCollections {
     const HBHERecHitCollection* hbhe;
@@ -209,7 +210,7 @@ private:
   const edm::EDGetTokenT<EcalRecHitCollection> eeToken_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bFieldToken_;
-  const edm::EDGetTokenT<ZVertexHost> pataVerticesToken_;
+  const edm::EDGetTokenT<reco::ZVertexHost> pataVerticesToken_;
   const edm::EDGetTokenT<TracksHost> pataTracksToken_;
   const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
   const unsigned int maxVtx_;
@@ -575,28 +576,28 @@ void L2TauNNProducerAlpaka::selectGoodTracksAndVertices(const ZVertexHost& patav
                                                         const TracksHost& patatracks_tsoa,
                                                         std::vector<int>& trkGood,
                                                         std::vector<int>& vtxGood) {
-  const auto maxTracks = patatracks_tsoa.view().metadata().size();
-  const int nv = patavtx_soa.view().nvFinal();
+  const auto maxTracks = patatracks_tsoa.view().tracks().metadata().size();
+  const int nv = patavtx_soa.view().zvertex().nvFinal();
   trkGood.clear();
   trkGood.reserve(maxTracks);
   vtxGood.clear();
   vtxGood.reserve(nv);
-  auto const* quality = patatracks_tsoa.view().quality();
+  auto const quality = patatracks_tsoa.view().tracks().quality();
 
   // No need to sort either as the algorithms is just using the max (not even the location, just the max value of pt2sum).
   std::vector<float> pTSquaredSum(nv, 0);
   std::vector<int> nTrkAssociated(nv, 0);
 
   for (int32_t trk_idx = 0; trk_idx < maxTracks; ++trk_idx) {
-    auto n_hits = nHits(patatracks_tsoa.view(), trk_idx);
+    auto n_hits = nHits(patatracks_tsoa.view().tracks(), trk_idx);
     if (n_hits == 0) {
       break;
     }
-    int vtx_ass_to_track = patavtx_soa.view<reco::ZVertexTracksSoA>()[trk_idx].idv();
+    int vtx_ass_to_track = patavtx_soa.view().zvertexTracks()[trk_idx].idv();
     if (vtx_ass_to_track >= 0 && vtx_ass_to_track < nv) {
-      auto patatrackPt = patatracks_tsoa.view()[trk_idx].pt();
+      auto patatrackPt = patatracks_tsoa.view().tracks()[trk_idx].pt();
       ++nTrkAssociated[vtx_ass_to_track];
-      if (patatrackPt >= trackPtMin_ && patatracks_tsoa.const_view()[trk_idx].chi2() <= trackChi2Max_) {
+      if (patatrackPt >= trackPtMin_ && patatracks_tsoa.view().tracks()[trk_idx].chi2() <= trackChi2Max_) {
         patatrackPt = std::min(patatrackPt, trackPtMax_);
         pTSquaredSum[vtx_ass_to_track] += patatrackPt * patatrackPt;
       }
@@ -608,7 +609,7 @@ void L2TauNNProducerAlpaka::selectGoodTracksAndVertices(const ZVertexHost& patav
   if (nv > 0) {
     const auto minFOM_fromFrac = (*std::max_element(pTSquaredSum.begin(), pTSquaredSum.end())) * fractionSumPt2_;
     for (int j = nv - 1; j >= 0 && vtxGood.size() < maxVtx_; --j) {
-      auto vtx_idx = patavtx_soa.view()[j].sortInd();
+      auto vtx_idx = patavtx_soa.view().zvertex()[j].sortInd();
       assert(vtx_idx < nv);
       if (nTrkAssociated[vtx_idx] >= 2 && pTSquaredSum[vtx_idx] >= minFOM_fromFrac &&
           pTSquaredSum[vtx_idx] > minSumPt2_) {
@@ -626,7 +627,7 @@ std::pair<float, float> L2TauNNProducerAlpaka::impactParameter(int it,
   /* dxy and dz */
   riemannFit::Vector5d ipar, opar;
   riemannFit::Matrix5d icov, ocov;
-  copyToDense(patatracks_tsoa.view(), ipar, icov, it);
+  copyToDense(patatracks_tsoa.view().tracks(), ipar, icov, it);
   riemannFit::transformToPerigeePlane(ipar, icov, opar, ocov);
   LocalTrajectoryParameters lpar(opar(0), opar(1), opar(2), opar(3), opar(4), 1.);
   float sp = std::sin(patatrackPhi);
@@ -677,19 +678,19 @@ void L2TauNNProducerAlpaka::fillPatatracks(tensorflow::Tensor& cellGridMatrix,
     const float tauPhi = allTaus[tau_idx]->phi();
 
     for (const auto it : trkGood) {
-      const float patatrackPt = patatracks_tsoa.const_view()[it].pt();
+      const float patatrackPt = patatracks_tsoa.const_view().tracks()[it].pt();
       if (patatrackPt <= 0)
         continue;
-      const float patatrackPhi = reco::phi(patatracks_tsoa.const_view(), it);
-      const float patatrackEta = patatracks_tsoa.const_view()[it].eta();
-      const float patatrackCharge = reco::charge(patatracks_tsoa.const_view(), it);
-      const float patatrackChi2OverNdof = patatracks_tsoa.view()[it].chi2();
-      const auto n_hits = nHits(patatracks_tsoa.const_view(), it);
+      const float patatrackPhi = reco::phi(patatracks_tsoa.const_view().tracks(), it);
+      const float patatrackEta = patatracks_tsoa.const_view().tracks()[it].eta();
+      const float patatrackCharge = reco::charge(patatracks_tsoa.const_view().tracks(), it);
+      const float patatrackChi2OverNdof = patatracks_tsoa.view().tracks()[it].chi2();
+      const auto n_hits = nHits(patatracks_tsoa.const_view().tracks(), it);
       if (n_hits <= 0)
         continue;
       const int patatrackNdof = 2 * std::min(6, n_hits) - 5;
 
-      const int vtx_idx_assTrk = patavtx_soa.view<reco::ZVertexTracksSoA>()[it].idv();
+      const int vtx_idx_assTrk = patavtx_soa.view().zvertexTracks()[it].idv();
       if (reco::deltaR2(patatrackEta, patatrackPhi, tauEta, tauPhi) < dR2_max) {
         std::tie(deta, dphi, eta_idx, phi_idx) =
             getEtaPhiIndices(patatrackEta, patatrackPhi, allTaus[tau_idx]->polarP4());

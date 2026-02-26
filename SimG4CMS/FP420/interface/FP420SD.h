@@ -32,7 +32,6 @@
 class TrackingSlaveSD;
 //AZ:
 class FrameRotation;
-class TrackInformation;
 class SimTrackManager;
 class TrackingSlaveSD;
 class UpdatablePSimHit;

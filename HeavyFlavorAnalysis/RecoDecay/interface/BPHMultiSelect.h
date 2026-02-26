@@ -20,13 +20,11 @@
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHMomentumSelect.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHVertexSelect.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHFitSelect.h"
+#include "DataFormats/Candidate/interface/CandidateOnlyFwd.h"
+
 class BPHRecoBuilder;
 class BPHDecayMomentum;
 class BPHDecayVertex;
-
-namespace reco {
-  class Candidate;
-}
 
 //---------------
 // C++ Headers --

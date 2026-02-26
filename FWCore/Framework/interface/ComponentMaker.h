@@ -22,12 +22,13 @@
 #include <memory>
 #include <string>
 
-#include <fmt/format.h>
+#include <format>
 
 // user include files
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/ESProductResolverProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/ComponentConstructionSentry.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
@@ -97,13 +98,18 @@ namespace edm {
             iConfiguration.registerIt();
           });
         } catch (cms::Exception& iException) {
-          iException.addContext(fmt::format(
+          iException.addContext(std::format(
               "Validating configuration of {} of type {} with label: '{}'", T::baseType(), modtype, moduleLabel));
           throw;
         }
       }
-      std::shared_ptr<TComponent> component = std::make_shared<TComponent>(iConfiguration);
-      ComponentDescription description = this->createComponentDescription(iConfiguration);
+      const ComponentDescription description = this->createComponentDescription(iConfiguration);
+      std::shared_ptr<TComponent> component;
+      {
+        ComponentConstructionSentry sentry(iProvider, description);
+        component = std::make_shared<TComponent>(iConfiguration);
+        sentry.succeeded();
+      }
 
       this->setDescription(component.get(), description);
       this->setDescriptionForFinder(component.get(), description);

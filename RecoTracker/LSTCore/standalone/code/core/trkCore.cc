@@ -170,6 +170,52 @@ float runpT3(LSTEvent* event) {
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
+float runQuadruplet(LSTEvent* event) {
+  TStopwatch my_timer;
+  if (ana.verbose >= 2)
+    std::cout << "Reco Quadruplet start" << std::endl;
+  my_timer.Start();
+  event->createQuadruplets();
+  event->wait();  // device side event calls are asynchronous: wait to measure time or print
+  float t4_elapsed = my_timer.RealTime();
+  if (ana.verbose >= 2)
+    std::cout << "Reco Quadruplet processing time: " << t4_elapsed << " secs" << std::endl;
+
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced: " << event->getNumberOfQuadruplets() << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced layer 1-2-3-4: " << event->getNumberOfQuadrupletsByLayerBarrel(0)
+              << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced layer 2: " << event->getNumberOfQuadrupletsByLayerBarrel(1) << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced layer 3: " << event->getNumberOfQuadrupletsByLayerBarrel(2) << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced layer 4: " << event->getNumberOfQuadrupletsByLayerBarrel(3) << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced layer 5: " << event->getNumberOfQuadrupletsByLayerBarrel(4) << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced layer 6: " << event->getNumberOfQuadrupletsByLayerBarrel(5) << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced endcap layer 1: " << event->getNumberOfQuadrupletsByLayerEndcap(0)
+              << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced endcap layer 2: " << event->getNumberOfQuadrupletsByLayerEndcap(1)
+              << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced endcap layer 3: " << event->getNumberOfQuadrupletsByLayerEndcap(2)
+              << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced endcap layer 4: " << event->getNumberOfQuadrupletsByLayerEndcap(3)
+              << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of Quadruplets produced endcap layer 5: " << event->getNumberOfQuadrupletsByLayerEndcap(4)
+              << std::endl;
+
+  return t4_elapsed;
+}
+
+//___________________________________________________________________________________________________________________________________________________________________________________________
 float runQuintuplet(LSTEvent* event) {
   TStopwatch my_timer;
   if (ana.verbose >= 2)
@@ -272,6 +318,10 @@ float runTrackCandidate(LSTEvent* event, bool no_pls_dupclean, bool tc_pls_tripl
     std::cout << "    # of pLS TrackCandidates produced: " << event->getNumberOfPLSTrackCandidates() << std::endl;
   if (ana.verbose >= 2)
     std::cout << "# of T5 TrackCandidates produced: " << event->getNumberOfT5TrackCandidates() << std::endl;
+  if (ana.verbose >= 2)
+    std::cout << "# of T4 TrackCandidates produced: " << event->getNumberOfT4TrackCandidates() << std::endl;
+  if (ana.verbose >= 2)
+    printf("[MEM] Total: %.1f MB\n", event->getMemoryAllocatedMB());
 
   return tc_elapsed;
 }
@@ -743,6 +793,7 @@ void printTimingInformation(std::vector<std::vector<float>>& timing_information,
   std::cout << "   " << std::setw(6) << "T3";
   std::cout << "   " << std::setw(6) << "T5";
   std::cout << "   " << std::setw(6) << "pLS";
+  std::cout << "   " << std::setw(6) << "T4";
   std::cout << "   " << std::setw(6) << "pT5";
   std::cout << "   " << std::setw(6) << "pT3";
   std::cout << "   " << std::setw(6) << "TC";
@@ -757,81 +808,38 @@ void printTimingInformation(std::vector<std::vector<float>>& timing_information,
     auto timing = timing_information[ievt];
     float timing_total = 0.f;
     float timing_total_short = 0.f;
-    timing_total += timing[0] * 1000;        // Hits
-    timing_total += timing[1] * 1000;        // MD
-    timing_total += timing[2] * 1000;        // LS
-    timing_total += timing[3] * 1000;        // T3
-    timing_total += timing[4] * 1000;        // T5
-    timing_total += timing[5] * 1000;        // pLS
-    timing_total += timing[6] * 1000;        // pT5
-    timing_total += timing[7] * 1000;        // pT3
-    timing_total += timing[8] * 1000;        // TC
-    timing_total_short += timing[1] * 1000;  // MD
-    timing_total_short += timing[2] * 1000;  // LS
-    timing_total_short += timing[3] * 1000;  // T3
-    timing_total_short += timing[4] * 1000;  // T5
-    timing_total_short += timing[6] * 1000;  // pT5
-    timing_total_short += timing[7] * 1000;  // pT3
-    timing_total_short += timing[8] * 1000;  // TC
-    timing_total_short += timing[9] * 1000;  // Reset
+    timing_total += timing[0] * 1000;           // Hits
+    for (size_t iobj = 1; iobj <= 9; ++iobj) {  // MD-TC
+      timing_total += timing[iobj] * 1000;
+      if (iobj != 5)
+        timing_total_short += timing[iobj] * 1000;  // exclude pLS
+    }
+    timing_total_short += timing[10] * 1000;  // Reset
     std::cout << std::setw(6) << ievt;
-    std::cout << "   " << std::setw(6) << timing[0] * 1000;    // Hits
-    std::cout << "   " << std::setw(6) << timing[1] * 1000;    // MD
-    std::cout << "   " << std::setw(6) << timing[2] * 1000;    // LS
-    std::cout << "   " << std::setw(6) << timing[3] * 1000;    // T3
-    std::cout << "   " << std::setw(6) << timing[4] * 1000;    // T5
-    std::cout << "   " << std::setw(6) << timing[5] * 1000;    // pLS
-    std::cout << "   " << std::setw(6) << timing[6] * 1000;    // pT5
-    std::cout << "   " << std::setw(6) << timing[7] * 1000;    // pT3
-    std::cout << "   " << std::setw(6) << timing[8] * 1000;    // TC
-    std::cout << "   " << std::setw(6) << timing[9] * 1000;    // Reset
+    for (auto objtime : timing) {
+      std::cout << "   " << std::setw(6) << objtime * 1000;  // Print Hits-Reset
+    }
     std::cout << "   " << std::setw(7) << timing_total;        // Total time
     std::cout << "   " << std::setw(7) << timing_total_short;  // Total time
     std::cout << std::endl;
-    timing_sum_information[0] += timing[0] * 1000;   // Hits
-    timing_sum_information[1] += timing[1] * 1000;   // MD
-    timing_sum_information[2] += timing[2] * 1000;   // LS
-    timing_sum_information[3] += timing[3] * 1000;   // T3
-    timing_sum_information[4] += timing[4] * 1000;   // T5
-    timing_sum_information[5] += timing[5] * 1000;   // pLS
-    timing_sum_information[6] += timing[6] * 1000;   // pT5
-    timing_sum_information[7] += timing[7] * 1000;   // pT3
-    timing_sum_information[8] += timing[8] * 1000;   // TC
-    timing_sum_information[9] += timing[9] * 1000;   // Reset
+    for (size_t iobj = 0; iobj <= 10; ++iobj) {  // Hits-Reset
+      timing_sum_information[iobj] += timing[iobj] * 1000;
+    }
     timing_shortlist.push_back(timing_total_short);  // short total
     timing_list.push_back(timing_total);             // short total
   }
-  timing_sum_information[0] /= timing_information.size();  // Hits
-  timing_sum_information[1] /= timing_information.size();  // MD
-  timing_sum_information[2] /= timing_information.size();  // LS
-  timing_sum_information[3] /= timing_information.size();  // T3
-  timing_sum_information[4] /= timing_information.size();  // T5
-  timing_sum_information[5] /= timing_information.size();  // pLS
-  timing_sum_information[6] /= timing_information.size();  // pT5
-  timing_sum_information[7] /= timing_information.size();  // pT3
-  timing_sum_information[8] /= timing_information.size();  // TC
-  timing_sum_information[9] /= timing_information.size();  // Reset
+  for (size_t iobj = 0; iobj <= 10; iobj++) {  // Hits-Reset
+    timing_sum_information[iobj] /= timing_information.size();
+  }
 
   float timing_total_avg = 0.0;
-  timing_total_avg += timing_sum_information[0];  // Hits
-  timing_total_avg += timing_sum_information[1];  // MD
-  timing_total_avg += timing_sum_information[2];  // LS
-  timing_total_avg += timing_sum_information[3];  // T3
-  timing_total_avg += timing_sum_information[4];  // T5
-  timing_total_avg += timing_sum_information[5];  // pLS
-  timing_total_avg += timing_sum_information[6];  // pT5
-  timing_total_avg += timing_sum_information[7];  // pT3
-  timing_total_avg += timing_sum_information[8];  // TC
-  timing_total_avg += timing_sum_information[9];  // Reset
   float timing_totalshort_avg = 0.0;
-  timing_totalshort_avg += timing_sum_information[1];  // MD
-  timing_totalshort_avg += timing_sum_information[2];  // LS
-  timing_totalshort_avg += timing_sum_information[3];  // T3
-  timing_totalshort_avg += timing_sum_information[4];  // T5
-  timing_totalshort_avg += timing_sum_information[6];  // pT5
-  timing_totalshort_avg += timing_sum_information[7];  // pT3
-  timing_totalshort_avg += timing_sum_information[8];  // TC
-  timing_totalshort_avg += timing_sum_information[9];  // Reset
+  timing_total_avg += timing_sum_information[0];  // Hits
+  for (size_t iobj = 1; iobj <= 10; iobj++) {     // MD-Reset
+    timing_total_avg += timing_sum_information[iobj];
+    if (iobj != 5)
+      timing_totalshort_avg += timing_sum_information[iobj];  // exclude pLS
+  }
 
   float standardDeviation = 0.0;
   for (auto shorttime : timing_shortlist) {
@@ -847,6 +855,7 @@ void printTimingInformation(std::vector<std::vector<float>>& timing_information,
   std::cout << "   " << std::setw(6) << "T3";
   std::cout << "   " << std::setw(6) << "T5";
   std::cout << "   " << std::setw(6) << "pLS";
+  std::cout << "   " << std::setw(6) << "T4";
   std::cout << "   " << std::setw(6) << "pT5";
   std::cout << "   " << std::setw(6) << "pT3";
   std::cout << "   " << std::setw(6) << "TC";
@@ -855,18 +864,11 @@ void printTimingInformation(std::vector<std::vector<float>>& timing_information,
   std::cout << "   " << std::setw(7) << "Total(short)";
   std::cout << std::endl;
   std::cout << std::setw(6) << "avg";
-  std::cout << "   " << std::setw(6) << timing_sum_information[0];  // Hits
-  std::cout << "   " << std::setw(6) << timing_sum_information[1];  // MD
-  std::cout << "   " << std::setw(6) << timing_sum_information[2];  // LS
-  std::cout << "   " << std::setw(6) << timing_sum_information[3];  // T3
-  std::cout << "   " << std::setw(6) << timing_sum_information[4];  // T5
-  std::cout << "   " << std::setw(6) << timing_sum_information[5];  // pLS
-  std::cout << "   " << std::setw(6) << timing_sum_information[6];  // pT5
-  std::cout << "   " << std::setw(6) << timing_sum_information[7];  // pT3
-  std::cout << "   " << std::setw(6) << timing_sum_information[8];  // TC
-  std::cout << "   " << std::setw(6) << timing_sum_information[9];  // Reset
-  std::cout << "   " << std::setw(7) << timing_total_avg;           // Average total time
-  std::cout << "   " << std::setw(7) << timing_totalshort_avg;      // Average total time
+  for (auto objsum : timing_sum_information) {
+    std::cout << "   " << std::setw(6) << objsum;  // Print Hits-Reset
+  }
+  std::cout << "   " << std::setw(7) << timing_total_avg;       // Average total time
+  std::cout << "   " << std::setw(7) << timing_totalshort_avg;  // Average total time
   std::cout << "+/- " << std::setw(4) << stdDev;
   std::cout << "   " << std::setw(7) << fullavg;  // Average full time
   std::cout << "   " << ana.compilation_target;

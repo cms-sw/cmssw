@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include <atomic>
 
@@ -30,7 +30,7 @@ namespace {
   };
 }  // namespace
 
-TEST_CASE("Test Async", "[edm::Async") {
+TEST_CASE("Test Async", "[edm::Async]") {
   // Using parallelism 2 here because otherwise the
   // tbb::task_arena::enqueue() in WaitingTaskWithArenaHolder will
   // start a new TBB thread that "inherits" the name from the
@@ -92,6 +92,6 @@ TEST_CASE("Test Async", "[edm::Async") {
     REQUIRE(waitTask.done());
     REQUIRE(waitTask.exceptionPtr());
     REQUIRE_THROWS_WITH(std::rethrow_exception(waitTask.exceptionPtr()),
-                        Catch::Contains("Calling run in this context is not allowed"));
+                        Catch::Matchers::ContainsSubstring("Calling run in this context is not allowed"));
   }
 }

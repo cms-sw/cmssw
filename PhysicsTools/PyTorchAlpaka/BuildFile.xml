@@ -1,0 +1,10 @@
+<use name="alpaka"/>
+<use name="eigen"/>
+<use name="pytorch"/>
+<use name="pytorch-cuda" for="alpaka/cuda"/>
+<use name="PhysicsTools/PyTorch"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="1"/>
+<export>
+  <lib name="1"/>
+</export>

@@ -41,6 +41,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <string>
+#include <format>
 
 class TotemVFATRawToDigi : public edm::stream::EDProducer<> {
 public:
@@ -209,7 +210,7 @@ void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
     if (analysisMaskHandle.isValid() && !analysisMaskHandle.failedToGet()) {
       analysisMask = *analysisMaskHandle;
     } else {
-      errSummary.add(fmt::format("No AnalysisMask found for {0}", subSystemName), "");
+      errSummary.add(std::format("No AnalysisMask found for {0}", subSystemName), "");
       analysisMask = TotemAnalysisMask();
     }
 

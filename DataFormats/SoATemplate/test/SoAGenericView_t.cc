@@ -2,7 +2,7 @@
 #include <Eigen/Dense>
 
 #define CATCH_CONFIG_MAIN
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
@@ -17,7 +17,6 @@ using SoAPositionView = SoAPosition::View;
 using SoAPositionConstView = SoAPosition::ConstView;
 
 GENERATE_SOA_LAYOUT(SoAPCATemplate,
-                    SOA_COLUMN(float, eigenvalues),
                     SOA_COLUMN(float, eigenvector_1),
                     SOA_COLUMN(float, eigenvector_2),
                     SOA_COLUMN(float, eigenvector_3),

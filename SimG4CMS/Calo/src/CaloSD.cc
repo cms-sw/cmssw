@@ -557,7 +557,7 @@ std::string CaloSD::shortreprID(const CaloG4Hit* hit) { return shortreprID(hit->
 Finds the boundary-crossing parent of a track, and stores it in the CaloSD's map
 */
 unsigned int CaloSD::findBoundaryCrossingParent(const G4Track* track, bool markAsSaveable) {
-  TrackInformation* trkInfo = cmsTrackInformation(track);
+  auto trkInfo = cmsTrackInformation(track);
   unsigned int id = track->GetTrackID();
   // First see if this track is already in the map
   auto it = boundaryCrossingParentMap_.find(id);
@@ -568,13 +568,14 @@ unsigned int CaloSD::findBoundaryCrossingParent(const G4Track* track, bool markA
     return it->second;
   }
   // Then see if the track itself crosses the boundary
-  else if (trkInfo->crossedBoundary()) {
+  else if (nullptr != trkInfo && trkInfo->crossedBoundary()) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("DoFineCalo") << "Track " << id << " crosses boundary itself";
 #endif
     boundaryCrossingParentMap_[id] = id;
     trkInfo->setStoreTrack();
-    trkInfo->setIdLastStoredAncestor(id);
+    if (trkInfo->idLastStoredAncestor() == track->GetParentID())
+      trkInfo->setIdLastStoredAncestor(id);
     return id;
   }
   // Else, traverse the history of the track
@@ -681,9 +682,10 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep, const G4Track* theTrack, in
                                   << " eCut " << energyCut << " force: " << forceSave
                                   << " save: " << (etrack >= energyCut || forceSave);
 #endif
-      if (etrack >= energyCut || forceSave) {
+      if (nullptr != trkInfo && (etrack >= energyCut || forceSave)) {
         trkInfo->setStoreTrack();
-        trkInfo->setIdLastStoredAncestor(theTrack->GetTrackID());
+        if (trkInfo->idLastStoredAncestor() == theTrack->GetParentID())
+          trkInfo->setIdLastStoredAncestor(theTrack->GetTrackID());
       }
     } else {
       TrackWithHistory* trkh = tkMap[currentID[k].trackID()];
@@ -769,7 +771,7 @@ void CaloSD::update(const EndOfTrack* trk) {
   int id = (*trk)()->GetTrackID();
   TrackInformation* trkI = cmsTrackInformation((*trk)());
   int lastTrackID = -1;
-  if (trkI)
+  if (nullptr != trkI)
     lastTrackID = trkI->getIDonCaloSurface();
   if (id == lastTrackID) {
     auto trksForThisEvent = m_trackManager->trackContainer();
@@ -886,7 +888,7 @@ void CaloSD::endEvent() {}
 int CaloSD::getTrackID(const G4Track* aTrack) {
   int primaryID = 0;
   TrackInformation* trkInfo = cmsTrackInformation(aTrack);
-  if (trkInfo) {
+  if (nullptr != trkInfo) {
     primaryID = trkInfo->getIDonCaloSurface();
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("CaloSim") << "Track ID: " << trkInfo->getIDonCaloSurface() << ":" << aTrack->GetTrackID() << ":"
@@ -904,13 +906,13 @@ int CaloSD::getTrackID(const G4Track* aTrack) {
 int CaloSD::setTrackID(const G4Step* aStep) {
   auto const theTrack = aStep->GetTrack();
   TrackInformation* trkInfo = cmsTrackInformation(theTrack);
-  int primaryID = trkInfo->getIDonCaloSurface();
+  int primaryID = (nullptr != trkInfo) ? trkInfo->getIDonCaloSurface() : 0;
   if (primaryID <= 0) {
     primaryID = theTrack->GetTrackID();
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("CaloSim") << "Track ID: " << trkInfo->getIDonCaloSurface() << ":" << theTrack->GetTrackID() << ":"
-                              << primaryID;
+  int ids = (nullptr != trkInfo) ? trkInfo->getIDonCaloSurface() : -1;
+  edm::LogVerbatim("CaloSim") << "Track ID: " << ids << ":" << theTrack->GetTrackID() << ":" << primaryID;
 #endif
 
   if (primaryID != previousID[0].trackID()) {
@@ -941,8 +943,10 @@ bool CaloSD::filterHit(CaloG4Hit* hit, double time) {
 double CaloSD::getResponseWt(const G4Track* aTrack, int k) {
   double wt = 1.0;
   if (meanResponse[k].get()) {
-    TrackInformation* trkInfo = cmsTrackInformation(aTrack);
-    wt = meanResponse[k].get()->getWeight(trkInfo->genParticlePID(), trkInfo->genParticleP());
+    auto trkInfo = cmsTrackInformation(aTrack);
+    if (nullptr != trkInfo) {
+      wt = meanResponse[k].get()->getWeight(trkInfo->genParticlePID(), trkInfo->genParticleP());
+    }
   }
   return wt;
 }
@@ -1026,7 +1030,7 @@ bool CaloSD::saveHit(CaloG4Hit* aHit, int k) {
 void CaloSD::update(const BeginOfTrack* trk) {
   int primary = -1;
   TrackInformation* trkInfo = cmsTrackInformation((*trk)());
-  if (trkInfo->isPrimary())
+  if (nullptr != trkInfo && trkInfo->isPrimary())
     primary = (*trk)()->GetTrackID();
 
 #ifdef EDM_ML_DEBUG

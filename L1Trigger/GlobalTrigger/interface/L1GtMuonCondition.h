@@ -22,12 +22,11 @@
 // user include files
 //   base classes
 #include "L1Trigger/GlobalTrigger/interface/L1GtConditionEvaluation.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCandFwd.h"
 
 // forward declarations
 class L1GtCondition;
 class L1GtMuonTemplate;
-
-class L1MuGMTCand;
 
 class L1GlobalTriggerGTL;
 

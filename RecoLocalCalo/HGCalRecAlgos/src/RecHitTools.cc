@@ -32,7 +32,6 @@ namespace {
       throw cms::Exception("hgcal::RecHitTools") << "Geometry not provided yet to hgcal::RecHitTools!";
     }
   }
-
   inline const HGCalDDDConstants* get_ddd(const CaloSubdetectorGeometry* geom, const HGCalDetId& detid) {
     const HGCalGeometry* hg = static_cast<const HGCalGeometry*>(geom);
     const HGCalDDDConstants* ddd = &(hg->topology().dddConstants());
@@ -145,6 +144,7 @@ void RecHitTools::setGeometry(const CaloGeometry& geom) {
 }
 
 const CaloSubdetectorGeometry* RecHitTools::getSubdetectorGeometry(const DetId& id) const {
+  checkGeometry();
   DetId::Detector det = id.det();
   int subdet = (det == DetId::HGCalEE || det == DetId::HGCalHSi || det == DetId::HGCalHSc)
                    ? ForwardSubdetector::ForwardEmpty
@@ -155,6 +155,7 @@ const CaloSubdetectorGeometry* RecHitTools::getSubdetectorGeometry(const DetId& 
 }
 
 GlobalPoint RecHitTools::getPosition(const DetId& id) const {
+  checkGeometry();
   auto geom = getSubdetectorGeometry(id);
   GlobalPoint position;
   if (id.det() == DetId::Hcal || id.det() == DetId::Ecal) {
@@ -167,6 +168,7 @@ GlobalPoint RecHitTools::getPosition(const DetId& id) const {
 }
 
 GlobalPoint RecHitTools::getPositionLayer(int layer, bool nose, bool barrel) const {
+  checkGeometry();
   unsigned int lay = std::abs(layer);
   double x(0), y(0), z(0);
   if (nose) {
@@ -273,6 +275,7 @@ std::pair<float, float> RecHitTools::getScintDEtaDPhi(const DetId& id) const {
 }
 
 std::float_t RecHitTools::getRadiusToSide(const DetId& id) const {
+  checkGeometry();
   auto geom = getSubdetectorGeometry(id);
   std::float_t size(std::numeric_limits<std::float_t>::max());
   if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
@@ -295,6 +298,7 @@ std::float_t RecHitTools::getRadiusToSide(const DetId& id) const {
 }
 
 unsigned int RecHitTools::getLayer(const ForwardSubdetector type) const {
+  checkGeometry();
   int layer(0);
   switch (type) {
     case (ForwardSubdetector::HGCEE): {
@@ -408,6 +412,7 @@ unsigned int RecHitTools::getLayer(const DetId& id) const {
 }
 
 unsigned int RecHitTools::getLayerWithOffset(const DetId& id) const {
+  checkGeometry();
   unsigned int layer = getLayer(id);
   if (id.det() == DetId::Forward && id.subdetId() == HGCHEF) {
     layer += fhOffset_;
@@ -458,6 +463,7 @@ std::pair<int, int> RecHitTools::getCell(const DetId& id) const {
 }
 
 bool RecHitTools::isHalfCell(const DetId& id) const {
+  checkGeometry();
   bool ishalf = false;
   if (id.det() == DetId::Forward) {
     HGCalDetId hid(id);
@@ -471,6 +477,7 @@ bool RecHitTools::isHalfCell(const DetId& id) const {
 }
 
 int RecHitTools::getCellType(const DetId& id) const {
+  checkGeometry();
   auto layer_number = getLayerWithOffset(id);
   auto thickness = getSiThickIndex(id);
   auto geomNose =
@@ -519,7 +526,11 @@ bool RecHitTools::isScintillatorFine(const DetId& id) const {
     return false;
   }
 }
-bool RecHitTools::isBarrel(const DetId& id) const { return (id.det() == DetId::Ecal || id.det() == DetId::Hcal); }
+bool RecHitTools::isBarrel(const DetId& id) const {
+  return (id.det() == DetId::Ecal && id.subdetId() == EcalBarrel) ||
+         (id.det() == DetId::Hcal && id.subdetId() == HcalBarrel) ||
+         (id.det() == DetId::Hcal && id.subdetId() == HcalOuter);
+}
 bool RecHitTools::isOnlySilicon(const unsigned int layer) const {
   // HFnose TODO
   bool isonlysilicon = (layer % bhLastLayer_) < bhOffset_;
@@ -630,3 +641,12 @@ std::vector<double> RecHitTools::getSiThickness(DetId::Detector det, int subdet)
   auto ddd = get_ddd(geom_, det, subdet);
   return ddd->cellThickness();
 }
+
+namespace hgcal {
+  void RecHitTools::checkGeometry() const {
+    if (!geom_) {
+      throw cms::Exception("hgcal::RecHitTools")
+          << "Geometry not provided yet to RecHitTools! Call setGeometry() before using this function.";
+    }
+  }
+}  // namespace hgcal

@@ -4,12 +4,9 @@
 #include <TH1.h>
 #include <string>
 #include <vector>
+#include "DataFormats/L1TParticleFlow/interface/PFClusterFwd.h"
 
 class TDirectory;
-
-namespace l1t {
-  class PFCluster;
-}
 
 namespace l1tpf {
   class corrector {

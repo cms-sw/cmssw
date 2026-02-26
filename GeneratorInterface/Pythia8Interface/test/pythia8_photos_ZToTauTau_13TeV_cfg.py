@@ -48,7 +48,8 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
             '23:onIfAny = 15',
             'TimeShower:mMaxGamma = 4.0',
             'TauDecays:externalMode = 0',
-            'ParticleDecays:allowPhotonRadiation = on', # allow photons from hadron decays
+            #'ParticleDecays:allowPhotonRadiation = on', # allow photons from hadron decays (OBSOLETE in pythia8316)
+            'HadronLevel:QED = on',  # allow photons from hadron decays
             'TimeShower:QEDshowerByL = off', # no photons from leptons
             'TimeShower:QEDshowerByOther = off', # no photons from W bosons
             ),

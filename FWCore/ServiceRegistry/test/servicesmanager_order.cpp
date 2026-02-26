@@ -85,8 +85,8 @@ int main() try {
 
   edm::ActivityRegistry actReg;
   sm.connectTo(actReg);
-  actReg.postBeginJobSignal_();
-  actReg.postEndJobSignal_();
+  actReg.postBeginJobSignal_.emit();
+  actReg.postEndJobSignal_.emit();
 
   return 0;
 } catch (cms::Exception const& e) {

@@ -155,10 +155,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::memset(queue, x, 0x0);
     auto y = cms::alpakatools::make_device_view<float>(queue, outputs.y(), size);
     alpaka::memset(queue, y, 0x0);
-    auto z = cms::alpakatools::make_device_view<float>(queue, outputs.z(), size);
-    alpaka::memset(queue, z, 0x0);
-    auto seed = cms::alpakatools::make_device_view<int>(queue, outputs.seed(), size);
-    alpaka::memset(queue, seed, 0x0);
     auto energy = cms::alpakatools::make_device_view<float>(queue, outputs.energy(), size);
     alpaka::memset(queue, energy, 0x0);
     auto cells = cms::alpakatools::make_device_view<int>(queue, outputs.cells(), size);
@@ -167,8 +163,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::memset(queue, total_weight, 0x0);
     auto total_weight_log = cms::alpakatools::make_device_view<float>(queue, outputs_service.total_weight_log(), size);
     alpaka::memset(queue, total_weight_log, 0x0);
-    auto maxEnergyValue = cms::alpakatools::make_device_view<float>(queue, outputs_service.maxEnergyValue(), size);
-    alpaka::memset(queue, maxEnergyValue, 0x0);
     auto maxEnergyIndex = cms::alpakatools::make_device_view<int>(queue, outputs_service.maxEnergyIndex(), size);
     alpaka::memset(queue, maxEnergyIndex, kInvalidIndexByte);
 

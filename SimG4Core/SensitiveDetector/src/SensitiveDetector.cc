@@ -45,12 +45,6 @@ SensitiveDetector::SensitiveDetector(const std::string& iname,
                                         << ss.str();
 }
 
-SensitiveDetector::~SensitiveDetector() {}
-
-void SensitiveDetector::Initialize(G4HCofThisEvent* eventHC) {}
-
-void SensitiveDetector::EndOfEvent(G4HCofThisEvent* eventHC) {}
-
 void SensitiveDetector::AssignSD(const std::string& vname) {
   G4LogicalVolumeStore* theStore = G4LogicalVolumeStore::GetInstance();
   for (auto& lv : *theStore) {
@@ -99,13 +93,8 @@ Local3DPoint SensitiveDetector::LocalPostStepPosition(const G4Step* step) const 
 }
 
 TrackInformation* SensitiveDetector::cmsTrackInformation(const G4Track* aTrack) {
-  TrackInformation* info = (TrackInformation*)(aTrack->GetUserInformation());
-  if (nullptr == info) {
-    edm::LogWarning("SensitiveDetector") << " no TrackInformation available for trackID= " << aTrack->GetTrackID()
-                                         << " inside SD " << GetName();
-    G4Exception(
-        "SensitiveDetector::cmsTrackInformation()", "sd01", FatalException, "cannot handle hits without trackinfo");
-  }
+  // nullptr for the info is now allowed
+  TrackInformation* info = dynamic_cast<TrackInformation*>(aTrack->GetUserInformation());
   return info;
 }
 

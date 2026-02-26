@@ -13,9 +13,10 @@
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
+#include "FWCore/Catalog/interface/StorageURLModifier.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/Services/interface/setupSiteLocalConfig.h"
+#include "FWStorage/Services/interface/setupSiteLocalConfig.h"
 
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -27,7 +28,7 @@
 
 #include "boost/program_options.hpp"
 
-#include <fmt/format.h>
+#include <format>
 
 #include <cassert>
 #include <iostream>
@@ -114,7 +115,7 @@ namespace {
 
   std::string formatHeader(std::string_view text) {
     constexpr std::string_view decoration = "---------";
-    return fmt::format("{}{}{}", decoration, text, decoration);
+    return std::format("{}{}{}", decoration, text, decoration);
   }
 }  // namespace
 
@@ -188,7 +189,7 @@ namespace {
     std::string override;
     std::vector<std::string> fileNames;
     fileNames.push_back(filename);
-    edm::InputFileCatalog catalog(fileNames, override, true);
+    edm::InputFileCatalog catalog(fileNames, override, true, edm::SciTagCategory::Undefined);
     if (catalog.fileNames(0)[0] == filename) {
       throw cms::Exception("FileNotFound", "RootFile::RootFile()")
           << "File " << filename << " was not found or could not be opened.\n";

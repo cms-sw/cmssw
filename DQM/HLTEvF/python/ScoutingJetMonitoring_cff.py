@@ -19,7 +19,7 @@ jetDQMOnlineAnalyzerAk4ScoutingUncleaned = jetDQMAnalyzerAk4ScoutingUncleaned.cl
                                    DebugOn =  cms.untracked.bool(False),
                                    alwaysPass = False)
 )
-
+dqmAk4PFScoutingL1FastL2L3ResidualCorrectorChain = cms.Sequence(dqmAk4PFScoutingL1FastL2L3ResidualCorrectorTask)
 jetDQMOnlineAnalyzerSequenceScouting = cms.Sequence(jetDQMOnlineAnalyzerAk4ScoutingUncleaned*
                                                     jetDQMOnlineAnalyzerAk4ScoutingCleaned)
 

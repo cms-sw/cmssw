@@ -11,13 +11,14 @@
 #include "TFile.h"
 #include "TError.h"
 
-#include "Utilities/StorageFactory/interface/Storage.h"
-#include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "FWStorage/StorageFactory/interface/Storage.h"
+#include "FWStorage/StorageFactory/interface/StorageFactory.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Services/interface/setupSiteLocalConfig.h"
+#include "FWStorage/Services/interface/setupSiteLocalConfig.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
+#include "FWCore/Catalog/interface/StorageURLModifier.h"
 
 static int copy_files(const boost::program_options::variables_map& vm) {
   auto operate = edm::setupSiteLocalConfig();
@@ -39,7 +40,7 @@ static int copy_files(const boost::program_options::variables_map& vm) {
   }
 
   std::string catalogIn = (vm.count("catalog") ? vm["catalog"].as<std::string>() : std::string());
-  edm::InputFileCatalog catalog(in, catalogIn, true);
+  edm::InputFileCatalog catalog(in, catalogIn, true, edm::SciTagCategory::Undefined);
   std::vector<std::string> const& filesIn = catalog.fileNames(0);
 
   for (unsigned int j = 0; j < in.size(); ++j) {

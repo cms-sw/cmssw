@@ -25,7 +25,7 @@ public:
   void PreUserTrackingAction(const G4Track* aTrack) override;
   void PostUserTrackingAction(const G4Track* aTrack) override;
 
-  inline TrackWithHistory* currentTrackWithHistory() { return currentTrack_; }
+  inline TrackWithHistory* currentTrackWithHistory() { return currentHistory_; }
   inline const G4Track* geant4Track() const { return g4Track_; }
   inline G4TrackingManager* getTrackManager() { return fpTrackingManager; }
 
@@ -41,7 +41,7 @@ private:
   CMSSteppingVerbose* steppingVerbose_;
   const G4Track* g4Track_ = nullptr;
   TrackInformation* trkInfo_ = nullptr;
-  TrackWithHistory* currentTrack_ = nullptr;
+  TrackWithHistory* currentHistory_ = nullptr;
   int endPrintTrackID_;
   bool checkTrack_;
   bool doFineCalo_;

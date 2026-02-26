@@ -28,7 +28,6 @@ namespace fastsim {
   class SimplifiedGeometry;
   class BarrelSimplifiedGeometry;
   class ForwardSimplifiedGeometry;
-  class InteractionModel;
 
   //! Constructs a tracker layer according to entry in python config (incl interaction models).
   /*!
@@ -43,13 +42,13 @@ namespace fastsim {
     /*!
             \param geometricSearchTracker The full tracker geometry (needed for links to active detLayers).
             \param magneticField The full magnetic field.
-            \param interactionModelMap Map of interaction models that should be assigned for that layer.
+            \param interactionModelNames Names of available interaction models that can be assigned to layers.
             \param magneticFieldHistMaxR Max Radius for initialization of magnetic field histogram (TH1, limit of axis).
             \param magneticFieldHistMaxZ Max Z for initialization of magnetic field histogram (TH1, limit of axis).
         */
     SimplifiedGeometryFactory(const GeometricSearchTracker *geometricSearchTracker,
                               const MagneticField &magneticField,
-                              const std::map<std::string, fastsim::InteractionModel *> &interactionModelMap,
+                              const std::vector<std::string> &interactionModelNames,
                               double magneticFieldHistMaxR,
                               double magneticFieldHistMaxZ);
 
@@ -93,11 +92,11 @@ namespace fastsim {
     const DetLayer *getDetLayer(const std::string &detLayerName,
                                 const GeometricSearchTracker &geometricSearchTracker) const;
 
-    const GeometricSearchTracker *const geometricSearchTracker_;                     //!< The full tracker geometry.
-    const MagneticField *const magneticField_;                                       //!< The full magnetic field.
-    const std::map<std::string, fastsim::InteractionModel *> *interactionModelMap_;  //!< Map of interaction models.
-    const double magneticFieldHistMaxR_;  //!< Limit in R for histogram of magnetic field.
-    const double magneticFieldHistMaxZ_;  //!< Limit in +-Z for histogram of magnetic field.
+    const GeometricSearchTracker *const geometricSearchTracker_;  //!< The full tracker geometry.
+    const MagneticField *const magneticField_;                    //!< The full magnetic field.
+    const std::vector<std::string> *interactionModelNames_;       //!< Map of interaction models.
+    const double magneticFieldHistMaxR_;                          //!< Limit in R for histogram of magnetic field.
+    const double magneticFieldHistMaxZ_;                          //!< Limit in +-Z for histogram of magnetic field.
     std::map<std::string, const std::vector<BarrelDetLayer const *> *>
         barrelDetLayersMap_;  //!< A map of strings and pointers to detLayers.
     std::map<std::string, const std::vector<ForwardDetLayer const *> *>

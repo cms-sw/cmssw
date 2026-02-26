@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/DescriptionCloner.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
@@ -113,25 +114,34 @@ void DeepDoubleXONNXJetTagsProducer::fillDescriptions(edm::ConfigurationDescript
   using PDPSD = edm::ParameterDescription<std::vector<std::string>>;
   using PDCases = edm::ParameterDescriptionCases<std::string>;
   using PDVersion = edm::ParameterDescription<std::string>;
+  const std::vector<std::string> kCvL_flav_name{"probQCD", "probHcc"};
+  const FIP kCvL_model_path{"RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDC.onnx"};
+  const std::vector<std::string> kCvB_flav_name{"probHbb", "probHcc"};
+  const FIP kCvB_model_path{"RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDCvB.onnx"};
   auto flavorCases = [&]() {
     return "BvL" >> (PDPSD("flav_names", std::vector<std::string>{"probQCD", "probHbb"}, true) and
                      PDFIP("model_path", FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDB.onnx"), true)) or
-           "CvL" >> (PDPSD("flav_names", std::vector<std::string>{"probQCD", "probHcc"}, true) and
-                     PDFIP("model_path", FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDC.onnx"), true)) or
-           "CvB" >> (PDPSD("flav_names", std::vector<std::string>{"probHbb", "probHcc"}, true) and
-                     PDFIP("model_path", FIP("RecoBTag/Combined/data/DeepDoubleX/94X/V01/DDCvB.onnx"), true));
+           "CvL" >> (PDPSD("flav_names", kCvL_flav_name, true) and PDFIP("model_path", kCvL_model_path, true)) or
+           "CvB" >> (PDPSD("flav_names", kCvB_flav_name, true) and PDFIP("model_path", kCvB_model_path, true));
   };
   auto descBvL(desc);
   descBvL.ifValue(edm::ParameterDescription<std::string>("flavor", "BvL", true), flavorCases());
   descriptions.add("pfDeepDoubleBvLJetTags", descBvL);
 
-  auto descCvL(desc);
-  descCvL.ifValue(edm::ParameterDescription<std::string>("flavor", "CvL", true), flavorCases());
-  descriptions.add("pfDeepDoubleCvLJetTags", descCvL);
-
-  auto descCvB(desc);
-  descCvB.ifValue(edm::ParameterDescription<std::string>("flavor", "CvB", true), flavorCases());
-  descriptions.add("pfDeepDoubleCvBJetTags", descCvB);
+  {
+    edm::DescriptionCloner clone;
+    clone.set<std::string>("flavor", "CvL");
+    clone.set<std::vector<std::string>>("flav_names", kCvL_flav_name);
+    clone.set<edm::FileInPath>("model_path", kCvL_model_path);
+    descriptions.add("pfDeepDoubleCvLJetTags", clone);
+  }
+  {
+    edm::DescriptionCloner clone;
+    clone.set<std::string>("flavor", "CvB");
+    clone.set<std::vector<std::string>>("flav_names", kCvB_flav_name);
+    clone.set<edm::FileInPath>("model_path", kCvB_model_path);
+    descriptions.add("pfDeepDoubleCvBJetTags", clone);
+  }
 }
 
 std::unique_ptr<ONNXRuntime> DeepDoubleXONNXJetTagsProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {

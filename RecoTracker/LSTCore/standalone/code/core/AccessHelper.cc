@@ -148,6 +148,76 @@ std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> getHitIdxsAndHi
 }
 
 // ==============
+// ----* T4 *----
+// ==============
+
+//____________________________________________________________________________________________
+std::vector<unsigned int> getT3sFromT4(LSTEvent* event, unsigned int t4) {
+  auto const quadruplets = event->getQuadruplets<QuadrupletsSoA>();
+  unsigned int t3_1 = quadruplets.tripletIndices()[t4][0];
+  unsigned int t3_2 = quadruplets.tripletIndices()[t4][1];
+  return {t3_1, t3_2};
+}
+
+//____________________________________________________________________________________________
+std::vector<unsigned int> getLSsFromT4(LSTEvent* event, unsigned int T4) {
+  std::vector<unsigned int> T3s = getT3sFromT4(event, T4);
+  std::vector<unsigned int> LSs_0 = getLSsFromT3(event, T3s[0]);
+  std::vector<unsigned int> LSs_1 = getLSsFromT3(event, T3s[1]);
+  return {LSs_0[0], LSs_0[1], LSs_1[1]};
+}
+
+//____________________________________________________________________________________________
+std::vector<unsigned int> getMDsFromT4(LSTEvent* event, unsigned int T4) {
+  std::vector<unsigned int> LSs = getLSsFromT4(event, T4);
+  std::vector<unsigned int> MDs_0 = getMDsFromLS(event, LSs[0]);
+  std::vector<unsigned int> MDs_1 = getMDsFromLS(event, LSs[1]);
+  std::vector<unsigned int> MDs_2 = getMDsFromLS(event, LSs[2]);
+  return {MDs_0[0], MDs_0[1], MDs_2[0], MDs_2[1]};
+}
+
+//____________________________________________________________________________________________
+std::vector<unsigned int> getHitsFromT4(LSTEvent* event, unsigned int T4) {
+  std::vector<unsigned int> MDs = getMDsFromT4(event, T4);
+  std::vector<unsigned int> hits_0 = getHitsFromMD(event, MDs[0]);
+  std::vector<unsigned int> hits_1 = getHitsFromMD(event, MDs[1]);
+  std::vector<unsigned int> hits_2 = getHitsFromMD(event, MDs[2]);
+  std::vector<unsigned int> hits_3 = getHitsFromMD(event, MDs[3]);
+  return {hits_0[0], hits_0[1], hits_1[0], hits_1[1], hits_2[0], hits_2[1], hits_3[0], hits_3[1]};
+}
+
+//____________________________________________________________________________________________
+std::vector<unsigned int> getHitIdxsFromT4(LSTEvent* event, unsigned int T4) {
+  auto hitsBase = event->getInput<HitsBaseSoA>();
+  std::vector<unsigned int> hits = getHitsFromT4(event, T4);
+  std::vector<unsigned int> hitidxs;
+  for (auto& hit : hits)
+    hitidxs.push_back(hitsBase.idxs()[hit]);
+  return hitidxs;
+}
+//____________________________________________________________________________________________
+std::vector<unsigned int> getModuleIdxsFromT4(LSTEvent* event, unsigned int T4) {
+  std::vector<unsigned int> hits = getHitsFromT4(event, T4);
+  std::vector<unsigned int> module_idxs;
+  auto hitsEvt = event->getHits<HitsExtendedSoA>();
+  for (auto& hitIdx : hits) {
+    module_idxs.push_back(hitsEvt.moduleIndices()[hitIdx]);
+  }
+  return module_idxs;
+}
+//____________________________________________________________________________________________
+std::vector<unsigned int> getHitTypesFromT4(LSTEvent* event, unsigned int T4) {
+  return {4, 4, 4, 4, 4, 4, 4, 4};
+  ;
+}
+
+//____________________________________________________________________________________________
+std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> getHitIdxsAndHitTypesFromT4(LSTEvent* event,
+                                                                                             unsigned T4) {
+  return convertHitsToHitIdxsAndHitTypes(event, getHitsFromT4(event, T4));
+}
+
+// ==============
 // ----* T5 *----
 // ==============
 
@@ -441,6 +511,9 @@ std::vector<unsigned int> getLSsFromTC(LSTEvent* event, unsigned int iTC) {
     case lst::LSTObjType::pLS:
       return std::vector<unsigned int>();
       break;
+    case lst::LSTObjType::T4:
+      return getLSsFromT4(event, objidx);
+      break;
   }
 }
 
@@ -465,5 +538,43 @@ std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> getHitIdxsAndHi
     case lst::LSTObjType::pLS:
       return getHitIdxsAndHitTypesFrompLS(event, objidx);
       break;
+    case lst::LSTObjType::T4:
+      return getHitIdxsAndHitTypesFromT4(event, objidx);
+      break;
   }
+}
+
+std::pair<std::vector<unsigned int>, std::vector<unsigned int>> getHitIdxsAndTypesFromTC(LSTEvent* event,
+                                                                                         unsigned int tc_idx) {
+  auto const& base = event->getTrackCandidatesBase();
+  auto const& ext = event->getTrackCandidatesExtended();
+  auto const& hitsBase = event->getInput<HitsBaseSoA>();
+
+  std::vector<unsigned int> hitIdx;
+  hitIdx.reserve(Params_TC::kHits);
+  std::vector<unsigned int> hitType;
+  hitType.reserve(Params_TC::kHits);
+
+  for (int layerSlot = 0; layerSlot < Params_TC::kLayers; ++layerSlot) {
+    if (ext.lowerModuleIndices()[tc_idx][layerSlot] == lst::kTCEmptyLowerModule)
+      continue;
+
+    for (unsigned int hitSlot = 0; hitSlot < Params_TC::kHitsPerLayer; ++hitSlot) {
+      const unsigned int hitLocal = base.hitIndices()[tc_idx][layerSlot][hitSlot];
+
+      if (hitLocal == lst::kTCEmptyHitIdx)
+        continue;
+
+      // Get the GLOBAL ntuple indices
+      const unsigned int hitGlobal = hitsBase.idxs()[hitLocal];
+
+      // Determine the type from the hit's detid (1 = pixel, otherwise OT)
+      const unsigned int type = (hitsBase.detid()[hitLocal] == 1) ? 0u : 4u;
+
+      // Push the GLOBAL index and type
+      hitIdx.push_back(hitGlobal);
+      hitType.push_back(type);
+    }
+  }
+  return {hitIdx, hitType};
 }

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-recoJetPostProcessorHLT = DQMEDHarvester("DQMGenericClient",
+hltJetPostProcessor = DQMEDHarvester("DQMGenericClient",
     subDirs=cms.untracked.vstring("HLT/JetMET/JetValidation/*"),
     efficiency = cms.vstring(
         "Eff_vs_EtaPt 'Efficiency vs #eta-p_{T}' MatchedGenEtaPt GenEtaPt",

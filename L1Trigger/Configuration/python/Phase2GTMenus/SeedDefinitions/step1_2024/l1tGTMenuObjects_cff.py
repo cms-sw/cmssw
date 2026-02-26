@@ -84,6 +84,7 @@ l1tGTtkElectronLowPt = l1tGTtkElectronBase.clone(
 
 l1tGTtkIsoElectron = l1tGTtkElectronBase.clone(
     regionsMaxRelIsolationPt = get_object_isos("CL2Electrons","Iso"),
+    regionsQualityFlags = get_object_ids("CL2Electrons","Iso"),
 )
 
 ############################################################

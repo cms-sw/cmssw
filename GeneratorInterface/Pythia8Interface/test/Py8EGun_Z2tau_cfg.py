@@ -24,26 +24,13 @@ process.generator = cms.EDFilter("Pythia8EGun",
        MinEta = cms.double(0.0),
        MaxEta = cms.double(2.4)
     ),
-        
-    ExternalDecays = cms.PSet(
-        Tauola = cms.untracked.PSet(
-	     UseTauolaPolarization = cms.bool(True),
-	     InputCards = cms.PSet
-	     ( 
-	        pjak1 = cms.int32(0), # 1 = electron mode
-		pjak2 = cms.int32(0), # 2 = muon mode
-		mdtau = cms.int32(240)  # (any) tau -> nu pi+- 
-	     )
-	),
-        parameterSets = cms.vstring('Tauola')
-    ),
 
     PythiaParameters = cms.PSet(
 	py8ZDecaySettings = cms.vstring(  '23:onMode = off', # turn OFF all Z decays
 					  '23:onIfAny = 15'  # turn ON Z->tautau
 	),
-        parameterSets = cms.vstring(  
-	                              'py8ZDecaySettings' 
+        parameterSets = cms.vstring(
+	                              'py8ZDecaySettings'
 				   )
     )
 )

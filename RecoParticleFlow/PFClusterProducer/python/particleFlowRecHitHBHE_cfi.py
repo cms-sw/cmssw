@@ -75,3 +75,14 @@ particleFlowRecHitHBHEOnly = particleFlowRecHitHBHE.clone(
 run3_HB.toModify(particleFlowRecHitHBHEOnly,
     producers = { 0: dict(src = "hbhereco") }
 )
+
+# Alpaka and Legacy
+particleFlowRecHitHBHEOnlyLegacy = particleFlowRecHitHBHEOnly.clone()
+from RecoParticleFlow.PFRecHitProducer.legacyPFRecHitProducer_cfi import legacyPFRecHitProducer as _legacyPFRecHitProducer
+from Configuration.ProcessModifiers.alpaka_cff import alpaka
+alpaka.toReplaceWith(particleFlowRecHitHBHE, _legacyPFRecHitProducer.clone(
+    src = "pfRecHitSoAProducerHCAL"
+))
+alpaka.toReplaceWith(particleFlowRecHitHBHEOnly, _legacyPFRecHitProducer.clone(
+    src = "pfRecHitSoAProducerHBHEOnly"
+))

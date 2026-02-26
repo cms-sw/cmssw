@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun g4HGCalPringLV_cfg.py geometry=D121 tol=0.01
+#   cmsRun g4HGCalPrintLV_cfg.py geometry=D121 tol=0.01
 #
-#   Options for geometry D110, D121
+#   Options for geometry D120, D121
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D110, D121")
+                  "geometry of operations: D120, D121")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,

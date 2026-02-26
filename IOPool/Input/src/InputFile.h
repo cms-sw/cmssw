@@ -48,10 +48,10 @@ namespace edm {
     static void reportReadBranch(InputType inputType, std::string const& branchname);
 
     TObject* Get(char const* name) { return file_->Get(name); }
-    std::unique_ptr<TTreeCache> createCacheWithSize(TTree& iTree, unsigned int cacheSize) {
-      iTree.SetCacheSize(static_cast<Long64_t>(cacheSize));
-      std::unique_ptr<TTreeCache> newCache(dynamic_cast<TTreeCache*>(file_->GetCacheRead(&iTree)));
-      file_->SetCacheRead(nullptr, &iTree, TFile::kDoNotDisconnect);
+    std::unique_ptr<TTreeCache> createCacheWithSize(TTree* iTree, unsigned int cacheSize) {
+      iTree->SetCacheSize(static_cast<Long64_t>(cacheSize));
+      std::unique_ptr<TTreeCache> newCache(dynamic_cast<TTreeCache*>(file_->GetCacheRead(iTree)));
+      file_->SetCacheRead(nullptr, iTree, TFile::kDoNotDisconnect);
       return newCache;
     }
 

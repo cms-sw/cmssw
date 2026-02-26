@@ -1,0 +1,7 @@
+<lcgdict>
+  <!-- ::Layout alias must be listed before the aliased-to type -->
+  <class name="sistrip::SiStripClusterHost::Layout"/>
+  <class name="sistrip::SiStripClusterSoALayout<128,false>"/>
+  <class name="sistrip::SiStripClusterHost" rntupleStreamerMode="true"/>
+  <class name="edm::Wrapper<sistrip::SiStripClusterHost>" splitLevel="0"/>
+</lcgdict>

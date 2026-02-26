@@ -47,7 +47,7 @@ namespace {
 class PrimaryVertexResolution : public DQMEDAnalyzer {
 public:
   PrimaryVertexResolution(const edm::ParameterSet& iConfig);
-  ~PrimaryVertexResolution() override;
+  ~PrimaryVertexResolution() override = default;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -60,12 +60,15 @@ private:
                                                    const reco::BeamSpot& beamspot);
 
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttbToken_;
-  edm::EDGetTokenT<reco::VertexCollection> vertexSrc_;
-  edm::EDGetTokenT<reco::BeamSpot> beamspotSrc_;
-  edm::EDGetTokenT<LumiScalersCollection> lumiScalersSrc_;
-  edm::EDGetTokenT<OnlineLuminosityRecord> metaDataSrc_;
+
+  const edm::InputTag vertexInputTag_;
+  const edm::EDGetTokenT<reco::VertexCollection> vertexSrc_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamspotSrc_;
+  const edm::EDGetTokenT<LumiScalersCollection> lumiScalersSrc_;
+  const edm::EDGetTokenT<OnlineLuminosityRecord> metaDataSrc_;
   const bool forceSCAL_;
-  std::string rootFolder_;
+  const std::string rootFolder_;
+  bool errorPrinted_;
 
   AdaptiveVertexFitter fitter_;
 
@@ -327,18 +330,18 @@ private:
 
 PrimaryVertexResolution::PrimaryVertexResolution(const edm::ParameterSet& iConfig)
     : ttbToken_(esConsumes(edm::ESInputTag("", iConfig.getUntrackedParameter<std::string>("transientTrackBuilder")))),
-      vertexSrc_(consumes<reco::VertexCollection>(iConfig.getUntrackedParameter<edm::InputTag>("vertexSrc"))),
+      vertexInputTag_(iConfig.getUntrackedParameter<edm::InputTag>("vertexSrc")),
+      vertexSrc_(consumes<reco::VertexCollection>(vertexInputTag_)),
       beamspotSrc_(consumes<reco::BeamSpot>(iConfig.getUntrackedParameter<edm::InputTag>("beamspotSrc"))),
       lumiScalersSrc_(consumes<LumiScalersCollection>(iConfig.getUntrackedParameter<edm::InputTag>("lumiScalersSrc"))),
       metaDataSrc_(consumes<OnlineLuminosityRecord>(iConfig.getUntrackedParameter<edm::InputTag>("metaDataSrc"))),
       forceSCAL_(iConfig.getUntrackedParameter<bool>("forceSCAL")),
       rootFolder_(iConfig.getUntrackedParameter<std::string>("rootFolder")),
+      errorPrinted_(false),
       binningX_(iConfig),
       binningY_(iConfig),
       hPV_(binningX_, binningY_),
       hOtherV_(binningX_, binningY_) {}
-
-PrimaryVertexResolution::~PrimaryVertexResolution() {}
 
 void PrimaryVertexResolution::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -391,9 +394,35 @@ void PrimaryVertexResolution::bookHistograms(DQMStore::IBooker& iBooker, edm::Ru
 
 void PrimaryVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<reco::VertexCollection> hvertices = iEvent.getHandle(vertexSrc_);
+  if (!hvertices.isValid()) {
+    return;
+  }
+
   const reco::VertexCollection& vertices = *hvertices;
   if (vertices.empty())
     return;
+
+  // check upfront that refs to track are (likely) to be valid
+  {
+    bool ok = true;
+    for (const auto& v : vertices) {
+      if (v.tracksSize() > 0) {
+        const auto& ref = v.trackRefAt(0);
+        if (ref.isNull() || !ref.isAvailable()) {
+          if (!errorPrinted_)
+            edm::LogWarning("PrimaryVertexResolution")
+                << "Skipping vertex collection: " << vertexInputTag_
+                << " since likely the track collection the vertex has refs pointing to is missing (at least the first "
+                   "TrackBaseRef is null or not available)";
+          else
+            errorPrinted_ = true;
+          ok = false;
+        }
+      }
+    }
+    if (!ok)
+      return;
+  }
 
   edm::Handle<reco::BeamSpot> hbeamspot = iEvent.getHandle(beamspotSrc_);
   const reco::BeamSpot& beamspot = *hbeamspot;

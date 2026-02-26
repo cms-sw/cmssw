@@ -1,7 +1,6 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 #include "SimG4Core/SensitiveDetector/interface/FrameRotation.h"
-#include "SimG4Core/Notification/interface/TrackInformation.h"
 
 #include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"
 #include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
@@ -149,19 +148,17 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfTrack* bot) {
     //
     // inside the Tracker
     //
-    TrackInformation* info = nullptr;
-    if (gTrack->GetKineticEnergy() > energyCut) {
-      info = cmsTrackInformation(gTrack);
+    TrackInformation* info = cmsTrackInformation(gTrack);
+    if (nullptr != info && gTrack->GetKineticEnergy() > energyCut) {
       info->setStoreTrack();
-      info->setIdLastStoredAncestor(gTrack->GetTrackID());
+      if (info->idLastStoredAncestor() == gTrack->GetParentID()) {
+        info->setIdLastStoredAncestor(gTrack->GetTrackID());
+      }
     }
     //
     // Save History?
     //
-    if (gTrack->GetKineticEnergy() > energyHistoryCut) {
-      if (nullptr == info) {
-        info = cmsTrackInformation(gTrack);
-      }
+    if (nullptr != info && gTrack->GetKineticEnergy() > energyHistoryCut) {
       info->putInHistory();
       LogDebug("TrackerSimDebug") << " Track inside the tracker selected for HISTORY"
                                   << " Track ID= " << gTrack->GetTrackID();
@@ -242,7 +239,7 @@ void TkAccumulatingSensitiveDetector::createHit(const G4Step* aStep) {
   unsigned int theTrackIDInsideTheSimHit = theTrackID;
 
   const TrackInformation* temp = cmsTrackInformation(theTrack);
-  if (!temp->storeTrack()) {
+  if (nullptr != temp && !temp->storeTrack()) {
     // Go to the mother!
     theTrackIDInsideTheSimHit = theTrack->GetParentID();
     LogDebug("TrackerSimDebug") << " TkAccumulatingSensitiveDetector::createHit(): setting the TrackID from "

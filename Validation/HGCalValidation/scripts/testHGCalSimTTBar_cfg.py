@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalTTBar_cfg.py geometry=D110 type=DDD
 #
-#   Options for geometry: D105, D110, D114, V17Shift, D104
+#   Options for geometry: D110, D121, D114, V17Shift, D104
 #               type: DDD, DD4hep
 #
 ###############################################################################
@@ -14,10 +14,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D110",
+                 "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D105, D110, D114, V17Shift, D104")
+                  "geometry of operations: D110, D121, D114, V17Shift, D104")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -43,8 +43,8 @@ if (options.type == "DD4hep"):
         process = cms.Process('SingleMuonSim',Phase2C22I13M9,dd4hep)
         geomFile = "Configuration.Geometry.Geometry" + options.type +"ExtendedRun4" + options.geometry + "Reco_cff"
     else:
-        from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-        process = cms.Process('SingleMuonSim',Phase2C17I13M9,dd4hep)
+        from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+        process = cms.Process('SingleMuonSim',Phase2C22I13M9,dd4hep)
         geomFile = "Configuration.Geometry.Geometry" + options.type +"ExtendedRun4" + options.geometry + "Reco_cff"
 else:
     if (options.geometry == "V17Shift"):
@@ -56,11 +56,11 @@ else:
         process = cms.Process('SingleMuonSim',Phase2C22I13M9)
         geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
     else:
-        from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-        process = cms.Process('SingleMuonSim',Phase2C17I13M9)
+        from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+        process = cms.Process('SingleMuonSim',Phase2C22I13M9)
         geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
 
-globalTag = "auto:phase2_realistic_T33"
+globalTag = "auto:phase2_realistic_T35"
 outFile = "file:step1" + options.type + options.geometry + "tt.root"
 
 print("Geometry file: ", geomFile)

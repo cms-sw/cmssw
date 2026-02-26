@@ -18,9 +18,18 @@ scoutingCollectionMonitor = DQMEDAnalyzer('ScoutingCollectionMonitor',
                                           pfMetPt                = cms.InputTag("hltScoutingPFPacker","pfMetPt"),
                                           pfMetPhi               = cms.InputTag("hltScoutingPFPacker","pfMetPhi"),
                                           rho                    = cms.InputTag("hltScoutingPFPacker","rho"),
-                                          pfRecHitsEB            = cms.InputTag("hltScoutingRecHitPacker", "EB"),
-                                          pfRecHitsEE            = cms.InputTag("hltScoutingRecHitPacker", "EE"),
-                                          pfCleanedRecHitsEB     = cms.InputTag("hltScoutingRecHitPacker", "EBCleaned"),
-                                          pfCleanedRecHitsEE     = cms.InputTag("hltScoutingRecHitPacker", "EECleaned"),
-                                          pfRecHitsHBHE          = cms.InputTag("hltScoutingRecHitPacker", "HBHE"))
+                                          pfRecHitsEB            = cms.InputTag(""),
+                                          pfRecHitsEE            = cms.InputTag(""),
+                                          pfCleanedRecHitsEB     = cms.InputTag(""),
+                                          pfCleanedRecHitsEE     = cms.InputTag(""),
+                                          pfRecHitsHBHE          = cms.InputTag(""))
 
+## Add the scouting rechits monitoring (only for 2025, integrated in menu GRun 2025 V1.3)
+## See https://its.cern.ch/jira/browse/CMSHLT-3607
+from Configuration.Eras.Modifier_run3_scouting_2025_cff import run3_scouting_2025
+run3_scouting_2025.toModify(scoutingCollectionMonitor,
+                            pfRecHitsEB        = ("hltScoutingRecHitPacker", "EB"),
+                            pfRecHitsEE        = ("hltScoutingRecHitPacker", "EE"),
+                            pfCleanedRecHitsEB = ("hltScoutingRecHitPacker", "EBCleaned"),
+                            pfCleanedRecHitsEE = ("hltScoutingRecHitPacker", "EECleaned"),
+                            pfRecHitsHBHE      = ("hltScoutingRecHitPacker", "HBHE"))

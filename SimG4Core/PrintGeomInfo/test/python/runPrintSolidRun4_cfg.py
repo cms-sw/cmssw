@@ -1,12 +1,10 @@
 #######################################################9########################
 # Way to use this:
-#   cmsRun runPrintSolidRun4_cfg.py type=DDD geometry=D110
+#   cmsRun runPrintSolidRun4_cfg.py type=DDD geometry=D121
 #
 #   Options for type DDD, DD4hep
-#   Options for geometry D95, D96, D98, D99, D100, D101, D102, D103, D104,
-#                        D105, D106, D107, D108, D109, D110, D111, D112, D113,
-#                        D114, D115, D116, D117, D118, D119, D120, D121, D122,
-#                        D123
+#   Options for geometry D104, D110, D111, D112, D113, D114, D115, D120, D121,
+#                        D122, D123, D124, D125
 #
 ################################################################################
 import FWCore.ParameterSet.Config as cms
@@ -22,10 +20,10 @@ options.register('type',
                   VarParsing.VarParsing.varType.string,
                   "type of operations: DDD, DD4hep")
 options.register('geometry',
-                 "D110",
+                 "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D95, D96, D98, D99, D100, D101, D102, D103, D104, D105, D106, D107, D108, D109, D110, D111, D112, D113, D114, D115, D116, D117, D118, D119, D120, D121, D122, D123")
+                  "geometry of operations: D104, D110, D111, D112, D113, D114, D115, D120, D121, D122, D123, D124, D125")
 
 ### get and parse the command line arguments
 options.parseArguments()

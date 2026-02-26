@@ -105,7 +105,7 @@ process.run3ScoutingProducer = cms.EDProducer("TestWriteRun3Scouting",
         17
     ),
     hbheRecHitsFloatingPointValues = cms.vdouble(
-        18.0
+        18.0,   28.0
     ),
     hbheRecHitsIntegralValues = cms.vint32(
         18

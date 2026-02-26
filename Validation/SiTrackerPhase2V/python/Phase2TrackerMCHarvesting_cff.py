@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from Validation.SiTrackerPhase2V.Phase2ITRechitHarvester_cfi import *
-from Validation.SiTrackerPhase2V.Phase2OTHarvestReconstruction_cfi import *
+from Validation.SiTrackerPhase2V.Phase2OTHarvestTracks_cfi import *
+from Validation.SiTrackerPhase2V.Phase2OTHarvestStub_cfi import *
 #ITTracking rechit
 #clone the rechit harvester for tracking rechit
 Phase2ITtrackingrechitHarvester=Phase2ITRechitHarvester.clone(
@@ -76,5 +77,6 @@ trackerphase2ValidationHarvesting_standalone = cms.Sequence(Phase2ITRechitHarves
                                                             * Phase2OTRechitHarvester_2S
                                                             * Phase2OTTrackingRechitHarvester_PS
                                                             * Phase2OTTrackingRechitHarvester_2S
-                                                            * Phase2OTHarvestReconstruction
+                                                            * Phase2OTHarvestTracks
+                                                            * Phase2OTHarvestStub
 )

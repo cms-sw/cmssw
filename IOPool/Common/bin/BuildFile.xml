@@ -1,13 +1,12 @@
 <bin name="edmProvDump" file="EdmProvDump.cc,">
   <use name="boost_program_options"/>
-  <use name="fmt"/>
   <use name="rootcore"/>
   <use name="DataFormats/Common"/>
   <use name="DataFormats/Provenance"/>
   <use name="FWCore/Catalog"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/ServiceRegistry"/>
-  <use name="FWCore/Services"/>
+  <use name="FWStorage/Services"/>
   <use name="FWCore/Utilities"/>
 </bin>
 
@@ -21,16 +20,15 @@
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/PluginManager"/>
   <use name="FWCore/ServiceRegistry"/>
-  <use name="FWCore/Services"/>
+  <use name="FWStorage/Services"/>
 </bin>
 
 <bin name="edmCopyUtil" file="EdmCopyUtil.cpp">
   <use name="boost"/>
   <use name="boost_program_options"/>
-  <use name="Utilities/StorageFactory"/>
+  <use name="FWStorage/StorageFactory"/>
   <use name="FWCore/ServiceRegistry"/>
-  <use name="FWCore/Services"/>
+  <use name="FWStorage/Services"/>
   <use name="FWCore/Catalog"/>
   <use name="FWCore/ParameterSet"/>
-  <use name="stdcxx-fs"/>
 </bin>

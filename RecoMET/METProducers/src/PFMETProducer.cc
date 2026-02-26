@@ -9,6 +9,7 @@
 #include "RecoMET/METProducers/interface/PFMETProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
+#include "FWCore/ParameterSet/interface/DescriptionCloner.h"
 
 //____________________________________________________________________________||
 namespace cms {
@@ -144,14 +145,13 @@ namespace cms {
     edm::ParameterSetDescription params;
     params.setAllowAnything();  // FIXME: This still needs to be defined in METSignficance
     desc.addOptional<edm::ParameterSetDescription>("parameters", params);
-    edm::ParameterSetDescription desc1 = desc;
-    edm::ParameterSetDescription desc2 = desc;
-    desc1.add<bool>("applyWeight", false);
-    desc1.add<edm::InputTag>("srcWeights", edm::InputTag(""));
-    descriptions.add("pfMet", desc1);
-    desc2.add<bool>("applyWeight", true);
-    desc2.add<edm::InputTag>("srcWeights", edm::InputTag("puppiNoLep"));
-    descriptions.add("pfMetPuppi", desc2);
+    desc.add<bool>("applyWeight", false);
+    desc.add<edm::InputTag>("srcWeights", edm::InputTag(""));
+    descriptions.add("pfMet", desc);
+    edm::DescriptionCloner clone;
+    clone.set<bool>("applyWeight", true);
+    clone.set<edm::InputTag>("srcWeights", edm::InputTag("puppiNoLep"));
+    descriptions.add("pfMetPuppi", clone);
   }
 
   //____________________________________________________________________________||

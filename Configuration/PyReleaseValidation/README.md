@@ -51,11 +51,14 @@ The offsets currently in use are:
 * 0.7: trackingMkFit modifier
 * 0.701: DisplacedRegionalStep tracking iteration for Run-3
 * 0.702: trackingMkFit modifier for Phase-2 (initialStep only)
-* 0.703: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on CPU
-* 0.704: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available)
+* 0.711: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on CPU
+* 0.712: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available)
+* 0.713: LST tracking (Phase-2 only), initialStep+HighPtTripletStep only, on GPU (if available), CPU vs. GPU
 * 0.75: HLT phase-2 timing menu
 * 0.7501: HLT phase-2 tracking-only menu
+* 0.7502: HLT phase-2 menu, with tracking ntuple
 * 0.751: HLT phase-2 timing menu Alpaka variant
+* 0.7511: HLT phase-2 timing menu, with PixelTracks CA Extension
 * 0.752: HLT phase-2 timing menu ticl_v5 variant
 * 0.753: HLT phase-2 timing menu Alpaka, single tracking iteration variant
 * 0.754: HLT phase-2 timing menu Alpaka, single tracking iteration, LST building variant
@@ -64,12 +67,17 @@ The offsets currently in use are:
 * 0.7561 HLT phase-2 timing menu Alpaka, trimmed tracking
 * 0.7562 HLT phase-2 timing menu Alpaka, trimmed tracking, single tracking iteration variant
 * 0.757: HLT phase-2 timing menu Alpaka, single tracking iteration, LST seeding + CKF building variant
+* 0.7571: HLT phase-2 timing menu Alpaka, single tracking iteration, Phase2CAExtension+LST seeding + mkFit building variant
+* 0.7572: HLT phase-2 timing menu Alpaka, single tracking iteration, Phase2CAExtension+LST seeding + mkFit building and fitting variant
 * 0.758 HLT phase-2 timing menu ticl_barrel variant
 * 0.759: HLT phase-2 timing menu, with NANO:@Phase2HLT
+* 0.76: HLT phase-2 reduced menu, with DIGI step
 * 0.77: HLT phase-2 NGT Scouting menu
-* 0.771: HLT phase-2 NGT Scouting menu, Alpaka, TICL-v5, TICL-Barrel
+* 0.771: HLT phase-2 NGT Scouting menu, Alpaka, TICL-v5, TICL-Barrel, CA Extension
 * 0.772: HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
 * 0.773: HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
+* 0.774: HLT phase-2 NGT Scouting menu Alpaka variant, with PixelTracks CA Extension as GeneralTracks
+* 0.775: HLT phase-2 NGT Scouting menu Alpaka variant, with Pixeltracks CA Extension + LST T5s as GeneralTracks
 * 0.778 L3 Tracker Muons reconstruction Outside-In first, HLT Muon NanoAOD
 * 0.78: Complete L1 workflow
 * 0.781: Complete L1 workflow, producing FEVT and NANO output L1/P2GT objects

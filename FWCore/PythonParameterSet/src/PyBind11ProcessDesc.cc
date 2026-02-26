@@ -3,9 +3,11 @@
 #include "FWCore/PythonParameterSet/interface/PyBind11ProcessDesc.h"
 #include "FWCore/PythonParameterSet/src/initializePyBind11Module.h"
 #include "FWCore/PythonParameterSet/interface/PyBind11Wrapper.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <pybind11/embed.h>
 #include <pybind11/pybind11.h>
 
+#include <filesystem>
 #include <sstream>
 #include <iostream>
 
@@ -36,20 +38,34 @@ PyBind11ProcessDesc::PyBind11ProcessDesc(std::string const& config, bool isFile,
     : theProcessPSet(), theInterpreter(true) {
   edm::python::initializePyBind11Module();
   prepareToRead();
-  {
-    typedef std::unique_ptr<wchar_t[], decltype(&PyMem_RawFree)> WArgUPtr;
-    std::vector<WArgUPtr> v_argv;
-    std::vector<wchar_t*> vp_argv;
-    v_argv.reserve(args.size());
-    vp_argv.reserve(args.size());
-    for (size_t i = 0; i < args.size(); i++) {
-      v_argv.emplace_back(Py_DecodeLocale(args[i].c_str(), nullptr), &PyMem_RawFree);
-      vp_argv.emplace_back(v_argv.back().get());
+
+  // Acquire Python GIL before touching Python objects
+  pybind11::gil_scoped_acquire acquire;
+
+  try {
+    // Import sys module
+    pybind11::module_ sys = pybind11::module_::import("sys");
+
+    // set sys.argv safely
+    pybind11::list pyargs;
+    for (auto const& arg : args) {
+      pyargs.append(arg);
     }
+    sys.attr("argv") = pyargs;
 
-    wchar_t** argvt = vp_argv.data();
+    // emulate old implicit sys.path[0] update (PySys_SetArgv behaviour)
+    if (!args.empty()) {
+      std::string dir = std::filesystem::path(args[0]).parent_path().string();
+      if (dir.empty())
+        dir = ".";  // fallback to current directory
 
-    PySys_SetArgv(args.size(), argvt);
+      // insert dir at the front of sys.path
+      pybind11::list sys_path = sys.attr("path");
+      sys_path.insert(0, dir);
+      sys.attr("path") = sys_path;
+    }
+  } catch (const pybind11::error_already_set& e) {
+    throw cms::Exception("PyBind11Error") << "Python error initializing PyBind11ProcessDesc: " << e.what();
   }
   read(config, isFile);
 }

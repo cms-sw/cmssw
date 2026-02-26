@@ -4,7 +4,7 @@ Test program for edm::signalslot::Signal class.
 
  ----------------------------------------------------------------------*/
 
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 #include <cassert>
 #include <iostream>
 #include <string>

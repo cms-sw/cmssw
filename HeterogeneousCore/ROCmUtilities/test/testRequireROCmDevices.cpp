@@ -1,6 +1,6 @@
 // Catch2 headers
 #define CATCH_CONFIG_MAIN
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 // ROCm headers
 #include <hip/hip_runtime.h>

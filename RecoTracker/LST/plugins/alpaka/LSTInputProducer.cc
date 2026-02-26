@@ -81,6 +81,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     std::vector<unsigned int> ph2_detId;
     ph2_detId.reserve(phase2OTHits.dataSize());
+    std::vector<uint16_t> ph2_clustSize;
+    ph2_clustSize.reserve(phase2OTHits.dataSize());
     std::vector<float> ph2_x;
     ph2_x.reserve(phase2OTHits.dataSize());
     std::vector<float> ph2_y;
@@ -94,6 +96,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const DetId hitId = it.detId();
       for (auto const& hit : it) {
         ph2_detId.push_back(hitId.rawId());
+        ph2_clustSize.push_back(hit.cluster()->size());
         ph2_x.push_back(hit.globalPosition().x());
         ph2_y.push_back(hit.globalPosition().y());
         ph2_z.push_back(hit.globalPosition().z());
@@ -213,6 +216,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                         see_hitIdx,
                                         {},
                                         ph2_detId,
+                                        ph2_clustSize,
                                         ph2_x,
                                         ph2_y,
                                         ph2_z,

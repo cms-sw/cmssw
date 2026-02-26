@@ -285,7 +285,7 @@ namespace l1tVertexFinder {
         }
 
         if (removing) {
-          const L1Track badTrack = *badTrackIt;
+          const L1Track& badTrack = *badTrackIt;
           if (settings_->debug() > 2)
             edm::LogInfo("VertexFinder") << "PVR::Removing track " << badTrack.z0() << " at distance " << oldDistance;
           discardedTracks.push_back(badTrack);
@@ -321,13 +321,13 @@ namespace l1tVertexFinder {
       start = false;
       discardedTracks2.clear();
       FitTrackCollection::iterator it = discardedTracks.begin();
-      const L1Track track = *it;
+      const L1Track& track = *it;
       acceptedTracks.push_back(track);
       float z0sum = track.z0();
 
       for (FitTrackCollection::iterator it2 = discardedTracks.begin(); it2 < discardedTracks.end(); ++it2) {
         if (it2 != it) {
-          const L1Track secondTrack = *it2;
+          const L1Track& secondTrack = *it2;
           // Calculate new vertex z0 adding this track
           z0sum += secondTrack.z0();
           float z0vertex = z0sum / (acceptedTracks.size() + 1);
@@ -533,9 +533,9 @@ namespace l1tVertexFinder {
     out.push_back(std::string(intervalswidth + valueswidth + 2, ' ') + scale);
     out.push_back(capstone);
     for (int i = 0; i < tableSize; i++) {
-      std::string interval = intervals[i];
-      std::string value = values[i];
-      data_type x = data[i];
+      const std::string& interval = intervals[i];
+      const std::string& value = values[i];
+      const data_type& x = data[i];
       std::fill_n(line.begin(), plotwidth, ' ');
 
       int pos = std::round((float(x) - minimum) * norm);
@@ -684,7 +684,7 @@ namespace l1tVertexFinder {
       float chi2dof = track.getTTTrackPtr()->chi2() / (2 * trk_nstub - 4);
 
       if (settings_->vx_DoPtComp()) {
-        float trk_consistency = track.getTTTrackPtr()->stubPtConsistency();
+        float trk_consistency = track.getTTTrackPtr()->chi2BendRed();
         if (trk_nstub == 4) {
           if (std::abs(track.eta()) < 2.2 && trk_consistency > 10)
             continue;

@@ -1,6 +1,6 @@
 // Author: Felice Pantaleo, Wahid Redjeb, Aurora Perego (CERN) - felice.pantaleo@cern.ch, wahid.redjeb@cern.ch, aurora.perego@cern.ch Date: 12/2023
 #include <memory>  // unique_ptr
-#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
+#include "DataFormats/Common/interface/MultiSpan.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -31,6 +31,7 @@
 #include "RecoHGCal/TICL/interface/TICLInterpretationAlgoBase.h"
 #include "RecoHGCal/TICL/plugins/TICLInterpretationPluginFactory.h"
 #include "RecoHGCal/TICL/plugins/GeneralInterpretationAlgo.h"
+#include "RecoHGCal/TICL/plugins/GNNInterpretationAlgo.h"
 
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
 
@@ -280,11 +281,11 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
   auto resultMask = std::make_unique<std::vector<float>>(original_global_mask);
 
   std::vector<edm::Handle<std::vector<Trackster>>> general_tracksters_h(general_tracksters_tokens_.size());
-  MultiVectorManager<Trackster> generalTrackstersManager;
+  edm::MultiSpan<Trackster> generalTrackstersSpan;
   for (unsigned int i = 0; i < general_tracksters_tokens_.size(); ++i) {
     evt.getByToken(general_tracksters_tokens_[i], general_tracksters_h[i]);
-    //Fill MultiVectorManager
-    generalTrackstersManager.addVector(*general_tracksters_h[i]);
+    //Fill MultiSpan
+    generalTrackstersSpan.add(*general_tracksters_h[i]);
   }
   //now get the general_tracksterlinks_tokens_
   std::vector<edm::Handle<std::vector<std::vector<unsigned>>>> general_tracksterlinks_h(
@@ -297,7 +298,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
       auto &links_vector = generalTracksterLinksGlobalId.back();
       links_vector.resize((*general_tracksterlinks_h[i])[j].size());
       for (unsigned int k = 0; k < links_vector.size(); ++k) {
-        links_vector[k] = generalTrackstersManager.getGlobalIndex(i, (*general_tracksterlinks_h[i])[j][k]);
+        links_vector[k] = generalTrackstersSpan.globalIndex(i, (*general_tracksterlinks_h[i])[j][k]);
       }
     }
   }
@@ -310,7 +311,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
                                                                        es,
                                                                        layerClusters,
                                                                        layerClustersTimes,
-                                                                       generalTrackstersManager,
+                                                                       generalTrackstersSpan,
                                                                        generalTracksterLinksGlobalId,
                                                                        tracks_h,
                                                                        maskTracks);
@@ -332,7 +333,7 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
                         true);
   if (regressionAndPid_) {
     // Run inference algorithm
-    inferenceAlgo_->inputData(layerClusters, *resultTracksters);
+    inferenceAlgo_->inputData(layerClusters, *resultTracksters, rhtools_);
     inferenceAlgo_->runInference(
         *resultTracksters);  //option to use "Linking" instead of "CLU3D"/"energyAndPid" instead of "PID"
   }
@@ -377,6 +378,15 @@ void TICLCandidateProducer::produce(edm::Event &evt, const edm::EventSetup &es) 
 
   auto getPathLength =
       [&](const reco::Track &track, float zVal) {
+        // Bail out early if inner/outer surfaces are not available
+        if (!track.innerOk() || !track.outerOk()) {
+          if (edm::isDebugEnabled()) {
+            LogDebug("TICLCandidateProducer")
+                << "Not able to use the track to compute the path length. A straight line will be used instead.";
+          }
+          return 0.f;
+        }
+
         const auto &fts_inn = trajectoryStateTransform::innerFreeState(track, bFieldProd);
         const auto &fts_out = trajectoryStateTransform::outerFreeState(track, bFieldProd);
         const auto &surf_inn = trajectoryStateTransform::innerStateOnSurface(track, *trackingGeometry_, bFieldProd);
@@ -434,6 +444,8 @@ void TICLCandidateProducer::assignTimeToCandidates(std::vector<TICLCandidate> &r
     float invTimeErr = 0.f;
     float timeErr = -1.f;
 
+    const int trackIndex =
+        cand.trackPtr().isNonnull() ? (cand.trackPtr().get() - (edm::Ptr<reco::Track>(track_h, 0)).get()) : -1;
     for (const auto &tr : cand.tracksters()) {
       if (tr->timeError() > 0) {
         const auto invTimeESq = pow(tr->timeError(), -2);
@@ -441,8 +453,7 @@ void TICLCandidateProducer::assignTimeToCandidates(std::vector<TICLCandidate> &r
         const auto y = tr->barycenter().Y();
         const auto z = tr->barycenter().Z();
         auto path = std::sqrt(x * x + y * y + z * z);
-        if (cand.trackPtr().get() != nullptr) {
-          const auto &trackIndex = cand.trackPtr().get() - (edm::Ptr<reco::Track>(track_h, 0)).get();
+        if (trackIndex != -1) {
           if (useMTDTiming_ and inputTimingView.timeErr()[trackIndex] > 0) {
             const auto xMtd = inputTimingView.posInMTD_x()[trackIndex];
             const auto yMtd = inputTimingView.posInMTD_y()[trackIndex];
@@ -473,7 +484,6 @@ void TICLCandidateProducer::assignTimeToCandidates(std::vector<TICLCandidate> &r
 
     if (useMTDTiming_ and cand.charge()) {
       // Check MTD timing availability
-      const auto &trackIndex = cand.trackPtr().get() - (edm::Ptr<reco::Track>(track_h, 0)).get();
       const bool assocQuality = inputTimingView.MVAquality()[trackIndex] > timingQualityThreshold_;
       if (assocQuality) {
         const auto timeHGC = cand.time();

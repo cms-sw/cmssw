@@ -66,8 +66,8 @@ void SiPixelRecHitFromSoAAlpaka::produce(edm::StreamID streamID,
                                          edm::Event& iEvent,
                                          const edm::EventSetup& iSetup) const {
   auto const& hits = iEvent.get(hitsToken_);
-  auto hitsView = hits.view();
-  auto modulesView = hits.view<::reco::HitModuleSoA>();
+  auto hitsView = hits.view().trackingHits();
+  auto modulesView = hits.view().hitModules();
   auto nHits = hitsView.metadata().size();
   auto nModules = modulesView.metadata().size();
   LogDebug("SiPixelRecHitFromSoAAlpaka") << "converting " << nHits << " hits in max " << nModules << " modules";
@@ -177,13 +177,5 @@ void SiPixelRecHitFromSoAAlpaka::produce(edm::StreamID streamID,
   iEvent.emplace(rechitsPutToken_, std::move(output));
 }
 
-using SiPixelRecHitFromSoAAlpakaPhase1 = SiPixelRecHitFromSoAAlpaka;
-using SiPixelRecHitFromSoAAlpakaPhase2 = SiPixelRecHitFromSoAAlpaka;
-using SiPixelRecHitFromSoAAlpakaHIonPhase1 = SiPixelRecHitFromSoAAlpaka;
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiPixelRecHitFromSoAAlpaka);
-// Keeping these to ease the migration of the HLT menu
-DEFINE_FWK_MODULE(SiPixelRecHitFromSoAAlpakaPhase1);
-DEFINE_FWK_MODULE(SiPixelRecHitFromSoAAlpakaPhase2);
-DEFINE_FWK_MODULE(SiPixelRecHitFromSoAAlpakaHIonPhase1);

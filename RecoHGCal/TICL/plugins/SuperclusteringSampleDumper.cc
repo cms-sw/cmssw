@@ -265,8 +265,8 @@ void SuperclusteringSampleDumper::fillDescriptions(edm::ConfigurationDescription
       ->setComment("Input trackster collection, same as what is used for superclustering inference.");
   desc.add<edm::InputTag>("recoToSimAssociatorCP",
                           edm::InputTag("tracksterSimTracksterAssociationLinkingbyCLUE3D", "recoToSim"));
-  desc.ifValue(edm::ParameterDescription<std::string>("dnnInputsVersion", "v2", true),
-               edm::allowedValues<std::string>("v1", "v2"))
+  desc.ifValue(edm::ParameterDescription<std::string>("dnnInputsVersion", "v3", true),
+               edm::allowedValues<std::string>("v1", "v2", "v3"))
       ->setComment(
           "DNN inputs version tag. Defines which set of features is fed to the DNN. Must match with the actual DNN.");
   // Cuts are intentionally looser than those used for inference in TracksterLinkingBySuperClustering.cpp

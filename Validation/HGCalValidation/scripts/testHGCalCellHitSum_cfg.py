@@ -1,24 +1,24 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun testHGCalCellHitSum_cfg.py geometry=D110 layers=1 type=mu
+#   cmsRun testHGCalCellHitSum_cfg.py geometry=D121 layers=1 type=mu
 #
-#   Options for geometry D105, D110, D114
+#   Options for geometry D104, D110, D114, D121
 #               layers '1', '1,2', any combination from 1..47           
 #               type mu, tt
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ####################################################################
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D110",
+                 "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D105, D110, D114")
+                  "geometry of operations: D104, D110, D114, D121")
 
 options.register('layers',
                  "1",
@@ -35,30 +35,33 @@ options.register('type',
 ### get and parse the command line arguments
 options.parseArguments()
 
-import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process('HGCalCellHit',Phase2C17I13M9)
+geomName = "Run4" + options.geometry
+loadFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
+
+process = cms.Process('HGCalCellHit',ERA)
 
 print(options)
 
 ####################################################################
 # Use the options
 
-loadFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
 inputFile = "file:step1" + options.geometry + options.type + ".root"
 outputFile = "file:geantoutput" + options.geometry + options.type + ".root"
 
-if (options.geometry == "D105"):
-    geomFile = 'Validation/HGCalValidation/data/wafer_v16.csv'
-elif (options.geometry == "D114"):
+if (options.geometry == "D114"):
     geomFile = 'Validation/HGCalValidation/data/wafer_v17.csv'
 else:
     geomFile = 'Validation/HGCalValidation/data/wafer_v17.csv'
 
-print("Geometry file: ", loadFile)
-print("Wafer file:    ", geomFile)
-print("Input file:    ", inputFile)
-print("Output file:   ", outputFile)
+print("Geometry Name:   ", geomName)
+print("Geometry file:   ", loadFile)
+print("Wafer file:      ", geomFile)
+print("Input file:      ", inputFile)
+print("Output file:     ", outputFile)
+print("Global Tag Name: ", GLOBAL_TAG)
+print("Era Name:        ", ERA)
 
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load(loadFile)

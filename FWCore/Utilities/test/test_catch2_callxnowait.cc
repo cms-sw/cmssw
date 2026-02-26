@@ -3,7 +3,7 @@ Test program for edm::TypeID class.
  ----------------------------------------------------------------------*/
 
 #include <cassert>
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 #include "FWCore/Utilities/interface/CallOnceNoWait.h"
 #include "FWCore/Utilities/interface/CallNTimesNoWait.h"
 #include <thread>

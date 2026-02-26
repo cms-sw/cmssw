@@ -34,8 +34,8 @@ namespace sistrip {
     DigiToRawModule(const edm::ParameterSet&);
     ~DigiToRawModule() override;
 
-    virtual void beginJob() {}
-    virtual void endJob() {}
+    void beginJob() {}
+    void endJob() {}
 
     void produce(edm::Event&, const edm::EventSetup&) override;
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

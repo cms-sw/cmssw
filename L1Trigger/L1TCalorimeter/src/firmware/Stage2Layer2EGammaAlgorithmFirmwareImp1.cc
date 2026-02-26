@@ -13,9 +13,11 @@
 #include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
 #include "L1Trigger/L1TCalorimeter/interface/AccumulatingSort.h"
 
-namespace l1t {
-  bool operator>(const l1t::EGamma& a, const l1t::EGamma& b) { return a.pt() > b.pt(); }
-}  // namespace l1t
+namespace {
+  struct Greater {
+    bool operator()(const l1t::EGamma& a, const l1t::EGamma& b) const noexcept { return a.pt() > b.pt(); }
+  };
+}  // namespace
 
 /*****************************************************************/
 l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::Stage2Layer2EGammaAlgorithmFirmwareImp1(CaloParamsHelper const* params)
@@ -272,8 +274,8 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       egEtaNeg.at(-(egammas_raw.at(iEG).hwEta() + 1)).at((72 - egammas_raw.at(iEG).hwPhi()) / 4) = egammas_raw.at(iEG);
   }
 
-  AccumulatingSort<l1t::EGamma> etaPosSorter(6);
-  AccumulatingSort<l1t::EGamma> etaNegSorter(6);
+  AccumulatingSort<l1t::EGamma, Greater> etaPosSorter(6);
+  AccumulatingSort<l1t::EGamma, Greater> etaNegSorter(6);
   std::vector<l1t::EGamma> accumEtaPos;
   std::vector<l1t::EGamma> accumEtaNeg;
 
@@ -282,13 +284,13 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
     std::vector<l1t::EGamma>::iterator start_, end_;
     start_ = egEtaPos.at(ieta).begin();
     end_ = egEtaPos.at(ieta).end();
-    BitonicSort<l1t::EGamma>(down, start_, end_);
+    BitonicSort<l1t::EGamma, Greater>(down, start_, end_);
     etaPosSorter.Merge(egEtaPos.at(ieta), accumEtaPos);
 
     // eta -
     start_ = egEtaNeg.at(ieta).begin();
     end_ = egEtaNeg.at(ieta).end();
-    BitonicSort<l1t::EGamma>(down, start_, end_);
+    BitonicSort<l1t::EGamma, Greater>(down, start_, end_);
     etaNegSorter.Merge(egEtaNeg.at(ieta), accumEtaNeg);
   }
 

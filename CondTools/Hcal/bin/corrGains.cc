@@ -38,7 +38,7 @@ corrGains::corrGains(const edm::ParameterSet& iConfig) {
 corrGains::~corrGains() {}
 
 void corrGains::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
-  HcalTopology topo = iSetup.getData(tok_htopo_);
+  const HcalTopology& topo = iSetup.getData(tok_htopo_);
 
   HcalGains gainsIn(&topo);
   ;

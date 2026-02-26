@@ -38,6 +38,7 @@
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumZdcTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/AXOL1TLTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/TOPOTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CICADATemplate.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
@@ -56,6 +57,7 @@
 #include "L1Trigger/L1TGlobal/interface/EnergySumCondition.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumZdcCondition.h"
 #include "L1Trigger/L1TGlobal/interface/AXOL1TLCondition.h"
+#include "L1Trigger/L1TGlobal/interface/TOPOCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CICADACondition.h"
 #include "L1Trigger/L1TGlobal/interface/ExternalCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CorrCondition.h"
@@ -646,6 +648,18 @@ void l1t::GlobalBoard::initTriggerConditions(const edm::EventSetup& evSetup,
           if (m_saveAXOScore and not m_axoScoreConditionName.empty()) {
             m_axoScoreConditionName = itCond.first;
           }
+
+          if (m_verbosity && m_isDebugEnabled) {
+            std::ostringstream myCout;
+            theCondition->print(myCout);
+
+            LogTrace("L1TGlobal") << myCout.str();
+          }
+        } break;
+
+        case CondTOPO: {
+          theCondition = std::make_unique<TOPOCondition>(itCond.second, this);
+          theCondition->setVerbosity(m_verbosity);
 
           if (m_verbosity && m_isDebugEnabled) {
             std::ostringstream myCout;

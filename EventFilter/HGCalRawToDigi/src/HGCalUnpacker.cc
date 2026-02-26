@@ -7,7 +7,7 @@
 
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/RawDataBuffer.h"
 #include "DataFormats/HGCalDigi/interface/HGCalDigiHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
 #include "DataFormats/HGCalDigi/interface/HGCalFEDPacketInfoHost.h"
@@ -20,7 +20,29 @@
 using namespace hgcal;
 
 uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
-                                     const FEDRawData& fed_data,
+                                     const RawFragmentWrapper& fed_data,
+                                     const HGCalMappingModuleIndexer& moduleIndexer,
+                                     const HGCalConfiguration& config,
+                                     hgcaldigi::HGCalDigiHost& digis,
+                                     hgcaldigi::HGCalFEDPacketInfoHost& fedPacketInfo,
+                                     hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo,
+                                     bool headerOnlyMode) {
+  const auto fed_data_size = fed_data.size();
+  const auto* start_fed_data = &(fed_data.data().front());
+  return parseFEDData(fedId,
+                      start_fed_data,
+                      fed_data_size,
+                      moduleIndexer,
+                      config,
+                      digis,
+                      fedPacketInfo,
+                      econdPacketInfo,
+                      headerOnlyMode);
+}
+
+uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
+                                     const unsigned char* start_fed_data,
+                                     size_t fed_data_size,
                                      const HGCalMappingModuleIndexer& moduleIndexer,
                                      const HGCalConfiguration& config,
                                      hgcaldigi::HGCalDigiHost& digis,
@@ -28,7 +50,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
                                      hgcaldigi::HGCalECONDPacketInfoHost& econdPacketInfo,
                                      bool headerOnlyMode) {
   // ReadoutSequence object for this FED
-  const auto& fedReadoutSequence = moduleIndexer.getFEDReadoutSequences()[fedId];
+  const auto& fedReadoutSequence = moduleIndexer.fedReadoutSequences()[fedId];
   // Configuration object for this FED
   const auto& fedConfig = config.feds[fedId];
 
@@ -50,8 +72,8 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
   // Endianness assumption
   // From 32-bit word(ECOND) to 64-bit word(capture block): little endianness
   // Others: big endianness
-  const auto* const header = reinterpret_cast<const uint64_t*>(fed_data.data());
-  const auto* const trailer = reinterpret_cast<const uint64_t*>(fed_data.data() + fed_data.size());
+  const auto* const header = reinterpret_cast<const uint64_t*>(start_fed_data);
+  const auto* const trailer = reinterpret_cast<const uint64_t*>(start_fed_data + fed_data_size);
   LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", nwords (64b) = " << std::distance(header, trailer);
   const auto* ptr = header;
 
@@ -120,7 +142,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
       uint32_t ECONDdenseIdx = moduleIndexer.getIndexForModule(fedId, 0);
       econdPacketInfo.view()[ECONDdenseIdx].location() = (uint32_t)(ptr - header);
       if (cb_header == 0x0) {
-        auto nToEnd = (fed_data.size() / 8 - 2) - std::distance(header, ptr);
+        auto nToEnd = (fed_data_size / 8 - 2) - std::distance(header, ptr);
         if (nToEnd == 1) {
           ptr++;
           LogDebug("[HGCalUnpacker]")
@@ -266,7 +288,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
 
       // parse ECON-D body(eRx subpackets)
       const auto enabledErx = fedReadoutSequence.enabledErx_[globalECONDIdx];
-      const auto erxMax = moduleIndexer.getGlobalTypesNErx()[fedReadoutSequence.readoutTypes_[globalECONDIdx]];
+      const auto erxMax = moduleIndexer.globalTypesNErx()[fedReadoutSequence.readoutTypes_[globalECONDIdx]];
       const bool pass_through_mode = (econd_headers[0] >> ECOND_FRAME::BITP_POS) & 0b1;
 
       unsigned iword = 0;
@@ -319,7 +341,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
             digis.view()[denseIdx].tctp() = tctp_[code];
             digis.view()[denseIdx].adcm1() = (temp >> adcm1Shift_[code]) & adcm1Mask_[code];
             digis.view()[denseIdx].adc() = (temp >> adcShift_[code]) & adcMask_[code];
-            digis.view()[denseIdx].tot() = (temp >> totShift_[code]) & totMask_[code];
+            digis.view()[denseIdx].tot() = decompressToT((temp >> totShift_[code]) & totMask_[code]);
             digis.view()[denseIdx].toa() = (temp >> toaShift_[code] & toaMask_[code]);
             digis.view()[denseIdx].cm() = cmSum;
             digis.view()[denseIdx].flags() = 0;
@@ -385,7 +407,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
               digis.view()[denseIdx].tctp() = (econd_payload[iword] >> 30) & 0b11;
               digis.view()[denseIdx].adcm1() = 0;
               digis.view()[denseIdx].adc() = (econd_payload[iword] >> 20) & 0b1111111111;
-              digis.view()[denseIdx].tot() = (econd_payload[iword] >> 10) & 0b1111111111;
+              digis.view()[denseIdx].tot() = decompressToT((econd_payload[iword] >> 10) & 0b1111111111);
               digis.view()[denseIdx].toa() = econd_payload[iword] & 0b1111111111;
               digis.view()[denseIdx].cm() = cmSum;
               digis.view()[denseIdx].flags() = hgcal::DIGI_FLAG::Characterization;
@@ -396,7 +418,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
               digis.view()[denseIdx].adcm1() = (econd_payload[iword] >> 20) & 0b1111111111;
               if (econd_payload[iword] >> 31 & 0b1) {
                 digis.view()[denseIdx].adc() = 0;
-                digis.view()[denseIdx].tot() = (econd_payload[iword] >> 10) & 0b1111111111;
+                digis.view()[denseIdx].tot() = decompressToT((econd_payload[iword] >> 10) & 0b1111111111);
               } else {
                 digis.view()[denseIdx].adc() = (econd_payload[iword] >> 10) & 0b1111111111;
                 digis.view()[denseIdx].tot() = 0;

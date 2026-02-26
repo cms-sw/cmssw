@@ -247,6 +247,9 @@ def nanoAOD_customizeCommon(process):
                                     reclusterAK8=nanoAOD_rePuppi_switch.reclusterAK8.value(),
                                     )
 
+    if not(nanoAOD_rePuppi_switch.useExistingWeights) and (nanoAOD_rePuppi_switch.reclusterAK4MET or nanoAOD_rePuppi_switch.reclusterAK8):
+        process = UsePuppiWeightFromValueMapForPFCandTable(process)
+
     # This function is defined in jetsAK4_Puppi_cff.py
     process = nanoAOD_addDeepInfoAK4(process,
                                      addParticleNet=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addParticleNet_switch,
@@ -305,10 +308,12 @@ def nanoAOD_customizeCommon(process):
         nanoAOD_boostedTau_switch, idsToAdd=["boostedDeepTauRunIIv2p0"]
     )
     nanoAOD_addBoostedTauIds(process, nanoAOD_boostedTau_switch.idsToAdd.value())
-
-    # Add lepton time-life info
+    
     from PhysicsTools.NanoAOD.leptonTimeLifeInfo_common_cff import addTimeLifeInfoBase
     process = addTimeLifeInfoBase(process)
+    
+    process = nanoAOD_refineFastSim_puppiJet(process)
+    process = nanoAOD_refineFastSim_bTagDeepFlav(process, nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addDeepFlavourTag_switch)
 
     return process
 

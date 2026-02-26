@@ -75,6 +75,8 @@ namespace fastsim {
                   std::vector<std::unique_ptr<fastsim::Particle> >& secondaries,
                   const RandomEngineAndDistribution& random) override;
 
+    void storeProducts(edm::Event& iEvent) override;
+
   private:
     //! Return a hashed index for a given particle ID
     unsigned index(int thePid);
@@ -91,6 +93,7 @@ namespace fastsim {
     double theDistCut;       //!< Cut on deltaR for the FastSim Tracking (ClosestChargedDaughter algorithm)
     double theHadronEnergy;  //!< Minimum energy for nuclear interaction
     std::string inputFile;   //!< Directory/Name of input file in case you want to read interactions from file
+    bool saveOutput;
 
     //////////
     // Read/Save nuclear interactions from FullSim
@@ -354,6 +357,7 @@ fastsim::NuclearInteraction::NuclearInteraction(const std::string& name, const e
   theDistCut = cfg.getParameter<double>("distCut");
   theHadronEnergy = cfg.getParameter<double>("hadronEnergy");
   inputFile = cfg.getUntrackedParameter<std::string>("inputFile", "");
+  saveOutput = cfg.getUntrackedParameter<bool>("saveOutput", false);
 
   // The evolution of the interaction lengths with energy
   // initialize once for all possible instances
@@ -432,12 +436,15 @@ fastsim::NuclearInteraction::NuclearInteraction(const std::string& name, const e
   // Read the information from a previous run (to keep reproducibility)
   currentValuesWereSet = this->read(inputFile);
   if (currentValuesWereSet)
-    std::cout << "***WARNING*** You are reading nuclear-interaction information from the file " << inputFile
-              << " created in an earlier run." << std::endl;
+    edm::LogWarning("FastSimulation/NuclearInteraction")
+        << "You are reading nuclear-interaction information from the file " << inputFile
+        << " created in an earlier run." << std::endl;
 
   // Open the file for saving the information of the current run
-  myOutputFile.open("NuclearInteractionOutputFile.txt");
-  myOutputBuffer = 0;
+  if (saveOutput) {
+    myOutputFile.open("NuclearInteractionOutputFile.txt");
+    myOutputBuffer = 0;
+  }
 
   // Open the root file
   edm::FileInPath myDataFile("FastSimulation/MaterialEffects/data/NuclearInteractions.root");
@@ -456,10 +463,10 @@ fastsim::NuclearInteraction::NuclearInteraction(const std::string& name, const e
       theTrees[iname][iene] = (TTree*)theFile->Get(treeName.c_str());
 
       if (!theTrees[iname][iene])
-        throw cms::Exception("FastSimulation/MaterialEffects") << "Tree with name " << treeName << " not found ";
+        throw cms::Exception("FastSimulation/NuclearInteraction") << "Tree with name " << treeName << " not found ";
       theBranches[iname][iene] = theTrees[iname][iene]->GetBranch("nuEvent");
       if (!theBranches[iname][iene])
-        throw cms::Exception("FastSimulation/MaterialEffects")
+        throw cms::Exception("FastSimulation/NuclearInteraction")
             << "Branch with name nuEvent not found in " << theFileNames[iname][iene];
 
       theNUEvents[iname][iene] = new NUEvent();
@@ -504,10 +511,9 @@ fastsim::NuclearInteraction::~NuclearInteraction() {
     }
   }
 
-  // Save data
-  save();
   // Close the output file
-  myOutputFile.close();
+  if (saveOutput)
+    myOutputFile.close();
 }
 
 void fastsim::NuclearInteraction::interact(fastsim::Particle& particle,
@@ -793,6 +799,9 @@ void fastsim::NuclearInteraction::interact(fastsim::Particle& particle,
 }
 
 void fastsim::NuclearInteraction::save() {
+  if (!saveOutput)
+    return;
+
   // Size of buffer
   ++myOutputBuffer;
 
@@ -835,6 +844,12 @@ void fastsim::NuclearInteraction::save() {
   myOutputFile.write((const char*)(&theCurrentEntries.front()), size1);
   myOutputFile.write((const char*)(&theCurrentInteractions.front()), size2);
   myOutputFile.flush();
+}
+
+void fastsim::NuclearInteraction::storeProducts(edm::Event& iEvent) {
+  // this function is called after all particles in an event are processed
+  // so use it to save nuclear interaction info if desired
+  save();
 }
 
 bool fastsim::NuclearInteraction::read(std::string inputFile) {

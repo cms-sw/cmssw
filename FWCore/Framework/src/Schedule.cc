@@ -52,6 +52,7 @@
 #include <set>
 #include <exception>
 #include <sstream>
+#include <ranges>
 
 #include "make_shared_noexcept_false.h"
 #include "processEDAliases.h"
@@ -100,18 +101,20 @@ namespace edm {
       vstring scheduledPaths = proc_pset.getParameter<vstring>("@paths");
       std::set<std::string> modulesOnPaths;
       {
-        std::set<std::string> noEndPaths(scheduledPaths.begin(), scheduledPaths.end());
-        for (auto const& endPath : end_path_name_list) {
-          noEndPaths.erase(endPath);
-        }
-        {
-          vstring labels;
-          for (auto const& path : noEndPaths) {
-            labels = proc_pset.getParameter<vstring>(path);
-            modulesOnPaths.insert(labels.begin(), labels.end());
-          }
+        auto getModuleLabelsOfPath = [&](auto const& lbl) {
+          return proc_pset.getParameter<std::vector<std::string>>(lbl);
+        };
+        auto notEndPath = [&](auto const& lbl) {
+          return std::ranges::find(end_path_name_list, lbl) == end_path_name_list.end();
+        };
+
+        auto tmp = scheduledPaths | std::views::filter(notEndPath) | std::views::transform(getModuleLabelsOfPath) |
+                   std::views::join;
+        for (auto const& modLabel : tmp) {
+          modulesOnPaths.insert(modLabel);
         }
       }
+
       //Initially fill labelsToBeDropped with all module mentioned in
       // the configuration but which are not being used by the system
       std::vector<std::string> labelsToBeDropped;
@@ -144,7 +147,9 @@ namespace edm {
           labelsToBeDropped.begin(), labelsToBeDropped.begin() + sizeBeforeOutputModules, labelsToBeDropped.end());
 
       // drop the parameter sets used to configure the modules
-      for_all(labelsToBeDropped, std::bind(&ParameterSet::eraseOrSetUntrackedParameterSet, std::ref(proc_pset), _1));
+      for (auto& label : labelsToBeDropped) {
+        proc_pset.eraseOrSetUntrackedParameterSet(label);
+      }
 
       // drop the labels from @all_modules
       vstring::iterator endAfterRemove =
@@ -237,6 +242,8 @@ namespace edm {
         pathNames_(&tns.getTrigPaths()),
         endPathNames_(&tns.getEndPaths()),
         wantSummary_(tns.wantSummary()) {
+    preModulesInitializationFinalizedSignal_.connect(std::cref(areg->preModulesInitializationFinalizedSignal_));
+    postModulesInitializationFinalizedSignal_.connect(std::cref(areg->postModulesInitializationFinalizedSignal_));
     ScheduleBuilder builder(
         *moduleRegistry_, proc_pset, *pathNames_, *endPathNames_, prealloc, preg, *areg, processConfiguration);
     resultsInserter_ = std::move(builder.resultsInserter_);
@@ -806,7 +813,7 @@ namespace edm {
       ServiceRegistry::Operate op(token);
 
       // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
-      CMS_SA_ALLOW try { activityRegistry->preGlobalWriteRunSignal_(globalContext); } catch (...) {
+      CMS_SA_ALLOW try { activityRegistry->preGlobalWriteRunSignal_.emit(globalContext); } catch (...) {
       }
       for (auto& c : all_output_communicators_) {
         c->writeRunAsync(nextTask, rp, processContext, activityRegistry, mergeableRunProductMetadata);
@@ -815,7 +822,7 @@ namespace edm {
       //services can depend on other services
       ServiceRegistry::Operate op(token);
 
-      activityRegistry->postGlobalWriteRunSignal_(globalContext);
+      activityRegistry->postGlobalWriteRunSignal_.emit(globalContext);
     })) |
         chain::runLast(task);
   }
@@ -836,7 +843,7 @@ namespace edm {
     chain::first([&](auto nextTask) {
       // Propagating the exception would be nontrivial, and signal actions are not supposed to throw exceptions
       ServiceRegistry::Operate op(token);
-      CMS_SA_ALLOW try { activityRegistry->preWriteProcessBlockSignal_(globalContext); } catch (...) {
+      CMS_SA_ALLOW try { activityRegistry->preWriteProcessBlockSignal_.emit(globalContext); } catch (...) {
       }
       for (auto& c : all_output_communicators_) {
         c->writeProcessBlockAsync(nextTask, pbp, processContext, activityRegistry);
@@ -845,7 +852,7 @@ namespace edm {
       //services can depend on other services
       ServiceRegistry::Operate op(token);
 
-      activityRegistry->postWriteProcessBlockSignal_(globalContext);
+      activityRegistry->postWriteProcessBlockSignal_.emit(globalContext);
     })) |
         chain::runLast(std::move(task));
   }
@@ -865,7 +872,7 @@ namespace edm {
     using namespace edm::waiting_task;
     chain::first([&](auto nextTask) {
       ServiceRegistry::Operate op(token);
-      CMS_SA_ALLOW try { activityRegistry->preGlobalWriteLumiSignal_(globalContext); } catch (...) {
+      CMS_SA_ALLOW try { activityRegistry->preGlobalWriteLumiSignal_.emit(globalContext); } catch (...) {
       }
       for (auto& c : all_output_communicators_) {
         c->writeLumiAsync(nextTask, lbp, processContext, activityRegistry);
@@ -874,7 +881,7 @@ namespace edm {
       //services can depend on other services
       ServiceRegistry::Operate op(token);
 
-      activityRegistry->postGlobalWriteLumiSignal_(globalContext);
+      activityRegistry->postGlobalWriteLumiSignal_.emit(globalContext);
     })) |
         chain::runLast(task);
   }
@@ -900,7 +907,12 @@ namespace edm {
                           eventsetup::ESRecordsToProductResolverIndices const& iESIndices,
                           ProcessBlockHelperBase const& processBlockHelperBase,
                           std::string const& iProcessName) {
-    finishModulesInitialization(*moduleRegistry_, iRegistry, iESIndices, processBlockHelperBase, iProcessName);
+    {
+      preModulesInitializationFinalizedSignal_.emit();
+      auto post = [this](void*) { postModulesInitializationFinalizedSignal_.emit(); };
+      std::unique_ptr<void, decltype(post)> const postGuard(this, post);
+      finishModulesInitialization(*moduleRegistry_, iRegistry, iESIndices, processBlockHelperBase, iProcessName);
+    }
     globalSchedule_->beginJob(*moduleRegistry_);
   }
 

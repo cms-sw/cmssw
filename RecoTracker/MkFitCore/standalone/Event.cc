@@ -6,6 +6,7 @@
 #include "RecoTracker/MkFitCore/src/Debug.h"
 
 #include <memory>
+#include <cstring>
 
 namespace {
   std::unique_ptr<mkfit::Validation> dummyValidation(mkfit::Validation::make_validation("dummy", nullptr));
@@ -451,8 +452,10 @@ namespace mkfit {
       fread(tracks.data(), sizeof(Track), n_tracks, fp);
 
       for (int i = 0; i < n_tracks; ++i) {
-        tracks[i].resizeHitsForInput();
-        fread(tracks[i].beginHitsOnTrack_nc(), sizeof(HitOnTrack), tracks[i].nTotalHits(), fp);
+        auto &hot_vec = const_cast<std::vector<HitOnTrack> &>(tracks[i].refHitsOnTrackVector());
+        memset((void *)&hot_vec, 0, sizeof(hot_vec));
+        hot_vec.resize(tracks[i].nTotalHits());
+        fread(hot_vec.data(), sizeof(HitOnTrack), tracks[i].nTotalHits(), fp);
       }
     }
 

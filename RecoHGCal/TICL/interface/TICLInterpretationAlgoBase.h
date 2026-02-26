@@ -22,7 +22,8 @@
 #include "DataFormats/HGCalReco/interface/Common.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
+#include "DataFormats/Common/interface/MultiSpan.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
 namespace edm {
   class Event;
@@ -40,7 +41,7 @@ namespace ticl {
       const edm::EventSetup& es;
       const std::vector<reco::CaloCluster>& layerClusters;
       const edm::ValueMap<std::pair<float, float>>& layerClustersTime;
-      const MultiVectorManager<Trackster>& tracksters;
+      const edm::MultiSpan<Trackster>& tracksters;
       const std::vector<std::vector<unsigned int>>& linkedResultTracksters;
       const edm::Handle<std::vector<T>> tracksHandle;
       const std::vector<bool>& maskedTracks;
@@ -49,7 +50,7 @@ namespace ticl {
              const edm::EventSetup& eS,
              const std::vector<reco::CaloCluster>& lC,
              const edm::ValueMap<std::pair<float, float>>& lcT,
-             const MultiVectorManager<Trackster>& tS,
+             const edm::MultiSpan<Trackster>& tS,
              const std::vector<std::vector<unsigned int>>& links,
              const edm::Handle<std::vector<T>> trks,
              const std::vector<bool>& mT)

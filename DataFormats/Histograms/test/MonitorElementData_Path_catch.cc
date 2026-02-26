@@ -13,7 +13,7 @@
 // system include files
 
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 // user include files
 #include "DataFormats/Histograms/interface/MonitorElementCollection.h"

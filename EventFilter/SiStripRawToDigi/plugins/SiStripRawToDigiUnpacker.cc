@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <ext/algorithm>
 
-#include <fmt/format.h>
+#include <format>
 
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/Common/interface/DetSet.h"
@@ -155,12 +155,12 @@ namespace sistrip {
       // construct FEDBuffer
       if (FEDBufferStatusCode::SUCCESS != st_buffer) {
         if (FEDBufferStatusCode::BUFFER_NULL == st_buffer) {
-          warnings_.add("NULL pointer to FEDRawData for FED", fmt::format("id {0}", *ifed));
+          warnings_.add("NULL pointer to FEDRawData for FED", std::format("id {0}", *ifed));
         } else if (!input.size()) {
-          warnings_.add("FEDRawData has zero size for FED", fmt::format("id {0}", *ifed));
+          warnings_.add("FEDRawData has zero size for FED", std::format("id {0}", *ifed));
         } else {
           warnings_.add("Exception caught when creating FEDBuffer object for FED",
-                        fmt::format("id {0}: {1}", *ifed, static_cast<int>(st_buffer)));
+                        std::format("id {0}: {1}", *ifed, static_cast<int>(st_buffer)));
         }
         // FED buffer is bad and should not be unpacked. Skip this FED and mark all modules as bad.
         maskFED(detids, conns);
@@ -170,20 +170,20 @@ namespace sistrip {
       const FEDBufferStatusCode st_chan = buffer.findChannels();
       if (FEDBufferStatusCode::SUCCESS != st_chan) {
         warnings_.add("Exception caught when creating FEDBuffer object for FED",
-                      fmt::format("id {0}: {1}", *ifed, static_cast<int>(st_chan)));
+                      std::format("id {0}: {1}", *ifed, static_cast<int>(st_chan)));
         maskFED(detids, conns);
         continue;
       }
       buffer.setLegacyMode(legacy_);
       if ((!buffer.doChecks(true)) && (!unpackBadChannels_ || !buffer.checkNoFEOverflows())) {
         warnings_.add("Exception caught when creating FEDBuffer object for FED",
-                      fmt::format("id {0}: FED Buffer check fails for FED ID {0}.", *ifed));
+                      std::format("id {0}: FED Buffer check fails for FED ID {0}.", *ifed));
         maskFED(detids, conns);
         continue;
       }
       if (doFullCorruptBufferChecks_ && !buffer.doCorruptBufferChecks()) {
         warnings_.add("Exception caught when creating FEDBuffer object for FED",
-                      fmt::format("id {0}: FED corrupt buffer check fails for FED ID {0}.", *ifed));
+                      std::format("id {0}: FED corrupt buffer check fails for FED ID {0}.", *ifed));
         maskFED(detids, conns);
         continue;
       }
@@ -295,11 +295,11 @@ namespace sistrip {
               fedChannel, std::back_inserter(zs_work_digis_), ipair * 256, isNonLite, mode, legacy_, lmode, pCode);
           if (fedchannelunpacker::StatusCode::ZERO_PACKET_CODE == st_ch ||
               fedchannelunpacker::StatusCode::BAD_PACKET_CODE == st_ch) {
-            warnings_.add(fmt::format("Invalid packet code {0:#x} for zero-suppressed data", uint16_t(pCode)),
-                          fmt::format("FED {0} channel {1}", *ifed, iconn->fedCh()));
+            warnings_.add(std::format("Invalid packet code {0:#x} for zero-suppressed data", uint16_t(pCode)),
+                          std::format("FED {0} channel {1}", *ifed, iconn->fedCh()));
           } else if (fedchannelunpacker::StatusCode::SUCCESS != st_ch) {
             warnings_.add("Clusters are not ordered",
-                          fmt::format("FED {0} channel {1}: {2}", *ifed, iconn->fedCh(), toString(st_ch)));
+                          std::format("FED {0} channel {1}: {2}", *ifed, iconn->fedCh(), toString(st_ch)));
             detids.push_back(iconn->detId());  //@@ Possible multiple entries (ok for Giovanni)
             continue;
           }
@@ -319,7 +319,7 @@ namespace sistrip {
             } else {
               detids.push_back(iconn->detId());  //@@ Possible multiple entries (ok for Giovanni)
               warnings_.add("Problem extracting common modes",
-                            fmt::format("FED {0} channel {1}:\n Request for CM median from channel with non-ZS "
+                            std::format("FED {0} channel {1}:\n Request for CM median from channel with non-ZS "
                                         "packet code. Packet code is {2}.",
                                         *ifed,
                                         iconn->fedCh(),
@@ -354,7 +354,7 @@ namespace sistrip {
               scope_work_registry_.push_back(regItem);
             }
           } else {  // Unknown readout mode! => assume scope mode
-            warnings_.add(fmt::format("Unknown FED readout mode ({0})! Assuming SCOPE MODE...", int(mode)));
+            warnings_.add(std::format("Unknown FED readout mode ({0})! Assuming SCOPE MODE...", int(mode)));
             Registry regItem(key, 0, scope_work_digis_.size(), 0);
             st_ch = fedchannelunpacker::unpackScope(fedChannel, std::back_inserter(scope_work_digis_));
             if (regItem.index != scope_work_digis_.size()) {
@@ -372,7 +372,7 @@ namespace sistrip {
             }
           }
           if (fedchannelunpacker::StatusCode::SUCCESS != st_ch) {
-            warnings_.add(toString(st_ch), fmt::format("FED {0} channel {1}:", *ifed, iconn->fedCh()));
+            warnings_.add(toString(st_ch), std::format("FED {0} channel {1}:", *ifed, iconn->fedCh()));
           }
         }
       }  // channel loop

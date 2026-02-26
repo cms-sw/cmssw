@@ -3,7 +3,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <algorithm>
 
-#include <fmt/format.h>
+#include <format>
 
 namespace edm {
 
@@ -72,7 +72,7 @@ namespace edm {
         ensureSlimmingConstraints();
       } catch (edm::Exception& ex) {
         ex.addContext("Calling ThinnedAssociationsHelper::addAssociation()");
-        ex.addAdditionalInfo(fmt::format("When adding a slimmed collection with BranchID {}", branches.thinned().id()));
+        ex.addAdditionalInfo(std::format("When adding a slimmed collection with BranchID {}", branches.thinned().id()));
         throw ex;
       }
     }

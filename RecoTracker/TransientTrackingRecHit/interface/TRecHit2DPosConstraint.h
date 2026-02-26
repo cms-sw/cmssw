@@ -54,7 +54,7 @@ public:
 
   bool canImproveWithTrack() const override { return false; }
 
-  virtual RecHitPointer clone(const TrajectoryStateOnSurface& ts) const { return RecHitPointer(clone()); }
+  RecHitPointer clone(const TrajectoryStateOnSurface& ts) const { return RecHitPointer(clone()); }
 
   static RecHitPointer build(const LocalPoint& pos, const LocalError& err, const Surface* surface) {
     return RecHitPointer(new TRecHit2DPosConstraint(pos, err, surface));

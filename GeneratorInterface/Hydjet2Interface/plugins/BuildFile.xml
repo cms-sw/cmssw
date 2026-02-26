@@ -1,5 +1,6 @@
 <use name="GeneratorInterface/Hydjet2Interface"/>
 <use name="pydata"/>
 <library file="*.cc" name="GeneratorInterfaceHydjet2InterfacePlugins">
+  <flags REM_LDFLAGS="-Wl,--as-needed"/>
   <flags EDM_PLUGIN="1"/>
 </library>

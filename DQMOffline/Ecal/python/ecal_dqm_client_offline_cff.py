@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.EcalMonitorClient.EcalMonitorClient_cfi import *
+from DQM.EcalMonitorClient.EcalMonitorClient_cff import *
 from DQM.EcalCommon.EcalMEFormatter_cfi import ecalMEFormatter
 
 from DQMOffline.Ecal.EcalZmassClient_cfi import *
@@ -24,3 +24,7 @@ ecal_dqm_client_offline = cms.Sequence(
 )
 
 ecalMonitorClient.workerParameters.TrigPrimClient.params.sourceFromEmul = False
+
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+phase2_ecal_devel.toReplaceWith(ecalMonitorClient, ecalMonitorClientPhase2)
+phase2_ecal_devel.toReplaceWith(ecal_dqm_client_offline, ecal_dqm_client_offline.copyAndExclude([ecalzmassclient]))

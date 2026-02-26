@@ -33,7 +33,7 @@ Configuration[ruleName] = {}
 
 Configuration[ruleName]['description'] = 'Search for "using namespace" or "using std::" in header files'
 Configuration[ruleName]['filesToMatch'] = ['*.h']
-Configuration[ruleName]['exceptPaths'] = ['HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h']
+Configuration[ruleName]['exceptPaths'] = []
 Configuration[ruleName]['skip']  = [comment, function]
 Configuration[ruleName]['filter'] = '(\\susing|\\Ausing)\\s+(namespace|std::)' #should be regular expression
 Configuration[ruleName]['exceptFilter'] = []
@@ -107,7 +107,7 @@ Configuration[ruleName]['description'] = 'Search for "pragma" statement in *.c, 
 Configuration[ruleName]['filesToMatch'] = ['*.h', '*.c', '*.cc', '*.cxx']
 Configuration[ruleName]['exceptPaths'] = ['*/*LinkDef.h',
                                           'FWCore/Utilities/interface/tinyxml.h',
-                                          'Utilities/StorageFactory/src/LocalFileSystem.cc:.*:#\\s*pragma\\s+GCC\\s+diagnostic\\s+ignored',
+                                          'FWStorage/StorageFactory/src/LocalFileSystem.cc:.*:#\\s*pragma\\s+GCC\\s+diagnostic\\s+ignored',
                                           'RecoVertex/BeamSpotProducer/test/scripts/BSVectorDict.h',
                                           'FWCore/Utilities/*/*:.*:#\\s*pragma\\s+GCC\\s+visibility\\s+(push\\(default\\)|pop)\\s*$',
                                           'CondFormats/JetMETObjects/interface/Linkdef.h',
@@ -176,7 +176,7 @@ Configuration[ruleName]['exceptPaths'] = ['Utilities/RFIOAdaptor/*BuildFile.xml:
 					  'Utilities/RFIOAdaptor/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
 					  'Utilities/DCacheAdaptor/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
 					  'Utilities/XrdAdaptor/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
-					  'Utilities/StorageFactory/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
+					  'FWStorage/StorageFactory/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
 					  'DQM/CSCMonitorModule/*BuildFile.xml:.*:="DQMGLOBAL"',
 					  'DQMServices/Core/*BuildFile.xml:.*:="-DWITHOUT_CMS_FRAMEWORK=0"',
                                           'L1Trigger/CSCTrackFinder/BuildFile.xml:.*:ADD_SUBDIR=',

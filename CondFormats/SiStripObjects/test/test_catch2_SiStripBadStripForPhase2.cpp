@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 #include <iostream>
 #include <iomanip>  // std::setw
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"

@@ -83,7 +83,7 @@ Vector GeneralInterpretationAlgo::propagateTrackster(const Trackster &t,
   return tPoint;
 }
 
-void GeneralInterpretationAlgo::findTrackstersInWindow(const MultiVectorManager<Trackster> &tracksters,
+void GeneralInterpretationAlgo::findTrackstersInWindow(const edm::MultiSpan<Trackster> &tracksters,
                                                        const std::vector<std::pair<Vector, unsigned>> &seedingCollection,
                                                        const std::array<TICLLayerTile, 2> &tracksterTiles,
                                                        const std::vector<Vector> &tracksterPropPoints,
@@ -246,7 +246,17 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
   for (auto const i : candidateTrackIds) {
     const auto &tk = tracks[i];
     int iSide = int(tk.eta() > 0);
-    const auto &fts = trajectoryStateTransform::outerFreeState((tk), bFieldProd);
+    FreeTrajectoryState fts;
+
+    // Check whether the outer state is actually valid
+    if (tk.outerOk()) {
+      // Use outer state if available
+      fts = trajectoryStateTransform::outerFreeState(tk, bFieldProd);
+    } else {
+      // Fallback: use PCA (reference point)
+      fts = trajectoryStateTransform::initialFreeState(tk, bFieldProd);
+    }
+
     // to the HGCal front
     const auto &tsos = prop.propagate(fts, firstDisk_[iSide]->surface());
     if (tsos.isValid()) {
@@ -401,9 +411,6 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
 };
 
 void GeneralInterpretationAlgo::fillPSetDescription(edm::ParameterSetDescription &desc) {
-  desc.add<std::string>("cutTk",
-                        "1.48 < abs(eta) < 3.0 && pt > 1. && quality(\"highPurity\") && "
-                        "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");
   desc.add<double>("delta_tk_ts_layer1", 0.02);
   desc.add<double>("delta_tk_ts_interface", 0.03);
   desc.add<double>("timing_quality_threshold", 0.5);

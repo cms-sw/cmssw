@@ -40,6 +40,9 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
+# import beamspot
+from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer as _onlineBeamSpotProducer
+process.hltOnlineBeamSpot = _onlineBeamSpotProducer.clone()
 
 ### for pp collisions
 process.load("DQM.HLTEvF.ScoutingCollectionMonitor_cfi")
@@ -53,15 +56,19 @@ process.dqmcommon = cms.Sequence(process.dqmEnv
 process.load("DQM.HLTEvF.ScoutingMuonMonitoring_cff")
 process.load("DQM.HLTEvF.ScoutingJetMonitoring_cff")
 process.load("DQM.HLTEvF.ScoutingElectronMonitoring_cff")
-## Run-1 L1TGT required by ScoutingJetMonitoring https://github.com/cms-sw/cmssw/blob/master/DQMOffline/JetMET/src/JetAnalyzer.cc#L2603-L2611
-process.GlobalTag.toGet.append(
- cms.PSet(
- record = cms.string("L1GtTriggerMenuRcd"),
- tag = cms.string('L1GtTriggerMenu_CRAFT09_hlt'),
- )
-)
+process.load("DQM.HLTEvF.ScoutingRechitMonitoring_cff")
+process.load("DQM.HLTEvF.ScoutingDileptonMonitor_cfi")
+process.load("DQM.HLTEvF.ScoutingPi0Monitor_cfi")
 
-process.p = cms.Path(process.dqmcommon * process.scoutingCollectionMonitor * process.ScoutingMuonMonitoring * process.ScoutingJetMonitoring * process.ScoutingElectronMonitoring)
+process.p = cms.Path(process.dqmcommon *
+                     process.hltOnlineBeamSpot *
+                     process.scoutingCollectionMonitor *
+                     process.ScoutingMuonMonitoring *
+                     process.ScoutingJetMonitoring *
+                     process.ScoutingElectronMonitoring *
+                     process.ScoutingRecHitsMonitoring *
+                     process.ScoutingDileptonMonitorOnline *
+                     process.ScoutingPi0MonitorOnline)
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *

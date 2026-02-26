@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "FWCore/Framework/src/ScheduleBuilder.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"

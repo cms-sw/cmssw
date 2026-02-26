@@ -9,15 +9,12 @@
 //#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEventFwd.h"
 
 namespace edm {
   class Event;
   class EventSetup;
 }  // namespace edm
-
-namespace trigger {
-  class TriggerEvent;
-}
 
 class HLTConfigProvider;
 

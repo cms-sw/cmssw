@@ -13,10 +13,11 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedFwd.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
+
 class TrackerGeometry;
-class TrackingRecHit;
-class TrajectorySeed;
-class Trajectory;
 
 class SiStripFineDelayTLA {
 public:

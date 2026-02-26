@@ -13,20 +13,19 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 template <typename TDev>
-class SiPixelDigiErrorsDevice : public PortableDeviceCollection<SiPixelDigiErrorsSoA, TDev> {
+class SiPixelDigiErrorsDevice : public PortableDeviceCollection<TDev, SiPixelDigiErrorsSoA> {
 public:
   SiPixelDigiErrorsDevice(edm::Uninitialized)
-      : PortableDeviceCollection<SiPixelDigiErrorsSoA, TDev>{edm::kUninitialized} {}
+      : PortableDeviceCollection<TDev, SiPixelDigiErrorsSoA>{edm::kUninitialized} {}
 
   template <typename TQueue>
   explicit SiPixelDigiErrorsDevice(size_t maxFedWords, TQueue queue)
-      : PortableDeviceCollection<SiPixelDigiErrorsSoA, TDev>(maxFedWords, queue), maxFedWords_(maxFedWords) {}
+      : PortableDeviceCollection<TDev, SiPixelDigiErrorsSoA>(queue, maxFedWords), maxFedWords_(maxFedWords) {}
 
   // Constructor which specifies the SoA size
   explicit SiPixelDigiErrorsDevice(size_t maxFedWords, TDev const& device)
-      : PortableDeviceCollection<SiPixelDigiErrorsSoA, TDev>(maxFedWords, device) {}
+      : PortableDeviceCollection<TDev, SiPixelDigiErrorsSoA>(device, maxFedWords) {}
 
-  auto& error_data() const { return (*this->view().pixelErrors()); }
   auto maxFedWords() const { return maxFedWords_; }
 
 private:

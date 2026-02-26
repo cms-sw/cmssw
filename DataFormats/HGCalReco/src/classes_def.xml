@@ -1,6 +1,7 @@
 
 <lcgdict>
-  <class name="ticl::Trackster" ClassVersion="11">
+  <class name="ticl::Trackster" ClassVersion="12">
+    <version ClassVersion="12" checksum="912917580"/>
     <version ClassVersion="11" checksum="2111726404"/>
     <version ClassVersion="10" checksum="556627704"/>
     <version ClassVersion="9" checksum="1001808235"/>
@@ -66,7 +67,8 @@
   <class name="edm::Wrapper<TICLSeedingRegion>" />
   <class name="edm::Wrapper<std::vector<TICLSeedingRegion> >" />
 
-  <class name="TICLCandidate" ClassVersion="4">
+  <class name="TICLCandidate" ClassVersion="5">
+   <version ClassVersion="5" checksum="809321696"/>
    <version ClassVersion="4" checksum="2260471800"/>
    <version ClassVersion="3" checksum="450468662"/>
   </class>
@@ -74,24 +76,29 @@
   <class name="edm::Wrapper<TICLCandidate>" />
   <class name="edm::Wrapper<std::vector<TICLCandidate> >" />
 
+  <class name="MtdHostCollection" rntupleStreamerMode="true"/>
+  <!-- MtdHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="MtdHostCollection::Layout"/>
   <class name="MtdSoA"/>
   <class name="MtdSoA::View"/>
-
-  <class name="MtdHostCollection"/>
   <class name="edm::Wrapper<MtdHostCollection>" splitLevel="0"/>
 
+  <class name="HGCalSoARecHitsHostCollection" rntupleStreamerMode="true"/>
+  <!-- HGCalSoARecHitsHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="HGCalSoARecHitsHostCollection::Layout"/>
   <class name="HGCalSoARecHits"/>
-  <class name="HGCalSoARecHitsHostCollection" ClassVersion="3">
-    <version ClassVersion="3" checksum="1452864040"/>
-  </class>
   <class name="edm::Wrapper<HGCalSoARecHitsHostCollection>" splitLevel="0"/>
 
+  <class name="HGCalSoARecHitsExtraHostCollection" rntupleStreamerMode="true"/>
+  <!-- HGCalSoARecHitsExtraHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="HGCalSoARecHitsExtraHostCollection::Layout"/>
   <class name="HGCalSoARecHitsExtra"/>
-  <class name="HGCalSoARecHitsExtraHostCollection"/>
   <class name="edm::Wrapper<HGCalSoARecHitsExtraHostCollection>" splitLevel="0"/>
 
+  <class name="HGCalSoAClustersHostCollection" rntupleStreamerMode="true"/>
+  <!-- HGCalSoAClustersHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="HGCalSoAClustersHostCollection::Layout"/>
   <class name="HGCalSoAClusters"/>
-  <class name="HGCalSoAClustersHostCollection"/>
   <class name="edm::Wrapper<HGCalSoAClustersHostCollection>" splitLevel="0"/>
 
 </lcgdict>

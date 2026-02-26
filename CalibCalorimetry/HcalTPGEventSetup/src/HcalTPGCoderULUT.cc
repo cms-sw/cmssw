@@ -62,9 +62,14 @@ private:
   double containPhaseNSHB_, containPhaseNSHE_;
   bool applyFixPCC_;
   bool overrideDBweightsAndFilterHB_, overrideDBweightsAndFilterHE_;
+  double nPedWidthsForZS_;
+  bool overrideDBnPedWidthsForZS_;
   double linearLSB_QIE8_, linearLSB_QIE11Overlap_, linearLSB_QIE11_;
   int maskBit_;
-  std::vector<uint32_t> FG_HF_thresholds_;
+  bool overrideFGHF_;
+  std::array<uint32_t, 2> FG_HF_thresholds_;
+  bool overrideHBLLP_;
+  std::array<uint32_t, 4> HB_LLP_thresholds_;
   edm::FileInPath fgfile_, ifilename_;
 };
 
@@ -90,6 +95,8 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) {
   containPhaseNSHE_ = iConfig.getParameter<double>("containPhaseNSHE");
   overrideDBweightsAndFilterHB_ = iConfig.getParameter<bool>("overrideDBweightsAndFilterHB");
   overrideDBweightsAndFilterHE_ = iConfig.getParameter<bool>("overrideDBweightsAndFilterHE");
+  nPedWidthsForZS_ = iConfig.getParameter<double>("nPedWidthsForZS");
+  overrideDBnPedWidthsForZS_ = iConfig.getParameter<bool>("overrideDBnPedWidthsForZS");
   applyFixPCC_ = iConfig.getParameter<bool>("applyFixPCC");
 
   //the following line is needed to tell the framework what
@@ -107,7 +114,10 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) {
     linearLSB_QIE11_ = scales.getParameter<double>("LSBQIE11");
     linearLSB_QIE11Overlap_ = scales.getParameter<double>("LSBQIE11Overlap");
     maskBit_ = iConfig.getParameter<int>("MaskBit");
-    FG_HF_thresholds_ = iConfig.getParameter<std::vector<uint32_t> >("FG_HF_thresholds");
+    overrideFGHF_ = iConfig.getParameter<bool>("overrideFGHF");
+    FG_HF_thresholds_ = iConfig.getParameter<std::array<uint32_t, 2> >("FG_HF_thresholds");
+    overrideHBLLP_ = iConfig.getParameter<bool>("overrideHBLLP");
+    HB_LLP_thresholds_ = iConfig.getParameter<std::array<uint32_t, 4> >("HB_LLP_thresholds");
   } else {
     ifilename_ = iConfig.getParameter<edm::FileInPath>("inputLUTs");
   }
@@ -129,6 +139,9 @@ void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo,
   theCoder->setContainPhaseHB(containPhaseNSHB_);
   theCoder->setContainPhaseHE(containPhaseNSHE_);
 
+  theCoder->setNpedWidthsForZS(nPedWidthsForZS_);
+  theCoder->setOverrideDBnPedWidthsForZS(overrideDBnPedWidthsForZS_);
+
   theCoder->setApplyFixPCC(applyFixPCC_);
 
   if (read_Ascii_ || read_XML_) {
@@ -146,7 +159,10 @@ void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo,
     theCoder->setAllLinear(linearLUTs_, linearLSB_QIE8_, linearLSB_QIE11_, linearLSB_QIE11Overlap_);
     theCoder->setLUTGenerationMode(LUTGenerationMode_);
     theCoder->setMaskBit(maskBit_);
+    theCoder->setOverrideFGHF(overrideFGHF_);
     theCoder->setFGHFthresholds(FG_HF_thresholds_);
+    theCoder->setOverrideHBLLP(overrideHBLLP_);
+    theCoder->setHBLLPthresholds(HB_LLP_thresholds_);
   }
 }
 

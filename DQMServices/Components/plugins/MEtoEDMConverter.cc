@@ -28,9 +28,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "classlib/utils/StringList.h"
-#include "classlib/utils/StringOps.h"
-
 // helper files
 #include <iostream>
 #include <cstdlib>

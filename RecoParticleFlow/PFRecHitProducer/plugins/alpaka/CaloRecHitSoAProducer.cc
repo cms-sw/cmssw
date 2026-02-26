@@ -37,7 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       if (DEBUG)
         printf("Found %d recHits\n", num_recHits);
 
-      hcal::RecHitHostCollection hostProduct{num_recHits, event.queue()};
+      hcal::RecHitHostCollection hostProduct{event.queue(), num_recHits};
       auto& view = hostProduct.view();
 
       for (int i = 0; i < num_recHits; i++) {
@@ -47,7 +47,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           printf("recHit %4d %u %f %f\n", i, view.detId(i), view.energy(i), view.timeM0(i));
       }
 
-      hcal::RecHitDeviceCollection deviceProduct{num_recHits, event.queue()};
+      hcal::RecHitDeviceCollection deviceProduct{event.queue(), num_recHits};
       alpaka::memcpy(event.queue(), deviceProduct.buffer(), hostProduct.buffer());
       if (synchronise_)
         alpaka::wait(event.queue());

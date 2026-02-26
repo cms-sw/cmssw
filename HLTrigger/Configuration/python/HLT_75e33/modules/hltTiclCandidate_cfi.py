@@ -6,14 +6,14 @@ hltTiclCandidate = cms.EDProducer("TICLCandidateProducer",
     pluginInferenceAlgoTracksterInferenceByPFN = cms.PSet(
       algo_verbosity = cms.int32(0),
       onnxPIDModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/id_v0.onnx'),
-      onnxEnergyModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/energy_v0.onnx'),
+      onnxEnergyModelPath = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/energy_v1.onnx'),
       inputNames = cms.vstring(
         'input',
         'input_tr_features'
       ),
       output_en = cms.vstring('enreg_output'),
       output_id = cms.vstring('pid_output'),
-      eid_min_cluster_energy = cms.double(1),
+      eid_min_cluster_energy = cms.double(2.5),
       eid_n_layers = cms.int32(50),
       eid_n_clusters = cms.int32(10),
       doPID = cms.int32(1),
@@ -28,7 +28,6 @@ hltTiclCandidate = cms.EDProducer("TICLCandidateProducer",
     general_tracksters_collections = cms.VInputTag("hltTiclTracksterLinks"),
     interpretationDescPSet = cms.PSet(
         algo_verbosity = cms.int32(0),
-        cutTk = cms.string('1.48 < abs(eta) < 3.0 && pt > 1. && quality("highPurity") && hitPattern().numberOfLostHits("MISSING_OUTER_HITS") < 5'),
         delta_tk_ts_interface = cms.double(0.03),
         delta_tk_ts_layer1 = cms.double(0.02),
         timing_quality_threshold = cms.double(0.5),
@@ -47,3 +46,15 @@ hltTiclCandidate = cms.EDProducer("TICLCandidateProducer",
     useTimingAverage = cms.bool(False)
 )
 
+from Configuration.ProcessModifiers.ticlv5_TrackLinkingGNN_cff import ticl_v5_TrackLinkingGNN
+ticl_v5_TrackLinkingGNN.toModify(hltTiclCandidate,
+    interpretationDescPSet = cms.PSet(
+        onnxTrkLinkingModelFirstDisk = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/TrackLinking_GNN/FirstDiskPropGNN_v0.onnx'),
+        onnxTrkLinkingModelInterfaceDisk = cms.FileInPath('RecoHGCal/TICL/data/ticlv5/onnx_models/TrackLinking_GNN/InterfaceDiskPropGNN_v0.onnx'),
+        inputNames = cms.vstring('x', 'edge_index', 'edge_attr'),
+        output = cms.vstring('output'),
+        delta_tk_ts = cms.double(0.1),
+        thr_gnn = cms.double(0.5),
+        type = cms.string('GNNLink')
+    )
+)

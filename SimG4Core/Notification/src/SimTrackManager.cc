@@ -76,12 +76,12 @@ void SimTrackManager::addTrack(TrackWithHistory* iTrack, const G4Track* track, b
     auto info = static_cast<const TrackInformation*>(track->GetUserInformation());
     if (info->isInTrkFromBackscattering())
       iTrack->setFromBackScattering();
-    // set there for the *non-primary* tracks the genParticle ID associated with the G4Track
-    // for the primaries this is done in the TrackWithHistory constructor.
+    // set there for the *non-primary* tracks the G4Track ID of the last stored ancestor
+    // for the primaries the genparticle id is saved in the TrackWithHistory constructor.
     // In the constructor of TrackWithHistory the info isPrimary is saved and used
     // to give -1 if the track is not a primary.
     if (not iTrack->isPrimary())
-      iTrack->setGenParticleID(info->mcTruthID());
+      iTrack->setGenParticleID(info->idLastStoredAncestor());
     m_trackContainer.push_back(iTrack);
     const auto& v = track->GetStep()->GetPostStepPoint()->GetPosition();
     std::pair<int, math::XYZVectorD> p(iTrack->trackID(),
@@ -176,7 +176,7 @@ void SimTrackManager::reallyStoreTracks() {
     }
 
     if (id >= static_cast<int>(PSimHit::k_tidOffset)) {
-      throw cms::Exception("SimTrackManager::reallyStoreTracks")
+      edm::LogWarning("SimTrackManager::reallyStoreTracks")
           << " SimTrack ID " << id << " exceeds maximum allowed by PSimHit identifier" << PSimHit::k_tidOffset;
     }
     TmpSimTrack* g4simtrack =

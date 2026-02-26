@@ -9,29 +9,29 @@
 namespace riemannFit {
 
   /*!  Compute the Radiation length in the uniform hypothesis
- *
- * The Pixel detector, barrel and forward, is considered as an homogeneous
- * cylinder of material, whose radiation lengths has been derived from the TDR
- * plot that shows that 16cm correspond to 0.06 radiation lengths. Therefore
- * one radiation length corresponds to 16cm/0.06 =~ 267 cm. All radiation
- * lengths are computed using this unique number, in both regions, barrel and
- * endcap.
- *
- * NB: no angle corrections nor projections are computed inside this routine.
- * It is therefore the responsibility of the caller to supply the proper
- * lengths in input. These lengths are the path traveled by the particle along
- * its trajectory, namely the so called S of the helix in 3D space.
- *
- * \param length_values vector of incremental distances that will be translated
- * into radiation length equivalent. Each radiation length i is computed
- * incrementally with respect to the previous length i-1. The first length has
- * no reference point (i.e. it has the dca).
- *
- * \return incremental radiation lengths that correspond to each segment.
- */
+   *
+   * The Pixel detector, barrel and forward, is considered as an homogeneous
+   * cylinder of material, whose radiation lengths has been derived from the TDR
+   * plot that shows that 16cm correspond to 0.06 radiation lengths. Therefore
+   * one radiation length corresponds to 16cm/0.06 =~ 267 cm. All radiation
+   * lengths are computed using this unique number, in both regions, barrel and
+   * endcap.
+   *
+   * NB: no angle corrections nor projections are computed inside this routine.
+   * It is therefore the responsibility of the caller to supply the proper
+   * lengths in input. These lengths are the path traveled by the particle along
+   * its trajectory, namely the so called S of the helix in 3D space.
+   *
+   * \param length_values vector of incremental distances that will be translated
+   * into radiation length equivalent. Each radiation length i is computed
+   * incrementally with respect to the previous length i-1. The first length has
+   * no reference point (i.e. it has the dca).
+   *
+   * \return incremental radiation lengths that correspond to each segment.
+   */
 
   template <typename VNd1, typename VNd2>
-  __host__ __device__ inline void computeRadLenUniformMaterial(const VNd1& length_values, VNd2& rad_lengths) {
+  inline void computeRadLenUniformMaterial(const VNd1& length_values, VNd2& rad_lengths) {
     // Radiation length of the pixel detector in the uniform assumption, with
     // 0.06 rad_len at 16 cm
     constexpr double xx_0_inv = 0.06 / 16.;
@@ -59,16 +59,16 @@ namespace riemannFit {
     ordinary least squared fitting techiques with the trivial parametrization y
     = mx + q, avoiding the patological case with m = +/- inf, that would
     correspond to the case at eta = 0.
- */
+   */
 
   template <typename V4, typename VNd1, typename VNd2, int N>
-  __host__ __device__ inline auto scatterCovLine(Matrix2d const* cov_sz,
-                                                 const V4& fast_fit,
-                                                 VNd1 const& s_arcs,
-                                                 VNd2 const& z_values,
-                                                 const double theta,
-                                                 const double bField,
-                                                 MatrixNd<N>& ret) {
+  inline auto scatterCovLine(Matrix2d const* cov_sz,
+                             const V4& fast_fit,
+                             VNd1 const& s_arcs,
+                             VNd2 const& z_values,
+                             const double theta,
+                             const double bField,
+                             MatrixNd<N>& ret) {
 #ifdef RFIT_DEBUG
     riemannFit::printIt(&s_arcs, "Scatter_cov_line - s_arcs: ");
 #endif
@@ -121,12 +121,9 @@ namespace riemannFit {
     (from inner layer to outer ones; points on the same layer must ordered too).
     \details Only the tangential component is computed (the radial one is
     negligible).
- */
+   */
   template <typename M2xN, typename V4, int N>
-  __host__ __device__ inline MatrixNd<N> scatter_cov_rad(const M2xN& p2D,
-                                                         const V4& fast_fit,
-                                                         VectorNd<N> const& rad,
-                                                         double B) {
+  inline MatrixNd<N> scatter_cov_rad(const M2xN& p2D, const V4& fast_fit, VectorNd<N> const& rad, double B) {
     constexpr uint n = N;
     double p_t = std::min(20., fast_fit(2) * B);  // limit pt to avoid too small error!!!
     double p_2 = p_t * p_t * (1. + 1. / sqr(fast_fit(3)));
@@ -168,12 +165,10 @@ namespace riemannFit {
     \param p2D 2D points in the transverse plane.
     \param cov_rad covariance matrix in radial coordinate.
     \return cov_cart covariance matrix in Cartesian coordinates.
-*/
+  */
 
   template <typename M2xN, int N>
-  __host__ __device__ inline Matrix2Nd<N> cov_radtocart(const M2xN& p2D,
-                                                        const MatrixNd<N>& cov_rad,
-                                                        const VectorNd<N>& rad) {
+  inline Matrix2Nd<N> cov_radtocart(const M2xN& p2D, const MatrixNd<N>& cov_rad, const VectorNd<N>& rad) {
 #ifdef RFIT_DEBUG
     printf("Address of p2D: %p\n", &p2D);
 #endif
@@ -206,11 +201,9 @@ namespace riemannFit {
     \param cov_cart covariance matrix in Cartesian coordinates.
     \return cov_rad covariance matrix in raidal coordinate.
     \warning correlation between different point are not computed.
-*/
+  */
   template <typename M2xN, int N>
-  __host__ __device__ inline VectorNd<N> cov_carttorad(const M2xN& p2D,
-                                                       const Matrix2Nd<N>& cov_cart,
-                                                       const VectorNd<N>& rad) {
+  inline VectorNd<N> cov_carttorad(const M2xN& p2D, const Matrix2Nd<N>& cov_cart, const VectorNd<N>& rad) {
     constexpr uint n = N;
     VectorNd<N> cov_rad;
     const VectorNd<N> rad_inv2 = rad.cwiseInverse().array().square();
@@ -237,12 +230,12 @@ namespace riemannFit {
     structured in this form:(X0, Y0, R, tan(theta))).
     \return cov_rad covariance matrix in the pre-fitted circle's
     orthogonal system.
-*/
+  */
   template <typename M2xN, typename V4, int N>
-  __host__ __device__ inline VectorNd<N> cov_carttorad_prefit(const M2xN& p2D,
-                                                              const Matrix2Nd<N>& cov_cart,
-                                                              V4& fast_fit,
-                                                              const VectorNd<N>& rad) {
+  inline VectorNd<N> cov_carttorad_prefit(const M2xN& p2D,
+                                          const Matrix2Nd<N>& cov_cart,
+                                          V4& fast_fit,
+                                          const VectorNd<N>& rad) {
     constexpr uint n = N;
     VectorNd<N> cov_rad;
     for (uint i = 0; i < n; ++i) {
@@ -272,10 +265,10 @@ namespace riemannFit {
     \return weight VectorNd points' weights' vector.
     \bug I'm not sure this is the right way to compute the weights for non
     diagonal cov matrix. Further investigation needed.
-*/
+  */
 
   template <int N>
-  __host__ __device__ inline VectorNd<N> weightCircle(const MatrixNd<N>& cov_rad_inv) {
+  inline VectorNd<N> weightCircle(const MatrixNd<N>& cov_rad_inv) {
     return cov_rad_inv.colwise().sum().transpose();
   }
 
@@ -286,9 +279,9 @@ namespace riemannFit {
     \param p2D 2D points in transverse plane.
     \param par_uvr result of the circle fit in this form: (X0,Y0,R).
     \return q int 1 or -1.
-*/
+  */
   template <typename M2xN>
-  __host__ __device__ inline int32_t charge(const M2xN& p2D, const Vector3d& par_uvr) {
+  inline int32_t charge(const M2xN& p2D, const Vector3d& par_uvr) {
     return ((p2D(0, 1) - p2D(0, 0)) * (par_uvr.y() - p2D(1, 0)) - (p2D(1, 1) - p2D(1, 0)) * (par_uvr.x() - p2D(0, 0)) >
             0)
                ? -1
@@ -308,9 +301,9 @@ namespace riemannFit {
     and 3x3 Matrix) wich computes eigendecomposition of given matrix using a
     fast closed-form algorithm.
     For this optimization the matrix type must be known at compiling time.
-*/
+  */
 
-  __host__ __device__ inline Vector3d min_eigen3D(const Matrix3d& A, double& chi2) {
+  inline Vector3d min_eigen3D(const Matrix3d& A, double& chi2) {
 #ifdef RFIT_DEBUG
     printf("min_eigen3D - enter\n");
 #endif
@@ -333,9 +326,9 @@ namespace riemannFit {
     \detail The computedDirect() method of SelfAdjointEigenSolver for 3x3 Matrix
     indeed, use trigonometry function (it solves a third degree equation) which
     speed up in  single precision.
-*/
+  */
 
-  __host__ __device__ inline Vector3d min_eigen3D_fast(const Matrix3d& A) {
+  inline Vector3d min_eigen3D_fast(const Matrix3d& A) {
     Eigen::SelfAdjointEigenSolver<Matrix3f> solver(3);
     solver.computeDirect(A.cast<float>());
     int min_index;
@@ -351,9 +344,9 @@ namespace riemannFit {
     \detail The computedDirect() method of SelfAdjointEigenSolver for 2x2 Matrix
     do not use special math function (just sqrt) therefore it doesn't speed up
     significantly in single precision.
-*/
+  */
 
-  __host__ __device__ inline Vector2d min_eigen2D(const Matrix2d& aMat, double& chi2) {
+  inline Vector2d min_eigen2D(const Matrix2d& aMat, double& chi2) {
     Eigen::SelfAdjointEigenSolver<Matrix2d> solver(2);
     solver.computeDirect(aMat);
     int min_index;
@@ -372,10 +365,10 @@ namespace riemannFit {
     - weights estimation and chi2 computation in line fit (fundamental);
     - weights estimation and chi2 computation in circle fit (useful);
     - computation of error due to multiple scattering.
-*/
+  */
 
   template <typename M3xN, typename V4>
-  __host__ __device__ inline void fastFit(const M3xN& hits, V4& result) {
+  inline void fastFit(const M3xN& hits, V4& result) {
     constexpr uint32_t N = M3xN::ColsAtCompileTime;
     constexpr auto n = N;  // get the number of hits
     printIt(&hits, "Fast_fit - hits: ");
@@ -453,14 +446,14 @@ namespace riemannFit {
     \bug for small pt (<0.3 Gev/c) chi2 could be slightly underestimated.
     \bug further investigation needed for error propagation with multiple
     scattering.
-*/
+   */
   template <typename M2xN, typename V4, int N>
-  __host__ __device__ inline CircleFit circleFit(const M2xN& hits2D,
-                                                 const Matrix2Nd<N>& hits_cov2D,
-                                                 const V4& fast_fit,
-                                                 const VectorNd<N>& rad,
-                                                 const double bField,
-                                                 const bool error) {
+  inline CircleFit circleFit(const M2xN& hits2D,
+                             const Matrix2Nd<N>& hits_cov2D,
+                             const V4& fast_fit,
+                             const VectorNd<N>& rad,
+                             const double bField,
+                             const bool error) {
 #ifdef RFIT_DEBUG
     printf("circle_fit - enter\n");
 #endif
@@ -769,28 +762,27 @@ namespace riemannFit {
   }
 
   /*!  \brief Perform an ordinary least square fit in the s-z plane to compute
- * the parameters cotTheta and Zip.
- *
- * The fit is performed in the rotated S3D-Z' plane, following the formalism of
- * Frodesen, Chapter 10, p. 259.
- *
- * The system has been rotated to both try to use the combined errors in s-z
- * along Z', as errors in the Y direction and to avoid the patological case of
- * degenerate lines with angular coefficient m = +/- inf.
- *
- * The rotation is using the information on the theta angle computed in the
- * fast fit. The rotation is such that the S3D axis will be the X-direction,
- * while the rotated Z-axis will be the Y-direction. This pretty much follows
- * what is done in the same fit in the Broken Line approach.
- */
-
+   * the parameters cotTheta and Zip.
+   *
+   * The fit is performed in the rotated S3D-Z' plane, following the formalism of
+   * Frodesen, Chapter 10, p. 259.
+   *
+   * The system has been rotated to both try to use the combined errors in s-z
+   * along Z', as errors in the Y direction and to avoid the patological case of
+   * degenerate lines with angular coefficient m = +/- inf.
+   *
+   * The rotation is using the information on the theta angle computed in the
+   * fast fit. The rotation is such that the S3D axis will be the X-direction,
+   * while the rotated Z-axis will be the Y-direction. This pretty much follows
+   * what is done in the same fit in the Broken Line approach.
+   */
   template <typename M3xN, typename M6xN, typename V4>
-  __host__ __device__ inline LineFit lineFit(const M3xN& hits,
-                                             const M6xN& hits_ge,
-                                             const CircleFit& circle,
-                                             const V4& fast_fit,
-                                             const double bField,
-                                             const bool error) {
+  inline LineFit lineFit(const M3xN& hits,
+                         const M6xN& hits_ge,
+                         const CircleFit& circle,
+                         const V4& fast_fit,
+                         const double bField,
+                         const bool error) {
     constexpr uint32_t N = M3xN::ColsAtCompileTime;
     constexpr auto n = N;
     double theta = -circle.qCharge * atan(fast_fit(3));
@@ -972,7 +964,7 @@ namespace riemannFit {
    (see Circle_fit() documentation for further info).
    \warning see Circle_fit(), Line_fit() and Fast_fit() warnings.
    \bug see Circle_fit(), Line_fit() and Fast_fit() bugs.
-*/
+  */
 
   template <int N>
   inline HelixFit helixFit(const Matrix3xNd<N>& hits,

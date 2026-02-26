@@ -217,7 +217,7 @@ namespace {
 void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandidate& cand,
                                                             TEveElement* holder,
                                                             const FWViewContext* vc) {
-  reco::PFCandidate::ElementsInBlocks eleInBlocks = cand.elementsInBlocks();
+  const reco::PFCandidate::ElementsInBlocks& eleInBlocks = cand.elementsInBlocks();
 
   TEveBoxSet* boxset = nullptr;
   TEveStraightLineSet* lineset = nullptr;

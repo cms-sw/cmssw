@@ -39,7 +39,7 @@ particleFlowClusterHBHE = cms.EDProducer(
         nNeighbours = cms.int32(4),
     ),
     initialClusteringStep = cms.PSet(
-        algoName = cms.string("Basic2DGenericTopoClusterizer"),    
+        algoName = cms.string("Basic2DGenericTopoClusterizer"),
         thresholdsByDetector = cms.VPSet(
         cms.PSet( detector = cms.string("HCAL_BARREL1"),
                   depths = cms.vint32(1, 2, 3, 4),
@@ -54,14 +54,14 @@ particleFlowClusterHBHE = cms.EDProducer(
         ),
         useCornerCells = cms.bool(True)
     ),
-    
+
     pfClusterBuilder = cms.PSet(
            algoName = cms.string("Basic2DGenericPFlowClusterizer"),
            #pf clustering parameters
            minFractionToKeep = cms.double(1e-7),
            positionCalc = cms.PSet(
                  algoName = cms.string("Basic2DGenericPFlowPositionCalc"),
-                 minFractionInCalc = cms.double(1e-9),    
+                 minFractionInCalc = cms.double(1e-9),
                  posCalcNCrystals = cms.int32(5),
                  logWeightDenominatorByDetector = cms.VPSet(
                        cms.PSet( detector = cms.string("HCAL_BARREL1"),
@@ -77,7 +77,7 @@ particleFlowClusterHBHE = cms.EDProducer(
            ),
            allCellsPositionCalc =cms.PSet(
                  algoName = cms.string("Basic2DGenericPFlowPositionCalc"),
-                 minFractionInCalc = cms.double(1e-9),    
+                 minFractionInCalc = cms.double(1e-9),
                  posCalcNCrystals = cms.int32(-1),
                  logWeightDenominatorByDetector = cms.VPSet(
                        cms.PSet( detector = cms.string("HCAL_BARREL1"),
@@ -91,7 +91,7 @@ particleFlowClusterHBHE = cms.EDProducer(
                        ),
                  minAllowedNormalization = cms.double(1e-9)
            ),
-           
+
 
            timeSigmaEB = cms.double(10.),
            timeSigmaEE = cms.double(10.),
@@ -169,3 +169,25 @@ particleFlowClusterHBHEOnly = particleFlowClusterHBHE.clone(
 from Configuration.Eras.Modifier_hcalPfCutsFromDB_cff import hcalPfCutsFromDB
 hcalPfCutsFromDB.toModify( particleFlowClusterHBHE,
                            usePFThresholdsFromDB = True)
+
+# Alpaka and legacy
+particleFlowClusterHBHEOnlyLegacy = particleFlowClusterHBHEOnly.clone()
+
+from RecoParticleFlow.PFClusterProducer.legacyPFClusterProducer_cfi import legacyPFClusterProducer as _legacyPFClusterProducer
+from Configuration.ProcessModifiers.alpaka_cff import alpaka
+alpaka.toReplaceWith(particleFlowClusterHBHE, _legacyPFClusterProducer.clone(
+        src = 'pfClusterSoAProducer',
+        pfClusterBuilder = particleFlowClusterHBHE.pfClusterBuilder.clone(),
+        recHitsSource = 'particleFlowRecHitHBHE',
+        PFRecHitsLabelIn = 'pfRecHitSoAProducerHCAL'
+    )
+)
+
+alpaka.toReplaceWith(particleFlowClusterHBHEOnly, _legacyPFClusterProducer.clone(
+        src = 'pfClusterSoAProducerHBHEOnly',
+        pfClusterBuilder = particleFlowClusterHBHE.pfClusterBuilder.clone(),
+        recHitsSource = 'particleFlowRecHitHBHEOnly',
+        PFRecHitsLabelIn = 'pfRecHitSoAProducerHBHEOnly'
+    )
+)
+

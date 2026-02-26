@@ -29,6 +29,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociatorBaseImpl.h"
+#include "DataFormats/Common/interface/Uninitialized.h"
 
 // forward declarations
 
@@ -38,7 +39,8 @@ namespace reco {
 #ifndef __GCCXML__
     TrackToTrackingParticleAssociator(std::unique_ptr<reco::TrackToTrackingParticleAssociatorBaseImpl>);
 #endif
-    TrackToTrackingParticleAssociator() = default;
+    TrackToTrackingParticleAssociator() = delete;
+    explicit TrackToTrackingParticleAssociator(edm::Uninitialized) noexcept {};
     TrackToTrackingParticleAssociator(TrackToTrackingParticleAssociator &&) = default;
     TrackToTrackingParticleAssociator &operator=(TrackToTrackingParticleAssociator &&) = default;
     TrackToTrackingParticleAssociator(const TrackToTrackingParticleAssociator &) = delete;  // stop default

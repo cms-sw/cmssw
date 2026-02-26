@@ -29,9 +29,10 @@ namespace edmtest {
   class AssociationMapProducer : public edm::one::EDProducer<> {
   public:
     explicit AssociationMapProducer(edm::ParameterSet const&);
-    ~AssociationMapProducer() override;
 
     void produce(edm::Event&, edm::EventSetup const&) override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     typedef edm::AssociationMap<edm::OneToValue<std::vector<int>, double> > AssocOneToValue;
     typedef edm::AssociationMap<edm::OneToOne<std::vector<int>, std::vector<int> > > AssocOneToOne;
@@ -65,7 +66,12 @@ namespace edmtest {
     produces<AssocOneToOneView>("twoArg");
   }
 
-  AssociationMapProducer::~AssociationMapProducer() {}
+  void AssociationMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("inputTag1");
+    desc.add<edm::InputTag>("inputTag2");
+    descriptions.addDefault(desc);
+  }
 
   void AssociationMapProducer::produce(edm::Event& event, edm::EventSetup const&) {
     edm::Handle<std::vector<int> > inputCollection1 = event.getHandle(inputToken1_);

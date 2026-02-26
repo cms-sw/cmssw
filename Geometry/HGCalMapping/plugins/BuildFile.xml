@@ -13,6 +13,10 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<library file="HGCalMappingTriggerESProducer.cc">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <!-- alpaka-based portable plugins -->
 <library file="alpaka/*.cc" name="GeometryHGCalMappingPluginsPortable">
   <use name="alpaka"/>

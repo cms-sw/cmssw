@@ -37,7 +37,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Reflection/interface/DictionaryTools.h"
 
 namespace edm {
@@ -65,7 +64,9 @@ namespace edm {
     bool OutputModuleBase::doEvent(EventTransitionInfo const& info,
                                    ActivityRegistry* act,
                                    ModuleCallingContext const* mcc) {
-      { core::OutputModuleCore::doEvent_(info, act, mcc); }
+      {
+        core::OutputModuleCore::doEvent_(info, act, mcc);
+      }
       if (remainingEvents_ > 0) {
         --remainingEvents_;
       }

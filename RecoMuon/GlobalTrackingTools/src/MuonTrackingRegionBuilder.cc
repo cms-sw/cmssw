@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/DescriptionCloner.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -265,6 +266,13 @@ std::unique_ptr<RectangularEtaPhiTrackingRegion> MuonTrackingRegionBuilder::regi
   return region;
 }
 
+namespace {
+  const edm::InputTag kHltBeamSpot("hltOnlineBeamSpot");
+  const edm::InputTag kHltVertexCollection("pixelVertices");
+  const edm::InputTag kHltMeasurementTrackerName("hltESPMeasurementTracker");
+  const edm::InputTag kHltInput("hltL2Muons", "UpdatedAtVtx");
+}  // namespace
+
 void MuonTrackingRegionBuilder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   {
     edm::ParameterSetDescription desc;
@@ -272,68 +280,57 @@ void MuonTrackingRegionBuilder::fillDescriptions(edm::ConfigurationDescriptions&
     descriptions.add("MuonTrackingRegionBuilder", desc);
   }
   {
-    edm::ParameterSetDescription desc;
-    fillDescriptionsHLT(desc);
+    edm::DescriptionCloner desc;
+    //NOTE: any changes done here need to be done in fillDescriptionsHLT as well
+    desc.set<edm::InputTag>("beamSpot", kHltBeamSpot);
+    desc.set<edm::InputTag>("vertexCollection", kHltVertexCollection);
+    desc.set<edm::InputTag>("MeasurementTrackerName", kHltMeasurementTrackerName);
+    desc.set<edm::InputTag>("input", kHltInput);
     descriptions.add("MuonTrackingRegionBuilderHLT", desc);
   }
   descriptions.setComment(
       "Build a TrackingRegion around a standalone muon. Options to define region around beamspot or primary vertex and "
       "dynamic regions are included.");
 }
+namespace {
+  void fillDescriptionsCommon(edm::ParameterSetDescription& desc) {
+    desc.add<double>("EtaR_UpperLimit_Par1", 0.25);
+    desc.add<double>("DeltaR", 0.2);
+    desc.add<int>("OnDemand", -1);
+    desc.add<double>("Rescale_phi", 3.0);
+    desc.add<bool>("Eta_fixed", false);
+    desc.add<double>("Rescale_eta", 3.0);
+    desc.add<double>("PhiR_UpperLimit_Par2", 0.2);
+    desc.add<double>("Eta_min", 0.05);
+    desc.add<bool>("Phi_fixed", false);
+    desc.add<double>("Phi_min", 0.05);
+    desc.add<double>("PhiR_UpperLimit_Par1", 0.6);
+    desc.add<double>("EtaR_UpperLimit_Par2", 0.15);
+    desc.add<bool>("UseVertex", false);
+    desc.add<double>("Rescale_Dz", 3.0);
+    desc.add<bool>("Pt_fixed", false);
+    desc.add<bool>("Z_fixed", true);
+    desc.add<double>("Pt_min", 1.5);
+    desc.add<double>("DeltaZ", 15.9);
+    desc.add<double>("DeltaEta", 0.2);
+    desc.add<double>("DeltaPhi", 0.2);
+    desc.add<int>("maxRegions", 1);
+    desc.add<bool>("precise", true);
+  }
+}  // namespace
+
 void MuonTrackingRegionBuilder::fillDescriptionsHLT(edm::ParameterSetDescription& desc) {
-  desc.add<double>("EtaR_UpperLimit_Par1", 0.25);
-  desc.add<double>("DeltaR", 0.2);
-  desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
-  desc.add<int>("OnDemand", -1);
-  desc.add<edm::InputTag>("vertexCollection", edm::InputTag("pixelVertices"));
-  desc.add<double>("Rescale_phi", 3.0);
-  desc.add<bool>("Eta_fixed", false);
-  desc.add<double>("Rescale_eta", 3.0);
-  desc.add<double>("PhiR_UpperLimit_Par2", 0.2);
-  desc.add<double>("Eta_min", 0.05);
-  desc.add<bool>("Phi_fixed", false);
-  desc.add<double>("Phi_min", 0.05);
-  desc.add<double>("PhiR_UpperLimit_Par1", 0.6);
-  desc.add<double>("EtaR_UpperLimit_Par2", 0.15);
-  desc.add<edm::InputTag>("MeasurementTrackerName", edm::InputTag("hltESPMeasurementTracker"));
-  desc.add<bool>("UseVertex", false);
-  desc.add<double>("Rescale_Dz", 3.0);
-  desc.add<bool>("Pt_fixed", false);
-  desc.add<bool>("Z_fixed", true);
-  desc.add<double>("Pt_min", 1.5);
-  desc.add<double>("DeltaZ", 15.9);
-  desc.add<double>("DeltaEta", 0.2);
-  desc.add<double>("DeltaPhi", 0.2);
-  desc.add<int>("maxRegions", 1);
-  desc.add<bool>("precise", true);
-  desc.add<edm::InputTag>("input", edm::InputTag("hltL2Muons", "UpdatedAtVtx"));
+  fillDescriptionsCommon(desc);
+  desc.add<edm::InputTag>("beamSpot", kHltBeamSpot);
+  desc.add<edm::InputTag>("vertexCollection", kHltVertexCollection);
+  desc.add<edm::InputTag>("MeasurementTrackerName", kHltMeasurementTrackerName);
+  desc.add<edm::InputTag>("input", kHltInput);
 }
 
 void MuonTrackingRegionBuilder::fillDescriptionsOffline(edm::ParameterSetDescription& desc) {
-  desc.add<double>("EtaR_UpperLimit_Par1", 0.25);
-  desc.add<double>("DeltaR", 0.2);
+  fillDescriptionsCommon(desc);
   desc.add<edm::InputTag>("beamSpot", edm::InputTag(""));
-  desc.add<int>("OnDemand", -1);
   desc.add<edm::InputTag>("vertexCollection", edm::InputTag(""));
-  desc.add<double>("Rescale_phi", 3.0);
-  desc.add<bool>("Eta_fixed", false);
-  desc.add<double>("Rescale_eta", 3.0);
-  desc.add<double>("PhiR_UpperLimit_Par2", 0.2);
-  desc.add<double>("Eta_min", 0.05);
-  desc.add<bool>("Phi_fixed", false);
-  desc.add<double>("Phi_min", 0.05);
-  desc.add<double>("PhiR_UpperLimit_Par1", 0.6);
-  desc.add<double>("EtaR_UpperLimit_Par2", 0.15);
   desc.add<edm::InputTag>("MeasurementTrackerName", edm::InputTag(""));
-  desc.add<bool>("UseVertex", false);
-  desc.add<double>("Rescale_Dz", 3.0);
-  desc.add<bool>("Pt_fixed", false);
-  desc.add<bool>("Z_fixed", true);
-  desc.add<double>("Pt_min", 1.5);
-  desc.add<double>("DeltaZ", 15.9);
-  desc.add<double>("DeltaEta", 0.2);
-  desc.add<double>("DeltaPhi", 0.2);
-  desc.add<int>("maxRegions", 1);
-  desc.add<bool>("precise", true);
   desc.add<edm::InputTag>("input", edm::InputTag(""));
 }

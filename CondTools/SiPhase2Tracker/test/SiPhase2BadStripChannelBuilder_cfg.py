@@ -67,10 +67,10 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         authenticationPath = cms.untracked.string('')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:SiStripBadStripPhase2_T33_v0.db'),
+    connect = cms.string('sqlite_file:SiStripBadStripPhase2_T35_v0.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripBadStripRcd'),
-        tag = cms.string('SiStripBadStripPhase2_T33')
+        tag = cms.string('SiStripBadStripPhase2_T35')
     ))
 )
 

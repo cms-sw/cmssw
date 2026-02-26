@@ -13,22 +13,22 @@
 //                debug=false
 //
 //             Same as FitHistExtend with summary of each ieta/depth
-//  FitHistExtended2(infile, outfile, prefix, numb, append, iname, debug);
-//      Defaults: numb=50, append=true, iname=3, debug=false
+//  FitHistExtended2(infile, outfile, prefix, numb, type, append, iname, debug);
+//      Defaults: numb=50, type=0, append=true, iname=3, debug=false
 //
 //             For RBX dependence in sets of histograms from CalibMonitor
 //  FitHistRBX(infile, outfile, prefix, append, iname);
-//      Defaults: append=true, iname=2
+//      Defaults: append=true, iname=3
 //
 //             For plotting stored histograms from FitHist's
 //  PlotHist(infile, prefix, text, modePlot, kopt, lumi, ener, isRealData,
 //           drawStatBox, save);
-//      Defaults: modePlot=4, kopt=100, lumi=0, ener=13, isRealData=false,
+//      Defaults: modePlot=4, kopt=100, lumi=0, ener=13.0, isRealData=false,
 //                drawStatBox=true, save=0
 //
 //             For plotting histograms corresponding to individual ieta's
 //  PlotHistEta(infile, prefix, text, iene, numb, ieta, lumi, ener, isRealData,
-//           drawStatBox, save);
+//              drawStatBox, save);
 //      Defaults iene=3, numb=50, ieta=0, lumi=0, ener=13.0, isRealData=false,
 //                drawStatBox=true, save=0
 //
@@ -42,7 +42,7 @@
 //             prefixes residing in the same file with approrprate text
 //  PlotTwoHists(infile, prefix1, text1, prefix2, text2, text0, type, iname,
 //               lumi, ener, drawStatBox, save);
-//      Defaults: type=0; iname=2; lumi=0; ener=13; drawStatBox=true;
+//      Defaults: type=0; iname=3; lumi=0; ener=13.0; drawStatBox=0;
 //                save=0;
 //      Note prefixN, textN have the same meaning as prefix and text for set N
 //           text0 is the text for general title added within ()
@@ -53,7 +53,7 @@
 //  PlotFiveHists(infile, text0, prefix0, type, iname, drawStatBox, normalize,
 //                save, prefix1, text1, prefix2, text2, prefix3, text3,
 //                 prefix4, text4, prefix5, text5);
-//      Defaults: type=0; iname=0; drawStatBox=true; normalize=false;
+//      Defaults: type=0; iname=3; drawStatBox=0; normalize=false;
 //                save=0; prefixN=""; textN=""; (for N > 0)
 //      Note prefixN, textN have the same meaning as prefix and text for set N
 //           text0 is the text for general title added within ()
@@ -66,14 +66,14 @@
 //             For plotting correction factors
 //  PlotHistCorrFactor(infile, text, prefixF, scale, nmin, isRealData,
 //                     drawStatBox, iformat, save);
-//      Defaults: isRealData=true, drwaStatBox=false, nmin=100, iformat=0,
-//                save=0
+//      Defaults: scale=1.0, nmin=100, isRealData=true, drawStatBox=false,
+//                iformat=0, save=0
 //
 //             For plotting correction factors for a sigle depth
 //  PlotHistCorrFactor(infile, text, depth, prefixF, scale, nmin, isRealData,
 //                     drawStatBox, iformat, save);
-//      Defaults: isRealData=true, drwaStatBox=false, nmin=100, iformat=0,
-//                save=0
+//      Defaults: scale=1.0, nmin=100, isRealData=true, drwaStatBox=false,
+//                iformat=0, save=0
 //
 //             For plotting (fractional) asymmetry in the correction factors
 //
@@ -85,20 +85,23 @@
 //
 //  PlotHistCorrFactors(infile1, text1, infile2, text2, infile3, text3,
 //                      infile4, text4, infile5, text5, prefixF, ratio,
-//                      drawStatBox, nmin, isRealData, year, iformat, save)
+//                      drawStatBox, nmin, isRealData, year, iformat, range,
+//                      save)
 //      Defaults: ratio=false, drawStatBox=true, nmin=100, isRealData=false,
-//                year="2024", iformat=0, save=0
+//                year="2025", iformat=0, range=1, save=0
 //
 //  PlotHistCorr2Factors(infile1, text1, infile2, text2, depth, prefixF, ratio,
-//                      drawStatBox, nmin, isRealData, year, iformat, save)
+//                      drawStatBox, nmin, isRealData, year, iformat, range,
+//                      save)
 //      Defaults: ratio=true, drawStatBox=false, nmin=100, isRealData=true,
-//                year="2024", iformat=0, save=0
+//                year="2025", iformat=0, range=1, save=0
 //
 //  PlotHistCorrDFactors(infile1, text1, infile2, text2, infile3, text3,
 //                      infile4, text4, infile5, text5, depth, prefixF, ratio,
-//                      drawStatBox, nmin, isRealData, year, iformat, save)
+//                      drawStatBox, nmin, isRealData, year, iformat, range,
+//                      save)
 //      Defaults: ratio=true, drawStatBox=false, nmin=100, isRealData=true,
-//                year="2024", iformat=0, save=0
+//                year="2025", iformat=0, range=0, save=0
 //
 //             For plotting correction factors including systematics
 //  PlotHistCorrSys(infilec, conds, text, save)
@@ -115,8 +118,8 @@
 //
 //             For plotting difference of correction factors for a given depth
 //  PlotHistCorrDepth(infile1, infile2, text1, text2, depth, iformat1, iformat2,
-//                    save)
-//      Defaults: iformat1=0, iformat2=0, save=0
+//                    save, debug)
+//      Defaults: iformat1=0, iformat2=0, save=0, debug=1
 //
 //             For plotting four histograms
 //  PlotFourHists(infile, prefix0, type, drawStatBox, normalize, save, prefix1,
@@ -126,26 +129,26 @@
 //
 //            For plotting PU corrected histograms (o/p of CalibPlotCombine)
 //  PlotPUCorrHists(infile, prefix drawStatBox, approve, save)
-//      Defaults: infile = "corrfac.root", prefix = "", drawStatBox = 0,
-//                approve = true, save = 0
+//      Defaults: infile="corrfac.root", prefix="", drawStatBox=0,
+//                approve=true, save=0
 //
 //             For plotting histograms obtained from fits to PU correction
 //             (o/p of CalibFitPU) for a given ieta using 2D/profile/Graphs
 //  PlotHistCorr(infile, prefix, text, eta, mode, drawStatBox, save)
-//      Defaults eta = 0 (all ieta values), mode = 1 (profile histograms),
-//               drawStatBox = true, save = 0
+//      Defaults eta=0 (all ieta values), mode=1 (profile histograms),
+//               drawStatBox=true, save=0
 //
 //             For plotting histograms created by CalibPlotProperties
 //  PlotPropertyHist(infile, prefix, text, etaMax, lumi, ener, isRealData,
 //		     drawStatBox, save)
-//      Defaults etaMax = 25 (draws for eta = 1 .. etaMax), lumi = 0,
-//               ener = 13.0, isRealData = false,  drawStatBox = true, save = 0
+//      Defaults etaMax=25 (draws for eta = 1 .. etaMax), lumi=0,
+//               ener=13.0, isRealData=false,  drawStatBox=true, save=0
 //
 //            For plotting mean response and resolution as a function of
 //            particle momentum
 //  PlotMeanError(infilest, region, resol, save, debug)
-//      Defaults region = 3 (overall), resol = false (response), save = 0,
-//               debug = false
+//      Defaults region=3 (overall), resol=false (response), save=0,
+//               debug=false
 //      Format of the input file:
 //       # of energy points, # of types, # of regions
 //       Then for each type, energy point
@@ -155,18 +158,27 @@
 //
 //            For plotting depth dependent correction factors from muon study
 //  PlotDepthCorrFactor(infile, text, prefix, isRealData, drawStatBox, save)
-//      Defaults prefix = "", isRealData = true, drawStatBox = true, save = 0
+//      Defaults prefix="", isRealData=true, drawStatBox=true, save=0
 //      Format for the input file: ieta and correcrion factor with its
 //             uncertainty for each depth
+//
+//            For plotting histogram defined in "hist0" of phisymmetry
+//  DrawHistPhiSymmetry(hist0, isRealData, drawStatBox, save)
+//      Defaults save=false
+//
+//            For plotting phisymmetry results
+//  PlotPhiSymmetryResults(char* infile, isRealData, drawStatBox, debug, save)
+//      Defaults isRealData=true, drawStatBox=true, debug=false, save=false
 //
 //            For plotting ratio of correction factors as defined in a file
 //            give by infileX for 2 depths (depth1, depth2) as a function of
 //            ieta obaned from 2 sources of data (defined by text1 and text2)
+//
 //  PlotHistCorrRatio(infile1, text1, infile2, text2, depth1, depth2, prefix,
 //                    text0, etaMin, etaMax, doFit, isRealData, year, iformat,
-//                    save)
-//      Defaults etaMin = -1, etaMax = -1, doFit = true, isRealData = true,
-//               year = "2024", iformat = 0, save = 0
+//                    range, save)
+//      Defaults etaMin=-1, etaMax=-1, doFit=true, isRealData=true,
+//               year="2025", iformat=0, range=2, save=0
 //      text0 is a general description common to both sets of corr factors
 //      etaMin < 0 and etaMax > 0 will take ieta range from -etaMax to +etaMax;
 //      etaMin > 0 will select ieta's where |ieta| is greater than etaMin
@@ -235,6 +247,11 @@
 //                           false = response (false)
 //  iformat  (int)         = flag if it is created by standard (0) or by
 //                           Marina's (1) code
+//  range    (int)         = sets the range for y-axis
+//                           if (range == 0) ylow = 0.8; yhigh = 1.2;
+//                           else if (range == 1) ylow = 0.5; yhigh = 1.5;
+//                           else if (range == 2) ylow = 0.0; yhigh = 3.0;
+//                           else ylow = 0.0; yhigh = 2.0;
 //////////////////////////////////////////////////////////////////////////////
 
 #include <TCanvas.h>
@@ -656,7 +673,7 @@ results fitDoubleSidedCrystalball(TH1D* hist, bool /* fitTwice */, bool debug) {
   return results(value, error, width, werror);
 }
 
-void readCorrFactors(char* infile,
+void readCorrFactors(std::string infile,
                      double scale,
                      std::map<int, cfactors>& cfacs,
                      int& etamin,
@@ -665,7 +682,7 @@ void readCorrFactors(char* infile,
                      int iformat = 0,
                      bool debug = false) {
   cfacs.clear();
-  std::ifstream fInput(infile);
+  std::ifstream fInput(infile.c_str());
   if (!fInput.good()) {
     std::cout << "Cannot open file " << infile << std::endl;
   } else {
@@ -2293,7 +2310,7 @@ void PlotHistCorrResults(std::string infile, std::string text, std::string prefi
   }
 }
 
-void PlotHistCorrFactor(char* infile,
+void PlotHistCorrFactor(std::string infile,
                         std::string text,
                         std::string prefixF,
                         double scale = 1.0,
@@ -2437,7 +2454,7 @@ void PlotHistCorrFactor(char* infile,
   }
 }
 
-void PlotHistCorrFactor(char* infile,
+void PlotHistCorrFactor(std::string infile,
                         std::string text,
                         int depth,
                         std::string prefixF,
@@ -2580,7 +2597,7 @@ void PlotHistCorrFactor(char* infile,
 }
 
 void PlotHistCorrAsymmetry(
-    char* infile, std::string text, std::string prefixF = "", int depth = -1, int iformat = 0, int save = 0) {
+    std::string infile, std::string text, std::string prefixF = "", int depth = -1, int iformat = 0, int save = 0) {
   std::map<int, cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);
   double scale(1.0);
@@ -2682,28 +2699,29 @@ void PlotHistCorrAsymmetry(
   }
 }
 
-void PlotHistCorrFactors(char* infile1,
+void PlotHistCorrFactors(std::string infile1,
                          std::string text1,
-                         char* infile2,
+                         std::string infile2,
                          std::string text2,
-                         char* infile3,
+                         std::string infile3,
                          std::string text3,
-                         char* infile4,
+                         std::string infile4,
                          std::string text4,
-                         char* infile5,
+                         std::string infile5,
                          std::string text5,
                          std::string prefixF,
-                         bool ratio = false,
-                         bool drawStatBox = true,
+                         bool ratio = true,
+                         bool drawStatBox = false,
                          int nmin = 100,
-                         bool isRealData = false,
-                         const char* year = "2024",
+                         bool isRealData = true,
+                         const char* year = "2025",
                          int iformat = 0,
+                         int range = 0,
                          int save = 0) {
   std::map<int, cfactors> cfacs[5];
   std::vector<std::string> texts;
   int nfile(0), etamin(100), etamax(-100), maxdepth(0);
-  const char* blank("");
+  std::string blank("");
   if (infile1 != blank) {
     readCorrFactors(infile1, 1.0, cfacs[nfile], etamin, etamax, maxdepth, iformat);
     if (cfacs[nfile].size() > 0) {
@@ -2746,6 +2764,20 @@ void PlotHistCorrFactors(char* infile1,
     gStyle->SetPadColor(kWhite);
     gStyle->SetFillColor(kWhite);
     gStyle->SetOptTitle(0);
+    double ylow, yhigh;
+    if (range == 0) {
+      ylow = 0.8;
+      yhigh = 1.2;
+    } else if (range == 1) {
+      ylow = 0.5;
+      yhigh = 1.5;
+    } else if (range == 2) {
+      ylow = 0.0;
+      yhigh = 3.0;
+    } else {
+      ylow = 0.0;
+      yhigh = 2.0;
+    }
     if ((!ratio) && drawStatBox) {
       gStyle->SetOptStat(10);
       gStyle->SetOptFit(10);
@@ -2779,7 +2811,7 @@ void PlotHistCorrFactors(char* infile1,
             if (dep == j + 1) {
               int ieta = (itr->second).ieta;
               int bin = ieta - etamin + 1;
-              float val = (itr->second).corrf / (ktr->second).corrf;
+              float val = (ktr->second).corrf / (itr->second).corrf;
               float dvl =
                   val *
                   sqrt((((itr->second).dcorr * (itr->second).dcorr) / ((itr->second).corrf * (itr->second).corrf)) +
@@ -2801,14 +2833,14 @@ void PlotHistCorrFactors(char* infile1,
           h->SetMarkerSize(0.9);
           h->GetXaxis()->SetTitle("i#eta");
           if (nfile > 2)
-            sprintf(name, "CF_{%s}/CF_{Set}", texts[0].c_str());
+            sprintf(name, "CF_{Set}/CF_{%s}", texts[0].c_str());
           else
-            sprintf(name, "CF_{%s}/CF_{%s}", texts[0].c_str(), texts[ih].c_str());
+            sprintf(name, "CF_{%s}/CF_{%s}", texts[ih].c_str(), texts[0].c_str());
           h->GetYaxis()->SetTitle(name);
           h->GetYaxis()->SetLabelOffset(0.005);
           h->GetYaxis()->SetTitleSize(0.036);
           h->GetYaxis()->SetTitleOffset(1.20);
-          h->GetYaxis()->SetRangeUser(0.50, 1.50);
+          h->GetYaxis()->SetRangeUser(ylow, yhigh);
           hists.push_back(h);
           fitr.push_back(fit);
           htype.push_back(ih);
@@ -2859,7 +2891,7 @@ void PlotHistCorrFactors(char* infile1,
           h->GetYaxis()->SetTitle("Correction Factor");
           h->GetYaxis()->SetLabelOffset(0.005);
           h->GetYaxis()->SetTitleOffset(1.20);
-          h->GetYaxis()->SetRangeUser(0.5, 1.5);
+          h->GetYaxis()->SetRangeUser(ylow, yhigh);
           hists.push_back(h);
           entries.push_back(nent);
           if (drawStatBox)
@@ -2905,7 +2937,7 @@ void PlotHistCorrFactors(char* infile1,
         }
         sprintf(name, "Depth %d (%s)", depths[k], texts[k1].c_str());
       } else {
-        sprintf(name, "Depth %d (Mean[CF_{%s}/CF_{%s}] = %5.3f)", depths[k], text1.c_str(), texts[k1].c_str(), fitr[k]);
+        sprintf(name, "Depth %d (Mean[CF_{%s}/CF_{%s}] = %5.3f)", depths[k], texts[k1].c_str(), text1.c_str(), fitr[k]);
       }
       if ((depths[k] == 1) || (k1 <= 1) || (maxdepth <= 4))
         legend->AddEntry(hists[k], name, "lp");
@@ -2942,9 +2974,9 @@ void PlotHistCorrFactors(char* infile1,
   }
 }
 
-void PlotHistCorr2Factors(char* infile1,
+void PlotHistCorr2Factors(std::string infile1,
                           std::string text1,
-                          char* infile2,
+                          std::string infile2,
                           std::string text2,
                           int depth,
                           std::string prefixF,
@@ -2952,13 +2984,14 @@ void PlotHistCorr2Factors(char* infile1,
                           bool drawStatBox = false,
                           int nmin = 100,
                           bool isRealData = true,
-                          const char* year = "2024",
+                          const char* year = "2025",
                           int iformat = 0,
+                          int range = 1,
                           int save = 0) {
   std::map<int, cfactors> cfacs[5];
   std::vector<std::string> texts;
   int nfile(0), etamin(100), etamax(-100), maxdepth(0);
-  const char* blank("");
+  std::string blank("");
   if (infile1 != blank) {
     readCorrFactors(infile1, 1.0, cfacs[nfile], etamin, etamax, maxdepth, iformat);
     if (cfacs[nfile].size() > 0) {
@@ -2980,6 +3013,20 @@ void PlotHistCorr2Factors(char* infile1,
     gStyle->SetPadColor(kWhite);
     gStyle->SetFillColor(kWhite);
     gStyle->SetOptTitle(0);
+    double ylow, yhigh;
+    if (range == 0) {
+      ylow = 0.8;
+      yhigh = 1.2;
+    } else if (range == 1) {
+      ylow = 0.5;
+      yhigh = 1.5;
+    } else if (range == 2) {
+      ylow = 0.0;
+      yhigh = 3.0;
+    } else {
+      ylow = 0.0;
+      yhigh = 2.0;
+    }
     if ((!ratio) && drawStatBox) {
       gStyle->SetOptStat(10);
       gStyle->SetOptFit(10);
@@ -3036,7 +3083,7 @@ void PlotHistCorr2Factors(char* infile1,
         h->GetYaxis()->SetLabelOffset(0.005);
         h->GetYaxis()->SetTitleSize(0.036);
         h->GetYaxis()->SetTitleOffset(1.20);
-        h->GetYaxis()->SetRangeUser(0.80, 1.20);
+        h->GetYaxis()->SetRangeUser(ylow, yhigh);
         hists.push_back(h);
         fitr.push_back(fit);
         htype.push_back(ih);
@@ -3081,7 +3128,7 @@ void PlotHistCorr2Factors(char* infile1,
         h->GetYaxis()->SetTitle("Correction Factor");
         h->GetYaxis()->SetLabelOffset(0.005);
         h->GetYaxis()->SetTitleOffset(1.20);
-        h->GetYaxis()->SetRangeUser(0.8, 1.2);
+        h->GetYaxis()->SetRangeUser(ylow, yhigh);
         hists.push_back(h);
         entries.push_back(nent);
         if (drawStatBox)
@@ -3158,15 +3205,15 @@ void PlotHistCorr2Factors(char* infile1,
   }
 }
 
-void PlotHistCorrDFactors(char* infile1,
+void PlotHistCorrDFactors(std::string infile1,
                           std::string text1,
-                          char* infile2,
+                          std::string infile2,
                           std::string text2,
-                          char* infile3,
+                          std::string infile3,
                           std::string text3,
-                          char* infile4,
+                          std::string infile4,
                           std::string text4,
-                          char* infile5,
+                          std::string infile5,
                           std::string text5,
                           int depth,
                           std::string prefixF,
@@ -3174,13 +3221,14 @@ void PlotHistCorrDFactors(char* infile1,
                           bool drawStatBox = false,
                           int nmin = 100,
                           bool isRealData = true,
-                          const char* year = "2024",
+                          const char* year = "2025",
                           int iformat = 0,
+                          int range = 0,
                           int save = 0) {
   std::map<int, cfactors> cfacs[5];
   std::vector<std::string> texts;
   int nfile(0), etamin(100), etamax(-100), maxdepth(0);
-  const char* blank("");
+  std::string blank("");
   if (infile1 != blank) {
     readCorrFactors(infile1, 1.0, cfacs[nfile], etamin, etamax, maxdepth, iformat);
     if (cfacs[nfile].size() > 0) {
@@ -3223,6 +3271,20 @@ void PlotHistCorrDFactors(char* infile1,
     gStyle->SetPadColor(kWhite);
     gStyle->SetFillColor(kWhite);
     gStyle->SetOptTitle(0);
+    double ylow, yhigh;
+    if (range == 0) {
+      ylow = 0.8;
+      yhigh = 1.2;
+    } else if (range == 1) {
+      ylow = 0.5;
+      yhigh = 1.5;
+    } else if (range == 2) {
+      ylow = 0.0;
+      yhigh = 3.0;
+    } else {
+      ylow = 0.0;
+      yhigh = 2.0;
+    }
     if ((!ratio) && drawStatBox) {
       gStyle->SetOptStat(10);
       gStyle->SetOptFit(10);
@@ -3255,7 +3317,7 @@ void PlotHistCorrDFactors(char* infile1,
           if (dep == depth) {
             int ieta = (itr->second).ieta;
             int bin = ieta - etamin + 1;
-            float val = (itr->second).corrf / (ktr->second).corrf;
+            float val = (ktr->second).corrf / (itr->second).corrf;
             float dvl =
                 val * sqrt((((itr->second).dcorr * (itr->second).dcorr) / ((itr->second).corrf * (itr->second).corrf)) +
                            (((ktr->second).dcorr * (ktr->second).dcorr) / ((ktr->second).corrf * (ktr->second).corrf)));
@@ -3276,14 +3338,14 @@ void PlotHistCorrDFactors(char* infile1,
         h->SetMarkerSize(0.9);
         h->GetXaxis()->SetTitle("i#eta");
         if (nfile > 2)
-          sprintf(name, "CF_{%s}/CF_{Set}", texts[0].c_str());
+          sprintf(name, "CF_{Set}/CF_{%s}", texts[0].c_str());
         else
-          sprintf(name, "CF_{%s}/CF_{%s}", texts[0].c_str(), texts[ih].c_str());
+          sprintf(name, "CF_{%s}/CF_{%s}", texts[ih].c_str(), texts[0].c_str());
         h->GetYaxis()->SetTitle(name);
         h->GetYaxis()->SetLabelOffset(0.005);
         h->GetYaxis()->SetTitleSize(0.036);
         h->GetYaxis()->SetTitleOffset(1.20);
-        h->GetYaxis()->SetRangeUser(0.80, 1.20);
+        h->GetYaxis()->SetRangeUser(ylow, yhigh);
         hists.push_back(h);
         fitr.push_back(fit);
         htype.push_back(ih);
@@ -3328,7 +3390,7 @@ void PlotHistCorrDFactors(char* infile1,
         h->GetYaxis()->SetTitle("Correction Factor");
         h->GetYaxis()->SetLabelOffset(0.005);
         h->GetYaxis()->SetTitleOffset(1.20);
-        h->GetYaxis()->SetRangeUser(0.8, 1.2);
+        h->GetYaxis()->SetRangeUser(ylow, yhigh);
         hists.push_back(h);
         entries.push_back(nent);
         if (drawStatBox)
@@ -3369,7 +3431,7 @@ void PlotHistCorrDFactors(char* infile1,
         }
         sprintf(name, "Depth %d (%s)", depth, texts[k1].c_str());
       } else {
-        sprintf(name, "Depth %d (Mean[CF_{%s}/CF_{%s}] = %5.3f)", depth, text1.c_str(), texts[k1].c_str(), fitr[k]);
+        sprintf(name, "Depth %d (Mean[CF_{%s}/CF_{%s}] = %5.3f)", depth, texts[k1].c_str(), text1.c_str(), fitr[k]);
       }
       legend->AddEntry(hists[k], name, "lp");
     }
@@ -3611,8 +3673,8 @@ void PlotHistCorrLumis(std::string infilec, int conds, double lumi, int save = 0
   }
 }
 
-void PlotHistCorrRel(char* infile1,
-                     char* infile2,
+void PlotHistCorrRel(std::string infile1,
+                     std::string infile2,
                      std::string text1,
                      std::string text2,
                      int iformat1 = 0,
@@ -3739,8 +3801,8 @@ void PlotHistCorrRel(char* infile1,
   }
 }
 
-void PlotHistCorrDepth(char* infile1,
-                       char* infile2,
+void PlotHistCorrDepth(std::string infile1,
+                       std::string infile2,
                        std::string text1,
                        std::string text2,
                        int depth,
@@ -4120,7 +4182,7 @@ void PlotPUCorrHists(std::string infile = "corrfac.root",
   }
 }
 
-void PlotHistCorr(const char* infile,
+void PlotHistCorr(std::string infile,
                   std::string prefix,
                   std::string text0,
                   int eta = 0,
@@ -4141,7 +4203,7 @@ void PlotHistCorr(const char* infile,
   std::string text[3] = {"Uncorrected no PU", "Uncorrected PU", "Corrected PU"};
   int colors[3] = {1, 4, 2};
   int styles[3] = {1, 3, 2};
-  TFile* file = new TFile(infile);
+  TFile* file = new TFile(infile.c_str());
   if (mode < 0 || mode > 2)
     mode = 1;
   int etamin = (eta == 0) ? -27 : eta;
@@ -4218,7 +4280,7 @@ void PlotHistCorr(const char* infile,
   }
 }
 
-void PlotPropertyHist(const char* infile,
+void PlotPropertyHist(std::string infile,
                       std::string prefix,
                       std::string text,
                       int etaMax = 25,
@@ -4255,7 +4317,7 @@ void PlotPropertyHist(const char* infile,
     gStyle->SetOptStat(0);
   gStyle->SetOptFit(0);
 
-  TFile* file = new TFile(infile);
+  TFile* file = new TFile(infile.c_str());
   char name[100], namep[100];
   for (int k = 1; k <= etaMax; ++k) {
     for (int j = 0; j < 3; ++j) {
@@ -4554,7 +4616,7 @@ void PlotMeanError(const std::string infilest, int reg = 3, bool resol = false, 
   }
 }
 
-void PlotDepthCorrFactor(char* infile,
+void PlotDepthCorrFactor(std::string infile,
                          std::string text,
                          std::string prefix = "",
                          bool isRealData = true,
@@ -4562,7 +4624,7 @@ void PlotDepthCorrFactor(char* infile,
                          int save = 0) {
   std::map<int, cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);
-  std::ifstream ifile(infile);
+  std::ifstream ifile(infile.c_str());
   if (!ifile.is_open()) {
     std::cout << "Cannot open duplicate file " << infile << std::endl;
   } else {
@@ -4727,7 +4789,7 @@ void PlotDepthCorrFactor(char* infile,
   }
 }
 
-void DrawHistPhiSymmetry(TH1D* hist0, bool isRealData, bool drawStatBox, bool save) {
+void DrawHistPhiSymmetry(TH1D* hist0, bool isRealData, bool drawStatBox, bool save = false) {
   char name[30], namep[30], txt1[30];
   TH1D* hist = (TH1D*)(hist0->Clone());
   sprintf(namep, "c_%s", hist->GetName());
@@ -4771,7 +4833,7 @@ void DrawHistPhiSymmetry(TH1D* hist0, bool isRealData, bool drawStatBox, bool sa
 }
 
 void PlotPhiSymmetryResults(
-    char* infile, bool isRealData = true, bool drawStatBox = true, bool debug = false, bool save = false) {
+    std::string infile, bool isRealData = true, bool drawStatBox = true, bool debug = false, bool save = false) {
   const int maxDepthHB(4), maxDepthHE(7);
   const double cfacMin(0.70), cfacMax(1.5);
   const int nbin = (100.0 * (cfacMax - cfacMin));
@@ -4801,7 +4863,7 @@ void PlotPhiSymmetryResults(
       std::cout << "Book " << h->GetName() << " Title " << h->GetTitle() << " range " << nbin << ":" << cfacMin << ":"
                 << cfacMax << std::endl;
   }
-  std::ifstream fInput(infile);
+  std::ifstream fInput(infile.c_str());
   if (!fInput.good()) {
     std::cout << "Cannot open file " << infile << std::endl;
   } else {
@@ -4881,9 +4943,9 @@ void PlotPhiSymmetryResults(
   }
 }
 
-void PlotHistCorrRatio(char* infile1,
+void PlotHistCorrRatio(std::string infile1,
                        std::string text1,
-                       char* infile2,
+                       std::string infile2,
                        std::string text2,
                        int depth1,
                        int depth2,
@@ -4895,11 +4957,12 @@ void PlotHistCorrRatio(char* infile1,
                        bool isRealData = true,
                        const char* year = "2024",
                        int iformat = 0,
+                       int range = 2,
                        int save = 0) {
   std::map<int, cfactors> cfacs[2];
   std::vector<std::string> texts;
   int nfile(0), etamin(100), etamax(-100), maxdepth(0);
-  const char* blank("");
+  std::string blank("");
   if (infile1 != blank) {
     readCorrFactors(infile1, 1.0, cfacs[nfile], etamin, etamax, maxdepth, iformat);
     if (cfacs[nfile].size() > 0) {
@@ -4931,6 +4994,20 @@ void PlotHistCorrRatio(char* infile1,
     } else {
       gStyle->SetOptStat(0);
       gStyle->SetOptFit(0);
+    }
+    double ylow, yhigh;
+    if (range == 0) {
+      ylow = 0.8;
+      yhigh = 1.2;
+    } else if (range == 1) {
+      ylow = 0.5;
+      yhigh = 1.5;
+    } else if (range == 2) {
+      ylow = 0.0;
+      yhigh = 3.0;
+    } else {
+      ylow = 0.0;
+      yhigh = 2.0;
     }
     int colors[7] = {1, 6, 4, 7, 2, 9, 3};
     int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
@@ -4982,7 +5059,7 @@ void PlotHistCorrRatio(char* infile1,
       h->GetYaxis()->SetLabelOffset(0.005);
       h->GetYaxis()->SetTitleSize(0.036);
       h->GetYaxis()->SetTitleOffset(1.20);
-      h->GetYaxis()->SetRangeUser(0.0, 3.0);
+      h->GetYaxis()->SetRangeUser(ylow, yhigh);
       if (doFit) {
         TObject* ob = gROOT->FindObject(name);
         if (ob)

@@ -2,6 +2,7 @@
 #define RecoEgamma_EgammaTools_EpCombinationTool_h
 
 #include "RecoEgamma/EgammaTools/interface/EgammaRegressionContainer.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 #include <string>
 #include <vector>
@@ -13,9 +14,6 @@ namespace edm {
   class EventSetup;
   class ConsumesCollector;
 }  // namespace edm
-namespace reco {
-  class GsfElectron;
-}
 
 class EpCombinationTool {
 public:

@@ -29,11 +29,11 @@
 //----------------------
 // Base Class Headers --
 //----------------------
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCandFwd.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-class L1MuRegionalCand;
 
 //              ---------------------
 //              -- Class Interface --

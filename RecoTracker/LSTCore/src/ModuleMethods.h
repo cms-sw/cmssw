@@ -25,13 +25,13 @@ namespace lst {
     // https://github.com/cms-sw/cmssw/blob/5e809e8e0a625578aa265dc4b128a93830cb5429/Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h#L29
   };
 
-  bool parseIsLower(bool isInvertedx, unsigned int detId) { return (isInvertedx) ? !(detId & 1) : (detId & 1); }
+  inline bool parseIsLower(bool isInvertedx, unsigned int detId) { return (isInvertedx) ? !(detId & 1) : (detId & 1); }
 
-  unsigned int parsePartnerModuleId(unsigned int detId, bool isLowerx, bool isInvertedx) {
+  inline unsigned int parsePartnerModuleId(unsigned int detId, bool isLowerx, bool isInvertedx) {
     return isLowerx ? (isInvertedx ? detId - 1 : detId + 1) : (isInvertedx ? detId + 1 : detId - 1);
   }
 
-  bool parseIsInverted(short subdet, short side, short module, short layer) {
+  inline bool parseIsInverted(short subdet, short side, short module, short layer) {
     if (subdet == Endcap) {
       if (side == NegZ) {
         return module % 2 == 1;
@@ -130,8 +130,8 @@ namespace lst {
   inline void fillConnectedModuleArrayExplicit(Modules modules,
                                                ModuleMetaData const& mmd,
                                                ModuleConnectionMap const& moduleConnectionMap) {
-    Params_Modules::ArrayU16xMaxConnected* moduleMap = modules.moduleMap();
-    uint16_t* nConnectedModules = modules.nConnectedModules();
+    std::span<Params_Modules::ArrayU16xMaxConnected> moduleMap = modules.moduleMap();
+    std::span<uint16_t> nConnectedModules = modules.nConnectedModules();
 
     for (auto it = mmd.detIdToIndex.begin(); it != mmd.detIdToIndex.end(); ++it) {
       unsigned int detId = it->first;
@@ -145,8 +145,8 @@ namespace lst {
   }
 
   inline void fillMapArraysExplicit(Modules modules, ModuleMetaData const& mmd) {
-    uint16_t* mapIdx = modules.mapIdx();
-    unsigned int* mapdetId = modules.mapdetId();
+    std::span<uint16_t> mapIdx = modules.mapIdx();
+    std::span<unsigned int> mapdetId = modules.mapdetId();
 
     unsigned int counter = 0;
     for (auto it = mmd.detIdToIndex.begin(); it != mmd.detIdToIndex.end(); ++it) {
@@ -239,33 +239,33 @@ namespace lst {
           totalSizes_neg,
           connectedModuleDetIds_neg] = getConnectedPixels(nModules, nPixels, pixelMapping, pLStoLayer);
 
-    std::array<int, 2> const modules_sizes{{static_cast<int>(nModules), static_cast<int>(nPixels)}};
+    auto modulesHC = std::make_shared<ModulesHostCollection>(cms::alpakatools::host(), nModules, nPixels);
 
-    auto modulesHC = std::make_shared<ModulesHostCollection>(modules_sizes, cms::alpakatools::host());
-
-    auto modules_view = modulesHC->view<ModulesSoA>();
+    auto modules_view = modulesHC->view().modules();
 
     // Getting the underlying data pointers
-    unsigned int* host_detIds = modules_view.detIds();
-    short* host_layers = modules_view.layers();
-    short* host_rings = modules_view.rings();
-    short* host_rods = modules_view.rods();
-    short* host_modules = modules_view.modules();
-    short* host_subdets = modules_view.subdets();
-    short* host_sides = modules_view.sides();
-    float* host_eta = modules_view.eta();
-    float* host_r = modules_view.r();
-    bool* host_isInverted = modules_view.isInverted();
-    bool* host_isLower = modules_view.isLower();
-    bool* host_isAnchor = modules_view.isAnchor();
-    ModuleType* host_moduleType = modules_view.moduleType();
-    ModuleLayerType* host_moduleLayerType = modules_view.moduleLayerType();
-    float* host_dxdys = modules_view.dxdys();
-    float* host_drdzs = modules_view.drdzs();
+    std::span<unsigned int> host_detIds = modules_view.detIds();
+    std::span<short> host_layers = modules_view.layers();
+    std::span<short> host_rings = modules_view.rings();
+    std::span<short> host_rods = modules_view.rods();
+    std::span<short> host_modules = modules_view.modules();
+    std::span<short> host_subdets = modules_view.subdets();
+    std::span<short> host_sides = modules_view.sides();
+    std::span<float> host_eta = modules_view.eta();
+    std::span<float> host_r = modules_view.r();
+    std::span<float> host_z = modules_view.z();
+    std::span<bool> host_isInverted = modules_view.isInverted();
+    std::span<bool> host_isLower = modules_view.isLower();
+    std::span<bool> host_isGloballyInner = modules_view.isGloballyInner();
+    std::span<bool> host_isAnchor = modules_view.isAnchor();
+    std::span<ModuleType> host_moduleType = modules_view.moduleType();
+    std::span<ModuleLayerType> host_moduleLayerType = modules_view.moduleLayerType();
+    std::span<float> host_dxdys = modules_view.dxdys();
+    std::span<float> host_drdzs = modules_view.drdzs();
     uint16_t* host_nModules = &modules_view.nModules();
     uint16_t* host_nLowerModules = &modules_view.nLowerModules();
-    uint16_t* host_partnerModuleIndices = modules_view.partnerModuleIndices();
-    int* host_lstLayers = modules_view.lstLayers();
+    std::span<uint16_t> host_partnerModuleIndices = modules_view.partnerModuleIndices();
+    std::span<int> host_lstLayers = modules_view.lstLayers();
 
     //reassign detIdToIndex indices here
     nLowerModules = (nModules - 1) / 2;
@@ -320,10 +320,12 @@ namespace lst {
       host_sides[index] = side;
       host_eta[index] = eta;
       host_r[index] = r;
+      host_z[index] = m_z;
       host_isInverted[index] = isInverted;
       host_isLower[index] = isLower;
 
       //assigning other variables!
+      host_isGloballyInner[index] = false;
       if (detId == 1) {
         host_moduleType[index] = PixelModule;
         host_moduleLayerType[index] = lst::InnerPixelLayer;
@@ -356,12 +358,22 @@ namespace lst {
       if (detId != 1) {
         host_partnerModuleIndices[index] =
             mmd.detIdToIndex[parsePartnerModuleId(detId, host_isLower[index], host_isInverted[index])];
+        auto const partnerIdx = host_partnerModuleIndices[index];
         //add drdz and slope importing stuff here!
         if (host_drdzs[index] == 0) {
-          host_drdzs[index] = host_drdzs[host_partnerModuleIndices[index]];
+          host_drdzs[index] = host_drdzs[partnerIdx];
         }
         if (host_dxdys[index] == 0) {
-          host_dxdys[index] = host_dxdys[host_partnerModuleIndices[index]];
+          host_dxdys[index] = host_dxdys[partnerIdx];
+        }
+        if (host_isLower[index]) {
+          if (host_subdets[index] == Barrel) {
+            // 3D r should be reliable to order all modules
+            host_isGloballyInner[index] = host_r[index] < host_r[partnerIdx];
+          } else {
+            host_isGloballyInner[index] = std::abs(host_z[index]) < std::abs(host_z[partnerIdx]);
+          }
+          host_isGloballyInner[partnerIdx] = !host_isGloballyInner[index];
         }
       }
     }
@@ -372,7 +384,7 @@ namespace lst {
     // Fill pixel part
     pixelMapping.pixelModuleIndex = mmd.detIdToIndex.at(1);
 
-    auto modulesPixel_view = modulesHC->view<ModulesPixelSoA>();
+    auto modulesPixel_view = modulesHC->view().modulesPixel();
     auto connectedPixels =
         cms::alpakatools::make_host_view(modulesPixel_view.connectedPixels(), modulesPixel_view.metadata().size());
     for (unsigned int icondet = 0; icondet < totalSizes; icondet++) {

@@ -22,6 +22,8 @@ namespace edmtest {
 
     void beginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) final;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   private:
     edm::EDPutTokenT<IntProduct> const evToken_;
     edm::EDPutTokenT<IntProduct> const lumiToken_;
@@ -29,6 +31,11 @@ namespace edmtest {
   RandomIntProducer::RandomIntProducer(edm::ParameterSet const&)
       : evToken_{produces<IntProduct>()},
         lumiToken_{produces<IntProduct, edm::Transition::BeginLuminosityBlock>("lumi")} {}
+
+  void RandomIntProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    descriptions.addDefault(desc);
+  }
 
   void RandomIntProducer::produce(edm::Event& iEvent, edm::EventSetup const&) {
     edm::Service<edm::RandomNumberGenerator> gen;

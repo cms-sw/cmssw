@@ -2,6 +2,8 @@
 
 #include "LSTEvent.h"
 
+#include <format>
+
 using namespace ALPAKA_ACCELERATOR_NAMESPACE::lst;
 
 #include "Math/Vector3D.h"
@@ -11,11 +13,12 @@ using XYZVector = ROOT::Math::XYZVector;
 void LST::run(Queue& queue,
               bool verbose,
               float const ptCut,
+              uint16_t const clustSizeCut,
               LSTESData<Device> const* deviceESData,
               LSTInputDeviceCollection const* lstInputDC,
               bool no_pls_dupclean,
               bool tc_pls_triplets) {
-  auto event = LSTEvent(verbose, ptCut, queue, deviceESData);
+  auto event = LSTEvent(verbose, ptCut, clustSizeCut, queue, deviceESData);
 
   event.addInputToEvent(lstInputDC);
   event.addHitToEvent();
@@ -104,6 +107,23 @@ void LST::run(Queue& queue,
     printf("# of Pixel T3s produced: %d\n", event.getNumberOfPixelTriplets());
   }
 
+  event.createQuadruplets();
+  if (verbose) {
+    alpaka::wait(queue);  // event calls are asynchronous: wait before printing
+    printf("# of Quadruplets produced: %d\n", event.getNumberOfQuadruplets());
+    printf("# of Quadruplets produced layer 1-2-3-4: %d\n", event.getNumberOfQuadrupletsByLayerBarrel(0));
+    printf("# of Quadruplets produced layer 2: %d\n", event.getNumberOfQuadrupletsByLayerBarrel(1));
+    printf("# of Quadruplets produced layer 3: %d\n", event.getNumberOfQuadrupletsByLayerBarrel(2));
+    printf("# of Quadruplets produced layer 4: %d\n", event.getNumberOfQuadrupletsByLayerBarrel(3));
+    printf("# of Quadruplets produced layer 5: %d\n", event.getNumberOfQuadrupletsByLayerBarrel(4));
+    printf("# of Quadruplets produced layer 6: %d\n", event.getNumberOfQuadrupletsByLayerBarrel(5));
+    printf("# of Quadruplets produced endcap layer 1: %d\n", event.getNumberOfQuadrupletsByLayerEndcap(0));
+    printf("# of Quadruplets produced endcap layer 2: %d\n", event.getNumberOfQuadrupletsByLayerEndcap(1));
+    printf("# of Quadruplets produced endcap layer 3: %d\n", event.getNumberOfQuadrupletsByLayerEndcap(2));
+    printf("# of Quadruplets produced endcap layer 4: %d\n", event.getNumberOfQuadrupletsByLayerEndcap(3));
+    printf("# of Quadruplets produced endcap layer 5: %d\n", event.getNumberOfQuadrupletsByLayerEndcap(4));
+  }
+
   event.createTrackCandidates(no_pls_dupclean, tc_pls_triplets);
   if (verbose) {
     alpaka::wait(queue);  // event calls are asynchronous: wait before printing
@@ -113,6 +133,8 @@ void LST::run(Queue& queue,
     printf("        # of pT3 TrackCandidates produced: %d\n", event.getNumberOfPT3TrackCandidates());
     printf("        # of pLS TrackCandidates produced: %d\n", event.getNumberOfPLSTrackCandidates());
     printf("        # of T5 TrackCandidates produced: %d\n", event.getNumberOfT5TrackCandidates());
+    printf("        # of T4 TrackCandidates produced: %d\n", event.getNumberOfT4TrackCandidates());
+    lstWarning(std::format("[MEM] Total: {:.1f} MB", event.getMemoryAllocatedMB()));
   }
 
   trackCandidatesBaseDC_ = event.releaseTrackCandidatesBaseDeviceCollection();

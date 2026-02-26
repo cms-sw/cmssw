@@ -16,6 +16,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "SimDataFormats/Associations/interface/TrackToGenParticleAssociatorBaseImpl.h"
+#include "DataFormats/Common/interface/Uninitialized.h"
 
 #include <memory>
 
@@ -34,7 +35,8 @@ namespace reco {
   class TrackToGenParticleAssociator {
   public:
     /// Constructor
-    TrackToGenParticleAssociator() = default;
+    TrackToGenParticleAssociator() = delete;
+    explicit TrackToGenParticleAssociator(edm::Uninitialized) noexcept {};
 #ifndef __GCCXML__
     TrackToGenParticleAssociator(std::unique_ptr<reco::TrackToGenParticleAssociatorBaseImpl>);
 #endif

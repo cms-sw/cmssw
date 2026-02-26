@@ -5,7 +5,7 @@
 #include <random>
 
 #define CATCH_CONFIG_MAIN
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include <alpaka/alpaka.hpp>
 
@@ -87,10 +87,8 @@ void checkContents(Hist* h,
       ALPAKA_ASSERT_ACC(!l);
     }
   }
-  int status;
-  auto* demangled = abi::__cxa_demangle(typeid(Hist).name(), NULL, NULL, &status);
-  status || printf("Check contents OK with %s\n", demangled);
-  std::free(demangled);
+  std::string_view demangled = alpaka::core::demangled<Hist>;
+  std::cout << "Check contents OK with " << demangled << '\n';
 }
 
 template <typename T>
@@ -107,7 +105,7 @@ int go(const DevHost& host, const Device& device, Queue& queue) {
   constexpr uint32_t partSize = N / nParts;
 
   using Hist = HistoContainer<T, 128, N, 8 * sizeof(T), uint32_t, nParts>;
-  using HistR = HistoContainer<T, 128, -1, 8 * sizeof(T), uint32_t, nParts>;
+  using HistR = HistoContainer<T, 128, kDynamicSize, 8 * sizeof(T), uint32_t, nParts>;
   std::cout << "HistoContainer " << (int)(offsetof(Hist, off)) << ' ' << Hist::nbins() << ' ' << Hist::totbins() << ' '
             << Hist{}.capacity() << ' ' << offsetof(Hist, content) - offsetof(Hist, off) << ' '
             << (std::numeric_limits<T>::max() - std::numeric_limits<T>::min()) / Hist::nbins() << std::endl;
@@ -126,10 +124,10 @@ int go(const DevHost& host, const Device& device, Queue& queue) {
   // Run time sized histogram
   auto hr = make_host_buffer<HistR>(queue);
   // Data storage for histogram content (host)
-  auto hd = make_host_buffer<typename HistR::index_type[]>(queue, N);
+  auto hd = make_host_buffer<typename HistR::value_type[]>(queue, N);
   auto hr_d = make_device_buffer<HistR>(queue);
   // Data storage for histogram content (device)
-  auto hd_d = make_device_buffer<typename HistR::index_type[]>(queue, N);
+  auto hd_d = make_device_buffer<typename HistR::value_type[]>(queue, N);
 
   // We iterate the test 5 times.
   for (int it = 0; it < 5; ++it) {
@@ -181,7 +179,7 @@ int go(const DevHost& host, const Device& device, Queue& queue) {
     std::cout << "Calling fillManyFromVector(runtime sized) - " << h->size() << std::endl;
     typename HistR::View hrv_d;
     hrv_d.assoc = hr_d.data();
-    hrv_d.offSize = -1;
+    hrv_d.offSize = kDynamicSize;
     hrv_d.offStorage = nullptr;
     hrv_d.contentSize = N;
     hrv_d.contentStorage = hd_d.data();
@@ -201,7 +199,7 @@ int go(const DevHost& host, const Device& device, Queue& queue) {
     // We cannot update the contents address of the histo container before the copy from device happened
     typename HistR::View hrv;
     hrv.assoc = hr.data();
-    hrv.offSize = -1;
+    hrv.offSize = kDynamicSize;
     hrv.offStorage = nullptr;
     hrv.contentSize = N;
     hrv.contentStorage = hd.data();

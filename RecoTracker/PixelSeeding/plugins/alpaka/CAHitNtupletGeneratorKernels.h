@@ -111,7 +111,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Histograms
 
     using PhiBinner = caStructures::PhiBinnerT<TrackerTraits>;  //the traits here define the number of layer/histograms
-    using PhiBinnerStorageType = typename PhiBinner::index_type;
+    using PhiBinnerStorageType = typename PhiBinner::value_type;
     using PhiBinnerView = typename PhiBinner::View;
 
     using HitToTuple = caStructures::GenericContainer;
@@ -122,7 +122,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using CellToTrack = caStructures::GenericContainer;
 
     using GenericContainer = caStructures::GenericContainer;
-    using GenericContainerStorage = typename GenericContainer::index_type;
+    using GenericContainerStorage = typename GenericContainer::value_type;
     using GenericContainerView = typename GenericContainer::View;
     using DeviceGenericContainerBuffer = std::optional<cms::alpakatools::device_buffer<Device, GenericContainer>>;
     using DeviceGenericStorageBuffer =
@@ -131,7 +131,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         std::optional<cms::alpakatools::device_buffer<Device, GenericContainerOffsets[]>>;
 
     using SequentialContainer = caStructures::SequentialContainer;
-    using SequentialContainerStorage = typename SequentialContainer::index_type;
+    using SequentialContainerStorage = typename SequentialContainer::value_type;
     using SequentialContainerView = typename SequentialContainer::View;
     using DeviceSequentialContainerBuffer = std::optional<cms::alpakatools::device_buffer<Device, SequentialContainer>>;
     using DeviceSequentialStorageBuffer =
@@ -163,8 +163,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void launchKernels(const HitsConstView& hh,
                        uint32_t offsetBPIX2,
                        uint16_t nLayers,
-                       TkSoAView& track_view,
-                       TkHitsSoAView& track_hits_view,
+                       TkSoABlocksView& view,
                        const ::reco::CALayersSoAConstView& ll,
                        const ::reco::CAGraphSoAConstView& cc,
                        Queue& queue);

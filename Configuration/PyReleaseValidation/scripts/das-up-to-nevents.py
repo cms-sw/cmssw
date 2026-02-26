@@ -13,10 +13,12 @@ import json
 import sys
 import itertools
 import json
+import re
 
 ## Helpers
 base_cert_url = "https://cms-service-dqmdc.web.cern.ch/CAF/certification/"
-base_cert_path = "/eos/user/c/cmsdqm/www/CAF/certification/"
+base_cert_eos = "/eos/user/c/cmsdqm/www/CAF/certification/"
+base_cert_cvmfs = "/cvmfs/cms-griddata.cern.ch/cat/metadata/DC/"
 
 def get_url_clean(url):
     
@@ -115,8 +117,7 @@ if __name__ == '__main__':
         print("No X509 proxy set. Exiting.")
         sys.exit(1)
     
-    ## Check if we are in the cms-bot "environment"
-    testing = "JENKINS_PREFIX" in os.environ
+    ## Check if we are in the cms-bot "environment" 
     dataset   = args.dataset
     events    = args.events
     threshold = args.threshold
@@ -142,24 +143,31 @@ if __name__ == '__main__':
         elif "HI" in PD:
             cert_type = "Collisions" + str(year) + "HI"
         
-        cert_path = base_cert_path + cert_type + "/"
-        web_fallback = False
-
-        ## if we have access to eos we get from there ...
-        if os.path.isdir(cert_path):
-            json_list = os.listdir(cert_path)
-            if len(json_list) == 0:
-                web_fallback == True 
-            json_list = [c for c in json_list if "golden" in c.lower() and "era" not in c.lower() and "ppref" not in c.lower()]
-            json_list = [c for c in json_list if c.lower().startswith("cert_c") and c.endswith("json")]
-        else:
-            web_fallback = True
+        cvmfs_path = base_cert_cvmfs + cert_type + "/"
+        eos_path = ""
+        web_path = ""
+        json_list_full = []
+        ## if we have access to cvmfs we get from there ...
+        if os.path.isdir(cvmfs_path):
+            cvmfs_path = cvmfs_path + "/latest/"
+            json_list_full = os.listdir(cvmfs_path)
+        ## ... if not we try eos ...
+        if len(json_list_full)==0:
+            eos_path = base_cert_eos + cert_type + "/"
+            if os.path.isdir(eos_path):
+                json_list_full = os.listdir(eos_path)
         ## ... if not we go to the website
-        if web_fallback:
-            cert_url = base_cert_url + cert_type + "/"
-            json_list = get_url_clean(cert_url).split("\n")
-            json_list = [c for c in json_list if "golden" in c.lower() and "era" not in c.lower() and "cert_c" in c.lower() and "ppref" not in c.lower()]
-            json_list = [[cc for cc in c.split(" ") if cc.lower().startswith("cert_c") and cc.endswith("json")][0] for c in json_list]
+        if len(json_list_full)==0:
+            web_path = base_cert_url + cert_type + "/"
+            json_list_full = get_url_clean(web_path).split("\n")
+        pattern = re.compile("(cert_collisions\d{4}_\d*_\d*_golden.json)(\s|$)", re.IGNORECASE)
+        json_list = [match.group(1) for entry in json_list_full for match in [re.search(pattern, entry)] if match and match.group(1)]
+        if len(json_list)==0:
+            raise RuntimeError("No matching JSON files found from {source} ({path}). The full list was:\n{list_full}".format(
+                source="web" if web_path else "eos" if eos_path else "cvmfs",
+                path=web_path if web_path else eos_path if eos_path else cvmfs_path,
+                list_full='\n'.join(json_list_full),
+            ))
 
         # the larger the better, assuming file naming schema 
         # Cert_X_RunStart_RunFinish_Type.json
@@ -167,11 +175,11 @@ if __name__ == '__main__':
         run_ranges = [int(c.split("_")[-2]) - int(c.split("_")[-3]) for c in json_list]
         latest_json = np.array(json_list[np.argmax(run_ranges)]).reshape(1,-1)[0].astype(str)
         best_json = str(latest_json[0])
-        if not web_fallback:
-            with open(cert_path + "/" + best_json) as js:
+        if not web_path:
+            with open((eos_path if eos_path else cvmfs_path) + "/" + best_json) as js:
                 golden = json.load(js)
         else:
-            golden = get_url_clean(cert_url + best_json)
+            golden = get_url_clean(web_path + best_json)
             golden = ast.literal_eval(golden) #converts string to dict
         
         # skim for runs in input
@@ -196,12 +204,10 @@ if __name__ == '__main__':
         if (len(golden_data_runs)==0):
             no_intersection()
 
-        if testing:
-            golden_data_runs = golden_data_runs[:1] # take only the first run
         # building the dataframe, cleaning for bad lumis
         golden_data_runs_tocheck = golden_data_runs
        
-        if args.precheck and not testing:
+        if args.precheck:
             golden_data_runs_tocheck = []
             # Here we check run per run.
             # This implies more dasgoclient queries, but smaller outputs
@@ -214,20 +220,12 @@ if __name__ == '__main__':
                 if events > 0 and sum_events > events:
                     break
             das_opt = "run in %s"%(str([int(g) for g in golden_data_runs_tocheck]))
-            
-        if testing:
-            golden_data_runs_tocheck = golden_data_runs[:1] # take only the first run
-            # in testing mode we just take the first file
-            das_opt = "run=%s"%(golden_data_runs_tocheck[0])
     
-    if not testing:
-        df = das_lumi_data(dataset,opt=das_opt).merge(das_file_data(dataset,opt=das_opt),on="file",how="inner") # merge file informations with run and lumis
-    else:
-        df = das_lumi_data(dataset,opt=das_opt)
+    df = das_lumi_data(dataset,opt=das_opt).merge(das_file_data(dataset,opt=das_opt),on="file",how="inner") # merge file informations with run and lumis
 
     df["lumis"] = [[int(ff) for ff in f.replace("[","").replace("]","").split(",")] for f in df.lumis.values]
     
-    if not args.nogolden and not testing:
+    if not args.nogolden:
 
         df_rs = []
         for r in golden_data_runs_tocheck:
@@ -253,16 +251,14 @@ if __name__ == '__main__':
     df.loc[:,"min_lumi"] = [min(f) for f in df.lumis]
     df.loc[:,"max_lumi"] = [max(f) for f in df.lumis]
     df = df.sort_values(["run","min_lumi","max_lumi"])
-
-    if testing:
-        df = df.head(1) # take only the first file
+       
     if site is not None:
         df = df.merge(das_file_site(dataset,site),on="file",how="inner")
 
     if args.pandas:
         df.to_csv(dataset.replace("/","")+".csv")
 
-    if events > 0 and not testing:
+    if events > 0:
         df = df[df["events"] <= events] #jump too big files
         df.loc[:,"sum_evs"] = df.loc[:,"events"].cumsum()
         df = df[df["sum_evs"] < events]
@@ -284,4 +280,3 @@ if __name__ == '__main__':
 
     sys.exit(0)
 
-    

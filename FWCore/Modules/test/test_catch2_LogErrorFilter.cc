@@ -3,7 +3,7 @@
 #include "DataFormats/Common/interface/ErrorSummaryEntry.h"
 
 #include <vector>
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 static constexpr auto s_tag = "[LogErrorFilter]";
 TEST_CASE("Tests of LogErrorFilter", s_tag) {

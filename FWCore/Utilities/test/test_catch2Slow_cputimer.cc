@@ -7,7 +7,7 @@ Test program for edm::TypeIDBase class.
 #include <string>
 #include <unistd.h>
 #include <sys/resource.h>
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 #include "FWCore/Utilities/interface/CPUTimer.h"
 
 using std::cerr;

@@ -155,7 +155,10 @@ process.pixelTracksCutClassifier = cms.EDProducer( "TrackCutClassifier",
       minNdof = cms.vdouble( 1.0E-5, 1.0E-5, 1.0E-5 ),
       maxChi2 = cms.vdouble( 9999., 9999., 30.0 ),
       maxDr = cms.vdouble( 99., 99., 1. ),
-      minLayers = cms.vint32( 0, 2, 3 )
+      minLayers = cms.vint32( 0, 2, 3 ),
+      passThroughForAll = cms.bool(False),
+      passThroughForDisplaced = cms.bool(False),
+      minLayersForDisplaced = cms.int32(4)
     ),
     ignoreVertices = cms.bool( True ),
 )
@@ -349,8 +352,7 @@ process.tracking_FirstStep = cms.Sequence(
     * process.siStripDigis
     * process.striptrackerlocalreco
     * process.offlineBeamSpot
-    * process.siPixelClustersPreSplitting
-    * process.siPixelRecHitsPreSplitting
+    * process.pixeltrackerlocalreco
     * process.siPixelClusterShapeCachePreSplitting
     * process.recopixelvertexing)
 

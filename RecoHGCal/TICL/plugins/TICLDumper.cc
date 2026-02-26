@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
@@ -33,8 +34,10 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "DataFormats/HGCalReco/interface/Common.h"
+#include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
@@ -159,8 +162,7 @@ public:
     if (tracksterType_ != TracksterType::Trackster) {
       trackster_tree_->Branch("regressed_pt", &simtrackster_regressed_pt);
       trackster_tree_->Branch("pdgID", &simtrackster_pdgID);
-      trackster_tree_->Branch("trackIdx", &simtrackster_trackIdx);
-      trackster_tree_->Branch("trackTime", &simtrackster_trackTime);
+      trackster_tree_->Branch("trackIdx", &simtrackster_trackIdxs);
       trackster_tree_->Branch("timeBoundary", &simtrackster_timeBoundary);
       trackster_tree_->Branch("boundaryX", &simtrackster_boundaryX);
       trackster_tree_->Branch("boundaryY", &simtrackster_boundaryY);
@@ -217,8 +219,7 @@ public:
 
     simtrackster_regressed_pt.clear();
     simtrackster_pdgID.clear();
-    simtrackster_trackIdx.clear();
-    simtrackster_trackTime.clear();
+    simtrackster_trackIdxs.clear();
     simtrackster_timeBoundary.clear();
     simtrackster_boundaryX.clear();
     simtrackster_boundaryY.clear();
@@ -291,11 +292,11 @@ public:
 
         simtrackster_timeBoundary.push_back(trackster_iterator->boundaryTime());
 
-        /* SimTracksters can be built from either a CaloParticle or a SimCluster 
+        /* SimTracksters can be built from either a CaloParticle or a SimCluster
         The SimTrackster "fromCP" collection is built solely from CaloParticle (all CPs that have association to reco in HGCAL)
         SimTrackster "from SC" is built from either :
            - a CaloParticle (when the CaloParticle first SimTrack has crossedBoundary=True)
-           - a SimCluster (other cases) 
+           - a SimCluster (other cases)
         Thus trackster.seedIndex() can point to either CaloParticle or SimCluster collection (check seedID to differentiate)
         */
         using CaloObjectVariant = std::variant<CaloParticle, SimCluster>;
@@ -330,51 +331,67 @@ public:
           simtrackster_boundaryPz.push_back(-999);
         }
 
-        auto const trackIdx = trackster_iterator->trackIdx();
-        simtrackster_trackIdx.push_back(trackIdx);
-        if (trackIdx != -1) {
-          const auto& track = tracks[trackIdx];
-
-          int iSide = int(track.eta() > 0);
-
-          const auto& fts = trajectoryStateTransform::outerFreeState((track), &detectorTools.bfield);
-          // to the HGCal front
-          const auto& tsos = detectorTools.propagator.propagate(fts, detectorTools.firstDisk_[iSide]->surface());
-          if (tsos.isValid()) {
-            const auto& globalPos = tsos.globalPosition();
-            const auto& globalMom = tsos.globalMomentum();
-            simtrackster_track_boundaryX.push_back(globalPos.x());
-            simtrackster_track_boundaryY.push_back(globalPos.y());
-            simtrackster_track_boundaryZ.push_back(globalPos.z());
-            simtrackster_track_boundaryEta.push_back(globalPos.eta());
-            simtrackster_track_boundaryPhi.push_back(globalPos.phi());
-            simtrackster_track_boundaryPx.push_back(globalMom.x());
-            simtrackster_track_boundaryPy.push_back(globalMom.y());
-            simtrackster_track_boundaryPz.push_back(globalMom.z());
-            simtrackster_trackTime.push_back(track.t0());
-          } else {
-            simtrackster_track_boundaryX.push_back(-999);
-            simtrackster_track_boundaryY.push_back(-999);
-            simtrackster_track_boundaryZ.push_back(-999);
-            simtrackster_track_boundaryEta.push_back(-999);
-            simtrackster_track_boundaryPhi.push_back(-999);
-            simtrackster_track_boundaryPx.push_back(-999);
-            simtrackster_track_boundaryPy.push_back(-999);
-            simtrackster_track_boundaryPz.push_back(-999);
+        auto const trackIdxs = trackster_iterator->trackIdxs();
+        simtrackster_trackIdxs.push_back(trackIdxs);
+        if (!trackIdxs.empty()) {
+          std::vector<float> track_boundaryX;
+          std::vector<float> track_boundaryY;
+          std::vector<float> track_boundaryZ;
+          std::vector<float> track_boundaryEta;
+          std::vector<float> track_boundaryPhi;
+          std::vector<float> track_boundaryPx;
+          std::vector<float> track_boundaryPy;
+          std::vector<float> track_boundaryPz;
+          for (const auto trackIdx : trackIdxs) {
+            const auto& track = tracks[trackIdx];
+            int iSide = int(track.eta() > 0);
+            const auto& fts = trajectoryStateTransform::outerFreeState((track), &detectorTools.bfield);
+            // to the HGCal front
+            const auto& tsos = detectorTools.propagator.propagate(fts, detectorTools.firstDisk_[iSide]->surface());
+            if (tsos.isValid()) {
+              const auto& globalPos = tsos.globalPosition();
+              const auto& globalMom = tsos.globalMomentum();
+              track_boundaryX.push_back(globalPos.x());
+              track_boundaryY.push_back(globalPos.y());
+              track_boundaryZ.push_back(globalPos.z());
+              track_boundaryEta.push_back(globalPos.eta());
+              track_boundaryPhi.push_back(globalPos.phi());
+              track_boundaryPx.push_back(globalMom.x());
+              track_boundaryPy.push_back(globalMom.y());
+              track_boundaryPz.push_back(globalMom.z());
+            } else {
+              track_boundaryX.push_back(-999);
+              track_boundaryY.push_back(-999);
+              track_boundaryZ.push_back(-999);
+              track_boundaryEta.push_back(-999);
+              track_boundaryPhi.push_back(-999);
+              track_boundaryPx.push_back(-999);
+              track_boundaryPy.push_back(-999);
+              track_boundaryPz.push_back(-999);
+            }
           }
+          simtrackster_track_boundaryX.push_back(track_boundaryX);
+          simtrackster_track_boundaryY.push_back(track_boundaryY);
+          simtrackster_track_boundaryZ.push_back(track_boundaryZ);
+          simtrackster_track_boundaryEta.push_back(track_boundaryEta);
+          simtrackster_track_boundaryPhi.push_back(track_boundaryPhi);
+          simtrackster_track_boundaryPx.push_back(track_boundaryPx);
+          simtrackster_track_boundaryPy.push_back(track_boundaryPy);
+          simtrackster_track_boundaryPz.push_back(track_boundaryPz);
         } else {
-          simtrackster_track_boundaryX.push_back(-999);
-          simtrackster_track_boundaryY.push_back(-999);
-          simtrackster_track_boundaryZ.push_back(-999);
-          simtrackster_track_boundaryEta.push_back(-999);
-          simtrackster_track_boundaryPhi.push_back(-999);
-          simtrackster_track_boundaryPx.push_back(-999);
-          simtrackster_track_boundaryPy.push_back(-999);
-          simtrackster_track_boundaryPz.push_back(-999);
+          simtrackster_track_boundaryX.push_back({-999});
+          simtrackster_track_boundaryY.push_back({-999});
+          simtrackster_track_boundaryZ.push_back({-999});
+          simtrackster_track_boundaryEta.push_back({-999});
+          simtrackster_track_boundaryPhi.push_back({-999});
+          simtrackster_track_boundaryPx.push_back({-999});
+          simtrackster_track_boundaryPy.push_back({-999});
+          simtrackster_track_boundaryPz.push_back({-999});
         }
       }
 
       std::vector<float> id_probs;
+      id_probs.reserve(8);
       for (size_t i = 0; i < 8; i++)
         id_probs.push_back(trackster_iterator->id_probabilities(i));
       trackster_id_probabilities.push_back(id_probs);
@@ -450,8 +467,7 @@ private:
   // for simtrackster
   std::vector<float> simtrackster_regressed_pt;
   std::vector<int> simtrackster_pdgID;
-  std::vector<int> simtrackster_trackIdx;
-  std::vector<float> simtrackster_trackTime;
+  std::vector<std::vector<int>> simtrackster_trackIdxs;
   std::vector<float> simtrackster_timeBoundary;
   std::vector<float> simtrackster_boundaryX;
   std::vector<float> simtrackster_boundaryY;
@@ -461,14 +477,14 @@ private:
   std::vector<float> simtrackster_boundaryPx;
   std::vector<float> simtrackster_boundaryPy;
   std::vector<float> simtrackster_boundaryPz;
-  std::vector<float> simtrackster_track_boundaryX;
-  std::vector<float> simtrackster_track_boundaryY;
-  std::vector<float> simtrackster_track_boundaryZ;
-  std::vector<float> simtrackster_track_boundaryEta;
-  std::vector<float> simtrackster_track_boundaryPhi;
-  std::vector<float> simtrackster_track_boundaryPx;
-  std::vector<float> simtrackster_track_boundaryPy;
-  std::vector<float> simtrackster_track_boundaryPz;
+  std::vector<std::vector<float>> simtrackster_track_boundaryX;
+  std::vector<std::vector<float>> simtrackster_track_boundaryY;
+  std::vector<std::vector<float>> simtrackster_track_boundaryZ;
+  std::vector<std::vector<float>> simtrackster_track_boundaryEta;
+  std::vector<std::vector<float>> simtrackster_track_boundaryPhi;
+  std::vector<std::vector<float>> simtrackster_track_boundaryPx;
+  std::vector<std::vector<float>> simtrackster_track_boundaryPy;
+  std::vector<std::vector<float>> simtrackster_track_boundaryPz;
 
   std::vector<std::vector<float>> trackster_id_probabilities;
   std::vector<std::vector<uint32_t>> trackster_vertices_indexes;
@@ -619,6 +635,11 @@ private:
 
   const edm::EDGetTokenT<std::vector<SimCluster>> simclusters_token_;
   const edm::EDGetTokenT<std::vector<CaloParticle>> caloparticles_token_;
+  const std::vector<edm::InputTag> label_rechits;
+  const std::vector<edm::EDGetTokenT<HGCRecHitCollection>> rechits_tokens_;
+  const std::vector<edm::InputTag> label_simhits;
+  const std::vector<edm::EDGetTokenT<std::vector<PCaloHit>>> simhits_tokens_;
+  const edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMapToken_;
 
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
   const std::string detector_;
@@ -634,6 +655,7 @@ private:
   bool saveTICLCandidate_;
   bool saveSimTICLCandidate_;
   bool saveTracks_;
+  bool saveHits_;
 
   // Output tree
   TTree* tree_;
@@ -663,12 +685,13 @@ private:
   std::vector<float> simTICLCandidate_raw_energy;
   std::vector<float> simTICLCandidate_regressed_energy;
   std::vector<std::vector<int>> simTICLCandidate_simTracksterCPIndex;
-  std::vector<float> simTICLCandidate_boundaryX;
-  std::vector<float> simTICLCandidate_boundaryY;
-  std::vector<float> simTICLCandidate_boundaryZ;
-  std::vector<float> simTICLCandidate_boundaryPx;
-  std::vector<float> simTICLCandidate_boundaryPy;
-  std::vector<float> simTICLCandidate_boundaryPz;
+  std::vector<std::vector<int>> simTICLCandidate_tracks_in_candidate;
+  std::vector<std::vector<float>> simTICLCandidate_boundaryX;
+  std::vector<std::vector<float>> simTICLCandidate_boundaryY;
+  std::vector<std::vector<float>> simTICLCandidate_boundaryZ;
+  std::vector<std::vector<float>> simTICLCandidate_boundaryPx;
+  std::vector<std::vector<float>> simTICLCandidate_boundaryPy;
+  std::vector<std::vector<float>> simTICLCandidate_boundaryPz;
   std::vector<float> simTICLCandidate_pt;
   std::vector<float> simTICLCandidate_phi;
   std::vector<float> simTICLCandidate_eta;
@@ -676,7 +699,6 @@ private:
   std::vector<float> simTICLCandidate_time;
   std::vector<int> simTICLCandidate_pdgId;
   std::vector<int> simTICLCandidate_charge;
-  std::vector<int> simTICLCandidate_track_in_candidate;
 
   // from TICLCandidate, product of linking
   size_t nCandidates;
@@ -711,6 +733,7 @@ private:
   std::vector<float> cluster_time;
   std::vector<float> cluster_timeErr;
   std::vector<uint32_t> cluster_number_of_hits;
+  std::vector<std::vector<uint32_t>> rechits_inLC;
 
   // Tracks
   std::vector<unsigned int> track_id;
@@ -740,11 +763,34 @@ private:
   std::vector<int> track_isMuon;
   std::vector<int> track_isTrackerMuon;
 
+  // rechits
+  std::vector<uint32_t> rechit_ID;
+  std::vector<float> rechit_energy;
+  std::vector<float> rechit_x;
+  std::vector<float> rechit_y;
+  std::vector<float> rechit_z;
+  std::vector<float> rechit_time;
+  std::vector<float> rechit_radius;
+  std::vector<float> rechit_simEnergy;
+  std::vector<float> rechit_simEnergyEM;
+  std::vector<float> rechit_simEnergyHad;
+
+  std::vector<uint32_t> simhit_ID;
+  std::vector<float> simhit_energy;
+  std::vector<float> simhit_energyEM;
+  std::vector<float> simhit_energyHad;
+  std::vector<float> simhit_x;
+  std::vector<float> simhit_y;
+  std::vector<float> simhit_z;
+  std::vector<float> simhit_time;
+
   TTree* cluster_tree_;
   TTree* candidate_tree_;
   TTree* superclustering_tree_;
   TTree* tracks_tree_;
   TTree* simTICLCandidate_tree;
+  TTree* rechits_tree_;
+  TTree* simhits_tree_;
 };
 
 void TICLDumper::clearVariables() {
@@ -784,7 +830,7 @@ void TICLDumper::clearVariables() {
   simTICLCandidate_caloParticleMass.clear();
   simTICLCandidate_pdgId.clear();
   simTICLCandidate_charge.clear();
-  simTICLCandidate_track_in_candidate.clear();
+  simTICLCandidate_tracks_in_candidate.clear();
 
   nCandidates = 0;
   candidate_charge.clear();
@@ -821,6 +867,7 @@ void TICLDumper::clearVariables() {
   cluster_time.clear();
   cluster_timeErr.clear();
   cluster_number_of_hits.clear();
+  rechits_inLC.clear();
 
   track_id.clear();
   track_hgcal_x.clear();
@@ -848,6 +895,26 @@ void TICLDumper::clearVariables() {
   track_nhits.clear();
   track_isMuon.clear();
   track_isTrackerMuon.clear();
+
+  rechit_ID.clear();
+  rechit_energy.clear();
+  rechit_x.clear();
+  rechit_y.clear();
+  rechit_z.clear();
+  rechit_time.clear();
+  rechit_radius.clear();
+  rechit_simEnergy.clear();
+  rechit_simEnergyEM.clear();
+  rechit_simEnergyHad.clear();
+
+  simhit_ID.clear();
+  simhit_energy.clear();
+  simhit_energyEM.clear();
+  simhit_energyHad.clear();
+  simhit_x.clear();
+  simhit_y.clear();
+  simhit_z.clear();
+  simhit_time.clear();
 };
 
 TICLDumper::TICLDumper(const edm::ParameterSet& ps)
@@ -888,6 +955,14 @@ TICLDumper::TICLDumper(const edm::ParameterSet& ps)
       associations_dumperHelpers_(associations_parameterSets_.size()),
       simclusters_token_(consumes(ps.getParameter<edm::InputTag>("simclusters"))),
       caloparticles_token_(consumes(ps.getParameter<edm::InputTag>("caloparticles"))),
+      label_rechits(ps.getParameter<std::vector<edm::InputTag>>("label_rechits")),
+      rechits_tokens_{edm::vector_transform(
+          label_rechits, [this](const edm::InputTag& lab) { return consumes<HGCRecHitCollection>(lab); })},
+      label_simhits(ps.getParameter<std::vector<edm::InputTag>>("label_simhits")),
+      simhits_tokens_{edm::vector_transform(
+          label_simhits, [this](const edm::InputTag& lab) { return consumes<std::vector<PCaloHit>>(lab); })},
+      hitMapToken_(
+          consumes<std::unordered_map<DetId, const unsigned int>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
       geometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
       detector_(ps.getParameter<std::string>("detector")),
       propName_(ps.getParameter<std::string>("propagator")),
@@ -900,7 +975,8 @@ TICLDumper::TICLDumper(const edm::ParameterSet& ps)
       saveRecoSuperclusters_(ps.getParameter<bool>("saveRecoSuperclusters")),
       saveTICLCandidate_(ps.getParameter<bool>("saveSimTICLCandidate")),
       saveSimTICLCandidate_(ps.getParameter<bool>("saveSimTICLCandidate")),
-      saveTracks_(ps.getParameter<bool>("saveTracks")) {
+      saveTracks_(ps.getParameter<bool>("saveTracks")),
+      saveHits_(ps.getParameter<bool>("saveHits")) {
   if (saveSuperclustering_) {
     superclustering_linkedResultTracksters_token =
         consumes<std::vector<std::vector<unsigned int>>>(ps.getParameter<edm::InputTag>("superclustering"));
@@ -954,6 +1030,29 @@ void TICLDumper::beginJob() {
     tracksters_trees.push_back(tree);
     tracksters_dumperHelpers_[i].initTree(tree, &eventId_);
   }
+  if (saveHits_) {
+    rechits_tree_ = fs->make<TTree>("rechits", "HGCAL rechits");
+    rechits_tree_->Branch("ID", &rechit_ID);
+    rechits_tree_->Branch("energy", &rechit_energy);
+    rechits_tree_->Branch("position_x", &rechit_x);
+    rechits_tree_->Branch("position_y", &rechit_y);
+    rechits_tree_->Branch("position_z", &rechit_z);
+    rechits_tree_->Branch("time", &rechit_time);
+    rechits_tree_->Branch("radiusToSide", &rechit_radius);
+    rechits_tree_->Branch("simEnergy", &rechit_simEnergy);
+    rechits_tree_->Branch("simEnergyEM", &rechit_simEnergyEM);
+    rechits_tree_->Branch("simEnergyHad", &rechit_simEnergyHad);
+
+    simhits_tree_ = fs->make<TTree>("simhits", "HGCAL simhits");
+    simhits_tree_->Branch("ID", &simhit_ID);
+    simhits_tree_->Branch("energy", &simhit_energy);
+    simhits_tree_->Branch("energyEM", &simhit_energyEM);
+    simhits_tree_->Branch("energyHad", &simhit_energyHad);
+    simhits_tree_->Branch("position_x", &simhit_x);
+    simhits_tree_->Branch("position_y", &simhit_y);
+    simhits_tree_->Branch("position_z", &simhit_z);
+    simhits_tree_->Branch("time", &simhit_time);
+  }
   if (saveLCs_) {
     cluster_tree_ = fs->make<TTree>("clusters", "TICL tracksters");
     cluster_tree_->Branch("event", &eventId_);
@@ -971,6 +1070,7 @@ void TICLDumper::beginJob() {
     cluster_tree_->Branch("cluster_time", &cluster_time);
     cluster_tree_->Branch("cluster_timeErr", &cluster_timeErr);
     cluster_tree_->Branch("cluster_number_of_hits", &cluster_number_of_hits);
+    cluster_tree_->Branch("rechits", &rechits_inLC);
   }
   if (saveTICLCandidate_) {
     candidate_tree_ = fs->make<TTree>("candidates", "TICL candidates");
@@ -1069,7 +1169,7 @@ void TICLDumper::beginJob() {
     simTICLCandidate_tree->Branch("simTICLCandidate_caloParticleMass", &simTICLCandidate_caloParticleMass);
     simTICLCandidate_tree->Branch("simTICLCandidate_pdgId", &simTICLCandidate_pdgId);
     simTICLCandidate_tree->Branch("simTICLCandidate_charge", &simTICLCandidate_charge);
-    simTICLCandidate_tree->Branch("simTICLCandidate_track_in_candidate", &simTICLCandidate_track_in_candidate);
+    simTICLCandidate_tree->Branch("simTICLCandidate_tracks_in_candidate", &simTICLCandidate_tracks_in_candidate);
   }
 }
 
@@ -1190,6 +1290,73 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
 
   nclusters_ = clusters.size();
 
+  if (saveHits_) {
+    edm::Handle<std::unordered_map<DetId, const unsigned int>> hitMap;
+    event.getByToken(hitMapToken_, hitMap);
+
+    struct ThreeFloat {
+      ThreeFloat() : energy(0.f), energyEM(0.f), energyHad(0.f) {};
+      ThreeFloat(double e, double eEM, double eHad) : energy((float)e), energyEM((float)eEM), energyHad((float)eHad) {};
+      ThreeFloat(float e, float eEM, float eHad) : energy(e), energyEM(eEM), energyHad(eHad) {};
+
+      ThreeFloat& operator+=(const ThreeFloat& other) {
+        energy += other.energy;
+        energyEM += other.energyEM;
+        energyHad += other.energyHad;
+        return *this;
+      }
+
+      float energy;
+      float energyEM;
+      float energyHad;
+    };
+
+    std::vector<ThreeFloat> hitIdToEnergies(hitMap->size());
+
+    for (auto const& sh_token : simhits_tokens_) {
+      edm::Handle<std::vector<PCaloHit>> simhit_handle;
+      event.getByToken(sh_token, simhit_handle);
+      const auto& shColl = *simhit_handle;
+      for (auto const& sh : shColl) {
+        simhit_energy.push_back(sh.energy());
+        simhit_energyEM.push_back(sh.energyEM());
+        simhit_energyHad.push_back(sh.energyHad());
+        auto const shPosition = detectorTools_->rhtools.getPosition(sh.id());
+        simhit_x.push_back(shPosition.x());
+        simhit_y.push_back(shPosition.y());
+        simhit_z.push_back(shPosition.z());
+        simhit_ID.push_back(sh.id());
+        simhit_time.push_back(sh.time());
+        const auto hitId = hitMap->find(DetId(sh.id()));
+        if (hitId != hitMap->end()) {
+          hitIdToEnergies[hitId->second] += {sh.energy(), sh.energyEM(), sh.energyHad()};
+        }
+      }
+    }
+
+    for (auto const& rh_token : rechits_tokens_) {
+      edm::Handle<HGCRecHitCollection> rechit_handle;
+      event.getByToken(rh_token, rechit_handle);
+      const auto& rhColl = *rechit_handle;
+      for (auto const& rh : rhColl) {
+        rechit_energy.push_back(rh.energy());
+        auto const rhPosition = detectorTools_->rhtools.getPosition(rh.detid());
+        rechit_x.push_back(rhPosition.x());
+        rechit_y.push_back(rhPosition.y());
+        rechit_z.push_back(rhPosition.z());
+        rechit_ID.push_back(rh.detid());
+        rechit_time.push_back(rh.time());
+        rechit_radius.push_back(detectorTools_->rhtools.getRadiusToSide(rh.detid()));
+        const auto hitId = hitMap->find(DetId(rh.detid()));
+        if (hitId != hitMap->end()) {
+          rechit_simEnergy.push_back(hitIdToEnergies[hitId->second].energy);
+          rechit_simEnergyEM.push_back(hitIdToEnergies[hitId->second].energyEM);
+          rechit_simEnergyHad.push_back(hitIdToEnergies[hitId->second].energyHad);
+        }
+      }
+    }
+  }
+
   // Save all the trackster collections
   for (unsigned int i = 0; i < tracksters_dumperHelpers_.size(); i++) {
     edm::Handle<std::vector<ticl::Trackster>> tracksters_handle;
@@ -1200,7 +1367,7 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
   }
 
   const auto& simTrackstersSC_h = event.getHandle(simTracksters_SC_token_);
-  simTICLCandidate_track_in_candidate.resize(simTICLCandidates.size(), -1);
+  simTICLCandidate_tracks_in_candidate.resize(simTICLCandidates.size());
   for (size_t i = 0; i < simTICLCandidates.size(); ++i) {
     auto const& cand = simTICLCandidates[i];
 
@@ -1219,40 +1386,54 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
     }
     simTICLCandidate_simTracksterCPIndex.push_back(tmpIdxVec);
     tmpIdxVec.clear();
-    auto const& trackPtr = cand.trackPtr();
-    if (!trackPtr.isNull()) {
-      auto const& track = *trackPtr;
-      int iSide = int(track.eta() > 0);
-      int tk_idx = trackPtr.get() - (edm::Ptr<reco::Track>(tracks_h, 0)).get();
-      simTICLCandidate_track_in_candidate[i] = tk_idx;
+    auto const& trackPtrs = cand.trackPtrs();
+    if (!trackPtrs.empty()) {
+      std::vector<float> boundaryX;
+      std::vector<float> boundaryY;
+      std::vector<float> boundaryZ;
+      std::vector<float> boundaryPx;
+      std::vector<float> boundaryPy;
+      std::vector<float> boundaryPz;
+      for (const auto& trackPtr : trackPtrs) {
+        auto const& track = *trackPtr;
+        int iSide = int(track.eta() > 0);
+        int tk_idx = trackPtr.get() - (edm::Ptr<reco::Track>(tracks_h, 0)).get();
+        simTICLCandidate_tracks_in_candidate[i].push_back(tk_idx);
 
-      const auto& fts = trajectoryStateTransform::outerFreeState((track), &detectorTools_->bfield);
-      // to the HGCal front
-      const auto& tsos = detectorTools_->propagator.propagate(fts, detectorTools_->firstDisk_[iSide]->surface());
-      if (tsos.isValid()) {
-        const auto& globalPos = tsos.globalPosition();
-        const auto& globalMom = tsos.globalMomentum();
-        simTICLCandidate_boundaryX.push_back(globalPos.x());
-        simTICLCandidate_boundaryY.push_back(globalPos.y());
-        simTICLCandidate_boundaryZ.push_back(globalPos.z());
-        simTICLCandidate_boundaryPx.push_back(globalMom.x());
-        simTICLCandidate_boundaryPy.push_back(globalMom.y());
-        simTICLCandidate_boundaryPz.push_back(globalMom.z());
-      } else {
-        simTICLCandidate_boundaryX.push_back(-999);
-        simTICLCandidate_boundaryY.push_back(-999);
-        simTICLCandidate_boundaryZ.push_back(-999);
-        simTICLCandidate_boundaryPx.push_back(-999);
-        simTICLCandidate_boundaryPy.push_back(-999);
-        simTICLCandidate_boundaryPz.push_back(-999);
+        const auto& fts = trajectoryStateTransform::outerFreeState((track), &detectorTools_->bfield);
+        // to the HGCal front
+        const auto& tsos = detectorTools_->propagator.propagate(fts, detectorTools_->firstDisk_[iSide]->surface());
+        if (tsos.isValid()) {
+          const auto& globalPos = tsos.globalPosition();
+          const auto& globalMom = tsos.globalMomentum();
+          boundaryX.push_back(globalPos.x());
+          boundaryY.push_back(globalPos.y());
+          boundaryZ.push_back(globalPos.z());
+          boundaryPx.push_back(globalMom.x());
+          boundaryPy.push_back(globalMom.y());
+          boundaryPz.push_back(globalMom.z());
+        } else {
+          boundaryX.push_back(-999);
+          boundaryY.push_back(-999);
+          boundaryZ.push_back(-999);
+          boundaryPx.push_back(-999);
+          boundaryPy.push_back(-999);
+          boundaryPz.push_back(-999);
+        }
       }
+      simTICLCandidate_boundaryX.push_back(boundaryX);
+      simTICLCandidate_boundaryY.push_back(boundaryY);
+      simTICLCandidate_boundaryZ.push_back(boundaryZ);
+      simTICLCandidate_boundaryPx.push_back(boundaryPx);
+      simTICLCandidate_boundaryPy.push_back(boundaryPy);
+      simTICLCandidate_boundaryPz.push_back(boundaryPz);
     } else {
-      simTICLCandidate_boundaryX.push_back(-999);
-      simTICLCandidate_boundaryY.push_back(-999);
-      simTICLCandidate_boundaryZ.push_back(-999);
-      simTICLCandidate_boundaryPx.push_back(-999);
-      simTICLCandidate_boundaryPy.push_back(-999);
-      simTICLCandidate_boundaryPz.push_back(-999);
+      simTICLCandidate_boundaryX.push_back({-999});
+      simTICLCandidate_boundaryY.push_back({-999});
+      simTICLCandidate_boundaryZ.push_back({-999});
+      simTICLCandidate_boundaryPx.push_back({-999});
+      simTICLCandidate_boundaryPy.push_back({-999});
+      simTICLCandidate_boundaryPz.push_back({-999});
     }
   }
 
@@ -1278,6 +1459,11 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
     cluster_timeErr.push_back(layerClustersTimes.get(c_id).second);
     cluster_time.push_back(layerClustersTimes.get(c_id).first);
     c_id += 1;
+    std::vector<uint32_t> hits_detid;
+    for (auto const& handf : cluster_iterator->hitsAndFractions()) {
+      hits_detid.push_back(handf.first);
+    }
+    rechits_inLC.push_back(hits_detid);
   }
 
   tracksters_in_candidate.resize(ticlcandidates.size());
@@ -1381,6 +1567,10 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
     tracks_tree_->Fill();
   if (saveSimTICLCandidate_)
     simTICLCandidate_tree->Fill();
+  if (saveHits_) {
+    rechits_tree_->Fill();
+    simhits_tree_->Fill();
+  }
 }
 
 void TICLDumper::endJob() {}
@@ -1430,6 +1620,15 @@ void TICLDumper::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<edm::InputTag>("simtrackstersSC", edm::InputTag("ticlSimTracksters"))
       ->setComment("SimTrackster from CaloParticle collection to use for simTICLcandidates");
   desc.add<edm::InputTag>("simTICLCandidates", edm::InputTag("ticlSimTracksters"));
+  desc.add<std::vector<edm::InputTag>>("label_rechits",
+                                       {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
+                                        edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
+                                        edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
+  desc.add<std::vector<edm::InputTag>>("label_simhits",
+                                       {edm::InputTag("g4SimHits", "HGCHitsEE"),
+                                        edm::InputTag("g4SimHits", "HGCHitsHEfront"),
+                                        edm::InputTag("g4SimHits", "HGCHitsHEback")});
+  desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
 
   // Settings for dumping trackster associators (recoToSim & simToReco)
   edm::ParameterSetDescription associatorDescValidator;
@@ -1453,6 +1652,7 @@ void TICLDumper::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<bool>("saveSuperclustering", true);
   desc.add<bool>("saveRecoSuperclusters", true)
       ->setComment("Save superclustering Egamma collections (as reco::SuperCluster)");
+  desc.add<bool>("saveHits", false);
   descriptions.add("ticlDumper", desc);
 }
 

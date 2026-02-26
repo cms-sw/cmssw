@@ -81,7 +81,21 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
         unsigned nBs = 0;
         unsigned nHs = 0;
 
-        ConstGenVertexPtr HSvtx = myGenEvent->vertices()[0];
+        // Find Higgs production vertex automatically
+        ConstGenVertexPtr HSvtx = nullptr;
+        // Loop through all vertices and find the FIRST one where Higgs is an outgoing particle
+        int totlv = int(myGenEvent->vertices().size());
+        for (auto i = 0; i < totlv; i++) {
+          ConstGenVertexPtr vtx = myGenEvent->vertices()[i];
+          for (const auto& ptcl : HepMCUtils::particles(vtx, Relatives::CHILDREN)) {
+            if (ptcl->pdg_id() == 25) {  // Higgs found as outgoing
+              HSvtx = vtx;
+              break;  // break inner loop
+            }
+          }
+          if (HSvtx)
+            break;  // break outer loop when we found the first Higgs vertex
+        }
 
         if (HSvtx) {
           for (const auto& ptcl : HepMCUtils::particles(HSvtx, Relatives::CHILDREN)) {
@@ -146,7 +160,6 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
             << "ProductionMode must be one of: GGF,VBF,WH,ZH,QQ2ZH,GG2ZH,TTH,BBH,TH,AUTO ";
       }
       _HTXS->setHiggsProdMode(m_HiggsProdMode);
-
       // at this point the production mode must be known
       if (m_HiggsProdMode == HTXS::UNKNOWN) {
         edm::LogInfo("HTXSRivetProducer") << "HTXSRivetProducer WARNING: HiggsProduction mode is UNKNOWN" << endl;
@@ -184,7 +197,7 @@ void HTXSRivetProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& es
            iter++) {
         std::vector<std::string> lines = iter->lines();
         for (unsigned int iLine = 0; iLine < lines.size(); iLine++) {
-          std::string line = lines.at(iLine);
+          const std::string& line = lines.at(iLine);
           // POWHEG
           if (line.find("gg_H_quark-mass-effects") != std::string::npos) {
             edm::LogInfo("HTXSRivetProducer") << iLine << " " << line << std::endl;

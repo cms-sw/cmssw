@@ -528,7 +528,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                                     nCellTracks,
                                                     ct,
                                                     *apc,
-                                                    tracks_view.quality(),
+                                                    tracks_view.quality().data(),
                                                     stack,
                                                     params.minHitsPerNtuplet_);
           ALPAKA_ASSERT_ACC(stack.empty());
@@ -635,7 +635,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
         tracks_view[it].quality() = Quality::strict;
 
-        if (cuts.strictCut(tracks_view, it))
+        if (cuts.strictCut(tracks_view, nhits, it))
           continue;
 
         tracks_view[it].quality() = Quality::tight;
@@ -729,26 +729,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   class Kernel_fillNLayers {
   public:
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
-                                  TkSoAView tracks_view,
-                                  TkHitSoAView track_hits_view,
+                                  TkSoABlocksView view,
                                   uint32_t const *__restrict__ layerStarts,
                                   uint16_t maxLayers,
                                   cms::alpakatools::AtomicPairCounter *apc) const {
       // clamp the number of tracks to the capacity of the SoA
-      auto ntracks = std::min<int>(apc->get().first, tracks_view.metadata().size() - 1);
+      auto ntracks = std::min<int>(apc->get().first, view.tracks().metadata().size() - 1);
 
       if (cms::alpakatools::once_per_grid(acc))
-        tracks_view.nTracks() = ntracks;
+        view.tracks().nTracks() = ntracks;
       for (auto idx : cms::alpakatools::uniform_elements(acc, ntracks)) {
-        ALPAKA_ASSERT_ACC(reco::nHits(tracks_view, idx) >= 3);
-        tracks_view[idx].nLayers() = reco::nLayers(tracks_view, track_hits_view, maxLayers, layerStarts, idx);
+        ALPAKA_ASSERT_ACC(reco::nHits(view.tracks(), idx) >= 3);
+        view.tracks()[idx].nLayers() = reco::nLayers(view, maxLayers, layerStarts, idx);
 #ifdef CA_DEBUG
         printf("Kernel_fillNLayers %d %d %d - %d %d\n",
                idx,
                ntracks,
-               tracks_view[idx].nLayers(),
+               view.tracks()[idx].nLayers(),
                apc->get().first,
-               tracks_view.metadata().size() - 1);
+               view.tracks().metadata().size() - 1);
 #endif
       }
     }
@@ -1055,8 +1054,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   TkSoAView tracks_view,
                                   HitContainer const *__restrict__ foundNtuplets,
                                   HitToTuple const *__restrict__ phitToTuple,
-                                  int32_t firstPrint,
-                                  int32_t lastPrint,
+                                  uint32_t firstPrint,
+                                  uint32_t lastPrint,
                                   int iev) const {
       constexpr auto loose = Quality::loose;
 

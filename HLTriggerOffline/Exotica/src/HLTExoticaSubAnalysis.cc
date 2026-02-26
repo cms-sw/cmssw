@@ -205,7 +205,7 @@ void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
     sources[1] = "rec";
 
     for (size_t i = 0; i < sources.size(); i++) {
-      std::string source = sources[i];
+      const std::string &source = sources[i];
 
       if (source == "gen") {
         if (TString(objStr).Contains("MET") || TString(objStr).Contains("MHT") || TString(objStr).Contains("Jet")) {
@@ -561,10 +561,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event &iEvent, const edm::EventSe
       } else {
         // Already the minimum three objects has been filled, get out...
         if (counttotal == totalobjectssize) {
-          size_t max_size = matchesGen.size();
-          for (size_t jj = j; jj < max_size; jj++) {
-            matchesGen.erase(matchesGen.end());
-          }
+          matchesGen.erase(matchesGen.begin() + j, matchesGen.end());
           break;
         }
       }
@@ -690,10 +687,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event &iEvent, const edm::EventSe
       } else {
         // Already the minimum three objects has been filled, get out...
         if (counttotal == totalobjectssize) {
-          size_t max_size = matchesReco.size();
-          for (size_t jj = j; jj < max_size; jj++) {
-            matchesReco.erase(matchesReco.end());
-          }
+          matchesReco.erase(matchesReco.begin() + j, matchesReco.end());
           break;
         }
       }

@@ -18,13 +18,16 @@
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
 #include "LCToCPAssociatorByEnergyScoreImpl.h"
 
+#include "DataFormats/Common/interface/RefProdVector.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 
-template <typename HIT>
-class LCToCPAssociatorByEnergyScoreProducer : public edm::global::EDProducer<> {
+template <typename HIT, typename CLUSTER>
+class LCToCPAssociatorByEnergyScoreProducerT : public edm::global::EDProducer<> {
 public:
-  explicit LCToCPAssociatorByEnergyScoreProducer(const edm::ParameterSet &);
-  ~LCToCPAssociatorByEnergyScoreProducer() override;
+  using multiCollectionT = edm::RefProdVector<std::vector<HIT>>;
+
+  explicit LCToCPAssociatorByEnergyScoreProducerT(const edm::ParameterSet &);
+  ~LCToCPAssociatorByEnergyScoreProducerT() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -34,17 +37,25 @@ private:
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_;
   const bool hardScatterOnly_;
   std::shared_ptr<hgcal::RecHitTools> rhtools_;
-  std::vector<edm::InputTag> hits_label_;
-  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hgcal_hits_token_;
-  std::vector<edm::EDGetTokenT<std::vector<HIT>>> hits_token_;
+  edm::EDGetTokenT<multiCollectionT> hits_token_;
 };
 
-template class LCToCPAssociatorByEnergyScoreProducer<HGCRecHit>;
-template class LCToCPAssociatorByEnergyScoreProducer<reco::PFRecHit>;
+template class LCToCPAssociatorByEnergyScoreProducerT<HGCRecHit, reco::CaloClusterCollection>;
+template class LCToCPAssociatorByEnergyScoreProducerT<reco::PFRecHit, reco::CaloClusterCollection>;
+template class LCToCPAssociatorByEnergyScoreProducerT<HGCRecHit, reco::PFClusterCollection>;
+template class LCToCPAssociatorByEnergyScoreProducerT<reco::PFRecHit, reco::PFClusterCollection>;
 
-using HGCalLCToCPAssociatorByEnergyScoreProducer = LCToCPAssociatorByEnergyScoreProducer<HGCRecHit>;
+using HGCalLCToCPAssociatorByEnergyScoreProducer =
+    LCToCPAssociatorByEnergyScoreProducerT<HGCRecHit, reco::CaloClusterCollection>;
 DEFINE_FWK_MODULE(HGCalLCToCPAssociatorByEnergyScoreProducer);
-using BarrelLCToCPAssociatorByEnergyScoreProducer = LCToCPAssociatorByEnergyScoreProducer<reco::PFRecHit>;
+using BarrelLCToCPAssociatorByEnergyScoreProducer =
+    LCToCPAssociatorByEnergyScoreProducerT<reco::PFRecHit, reco::CaloClusterCollection>;
 DEFINE_FWK_MODULE(BarrelLCToCPAssociatorByEnergyScoreProducer);
+using HGCalPCToCPAssociatorByEnergyScoreProducer =
+    LCToCPAssociatorByEnergyScoreProducerT<HGCRecHit, reco::PFClusterCollection>;
+DEFINE_FWK_MODULE(HGCalPCToCPAssociatorByEnergyScoreProducer);
+using BarrelPCToCPAssociatorByEnergyScoreProducer =
+    LCToCPAssociatorByEnergyScoreProducerT<reco::PFRecHit, reco::PFClusterCollection>;
+DEFINE_FWK_MODULE(BarrelPCToCPAssociatorByEnergyScoreProducer);
 
 #endif

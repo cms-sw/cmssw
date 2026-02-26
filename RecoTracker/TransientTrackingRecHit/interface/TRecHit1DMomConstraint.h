@@ -45,7 +45,7 @@ public:
 
   bool canImproveWithTrack() const override { return false; }
 
-  virtual RecHitPointer clone(const TrajectoryStateOnSurface& ts) const { return RecHitPointer(clone()); }
+  RecHitPointer clone(const TrajectoryStateOnSurface& ts) const { return RecHitPointer(clone()); }
 
   const GeomDetUnit* detUnit() const override { return nullptr; }
 

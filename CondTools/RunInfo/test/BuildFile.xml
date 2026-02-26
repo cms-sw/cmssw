@@ -8,5 +8,9 @@
 <test name="CondToolsLHCInfoAnalyzerTest" command="test_lhcInfo_analyzer.sh"/>
 <test name="CondToolsPrintLHCInfoPerPayloads" command="test_printLHCInfoPerPayloads.sh"/>
 <ifarch value="x86_64">
-<test name="CondToolsLHCInfoNewPopConTest" command="test_lhcInfoNewPopCon.sh"/>
+  <test name="CondToolsLHCInfoNewPopConTest" command="test_lhcInfoNewPopCon.sh"/>
 </ifarch>
+<bin file="test_catch2_LHCInfoPerFillPopCon.cpp" name="TestLHCInfoPerFillPopCon">
+  <use name="catch2"/>
+  <use name="FWCore/ParameterSet"/>
+</bin>

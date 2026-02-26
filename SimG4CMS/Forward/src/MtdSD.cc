@@ -111,6 +111,10 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
     if (!trkInfo->storeTrack()) {
       theID = trkInfo->idLastStoredAncestor();
     }
+    if (theID >= static_cast<int>(PSimHit::k_tidOffset)) {
+      edm::LogError("MtdSim") << " SimTrack ID " << theID << " exceeds maximum allowed by PSimHit identifier"
+                              << PSimHit::k_tidOffset << " unreliable MTD hit type";
+    }
     if (rname == "FastTimerRegionSensBTL") {
       if (trkInfo->isInTrkFromBackscattering()) {
         theID = PSimHit::addTrackIdOffset(theID, k_idFromCaloOffset);
@@ -132,8 +136,6 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
                                  << " ETL Track ID: " << trkInfo->mcTruthID() << ":" << theID;
 #endif
       // In the case of ECAL GFlash fast spot may be inside MTD and should be ignored
-    } else if (rname == "EcalRegion") {
-      theID = -2;
     } else {
       throw cms::Exception("MtdSDError") << "MtdSD called in incorrect region " << rname;
     }
@@ -147,6 +149,9 @@ int MtdSD::getTrackID(const G4Track* aTrack) {
 
 void MtdSD::setHitClassID(const G4Step* aStep) {
   TrackInformation* trkInfo = cmsTrackInformation(aStep->GetTrack());
+  if (nullptr == trkInfo) {
+    return;
+  }
   const G4String& rname = aStep->GetTrack()->GetVolume()->GetLogicalVolume()->GetRegion()->GetName();
   if (rname == "FastTimerRegionSensETL") {
     double zin = std::abs(aStep->GetPreStepPoint()->GetPosition().z());

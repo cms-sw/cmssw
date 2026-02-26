@@ -1,7 +1,7 @@
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 TEST_CASE("BeamSpotAnalyzer tests", "[BeamSpotAnalyzer]") {
   //The python configuration

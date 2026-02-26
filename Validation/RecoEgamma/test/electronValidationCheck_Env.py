@@ -24,18 +24,21 @@ class env:
             print('Existing Sample name:', sampleName, ' - ', os.environ['DD_SAMPLE'])
 
     def beginTag(self):
-        beginTag = 'Phase2'
-        #beginTag = 'Run3'
+        #beginTag = 'Phase2'
+        beginTag = 'Run3'
         return beginTag
 
     def dd_tier(self):
         dd_tier = 'GEN-SIM-RECO'
-        dd_tier = 'MINIAODSIM'
+        #dd_tier = 'MINIAODSIM'
         return dd_tier
 
     def tag_startup(self):
         #tag_startup = '125X_mcRun3_2022_realistic_v3'
-        tag_startup = '140X_mcRun4_realistic_v4_STD_2026D110_noPU'
+        #tag_startup = '140X_mcRun4_realistic_v4_STD_2026D110_noPU'
+        tag_startup = '150X_mcRun3_2025_realistic_v2_STD_RecycledGS_2025_noPU'
+        tag_startup = 'PU_151X_mcRun3_2025_realistic_v3_STD_2025_PU'
+        #tag_startup = 'PU_142X_mcRun3_2025_realistic_v5_STD_2025_PU'
         # tag_startup = '113X_mcRun3_2021_realistic_v7'
         return tag_startup
 

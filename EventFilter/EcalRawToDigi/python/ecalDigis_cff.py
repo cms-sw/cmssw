@@ -10,6 +10,10 @@ ecalDigisTask = cms.Task(
     ecalDigis
 )
 
+# remove unpacker until a Phase 2 version exists
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+phase2_ecal_devel.toReplaceWith(ecalDigisTask, ecalDigisTask.copyAndExclude([ecalDigis]))
+
 from Configuration.StandardSequences.Accelerators_cff import *
 
 # process modifier to run alpaka implementation
@@ -35,17 +39,35 @@ _ecalDigisFromPortable = _ecalDigisFromPortableProducer.clone(
 )
 alpaka.toReplaceWith(ecalDigis, _ecalDigisFromPortable.clone())
 
-alpaka.toReplaceWith(ecalDigisTask, cms.Task(
+ecalDigisTask_alpaka = cms.Task(
     # ECAL conditions used by the portable unpacker
     ecalDigisPortableConditions,
     # run the portable ECAL unpacker
     ecalDigisPortable,
     # convert them from SoA to legacy format
     ecalDigis
-))
+)
 
-# for alpaka validation compare the legacy CPU module with the alpaka module
-from Configuration.ProcessModifiers.alpakaValidationEcal_cff import alpakaValidationEcal
-_ecalDigisTaskValidation = ecalDigisTask.copy()
+# remove portable unpacker until a Phase 2 version exists
+phase2_ecal_devel.toReplaceWith(ecalDigisTask_alpaka, ecalDigisTask_alpaka.copyAndExclude([ecalDigisPortableConditions, ecalDigisPortable, ecalDigis]))
+
+alpaka.toReplaceWith(ecalDigisTask, ecalDigisTask_alpaka)
+
+# for GPU validation compare the legacy CPU module with the alpaka module
+from Configuration.ProcessModifiers.gpuValidationEcal_cff import gpuValidationEcal
+_ecalDigisTaskValidation = ecalDigisTask_alpaka.copy()
 _ecalDigisTaskValidation.add(ecalDigisLegacy)
+gpuValidationEcal.toReplaceWith(ecalDigisTask, _ecalDigisTaskValidation)
+
+# for alpaka validation compare alpaka serial with alpaka
+from Configuration.ProcessModifiers.alpakaValidationEcal_cff import alpakaValidationEcal
+from HeterogeneousCore.AlpakaCore.functions import makeSerialClone
+ecalDigisPortableSerialSync = makeSerialClone(ecalDigisPortable)
+ecalDigisSerialSync = _ecalDigisFromPortable.clone(
+    digisInLabelEB = 'ecalDigisPortableSerialSync:ebDigis',
+    digisInLabelEE = 'ecalDigisPortableSerialSync:eeDigis'
+)
+_ecalDigisTaskValidation = ecalDigisTask_alpaka.copy()
+_ecalDigisTaskValidation.add(ecalDigisPortableSerialSync)
+_ecalDigisTaskValidation.add(ecalDigisSerialSync)
 alpakaValidationEcal.toReplaceWith(ecalDigisTask, _ecalDigisTaskValidation)

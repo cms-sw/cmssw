@@ -2,7 +2,7 @@
 // Test code for the ParameterSetDescription and ParameterDescription
 // classes.
 
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
@@ -97,6 +97,11 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
         w.writeCfi(os, edm::ParameterModifier::kNone, startWithComma, 0, ops, wroteSomething);
 
         REQUIRE_THAT(os.str(), Equals("\nallowAnyLabel_ = cms.required.int32"));
+      }
+      SECTION("trackiness") {
+        REQUIRE(w.trackiness("x") == edm::cfi::Trackiness::kTracked);
+        REQUIRE(w.trackiness("y") == edm::cfi::Trackiness::kTracked);
+        REQUIRE(w.trackiness("foo") == edm::cfi::Trackiness::kTracked);
       }
     }
 
@@ -481,11 +486,18 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
                       edm::Exception);
 
     // No problem is wildcard type and parameter type are the same for different cases.
-    edm::ParameterSetDescription psetDesc5;
-    psetDesc5.ifValue(edm::ParameterDescription<int>("uswitch", 1, true),
-                      0 >> edm::ParameterWildcard<unsigned>("*", edm::RequireAtLeastOne, true) or
-                          1 >> (edm::ParameterDescription<unsigned>("uvalue1", 101, true) and
-                                edm::ParameterDescription<unsigned>("uvalue2", 101, true)));
+    SECTION("switch with wildcard cases can have same type as switch parameter") {
+      edm::ParameterSetDescription psetDesc5;
+      psetDesc5.ifValue(edm::ParameterDescription<int>("uswitch", 1, true),
+                        0 >> edm::ParameterWildcard<unsigned>("*", edm::RequireAtLeastOne, true) or
+                            1 >> (edm::ParameterDescription<unsigned>("uvalue1", 101, true) and
+                                  edm::ParameterDescription<unsigned>("uvalue2", 101, true)));
+      SECTION("trackiness") {
+        REQUIRE(psetDesc5.trackiness("uswitch") == edm::cfi::Trackiness::kTracked);
+        REQUIRE(psetDesc5.trackiness("uvalue1") == edm::cfi::Trackiness::kTracked);
+        REQUIRE(psetDesc5.trackiness("uvalue2") == edm::cfi::Trackiness::kTracked);
+      }
+    }
 
     // The switch parameter label cannot be the same as a label that already exists
     edm::ParameterSetDescription psetDesc6;
@@ -514,26 +526,33 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
                       edm::Exception);
 
     // Parameter set switch value must be one of the defined cases
-    edm::ParameterSetDescription psetDesc9;
+    SECTION("switch value must be a defined case") {
+      edm::ParameterSetDescription psetDesc9;
 
-    psetDesc9.ifValue(edm::ParameterDescription<int>("xswitch", 1, true),
-                      0 >> edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true) or
-                          1 >> (edm::ParameterDescription<double>("xvalue1", 101.0, true) and
-                                edm::ParameterDescription<double>("xvalue2", 101.0, true)));
-    edm::ParameterSet pset;
-    pset.addParameter<int>("xswitch", 5);
-    REQUIRE_THROWS_AS(psetDesc9.validate(pset), edm::Exception);
+      psetDesc9.ifValue(edm::ParameterDescription<int>("xswitch", 1, true),
+                        0 >> edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true) or
+                            1 >> (edm::ParameterDescription<double>("xvalue1", 101.0, true) and
+                                  edm::ParameterDescription<double>("xvalue2", 101.0, true)));
+      edm::ParameterSet pset;
+      pset.addParameter<int>("xswitch", 5);
+      REQUIRE_THROWS_AS(psetDesc9.validate(pset), edm::Exception);
 
-    edm::ParameterSwitch<int> pswitch(edm::ParameterDescription<int>("xswitch", 1, true),
-                                      0 >> edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true) or
-                                          1 >> (edm::ParameterDescription<double>("xvalue1", 101.0, true) and
-                                                edm::ParameterDescription<double>("xvalue2", 101.0, true)));
-    edm::ParameterSetDescription psetDesc10;
-    psetDesc10.addNode(pswitch);
-    edm::ParameterSet pset10;
-    testDesc(pswitch, psetDesc10, pset10, false, true);
-    pset10.addParameter<int>("xswitch", 1);
-    testDesc(pswitch, psetDesc10, pset10, true, true);
+      edm::ParameterSwitch<int> pswitch(edm::ParameterDescription<int>("xswitch", 1, true),
+                                        0 >> edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true) or
+                                            1 >> (edm::ParameterDescription<double>("xvalue1", 101.0, true) and
+                                                  edm::ParameterDescription<double>("xvalue2", 101.0, true)));
+      edm::ParameterSetDescription psetDesc10;
+      psetDesc10.addNode(pswitch);
+      edm::ParameterSet pset10;
+      testDesc(pswitch, psetDesc10, pset10, false, true);
+      pset10.addParameter<int>("xswitch", 1);
+      testDesc(pswitch, psetDesc10, pset10, true, true);
+      SECTION("trackiness") {
+        REQUIRE(pswitch.trackiness("xswitch") == edm::cfi::Trackiness::kTracked);
+        REQUIRE(pswitch.trackiness("xvalue1") == edm::cfi::Trackiness::kTracked);
+        REQUIRE(pswitch.trackiness("xvalue2") == edm::cfi::Trackiness::kTracked);
+      }
+    }
   }
 
   // ---------------------------------------------------------------------------------
@@ -872,6 +891,12 @@ TEST_CASE("test ParameterSetDescription", "[ParameterSetDescription]") {
     psetDesc1.validate(pset2);
     psetDesc1.validate(pset3);
     psetDesc1.validate(pset3);
+    SECTION("trackiness") {
+      REQUIRE(node1a->trackiness("x1") == edm::cfi::Trackiness::kTracked);
+      REQUIRE(node1a->trackiness("x2") == edm::cfi::Trackiness::kTracked);
+      REQUIRE(node1a->trackiness("x3") == edm::cfi::Trackiness::kTracked);
+      REQUIRE(node1a->trackiness("missing") == edm::cfi::Trackiness::kNotAllowed);
+    }
 
     // One of the labels cannot already exist in the description
     edm::ParameterSetDescription psetDesc2;

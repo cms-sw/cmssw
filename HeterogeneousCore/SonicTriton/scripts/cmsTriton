@@ -19,7 +19,7 @@ PARENTPID=""
 BASEPORT=8000
 AUTOPORT=""
 NPORTS=3
-IMAGE=fastml/triton-torchgeo:22.07-py3-geometric
+IMAGE=fastml/triton-torchgeo:25.08-py3-geometric
 SANDBOX=""
 COMPAT_USR=""
 EXTRAPATH=/cvmfs/oasis.opensciencegrid.org/mis/apptainer/current/bin
@@ -188,7 +188,6 @@ SANDBOX=$(get_sandbox)
 SANDBOX=$(readlink -f ${SANDBOX})
 LOG="log_${SERVER}.log"
 STOPLOG="log_stop_${SERVER}.log"
-LIB=lib
 STARTED_INDICATOR="Started GRPCInferenceService"
 SEGFAULT_INDICATOR="Address already in use"
 EXTRA=""
@@ -255,9 +254,6 @@ start_docker(){
 	# compatibility driver environment
 	if [ -n "$COMPAT" ]; then
 		MOUNTARGS="$MOUNTARGS -v$COMPAT"
-		if [ -n "$COMPAT_SCRIPT_MOUNT" ]; then
-			MOUNTARGS="$MOUNTARGS -v$COMPAT_SCRIPT_MOUNT"
-		fi
 	fi
 
 	$DRYRUN $DOCKER run -d --name ${SERVER} \
@@ -278,9 +274,6 @@ start_podman(){
 	# compatibility driver environment
 	if [ -n "$COMPAT" ]; then
 		MOUNTARGS="$MOUNTARGS --volume $COMPAT"
-		if [ -n "$COMPAT_SCRIPT_MOUNT" ]; then
-			MOUNTARGS="$MOUNTARGS --volume $COMPAT_SCRIPT_MOUNT"
-		fi
 	fi
 
 	$DRYRUN $PODMAN run -d --name ${SERVER} \
@@ -290,13 +283,6 @@ start_podman(){
 }
 
 start_apptainer(){
-	# triton server image may need to modify contents of opt/tritonserver/lib/
-	# but cvmfs is read-only
-	# -> make a writable local directory with the same contents
-	# this is no longer needed as of triton 2.11.0, but kept for compatibility w/ older server versions
-	$DRYRUN mkdir ${LIB}
-	$DRYRUN ln -s ${SANDBOX}/opt/tritonserver/lib/* ${LIB}/
-
 	# mount all model repositories
 	MOUNTARGS=""
 	REPOARGS=""
@@ -308,25 +294,16 @@ start_apptainer(){
 	# compatibility driver environment
 	if [ -n "$COMPAT" ]; then
 		MOUNTARGS="$MOUNTARGS -B $COMPAT"
-		if [ -n "$COMPAT_SCRIPT_MOUNT" ]; then
-			MOUNTARGS="$MOUNTARGS -B $COMPAT_SCRIPT_MOUNT"
-		fi
 	fi
-
-    # workaround for https://github.com/apptainer/apptainer/issues/2164
-    unset DBUS_SESSION_BUS_ADDRESS
 
 	# start instance
 	# need to bind /cvmfs for above symlinks to work inside container
-	# --underlay: workaround for https://github.com/apptainer/apptainer/issues/2167
 	$DRYRUN $APPTAINER instance start \
-		--underlay \
-		-B ${SHM}:/run/shm -B ${LIB}:/opt/tritonserver/lib -B ${SANDBOX} $MOUNTARGS $EXTRA \
+		-B ${SHM}:/run/shm -B ${SANDBOX} $MOUNTARGS $EXTRA \
 		${SANDBOX} ${SERVER}
 
 	START_EXIT=$?
 	if [ "$START_EXIT" -ne 0 ]; then
-		rm -rf ${LIB}
 		return "$START_EXIT"
 	fi
 
@@ -580,17 +557,6 @@ check_drivers(){
 	if [ -n "$COMPAT" ]; then
 		# in order to mount drivers where Triton expects them
 		export COMPAT="${COMPAT}:${COMPAT_SYS}/lib.real"
-		# workaround for bug in Triton/Nvidia compatibility check
-		if [ "$PWD" == "$TMPDIR" ]; then
-			$DRYRUN $COMPAT_FN
-			COMPAT_SCRIPT_BASE=$(basename $COMPAT_SCRIPT)
-			# newer containers already include this fix, no need to do it twice
-			if ! grep -Fq 'LD_PRELOAD=""' $COMPAT_SCRIPT_BASE; then
-				$DRYRUN sed -i 's/LD_LIBRARY_PATH="${_CUDA_COMPAT_REALLIB}"/&; LD_PRELOAD=""/' $COMPAT_SCRIPT_BASE
-				COMPAT_SCRIPT_PATH=$(readlink -f $TMPDIR/$COMPAT_SCRIPT_BASE)
-				COMPAT_SCRIPT_MOUNT="$COMPAT_SCRIPT_PATH:$COMPAT_SCRIPT"
-			fi
-		fi
 		return 0
 	else
 		return 1

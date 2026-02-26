@@ -1,39 +1,34 @@
 // -*- C++ -*-
-///bookLayer
-// Package:    SiPixelMonitorRecHitsSoA
-// Class:      SiPixelMonitorRecHitsSoA
+// Package:    DQM/SiPixelHeterogeneous
+// Class:      SiPixelMonitorTrackSoA
 //
 /**\class SiPixelMonitorRecHitsSoA SiPixelMonitorRecHitsSoA.cc
 */
 //
-// Author: Suvankar Roy Chowdhury, Alessandro Rossi
+// Author: Suvankar Roy Chowdhury
 //
-#include "DataFormats/Math/interface/approx_atan2.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-// DQM Histograming
-#include "DQMServices/Core/interface/MonitorElement.h"
+
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoAHost.h"
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
-// Geometry
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/Math/interface/approx_atan2.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsHost.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-template <typename T>
 class SiPixelMonitorRecHitsSoA : public DQMEDAnalyzer {
 public:
-  using HitSoA = TrackingRecHitSoAView<T>;
-  using HitsOnHost = TrackingRecHitSoAHost<T>;
+  using HitsOnHost = reco::TrackingRecHitHost;
 
   explicit SiPixelMonitorRecHitsSoA(const edm::ParameterSet&);
   ~SiPixelMonitorRecHitsSoA() override = default;
@@ -45,10 +40,15 @@ public:
 private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
-  const edm::EDGetTokenT<HitsOnHost> tokenSoAHitsCPU_;
+  const edm::EDGetTokenT<HitsOnHost> tokenSoAHits_;
   const std::string topFolderName_;
   const TrackerGeometry* tkGeom_ = nullptr;
   const TrackerTopology* tTopo_ = nullptr;
+
+  bool isPhase2_;
+  static constexpr double kInnerDiskRange = 20.0;
+  static constexpr double kOuterDiskRange = 27.5;
+
   MonitorElement* hnHits;
   MonitorElement* hBFposZP;
   MonitorElement* hBFposZR;
@@ -72,39 +72,31 @@ private:
   MonitorElement* hFsizeyD[2][12];
 };
 
-//
-// constructors
-//
-
-template <typename T>
-SiPixelMonitorRecHitsSoA<T>::SiPixelMonitorRecHitsSoA(const edm::ParameterSet& iConfig)
+SiPixelMonitorRecHitsSoA::SiPixelMonitorRecHitsSoA(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
-      tokenSoAHitsCPU_(consumes(iConfig.getParameter<edm::InputTag>("pixelHitsSrc"))),
-      topFolderName_(iConfig.getParameter<std::string>("TopFolderName")) {}
-//
-// Begin Run
-//
-template <typename T>
-void SiPixelMonitorRecHitsSoA<T>::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+      tokenSoAHits_(consumes(iConfig.getParameter<edm::InputTag>("pixelHitsSrc"))),
+      topFolderName_(iConfig.getParameter<std::string>("TopFolderName")),
+      isPhase2_(false) {}
+
+void SiPixelMonitorRecHitsSoA::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   tkGeom_ = &iSetup.getData(geomToken_);
+  if ((tkGeom_->isThere(GeomDetEnumerators::P2PXB)) || (tkGeom_->isThere(GeomDetEnumerators::P2PXEC))) {
+    isPhase2_ = true;
+  }
   tTopo_ = &iSetup.getData(topoToken_);
 }
 
-//
-// -- Analyze
-//
-template <typename T>
-void SiPixelMonitorRecHitsSoA<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  const auto& rhsoaHandle = iEvent.getHandle(tokenSoAHitsCPU_);
+void SiPixelMonitorRecHitsSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  const auto& rhsoaHandle = iEvent.getHandle(tokenSoAHits_);
   if (!rhsoaHandle.isValid()) {
-    edm::LogWarning("SiPixelMonitorRecHitsSoA") << "No RecHits SoA found \n returning!" << std::endl;
+    edm::LogWarning("SiPixelMonitorRecHitsSoA") << "No RecHits SoA found \n returning!";
     return;
   }
   auto const& rhsoa = *rhsoaHandle;
-  auto const& soa2d = rhsoa.const_view();
+  auto const& soa2d = rhsoa.const_view().trackingHits();
 
-  uint32_t nHits_ = soa2d.nHits();
+  uint32_t nHits_ = soa2d.metadata().size();
   hnHits->Fill(nHits_);
   auto detIds = tkGeom_->detUnitIds();
   for (uint32_t i = 0; i < nHits_; i++) {
@@ -147,37 +139,37 @@ void SiPixelMonitorRecHitsSoA<T>::analyze(const edm::Event& iEvent, const edm::E
   }
 }
 
-//
-// -- Book Histograms
-//
-template <typename T>
-void SiPixelMonitorRecHitsSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
-                                                 edm::Run const& iRun,
-                                                 edm::EventSetup const& iSetup) {
+void SiPixelMonitorRecHitsSoA::bookHistograms(DQMStore::IBooker& iBook,
+                                              edm::Run const& iRun,
+                                              edm::EventSetup const& iSetup) {
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
+
+  // maximum z position for the pixel detector
+  const double zMax = isPhase2_ ? 270. : 60.;
+  const double rMax = isPhase2_ ? kOuterDiskRange : kInnerDiskRange;
 
   // clang-format off
   //Global
   hnHits = iBook.book1D("nHits", "RecHits per event;RecHits;#events", 200, 0, 5000);
-  hBFposZP = iBook.book2D("recHitsGlobalPosZP", "RecHits position Global;Z;#phi", 1000, -60, 60, 200,-3.2,3.2);
-  hBFposZR = iBook.book2D("recHitsGlobalPosZR", "RecHits position Global;Z;R", 1000, -60, 60, 200,-20,20);
+  hBFposZP = iBook.book2D("recHitsGlobalPosZP", "RecHits position Global;Z [cm];#phi [rad]", 1000, -zMax, zMax, 200,-3.2,3.2);
+  hBFposZR = iBook.book2D("recHitsGlobalPosZR", "RecHits position Global;Z [cm];R [cm]", 1000, -zMax, zMax, 200,-rMax, rMax);
   //Barrel
-  hBposXY = iBook.book2D("recHitsBarrelPosXY", "RecHits position Barrel;X;Y", 200, -20, 20, 200,-20,20);
-  hBposZP = iBook.book2D("recHitsBarrelPosZP", "RecHits position Barrel;Z;#phi", 300, -30, 30, 200,-3.2,3.2);
+  hBposXY = iBook.book2D("recHitsBarrelPosXY", "RecHits position Barrel;X [cm];Y [cm]", 200, -20, 20, 200,-20, 20);
+  hBposZP = iBook.book2D("recHitsBarrelPosZP", "RecHits position Barrel;Z [cm];#phi [rad]", 300, -30, 30, 200,-3.2,3.2);
   hBcharge = iBook.book1D("recHitsBarrelCharge", "RecHits Charge Barrel;Charge;#events", 250, 0, 100000);
   hBsizex = iBook.book1D("recHitsBarrelSizex", "RecHits SizeX Barrel;SizeX;#events", 50, 0, 50);
   hBsizey = iBook.book1D("recHitsBarrelSizey", "RecHits SizeY Barrel;SizeY;#events", 50, 0, 50);
   //Barrel Layer
   for(unsigned int il=0;il<tkGeom_->numberOfLayers(PixelSubdetector::PixelBarrel);il++){
-    hBposZPL[il] = iBook.book2D(Form("recHitsBLay%dPosZP",il+1), Form("RecHits position Barrel Layer%d;Z;#phi",il+1), 300, -30, 30, 200,-3.2,3.2);
+    hBposZPL[il] = iBook.book2D(Form("recHitsBLay%dPosZP",il+1), Form("RecHits position Barrel Layer%d;Z [cm];#phi [rad]",il+1), 300, -30, 30, 200,-3.2,3.2);
     hBchargeL[il] = iBook.book1D(Form("recHitsBLay%dCharge",il+1), Form("RecHits Charge Barrel Layer%d;Charge;#events",il+1), 250, 0, 100000);
     hBsizexL[il] = iBook.book1D(Form("recHitsBLay%dSizex",il+1), Form("RecHits SizeX Barrel Layer%d;SizeX;#events",il+1), 50, 0, 50);
     hBsizeyL[il] = iBook.book1D(Form("recHitsBLay%dSizey",il+1), Form("RecHits SizeY Barrel Layer%d;SizeY;#events",il+1), 50, 0, 50);
   }
   //Endcaps
-  hFposXY = iBook.book2D("recHitsEndcapsPosXY", "RecHits position Endcaps;X;Y", 200, -20, 20, 200,-20, 20);
-  hFposZP = iBook.book2D("recHitsEndcapsPosZP", "RecHits position Endcaps;Z;#phi", 600, -60, 60, 200,-3.2,3.2);
+  hFposXY = iBook.book2D("recHitsEndcapsPosXY", "RecHits position Endcaps;X [cm];Y [cm]", 200, -rMax, rMax, 200,-rMax, rMax);
+  hFposZP = iBook.book2D("recHitsEndcapsPosZP", "RecHits position Endcaps;Z [cm];#phi [rad]", 600, -zMax, zMax, 200,-3.2,3.2);
   hFcharge = iBook.book1D("recHitsEndcapsCharge", "RecHits Charge Endcaps;Charge;#events", 250, 0, 100000);
   hFsizex = iBook.book1D("recHitsEndcapsSizex", "RecHits SizeX Endcaps;SizeX;#events", 50, 0, 50);
   hFsizey = iBook.book1D("recHitsEndcapsSizey", "RecHits SizeY Endcaps;SizeY;#events", 50, 0, 50);
@@ -185,27 +177,23 @@ void SiPixelMonitorRecHitsSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
   for(int is=0;is<2;is++){
     int sign=is==0? -1:1;
     for(unsigned int id=0;id<tkGeom_->numberOfLayers(PixelSubdetector::PixelEndcap);id++){
-      hFposXYD[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosXY",id*sign+sign), Form("RecHits position Endcaps Disk%+d;X;Y",id*sign+sign), 200, -20, 20, 200,-20,20);
+      // Phase-2 TEPX disks larger
+      const double range = (id > 7) ? kOuterDiskRange : kInnerDiskRange;
+      hFposXYD[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosXY",id*sign+sign), Form("RecHits position Endcaps Disk%+d;X [cm];Y [cm]",id*sign+sign), 200, -range, range, 200, -range, range);
       hFchargeD[is][id] = iBook.book1D(Form("recHitsFDisk%+dCharge",id*sign+sign), Form("RecHits Charge Endcaps Disk%+d;Charge;#events",id*sign+sign), 250, 0, 100000);
       hFsizexD[is][id] = iBook.book1D(Form("recHitsFDisk%+dSizex",id*sign+sign), Form("RecHits SizeX Endcaps Disk%+d;SizeX;#events",id*sign+sign), 50, 0, 50);
       hFsizeyD[is][id] = iBook.book1D(Form("recHitsFDisk%+dSizey",id*sign+sign), Form("RecHits SizeY Endcaps Disk%+d;SizeY;#events",id*sign+sign), 50, 0, 50);
     }
   }
+  // clang-format on
 }
 
-template<typename T>
-void SiPixelMonitorRecHitsSoA<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // monitorpixelRecHitsSoA
+void SiPixelMonitorRecHitsSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("pixelHitsSrc", edm::InputTag("siPixelRecHitsPreSplittingSoA"));
-  desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelRecHitsSoA");
+  desc.add<edm::InputTag>("pixelHitsSrc", edm::InputTag("siPixelRecHitsPreSplittingAlpaka"));
+  desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelRecHitsAlpaka");
   descriptions.addWithDefaultLabel(desc);
 }
 
-using SiPixelPhase1MonitorRecHitsSoA = SiPixelMonitorRecHitsSoA<pixelTopology::Phase1>;
-using SiPixelPhase2MonitorRecHitsSoA = SiPixelMonitorRecHitsSoA<pixelTopology::Phase2>;
-using SiPixelHIonPhase1MonitorRecHitsSoA = SiPixelMonitorRecHitsSoA<pixelTopology::HIonPhase1>;
-
-DEFINE_FWK_MODULE(SiPixelPhase1MonitorRecHitsSoA);
-DEFINE_FWK_MODULE(SiPixelPhase2MonitorRecHitsSoA);
-DEFINE_FWK_MODULE(SiPixelHIonPhase1MonitorRecHitsSoA);
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SiPixelMonitorRecHitsSoA);

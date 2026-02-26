@@ -6,42 +6,50 @@
 #include <memory>
 
 // user include files
-
 #include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociatorBaseImpl.h"
+#include "DataFormats/Common/interface/Uninitialized.h"
 
 // forward declarations
 
 namespace ticl {
 
-  class LayerClusterToCaloParticleAssociator {
+  template <typename CLUSTER>
+  class LayerClusterToCaloParticleAssociatorT {
   public:
-    LayerClusterToCaloParticleAssociator(std::unique_ptr<ticl::LayerClusterToCaloParticleAssociatorBaseImpl>);
-    LayerClusterToCaloParticleAssociator() = default;
-    LayerClusterToCaloParticleAssociator(LayerClusterToCaloParticleAssociator &&) = default;
-    LayerClusterToCaloParticleAssociator &operator=(LayerClusterToCaloParticleAssociator &&) = default;
-    LayerClusterToCaloParticleAssociator(const LayerClusterToCaloParticleAssociator &) = delete;  // stop default
-    const LayerClusterToCaloParticleAssociator &operator=(const LayerClusterToCaloParticleAssociator &) =
+    explicit LayerClusterToCaloParticleAssociatorT(
+        std::unique_ptr<ticl::LayerClusterToCaloParticleAssociatorBaseImplT<CLUSTER>> impl)
+        : m_impl(std::move(impl)) {}
+    LayerClusterToCaloParticleAssociatorT() = delete;
+    explicit LayerClusterToCaloParticleAssociatorT(edm::Uninitialized) noexcept {};
+    LayerClusterToCaloParticleAssociatorT(LayerClusterToCaloParticleAssociatorT<CLUSTER> &&) = default;
+    LayerClusterToCaloParticleAssociatorT &operator=(LayerClusterToCaloParticleAssociatorT<CLUSTER> &&) = default;
+    LayerClusterToCaloParticleAssociatorT(const LayerClusterToCaloParticleAssociatorT<CLUSTER> &) =
+        delete;  // stop default
+    const LayerClusterToCaloParticleAssociatorT &operator=(const LayerClusterToCaloParticleAssociatorT<CLUSTER> &) =
         delete;  // stop default
 
-    ~LayerClusterToCaloParticleAssociator() = default;
+    ~LayerClusterToCaloParticleAssociatorT() = default;
 
     // ---------- const member functions ---------------------
     /// Associate a LayerCluster to CaloParticles
-    ticl::RecoToSimCollection associateRecoToSim(const edm::Handle<reco::CaloClusterCollection> &cCCH,
-                                                 const edm::Handle<CaloParticleCollection> &cPCH) const {
+    ticl::RecoToSimCollectionT<CLUSTER> associateRecoToSim(const edm::Handle<CLUSTER> &cCCH,
+                                                           const edm::Handle<CaloParticleCollection> &cPCH) const {
       return m_impl->associateRecoToSim(cCCH, cPCH);
     };
 
     /// Associate a CaloParticle to LayerClusters
-    ticl::SimToRecoCollection associateSimToReco(const edm::Handle<reco::CaloClusterCollection> &cCCH,
-                                                 const edm::Handle<CaloParticleCollection> &cPCH) const {
+    ticl::SimToRecoCollectionT<CLUSTER> associateSimToReco(const edm::Handle<CLUSTER> &cCCH,
+                                                           const edm::Handle<CaloParticleCollection> &cPCH) const {
       return m_impl->associateSimToReco(cCCH, cPCH);
     }
 
   private:
     // ---------- member data --------------------------------
-    std::unique_ptr<LayerClusterToCaloParticleAssociatorBaseImpl> m_impl;
+    std::unique_ptr<LayerClusterToCaloParticleAssociatorBaseImplT<CLUSTER>> m_impl;
   };
 }  // namespace ticl
+
+extern template class ticl::LayerClusterToCaloParticleAssociatorT<reco::CaloClusterCollection>;
+extern template class ticl::LayerClusterToCaloParticleAssociatorT<reco::PFClusterCollection>;
 
 #endif

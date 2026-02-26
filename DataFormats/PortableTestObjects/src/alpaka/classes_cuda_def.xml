@@ -3,19 +3,43 @@
   <class name="edm::DeviceProduct<alpaka_cuda_async::portabletest::TestDeviceCollection>" persistent="false"/>
   <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portabletest::TestDeviceCollection>>" persistent="false"/>
 
+  <class name="alpaka_cuda_async::portabletest::TestDeviceCollection2" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::portabletest::TestDeviceCollection2>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portabletest::TestDeviceCollection2>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::portabletest::TestDeviceCollection3" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::portabletest::TestDeviceCollection3>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portabletest::TestDeviceCollection3>>" persistent="false"/>
+
   <class name="alpaka_cuda_async::portabletest::TestDeviceObject" persistent="false"/>
   <class name="edm::DeviceProduct<alpaka_cuda_async::portabletest::TestDeviceObject>" persistent="false"/>
   <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portabletest::TestDeviceObject>>" persistent="false"/>
-    
-  <class name="alpaka_cuda_async::portabletest::TestDeviceMultiCollection2" persistent="false"/>
-  <class name="edm::DeviceProduct<alpaka_cuda_async::portabletest::TestDeviceMultiCollection2>" persistent="false"/>
-  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portabletest::TestDeviceMultiCollection2>>" persistent="false"/>
-
-  <class name="alpaka_cuda_async::portabletest::TestDeviceMultiCollection3" persistent="false"/>
-  <class name="edm::DeviceProduct<alpaka_cuda_async::portabletest::TestDeviceMultiCollection3>" persistent="false"/>
-  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portabletest::TestDeviceMultiCollection3>>" persistent="false"/>
 
   <class name="portabletest::TestProductWithPtr<alpaka_cuda_async::Device>"/>
   <class name="edm::DeviceProduct<portabletest::TestProductWithPtr<alpaka_cuda_async::Device>>"/>
   <class name="edm::Wrapper<edm::DeviceProduct<portabletest::TestProductWithPtr<alpaka_cuda_async::Device>>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::portabletest::ParticleDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::portabletest::ParticleDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portabletest::ParticleDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::portabletest::SimpleNetDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::portabletest::SimpleNetDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portabletest::SimpleNetDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::portabletest::MultiHeadNetDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::portabletest::MultiHeadNetDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portabletest::MultiHeadNetDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::portabletest::ImageDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::portabletest::ImageDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portabletest::ImageDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::portabletest::LogitsDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::portabletest::LogitsDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portabletest::LogitsDeviceCollection>>" persistent="false"/>
+
+  <class name="alpaka_cuda_async::portabletest::MaskDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::portabletest::MaskDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::portabletest::MaskDeviceCollection>>" persistent="false"/>
 </lcgdict>

@@ -24,6 +24,8 @@ namespace edmtest {
 
     void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   private:
     std::vector<int> expectedStates_;
     std::vector<unsigned int> expectedIndexes_;
@@ -37,6 +39,15 @@ namespace edmtest {
         expectedIndexes_(pset.getParameter<std::vector<unsigned int>>("expectedIndexes")),
         tokenPathStatus_(consumes(pset.getParameter<edm::InputTag>("pathStatusTag"))),
         tokenEndPathStatus_(consumes(pset.getParameter<edm::InputTag>("endPathStatusTag"))) {}
+
+  void TestGetPathStatus::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<std::vector<int>>("expectedStates");
+    desc.add<std::vector<unsigned int>>("expectedIndexes");
+    desc.add<edm::InputTag>("pathStatusTag");
+    desc.add<edm::InputTag>("endPathStatusTag");
+    descriptions.addDefault(desc);
+  }
 
   void TestGetPathStatus::analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const&) const {
     auto const& pathStatus = event.get(tokenPathStatus_);

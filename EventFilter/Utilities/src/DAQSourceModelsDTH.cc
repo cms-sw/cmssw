@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <vector>
 #include <bitset>
+#include <format>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -252,7 +253,7 @@ void DataModeDTH::makeDataBlockView(unsigned char* addr, RawInputFile* rawFile) 
           checksumValid_ = false;
           if (!checksumError_.empty())
             checksumError_ += "\n";
-          checksumError_ += fmt::format(
+          checksumError_ += std::format(
               "Found a wrong crc32c checksum in orbit header v{} run: {} orbit: {} sourceId: {} wcount: {} events: {} "
               "flags: {}. Expected {:x} but calculated {:x}",
               orbitHeader->version(),

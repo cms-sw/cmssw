@@ -292,20 +292,11 @@ void DD4hep_TestPixelTopology::analyze(const edm::Event& iEvent, const edm::Even
           const GeomDetUnit theDetUnit = *(dynamic_cast<const MTDGeomDetUnit*>(thedet));
 
           if (isBarrel) {
-            edm::LogVerbatim("DD4hep_TestPixelTopology")
-                << "geoId= " << modIdBTL.rawId() << " side= " << modIdBTL.mtdSide() << " RU/mod= " << modIdBTL.runit()
-                << " / " << modIdBTL.module();
-            sunitt_ << "geoId= " << modIdBTL.rawId() << " side= " << modIdBTL.mtdSide()
-                    << " RU/mod= " << modIdBTL.runit() << " / " << modIdBTL.module();
+            edm::LogVerbatim("DD4hep_TestPixelTopology") << printBTLSMDetId(modIdBTL.rawId()).str();
+            sunitt_ << printBTLSMDetId(modIdBTL.rawId()).str();
           } else {
-            edm::LogVerbatim("DD4hep_TestPixelTopology")
-                << "geoId= " << modIdETL.rawId() << " side= " << modIdETL.mtdSide()
-                << " disc/face/sec= " << modIdETL.nDisc() << " / " << modIdETL.discSide() << " / " << modIdETL.sector()
-                << " mod/typ/sens= " << modIdETL.module() << " / " << modIdETL.modType() << " / " << modIdETL.sensor();
-            sunitt_ << "geoId= " << modIdETL.rawId() << " side= " << modIdETL.mtdSide()
-                    << " disc/face/sec= " << modIdETL.nDisc() << " / " << modIdETL.discSide() << " / "
-                    << modIdETL.sector() << " mod/typ/sens= " << modIdETL.module() << " / " << modIdETL.modType()
-                    << " / " << modIdETL.sensor();
+            edm::LogVerbatim("DD4hep_TestPixelTopology") << printETLDetId(modIdETL.rawId()).str();
+            sunitt_ << printETLDetId(modIdETL.rawId()).str();
           }
           analyseRectangle(theDetUnit);
         }
@@ -390,9 +381,9 @@ void DD4hep_TestPixelTopology::analyze(const edm::Event& iEvent, const edm::Even
 
           if (isNewId && iloop == nTest - 1) {
             edm::LogVerbatim("DD4hep_TestPixelTopology")
-                << "row/col= " << recoRow << " / " << recoCol << " local pos= " << fvecround(modLocal, 4)
+                << " row/col= " << recoRow << " / " << recoCol << " local pos= " << fvecround(modLocal, 4)
                 << " global pos= " << fvecround(modGlobal, 4) << "\n";
-            sunitt_ << "row/col= " << recoRow << " / " << recoCol << " local pos= " << fvecround(modLocal, 2)
+            sunitt_ << " row/col= " << recoRow << " / " << recoCol << " local pos= " << fvecround(modLocal, 2)
                     << " global pos= " << fvecround(modGlobal, 2) << "\n";
           }
 
@@ -411,25 +402,15 @@ void DD4hep_TestPixelTopology::analyze(const edm::Event& iEvent, const edm::Even
             sunitt_ << print_path() << "\n";
             if (isBarrel) {
               edm::LogVerbatim("DD4hep_TestPixelTopology")
-                  << "rawId= " << theIdBTL.rawId() << " geoId= " << geoId.rawId() << " side/rod= " << theIdBTL.mtdSide()
-                  << " / " << theIdBTL.mtdRR() << " RU= " << theIdBTL.runit()
-                  << " module/geomodule= " << theIdBTL.module() << " / " << static_cast<BTLDetId>(geoId).module()
-                  << " crys= " << theIdBTL.crystal() << " BTLDetId row/col= " << origRow << " / " << origCol << "\n";
-              sunitt_ << "rawId= " << theIdBTL.rawId() << " geoId= " << geoId.rawId()
-                      << " side/rod= " << theIdBTL.mtdSide() << " / " << theIdBTL.mtdRR() << " RU= " << theIdBTL.runit()
-                      << " module/geomodule= " << theIdBTL.module() << " / " << static_cast<BTLDetId>(geoId).module()
-                      << " crys= " << theIdBTL.crystal() << " BTLDetId row/col= " << origRow << " / " << origCol
-                      << "\n";
+                  << "rawId= " << theIdBTL.rawId() << printBTLSMDetId(modIdBTL.rawId()).str()
+                  << " module= " << theIdBTL.module() << " crys= " << theIdBTL.crystal()
+                  << " BTLDetId row/col= " << origRow << " / " << origCol << "\n";
+              sunitt_ << "rawId= " << theIdBTL.rawId() << printBTLSMDetId(modIdBTL.rawId()).str()
+                      << " module= " << theIdBTL.module() << " crys= " << theIdBTL.crystal()
+                      << " BTLDetId row/col= " << origRow << " / " << origCol << "\n";
             } else {
-              edm::LogVerbatim("DD4hep_TestPixelTopology")
-                  << "geoId= " << modIdETL.rawId() << " side= " << modIdETL.mtdSide()
-                  << " disc/face/sec= " << modIdETL.nDisc() << " / " << modIdETL.discSide() << " / "
-                  << modIdETL.sector() << " mod/typ/sens= " << modIdETL.module() << " / " << modIdETL.modType() << " / "
-                  << modIdETL.sensor() << "\n";
-              sunitt_ << "geoId= " << modIdETL.rawId() << " side= " << modIdETL.mtdSide()
-                      << " disc/face/sec= " << modIdETL.nDisc() << " / " << modIdETL.discSide() << " / "
-                      << modIdETL.sector() << " mod/typ/sens= " << modIdETL.module() << " / " << modIdETL.modType()
-                      << " / " << modIdETL.sensor() << "\n";
+              edm::LogVerbatim("DD4hep_TestPixelTopology") << printETLDetId(modIdETL.rawId()).str() << "\n";
+              sunitt_ << printETLDetId(modIdETL.rawId()).str() << "\n";
             }
 
             edm::LogVerbatim("DD4hep_TestPixelTopology")
@@ -536,12 +517,13 @@ void DD4hep_TestPixelTopology::analyseRectangle(const GeomDetUnit& det) {
 
   edm::LogVerbatim("DD4hep_TestPixelTopology")
       << " " << fvecround(pos, 4) << " R= " << fround(std::sqrt(pos.x() * pos.x() + pos.y() * pos.y()), 4)
-      << " phi= " << fround(convertRadToDeg(pos.phi()), 4) << " outerMiddle " << fvecround(outerMiddle, 4) << "\n"
+      << " phi= " << fround(convertRadToDeg(pos.barePhi()), 4) << " outerMiddle " << fvecround(outerMiddle, 4) << "\n"
       << " l/w/t " << fround(length, 4) << " / " << fround(width, 4) << " / " << fround(thickness, 4)
       << " RadLeng= " << p.mediumProperties().radLen() << " Xi= " << p.mediumProperties().xi()
       << " det center inside bounds? " << tb->inside(det.surface().toLocal(pos)) << "\n";
   sunitt_ << " " << fvecround(pos, 2) << " R= " << fround(std::sqrt(pos.x() * pos.x() + pos.y() * pos.y()), 2)
-          << " phi= " << fround(convertRadToDeg(pos.phi()), 2) << " outerMiddle " << fvecround(outerMiddle, 2) << "\n"
+          << " phi= " << fround(convertRadToDeg(pos.barePhi()), 2) << " outerMiddle " << fvecround(outerMiddle, 2)
+          << "\n"
           << " l/w/t " << fround(length, 2) << " / " << fround(width, 2) << " / " << fround(thickness, 2)
           << " RadLeng= " << p.mediumProperties().radLen() << " Xi= " << p.mediumProperties().xi()
           << " det center inside bounds? " << tb->inside(det.surface().toLocal(pos)) << "\n";

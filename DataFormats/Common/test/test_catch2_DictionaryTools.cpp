@@ -4,7 +4,7 @@
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 #include <typeinfo>
 #include <map>
 #include <vector>

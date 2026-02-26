@@ -8,3 +8,5 @@ from Validation.EcalDigis.ecalPreshowerDigisValidation_cfi import *
 from Validation.EcalDigis.ecalSelectiveReadoutValidation_cfi import *
 ecalDigisValidationSequence = cms.Sequence(ecalDigisValidation*ecalBarrelDigisValidation*ecalEndcapDigisValidation*ecalPreshowerDigisValidation*ecalSelectiveReadoutValidation)
 
+ecalDigisValidationPhase2 = ecalDigisValidation.clone(EEdigiCollection=cms.InputTag("None"), ESdigiCollection=cms.InputTag("None"))
+ecalDigisValidationSequencePhase2 = cms.Sequence(ecalDigisValidationPhase2*ecalBarrelDigisValidation)

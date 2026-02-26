@@ -17,7 +17,7 @@ These menus can be specified via the cmsDriver configuration as `-s L1P2GT:step1
 Note that the full menu expanded configuration can be inspected using `edmConfigDump` on a `cmsRun` config that executes the `L1P2GT` step:
 1. Produce the config via 
 ```
-cmsDriver.py -s L1P2GT --conditions auto:phase2_realistic_T33 --filein file:file.root --no_exec --python_filename l1pgt_cfg.py
+cmsDriver.py -s L1P2GT --conditions auto:phase2_realistic_T35 --filein file:file.root --no_exec --python_filename l1pgt_cfg.py
 ```
 2. Dump the config via 
 ```

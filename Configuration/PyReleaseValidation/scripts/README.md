@@ -330,11 +330,13 @@ MC workflows for pp collisions:
 | 14034.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023_FastSim 	|  	*FastSim* |  	
 | 14234.0 	| RelValTTbar_14TeV 	| phase1_2023_realistic 	| Run3_2023_FastSim 	| *FastSim*  Run3_Flat55To75_PoissonOOTPU 	|  	
 | 2500.301 	| RelValTTbar_14TeV 	| phase1_2025_realistic 	| Run3_2025 	| NanoAOD from existing MINI 	|  	
+| 18434.0 	| RelValTTbar_14TeV 	| phase1_2026_realistic 	| Run3_2026 	|  	| 
+| 18634.0 	| RelValTTbar_14TeV 	| phase1_2026_realistic 	| Run3_2026 	|  	| 
 | | | | | | 
 | **Phase2** 	|  	|  	|  	|  	**Geometry** |  	
 | |  	|  	|  	|  	|  	
 | 24834.0 	| RelValTTbar_14TeV 	| phase2_realistic_T25 	| Phase2C17I13M9 	| ExtendedRun4D98 	| (Phase-2 baseline) 	
-| 29634.911 	| TTbar_14TeV_TuneCP5 	| phase2_realistic_T33 	| Phase2C17I13M9 	| DD4hepExtendedRun4D110 	| DD4Hep (HLLHC14TeV BeamSpot)
+| 29634.911 	| TTbar_14TeV_TuneCP5 	| phase2_realistic_T35 	| Phase2C17I13M9 	| DD4hepExtendedRun4D110 	| DD4Hep (HLLHC14TeV BeamSpot)
 | 25034.999 	| RelValTTbar_14TeV (PREMIX) 	| phase2_realistic_T25 	| Phase2C17I13M9 	| ExtendedRun4D98 	| AVE_50_BX_25ns_m3p3 	
 | 24896.0 	| RelValCloseByPGun_CE_E_Front_120um 	| phase2_realistic_T25 	| Phase2C17I13M9 	| ExtendedRun4D98 	|  	
 | 24900.0 	| RelValCloseByPGun_CE_H_Coarse_Scint 	| phase2_realistic_T25 	| Phase2C17I13M9 	| ExtendedRun4D98 	|  	

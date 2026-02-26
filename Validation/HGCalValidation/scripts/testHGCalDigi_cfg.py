@@ -3,7 +3,7 @@
 #   cmsRun testHGCalDigi_cfg.py geometry=D111 type=DDD data=mu noise=none
 #                               threshold=none
 #
-#   Options for geometry: D105, D111, D114, V17Shift, D104
+#   Options for geometry: D121, D111, D114, V17Shift, D104
 #               type: DDD, DD4hep
 #               data: mu, tt
 #               noise: none, ok
@@ -18,10 +18,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D111",
+                 "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D105, D111, D114, V17Shift, D104")
+                  "geometry of operations: D121, D111, D114, V17Shift, D104")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,
@@ -78,7 +78,7 @@ else:
         process = cms.Process('SingleMuonSim',Phase2C17I13M9)
         geomFile = "Configuration.Geometry.GeometryExtendedRun4" + options.geometry + "Reco_cff"
 
-globalTag = "auto:phase2_realistic_T33"
+globalTag = "auto:phase2_realistic_T35"
 inFile = "file:step1" + options.type + options.geometry + options.data + ".root"
 outFile = "file:step2" + options.type + options.geometry + options.data + ".root"
 

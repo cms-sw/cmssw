@@ -9,15 +9,14 @@
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 class TGLEmbeddedViewer;
 class FWIntValueListener;
 class TEveCaloLego;
 class TGSlider;
 
 namespace reco {
-  //   class PFCandidate;
-  class PFRecHit;
-  class PFCluster;
   class PFRecTrack;
 }  // namespace reco
 

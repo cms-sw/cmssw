@@ -8,7 +8,7 @@ Test program for edm::vector_transform class.
 #include <iostream>
 #include <string>
 #include <boost/algorithm/string.hpp>
-#include <catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #include "FWCore/Utilities/interface/transform.h"
 

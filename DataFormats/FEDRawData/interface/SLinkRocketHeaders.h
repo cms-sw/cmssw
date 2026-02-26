@@ -3,7 +3,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-//#include <memory>
+#include <memory>
 #include <span>
 
 /*
@@ -83,7 +83,8 @@ private:
   union {
     struct {
       uint16_t fed_crc_error_ : 1, /* FED CRC error was detected by DTH and corrected */
-          slink_crc_error_ : 1, /* Set when the slink receviver finds a mistmatch between calculated crc and daq_crc. It should never happen */
+          slink_crc_error_
+          : 1, /* Set when the slink receviver finds a mistmatch between calculated crc and daq_crc. It should never happen */
           source_id_error_ : 1, /* SOURCE_ID is not expected */
           sync_lost_error_ : 1, /* Sync lost detected by DTH */
           fragment_cut_ : 1,    /* Fragment was cut */
@@ -93,8 +94,8 @@ private:
   } status_;
   uint16_t crc_; /* CRC filled by the FED */
   uint32_t orbit_id_;
-  uint32_t bx_id_ : 12,
-      event_length_wcount_ : 20; /* Length is encoded in multiples of 128 bits (16 bytes). I.e needs to be shifter by 4 */
+  uint32_t bx_id_ : 12, event_length_wcount_
+      : 20; /* Length is encoded in multiples of 128 bits (16 bytes). I.e needs to be shifter by 4 */
   uint32_t reserved_ : 8, daq_crc_ : 16, /* CRC filled by the slink sender */
       eoe_ : 8 = SLR_EOE;
 };

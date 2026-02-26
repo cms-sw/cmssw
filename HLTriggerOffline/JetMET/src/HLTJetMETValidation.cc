@@ -75,8 +75,6 @@ void HLTJetMETValidation::dqmBeginRun(edm::Run const &iRun, edm::EventSetup cons
       hltTrgJetLow.push_back(hltTrgJet[it]);  //---if no muon then itself
     if (it != 0)
       hltTrgJetLow.push_back(hltTrgJet[it - 1]);
-    // std::cout<<hltTrgJet[it].c_str()<<"
-    // "<<hltTrgJetLow[it].c_str()<<std::endl;
   }
   int itm(0), itpm(0), itmh(0), itpmh(0);
   for (size_t it = 0; it < hltTrgMet.size(); it++) {
@@ -123,8 +121,6 @@ void HLTJetMETValidation::dqmBeginRun(edm::Run const &iRun, edm::EventSetup cons
         itm++;
       }
     }
-    // std::cout<<hltTrgMet[it].c_str()<<"
-    // "<<hltTrgMetLow[it].c_str()<<std::endl;
   }
 }
 
@@ -135,70 +131,61 @@ void HLTJetMETValidation::bookHistograms(DQMStore::IBooker &iBooker,
                                          edm::EventSetup const &iSetup) {
   //----define DQM folders and elements
   for (size_t it = 0; it < hltTrgJet.size(); it++) {
-    // std::cout<<hltTrgJet[it].c_str()<<"
-    // "<<hltTrgJetLow[it].c_str()<<std::endl;
     std::string trgPathName = HLTConfigProvider::removeVersion(triggerTag_ + hltTrgJet[it]);
-    // std::cout << "str = " << triggerTag_+hltTrgJet[it].c_str() << std::endl;
-    // std::cout << "trgPathName = " << trgPathName << std::endl;
     iBooker.setCurrentFolder(trgPathName);
-    _meHLTJetPt.push_back(iBooker.book1D("_meHLTJetPt", "Single HLT Jet Pt", 100, 0, 1000));
-    _meHLTJetPtTrgMC.push_back(iBooker.book1D("_meHLTJetPtTrgMC", "Single HLT Jet Pt - HLT Triggered", 100, 0, 1000));
-    _meHLTJetPtTrg.push_back(iBooker.book1D("_meHLTJetPtTrg", "Single HLT Jet Pt - HLT Triggered", 100, 0, 1000));
+    _meHLTJetPt.push_back(iBooker.book1D("HLTJetPt", "Single HLT Jet Pt", 100, 0, 1000));
+    _meHLTJetPtTrgMC.push_back(iBooker.book1D("HLTJetPtTrgMC", "Single HLT Jet Pt - HLT Triggered", 100, 0, 1000));
+    _meHLTJetPtTrg.push_back(iBooker.book1D("HLTJetPtTrg", "Single HLT Jet Pt - HLT Triggered", 100, 0, 1000));
     _meHLTJetPtTrgLow.push_back(
-        iBooker.book1D("_meHLTJetPtTrgLow", "Single HLT Jet Pt - HLT Triggered Low", 100, 0, 1000));
+        iBooker.book1D("HLTJetPtTrgLow", "Single HLT Jet Pt - HLT Triggered Low", 100, 0, 1000));
 
-    _meHLTJetEta.push_back(iBooker.book1D("_meHLTJetEta", "Single HLT Jet Eta", 100, -10, 10));
-    _meHLTJetEtaTrgMC.push_back(
-        iBooker.book1D("_meHLTJetEtaTrgMC", "Single HLT Jet Eta - HLT Triggered", 100, -10, 10));
-    _meHLTJetEtaTrg.push_back(iBooker.book1D("_meHLTJetEtaTrg", "Single HLT Jet Eta - HLT Triggered", 100, -10, 10));
+    _meHLTJetEta.push_back(iBooker.book1D("HLTJetEta", "Single HLT Jet Eta", 100, -10, 10));
+    _meHLTJetEtaTrgMC.push_back(iBooker.book1D("HLTJetEtaTrgMC", "Single HLT Jet Eta - HLT Triggered", 100, -10, 10));
+    _meHLTJetEtaTrg.push_back(iBooker.book1D("HLTJetEtaTrg", "Single HLT Jet Eta - HLT Triggered", 100, -10, 10));
     _meHLTJetEtaTrgLow.push_back(
-        iBooker.book1D("_meHLTJetEtaTrgLow", "Single HLT Jet Eta - HLT Triggered Low", 100, -10, 10));
+        iBooker.book1D("HLTJetEtaTrgLow", "Single HLT Jet Eta - HLT Triggered Low", 100, -10, 10));
 
-    _meHLTJetPhi.push_back(iBooker.book1D("_meHLTJetPhi", "Single HLT Jet Phi", 100, -4., 4.));
-    _meHLTJetPhiTrgMC.push_back(
-        iBooker.book1D("_meHLTJetPhiTrgMC", "Single HLT Jet Phi - HLT Triggered", 100, -4., 4.));
-    _meHLTJetPhiTrg.push_back(iBooker.book1D("_meHLTJetPhiTrg", "Single HLT Jet Phi - HLT Triggered", 100, -4., 4.));
+    _meHLTJetPhi.push_back(iBooker.book1D("HLTJetPhi", "Single HLT Jet Phi", 100, -4., 4.));
+    _meHLTJetPhiTrgMC.push_back(iBooker.book1D("HLTJetPhiTrgMC", "Single HLT Jet Phi - HLT Triggered", 100, -4., 4.));
+    _meHLTJetPhiTrg.push_back(iBooker.book1D("HLTJetPhiTrg", "Single HLT Jet Phi - HLT Triggered", 100, -4., 4.));
     _meHLTJetPhiTrgLow.push_back(
-        iBooker.book1D("_meHLTJetPhiTrgLow", "Single HLT Jet Phi - HLT Triggered Low", 100, -4., 4.));
+        iBooker.book1D("HLTJetPhiTrgLow", "Single HLT Jet Phi - HLT Triggered Low", 100, -4., 4.));
 
-    _meGenJetPt.push_back(iBooker.book1D("_meGenJetPt", "Single Generated Jet Pt", 100, 0, 1000));
+    _meGenJetPt.push_back(iBooker.book1D("GenJetPt", "Single Generated Jet Pt", 100, 0, 1000));
     _meGenJetPtTrgMC.push_back(
-        iBooker.book1D("_meGenJetPtTrgMC", "Single Generated Jet Pt - HLT Triggered", 100, 0, 1000));
-    _meGenJetPtTrg.push_back(iBooker.book1D("_meGenJetPtTrg", "Single Generated Jet Pt - HLT Triggered", 100, 0, 1000));
+        iBooker.book1D("GenJetPtTrgMC", "Single Generated Jet Pt - HLT Triggered", 100, 0, 1000));
+    _meGenJetPtTrg.push_back(iBooker.book1D("GenJetPtTrg", "Single Generated Jet Pt - HLT Triggered", 100, 0, 1000));
     _meGenJetPtTrgLow.push_back(
-        iBooker.book1D("_meGenJetPtTrgLow", "Single Generated Jet Pt - HLT Triggered Low", 100, 0, 1000));
+        iBooker.book1D("GenJetPtTrgLow", "Single Generated Jet Pt - HLT Triggered Low", 100, 0, 1000));
 
-    _meGenJetEta.push_back(iBooker.book1D("_meGenJetEta", "Single Generated Jet Eta", 100, -10, 10));
+    _meGenJetEta.push_back(iBooker.book1D("GenJetEta", "Single Generated Jet Eta", 100, -10, 10));
     _meGenJetEtaTrgMC.push_back(
-        iBooker.book1D("_meGenJetEtaTrgMC", "Single Generated Jet Eta - HLT Triggered", 100, -10, 10));
-    _meGenJetEtaTrg.push_back(
-        iBooker.book1D("_meGenJetEtaTrg", "Single Generated Jet Eta - HLT Triggered", 100, -10, 10));
+        iBooker.book1D("GenJetEtaTrgMC", "Single Generated Jet Eta - HLT Triggered", 100, -10, 10));
+    _meGenJetEtaTrg.push_back(iBooker.book1D("GenJetEtaTrg", "Single Generated Jet Eta - HLT Triggered", 100, -10, 10));
     _meGenJetEtaTrgLow.push_back(
-        iBooker.book1D("_meGenJetEtaTrgLow", "Single Generated Jet Eta - HLT Triggered Low", 100, -10, 10));
+        iBooker.book1D("GenJetEtaTrgLow", "Single Generated Jet Eta - HLT Triggered Low", 100, -10, 10));
 
-    _meGenJetPhi.push_back(iBooker.book1D("_meGenJetPhi", "Single Generated Jet Phi", 100, -4., 4.));
+    _meGenJetPhi.push_back(iBooker.book1D("GenJetPhi", "Single Generated Jet Phi", 100, -4., 4.));
     _meGenJetPhiTrgMC.push_back(
-        iBooker.book1D("_meGenJetPhiTrgMC", "Single Generated Jet Phi - HLT Triggered", 100, -4., 4.));
-    _meGenJetPhiTrg.push_back(
-        iBooker.book1D("_meGenJetPhiTrg", "Single Generated Jet Phi - HLT Triggered", 100, -4., 4.));
+        iBooker.book1D("GenJetPhiTrgMC", "Single Generated Jet Phi - HLT Triggered", 100, -4., 4.));
+    _meGenJetPhiTrg.push_back(iBooker.book1D("GenJetPhiTrg", "Single Generated Jet Phi - HLT Triggered", 100, -4., 4.));
     _meGenJetPhiTrgLow.push_back(
-        iBooker.book1D("_meGenJetPhiTrgLow", "Single Generated Jet Phi - HLT Triggered Low", 100, -4., 4.));
+        iBooker.book1D("GenJetPhiTrgLow", "Single Generated Jet Phi - HLT Triggered Low", 100, -4., 4.));
   }
   for (size_t it = 0; it < hltTrgMet.size(); it++) {
     // std::cout<<hltTrgMet[it].c_str()<<"
     // "<<hltTrgMetLow[it].c_str()<<std::endl;
     std::string trgPathName = HLTConfigProvider::removeVersion(triggerTag_ + hltTrgMet[it]);
     iBooker.setCurrentFolder(trgPathName);
-    _meHLTMET.push_back(iBooker.book1D("_meHLTMET", "HLT Missing ET", 100, 0, 1000));
-    _meHLTMETTrgMC.push_back(iBooker.book1D("_meHLTMETTrgMC", "HLT Missing ET - HLT Triggered", 100, 0, 1000));
-    _meHLTMETTrg.push_back(iBooker.book1D("_meHLTMETTrg", "HLT Missing ET - HLT Triggered", 100, 0, 1000));
-    _meHLTMETTrgLow.push_back(iBooker.book1D("_meHLTMETTrgLow", "HLT Missing ET - HLT Triggered Low", 100, 0, 1000));
+    _meHLTMET.push_back(iBooker.book1D("HLTMET", "HLT Missing ET", 100, 0, 1000));
+    _meHLTMETTrgMC.push_back(iBooker.book1D("HLTMETTrgMC", "HLT Missing ET - HLT Triggered", 100, 0, 1000));
+    _meHLTMETTrg.push_back(iBooker.book1D("HLTMETTrg", "HLT Missing ET - HLT Triggered", 100, 0, 1000));
+    _meHLTMETTrgLow.push_back(iBooker.book1D("HLTMETTrgLow", "HLT Missing ET - HLT Triggered Low", 100, 0, 1000));
 
-    _meGenMET.push_back(iBooker.book1D("_meGenMET", "Generated Missing ET", 100, 0, 1000));
-    _meGenMETTrgMC.push_back(iBooker.book1D("_meGenMETTrgMC", "Generated Missing ET - HLT Triggered", 100, 0, 1000));
-    _meGenMETTrg.push_back(iBooker.book1D("_meGenMETTrg", "Generated Missing ET - HLT Triggered", 100, 0, 1000));
-    _meGenMETTrgLow.push_back(
-        iBooker.book1D("_meGenMETTrgLow", "Generated Missing ET - HLT Triggered Low", 100, 0, 1000));
+    _meGenMET.push_back(iBooker.book1D("GenMET", "Generated Missing ET", 100, 0, 1000));
+    _meGenMETTrgMC.push_back(iBooker.book1D("GenMETTrgMC", "Generated Missing ET - HLT Triggered", 100, 0, 1000));
+    _meGenMETTrg.push_back(iBooker.book1D("GenMETTrg", "Generated Missing ET - HLT Triggered", 100, 0, 1000));
+    _meGenMETTrgLow.push_back(iBooker.book1D("GenMETTrgLow", "Generated Missing ET - HLT Triggered Low", 100, 0, 1000));
   }
 }
 
@@ -219,23 +206,25 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent, const edm::EventSetu
   // get TriggerResults object
   bool gotHLT = true;
   std::vector<bool> myTrigJ;
+  myTrigJ.reserve(hltTrgJet.size());
   for (size_t it = 0; it < hltTrgJet.size(); it++)
     myTrigJ.push_back(false);
   std::vector<bool> myTrigJLow;
+  myTrigJLow.reserve(hltTrgJetLow.size());
   for (size_t it = 0; it < hltTrgJetLow.size(); it++)
     myTrigJLow.push_back(false);
   std::vector<bool> myTrigM;
+  myTrigM.reserve(hltTrgMet.size());
   for (size_t it = 0; it < hltTrgMet.size(); it++)
     myTrigM.push_back(false);
   std::vector<bool> myTrigMLow;
+  myTrigMLow.reserve(hltTrgMetLow.size());
   for (size_t it = 0; it < hltTrgMetLow.size(); it++)
     myTrigMLow.push_back(false);
 
   Handle<TriggerResults> hltresults;
   iEvent.getByToken(HLTriggerResults, hltresults);
   if (!hltresults.isValid()) {
-    // if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  -- No
-    // HLTRESULTS";
     gotHLT = false;
   }
 
@@ -246,52 +235,29 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent, const edm::EventSetu
     //---pick-up the jet trigger decisions
     for (size_t it = 0; it < hltTrgJet.size(); it++) {
       trig_iter = hltTriggerMap.find(hltTrgJet[it]);
-      if (trig_iter == hltTriggerMap.end()) {
-        // std::cout << "Could not find trigger path with name: " <<
-        // _probefilter.label() << std::endl; if (evtCnt==1)
-        // edm::LogWarning("HLTJetMETValidation") << "Could not find trigger
-        // path with name: " << _probefilter.label();
-      } else {
+      if (trig_iter != hltTriggerMap.end()) {
         myTrigJ[it] = trig_iter->second;
       }
-      // std::cout<<hltTrgJet[it].c_str()<<" "<<myTrigJ[it]<<std::endl;
     }
     for (size_t it = 0; it < hltTrgJetLow.size(); it++) {
       trig_iter = hltTriggerMap.find(hltTrgJetLow[it]);
-      if (trig_iter == hltTriggerMap.end()) {
-        // std::cout << "Could not find trigger path with name: " <<
-        // _probefilter.label() << std::endl; if (evtCnt==1)
-        // edm::LogWarning("HLTJetMETValidation") << "Could not find trigger
-        // path with name: " << _probefilter.label();
-      } else {
+      if (trig_iter != hltTriggerMap.end()) {
         myTrigJLow[it] = trig_iter->second;
       }
-      // std::cout<<hltTrgJetLow[it].c_str()<<" "<<myTrigJLow[it]<<std::endl;
     }
+
     //---pick-up the met trigger decisions
     for (size_t it = 0; it < hltTrgMet.size(); it++) {
       trig_iter = hltTriggerMap.find(hltTrgMet[it]);
-      if (trig_iter == hltTriggerMap.end()) {
-        // std::cout << "Could not find trigger path with name: " <<
-        // _probefilter.label() << std::endl; if (evtCnt==1)
-        // edm::LogWarning("HLTJetMETValidation") << "Could not find trigger
-        // path with name: " << _probefilter.label();
-      } else {
+      if (trig_iter != hltTriggerMap.end()) {
         myTrigM[it] = trig_iter->second;
       }
-      // std::cout<<hltTrgMet[it].c_str()<<" "<<myTrigM[it]<<std::endl;
     }
     for (size_t it = 0; it < hltTrgMetLow.size(); it++) {
       trig_iter = hltTriggerMap.find(hltTrgMetLow[it]);
-      if (trig_iter == hltTriggerMap.end()) {
-        // std::cout << "Could not find trigger path with name: " <<
-        // _probefilter.label() << std::endl; if (evtCnt==1)
-        // edm::LogWarning("HLTJetMETValidation") << "Could not find trigger
-        // path with name: " << _probefilter.label();
-      } else {
+      if (trig_iter != hltTriggerMap.end()) {
         myTrigMLow[it] = trig_iter->second;
       }
-      // std::cout<<hltTrgMetLow[it].c_str()<<" "<<myTrigMLow[it]<<std::endl;
     }
   }
 
@@ -339,10 +305,6 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent, const edm::EventSetu
         jetInd++;
       }
     }  // loop over pfjets
-  } else {
-    // std::cout << "  -- No PFJets" << std::endl;
-    // if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  -- No
-    // PFJets";
   }
 
   // GenJets
@@ -386,10 +348,6 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent, const edm::EventSetu
         jetInd++;
       }
     }
-  } else {
-    // std::cout << "  -- No GenJets" << std::endl;
-    // if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  -- No
-    // GenJets";
   }
 
   // --- Fill histos for PFMET paths ---
@@ -413,10 +371,6 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent, const edm::EventSetu
           _meHLTMETTrgLow[it]->Fill(calMet);
       }
     }
-  } else {
-    // std::cout << "  -- No MET Collection with name: " << CaloMETColl <<
-    // std::endl; if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  --
-    // No MET Collection with name: "<< CaloMETColl;
   }
 
   edm::Handle<GenMETCollection> genmet;
@@ -437,10 +391,6 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent, const edm::EventSetu
           _meGenMETTrgLow[it]->Fill(genMet);
       }
     }
-  } else {
-    // std::cout << "  -- No GenMET Collection with name: " << GenMETColl <<
-    // std::endl; if (evtCnt==1) edm::LogWarning("HLTJetMETValidation") << "  --
-    // No GenMET Collection with name: "<< GenMETColl;
   }
 }
 
@@ -448,17 +398,11 @@ void HLTJetMETValidation::getHLTResults(const edm::TriggerResults &hltresults, c
   int ntrigs = hltresults.size();
   if (!HLTinit_) {
     HLTinit_ = true;
-
-    for (int itrig = 0; itrig != ntrigs; ++itrig) {
-      // std::cout << "trigger " << itrig << ": " << trigName << std::endl;
-    }
   }
 
   for (int itrig = 0; itrig != ntrigs; ++itrig) {
     std::string trigName = triggerNames.triggerName(itrig);
     bool accept = hltresults.accept(itrig);
-
-    // if (accept) _triggerResults->Fill(float(itrig));
 
     // fill the trigger map
     typedef std::map<std::string, bool>::value_type valType;

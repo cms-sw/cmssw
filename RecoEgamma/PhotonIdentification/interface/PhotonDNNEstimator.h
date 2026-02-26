@@ -2,7 +2,6 @@
 #define RecoEgamma_PhotonIdentification_PhotonDNNEstimator_h
 
 #include "RecoEgamma/EgammaTools/interface/EgammaDNNHelper.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 

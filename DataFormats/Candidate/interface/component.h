@@ -10,9 +10,8 @@
  */
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "DataFormats/Candidate/interface/CandidateOnlyFwd.h"
 namespace reco {
-
-  class Candidate;
 
   struct DefaultComponentTag {};
 

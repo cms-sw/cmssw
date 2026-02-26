@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun SimRun4_cfg.py geometry=D110 type=DDD data=Muon
+#   cmsRun SimRun4_cfg.py geometry=D121 type=DDD data=Muon
 #
-#   Options for geometry: D110, D120
+#   Options for geometry: D121, D120
 #               type: DDD, DD4hep
 #               data: Muon, MinBias
 #
@@ -15,10 +15,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D110",
+                 "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D110, D120")
+                  "geometry of operations: D120, D121")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,

@@ -6,6 +6,7 @@
 
 #include "JetTester.h"
 #include <vector>
+#include <format>
 
 using namespace edm;
 using namespace reco;
@@ -459,59 +460,59 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
     const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
 
     mNJets_EtaBins[j] = ibooker.book1D(
-        fmt::format("NJets_{}", etaRegion),
-        fmt::format("Number of jets p_{{T}}>{} GeV - {};# jets;# events", int(mRecoJetPtThreshold), etaLabel),
+        std::format("NJets_{}", etaRegion),
+        std::format("Number of jets p_{{T}}>{} GeV - {};# jets;# events", int(mRecoJetPtThreshold), etaLabel),
         15,
         0,
         15);
     mGenPt_EtaBins[j] = ibooker.book1D(
-        fmt::format("GenPt_{}", etaRegion),
-        fmt::format("Gen Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(mMatchGenPtThreshold), etaLabel),
+        std::format("GenPt_{}", etaRegion),
+        std::format("Gen Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(mMatchGenPtThreshold), etaLabel),
         n_PtBins,
         PtRange[0],
         PtRange[1]);
 
     mJetPt_EtaBins[j] = ibooker.book1D(
-        fmt::format("JetPt_{}", etaRegion),
-        fmt::format("Reco Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(mRecoJetPtThreshold), etaLabel),
+        std::format("JetPt_{}", etaRegion),
+        std::format("Reco Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(mRecoJetPtThreshold), etaLabel),
         n_PtBins,
         PtRange[0],
         PtRange[1]);
 
-    mMatchedJetPt_EtaBins[j] = ibooker.book1D(fmt::format("MatchedJetPt_{}", etaRegion),
-                                              fmt::format("Matched Jets - {};p_{{T}} [GeV];# jets", etaLabel),
+    mMatchedJetPt_EtaBins[j] = ibooker.book1D(std::format("MatchedJetPt_{}", etaRegion),
+                                              std::format("Matched Jets - {};p_{{T}} [GeV];# jets", etaLabel),
                                               n_PtBins,
                                               PtRange[0],
                                               PtRange[1]);
-    mMatchedGenPt_EtaBins[j] = ibooker.book1D(fmt::format("MatchedGenPt_{}", etaRegion),
-                                              fmt::format("Matched Gen Jets - {};p_{{T}} [GeV];# jets", etaLabel),
+    mMatchedGenPt_EtaBins[j] = ibooker.book1D(std::format("MatchedGenPt_{}", etaRegion),
+                                              std::format("Matched Gen Jets - {};p_{{T}} [GeV];# jets", etaLabel),
                                               n_PtBins,
                                               PtRange[0],
                                               PtRange[1]);
 
     mDuplicatesGenPt_EtaBins[j] =
-        ibooker.book1D(fmt::format("DuplicatesGenPt_{}", etaRegion),
-                       fmt::format("Reco jets matched to multiple gen jets [{}];p_{{T}} [GeV];# Duplicates", etaLabel),
+        ibooker.book1D(std::format("DuplicatesGenPt_{}", etaRegion),
+                       std::format("Reco jets matched to multiple gen jets [{}];p_{{T}} [GeV];# Duplicates", etaLabel),
                        n_PtBins,
                        PtRange[0],
                        PtRange[1]);
     mDuplicatesJetPt_EtaBins[j] =
-        ibooker.book1D(fmt::format("DuplicatesJetPt_{}", etaRegion),
-                       fmt::format("Gen jets matched to multiple reco jets [{}];p_{{T}} [GeV];# Duplicates", etaLabel),
+        ibooker.book1D(std::format("DuplicatesJetPt_{}", etaRegion),
+                       std::format("Gen jets matched to multiple reco jets [{}];p_{{T}} [GeV];# Duplicates", etaLabel),
                        n_PtBins,
                        PtRange[0],
                        PtRange[1]);
 
     h_JetPtRecoOverGen[j] =
-        ibooker.book1D(fmt::format("h_PtRecoOverGen_{}", etaRegion),
-                       fmt::format("Response Reco Jets - {};p_{{T}}^{{reco}}/p_{{T}}^{{gen}};# jets", etaLabel),
+        ibooker.book1D(std::format("h_PtRecoOverGen_{}", etaRegion),
+                       std::format("Response Reco Jets - {};p_{{T}}^{{reco}}/p_{{T}}^{{gen}};# jets", etaLabel),
                        n_RespBins,
                        RespRange[0],
                        RespRange[1]);
 
     h2d_JetPtRecoOverGen_vs_GenPhi_EtaBins[j] =
-        ibooker.book2D(fmt::format("h2d_PtRecoOverGen_GenPhi_{}", etaRegion),
-                       fmt::format("Response Reco Jets - {};#phi^{{gen}};p_{{T}}^{{reco}}/p_{{T}}^{{gen}}", etaLabel),
+        ibooker.book2D(std::format("h2d_PtRecoOverGen_GenPhi_{}", etaRegion),
+                       std::format("Response Reco Jets - {};#phi^{{gen}};p_{{T}}^{{reco}}/p_{{T}}^{{gen}}", etaLabel),
                        n_PhiBins,
                        PhiRange[0],
                        PhiRange[1],
@@ -519,8 +520,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
                        RespRange[0],
                        RespRange[1]);
     h2d_JetPtRecoOverGen_vs_GenPt_EtaBins[j] = ibooker.book2D(
-        fmt::format("h2d_PtRecoOverGen_GenPt_{}", etaRegion),
-        fmt::format("Response Reco Jets - {};p_{{T}}^{{gen}};p_{{T}}^{{reco}}/p_{{T}}^{{gen}}", etaLabel),
+        std::format("h2d_PtRecoOverGen_GenPt_{}", etaRegion),
+        std::format("Response Reco Jets - {};p_{{T}}^{{gen}};p_{{T}}^{{reco}}/p_{{T}}^{{gen}}", etaLabel),
         n_PtBins,
         PtRange[0],
         PtRange[1],
@@ -529,8 +530,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
         RespRange[1]);
 
     h2d_chHadMult_vs_pt[j] = ibooker.book2D(
-        fmt::format("h2d_chHadMult_pt_{}", etaRegion),
-        fmt::format("Profiled charged HAD multiplicity - {};p_{{T}}^{{reco}};charged HAD multiplicity", etaLabel),
+        std::format("h2d_chHadMult_pt_{}", etaRegion),
+        std::format("Profiled charged HAD multiplicity - {};p_{{T}}^{{reco}};charged HAD multiplicity", etaLabel),
         n_PtBins,
         PtRange[0],
         PtRange[1],
@@ -538,8 +539,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
         0,
         50);
     h2d_neHadMult_vs_pt[j] = ibooker.book2D(
-        fmt::format("h2d_neHadMult_pt_{}", etaRegion),
-        fmt::format("Profiled neutral HAD multiplicity - {};p_{{T}}^{{reco}};neutral HAD multiplicity", etaLabel),
+        std::format("h2d_neHadMult_pt_{}", etaRegion),
+        std::format("Profiled neutral HAD multiplicity - {};p_{{T}}^{{reco}};neutral HAD multiplicity", etaLabel),
         n_PtBins,
         PtRange[0],
         PtRange[1],
@@ -547,8 +548,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
         0,
         50);
     h2d_chMult_vs_pt[j] = ibooker.book2D(
-        fmt::format("h2d_chMult_pt_{}", etaRegion),
-        fmt::format("Profiled charged multiplicity - {};p_{{T}}^{{reco}};charged multiplicity", etaLabel),
+        std::format("h2d_chMult_pt_{}", etaRegion),
+        std::format("Profiled charged multiplicity - {};p_{{T}}^{{reco}};charged multiplicity", etaLabel),
         n_PtBins,
         PtRange[0],
         PtRange[1],
@@ -556,8 +557,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
         0,
         50);
     h2d_neMult_vs_pt[j] = ibooker.book2D(
-        fmt::format("h2d_neMult_pt_{}", etaRegion),
-        fmt::format("Profiled neutral multiplicity - {};p_{{T}}^{{reco}};neutral EM multiplicity", etaLabel),
+        std::format("h2d_neMult_pt_{}", etaRegion),
+        std::format("Profiled neutral multiplicity - {};p_{{T}}^{{reco}};neutral EM multiplicity", etaLabel),
         n_PtBins,
         PtRange[0],
         PtRange[1],
@@ -565,8 +566,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
         0,
         50);
     h2d_phoMult_vs_pt[j] =
-        ibooker.book2D(fmt::format("h2d_phoMult_pt_{}", etaRegion),
-                       fmt::format("Profiled photon multiplicity - {};p_{{T}}^{{reco}};photon multiplicity", etaLabel),
+        ibooker.book2D(std::format("h2d_phoMult_pt_{}", etaRegion),
+                       std::format("Profiled photon multiplicity - {};p_{{T}}^{{reco}};photon multiplicity", etaLabel),
                        n_PtBins,
                        PtRange[0],
                        PtRange[1],
@@ -575,8 +576,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
                        15);
 
     h2d_chHad_vs_pt[j] = ibooker.book2D(
-        fmt::format("h2d_chHad_pt_{}", etaRegion),
-        fmt::format("Profiled charged HAD energy fraction - {};p_{{T}}^{{reco}};charged HAD energy fraction", etaLabel),
+        std::format("h2d_chHad_pt_{}", etaRegion),
+        std::format("Profiled charged HAD energy fraction - {};p_{{T}}^{{reco}};charged HAD energy fraction", etaLabel),
         n_PtBins,
         PtRange[0],
         PtRange[1],
@@ -584,8 +585,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
         0,
         1);
     h2d_neHad_vs_pt[j] = ibooker.book2D(
-        fmt::format("h2d_neHad_pt_{}", etaRegion),
-        fmt::format("Profiled neutral HAD energy fraction - {};p_{{T}}^{{reco}};neutral HAD energy fraction", etaLabel),
+        std::format("h2d_neHad_pt_{}", etaRegion),
+        std::format("Profiled neutral HAD energy fraction - {};p_{{T}}^{{reco}};neutral HAD energy fraction", etaLabel),
         n_PtBins,
         PtRange[0],
         PtRange[1],
@@ -593,8 +594,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
         0,
         1);
     h2d_chEm_vs_pt[j] = ibooker.book2D(
-        fmt::format("h2d_chEm_pt_{}", etaRegion),
-        fmt::format("Profiled charged EM energy fraction - {};p_{{T}}^{{reco}};charged EM energy fraction", etaLabel),
+        std::format("h2d_chEm_pt_{}", etaRegion),
+        std::format("Profiled charged EM energy fraction - {};p_{{T}}^{{reco}};charged EM energy fraction", etaLabel),
         n_PtBins,
         PtRange[0],
         PtRange[1],
@@ -602,8 +603,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
         0,
         1);
     h2d_neEm_vs_pt[j] = ibooker.book2D(
-        fmt::format("h2d_neEm_pt_{}", etaRegion),
-        fmt::format("Profiled neutral EM energy fraction - {};p_{{T}}^{{reco}};neutral EM energy fraction", etaLabel),
+        std::format("h2d_neEm_pt_{}", etaRegion),
+        std::format("Profiled neutral EM energy fraction - {};p_{{T}}^{{reco}};neutral EM energy fraction", etaLabel),
         n_PtBins,
         PtRange[0],
         PtRange[1],
@@ -612,8 +613,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
         1);
 
     h2d_JetPtRecoOverGen_vs_chHad[j] = ibooker.book2D(
-        fmt::format("h2d_PtRecoOverGen_chHad_{}", etaRegion),
-        fmt::format("Response Reco Jets - {};charged HAD energy Fraction;p_{{T}}^{{reco}}/p_{{T}}^{{gen}}", etaLabel),
+        std::format("h2d_PtRecoOverGen_chHad_{}", etaRegion),
+        std::format("Response Reco Jets - {};charged HAD energy Fraction;p_{{T}}^{{reco}}/p_{{T}}^{{gen}}", etaLabel),
         30,
         0,
         1,
@@ -621,8 +622,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
         RespRange[0],
         RespRange[1]);
     h2d_JetPtRecoOverGen_vs_neHad[j] = ibooker.book2D(
-        fmt::format("h2d_PtRecoOverGen_neHad_{}", etaRegion),
-        fmt::format("Response Reco Jets - {};neutral HAD energy Fraction;p_{{T}}^{{reco}}/p_{{T}}^{{gen}}", etaLabel),
+        std::format("h2d_PtRecoOverGen_neHad_{}", etaRegion),
+        std::format("Response Reco Jets - {};neutral HAD energy Fraction;p_{{T}}^{{reco}}/p_{{T}}^{{gen}}", etaLabel),
         30,
         0,
         1,
@@ -630,8 +631,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
         RespRange[0],
         RespRange[1]);
     h2d_JetPtRecoOverGen_vs_chEm[j] = ibooker.book2D(
-        fmt::format("h2d_PtRecoOverGen_chEm_{}", etaRegion),
-        fmt::format("Response Reco Jets - {};charged EM energy Fraction;p_{{T}}^{{reco}}/p_{{T}}^{{gen}}", etaLabel),
+        std::format("h2d_PtRecoOverGen_chEm_{}", etaRegion),
+        std::format("Response Reco Jets - {};charged EM energy Fraction;p_{{T}}^{{reco}}/p_{{T}}^{{gen}}", etaLabel),
         30,
         0,
         1,
@@ -639,8 +640,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
         RespRange[0],
         RespRange[1]);
     h2d_JetPtRecoOverGen_vs_neEm[j] = ibooker.book2D(
-        fmt::format("h2d_PtRecoOverGen_neEm_{}", etaRegion),
-        fmt::format("Response Reco Jets - {};neutral EM energy Fraction;p_{{T}}^{{reco}}/p_{{T}}^{{gen}}", etaLabel),
+        std::format("h2d_PtRecoOverGen_neEm_{}", etaRegion),
+        std::format("Response Reco Jets - {};neutral EM energy Fraction;p_{{T}}^{{reco}}/p_{{T}}^{{gen}}", etaLabel),
         30,
         0,
         1,
@@ -648,8 +649,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
         RespRange[0],
         RespRange[1]);
     h2d_JetPtRecoOverGen_vs_nCost[j] =
-        ibooker.book2D(fmt::format("h2d_PtRecoOverGen_nCost_{}", etaRegion),
-                       fmt::format("Response Reco Jets - {};# constituents;p_{{T}}^{{reco}}/p_{{T}}^{{gen}}", etaLabel),
+        ibooker.book2D(std::format("h2d_PtRecoOverGen_nCost_{}", etaRegion),
+                       std::format("Response Reco Jets - {};# constituents;p_{{T}}^{{reco}}/p_{{T}}^{{gen}}", etaLabel),
                        100,
                        0,
                        100,
@@ -660,9 +661,9 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
     for (int i = 0; i < ptSize; ++i) {
       int ptMin = int(ptBins_[i]);
       int ptMax = int(ptBins_[i + 1]);
-      auto h_name_RoG = fmt::format("h_PtRecoOverGen_{}_Pt{}_{}", etaRegion, ptMin, ptMax);
+      auto h_name_RoG = std::format("h_PtRecoOverGen_{}_Pt{}_{}", etaRegion, ptMin, ptMax);
       auto h_title_RoG =
-          fmt::format("Response Reco Jets - {} - {}<p_{{T}}^{{gen}}<{};p_{{T}}^{{reco}}/p_{{T}}^{{gen}};# jets",
+          std::format("Response Reco Jets - {} - {}<p_{{T}}^{{gen}}<{};p_{{T}}^{{reco}}/p_{{T}}^{{gen}};# jets",
                       etaLabel,
                       ptMin,
                       ptMax);
@@ -675,8 +676,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
     int ptMin = int(ptBins_[i]);
     int ptMax = int(ptBins_[i + 1]);
     h2d_JetPtRecoOverGen_vs_GenEta_ptBins[i] = ibooker.book2D(
-        fmt::format("h2d_PtRecoOverGen_GenEta_Pt{}_{}", ptMin, ptMax),
-        fmt::format(
+        std::format("h2d_PtRecoOverGen_GenEta_Pt{}_{}", ptMin, ptMax),
+        std::format(
             "Response Reco Jets - {}<p_{{T}}^{{gen}}<{};#eta^{{gen}};p_{{T}}^{{reco}}/p_{{T}}^{{gen}}", ptMin, ptMax),
         n_EtaBins,
         EtaRange[0],
@@ -787,31 +788,31 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
       const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
 
       mCorrJetPt_EtaBins[j] = ibooker.book1D(
-          fmt::format("CorrJetPt_{}", etaRegion),
-          fmt::format("Corr Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(mRecoJetPtThreshold), etaLabel),
+          std::format("CorrJetPt_{}", etaRegion),
+          std::format("Corr Jets p_{{T}}>{} GeV - {};p_{{T}} [GeV];# jets", int(mRecoJetPtThreshold), etaLabel),
           n_PtBins,
           PtRange[0],
           PtRange[1]);
-      mMatchedCorrPt_EtaBins[j] = ibooker.book1D(fmt::format("MatchedCorrPt_{}", etaRegion),
-                                                 fmt::format("Matched Corr Jets - {};p_{{T}} [GeV];# jets", etaLabel),
+      mMatchedCorrPt_EtaBins[j] = ibooker.book1D(std::format("MatchedCorrPt_{}", etaRegion),
+                                                 std::format("Matched Corr Jets - {};p_{{T}} [GeV];# jets", etaLabel),
                                                  n_PtBins,
                                                  PtRange[0],
                                                  PtRange[1]);
       h_JetPtCorrOverGen[j] =
-          ibooker.book1D(fmt::format("h_JetPtCorrOverGen_{}", etaRegion),
-                         fmt::format("Response Corr Jets - {};p_{{T}}^{{corr}}/p_{{T}}^{{gen}};# jets", etaLabel),
+          ibooker.book1D(std::format("h_JetPtCorrOverGen_{}", etaRegion),
+                         std::format("Response Corr Jets - {};p_{{T}}^{{corr}}/p_{{T}}^{{gen}};# jets", etaLabel),
                          n_RespBins,
                          RespRange[0],
                          RespRange[1]);
       h_JetPtCorrOverReco[j] =
-          ibooker.book1D(fmt::format("h_JetPtCorrOverReco_{}", etaRegion),
-                         fmt::format("Response Corr Jets - {};p_{{T}}^{{corr}}/p_{{T}}^{{reco}};# jets", etaLabel),
+          ibooker.book1D(std::format("h_JetPtCorrOverReco_{}", etaRegion),
+                         std::format("Response Corr Jets - {};p_{{T}}^{{corr}}/p_{{T}}^{{reco}};# jets", etaLabel),
                          n_RespBins,
                          RespRange[0],
                          RespRange[1]);
       h2d_JetPtCorrOverGen_vs_GenPhi_EtaBins[j] =
-          ibooker.book2D(fmt::format("h2d_PtCorrOverGen_GenPhi_{}", etaRegion),
-                         fmt::format("Response Corr Jets - {};#phi^{{gen}};p_{{T}}^{{corr}}/p_{{T}}^{{gen}}", etaLabel),
+          ibooker.book2D(std::format("h2d_PtCorrOverGen_GenPhi_{}", etaRegion),
+                         std::format("Response Corr Jets - {};#phi^{{gen}};p_{{T}}^{{corr}}/p_{{T}}^{{gen}}", etaLabel),
                          n_PhiBins,
                          PhiRange[0],
                          PhiRange[1],
@@ -819,8 +820,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
                          RespRange[0],
                          RespRange[1]);
       h2d_JetPtCorrOverGen_vs_GenPt_EtaBins[j] = ibooker.book2D(
-          fmt::format("h2d_PtCorrOverGen_GenPt_{}", etaRegion),
-          fmt::format("Response Corr Jets - {};p_{{T}}^{{gen}};p_{{T}}^{{corr}}/p_{{T}}^{{gen}}", etaLabel),
+          std::format("h2d_PtCorrOverGen_GenPt_{}", etaRegion),
+          std::format("Response Corr Jets - {};p_{{T}}^{{gen}};p_{{T}}^{{corr}}/p_{{T}}^{{gen}}", etaLabel),
           n_PtBins,
           PtRange[0],
           PtRange[1],
@@ -828,8 +829,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
           RespRange[0],
           RespRange[1]);
       h2d_JetPtCorrOverReco_vs_Phi_EtaBins[j] = ibooker.book2D(
-          fmt::format("h2d_PtCorrOverReco_Phi_{}", etaRegion),
-          fmt::format("Response Corr Jets - {};#phi^{{reco}};p_{{T}}^{{corr}}/p_{{T}}^{{reco}}", etaLabel),
+          std::format("h2d_PtCorrOverReco_Phi_{}", etaRegion),
+          std::format("Response Corr Jets - {};#phi^{{reco}};p_{{T}}^{{corr}}/p_{{T}}^{{reco}}", etaLabel),
           n_PhiBins,
           PhiRange[0],
           PhiRange[1],
@@ -837,8 +838,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
           RespRange[0],
           RespRange[1]);
       h2d_JetPtCorrOverReco_vs_Pt_EtaBins[j] = ibooker.book2D(
-          fmt::format("h2d_PtCorrOverReco_Pt_{}", etaRegion),
-          fmt::format("Response Corr Jets - {};p_{{T}}^{{reco}};p_{{T}}^{{corr}}/p_{{T}}^{{reco}}", etaLabel),
+          std::format("h2d_PtCorrOverReco_Pt_{}", etaRegion),
+          std::format("Response Corr Jets - {};p_{{T}}^{{reco}};p_{{T}}^{{corr}}/p_{{T}}^{{reco}}", etaLabel),
           n_PtBins,
           PtRange[0],
           PtRange[1],
@@ -849,18 +850,18 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
       for (int i = 0; i < ptSize; ++i) {
         double ptMin = ptBins_[i];
         double ptMax = ptBins_[i + 1];
-        auto h_name_CoG = fmt::format("h_PtCorrOverGen_{}_Pt{}_{}", etaRegion, ptMin, ptMax);
+        auto h_name_CoG = std::format("h_PtCorrOverGen_{}_Pt{}_{}", etaRegion, ptMin, ptMax);
         auto h_title_CoG =
-            fmt::format("Response Corr Jets - {} - {}<p_{{T}}^{{gen}}<{};p_{{T}}^{{corr}}/p_{{T}}^{{gen}};# jets",
+            std::format("Response Corr Jets - {} - {}<p_{{T}}^{{gen}}<{};p_{{T}}^{{corr}}/p_{{T}}^{{gen}};# jets",
                         etaLabel,
                         ptMin,
                         ptMax);
         hVector_JetPtCorrOverGen_ptBins[j][i] =
             ibooker.book1D(h_name_CoG, h_title_CoG, n_RespBins, RespRange[0], RespRange[1]);
 
-        auto h_name_CoR = fmt::format("h_PtCorrOverReco_{}_Pt{}_{}", etaRegion, ptMin, ptMax);
+        auto h_name_CoR = std::format("h_PtCorrOverReco_{}_Pt{}_{}", etaRegion, ptMin, ptMax);
         auto h_title_CoR =
-            fmt::format("Response Corr Jets - {} - {}<p_{{T}}^{{reco}}<{};p_{{T}}^{{corr}}/p_{{T}}^{{reco}};# jets",
+            std::format("Response Corr Jets - {} - {}<p_{{T}}^{{reco}}<{};p_{{T}}^{{corr}}/p_{{T}}^{{reco}};# jets",
                         etaLabel,
                         ptMin,
                         ptMax);
@@ -873,8 +874,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
       int ptMin = int(ptBins_[i]);
       int ptMax = int(ptBins_[i + 1]);
       h2d_JetPtCorrOverGen_vs_GenEta_ptBins[i] = ibooker.book2D(
-          fmt::format("h2d_PtCorrOverGen_GenEta_Pt{}_{}", ptMin, ptMax),
-          fmt::format(
+          std::format("h2d_PtCorrOverGen_GenEta_Pt{}_{}", ptMin, ptMax),
+          std::format(
               "Response Corr Jets - {}<p_{{T}}^{{gen}}<{};#eta^{{gen}};p_{{T}}^{{corr}}/p_{{T}}^{{gen}}", ptMin, ptMax),
           n_EtaBins,
           EtaRange[0],
@@ -883,8 +884,8 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
           RespRange[0],
           RespRange[1]);
       h2d_JetPtCorrOverReco_vs_Eta_ptBins[i] = ibooker.book2D(
-          fmt::format("h2d_PtCorrOverReco_Eta_Pt{}_{}", ptMin, ptMax),
-          fmt::format("Response Corr Jets - {}<p_{{T}}^{{reco}}<{};#eta^{{reco}};p_{{T}}^{{corr}}/p_{{T}}^{{reco}}",
+          std::format("h2d_PtCorrOverReco_Eta_Pt{}_{}", ptMin, ptMax),
+          std::format("Response Corr Jets - {}<p_{{T}}^{{reco}}<{};#eta^{{reco}};p_{{T}}^{{corr}}/p_{{T}}^{{reco}}",
                       ptMin,
                       ptMax),
           n_EtaBins,
@@ -909,7 +910,7 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
   // Some jet algebra
   mMjj = ibooker.book1D("Mjj", "Mjj", 100, 0, 2000);
   mNJets = ibooker.book1D(
-      "NJets", fmt::format("Number of jets p_{{T}}>{} GeV;# jets;# events", mRecoJetPtThreshold), 15, 0, 15);
+      "NJets", std::format("Number of jets p_{{T}}>{} GeV;# jets;# events", mRecoJetPtThreshold), 15, 0, 15);
   mNJetsPt1 = ibooker.bookProfile(
       "NJetsPt1", "Number of jets above Pt threshold;p_{T} [GeV];# jets", 100, 0, 200, 100, 0, 50, "s");
   mNJetsPt2 = ibooker.bookProfile(
@@ -971,26 +972,26 @@ void JetTester::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
     for (size_t j = 0; j < etaInfo.size(); ++j) {
       const auto& [etaRegion, etaLabel, etaMin, etaMax] = etaInfo[j];
       photonMultiplicity_EtaBins[j] = ibooker.book1D(
-          fmt::format("photonMultiplicity_{}", etaRegion), fmt::format("photonMultiplicity_{}", etaRegion), 15, 0, 15);
-      electronMultiplicity_EtaBins[j] = ibooker.book1D(fmt::format("electronMultiplicity_{}", etaRegion),
-                                                       fmt::format("electronMultiplicity_{}", etaRegion),
+          std::format("photonMultiplicity_{}", etaRegion), std::format("photonMultiplicity_{}", etaRegion), 15, 0, 15);
+      electronMultiplicity_EtaBins[j] = ibooker.book1D(std::format("electronMultiplicity_{}", etaRegion),
+                                                       std::format("electronMultiplicity_{}", etaRegion),
                                                        15,
                                                        0,
                                                        15);
-      neutralHadronMultiplicity_EtaBins[j] = ibooker.book1D(fmt::format("neutralHadronMultiplicity_{}", etaRegion),
-                                                            fmt::format("neutralHadronMultiplicity_{}", etaRegion),
+      neutralHadronMultiplicity_EtaBins[j] = ibooker.book1D(std::format("neutralHadronMultiplicity_{}", etaRegion),
+                                                            std::format("neutralHadronMultiplicity_{}", etaRegion),
                                                             50,
                                                             0,
                                                             50);
       neutralMultiplicity_EtaBins[j] = ibooker.book1D(
-          fmt::format("neutralMultiplicity_{}", etaRegion), fmt::format("neutralMultiplicity_{}", etaRegion), 50, 0, 50);
-      chargedHadronMultiplicity_EtaBins[j] = ibooker.book1D(fmt::format("chargedHadronMultiplicity_{}", etaRegion),
-                                                            fmt::format("chargedHadronMultiplicity_{}", etaRegion),
+          std::format("neutralMultiplicity_{}", etaRegion), std::format("neutralMultiplicity_{}", etaRegion), 50, 0, 50);
+      chargedHadronMultiplicity_EtaBins[j] = ibooker.book1D(std::format("chargedHadronMultiplicity_{}", etaRegion),
+                                                            std::format("chargedHadronMultiplicity_{}", etaRegion),
                                                             50,
                                                             0,
                                                             50);
-      chargedMultiplicity_EtaBins[j] = ibooker.book1D(fmt::format("chargedMultiplicity_{}", etaRegion),
-                                                      fmt::format("chargedMultiplicity_{}", etaRegion),
+      chargedMultiplicity_EtaBins[j] = ibooker.book1D(std::format("chargedMultiplicity_{}", etaRegion),
+                                                      std::format("chargedMultiplicity_{}", etaRegion),
                                                       100,
                                                       0,
                                                       100);
@@ -1466,7 +1467,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
             }
           }
         }
-      }
+      }  // if (!mEvent.isRealData()) {
     }
   }
 

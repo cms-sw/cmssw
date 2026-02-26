@@ -140,6 +140,8 @@ private:
   MonitorElement* meCluYPull_simLC_[2];
   MonitorElement* meCluYXLocalSim_simLC_[2];
 
+  MonitorElement* meCluTrackIdOffset_[4];
+
   // --- UncalibratedRecHits histograms
 
   static constexpr int nBinsTot_ = 20;
@@ -261,6 +263,8 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       (simHitIt->second).x = hit_pos.x();
       (simHitIt->second).y = hit_pos.y();
       (simHitIt->second).z = hit_pos.z();
+
+      (simHitIt->second).thetaAtEntry = simHit.thetaAtEntry();
     }
 
   }  // simHit loop
@@ -521,7 +525,10 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
         std::vector<MtdSimLayerClusterRef> simClustersRefs =
             (*itp.first).second;  // the range of itp.first, itp.second should be always 1
         for (unsigned int i = 0; i < simClustersRefs.size(); i++) {
-          auto simClusterRef = simClustersRefs[i];
+          const auto& simClusterRef = simClustersRefs[i];
+          unsigned int idOffset = (*simClusterRef).trackIdOffset();
+
+          meCluTrackIdOffset_[idet]->Fill(float(idOffset));
 
           float simClusEnergy = convertUnitsTo(0.001_MeV, (*simClusterRef).simLCEnergy());  // GeV --> MeV
           float simClusTime = (*simClusterRef).simLCTime();
@@ -1121,6 +1128,29 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                    100,
                    -5.,
                    5.);
+
+  meCluTrackIdOffset_[0] =
+      ibook.book1D("EtlCluTrackIdOffsetZnegD1",
+                   "ETL cluster category (trackId offset); trackId offset (-Z, Single(topo1D)/First(topo2D) Disk)",
+                   5,
+                   0.0,
+                   5.0);
+  meCluTrackIdOffset_[1] = ibook.book1D("EtlCluTrackIdOffsetZnegD2",
+                                        "ETL cluster category (trackId offset); trackId offset (-Z, Second Disk)",
+                                        5,
+                                        0.0,
+                                        5.0);
+  meCluTrackIdOffset_[2] =
+      ibook.book1D("EtlCluTrackIdOffsetZposD1",
+                   "ETL cluster category (trackId offset); trackId offset (+Z, Single(topo1D)/First(topo2D) Disk)",
+                   5,
+                   0.0,
+                   5.0);
+  meCluTrackIdOffset_[3] = ibook.book1D("EtlCluTrackIdOffsetZposD2",
+                                        "ETL cluster category (trackId offset); trackId offset (+Z, Second Disk)",
+                                        5,
+                                        0.0,
+                                        5.0);
 
   // --- UncalibratedRecHits histograms
 

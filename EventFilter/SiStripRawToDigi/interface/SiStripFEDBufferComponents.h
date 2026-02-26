@@ -615,12 +615,15 @@ namespace sistrip {
   //holds information about position of a channel in the buffer for use by unpacker
   class FEDChannel {
   public:
-    FEDChannel(const uint8_t* const data, const uint32_t offset, const uint16_t length);
+    enum class ZSROMode { nonLite = 7, lite = 2 };
+    constexpr FEDChannel(const uint8_t* const data, const uint32_t offset, const uint16_t length);
+    constexpr FEDChannel(const uint8_t* const data, const uint32_t offset, const ZSROMode zsRoMode);
     //gets length from first 2 bytes (assuming normal FED channel)
-    FEDChannel(const uint8_t* const data, const uint32_t offset);
-    uint16_t length() const;
-    const uint8_t* data() const;
-    uint32_t offset() const;
+    constexpr FEDChannel(const uint8_t* const data, const uint32_t offset);
+    constexpr uint16_t stripsInCh(uint8_t num_bits) const;
+    constexpr uint16_t length() const;
+    constexpr const uint8_t* data() const;
+    constexpr uint32_t offset() const;
     /**
      * Retrieve the APV CM median for a non-lite zero-suppressed channel
      *
@@ -628,15 +631,16 @@ namespace sistrip {
      * No additional checks are done here, so the caller should check
      * the readout mode and/or packet code.
      */
-    uint16_t cmMedian(const uint8_t apvIndex) const;
+    constexpr uint16_t cmMedian(const uint8_t apvIndex) const;
     //third byte of channel data for normal FED channels
-    uint8_t packetCode() const;
+    constexpr uint8_t packetCode() const;
 
   private:
     friend class FEDBuffer;
     const uint8_t* data_;
     uint32_t offset_;
     uint16_t length_;
+    uint8_t headerLen_ = 0;
   };
 
   //base class for sistrip FED buffers which have a DAQ header/trailer and tracker special header
@@ -1557,18 +1561,38 @@ namespace sistrip {
 
   //FEDChannel
 
-  inline FEDChannel::FEDChannel(const uint8_t* const data, const uint32_t offset) : data_(data), offset_(offset) {
+  constexpr FEDChannel::FEDChannel(const uint8_t* const data, const uint32_t offset, const ZSROMode zsRoMode)
+      : data_(data), offset_(offset), headerLen_(zsRoMode == ZSROMode::nonLite ? 7 : 2) {
     length_ = (data_[(offset_) ^ 7] + (data_[(offset_ + 1) ^ 7] << 8));
   }
 
-  inline FEDChannel::FEDChannel(const uint8_t* const data, const uint32_t offset, const uint16_t length)
+  constexpr FEDChannel::FEDChannel(const uint8_t* const data, const uint32_t offset) : data_(data), offset_(offset) {
+    length_ = (data_[(offset_) ^ 7] + (data_[(offset_ + 1) ^ 7] << 8));
+  }
+
+  constexpr FEDChannel::FEDChannel(const uint8_t* const data, const uint32_t offset, const uint16_t length)
       : data_(data), offset_(offset), length_(length) {}
 
-  inline uint16_t FEDChannel::length() const { return length_; }
+  constexpr uint16_t FEDChannel::stripsInCh(uint8_t num_bits) const {
+    const bool emptyCh = (headerLen_ + 2) >= (length_);
+    const uint16_t start = offset_ + headerLen_;
+    const uint16_t end = offset_ + length_;
+    uint16_t stripN = 0;
+    if (!emptyCh) {
+      for (uint16_t nStrip_wOfs = start + 1; nStrip_wOfs < end;) {
+        const uint8_t clustStripN = data_[(nStrip_wOfs) ^ 7];
+        nStrip_wOfs += ((uint32_t)clustStripN) * num_bits / 8 + 2;
+        stripN += clustStripN;
+      }
+    }
+    return stripN;
+  }
 
-  inline uint8_t FEDChannel::packetCode() const { return data_[(offset_ + 2) ^ 7]; }
+  constexpr uint16_t FEDChannel::length() const { return length_; }
 
-  inline uint16_t FEDChannel::cmMedian(const uint8_t apvIndex) const {
+  constexpr uint8_t FEDChannel::packetCode() const { return data_[(offset_ + 2) ^ 7]; }
+
+  constexpr uint16_t FEDChannel::cmMedian(const uint8_t apvIndex) const {
     uint16_t result = 0;
     //CM median is 10 bits with lowest order byte first. First APV CM median starts in 4th byte of channel data
     result |= data_[(offset_ + 3 + 2 * apvIndex) ^ 7];
@@ -1576,9 +1600,9 @@ namespace sistrip {
     return result;
   }
 
-  inline const uint8_t* FEDChannel::data() const { return data_; }
+  constexpr const uint8_t* FEDChannel::data() const { return data_; }
 
-  inline uint32_t FEDChannel::offset() const { return offset_; }
+  constexpr uint32_t FEDChannel::offset() const { return offset_; }
 }  // namespace sistrip
 
 #endif  //ndef EventFilter_SiStripRawToDigi_FEDBufferComponents_H

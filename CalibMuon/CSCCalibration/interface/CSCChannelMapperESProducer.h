@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"  // for fillDescriptions
 
 #include "CalibMuon/CSCCalibration/interface/CSCChannelMapperBase.h"
 #include "CalibMuon/CSCCalibration/interface/CSCChannelMapperRecord.h"
@@ -16,6 +17,8 @@ public:
   ~CSCChannelMapperESProducer() override;
 
   BSP_TYPE produce(const CSCChannelMapperRecord &);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   std::string algoName;

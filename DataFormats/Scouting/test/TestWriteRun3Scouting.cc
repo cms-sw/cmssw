@@ -199,8 +199,8 @@ namespace edmtest {
     if (eeRecHitsIntegralValues_.size() != 1) {
       throwWithMessage("eeRecHitsIntegralValues must have 1 elements and it does not");
     }
-    if (hbheRecHitsFloatingPointValues_.size() != 1) {
-      throwWithMessage("hbheRecHitsFloatingPointValues must have 1 elements and it does not");
+    if (hbheRecHitsFloatingPointValues_.size() != 2) {
+      throwWithMessage("hbheRecHitsFloatingPointValues must have 2 elements and it does not");
     }
     if (hbheRecHitsIntegralValues_.size() != 1) {
       throwWithMessage("hbheRecHitsIntegralValues must have 1 elements and it does not");
@@ -696,6 +696,7 @@ namespace edmtest {
       int iOffset = static_cast<int>(iEvent.id().event() + i);
 
       run3ScoutingHBHERecHits->emplace_back(static_cast<float>(hbheRecHitsFloatingPointValues_[0] + offset),
+                                            static_cast<float>(hbheRecHitsFloatingPointValues_[1] + offset),
                                             static_cast<unsigned int>(hbheRecHitsIntegralValues_[0] + iOffset));
     }
     iEvent.put(hbheRecHitsPutToken_, std::move(run3ScoutingHBHERecHits));

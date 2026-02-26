@@ -53,7 +53,7 @@ public:
                           std::map<std::string, unsigned int>& nrechitLayerMapP_primary,
                           std::map<std::string, unsigned int>& nrechitLayerMapS_primary);
 
-  static void fillPSetDescription(edm::ParameterSetDescription& desc);
+  static void fillPSetDescription(edm::ParameterSetDescription& desc, bool tracking);
   void bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir);
 
 protected:
@@ -90,6 +90,13 @@ protected:
     MonitorElement* deltaX_phi_S = nullptr;
     MonitorElement* deltaY_phi_P = nullptr;
     MonitorElement* deltaY_phi_S = nullptr;
+
+    MonitorElement* delta_phi_P = nullptr;
+    MonitorElement* delta_phi_P_barrel = nullptr;
+    MonitorElement* delta_phi_P_endcaps = nullptr;
+    MonitorElement* delta_phi_S = nullptr;
+    MonitorElement* delta_phi_S_barrel = nullptr;
+    MonitorElement* delta_phi_S_endcaps = nullptr;
 
     /*
       As the error is a constant these for now are not needed

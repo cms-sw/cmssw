@@ -184,7 +184,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
       sigmaee = sigmaee - 0.02 * (fabs(eta) - 2.3);  //correct sigmaetaeta dependence on eta in endcap
   }
 
-  if (version_ != "V01" or version_ != "V00") {
+  if (version_ != "V01" and version_ != "V00") {
     edm::Handle<reco::VertexCollection> vtxH;
     e.getByToken(verticesCollection_, vtxH);
     if (!vtxH->empty()) {

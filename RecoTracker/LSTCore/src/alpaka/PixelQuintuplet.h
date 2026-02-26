@@ -81,9 +81,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     pixelQuintuplets.hitIndices()[pixelQuintupletIndex][12] = quintuplets.hitIndices()[t5Index][8];
     pixelQuintuplets.hitIndices()[pixelQuintupletIndex][13] = quintuplets.hitIndices()[t5Index][9];
 
+#ifdef CUT_VALUE_DEBUG
     pixelQuintuplets.rzChiSquared()[pixelQuintupletIndex] = rzChiSquared;
     pixelQuintuplets.rPhiChiSquared()[pixelQuintupletIndex] = rPhiChiSquared;
     pixelQuintuplets.rPhiChiSquaredInwards()[pixelQuintupletIndex] = rPhiChiSquaredInwards;
+#endif
   }
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passPT5RZChiSquaredCuts(ModulesConst modules,
@@ -254,7 +256,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return true;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float computePT5RPhiChiSquared(TAcc const& acc,
                                                                 ModulesConst modules,
                                                                 uint16_t* lowerModuleIndices,
@@ -377,7 +379,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return true;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE float computePT5RZChiSquared(TAcc const& acc,
                                                               ModulesConst modules,
                                                               const uint16_t* lowerModuleIndices,
@@ -464,7 +466,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return RMSE;
   }
 
-  template <typename TAcc>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runPixelQuintupletDefaultAlgo(TAcc const& acc,
                                                                     ModulesConst modules,
                                                                     ObjectRangesConst ranges,
@@ -491,27 +493,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float pixelRadiusTemp, tripletRadius, rPhiChiSquaredTemp, rzChiSquaredTemp, rPhiChiSquaredInwardsTemp, centerXTemp,
         centerYTemp, pixelRadiusErrorTemp;
 
-    if (not runPixelTripletDefaultAlgo(acc,
-                                       modules,
-                                       ranges,
-                                       mds,
-                                       segments,
-                                       pixelSeeds,
-                                       pixelSegments,
-                                       triplets,
-                                       pixelSegmentIndex,
-                                       t5InnerT3Index,
-                                       pixelRadiusTemp,
-                                       tripletRadius,
-                                       centerXTemp,
-                                       centerYTemp,
-                                       rzChiSquaredTemp,
-                                       rPhiChiSquaredTemp,
-                                       rPhiChiSquaredInwardsTemp,
-                                       pixelRadiusErrorTemp,
-                                       ptCut,
-                                       true,
-                                       false))
+    if (not runPixelTripletDefaultAlgo<dnn::pt3dnn::pT5WP>(acc,
+                                                           modules,
+                                                           ranges,
+                                                           mds,
+                                                           segments,
+                                                           pixelSeeds,
+                                                           pixelSegments,
+                                                           triplets,
+                                                           pixelSegmentIndex,
+                                                           t5InnerT3Index,
+                                                           pixelRadiusTemp,
+                                                           tripletRadius,
+                                                           centerXTemp,
+                                                           centerYTemp,
+                                                           rzChiSquaredTemp,
+                                                           rPhiChiSquaredTemp,
+                                                           rPhiChiSquaredInwardsTemp,
+                                                           pixelRadiusErrorTemp,
+                                                           ptCut,
+                                                           true,
+                                                           false))
       return false;
 
     unsigned int firstSegmentIndex = triplets.segmentIndices()[t5InnerT3Index][0];

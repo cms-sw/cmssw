@@ -60,7 +60,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const device::ESGetToken<hgcal::HGCalMappingModuleParamDevice, HGCalElectronicsMappingRcd> moduleToken_;
     const device::EDPutToken<HGCalSoARecHitsDeviceCollection> recHitsToken_;
     const HGCalRecHitCalibrationAlgorithms calibrator_;
-    const int n_hits_scale;
+    const double k_noise_;
+    const int n_hits_scale_;
     int ndigis_;
     cms::alpakatools::host_buffer<int32_t> nsel_;
     std::optional<cms::alpakatools::device_buffer<Device, int32_t[]>> sidx_;
@@ -76,10 +77,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         moduleToken_{esConsumes()},
         recHitsToken_{produces()},
         calibrator_{iConfig.getParameter<int>("n_blocks"), iConfig.getParameter<int>("n_threads")},
-        n_hits_scale{iConfig.getParameter<int>("n_hits_scale")},
+        k_noise_{iConfig.getParameter<double>("k_noise")},
+        n_hits_scale_{iConfig.getParameter<int>("n_hits_scale")},
         nsel_{cms::alpakatools::make_host_buffer<int32_t, Platform>()} {
 #ifndef HGCAL_PERF_TEST
-    if (n_hits_scale > 1) {
+    if (n_hits_scale_ > 1) {
       throw cms::Exception("RuntimeError") << "Build with `HGCAL_PERF_TEST` flag to activate `n_hits_scale`.";
     }
 #endif
@@ -91,6 +93,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add("calibSource", edm::ESInputTag{})->setComment("Label for calibration parameters");
     desc.add("mappingSource", edm::ESInputTag{})->setComment("Label for cell mapping parameters");
     desc.add("indexingSource", edm::ESInputTag{})->setComment("Label for cell dense indexer");
+    desc.add<double>("k_noise", -100.)->setComment("ZS threshold for rechits (multiples of noise)");
     desc.add<int>("n_blocks", -1);
     desc.add<int>("n_threads", -1);
     desc.add<int>("n_hits_scale", -1);
@@ -122,7 +125,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 #ifdef HGCAL_PERF_TEST
     uint32_t oldSize = hostDigisIn.view().metadata().size();
-    uint32_t newSize = oldSize * (n_hits_scale > 0 ? (unsigned)n_hits_scale : 1);
+    uint32_t newSize = oldSize * (n_hits_scale_ > 0 ? (unsigned)n_hits_scale_ : 1);
     auto hostDigis = HGCalDigiHost(newSize, queue);
     auto hostCalibParam = HGCalCalibParamHost(newSize, queue);
     // TODO: replace with memcp ?
@@ -165,7 +168,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
     LogDebug("HGCalRecHitsProducer") << "\n\nINFO -- Copying the calib to the device\n\n" << std::endl;
-    HGCalCalibParamDevice deviceCalibParam(hostCalibParam.view().metadata().size(), queue);
+    HGCalCalibParamDevice deviceCalibParam(queue, hostCalibParam.view().metadata().size());
     alpaka::memcpy(queue, deviceCalibParam.buffer(), hostCalibParam.const_buffer());
 
 #ifdef HGCAL_PERF_TEST
@@ -183,7 +186,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                      deviceCalibParam,
                                      deviceModuleInfoProvider,
                                      deviceMappingCellParamProvider,
-                                     deviceIndexingParamProvider);
+                                     deviceIndexingParamProvider,
+                                     k_noise_);
 #endif
 
 #ifdef EDM_ML_DEBUG

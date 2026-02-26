@@ -16,6 +16,7 @@
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineDxy.h"
+#include "hls4ml/emulator.h"
 
 class EMTFSetup {
 public:
@@ -62,6 +63,10 @@ private:
   VersionControl version_control_;
 
   SectorProcessorLUT sector_processor_lut_;
+
+  // Declare before pt_assign_engine_dxy_ to avoid library deletion
+  hls4mlEmulator::ModelLoader loader;
+  std::shared_ptr<hls4mlEmulator::Model> model;
 
   // Polymorphic class
   std::unique_ptr<PtAssignmentEngine> pt_assign_engine_;

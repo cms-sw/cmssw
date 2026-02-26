@@ -1,4 +1,4 @@
-# /dev/CMSSW_15_0_0/PIon
+# /dev/CMSSW_16_0_0/PIon
 
 import FWCore.ParameterSet.Config as cms
 
@@ -19,15 +19,15 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsCommissioning_datasetHLTPhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetHLTPhysics_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetHLTPhysics_selector.throw      = cms.bool(False)
-streamPhysicsCommissioning_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_Physics_v15')
+streamPhysicsCommissioning_datasetHLTPhysics_selector.triggerConditions = cms.vstring('HLT_Physics_v16')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetHcalNZS_selector
 streamPhysicsCommissioning_datasetHcalNZS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetHcalNZS_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetHcalNZS_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetHcalNZS_selector.triggerConditions = cms.vstring(
-    'HLT_HcalNZS_v22',
-    'HLT_HcalPhiSym_v24'
+    'HLT_HcalNZS_v23',
+    'HLT_HcalPhiSym_v25'
 )
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetNoBPTX_selector
@@ -104,8 +104,8 @@ streamPhysicsIonPhysics_datasetIonPhysics_selector.triggerConditions = cms.vstri
     'HLT_OxySingleMuOpen_OR_SingleMuCosmic_EMTF_BptxAND_v1',
     'HLT_OxySingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v1',
     'HLT_OxyZDC1nOR_v1',
-    'HLT_OxyZeroBias_MinPixelCluster400_v1',
-    'HLT_OxyZeroBias_SinglePixelTrackLowPt_MaxPixelCluster400_v1',
+    'HLT_OxyZeroBias_MinPixelCluster400_v3',
+    'HLT_OxyZeroBias_SinglePixelTrackLowPt_MaxPixelCluster400_v3',
     'HLT_OxyZeroBias_v1'
 )
 

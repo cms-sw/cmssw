@@ -23,7 +23,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-#include "DataFormats/HGCalReco/interface/MultiVectorManager.h"
+#include "DataFormats/Common/interface/MultiSpan.h"
 
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -236,22 +236,23 @@ public:
                                       std::vector<size_t> const& cPSelectedIndices,
                                       std::unordered_map<DetId, const unsigned int> const&,
                                       unsigned int layers,
-                                      const ticl::RecoToSimCollection& recSimColl,
-                                      const ticl::SimToRecoCollection& simRecColl,
-                                      MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
-  void layerClusters_to_SimClusters(const Histograms& histograms,
-                                    const int count,
-                                    edm::Handle<reco::CaloClusterCollection> clusterHandle,
-                                    const reco::CaloClusterCollection& clusters,
-                                    edm::Handle<std::vector<SimCluster>> simClusterHandle,
-                                    std::vector<SimCluster> const& simClusters,
-                                    std::vector<size_t> const& sCIndices,
-                                    const std::vector<float>& mask,
-                                    std::unordered_map<DetId, const unsigned int> const&,
-                                    unsigned int layers,
-                                    const ticl::RecoToSimCollectionWithSimClusters& recSimColl,
-                                    const ticl::SimToRecoCollectionWithSimClusters& simRecColl,
-                                    MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
+                                      const ticl::RecoToSimCollectionT<reco::CaloClusterCollection>& recSimColl,
+                                      const ticl::SimToRecoCollectionT<reco::CaloClusterCollection>& simRecColl,
+                                      edm::MultiSpan<reco::PFRecHit> const& barrelHits) const;
+  void layerClusters_to_SimClusters(
+      const Histograms& histograms,
+      const int count,
+      edm::Handle<reco::CaloClusterCollection> clusterHandle,
+      const reco::CaloClusterCollection& clusters,
+      edm::Handle<std::vector<SimCluster>> simClusterHandle,
+      std::vector<SimCluster> const& simClusters,
+      std::vector<size_t> const& sCIndices,
+      const std::vector<float>& mask,
+      std::unordered_map<DetId, const unsigned int> const&,
+      unsigned int layers,
+      const ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>& recSimColl,
+      const ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>& simRecColl,
+      edm::MultiSpan<reco::PFRecHit> const& barrelHits) const;
 
   void tracksters_to_SimTracksters_fp(const Histograms& histograms,
                                       const int count,
@@ -270,7 +271,7 @@ public:
                                 std::vector<SimVertex> const& simVertices,
                                 unsigned int layers,
                                 std::unordered_map<DetId, const unsigned int> const&,
-                                MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
+                                edm::MultiSpan<reco::PFRecHit> const& barrelHits) const;
   void fill_generic_cluster_histos(const Histograms& histograms,
                                    const int count,
                                    edm::Handle<reco::CaloClusterCollection> clusterHandle,
@@ -281,25 +282,26 @@ public:
                                    std::vector<size_t> const& cPSelectedIndices,
                                    std::unordered_map<DetId, const unsigned int> const&,
                                    unsigned int layers,
-                                   const ticl::RecoToSimCollection& recSimColl,
-                                   const ticl::SimToRecoCollection& simRecColl,
-                                   MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
+                                   const ticl::RecoToSimCollectionT<reco::CaloClusterCollection>& recSimColl,
+                                   const ticl::SimToRecoCollectionT<reco::CaloClusterCollection>& simRecColl,
+                                   edm::MultiSpan<reco::PFRecHit> const& barrelHits) const;
   void fill_simCluster_histos(const Histograms& histograms,
                               std::vector<SimCluster> const& simClusters,
                               unsigned int layers) const;
-  void fill_simClusterAssociation_histos(const Histograms& histograms,
-                                         const int count,
-                                         edm::Handle<reco::CaloClusterCollection> clusterHandle,
-                                         const reco::CaloClusterCollection& clusters,
-                                         edm::Handle<std::vector<SimCluster>> simClusterHandle,
-                                         std::vector<SimCluster> const& simClusters,
-                                         std::vector<size_t> const& sCIndices,
-                                         const std::vector<float>& mask,
-                                         std::unordered_map<DetId, const unsigned int> const& barrelHitMap,
-                                         unsigned int layers,
-                                         const ticl::RecoToSimCollectionWithSimClusters& recSimColl,
-                                         const ticl::SimToRecoCollectionWithSimClusters& simRecColl,
-                                         MultiVectorManager<reco::PFRecHit> const& barrelHits) const;
+  void fill_simClusterAssociation_histos(
+      const Histograms& histograms,
+      const int count,
+      edm::Handle<reco::CaloClusterCollection> clusterHandle,
+      const reco::CaloClusterCollection& clusters,
+      edm::Handle<std::vector<SimCluster>> simClusterHandle,
+      std::vector<SimCluster> const& simClusters,
+      std::vector<size_t> const& sCIndices,
+      const std::vector<float>& mask,
+      std::unordered_map<DetId, const unsigned int> const& barrelHitMap,
+      unsigned int layers,
+      const ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>& recSimColl,
+      const ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>& simRecColl,
+      edm::MultiSpan<reco::PFRecHit> const& barrelHits) const;
   void fill_cluster_histos(const Histograms& histograms, const int count, const reco::CaloCluster& cluster) const;
 
   double distance2(const double x1, const double y1, const double x2, const double y2) const;
@@ -309,7 +311,7 @@ public:
 
   DetId findmaxhit(const reco::CaloCluster& cluster,
                    std::unordered_map<DetId, const unsigned int> const&,
-                   MultiVectorManager<reco::PFRecHit> const& hits) const;
+                   edm::MultiSpan<reco::PFRecHit> const& hits) const;
 
   struct detIdInfoInCluster {
     bool operator==(const detIdInfoInCluster& o) const { return clusterId == o.clusterId; };

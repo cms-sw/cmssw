@@ -20,7 +20,7 @@ public:
 
 private:
   void populateIovs();
-  void filterInvalidPayloads();
+  void handleInvalidPayloads();
   bool isPayloadValid(const LHCInfoPerLS& payload) const;
   void addEmptyPayload(cond::Time_t iov);
   void addDefaultPayload(cond::Time_t iov, unsigned short fill, const cond::OMSService& oms);
@@ -62,15 +62,16 @@ private:
   float m_maxBetaStar;       // meters
   float m_minCrossingAngle;  // urad
   float m_maxCrossingAngle;  // urad
+  bool m_throwOnInvalid;     // duringFill: whether to throw exception or filter out invalid payloads
 
   std::unique_ptr<LHCInfoPerLS> m_fillPayload;
   std::shared_ptr<LHCInfoPerLS> m_prevPayload;
-  cond::Time_t m_startFillTime;
-  cond::Time_t m_endFillTime;
-  cond::Time_t m_prevEndFillTime = 0;
-  cond::Time_t m_prevStartFillTime;
-  cond::Time_t m_startStableBeamTime;
-  cond::Time_t m_endStableBeamTime;
+  cond::Time_t m_startFillTime{};
+  cond::Time_t m_endFillTime{};
+  cond::Time_t m_prevEndFillTime{};
+  cond::Time_t m_prevStartFillTime{};
+  cond::Time_t m_startStableBeamTime{};
+  cond::Time_t m_endStableBeamTime{};
   std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfoPerLS>>> m_tmpBuffer;
   bool m_lastPayloadEmpty = false;
   // mapping of lumisections IDs (pairs of runnumber an LS number) found in OMS to

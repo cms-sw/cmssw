@@ -1,4 +1,3 @@
-
 ###############################################################################
 # Way to use this:
 #   cmsRun testHGCalWaferInFileTest_cfg.py geometry=V17

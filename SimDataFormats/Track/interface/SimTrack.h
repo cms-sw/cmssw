@@ -68,7 +68,7 @@ public:
 
   void setIsPrimary() { trackInfo_ |= (1 << 1); }
   void setGenParticleID(const int idx) { igenpart = idx; }
-  int getPrimaryID() const { return igenpart; }
+  int getPrimaryOrLastStoredID() const { return igenpart; }
   uint8_t getTrackInfo() const { return trackInfo_; }
 
 private:
@@ -78,7 +78,7 @@ private:
   math::XYZVectorD tkposition;
   math::XYZTLorentzVectorD tkmomentum;
 
-  int idAtBoundary_;
+  int idAtBoundary_{-1};
   math::XYZTLorentzVectorF positionAtBoundary_;
   math::XYZTLorentzVectorF momentumAtBoundary_;
   uint8_t trackInfo_;

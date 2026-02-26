@@ -6,24 +6,22 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/JetReco/interface/CaloJetFwd.h"
+#include "DataFormats/JetReco/interface/GenJetFwd.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {
   class Event;
 }
-namespace reco {
-  class CaloJet;
-  class GenJet;
-}  // namespace reco
 
-class CaloTower;
 class CaloRecHit;
-class DetId;
-class PCaloHit;
 
 class JetMatchingTools {
 public:

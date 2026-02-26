@@ -33,14 +33,13 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProductFwd.h"
+
 #include "Pythia8/Pythia.h"
 
 //
 // class decleration
 //
-namespace edm {
-  class HepMCProduct;
-}
 
 class PythiaAllDauVFilter : public edm::global::EDFilter<> {
 public:

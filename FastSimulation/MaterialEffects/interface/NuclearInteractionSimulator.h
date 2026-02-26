@@ -44,7 +44,8 @@ public:
                               std::map<int, int>& idMap,
                               std::string inputFile,
                               unsigned int distAlgo,
-                              double distCut);
+                              double distCut,
+                              bool saveOutput);
 
   /// Default Destructor
   ~NuclearInteractionSimulator() override;
@@ -90,19 +91,10 @@ private:
   unsigned theDistAlgo;
   double theDistCut;
 
+  bool mySaveOutput;
   std::ofstream myOutputFile;
   unsigned myOutputBuffer;
 
   bool currentValuesWereSet;
-
-  //  DaqMonitorBEInterface * dbe;
-  //  MonitorElement* hAfter;
-  //  MonitorElement* hAfter2;
-  //  MonitorElement* hAfter3;
-  //  MonitorElement* htot;
-  //  MonitorElement* helas;
-  //  MonitorElement* hinel;
-  //  MonitorElement* hscatter;
-  //  MonitorElement* hscatter2;
 };
 #endif
