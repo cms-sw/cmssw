@@ -11,6 +11,8 @@
 namespace l1tVertexFinder {
 
   enum class Algorithm {
+    PFA,
+    PFASimple,
     fastHisto,
     fastHistoEmulation,
     fastHistoLooseAssociation,
@@ -49,6 +51,26 @@ namespace l1tVertexFinder {
     float vx_chi2cut() const { return vx_chi2cut_; }
     // Do track quality cuts in emulation algorithms
     bool vx_DoQualityCuts() const { return vx_DoQualityCuts_; }
+    // PFA scan parameters (min, max, interval) [cm]
+    std::vector<double> vx_pfa_scanparameters() const { return vx_pfa_scanparameters_; }
+    double vx_pfa_min() const { return vx_pfa_scanparameters_.at(0); }
+    double vx_pfa_max() const { return vx_pfa_scanparameters_.at(1); }
+    double vx_pfa_interval() const { return vx_pfa_scanparameters_.at(2); }
+    // Include eta-dependence of the estimated track resolution used in PFA
+    bool vx_pfa_etadependentresolution() const { return vx_pfa_etadependentresolution_; }
+    // Multiplicative scale factor for the above PFA track resolution parameter
+    double vx_pfa_resolutionSF() const { return vx_pfa_resolutionSF_; }
+    // PFA Gaussian width cutoff for input tracks [cm] (not used in PFASimple)
+    double vx_pfa_cutoff() const { return vx_pfa_cutoff_; }
+    // Enable 2-step process where the weighted pT sum is only calculated at positions where the weighted multiplicity is maximum ("local maxima"). In the second step, the local maximum with the largest weighted pT sum is chosen as the vertex. Only relevant for PFA (not used in PFASimple).
+    bool vx_pfa_usemultiplicitymaxima() const { return vx_pfa_usemultiplicitymaxima_; }
+    // Weight function to use in PFA (not used in PFASimple). 0: Gaussian, 1: Gaussian without width normalisation, 2: Complementary error function, 3: Step function. With vx_pfa_weightfunction=3 and PFA_UseMultiplicityMaxima=False, PFA and PFASimple are the same.
+    unsigned int vx_pfa_weightfunction() const { return vx_pfa_weightfunction_; }
+    // Instead of taking the z0 value from the discrete PFA scan (0), calculate it from the Gaussian and pT^N-weighted average of track z0 (1) or the optimal (1/variance) weighted mean of associated tracks, weighted also by pT^N and association probability (2). Step function and pT^N-weighted average (3) is intended for use with vx_pfa_weightfunction=3 or PFASimple (to replicate fastHisto).
+    // Additional options (4-11) have different uses of the track resolution (only relevant when eta-dependent) and different powers of trackPt in the weighted sum: see VertexFinder::calcPFAweights() for details.
+    unsigned int vx_pfa_weightedz0() const { return vx_pfa_weightedz0_; }
+    // Use vx_TrackMinPt cut specified below (otherwise no additional track selection is applied)
+    bool vx_pfa_doqualitycuts() const { return vx_pfa_doqualitycuts_; }
     // Window size of the sliding window
     unsigned int vx_windowSize() const { return vx_windowSize_; }
     // fastHisto histogram parameters (min, max, width)
@@ -73,7 +95,7 @@ namespace l1tVertexFinder {
     unsigned int vx_kmeans_nclusters() const { return vx_kmeans_nclusters_; }
     float vx_TrackMinPt() const { return vx_TrackMinPt_; }
     float vx_TrackMaxPt() const { return vx_TrackMaxPt_; }
-    float vx_TrackMaxPtBehavior() const { return vx_TrackMaxPtBehavior_; }
+    int vx_TrackMaxPtBehavior() const { return vx_TrackMaxPtBehavior_; }
     float vx_TrackMaxChi2() const { return vx_TrackMaxChi2_; }
     unsigned int vx_NStubMin() const { return vx_NStubMin_; }
     unsigned int vx_NStubPSMin() const { return vx_NStubPSMin_; }
@@ -112,6 +134,14 @@ namespace l1tVertexFinder {
     unsigned int vx_weightedmean_;
     float vx_chi2cut_;
     bool vx_DoQualityCuts_;
+    std::vector<double> vx_pfa_scanparameters_;
+    bool vx_pfa_etadependentresolution_;
+    double vx_pfa_resolutionSF_;
+    double vx_pfa_cutoff_;
+    bool vx_pfa_usemultiplicitymaxima_;
+    unsigned int vx_pfa_weightfunction_;
+    unsigned int vx_pfa_weightedz0_;
+    bool vx_pfa_doqualitycuts_;
     bool vx_DoPtComp_;
     bool vx_DoTightChi2_;
     std::vector<double> vx_histogram_parameters_;
@@ -125,7 +155,7 @@ namespace l1tVertexFinder {
     unsigned int vx_NStubMin_;
     unsigned int vx_NStubPSMin_;
     float vx_dbscan_pt_;
-    float vx_dbscan_mintracks_;
+    unsigned int vx_dbscan_mintracks_;
     unsigned int vx_kmeans_iterations_;
     unsigned int vx_kmeans_nclusters_;
     edm::FileInPath vx_trkw_graph_;     //For NNVtx (TrackWeight)

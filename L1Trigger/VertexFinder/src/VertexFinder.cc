@@ -4,19 +4,105 @@ using namespace std;
 
 namespace l1tVertexFinder {
 
-  void VertexFinder::computeAndSetVertexParameters(RecoVertex<>& vertex,
-                                                   const std::vector<float>& bin_centers,
-                                                   const std::vector<unsigned int>& counts) {
+  // Returns the track resolution in cm (which can depend on track eta), to be used in PFA. Note in future this may not be necessary if the z0 uncertainty is included as a TTTrack property.
+  float VertexFinder::computeTrackZ0Res(const L1Track* track) const {
+    constexpr float kPfaZ0ResP0 = 0.09867f;
+    constexpr float kPfaZ0ResP1 = 0.0007f;
+    constexpr float kPfaZ0ResP2 = 0.0587f;
+    constexpr float kPfaZ0ResConst = 0.15f;
+    float trackAbsEta = std::abs(track->eta());
+    // Hard-coded eta-dependent and constant parametrisations of the track resolution taken from the PFA section of Giovanna Salvi's CERN-THESIS-2024-143
+    return settings_->vx_pfa_etadependentresolution()
+               ? kPfaZ0ResP0 + kPfaZ0ResP1 * trackAbsEta + kPfaZ0ResP2 * trackAbsEta * trackAbsEta
+               : kPfaZ0ResConst;
+  }
+
+  // Calculates the PFA weight and the weighted average z weight for a given track
+  std::pair<float, float> VertexFinder::calcPFAweights(const L1Track* track, double vertexZ0) const {
+    // Calculate PFA width parameter (customised using multiplicative scale factor)
+    float PFAWidth = computeTrackZ0Res(track) * settings_->vx_pfa_resolutionSF();
+
+    // PFA weights. No need to include 1/sqrt(2pi) normalisation constant in weight function, as it cancels out in the weighted sum.
+    float deltaZ = std::abs(track->z0() - vertexZ0);
+    float GaussianWeight = std::exp(-0.5 * std::pow(deltaZ / PFAWidth, 2)) / PFAWidth;
+
+    // Alternative definitions of PFA weights (added subsequent to CERN-THESIS-2024-143)
+    // Redefine deltaZ as the distance of the track from the bin edge (zero if inside the bin)
+    deltaZ = (deltaZ > 0.5 * settings_->vx_pfa_interval()) ? deltaZ - 0.5 * settings_->vx_pfa_interval() : 0;
+    // Use Erfc to reduce the weight based on the probability that a track from a vertex in this bin would be closer than deltaZ to the edge of the bin
+    float ErfcWeight = std::erfc(M_SQRT1_2 * deltaZ / PFAWidth);
+
+    // Step function that allows tracks at most 1 sigma from the bin edge
+    float StepFunctionWeight = deltaZ > PFAWidth ? 0 : 1;
+
+    // Choice of weight function to use for the vertex score in PFA
+    float weight = settings_->vx_pfa_weightfunction() == 3
+                       ? StepFunctionWeight
+                       : (settings_->vx_pfa_weightfunction() == 2 ? ErfcWeight : GaussianWeight);
+    if (settings_->vx_pfa_weightfunction() == 1) {
+      weight *= PFAWidth;
+    }
+
+    // Calculate z-weight for weighted average z0 calculation (added subsequent to CERN-THESIS-2024-143)
+    float trackPt = track->pt();
+    float zweight = 0.;
+
+    if (settings_->vx_pfa_weightedz0() == 1) {
+      // Gaussian- and pT-weighted average
+      zweight = GaussianWeight * std::pow(trackPt, settings_->vx_weightedmean());
+    } else if (settings_->vx_pfa_weightedz0() == 2) {
+      // Estimates of vertex z0 and z0square based on optimal combination (weighted by 1/variance) of the z0 of the tracks associated to the vertex, weighted also by pT and association probability (ErfcWeight)
+      zweight = ErfcWeight * std::pow(trackPt, settings_->vx_weightedmean()) / PFAWidth / PFAWidth;
+    } else if (settings_->vx_pfa_weightedz0() == 3) {
+      // Step function weight, to replicate fastHisto when used with settings_->vx_pfa_weightfunction() = 3 or Algorithm::PFASimple
+      zweight = StepFunctionWeight * std::pow(trackPt, settings_->vx_weightedmean());
+    }
+    // Additional options with different uses of the eta-dependent width
+    else if (settings_->vx_pfa_weightedz0() == 4) {
+      // Step function weight divided by step function width (to maintain constant area when using eta-dependent resolution)
+      zweight = StepFunctionWeight * std::pow(trackPt, settings_->vx_weightedmean()) /
+                (PFAWidth + 0.5 * settings_->vx_pfa_interval());
+    } else if (settings_->vx_pfa_weightedz0() == 5) {
+      // Step function weight weighted by 1/variance (only relevant when using eta-dependent resolution)
+      zweight = StepFunctionWeight * std::pow(trackPt, settings_->vx_weightedmean()) / PFAWidth / PFAWidth;
+    } else if (settings_->vx_pfa_weightedz0() == 6) {
+      // ErfcWeight with only 1/width
+      zweight = ErfcWeight * std::pow(trackPt, settings_->vx_weightedmean()) / PFAWidth;
+    }
+    // Copies of the above options using only trackPt^1 (instead of settings_->vx_weightedmean(), which is usually set to 2 for PFA)
+    else if (settings_->vx_pfa_weightedz0() == 7) {
+      zweight = ErfcWeight * trackPt / PFAWidth / PFAWidth;
+    } else if (settings_->vx_pfa_weightedz0() == 8) {
+      zweight = ErfcWeight * trackPt / PFAWidth;
+    } else if (settings_->vx_pfa_weightedz0() == 9) {
+      zweight = StepFunctionWeight * trackPt;
+    } else if (settings_->vx_pfa_weightedz0() == 10) {
+      zweight = StepFunctionWeight * trackPt / (PFAWidth + 0.5 * settings_->vx_pfa_interval());
+    } else if (settings_->vx_pfa_weightedz0() == 11) {
+      zweight = StepFunctionWeight * trackPt / PFAWidth / PFAWidth;
+    }
+
+    return std::make_pair(weight, zweight);
+  }
+
+  float VertexFinder::computeAndSetVertexParameters(RecoVertex<>& vertex,
+                                                    const std::vector<float>& bin_centers,
+                                                    const std::vector<unsigned int>& counts) {
     double pt = 0.;
     double z0 = -999.;
     double z0width = 0.;
     bool highPt = false;
     double highestPt = 0.;
     unsigned int numHighPtTracks = 0;
+    unsigned int numSelectedTracks = 0;
 
     float SumZ = 0.;
     float z0square = 0.;
     float trackPt = 0.;
+
+    const bool isPFA = settings_->vx_algo() == Algorithm::PFA || settings_->vx_algo() == Algorithm::PFASimple;
+    float SumWeightPFA = 0.;
+    float SumZWeightPFA = 0.;
 
     std::vector<double> bin_pt(bin_centers.size(), 0.0);
     unsigned int ibin = 0;
@@ -39,9 +125,31 @@ namespace l1tVertexFinder {
         else if (settings_->vx_TrackMaxPtBehavior() == 1)
           trackPt = settings_->vx_TrackMaxPt();  // saturate
       }
+      numSelectedTracks++;
 
-      pt += std::pow(trackPt, settings_->vx_weightedmean());
-      if (bin_centers.empty() && counts.empty()) {
+      std::pair<float, float> PFAweights;
+      if (isPFA) {
+        PFAweights = calcPFAweights(track, vertex.z0());
+      }
+
+      if (settings_->vx_algo() == Algorithm::PFA) {
+        // Note this weight is not used in Algorithm::PFASimple, where the simplification is that all tracks in the "bin" have PFA weight 1 (and 0 otherwise)
+        float weight = PFAweights.first;
+        SumWeightPFA += weight;
+        pt += weight * std::pow(trackPt, settings_->vx_weightedmean());
+      } else {
+        pt += std::pow(trackPt, settings_->vx_weightedmean());
+      }
+
+      if (isPFA) {
+        if (settings_->vx_pfa_weightedz0() > 0) {
+          // Calculate sums for weighted-average z0 for PFASimple and PFA
+          float zweight = PFAweights.second;
+          SumZWeightPFA += zweight;
+          SumZ += track->z0() * zweight;
+          z0square += track->z0() * track->z0() * zweight;
+        }
+      } else if (bin_centers.empty() && counts.empty()) {
         SumZ += track->z0() * std::pow(trackPt, settings_->vx_weightedmean());
         z0square += track->z0() * track->z0();
       } else {
@@ -53,13 +161,26 @@ namespace l1tVertexFinder {
           ibin++;
         }
       }
+    }  // end loop over tracks
+
+    if (isPFA) {
+      // Alternative z0 calculation when using PFASimple or PFA
+      if (settings_->vx_pfa_weightedz0() > 0 && SumZWeightPFA > 0) {
+        z0 = SumZ / SumZWeightPFA;
+        z0square /= SumZWeightPFA;
+        z0width = sqrt(std::abs(z0 * z0 - z0square));
+      } else {
+        z0 = vertex.z0();
+        z0width = 0.;
+      }
+    } else if (pt > 0) {  // Avoid dividing by 0 when there are no tracks. pt > 0 also implies numSelectedTracks > 0.
+      z0 = SumZ / ((settings_->vx_weightedmean() > 0) ? pt : numSelectedTracks);
+      z0square /= numSelectedTracks;
+      z0width = sqrt(std::abs(z0 * z0 - z0square));
     }
 
-    z0 = SumZ / ((settings_->vx_weightedmean() > 0) ? pt : vertex.numTracks());
-    z0square /= vertex.numTracks();
-    z0width = sqrt(std::abs(z0 * z0 - z0square));
-
     vertex.setParameters(pt, z0, z0width, highPt, numHighPtTracks, highestPt);
+    return SumWeightPFA;
   }
 
   void VertexFinder::GapClustering() {
@@ -604,6 +725,141 @@ namespace l1tVertexFinder {
       }
     }
   }
+
+  void VertexFinder::PFASimple() {
+    float vxPt = 0.;
+    RecoVertex leading_vertex;
+
+    int nbins = std::ceil((settings_->vx_pfa_max() - settings_->vx_pfa_min()) / settings_->vx_pfa_interval());
+    for (int i = 0; i <= nbins; ++i) {
+      float z = settings_->vx_pfa_min() + i * settings_->vx_pfa_interval();
+      RecoVertex vertex;
+      vertex.setZ0(z);
+      for (const L1Track& track : fitTracks_) {
+        // Calculate PFA width parameter (customised using multiplicative scale factor)
+        float PFAWidth = computeTrackZ0Res(&track) * settings_->vx_pfa_resolutionSF();
+        if (std::abs(z - track.z0()) > PFAWidth + 0.5 * settings_->vx_pfa_interval())
+          continue;
+        if (settings_->vx_pfa_doqualitycuts() && (track.pt() < settings_->vx_TrackMinPt()))
+          continue;  // minimal additional quality cut as done in fastHistoEmulation()
+        vertex.insert(&track);
+      }  // end loop over tracks
+
+      computeAndSetVertexParameters(vertex, {}, {});
+      if (vertex.pt() > vxPt) {
+        leading_vertex = vertex;
+        vxPt = vertex.pt();
+      }
+    }
+
+    vertices_.emplace_back(leading_vertex);
+    pv_index_ = 0;
+  }  // end of PFASimple
+
+  void VertexFinder::PFA() {
+    RecoVertex vertex2(-999.);
+    RecoVertex vertex3(-999.);
+    RecoVertex vertex4(-999.);
+
+    vertex2.setPt(0.);
+    vertex3.setPt(0.);
+    vertex4.setPt(0.);
+
+    float vertexScore1 = 0.;
+    float vertexScore2 = 0.;
+    float vertexScore3 = 0.;
+    float vertexScore4 = 0.;
+
+    float zCorrection2 = 0.;
+    float zCorrection3 = 0.;
+    float zCorrection4 = 0.;
+
+    bool vertex1LocalMaximum = false;
+    bool vertex2LocalMaximum = false;
+    bool vertex3LocalMaximum = false;
+
+    int nbins = std::ceil((settings_->vx_pfa_max() - settings_->vx_pfa_min()) / settings_->vx_pfa_interval());
+    std::vector<RecoVertex<>> sums;
+    int counter = 0;
+    for (int i = -1; i <= nbins + 2; ++i) {
+      float z = settings_->vx_pfa_min() + i * settings_->vx_pfa_interval();
+
+      // Store vertex scores in 3 successive bins so we can identify local maxima
+      vertexScore1 = vertexScore2;
+      vertexScore2 = vertexScore3;
+      vertexScore3 = vertexScore4;
+
+      vertex1LocalMaximum = vertex2LocalMaximum;
+      vertex2LocalMaximum = vertex3LocalMaximum;
+
+      zCorrection2 = zCorrection3;
+      zCorrection3 = zCorrection4;
+
+      // Store the vertices from previous iterations in case we need to keep them (i.e. if they are a local maximum or adjacent maximum)
+      vertex2 = vertex3;
+      vertex3 = vertex4;
+
+      RecoVertex vertex;
+      vertex.setZ0(z);
+      for (const L1Track& track : fitTracks_) {
+        if (std::abs(z - track.z0()) > settings_->vx_pfa_cutoff())
+          continue;
+        if (settings_->vx_pfa_doqualitycuts() && (track.pt() < settings_->vx_TrackMinPt()))
+          continue;  // minimal additional quality cut as done in fastHistoEmulation()
+        vertex.insert(&track);
+      }  // end loop over tracks
+
+      vertexScore4 = computeAndSetVertexParameters(vertex, {}, {});
+      vertex4 = vertex;
+
+      if (!settings_->vx_pfa_usemultiplicitymaxima()) {
+        vertexScore4 = vertex4.pt();
+      }
+
+      // Find out if vertex3 is a local maximum. The >= are necessary because there can be 3 vertices in a row with the same score when using narrow binning and step function weights.
+      vertex3LocalMaximum =
+          (counter > 1) && (vertexScore3 >= vertexScore2) && (vertexScore3 >= vertexScore4) && (vertexScore3 > 0);
+
+      bool adjacentR = false;
+      bool adjacentL = false;
+
+      if (settings_->vx_pfa_weightedz0() > 0) {
+        zCorrection4 = vertex4.z0() - z;
+        adjacentR = (counter > 2) && (vertex1LocalMaximum) && (vertexScore2 >= vertexScore3) && (zCorrection2 > 0);
+        adjacentL = (counter > 2) && (vertex3LocalMaximum) && (vertexScore2 >= vertexScore1) && (zCorrection2 < 0);
+      }
+
+      if (vertex2LocalMaximum || adjacentL ||
+          adjacentR) {  // only keep bins whose score is a local maximum. Also keep bins adjacent to a local maximum if zCorrection consistent with being populated from a separate vertex.
+        sums.emplace_back(vertex2);
+      }
+      ++counter;
+    }
+
+    // Find the maxima of the sums
+    float sigma_max = -999;
+    int imax = -999;
+    std::vector<int> found;
+    found.reserve(settings_->vx_nvtx());
+    for (unsigned int ivtx = 0; ivtx < settings_->vx_nvtx(); ivtx++) {
+      sigma_max = -999;
+      imax = -999;
+      for (unsigned int i = 0; i < sums.size(); i++) {
+        // Skip this window if it will already be returned
+        if (find(found.begin(), found.end(), i) != found.end())
+          continue;
+        if (sums.at(i).pt() > sigma_max) {
+          sigma_max = sums.at(i).pt();
+          imax = i;
+        }
+      }
+      found.push_back(imax);
+      if (imax != -999) {  // In case fewer than settings_->vx_nvtx() vertex candidates exist
+        vertices_.emplace_back(sums.at(imax));
+      }
+    }
+    pv_index_ = 0;
+  }  // end of PFA
 
   void VertexFinder::fastHistoLooseAssociation() {
     float vxPt = 0.;
