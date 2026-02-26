@@ -1289,7 +1289,7 @@ if __name__ == "__main__":
         "-n",
         "--nProcessors",
         type=int,
-        default=None,
+        default=4,
         help="Number of parallel processes to use (default: auto-detect)",
     )
     parser.add_argument(
