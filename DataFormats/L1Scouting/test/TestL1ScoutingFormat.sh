@@ -6,9 +6,7 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
 cmsRun ${LOCAL_TEST_DIR}/create_L1Scouting_test_file_cfg.py || die 'Failure using create_L1Scouting_test_file_cfg.py' $?
 
-file=testL1Scouting.root
-
-cmsRun ${LOCAL_TEST_DIR}/read_L1Scouting_cfg.py --inputFile "$file" || die "Failure using read_L1Scouting_cfg.py $file" $?
+cmsRun ${LOCAL_TEST_DIR}/read_L1Scouting_cfg.py || die "Failure using read_L1Scouting_cfg.py" $?
 
 # The old files read below were generated as follows.
 #
@@ -29,18 +27,16 @@ cmsRun ${LOCAL_TEST_DIR}/read_L1Scouting_cfg.py --inputFile "$file" || die "Fail
 # add the following to the output module configuration.
 #     "splitLevel = cms.untracked.int32(0)"
 
-# test file for muon, jet, e/gamma and energy sums data formats
+# test file for muon, jet, e/gamma, tau and energy sums data formats
 oldFiles="testL1Scouting_v3_v3_v3_v3_v3_14_0_0_split_99.root testL1Scouting_v3_v3_v3_v3_v3_14_0_0_split_0.root"
 for file in $oldFiles; do
   inputfile=$(edmFileInPath DataFormats/L1Scouting/data/$file) || die "Failure edmFileInPath DataFormats/L1Scouting/data/$file" $?
-  cmsRun ${LOCAL_TEST_DIR}/read_L1Scouting_cfg.py --inputFile "$inputfile" --bmtfStubVersion 0 || die "Failed to read old file $file" $?
+  cmsRun ${LOCAL_TEST_DIR}/read_L1Scouting_cfg.py -i "$inputfile" --bmtfStubVersion 0 --caloTowerVersion 0 --fastJetVersion 0 || die "Failed to read old file $file" $?
 done
 
 # added BMTF input stubs data format
 oldFiles="testL1Scouting_v3_v3_v3_v3_v3_v3_14_1_0_pre5_split_99.root testL1Scouting_v3_v3_v3_v3_v3_v3_14_1_0_pre5_split_0.root"
 for file in $oldFiles; do
   inputfile=$(edmFileInPath DataFormats/L1Scouting/data/$file) || die "Failure edmFileInPath DataFormats/L1Scouting/data/$file" $?
-  cmsRun ${LOCAL_TEST_DIR}/read_L1Scouting_cfg.py --inputFile "$inputfile" --bmtfStubVersion 3 || die "Failed to read old file $file" $?
+  cmsRun ${LOCAL_TEST_DIR}/read_L1Scouting_cfg.py -i "$inputfile" --bmtfStubVersion 3 --caloTowerVersion 0 --fastJetVersion 0 || die "Failed to read old file $file" $?
 done
-
-exit 0

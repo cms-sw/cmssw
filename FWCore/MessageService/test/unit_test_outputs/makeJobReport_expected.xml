@@ -1,0 +1,68 @@
+<FrameworkJobReport>
+
+<InputFile>
+<State  Value="closed"/>
+<LFN>InputLFN</LFN>
+<PFN>InputPFN?with&amp;cgi=params</PFN>
+<Catalog>InputCatalog</Catalog>
+<ModuleLabel>InputLabel</ModuleLabel>
+<GUID>InputGUID</GUID>
+<Branches>
+  <Branch>Some_Input_Branch</Branch>
+  <Branch>Some_Input_Branch</Branch>
+  <Branch>Some_Input_Branch</Branch>
+  <Branch>Some_Input_Branch</Branch>
+  <Branch>Some_Input_Branch</Branch>
+  <Branch>Some_Input_Branch</Branch>
+  <Branch>Some_Input_Branch</Branch>
+  <Branch>Some_Input_Branch</Branch>
+  <Branch>Some_Input_Branch</Branch>
+  <Branch>Some_Input_Branch</Branch>
+</Branches>
+<InputType>InputType</InputType>
+<InputSourceClass>InputSource</InputSourceClass>
+<EventsRead>1000</EventsRead>
+<Runs>
+</Runs>
+</InputFile>
+
+<File>
+<State  Value="closed"/>
+<LFN>OutputLFN</LFN>
+<PFN>OutputPFN?with&amp;cgi=params</PFN>
+<Catalog>OutputCatalog</Catalog>
+<ModuleLabel>OutputModuleName</ModuleLabel>
+<GUID>OutputGUID</GUID>
+<Branches>
+  <Branch>Some_Output_Branch_Probably_From_HLT</Branch>
+  <Branch>Some_Output_Branch_Probably_From_HLT</Branch>
+  <Branch>Some_Output_Branch_Probably_From_HLT</Branch>
+  <Branch>Some_Output_Branch_Probably_From_HLT</Branch>
+  <Branch>Some_Output_Branch_Probably_From_HLT</Branch>
+  <Branch>Some_Output_Branch_Probably_From_HLT</Branch>
+  <Branch>Some_Output_Branch_Probably_From_HLT</Branch>
+  <Branch>Some_Output_Branch_Probably_From_HLT</Branch>
+  <Branch>Some_Output_Branch_Probably_From_HLT</Branch>
+  <Branch>Some_Output_Branch_Probably_From_HLT</Branch>
+</Branches>
+<OutputModuleClass>OutputModule</OutputModuleClass>
+<TotalEvents>1000</TotalEvents>
+
+<DataType>DataType</DataType>
+
+<BranchHash>OutputBranchesHash</BranchHash>
+
+<Runs>
+</Runs>
+
+<Inputs>
+<Input>
+  <LFN>InputLFN</LFN>
+  <PFN>InputPFN?with&amp;cgi=params</PFN>
+  <FastCopying>0</FastCopying>
+</Input>
+</Inputs>
+</File>
+<!--                                                            -->
+</FrameworkJobReport>
+

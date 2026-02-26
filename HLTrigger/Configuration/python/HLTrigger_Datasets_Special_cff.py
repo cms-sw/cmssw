@@ -124,7 +124,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.l1tResults = cms.InputTag('')
 streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.throw      = cms.bool(False)
-streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.triggerConditions = cms.vstring('HLT_TriggersForScoutingPFMonitor_SingleMuon_v1')
+streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.triggerConditions = cms.vstring('HLT_TriggersForScoutingPFMonitor_SingleMuon_v2')
 
 
 # stream PhysicsSpecialHLTPhysics0
@@ -315,7 +315,7 @@ streamPhysicsSpecialMinimumBias0_datasetSpecialMinimumBias0_selector.l1tResults 
 streamPhysicsSpecialMinimumBias0_datasetSpecialMinimumBias0_selector.throw      = cms.bool(False)
 streamPhysicsSpecialMinimumBias0_datasetSpecialMinimumBias0_selector.triggerConditions = cms.vstring(
     'HLT_L1MinimumBiasHF0ANDBptxAND_v1',
-    'HLT_PixelClusters_WP2_HighRate_v2'
+    'HLT_PixelClusters_WP2_HighRate_v3'
 )
 
 
@@ -327,7 +327,7 @@ streamPhysicsSpecialMinimumBias1_datasetSpecialMinimumBias1_selector.l1tResults 
 streamPhysicsSpecialMinimumBias1_datasetSpecialMinimumBias1_selector.throw      = cms.bool(False)
 streamPhysicsSpecialMinimumBias1_datasetSpecialMinimumBias1_selector.triggerConditions = cms.vstring(
     'HLT_L1MinimumBiasHF0ANDBptxAND_v1',
-    'HLT_PixelClusters_WP2_HighRate_v2'
+    'HLT_PixelClusters_WP2_HighRate_v3'
 )
 
 
@@ -339,7 +339,7 @@ streamPhysicsSpecialMinimumBias2_datasetSpecialMinimumBias2_selector.l1tResults 
 streamPhysicsSpecialMinimumBias2_datasetSpecialMinimumBias2_selector.throw      = cms.bool(False)
 streamPhysicsSpecialMinimumBias2_datasetSpecialMinimumBias2_selector.triggerConditions = cms.vstring(
     'HLT_L1MinimumBiasHF0ANDBptxAND_v1',
-    'HLT_PixelClusters_WP2_HighRate_v2'
+    'HLT_PixelClusters_WP2_HighRate_v3'
 )
 
 
@@ -351,7 +351,7 @@ streamPhysicsSpecialMinimumBias3_datasetSpecialMinimumBias3_selector.l1tResults 
 streamPhysicsSpecialMinimumBias3_datasetSpecialMinimumBias3_selector.throw      = cms.bool(False)
 streamPhysicsSpecialMinimumBias3_datasetSpecialMinimumBias3_selector.triggerConditions = cms.vstring(
     'HLT_L1MinimumBiasHF0ANDBptxAND_v1',
-    'HLT_PixelClusters_WP2_HighRate_v2'
+    'HLT_PixelClusters_WP2_HighRate_v3'
 )
 
 
@@ -1039,4 +1039,394 @@ streamPhysicsVRRandom7_datasetVRRandom15_selector.hltResults = cms.InputTag('Tri
 streamPhysicsVRRandom7_datasetVRRandom15_selector.l1tResults = cms.InputTag('')
 streamPhysicsVRRandom7_datasetVRRandom15_selector.throw      = cms.bool(False)
 streamPhysicsVRRandom7_datasetVRRandom15_selector.triggerConditions = cms.vstring('HLT_Random_HighRate_v1')
+
+
+# stream PhysicsVRZeroBias0
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias0_datasetVRZeroBias0_selector
+streamPhysicsVRZeroBias0_datasetVRZeroBias0_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias0_datasetVRZeroBias0_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias0_datasetVRZeroBias0_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias0_datasetVRZeroBias0_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias0_datasetVRZeroBias1_selector
+streamPhysicsVRZeroBias0_datasetVRZeroBias1_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias0_datasetVRZeroBias1_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias0_datasetVRZeroBias1_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias0_datasetVRZeroBias1_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias1
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias1_datasetVRZeroBias2_selector
+streamPhysicsVRZeroBias1_datasetVRZeroBias2_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias1_datasetVRZeroBias2_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias1_datasetVRZeroBias2_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias1_datasetVRZeroBias2_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias1_datasetVRZeroBias3_selector
+streamPhysicsVRZeroBias1_datasetVRZeroBias3_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias1_datasetVRZeroBias3_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias1_datasetVRZeroBias3_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias1_datasetVRZeroBias3_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias10
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias10_datasetVRZeroBias20_selector
+streamPhysicsVRZeroBias10_datasetVRZeroBias20_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias10_datasetVRZeroBias20_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias10_datasetVRZeroBias20_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias10_datasetVRZeroBias20_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias10_datasetVRZeroBias21_selector
+streamPhysicsVRZeroBias10_datasetVRZeroBias21_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias10_datasetVRZeroBias21_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias10_datasetVRZeroBias21_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias10_datasetVRZeroBias21_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias11
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias11_datasetVRZeroBias22_selector
+streamPhysicsVRZeroBias11_datasetVRZeroBias22_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias11_datasetVRZeroBias22_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias11_datasetVRZeroBias22_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias11_datasetVRZeroBias22_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias11_datasetVRZeroBias23_selector
+streamPhysicsVRZeroBias11_datasetVRZeroBias23_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias11_datasetVRZeroBias23_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias11_datasetVRZeroBias23_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias11_datasetVRZeroBias23_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias12
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias12_datasetVRZeroBias24_selector
+streamPhysicsVRZeroBias12_datasetVRZeroBias24_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias12_datasetVRZeroBias24_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias12_datasetVRZeroBias24_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias12_datasetVRZeroBias24_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias12_datasetVRZeroBias25_selector
+streamPhysicsVRZeroBias12_datasetVRZeroBias25_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias12_datasetVRZeroBias25_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias12_datasetVRZeroBias25_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias12_datasetVRZeroBias25_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias13
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias13_datasetVRZeroBias26_selector
+streamPhysicsVRZeroBias13_datasetVRZeroBias26_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias13_datasetVRZeroBias26_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias13_datasetVRZeroBias26_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias13_datasetVRZeroBias26_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias13_datasetVRZeroBias27_selector
+streamPhysicsVRZeroBias13_datasetVRZeroBias27_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias13_datasetVRZeroBias27_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias13_datasetVRZeroBias27_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias13_datasetVRZeroBias27_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias14
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias14_datasetVRZeroBias28_selector
+streamPhysicsVRZeroBias14_datasetVRZeroBias28_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias14_datasetVRZeroBias28_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias14_datasetVRZeroBias28_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias14_datasetVRZeroBias28_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias14_datasetVRZeroBias29_selector
+streamPhysicsVRZeroBias14_datasetVRZeroBias29_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias14_datasetVRZeroBias29_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias14_datasetVRZeroBias29_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias14_datasetVRZeroBias29_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias15
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias15_datasetVRZeroBias30_selector
+streamPhysicsVRZeroBias15_datasetVRZeroBias30_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias15_datasetVRZeroBias30_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias15_datasetVRZeroBias30_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias15_datasetVRZeroBias30_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias15_datasetVRZeroBias31_selector
+streamPhysicsVRZeroBias15_datasetVRZeroBias31_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias15_datasetVRZeroBias31_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias15_datasetVRZeroBias31_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias15_datasetVRZeroBias31_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias16
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias16_datasetVRZeroBias32_selector
+streamPhysicsVRZeroBias16_datasetVRZeroBias32_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias16_datasetVRZeroBias32_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias16_datasetVRZeroBias32_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias16_datasetVRZeroBias32_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias16_datasetVRZeroBias33_selector
+streamPhysicsVRZeroBias16_datasetVRZeroBias33_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias16_datasetVRZeroBias33_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias16_datasetVRZeroBias33_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias16_datasetVRZeroBias33_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias17
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias17_datasetVRZeroBias34_selector
+streamPhysicsVRZeroBias17_datasetVRZeroBias34_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias17_datasetVRZeroBias34_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias17_datasetVRZeroBias34_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias17_datasetVRZeroBias34_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias17_datasetVRZeroBias35_selector
+streamPhysicsVRZeroBias17_datasetVRZeroBias35_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias17_datasetVRZeroBias35_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias17_datasetVRZeroBias35_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias17_datasetVRZeroBias35_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias18
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias18_datasetVRZeroBias36_selector
+streamPhysicsVRZeroBias18_datasetVRZeroBias36_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias18_datasetVRZeroBias36_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias18_datasetVRZeroBias36_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias18_datasetVRZeroBias36_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias18_datasetVRZeroBias37_selector
+streamPhysicsVRZeroBias18_datasetVRZeroBias37_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias18_datasetVRZeroBias37_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias18_datasetVRZeroBias37_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias18_datasetVRZeroBias37_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias19
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias19_datasetVRZeroBias38_selector
+streamPhysicsVRZeroBias19_datasetVRZeroBias38_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias19_datasetVRZeroBias38_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias19_datasetVRZeroBias38_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias19_datasetVRZeroBias38_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias19_datasetVRZeroBias39_selector
+streamPhysicsVRZeroBias19_datasetVRZeroBias39_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias19_datasetVRZeroBias39_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias19_datasetVRZeroBias39_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias19_datasetVRZeroBias39_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias2
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias2_datasetVRZeroBias4_selector
+streamPhysicsVRZeroBias2_datasetVRZeroBias4_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias2_datasetVRZeroBias4_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias2_datasetVRZeroBias4_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias2_datasetVRZeroBias4_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias2_datasetVRZeroBias5_selector
+streamPhysicsVRZeroBias2_datasetVRZeroBias5_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias2_datasetVRZeroBias5_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias2_datasetVRZeroBias5_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias2_datasetVRZeroBias5_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias20
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias20_datasetVRZeroBias40_selector
+streamPhysicsVRZeroBias20_datasetVRZeroBias40_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias20_datasetVRZeroBias40_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias20_datasetVRZeroBias40_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias20_datasetVRZeroBias40_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias20_datasetVRZeroBias41_selector
+streamPhysicsVRZeroBias20_datasetVRZeroBias41_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias20_datasetVRZeroBias41_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias20_datasetVRZeroBias41_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias20_datasetVRZeroBias41_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias21
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias21_datasetVRZeroBias42_selector
+streamPhysicsVRZeroBias21_datasetVRZeroBias42_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias21_datasetVRZeroBias42_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias21_datasetVRZeroBias42_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias21_datasetVRZeroBias42_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias21_datasetVRZeroBias43_selector
+streamPhysicsVRZeroBias21_datasetVRZeroBias43_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias21_datasetVRZeroBias43_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias21_datasetVRZeroBias43_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias21_datasetVRZeroBias43_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias22
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias22_datasetVRZeroBias44_selector
+streamPhysicsVRZeroBias22_datasetVRZeroBias44_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias22_datasetVRZeroBias44_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias22_datasetVRZeroBias44_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias22_datasetVRZeroBias44_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias22_datasetVRZeroBias45_selector
+streamPhysicsVRZeroBias22_datasetVRZeroBias45_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias22_datasetVRZeroBias45_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias22_datasetVRZeroBias45_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias22_datasetVRZeroBias45_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias23
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias23_datasetVRZeroBias46_selector
+streamPhysicsVRZeroBias23_datasetVRZeroBias46_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias23_datasetVRZeroBias46_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias23_datasetVRZeroBias46_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias23_datasetVRZeroBias46_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias23_datasetVRZeroBias47_selector
+streamPhysicsVRZeroBias23_datasetVRZeroBias47_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias23_datasetVRZeroBias47_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias23_datasetVRZeroBias47_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias23_datasetVRZeroBias47_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias24
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias24_datasetVRZeroBias48_selector
+streamPhysicsVRZeroBias24_datasetVRZeroBias48_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias24_datasetVRZeroBias48_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias24_datasetVRZeroBias48_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias24_datasetVRZeroBias48_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias24_datasetVRZeroBias49_selector
+streamPhysicsVRZeroBias24_datasetVRZeroBias49_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias24_datasetVRZeroBias49_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias24_datasetVRZeroBias49_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias24_datasetVRZeroBias49_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias25
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias25_datasetVRZeroBias50_selector
+streamPhysicsVRZeroBias25_datasetVRZeroBias50_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias25_datasetVRZeroBias50_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias25_datasetVRZeroBias50_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias25_datasetVRZeroBias50_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias25_datasetVRZeroBias51_selector
+streamPhysicsVRZeroBias25_datasetVRZeroBias51_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias25_datasetVRZeroBias51_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias25_datasetVRZeroBias51_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias25_datasetVRZeroBias51_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias3
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias3_datasetVRZeroBias6_selector
+streamPhysicsVRZeroBias3_datasetVRZeroBias6_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias3_datasetVRZeroBias6_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias3_datasetVRZeroBias6_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias3_datasetVRZeroBias6_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias3_datasetVRZeroBias7_selector
+streamPhysicsVRZeroBias3_datasetVRZeroBias7_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias3_datasetVRZeroBias7_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias3_datasetVRZeroBias7_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias3_datasetVRZeroBias7_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias4
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias4_datasetVRZeroBias8_selector
+streamPhysicsVRZeroBias4_datasetVRZeroBias8_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias4_datasetVRZeroBias8_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias4_datasetVRZeroBias8_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias4_datasetVRZeroBias8_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias4_datasetVRZeroBias9_selector
+streamPhysicsVRZeroBias4_datasetVRZeroBias9_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias4_datasetVRZeroBias9_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias4_datasetVRZeroBias9_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias4_datasetVRZeroBias9_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias5
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias5_datasetVRZeroBias10_selector
+streamPhysicsVRZeroBias5_datasetVRZeroBias10_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias5_datasetVRZeroBias10_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias5_datasetVRZeroBias10_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias5_datasetVRZeroBias10_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias5_datasetVRZeroBias11_selector
+streamPhysicsVRZeroBias5_datasetVRZeroBias11_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias5_datasetVRZeroBias11_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias5_datasetVRZeroBias11_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias5_datasetVRZeroBias11_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias6
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias6_datasetVRZeroBias12_selector
+streamPhysicsVRZeroBias6_datasetVRZeroBias12_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias6_datasetVRZeroBias12_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias6_datasetVRZeroBias12_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias6_datasetVRZeroBias12_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias6_datasetVRZeroBias13_selector
+streamPhysicsVRZeroBias6_datasetVRZeroBias13_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias6_datasetVRZeroBias13_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias6_datasetVRZeroBias13_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias6_datasetVRZeroBias13_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias7
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias7_datasetVRZeroBias14_selector
+streamPhysicsVRZeroBias7_datasetVRZeroBias14_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias7_datasetVRZeroBias14_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias7_datasetVRZeroBias14_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias7_datasetVRZeroBias14_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias7_datasetVRZeroBias15_selector
+streamPhysicsVRZeroBias7_datasetVRZeroBias15_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias7_datasetVRZeroBias15_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias7_datasetVRZeroBias15_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias7_datasetVRZeroBias15_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias8
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias8_datasetVRZeroBias16_selector
+streamPhysicsVRZeroBias8_datasetVRZeroBias16_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias8_datasetVRZeroBias16_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias8_datasetVRZeroBias16_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias8_datasetVRZeroBias16_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias8_datasetVRZeroBias17_selector
+streamPhysicsVRZeroBias8_datasetVRZeroBias17_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias8_datasetVRZeroBias17_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias8_datasetVRZeroBias17_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias8_datasetVRZeroBias17_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+
+# stream PhysicsVRZeroBias9
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias9_datasetVRZeroBias18_selector
+streamPhysicsVRZeroBias9_datasetVRZeroBias18_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias9_datasetVRZeroBias18_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias9_datasetVRZeroBias18_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias9_datasetVRZeroBias18_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsVRZeroBias9_datasetVRZeroBias19_selector
+streamPhysicsVRZeroBias9_datasetVRZeroBias19_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsVRZeroBias9_datasetVRZeroBias19_selector.l1tResults = cms.InputTag('')
+streamPhysicsVRZeroBias9_datasetVRZeroBias19_selector.throw      = cms.bool(False)
+streamPhysicsVRZeroBias9_datasetVRZeroBias19_selector.triggerConditions = cms.vstring('HLT_ZeroBias_HighRate_v5')
 
