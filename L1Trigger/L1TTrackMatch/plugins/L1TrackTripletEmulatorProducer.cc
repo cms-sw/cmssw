@@ -319,20 +319,32 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
   }
 
   // Define sinh LUT indices
-  const l1ttripletemu::sinh_lut_index_t sinhIndex1 = (l1ttripletemu::sinh_lut_index_t)(
-      (std::abs((float)trk1.f_Eta)) / (2.5 / (1 << l1ttripletemu::kSinhLUTTableSize)) + 1);
-  const l1ttripletemu::sinh_lut_index_t sinhIndex2 = (l1ttripletemu::sinh_lut_index_t)(
-      (std::abs((float)trk2.f_Eta)) / (2.5 / (1 << l1ttripletemu::kSinhLUTTableSize)) + 1);
-  const l1ttripletemu::sinh_lut_index_t sinhIndex3 = (l1ttripletemu::sinh_lut_index_t)(
-      (std::abs((float)trk3.f_Eta)) / (2.5 / (1 << l1ttripletemu::kSinhLUTTableSize)) + 1);
+  const l1ttripletemu::sinh_lut_index_t sinhIndex1 =
+      (l1ttripletemu::sinh_lut_index_t)((std::abs((float)trk1.f_Eta)) /
+                                            (2.5 / (1 << l1ttripletemu::kSinhLUTTableSize)) +
+                                        1);
+  const l1ttripletemu::sinh_lut_index_t sinhIndex2 =
+      (l1ttripletemu::sinh_lut_index_t)((std::abs((float)trk2.f_Eta)) /
+                                            (2.5 / (1 << l1ttripletemu::kSinhLUTTableSize)) +
+                                        1);
+  const l1ttripletemu::sinh_lut_index_t sinhIndex3 =
+      (l1ttripletemu::sinh_lut_index_t)((std::abs((float)trk3.f_Eta)) /
+                                            (2.5 / (1 << l1ttripletemu::kSinhLUTTableSize)) +
+                                        1);
 
   // Define cosh LUT indices
-  const l1ttripletemu::cosh_lut_index_t coshIndex1 = (l1ttripletemu::cosh_lut_index_t)(
-      (std::abs((float)trk1.f_Eta)) / (2.5 / (1 << l1ttripletemu::kCoshLUTTableSize)) + 1);
-  const l1ttripletemu::cosh_lut_index_t coshIndex2 = (l1ttripletemu::cosh_lut_index_t)(
-      (std::abs((float)trk2.f_Eta)) / (2.5 / (1 << l1ttripletemu::kCoshLUTTableSize)) + 1);
-  const l1ttripletemu::cosh_lut_index_t coshIndex3 = (l1ttripletemu::cosh_lut_index_t)(
-      (std::abs((float)trk3.f_Eta)) / (2.5 / (1 << l1ttripletemu::kCoshLUTTableSize)) + 1);
+  const l1ttripletemu::cosh_lut_index_t coshIndex1 =
+      (l1ttripletemu::cosh_lut_index_t)((std::abs((float)trk1.f_Eta)) /
+                                            (2.5 / (1 << l1ttripletemu::kCoshLUTTableSize)) +
+                                        1);
+  const l1ttripletemu::cosh_lut_index_t coshIndex2 =
+      (l1ttripletemu::cosh_lut_index_t)((std::abs((float)trk2.f_Eta)) /
+                                            (2.5 / (1 << l1ttripletemu::kCoshLUTTableSize)) +
+                                        1);
+  const l1ttripletemu::cosh_lut_index_t coshIndex3 =
+      (l1ttripletemu::cosh_lut_index_t)((std::abs((float)trk3.f_Eta)) /
+                                            (2.5 / (1 << l1ttripletemu::kCoshLUTTableSize)) +
+                                        1);
 
   // Total track momenta
   l1ttripletemu::pxyz_t p1 = (l1ttripletemu::pxyz_t)trk1.f_Pt * coshLUT_[coshIndex1];
@@ -435,9 +447,10 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
   }
 
   // W mass calculation
-  f_tktriplet_mass_sq = (l1ttripletemu::tktriplet_mass_sq_t)(
-      (p1 + p2 + p3) * (p1 + p2 + p3) - (px1 + px2 + px3) * (px1 + px2 + px3) - (py1 + py2 + py3) * (py1 + py2 + py3) -
-      (pz1 + pz2 + pz3) * (pz1 + pz2 + pz3));
+  f_tktriplet_mass_sq =
+      (l1ttripletemu::tktriplet_mass_sq_t)((p1 + p2 + p3) * (p1 + p2 + p3) - (px1 + px2 + px3) * (px1 + px2 + px3) -
+                                           (py1 + py2 + py3) * (py1 + py2 + py3) -
+                                           (pz1 + pz2 + pz3) * (pz1 + pz2 + pz3));
 
   // track selection
   bool track1_pass = TrackSelector(trk1, PVz, trk1_pt_, trk1_eta_, trk1_mva_, trk1_dz_, trk1_nstub_);
