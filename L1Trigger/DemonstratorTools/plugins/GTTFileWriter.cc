@@ -232,7 +232,7 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   sumsData.insert(sumsData.end(), etMissData.at(0).begin(), etMissData.at(0).end());
 
   std::vector<ap_uint<64>> mesonsData;
-  
+
   std::vector<ap_uint<64>> tripletData;
   tripletData.insert(tripletData.end(), tripletsData.at(0).begin(), tripletsData.at(0).end());
   tripletData.insert(tripletData.end(), 36, 0);

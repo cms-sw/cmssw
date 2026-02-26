@@ -436,8 +436,8 @@ void L1TrackTripletEmulatorProducer::produce(Event &iEvent, const EventSetup &iS
 
   // W mass calculation
   f_tktriplet_mass_sq = (l1ttripletemu::tktriplet_mass_sq_t)(
-      (p1 + p2 + p3) * (p1 + p2 + p3) - (px1 + px2 + px3) * (px1 + px2 + px3) -
-      (py1 + py2 + py3) * (py1 + py2 + py3) - (pz1 + pz2 + pz3) * (pz1 + pz2 + pz3));
+      (p1 + p2 + p3) * (p1 + p2 + p3) - (px1 + px2 + px3) * (px1 + px2 + px3) - (py1 + py2 + py3) * (py1 + py2 + py3) -
+      (pz1 + pz2 + pz3) * (pz1 + pz2 + pz3));
 
   // track selection
   bool track1_pass = TrackSelector(trk1, PVz, trk1_pt_, trk1_eta_, trk1_mva_, trk1_dz_, trk1_nstub_);
