@@ -167,7 +167,7 @@ void TPFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     fastjet::PseudoJet psuedoJet(iterTP->px(), iterTP->py(), iterTP->pz(), iterTP->energy());
     JetInputs.push_back(psuedoJet);                // input tps for clustering
     JetInputs.back().set_user_index(this_tp - 1);  // save tp index in the collection
-  }                                                // end loop over tps
+  }  // end loop over tps
 
   fastjet::ClusterSequence cs(JetInputs, jet_def);  // define the output jet collection
   std::vector<fastjet::PseudoJet> JetOutputs =
