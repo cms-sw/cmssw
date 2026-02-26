@@ -5,26 +5,24 @@
 #include <typeinfo>
 #include <cxxabi.h>
 
-template <class T>
-std::string classNameFinder(std::string fName) {
-  int status2 = 0;
-  char *dm2 = abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, &status2);
-  std::string s2 = "failed demangle";
-  if (status2 == 0) {
-    s2 = std::string(dm2);
-  }
-  return (fName + std::string("< ") + s2 + std::string(" >"));
-}
+// Prints name of templated class
 
 template <class T>
 std::string templateNameFinder() {
-  int status2 = 0;
-  char *dm2 = abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, &status2);
-  std::string s2 = "failed demangle";
-  if (status2 == 0) {
-    s2 = std::string(dm2);
+  int status = 0;
+  char* dm = abi::__cxa_demangle(typeid(T).name(), nullptr, nullptr, &status);
+  std::string str = "failed demangle";
+  if (status == 0 && dm != nullptr) {
+    str = std::string(dm);
+    std::free(dm);
   }
-  return s2;
+  return str;
+}
+
+template <class T>
+std::string classNameFinder(const std::string& fName) {
+  const std::string str = templateNameFinder<T>();
+  return (fName + std::string("< ") + str + std::string(" >"));
 }
 
 #endif

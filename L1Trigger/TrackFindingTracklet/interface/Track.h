@@ -32,8 +32,8 @@ namespace trklet {
 
     void setDuplicate(bool flag) { duplicate_ = flag; }
     void setSector(int nsec) { sector_ = nsec; }
-    void setStubIDpremerge(std::vector<std::pair<int, int>> stubIDpremerge) { stubIDpremerge_ = stubIDpremerge; }
-    void setStubIDprefit(std::vector<std::pair<int, int>> stubIDprefit) { stubIDprefit_ = stubIDprefit; }
+    void setStubIDpremerge(const std::vector<std::pair<int, int>>& stubIDpremerge) { stubIDpremerge_ = stubIDpremerge; }
+    void setStubIDprefit(const std::vector<std::pair<int, int>>& stubIDprefit) { stubIDprefit_ = stubIDprefit; }
 
     const TrackPars<int>& pars() const { return ipars_; }
 
