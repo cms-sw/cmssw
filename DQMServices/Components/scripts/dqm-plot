@@ -315,9 +315,9 @@ class DQMPlotter:
         if len(wrapped_labels) > 10:
             legend_fontsize = "18"
 
-        legend_title_fontsize = "24"
+        legend_title_fontsize = "18"
         if legend_title and len(legend_title) > 30:
-            legend_title_fontsize = "20"
+            legend_title_fontsize = "16"
 
         if place_outside:
             y_min, y_max = ax.get_ylim()
@@ -336,7 +336,7 @@ class DQMPlotter:
             )
             return
 
-        legend_padding = 0.5 if len(wrapped_labels) <= 2 else np.ceil(len(wrapped_labels) / 2) * 0.25
+        legend_padding = 0.05 if len(wrapped_labels) <= 3 else np.ceil(len(wrapped_labels) / 2) * 0.025
         legend_padding = min(legend_padding, 2.0)
         if logy or ax.get_yscale() == "log":
             legend_padding *= 50
@@ -700,6 +700,7 @@ class DQMPlotter:
         plot_histograms=False,
         do_ratio=True,
         save_as_pdf=False,
+        legend_title=None,
         legend_outside=False,
         overlay_groups=None,
     ):
@@ -718,6 +719,7 @@ class DQMPlotter:
             grid: Whether to show grid on both main and ratio plots
             plot_histograms: Whether to plot histograms instead of individual bin points with errors
             pdf: Whether to save as PDF in addition to PNG
+            legend_title: Title of the legend. If not present it uses the legend labels.
             legend_outside: Force legend to be placed outside the plot area
             overlay_groups: List of pattern groups to overlay
         """
@@ -726,8 +728,7 @@ class DQMPlotter:
 
         title, xlabel, ylabel = self.extract_labels_from_hist(histograms[0])
 
-        legend_title = None
-        if hasattr(self, "_current_output_path"):
+        if legend_title is None and hasattr(self, "_current_output_path"):
             output_parts = self._current_output_path.replace("\\", "/").split("/")
             if len(output_parts) > 1:
                 # Get the parent directory name (second to last part)
@@ -1252,6 +1253,10 @@ if __name__ == "__main__":
     parser.add_argument(
         "-l", "--legend", help="Comma-separated list of legend entries for each file. Use \\n for explicit line breaks."
     )
+    parser.add_argument(
+        "--legend_title", default=None,
+        help="Title of the legend. If not present it uses the legend labels."
+    )
     parser.add_argument("-o", "--output-dir", default="plots", help="Output directory")
     parser.add_argument("--logy", action="store_true", help="Use log scale for y-axis")
     parser.add_argument("--normalize", action="store_true", help="Normalize histograms")
@@ -1350,6 +1355,7 @@ if __name__ == "__main__":
         save_as_pdf=args.pdf,
         more_files=args.more_files,
         create_web_index=args.web,
+        legend_title=args.legend_title,
         legend_outside=args.legend_outside,
         overlay_groups=overlay_groups,
         overlay_individual=not args.no_overlay_individual,
