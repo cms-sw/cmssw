@@ -11,55 +11,56 @@
 
 
 */
+namespace io_v1 {
+  class EcalEBTriggerPrimitiveDigi {
+  public:
+    typedef EBDetId key_type;  ///< For the sorted collection
 
-class EcalEBTriggerPrimitiveDigi {
-public:
-  typedef EBDetId key_type;  ///< For the sorted collection
+    EcalEBTriggerPrimitiveDigi();  // for persistence
+    EcalEBTriggerPrimitiveDigi(const EBDetId& id);
 
-  EcalEBTriggerPrimitiveDigi();  // for persistence
-  EcalEBTriggerPrimitiveDigi(const EBDetId& id);
+    void swap(EcalEBTriggerPrimitiveDigi& rh) {
+      std::swap(id_, rh.id_);
+      std::swap(size_, rh.size_);
+      std::swap(data_, rh.data_);
+    }
 
-  void swap(EcalEBTriggerPrimitiveDigi& rh) {
-    std::swap(id_, rh.id_);
-    std::swap(size_, rh.size_);
-    std::swap(data_, rh.data_);
-  }
+    const EBDetId& id() const { return id_; }
+    int size() const { return size_; }
 
-  const EBDetId& id() const { return id_; }
-  int size() const { return size_; }
+    const EcalEBTriggerPrimitiveSample& operator[](int i) const { return data_[i]; }
+    const EcalEBTriggerPrimitiveSample& sample(int i) const { return data_[i]; }
 
-  const EcalEBTriggerPrimitiveSample& operator[](int i) const { return data_[i]; }
-  const EcalEBTriggerPrimitiveSample& sample(int i) const { return data_[i]; }
+    void setSize(int size);
+    void setSample(int i, const EcalEBTriggerPrimitiveSample& sam);
+    void setSampleValue(int i, uint16_t value) { data_[i].setValue(value); }
 
-  void setSize(int size);
-  void setSample(int i, const EcalEBTriggerPrimitiveSample& sam);
-  void setSampleValue(int i, uint16_t value) { data_[i].setValue(value); }
+    static const int MAXSAMPLES = 20;
 
-  static const int MAXSAMPLES = 20;
+    /// get the 10 bits Et of interesting sample
+    int encodedEt() const;
 
-  /// get the 10 bits Et of interesting sample
-  int encodedEt() const;
+    /// Spike flag
+    bool l1aSpike() const;
 
-  /// Spike flag
-  bool l1aSpike() const;
+    /// Time info
+    int time() const;
 
-  /// Time info
-  int time() const;
+    /// True if debug mode (# of samples > 1)
+    bool isDebug() const;
 
-  /// True if debug mode (# of samples > 1)
-  bool isDebug() const;
+    /// Gets the interesting sample
+    int sampleOfInterest() const;
 
-  /// Gets the interesting sample
-  int sampleOfInterest() const;
+  private:
+    EBDetId id_;
+    int size_;
+    std::vector<EcalEBTriggerPrimitiveSample> data_;
+  };
 
-private:
-  EBDetId id_;
-  int size_;
-  std::vector<EcalEBTriggerPrimitiveSample> data_;
-};
+  inline void swap(EcalEBTriggerPrimitiveDigi& lh, EcalEBTriggerPrimitiveDigi& rh) { lh.swap(rh); }
 
-inline void swap(EcalEBTriggerPrimitiveDigi& lh, EcalEBTriggerPrimitiveDigi& rh) { lh.swap(rh); }
-
-std::ostream& operator<<(std::ostream& s, const EcalEBTriggerPrimitiveDigi& digi);
-
+  std::ostream& operator<<(std::ostream& s, const EcalEBTriggerPrimitiveDigi& digi);
+}  // namespace io_v1
+using EcalEBTriggerPrimitiveDigi = io_v1::EcalEBTriggerPrimitiveDigi;
 #endif

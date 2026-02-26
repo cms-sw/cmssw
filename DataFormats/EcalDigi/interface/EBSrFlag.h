@@ -10,37 +10,40 @@
 /** This class holds a Selective Readout Flag (SRF) associated to an
  * ECAL barrel trigger tower.
  */
-class EBSrFlag : public EcalSrFlag {
-public:
-  typedef EcalTrigTowerDetId key_type;  //key for edm::SortedCollection
+namespace io_v1 {
+  class EBSrFlag : public EcalSrFlag {
+  public:
+    typedef EcalTrigTowerDetId key_type;  //key for edm::SortedCollection
 
-public:
-  /** Default constructor.
+  public:
+    /** Default constructor.
    */
-  EBSrFlag() {}
+    EBSrFlag() {}
 
-  /** Constructor
+    /** Constructor
    * @param tt trigger tower det id.
    * @param flag the srp flag, an integer in [0,7]. See constants SRF_xxx in EcalSrFlags class.
    */
-  EBSrFlag(const EcalTrigTowerDetId& tt, const int& flag) : ttId_(tt) {
-    //SRP flag is coded on 3 bits:
-    if (flag < 0 || flag > 0x7)
-      throw cms::Exception("InvalidValue", "srp flag greater than 0x7 or negative.");
-    flag_ = (unsigned char)flag;
-  }
+    EBSrFlag(const EcalTrigTowerDetId& tt, const int& flag) : ttId_(tt) {
+      //SRP flag is coded on 3 bits:
+      if (flag < 0 || flag > 0x7)
+        throw cms::Exception("InvalidValue", "srp flag greater than 0x7 or negative.");
+      flag_ = (unsigned char)flag;
+    }
 
-  /** For edm::SortedCollection.
+    /** For edm::SortedCollection.
    * @return det id of the trigger tower the flag is assigned to.
    */
-  const EcalTrigTowerDetId& id() const override { return ttId_; }
+    const EcalTrigTowerDetId& id() const override { return ttId_; }
 
-private:
-  /** trigger tower id
+  private:
+    /** trigger tower id
    */
-  EcalTrigTowerDetId ttId_;
-};
+    EcalTrigTowerDetId ttId_;
+  };
 
-std::ostream& operator<<(std::ostream& s, const EBSrFlag& digi);
+  std::ostream& operator<<(std::ostream& s, const EBSrFlag& digi);
+}  // namespace io_v1
+using EBSrFlag = io_v1::EBSrFlag;
 
 #endif  //EBSRFLAG_H not defined
