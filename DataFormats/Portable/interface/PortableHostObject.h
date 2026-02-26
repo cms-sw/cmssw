@@ -124,6 +124,13 @@ namespace ngt {
     // This specialisation requires a initialize() method, but does not need to pass any parameters to it.
     using Properties = void;
 
+    template <typename TQueue>
+      requires(alpaka::isQueue<TQueue>)
+    static void initialize(TQueue& queue, PortableHostObject<T>& object) {
+      // replace the default-constructed empty object with one where the buffer has been allocated in pageable system memory
+      object = PortableHostObject<T>(queue);
+    }
+
     static void initialize(PortableHostObject<T>& object) {
       // Replace the default-constructed empty object with one where the buffer has been allocated in pageable system memory.
       object = PortableHostObject<T>(cms::alpakatools::host());

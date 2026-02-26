@@ -12,6 +12,7 @@
 
 #include "DataFormats/Common/interface/Uninitialized.h"
 #include "DataFormats/Portable/interface/PortableCollectionCommon.h"
+#include "DataFormats/TrivialSerialisation/interface/MemoryCopyTraits.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 
@@ -158,5 +159,38 @@ private:
   Layout layout_;                 //
   View view_;                     //!
 };
+
+namespace ngt {
+
+  // Specialize MemoryCopyTraits for PortableDeviceCollection
+  template <typename T, typename TDev>
+  struct MemoryCopyTraits<PortableDeviceCollection<T, TDev>> {
+    using value_type = PortableDeviceCollection<T, TDev>;
+
+    // Properties are the collection size: T::size_type, or std::array<T::size_type, N> for SoABlocks.
+    using Properties = decltype(std::declval<value_type>()->metadata().size());
+
+    static Properties properties(value_type const& object) { return object->metadata().size(); }
+
+    template <typename TQueue>
+    static void initialize(TQueue& queue, value_type& object, Properties const& size)
+      requires(alpaka::isQueue<TQueue>)
+    {
+      object = value_type(queue, size);
+    }
+
+    static std::vector<std::span<std::byte>> regions(value_type& object) {
+      std::byte* address = reinterpret_cast<std::byte*>(object.buffer().data());
+      size_t size = alpaka::getExtentProduct(object.buffer());
+      return {{address, size}};
+    }
+
+    static std::vector<std::span<const std::byte>> regions(value_type const& object) {
+      const std::byte* address = reinterpret_cast<const std::byte*>(object.buffer().data());
+      size_t size = alpaka::getExtentProduct(object.buffer());
+      return {{address, size}};
+    }
+  };
+}  // namespace ngt
 
 #endif  // DataFormats_Portable_interface_PortableDeviceCollection_h

@@ -1,7 +1,11 @@
+<use name="alpaka"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/TrivialSerialisation"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Utilities"/>
+<use name="HeterogeneousCore/AlpakaCore"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="1"/>
 <export>
   <lib name="1"/>
 </export>
