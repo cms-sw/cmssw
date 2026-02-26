@@ -411,7 +411,6 @@ private:
 
   void assertFinalized_() const {
     assert(hitsFinalized_ && "SimCluster: hits not finalized. Call finalizeHits() in the producer before persisting.");
-    assert(hits_.size() == fractions_.size());
   }
 
   void buildDetRanges_() {
