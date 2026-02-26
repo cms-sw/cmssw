@@ -1127,13 +1127,23 @@ class DQMPlotter:
             return
 
         n_index = 0
-        for root, dirs, files in os.walk(output_dir):
-            index_php_path = os.path.join(root, "index.php")
-            with open(index_php_path, "w", encoding="utf-8") as f:
-                f.write(index_php_content)
-            n_index += 1
-        print(f"Created index.php files in {n_index} directories for web viewing")
 
+        # Walk up the directory tree (only of "/www/" is present)
+        current_dir = output_dir
+        while True:
+            parent_dir = os.path.dirname(current_dir)
+            if parent_dir == current_dir or "/www/" not in parent_dir:
+                break
+            self._write_php_index(index_php_content, parent_dir)
+            current_dir = parent_dir          
+
+        # Walk down the directory tree
+        for root, dirs, files in os.walk(output_dir):
+            self._write_php_index(index_php_content, root)
+            n_index += 1
+
+        print(f"Created index.php files in {n_index} directories for web viewing")
+            
     def _process_files(self, plot_tasks):
         """Process plotting tasks using multiprocessing."""
         print(f"Using {self.processors} parallel processes")
@@ -1172,6 +1182,12 @@ class DQMPlotter:
             if failed > 0:
                 print(f"\n{failed} tasks failed out of {len(plot_tasks)} total")
         print()
+
+    def _write_php_index(self, content, path):
+        """Write the content of the index.php file to a path."""
+        index_php_path = os.path.join(path, "index.php")
+        with open(index_php_path, "w", encoding="utf-8") as f:
+            f.write(content)
 
 def process_histogram_task(task):
     """Process a single histogram task in a separate process."""
