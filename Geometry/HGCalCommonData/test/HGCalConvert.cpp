@@ -130,7 +130,7 @@ struct tileZone {
 };
 
 std::vector<std::string> splitString(const std::string& fLine);
-co class ConvertSiliconV0 {
+class ConvertSiliconV0 {
 public:
   ConvertSiliconV0(int layMax1 = 28, int layMax2 = 36);
   void convert(const char* infile,
