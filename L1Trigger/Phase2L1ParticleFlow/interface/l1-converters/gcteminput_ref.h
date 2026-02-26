@@ -35,7 +35,6 @@ namespace l1ct {
     l1ct::EmCaloObjEmu decode(const l1ct::PFRegionEmu &sector, const ap_uint<64> &in) const;
 
   private:
-
     // tools for GCT clusters
     l1tpf::corrector corrector_;
     l1tpf::ParametricResolution resol_;

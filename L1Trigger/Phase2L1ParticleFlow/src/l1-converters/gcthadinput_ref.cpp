@@ -23,7 +23,7 @@ l1ct::HadCaloObjEmu l1ct::GctHadClusterDecoderEmulator::decode(const l1ct::PFReg
 
   l1ct::HadCaloObjEmu calo;
   calo.clear();
-  calo.hwPt = inclus.pt() * inclus.ptLSB();                                     // the LSB for GCT objects
+  calo.hwPt = inclus.pt() * inclus.ptLSB();                                      // the LSB for GCT objects
   calo.hwEta = l1ct::Scales::makeGlbEta(inclus.eta() * ETA_LSB + ETA_LSB / 2.);  // at this point eta is abs(globalEta)
   calo.hwPhi = l1ct::Scales::makePhi(inclus.phi() * PHI_LSB + (PHI_LSB / 2));    // This is already in the local frame
 

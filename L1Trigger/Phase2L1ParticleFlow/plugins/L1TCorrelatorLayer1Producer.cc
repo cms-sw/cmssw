@@ -31,7 +31,7 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/multififo_regionizer_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/buffered_folded_multififo_regionizer_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/middle_buffer_multififo_regionizer_ref.h"
-#include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/tdr_alt_regionizer_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/tdr_regionizer_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/pf/pfalgo2hgc_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/pf/pfalgo3_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/pf/pfalgo_dummy_ref.h"
@@ -53,7 +53,6 @@
 #include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedCaloToCorrelatorTMI18.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
-
 
 //--------------------------------------------------------------------------------------------------
 class L1TCorrelatorLayer1Producer : public edm::stream::EDProducer<> {
@@ -296,7 +295,7 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
     gctHadInput_ = std::make_unique<l1ct::GctHadClusterDecoderEmulator>(
         iConfig.getParameter<edm::ParameterSet>("gctHadInputConversionParameters"));
   } else if (!hadClusters.label().empty() && gctHadInAlgo == "Ideal") {
-      hadGCTCands_ = consumes<l1t::PFClusterCollection>(hadClusters);
+    hadGCTCands_ = consumes<l1t::PFClusterCollection>(hadClusters);
   } else if (gctHadInAlgo != "None") {
     throw cms::Exception("Configuration", "Unsupported gctHadInputConversionAlgo");
   }
@@ -319,7 +318,7 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
     regionizer_ = std::make_unique<l1ct::MiddleBufferMultififoRegionizerEmulator>(
         iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters"));
   } else if (regalgo == "TDR") {
-    regionizer_ = std::make_unique<l1ct::TDRAltRegionizerEmulator>(
+    regionizer_ = std::make_unique<l1ct::TDRRegionizerEmulator>(
         iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters"));
   } else
     throw cms::Exception("Configuration", "Unsupported regionizerAlgo");
@@ -421,7 +420,7 @@ void L1TCorrelatorLayer1Producer::fillDescriptions(edm::ConfigurationDescription
                    "Emulator" >> getParDesc<l1ct::GctHadClusterDecoderEmulator>("gctHadInputConversion"));
   // Regionizer
   auto idealRegPD = getParDesc<l1ct::RegionizerEmulator>("regionizerAlgo");
-  auto tdrRegPD = getParDesc<l1ct::TDRAltRegionizerEmulator>("regionizerAlgo");
+  auto tdrRegPD = getParDesc<l1ct::TDRRegionizerEmulator>("regionizerAlgo");
   auto multififoRegPD = getParDesc<l1ct::MultififoRegionizerEmulator>("regionizerAlgo");
   auto bfMultififoRegPD = getParDesc<l1ct::BufferedFoldedMultififoRegionizerEmulator>("regionizerAlgo");
   auto multififoBarrelRegPD = edm::ParameterDescription<edm::ParameterSetDescription>(
@@ -885,7 +884,6 @@ void L1TCorrelatorLayer1Producer::initSectorsAndRegions(const edm::ParameterSet 
     }
   }
 
-
   for (const edm::ParameterSet &preg : iConfig.getParameter<edm::VParameterSet>("rawGCTSectors")) {
     std::vector<double> etaBoundaries = preg.getParameter<std::vector<double>>("etaBoundaries");
     if (!std::is_sorted(etaBoundaries.begin(), etaBoundaries.end()))
@@ -1021,25 +1019,25 @@ void L1TCorrelatorLayer1Producer::addHGCalHadCalo(const l1t::HGCalMulticluster &
 
 unsigned int L1TCorrelatorLayer1Producer::emDecodedIndex(unsigned int linkidx, unsigned int entidx) const {
   if (entidx < 17) {
-    return 2*linkidx + 6;
+    return 2 * linkidx + 6;
   } else if (entidx < 81) {
-    return 2*linkidx;
+    return 2 * linkidx;
   } else if (entidx < 98) {
-    return 2*linkidx + 7;
+    return 2 * linkidx + 7;
   } else {
-    return 2*linkidx + 1;
+    return 2 * linkidx + 1;
   }
 }
 
 unsigned int L1TCorrelatorLayer1Producer::hadDecodedIndex(unsigned int linkidx, unsigned int entidx) const {
   if (entidx < 57) {
-    return 2*linkidx + 6;
+    return 2 * linkidx + 6;
   } else if (entidx < 81) {
-    return 2*linkidx;
+    return 2 * linkidx;
   } else if (entidx < 138) {
-    return 2*linkidx + 7;
+    return 2 * linkidx + 7;
   } else {
-    return 2*linkidx + 1;
+    return 2 * linkidx + 1;
   }
 }
 
@@ -1053,7 +1051,7 @@ void L1TCorrelatorLayer1Producer::addGCTCaloRaw(const l1tp2::GCTDigiClusterLink 
       auto decidx = emDecodedIndex(linkidx, entidx);
       addDecodedGCTEmCalo(event_.decoded.emcalo[decidx], *p);
     }
-  } else if (auto p = std::get_if<l1tp2::GCTHadDigiCluster>(&  link[entidx])) {
+  } else if (auto p = std::get_if<l1tp2::GCTHadDigiCluster>(&link[entidx])) {
     // Only do this if using Emulated GCT input, not Ideal.
     if (hadGCTCands_.isUninitialized()) {
       event_.raw.gctcluster[linkidx].obj.push_back(p->data());

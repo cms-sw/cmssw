@@ -43,7 +43,7 @@ L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const
       configTimeSlices(iConfig, "gct", eventTemplate.raw.gctcluster.size(), gctTimeslices_, gctEmLinksFactor_);
       gctNumberOfObjects_ = iConfig.getParameter<uint32_t>("gctNumberOfObjects");
       channelSpecsInput_["gct"] = {tmuxFactor_ * gctTimeslices_,
-                                     gctTimeslices_ * nInputFramesPerBX_ * tmuxFactor_ - gctNumberOfObjects_};
+                                   gctTimeslices_ * nInputFramesPerBX_ * tmuxFactor_ - gctNumberOfObjects_};
     }
     if (partition_ == Partition::HGCal || partition_ == Partition::HGCalNoTk) {
       configTimeSlices(iConfig, "hgc", eventTemplate.raw.hgcalcluster.size(), hgcTimeslices_, hgcLinksFactor_);
@@ -194,8 +194,8 @@ edm::ParameterSetDescription L1TCorrelatorLayer1PatternFileWriter::getParameterS
   description.add<uint32_t>("nPFOutMuon", 0);
 
   description.ifValue(edm::ParameterDescription<std::string>("partition", "Barrel", true),
-                      "Barrel" >> (describeTF() and describeGCT() and describeGTT() and
-                                   describeGMT() and describePuppi() and describeEG()) or
+                      "Barrel" >> (describeTF() and describeGCT() and describeGTT() and describeGMT() and
+                                   describePuppi() and describeEG()) or
                           "HGCal" >> (describeTF() and describeHGC() and describeGTT() and describeGMT() and
                                       describePuppi() and describeEG()) or
                           "HGCalNoTk" >> (describeHGC() and describeGMT() and describePuppi()) or

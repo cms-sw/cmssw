@@ -19,7 +19,6 @@ namespace l1tp2 {
     // Constants
     static constexpr float LSB_PT = 0.5;  // 0.5 GeV
 
-
 #ifdef CMSSW_GIT_HASH
     // Reference to the original float cluster
     edm::Ref<l1tp2::CaloCrystalClusterCollection> clusterRef_;
