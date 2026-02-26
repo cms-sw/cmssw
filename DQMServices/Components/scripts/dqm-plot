@@ -548,17 +548,19 @@ class DQMPlotter:
 
         return result
 
-    def find_histograms_in_file(self, root_file, pattern):
+    def find_histograms_in_file(self, root_file, pattern, full_pattern=False):
         """
         Find all histogram paths matching a regex pattern in a ROOT file.
-
+        
         Args:
-            root_file: Open ROOT file
-            pattern: Regex pattern to match histogram paths
+            root_file: opened ROOT file
+            pattern: regex pattern to match histogram paths
+            full_pattern: boolean specifying whether the provided pattern contains the full directory structure (faster)
 
         Returns:
             list: List of histogram paths that match the pattern
         """
+        regex = re.compile(pattern)
 
         def traverse_directory(directory, current_path=""):
             """Recursively traverse ROOT file directory structure."""
@@ -568,13 +570,12 @@ class DQMPlotter:
                 obj_path = f"{current_path}/{obj_name}" if current_path else obj_name
 
                 obj = key.ReadObj()
-                if obj.InheritsFrom("TDirectory"):
+                if (obj_path in pattern or not full_pattern) and obj.InheritsFrom("TDirectory"):
                     hist_paths.extend(traverse_directory(obj, obj_path))
                 # Skip 2D histograms
                 elif obj.InheritsFrom("TH1") and not obj.InheritsFrom("TH2"):
-                    if re.search(pattern, obj_path):
+                    if regex.search(obj_path):
                         hist_paths.append(obj_path)
-
             return hist_paths
 
         return traverse_directory(root_file)
@@ -890,6 +891,7 @@ class DQMPlotter:
         create_web_index=False,
         overlay_groups=None,
         overlay_individual=True,
+        require_full_pattern=False,
         **plot_kwargs,
     ):
         """
@@ -950,7 +952,7 @@ class DQMPlotter:
 
                 total_for_file = 0
                 for pat in patterns:
-                    file_hists = self.find_histograms_in_file(root_file, pat)
+                    file_hists = self.find_histograms_in_file(root_file, pat, require_full_pattern)
                     total_for_file += len(file_hists)
                     all_matching_hists.update(file_hists)
                     for hp in file_hists:
@@ -1314,6 +1316,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Disable creation of individual plots for collections that are overlaid (default: create both overlay and individual plots)",
     )
+    parser.add_argument(
+        "--require_full_sources",
+        action="store_true",
+        help="Requires source containing the full directory structure of the DQM file. Example: `-s DQMData/Run 1/HLT/Run summary/ParticleFlow/MatchByScore/PFClusterValidation/SimClustersEn` works, but `-s PFClusterValidation/SimClustersEn` does not, assuming the base diretory is `DQMData`. If the sources are provided in full, this options accelerates the script by scanning only the directories appearing in the sources.",
+    )
 
     args = parser.parse_args()
 
@@ -1345,4 +1352,5 @@ if __name__ == "__main__":
         legend_outside=args.legend_outside,
         overlay_groups=overlay_groups,
         overlay_individual=not args.no_overlay_individual,
+        require_full_pattern=args.require_full_sources,
     )
