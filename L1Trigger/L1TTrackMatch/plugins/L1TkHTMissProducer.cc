@@ -144,7 +144,7 @@ void L1TkHTMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
           foundVtx = true;
         }
       }  //end loop over jets
-    }  //endif z position from leading jet
+    }    //endif z position from leading jet
 
     float sumPx_calo = 0;
     float sumPy_calo = 0;

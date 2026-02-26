@@ -217,8 +217,8 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
           epbins[i][j].trackidx.push_back(k);
           ++epbins[i][j].ntracks;
         }  // for each etabin
-      }  // for each phibin
-    }  //end loop over tracks
+      }    // for each phibin
+    }      //end loop over tracks
 
     // cluster tracks in eta (first layer) using grid
     for (int phibin = 0; phibin < phiBins_; ++phibin) {

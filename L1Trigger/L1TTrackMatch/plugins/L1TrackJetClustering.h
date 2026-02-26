@@ -287,7 +287,7 @@ namespace l1ttrackjet {
         clusters.erase(clusters.begin() + nclust);
         nclust--;
       }  // end if for cluster merging
-    }  // end for (m) loop
+    }    // end for (m) loop
 
     return clusters;
   }
@@ -420,7 +420,7 @@ namespace l1ttrackjet {
             L1clusters[phibin + 2][iused].used = true;
         }
       }  // for each L1 cluster
-    }  // for each phibin
+    }    // for each phibin
 
     int nclust = clusters.size();
 
@@ -445,7 +445,7 @@ namespace l1ttrackjet {
 
         nclust--;
       }  // end of n-loop
-    }  // end of m-loop
+    }    // end of m-loop
     return clusters;
   }
 }  // namespace l1ttrackjet

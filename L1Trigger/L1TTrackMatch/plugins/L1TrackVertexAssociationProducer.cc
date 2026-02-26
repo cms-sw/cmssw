@@ -559,9 +559,9 @@ void L1TrackVertexAssociationProducer::produce(edm::StreamID, edm::Event& iEvent
         if (passLinkLimitEmu && passSelectionEmu && deltaZSelEmu(track, l1VerticesEmulationHandle->at(0))) {
           vTTTrackAssociatedEmulationOutput->push_back(TTTrackRef(l1TracksHandle, i));
         }  //end block for satisfying LinkLimitEmu and SelectionEmu criteria
-      }  //end if use track association NN
-    }  //end if (processEmulatedTracks_)
-  }  //end loop over input converted tracks
+      }    //end if use track association NN
+    }      //end if (processEmulatedTracks_)
+  }        //end loop over input converted tracks
 
   if (processSimulatedTracks_ && processEmulatedTracks_ && debug_ >= 2) {
     printDebugInfo(l1SelectedTracksHandle,

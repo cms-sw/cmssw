@@ -168,7 +168,7 @@ void L1TruthTrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSe
                                  iterL1Track->momentum().mag());
     JetInputs.push_back(psuedoJet);                     // input tracks for clustering
     JetInputs.back().set_user_index(this_l1track - 1);  // save track index in the collection
-  }  // end loop over tracks
+  }                                                     // end loop over tracks
 
   fastjet::ClusterSequence cs(JetInputs, jet_def);  // define the output jet collection
   std::vector<fastjet::PseudoJet> JetOutputs =

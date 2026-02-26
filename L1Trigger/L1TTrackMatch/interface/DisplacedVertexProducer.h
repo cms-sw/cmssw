@@ -81,8 +81,8 @@ public:
     bendchi2 = bendchi2_in;
     MVA1 = MVA1_in;
   }
-  Track_Parameters() {};
-  ~Track_Parameters() {};
+  Track_Parameters(){};
+  ~Track_Parameters(){};
 };
 
 inline std::valarray<float> calcPVec(Track_Parameters a, double_t v_x, double_t v_y) {
@@ -140,8 +140,8 @@ public:
     delta_z = fabs(a_in.trackZAtVertex(x_dv_in, y_dv_in) - b_in.trackZAtVertex(x_dv_in, y_dv_in));
   }
 
-  Vertex_Parameters() {};
-  ~Vertex_Parameters() {};
+  Vertex_Parameters(){};
+  ~Vertex_Parameters(){};
 };
 
 class DisplacedVertexProducer : public edm::global::EDProducer<> {
