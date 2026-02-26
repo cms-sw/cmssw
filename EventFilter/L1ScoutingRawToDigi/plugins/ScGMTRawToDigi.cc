@@ -1,4 +1,5 @@
 #include "EventFilter/L1ScoutingRawToDigi/plugins/ScGMTRawToDigi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ScGMTRawToDigi::ScGMTRawToDigi(const edm::ParameterSet& iConfig) {
   srcInputTag = iConfig.getParameter<edm::InputTag>("srcInputTag");
@@ -142,16 +143,15 @@ void ScGMTRawToDigi::unpackOrbit(const unsigned char* buf, size_t len) {
 
       orbitBuffer_[bx].push_back(muon);
 
-      if (edm::MessageDrop::instance()->debugEnabled) {
-        std::ostringstream os;
-        LogDebug("L1Scout") << "--- Muon " << i << " ---\n"
-                            << "  Raw f:     0x" << std::hex << bl->mu[i].f << std::dec << "\n"
-                            << "  Raw s:     0x" << std::hex << bl->mu[i].s << std::dec << "\n"
-                            << "  Raw extra: 0x" << std::hex << bl->mu[i].extra << std::dec << "\n";
-        printMuon(muon, os);
-        LogDebug("L1Scout") << os.str();
-      }
-
+      LogDebug("L1Scout") << "--- Muon " << i << " ---\n"
+                          << "  Raw f:     0x" << std::hex << bl->mu[i].f << std::dec << "\n"
+                          << "  Raw s:     0x" << std::hex << bl->mu[i].s << std::dec << "\n"
+                          << "  Raw extra: 0x" << std::hex << bl->mu[i].extra << std::dec << "\n";
+#ifdef EDM_ML_DEBUG
+      std::ostringstream os;
+      printMuon(muon, os);
+      LogDebug("L1Scout") << os.str();
+#endif
     }  // end of bx
 
   }  // end orbit while loop
