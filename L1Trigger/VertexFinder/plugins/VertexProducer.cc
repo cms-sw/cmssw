@@ -23,6 +23,12 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig)
   // Get configuration parameters
 
   switch (settings_.vx_algo()) {
+    case Algorithm::PFA:
+      edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using the PFA algorithm";
+      break;
+    case Algorithm::PFASimple:
+      edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using the PFASimple algorithm";
+      break;
     case Algorithm::fastHisto:
       edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using the fastHisto binning algorithm";
       break;
@@ -110,6 +116,12 @@ void VertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
   VertexFinder vf(l1Tracks, settings_);
 
   switch (settings_.vx_algo()) {
+    case Algorithm::PFA:
+      vf.PFA();
+      break;
+    case Algorithm::PFASimple:
+      vf.PFASimple();
+      break;
     case Algorithm::fastHisto: {
       const TrackerTopology& tTopo = iSetup.getData(tTopoToken);
       vf.fastHisto(&tTopo);
