@@ -1,5 +1,7 @@
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFinegrainBit.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include <cassert>
 
 std::bitset<2> HcalFinegrainBit::compute(const HcalFinegrainBit::Tower& tower) const {
@@ -53,14 +55,21 @@ std::bitset<6> HcalFinegrainBit::compute(const HcalFinegrainBit::TowerTDC& tower
   int DeepEnergy = 0;
 
   for (size_t i = 0; i < 7; i++) {
-    int bit12_15set = tower[i].first.first;
+    int packedBits = tower[i].first.first;
     bool is_compressed = tower[i].first.second;
+    int TDC = tower[i].second.first;
+    int ADC = tower[i].second.second;
+
+    // unpack packedBits
+    int bit12_15set = (packedBits & 0xF);      // bits 0..3
+    int hasTDCThr = (packedBits >> 20) & 0x1;  // bit 20
+    int tdc1 = (packedBits >> 4) & 0xFF;       // bits 4..11
+    int tdc2 = (packedBits >> 12) & 0xFF;      // bits 12..19
+
     int bit12 = (bit12_15set & 0b0001);       // low depth 1,2 energy
     int bit13 = (bit12_15set & 0b0010) >> 1;  // high depth 3+ energy
     int bit14 = (bit12_15set & 0b0100) >> 2;  // prompt energy passed
     int bit15 = (bit12_15set & 0b1000) >> 3;  // delayed energy passed
-    int TDC = tower[i].second.first;
-    int ADC = tower[i].second.second;
 
     // timing bits
     if (TDC < 50) {  // exclude error code for TDC in HE (unpacked)
@@ -76,11 +85,18 @@ std::bitset<6> HcalFinegrainBit::compute(const HcalFinegrainBit::TowerTDC& tower
           if (TDC == 0 && bit14 == 1)
             Nprompt += 1;
         } else {
-          if (TDC > tdc_boundary[abs(tp_ieta) - 1][i] && TDC <= tdc_boundary[abs(tp_ieta) - 1][i] + 2 && bit15 == 1)
+          // Read TDC thresholds from conditions. If not accessible, throw exception.
+          if (!hasTDCThr) {
+            throw cms::Exception("HBTDCThresholds")
+                << "Missing or invalid TDC thresholds for uncompressed TP tower id=" << id << " and depthIndex=" << i
+                << " (packedBits has hasTDCThr=0).";
+          }
+
+          if (TDC > tdc1 && TDC <= tdc2 && bit15 == 1)
             Ndelayed += 1;
-          if (TDC > tdc_boundary[abs(tp_ieta) - 1][i] + 2 && bit15 == 1)
+          if (TDC > tdc2 && bit15 == 1)
             NveryDelayed += 1;
-          if (TDC <= tdc_boundary[abs(tp_ieta) - 1][i] && TDC >= 0 && bit14 == 1)
+          if (TDC <= tdc1 && TDC >= 0 && bit14 == 1)
             Nprompt += 1;
         }
       }

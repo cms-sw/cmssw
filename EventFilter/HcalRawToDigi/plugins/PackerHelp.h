@@ -9,6 +9,9 @@
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "DataFormats/HcalDigi/interface/QIE10DataFrame.h"
 #include "DataFormats/HcalDigi/interface/QIE11DataFrame.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 #include <cstdio>
@@ -617,26 +620,42 @@ public:
 
 // converts HE QIE digies to HB data format
 
-inline QIE11DataFrame convertHB(QIE11DataFrame qiehe,
-                                std::vector<int> const& tdc1,
-                                std::vector<int> const& tdc2,
-                                const int tdcmax) {
+inline QIE11DataFrame convertHB(QIE11DataFrame qiehe, const HcalDbService& db, const int tdcmax) {
   QIE11DataFrame qiehb = qiehe;
   HcalDetId did = HcalDetId(qiehb.detid());
+
+  // initialize tdc threshold placeholders
+  int tdc1 = -1;
+  int tdc2 = -1;
+
+  // read tdc1 and tdc2 from the first two bytes of auxi1 field of HcalTPChannelParameters
+  if (auto tpchparams = db.getHcalTPChannelParameter(did, false)) {
+    const uint32_t auxi1 = tpchparams->getauxi1();
+    const int tp_tdc1 = auxi1 & 0xFF;
+    const int tp_tdc2 = (auxi1 >> 8) & 0xFF;
+
+    // accept only sane + non-empty
+    if (tp_tdc1 <= tp_tdc2 && tp_tdc2 <= tdcmax && !(tp_tdc1 == 0 && tp_tdc2 == 0)) {
+      tdc1 = tp_tdc1;
+      tdc2 = tp_tdc2;
+    }
+  }
+
+  // tdc1, tdc2 not configured: throw exception
+  if (tdc1 < 0 || tdc2 < 0) {
+    throw cms::Exception("HBTDCThresholds") << "Missing/invalid HB TDC thresholds from HcalTPChannelParameters for "
+                                            << did << " (auxi1: tdc1/tdc2 not set or out of range).";
+  }
+
+  // flavor for HB digies is hardcoded here
+  static const int hbflavor = 3;
+
   int adc, tdc;
   bool soi;
   int is = 0;
   int capid = qiehe[0].capid();
-  //  flavor for HB digies is hardcoded here
-  static const int hbflavor = 3;
-  //  maximum HB depth
-  static const int maxHBdepth = 4;
 
-  const int entry = (abs(did.ieta()) - 1) * maxHBdepth + did.depth() - 1;
-  const int first = tdc1.at(entry);
-  const int second = tdc2.at(entry);
-
-  //  iterator over samples
+  // iterator over samples
   for (edm::DataFrame::const_iterator it = qiehe.begin(); it != qiehe.end(); ++it) {
     if (it == qiehe.begin())
       continue;
@@ -644,11 +663,11 @@ inline QIE11DataFrame convertHB(QIE11DataFrame qiehe,
     tdc = qiehe[is].tdc();
     soi = qiehe[is].soi();
 
-    if (tdc >= 0 && tdc <= first)
+    if (tdc >= 0 && tdc <= tdc1)
       tdc = 0;
-    else if (tdc > first && tdc <= second)
+    else if (tdc > tdc1 && tdc <= tdc2)
       tdc = 1;
-    else if (tdc > second && tdc <= tdcmax)
+    else if (tdc > tdc2 && tdc <= tdcmax)
       tdc = 2;
     else
       tdc = 3;
