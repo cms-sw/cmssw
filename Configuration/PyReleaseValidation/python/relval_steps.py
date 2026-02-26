@@ -1,7 +1,8 @@
 import sys
+from copy import deepcopy
 from functools import partial
 
-from .MatrixUtil import *
+from .MatrixUtil import Steps, merge, remove, Kby, Mby, genvalid, InputInfo, selectedLS, stCond
 
 from Configuration.HLT.autoHLT import autoHLT
 from Configuration.AlCa.autoPCL import autoPCL
@@ -3818,9 +3819,6 @@ steps['RECOHIR10D11']=merge([{'--filein':'file:step2_inREPACKRAW.root',
 #                        '-s':'RECO,HLT:@fake,VALIDATION'},
 #                       steps['RECO']])
 
-#add this line when testing from an input file that is not strictly GEN-SIM
-#addForAll(step3,{'--hltProcess':'DIGI'})
-
 steps['ALCACOSD']={'--conditions':'auto:run1_data',
                    '--datatier':'ALCARECO',
                    '--eventcontent':'ALCARECO',
@@ -4939,96 +4937,72 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     upgradeStepDict['GenHLBeamSpot'][k] = merge([{'--conditions' : gt+'_13TeV'}, upgradeStepDict['Gen'][k]])
     upgradeStepDict['GenHLBeamSpot14'][k] = merge([{}, upgradeStepDict['Gen'][k]])
     
-    upgradeStepDict['GenSim'][k]= {'-s' : 'GEN,SIM',
-                                       '-n' : 10,
-                                       '--conditions' : gt,
-                                       '--beamspot' : 'Realistic25ns13TeVEarly2017Collision',
-                                       '--datatier' : 'GEN-SIM',
-                                       '--eventcontent': 'FEVTDEBUG',
-                                       '--geometry' : geom
-                                       }
+    upgradeStepDict['GenSim'][k] = {'-s' : 'GEN,SIM',
+                                    '-n' : 10,
+                                    '--conditions' : gt,
+                                    '--beamspot' : 'Realistic25ns13TeVEarly2017Collision',
+                                    '--datatier' : 'GEN-SIM',
+                                    '--eventcontent': 'FEVTDEBUG',
+                                    '--geometry' : geom
+                                    }
     
     if beamspot is not None: upgradeStepDict['GenSim'][k]['--beamspot']=beamspot
 
-    upgradeStepDict['GenSimHLBeamSpot'][k]= {'-s' : 'GEN,SIM',
-                                       '-n' : 10,
-                                       '--conditions' : gt+'_13TeV',
-                                       '--beamspot' : 'DBrealisticHLLHC',
-                                       '--datatier' : 'GEN-SIM',
-                                       '--eventcontent': 'FEVTDEBUG',
-                                       '--geometry' : geom
-                                       }
+    upgradeStepDict['GenSimCloseBy'][k] = deepcopy(upgradeStepDict['GenSim'][k])
+    upgradeStepDict['GenSimCloseBy'][k]['--beamspot'] = 'CloseBy'
+    
+    upgradeStepDict['GenSimHLBeamSpot'][k] = {'-s' : 'GEN,SIM',
+                                              '-n' : 10,
+                                              '--conditions' : gt+'_13TeV',
+                                              '--beamspot' : 'DBrealisticHLLHC',
+                                              '--datatier' : 'GEN-SIM',
+                                              '--eventcontent': 'FEVTDEBUG',
+                                              '--geometry' : geom
+                                              }
 
-    upgradeStepDict['GenSimHLBeamSpot14'][k]= {'-s' : 'GEN,SIM',
-                                       '-n' : 10,
-                                       '--conditions' : gt,
-                                       '--beamspot' : 'DBrealisticHLLHC',
-                                       '--datatier' : 'GEN-SIM',
-                                       '--eventcontent': 'FEVTDEBUG',
-                                       '--geometry' : geom
-                                       }
+    upgradeStepDict['GenSimHLBeamSpot14'][k] = deepcopy(upgradeStepDict['GenSimHLBeamSpot'][k])
+    upgradeStepDict['GenSimHLBeamSpot14'][k]['--conditions'] = gt
 
-    upgradeStepDict['GenSimHLBeamSpotCloseBy'][k]= {'-s' : 'GEN,SIM',
-                                       '-n' : 10,
-                                       '--conditions' : gt,
-                                       '--beamspot' : 'CloseBy',
-                                       '--datatier' : 'GEN-SIM',
-                                       '--eventcontent': 'FEVTDEBUG',
-                                       '--geometry' : geom
-                                       }
-
-    upgradeStepDict['Sim'][k]= {'-s' : 'SIM',
-                                       '-n' : 10,
-                                       '--conditions' : gt,
-                                       '--beamspot' : 'Realistic25ns13TeVEarly2017Collision',
-                                       '--datatier' : 'SIM',
-                                       '--eventcontent': 'FEVTDEBUG',
-                                       '--geometry' : geom
-                                       }
+    upgradeStepDict['GenSimHLBeamSpotCloseBy'][k] = upgradeStepDict['GenSimCloseBy'][k]
+    
+    upgradeStepDict['Sim'][k] = {'-s' : 'SIM',
+                                 '-n' : 10,
+                                 '--conditions' : gt,
+                                 '--beamspot' : 'Realistic25ns13TeVEarly2017Collision',
+                                 '--datatier' : 'SIM',
+                                 '--eventcontent': 'FEVTDEBUG',
+                                 '--geometry' : geom
+                                 }
     
     if beamspot is not None: upgradeStepDict['Sim'][k]['--beamspot']=beamspot
     
 
     upgradeStepDict['Digi'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:%s'%(hltversion),
-                                      '--conditions':gt,
-                                      '--datatier':'GEN-SIM-DIGI-RAW',
-                                      '-n':'10',
-                                      '--eventcontent':'FEVTDEBUGHLT',
-                                      '--geometry' : geom
-                                      }
+                                  '--conditions':gt,
+                                  '--datatier':'GEN-SIM-DIGI-RAW',
+                                  '-n':'10',
+                                  '--eventcontent':'FEVTDEBUGHLT',
+                                  '--geometry' : geom
+                                  }
     
-    upgradeStepDict['DigiNoHLT'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
-                                      '--conditions':gt,
-                                      '--datatier':'GEN-SIM-DIGI-RAW',
-                                      '-n':'10',
-                                      '--eventcontent':'FEVTDEBUGHLT',
-                                      '--geometry' : geom
-                                      }
+    upgradeStepDict['DigiNoHLT'][k] = deepcopy(upgradeStepDict['Digi'][k])
+    upgradeStepDict['DigiNoHLT'][k]['-s'] = 'DIGI:pdigi_valid,L1,DIGI2RAW'
     
-    upgradeStepDict['HLTOnly'][k] = {'-s':'HLT:%s'%(hltversion),
-                                 '--conditions':gt,
-                                 '--datatier':'GEN-SIM-DIGI-RAW',
-                                 '-n':'10',
-                                 '--eventcontent':'FEVTDEBUGHLT',
-                                 '--geometry' : geom,
-                                 }
+    upgradeStepDict['HLTOnly'][k] = deepcopy(upgradeStepDict['Digi'][k])
+    upgradeStepDict['HLTOnly'][k]['-s'] = 'HLT:%s'%(hltversion)
+
     # Adding Track trigger step in step2
-    upgradeStepDict['DigiTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:%s'%(hltversion),
-                                      '--conditions':gt,
-                                      '--datatier':'GEN-SIM-DIGI-RAW',
-                                      '-n':'10',
-                                      '--eventcontent':'FEVTDEBUGHLT',
-                                      '--geometry' : geom
-                                      }
+    upgradeStepDict['DigiTrigger'][k] = deepcopy(upgradeStepDict['Digi'][k])
+    upgradeStepDict['DigiTrigger'][k]['-s'] = 'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:%s'%(hltversion)
 
     upgradeStepDict['HLTRun3'][k] = {'-s':'HLT:%s'%(hltversion),
-                                 '--conditions':gt,
-                                 '--datatier':'GEN-SIM-DIGI-RAW',
-                                 '-n':'10',
-                                 '--eventcontent':'FEVTDEBUGHLT',
-                                 '--geometry' : geom,
-                                 '--outputCommands' : '"drop *_*_*_GEN,drop *_*_*_DIGI2RAW"'
-                                 }
+                                     '--conditions':gt,
+                                     '--datatier':'GEN-SIM-DIGI-RAW',
+                                     '-n':'10',
+                                     '--eventcontent':'FEVTDEBUGHLT',
+                                     '--geometry' : geom,
+                                     '--outputCommands' : '"drop *_*_*_GEN,drop *_*_*_DIGI2RAW"'
+                                     }
 
     upgradeStepDict['HLT75e33'][k] = {'-s':'HLT:@relvalRun4',
                                       '--processName':'HLTX',
