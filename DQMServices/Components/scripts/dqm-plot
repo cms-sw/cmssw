@@ -1097,10 +1097,9 @@ class DQMPlotter:
         if match:
             match_end = match.end()
             remaining_path = hist_path[match_end:].lstrip("/")
-
             if remaining_path:
                 path_parts = remaining_path.split("/")
-
+                
                 if len(path_parts) > 1:
                     # Create subdirectories and filename
                     subdirs = "/".join(path_parts[:-1])
@@ -1108,7 +1107,7 @@ class DQMPlotter:
                     output_path = os.path.join(output_dir, subdirs, f"{filename}")
                 else:
                     # Single file, no subdirectories
-                    filename = path_parts[0]
+                    filename = os.path.basename(hist_path)
                     output_path = os.path.join(output_dir, f"{filename}")
             else:
                 # If no remaining path, use the last part of the matched path
