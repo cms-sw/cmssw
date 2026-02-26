@@ -288,7 +288,7 @@ public:
   // --------------------------------------------------------------------------
   void finalizeHits() {
     // Keep your original implicit invariant:
-    assert(hits_.size() == fractions_.size());
+    assert(hits_.size() == fractions_.size() && !hits_.empty());
     // Energies are optional but if present must align.
     if (!energies_.empty()) assert(energies_.size() == hits_.size());
 
