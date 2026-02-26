@@ -362,9 +362,9 @@ void ScoutingEGammaCollectionMonitoring::bookHistograms(DQMStore::IBooker& ibook
 
     // Inv Mass PAT Electron Summary
     histos.patElectron.h1InvMass12 =
-        ibook.book1D("patElectron_E1E2_invMass", "patElectron_E1E2_invMass", 400, 0., 200.);
+        ibook.book1D("patElectron_E1E2_invMass", "patElectron_E1E2_invMass", 2000, 0., 200.);
     histos.patElectron.h1InvMassID =
-        ibook.book1D("patElectron_appliedID_invMass", "patElectron_appliedID_invMass", 400, 0., 200.);
+        ibook.book1D("patElectron_appliedID_invMass", "patElectron_appliedID_invMass", 2000, 0., 200.);
 
   }
 
