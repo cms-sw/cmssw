@@ -37,7 +37,8 @@ hltScoutingMuonDqmOffline = cms.Sequence(scoutingMonitoringTagProbeMuonNoVtx *
                                          scoutingMonitoringTriggerMuon_SingleMu *
                                          ScoutingMuonPropertiesMonitor )
 
-hltScoutingJetDqmOffline = cms.Sequence(jetMETDQMOfflineSourceScouting)
+hltScoutingJetDqmOffline = cms.Sequence(jetMETDQMOfflineSourceScouting +
+                                        jetmetScoutingMonitorHLT)
 ## remove corrector to not schedule the run of the corrector modules which crash if scouting objects are missing
 hltScoutingJetDqmOfflineForRelVals = cms.Sequence(jetMETDQMOfflineSourceScoutingNoCorrection +
                                                   jetmetScoutingNoJECsMonitorHLT)
@@ -49,7 +50,6 @@ hltScoutingPi0Monitor = cms.Sequence(ScoutingPi0Monitor)
 hltScoutingDqmOffline = cms.Sequence(hltScoutingMuonDqmOffline +
                                      hltScoutingEGammaDqmOffline +
                                      hltScoutingJetDqmOffline +
-                                     jetmetScoutingMonitorHLT +
                                      hltScoutingDileptonMonitor +
                                      hltScoutingPi0Monitor +
                                      hltScoutingCollectionMonitor)
