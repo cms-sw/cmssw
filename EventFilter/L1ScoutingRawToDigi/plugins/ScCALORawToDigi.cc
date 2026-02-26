@@ -1,4 +1,5 @@
 #include "EventFilter/L1ScoutingRawToDigi/plugins/ScCALORawToDigi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ScCaloRawToDigi::ScCaloRawToDigi(const edm::ParameterSet& iConfig) {
   srcInputTag_ = iConfig.getParameter<edm::InputTag>("srcInputTag");
@@ -218,13 +219,14 @@ void ScCaloRawToDigi::unpackJets(uint32_t* dataBlock, int bx, int nObjets) {
       l1ScoutingRun3::Jet jet(ET, Eta, Phi, Qual);
       orbitBufferJets_[bx].push_back(jet);
       nJetsOrbit_++;
-      if (edm::MessageDrop::instance()->debugEnabled) {
-        std::ostringstream os;
-        os << "Jet " << i << "\n";
-        os << "  Raw: 0x" << std::hex << dataBlock[i] << std::dec << "\n";
-        l1ScoutingRun3::printJet(jet, os);
-        LogDebug("L1Scout") << os.str();
-      }
+
+#ifdef EDM_ML_DEBUG
+      std::ostringstream os;
+      os << "Jet " << i << "\n";
+      os << "  Raw: 0x" << std::hex << dataBlock[i] << std::dec << "\n";
+      l1ScoutingRun3::printJet(jet, os);
+      LogDebug("L1Scout") << os.str();
+#endif
     }
   }  // end link jets unpacking loop
 }
@@ -245,13 +247,13 @@ void ScCaloRawToDigi::unpackEGammas(uint32_t* dataBlock, int bx, int nObjets) {
       orbitBufferEGammas_[bx].push_back(eGamma);
       nEGammasOrbit_++;
 
-      if (edm::MessageDrop::instance()->debugEnabled) {
-        std::ostringstream os;
-        os << "E/g " << i << "\n";
-        os << "  Raw: 0x" << std::hex << dataBlock[i] << std::dec << "\n";
-        l1ScoutingRun3::printEGamma(eGamma, os);
-        LogDebug("L1Scout") << os.str();
-      }
+#ifdef EDM_ML_DEBUG
+      std::ostringstream os;
+      os << "E/g " << i << "\n";
+      os << "  Raw: 0x" << std::hex << dataBlock[i] << std::dec << "\n";
+      l1ScoutingRun3::printEGamma(eGamma, os);
+      LogDebug("L1Scout") << os.str();
+#endif
     }
   }  // end link e/gammas unpacking loop
 }
@@ -272,13 +274,13 @@ void ScCaloRawToDigi::unpackTaus(uint32_t* dataBlock, int bx, int nObjets) {
       orbitBufferTaus_[bx].push_back(tau);
       nTausOrbit_++;
 
-      if (edm::MessageDrop::instance()->debugEnabled) {
-        std::ostringstream os;
-        os << "Tau " << i << "\n";
-        os << "  Raw: 0x" << std::hex << dataBlock[i] << std::dec << "\n";
-        l1ScoutingRun3::printTau(tau, os);
-        LogDebug("L1Scout") << os.str();
-      }
+#ifdef EDM_ML_DEBUG
+      std::ostringstream os;
+      os << "Tau " << i << "\n";
+      os << "  Raw: 0x" << std::hex << dataBlock[i] << std::dec << "\n";
+      l1ScoutingRun3::printTau(tau, os);
+      LogDebug("L1Scout") << os.str();
+#endif
     }
   }  // end link taus unpacking loop
 }
@@ -404,15 +406,15 @@ void ScCaloRawToDigi::unpackEtSums(uint32_t* dataBlock, int bx) {
   orbitBufferEtSums_[bx].push_back(bxSums);
   nEtSumsOrbit_ += 1;
 
-  if (edm::MessageDrop::instance()->debugEnabled) {
-    std::ostringstream os;
-    os << "Raw frames:\n";
-    for (int frame = 0; frame < 6; frame++) {
-      os << "  frame " << frame << ": 0x" << std::hex << dataBlock[frame] << std::dec << "\n";
-      l1ScoutingRun3::printBxSums(bxSums, os);
-    }
-    LogDebug("L1Scout") << os.str();
+#ifdef EDM_ML_DEBUG
+  std::ostringstream os;
+  os << "Raw frames:\n";
+  for (int frame = 0; frame < 6; frame++) {
+    os << "  frame " << frame << ": 0x" << std::hex << dataBlock[frame] << std::dec << "\n";
+    l1ScoutingRun3::printBxSums(bxSums, os);
   }
+  LogDebug("L1Scout") << os.str();
+#endif
 }
 
 void ScCaloRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
