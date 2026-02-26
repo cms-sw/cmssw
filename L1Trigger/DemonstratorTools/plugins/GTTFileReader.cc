@@ -152,7 +152,7 @@ void GTTFileReader::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         track.trackWord_ = trackword.trackWord_;
         inputTracks->push_back(track);
       }  //end loop over trackwoards
-    }  // end loop over GTT input links
+    }    // end loop over GTT input links
     iEvent.put(std::move(inputTracks), l1TrackCollectionName_);
   }  // end if ( processInputTracks_ )
 }
