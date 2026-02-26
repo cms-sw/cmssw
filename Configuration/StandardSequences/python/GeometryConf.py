@@ -84,6 +84,8 @@ GeometryConf={
     'DD4hepExtended2025FlatPlus05Percent' : 'DD4hepExtended2025FlatPlus05Percent,DD4hepExtended2025FlatPls05PercentReco',
     'Extended2025FlatPlus10Percent' : 'Extended2025FlatPlus10Percent,Extended2025FlatPlus10PercentReco',
     'DD4hepExtended2025FlatPlus10Percent' : 'DD4hepExtended2025FlatPlus10Percent,DD4hepExtended2025FlatPlus10PercentReco',
+    'Extended2026'   : 'Extended2026,Extended2026Reco',
+    'DD4hepExtended2026'   : 'DD4hepExtended2026,DD4hepExtended2026Reco',
     'All'         : 'Configuration.Geometry.GeometrySimAll_cff,Reco',
     'ECALHCAL'    : 'Configuration.Geometry.GeometrySimECALHCAL_cff,Configuration.Geometry.GeometryRecoECALHCAL_cff',
     'TrackerOnly' : 'Configuration.Geometry.GeometrySimTracker_cff,Configuration.Geometry.GeometryRecoTracker_cff',
