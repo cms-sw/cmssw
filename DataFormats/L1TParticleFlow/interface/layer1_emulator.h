@@ -38,6 +38,16 @@ namespace l1ct {
     }
   };
 
+  struct CommonCaloObjEmu : public CommonCaloObj {
+    const l1t::L1Candidate *src = nullptr;
+    bool read(std::fstream &from);
+    bool write(std::fstream &to) const;
+    void clear() {
+      CommonCaloObj::clear();
+      src = nullptr;
+    }
+  };
+
   struct TkObjEmu : public TkObj {
     uint16_t hwChi2;
     float simPt, simCaloEta, simCaloPhi, simVtxEta, simVtxPhi, simZ0, simD0;

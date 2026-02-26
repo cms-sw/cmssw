@@ -59,6 +59,7 @@ namespace L1JUMPEmu {
         throw cms::Exception("FileNotFound") << f.fullPath();
       }
 #else
+      path = "l1jump_jer_v1.json";  // For HLS Emulator
       std::ifstream in(path);
       if (!in) {
         throw std::runtime_error(std::string("File not found: ") + path);
@@ -87,7 +88,7 @@ namespace L1JUMPEmu {
     return P;
   }
 
-  inline void Get_dPt(const l1ct::Jet jet, L1METEmu::proj2_t& dPx_2, L1METEmu::proj2_t& dPy_2) {
+  inline void Get_dPt(const l1ct::Jet& jet, L1METEmu::proj2_t& dPx_2, L1METEmu::proj2_t& dPy_2) {
     /*
       L1 Jet Energy Resolution parameterization
       - Fitted σ(pT)/pT as a function of jet pT in each η region (detector boundary at η≈1.3, 1.7, 2.5, 3.0)
@@ -105,6 +106,8 @@ namespace L1JUMPEmu {
         break;
       }
     }
+    // If abseta >= all bin edges, etabin remains 0, which is reserved for overflow (jets beyond max eta range).
+    // This is intentional: par0[0] and par1[0] should be set for this overflow bin.
 
     dPx_2 = 0;
     dPy_2 = 0;
@@ -143,10 +146,12 @@ inline void JUMP_emu(const l1ct::Sum& inMet, const std::vector<l1ct::Jet>& jets,
   L1JUMPEmu::Met_dPt(jets, dPx_2, dPy_2);
 
   L1METEmu::Particle_xy outMet_xy;
-  outMet_xy.hwPx = (inMet_xy.hwPx > 0) ? inMet_xy.hwPx + L1METEmu::proj2_t(sqrt(dPx_2.to_float()))
-                                       : inMet_xy.hwPx - L1METEmu::proj2_t(sqrt(dPx_2.to_float()));
-  outMet_xy.hwPy = (inMet_xy.hwPy > 0) ? inMet_xy.hwPy + L1METEmu::proj2_t(sqrt(dPy_2.to_float()))
-                                       : inMet_xy.hwPy - L1METEmu::proj2_t(sqrt(dPy_2.to_float()));
+  float sqrt_dPx_2 = sqrt(dPx_2.to_float());
+  float sqrt_dPy_2 = sqrt(dPy_2.to_float());
+  outMet_xy.hwPx = (inMet_xy.hwPx > 0) ? inMet_xy.hwPx + L1METEmu::proj2_t(sqrt_dPx_2)
+                                       : inMet_xy.hwPx - L1METEmu::proj2_t(sqrt_dPx_2);
+  outMet_xy.hwPy = (inMet_xy.hwPy > 0) ? inMet_xy.hwPy + L1METEmu::proj2_t(sqrt_dPy_2)
+                                       : inMet_xy.hwPy - L1METEmu::proj2_t(sqrt_dPy_2);
   L1METEmu::pxpy_to_ptphi(outMet_xy, outMet);
 }
 

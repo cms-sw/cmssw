@@ -109,6 +109,7 @@ namespace l1gt {
       pack_into_bits(ret, start, valid);
       pack_into_bits(ret, start, v3.pack());
       pack_into_bits(ret, start, z0);
+      start = start + 10;  //offset for LLP + unassigned
       for (unsigned i = 0; i < NTagFields; i++) {
         pack_into_bits(ret, start, hwTagScores[i]);
       }
@@ -136,6 +137,7 @@ namespace l1gt {
       unpack_from_bits(src, start, v3.phi);
       unpack_from_bits(src, start, v3.eta);
       unpack_from_bits(src, start, z0);
+      start = start + 10;  //offset for LLP + unassigned
       for (unsigned i = 0; i < NTagFields; i++) {
         unpack_from_bits(src, start, hwTagScores[i]);
       }

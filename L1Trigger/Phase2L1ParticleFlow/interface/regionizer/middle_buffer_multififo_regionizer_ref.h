@@ -22,7 +22,8 @@ namespace l1ct {
                                             bool streaming,
                                             unsigned int outii,
                                             unsigned int pauseii,
-                                            bool useAlsoVtxCoords);
+                                            bool useAlsoVtxCoords,
+                                            bool tmux6GCTinput = false);
     // note: this one will work only in CMSSW
     MiddleBufferMultififoRegionizerEmulator(const edm::ParameterSet& iConfig);
 
@@ -38,6 +39,10 @@ namespace l1ct {
     void fillLinks(unsigned int iclock,
                    const RegionizerDecodedInputs& in,
                    std::vector<l1ct::TkObjEmu>& links,
+                   std::vector<bool>& valid);
+    void fillLinks(unsigned int iclock,
+                   const RegionizerDecodedInputs& in,
+                   std::vector<l1ct::CommonCaloObjEmu>& links,
                    std::vector<bool>& valid);
     void fillLinks(unsigned int iclock,
                    const RegionizerDecodedInputs& in,
@@ -69,6 +74,7 @@ namespace l1ct {
               const std::vector<l1ct::TkObjEmu>& links_tk,
               const std::vector<l1ct::HadCaloObjEmu>& links_hadCalo,
               const std::vector<l1ct::EmCaloObjEmu>& links_emCalo,
+              const std::vector<l1ct::CommonCaloObjEmu>& links_commonCalo,
               const std::vector<l1ct::MuObjEmu>& links_mu,
               std::vector<l1ct::TkObjEmu>& out_tk,
               std::vector<l1ct::HadCaloObjEmu>& out_hadCalo,
@@ -85,9 +91,15 @@ namespace l1ct {
 
     void reset();
 
-    static void encode(const l1ct::EmCaloObjEmu& from, l1ct::HadCaloObjEmu& to);
-    static void encode(const l1ct::HadCaloObjEmu& from, l1ct::HadCaloObjEmu& to);
-    static void decode(l1ct::HadCaloObjEmu& had, l1ct::EmCaloObjEmu& em);
+    template <typename T>
+    static void encode(const T& from, l1ct::CommonCaloObjEmu& to) {
+      to.convertFrom(from);
+      to.src = from.src;
+    }
+
+    void convert_GCTinput_tmux(const RegionizerDecodedInputs& in_tm6, RegionizerDecodedInputs& in_tm18) const;
+    void init_GCT_tmux18sectors(std::vector<l1ct::DetectorSector<l1ct::HadCaloObjEmu>>& gct_tmux18_hadcalo,
+                                std::vector<l1ct::DetectorSector<l1ct::EmCaloObjEmu>>& gct_tmux18_emcalo) const;
 
   protected:
     const unsigned int NTK_SECTORS, NCALO_SECTORS;
@@ -97,8 +109,10 @@ namespace l1ct {
     bool streaming_;
     bool init_;
     unsigned int iclock_;
+    bool tmux6GCTinput_;
     std::vector<l1ct::PFRegionEmu> mergedRegions_, outputRegions_;
     multififo_regionizer::Regionizer<l1ct::TkObjEmu> tkRegionizerPre_, tkRegionizerPost_;
+    multififo_regionizer::Regionizer<l1ct::CommonCaloObjEmu> commonCaloRegionizerPre_;
     multififo_regionizer::Regionizer<l1ct::HadCaloObjEmu> hadCaloRegionizerPre_, hadCaloRegionizerPost_;
     multififo_regionizer::Regionizer<l1ct::EmCaloObjEmu> emCaloRegionizerPre_, emCaloRegionizerPost_;
     multififo_regionizer::Regionizer<l1ct::MuObjEmu> muRegionizerPre_, muRegionizerPost_;
@@ -107,6 +121,9 @@ namespace l1ct {
     std::vector<l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::HadCaloObjEmu>> hadCaloBuffers_;
     std::vector<l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::EmCaloObjEmu>> emCaloBuffers_;
     std::vector<l1ct::multififo_regionizer::EtaPhiBuffer<l1ct::MuObjEmu>> muBuffers_;
+    std::vector<PFRegionEmu> gct_slr_regions_;
+    std::vector<l1ct::DetectorSector<l1ct::HadCaloObjEmu>> gct_tmux18_hadcalo_;
+    std::vector<l1ct::DetectorSector<l1ct::EmCaloObjEmu>> gct_tmux18_emcalo_;
 
     template <typename T>
     void fillCaloLinks_(unsigned int iclock,
@@ -117,8 +134,35 @@ namespace l1ct {
     void fillSharedCaloLinks(unsigned int iclock,
                              const std::vector<DetectorSector<l1ct::EmCaloObjEmu>>& em_in,
                              const std::vector<DetectorSector<l1ct::HadCaloObjEmu>>& had_in,
-                             std::vector<l1ct::HadCaloObjEmu>& links,
+                             std::vector<l1ct::CommonCaloObjEmu>& links,
                              std::vector<bool>& valid);
+
+    void run_worker(const RegionizerDecodedInputs& in, std::vector<PFInputRegion>& out);
+    void init_GCT_slrs(std::vector<l1ct::PFRegionEmu>& gct_slr_regions) const;
+
+    template <typename T>
+    void convert_GCTsector_tmux(const std::vector<l1ct::DetectorSector<T>>& tm6_sectors,
+                                std::vector<l1ct::DetectorSector<T>>& tm18_sectors) const {
+      static constexpr std::array<unsigned int, 12> gct_slr_tmux18sector_mapping = {0, 0, 1, 1, 2, 2, 0, 0, 1, 1, 2, 2};
+      for (const auto& sec : tm6_sectors) {
+        // std::cout << "Processing TMUX6 hadcalo sector: " << isec << " #cl: " << sec.obj.size() << std::endl;
+        for (auto cl : sec.obj) {
+          if (cl.hwPt == 0)
+            continue;  // skip empty objects
+          glbeta_t gl_hweta = sec.region.hwGlbEta(cl.hwEta);
+          glbphi_t gl_hwphi = sec.region.hwGlbPhi(cl.hwPhi);
+          for (unsigned int islr = 0; islr < gct_slr_regions_.size(); ++islr) {
+            if (gct_slr_regions_[islr].containsHw(gl_hweta, gl_hwphi)) {
+              auto itmux18 = gct_slr_tmux18sector_mapping[islr];
+              cl.hwEta = l1ct::Scales::makeEta(tm18_sectors[itmux18].region.localEta(sec.region.floatGlbEtaOf(cl)));
+              cl.hwPhi = l1ct::Scales::makePhi(tm18_sectors[itmux18].region.localPhi(sec.region.floatGlbPhiOf(cl)));
+              tm18_sectors[itmux18].obj.push_back(cl);
+              break;
+            }
+          }
+        }
+      }
+    };
   };
 }  // namespace l1ct
 

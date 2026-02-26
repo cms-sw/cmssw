@@ -36,8 +36,10 @@ private:
   const bool wideConeJet;
   const unsigned nJets;
   const bool HW;
+  const bool sortJets;
   const bool debug;
   const bool doCorrections;
+  const bool doMass;
   L1SCJetEmu emulator;
   edm::EDGetTokenT<std::vector<l1t::PFCandidate>> l1PFToken;
   l1tpf::corrector corrector;
@@ -61,9 +63,11 @@ L1SeedConePFJetProducer::L1SeedConePFJetProducer(const edm::ParameterSet& cfg)
       wideConeJet(cfg.getParameter<bool>("wideConeJet")),
       nJets(cfg.getParameter<unsigned>("nJets")),
       HW(cfg.getParameter<bool>("HW")),
+      sortJets(cfg.getParameter<bool>("sortJets")),
       debug(cfg.getParameter<bool>("debug")),
       doCorrections(cfg.getParameter<bool>("doCorrections")),
-      emulator(L1SCJetEmu(debug, coneSize, nJets)),
+      doMass(cfg.getParameter<bool>("doMass")),
+      emulator(L1SCJetEmu(debug, coneSize, nJets, doMass)),
       l1PFToken(consumes<std::vector<l1t::PFCandidate>>(cfg.getParameter<edm::InputTag>("L1PFObjects"))) {
   produces<l1t::PFJetCollection>();
   if (doCorrections) {
@@ -91,7 +95,11 @@ void L1SeedConePFJetProducer::produce(edm::StreamID /*unused*/,
   } else {
     jets = processEvent_SW(particles);
   }
-  std::sort(jets.begin(), jets.end(), [](l1t::PFJet i, l1t::PFJet j) { return (i.pt() > j.pt()); });
+
+  if (sortJets) {
+    std::sort(jets.begin(), jets.end(), [](l1t::PFJet i, l1t::PFJet j) { return (i.pt() > j.pt()); });
+  }
+
   newPFJetCollection->swap(jets);
   iEvent.put(std::move(newPFJetCollection));  // Add jets to the event
 }
@@ -126,23 +134,26 @@ l1t::PFJet L1SeedConePFJetProducer::makeJet_SW(const std::vector<edm::Ptr<l1t::P
   float phi = std::accumulate(pt_dphi.begin() + 1, pt_dphi.end(), seed->phi());
 
   // Calculate the mass
-  std::vector<float> en;
-  en.resize(parts.size());
-  std::transform(parts.begin(), parts.end(), en.begin(), [](const edm::Ptr<l1t::PFCandidate>& part) {
-    return std::pow(std::pow((part->pt() * std::cosh(part->eta())), 2) + std::pow(part->mass(), 2), 0.5);
-  });
-  float en_tot = std::accumulate(en.begin(), en.end(), 0.0);
+  float mass = 0;
+  if (doMass) {
+    std::vector<float> en;
+    en.resize(parts.size());
+    std::transform(parts.begin(), parts.end(), en.begin(), [](const edm::Ptr<l1t::PFCandidate>& part) {
+      return std::pow(std::pow((part->pt() * std::cosh(part->eta())), 2) + std::pow(part->mass(), 2), 0.5);
+    });
+    float en_tot = std::accumulate(en.begin(), en.end(), 0.0);
 
-  auto sumpx = [](float a, const edm::Ptr<l1t::PFCandidate>& b) { return a + (b->pt() * std::cos(b->phi())); };
-  float px_tot = std::accumulate(parts.begin(), parts.end(), 0.0, sumpx);
+    auto sumpx = [](float a, const edm::Ptr<l1t::PFCandidate>& b) { return a + (b->pt() * std::cos(b->phi())); };
+    float px_tot = std::accumulate(parts.begin(), parts.end(), 0.0, sumpx);
 
-  auto sumpy = [](float a, const edm::Ptr<l1t::PFCandidate>& b) { return a + (b->pt() * std::sin(b->phi())); };
-  float py_tot = std::accumulate(parts.begin(), parts.end(), 0.0, sumpy);
+    auto sumpy = [](float a, const edm::Ptr<l1t::PFCandidate>& b) { return a + (b->pt() * std::sin(b->phi())); };
+    float py_tot = std::accumulate(parts.begin(), parts.end(), 0.0, sumpy);
 
-  auto sumpz = [](float a, const edm::Ptr<l1t::PFCandidate>& b) { return a + (b->pt() * std::sinh(b->eta())); };
-  float pz_tot = std::accumulate(parts.begin(), parts.end(), 0.0, sumpz);
+    auto sumpz = [](float a, const edm::Ptr<l1t::PFCandidate>& b) { return a + (b->pt() * std::sinh(b->eta())); };
+    float pz_tot = std::accumulate(parts.begin(), parts.end(), 0.0, sumpz);
 
-  float mass = std::sqrt((en_tot * en_tot) - (px_tot * px_tot) - (py_tot * py_tot) - (pz_tot * pz_tot));
+    mass = std::sqrt((en_tot * en_tot) - (px_tot * px_tot) - (py_tot * py_tot) - (pz_tot * pz_tot));
+  }
 
   l1t::PFJet jet(pt, eta, phi, mass);
 
@@ -256,8 +267,10 @@ void L1SeedConePFJetProducer::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<double>("coneSize", 0.4);
   desc.add<bool>("wideConeJet", false);
   desc.add<bool>("HW", false);
+  desc.add<bool>("sortJets", false);
   desc.add<bool>("debug", false);
   desc.add<bool>("doCorrections", false);
+  desc.add<bool>("doMass", false);
   desc.add<std::string>("correctorFile", "");
   desc.add<std::string>("correctorDir", "");
   descriptions.addWithDefaultLabel(desc);

@@ -7,9 +7,12 @@
 
 #include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
+#include "nlohmann/json.hpp"
+
+#ifdef CMSSW_GIT_HASH
 #include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "nlohmann/json.hpp"
+#endif
 
 #ifndef CMSSW_GIT_HASH
 #include "hls_math.h"
@@ -70,6 +73,7 @@ namespace L1METEmu {
         throw cms::Exception("FileNotFound") << f.fullPath();
       }
 #else
+      path = "l1met_ptphi2pxpy_poly2_v1.json";  // For HLS Emulator
       std::ifstream in(path);
       if (!in) {
         throw std::runtime_error(std::string("File not found: ") + path);
@@ -110,7 +114,7 @@ namespace L1METEmu {
     /*
       Convert pt, phi to px, py
       - Use 2nd order Polynomial interpolation for cos, sin
-      - Divide the sine and cosine value from -2 pi to 2 pi into 16 parts
+      - Divide the sine and cosine value from -pi to pi into 16 parts
       - Fitting the value with 2nd order function
     */
 
@@ -122,6 +126,10 @@ namespace L1METEmu {
         phibin = i;
         break;
       }
+    }
+    // Handle the edge case where hwPhi is exactly equal to the last bin edge
+    if (hwPhi == P.phi_edges[P.phi_bins]) {
+      phibin = P.phi_bins - 1;
     }
 
     Particle_xy proj_xy;
@@ -153,11 +161,11 @@ namespace L1METEmu {
 
 #ifdef CMSSW_GIT_HASH
     hls_met.hwPt = hypot(met_xy.hwPx.to_float(), met_xy.hwPy.to_float());
-    hls_met.hwPhi = phi_t(
-        ap_fixed<26, 11>(l1ct::Scales::makeGlbPhi(atan2(met_xy.hwPy.to_float(), met_xy.hwPx.to_float()))));  // 720/pi
+    hls_met.hwPhi = phi_t(ap_fixed<26, 11>(atan2(met_xy.hwPy.to_float(), met_xy.hwPx.to_float())) *
+                          ap_fixed<26, 11>(229.29936));  // Scale for L1 phi value (720 / M_PI)
 #else
     hls_met.hwPt = hls::hypot(met_xy.hwPx, met_xy.hwPy);
-    hls_met.hwPhi = phi_t(ap_fixed<26, 11>(l1ct::Scales::makeGlbPhi(hls::atan2(met_xy.hwPy, met_xy.hwPx))));
+    hls_met.hwPhi = phi_t(ap_fixed<26, 11>(hls::atan2(met_xy.hwPy, met_xy.hwPx)) * ap_fixed<26, 11>(229.29936));
 #endif
   }
 
