@@ -11,6 +11,8 @@
 
 <test name="testMPIFilters" command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_filters_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_filters_cfg.py"/>
 
+<test name="testMPIAutosplitter" command="testAutomaticSplitter.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/scripts/local_remote_splitter.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/configutration_for_automatic_splitter.py"/>
+
 <bin name="testSerialisation" file="testSerialisation.cc">
     <use name="root"/>
 </bin>
