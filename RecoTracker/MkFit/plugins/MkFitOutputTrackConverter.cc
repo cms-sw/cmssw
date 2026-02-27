@@ -135,6 +135,11 @@ private:
   const float qualityMaxPosErrSq_;
   const bool qualitySignPt_;
 
+  const bool calibrate_;
+  std::vector<double> calibBinCenter_;
+  std::vector<double> calibBinCoeff_;
+  std::vector<double> calibBinOffset_;
+
   const edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerEventToken_;
   const edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> navToken_;
 
@@ -165,6 +170,10 @@ MkFitOutputTrackConverter::MkFitOutputTrackConverter(edm::ParameterSet const& iC
       qualityMaxZ_{float(iConfig.getParameter<double>("qualityMaxZ"))},
       qualityMaxPosErrSq_{float(pow(iConfig.getParameter<double>("qualityMaxPosErr"), 2))},
       qualitySignPt_{iConfig.getParameter<bool>("qualitySignPt")},
+      calibrate_{iConfig.getParameter<bool>("calibrate")},
+      calibBinCenter_{iConfig.getParameter<std::vector<double>>("calibBinCenter")},
+      calibBinCoeff_{iConfig.getParameter<std::vector<double>>("calibBinCoeff")},
+      calibBinOffset_{iConfig.getParameter<std::vector<double>>("calibBinOffset")},
       measurementTrackerEventToken_{consumes(iConfig.getParameter<edm::InputTag>("measurementTrackerEvent"))},
       navToken_{esConsumes(iConfig.getParameter<edm::ESInputTag>("NavigationSchool"))},
       algo_{reco::TrackBase::algoByName(
@@ -194,6 +203,14 @@ void MkFitOutputTrackConverter::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<double>("qualityMaxZ", 280)->setComment("max(|Z|) for the state position for converted tracks");
   desc.add<double>("qualityMaxPosErr", 100)->setComment("max position error for converted tracks");
   desc.add<bool>("qualitySignPt", true)->setComment("check sign of 1/pt for converted tracks");
+
+  desc.add<bool>("calibrate", true)->setComment("true if mkFit fit pT calibration is needed");
+  desc.add<std::vector<double>>("calibBinCenter", {0.1704, 0.6028, 1.0188, 1.2898, 1.4390, 1.4908, 1.5500})
+      ->setComment("calibration bin center (in |theta|)");
+  desc.add<std::vector<double>>("calibBinCoeff", {1.0000, 1.0004, 1.00014, 1.0027, 1.0029, 1.0009, 0.9999})
+      ->setComment("calibration coeff for bin");
+  desc.add<std::vector<double>>("calibBinOffset", {0.0016, 0.0032, 0.0033, 0.0045, 0.0005, 0.0012, 0.0003})
+      ->setComment("calibration offset for bin");
 
   desc.add<edm::ESInputTag>("NavigationSchool", edm::ESInputTag{"", "SimpleNavigationSchool"});
   desc.add<edm::InputTag>("measurementTrackerEvent", edm::InputTag("MeasurementTrackerEvent"));
@@ -524,10 +541,11 @@ void MkFitOutputTrackConverter::convertCandidates(const MkFitOutputWrapper& mkFi
     auto p = stateAtPCA.momentum();
 
     float factor = 1.f;
-    //if calibrate == true
-    const float abstheta = std::fabs(tsosState.globalMomentum().theta() - 1.570796);
-    const float pt = tsosState.globalMomentum().perp();
-    factor = ptcorr(abstheta, pt) / pt;
+    if (calibrate_) {
+      const float abstheta = std::fabs(tsosState.globalMomentum().theta() - 1.570796);
+      const float pt = tsosState.globalMomentum().perp();
+      factor = ptcorr(abstheta, pt);
+    }
 
     math::XYZPoint pos(v0.x(), v0.y(), v0.z());
     math::XYZVector mom(p.x() * factor, p.y() * factor, p.z() * factor);  //can I just multiply p??
@@ -625,35 +643,28 @@ std::pair<TrajectoryStateOnSurface, const GeomDet*> MkFitOutputTrackConverter::c
 }
 
 float MkFitOutputTrackConverter::ptcorr(const float abstheta, float pt) const {
-  // Representative x positions (bin centers)
-  static const int N = 7;
-  static const float xk[N] = {0.1704, 0.6028, 1.0188, 1.2898, 1.4390, 1.4908, 1.5500};
+  const int N = calibBinCenter_.size();
 
-  // Intercepts a(x)
-  static const float a[N] = {0.0016, 0.0032, 0.0033, 0.0045, 0.0005, 0.0012, 0.0003};
+  if (abstheta <= calibBinCenter_[0])
+    return calibBinOffset_[0] / pt + calibBinCoeff_[0];  // pt_new=a+b*pt, return pt_new/pt
+  if (abstheta >= calibBinCenter_[N - 1])
+    return calibBinOffset_[N - 1] / pt + calibBinCoeff_[N - 1];  // pt_new=a+b*pt, return pt_new/pt
 
-  // Slopes b(x)
-  static const float b[N] = {1.0000, 1.0004, 1.00014, 1.0027, 1.0029, 1.0009, 0.9999};
+  // interpolation
+  // a_interp = a_1 + (a_2-a_1)/(x_2-x_1) * (x-x1)
 
-  // Clamp x to range
-  if (abstheta <= xk[0])
-    return a[0] + b[0] * pt;
-  if (abstheta >= xk[N - 1])
-    return a[N - 1] + b[N - 1] * pt;
-
-  // Find interval
   for (int i = 0; i < N - 1; ++i) {
-    if (abstheta >= xk[i] && abstheta < xk[i + 1]) {
-      float t = (abstheta - xk[i]) / (xk[i + 1] - xk[i]);
-      float a_interp = a[i] + t * (a[i + 1] - a[i]);
-      float b_interp = b[i] + t * (b[i + 1] - b[i]);
+    if (abstheta >= calibBinCenter_[i] && abstheta < calibBinCenter_[i + 1]) {
+      float t = (abstheta - calibBinCenter_[i]) / (calibBinCenter_[i + 1] - calibBinCenter_[i]);
+      float offset_interp = calibBinOffset_[i] + t * (calibBinOffset_[i + 1] - calibBinOffset_[i]);
+      float coeff_interp = calibBinCoeff_[i] + t * (calibBinCoeff_[i + 1] - calibBinCoeff_[i]);
 
-      return a_interp + b_interp * pt;
+      return offset_interp / pt + coeff_interp;  // pt_new=a+b*pt, return pt_new/pt
     }
   }
 
   // Should never reach here
-  return pt;
+  return 1.f;
 }
 
 DEFINE_FWK_MODULE(MkFitOutputTrackConverter);

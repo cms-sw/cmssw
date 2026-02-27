@@ -25,23 +25,52 @@ from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
 (~singleIterPatatrack & trackingLST & seedingLST).toModify(hltInitialStepTracks, src = "hltInitialStepTrackCandidates:nopLSTCsLST")
 
 _hltInitialStepTracksMkFitFit = cms.EDProducer("MkFitOutputTrackConverter",
-    measurementTrackerEvent = cms.InputTag("hltMeasurementTrackerEvent"),
-    mightGet = cms.optional.untracked.vstring,
     mkFitEventOfHits = cms.InputTag("hltMkFitEventOfHits"),
     mkFitPixelHits = cms.InputTag("hltMkFitSiPixelHits"),
-    mkFitSeeds = cms.InputTag("hltInitialStepMkFitSeeds"),
     mkFitStripHits = cms.InputTag("hltMkFitSiPhase2Hits"),
-    propagatorAlong = cms.ESInputTag("","PropagatorWithMaterial"),
-    propagatorOpposite = cms.ESInputTag("","PropagatorWithMaterialOpposite"),
+    mkFitSeeds = cms.InputTag("hltInitialStepMkFitSeeds"),
+    src = cms.InputTag("hltInitialStepTrackCandidatesMkFitFit"),
+    seeds = cms.InputTag("hltInitialStepSeeds"),
+    ttrhBuilder = cms.ESInputTag('', 'WithTrackAngle'),
+    propagatorAlong = cms.ESInputTag('', 'PropagatorWithMaterial'),
+    propagatorOpposite = cms.ESInputTag('', 'PropagatorWithMaterialOpposite'),
     qualityMaxInvPt = cms.double(100),
-    qualityMaxPosErr = cms.double(100),
+    qualityMinTheta = cms.double(0.01),
     qualityMaxR = cms.double(120),
     qualityMaxZ = cms.double(280),
-    qualityMinTheta = cms.double(0.01),
+    qualityMaxPosErr = cms.double(100),
     qualitySignPt = cms.bool(True),
-    seeds = cms.InputTag("hltInitialStepSeeds"),
-    src = cms.InputTag("hltInitialStepTrackCandidatesMkFitFit"),
-    ttrhBuilder = cms.ESInputTag("","WithTrackAngle")
+    calibrate = cms.bool(True),
+    calibBinCenter = cms.vdouble(
+      0.1704,
+      0.6028,
+      1.0188,
+      1.2898,
+      1.439,
+      1.4908,
+      1.55
+    ),
+    calibBinCoeff = cms.vdouble(
+      1,
+      1.0004,
+      1.00014,
+      1.0027,
+      1.0029,
+      1.0009,
+      0.9999
+    ),
+    calibBinOffset = cms.vdouble(
+      0.0016,
+      0.0032,
+      0.0033,
+      0.0045,
+      0.0005,
+      0.0012,
+      0.0003
+    ),
+    NavigationSchool = cms.ESInputTag('', 'SimpleNavigationSchool'),
+    measurementTrackerEvent = cms.InputTag("hltMeasurementTrackerEvent"),
+    mightGet = cms.optional.untracked.vstring
 )
 
 _hltInitialStepTracksMkFitFitLSTSeeds = _hltInitialStepTracksMkFitFit.clone(seeds = "hltInitialStepTrajectorySeedsLST")
