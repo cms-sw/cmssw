@@ -14,4 +14,6 @@
 #include <DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtThDigi.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtThContainer.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTShowerContainer.h>
+#include <DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhiThetaPair.h>
+#include <DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhiThetaPairContainer.h>
 #include <DataFormats/Common/interface/Wrapper.h>
