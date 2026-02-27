@@ -163,6 +163,9 @@ namespace trklet {
       return FPGAWord(ichisqrphifit_.value() + ichisqrzfit_.value(), ichisqrphifit_.nbits());
     }
 
+    // Helix covariance matrix from fit (not sure to be written out by FPGA).
+    const Track::CovMat& helixCovMat() const { return covMat_; }
+
     // Note floating & digitized helix params after track fit.
     void setFitPars(double rinvfit,
                     double phi0fit,
@@ -186,7 +189,8 @@ namespace trklet {
                     int ichisqrphifit,
                     int ichisqrzfit,
                     int hitpattern,
-                    const std::vector<const L1TStub*>& l1stubs = std::vector<const L1TStub*>());
+                    const std::vector<const L1TStub*>& l1stubs = std::vector<const L1TStub*>(),
+                    const Track::CovMat& helixCovMat = Track::CovMat());
 
     const std::string layerstubstr(const unsigned layer) const;
     const std::string diskstubstr(const unsigned disk) const;
@@ -270,6 +274,8 @@ namespace trklet {
     TrackPars<double> fitparsexact_;
     double chisqrphifitexact_;
     double chisqrzfitexact_;
+
+    Track::CovMat covMat_;
 
     int hitpattern_;
 

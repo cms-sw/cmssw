@@ -1,5 +1,6 @@
 #include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 #include <set>
@@ -159,7 +160,9 @@ namespace trackerTFP {
     return maybePS(binZT);
   }
 
-  // fills binZT (unsigned), numPS, num2S, numMissingPS and numMissingPS for given TTTrack hitPattern and trajectory
+  // fills binZT (unsigned), numPS, num2S, numMissingPS and numMissingPS for given TTTrack hitPattern and trajectory.
+  // (P.S. This assumes that the left-most bits of the hit pattern correspond to the outer layers, which is true for
+  // TTTracks, but not true for internal KF hit patterns, which use the opposite convention).
   void LayerEncoding::analyze(int hitpattern,
                               double cot,
                               double z0,
@@ -193,6 +196,14 @@ namespace trackerTFP {
         // compare with innermost edge of 2S modules to identify PS
         if (r < rLimit)
           ps = true;
+      }
+      if (layerId < 0) {
+        // TO FIX: This warning can occur because the KF determines which r-z sector each track is
+        // in using the Tracklet helix params, whereas users accessing the TTTrack object
+        // only have access to the KF helix params, which for about 2% of tracks correspond to
+        // a different r-z sector.
+        edm::LogWarning("LayerEncoding") << "Track's hit-pattern has stub in non-traversed layer";
+        ps = false;  // Warning happens mainly in 2S layers, so this is best guess.
       }
       if (hp.test(layerIdKF))  // layer is hit
         ps ? numPS++ : num2S++;

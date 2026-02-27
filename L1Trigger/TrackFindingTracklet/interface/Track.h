@@ -12,11 +12,14 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
 #include "L1Trigger/TrackFindingTracklet/interface/SLHCEvent.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackPars.h"
+#include "DataFormats/Math/interface/Error.h"
 
 namespace trklet {
 
   class Track {
   public:
+    typedef math::ErrorF<5>::type CovMat;
+
     // Create track from digitized helix params & stubs
     Track(TrackPars<int> ipars,  // digi helix
           int ichisqrphi,        // digi chi2
@@ -29,6 +32,10 @@ namespace trklet {
           int seed);
 
     ~Track() = default;
+
+    // Optional: set and get helix covariance matrix (not sure if FPGA will output this)
+    void setHelixCovMat(const CovMat& covMat) { covMat_ = covMat; }
+    const CovMat& helixCovMat() const { return covMat_; }
 
     void setDuplicate(bool flag) { duplicate_ = flag; }
     void setSector(int nsec) { sector_ = nsec; }
@@ -85,6 +92,8 @@ namespace trklet {
 
     double chisqrphi_;
     double chisqrz_;
+
+    CovMat covMat_;
 
     int hitpattern_;
 

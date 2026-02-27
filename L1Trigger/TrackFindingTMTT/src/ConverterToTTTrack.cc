@@ -1,4 +1,5 @@
 #include "L1Trigger/TrackFindingTMTT/interface/ConverterToTTTrack.h"
+#include "DataFormats/Math/interface/Error.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
@@ -12,6 +13,7 @@ namespace tmtt {
                                                                   unsigned int iEtaReg) const {
     unsigned int nPar, hitPattern;
     double d0, z0, tanL, chi2rphi, chi2rz;
+    L1fittedTrack::CovMat helixCovMat;
 
     const L1fittedTrack* fitTrk = dynamic_cast<const L1fittedTrack*>(trk);
 
@@ -35,6 +37,7 @@ namespace tmtt {
       d0 = fitTrk->d0();
       z0 = fitTrk->z0();
       tanL = fitTrk->tanLambda();
+      helixCovMat = fitTrk->helixCovMat();
       chi2rphi = fitTrk->chi2rphi();
       chi2rz = fitTrk->chi2rz();
     }
@@ -44,18 +47,31 @@ namespace tmtt {
     constexpr double mva = -1.;  // MVA quality flags not yet set.
     const double& magneticField = settings_->magneticField();
 
-    TTTrack<Ref_Phase2TrackerDigi_> track(
-        rinv, phi0, tanL, z0, d0, chi2rphi, chi2rz, mva, mva, mva, hitPattern, nPar, magneticField);
+    constexpr double chi2BendRed = -99;  // Not yet filled.
+    constexpr unsigned int dummy = 99;
+
+    TTTrack<Ref_Phase2TrackerDigi_> track(rinv,
+                                          phi0,
+                                          tanL,
+                                          z0,
+                                          d0,
+                                          chi2rphi,
+                                          chi2rz,
+                                          mva,
+                                          mva,
+                                          mva,
+                                          hitPattern,
+                                          nPar,
+                                          magneticField,
+                                          iPhiSec,
+                                          iEtaReg,
+                                          chi2BendRed,
+                                          dummy,
+                                          helixCovMat);
 
     // Set references to stubs on this track.
     std::vector<TTStubRef> ttstubrefs = this->stubRefs(trk);
     track.setStubRefs(ttstubrefs);
-
-    // Note which (eta,phi) sector this track was reconstructed in.
-    track.setPhiSector(iPhiSec);
-    track.setEtaSector(iEtaReg);
-
-    track.setStubPtConsistency(-1);  // not yet filled.
 
     return track;
   }

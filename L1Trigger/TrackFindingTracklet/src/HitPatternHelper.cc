@@ -135,7 +135,14 @@ namespace hph {
             edm::LogVerbatim("Tracklet") << "Layer found in hitpattern";
           }
           if (layerEncoding_[i] < 0) {
-            edm::LogError("Tracklet") << "Track's hit-pattern shows stub in non-traversed layer";
+            // TO FIX: This warning occurs because the KF determines which r-z sector each track is
+            // in using the Tracklet helix params, whereas users accessing the TTTrack object
+            // only have access to the KF helix params, which for about 2% of tracks correspond to
+            // a different r-z sector.
+            // -- If get here, LayerEncoding give this warning too, so can disable it here.
+            if (hphDebug_) {
+              edm::LogWarning("Tracklet") << "WARNING: Track's hit-pattern shows stub in non-traversed layer";
+            }
             continue;
           }
           binary_[reducedId(layerEncoding_[i])] = 1;

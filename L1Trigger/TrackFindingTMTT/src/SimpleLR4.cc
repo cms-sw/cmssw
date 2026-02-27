@@ -8,6 +8,7 @@
 #include "L1Trigger/TrackFindingTMTT/interface/L1track3D.h"
 #include "L1Trigger/TrackFindingTMTT/interface/PrintL1trk.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include <TMatrixD.h>
 
 #include <vector>
 #include <set>
@@ -443,9 +444,21 @@ namespace tmtt {
 
     if (accepted) {
       // Create the L1fittedTrack object
-      const unsigned int hitPattern = 0;  // FIX: Needs setting
-      L1fittedTrack fitTrk(
-          settings_, &l1track3D, fitStubs, hitPattern, qOverPt, 0., phi0, z0, tanLambda, chi2_phi, chi2_z, nHelixPar);
+      const unsigned int hitPattern = 0;                 // FIX: Needs setting
+      const TMatrixD helixCovMat(nHelixPar, nHelixPar);  // FIX: Needs setting
+      L1fittedTrack fitTrk(settings_,
+                           &l1track3D,
+                           fitStubs,
+                           hitPattern,
+                           qOverPt,
+                           0.,
+                           phi0,
+                           z0,
+                           tanLambda,
+                           helixCovMat,
+                           chi2_phi,
+                           chi2_z,
+                           nHelixPar);
 
       if (settings_->enableDigitize())
         fitTrk.digitizeTrack("SimpleLR4");

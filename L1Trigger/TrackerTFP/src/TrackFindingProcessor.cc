@@ -228,6 +228,7 @@ namespace trackerTFP {
       static constexpr double trkMVA3 = 0.;
       const unsigned int aHitpattern = it->hitPattern_.val();
       const unsigned int nPar = ttTrackRef->nFitPars();
+      constexpr float dummy = -99.;
       outputs.emplace_back(aRinv,
                            aphi,
                            aTanLambda,
@@ -240,13 +241,14 @@ namespace trackerTFP {
                            trkMVA3,
                            aHitpattern,
                            nPar,
-                           bfield_);
+                           bfield_,
+                           region,
+                           dfZT.toUnsigned(dfZT.integer(it->zT_)),
+                           dummy,
+                           ttTrackRef->trackSeedType());
       TTTrack<Ref_Phase2TrackerDigi_>& ttTrack = outputs.back();
-      ttTrack.setPhiSector(region);
-      ttTrack.setEtaSector(dfZT.toUnsigned(dfZT.integer(it->zT_)));
-      ttTrack.setTrackSeedType(ttTrackRef->trackSeedType());
       ttTrack.setStubRefs(it->ttStubRefs_);
-      ttTrack.setStubPtConsistency(StubPtConsistency::getConsistency(
+      ttTrack.setChi2BendRed(StubPtConsistency::getConsistency(
           ttTrack, setup_->trackerGeometry(), setup_->trackerTopology(), bfield_, nPar));
     }
   }

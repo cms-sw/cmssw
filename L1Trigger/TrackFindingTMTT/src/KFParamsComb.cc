@@ -182,10 +182,10 @@ namespace tmtt {
     return unitMatrix;
   }
 
-  /* Get physical helix params */
+  /* Get physical helix params instead of ones used internally by KF */
 
   TVectorD KFParamsComb::trackParams(const KalmanState* state) const {
-    TVectorD vecX = state->vectorX();
+    const TVectorD& vecX = state->vectorX();
     TVectorD vecY(nHelixPar_);
     vecY[QOVERPT] = 2. * vecX[INV2R] / settings_->invPtToInvR();
     vecY[PHI0] = reco::deltaPhi(vecX[PHI0] + sectorPhi(), 0.);
@@ -220,6 +220,18 @@ namespace tmtt {
     } else {
       return (this->trackParams(state));
     }
+  }
+
+  /*  Convert to physical helix covariance matrix instead of ones used internally by KF */
+  TMatrixD KFParamsComb::trackParamsCov(const KalmanState* state) const {
+    TMatrixD cov = state->matrixC();
+    // Local and external matrix differ only in that local one uses 1/2R and external one
+    // uses 1/R.
+    for (unsigned int i = 0; i < nHelixPar_; i++) {
+      cov[INV2R][i] = 2 * cov[INV2R][i];
+      cov[i][INV2R] = 2 * cov[i][INV2R];
+    }
+    return cov;
   }
 
   /* Check if helix state passes cuts */

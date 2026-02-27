@@ -545,7 +545,8 @@ void Tracklet::setFitPars(double rinvfit,
                           int ichisqrphifit,
                           int ichisqrzfit,
                           int hitpattern,
-                          const vector<const L1TStub*>& l1stubs) {
+                          const vector<const L1TStub*>& l1stubs,
+                          const Track::CovMat& helixCovMat) {
   fitpars_.init(rinvfit, phi0fit, d0fit, tfit, z0fit);
   chisqrphifit_ = chisqrphifit;
   chisqrzfit_ = chisqrzfit;
@@ -576,6 +577,8 @@ void Tracklet::setFitPars(double rinvfit,
   ichisqrzfit_.set(ichisqrzfit, 8, true, __LINE__, __FILE__);
 
   hitpattern_ = hitpattern;
+
+  covMat_ = helixCovMat;
 
   fpgatrack_ = std::make_unique<Track>(makeTrack(l1stubs));
 }
@@ -792,6 +795,9 @@ Track Tracklet::makeTrack(const vector<const L1TStub*>& l1stubs) {
                  getStubIDs(),
                  tmp2,
                  getISeed());
+
+  // Set helix covariance matrix separately, as not sure FPGA will output that.
+  tmpTrack.setHelixCovMat(covMat_);
 
   return tmpTrack;
 }

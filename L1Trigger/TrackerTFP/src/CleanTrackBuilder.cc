@@ -511,9 +511,8 @@ namespace trackerTFP {
     const int hitPattern = hits.val();
     const double bField = setup_->bField();
     TTTrack<Ref_Phase2TrackerDigi_> ttTrack(
-        invR, phi0, cot, z0, d0, chi2phi, chi2z, trkMVA1, trkMVA2, trkMVA3, hitPattern, nPar, bField);
+        invR, phi0, cot, z0, d0, chi2phi, chi2z, trkMVA1, trkMVA2, trkMVA3, hitPattern, nPar, bField, region);
     ttTrack.setStubRefs(ttStubRefs);
-    ttTrack.setPhiSector(region);
     ttTracks.emplace_back(ttTrack);
   }
 

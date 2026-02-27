@@ -382,11 +382,11 @@ namespace trklet {
                                ttTrackRef->trkMVA3(),
                                ttTrackRef->hitPattern(),
                                5,
-                               setup_->bField());
-        ttTracks_.back().setPhiSector(ttTrackRef->phiSector());
-        ttTracks_.back().setEtaSector(ttTrackRef->etaSector());
-        ttTracks_.back().setTrackSeedType(ttTrackRef->trackSeedType());
-        ttTracks_.back().setStubPtConsistency(ttTrackRef->stubPtConsistency());
+                               setup_->bField(),
+                               ttTrackRef->phiSector(),
+                               ttTrackRef->etaSector(),
+                               ttTrackRef->chi2BendRed(),
+                               ttTrackRef->trackSeedType());
         ttTracks_.back().setStubRefs(ttTrackRef->getStubRefs());
       }
     }

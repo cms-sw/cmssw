@@ -1,13 +1,10 @@
 /*! \class   TTTrack
- *  \brief   Class to store the L1 Track Trigger tracks
- *  \details After moving from SimDataFormats to DataFormats,
- *           the template structure of the class was maintained
+ *  \brief   Class to store the L1 Tracks.
+ *  \details The template structure of the class was maintained
  *           in order to accomodate any types other than PixelDigis
  *           in case there is such a need in the future.
  *
- *  \author Nicola Pozzobon
- *  \date   2013, Jul 12
- *
+ *  \author Nicola Pozzobon (+ update Ian Tomalin)
  */
 
 #ifndef L1_TRACK_TRIGGER_TRACK_FORMAT_H
@@ -20,16 +17,19 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
-
-namespace tttrack {
-  void errorSetTrackWordBits(unsigned int);
-}
+#include "DataFormats/Math/interface/Error.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 template <typename T>
 class TTTrack : public TTTrack_TrackWord {
+public:
+  typedef math::ErrorF<5>::type CovMat;
+  typedef edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStub<T> > TTStubRef;
+  enum Hpar { INVR, PHI0, TANL, Z0, D0 };
+
 private:
   /// Data members
-  std::vector<edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStub<T> > > theStubRefs;
+  std::vector<TTStubRef> theStubRefs;
   GlobalVector theMomentum_;
   GlobalPoint thePOCA_;
   double theRInv_;
@@ -50,132 +50,140 @@ private:
   double theTrkMVA3_;
   int theTrackSeedType_;
   double theBField_;  // needed for unpacking
-  static constexpr unsigned int Npars4 = 4;
-  static constexpr unsigned int Npars5 = 5;
-  static constexpr float MagConstant =
-      CLHEP::c_light / 1.0E3;  //constant is 0.299792458; who knew c_light was in mm/ns?
+  CovMat theHelixCovMat_;
+
+  static constexpr double cLight_ = CLHEP::c_light * (CLHEP::second / CLHEP::meter);
 
 public:
   /// Constructors
   TTTrack();
 
-  TTTrack(double aRinv,
-          double aphi,
-          double aTanLambda,
-          double az0,
-          double ad0,
-          double aChi2,
-          double trkMVA1,
-          double trkMVA2,
-          double trkMVA3,
-          unsigned int aHitpattern,
-          unsigned int nPar,
-          double Bfield);
-
-  TTTrack(double aRinv,
-          double aphi,
-          double aTanLambda,
-          double az0,
-          double ad0,
+  TTTrack(double Rinv,
+          double phi0,
+          double tanL,
+          double z0,
+          double d0,
           double aChi2xyfit,
           double aChi2zfit,
           double trkMVA1,
           double trkMVA2,
           double trkMVA3,
-          unsigned int aHitpattern,
+          unsigned int aHitpattern,  // Bit order: Inner-->Outer tracker corresponds to Rightmost-->Leftmost bits
           unsigned int nPar,
-          double Bfield);
+          double Bfield,
+          unsigned int phiSector = 99,
+          unsigned int etaSector = 99,
+          double chi2BendRed = -99,
+          unsigned int seedType = 99,
+          const CovMat& helixCovMat = CovMat());
 
-  /// Destructor
-  ~TTTrack();
-
-  /// Track components
-  const std::vector<edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStub<T> > >& getStubRefs() const {
-    return theStubRefs;
-  }
-  void addStubRef(edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStub<T> > aStub) { theStubRefs.push_back(aStub); }
-  void setStubRefs(std::vector<edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStub<T> > > aStubs) {
-    theStubRefs = aStubs;
-  }
+  /// Track stubs (not available in firmware)
+  const std::vector<TTStubRef>& getStubRefs() const { return theStubRefs; }
+  void addStubRef(const TTStubRef& aStub) { theStubRefs.push_back(aStub); }
+  void setStubRefs(const std::vector<TTStubRef>& aStubs) { theStubRefs = aStubs; }
 
   /// Track momentum
-  const GlobalVector& momentum() const;
+  const GlobalVector& momentum() const { return theMomentum_; }
+  double pt() const { return theMomentum_.perp(); }
 
   /// Track curvature
-  double rInv() const;
+  double rInv() const { return theRInv_; }
 
-  /// Track phi
-  double phi() const;
+  /// Track phi0
+  double phi() const { return thePhi_; }
 
-  /// Local track phi (within the sector)
-  double localPhi() const;
+  // Track phi with respect to centre line of phi nonant, which for sector 0 is parallel to x-axis.
+  double localPhi() const { return TTTrack_TrackWord::localPhi(thePhi_, thePhiSector_); }
 
   /// Track tanL
-  double tanL() const;
+  double tanL() const { return theTanL_; }
 
   /// Track d0
-  double d0() const;
+  double d0() const { return theD0_; }
 
   /// Track z0
-  double z0() const;
+  double z0() const { return theZ0_; }
 
   /// Track eta
-  double eta() const;
+  double eta() const { return theMomentum_.eta(); }
+
+  /// Track charge
+  int charge() const { return (theRInv_ > 0) ? 1 : -1; }
+
+  // Helix covariance matrix (always 5x5) in (1/R, phi0, tanL, z0, d0),
+  // so elements can be accessed with enum Hpar.
+  // (Added to study if any elements worth adding to L1 track firmware output).
+  const CovMat& helixCovMat() const { return theHelixCovMat_; }
 
   /// POCA
-  const GlobalPoint& POCA() const;
+  const GlobalPoint& POCA() const { return thePOCA_; }
 
   /// MVA Track quality variables
-  double trkMVA1() const;
-  void settrkMVA1(double atrkMVA1);
-  double trkMVA2() const;
-  void settrkMVA2(double atrkMVA2);
-  double trkMVA3() const;
-  void settrkMVA3(double atrkMVA3);
+  double trkMVA1() const { return theTrkMVA1_; }  // Tuned for prompt tracks
+  void settrkMVA1(double atrkMVA1) { theTrkMVA1_ = atrkMVA1; }
+  double trkMVA2() const { return theTrkMVA2_; }  // Tuned for prompt electron tracks
+  void settrkMVA2(double atrkMVA2) { theTrkMVA2_ = atrkMVA2; }
+  double trkMVA3() const { return theTrkMVA3_; }  // Tuned for displaced tracks
+  void settrkMVA3(double atrkMVA3) { theTrkMVA3_ = atrkMVA3; }
 
   /// Phi Sector
   unsigned int phiSector() const { return thePhiSector_; }
+  // Obsolete. Use constructor instead.
   void setPhiSector(unsigned int aSector) { thePhiSector_ = aSector; }
 
   /// Eta Sector
   unsigned int etaSector() const { return theEtaSector_; }
+  // Obsolete. Use constructor instead.
   void setEtaSector(unsigned int aSector) { theEtaSector_ = aSector; }
 
   /// Track seeding (for debugging)
   unsigned int trackSeedType() const { return theTrackSeedType_; }
+  // Obsolete. Use constructor instead.
   void setTrackSeedType(int aSeed) { theTrackSeedType_ = aSeed; }
 
-  /// Chi2
-  double chi2() const;
-  double chi2Red() const;
-  double chi2Z() const;
-  double chi2ZRed() const;
-  double chi2XY() const;
-  double chi2XYRed() const;
+  /// Chi2 and chi2/ndf ("Red")
+  double chi2() const { return theChi2_; }
+  double chi2Red() const { return theChi2_ / (2 * theStubRefs.size() - theNumFitPars_); }
+
+  // Ditto, but split into r-z and x-y components.
+  double chi2Z() const { return theChi2_Z_; }
+  double chi2ZRed() const {
+    constexpr int nHelixParsRZ = 2;
+    return theChi2_Z_ / (theStubRefs.size() - nHelixParsRZ);
+  }
+  double chi2XY() const { return theChi2_XY_; }
+  double chi2XYRed() const {
+    int nHelixParsRPhi = theNumFitPars_ - 2;
+    return theChi2_XY_ / (theStubRefs.size() - nHelixParsRPhi);
+  }
 
   /// Stub Pt consistency (i.e. stub bend chi2/dof)
-  /// Note: The "stubPtConsistency" names are historic and people are encouraged
-  ///       to adopt the "chi2Bend" names.
-  double stubPtConsistency() const;
-  void setStubPtConsistency(double aPtConsistency);
-  double chi2BendRed() { return stubPtConsistency(); }
-  void setChi2BendRed(double aChi2BendRed) { setStubPtConsistency(aChi2BendRed); }
-  double chi2Bend() { return chi2BendRed() * theStubRefs.size(); }
+  double chi2BendRed() const { return theStubPtConsistency_; }
+  double chi2Bend() const { return chi2BendRed() * theStubRefs.size(); }
+  // Obsolete. Use constructor instead
+  void setChi2BendRed(double aChi2BendRed) { theStubPtConsistency_ = aChi2BendRed; }
 
-  void setFitParNo(unsigned int aFitParNo);
   int nFitPars() const { return theNumFitPars_; }
 
   /// Hit Pattern
-  unsigned int hitPattern() const;
+  unsigned int hitPattern() const { return theHitPattern_; }
+
+  /// Get helix params & chi2XY after constraining track to x=y=0.
+  //  N.B. Should really constrain to beam-line position!
+  // (Added to study if worth adding to L1 track firmware output.
+  // Outputting constraint chi2 easier than constrained helix params.).
+  void beamConstraint(float& phi_con, float& rInv_con, float& pt_con, float& chi2XY_con, float& chi2XY_dof_con) const;
 
   /// set new Bfield
   void setBField(double aBField);
 
+  /// Set bits in 96-bit Track word that corresponds to TFP firwmare output.
   void setTrackWordBits();
-  void testTrackWordBits();
 
-  /// Information
-  std::string print(unsigned int i = 0) const;
+  std::string print() const;
+
+  // Converter - 1/rinv measured in cm.
+  double rinvToPt(double rinv) const { return (cLight_ / 1.0e11) * std::abs(theBField_ / rinv); }
 
 };  /// Close class
 
@@ -186,75 +194,36 @@ public:
  *           in the source file.
  */
 
-/// Default Constructor
+/// Empty constructor
 template <typename T>
-TTTrack<T>::TTTrack() {
-  theStubRefs.clear();
-  theMomentum_ = GlobalVector(0.0, 0.0, 0.0);
-  theRInv_ = 0.0;
-  thePOCA_ = GlobalPoint(0.0, 0.0, 0.0);
-  theD0_ = 0.;
-  theZ0_ = 0.;
-  theTanL_ = 0;
-  thePhi_ = 0;
-  theTrkMVA1_ = 0;
-  theTrkMVA2_ = 0;
-  theTrkMVA3_ = 0;
-  thePhiSector_ = 0;
-  theEtaSector_ = 0;
-  theTrackSeedType_ = 0;
-  theChi2_ = 0.0;
-  theChi2_XY_ = 0.0;
-  theChi2_Z_ = 0.0;
-  theStubPtConsistency_ = 0.0;
-  theNumFitPars_ = 0;
-}
+TTTrack<T>::TTTrack()
+    : theMomentum_(0., 0., 0.),
+      thePOCA_(0., 0., 0.),
+      theRInv_(0.),
+      thePhi_(0.),
+      theTanL_(0.),
+      theD0_(0.),
+      theZ0_(0.),
+      thePhiSector_(0),
+      theEtaSector_(0),
+      theStubPtConsistency_(0.),
+      theChi2_(0.),
+      theChi2_XY_(0.),
+      theChi2_Z_(0.),
+      theNumFitPars_(0),
+      theTrkMVA1_(0.),
+      theTrkMVA2_(0.),
+      theTrkMVA3_(0.),
+      theTrackSeedType_(0),
+      theBField_(0.) {}
 
-/// Meant to be default constructor
+/// Default constructor
 template <typename T>
-TTTrack<T>::TTTrack(double aRinv,
-                    double aphi0,
-                    double aTanlambda,
-                    double az0,
-                    double ad0,
-                    double aChi2,
-                    double trkMVA1,
-                    double trkMVA2,
-                    double trkMVA3,
-                    unsigned int aHitPattern,
-                    unsigned int nPar,
-                    double aBfield) {
-  theStubRefs.clear();
-  double thePT = std::abs(MagConstant / aRinv * aBfield / 100.0);  // Rinv is in cm-1
-  theMomentum_ = GlobalVector(GlobalVector::Cylindrical(thePT, aphi0, thePT * aTanlambda));
-  theRInv_ = aRinv;
-  thePOCA_ = GlobalPoint(ad0 * sin(aphi0), -ad0 * cos(aphi0), az0);
-  theD0_ = ad0;
-  theZ0_ = az0;
-  thePhi_ = aphi0;
-  theTanL_ = aTanlambda;
-  thePhiSector_ = 0;      // must be set externally
-  theEtaSector_ = 0;      // must be set externally
-  theTrackSeedType_ = 0;  // must be set externally
-  theChi2_ = aChi2;
-  theTrkMVA1_ = trkMVA1;
-  theTrkMVA2_ = trkMVA2;
-  theTrkMVA3_ = trkMVA3;
-  theStubPtConsistency_ = 0.0;  // must be set externally
-  theNumFitPars_ = nPar;
-  theHitPattern_ = aHitPattern;
-  theBField_ = aBfield;
-  theChi2_XY_ = -999.;
-  theChi2_Z_ = -999.;
-}
-
-/// Second default constructor with split chi2
-template <typename T>
-TTTrack<T>::TTTrack(double aRinv,
-                    double aphi0,
-                    double aTanlambda,
-                    double az0,
-                    double ad0,
+TTTrack<T>::TTTrack(double Rinv,
+                    double phi0,
+                    double tanL,
+                    double z0,
+                    double d0,
                     double aChi2XY,
                     double aChi2Z,
                     double trkMVA1,
@@ -262,176 +231,70 @@ TTTrack<T>::TTTrack(double aRinv,
                     double trkMVA3,
                     unsigned int aHitPattern,
                     unsigned int nPar,
-                    double aBfield)
-    : TTTrack(aRinv,
-              aphi0,
-              aTanlambda,
-              az0,
-              ad0,
-              aChi2XY + aChi2Z,  // add chi2 values
-              trkMVA1,
-              trkMVA2,
-              trkMVA3,
-              aHitPattern,
-              nPar,
-              aBfield) {
-  this->theChi2_XY_ = aChi2XY;
-  this->theChi2_Z_ = aChi2Z;
+                    double Bfield,
+                    unsigned int phiSector,
+                    unsigned int etaSector,
+                    double chi2BendRed,
+                    unsigned int seedType,
+                    const CovMat& helixCovMat)
+    : thePOCA_(d0 * sin(phi0), -d0 * cos(phi0), z0),
+      theRInv_(Rinv),
+      thePhi_(phi0),
+      theTanL_(tanL),
+      theD0_(d0),
+      theZ0_(z0),
+      thePhiSector_(phiSector),
+      theEtaSector_(etaSector),
+      theStubPtConsistency_(chi2BendRed),
+      theChi2_(aChi2XY + aChi2Z),
+      theChi2_XY_(aChi2XY),
+      theChi2_Z_(aChi2Z),
+      theNumFitPars_(nPar),
+      theHitPattern_(aHitPattern),
+      theTrkMVA1_(trkMVA1),
+      theTrkMVA2_(trkMVA2),
+      theTrkMVA3_(trkMVA3),
+      theTrackSeedType_(seedType),
+      theBField_(Bfield),
+      theHelixCovMat_(helixCovMat) {
+  double pT = rinvToPt(Rinv);
+  theMomentum_ = GlobalVector(GlobalVector::Cylindrical(pT, phi0, pT * tanL));
 }
 
-/// Destructor
+/// Get helix params & chi2XY after constraining track to x=y=0.
 template <typename T>
-TTTrack<T>::~TTTrack() {}
+void TTTrack<T>::beamConstraint(
+    float& phi_con, float& rInv_con, float& pt_con, float& chi2XY_con, float& chi2XY_dof_con) const {
+  phi_con = this->phi();
+  rInv_con = this->rInv();
+  pt_con = this->pt();
+  chi2XY_con = this->chi2XY();
+  chi2XY_dof_con = this->chi2XYRed();
 
-template <typename T>
-void TTTrack<T>::setFitParNo(unsigned int nPar) {
-  theNumFitPars_ = nPar;
-
-  return;
-}
-
-// Note that these calls return the floating point values.  If a TTTrack is made with only ditized values,
-// the unpacked values must come from the TTTrack_Trackword member functions.
-
-template <typename T>
-const GlobalVector& TTTrack<T>::momentum() const {
-  return theMomentum_;
-}
-
-template <typename T>
-double TTTrack<T>::rInv() const {
-  return theRInv_;
-}
-
-template <typename T>
-double TTTrack<T>::tanL() const {
-  return theTanL_;
-}
-
-template <typename T>
-double TTTrack<T>::eta() const {
-  return theMomentum_.eta();
-}
-
-template <typename T>
-double TTTrack<T>::phi() const {
-  return thePhi_;
-}
-
-template <typename T>
-double TTTrack<T>::localPhi() const {
-  return TTTrack_TrackWord::localPhi(thePhi_, thePhiSector_);
-}
-
-template <typename T>
-double TTTrack<T>::d0() const {
-  return theD0_;
-}
-
-template <typename T>
-double TTTrack<T>::z0() const {
-  return theZ0_;
-}
-
-template <typename T>
-const GlobalPoint& TTTrack<T>::POCA() const {
-  return thePOCA_;
-}
-
-/// Chi2
-template <typename T>
-double TTTrack<T>::chi2() const {
-  return theChi2_;
-}
-
-/// Chi2Z
-template <typename T>
-double TTTrack<T>::chi2Z() const {
-  return theChi2_Z_;
-}
-
-/// Chi2XY
-template <typename T>
-double TTTrack<T>::chi2XY() const {
-  return theChi2_XY_;
-}
-
-/// Chi2 reduced
-template <typename T>
-double TTTrack<T>::chi2Red() const {
-  return theChi2_ / (2 * theStubRefs.size() - theNumFitPars_);
-}
-
-/// Chi2XY reduced
-template <typename T>
-double TTTrack<T>::chi2XYRed() const {
-  return theChi2_XY_ / (theStubRefs.size() - (theNumFitPars_ - 2));
-}
-
-/// Chi2Z reduced
-template <typename T>
-double TTTrack<T>::chi2ZRed() const {
-  return theChi2_Z_ / (theStubRefs.size() - 2.);
-}
-
-/// prompt track quality MVA
-template <typename T>
-double TTTrack<T>::trkMVA1() const {
-  return theTrkMVA1_;
-}
-
-template <typename T>
-void TTTrack<T>::settrkMVA1(double atrkMVA1) {
-  theTrkMVA1_ = atrkMVA1;
-  return;
-}
-
-template <typename T>
-double TTTrack<T>::trkMVA2() const {
-  return theTrkMVA2_;
-}
-
-template <typename T>
-void TTTrack<T>::settrkMVA2(double atrkMVA2) {
-  theTrkMVA2_ = atrkMVA2;
-  return;
-}
-
-template <typename T>
-double TTTrack<T>::trkMVA3() const {
-  return theTrkMVA3_;
-}
-
-template <typename T>
-void TTTrack<T>::settrkMVA3(double atrkMVA3) {
-  theTrkMVA3_ = atrkMVA3;
-  return;
-}
-
-/// StubPtConsistency
-template <typename T>
-void TTTrack<T>::setStubPtConsistency(double aStubPtConsistency) {
-  theStubPtConsistency_ = aStubPtConsistency;
-  return;
-}
-
-/// StubPtConsistency
-template <typename T>
-double TTTrack<T>::stubPtConsistency() const {
-  return theStubPtConsistency_;
-}
-
-/// Hit Pattern
-template <typename T>
-unsigned int TTTrack<T>::hitPattern() const {
-  return theHitPattern_;
+  if (theNumFitPars_ == 5) {
+    // Calculated with Lagrange multipliers in approx that d0 is small.
+    double d0 = this->d0();
+    // To constrain to beam-spot (XB,YB) rather than (0,0), would need this,
+    // in approx that XB,YB,D0 all small.
+    // double d0 = this->d0() - (XB*sin(phi_con) - YB cos(phi_con));
+    double lagrange = d0 / theHelixCovMat_[Hpar::D0][Hpar::D0];
+    chi2XY_con += lagrange * d0;
+    rInv_con -= lagrange * theHelixCovMat_[Hpar::D0][Hpar::INVR];
+    phi_con -= lagrange * theHelixCovMat_[Hpar::D0][Hpar::PHI0];
+    phi_con = reco::deltaPhi(phi_con, 0.);
+    pt_con = this->rinvToPt(rInv_con);
+    constexpr int nHelixParsRPhi = 2;  // with d0 = 0 constraint
+    int dof = theStubRefs.size() - nHelixParsRPhi;
+    chi2XY_dof_con = chi2XY_con / dof;
+  }
 }
 
 /// set B field if need be
 template <typename T>
 void TTTrack<T>::setBField(double aBField) {
-  // if, for some reason, we want to change the value of the B-Field, recompute pT and momentum:
-  double thePT = std::abs(MagConstant / theRInv_ * aBField / 100.0);  // Rinv is in cm-1
+  theBField_ = aBField;
+  // if, for some reason, we want to change the value of the B-Field, recompute momentum:
+  double thePT = this->rinvToPt(theRInv_);
   theMomentum_ = GlobalVector(GlobalVector::Cylindrical(thePT, thePhi_, thePT * theTanL_));
 
   return;
@@ -440,81 +303,50 @@ void TTTrack<T>::setBField(double aBField) {
 /// Set bits in 96-bit Track word
 template <typename T>
 void TTTrack<T>::setTrackWordBits() {
-  if (!(theNumFitPars_ == Npars4 || theNumFitPars_ == Npars5)) {
-    tttrack::errorSetTrackWordBits(theNumFitPars_);
-    return;
-  }
-
-  unsigned int valid = true;
-  unsigned int mvaOther = 0;
+  constexpr unsigned int valid = true;
+  constexpr double mvaOther = 0.;
 
   // missing conversion of global phi to difference from sector center phi
 
-  if (theChi2_Z_ < 0) {
-    setTrackWord(valid,
-                 theMomentum_,
-                 thePOCA_,
-                 theRInv_,
-                 theChi2_,
-                 0,
-                 theStubPtConsistency_,
-                 theHitPattern_,
-                 theTrkMVA1_,
-                 mvaOther,
-                 thePhiSector_);
-  } else {
-    setTrackWord(valid,
-                 theMomentum_,
-                 thePOCA_,
-                 theRInv_,
-                 chi2XYRed(),
-                 chi2ZRed(),
-                 chi2BendRed(),
-                 theHitPattern_,
-                 theTrkMVA1_,
-                 mvaOther,
-                 thePhiSector_);
-  }
-  return;
-}
-
-/// Test bits in 96-bit Track word
-template <typename T>
-void TTTrack<T>::testTrackWordBits() {
-  //  float rPhi = theMomentum_.phi();  // this needs to be phi relative to center of sector ****
-  //float rEta = theMomentum_.eta();
-  //float rZ0 = thePOCA_.z();
-  //float rD0 = thePOCA_.perp();
-
-  //this is meant for debugging only.
-
-  //std::cout << " phi " << rPhi << " " << get_iphi() << std::endl;
-  //std::cout << " eta " << rEta << " " << get_ieta() << std::endl;
-  //std::cout << " Z0 " << rZ0 << " " << get_iz0() << std::endl;
-  //std::cout << " D0 " << rD0 << " " << get_id0() << std::endl;
-  //std::cout << " Rinv " << theRInv_ << " " << get_iRinv() << std::endl;
-  //std::cout << " chi2 " << theChi2_ << " " << get_ichi2() << std::endl;
+  setTrackWord(valid,
+               momentum(),
+               POCA(),
+               rInv(),
+               chi2XYRed(),
+               chi2ZRed(),
+               chi2BendRed(),
+               hitPattern(),
+               trkMVA1(),
+               mvaOther,
+               phiSector());
 
   return;
 }
 
-/// Information
 template <typename T>
-std::string TTTrack<T>::print(unsigned int i) const {
-  std::string padding("");
-  for (unsigned int j = 0; j != i; ++j) {
-    padding += "\t";
-  }
-
+std::string TTTrack<T>::print() const {
+  const std::string padding("\t");
   std::stringstream output;
-  output << padding << "TTTrack:\n";
-  padding += '\t';
-  output << '\n';
-  unsigned int iStub = 0;
+  output << padding << " -- TTTrack --\n";
+  // Compare original helix params with undigi(digi()) ones.
+  output << "Comparing float vs undigi(digi(float))\n";
+  output << "Rinv      = " << rInv() << " vs " << getRinv() << "\n";
+  output << "Local phi = " << localPhi() << " vs " << getPhi() << "\n";
+  output << "tanL      = " << tanL() << " vs " << getTanl() << "\n";
+  output << "z0        = " << z0() << " vs " << getZ0() << "\n";
+  output << "d0        = " << d0() << " vs " << getD0() << "\n";
+  output << "chi2XYRed = " << chi2XYRed() << " vs " << getChi2RPhi() << "\n";
+  output << "trkMVA1   = " << trkMVA1() << " vs " << getMVAQuality() << "\n";
+  auto safeSqrt = [](float q) { return q >= 0 ? sqrt(q) : -sqrt(-q); };
+  output << "sigma(z0) = " << safeSqrt(theHelixCovMat_[Hpar::Z0][Hpar::Z0]) << "\n";
+  if (theNumFitPars_ == 5)
+    output << "sigma(d0) = " << safeSqrt(theHelixCovMat_[Hpar::D0][Hpar::D0]) << "\n";
 
-  typename std::vector<edm::Ref<edmNew::DetSetVector<TTStub<T> >, TTStub<T> > >::const_iterator stubIter;
-  for (stubIter = theStubRefs.begin(); stubIter != theStubRefs.end(); ++stubIter) {
-    output << padding << "stub: " << iStub++ << ", DetId: " << ((*stubIter)->getDetId()).rawId() << '\n';
+  output << "digi(L1 track) word = " << getTrackWord().to_string(16) << "\n";
+
+  unsigned int iStub = 0;
+  for (const auto& stubIter : theStubRefs) {
+    output << padding << "stub: " << iStub++ << ", DetId: " << (stubIter->getDetId()).rawId() << '\n';
   }
 
   return output.str();
