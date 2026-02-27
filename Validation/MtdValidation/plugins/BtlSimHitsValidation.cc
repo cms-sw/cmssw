@@ -41,6 +41,14 @@
 
 #include "MTDHit.h"
 
+namespace {
+
+  inline uint64_t cantor(uint64_t a, uint64_t b) { return (a + b + 1) * (a + b) / 2 + b; }
+
+  inline uint64_t hash3(uint64_t a, uint64_t b, uint64_t c) { return cantor(a, cantor(b, c)); }
+
+}  // namespace
+
 class BtlSimHitsValidation : public DQMEDAnalyzer {
 public:
   explicit BtlSimHitsValidation(const edm::ParameterSet&);
@@ -181,26 +189,28 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     DetId id = simHit.detUnitId();
 
     // --- Build a global track ID by combining the SIM hit's eventId and trackId
-    uint64_t globalTrkID = ((uint64_t)simHit.eventId().rawId() << 32) | simHit.trackId();
+    uint64_t cmbID = hash3(simHit.eventId().rawId(), simHit.trackId(), simHit.hitProdType());
 
     // --- Define geoId from MTDTopology to group cells with hits by sensor module
     BTLDetId detId(id.rawId());
     DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
 
     // --- Sum the energies of SIM hits with the same track ID in the same cell
-    m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].energy += convertGeVToMeV(simHit.energyLoss());
+    m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][cmbID].energy += convertGeVToMeV(simHit.energyLoss());
 
     // --- Assign the time and position of the first SIM hit in time to the accumulated hit
-    if (m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].time == 0. ||
-        simHit.tof() < m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].time) {
-      m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].time = simHit.tof();
+    if (m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][cmbID].time == 0. ||
+        simHit.tof() < m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][cmbID].time) {
+      m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][cmbID].time = simHit.tof();
 
       auto hit_pos = simHit.localPosition();
-      m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].x = hit_pos.x();
-      m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].y = hit_pos.y();
-      m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].z = hit_pos.z();
+      m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][cmbID].x = hit_pos.x();
+      m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][cmbID].y = hit_pos.y();
+      m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][cmbID].z = hit_pos.z();
 
-      m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][globalTrkID].thetaAtEntry = simHit.thetaAtEntry();
+      m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][cmbID].thetaAtEntry = simHit.thetaAtEntry();
+      m_btlHitsPerCellAndModule[geoId.rawId()][id.rawId()][cmbID].prodType =
+          2 * simHit.hitProdType();  // for backward compatibility multiply x 2
     }
 
   }  // simHit loop
@@ -217,6 +227,7 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     meNhits_->Fill(log10(Nhits));
 
   // --- Loop over the BTL sensor modules
+  std::vector<uint64_t> v_hitID;
   for (const auto& module : m_btlHitsPerCellAndModule) {
     // --- Loop over the BTL cells
     for (auto const& cell : module.second) {
@@ -229,7 +240,7 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       }
 
       // --- Loop over the hits in the cell, sum the hit energies and store the hit IDs in a vector
-      std::vector<uint64_t> v_hitID;
+      v_hitID.clear();
       float ene_tot_cell = 0.;
 
       for (auto const& hit : m_hits) {
@@ -319,8 +330,8 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       meNtrkPerCell_->Fill(v_hitID.size());
 
       // --- First hit in the cell
-      int trackID = (int)(v_hitID[0] & 0xFFFFFFFF) / 100000000;
-      meHitTrkID1_->Fill(trackID);
+      int prodID = (int)(m_hits.at(v_hitID[0]).prodType);
+      meHitTrkID1_->Fill(prodID);
 
       // cells in the bulk of energy distribution
       if (ene_tot_cell < cellEneCut_) {
@@ -333,8 +344,8 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
 
       // --- Second hit in the cell
       if (v_hitID.size() == 2) {
-        trackID = (int)(v_hitID[1] & 0xFFFFFFFF) / 100000000;
-        meHitTrkID2_->Fill(trackID);
+        prodID = (int)(m_hits.at(v_hitID[1]).prodType);
+        meHitTrkID2_->Fill(prodID);
 
         meHitDeltaT2_->Fill(deltaT_max);
 
@@ -353,8 +364,8 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       }
       // --- Third hit in the cell
       else if (v_hitID.size() == 3) {
-        trackID = (int)(v_hitID[2] & 0xFFFFFFFF) / 100000000;
-        meHitTrkID3_->Fill(trackID);
+        prodID = (int)(m_hits.at(v_hitID[2]).prodType);
+        meHitTrkID3_->Fill(prodID);
 
         meHitDeltaT3_->Fill(deltaT_max);
 
@@ -371,8 +382,8 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       // --- Fourth hit in the cell and next ones
       else if (v_hitID.size() >= 4) {
         for (unsigned int ihit = 3; ihit < v_hitID.size(); ++ihit) {
-          trackID = (int)(v_hitID[ihit] & 0xFFFFFFFF) / 100000000;
-          meHitTrkID4_->Fill(trackID);
+          prodID = (int)(m_hits.at(v_hitID[ihit]).prodType);
+          meHitTrkID4_->Fill(prodID);
 
           // cells in the bulk of energy distribution
           if (ene_tot_cell < cellEneCut_) {
