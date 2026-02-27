@@ -46,11 +46,6 @@ linkedObjects = cms.EDProducer("PATObjectCrossLinker",
    vertices=cms.InputTag("slimmedSecondaryVertices")
 )
 
-# Switch to AK4 CHS jets for Run-2
-run2_nanoAOD_ANY.toModify(
-    linkedObjects, jets="finalJets"
-)
-
 from PhysicsTools.NanoAOD.lhcInfoProducer_cfi import lhcInfoProducer
 lhcInfoTable = lhcInfoProducer.clone()
 (~run3_common).toModify(
@@ -72,13 +67,9 @@ nanoTableTaskCommon = cms.Task(
     isoTrackTablesTask,softActivityTablesTask
 )
 
-# Replace AK4 Puppi with AK4 CHS for Run-2
-_nanoTableTaskCommonRun2 = nanoTableTaskCommon.copy()
-_nanoTableTaskCommonRun2.replace(jetPuppiTask, jetTask)
-_nanoTableTaskCommonRun2.replace(jetPuppiForMETTask, jetForMETTask)
-_nanoTableTaskCommonRun2.replace(jetPuppiTablesTask, jetTablesTask)
-run2_nanoAOD_ANY.toReplaceWith(
-    nanoTableTaskCommon, _nanoTableTaskCommonRun2
+(run2_muon | run2_egamma).toReplaceWith(
+    nanoTableTaskCommon,
+    nanoTableTaskCommon.copyAndAdd(chsJetUpdateTask)
 )
 
 nanoSequenceCommon = cms.Sequence(nanoTableTaskCommon)
@@ -101,190 +92,222 @@ nanoSequenceFS = cms.Sequence(nanoSequenceCommon + cms.Sequence(nanoTableTaskFS)
 nanoSequenceMC = nanoSequenceFS.copy()
 nanoSequenceMC.insert(nanoSequenceFS.index(nanoSequenceCommon)+1,nanoSequenceOnlyFullSim)
 
+
+def _fixPNetInputCollection(process):
+    # fix circular module dependency in ParticleNetFromMiniAOD TagInfos when slimmedTaus is updated
+    if hasattr(process, 'slimmedTaus'):
+        for mod in process.producers.keys():
+            if 'ParticleNetFromMiniAOD' in mod and 'TagInfos' in mod:
+                getattr(process, mod).taus = 'slimmedTaus::@skipCurrentProcess'
+
+
 # modifier which adds new tauIDs
 import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
-def nanoAOD_addTauIds(process, idsToRun=[]):
-    if idsToRun: #no-empty list of tauIDs to run
-        updatedTauName = "slimmedTausUpdated"
-        tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, debug = False,
-                                                  updatedTauName = updatedTauName,
-                                                  postfix = "ForNano",
-            toKeep = idsToRun)
+def nanoAOD_addTauIds(process, idsToRun=[], addPNetCHS=False, addUParTPuppi=False):
+    originalTauName = 'slimmedTaus::@skipCurrentProcess'
+    updatedTauName = None
+
+    if idsToRun:  # no-empty list of tauIDs to run
+        updatedTauName = 'slimmedTausUpdated'
+        tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, debug=False,
+                                                  originalTauName=originalTauName,
+                                                  updatedTauName=updatedTauName,
+                                                  postfix="ForNano",
+                                                  toKeep=idsToRun)
         tauIdEmbedder.runTauID()
-        process.finalTaus.src = updatedTauName
-        #remember to adjust the selection and tables with added IDs
+        process.tauTask.add(process.rerunMvaIsolationTaskForNano, getattr(process, updatedTauName))
+        originalTauName = updatedTauName
 
-        process.tauTask.add( process.rerunMvaIsolationTaskForNano, getattr(process, updatedTauName) )
-
-    return process
-
-def nanoAOD_addBoostedTauIds(process, idsToRun=[]):
-    if idsToRun: #no-empty list of tauIDs to run
-        updatedBoostedTauName = "slimmedTausBoostedNewID"
-        boostedTauIdEmbedder = tauIdConfig.TauIDEmbedder(process, debug = False,
-                                                         originalTauName = "slimmedTausBoosted",
-                                                         updatedTauName = updatedBoostedTauName,
-                                                         postfix = "BoostedForNano",
-                                                         toKeep = idsToRun)
-        boostedTauIdEmbedder.runTauID()
-        process.finalBoostedTaus.src = updatedBoostedTauName
-        #remember to adjust the selection and tables with added IDs
-
-        process.boostedTauTask.add( process.rerunMvaIsolationTaskBoostedForNano, getattr(process, updatedBoostedTauName))
-
-    return process
-
-def nanoAOD_addUTagToTaus(process, addUTagInfo=False, usePUPPIjets=False):
-    
-    if addUTagInfo:
-        originalTauName = process.finalTaus.src.value()
-        
-        if usePUPPIjets: # option to use PUPPI jets   
-            jetCollection = "updatedJetsPuppi"
-            TagName = "pfUnifiedParticleTransformerAK4JetTags"
-            tag_prefix = "byUTagPUPPI"
-            updatedTauName = originalTauName+'WithUTagPUPPI'
-            # Unified ParT Tagger used for PUPPI jets
-            from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4JetTags_cfi import pfUnifiedParticleTransformerAK4JetTags
-            Discriminators = [TagName+":"+tag for tag in pfUnifiedParticleTransformerAK4JetTags.flav_names.value()]
-        else: # use CHS jets by default
-            jetCollection = "updatedJets"
-            TagName = "pfParticleNetFromMiniAODAK4CHSCentralJetTags"
-            tag_prefix = "byUTagCHS"
-            updatedTauName = originalTauName+'WithUTagCHS'
-            # PNet tagger used for CHS jets
-            from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4CHSCentralJetTags
-            Discriminators = [TagName+":"+tag for tag in pfParticleNetFromMiniAODAK4CHSCentralJetTags.flav_names.value()]
+    from PhysicsTools.PatAlgos.patTauHybridProducer_cfi import patTauHybridProducer
+    if addPNetCHS:
+        jetCollection = "updatedJets"
+        TagName = "pfParticleNetFromMiniAODAK4CHSCentralJetTags"
+        tag_prefix = "byUTagCHS"
+        updatedTauName = originalTauName.split(':')[0] + 'WithPNetCHS'
+        # PNet tagger used for CHS jets
+        from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4CHSCentralJetTags
+        Discriminators = [TagName + ":" + tag for tag in pfParticleNetFromMiniAODAK4CHSCentralJetTags.flav_names.value()]
 
         # Define "hybridTau" producer
-        from PhysicsTools.PatAlgos.patTauHybridProducer_cfi import patTauHybridProducer
         setattr(process, updatedTauName, patTauHybridProducer.clone(
-            src = originalTauName,
-            jetSource = jetCollection,
-            dRMax = 0.4,
-            jetPtMin = 15,
-            jetEtaMax = 2.5,
-            UTagLabel = TagName,
-            UTagScoreNames = Discriminators,
-            tagPrefix = tag_prefix,
-            tauScoreMin = -1,
-            vsJetMin = 0.05,
-            checkTauScoreIsBest = False,
-            chargeAssignmentProbMin = 0.2,
-            addGenJetMatch = False,
-            genJetMatch = ""
+            src=originalTauName,
+            jetSource=jetCollection,
+            dRMax=0.4,
+            jetPtMin=15,
+            jetEtaMax=2.5,
+            UTagLabel=TagName,
+            UTagScoreNames=Discriminators,
+            tagPrefix=tag_prefix,
+            tauScoreMin=-1,
+            vsJetMin=0.05,
+            checkTauScoreIsBest=False,
+            chargeAssignmentProbMin=0.2,
+            addGenJetMatch=False,
+            genJetMatch=""
         ))
-        process.finalTaus.src = updatedTauName
+        process.tauTask.add(process.chsJetUpdateTask, getattr(process, updatedTauName))
+        originalTauName = updatedTauName
 
-        #remember to adjust the selection and tables with added IDs
+    if addUParTPuppi:
+        jetCollection = "updatedJetsPuppi"
+        TagName = "pfUnifiedParticleTransformerAK4JetTags"
+        tag_prefix = "byUTagPUPPI"
+        updatedTauName = originalTauName.split(':')[0] + 'WithUParTPuppi'
+        # Unified ParT Tagger used for PUPPI jets
+        from RecoBTag.ONNXRuntime.pfUnifiedParticleTransformerAK4JetTags_cfi import pfUnifiedParticleTransformerAK4JetTags
+        Discriminators = [TagName + ":" + tag for tag in pfUnifiedParticleTransformerAK4JetTags.flav_names.value()]
 
-        process.tauTask.add(process.jetTask, getattr(process, updatedTauName))
+        # Define "hybridTau" producer
+        setattr(process, updatedTauName, patTauHybridProducer.clone(
+            src=originalTauName,
+            jetSource=jetCollection,
+            dRMax=0.4,
+            jetPtMin=15,
+            jetEtaMax=2.5,
+            UTagLabel=TagName,
+            UTagScoreNames=Discriminators,
+            tagPrefix=tag_prefix,
+            tauScoreMin=-1,
+            vsJetMin=0.05,
+            checkTauScoreIsBest=False,
+            chargeAssignmentProbMin=0.2,
+            addGenJetMatch=False,
+            genJetMatch=""
+        ))
+        process.tauTask.add(getattr(process, updatedTauName))
+        originalTauName = updatedTauName
+
+    if updatedTauName is not None:
+        process.slimmedTaus = getattr(process, updatedTauName).clone()
+        process.tauTask.replace(getattr(process, updatedTauName), process.slimmedTaus)
+        delattr(process, updatedTauName)
+        _fixPNetInputCollection(process)
 
     return process
+
+
+def nanoAOD_addBoostedTauIds(process, idsToRun=[]):
+    if idsToRun:  # no-empty list of tauIDs to run
+        boostedTauIdEmbedder = tauIdConfig.TauIDEmbedder(process, debug=False,
+                                                         originalTauName="slimmedTausBoosted::@skipCurrentProcess",
+                                                         updatedTauName="slimmedTausBoostedNewID",
+                                                         postfix="BoostedForNano",
+                                                         toKeep=idsToRun)
+        boostedTauIdEmbedder.runTauID()
+
+        process.slimmedTausBoosted = process.slimmedTausBoostedNewID.clone()
+        del process.slimmedTausBoostedNewID
+        process.boostedTauTask.add(process.rerunMvaIsolationTaskBoostedForNano, process.slimmedTausBoosted)
+
+    return process
+
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 def nanoAOD_activateVID(process):
 
-    switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD,electronTask)
+    switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD, electronTask)
     for modname in electron_id_modules_WorkingPoints_nanoAOD.modules:
-        setupAllVIDIdsInModule(process,modname,setupVIDElectronSelection)
+        setupAllVIDIdsInModule(process, modname, setupVIDElectronSelection)
 
-    process.electronTask.add( process.egmGsfElectronIDTask )
+    process.electronTask.add(process.egmGsfElectronIDTask)
 
-    switchOnVIDPhotonIdProducer(process,DataFormat.MiniAOD,photonTask) # do not call this to avoid resetting photon IDs in VID, if called before inside makePuppiesFromMiniAOD
+    # do not call this to avoid resetting photon IDs in VID, if called before inside makePuppiesFromMiniAOD
+    switchOnVIDPhotonIdProducer(process, DataFormat.MiniAOD, photonTask)
     for modname in photon_id_modules_WorkingPoints_nanoAOD.modules:
-        setupAllVIDIdsInModule(process,modname,setupVIDPhotonSelection)
+        setupAllVIDIdsInModule(process, modname, setupVIDPhotonSelection)
 
-    process.photonTask.add( process.egmPhotonIDTask )
+    process.photonTask.add(process.egmPhotonIDTask)
 
     return process
+
 
 def nanoAOD_customizeCommon(process):
 
     process = nanoAOD_activateVID(process)
 
-    run2_nanoAOD_106Xv2.toModify(
-        nanoAOD_addDeepInfoAK4CHS_switch, nanoAOD_addParticleNet_switch=True,
-        nanoAOD_addRobustParTAK4Tag_switch=False,
-        nanoAOD_addUnifiedParTAK4Tag_switch=True,
-    )
-  
-    # This function is defined in jetsAK4_Puppi_cff.py
-    process = nanoAOD_addDeepInfoAK4(process,
-        addParticleNet=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addParticleNet_switch,
-        addRobustParTAK4=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addRobustParTAK4Tag_switch,
-        addUnifiedParTAK4=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addUnifiedParTAK4Tag_switch
+    nanoAOD_rePuppi_switch = cms.PSet(
+        useExistingWeights=cms.bool(False),
+        reclusterAK4MET=cms.bool(False),
+        reclusterAK8=cms.bool(False),
     )
 
+    # recompute Puppi weights, and remake AK4, AK8 Puppi jets and PuppiMET
+    (run2_nanoAOD_106Xv2 | run3_nanoAOD_pre142X | nanoAOD_rePuppi).toModify(
+        nanoAOD_rePuppi_switch, useExistingWeights=False, reclusterAK4MET=True, reclusterAK8=True
+    )
+
+    runOnMC = True
+    if hasattr(process, "NANOEDMAODoutput") or hasattr(process, "NANOAODoutput"):
+        runOnMC = False
+    from PhysicsTools.PatAlgos.tools.puppiJetMETReclusteringFromMiniAOD_cff import puppiJetMETReclusterFromMiniAOD
+    puppiJetMETReclusterFromMiniAOD(process,
+                                    runOnMC=runOnMC,
+                                    useExistingWeights=nanoAOD_rePuppi_switch.useExistingWeights.value(),
+                                    reclusterAK4MET=nanoAOD_rePuppi_switch.reclusterAK4MET.value(),
+                                    reclusterAK8=nanoAOD_rePuppi_switch.reclusterAK8.value(),
+                                    )
+
+    if not(nanoAOD_rePuppi_switch.useExistingWeights) and (nanoAOD_rePuppi_switch.reclusterAK4MET or nanoAOD_rePuppi_switch.reclusterAK8):
+        process = UsePuppiWeightFromValueMapForPFCandTable(process)
+
+    # This function is defined in jetsAK4_Puppi_cff.py
+    process = nanoAOD_addDeepInfoAK4(process,
+                                     addParticleNet=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addParticleNet_switch,
+                                     addRobustParTAK4=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addRobustParTAK4Tag_switch,
+                                     addUnifiedParTAK4=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addUnifiedParTAK4Tag_switch
+                                     )
+
+    # Needs to run PNet on CHS jets to update the tau collections
+    run2_nanoAOD_106Xv2.toModify(
+        nanoAOD_addDeepInfoAK4CHS_switch, nanoAOD_addParticleNet_switch=True,
+    )
     # This function is defined in jetsAK4_CHS_cff.py
-    process = nanoAOD_addDeepInfoAK4CHS(process,
-        addDeepBTag=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addDeepBTag_switch,
+    process = nanoAOD_addDeepInfoAK4CHS(
+        process, addDeepBTag=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addDeepBTag_switch,
         addDeepFlavour=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addDeepFlavourTag_switch,
         addParticleNet=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addParticleNet_switch,
         addRobustParTAK4=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addRobustParTAK4Tag_switch,
-        addUnifiedParTAK4=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addUnifiedParTAK4Tag_switch
-    )
+        addUnifiedParTAK4=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addUnifiedParTAK4Tag_switch)
 
     # This function is defined in jetsAK8_cff.py
-    process = nanoAOD_addDeepInfoAK8(process,
-        addDeepBTag=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBTag_switch,
+    process = nanoAOD_addDeepInfoAK8(
+        process, addDeepBTag=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBTag_switch,
         addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch,
         addDeepDoubleX=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepDoubleX_switch,
         addDeepDoubleXV2=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepDoubleXV2_switch,
         addParticleNetMassLegacy=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addParticleNetMassLegacy_switch,
+        addParticleNetLegacy=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addParticleNetLegacy_switch,
         addParticleNet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addParticleNet_switch,
         addGlobalParT=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addGlobalParT_switch,
-        jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload
-    )
+        jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload)
 
     nanoAOD_tau_switch = cms.PSet(
-        idsToAdd = cms.vstring(),
-        addUParTInfo = cms.bool(False),
-        addPNet = cms.bool(False)
+        idsToAdd=cms.vstring(),
+        addPNetCHS=cms.bool(False),
+        addUParTPuppi=cms.bool(False)
     )
     (run2_nanoAOD_106Xv2).toModify(
-        nanoAOD_tau_switch, idsToAdd = ["deepTau2018v2p5"]
-    ).toModify(
-        process, lambda p : nanoAOD_addTauIds(p, nanoAOD_tau_switch.idsToAdd.value())
+        nanoAOD_tau_switch, idsToAdd=["deepTau2018v2p5"]
     )
-    
-    # Add Unified Tagger for CHS jets (PNet) for Run 2 era,
-    # but don't add Unified Tagger for PUPPI jets (as different PUPPI tune
-    # and base jet algorithm)
-    (run2_nanoAOD_106Xv2).toModify(
-        nanoAOD_tau_switch, addPNet = True
+    (run2_nanoAOD_106Xv2 | run3_nanoAOD_pre142X).toModify(
+        nanoAOD_tau_switch, addPNetCHS=True, addUParTPuppi=True,
     )
-    # Add Unified Taggers for Run 3 pre 142X (pre v15) era (Unified taggers 
-    # are already added to slimmedTaus in miniAOD for newer eras)
-    run3_nanoAOD_pre142X.toModify(
-        nanoAOD_tau_switch, addPNet = True, addUParTInfo = True
-    )
-    
-    # Add Unified Tagger For CHS Jets (PNet 2023)
-    nanoAOD_addUTagToTaus(process,
-                          addUTagInfo = nanoAOD_tau_switch.addPNet.value(),
-                          usePUPPIjets = False
-    )
+    nanoAOD_addTauIds(process,
+                      idsToRun=nanoAOD_tau_switch.idsToAdd.value(),
+                      addPNetCHS=nanoAOD_tau_switch.addPNetCHS.value(),
+                      addUParTPuppi=nanoAOD_tau_switch.addUParTPuppi.value(),
+                      )
 
-    # Add Unified Tagger For PUPPI Jets (UParT 2024)
-    nanoAOD_addUTagToTaus(process,
-                        addUTagInfo = nanoAOD_tau_switch.addUParTInfo.value(),
-                        usePUPPIjets = True
-    )
-    
     nanoAOD_boostedTau_switch = cms.PSet(
-        idsToAdd = cms.vstring()
+        idsToAdd=cms.vstring()
     )
     run2_nanoAOD_106Xv2.toModify(
-        nanoAOD_boostedTau_switch, idsToAdd = ["mvaIso", "mvaIsoNewDM", "mvaIsoDR0p3", "againstEle", "boostedDeepTauRunIIv2p0"]
-    ).toModify(
-        process, lambda p : nanoAOD_addBoostedTauIds(p, nanoAOD_boostedTau_switch.idsToAdd.value())
-    )
+        nanoAOD_boostedTau_switch,
+        idsToAdd=["mvaIso", "mvaIsoNewDM", "mvaIsoDR0p3", "againstEle", "boostedDeepTauRunIIv2p0"])
     run3_nanoAOD_pre142X.toModify(
-        nanoAOD_boostedTau_switch, idsToAdd = ["boostedDeepTauRunIIv2p0"]
-    ).toModify(
-        process, lambda p : nanoAOD_addBoostedTauIds(p, nanoAOD_boostedTau_switch.idsToAdd.value())
+        nanoAOD_boostedTau_switch, idsToAdd=["boostedDeepTauRunIIv2p0"]
     )
+    nanoAOD_addBoostedTauIds(process, nanoAOD_boostedTau_switch.idsToAdd.value())
 
     # Add lepton time-life info
     from PhysicsTools.NanoAOD.leptonTimeLifeInfo_common_cff import addTimeLifeInfoBase

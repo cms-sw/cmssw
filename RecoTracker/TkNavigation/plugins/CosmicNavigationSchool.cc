@@ -370,17 +370,16 @@ SkippingLayerCosmicNavigationSchoolESProducer::ReturnType SkippingLayerCosmicNav
 
 void SkippingLayerCosmicNavigationSchoolESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("ComponentName");
-  desc.add<bool>("noPXB");
-  desc.add<bool>("noPXF");
-  desc.add<bool>("noTIB");
-  desc.add<bool>("noTID");
-  desc.add<bool>("noTOB");
-  desc.add<bool>("noTEC");
-  desc.add<bool>("selfSearch");
-  desc.add<bool>("allSelf");
-
-  descriptions.addDefault(desc);
+  desc.add<std::string>("ComponentName", "CosmicNavigationSchool");
+  desc.add<bool>("noPXB", false);
+  desc.add<bool>("noPXF", false);
+  desc.add<bool>("noTIB", false);
+  desc.add<bool>("noTID", false);
+  desc.add<bool>("noTOB", false);
+  desc.add<bool>("noTEC", false);
+  desc.add<bool>("selfSearch", true);
+  desc.add<bool>("allSelf", true);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

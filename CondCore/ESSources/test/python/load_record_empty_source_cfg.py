@@ -133,7 +133,7 @@ if options.pfnPostfix:
 
 process.source = cms.Source( "EmptySource",
                              firstRun = cms.untracked.uint32( options.runNumber ),
-                             firstTime = cms.untracked.uint64( ( long( time.time() ) - 24 * 3600 ) << 32 ), #24 hours ago in nanoseconds
+                             firstTime = cms.untracked.uint64((int(time.time()) - 24 * 3600) << 32),  # 24 hours ago in nanoseconds
                              numberEventsInRun = cms.untracked.uint32( options.eventsPerLumi *  options.numberOfLumis ), # options.numberOfLumis lumi sections per run
                              numberEventsInLuminosityBlock = cms.untracked.uint32( options.eventsPerLumi )
                              )

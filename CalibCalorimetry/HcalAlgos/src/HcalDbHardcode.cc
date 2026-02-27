@@ -756,10 +756,18 @@ HcalTPChannelParameter HcalDbHardcode::makeHardcodeTPChannelParameter(HcalGeneri
   // mask for channel validity and self trigger information, fine grain
   // bit information and auxiliary words
   uint32_t bitInfo = ((44 << 16) | 30);
+  int auxi1 = 0;
   int auxi2 = 0;
   if (fId.genericSubdet() == HcalGenericDetId::HcalGenZDC)
     auxi2 = 50;  // ZDC bunch spacing parameter
-  return HcalTPChannelParameter(fId.rawId(), 0, bitInfo, 0, auxi2);
+
+  // Hard code Run 3 TP algorithm for HB (OOT PU subtraction, prefire veto)
+  else if (fId.subdetId() == HcalTriggerTower) {
+    auxi1 = 120;  // OOT PU subtraction presample weighting factor (fixed-point 8-bit) (w ~ 0.47)
+    auxi2 = 0;    // For now, leave prefire veto off
+  }
+
+  return HcalTPChannelParameter(fId.rawId(), 0, bitInfo, auxi1, auxi2);
 }
 
 void HcalDbHardcode::makeHardcodeTPParameters(HcalTPParameters& tppar) const {

@@ -4175,7 +4175,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
                   h_dRPhoPFcand_NeuHad_unCleaned_[4]->Fill(dR);
                 }
               } else {
-                h_dRPhoPFcand_NeuHad_Cleaned_[2]->Fill(dR);
+                h_dRPhoPFcand_NeuHad_unCleaned_[2]->Fill(dR);
               }
             }
 

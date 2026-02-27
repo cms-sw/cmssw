@@ -18,6 +18,8 @@ class RunRepack:
         self.selectEvents = None
         self.inputLFN = None
         self.dataTier = None
+        self.rawSkim = None
+        self.globalTag= None
 
     def __call__(self):
         if self.inputLFN == None:
@@ -36,9 +38,11 @@ class RunRepack:
         if self.selectEvents != None:
             outputs[0]['selectEvents'] = self.selectEvents.split(',')
             outputs[1]['selectEvents'] = self.selectEvents.split(',')
-
+        if self.rawSkim != None:
+            outputs[0]['rawSkim'] = self.rawSkim
+            outputs[1]['rawSkim'] = None
         try:
-            process = repackProcess(outputs = outputs, dataTier = self.dataTier)
+            process = repackProcess(outputs = outputs, globalTag = self.globalTag, dataTier = self.dataTier)
         except Exception as ex:
             msg = "Error creating process for Repack:\n"
             msg += str(ex)
@@ -60,7 +64,7 @@ class RunRepack:
 
 
 if __name__ == '__main__':
-    valid = ["select-events=", "lfn=", "data-tier="]
+    valid = ["select-events=", "lfn=", "data-tier=", "raw-skim=", "global-tag="]
              
     usage = \
 """
@@ -92,6 +96,10 @@ python RunRepack.py --select-events HLT:path1,HLT:path2 --lfn /store/whatever --
             repackinator.inputLFN = arg
         if opt == "--data-tier" :
             repackinator.dataTier = arg
+        if opt == "--raw-skim":
+            repackinator.rawSkim = arg
+        if opt == "--global-tag":
+            repackinator.globalTag = arg
 
     repackinator()
 

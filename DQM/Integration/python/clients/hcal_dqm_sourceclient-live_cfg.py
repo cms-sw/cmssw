@@ -21,6 +21,7 @@ errorstr     = "### HcalDQM::cfg::ERROR:"
 useOfflineGT = False
 useFileInput = False
 useMap       = False
+usetxtMap    = False
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
@@ -73,6 +74,18 @@ process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
 process.load('EventFilter.CastorRawToDigi.CastorRawToDigi_cff')
 process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
 
+if usetxtMap:
+    process.es_ascii = cms.ESSource(
+                'HcalTextCalibrations',
+                input = cms.VPSet(
+                        cms.PSet(
+                                object = cms.string('ElectronicsMap'),
+                                file = cms.FileInPath("ElectronicsMap_Run394200_new.txt")
+                        )
+                )
+        )
+    process.es_prefer = cms.ESPrefer('HcalTextCalibrations', 'es_ascii')
+	
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module Settings
 #	-> runType
@@ -97,25 +110,24 @@ if isHeavyIon:
 	process.castorDigis.InputLabel = rawTag
 
 process.emulTPDigis = process.simHcalTriggerPrimitiveDigis.clone(
-   inputLabel = cms.VInputTag("hcalDigis", "hcalDigis:ZDC"),
+   inputLabel = cms.VInputTag("hcalDigis", "hcalDigis"),
    FrontEndFormatError = True,
    FG_threshold = 2,
    InputTagFEDRaw = rawTag,
    upgradeHF = True,
    upgradeHE = True,
    upgradeHB = True,
-   inputUpgradeLabel = cms.VInputTag("hcalDigis", "hcalDigis:ZDC"),
+   inputUpgradeLabel = cms.VInputTag("hcalDigis", "hcalDigis"),
    # Enable ZS on emulated TPs, to match what is done in data
    RunZS = True,
    ZS_threshold = 0
 )
 
-#inserting zdc emulator after tp digis
-process.etSumZdcProducer = cms.EDProducer('L1TZDCProducer',
-                                          hcalTPDigis = cms.InputTag("emulTPDigis"),
-                                          bxFirst = cms.int32(-2),
-                                          bxLast = cms.int32(3)
-)
+process.emulTPDigisForZDC = process.emulTPDigis.clone(inputUpgradeLabel = cms.VInputTag("hcalDigis", "hcalDigis:ZDC"))
+
+# Emulation of L1T ZDC EtSums based on HCAL trigger primitives
+from L1Trigger.L1TZDC.l1tZDCEtSums_cfi import l1tZDCEtSums as _l1tZDCEtSums
+process.etSumZdcProducer = _l1tZDCEtSums.clone(hcalTPDigis = "emulTPDigisForZDC")
 
 process.hcalDigis.InputLabel = rawTag
 process.emulTPDigisNoTDCCut = process.emulTPDigis.clone(
@@ -222,6 +234,7 @@ process.preRecoPath = cms.Path(
 		#*process.castorDigis # not in Run3
 		*process.emulTPDigis
 		*process.emulTPDigisNoTDCCut
+                *process.emulTPDigisForZDC
 		*process.L1TRawToDigi
 )
 
@@ -256,5 +269,6 @@ process.options.wantSummary = True
 
 # tracer
 #process.Tracer = cms.Service("Tracer")
-print("Final Source settings:", process.source)
 process = customise(process)
+print("Global Tag used:", process.GlobalTag.globaltag.value())
+print("Final Source settings:", process.source)

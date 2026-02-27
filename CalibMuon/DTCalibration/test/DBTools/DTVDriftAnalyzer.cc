@@ -1,4 +1,3 @@
-
 /*
  *  See header file for a description of this class.
  *
@@ -35,11 +34,14 @@ DTVDriftAnalyzer::DTVDriftAnalyzer(const ParameterSet& pset)
 DTVDriftAnalyzer::~DTVDriftAnalyzer() { theFile->Close(); }
 
 void DTVDriftAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
+  edm::LogInfo("DTVDriftAnalyzer") << "doing beginRun" << endl;
   if (readLegacyVDriftDB) {
     ESHandle<DTMtime> mTime = eventSetup.getHandle(mTimeMapToken_);
     mTimeMap = &*mTime;
-    vDriftMap_ = nullptr;
-    edm::LogVerbatim("DTVDriftAnalyzer") << "[DTVDriftAnalyzer] MTime version: " << mTime->version() << endl;
+    //ESHandle<DTMtime> mTimeHandle;
+    //mTimeMap = &eventSetup.getData(mTimeMapToken_);
+    //vDriftMap_ = nullptr;
+    edm::LogInfo("DTVDriftAnalyzer") << "[DTVDriftAnalyzer] MTime version: " << mTime->version() << endl;
   } else {
     ESHandle<DTRecoConditions> hVdrift = eventSetup.getHandle(vDriftMapToken_);
     vDriftMap_ = &*hVdrift;
@@ -58,7 +60,11 @@ void DTVDriftAnalyzer::endJob() {
   map<uint32_t, pair<float, float>> values;
 
   if (readLegacyVDriftDB) {
+    edm::LogInfo("DTVDriftAnalyzer") << "Reading Legacy VDrift DB" << endl;
+
     for (DTMtime::const_iterator mtime = mTimeMap->begin(); mtime != mTimeMap->end(); ++mtime) {
+      //edm::LogInfo("DTVDrift")<< typeid(mtime).name() <<endl;
+
       DTWireId wireId(
           (*mtime).first.wheelId, (*mtime).first.stationId, (*mtime).first.sectorId, (*mtime).first.slId, 0, 0);
       float vdrift;
@@ -68,6 +74,7 @@ void DTVDriftAnalyzer::endJob() {
       mTimeMap->get(detId, vdrift, reso, DTVelocityUnits::cm_per_ns);
       values[wireId.rawId()] = make_pair(vdrift, reso);
     }
+
   } else {
     for (DTRecoConditions::const_iterator vd = vDriftMap_->begin(); vd != vDriftMap_->end(); ++vd) {
       DTWireId wireId(vd->first);
@@ -80,10 +87,12 @@ void DTVDriftAnalyzer::endJob() {
     float vdrift = it->second.first;
     float reso = it->second.second;
     DTWireId wireId(it->first);
-    // vdrift is cm/ns , resolution is cm
-    edm::LogVerbatim("DTVDriftAnalyzer") << "Wire: " << wireId << endl
-                                         << " vdrift (cm/ns): " << vdrift << endl
-                                         << " reso (cm): " << reso << endl;
+    if (wireId.wheel() == 0 && wireId.superlayer() == 1)
+      // Print only for wheel=0 and SL=1
+      // vdrift is cm/ns , resolution is cm
+      edm::LogVerbatim("DTVDriftAnalyzer") << "Wire: " << wireId << endl
+                                           << " vdrift (cm/ns): " << vdrift << endl
+                                           << " reso (cm): " << reso << endl;
 
     //Define an histo for each wheel and each superlayer type
     TH1D* hVDriftHisto = theVDriftHistoMap[make_pair(wireId.wheel(), wireId.superlayer())];

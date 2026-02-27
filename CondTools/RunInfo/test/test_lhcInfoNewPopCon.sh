@@ -71,7 +71,7 @@ cmsRun ${SCRIPTS_DIR}/LHCInfoPerFillPopConAnalyzer_cfg.py mode=duringFill \
     startTime="2022-10-24 01:00:00.000" endTime="2022-10-24 20:00:00.000" \
     lastLumiFile=last_lumi.txt \
     tag=fill_during_test > fill_during_test.log || die "cmsRun LHCInfoPerFillPopConAnalyzer_cfg.py" $? "fill_during_test.log"
-assert_equal 1 `cat fill_during_test.log | grep -E 'uploaded with since' | \
+assert_equal 0 `cat fill_during_test.log | grep -E 'uploaded with since' | \
     wc -l` "LHCInfoPerFillPopConAnalyzer in DuringFill written wrong number of payloads" "fill_during_test.log"
 
 echo "testing LHCInfoPerLSPopConAnalyzer in duringFill mode for startTime=\"2022-10-24 01:00:00.000\" endTime=\"2022-10-24 20:00:00.000\"" 

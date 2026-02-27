@@ -11,7 +11,6 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
@@ -96,9 +95,13 @@ namespace edm {
     productRegistry.copyProduct(constProductDescription_);
 
     // Insert an entry for this process in the process history registry
+    // This process is about the data from LHC, and has thus no
+    // well-defined hardware resources
     ProcessHistory ph;
-    ph.emplace_back(
-        constProductDescription_.processName(), processParameterSet_.id(), getReleaseVersion(), getPassID());
+    ph.emplace_back(constProductDescription_.processName(),
+                    processParameterSet_.id(),
+                    getReleaseVersion(),
+                    HardwareResourcesDescription());
     processHistoryRegistry.registerProcessHistory(ph);
 
     // Save the process history ID for use every event.
@@ -108,7 +111,8 @@ namespace edm {
   bool DaqProvenanceHelper::matchProcesses(ProcessConfiguration const& newPC, ProcessHistory const& ph) const {
     for (auto const& pc : ph) {
       if (pc.processName() == oldProcessName_) {
-        return (pc.releaseVersion() == newPC.releaseVersion() && pc.passID() == newPC.passID());
+        // Assuming here the node hardware information does not matter
+        return (pc.releaseVersion() == newPC.releaseVersion());
       }
     }
     return false;
@@ -119,8 +123,10 @@ namespace edm {
     std::vector<ProcessConfiguration> newPCs;
     for (auto const& pc : pcv) {
       if (pc.processName() == oldProcessName_) {
-        newPCs.emplace_back(
-            constProductDescription_.processName(), processParameterSet_.id(), pc.releaseVersion(), pc.passID());
+        newPCs.emplace_back(constProductDescription_.processName(),
+                            processParameterSet_.id(),
+                            pc.releaseVersion(),
+                            pc.hardwareResourcesDescription());
       }
     }
     if (newPCs.empty()) {

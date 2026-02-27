@@ -660,14 +660,6 @@ class EndPath(_ModuleSequenceType):
     def _placeImpl(self,name:str,proc):
         proc._placeEndPath(name,self)
 
-class FinalPath(_ModuleSequenceType):
-    def __init__(self,*arg,**argv):
-        super(FinalPath,self).__init__(*arg,**argv)
-    def _placeImpl(self,name:str,proc):
-        proc._placeFinalPath(name,self)
-    def associate(self,task):
-      raise TypeError("FinalPath does not allow associations with Tasks")
-
 class Sequence(_ModuleSequenceType,_Sequenceable):
     def __init__(self,*arg,**argv):
         super(Sequence,self).__init__(*arg,**argv)
@@ -763,7 +755,7 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
             self._tasks.add(task)
     @staticmethod
     def _itemIsValid(item) -> bool:
-        return isinstance(item,Path) or isinstance(item,EndPath) or isinstance(item,FinalPath)
+        return isinstance(item,Path) or isinstance(item,EndPath)
     def copy(self):
         import copy
         aCopy = copy.copy(self)
@@ -2350,14 +2342,6 @@ if __name__=="__main__":
             ct2.replace(m2,ct3)
             self.assertEqual(ct2.dumpPython(), "cms.ConditionalTask(process.m1, process.m3, process.m5)\n")
 
-            #FinalPath
-            fp = FinalPath()
-            fp.replace(m1,m2)
-            self.assertEqual(fp.dumpPython(), "cms.FinalPath()\n")
-            fp = FinalPath(m1)
-            fp.replace(m1,m2)
-            self.assertEqual(fp.dumpPython(), "cms.FinalPath(process.m2)\n")
-
         def testReplaceIfHeldDirectly(self):
             m1 = DummyModule("m1")
             m2 = DummyModule("m2")
@@ -2661,13 +2645,6 @@ if __name__=="__main__":
             self.assertEqual(t3.dumpPython(), "cms.ConditionalTask(process.m2)\n")
             t3.remove(m2)
             self.assertEqual(t3.dumpPython(), "cms.ConditionalTask()\n")
-            #FinalPath
-            fp = FinalPath(m1+m2)
-            fp.remove(m1)
-            self.assertEqual(fp.dumpPython(), "cms.FinalPath(process.m2)\n")
-            fp = FinalPath(m1)
-            fp.remove(m1)
-            self.assertEqual(fp.dumpPython(), "cms.FinalPath()\n")
 
         def testCopyAndExclude(self):
             a = DummyModule("a")

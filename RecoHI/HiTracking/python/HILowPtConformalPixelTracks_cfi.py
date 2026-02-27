@@ -167,8 +167,8 @@ hiConformalPixelTracksTaskPhase1 = cms.Task(
 
 phase1Pixel.toReplaceWith(hiConformalPixelTracksTask, hiConformalPixelTracksTaskPhase1)
 
-from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
-run3_upc.toModify(hiConformalPixelTracksPhase1TrackingRegions.RegionPSet, ptMin = 0.05)
-run3_upc.toModify(hiConformalPixelTracksPhase1Filter, ptMin = 0.05)
-run3_upc.toModify(hiTrackingRegionWithVertex.RegionPSet, VertexCollection = "offlinePrimaryVertices", ptMin = 0.05)
-run3_upc.toModify(hiConformalPixelFilter, VertexCollection = "offlinePrimaryVertices", ptMin = 0.05)
+from Configuration.Eras.Modifier_highBetaStar_cff import highBetaStar
+highBetaStar.toModify(hiConformalPixelTracksPhase1TrackingRegions.RegionPSet, ptMin = 0.05)
+highBetaStar.toModify(hiConformalPixelTracksPhase1Filter, ptMin = 0.05)
+highBetaStar.toModify(hiTrackingRegionWithVertex.RegionPSet, VertexCollection = "offlinePrimaryVertices", ptMin = 0.05)
+highBetaStar.toModify(hiConformalPixelFilter, VertexCollection = "offlinePrimaryVertices", ptMin = 0.05)

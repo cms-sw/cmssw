@@ -50,7 +50,7 @@ jetDQMAnalyzerAk4CaloUncleaned = DQMEDAnalyzer('JetAnalyzer',
         bypassAllPVChecks = True,
         ),
 
-    #for JPT and CaloJetID  
+    #Only for JPT and CaloJetID  -> need to define InputJetIDValueMap  
     InputJetIDValueMap         = cms.InputTag("ak4JetID"), 
     #options for Calo and JPT: LOOSE,LOOSE_AOD,TIGHT,MINIMAL
     #for PFJets: LOOSE,TIGHT
@@ -198,16 +198,12 @@ jetDQMAnalyzerAk4ScoutingUncleaned = jetDQMAnalyzerAk4CaloUncleaned.clone(
         bypassAllPVChecks = False,
         ),
 
-    #for JPT and CaloJetID  
-    #InputJetIDValueMap         = cms.untracked.InputTag("ak4JetID"), 
-    #options for Calo and JPT: LOOSE,LOOSE_AOD,TIGHT,MINIMAL
-    #for PFJets: LOOSE,TIGHT
-    ###JetIDQuality               = cms.string("LOOSE"),
-    #options for Calo and JPT: PURE09,DQM09,CRAFT08
-    #for PFJets: FIRSTDATA
-    ###JetIDVersion               = cms.string("PURE09"),
+    #for scouting PF jets: TIGHT
+    JetIDQuality               = cms.string("TIGHT"),
+    #for scouting PF jets: RUN3Scouting
+    JetIDVersion               = cms.string("RUN3Scouting"),
     #
-    #actually done only for PFJets at the moment
+    #Pileup JetID anf quark-gluon discrimination not exist for scouting PF jets. The following: actually done only for PFJets at the moment
     ###InputMVAPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorDQM","fullDiscriminant"),
     ###InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorDQM","cutbasedDiscriminant"),
     ###InputMVAPUIDValue = cms.InputTag("pileupJetIdEvaluatorDQM","fullId"),
@@ -228,10 +224,14 @@ jetDQMAnalyzerAk4ScoutingUncleaned = jetDQMAnalyzerAk4CaloUncleaned.clone(
     # DCS ### -> only used in JetMETDQMFilter.cc
     #                             
     DCSFilterForJetMonitoring = cms.PSet(
-      DetectorTypes = cms.untracked.string("ecal:hbhe:hf"),
+      DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
       #DebugOn = cms.untracked.bool(True),
       alwaysPass = cms.untracked.bool(False)
     )
+)
+
+jetDQMAnalyzerAk4ScoutingCleaned = jetDQMAnalyzerAk4ScoutingUncleaned.clone(
+    JetCleaningFlag = True
 )
 
 jetDQMAnalyzerAk4PFCHSUncleanedMiniAOD=jetDQMAnalyzerAk4PFUncleaned.clone(

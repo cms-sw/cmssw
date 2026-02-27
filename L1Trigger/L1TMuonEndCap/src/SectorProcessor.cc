@@ -168,6 +168,7 @@ void SectorProcessor::process_single_bx(int bx,
                       cfg.bugGMTPhi_,
                       cfg.promoteMode7_,
                       cfg.modeQualVer_,
+                      cfg.promoteMode7Sectors_,
                       cfg.pbFileName_);
 
   std::map<int, TriggerPrimitiveCollection> selected_dt_map;

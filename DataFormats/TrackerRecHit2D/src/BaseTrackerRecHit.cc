@@ -1,5 +1,6 @@
 //#define DO_THROW_UNINITIALIZED
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 #include "DataFormats/Math/interface/ProjectMatrix.h"
 #include "FWCore/Utilities/interface/Exception.h"

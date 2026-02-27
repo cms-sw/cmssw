@@ -10,10 +10,10 @@
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 
-#include "FWCore/Utilities/interface/GetPassID.h"
-
+#include "FWCore/AbstractServices/interface/ResourceInformation.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Reflection/interface/TypeWithDict.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 namespace edm {
@@ -123,8 +123,13 @@ namespace edm {
 
     // Insert an entry for this process in the process history registry
     ProcessHistory ph;
+    edm::Service<edm::ResourceInformation> resourceInformationService;
+    edm::HardwareResourcesDescription hwResources;
+    if (resourceInformationService.isAvailable()) {
+      hwResources = resourceInformationService->hardwareResourcesDescription();
+    }
     ph.emplace_back(
-        eventProductProductDescription_.processName(), processParameterSet_.id(), getReleaseVersion(), getPassID());
+        eventProductProductDescription_.processName(), processParameterSet_.id(), getReleaseVersion(), hwResources);
     processHistoryRegistry.registerProcessHistory(ph);
 
     // Save the process history ID for use every event.

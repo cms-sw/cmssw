@@ -11,7 +11,7 @@ from L1Trigger.CSCTriggerPrimitives.params.clctParams import clctPSets
 from L1Trigger.CSCTriggerPrimitives.params.tmbParams import tmbPSets
 from L1Trigger.CSCTriggerPrimitives.params.auxiliaryParams import auxPSets
 from L1Trigger.CSCTriggerPrimitives.params.gemcscParams import gemcscPSets
-from L1Trigger.CSCTriggerPrimitives.params.showerParams import showerPSet
+from L1Trigger.CSCTriggerPrimitives.params.showerParams import showerPSet,showerPSet_2025_AtoE,showerPSet_2025_FtoG
 
 cscTriggerPrimitiveDigis = cms.EDProducer(
     "CSCTriggerPrimitivesProducer",
@@ -72,6 +72,18 @@ run3_common.toModify( cscTriggerPrimitiveDigis,
                                          runME21Up = True,
                                          runME31Up = True,
                                          runME41Up = True)
+)
+## update shower thresholds for 2025 runs Eras A-E
+from Configuration.Eras.Modifier_run3_CSC_2025_cff import run3_CSC_2025_AtoE
+run3_CSC_2025_AtoE.toModify( cscTriggerPrimitiveDigis,
+                      showerParams = showerPSet_2025_AtoE.clone()
+)
+
+
+## update shower thresholds for 2025 runs Eras F-G
+from Configuration.Eras.Modifier_run3_CSC_2025_cff import run3_CSC_2025_FtoG
+run3_CSC_2025_FtoG.toModify( cscTriggerPrimitiveDigis,
+                      showerParams = showerPSet_2025_FtoG.clone()
 )
 
 ## GEM-CSC integrated local trigger in ME1/1

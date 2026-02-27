@@ -1,17 +1,18 @@
-#include "FWCore/Framework/interface/global/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "DataFormats/NanoAOD/interface/FlatTable.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include <DataFormats/Math/interface/deltaR.h>
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
 
-#include <vector>
 #include <iostream>
+#include <vector>
+
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/NanoAOD/interface/FlatTable.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class CandMCMatchTableProducer : public edm::global::EDProducer<> {
 public:
@@ -31,6 +32,8 @@ public:
       type_ = MTau;
     else if (type == "Photon")
       type_ = MPhoton;
+    else if (type == "Track")
+      type_ = MTrack;
     else if (type == "Other")
       type_ = MOther;
     else
@@ -39,22 +42,32 @@ public:
     switch (type_) {
       case MMuon:
         flavDoc_ =
-            "1 = prompt muon (including gamma*->mu mu), 15 = muon from prompt tau, "  // continues below
-            "5 = muon from b, 4 = muon from c, 3 = muon from light or unknown, 0 = unmatched";
+            "1 = prompt muon (including gamma*->mu mu), 15 = muon from prompt "
+            "tau, "  // continues below
+            "5 = muon from b, 4 = muon from c, 3 = muon from light or unknown, "
+            "0 = unmatched";
         break;
       case MElectron:
         flavDoc_ =
-            "1 = prompt electron (including gamma*->mu mu), 15 = electron from prompt tau, 22 = prompt photon (likely "
+            "1 = prompt electron (including gamma*->mu mu), 15 = electron from "
+            "prompt tau, 22 = prompt photon (likely "
             "conversion), "  // continues below
-            "5 = electron from b, 4 = electron from c, 3 = electron from light or unknown, 0 = unmatched";
+            "5 = electron from b, 4 = electron from c, 3 = electron from light "
+            "or unknown, 0 = unmatched";
         break;
       case MPhoton:
         flavDoc_ = "1 = prompt photon, 11 = prompt electron, 0 = unknown or unmatched";
         break;
       case MTau:
         flavDoc_ =
-            "1 = prompt electron, 2 = prompt muon, 3 = tau->e decay, 4 = tau->mu decay, 5 = hadronic tau decay, 0 = "
+            "1 = prompt electron, 2 = prompt muon, 3 = tau->e decay, 4 = "
+            "tau->mu decay, 5 = hadronic tau decay, 0 = "
             "unknown or unmatched";
+        break;
+      case MTrack:
+        flavDoc_ =
+            "1 = prompt, 511 = from B0, 521 = from B+/-, 0 = unknown or "
+            "unmatched";
         break;
       case MOther:
         flavDoc_ = "1 = from hard scatter, 0 = unknown or unmatched";
@@ -101,7 +114,9 @@ public:
     std::vector<int16_t> key(ncand, -1);
     std::vector<uint8_t> flav(ncand, 0);
     for (unsigned int i = 0; i < ncand; ++i) {
-      //std::cout << "cand #" << i << ": pT = " << cands->ptrAt(i)->pt() << ", eta = " << cands->ptrAt(i)->eta() << ", phi = " << cands->ptrAt(i)->phi() << std::endl;
+      // std::cout << "cand #" << i << ": pT = " << cands->ptrAt(i)->pt() << ",
+      // eta = " << cands->ptrAt(i)->eta() << ", phi = " <<
+      // cands->ptrAt(i)->phi() << std::endl;
       const auto& cand = candProd.ptrAt(i);
       reco::GenParticleRef match = mapProd[cand];
       reco::GenParticleRef matchVisTau;
@@ -121,7 +136,8 @@ public:
       else if (matchVisTau.isNonnull())
         key[i] = matchVisTau.key();
       else if (type_ != MElectron)
-        continue;  // go ahead with electrons, as those may be matched to a dressed lepton
+        continue;  // go ahead with electrons, as those may be matched to a
+                   // dressed lepton
 
       switch (type_) {
         case MMuon:
@@ -176,7 +192,8 @@ public:
             flav[i] = 11;  // prompt electron
           break;
         case MTau:
-          // CV: assignment of status codes according to https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsToTauTauWorking2016#MC_Matching
+          // CV: assignment of status codes according to
+          // https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsToTauTauWorking2016#MC_Matching
           if (match.isNonnull() && match->statusFlags().isPrompt() && abs(match->pdgId()) == 11)
             flav[i] = 1;
           else if (match.isNonnull() && match->statusFlags().isPrompt() && abs(match->pdgId()) == 13)
@@ -187,6 +204,12 @@ public:
             flav[i] = 4;
           else if (matchVisTau.isNonnull())
             flav[i] = 5;
+          break;
+        case MTrack:
+          if (match->isPromptFinalState())
+            flav[i] = 1;  // prompt
+          else
+            flav[i] = getParentHadronFlag(match);  // pdgId of mother
           break;
         default:
           flav[i] = match->statusFlags().fromHardProcess();
@@ -229,21 +252,31 @@ public:
     desc.add<std::string>("objName")->setComment("name of the nanoaod::FlatTable to extend with this table");
     desc.add<std::string>("branchName")
         ->setComment(
-            "name of the column to write (the final branch in the nanoaod will be <objName>_<branchName>Idx and "
+            "name of the column to write (the final branch in the nanoaod will "
+            "be <objName>_<branchName>Idx and "
             "<objName>_<branchName>Flav");
     desc.add<std::string>("docString")->setComment("documentation to forward to the output");
     desc.add<edm::InputTag>("src")->setComment(
-        "physics object collection for the reconstructed objects (e.g. leptons)");
+        "physics object collection for the reconstructed objects (e.g. "
+        "leptons)");
     desc.add<edm::InputTag>("mcMap")->setComment(
-        "tag to an edm::Association<GenParticleCollection> mapping src to gen, such as the one produced by MCMatcher");
+        "tag to an edm::Association<GenParticleCollection> mapping src to gen, "
+        "such as the one produced by MCMatcher");
     desc.add<std::string>("objType")->setComment(
-        "type of object to match (Muon, Electron, Tau, Photon, Other), taylors what's in t Flav branch");
+        "type of object to match (Muon, Electron, Tau, Photon, Other), taylors "
+        "what's in t Flav branch");
     desc.addOptional<edm::InputTag>("mcMapVisTau")
-        ->setComment("as mcMap, but pointing to the visible gen taus (only if objType == Tau)");
+        ->setComment(
+            "as mcMap, but pointing to the visible gen taus (only if objType "
+            "== Tau)");
     desc.addOptional<edm::InputTag>("mcMapDressedLep")
-        ->setComment("as mcMap, but pointing to gen dressed leptons (only if objType == Electrons)");
+        ->setComment(
+            "as mcMap, but pointing to gen dressed leptons (only if objType == "
+            "Electrons)");
     desc.addOptional<edm::InputTag>("mapTauAnc")
-        ->setComment("Value map of matched gen electrons containing info on the tau ancestry");
+        ->setComment(
+            "Value map of matched gen electrons containing info on the tau "
+            "ancestry");
     desc.addOptional<edm::InputTag>("genparticles")->setComment("Collection of genParticles to be stored.");
     descriptions.add("candMcMatchTable", desc);
   }
@@ -256,7 +289,7 @@ protected:
   edm::EDGetTokenT<edm::Association<reco::GenJetCollection>> candMapDressedLep_;
   edm::EDGetTokenT<edm::ValueMap<bool>> mapTauAnc_;
   edm::EDGetTokenT<reco::GenParticleCollection> genPartsToken_;
-  enum MatchType { MMuon, MElectron, MTau, MPhoton, MOther } type_;
+  enum MatchType { MMuon, MElectron, MTau, MPhoton, MTrack, MOther } type_;
   std::string flavDoc_;
 };
 

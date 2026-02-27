@@ -5,8 +5,8 @@ import FWCore.ParameterSet.Config as cms
 
 import sys
 
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process("OnlineBeamMonitor", Run3)
+from Configuration.Eras.Era_Run3_2025_cff import Run3_2025
+process = cms.Process("OnlineBeamMonitor", Run3_2025)
 
 # Message logger
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -46,10 +46,6 @@ process.dqmSaver.runNumber     = options.runNumber
 # process.dqmSaverPB.tag         = 'OnlineBeamMonitor'
 # process.dqmSaverPB.runNumber   = options.runNumber
 
-# for running offline enhance the time validity of the online beamspot in DB
-if (unitTest or process.isDqmPlayback.value):
-  process.BeamSpotESProducer.timeThreshold = cms.int32(int(1e6))
-
 #-----------------------------
 # BeamMonitor
 #-----------------------------
@@ -57,6 +53,7 @@ process.dqmOnlineBeamMonitor = cms.EDProducer("OnlineBeamMonitor",
 MonitorName         = cms.untracked.string("OnlineBeamMonitor"),
 AppendRunToFileName = cms.untracked.bool(False),
 WriteDIPAscii       = cms.untracked.bool(True),
+OnlineBeamSpotLabel = cms.untracked.InputTag("hltOnlineBeamSpot"),
 DIPFileName         = cms.untracked.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResultsForDIP.txt")
 )
 
@@ -94,4 +91,5 @@ process = customise(process)
 
 process.p = cms.Path( process.dqmcommon * process.monitor )
 
+print("Global Tag used:", process.GlobalTag.globaltag.value())
 print("Final Source settings:", process.source)

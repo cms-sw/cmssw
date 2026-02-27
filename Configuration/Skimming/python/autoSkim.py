@@ -40,6 +40,10 @@ autoSkim = {
  #'SingleMuon': 'LogError+LogErrorMonitor',
 }
 
+# For 2025 Ion skims
+for i_split in range(60):
+    autoSkim[f'IonPhysics{i_split}'] = 'IonHighPtMuon+IonDimuon+LogError+LogErrorMonitor'
+    
 # For 2024 PbPb skims
 for i_split in range(20):
     autoSkim[f'HIForward{i_split}'] = 'UPCMonopole+LogError+LogErrorMonitor'

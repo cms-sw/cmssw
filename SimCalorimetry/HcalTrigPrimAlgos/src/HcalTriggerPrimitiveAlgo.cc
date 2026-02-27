@@ -254,7 +254,12 @@ void HcalTriggerPrimitiveAlgo::addSignal(const QIE10DataFrame& frame) {
     }
   } else if (detId.det() == DetId::Calo && detId.subdetId() == HcalZDCDetId::SubdetectorId) {
     HcalZDCDetId detId = frame.detid();
+    // skip RPD Channels
     if (detId.section() != HcalZDCDetId::EM && detId.section() != HcalZDCDetId::HAD) {
+      return;
+    }
+    // skip FSC and dummy channels
+    if (detId.section() == HcalZDCDetId::EM && detId.channel() > 5) {
       return;
     }
 

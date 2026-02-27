@@ -205,14 +205,17 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params)
   isInitialized = false;
   //initialization of Sherpa moved to initializeForInternalPartons
 #ifdef USING__MPI
-  MPI::Init();
+  // FIXME this should be replaced with a call to the MPIService
+  int argc = 0;
+  char **argv = nullptr;
+  MPI_Init(&argc, &argv);
 #endif
 }
 
 SherpaHadronizer::~SherpaHadronizer() {
   Generator->~Sherpa();
 #ifdef USING__MPI
-  MPI::Finalize();
+  MPI_Finalize();
 #endif
 }
 

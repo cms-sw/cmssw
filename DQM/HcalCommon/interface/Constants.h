@@ -160,6 +160,9 @@ namespace hcaldqm {
  *	Detector Constants
  */
 
+    // HBLAS pin diode channel id
+    const HcalCalibDetId HBLasMon(HcalBarrel, 0, 31, 0);
+
     //	Hcal Subdetector
     int const HB = 1;
     int const HE = 2;
@@ -320,6 +323,15 @@ namespace hcaldqm {
       tMegatile = 18,
       tUnknown = 19,
       nOrbitGapType = 20,
+    };
+    enum uHTRType {
+      uUnknown = 0,
+      uPhysics = 1,
+      uPedestal = 2,
+      uLED = 3,
+      uHFRaddam = 4,
+      uLaser = 5,
+      nHTRType = 6,
     };
   }  // namespace constants
 }  // namespace hcaldqm

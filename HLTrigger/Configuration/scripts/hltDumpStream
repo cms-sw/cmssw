@@ -89,8 +89,8 @@ def getStreamsInfoFromProcess(process, prescaleValues, numberOfPrescaleColumns):
 
   each stream dict contains the following entries (key: value)
    - name: name of the stream
-   - path: cms.EndPath/FinalPath associated to the stream
-   - prescales: list of prescale values (1 per PS column) applied to the EndPath/FinalPath associated to the stream
+   - path: cms.EndPath associated to the stream
+   - prescales: list of prescale values (1 per PS column) applied to the EndPath associated to the stream
    - smartPrescales: dictionary (path:ps) of smart-prescales applied at stream level
    - datasets: list of dataset dictionaries (see below)
 
@@ -123,9 +123,9 @@ def getStreamsInfoFromProcess(process, prescaleValues, numberOfPrescaleColumns):
       raise RuntimeError('ERROR -- the process holds multiple partial schedules: '+str(process._Process__partialschedules))
 
   # find list of streams:
-  #  - stream XYZ exists if the configuration contains a EndPath/FinalPath that contains an OutputModule named hltOutputXYZ
-  #  - if more than one such EndPath/FinalPath exists, it is an error (unsupported configuration)
-  #  - if the configuration contains a cms.Schedule, the EndPath/FinalPath is required to be part of the cms.Schedule
+  #  - stream XYZ exists if the configuration contains a EndPath that contains an OutputModule named hltOutputXYZ
+  #  - if more than one such EndPath exists, it is an error (unsupported configuration)
+  #  - if the configuration contains a cms.Schedule, the EndPath is required to be part of the cms.Schedule
   #  - reliance on the PSet "streams" is minimised:
   #    - the latter PSet, if present, should be a superset of the streams found in the configuration
   #      (this is the case for HLT configs containing only a subset of the triggers of a menu, e.g. "hltGetConfiguration --paths [..]")
@@ -141,27 +141,26 @@ def getStreamsInfoFromProcess(process, prescaleValues, numberOfPrescaleColumns):
       continue
     streamName = outModName[len('hltOutput'):]
 
-    # find EndPath/FinalPath containing stream OutputModule
+    # find EndPath containing stream OutputModule
     streamPath = None
     outputModule = process.outputModules_()[outModName]
-    for efPaths in [process.endpaths_().values(), process.finalpaths_().values()]:
-      for efPath in efPaths:
-        if procSchedule != None:
-          # skip EndPath/FinalPath if not included in the schedule
-          # (schedule.contains does not seem to be enough, so the index of the EndPath/FinalPath in the schedule is searched;
-          #  if the EndPath/FinalPath is not in the schedule, this search leads to a runtime-error)
-          try: procSchedule.index(efPath)
-          except: continue
-        if efPath.contains(outputModule):
-          # if streamPath is already set, throw a runtime error:
-          # no more than one EndPath/FinalPath can hold a given OutputModule in valid HLT configurations
-          if streamPath != None:
-            errMsg = 'ERROR -- output module "'+outModName+'" is associated to'
-            errMsg += ' more than one EndPath/FinalPath: '+str([streamPath.label(), efPath.label()])
-            raise RuntimeError(errMsg)
-          streamPath = efPath
+    for efPath in process.endpaths_().values():
+      if procSchedule != None:
+        # skip EndPath if not included in the schedule
+        # (schedule.contains does not seem to be enough, so the index of the EndPath in the schedule is searched;
+        #  if the EndPath is not in the schedule, this search leads to a runtime-error)
+        try: procSchedule.index(efPath)
+        except: continue
+      if efPath.contains(outputModule):
+        # if streamPath is already set, throw a runtime error:
+        # no more than one EndPath can hold a given OutputModule in valid HLT configurations
+        if streamPath != None:
+          errMsg = 'ERROR -- output module "'+outModName+'" is associated to'
+          errMsg += ' more than one EndPath: '+str([streamPath.label(), efPath.label()])
+          raise RuntimeError(errMsg)
+        streamPath = efPath
 
-    # OutputModule not included in any active EndPath/FinalPath
+    # OutputModule not included in any active EndPath
     if streamPath == None:
       continue
 
@@ -290,9 +289,8 @@ def getStreamsInfoFromProcess(process, prescaleValues, numberOfPrescaleColumns):
 
     # fill smart-PS applied at stream level
     # (in Run-2 HLT menus, smart-PSs are applied to standard Paths in the stream EndPath)
-    # (in Run-3 HLT menus, prescales at stream level have not been used yet, plus they cannot be applied inside FinalPaths)
     streamSmartPrescales = {} # dictionary of smart-PSs applied at stream level
-    smartPSModuleName = None  # smart-PS module in the stream EndPath/FinalPath
+    smartPSModuleName = None  # smart-PS module in the stream EndPath
 
     # build list of Paths that can have a smart-PS at stream level:
     # this includes the Paths of all datasets in the stream, and the DatasetPaths (if present)
@@ -307,7 +305,7 @@ def getStreamsInfoFromProcess(process, prescaleValues, numberOfPrescaleColumns):
     for foo in pathNamesForStreamSmartPS:
       streamSmartPrescales[foo] = 1
 
-    # loop on modules preceding the OutputModule in the EndPath/FinalPath
+    # loop on modules preceding the OutputModule in the EndPath
     # to extract smart prescales at stream level, requiring no more than one smart-PS module
     streamPathExpanded = streamPath.expandAndClone()
     for modIdx in range(streamPathExpanded.index(outputModule)):

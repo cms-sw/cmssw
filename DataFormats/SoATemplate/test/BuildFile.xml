@@ -3,6 +3,7 @@
     <use name="boost"/>
     <use name="cuda"/>
     <use name="eigen"/>
+    <use name="DataFormats/SoATemplate"/>
     <use name="HeterogeneousCore/CUDAUtilities"/>
   </bin>
 </iftool>
@@ -12,6 +13,7 @@
     <use name="boost"/>
     <use name="eigen"/>
     <use name="rocm"/>
+    <use name="DataFormats/SoATemplate"/>
     <use name="HeterogeneousCore/ROCmUtilities"/>
   </bin>
 </iftool>
@@ -19,12 +21,14 @@
 <bin file="SoAUnitTests.cc" name="SoAUnitTests">
   <use name="boost"/>
   <use name="catch2"/>
+  <use name="DataFormats/SoATemplate"/>
 </bin>
 
 
 <!-- This test triggers a bug in ROOT, so it's kept disabled
 <bin file="SoAStreamer_t.cpp" name="SoAStreamer_t">
   <use name="root"/>
+  <use name="DataFormats/SoATemplate"/>
 </bin>
 -->
 

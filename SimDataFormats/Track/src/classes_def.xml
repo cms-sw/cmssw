@@ -9,20 +9,22 @@
    <version ClassVersion="12" checksum="3470347245"/>
    <version ClassVersion="11" checksum="1785575744"/>
    <version ClassVersion="10" checksum="1430205451"/>
-   <ioread sourceClass = "SimTrack" version="[-12]" targetClass="SimTrack" source="" target="">
+   <ioread sourceClass = "SimTrack" version="[12]" targetClass="SimTrack" source="bool crossedBoundary_; int idAtBoundary_; math::XYZTLorentzVectorF positionAtBoundary_; math::XYZTLorentzVectorF momentumAtBoundary_; int igenpart" target="trackInfo_, idAtBoundary_, positionAtBoundary_, momentumAtBoundary_">
     <![CDATA[
-        SimTrack tmp(newObj->type(), newObj->momentum(), newObj->vertIndex(), newObj->genpartIndex(), newObj->trackerSurfacePosition(), newObj->trackerSurfaceMomentum());
-        tmp.setTrackId(newObj->trackId());
-        tmp.setEventId(newObj->eventId());
-        tmp.setCrossedBoundaryVars(
-            newObj->crossedBoundary(), newObj->getIDAtBoundary(), newObj->getPositionAtBoundary(), newObj->getMomentumAtBoundary());
-        if (newObj->isFromBackScattering()) {
-          tmp.setFromBackScattering();
-        }
-        if (newObj->genpartIndex() != -1) {
-          tmp.setIsPrimary();
-        }
-        *newObj=tmp;
+        // set crossedBoundary infos
+        newObj->setCrossedBoundaryVars(onfile.crossedBoundary_, onfile.idAtBoundary_, onfile.positionAtBoundary_, onfile.momentumAtBoundary_);
+        // set isPrimary info of trackInfo_
+        if (onfile.igenpart != -1)
+          newObj->setIsPrimary();
+        // it's not possible to set the isFromBackScattering info for old simTracks
+    ]]>
+   </ioread>
+   <ioread sourceClass = "SimTrack" version="[-11]" targetClass="SimTrack" source="int igenpart" target="trackInfo_">
+    <![CDATA[
+        // set isPrimary info of trackInfo_
+        if (onfile.igenpart != -1)
+          newObj->setIsPrimary();
+        // it's not possible to set the isFromBackScattering and crossedBoundary info for old simTracks
     ]]>
    </ioread>
   </class>

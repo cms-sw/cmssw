@@ -150,8 +150,8 @@ private:
   std::string LHEInputFileName;
   std::shared_ptr<LHAupLesHouches> lhaUP;
 
-  enum { PP, PPbar, ElectronPositron };
-  int fInitialState;  // pp, ppbar, or e-e+
+  enum { PP, PPbar, ElectronPositron, HeavyIons };
+  int fInitialState;  // pp, ppbar, e-e+ or HI
 
   double fBeam1PZ;
   double fBeam2PZ;
@@ -251,6 +251,15 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
       fInitialState = ElectronPositron;
       edm::LogInfo("GeneratorInterface|Pythia8Interface")
           << "Pythia8 will be initialized for ELECTRON-POSITRON INITIAL STATE. "
+          << "This is a user-request change from the DEFAULT PROTON-PROTON initial state.";
+    } else {
+      // probably need to throw on attempt to override ?
+    }
+  } else if (params.exists("HeavyIonInitialState")) {
+    if (fInitialState == PP) {
+      fInitialState = HeavyIons;
+      edm::LogInfo("GeneratorInterface|Pythia8Interface")
+          << "Pythia8 will be initialized for HEAVY ION collisions. "
           << "This is a user-request change from the DEFAULT PROTON-PROTON initial state.";
     } else {
       // probably need to throw on attempt to override ?
@@ -409,10 +418,12 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
     } else if (fInitialState == ElectronPositron) {
       fMasterGen->settings.mode("Beams:idA", 11);
       fMasterGen->settings.mode("Beams:idB", -11);
+    } else if (fInitialState == HeavyIons) {
+      // let user to set up the beam particles
     } else {
       // throw on unknown initial state !
       throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
-          << " UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron \n";
+          << " UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron, HeavyIons \n";
     }
     fMasterGen->settings.parm("Beams:eCM", comEnergy);
   } else {

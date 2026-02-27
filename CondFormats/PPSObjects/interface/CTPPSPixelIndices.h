@@ -65,7 +65,7 @@ namespace rpixValues {
   constexpr int ROCSizeInY = 52;  // ROC col size in pixels
   // Default DET barrel size
   constexpr int defaultDetSizeInX = 160;  // Det row size in pixels (2 ROCs)
-  constexpr int defaultDetSizeInY = 156;  //  Det col size in pixels (3 ROCs)
+  constexpr int defaultDetSizeInY = 156;  // Det col size in pixels (3 ROCs)
 
   // Check the limits
   constexpr bool CTPPS_CHECK_LIMITS = true;
@@ -168,13 +168,13 @@ public:
     // The transformation depends on the ROC-ID
     if (rocId >= 0 && rocId < 3) {
       row = 159 - rowROC;
-
       col = (rocId + 1) * rpixValues::ROCSizeInY - colROC - 1;
     } else if (rocId >= 3 && rocId < 6) {
       row = rowROC;
-
       col = (5 - rocId) * rpixValues::ROCSizeInY + colROC;
     } else {
+      row = -1;
+      col = -1;
       edm::LogError("RPix") << "CTPPSPixelIndices: wrong ROC ID " << rocId;
       return -1;
     }
@@ -188,6 +188,7 @@ public:
 
     return 0;
   }
+
   //**************************************************************************
   // Transform from the module indixes to the ROC indices.
   // col, row - indices in the Module

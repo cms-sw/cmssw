@@ -334,7 +334,7 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es, DQMStore::IBook
         createLayerMEs(label, layerDetIds.size(), ibooker);
       }
       // book sub-detector plots
-      auto sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
+      const auto& sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
       if (SubDetMEsMap.find(sdet_pair.second) == SubDetMEsMap.end()) {
         ibooker.setCurrentFolder(sdet_pair.first);
 
@@ -708,9 +708,8 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     }
   }
   // initialise # of clusters to zero
-  for (std::map<std::string, SubDetMEs>::iterator iSubdet = SubDetMEsMap.begin(); iSubdet != SubDetMEsMap.end();
-       iSubdet++) {
-    iSubdet->second.totNClusters = 0;
+  for (auto& iSubdet : SubDetMEsMap) {
+    iSubdet.second.totNClusters = 0;
   }
 
   SiStripFolderOrganizer folder_organizer;
@@ -904,7 +903,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
         }
 
         if (subdetswitchcluschargeon || subdetswitchcluswidthon) {
-          std::map<std::string, SubDetMEs>::iterator iSubdet = SubDetMEsMap.find(subdet_label);
+          const auto& iSubdet = SubDetMEsMap.find(subdet_label);
           if (iSubdet != SubDetMEsMap.end()) {
             if (subdetswitchcluschargeon and passDCSFilter_)
               iSubdet->second.SubDetClusterChargeTH1->Fill(cluster_signal);
@@ -914,7 +913,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
         }
 
         if (subdet_clusterWidth_vs_amplitude_on and passDCSFilter_) {
-          std::map<std::string, SubDetMEs>::iterator iSubdet = SubDetMEsMap.find(subdet_label);
+          const auto& iSubdet = SubDetMEsMap.find(subdet_label);
           if (iSubdet != SubDetMEsMap.end())
             iSubdet->second.SubDetClusWidthVsAmpTH2->Fill(cluster_signal, cluster_width);
         }
@@ -932,7 +931,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       }  // end loop over clusters
 
       if (subdetswitchtotclusprofon) {
-        std::map<std::string, SubDetMEs>::iterator iSubdet = SubDetMEsMap.find(subdet_label);
+        const auto& iSubdet = SubDetMEsMap.find(subdet_label);
         std::pair<std::string, int32_t> det_layer_pair = folder_organizer.GetSubDetAndLayer(detid, tTopo);
         iSubdet->second.SubDetNumberOfClusterPerLayerTrend->Fill(
             trendVar, std::abs(det_layer_pair.second), ncluster_layer);
@@ -966,7 +965,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     if (subdetswitchtotclusprofon)
       fillME(layer_single.LayerNumberOfClusterTrend, trendVar, ncluster_layer);
 
-    std::map<std::string, SubDetMEs>::iterator iSubdet = SubDetMEsMap.find(subdet_label);
+    const auto& iSubdet = SubDetMEsMap.find(subdet_label);
     if (iSubdet != SubDetMEsMap.end())
       iSubdet->second.totNClusters += ncluster_layer;
   }  /// end of layer loop
@@ -994,10 +993,10 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     }
     // plot n 2
 
-    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-      std::string sdet = it->first;
+    for (const auto& it : SubDetMEsMap) {
+      std::string sdet = std::string(it.first);
       // std::string sdet = sdet_tag.substr(0,sdet_tag.find_first_of("_"));
-      SubDetMEs sdetmes = it->second;
+      SubDetMEs sdetmes = it.second;
 
       int the_phase = APVCyclePhaseCollection::invalid;
       long long tbx_corr = tbx;
@@ -1358,7 +1357,7 @@ void SiStripMonitorCluster::createLayerMEs(std::string label, int ndets, DQMStor
 //
 // -- Create SubDetector MEs
 //
-void SiStripMonitorCluster::createSubDetMEs(std::string label, DQMStore::IBooker& ibooker) {
+void SiStripMonitorCluster::createSubDetMEs(std::string_view label, DQMStore::IBooker& ibooker) {
   SubDetMEs subdetMEs;
   subdetMEs.totNClusters = 0;
   subdetMEs.SubDetTotClusterTH1 = nullptr;
@@ -1373,23 +1372,24 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label, DQMStore::IBooker
   subdetMEs.SubDetNumberOfClusterPerLayerTrend = nullptr;
 
   std::string HistoName;
+  auto slabel = std::string(label);
   // cluster charge
   if (subdetswitchcluschargeon) {
-    HistoName = "ClusterCharge__" + label;
+    HistoName = "ClusterCharge__" + slabel;
     subdetMEs.SubDetClusterChargeTH1 = bookME1D("TH1ClusterCharge", HistoName.c_str(), ibooker);
     subdetMEs.SubDetClusterChargeTH1->setAxisTitle("Cluster charge [ADC counts]");
     subdetMEs.SubDetClusterChargeTH1->setStatOverflows(kTRUE);  // over/underflows in Mean calculation
   }
   // cluster width
   if (subdetswitchcluswidthon) {
-    HistoName = "ClusterWidth__" + label;
+    HistoName = "ClusterWidth__" + slabel;
     subdetMEs.SubDetClusterWidthTH1 = bookME1D("TH1ClusterWidth", HistoName.c_str(), ibooker);
     subdetMEs.SubDetClusterWidthTH1->setAxisTitle("Cluster width [strips]");
     subdetMEs.SubDetClusterWidthTH1->setStatOverflows(kTRUE);  // over/underflows in Mean calculation
   }
   // Total Number of Cluster - 1D
   if (subdetswitchtotclusth1on) {
-    HistoName = "TotalNumberOfCluster__" + label;
+    HistoName = "TotalNumberOfCluster__" + slabel;
     subdetMEs.SubDetTotClusterTH1 = bookME1D("TH1TotalNumberOfClusters", HistoName.c_str(), ibooker);
     subdetMEs.SubDetTotClusterTH1->setAxisTitle("Total number of clusters in subdetector");
     subdetMEs.SubDetTotClusterTH1->setStatOverflows(kTRUE);  // over/underflows in Mean calculation
@@ -1398,7 +1398,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label, DQMStore::IBooker
   if (subdetswitchtotclusprofon) {
     edm::ParameterSet Parameters = trendVs10Ls_ ? conf_.getParameter<edm::ParameterSet>("TrendingLS")
                                                 : conf_.getParameter<edm::ParameterSet>("Trending");
-    HistoName = "TotalNumberOfClusterProfile__" + label;
+    HistoName = "TotalNumberOfClusterProfile__" + slabel;
     subdetMEs.SubDetTotClusterProf = ibooker.bookProfile(HistoName,
                                                          HistoName,
                                                          Parameters.getParameter<int32_t>("Nbins"),
@@ -1412,7 +1412,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label, DQMStore::IBooker
       subdetMEs.SubDetTotClusterProf->setCanExtend(TH1::kAllAxes);
 
     Parameters = conf_.getParameter<edm::ParameterSet>("NumberOfClusterPerLayerTrendVar");
-    HistoName = "TotalNumberOfClusterPerLayer__" + label;
+    HistoName = "TotalNumberOfClusterPerLayer__" + slabel;
     subdetMEs.SubDetNumberOfClusterPerLayerTrend = ibooker.bookProfile2D("NumberOfClusterPerLayerTrendVar",
                                                                          HistoName.c_str(),
                                                                          Parameters.getParameter<int32_t>("Nbinsx"),
@@ -1431,7 +1431,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label, DQMStore::IBooker
   // Total Number of Cluster vs APV cycle - Profile
   if (subdetswitchapvcycleprofon) {
     edm::ParameterSet Parameters = conf_.getParameter<edm::ParameterSet>("TProfClustersApvCycle");
-    HistoName = "Cluster_vs_ApvCycle__" + label;
+    HistoName = "Cluster_vs_ApvCycle__" + slabel;
     subdetMEs.SubDetClusterApvProf = ibooker.bookProfile(HistoName,
                                                          HistoName,
                                                          Parameters.getParameter<int32_t>("Nbins"),
@@ -1447,17 +1447,17 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label, DQMStore::IBooker
   // Total Number of Clusters vs ApvCycle - 2D
   if (subdetswitchapvcycleth2on) {
     edm::ParameterSet Parameters = conf_.getParameter<edm::ParameterSet>("TH2ClustersApvCycle");
-    HistoName = "Cluster_vs_ApvCycle_2D__" + label;
+    HistoName = "Cluster_vs_ApvCycle_2D__" + slabel;
     // Adjusting the scale for 2D histogram
     double h2ymax = 9999.0;
     double yfact = Parameters.getParameter<double>("yfactor");
-    if (label.find("TIB") != std::string::npos)
+    if (slabel.find("TIB") != std::string::npos)
       h2ymax = (6984. * 256.) * yfact;
-    else if (label.find("TID") != std::string::npos)
+    else if (slabel.find("TID") != std::string::npos)
       h2ymax = (2208. * 256.) * yfact;
-    else if (label.find("TOB") != std::string::npos)
+    else if (slabel.find("TOB") != std::string::npos)
       h2ymax = (12906. * 256.) * yfact;
-    else if (label.find("TEC") != std::string::npos)
+    else if (slabel.find("TEC") != std::string::npos)
       h2ymax = (7552. * 2. * 256.) * yfact;
 
     subdetMEs.SubDetClusterApvTH2 = ibooker.book2D(HistoName,
@@ -1475,7 +1475,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label, DQMStore::IBooker
   // Cluster widths vs amplitudes - 2D
   if (subdet_clusterWidth_vs_amplitude_on) {
     edm::ParameterSet Parameters = conf_.getParameter<edm::ParameterSet>("ClusWidthVsAmpTH2");
-    HistoName = "ClusterWidths_vs_Amplitudes__" + label;
+    HistoName = "ClusterWidths_vs_Amplitudes__" + slabel;
     subdetMEs.SubDetClusWidthVsAmpTH2 = ibooker.book2D(HistoName,
                                                        HistoName,
                                                        Parameters.getParameter<int32_t>("Nbinsx"),
@@ -1491,7 +1491,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label, DQMStore::IBooker
   // Total Number of Cluster vs DeltaBxCycle - Profile
   if (subdetswitchdbxcycleprofon) {
     edm::ParameterSet Parameters = conf_.getParameter<edm::ParameterSet>("TProfClustersVsDBxCycle");
-    HistoName = "Cluster_vs_DeltaBxCycle__" + label;
+    HistoName = "Cluster_vs_DeltaBxCycle__" + slabel;
     subdetMEs.SubDetClusterDBxCycleProf = ibooker.bookProfile(HistoName,
                                                               HistoName,
                                                               Parameters.getParameter<int32_t>("Nbins"),
@@ -1506,7 +1506,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label, DQMStore::IBooker
   // DeltaBx vs ApvCycle - 2DProfile
   if (subdetswitchapvcycledbxprof2on) {
     edm::ParameterSet Parameters = conf_.getParameter<edm::ParameterSet>("TProf2ApvCycleVsDBx");
-    HistoName = "DeltaBx_vs_ApvCycle__" + label;
+    HistoName = "DeltaBx_vs_ApvCycle__" + slabel;
     subdetMEs.SubDetApvDBxProf2 = ibooker.bookProfile2D(HistoName,
                                                         HistoName,
                                                         Parameters.getParameter<int32_t>("Nbinsx"),

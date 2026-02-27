@@ -15,6 +15,7 @@
 // user include files
 #include "CondCore/ESSources/interface/ProductResolverFactory.h"
 #include "CondCore/ESSources/interface/ProductResolver.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 cond::ProductResolverWrapperBase::ProductResolverWrapperBase() {}
 
@@ -29,17 +30,26 @@ void cond::ProductResolverWrapperBase::addInfo(std::string const& il, std::strin
 void cond::ProductResolverWrapperBase::loadTag(std::string const& tag) {
   m_session.transaction().start(true);
   m_iovProxy = m_session.readIov(tag);
+  m_iovProxy.setPrintDebug(m_printDebug);
   m_session.transaction().commit();
   m_currentIov.clear();
   m_requests = std::make_shared<std::vector<cond::Iov_t>>();
+  if (m_printDebug) {
+    edm::LogSystem("ProductResolverWrapperBase") << "loadTag executed with tag: " << tag;
+  }
 }
 
 void cond::ProductResolverWrapperBase::loadTag(std::string const& tag, boost::posix_time::ptime const& snapshotTime) {
   m_session.transaction().start(true);
   m_iovProxy = m_session.readIov(tag, snapshotTime);
+  m_iovProxy.setPrintDebug(m_printDebug);
   m_session.transaction().commit();
   m_currentIov.clear();
   m_requests = std::make_shared<std::vector<cond::Iov_t>>();
+  if (m_printDebug) {
+    edm::LogSystem("ProductResolverWrapperBase")
+        << "loadTag executed with tag: " << tag << " and snapshotTime: " << snapshotTime;
+  }
 }
 
 void cond::ProductResolverWrapperBase::reload() {
@@ -54,6 +64,11 @@ cond::ValidityInterval cond::ProductResolverWrapperBase::setIntervalFor(Time_t t
     m_session.transaction().start(true);
     m_currentIov = m_iovProxy.getInterval(time);
     m_session.transaction().commit();
+  }
+  if (m_printDebug) {
+    edm::LogSystem("ProductResolverWrapperBase")
+        << "setIntervalFor for tag:" << m_iovProxy.tagInfo().name << " executed with time: " << time << "\n"
+        << " set ValidityInterval: since: " << m_currentIov.since << " till: " << m_currentIov.till;
   }
   return cond::ValidityInterval(m_currentIov.since, m_currentIov.till);
 }

@@ -1,5 +1,13 @@
 <use name="fastjet"/>
 <use name="fastjet-contrib"/>
+
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+
+<use name="DataFormats/Math"/>
+<use name="DataFormats/Scouting"/>
+
 <use name="PhysicsTools/PatAlgos"/>
 <library file="*.cc" name="PhysicsToolsScoutingPlugins">
   <flags EDM_PLUGIN="1"/>

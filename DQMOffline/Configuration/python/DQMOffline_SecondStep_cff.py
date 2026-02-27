@@ -17,6 +17,7 @@ from DQMServices.Components.DQMFEDIntegrityClient_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQM.SiTrackerPhase2.Phase2TrackerDQMHarvesting_cff import *
 from DQM.SiPixelHeterogeneous.SiPixelHeterogenousDQMHarvesting_cff import *
+from DQMOffline.Trigger.PrimaryVertexMonitoring_Client_cff import *
 
 DQMNone = cms.Sequence()
 
@@ -129,10 +130,7 @@ DQMOffline_SecondStepPOG = cms.Sequence(
                                          DQMOffline_SecondStep_PrePOG *
                                          DQMMessageLoggerClientSeq )
 
-
-
-
-HLTMonitoringClient = cms.Sequence(trackingMonitorClientHLT * trackEfficiencyMonitoringClientHLT * trackingForDisplacedJetMonitorClientHLT)
+HLTMonitoringClient = cms.Sequence(trackingMonitorClientHLT * trackEfficiencyMonitoringClientHLT * trackingForDisplacedJetMonitorClientHLT * hltVerticesMonitoringClient)
 HLTMonitoringClientPA= cms.Sequence(trackingMonitorClientHLT * PAtrackingMonitorClientHLT)
 
 DQMOffline_SecondStep = cms.Sequence(
@@ -276,5 +274,6 @@ from Validation.RecoParticleFlow.DQMForPF_MiniAOD_cff import *
 from DQMOffline.RecoB.bTagMiniDQM_cff import *
 
 DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD * DQMHarvestPF * bTagMiniDQMHarvesting)
+DQMHarvestMiniAODBTagOnly = cms.Sequence(bTagMiniDQMHarvesting)
 DQMHarvestNanoAOD = cms.Sequence( nanoHarvest )
 

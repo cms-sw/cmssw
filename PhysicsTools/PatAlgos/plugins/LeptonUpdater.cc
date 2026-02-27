@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -6,6 +6,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "PhysicsTools/PatUtils/interface/MiniIsolation.h"
+#include "PhysicsTools/PatAlgos/interface/SoftMuonMvaRun3Estimator.h"
+#include "PhysicsTools/XGBoost/interface/XGBooster.h"
 #include "DataFormats/Common/interface/View.h"
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -18,7 +20,7 @@
 namespace pat {
 
   template <typename T>
-  class LeptonUpdater : public edm::global::EDProducer<> {
+  class LeptonUpdater : public edm::stream::EDProducer<> {
   public:
     explicit LeptonUpdater(const edm::ParameterSet &iConfig)
         : src_(consumes<std::vector<T>>(iConfig.getParameter<edm::InputTag>("src"))),
@@ -32,14 +34,23 @@ namespace pat {
         pcToken_ = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandsForMiniIso"));
       }
       recomputeMuonBasicSelectors_ = false;
-      if (typeid(T) == typeid(pat::Muon))
+      recomputeSoftMuonMvaRun3_ = false;
+      if (typeid(T) == typeid(pat::Muon)) {
         recomputeMuonBasicSelectors_ = iConfig.getParameter<bool>("recomputeMuonBasicSelectors");
+        recomputeSoftMuonMvaRun3_ = iConfig.getParameter<bool>("recomputeSoftMuonMvaRun3");
+        if (recomputeSoftMuonMvaRun3_) {
+          std::string softMvaRun3Model = iConfig.getParameter<std::string>("softMvaRun3Model");
+          softMuonMvaRun3Booster_ =
+              std::make_unique<pat::XGBooster>(edm::FileInPath(softMvaRun3Model + ".model").fullPath(),
+                                               edm::FileInPath(softMvaRun3Model + ".features").fullPath());
+        }
+      }
       produces<std::vector<T>>();
     }
 
     ~LeptonUpdater() override {}
 
-    void produce(edm::StreamID, edm::Event &, edm::EventSetup const &) const override;
+    void produce(edm::Event &, const edm::EventSetup &) override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
       edm::ParameterSetDescription desc;
@@ -53,6 +64,9 @@ namespace pat {
       if (typeid(T) == typeid(pat::Muon)) {
         desc.add<bool>("recomputeMuonBasicSelectors", false)
             ->setComment("Recompute basic cut-based muon selector flags");
+        desc.add<bool>("recomputeSoftMuonMvaRun3", false)->setComment("Recompute Run3 soft muon MVA value");
+        desc.add<std::string>("softMvaRun3Model", "RecoMuon/MuonIdentification/data/Run2022-20231030-1731-Event0")
+            ->setComment("Run3 soft muon MVA model path");
         desc.addOptional<std::vector<double>>("miniIsoParams")
             ->setComment("Parameters used for miniIso (as in PATMuonProducer)");
         descriptions.add("muonsUpdated", desc);
@@ -76,6 +90,8 @@ namespace pat {
 
     void recomputeMuonBasicSelectors(T &, const reco::Vertex &, const bool) const;
 
+    void recomputeSoftMuonMvaRun3(T &);
+
   private:
     // configurables
     edm::EDGetTokenT<std::vector<T>> src_;
@@ -84,8 +100,10 @@ namespace pat {
     bool computeMiniIso_;
     bool fixDxySign_;
     bool recomputeMuonBasicSelectors_;
+    bool recomputeSoftMuonMvaRun3_;
     std::vector<double> miniIsoParams_[2];
     edm::EDGetTokenT<pat::PackedCandidateCollection> pcToken_;
+    std::unique_ptr<pat::XGBooster> softMuonMvaRun3Booster_;
   };
 
   // must do the specialization within the namespace otherwise gcc complains
@@ -128,10 +146,18 @@ namespace pat {
     lep.setSelectors(muon::makeSelectorBitset(lep, &pv, do_hip_mitigation_2016));
   }
 
+  template <typename T>
+  void LeptonUpdater<T>::recomputeSoftMuonMvaRun3(T &lep) {}
+
+  template <>
+  void LeptonUpdater<pat::Muon>::recomputeSoftMuonMvaRun3(pat::Muon &muon) {
+    muon.setSoftMvaRun3Value(computeSoftMvaRun3(*softMuonMvaRun3Booster_, muon));
+  }
+
 }  // namespace pat
 
 template <typename T>
-void pat::LeptonUpdater<T>::produce(edm::StreamID, edm::Event &iEvent, edm::EventSetup const &) const {
+void pat::LeptonUpdater<T>::produce(edm::Event &iEvent, edm::EventSetup const &) {
   edm::Handle<std::vector<T>> src;
   iEvent.getByToken(src_, src);
 
@@ -179,6 +205,9 @@ void pat::LeptonUpdater<T>::produce(edm::StreamID, edm::Event &iEvent, edm::Even
     }
     if (recomputeMuonBasicSelectors_)
       recomputeMuonBasicSelectors(lep, pv, do_hip_mitigation_2016);
+    if (recomputeSoftMuonMvaRun3_) {
+      recomputeSoftMuonMvaRun3(lep);
+    }
     //Fixing the sign of impact parameters
     if (fixDxySign_) {
       float signPV = 1.;

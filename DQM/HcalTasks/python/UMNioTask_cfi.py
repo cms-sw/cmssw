@@ -5,7 +5,7 @@ umnioTask = DQMEDAnalyzer(
 	"UMNioTask",
 	
 	#	standard parameters
-	name = cms.untracked.string("UMNioTask"),
+	name = cms.untracked.string("EventTypeTask"),
 	debug = cms.untracked.int32(0),
 	runkeyVal = cms.untracked.int32(0),
 	runkeyName = cms.untracked.string("pp_run"),
@@ -15,7 +15,8 @@ umnioTask = DQMEDAnalyzer(
 
 	#	tags
     taguMN = cms.untracked.InputTag("hcalDigis"),
-	tagRaw = cms.untracked.InputTag('hltHcalCalibrationRaw')
+	tagRaw = cms.untracked.InputTag('hltHcalCalibrationRaw'),
+    tagFEDs = cms.untracked.InputTag("hltHcalCalibrationRaw")
 )
 
 

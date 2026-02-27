@@ -43,6 +43,7 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
       maxBufferedFiles_(pset.getUntrackedParameter<unsigned int>("maxBufferedFiles")),
       alwaysStartFromFirstLS_(pset.getUntrackedParameter<bool>("alwaysStartFromFirstLS", false)),
       verifyChecksum_(pset.getUntrackedParameter<bool>("verifyChecksum")),
+      inputConsistencyChecks_(pset.getUntrackedParameter<bool>("inputConsistencyChecks")),
       useL1EventID_(pset.getUntrackedParameter<bool>("useL1EventID")),
       testTCDSFEDRange_(pset.getUntrackedParameter<std::vector<unsigned int>>("testTCDSFEDRange")),
       listFileNames_(pset.getUntrackedParameter<std::vector<std::string>>("fileNames")),
@@ -83,11 +84,11 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
 
   //load mode class based on parameter
   if (dataModeConfig_ == "FRD") {
-    dataMode_ = std::make_shared<DataModeFRD>(this);
+    dataMode_ = std::make_shared<DataModeFRD>(this, inputConsistencyChecks_);
   } else if (dataModeConfig_ == "FRDPreUnpack") {
-    dataMode_ = std::make_shared<DataModeFRDPreUnpack>(this);
+    dataMode_ = std::make_shared<DataModeFRDPreUnpack>(this, inputConsistencyChecks_);
   } else if (dataModeConfig_ == "FRDStriped") {
-    dataMode_ = std::make_shared<DataModeFRDStriped>(this);
+    dataMode_ = std::make_shared<DataModeFRDStriped>(this, inputConsistencyChecks_);
   } else if (dataModeConfig_ == "ScoutingRun3") {
     dataMode_ = std::make_shared<DataModeScoutingRun3>(this);
   } else if (dataModeConfig_ == "DTH") {
@@ -259,6 +260,8 @@ void DAQSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       ->setComment("Force source to start from LS 1 if server provides higher lumisection number");
   desc.addUntracked<bool>("verifyChecksum", true)
       ->setComment("Verify event CRC-32C checksum of FRDv5 and higher or Adler32 with v3 and v4");
+  desc.addUntracked<bool>("inputConsistencyChecks", true)
+      ->setComment("Additional consistency checks such as checking that the FED ID set is the same in all events");
   desc.addUntracked<bool>("useL1EventID", false)
       ->setComment("Use L1 event ID from FED header if true or from TCDS FED if false");
   desc.addUntracked<std::vector<unsigned int>>("testTCDSFEDRange", std::vector<unsigned int>())
@@ -456,7 +459,21 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
       heldFilesCount_--;
     //release last chunk (it is never released elsewhere)
     freeChunks_.push(currentFile_->chunks_[currentFile_->currentChunk_]);
-    if (currentFile_->nEvents_ >= 0 && currentFile_->nEvents_ != int(currentFile_->nProcessed_)) {
+
+    bool filesIncomplete = currentFile_->nEvents_ >= 0 && currentFile_->nEvents_ != int(currentFile_->nProcessed_);
+    bool retRunEnd = false;
+
+    int runEndFlagIndex = currentFile_->daqRunEndFlagIndex();
+    if (runEndFlagIndex != -1) {
+      if (filesIncomplete)
+        edm::LogError("DAQSource::getNextDataBlock")
+            << "Detected DAQ Run End flag in RAW file " << currentFile_->fileNames_[runEndFlagIndex];
+      else
+        edm::LogError("DAQSource::getNextDataBlock")
+            << "Detected DAQ Run End flag in RAW file " << currentFile_->fileNames_[runEndFlagIndex]
+            << " but files appear to be complete";
+      retRunEnd = true;
+    } else if (filesIncomplete) {
       std::stringstream str;
       for (auto& s : currentFile_->fileNames_) {
         struct stat bufs;
@@ -491,10 +508,14 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
       currentFile_.reset();
     }
     setMonState(inProcessingFile);
-    return evf::EvFDaqDirector::noFile;
+    if (retRunEnd)
+      return evf::EvFDaqDirector::runEnded;
+    else
+      return evf::EvFDaqDirector::noFile;
   }
 
   //handle RAW file header in new file
+  bool chunkReadyChecked = false;
   if (currentFile_->bufferPosition_ == 0 && currentFile_->rawHeaderSize_ > 0) {
     if (currentFile_->fileSize_ <= currentFile_->rawHeaderSize_) {
       if (currentFile_->fileSize_ < currentFile_->rawHeaderSize_)
@@ -507,6 +528,19 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
         maybeOpenNewLumiSection(currentFile_->lumi_);
       }
     }
+
+    setMonState(inWaitChunk);
+    {
+      IdleSourceSentry ids(fms_);
+      while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
+        std::unique_lock<std::mutex> lkw(mWakeup_);
+        cvWakeupAll_.wait_for(lkw, std::chrono::milliseconds(100));
+        if (setExceptionState_)
+          threadError();
+      }
+    }
+    setMonState(inChunkReceived);
+    chunkReadyChecked = true;
 
     //advance buffer position to skip file header (chunk will be acquired later)
     //also move pointer in multi-dir setting with each file expected to have a file header
@@ -524,14 +558,16 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
 
   //multibuffer mode
   //wait for the current chunk to become added to the vector
-  setMonState(inWaitChunk);
-  {
-    IdleSourceSentry ids(fms_);
-    while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
-      std::unique_lock<std::mutex> lkw(mWakeup_);
-      cvWakeupAll_.wait_for(lkw, std::chrono::milliseconds(100));
-      if (setExceptionState_)
-        threadError();
+  if (!chunkReadyChecked) {
+    setMonState(inWaitChunk);
+    {
+      IdleSourceSentry ids(fms_);
+      while (!currentFile_->waitForChunk(currentFile_->currentChunk_)) {
+        std::unique_lock<std::mutex> lkw(mWakeup_);
+        cvWakeupAll_.wait_for(lkw, std::chrono::milliseconds(100));
+        if (setExceptionState_)
+          threadError();
+      }
     }
   }
   setMonState(inChunkReceived);
@@ -649,7 +685,7 @@ void DAQSource::fileDeleter() {
         for (unsigned int i = 0; i < streamFileTracker_.size(); i++) {
           if (it->first == streamFileTracker_.at(i)) {
             //only skip if LS is open
-            if (fileLSOpen) {
+            if (fileLSOpen && (!fms_ || !fms_->streamIsIdle(i))) {
               fileIsBeingProcessed = true;
               break;
             }
@@ -768,6 +804,7 @@ void DAQSource::readSupervisor() {
     uint32_t lsFromRaw = 0;
     int32_t serverEventsInNewFile = -1;
     int rawFd = -1;
+    uint16_t rawDataType = 0;
 
     int backoff_exp = 0;
 
@@ -812,7 +849,6 @@ void DAQSource::readSupervisor() {
         //return LS if LS not set, otherwise return file
         status = getFile(ls, nextFile, thisLockWaitTimeUs);
         if (status == evf::EvFDaqDirector::newFile) {
-          uint16_t rawDataType;
           if (evf::EvFDaqDirector::parseFRDFileHeader(nextFile,
                                                       rawFd,
                                                       rawHeaderSize,  ///possibility to use by new formats
@@ -839,6 +875,7 @@ void DAQSource::readSupervisor() {
                                                      ls,
                                                      nextFile,
                                                      rawFd,
+                                                     rawDataType,
                                                      rawHeaderSize,  //which format?
                                                      serverEventsInNewFile,
                                                      fileSizeFromMetadata,
@@ -998,6 +1035,7 @@ void DAQSource::readSupervisor() {
                                                                   rawFile,
                                                                   !fileListMode_,
                                                                   rawFd,
+                                                                  rawDataType,
                                                                   fileSize,
                                                                   rawHeaderSize,  //for which format
                                                                   0,
@@ -1283,6 +1321,7 @@ void DAQSource::readWorker(unsigned int tid) {
 
       size_t skipped = bufferLeft;
       auto start = std::chrono::high_resolution_clock::now();
+
       for (unsigned int i = 0; i < readBlocks; i++) {
         ssize_t last;
         edm::LogInfo("DAQSource") << "readWorker read -: " << (int64_t)(chunk->usedSize_ - bufferLeft) << " or "
@@ -1344,8 +1383,7 @@ void DAQSource::readWorker(unsigned int tid) {
       LogDebug("DAQSource") << " finished reading block -: " << (bufferLeft >> 20) << " MB"
                             << " in " << msec.count() << " ms (" << (bufferLeft >> 20) / double(msec.count())
                             << " GB/s)";
-    };
-    //END primary function
+    };  //END primary function
 
     //SECONDARY files function
     auto readSecondary = [&](uint64_t bufferLeft, unsigned int j) {
@@ -1381,6 +1419,11 @@ void DAQSource::readWorker(unsigned int tid) {
           setExceptionState_ = true;
           close(fileDescriptor);
           break;
+        }
+        if (i == 0) {
+          uint16_t dataType = daqDirector_->frdFileDataType(chunk->buf_ + bufferLeft);
+          if (dataType)
+            file->setFileDataType(j, dataType);
         }
         if (last > 0) {
           bufferLeft += last;

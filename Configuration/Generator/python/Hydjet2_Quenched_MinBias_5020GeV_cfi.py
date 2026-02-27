@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 from GeneratorInterface.Hydjet2Interface.hydjet2DefaultParameters_cff import *
+from GeneratorInterface.Core.ExternalGeneratorFilter import ExternalGeneratorFilter
 
-generator = cms.EDFilter("Hydjet2GeneratorFilter",
+generator = ExternalGeneratorFilter(cms.EDFilter("Hydjet2GeneratorFilter",
                          collisionParameters5020GeV,
                          qgpParametersLHC,
                          hydjet2Parameters,
@@ -21,4 +22,4 @@ generator = cms.EDFilter("Hydjet2GeneratorFilter",
                          fBmin 	= cms.double(0.),	# Minimal impact parameter, fBmin (fm)
                          fBmax	= cms.double(21.), 	# Maximal impact parameter, fBmax (fm)
                          fBfix 	= cms.double(0.), 	# Fixed impact parameter, fBfix (fm)
-                     )
+                     ))

@@ -1547,7 +1547,7 @@ namespace mkfit {
                 bool hitExists = false;
                 int maxHits = m_NFoundHits(itrack, 0, 0);
                 if (layer_of_hits.is_pixel()) {
-                  for (int i = 0; i <= maxHits; ++i) {
+                  for (int i = 0; i < maxHits; ++i) {
                     if (i > 2)
                       break;
                     if (m_HoTArrs[itrack][i].layer == layer_of_hits.layer_id()) {
@@ -1758,7 +1758,7 @@ namespace mkfit {
               bool hitExists = false;
               int maxHits = m_NFoundHits(itrack, 0, 0);
               if (layer_of_hits.is_pixel()) {
-                for (int i = 0; i <= maxHits; ++i) {
+                for (int i = 0; i < maxHits; ++i) {
                   if (i > 2)
                     break;
                   if (ccand.hot(i).layer == layer_of_hits.layer_id()) {

@@ -63,6 +63,7 @@ VersionControl::VersionControl(const edm::ParameterSet& iConfig) : config_(iConf
   bugGMTPhi_ = spPAParams16.getParameter<bool>("BugGMTPhi");
   promoteMode7_ = spPAParams16.getParameter<bool>("PromoteMode7");
   modeQualVer_ = spPAParams16.getParameter<int>("ModeQualVer");
+  promoteMode7Sectors_ = spPAParams16.getParameter<std::vector<int> >("PromoteMode7Sectors");
   pbFileName_ = spPAParams16.getParameter<std::string>("ProtobufFileName");
 }
 
@@ -76,7 +77,6 @@ void VersionControl::configure_by_fw_version(unsigned fw_version) {
   // For now, no switches later than FW version 47864 (end-of-year 2016)
   // Beggining in late 2016, "fw_version" in O2O populated with timestamp, rather than FW version
   // tm fw_time = gmtime(fw_version);  (See https://linux.die.net/man/3/gmtime, https://www.epochconverter.com)
-
   /////////////////////////////////////////////////////////////////////////////////
   ///  Settings for 2018 (by default just use settings in simEmtfDigis_cfi.py)  ///
   /////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +120,6 @@ void VersionControl::configure_by_fw_version(unsigned fw_version) {
     // ---------------------------------------------------------------------------------
     modeQualVer_ = 2;       // Version 2 contains modified mode-quality mapping for 2018
     promoteMode7_ = false;  // Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality
-
     // ___________________________________________________________________________
     // Versions in 2018 - no external documentation
     // As of the beginning of 2018 EMTF O2O was broken, not updating the database with online conditions
@@ -132,6 +131,11 @@ void VersionControl::configure_by_fw_version(unsigned fw_version) {
       twoStationSameBX_ = false;    // Requires the hits in two-station tracks to have the same BX
       modeQualVer_ = 1;             // Version 2 contains modified mode-quality mapping for 2018
       promoteMode7_ = true;         // Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality
+    }
+
+    // Promote Mode 7 settings for 2025. Implemented here since all the rest of the settings are the same as in 2018.
+    if (fw_version >= 1747996116) {  // May 23, 2025
+      promoteMode7_ = true;          // Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality
     }
 
     return;

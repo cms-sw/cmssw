@@ -43,7 +43,7 @@ protected:
   void _resetMonitors(hcaldqm::UpdateFreq) override;
   bool _isApplicable(edm::Event const &) override;
   virtual void _dump();
-  void processLaserMon(edm::Handle<QIE10DigiCollection> &col, std::vector<int> &iLaserMonADC);
+  void processLaserMon(edm::Handle<QIE11DigiCollection> &col, QIE11DataFrame &iLaserMonDigi);
 
   //	tags and tokens
   edm::InputTag _tagQIE11;
@@ -55,6 +55,8 @@ protected:
   edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
   edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
   edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
+  edm::InputTag _tagFEDs;
+  edm::EDGetTokenT<FEDRawDataCollection> _tokFEDs;
 
   enum LaserFlag { fBadTiming = 0, fMissingLaserMon = 1, nLaserFlag = 2 };
   std::vector<hcaldqm::flag::Flag> _vflags;
@@ -106,6 +108,8 @@ protected:
   hcaldqm::ContainerProf1D _cSignalvsBXQIE1011_SubdetPM;
 
   //	2D timing/signals
+  hcaldqm::Container2D _cADCvsTS_SubdetPM;
+
   hcaldqm::ContainerProf2D _cSignalMean_depth;
   hcaldqm::ContainerProf2D _cSignalRMS_depth;
   hcaldqm::ContainerProf2D _cSignalMeanQIE1011_depth;
@@ -147,9 +151,16 @@ protected:
   hcaldqm::ContainerProf2D _cTimingDiffLS_SubdetPM;
   hcaldqm::ContainerProf2D _cTimingDiffEvent_SubdetPM;
 
+  hcaldqm::ContainerSingle2D _cLaserMonADC_TS;
+
   //	Summaries
   hcaldqm::Container2D _cSummaryvsLS_FED;
   hcaldqm::ContainerSingle2D _cSummaryvsLS;
+
+  // For monitoring CU laser firing: ADC vs TS
+  std::map<HcalSubdetector, std::vector<HcalDetId>> _laserCalibrationChannels;
+  hcaldqm::Container2D _Laser_ADCvsTS_Subdet;   // Pin diode amplitude vs TS for online DQM
+  hcaldqm::Container2D _Laser_ADCvsEvn_Subdet;  // Pin diode amplitude vs Evn for local DQM
 };
 
 #endif

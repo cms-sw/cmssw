@@ -82,9 +82,11 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   //isJPTJet_  = (std::string("jpt") ==jetType_);
   isPFJet_ = (std::string("pf") == jetType_);
   isPUPPIJet_ = (std::string("puppi") == jetType_);
-  isScoutingJet_ = (std::string("scouting") == jetType_);
+  isScoutingJet_ = (jetType_.find("scouting") != std::string::npos);
   isMiniAODJet_ = (std::string("miniaod") == jetType_);
   jetCorrectorTag_ = pSet.getParameter<edm::InputTag>("JetCorrections");
+
+  isOnlineDQM_ = (jetType_.find("Online") != std::string::npos);
 
   if (!isMiniAODJet_) {  //in MiniAOD jet is already corrected
     jetCorrectorToken_ = consumes<reco::JetCorrector>(jetCorrectorTag_);
@@ -195,6 +197,25 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
     }
     pfjetIDFunctor = PFJetIDSelectionFunctor(pfjetidversion, pfjetidquality);
   }
+
+  //Jet ID definitions for scouting PF jets
+  if (isScoutingJet_) {
+    if (JetIDVersion_ == "RUN3Scouting") {
+      run3scoutingpfjetidversion = Run3ScoutingPFJetIDSelectionFunctor::RUN3Scouting;
+    } else {
+      if (verbose_)
+        std::cout << "no valid scouting Run3ScoutinPF JetID version given" << std::endl;
+    }
+    if (JetIDQuality_ == "TIGHT") {
+      run3scoutingpfjetidquality = Run3ScoutingPFJetIDSelectionFunctor::TIGHT;
+    } else {
+      if (verbose_)
+        std::cout << "no Valid scouting Run3ScoutinPF JetID quality given" << std::endl;
+    }
+    run3scoutingpfjetIDFunctor =
+        Run3ScoutingPFJetIDSelectionFunctor(run3scoutingpfjetidversion, run3scoutingpfjetidquality);
+  }
+
   //check later if some of those are also needed for PFJets
   leadJetFlag_ = 0;
   jetLoPass_ = 0;
@@ -219,7 +240,8 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   // ==========================================================
   edm::ConsumesCollector iC = consumesCollector();
   DCSFilterForJetMonitoring_ = new JetMETDQMDCSFilter(pSet.getParameter<ParameterSet>("DCSFilterForJetMonitoring"), iC);
-  DCSFilterForDCSMonitoring_ = new JetMETDQMDCSFilter("ecal:hbhe:hf:ho:pixel:sistrip:es:muon", iC);
+  DCSFilterForDCSMonitoring_ = new JetMETDQMDCSFilter(
+      pSet.getParameter<ParameterSet>("DCSFilterForJetMonitoring"), "ecal:hbhe:hf:ho:pixel:sistrip:es:muon", iC);
 
   //Trigger selectoin
   edm::ParameterSet highptjetparms = pSet.getParameter<edm::ParameterSet>("highPtJetTrigger");
@@ -292,12 +314,24 @@ JetAnalyzer::~JetAnalyzer() {
 
 // ***********************************************************
 void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const&) {
-  if (jetCleaningFlag_) {
-    ibooker.setCurrentFolder("JetMET/Jet/Cleaned" + mInputCollection_.label());
-    DirName = "JetMET/Jet/Cleaned" + mInputCollection_.label();
+  if (isScoutingJet_) {
+    std::string baseDir = isOnlineDQM_ ? "HLT/ScoutingOnline/Jet/" : "HLT/ScoutingOffline/Jet/";
+
+    if (jetCleaningFlag_) {
+      ibooker.setCurrentFolder(baseDir + "Cleaned" + mInputCollection_.label());
+      DirName = baseDir + "Cleaned" + mInputCollection_.label();
+    } else {
+      ibooker.setCurrentFolder(baseDir + "Uncleaned" + mInputCollection_.label());
+      DirName = baseDir + "Uncleaned" + mInputCollection_.label();
+    }
   } else {
-    ibooker.setCurrentFolder("JetMET/Jet/Uncleaned" + mInputCollection_.label());
-    DirName = "JetMET/Jet/Uncleaned" + mInputCollection_.label();
+    if (jetCleaningFlag_) {
+      ibooker.setCurrentFolder("JetMET/Jet/Cleaned" + mInputCollection_.label());
+      DirName = "JetMET/Jet/Cleaned" + mInputCollection_.label();
+    } else {
+      ibooker.setCurrentFolder("JetMET/Jet/Uncleaned" + mInputCollection_.label());
+      DirName = "JetMET/Jet/Uncleaned" + mInputCollection_.label();
+    }
   }
 
   jetME = ibooker.book1D("jetReco", "jetReco", 5, 1, 5);  // --> for .../JetMET/Run summary/Jet/.../jetReco plots
@@ -2584,12 +2618,22 @@ void JetAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 // ***********************************************************
 void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //set general folders first --> change later on for different folders
-  if (jetCleaningFlag_) {
-    //dbe_->setCurrentFolder("JetMET/Jet/Cleaned"+mInputCollection_.label());
-    DirName = "JetMET/Jet/Cleaned" + mInputCollection_.label();
+  if (isScoutingJet_) {
+    std::string baseDir = isOnlineDQM_ ? "HLT/ScoutingOnline/Jet/" : "HLT/ScoutingOffline/Jet/";
+
+    if (jetCleaningFlag_) {
+      DirName = baseDir + "Cleaned" + mInputCollection_.label();
+    } else {
+      DirName = baseDir + "Uncleaned" + mInputCollection_.label();
+    }
   } else {
-    //dbe_->setCurrentFolder("JetMET/Jet/Uncleaned"+mInputCollection_.label());
-    DirName = "JetMET/Jet/Uncleaned" + mInputCollection_.label();
+    if (jetCleaningFlag_) {
+      //dbe_->setCurrentFolder("JetMET/Jet/Cleaned"+mInputCollection_.label());
+      DirName = "JetMET/Jet/Cleaned" + mInputCollection_.label();
+    } else {
+      //dbe_->setCurrentFolder("JetMET/Jet/Uncleaned"+mInputCollection_.label());
+      DirName = "JetMET/Jet/Uncleaned" + mInputCollection_.label();
+    }
   }
 
   Handle<ValueMap<float>> puJetIdMva;
@@ -2887,11 +2931,12 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if (isMiniAODJet_)
     jetCollectionIsValid = patJets.isValid();
 
-  if (jetCleaningFlag_ && (!jetCollectionIsValid || !bPrimaryVertex || !dcsDecision))  // why "jetCleaningFlag_ &&" ???
-    return;
-
   if (isScoutingJet_) {
     if (!scoutingJets.isValid())
+      return;
+  } else {
+    if (jetCleaningFlag_ &&
+        (!jetCollectionIsValid || !bPrimaryVertex || !dcsDecision))  // why "jetCleaningFlag_ &&" ???
       return;
   }
 
@@ -3023,12 +3068,19 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //remove the continue line, for physics selections we might losen the pt-thresholds as we care only about leading jets
 
     numofscoutingjets++;
+    bool jetpassidScouting = true;
+    bool ThiscleanedScouting = true;
     if (isScoutingJet_) {
       jetEnergy = (*scoutingJets)[ijet].chargedHadronEnergy() + (*scoutingJets)[ijet].neutralHadronEnergy() +
                   (*scoutingJets)[ijet].electronEnergy() + (*scoutingJets)[ijet].photonEnergy() +
                   (*scoutingJets)[ijet].muonEnergy() + (*scoutingJets)[ijet].HFEMEnergy();
 
-      if (pass_uncorrected) {
+      jetpassidScouting = run3scoutingpfjetIDFunctor((*scoutingJets)[ijet]);
+      if (jetCleaningFlag_) {
+        ThiscleanedScouting = jetpassidScouting;
+      }
+
+      if (ThiscleanedScouting && pass_uncorrected) {
         mPt_uncor = map_of_MEs[DirName + "/" + "Pt_uncor"];
         if (mPt_uncor && mPt_uncor->getRootObject())
           mPt_uncor->Fill((*scoutingJets)[ijet].pt());
@@ -3043,7 +3095,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           mJetArea_uncor->Fill((*scoutingJets)[ijet].jetArea());
       }
 
-      if (pass_corrected) {
+      if (ThiscleanedScouting && pass_corrected) {
         mPt = map_of_MEs[DirName + "/" + "Pt"];
         if (mPt && mPt->getRootObject())
           mPt->Fill(correctedJet.pt());
@@ -3056,7 +3108,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         mJetArea = map_of_MEs[DirName + "/" + "JetArea"];
         if (mJetArea && mJetArea->getRootObject())
           mJetArea->Fill(correctedJet.jetArea());
-        //if (fabs((*scoutingJets)[ijet].eta()) <= 0.5 && 30 <= (*scoutingJets)[ijet].pt() <= 50) {
         mJetEnergyCorr = map_of_MEs[DirName + "/" + "JetEnergyCorr"];
         if (mJetEnergyCorr && mJetEnergyCorr->getRootObject())
           mJetEnergyCorr->Fill(correctedJet.pt() / (*scoutingJets)[ijet].pt());
@@ -3066,8 +3117,36 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         mJetEnergyCorrVSPt = map_of_MEs[DirName + "/" + "JetEnergyCorrVSPt"];
         if (mJetEnergyCorrVSPt && mJetEnergyCorrVSPt->getRootObject())
           mJetEnergyCorrVSPt->Fill(correctedJet.pt(), correctedJet.pt() / (*scoutingJets)[ijet].pt());
-        //}
       }
+
+      if (!runcosmics_ && pass_corrected) {
+        if (jetpassidScouting) {
+          mLooseJIDPassFractionVSeta = map_of_MEs[DirName + "/" + "JetIDPassFractionVSeta"];
+          if (mLooseJIDPassFractionVSeta && mLooseJIDPassFractionVSeta->getRootObject())
+            mLooseJIDPassFractionVSeta->Fill(correctedJet.eta(), 1.);
+          mLooseJIDPassFractionVSpt = map_of_MEs[DirName + "/" + "JetIDPassFractionVSpt"];
+          if (mLooseJIDPassFractionVSpt && mLooseJIDPassFractionVSpt->getRootObject())
+            mLooseJIDPassFractionVSpt->Fill(correctedJet.pt(), 1.);
+          if (fabs(correctedJet.eta()) < 3.0) {
+            mLooseJIDPassFractionVSptNoHF = map_of_MEs[DirName + "/" + "JetIDPassFractionVSptNoHF"];
+            if (mLooseJIDPassFractionVSptNoHF && mLooseJIDPassFractionVSptNoHF->getRootObject())
+              mLooseJIDPassFractionVSptNoHF->Fill(correctedJet.pt(), 1.);
+          }
+        } else {
+          mLooseJIDPassFractionVSeta = map_of_MEs[DirName + "/" + "JetIDPassFractionVSeta"];
+          if (mLooseJIDPassFractionVSeta && mLooseJIDPassFractionVSeta->getRootObject())
+            mLooseJIDPassFractionVSeta->Fill(correctedJet.eta(), 0.);
+          mLooseJIDPassFractionVSpt = map_of_MEs[DirName + "/" + "JetIDPassFractionVSpt"];
+          if (mLooseJIDPassFractionVSpt && mLooseJIDPassFractionVSpt->getRootObject())
+            mLooseJIDPassFractionVSpt->Fill(correctedJet.pt(), 0.);
+          if (fabs(correctedJet.eta()) < 3.0) {
+            mLooseJIDPassFractionVSptNoHF = map_of_MEs[DirName + "/" + "JetIDPassFractionVSptNoHF"];
+            if (mLooseJIDPassFractionVSptNoHF && mLooseJIDPassFractionVSptNoHF->getRootObject())
+              mLooseJIDPassFractionVSptNoHF->Fill(correctedJet.pt(), 0.);
+          }
+        }
+      }
+
       //mConstituents = map_of_MEs[DirName + "/" + "Constituents"];
       //if (mConstituents && mConstituents->getRootObject())
       //  mConstituents->Fill((*scoutingJets)[ijet].constituents());
@@ -4673,7 +4752,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
     //after jettype specific variables are filled -> perform histograms for all jets
     //fill JetID efficiencies if uncleaned selection is chosen
-    if (!runcosmics_ && pass_corrected) {
+    if (!runcosmics_ && !isScoutingJet_ && pass_corrected) {
       if (jetpassid) {
         mLooseJIDPassFractionVSeta = map_of_MEs[DirName + "/" + "JetIDPassFractionVSeta"];
         if (mLooseJIDPassFractionVSeta && mLooseJIDPassFractionVSeta->getRootObject())

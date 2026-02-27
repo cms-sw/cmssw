@@ -281,6 +281,15 @@ FEVTDEBUGEventContent.outputCommands.extend(SimMuonFEVTDEBUG.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(SimCalorimetryFEVTDEBUG.outputCommands)
 #
 #
-# ALCARECO Data Tier definition
+# FEVTDEBUGHLT Data Tier definition
 #
 #
+FEVTDEBUGHLTEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+)
+FEVTDEBUGHLTEventContent.outputCommands.extend(FEVTDEBUGEventContent.outputCommands)
+FEVTDEBUGHLTEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
+FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_MergedTrackTruth_*')
+FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
+FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')

@@ -42,6 +42,8 @@ unprescaledAlgoList_2024.extend([
     "L1_CICADA_VTight"
 ])
 
+unprescaledAlgoList_2025 = [algo if algo != "L1_AXO_Nominal" else "L1_AXO_Medium" for algo in unprescaledAlgoList_2024]
+
 unprescaledAlgoList_PbPb = cms.untracked.vstring(unprescaledAlgoList)
 unprescaledAlgoList_PbPb.remove("L1_SingleIsoEG28er1p5")
 unprescaledAlgoList_PbPb.remove("L1_SingleTau120er2p1")
@@ -79,3 +81,8 @@ from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
 (pp_on_PbPb_run3 | run3_upc).toModify(l1tStage2uGTTiming,
                                       unprescaledAlgoShortList = unprescaledAlgoList_PbPb,
                                       prescaledAlgoShortList = prescaledAlgoList_PbPb)
+
+from Configuration.Eras.Modifier_stage2L1Trigger_2025_cff import stage2L1Trigger_2025
+stage2L1Trigger_2025.toModify(l1tStage2uGTTiming,
+    unprescaledAlgoShortList = unprescaledAlgoList_2025
+)

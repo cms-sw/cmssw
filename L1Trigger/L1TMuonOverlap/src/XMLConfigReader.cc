@@ -12,6 +12,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "Utilities/Xerces/interface/Xerces.h"
+
 #include "xercesc/framework/StdOutFormatTarget.hpp"
 #include "xercesc/framework/LocalFileFormatTarget.hpp"
 #include "xercesc/parsers/XercesDOMParser.hpp"
@@ -39,20 +41,11 @@ inline XMLCh *_toDOMS(std::string temp) {
 }
 ////////////////////////////////////
 ////////////////////////////////////
-XMLConfigReader::XMLConfigReader() {
-  //XMLPlatformUtils::Initialize();
-
-  ///Initialise XML parser
-  //parser = new XercesDOMParser();
-  //parser->setValidationScheme(XercesDOMParser::Val_Auto);
-  //parser->setDoNamespaces(false);
-
-  //doc = 0;
-}
+XMLConfigReader::XMLConfigReader() { cms::concurrency::xercesInitialize(); }
 
 XMLConfigReader::~XMLConfigReader() {
   //  delete parser;
-  //XMLPlatformUtils::Terminate();
+  cms::concurrency::xercesTerminate();
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
@@ -134,7 +127,6 @@ unsigned int XMLConfigReader::getPatternsVersion() const {
     return 0;
 
   unsigned int version = 0;
-  XMLPlatformUtils::Initialize();
   {
     XercesDOMParser parser;
     parser.setValidationScheme(XercesDOMParser::Val_Auto);
@@ -154,7 +146,6 @@ unsigned int XMLConfigReader::getPatternsVersion() const {
     XMLString::release(&xmlVersion);
     parser.resetDocumentPool();
   }
-  XMLPlatformUtils::Terminate();
 
   return version;
 }
@@ -162,8 +153,6 @@ unsigned int XMLConfigReader::getPatternsVersion() const {
 //////////////////////////////////////////////////
 std::vector<std::shared_ptr<GoldenPattern>> XMLConfigReader::readPatterns(const L1TMuonOverlapParams &aConfig) {
   aGPs.clear();
-
-  XMLPlatformUtils::Initialize();
 
   XMLCh *xmlGP = _toDOMS("GP");
   std::array<XMLCh *, 4> xmliPt = {{_toDOMS("iPt1"), _toDOMS("iPt2"), _toDOMS("iPt3"), _toDOMS("iPt4")}};
@@ -221,8 +210,6 @@ std::vector<std::shared_ptr<GoldenPattern>> XMLConfigReader::readPatterns(const 
   XMLString::release(&xmliPt[1]);
   XMLString::release(&xmliPt[2]);
   XMLString::release(&xmliPt[3]);
-
-  XMLPlatformUtils::Terminate();
 
   return aGPs;
 }
@@ -338,7 +325,6 @@ std::vector<std::vector<int>> XMLConfigReader::readEvent(unsigned int iEvent, un
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////
 void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const {
-  XMLPlatformUtils::Initialize();
   {
     XercesDOMParser parser;
     parser.setValidationScheme(XercesDOMParser::Val_Auto);
@@ -632,7 +618,6 @@ void XMLConfigReader::readConfig(L1TMuonOverlapParams *aConfig) const {
     XMLString::release(&xmlnGoldenPatterns);
     XMLString::release(&xmlConnectionMap);
   }
-  XMLPlatformUtils::Terminate();
 }
 //////////////////////////////////////////////////
 //////////////////////////////////////////////////

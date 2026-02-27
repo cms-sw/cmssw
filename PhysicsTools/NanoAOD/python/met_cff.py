@@ -33,9 +33,9 @@ rawMetTable = simpleSingletonPATMETFlatTableProducer.clone(
     name = cms.string("RawPFMET"),
     doc = cms.string("raw PF MET"),
     variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
-       pt  = Var("uncorPt",  float, doc="pt", precision=10),
-       phi = Var("uncorPhi", float, doc="phi", precision=10),
-       sumEt = Var("uncorSumEt", float, doc="scalar sum of Et", precision=10),
+       pt  = Var("uncorPt",  float, doc="pt", precision=-1),
+       phi = Var("uncorPhi", float, doc="phi", precision=12),
+       sumEt = Var("uncorSumEt", float, doc="scalar sum of Et", precision=12),
     ),
 )
 
@@ -74,11 +74,11 @@ rawPuppiMetTable = simpleSingletonPATMETFlatTableProducer.clone(
     name = cms.string("RawPuppiMET"),
     doc = cms.string("raw Puppi MET"),
     variables = cms.PSet(#NOTA BENE: we don't copy PTVars here!
-       pt  = Var("uncorPt",  float, doc="pt", precision=10),
-       phi = Var("uncorPhi", float, doc="phi", precision=10),
-       sumEt = Var("uncorSumEt", float, doc="scalar sum of Et", precision=10),
-    ),)
-
+       pt  = Var("uncorPt",  float, doc="pt", precision=-1),
+       phi = Var("uncorPhi", float, doc="phi", precision=12),
+       sumEt = Var("uncorSumEt", float, doc="scalar sum of Et", precision=12),
+    ),
+)
 
 trkMetTable = simpleSingletonPATMETFlatTableProducer.clone(
     src = pfmetTable.src,
@@ -124,6 +124,6 @@ metMCTable = simpleSingletonPATMETFlatTableProducer.clone(
 )
 
 
-metTablesTask = cms.Task(pfmetTable, rawMetTable, caloMetTable, puppiMetTable, rawPuppiMetTable, trkMetTable, 
+metTablesTask = cms.Task(pfmetTable, rawMetTable, caloMetTable, puppiMetTable, rawPuppiMetTable, trkMetTable,
         deepMetResolutionTuneTable, deepMetResponseTuneTable )
 metMCTask = cms.Task( metMCTable )

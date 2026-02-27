@@ -680,12 +680,15 @@ class ConfigBuilder(object):
             if streamType=='': continue
             if streamType == 'ALCARECO' and not 'ALCAPRODUCER' in self._options.step: continue
             if streamType=='DQMIO': streamType='DQM'
+            streamQualifier=''
+            if streamType[-1].isdigit():
+                ## a special case where --eventcontent MINIAODSIM1 is set to have more than one output in a chain of configuration
+                streamQualifier = str(streamType[-1])
+                streamType = streamType[:-1]
             eventContent=streamType
             ## override streamType to eventContent in case NANOEDM
-            if streamType == "NANOEDMAOD" :
-                eventContent = "NANOAOD"
-            elif streamType == "NANOEDMAODSIM" :
-                eventContent = "NANOAODSIM"
+            if streamType.startswith("NANOEDMAOD"):
+                eventContent = eventContent.replace("NANOEDM","NANO")
             theEventContent = getattr(self.process, eventContent+"EventContent")
             if i==0:
                 theFileName=self._options.outfile_name
@@ -713,11 +716,7 @@ class ConfigBuilder(object):
             if streamType=='ALCARECO':
                 output.dataset.filterName = cms.untracked.string('StreamALCACombined')
 
-            if "MINIAOD" in streamType:
-                from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeOutput
-                miniAOD_customizeOutput(output)
-
-            outputModuleName=streamType+'output'
+            outputModuleName=streamType+streamQualifier+'output'
             setattr(self.process,outputModuleName,output)
             outputModule=getattr(self.process,outputModuleName)
             setattr(self.process,outputModuleName+'_step',cms.EndPath(outputModule))
@@ -1648,6 +1647,12 @@ class ConfigBuilder(object):
             else:
                 self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(stepSpec.replace(',',':'),optionsForHLTConfig))
         else:
+            # case where HLT:something was provided (most of the cases)
+            if '+' in stepSpec:
+                # case where HLT:menu+customisation+customisation+... was provided
+                # the customiser allows to modify parts of the HLT menu
+                stepSpec, *hltcustomiser = stepSpec.rsplit('+')
+                self._options.customisation_file_unsch = hltcustomiser + self._options.customisation_file_unsch
             self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff' % stepSpec)
 
         if self._options.isMC:
@@ -1784,6 +1789,11 @@ class ConfigBuilder(object):
             self._options.customise_commands = self._options.customise_commands + "process.slimmedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
             self._options.customise_commands = self._options.customise_commands + "process.patMuons.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
 
+        # cpu efficiency boost when running PAT/MINI by itself
+        if self.stepKeys[0] == 'PAT':
+            if len(self._options.customise_commands) > 1:
+                self._options.customise_commands = self._options.customise_commands + " \n"
+            self._options.customise_commands = self._options.customise_commands + "process.source.delayReadingEventProducts = cms.untracked.bool(False)\n"
 #            self.renameHLTprocessInSequence(sequence)
 
         return
@@ -1846,7 +1856,12 @@ class ConfigBuilder(object):
             if len(self._options.customise_commands) > 1:
                 self._options.customise_commands = self._options.customise_commands + " \n"
             self._options.customise_commands = self._options.customise_commands + "process.unpackedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
-
+        # cpu efficiency boost when running NANO by itself
+        if self.stepKeys[0] == 'NANO':
+            if len(self._options.customise_commands) > 1:
+                self._options.customise_commands = self._options.customise_commands + " \n"
+            self._options.customise_commands = self._options.customise_commands + "process.source.delayReadingEventProducts = cms.untracked.bool(False)\n"
+            
     def prepare_SKIM(self, stepSpec = "all"):
         ''' Enrich the schedule with skimming fragments'''
         skimConfig,sequence,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.SKIMDefaultCFF)
@@ -1858,9 +1873,15 @@ class ConfigBuilder(object):
             print("replacing %s process name - step SKIM:%s will use '%s'" % (stdHLTProcName, sequence, newHLTProcName))
 
         ## support @Mu+DiJet+@Electron configuration via autoSkim.py
-        from Configuration.Skimming.autoSkim import autoSkim
+        from Configuration.Skimming.autoSkim import autoSkim, autoSkimRunI
         skimlist = sequence.split('+')
         self.expandMapping(skimlist,autoSkim)
+
+        autoSkimRunIList = list(set(
+            item
+            for v in autoSkimRunI.values()
+            for item in v.split('+')
+        ))
 
         #print("dictionary for skims:", skimConfig.__dict__)
         for skim in skimConfig.__dict__:
@@ -1880,6 +1901,10 @@ class ConfigBuilder(object):
             shortname = skim.replace('SKIMStream','')
             if (sequence=="all"):
                 self.addExtraStream(skim,skimstream)
+            elif (sequence=="allRun1"):
+                if not shortname in autoSkimRunIList:
+                    continue
+                self.addExtraStream(skim,skimstream)
             elif (shortname in skimlist):
                 self.addExtraStream(skim,skimstream)
                 #add a DQM eventcontent for this guy
@@ -1897,7 +1922,7 @@ class ConfigBuilder(object):
                 for i in range(skimlist.count(shortname)):
                     skimlist.remove(shortname)
 
-        if (skimlist.__len__()!=0 and sequence!="all"):
+        if (skimlist.__len__()!=0 and sequence!="all" and sequence!="allRun1"):
             print('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
             raise Exception('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
 

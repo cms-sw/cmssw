@@ -24,6 +24,9 @@
 #include "DataFormats/Scouting/interface/Run3ScoutingPhoton.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingTrack.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingEBRecHit.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingEERecHit.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingHBHERecHit.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -56,6 +59,9 @@ namespace edmtest {
     void producePhotons(edm::Event&) const;
     void produceTracks(edm::Event&) const;
     void produceVertexes(edm::Event&) const;
+    void produceEBRecHits(edm::Event&) const;
+    void produceEERecHits(edm::Event&) const;
+    void produceHBHERecHits(edm::Event&) const;
 
     void throwWithMessage(const char*) const;
 
@@ -89,6 +95,18 @@ namespace edmtest {
     const std::vector<double> vertexesFloatingPointValues_;
     const std::vector<int> vertexesIntegralValues_;
     const edm::EDPutTokenT<std::vector<Run3ScoutingVertex>> vertexesPutToken_;
+
+    const std::vector<double> ebRecHitsFloatingPointValues_;
+    const std::vector<int> ebRecHitsIntegralValues_;
+    const edm::EDPutTokenT<std::vector<Run3ScoutingEBRecHit>> ebRecHitsPutToken_;
+
+    const std::vector<double> eeRecHitsFloatingPointValues_;
+    const std::vector<int> eeRecHitsIntegralValues_;
+    const edm::EDPutTokenT<std::vector<Run3ScoutingEERecHit>> eeRecHitsPutToken_;
+
+    const std::vector<double> hbheRecHitsFloatingPointValues_;
+    const std::vector<int> hbheRecHitsIntegralValues_;
+    const edm::EDPutTokenT<std::vector<Run3ScoutingHBHERecHit>> hbheRecHitsPutToken_;
   };
 
   TestWriteRun3Scouting::TestWriteRun3Scouting(edm::ParameterSet const& iPSet)
@@ -114,7 +132,16 @@ namespace edmtest {
         tracksPutToken_(produces()),
         vertexesFloatingPointValues_(iPSet.getParameter<std::vector<double>>("vertexesFloatingPointValues")),
         vertexesIntegralValues_(iPSet.getParameter<std::vector<int>>("vertexesIntegralValues")),
-        vertexesPutToken_(produces()) {
+        vertexesPutToken_(produces()),
+        ebRecHitsFloatingPointValues_(iPSet.getParameter<std::vector<double>>("ebRecHitsFloatingPointValues")),
+        ebRecHitsIntegralValues_(iPSet.getParameter<std::vector<int>>("ebRecHitsIntegralValues")),
+        ebRecHitsPutToken_(produces()),
+        eeRecHitsFloatingPointValues_(iPSet.getParameter<std::vector<double>>("eeRecHitsFloatingPointValues")),
+        eeRecHitsIntegralValues_(iPSet.getParameter<std::vector<int>>("eeRecHitsIntegralValues")),
+        eeRecHitsPutToken_(produces()),
+        hbheRecHitsFloatingPointValues_(iPSet.getParameter<std::vector<double>>("hbheRecHitsFloatingPointValues")),
+        hbheRecHitsIntegralValues_(iPSet.getParameter<std::vector<int>>("hbheRecHitsIntegralValues")),
+        hbheRecHitsPutToken_(produces()) {
     if (caloJetsValues_.size() != 16) {
       throwWithMessage("caloJetsValues must have 16 elements and it does not");
     }
@@ -160,6 +187,24 @@ namespace edmtest {
     if (vertexesIntegralValues_.size() != 3) {
       throwWithMessage("vertexesIntegralValues must have 3 elements and it does not");
     }
+    if (ebRecHitsFloatingPointValues_.size() != 2) {
+      throwWithMessage("ebRecHitsFloatingPointValues must have 2 elements and it does not");
+    }
+    if (ebRecHitsIntegralValues_.size() != 2) {
+      throwWithMessage("ebRecHitsIntegralValues must have 2 elements and it does not");
+    }
+    if (eeRecHitsFloatingPointValues_.size() != 2) {
+      throwWithMessage("eeRecHitsFloatingPointValues must have 2 elements and it does not");
+    }
+    if (eeRecHitsIntegralValues_.size() != 1) {
+      throwWithMessage("eeRecHitsIntegralValues must have 1 elements and it does not");
+    }
+    if (hbheRecHitsFloatingPointValues_.size() != 1) {
+      throwWithMessage("hbheRecHitsFloatingPointValues must have 1 elements and it does not");
+    }
+    if (hbheRecHitsIntegralValues_.size() != 1) {
+      throwWithMessage("hbheRecHitsIntegralValues must have 1 elements and it does not");
+    }
   }
 
   void TestWriteRun3Scouting::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
@@ -177,6 +222,9 @@ namespace edmtest {
     producePhotons(iEvent);
     produceTracks(iEvent);
     produceVertexes(iEvent);
+    produceEBRecHits(iEvent);
+    produceEERecHits(iEvent);
+    produceHBHERecHits(iEvent);
   }
 
   void TestWriteRun3Scouting::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -196,6 +244,12 @@ namespace edmtest {
     desc.add<std::vector<int>>("tracksIntegralValues");
     desc.add<std::vector<double>>("vertexesFloatingPointValues");
     desc.add<std::vector<int>>("vertexesIntegralValues");
+    desc.add<std::vector<double>>("ebRecHitsFloatingPointValues");
+    desc.add<std::vector<int>>("ebRecHitsIntegralValues");
+    desc.add<std::vector<double>>("eeRecHitsFloatingPointValues");
+    desc.add<std::vector<int>>("eeRecHitsIntegralValues");
+    desc.add<std::vector<double>>("hbheRecHitsFloatingPointValues");
+    desc.add<std::vector<int>>("hbheRecHitsIntegralValues");
     descriptions.addDefault(desc);
   }
 
@@ -597,6 +651,54 @@ namespace edmtest {
                                          static_cast<float>(vertexesFloatingPointValues_[9] + offset));
     }
     iEvent.put(vertexesPutToken_, std::move(run3ScoutingVertexes));
+  }
+
+  void TestWriteRun3Scouting::produceEBRecHits(edm::Event& iEvent) const {
+    auto run3ScoutingEBRecHits = std::make_unique<std::vector<Run3ScoutingEBRecHit>>();
+    unsigned int vectorSize = 2 + iEvent.id().event() % 4;
+    run3ScoutingEBRecHits->reserve(vectorSize);
+
+    for (unsigned int i = 0; i < vectorSize; ++i) {
+      double offset = static_cast<double>(iEvent.id().event() + i);
+      int iOffset = static_cast<int>(iEvent.id().event() + i);
+
+      run3ScoutingEBRecHits->emplace_back(static_cast<float>(ebRecHitsFloatingPointValues_[0] + offset),
+                                          static_cast<float>(ebRecHitsFloatingPointValues_[1] + offset),
+                                          static_cast<unsigned int>(ebRecHitsIntegralValues_[0] + iOffset),
+                                          static_cast<uint32_t>(ebRecHitsIntegralValues_[1] + iOffset));
+    }
+    iEvent.put(ebRecHitsPutToken_, std::move(run3ScoutingEBRecHits));
+  }
+
+  void TestWriteRun3Scouting::produceEERecHits(edm::Event& iEvent) const {
+    auto run3ScoutingEERecHits = std::make_unique<std::vector<Run3ScoutingEERecHit>>();
+    unsigned int vectorSize = 2 + iEvent.id().event() % 4;
+    run3ScoutingEERecHits->reserve(vectorSize);
+
+    for (unsigned int i = 0; i < vectorSize; ++i) {
+      double offset = static_cast<double>(iEvent.id().event() + i);
+      int iOffset = static_cast<int>(iEvent.id().event() + i);
+
+      run3ScoutingEERecHits->emplace_back(static_cast<float>(eeRecHitsFloatingPointValues_[0] + offset),
+                                          static_cast<float>(eeRecHitsFloatingPointValues_[1] + offset),
+                                          static_cast<unsigned int>(eeRecHitsIntegralValues_[0] + iOffset));
+    }
+    iEvent.put(eeRecHitsPutToken_, std::move(run3ScoutingEERecHits));
+  }
+
+  void TestWriteRun3Scouting::produceHBHERecHits(edm::Event& iEvent) const {
+    auto run3ScoutingHBHERecHits = std::make_unique<std::vector<Run3ScoutingHBHERecHit>>();
+    unsigned int vectorSize = 2 + iEvent.id().event() % 4;
+    run3ScoutingHBHERecHits->reserve(vectorSize);
+
+    for (unsigned int i = 0; i < vectorSize; ++i) {
+      double offset = static_cast<double>(iEvent.id().event() + i);
+      int iOffset = static_cast<int>(iEvent.id().event() + i);
+
+      run3ScoutingHBHERecHits->emplace_back(static_cast<float>(hbheRecHitsFloatingPointValues_[0] + offset),
+                                            static_cast<unsigned int>(hbheRecHitsIntegralValues_[0] + iOffset));
+    }
+    iEvent.put(hbheRecHitsPutToken_, std::move(run3ScoutingHBHERecHits));
   }
 
   void TestWriteRun3Scouting::throwWithMessage(const char* msg) const {

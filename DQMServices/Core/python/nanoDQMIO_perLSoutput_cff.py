@@ -66,6 +66,15 @@ nanoDQMIO_perLSoutput = cms.PSet(
     "CSC/CSCOfflineMonitor/recHits/hRHGlobalp3",
     "CSC/CSCOfflineMonitor/recHits/hRHGlobalp4",
 
+    "GEM/RecHits/occ_xy_GE11-M-L1",
+    "GEM/RecHits/occ_xy_GE11-M-L2",
+    "GEM/RecHits/occ_xy_GE11-P-L1",
+    "GEM/RecHits/occ_xy_GE11-P-L2",
+    "GEM/Digis/occ_GE11-M-L1",
+    "GEM/Digis/occ_GE11-M-L2",
+    "GEM/Digis/occ_GE11-P-L1",
+    "GEM/Digis/occ_GE11-P-L2",
+
     "HLT/Vertexing/hltPixelVertices/hltPixelVertices/goodvtxNbr",
     "HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurityPV/mon_eta",
     "HLT/Tracking/ValidationWRTOffline/hltMergedWrtHighPurityPV/mon_hits",

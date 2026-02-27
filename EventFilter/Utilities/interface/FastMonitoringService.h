@@ -233,6 +233,7 @@ namespace evf {
     void setTMicrostate(FastMonState::Microstate m);
 
     static unsigned int getTID() { return tbb::this_task_arena::current_thread_index(); }
+    bool streamIsIdle(unsigned int i) const;
 
   private:
     void doSnapshot(const unsigned int ls, const bool isGlobalEOL);

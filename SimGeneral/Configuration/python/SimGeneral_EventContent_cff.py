@@ -36,7 +36,8 @@ SimGeneralPREMIX = cms.PSet(
 _pp_on_AA_extraCommands = ['keep CrossingFramePlaybackInfoNew_mix_*_*','keep *_heavyIon_*_*']
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-for e in [pp_on_XeXe_2017, pp_on_AA]:
+from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
+for e in [pp_on_XeXe_2017, pp_on_AA, run3_oxygen]:
     e.toModify( SimGeneralRAW, outputCommands = SimGeneralRAW.outputCommands + _pp_on_AA_extraCommands )
     e.toModify( SimGeneralFEVTDEBUG, outputCommands = SimGeneralFEVTDEBUG.outputCommands + _pp_on_AA_extraCommands )
     e.toModify( SimGeneralRECO, outputCommands = SimGeneralRECO.outputCommands + _pp_on_AA_extraCommands )

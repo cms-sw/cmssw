@@ -19,8 +19,7 @@ HLT_HcalPhiSym_v*
 HLT_HcalNZS_v*
 HLT_HT60_Beamspot_v*
 HLT_HT300_Beamspot_v*
-HLT_IsoTrackHB_v*
-HLT_IsoTrackHE_v*
+AlCa_IsoTrackHBHE_v*	# CMSHLT-3519
 HLT_PPSMaxTracksPerArm1_v*
 HLT_PPSMaxTracksPerRP4_v*
 HLT_PPSRandom_v*
@@ -35,10 +34,19 @@ HLT_ZeroBias_IsolatedBunches_v*
 HLT_ZeroBias_LastCollisionInTrain_v*
 HLT_ZeroBias_v*
 HLT_SpecialZeroBias_v*
+HLT_L1MinimumBiasHF0ANDBptxAND_v*   # CMSHLT-3427
+HLT_PixelClusters_WP1_v*
+HLT_PixelClusters_WP2_v*
+HLT_Beamspot_PixelClusters_WP2_v*	# CMSHLT-3528
+HLT_PixelClusters_WP2_HighRate_v*   # CMSHLT-3427
+
+DQM_EcalReconstruction_v*
+DQM_HcalReconstruction_v*
+DQM_PixelReconstruction_v*
 
 HLTriggerFinalPath
 
-## EndPaths / FinalPaths ##
+## EndPaths ##
 
 ALCALumiPixelsCountsExpressOutput
 ALCALumiPixelsCountsPromptOutput
@@ -46,6 +54,7 @@ ALCAP0Output
 ALCAPHISYMOutput
 ALCAPPSExpressOutput
 ALCAPPSPromptOutput
+ALCAHcalIsoTrkOutput	# CMSHLT-3519
 CalibrationOutput
 EcalCalibrationOutput
 ExpressOutput
@@ -66,14 +75,38 @@ PhysicsSpecialZeroBias6Output
 PhysicsSpecialZeroBias7Output
 PhysicsSpecialZeroBias8Output
 PhysicsSpecialZeroBias9Output
+PhysicsSpecialZeroBias10Output
+PhysicsSpecialZeroBias11Output
+PhysicsSpecialZeroBias12Output
+PhysicsSpecialZeroBias13Output
+PhysicsSpecialZeroBias14Output
+PhysicsSpecialZeroBias15Output
+PhysicsSpecialZeroBias16Output
+PhysicsSpecialZeroBias17Output
+PhysicsSpecialZeroBias18Output
+PhysicsSpecialZeroBias19Output
+PhysicsSpecialZeroBias20Output
+PhysicsSpecialZeroBias21Output
+PhysicsSpecialZeroBias22Output
+PhysicsSpecialZeroBias23Output
+PhysicsSpecialZeroBias24Output
+PhysicsSpecialZeroBias25Output
+PhysicsSpecialZeroBias26Output
+PhysicsSpecialZeroBias27Output
+PhysicsSpecialZeroBias28Output
+PhysicsSpecialZeroBias29Output
+PhysicsSpecialZeroBias30Output
+PhysicsSpecialZeroBias31Output
+
+PhysicsSpecialMinimumBias0Output      # CMSHLT-3427
+PhysicsSpecialMinimumBias1Output      # CMSHLT-3427
+PhysicsSpecialMinimumBias2Output      # CMSHLT-3530
+PhysicsSpecialMinimumBias3Output      # CMSHLT-3530
+
+HLTMonitorOutput		      # CMSHLT-3444
+
 NanoDSTOutput
 RPCMONOutput
-HLT_PixelClusters_WP1_v*
-HLT_PixelClusters_WP2_v*
-HLT_HT300_Beamspot_PixelClusters_WP2_v*
-DQM_EcalReconstruction_v*
-DQM_HcalReconstruction_v*
-DQM_PixelReconstruction_v*
 DQMGPUvsCPUOutput
 
 ######## Paths that are different between online and offline ########

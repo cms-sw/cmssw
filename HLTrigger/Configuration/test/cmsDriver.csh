@@ -27,7 +27,7 @@ eval `scram runtime -csh`
 set InputGenSimGRun0 = /store/relval/CMSSW_8_0_11/RelValProdTTbar/GEN-SIM/80X_mcRun1_realistic_v4-v1/10000/06A6C86B-C634-E611-93A5-0CC47A74525A.root
 set InputGenSimGRun1 = /store/relval/CMSSW_8_0_16/RelValProdTTbar_13/GEN-SIM/80X_mcRun2_asymptotic_v16_gs7120p2-v1/10000/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
 set InputGenSimGRun2 = /store/relval/CMSSW_8_0_16/RelValProdTTbar_13/GEN-SIM/80X_mcRun2_asymptotic_v16_gs7120p2-v1/10000/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
-set InputGenSimGRun3 = /store/relval/CMSSW_14_1_0_pre7/RelValTTbar_14TeV/GEN-SIM/140X_mcRun3_2024_realistic_v21_STD_RegeneratedGS_2024_noPU-v1/2580000/959d2e44-5c2a-4a80-a499-d65354889e05.root
+set InputGenSimGRun3 = /store/relval/CMSSW_15_0_0/RelValTTbar_14TeV/GEN-SIM/142X_mcRun3_2025_realistic_v7_STD_2025_PU-v3/2580000/edf6fee2-e9d4-4072-a83a-c87a94f38900.root
 set InputGenSimHIon1 = /store/relval/CMSSW_8_0_16/RelValZEEMM_13_HI/GEN-SIM/80X_mcRun2_HeavyIon_v9-v1/10000/F8FC5F64-1657-E611-A57E-002590A887F0.root
 set InputGenSimHIon3 = /store/relval/CMSSW_14_1_0_pre7/RelValZEE_5362_HI_2023/GEN-SIM/140X_mcRun3_2023_realistic_HI_v4_STD_RegeneratedGS_2023HIN_noPU-v1/2580000/ca67f8db-780c-4078-84e8-61e514e56f1b.root
 set InputGenSimPIon2 = $InputGenSimGRun2
@@ -42,7 +42,7 @@ set InputGenSimSpec3 = $InputGenSimGRun3
 set InputLHCRawGRun0 = /store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
 set InputLHCRawGRun1 = /store/data/Run2015D/MuonEG/RAW/v1/000/256/677/00000/80950A90-745D-E511-92FD-02163E011C5D.root
 set InputLHCRawGRun2 = /store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666CDE2-E013-E611-B15A-02163E011DBE.root
-set InputLHCRawGRun3 = /store/data/Run2024I/EphemeralHLTPhysics0/RAW/v1/000/386/593/00000/91a08676-199e-404c-9957-f72772ef1354.root
+set InputLHCRawGRun3 = /store/data/Run2025D/EphemeralHLTPhysics0/RAW/v1/000/394/959/00000/02ab3d20-66ba-4372-8f06-5d09e0848408.root
 set InputLHCRawHIon1 = /store/hidata/HIRun2015/HIHardProbes/RAW/v1/000/263/718/00000/08057733-02A5-E511-9C7D-02163E014606.root
 set InputLHCRawHIon2 = /store/hidata/HIRun2018A/HIHardProbes/RAW/v1/000/326/479/00000/0E2CC5D5-9D87-7348-9219-B00CD718C847.root
 set InputLHCRawHIon3 = /store/hidata/HIRun2022A/HITestRaw0/RAW/v1/000/362/321/00000/f467ee64-fc64-47a6-9d8a-7ca73ebca2bd.root
@@ -76,7 +76,7 @@ set EraRun2pp2016  = " --era=Run2_2016 "
 set EraRun2pp2017  = " --era=Run2_2017 "
 set EraRun2pp2018  = " --era=Run2_2018 "
 set EraRun2HI      = " --era=Run2_2018_pp_on_AA "
-set EraRun3pp      = " --era=Run3_2024 "
+set EraRun3pp      = " --era=Run3_2025 "
 set EraRun3HI      = " --era=Run3_pp_on_PbPb_2024 "
 
 set XL1T    = "" # syntax: tag,record[,connect,label]
@@ -136,7 +136,7 @@ foreach gtag ( MC DATA )
   if ( $1 == "" ) then
     set tables = ( GRun )
   else if ( ($1 == all) || ($1 == ALL) ) then
-    set tables = ( GRun HIon PIon PRef Special 2024v14 Fake Fake1 Fake2 )
+    set tables = ( GRun HIon PIon PRef Special 2025v13 Fake Fake1 Fake2 )
   else if ( ($1 == ib) || ($1 == IB) ) then
     set tables = ( GRun HIon PIon PRef Special )
   else if ( ($1 == dev) || ($1 == DEV) ) then
@@ -146,7 +146,7 @@ foreach gtag ( MC DATA )
   else if ( ($1 == fake) || ($1 == FAKE) ) then
     set tables = ( Fake Fake1 Fake2 )
   else if ( ($1 == frozen) || ($1 == FROZEN) ) then
-    set tables = ( 2024v14 )
+    set tables = ( 2025v13 )
   else
     set tables = ( $1 )
   endif
@@ -220,11 +220,11 @@ foreach gtag ( MC DATA )
       set Custom = " "
       set L1REPACK = L1REPACK:Full
       set DIGI = DIGI:pdigi
-    else if ( $table == 2024v14 ) then
+    else if ( $table == 2025v13 ) then
       set XL1T = $XL1TPP3
-      set XHLT = HLT:2024v14
-      set GTAG = ${BASE3}_2024v14
-      set RTAG = ${RECO3}_2024v14
+      set XHLT = HLT:2025v13
+      set GTAG = ${BASE3}_2025v13
+      set RTAG = ${RECO3}_2025v13
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3

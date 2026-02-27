@@ -102,6 +102,7 @@ private:
   std::vector<SiPixelTemplateStore2D> thePixelTemp2D_;
 
   int speed_;
+  bool goodEdgeAlgo_;
 
   bool UseClusterSplitter_;
 

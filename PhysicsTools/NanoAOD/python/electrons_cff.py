@@ -231,17 +231,6 @@ run2_egamma.toModify(slimmedElectronsWithUserData.userFloats,
         toModify(slimmedElectronsWithUserData.userInts,
                  VIDNestedWPBitmap = None)
 
-run2_egamma.toModify(
-    slimmedElectronsWithUserData.userFloats,
-    ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectronsNano","ecalTrkEnergyErrPostCorr"),
-    ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectronsNano","ecalTrkEnergyPreCorr"),
-    ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectronsNano","ecalTrkEnergyPostCorr"),
-    energyScaleUpNew            = cms.InputTag("calibratedPatElectronsNano","energyScaleUp"),
-    energyScaleDownNew          = cms.InputTag("calibratedPatElectronsNano","energyScaleDown"),
-    energySigmaUpNew            = cms.InputTag("calibratedPatElectronsNano","energySigmaUp"),
-    energySigmaDownNew          = cms.InputTag("calibratedPatElectronsNano","energySigmaDown")
-)
-
 (run2_egamma_2016).toModify(
     slimmedElectronsWithUserData.userFloats,
     mvaHZZIso = "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Summer16ULIdIsoValues"
@@ -453,16 +442,7 @@ _eleVarsExtra = cms.PSet(
 )
 
 (run2_egamma).toModify(
-        # energy scale/smearing: only for Run2
         electronTable.variables,
-        pt = Var("pt*userFloat('ecalTrkEnergyPostCorrNew')/userFloat('ecalTrkEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
-        energyErr = Var("userFloat('ecalTrkEnergyErrPostCorrNew')", float, precision=6, doc="energy error of the cluster-track combination"),
-        ptPreCorr = Var("pt", float, doc="pt of the electron before energy corrections"),
-        scEtOverPt = Var("(superCluster().energy()/(pt*userFloat('ecalTrkEnergyPostCorrNew')/userFloat('ecalTrkEnergyPreCorrNew')*cosh(superCluster().eta())))-1",float,doc="(supercluster transverse energy)/pt-1",precision=8),
-        dEscaleUp=Var("userFloat('ecalTrkEnergyPostCorrNew')-userFloat('energyScaleUpNew')", float,  doc="ecal energy scale shifted 1 sigma up(adding gain/stat/syst in quadrature)", precision=8),
-        dEscaleDown=Var("userFloat('ecalTrkEnergyPostCorrNew')-userFloat('energyScaleDownNew')", float,  doc="ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature)", precision=8),
-        dEsigmaUp=Var("userFloat('ecalTrkEnergyPostCorrNew')-userFloat('energySigmaUpNew')", float, doc="ecal energy smearing value shifted 1 sigma up", precision=8),
-        dEsigmaDown=Var("userFloat('ecalTrkEnergyPostCorrNew')-userFloat('energySigmaDownNew')", float,  doc="ecal energy smearing value shifted 1 sigma up", precision=8),
         # Fall17V2 IDs and isolations are only for Run2. The names of these IDs and isolations are same as in Run3. 
         mvaIso = Var("userFloat('mvaIso_Fall17V2')",float,doc="MVA Iso ID score, Fall17V2"),
         mvaIso_WP80 = Var("userInt('mvaIso_Fall17V2_WP80')",bool,doc="MVA Iso ID WP80, Fall17V2"),
@@ -529,16 +509,15 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
     genparticles     = cms.InputTag("finalGenParticles"),
 )
 
-electronTask = cms.Task(bitmapVIDForEle,bitmapVIDForEleFall17V2,bitmapVIDForEleHEEP,isoForEle,isoForEleFall17V2,ptRatioRelForEle,seedGainEle,calibratedPatElectronsNano,slimmedElectronsWithUserData,finalElectrons)
+electronTask = cms.Task(bitmapVIDForEle,bitmapVIDForEleFall17V2,bitmapVIDForEleHEEP,isoForEle,isoForEleFall17V2,ptRatioRelForEle,seedGainEle,slimmedElectronsWithUserData,finalElectrons)
 electronTablesTask = cms.Task(electronPROMPTMVA, electronTable)
 electronMCTask = cms.Task(tautaggerForMatching, matchingElecPhoton, electronsMCMatchForTable, electronsMCMatchForTableAlt, electronMCTable)
 
 _electronTask_Run2 = electronTask.copy()
 _electronTask_Run2.remove(bitmapVIDForEle)
 _electronTask_Run2.remove(isoForEle)
-_electronTask_Run2.add(calibratedPatElectronsNano)
 run2_egamma.toReplaceWith(electronTask, _electronTask_Run2)
 
 # Revert back to AK4 CHS jets for Run2 inputs
-run2_nanoAOD_ANY.toModify(
+run2_egamma.toModify(
     ptRatioRelForEle,srcJet="updatedJets")

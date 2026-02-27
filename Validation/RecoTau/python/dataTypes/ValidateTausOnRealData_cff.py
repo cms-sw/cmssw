@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 from Validation.RecoTau.RecoTauValidation_cfi import *
 import copy
 
-from RecoJets.Configuration.RecoPFJets_cff import *
 import PhysicsTools.PatAlgos.tools.helpers as helpers
 
 kinematicSelectedPFJets = cms.EDFilter(

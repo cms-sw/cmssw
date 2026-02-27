@@ -109,13 +109,29 @@ process.MuTagJetEt30Dr0p4 = cms.EDProducer("MuTagJetBxSelector",
     maxDR            = cms.vdouble(0.4),
 )
 
+process.Stubs3BxWindowSimpleCond = cms.EDProducer("BMTFStubMultiBxSelector",
+    stubsTag         = cms.InputTag("l1ScBMTFUnpacker", "BMTFStub"),
+    condition        = cms.string("simple"),
+    bxWindowLength   = cms.uint32(3),
+    minNBMTFStub     = cms.uint32(2)
+)
+
+process.Stubs3BxWindowWheelCond = cms.EDProducer("BMTFStubMultiBxSelector",
+    stubsTag         = cms.InputTag("l1ScBMTFUnpacker", "BMTFStub"),
+    condition        = cms.string("wheel"),
+    bxWindowLength   = cms.uint32(3),
+    minNBMTFStub     = cms.uint32(2)
+)
+
 process.FinalBxSelector = cms.EDFilter("FinalBxSelector",
     analysisLabels   = cms.VInputTag(
         cms.InputTag("DijetEt30", "SelBx"),
         cms.InputTag("SingleMuPt0BMTF", "SelBx"),
         cms.InputTag("DoubleMuPt0Qual8", "SelBx"),
         cms.InputTag("HMJetMult4Et20", "SelBx"),
-        cms.InputTag("MuTagJetEt30Dr0p4", "SelBx")
+        cms.InputTag("MuTagJetEt30Dr0p4", "SelBx"),
+        cms.InputTag("Stubs3BxWindowSimpleCond", "SelBx"),
+        cms.InputTag("Stubs3BxWindowWheelCond", "SelBx")
     ),
 )
 
@@ -124,7 +140,9 @@ process.bxSelectors = cms.Sequence(
     process.HMJetMult4Et20 +
     process.SingleMuPt0BMTF +
     process.DoubleMuPt0Qual8 +
-    process.MuTagJetEt30Dr0p4
+    process.MuTagJetEt30Dr0p4 +
+    process.Stubs3BxWindowSimpleCond +
+    process.Stubs3BxWindowWheelCond
 )
 
 # Final collection producers
@@ -158,12 +176,19 @@ process.FinalBxSelectorBxSums = cms.EDProducer("MaskOrbitBxScoutingBxSums",
     productLabel = cms.string("EtSum")
 )
 
+process.FinalBxSelectorBMTFStub = cms.EDProducer("MaskOrbitBxScoutingBMTFStub",
+    dataTag = cms.InputTag("l1ScBMTFUnpacker", "BMTFStub"),
+    selectBxs = cms.InputTag("FinalBxSelector", "SelBx"),
+    productLabel = cms.string("BMTFStub")
+)
+
 process.MaskedCollections = cms.Sequence(
     process.FinalBxSelectorMuon +
     process.FinalBxSelectorJet +
     process.FinalBxSelectorEGamma +
     process.FinalBxSelectorTau +
-    process.FinalBxSelectorBxSums
+    process.FinalBxSelectorBxSums +
+    process.FinalBxSelectorBMTFStub
 )
 
 process.pL1ScoutingSelected = cms.Path(process.bxSelectors + process.FinalBxSelector+process.MaskedCollections)
@@ -180,6 +205,8 @@ process.hltOutputL1ScoutingSelection = cms.OutputModule("PoolOutputModule",
         'keep *_SingleMuPt0BMTF_*_*',
         'keep *_DoubleMuPt0Qual8_*_*',
         'keep *_MuTagJetEt30Dr0p4_*_*',
+        'keep *_Stubs3BxWindowSimpleCond_*_*',
+        'keep *_Stubs3BxWindowWheelCond_*_*',
         'keep *_FinalBxSelector*_*_*',
     )
 )

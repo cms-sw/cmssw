@@ -13,6 +13,7 @@
 #include <iostream>
 #include <sstream>
 #include <cstdio>
+#include <fmt/format.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
@@ -78,66 +79,46 @@ std::string SiStripHistoId::createHistoLayer(std::string description,
   return local_histo_id;
 }
 
-//std::string SiStripHistoId::getSubdetid(uint32_t id, const TrackerTopology* tTopo, bool flag_ring, bool flag_thickness){
-std::string SiStripHistoId::getSubdetid(uint32_t id, const TrackerTopology *tTopo, bool flag_ring) {
-  const int buf_len = 50;
-  char temp_str[buf_len];
-
+// std::string SiStripHistoId::getSubdetid(uint32_t id, const TrackerTopology* tTopo, bool flag_ring, bool flag_thickness) {
+std::string SiStripHistoId::getSubdetid(uint32_t id, const TrackerTopology* tTopo, bool flag_ring) {
   StripSubdetector subdet(id);
+
   if (subdet.subdetId() == StripSubdetector::TIB) {
     // ---------------------------  TIB  --------------------------- //
-
-    snprintf(temp_str, buf_len, "TIB__layer__%i", tTopo->tibLayer(id));
+    return "TIB__layer__" + std::to_string(tTopo->tibLayer(id));
   } else if (subdet.subdetId() == StripSubdetector::TID) {
     // ---------------------------  TID  --------------------------- //
-
-    const char *side = "";
-    if (tTopo->tidSide(id) == 1)
-      side = "MINUS";
-    else if (tTopo->tidSide(id) == 2)
-      side = "PLUS";
+    const char* side = (tTopo->tidSide(id) == 1) ? "MINUS" : "PLUS";
 
     if (flag_ring)
-      snprintf(temp_str, buf_len, "TID__%s__ring__%i", side, tTopo->tidRing(id));
+      return fmt::format("TID__{}__ring__{}", side, tTopo->tidRing(id));
     else
-      snprintf(temp_str, buf_len, "TID__%s__wheel__%i", side, tTopo->tidWheel(id));
-
+      return fmt::format("TID__{}__wheel__{}", side, tTopo->tidWheel(id));
   } else if (subdet.subdetId() == StripSubdetector::TOB) {
     // ---------------------------  TOB  --------------------------- //
-
-    snprintf(temp_str, buf_len, "TOB__layer__%i", tTopo->tobLayer(id));
+    return "TOB__layer__" + std::to_string(tTopo->tobLayer(id));
   } else if (subdet.subdetId() == StripSubdetector::TEC) {
     // ---------------------------  TEC  --------------------------- //
+    const char* side = (tTopo->tecSide(id) == 1) ? "MINUS" : "PLUS";
 
-    const char *side = "";
-    if (tTopo->tecSide(id) == 1)
-      side = "MINUS";
-    else if (tTopo->tecSide(id) == 2)
-      side = "PLUS";
-
-    if (flag_ring)
-      snprintf(temp_str, buf_len, "TEC__%s__ring__%i", side, tTopo->tecRing(id));
-    else {
+    if (flag_ring) {
+      return fmt::format("TEC__{}__ring__{}", side, tTopo->tecRing(id));
+    } else {
       /*
       if (flag_thickness) {
-	uint32_t ring = tTopo->tecRing(id);
-	if ( ring >= 1 && ring <= 4 )
-	  snprintf(temp_str, buf_len, "TEC__%s__wheel__%i__THIN", side.c_str(), tTopo->tecWheel(id));       
-	else 
-	  snprintf(temp_str, buf_len, "TEC__%s__wheel__%i__THICK", side.c_str(), tTopo->tecWheel(id));       
-      }
-      else
-*/
-      snprintf(temp_str, buf_len, "TEC__%s__wheel__%i", side, tTopo->tecWheel(id));
+        uint32_t ring = tTopo->tecRing(id);
+        std::string thickness = (ring >= 1 && ring <= 4) ? "__THIN" : "__THICK";
+	return fmt::format("TEC__{}__wheel__{}{}", side, tTopo->tecWheel(id), thickness);
+      } else
+      */
+      return fmt::format("TEC__{}__wheel__{}", side, tTopo->tecWheel(id));
     }
   } else {
     // ---------------------------  ???  --------------------------- //
     edm::LogError("SiStripTkDQM|WrongInput")
-        << "no such subdetector type :" << subdet.subdetId() << " no folder set!" << std::endl;
-    snprintf(temp_str, 0, "%s", "");
+        << "no such subdetector type: " << subdet.subdetId() << " no folder set!" << std::endl;
+    return "";  // Return an empty string on error
   }
-
-  return std::string(temp_str);
 }
 
 uint32_t SiStripHistoId::getComponentId(std::string histoid) {

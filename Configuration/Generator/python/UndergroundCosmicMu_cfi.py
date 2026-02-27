@@ -38,6 +38,7 @@ generator = cms.EDProducer("CosMuoGenProducer",
     MultiMuonFileName = cms.string("CORSIKAmultiMuon.root"),
     MultiMuonFileFirstEvent = cms.int32(1),
     MultiMuonNmin = cms.int32(2),              
+    SurfaceDepth = cms.double(0.0)
 )
 
 

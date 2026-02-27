@@ -7,7 +7,6 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include <string>
@@ -54,8 +53,8 @@ TEST_CASE("test ProcessHistory", "[ProcessHistory]") {
       REQUIRE(pnl1 == pnl1);
       REQUIRE(pnl1 == pnl2);
     }
-    edm::ProcessConfiguration iHLT(std::string("HLT"), psetID, std::string("CMSSW_5_100_40"), edm::getPassID());
-    edm::ProcessConfiguration iRECO(std::string("RECO"), psetID, std::string("5_100_42patch100"), edm::getPassID());
+    edm::ProcessConfiguration iHLT("HLT", psetID, "CMSSW_5_100_40", edm::HardwareResourcesDescription());
+    edm::ProcessConfiguration iRECO("RECO", psetID, "5_100_42patch100", edm::HardwareResourcesDescription());
     pnl2.push_back(iHLT);
     edm::ProcessHistory pnl3;
     pnl3.push_back(iHLT);
@@ -84,15 +83,17 @@ TEST_CASE("test ProcessHistory", "[ProcessHistory]") {
     }
 
     SECTION("reduce") {
-      edm::ProcessConfiguration pc1(std::string("HLT"), psetID, std::string(""), edm::getPassID());
-      edm::ProcessConfiguration pc2(std::string("HLT"), psetID, std::string("a"), edm::getPassID());
-      edm::ProcessConfiguration pc3(std::string("HLT"), psetID, std::string("1"), edm::getPassID());
-      edm::ProcessConfiguration pc4(std::string("HLT"), psetID, std::string("ccc500yz"), edm::getPassID());
-      edm::ProcessConfiguration pc5(std::string("HLT"), psetID, std::string("500yz872"), edm::getPassID());
-      edm::ProcessConfiguration pc6(std::string("HLT"), psetID, std::string("500yz872djk999patch10"), edm::getPassID());
-      edm::ProcessConfiguration pc7(
-          std::string("HLT"), psetID, std::string("xb500yz872djk999patch10"), edm::getPassID());
-      edm::ProcessConfiguration pc8(std::string("HLT"), psetID, std::string("CMSSW_4_4_0_pre5"), edm::getPassID());
+      edm::ProcessConfiguration pc1("HLT", psetID, "", edm::HardwareResourcesDescription());
+      edm::ProcessConfiguration pc2("HLT", psetID, "a", edm::HardwareResourcesDescription());
+      edm::ProcessConfiguration pc3("HLT", psetID, "1", edm::HardwareResourcesDescription());
+      edm::ProcessConfiguration pc4("HLT", psetID, "ccc500yz", edm::HardwareResourcesDescription());
+      edm::ProcessConfiguration pc5("HLT", psetID, "500yz872", edm::HardwareResourcesDescription());
+      edm::ProcessConfiguration pc6("HLT", psetID, "500yz872djk999patch10", edm::HardwareResourcesDescription());
+      edm::ProcessConfiguration pc7("HLT", psetID, "xb500yz872djk999patch10", edm::HardwareResourcesDescription());
+      edm::ProcessConfiguration pc8("HLT", psetID, "CMSSW_4_4_0_pre5", edm::HardwareResourcesDescription());
+      edm::HardwareResourcesDescription hrd;
+      hrd.microarchitecture = "fred";
+      edm::ProcessConfiguration pc9("HLT", psetID, "CMSSW_4_4_0_pre5", hrd);
 
       pc1.setProcessConfigurationID();
       pc2.setProcessConfigurationID();
@@ -102,6 +103,9 @@ TEST_CASE("test ProcessHistory", "[ProcessHistory]") {
       pc6.setProcessConfigurationID();
       pc7.setProcessConfigurationID();
       pc8.setProcessConfigurationID();
+      pc9.setProcessConfigurationID();
+
+      REQUIRE(pc9.id() != pc8.id());
 
       pc1.reduce();
       pc2.reduce();
@@ -111,15 +115,19 @@ TEST_CASE("test ProcessHistory", "[ProcessHistory]") {
       pc6.reduce();
       pc7.reduce();
       pc8.reduce();
+      pc9.reduce();
 
-      edm::ProcessConfiguration pc1expected(std::string("HLT"), psetID, std::string(""), edm::getPassID());
-      edm::ProcessConfiguration pc2expected(std::string("HLT"), psetID, std::string("a"), edm::getPassID());
-      edm::ProcessConfiguration pc3expected(std::string("HLT"), psetID, std::string("1"), edm::getPassID());
-      edm::ProcessConfiguration pc4expected(std::string("HLT"), psetID, std::string("ccc500yz"), edm::getPassID());
-      edm::ProcessConfiguration pc5expected(std::string("HLT"), psetID, std::string("500yz872"), edm::getPassID());
-      edm::ProcessConfiguration pc6expected(std::string("HLT"), psetID, std::string("500yz872"), edm::getPassID());
-      edm::ProcessConfiguration pc7expected(std::string("HLT"), psetID, std::string("xb500yz872"), edm::getPassID());
-      edm::ProcessConfiguration pc8expected(std::string("HLT"), psetID, std::string("CMSSW_4_4"), edm::getPassID());
+      REQUIRE(pc9.id() == pc8.id());
+
+      edm::ProcessConfiguration pc1expected("HLT", psetID, "", edm::HardwareResourcesDescription());
+      edm::ProcessConfiguration pc2expected("HLT", psetID, "a", edm::HardwareResourcesDescription());
+      edm::ProcessConfiguration pc3expected("HLT", psetID, "1", edm::HardwareResourcesDescription());
+      edm::ProcessConfiguration pc4expected("HLT", psetID, "ccc500yz", edm::HardwareResourcesDescription());
+      edm::ProcessConfiguration pc5expected("HLT", psetID, "500yz872", edm::HardwareResourcesDescription());
+      edm::ProcessConfiguration pc6expected("HLT", psetID, "500yz872", edm::HardwareResourcesDescription());
+      edm::ProcessConfiguration pc7expected("HLT", psetID, "xb500yz872", edm::HardwareResourcesDescription());
+      edm::ProcessConfiguration pc8expected("HLT", psetID, "CMSSW_4_4", edm::HardwareResourcesDescription());
+      edm::ProcessConfiguration pc9expected = pc8expected;
 
       REQUIRE(pc1 == pc1expected);
       REQUIRE(pc2 == pc2expected);
@@ -129,6 +137,7 @@ TEST_CASE("test ProcessHistory", "[ProcessHistory]") {
       REQUIRE(pc6 == pc6expected);
       REQUIRE(pc7 == pc7expected);
       REQUIRE(pc8 == pc8expected);
+      REQUIRE(pc9 == pc9expected);
 
       REQUIRE(pc1.id() == pc1expected.id());
       REQUIRE(pc2.id() == pc2expected.id());
@@ -138,12 +147,13 @@ TEST_CASE("test ProcessHistory", "[ProcessHistory]") {
       REQUIRE(pc6.id() == pc6expected.id());
       REQUIRE(pc7.id() == pc7expected.id());
       REQUIRE(pc8.id() == pc8expected.id());
+      REQUIRE(pc9.id() == pc9expected.id());
 
       REQUIRE(pc7.id() != pc8expected.id());
     }
     SECTION("multi-step history reduce") {
-      edm::ProcessConfiguration iHLTreduced(std::string("HLT"), psetID, std::string("CMSSW_5_100"), edm::getPassID());
-      edm::ProcessConfiguration iRECOreduced(std::string("RECO"), psetID, std::string("5_100"), edm::getPassID());
+      edm::ProcessConfiguration iHLTreduced("HLT", psetID, "CMSSW_5_100", edm::HardwareResourcesDescription());
+      edm::ProcessConfiguration iRECOreduced("RECO", psetID, "5_100", edm::HardwareResourcesDescription());
       edm::ProcessHistory phTestExpected;
       phTestExpected.push_back(iHLTreduced);
       phTestExpected.push_back(iRECOreduced);
@@ -175,14 +185,14 @@ TEST_CASE("test ProcessHistory", "[ProcessHistory]") {
     edm::ProcessHistory ph3;
     edm::ProcessHistory ph4;
 
-    edm::ProcessConfiguration pc1(std::string("HLT"), psetID, std::string("CMSSW_5_1_40"), std::string(""));
-    edm::ProcessConfiguration pc1a(std::string("HLT"), psetID, std::string("CMSSW_5_1_40patch1"), std::string(""));
-    edm::ProcessConfiguration pc1b(std::string("HLT"), psetID, std::string("CMSSW_5_1_40patch2"), std::string(""));
-    edm::ProcessConfiguration pc2(std::string("HLT"), psetID, std::string("CMSSW_5_2_40"), std::string(""));
-    edm::ProcessConfiguration pc2a(std::string("HLT"), psetID, std::string("CMSSW_5_2_40patch1"), std::string(""));
-    edm::ProcessConfiguration pc2b(std::string("HLT"), psetID, std::string("CMSSW_5_2_40patch2"), std::string(""));
-    edm::ProcessConfiguration pc3(std::string("HLT"), psetID, std::string("CMSSW_5_3_40"), std::string(""));
-    edm::ProcessConfiguration pc4(std::string("HLT"), psetID, std::string("CMSSW_5_4_40"), std::string(""));
+    edm::ProcessConfiguration pc1("HLT", psetID, "CMSSW_5_1_40", edm::HardwareResourcesDescription());
+    edm::ProcessConfiguration pc1a("HLT", psetID, "CMSSW_5_1_40patch1", edm::HardwareResourcesDescription());
+    edm::ProcessConfiguration pc1b("HLT", psetID, "CMSSW_5_1_40patch2", edm::HardwareResourcesDescription());
+    edm::ProcessConfiguration pc2("HLT", psetID, "CMSSW_5_2_40", edm::HardwareResourcesDescription());
+    edm::ProcessConfiguration pc2a("HLT", psetID, "CMSSW_5_2_40patch1", edm::HardwareResourcesDescription());
+    edm::ProcessConfiguration pc2b("HLT", psetID, "CMSSW_5_2_40patch2", edm::HardwareResourcesDescription());
+    edm::ProcessConfiguration pc3("HLT", psetID, "CMSSW_5_3_40", edm::HardwareResourcesDescription());
+    edm::ProcessConfiguration pc4("HLT", psetID, "CMSSW_5_4_40", edm::HardwareResourcesDescription());
 
     ph1.push_back(pc1);
     ph1a.push_back(pc1a);

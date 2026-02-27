@@ -11,7 +11,7 @@ import math
 options = VarParsing.VarParsing ('analysis')
 
 options.register ('runNumber',
-                  100, # default value
+                  100101, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.int,          # string, int, or float
                   "Run Number")
@@ -64,8 +64,23 @@ options.register ('dataType',
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "Choice between FRD or raw DTH data generation")
 
+options.register ('subsystems',
+                  "",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "List of generated subsystem FEDs. Empty means all.")
 
+options.register ('writeToOpen',
+                  0,
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.int,          # string, int, or float
+                  "Write only to open directory")
 
+options.register ('eventDataType',
+                  0,
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.int,
+                  "Event data type value in FRD file header v2")
 
 options.parseArguments()
 
@@ -135,12 +150,17 @@ if  options.dataType == "FRD":
                                tcdsFEDID = cms.untracked.uint32(1024),
                                injectErrPpm = cms.untracked.uint32(0)
                                )
+    if options.subsystems:
+        #set FED filering
+        process.s.subsystems = cms.untracked.vstring(tuple(options.subsystems.split(',')))
 
     process.out = cms.OutputModule("RawStreamFileWriterForBU",
         source = cms.InputTag("s"),
         numEventsPerFile = cms.uint32(options.eventsPerFile),
         frdVersion = cms.uint32(6),
         frdFileVersion = cms.uint32(options.frdFileVersion),
+        dataType = cms.untracked.uint32(options.eventDataType),
+        writeToOpen = cms.untracked.bool(True if options.writeToOpen else False)
         )
 
 elif  options.dataType == "DTH":
@@ -157,7 +177,8 @@ elif  options.dataType == "DTH":
         numEventsPerFile = cms.uint32(options.eventsPerFile),
         frdVersion = cms.uint32(0),
         frdFileVersion = cms.uint32(0),
-        sourceIdList = cms.untracked.vuint32(66,1511)
+        dataType = cms.untracked.uint32(options.eventDataType),
+        sourceIdList = cms.untracked.vuint32(66,1511),
     )
 
 process.p = cms.Path(process.s+process.a)

@@ -366,14 +366,18 @@ def nanoAOD_addDeepInfoAK4CHS(process,addDeepBTag,addDeepFlavour,addParticleNet,
     print("Will recalculate the following discriminators: "+", ".join(_btagDiscriminators))
     updateJetCollection(
         process,
-        jetSource = cms.InputTag('slimmedJets'),
+        jetSource = cms.InputTag('slimmedJets', processName=cms.InputTag.skipCurrentProcess()),
         jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual']), 'None'),
         btagDiscriminators = _btagDiscriminators,
         postfix = 'WithDeepInfo',
     )
     process.load("Configuration.StandardSequences.MagneticField_cff")
-    process.jetCorrFactorsNano.src="selectedUpdatedPatJetsWithDeepInfo"
-    process.updatedJets.jetSource="selectedUpdatedPatJetsWithDeepInfo"
+
+    from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
+    task = getPatAlgosToolsTask(process)
+    addToProcessAndTask("slimmedJets", process.selectedUpdatedPatJetsWithDeepInfo.clone(), process, task)
+    del process.selectedUpdatedPatJetsWithDeepInfo
+
     return process
 
 nanoAOD_addDeepInfoAK4CHS_switch = cms.PSet(
@@ -494,6 +498,7 @@ jetForMETTask =  cms.Task(basicJetsForMetForT1METNano,corrT1METJetTable)
 jetUserDataTask = cms.Task(bJetVars,qgtagger,jercVars,pileupJetIdNano)
 
 #before cross linking
+chsJetUpdateTask = cms.Task(jetCorrFactorsNano,updatedJets)
 jetTask = cms.Task(jetCorrFactorsNano,updatedJets,jetUserDataTask,updatedJetsWithUserData,finalJets)
 
 #after cross linkining

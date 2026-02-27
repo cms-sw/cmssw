@@ -13,6 +13,7 @@
 </library>
 
 <library name="GeneratorInterfaceLHEIO" file="LH5Source.cc LHESource.cc LHEProvenanceHelper.cc LHEWriter.cc">
+  <use name="FWCore/AbstractServices"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/Sources"/>
   <use name="SimDataFormats/GeneratorProducts"/>

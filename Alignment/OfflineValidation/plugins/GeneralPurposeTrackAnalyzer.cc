@@ -710,9 +710,12 @@ private:
         hd0PV->Fill(100);
         hdzPV->Fill(100);
 
-        hd0vsphi->Fill(track->phi(), -track->dxy());
-        hd0vseta->Fill(track->eta(), -track->dxy());
-        hd0vspt->Fill(track->pt(), -track->dxy());
+        // gotta protect the case in which it's not comsics, but the handle is invalid! (HLT)
+        if (isCosmics_) {
+          hd0vsphi->Fill(track->phi(), -track->dxy());
+          hd0vseta->Fill(track->eta(), -track->dxy());
+          hd0vspt->Fill(track->pt(), -track->dxy());
+        }
       }
 
       if (DEBUG) {

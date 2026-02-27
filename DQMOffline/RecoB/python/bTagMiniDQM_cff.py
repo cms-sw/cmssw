@@ -62,11 +62,11 @@ Etaregions = {
 
 
 # For DQM
-bTagMiniDQMSource = cms.Sequence(bTagSVDQM, patJetsSVInfoTask)
+bTagMiniDQMSource = cms.Sequence()
 bTagMiniDQMHarvesting = cms.Sequence()
 
 # For Validation
-bTagMiniValidationSource = cms.Sequence(bTagSVDQM, patJetsSVInfoTask)
+bTagMiniValidationSource = cms.Sequence()
 bTagMiniValidationHarvesting = cms.Sequence()
 
 #####################################################################################
@@ -193,18 +193,13 @@ bTagMiniValidationSource += patJetsPuppiForwardTagInfoAnalyzerValidation
 #
 #####################################################################################
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-from Configuration.ProcessModifiers.miniAOD_skip_trackExtras_cff import miniAOD_skip_trackExtras
 
 toExcludeDQMSource_pp_on_AA = [
-    bTagSVDQM,
-    patJetsSVInfoTask,
     patJetsPuppiTagInfoAnalyzerDQM,
     patJetsPuppiForwardTagInfoAnalyzerDQM,
 ]
 
 toExcludeValidationSource_pp_on_AA = [
-    bTagSVDQM,
-    patJetsSVInfoTask,
     patJetsPuppiTagInfoAnalyzerValidation,
     patJetsPuppiTagInfoAnalyzerBJetsValidation,
     patJetsPuppiTagInfoAnalyzerCJetsValidation,
@@ -212,7 +207,7 @@ toExcludeValidationSource_pp_on_AA = [
     patJetsPuppiForwardTagInfoAnalyzerValidation
 ]
 
-_mAOD = (pp_on_AA | miniAOD_skip_trackExtras)
+_mAOD = (pp_on_AA)
 _mAOD.toReplaceWith(bTagMiniDQMSource, bTagMiniDQMSource.copyAndExclude(toExcludeDQMSource_pp_on_AA))
 _mAOD.toReplaceWith(bTagMiniValidationSource, bTagMiniValidationSource.copyAndExclude(toExcludeValidationSource_pp_on_AA))
 

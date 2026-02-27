@@ -1731,6 +1731,8 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getZdcLutXml(const HcalTP
   std::vector<EMap::EMapRow>& _map = _emap.get_map();
   edm::LogInfo("HcalLutManager") << "EMap contains " << _map.size() << " channels";
 
+  const auto lutMetaDataChannels = conditions->getHcalLutMetadata()->getAllChannels();
+
   //loop over all EMap channels
   RooGKCounter _counter;
   for (std::vector<EMap::EMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
@@ -1779,14 +1781,27 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getZdcLutXml(const HcalTP
       } else if (row->zdc_section == "ZDC HAD") {
         section = HcalZDCDetId::HAD;
         _cfg.iphi = 2;
-      } else if (row->zdc_section == "ZDC LUM") {
-        continue;
-      } else if (row->zdc_section == "ZDC RPD") {
+      } else {
         continue;
       }
-      HcalZDCDetId _detid(section, (row->zdc_zside > 0), row->zdc_channel);
+      HcalZDCDetId _zdcdetid(section, (row->zdc_zside > 0), row->zdc_channel);
 
-      for (const auto i : _coder.getLinearizationLUT(_detid, ootpu_lut)) {
+      bool isInLutMetadata = false;
+      for (const auto& detid : lutMetaDataChannels) {
+        if (detid.det() != DetId::Calo or detid.subdetId() != HcalZDCDetId::SubdetectorId)
+          continue;
+
+        HcalZDCDetId zdcdetid(detid.rawId());
+        if (_zdcdetid == zdcdetid) {
+          isInLutMetadata = true;
+          break;
+        }
+      }
+
+      if (!isInLutMetadata)
+        continue;
+
+      for (const auto i : _coder.getLinearizationLUT(_zdcdetid, ootpu_lut)) {
         _cfg.lut.push_back(i);
       }
 

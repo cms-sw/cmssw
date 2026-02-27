@@ -54,7 +54,6 @@ private:
   std::vector<unsigned int> sourceIdList_;
   unsigned int totevents_ = 0;
   unsigned int index_ = 0;
-  bool firstLumi_ = true;
 };
 
 template <class Consumer>
@@ -184,11 +183,8 @@ void RawEventOutputModuleForBU<Consumer>::beginLuminosityBlock(edm::LuminosityBl
   std::string destinationDir = edm::Service<evf::EvFDaqDirector>()->buBaseRunDir();
   int run = edm::Service<evf::EvFDaqDirector>()->getRunNumber();
   std::cout << " writing to destination dir " << destinationDir << " name: " << filename << std::endl;
+  totevents_ = 0;
   templateConsumer_->initialize(destinationDir, filename, run, ls.id().luminosityBlock());
-  if (!firstLumi_) {
-    totevents_ = 0;
-    firstLumi_ = false;
-  }
 }
 
 template <class Consumer>
@@ -204,6 +200,7 @@ void RawEventOutputModuleForBU<Consumer>::fillDescriptions(edm::ConfigurationDes
   desc.add<unsigned int>("numEventsPerFile", 100);
   desc.add<unsigned int>("frdVersion", 6);
   desc.addUntracked<std::vector<unsigned int>>("sourceIdList", std::vector<unsigned int>());
+  desc.addUntracked<bool>("writeToOpen", false);
   Consumer::extendDescription(desc);
 
   descriptions.addWithDefaultLabel(desc);

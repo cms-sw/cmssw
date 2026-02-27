@@ -85,6 +85,12 @@ namespace XrdAdaptor {
     void getPrettyActiveSourceNames(std::vector<std::string> &sources) const;
 
     /**
+     * Retrieve the names of the inactive sources
+     * (primarily meant to enable meaningful log messages).
+     */
+    void getPrettyInactiveSourceNames(std::vector<std::string> &sources) const;
+
+    /**
      * Retrieve the names of the disabled sources
      * (primarily meant to enable meaningful log messages).
      */

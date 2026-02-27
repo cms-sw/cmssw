@@ -10,13 +10,20 @@ hltMultiPVanalysis = vertexAnalysis.clone(
     trackAssociatorMap    = "trackingParticleRecoTrackAsssociation",
     vertexAssociator      = "VertexAssociatorByPositionAndTracks"
 )
-from Validation.RecoTrack.associators_cff import hltTrackAssociatorByHits, tpToHLTpixelTrackAssociation
+from Validation.RecoTrack.associators_cff import hltTPClusterProducer, hltTrackAssociatorByHits, tpToHLTpixelTrackAssociation
 from SimTracker.VertexAssociation.VertexAssociatorByPositionAndTracks_cfi import VertexAssociatorByPositionAndTracks as _VertexAssociatorByPositionAndTracks
 vertexAssociatorByPositionAndTracks4pixelTracks = _VertexAssociatorByPositionAndTracks.clone(
     trackAssociation = "tpToHLTpixelTrackAssociation"
 )
+hltOtherTPClusterProducer = hltTPClusterProducer.clone(
+    stripClusterOtherSrc = "hltSiStripRawToClustersFacilityOnDemand"
+)
+hltOtherTrackAssociatorByHits = hltTrackAssociatorByHits.clone(
+    cluster2TPSrc = cms.InputTag("hltOtherTPClusterProducer")
+)
 tpToHLTpfMuonMergingTrackAssociation = tpToHLTpixelTrackAssociation.clone(
-    label_tr = "hltPFMuonMerging"
+    label_tr = "hltPFMuonMerging",
+    associator = cms.InputTag('hltOtherTrackAssociatorByHits')
 )
 vertexAssociatorByPositionAndTracks4pfMuonMergingTracks = _VertexAssociatorByPositionAndTracks.clone(
     trackAssociation = "tpToHLTpfMuonMergingTrackAssociation"
@@ -62,7 +69,9 @@ def _modifyFullPVanalysisForPhase2(pvanalysis):
 phase2_tracker.toModify(hltPVanalysis, _modifyFullPVanalysisForPhase2)
 
 hltMultiPVAssociations = cms.Task(
+    hltOtherTPClusterProducer,
     hltTrackAssociatorByHits,
+    hltOtherTrackAssociatorByHits,
     tpToHLTpixelTrackAssociation,
     vertexAssociatorByPositionAndTracks4pixelTracks,
     tpToHLTpfMuonMergingTrackAssociation,

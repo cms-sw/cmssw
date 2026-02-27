@@ -15,6 +15,9 @@ AlCa_LumiPixelsCounts_ZeroBiasVdM_v*    #       CMSHLT-2860
 AlCa_LumiPixelsCounts_ZeroBiasGated_v*  #       CMSHLT-2860
 DST_Physics_v*                          #       CMSHLT-2860
 DST_ZeroBias_v*                         #       CMSHLT-2860
+DST_PFScouting_SingleMuon_v*                    # CMSHLT-3075, CMSHLT-3579
+DST_PFScouting_ZeroBiasVdM_v*                   # CMSHLT-3579
+HLT_TriggersForScoutingPFMonitor_SingleMuon_v*  # CMSHLT-3579
 HLT_L1SingleMuOpen_v*                   #       CMSHLT-2860
 HLT_L1SingleMuCosmics_v*  #       CMSHLT-2860
 HLT_L1SingleMuCosmics_CosmicTracking_v*         # CMSHLT-3364
@@ -60,6 +63,7 @@ HLT_L1ETM120_v*           #       CMSHLT-2860
 HLT_L1ETM150_v*           #       CMSHLT-2860
 HLT_L1EXT_HCAL_LaserMon1_v*   #       CMSHLT-2860
 HLT_L1EXT_HCAL_LaserMon4_v*   #       CMSHLT-2860
+HLT_L1MinimumBiasHF0ANDBptxAND_v*   # CMSHLT-3427
 HLT_CscCluster_Cosmic_v*      #       CMSHLT-2860
 HLT_EcalCalibration_v*        #       CMSHLT-2860
 HLT_HcalCalibration_v*        #       CMSHLT-2860
@@ -67,11 +71,11 @@ HLT_HcalNZS_v*                #       CMSHLT-2860
 HLT_HcalPhiSym_v*             #       CMSHLT-2860
 HLT_HT60_Beamspot_v*          #       CMSHLT-2860
 HLT_HT300_Beamspot_v*         #       CMSHLT-2860
-HLT_HT300_Beamspot_PixelClusters_WP2_v*    #       CMSHLT-2860
+HLT_Beamspot_PixelClusters_WP2_v*    #       CMSHLT-2860, CMSHLT-3528
+HLT_PixelClusters_WP2_HighRate_v*   # CMSHLT-3427
 HLT_PixelClusters_WP2_v*      #       CMSHLT-2860
 HLT_PixelClusters_WP1_v*      #       CMSHLT-2860
-HLT_IsoTrackHB_v*             #       CMSHLT-2860
-HLT_IsoTrackHE_v*             #       CMSHLT-2860
+AlCa_IsoTrackHBHE_v*          #       CMSHLT-3519
 HLT_BptxOR_v*                 #       CMSHLT-2860
 HLT_L1SingleMuCosmics_EMTF_v* #       CMSHLT-2860
 HLT_PPSMaxTracksPerArm1_v*    #       CMSHLT-2860
@@ -109,7 +113,7 @@ AlCa_LumiPixelsCounts_ZeroBias_v*     # CMSHLT-3092
 HLT_CDC_L2cosmic_5p5_er1p0_v*	      # CMSHLT-3092
 HLT_CDC_L2cosmic_10_er1p0_v*	      # CMSHLT-3092
 
-## EndPaths / FinalPaths ##
+## EndPaths ##
 
 ALCALumiPixelsCountsExpressOutput
 ALCALumiPixelsCountsGatedOutput
@@ -124,20 +128,29 @@ ALCAP0Output
 ALCAPHISYMOutput
 ALCAPPSExpressOutput
 ALCAPPSPromptOutput
+ALCAHcalIsoTrkOutput	# CMSHLT-3519
 CalibrationOutput
 DQMOutput
 DQMCalibrationOutput
 DQMEventDisplayOutput
 DQMGPUvsCPUOutput
 DQMOnlineBeamspotOutput
+DQMOnlineScoutingOutput # CMSHLT-3579
 DQMPPSRandomOutput
 EcalCalibrationOutput
 ExpressOutput
 ExpressAlignmentOutput
 ExpressCosmicsOutput
-HLTMonitorOutput		      # CMSHLT-3364
+HLTMonitorOutput		      # CMSHLT-3444
+CosmicHLTMonitorOutput		      # CMSHLT-3439
 NanoDSTOutput
 PhysicsCommissioningOutput
+PhysicsScoutingPFMonitorOutput # CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603, CMSHLT-2231, CMSHLT-3579
+
+PhysicsSpecialMinimumBias0Output      # CMSHLT-3427
+PhysicsSpecialMinimumBias1Output      # CMSHLT-3427
+PhysicsSpecialMinimumBias2Output      # CMSHLT-3530
+PhysicsSpecialMinimumBias3Output      # CMSHLT-3530
 
 PhysicsSpecialHLTPhysics0Output
 PhysicsSpecialHLTPhysics1Output
@@ -182,12 +195,27 @@ PhysicsSpecialZeroBias7Output
 PhysicsSpecialZeroBias8Output
 PhysicsSpecialZeroBias9Output
 PhysicsSpecialZeroBias10Output
-PhysicsSpecialZeroBias10Output
 PhysicsSpecialZeroBias11Output
 PhysicsSpecialZeroBias12Output
 PhysicsSpecialZeroBias13Output
 PhysicsSpecialZeroBias14Output
 PhysicsSpecialZeroBias15Output
+PhysicsSpecialZeroBias16Output
+PhysicsSpecialZeroBias17Output
+PhysicsSpecialZeroBias18Output
+PhysicsSpecialZeroBias19Output
+PhysicsSpecialZeroBias20Output
+PhysicsSpecialZeroBias21Output
+PhysicsSpecialZeroBias22Output
+PhysicsSpecialZeroBias23Output
+PhysicsSpecialZeroBias24Output
+PhysicsSpecialZeroBias25Output
+PhysicsSpecialZeroBias26Output
+PhysicsSpecialZeroBias27Output
+PhysicsSpecialZeroBias28Output
+PhysicsSpecialZeroBias29Output
+PhysicsSpecialZeroBias30Output
+PhysicsSpecialZeroBias31Output
 
 PhysicsVRRandom0Output   # CMSHLT-3405
 PhysicsVRRandom1Output
@@ -199,6 +227,9 @@ PhysicsVRRandom6Output
 PhysicsVRRandom7Output
 
 RPCMONOutput
+
+ScoutingPF0Output              # CMSHLT-548, CMSHLT-2231, CMSHLT-3579, CMSHLT-3607
+ScoutingPF1Output              # CMSHLT-548, CMSHLT-2231, CMSHLT-3579, CMSHLT-3607
 
 ######## paths that are different between Special and online_special ################################
 

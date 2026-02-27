@@ -88,7 +88,8 @@ public:
   }
   // SubDetector Folder
   void getSubDetFolder(const uint32_t& detid, const TrackerTopology* tTopo, std::string& folder_name);
-  std::pair<const std::string, const char*> getSubDetFolderAndTag(const uint32_t& detid, const TrackerTopology* tTopo);
+  std::pair<std::string, std::string_view> getSubDetFolderAndTag(const uint32_t& detid, const TrackerTopology* tTopo);
+  const std::string_view getSubDetTag(const uint32_t& detid, const TrackerTopology* tTopo);
 
   SiStripFolderOrganizer(const SiStripFolderOrganizer&) = delete;                   // stop default
   const SiStripFolderOrganizer& operator=(const SiStripFolderOrganizer&) = delete;  // stop default
@@ -96,5 +97,7 @@ public:
 private:
   std::string TopFolderName;
   DQMStore* dbe_;
+
+  std::pair<std::string_view, std::string_view> getSubdetStrings(const uint32_t& detid, const TrackerTopology* tTopo);
 };
 #endif

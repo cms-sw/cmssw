@@ -213,7 +213,7 @@ void RequestManager::initialize(std::weak_ptr<RequestManager> self) {
       ex.clearMessage();
       ex.clearContext();
       ex.clearAdditionalInfo();
-      ex << "XrdCl::File::Open(name='" << m_name << "', flags=0x" << std::hex << m_flags << ", permissions=0"
+      ex << "XrdCl::File::Open(name='" << new_filename << "', flags=0x" << std::hex << m_flags << ", permissions=0"
          << std::oct << m_perms << std::dec << ") => error '" << openStatus.ToStr() << "' (errno=" << openStatus.errNo
          << ", code=" << openStatus.code << ")";
       ex.addContext("Calling XrdFile::open()");
@@ -233,7 +233,7 @@ void RequestManager::initialize(std::weak_ptr<RequestManager> self) {
       ex.clearMessage();
       ex.clearContext();
       ex.clearAdditionalInfo();
-      ex << "XrdCl::File::Open(name='" << m_name << "', flags=0x" << std::hex << m_flags << ", permissions=0"
+      ex << "XrdCl::File::Open(name='" << new_filename << "', flags=0x" << std::hex << m_flags << ", permissions=0"
          << std::oct << m_perms << std::dec << ") => error '" << status->ToStr() << "' (errno=" << status->errNo
          << ", code=" << status->code << ")";
       ex.addContext("Calling XrdFile::open()");
@@ -401,13 +401,13 @@ bool RequestManager::compareSources(const timespec &now,
     std::string hostname_a;
     Source::getHostname(activeSources[a]->ID(), hostname_a);
     if (quality_a > 5130) {
-      edm::LogWarning("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because the quality ("
+      edm::LogFwkInfo("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because the quality ("
                                         << quality_a << ") is above 5130 and it is not the only active server";
     }
     if ((quality_a > 260) && (quality_b * 4 < quality_a)) {
       std::string hostname_b;
       Source::getHostname(activeSources[b]->ID(), hostname_b);
-      edm::LogWarning("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because its quality ("
+      edm::LogFwkInfo("XrdAdaptorLvl3") << "Deactivating " << hostname_a << " from active sources because its quality ("
                                         << quality_a
                                         << ") is higher than 260 and 4 times larger than the other active server "
                                         << hostname_b << " (" << quality_b << ") ";
@@ -563,6 +563,14 @@ void RequestManager::getPrettyActiveSourceNames(std::vector<std::string> &source
   }
 }
 
+void RequestManager::getPrettyInactiveSourceNames(std::vector<std::string> &sources) const {
+  std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
+  sources.reserve(m_inactiveSources.size());
+  for (auto const &source : m_inactiveSources) {
+    sources.push_back(source->PrettyID());
+  }
+}
+
 void RequestManager::getDisabledSourceNames(std::vector<std::string> &sources) const {
   sources.reserve(m_disabledSourceStrings.size());
   for (auto const &source : m_disabledSourceStrings) {
@@ -575,6 +583,11 @@ void RequestManager::addConnections(cms::Exception &ex) const {
   getPrettyActiveSourceNames(sources);
   for (auto const &source : sources) {
     ex.addAdditionalInfo("Active source: " + source);
+  }
+  sources.clear();
+  getPrettyInactiveSourceNames(sources);
+  for (auto const &source : sources) {
+    ex.addAdditionalInfo("Inactive source: " + source);
   }
   sources.clear();
   getDisabledSourceNames(sources);

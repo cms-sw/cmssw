@@ -90,7 +90,6 @@ process.load("CondCore.CondDB.CondDB_cfi")
 process.CondDB.connect='frontier://FrontierProd/CMS_CONDITIONS'
 process.CablingESSource = cms.ESSource('PoolDBESSource',
                                        process.CondDB,
-                                       BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
                                        toGet = cms.VPSet( cms.PSet(record = cms.string('SiStripFedCablingRcd'),
                                                                    tag    = cms.string('SiStripFedCabling_GR10_v1_hlt')   # real data cabling map
                                                                    #tag     = cms.string('SiStripFedCabling_Ideal_31X_v2')  # ideal cabling map
@@ -105,12 +104,10 @@ process.load("CalibTracker.SiStripESProducers.SiStripConnectivity_cfi")
 ## Input bad components
 ##
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-                                      BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
                                       DBParameters = cms.PSet(
                                           messageLevel = cms.untracked.int32(2),
                                           authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
                                       ),
-                                      timetype = cms.string('runnumber'),
                                       toGet = cms.VPSet(cms.PSet(
                                           record = cms.string('SiStripBadStripRcd'),
                                           tag = cms.string(options.inputTag)

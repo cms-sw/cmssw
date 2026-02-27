@@ -28,8 +28,6 @@ HLT_CDC_L2cosmic_5p5_er1p0_v*               # CMSHLT-1896, CMSHLT-2892
 HLT_CDC_L2cosmic_10_er1p0_v*                # CMSHLT-1967, CMSHLT-2892
 HLT_HcalNZS_v*                              # CMSHLT-1342, CMSHLT-2892
 HLT_HcalPhiSym_v*                           # CMSHLT-1332, CMSHLT-2892
-HLT_IsoTrackHB_v*                           # CMSHLT-1340, CMSHLT-2892
-HLT_IsoTrackHE_v*                           # CMSHLT-1340, CMSHLT-2892
 
 HLT_HIL1UnpairedBunchBptxPlusForPPRef_v*    # CMSHLT-1673
 HLT_HIL1UnpairedBunchBptxMinusForPPRef_v*   # CMSHLT-1673
@@ -139,7 +137,7 @@ HLT_PPRefUPC_SingleJet28_ZDC1nOR_v*       # CMSHLT-3325
 HLT_PPRefUPC_ZDC1nAsymXOR_v*              # CMSHLT-3325
 HLT_PPRefUPC_ZDC1nOR_v*                   # CMSHLT-3325
 
-## EndPaths / FinalPaths ##
+## EndPaths ##
 
 ALCAP0Output
 ALCAPHISYMOutput

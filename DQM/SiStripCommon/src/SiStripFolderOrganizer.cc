@@ -9,26 +9,25 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
 
-//
-
+// system includes
+#include <cstring>  // For strlen
 #include <iostream>
 #include <sstream>
+#include <string>
+#include <string_view>
+#include <utility>
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
+// user includes
+#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #define CONTROL_FOLDER_NAME "ControlView"
 #define MECHANICAL_FOLDER_NAME "MechanicalView"
 #define SEP "/"
-
-#include <cstring>
 
 SiStripFolderOrganizer::SiStripFolderOrganizer() {
   TopFolderName = "SiStrip";
@@ -406,7 +405,7 @@ void SiStripFolderOrganizer::setLayerFolder(uint32_t rawdetid,
 void SiStripFolderOrganizer::getSubDetFolder(const uint32_t& detid,
                                              const TrackerTopology* tTopo,
                                              std::string& folder_name) {
-  std::pair<std::string, std::string> subdet_and_tag = getSubDetFolderAndTag(detid, tTopo);
+  auto subdet_and_tag = getSubDetFolderAndTag(detid, tTopo);
   folder_name = subdet_and_tag.first;
 }
 //
@@ -469,49 +468,36 @@ void SiStripFolderOrganizer::getLayerFolderName(std::stringstream& ss,
     return;
   }
 }
-//
-// -- Get Subdetector Folder name and the Tag
-//
-std::pair<const std::string, const char*> SiStripFolderOrganizer::getSubDetFolderAndTag(const uint32_t& detid,
-                                                                                        const TrackerTopology* tTopo) {
-  const char* subdet_folder = "";
-  const char* tag = "";
+
+using namespace std::literals::string_view_literals;
+
+std::pair<std::string_view, std::string_view> SiStripFolderOrganizer::getSubdetStrings(const uint32_t& detid,
+                                                                                       const TrackerTopology* tTopo) {
+  using std::string_view;
   switch (StripSubdetector::SubDetector(StripSubdetector(detid).subdetId())) {
     case StripSubdetector::TIB:
-      subdet_folder = "TIB";
-      tag = subdet_folder;
-      break;
+      return {"TIB", "TIB"};
     case StripSubdetector::TOB:
-      subdet_folder = "TOB";
-      tag = subdet_folder;
-      break;
+      return {"TOB", "TOB"};
     case StripSubdetector::TID:
-      if (tTopo->tidSide(detid) == 2) {
-        subdet_folder = "TID/PLUS";
-        tag = "TID__PLUS";
-      } else if (tTopo->tidSide(detid) == 1) {
-        subdet_folder = "TID/MINUS";
-        tag = "TID__MINUS";
-      }
-      break;
+      return (tTopo->tidSide(detid) == 2) ? std::make_pair("TID/PLUS"sv, "TID__PLUS"sv)
+                                          : std::make_pair("TID/MINUS"sv, "TID__MINUS"sv);
     case StripSubdetector::TEC:
-      if (tTopo->tecSide(detid) == 2) {
-        subdet_folder = "TEC/PLUS";
-        tag = "TEC__PLUS";
-      } else if (tTopo->tecSide(detid) == 1) {
-        subdet_folder = "TEC/MINUS";
-        tag = "TEC__MINUS";
-      }
-      break;
-    default: {
+      return (tTopo->tecSide(detid) == 2) ? std::make_pair("TEC/PLUS"sv, "TEC__PLUS"sv)
+                                          : std::make_pair("TEC/MINUS"sv, "TEC__MINUS"sv);
+    default:
       edm::LogWarning("SiStripCommon") << "WARNING!!! this detid does not belong to tracker" << std::endl;
-      subdet_folder = "";
-    }
+      return {"", ""};
   }
+}
 
-  std::string folder;
-  folder.reserve(TopFolderName.size() + strlen(SEP MECHANICAL_FOLDER_NAME SEP) + strlen(subdet_folder) + 1);
-  folder = TopFolderName + SEP MECHANICAL_FOLDER_NAME SEP + subdet_folder;
+const std::string_view SiStripFolderOrganizer::getSubDetTag(const uint32_t& detid, const TrackerTopology* tTopo) {
+  return getSubdetStrings(detid, tTopo).second;
+}
 
-  return std::pair<const std::string, const char*>(folder, tag);
+std::pair<std::string, std::string_view> SiStripFolderOrganizer::getSubDetFolderAndTag(const uint32_t& detid,
+                                                                                       const TrackerTopology* tTopo) {
+  auto [folder_component, tag] = getSubdetStrings(detid, tTopo);
+  std::string folder = TopFolderName + SEP + MECHANICAL_FOLDER_NAME + SEP + std::string(folder_component);
+  return {std::move(folder), tag};
 }

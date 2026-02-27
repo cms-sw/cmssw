@@ -11,12 +11,12 @@
 #include <cuda_runtime.h>
 #include <nvml.h>
 
+#include "FWCore/AbstractServices/interface/ResourceInformation.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/ResourceInformation.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/EventCache.h"
@@ -79,59 +79,69 @@ void setCudaLimit(cudaLimit limit, const char* name, size_t request) {
 }
 
 constexpr unsigned int getCudaCoresPerSM(unsigned int major, unsigned int minor) {
-  switch (major * 10 + minor) {
+  switch (major * 16 + minor) {
     // Fermi architecture
-    case 20:  // SM 2.0: GF100 class
+    case 0x20:  // SM 2.0: GF100 class
       return 32;
-    case 21:  // SM 2.1: GF10x class
+    case 0x21:  // SM 2.1: GF10x class
       return 48;
 
     // Kepler architecture
-    case 30:  // SM 3.0: GK10x class
-    case 32:  // SM 3.2: GK10x class
-    case 35:  // SM 3.5: GK11x class
-    case 37:  // SM 3.7: GK21x class
+    case 0x30:  // SM 3.0: GK10x class
+    case 0x32:  // SM 3.2: GK10x class
+    case 0x35:  // SM 3.5: GK11x class
+    case 0x37:  // SM 3.7: GK21x class
       return 192;
 
     // Maxwell architecture
-    case 50:  // SM 5.0: GM10x class
-    case 52:  // SM 5.2: GM20x class
-    case 53:  // SM 5.3: GM20x class
+    case 0x50:  // SM 5.0: GM10x class
+    case 0x52:  // SM 5.2: GM20x class
+    case 0x53:  // SM 5.3: GM20x class
       return 128;
 
     // Pascal architecture
-    case 60:  // SM 6.0: GP100 class
+    case 0x60:  // SM 6.0: GP100 class
       return 64;
-    case 61:  // SM 6.1: GP10x class
-    case 62:  // SM 6.2: GP10x class
+    case 0x61:  // SM 6.1: GP10x class
+    case 0x62:  // SM 6.2: GP10x class
       return 128;
 
     // Volta architecture
-    case 70:  // SM 7.0: GV100 class
-    case 72:  // SM 7.2: GV11b class
+    case 0x70:  // SM 7.0: GV100 class
+    case 0x72:  // SM 7.2: GV11b class
       return 64;
 
     // Turing architecture
-    case 75:  // SM 7.5: TU10x class
+    case 0x75:  // SM 7.5: TU10x class
       return 64;
 
     // Ampere architecture
-    case 80:  // SM 8.0: GA100 class
+    case 0x80:  // SM 8.0: GA100 class
       return 64;
-    case 86:  // SM 8.6: GA10x class
+    case 0x86:  // SM 8.6: GA10x class
+    case 0x87:  // SM 8.7: ?
       return 128;
 
     // Ada Lovelace architectures
-    case 89:  // SM 8.9: AD10x class
+    case 0x89:  // SM 8.9: AD10x class
       return 128;
 
     // Hopper architecture
-    case 90:  // SM 9.0: GH100 class
+    case 0x90:  // SM 9.0: GH100 class
+      return 128;
+
+    // Blackwell architecture
+    case 0xa0:  // SM 10.0: GB100 class
+    case 0xa1:  // SM 10.1: GB102 class
+      return 128;
+
+    // Blackwell 2.0 architecture
+    case 0xc0:  // SM 12.0: GB20x class
       return 128;
 
     // unknown architecture, return a default value
     default:
-      return 64;
+      return 128;
   }
 }
 

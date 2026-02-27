@@ -112,4 +112,6 @@ DQMOfflineCosmics = cms.Sequence( DQMOfflineCosmicsPreDPG *
                                   DQMOfflineCosmicsPrePOG *
                                   DQMMessageLogger )
 
+HLTMonitoring = cms.Sequence( OfflineHLTMonitoring )
+
 PostDQMOffline = cms.Sequence()

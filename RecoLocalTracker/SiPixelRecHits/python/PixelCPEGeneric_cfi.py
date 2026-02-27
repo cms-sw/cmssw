@@ -8,6 +8,10 @@ PixelCPEGenericESProducer = _generic_default.clone()
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(PixelCPEGenericESProducer, IrradiationBiasCorrection = True)
 
+# This disables the IrradiationBiasCorrection in the Pixel CPE generic reconstruction from 2025 onward
+from Configuration.Eras.Modifier_run3_SiPixel_2025_cff import run3_SiPixel_2025
+run3_SiPixel_2025.toModify(PixelCPEGenericESProducer, IrradiationBiasCorrection = False)
+
 # customize the Pixel CPE generic producer for phase2
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(PixelCPEGenericESProducer,

@@ -63,7 +63,11 @@ namespace cond {
       }
     }
 
-    Time_t lumiTime(unsigned int run, unsigned int lumiId) { return cond::time::pack(std::make_pair(run, lumiId)); }
+    Time_t lumiTime(unsigned int run, unsigned int lumiNr) { return cond::time::pack(std::make_pair(run, lumiNr)); }
+
+    Time_t lumiIdToRun(Time_t lumiId) { return cond::time::unpack(lumiId).first; }
+
+    Time_t lumiIdToLumiNr(Time_t lumiId) { return cond::time::unpack(lumiId).second; }
 
     Time_t sinceGroupSize(TimeType tp) {
       if (tp == TIMESTAMP)

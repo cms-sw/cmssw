@@ -231,3 +231,8 @@ muLocalRecoTables = cms.Sequence(rpcRecHitFlatTable
                                  + muDTSegmentExtTable
                                  + gemSegmentFlatTable
                                 )
+
+muLocalRecoTablesBkg = cms.Sequence(rpcRecHitFlatTable
+                                 + gemRecHitFlatTable
+                                 + dtSegmentFlatTable
+                                )

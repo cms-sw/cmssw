@@ -83,7 +83,7 @@ private:
   void bookRing(DQMStore::IBooker&, const uint32_t, std::string&);
   MonitorElement* handleBookMEs(DQMStore::IBooker&, std::string&, std::string&, std::string&, std::string&);
   void bookRingMEs(DQMStore::IBooker&, const uint32_t, std::string&);
-  void bookSubDetMEs(DQMStore::IBooker&, std::string& name);
+  void bookSubDetMEs(DQMStore::IBooker&, std::string_view& name);
   MonitorElement* bookME1D(DQMStore::IBooker&, const char*, const char*);
   MonitorElement* bookME2D(DQMStore::IBooker&, const char*, const char*);
   MonitorElement* bookME3D(DQMStore::IBooker&, const char*, const char*);
@@ -258,7 +258,7 @@ private:
   std::map<std::string, ModMEs> ModMEsMap;
   std::map<std::string, LayerMEs> LayerMEsMap;
   std::map<std::string, RingMEs> RingMEsMap;
-  std::map<std::string, SubDetMEs> SubDetMEsMap;
+  std::map<std::string_view, SubDetMEs> SubDetMEsMap;
 
   struct Det2MEs {
     struct LayerMEs* iLayer;

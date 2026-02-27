@@ -14,6 +14,7 @@
 #include "DQM/HcalCommon/interface/ContainerProf1D.h"
 #include "DQM/HcalCommon/interface/ContainerProf2D.h"
 #include "DQM/HcalCommon/interface/ContainerSingle1D.h"
+#include "DQM/HcalCommon/interface/ContainerSingle2D.h"
 
 class HFRaddamTask : public hcaldqm::DQTask {
 public:
@@ -31,7 +32,14 @@ protected:
   edm::InputTag _tagHF;
   edm::InputTag _taguMN;
   edm::EDGetTokenT<QIE10DigiCollection> _tokHF;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
   edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
+
+  edm::InputTag _tagFEDs;
+  edm::EDGetTokenT<FEDRawDataCollection> _tokFEDs;
+
+  uint32_t _laserType;
+  int _nevents;
 
   //	vector of Detector Ids for RadDam
   std::vector<HcalDetId> _vDetIds;
@@ -42,6 +50,11 @@ protected:
 
   //	1D
   std::vector<hcaldqm::ContainerSingle1D> _vcShape;
+
+  // For monitoring CU Raddam firing: ADC vs TS
+  std::map<HcalSubdetector, std::vector<HcalDetId> > _raddamCalibrationChannels;
+  hcaldqm::ContainerSingle2D _Raddam_ADCvsTS;   // Raddam amplitude vs TS for online DQM
+  hcaldqm::ContainerSingle2D _Raddam_ADCvsEvn;  // Raddam amplitude vs Evn for local DQM
 };
 
 #endif

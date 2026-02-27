@@ -2,9 +2,7 @@
 """getEventContent.py: print EventContent cff fragment of a ConfDB configuration
 """
 import argparse
-import subprocess
 import os
-import re
 
 import FWCore.ParameterSet.Config as cms
 import HLTrigger.Configuration.Tools.pipe as pipe
@@ -108,22 +106,25 @@ def printHLTriggerEventContentCff(process):
       'hltOutputPhysicsCommissioning',
     ],
     'hltOutputALCA_cff': [
-      'hltOutputALCAPHISYM',
-      'hltOutputALCAP0',
-      'hltOutputALCAPPSExpress',
-      'hltOutputALCAPPSPrompt',
+      'hltOutputALCAHcalIsoTrk',
+      'hltOutputALCALowPtJet',
       'hltOutputALCALumiPixelsCountsExpress',
       'hltOutputALCALumiPixelsCountsPrompt',
+      'hltOutputALCAP0',
+      'hltOutputALCAPHISYM',
+      'hltOutputALCAPPSExpress',
+      'hltOutputALCAPPSPrompt',
     ],
     'hltOutputMON_cff': [
       'hltOutputA',
       'hltOutputPhysicsCommissioning',
       'hltOutputDQM',
+      'hltOutputDQMGPUvsCPU',
       'hltOutputHLTMonitor',
       'hltOutputReleaseValidation',
     ],
     'hltOutputScouting_cff': [
-      'hltOutputScoutingPF',
+      'hltOutputScoutingPF0',
     ],
   })
 
@@ -138,6 +139,8 @@ def printHLTriggerEventContentCff(process):
     hltOutputMON_cff.block_hltOutputA = hltOutputMON_cff.block_hltOutputPhysicsCommissioning
   if not hasattr(hltOutputMON_cff,'block_hltOutputDQM'):
     hltOutputMON_cff.block_hltOutputDQM = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+  if not hasattr(hltOutputMON_cff,'block_hltOutputDQMGPUvsCPU'):
+    hltOutputMON_cff.block_hltOutputDQMGPUvsCPU = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
   if not hasattr(hltOutputMON_cff,'block_hltOutputHLTMonitor'):
     hltOutputMON_cff.block_hltOutputHLTMonitor = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*' ))
   if not hasattr(hltOutputMON_cff,'block_hltOutputReleaseValidation'):
@@ -147,6 +150,7 @@ def printHLTriggerEventContentCff(process):
     # the DQM and HLTMON streams have the HLT debug outputs used online
     hltOutputMON_cff.block_hltOutputA.outputCommands,
     hltOutputMON_cff.block_hltOutputDQM.outputCommands,
+    hltOutputMON_cff.block_hltOutputDQMGPUvsCPU.outputCommands,
     hltOutputMON_cff.block_hltOutputHLTMonitor.outputCommands,
     hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
   )
@@ -154,43 +158,52 @@ def printHLTriggerEventContentCff(process):
 
   # hltDebugWithAlCaOutput
 
-  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPHISYM'):
-    hltOutputALCA_cff.block_hltOutputALCAPHISYM = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
-  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAP0'):
-    hltOutputALCA_cff.block_hltOutputALCAP0 = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
-  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPPSExpress'):
-    hltOutputALCA_cff.block_hltOutputALCAPPSExpress = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
-  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPPSPrompt'):
-    hltOutputALCA_cff.block_hltOutputALCAPPSPrompt = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAHcalIsoTrk'):
+    hltOutputALCA_cff.block_hltOutputALCAHcalIsoTrk = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCALowPtJet'):
+    hltOutputALCA_cff.block_hltOutputALCALowPtJet = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
   if not hasattr(hltOutputALCA_cff,'block_hltOutputALCALumiPixelsCountsExpress'):
     hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsExpress = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
   if not hasattr(hltOutputALCA_cff,'block_hltOutputALCALumiPixelsCountsPrompt'):
     hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsPrompt = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAP0'):
+    hltOutputALCA_cff.block_hltOutputALCAP0 = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPHISYM'):
+    hltOutputALCA_cff.block_hltOutputALCAPHISYM = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPPSExpress'):
+    hltOutputALCA_cff.block_hltOutputALCAPPSExpress = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+  if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPPSPrompt'):
+    hltOutputALCA_cff.block_hltOutputALCAPPSPrompt = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+
   hltDebugWithAlCaOutputBlocks = (
     # the DQM and HLTMON streams have the HLT debug outputs used online
     hltOutputMON_cff.block_hltOutputA.outputCommands,
     hltOutputMON_cff.block_hltOutputDQM.outputCommands,
+    hltOutputMON_cff.block_hltOutputDQMGPUvsCPU.outputCommands,
     hltOutputMON_cff.block_hltOutputHLTMonitor.outputCommands,
     hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
     # the ALCA streams have the AlCa outputs
-    hltOutputALCA_cff.block_hltOutputALCAPHISYM.outputCommands,
-    hltOutputALCA_cff.block_hltOutputALCAP0.outputCommands,
-    hltOutputALCA_cff.block_hltOutputALCAPPSExpress.outputCommands,
-    hltOutputALCA_cff.block_hltOutputALCAPPSPrompt.outputCommands,
+    hltOutputALCA_cff.block_hltOutputALCAHcalIsoTrk.outputCommands,
     hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsExpress.outputCommands,
     hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsPrompt.outputCommands,
+    hltOutputALCA_cff.block_hltOutputALCAP0.outputCommands,
+    hltOutputALCA_cff.block_hltOutputALCAPHISYM.outputCommands,
+    hltOutputALCA_cff.block_hltOutputALCAPPSExpress.outputCommands,
+    hltOutputALCA_cff.block_hltOutputALCAPPSPrompt.outputCommands,
+    hltOutputALCA_cff.block_hltOutputALCALowPtJet.outputCommands,
   )
   hltDebugWithAlCaOutputContent = buildPSet(hltDebugWithAlCaOutputBlocks)
 
   # hltScoutingOutput
 
-  if not hasattr(hltOutputScouting_cff,'block_hltOutputScoutingPF'):
-    hltOutputScouting_cff.block_hltOutputScoutingPF = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+  if not hasattr(hltOutputScouting_cff,'block_hltOutputScoutingPF0'):
+    hltOutputScouting_cff.block_hltOutputScoutingPF0 = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
 
   hltScoutingOutputBlocks = (
     # the Scouting streams have the Scouting outputs
-    hltOutputScouting_cff.block_hltOutputScoutingPF.outputCommands,
+    hltOutputScouting_cff.block_hltOutputScoutingPF0.outputCommands,
   )
+
   hltScoutingOutputContent = buildPSet(hltScoutingOutputBlocks)
   hltScoutingOutputContentNoDrop = buildPSetNoDrop(hltScoutingOutputBlocks)
 
@@ -234,6 +247,15 @@ def printHLTriggerEventContentCff(process):
   )
   HLTriggerMINIAOD.outputCommands.extend(hltScoutingOutputContent.outputCommands)
 
+  # MINIAODSIM event content
+  HLTriggerMINIAODSIM = cms.PSet(
+      outputCommands = cms.vstring()
+  )
+
+  _hltScoutingOutputContentForMINIAODSIM =  hltScoutingOutputContent.outputCommands.copy()
+  _hltScoutingOutputContentForMINIAODSIM.remove('keep *_hltScoutingRecHitPacker_*_*')
+  HLTriggerMINIAODSIM.outputCommands.extend(_hltScoutingOutputContentForMINIAODSIM)
+
   # HLTDEBUG RAW event content
   HLTDebugRAW = cms.PSet(
       outputCommands = cms.vstring()
@@ -260,9 +282,9 @@ def printHLTriggerEventContentCff(process):
 # EventContent for HLT-related products.
 
 # This file exports the following EventContent blocks:
-#   HLTrigger(RAW|RECO|AOD|MINIAOD) [without DEBUG products]
-#   HLTDebug(RAW|FEVT)              [with    DEBUG products]
-#   HLTScouting                     [only Scouting products]
+#   HLTrigger(RAW|RECO|AOD|MINIAOD{SIM}) [without DEBUG products]
+#   HLTDebug(RAW|FEVT)                   [with    DEBUG products]
+#   HLTScouting                          [only Scouting products]
 #
 # as these are used in Configuration/EventContent
 #''')
@@ -275,6 +297,7 @@ def printHLTriggerEventContentCff(process):
   print(psetString('HLTriggerRECO', HLTriggerRECO.outputCommands))
   print(psetString('HLTriggerAOD', HLTriggerAOD.outputCommands))
   print(psetString('HLTriggerMINIAOD', HLTriggerMINIAOD.outputCommands))
+  print(psetString('HLTriggerMINIAODSIM', HLTriggerMINIAODSIM.outputCommands))
   print(psetString('HLTDebugRAW', HLTDebugRAW.outputCommands))
   print(psetString('HLTDebugFEVT', HLTDebugFEVT.outputCommands))
   print(psetString('HLTScouting', HLTScouting.outputCommands))

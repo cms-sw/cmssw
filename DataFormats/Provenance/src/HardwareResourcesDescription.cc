@@ -23,6 +23,8 @@ namespace edm {
   }
 
   std::string HardwareResourcesDescription::serialize() const {
+    if (microarchitecture.empty() and cpuModels.empty() and selectedAccelerators.empty() and gpuModels.empty())
+      return "";
     return edm::compactString::serialize(microarchitecture, cpuModels, selectedAccelerators, gpuModels);
   }
 

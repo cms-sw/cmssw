@@ -41,9 +41,28 @@ DaqFakeReader::DaqFakeReader(const edm::ParameterSet& pset)
       injected_errors_per_million_events(pset.getUntrackedParameter<unsigned int>("injectErrPpm", 0)),
       tcdsFEDID_(pset.getUntrackedParameter<unsigned int>("tcdsFEDID", 1024)),
       modulo_error_events(injected_errors_per_million_events ? 1000000 / injected_errors_per_million_events
-                                                             : 0xffffffff) {
+                                                             : 0xffffffff),
+      subsystems_(pset.getUntrackedParameter<std::vector<std::string>>("subsystems")) {
+  for (auto const& subsystem : subsystems_) {
+    if (subsystem == "TCDS")
+      haveTCDS_ = true;
+    else if (subsystem == "SiPixel")
+      haveSiPixel_ = true;
+    else if (subsystem == "SiStrip")
+      haveSiStrip_ = true;
+    else if (subsystem == "ECAL")
+      haveECAL_ = true;
+    else if (subsystem == "HCAL")
+      haveHCAL_ = true;
+    else if (subsystem == "DT")
+      haveDT_ = true;
+    else if (subsystem == "CSC")
+      haveCSC_ = true;
+    else if (subsystem == "RPC")
+      haveRPC_ = true;
+  }
   // mean = pset.getParameter<float>("mean");
-  if (tcdsFEDID_ < FEDNumbering::MINTCDSuTCAFEDID)
+  if (haveTCDS_ && tcdsFEDID_ < FEDNumbering::MINTCDSuTCAFEDID)
     throw cms::Exception("DaqFakeReader::DaqFakeReader")
         << " TCDS FED ID lower than " << FEDNumbering::MINTCDSuTCAFEDID;
   if (fillRandom_) {
@@ -74,17 +93,25 @@ int DaqFakeReader::fillRawData(Event& e, FEDRawDataCollection*& data) {
     eventNum++;
     // FIXME:
 
-    fillFEDs(FEDNumbering::MINSiPixelFEDID, FEDNumbering::MAXSiPixelFEDID, eID, *data, meansize, width);
-    fillFEDs(FEDNumbering::MINSiStripFEDID, FEDNumbering::MAXSiStripFEDID, eID, *data, meansize, width);
-    fillFEDs(FEDNumbering::MINDTFEDID, FEDNumbering::MAXDTFEDID, eID, *data, meansize, width);
-    fillFEDs(FEDNumbering::MINCSCFEDID, FEDNumbering::MAXCSCFEDID, eID, *data, meansize, width);
-    fillFEDs(FEDNumbering::MINRPCFEDID, FEDNumbering::MAXRPCFEDID, eID, *data, meansize, width);
-    fillFEDs(FEDNumbering::MINECALFEDID, FEDNumbering::MAXECALFEDID, eID, *data, meansize, width);
-    fillFEDs(FEDNumbering::MINHCALFEDID, FEDNumbering::MAXHCALFEDID, eID, *data, meansize, width);
+    if (haveSiPixel_)
+      fillFEDs(FEDNumbering::MINSiPixelFEDID, FEDNumbering::MAXSiPixelFEDID, eID, *data, meansize, width);
+    if (haveSiStrip_)
+      fillFEDs(FEDNumbering::MINSiStripFEDID, FEDNumbering::MAXSiStripFEDID, eID, *data, meansize, width);
+    if (haveECAL_)
+      fillFEDs(FEDNumbering::MINECALFEDID, FEDNumbering::MAXECALFEDID, eID, *data, meansize, width);
+    if (haveHCAL_)
+      fillFEDs(FEDNumbering::MINHCALFEDID, FEDNumbering::MAXHCALFEDID, eID, *data, meansize, width);
+    if (haveDT_)
+      fillFEDs(FEDNumbering::MINDTFEDID, FEDNumbering::MAXDTFEDID, eID, *data, meansize, width);
+    if (haveCSC_)
+      fillFEDs(FEDNumbering::MINCSCFEDID, FEDNumbering::MAXCSCFEDID, eID, *data, meansize, width);
+    if (haveRPC_)
+      fillFEDs(FEDNumbering::MINRPCFEDID, FEDNumbering::MAXRPCFEDID, eID, *data, meansize, width);
 
     timeval now;
     gettimeofday(&now, nullptr);
-    fillTCDSFED(eID, *data, ls, &now);
+    if (haveTCDS_)
+      fillTCDSFED(eID, *data, ls, &now);
   }
   return 1;
 }
@@ -195,5 +222,8 @@ void DaqFakeReader::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.addUntracked<unsigned int>("width", 1024);
   desc.addUntracked<unsigned int>("injectErrPpm", 1024);
   desc.addUntracked<unsigned int>("tcdsFEDID", 1024);
+  desc.addUntracked<std::vector<std::string>>(
+      "subsystems",
+      std::initializer_list<std::string>({"TCDS", "SiPixel", "SiStrip", "ECAL", "HCAL", "DT", "CSC", "RPC"}));
   descriptions.add("DaqFakeReader", desc);
 }

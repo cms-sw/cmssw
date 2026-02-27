@@ -101,9 +101,9 @@ protected:
   hcaldqm::ContainerProf2D _cTDCTime_depth;
   hcaldqm::ContainerSingle2D _cLowSignal_CrateSlot;
 
-  // For monitoring LED firing: ADC vs BX
+  // For monitoring CU LED firing: ADC vs TS
   std::map<HcalSubdetector, std::vector<HcalDetId> > _ledCalibrationChannels;
-  hcaldqm::Container2D _LED_ADCvsBX_Subdet;   // Pin diode amplitude vs BX for online DQM
+  hcaldqm::Container2D _LED_ADCvsTS_Subdet;   // Pin diode amplitude vs TS for online DQM
   hcaldqm::Container2D _LED_ADCvsEvn_Subdet;  // Pin diode amplitude vs Evn for local DQM
 };
 

@@ -65,19 +65,19 @@ private:
   static constexpr int ADCMax = 256;
   static constexpr int StationIDMAX = 4;  // possible range of ID
   static constexpr int RPotsIDMAX = 8;    // possible range of ID
-  static constexpr int NLocalTracksMAX = 20;
+  static constexpr int NLocalTracksMAX = 10;
   static constexpr int hitMultMAX = 50;   // tuned
   static constexpr int ClusMultMAX = 10;  // tuned
   static constexpr int ClusterSizeMax = 9;
   static constexpr int errCodeSize = 15;
   static constexpr int minFedNumber = 1462;
   static constexpr int numberOfFeds = 2;
-  static constexpr int mapXbins = 200;
-  static constexpr int mapYbins = 240;
-  static constexpr float mapYmin = -16.;
-  static constexpr float mapYmax = 8.;
-  const float mapXmin = 0. * TMath::Cos(18.4 / 180. * TMath::Pi());
-  const float mapXmax = 30. * TMath::Cos(18.4 / 180. * TMath::Pi());
+  static constexpr float x0Minimum = -5.;
+  static constexpr float y0Minimum = -10.;
+  static constexpr float x0Maximum = 25.;
+  static constexpr float y0Maximum = 22.;
+  static constexpr float xBins_per_mm = 3;  // number of x bins per mm
+  static constexpr float yBins_per_mm = 3;  // number of y bins per mm
 
   CTPPSPixelIndices thePixIndices;
 
@@ -471,12 +471,16 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
 
         ibooker.setCurrentFolder(rpd);
 
-        const float x0Maximum = 70.;
-        const float y0Maximum = 15.;
         string st = "track intercept point";
         string st2 = ": " + stnTitle;
-        h2trackXY0[indexP] = ibooker.book2D(
-            st, st + st2 + ";x0;y0", int(x0Maximum) * 2, 0., x0Maximum, int(y0Maximum) * 4, -y0Maximum, y0Maximum);
+        h2trackXY0[indexP] = ibooker.book2D(st,
+                                            st + st2 + ";x0;y0",
+                                            int(x0Maximum - x0Minimum) * xBins_per_mm,
+                                            x0Minimum,
+                                            x0Maximum,
+                                            int(y0Maximum - y0Minimum) * yBins_per_mm,
+                                            y0Minimum,
+                                            y0Maximum);
         h2trackXY0[indexP]->getTH2F()->SetOption("colz");
         st = "Error Code";
         h2ErrorCodeRP[indexP] = ibooker.book2D(st,
@@ -643,8 +647,17 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
 
           if (offlinePlots) {
             st = "plane efficiency";
-            h2Efficiency[indexP][p] = ibooker.bookProfile2D(
-                st, st1 + ";x0;y0", mapXbins, mapXmin, mapXmax, mapYbins, mapYmin, mapYmax, 0, 1, "");
+            h2Efficiency[indexP][p] = ibooker.bookProfile2D(st,
+                                                            st1 + ";x0;y0",
+                                                            int(x0Maximum - x0Minimum) * xBins_per_mm,
+                                                            x0Minimum,
+                                                            x0Maximum,
+                                                            int(y0Maximum - y0Minimum) * yBins_per_mm,
+                                                            y0Minimum,
+                                                            y0Maximum,
+                                                            0,
+                                                            1,
+                                                            "");
             h2Efficiency[indexP][p]->getTProfile2D()->SetOption("colz");
           }
         }  // end of for(int p=0; p<NplaneMAX;..

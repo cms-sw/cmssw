@@ -1,5 +1,5 @@
 # import the definition of the steps and input files:
-from  Configuration.PyReleaseValidation.relval_steps import *
+from Configuration.PyReleaseValidation.relval_steps import *
 
 # here only define the workflows as a combination of the steps defined above:
 workflows = Matrix()
@@ -410,11 +410,15 @@ workflows[136.8861] = ['',['RunEGamma2018Dml1','HLTDR2_2018ml','RECODR2_2018reHL
 workflows[136.8862] = ['',['RunEGamma2018Dml2','HLTDR2_2018ml','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_Prompt']]
 
 #### Test of tau embedding on RUN2 data ####
-workflows[136.901] = ['', ['RunDoubleMuon2016C', 'TauEmbedding_Selection_2016_HIPM', 'TauEmbedding_Cleaning_2016_HIPM', 'TauEmbedding_GenPreHLT_2016_HIPM', 'TauEmbedding_GenHLT_2016_HIPM', 'TauEmbedding_GenPostHLT_2016_HIPM', 'TauEmbedding_Merging_2016_HIPM']]
-workflows[136.902] = ['', ['RunDoubleMuon2016H', 'TauEmbedding_Selection_2016', 'TauEmbedding_Cleaning_2016', 'TauEmbedding_GenPreHLT_2016', 'TauEmbedding_GenHLT_2016', 'TauEmbedding_GenPostHLT_2016', 'TauEmbedding_Merging_2016']]
-workflows[136.903] = ['', ['RunDoubleMuon2017B', 'TauEmbedding_Selection_2017', 'TauEmbedding_Cleaning_2017', 'TauEmbedding_GenPreHLT_2017', 'TauEmbedding_GenHLT_2017', 'TauEmbedding_GenPostHLT_2017', 'TauEmbedding_Merging_2017']]
-workflows[136.904] = ['', ['RunDoubleMuon2018C', 'TauEmbedding_Selection_2018', 'TauEmbedding_Cleaning_2018', 'TauEmbedding_GenPreHLT_2018', 'TauEmbedding_GenHLT_2018', 'TauEmbedding_GenPostHLT_2018', 'TauEmbedding_Merging_2018']]
-
+workflows[136.901] = ['', ['RunDoubleMuon2016C', 'TauEmbedding_Selection_2016_HIPM', 'TauEmbedding_Cleaning_2016_HIPM', 'TauEmbedding_GenPreHLT_2016_HIPM', 'TauEmbedding_GenHLT_2016_HIPM', 'TauEmbedding_GenPostHLT_2016_HIPM', 'TauEmbedding_Merging_2016_HIPM', 'TauEmbedding_Nano_2016_HIPM']]
+workflows[136.902] = ['', ['RunDoubleMuon2016H', 'TauEmbedding_Selection_2016', 'TauEmbedding_Cleaning_2016', 'TauEmbedding_GenPreHLT_2016', 'TauEmbedding_GenHLT_2016', 'TauEmbedding_GenPostHLT_2016', 'TauEmbedding_Merging_2016', 'TauEmbedding_Nano_2016']]
+workflows[136.903] = ['', ['RunDoubleMuon2017B', 'TauEmbedding_Selection_2017', 'TauEmbedding_Cleaning_2017', 'TauEmbedding_GenPreHLT_2017', 'TauEmbedding_GenHLT_2017', 'TauEmbedding_GenPostHLT_2017', 'TauEmbedding_Merging_2017', 'TauEmbedding_Nano_2017']]
+workflows[136.904] = ['', ['RunDoubleMuon2018C', 'TauEmbedding_Selection_2018', 'TauEmbedding_Cleaning_2018', 'TauEmbedding_GenPreHLT_2018', 'TauEmbedding_GenHLT_2018', 'TauEmbedding_GenPostHLT_2018', 'TauEmbedding_Merging_2018', 'TauEmbedding_Nano_2018']]
+#### Test of tau embedding on RUN3 data ####
+workflows[136.905] = ['', ['RunDoubleMuon2022C', 'TauEmbedding_Selection_2022', 'TauEmbedding_Cleaning_2022', 'TauEmbedding_GenPreHLT_2022', 'TauEmbedding_GenHLT_2022', 'TauEmbedding_GenPostHLT_2022', 'TauEmbedding_Merging_2022', 'TauEmbedding_Nano_2022']]
+workflows[136.906] = ['', ['RunMuon2022E', 'TauEmbedding_Selection_2022_EE', 'TauEmbedding_Cleaning_2022_EE', 'TauEmbedding_GenPreHLT_2022_EE', 'TauEmbedding_GenHLT_2022_EE', 'TauEmbedding_GenPostHLT_2022_EE', 'TauEmbedding_Merging_2022_EE', 'TauEmbedding_Nano_2022_EE']]
+# Input file for 2024 is not there yet, so this will be activated in the future.
+# workflows[136.909] = ['', ['RunMuon2024C', 'TauEmbedding_Selection_2024', 'TauEmbedding_Cleaning_2024', 'TauEmbedding_GenPreHLT_2024', 'TauEmbedding_GenHLT_2024', 'TauEmbedding_GenPostHLT_2024', 'TauEmbedding_Merging_2024']]
 
 ### run 2021 collisions ###
 workflows[139.001] = ['RunMinimumBias2021',['RunMinimumBias2021','HLTDR3_2022','RECODR3_reHLT_MinBiasOffline','HARVESTD2021MB_reHLT']]
@@ -552,6 +556,10 @@ workflows[141.008421] = ['Run3-2023_JetMET2023B_RecoHCALOnlyCPU',['RunJetMET2023
 workflows[141.901] = ['',['RunUPC2023','RECODR3_2023_UPC','HARVESTDPROMPTR3']]
 workflows[141.902] = ['',['RunUPC2023','RECODR3_2023_HIN','HARVESTDPROMPTR3']]
 
+## run3-2023 skim (2023 HI MC temp)
+workflows[141.201] = ['',['HydjetQ_B12_5362GeV_2023_ppReco','DIGIHI2023PPRECO','SKIMHIFORWARDRUN3_2023','HARVESTHI2023PPRECO']]
+workflows[141.202] = ['',['HydjetQ_MinBias_5362GeV_2023_ppReco','DIGIHI2023PPRECO','RAWPRIMESIMHI18','SKIMHIPHYSICSRAWPRIMERUN3_2023','HARVESTHI2023PPRECO4']]
+
 ### run3-2023 (2023 HI data RawPrime with re-HLT)
 workflows[142.0] = ['',['RunHIPhysicsRawPrime2023A','HLTDR3_HI2023ARawprime','RECOHIRUN3_reHLT_2023','HARVESTRUN3_HI2023A']]
 
@@ -560,8 +568,8 @@ workflows[142.901] = ['',['RunUPC2024','RECODR3_2024_UPC','HARVESTDPROMPTR3']]
 workflows[142.902] = ['',['RunUPC2024','RECODR3_2024_HIN','HARVESTDPROMPTR3']]
 
 ### run3-2024 skim (2024 HI MC temp)
-workflows[143.201] = ['',['HydjetQ_B12_5362GeV_2024','DIGIHI2024','SKIMHIFORWARDRUN3_2024','HARVESTHI2024']]
-workflows[143.202] = ['',['HydjetQ_MinBias_5362GeV_2024','DIGIHI2024','RAWPRIMESIMHI18','SKIMHIPHYSICSRAWPRIMERUN3_2024','HARVESTHI2024S4']]
+workflows[142.201] = ['',['HydjetQ_B12_5362GeV_2024','DIGIHI2024','SKIMHIFORWARDRUN3_2024','HARVESTHI2024']]
+workflows[142.202] = ['',['HydjetQ_MinBias_5362GeV_2024','DIGIHI2024','RAWPRIMESIMHI18','SKIMHIPHYSICSRAWPRIMERUN3_2024','HARVESTHI2024S4']]
 
 ### run2-2016 (2024 PA UPC rereco data)
 workflows[142.903] = ['',['RunUPC2016PA','RECODR2_2016_UPC','HARVEST2016']]
@@ -572,7 +580,8 @@ workflows[143.902] = ['',['RunUPC2024','RECODR3_2025_HIN','HARVESTDPROMPTR3']]
 
 ### run3-2025 (2025 HI OXY data)
 workflows[143.911] = ['',['RunUPC2024','RECODR3_2025_OXY','HARVESTDPROMPTR3']]
-
+workflows[143.912] = ['',['RunUPC2024','RECODR3_2025_UPC_OXY','HARVESTDPROMPTR3']]
+workflows[143.921] = ['',['RunUPC2024','RECODR3_2025_OXY_SKIMIONPHYSICS0','HARVESTDPROMPTR3']]
 
 ## Lumi mask fixed 2024 wfs
 base_wf = 145.0
@@ -702,6 +711,7 @@ workflows[7.21] = ['', ['Cosmics_UP17','DIGICOS_UP17','RECOCOS_UP17','ALCACOS_UP
 workflows[7.22] = ['', ['Cosmics_UP16','DIGICOS_UP16','RECOCOS_UP16','ALCACOS_UP16','HARVESTCOS_UP16']]#2016
 workflows[7.23] = ['', ['Cosmics_UP21','DIGICOS_UP21','RECOCOS_UP21','ALCACOS_UP21','HARVESTCOS_UP21']]#2021
 workflows[7.24] = ['', ['Cosmics_UP21_0T','DIGICOS_UP21_0T','RECOCOS_UP21_0T','ALCACOS_UP21_0T','HARVESTCOS_UP21_0T']]#2021 0T
+workflows[7.25] = ['', ['Cosmics_UP25','DIGICOS_UP25','RECOCOS_UP25','ALCACOS_UP25','HARVESTCOS_UP25']]#2025
 workflows[7.3] = ['CosmicsSPLoose2018', ['CosmicsSPLoose_UP18','DIGICOS_UP18','RECOCOS_UP18','ALCACOS_UP18','HARVESTCOS_UP18']]
 workflows[7.4] = ['CosmicsPEAK2018', ['Cosmics_UP18','DIGICOSPEAK_UP18','RECOCOSPEAK_UP18','ALCACOS_UP18','HARVESTCOS_UP18']]
 workflows[7.5] = ['', ['Cosmics_Phase2','DIGICOS_Phase2','RECOCOS_Phase2']] #,'ALCACOS_Phase2','HARVESTCOS_Phase2']] inactive at the moment

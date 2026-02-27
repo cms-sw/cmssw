@@ -49,7 +49,7 @@ void CosmicMuonGenerator::initialize(CLHEP::HepRandomEngine* rng) {
       std::cout << "  radius of sphere  around  target = " << Target3dRadius << " mm" << std::endl;
 
     if (MinTheta > 90. * Deg2Rad)  //upgoing muons from neutrinos
-      SurfaceRadius = (RadiusCMS) * (-tan(MinTheta)) + MinStepSize;
+      SurfaceRadius = (RadiusCMS + SurfaceDepth) * (-tan(MinTheta)) + MinStepSize;
     else
       SurfaceRadius = (SurfaceOfEarth + PlugWidth + RadiusTargetEff) * tan(MaxTheta) + Target3dRadius;
     if (Debug)
@@ -174,7 +174,7 @@ void CosmicMuonGenerator::nextEvent() {
 
     double Vy;
     if (MinTheta > 90. * Deg2Rad)  //upgoing muons from neutrinos
-      Vy = -RadiusCMS;
+      Vy = -(RadiusCMS + SurfaceDepth);
     else
       Vy = SurfaceOfEarth + PlugWidth;  // [mm]
 
@@ -195,7 +195,7 @@ void CosmicMuonGenerator::nextEvent() {
     // if angles are ok, propagate to target
     if (goodOrientation()) {
       if (MinTheta > 90. * Deg2Rad)  //upgoing muons from neutrinos
-        OneMuoEvt.propagate(0., RadiusOfTarget, ZDistOfTarget, ZCentrOfTarget, TrackerOnly, MTCCHalf);
+        OneMuoEvt.propagate(ElossScaleFactor, RadiusOfTarget, ZDistOfTarget, ZCentrOfTarget, TrackerOnly, MTCCHalf);
       else
         OneMuoEvt.propagate(ElossScaleFactor, RadiusOfTarget, ZDistOfTarget, ZCentrOfTarget, TrackerOnly, MTCCHalf);
     }
@@ -990,7 +990,7 @@ bool CosmicMuonGenerator::goodOrientation() {
 
   double rVY;
   if (MinTheta > 90. * Deg2Rad)  //upgoing muons from neutrinos
-    rVY = -sqrt(RxzV * RxzV + RadiusCMS * RadiusCMS);
+    rVY = -sqrt(RxzV * RxzV + (RadiusCMS + SurfaceDepth) * (RadiusCMS + SurfaceDepth));
   else
     rVY = sqrt(RxzV * RxzV + (SurfaceOfEarth + PlugWidth) * (SurfaceOfEarth + PlugWidth));
 
@@ -1011,6 +1011,13 @@ bool CosmicMuonGenerator::goodOrientation() {
   double dTheta = Pi;
   if (std::fabs(rVY) > Target3dRadius)
     dTheta = asin(Target3dRadius / std::fabs(rVY));
+
+  if (MinTheta > 90. * Deg2Rad) {
+    // upgoing muon's vertex could be outside the target sphere
+    ThetaV = -ThetaV;
+    Theta = Pi - Theta;
+  }
+
   //std::cout << "    dPhi = " <<   dPhi << "  (" <<   Phi << " <p|V> " <<   PhiV << ")" << std::endl;
   //std::cout << "  dTheta = " << dTheta << "  (" << Theta << " <p|V> " << ThetaV << ")" << std::endl;
 
@@ -1277,4 +1284,9 @@ double CosmicMuonGenerator::getRate() { return EventRate; }
 void CosmicMuonGenerator::setAcptAllMu(bool AllMu) {
   if (NotInitialized)
     AcptAllMu = AllMu;
+}
+
+void CosmicMuonGenerator::setSurfaceDepth(double SurfaceDepthToCMS) {
+  if (NotInitialized)
+    SurfaceDepth = SurfaceDepthToCMS;
 }
