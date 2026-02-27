@@ -67,7 +67,6 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   m_funcMap["puppi"] = getPuppiWeight;
 
 
-
   m_funcMap["HCalE_depth1"] = getHcalEnergy_depth1;
   m_funcMap["HCalE_depth2"] = getHcalEnergy_depth2;
   m_funcMap["HCalE_depth3"] = getHcalEnergy_depth3;
