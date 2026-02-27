@@ -6,6 +6,10 @@ _gttNumberOfPVs = 10
 
 #####################################################################################################################
 ## Barrel configurations: 54 regions, 6 puppi output links, only write out the layer 1 outputs for now
+
+srOrder = (24, 30, 36, 42, 48, 0, 6, 12, 18, 25, 31, 37, 43, 49, 1, 7, 13, 19, 26, 32, 38, 44, 50, 2, 8, 14, 20,
+           27, 33, 39, 45, 51, 3, 9, 15, 21, 28, 34, 40, 46, 52, 4, 10, 16, 22, 29, 35, 41, 47, 53, 5, 11, 17, 23)
+
 _barrelWriterOutputOnly = cms.PSet(
     partition = cms.string("Barrel"),
     tmuxFactor = cms.uint32(18),
@@ -29,7 +33,7 @@ _barrelWriterOutputOnly = cms.PSet(
     gttNumberOfPVs = cms.uint32(_gttNumberOfPVs),
     tfNumberOfTracks = cms.uint32(108),
     gctNumberOfObjects = cms.uint32(162),
-    outputRegions = cms.vuint32(*range(54)),
+    outputRegions = cms.vuint32(*srOrder),
     outputBoard = cms.int32(0),
 )
 ## Barrel (54) split in 3 phi slices (EMP format)

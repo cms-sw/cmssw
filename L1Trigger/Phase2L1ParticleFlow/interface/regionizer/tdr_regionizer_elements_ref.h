@@ -35,6 +35,7 @@ namespace l1ct {
 
       //T obj() { return obj_; }
       const T& obj() const { return obj_; }
+      T& obj() { return obj_; }
 
     private:
       T obj_;
@@ -114,7 +115,7 @@ namespace l1ct {
       void setBuffers(const std::vector<std::vector<T>>&& objvecvec);
 
       /// 'put' object in small region. The sr is physics
-      void addToSmallRegion(size_t sr, BufferEntry<T>&& bufEntry);
+      void addToSmallRegion(size_t sr, BufferEntry<T> bufEntry);
 
       /// returns 2D arrays, sectors (links) first dimension, objects second
       std::vector<std::vector<T>> fillLinks(const std::vector<DetectorSector<T>>& sectors) const;

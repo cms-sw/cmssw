@@ -28,6 +28,7 @@ inline bool l1ct::tdr_regionizer::Buffer<T>::empty(size_t sr) const {
   }
 }
 
+// Note: This assumes there's an entry. May need to check with empty (above) first.
 template <typename T>
 inline l1ct::tdr_regionizer::BufferEntry<T> l1ct::tdr_regionizer::Buffer<T>::getEntry(size_t sr) {
   BufferEntry<T> entry = data_[sr].front();
@@ -239,10 +240,19 @@ void l1ct::tdr_regionizer::Regionizer<T>::setBuffers(const std::vector<std::vect
       auto glbeta = sectors_[buffer].hwGlbEtaOf(obj).to_int();
       if (debug_) {
         dbgCout() << "Buffer " << buffer << ": add obj with pt = " << obj.intPt() << ", glb eta = " << glbeta
-                  << ". glb phi = " << glbphi << std::endl;
+                  << ", glb phi = " << glbphi << std::endl;
       }
       // get the SR indices that this object should go into
       auto srs = getSmallRegions(glbeta, glbphi);
+      if (debug_) {
+        if (!srs.empty()) {
+          std::cout << " ";
+          for (auto sr : srs) {
+            std::cout << " " << sr;
+          }
+          std::cout << std::endl;
+        }
+      }
       buffers_[buffer].addEntry(obj, srs, glbeta, glbphi);
     }
   }
@@ -250,7 +260,7 @@ void l1ct::tdr_regionizer::Regionizer<T>::setBuffers(const std::vector<std::vect
 
 // sr is physical
 template <typename T>
-void l1ct::tdr_regionizer::Regionizer<T>::addToSmallRegion(size_t sr, BufferEntry<T>&& bufEntry) {
+void l1ct::tdr_regionizer::Regionizer<T>::addToSmallRegion(size_t sr, BufferEntry<T> bufEntry) {
   auto rawObj = bufEntry.obj();
 
   // in small region, the relative eta and phi are based on a different center, so need to update
@@ -262,6 +272,12 @@ void l1ct::tdr_regionizer::Regionizer<T>::addToSmallRegion(size_t sr, BufferEntr
 
   rawObj.hwEta = locEta;
   rawObj.hwPhi = locPhi;
+
+  if (debug_) {
+    dbgCout() << "smallRegionObjects_ " << sr << " obj with pt = " << rawObj.intPt() << ", loc eta = " << rawObj.intEta()
+          << ", loc phi = " << rawObj.intPhi() << std::endl;
+  }
+
 
   smallRegionObjects_[sr].push_back(rawObj);
 }
@@ -384,7 +400,12 @@ void l1ct::tdr_regionizer::Regionizer<T>::run() {
         auto& buffer = buffers_[sectorMapLogToPhys_[link]];
         if (!buffer.empty(sr)) {
           allEmpty = false;
-          addToSmallRegion(physSR, buffer.getEntry(sr));
+          auto entry = buffer.getEntry(sr);
+          if (debug_) {
+            dbgCout() << "Adding to sr " << sr << " (physSR = " << physSR << ") obj with pt = " << entry.pt() << ", glb eta = " << entry.glbEta()
+                  << ", glb phi = " << entry.glbPhi() << std::endl;
+          }
+          addToSmallRegion(physSR, entry);
         }
       }
     } while (!allEmpty);
@@ -411,7 +432,7 @@ void l1ct::tdr_regionizer::Regionizer<T>::clearSmallRegions() {
 template <typename T>
 void l1ct::tdr_regionizer::Regionizer<T>::printDebug(int count) const {
   dbgCout() << "BUFFERS, (for " << numBuffers() << " buffers)" << std::endl;
-  dbgCout() << count << "\tbuffer\tphysreg\titem\tpt\teta\tphi\t" << std::endl;
+  dbgCout() << count << "\tbuffer\tlogreg\titem\tpt\teta\tphi\t" << std::endl;
   for (size_t logSector = 0; logSector < sectorMapLogToPhys_.size(); logSector++) {
     auto physSector = sectorMapLogToPhys_[logSector];
     buffers_[physSector].printDebug(physSector, logSector);
@@ -423,10 +444,10 @@ void l1ct::tdr_regionizer::Regionizer<T>::printDebug(int count) const {
     auto physRegIdx = regionIndex(region);
     auto etaC = regions_[physRegIdx].intEtaCenter();
     auto phiC = regions_[physRegIdx].intPhiCenter();
-    for (unsigned int j = 0; j < smallRegionObjects_[region].size(); j++) {
-      dbgCout() << "\t" << region << " (" << etaC << ", " << phiC << ")\t" << j << "\t" << physRegIdx << "\t"
-                << smallRegionObjects_[region][j].intPt() << "\t" << smallRegionObjects_[region][j].intEta() << "\t"
-                << smallRegionObjects_[region][j].intPhi() << std::endl;
+    for (unsigned int j = 0; j < smallRegionObjects_[physRegIdx].size(); j++) {
+      dbgCout() << "\t" << region << " (" << etaC << ", " << phiC << ")\t\t" << physRegIdx << "\t" << j << "\t"
+                << smallRegionObjects_[physRegIdx][j].intPt() << "\t" << smallRegionObjects_[physRegIdx][j].intEta() << "\t"
+                << smallRegionObjects_[physRegIdx][j].intPhi() << std::endl;
     }
     dbgCout() << "-------------------------------" << std::endl;
   }
