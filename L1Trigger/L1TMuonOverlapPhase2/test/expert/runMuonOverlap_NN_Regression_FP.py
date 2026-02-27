@@ -57,7 +57,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 #process.load('FWCore.MessageService.MessageLogger_cfi')
 #process.load('Configuration.EventContent.EventContent_cff')
 #process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtendedRun4D95Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 #process.load('Configuration.StandardSequences.RawToDigi_cff')
 #process.load('Configuration.StandardSequences.SimL1Emulator_cff')
@@ -116,7 +116,7 @@ process.simOmtfPhase2Digis.dropCSCPrimitives = cms.bool(True)   #TODO!!!!!!!!!!!
 
 #process.simOmtfPhase2Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_0x0003.xml")
 
-process.simOmtfPhase2Digis.neuralNetworkFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/lutNN_omtfRegression_FP_6.xml")
+process.simOmtfPhase2Digis.neuralNetworkFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/lutNN_omtfRegression_v430_FP.xml")
 
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")

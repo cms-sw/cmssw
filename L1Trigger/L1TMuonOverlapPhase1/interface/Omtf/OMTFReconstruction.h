@@ -43,12 +43,12 @@ public:
 
   void endJob();
 
-  void beginRun(edm::Run const& run,
-                edm::EventSetup const& iSetup,
-                edm::ESGetToken<L1TMuonOverlapParams, L1TMuonOverlapParamsRcd>& omtfParamsEsToken,
-                const MuonGeometryTokens& muonGeometryTokens,
-                const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord>& magneticFieldEsToken,
-                const edm::ESGetToken<Propagator, TrackingComponentsRecord>& propagatorEsToken);
+  virtual void beginRun(edm::Run const& run,
+                        edm::EventSetup const& iSetup,
+                        edm::ESGetToken<L1TMuonOverlapParams, L1TMuonOverlapParamsRcd>& omtfParamsEsToken,
+                        const MuonGeometryTokens& muonGeometryTokens,
+                        const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord>& magneticFieldEsToken,
+                        const edm::ESGetToken<Propagator, TrackingComponentsRecord>& propagatorEsToken);
 
   std::unique_ptr<l1t::RegionalMuonCandBxCollection> reconstruct(const edm::Event&, const edm::EventSetup&);
 

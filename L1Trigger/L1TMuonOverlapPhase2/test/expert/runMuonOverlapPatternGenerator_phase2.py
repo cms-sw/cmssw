@@ -15,11 +15,12 @@ verbose = True
 
 filesNameLike = sys.argv[1]
 
-runDebug = "DEBUG" # or "INFO" DEBUG
+runDebug = "INFO" # or "INFO" DEBUG
 
 #version = "ExtraplMB1nadMB2DTQualAndEtaFixedP_ValueP1Scale_t20_v1_SingleMu"
 #version = "noExtrapl_ValueP1Scale_t18_qualConverted_min4_ipT1_deltaPhiVsPhiRef_fixedDTScale"
-version = "ExtraplMB1nadMB2DTQualAndRFixedP_ValueP1Scale_DT_4_4_t25c_" + filesNameLike
+#version = "ExtraplMB1nadMB2DTQualAndRFixedP_ValueP1Scale_DT_4_4_4_t34_" + filesNameLike
+version = "ExtraplMB1andMB2RFixedP_ValueP1Scale_DT_2_2_2_t35_" + filesNameLike
 
 regeneratedL1DT = True
 
@@ -38,7 +39,7 @@ if verbose:
                     ),
        categories        = cms.untracked.vstring('l1tOmtfEventPrint', 'OMTFReconstruction'),
        omtfEventPrint = cms.untracked.PSet(    
-                         filename  = cms.untracked.string('Patterns_layerStat_' + version + "_" + filesNameLike),
+                         filename  = cms.untracked.string('Patterns_layerStat_' + version),
                          extension = cms.untracked.string('.txt'),                
                          threshold = cms.untracked.string('INFO'),
                          default = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
@@ -64,7 +65,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 #process.load('FWCore.MessageService.MessageLogger_cfi')
 #process.load('Configuration.EventContent.EventContent_cff')
 #process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtendedRun4D95Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 #process.load('Configuration.StandardSequences.RawToDigi_cff')
 #process.load('Configuration.StandardSequences.SimL1Emulator_cff')
@@ -98,11 +99,11 @@ if filesNameLike == 'mcWaw2023_OneOverPt_and_iPt2':
              #
              # {"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_15_02_2023/SingleMu_ch0_OneOverPt_12_5_2_p1_15_02_2023/", "fileCnt" : 500}, ##100 files
              # {"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_15_02_2023/SingleMu_ch2_OneOverPt_12_5_2_p1_15_02_2023/", "fileCnt" : 500}, ##100 files
-              {"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch0_iPt2_12_5_2_p1_04_04_2023/", "fileCnt" : 200}, #500 files
-              {"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch2_iPt2_12_5_2_p1_04_04_2023/", "fileCnt" : 200}, #500 files
+              {"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch0_iPt2_12_5_2_p1_04_04_2023/", "fileCnt" : 500}, #500 files
+              {"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch2_iPt2_12_5_2_p1_04_04_2023/", "fileCnt" : 500}, #500 files
              ]
 
-if filesNameLike == 'mcWaw2023_iPt1':
+if filesNameLike == 'mcWaw2023_iPt2':
     cscBx = 8
     matchUsingPropagation  = False 
     paths = [
@@ -120,8 +121,10 @@ if filesNameLike == 'mcWaw2023_iPt1':
              #
              # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_15_02_2023/SingleMu_ch0_OneOverPt_12_5_2_p1_15_02_2023/", ##100 files
              # "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_15_02_2023/SingleMu_ch2_OneOverPt_12_5_2_p1_15_02_2023/", ##100 files
-              {"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch0_iPt1_12_5_2_p1_04_04_2023/", "fileCnt" : 100}, #500 files
-              {"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch2_iPt1_12_5_2_p1_04_04_2023/", "fileCnt" : 100}, #500 files
+              #{"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch0_iPt1_12_5_2_p1_04_04_2023/", "fileCnt" : 100}, #500 files
+              #{"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch2_iPt1_12_5_2_p1_04_04_2023/", "fileCnt" : 100}, #500 files
+              {"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch0_iPt2_12_5_2_p1_04_04_2023/", "fileCnt" : 200}, #500 files
+              {"path": "/eos/user/a/akalinow/Data/SingleMu/12_5_2_p1_04_04_2023/SingleMu_ch2_iPt2_12_5_2_p1_04_04_2023/", "fileCnt" : 200}, #500 files
              ]
 
 
@@ -189,20 +192,23 @@ process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 process.dtTriggerPhase2PrimitiveDigis.debug = False
 process.dtTriggerPhase2PrimitiveDigis.dump = False
 process.dtTriggerPhase2PrimitiveDigis.scenario = 0
+process.dtTriggerPhase2PrimitiveDigis.co_option = -1 # coincidence w.r.t. : -1 = off, 0 = co all, 1 = co phi, 2 = co theta. defoult is 1, but for OMTF this coincidence filter has no sense
 
 # STD aelow are the defoult values
 #process.dtTriggerPhase2PrimitiveDigis.algo = 0 ## initial grouping
 #process.dtTriggerPhase2PrimitiveDigis.df_extended = 0
 
 #process.TFileService = cms.Service("TFileService", fileName = cms.string('omtfAnalysis1_1.root'), closeFileFast = cms.untracked.bool(True) )
-                                   
-####OMTF Emulator
-process.load('L1Trigger.L1TMuonOverlapPhase2.simOmtfPhase2Digis_cfi')
 
 #needed by candidateSimMuonMatcher
 process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAlong_cfi")
 #process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorOpposite_cfi")
 #process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
+                                   
+####OMTF Emulator
+process.load('L1Trigger.L1TMuonOverlapPhase2.simOmtfPhase2Digis_cfi')
+process.simOmtfPhase2Digis.configXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0209_patGen.xml")
+process.simOmtfPhase2Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_template.xml")
 
 #process.simOmtfPhase2Digis.candidateSimMuonMatcher = cms.bool(True)
 process.simOmtfPhase2Digis.simTracksTag = cms.InputTag('g4SimHits')
@@ -216,10 +222,6 @@ process.simOmtfPhase2Digis.bxMax = cms.int32(0)
 process.simOmtfPhase2Digis.dumpResultToXML = cms.bool(False)
 process.simOmtfPhase2Digis.eventCaptureDebug = cms.bool(False)
 
-process.simOmtfPhase2Digis.patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/Patterns_template.xml")
-#process.simOmtfPhase2Digis.patternsXMLFiles = cms.VPSet(cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/GPs_parametrised_plus_v1.xml")),
-#                                                       cms.PSet(patternsXMLFile = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/GPs_parametrised_minus_v1.xml"))
-#)
 
 process.simOmtfPhase2Digis.patternGenerator = cms.string("patternGen")
 
@@ -227,29 +229,29 @@ process.simOmtfPhase2Digis.patternType = cms.string("GoldenPatternWithStat")
 process.simOmtfPhase2Digis.generatePatterns = cms.bool(True)
 process.simOmtfPhase2Digis.cleanStubs = cms.bool(True) #has sense for the samples with secondaries
 
-process.simOmtfPhase2Digis.optimisedPatsXmlFile = cms.string("Patterns_layerStat_" + version + "_" + filesNameLike + ".xml")
+process.simOmtfPhase2Digis.optimisedPatsXmlFile = cms.string("Patterns_layerStat_" + version + ".xml")
 
-process.simOmtfPhase2Digis.rpcMaxClusterSize = cms.int32(3)
-process.simOmtfPhase2Digis.rpcMaxClusterCnt = cms.int32(2)
-process.simOmtfPhase2Digis.rpcDropAllClustersIfMoreThanMax = cms.bool(True)
+#process.simOmtfPhase2Digis.rpcMaxClusterSize = cms.int32(3)
+#process.simOmtfPhase2Digis.rpcMaxClusterCnt = cms.int32(2)
+#process.simOmtfPhase2Digis.rpcDropAllClustersIfMoreThanMax = cms.bool(True)
 
 process.simOmtfPhase2Digis.minCSCStubRME12 = cms.int32(410) #[cm]
-process.simOmtfPhase2Digis.minCSCStubR = cms.int32(500) #[cm]
+process.simOmtfPhase2Digis.minCSCStubR = cms.int32(490) #[cm]
 
-process.simOmtfPhase2Digis.minDtPhiQuality = cms.int32(4)
-process.simOmtfPhase2Digis.minDtPhiBQuality = cms.int32(4)
+process.simOmtfPhase2Digis.minDtPhiQuality = cms.int32(2)
+process.simOmtfPhase2Digis.minDtPhiBQuality = cms.int32(2)
 
-process.simOmtfPhase2Digis.dtRefHitMinQuality =  cms.int32(4)
+process.simOmtfPhase2Digis.dtRefHitMinQuality =  cms.int32(2)
 
-process.simOmtfPhase2Digis.usePhiBExtrapolationFromMB1 = cms.bool(True)
-process.simOmtfPhase2Digis.usePhiBExtrapolationFromMB2 = cms.bool(True)
+#process.simOmtfPhase2Digis.usePhiBExtrapolationFromMB1 = cms.bool(True)
+#process.simOmtfPhase2Digis.usePhiBExtrapolationFromMB2 = cms.bool(True)
 
-process.simOmtfPhase2Digis.useStubQualInExtr  = cms.bool(True)
-process.simOmtfPhase2Digis.useEndcapStubsRInExtr  = cms.bool(True)
-process.simOmtfPhase2Digis.useFloatingPointExtrapolation  = cms.bool(False)
-process.simOmtfPhase2Digis.extrapolFactorsFilename = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/ExtrapolationFactors_ExtraplMB1nadMB2DTQualAndR_EtaValueP1Scale_t25c.xml")
+#process.simOmtfPhase2Digis.useStubQualInExtr  = cms.bool(True)
+#process.simOmtfPhase2Digis.useEndcapStubsRInExtr  = cms.bool(True)
+#process.simOmtfPhase2Digis.useFloatingPointExtrapolation  = cms.bool(False)
+#process.simOmtfPhase2Digis.extrapolFactorsFilename = cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/ExtrapolationFactors_ExtraplMB1nadMB2DTQualAndR_EtaValueP1Scale_t25c.xml")
 
-process.simOmtfPhase2Digis.stubEtaEncoding = cms.string("valueP1Scale")  
+#process.simOmtfPhase2Digis.stubEtaEncoding = cms.string("valueP1Scale")  
 
 process.simOmtfPhase2Digis.goldenPatternResultFinalizeFunction = cms.int32(3) ## is needed here , becasue it just counts the number of layers with a stub
 
@@ -263,8 +265,10 @@ process.L1TMuonSeq = cms.Sequence( process.simOmtfPhase2Digis
 
 if not regeneratedL1DT :
     process.L1TMuonPath = cms.Path(process.L1TMuonSeq) ########################################<<<<<<!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    print("regeneratedL1DT = ", regeneratedL1DT)
 else :
     process.L1TMuonPath = cms.Path(process.CalibratedDigis * process.dtTriggerPhase2PrimitiveDigis * process.L1TMuonSeq)
+    print("regeneratedL1DT = ", regeneratedL1DT, " process.dtTriggerPhase2PrimitiveDigis")
 
 
 #process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
