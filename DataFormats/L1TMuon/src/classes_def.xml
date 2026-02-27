@@ -57,7 +57,7 @@
   <class name="l1t::EMTFPtLUT"/>
 
   <class name="l1t::CPPFDigi" ClassVersion="3">
-    <version ClassVersion="3" checksum="1846750827"/>
+    <version ClassVersion="3" checksum="1601258667"/>
   </class>
   <class name="l1t::CPPFDigiCollection"/>
   <class name="edm::Wrapper<l1t::CPPFDigiCollection>"/>

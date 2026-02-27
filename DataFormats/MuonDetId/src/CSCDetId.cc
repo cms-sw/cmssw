@@ -93,10 +93,12 @@ std::string CSCDetId::chamberName() const { return chamberName(endcap(), station
 
 std::string CSCDetId::layerName() const { return layerName(endcap(), station(), ring(), chamber(), layer()); }
 
-std::ostream& operator<<(std::ostream& os, const CSCDetId& id) {
-  // Note that there is no endl to end the output
+namespace io_v1 {
+  std::ostream& operator<<(std::ostream& os, const CSCDetId& id) {
+    // Note that there is no endl to end the output
 
-  os << " E:" << id.endcap() << " S:" << id.station() << " R:" << id.ring() << " C:" << id.chamber()
-     << " L:" << id.layer();
-  return os;
-}
+    os << " E:" << id.endcap() << " S:" << id.station() << " R:" << id.ring() << " C:" << id.chamber()
+       << " L:" << id.layer();
+    return os;
+  }
+}  // namespace io_v1

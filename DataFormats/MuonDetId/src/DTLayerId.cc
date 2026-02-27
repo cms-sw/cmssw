@@ -57,9 +57,11 @@ DTLayerId::DTLayerId(int wheel, int station, int sector, int superlayer, int lay
   id_ |= (layer & lMask_) << layerStartBit_;
 }
 
-std::ostream& operator<<(std::ostream& os, const DTLayerId& id) {
-  os << " Wh:" << id.wheel() << " St:" << id.station() << " Se:" << id.sector() << " Sl:" << id.superlayer()
-     << " La:" << id.layer() << " ";
+namespace io_v1 {
+  std::ostream& operator<<(std::ostream& os, const DTLayerId& id) {
+    os << " Wh:" << id.wheel() << " St:" << id.station() << " Se:" << id.sector() << " Sl:" << id.superlayer()
+       << " La:" << id.layer() << " ";
 
-  return os;
-}
+    return os;
+  }
+}  // namespace io_v1

@@ -5,7 +5,7 @@
    </class>
 
    <class name="csc::L1TrackId" ClassVersion="3">
-    <version ClassVersion="3" checksum="33053349"/>
+    <version ClassVersion="3" checksum="3814032729"/>
    </class>
 
    <class name="L1CSCSPStatusDigi" ClassVersion="3">
