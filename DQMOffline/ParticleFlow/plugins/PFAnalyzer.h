@@ -94,7 +94,7 @@ private:
                const std::vector<reco::PFCandidatePtr> pfCands, reco::PFCandidate::ParticleType pfType, const reco::Jet)>>
       m_jetWideFuncMap;
 
-  std::map<std::string, std::function<double(const reco::PFCandidatePtr, const reco::Jet)>> m_pfInJetFuncMap;
+  std::map<std::string, std::function<double(const reco::PFCandidatePtr, const pat::PackedCandidate, const reco::CandidatePtr, int, const reco::Jet)>> m_pfInJetFuncMap;
   std::map<std::string, std::function<double(const reco::Jet, const std::vector<reco::PFCandidatePtr> pfCands)>>
       m_jetFuncMap;
 
@@ -125,10 +125,21 @@ private:
                         std::vector<std::string> observables,
                         std::vector<std::vector<double>> binnings);
 
-  static double getEnergySpectrum(const reco::PFCandidatePtr pfCand, const reco::Jet jet) {
+
+
+  static double getEnergySpectrum(const reco::PFCandidatePtr pfCand, const pat::PackedCandidate packedPart, const reco::CandidatePtr cand, int partType, const reco::Jet jet) {
     if (!jet.pt())
       return -1;
-    return pfCand.get()->pt() / jet.pt();
+    if(partType==0){
+      return pfCand.get()->pt() / jet.pt();
+    }
+    if(partType == 1){
+      return packedPart.pt() / jet.pt();
+    }
+    if(partType == 1){
+      return cand->pt() / jet.pt();
+    }
+    return -1;
   }
 
   static double getNPFC(const std::vector<reco::PFCandidatePtr> pfCands, reco::PFCandidate::ParticleType pfType) {
@@ -204,6 +215,9 @@ private:
     if (partType == 1) {
       return packedPart.energy();
     }
+    if (partType == 2){
+      return cand->energy();
+    }
     return pfCand.get()->energy();
   }
   static double getEta(const reco::PFCandidatePtr pfCand,
@@ -271,7 +285,10 @@ private:
     if (partType == 1) {
       return packedPart.time();
     }
-    return pfCand.get()->time();
+    if (partType == 0) {
+      return pfCand.get()->time();
+    }
+    return -1;
   }
 
   static double getHcalEnergy_depth1(const reco::PFCandidatePtr pfCand,
@@ -886,6 +903,7 @@ private:
   // the lowest and highest values for the histogram.
   // The observable name should have an entry in m_funcMap to define how
   // it can be retrieved from a PFCandidate.
+  vstring m_pfNames;
   vstring m_observables;
   vstring m_eventObservables;
   vstring m_pfInJetObservables;
@@ -925,7 +943,7 @@ private:
   // Making this configurable is useful in case you want to look at the core of a jet.
   double m_matchingRadius;
 
-  std::vector<std::string> m_pfNames;
+  //std::vector<std::string> m_pfNames;
 };
 
 struct PFAnalyzer::binInfo {

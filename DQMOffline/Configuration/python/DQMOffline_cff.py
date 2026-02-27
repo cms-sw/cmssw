@@ -130,12 +130,14 @@ from DQMOffline.RecoB.PrimaryVertexMonitor_cff import *
 from DQM.TrackingMonitor.trackingRecoMaterialAnalyzer_cfi import materialDumperAnalyzer
 from DQMOffline.Muon.muonMonitors_cff import *
 from DQMOffline.JetMET.jetMETDQMOfflineSource_cff import *
+from DQMOffline.ParticleFlow.runBasic_cff import *
 from DQMOffline.EGamma.egammaDQMOffline_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitor_cff import *
 from DQM.Physics.DQMPhysics_cff import *
 from DQM.Physics.heavyFlavorDQMFirstStep_cff import *
+from DQMOffline.ParticleFlow.runBasic_cff import DQMOfflinePFAnalyzer
 
 DQMOfflineVertex = cms.Sequence( pvMonitor )
 
@@ -150,6 +152,8 @@ muonRecoAnalyzer.doMVA =         cms.bool( True )
 muonRecoAnalyzer_miniAOD.doMVA = cms.bool( True )
 
 DQMOfflineJetMET = cms.Sequence( jetMETDQMOfflineSource )
+
+#DQMOfflineParticleFlow = cms.Sequence( jetMETDQMOfflineSource )
 
 DQMOfflineEGamma = cms.Sequence( egammaDQMOffline )
 
@@ -166,6 +170,7 @@ DQMOfflineHeavyFlavor = cms.Sequence( heavyFlavorDQMSource )
 DQMOfflinePrePOG = cms.Sequence( DQMOfflineTracking *
                                  DQMOfflineMUO *
                                  DQMOfflineJetMET *
+                                 #DQMOfflinePFAnalyzer *
                                  DQMOfflineEGamma *
                                  DQMOfflineTrigger *
                                  DQMOfflineScoutingForRelVals *
@@ -255,7 +260,8 @@ DQMOfflineCommon = cms.Sequence( DQMOfflineDCS *
                                  DQMOfflineBeam *
                                  DQMOfflineCASTOR *
                                  DQMOfflinePhysics *
-				 DQMOfflineTAU
+				                 DQMOfflineTAU 
+                                 #* DQMOfflinePFAnalyzer
                                 )
 
 DQMOfflineCommonFakeHLT = cms.Sequence( DQMOfflineCommon )
@@ -313,7 +319,9 @@ from DQM.TrackingMonitor.tracksDQMMiniAOD_cff import *
 from DQMOffline.RecoB.bTagMiniDQM_cff import *
 from DQMOffline.Muon.miniAOD_cff import *
 from DQM.Physics.DQMTopMiniAOD_cff import *
+from DQMOffline.ParticleFlow.runMini_cff import PFAnalyzerMiniAOD 
 
+#DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*bTagMiniDQMSource*muonMonitors_miniAOD*MuonMiniAOD*DQMOfflinePF*PFAnalyzerMiniAOD)
 DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*bTagMiniDQMSource*muonMonitors_miniAOD*MuonMiniAOD*DQMOfflinePF)
 DQMOfflineMiniAODBTagOnly = cms.Sequence(bTagMiniDQMSource)
 

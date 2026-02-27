@@ -16,7 +16,7 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 # my analyzer
-process.load('DQMOffline.ParticleFlow.runMini_cfi')
+process.load('DQMOffline.ParticleFlow.runMini_cff')
 
 
 with open('fileList.log') as f:
@@ -29,7 +29,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 
 
 process.p = cms.Path(
-    process.PFAnalyzer)
+    process.PFAnalyzerMiniAOD)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
 
