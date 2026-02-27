@@ -1,29 +1,27 @@
 #include "DataFormats/L1Scouting/interface/L1ScoutingBMTFStub.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingMuon.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingCalo.h"
+#include "DataFormats/L1Scouting/interface/L1ScoutingCaloTower.h"
+#include "DataFormats/L1Scouting/interface/L1ScoutingFastJet.h"
 #include "DataFormats/L1Scouting/interface/OrbitCollection.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/StreamID.h"
 
 #include <memory>
 #include <utility>
 #include <vector>
 
 namespace edmtest {
-  using namespace l1ScoutingRun3;
   class TestReadL1Scouting : public edm::global::EDAnalyzer<> {
   public:
     TestReadL1Scouting(edm::ParameterSet const&);
+
     void analyze(edm::StreamID, edm::Event const&, edm::EventSetup const&) const override;
+
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
@@ -33,6 +31,8 @@ namespace edmtest {
     void analyzeTaus(edm::Event const& iEvent) const;
     void analyzeBxSums(edm::Event const& iEvent) const;
     void analyzeBmtfStubs(edm::Event const& iEvent) const;
+    void analyzeCaloTowers(edm::Event const& iEvent) const;
+    void analyzeFastJets(edm::Event const& iEvent) const;
 
     void throwWithMessageFromConstructor(const char*) const;
     void throwWithMessage(const char*) const;
@@ -57,10 +57,19 @@ namespace edmtest {
     const int bmtfStubClassVersion_;
     const std::vector<int> expectedBmtfStubValues_;
     const edm::EDGetTokenT<OrbitCollection<l1ScoutingRun3::BMTFStub>> bmtfStubToken_;
+
+    const int caloTowerClassVersion_;
+    const std::vector<int> expectedCaloTowerValues_;
+    const edm::EDGetTokenT<OrbitCollection<l1ScoutingRun3::CaloTower>> caloTowersToken_;
+
+    const int fastJetClassVersion_;
+    const std::vector<double> expectedFastJetFloatingPointValues_;
+    const std::vector<int> expectedFastJetIntegralValues_;
+    const edm::EDGetTokenT<OrbitCollection<l1ScoutingRun3::FastJet>> fastJetsToken_;
   };
 
   TestReadL1Scouting::TestReadL1Scouting(edm::ParameterSet const& iPSet)
-      : bxValues_(iPSet.getParameter<std::vector<unsigned>>("bxValues")),
+      : bxValues_(iPSet.getParameter<std::vector<unsigned int>>("bxValues")),
         expectedMuonValues_(iPSet.getParameter<std::vector<int>>("expectedMuonValues")),
         muonsToken_(consumes(iPSet.getParameter<edm::InputTag>("muonsTag"))),
         expectedJetValues_(iPSet.getParameter<std::vector<int>>("expectedJetValues")),
@@ -73,27 +82,44 @@ namespace edmtest {
         bxSumsToken_(consumes(iPSet.getParameter<edm::InputTag>("bxSumsTag"))),
         bmtfStubClassVersion_(iPSet.getParameter<int>("bmtfStubClassVersion")),
         expectedBmtfStubValues_(iPSet.getParameter<std::vector<int>>("expectedBmtfStubValues")),
-        bmtfStubToken_(consumes(iPSet.getParameter<edm::InputTag>("bmtfStubTag"))) {
+        bmtfStubToken_(consumes(iPSet.getParameter<edm::InputTag>("bmtfStubTag"))),
+        caloTowerClassVersion_(iPSet.getParameter<int>("caloTowerClassVersion")),
+        expectedCaloTowerValues_(iPSet.getParameter<std::vector<int>>("expectedCaloTowerValues")),
+        caloTowersToken_(consumes(iPSet.getParameter<edm::InputTag>("caloTowersTag"))),
+        fastJetClassVersion_(iPSet.getParameter<int>("fastJetClassVersion")),
+        expectedFastJetFloatingPointValues_(
+            iPSet.getParameter<std::vector<double>>("expectedFastJetFloatingPointValues")),
+        expectedFastJetIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedFastJetIntegralValues")),
+        fastJetsToken_(consumes(iPSet.getParameter<edm::InputTag>("fastJetsTag"))) {
     if (bxValues_.size() != 2) {
       throwWithMessageFromConstructor("bxValues must have 2 elements and it does not");
     }
     if (expectedMuonValues_.size() != 3) {
-      throwWithMessageFromConstructor("muonValues must have 3 elements and it does not");
+      throwWithMessageFromConstructor("expectedMuonValues must have 3 elements and it does not");
     }
     if (expectedJetValues_.size() != 4) {
-      throwWithMessageFromConstructor("jetValues must have 4 elements and it does not");
+      throwWithMessageFromConstructor("expectedJetValues must have 4 elements and it does not");
     }
     if (expectedEGammaValues_.size() != 3) {
-      throwWithMessageFromConstructor("eGammaValues must have 3 elements and it does not");
+      throwWithMessageFromConstructor("expectedEGammaValues must have 3 elements and it does not");
     }
     if (expectedTauValues_.size() != 2) {
-      throwWithMessageFromConstructor("tauValues must have 2 elements and it does not");
+      throwWithMessageFromConstructor("expectedTauValues must have 2 elements and it does not");
     }
     if (expectedBxSumsValues_.size() != 1) {
-      throwWithMessageFromConstructor("bxSumsValues_ must have 1 elements and it does not");
+      throwWithMessageFromConstructor("expectedBxSumsValues must have 1 elements and it does not");
     }
     if (expectedBmtfStubValues_.size() != 2) {
-      throwWithMessageFromConstructor("bmtfStubValues_ must have 2 elements and it does not");
+      throwWithMessageFromConstructor("expectedBmtfStubValues must have 2 elements and it does not");
+    }
+    if (expectedCaloTowerValues_.size() != 5) {
+      throwWithMessageFromConstructor("expectedCaloTowerValues must have 5 elements and it does not");
+    }
+    if (expectedFastJetFloatingPointValues_.size() != 3) {
+      throwWithMessageFromConstructor("expectedFastJetFloatingPointValues must have 3 elements and it does not");
+    }
+    if (expectedFastJetIntegralValues_.size() != 3) {
+      throwWithMessageFromConstructor("expectedFastJetIntegralValues must have 3 elements and it does not");
     }
   }
 
@@ -104,19 +130,21 @@ namespace edmtest {
     analyzeTaus(iEvent);
     analyzeBxSums(iEvent);
     analyzeBmtfStubs(iEvent);
+    analyzeCaloTowers(iEvent);
+    analyzeFastJets(iEvent);
   }
 
   void TestReadL1Scouting::analyzeMuons(edm::Event const& iEvent) const {
     auto const& muonsCollection = iEvent.get(muonsToken_);
 
-    for (const unsigned& bx : bxValues_) {
-      unsigned nMuons = muonsCollection.getBxSize(bx);
+    for (auto const bx : bxValues_) {
+      auto const nMuons = muonsCollection.getBxSize(bx);
       if (nMuons != expectedMuonValues_.size()) {
         throwWithMessage("analyzeMuons, muons do not have the expected bx size");
       }
 
-      const auto& muons = muonsCollection.bxIterator(bx);
-      for (unsigned i = 0; i < nMuons; i++) {
+      auto const& muons = muonsCollection.bxIterator(bx);
+      for (auto i = 0u; i < nMuons; ++i) {
         if (muons[i].hwPt() != expectedMuonValues_[i]) {
           throwWithMessage("analyzeMuons, hwPt does not match the expected value");
         }
@@ -163,14 +191,14 @@ namespace edmtest {
   void TestReadL1Scouting::analyzeJets(edm::Event const& iEvent) const {
     auto const& jetsCollection = iEvent.get(jetsToken_);
 
-    for (const unsigned& bx : bxValues_) {
-      unsigned nJets = jetsCollection.getBxSize(bx);
+    for (auto const bx : bxValues_) {
+      auto const nJets = jetsCollection.getBxSize(bx);
       if (nJets != expectedJetValues_.size()) {
         throwWithMessage("analyzeJets, jets do not have the expected bx size");
       }
 
-      const auto& jets = jetsCollection.bxIterator(bx);
-      for (unsigned i = 0; i < nJets; i++) {
+      auto const& jets = jetsCollection.bxIterator(bx);
+      for (auto i = 0u; i < nJets; ++i) {
         if (jets[i].hwEt() != expectedJetValues_[i]) {
           throwWithMessage("analyzeJets, hwEt does not match the expected value");
         }
@@ -190,14 +218,14 @@ namespace edmtest {
   void TestReadL1Scouting::analyzeEGammas(edm::Event const& iEvent) const {
     auto const& eGammasCollection = iEvent.get(eGammasToken_);
 
-    for (const unsigned& bx : bxValues_) {
-      unsigned nEGammas = eGammasCollection.getBxSize(bx);
+    for (auto const bx : bxValues_) {
+      auto const nEGammas = eGammasCollection.getBxSize(bx);
       if (nEGammas != expectedEGammaValues_.size()) {
         throwWithMessage("analyzeEGammas, egammas do not have the expected bx size");
       }
 
-      const auto& eGammas = eGammasCollection.bxIterator(bx);
-      for (unsigned i = 0; i < nEGammas; i++) {
+      auto const& eGammas = eGammasCollection.bxIterator(bx);
+      for (auto i = 0u; i < nEGammas; ++i) {
         if (eGammas[i].hwEt() != expectedEGammaValues_[i]) {
           throwWithMessage("analyzeEGammas, hwEt does not match the expected value");
         }
@@ -217,14 +245,14 @@ namespace edmtest {
   void TestReadL1Scouting::analyzeTaus(edm::Event const& iEvent) const {
     auto const& tausCollection = iEvent.get(tausToken_);
 
-    for (const unsigned& bx : bxValues_) {
-      unsigned nTaus = tausCollection.getBxSize(bx);
+    for (auto const bx : bxValues_) {
+      auto const nTaus = tausCollection.getBxSize(bx);
       if (nTaus != expectedTauValues_.size()) {
         throwWithMessage("analyzeTaus, taus do not have the expected bx size");
       }
 
-      const auto& taus = tausCollection.bxIterator(bx);
-      for (unsigned i = 0; i < nTaus; i++) {
+      auto const& taus = tausCollection.bxIterator(bx);
+      for (auto i = 0u; i < nTaus; ++i) {
         if (taus[i].hwEt() != expectedTauValues_[i]) {
           throwWithMessage("analyzeTaus, hwEt does not match the expected value");
         }
@@ -244,14 +272,14 @@ namespace edmtest {
   void TestReadL1Scouting::analyzeBxSums(edm::Event const& iEvent) const {
     auto const& bxSumsCollection = iEvent.get(bxSumsToken_);
 
-    for (const unsigned& bx : bxValues_) {
-      unsigned nSums = bxSumsCollection.getBxSize(bx);
+    for (auto const bx : bxValues_) {
+      auto const nSums = bxSumsCollection.getBxSize(bx);
       if (nSums != expectedBxSumsValues_.size()) {
         throwWithMessage("analyzeBxSums, sums do not have the expected bx size");
       }
 
-      const auto& sums = bxSumsCollection.bxIterator(bx);
-      for (unsigned i = 0; i < nSums; i++) {
+      auto const& sums = bxSumsCollection.bxIterator(bx);
+      for (auto i = 0u; i < nSums; ++i) {
         if (sums[i].hwTotalEt() != expectedBxSumsValues_[i]) {
           throwWithMessage("analyzeBxSums, hwTotalEt does not match the expected value");
         }
@@ -320,16 +348,17 @@ namespace edmtest {
     if (bmtfStubClassVersion_ < 3) {
       return;
     }
+
     auto const& stubsCollection = iEvent.get(bmtfStubToken_);
 
-    for (const unsigned& bx : bxValues_) {
-      unsigned nStubs = stubsCollection.getBxSize(bx);
+    for (auto const bx : bxValues_) {
+      auto const nStubs = stubsCollection.getBxSize(bx);
       if (nStubs != expectedBmtfStubValues_.size()) {
         throwWithMessage("analyzeBmtfStubs, stubs do not have the expected bx size");
       }
 
-      const auto& stubs = stubsCollection.bxIterator(bx);
-      for (unsigned i = 0; i < nStubs; i++) {
+      auto const& stubs = stubsCollection.bxIterator(bx);
+      for (auto i = 0u; i < nStubs; ++i) {
         if (stubs[i].hwPhi() != (expectedBmtfStubValues_[i] + 8)) {
           throwWithMessage("analyzeBmtfStubs, hwPhi does not match the expected value");
         }
@@ -361,6 +390,85 @@ namespace edmtest {
     }
   }
 
+  void TestReadL1Scouting::analyzeCaloTowers(edm::Event const& iEvent) const {
+    if (caloTowerClassVersion_ < 3) {
+      return;
+    }
+
+    auto const& caloTowersCollection = iEvent.get(caloTowersToken_);
+    for (auto bx_idx = 0u; bx_idx < bxValues_.size(); ++bx_idx) {
+      auto const bx = bxValues_[bx_idx];
+
+      auto const nCaloTowers = caloTowersCollection.getBxSize(bx);
+      if (nCaloTowers != expectedCaloTowerValues_.size()) {
+        throwWithMessage("analyzeCaloTowers, caloTowers do not have the expected bx size");
+      }
+
+      auto const& caloTowers = caloTowersCollection.bxIterator(bx);
+      int const val_offset = iEvent.id().event() % 100 + bx_idx;
+      for (auto i = 0u; i < nCaloTowers; ++i) {
+        int val = expectedCaloTowerValues_[i] + val_offset;
+        if (caloTowers[i].hwEt() != val++) {
+          throwWithMessage("analyzeCaloTowers, hwEt does not match the expected value");
+        }
+        if (caloTowers[i].erBits() != val++) {
+          throwWithMessage("analyzeCaloTowers, erBits does not match the expected value");
+        }
+        if (caloTowers[i].miscBits() != val++) {
+          throwWithMessage("analyzeCaloTowers, miscBits does not match the expected value");
+        }
+        if (caloTowers[i].hwEta() != val++) {
+          throwWithMessage("analyzeCaloTowers, hwEta does not match the expected value");
+        }
+        if (caloTowers[i].hwPhi() != val++) {
+          throwWithMessage("analyzeCaloTowers, hwPhi does not match the expected value");
+        }
+      }
+    }
+  }
+
+  void TestReadL1Scouting::analyzeFastJets(edm::Event const& iEvent) const {
+    if (fastJetClassVersion_ < 3) {
+      return;
+    }
+
+    auto const& fastJetsCollection = iEvent.get(fastJetsToken_);
+    for (auto bx_idx = 0u; bx_idx < bxValues_.size(); ++bx_idx) {
+      auto const bx = bxValues_[bx_idx];
+
+      auto const nFastJets = fastJetsCollection.getBxSize(bx);
+      if (nFastJets != expectedFastJetFloatingPointValues_.size() or
+          nFastJets != expectedFastJetIntegralValues_.size()) {
+        throwWithMessage("analyzeFastJet, fastJets do not have the expected bx size");
+      }
+
+      auto const& fastJets = fastJetsCollection.bxIterator(bx);
+      int const val_offset = iEvent.id().event() % 100 + bx_idx;
+      for (auto i = 0u; i < nFastJets; ++i) {
+        float val_flp = expectedFastJetFloatingPointValues_[i] + val_offset;
+        int val_int = expectedFastJetIntegralValues_[i] + val_offset;
+        if (fastJets[i].et() != val_flp++) {
+          throwWithMessage("analyzeFastJets, et() does not match the expected value");
+        }
+        if (fastJets[i].eta() != val_flp++) {
+          throwWithMessage("analyzeFastJets, eta() does not match the expected value");
+        }
+        if (fastJets[i].phi() != val_flp++) {
+          throwWithMessage("analyzeFastJets, phi() does not match the expected value");
+        }
+        if (fastJets[i].mass() != val_flp++) {
+          throwWithMessage("analyzeFastJets, mass() does not match the expected value");
+        }
+        if (fastJets[i].nConst() != val_int++) {
+          throwWithMessage("analyzeFastJets, nConst() does not match the expected value");
+        }
+        if (fastJets[i].area() != val_flp++) {
+          throwWithMessage("analyzeFastJets, area() does not match the expected value");
+        }
+      }
+    }
+  }
+
   void TestReadL1Scouting::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<std::vector<unsigned int>>("bxValues");
@@ -377,6 +485,13 @@ namespace edmtest {
     desc.add<int>("bmtfStubClassVersion");
     desc.add<std::vector<int>>("expectedBmtfStubValues");
     desc.add<edm::InputTag>("bmtfStubTag");
+    desc.add<int>("caloTowerClassVersion");
+    desc.add<std::vector<int>>("expectedCaloTowerValues");
+    desc.add<edm::InputTag>("caloTowersTag");
+    desc.add<int>("fastJetClassVersion");
+    desc.add<std::vector<double>>("expectedFastJetFloatingPointValues");
+    desc.add<std::vector<int>>("expectedFastJetIntegralValues");
+    desc.add<edm::InputTag>("fastJetsTag");
 
     descriptions.addDefault(desc);
   }
@@ -391,5 +506,6 @@ namespace edmtest {
 
 }  // namespace edmtest
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 using edmtest::TestReadL1Scouting;
 DEFINE_FWK_MODULE(TestReadL1Scouting);

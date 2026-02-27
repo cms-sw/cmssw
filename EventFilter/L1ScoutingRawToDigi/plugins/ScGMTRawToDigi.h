@@ -38,7 +38,6 @@ private:
   std::vector<std::vector<l1ScoutingRun3::Muon>> orbitBuffer_;
   int nMuonsOrbit_;
 
-  bool debug_ = false;
   bool skipInterm_ = true;
   edm::InputTag srcInputTag;
   edm::EDGetToken rawToken;

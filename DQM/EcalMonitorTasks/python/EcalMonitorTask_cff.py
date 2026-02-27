@@ -14,6 +14,10 @@ gpuValidationEcal.toModify(ecalMonitorTask, workerParameters = dict(GpuTask = ec
 alpakaValidationEcal.toModify(ecalGpuTask.params, runGpuTask = True)
 alpakaValidationEcal.toModify(ecalMonitorTask.workers, func = lambda workers: workers.append("GpuTask"))
 alpakaValidationEcal.toModify(ecalMonitorTask, workerParameters = dict(GpuTask = ecalGpuTask))
+alpakaValidationEcal.toModify(ecalDQMCollectionTags, EBCpuDigi = "ecalDigisSerialSync:ebDigis")
+alpakaValidationEcal.toModify(ecalDQMCollectionTags, EECpuDigi = "ecalDigisSerialSync:eeDigis")
+alpakaValidationEcal.toModify(ecalDQMCollectionTags, EBCpuUncalibRecHit = "ecalMultiFitUncalibRecHitSerialSync:EcalUncalibRecHitsEB")
+alpakaValidationEcal.toModify(ecalDQMCollectionTags, EECpuUncalibRecHit = "ecalMultiFitUncalibRecHitSerialSync:EcalUncalibRecHitsEE")
 
 # Skip consuming and running over the EcalRawData collection for all GPU WFs
 # This is to be used as long as the GPU unpacker unpacks a dummy EcalRawData collection
