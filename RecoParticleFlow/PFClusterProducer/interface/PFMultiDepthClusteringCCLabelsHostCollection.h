@@ -1,0 +1,11 @@
+#ifndef RecoParticleFlow_PFClusterProducer_interface_PFMultiDepthClusteringCCLabelsHostCollection_h
+#define RecoParticleFlow_PFClusterProducer_interface_PFMultiDepthClusteringCCLabelsHostCollection_h
+
+#include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringCCLabelsSoA.h"
+#include "DataFormats/Portable/interface/PortableHostCollection.h"
+
+namespace reco {
+  using PFMultiDepthClusteringCCLabelsHostCollection = PortableHostCollection<PFMultiDepthClusteringCCLabelsSoA>;
+}
+
+#endif  // RecoParticleFlow_PFClusterProducer_interface_PFMultiDepthClusteringCCLabelsHostCollection_h
