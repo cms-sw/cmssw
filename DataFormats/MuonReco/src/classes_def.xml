@@ -56,9 +56,8 @@ initial version number of a class which has never been stored before.
    <version ClassVersion="11" checksum="541727491"/>
    <version ClassVersion="10" checksum="4050071853"/>
   </class>
-  <class name="reco::MuonSegmentMatch" ClassVersion="11">
-    <version ClassVersion="11" checksum="2861296960"/>
-    <version ClassVersion="10" checksum="754193003"/>    
+  <class name="reco::MuonSegmentMatch" ClassVersion="3">
+    <version ClassVersion="3" checksum="3516388384"/>
   </class>
   <class name="reco::MuonRPCHitMatch" ClassVersion="10">
    <version ClassVersion="10" checksum="4193465224"/>

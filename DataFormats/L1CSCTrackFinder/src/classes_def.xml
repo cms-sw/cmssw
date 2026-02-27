@@ -13,7 +13,7 @@
    </class>
 
    <class name="csctf::io_v1::TrackStub" ClassVersion="3">
-    <version ClassVersion="3" checksum="1384357088"/>
+    <version ClassVersion="3" checksum="3006204060"/>
      <field name="thePhiBinning" transient="true"/>
      <field name="theEtaBinning" transient="true"/>
    </class>

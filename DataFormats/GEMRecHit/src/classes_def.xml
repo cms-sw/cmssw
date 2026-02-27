@@ -1,17 +1,16 @@
 <lcgdict>
 <selection>
 
-  <class name="GEMRecHit" splitLevel="0" ClassVersion="11">
-  <version ClassVersion="11" checksum="3146992425"/>
-  <version ClassVersion="10" checksum="3680872192"/>
+  <class name="io_v1::GEMRecHit" splitLevel="0" ClassVersion="3">
+  <version ClassVersion="3" checksum="4164786089"/>
   </class>
-  <class name="std::vector<GEMRecHit>" splitLevel="0"/>
-  <class name="std::vector<GEMRecHit*>" splitLevel="0"/>
+  <class name="std::vector<io_v1::GEMRecHit>" splitLevel="0"/>
+  <class name="std::vector<io_v1::GEMRecHit*>" splitLevel="0"/>
   <class name="std::map<GEMDetId, std::pair<unsigned int, unsigned int> >" splitLevel="0"/>
   <class name="std::map<GEMDetId, std::pair<unsigned long, unsigned long> >" splitLevel="0"/>
-  <class name="edm::OwnVector<GEMRecHit, edm::ClonePolicy<GEMRecHit> >" splitLevel="0"  rntupleStreamerMode="true"/>
-  <class name="edm::RangeMap<GEMDetId, edm::OwnVector<GEMRecHit, edm::ClonePolicy<GEMRecHit> >, edm::ClonePolicy<GEMRecHit> >" splitLevel="0"/>
-  <class name="edm::Wrapper<edm::RangeMap<GEMDetId, edm::OwnVector<GEMRecHit, edm::ClonePolicy<GEMRecHit> >, edm::ClonePolicy<GEMRecHit> > >" splitLevel="0"/>
+  <class name="edm::OwnVector<io_v1::GEMRecHit, edm::ClonePolicy<io_v1::GEMRecHit> >" splitLevel="0"  rntupleStreamerMode="true"/>
+  <class name="edm::RangeMap<GEMDetId, edm::OwnVector<io_v1::GEMRecHit, edm::ClonePolicy<io_v1::GEMRecHit> >, edm::ClonePolicy<io_v1::GEMRecHit> >" splitLevel="0"/>
+  <class name="edm::Wrapper<edm::RangeMap<GEMDetId, edm::OwnVector<io_v1::GEMRecHit, edm::ClonePolicy<io_v1::GEMRecHit> >, edm::ClonePolicy<io_v1::GEMRecHit> > >" splitLevel="0"/>
 
   <class name="ME0RecHit" splitLevel="0" ClassVersion="11">
   <version ClassVersion="11" checksum="3948270793"/>
@@ -25,28 +24,22 @@
   <class name="edm::RangeMap<ME0DetId, edm::OwnVector<ME0RecHit, edm::ClonePolicy<ME0RecHit> >, edm::ClonePolicy<ME0RecHit> >" splitLevel="0"/>
   <class name="edm::Wrapper<edm::RangeMap<ME0DetId, edm::OwnVector<ME0RecHit, edm::ClonePolicy<ME0RecHit> >, edm::ClonePolicy<ME0RecHit> > >" splitLevel="0"/>
 
-  <class name="GEMCSCSegment" splitLevel="0" ClassVersion="12">
-  <version ClassVersion="12" checksum="3885697532"/>
-  <version ClassVersion="11" checksum="2470665576"/>
-  <version ClassVersion="10" checksum="2470665576"/>
+  <class name="io_v1::GEMCSCSegment" splitLevel="0" ClassVersion="3">
+  <version ClassVersion="3" checksum="2523382514"/>
   </class>
-  <class name="std::vector<GEMCSCSegment*>" splitLevel="0"/>
-  <class name="edm::OwnVector<GEMCSCSegment,edm::ClonePolicy<GEMCSCSegment> >" splitLevel="0"  rntupleStreamerMode="true"/>
-  <class name="edm::RangeMap<CSCDetId,edm::OwnVector<GEMCSCSegment,edm::ClonePolicy<GEMCSCSegment> >,edm::ClonePolicy<GEMCSCSegment> >" splitLevel="0"/>
-  <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<GEMCSCSegment,edm::ClonePolicy<GEMCSCSegment> >,edm::ClonePolicy<GEMCSCSegment> > >" splitLevel="0"/>
+  <class name="std::vector<io_v1::GEMCSCSegment*>" splitLevel="0"/>
+  <class name="edm::OwnVector<io_v1::GEMCSCSegment,edm::ClonePolicy<io_v1::GEMCSCSegment> >" splitLevel="0"  rntupleStreamerMode="true"/>
+  <class name="edm::RangeMap<CSCDetId,edm::OwnVector<io_v1::GEMCSCSegment,edm::ClonePolicy<io_v1::GEMCSCSegment> >,edm::ClonePolicy<io_v1::GEMCSCSegment> >" splitLevel="0"/>
+  <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<io_v1::GEMCSCSegment,edm::ClonePolicy<io_v1::GEMCSCSegment> >,edm::ClonePolicy<io_v1::GEMCSCSegment> > >" splitLevel="0"/>
   <class name="GEMCSCSegmentRef" splitLevel="0"/>
 
-  <class name="GEMSegment" ClassVersion="4">
-  <version ClassVersion="4" checksum="1506093327"/>
-  <version ClassVersion="3" checksum="1513163288"/>
-  <ioread sourceClass="GEMSegment" version="[-3]" targetClass="GEMSegment" source="" target="theDeltaPhi">
-    <![CDATA[ theDeltaPhi = -10.; ]]>
-  </ioread>
+  <class name="io_v1::GEMSegment" ClassVersion="3">
+  <version ClassVersion="3" checksum="883436307"/>
   </class>
-  <class name="std::vector<GEMSegment*>" splitLevel="0"/>
-  <class name="edm::OwnVector<GEMSegment,edm::ClonePolicy<GEMSegment> >" splitLevel="0"  rntupleStreamerMode="true"/>
-  <class name="edm::RangeMap<GEMDetId,edm::OwnVector<GEMSegment,edm::ClonePolicy<GEMSegment> >,edm::ClonePolicy<GEMSegment> >" splitLevel="0"/>
-  <class name="edm::Wrapper<edm::RangeMap<GEMDetId,edm::OwnVector<GEMSegment,edm::ClonePolicy<GEMSegment> >,edm::ClonePolicy<GEMSegment> > >" splitLevel="0"/>
+  <class name="std::vector<io_v1::GEMSegment*>" splitLevel="0"/>
+  <class name="edm::OwnVector<io_v1::GEMSegment,edm::ClonePolicy<io_v1::GEMSegment> >" splitLevel="0"  rntupleStreamerMode="true"/>
+  <class name="edm::RangeMap<GEMDetId,edm::OwnVector<io_v1::GEMSegment,edm::ClonePolicy<io_v1::GEMSegment> >,edm::ClonePolicy<io_v1::GEMSegment> >" splitLevel="0"/>
+  <class name="edm::Wrapper<edm::RangeMap<GEMDetId,edm::OwnVector<io_v1::GEMSegment,edm::ClonePolicy<io_v1::GEMSegment> >,edm::ClonePolicy<io_v1::GEMSegment> > >" splitLevel="0"/>
   <class name="GEMSegmentRef" splitLevel="0"/>
 
   <class name="ME0Segment" ClassVersion="13">
@@ -63,13 +56,13 @@
 
 </selection>
 <exclusion>
-  <class name="edm::OwnVector<GEMRecHit, edm::ClonePolicy<GEMRecHit> >">
+  <class name="edm::OwnVector<io_v1::GEMRecHit, edm::ClonePolicy<io_v1::GEMRecHit> >">
     <method name="sort" splitLevel="0"/>
   </class>
   <class name="edm::OwnVector<ME0RecHit, edm::ClonePolicy<ME0RecHit> >">
     <method name="sort" splitLevel="0"/>
   </class>
-  <class name="edm::OwnVector<GEMCSCSegment, edm::ClonePolicy<GEMCSCSegment> >">
+  <class name="edm::OwnVector<io_v1::GEMCSCSegment, edm::ClonePolicy<io_v1::GEMCSCSegment> >">
     <method name="sort" splitLevel="0"/>
   </class>
   <class name="edm::OwnVector<ME0Segment, edm::ClonePolicy<ME0Segment> >">

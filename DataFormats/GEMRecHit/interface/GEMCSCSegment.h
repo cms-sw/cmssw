@@ -20,72 +20,77 @@
 
 #include <iosfwd>
 
-class GEMCSCSegment final : public RecSegment {
-public:
-  /// Default constructor
-  GEMCSCSegment() : theChi2(0.) {}
+namespace io_v1 {
 
-  /// Constructor
-  GEMCSCSegment(const CSCSegment* csc_segment,
-                const std::vector<const GEMRecHit*> gem_rhs,
-                LocalPoint origin,
-                LocalVector direction,
-                AlgebraicSymMatrix errors,
-                double chi2);
+  class GEMCSCSegment final : public RecSegment {
+  public:
+    /// Default constructor
+    GEMCSCSegment() : theChi2(0.) {}
 
-  /// Destructor
-  ~GEMCSCSegment() override;
+    /// Constructor
+    GEMCSCSegment(const CSCSegment* csc_segment,
+                  const std::vector<const GEMRecHit*> gem_rhs,
+                  LocalPoint origin,
+                  LocalVector direction,
+                  AlgebraicSymMatrix errors,
+                  double chi2);
 
-  //--- Base class interface
-  GEMCSCSegment* clone() const override { return new GEMCSCSegment(*this); }
+    /// Destructor
+    ~GEMCSCSegment() override;
 
-  LocalPoint localPosition() const override { return theOrigin; }
-  LocalError localPositionError() const override;
+    //--- Base class interface
+    GEMCSCSegment* clone() const override { return new GEMCSCSegment(*this); }
 
-  LocalVector localDirection() const override { return theLocalDirection; }
-  LocalError localDirectionError() const override;
+    LocalPoint localPosition() const override { return theOrigin; }
+    LocalError localPositionError() const override;
 
-  /// Parameters of the segment, for the track fit in the order (dx/dz, dy/dz, x, y )
-  AlgebraicVector parameters() const override;
+    LocalVector localDirection() const override { return theLocalDirection; }
+    LocalError localDirectionError() const override;
 
-  /// Covariance matrix of parameters()
-  AlgebraicSymMatrix parametersError() const override { return theCovMatrix; }
+    /// Parameters of the segment, for the track fit in the order (dx/dz, dy/dz, x, y )
+    AlgebraicVector parameters() const override;
 
-  /// The projection matrix relates the trajectory state parameters to the segment parameters().
-  AlgebraicMatrix projectionMatrix() const override;
+    /// Covariance matrix of parameters()
+    AlgebraicSymMatrix parametersError() const override { return theCovMatrix; }
 
-  double chi2() const override { return theChi2; };
+    /// The projection matrix relates the trajectory state parameters to the segment parameters().
+    AlgebraicMatrix projectionMatrix() const override;
 
-  int dimension() const override { return 4; }
+    double chi2() const override { return theChi2; };
 
-  int degreesOfFreedom() const override { return 2 * nRecHits() - 4; }
+    int dimension() const override { return 4; }
 
-  int nRecHits() const { return (theGEMRecHits.size() + theCSCSegment.specificRecHits().size()); }
+    int degreesOfFreedom() const override { return 2 * nRecHits() - 4; }
 
-  //--- Return the constituents in different ways
-  const CSCSegment cscSegment() const { return theCSCSegment; }
-  const std::vector<GEMRecHit>& gemRecHits() const { return theGEMRecHits; }
-  const std::vector<CSCRecHit2D>& cscRecHits() const { return theCSCSegment.specificRecHits(); }
-  std::vector<const TrackingRecHit*> recHits() const override;
-  std::vector<TrackingRecHit*> recHits() override;
+    int nRecHits() const { return (theGEMRecHits.size() + theCSCSegment.specificRecHits().size()); }
 
-  CSCDetId cscDetId() const { return geographicalId(); }
+    //--- Return the constituents in different ways
+    const CSCSegment cscSegment() const { return theCSCSegment; }
+    const std::vector<GEMRecHit>& gemRecHits() const { return theGEMRecHits; }
+    const std::vector<CSCRecHit2D>& cscRecHits() const { return theCSCSegment.specificRecHits(); }
+    std::vector<const TrackingRecHit*> recHits() const override;
+    std::vector<TrackingRecHit*> recHits() override;
 
-  void print() const;
+    CSCDetId cscDetId() const { return geographicalId(); }
 
-private:
-  std::vector<GEMRecHit> theGEMRecHits;  // store GEM Rechits
-  CSCSegment theCSCSegment;              // store CSC RecHits and store CSC Segment
-                                         // eventually we have to disentangle if later on we decide
-                                         // not to have a one-to-one relationship anymore
-                                         // i.e. if we allow the GEMCSC segment to modify the
-                                         // (selection of the rechits of the) CSC segment
-  LocalPoint theOrigin;                  // in chamber frame - the GeomDet local coordinate system
-  LocalVector theLocalDirection;         // in chamber frame - the GeomDet local coordinate system
-  AlgebraicSymMatrix theCovMatrix;       // the covariance matrix
-  double theChi2;
-};
+    void print() const;
 
-std::ostream& operator<<(std::ostream& os, const GEMCSCSegment& seg);
+  private:
+    std::vector<GEMRecHit> theGEMRecHits;  // store GEM Rechits
+    CSCSegment theCSCSegment;              // store CSC RecHits and store CSC Segment
+                                           // eventually we have to disentangle if later on we decide
+                                           // not to have a one-to-one relationship anymore
+                                           // i.e. if we allow the GEMCSC segment to modify the
+                                           // (selection of the rechits of the) CSC segment
+    LocalPoint theOrigin;                  // in chamber frame - the GeomDet local coordinate system
+    LocalVector theLocalDirection;         // in chamber frame - the GeomDet local coordinate system
+    AlgebraicSymMatrix theCovMatrix;       // the covariance matrix
+    double theChi2;
+  };
+
+  std::ostream& operator<<(std::ostream& os, const GEMCSCSegment& seg);
+
+}  // namespace io_v1
+using GEMCSCSegment = io_v1::GEMCSCSegment;
 
 #endif
