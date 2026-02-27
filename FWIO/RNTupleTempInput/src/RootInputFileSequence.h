@@ -9,7 +9,7 @@ in site-local-config.xml. These are accessed via FileCatalogItem iterator
 fileIter_.
 
 ----------------------------------------------------------------------*/
-
+// test line added
 #include "InputFile.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
