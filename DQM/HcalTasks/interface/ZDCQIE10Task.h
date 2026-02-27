@@ -37,12 +37,14 @@ protected:
 
   //	tags
   edm::InputTag _tagQIE10;
+  edm::InputTag _tagData;
   edm::InputTag sumTag;
   edm::InputTag sumTagUnpacked;
   edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
   edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
   edm::EDGetToken sumToken_;
   edm::EDGetToken sumTokenUnpacked_;
+  edm::EDGetToken sumTokenData_;
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
   edm::ESGetToken<HcalLongRecoParams, HcalLongRecoParamsRcd> paramsToken_;
 
@@ -64,6 +66,8 @@ protected:
   std::map<uint32_t, MonitorElement *> _cZDC_BXSUMS;
   std::map<uint32_t, MonitorElement *> _cZDC_BX_EmuSUMS;
   std::map<uint32_t, MonitorElement *> _cZDC_EmuSumTP_DataSum;
+  std::map<uint32_t, MonitorElement *> _cZDC_EmuSumTP_L1rcvdSum;
+  std::map<uint32_t, MonitorElement *> _cZDC_L1rcvdSumTP_DataSum;
   std::map<uint32_t, MonitorElement *> _cZDC_CapIDS;
   std::map<uint32_t, MonitorElement *> _cfC_EChannel;
   std::map<uint32_t, MonitorElement *> _cTDC_EChannel;
@@ -72,6 +76,11 @@ protected:
   std::map<uint32_t, MonitorElement *> _cZDC_EM_TM;
 
   std::unique_ptr<HcalLongRecoParams> longRecoParams_;
+
+  // ZDC params
+  static constexpr int kZDCAbsIEta = 42;
+  static constexpr int kZDCiEtSumsIPhi = 99;
+  static constexpr int kZDCiEtSumMaxValue = 1023;
 };
 
 #endif

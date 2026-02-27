@@ -35,7 +35,8 @@ namespace theLHCInfoPerLSImpl {
                           std::shared_ptr<LHCInfoPerLS>& prevPayload,
                           const std::map<pair<cond::Time_t, unsigned int>, pair<cond::Time_t, unsigned int>>& lsIdMap,
                           cond::Time_t startStableBeamTime,
-                          cond::Time_t endStableBeamTime) {
+                          cond::Time_t endStableBeamTime,
+                          cond::Time_t lastSince) {
     int lsMissingInPPS = 0;
     int xAngleBothZero = 0, xAngleBothNonZero = 0, xAngleNegative = 0;
     int betaNegative = 0;
@@ -46,6 +47,7 @@ namespace theLHCInfoPerLSImpl {
       bool add = false;
       auto payload = iov.second;
       cond::Time_t since = iov.first;
+      // check if payload is different from the last one added to avoid duplicates
       if (iovsToTransfer.empty()) {
         add = true;
       } else {
@@ -53,6 +55,14 @@ namespace theLHCInfoPerLSImpl {
         if (!comparePayloads(lastAdded, *payload)) {
           add = true;
         }
+      }
+      // skip payloads with IOV <= lastSince to avoid violating synchornization rules
+      if (since <= lastSince) {
+        add = false;
+        edm::LogWarning("transferPayloads")
+            << "Skipping upload of payload with IOV <= last IOV of the destination tag: "
+            << " (since=" << since << ", lastSince=" << lastSince << ")\n"
+            << *payload;
       }
       auto id = make_pair(payload->runNumber(), payload->lumiSection());
       bool stableBeam = since >= startStableBeamTime && since <= endStableBeamTime;
@@ -130,9 +140,11 @@ LHCInfoPerLSPopConSourceHandler::LHCInfoPerLSPopConSourceHandler(edm::ParameterS
       m_maxBetaStar(pset.getUntrackedParameter<double>("maxBetaStar", 100.)),
       m_minCrossingAngle(pset.getUntrackedParameter<double>("minCrossingAngle", 10.)),
       m_maxCrossingAngle(pset.getUntrackedParameter<double>("maxCrossingAngle", 500.)),
+      m_throwOnInvalid(pset.getUntrackedParameter<bool>("throwOnInvalid", false)),
       m_fillPayload(),
       m_prevPayload(),
-      m_tmpBuffer() {
+      m_tmpBuffer(),
+      m_lastPayloadEmpty(false) {
   if (!pset.getUntrackedParameter<std::string>("startTime").empty()) {
     m_startTime = boost::posix_time::time_from_string(pset.getUntrackedParameter<std::string>("startTime"));
   }
@@ -153,26 +165,27 @@ LHCInfoPerLSPopConSourceHandler::~LHCInfoPerLSPopConSourceHandler() = default;
 void LHCInfoPerLSPopConSourceHandler::getNewObjects() {
   populateIovs();
   if (!m_endFillMode) {  // duringFill mode
-    filterInvalidPayloads();
+    handleInvalidPayloads();
   }
 }
 
-void LHCInfoPerLSPopConSourceHandler::filterInvalidPayloads() {
+void LHCInfoPerLSPopConSourceHandler::handleInvalidPayloads() {
   // note: at the moment used only in duringFill mode so the m_iovs is quaranteed to have size() <= 1
   // but iterating through the whole map is implemented just in case the way it's used changes
   auto it = m_iovs.begin();
   while (it != m_iovs.end()) {
-    std::stringstream payloadData;
-    payloadData << "LS = " << it->second->lumiSection() << ", run = " << it->second->runNumber() << ", "
-                << "xAngleX = " << it->second->crossingAngleX() << " urad, "
-                << "xAngleY = " << it->second->crossingAngleY() << " urad, "
-                << "beta*X = " << it->second->betaStarX() << " m, "
-                << "beta*Y = " << it->second->betaStarY() << " m";
-    if (!isPayloadValid(*(it->second))) {
-      edm::LogWarning(m_name) << "Skipping upload of payload with invalid values: " << payloadData.str();
+    auto payload = it->second;
+    if (!isPayloadValid(*payload)) {
+      std::ostringstream msg;
+      msg << "Skipping upload of payload with invalid values: " << *payload;
+      if (m_throwOnInvalid) {
+        throw cms::Exception("LHCInfoPerLSPopConSourceHandler") << msg.str();
+      } else {
+        edm::LogWarning(m_name) << msg.str();
+      }
       m_iovs.erase(it++);  // note: post-increment necessary to avoid using invalidated iterators
     } else {
-      edm::LogInfo(m_name) << "Payload to be uploaded: " << payloadData.str();
+      edm::LogInfo(m_name) << "Payload to be uploaded: " << *payload;
       ++it;
     }
   }
@@ -234,6 +247,7 @@ void LHCInfoPerLSPopConSourceHandler::populateIovs() {
   //create the sessions
   cond::persistency::Session session = connection.createSession(m_connectionString, false);
   // fetch last payload when available
+
   if (!tagInfo().lastInterval.payloadId.empty()) {
     cond::persistency::Session session3 = dbSession();
     session3.transaction().start(true);
@@ -387,7 +401,7 @@ void LHCInfoPerLSPopConSourceHandler::populateIovs() {
     }
 
     size_t niovs = theLHCInfoPerLSImpl::transferPayloads(
-        m_tmpBuffer, m_iovs, m_prevPayload, m_lsIdMap, m_startStableBeamTime, m_endStableBeamTime);
+        m_tmpBuffer, m_iovs, m_prevPayload, m_lsIdMap, m_startStableBeamTime, m_endStableBeamTime, lastSince);
     edm::LogInfo(m_name) << "Added " << niovs << " iovs within the Fill time";
     m_tmpBuffer.clear();
     m_lsIdMap.clear();
@@ -516,6 +530,9 @@ size_t LHCInfoPerLSPopConSourceHandler::getLumiData(const cond::OMSService& oms,
   auto query = oms.query("lumisections");
   query->addOutputVars({"start_time", "run_number", "beams_stable", "lumisection_number"});
   query->filterEQ("fill_number", fillId);
+  // note: the filtering on OMS side works in precision of milliseconds but the values return by OMS have precision of seconds
+  // this makes the GT and GE behave unexpectedly
+  // (GT for 10:00:00 can return also 10:00:00 and GE can skip it depending on the milliseconds part of the value stored in OMS)
   query->filterGT("start_time", beginFillTime).filterLT("start_time", endFillTime);
   query->limit(cond::lhcInfoHelper::kLumisectionsQueryLimit);
   size_t nlumi = 0;
@@ -539,6 +556,7 @@ size_t LHCInfoPerLSPopConSourceHandler::getLumiData(const cond::OMSService& oms,
   }
   return nlumi;
 }
+
 bool LHCInfoPerLSPopConSourceHandler::getCTPPSData(cond::persistency::Session& session,
                                                    const boost::posix_time::ptime& beginFillTime,
                                                    const boost::posix_time::ptime& endFillTime) {

@@ -25,6 +25,7 @@ using namespace edm::streamer;
 RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps)
     : microSleep_(ps.getParameter<int>("microSleep")),
       frdFileVersion_(ps.getParameter<unsigned int>("frdFileVersion")),
+      dataType_(ps.getUntrackedParameter<unsigned int>("dataType")),
       writeEoR_(ps.getUntrackedParameter<bool>("writeEoR")),
       writeToOpen_(ps.getUntrackedParameter<bool>("writeToOpen")) {
   if (edm::Service<evf::FastMonitoringService>().isAvailable())
@@ -247,7 +248,8 @@ void RawEventFileWriterForBU::finishFileWrite(unsigned int ls) {
         << " and size " << perFileSize_.value();
   } else if (frdFileVersion_ == 2) {
     lseek(outfd_, 0, SEEK_SET);
-    FRDFileHeader_v2 frdFileHeader(0, perFileEventCount_.value(), (uint32_t)run_, (uint32_t)ls, perFileSize_.value());
+    FRDFileHeader_v2 frdFileHeader(
+        (uint16_t)(dataType_ & 0xffff), perFileEventCount_.value(), (uint32_t)run_, (uint32_t)ls, perFileSize_.value());
     write(outfd_, (char*)&frdFileHeader, sizeof(FRDFileHeader_v2));
     closefd();
     //move raw file from open to run directory
@@ -342,5 +344,6 @@ void RawEventFileWriterForBU::stop() {
 void RawEventFileWriterForBU::extendDescription(edm::ParameterSetDescription& desc) {
   desc.add<int>("microSleep", 0);
   desc.add<unsigned int>("frdFileVersion", 0);
+  desc.addUntracked<unsigned int>("dataType", 0)->setComment("data typw field in FRD file header v2");
   desc.addUntracked<bool>("writeEoR", true);
 }

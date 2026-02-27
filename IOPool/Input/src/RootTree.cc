@@ -430,7 +430,7 @@ namespace edm {
 
   void RootTree::getEntryForAllBranches() const {
     oneapi::tbb::this_task_arena::isolate([&]() {
-      auto guard = filePtr_->setCacheReadTemporarily(treeCache_.get(), tree_);
+      auto guard = filePtr_->setCacheReadTemporarily(rawTreeCache_.get(), tree_);
       tree_->GetEntry(entryNumber_);
     });
   }

@@ -27,7 +27,7 @@ def customizePixelTracksForTriplets(process):
                9, 0, 2, 1, 3,
                0, 5, 0, 8, 
                4, 6, 7, 9 ]
-            producer.geometry.startingPairs = [i for i in range(8)] + [13, 14, 15, 16, 17, 18, 19]
+            producer.geometry.startingPairs = [i for i in range(8)] + [13, 14, 15, 16, 17, 18]
             producer.geometry.phiCuts = [522, 730, 730, 522, 626,
                626, 522, 522, 626, 626,
                626, 522, 522, 522, 522,

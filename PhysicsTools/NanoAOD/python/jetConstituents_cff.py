@@ -58,6 +58,23 @@ jetConstituentsTask = cms.Task(finalJetsAK8PFConstituents,selectedFinalJetsAK8PF
 jetConstituentsTablesTask = cms.Task(finalPFCandidates,pfCandidatesTable,finalJetsAK8ConstituentsTable)
 
 
+def UsePuppiWeightFromValueMapForPFCandTable(process,puppiLabel="packedpuppi"):
+    process.packedPFCandidatesVarProducer = cms.EDProducer("PFCandidatesVarProducer",
+        src = cms.InputTag("packedPFCandidates"),
+        puppi_value_map = cms.InputTag(puppiLabel)
+    )
+    process.jetConstituentsTask.add(process.packedPFCandidatesVarProducer)
+
+    del process.pfCandidatesTable.variables.pt
+    del process.pfCandidatesTable.variables.mass
+
+    process.pfCandidatesTable.externalVariables = cms.PSet(
+        pt = ExtVar(cms.InputTag("packedPFCandidatesVarProducer:ptWeighted"), float, doc="Puppi-weighted pt", precision=10),
+        mass = ExtVar(cms.InputTag("packedPFCandidatesVarProducer:massWeighted"), float, doc="Puppi-weighted mass", precision=10),
+    )
+
+    return process
+
 def SaveAK4JetConstituents(process, jetCut="", jetConstCut=""):
     """
     This function can be used as a cmsDriver customization

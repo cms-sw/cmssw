@@ -493,6 +493,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
               }
               alpaka::syncBlockThreads(acc);
 
+              // Clamp fakePixels to maxFakesInModule
+              if (fakePixels > maxFakesInModule) {
+                fakePixels = maxFakesInModule;
+                alpaka::syncBlockThreads(acc);
+              }
+
             }  // if (applyDigiMorphing)
           }  // if (lastPixel > 1)
         }  // if constexpr (not isPhase2)

@@ -50,11 +50,14 @@ from Configuration.Eras.Modifier_pp_on_PbPb_run3_2024_cff import pp_on_PbPb_run3
 from Configuration.Eras.Modifier_run3_upc_2024_cff import run3_upc_2024
 (pp_on_PbPb_run3_2024 | run3_upc_2024).toModify(HcalTPGCoderULUT, FG_HF_thresholds = [16, 19])
 
-#placedholder values for 2025, copied from 2024
 from Configuration.Eras.Modifier_pp_on_PbPb_run3_2025_cff import pp_on_PbPb_run3_2025
-from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
 from Configuration.Eras.Modifier_run3_upc_2025_cff import run3_upc_2025
-(pp_on_PbPb_run3_2025 | run3_oxygen | run3_upc_2025).toModify(HcalTPGCoderULUT, FG_HF_thresholds = [14, 16])
+(pp_on_PbPb_run3_2025 | run3_upc_2025).toModify(HcalTPGCoderULUT, FG_HF_thresholds = [16, 19])
+
+from Configuration.Eras.Modifier_run3_oxygen_cff import run3_oxygen
+run3_oxygen.toModify(HcalTPGCoderULUT, FG_HF_thresholds = [14, 16])
 #add NeNe configuration
 from Configuration.Eras.Modifier_run3_neon_cff import run3_neon
 (run3_neon).toModify(HcalTPGCoderULUT, FG_HF_thresholds = [14, 12])
+
+#Starting from CMSSW_15_1_X, the FG_HF_thresholds are now controlled by the TPParameter tag in the global tag, and further modification of these settings is no longer needed

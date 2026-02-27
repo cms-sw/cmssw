@@ -119,6 +119,7 @@ def printHLTriggerEventContentCff(process):
       'hltOutputA',
       'hltOutputPhysicsCommissioning',
       'hltOutputDQM',
+      'hltOutputDQMGPUvsCPU',
       'hltOutputHLTMonitor',
       'hltOutputReleaseValidation',
     ],
@@ -138,6 +139,8 @@ def printHLTriggerEventContentCff(process):
     hltOutputMON_cff.block_hltOutputA = hltOutputMON_cff.block_hltOutputPhysicsCommissioning
   if not hasattr(hltOutputMON_cff,'block_hltOutputDQM'):
     hltOutputMON_cff.block_hltOutputDQM = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+  if not hasattr(hltOutputMON_cff,'block_hltOutputDQMGPUvsCPU'):
+    hltOutputMON_cff.block_hltOutputDQMGPUvsCPU = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
   if not hasattr(hltOutputMON_cff,'block_hltOutputHLTMonitor'):
     hltOutputMON_cff.block_hltOutputHLTMonitor = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*' ))
   if not hasattr(hltOutputMON_cff,'block_hltOutputReleaseValidation'):
@@ -147,6 +150,7 @@ def printHLTriggerEventContentCff(process):
     # the DQM and HLTMON streams have the HLT debug outputs used online
     hltOutputMON_cff.block_hltOutputA.outputCommands,
     hltOutputMON_cff.block_hltOutputDQM.outputCommands,
+    hltOutputMON_cff.block_hltOutputDQMGPUvsCPU.outputCommands,
     hltOutputMON_cff.block_hltOutputHLTMonitor.outputCommands,
     hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
   )
@@ -175,6 +179,7 @@ def printHLTriggerEventContentCff(process):
     # the DQM and HLTMON streams have the HLT debug outputs used online
     hltOutputMON_cff.block_hltOutputA.outputCommands,
     hltOutputMON_cff.block_hltOutputDQM.outputCommands,
+    hltOutputMON_cff.block_hltOutputDQMGPUvsCPU.outputCommands,
     hltOutputMON_cff.block_hltOutputHLTMonitor.outputCommands,
     hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
     # the ALCA streams have the AlCa outputs

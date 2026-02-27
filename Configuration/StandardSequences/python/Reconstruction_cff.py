@@ -320,3 +320,12 @@ reconstruction_HcalNZS = cms.Sequence(reconstruction_HcalNZSTask)
 #
 reconstruction_woCosmicMuonsTask = cms.Task(localrecoTask,globalrecoTask,highlevelrecoTask,logErrorHarvester)
 reconstruction_woCosmicMuons = cms.Sequence(reconstruction_woCosmicMuonsTask)
+
+##
+## Modify for the tau embedding methods reco sim step
+##
+from Configuration.ProcessModifiers.tau_embedding_sim_cff import tau_embedding_sim
+_tau_embedding_sim_globalreco_trackingTask = globalreco_trackingTask.copyAndExclude([offlineBeamSpotTask])
+tau_embedding_sim.toReplaceWith(globalreco_trackingTask, _tau_embedding_sim_globalreco_trackingTask)
+_tau_embedding_sim_reconstruction_pixelTrackingOnlyTask = reconstruction_pixelTrackingOnlyTask.copyAndExclude([offlineBeamSpotTask])
+tau_embedding_sim.toReplaceWith(reconstruction_pixelTrackingOnlyTask, _tau_embedding_sim_reconstruction_pixelTrackingOnlyTask)
