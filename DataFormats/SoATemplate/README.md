@@ -28,6 +28,8 @@ are supported. Scalar members are members of layout with one element, irrespecti
 Static utility functions automatically compute the byte size of a layout, taking into account all its columns and
 alignment.
 
+The number of elements per column (size) that the layout can hold is defined at construction time and is equal to its capacity.
+
 ## View
 
 Layout classes also define a `View` and `ConstView` subclass that provide access to each column and
@@ -43,6 +45,10 @@ can be used as a shortcut: `auto si = soa[index]; si.z() = si.x() + si.y();`
 
 A view can be instanciated by being passed the corresponding layout or passing from the [Metarecords subclass](#metarecords-subclass).
 This view can point to data belonging to different SoAs and thus not contiguous in memory.
+
+The View defines a method `setSize` which can be called to define a valid data range. This is useful when the 
+number of elements per coloumn is not known beforehand but only a maximum number of elements. Once the 
+number of elements is known the valid data range can be adjusted.
 
 ## Descriptor
 
