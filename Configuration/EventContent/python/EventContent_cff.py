@@ -719,6 +719,12 @@ phase2_tracker.toModify(FEVTDEBUGHLTEventContent,
                             'keep *_hltOfflinePrimaryVertices_*_*',
                         ])
 
+from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
+(phase2_tracker & ~hltPhase2LegacyTracking).toModify(FEVTDEBUGHLTEventContent,
+                                                     outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+                                                         'keep *_hltPhase2PixelTracksCAExtension_*_*',
+                                                     ])
+
 phase2_common.toModify(FEVTDEBUGHLTEventContent,
                        outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
                            'keep *_hltHGCalRecHit_*_*',

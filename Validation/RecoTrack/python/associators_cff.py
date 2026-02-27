@@ -42,6 +42,12 @@ tpToHLTpixelTrackAssociation = _trackingParticleRecoTrackAsssociation.clone(
     ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
+tpToHLTpixelTracksCAExtAssociation = _trackingParticleRecoTrackAsssociation.clone(
+    label_tr = cms.InputTag("hltPhase2PixelTracksCAExtension"),
+    associator = cms.InputTag('hltTrackAssociatorByHits'),
+    ignoremissingtrackcollection = cms.untracked.bool(True)
+)
+
 phase2_tracker.toModify(tpToHLTpixelTrackAssociation, label_tr = "hltPhase2PixelTracks")
 
 tpToHLTiter0tracksAssociation = tpToHLTpixelTrackAssociation.clone(
@@ -109,6 +115,7 @@ tpToHLTgsfTrackAssociation = tpToHLTpixelTrackAssociation.clone(
 tpToHLTtracksAssociationSequence = cms.Sequence(
     hltTrackAssociatorByHits +
     tpToHLTpixelTrackAssociation +
+    tpToHLTpixelTracksCAExtAssociation +
 #    tpToHLTiter0tracksAssociation +
     tpToHLTiter0HPtracksAssociation +
 #    tpToHLTiter1tracksAssociation +

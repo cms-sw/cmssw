@@ -8,18 +8,21 @@ from ..sequences.HLTInitialStepSequence_cfi import *
 from ..sequences.HLTItLocalRecoSequence_cfi import *
 from ..sequences.HLTOtLocalRecoSequence_cfi import *
 
-HLTTrackingSequence = cms.Sequence(HLTItLocalRecoSequence+
-                                   HLTOtLocalRecoSequence+
-                                   hltTrackerClusterCheck+
-                                   HLTPhase2PixelTracksAndVerticesSequence+
-                                   HLTInitialStepSequence+
-                                   HLTHighPtTripletStepSequence+
-                                   hltGeneralTracks)
+_HLTTrackingSequenceLegacy = cms.Sequence(
+    HLTItLocalRecoSequence
+    +HLTOtLocalRecoSequence
+    +hltTrackerClusterCheck
+    +HLTPhase2PixelTracksAndVerticesSequence
+    +HLTInitialStepSequence
+    +HLTHighPtTripletStepSequence
+    +hltGeneralTracks
+)
 
-from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
-singleIterPatatrack.toReplaceWith(HLTTrackingSequence, HLTTrackingSequence.copyAndExclude([HLTHighPtTripletStepSequence]))
+HLTTrackingSequence = _HLTTrackingSequenceLegacy.copyAndExclude([HLTHighPtTripletStepSequence])
 
 from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
-(ngtScouting & trackingLST).toReplaceWith(HLTTrackingSequence, HLTTrackingSequence.copyAndExclude([HLTHighPtTripletStepSequence]))
-(ngtScouting & ~trackingLST).toReplaceWith(HLTTrackingSequence, HLTTrackingSequence.copyAndExclude([HLTInitialStepSequence,HLTHighPtTripletStepSequence]))
+(ngtScouting & ~trackingLST).toReplaceWith(HLTTrackingSequence, HLTTrackingSequence.copyAndExclude([HLTInitialStepSequence]))
+
+from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
+hltPhase2LegacyTracking.toReplaceWith(HLTTrackingSequence, _HLTTrackingSequenceLegacy)
