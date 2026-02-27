@@ -773,11 +773,13 @@ namespace pat {
     /// dz  with respect to another point
     virtual float dz(const Point &p) const;
 
-    /// uncertainty on dz
-    float dzError() const override {
+    /// uncertainty on dsz; directly from covariance
+    float dszError() const {
       maybeUnpackCovariance();
       return sqrt((*m_.load())(4, 4));
     }
+    /// uncertainty on dz; depends on momentum
+    float dzError() const override { return dszError() * p() / pt(); }
     /// uncertainty on dxy
     float dxyError() const override {
       maybeUnpackCovariance();
@@ -976,13 +978,13 @@ namespace pat {
 
     struct PackedCovariance {
       PackedCovariance()
-          : dxydxy(0), dxydz(0), dzdz(0), dlambdadz(0), dphidxy(0), dptdpt(0), detadeta(0), dphidphi(0) {}
+          : dxydxy(0), dxydsz(0), dszdsz(0), dlambdadsz(0), dphidxy(0), dptdpt(0), detadeta(0), dphidphi(0) {}
       // 3D IP covariance
       uint16_t dxydxy;
-      uint16_t dxydz;
-      uint16_t dzdz;
+      uint16_t dxydsz;
+      uint16_t dszdsz;
       // other IP relevant elements
-      uint16_t dlambdadz;
+      uint16_t dlambdadsz;
       uint16_t dphidxy;
       // other diag elements
       uint16_t dptdpt;
