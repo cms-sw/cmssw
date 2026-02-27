@@ -51,11 +51,11 @@ process.ak4PFJetsPuppiCorrected = cms.EDProducer('CorrectedPFJetProducer',
 ###################################################################
 # Data certification GoldenJSON filtering
 ###################################################################
-#goldenJSONPath="/eos/user/c/cmsdqm/www/CAF/certification/Collisions25/Cert_Collisions2025_391658_397294_Golden.json"
-#if goldenJSONPath != "":
-#    import FWCore.PythonUtilities.LumiList as LumiList
-#    process.source.lumisToProcess = LumiList.LumiList(filename = goldenJSONPath).getVLuminosityBlockRange()
-#
+goldenJSONPath="/eos/user/c/cmsdqm/www/CAF/certification/Collisions25/Cert_Collisions2025_391658_397294_Golden.json"
+if goldenJSONPath != "":
+    import FWCore.PythonUtilities.LumiList as LumiList
+    process.source.lumisToProcess = LumiList.LumiList(filename = goldenJSONPath).getVLuminosityBlockRange()
+
 process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
                                      fileName = cms.untracked.string("OUT_step1.root"))
 
@@ -63,7 +63,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 process.p = cms.Path(
     process.ak4PFPuppiL1FastL2L3ResidualCorrectorChain+
     process.ak4PFJetsPuppiCorrected+
-    process.PFAnalyzer)
+    process.DQMOfflinePFAnalyzer)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
 

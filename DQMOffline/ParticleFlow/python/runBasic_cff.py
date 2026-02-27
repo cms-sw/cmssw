@@ -6,7 +6,6 @@ DQMOfflinePFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
     pfCandidates             = cms.InputTag("particleFlow"),
     pfJetCollection        = cms.InputTag("ak4PFJetsPuppiCorrected"),
     PVCollection             = cms.InputTag("offlinePrimaryVertices"),
-
     TriggerResultsLabel        = cms.InputTag("TriggerResults::HLT"),
     TriggerNames = cms.vstring("HLT_PFJet450"),
     puppiWeight  = cms.InputTag("puppi"),
@@ -108,6 +107,4 @@ DQMOfflinePFAnalyzer = DQMEDAnalyzer("PFAnalyzer",
                                    '[pt;20;50;100;1000]',
                                   ),
     )
-
-
 )
