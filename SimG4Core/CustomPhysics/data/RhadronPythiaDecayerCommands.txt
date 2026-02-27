@@ -1,0 +1,7 @@
+ProcessLevel:all = off
+SUSY:all = on
+RHadrons:allow = off
+1000021:mWidth = 1000.0
+1000006:mWidth = 1000.0
+RHadrons:probGluinoball = 0.1
+PartonLevel:FSR = off
