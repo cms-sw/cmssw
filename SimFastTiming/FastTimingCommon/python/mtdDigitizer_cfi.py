@@ -10,6 +10,7 @@ _barrel_MTDDigitizer = cms.PSet(
     digitizerName     = cms.string("BTLDigitizer"),
     inputSimHits      = cms.InputTag("g4SimHits:FastTimerHitsBarrel"),
     digiCollectionTag = cms.string("FTLBarrel"),
+    digiCollectionSoATag = cms.string("FTLBarrelSoA"),
     maxSimHitsAccTime = cms.uint32(100),
     premixStage1      = cms.bool(False),
     premixStage1MinCharge = cms.double(1e-4),
@@ -47,6 +48,8 @@ _barrel_MTDDigitizer = cms.PSet(
         SigmaClockGlobal          = cms.double(0.007),  # [ns], uncertainty due to the global LHC clock distribution
         SigmaClockRU              = cms.double(0.005),  # [ns], uncertainty due to clock distribution within the readout units
         CorrelationCoefficient    = cms.double(1.),     # correlation coefficient between T1 and T2 uncertainties
+        IntegrationTimeFixed      = cms.uint32(4),      # fixed integration time window for the signal charge integration in clk cycles, each cycle = 6.25ns
+
 
         PulseQParam               = cms.vdouble(-22.5, 0.0348), # pulse amplitude in ADC counts vs Npe
         PulseQResParam            = cms.vdouble(51., -0.88),    # relative amplitude resolution vs Npe

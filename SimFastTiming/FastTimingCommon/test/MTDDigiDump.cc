@@ -9,6 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"
+#include "DataFormats/FTLDigiSoA/interface/BTLDigiHostCollection.h"
 
 class MTDDigiDump : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
@@ -25,6 +26,7 @@ private:
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<BTLDigiCollection> tok_BTL_digi;
+  edm::EDGetTokenT<btldigi::BTLDigiHostCollection> tok_BTL_digi_SoA;
   edm::EDGetTokenT<ETLDigiCollection> tok_ETL_digi;
 };
 
@@ -32,6 +34,7 @@ MTDDigiDump::MTDDigiDump(const edm::ParameterSet& iConfig)
 
 {
   tok_BTL_digi = consumes<BTLDigiCollection>(edm::InputTag("mix", "FTLBarrel"));
+  tok_BTL_digi_SoA = consumes<btldigi::BTLDigiHostCollection>(edm::InputTag("mix", "FTLBarrelSoA"));
   tok_ETL_digi = consumes<ETLDigiCollection>(edm::InputTag("mix", "FTLEndcap"));
 }
 
@@ -47,6 +50,9 @@ void MTDDigiDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   edm::Handle<BTLDigiCollection> h_BTL_digi;
   iEvent.getByToken(tok_BTL_digi, h_BTL_digi);
+
+  edm::Handle<btldigi::BTLDigiHostCollection> h_BTL_digi_SoA;
+  iEvent.getByToken(tok_BTL_digi_SoA, h_BTL_digi_SoA);
 
   edm::Handle<ETLDigiCollection> h_ETL_digi;
   iEvent.getByToken(tok_ETL_digi, h_ETL_digi);
@@ -75,11 +81,20 @@ void MTDDigiDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
                   << " r/c = " << (uint32_t)sample.row() << " / " << (uint32_t)sample.column()
                   << " th = " << sample.threshold() << " mode = " << sample.mode() << std::endl;
 
-      }  // isaple loop
+      }  // isample loop
 
     }  // digi loop
 
   }  // if ( h_BTL_digi->size() > 0 )
+
+  if (h_BTL_digi_SoA->view().metadata().size() > 0) {
+    std::cout << " ----------------------------------------" << std::endl;
+    std::cout << " BTL DIGI SoA collection: " << h_BTL_digi_SoA->view().metadata().size() << "\n" << std::endl;
+
+    for (int i = 0; i < h_BTL_digi_SoA->view().metadata().size(); i++) {
+      std::cout << h_BTL_digi_SoA->view()[i] << "\n" << std::endl;
+    }
+  }  // if ( h_BTL_digi_soa->size() > 0 )
 
   // --- ETL DIGIs:
 

@@ -43,42 +43,38 @@ public:
   BTLElectronicsMapping(const BTLDetId::CrysLayout lay);
 
   // Get SiPM Channel number from crystal
-  int SiPMCh(uint32_t smodCopy, uint32_t crystal, uint32_t SiPMSide);
-  int SiPMCh(BTLDetId det, uint32_t SiPMSide);
-  int SiPMCh(uint32_t rawID, uint32_t SiPMSide);
+  int SiPMCh(uint32_t smodCopy, uint32_t crystal, uint32_t SiPMSide) const;
+  int SiPMCh(BTLDetId det, uint32_t SiPMSide) const;
+  int SiPMCh(uint32_t rawID, uint32_t SiPMSide) const;
 
-  SiPMChPair GetSiPMChPair(uint32_t smodCopy, uint32_t crystal);
-  SiPMChPair GetSiPMChPair(BTLDetId det);
-  SiPMChPair GetSiPMChPair(uint32_t rawID);
+  SiPMChPair GetSiPMChPair(uint32_t smodCopy, uint32_t crystal) const;
+  SiPMChPair GetSiPMChPair(BTLDetId det) const;
+  SiPMChPair GetSiPMChPair(uint32_t rawID) const;
 
   // Get TOFHIR Channel number from crystal
-  int TOFHIRCh(uint32_t smodCopy, uint32_t crystal, uint32_t SiPMSide);
-  int TOFHIRCh(BTLDetId det, uint32_t SiPMSide);
-  int TOFHIRCh(uint32_t rawID, uint32_t SiPMSide);
+  int TOFHIRCh(uint32_t smodCopy, uint32_t crystal, uint32_t SiPMSide) const;
+  int TOFHIRCh(BTLDetId det, uint32_t SiPMSide) const;
+  int TOFHIRCh(uint32_t rawID, uint32_t SiPMSide) const;
 
-  TOFHIRChPair GetTOFHIRChPair(uint32_t smodCopy, uint32_t crystal);
-  TOFHIRChPair GetTOFHIRChPair(BTLDetId det);
-  TOFHIRChPair GetTOFHIRChPair(uint32_t rawID);
-
+  TOFHIRChPair GetTOFHIRChPair(uint32_t smodCopy, uint32_t crystal) const;
+  TOFHIRChPair GetTOFHIRChPair(BTLDetId det) const;
+  TOFHIRChPair GetTOFHIRChPair(uint32_t rawID) const;
   // Get xtal from TOFHIR Channel number
-  int THChToXtal(uint32_t smodCopy, uint32_t THCh);
+  int THChToXtal(uint32_t smodCopy, uint32_t THCh) const;
   BTLDetId THChToBTLDetId(
-      uint32_t zside, uint32_t rod, uint32_t runit, uint32_t dmodule, uint32_t smodCopy, uint32_t THCh);
-
+      uint32_t zside, uint32_t rod, uint32_t runit, uint32_t dmodule, uint32_t smodCopy, uint32_t THCh) const;
   /** Returns TOFHIR ASIC number in construction database. */
-  int TOFHIRASIC(uint32_t dmodule, uint32_t smodCopy);
-  int TOFHIRASIC(BTLDetId det);
-  int TOFHIRASIC(uint32_t rawID);
-
+  int TOFHIRASIC(uint32_t dmodule, uint32_t smodCopy) const;
+  int TOFHIRASIC(BTLDetId det) const;
+  int TOFHIRASIC(uint32_t rawID) const;
   /** Returns FE board number */
-  int FEBoardFromDM(uint32_t dmodule);
-  int FEBoard(BTLDetId det);
-  int FEBoard(uint32_t rawID);
-
+  int FEBoardFromDM(uint32_t dmodule) const;
+  int FEBoard(BTLDetId det) const;
+  int FEBoard(uint32_t rawID) const;
   /** Returns CC board number */
-  int CCBoardFromRU(uint32_t dmodule);
-  int CCBoard(BTLDetId det);
-  int CCBoard(uint32_t rawID);
+  int CCBoardFromRU(uint32_t dmodule) const;
+  int CCBoard(BTLDetId det) const;
+  int CCBoard(uint32_t rawID) const;
 
 private:
 };
