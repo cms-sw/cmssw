@@ -9,25 +9,33 @@ public:
 
   //--------------------------------------------------------------------------
 
+  int idCat(int id);
   bool initAfterBeams() override;
   bool canVetoResonanceDecays() override { return true; }
   bool doVetoResonanceDecays(Pythia8::Event& process) override { return checkVetoResonanceDecays(process); }
   bool checkVetoResonanceDecays(const Pythia8::Event& process);
+  unsigned long int returnEventCounter() { return counter_event_; };
+  void resetEventCounter();
 
   //--------------------------------------------------------------------------
 
 private:
   bool filter_;
   bool exclusive_;
+  bool matching_;
   bool eMuAsEquivalent_;
   bool eMuTauAsEquivalent_;
   bool allNuAsEquivalent_;
   bool udscAsEquivalent_;
   bool udscbAsEquivalent_;
   bool wzAsEquivalent_;
+  unsigned long int counter_event_;
   std::set<int> mothers_;
   std::vector<int> daughters_;
+  std::vector<std::string> matchedDecays_;
 
   std::map<int, int> requestedDaughters_;
   std::map<int, int> observedDaughters_;
+  std::multiset<std::pair<int, int>> requestedDecays_;
+  std::multiset<std::pair<int, int>> remainingDecays_;
 };

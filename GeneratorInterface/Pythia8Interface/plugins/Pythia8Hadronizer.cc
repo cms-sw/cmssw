@@ -41,6 +41,7 @@ using namespace Pythia8;
 
 //decay filter hook
 #include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterHook.h"
+#include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterCounter.h"
 
 //decay filter hook
 #include "GeneratorInterface/Pythia8Interface/interface/PTFilterHook.h"
@@ -140,6 +141,8 @@ public:
 
   std::unique_ptr<GenLumiInfoHeader> getGenLumiInfoHeader() const override;
 
+  int getOverrideHEPIDWTUP() override;
+
 private:
   void doSetRandomEngine(CLHEP::HepRandomEngine *v) override { p8SetRandomEngine(v); }
   std::vector<std::string> const &doSharedResources() const override { return p8SharedResources; }
@@ -223,6 +226,26 @@ private:
 };
 
 const std::vector<std::string> Pythia8Hadronizer::p8SharedResources = {edm::SharedResourceNames::kPythia8};
+
+int Pythia8Hadronizer::getOverrideHEPIDWTUP() {
+  bool resonanceDecayFilter = ResonanceDecayFilterCounter::getInstance().getFilterBool();
+  if (resonanceDecayFilter) {
+    if (this->lheRunInfo()) {
+      int currentIDWTUP = lheRunInfo()->getHEPIDWTUP();
+      if (std::abs(currentIDWTUP) == 3) {
+        edm::LogWarning("Pythia8Interface") << "WARNING: ResonanceDecayFilter is active. Overriding HEPRUP::IDWTUP to "
+                                               "+-4 to ensure proper event weights.\n";
+        if (currentIDWTUP == 3)
+          return 4;
+        else if (currentIDWTUP == -3)
+          return -4;
+        else
+          return -999;
+      }
+    }
+  }
+  return -999;
+}
 
 Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
     : Py8InterfaceBase(params),
@@ -543,6 +566,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
   }
 
   bool resonanceDecayFilter = fMasterGen->settings.flag("ResonanceDecayFilter:filter");
+  ResonanceDecayFilterCounter::getInstance().setFilterBool(resonanceDecayFilter);
   if (resonanceDecayFilter) {
     fResonanceDecayFilterHook = std::make_shared<ResonanceDecayFilterHook>();
     (fUserHooksVector->hooks).push_back(fResonanceDecayFilterHook);
@@ -710,6 +734,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
   }
 
   bool resonanceDecayFilter = fMasterGen->settings.flag("ResonanceDecayFilter:filter");
+  ResonanceDecayFilterCounter::getInstance().setFilterBool(resonanceDecayFilter);
   if (resonanceDecayFilter) {
     fResonanceDecayFilterHook = std::make_shared<ResonanceDecayFilterHook>();
     (fUserHooksVector->hooks).push_back(fResonanceDecayFilterHook);
@@ -782,6 +807,36 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
 
 void Pythia8Hadronizer::statistics() {
   fMasterGen->stat();
+
+  // If particle decay properties have been modified and ResonanceDecayFilter is used, the BR might be incorrect
+  bool resonanceDecayFilter = ResonanceDecayFilterCounter::getInstance().getFilterBool();
+  std::vector<std::string> BR_warning_keywords = {"onMode",
+                                                  "offIfAny",
+                                                  "onIfAny",
+                                                  "onPosIfAny",
+                                                  "onNegIfAny",
+                                                  "offIfAll",
+                                                  "onIfAll",
+                                                  "onPosIfAll",
+                                                  "onNegIfAll",
+                                                  "offIfMatch",
+                                                  "onIfMatch",
+                                                  "onPosIfMatch",
+                                                  "onNegIfMatch"};
+  std::vector<std::string> readStringHistory = fMasterGen->particleData.getReadHistory();
+  bool RDFwarning_BR = false;
+  for (auto &line : readStringHistory) {
+    for (const auto &keyword : BR_warning_keywords) {
+      if (line.find(keyword) != std::string::npos) {
+        RDFwarning_BR = true;
+      }
+    }
+  }
+  if (RDFwarning_BR && resonanceDecayFilter) {
+    edm::LogPrint("Pythia8Interface")
+        << "WARNING: Particle decay properties have been modified and Resonance Decay Filter has ben used.\n"
+        << "         The Resonance Decay Filter's efficiency might not be the branching ratio.";
+  }
 
   if (fEmissionVetoHook.get()) {
     edm::LogPrint("Pythia8Interface") << "\n"
@@ -981,6 +1036,12 @@ bool Pythia8Hadronizer::hadronize() {
       double wgt = fMasterGen->info.weight(i);
       event()->weights().push_back(wgt);
     }
+  }
+
+  if (fMasterGen->settings.flag("ResonanceDecayFilter:filter")) {
+    int eventCounterValue = fResonanceDecayFilterHook->returnEventCounter();
+    ResonanceDecayFilterCounter::getInstance().setEventCounter(eventCounterValue);
+    fResonanceDecayFilterHook->resetEventCounter();
   }
 
   return true;

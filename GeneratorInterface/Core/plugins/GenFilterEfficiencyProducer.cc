@@ -27,6 +27,7 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "GeneratorInterface/Pythia8Interface/interface/ResonanceDecayFilterCounter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace genFilterEff {
@@ -120,6 +121,10 @@ void GenFilterEfficiencyProducer::produce(edm::StreamID, edm::Event& iEvent, con
     return;
   double weight = genEventScale->weight();
 
+  int eventCounterValue = ResonanceDecayFilterCounter::getInstance().getFilterBool()
+                              ? ResonanceDecayFilterCounter::getInstance().getEventCounter()
+                              : 1;
+
   auto sums = luminosityBlockCache(iEvent.getLuminosityBlock().index());
 
   unsigned int nSize = (*trigR).size();
@@ -131,8 +136,8 @@ void GenFilterEfficiencyProducer::produce(edm::StreamID, edm::Event& iEvent, con
       atomic_sum_double(sums->sumpass_w_, weight);
       atomic_sum_double(sums->sumpass_w2_, weight * weight);
 
-      atomic_sum_double(sums->sumtotal_w_, weight);
-      atomic_sum_double(sums->sumtotal_w2_, weight * weight);
+      atomic_sum_double(sums->sumtotal_w_, weight * eventCounterValue);
+      atomic_sum_double(sums->sumtotal_w2_, weight * weight * eventCounterValue);
 
       if (weight > 0) {
         sums->numEventsPassPos_++;
@@ -144,8 +149,8 @@ void GenFilterEfficiencyProducer::produce(edm::StreamID, edm::Event& iEvent, con
 
     } else  // if fail the filter
     {
-      atomic_sum_double(sums->sumtotal_w_, weight);
-      atomic_sum_double(sums->sumtotal_w2_, weight * weight);
+      atomic_sum_double(sums->sumtotal_w_, weight * eventCounterValue);
+      atomic_sum_double(sums->sumtotal_w2_, weight * weight * eventCounterValue);
 
       if (weight > 0)
         sums->numEventsTotalPos_++;
