@@ -33,6 +33,7 @@ inline bool verify(PiPos const (&pos)[N], bool ox, bool oy) {
   unsigned short xmin = 16000;
   unsigned short ymin = 16000;
   unsigned int isize = 0;
+  bool isSaturated = false;
   for (auto p : pos) {
     xmin = std::min(xmin, (unsigned short)(p.row()));
     ymin = std::min(ymin, (unsigned short)(p.col()));
@@ -40,7 +41,7 @@ inline bool verify(PiPos const (&pos)[N], bool ox, bool oy) {
     y[isize++] = p.col();
   }
   printf("pos  %d  %d,%d\n", isize, xmin, ymin);
-  SiPixelCluster clus2(isize, adc, x, y, xmin, ymin);
+  SiPixelCluster clus2(isize, adc, x, y, xmin, ymin, isSaturated);
   printf("clus2 %d  %d,%d %d,%d %s %s\n\n",
          clus2.size(),
          clus2.minPixelRow(),

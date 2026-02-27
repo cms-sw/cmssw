@@ -135,8 +135,8 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
             << "Layer/DetId/clusId " << layer << '/' << detId << '/' << ic << " size/charge " << acluster.isize << '/'
             << acluster.charge << "\n";
       // sort by row (x)
-      spc.emplace_back(acluster.isize, acluster.adc, acluster.x, acluster.y, acluster.xmin, acluster.ymin, ic);
-      spc.back().setSaturated(acluster.isSaturated);
+      spc.emplace_back(
+          acluster.isize, acluster.adc, acluster.x, acluster.y, acluster.xmin, acluster.ymin, acluster.isSaturated, ic);
       aclusters[ic].clear();
 #ifdef EDM_ML_DEBUG
       ++totClustersFilled;

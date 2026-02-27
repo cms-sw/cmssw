@@ -236,7 +236,7 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
       // the 1st occurrence (standard treatment)
       case 1:
         if (adc >= thePixelThreshold) {
-          theBuffer.set_adc(row, col, adc);
+          theBuffer.set_adc(row, col, std::min<int>(adc, std::numeric_limits<uint16_t>::max()));
           theBuffer.set_rawADC(row, col, di->adc());
           // VV: add pixel to the fake list. Only when running on digi collection
           if (di->flag() != 0)
@@ -271,7 +271,7 @@ void PixelThresholdClusterizer::copy_to_buffer(ClusterIterator begin, ClusterIte
       int col = pixel.y;
       int adc = pixel.adc;
       if (adc >= thePixelThreshold) {
-        theBuffer.add_adc(row, col, adc);
+        theBuffer.set_adc(row, col, std::min<int>(theBuffer(row, col) + adc, std::numeric_limits<uint16_t>::max()));
         if (adc >= theSeedThreshold)
           theSeeds.push_back(SiPixelCluster::PixelPos(row, col));
       }
@@ -453,8 +453,7 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
 
   }  // while accretion
 endClus:
-  SiPixelCluster cluster(cldata.isize, cldata.adc, cldata.x, cldata.y, cldata.xmin, cldata.ymin);
-  cluster.setSaturated(cldata.isSaturated);
+  SiPixelCluster cluster(cldata.isize, cldata.adc, cldata.x, cldata.y, cldata.xmin, cldata.ymin, cldata.isSaturated);
   //Here we split the cluster, if the flag to do so is set and we have found a dead or noisy pixel.
 
   if (dead_flag && doSplitClusters) {
