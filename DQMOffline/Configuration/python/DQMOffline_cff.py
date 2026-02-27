@@ -153,8 +153,6 @@ muonRecoAnalyzer_miniAOD.doMVA = cms.bool( True )
 
 DQMOfflineJetMET = cms.Sequence( jetMETDQMOfflineSource )
 
-#DQMOfflineParticleFlow = cms.Sequence( jetMETDQMOfflineSource )
-
 DQMOfflineEGamma = cms.Sequence( egammaDQMOffline )
 
 DQMOfflineTrigger = cms.Sequence( triggerOfflineDQMSource )
@@ -170,7 +168,7 @@ DQMOfflineHeavyFlavor = cms.Sequence( heavyFlavorDQMSource )
 DQMOfflinePrePOG = cms.Sequence( DQMOfflineTracking *
                                  DQMOfflineMUO *
                                  DQMOfflineJetMET *
-                                 #DQMOfflinePFAnalyzer *
+                                 DQMOfflinePFAnalyzer *
                                  DQMOfflineEGamma *
                                  DQMOfflineTrigger *
                                  DQMOfflineScoutingForRelVals *
@@ -260,8 +258,8 @@ DQMOfflineCommon = cms.Sequence( DQMOfflineDCS *
                                  DQMOfflineBeam *
                                  DQMOfflineCASTOR *
                                  DQMOfflinePhysics *
-				                 DQMOfflineTAU 
-                                 #* DQMOfflinePFAnalyzer
+				                 DQMOfflineTAU *
+                                 DQMOfflinePFAnalyzer
                                 )
 
 DQMOfflineCommonFakeHLT = cms.Sequence( DQMOfflineCommon )
@@ -321,8 +319,7 @@ from DQMOffline.Muon.miniAOD_cff import *
 from DQM.Physics.DQMTopMiniAOD_cff import *
 from DQMOffline.ParticleFlow.runMini_cff import PFAnalyzerMiniAOD 
 
-#DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*bTagMiniDQMSource*muonMonitors_miniAOD*MuonMiniAOD*DQMOfflinePF*PFAnalyzerMiniAOD)
-DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*bTagMiniDQMSource*muonMonitors_miniAOD*MuonMiniAOD*DQMOfflinePF)
+DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*bTagMiniDQMSource*muonMonitors_miniAOD*MuonMiniAOD*DQMOfflinePF*PFAnalyzerMiniAOD)
 DQMOfflineMiniAODBTagOnly = cms.Sequence(bTagMiniDQMSource)
 
 #Post sequences are automatically placed in the EndPath by ConfigBuilder if PAT is run.
