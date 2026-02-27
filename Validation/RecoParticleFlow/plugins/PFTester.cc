@@ -116,6 +116,7 @@ protected:
       {"Eta", std::make_tuple(50, -6.5, 6.5)},
       {"Phi", std::make_tuple(50, -3.5, 3.5)},
       {"Mult", std::make_tuple(200, 0., 200.)},
+	  {"Time", std::make_tuple(60, -60., 60.)},
   };
   const std::unordered_map<std::string, std::tuple<unsigned, float, float>> histoVarsSim = {
       {"En", std::make_tuple(100, 0., 100.)},
@@ -148,6 +149,10 @@ protected:
       {"Pt_Mult", std::make_tuple(100, 0., 40., 200, 0., 200.)},
       {"Mult_Eta", std::make_tuple(200, 0., 200., 50, -6.5, 6.5)},
       {"Mult_Phi", std::make_tuple(200, 0., 200., 50, -3.5, 3.5)},
+	  {"En_Time", std::make_tuple(100, 0., 100., 200, -100., 100.)},
+	  {"Eta_Time", std::make_tuple(50, -6.5, 6.5, 200, -100., 100.)},
+	  {"Phi_Time", std::make_tuple(50, -3.5, 3.5, 200, -100., 100.)},
+	  {"Mult_Time", std::make_tuple(200, 0., 200., 200, -100., 100.)},
   };
 
   std::unordered_map<std::string, std::tuple<unsigned, float, float, unsigned, float, float>> histo2dVarsSim = {
@@ -840,14 +845,15 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
   for (unsigned int recoId = 0; recoId < recoClusters.size(); ++recoId) {
     // fake and merge denominator
     h_recoClusters_["En"]->Fill(recoClusters[recoId].energy());
-    // h_recoClusters_["Pt"]->Fill(recoClusters[recoId].pt());
-    // h_recoClusters_["PtLow"]->Fill(recoClusters[recoId].pt());
     h_recoClusters_["Eta"]->Fill(recoClusters[recoId].eta());
     h_recoClusters_["Phi"]->Fill(recoClusters[recoId].phi());
     h_recoClusters_["Mult"]->Fill(recoClusters[recoId].size());
-
-	if (abs(recoClusters[recoId].eta()) > 1.35) {
-	  std::cout << "============== RECO CLUSTER ANOMALY ========= " << std::endl;
+	if constexpr (std::is_same<RecoClusterCollection, reco::PFClusterCollection>::value) {
+	  h_recoClusters_["Time"]->Fill(recoClusters[recoId].time());
+	}
+	
+	if (abs(recoClusters[recoId].eta()) > 2.) {
+	  std::cout << "============== RECO CLUSTER ANOMALY ========= " << iEvent.eventAuxiliary().event() << std::endl;
 	  std::cout << recoClusters[recoId].eta() << std::endl;
 	  std::cout << recoClusters[recoId].energy() << std::endl;
 	  for (const auto& haf : recoClusters[recoId].hitsAndFractions()) {
@@ -861,11 +867,14 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
     h2d_recoClusters_["En_Eta"]->Fill(recoClusters[recoId].energy(), recoClusters[recoId].eta());
     h2d_recoClusters_["En_Phi"]->Fill(recoClusters[recoId].energy(), recoClusters[recoId].phi());
     h2d_recoClusters_["En_Mult"]->Fill(recoClusters[recoId].energy(), recoClusters[recoId].size());
-    // h2d_recoClusters_["Pt_Eta"]->Fill(recoClusters[recoId].pt(), recoClusters[recoId].eta());
-    // h2d_recoClusters_["Pt_Phi"]->Fill(recoClusters[recoId].pt(), recoClusters[recoId].phi());
-    // h2d_recoClusters_["Pt_Mult"]->Fill(recoClusters[recoId].pt(), recoClusters[recoId].size());
     h2d_recoClusters_["Mult_Eta"]->Fill(recoClusters[recoId].size(), recoClusters[recoId].eta());
     h2d_recoClusters_["Mult_Phi"]->Fill(recoClusters[recoId].size(), recoClusters[recoId].phi());
+	if constexpr (std::is_same<RecoClusterCollection, reco::PFClusterCollection>::value) {
+	  h2d_recoClusters_["En_Time"]->Fill(recoClusters[recoId].energy(), recoClusters[recoId].time());
+	  h2d_recoClusters_["Eta_Time"]->Fill(recoClusters[recoId].eta(), recoClusters[recoId].time());
+	  h2d_recoClusters_["Phi_Time"]->Fill(recoClusters[recoId].phi(), recoClusters[recoId].time());
+	  h2d_recoClusters_["Mult_Time"]->Fill(recoClusters[recoId].size(), recoClusters[recoId].time());
+	}
 
     const edm::Ref<RecoClusterCollection> recoClusterRef(RecoCluster, recoId);
     const auto& recoToSimIt = recoToSimAssoc.find(recoClusterRef);
@@ -917,8 +926,6 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
       // fake numerator
       if (nSimMatchedToOneReco > 0) {
         h_recoClustersMatchedSimClusters_[ithr]["En"]->Fill(recoClusters[recoId].energy());
-        // h_recoClustersMatchedSimClusters_[ithr]["Pt"]->Fill(recoClusters[recoId].pt());
-        // h_recoClustersMatchedSimClusters_[ithr]["PtLow"]->Fill(recoClusters[recoId].pt());
         h_recoClustersMatchedSimClusters_[ithr]["Eta"]->Fill(recoClusters[recoId].eta());
         h_recoClustersMatchedSimClusters_[ithr]["Phi"]->Fill(recoClusters[recoId].phi());
         h_recoClustersMatchedSimClusters_[ithr]["Mult"]->Fill(recoClusters[recoId].size());
@@ -929,25 +936,32 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
                                                                   recoClusters[recoId].phi());
         h2d_recoClustersMatchedSimClusters_[ithr]["En_Mult"]->Fill(recoClusters[recoId].energy(),
                                                                    recoClusters[recoId].size());
-        // h2d_recoClustersMatchedSimClusters_[ithr]["Pt_Eta"]->Fill(recoClusters[recoId].pt(),
-        //                                                           recoClusters[recoId].eta());
-        // h2d_recoClustersMatchedSimClusters_[ithr]["Pt_Phi"]->Fill(recoClusters[recoId].pt(),
-        //                                                           recoClusters[recoId].phi());
-        // h2d_recoClustersMatchedSimClusters_[ithr]["Pt_Mult"]->Fill(recoClusters[recoId].pt(),
-        //                                                            recoClusters[recoId].size());
         h2d_recoClustersMatchedSimClusters_[ithr]["Mult_Eta"]->Fill(recoClusters[recoId].size(),
                                                                     recoClusters[recoId].eta());
         h2d_recoClustersMatchedSimClusters_[ithr]["Mult_Phi"]->Fill(recoClusters[recoId].size(),
                                                                     recoClusters[recoId].phi());
 
-        // merge numerator
+		if constexpr (std::is_same<RecoClusterCollection, reco::PFClusterCollection>::value) {
+		  h_recoClustersMatchedSimClusters_[ithr]["Time"]->Fill(recoClusters[recoId].time());
+		  h2d_recoClustersMatchedSimClusters_[ithr]["En_Time"]->Fill(recoClusters[recoId].energy(),
+																	 recoClusters[recoId].time());
+		  h2d_recoClustersMatchedSimClusters_[ithr]["Eta_Time"]->Fill(recoClusters[recoId].eta(),
+																	  recoClusters[recoId].time());
+		  h2d_recoClustersMatchedSimClusters_[ithr]["Phi_Time"]->Fill(recoClusters[recoId].phi(),
+																	  recoClusters[recoId].time());
+		  h2d_recoClustersMatchedSimClusters_[ithr]["Mult_Time"]->Fill(recoClusters[recoId].size(),
+																	   recoClusters[recoId].time());		  
+		}
+
+		// merge numerator
         if (nSimMatchedToOneReco > 1) {
           h_recoClustersMultiMatchedSimClusters_[ithr]["En"]->Fill(recoClusters[recoId].energy());
-          // h_recoClustersMultiMatchedSimClusters_[ithr]["Pt"]->Fill(recoClusters[recoId].pt());
-          // h_recoClustersMultiMatchedSimClusters_[ithr]["PtLow"]->Fill(recoClusters[recoId].pt());
           h_recoClustersMultiMatchedSimClusters_[ithr]["Eta"]->Fill(recoClusters[recoId].eta());
           h_recoClustersMultiMatchedSimClusters_[ithr]["Phi"]->Fill(recoClusters[recoId].phi());
           h_recoClustersMultiMatchedSimClusters_[ithr]["Mult"]->Fill(recoClusters[recoId].size());
+		  if constexpr (std::is_same<RecoClusterCollection, reco::PFClusterCollection>::value) {
+			h_recoClustersMultiMatchedSimClusters_[ithr]["Time"]->Fill(recoClusters[recoId].time());
+		  }
         }
       }
 
@@ -1013,21 +1027,21 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
           passMatch = shared_energy_frac > thresh;
         }
 
-		std::cout << "===============================" << std::endl;
-		std::cout << "matchByScore? " << doMatchByScore_ << std::endl;
-		std::cout << "passMatch: " << passMatch << ", recoId: " << recoId << std::endl;
-		std::cout << "sim en: " << energySumSimHits << ", reco en: " << recoClusters[recoId].energy() << std::endl;
-		std::cout << "sim en frac: " << recoEnergyWeightedBySimFrac << std::endl;
-		std::cout << "sim eta: " << simClusters[simId].eta() << ", reco eta: " << recoClusters[recoId].eta()  << ", sim track eta: " << simTrackEtaAtBoundary << std::endl;
-		std::cout << "sim phi: " << simClusters[simId].phi() << ", reco phi: " << recoClusters[recoId].phi() << std::endl;
-		std::cout << "score: " << recoPair.second.second << std::endl;
-		std::cout << "shared en frac: " << recoPair.second.first / energySumSimHits << std::endl;
-		std::cout << "n sim clusters: " << simClusters.size() << std::endl;
-		std::cout << "n matched reco clusters: " << simToRecoMatchedSorted.size() << std::endl;
-		for (const auto& recoPairDebug : simToRecoMatchedSorted) {
-		  std::cout << "- score: " << recoPairDebug.second.second << ", share en frac: " << recoPairDebug.second.first / energySumSimHits << ", en: " << recoClusters[recoPairDebug.first.index()].energy() << std::endl;
-		}
-		std::cout << "threshold: " << thresh << std::endl;
+		// std::cout << "===============================" << std::endl;
+		// std::cout << "matchByScore? " << doMatchByScore_ << std::endl;
+		// std::cout << "passMatch: " << passMatch << ", recoId: " << recoId << std::endl;
+		// std::cout << "sim en: " << energySumSimHits << ", reco en: " << recoClusters[recoId].energy() << std::endl;
+		// std::cout << "sim en frac: " << recoEnergyWeightedBySimFrac << std::endl;
+		// std::cout << "sim eta: " << simClusters[simId].eta() << ", reco eta: " << recoClusters[recoId].eta()  << ", sim track eta: " << simTrackEtaAtBoundary << std::endl;
+		// std::cout << "sim phi: " << simClusters[simId].phi() << ", reco phi: " << recoClusters[recoId].phi() << std::endl;
+		// std::cout << "score: " << recoPair.second.second << std::endl;
+		// std::cout << "shared en frac: " << recoPair.second.first / energySumSimHits << std::endl;
+		// std::cout << "n sim clusters: " << simClusters.size() << std::endl;
+		// std::cout << "n matched reco clusters: " << simToRecoMatchedSorted.size() << std::endl;
+		// for (const auto& recoPairDebug : simToRecoMatchedSorted) {
+		//   std::cout << "- score: " << recoPairDebug.second.second << ", share en frac: " << recoPairDebug.second.first / energySumSimHits << ", en: " << recoClusters[recoPairDebug.first.index()].energy() << std::endl;
+		// }
+		// std::cout << "threshold: " << thresh << std::endl;
 		for (auto hae : simClusters[simId].hits_and_energies()) {
 		  DetId idid(hae.first);
 		  if(idid.det() != DetId::Ecal) {
@@ -1067,8 +1081,7 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
           h2d_responseE_[ithr]["Pt"]->Fill(simClusters[simId].pt(), recoClusters[recoId].energy() / energySumSimHits);
           h2d_responseE_[ithr]["Eta"]->Fill(simTrackEtaAtBoundary, recoClusters[recoId].energy() / energySumSimHits);
           h2d_responseE_[ithr]["Phi"]->Fill(simClusters[simId].phi(), recoClusters[recoId].energy() / energySumSimHits);
-          h2d_responseE_[ithr]["Mult"]->Fill(simClusters[simId].numberOfRecHits(),
-                                             recoClusters[recoId].energy() / energySumSimHits);
+          h2d_responseE_[ithr]["Mult"]->Fill(simClusters[simId].numberOfRecHits(), recoClusters[recoId].energy() / energySumSimHits);
 		  std::cout << "fill response: " << recoClusters[recoId].energy() / energySumSimHits << std::endl;
 		  std::cout << "============== break =================" << std::endl;
           break;
