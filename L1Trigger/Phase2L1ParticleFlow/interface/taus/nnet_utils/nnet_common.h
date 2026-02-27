@@ -11,6 +11,8 @@
 #define STRINGIFY(x) #x
 #define EXPAND_STRING(x) STRINGIFY(x)
 
+namespace hls4ml_nnpuppitau_v0 {
+
 namespace nnet {
 
   // Common type definitions
@@ -48,5 +50,7 @@ namespace nnet {
   };
 
 }  // namespace nnet
+
+}  // namespace hls4ml_nnpuppitau_v0
 
 #endif
