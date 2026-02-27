@@ -227,6 +227,7 @@
 #include "CondFormats/HcalObjects/interface/HcalGains.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalPFCuts.h"
+#include "CondFormats/HcalObjects/interface/HcalPulseDelays.h"
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObjects.h"
 #include "CondFormats/HcalObjects/interface/HcalLUTCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalLongRecoParams.h"
