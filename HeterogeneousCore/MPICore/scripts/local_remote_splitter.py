@@ -27,11 +27,11 @@ Required arguments:
 Optional arguments:
     -ol, --output-local
         Path to the output configuration for the local process.
-        (default: splitted_config/local_split.py)
+        (default: local.py)
 
     -or, --output-remote
         Path to the output configuration for the remote process.
-        (default: splitted_config/remote_split.py)
+        (default: remote.py)
 
     --duplicate-modules
         List of module labels that must run on both local and remote
@@ -293,21 +293,26 @@ def main():
     
 
 
-    per_group_remote_captures = []
+    per_group_remote_captures = [[] for _ in range(len(groups))]
     
     # send the results from remote to local
     for group_idx, group in enumerate(modules_to_send):
+        if len(group)==0:
+            continue
 
         remote_capture_name = f"PathStateCaptureGroup{group_idx}"
         setattr(remote_process, remote_capture_name, cms.EDProducer("PathStateCapture"))
-        per_group_remote_captures.append(remote_capture_name)
+        per_group_remote_captures[group_idx].append(remote_capture_name)
         
         for i, offloaded_module in enumerate(group):
             if i == 0:
                 # First sender in the group has to depend on source 
                 sender_upstream=mpi_path_modules_remote[0]
-                # First receiver on local depend on the last sender from group
-                receiver_upstream = local_sender_by_group[group_idx][-1]
+                # First receiver on local depend on the last sender from group or on local controller
+                if len(local_sender_by_group[group_idx]) != 0:
+                    receiver_upstream = local_sender_by_group[group_idx][-1]
+                else:
+                    receiver_upstream = "mpiController"
             else:
                 sender_upstream=mpi_path_modules_remote[-1]
                 receiver_upstream=mpi_path_modules_local[-1]
@@ -351,7 +356,7 @@ def main():
     make_new_path(local_process, "Offload", mpi_path_modules_local)
     make_new_path(remote_process, "MPIPath", mpi_path_modules_remote)
     for i, group in enumerate(groups):
-        make_new_path(remote_process, "RemoteOffloadedSequence"+str(i), remote_filters_by_group[i]+group+[per_group_remote_captures[i]])
+        make_new_path(remote_process, "RemoteOffloadedSequence"+str(i), remote_filters_by_group[i]+group+per_group_remote_captures[i])
 
     # dump the 2 processes into files
 

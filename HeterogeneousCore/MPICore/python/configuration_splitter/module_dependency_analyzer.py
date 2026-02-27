@@ -1,5 +1,6 @@
 from collections import defaultdict, deque
 from typing import Dict, Set, List
+from itertools import chain
 
 import FWCore.ParameterSet.Config as cms
 
@@ -38,7 +39,7 @@ class ModuleDependencyAnalyzer:
         """
         Core extraction of dependencies based on input tags (DONE ONCE)
         """
-        for name in self.process.producers_():
+        for name in chain(self.process.producers_().keys(), self.process.analyzers_().keys()):
             mod = getattr(self.process, name)
 
             for param in mod.parameters_().values():
