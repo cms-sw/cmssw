@@ -703,7 +703,13 @@ if __name__ == '__main__':
                 num=f'{subdir}/RecoClustersMatchedSimClustersMult', legnum='Matched RecoClusters', 
                 xtitle='Multiplicity', ytitle=nPFClustersLabel, rebin=4,
             ),
-            # Cluster merge rate (WIP)
+            f'{subdir}/Fake_vs_Time': InputArgs(
+                ratio=f'{subdir}/Fake_vs_Time', 
+                den=f'RecoClustersTime', legden='RecoClusters',
+                num=f'{subdir}/RecoClustersMatchedSimClustersTime', legnum='Matched RecoClusters', 
+                xtitle='Time [ns]', ytitle=nPFClustersLabel, rebin=4, logy=True,
+            ),
+            # Cluster merge rate
             f'{subdir}/Merge_vs_En': InputArgs(
                 ratio=f'{subdir}/Merge_vs_En', 
                 den=f'RecoClustersEn', legden='RecoClusters',
@@ -731,6 +737,12 @@ if __name__ == '__main__':
                 ratio=f'{subdir}/Merge_vs_Mult', 
                 den=f'RecoClustersMult', legden='RecoClusters',
                 num=f'{subdir}/RecoClustersMultiMatchedSimClustersMult', legnum='Multi Matched RecoClusters', 
+                xtitle='Multiplicity', ytitle=nPFClustersLabel, rebin=4
+            ),
+            f'{subdir}/Merge_vs_Time': InputArgs(
+                ratio=f'{subdir}/Merge_vs_Time', 
+                den=f'RecoClustersTime', legden='RecoClusters',
+                num=f'{subdir}/RecoClustersMultiMatchedSimClustersTime', legnum='Multi Matched RecoClusters', 
                 xtitle='Multiplicity', ytitle=nPFClustersLabel, rebin=4
             ),
         }
@@ -770,6 +782,7 @@ if __name__ == '__main__':
         "Fake_vs_Eta"                   : InputArgs(ytitle=titles['fake'], xtitle=r'$\eta$'),
         "Fake_vs_Phi"                   : InputArgs(ytitle=titles['fake'], xtitle=r'$\phi$'),
         "Fake_vs_Mult"                  : InputArgs(ytitle=titles['fake'], rebin=4, xtitle='Multiplicity'),
+        "Fake_vs_Time"                  : InputArgs(ytitle=titles['fake'], rebin=4, xtitle='Time [ns]'),
         "Merge_vs_En"                   : InputArgs(ytitle=titles['merge'], rebin=4, xtitle='Energy [GeV]'),
         "Merge_vs_Pt"                   : InputArgs(ytitle=titles['merge'], rebin=4, xtitle='$p_{T} [GeV]$'),
         "Merge_vs_Eta"                  : InputArgs(ytitle=titles['merge'], xtitle=r'$\eta$'),
@@ -890,6 +903,7 @@ if __name__ == '__main__':
             plotOverlay(subdirs, cached_histos, fitstr.format('Width'), args.match_by_score, args.sample_label, args.era, props, outdir=args.odir)
 
     vars2D = {
+        # Clusters
         'SimClustersEnFrac_Mult': dict(ytitle='Multiplicity', var='# Sim Clusters', xtitle='Energy Fraction'),
         'SimClustersEn_Mult': dict(ytitle='Multiplicity', var='# Sim Clusters', xtitle='Energy [GeV]'),
         'SimClustersEn_Eta': dict(ytitle=r'$\eta$', var='# Sim Clusters', xtitle='Energy [GeV]'),
@@ -899,6 +913,37 @@ if __name__ == '__main__':
         'RecoClustersEn_Eta': dict(ytitle=r'$\eta$', var='# Reco Clusters', xtitle='Energy [GeV]', logz=True),
         'RecoClustersEn_Phi': dict(ytitle=r'$\phi$', var='# Reco Clusters', xtitle='Energy [GeV]', logz=True),
         'RecoClustersMult_Eta': dict(xtitle='Multiplicity', var='# Reco Clusters', ytitle=r'$\eta$'),
+        'RecoClustersEn_Time': dict(xtitle='Energy [GeV]', var='# Reco Clusters', ytitle='Time [ns]', logz=True),
+        'RecoClustersEta_Time': dict(xtitle=r'$\eta$', var='# Reco Clusters', ytitle='Time [ns]', logz=True),
+        'RecoClustersPhi_Time': dict(xtitle=r'$\phi$', var='# Reco Clusters', ytitle='Time [ns]', logz=True),
+        'RecoClustersMult_Time': dict(xtitle=r'Multiplicity', var='# Reco Clusters', ytitle='Time [ns]', logz=True),
+        # Hits in Clusters
+        'RecoHitsInClustersEn_Eta': dict(xtitle='Energy [GeV]', ytitle=r'$\eta$', var='# Reco Hits in Clusters'),
+        'RecoHitsInClustersEn_Phi': dict(xtitle='Energy [GeV]', ytitle=r'$\phi$', var='# Reco Hits in Clusters'),
+        'RecoHitsInClustersEta_Phi': dict(xtitle=r'$\eta$', ytitle=r'$\phi$', var='# Reco Hits in Clusters'),
+        'RecoHitsInClustersEn_Time': dict(xtitle='Energy [GeV]', ytitle=r'Time [ns]', var='# Reco Hits in Clusters'),
+        'RecoHitsInClustersEta_Time': dict(xtitle=r'$\eta$', ytitle=r'Time [ns]', var='# Reco Hits in Clusters'),
+        'RecoHitsInClustersPhi_Time': dict(xtitle=r'$\phi$', ytitle=r'Time [ns]', var='# Reco Hits in Clusters'),
+        # Matched
+        **{f'{subdir}/RecoClustersMatchedSimClustersEn_Eta': dict(
+            xtitle='Energy [GeV]', var='# Matched Reco Clusters', ytitle=r'$\eta$', logz=True
+        ) for subdir in subdirs},
+        **{f'{subdir}/RecoClustersMatchedSimClustersEn_Phi': dict(
+            xtitle='Energy [GeV]', var='# Matched Reco Clusters', ytitle=r'$\phi$', logz=True
+        ) for subdir in subdirs},
+        **{f'{subdir}/RecoClustersMatchedSimClustersEn_Time': dict(
+            xtitle='Energy [GeV]', var='# Matched Reco Clusters', ytitle='Time [ns]', logz=True
+        ) for subdir in subdirs},
+        **{f'{subdir}/RecoClustersMatchedSimClustersEta_Time':  dict(
+            xtitle=r'$\eta$', var='# Matched Reco Clusters', ytitle='Time [ns]', logz=True
+        ) for subdir in subdirs},
+        **{f'{subdir}/RecoClustersMatchedSimClustersPhi_Time':  dict(
+            xtitle=r'$\phi$', var='# Matched Reco Clusters', ytitle='Time [ns]', logz=True
+        ) for subdir in subdirs},
+        **{f'{subdir}/RecoClustersMatchedSimClustersMult_Time': dict(
+            xtitle='Multiplicity', var='# Matched Reco Clusters', ytitle='Time [ns]', logz=True
+        ) for subdir in subdirs},
+        # Score
         'simToRecoScore_En': dict(ytitle='SimCluster Energy [GeV]', var='# Clusters', xtitle='SimToReco Score'),
         'simToRecoScore_EnFrac': dict(ytitle='Energy Fraction', var='# Clusters', xtitle='SimToReco Score'),
         'simToRecoScore_EnSimTrack': dict(ytitle='SimTrack Energy [GeV]', var='# Clusters', xtitle='SimToReco Score'),
