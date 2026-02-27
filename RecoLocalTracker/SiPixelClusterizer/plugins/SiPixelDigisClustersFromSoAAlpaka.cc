@@ -1,4 +1,5 @@
 #include <memory>
+#include <unordered_set>
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -159,6 +160,7 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
 #ifdef GPU_DEBUG
   std::cout << "Dumping all digis. nDigis = " << nDigis << std::endl;
 #endif
+  std::unordered_set<uint32_t> processedDetIds;
   for (uint32_t i = 0; i < nDigis; i++) {
     // check for uninitialized digis
     if (digisView[i].rawIdArr() == 0)
@@ -183,12 +185,17 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
 #ifdef EDM_ML_DEBUG
     assert(digisView[i].rawIdArr() > 109999);
 #endif
+    // Check if detId has already been processed
+    if (processedDetIds.find(detId) != processedDetIds.end()) {
+      continue;  // Skip processing this detId if it has already been handled
+    }
     if (detId != digisView[i].rawIdArr()) {
 #ifdef GPU_DEBUG
       std::cout << ">> Closed module --" << detId << "; nclus = " << nclus << std::endl;
 #endif
       // new module
       fillClusters(detId);
+      processedDetIds.insert(detId);
 #ifdef EDM_ML_DEBUG
       assert(nclus == -1);
 #endif
@@ -223,8 +230,8 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
     aclusters[digisView[i].clus()].add(pix, digisView[i].adc());
   }
 
-  // fill final clusters
-  if (detId > 0)
+  // fill final clusters (if not already filled for that ID)
+  if (detId > 0 && processedDetIds.find(detId) == processedDetIds.end())
     fillClusters(detId);
 
 #ifdef EDM_ML_DEBUG
