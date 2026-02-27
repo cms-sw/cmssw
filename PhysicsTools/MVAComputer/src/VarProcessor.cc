@@ -39,11 +39,6 @@ namespace PhysicsTools {
   VarProcessor::VarProcessor(const char *name, const Calibration::VarProcessor *calib, const MVAComputer *computer)
       : computer(computer), inputVars(Calibration::convert(calib->inputVars)), nInputVars(inputVars.bits()) {}
 
-  VarProcessor::~VarProcessor() {
-    inputVars = BitSet(0);
-    nInputVars = 0;
-  }
-
   void VarProcessor::configure(ConfigCtx &config) {
     ConfigCtx::size_type pos = config.size();
     if (pos != inputVars.size())
