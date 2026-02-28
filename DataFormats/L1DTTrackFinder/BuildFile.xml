@@ -2,4 +2,5 @@
 <use name="DataFormats/L1GlobalMuonTrigger"/>
 <export>
   <lib name="1"/>
+  <lib name="DataFormatsL1DTTrackFinder"/>
 </export>
