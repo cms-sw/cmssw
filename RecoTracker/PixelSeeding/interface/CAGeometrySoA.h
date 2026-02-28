@@ -43,6 +43,9 @@ namespace reco {
   GENERATE_SOA_LAYOUT(CAGraphLayout,
                       SOA_COLUMN(GraphNode, graph),
                       SOA_COLUMN(bool, startingPair),
+                      // effectively skipsLayers is a boolean but it's used as an index offset,
+                      // therefore stored as same type as the layerPairId in CACell
+                      SOA_COLUMN(int16_t, skipsLayers),
                       SOA_COLUMN(int16_t, phiCuts),
                       SOA_COLUMN(float, minInner),
                       SOA_COLUMN(float, maxInner),
