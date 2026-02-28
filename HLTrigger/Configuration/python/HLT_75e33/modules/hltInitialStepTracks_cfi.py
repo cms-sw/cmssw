@@ -25,23 +25,13 @@ from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
 (~singleIterPatatrack & trackingLST & seedingLST).toModify(hltInitialStepTracks, src = "hltInitialStepTrackCandidates:nopLSTCsLST")
 
 _hltInitialStepTracksMkFitFit = cms.EDProducer("MkFitOutputTrackConverter",
-    measurementTrackerEvent = cms.InputTag("hltMeasurementTrackerEvent"),
-    mightGet = cms.optional.untracked.vstring,
     mkFitEventOfHits = cms.InputTag("hltMkFitEventOfHits"),
     mkFitPixelHits = cms.InputTag("hltMkFitSiPixelHits"),
-    mkFitSeeds = cms.InputTag("hltInitialStepMkFitSeeds"),
     mkFitStripHits = cms.InputTag("hltMkFitSiPhase2Hits"),
-    propagatorAlong = cms.ESInputTag("","PropagatorWithMaterial"),
-    propagatorOpposite = cms.ESInputTag("","PropagatorWithMaterialOpposite"),
-    qualityMaxInvPt = cms.double(100),
-    qualityMaxPosErr = cms.double(100),
-    qualityMaxR = cms.double(120),
-    qualityMaxZ = cms.double(280),
-    qualityMinTheta = cms.double(0.01),
-    qualitySignPt = cms.bool(True),
-    seeds = cms.InputTag("hltInitialStepSeeds"),
+    mkFitSeeds = cms.InputTag("hltInitialStepMkFitSeeds"),
     src = cms.InputTag("hltInitialStepTrackCandidatesMkFitFit"),
-    ttrhBuilder = cms.ESInputTag("","WithTrackAngle")
+    seeds = cms.InputTag("hltInitialStepSeeds"),
+    measurementTrackerEvent = cms.InputTag("hltMeasurementTrackerEvent")
 )
 
 _hltInitialStepTracksMkFitFitLSTSeeds = _hltInitialStepTracksMkFitFit.clone(seeds = "hltInitialStepTrajectorySeedsLST")

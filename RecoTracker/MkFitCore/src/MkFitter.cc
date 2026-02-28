@@ -5,7 +5,6 @@
 
 //#define DEBUG
 //#define DEBUG_FIT
-//#define DEBUG_FITi
 //#define DEBUG_FIT_BKW
 #include "Debug.h"
 
@@ -138,9 +137,12 @@ namespace mkfit {
       std::vector<std::pair<float, float>> r2z;
       std::vector<int> indices;
 
+      float minR2 = 1700000;
+      float z_minR = 0;
+
       int local_m = m_CurHit[i];
       while (local_m >= 0) {
-#ifdef DEBUG_FITi
+#ifdef DEBUG_FIT
         std::cout << " i layer " << m_HoTArr[i][local_m].layer << " i index " << m_HoTArr[i][local_m].index
                   << std::endl;
 #endif
@@ -162,44 +164,23 @@ namespace mkfit {
           int sign = L.is_barrel() > 0 ? 1 : -1;
           r2z.push_back(std::make_pair(sign * R2, z));
           indices.push_back(local_m);
+          if (R2 < minR2) {
+            minR2 = R2;
+            z_minR = z;
+          }
         }
         local_m--;
       }
       //continue working with the track
-      std::vector<int> sorted_indices;
-      float z0 = r2z.back().second;
-      bool barrel_prev = false;
       std::map<float, std::vector<int>> index_RorZ;
-
-      for (int i = 0; i < (int)indices.size(); i++) {
-        bool barrel = r2z[i].first > 0;
-        float sorting;
-#ifdef DEBUG_FIT
-        std::cout << "R2 " << r2z[i].first << " z " << r2z[i].second << " z0 " << z0 << std::endl;
-#endif
-        if (barrel)
-          sorting = -std::fabs(r2z[i].first);
-        else
-          sorting = -std::fabs(r2z[i].second - z0);
-
-        if (i == 0) {
-          index_RorZ[sorting].push_back(indices[i]);
-        } else {
-          if (barrel == barrel_prev)  //add to segment in barrel or endcap
-          {
-            index_RorZ[sorting].push_back(indices[i]);
-          } else  //switch barrel to endcap
-          {
-            for (const auto &iRZ : index_RorZ)
-              for (auto iiRZ : iRZ.second)
-                sorted_indices.push_back(iiRZ);                      //push back indices sorted for segment
-            index_RorZ.erase(index_RorZ.begin(), index_RorZ.end());  //empty the map
-            index_RorZ[sorting].push_back(indices[i]);               //start new segment
-          }
-        }
-        barrel_prev = barrel;
+      std::vector<int> sorted_indices;
+      for (int i = 0; i < (int)r2z.size(); i++) {
+        float r2 = r2z[i].first > 0 ? r2z[i].first : -r2z[i].first;
+        float z = r2z[i].second - z_minR;
+        //        std::cout << "SORTING by 3dR" << "R2 " << r2z[i].first << " z " << r2z[i].second << " z0 " << z_minR << " check "<< -r2 - z*z <<std::endl;
+        index_RorZ[-r2 - z * z].push_back(indices[i]);
       }
-      for (const auto &iRZ : index_RorZ)  //final segment
+      for (const auto &iRZ : index_RorZ)  //one segment
         for (auto iiRZ : iRZ.second)
           sorted_indices.push_back(iiRZ);
 
@@ -211,9 +192,9 @@ namespace mkfit {
         for (auto ii : sorted_indices) {
           std::cout << " indices ssii " << ii << std::endl;
         }
-        for (int i = 0; i < (int)indices.size(); i++) {
-          std::cout << "R2 " << r2z[i].first << " z " << r2z[i].second << " z0 " << z0 << std::endl;
-        }
+        //         for (int i = 0; i < (int)indices.size(); i++) {
+        //           std::cout << "R2 " << r2z[i].first << " z " << r2z[i].second << " z0 " << z0 << std::endl;
+        //         }
       }
 #ifdef DEBUG_FIT
       std::cout << " check_size " << (indices.size() == sorted_indices.size()) << std::endl;
@@ -319,25 +300,13 @@ namespace mkfit {
           std::cout << "pnt[0] " << pnt(i, 0, 0) << " pnt[1] " << pnt(i, 1, 0) << " pnt[2] " << pnt(i, 2, 0)
                     << std::endl;
           std::cout << "at the track " << i << " / " << N_proc << " check the material " << std::endl;
-#endif
-          if (hitIndex[i] < (int)indices.size() &&
-              m_HoTArr[i][index].layer == m_HoTArr[i][indices[hitIndex[i]]].layer) {
-            no_mat_effs[i] = 1;
-#ifdef DEBUG_FIT
-            std::cout << "at the hit " << index << " Remove the material because it was applied in hit "
-                      << indices[hitIndex[i]] << std::endl;
+          std::cout << "at the hit " << index << " Don't remove the material" << std::endl;
+          if (hitIndex[i] < (int)indices.size())
             std::cout << "layers are " << m_HoTArr[i][index].layer << " and  "
                       << m_HoTArr[i][indices[hitIndex[i]]].layer << std::endl;
 #endif
-          }
-#ifdef DEBUG_FIT
-          else {
-            std::cout << "at the hit " << index << " Don't remove the material" << std::endl;
-            if (hitIndex[i] < (int)indices.size())
-              std::cout << "layers are " << m_HoTArr[i][index].layer << " and  "
-                        << m_HoTArr[i][indices[hitIndex[i]]].layer << std::endl;
-          }
-#endif
+          if (index == indices.back())
+            no_mat_effs[i] = 1;
         }
         hitIndex[i]--;
       }  //end of track by track loop
@@ -496,25 +465,14 @@ namespace mkfit {
           std::cout << "pnt[0] " << pnt(i, 0, 0) << " pnt[1] " << pnt(i, 1, 0) << " pnt[2] " << pnt(i, 2, 0)
                     << std::endl;
           std::cout << "at the track " << i << " / " << N_proc << " check the material " << std::endl;
-#endif
-          if (hitIndex[i] < (int)indices.size() &&
-              m_HoTArr[i][index].layer == m_HoTArr[i][indices[hitIndex[i]]].layer) {
-            no_mat_effs[i] = 1;
-#ifdef DEBUG_FIT_BKW
-            std::cout << "at the hit " << index << " Remove the material because it was applied in hit "
-                      << indices[hitIndex[i]] << std::endl;
+
+          std::cout << "at the hit " << index << " Don't remove the material" << std::endl;
+          if (hitIndex[i] < (int)indices.size())
             std::cout << "layers are " << m_HoTArr[i][index].layer << " and  "
                       << m_HoTArr[i][indices[hitIndex[i]]].layer << std::endl;
 #endif
-          }
-#ifdef DEBUG_FIT_BKW
-          else {
-            std::cout << "at the hit " << index << " Don't remove the material" << std::endl;
-            if (hitIndex[i] < (int)indices.size())
-              std::cout << "layers are " << m_HoTArr[i][index].layer << " and  "
-                        << m_HoTArr[i][indices[hitIndex[i]]].layer << std::endl;
-          }
-#endif
+          if (index == indices.back())
+            no_mat_effs[i] = 1;
         }
         hitIndex[i]--;
       }  //end of track by track loop
