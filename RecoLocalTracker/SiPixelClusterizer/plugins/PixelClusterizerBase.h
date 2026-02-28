@@ -29,6 +29,7 @@ public:
     uint16_t ymin = 16000;
     unsigned int isize = 0;
     int charge = 0;
+    bool isSaturated = false;
 
     // stack interface (unsafe ok for use below)
     unsigned int curr = 0;
@@ -42,9 +43,10 @@ public:
       isize = 0;
       charge = 0;
       curr = 0;
+      isSaturated = false;
     }
 
-    bool add(SiPixelCluster::PixelPos const& p, uint16_t const iadc) {
+    bool add(SiPixelCluster::PixelPos const& p, uint16_t const iadc, bool const sat) {
       if (isize == MAXSIZE)
         return false;
       xmin = std::min<uint16_t>(xmin, p.row());
@@ -53,6 +55,7 @@ public:
       x[isize] = p.row();
       y[isize++] = p.col();
       charge += iadc;
+      isSaturated |= sat;
       return true;
     }
   };

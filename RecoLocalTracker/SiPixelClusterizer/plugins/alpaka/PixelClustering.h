@@ -231,7 +231,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
                              0,                                      // adc
                              0,                                      // xx
                              0,                                      // yy
-                             ::pixelClustering::invalidModuleId};    // moduleId
+                             ::pixelClustering::invalidModuleId,     // moduleId
+                             0};                                     // rawADC
           }
         }
 

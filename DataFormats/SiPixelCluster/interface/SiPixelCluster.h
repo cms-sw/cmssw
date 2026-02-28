@@ -92,6 +92,7 @@ public:
                  uint16_t const* ypos,
                  uint16_t xmin,
                  uint16_t ymin,
+                 bool isSaturated,
                  uint16_t id = invalidClusterId)
       : thePixelOffset(2 * isize), thePixelADC(adcs, adcs + isize), theOriginalClusterId(id) {
     uint16_t maxCol = 0;
@@ -108,6 +109,7 @@ public:
     }
     packRow(xmin, maxRow);
     packCol(ymin, maxCol);
+    isClusterSaturated = isSaturated;
   }
 
   // obsolete (only for regression tests)
@@ -205,6 +207,7 @@ public:
   // the original id (they get sorted)
   auto originalId() const { return theOriginalClusterId; }
   void setOriginalId(uint16_t id) { theOriginalClusterId = id; }
+  bool isSaturated() const { return isClusterSaturated; }
 
 private:
   std::vector<uint8_t> thePixelOffset;
@@ -216,6 +219,7 @@ private:
   uint8_t thePixelColSpan = 0;       // Span pixel index in the y direction (left edge).
 
   uint16_t theOriginalClusterId = invalidClusterId;
+  bool isClusterSaturated = false;
 
   float err_x = -99999.9f;
   float err_y = -99999.9f;

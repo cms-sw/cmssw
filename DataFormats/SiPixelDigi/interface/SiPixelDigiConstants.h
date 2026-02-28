@@ -10,6 +10,7 @@ using Word32 = cms_uint32_t;
 namespace sipixelconstants {
   constexpr cms_uint32_t dummyDetId = 0xffffffff;
 
+  constexpr uint16_t ADC_max = 255;
   constexpr uint32_t CRC_bits = 1;
   constexpr uint32_t DCOL_bits = 5;  // double column
   constexpr uint32_t PXID_bits = 8;  // pixel id

@@ -18,6 +18,7 @@
 
 // We use PixelPos which is an inner class of SiPixelCluster:
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/SiPixelDigi/interface/SiPixelDigiConstants.h"
 
 #include <vector>
 #include <iostream>
@@ -32,11 +33,15 @@ public:
   inline int operator()(const SiPixelCluster::PixelPos&) const;
   inline int rows() const { return nrows; }
   inline int columns() const { return ncols; }
+  inline bool isSaturated(int row, int col) const {
+    return pixel_rawADC[index(row, col)] == sipixelconstants::ADC_max;
+  };
 
   inline bool inside(int row, int col) const;
   inline void set_adc(int row, int col, int adc);
   inline void set_adc(const SiPixelCluster::PixelPos&, int adc);
   inline void add_adc(int row, int col, int adc);
+  inline void set_rawADC(int row, int col, uint8_t adc) { pixel_rawADC[index(row, col)] = adc; };
   int size() const { return pixel_vec.size(); }
 
   /// Definition of indexing within the buffer.
@@ -44,15 +49,18 @@ public:
   int index(const SiPixelCluster::PixelPos& pix) const { return index(pix.row(), pix.col()); }
 
 private:
-  std::vector<int> pixel_vec;  // TO DO: any benefit in using shorts instead?
+  std::vector<uint16_t> pixel_vec;
+  std::vector<uint8_t> pixel_rawADC;
   int nrows;
   int ncols;
 };
 
-SiPixelArrayBuffer::SiPixelArrayBuffer(int rows, int cols) : pixel_vec(rows * cols, 0), nrows(rows), ncols(cols) {}
+SiPixelArrayBuffer::SiPixelArrayBuffer(int rows, int cols)
+    : pixel_vec(rows * cols, 0), pixel_rawADC(rows * cols, 0), nrows(rows), ncols(cols) {}
 
 void SiPixelArrayBuffer::setSize(int rows, int cols) {
   pixel_vec.resize(rows * cols, 0);
+  pixel_rawADC.resize(rows * cols, 0);
   nrows = rows;
   ncols = cols;
 }
