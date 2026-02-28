@@ -111,7 +111,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device_cellToNeighborsView_ = {device_cellToNeighbors_->data(),
                                    device_cellToNeighborsOffsets_->data(),
                                    device_cellToNeighborsStorage_->data(),
-                                   maxDoublets + 1,
+                                   2 * maxDoublets + 1,
                                    nCellsToCells};
 
     CellToCell::template launchZero<Acc1D>(device_cellToNeighborsView_, queue);
@@ -264,6 +264,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         this->device_hitTuple_apc_,  // needed only to be reset, ready for next kernel
                         hh,
                         ll,
+                        cc,
                         this->deviceTriplets_->view(),
                         this->device_simpleCells_->data(),
                         this->device_nCells_->data(),
@@ -315,7 +316,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           this->device_hitToCell_->data(),
                           this->device_cellToTracks_->data(),
                           nhits - offsetBPIX2,
-                          false);
+                          false,
+                          this->m_params.algoParams_.onlySameLayersFishbone_);
 #ifdef GPU_DEBUG
       alpaka::wait(queue);
       std::cout << "Early fishbone -> Done!" << std::endl;
@@ -467,7 +469,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           this->device_hitToCell_->data(),
                           this->device_cellToTracks_->data(),
                           nhits - offsetBPIX2,
-                          true);
+                          true,
+                          this->m_params.algoParams_.onlySameLayersFishbone_);
     }
 
 #ifdef GPU_DEBUG

@@ -35,7 +35,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
                                   HitToCell const* __restrict__ outerHitHisto,
                                   CellToTracks const* __restrict__ cellTracksHisto,
                                   uint32_t outerHits,
-                                  bool checkTrack) const {
+                                  bool checkTrack,
+                                  bool checkSameLayerOnly = false) const {
       // outermost parallel loop, using all grid elements along the slower dimension (Y or 0 in a 2D grid)
       for (uint32_t idy : cms::alpakatools::uniform_elements_y(acc, outerHits)) {
         uint32_t size = outerHitHisto->size(idy);
@@ -73,6 +74,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
           if (checkTrack && cellTracksHisto->size(otherCell) == 0)
             continue;
 
+          auto const l1 = ci.innerLayer();
           float x1 = (ci.inner_x(hh) - xo);
           float y1 = (ci.inner_y(hh) - yo);
           float z1 = (ci.inner_z(hh) - zo);
@@ -101,6 +103,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
             if (ci.inner_detIndex(hh) == cj.inner_detIndex(hh))
               continue;
 
+            bool sameLayer = (cj.innerLayer() == l1);
+            if (checkSameLayerOnly && !(sameLayer))
+              continue;
+
             float x2 = (cj.inner_x(hh) - xo);
             float y2 = (cj.inner_y(hh) - yo);
             float z2 = (cj.inner_z(hh) - zo);
@@ -111,7 +117,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
             if (cos12 * cos12 >= threshold * (n1 * n2)) {
               // alligned:  kill farthest (prefer consecutive layers)
               // if same layer prefer farthest (longer level arm) and make space for intermediate hit
-              bool sameLayer = int(ci.layerPairId()) == int(cj.layerPairId());
               if (n1 > n2) {
                 if (sameLayer) {
                   cj.kill();  // closest
