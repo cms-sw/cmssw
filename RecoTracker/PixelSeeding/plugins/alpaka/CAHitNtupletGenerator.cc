@@ -102,6 +102,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                         TrackerTraits::layerPairs + (TrackerTraits::nPairsForQuadruplets * 2)))
           ->setComment("CA graph (layer pairs used for building doublets/cells)");
       geometryParams
+          .add<std::vector<unsigned int>>("skipsLayers",
+                                          std::vector<unsigned int>(TrackerTraits::nPairsForQuadruplets, 0U))
+          ->setComment(
+              "List of bools idicating whether layer pairs are skipping layers or not (0 means non-skipping, 1 means "
+              "skipping). This is relevant for the N-tuplet building as non-skipping ones are prioritized.");
+      geometryParams
           .add<std::vector<int>>(
               "phiCuts",
               std::vector<int>(TrackerTraits::phicuts, TrackerTraits::phicuts + TrackerTraits::nPairsForQuadruplets))
@@ -189,6 +195,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       desc.add<bool>("earlyFishbone", true);
       desc.add<bool>("lateFishbone", false);
+      desc.add<bool>("onlySameLayersFishbone", false);
       desc.add<bool>("fillStatistics", false);
       desc.add<unsigned int>("minHitsPerNtuplet", 4);
       desc.add<unsigned int>("minHitsForSharingCut", 10)
@@ -236,6 +243,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           cfg.getParameter<bool>("fitNas4"),
           cfg.getParameter<bool>("earlyFishbone"),
           cfg.getParameter<bool>("lateFishbone"),
+          cfg.getParameter<bool>("onlySameLayersFishbone"),
           cfg.getParameter<bool>("fillStatistics"),
           cfg.getParameter<bool>("doSharedHitCut"),
           cfg.getParameter<bool>("dupPassThrough"),
