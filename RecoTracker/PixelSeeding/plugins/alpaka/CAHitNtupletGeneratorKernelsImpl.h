@@ -408,6 +408,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         auto ro = thisCell.outer_r(hh);
         auto zo = thisCell.outer_z(hh);
         auto thetaCut = ll[thisCell.innerLayer()].caThetaCut();
+        auto skips = cc[thisCell.layerPairId()].skipsLayers();
 
         // loop on inner cells
         for (uint32_t j : cms::alpakatools::independent_group_elements_x(acc, numberOfPossibleNeighbors)) {
@@ -447,9 +448,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                 break;
               }
 
-              cellNeighborsHisto->count(acc, otherCell);
+              // bin = 2*iCell     (== non-layer-skipping neighbors)
+              // bin = 2*iCell + 1 (== layer-skipping neighbors)
+              auto bin = 2 * otherCell + skips;
+              cellNeighborsHisto->count(acc, bin);
 
-              cn[t_ind].inner() = otherCell;
+              cn[t_ind].inner() = bin;
               cn[t_ind].outer() = {cellIndex, curvature};
               thisCell.setStatusBits(Cell::StatusBit::kUsed);
               oc.setStatusBits(Cell::StatusBit::kUsed);
@@ -523,7 +527,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           continue;
 
         // we require at least three hits
-        if (cellNeighborsHisto->size(idx) == 0)
+        if ((cellNeighborsHisto->size(2*idx) == 0) && (cellNeighborsHisto->size(2*idx + 1) == 0))
           continue;
 
         // check if the layer pair of the cell is among the set of starting pairs
@@ -538,13 +542,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         constexpr uint32_t maxDepth = TrackerTraits::maxLayersPerTrack - 1;
 #ifdef CA_DEBUG
         printf(
-            "LayerPairId %d and inner layer %d doit ? %d From cell %d with nNeighbors = %d and innerR=%f < "
+            "LayerPairId %d and inner layer %d doit ? %d From cell %d with nNeighbors (skipping) = %d and nNeighbors (non-skipping) = %d and innerR=%f < "
             "maxInnerR=%f ?\n",
             pid,
             lid,
             doit,
             idx,
-            cellNeighborsHisto->size(idx),
+            cellNeighborsHisto->size(2*idx),
+            cellNeighborsHisto->size(2*idx+1),
             thisCell.inner_r(),
             ll[lid].startMaxInnerR());
 #endif

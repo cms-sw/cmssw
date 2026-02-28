@@ -51,6 +51,7 @@ namespace reco {
           startMaxInnerR_(iConfig.getParameter<std::vector<double>>("startMaxInnerR")),
           fishboneCuts_(iConfig.getParameter<std::vector<double>>("fishboneCuts")),
           pairGraph_(iConfig.getParameter<std::vector<unsigned int>>("pairGraph")),
+          skipsLayers_(iConfig.getParameter<std::vector<unsigned int>>("skipsLayers")),
           startingPairs_(iConfig.getParameter<std::vector<unsigned int>>("startingPairs")),
           phiCuts_(iConfig.getParameter<std::vector<int>>("phiCuts")),
           ptCuts_(iConfig.getParameter<std::vector<double>>("ptCuts")),
@@ -81,6 +82,7 @@ namespace reco {
 
     // Cells params
     const std::vector<unsigned int> pairGraph_;
+    const std::vector<unsigned int> skipsLayers_;
     const std::vector<unsigned int> startingPairs_;
     const std::vector<int> phiCuts_;
     const std::vector<double> ptCuts_;
@@ -143,6 +145,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       assert(iCache->maxDR_.size() == iCache->minDZ_.size());
       assert(iCache->maxDR_.size() == iCache->phiCuts_.size());
       assert(iCache->maxDR_.size() == iCache->ptCuts_.size());
+      assert(iCache->maxDR_.size() == iCache->skipsLayers_.size());
 
       assert(iCache->caThetaCuts_.size() == iCache->caDCurvCuts_.size());
       assert(iCache->caThetaCuts_.size() == iCache->caDCurv0_.size());
@@ -316,6 +319,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       for (int i = 0; i < n_pairs; ++i) {
         cellSoA.graph()[i] = {{uint32_t(iCache->pairGraph_[2 * i]), uint32_t(iCache->pairGraph_[2 * i + 1])}};
+        cellSoA.skipsLayers()[i] = uint16_t(bool(iCache->skipsLayers_[i]));
         cellSoA.phiCuts()[i] = iCache->phiCuts_[i];
         // convert ptCut in curvature radius in cm
         // 1 GeV track has 1 GeV/c / (e * 3.8T) ~ 87 cm radius in a 3.8T field
