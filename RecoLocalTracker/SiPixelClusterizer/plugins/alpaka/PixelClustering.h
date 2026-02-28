@@ -228,11 +228,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
             fakes_view[i] = {static_cast<int32_t>(numElements + i),  // cluster id
                              0,                                      // pdigi
                              0,                                      // rawIdArr
-                             0,                                      // rawADC
                              0,                                      // adc
                              0,                                      // xx
                              0,                                      // yy
-                             ::pixelClustering::invalidModuleId};    // moduleId
+                             ::pixelClustering::invalidModuleId,     // moduleId
+                             0};                                     // rawADC
           }
         }
 

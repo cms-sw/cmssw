@@ -7,11 +7,11 @@ GENERATE_SOA_LAYOUT(SiPixelDigisLayout,
                     SOA_COLUMN(int32_t, clus),
                     SOA_COLUMN(uint32_t, pdigi),
                     SOA_COLUMN(uint32_t, rawIdArr),
-                    SOA_COLUMN(uint8_t, rawADC),
                     SOA_COLUMN(uint16_t, adc),
                     SOA_COLUMN(uint16_t, xx),
                     SOA_COLUMN(uint16_t, yy),
-                    SOA_COLUMN(uint16_t, moduleId))
+                    SOA_COLUMN(uint16_t, moduleId),
+                    SOA_COLUMN(uint8_t, rawADC))
 
 using SiPixelDigisSoA = SiPixelDigisLayout<>;
 using SiPixelDigisSoAView = SiPixelDigisSoA::View;
