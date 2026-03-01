@@ -17,10 +17,11 @@ It is based on the preexisting work of the scouting group and can be found at gi
 //
 
 // system include files
-#include <TLorentzVector.h>
+#include <algorithm>
 #include <cmath>
 #include <memory>
 #include <vector>
+#include <TLorentzVector.h>
 
 // user include files
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -431,9 +432,15 @@ private:
   dqm::reco::MonitorElement* eeRecHits_time_hist[2];
   dqm::reco::MonitorElement* eePlusRecHitsXYMap[2];
   dqm::reco::MonitorElement* eeMinusRecHitsXYMap[2];
-  dqm::reco::MonitorElement* hbheRecHitsNumber_hist;
-  dqm::reco::MonitorElement* hbheRecHits_energy_hist;
-  dqm::reco::MonitorElement* hbheRecHits_time_hist;
+
+  // three MEs (HBHE, HB, HE)
+  dqm::reco::MonitorElement* hbheRecHitsNumber_hist[3];
+  dqm::reco::MonitorElement* hbheRecHits_energy_hist[3];
+  dqm::reco::MonitorElement* hbheRecHits_time_hist[3];
+  dqm::reco::MonitorElement* hbheRecHits_energy_egt5_hist[3];
+  dqm::reco::MonitorElement* hbheRecHits_time_egt5_hist[3];
+
+  // separate maps for each subdetector
   dqm::reco::MonitorElement* hbheRecHitsEtaPhiMap;
   dqm::reco::MonitorElement* hbRecHitsEtaPhiMap;
   dqm::reco::MonitorElement* heRecHitsEtaPhiMap;
@@ -959,23 +966,52 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
                      eeRecHits_time_hist);
   }
 
+  // counter of rechits
+  size_t nHBRechits{0};
+  size_t nHERechits{0};
+
   // process the HBHE rechits
   edm::Handle<Run3ScoutingHBHERecHitCollection> hbheRecHitsH;
   if (!hbheRecHitsToken_.isUninitialized() &&
       getValidHandle(iEvent, hbheRecHitsToken_, hbheRecHitsH, "pfRecHitsHBHE")) {
-    hbheRecHitsNumber_hist->Fill(hbheRecHitsH->size());
+    hbheRecHitsNumber_hist[0]->Fill(hbheRecHitsH->size());
     for (const auto& hbheRecHit : *hbheRecHitsH) {
-      hbheRecHits_energy_hist->Fill(hbheRecHit.energy());
-      hbheRecHits_time_hist->Fill(hbheRecHit.time());
+      const bool isStiffRecHit = (hbheRecHit.energy() > 5);
+
+      hbheRecHits_energy_hist[0]->Fill(hbheRecHit.energy());
+      hbheRecHits_time_hist[0]->Fill(hbheRecHit.time());
+      if (isStiffRecHit) {
+        hbheRecHits_energy_egt5_hist[0]->Fill(hbheRecHit.energy());
+        hbheRecHits_time_egt5_hist[0]->Fill(hbheRecHit.time());
+      }
+
       HcalDetId hcalid(hbheRecHit.detId());
       hbheRecHitsEtaPhiMap->Fill(hcalid.ieta(), hcalid.iphi());
       const auto& subdet = hcalid.subdetId();
       if (subdet == 1) {  // HB
+        nHBRechits++;
         hbRecHitsEtaPhiMap->Fill(hcalid.ieta(), hcalid.iphi());
+        hbheRecHits_energy_hist[1]->Fill(hbheRecHit.energy());
+        hbheRecHits_time_hist[1]->Fill(hbheRecHit.time());
+        if (isStiffRecHit) {
+          hbheRecHits_energy_egt5_hist[1]->Fill(hbheRecHit.energy());
+          hbheRecHits_time_egt5_hist[1]->Fill(hbheRecHit.time());
+        }
       } else {  // HE
+        nHERechits++;
         heRecHitsEtaPhiMap->Fill(hcalid.ieta(), hcalid.iphi());
+        hbheRecHits_energy_hist[2]->Fill(hbheRecHit.energy());
+        hbheRecHits_time_hist[2]->Fill(hbheRecHit.time());
+        if (isStiffRecHit) {
+          hbheRecHits_energy_egt5_hist[2]->Fill(hbheRecHit.energy());
+          hbheRecHits_time_egt5_hist[2]->Fill(hbheRecHit.time());
+        }
       }
     }
+    // check that rechits size is the same
+    assert(hbheRecHitsH->size() == (nHBRechits + nHERechits));
+    hbheRecHitsNumber_hist[1]->Fill(nHBRechits);
+    hbheRecHitsNumber_hist[2]->Fill(nHERechits);
   }
 }
 
@@ -1476,10 +1512,10 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
                      500.0);
 
     ebRecHits_time_hist[i] = ibook.book1D("ebRechits_time" + sfx,
-                                          "Time of EB RecHits (" + lbl + "); Energy of EB recHits (ps); Entries",
-                                          100,
-                                          0.0,
-                                          1000.0);
+                                          "Time of EB RecHits (" + lbl + "); Energy of EB recHits (ns); Entries",
+                                          200,
+                                          -100.,
+                                          100.0);
     eeRecHitsNumber_hist[i] = ibook.book1D(
         "eeRechitsN" + sfx, "Number of EE RecHits (" + lbl + "); number of EE recHits; Entries", 100, 0.0, 1000.0);
     eeRecHits_energy_hist[i] =
@@ -1488,8 +1524,11 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
                      100,
                      0.0,
                      1000.0);
-    eeRecHits_time_hist[i] = ibook.book1D(
-        "eeRechits_time" + sfx, "Time of EE RecHits (" + lbl + "); Time of EE recHits (ps); Entries", 100, 0.0, 1000.0);
+    eeRecHits_time_hist[i] = ibook.book1D("eeRechits_time" + sfx,
+                                          "Time of EE RecHits (" + lbl + "); Time of EE recHits (ns); Entries",
+                                          200,
+                                          -100.0,
+                                          100.0);
 
     ebRecHitsEtaPhiMap[i] = ibook.book2D("ebRecHitsEtaPhitMap" + sfx,
                                          "Occupancy map of EB rechits (" + lbl + ");ieta;iphi;Entries",
@@ -1526,24 +1565,68 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   }
 
   ibook.setCurrentFolder(topfoldername_ + "/CaloRecHitsAll");
-  hbheRecHitsNumber_hist =
-      ibook.book1D("hbheRechitsN", "number of hbhe RecHits; Number of HBHE recHits; Entries", 100, 0.0, 2000.0);
-  hbheRecHits_energy_hist = ibook.book1D(
-      "hbheRechits_energy", "Energy spectrum of hbhe RecHits; Energy of HBHE recHits (GeV); Entries", 100, 0.0, 200.0);
 
-  hbheRecHits_time_hist =
-      ibook.book1D("hbheRechits time", "Time of HBHE RecHits; Time of HBHE recHits (ns); Entries", 100, 0.0, 30.0);
+  // now do HCAL
+  const std::array<std::string, 3> subdets = {{"HBHE", "HB", "HE"}};
+
+  // helper lambda
+  auto toLower = [](std::string s) {
+    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+    return s;
+  };
+
+  for (int i = 0; i < 3; ++i) {
+    const std::string& subdet = subdets[i];
+    std::string name = toLower(subdet);
+
+    hbheRecHitsNumber_hist[i] =
+        ibook.book1D(name + "RechitsN",
+                     "number of " + subdet + " RecHits; Number of " + subdet + " recHits; RecHits",
+                     100,
+                     0.0,
+                     2000.0);
+
+    hbheRecHits_energy_hist[i] =
+        ibook.book1D(name + "Rechits_energy",
+                     "Energy spectrum of " + subdet + " RecHits; Energy of " + subdet + " recHits (GeV); RecHits",
+                     100,
+                     0.0,
+                     200.0);
+
+    // Energy > 5 GeV histograms
+    hbheRecHits_energy_egt5_hist[i] = ibook.book1D(
+        name + "StiffRechits_energy",
+        "Energy spectrum of " + subdet + " RecHits  (E > 5 GeV);Energy of stiff " + subdet + " recHits (GeV); RecHits",
+        100,
+        0.0,
+        30.0);
+
+    hbheRecHits_time_hist[i] =
+        ibook.book1D(name + "Rechits_time",
+                     "Time of " + subdet + " RecHits; Time of " + subdet + " recHits (ns); RecHits",
+                     100,
+                     0.,
+                     30.0);
+
+    // Energy > 5 GeV histograms
+    hbheRecHits_time_egt5_hist[i] =
+        ibook.book1D(name + "StiffRechits_time",
+                     "Time of " + subdet + " RecHits (E > 5 GeV); Time of stiff " + subdet + " recHits (ns); RecHits",
+                     100,
+                     0.,
+                     30.0);
+  }
 
   hbheRecHitsEtaPhiMap = ibook.book2D(
-      "hbheRecHitsEtaPhitMap", "Occupancy map of HBHE rechits;ieta;iphi;Entries", 61, -30.5, 30.5, 74, -0.5, 73.5);
+      "hbheRecHitsEtaPhitMap", "Occupancy map of HBHE rechits;ieta;iphi;RecHits", 61, -30.5, 30.5, 74, -0.5, 73.5);
   hbheRecHitsEtaPhiMap->setOption("colz");
 
   hbRecHitsEtaPhiMap = ibook.book2D(
-      "hbRecHitsEtaPhitMap", "Occupancy map of HB rechits;ieta;iphi;Entries", 83, -41.5, 41.5, 72, 0.5, 72.5);
+      "hbRecHitsEtaPhitMap", "Occupancy map of HB rechits;ieta;iphi;RecHits", 83, -41.5, 41.5, 72, 0.5, 72.5);
   hbRecHitsEtaPhiMap->setOption("colz");
 
   heRecHitsEtaPhiMap = ibook.book2D(
-      "heRecHitsEtaPhitMap", "Occupancy map of HE rechits;ieta;iphi;Entries", 83, -41.5, 41.5, 72, 0.5, 72.5);
+      "heRecHitsEtaPhitMap", "Occupancy map of HE rechits;ieta;iphi;RecHits", 83, -41.5, 41.5, 72, 0.5, 72.5);
   heRecHitsEtaPhiMap->setOption("colz");
 }
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
