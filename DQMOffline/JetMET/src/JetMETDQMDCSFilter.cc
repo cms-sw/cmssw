@@ -11,20 +11,19 @@
 //
 // -- Constructor
 //
-JetMETDQMDCSFilter::JetMETDQMDCSFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC) {
-  verbose_ = pset.getUntrackedParameter<bool>("DebugOn", false);
-  detectorTypes_ = pset.getUntrackedParameter<std::string>("DetectorTypes", "ecal:hcal");
-  filter_ = !pset.getUntrackedParameter<bool>("alwaysPass", false);
-  scalersSrc_ = pset.getUntrackedParameter<edm::InputTag>("scalerSrc", edm::InputTag("scalersRawToDigi"));
-  onlineMetaDataDigiSrc_ =
-      pset.getUntrackedParameter<edm::InputTag>("onlineMetaDataDigisSrc", edm::InputTag("onlineMetaDataDigis"));
-  scalarsToken_ = iC.consumes<DcsStatusCollection>(scalersSrc_);
-  dcsRecordToken_ = iC.consumes<DCSRecord>(onlineMetaDataDigiSrc_);
-
-  detectorOn_ = false;
+JetMETDQMDCSFilter::JetMETDQMDCSFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC)
+    : scalersSrc_{pset.getUntrackedParameter<edm::InputTag>("scalerSrc", edm::InputTag("scalersRawToDigi"))},
+      scalarsToken_(iC.consumes<DcsStatusCollection>(scalersSrc_)),
+      onlineMetaDataDigiSrc_{
+          pset.getUntrackedParameter<edm::InputTag>("onlineMetaDataDigisSrc", edm::InputTag("onlineMetaDataDigis"))},
+      dcsRecordToken_(iC.consumes<DCSRecord>(onlineMetaDataDigiSrc_)),
+      verbose_{pset.getUntrackedParameter<bool>("DebugOn", false)},
+      detectorTypes_{pset.getUntrackedParameter<std::string>("DetectorTypes", "ecal:hcal")},
+      filter_{!pset.getUntrackedParameter<bool>("alwaysPass", false)},
+      detectorOn_{false} {
   if (verbose_)
     edm::LogPrint("JetMETDQMDCSFilter") << " constructor: " << detectorTypes_
-                                        << " onlineMetaDataSource: " << onlineMetaDataDigiSrc_.encode() << std::endl;
+                                        << " onlineMetaDataSource: " << onlineMetaDataDigiSrc_.encode();
 
   // initialize variables
   initializeVars();
@@ -34,22 +33,19 @@ JetMETDQMDCSFilter::JetMETDQMDCSFilter(const edm::ParameterSet& pset,
                                        const std::string& detectorTypes,
                                        edm::ConsumesCollector& iC,
                                        const bool verbose,
-                                       const bool alwaysPass) {
-  verbose_ = verbose;
-  detectorTypes_ = detectorTypes;
-  filter_ = !alwaysPass;
-
-  scalersSrc_ = pset.getUntrackedParameter<edm::InputTag>("scalerSrc", edm::InputTag("scalersRawToDigi"));
-  onlineMetaDataDigiSrc_ =
-      pset.getUntrackedParameter<edm::InputTag>("onlineMetaDataDigisSrc", edm::InputTag("onlineMetaDataDigis"));
-
-  scalarsToken_ = iC.consumes<DcsStatusCollection>(scalersSrc_);
-  dcsRecordToken_ = iC.consumes<DCSRecord>(onlineMetaDataDigiSrc_);
-
-  detectorOn_ = false;
+                                       const bool alwaysPass)
+    : scalersSrc_{pset.getUntrackedParameter<edm::InputTag>("scalerSrc", edm::InputTag("scalersRawToDigi"))},
+      scalarsToken_(iC.consumes<DcsStatusCollection>(scalersSrc_)),
+      onlineMetaDataDigiSrc_{
+          pset.getUntrackedParameter<edm::InputTag>("onlineMetaDataDigisSrc", edm::InputTag("onlineMetaDataDigis"))},
+      dcsRecordToken_(iC.consumes<DCSRecord>(onlineMetaDataDigiSrc_)),
+      verbose_{verbose},
+      detectorTypes_{detectorTypes},
+      filter_{!alwaysPass},
+      detectorOn_{false} {
   if (verbose_)
     edm::LogPrint("JetMETDQMDCSFilter") << " constructor with no pset: " << detectorTypes_
-                                        << " onlineMetaDataSource: " << onlineMetaDataDigiSrc_.encode() << std::endl;
+                                        << " onlineMetaDataSource: " << onlineMetaDataDigiSrc_.encode();
 
   // initialize variables
   initializeVars();
@@ -169,4 +165,12 @@ bool JetMETDQMDCSFilter::filter(const edm::Event& evt, const edm::EventSetup& es
   }
 
   return detectorOn_;
+}
+
+void JetMETDQMDCSFilter::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.addUntracked<bool>("DebugOn", false);
+  desc.addUntracked<std::string>("DetectorTypes", "ecal:hcal");
+  desc.addUntracked<bool>("alwaysPass", false);
+  desc.addUntracked<edm::InputTag>("scalerSrc", edm::InputTag("scalersRawToDigi"));
+  desc.addUntracked<edm::InputTag>("onlineMetaDataDigisSrc", edm::InputTag("onlineMetaDataDigis"));
 }

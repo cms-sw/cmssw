@@ -15,68 +15,68 @@
  *          V. Sordini
  */
 
-#include <memory>
+// system includes
 #include <fstream>
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include <map>
+#include <memory>
+#include <string>
 
+// system includes
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
+#include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/BTauReco/interface/CATopJetTagInfo.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
-
-#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/JPTJet.h"
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/Scouting/interface/Run3ScoutingPFJet.h"
-#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
-#include "RecoJets/JetProducers/interface/JetIDHelper.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
-
+#include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
+#include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
-#include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
-
-#include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
-
-#include "DataFormats/BTauReco/interface/CATopJetTagInfo.h"
-
+#include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingPFJet.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
-
-#include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/Run3ScoutingPFJetIDSelectionFunctor.h"
-#include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
-
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-
-#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
-
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include <map>
-#include <string>
+#include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
 //namespace jetAnalysis {
 //class TrackPropagatorToCalo;
@@ -99,6 +99,9 @@ public:
 
   /// Initialize run-based parameters
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+
+  /// fillDescriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   // ----------member data ---------------------------
