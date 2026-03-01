@@ -18,6 +18,7 @@
 #include "IOMC/ParticleGuns/interface/FlatRandomPtGunProducer.h"
 #include "IOMC/ParticleGuns/interface/FlatRandomPtThetaGunProducer.h"
 #include "IOMC/ParticleGuns/interface/GaussRandomPThetaGunProducer.h"
+#include "IOMC/ParticleGuns/interface/HTo2XTo4LGunProducer.h"
 #include "IOMC/ParticleGuns/interface/MultiParticleInConeGunProducer.h"
 #include "IOMC/ParticleGuns/interface/RandomtXiGunProducer.h"
 #include "IOMC/ParticleGuns/interface/RandomMultiParticlePGunProducer.h"
@@ -53,6 +54,8 @@ using edm::FlatRandomPtThetaGunProducer;
 DEFINE_FWK_MODULE(FlatRandomPtThetaGunProducer);
 using edm::GaussRandomPThetaGunProducer;
 DEFINE_FWK_MODULE(GaussRandomPThetaGunProducer);
+using edm::HTo2XTo4LGunProducer;
+DEFINE_FWK_MODULE(HTo2XTo4LGunProducer);
 using edm::MultiParticleInConeGunProducer;
 DEFINE_FWK_MODULE(MultiParticleInConeGunProducer);
 using edm::RandomtXiGunProducer;
