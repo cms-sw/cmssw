@@ -6412,3 +6412,97 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }  //2nd jet veto
   }  //Z selection + hard leading jet
 }
+
+void JetAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("JetType", "calo");
+  desc.add<edm::InputTag>("JetCorrections", edm::InputTag("dqmAk4CaloL2L3ResidualCorrector"));
+  desc.add<edm::InputTag>("jetsrc", edm::InputTag("ak4CaloJets"));
+  desc.add<edm::InputTag>("METCollectionLabel", edm::InputTag("caloMet"));
+  desc.add<edm::InputTag>("muonsrc", edm::InputTag("muons"));
+  desc.add<std::string>("l1algoname", "L1Tech_BPTX_plus_AND_minus.v0");
+  desc.add<bool>("filljetHighLevel", false);
+  desc.add<bool>("fillsubstructure", false);
+  desc.add<double>("ptMinBoosted", 400.0);
+  {
+    edm::ParameterSetDescription psd0;
+    GenericTriggerEventFlag::fillPSetDescription(psd0);
+    desc.add<edm::ParameterSetDescription>("highPtJetTrigger", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    GenericTriggerEventFlag::fillPSetDescription(psd0);
+    desc.add<edm::ParameterSetDescription>("lowPtJetTrigger", psd0);
+  }
+  desc.add<edm::InputTag>("TriggerResultsLabel", edm::InputTag("TriggerResults", "", "HLT"));
+  desc.add<std::string>("processname", "HLT");
+  desc.addUntracked<bool>("JetCleaningFlag", false);
+  desc.addUntracked<bool>("runcosmics", false);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<edm::InputTag>("gtLabel", edm::InputTag("gtDigis"));
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<bool>("andOr", false);
+      psd1.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults", "", "HLT"));
+      psd1.add<std::string>("hltDBKey", "jetmet_hltsel");
+      psd1.add<std::vector<std::string>>("hltPaths",
+                                         {
+                                             "",
+                                         });
+      psd1.add<bool>("andOrHlt", false);
+      psd1.add<bool>("errorReplyHlt", false);
+      psd0.add<edm::ParameterSetDescription>("trigSelection", psd1);
+    }
+    psd0.add<bool>("bypassAllPVChecks", true);
+    psd0.add<bool>("bypassAllDCSChecks", false);
+    psd0.add<edm::InputTag>("vertexCollection", edm::InputTag("goodOfflinePrimaryVerticesDQM"));
+    desc.add<edm::ParameterSetDescription>("CleaningParameters", psd0);
+  }
+  desc.add<edm::InputTag>("InputJetIDValueMap", edm::InputTag("ak4JetID"));
+  desc.add<std::string>("JetIDQuality", "LOOSE");
+  desc.add<std::string>("JetIDVersion", "PURE09");
+  desc.add<edm::InputTag>("InputMVAPUIDDiscriminant", edm::InputTag("pileupJetIdEvaluatorDQM", "fullDiscriminant"));
+  desc.add<edm::InputTag>("InputCutPUIDDiscriminant", edm::InputTag("pileupJetIdEvaluatorDQM", "cutbasedDiscriminant"));
+  desc.add<edm::InputTag>("InputMVAPUIDValue", edm::InputTag("pileupJetIdEvaluatorDQM", "fullId"));
+  desc.add<edm::InputTag>("InputCutPUIDValue", edm::InputTag("pileupJetIdEvaluatorDQM", "cutbasedId"));
+  desc.add<edm::InputTag>("InputQGMultiplicity", edm::InputTag("QGTagger", "mult"));
+  desc.add<edm::InputTag>("InputQGLikelihood", edm::InputTag("QGTagger", "qgLikelihood"));
+  desc.add<edm::InputTag>("InputQGPtDToken", edm::InputTag("QGTagger", "ptD"));
+  desc.add<edm::InputTag>("InputQGAxis2", edm::InputTag("QGTagger", "axis2"));
+  desc.add<bool>("fillCHShistos", false);
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<int>("verbose", 0);
+    psd0.add<int>("eBin", 100);
+    psd0.add<double>("eMax", 1000.0);
+    psd0.add<double>("eMin", 0.0);
+    psd0.add<int>("etaBin", 100);
+    psd0.add<double>("etaMax", 5.0);
+    psd0.add<double>("etaMin", -5.0);
+    psd0.add<int>("pBin", 100);
+    psd0.add<double>("pMax", 500.0);
+    psd0.add<double>("pMin", 0.0);
+    psd0.add<int>("phiBin", 70);
+    psd0.add<double>("phiMax", 3.2);
+    psd0.add<double>("phiMin", -3.2);
+    psd0.add<int>("ptBin", 100);
+    psd0.add<double>("ptMax", 500.0);
+    psd0.add<double>("ptMin", 20.0);
+    psd0.add<int>("pVBin", 100);
+    psd0.add<double>("pVMax", 100.0);
+    psd0.add<double>("pVMin", 0.0);
+    psd0.add<double>("ptThreshold", 20.0);
+    psd0.add<double>("ptThresholdUnc", 30);
+    psd0.add<double>("asymmetryThirdJetCut", 30);
+    psd0.add<double>("balanceThirdJetCut", 0.2);
+    psd0.add<int>("fillJIDPassFrac", 1);
+    desc.add<edm::ParameterSetDescription>("jetAnalysis", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    JetMETDQMDCSFilter::fillPSetDescription(psd0);
+    desc.add<edm::ParameterSetDescription>("DCSFilterForJetMonitoring", psd0);
+  }
+  descriptions.addWithDefaultLabel(desc);
+}

@@ -6,6 +6,7 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/OnlineMetaData/interface/DCSRecord.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -26,19 +27,25 @@ public:
   ~JetMETDQMDCSFilter();
   bool filter(const edm::Event& evt, const edm::EventSetup& es);
   bool passPIX, passSiStrip, passECAL, passHBHE, passHF, passHO, passES, passMuon;
-  edm::EDGetTokenT<DcsStatusCollection> scalarsToken_;
-  edm::EDGetTokenT<DCSRecord> dcsRecordToken_;
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
 private:
+  // member functions
   template <typename T>
   void checkDCSInfoPerPartition(const T& DCS);
   void initializeVars();
-  bool verbose_;
-  bool filter_;
-  bool detectorOn_;
-  edm::InputTag scalersSrc_;
-  edm::InputTag onlineMetaDataDigiSrc_;
-  std::string detectorTypes_;
+
+  // configuration
+  const edm::InputTag scalersSrc_;
+  const edm::EDGetTokenT<DcsStatusCollection> scalarsToken_;
+  const edm::InputTag onlineMetaDataDigiSrc_;
+  const edm::EDGetTokenT<DCSRecord> dcsRecordToken_;
+  const bool verbose_;
+  const std::string detectorTypes_;
+  const bool filter_;
+
+  // internal states
+  bool detectorOn_;  // this can change in the filter call
   std::map<std::string, std::vector<int>> associationMap_;
   std::map<std::string, bool> passPerDet_;
 };
