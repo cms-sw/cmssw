@@ -8,7 +8,7 @@ set -o pipefail
 
 # Function to check logs for errors
 check_logs_for_errors() {
-    local log_dirs=${1:-"logs/step*/pid*"}  # default path if none passed
+    local log_dirs=${1:-"logs/step*/pid*"} # default path if none passed
     local error_found=0
 
     for f in $log_dirs/stdout $log_dirs/stderr; do
@@ -72,7 +72,13 @@ if [ -e 'Phase2_L1P2GT_HLT.py' ]; then
     if [ ! -d 'patatrack-scripts' ]; then
         git clone https://github.com/cms-patatrack/patatrack-scripts --depth 1
     fi
-    patatrack-scripts/benchmark -j 16 -t 16 -s 16 -e 1000 --no-run-io-benchmark --event-skip 100 --event-resolution 10 -k Phase2Timing_resources.json -- Phase2_L1P2GT_HLT.py
+    patatrack-scripts/benchmark -j 8 -t 16 -s 16 \
+        -e 1000 \
+        --no-input-benchmark \
+        --slot "numa=0-3:mem=0-3" \
+        --event-skip 100 \
+        --event-resolution 10 \
+        -k Phase2Timing_resources.json -- Phase2_L1P2GT_HLT.py
     check_logs_for_errors || exit 1
     mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json >Phase2Timing_resources.json
     if [ -e "$(dirname $0)/augmentResources.py" ]; then
@@ -82,17 +88,23 @@ fi
 
 # run timing menu HLT:75e33_timing (force running on CPU)
 if [ -f Phase2_L1P2GT_HLT.py ]; then
-  cp Phase2_L1P2GT_HLT.py Phase2_L1P2GT_HLT_OnCPU.py
-  echo "process.options.accelerators = ['cpu']" >> Phase2_L1P2GT_HLT_OnCPU.py
+    cp Phase2_L1P2GT_HLT.py Phase2_L1P2GT_HLT_OnCPU.py
+    echo "process.options.accelerators = ['cpu']" >>Phase2_L1P2GT_HLT_OnCPU.py
 else
-  echo "Error: Phase2_L1P2GT_HLT.py not found!"
+    echo "Error: Phase2_L1P2GT_HLT.py not found!"
 fi
 
 if [ -e 'Phase2_L1P2GT_HLT_OnCPU.py' ]; then
     if [ ! -d 'patatrack-scripts' ]; then
         git clone https://github.com/cms-patatrack/patatrack-scripts --depth 1
     fi
-    patatrack-scripts/benchmark -j 16 -t 16 -s 16 -e 1000 --no-run-io-benchmark --event-skip 100 --event-resolution 10 -k Phase2Timing_resources.json -- Phase2_L1P2GT_HLT_OnCPU.py
+    patatrack-scripts/benchmark -j 8 -t 16 -s 16 \
+        -e 1000 \
+        --no-input-benchmark \
+        --slot "numa=0-3:mem=0-3" \
+        --event-skip 100 \
+        --event-resolution 10 \
+        -k Phase2Timing_resources.json -- Phase2_L1P2GT_HLT_OnCPU.py
     check_logs_for_errors || exit 1
     mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json >Phase2Timing_resources_OnCPU.json
 fi
@@ -112,7 +124,13 @@ if [ -e 'NGTScouting_L1P2GT_HLT.py' ]; then
     if [ ! -d 'patatrack-scripts' ]; then
         git clone https://github.com/cms-patatrack/patatrack-scripts --depth 1
     fi
-    patatrack-scripts/benchmark -j 16 -t 16 -s 16 -e 1000 --no-run-io-benchmark --event-skip 100 --event-resolution 10 -k Phase2Timing_resources.json -- NGTScouting_L1P2GT_HLT.py
-    #check_logs_for_errors || exit 1  (commenting check for now, needs a better job division to fit memory budget contraints)
+    patatrack-scripts/benchmark -j 8 -t 16 -s 16 \
+        -e 1000 \
+        --no-input-benchmark \
+        --slot "numa=0-3:mem=0-3" \
+        --event-skip 100 \
+        --event-resolution 10 \
+        -k Phase2Timing_resources.json -- NGTScouting_L1P2GT_HLT.py
+    check_logs_for_errors || exit 1
     mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json >Phase2Timing_resources_NGT.json
 fi
