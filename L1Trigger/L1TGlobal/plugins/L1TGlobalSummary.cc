@@ -105,8 +105,13 @@ namespace {
 }  // namespace
 
 void L1TGlobalSummary::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  descriptions.add("L1TGlobalSummary", makeDesc(edm::InputTag("gtStage2Digis"), edm::InputTag("gtStage2Digis"), -2, 2));
   descriptions.addDefault(makeDesc(edm::InputTag(""), edm::InputTag(""), 0, 0));
+  edm::DescriptionCloner summary;
+  summary.set("AlgInputTag", edm::InputTag("gtStage2Digis"));
+  summary.set("ExtInputTag", edm::InputTag("gtStage2Digis"));
+  summary.set<int>("MinBx", -2);
+  summary.set<int>("MaxBx", 2);
+  descriptions.add("L1TGlobalSummary", summary);
 }
 
 void L1TGlobalSummary::beginRun(Run const&, EventSetup const& evSetup) {
