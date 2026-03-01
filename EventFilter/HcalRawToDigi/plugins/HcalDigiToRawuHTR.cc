@@ -301,7 +301,6 @@ void HcalDigiToRawuHTR::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag>("TP", edm::InputTag("simHcalTriggerPrimitiveDigis"));
   desc.add<bool>("premix", false);
   descriptions.add("hcalDigiToRawuHTR", desc);
-  descriptions.addDefault(desc);
 }
 
 //define this as a plug-in
