@@ -20,15 +20,14 @@
   <class name="HGCScintillatorDetId" ClassVersion="15">
    <version ClassVersion="15" checksum="1085028962"/>
   </class>
-  <class name="MTDDetId" ClassVersion="3">
-   <version ClassVersion="3" checksum="1210976889"/>
+  <class name="io_v1::MTDDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1840971769"/>
   </class>
-  <class name="BTLDetId" ClassVersion="3">
-   <version ClassVersion="3" checksum="1515591716"/>
+  <class name="io_v1::BTLDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="462326476"/>
   </class>
-  <class name="ETLDetId" ClassVersion="4">
-   <version ClassVersion="4" checksum="1644731879"/>
-   <version ClassVersion="3" checksum="1644731879"/>
+  <class name="io_v1::ETLDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="3718988717"/>
   </class>
   <class name="HFNoseDetId" ClassVersion="0">
    <version ClassVersion="0" checksum="1469396081"/>
