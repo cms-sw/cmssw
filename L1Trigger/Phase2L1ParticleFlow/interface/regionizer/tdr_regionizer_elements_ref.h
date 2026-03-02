@@ -102,7 +102,7 @@ namespace l1ct {
       /// @return pair (eta, phi) region index)
       std::pair<size_t, size_t> get_small_region(size_t sr) const;
 
-      /// logical links associated with a logical sr (customized for each type)
+      /// physical links associated with a logical sr (customized for each type)
       std::vector<size_t> linksForSR(size_t sr) const;
       std::vector<size_t> caloLinksHelper(size_t iphi) const;
 

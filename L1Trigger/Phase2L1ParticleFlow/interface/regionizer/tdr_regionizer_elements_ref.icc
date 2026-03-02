@@ -290,6 +290,7 @@ inline std::vector<size_t> l1ct::tdr_regionizer::Regionizer<T>::linksForSR(size_
   return retval;
 }
 
+// returns the physical links
 template <>
 inline std::vector<size_t> l1ct::tdr_regionizer::Regionizer<l1ct::TkObjEmu>::linksForSR(size_t sr) const {
   std::pair logic_sr = get_small_region(sr);
@@ -300,52 +301,52 @@ inline std::vector<size_t> l1ct::tdr_regionizer::Regionizer<l1ct::TkObjEmu>::lin
     auto nom = iphi;
     auto smaller = (nom == 0) ? 8 : nom - 1;
     auto bigger = (nom == 8) ? 0 : nom + 1;
-    retval.push_back(nom);
-    retval.push_back(smaller);
-    retval.push_back(bigger);
+    retval.push_back(sectorMapLogToPhys_[nom]);
+    retval.push_back(sectorMapLogToPhys_[smaller]);
+    retval.push_back(sectorMapLogToPhys_[bigger]);
     if (ieta == 2) {
       // also add the other ones
-      retval.push_back(nom + 9);
-      retval.push_back(smaller + 9);
-      retval.push_back(bigger + 9);
+      retval.push_back(sectorMapLogToPhys_[nom + 9]);
+      retval.push_back(sectorMapLogToPhys_[smaller + 9]);
+      retval.push_back(sectorMapLogToPhys_[bigger + 9]);
     }
   } else {
     auto nom = iphi + 9;
     auto smaller = (nom == 9) ? 17 : nom - 1;
     auto bigger = (nom == 17) ? 9 : nom + 1;
-    retval.push_back(nom);
-    retval.push_back(smaller);
-    retval.push_back(bigger);
+    retval.push_back(sectorMapLogToPhys_[nom]);
+    retval.push_back(sectorMapLogToPhys_[smaller]);
+    retval.push_back(sectorMapLogToPhys_[bigger]);
     if (ieta == 3) {
       // also add the other ones
-      retval.push_back(nom - 9);
-      retval.push_back(smaller - 9);
-      retval.push_back(bigger - 9);
+      retval.push_back(sectorMapLogToPhys_[nom - 9]);
+      retval.push_back(sectorMapLogToPhys_[smaller - 9]);
+      retval.push_back(sectorMapLogToPhys_[bigger - 9]);
     }
   }
   return retval;
 }
 
-// slighlty more complicated because of logical index;
+// Note that these are phyisical links
 template <typename T>
 inline std::vector<size_t> l1ct::tdr_regionizer::Regionizer<T>::caloLinksHelper(size_t iphi) const {
   if (iphi < 2) {
-    std::vector<size_t> retval = {11, 5, 6, 0, 7, 1, 8, 2};
+    std::vector<size_t> retval = {9, 3, 8, 2, 11, 5, 10, 4};
     return retval;
   } else if (iphi < 3) {
-    std::vector<size_t> retval = {7, 1, 8, 2};
+    std::vector<size_t> retval = {11, 5, 10, 4};
     return retval;
   } else if (iphi < 5) {
-    std::vector<size_t> retval = {9, 3, 10, 4, 7, 1, 8, 2};
+    std::vector<size_t> retval = {11, 5, 10, 4, 7, 1, 6, 0};
     return retval;
   } else if (iphi < 6) {
-    std::vector<size_t> retval = {9, 3, 10, 4};
+    std::vector<size_t> retval = {7, 1, 6, 0};
     return retval;
   } else if (iphi < 8) {
-    std::vector<size_t> retval = {9, 3, 10, 4, 11, 5, 6, 0};
+    std::vector<size_t> retval = {7, 1, 6, 0, 9, 3, 8, 2};
     return retval;
   } else {
-    std::vector<size_t> retval = {11, 5, 6, 0};
+    std::vector<size_t> retval = {9, 3, 8, 2};
     return retval;
   }
 }
@@ -391,13 +392,13 @@ void l1ct::tdr_regionizer::Regionizer<T>::run() {
 
   for (size_t sr = 0; sr < regionmap_.size(); sr++) {
     // iterate over the (logical) SRs
-    auto links = linksForSR(sr);  // these are the logical links
+    auto links = linksForSR(sr);  // these are the physical links
     auto physSR = regionmap_[sr];
     bool allEmpty;
     do {
       allEmpty = true;
       for (auto link : links) {
-        auto& buffer = buffers_[sectorMapLogToPhys_[link]];
+        auto& buffer = buffers_[link];
         if (!buffer.empty(sr)) {
           allEmpty = false;
           auto entry = buffer.getEntry(sr);

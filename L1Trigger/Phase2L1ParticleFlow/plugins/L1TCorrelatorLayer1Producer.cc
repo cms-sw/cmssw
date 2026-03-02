@@ -1013,31 +1013,31 @@ void L1TCorrelatorLayer1Producer::addHGCalHadCalo(const l1t::HGCalMulticluster &
 
 // The raw to decoded index mapping is
 // raw   ->     eta+ slr1  eta- slr1  eta+ slr3  eta1 slr3
-//  0               6          0         7          1
-//  1               8          2         9          3
-//  2              10          4        11          5
+//  0               7          1         6          0
+//  1               9          3         8          2
+//  2              11          5        10          4
 
 unsigned int L1TCorrelatorLayer1Producer::emDecodedIndex(unsigned int linkidx, unsigned int entidx) const {
   if (entidx < 17) {
-    return 2 * linkidx + 6;
-  } else if (entidx < 81) {
-    return 2 * linkidx;
-  } else if (entidx < 98) {
     return 2 * linkidx + 7;
-  } else {
+  } else if (entidx < 81) {
     return 2 * linkidx + 1;
+  } else if (entidx < 98) {
+    return 2 * linkidx + 6;
+  } else {
+    return 2 * linkidx;
   }
 }
 
 unsigned int L1TCorrelatorLayer1Producer::hadDecodedIndex(unsigned int linkidx, unsigned int entidx) const {
   if (entidx < 57) {
-    return 2 * linkidx + 6;
-  } else if (entidx < 81) {
-    return 2 * linkidx;
-  } else if (entidx < 138) {
     return 2 * linkidx + 7;
-  } else {
+  } else if (entidx < 81) {
     return 2 * linkidx + 1;
+  } else if (entidx < 138) {
+    return 2 * linkidx + 6;
+  } else {
+    return 2 * linkidx;
   }
 }
 
