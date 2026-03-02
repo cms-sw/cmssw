@@ -6420,6 +6420,7 @@ void JetAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<edm::InputTag>("jetsrc", edm::InputTag("ak4CaloJets"));
   desc.add<edm::InputTag>("METCollectionLabel", edm::InputTag("caloMet"));
   desc.add<edm::InputTag>("muonsrc", edm::InputTag("muons"));
+  desc.add<edm::InputTag>("srcRho", edm::InputTag(""));
   desc.add<std::string>("l1algoname", "L1Tech_BPTX_plus_AND_minus.v0");
   desc.add<bool>("filljetHighLevel", false);
   desc.add<bool>("fillsubstructure", false);
