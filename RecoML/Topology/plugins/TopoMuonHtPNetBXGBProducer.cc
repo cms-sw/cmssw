@@ -39,6 +39,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "PhysicsTools/XGBoost/interface/XGBooster.h"
 
 class TopoMuonHtPNetBXGBProducer : public edm::global::EDProducer<> {
@@ -78,7 +79,7 @@ private:
   const unsigned int nTreeLimit_;  // max number of trees to use in prediction (0 = use all trees)
 
   /* XGBoost */
-  std::unique_ptr<pat::XGBooster> booster_;
+  edm::propagate_const<std::unique_ptr<pat::XGBooster>> booster_;
   const edm::EDPutTokenT<float> scoreToken_;
 };
 
@@ -100,14 +101,12 @@ TopoMuonHtPNetBXGBProducer::TopoMuonHtPNetBXGBProducer(edm::ParameterSet const& 
       nTreeLimit_(iConfig.getParameter<unsigned int>("nTreeLimit")),
       scoreToken_(produces<float>("score")) {
   /* Load model */
-  const edm::FileInPath modelPath(iConfig.getParameter<std::string>("modelPath"));
+  const edm::FileInPath modelPath(iConfig.getParameter<edm::FileInPath>("modelPath"));
 
-#ifdef EDM_ML_DEBUG
   LogDebug("TopoMuonHtPNetBXGBProducer") << "Loading XGBoost model from " << modelPath.fullPath() << "\n"
                                          << " nMuons=" << nMuons_ << " nPNetB=" << nPNetB_
                                          << " nFeatures=" << nFeatures_ << " muonSortByTkIso=" << muonSortByTkIso_
                                          << " nTreeLimit=" << nTreeLimit_;
-#endif
 
   booster_ = std::make_unique<pat::XGBooster>(modelPath.fullPath());
 
@@ -257,17 +256,13 @@ void TopoMuonHtPNetBXGBProducer::produce(edm::StreamID, edm::Event& iEvent, edm:
   // the full un-pruned model is saved and early stopping was used
   outScore = booster_->predict(features, nTreeLimit_);
 
-#ifdef EDM_ML_DEBUG
-  {
-    std::ostringstream ss;
-    ss << "TopoMuonHtPNetBXGBProducer:"
-       << " nPNetB(found)=" << pnetScores.size() << " nMuons(found)=" << muonIndices.size() << "\n Features: ";
+  LogDebug("TopoMuonHtPNetBXGBProducer").log([&](auto& log) {
+    log << "TopoMuonHtPNetBXGBProducer:"
+        << " nPNetB(found)=" << pnetScores.size() << " nMuons(found)=" << muonIndices.size() << "\n Features: ";
     for (float f : features)
-      ss << f << " ";
-    ss << " --> score=" << outScore;
-    LogDebug("TopoMuonHtPNetBXGBProducer") << ss.str();
-  }
-#endif
+      log << f << " ";
+    log << " --> score=" << outScore;
+  });
 
   iEvent.emplace(scoreToken_, outScore);
 }
@@ -284,9 +279,9 @@ void TopoMuonHtPNetBXGBProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("HcalPFClusterIsoMap", edm::InputTag("hltMuonHcalRegPFClusterIsoForMuons"));
   desc.add<edm::InputTag>("TrackIsoMap",
                           edm::InputTag("hltMuonTkRelIsolationCut0p3Map", "combinedRelativeIsoDeposits"));
-  desc.add<std::string>("modelPath",
-                        "HLTrigger/HLTfilters/data/"
-                        "HLT_xgb_model_HH2b2W1L_1mu_HLTHT_sorttkisoMupt-absiso_PNetB.json");
+  desc.add<edm::FileInPath>("modelPath",
+                            edm::FileInPath("HLTrigger/HLTfilters/data/"
+                                            "HLT_xgb_model_HH2b2W1L_1mu_HLTHT_sorttkisoMupt-absiso_PNetB.json"));
 
   desc.add<unsigned int>("nMuons", 1)
       ->setComment(
