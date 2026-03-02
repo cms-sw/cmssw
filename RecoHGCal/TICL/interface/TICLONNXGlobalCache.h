@@ -29,13 +29,26 @@ namespace ticl {
 
     //  - Consider inference plugin only if inferenceAlgo is non-empty.
     static std::unique_ptr<TICLONNXGlobalCache> initialize(edm::ParameterSet const& modulePSet) {
+      Ort::SessionOptions sess_opts;
+      sess_opts.SetIntraOpNumThreads(1);
+      sess_opts.SetInterOpNumThreads(1);
+      sess_opts.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
+      // Enable profiling if "profileOutputFile" is set in the module PSet. This will create a file with detailed timing info for each ONNX Runtime session run, which can be visualized with tools like
+      if (modulePSet.existsAs<std::string>("profileOutputFile", /*trackPar=*/true)) {
+        const auto profileFile = modulePSet.getParameter<std::string>("profileOutputFile");
+        if (!profileFile.empty()) {
+          sess_opts.EnableProfiling(profileFile.c_str());
+        }
+      }
+      sess_opts.EnableCpuMemArena();
+      sess_opts.EnableMemPattern();
       auto cache = std::make_unique<TICLONNXGlobalCache>();
 
       // 1) Linking model (TracksterLinksProducer / TracksterLinksProducer-like modules)
       // Load only if present and non-empty.
       if (modulePSet.existsAs<edm::ParameterSet>("linkingPSet", /*trackPar=*/true)) {
         const auto linkingPSet = modulePSet.getParameter<edm::ParameterSet>("linkingPSet");
-        cache->tryLoadSessionFromKey(linkingPSet, "onnxModelPath");
+        cache->tryLoadSessionFromKey(linkingPSet, "onnxModelPath", sess_opts);
       }
 
       // 2) Inference models (TrackstersProducer / TracksterLinksProducer when regressionAndPid)
@@ -54,15 +67,15 @@ namespace ticl {
 
       const auto infPSet = modulePSet.getParameter<edm::ParameterSet>(infPSetName);
 
-      cache->tryLoadSessionFromKey(infPSet, "onnxModelPath");
-      cache->tryLoadSessionFromKey(infPSet, "onnxPIDModelPath");
-      cache->tryLoadSessionFromKey(infPSet, "onnxEnergyModelPath");
+      cache->tryLoadSessionFromKey(infPSet, "onnxModelPath", sess_opts);
+      cache->tryLoadSessionFromKey(infPSet, "onnxPIDModelPath", sess_opts);
+      cache->tryLoadSessionFromKey(infPSet, "onnxEnergyModelPath", sess_opts);
 
       return cache;
     }
 
   private:
-    void tryLoadSessionFromKey(edm::ParameterSet const& pset, char const* key) {
+    void tryLoadSessionFromKey(edm::ParameterSet const& pset, char const* key, Ort::SessionOptions const& sess_opts) {
       if (!pset.existsAs<std::string>(key, /*trackPar=*/true)) {
         return;
       }
@@ -73,7 +86,7 @@ namespace ticl {
 
       const std::string fullPath = edm::FileInPath(model).fullPath();
 
-      sessionsByFullPath.try_emplace(fullPath, std::make_unique<cms::Ort::ONNXRuntime>(fullPath));
+      sessionsByFullPath.try_emplace(fullPath, std::make_unique<cms::Ort::ONNXRuntime>(fullPath, &sess_opts));
     }
   };
 
