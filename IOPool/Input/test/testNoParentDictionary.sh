@@ -16,6 +16,8 @@ mkdir DataFormats
 # Copy DataFormats/Common if it was modified locally
 if [ -d ${CMSSW_BASE}/src/DataFormats/Common ]; then
     cp -Lr ${CMSSW_BASE}/src/DataFormats/Common DataFormats/
+    # the tests add additional unwanted dependencies
+    rm -rf DataFormats/Common/test
 fi
 if [ -d ${CMSSW_BASE}/src/DataFormats/Provenance ]; then
     cp -Lr ${CMSSW_BASE}/src/DataFormats/Provenance DataFormats/

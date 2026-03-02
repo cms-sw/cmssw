@@ -14,7 +14,6 @@
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 
 #include "zlib.h"
 #include "lzma.h"
@@ -187,7 +186,6 @@ namespace edm::streamer {
 
   void StreamerInputSource::updateEventMetaData() {
     branchIDListHelper()->updateFromInput(sendEvent_->branchIDLists());
-    thinnedAssociationsHelper()->updateFromPrimaryInput(sendEvent_->thinnedAssociationsHelper());
   }
 
   uint32_t StreamerInputSource::eventMetaDataChecksum(EventMsgView const& eventView) const {
@@ -476,29 +474,6 @@ namespace edm::streamer {
 
   WrapperBase const* StreamerInputSource::EventPrincipalHolder::getIt(ProductID const& id) const {
     return eventPrincipal_ ? eventPrincipal_->getIt(id) : nullptr;
-  }
-
-  std::optional<std::tuple<edm::WrapperBase const*, unsigned int>>
-  StreamerInputSource::EventPrincipalHolder::getThinnedProduct(edm::ProductID const& id, unsigned int index) const {
-    if (eventPrincipal_)
-      return eventPrincipal_->getThinnedProduct(id, index);
-    return std::nullopt;
-  }
-
-  void StreamerInputSource::EventPrincipalHolder::getThinnedProducts(ProductID const& pid,
-                                                                     std::vector<WrapperBase const*>& wrappers,
-                                                                     std::vector<unsigned int>& keys) const {
-    if (eventPrincipal_)
-      eventPrincipal_->getThinnedProducts(pid, wrappers, keys);
-  }
-
-  edm::OptionalThinnedKey StreamerInputSource::EventPrincipalHolder::getThinnedKeyFrom(
-      edm::ProductID const& parent, unsigned int index, edm::ProductID const& thinned) const {
-    if (eventPrincipal_) {
-      return eventPrincipal_->getThinnedKeyFrom(parent, index, thinned);
-    } else {
-      return std::monostate{};
-    }
   }
 
   unsigned int StreamerInputSource::EventPrincipalHolder::transitionIndex_() const {

@@ -295,19 +295,6 @@ namespace {
   struct TestGetter : public edm::EDProductGetter {
     WrapperBase const* hold_;
     WrapperBase const* getIt(ProductID const&) const override { return hold_; }
-    std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> getThinnedProduct(ProductID const&,
-                                                                                       unsigned int) const override {
-      return std::nullopt;
-    }
-
-    void getThinnedProducts(ProductID const& pid,
-                            std::vector<WrapperBase const*>& wrappers,
-                            std::vector<unsigned int>& keys) const override {}
-
-    edm::OptionalThinnedKey getThinnedKeyFrom(ProductID const&, unsigned int, ProductID const&) const override {
-      return std::monostate{};
-    }
-
     unsigned int transitionIndex_() const override { return 0U; }
 
     TestGetter() : hold_() {}

@@ -533,18 +533,12 @@ namespace edm {
 
   template <typename C, typename T, typename F>
   inline bool Ref<C, T, F>::isAvailable() const {
-    if (product_.isAvailable()) {
-      return true;
-    }
-    return isThinnedAvailable<C>(product_, index_);
+    return product_.isAvailable();
   }
 
   template <typename E>
   inline bool Ref<REF_FOR_VECTOR_ARGS>::isAvailable() const {
-    if (product_.isAvailable()) {
-      return true;
-    }
-    return isThinnedAvailable<std::vector<E>>(product_.toRefCore(), key());
+    return product_.isAvailable();
   }
 
   /// Dereference operator

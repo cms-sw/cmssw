@@ -72,7 +72,6 @@ namespace edm {
     std::string const processHistory = "ProcessHistory";
     std::string const processConfiguration = "ProcessConfiguration";
     std::string const branchIDLists = "BranchIDLists";
-    std::string const thinnedAssociationsHelper = "ThinnedAssociationsHelper";
     std::string const fileFormatVersion = "FileFormatVersion";
     std::string const fileIdentifier = "FileIdentifier";
     std::string const fileIndex = "FileIndex";
@@ -181,9 +180,6 @@ namespace edm {
 
     // Branch on MetaData Tree
     std::string const& branchIDListBranchName() { return branchIDLists; }
-
-    // Branch on MetaData Tree
-    std::string const& thinnedAssociationsHelperBranchName() { return thinnedAssociationsHelper; }
 
     // Branch on MetaData Tree
     std::string const& fileFormatVersionBranchName() { return fileFormatVersion; }
