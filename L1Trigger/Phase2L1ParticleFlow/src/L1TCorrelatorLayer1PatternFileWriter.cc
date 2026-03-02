@@ -4,6 +4,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/allowedValues.h"
 #include <iostream>
+#include <algorithm>
 
 L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const edm::ParameterSet& iConfig,
                                                                            const l1ct::Event& eventTemplate)
@@ -460,7 +461,11 @@ void L1TCorrelatorLayer1PatternFileWriter::writeDebugs(const l1ct::Event& event,
   // Note:  the writers have a width of 64 very much hardcoded in the sizes. Therefore, send the 73 bits as
   //        two separate "fibers"
 
-  constexpr unsigned int MAX_BITWIDTH = 73;  // Should be the biggest object width (or greater)
+  constexpr unsigned int MAX_BITWIDTH =
+      std::max({l1ct::TkObjEmu::BITWIDTH_BARREL,
+                l1ct::EmCaloObjEmu::BITWIDTH_BARREL,
+                l1ct::HadCaloObjEmu::BITWIDTH_BARREL,
+                l1ct::MuObjEmu::BITWIDTH});  // Should be the biggest object width (or greater)
 
   if (nPFInTrack_) {
     std::vector<std::vector<ap_uint<64>>> linksLow(nPFInTrack_);   // virtual links -- bits 63:0
@@ -469,7 +474,7 @@ void L1TCorrelatorLayer1PatternFileWriter::writeDebugs(const l1ct::Event& event,
       auto pfvals = event.pfinputs[ir].track;
       unsigned int npfvals = pfvals.size();
       for (unsigned int i = 0; i < nPFInTrack_; ++i) {
-        ap_uint<MAX_BITWIDTH> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::TkObjEmu::BITWIDTH>(0);
+        ap_uint<MAX_BITWIDTH> val = i < npfvals ? pfvals[i].pack_barrel() : ap_uint<l1ct::TkObjEmu::BITWIDTH_BARREL>(0);
         linksHigh[i].push_back(val(MAX_BITWIDTH - 1, 64));
         linksLow[i].push_back(val(63, 0));
       }
@@ -486,7 +491,8 @@ void L1TCorrelatorLayer1PatternFileWriter::writeDebugs(const l1ct::Event& event,
       auto pfvals = event.pfinputs[ir].emcalo;
       unsigned int npfvals = pfvals.size();
       for (unsigned int i = 0; i < nPFInEmCalo_; ++i) {
-        ap_uint<MAX_BITWIDTH> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::EmCaloObjEmu::BITWIDTH>(0);
+        ap_uint<MAX_BITWIDTH> val =
+            i < npfvals ? pfvals[i].pack_barrel() : ap_uint<l1ct::EmCaloObjEmu::BITWIDTH_BARREL>(0);
         linksHigh[i].push_back(val(MAX_BITWIDTH - 1, 64));
         linksLow[i].push_back(val(63, 0));
       }
@@ -503,7 +509,8 @@ void L1TCorrelatorLayer1PatternFileWriter::writeDebugs(const l1ct::Event& event,
       auto pfvals = event.pfinputs[ir].hadcalo;
       unsigned int npfvals = pfvals.size();
       for (unsigned int i = 0; i < nPFInHadCalo_; ++i) {
-        ap_uint<MAX_BITWIDTH> val = i < npfvals ? pfvals[i].pack() : ap_uint<l1ct::HadCaloObjEmu::BITWIDTH>(0);
+        ap_uint<MAX_BITWIDTH> val =
+            i < npfvals ? pfvals[i].pack_barrel() : ap_uint<l1ct::HadCaloObjEmu::BITWIDTH_BARREL>(0);
         linksHigh[i].push_back(val(MAX_BITWIDTH - 1, 64));
         linksLow[i].push_back(val(63, 0));
       }

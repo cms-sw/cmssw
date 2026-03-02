@@ -274,10 +274,9 @@ void l1ct::tdr_regionizer::Regionizer<T>::addToSmallRegion(size_t sr, BufferEntr
   rawObj.hwPhi = locPhi;
 
   if (debug_) {
-    dbgCout() << "smallRegionObjects_ " << sr << " obj with pt = " << rawObj.intPt() << ", loc eta = " << rawObj.intEta()
-          << ", loc phi = " << rawObj.intPhi() << std::endl;
+    dbgCout() << "smallRegionObjects_ " << sr << " obj with pt = " << rawObj.intPt()
+              << ", loc eta = " << rawObj.intEta() << ", loc phi = " << rawObj.intPhi() << std::endl;
   }
-
 
   smallRegionObjects_[sr].push_back(rawObj);
 }
@@ -403,8 +402,8 @@ void l1ct::tdr_regionizer::Regionizer<T>::run() {
           allEmpty = false;
           auto entry = buffer.getEntry(sr);
           if (debug_) {
-            dbgCout() << "Adding to sr " << sr << " (physSR = " << physSR << ") obj with pt = " << entry.pt() << ", glb eta = " << entry.glbEta()
-                  << ", glb phi = " << entry.glbPhi() << std::endl;
+            dbgCout() << "Adding to sr " << sr << " (physSR = " << physSR << ") obj with pt = " << entry.pt()
+                      << ", glb eta = " << entry.glbEta() << ", glb phi = " << entry.glbPhi() << std::endl;
           }
           addToSmallRegion(physSR, entry);
         }
@@ -447,8 +446,8 @@ void l1ct::tdr_regionizer::Regionizer<T>::printDebug(int count) const {
     auto phiC = regions_[physRegIdx].intPhiCenter();
     for (unsigned int j = 0; j < smallRegionObjects_[physRegIdx].size(); j++) {
       dbgCout() << "\t" << region << " (" << etaC << ", " << phiC << ")\t\t" << physRegIdx << "\t" << j << "\t"
-                << smallRegionObjects_[physRegIdx][j].intPt() << "\t" << smallRegionObjects_[physRegIdx][j].intEta() << "\t"
-                << smallRegionObjects_[physRegIdx][j].intPhi() << std::endl;
+                << smallRegionObjects_[physRegIdx][j].intPt() << "\t" << smallRegionObjects_[physRegIdx][j].intEta()
+                << "\t" << smallRegionObjects_[physRegIdx][j].intPhi() << std::endl;
     }
     dbgCout() << "-------------------------------" << std::endl;
   }
