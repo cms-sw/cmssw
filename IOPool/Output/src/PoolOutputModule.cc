@@ -361,7 +361,6 @@ namespace edm {
     writeProductDescriptionRegistry();
     writeParentageRegistry();
     writeBranchIDListRegistry();
-    writeThinnedAssociationsHelper();
     writeProductDependencies();  //productDependencies used here
     writeProcessBlockHelper();
     productDependencies_.clear();
@@ -387,7 +386,6 @@ namespace edm {
   }
   void PoolOutputModule::writeParentageRegistry() { rootOutputFile_->writeParentageRegistry(); }
   void PoolOutputModule::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
-  void PoolOutputModule::writeThinnedAssociationsHelper() { rootOutputFile_->writeThinnedAssociationsHelper(); }
   void PoolOutputModule::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
   void PoolOutputModule::writeEventAuxiliary() { rootOutputFile_->writeEventAuxiliary(); }
   void PoolOutputModule::writeProcessBlockHelper() { rootOutputFile_->writeProcessBlockHelper(); }

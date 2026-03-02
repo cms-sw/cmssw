@@ -10,7 +10,6 @@ Test of GenericHandle class.
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
@@ -90,12 +89,10 @@ void testGenericHandle::failgetbyLabelTest() {
   lbp->setRunPrincipal(rp);
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
   branchIDListHelper->updateFromRegistry(*preg);
-  auto thinnedAssociationsHelper = std::make_shared<edm::ThinnedAssociationsHelper>();
   edm::EventAuxiliary eventAux(id, uuid, time, true);
   edm::EventPrincipal ep(preg,
                          edm::productResolversFactory::makePrimary,
                          branchIDListHelper,
-                         thinnedAssociationsHelper,
                          pc,
                          &historyAppender_,
                          edm::StreamID::invalidStreamID());
@@ -154,7 +151,6 @@ void testGenericHandle::getbyLabelTest() {
   preg->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
   branchIDListHelper->updateFromRegistry(preg->registry());
-  auto thinnedAssociationsHelper = std::make_shared<edm::ThinnedAssociationsHelper>();
 
   edm::ProductRegistry::ProductList const& pl = preg->registry().productList();
   edm::BranchKey const bk(product);
@@ -176,7 +172,6 @@ void testGenericHandle::getbyLabelTest() {
   edm::EventPrincipal ep(pregc,
                          edm::productResolversFactory::makePrimary,
                          branchIDListHelper,
-                         thinnedAssociationsHelper,
                          pc,
                          &historyAppender_,
                          edm::StreamID::invalidStreamID());

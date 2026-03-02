@@ -17,12 +17,11 @@
 #include "FWCore/Framework/interface/OutputModuleCore.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Common/interface/EndPathStatus.h"
 #include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+
 #include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -58,8 +57,7 @@ namespace edm {
           selector_config_id_(),
           droppedBranchIDToKeptBranchID_(),
           branchIDLists_(new BranchIDLists),
-          origBranchIDLists_(nullptr),
-          thinnedAssociationsHelper_(new ThinnedAssociationsHelper) {
+          origBranchIDLists_(nullptr) {
       hasNewlyDroppedBranch_.fill(false);
 
       Service<service::TriggerNamesService> tns;
@@ -89,7 +87,6 @@ namespace edm {
     }
 
     void OutputModuleCore::selectProducts(ProductRegistry const& preg,
-                                          ThinnedAssociationsHelper const& thinnedAssociationsHelper,
                                           ProcessBlockHelperBase const& processBlockHelper) {
       if (productSelector_.initialized())
         return;
@@ -110,8 +107,6 @@ namespace edm {
         if (!desc.present() && !desc.produced()) {
           // else if the branch containing the product has been previously dropped,
           // output nothing
-        } else if (desc.unwrappedType() == typeid(ThinnedAssociation)) {
-          associationDescriptions.push_back(&desc);
         } else if (selected(desc)) {
           //allow inheriting classes to have final say on selection
           if (finalSelection(desc)) {
@@ -128,22 +123,9 @@ namespace edm {
 
       setProcessesWithSelectedMergeableRunProducts(processesWithSelectedMergeableRunProducts);
 
-      thinnedAssociationsHelper.selectAssociationProducts(
-          associationDescriptions, keptProductsInEvent, keepAssociation_);
-
-      for (auto association : associationDescriptions) {
-        if (keepAssociation_[association->branchID()]) {
-          keepThisBranch(*association, trueBranchIDToKeptBranchDesc, keptProductsInEvent);
-        } else {
-          hasNewlyDroppedBranch_[association->branchType()] = true;
-        }
-      }
-
       // Now fill in a mapping needed in the case that a branch was dropped while its EDAlias was kept.
       ProductSelector::fillDroppedToKept(preg, trueBranchIDToKeptBranchDesc, droppedBranchIDToKeptBranchID_);
 
-      thinnedAssociationsHelper_->updateFromParentProcess(
-          thinnedAssociationsHelper, keepAssociation_, droppedBranchIDToKeptBranchID_);
       outputProcessBlockHelper_.updateAfterProductSelection(processesWithKeptProcessBlockProducts, processBlockHelper);
 
       orderedProcessNames_ = preg.processOrder();
@@ -358,10 +340,6 @@ namespace edm {
         return branchIDLists_.get();
       }
       return origBranchIDLists_;
-    }
-
-    ThinnedAssociationsHelper const* OutputModuleCore::thinnedAssociationsHelper() const {
-      return thinnedAssociationsHelper_.get();
     }
 
     ModuleDescription const& OutputModuleCore::description() const { return moduleDescription_; }

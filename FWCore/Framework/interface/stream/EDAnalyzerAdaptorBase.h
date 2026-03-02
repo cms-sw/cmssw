@@ -48,7 +48,6 @@ namespace edm {
   class PreallocationConfiguration;
   class ProductResolverIndexAndSkipBit;
   class ActivityRegistry;
-  class ThinnedAssociationsHelper;
   class SignallingProductRegistryFiller;
   struct ModuleConsumesMinimalESInfo;
 

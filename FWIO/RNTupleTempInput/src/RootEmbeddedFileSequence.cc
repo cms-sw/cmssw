@@ -8,7 +8,7 @@
 
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Framework/interface/InputSource.h"

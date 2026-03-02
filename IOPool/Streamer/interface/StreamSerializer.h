@@ -22,7 +22,6 @@
 namespace edm {
   class EventForOutput;
   class ModuleCallingContext;
-  class ThinnedAssociationsHelper;
 }  // namespace edm
 
 // Data structure to be shared by all output modules for event serialization
@@ -90,7 +89,6 @@ namespace edm::streamer {
     ///data_buffer.adler32_chksum_ is the meta data checksum to pass to subsequent events
     int serializeEventMetaData(SerializeDataBuffer &data_buffer,
                                const BranchIDLists &branchIDLists,
-                               ThinnedAssociationsHelper const &thinnedAssociationsHelper,
                                StreamerCompressionAlgo compressionAlgo,
                                int compression_level,
                                unsigned int reserveSize) const;

@@ -86,23 +86,14 @@ namespace edm::rntuple_temp {
                                .promptReading = not input_.delayReadingEventProducts(),
                                .enableIMT = input_.optimizations().enableIMT},
         RootFile::ProductChoices{.productSelectorRules = input_.productSelectorRules(),
-                                 .associationsFromSecondary = &associationsFromSecondary_,
                                  .dropDescendantsOfDroppedProducts = input_.dropDescendants(),
                                  .labelRawDataLikeMC = input_.labelRawDataLikeMC()},
         RootFile::CrossFileInfo{.runHelper = input_.runHelper(),
                                 .branchIDListHelper = input_.branchIDListHelper(),
-                                .thinnedAssociationsHelper = input_.thinnedAssociationsHelper(),
                                 .indexesIntoFiles = indexesIntoFiles(),
                                 .currentIndexIntoFile = currentIndexIntoFile},
         input_.nStreams(),
         input_.processHistoryRegistryForUpdate(),
         orderedProcessHistoryIDs_);
-  }
-
-  void RootSecondaryFileSequence::initAssociationsFromSecondary(std::set<BranchID> const& associationsFromSecondary) {
-    for (auto const& branchID : associationsFromSecondary) {
-      associationsFromSecondary_.push_back(branchID);
-    }
-    rootFile()->initAssociationsFromSecondary(associationsFromSecondary_);
   }
 }  // namespace edm::rntuple_temp

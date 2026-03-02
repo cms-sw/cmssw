@@ -20,22 +20,6 @@
 #include "FWCore/Framework/interface/OutputModuleCommunicatorT.h"
 
 namespace edm::maker {
-  namespace {
-    template <typename T>
-    concept HasRegisterThinnedAssociationsFunction =
-        requires(T mod, ProductRegistry reg, ThinnedAssociationsHelper helper) {
-          { mod.doRegisterThinnedAssociations(reg, helper) } -> std::same_as<void>;
-        };
-  }  // namespace
-
-  template <typename T>
-  inline void ModuleHolderT<T>::implRegisterThinnedAssociations(ProductRegistry const& registry,
-                                                                ThinnedAssociationsHelper& helper) {
-    if constexpr (HasRegisterThinnedAssociationsFunction<T>) {
-      m_mod->doRegisterThinnedAssociations(registry, helper);
-    }
-  }
-
   template <typename T>
   std::unique_ptr<OutputModuleCommunicator> ModuleHolderT<T>::createOutputModuleCommunicator() {
     return OutputModuleCommunicatorT<T>::createIfNeeded(m_mod.get());

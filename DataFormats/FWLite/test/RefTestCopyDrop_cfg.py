@@ -11,9 +11,7 @@ process.source = cms.Source("PoolSource",
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('refTestCopyDropDataFormatsFWLite.root'),
     outputCommands = cms.untracked.vstring(
-        'keep *',
-        'drop *_thinningThingProducerE_*_*',
-        'drop *_thinningThingProducerF_*_*'
+        'keep *'
     )
 )
 

@@ -134,7 +134,6 @@ namespace edm {
                                          CommonParams const& common,
                                          std::shared_ptr<BranchIDListHelper> branchIDListHelper,
                                          std::shared_ptr<ProcessBlockHelper> const& processBlockHelper,
-                                         std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
                                          std::shared_ptr<ActivityRegistry> areg,
                                          std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                          PreallocationConfiguration const& allocations) {
@@ -178,7 +177,6 @@ namespace edm {
     InputSourceDescription isdesc(md,
                                   branchIDListHelper,
                                   processBlockHelper,
-                                  thinnedAssociationsHelper,
                                   areg,
                                   common.maxEventsInput_,
                                   common.maxLumisInput_,
@@ -511,7 +509,6 @@ namespace edm {
                                *common,
                                items.branchIDListHelper(),
                                get_underlying_safe(processBlockHelper_),
-                               items.thinnedAssociationsHelper(),
                                items.actReg_,
                                items.processConfiguration(),
                                preallocations_);
@@ -536,7 +533,6 @@ namespace edm {
       preg_ = std::make_shared<ProductRegistry>(items.preg()->moveTo());
       mergeableRunProductProcesses_.setProcessesWithMergeableRunProducts(*preg_);
       branchIDListHelper_ = items.branchIDListHelper();
-      thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
       processConfiguration_ = items.processConfiguration();
       processContext_.setProcessConfiguration(processConfiguration_.get());
 
@@ -558,7 +554,6 @@ namespace edm {
           auto ep = std::make_shared<EventPrincipal>(preg(),
                                                      productResolversFactory::makePrimary,
                                                      branchIDListHelper(),
-                                                     thinnedAssociationsHelper(),
                                                      *processConfiguration_,
                                                      historyAppender_.get(),
                                                      index,
