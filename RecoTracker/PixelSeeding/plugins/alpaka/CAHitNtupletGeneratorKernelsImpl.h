@@ -37,7 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
   constexpr uint32_t tkNotFound = std::numeric_limits<uint32_t>::max();
   constexpr float maxScore = std::numeric_limits<float>::max();
-  constexpr float nSigma2 = 25.f;
+  constexpr float nSigma2 = 5.f;
   constexpr int nTrackParameters = 5;
   // map: index of a track parameter -> index of its covariance
   HOST_DEVICE_CONSTANT std::array<uint8_t, nTrackParameters> iParam2iCov = {0u, 5u, 9u, 12u, 14u};
@@ -280,7 +280,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         float mc = maxScore;
         uint32_t im = tkNotFound;
 
-        auto score = [&](auto it) { return std::abs(reco::tip(tracks_view, it)); };
+        // auto score = [&](auto it) { return std::abs(reco::tip(tracks_view, it)); };
+        auto score = [&](auto it) { return tracks_view[it].chi2(); };
 
         // full crazy combinatorics
         auto const *__restrict__ thisCellTracks = cellTracksHisto->begin(idx);
@@ -898,7 +899,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         if (hitToTuple.size(idx) < 2)
           continue;
 
-        auto score = [&](auto it, auto nl) { return std::abs(reco::tip(tracks_view, it)); };
+        // auto score = [&](auto it, auto nl) { return std::abs(reco::tip(tracks_view, it)); };
+        auto score = [&](auto it, auto nl) { return tracks_view[it].chi2(); };
 
         // full combinatorics
         for (auto ip = hitToTuple.begin(idx); ip < hitToTuple.end(idx) - 1; ++ip) {
