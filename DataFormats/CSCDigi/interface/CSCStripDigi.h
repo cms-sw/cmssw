@@ -14,74 +14,78 @@
 #include <iosfwd>
 #include <cstdint>
 
-class CSCStripDigi {
-public:
-  // Construct from the strip number and all the other data members.
-  CSCStripDigi(const int& istrip,
-               const std::vector<int>& vADCCounts,
-               const std::vector<uint16_t>& vADCOverflow,
-               const std::vector<uint16_t>& vOverlap,
-               const std::vector<uint16_t>& vErrorstat)
-      : strip(istrip),
-        ADCCounts(vADCCounts),
-        ADCOverflow(vADCOverflow),
-        OverlappedSample(vOverlap),
-        Errorstat(vErrorstat) {}
+namespace io_v1 {
 
-  // Construct from the strip number and the ADC readings.
-  CSCStripDigi(const int& istrip, const std::vector<int>& vADCCounts)
-      : strip(istrip), ADCCounts(vADCCounts), ADCOverflow(8, 0), OverlappedSample(8, 0), Errorstat(8, 0) {}
+  class CSCStripDigi {
+  public:
+    // Construct from the strip number and all the other data members.
+    CSCStripDigi(const int& istrip,
+                 const std::vector<int>& vADCCounts,
+                 const std::vector<uint16_t>& vADCOverflow,
+                 const std::vector<uint16_t>& vOverlap,
+                 const std::vector<uint16_t>& vErrorstat)
+        : strip(istrip),
+          ADCCounts(vADCCounts),
+          ADCOverflow(vADCOverflow),
+          OverlappedSample(vOverlap),
+          Errorstat(vErrorstat) {}
 
-  CSCStripDigi() : strip(0), ADCCounts(8, 0), ADCOverflow(8, 0), OverlappedSample(8, 0), Errorstat(8, 0) {}
+    // Construct from the strip number and the ADC readings.
+    CSCStripDigi(const int& istrip, const std::vector<int>& vADCCounts)
+        : strip(istrip), ADCCounts(vADCCounts), ADCOverflow(8, 0), OverlappedSample(8, 0), Errorstat(8, 0) {}
 
-  // Digis are equal if they are on the same strip and have same ADC readings
-  bool operator==(const CSCStripDigi& digi) const;
+    CSCStripDigi() : strip(0), ADCCounts(8, 0), ADCOverflow(8, 0), OverlappedSample(8, 0), Errorstat(8, 0) {}
 
-  // Get the strip number. counts from 1.
-  int getStrip() const { return strip; }
+    // Digis are equal if they are on the same strip and have same ADC readings
+    bool operator==(const CSCStripDigi& digi) const;
 
-  /// Get the CFEB number. Counts from 0.
-  int getCFEB() const;
+    // Get the strip number. counts from 1.
+    int getStrip() const { return strip; }
 
-  /// Get ADC readings
-  std::vector<int> const& getADCCounts() const { return ADCCounts; }
+    /// Get the CFEB number. Counts from 0.
+    int getCFEB() const;
 
-  /// Get L1APhase from OverlappedSample (9th bit)
-  std::vector<int> getL1APhase() const {
-    std::vector<int> L1APhaseResult(getOverlappedSample().size());
-    for (int i = 0; i < (int)getOverlappedSample().size(); i++)
-      L1APhaseResult[i] = (getOverlappedSample()[i] >> 8) & 0x1;
-    return L1APhaseResult;
-  }
+    /// Get ADC readings
+    std::vector<int> const& getADCCounts() const { return ADCCounts; }
 
-  int getL1APhase(int i) const { return (getOverlappedSample()[i] >> 8) & 0x1; }
+    /// Get L1APhase from OverlappedSample (9th bit)
+    std::vector<int> getL1APhase() const {
+      std::vector<int> L1APhaseResult(getOverlappedSample().size());
+      for (int i = 0; i < (int)getOverlappedSample().size(); i++)
+        L1APhaseResult[i] = (getOverlappedSample()[i] >> 8) & 0x1;
+      return L1APhaseResult;
+    }
 
-  /// Other getters
-  std::vector<uint16_t> const& getADCOverflow() const { return ADCOverflow; }
-  std::vector<uint16_t> const& getOverlappedSample() const { return OverlappedSample; }
-  std::vector<uint16_t> const& getErrorstat() const { return Errorstat; }
+    int getL1APhase(int i) const { return (getOverlappedSample()[i] >> 8) & 0x1; }
 
-  // Set the strip number
-  void setStrip(int istrip) { strip = istrip; }
+    /// Other getters
+    std::vector<uint16_t> const& getADCOverflow() const { return ADCOverflow; }
+    std::vector<uint16_t> const& getOverlappedSample() const { return OverlappedSample; }
+    std::vector<uint16_t> const& getErrorstat() const { return Errorstat; }
 
-  // Set with a vector of ADC readings
-  void setADCCounts(const std::vector<int>& ADCCounts);
+    // Set the strip number
+    void setStrip(int istrip) { strip = istrip; }
 
-  // Print content of digi
-  void print() const;
+    // Set with a vector of ADC readings
+    void setADCCounts(const std::vector<int>& ADCCounts);
 
-  ///methods for calibrations
-  float pedestal() const { return 0.5f * (ADCCounts[0] + ADCCounts[1]); }
-  float amplitude() const { return ADCCounts[4] - pedestal(); }
+    // Print content of digi
+    void print() const;
 
-private:
-  uint16_t strip;
-  std::vector<int> ADCCounts;
-  std::vector<uint16_t> ADCOverflow;
-  std::vector<uint16_t> OverlappedSample;
-  std::vector<uint16_t> Errorstat;
-};
+    ///methods for calibrations
+    float pedestal() const { return 0.5f * (ADCCounts[0] + ADCCounts[1]); }
+    float amplitude() const { return ADCCounts[4] - pedestal(); }
 
-std::ostream& operator<<(std::ostream& o, const CSCStripDigi& digi);
+  private:
+    uint16_t strip;
+    std::vector<int> ADCCounts;
+    std::vector<uint16_t> ADCOverflow;
+    std::vector<uint16_t> OverlappedSample;
+    std::vector<uint16_t> Errorstat;
+  };
 
+  std::ostream& operator<<(std::ostream& o, const CSCStripDigi& digi);
+
+}  // namespace io_v1
+using CSCStripDigi = io_v1::CSCStripDigi;
 #endif

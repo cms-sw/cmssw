@@ -1,42 +1,37 @@
 <lcgdict>
 <selection>
-  <class name="CSCRecHit2D" ClassVersion="14">
-   <version ClassVersion="14" checksum="1191763325"/>
-   <version ClassVersion="11" checksum="2464154506"/>
-   <version ClassVersion="10" checksum="2273322213"/>
-  <version ClassVersion="12" checksum="4199658304"/>
-  <version ClassVersion="13" checksum="1105334358"/>
+  <class name="io_v1::CSCRecHit2D" ClassVersion="3">
+   <version ClassVersion="3" checksum="703422205"/>
   </class>
-  <class name="std::vector<CSCRecHit2D>"/>
-  <class name="std::vector<CSCRecHit2D*>"/>
+  <class name="std::vector<io_v1::CSCRecHit2D>"/>
+  <class name="std::vector<io_v1::CSCRecHit2D*>"/>
   <class name="std::map<CSCDetId,std::pair<unsigned int,unsigned int> >"/>
   <class name="std::map<CSCDetId,std::pair<unsigned long,unsigned long> >"/>
   <class name="std::pair<CSCDetId,std::pair<unsigned int,unsigned int> >"/>  <!-- Root6 -->
   <class name="std::pair<CSCDetId,std::pair<unsigned long,unsigned long> >"/><!-- Root6 -->
-  <class name="edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >"  rntupleStreamerMode="true" />
-  <class name="edm::ClonePolicy<CSCRecHit2D>"/> <!-- Root6 -->
-  <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> >"/>
-  <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> > >"/>
+  <class name="edm::OwnVector<io_v1::CSCRecHit2D,edm::ClonePolicy<io_v1::CSCRecHit2D> >"  rntupleStreamerMode="true" />
+  <class name="edm::ClonePolicy<io_v1::CSCRecHit2D>"/> <!-- Root6 -->
+  <class name="edm::RangeMap<CSCDetId,edm::OwnVector<io_v1::CSCRecHit2D,edm::ClonePolicy<io_v1::CSCRecHit2D> >,edm::ClonePolicy<io_v1::CSCRecHit2D> >"/>
+  <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<io_v1::CSCRecHit2D,edm::ClonePolicy<io_v1::CSCRecHit2D> >,edm::ClonePolicy<io_v1::CSCRecHit2D> > >"/>
 
-  <class name="std::vector<CSCSegment>"/>
-  <class name="std::vector<CSCSegment*>"/>
-  <class name="CSCSegment" ClassVersion="11">
-   <version ClassVersion="11" checksum="160361831"/>
-   <version ClassVersion="10" checksum="3002485899"/>
+  <class name="std::vector<io_v1::CSCSegment>"/>
+  <class name="std::vector<io_v1::CSCSegment*>"/>
+  <class name="io_v1::CSCSegment" ClassVersion="3">
+   <version ClassVersion="3" checksum="985709"/>
   </class>
-  <class name="edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >"  rntupleStreamerMode="true" />
-  <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> >"/>
-  <class name="edm::ClonePolicy<CSCSegment>"/> <!-- Root6 -->
-  <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> > >"/>
+  <class name="edm::OwnVector<io_v1::CSCSegment,edm::ClonePolicy<io_v1::CSCSegment> >"  rntupleStreamerMode="true" />
+  <class name="edm::RangeMap<CSCDetId,edm::OwnVector<io_v1::CSCSegment,edm::ClonePolicy<io_v1::CSCSegment> >,edm::ClonePolicy<io_v1::CSCSegment> >"/>
+  <class name="edm::ClonePolicy<io_v1::CSCSegment>"/> <!-- Root6 -->
+  <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<io_v1::CSCSegment,edm::ClonePolicy<io_v1::CSCSegment> >,edm::ClonePolicy<io_v1::CSCSegment> > >"/>
   <class name="CSCSegmentRef"/>
 </selection>
 
 <exclusion>
-  <class name="edm::OwnVector<CSCRecHit2D, edm::ClonePolicy<CSCRecHit2D> >">
+  <class name="edm::OwnVector<io_v1::CSCRecHit2D, edm::ClonePolicy<io_v1::CSCRecHit2D> >">
     <method name="sort"/>
   </class>
 
-  <class name="edm::OwnVector<CSCSegment, edm::ClonePolicy<CSCSegment> >">
+  <class name="edm::OwnVector<io_v1::CSCSegment, edm::ClonePolicy<io_v1::CSCSegment> >">
     <method name="sort"/>
   </class>
 </exclusion>

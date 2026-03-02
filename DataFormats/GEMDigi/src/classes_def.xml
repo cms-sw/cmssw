@@ -1,87 +1,76 @@
 <lcgdict>
 
-<class name="GEMDigi" ClassVersion="11">
- <version ClassVersion="10" checksum="2054480652"/>
- <version ClassVersion="11" checksum="1310457745"/>
+<class name="io_v1::GEMDigi" ClassVersion="3">
+ <version ClassVersion="3" checksum="542025745"/>
 </class>
-<class name="std::vector<GEMDigi>"/>
-<class name="std::map<GEMDetId,std::vector<GEMDigi> >"/>
-<class name="std::pair<GEMDetId,std::vector<GEMDigi> >"/>
-<class name="MuonDigiCollection<GEMDetId,GEMDigi>"/>
-<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMDigi> >" splitLevel="0"/>
+<class name="std::vector<io_v1::GEMDigi>"/>
+<class name="std::map<GEMDetId,std::vector<io_v1::GEMDigi> >"/>
+<class name="std::pair<GEMDetId,std::vector<io_v1::GEMDigi> >"/>
+<class name="MuonDigiCollection<GEMDetId,io_v1::GEMDigi>"/>
+<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,io_v1::GEMDigi> >" splitLevel="0"/>
 
-<class name="GEMPadDigi" ClassVersion="14">
- <version ClassVersion="11" checksum="426510066"/>
- <version ClassVersion="12" checksum="3838591655"/>
- <version ClassVersion="13" checksum="2944221332"/>
- <version ClassVersion="14" checksum="1418399352"/>
+<class name="io_v1::GEMPadDigi" ClassVersion="3">
+ <version ClassVersion="3" checksum="2419866616"/>
 </class>
-<class name="std::vector<GEMPadDigi>"/>
-<class name="std::map<GEMDetId,std::vector<GEMPadDigi> >"/>
-<class name="std::pair<GEMDetId,std::vector<GEMPadDigi> >"/>
-<class name="MuonDigiCollection<GEMDetId,GEMPadDigi>"/>
-<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMPadDigi> >" splitLevel="0"/>
+<class name="std::vector<io_v1::GEMPadDigi>"/>
+<class name="std::map<GEMDetId,std::vector<io_v1::GEMPadDigi> >"/>
+<class name="std::pair<GEMDetId,std::vector<io_v1::GEMPadDigi> >"/>
+<class name="MuonDigiCollection<GEMDetId,io_v1::GEMPadDigi>"/>
+<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,io_v1::GEMPadDigi> >" splitLevel="0"/>
 
-<class name="GEMPadDigiCluster" ClassVersion="13">
- <version ClassVersion="10" checksum="2569340006"/>
- <version ClassVersion="11" checksum="3372991553"/>
- <version ClassVersion="12" checksum="533478463"/>
- <version ClassVersion="13" checksum="3488459777"/>
+<class name="io_v1::GEMPadDigiCluster" ClassVersion="3">
+ <version ClassVersion="3" checksum="2338972033"/>
 </class>
-<class name="std::vector<GEMPadDigiCluster>"/>
-<class name="std::map<GEMDetId,std::vector<GEMPadDigiCluster> >"/>
-<class name="std::pair<GEMDetId,std::vector<GEMPadDigiCluster> >"/>
-<class name="MuonDigiCollection<GEMDetId,GEMPadDigiCluster>"/>
-<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMPadDigiCluster> >" splitLevel="0"/>
+<class name="std::vector<io_v1::GEMPadDigiCluster>"/>
+<class name="std::map<GEMDetId,std::vector<io_v1::GEMPadDigiCluster> >"/>
+<class name="std::pair<GEMDetId,std::vector<io_v1::GEMPadDigiCluster> >"/>
+<class name="MuonDigiCollection<GEMDetId,io_v1::GEMPadDigiCluster>"/>
+<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,io_v1::GEMPadDigiCluster> >" splitLevel="0"/>
 
-<class name="GEMCoPadDigi" ClassVersion="12">
- <version ClassVersion="12" checksum="2678638706"/>
+<class name="io_v1::GEMCoPadDigi" ClassVersion="3">
+ <version ClassVersion="3" checksum="88431106"/>
 </class>
-<class name="std::vector<GEMCoPadDigi>"/>
-<class name="std::map<GEMDetId,std::vector<GEMCoPadDigi> >"/>
-<class name="std::pair<GEMDetId,std::vector<GEMCoPadDigi> >"/>
-<class name="MuonDigiCollection<GEMDetId,GEMCoPadDigi>"/>
-<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMCoPadDigi> >" splitLevel="0"/>
+<class name="std::vector<io_v1::GEMCoPadDigi>"/>
+<class name="std::map<GEMDetId,std::vector<io_v1::GEMCoPadDigi> >"/>
+<class name="std::pair<GEMDetId,std::vector<io_v1::GEMCoPadDigi> >"/>
+<class name="MuonDigiCollection<GEMDetId,io_v1::GEMCoPadDigi>"/>
+<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,io_v1::GEMCoPadDigi> >" splitLevel="0"/>
 
-<class name="GEMAMC13Status" ClassVersion="3">
- <version ClassVersion="3" checksum="3469985462"/>
+<class name="io_v1::GEMAMC13Status" ClassVersion="3">
+ <version ClassVersion="3" checksum="540579894"/>
 </class>
-<class name="std::vector<GEMAMC13Status>"/>
-<class name="std::map<uint16_t,std::vector<GEMAMC13Status> >"/>
-<class name="std::pair<uint16_t,std::vector<GEMAMC13Status> >"/>
-<class name="MuonDigiCollection<uint16_t,GEMAMC13Status>"/>
-<class name="edm::Wrapper<MuonDigiCollection<uint16_t,GEMAMC13Status> >" splitLevel="0"/>
+<class name="std::vector<io_v1::GEMAMC13Status>"/>
+<class name="std::map<uint16_t,std::vector<io_v1::GEMAMC13Status> >"/>
+<class name="std::pair<uint16_t,std::vector<io_v1::GEMAMC13Status> >"/>
+<class name="MuonDigiCollection<uint16_t,io_v1::GEMAMC13Status>"/>
+<class name="edm::Wrapper<MuonDigiCollection<uint16_t,io_v1::GEMAMC13Status> >" splitLevel="0"/>
 
-<class name="GEMAMCStatus" ClassVersion="3">
- <version ClassVersion="3" checksum="2120084327"/>
+<class name="io_v1::GEMAMCStatus" ClassVersion="3">
+ <version ClassVersion="3" checksum="1729733607"/>
 </class>
-<class name="std::vector<GEMAMCStatus>"/>
-<class name="std::map<uint16_t,std::vector<GEMAMCStatus> >"/>
-<class name="std::pair<uint16_t,std::vector<GEMAMCStatus> >"/>
-<class name="MuonDigiCollection<uint16_t,GEMAMCStatus>"/>
-<class name="edm::Wrapper<MuonDigiCollection<uint16_t,GEMAMCStatus> >" splitLevel="0"/>
+<class name="std::vector<io_v1::GEMAMCStatus>"/>
+<class name="std::map<uint16_t,std::vector<io_v1::GEMAMCStatus> >"/>
+<class name="std::pair<uint16_t,std::vector<io_v1::GEMAMCStatus> >"/>
+<class name="MuonDigiCollection<uint16_t,io_v1::GEMAMCStatus>"/>
+<class name="edm::Wrapper<MuonDigiCollection<uint16_t,io_v1::GEMAMCStatus> >" splitLevel="0"/>
 
-<class name="GEMOHStatus" ClassVersion="5">
- <version ClassVersion="3" checksum="1715607020"/>
- <version ClassVersion="4" checksum="442197271"/>
- <version ClassVersion="5" checksum="3896553455"/>
+<class name="io_v1::GEMOHStatus" ClassVersion="3">
+ <version ClassVersion="3" checksum="2966637679"/>
 </class>
-<class name="std::vector<GEMOHStatus>"/>
-<class name="std::map<GEMDetId,std::vector<GEMOHStatus> >"/>
-<class name="std::pair<GEMDetId,std::vector<GEMOHStatus> >"/>
-<class name="MuonDigiCollection<GEMDetId,GEMOHStatus>"/>
-<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMOHStatus> >" splitLevel="0"/>
+<class name="std::vector<io_v1::GEMOHStatus>"/>
+<class name="std::map<GEMDetId,std::vector<io_v1::GEMOHStatus> >"/>
+<class name="std::pair<GEMDetId,std::vector<io_v1::GEMOHStatus> >"/>
+<class name="MuonDigiCollection<GEMDetId,io_v1::GEMOHStatus>"/>
+<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,io_v1::GEMOHStatus> >" splitLevel="0"/>
 
-<class name="GEMVFATStatus" ClassVersion="5">
- <version ClassVersion="3" checksum="2994917778"/>
- <version ClassVersion="4" checksum="2298275534"/>
- <version ClassVersion="5" checksum="272057922"/>
+<class name="io_v1::GEMVFATStatus" ClassVersion="3">
+ <version ClassVersion="3" checksum="1061702338"/>
 </class>
-<class name="std::vector<GEMVFATStatus>"/>
-<class name="std::map<GEMDetId,std::vector<GEMVFATStatus> >"/>
-<class name="std::pair<GEMDetId,std::vector<GEMVFATStatus> >"/>
-<class name="MuonDigiCollection<GEMDetId,GEMVFATStatus>"/>
-<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMVFATStatus> >" splitLevel="0"/>
+<class name="std::vector<io_v1::GEMVFATStatus>"/>
+<class name="std::map<GEMDetId,std::vector<io_v1::GEMVFATStatus> >"/>
+<class name="std::pair<GEMDetId,std::vector<io_v1::GEMVFATStatus> >"/>
+<class name="MuonDigiCollection<GEMDetId,io_v1::GEMVFATStatus>"/>
+<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,io_v1::GEMVFATStatus> >" splitLevel="0"/>
 
 <class name="ME0DigiPreReco" ClassVersion="13">
  <version ClassVersion="10" checksum="79088950"/>

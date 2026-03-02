@@ -11,43 +11,47 @@
 #include <iosfwd>
 #include <cstdint>
 
-class CSCWireDigi {
-public:
-  /// Constructors
+namespace io_v1 {
 
-  CSCWireDigi(int wire, unsigned int tbinb);  /// wiregroup#, tbin bit word
-  CSCWireDigi();                              /// default
+  class CSCWireDigi {
+  public:
+    /// Constructors
 
-  /// return wiregroup number. counts from 1.
-  int getWireGroup() const { return wire_; }
-  /// return BX assigned for the wire group (16 upper bits from the wire group number)
-  int getWireGroupBX() const { return wireBX_; }
-  /// return BX-wiregroup number combined
-  /// (16 upper bits - BX + 16 lower bits - wire group number)
-  int getBXandWireGroup() const { return wireBXandWires_; }
-  /// return the word with time bins bits
-  unsigned int getTimeBinWord() const { return tbinb_; }
-  /// return tbin number, (obsolete, use getTimeBin() instead)
-  int getBeamCrossingTag() const;
-  /// return first tbin ON number
-  int getTimeBin() const;
-  /// return vector of time bins ON
-  std::vector<int> getTimeBinsOn() const;
+    CSCWireDigi(int wire, unsigned int tbinb);  /// wiregroup#, tbin bit word
+    CSCWireDigi();                              /// default
 
-  /// Print content of digi
-  void print() const;
+    /// return wiregroup number. counts from 1.
+    int getWireGroup() const { return wire_; }
+    /// return BX assigned for the wire group (16 upper bits from the wire group number)
+    int getWireGroupBX() const { return wireBX_; }
+    /// return BX-wiregroup number combined
+    /// (16 upper bits - BX + 16 lower bits - wire group number)
+    int getBXandWireGroup() const { return wireBXandWires_; }
+    /// return the word with time bins bits
+    unsigned int getTimeBinWord() const { return tbinb_; }
+    /// return tbin number, (obsolete, use getTimeBin() instead)
+    int getBeamCrossingTag() const;
+    /// return first tbin ON number
+    int getTimeBin() const;
+    /// return vector of time bins ON
+    std::vector<int> getTimeBinsOn() const;
 
-  /// set wiregroup number
-  void setWireGroup(unsigned int wiregroup) { wire_ = wiregroup; }
+    /// Print content of digi
+    void print() const;
 
-private:
-  int wire_;
-  uint32_t tbinb_;
-  /// BX in the wire digis (16 upper bits from the wire group number)
-  int wireBXandWires_;
-  int wireBX_;
-};
+    /// set wiregroup number
+    void setWireGroup(unsigned int wiregroup) { wire_ = wiregroup; }
 
-std::ostream& operator<<(std::ostream& o, const CSCWireDigi& digi);
+  private:
+    int wire_;
+    uint32_t tbinb_;
+    /// BX in the wire digis (16 upper bits from the wire group number)
+    int wireBXandWires_;
+    int wireBX_;
+  };
 
+  std::ostream& operator<<(std::ostream& o, const CSCWireDigi& digi);
+
+}  // namespace io_v1
+using CSCWireDigi = io_v1::CSCWireDigi;
 #endif

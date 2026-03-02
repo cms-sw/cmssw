@@ -12,27 +12,32 @@
 #include <cstdint>
 #include <iosfwd>
 
-class GEMDigi {
-public:
-  explicit GEMDigi(uint16_t strip, int16_t bx);
-  GEMDigi();
+namespace io_v1 {
 
-  bool operator==(const GEMDigi& digi) const;
-  bool operator!=(const GEMDigi& digi) const;
-  bool operator<(const GEMDigi& digi) const;
-  bool isValid() const;
+  class GEMDigi {
+  public:
+    explicit GEMDigi(uint16_t strip, int16_t bx);
+    GEMDigi();
 
-  // return the strip number. counts from 0.
-  uint16_t strip() const { return strip_; }
-  int16_t bx() const { return bx_; }
+    bool operator==(const GEMDigi& digi) const;
+    bool operator!=(const GEMDigi& digi) const;
+    bool operator<(const GEMDigi& digi) const;
+    bool isValid() const;
 
-  void print() const;
+    // return the strip number. counts from 0.
+    uint16_t strip() const { return strip_; }
+    int16_t bx() const { return bx_; }
 
-private:
-  uint16_t strip_;
-  int16_t bx_;
-};
+    void print() const;
 
-std::ostream& operator<<(std::ostream& o, const GEMDigi& digi);
+  private:
+    uint16_t strip_;
+    int16_t bx_;
+  };
+
+  std::ostream& operator<<(std::ostream& o, const GEMDigi& digi);
+
+}  // namespace io_v1
+using GEMDigi = io_v1::GEMDigi;
 
 #endif
