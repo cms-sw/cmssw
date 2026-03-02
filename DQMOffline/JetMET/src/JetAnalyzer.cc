@@ -6424,6 +6424,7 @@ void JetAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<bool>("filljetHighLevel", false);
   desc.add<bool>("fillsubstructure", false);
   desc.add<double>("ptMinBoosted", 400.0);
+  desc.add<bool>("stage2L1", false);
   {
     edm::ParameterSetDescription psd0;
     GenericTriggerEventFlag::fillPSetDescription(psd0);
