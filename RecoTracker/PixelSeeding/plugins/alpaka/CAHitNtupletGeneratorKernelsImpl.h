@@ -229,28 +229,35 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         if (cellTracksHisto->size(idx) < 2)
           continue;
 
-        int8_t maxNl = 0;
         auto const *__restrict__ tracksOfCell = cellTracksHisto->begin(idx);
+        int ntr = cellTracksHisto->size(idx);
 
-        // find maxNl
-        for (auto i = 0u; i < cellTracksHisto->size(idx); i++) {
-          if (int(tracksOfCell[i]) > tracks_view.metadata().size())
-            printf(">WARNING: %d %d %d %d\n", idx, i, int(tracksOfCell[i]), tracks_view.metadata().size());
-          auto nl = tracks_view[tracksOfCell[i]].nLayers();
-          maxNl = std::max(nl, maxNl);
-        }
-
-        // if (maxNl<4) continue;
-        // quad pass through (leave it here for tests)
-        //  maxNl = std::min(4, maxNl);
-
-        for (auto i = 0u; i < cellTracksHisto->size(idx); i++) {
+        // loop over tracks i
+        for (int i = 0; i < ntr - 1; i++) {
           auto it = tracksOfCell[i];
+          auto nli = tracks_view[it].nLayers();
+          auto curvi = tracks_view[it].pt();
 
-          if (int(it) > tracks_view.metadata().size())
-            printf(">WARNING: %d %d %d\n", i, it, tracks_view.metadata().size());
-          if (tracks_view[it].nLayers() < maxNl)
-            tracks_view[it].quality() = reject;  // no race: simple assignment of the same constant
+          // function that compares the track curvatures of tracks it and jt
+          auto incompatibleTrackParams = [=](int jt) -> bool {
+            // comparing curvatures
+            const auto dcurv = curvi - tracks_view[jt].pt();
+            return (dcurv*dcurv > 0.000001);
+          };
+
+          // loop over remaining tracks j and compare
+          for (int j = i + 1; j < ntr; ++j) {
+            auto jt = tracksOfCell[j];
+
+            if (incompatibleTrackParams(jt))
+              continue;
+
+            auto nlj = tracks_view[jt].nLayers();
+            if (nlj < nli)
+              tracks_view[jt].quality() = reject;  // no race: simple assignment of the same constant
+            else if (nlj > nli) 
+              tracks_view[it].quality() = reject;  // no race: simple assignment of the same constant
+          }
         }
       }
     }
@@ -571,6 +578,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                                     *apc,
                                                     tracks_view.quality().data(),
                                                     tracks_view.nLayers().data(),
+                                                    tracks_view.pt().data(),
                                                     stack,
                                                     params.minHitsPerNtuplet_);
           ALPAKA_ASSERT_ACC(stack.empty());
