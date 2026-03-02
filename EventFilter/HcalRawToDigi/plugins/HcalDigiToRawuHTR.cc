@@ -52,7 +52,10 @@ public:
 
 private:
   const int _verbosity;
+  const vector<int> tdc1_;
+  const vector<int> tdc2_;
   const bool packHBTDC_;
+  const bool useTDCfromDB_;
   static constexpr int tdcmax_ = 49;
 
   const edm::EDGetTokenT<HcalDataFrameContainer<QIE10DataFrame>> tok_QIE10DigiCollection_;
@@ -68,7 +71,10 @@ private:
 
 HcalDigiToRawuHTR::HcalDigiToRawuHTR(const edm::ParameterSet& iConfig)
     : _verbosity(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
+      tdc1_(iConfig.getParameter<vector<int>>("tdc1")),
+      tdc2_(iConfig.getParameter<vector<int>>("tdc2")),
       packHBTDC_(iConfig.getParameter<bool>("packHBTDC")),
+      useTDCfromDB_(iConfig.getParameter<bool>("useTDCfromDB")),
       tok_QIE10DigiCollection_(
           consumes<HcalDataFrameContainer<QIE10DataFrame>>(iConfig.getParameter<edm::InputTag>("QIE10"))),
       tok_QIE11DigiCollection_(
@@ -81,6 +87,11 @@ HcalDigiToRawuHTR::HcalDigiToRawuHTR(const edm::ParameterSet& iConfig)
       tok_dbService_(esConsumes<HcalDbService, HcalDbRecord>()),
       premix_(iConfig.getParameter<bool>("premix")) {
   produces<FEDRawDataCollection>("");
+  for (size_t i = 0; i < tdc1_.size(); i++) {
+    if (!(tdc1_.at(i) >= 0 && tdc1_.at(i) <= tdc2_.at(i) && tdc2_.at(i) <= tdcmax_))
+      edm::LogWarning("HcalDigiToRawuHTR")
+          << " incorrect TDC ranges " << i << "-th element: " << tdc1_.at(i) << ", " << tdc2_.at(i) << ", " << tdcmax_;
+  }
 }
 
 HcalDigiToRawuHTR::~HcalDigiToRawuHTR() {}
@@ -156,7 +167,7 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
 
       // convert to hb qie data if hb
       if (packHBTDC_ && HcalDetId(detid.rawId()).subdet() == HcalSubdetector::HcalBarrel)
-        qiedf = convertHB(qiedf, db, tdcmax_);
+        qiedf = convertHB(qiedf, db, tdc1_, tdc2_, useTDCfromDB_, tdcmax_);
 
       if (!uhtrs.exist(uhtrIndex)) {
         uhtrs.newUHTR(uhtrIndex, presamples);
@@ -281,7 +292,14 @@ void HcalDigiToRawuHTR::fillDescriptions(edm::ConfigurationDescriptions& descrip
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.addUntracked<int>("Verbosity", 0);
+  desc.add<vector<int>>("tdc1", {12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+                                 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+                                 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12});
+  desc.add<vector<int>>("tdc2", {14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
+                                 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
+                                 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14});
   desc.add<bool>("packHBTDC", true);
+  desc.add<bool>("useTDCfromDB", false);
   desc.add<std::string>("ElectronicsMap", "");
   desc.add<edm::InputTag>("QIE10", edm::InputTag("simHcalDigis", "HFQIE10DigiCollection"));
   desc.add<edm::InputTag>("QIE11", edm::InputTag("simHcalDigis", "HBHEQIE11DigiCollection"));

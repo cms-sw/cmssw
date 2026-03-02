@@ -63,8 +63,8 @@ std::bitset<6> HcalFinegrainBit::compute(const HcalFinegrainBit::TowerTDC& tower
     // unpack packedBits
     int bit12_15set = (packedBits & 0xF);      // bits 0..3
     int hasTDCThr = (packedBits >> 20) & 0x1;  // bit 20
-    int tdc1 = (packedBits >> 4) & 0xFF;       // bits 4..11
-    int tdc2 = (packedBits >> 12) & 0xFF;      // bits 12..19
+    int tp_tdc1 = (packedBits >> 4) & 0xFF;    // bits 4..11
+    int tp_tdc2 = (packedBits >> 12) & 0xFF;   // bits 12..19
 
     int bit12 = (bit12_15set & 0b0001);       // low depth 1,2 energy
     int bit13 = (bit12_15set & 0b0010) >> 1;  // high depth 3+ energy
@@ -85,12 +85,9 @@ std::bitset<6> HcalFinegrainBit::compute(const HcalFinegrainBit::TowerTDC& tower
           if (TDC == 0 && bit14 == 1)
             Nprompt += 1;
         } else {
-          // Read TDC thresholds from conditions. If not accessible, throw exception.
-          if (!hasTDCThr) {
-            throw cms::Exception("HBTDCThresholds")
-                << "Missing or invalid TDC thresholds for uncompressed TP tower id=" << id << " and depthIndex=" << i
-                << " (packedBits has hasTDCThr=0).";
-          }
+          // Read TDC thresholds from conditions, if available (means useTDCfromDB switch is on). Otherwise, fall back to hardcoded values.
+          int tdc1 = hasTDCThr ? tp_tdc1 : tdc_boundary[abs(tp_ieta) - 1][i];
+          int tdc2 = hasTDCThr ? tp_tdc2 : tdc_boundary[abs(tp_ieta) - 1][i] + 2;
 
           if (TDC > tdc1 && TDC <= tdc2 && bit15 == 1)
             Ndelayed += 1;
