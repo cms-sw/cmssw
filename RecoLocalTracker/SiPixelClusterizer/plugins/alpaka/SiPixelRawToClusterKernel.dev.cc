@@ -310,6 +310,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           dvgi.xx() = 0;
           dvgi.yy() = 0;
           dvgi.adc() = 0;
+          dvgi.rawADC() = 0;
 
           // initialise the errors
           err[gIndex].pixelErrors() = SiPixelErrorCompact{0, 0, 0, 0};
@@ -421,6 +422,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           dvgi.xx() = globalPix.row;  // origin shifting by 1 0-159
           dvgi.yy() = globalPix.col;  // origin shifting by 1 0-415
           dvgi.adc() = sipixelconstants::getADC(ww);
+          dvgi.rawADC() = dvgi.adc();
           dvgi.pdigi() = ::pixelDetails::pack(globalPix.row, globalPix.col, dvgi.adc());
           dvgi.moduleId() = detId.moduleId;
           dvgi.rawIdArr() = rawId;
