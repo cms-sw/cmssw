@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoHGCal.TICL.tracksterLinksProducer_cfi import tracksterLinksProducer as _tracksterLinksProducer
 from RecoHGCal.TICL.ticlEGammaSuperClusterProducer_cfi import ticlEGammaSuperClusterProducer
-from RecoEcal.EgammaClusterProducers.particleFlowSuperClusteringSequence_cff import particleFlowSuperClusterHGCal
 
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_pf_cff import ticl_superclustering_mustache_pf
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff import ticl_superclustering_mustache_ticl
@@ -29,12 +28,8 @@ ticlTracksterLinksSuperclusteringMustache = _tracksterLinksProducer.clone(
 ticlSuperclusteringTask = cms.Task(ticlTracksterLinksSuperclusteringDNN, ticlEGammaSuperClusterProducer)
 
 # Mustache-TICL
-_mustache_ticl_task = cms.Task(ticlTracksterLinksSuperclusteringMustache)
-ticl_superclustering_mustache_ticl.toReplaceWith(ticlSuperclusteringTask, _mustache_ticl_task)
 ticl_superclustering_mustache_ticl.toModify(ticlEGammaSuperClusterProducer,
                                             ticlSuperClusters=cms.InputTag("ticlTracksterLinksSuperclusteringMustache"),
                                             enableRegression=cms.bool(False))
-ticl_superclustering_mustache_ticl.toReplaceWith(particleFlowSuperClusterHGCal, ticlEGammaSuperClusterProducer)
-
-# Mustache-PF
-# (no changes to make)
+_mustache_ticl_task = cms.Task(ticlTracksterLinksSuperclusteringMustache, ticlEGammaSuperClusterProducer)
+ticl_superclustering_mustache_ticl.toReplaceWith(ticlSuperclusteringTask, _mustache_ticl_task)
