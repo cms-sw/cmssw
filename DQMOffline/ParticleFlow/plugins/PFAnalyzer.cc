@@ -241,7 +241,7 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
     for (unsigned int m = 0; m < m_pfNames.size(); m++) {
       // For each observable, we make a couple histograms based on a few generic categorizations.
       // In all cases, the PFCs that go into these histograms must pass the PFC selection from m_cutList.
-      ibooker.setCurrentFolder(m_directory + "/DQM_PFCs_" + m_pfNames[m].c_str());
+      ibooker.setCurrentFolder(m_directory + "/DQM_PFCs_" + m_pfNames[m]);
       std::string histName =
           Form("%s_%s_%s", m_pfNames[m].c_str(), m_fullCutList2D[i][0].c_str(), m_fullCutList2D[i][1].c_str());
       MonitorElement* mHist =
@@ -282,7 +282,7 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
           for (unsigned int m = 0; m < m_pfNames.size(); m++) {
             // For each observable, we make a couple histograms based on a few generic categorizations.
             // In all cases, the PFCs that go into these histograms must pass the PFC selection from m_cutList.
-            ibooker.setCurrentFolder(m_directory + "/DQM_PFCs_" + m_pfNames[m].c_str());
+            ibooker.setCurrentFolder(m_directory + "/DQM_PFCs_" + m_pfNames[m]);
             std::string histName = Form("%s_%s%s_%s",
                                         m_pfNames[m].c_str(),
                                         obsInfo.observable.c_str(),
@@ -352,7 +352,7 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
         m_eventObservableNames.push_back(observableName);
 
       for (unsigned int m = 0; m < m_pfNames.size(); m++) {
-        ibooker.setCurrentFolder(m_directory + "/DQM_PFCs_" + m_pfNames[m].c_str());
+        ibooker.setCurrentFolder(m_directory + "/DQM_PFCs_" + m_pfNames[m]);
         std::string histName = Form("%s_%s_%s", m_pfNames[m].c_str(), observableName.c_str(), npvString.c_str());
         MonitorElement* mHist = ibooker.book1D(histName, Form(";%s;", axisString.c_str()), nBins, binMin, binMax);
         map_of_MEs.insert(std::pair<std::string, MonitorElement*>(m_directory + "/PFCs/" + histName, mHist));
@@ -363,7 +363,7 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
           for (unsigned int m = 0; m < m_pfNames.size(); m++) {
             // These histograms are for PFCs passing the basic selection, and which are matched to jets
             // that pass the jet selection
-            ibooker.setCurrentFolder(m_directory + "/DQM_PFCs_" + m_pfNames[m].c_str());
+            ibooker.setCurrentFolder(m_directory + "/DQM_PFCs_" + m_pfNames[m]);
             std::string histName = Form("%s_jetMatched_%s_jetCuts%s_%s",
                                         m_pfNames[m].c_str(),
                                         observableName.c_str(),
@@ -389,7 +389,7 @@ void PFAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
           for (unsigned int k = 0; k < m_allJetSuffixes.size(); k++) {
             for (unsigned int p = 0; p < m_allJetSuffixes[k].size(); p++) {
               for (unsigned int m = 0; m < m_pfNames.size(); m++) {
-                ibooker.setCurrentFolder(m_directory + "/DQM_PFCs_" + m_pfNames[m].c_str());
+                ibooker.setCurrentFolder(m_directory + "/DQM_PFCs_" + m_pfNames[m]);
                 // These histograms are for PFCs passing the basic selection, and which are matched to jets
                 // that pass the jet selection
                 std::string histName = Form("%s_jetMatched_%s%s_jetCuts%s_%s",
