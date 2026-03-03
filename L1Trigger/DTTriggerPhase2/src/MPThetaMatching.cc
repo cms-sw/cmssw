@@ -344,7 +344,7 @@ void MPThetaMatching::orderAndSave(std::vector<std::tuple<metaPrimitive, metaPri
 
     if ((abs(chId.wheel()) == 2 && chId.station() < 3 && count < th_option_ + 1) ||  //save an extra pair for WH+-2MB1/2
         count < th_option_) {
-      //alternatively we could replace t0 by associated phi t0 std::get<0>(p).t0 = std::get<1>(p).t0;  
+      //alternatively we could replace t0 by associated phi t0 std::get<0>(p).t0 = std::get<1>(p).t0;
       outMPs->push_back(std::get<1>(p));         //add PhiMP
       outMPs->push_back(std::get<0>(p));         //add ThetaMP
       savedThetaMPs->push_back(std::get<0>(p));  //for accounting

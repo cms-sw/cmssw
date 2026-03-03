@@ -41,7 +41,6 @@
 //
 // (*) Requires df_extended>0 in L1Trigger/DTTriggerPhase2/plugins/DTTrigPhase2Prod.cc
 
-
 namespace {
   struct {
     bool operator()(const L1Phase2MuDTExtPhDigi& mp1, const L1Phase2MuDTExtPhDigi& mp2) const {
