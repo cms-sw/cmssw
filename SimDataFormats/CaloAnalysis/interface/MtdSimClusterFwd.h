@@ -6,12 +6,12 @@
 #include <vector>
 
 class MtdSimCluster;
+std::ostream &operator<<(std::ostream &s, MtdSimCluster const &tp);
+
 typedef std::vector<MtdSimCluster> MtdSimClusterCollection;
 typedef edm::Ref<MtdSimClusterCollection> MtdSimClusterRef;
 typedef edm::RefVector<MtdSimClusterCollection> MtdSimClusterRefVector;
 typedef edm::RefProd<MtdSimClusterCollection> MtdSimClusterRefProd;
 typedef edm::RefVector<MtdSimClusterCollection> MtdSimClusterContainer;
-
-std::ostream &operator<<(std::ostream &s, MtdSimCluster const &tp);
 
 #endif

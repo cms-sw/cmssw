@@ -6,12 +6,12 @@
 #include <vector>
 
 class MtdSimTrackster;
+std::ostream &operator<<(std::ostream &s, MtdSimTrackster const &tp);
+
 typedef std::vector<MtdSimTrackster> MtdSimTracksterCollection;
 typedef edm::Ref<MtdSimTracksterCollection> MtdSimTracksterRef;
 typedef edm::RefVector<MtdSimTracksterCollection> MtdSimTracksterRefVector;
 typedef edm::RefProd<MtdSimTracksterCollection> MtdSimTracksterRefProd;
 typedef edm::RefVector<MtdSimTracksterCollection> MtdSimTracksterContainer;
-
-std::ostream &operator<<(std::ostream &s, MtdSimTrackster const &tp);
 
 #endif
