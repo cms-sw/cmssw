@@ -76,7 +76,7 @@ BTLElectronicsSim::~BTLElectronicsSim() { delete smearingClockRU_; }
 
 void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
                             BTLDigiCollection& output,
-                            btldigi::BTLDigiHostCollection& outputSoA,
+                            BTLDigiTempCollection& outputTemp,
                             CLHEP::HepRandomEngine* hre) const {
   // --- Fill the readout-unit clock jitter array
   for (unsigned int iRU = 0; iRU < numberOfRUs_; ++iRU) {
@@ -84,7 +84,6 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
   }
 
   // --- Loop over the simhits (which have been propagated to the right and left sides of the crystal bar)
-  int validHitIndex = 0;
   for (MTDSimHitDataAccumulator::const_iterator it = input.begin(); it != input.end(); it++) {
     // --- Digitize only the in-time bucket
     const unsigned int iBX = mtd_digitizer::kInTimeBX;
@@ -262,23 +261,38 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
     }
 
     updateOutput(output, rawDataFrame);
-    updateOutputSoA(outputSoA,
-                    validHitIndex,
-                    it->first.detid_,
-                    charge_adc,
-                    toa1,
-                    toa2,
-                    it->first.column_,
-                    static_cast<uint16_t>(iBX));
-    validHitIndex++;
-  }  // MTDSimHitDataAccumulator loop
 
-  // resize the output SoA collection to the number of valid hits
-  btldigi::BTLDigiHostCollection newOutputSoA(cms::alpakatools::host(), validHitIndex);
-  for (int idx = 0; idx < validHitIndex; ++idx) {
-    newOutputSoA.view()[idx] = outputSoA.view()[idx];
-  }
-  outputSoA = std::move(newOutputSoA);
+    uint32_t rawId = rawDataFrame.id().rawId();
+    uint16_t BC0count = static_cast<uint16_t>(iBX);  
+    bool status = true;    // status is always true in this implementation
+    uint32_t BCcount = 0;  // BCcount is always 0 in this implementation
+
+    uint8_t chIDR = static_cast<uint8_t>(elMap_.TOFHIRCh(static_cast<uint32_t>(rawId), static_cast<uint32_t>(1)));
+    uint16_t T1coarseR = timetoTcoarse(toa1[1], T1coarseMask);
+    uint16_t T2coarseR = timetoTcoarse(toa2[1], T2coarseMask);
+    uint16_t EOIcoarseR = T1coarseR + static_cast<uint16_t>(integrationTimeFixed_);
+    uint16_t ChargeR = chargetoQfine(charge_adc[1], toa1[1], EOIcoarseR);
+    uint16_t T1fineR = timetoTfine(toa1[1], T1coarseR);
+    uint16_t T2fineR = timetoTfine(toa2[1], T2coarseR);
+    uint16_t IdleTimeR = 0;  // IdleTimeR is not used in this implementation
+    uint8_t PrevTrigFR = 0;  // Previous trigger flag is not used in this implementation
+    uint8_t TACIDR = 0;      // TACIDR is not used in this implementation
+
+    uint8_t chIDL = static_cast<uint8_t>(elMap_.TOFHIRCh(static_cast<uint32_t>(rawId), static_cast<uint32_t>(0)));
+    uint16_t T1coarseL = timetoTcoarse(toa1[0], T1coarseMask);
+    uint16_t T2coarseL = timetoTcoarse(toa2[0], T2coarseMask);
+    uint16_t EOIcoarseL = T1coarseL + static_cast<uint16_t>(integrationTimeFixed_);
+    uint16_t ChargeL = chargetoQfine(charge_adc[0], toa1[0], EOIcoarseL);
+    uint16_t T1fineL = timetoTfine(toa1[0], T1coarseL);
+    uint16_t T2fineL = timetoTfine(toa2[0], T2coarseL);
+    uint16_t IdleTimeL = 0;  // IdleTimeL is not used in this implementation
+    uint8_t PrevTrigFL = 0;  // Previous trigger flag is not used in this implementation
+    uint8_t TACIDL = 0;      // TACIDL is not used in this implementation
+
+    outputTemp.emplace_back(rawId, BC0count, status, BCcount, chIDR, T1coarseR, T2coarseR, EOIcoarseR, ChargeR, T1fineR, T2fineR, IdleTimeR,
+                            PrevTrigFR, TACIDR, chIDL, T1coarseL, T2coarseL, EOIcoarseL, ChargeL, T1fineL, T2fineL,
+                            IdleTimeL, PrevTrigFL, TACIDL);
+  }  // MTDSimHitDataAccumulator loop
 }
 
 void BTLElectronicsSim::runTrivialShaper(BTLDataFrame& dataFrame,
@@ -338,82 +352,61 @@ void BTLElectronicsSim::updateOutput(BTLDigiCollection& coll, const BTLDataFrame
   coll.push_back(rawDataFrame);
 }
 
-void BTLElectronicsSim::updateOutputSoA(btldigi::BTLDigiHostCollection& coll,
-                                        int hitIndex,
-                                        uint32_t rawId,
-                                        const float (&charge_adc)[2],
-                                        const float (&toa1)[2],
-                                        const float (&toa2)[2],
-                                        const uint8_t col,
-                                        const uint16_t BC0count) const {
-  bool status = true;    // status is always true in this implementation
-  uint32_t BCcount = 0;  // BCcount is always 0 in this implementation
-  uint8_t chIDL = static_cast<uint8_t>(elMap_.TOFHIRCh(static_cast<uint32_t>(rawId), static_cast<uint32_t>(0)));
-  uint16_t T1coarseL = timetoTcoarse(toa1[0], T1coarseMask);
-  uint16_t T2coarseL = timetoTcoarse(toa2[0], T2coarseMask);
-  uint16_t EOIcoarseL = T1coarseL + static_cast<uint16_t>(integrationTimeFixed_);
-  uint16_t ChargeL = chargetoQfine(charge_adc[0], toa1[0], EOIcoarseL);
-  uint16_t T1fineL = timetoTfine(toa1[0], T1coarseL);
-  uint16_t T2fineL = timetoTfine(toa2[0], T2coarseL);
-  uint16_t IdleTimeL = 0;  // IdleTimeL is not used in this implementation
-  uint8_t PrevTrigFL = 0;  // Previous trigger flag is not used in this implementation
-  uint8_t TACIDL = 0;      // TACIDL is not used in this implementation
-
-  uint8_t chIDR = static_cast<uint8_t>(elMap_.TOFHIRCh(static_cast<uint32_t>(rawId), static_cast<uint32_t>(1)));
-  uint16_t T1coarseR = timetoTcoarse(toa1[1], T1coarseMask);
-  uint16_t T2coarseR = timetoTcoarse(toa2[1], T2coarseMask);
-  uint16_t EOIcoarseR = T1coarseR + static_cast<uint16_t>(integrationTimeFixed_);
-  uint16_t ChargeR = chargetoQfine(charge_adc[1], toa1[1], EOIcoarseR);
-  uint16_t T1fineR = timetoTfine(toa1[1], T1coarseR);
-  uint16_t T2fineR = timetoTfine(toa2[1], T2coarseR);
-  uint16_t IdleTimeR = 0;  // IdleTimeR is not used in this implementation
-  uint8_t PrevTrigFR = 0;  // Previous trigger flag is not used in this implementation
-  uint8_t TACIDR = 0;      // TACIDR is not used in this implementation
-
-  btldigi::BTLDigiSoAView& btlDigiView = coll.view();
-
-  btlDigiView[hitIndex] = {
-                   rawId,
-                   BC0count,
-                   status,
-                   BCcount,
-                   chIDR,
-                   T1coarseR,
-                   T2coarseR,
-                   EOIcoarseR,
-                   ChargeR,
-                   T1fineR,
-                   T2fineR,
-                   IdleTimeR,
-                   PrevTrigFR,
-                   TACIDR,
-                   chIDL,
-                   T1coarseL,
-                   T2coarseL,
-                   EOIcoarseL,
-                   ChargeL,
-                   T1fineL,
-                   T2fineL,
-                   IdleTimeL,
-                   PrevTrigFL,
-                   TACIDL};
-
+void BTLElectronicsSim::updateOutputSoA(mtd_digitizer::BTLDigiTempCollection& outputTemp,
+                                        btldigi::BTLDigiHostCollection& hostColl
+                                        ) const {
+                                        
+  btldigi::BTLDigiSoAView& btlDigiView = hostColl.view();
+  size_t nDigis = outputTemp.size();
   if (debug_) {
-    edm::LogError("BTLElectronicsSim") << "Processed hit with rawId NEW GETTER FUNCTIONS: " << rawId
-                                       << ", chIDL: " << static_cast<int>(btlDigiView[hitIndex].chIDL())
-                                       << ", T1coarseL: " << btlDigiView[hitIndex].T1coarseL()
-                                       << ", T1fineL: " << btlDigiView[hitIndex].T1fineL()
-                                       << ", T2coarseL: " << btlDigiView[hitIndex].T2coarseL()
-                                       << ", T2fineL: " << btlDigiView[hitIndex].T2fineL()
-                                       << ", EOIcoarseL: " << btlDigiView[hitIndex].EOIcoarseL()
-                                       << ", ChargeL: " << btlDigiView[hitIndex].ChargeL()
-                                       << ", chIDR: " << static_cast<int>(btlDigiView[hitIndex].chIDR())
-                                       << ", T1coarseR: " << btlDigiView[hitIndex].T1coarseR()
-                                       << ", T1fineR: " << btlDigiView[hitIndex].T1fineR()
-                                       << ", T2coarseR: " << btlDigiView[hitIndex].T2coarseR()
-                                       << ", T2fineR: " << btlDigiView[hitIndex].T2fineR()
-                                       << ", EOIcoarseR: " << btlDigiView[hitIndex].EOIcoarseR()
-                                       << ", ChargeR: " << btlDigiView[hitIndex].ChargeR() << std::endl;
+      edm::LogError("BTLElectronicsSim") << "Updating output SoA with " << nDigis << " digis." << std::endl; 
+  }
+  for (size_t hitIndex = 0; hitIndex < nDigis; ++hitIndex) {
+      const auto& digiTemp = outputTemp[hitIndex];
+      btlDigiView[hitIndex] = {
+                   digiTemp.rawId_,
+                   digiTemp.BC0count_,
+                   digiTemp.status_,
+                   digiTemp.BCcount_,
+                   digiTemp.chIDR_,
+                   digiTemp.T1coarseR_,
+                   digiTemp.T2coarseR_,
+                   digiTemp.EOIcoarseR_,
+                   digiTemp.ChargeR_,
+                   digiTemp.T1fineR_,
+                   digiTemp.T2fineR_,
+                   digiTemp.IdleTimeR_,
+                   digiTemp.PrevTrigFR_,
+                   digiTemp.TACIDR_,
+                   digiTemp.chIDL_,
+                   digiTemp.T1coarseL_,
+                   digiTemp.T2coarseL_,
+                   digiTemp.EOIcoarseL_,
+                   digiTemp.ChargeL_,
+                   digiTemp.T1fineL_,
+                   digiTemp.T2fineL_,
+                   digiTemp.IdleTimeL_,
+                   digiTemp.PrevTrigFL_,
+                   digiTemp.TACIDL_
+                  };
+
+    if (debug_) {
+      edm::LogError("BTLElectronicsSim") << "Processed hit with rawId: " << btlDigiView[hitIndex].rawId()
+                                        << ", chIDL: " << static_cast<int>(btlDigiView[hitIndex].chIDL())
+                                        << ", T1coarseL: " << btlDigiView[hitIndex].T1coarseL()
+                                        << ", T1fineL: " << btlDigiView[hitIndex].T1fineL()
+                                        << ", T2coarseL: " << btlDigiView[hitIndex].T2coarseL()
+                                        << ", T2fineL: " << btlDigiView[hitIndex].T2fineL()
+                                        << ", EOIcoarseL: " << btlDigiView[hitIndex].EOIcoarseL()
+                                        << ", ChargeL: " << btlDigiView[hitIndex].ChargeL()
+                                        << ", chIDR: " << static_cast<int>(btlDigiView[hitIndex].chIDR())
+                                        << ", T1coarseR: " << btlDigiView[hitIndex].T1coarseR()
+                                        << ", T1fineR: " << btlDigiView[hitIndex].T1fineR()
+                                        << ", T2coarseR: " << btlDigiView[hitIndex].T2coarseR()
+                                        << ", T2fineR: " << btlDigiView[hitIndex].T2fineR()
+                                        << ", EOIcoarseR: " << btlDigiView[hitIndex].EOIcoarseR()
+                                        << ", ChargeR: " << btlDigiView[hitIndex].ChargeR() << std::endl;
+    }
   }
 }
 

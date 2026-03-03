@@ -33,7 +33,7 @@ public:
 
   void run(const mtd::MTDSimHitDataAccumulator& input,
            BTLDigiCollection& output,
-           btldigi::BTLDigiHostCollection& outputSoA,
+           mtd_digitizer::BTLDigiTempCollection& outputTemp,
            CLHEP::HepRandomEngine* hre) const;
 
   void runTrivialShaper(BTLDataFrame& dataFrame,
@@ -47,14 +47,8 @@ public:
 
   void updateOutput(BTLDigiCollection& coll, const BTLDataFrame& rawDataFrame) const;
 
-  void updateOutputSoA(btldigi::BTLDigiHostCollection& coll,
-                       int hitIndex,
-                       uint32_t rawId,
-                       const float (&charge_adc)[2],
-                       const float (&toa1)[2],
-                       const float (&toa2)[2],
-                       const uint8_t col,
-                       const uint16_t BC0count) const;
+  void updateOutputSoA(mtd_digitizer::BTLDigiTempCollection& outputTemp,
+                       btldigi::BTLDigiHostCollection& coll) const;
 
   static constexpr int dfSIZE = 2;
 
