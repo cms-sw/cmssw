@@ -360,6 +360,7 @@ namespace edm {
     writeParameterSetRegistry();
     writeProductDescriptionRegistry();
     writeParentageRegistry();
+    writeThinnedAssociationsHelper();  //only for forward compatibility
     writeBranchIDListRegistry();
     writeProductDependencies();  //productDependencies used here
     writeProcessBlockHelper();
@@ -386,6 +387,7 @@ namespace edm {
   }
   void PoolOutputModule::writeParentageRegistry() { rootOutputFile_->writeParentageRegistry(); }
   void PoolOutputModule::writeBranchIDListRegistry() { rootOutputFile_->writeBranchIDListRegistry(); }
+  void PoolOutputModule::writeThinnedAssociationsHelper() { rootOutputFile_->writeThinnedAssociationsHelper(); }
   void PoolOutputModule::writeProductDependencies() { rootOutputFile_->writeProductDependencies(); }
   void PoolOutputModule::writeEventAuxiliary() { rootOutputFile_->writeEventAuxiliary(); }
   void PoolOutputModule::writeProcessBlockHelper() { rootOutputFile_->writeProcessBlockHelper(); }

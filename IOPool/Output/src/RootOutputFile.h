@@ -69,6 +69,8 @@ namespace edm {
     void writeProductDescriptionRegistry(ProductRegistry const&);
     void writeParentageRegistry();
     void writeBranchIDListRegistry();
+    //only for forward compatibility
+    void writeThinnedAssociationsHelper();
     void writeProductDependencies();
     void writeEventAuxiliary();
     void writeProcessBlockHelper();
