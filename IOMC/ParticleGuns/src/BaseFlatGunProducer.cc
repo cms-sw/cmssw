@@ -17,7 +17,7 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
-#include "IOMC/ParticleGuns/interface/BaseFlatGunProducer.h"
+#include "BaseFlatGunProducer.h"
 
 #include <iostream>
 

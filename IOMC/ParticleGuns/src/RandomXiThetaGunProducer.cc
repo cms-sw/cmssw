@@ -3,7 +3,17 @@
  *   Jan Kašpar
  ****************************************************************************/
 
-#include "IOMC/ParticleGuns/interface/RandomXiThetaGunProducer.h"
+#include <memory>
+
+#include "FWCore/Framework/interface/one/EDProducer.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
+#include "HepPDT/ParticleDataTable.hh"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGauss.h"
 
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -16,82 +26,117 @@
 using namespace edm;
 using namespace std;
 
-//----------------------------------------------------------------------------------------------------
-
-RandomXiThetaGunProducer::RandomXiThetaGunProducer(const edm::ParameterSet &iConfig)
-    : tableToken_(esConsumes()),
-      verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
-      particleId_(iConfig.getParameter<unsigned int>("particleId")),
-      energy_(iConfig.getParameter<double>("energy")),
-      xi_min_(iConfig.getParameter<double>("xi_min")),
-      xi_max_(iConfig.getParameter<double>("xi_max")),
-      theta_x_mean_(iConfig.getParameter<double>("theta_x_mean")),
-      theta_x_sigma_(iConfig.getParameter<double>("theta_x_sigma")),
-      theta_y_mean_(iConfig.getParameter<double>("theta_y_mean")),
-      theta_y_sigma_(iConfig.getParameter<double>("theta_y_sigma")),
-      nParticlesSector45_(iConfig.getParameter<unsigned int>("nParticlesSector45")),
-      nParticlesSector56_(iConfig.getParameter<unsigned int>("nParticlesSector56")),
-      engine_(nullptr) {
-  produces<HepMCProduct>("unsmeared");
+namespace CLHEP {
+  class HepRandomEngine;
 }
+namespace edm {
 
-//----------------------------------------------------------------------------------------------------
+  class RandomXiThetaGunProducer : public one::EDProducer<> {
+  public:
+    RandomXiThetaGunProducer(const ParameterSet &);
+    ~RandomXiThetaGunProducer() override = default;
 
-void RandomXiThetaGunProducer::produce(edm::Event &e, const edm::EventSetup &es) {
-  // get conditions
-  edm::Service<edm::RandomNumberGenerator> rng;
-  engine_ = &rng->getEngine(e.streamID());
+  private:
+    void produce(Event &, const EventSetup &) override;
+    void generateParticle(double z_sign, double mass, unsigned int barcode, HepMC::GenVertex *vtx) const;
 
-  auto const &pdgTable = es.getData(tableToken_);
+    edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> tableToken_;
 
-  // prepare HepMC event
-  HepMC::GenEvent *fEvt = new HepMC::GenEvent();
-  fEvt->set_event_number(e.id().event());
+    unsigned int verbosity_;
+    unsigned int particleId_;
 
-  HepMC::GenVertex *vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0., 0.));
-  fEvt->add_vertex(vtx);
+    double energy_;
+    double xi_min_, xi_max_;
+    double theta_x_mean_, theta_x_sigma_;
+    double theta_y_mean_, theta_y_sigma_;
 
-  const HepPDT::ParticleData *pData = pdgTable.particle(HepPDT::ParticleID(particleId_));
-  double mass = pData->mass().value();
+    unsigned int nParticlesSector45_;
+    unsigned int nParticlesSector56_;
 
-  // generate particles
-  unsigned int barcode = 0;
+    CLHEP::HepRandomEngine *engine_;
+  };
 
-  for (unsigned int i = 0; i < nParticlesSector45_; ++i)
-    generateParticle(+1., mass, ++barcode, vtx);
+  //----------------------------------------------------------------------------------------------------
 
-  for (unsigned int i = 0; i < nParticlesSector56_; ++i)
-    generateParticle(-1., mass, ++barcode, vtx);
+  RandomXiThetaGunProducer::RandomXiThetaGunProducer(const edm::ParameterSet &iConfig)
+      : tableToken_(esConsumes()),
+        verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
+        particleId_(iConfig.getParameter<unsigned int>("particleId")),
+        energy_(iConfig.getParameter<double>("energy")),
+        xi_min_(iConfig.getParameter<double>("xi_min")),
+        xi_max_(iConfig.getParameter<double>("xi_max")),
+        theta_x_mean_(iConfig.getParameter<double>("theta_x_mean")),
+        theta_x_sigma_(iConfig.getParameter<double>("theta_x_sigma")),
+        theta_y_mean_(iConfig.getParameter<double>("theta_y_mean")),
+        theta_y_sigma_(iConfig.getParameter<double>("theta_y_sigma")),
+        nParticlesSector45_(iConfig.getParameter<unsigned int>("nParticlesSector45")),
+        nParticlesSector56_(iConfig.getParameter<unsigned int>("nParticlesSector56")),
+        engine_(nullptr) {
+    produces<HepMCProduct>("unsmeared");
+  }
 
-  // save output
-  std::unique_ptr<HepMCProduct> output(new HepMCProduct());
-  output->addHepMCData(fEvt);
-  e.put(std::move(output), "unsmeared");
-}
+  //----------------------------------------------------------------------------------------------------
 
-//----------------------------------------------------------------------------------------------------
+  void RandomXiThetaGunProducer::produce(edm::Event &e, const edm::EventSetup &es) {
+    // get conditions
+    edm::Service<edm::RandomNumberGenerator> rng;
+    engine_ = &rng->getEngine(e.streamID());
 
-void RandomXiThetaGunProducer::generateParticle(double z_sign,
-                                                double mass,
-                                                unsigned int barcode,
-                                                HepMC::GenVertex *vtx) const {
-  const double xi = CLHEP::RandFlat::shoot(engine_, xi_min_, xi_max_);
-  const double theta_x = CLHEP::RandGauss::shoot(engine_, theta_x_mean_, theta_x_sigma_);
-  const double theta_y = CLHEP::RandGauss::shoot(engine_, theta_y_mean_, theta_y_sigma_);
+    auto const &pdgTable = es.getData(tableToken_);
 
-  if (verbosity_)
-    LogInfo("RandomXiThetaGunProducer") << "xi = " << xi << ", theta_x = " << theta_x << ", theta_y" << theta_y
-                                        << ", z_sign = " << z_sign;
+    // prepare HepMC event
+    HepMC::GenEvent *fEvt = new HepMC::GenEvent();
+    fEvt->set_event_number(e.id().event());
 
-  const double cos_theta = sqrt(1. - theta_x * theta_x - theta_y * theta_y);
+    HepMC::GenVertex *vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0., 0.));
+    fEvt->add_vertex(vtx);
 
-  const double p_nom = sqrt(energy_ * energy_ - mass * mass);
-  const double p = p_nom * (1. - xi);
-  const double e = sqrt(p * p + mass * mass);
+    const HepPDT::ParticleData *pData = pdgTable.particle(HepPDT::ParticleID(particleId_));
+    double mass = pData->mass().value();
 
-  HepMC::FourVector momentum(p * theta_x, p * theta_y, z_sign * p * cos_theta, e);
+    // generate particles
+    unsigned int barcode = 0;
 
-  HepMC::GenParticle *particle = new HepMC::GenParticle(momentum, particleId_, 1);
-  particle->suggest_barcode(barcode);
-  vtx->add_particle_out(particle);
-}
+    for (unsigned int i = 0; i < nParticlesSector45_; ++i)
+      generateParticle(+1., mass, ++barcode, vtx);
+
+    for (unsigned int i = 0; i < nParticlesSector56_; ++i)
+      generateParticle(-1., mass, ++barcode, vtx);
+
+    // save output
+    std::unique_ptr<HepMCProduct> output(new HepMCProduct());
+    output->addHepMCData(fEvt);
+    e.put(std::move(output), "unsmeared");
+  }
+
+  //----------------------------------------------------------------------------------------------------
+
+  void RandomXiThetaGunProducer::generateParticle(double z_sign,
+                                                  double mass,
+                                                  unsigned int barcode,
+                                                  HepMC::GenVertex *vtx) const {
+    const double xi = CLHEP::RandFlat::shoot(engine_, xi_min_, xi_max_);
+    const double theta_x = CLHEP::RandGauss::shoot(engine_, theta_x_mean_, theta_x_sigma_);
+    const double theta_y = CLHEP::RandGauss::shoot(engine_, theta_y_mean_, theta_y_sigma_);
+
+    if (verbosity_)
+      LogInfo("RandomXiThetaGunProducer")
+          << "xi = " << xi << ", theta_x = " << theta_x << ", theta_y" << theta_y << ", z_sign = " << z_sign;
+
+    const double cos_theta = sqrt(1. - theta_x * theta_x - theta_y * theta_y);
+
+    const double p_nom = sqrt(energy_ * energy_ - mass * mass);
+    const double p = p_nom * (1. - xi);
+    const double e = sqrt(p * p + mass * mass);
+
+    HepMC::FourVector momentum(p * theta_x, p * theta_y, z_sign * p * cos_theta, e);
+
+    HepMC::GenParticle *particle = new HepMC::GenParticle(momentum, particleId_, 1);
+    particle->suggest_barcode(barcode);
+    vtx->add_particle_out(particle);
+  }
+}  // namespace edm
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+using edm::RandomXiThetaGunProducer;
+DEFINE_FWK_MODULE(RandomXiThetaGunProducer);

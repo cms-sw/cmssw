@@ -1,6 +1,7 @@
 #include <ostream>
 
-#include "IOMC/ParticleGuns/interface/FileRandomMultiParticlePGunProducer.h"
+#include <vector>
+#include "BaseFlatGunProducer.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -13,6 +14,27 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "CLHEP/Random/RandFlat.h"
 
+namespace edm {
+
+  class FileRandomMultiParticlePGunProducer : public BaseFlatGunProducer {
+  public:
+    FileRandomMultiParticlePGunProducer(const ParameterSet& pset);
+    ~FileRandomMultiParticlePGunProducer() override;
+
+    void produce(Event& e, const EventSetup& es) override;
+
+  private:
+    // data members
+    int fPBin_;
+    int fEtaBin_;
+    std::vector<double> fP_;
+    std::map<int, std::vector<double> > fProbParticle_;
+    double fEtaMin_;
+    double fEtaBinWidth_;
+    double fMinP_;
+    double fMaxP_;
+  };
+}  // namespace edm
 using namespace edm;
 
 const unsigned int np = 6;
@@ -148,3 +170,7 @@ void FileRandomMultiParticlePGunProducer::produce(edm::Event& e, const edm::Even
   if (fVerbosity > 0)
     edm::LogVerbatim("ParticleGun") << "FileRandomMultiParticlePGunProducer : Event Generation Done";
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+using edm::FileRandomMultiParticlePGunProducer;
+DEFINE_FWK_MODULE(FileRandomMultiParticlePGunProducer);

@@ -6,7 +6,8 @@
 
 #include <ostream>
 
-#include "IOMC/ParticleGuns/interface/RandomtXiGunProducer.h"
+#include "BaseRandomtXiGunProducer.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -22,148 +23,178 @@
 using namespace edm;
 using namespace std;
 
-RandomtXiGunProducer::RandomtXiGunProducer(const edm::ParameterSet& pset) : BaseRandomtXiGunProducer(pset) {
-  ParameterSet defpset;
-  edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters");
+namespace edm {
 
-  fMint = pgun_params.getParameter<double>("Mint");
-  fMaxt = pgun_params.getParameter<double>("Maxt");
-  fMinXi = pgun_params.getParameter<double>("MinXi");
-  fMaxXi = pgun_params.getParameter<double>("MaxXi");
-  fLog_t = pgun_params.getUntrackedParameter<bool>("Log_t", false);
+  class RandomtXiGunProducer : public BaseRandomtXiGunProducer {
+  public:
+    RandomtXiGunProducer(const ParameterSet&);
+    ~RandomtXiGunProducer() override;
 
-  produces<HepMCProduct>("unsmeared");
-  produces<GenEventInfoProduct>();
-}
+  private:
+    void produce(Event& e, const EventSetup& es) override;
 
-RandomtXiGunProducer::~RandomtXiGunProducer() {
-  // no need to cleanup GenEvent memory - done in HepMCProduct
-}
+    HepMC::FourVector make_particle(double t, double Xi, double phi, int PartID, int direction);
+    double Minimum_t(double xi) {
+      double partE = fpEnergy * (1. - xi);
+      double massSQ = pow(PData->mass().value(), 2);
+      double partP = sqrt(partE * partE - massSQ);
+      return -2. * (sqrt(fpEnergy * fpEnergy - massSQ) * partP - fpEnergy * partE + massSQ);
+    };
 
-void RandomtXiGunProducer::produce(edm::Event& e, const edm::EventSetup& es) {
-  edm::Service<edm::RandomNumberGenerator> rng;
-  CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+  protected:
+    // data members
 
-  if (fVerbosity > 0) {
-    edm::LogInfo("RandomtXiGunProducer") << "Begin New Event Generation\n";
+    double fMint;
+    double fMaxt;
+    double fMinXi;
+    double fMaxXi;
+  };
+
+  RandomtXiGunProducer::RandomtXiGunProducer(const edm::ParameterSet& pset) : BaseRandomtXiGunProducer(pset) {
+    ParameterSet defpset;
+    edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters");
+
+    fMint = pgun_params.getParameter<double>("Mint");
+    fMaxt = pgun_params.getParameter<double>("Maxt");
+    fMinXi = pgun_params.getParameter<double>("MinXi");
+    fMaxXi = pgun_params.getParameter<double>("MaxXi");
+    fLog_t = pgun_params.getUntrackedParameter<bool>("Log_t", false);
+
+    produces<HepMCProduct>("unsmeared");
+    produces<GenEventInfoProduct>();
   }
-  // event loop (well, another step in it...)
 
-  // no need to clean up GenEvent memory - done in HepMCProduct
-  //
+  RandomtXiGunProducer::~RandomtXiGunProducer() {
+    // no need to cleanup GenEvent memory - done in HepMCProduct
+  }
 
-  // here re-create fEvt (memory)
-  //
-  fEvt = new HepMC::GenEvent();
+  void RandomtXiGunProducer::produce(edm::Event& e, const edm::EventSetup& es) {
+    edm::Service<edm::RandomNumberGenerator> rng;
+    CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
-  // now actualy, cook up the event from PDGTable and gun parameters
-  //
-  // 1st, primary vertex
-  //
-  HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
+    if (fVerbosity > 0) {
+      edm::LogInfo("RandomtXiGunProducer") << "Begin New Event Generation\n";
+    }
+    // event loop (well, another step in it...)
 
-  // loop over particles
-  //
-  int barcode = 1;
-  for (unsigned int ip = 0; ip < fPartIDs.size(); ++ip) {
-    int PartID = fPartIDs[ip];
-    //  t = -2*P*P'*(1-cos(theta)) -> t/(2*P*P')+1=cos(theta)
-    // xi = 1 - P'/P  --> P'= (1-xi)*P
+    // no need to clean up GenEvent memory - done in HepMCProduct
     //
-    PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
-    if (!PData)
-      exit(1);
-    double t = 0;
-    double Xi = 0;
-    double phi = 0;
-    if (fFireForward) {
-      while (true) {
-        Xi = CLHEP::RandFlat::shoot(engine, fMinXi, fMaxXi);
-        double min_t = std::max(fMint, Minimum_t(Xi));
-        double max_t = fMaxt;
-        if (min_t > max_t) {
-          edm::LogInfo("RandomtXiGunProducer") << "WARNING: t limits redefined (unphysical values for given xi).\n";
-          max_t = min_t;
+
+    // here re-create fEvt (memory)
+    //
+    fEvt = new HepMC::GenEvent();
+
+    // now actualy, cook up the event from PDGTable and gun parameters
+    //
+    // 1st, primary vertex
+    //
+    HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
+
+    // loop over particles
+    //
+    int barcode = 1;
+    for (unsigned int ip = 0; ip < fPartIDs.size(); ++ip) {
+      int PartID = fPartIDs[ip];
+      //  t = -2*P*P'*(1-cos(theta)) -> t/(2*P*P')+1=cos(theta)
+      // xi = 1 - P'/P  --> P'= (1-xi)*P
+      //
+      PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
+      if (!PData)
+        exit(1);
+      double t = 0;
+      double Xi = 0;
+      double phi = 0;
+      if (fFireForward) {
+        while (true) {
+          Xi = CLHEP::RandFlat::shoot(engine, fMinXi, fMaxXi);
+          double min_t = std::max(fMint, Minimum_t(Xi));
+          double max_t = fMaxt;
+          if (min_t > max_t) {
+            edm::LogInfo("RandomtXiGunProducer") << "WARNING: t limits redefined (unphysical values for given xi).\n";
+            max_t = min_t;
+          }
+          t = (fLog_t) ? pow(CLHEP::RandFlat::shoot(engine, log10(min_t), log10(max_t)), 10)
+                       : CLHEP::RandFlat::shoot(engine, min_t, max_t);
+          break;
         }
-        t = (fLog_t) ? pow(CLHEP::RandFlat::shoot(engine, log10(min_t), log10(max_t)), 10)
-                     : CLHEP::RandFlat::shoot(engine, min_t, max_t);
-        break;
+        phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
+        HepMC::GenParticle* Part = new HepMC::GenParticle(make_particle(t, Xi, phi, PartID, 1), PartID, 1);
+        Part->suggest_barcode(barcode);
+        barcode++;
+        Vtx->add_particle_out(Part);
       }
-      phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
-      HepMC::GenParticle* Part = new HepMC::GenParticle(make_particle(t, Xi, phi, PartID, 1), PartID, 1);
-      Part->suggest_barcode(barcode);
-      barcode++;
-      Vtx->add_particle_out(Part);
-    }
-    if (fFireBackward) {
-      while (true) {
-        Xi = CLHEP::RandFlat::shoot(engine, fMinXi, fMaxXi);
-        double min_t = std::max(fMint, Minimum_t(Xi));
-        double max_t = fMaxt;
-        if (min_t > max_t) {
-          edm::LogInfo("RandomtXiGunProducer")
-              << "WARNING: t limits redefined (unphysical values for given xi)." << endl;
-          max_t = min_t;
+      if (fFireBackward) {
+        while (true) {
+          Xi = CLHEP::RandFlat::shoot(engine, fMinXi, fMaxXi);
+          double min_t = std::max(fMint, Minimum_t(Xi));
+          double max_t = fMaxt;
+          if (min_t > max_t) {
+            edm::LogInfo("RandomtXiGunProducer")
+                << "WARNING: t limits redefined (unphysical values for given xi)." << endl;
+            max_t = min_t;
+          }
+          t = (fLog_t) ? pow(CLHEP::RandFlat::shoot(engine, log10(min_t), log10(max_t)), 10)
+                       : CLHEP::RandFlat::shoot(engine, min_t, max_t);
+          break;
         }
-        t = (fLog_t) ? pow(CLHEP::RandFlat::shoot(engine, log10(min_t), log10(max_t)), 10)
-                     : CLHEP::RandFlat::shoot(engine, min_t, max_t);
-        break;
+        phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
+        HepMC::GenParticle* Part2 = new HepMC::GenParticle(make_particle(t, Xi, phi, PartID, -1), PartID, 1);
+        Part2->suggest_barcode(barcode);
+        barcode++;
+        Vtx->add_particle_out(Part2);
       }
-      phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
-      HepMC::GenParticle* Part2 = new HepMC::GenParticle(make_particle(t, Xi, phi, PartID, -1), PartID, 1);
-      Part2->suggest_barcode(barcode);
-      barcode++;
-      Vtx->add_particle_out(Part2);
+    }
+
+    fEvt->add_vertex(Vtx);
+    fEvt->set_event_number(e.id().event());
+    fEvt->set_signal_process_id(20);
+
+    if (fVerbosity > 0) {
+      fEvt->print();
+    }
+
+    std::unique_ptr<HepMCProduct> BProduct(new HepMCProduct());
+    BProduct->addHepMCData(fEvt);
+    e.put(std::move(BProduct), "unsmeared");
+
+    std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+    e.put(std::move(genEventInfo));
+
+    if (fVerbosity > 0) {
+      // for testing purpose only
+      // fEvt->print() ; // prints empty info after it's made into edm::Event
+      edm::LogInfo("RandomtXiGunProducer") << " Event Generation Done \n";
     }
   }
+  HepMC::FourVector RandomtXiGunProducer::make_particle(double t, double Xi, double phi, int PartID, int direction) {
+    double mass = PData->mass().value();
+    double fpMom = sqrt(fpEnergy * fpEnergy - mass * mass);  // momentum of beam proton
+    double sEnergy = (1.0 - Xi) * fpEnergy;                  // energy of scattered particle
+    double sMom = sqrt(sEnergy * sEnergy - mass * mass);     // momentum of scattered particle
+    double min_t = -2. * (fpMom * sMom - fpEnergy * sEnergy + mass * mass);
+    if (t < min_t)
+      t = min_t;  // protect against kinemactically forbiden region
+    long double theta = acos((-t / 2. - mass * mass + fpEnergy * sEnergy) / (sMom * fpMom));  // use t = -t
 
-  fEvt->add_vertex(Vtx);
-  fEvt->set_event_number(e.id().event());
-  fEvt->set_signal_process_id(20);
+    if (direction < 1)
+      theta = acos(-1.) - theta;
 
-  if (fVerbosity > 0) {
-    fEvt->print();
+    double px = sMom * cos(phi) * sin(theta);
+    double py = sMom * sin(phi) * sin(theta);
+    double pz = sMom * cos(theta);  // the direction is already set by the theta angle
+    if (fVerbosity > 0)
+      edm::LogInfo("RandomXiGunProducer")
+          << "-----------------------------------------------------------------------------------------------------\n"
+          << "Produced a proton with  phi : " << phi << " theta: " << theta << " t: " << t << " Xi: " << Xi << "\n"
+          << "                         Px : " << px << " Py : " << py << " Pz : " << pz << "\n"
+          << "                   direction: " << direction << "\n"
+          << "-----------------------------------------------------------------------------------------------------"
+          << std::endl;
+
+    return HepMC::FourVector(px, py, pz, sEnergy);
   }
+}  // namespace edm
 
-  std::unique_ptr<HepMCProduct> BProduct(new HepMCProduct());
-  BProduct->addHepMCData(fEvt);
-  e.put(std::move(BProduct), "unsmeared");
-
-  std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
-  e.put(std::move(genEventInfo));
-
-  if (fVerbosity > 0) {
-    // for testing purpose only
-    // fEvt->print() ; // prints empty info after it's made into edm::Event
-    edm::LogInfo("RandomtXiGunProducer") << " Event Generation Done \n";
-  }
-}
-HepMC::FourVector RandomtXiGunProducer::make_particle(double t, double Xi, double phi, int PartID, int direction) {
-  double mass = PData->mass().value();
-  double fpMom = sqrt(fpEnergy * fpEnergy - mass * mass);  // momentum of beam proton
-  double sEnergy = (1.0 - Xi) * fpEnergy;                  // energy of scattered particle
-  double sMom = sqrt(sEnergy * sEnergy - mass * mass);     // momentum of scattered particle
-  double min_t = -2. * (fpMom * sMom - fpEnergy * sEnergy + mass * mass);
-  if (t < min_t)
-    t = min_t;  // protect against kinemactically forbiden region
-  long double theta = acos((-t / 2. - mass * mass + fpEnergy * sEnergy) / (sMom * fpMom));  // use t = -t
-
-  if (direction < 1)
-    theta = acos(-1.) - theta;
-
-  double px = sMom * cos(phi) * sin(theta);
-  double py = sMom * sin(phi) * sin(theta);
-  double pz = sMom * cos(theta);  // the direction is already set by the theta angle
-  if (fVerbosity > 0)
-    edm::LogInfo("RandomXiGunProducer")
-        << "-----------------------------------------------------------------------------------------------------\n"
-        << "Produced a proton with  phi : " << phi << " theta: " << theta << " t: " << t << " Xi: " << Xi << "\n"
-        << "                         Px : " << px << " Py : " << py << " Pz : " << pz << "\n"
-        << "                   direction: " << direction << "\n"
-        << "-----------------------------------------------------------------------------------------------------"
-        << std::endl;
-
-  return HepMC::FourVector(px, py, pz, sEnergy);
-}
-//#include "FWCore/Framework/interface/MakerMacros.h"
-//DEFINE_FWK_MODULE(RandomtXiGunProducer);
+#include "FWCore/Framework/interface/MakerMacros.h"
+using edm::RandomtXiGunProducer;
+DEFINE_FWK_MODULE(RandomtXiGunProducer);

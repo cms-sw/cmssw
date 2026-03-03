@@ -12,7 +12,7 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
-#include "IOMC/ParticleGuns/interface/FlatBaseThetaGunProducer.h"
+#include "FlatBaseThetaGunProducer.h"
 
 using namespace edm;
 

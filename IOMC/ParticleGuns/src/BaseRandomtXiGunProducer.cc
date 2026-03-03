@@ -19,7 +19,7 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
-#include "IOMC/ParticleGuns/interface/BaseRandomtXiGunProducer.h"
+#include "BaseRandomtXiGunProducer.h"
 
 #include <iostream>
 
