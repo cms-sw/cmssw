@@ -1,4 +1,4 @@
-from  Configuration.PyReleaseValidation.relval_steps import Matrix, InputInfo, Steps
+from .MatrixUtil import Matrix, InputInfo, Steps
 import os
 import json
 import collections

@@ -1,5 +1,6 @@
 # import the definition of the steps and input files:
 from  Configuration.PyReleaseValidation.relval_steps import *
+from .MatrixUtil import Matrix
 
 # here only define the workflows as a combination of the steps defined above:
 workflows = Matrix()
@@ -40,8 +41,10 @@ for year in upgradeKeys:
                     if 'HLBeamSpot' in step:
                         if '14TeV' in frag:
                             step = 'GenSimHLBeamSpot14'
-                        if 'CloseBy' in frag or 'CE_E' in frag or 'CE_H' in frag:
+                        elif 'CloseBy' in frag or 'CE_E' in frag or 'CE_H' in frag:
                             step = 'GenSimHLBeamSpotCloseBy'
+                    elif 'CloseBy' in frag or 'CE_E' in frag or 'CE_H' in frag:
+                        step = 'GenSimCloseBy'
                     stepMaker = makeStepNameSim
                 elif 'Gen' in step:
                     if 'HLBeamSpot' in step:
