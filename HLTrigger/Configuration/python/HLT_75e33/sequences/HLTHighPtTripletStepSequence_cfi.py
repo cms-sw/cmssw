@@ -13,6 +13,3 @@ HLTHighPtTripletStepSequence = cms.Sequence(
     +hltHighPtTripletStepTrackCutClassifier
     +hltHighPtTripletStepTrackSelectionHighPurity
 )
-
-from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
-trackingLST.toReplaceWith(HLTHighPtTripletStepSequence, HLTHighPtTripletStepSequence.copyAndExclude([HLTHighPtTripletStepSeedingSequence]))
