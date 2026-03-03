@@ -52,7 +52,8 @@ def add_black(cmap):
     new_colors = np.vstack((colors, [0, 0, 0, 1])) # add black
     return mcolors.ListedColormap(new_colors)
 
-def plotEvent(geom, hits, clusters, out, zoom, var='energy', zlabel='', categorical=False):
+def plotEvent(geom, hits, clusters, out, zoom,
+              era='Phase2', label='', var='energy', zlabel='', categorical=False):
     """
     Plot single event on top of the geometry.
     """
@@ -66,8 +67,10 @@ def plotEvent(geom, hits, clusters, out, zoom, var='energy', zlabel='', categori
     
     fig, ax = plt.subplots()
     params = dict(ax=ax, fontsize=15)
-    hep.cms.text(' Phase-2 Simulation Preliminary', **params)
-    hep.cms.lumitext("CloseByElectron | 14 TeV", **params)
+    if era == 'Phase2': era='Phase-2'; en='14'
+    elif era == 'Run3': era='Run-3'; en='13.6'
+    hep.cms.text(f' {era} Simulation Preliminary', **params)
+    hep.cms.lumitext(label + f' | {en} TeV', **params)
 
     if categorical:
         cmap = add_black(plt.get_cmap('tab10'))
@@ -179,7 +182,7 @@ def showECAL(infile, outfile, props):
 
             plotEvent(dfGeom, dfHits, dfClusters,
                       out=os.path.join(outfile, outname + '_allhits'),
-                      var='energy', zoom=props.zoom,
+                      era=props.era, label=props.label, var='energy', zoom=props.zoom,
                       zlabel=('PF' if prefix=='Reco' else 'Sim') + ' RecHit Energy [GeV]')
             plotEvent(dfGeom, dfHitsInClusters, dfClusters,
                       out=os.path.join(outfile, outname + '_clhits'),
@@ -193,17 +196,28 @@ def showECAL(infile, outfile, props):
 class InputArgs:
     zoom: bool
     nevents: int
+    era: str
+    label: str
     
 if __name__ == '__main__':
 
     full_command = 'python3 Validation/RecoParticleFlow/scripts/showECALcrystals.py --file <input_root_file>'
     parser = argparse.ArgumentParser(description='Show position of crystals. \nExample command:\n' + full_command)
 
-    parser.add_argument('-i', '--file', help='Path to the input ROOT file.')
-    parser.add_argument('-o', '--outdir', help='Path to the output folder where the events will be stored.')
-    parser.add_argument('-z', '--zoom', help='Zoom over a hard-coded eta/phi region: (min_eta, max_eta, min_phi, max_phi)', nargs=4, type=float, default=None)
-    parser.add_argument('-n', '--nevents', help='Number of events to plot. If the input file has less events, then it plots all events of the input file.', default=10)
+    parser.add_argument('-i', '--file',
+                        help='Path to the input ROOT file.')
+    parser.add_argument('-o', '--outdir',
+                        help='Path to the output folder where the events will be stored.')
+    parser.add_argument('-z', '--zoom',
+                        help='Zoom over a hard-coded eta/phi region: (min_eta, max_eta, min_phi, max_phi)', nargs=4, type=float, default=None)
+    parser.add_argument('-n', '--nevents',
+                        help='Number of events to plot. If the input file has less events, then it plots all events of the input file.', default=10)
+    parser.add_argument('-e', '--era', required=True,
+                        help="Chose between ['Phase2', 'Run3'].")
+    parser.add_argument('-l', '--sample_label', required=True,
+                        help='Sample label for plotting.')
     
     args = parser.parse_args()
-    props = InputArgs(zoom=args.zoom, nevents=args.nevents)
+    props = InputArgs(zoom=args.zoom, nevents=args.nevents,
+                      era=args.era, label=args.sample_label)
     showECAL(args.file, args.outdir, props)
