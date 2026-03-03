@@ -274,8 +274,7 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
   }  // MTDSimHitDataAccumulator loop
 
   // resize the output SoA collection to the number of valid hits
-  const auto& queue = cms::alpakatools::host();
-  btldigi::BTLDigiHostCollection newOutputSoA(queue, validHitIndex);
+  btldigi::BTLDigiHostCollection newOutputSoA(cms::alpakatools::host(), validHitIndex);
   for (int idx = 0; idx < validHitIndex; ++idx) {
     newOutputSoA.view()[idx] = outputSoA.view()[idx];
   }
@@ -373,8 +372,7 @@ void BTLElectronicsSim::updateOutputSoA(btldigi::BTLDigiHostCollection& coll,
 
   btldigi::BTLDigiSoAView& btlDigiView = coll.view();
 
-  btldigi::setDigi(btlDigiView,
-                   hitIndex,
+  btlDigiView[hitIndex] = {
                    rawId,
                    BC0count,
                    status,
@@ -398,24 +396,24 @@ void BTLElectronicsSim::updateOutputSoA(btldigi::BTLDigiHostCollection& coll,
                    T2fineL,
                    IdleTimeL,
                    PrevTrigFL,
-                   TACIDL);
+                   TACIDL};
 
   if (debug_) {
     edm::LogError("BTLElectronicsSim") << "Processed hit with rawId NEW GETTER FUNCTIONS: " << rawId
-                                       << ", chIDL: " << static_cast<int>(btldigi::chIDL(btlDigiView, hitIndex))
-                                       << ", T1coarseL: " << btldigi::t1CoarseL(btlDigiView, hitIndex)
-                                       << ", T1fineL: " << btldigi::t1FineL(btlDigiView, hitIndex)
-                                       << ", T2coarseL: " << btldigi::t2CoarseL(btlDigiView, hitIndex)
-                                       << ", T2fineL: " << btldigi::t2FineL(btlDigiView, hitIndex)
-                                       << ", EOIcoarseL: " << btldigi::eoiCoarseL(btlDigiView, hitIndex)
-                                       << ", ChargeL: " << btldigi::chargeL(btlDigiView, hitIndex)
-                                       << ", chIDR: " << static_cast<int>(btldigi::chIDR(btlDigiView, hitIndex))
-                                       << ", T1coarseR: " << btldigi::t1CoarseR(btlDigiView, hitIndex)
-                                       << ", T1fineR: " << btldigi::t1FineR(btlDigiView, hitIndex)
-                                       << ", T2coarseR: " << btldigi::t2CoarseR(btlDigiView, hitIndex)
-                                       << ", T2fineR: " << btldigi::t2FineR(btlDigiView, hitIndex)
-                                       << ", EOIcoarseR: " << btldigi::eoiCoarseR(btlDigiView, hitIndex)
-                                       << ", ChargeR: " << btldigi::chargeR(btlDigiView, hitIndex) << std::endl;
+                                       << ", chIDL: " << static_cast<int>(btlDigiView[hitIndex].chIDL())
+                                       << ", T1coarseL: " << btlDigiView[hitIndex].T1coarseL()
+                                       << ", T1fineL: " << btlDigiView[hitIndex].T1fineL()
+                                       << ", T2coarseL: " << btlDigiView[hitIndex].T2coarseL()
+                                       << ", T2fineL: " << btlDigiView[hitIndex].T2fineL()
+                                       << ", EOIcoarseL: " << btlDigiView[hitIndex].EOIcoarseL()
+                                       << ", ChargeL: " << btlDigiView[hitIndex].ChargeL()
+                                       << ", chIDR: " << static_cast<int>(btlDigiView[hitIndex].chIDR())
+                                       << ", T1coarseR: " << btlDigiView[hitIndex].T1coarseR()
+                                       << ", T1fineR: " << btlDigiView[hitIndex].T1fineR()
+                                       << ", T2coarseR: " << btlDigiView[hitIndex].T2coarseR()
+                                       << ", T2fineR: " << btlDigiView[hitIndex].T2fineR()
+                                       << ", EOIcoarseR: " << btlDigiView[hitIndex].EOIcoarseR()
+                                       << ", ChargeR: " << btlDigiView[hitIndex].ChargeR() << std::endl;
   }
 }
 
@@ -535,11 +533,9 @@ uint16_t BTLElectronicsSim::chargetoQfine(const float charge, const float toa1, 
   // Convert charge to qfine
   float ti = (EOI - toa1 / tofhirClock_);  // integration time in clock units
 
-  // evaluate pedestal (qdc calibs)
+  // evaluate pedestal (qdc calibs, 9-deg polynomial)
   uint32_t pedestal =
-      (p0_ + p1_ * ti + p2_ * ti * ti + p3_ * ti * ti * ti + p4_ * ti * ti * ti * ti + p5_ * ti * ti * ti * ti * ti +
-       p6_ * ti * ti * ti * ti * ti * ti + p7_ * ti * ti * ti * ti * ti * ti * ti +
-       p8_ * ti * ti * ti * ti * ti * ti * ti * ti + p9_ * ti * ti * ti * ti * ti * ti * ti * ti * ti);
+      (p0_ + (p1_ + (p2_ + (p3_ + (p4_ + (p5_ + (p6_ + (p7_ + (p8_ + p9_ * ti) * ti) * ti) * ti) * ti) * ti) * ti) * ti) * ti); 
 
   const uint32_t adc = std::min(static_cast<uint32_t>(std::floor(charge)), adcBitSaturation_);
   uint16_t Qfine = adc + pedestal;  // Qfine is the ADC value + pedestal

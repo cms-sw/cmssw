@@ -128,7 +128,7 @@ void BtlDigiSoAHitsValidation::analyze(const edm::Event& iEvent, const edm::Even
   unsigned int n_digi_btl[2] = {0, 0};
   const auto btlDigiView = btlDigiHitsHandle->view();
   for (int i = 0; i < btlDigiView.metadata().size(); i++) {
-    BTLDetId detId = btldigi::rawId(btlDigiView, i);
+    BTLDetId detId = btlDigiView[i].rawId();
     DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
     const MTDGeomDet* thedet = geom->idToDet(geoId);
     if (thedet == nullptr)
@@ -141,11 +141,11 @@ void BtlDigiSoAHitsValidation::analyze(const edm::Event& iEvent, const edm::Even
     local_point = topo.pixelToModuleLocalPoint(local_point, detId.row(topo.nrows()), detId.column(topo.nrows()));
     const auto& global_point = thedet->toGlobal(local_point);
 
-    uint32_t adc[2] = {btldigi::chargeL(btlDigiView, i), btldigi::chargeR(btlDigiView, i)};
-    uint32_t T1coarse[2] = {btldigi::t1CoarseL(btlDigiView, i), btldigi::t1CoarseR(btlDigiView, i)};
-    uint32_t T2coarse[2] = {btldigi::t2CoarseL(btlDigiView, i), btldigi::t2CoarseR(btlDigiView, i)};
-    uint32_t T1fine[2] = {btldigi::t1FineL(btlDigiView, i), btldigi::t1FineR(btlDigiView, i)};
-    uint32_t T2fine[2] = {btldigi::t2FineL(btlDigiView, i), btldigi::t2FineR(btlDigiView, i)};
+    uint32_t adc[2] = {btlDigiView[i].ChargeL(), btlDigiView[i].ChargeR()};
+    uint32_t T1coarse[2] = {btlDigiView[i].T1coarseL(), btlDigiView[i].T1coarseR()};
+    uint32_t T2coarse[2] = {btlDigiView[i].T2coarseL(), btlDigiView[i].T2coarseR()};
+    uint32_t T1fine[2] = {btlDigiView[i].T1fineL(), btlDigiView[i].T1fineR()};
+    uint32_t T2fine[2] = {btlDigiView[i].T2fineL(), btlDigiView[i].T2fineR()};
 
     for (int iside = 0; iside < 2; ++iside) {
       if (adc[iside] == 0)
