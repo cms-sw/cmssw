@@ -32,11 +32,13 @@ public:
   inline int operator()(const SiPixelCluster::PixelPos&) const;
   inline int rows() const { return nrows; }
   inline int columns() const { return ncols; }
+  inline uint8_t rawADC(int row, int col) const { return pixel_rawADC[index(row, col)]; }
 
   inline bool inside(int row, int col) const;
   inline void set_adc(int row, int col, int adc);
   inline void set_adc(const SiPixelCluster::PixelPos&, int adc);
   inline void add_adc(int row, int col, int adc);
+  inline void set_rawADC(int row, int col, uint8_t adc) { pixel_rawADC[index(row, col)] = adc; };
   int size() const { return pixel_vec.size(); }
 
   /// Definition of indexing within the buffer.
@@ -44,15 +46,19 @@ public:
   int index(const SiPixelCluster::PixelPos& pix) const { return index(pix.row(), pix.col()); }
 
 private:
-  std::vector<int> pixel_vec;  // TO DO: any benefit in using shorts instead?
+  uint16_t clamp(int adc) { return std::clamp<int>(adc, 0, std::numeric_limits<uint16_t>::max()); }
+  std::vector<uint16_t> pixel_vec;
+  std::vector<uint8_t> pixel_rawADC;
   int nrows;
   int ncols;
 };
 
-SiPixelArrayBuffer::SiPixelArrayBuffer(int rows, int cols) : pixel_vec(rows * cols, 0), nrows(rows), ncols(cols) {}
+SiPixelArrayBuffer::SiPixelArrayBuffer(int rows, int cols)
+    : pixel_vec(rows * cols, 0), pixel_rawADC(rows * cols, 0), nrows(rows), ncols(cols) {}
 
 void SiPixelArrayBuffer::setSize(int rows, int cols) {
   pixel_vec.resize(rows * cols, 0);
+  pixel_rawADC.resize(rows * cols, 0);
   nrows = rows;
   ncols = cols;
 }
@@ -64,10 +70,13 @@ int SiPixelArrayBuffer::operator()(int row, int col) const { return pixel_vec[in
 int SiPixelArrayBuffer::operator()(const SiPixelCluster::PixelPos& pix) const { return pixel_vec[index(pix)]; }
 
 // unchecked!
-void SiPixelArrayBuffer::set_adc(int row, int col, int adc) { pixel_vec[index(row, col)] = adc; }
+void SiPixelArrayBuffer::set_adc(int row, int col, int adc) { pixel_vec[index(row, col)] = clamp(adc); }
 
-void SiPixelArrayBuffer::set_adc(const SiPixelCluster::PixelPos& pix, int adc) { pixel_vec[index(pix)] = adc; }
+void SiPixelArrayBuffer::set_adc(const SiPixelCluster::PixelPos& pix, int adc) { pixel_vec[index(pix)] = clamp(adc); }
 
-void SiPixelArrayBuffer::add_adc(int row, int col, int adc) { pixel_vec[index(row, col)] += adc; }
+void SiPixelArrayBuffer::add_adc(int row, int col, int adc) {
+  auto& v = pixel_vec[index(row, col)];
+  v = clamp(v + adc);
+}
 
 #endif

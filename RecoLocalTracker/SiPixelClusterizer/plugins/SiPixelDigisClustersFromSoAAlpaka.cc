@@ -134,7 +134,8 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
             << "Layer/DetId/clusId " << layer << '/' << detId << '/' << ic << " size/charge " << acluster.isize << '/'
             << acluster.charge << "\n";
       // sort by row (x)
-      spc.emplace_back(acluster.isize, acluster.adc, acluster.x, acluster.y, acluster.xmin, acluster.ymin, ic);
+      spc.emplace_back(
+          acluster.isize, acluster.adc, acluster.x, acluster.y, acluster.xmin, acluster.ymin, ic, acluster.isSaturated);
       aclusters[ic].clear();
 #ifdef EDM_ML_DEBUG
       ++totClustersFilled;
@@ -211,7 +212,7 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
 
     if (storeDigis_)
       (*detDigis).data.emplace_back(dig);
-      // fill clusters
+    // fill clusters
 #ifdef EDM_ML_DEBUG
     assert(digisView[i].clus() >= 0);
     assert(digisView[i].clus() < static_cast<int>(TrackerTraits::maxNumClustersPerModules));
@@ -220,7 +221,7 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
     auto row = dig.row();
     auto col = dig.column();
     SiPixelCluster::PixelPos pix(row, col);
-    aclusters[digisView[i].clus()].add(pix, digisView[i].adc());
+    aclusters[digisView[i].clus()].add(pix, digisView[i].adc(), digisView[i].rawADC());
   }
 
   // fill final clusters
