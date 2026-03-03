@@ -263,7 +263,7 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
     updateOutput(output, rawDataFrame);
 
     uint32_t rawId = rawDataFrame.id().rawId();
-    uint16_t BC0count = static_cast<uint16_t>(iBX);  
+    uint16_t BC0count = static_cast<uint16_t>(iBX);
     bool status = true;    // status is always true in this implementation
     uint32_t BCcount = 0;  // BCcount is always 0 in this implementation
 
@@ -289,9 +289,30 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
     uint8_t PrevTrigFL = 0;  // Previous trigger flag is not used in this implementation
     uint8_t TACIDL = 0;      // TACIDL is not used in this implementation
 
-    outputTemp.emplace_back(rawId, BC0count, status, BCcount, chIDR, T1coarseR, T2coarseR, EOIcoarseR, ChargeR, T1fineR, T2fineR, IdleTimeR,
-                            PrevTrigFR, TACIDR, chIDL, T1coarseL, T2coarseL, EOIcoarseL, ChargeL, T1fineL, T2fineL,
-                            IdleTimeL, PrevTrigFL, TACIDL);
+    outputTemp.emplace_back(rawId,
+                            BC0count,
+                            status,
+                            BCcount,
+                            chIDR,
+                            T1coarseR,
+                            T2coarseR,
+                            EOIcoarseR,
+                            ChargeR,
+                            T1fineR,
+                            T2fineR,
+                            IdleTimeR,
+                            PrevTrigFR,
+                            TACIDR,
+                            chIDL,
+                            T1coarseL,
+                            T2coarseL,
+                            EOIcoarseL,
+                            ChargeL,
+                            T1fineL,
+                            T2fineL,
+                            IdleTimeL,
+                            PrevTrigFL,
+                            TACIDL);
   }  // MTDSimHitDataAccumulator loop
 }
 
@@ -353,59 +374,37 @@ void BTLElectronicsSim::updateOutput(BTLDigiCollection& coll, const BTLDataFrame
 }
 
 void BTLElectronicsSim::updateOutputSoA(mtd_digitizer::BTLDigiTempCollection& outputTemp,
-                                        btldigi::BTLDigiHostCollection& hostColl
-                                        ) const {
-                                        
+                                        btldigi::BTLDigiHostCollection& hostColl) const {
   btldigi::BTLDigiSoAView& btlDigiView = hostColl.view();
   size_t nDigis = outputTemp.size();
   if (debug_) {
-      edm::LogError("BTLElectronicsSim") << "Updating output SoA with " << nDigis << " digis." << std::endl; 
+    edm::LogError("BTLElectronicsSim") << "Updating output SoA with " << nDigis << " digis." << std::endl;
   }
   for (size_t hitIndex = 0; hitIndex < nDigis; ++hitIndex) {
-      const auto& digiTemp = outputTemp[hitIndex];
-      btlDigiView[hitIndex] = {
-                   digiTemp.rawId_,
-                   digiTemp.BC0count_,
-                   digiTemp.status_,
-                   digiTemp.BCcount_,
-                   digiTemp.chIDR_,
-                   digiTemp.T1coarseR_,
-                   digiTemp.T2coarseR_,
-                   digiTemp.EOIcoarseR_,
-                   digiTemp.ChargeR_,
-                   digiTemp.T1fineR_,
-                   digiTemp.T2fineR_,
-                   digiTemp.IdleTimeR_,
-                   digiTemp.PrevTrigFR_,
-                   digiTemp.TACIDR_,
-                   digiTemp.chIDL_,
-                   digiTemp.T1coarseL_,
-                   digiTemp.T2coarseL_,
-                   digiTemp.EOIcoarseL_,
-                   digiTemp.ChargeL_,
-                   digiTemp.T1fineL_,
-                   digiTemp.T2fineL_,
-                   digiTemp.IdleTimeL_,
-                   digiTemp.PrevTrigFL_,
-                   digiTemp.TACIDL_
-                  };
+    const auto& digiTemp = outputTemp[hitIndex];
+    btlDigiView[hitIndex] = {digiTemp.rawId_,      digiTemp.BC0count_,   digiTemp.status_,     digiTemp.BCcount_,
+                             digiTemp.chIDR_,      digiTemp.T1coarseR_,  digiTemp.T2coarseR_,  digiTemp.EOIcoarseR_,
+                             digiTemp.ChargeR_,    digiTemp.T1fineR_,    digiTemp.T2fineR_,    digiTemp.IdleTimeR_,
+                             digiTemp.PrevTrigFR_, digiTemp.TACIDR_,     digiTemp.chIDL_,      digiTemp.T1coarseL_,
+                             digiTemp.T2coarseL_,  digiTemp.EOIcoarseL_, digiTemp.ChargeL_,    digiTemp.T1fineL_,
+                             digiTemp.T2fineL_,    digiTemp.IdleTimeL_,  digiTemp.PrevTrigFL_, digiTemp.TACIDL_};
 
     if (debug_) {
       edm::LogError("BTLElectronicsSim") << "Processed hit with rawId: " << btlDigiView[hitIndex].rawId()
-                                        << ", chIDL: " << static_cast<int>(btlDigiView[hitIndex].chIDL())
-                                        << ", T1coarseL: " << btlDigiView[hitIndex].T1coarseL()
-                                        << ", T1fineL: " << btlDigiView[hitIndex].T1fineL()
-                                        << ", T2coarseL: " << btlDigiView[hitIndex].T2coarseL()
-                                        << ", T2fineL: " << btlDigiView[hitIndex].T2fineL()
-                                        << ", EOIcoarseL: " << btlDigiView[hitIndex].EOIcoarseL()
-                                        << ", ChargeL: " << btlDigiView[hitIndex].ChargeL()
-                                        << ", chIDR: " << static_cast<int>(btlDigiView[hitIndex].chIDR())
-                                        << ", T1coarseR: " << btlDigiView[hitIndex].T1coarseR()
-                                        << ", T1fineR: " << btlDigiView[hitIndex].T1fineR()
-                                        << ", T2coarseR: " << btlDigiView[hitIndex].T2coarseR()
-                                        << ", T2fineR: " << btlDigiView[hitIndex].T2fineR()
-                                        << ", EOIcoarseR: " << btlDigiView[hitIndex].EOIcoarseR()
-                                        << ", ChargeR: " << btlDigiView[hitIndex].ChargeR() << std::endl;
+                                         << ", chIDL: " << static_cast<int>(btlDigiView[hitIndex].chIDL())
+                                         << ", T1coarseL: " << btlDigiView[hitIndex].T1coarseL()
+                                         << ", T1fineL: " << btlDigiView[hitIndex].T1fineL()
+                                         << ", T2coarseL: " << btlDigiView[hitIndex].T2coarseL()
+                                         << ", T2fineL: " << btlDigiView[hitIndex].T2fineL()
+                                         << ", EOIcoarseL: " << btlDigiView[hitIndex].EOIcoarseL()
+                                         << ", ChargeL: " << btlDigiView[hitIndex].ChargeL()
+                                         << ", chIDR: " << static_cast<int>(btlDigiView[hitIndex].chIDR())
+                                         << ", T1coarseR: " << btlDigiView[hitIndex].T1coarseR()
+                                         << ", T1fineR: " << btlDigiView[hitIndex].T1fineR()
+                                         << ", T2coarseR: " << btlDigiView[hitIndex].T2coarseR()
+                                         << ", T2fineR: " << btlDigiView[hitIndex].T2fineR()
+                                         << ", EOIcoarseR: " << btlDigiView[hitIndex].EOIcoarseR()
+                                         << ", ChargeR: " << btlDigiView[hitIndex].ChargeR() << std::endl;
     }
   }
 }
@@ -528,7 +527,9 @@ uint16_t BTLElectronicsSim::chargetoQfine(const float charge, const float toa1, 
 
   // evaluate pedestal (qdc calibs, 9-deg polynomial)
   uint32_t pedestal =
-      (p0_ + (p1_ + (p2_ + (p3_ + (p4_ + (p5_ + (p6_ + (p7_ + (p8_ + p9_ * ti) * ti) * ti) * ti) * ti) * ti) * ti) * ti) * ti); 
+      (p0_ +
+       (p1_ + (p2_ + (p3_ + (p4_ + (p5_ + (p6_ + (p7_ + (p8_ + p9_ * ti) * ti) * ti) * ti) * ti) * ti) * ti) * ti) *
+           ti);
 
   const uint32_t adc = std::min(static_cast<uint32_t>(std::floor(charge)), adcBitSaturation_);
   uint16_t Qfine = adc + pedestal;  // Qfine is the ADC value + pedestal

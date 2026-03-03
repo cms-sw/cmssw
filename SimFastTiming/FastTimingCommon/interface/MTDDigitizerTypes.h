@@ -36,9 +36,32 @@ namespace mtd_digitizer {
   };
 
   struct BTLDigiContent {
-    
-    BTLDigiContent() : rawId_(0), BC0count_(0), status_(false), BCcount_(0), chIDR_(0), T1coarseR_(0), T2coarseR_(0), EOIcoarseR_(0), ChargeR_(0), T1fineR_(0), T2fineR_(0), IdleTimeR_(0), PrevTrigFR_(0), TACIDR_(0), chIDL_(0), T1coarseL_(0), T2coarseL_(0), EOIcoarseL_(0), ChargeL_(0), T1fineL_(0), T2fineL_(0), IdleTimeL_(0), PrevTrigFL_(0), TACIDL_(0) {}
-    
+    BTLDigiContent()
+        : rawId_(0),
+          BC0count_(0),
+          status_(false),
+          BCcount_(0),
+          chIDR_(0),
+          T1coarseR_(0),
+          T2coarseR_(0),
+          EOIcoarseR_(0),
+          ChargeR_(0),
+          T1fineR_(0),
+          T2fineR_(0),
+          IdleTimeR_(0),
+          PrevTrigFR_(0),
+          TACIDR_(0),
+          chIDL_(0),
+          T1coarseL_(0),
+          T2coarseL_(0),
+          EOIcoarseL_(0),
+          ChargeL_(0),
+          T1fineL_(0),
+          T2fineL_(0),
+          IdleTimeL_(0),
+          PrevTrigFL_(0),
+          TACIDL_(0) {}
+
     uint32_t rawId_;
     uint16_t BC0count_;
     bool status_;
@@ -64,15 +87,60 @@ namespace mtd_digitizer {
     uint8_t PrevTrigFL_;
     uint8_t TACIDL_;
 
-    BTLDigiContent(uint32_t rawId, uint16_t BC0count, bool status, uint32_t BCcount, uint8_t chIDR, uint16_t T1coarseR, uint16_t T2coarseR, uint16_t EOIcoarseR, uint16_t ChargeR, uint16_t T1fineR, uint16_t T2fineR, uint16_t IdleTimeR, uint8_t PrevTrigFR, uint8_t TACIDR, uint8_t chIDL, uint16_t T1coarseL, uint16_t T2coarseL, uint16_t EOIcoarseL, uint16_t ChargeL, uint16_t T1fineL, uint16_t T2fineL, uint16_t IdleTimeL, uint8_t PrevTrigFL, uint8_t TACIDL) :
-      rawId_(rawId), BC0count_(BC0count), status_(status), BCcount_(BCcount), chIDR_(chIDR), T1coarseR_(T1coarseR), T2coarseR_(T2coarseR), EOIcoarseR_(EOIcoarseR), ChargeR_(ChargeR), T1fineR_(T1fineR), T2fineR_(T2fineR), IdleTimeR_(IdleTimeR), PrevTrigFR_(PrevTrigFR), TACIDR_(TACIDR), chIDL_(chIDL), T1coarseL_(T1coarseL), T2coarseL_(T2coarseL), EOIcoarseL_(EOIcoarseL), ChargeL_(ChargeL), T1fineL_(T1fineL), T2fineL_(T2fineL), IdleTimeL_(IdleTimeL), PrevTrigFL_(PrevTrigFL), TACIDL_(TACIDL) {} 
+    BTLDigiContent(uint32_t rawId,
+                   uint16_t BC0count,
+                   bool status,
+                   uint32_t BCcount,
+                   uint8_t chIDR,
+                   uint16_t T1coarseR,
+                   uint16_t T2coarseR,
+                   uint16_t EOIcoarseR,
+                   uint16_t ChargeR,
+                   uint16_t T1fineR,
+                   uint16_t T2fineR,
+                   uint16_t IdleTimeR,
+                   uint8_t PrevTrigFR,
+                   uint8_t TACIDR,
+                   uint8_t chIDL,
+                   uint16_t T1coarseL,
+                   uint16_t T2coarseL,
+                   uint16_t EOIcoarseL,
+                   uint16_t ChargeL,
+                   uint16_t T1fineL,
+                   uint16_t T2fineL,
+                   uint16_t IdleTimeL,
+                   uint8_t PrevTrigFL,
+                   uint8_t TACIDL)
+        : rawId_(rawId),
+          BC0count_(BC0count),
+          status_(status),
+          BCcount_(BCcount),
+          chIDR_(chIDR),
+          T1coarseR_(T1coarseR),
+          T2coarseR_(T2coarseR),
+          EOIcoarseR_(EOIcoarseR),
+          ChargeR_(ChargeR),
+          T1fineR_(T1fineR),
+          T2fineR_(T2fineR),
+          IdleTimeR_(IdleTimeR),
+          PrevTrigFR_(PrevTrigFR),
+          TACIDR_(TACIDR),
+          chIDL_(chIDL),
+          T1coarseL_(T1coarseL),
+          T2coarseL_(T2coarseL),
+          EOIcoarseL_(EOIcoarseL),
+          ChargeL_(ChargeL),
+          T1fineL_(T1fineL),
+          T2fineL_(T2fineL),
+          IdleTimeL_(IdleTimeL),
+          PrevTrigFL_(PrevTrigFL),
+          TACIDL_(TACIDL) {}
   };
-
 
   // use a wider integer now since we have to add row and column in an
   // intermediate det id for ETL
   typedef std::unordered_map<MTDCellId, MTDCellInfo> MTDSimHitDataAccumulator;
-  typedef std::vector<BTLDigiContent> BTLDigiTempCollection; // temporary collection to store BTL digis in SoA format
+  typedef std::vector<BTLDigiContent> BTLDigiTempCollection;  // temporary collection to store BTL digis in SoA format
 
   constexpr int kNumberOfBX = 15;
   constexpr int kInTimeBX = 9;

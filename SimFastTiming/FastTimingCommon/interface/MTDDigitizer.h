@@ -257,12 +257,12 @@ namespace mtd_digitizer {
       e.put(std::move(simResult), digiCollection_);
 
     } else if constexpr (std::is_same_v<Traits, BTLDigitizerTraits>) {
-
       auto digiCollection = std::make_unique<DigiCollection>();
       electronicsSim_.run(simHitAccumulator_, *digiCollection, btlDigiTempCollection_, hre);
 
       typedef typename Traits::DigiCollectionSoA DigiCollectionSoA;
-      auto digiCollectionSoA = std::make_unique<DigiCollectionSoA>(cms::alpakatools::host(), btlDigiTempCollection_.size());
+      auto digiCollectionSoA =
+          std::make_unique<DigiCollectionSoA>(cms::alpakatools::host(), btlDigiTempCollection_.size());
       electronicsSim_.updateOutputSoA(btlDigiTempCollection_, *digiCollectionSoA);
 
       e.put(std::move(digiCollection), digiCollection_);

@@ -47,8 +47,7 @@ public:
 
   void updateOutput(BTLDigiCollection& coll, const BTLDataFrame& rawDataFrame) const;
 
-  void updateOutputSoA(mtd_digitizer::BTLDigiTempCollection& outputTemp,
-                       btldigi::BTLDigiHostCollection& coll) const;
+  void updateOutputSoA(mtd_digitizer::BTLDigiTempCollection& outputTemp, btldigi::BTLDigiHostCollection& coll) const;
 
   static constexpr int dfSIZE = 2;
 
