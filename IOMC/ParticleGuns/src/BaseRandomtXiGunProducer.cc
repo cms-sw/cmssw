@@ -82,4 +82,7 @@ void BaseRandomtXiGunProducer::fillDescription(ParameterSetDescription& desc, Pa
   desc.addUntracked<int>("Verbosity", 0);
   desc.add<bool>("FireBackward");
   desc.add<bool>("FireForward");
+  //many configurations have these two but they are not used anywhere
+  desc.addObsoleteUntracked<unsigned int>("firstRun");
+  desc.addOptional<std::string>("psethack");
 }

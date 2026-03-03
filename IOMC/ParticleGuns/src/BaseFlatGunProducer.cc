@@ -107,4 +107,7 @@ void BaseFlatGunProducer::fillDescription(ParameterSetDescription& desc, Paramet
   desc.add<ParameterSetDescription>("PGunParameters", pgunParams);
   desc.addUntracked<int>("Verbosity", 0);
   desc.add<bool>("AddAntiParticle");
+  //many configurations have these two but they are not used anywhere
+  desc.addObsoleteUntracked<unsigned int>("firstRun");
+  desc.addOptional<std::string>("psethack");
 }
