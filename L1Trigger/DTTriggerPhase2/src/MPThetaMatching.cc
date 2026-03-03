@@ -344,7 +344,7 @@ void MPThetaMatching::orderAndSave(std::vector<std::tuple<metaPrimitive, metaPri
 
     if ((abs(chId.wheel()) == 2 && chId.station() < 3 && count < th_option_ + 1) ||  //save an extra pair for WH+-2MB1/2
         count < th_option_) {
-      //std::get<0>(p).t0 = std::get<1>(p).t0;     //replace t0 by associated phi t0
+      //alternatively we could replace t0 by associated phi t0 std::get<0>(p).t0 = std::get<1>(p).t0;  
       outMPs->push_back(std::get<1>(p));         //add PhiMP
       outMPs->push_back(std::get<0>(p));         //add ThetaMP
       savedThetaMPs->push_back(std::get<0>(p));  //for accounting
@@ -358,7 +358,7 @@ void MPThetaMatching::orderAndSave(std::vector<std::tuple<metaPrimitive, metaPri
     DTChamberId chId(std::get<1>(p).rawId);
     if (count < th_option_ || (abs(chId.wheel()) == 2 && chId.station() < 3 && count < (th_option_ + 1))) {
       if (std::get<1>(p).quality > th_quality_) {
-        //std::get<0>(p).t0 = std::get<1>(p).t0;  //replace t0 by associated phi t0
+        //alternatively we could replace t0 by associated phi t0 std::get<0>(p).t0 = std::get<1>(p).t0;
         outMPs->push_back(std::get<0>(p));  //add ThetaMP
         savedThetaMPs->push_back(std::get<0>(p));
         count++;

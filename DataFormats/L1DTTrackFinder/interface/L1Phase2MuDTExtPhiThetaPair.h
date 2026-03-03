@@ -12,8 +12,6 @@
 
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtThDigi.h"
-#include <vector>
-#include <algorithm>
 
 class L1Phase2MuDTExtPhiThetaPair {
 public:
