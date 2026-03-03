@@ -1,4 +1,4 @@
-from copy import copy, deepcopy
+from copy import deepcopy
 from collections import OrderedDict
 from .MatrixUtil import merge, Kby, Mby, check_dups
 import re
@@ -207,6 +207,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'GenHLBeamSpot14',
         'Sim',
         'GenSim',
+        'GenSimCloseBy',
         'GenSimHLBeamSpot',
         'GenSimHLBeamSpot14',
         'GenSimHLBeamSpotCloseBy',
