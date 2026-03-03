@@ -12,6 +12,8 @@
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "CLHEP/Random/RandFlat.h"
@@ -25,6 +27,8 @@ namespace edm {
   public:
     MultiParticleInConeGunProducer(const ParameterSet&);
     ~MultiParticleInConeGunProducer() override;
+
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
     void produce(Event& e, const EventSetup& es) override;
@@ -54,7 +58,7 @@ namespace edm {
     fMinPt = pgun_params.getParameter<double>("MinPt");
     fMaxPt = pgun_params.getParameter<double>("MaxPt");
 
-    fInConeIds = pgun_params.getParameter<vector<int> >("InConeID");
+    fInConeIds = pgun_params.getParameter<vector<int>>("InConeID");
     fMinDeltaR = pgun_params.getParameter<double>("MinDeltaR");
     fMaxDeltaR = pgun_params.getParameter<double>("MaxDeltaR");
     fMinMomRatio = pgun_params.getParameter<double>("MinMomRatio");
@@ -72,6 +76,25 @@ namespace edm {
 
   MultiParticleInConeGunProducer::~MultiParticleInConeGunProducer() {
     // no need to cleanup GenEvent memory - done in HepMCProduct
+  }
+
+  void MultiParticleInConeGunProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    ParameterSetDescription pgunParams;
+    pgunParams.add<double>("MinPt");
+    pgunParams.add<double>("MaxPt");
+    pgunParams.add<std::vector<int>>("InConeID");
+    pgunParams.add<double>("MinDeltaR");
+    pgunParams.add<double>("MaxDeltaR");
+    pgunParams.add<double>("MinMomRatio");
+    pgunParams.add<double>("MaxMomRatio");
+    pgunParams.add<double>("InConeMinEta");
+    pgunParams.add<double>("InConeMaxEta");
+    pgunParams.add<double>("InConeMinPhi");
+    pgunParams.add<double>("InConeMaxPhi");
+    pgunParams.add<unsigned int>("InConeMaxTry");
+    BaseFlatGunProducer::fillDescription(desc, pgunParams);
+    descriptions.addDefault(desc);
   }
 
   void MultiParticleInConeGunProducer::produce(Event& e, const EventSetup& es) {

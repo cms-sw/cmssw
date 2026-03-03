@@ -9,6 +9,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -23,6 +25,7 @@ namespace edm {
   public:
     FileRandomKEThetaGunProducer(const ParameterSet&);
     ~FileRandomKEThetaGunProducer() override;
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
     void produce(Event& e, const EventSetup& es) override;
@@ -76,7 +79,14 @@ namespace edm {
   }
 
   FileRandomKEThetaGunProducer::~FileRandomKEThetaGunProducer() {}
-
+  void FileRandomKEThetaGunProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    ParameterSetDescription pgunParams;
+    pgunParams.add<edm::FileInPath>("FileName");
+    pgunParams.add<int>("Particles");
+    FlatBaseThetaGunProducer::fillDescription(desc, pgunParams);
+    descriptions.addDefault(desc);
+  }
   void FileRandomKEThetaGunProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     if (fVerbosity > 0)
       LogDebug("FlatThetaGun") << "FileRandomKEThetaGunProducer : Begin New Event Generation";

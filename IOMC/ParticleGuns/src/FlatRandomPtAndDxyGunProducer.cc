@@ -8,6 +8,8 @@
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "CLHEP/Random/RandFlat.h"
@@ -22,6 +24,7 @@ namespace edm {
     FlatRandomPtAndDxyGunProducer(const ParameterSet& pset);
     ~FlatRandomPtAndDxyGunProducer() override;
 
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
     void produce(Event& e, const EventSetup& es) override;
 
   private:
@@ -58,6 +61,22 @@ namespace edm {
 
   FlatRandomPtAndDxyGunProducer::~FlatRandomPtAndDxyGunProducer() {
     // no need to cleanup GenEvent memory - done in HepMCProduct
+  }
+
+  void FlatRandomPtAndDxyGunProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    ParameterSetDescription pgunParams;
+    pgunParams.add<double>("MinPt");
+    pgunParams.add<double>("MaxPt");
+    pgunParams.add<double>("dxyMin");
+    pgunParams.add<double>("dxyMax");
+    pgunParams.add<double>("LxyMax");
+    pgunParams.add<double>("LzMax");
+    pgunParams.add<double>("ConeRadius");
+    pgunParams.add<double>("ConeH");
+    pgunParams.add<double>("DistanceToAPEX");
+    BaseFlatGunProducer::fillDescription(desc, pgunParams);
+    descriptions.addDefault(desc);
   }
 
   void FlatRandomPtAndDxyGunProducer::produce(Event& e, const EventSetup& es) {

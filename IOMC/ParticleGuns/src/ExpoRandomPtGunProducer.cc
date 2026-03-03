@@ -12,6 +12,8 @@
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "CLHEP/Random/RandExponential.h"
@@ -26,6 +28,8 @@ namespace edm {
   public:
     ExpoRandomPtGunProducer(const ParameterSet& pset);
     ~ExpoRandomPtGunProducer() override;
+
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
     void produce(Event& e, const EventSetup& es) override;
@@ -53,6 +57,16 @@ namespace edm {
 
   ExpoRandomPtGunProducer::~ExpoRandomPtGunProducer() {
     // no need to cleanup GenEvent memory - done in HepMCProduct
+  }
+
+  void ExpoRandomPtGunProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    ParameterSetDescription pgunParams;
+    pgunParams.add<double>("MinPt");
+    pgunParams.add<double>("MaxPt");
+    pgunParams.add<double>("MeanPt");
+    BaseFlatGunProducer::fillDescription(desc, pgunParams);
+    descriptions.addDefault(desc);
   }
 
   void ExpoRandomPtGunProducer::produce(Event& e, const EventSetup& es) {

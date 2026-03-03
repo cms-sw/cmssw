@@ -18,6 +18,8 @@
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -35,6 +37,8 @@ namespace edm {
   public:
     RandomXiThetaGunProducer(const ParameterSet &);
     ~RandomXiThetaGunProducer() override = default;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   private:
     void produce(Event &, const EventSetup &) override;
@@ -60,7 +64,7 @@ namespace edm {
 
   RandomXiThetaGunProducer::RandomXiThetaGunProducer(const edm::ParameterSet &iConfig)
       : tableToken_(esConsumes()),
-        verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)),
+        verbosity_(iConfig.getUntrackedParameter<unsigned int>("verbosity")),
         particleId_(iConfig.getParameter<unsigned int>("particleId")),
         energy_(iConfig.getParameter<double>("energy")),
         xi_min_(iConfig.getParameter<double>("xi_min")),
@@ -138,5 +142,21 @@ namespace edm {
 }  // namespace edm
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+void RandomXiThetaGunProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<unsigned int>("verbosity", 0);
+  desc.add<unsigned int>("particleId");
+  desc.add<double>("energy");
+  desc.add<double>("xi_min");
+  desc.add<double>("xi_max");
+  desc.add<double>("theta_x_mean");
+  desc.add<double>("theta_x_sigma");
+  desc.add<double>("theta_y_mean");
+  desc.add<double>("theta_y_sigma");
+  desc.add<unsigned int>("nParticlesSector45");
+  desc.add<unsigned int>("nParticlesSector56");
+  descriptions.addDefault(desc);
+}
+
 using edm::RandomXiThetaGunProducer;
 DEFINE_FWK_MODULE(RandomXiThetaGunProducer);

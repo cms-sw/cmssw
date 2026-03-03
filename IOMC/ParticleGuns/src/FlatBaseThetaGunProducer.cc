@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -20,7 +21,7 @@ FlatBaseThetaGunProducer::FlatBaseThetaGunProducer(const edm::ParameterSet& pset
     : fPDGTableToken(esConsumes<Transition::BeginRun>()), fEvt(nullptr) {
   edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters");
 
-  fPartIDs = pgun_params.getParameter<std::vector<int> >("PartID");
+  fPartIDs = pgun_params.getParameter<std::vector<int>>("PartID");
   fMinTheta = pgun_params.getParameter<double>("MinTheta");
   fMaxTheta = pgun_params.getParameter<double>("MaxTheta");
   fMinPhi = pgun_params.getParameter<double>("MinPhi");
@@ -53,4 +54,15 @@ void FlatBaseThetaGunProducer::endRunProduce(Run& run, const EventSetup& es) {
   // later on we might put the info into the run info that this is a PGun
   std::unique_ptr<GenRunInfoProduct> genRunInfo(new GenRunInfoProduct());
   run.put(std::move(genRunInfo));
+}
+
+void FlatBaseThetaGunProducer::fillDescription(ParameterSetDescription& desc, ParameterSetDescription& pgunParams) {
+  pgunParams.add<std::vector<int>>("PartID");
+  pgunParams.add<double>("MinTheta");
+  pgunParams.add<double>("MaxTheta");
+  pgunParams.add<double>("MinPhi");
+  pgunParams.add<double>("MaxPhi");
+  desc.add<ParameterSetDescription>("PGunParameters", pgunParams);
+  desc.addUntracked<int>("Verbosity", 0);
+  desc.add<bool>("AddAntiParticle");
 }

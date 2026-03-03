@@ -31,6 +31,8 @@ namespace edm {
     void endRun(edm::Run const& r, const edm::EventSetup&) override;
     void endRunProduce(edm::Run& r, const edm::EventSetup&) override;
 
+    static void fillDescription(ParameterSetDescription& desc, ParameterSetDescription& pgunParams);
+
   private:
     const ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> fPDGTableToken;
 

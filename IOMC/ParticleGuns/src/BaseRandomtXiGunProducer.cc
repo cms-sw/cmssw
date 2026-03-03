@@ -13,6 +13,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
@@ -43,7 +44,7 @@ BaseRandomtXiGunProducer::BaseRandomtXiGunProducer(const edm::ParameterSet& pset
   // it looks like it's NOT even necessary to check if it is,
   // before trying to extract parameters - if it is empty,
   // the default values seem to be taken
-  fPartIDs = pgun_params.getParameter<vector<int> >("PartID");
+  fPartIDs = pgun_params.getParameter<vector<int>>("PartID");
   fMinPhi = pgun_params.getParameter<double>("MinPhi");
   fMaxPhi = pgun_params.getParameter<double>("MaxPhi");
   fECMS = pgun_params.getParameter<double>("ECMS");
@@ -70,4 +71,15 @@ void BaseRandomtXiGunProducer::endRunProduce(Run& run, const EventSetup& es) {
   // to keep the EventContent definitions happy
   // later on we might put the info into the run info that this is a PGun
   run.put(std::make_unique<GenRunInfoProduct>());
+}
+
+void BaseRandomtXiGunProducer::fillDescription(ParameterSetDescription& desc, ParameterSetDescription& pgunParams) {
+  pgunParams.add<std::vector<int>>("PartID");
+  pgunParams.add<double>("MinPhi");
+  pgunParams.add<double>("MaxPhi");
+  pgunParams.add<double>("ECMS");
+  desc.add<ParameterSetDescription>("PGunParameters", pgunParams);
+  desc.addUntracked<int>("Verbosity", 0);
+  desc.add<bool>("FireBackward");
+  desc.add<bool>("FireForward");
 }

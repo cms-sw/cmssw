@@ -5,6 +5,8 @@
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -24,6 +26,7 @@ namespace edm {
     BeamMomentumGunProducer(const ParameterSet &);
     ~BeamMomentumGunProducer() override {}
 
+    static void fillDescriptions(ConfigurationDescriptions &descriptions);
     void produce(Event &e, const EventSetup &es) override;
 
   private:
@@ -104,6 +107,17 @@ namespace edm {
 
     if (fVerbosity > 0)
       edm::LogVerbatim("BeamMomentumGun") << "BeamMonetumGun is initialzed";
+  }
+
+  void BeamMomentumGunProducer::fillDescriptions(ConfigurationDescriptions &descriptions) {
+    ParameterSetDescription desc;
+    ParameterSetDescription pgunParams;
+    pgunParams.add<double>("XOffset");
+    pgunParams.add<double>("YOffset");
+    pgunParams.add<double>("ZPosition");
+    pgunParams.add<edm::FileInPath>("FileName");
+    FlatBaseThetaGunProducer::fillDescription(desc, pgunParams);
+    descriptions.addDefault(desc);
   }
 
   void BeamMomentumGunProducer::produce(edm::Event &e, const edm::EventSetup &es) {

@@ -8,6 +8,8 @@
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -25,6 +27,8 @@ namespace edm {
   public:
     FlatRandomPtThetaGunProducer(const ParameterSet&);
     ~FlatRandomPtThetaGunProducer() override;
+
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
     void produce(Event& e, const EventSetup& es) override;
@@ -52,7 +56,14 @@ namespace edm {
   }
 
   FlatRandomPtThetaGunProducer::~FlatRandomPtThetaGunProducer() {}
-
+  void FlatRandomPtThetaGunProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    ParameterSetDescription pgunParams;
+    pgunParams.add<double>("MinPt");
+    pgunParams.add<double>("MaxPt");
+    FlatBaseThetaGunProducer::fillDescription(desc, pgunParams);
+    descriptions.addDefault(desc);
+  }
   void FlatRandomPtThetaGunProducer::produce(edm::Event& e, const EventSetup& es) {
     if (fVerbosity > 0) {
       LogDebug("FlatThetaGun") << "FlatRandomPtThetaGunProducer : Begin New Event Generation";

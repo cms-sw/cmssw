@@ -10,6 +10,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -23,6 +25,7 @@ namespace edm {
     FlatRandomMultiParticlePGunProducer(const ParameterSet& pset);
     ~FlatRandomMultiParticlePGunProducer() override;
 
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
     void produce(Event& e, const EventSetup& es) override;
 
   private:
@@ -35,7 +38,7 @@ namespace edm {
   FlatRandomMultiParticlePGunProducer::FlatRandomMultiParticlePGunProducer(const ParameterSet& pset)
       : BaseFlatGunProducer(pset) {
     ParameterSet pgunParams = pset.getParameter<ParameterSet>("PGunParameters");
-    fProbParticle_ = pgunParams.getParameter<std::vector<double> >("ProbParts");
+    fProbParticle_ = pgunParams.getParameter<std::vector<double>>("ProbParts");
     fMinP_ = pgunParams.getParameter<double>("MinP");
     fMaxP_ = pgunParams.getParameter<double>("MaxP");
     if (fProbParticle_.size() != fPartIDs.size())
@@ -60,6 +63,16 @@ namespace edm {
   }
 
   FlatRandomMultiParticlePGunProducer::~FlatRandomMultiParticlePGunProducer() {}
+
+  void FlatRandomMultiParticlePGunProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    ParameterSetDescription pgunParams;
+    pgunParams.add<double>("MinP");
+    pgunParams.add<double>("MaxP");
+    pgunParams.add<std::vector<double>>("ProbParts");
+    BaseFlatGunProducer::fillDescription(desc, pgunParams);
+    descriptions.addDefault(desc);
+  }
 
   void FlatRandomMultiParticlePGunProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     edm::Service<edm::RandomNumberGenerator> rng;

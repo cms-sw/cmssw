@@ -10,6 +10,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -24,6 +26,7 @@ namespace edm {
     RandomMultiParticlePGunProducer(const ParameterSet& pset);
     ~RandomMultiParticlePGunProducer() override {}
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     void produce(Event& e, const EventSetup& es) override;
 
   private:
@@ -39,8 +42,8 @@ namespace edm {
   RandomMultiParticlePGunProducer::RandomMultiParticlePGunProducer(const ParameterSet& pset)
       : BaseFlatGunProducer(pset) {
     ParameterSet pgunParams = pset.getParameter<ParameterSet>("PGunParameters");
-    fProbParticle_ = pgunParams.getParameter<std::vector<double> >("ProbParts");
-    fProbP_ = pgunParams.getParameter<std::vector<double> >("ProbP");
+    fProbParticle_ = pgunParams.getParameter<std::vector<double>>("ProbParts");
+    fProbP_ = pgunParams.getParameter<std::vector<double>>("ProbP");
     fMinP_ = pgunParams.getParameter<double>("MinP");
     fMaxP_ = pgunParams.getParameter<double>("MaxP");
     if (fProbParticle_.size() != fPartIDs.size())
@@ -181,5 +184,16 @@ namespace edm {
 }  // namespace edm
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+void RandomMultiParticlePGunProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  edm::ParameterSetDescription pgunParams;
+  pgunParams.add<std::vector<double>>("ProbParts");
+  pgunParams.add<std::vector<double>>("ProbP");
+  pgunParams.add<double>("MinP");
+  pgunParams.add<double>("MaxP");
+  BaseFlatGunProducer::fillDescription(desc, pgunParams);
+  descriptions.addDefault(desc);
+}
+
 using edm::RandomMultiParticlePGunProducer;
 DEFINE_FWK_MODULE(RandomMultiParticlePGunProducer);

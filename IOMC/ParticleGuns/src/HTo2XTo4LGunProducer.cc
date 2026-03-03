@@ -10,6 +10,8 @@
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -27,6 +29,7 @@ namespace edm {
     explicit HTo2XTo4LGunProducer(const ParameterSet&);
     ~HTo2XTo4LGunProducer() override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     void produce(Event&, const EventSetup&) override;
 
   private:
@@ -66,8 +69,7 @@ namespace edm {
     max_pt_h_ = pgun_params.getParameter<double>("MaxPtH") * GeV;
     min_ctau_llp_ = pgun_params.getParameter<double>("MinCTauLLP") * mm;
     max_ctau_llp_ = pgun_params.getParameter<double>("MaxCTauLLP") * mm;
-    llp_mass_spectrum_ =
-        pgun_params.exists("LLPMassSpectrum") ? pgun_params.getParameter<std::string>("LLPMassSpectrum") : "flatMass";
+    llp_mass_spectrum_ = pgun_params.getParameter<std::string>("LLPMassSpectrum");
 
     min_invpt_h_ = (max_pt_h_ != 0.) ? 1. / max_pt_h_ : 1e9;
     max_invpt_h_ = (min_pt_h_ != 0.) ? 1. / min_pt_h_ : 1e9;
@@ -288,5 +290,19 @@ namespace edm {
 }  // namespace edm
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+void HTo2XTo4LGunProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  edm::ParameterSetDescription pgunParams;
+  pgunParams.add<double>("MinMassH");
+  pgunParams.add<double>("MaxMassH");
+  pgunParams.add<double>("MinPtH");
+  pgunParams.add<double>("MaxPtH");
+  pgunParams.add<double>("MinCTauLLP");
+  pgunParams.add<double>("MaxCTauLLP");
+  pgunParams.add<std::string>("LLPMassSpectrum", "flatMass");
+  BaseFlatGunProducer::fillDescription(desc, pgunParams);
+  descriptions.addDefault(desc);
+}
+
 using edm::HTo2XTo4LGunProducer;
 DEFINE_FWK_MODULE(HTo2XTo4LGunProducer);

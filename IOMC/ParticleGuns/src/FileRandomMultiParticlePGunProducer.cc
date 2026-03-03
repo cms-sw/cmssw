@@ -10,6 +10,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -21,6 +23,7 @@ namespace edm {
     FileRandomMultiParticlePGunProducer(const ParameterSet& pset);
     ~FileRandomMultiParticlePGunProducer() override;
 
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
     void produce(Event& e, const EventSetup& es) override;
 
   private:
@@ -94,6 +97,16 @@ FileRandomMultiParticlePGunProducer::FileRandomMultiParticlePGunProducer(const P
 }
 
 FileRandomMultiParticlePGunProducer::~FileRandomMultiParticlePGunProducer() {}
+
+void FileRandomMultiParticlePGunProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+  ParameterSetDescription desc;
+  ParameterSetDescription pgunParams;
+  pgunParams.add<double>("MinP");
+  pgunParams.add<double>("MaxP");
+  pgunParams.add<edm::FileInPath>("FileName");
+  BaseFlatGunProducer::fillDescription(desc, pgunParams);
+  descriptions.addDefault(desc);
+}
 
 void FileRandomMultiParticlePGunProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::Service<edm::RandomNumberGenerator> rng;

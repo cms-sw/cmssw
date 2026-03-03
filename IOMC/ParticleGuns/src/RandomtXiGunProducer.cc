@@ -15,6 +15,8 @@
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -29,6 +31,8 @@ namespace edm {
   public:
     RandomtXiGunProducer(const ParameterSet&);
     ~RandomtXiGunProducer() override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     void produce(Event& e, const EventSetup& es) override;
@@ -58,7 +62,7 @@ namespace edm {
     fMaxt = pgun_params.getParameter<double>("Maxt");
     fMinXi = pgun_params.getParameter<double>("MinXi");
     fMaxXi = pgun_params.getParameter<double>("MaxXi");
-    fLog_t = pgun_params.getUntrackedParameter<bool>("Log_t", false);
+    fLog_t = pgun_params.getUntrackedParameter<bool>("Log_t");
 
     produces<HepMCProduct>("unsmeared");
     produces<GenEventInfoProduct>();
@@ -196,5 +200,17 @@ namespace edm {
 }  // namespace edm
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+void RandomtXiGunProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  edm::ParameterSetDescription pgunParams;
+  pgunParams.add<double>("Mint");
+  pgunParams.add<double>("Maxt");
+  pgunParams.add<double>("MinXi");
+  pgunParams.add<double>("MaxXi");
+  pgunParams.addUntracked<bool>("Log_t", false);
+  BaseRandomtXiGunProducer::fillDescription(desc, pgunParams);
+  descriptions.addDefault(desc);
+}
+
 using edm::RandomtXiGunProducer;
 DEFINE_FWK_MODULE(RandomtXiGunProducer);

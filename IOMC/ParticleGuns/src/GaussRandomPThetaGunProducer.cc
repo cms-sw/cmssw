@@ -8,6 +8,8 @@
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -28,6 +30,7 @@ namespace edm {
   public:
     GaussRandomPThetaGunProducer(const ParameterSet&);
     ~GaussRandomPThetaGunProducer() override;
+    static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
     void produce(Event& e, const EventSetup& es) override;
@@ -58,7 +61,14 @@ namespace edm {
   }
 
   GaussRandomPThetaGunProducer::~GaussRandomPThetaGunProducer() {}
-
+  void GaussRandomPThetaGunProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+    ParameterSetDescription desc;
+    ParameterSetDescription pgunParams;
+    pgunParams.add<double>("MeanP");
+    pgunParams.add<double>("SigmaP");
+    FlatBaseThetaGunProducer::fillDescription(desc, pgunParams);
+    descriptions.addDefault(desc);
+  }
   void GaussRandomPThetaGunProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #ifdef DebugLog
     if (fVerbosity >= 0)
