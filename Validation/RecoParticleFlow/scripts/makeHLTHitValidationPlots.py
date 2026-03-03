@@ -127,9 +127,9 @@ if __name__ == '__main__':
            for det in ('EE', 'EB')},
             **{f'{det}SimHitsEta_Phi': dict(ytitle=r'$\phi$', var=f'# Simulated {det} Hits', xtitle=r'$\eta$', logz=True)
            for det in ('EE', 'EB')},
-            'PFRecHitsEn_Eta': dict(ytitle=r'$\eta$', var='# PF Reconstructed Hits', xtitle='Energy [GeV]', logz=True),
-            'PFRecHitsEn_Phi': dict(ytitle=r'$\phi$', var='# PF Reconstructed Hits', xtitle='Energy [GeV]', logz=True),
-            'PFRecHitsEta_Phi': dict(ytitle=r'$\phi$', var='# PF Reconstructed Hits', xtitle=r'$\eta$', logz=True),
+            'PFRecHitsEn_Eta': dict(ytitle=r'$\eta$', var='# PF Reconstructed Hits', xtitle='Energy [GeV]', logz=False),
+            'PFRecHitsEn_Phi': dict(ytitle=r'$\phi$', var='# PF Reconstructed Hits', xtitle='Energy [GeV]', logz=False),
+            'PFRecHitsEta_Phi': dict(ytitle=r'$\phi$', var='# PF Reconstructed Hits', xtitle=r'$\eta$', logz=False),
         }
 
     for name, props in vars2D.items():
