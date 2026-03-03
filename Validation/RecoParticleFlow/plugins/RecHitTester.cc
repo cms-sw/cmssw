@@ -21,19 +21,19 @@ class RecHitTester : public DQMEDAnalyzer {
 public:
   explicit RecHitTester(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
+
 protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  
+
 private:
   using SimHitsT = std::vector<PCaloHit>;
   using RecHitsT = EcalRecHitCollection;
   using PFRecHitsT = reco::PFRecHitCollection;
   using UncalibRecHitsT = EcalUncalibratedRecHitCollection;
-	
+
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
-  
+
   const edm::EDGetTokenT<SimHitsT> ebSimHitToken_, eeSimHitToken_;
   const edm::EDGetTokenT<UncalibRecHitsT> ebUncalibRecHitToken_, eeUncalibRecHitToken_;
   const edm::EDGetTokenT<RecHitsT> ebRecHitToken_, eeRecHitToken_;
@@ -55,54 +55,49 @@ private:
 };
 
 RecHitTester::RecHitTester(const edm::ParameterSet& iConfig)
-  : caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
-	ebSimHitToken_(consumes<SimHitsT>(iConfig.getParameter<edm::InputTag>("ebSimHits"))),
-	eeSimHitToken_(consumes<SimHitsT>(iConfig.getParameter<edm::InputTag>("eeSimHits"))),
-	ebUncalibRecHitToken_(consumes<UncalibRecHitsT>(iConfig.getParameter<edm::InputTag>("ebUncalibRecHits"))),
-	eeUncalibRecHitToken_(consumes<UncalibRecHitsT>(iConfig.getParameter<edm::InputTag>("eeUncalibRecHits"))),
-	ebRecHitToken_(consumes<RecHitsT>(iConfig.getParameter<edm::InputTag>("ebRecHits"))),
-	eeRecHitToken_(consumes<RecHitsT>(iConfig.getParameter<edm::InputTag>("eeRecHits"))),
-	PFRecHitToken_(consumes<PFRecHitsT>(iConfig.getParameter<edm::InputTag>("pfRecHits"))),
-	outFolder_(iConfig.getParameter<std::string>("outFolder")) {}
-	
-void RecHitTester::bookHistograms(DQMStore::IBooker& ibook,
-								  edm::Run const&,
-								  edm::EventSetup const&) {
+    : caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      ebSimHitToken_(consumes<SimHitsT>(iConfig.getParameter<edm::InputTag>("ebSimHits"))),
+      eeSimHitToken_(consumes<SimHitsT>(iConfig.getParameter<edm::InputTag>("eeSimHits"))),
+      ebUncalibRecHitToken_(consumes<UncalibRecHitsT>(iConfig.getParameter<edm::InputTag>("ebUncalibRecHits"))),
+      eeUncalibRecHitToken_(consumes<UncalibRecHitsT>(iConfig.getParameter<edm::InputTag>("eeUncalibRecHits"))),
+      ebRecHitToken_(consumes<RecHitsT>(iConfig.getParameter<edm::InputTag>("ebRecHits"))),
+      eeRecHitToken_(consumes<RecHitsT>(iConfig.getParameter<edm::InputTag>("eeRecHits"))),
+      PFRecHitToken_(consumes<PFRecHitsT>(iConfig.getParameter<edm::InputTag>("pfRecHits"))),
+      outFolder_(iConfig.getParameter<std::string>("outFolder")) {}
 
+void RecHitTester::bookHistograms(DQMStore::IBooker& ibook, edm::Run const&, edm::EventSetup const&) {
   ibook.setCurrentFolder(outFolder_ + "/Hits");
 
   for (auto& h2dVar : histo2dVarsReco) {
-	auto [nBinsX, hMinX, hMaxX, nBinsY, hMinY, hMaxY] = h2dVar.second;
-	auto x_title = h2dVar.first.substr(0, h2dVar.first.find("_"));
+    auto [nBinsX, hMinX, hMaxX, nBinsY, hMinY, hMaxY] = h2dVar.second;
+    auto x_title = h2dVar.first.substr(0, h2dVar.first.find("_"));
     auto y_title = h2dVar.first.substr(h2dVar.first.find("_") + 1);
-	h2d_ebsimHits_[h2dVar.first] = ibook.book2D("EBSimHits" + h2dVar.first,
-												"EBSimHits;" + x_title + ";" + y_title,
-												nBinsX, hMinX, hMaxX,
-												nBinsY, hMinY, hMaxY);
-	h2d_eesimHits_[h2dVar.first] = ibook.book2D("EESimHits" + h2dVar.first,
-												"EESimHits;" + x_title + ";" + y_title,
-												nBinsX, hMinX, hMaxX,
-												nBinsY, hMinY, hMaxY);
-	h2d_ebuncalibRecHits_[h2dVar.first] = ibook.book2D("EBUncalibRecHits" + h2dVar.first,
-													   "EBUncalibRecHits;" + x_title + ";" + y_title,
-													   nBinsX, hMinX, hMaxX,
-													   nBinsY, hMinY, hMaxY);
-	h2d_eeuncalibRecHits_[h2dVar.first] = ibook.book2D("EEUncalibRecHits" + h2dVar.first,
-													   "EEUncalibRecHits;" + x_title + ";" + y_title,
-													   nBinsX, hMinX, hMaxX,
-													   nBinsY, hMinY, hMaxY);
-	h2d_ebrecHits_[h2dVar.first] = ibook.book2D("EBRecHits" + h2dVar.first,
-											  "EBRecHits;" + x_title + ";" + y_title,
-											  nBinsX, hMinX, hMaxX,
-											  nBinsY, hMinY, hMaxY);
-	h2d_eerecHits_[h2dVar.first] = ibook.book2D("EERecHits" + h2dVar.first,
-											  "EERecHits;" + x_title + ";" + y_title,
-											  nBinsX, hMinX, hMaxX,
-											  nBinsY, hMinY, hMaxY);
-	h2d_pfRecHits_[h2dVar.first] = ibook.book2D("PFRecHits" + h2dVar.first,
-												"PFRecHits;" + x_title + ";" + y_title,
-												nBinsX, hMinX, hMaxX,
-												nBinsY, hMinY, hMaxY);
+    h2d_ebsimHits_[h2dVar.first] = ibook.book2D(
+        "EBSimHits" + h2dVar.first, "EBSimHits;" + x_title + ";" + y_title, nBinsX, hMinX, hMaxX, nBinsY, hMinY, hMaxY);
+    h2d_eesimHits_[h2dVar.first] = ibook.book2D(
+        "EESimHits" + h2dVar.first, "EESimHits;" + x_title + ";" + y_title, nBinsX, hMinX, hMaxX, nBinsY, hMinY, hMaxY);
+    h2d_ebuncalibRecHits_[h2dVar.first] = ibook.book2D("EBUncalibRecHits" + h2dVar.first,
+                                                       "EBUncalibRecHits;" + x_title + ";" + y_title,
+                                                       nBinsX,
+                                                       hMinX,
+                                                       hMaxX,
+                                                       nBinsY,
+                                                       hMinY,
+                                                       hMaxY);
+    h2d_eeuncalibRecHits_[h2dVar.first] = ibook.book2D("EEUncalibRecHits" + h2dVar.first,
+                                                       "EEUncalibRecHits;" + x_title + ";" + y_title,
+                                                       nBinsX,
+                                                       hMinX,
+                                                       hMaxX,
+                                                       nBinsY,
+                                                       hMinY,
+                                                       hMaxY);
+    h2d_ebrecHits_[h2dVar.first] = ibook.book2D(
+        "EBRecHits" + h2dVar.first, "EBRecHits;" + x_title + ";" + y_title, nBinsX, hMinX, hMaxX, nBinsY, hMinY, hMaxY);
+    h2d_eerecHits_[h2dVar.first] = ibook.book2D(
+        "EERecHits" + h2dVar.first, "EERecHits;" + x_title + ";" + y_title, nBinsX, hMinX, hMaxX, nBinsY, hMinY, hMaxY);
+    h2d_pfRecHits_[h2dVar.first] = ibook.book2D(
+        "PFRecHits" + h2dVar.first, "PFRecHits;" + x_title + ";" + y_title, nBinsX, hMinX, hMaxX, nBinsY, hMinY, hMaxY);
   }
 }
 
@@ -134,7 +129,7 @@ void RecHitTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     edm::LogPrint("RecHitTester") << "Input EE UncalibRecHit collection not found.";
     return;
   }
-  
+
   edm::Handle<RecHitsT> ebrechitHandle;
   iEvent.getByToken(ebRecHitToken_, ebrechitHandle);
   if (!ebrechitHandle.isValid()) {
@@ -164,68 +159,68 @@ void RecHitTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   auto pfrechits = *pfrechitHandle;
 
   for (auto h : ebsimhits) {
-	float eta = caloGeom.getPosition(h.id()).eta();
-	float phi = caloGeom.getPosition(h.id()).phi();
+    float eta = caloGeom.getPosition(h.id()).eta();
+    float phi = caloGeom.getPosition(h.id()).phi();
 
-	h2d_ebsimHits_["En_Eta"]->Fill(h.energy(), eta);
-	h2d_ebsimHits_["En_Phi"]->Fill(h.energy(), phi);
-	h2d_ebsimHits_["Eta_Phi"]->Fill(eta, phi);
+    h2d_ebsimHits_["En_Eta"]->Fill(h.energy(), eta);
+    h2d_ebsimHits_["En_Phi"]->Fill(h.energy(), phi);
+    h2d_ebsimHits_["Eta_Phi"]->Fill(eta, phi);
   }
   for (auto h : eesimhits) {
-	float eta = caloGeom.getPosition(h.id()).eta();
-	float phi = caloGeom.getPosition(h.id()).phi();
+    float eta = caloGeom.getPosition(h.id()).eta();
+    float phi = caloGeom.getPosition(h.id()).phi();
 
-	h2d_eesimHits_["En_Eta"]->Fill(h.energy(), eta);
-	h2d_eesimHits_["En_Phi"]->Fill(h.energy(), phi);
-	h2d_eesimHits_["Eta_Phi"]->Fill(eta, phi);
+    h2d_eesimHits_["En_Eta"]->Fill(h.energy(), eta);
+    h2d_eesimHits_["En_Phi"]->Fill(h.energy(), phi);
+    h2d_eesimHits_["Eta_Phi"]->Fill(eta, phi);
   }
 
   for (auto h : ebuncalibrechits) {
-	float eta = caloGeom.getPosition(h.id()).eta();
-	float phi = caloGeom.getPosition(h.id()).phi();
+    float eta = caloGeom.getPosition(h.id()).eta();
+    float phi = caloGeom.getPosition(h.id()).phi();
 
-	h2d_ebuncalibRecHits_["En_Eta"]->Fill(h.amplitude(), eta);
-	h2d_ebuncalibRecHits_["En_Phi"]->Fill(h.amplitude(), phi);
-	h2d_ebuncalibRecHits_["Eta_Phi"]->Fill(eta, phi);
+    h2d_ebuncalibRecHits_["En_Eta"]->Fill(h.amplitude(), eta);
+    h2d_ebuncalibRecHits_["En_Phi"]->Fill(h.amplitude(), phi);
+    h2d_ebuncalibRecHits_["Eta_Phi"]->Fill(eta, phi);
   }
   for (auto h : eeuncalibrechits) {
-	float eta = caloGeom.getPosition(h.id()).eta();
-	float phi = caloGeom.getPosition(h.id()).phi();
+    float eta = caloGeom.getPosition(h.id()).eta();
+    float phi = caloGeom.getPosition(h.id()).phi();
 
-	h2d_eeuncalibRecHits_["En_Eta"]->Fill(h.amplitude(), eta);
-	h2d_eeuncalibRecHits_["En_Phi"]->Fill(h.amplitude(), phi);
-	h2d_eeuncalibRecHits_["Eta_Phi"]->Fill(eta, phi);
+    h2d_eeuncalibRecHits_["En_Eta"]->Fill(h.amplitude(), eta);
+    h2d_eeuncalibRecHits_["En_Phi"]->Fill(h.amplitude(), phi);
+    h2d_eeuncalibRecHits_["Eta_Phi"]->Fill(eta, phi);
   }
-  
-  for (auto h : ebrechits) {
-	float eta = caloGeom.getPosition(h.id()).eta();
-	float phi = caloGeom.getPosition(h.id()).phi();
 
-	h2d_ebrecHits_["En_Eta"]->Fill(h.energy(), eta);
-	h2d_ebrecHits_["En_Phi"]->Fill(h.energy(), phi);
-	h2d_ebrecHits_["Eta_Phi"]->Fill(eta, phi);
+  for (auto h : ebrechits) {
+    float eta = caloGeom.getPosition(h.id()).eta();
+    float phi = caloGeom.getPosition(h.id()).phi();
+
+    h2d_ebrecHits_["En_Eta"]->Fill(h.energy(), eta);
+    h2d_ebrecHits_["En_Phi"]->Fill(h.energy(), phi);
+    h2d_ebrecHits_["Eta_Phi"]->Fill(eta, phi);
   }
   for (auto h : eerechits) {
-	float eta = caloGeom.getPosition(h.id()).eta();
-	float phi = caloGeom.getPosition(h.id()).phi();
+    float eta = caloGeom.getPosition(h.id()).eta();
+    float phi = caloGeom.getPosition(h.id()).phi();
 
-	h2d_eerecHits_["En_Eta"]->Fill(h.energy(), eta);
-	h2d_eerecHits_["En_Phi"]->Fill(h.energy(), phi);
-	h2d_eerecHits_["Eta_Phi"]->Fill(eta, phi);
+    h2d_eerecHits_["En_Eta"]->Fill(h.energy(), eta);
+    h2d_eerecHits_["En_Phi"]->Fill(h.energy(), phi);
+    h2d_eerecHits_["Eta_Phi"]->Fill(eta, phi);
   }
 
-  for (auto h : pfrechits) {
-	float eta = caloGeom.getPosition(h.detId()).eta();
-	float phi = caloGeom.getPosition(h.detId()).phi();
+  for (const auto& h : pfrechits) {
+    float eta = caloGeom.getPosition(h.detId()).eta();
+    float phi = caloGeom.getPosition(h.detId()).phi();
 
-	h2d_pfRecHits_["En_Eta"]->Fill(h.energy(), eta);
-	h2d_pfRecHits_["En_Phi"]->Fill(h.energy(), phi);
-	h2d_pfRecHits_["Eta_Phi"]->Fill(eta, phi);
+    h2d_pfRecHits_["En_Eta"]->Fill(h.energy(), eta);
+    h2d_pfRecHits_["En_Phi"]->Fill(h.energy(), phi);
+    h2d_pfRecHits_["Eta_Phi"]->Fill(eta, phi);
   }
 }
 
 void RecHitTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription  desc;
+  edm::ParameterSetDescription desc;
   desc.add<std::string>("outFolder", "HLT/ParticleFlow");
   desc.add<edm::InputTag>("ebSimHits", edm::InputTag("g4SimHits", "EcalHitsEB"));
   desc.add<edm::InputTag>("eeSimHits", edm::InputTag("g4SimHits", "EcalHitsEE"));

@@ -35,7 +35,7 @@ protected:
   std::string doubleToString(double x) const;
   double simClusterEnergy(const SimCluster& sc) const;
   double recoClusterEnergyWeightedBySimFraction(const SimCluster& sc, const reco::PFRecHitCollection& pfrechits) const;
-  
+
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
   edm::EDGetTokenT<reco::PFCandidateCollection> PFCandToken_;
   edm::EDGetTokenT<reco::PFRecHitCollection> RechitToken_;
@@ -116,7 +116,7 @@ protected:
       {"Eta", std::make_tuple(50, -6.5, 6.5)},
       {"Phi", std::make_tuple(50, -3.5, 3.5)},
       {"Mult", std::make_tuple(200, 0., 200.)},
-	  {"Time", std::make_tuple(60, -60., 60.)},
+      {"Time", std::make_tuple(60, -60., 60.)},
   };
   const std::unordered_map<std::string, std::tuple<unsigned, float, float>> histoVarsSim = {
       {"En", std::make_tuple(100, 0., 100.)},
@@ -141,46 +141,46 @@ protected:
   std::vector<MonitorElement*> h_nRecoMatchedToOneSim_;
 
   std::unordered_map<std::string, std::tuple<unsigned, float, float, unsigned, float, float>> h2dVarsRecoHits = {
-	{"En_Eta", std::make_tuple(100, 0., 100., 50, -6.5, 6.5)},
-	{"En_Phi", std::make_tuple(100, 0., 100., 50, -3.5, 3.5)},
-	{"Eta_Phi", std::make_tuple(50, -6.5, 6.5, 50, -3.5, 3.5)},
-	{"En_Time", std::make_tuple(100, 0., 100., 200, -100., 100.)},
-	{"Eta_Time", std::make_tuple(50, -6.5, 6.5, 200, -100., 100.)},
-	{"Phi_Time", std::make_tuple(50, -3.5, 3.5, 200, -100., 100.)},
+      {"En_Eta", std::make_tuple(100, 0., 100., 50, -6.5, 6.5)},
+      {"En_Phi", std::make_tuple(100, 0., 100., 50, -3.5, 3.5)},
+      {"Eta_Phi", std::make_tuple(50, -6.5, 6.5, 50, -3.5, 3.5)},
+      {"En_Time", std::make_tuple(100, 0., 100., 200, -100., 100.)},
+      {"Eta_Time", std::make_tuple(50, -6.5, 6.5, 200, -100., 100.)},
+      {"Phi_Time", std::make_tuple(50, -3.5, 3.5, 200, -100., 100.)},
   };
 
   std::unordered_map<std::string, std::tuple<unsigned, float, float, unsigned, float, float>> h2dVarsRecoClusters = {
-      {"En_Eta",    std::make_tuple(100, 0., 100., 50, -6.5, 6.5)},
-      {"En_Phi",    std::make_tuple(100, 0., 100., 50, -3.5, 3.5)},
-      {"En_Mult",   std::make_tuple(100, 0., 100., 200, 0., 200.)},
-	  {"Eta_Phi",   std::make_tuple(50, -6.5, 6.5, 50, -3.5, 3.5)},
-      {"Pt_Eta",    std::make_tuple(100, 0., 40., 50, -6.5, 6.5)},
-      {"Pt_Phi",    std::make_tuple(100, 0., 40., 50, -3.5, 3.5)},
-      {"Pt_Mult",   std::make_tuple(100, 0., 40., 200, 0., 200.)},
-      {"Mult_Eta",  std::make_tuple(200, 0., 200., 50, -6.5, 6.5)},
-      {"Mult_Phi",  std::make_tuple(200, 0., 200., 50, -3.5, 3.5)},
-	  {"En_Time",   std::make_tuple(100, 0., 100., 200, -100., 100.)},
-	  {"Eta_Time",  std::make_tuple(50, -6.5, 6.5, 200, -100., 100.)},
-	  {"Phi_Time",  std::make_tuple(50, -3.5, 3.5, 200, -100., 100.)},
-	  {"Mult_Time", std::make_tuple(200, 0., 200., 200, -100., 100.)},
+      {"En_Eta", std::make_tuple(100, 0., 100., 50, -6.5, 6.5)},
+      {"En_Phi", std::make_tuple(100, 0., 100., 50, -3.5, 3.5)},
+      {"En_Mult", std::make_tuple(100, 0., 100., 200, 0., 200.)},
+      {"Eta_Phi", std::make_tuple(50, -6.5, 6.5, 50, -3.5, 3.5)},
+      {"Pt_Eta", std::make_tuple(100, 0., 40., 50, -6.5, 6.5)},
+      {"Pt_Phi", std::make_tuple(100, 0., 40., 50, -3.5, 3.5)},
+      {"Pt_Mult", std::make_tuple(100, 0., 40., 200, 0., 200.)},
+      {"Mult_Eta", std::make_tuple(200, 0., 200., 50, -6.5, 6.5)},
+      {"Mult_Phi", std::make_tuple(200, 0., 200., 50, -3.5, 3.5)},
+      {"En_Time", std::make_tuple(100, 0., 100., 200, -100., 100.)},
+      {"Eta_Time", std::make_tuple(50, -6.5, 6.5, 200, -100., 100.)},
+      {"Phi_Time", std::make_tuple(50, -3.5, 3.5, 200, -100., 100.)},
+      {"Mult_Time", std::make_tuple(200, 0., 200., 200, -100., 100.)},
   };
 
   std::unordered_map<std::string, std::tuple<unsigned, float, float, unsigned, float, float>> h2dVarsSim = {
-      {"En_Eta",          std::make_tuple(100, 0., 100., 50, -6.5, 6.5)},
-      {"En_Phi",          std::make_tuple(100, 0., 100., 50, -3.5, 3.5)},
-      {"En_Mult",         std::make_tuple(100, 0., 100., 200, 0., 200.)},
-	  {"Eta_Phi",         std::make_tuple(50, -6.5, 6.5, 50, -3.5, 3.5)},
-      {"EnFrac_Eta",      std::make_tuple(220, 0., 1.1, 50, -6.5, 6.5)},
-      {"EnFrac_Phi",      std::make_tuple(220, 0., 1.1, 50, -3.5, 3.5)},
-      {"EnFrac_Mult",     std::make_tuple(220, 0., 1.1, 200, 0., 200.)},
-      {"EnSimTrack_Eta",  std::make_tuple(100, 0., 100., 50, -6.5, 6.5)},
-      {"EnSimTrack_Phi",  std::make_tuple(100, 0., 100., 50, -3.5, 3.5)},
+      {"En_Eta", std::make_tuple(100, 0., 100., 50, -6.5, 6.5)},
+      {"En_Phi", std::make_tuple(100, 0., 100., 50, -3.5, 3.5)},
+      {"En_Mult", std::make_tuple(100, 0., 100., 200, 0., 200.)},
+      {"Eta_Phi", std::make_tuple(50, -6.5, 6.5, 50, -3.5, 3.5)},
+      {"EnFrac_Eta", std::make_tuple(220, 0., 1.1, 50, -6.5, 6.5)},
+      {"EnFrac_Phi", std::make_tuple(220, 0., 1.1, 50, -3.5, 3.5)},
+      {"EnFrac_Mult", std::make_tuple(220, 0., 1.1, 200, 0., 200.)},
+      {"EnSimTrack_Eta", std::make_tuple(100, 0., 100., 50, -6.5, 6.5)},
+      {"EnSimTrack_Phi", std::make_tuple(100, 0., 100., 50, -3.5, 3.5)},
       {"EnSimTrack_Mult", std::make_tuple(100, 0., 100., 200, 0., 200.)},
-      {"Pt_Eta",          std::make_tuple(100, 0., 40., 50, -6.5, 6.5)},
-      {"Pt_Phi",          std::make_tuple(100, 0., 40., 50, -3.5, 3.5)},
-      {"Pt_Mult",         std::make_tuple(100, 0., 40., 200, 0., 200.)},
-      {"Mult_Eta",        std::make_tuple(200, 0., 200., 50, -6.5, 6.5)},
-      {"Mult_Phi",        std::make_tuple(200, 0., 200., 50, -3.5, 3.5)},
+      {"Pt_Eta", std::make_tuple(100, 0., 40., 50, -6.5, 6.5)},
+      {"Pt_Phi", std::make_tuple(100, 0., 40., 50, -3.5, 3.5)},
+      {"Pt_Mult", std::make_tuple(100, 0., 40., 200, 0., 200.)},
+      {"Mult_Eta", std::make_tuple(200, 0., 200., 50, -6.5, 6.5)},
+      {"Mult_Phi", std::make_tuple(200, 0., 200., 50, -3.5, 3.5)},
   };
 
   using U2Map = std::unordered_map<std::string, MonitorElement*>;
@@ -191,7 +191,7 @@ protected:
   VU2Map h2d_recoClustersMatchedSimClusters_;
 
   U2Map h2d_recoHitsInClusters_;
-  
+
   VU2Map h2d_responsePt_;
   VU2Map h2d_responseE_;
 };
@@ -243,12 +243,11 @@ void PFTesterT<RecoClusterCollection>::bookHistograms(DQMStore::IBooker& ibook,
                    100,
                    0,
                    2);
-  h_CPToSHEnergyFraction_ =
-      ibook.book1D("CaloParticleToSimHitsEnergyFraction",
-                   "CaloParticleToSimHitsEnergyFraction;CaloParticle to SimHits energy fraction",
-                   100,
-                   0,
-                   2);
+  h_CPToSHEnergyFraction_ = ibook.book1D("CaloParticleToSimHitsEnergyFraction",
+                                         "CaloParticleToSimHitsEnergyFraction;CaloParticle to SimHits energy fraction",
+                                         100,
+                                         0,
+                                         2);
   h_CP_recoToSimScore_ =
       ibook.book1D("CP_recoToSimScore", "CPrecoToSimScore;CaloParticle Reco #rightarrow Sim score", 51, 0, 1.02);
   h_CP_simToRecoScore_ =
@@ -305,15 +304,15 @@ void PFTesterT<RecoClusterCollection>::bookHistograms(DQMStore::IBooker& ibook,
                    220,
                    0.,
                    1.1);
-  h_simToRecoShEnF_EnSimTrack_ =
-      ibook.book2D("simToRecoShEnF_EnSimTrack",
-                   "simToRecoSharedEnergy vs SimTrack Energy;Sim #rightarrow Reco shared energy fraction;SimTrack Energy",
-                   51,
-                   0,
-                   1.02,
-                   100,
-                   0.,
-                   100.);
+  h_simToRecoShEnF_EnSimTrack_ = ibook.book2D(
+      "simToRecoShEnF_EnSimTrack",
+      "simToRecoSharedEnergy vs SimTrack Energy;Sim #rightarrow Reco shared energy fraction;SimTrack Energy",
+      51,
+      0,
+      1.02,
+      100,
+      0.,
+      100.);
   h_simToRecoShEnF_Mult_ =
       ibook.book2D("simToRecoShEnF_Mult",
                    "simToRecoSharedEnergy vs Multiplicity;Sim #rightarrow Reco shared energy fraction;Multiplicity",
@@ -324,13 +323,13 @@ void PFTesterT<RecoClusterCollection>::bookHistograms(DQMStore::IBooker& ibook,
                    0.,
                    200.);
   h_simToRecoScore_En_ = ibook.book2D("simToRecoScore_En",
-                                          "simToRecoScore vs Energy;Sim #rightarrow Reco score;Energy_{hits}",
-                                          51,
-                                          0,
-                                          1.02,
-                                          100,
-                                          0.,
-                                          100.);
+                                      "simToRecoScore vs Energy;Sim #rightarrow Reco score;Energy_{hits}",
+                                      51,
+                                      0,
+                                      1.02,
+                                      100,
+                                      0.,
+                                      100.);
   h_simToRecoScore_EnFrac_ = ibook.book2D("simToRecoScore_EnFrac",
                                           "simToRecoScore vs Energy Fraction;Sim #rightarrow Reco score;EnFrac",
                                           51,
@@ -339,8 +338,15 @@ void PFTesterT<RecoClusterCollection>::bookHistograms(DQMStore::IBooker& ibook,
                                           220,
                                           0.,
                                           1.1);
-  h_simToRecoScore_EnSimTrack_ = ibook.book2D(
-      "simToRecoScore_EnSimTrack", "simToRecoScore vs SimTrack Energy;Sim #rightarrow Reco score;SimTrack Energy", 51, 0, 1.02, 100, 0., 100.);
+  h_simToRecoScore_EnSimTrack_ =
+      ibook.book2D("simToRecoScore_EnSimTrack",
+                   "simToRecoScore vs SimTrack Energy;Sim #rightarrow Reco score;SimTrack Energy",
+                   51,
+                   0,
+                   1.02,
+                   100,
+                   0.,
+                   100.);
   h_simToRecoScore_Mult_ = ibook.book2D("simToRecoScore_Mult",
                                         "simToRecoScore vs Multiplicity;Sim #rightarrow Reco score;Multiplicity",
                                         51,
@@ -386,7 +392,7 @@ void PFTesterT<RecoClusterCollection>::bookHistograms(DQMStore::IBooker& ibook,
     auto x_title = h2dVar.first.substr(0, h2dVar.first.find("_"));
     auto y_title = h2dVar.first.substr(h2dVar.first.find("_") + 1);
     h2d_recoClusters_[h2dVar.first] = ibook.book2D("RecoClusters" + h2dVar.first,
-												   "RecoClusters;" + x_title + ";" + y_title,
+                                                   "RecoClusters;" + x_title + ";" + y_title,
                                                    nBinsX,
                                                    hMinX,
                                                    hMaxX,
@@ -395,34 +401,34 @@ void PFTesterT<RecoClusterCollection>::bookHistograms(DQMStore::IBooker& ibook,
                                                    hMaxY);
   }
   for (auto& h2dVar : h2dVarsRecoHits) {
-	auto [nBinsX, hMinX, hMaxX, nBinsY, hMinY, hMaxY] = h2dVar.second;
-	auto x_title = h2dVar.first.substr(0, h2dVar.first.find("_"));
+    auto [nBinsX, hMinX, hMaxX, nBinsY, hMinY, hMaxY] = h2dVar.second;
+    auto x_title = h2dVar.first.substr(0, h2dVar.first.find("_"));
     auto y_title = h2dVar.first.substr(h2dVar.first.find("_") + 1);
     h2d_recoHitsInClusters_[h2dVar.first] = ibook.book2D("RecoHitsInClusters" + h2dVar.first,
-														 "RecoHitsInClusters;" + x_title + ";" + y_title,
-														 nBinsX,
-														 hMinX,
-														 hMaxX,
-														 nBinsY,
-														 hMinY,
-														 hMaxY);
+                                                         "RecoHitsInClusters;" + x_title + ";" + y_title,
+                                                         nBinsX,
+                                                         hMinX,
+                                                         hMaxX,
+                                                         nBinsY,
+                                                         hMinY,
+                                                         hMaxY);
   }
-  
+
   for (unsigned ithr = 0; ithr < nAssocScoreThresholds_; ++ithr) {
     std::string threshStr = "Score" + doubleToString(assocScoreThresholds_[ithr]);
     ibook.setCurrentFolder(pfValidFolder + "/" + threshStr);
     h_nSimMatchedToOneReco_[ithr] = ibook.book1D(
-      "nSimMatchedToOneReco",
-      "Number of SimClusters matched to a RecoCluster;Number of RecoClusters; Number of matched SimClusters",
-      10,
-      0,
-      10);
+        "nSimMatchedToOneReco",
+        "Number of SimClusters matched to a RecoCluster;Number of RecoClusters; Number of matched SimClusters",
+        10,
+        0,
+        10);
     h_nRecoMatchedToOneSim_[ithr] = ibook.book1D(
-      "nRecoMatchedToOneSim",
-      "Number of RecoClusters matched to a SimCluster;Number of SimClusters; Number of matched RecoClusters",
-      10,
-      0,
-      10);
+        "nRecoMatchedToOneSim",
+        "Number of RecoClusters matched to a SimCluster;Number of SimClusters; Number of matched RecoClusters",
+        10,
+        0,
+        10);
     for (auto& hVar : histoVarsSim) {
       auto [nBins, hMin, hMax] = hVar.second;
       h_simClustersMatchedRecoClusters_[ithr][hVar.first] =
@@ -624,9 +630,9 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
       // Compute energy of caloParticle as sum of simClusters energies (from SimTrack energy)
       energySumSimClusters += sc.energy();
       // Compute energy of caloParticle as sum of all hits from all simClusters
-	  energySumSimHits += simClusterEnergy(sc);
+      energySumSimHits += simClusterEnergy(sc);
       // Compute energy of caloParticle as sum of all rechits energy multiplied by sim fraction from all simClusters
-	  recoEnergySumWeightedBySimFrac += recoClusterEnergyWeightedBySimFraction(sc, pfRechit);
+      recoEnergySumWeightedBySimFrac += recoClusterEnergyWeightedBySimFraction(sc, pfRechit);
     }
     for (const auto& scRef : caloParticles[cpId].simClusters()) {
       simClusterToCPEnergyMap[scRef.key()] = energySumSimHits;
@@ -653,8 +659,8 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
     for (const auto& recoPair : cpToRecoMatched) {
 #ifdef debug
       edm::LogPrint("PFTester") << " caloParticle [" << cpId << "] matched to RecoCluster [" << recoPair.first.index()
-                                << "] with shared energy: " << recoPair.second.first
-                                << ", shared energy fraction: " << recoPair.second.first / recoEnergySumWeightedBySimFrac
+                                << "] with shared energy: " << recoPair.second.first << ", shared energy fraction: "
+                                << recoPair.second.first / recoEnergySumWeightedBySimFrac
                                 << ", score: " << recoPair.second.second;
 #endif
       h_CP_simToRecoScore_->Fill(recoPair.second.second);
@@ -683,10 +689,10 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
   uint nSimClusters = 0;
   uint nSimClustersPrimary = 0;
   for (unsigned int simId = 0; simId < simClusters.size(); ++simId) {
-	double energySumSimHits = simClusterEnergy(simClusters[simId]);
+    double energySumSimHits = simClusterEnergy(simClusters[simId]);
     h_SimTrackToSimHitsEnergyFraction_->Fill(energySumSimHits / simClusters[simId].energy());
 
-	double recoEnergySumWeightedBySimFrac = recoClusterEnergyWeightedBySimFraction(simClusters[simId], pfRechit);
+    double recoEnergySumWeightedBySimFrac = recoClusterEnergyWeightedBySimFraction(simClusters[simId], pfRechit);
 
     // apply cut on energy fraction (sim cluster energy wrt all sim clusters from same calo particle)
     double SimClusterToCPEnergyFraction = energySumSimHits / simClusterToCPEnergyMap[simId];
@@ -720,7 +726,7 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
 
     h2d_simClusters_["En_Eta"]->Fill(energySumSimHits, simTrackEtaAtBoundary);
     h2d_simClusters_["En_Phi"]->Fill(energySumSimHits, simClusters[simId].phi());
-	h2d_simClusters_["Eta_Phi"]->Fill(simTrackEtaAtBoundary, simClusters[simId].phi());
+    h2d_simClusters_["Eta_Phi"]->Fill(simTrackEtaAtBoundary, simClusters[simId].phi());
     h2d_simClusters_["En_Mult"]->Fill(energySumSimHits, simClusters[simId].numberOfRecHits());
     h2d_simClusters_["EnFrac_Eta"]->Fill(SimClusterToCPEnergyFraction, simTrackEtaAtBoundary);
     h2d_simClusters_["EnFrac_Phi"]->Fill(SimClusterToCPEnergyFraction, simClusters[simId].phi());
@@ -767,8 +773,8 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
         }
         edm::LogPrint("PFTester") << "   Matched to RecoCluster[" << recoPair.first.index()
                                   << "], en=" << recoClusters[recoPair.first.index()].energy()
-                                  << ", with shared energy: " << recoPair.second.first
-                                  << ", shared energy fraction: " << recoPair.second.first / recoEnergySumWeightedBySimFrac
+                                  << ", with shared energy: " << recoPair.second.first << ", shared energy fraction: "
+                                  << recoPair.second.first / recoEnergySumWeightedBySimFrac
                                   << ", score: " << recoPair.second.second;
         for (auto const& hit_energy : recoClusters[recoPair.first.index()].recHitFractions()) {
           DetId id(hit_energy.recHitRef()->detId());
@@ -821,20 +827,21 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
 
         h2d_simClustersMatchedRecoClusters_[ithr]["En_Eta"]->Fill(energySumSimHits, simTrackEtaAtBoundary);
         h2d_simClustersMatchedRecoClusters_[ithr]["En_Phi"]->Fill(energySumSimHits, simClusters[simId].phi());
-		h2d_simClustersMatchedRecoClusters_[ithr]["Eta_Phi"]->Fill(simTrackEtaAtBoundary, simClusters[simId].phi());
+        h2d_simClustersMatchedRecoClusters_[ithr]["Eta_Phi"]->Fill(simTrackEtaAtBoundary, simClusters[simId].phi());
         h2d_simClustersMatchedRecoClusters_[ithr]["En_Mult"]->Fill(energySumSimHits,
-                                                                       simClusters[simId].numberOfRecHits());
+                                                                   simClusters[simId].numberOfRecHits());
         h2d_simClustersMatchedRecoClusters_[ithr]["EnFrac_Eta"]->Fill(SimClusterToCPEnergyFraction,
                                                                       simTrackEtaAtBoundary);
         h2d_simClustersMatchedRecoClusters_[ithr]["EnFrac_Phi"]->Fill(SimClusterToCPEnergyFraction,
                                                                       simClusters[simId].phi());
         h2d_simClustersMatchedRecoClusters_[ithr]["EnFrac_Mult"]->Fill(SimClusterToCPEnergyFraction,
                                                                        simClusters[simId].numberOfRecHits());
-        h2d_simClustersMatchedRecoClusters_[ithr]["EnSimTrack_Eta"]->Fill(simClusters[simId].energy(), simTrackEtaAtBoundary);
+        h2d_simClustersMatchedRecoClusters_[ithr]["EnSimTrack_Eta"]->Fill(simClusters[simId].energy(),
+                                                                          simTrackEtaAtBoundary);
         h2d_simClustersMatchedRecoClusters_[ithr]["EnSimTrack_Phi"]->Fill(simClusters[simId].energy(),
-                                                                  simClusters[simId].phi());
+                                                                          simClusters[simId].phi());
         h2d_simClustersMatchedRecoClusters_[ithr]["EnSimTrack_Mult"]->Fill(simClusters[simId].energy(),
-                                                                   simClusters[simId].numberOfRecHits());
+                                                                           simClusters[simId].numberOfRecHits());
         h2d_simClustersMatchedRecoClusters_[ithr]["Pt_Eta"]->Fill(simClusters[simId].pt(), simTrackEtaAtBoundary);
         h2d_simClustersMatchedRecoClusters_[ithr]["Pt_Phi"]->Fill(simClusters[simId].pt(), simClusters[simId].phi());
         h2d_simClustersMatchedRecoClusters_[ithr]["Pt_Mult"]->Fill(simClusters[simId].pt(),
@@ -869,50 +876,49 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
   // --------------------------------------------------------------------
   h_nPFClusters_->Fill(recoClusters.size());
   for (unsigned int recoId = 0; recoId < recoClusters.size(); ++recoId) {
-	
     // fake and merge denominator
     h_recoClusters_["En"]->Fill(recoClusters[recoId].energy());
     h_recoClusters_["Eta"]->Fill(recoClusters[recoId].eta());
     h_recoClusters_["Phi"]->Fill(recoClusters[recoId].phi());
     h_recoClusters_["Mult"]->Fill(recoClusters[recoId].size());
-	if constexpr (std::is_same<RecoClusterCollection, reco::PFClusterCollection>::value) {
-	  h_recoClusters_["Time"]->Fill(recoClusters[recoId].time());
-	}
-	
+    if constexpr (std::is_same<RecoClusterCollection, reco::PFClusterCollection>::value) {
+      h_recoClusters_["Time"]->Fill(recoClusters[recoId].time());
+    }
+
     h2d_recoClusters_["En_Eta"]->Fill(recoClusters[recoId].energy(), recoClusters[recoId].eta());
     h2d_recoClusters_["En_Phi"]->Fill(recoClusters[recoId].energy(), recoClusters[recoId].phi());
-	h2d_recoClusters_["Eta_Phi"]->Fill(recoClusters[recoId].eta(), recoClusters[recoId].phi());
+    h2d_recoClusters_["Eta_Phi"]->Fill(recoClusters[recoId].eta(), recoClusters[recoId].phi());
     h2d_recoClusters_["En_Mult"]->Fill(recoClusters[recoId].energy(), recoClusters[recoId].size());
     h2d_recoClusters_["Mult_Eta"]->Fill(recoClusters[recoId].size(), recoClusters[recoId].eta());
     h2d_recoClusters_["Mult_Phi"]->Fill(recoClusters[recoId].size(), recoClusters[recoId].phi());
-	if constexpr (std::is_same<RecoClusterCollection, reco::PFClusterCollection>::value) {
-	  h2d_recoClusters_["En_Time"]->Fill(recoClusters[recoId].energy(), recoClusters[recoId].time());
-	  h2d_recoClusters_["Eta_Time"]->Fill(recoClusters[recoId].eta(), recoClusters[recoId].time());
-	  h2d_recoClusters_["Phi_Time"]->Fill(recoClusters[recoId].phi(), recoClusters[recoId].time());
-	  h2d_recoClusters_["Mult_Time"]->Fill(recoClusters[recoId].size(), recoClusters[recoId].time());
-	}
+    if constexpr (std::is_same<RecoClusterCollection, reco::PFClusterCollection>::value) {
+      h2d_recoClusters_["En_Time"]->Fill(recoClusters[recoId].energy(), recoClusters[recoId].time());
+      h2d_recoClusters_["Eta_Time"]->Fill(recoClusters[recoId].eta(), recoClusters[recoId].time());
+      h2d_recoClusters_["Phi_Time"]->Fill(recoClusters[recoId].phi(), recoClusters[recoId].time());
+      h2d_recoClusters_["Mult_Time"]->Fill(recoClusters[recoId].size(), recoClusters[recoId].time());
+    }
 
-	// hits belonging to the clusters
-	const CaloGeometry& caloGeom = iSetup.getData(geometry_token_);
-	for (const auto& haf : recoClusters[recoId].hitsAndFractions()) {
-	  DetId id = haf.first;
-	  const GlobalPoint pos = caloGeom.getPosition(id);
+    // hits belonging to the clusters
+    const CaloGeometry& caloGeom = iSetup.getData(geometry_token_);
+    for (const auto& haf : recoClusters[recoId].hitsAndFractions()) {
+      DetId id = haf.first;
+      const GlobalPoint pos = caloGeom.getPosition(id);
 
-	  auto rechitIt =
-		std::find_if(pfRechit.begin(), pfRechit.end(), [id](const reco::PFRecHit& rh) { return rh.detId() == id; });
-	  if (rechitIt == pfRechit.end()) {
-		edm::LogPrint("PFTester") << " PF Hit not found! | eta=" << pos.eta() << ", phi=" << pos.phi();
-	  } else {
-		h2d_recoHitsInClusters_["En_Eta"]->Fill(rechitIt->energy(), pos.eta());
-		h2d_recoHitsInClusters_["En_Phi"]->Fill(rechitIt->energy(), pos.phi());
-		h2d_recoHitsInClusters_["Eta_Phi"]->Fill(pos.eta(), pos.phi());
-		h2d_recoHitsInClusters_["En_Time"]->Fill(rechitIt->energy(), rechitIt->time());
-		h2d_recoHitsInClusters_["Eta_Time"]->Fill(pos.eta(), rechitIt->time());
-		h2d_recoHitsInClusters_["Phi_Time"]->Fill(pos.phi(), rechitIt->time());
-	  }
-	}
+      auto rechitIt =
+          std::find_if(pfRechit.begin(), pfRechit.end(), [id](const reco::PFRecHit& rh) { return rh.detId() == id; });
+      if (rechitIt == pfRechit.end()) {
+        edm::LogPrint("PFTester") << " PF Hit not found! | eta=" << pos.eta() << ", phi=" << pos.phi();
+      } else {
+        h2d_recoHitsInClusters_["En_Eta"]->Fill(rechitIt->energy(), pos.eta());
+        h2d_recoHitsInClusters_["En_Phi"]->Fill(rechitIt->energy(), pos.phi());
+        h2d_recoHitsInClusters_["Eta_Phi"]->Fill(pos.eta(), pos.phi());
+        h2d_recoHitsInClusters_["En_Time"]->Fill(rechitIt->energy(), rechitIt->time());
+        h2d_recoHitsInClusters_["Eta_Time"]->Fill(pos.eta(), rechitIt->time());
+        h2d_recoHitsInClusters_["Phi_Time"]->Fill(pos.phi(), rechitIt->time());
+      }
+    }
 
-	// matching
+    // matching
     const edm::Ref<RecoClusterCollection> recoClusterRef(RecoCluster, recoId);
     const auto& recoToSimIt = recoToSimAssoc.find(recoClusterRef);
     if (recoToSimIt == recoToSimAssoc.end())
@@ -934,7 +940,7 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
                                   << " : matched simCluster id = " << simPairIdx << " score = " << simPair.second;
 #endif
 
-		double energySumSimHits = simClusterEnergy(simClusters[simPairIdx]);
+        double energySumSimHits = simClusterEnergy(simClusters[simPairIdx]);
 
         // apply cut on energy fraction (sim cluster energy wrt all sim clusters from same calo particle)
         double SimClusterToCPEnergyFraction = energySumSimHits / simClusterToCPEnergyMap[simPairIdx];
@@ -947,7 +953,7 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
         // filter all sim clusters produced by a sim track which crossed the
         // tracker/calorimeter boundary outside the barrel
         auto const scTrack = simClusters[simPairIdx].g4Tracks()[0];
-        const math::XYZTLorentzVectorF pos = scTrack.getPositionAtBoundary();
+        const math::XYZTLorentzVectorF& pos = scTrack.getPositionAtBoundary();
         if (abs(pos.Eta()) > etaCut_)  // simTrack does not cross the barrel
           continue;
 
@@ -970,35 +976,35 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
                                                                   recoClusters[recoId].eta());
         h2d_recoClustersMatchedSimClusters_[ithr]["En_Phi"]->Fill(recoClusters[recoId].energy(),
                                                                   recoClusters[recoId].phi());
-		h2d_recoClustersMatchedSimClusters_[ithr]["Eta_Phi"]->Fill(recoClusters[recoId].eta(),
-																   recoClusters[recoId].phi());
+        h2d_recoClustersMatchedSimClusters_[ithr]["Eta_Phi"]->Fill(recoClusters[recoId].eta(),
+                                                                   recoClusters[recoId].phi());
         h2d_recoClustersMatchedSimClusters_[ithr]["En_Mult"]->Fill(recoClusters[recoId].energy(),
                                                                    recoClusters[recoId].size());
         h2d_recoClustersMatchedSimClusters_[ithr]["Mult_Eta"]->Fill(recoClusters[recoId].size(),
                                                                     recoClusters[recoId].eta());
         h2d_recoClustersMatchedSimClusters_[ithr]["Mult_Phi"]->Fill(recoClusters[recoId].size(),
                                                                     recoClusters[recoId].phi());
-		if constexpr (std::is_same<RecoClusterCollection, reco::PFClusterCollection>::value) {
-		  h_recoClustersMatchedSimClusters_[ithr]["Time"]->Fill(recoClusters[recoId].time());
-		  h2d_recoClustersMatchedSimClusters_[ithr]["En_Time"]->Fill(recoClusters[recoId].energy(),
-																	 recoClusters[recoId].time());
-		  h2d_recoClustersMatchedSimClusters_[ithr]["Eta_Time"]->Fill(recoClusters[recoId].eta(),
-																	  recoClusters[recoId].time());
-		  h2d_recoClustersMatchedSimClusters_[ithr]["Phi_Time"]->Fill(recoClusters[recoId].phi(),
-																	  recoClusters[recoId].time());
-		  h2d_recoClustersMatchedSimClusters_[ithr]["Mult_Time"]->Fill(recoClusters[recoId].size(),
-																	   recoClusters[recoId].time());		  
-		}
+        if constexpr (std::is_same<RecoClusterCollection, reco::PFClusterCollection>::value) {
+          h_recoClustersMatchedSimClusters_[ithr]["Time"]->Fill(recoClusters[recoId].time());
+          h2d_recoClustersMatchedSimClusters_[ithr]["En_Time"]->Fill(recoClusters[recoId].energy(),
+                                                                     recoClusters[recoId].time());
+          h2d_recoClustersMatchedSimClusters_[ithr]["Eta_Time"]->Fill(recoClusters[recoId].eta(),
+                                                                      recoClusters[recoId].time());
+          h2d_recoClustersMatchedSimClusters_[ithr]["Phi_Time"]->Fill(recoClusters[recoId].phi(),
+                                                                      recoClusters[recoId].time());
+          h2d_recoClustersMatchedSimClusters_[ithr]["Mult_Time"]->Fill(recoClusters[recoId].size(),
+                                                                       recoClusters[recoId].time());
+        }
 
-		// merge numerator
+        // merge numerator
         if (nSimMatchedToOneReco > 1) {
           h_recoClustersMultiMatchedSimClusters_[ithr]["En"]->Fill(recoClusters[recoId].energy());
           h_recoClustersMultiMatchedSimClusters_[ithr]["Eta"]->Fill(recoClusters[recoId].eta());
           h_recoClustersMultiMatchedSimClusters_[ithr]["Phi"]->Fill(recoClusters[recoId].phi());
           h_recoClustersMultiMatchedSimClusters_[ithr]["Mult"]->Fill(recoClusters[recoId].size());
-		  if constexpr (std::is_same<RecoClusterCollection, reco::PFClusterCollection>::value) {
-			h_recoClustersMultiMatchedSimClusters_[ithr]["Time"]->Fill(recoClusters[recoId].time());
-		  }
+          if constexpr (std::is_same<RecoClusterCollection, reco::PFClusterCollection>::value) {
+            h_recoClustersMultiMatchedSimClusters_[ithr]["Time"]->Fill(recoClusters[recoId].time());
+          }
         }
       }
 
@@ -1010,10 +1016,10 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
   // ----- Cluster response computation ---------------------------------
   // --------------------------------------------------------------------
   for (unsigned int simId = 0; simId < simClusters.size(); ++simId) {
-	double energySumSimHits = simClusterEnergy(simClusters[simId]);
+    double energySumSimHits = simClusterEnergy(simClusters[simId]);
 
-	double recoEnergyWeightedBySimFrac = recoClusterEnergyWeightedBySimFraction(simClusters[simId], pfRechit);
-	
+    double recoEnergyWeightedBySimFrac = recoClusterEnergyWeightedBySimFraction(simClusters[simId], pfRechit);
+
     // apply cut on energy fraction (sim cluster energy wrt all sim clusters from same calo particle)
     double SimClusterToCPEnergyFraction = energySumSimHits / simClusterToCPEnergyMap[simId];
     if (SimClusterToCPEnergyFraction < enFracCut_)
@@ -1050,7 +1056,7 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
       // fill only the best matched (lowest score) reco cluster, regardless split or merge
       for (const auto& recoPair : simToRecoMatchedSorted) {
         auto recoId = recoPair.first.index();
-		
+
         bool passMatch = false;
         if (doMatchByScore_) {
           // cut on score
@@ -1061,9 +1067,9 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
           double shared_energy_frac = shared_energy / recoEnergyWeightedBySimFrac;
           passMatch = shared_energy_frac > thresh;
         }
-		
+
         if (passMatch) {
-		  float resp = recoClusters[recoId].energy() / energySumSimHits;
+          float resp = recoClusters[recoId].energy() / energySumSimHits;
           h2d_responseE_[ithr]["En"]->Fill(energySumSimHits, resp);
           h2d_responseE_[ithr]["EnFrac"]->Fill(SimClusterToCPEnergyFraction, resp);
           h2d_responseE_[ithr]["EnSimTrack"]->Fill(simClusters[simId].energy(), resp);
@@ -1072,7 +1078,7 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
           h2d_responseE_[ithr]["Phi"]->Fill(simClusters[simId].phi(), resp);
           h2d_responseE_[ithr]["Mult"]->Fill(simClusters[simId].numberOfRecHits(), resp);
           break;
-        }		
+        }
       }
     }
   }
@@ -1214,7 +1220,7 @@ template <typename RecoClusterCollection>
 double PFTesterT<RecoClusterCollection>::simClusterEnergy(const SimCluster& sc) const {
   double energySumSimHits = 0;
   for (auto hit_energy : sc.hits_and_energies()) {
-	energySumSimHits += hit_energy.second;
+    energySumSimHits += hit_energy.second;
   }
   return energySumSimHits;
 }
@@ -1222,32 +1228,35 @@ double PFTesterT<RecoClusterCollection>::simClusterEnergy(const SimCluster& sc) 
 // compute the denominator of the shared energy fraction, i.e,
 // the total energy of a reconstructed cluster, weighted by the sim cluster energy fraction
 template <typename RecoClusterCollection>
-double PFTesterT<RecoClusterCollection>::recoClusterEnergyWeightedBySimFraction(const SimCluster& sc, const reco::PFRecHitCollection& pfrechits) const {
+double PFTesterT<RecoClusterCollection>::recoClusterEnergyWeightedBySimFraction(
+    const SimCluster& sc, const reco::PFRecHitCollection& pfrechits) const {
   double recoEnergySumWeightedBySimFrac = 0;
   for (auto hit_fraction : sc.hits_and_fractions()) {
-	DetId id(hit_fraction.first);
-	auto rechitIt =
-	  std::find_if(pfrechits.begin(), pfrechits.end(), [id](const reco::PFRecHit& rh) { return rh.detId() == id; });
-	if (rechitIt == pfrechits.end()) {
-	  continue;
-	} else {
-	  recoEnergySumWeightedBySimFrac += rechitIt->energy() * hit_fraction.second;
-	}
+    DetId id(hit_fraction.first);
+    auto rechitIt =
+        std::find_if(pfrechits.begin(), pfrechits.end(), [id](const reco::PFRecHit& rh) { return rh.detId() == id; });
+    if (rechitIt == pfrechits.end()) {
+      continue;
+    } else {
+      recoEnergySumWeightedBySimFrac += rechitIt->energy() * hit_fraction.second;
+    }
   }
   return recoEnergySumWeightedBySimFrac;
 }
 
 template <typename RecoClusterCollection>
 void PFTesterT<RecoClusterCollection>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription  desc;
+  edm::ParameterSetDescription desc;
   desc.add<std::string>("outFolder", "HLT/ParticleFlow");
   desc.add<edm::InputTag>("PFCand", edm::InputTag("hltParticleFlow"));
   desc.add<edm::InputTag>("Rechit", edm::InputTag("hltParticleFlowRecHitECALUnseeded"));
   desc.add<edm::InputTag>("RecoCluster", edm::InputTag("hltParticleFlowClusterECALUnseeded"));
   desc.add<edm::InputTag>("SimCluster", edm::InputTag("mix", "MergedCaloTruth"));
-  desc.add<edm::InputTag>("CaloParticle", edm::InputTag("mix","MergedCaloTruth"));
-  desc.add<edm::InputTag>("ClusterSimClusterAssociator", edm::InputTag("hltPFClusterSimClusterAssociationProducerECAL"));
-  desc.add<edm::InputTag>("ClusterCaloParticleAssociator", edm::InputTag("hltPFClusterCaloParticleAssociationProducerECAL"));
+  desc.add<edm::InputTag>("CaloParticle", edm::InputTag("mix", "MergedCaloTruth"));
+  desc.add<edm::InputTag>("ClusterSimClusterAssociator",
+                          edm::InputTag("hltPFClusterSimClusterAssociationProducerECAL"));
+  desc.add<edm::InputTag>("ClusterCaloParticleAssociator",
+                          edm::InputTag("hltPFClusterCaloParticleAssociationProducerECAL"));
   desc.add<std::vector<double>>("assocScoreThresholds", {0.1});
   desc.add<bool>("doMatchByScore", true);
   desc.add<double>("enFracCut", 0.01);

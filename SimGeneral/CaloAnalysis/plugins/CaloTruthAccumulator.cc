@@ -249,7 +249,7 @@ CaloTruthAccumulator::CaloTruthAccumulator(const edm::ParameterSet &config,
       geometryType_(-1),
       outputLabel_(config.getParameter<std::string>("outputLabel")),
       doHGCAL(config.getParameter<bool>("doHGCAL")) {
-  outputCollection_ = "MergedCaloTruth"+outputLabel_;
+  outputCollection_ = "MergedCaloTruth" + outputLabel_;
   producesCollector.produces<SimClusterCollection>(outputCollection_);
   producesCollector.produces<CaloParticleCollection>(outputCollection_);
   if (premixStage1_) {
