@@ -45,6 +45,11 @@ from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*') )
 run2_common.toModify( SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*') )
 
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_mix_MergedCaloTruth_*') )
+run3_common.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_mix_MergedCaloTruthECAL_*') )
+run3_common.toModify( SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_mix_MergedCaloTruth_*') )
+
 from Configuration.Eras.Modifier_run3_ecal_devel_cff import run3_ecal_devel
 run3_ecal_devel.toModify(SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_mix_EBTimeDigi_*') )
 run3_ecal_devel.toModify(SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_mix_EBTimeDigi_*') )
@@ -65,6 +70,7 @@ phase2_timing.toModify(SimCalorimetryRAW.outputCommands, func=lambda outputComma
 phase2_timing.toModify(SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_mix_EBTimeDigi_*') )
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_mix_MergedCaloTruthECAL_*') )
 phase2_common.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simEcalUnsuppressedDigis_*_*') )
 phase2_common.toModify( SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simEcalUnsuppressedDigis_*_*') )
 phase2_common.toModify( SimCalorimetryPREMIX.outputCommands, func=lambda outputCommands: outputCommands.append('drop ESDigiCollection_simEcalUnsuppressedDigis_*_*') )

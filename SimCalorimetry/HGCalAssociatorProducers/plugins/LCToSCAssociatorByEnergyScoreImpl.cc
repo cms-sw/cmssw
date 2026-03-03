@@ -412,8 +412,20 @@ ticl::association LCToSCAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
           if (findHitIt != detIdToSimClusterId_Map[rh_detid].end())
             scFraction = findHitIt->fraction;
         }
-        scPair.second += std::min(std::pow(rhFraction - scFraction, 2), std::pow(rhFraction, 2)) * hitEnergyWeight *
-                         invLayerClusterEnergyWeight;
+        // old score definition
+        // scPair.second += std::min(std::pow(rhFraction - scFraction, 2), std::pow(rhFraction, 2)) * hitEnergyWeight *
+        //                  invLayerClusterEnergyWeight;
+        // new score definition
+        /* RecoToSim score logic:
+          - recoFraction > 0 && simFraction == 0 : reco cluster contains non-sim associated elements : penalty in score by recoFraction*E
+          - recoFraction = 0 && simFraction >= 0 : simhits not present in reco cluster : ignore in RecoToSim
+          - recoFraction == 1 && simFraction == 1 : good association
+          - 1 > simFraction > recoFraction > 0 : we are missing some sim energy: consider as good association since what was collected is all good
+          - 1 > recoFraction > simFraction > 0 : we have collected too much energy : penalty in score by the part in eccess : (recoFraction-simFraction)*E
+        */
+        float recoMinusSimFraction = std::max(0.f, rhFraction - scFraction);
+        scPair.second += recoMinusSimFraction * recoMinusSimFraction * hitEnergyWeight * invLayerClusterEnergyWeight;
+
 #ifdef EDM_ML_DEBUG
         LogDebug("LCToSCAssociatorByEnergyScoreImplT")
             << "rh_detid:\t" << (uint32_t)rh_detid << "\tlayerClusterId:\t" << lcId << "\t"
@@ -500,8 +512,19 @@ ticl::association LCToSCAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
             if (findHitIt != detIdToLayerClusterId_Map[sc_hitDetId].end())
               lcFraction = findHitIt->fraction;
           }
-          lcPair.second.second += std::min(std::pow(lcFraction - scFraction, 2), std::pow(scFraction, 2)) *
-                                  hitEnergyWeight * invSCEnergyWeight;
+          // old score definition
+          // lcPair.second.second += std::min(std::pow(lcFraction - scFraction, 2), std::pow(scFraction, 2)) *
+          //                         hitEnergyWeight * invSCEnergyWeight;
+          // new score definition
+          /* SimToReco score logic:
+            - simFraction = 0 && recoFraction >= 0 : reco cluster contains non-sim associated elements : ignore in simToReco
+            - simFraction > 0 && recoFraction == 0 : simhits not present in reco cluster : penalty in score by simFraction*E
+            - simFraction == 1 && recoFraction == 1 : good association
+            - 1 > simFraction > recoFraction > 0 : we are missing some sim energy : penalty in score by the missing part (simFraction-recoFraction)*E
+            - 1 > recoFraction > simFraction > 0 : we have collected too much energy : consider as good association since all the sim was collected
+          */
+          float simMinusRecoFraction = std::max(0.f, scFraction - lcFraction);
+          lcPair.second.second += simMinusRecoFraction * simMinusRecoFraction * hitEnergyWeight * invSCEnergyWeight;
 #ifdef EDM_ML_DEBUG
           LogDebug("LCToSCAssociatorByEnergyScoreImplT")
               << "scDetId:\t" << (uint32_t)sc_hitDetId << "\tlayerClusterId:\t" << layerClusterId << "\t"

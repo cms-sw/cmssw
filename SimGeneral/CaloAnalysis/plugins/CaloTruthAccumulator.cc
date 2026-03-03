@@ -141,7 +141,9 @@ private:
   calo_particles m_caloParticles;
   // geometry type (0 pre-TDR; 1 TDR)
   int geometryType_;
+  std::string outputLabel_;
   bool doHGCAL;
+  std::string outputCollection_;
 };
 
 /* Graph utility functions */
@@ -245,11 +247,13 @@ CaloTruthAccumulator::CaloTruthAccumulator(const edm::ParameterSet &config,
       maxPseudoRapidity_(config.getParameter<double>("MaxPseudoRapidity")),
       premixStage1_(config.getParameter<bool>("premixStage1")),
       geometryType_(-1),
+      outputLabel_(config.getParameter<std::string>("outputLabel")),
       doHGCAL(config.getParameter<bool>("doHGCAL")) {
-  producesCollector.produces<SimClusterCollection>("MergedCaloTruth");
-  producesCollector.produces<CaloParticleCollection>("MergedCaloTruth");
+  outputCollection_ = "MergedCaloTruth" + outputLabel_;
+  producesCollector.produces<SimClusterCollection>(outputCollection_);
+  producesCollector.produces<CaloParticleCollection>(outputCollection_);
   if (premixStage1_) {
-    producesCollector.produces<std::vector<std::pair<unsigned int, float>>>("MergedCaloTruth");
+    producesCollector.produces<std::vector<std::pair<unsigned int, float>>>(outputCollection_);
   }
 
   iC.consumes<std::vector<SimTrack>>(simTrackLabel_);
@@ -361,7 +365,7 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
     totalEnergies->reserve(m_detIdToTotalSimEnergy.size());
     std::copy(m_detIdToTotalSimEnergy.begin(), m_detIdToTotalSimEnergy.end(), std::back_inserter(*totalEnergies));
     std::sort(totalEnergies->begin(), totalEnergies->end());
-    event.put(std::move(totalEnergies), "MergedCaloTruth");
+    event.put(std::move(totalEnergies), outputCollection_);
   } else {
     for (auto &sc : *(output_.pSimClusters)) {
       auto hitsAndEnergies = sc.hits_and_fractions();
@@ -382,7 +386,7 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
   }
 
   // save the SimCluster orphan handle so we can fill the calo particles
-  auto scHandle = event.put(std::move(output_.pSimClusters), "MergedCaloTruth");
+  auto scHandle = event.put(std::move(output_.pSimClusters), outputCollection_);
 
   // now fill the calo particles
   for (unsigned i = 0; i < output_.pCaloParticles->size(); ++i) {
@@ -393,7 +397,7 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
     }
   }
 
-  event.put(std::move(output_.pCaloParticles), "MergedCaloTruth");
+  event.put(std::move(output_.pCaloParticles), outputCollection_);
 
   calo_particles().swap(m_caloParticles);
 

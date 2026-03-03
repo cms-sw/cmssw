@@ -4939,52 +4939,42 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     upgradeStepDict['GenHLBeamSpot'][k] = merge([{'--conditions' : gt+'_13TeV'}, upgradeStepDict['Gen'][k]])
     upgradeStepDict['GenHLBeamSpot14'][k] = merge([{}, upgradeStepDict['Gen'][k]])
     
-    upgradeStepDict['GenSim'][k]= {'-s' : 'GEN,SIM',
-                                       '-n' : 10,
-                                       '--conditions' : gt,
-                                       '--beamspot' : 'Realistic25ns13TeVEarly2017Collision',
-                                       '--datatier' : 'GEN-SIM',
-                                       '--eventcontent': 'FEVTDEBUG',
-                                       '--geometry' : geom
-                                       }
+    upgradeStepDict['GenSim'][k] = {'-s' : 'GEN,SIM',
+                                    '-n' : 10,
+                                    '--conditions' : gt,
+                                    '--beamspot' : 'Realistic25ns13TeVEarly2017Collision',
+                                    '--datatier' : 'GEN-SIM',
+                                    '--eventcontent': 'FEVTDEBUG',
+                                    '--geometry' : geom
+                                    }
     
     if beamspot is not None: upgradeStepDict['GenSim'][k]['--beamspot']=beamspot
 
-    upgradeStepDict['GenSimHLBeamSpot'][k]= {'-s' : 'GEN,SIM',
-                                       '-n' : 10,
-                                       '--conditions' : gt+'_13TeV',
-                                       '--beamspot' : 'DBrealisticHLLHC',
-                                       '--datatier' : 'GEN-SIM',
-                                       '--eventcontent': 'FEVTDEBUG',
-                                       '--geometry' : geom
-                                       }
+    upgradeStepDict['GenSimCloseBy'][k] = upgradeStepDict['GenSim'][k]
+    upgradeStepDict['GenSimCloseBy'][k]['--beamspot'] = 'CloseBy'
+    
+    upgradeStepDict['GenSimHLBeamSpot'][k] = {'-s' : 'GEN,SIM',
+                                              '-n' : 10,
+                                              '--conditions' : gt+'_13TeV',
+                                              '--beamspot' : 'DBrealisticHLLHC',
+                                              '--datatier' : 'GEN-SIM',
+                                              '--eventcontent': 'FEVTDEBUG',
+                                              '--geometry' : geom
+                                              }
 
-    upgradeStepDict['GenSimHLBeamSpot14'][k]= {'-s' : 'GEN,SIM',
-                                       '-n' : 10,
-                                       '--conditions' : gt,
-                                       '--beamspot' : 'DBrealisticHLLHC',
-                                       '--datatier' : 'GEN-SIM',
-                                       '--eventcontent': 'FEVTDEBUG',
-                                       '--geometry' : geom
-                                       }
+    upgradeStepDict['GenSimHLBeamSpot14'][k] = upgradeStepDict['GenSimHLBeamSpot'][k]
+    upgradeStepDict['GenSimHLBeamSpot14'][k]['--conditions'] = gt    
 
-    upgradeStepDict['GenSimHLBeamSpotCloseBy'][k]= {'-s' : 'GEN,SIM',
-                                       '-n' : 10,
-                                       '--conditions' : gt,
-                                       '--beamspot' : 'CloseBy',
-                                       '--datatier' : 'GEN-SIM',
-                                       '--eventcontent': 'FEVTDEBUG',
-                                       '--geometry' : geom
-                                       }
-
-    upgradeStepDict['Sim'][k]= {'-s' : 'SIM',
-                                       '-n' : 10,
-                                       '--conditions' : gt,
-                                       '--beamspot' : 'Realistic25ns13TeVEarly2017Collision',
-                                       '--datatier' : 'SIM',
-                                       '--eventcontent': 'FEVTDEBUG',
-                                       '--geometry' : geom
-                                       }
+    upgradeStepDict['GenSimHLBeamSpotCloseBy'][k] = upgradeStepDict['GenSimCloseBy'][k]
+    
+    upgradeStepDict['Sim'][k] = {'-s' : 'SIM',
+                                 '-n' : 10,
+                                 '--conditions' : gt,
+                                 '--beamspot' : 'Realistic25ns13TeVEarly2017Collision',
+                                 '--datatier' : 'SIM',
+                                 '--eventcontent': 'FEVTDEBUG',
+                                 '--geometry' : geom
+                                 }
     
     if beamspot is not None: upgradeStepDict['Sim'][k]['--beamspot']=beamspot
     
