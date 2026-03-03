@@ -1,5 +1,6 @@
 # import the definition of the steps and input files:
 from  Configuration.PyReleaseValidation.relval_steps import *
+from .MatrixUtil import Matrix
 
 # here only define the workflows as a combination of the steps defined above:
 workflows = Matrix()

@@ -1,4 +1,5 @@
 from Configuration.PyReleaseValidation.relval_steps import *
+from .MatrixUtil import Matrix
 import math
 
 

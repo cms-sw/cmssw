@@ -33,8 +33,8 @@ float runpT3(LSTEvent* event);
 
 // --------------------- ======================== ---------------------
 
-std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
-                                   std::vector<unsigned int> hittypes,
+std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> const& hitidxs,
+                                   std::vector<lst::HitType> const& hittypes,
                                    std::vector<int> const& trk_simhit_simTrkIdx,
                                    std::vector<std::vector<int>> const& trk_ph2_simHitIdx,
                                    std::vector<std::vector<int>> const& trk_pix_simHitIdx,
@@ -42,8 +42,8 @@ std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
                                    float matchfrac = 0.75,
                                    float* pmatched = nullptr);
 std::tuple<std::vector<int>, std::vector<float>> matchedSimTrkIdxsAndFracs(
-    std::vector<unsigned int> hitidxs,
-    std::vector<unsigned int> hittypes,
+    std::vector<unsigned int> const& hitidxs,
+    std::vector<lst::HitType> const& hittypes,
     std::vector<int> const& trk_simhit_simTrkIdx,
     std::vector<std::vector<int>> const& trk_ph2_simHitIdx,
     std::vector<std::vector<int>> const& trk_pix_simHitIdx,
@@ -60,7 +60,7 @@ int getDenomSimTrkType(int isimtrk,
                        std::vector<float> const& trk_simvtx_x,
                        std::vector<float> const& trk_simvtx_y,
                        std::vector<float> const& trk_simvtx_z);
-int getDenomSimTrkType(std::vector<int> simidxs,
+int getDenomSimTrkType(std::vector<int> const& simidxs,
                        std::vector<int> const& trk_sim_q,
                        std::vector<float> const& trk_sim_pt,
                        std::vector<float> const& trk_sim_eta,

@@ -124,18 +124,12 @@ def customiseTrackingNtupleHLT(process):
         names = cms.vstring("hltIter0PFLowPixelSeedsFromPixelTracks", "hltDoubletRecoveryPFlowPixelSeeds")
     )
     from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
-    trackingPhase2PU140.toModify(_seedProducers, names = ["hltInitialStepSeeds", "hltHighPtTripletStepSeeds"])
+    trackingPhase2PU140.toModify(_seedProducers, names = ["hltInitialStepTrajectorySeedsLST"])
     # the following modifiers are only phase-2, trackingPhase2PU140 is not repeated
-    from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
+    from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
     from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
-    from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
-    (singleIterPatatrack & ~trackingLST).toModify(_seedProducers, names = ["hltInitialStepSeeds"])
-    (singleIterPatatrack & trackingLST & ~seedingLST).toModify(_seedProducers, names = ["hltInputLST", "hltInitialStepTrackCandidates"])
-    (singleIterPatatrack & trackingLST & seedingLST).toModify(_seedProducers, names = ["hltInitialStepTrajectorySeedsLST"])
-    (~singleIterPatatrack & trackingLST & ~seedingLST).toModify(_seedProducers,
-        names = ["hltInputLST", "hltInitialStepTrackCandidates", "hltHighPtTripletStepSeeds"])
-    (~singleIterPatatrack & trackingLST & seedingLST).toModify(_seedProducers,
-        names = ["hltInputLST", "hltInitialStepTrackCandidates", "hltInitialStepTrackCandidates:pLSTSsLST"])
+    hltPhase2LegacyTracking.toModify(_seedProducers, names = ["hltInitialStepSeeds", "hltHighPtTripletStepSeeds"])
+    trackingLST.toModify(_seedProducers, names = ["hltInputLST", "hltInitialStepTrackCandidates"])
 
     (_seedSelectors, _tmpTask) = _TrackValidation_cff._addSeedToTrackProducers(_seedProducers.names, globals())
     _seedSelectorsTask = cms.Task()
@@ -155,19 +149,18 @@ def customiseTrackingNtupleHLT(process):
 
     process.trackingNtuple.tracks = "hltMergedTracks"
     trackingPhase2PU140.toModify(process.trackingNtuple, tracks = "hltGeneralTracks")
+    (trackingPhase2PU140 & ~hltPhase2LegacyTracking).toModify(process.trackingNtuple, seedUniqueCheck = False)
 
-    (singleIterPatatrack & trackingLST & seedingLST).toModify(process.trackingNtuple,
+    (trackingPhase2PU140 & ~(hltPhase2LegacyTracking | trackingLST)).toModify(process.trackingNtuple,
         seedAlgoDetect = False, seedAlgos = [getattr(_algo,"initialStep")])
-    (~singleIterPatatrack & trackingLST & seedingLST).toModify(process.trackingNtuple,
-        seedAlgoDetect = False, seedAlgos = [getattr(_algo,"initialStep"), getattr(_algo,"initialStep"), getattr(_algo,"highPtTripletStep")])
 
     process.trackingNtuple.trackCandidates = ["hltIter0PFlowCkfTrackCandidates", "hltDoubletRecoveryPFlowCkfTrackCandidates"]
-    trackingPhase2PU140.toModify(process.trackingNtuple, trackCandidates = ["hltInitialStepTrackCandidates", "hltHighPtTripletStepTrackCandidates"])
-    singleIterPatatrack.toModify(process.trackingNtuple, trackCandidates = ["hltInitialStepTrackCandidates"])
+    trackingPhase2PU140.toModify(process.trackingNtuple, trackCandidates = ["hltInitialStepTrackCandidates"])
+    hltPhase2LegacyTracking.toModify(process.trackingNtuple, trackCandidates = ["hltInitialStepTrackCandidates", "hltHighPtTripletStepTrackCandidates"])
 
     process.trackingNtuple.clusterMasks = [dict(index = getattr(_algo,"pixelPairStep"), src = "hltDoubletRecoveryClustersRefRemoval")]
-    trackingPhase2PU140.toModify(process.trackingNtuple, clusterMasks = [dict(index = getattr(_algo,"highPtTripletStep"), src = "hltHighPtTripletStepClusters")])
-    singleIterPatatrack.toModify(process.trackingNtuple, clusterMasks = [])
+    trackingPhase2PU140.toModify(process.trackingNtuple, clusterMasks = [])
+    hltPhase2LegacyTracking.toModify(process.trackingNtuple, clusterMasks = [dict(index = getattr(_algo,"highPtTripletStep"), src = "hltHighPtTripletStepClusters")])
 
     process.trackingNtuple.clusterTPMap = "hltTPClusterProducer"
     process.trackingNtuple.trackAssociator = "hltTrackAssociatorByHits"

@@ -1,4 +1,5 @@
 #include "trkCore.h"
+#include <tuple>
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
 bool goodEvent() {
@@ -333,25 +334,23 @@ float runTrackCandidate(LSTEvent* event, bool no_pls_dupclean, bool tc_pls_tripl
 //  ---------------------------------- =========================================== ----------------------------------------------
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
-std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> hitidxs,
-                                   std::vector<unsigned int> hittypes,
+std::vector<int> matchedSimTrkIdxs(std::vector<unsigned int> const& hitidxs,
+                                   std::vector<lst::HitType> const& hittypes,
                                    std::vector<int> const& trk_simhit_simTrkIdx,
                                    std::vector<std::vector<int>> const& trk_ph2_simHitIdx,
                                    std::vector<std::vector<int>> const& trk_pix_simHitIdx,
                                    bool verbose,
                                    float matchfrac,
                                    float* pmatched) {
-  std::vector<int> matched_idxs;
-  std::vector<float> matched_idx_fracs;
-  std::tie(matched_idxs, matched_idx_fracs) = matchedSimTrkIdxsAndFracs(
+  auto [matched_idxs, dummy] = matchedSimTrkIdxsAndFracs(
       hitidxs, hittypes, trk_simhit_simTrkIdx, trk_ph2_simHitIdx, trk_pix_simHitIdx, verbose, matchfrac, pmatched);
   return matched_idxs;
 }
 
 //___________________________________________________________________________________________________________________________________________________________________________________________
 std::tuple<std::vector<int>, std::vector<float>> matchedSimTrkIdxsAndFracs(
-    std::vector<unsigned int> hitidxs,
-    std::vector<unsigned int> hittypes,
+    std::vector<unsigned int> const& hitidxs,
+    std::vector<lst::HitType> const& hittypes,
     std::vector<int> const& trk_simhit_simTrkIdx,
     std::vector<std::vector<int>> const& trk_ph2_simHitIdx,
     std::vector<std::vector<int>> const& trk_pix_simHitIdx,
@@ -364,7 +363,7 @@ std::tuple<std::vector<int>, std::vector<float>> matchedSimTrkIdxsAndFracs(
     std::cout << "hittypes.size(): " << hittypes.size() << std::endl;
   }
 
-  std::vector<std::pair<unsigned int, unsigned int>> to_check_duplicate;
+  std::vector<std::pair<unsigned int, lst::HitType>> to_check_duplicate;
   for (size_t i = 0; i < hitidxs.size(); ++i) {
     auto hitidx = hitidxs[i];
     auto hittype = hittypes[i];
@@ -389,12 +388,13 @@ std::tuple<std::vector<int>, std::vector<float>> matchedSimTrkIdxsAndFracs(
     auto&& [hitidx, hittype] = ihitdata;
 
     if (verbose) {
-      std::cout << " hitidx: " << hitidx << " hittype: " << hittype << std::endl;
+      std::cout << " hitidx: " << hitidx << " hittype: " << static_cast<int>(hittype) << std::endl;
     }
 
     std::vector<int> simtrk_idxs_per_hit;
 
-    const std::vector<std::vector<int>>* simHitIdxs = hittype == 4 ? &trk_ph2_simHitIdx : &trk_pix_simHitIdx;
+    const std::vector<std::vector<int>>* simHitIdxs =
+        hittype == lst::HitType::Phase2OT ? &trk_ph2_simHitIdx : &trk_pix_simHitIdx;
 
     if (verbose) {
       std::cout << " trk_ph2_simHitIdx.size(): " << trk_ph2_simHitIdx.size() << std::endl;
@@ -403,17 +403,17 @@ std::tuple<std::vector<int>, std::vector<float>> matchedSimTrkIdxsAndFracs(
 
     if (static_cast<const unsigned int>((*simHitIdxs).size()) <= hitidx) {
       std::cout << "ERROR" << std::endl;
-      std::cout << " hittype: " << hittype << std::endl;
+      std::cout << " hittype: " << static_cast<int>(hittype) << std::endl;
       std::cout << " trk_pix_simHitIdx.size(): " << trk_pix_simHitIdx.size() << std::endl;
       std::cout << " trk_ph2_simHitIdx.size(): " << trk_ph2_simHitIdx.size() << std::endl;
-      std::cout << (*simHitIdxs).size() << " " << hittype << std::endl;
-      std::cout << hitidx << " " << hittype << std::endl;
+      std::cout << (*simHitIdxs).size() << " " << static_cast<int>(hittype) << std::endl;
+      std::cout << hitidx << " " << static_cast<int>(hittype) << std::endl;
     }
 
     for (auto& simhit_idx : (*simHitIdxs).at(hitidx)) {
       if (static_cast<const int>(trk_simhit_simTrkIdx.size()) <= simhit_idx) {
-        std::cout << (*simHitIdxs).size() << " " << hittype << std::endl;
-        std::cout << hitidx << " " << hittype << std::endl;
+        std::cout << (*simHitIdxs).size() << " " << static_cast<int>(hittype) << std::endl;
+        std::cout << hitidx << " " << static_cast<int>(hittype) << std::endl;
         std::cout << trk_simhit_simTrkIdx.size() << " " << simhit_idx << std::endl;
       }
       int simtrk_idx = trk_simhit_simTrkIdx[simhit_idx];
@@ -588,7 +588,7 @@ int getDenomSimTrkType(int isimtrk,
 }
 
 //__________________________________________________________________________________________
-int getDenomSimTrkType(std::vector<int> simidxs,
+int getDenomSimTrkType(std::vector<int> const& simidxs,
                        std::vector<int> const& trk_sim_q,
                        std::vector<float> const& trk_sim_pt,
                        std::vector<float> const& trk_sim_eta,
