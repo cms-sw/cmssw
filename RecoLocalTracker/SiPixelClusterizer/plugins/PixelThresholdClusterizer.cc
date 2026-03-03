@@ -134,7 +134,8 @@ bool PixelThresholdClusterizer::setup(const PixelGeomDetUnit* pixDet) {
 //----------------------------------------------------------------------------
 void PixelThresholdClusterizer::clear_buffer(DigiIterator begin, DigiIterator end) {
   for (DigiIterator di = begin; di != end; ++di) {
-    theBuffer.set_adc(di->row(), di->column(), 0);  // reset pixel adc to 0
+    theBuffer.set_adc(di->row(), di->column(), 0);     // reset pixel adc to 0
+    theBuffer.set_rawADC(di->row(), di->column(), 0);  // reset pixel raw ADC to 0
   }
 }
 
@@ -143,7 +144,8 @@ void PixelThresholdClusterizer::clear_buffer(ClusterIterator begin, ClusterItera
     for (int i = 0; i < ci->size(); ++i) {
       const SiPixelCluster::Pixel pixel = ci->pixel(i);
 
-      theBuffer.set_adc(pixel.x, pixel.y, 0);  // reset pixel adc to 0
+      theBuffer.set_adc(pixel.x, pixel.y, 0);     // reset pixel adc to 0
+      theBuffer.set_rawADC(pixel.x, pixel.y, 0);  // reset pixel raw ADC to 0
     }
   }
 }
@@ -235,6 +237,7 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
       case 1:
         if (adc >= thePixelThreshold) {
           theBuffer.set_adc(row, col, adc);
+          theBuffer.set_rawADC(row, col, di->adc());
           // VV: add pixel to the fake list. Only when running on digi collection
           if (di->flag() != 0)
             theFakePixels[row * theNumOfCols + col] = true;
@@ -246,6 +249,7 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
       // the 2nd occurrence (duplicate pixel: reset the buffer to 0 and remove from the list of seed pixels)
       case 2:
         theBuffer.set_adc(row, col, 0);
+        theBuffer.set_rawADC(row, col, 0);
         auto last = std::remove(theSeeds.begin(), theSeeds.end(), SiPixelCluster::PixelPos(row, col));
         theSeeds.erase(last, theSeeds.end());
         break;
@@ -386,13 +390,14 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
   //       as it is later stored as uint16_t in SiPixelCluster and PixelClusterizerBase/AccretionCluster
   //       (reminder: ADC values here may be expressed in number of electrons)
   seed_adc = std::min(theBuffer(pix.row(), pix.col()), int(std::numeric_limits<uint16_t>::max()));
+  auto const seed_rawADC = theBuffer.rawADC(pix.row(), pix.col());
   theBuffer.set_adc(pix, 1);
   //  }
 
   AccretionCluster acluster, cldata;
-  acluster.add(pix, seed_adc);
+  acluster.add(pix, seed_adc, seed_rawADC);
   if (!theFakePixels[pix.row() * theNumOfCols + pix.col()]) {
-    cldata.add(pix, seed_adc);
+    cldata.add(pix, seed_adc, seed_rawADC);
   }
 
   //Here we search all pixels adjacent to all pixels in the cluster.
@@ -410,11 +415,12 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
         if (theBuffer(r, c) >= thePixelThreshold) {
           SiPixelCluster::PixelPos newpix(r, c);
           auto const newpix_adc = std::min(theBuffer(r, c), int(std::numeric_limits<uint16_t>::max()));
-          if (!acluster.add(newpix, newpix_adc))
+          auto const newpix_rawADC = theBuffer.rawADC(r, c);
+          if (!acluster.add(newpix, newpix_adc, newpix_rawADC))
             goto endClus;
           // VV: no fake pixels in cluster, leads to non-contiguous clusters
           if (!theFakePixels[r * theNumOfCols + c]) {
-            cldata.add(newpix, newpix_adc);
+            cldata.add(newpix, newpix_adc, newpix_rawADC);
           }
           theBuffer.set_adc(newpix, 1);
         }
@@ -447,7 +453,8 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
 
   }  // while accretion
 endClus:
-  SiPixelCluster cluster(cldata.isize, cldata.adc, cldata.x, cldata.y, cldata.xmin, cldata.ymin);
+  constexpr auto i = SiPixelCluster::invalidClusterId;
+  SiPixelCluster cluster(cldata.isize, cldata.adc, cldata.x, cldata.y, cldata.xmin, cldata.ymin, i, cldata.isSaturated);
   //Here we split the cluster, if the flag to do so is set and we have found a dead or noisy pixel.
 
   if (dead_flag && doSplitClusters) {
