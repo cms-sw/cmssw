@@ -33,8 +33,8 @@ process.l1ScoutingTestProducer = cms.EDProducer("TestWriteL1Scouting",
     bxSumsValues = cms.vint32(13),
     bmtfStubValues = cms.vint32(1, 2),
     caloTowerValues = cms.vint32(14, 15, 16, 17, 18),
-    fastJetFloatingPointValues = cms.vdouble(19., 20., 21.),
-    fastJetIntegralValues = cms.vint32(22, 23, 24)
+    caloJetFloatingPointValues = cms.vdouble(19., 20., 21.),
+    caloJetIntegralValues = cms.vint32(22, 23, 24)
 )
 
 process.out = cms.OutputModule("PoolOutputModule",

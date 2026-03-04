@@ -2,7 +2,7 @@
 #include "DataFormats/L1Scouting/interface/L1ScoutingMuon.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingCalo.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingCaloTower.h"
-#include "DataFormats/L1Scouting/interface/L1ScoutingFastJet.h"
+#include "DataFormats/L1Scouting/interface/L1ScoutingCaloJet.h"
 #include "DataFormats/L1Scouting/interface/OrbitCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
@@ -32,7 +32,7 @@ namespace edmtest {
     void analyzeBxSums(edm::Event const& iEvent) const;
     void analyzeBmtfStubs(edm::Event const& iEvent) const;
     void analyzeCaloTowers(edm::Event const& iEvent) const;
-    void analyzeFastJets(edm::Event const& iEvent) const;
+    void analyzeCaloJets(edm::Event const& iEvent) const;
 
     void throwWithMessageFromConstructor(const char*) const;
     void throwWithMessage(const char*) const;
@@ -62,10 +62,10 @@ namespace edmtest {
     const std::vector<int> expectedCaloTowerValues_;
     const edm::EDGetTokenT<OrbitCollection<l1ScoutingRun3::CaloTower>> caloTowersToken_;
 
-    const int fastJetClassVersion_;
-    const std::vector<double> expectedFastJetFloatingPointValues_;
-    const std::vector<int> expectedFastJetIntegralValues_;
-    const edm::EDGetTokenT<OrbitCollection<l1ScoutingRun3::FastJet>> fastJetsToken_;
+    const int caloJetClassVersion_;
+    const std::vector<double> expectedCaloJetFloatingPointValues_;
+    const std::vector<int> expectedCaloJetIntegralValues_;
+    const edm::EDGetTokenT<OrbitCollection<l1ScoutingRun3::CaloJet>> caloJetsToken_;
   };
 
   TestReadL1Scouting::TestReadL1Scouting(edm::ParameterSet const& iPSet)
@@ -86,11 +86,11 @@ namespace edmtest {
         caloTowerClassVersion_(iPSet.getParameter<int>("caloTowerClassVersion")),
         expectedCaloTowerValues_(iPSet.getParameter<std::vector<int>>("expectedCaloTowerValues")),
         caloTowersToken_(consumes(iPSet.getParameter<edm::InputTag>("caloTowersTag"))),
-        fastJetClassVersion_(iPSet.getParameter<int>("fastJetClassVersion")),
-        expectedFastJetFloatingPointValues_(
-            iPSet.getParameter<std::vector<double>>("expectedFastJetFloatingPointValues")),
-        expectedFastJetIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedFastJetIntegralValues")),
-        fastJetsToken_(consumes(iPSet.getParameter<edm::InputTag>("fastJetsTag"))) {
+        caloJetClassVersion_(iPSet.getParameter<int>("caloJetClassVersion")),
+        expectedCaloJetFloatingPointValues_(
+            iPSet.getParameter<std::vector<double>>("expectedCaloJetFloatingPointValues")),
+        expectedCaloJetIntegralValues_(iPSet.getParameter<std::vector<int>>("expectedCaloJetIntegralValues")),
+        caloJetsToken_(consumes(iPSet.getParameter<edm::InputTag>("caloJetsTag"))) {
     if (bxValues_.size() != 2) {
       throwWithMessageFromConstructor("bxValues must have 2 elements and it does not");
     }
@@ -115,11 +115,11 @@ namespace edmtest {
     if (expectedCaloTowerValues_.size() != 5) {
       throwWithMessageFromConstructor("expectedCaloTowerValues must have 5 elements and it does not");
     }
-    if (expectedFastJetFloatingPointValues_.size() != 3) {
-      throwWithMessageFromConstructor("expectedFastJetFloatingPointValues must have 3 elements and it does not");
+    if (expectedCaloJetFloatingPointValues_.size() != 3) {
+      throwWithMessageFromConstructor("expectedCaloJetFloatingPointValues must have 3 elements and it does not");
     }
-    if (expectedFastJetIntegralValues_.size() != 3) {
-      throwWithMessageFromConstructor("expectedFastJetIntegralValues must have 3 elements and it does not");
+    if (expectedCaloJetIntegralValues_.size() != 3) {
+      throwWithMessageFromConstructor("expectedCaloJetIntegralValues must have 3 elements and it does not");
     }
   }
 
@@ -131,7 +131,7 @@ namespace edmtest {
     analyzeBxSums(iEvent);
     analyzeBmtfStubs(iEvent);
     analyzeCaloTowers(iEvent);
-    analyzeFastJets(iEvent);
+    analyzeCaloJets(iEvent);
   }
 
   void TestReadL1Scouting::analyzeMuons(edm::Event const& iEvent) const {
@@ -427,43 +427,43 @@ namespace edmtest {
     }
   }
 
-  void TestReadL1Scouting::analyzeFastJets(edm::Event const& iEvent) const {
-    if (fastJetClassVersion_ < 3) {
+  void TestReadL1Scouting::analyzeCaloJets(edm::Event const& iEvent) const {
+    if (caloJetClassVersion_ < 3) {
       return;
     }
 
-    auto const& fastJetsCollection = iEvent.get(fastJetsToken_);
+    auto const& caloJetsCollection = iEvent.get(caloJetsToken_);
     for (auto bx_idx = 0u; bx_idx < bxValues_.size(); ++bx_idx) {
       auto const bx = bxValues_[bx_idx];
 
-      auto const nFastJets = fastJetsCollection.getBxSize(bx);
-      if (nFastJets != expectedFastJetFloatingPointValues_.size() or
-          nFastJets != expectedFastJetIntegralValues_.size()) {
-        throwWithMessage("analyzeFastJet, fastJets do not have the expected bx size");
+      auto const nCaloJets = caloJetsCollection.getBxSize(bx);
+      if (nCaloJets != expectedCaloJetFloatingPointValues_.size() or
+          nCaloJets != expectedCaloJetIntegralValues_.size()) {
+        throwWithMessage("analyzeCaloJets, caloJets do not have the expected bx size");
       }
 
-      auto const& fastJets = fastJetsCollection.bxIterator(bx);
+      auto const& caloJets = caloJetsCollection.bxIterator(bx);
       int const val_offset = iEvent.id().event() % 100 + bx_idx;
-      for (auto i = 0u; i < nFastJets; ++i) {
-        float val_flp = expectedFastJetFloatingPointValues_[i] + val_offset;
-        int val_int = expectedFastJetIntegralValues_[i] + val_offset;
-        if (fastJets[i].et() != val_flp++) {
-          throwWithMessage("analyzeFastJets, et() does not match the expected value");
+      for (auto i = 0u; i < nCaloJets; ++i) {
+        float val_flp = expectedCaloJetFloatingPointValues_[i] + val_offset;
+        int val_int = expectedCaloJetIntegralValues_[i] + val_offset;
+        if (caloJets[i].pt() != val_flp++) {
+          throwWithMessage("analyzeCaloJets, pt() does not match the expected value");
         }
-        if (fastJets[i].eta() != val_flp++) {
-          throwWithMessage("analyzeFastJets, eta() does not match the expected value");
+        if (caloJets[i].eta() != val_flp++) {
+          throwWithMessage("analyzeCaloJets, eta() does not match the expected value");
         }
-        if (fastJets[i].phi() != val_flp++) {
-          throwWithMessage("analyzeFastJets, phi() does not match the expected value");
+        if (caloJets[i].phi() != val_flp++) {
+          throwWithMessage("analyzeCaloJets, phi() does not match the expected value");
         }
-        if (fastJets[i].mass() != val_flp++) {
-          throwWithMessage("analyzeFastJets, mass() does not match the expected value");
+        if (caloJets[i].mass() != val_flp++) {
+          throwWithMessage("analyzeCaloJets, mass() does not match the expected value");
         }
-        if (fastJets[i].nConst() != val_int++) {
-          throwWithMessage("analyzeFastJets, nConst() does not match the expected value");
+        if (caloJets[i].energyCorr() != val_flp++) {
+          throwWithMessage("analyzeCaloJets, energyCorr() does not match the expected value");
         }
-        if (fastJets[i].area() != val_flp++) {
-          throwWithMessage("analyzeFastJets, area() does not match the expected value");
+        if (caloJets[i].nConst() != val_int++) {
+          throwWithMessage("analyzeCaloJets, nConst() does not match the expected value");
         }
       }
     }
@@ -488,10 +488,10 @@ namespace edmtest {
     desc.add<int>("caloTowerClassVersion");
     desc.add<std::vector<int>>("expectedCaloTowerValues");
     desc.add<edm::InputTag>("caloTowersTag");
-    desc.add<int>("fastJetClassVersion");
-    desc.add<std::vector<double>>("expectedFastJetFloatingPointValues");
-    desc.add<std::vector<int>>("expectedFastJetIntegralValues");
-    desc.add<edm::InputTag>("fastJetsTag");
+    desc.add<int>("caloJetClassVersion");
+    desc.add<std::vector<double>>("expectedCaloJetFloatingPointValues");
+    desc.add<std::vector<int>>("expectedCaloJetIntegralValues");
+    desc.add<edm::InputTag>("caloJetsTag");
 
     descriptions.addDefault(desc);
   }
