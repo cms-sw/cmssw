@@ -676,8 +676,8 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
    
   // Nominal L1TF: residual distributions
   iBooker.setCurrentFolder(topFolderName_ + "/Nominal_L1TF/Residual");
-  res_pt      = book1DFromPS(iBooker, "res_pt",    psRes_pt,    "p_{T} [GeV]",              "# tracking particles");
-  res_eta     = book1DFromPS(iBooker, "res_eta",   psRes_eta,   "#eta",                     "# tracking particles");
+  res_pt      = book1DFromPS(iBooker, "res_pt",    psRes_pt,    "trk p_{T} - tp p_{T} [GeV]",              "# tracking particles");
+  res_eta     = book1DFromPS(iBooker, "res_eta",   psRes_eta,   "trk #eta - tp #eta",                     "# tracking particles");
   res_ptRel   = book1DFromPS(iBooker, "res_ptRel", psRes_ptRel, "Relative p_{T} [GeV]",     "# tracking particles");
   d0_res_hist = book1DFromPS(iBooker, "res_d0",    psRes_d0,    "trk d_{0} - tp d_{0} [cm]","# tracking particles");
    
