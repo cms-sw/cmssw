@@ -47,6 +47,7 @@ process.caloStage2Digis = caloStage2Digis
 
 process.p = cms.Path(
     process.offlineSlimmedPrimaryVertices +
+    process.scoutingTracks +
     process.packedPFCandidates +
     process.offlineBeamSpot +
     process.slimmedMuons +
@@ -54,7 +55,6 @@ process.p = cms.Path(
     process.slimmedPhotons +
     process.slimmedJets +
     process.slimmedMETs +
-    process.scoutingTracks +
     process.fixedGridRhoFastjetAll +
     process.gtStage2Digis +
     process.gmtStage2Digis +
