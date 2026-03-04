@@ -124,7 +124,7 @@ void MkFitFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm:
   if (algoCandCutSelection_) {
     mkfit::TrackVec reducedInput;
     for (auto const& t : intracks) {
-      if (!(t.pT() < algoCandMinPtCut_ || t.nTotalHits() < algoCandMinPtCut_))
+      if (!(t.pT() < algoCandMinPtCut_ || t.nTotalHits() < algoCandMinNHitsCut_))
         reducedInput.push_back(t);
     }
     intracks.swap(reducedInput);

@@ -177,7 +177,10 @@ namespace mkfit {
       for (int i = 0; i < (int)r2z.size(); i++) {
         float r2 = r2z[i].first > 0 ? r2z[i].first : -r2z[i].first;
         float z = r2z[i].second - z_minR;
-        //        std::cout << "SORTING by 3dR" << "R2 " << r2z[i].first << " z " << r2z[i].second << " z0 " << z_minR << " check "<< -r2 - z*z <<std::endl;
+#ifdef DEBUG_FIT
+        std::cout << "SORTING by 3dR" << "R2 " << r2z[i].first << " z " << r2z[i].second << " z0 " << z_minR
+                  << " check " << -r2 - z * z << std::endl;
+#endif
         index_RorZ[-r2 - z * z].push_back(indices[i]);
       }
       for (const auto &iRZ : index_RorZ)  //one segment
@@ -192,9 +195,6 @@ namespace mkfit {
         for (auto ii : sorted_indices) {
           std::cout << " indices ssii " << ii << std::endl;
         }
-        //         for (int i = 0; i < (int)indices.size(); i++) {
-        //           std::cout << "R2 " << r2z[i].first << " z " << r2z[i].second << " z0 " << z0 << std::endl;
-        //         }
       }
 #ifdef DEBUG_FIT
       std::cout << " check_size " << (indices.size() == sorted_indices.size()) << std::endl;
