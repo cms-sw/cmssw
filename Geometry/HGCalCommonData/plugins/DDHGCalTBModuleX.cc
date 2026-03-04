@@ -284,9 +284,14 @@ void DDHGCalTBModuleX::constructLayers(int block,
 
   if (fabs(thickTot - totalWidth) < tolerance_) {
   } else if (thickTot > totalWidth) {
-    edm::LogError("HGCalGeom") << "DDHGCalTBModuleX::Thickness of the partition " << totalWidth << " is smaller than " << thickTot << ": total thickness of all its components in " << module.name() << " Layers " << firstLayer << ":" << lastLayer << ":" << ignoreCenter << "**** ERROR ****";
+    edm::LogError("HGCalGeom") << "DDHGCalTBModuleX::Thickness of the partition " << totalWidth << " is smaller than "
+                               << thickTot << ": total thickness of all its components in " << module.name()
+                               << " Layers " << firstLayer << ":" << lastLayer << ":" << ignoreCenter
+                               << "**** ERROR ****";
   } else if (thickTot < totalWidth) {
-    edm::LogWarning("HGCalGeom") << "DDHGCalTBModuleX::Thickness of the partition " << totalWidth << " does not match with " << thickTot << " of the components in " << module.name() << " Layers " << firstLayer << ":" << lastLayer << ":" << ignoreCenter;
+    edm::LogWarning("HGCalGeom") << "DDHGCalTBModuleX::Thickness of the partition " << totalWidth
+                                 << " does not match with " << thickTot << " of the components in " << module.name()
+                                 << " Layers " << firstLayer << ":" << lastLayer << ":" << ignoreCenter;
   }
 }
 

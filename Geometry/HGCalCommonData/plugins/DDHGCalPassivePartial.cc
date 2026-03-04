@@ -173,9 +173,12 @@ void DDHGCalPassivePartial::execute(DDCompactView& cpv) {
       }
       if ((std::abs(thickTot - thick_) >= tol) && (!layerType_.empty())) {
         if (thickTot > thick_) {
-          edm::LogError("HGCalGeom") << "DDHGCalPassivePartial::Thickness of the partition " << thick_ << " is smaller than " << thickTot << ": thickness of all its components **** ERROR ****";
+          edm::LogError("HGCalGeom") << "DDHGCalPassivePartial::Thickness of the partition " << thick_
+                                     << " is smaller than " << thickTot
+                                     << ": thickness of all its components **** ERROR ****";
         } else {
-          edm::LogWarning("HGCalGeom") << "DDHGCalPassivePartial::Thickness of the partition " << thick_ << " does not match with " << thickTot << " of the components";
+          edm::LogWarning("HGCalGeom") << "DDHGCalPassivePartial::Thickness of the partition " << thick_
+                                       << " does not match with " << thickTot << " of the components";
         }
       }
     }
