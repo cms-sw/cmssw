@@ -36,6 +36,7 @@
 #include <typeinfo>
 #include <vector>
 #include <functional>
+#include <optional>
 
 // forward declarations
 class TTreeCache;
