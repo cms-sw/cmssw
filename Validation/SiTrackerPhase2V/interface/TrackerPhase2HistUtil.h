@@ -23,19 +23,6 @@
 
 namespace phase2tkutil {
 
-  inline void makeEfficiencyME(TH1* numerator,
-                               TH1* denominator,
-                               dqm::legacy::MonitorElement* me,
-                               const std::string& xAxisTitle) {
-    TH1* efficiency = me->getTH1();
-    efficiency->Divide(numerator, denominator, 1., 1., "B");
-    efficiency->SetMinimum(0.0);
-    efficiency->SetMaximum(1.1);
-    efficiency->SetStats(false);
-    efficiency->GetXaxis()->SetTitle(xAxisTitle.c_str());
-    efficiency->GetYaxis()->SetTitle("Efficiency");
-  }
-
   inline void fillResolutionFromVec(const std::vector<dqm::legacy::MonitorElement*>& srcVec,
                                     dqm::legacy::MonitorElement* destME,
                                     const std::string& yAxisTitle) {
@@ -50,7 +37,9 @@ namespace phase2tkutil {
     TH1* hDest = destME->getTH1();
     hDest->SetMinimum(0.0);
     hDest->SetStats(false);
-    hDest->GetYaxis()->SetTitle(yAxisTitle.c_str());
+    if (!yAxisTitle.empty()) {
+      hDest->GetYaxis()->SetTitle(yAxisTitle.c_str());
+    }
 
     for (size_t i = 0; i < srcVec.size(); ++i) {
         TH1* hSrc = srcVec[i]->getTH1();
