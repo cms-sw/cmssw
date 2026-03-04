@@ -25,7 +25,6 @@
 #include "FWCore/Utilities/interface/InputType.h"
 
 #include <set>
-#include <iostream>
 
 namespace edm {
 
@@ -97,8 +96,6 @@ namespace edm {
       throw Exception(errors::Configuration, "PoolSource") << "'secondaryFileNames' must be specified\n";
     }
     if (secondaryFileSequence_) {
-      std::cout << "PoolSource: Secondary input files are specified. Will replace branches from the secondary file if "
-                   "they are present in the primary file.\n";
       secondaryEventPrincipals_.reserve(nStreams_);
       for (unsigned int index = 0; index < nStreams_; ++index) {
         secondaryEventPrincipals_.emplace_back(new EventPrincipal(secondaryFileSequence_->fileProductRegistry(),
@@ -114,7 +111,6 @@ namespace edm {
       //this is the registry used by the 'outside' world and only has the primary file information in it at present
       ProductRegistry::ProductList& fullList = productRegistryUpdate().productListUpdator();
       for (auto const& item : secondary) {
-        std::cout << "PoolSource: Checking " << item.first << " in the secondary file\n";
         if (item.second.present()) {
           idsToReplace[item.second.branchType()].insert(item.second.branchID());
           //now make sure this is marked as not dropped else the product will not be 'get'table from the Event
@@ -125,8 +121,6 @@ namespace edm {
               itFound->second.initFromDictionary();
             }
             itFound->second.setDropped(false);
-            std::cout << "PoolSource: Adding " << item.first
-                      << " to the list of branches to replace from the secondary file\n";
           }
         }
       }
