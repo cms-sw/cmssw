@@ -13,7 +13,10 @@ offlineSlimmedPrimaryVertices = cms.EDProducer("Run3ScoutingVertexToRecoVertexPr
 packedPFCandidates = cms.EDProducer("Run3ScoutingParticleToPackedCandidateProducer",
     src=cms.InputTag("hltScoutingPFPacker"),
     vertices=cms.InputTag("offlineSlimmedPrimaryVertices"),
-    CHS=cms.bool(False)
+    tracks=cms.InputTag("scoutingTracks"),
+    CHS=cms.bool(False),
+    covarianceVersion=cms.int32(1),
+    covarianceSchema=cms.int32(520)
 )
 
 
@@ -38,7 +41,8 @@ slimmedPhotons = cms.EDProducer("PatFromScoutingPhotonProducer",
 
 # Jets - standard MiniAOD name
 slimmedJets = cms.EDProducer("PatFromScoutingJetProducer",
-    src=cms.InputTag("hltScoutingPFPacker")
+    src=cms.InputTag("hltScoutingPFPacker"),
+    pfCandidates=cms.InputTag("packedPFCandidates")
 )
 
 # MET - standard MiniAOD name
@@ -158,7 +162,8 @@ def customiseScoutingToMiniAOD(process):
             outputModule = getattr(process, name)
             outputModule.outputCommands.extend([
                 # Keep scouting-specific collections
-                'keep *_scoutingTracks_*_*',
+                'keep recoTracks_scoutingTracks__*',
+                'keep *_scoutingTracks_vertexIndex_*',
                 'keep *_gtStage2Digis_*_*',
                 'keep *_gmtStage2Digis_*_*',
                 'keep *_caloStage2Digis_*_*',

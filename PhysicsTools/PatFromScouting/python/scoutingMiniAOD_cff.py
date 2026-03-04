@@ -77,7 +77,8 @@ slimmedPhotons = cms.EDProducer("PatFromScoutingPhotonProducer",
 # ============================================================
 
 slimmedJets = cms.EDProducer("PatFromScoutingJetProducer",
-    src = cms.InputTag("hltScoutingPFPacker")
+    src = cms.InputTag("hltScoutingPFPacker"),
+    pfCandidates = cms.InputTag("packedPFCandidates")
 )
 
 # ============================================================
