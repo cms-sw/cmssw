@@ -636,8 +636,8 @@ eras = ['B','C','D']
 addFixedEventsTestingWfs(['2023'], pds, eras)
 
 ## 2022
-pds  = ['ZeroBias', 'JetHT', 'Tau', 'BTagMu']
-eras = ['B','C','D','E']
+pds  = ['JetHT', 'Tau', 'BTagMu']
+eras = ['C','D','E']
 addFixedEventsTestingWfs(['2022'], pds, eras)
 
 ######################################################################################################################################

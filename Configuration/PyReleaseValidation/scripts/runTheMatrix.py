@@ -113,7 +113,7 @@ if __name__ == '__main__':
             139.001,    # Run2021  MinimumBias                  Commissioning2021
 
             # 2022
-            2022.0030001,     # Run2022C JetHT
+            2022.0010001,     # Run2022C JetHT
 
             # 2023
             2023.0020001,     # Run2023D JetMET0
