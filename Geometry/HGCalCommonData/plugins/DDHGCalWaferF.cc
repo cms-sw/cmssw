@@ -230,11 +230,9 @@ void DDHGCalWaferF::execute(DDCompactView& cpv) {
 #endif
   if (std::abs(thickTot - thick_) >= tol) {
     if (thickTot > thick_) {
-      edm::LogError("HGCalGeom") << "Thickness of the partition " << thick_ << " is smaller than " << thickTot
-                                 << ": thickness of all its components **** ERROR ****";
+      edm::LogError("HGCalGeom") << "DDHGCalWaferF::Thickness of the partition " << thick_ << " is smaller than " << thickTot << ": thickness of all its components **** ERROR ****";
     } else {
-      edm::LogWarning("HGCalGeom") << "Thickness of the partition " << thick_ << " does not match with " << thickTot
-                                   << " of the components";
+      edm::LogWarning("HGCalGeom") << "DDHGCalWaferF::Thickness of the partition " << thick_ << " does not match with " << thickTot << " of the components";
     }
   }
 }

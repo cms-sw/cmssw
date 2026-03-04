@@ -233,11 +233,9 @@ void DDHGCalModule::constructLayers(const DDLogicalPart& module, DDCompactView& 
     laymin = laymax;
     if (fabs(thickTot - layerThick_[i]) > tol_) {
       if (thickTot > layerThick_[i]) {
-        edm::LogError("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " is smaller than thickness "
-                                   << thickTot << " of all its components **** ERROR ****\n";
+        edm::LogError("HGCalGeom") << "DDHGCalModule::Thickness of the partition " << layerThick_[i] << " is smaller than thickness " << thickTot << " of all its components **** ERROR ****\n";
       } else {
-        edm::LogWarning("HGCalGeom") << "Thickness of the partition " << layerThick_[i] << " does not match with "
-                                     << thickTot << " of the components\n";
+        edm::LogWarning("HGCalGeom") << "DDHGCalModule::Thickness of the partition " << layerThick_[i] << " does not match with " << thickTot << " of the components\n";
       }
     }
   }  // End of loop over blocks
