@@ -1,13 +1,12 @@
 <lcgdict>
-<class name="DTDigi" ClassVersion="11">
- <version ClassVersion="11" checksum="1984707097"/>
- <version ClassVersion="10" checksum="942813146"/>
+<class name="io_v1::DTDigi" ClassVersion="3">
+ <version ClassVersion="3" checksum="2407977881"/>
 </class>
-<class name="std::vector<DTDigi>"/>
-<class name="std::map<DTLayerId,std::vector<DTDigi> >"/>
-<class name="std::pair<DTLayerId,std::vector<DTDigi> >"/>
-<class name="MuonDigiCollection<DTLayerId,DTDigi>"/> 
-<class name="edm::Wrapper<MuonDigiCollection<DTLayerId,DTDigi>>" splitLevel="0"/> 
+<class name="std::vector<io_v1::DTDigi>"/>
+<class name="std::map<DTLayerId,std::vector<io_v1::DTDigi> >"/>
+<class name="std::pair<DTLayerId,std::vector<io_v1::DTDigi> >"/>
+<class name="MuonDigiCollection<DTLayerId,io_v1::DTDigi>"/> 
+<class name="edm::Wrapper<MuonDigiCollection<DTLayerId,io_v1::DTDigi>>" splitLevel="0"/> 
 
 <class name="DTLocalTrigger" ClassVersion="10">
  <version ClassVersion="10" checksum="3765470897"/>
@@ -22,11 +21,11 @@
  <version ClassVersion="3" checksum="3011150516"/>
 </class>
 
-<class name="DTuROSFEDData" ClassVersion="3">
- <version ClassVersion="3" checksum="3629689818"/>
+<class name="io_v1::DTuROSFEDData" ClassVersion="3">
+ <version ClassVersion="3" checksum="882877530"/>
 </class>
-<class name="std::vector<DTuROSFEDData>"/>
-<class name="edm::Wrapper<std::vector<DTuROSFEDData>>" splitLevel="0"/>
+<class name="std::vector<io_v1::DTuROSFEDData>"/>
+<class name="edm::Wrapper<std::vector<io_v1::DTuROSFEDData>>" splitLevel="0"/>
 
 <class name="DTDDUData" ClassVersion="10">
  <version ClassVersion="10" checksum="3247221019"/>
