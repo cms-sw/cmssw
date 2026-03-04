@@ -51,12 +51,9 @@ private:
 
 Run3ScoutingParticleToPackedCandidateProducer::Run3ScoutingParticleToPackedCandidateProducer(
     const edm::ParameterSet& iConfig)
-    : particleToken_(consumes<std::vector<Run3ScoutingParticle>>(
-          iConfig.getParameter<edm::InputTag>("src"))),
-      vertexToken_(consumes<reco::VertexCollection>(
-          iConfig.getParameter<edm::InputTag>("vertices"))),
-      trackToken_(consumes<reco::TrackCollection>(
-          iConfig.getParameter<edm::InputTag>("tracks"))),
+    : particleToken_(consumes<std::vector<Run3ScoutingParticle>>(iConfig.getParameter<edm::InputTag>("src"))),
+      vertexToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
+      trackToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))),
       pdtToken_(esConsumes<HepPDT::ParticleDataTable, edm::DefaultRecord>()),
       useCHS_(iConfig.getParameter<bool>("CHS")),
       covarianceVersion_(iConfig.getParameter<int>("covarianceVersion")),
@@ -64,8 +61,7 @@ Run3ScoutingParticleToPackedCandidateProducer::Run3ScoutingParticleToPackedCandi
   produces<pat::PackedCandidateCollection>();
 }
 
-void Run3ScoutingParticleToPackedCandidateProducer::produce(edm::Event& iEvent,
-                                                            const edm::EventSetup& iSetup) {
+void Run3ScoutingParticleToPackedCandidateProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto output = std::make_unique<pat::PackedCandidateCollection>();
 
   const auto& pdt = iSetup.getData(pdtToken_);
@@ -123,11 +119,7 @@ void Run3ScoutingParticleToPackedCandidateProducer::produce(edm::Event& iEvent,
     float sinPhi = std::sin(phi);
     float cosPhi = std::cos(phi);
 
-    math::XYZPoint vtxPos(
-        pvPos.X() - dxy * sinPhi,
-        pvPos.Y() + dxy * cosPhi,
-        pvPos.Z() + dz
-    );
+    math::XYZPoint vtxPos(pvPos.X() - dxy * sinPhi, pvPos.Y() + dxy * cosPhi, pvPos.Z() + dz);
 
     pat::PackedCandidate cand(p4, vtxPos, trkPt, trkEta, trkPhi, particle.pdgId(), vertexRefProd, pvKey);
 
@@ -188,8 +180,7 @@ void Run3ScoutingParticleToPackedCandidateProducer::produce(edm::Event& iEvent,
   iEvent.put(std::move(output));
 }
 
-void Run3ScoutingParticleToPackedCandidateProducer::fillDescriptions(
-    edm::ConfigurationDescriptions& descriptions) {
+void Run3ScoutingParticleToPackedCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("hltScoutingPFPacker"))
       ->setComment("Input scouting particle collection");

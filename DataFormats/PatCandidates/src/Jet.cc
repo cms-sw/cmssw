@@ -79,10 +79,9 @@ Jet::Jet(const Run3ScoutingPFJet& sJet)
   pfSpecific.mChargedMuEnergy = sJet.muonEnergy();
   pfSpecific.mNeutralEmEnergy = sJet.photonEnergy() + sJet.HFEMEnergy();
 
-  int chargedMultiplicity =
-      sJet.chargedHadronMultiplicity() + sJet.electronMultiplicity() + sJet.muonMultiplicity();
-  int neutralMultiplicity =
-      sJet.neutralHadronMultiplicity() + sJet.photonMultiplicity() + sJet.HFHadronMultiplicity() + sJet.HFEMMultiplicity();
+  int chargedMultiplicity = sJet.chargedHadronMultiplicity() + sJet.electronMultiplicity() + sJet.muonMultiplicity();
+  int neutralMultiplicity = sJet.neutralHadronMultiplicity() + sJet.photonMultiplicity() + sJet.HFHadronMultiplicity() +
+                            sJet.HFEMMultiplicity();
 
   pfSpecific.mChargedMultiplicity = chargedMultiplicity;
   pfSpecific.mNeutralMultiplicity = neutralMultiplicity;

@@ -56,59 +56,57 @@ reco::Track pat::makeRecoTrack(const Run3ScoutingMuon& sMuon) {
 }
 
 Run3ScoutingTrack pat::makeScoutingTrack(const reco::Track& trk) {
-  return Run3ScoutingTrack(
-			   reduce_precision(trk.pt()),
-			   reduce_precision(trk.eta()),
-			   reduce_precision(trk.phi()),
-			   reduce_precision(trk.chi2()),
-			   trk.ndof(),
-			   trk.charge(),
-			   reduce_precision(trk.dxy()),
-			   reduce_precision(trk.dz()),
-			   trk.hitPattern().numberOfValidPixelHits(),
-			   trk.hitPattern().trackerLayersWithMeasurement(),
-			   trk.hitPattern().numberOfValidStripHits(),
-			   reduce_precision(trk.qoverp()),
-			   reduce_precision(trk.lambda()),
-			   reduce_precision(trk.dxyError()),
-			   reduce_precision(trk.dzError()),
-			   reduce_precision(trk.qoverpError()),
-			   reduce_precision(trk.lambdaError()),
-			   reduce_precision(trk.phiError()),
-			   reduce_precision(trk.dsz()),
-			   reduce_precision(trk.dszError()),
-			   reduce_precision(trk.covariance(0, 1)),
-			   reduce_precision(trk.covariance(0, 2)),
-			   reduce_precision(trk.covariance(0, 3)),
-			   reduce_precision(trk.covariance(0, 4)),
-			   reduce_precision(trk.covariance(1, 2)),
-			   reduce_precision(trk.covariance(1, 3)),
-			   reduce_precision(trk.covariance(1, 4)),
-			   reduce_precision(trk.covariance(2, 3)),
-			   reduce_precision(trk.covariance(2, 4)),
-			   reduce_precision(trk.covariance(3, 4)),
-			   0,
-			   reduce_precision(trk.vx()),
-			   reduce_precision(trk.vy()),
-			   reduce_precision(trk.vz())
-			   );
+  return Run3ScoutingTrack(reduce_precision(trk.pt()),
+                           reduce_precision(trk.eta()),
+                           reduce_precision(trk.phi()),
+                           reduce_precision(trk.chi2()),
+                           trk.ndof(),
+                           trk.charge(),
+                           reduce_precision(trk.dxy()),
+                           reduce_precision(trk.dz()),
+                           trk.hitPattern().numberOfValidPixelHits(),
+                           trk.hitPattern().trackerLayersWithMeasurement(),
+                           trk.hitPattern().numberOfValidStripHits(),
+                           reduce_precision(trk.qoverp()),
+                           reduce_precision(trk.lambda()),
+                           reduce_precision(trk.dxyError()),
+                           reduce_precision(trk.dzError()),
+                           reduce_precision(trk.qoverpError()),
+                           reduce_precision(trk.lambdaError()),
+                           reduce_precision(trk.phiError()),
+                           reduce_precision(trk.dsz()),
+                           reduce_precision(trk.dszError()),
+                           reduce_precision(trk.covariance(0, 1)),
+                           reduce_precision(trk.covariance(0, 2)),
+                           reduce_precision(trk.covariance(0, 3)),
+                           reduce_precision(trk.covariance(0, 4)),
+                           reduce_precision(trk.covariance(1, 2)),
+                           reduce_precision(trk.covariance(1, 3)),
+                           reduce_precision(trk.covariance(1, 4)),
+                           reduce_precision(trk.covariance(2, 3)),
+                           reduce_precision(trk.covariance(2, 4)),
+                           reduce_precision(trk.covariance(3, 4)),
+                           0,
+                           reduce_precision(trk.vx()),
+                           reduce_precision(trk.vy()),
+                           reduce_precision(trk.vz()));
 }
 
 pat::Muon pat::makePatMuon(const Run3ScoutingMuon& sMuon) {
   reco::Candidate::PolarLorentzVector p4(sMuon.pt(), sMuon.eta(), sMuon.phi(), sMuon.m());
 
   auto track = makeRecoTrack(sMuon);
-  
+
   pat::Muon muon(reco::Muon(track.charge(), reco::Candidate::LorentzVector(p4), track.vertex()));
 
   muon.setType(sMuon.type());
-  
+
   std::vector<reco::Track> tracks;
   tracks.push_back(track);
   muon.setGlobalTrack(reco::TrackRef(&tracks, 0));
   muon.embedCombinedMuon();
   muon.setBestTrack(reco::Muon::CombinedTrack);
-  
+
   return muon;
 }
 
@@ -121,10 +119,12 @@ reco::Vertex pat::makeRecoVertex(const Run3ScoutingVertex& sVertex) {
   err(0, 2) = sVertex.xzCov();
   err(1, 2) = sVertex.yzCov();
   return reco::Vertex(reco::Vertex::Point(sVertex.x(), sVertex.y(), sVertex.z()),
-		      err, sVertex.chi2(), sVertex.ndof(), sVertex.tracksSize());
+                      err,
+                      sVertex.chi2(),
+                      sVertex.ndof(),
+                      sVertex.tracksSize());
 }
 
-pat::PolarLorentzVector
-pat::makePolarLorentzVector(const Run3ScoutingTrack& trk, float mass) {
+pat::PolarLorentzVector pat::makePolarLorentzVector(const Run3ScoutingTrack& trk, float mass) {
   return PolarLorentzVector(trk.tk_pt(), trk.tk_eta(), trk.tk_phi(), mass);
 }

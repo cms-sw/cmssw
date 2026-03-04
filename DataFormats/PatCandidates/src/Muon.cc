@@ -726,21 +726,13 @@ int Muon::numberOfStandAloneMuonMatchedStations() const {
   return 0;
 }
 
-int Muon::numberOfValidPixelHits() const {
-  return trkHitPattern().numberOfValidPixelHits();
-}
+int Muon::numberOfValidPixelHits() const { return trkHitPattern().numberOfValidPixelHits(); }
 
-int Muon::numberOfValidStripHits() const {
-  return trkHitPattern().numberOfValidStripHits();
-}
+int Muon::numberOfValidStripHits() const { return trkHitPattern().numberOfValidStripHits(); }
 
-int Muon::numberOfPixelLayersWithMeasurement() const {
-  return trkHitPattern().pixelLayersWithMeasurement();
-}
+int Muon::numberOfPixelLayersWithMeasurement() const { return trkHitPattern().pixelLayersWithMeasurement(); }
 
-int Muon::numberOfTrackerLayersWithMeasurement() const {
-  return trkHitPattern().trackerLayersWithMeasurement();
-}
+int Muon::numberOfTrackerLayersWithMeasurement() const { return trkHitPattern().trackerLayersWithMeasurement(); }
 
 reco::HitPattern const& Muon::trkHitPattern() const {
   if (isScoutingMuon()) {

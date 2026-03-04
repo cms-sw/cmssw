@@ -11,7 +11,7 @@
 namespace pat {
   typedef reco::Candidate::LorentzVector LorentzVector;
   typedef reco::Candidate::PolarLorentzVector PolarLorentzVector;
-  
+
   // Tracks
   reco::Track makeRecoTrack(const Run3ScoutingTrack&);
   reco::Track makeRecoTrack(const Run3ScoutingMuon&);
@@ -23,6 +23,6 @@ namespace pat {
 
   // Vertex
   reco::Vertex makeRecoVertex(const Run3ScoutingVertex&);
-}
+}  // namespace pat
 
 #endif

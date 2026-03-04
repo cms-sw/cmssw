@@ -114,7 +114,8 @@ TEST_CASE("Standard checks of Run3ScoutingMETProducer", s_tag) {
       R"_(from FWCore.TestProcessor.TestProcess import *
 process = TestProcess()
 process.toTest = cms.EDProducer("Run3ScoutingMETProducer",
-    src = cms.InputTag("hltScoutingPFPacker")
+    metPt = cms.InputTag("hltScoutingPFPacker", "pfMetPt"),
+    metPhi = cms.InputTag("hltScoutingPFPacker", "pfMetPhi")
 )
 process.moduleToTest(process.toTest)
 )_"};
