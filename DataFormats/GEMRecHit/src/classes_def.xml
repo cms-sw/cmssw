@@ -2,7 +2,7 @@
 <selection>
 
   <class name="io_v1::GEMRecHit" splitLevel="0" ClassVersion="3">
-  <version ClassVersion="3" checksum="4164786089"/>
+  <version ClassVersion="3" checksum="2358222785"/>
   </class>
   <class name="std::vector<io_v1::GEMRecHit>" splitLevel="0"/>
   <class name="std::vector<io_v1::GEMRecHit*>" splitLevel="0"/>

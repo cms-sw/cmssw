@@ -1,59 +1,41 @@
 <lcgdict>
-  <class name="DTChamberId" ClassVersion="11">
-   <version ClassVersion="11" checksum="1427930561"/>
-   <version ClassVersion="10" checksum="1566132205"/>
+  <class name="io_v1::DTChamberId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1257923137"/>
   </class>
-  <class name="DTSuperLayerId" ClassVersion="12">
-   <version ClassVersion="12" checksum="4252195609"/>
-   <version ClassVersion="11" checksum="95429957"/>
-   <version ClassVersion="10" checksum="2373077448"/>
+  <class name="DTSuperLayerId" ClassVersion="3">
+   <version ClassVersion="3" checksum="3470745491"/>
   </class>
-  <class name="DTLayerId" ClassVersion="12">
-   <version ClassVersion="12" checksum="2452289092"/>
-   <version ClassVersion="11" checksum="2590490736"/>
-   <version ClassVersion="10" checksum="3694998457"/>
+  <class name="io_v1::DTLayerId" ClassVersion="3">
+   <version ClassVersion="3" checksum="3526757438"/>
   </class>
-  <class name="DTWireId" ClassVersion="12">
-   <version ClassVersion="12" checksum="3971842612"/>
-   <version ClassVersion="11" checksum="4110044256"/>
-    <version ClassVersion="10" checksum="506517840"/>
+  <class name="DTWireId" ClassVersion="3">
+   <version ClassVersion="3" checksum="246044974"/>
   </class>
-  <class name="CSCDetId" ClassVersion="11">
-   <version ClassVersion="11" checksum="1194325071"/>
-   <version ClassVersion="10" checksum="56607943"/>
+  <class name="io_v1::CSCDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1824319951"/>
   </class>
-  <class name="RPCDetId" ClassVersion="11">
-   <version ClassVersion="11" checksum="2362875019"/>
-   <version ClassVersion="10" checksum="3608243239"/>
+  <class name="io_v1::RPCDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="4000743947"/>
   </class>
-  <class name="RPCCompDetId" ClassVersion="10">
-   <version ClassVersion="10" checksum="2407084845"/>
+  <class name="RPCCompDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="2407084845"/>
   </class>
-  <class name="DTBtiId" ClassVersion="10">
-   <version ClassVersion="10" checksum="3911181252"/>
+  <class name="DTBtiId" ClassVersion="3">
+   <version ClassVersion="3" checksum="3911181252"/>
   </class>
-  <class name="DTTracoId" ClassVersion="10">
-   <version ClassVersion="10" checksum="917766974"/>
+  <class name="DTTracoId" ClassVersion="3">
+   <version ClassVersion="3" checksum="726903022"/>
   </class>
-  <class name="DTSectCollId" ClassVersion="10">
-   <version ClassVersion="10" checksum="1624682691"/>
+  <class name="DTSectCollId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1624682691"/>
   </class>
-  <class name="GEMDetId" ClassVersion="12">
-   <version ClassVersion="12" checksum="1195033659"/>
-   <version ClassVersion="11" checksum="2300896813"/>
-   <version ClassVersion="10" checksum="3587583837"/>
-   <ioread sourceClass = "GEMDetId" version="[-11]" targetClass="GEMDetId" source="" target="">
-    <![CDATA[
-      GEMDetId tmp(GEMDetId::v12Form(newObj->rawId()));
-      *newObj=tmp;
-    ]]>
-   </ioread>
+  <class name="io_v1::GEMDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1825028539"/>
   </class>
   <class name="GEMSubDetId" ClassVersion="3">
     <version ClassVersion="3" checksum="6356029"/>
   </class>
-  <class name="ME0DetId" ClassVersion="11">
-   <version ClassVersion="11" checksum="1292662416"/>
-   <version ClassVersion="10" checksum="388194174"/>
+  <class name="ME0DetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1292662416"/>
   </class>
 </lcgdict>

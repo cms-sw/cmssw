@@ -45,8 +45,10 @@ void DTChamberId::checkMuonId() {
   }
 }
 
-std::ostream& operator<<(std::ostream& os, const DTChamberId& id) {
-  os << " Wh:" << id.wheel() << " St:" << id.station() << " Se:" << id.sector() << " ";
+namespace io_v1 {
+  std::ostream& operator<<(std::ostream& os, const DTChamberId& id) {
+    os << " Wh:" << id.wheel() << " St:" << id.station() << " Se:" << id.sector() << " ";
 
-  return os;
-}
+    return os;
+  }
+}  // namespace io_v1

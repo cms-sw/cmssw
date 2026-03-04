@@ -9,45 +9,47 @@
 
 #include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
 
-class DTLayerId : public DTSuperLayerId {
-public:
-  /// Default constructor.
-  /// Fills the common part in the base and leaves 0 in all other fields
-  DTLayerId();
+namespace io_v1 {
+  class DTLayerId : public DTSuperLayerId {
+  public:
+    /// Default constructor.
+    /// Fills the common part in the base and leaves 0 in all other fields
+    DTLayerId();
 
-  /// Construct from a packed id.
-  /// It is required that the packed id represents a valid DT DetId
-  /// (proper Detector and  SubDet fields), otherwise an exception is thrown.
-  /// Any bits outside the DTLayerId fields are zeroed; apart for
-  /// this, no check is done on the vaildity of the values.
-  explicit DTLayerId(uint32_t id);
+    /// Construct from a packed id.
+    /// It is required that the packed id represents a valid DT DetId
+    /// (proper Detector and  SubDet fields), otherwise an exception is thrown.
+    /// Any bits outside the DTLayerId fields are zeroed; apart for
+    /// this, no check is done on the vaildity of the values.
+    explicit DTLayerId(uint32_t id);
 
-  /// Construct from indexes.
-  /// Input values are required to be within legal ranges, otherwise an
-  /// exception is thrown.
-  DTLayerId(int wheel, int station, int sector, int superlayer, int layer);
+    /// Construct from indexes.
+    /// Input values are required to be within legal ranges, otherwise an
+    /// exception is thrown.
+    DTLayerId(int wheel, int station, int sector, int superlayer, int layer);
 
-  /// Copy Constructor.
-  /// Any bits outside the DTLayerId fields are zeroed; apart for
-  /// this, no check is done on the vaildity of the values.
-  DTLayerId(const DTLayerId& layerId);
+    /// Copy Constructor.
+    /// Any bits outside the DTLayerId fields are zeroed; apart for
+    /// this, no check is done on the vaildity of the values.
+    DTLayerId(const DTLayerId& layerId);
 
-  /// Assignment Operator.
-  DTLayerId& operator=(const DTLayerId& layerId) = default;
+    /// Assignment Operator.
+    DTLayerId& operator=(const DTLayerId& layerId) = default;
 
-  /// Constructor from a camberId and SL and layer numbers
-  DTLayerId(const DTChamberId& chId, int superlayer, int layer);
+    /// Constructor from a camberId and SL and layer numbers
+    DTLayerId(const DTChamberId& chId, int superlayer, int layer);
 
-  /// Constructor from a SuperLayerId and layer number
-  DTLayerId(const DTSuperLayerId& slId, int layer);
+    /// Constructor from a SuperLayerId and layer number
+    DTLayerId(const DTSuperLayerId& slId, int layer);
 
-  /// Return the layer number
-  int layer() const { return ((id_ >> layerStartBit_) & lMask_); }
+    /// Return the layer number
+    int layer() const { return ((id_ >> layerStartBit_) & lMask_); }
 
-  /// Return the corresponding SuperLayerId
-  DTSuperLayerId superlayerId() const { return DTSuperLayerId(id_ & slIdMask_); }
-};
+    /// Return the corresponding SuperLayerId
+    DTSuperLayerId superlayerId() const { return DTSuperLayerId(id_ & slIdMask_); }
+  };
 
-std::ostream& operator<<(std::ostream& os, const DTLayerId& id);
-
+  std::ostream& operator<<(std::ostream& os, const DTLayerId& id);
+}  // namespace io_v1
+using DTLayerId = io_v1::DTLayerId;
 #endif
