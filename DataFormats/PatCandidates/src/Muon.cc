@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
 #include "DataFormats/PatCandidates/interface/ScoutingDataHandling.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
 #include <limits>
 
 using namespace pat;
@@ -203,10 +204,12 @@ Muon::Muon(const Run3ScoutingMuon& aMuon)
   scoutingNValidMuonHits_ = aMuon.nValidRecoMuonHits();
   scoutingNValidStandAloneMuonHits_ = aMuon.nValidStandAloneMuonHits();
   scoutingNStandAloneMuonMatchedStations_ = aMuon.nStandAloneMuonMatchedStations();
-  scoutingNValidPixelHits_ = aMuon.nValidPixelHits();
-  scoutingNValidStripHits_ = aMuon.nValidStripHits();
-  scoutingNPixelLayersWithMeasurement_ = aMuon.nPixelLayersWithMeasurement();
-  scoutingNTrackerLayersWithMeasurement_ = aMuon.nTrackerLayersWithMeasurement();
+  // Cache normalizedChi2 from scouting muon
+  cachedNormChi2_ = true;
+  normChi2_ = aMuon.normalizedChi2();
+
+  // Store hit pattern
+  scoutingTrkHitPattern_ = reco::HitPattern(aMuon.trk_hitPattern());
 }
 
 /// destructor
@@ -724,49 +727,29 @@ int Muon::numberOfStandAloneMuonMatchedStations() const {
 }
 
 int Muon::numberOfValidPixelHits() const {
-  if (isScoutingMuon()) {
-    return scoutingNValidPixelHits_;
-  }
-  // For standard muons, get from inner track hit pattern
-  reco::TrackRef tkTrack = innerTrack();
-  if (tkTrack.isNonnull()) {
-    return tkTrack->hitPattern().numberOfValidPixelHits();
-  }
-  return 0;
+  return trkHitPattern().numberOfValidPixelHits();
 }
 
 int Muon::numberOfValidStripHits() const {
-  if (isScoutingMuon()) {
-    return scoutingNValidStripHits_;
-  }
-  // For standard muons, get from inner track hit pattern
-  reco::TrackRef tkTrack = innerTrack();
-  if (tkTrack.isNonnull()) {
-    return tkTrack->hitPattern().numberOfValidStripHits();
-  }
-  return 0;
+  return trkHitPattern().numberOfValidStripHits();
 }
 
 int Muon::numberOfPixelLayersWithMeasurement() const {
-  if (isScoutingMuon()) {
-    return scoutingNPixelLayersWithMeasurement_;
-  }
-  // For standard muons, get from inner track hit pattern
-  reco::TrackRef tkTrack = innerTrack();
-  if (tkTrack.isNonnull()) {
-    return tkTrack->hitPattern().pixelLayersWithMeasurement();
-  }
-  return 0;
+  return trkHitPattern().pixelLayersWithMeasurement();
 }
 
 int Muon::numberOfTrackerLayersWithMeasurement() const {
+  return trkHitPattern().trackerLayersWithMeasurement();
+}
+
+reco::HitPattern const& Muon::trkHitPattern() const {
   if (isScoutingMuon()) {
-    return scoutingNTrackerLayersWithMeasurement_;
+    return scoutingTrkHitPattern_;
   }
-  // For standard muons, get from inner track hit pattern
-  reco::TrackRef tkTrack = innerTrack();
-  if (tkTrack.isNonnull()) {
-    return tkTrack->hitPattern().trackerLayersWithMeasurement();
+  const reco::Track* trk = bestTrack();
+  if (trk) {
+    return trk->hitPattern();
   }
-  return 0;
+  static const reco::HitPattern empty;
+  return empty;
 }

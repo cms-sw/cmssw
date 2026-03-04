@@ -25,6 +25,7 @@
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
@@ -385,6 +386,8 @@ namespace pat {
     int numberOfPixelLayersWithMeasurement() const;
     /// Number of tracker layers with measurement
     int numberOfTrackerLayersWithMeasurement() const;
+    /// Track hit pattern (from inner track for standard muons, from scouting data for scouting muons)
+    reco::HitPattern const& trkHitPattern() const;
 
   protected:
     // ---- for content embedding ----
@@ -496,10 +499,7 @@ namespace pat {
     int scoutingNValidMuonHits_{0};
     int scoutingNValidStandAloneMuonHits_{0};
     int scoutingNStandAloneMuonMatchedStations_{0};
-    int scoutingNValidPixelHits_{0};
-    int scoutingNValidStripHits_{0};
-    int scoutingNPixelLayersWithMeasurement_{0};
-    int scoutingNTrackerLayersWithMeasurement_{0};
+    reco::HitPattern scoutingTrkHitPattern_;
   };
 
 }  // namespace pat
