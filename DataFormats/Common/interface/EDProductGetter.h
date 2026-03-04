@@ -19,12 +19,7 @@
 // user include files
 
 // system include files
-#include <functional>
-#include <optional>
 #include <string>
-#include <tuple>
-#include <variant>
-#include <vector>
 
 // forward declarations
 
