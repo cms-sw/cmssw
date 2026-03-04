@@ -1,75 +1,59 @@
 <lcgdict>
-  <class name="TotemRPDigi" ClassVersion="2">
-    <version ClassVersion="2" checksum="3444194306"/>
+  <class name="io_v1::TotemRPDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="3188050306"/>
   </class>
-  <class name="edm::DetSet<TotemRPDigi>"/>
-  <class name="std::vector<edm::DetSet<TotemRPDigi> >"/>
-  <class name="std::vector<TotemRPDigi>"/>
-  <class name="edm::DetSetVector<TotemRPDigi>"/>
-  <class name="edm::Wrapper<edm::DetSet<TotemRPDigi> >"/>
-  <class name="edm::Wrapper<edm::DetSetVector<TotemRPDigi> >"/>
+  <class name="edm::DetSet<io_v1::TotemRPDigi>"/>
+  <class name="std::vector<edm::DetSet<io_v1::TotemRPDigi> >"/>
+  <class name="std::vector<io_v1::TotemRPDigi>"/>
+  <class name="edm::DetSetVector<io_v1::TotemRPDigi>"/>
+  <class name="edm::Wrapper<edm::DetSet<io_v1::TotemRPDigi> >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<io_v1::TotemRPDigi> >"/>
 
   <class name="TotemTriggerCounters" ClassVersion="2">
     <version ClassVersion="2" checksum="719923071"/>
   </class>
   <class name="edm::Wrapper<TotemTriggerCounters>"/>
 
-  <class name="TotemVFATStatus" ClassVersion="5">
-    <version ClassVersion="2" checksum="3003040825"/>
-    <version ClassVersion="3" checksum="1439138260"/>
-    <version ClassVersion="4" checksum="1562789855"/>
-    <version ClassVersion="5" checksum="1998337285"/>
+  <class name="io_v1::TotemVFATStatus" ClassVersion="3">
+    <version ClassVersion="3" checksum="3824344709"/>
   </class>
-  <ioread sourceClass="TotemVFATStatus" version="[2-4]" targetClass="TotemVFATStatus" source="uint8_t chipPosition" target="chipPosition_">
-  <![CDATA[ chipPosition_ = onfile.chipPosition;]]>
-  </ioread>
-  <ioread sourceClass="TotemVFATStatus" version="[2-4]" targetClass="TotemVFATStatus" source="uint8_t numberOfClusters" target="numberOfClusters_">
-  <![CDATA[ numberOfClusters_ = onfile.numberOfClusters;]]>
-  </ioread>
-  <class name="edm::DetSet<TotemVFATStatus>"/>
-  <class name="std::vector<TotemVFATStatus>"/>
-  <class name="std::vector<edm::DetSet<TotemVFATStatus> >"/>
-  <class name="edm::Wrapper<TotemVFATStatus>"/>
-  <class name="edm::DetSetVector<TotemVFATStatus>"/>
-  <class name="edm::Wrapper< edm::DetSetVector<TotemVFATStatus> >"/>
+  <class name="edm::DetSet<io_v1::TotemVFATStatus>"/>
+  <class name="std::vector<io_v1::TotemVFATStatus>"/>
+  <class name="std::vector<edm::DetSet<io_v1::TotemVFATStatus> >"/>
+  <class name="edm::Wrapper<io_v1::TotemVFATStatus>"/>
+  <class name="edm::DetSetVector<io_v1::TotemVFATStatus>"/>
+  <class name="edm::Wrapper< edm::DetSetVector<io_v1::TotemVFATStatus> >"/>
 
   <class name="std::bitset<8>"/>
   <class name="edm::Wrapper<std::bitset<8> >"/>
 
-  <class name="TotemFEDInfo" ClassVersion="3">
-    <version ClassVersion="2" checksum="2844972317"/>
-    <version ClassVersion="3" checksum="3276964679"/>
+  <class name="io_v1::TotemFEDInfo" ClassVersion="3">
+    <version ClassVersion="3" checksum="3700235463"/>
   </class>
-  <ioread sourceClass="TotemFEDInfo" version="[2]" targetClass="TotemFEDInfo" source="int fedId" target="fedId_">
-  <![CDATA[ fedId_ = onfile.fedId;]]>
-  </ioread>
-  <ioread sourceClass="TotemFEDInfo" version="[2]" targetClass="TotemFEDInfo" source="uint32_t orbitCounter" target="orbitCounter_">
-  <![CDATA[ orbitCounter_ = onfile.orbitCounter;]]>
-  </ioread>
-  <class name="std::vector<TotemFEDInfo>"/>
-  <class name="edm::Wrapper<std::vector<TotemFEDInfo>>"/>
+  <class name="std::vector<io_v1::TotemFEDInfo>"/>
+  <class name="edm::Wrapper<std::vector<io_v1::TotemFEDInfo>>"/>
 
-  <class name="CTPPSDiamondDigi" ClassVersion="3">
-    <version ClassVersion="3" checksum="2494057280"/>
+  <class name="io_v1::CTPPSDiamondDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="2619218880"/>
   </class>
 
-  <class name="edm::DetSet<CTPPSDiamondDigi>"/>
-  <class name="std::vector<edm::DetSet<CTPPSDiamondDigi> >"/>
-  <class name="std::vector<CTPPSDiamondDigi>"/>
-  <class name="edm::DetSetVector<CTPPSDiamondDigi>"/>
-  <class name="edm::Wrapper<edm::DetSet<CTPPSDiamondDigi> >"/>
-  <class name="edm::Wrapper<edm::DetSetVector<CTPPSDiamondDigi> >"/>
+  <class name="edm::DetSet<io_v1::CTPPSDiamondDigi>"/>
+  <class name="std::vector<edm::DetSet<io_v1::CTPPSDiamondDigi> >"/>
+  <class name="std::vector<io_v1::CTPPSDiamondDigi>"/>
+  <class name="edm::DetSetVector<io_v1::CTPPSDiamondDigi>"/>
+  <class name="edm::Wrapper<edm::DetSet<io_v1::CTPPSDiamondDigi> >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<io_v1::CTPPSDiamondDigi> >"/>
 
 
-  <class name="TotemTimingDigi" ClassVersion="3">
-    <version ClassVersion="3" checksum="4151875064"/>
+  <class name="io_v1::TotemTimingDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="3911274104"/>
   </class>
-  <class name="edm::DetSet<TotemTimingDigi>"/>
-  <class name="std::vector<edm::DetSet<TotemTimingDigi> >"/>
-  <class name="std::vector<TotemTimingDigi>"/>
-  <class name="edm::DetSetVector<TotemTimingDigi>"/>
-  <class name="edm::Wrapper<edm::DetSet<TotemTimingDigi> >"/>
-  <class name="edm::Wrapper<edm::DetSetVector<TotemTimingDigi> >"/>
+  <class name="edm::DetSet<io_v1::TotemTimingDigi>"/>
+  <class name="std::vector<edm::DetSet<io_v1::TotemTimingDigi> >"/>
+  <class name="std::vector<io_v1::TotemTimingDigi>"/>
+  <class name="edm::DetSetVector<io_v1::TotemTimingDigi>"/>
+  <class name="edm::Wrapper<edm::DetSet<io_v1::TotemTimingDigi> >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<io_v1::TotemTimingDigi> >"/>
 
   <class name="TotemTimingEventInfo" ClassVersion="3">
     <version ClassVersion="3" checksum="3539649521"/>
@@ -85,34 +69,34 @@
     <version ClassVersion="3" checksum="508529379"/>
   </class>
 
-  <class name="CTPPSPixelDigi" ClassVersion="3">
-    <version ClassVersion="3" checksum="125589380"/>
+  <class name="io_v1::CTPPSPixelDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="1471863812"/>
   </class>
   <class name="CTPPSPixelDigiCollection" ClassVersion="3">
-    <version ClassVersion="3" checksum="913646850"/>
+    <version ClassVersion="3" checksum="1772374030"/>
   </class>
-  <class name="edm::DetSet<CTPPSPixelDigi>"/>
-  <class name="std::vector<CTPPSPixelDigi>"/>
-  <class name="edm::DetSetVector<CTPPSPixelDigi>"/>
-  <class name="std::vector<edm::DetSet<CTPPSPixelDigi> >"/>
-  <class name="edm::Wrapper< edm::DetSet<CTPPSPixelDigi> >" splitLevel="0"/>
-  <class name="edm::Wrapper< std::vector<edm::DetSet<CTPPSPixelDigi> > >" splitLevel="0"/>
-  <class name="edm::Wrapper< edm::DetSetVector<CTPPSPixelDigi> >" splitLevel="0"/>
+  <class name="edm::DetSet<io_v1::CTPPSPixelDigi>"/>
+  <class name="std::vector<io_v1::CTPPSPixelDigi>"/>
+  <class name="edm::DetSetVector<io_v1::CTPPSPixelDigi>"/>
+  <class name="std::vector<edm::DetSet<io_v1::CTPPSPixelDigi> >"/>
+  <class name="edm::Wrapper< edm::DetSet<io_v1::CTPPSPixelDigi> >" splitLevel="0"/>
+  <class name="edm::Wrapper< std::vector<edm::DetSet<io_v1::CTPPSPixelDigi> > >" splitLevel="0"/>
+  <class name="edm::Wrapper< edm::DetSetVector<io_v1::CTPPSPixelDigi> >" splitLevel="0"/>
   <class name="edm::Wrapper<CTPPSPixelDigiCollection>" splitLevel="0"/>
 
 
-  <class name="CTPPSPixelDataError" ClassVersion="3">
-    <version ClassVersion="3" checksum="1706961286"/>
+  <class name="io_v1::CTPPSPixelDataError" ClassVersion="3">
+    <version ClassVersion="3" checksum="1033717510"/>
   </class>
-  <class name="std::vector<CTPPSPixelDataError>"/>
-  <class name="std::map<int, std::vector<CTPPSPixelDataError> >"/>
-  <class name="edm::DetSet<CTPPSPixelDataError>"/>
-  <class name="std::vector< edm::DetSet<CTPPSPixelDataError> >"/>
-  <class name="edm::DetSetVector<CTPPSPixelDataError>"/>
-  <class name="edm::Wrapper< std::vector<CTPPSPixelDataError> >"/>
-  <class name="edm::Wrapper< std::map<int, std::vector<CTPPSPixelDataError> > >"/>
-  <class name="edm::Wrapper< edm::DetSet<CTPPSPixelDataError> >"/>
-  <class name="edm::Wrapper< std::vector<edm::DetSet<CTPPSPixelDataError> > >"/>
-  <class name="edm::Wrapper< edm::DetSetVector<CTPPSPixelDataError> >"/>
+  <class name="std::vector<io_v1::CTPPSPixelDataError>"/>
+  <class name="std::map<int, std::vector<io_v1::CTPPSPixelDataError> >"/>
+  <class name="edm::DetSet<io_v1::CTPPSPixelDataError>"/>
+  <class name="std::vector< edm::DetSet<io_v1::CTPPSPixelDataError> >"/>
+  <class name="edm::DetSetVector<io_v1::CTPPSPixelDataError>"/>
+  <class name="edm::Wrapper< std::vector<io_v1::CTPPSPixelDataError> >"/>
+  <class name="edm::Wrapper< std::map<int, std::vector<io_v1::CTPPSPixelDataError> > >"/>
+  <class name="edm::Wrapper< edm::DetSet<io_v1::CTPPSPixelDataError> >"/>
+  <class name="edm::Wrapper< std::vector<edm::DetSet<io_v1::CTPPSPixelDataError> > >"/>
+  <class name="edm::Wrapper< edm::DetSetVector<io_v1::CTPPSPixelDataError> >"/>
 
 </lcgdict>
