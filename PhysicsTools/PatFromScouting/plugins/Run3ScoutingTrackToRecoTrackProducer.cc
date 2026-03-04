@@ -5,10 +5,8 @@
 //
 /**\class Run3ScoutingTrackToRecoTrackProducer Run3ScoutingTrackToRecoTrackProducer.cc PhysicsTools/PatFromScouting/plugins/Run3ScoutingTrackToRecoTrackProducer.cc
 
- Description: Converts Run3ScoutingTrack to reco::Track
+ Description: Converts Run3ScoutingTrack to reco::Track with populated hit pattern
 
- Implementation:
-     Uses pat::makeRecoTrack helper, stores hit pattern info as ValueMaps
 */
 //
 // Original Author:  Dmytro Kovalskyi
@@ -17,6 +15,7 @@
 //
 
 #include <memory>
+#include <algorithm>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -32,6 +31,9 @@
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingTrack.h"
 #include "DataFormats/PatCandidates/interface/ScoutingDataHandling.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 class Run3ScoutingTrackToRecoTrackProducer : public edm::stream::EDProducer<> {
 public:
@@ -45,60 +47,66 @@ private:
 
   const edm::EDGetTokenT<Run3ScoutingTrackCollection> trackToken_;
 
-  std::vector<int> nValidPixelHits_;
-  std::vector<int> nValidStripHits_;
-  std::vector<int> nTrackerLayers_;
   std::vector<int> vertexIndex_;
 };
 
 Run3ScoutingTrackToRecoTrackProducer::Run3ScoutingTrackToRecoTrackProducer(const edm::ParameterSet& iConfig)
     : trackToken_(consumes<Run3ScoutingTrackCollection>(iConfig.getParameter<edm::InputTag>("src"))) {
   produces<reco::TrackCollection>();
-  produces<edm::ValueMap<int>>("nValidPixelHits");
-  produces<edm::ValueMap<int>>("nValidStripHits");
-  produces<edm::ValueMap<int>>("nTrackerLayersWithMeasurement");
   produces<edm::ValueMap<int>>("vertexIndex");
 }
 
 void Run3ScoutingTrackToRecoTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto recoTracks = std::make_unique<reco::TrackCollection>();
 
-  nValidPixelHits_.clear();
-  nValidStripHits_.clear();
-  nTrackerLayers_.clear();
   vertexIndex_.clear();
 
   const auto& scoutingTracks = iEvent.get(trackToken_);
 
   for (const auto& sTrack : scoutingTracks) {
     reco::Track recoTrack = pat::makeRecoTrack(sTrack);
+
+    // Populate hit pattern from scouting hit counts.
+    // Prefer pixLayers = min(nPixHits, 4) but adjust to guarantee:
+    //   pixLayers + stripLayers = totalLayers, pixLayers <= nPixHits, stripLayers <= nStripHits
+    int nPixHits = sTrack.tk_nValidPixelHits();
+    int nStripHits = sTrack.tk_nValidStripHits();
+    int totalLayers = sTrack.tk_nTrackerLayersWithMeasurement();
+    int lower = std::max(0, totalLayers - nStripHits);
+    int upper = nStripHits > 0 ? std::min(nPixHits, totalLayers - 1) : std::min(nPixHits, totalLayers);
+    int pixLayers = std::clamp(std::min(4, totalLayers), lower, upper);
+    int stripLayers = totalLayers - pixLayers;
+
+    // Pixel: BPIX(1-4), FPIX(1-3), extras on BPIX layer 2
+    for (int i = 0; i < pixLayers; ++i) {
+      if (i < 4)
+        recoTrack.appendTrackerHitPattern(PixelSubdetector::PixelBarrel, i + 1, 0, TrackingRecHit::valid);
+      else
+        recoTrack.appendTrackerHitPattern(PixelSubdetector::PixelEndcap, i - 3, 0, TrackingRecHit::valid);
+    }
+    for (int i = pixLayers; i < nPixHits; ++i)
+      recoTrack.appendTrackerHitPattern(PixelSubdetector::PixelBarrel, 2, 0, TrackingRecHit::valid);
+
+    // Strip: TIB(1-4), TID(1-3), TOB(1-6), TEC(1-9), extras on TIB 1
+    for (int i = 0; i < stripLayers; ++i) {
+      if (i < 4)
+        recoTrack.appendTrackerHitPattern(StripSubdetector::TIB, i + 1, 1, TrackingRecHit::valid);
+      else if (i < 7)
+        recoTrack.appendTrackerHitPattern(StripSubdetector::TID, i - 3, 1, TrackingRecHit::valid);
+      else if (i < 13)
+        recoTrack.appendTrackerHitPattern(StripSubdetector::TOB, i - 6, 1, TrackingRecHit::valid);
+      else
+        recoTrack.appendTrackerHitPattern(StripSubdetector::TEC, i - 12, 1, TrackingRecHit::valid);
+    }
+    for (int i = stripLayers; i < nStripHits; ++i)
+      recoTrack.appendTrackerHitPattern(StripSubdetector::TIB, 1, 1, TrackingRecHit::valid);
+
     recoTracks->push_back(recoTrack);
 
-    nValidPixelHits_.push_back(sTrack.tk_nValidPixelHits());
-    nValidStripHits_.push_back(sTrack.tk_nValidStripHits());
-    nTrackerLayers_.push_back(sTrack.tk_nTrackerLayersWithMeasurement());
     vertexIndex_.push_back(sTrack.tk_vtxInd());
   }
 
   edm::OrphanHandle<reco::TrackCollection> tracksHandle = iEvent.put(std::move(recoTracks));
-
-  auto nValidPixelHitsMap = std::make_unique<edm::ValueMap<int>>();
-  edm::ValueMap<int>::Filler fillerPixel(*nValidPixelHitsMap);
-  fillerPixel.insert(tracksHandle, nValidPixelHits_.begin(), nValidPixelHits_.end());
-  fillerPixel.fill();
-  iEvent.put(std::move(nValidPixelHitsMap), "nValidPixelHits");
-
-  auto nValidStripHitsMap = std::make_unique<edm::ValueMap<int>>();
-  edm::ValueMap<int>::Filler fillerStrip(*nValidStripHitsMap);
-  fillerStrip.insert(tracksHandle, nValidStripHits_.begin(), nValidStripHits_.end());
-  fillerStrip.fill();
-  iEvent.put(std::move(nValidStripHitsMap), "nValidStripHits");
-
-  auto nTrackerLayersMap = std::make_unique<edm::ValueMap<int>>();
-  edm::ValueMap<int>::Filler fillerLayers(*nTrackerLayersMap);
-  fillerLayers.insert(tracksHandle, nTrackerLayers_.begin(), nTrackerLayers_.end());
-  fillerLayers.fill();
-  iEvent.put(std::move(nTrackerLayersMap), "nTrackerLayersWithMeasurement");
 
   auto vertexIndexMap = std::make_unique<edm::ValueMap<int>>();
   edm::ValueMap<int>::Filler fillerVtx(*vertexIndexMap);

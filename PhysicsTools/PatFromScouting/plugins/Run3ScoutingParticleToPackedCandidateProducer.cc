@@ -2,8 +2,10 @@
  * Run3ScoutingParticleToPackedCandidateProducer
  *
  * Converts Run3ScoutingParticle to pat::PackedCandidate for MiniAOD compatibility.
+ * Matches charged candidates to reco::Tracks to embed track details
+ * (hasTrackDetails() == true, dxyError/dzError/normalizedChi2/hit counts available).
  *
- * Requires vertices to be produced first (offlineSlimmedPrimaryVertices).
+ * Requires vertices and scoutingTracks to be produced first.
  */
 
 #include <memory>
@@ -21,7 +23,10 @@
 #include "DataFormats/Scouting/interface/Run3ScoutingParticle.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
@@ -37,8 +42,11 @@ private:
 
   const edm::EDGetTokenT<std::vector<Run3ScoutingParticle>> particleToken_;
   const edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+  const edm::EDGetTokenT<reco::TrackCollection> trackToken_;
   const edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> pdtToken_;
   const bool useCHS_;
+  const int covarianceVersion_;
+  const int covarianceSchema_;
 };
 
 Run3ScoutingParticleToPackedCandidateProducer::Run3ScoutingParticleToPackedCandidateProducer(
@@ -47,8 +55,12 @@ Run3ScoutingParticleToPackedCandidateProducer::Run3ScoutingParticleToPackedCandi
           iConfig.getParameter<edm::InputTag>("src"))),
       vertexToken_(consumes<reco::VertexCollection>(
           iConfig.getParameter<edm::InputTag>("vertices"))),
+      trackToken_(consumes<reco::TrackCollection>(
+          iConfig.getParameter<edm::InputTag>("tracks"))),
       pdtToken_(esConsumes<HepPDT::ParticleDataTable, edm::DefaultRecord>()),
-      useCHS_(iConfig.getParameter<bool>("CHS")) {
+      useCHS_(iConfig.getParameter<bool>("CHS")),
+      covarianceVersion_(iConfig.getParameter<int>("covarianceVersion")),
+      covarianceSchema_(iConfig.getParameter<int>("covarianceSchema")) {
   produces<pat::PackedCandidateCollection>();
 }
 
@@ -56,33 +68,31 @@ void Run3ScoutingParticleToPackedCandidateProducer::produce(edm::Event& iEvent,
                                                             const edm::EventSetup& iSetup) {
   auto output = std::make_unique<pat::PackedCandidateCollection>();
 
-  // Get particle data table for mass lookup
   const auto& pdt = iSetup.getData(pdtToken_);
-
-  // Get scouting particles
   const auto& particles = iEvent.get(particleToken_);
 
-  // Get vertices and create RefProd
   auto verticesHandle = iEvent.getHandle(vertexToken_);
   const auto& vertices = *verticesHandle;
   reco::VertexRefProd vertexRefProd(verticesHandle);
 
+  const auto& tracks = iEvent.get(trackToken_);
+
+  // Build a "used" flag so each reco::Track is matched at most once
+  std::vector<bool> trackUsed(tracks.size(), false);
+
   output->reserve(particles.size());
 
   for (const auto& particle : particles) {
-    // Skip pileup particles if CHS is enabled
     if (useCHS_ && particle.vertex() > 0) {
       continue;
     }
 
-    // Get mass from PDT
     const HepPDT::ParticleData* pdtData = pdt.particle(HepPDT::ParticleID(particle.pdgId()));
     if (!pdtData) {
-      continue;  // Skip unknown particles
+      continue;
     }
     float mass = pdtData->mass().value();
 
-    // Compute 4-momentum
     float pt = particle.pt();
     float eta = particle.eta();
     float phi = particle.phi();
@@ -92,58 +102,39 @@ void Run3ScoutingParticleToPackedCandidateProducer::produce(edm::Event& iEvent,
     float energy = std::sqrt(px * px + py * py + pz * pz + mass * mass);
     math::XYZTLorentzVector p4(px, py, pz, energy);
 
-    // Get track kinematics (handle relative vs absolute)
     bool relativeTrackVars = particle.relative_trk_vars();
     float trkPt = relativeTrackVars ? particle.trk_pt() + particle.pt() : particle.trk_pt();
     float trkEta = relativeTrackVars ? particle.trk_eta() + particle.eta() : particle.trk_eta();
     float trkPhi = relativeTrackVars ? particle.trk_phi() + particle.phi() : particle.trk_phi();
 
-    // Determine vertex index (clamp to valid range)
     int vtxIdx = particle.vertex();
     reco::VertexRef::key_type pvKey = 0;
     if (vtxIdx >= 0 && static_cast<size_t>(vtxIdx) < vertices.size()) {
       pvKey = static_cast<reco::VertexRef::key_type>(vtxIdx);
     }
 
-    // Get the associated vertex position
     math::XYZPoint pvPos(0, 0, 0);
     if (pvKey < vertices.size()) {
       pvPos = vertices[pvKey].position();
     }
 
-    // Compute track vertex position from dxy and dz
-    // PackedCandidate::packVtx() computes:
-    //   dxy = -dxPV * sin(phi+dphi) + dyPV * cos(phi+dphi)
-    //   dz = vtx.z - pv.z - (dxPV * cos + dyPV * sin) * pz/pt
-    // We invert this to get the vertex position from dxy, dz
-    // For simplicity, assume dphi ~ 0 (track phi at vertex ~ calo phi)
     float dxy = particle.dxy();
     float dz = particle.dz();
     float sinPhi = std::sin(phi);
     float cosPhi = std::cos(phi);
 
-    // Assuming the track comes from near the PV in the transverse plane:
-    // vtx.x = pv.x - dxy * sin(phi)
-    // vtx.y = pv.y + dxy * cos(phi)
-    // vtx.z = pv.z + dz (ignoring the small pz/pt correction)
     math::XYZPoint vtxPos(
         pvPos.X() - dxy * sinPhi,
         pvPos.Y() + dxy * cosPhi,
         pvPos.Z() + dz
     );
 
-    // Create PackedCandidate
-    // Constructor: (p4, vtx, trkPt, etaAtVtx, phiAtVtx, pdgId, pvRefProd, pvKey)
     pat::PackedCandidate cand(p4, vtxPos, trkPt, trkEta, trkPhi, particle.pdgId(), vertexRefProd, pvKey);
 
     // Set lost inner hits
-    // PackedCandidate::LostInnerHits enum values:
-    // validHitInFirstPixelBarrelLayer = -1, noLostInnerHits = 0,
-    // oneLostInnerHit = 1, moreLostInnerHits = 2
     pat::PackedCandidate::LostInnerHits lostHits = pat::PackedCandidate::noLostInnerHits;
     uint8_t scoutingLostHits = particle.lostInnerHits();
     if (scoutingLostHits == 0) {
-      // Check if we have valid hit in first pixel barrel (can't determine from scouting)
       lostHits = pat::PackedCandidate::noLostInnerHits;
     } else if (scoutingLostHits == 1) {
       lostHits = pat::PackedCandidate::oneLostInnerHit;
@@ -152,20 +143,43 @@ void Run3ScoutingParticleToPackedCandidateProducer::produce(edm::Event& iEvent,
     }
     cand.setLostInnerHits(lostHits);
 
-    // Set track quality (high purity flag)
-    // Scouting quality is packed track quality flags
-    // Bit 2 (value 4) typically indicates high purity
+    // Set track quality
     int quality = particle.quality();
     bool highPurity = (quality & 4);
     cand.setTrackHighPurity(highPurity);
 
-    // Set PV association quality based on vertex index
+    // Set PV association quality
     if (vtxIdx == 0) {
       cand.setAssociationQuality(pat::PackedCandidate::UsedInFitTight);
     } else if (vtxIdx > 0) {
       cand.setAssociationQuality(pat::PackedCandidate::CompatibilityDz);
     } else {
       cand.setAssociationQuality(pat::PackedCandidate::NotReconstructedPrimary);
+    }
+
+    // Match charged candidates to reco::Tracks and embed track details
+    if (particle.pdgId() != 22 && particle.pdgId() != 130 && trkPt > 0) {
+      int bestIdx = -1;
+      float bestMetric = 999.f;
+      for (size_t iTk = 0; iTk < tracks.size(); ++iTk) {
+        if (trackUsed[iTk])
+          continue;
+        const auto& tk = tracks[iTk];
+        float dEta = trkEta - tk.eta();
+        float dPhi = reco::deltaPhi(trkPhi, tk.phi());
+        float dR2 = dEta * dEta + dPhi * dPhi;
+        float dPtRel = std::abs(trkPt - tk.pt()) / trkPt;
+        float metric = dR2 + dPtRel * dPtRel;
+        if (metric < bestMetric) {
+          bestMetric = metric;
+          bestIdx = iTk;
+        }
+      }
+      // Require reasonable match quality
+      if (bestIdx >= 0 && bestMetric < 0.01f) {
+        cand.setTrackProperties(tracks[bestIdx], covarianceSchema_, covarianceVersion_);
+        trackUsed[bestIdx] = true;
+      }
     }
 
     output->push_back(cand);
@@ -181,7 +195,11 @@ void Run3ScoutingParticleToPackedCandidateProducer::fillDescriptions(
       ->setComment("Input scouting particle collection");
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"))
       ->setComment("Input vertex collection for vertex references");
+  desc.add<edm::InputTag>("tracks", edm::InputTag("scoutingTracks"))
+      ->setComment("Input reco::Track collection for embedding track details");
   desc.add<bool>("CHS", false)->setComment("Apply Charged Hadron Subtraction (skip vtx > 0)");
+  desc.add<int>("covarianceVersion", 1)->setComment("Covariance parameterization version (0=Phase0, 1=Phase1)");
+  desc.add<int>("covarianceSchema", 520)->setComment("Covariance packing schema");
   descriptions.addWithDefaultLabel(desc);
 }
 
