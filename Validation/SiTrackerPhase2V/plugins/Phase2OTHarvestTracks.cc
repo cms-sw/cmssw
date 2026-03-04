@@ -1,5 +1,3 @@
-
-
 // Package:    Validation/SiTrackerPhase2V
 // Class:      Phase2OTHarvestTracks
 
