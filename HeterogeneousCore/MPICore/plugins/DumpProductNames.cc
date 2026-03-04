@@ -14,9 +14,9 @@ using json = nlohmann::json;
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-class PrintCPPNames : public edm::global::EDAnalyzer<> {
+class DumpProductNames : public edm::global::EDAnalyzer<> {
 public:
-  explicit PrintCPPNames(edm::ParameterSet const& pset)
+  explicit DumpProductNames(edm::ParameterSet const& pset)
       : outputFile_(pset.getParameter<std::string>("outputFile")), products_(json::array()) {
     callWhenNewProductsRegistered([this](edm::ProductDescription const& product) {
       static constexpr std::string_view kPathStatus("edm::PathStatus");
@@ -25,7 +25,7 @@ public:
       if (product.className() == kPathStatus || product.className() == kEndPathStatus)
         return;
 
-      products_.push_back({{"instance", product.friendlyClassName()},
+      products_.push_back({{"friendly_type_name", product.friendlyClassName()},
                            {"module", product.moduleLabel()},
                            {"product_instance", product.productInstanceName()},
                            {"process", product.processName()},
@@ -43,6 +43,10 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
+    desc.setComment(
+        "This module is used by local_remote_splitter.py script from HeterogeneousCore/MPICore"
+        "It dumps a file with C++ names and some other data about the products in a process to create MPISender "
+        "correctly.");
     desc.add<std::string>("outputFile", "print_cppnames.json");
     descriptions.addWithDefaultLabel(desc);
   }
@@ -52,4 +56,4 @@ private:
   json products_;  // JSON array for product infos
 };
 
-DEFINE_FWK_MODULE(PrintCPPNames);
+DEFINE_FWK_MODULE(DumpProductNames);

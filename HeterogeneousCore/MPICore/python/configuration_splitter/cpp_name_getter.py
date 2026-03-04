@@ -35,8 +35,6 @@ class CPPNameGetter:
         else:
             self.process = copy.deepcopy(original_process)
 
-    # ---------- public API ----------
-
     def get_cpp_types_of_module_products(self):
         if self.reuse:
             return self._read_json()
@@ -46,11 +44,9 @@ class CPPNameGetter:
 
         return self._read_json()
 
-    # ---------- implementation ----------
-
     def _write_print_cppnames_config(self):
 
-        self.process.PrintNames = PrintCPPNames(
+        self.process.PrintNames = DumpProductNames(
             outputFile=self.json_path
         )
 
@@ -83,7 +79,7 @@ class CPPNameGetter:
         if not os.path.exists(self.json_path):
             raise RuntimeError(
                 f"JSON file not produced: {self.json_path}\n"
-                "Check that PrintCPPNames analyzer executed correctly at {self.log_name}."
+                f"Check that DumpProductNames analyzer executed correctly at {self.log_name}."
             )
 
         with open(self.json_path) as f:

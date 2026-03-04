@@ -3,14 +3,12 @@ from typing import Dict, List
 
 import FWCore.ParameterSet.Config as cms
 from HLTrigger.Configuration.common import *
-from HeterogeneousCore.MPICore.mpiController_cfi import mpiController as mpiController_
-
-
+from HeterogeneousCore.MPICore.modules import *
 
 def add_controller_to_local(process):
     process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
     process.MPIService.pmix_server_uri = "file:server.uri"
-    process.mpiController = mpiController_.clone()
+    process.mpiController = MPIController()
 
 
 def clone_module_from_process(dst, src, name):
@@ -25,10 +23,9 @@ def clone_module_from_process(dst, src, name):
 
 def create_remote_process(local_process, modules_to_run):
     remote_process = cms.Process("REMOTE")
-
     remote_process.load("Configuration.StandardSequences.Accelerators_cff")
 
-    # load the event setup - uncomment later
+    # load the global psets and event setup modules
     for module in local_process.psets.keys():
         setattr(remote_process, module, getattr(local_process, module).clone())
     for module in local_process.es_sources.keys():
@@ -51,9 +48,7 @@ def create_remote_process(local_process, modules_to_run):
     return remote_process
 
 
-
 # -- functions to add senders and receivers --
-
 
 def is_device_product(prod):
     return prod["type"].startswith("edm::DeviceProduct")
@@ -65,13 +60,10 @@ def make_sender_patterns(module_name, products):
         if is_device_product(p):
             continue
 
-        instance = p["instance"]
+        friendly_type_name = p["friendly_type_name"]
         label = p["product_instance"]
 
-        if label:
-            patterns.append(f"{instance}_{module_name}_{label}_*")
-        else:
-            patterns.append(f"{instance}_{module_name}__*")
+        patterns.append(f"{friendly_type_name}_{module_name}_{label}_*")
 
     return patterns
 
@@ -86,12 +78,11 @@ def make_receiver_psets(products):
         psets.append(
             cms.PSet(
                 type=cms.string(p["type"]),
-                label=cms.string(p["product_instance"] or "")
+                label=cms.string(p["product_instance"])
             )
         )
 
     return cms.VPSet(*psets)
-
 
 
 def replace_module(process, name, new_module):
@@ -112,7 +103,7 @@ def create_sender(
     path_state_capture=None,
 ):
     """
-    Add MPISender (local) for one module.
+    Add MPISender for one module.
     """
     sender_products = make_sender_patterns(module_name, products)
 
@@ -129,7 +120,6 @@ def create_sender(
     return sender
 
 
-
 def create_receiver(
     products,
     instance,
@@ -137,7 +127,7 @@ def create_receiver(
     path_state_capture=False,
 ):
     """
-    MPIReceiver (remote) for one module.
+    MPIReceiver for one module.
     """
     receiver_products = make_receiver_psets(products)
 
@@ -159,15 +149,10 @@ def create_receiver(
     return receiver
 
 
-
-
-# -- edit path --
-
 def make_new_path(
     process,
     path_name: str,
     module_names: list[str],
-    append_to_schedule: bool = True,
 ):
     """
     Create a cms.Path from an ordered list of module names
@@ -191,10 +176,7 @@ def make_new_path(
     path = cms.Path(sequence)
     setattr(process, path_name, path)
 
-    if append_to_schedule:
-        if not hasattr(process, "schedule") or process.schedule is None:
-            process.schedule = cms.Schedule()
+    if hasattr(process, "schedule") and process.schedule is not None:
         process.schedule.append(path)
 
     return path
-

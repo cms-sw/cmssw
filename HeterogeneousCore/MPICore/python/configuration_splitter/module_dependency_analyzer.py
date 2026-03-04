@@ -27,13 +27,10 @@ def flatten_all_to_module_set(process, user_args):
 class ModuleDependencyAnalyzer:
     def __init__(self, process):
         self.process = process
-
-        # ---- cached core structures ----
+        # cached core structures
         self.module_inputs: Dict[str, Set[str]] = defaultdict(set)
         self.producer_to_consumers: Dict[str, Set[str]] = defaultdict(set)
-
         self._build_dependency_maps()
-
 
     def _build_dependency_maps(self):
         """
@@ -76,8 +73,6 @@ class ModuleDependencyAnalyzer:
 
         return tags
 
-
-
     def direct_dependencies(self, modules: Set[str]) -> Set[str]:
         """
         Get the modules whose products are needed
@@ -92,7 +87,6 @@ class ModuleDependencyAnalyzer:
         Get the modules which need the products of producer
         """
         return self.producer_to_consumers.get(producer, set())
-
 
     def _restricted_graph(self, modules: Set[str]) -> Dict[str, Set[str]]:
         """
@@ -109,7 +103,6 @@ class ModuleDependencyAnalyzer:
 
         return graph
     
-
     def _connected_groups(self, graph: Dict[str, Set[str]]) -> List[List[str]]:
         """
         Return list of weakly connected components.
@@ -182,15 +175,12 @@ class ModuleDependencyAnalyzer:
 
         return ordered_components
 
-
     def dependency_groups(self, modules: Set[str]) -> List[List[str]]:
         """
         Get dependency groups (ordered)
         """
         graph = self._restricted_graph(modules)
         return self._connected_groups(graph)
-
-
 
     def grouped_external_dependencies(
         self,
@@ -214,7 +204,6 @@ class ModuleDependencyAnalyzer:
 
         return grouped
 
-
     def producer_to_groups(
         self,
         grouped_deps: List[Set[str]],
@@ -228,7 +217,6 @@ class ModuleDependencyAnalyzer:
             for prod in deps:
                 mapping[prod].add(gi)
         return mapping
-
 
     def modules_to_send_back_by_group(
         self,

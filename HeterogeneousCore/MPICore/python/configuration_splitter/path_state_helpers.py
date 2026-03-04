@@ -1,11 +1,12 @@
+"""
+functions to add activity filters and path state captures
+"""
+
 from collections import defaultdict, deque
 from typing import Dict, Set, List
 
 import FWCore.ParameterSet.Config as cms
 from HLTrigger.Configuration.common import *
-
-
-# functions to add activity filters and path state captures
 
 def add_activity_filter(process, module_name):
     filter_object =  cms.EDFilter("PathStateRelease",
@@ -14,7 +15,6 @@ def add_activity_filter(process, module_name):
     filter_name = f"activityFilter{module_name}"
     setattr(process, filter_name, filter_object)
     return filter_name
-
 
 
 def insert_path_state_capture_before(
@@ -28,7 +28,7 @@ def insert_path_state_capture_before(
       - insert it at position 0 of each passed in sequence
     """
 
-    # --- unique module name per group
+    # unique module name per group
     capture_name = f"{prefix}{capture_name}"
 
     # create the EDProducer
@@ -40,7 +40,7 @@ def insert_path_state_capture_before(
 
     capture = getattr(process, capture_name)
 
-    # --- insert into sequences
+    # insert into sequences
     for module_name in first_modules_in_a_group:
         if not hasattr(process, module_name):
             print(f"[WARN] process has no sequence '{module_name}'")
