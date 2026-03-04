@@ -117,6 +117,9 @@ reco::Vertex pat::makeRecoVertex(const Run3ScoutingVertex& sVertex) {
   err(0, 0) = pow(sVertex.xError(), 2);
   err(1, 1) = pow(sVertex.yError(), 2);
   err(2, 2) = pow(sVertex.zError(), 2);
+  err(0, 1) = sVertex.xyCov();
+  err(0, 2) = sVertex.xzCov();
+  err(1, 2) = sVertex.yzCov();
   return reco::Vertex(reco::Vertex::Point(sVertex.x(), sVertex.y(), sVertex.z()),
 		      err, sVertex.chi2(), sVertex.ndof(), sVertex.tracksSize());
 }
