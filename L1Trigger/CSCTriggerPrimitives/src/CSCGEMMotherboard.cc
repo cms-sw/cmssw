@@ -532,7 +532,7 @@ void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
       thisLCT.setBend(std::signbit(slope));
       thisLCT.setPattern(Run2PatternConverter(slope));
     } else
-      thisLCT.setSlope(clct.getSlope());
+      thisLCT.setSlope(clct.getSlope()*4);
     thisLCT.setQuartStripBit(clct.getQuartStripBit());
     thisLCT.setEighthStripBit(clct.getEighthStripBit());
     thisLCT.setRun3Pattern(clct.getRun3Pattern());
@@ -561,7 +561,7 @@ void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& aLCT,
   if (runCCLUT_) {
     thisLCT.setRun3(true);
     // 4-bit slope value derived with the CCLUT algorithm
-    thisLCT.setSlope(cLCT.getSlope());
+    thisLCT.setSlope(cLCT.getSlope()*4);
     thisLCT.setQuartStripBit(cLCT.getQuartStripBit());
     thisLCT.setEighthStripBit(cLCT.getEighthStripBit());
     thisLCT.setRun3Pattern(cLCT.getRun3Pattern());
@@ -601,7 +601,7 @@ void CSCGEMMotherboard::constructLCTsGEM(const CSCCLCTDigi& clct,
       thisLCT.setBend(pow(-1, std::signbit(slope)));
       thisLCT.setPattern(Run2PatternConverter(slope));
     } else
-      thisLCT.setSlope(clct.getSlope());
+      thisLCT.setSlope(clct.getSlope()*4);
     thisLCT.setQuartStripBit(clct.getQuartStripBit());
     thisLCT.setEighthStripBit(clct.getEighthStripBit());
     thisLCT.setRun3Pattern(clct.getRun3Pattern());
