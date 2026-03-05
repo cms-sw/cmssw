@@ -24,7 +24,8 @@ namespace FscNumberingScheme {
       int stn = ((num - 1) / 2);
       int chn = HcalZDCDetId::fscChannel(stn, phi);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("FscSim") << "FscNumberingScheme::zside = " << zside << " num = " << num << " stn = " << stn << " phi = " << phi << " chn = " << chn;
+      edm::LogVerbatim("FscSim") << "FscNumberingScheme::zside = " << zside << " num = " << num << " stn = " << stn
+                                 << " phi = " << phi << " chn = " << chn;
 #endif
       intindex = HcalZDCDetId(HcalZDCDetId::FSC, zside, chn).rawId();
     }
@@ -38,7 +39,8 @@ namespace FscNumberingScheme {
     int chn = HcalZDCDetId::fscChannel(stn, phi);
     unsigned int idx = HcalZDCDetId(HcalZDCDetId::FSC, zside, chn).rawId();
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("FscSim") << "Fsc packing:zside  " << zside << " station " << stn << " phi " << phi << "-> 0x" << std::hex << idx << std::dec;
+    edm::LogVerbatim("FscSim") << "Fsc packing:zside  " << zside << " station " << stn << " phi " << phi << "-> 0x"
+                               << std::hex << idx << std::dec;
 #endif
     return idx;
   }
@@ -50,7 +52,8 @@ namespace FscNumberingScheme {
     stn = HcalZDCDetId::fscStationFromChannel(chn);
     phi = HcalZDCDetId::fscPhiFromChannel(chn);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("FscSim") << " Fsc unpacking: 0x " << std::hex << idx << std::dec << " -> zside  " << zside << " station " << stn << " phi " << phi;
+    edm::LogVerbatim("FscSim") << " Fsc unpacking: 0x " << std::hex << idx << std::dec << " -> zside  " << zside
+                               << " station " << stn << " phi " << phi;
 #endif
   }
 }  // namespace FscNumberingScheme
