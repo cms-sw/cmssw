@@ -76,6 +76,9 @@ std::string JetMCTagUtils::genTauDecayMode(const CompositePtrCandidate &c) {
   int numPhotons = 0;
 
   const CompositePtrCandidate::daughters &daughters = c.daughterPtrVector();
+  //MB: tau undecayed by generator
+  if (daughters.empty())
+    return std::string("tau");
   for (CompositePtrCandidate::daughters::const_iterator daughter = daughters.begin(); daughter != daughters.end();
        ++daughter) {
     int pdg_id = abs((*daughter)->pdgId());
