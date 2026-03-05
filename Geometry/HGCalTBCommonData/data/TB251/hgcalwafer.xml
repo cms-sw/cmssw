@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="hgcalwafer.xml" eval="true">
+  <Constant name="ModuleThicknessEE"     value="[hgcal:ModuleThicknessEE]"/>
+  <Constant name="WaferSize"             value="[hgcal:WaferSize]"/>
+  <Constant name="WaferThickness"        value="[hgcal:WaferThickness]"/>
+  <Constant name="WaferThickness300"     value="[hgcal:WaferThicknessCoarse2]"/>
+  <Constant name="SensorSeparation"      value="[hgcal:SensorSeparation]"/>
+  <Constant name="SensorSizeOffset"      value="[hgcal:SensorSizeOffset]"/>
+  <Constant name="CellThickness300"      value="[hgcal:CellThicknessCoarse2]"/>
+  <Constant name="NumberOfCellsLD"       value="[hgcal:NumberOfCellsCoarse]"/>
+</ConstantsSection>
+
+<PosPartSection label="hgcalwafer.xml" eval="true">
+  <Algorithm name="hgcal:DDHGCalWaferFullRotated">
+    <rParent name="hgcalwafer:HGCalEEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThickness300]"/>
+    <String name="WaferTag" value="LD300"/>
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5 </Vector>
+    <Vector name="WaferFace" type="numeric" nEntries="6"> 
+      0, 0, 0, 0, 0, 0 </Vector>
+    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
+      06, 07, 08, 09, 10, 11</Vector>  
+    <Vector name="LayerNames" type="string" nEntries="6">
+      HGCalEEServices, HGCalEEMotherBoard, HGCalEEEpoxy,
+      HGCalEEKapton, HGCalEESensitive, HGCalEEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="6">
+      hgcalMaterial:HGC_EEServices, hgcalMaterial:HGC_Hexaboard, materials:Epoxy,
+      hgcalMaterial:HGC_Kapton, materials:Silicon, hgcalMaterial:WCu</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="6">
+      5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness300], 1.40*mm</Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="6">
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
+      [SensorSizeOffset], 0.50*mm</Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="6"> 
+      0, 0, 0, 0, 1, 0</Vector>
+    <Vector name="Layers" type="numeric" nEntries="6"> 
+      0, 1, 2, 4, 3, 5</Vector>
+    <Numeric name="NCells"           value="[NumberOfCellsLD]"/>
+    <Numeric name="CellType"         value="2"/>
+    <Vector name="CellOffset" type="numeric" nEntries="4"> 
+      0, 1, 13, 19 </Vector>
+    <Vector name="CellNames" type="string" nEntries="25">
+      hgcalcell:HGCalEECellFull0LD300,   hgcalcell:HGCalEECellCorner01LD300, 
+      hgcalcell:HGCalEECellCorner02LD300,hgcalcell:HGCalEECellCorner03LD300,
+      hgcalcell:HGCalEECellCorner04LD300,hgcalcell:HGCalEECellCorner05LD300,
+      hgcalcell:HGCalEECellCorner06LD300,hgcalcell:HGCalEECellCorner07LD300,
+      hgcalcell:HGCalEECellCorner08LD300,hgcalcell:HGCalEECellCorner09LD300,
+      hgcalcell:HGCalEECellCorner10LD300,hgcalcell:HGCalEECellCorner11LD300,
+      hgcalcell:HGCalEECellCorner12LD300,hgcalcell:HGCalEECellTrunc01LD300,
+      hgcalcell:HGCalEECellTrunc02LD300, hgcalcell:HGCalEECellTrunc03LD300,
+      hgcalcell:HGCalEECellTrunc04LD300, hgcalcell:HGCalEECellTrunc05LD300,
+      hgcalcell:HGCalEECellTrunc06LD300, hgcalcell:HGCalEECellExten01LD300,
+      hgcalcell:HGCalEECellExten02LD300, hgcalcell:HGCalEECellExten03LD300,
+      hgcalcell:HGCalEECellExten04LD300, hgcalcell:HGCalEECellExten05LD300, 
+      hgcalcell:HGCalEECellExten06LD300</Vector>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferFullRotated">
+    <rParent name="hgcalwafer:HGCalEEWafer"/>
+    <String name="ModuleMaterial"    value="materials:Air"/>
+    <Numeric name="ModuleThickness"  value="[ModuleThicknessEE]"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="WaferThickness"   value="[WaferThickness300]"/>
+    <String name="WaferTag" value="LD300"/>
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
+      0, 1, 2, 3, 4, 5 </Vector>
+    <Vector name="WaferFace" type="numeric" nEntries="6"> 
+      0, 0, 0, 0, 0, 0 </Vector>
+    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
+      00, 01, 02, 03, 04, 05</Vector>  
+    <Vector name="LayerNames" type="string" nEntries="6">
+      HGCalEEServices, HGCalEEMotherBoard, HGCalEEEpoxy,
+      HGCalEEKapton, HGCalEESensitive, HGCalEEBasePlate</Vector>
+    <Vector name="LayerMaterials" type="string" nEntries="6">
+      hgcalMaterial:HGC_EEServices, hgcalMaterial:HGC_Hexaboard, materials:Epoxy,
+      hgcalMaterial:HGC_Kapton, materials:Silicon, hgcalMaterial:WCu</Vector>
+    <Vector name="LayerThickness" type="numeric" nEntries="6">
+      5.060*mm, 1.300*mm, 0.125*mm, 0.300*mm, [WaferThickness300], 1.40*mm</Vector>
+    <Vector name="LayerSizeOffset" type="numeric" nEntries="6">
+      0.70*mm, 0.70*mm, [SensorSizeOffset], 0.30*mm,
+      [SensorSizeOffset], 0.50*mm</Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="6"> 
+      0, 0, 0, 0, 1, 0</Vector>
+    <Vector name="Layers" type="numeric" nEntries="6"> 
+      5, 3, 4, 2, 1, 0</Vector>
+    <Numeric name="NCells"           value="[NumberOfCellsLD]"/>
+    <Numeric name="CellType"         value="2"/>
+    <Vector name="CellOffset" type="numeric" nEntries="4"> 
+      0, 1, 13, 19 </Vector>
+    <Vector name="CellNames" type="string" nEntries="25">
+      hgcalcell:HGCalEECellFull1LD300,   hgcalcell:HGCalEECellCorner21LD300, 
+      hgcalcell:HGCalEECellCorner22LD300,hgcalcell:HGCalEECellCorner23LD300,
+      hgcalcell:HGCalEECellCorner24LD300,hgcalcell:HGCalEECellCorner25LD300,
+      hgcalcell:HGCalEECellCorner26LD300,hgcalcell:HGCalEECellCorner27LD300,
+      hgcalcell:HGCalEECellCorner28LD300,hgcalcell:HGCalEECellCorner29LD300,
+      hgcalcell:HGCalEECellCorner30LD300,hgcalcell:HGCalEECellCorner31LD300,
+      hgcalcell:HGCalEECellCorner32LD300,hgcalcell:HGCalEECellTrunc21LD300,
+      hgcalcell:HGCalEECellTrunc22LD300, hgcalcell:HGCalEECellTrunc23LD300,
+      hgcalcell:HGCalEECellTrunc24LD300, hgcalcell:HGCalEECellTrunc25LD300,
+      hgcalcell:HGCalEECellTrunc26LD300, hgcalcell:HGCalEECellExten21LD300,
+      hgcalcell:HGCalEECellExten22LD300, hgcalcell:HGCalEECellExten23LD300,
+      hgcalcell:HGCalEECellExten24LD300, hgcalcell:HGCalEECellExten25LD300, 
+      hgcalcell:HGCalEECellExten26LD300</Vector>
+  </Algorithm>
+</PosPartSection>
+</DDDefinition>

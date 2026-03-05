@@ -6,12 +6,12 @@
 #include <vector>
 
 class CaloParticle;
+std::ostream &operator<<(std::ostream &s, CaloParticle const &tp);
+
 typedef std::vector<CaloParticle> CaloParticleCollection;
 typedef edm::Ref<CaloParticleCollection> CaloParticleRef;
 typedef edm::RefVector<CaloParticleCollection> CaloParticleRefVector;
 typedef edm::RefProd<CaloParticleCollection> CaloParticleRefProd;
 typedef edm::RefVector<CaloParticleCollection> CaloParticleContainer;
-
-std::ostream &operator<<(std::ostream &s, CaloParticle const &tp);
 
 #endif
