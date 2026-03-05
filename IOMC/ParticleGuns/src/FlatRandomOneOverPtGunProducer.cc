@@ -1,3 +1,8 @@
+/** \class FlatRandomOneOverPtGunProducer
+ *
+ * Generates single particle gun flat in (1/pt) in HepMC format
+ **************************************************************/
+
 #include <ostream>
 
 #include "BaseFlatGunProducer.h"

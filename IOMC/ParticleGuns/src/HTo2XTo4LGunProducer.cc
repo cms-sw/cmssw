@@ -1,3 +1,14 @@
+/** \class HTo2XTo4LGunProducer
+ *
+ * Generates a 4 lepton final state in HepMC format.
+ * The gun starts by producing a Higgs of random mass. 
+ * The Higgs is then decayed into two long-lived particles which are then propagated to their decay vertex, and decay to 2 leptons each.
+ * The resulting leptons are then plugged into the event as two separate verteces - one vertex for each muon pair.
+ * Neither the Higgs nor the two long-lived particles are injected into the event.
+ *
+ * Contact Osvaldo Miguel Colin
+ ***************************************/
+
 #include <ostream>
 
 #include "Math/LorentzVector.h"

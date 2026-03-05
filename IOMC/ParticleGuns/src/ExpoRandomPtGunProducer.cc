@@ -1,6 +1,8 @@
-/*
- *  \author Jean-Roch Vlimant
- */
+/** \class ExpoRandomPtGunProducer
+ *
+ * Generates single particle gun in HepMC format
+ * Jean-Roch Vlimant
+ ***************************************/
 
 #include <ostream>
 

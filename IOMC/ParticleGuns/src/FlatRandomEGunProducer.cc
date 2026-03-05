@@ -1,6 +1,8 @@
-/*
- *  \author Julia Yarba
- */
+/** \class FlatRandomEGunProducer
+ *
+ * Generates single particle gun in HepMC format
+ * Julia Yarba 10/2005 
+ ***************************************/
 
 #include <ostream>
 
