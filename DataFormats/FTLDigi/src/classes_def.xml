@@ -5,13 +5,14 @@
    <class name="std::vector<FTLDataFrame>"/>
    <class name="FTLDigiCollection"/>
    <class name="edm::Wrapper<FTLDigiCollection>" />
-   <class name="BTLSample"/>
+   <class name="io_v1::BTLSample" ClassVersion="3">
+     <version ClassVersion="3" checksum="2717714428"/>
+   </class>
    <class name="std::vector<BTLSample>"/>
-   <class name="ETLSample" ClassVersion="11">
-     <version ClassVersion="11" checksum="1290724074"/>
-     <version ClassVersion="10" checksum="1790811181"/>
+   <class name="io_v1::ETLSample" ClassVersion="3">
+     <version ClassVersion="3" checksum="3310437482"/>
    </class>  
-   <class name="std::vector<ETLSample>"/>
+   <class name="std::vector<io_v1::ETLSample>"/>
    <class name="BTLDataFrame"/>
    <class name="std::vector<BTLDataFrame>"/>
    <class name="BTLDigiCollection"/>
