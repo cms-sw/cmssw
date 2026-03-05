@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="TruthGraph"/>
+  <class name="TruthGraph::NodeRef"/>
+  <class name="std::vector<TruthGraph::NodeRef>"/>
+  <class name="edm::Wrapper<TruthGraph>"/>
+</lcgdict>
