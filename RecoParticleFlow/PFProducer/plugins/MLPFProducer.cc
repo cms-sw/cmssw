@@ -47,27 +47,15 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   const auto& gsfElectrons = event.get(gsfElectrons_);
 
   std::vector<const reco::PFBlockElement*> selected_elements;
-#ifdef MLPF_DEBUG
-  unsigned int num_elements_total = all_elements.size();
-#endif
-  unsigned int num_elements_skipped = 0;
-  unsigned int num_elements_selected = 0;
   for (const auto* pelem : all_elements) {
     if (pelem->type() == reco::PFBlockElement::PS1 || pelem->type() == reco::PFBlockElement::PS2 ||
         pelem->type() == reco::PFBlockElement::BREM) {
-      num_elements_skipped += 1;
       continue;
     }
-    num_elements_selected += 1;
     selected_elements.push_back(pelem);
   }
 
-#ifdef MLPF_DEBUG
-  std::cout << "num_elements_total=" << num_elements_total << " num_elements_skipped=" << num_elements_skipped
-            << " num_elements_selected=" << num_elements_selected << std::endl;
-#endif
-
-  const auto tensor_size = num_elements_selected;
+  const auto tensor_size = selected_elements.size();
 
   //Fill the input tensor (batch, elems, features) = (1, tensor_size, NUM_ELEMENT_FEATURES)
   std::vector<std::vector<float>> inputs;
@@ -106,8 +94,10 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
 #endif
 
   //run the GNN inference, given the inputs and the output.
-  const auto& outputs =
-      globalCache()->run({"Xfeat_normed", "mask"}, inputs, {{1, tensor_size, NUM_ELEMENT_FEATURES}, {1, tensor_size}});
+  const auto& outputs = globalCache()->run(
+      {"Xfeat_normed", "mask"},
+      inputs,
+      {{1, static_cast<long int>(tensor_size), NUM_ELEMENT_FEATURES}, {1, static_cast<long int>(tensor_size)}});
   const auto& output_binary = outputs[0];
   const auto& output_pid = outputs[1];
   const auto& output_p4 = outputs[2];
@@ -124,7 +114,7 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
 #endif
 
   std::vector<reco::PFCandidate> pOutputCandidateCollection;
-  for (size_t ielem = 0; ielem < num_elements_selected; ielem++) {
+  for (size_t ielem = 0; ielem < selected_elements.size(); ielem++) {
     std::vector<float> pred_id_probas(pdgid_encoding.size(), 0.0);
     const reco::PFBlockElement* elem = selected_elements[ielem];
 
