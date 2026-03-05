@@ -3,12 +3,11 @@
 
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/MtdSimClusterFwd.h"
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/Track/interface/SimTrackFwd.h"
 
 #include <vector>
-
-class EncodedEventId;
 
 class MtdCaloParticle : public CaloParticle {
   friend std::ostream &operator<<(std::ostream &s, MtdCaloParticle const &tp);
