@@ -51,7 +51,8 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   unsigned int num_elements_skipped = 0;
   unsigned int num_elements_selected = 0;
   for (const auto* pelem : all_elements) {
-    if (pelem->type() == reco::PFBlockElement::PS1 || pelem->type() == reco::PFBlockElement::PS2 || pelem->type() == reco::PFBlockElement::BREM) {
+    if (pelem->type() == reco::PFBlockElement::PS1 || pelem->type() == reco::PFBlockElement::PS2 ||
+        pelem->type() == reco::PFBlockElement::BREM) {
       num_elements_skipped += 1;
       continue;
     }
@@ -60,11 +61,10 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   }
 
 #ifdef MLPF_DEBUG
-  std::cout << "num_elements_total=" << num_elements_total
-            << " num_elements_skipped=" << num_elements_skipped
+  std::cout << "num_elements_total=" << num_elements_total << " num_elements_skipped=" << num_elements_skipped
             << " num_elements_selected=" << num_elements_selected << std::endl;
 #endif
-  
+
   const auto tensor_size = num_elements_selected;
 
   //Fill the input tensor (batch, elems, features) = (1, tensor_size, NUM_ELEMENT_FEATURES)
@@ -88,7 +88,7 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
     //copy features to the input array
     for (unsigned int iprop = 0; iprop < NUM_ELEMENT_FEATURES; iprop++) {
       const auto vec_elem = ielem * NUM_ELEMENT_FEATURES + iprop;
-      assert(vec_elem < inputs[0].size()); 
+      assert(vec_elem < inputs[0].size());
       inputs[0][vec_elem] = normalize(props[iprop]);
     }
     //mask
@@ -97,26 +97,27 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   }
 
 #ifdef MLPF_DEBUG
-  for (unsigned int _idx=0; _idx < inputs[0].size(); _idx++) {
+  for (unsigned int _idx = 0; _idx < inputs[0].size(); _idx++) {
     std::cout << inputs[0][_idx] << " ";
   }
   std::cout << std::endl;
 #endif
 
   //run the GNN inference, given the inputs and the output.
-  const auto& outputs = globalCache()->run({"Xfeat_normed", "mask"}, inputs, {{1, tensor_size, NUM_ELEMENT_FEATURES}, {1, tensor_size}});
+  const auto& outputs =
+      globalCache()->run({"Xfeat_normed", "mask"}, inputs, {{1, tensor_size, NUM_ELEMENT_FEATURES}, {1, tensor_size}});
   const auto& output_binary = outputs[0];
   const auto& output_pid = outputs[1];
   const auto& output_p4 = outputs[2];
 
 #ifdef MLPF_DEBUG
-  std::cout << "output_binary=" << output_binary.size() << std::endl;  
+  std::cout << "output_binary=" << output_binary.size() << std::endl;
   assert(output_binary.size() == tensor_size * 2);
 
-  std::cout << "output_pid=" << output_pid.size() << std::endl;  
+  std::cout << "output_pid=" << output_pid.size() << std::endl;
   assert(output_pid.size() == tensor_size * NUM_OUTPUT_FEATURES_CLS);
 
-  std::cout << "output_p4=" << output_p4.size() << std::endl;  
+  std::cout << "output_p4=" << output_p4.size() << std::endl;
   assert(output_p4.size() == tensor_size * NUM_OUTPUT_FEATURES_P4);
 #endif
 
@@ -138,8 +139,8 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
 #ifdef MLPF_DEBUG
     std::cout << "binary: " << logit_no_ptcl << " " << logit_ptcl << std::endl;
 #endif
-   
-    // Check if the binary classifier of the model predicted a particle 
+
+    // Check if the binary classifier of the model predicted a particle
     int pred_pid = 0;
     if (logit_ptcl > logit_no_ptcl) {
       for (unsigned int idx_id = 0; idx_id < pred_id_probas.size(); idx_id++) {
@@ -150,9 +151,9 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
 #endif
         pred_id_probas[idx_id] = pred_proba;
       }
-  
+
       auto imax = argMax(pred_id_probas);
-  
+
       //get the most probable class PDGID
       pred_pid = pdgid_encoding.at(imax);
 #ifdef MLPF_DEBUG
@@ -161,12 +162,10 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
     }
 
 #ifdef MLPF_DEBUG
-    std::cout << "p4: "
-      << output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + 0] << " "
-      << output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + 1] << " " 
-      << output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + 2] << " " 
-      << output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + 3] << " " 
-      << output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + 4] << std::endl;
+    std::cout << "p4: " << output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + 0] << " "
+              << output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + 1] << " " << output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + 2]
+              << " " << output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + 3] << " "
+              << output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + 4] << std::endl;
 #endif
 
     //a particle was predicted for this PFElement, otherwise it was a spectator
@@ -179,8 +178,8 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
       float pred_charge = 0.0;
       if (elem->type() == reco::PFBlockElement::TRACK) {
         const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(elem);
-	//for now, just take the charge from the track
-	if (eltTrack->trackRef().isNonnull()) {
+        //for now, just take the charge from the track
+        if (eltTrack->trackRef().isNonnull()) {
           pred_charge = eltTrack->trackRef()->charge();
         }
 
@@ -188,9 +187,9 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
         if (pred_pid == 13 && eltTrack->muonRef().isNull()) {
           pred_pid = 211;
         }
-       
+
         //taus are reconstructed downstream based on other criteria, instead we interpret it as a charged hadron here
-	if (pred_pid == 15) {
+        if (pred_pid == 15) {
           pred_pid = 211;
         }
 
@@ -203,27 +202,26 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
       //do not attempt to do PID in the HF
       if (elem->type() == reco::PFBlockElement::HFEM) {
         pred_pid = 2;
-      }
-      else if (elem->type() == reco::PFBlockElement::HFHAD) {
+      } else if (elem->type() == reco::PFBlockElement::HFHAD) {
         pred_pid = 1;
       }
 
       //get the predicted momentum components from the model
       float pred_pt = output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + IDX_PT];
-      pred_pt = exp(pred_pt) * inputs[0][ielem * NUM_ELEMENT_FEATURES + 1]; 
+      pred_pt = exp(pred_pt) * inputs[0][ielem * NUM_ELEMENT_FEATURES + 1];
       float pred_eta = output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + IDX_ETA];
       float pred_sin_phi = output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + IDX_SIN_PHI];
       float pred_cos_phi = output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + IDX_COS_PHI];
       float pred_e = output_p4[ielem * NUM_OUTPUT_FEATURES_P4 + IDX_ENERGY];
       pred_e = exp(pred_e) * inputs[0][ielem * NUM_ELEMENT_FEATURES + 5];
-     
+
       if (elem->type() == reco::PFBlockElement::TRACK) {
-          const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(elem);
-	  if (eltTrack->trackRef().isNonnull()) {
-              pred_eta = eltTrack->trackRef()->eta();
-              pred_sin_phi = sin(eltTrack->trackRef()->phi());
-              pred_cos_phi = cos(eltTrack->trackRef()->phi());
-	  }
+        const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(elem);
+        if (eltTrack->trackRef().isNonnull()) {
+          pred_eta = eltTrack->trackRef()->eta();
+          pred_sin_phi = sin(eltTrack->trackRef()->phi());
+          pred_cos_phi = cos(eltTrack->trackRef()->phi());
+        }
       }
 
       auto cand = makeCandidate(pred_pid, pred_charge, pred_pt, pred_eta, pred_sin_phi, pred_cos_phi, pred_e);
@@ -241,7 +239,8 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
 }
 
 std::unique_ptr<ONNXRuntime> MLPFProducer::initializeGlobalCache(const edm::ParameterSet& params) {
-  auto session_options = ONNXRuntime::defaultSessionOptions(params.getParameter<bool>("use_cuda") ? Backend::cuda : Backend::cpu);
+  auto session_options =
+      ONNXRuntime::defaultSessionOptions(params.getParameter<bool>("use_cuda") ? Backend::cuda : Backend::cpu);
   return std::make_unique<ONNXRuntime>(params.getParameter<edm::FileInPath>("model_path").fullPath(), &session_options);
 }
 
@@ -250,9 +249,10 @@ void MLPFProducer::globalEndJob(const ONNXRuntime* cache) {}
 void MLPFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("particleFlowBlock"));
-  desc.add<edm::FileInPath>("model_path",
-                            edm::FileInPath("RecoParticleFlow/PFProducer/data/mlpf/"
-                                            "mlpf_5M_attn2x3x256_bm12_relu_checkpoint10_8xmi250_fp32_fused_20250722.onnx"));
+  desc.add<edm::FileInPath>(
+      "model_path",
+      edm::FileInPath("RecoParticleFlow/PFProducer/data/mlpf/"
+                      "mlpf_5M_attn2x3x256_bm12_relu_checkpoint10_8xmi250_fp32_fused_20250722.onnx"));
   desc.add<bool>("use_cuda", false);
   descriptions.addWithDefaultLabel(desc);
 }

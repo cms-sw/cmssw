@@ -233,7 +233,7 @@ namespace reco::mlpf {
 
         time = ref->time();
         timeerror = ref->timeError();
-       
+
         std::vector<double> hitE(ref->recHitFractions().size(), 0.0);
         std::vector<double> posEta(ref->recHitFractions().size(), 0.0);
         std::vector<double> posPhi(ref->recHitFractions().size(), 0.0);
@@ -241,7 +241,7 @@ namespace reco::mlpf {
         std::vector<double> posY(ref->recHitFractions().size(), 0.0);
         std::vector<double> posZ(ref->recHitFractions().size(), 0.0);
         std::vector<double> depths(ref->recHitFractions().size(), 0.0);
-        
+
         std::vector<double> depth1_hitE;
         std::vector<double> depth1_posEta;
         std::vector<double> depth1_posPhi;
@@ -272,18 +272,15 @@ namespace reco::mlpf {
             depth1_hitE.push_back(hitE[ihit]);
             depth1_posEta.push_back(posEta[ihit]);
             depth1_posPhi.push_back(posPhi[ihit]);
-          }
-          else if (depths[ihit] == 2) {
+          } else if (depths[ihit] == 2) {
             depth2_hitE.push_back(hitE[ihit]);
             depth2_posEta.push_back(posEta[ihit]);
             depth2_posPhi.push_back(posPhi[ihit]);
-          }
-          else if (depths[ihit] == 3) {
+          } else if (depths[ihit] == 3) {
             depth3_hitE.push_back(hitE[ihit]);
             depth3_posEta.push_back(posEta[ihit]);
             depth3_posPhi.push_back(posPhi[ihit]);
-          }
-          else {
+          } else {
             depth4_hitE.push_back(hitE[ihit]);
             depth4_posEta.push_back(posEta[ihit]);
             depth4_posPhi.push_back(posPhi[ihit]);
@@ -315,7 +312,7 @@ namespace reco::mlpf {
           etaerror4 = TMath::StdDev(depth4_posEta.begin(), depth4_posEta.end(), depth4_hitE.begin());
           phierror4 = TMath::StdDev(depth4_posPhi.begin(), depth4_posPhi.end(), depth4_hitE.begin());
         }
-      } 
+      }
     } else if (type == reco::PFBlockElement::SC) {
       const auto& clref = ((const reco::PFBlockElementSuperCluster*)&orig)->superClusterRef();
       if (clref.isNonnull()) {
@@ -404,9 +401,7 @@ namespace reco::mlpf {
   }
 
   //to make sure DNN inputs are within numerical bounds, use the same in training
-  float normalize(float in) {
-    return in;
-  }
+  float normalize(float in) { return in; }
 
   int argMax(std::vector<float> const& vec) {
     return static_cast<int>(std::distance(vec.begin(), max_element(vec.begin(), vec.end())));
@@ -418,7 +413,7 @@ namespace reco::mlpf {
                                   float pred_eta,
                                   float pred_sin_phi,
                                   float pred_cos_phi,
-				  float pred_e) {
+                                  float pred_e) {
     float pred_phi = std::atan2(pred_sin_phi, pred_cos_phi);
 
     //set the charge to +1 or -1 for PFCandidates that are charged, according to the sign of the predicted charge

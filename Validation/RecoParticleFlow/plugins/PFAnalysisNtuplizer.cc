@@ -623,7 +623,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::Handle<edm::View<CaloParticle>> caloParticlesHandle;
   iEvent.getByToken(caloParticles_, caloParticlesHandle);
   const edm::View<CaloParticle>& caloParticles = *caloParticlesHandle;
-  
+
   //Matches reco tracks to sim tracks (TrackingParticle)
   edm::Handle<reco::RecoToSimCollection> recotosimCollection;
   iEvent.getByToken(tracks_recotosim_, recotosimCollection);
@@ -822,13 +822,16 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       simcluster_bx_.push_back(simcluster.eventId().bunchCrossing());
       simcluster_ev_.push_back(simcluster.eventId().event());
       simcluster_idx_caloparticle_.push_back(ncaloparticle);
-      LOG << "  sc pt=" << simcluster.p4().pt() << " typ=" << simcluster.pdgId() << " gen=" << simcluster.genParticles().size() << " tid=" << simcluster.g4Tracks().at(0).trackId() << std::endl;
-      
+      LOG << "  sc pt=" << simcluster.p4().pt() << " typ=" << simcluster.pdgId()
+          << " gen=" << simcluster.genParticles().size() << " tid=" << simcluster.g4Tracks().at(0).trackId()
+          << std::endl;
+
       int simcluster_to_trackingparticle = -1;
       for (size_t itp = 0; itp < trackingParticles.size(); itp++) {
         const auto& simtrack2 = trackingParticles.at(itp).g4Tracks().at(0);
         //compare the two tracks, taking into account that both eventId and trackId need to be compared due to pileup
-        if (simcluster.g4Tracks().at(0).eventId() == simtrack2.eventId() && simcluster.g4Tracks().at(0).trackId() == simtrack2.trackId()) {
+        if (simcluster.g4Tracks().at(0).eventId() == simtrack2.eventId() &&
+            simcluster.g4Tracks().at(0).trackId() == simtrack2.trackId()) {
           simcluster_to_trackingparticle = itp;
           //we are satisfied with the first match, in practice there should not be more
           break;
@@ -844,7 +847,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       caloparticle_to_simcluster.push_back({ncaloparticle, nsimcluster});
       nsimcluster++;
     }  //simclusters
-  }    //caloParticles
+  }  //caloParticles
 
   //fill pfcluster to rechit
   map<int, vector<pair<uint64_t, float>>> pfcluster_to_rechit;
@@ -896,19 +899,21 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
             if (caloparticle_to_pfcluster.find(key) == caloparticle_to_pfcluster.end()) {
               caloparticle_to_pfcluster[key] = 0.0;
             }
-	    LOG << "cp match " << key.first << " " << key.second << " " << rechit_frac.second << " " << simhit_frac.second;
+            LOG << "cp match " << key.first << " " << key.second << " " << rechit_frac.second << " "
+                << simhit_frac.second;
             caloparticle_to_pfcluster[key] += rechit_frac.second * simhit_frac.second;
           }
         }
-        
-	const auto& found_sc = simhit_to_simcluster.find(rechit_frac.first);
+
+        const auto& found_sc = simhit_to_simcluster.find(rechit_frac.first);
         if (found_sc != simhit_to_simcluster.end()) {
           for (const auto& simhit_frac : (*found_sc).second) {
             const pair<size_t, size_t> key{simhit_frac.first, ielem};
             if (simcluster_to_pfcluster.find(key) == simcluster_to_pfcluster.end()) {
               simcluster_to_pfcluster[key] = 0.0;
             }
-	    LOG << "sc match " << key.first << " " << key.second << " " << rechit_frac.second << " " << simhit_frac.second;
+            LOG << "sc match " << key.first << " " << key.second << " " << rechit_frac.second << " "
+                << simhit_frac.second;
             simcluster_to_pfcluster[key] += rechit_frac.second * simhit_frac.second;
           }
         }
@@ -981,7 +986,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     caloparticle_to_element_cmp.push_back(energy);
     LOG << "cp_to_elem=" << cp_pf.first << "," << cp_pf.second << " e=" << energy;
   }
-  
+
   for (const auto& sc_to_pf : simcluster_to_pfcluster) {
     const auto& sc_pf = sc_to_pf.first;
     const auto energy = sc_to_pf.second;
@@ -1060,7 +1065,8 @@ void PFAnalysis::processTrackingParticles(const edm::View<TrackingParticle>& tra
 
     trackingparticle_pid_.push_back(tp.pdgId());
     trackingparticle_charge_.push_back(tp.charge());
-    LOG << "tp=" << ntrackingparticle << " pt=" << tp.p4().pt() << " typ=" << tp.pdgId() << " gen=" << tp.genParticles().size() << " tid=" << tp.g4Tracks().at(0).trackId() << std::endl;
+    LOG << "tp=" << ntrackingparticle << " pt=" << tp.p4().pt() << " typ=" << tp.pdgId()
+        << " gen=" << tp.genParticles().size() << " tid=" << tp.g4Tracks().at(0).trackId() << std::endl;
   }
 }
 
