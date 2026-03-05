@@ -95,8 +95,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ThresholdForGeometryExceptions = cms.double(0.1), ## in GeV
     TraceExceptions = cms.bool(False),
     CheckGeometry = cms.untracked.bool(False),
-    OnlySDs = cms.vstring('BSCSensitiveDetector','BCM1FSensitiveDetector','BHMSensitiveDetector','CTPPSDiamondSensitiveDetector','CTPPSSensitiveDetector','CaloTrkProcessing','CastorSensitiveDetector','EcalSensitiveDetector','HcalSensitiveDetector','MuonSensitiveDetector','PLTSensitiveDetector','RomanPotSensitiveDetector','TkAccumulatingSensitiveDetector','TotemSensitiveDetector','TotemT2ScintSensitiveDetector','ZdcSensitiveDetector'),
-    TrackHits = cms.vstring('BCM1FHits','BHMHits','BSCHits','CTPPSPixelHits','CTPPSTimingHits','MuonCSCHits','MuonDTHits','MuonGEMHits','MuonME0Hits','MuonRPCHits','PLTHits','TotemHitsRP','TotemHitsT1','TrackerHitsPixelEndcapLowTof','TrackerHitsPixelEndcapHighTof','TrackerHitsPixelBarrelLowTof','TrackerHitsPixelBarrelHighTof','TrackerHitsTECLowTof','TrackerHitsTECHighTof','TrackerHitsTIBLowTof','TrackerHitsTIBHighTof','TrackerHitsTIDLowTof','TrackerHitsTIDHighTof','TrackerHitsTOBLowTof','TrackerHitsTOBHighTof'),
+    OnlySDs = cms.vstring('BSCSensitiveDetector','BCM1FSensitiveDetector','BHMSensitiveDetector','CTPPSDiamondSensitiveDetector','CTPPSSensitiveDetector','CaloTrkProcessing','CastorSensitiveDetector','EcalSensitiveDetector','HcalSensitiveDetector','MuonSensitiveDetector','PLTSensitiveDetector','RomanPotSensitiveDetector','TkAccumulatingSensitiveDetector','TotemSensitiveDetector','TotemT2ScintSensitiveDetector','ZdcSensitiveDetector','FSCSensitiveDetector'),
+    TrackHits = cms.vstring('BCM1FHits','BHMHits','BSCHits','CTPPSPixelHits','CTPPSTimingHits','MuonCSCHits','MuonDTHits','MuonGEMHits','MuonME0Hits','MuonRPCHits','PLTHits','TotemHitsRP','TotemHitsT1','TrackerHitsPixelEndcapLowTof','TrackerHitsPixelEndcapHighTof','TrackerHitsPixelBarrelLowTof','TrackerHitsPixelBarrelHighTof','TrackerHitsTECLowTof','TrackerHitsTECHighTof','TrackerHitsTIBLowTof','TrackerHitsTIBHighTof','TrackerHitsTIDLowTof','TrackerHitsTIDHighTof','TrackerHitsTOBLowTof','TrackerHitsTOBHighTof','FSCHits'),
     CaloHits = cms.vstring('CaloHitsTk','CastorBU','CastorFI','CastorPL','CastorTU','EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits','ZDCHITS'),
     Init = cms.PSet(
         DefaultVoxelDensity = cms.double(2.0),
@@ -673,6 +673,9 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         TimeSliceUnit   = cms.double(1),
         IgnoreTrackID   = cms.bool(False),
     ),
+    FscSD = cms.PSet(
+        Verbosity = cms.untracked.int32(0)
+    ),
 )
 ##
 ## Change the HFShowerLibrary file from Run 2
@@ -696,8 +699,8 @@ from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify( g4SimHits, CastorSD = dict( useShowerLibrary = False ) ) 
 run3_common.toModify( g4SimHits, LHCTransport = True )
 run3_common.toModify( g4SimHits,
-                      OnlySDs = ['BSCSensitiveDetector','BCM1FSensitiveDetector','BHMSensitiveDetector','CTPPSDiamondSensitiveDetector','CTPPSSensitiveDetector','CaloTrkProcessing','EcalSensitiveDetector','HcalSensitiveDetector','MuonSensitiveDetector','PLTSensitiveDetector','RomanPotSensitiveDetector','TkAccumulatingSensitiveDetector','TotemSensitiveDetector','TotemT2ScintSensitiveDetector','ZdcSensitiveDetector'],
-                      TrackHits = ['BCM1FHits','BHMHits','BSCHits','CTPPSPixelHits','CTPPSTimingHits','MuonCSCHits','MuonDTHits','MuonGEMHits','MuonME0Hits','MuonRPCHits','PLTHits','TotemHitsRP','TotemHitsT1','TrackerHitsPixelEndcapLowTof','TrackerHitsPixelEndcapHighTof','TrackerHitsPixelBarrelLowTof','TrackerHitsPixelBarrelHighTof','TrackerHitsTECLowTof','TrackerHitsTECHighTof','TrackerHitsTIBLowTof','TrackerHitsTIBHighTof','TrackerHitsTIDLowTof','TrackerHitsTIDHighTof','TrackerHitsTOBLowTof','TrackerHitsTOBHighTof'],
+                      OnlySDs = ['BSCSensitiveDetector','BCM1FSensitiveDetector','BHMSensitiveDetector','CTPPSDiamondSensitiveDetector','CTPPSSensitiveDetector','CaloTrkProcessing','EcalSensitiveDetector','HcalSensitiveDetector','MuonSensitiveDetector','PLTSensitiveDetector','RomanPotSensitiveDetector','TkAccumulatingSensitiveDetector','TotemSensitiveDetector','TotemT2ScintSensitiveDetector','ZdcSensitiveDetector','FSCSensitiveDetector'],
+                      TrackHits = ['BCM1FHits','BHMHits','BSCHits','CTPPSPixelHits','CTPPSTimingHits','MuonCSCHits','MuonDTHits','MuonGEMHits','MuonME0Hits','MuonRPCHits','PLTHits','TotemHitsRP','TotemHitsT1','TrackerHitsPixelEndcapLowTof','TrackerHitsPixelEndcapHighTof','TrackerHitsPixelBarrelLowTof','TrackerHitsPixelBarrelHighTof','TrackerHitsTECLowTof','TrackerHitsTECHighTof','TrackerHitsTIBLowTof','TrackerHitsTIBHighTof','TrackerHitsTIDLowTof','TrackerHitsTIDHighTof','TrackerHitsTOBLowTof','TrackerHitsTOBHighTof','FSCHits'],
                       CaloHits = ['CaloHitsTk','EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits','TotemHitsT2Scint','ZDCHITS'] )
 
 ##
