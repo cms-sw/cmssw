@@ -82,6 +82,9 @@ std::string JetMCTagUtils::genTauDecayMode(const CompositePtrCandidate &c) {
   for (CompositePtrCandidate::daughters::const_iterator daughter = daughters.begin(); daughter != daughters.end();
        ++daughter) {
     int pdg_id = abs((*daughter)->pdgId());
+    //MB: exclude FSR photons, i.e. directly from tau
+    if (pdg_id == 22 && abs((*daughter)->mother()->pdgId()) == 15)
+      continue;
 
     switch (pdg_id) {
       case 22:
@@ -103,6 +106,12 @@ std::string JetMCTagUtils::genTauDecayMode(const CompositePtrCandidate &c) {
           numNeutralHadrons++;
       }
     }
+  }
+
+  //MB: ee pairs from pi0->gamma(ee) decays
+  if (numElectrons > 1) {
+    numPhotons += numElectrons / 2;
+    numElectrons = numElectrons % 2;
   }
 
   if (numElectrons == 1)
