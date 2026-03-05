@@ -1,5 +1,5 @@
-#ifndef TrivialSerialisation_Common_interface_WriterBase_h
-#define TrivialSerialisation_Common_interface_WriterBase_h
+#ifndef HeterogeneousCore_TrivialSerialisation_interface_WriterBase_h
+#define HeterogeneousCore_TrivialSerialisation_interface_WriterBase_h
 
 #include <cstddef>
 #include <span>
@@ -10,6 +10,7 @@
 
 namespace ngt {
 
+  // Base class for creating a new product and exposing its memory regions for writing.
   class WriterBase {
   public:
     WriterBase() = default;
@@ -28,4 +29,4 @@ namespace ngt {
 
 }  // namespace ngt
 
-#endif  // TrivialSerialisation_Common_interface_WriterBase_h
+#endif  // HeterogeneousCore_TrivialSerialisation_interface_WriterBase_h
