@@ -47,7 +47,9 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   const auto& gsfElectrons = event.get(gsfElectrons_);
 
   std::vector<const reco::PFBlockElement*> selected_elements;
+#ifdef MLPF_DEBUG
   unsigned int num_elements_total = all_elements.size();
+#endif
   unsigned int num_elements_skipped = 0;
   unsigned int num_elements_selected = 0;
   for (const auto* pelem : all_elements) {
