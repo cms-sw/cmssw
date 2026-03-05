@@ -203,9 +203,13 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       }
       if (std::abs(thickTot - thick) >= tol) {
         if (thickTot > thick) {
-          edm::LogError("HGCalGeom") << "DDHGCalWaferPartialRotated::Thickness of the partition " << cms::convert2mm(thick) << " is smaller than " << cms::convert2mm(thickTot) << ": thickness of all its components **** ERROR ****";
+          edm::LogError("HGCalGeom") << "DDHGCalWaferPartialRotated::Thickness of the partition "
+                                     << cms::convert2mm(thick) << " is smaller than " << cms::convert2mm(thickTot)
+                                     << ": thickness of all its components **** ERROR ****";
         } else {
-          edm::LogWarning("HGCalGeom") << "DDHGCalWaferPartialRotated::Thickness of the partition " << cms::convert2mm(thick) << " does not match with " << cms::convert2mm(thickTot) << " of the components";
+          edm::LogWarning("HGCalGeom") << "DDHGCalWaferPartialRotated::Thickness of the partition "
+                                       << cms::convert2mm(thick) << " does not match with " << cms::convert2mm(thickTot)
+                                       << " of the components";
         }
       }
     }

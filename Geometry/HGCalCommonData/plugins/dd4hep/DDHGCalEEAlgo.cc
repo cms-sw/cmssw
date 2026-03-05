@@ -327,9 +327,13 @@ struct HGCalEEAlgo {
       laymin = laymax;
       if (std::abs(thickTot - layerThick_[i]) >= tol2) {
         if (thickTot > layerThick_[i]) {
-          edm::LogError("HGCalGeom") << "DDHGCalEEAlgo::Thickness of the partition " << cms::convert2mm(layerThick_[i]) << " is smaller than " << cms::convert2mm(thickTot) << ": thickness of all its components **** ERROR ****";
+          edm::LogError("HGCalGeom") << "DDHGCalEEAlgo::Thickness of the partition " << cms::convert2mm(layerThick_[i])
+                                     << " is smaller than " << cms::convert2mm(thickTot)
+                                     << ": thickness of all its components **** ERROR ****";
         } else {
-          edm::LogWarning("HGCalGeom") << "DDHGCalEEAlgo::Thickness of the partition " << cms::convert2mm(layerThick_[i]) << " does not match with " << cms::convert2mm(thickTot) << " of the components";
+          edm::LogWarning("HGCalGeom") << "DDHGCalEEAlgo::Thickness of the partition "
+                                       << cms::convert2mm(layerThick_[i]) << " does not match with "
+                                       << cms::convert2mm(thickTot) << " of the components";
         }
       }
 

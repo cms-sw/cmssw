@@ -237,9 +237,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
     laymin = laymax;
     if (fabs(thickTot - layerThick[i]) > tol2) {
       if (thickTot > layerThick[i]) {
-        edm::LogError("HGCalGeom") << "DDHGCalTBModule::Thickness of the partition " << cms::convert2mm(layerThick[i]) << " is smaller than thickness " << cms::convert2mm(thickTot) << " of all its components **** ERROR ****\n";
+        edm::LogError("HGCalGeom") << "DDHGCalTBModule::Thickness of the partition " << cms::convert2mm(layerThick[i])
+                                   << " is smaller than thickness " << cms::convert2mm(thickTot)
+                                   << " of all its components **** ERROR ****\n";
       } else {
-        edm::LogWarning("HGCalGeom") << "DDHGCalTBModule::Thickness of the partition " << cms::convert2mm(layerThick[i]) << " does not match with " << cms::convert2mm(thickTot) << " of the components\n";
+        edm::LogWarning("HGCalGeom") << "DDHGCalTBModule::Thickness of the partition " << cms::convert2mm(layerThick[i])
+                                     << " does not match with " << cms::convert2mm(thickTot) << " of the components\n";
       }
     }
   }  // End of loop over blocks

@@ -165,9 +165,14 @@ struct HGCalPassive {
           }
           if ((std::abs(thickTot - moduleThick) >= tol) && (!layerType.empty())) {
             if (thickTot > moduleThick) {
-              edm::LogError("HGCalGeom") << "DDHGCalPassive::Thickness of the partition " << cms::convert2mm(moduleThick) << " is smaller than " << cms::convert2mm(thickTot) << ": thickness of all its components **** ERROR ****";
+              edm::LogError("HGCalGeom") << "DDHGCalPassive::Thickness of the partition "
+                                         << cms::convert2mm(moduleThick) << " is smaller than "
+                                         << cms::convert2mm(thickTot)
+                                         << ": thickness of all its components **** ERROR ****";
             } else {
-              edm::LogWarning("HGCalGeom") << "DDHGCalPassive::Thickness of the partition " << cms::convert2mm(moduleThick) << " does not match with " << cms::convert2mm(thickTot) << " of the components";
+              edm::LogWarning("HGCalGeom")
+                  << "DDHGCalPassive::Thickness of the partition " << cms::convert2mm(moduleThick)
+                  << " does not match with " << cms::convert2mm(thickTot) << " of the components";
             }
           }
         }
