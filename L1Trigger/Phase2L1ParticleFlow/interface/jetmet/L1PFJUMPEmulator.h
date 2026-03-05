@@ -10,7 +10,7 @@
 
 #include "FWCore/Utilities/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "nlohmann/json.hpp"
+#include <nlohmann/json.hpp>
 
 #include <vector>
 #include <numeric>
