@@ -18,7 +18,7 @@ jetDQMAnalyzerAk4CaloUncleaned = DQMEDAnalyzer('JetAnalyzer',
     #
     #
     highPtJetTrigger = cms.PSet(
-        andOr         = cms.bool( False ),
+        andOr          = cms.bool( False ),
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltPaths       = cms.vstring( 'HLT_PFJet450_v*'), 
@@ -26,7 +26,7 @@ jetDQMAnalyzerAk4CaloUncleaned = DQMEDAnalyzer('JetAnalyzer',
         errorReplyHlt  = cms.bool( False ),
     ),
     lowPtJetTrigger = cms.PSet(
-        andOr         = cms.bool( False ),
+        andOr          = cms.bool( False ),
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltPaths       = cms.vstring( 'HLT_PFJet80_v*'), 
@@ -90,7 +90,15 @@ jetDQMAnalyzerAk4CaloUncleaned = DQMEDAnalyzer('JetAnalyzer',
 ## change the default to stage2 for all current eras
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 stage2L1Trigger.toModify(jetDQMAnalyzerAk4CaloUncleaned,
-                         stage2L1 = True)
+                         stage2L1 = True,
+                         highPtJetTrigger = dict(stage2 = cms.bool(True),
+                                                 l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                 l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                 ReadPrescalesFromFile = cms.bool(False)),
+                         lowPtJetTrigger = dict(stage2 = cms.bool(True),
+                                                l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                ReadPrescalesFromFile = cms.bool(False)))
 
 jetDQMAnalyzerAk4CaloCleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
     JetCleaningFlag   = True,
@@ -235,6 +243,17 @@ jetDQMAnalyzerAk4ScoutingUncleaned = jetDQMAnalyzerAk4CaloUncleaned.clone(
       alwaysPass = cms.untracked.bool(False)
     )
 )
+
+stage2L1Trigger.toModify(jetDQMAnalyzerAk4ScoutingUncleaned,
+                         stage2L1 = True,
+                         highPtJetTrigger = dict(stage2 = cms.bool(True),
+                                                 l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                 l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                 ReadPrescalesFromFile = cms.bool(False)),
+                         lowPtJetTrigger = dict(stage2 = cms.bool(True),
+                                                l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                                                ReadPrescalesFromFile = cms.bool(False)))
 
 jetDQMAnalyzerAk4ScoutingCleaned = jetDQMAnalyzerAk4ScoutingUncleaned.clone(
     JetCleaningFlag = True
@@ -381,4 +400,3 @@ jetDQMMatchAkPu5CaloAkPu5PF = DQMEDAnalyzer('JetAnalyzer_HeavyIons_matching',
                                              recoDelRMatch = cms.double(0.2),
                                              recoJetEtaCut = cms.double(2.0)
 )
-
