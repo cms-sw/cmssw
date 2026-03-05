@@ -7,10 +7,9 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include <vector>
-
-class EncodedEventId;
 
 class CaloParticle {
   friend std::ostream &operator<<(std::ostream &s, CaloParticle const &tp);

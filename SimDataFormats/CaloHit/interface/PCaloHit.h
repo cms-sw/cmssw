@@ -3,6 +3,8 @@
 
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
+#include <iosfwd>
+
 // Persistent Calorimeter hit
 
 class PCaloHit {
@@ -72,7 +74,6 @@ protected:
   EncodedEventId theEventId;
 };
 
-#include <iosfwd>
 std::ostream &operator<<(std::ostream &, const PCaloHit &);
 
 #endif  // _SimDataFormats_SimCaloHit_PCaloHit_h_
