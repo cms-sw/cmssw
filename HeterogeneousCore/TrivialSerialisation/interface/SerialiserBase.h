@@ -1,5 +1,5 @@
-#ifndef TrivialSerialisation_Common_interface_SerialiserBase_h
-#define TrivialSerialisation_Common_interface_SerialiserBase_h
+#ifndef HeterogeneousCore_TrivialSerialisation_interface_SerialiserBase_h
+#define HeterogeneousCore_TrivialSerialisation_interface_SerialiserBase_h
 
 #include <memory>
 
@@ -8,6 +8,8 @@
 #include "HeterogeneousCore/TrivialSerialisation/interface/WriterBase.h"
 
 namespace ngt {
+
+  // Abstract factory interface for creating Readers and Writers for host products.
   class SerialiserBase {
   public:
     virtual std::unique_ptr<WriterBase> writer() = 0;
@@ -17,4 +19,4 @@ namespace ngt {
   };
 }  // namespace ngt
 
-#endif  // TrivialSerialisation_Common_interface_SerialiserBase_h
+#endif  // HeterogeneousCore_TrivialSerialisation_interface_SerialiserBase_h

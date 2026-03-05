@@ -121,11 +121,21 @@ namespace ngt {
 
   template <typename T>
   struct MemoryCopyTraits<PortableHostObject<T>> {
-    // This specialisation requires a initialize() method, but does not need to pass any parameters to it.
+    // This specialisation requires an initialize() method, but does not need to
+    // pass any parameters to it.
     using Properties = void;
 
+    template <typename TQueue>
+      requires(alpaka::isQueue<TQueue>)
+    static void initialize(TQueue& queue, PortableHostObject<T>& object) {
+      // Replace the default-constructed empty object with one where the buffer
+      // has been allocated in pinned host memory
+      object = PortableHostObject<T>(queue);
+    }
+
     static void initialize(PortableHostObject<T>& object) {
-      // Replace the default-constructed empty object with one where the buffer has been allocated in pageable system memory.
+      // Replace the default-constructed empty object with one where the buffer
+      // has been allocated in pageable host memory.
       object = PortableHostObject<T>(cms::alpakatools::host());
     }
 
