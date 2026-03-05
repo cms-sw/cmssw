@@ -1,0 +1,21 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="PhysicsTools/TruthInfo"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/Vertex"/>
+
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="hepmc"/>
+<use name="hepmc3"/>
+
+<library file="TruthGraphProducer.cc" name="TruthInfoPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+
+<library file="TruthGraphDumper.cc" name="TruthInfoDumpPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
