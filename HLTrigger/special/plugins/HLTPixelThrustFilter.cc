@@ -64,23 +64,28 @@ bool HLTPixelThrustFilter::filter(edm::StreamID, edm::Event& event, edm::EventSe
   auto const& clusters = event.get(inputToken_);
   auto const& trackerGeo = iSetup.getData(trackerGeometryRcdToken_);
 
-  size_t nSatPixels(0);
+  size_t nPixels(0), nSatPixels(0);
+  for (auto const& dsv : clusters)
+    for (auto const& cluster : dsv) {
+      nPixels += 1;
+      nSatPixels += cluster.isSaturated();
+    }
+  if (nPixels < min_nPixels_ || nSatPixels < min_nSatPixels_)
+    return false;
+
   std::vector<reco::LeafCandidate> vec;
-  vec.reserve(clusters.size() * 1000);
-  for (auto DSViter = clusters.begin(); DSViter != clusters.end(); DSViter++) {
-    auto const& pgdu = static_cast<const PixelGeomDetUnit*>(trackerGeo.idToDetUnit(DSViter->detId()));
-    for (auto const& cluster : *DSViter) {
-      if (cluster.isSaturated())
-        nSatPixels += 1;
-      else if (useOnlySaturatedPixels_)
+  vec.reserve(nPixels);
+  for (auto const& dsv : clusters) {
+    auto const& pgdu = static_cast<const PixelGeomDetUnit*>(trackerGeo.idToDetUnit(dsv.detId()));
+    for (auto const& cluster : dsv) {
+      if (useOnlySaturatedPixels_ && not cluster.isSaturated())
         continue;
       auto const& pos = pgdu->surface().toGlobal(pgdu->specificTopology().localPosition({cluster.x(), cluster.y()}));
-      auto const mag = std::sqrt(pos.x() * pos.x() + pos.y() * pos.y());
-      if (mag > 0)
+      if (auto mag = pos.perp())
         vec.emplace_back(0, reco::Particle::LorentzVector(pos.x() / mag, pos.y() / mag, 0, 0));
     }
   }
-  if (vec.size() < min_nPixels_ || nSatPixels < min_nSatPixels_)
+  if (vec.size() < min_nPixels_)
     return false;
   auto const thrust = Thrust(vec.begin(), vec.end()).thrust();
 
