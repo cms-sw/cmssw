@@ -47,10 +47,8 @@ if (options.type == "TB231May"):
     process.load('Geometry.HGCalCommonData.hgcalEEHENumberingInitialization_cfi')
 elif (options.type == "TB251"):
     process.load('Geometry.HGCalCommonData.hgcalEEHEParametersInitialization_cfi')
-    process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
 elif (options.type == "TB252"):
     process.load('Geometry.HGCalCommonData.hgcalEEHEParametersInitialization_cfi')
-    process.load('Geometry.HcalTestBeamData.hcalTB06Parameters_cff')
 else:
     process.load('Geometry.HGCalCommonData.hgcalEEParametersInitialization_cfi')
     process.load('Geometry.HGCalCommonData.hgcalEENumberingInitialization_cfi')

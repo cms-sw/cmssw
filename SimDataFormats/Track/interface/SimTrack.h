@@ -6,6 +6,8 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include <iosfwd>
+
 class SimTrack : public CoreSimTrack {
 public:
   typedef CoreSimTrack Core;
@@ -88,7 +90,6 @@ private:
   // 00000100 = simTrack crossed the boundary
 };
 
-#include <iosfwd>
 std::ostream& operator<<(std::ostream& o, const SimTrack& t);
 
 #endif
