@@ -441,12 +441,14 @@ struct HGCalMixRotatedFineCassette {
       // Make consistency check of all the partitions of the block
       if (std::abs(thickTot - layerThick_[i]) >= tol2_) {
         if (thickTot > layerThick_[i]) {
-          edm::LogError("HGCalGeom") << "Thickness of the partition " << cms::convert2mm(layerThick_[i])
-                                     << " is smaller than " << cms::convert2mm(thickTot)
+          edm::LogError("HGCalGeom") << "DDHGCalMixRotatedFineCassette::Thickness of the partition "
+                                     << cms::convert2mm(layerThick_[i]) << " is smaller than "
+                                     << cms::convert2mm(thickTot)
                                      << ": thickness of all its components **** ERROR ****";
         } else {
-          edm::LogWarning("HGCalGeom") << "Thickness of the partition " << cms::convert2mm(layerThick_[i])
-                                       << " does not match with " << cms::convert2mm(thickTot) << " of the components";
+          edm::LogWarning("HGCalGeom") << "DDHGCalMixRotatedFineCassette::Thickness of the partition "
+                                       << cms::convert2mm(layerThick_[i]) << " does not match with "
+                                       << cms::convert2mm(thickTot) << " of the components";
         }
       }
     }  // End of loop over blocks
