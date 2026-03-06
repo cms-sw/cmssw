@@ -467,6 +467,8 @@ void LSTEvent::createTriplets() {
     max_InnerSeg = std::max(max_InnerSeg, nInnerSegments);
   }
 
+  if (nonZeroModules == 0)
+    return;
   // Allocate and copy to device index
   auto index_gpu_buf = cms::alpakatools::make_device_buffer<uint16_t[]>(queue_, nLowerModules_);
   alpaka::memcpy(queue_, index_gpu_buf, index_buf_h, nonZeroModules);
@@ -489,17 +491,15 @@ void LSTEvent::createTriplets() {
 
   auto const addTripletRangesToEventExplicit_workDiv = cms::alpakatools::make_workdiv<Acc1D>(1, 1024);
 
-  if (nonZeroModules != 0) {
-    alpaka::exec<Acc1D>(queue_,
-                        addTripletRangesToEventExplicit_workDiv,
-                        AddTripletRangesToEventExplicit{},
-                        modules_.const_view().modules(),
-                        tripletsDC_->const_view().tripletsOccupancy(),
-                        rangesDC_->view());
+  alpaka::exec<Acc1D>(queue_,
+                      addTripletRangesToEventExplicit_workDiv,
+                      AddTripletRangesToEventExplicit{},
+                      modules_.const_view().modules(),
+                      tripletsDC_->const_view().tripletsOccupancy(),
+                      rangesDC_->view());
 
-    if (objectsStatistics_) {
-      addTripletsToEventExplicit();
-    }
+  if (objectsStatistics_) {
+    addTripletsToEventExplicit();
   }
 }
 
@@ -746,6 +746,8 @@ void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets)
   alpaka::wait(queue_);
   unsigned int nTC = *nTrackCandidates_buf_h.data();
 
+  if (nTC == 0)
+    return;
   auto const wd = cms::alpakatools::make_workdiv<Acc1D>(nTC, 128);
 
   alpaka::exec<Acc1D>(queue_,
