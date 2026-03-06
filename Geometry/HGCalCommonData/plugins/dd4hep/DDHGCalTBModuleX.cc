@@ -176,12 +176,12 @@ namespace DDHGCalGeom {
 
     if (fabs(thickTot - totalWidth) > tolerance) {
       if (thickTot > totalWidth) {
-        edm::LogError("HGCalGeom") << "Thickness of the partition " << cms::convert2mm(totalWidth)
+        edm::LogError("HGCalGeom") << "DDHGCalTBModuleX::Thickness of the partition " << cms::convert2mm(totalWidth)
                                    << " is smaller than " << cms::convert2mm(thickTot)
                                    << ": total thickness of all its components in " << module.name() << " Layers "
                                    << firstLayer << ":" << lastLayer << ":" << ignoreCenter << "**** ERROR ****";
       } else {
-        edm::LogWarning("HGCalGeom") << "Thickness of the partition " << cms::convert2mm(totalWidth)
+        edm::LogWarning("HGCalGeom") << "DDHGCalTBModuleX::Thickness of the partition " << cms::convert2mm(totalWidth)
                                      << " does not match with " << cms::convert2mm(thickTot) << " of the components in "
                                      << module.name() << " Layers " << firstLayer << ":" << lastLayer << ":"
                                      << ignoreCenter;
