@@ -10,7 +10,7 @@
   <class name="CaloParticleContainer"/>
 
   <class name="MtdCaloParticle" ClassVersion="3">
-    <version ClassVersion="3" checksum="3222440347"/>
+    <version ClassVersion="3" checksum="374264907"/>
   </class>
   <class name="MtdCaloParticleCollection"/>
   <class name="edm::Wrapper<MtdCaloParticleCollection>"/>
