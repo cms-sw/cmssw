@@ -6,11 +6,14 @@ bypassing the standard NanoAOD jet update chains that require full reconstructio
 
 Tables produced:
 - Muon: pt, eta, phi, mass, charge, isolation, ID flags
+- MuonNoVtx: displaced muons without vertex constraint (2024+)
 - Electron: pt, eta, phi, mass, charge, shower shape, isolation
 - Photon: pt, eta, phi, mass, shower shape, isolation
 - Jet: pt, eta, phi, mass, energy fractions, multiplicities, b-tags
 - MET: pt, phi, sumEt
 - PV: x, y, z, errors, chi2, ndof
+- DimuonVtx: displaced dimuon vertices with muon index cross-references
+- DimuonVtxNoVtx: displaced dimuon vertices from NoVtx muons (2024+)
 - Event: fixedGridRhoAll
 
 To include HLT trigger decisions, add to outputCommands:
@@ -19,6 +22,7 @@ This will create HLT_* and DST_* boolean branches for all trigger paths.
 """
 
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_run3_scouting_2024_cff import run3_scouting_2024
 from PhysicsTools.NanoAOD.common_cff import Var
 
 # Muon table
@@ -66,6 +70,13 @@ scoutingMuonTable = cms.EDProducer("SimplePATMuonFlatTableProducer",
         trkIso = Var("isolationR03().sumPt", float, doc="tracker isolation", precision=6),
         tkRelIso = Var("isolationR03().sumPt/pt", float, doc="tracker relative isolation", precision=6),
     )
+)
+
+# NoVtx muon table (2024+ only)
+scoutingMuonNoVtxTable = scoutingMuonTable.clone(
+    src = cms.InputTag("slimmedMuonsNoVtx"),
+    name = cms.string("MuonNoVtx"),
+    doc = cms.string("Displaced muons from scouting (no vertex constraint)"),
 )
 
 # Electron table
@@ -207,6 +218,54 @@ scoutingEventTable = cms.EDProducer("GlobalVariablesTableProducer",
     )
 )
 
+# Dimuon displaced vertex table
+scoutingDimuonVtxTable = cms.EDProducer("SimpleSecondaryVertexFlatTableProducer",
+    src = cms.InputTag("scoutingDimuonVertices"),
+    cut = cms.string(""),
+    name = cms.string("DimuonVtx"),
+    doc = cms.string("Displaced dimuon vertices from scouting"),
+    singleton = cms.bool(False),
+    extension = cms.bool(False),
+    variables = cms.PSet(
+        pt = Var("pt", float, doc="pt", precision=10),
+        eta = Var("eta", float, doc="eta", precision=12),
+        phi = Var("phi", float, doc="phi", precision=12),
+        mass = Var("mass", float, doc="dimuon invariant mass", precision=10),
+        x = Var("position().x()", float, doc="vertex X position, in cm", precision=10),
+        y = Var("position().y()", float, doc="vertex Y position, in cm", precision=10),
+        z = Var("position().z()", float, doc="vertex Z position, in cm", precision=14),
+        ndof = Var("vertexNdof()", float, doc="number of degrees of freedom", precision=8),
+        chi2 = Var("vertexNormalizedChi2()", float, doc="reduced chi2, i.e. chi/ndof", precision=8),
+        nMuons = Var("numberOfDaughters()", "uint8", doc="number of daughter muons"),
+        mu1Idx = Var("?numberOfDaughters()>0?daughterPtr(0).key():-1", "int16", doc="index of first muon in Muon collection"),
+        mu2Idx = Var("?numberOfDaughters()>1?daughterPtr(1).key():-1", "int16", doc="index of second muon in Muon collection"),
+    ),
+)
+
+# Dimuon displaced vertex table for NoVtx muons (2024+ only)
+scoutingDimuonVtxNoVtxTable = cms.EDProducer("SimpleSecondaryVertexFlatTableProducer",
+    src = cms.InputTag("scoutingDimuonVerticesNoVtx"),
+    cut = cms.string(""),
+    name = cms.string("DimuonVtxNoVtx"),
+    doc = cms.string("Displaced dimuon vertices from scouting (NoVtx muons)"),
+    singleton = cms.bool(False),
+    extension = cms.bool(False),
+    variables = cms.PSet(
+        pt = Var("pt", float, doc="pt", precision=10),
+        eta = Var("eta", float, doc="eta", precision=12),
+        phi = Var("phi", float, doc="phi", precision=12),
+        mass = Var("mass", float, doc="dimuon invariant mass", precision=10),
+        x = Var("position().x()", float, doc="vertex X position, in cm", precision=10),
+        y = Var("position().y()", float, doc="vertex Y position, in cm", precision=10),
+        z = Var("position().z()", float, doc="vertex Z position, in cm", precision=14),
+        ndof = Var("vertexNdof()", float, doc="number of degrees of freedom", precision=8),
+        chi2 = Var("vertexNormalizedChi2()", float, doc="reduced chi2, i.e. chi/ndof", precision=8),
+        nMuons = Var("numberOfDaughters()", "uint8", doc="number of daughter muons"),
+        mu1Idx = Var("?numberOfDaughters()>0?daughterPtr(0).key():-1", "int16", doc="index of first muon in MuonNoVtx collection"),
+        mu2Idx = Var("?numberOfDaughters()>1?daughterPtr(1).key():-1", "int16", doc="index of second muon in MuonNoVtx collection"),
+    ),
+)
+
 # Scouting NanoAOD task - core tables
 scoutingNanoAODTask = cms.Task(
     scoutingMuonTable,
@@ -216,8 +275,15 @@ scoutingNanoAODTask = cms.Task(
     scoutingMETTable,
     scoutingPVTable,
     scoutingEventTable,
+    scoutingDimuonVtxTable,
     l1bits,
 )
+
+# For 2024+, add NoVtx muon table and its dimuon vertex table
+_scoutingNanoAODTask_2024 = scoutingNanoAODTask.copy()
+_scoutingNanoAODTask_2024.add(scoutingMuonNoVtxTable)
+_scoutingNanoAODTask_2024.add(scoutingDimuonVtxNoVtxTable)
+run3_scouting_2024.toReplaceWith(scoutingNanoAODTask, _scoutingNanoAODTask_2024)
 
 scoutingNanoAODSequence = cms.Sequence(scoutingNanoAODTask)
 
@@ -248,35 +314,16 @@ def customiseScoutingNanoAOD(process):
         process = customiseScoutingNanoAOD(process)
     """
 
-    # Add the scouting NanoAOD tables
-    process.scoutingMuonTable = scoutingMuonTable.clone()
-    process.scoutingElectronTable = scoutingElectronTable.clone()
-    process.scoutingPhotonTable = scoutingPhotonTable.clone()
-    process.scoutingJetTable = scoutingJetTable.clone()
-    process.scoutingMETTable = scoutingMETTable.clone()
-    process.scoutingPVTable = scoutingPVTable.clone()
-    process.scoutingEventTable = scoutingEventTable.clone()
-    process.l1bits = l1bits.clone()
+    # When called via cmsDriver @ScoutMini, the task is already loaded
+    # and scheduled. Only add modules if they are not yet in the process.
+    if not hasattr(process, 'scoutingNanoAODTask'):
+        process.load('PhysicsTools.PatFromScouting.scoutingNanoAOD_cff')
 
-    # Create task
-    process.scoutingNanoAODTask = cms.Task(
-        process.scoutingMuonTable,
-        process.scoutingElectronTable,
-        process.scoutingPhotonTable,
-        process.scoutingJetTable,
-        process.scoutingMETTable,
-        process.scoutingPVTable,
-        process.scoutingEventTable,
-        process.l1bits,
-    )
+        process.scoutingNanoAOD_step = cms.Path()
+        process.scoutingNanoAOD_step.associate(process.scoutingNanoAODTask)
 
-    # Create path
-    process.scoutingNanoAOD_step = cms.Path()
-    process.scoutingNanoAOD_step.associate(process.scoutingNanoAODTask)
-
-    # Add to schedule
-    if hasattr(process, 'schedule') and process.schedule is not None:
-        process.schedule.insert(0, process.scoutingNanoAOD_step)
+        if hasattr(process, 'schedule') and process.schedule is not None:
+            process.schedule.insert(0, process.scoutingNanoAOD_step)
 
     # Configure output
     if hasattr(process, 'NANOAODoutput'):

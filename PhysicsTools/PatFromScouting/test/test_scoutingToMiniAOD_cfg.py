@@ -35,6 +35,11 @@ process.slimmedMuons = slimmedMuons.clone(
     src = cms.InputTag("hltScoutingMuonPackerVtx")
 )
 process.slimmedMuonsNoVtx = slimmedMuonsNoVtx
+process.scoutingDimuonVertices = scoutingDimuonVertices.clone(
+    scoutingMuons = cms.InputTag("hltScoutingMuonPackerVtx"),
+    scoutingVertices = cms.InputTag("hltScoutingMuonPackerVtx", "displacedVtx"),
+)
+process.scoutingDimuonVerticesNoVtx = scoutingDimuonVerticesNoVtx
 process.slimmedElectrons = slimmedElectrons
 process.slimmedPhotons = slimmedPhotons
 process.slimmedJets = slimmedJets
@@ -53,6 +58,8 @@ process.p = cms.Path(
     process.offlineBeamSpot +
     process.slimmedMuons +
     process.slimmedMuonsNoVtx +
+    process.scoutingDimuonVertices +
+    process.scoutingDimuonVerticesNoVtx +
     process.slimmedElectrons +
     process.slimmedPhotons +
     process.slimmedJets +
@@ -72,6 +79,8 @@ process.out = cms.OutputModule("PoolOutputModule",
         'keep *_offlineSlimmedPrimaryVertices_*_*',
         'keep *_slimmedMuons_*_*',
         'keep *_slimmedMuonsNoVtx_*_*',
+        'keep *_scoutingDimuonVertices_*_*',
+        'keep *_scoutingDimuonVerticesNoVtx_*_*',
         'keep *_slimmedElectrons_*_*',
         'keep *_slimmedPhotons_*_*',
         'keep *_slimmedJets_*_*',

@@ -35,6 +35,28 @@ slimmedMuonsNoVtx = cms.EDProducer("PatFromScoutingMuonProducer",
     src=cms.InputTag("hltScoutingMuonPackerNoVtx")
 )
 
+# Dimuon displaced vertices as VertexCompositePtrCandidate (like slimmedSecondaryVertices)
+# with CandidatePtr daughters pointing into the corresponding muon collection.
+# The muon-vertex link is derived from Run3ScoutingMuon::vtxIndx().
+# Default (pre-2024): single muon collection → single dimuon vertex collection
+scoutingDimuonVertices = cms.EDProducer("ScoutingDimuonVtxProducer",
+    scoutingMuons=cms.InputTag("hltScoutingMuonPacker"),
+    scoutingVertices=cms.InputTag("hltScoutingMuonPacker", "displacedVtx"),
+    patMuons=cms.InputTag("slimmedMuons")
+)
+# For 2024+, Vtx muons have their own displaced vertices
+run3_scouting_2024.toModify(scoutingDimuonVertices,
+    scoutingMuons="hltScoutingMuonPackerVtx",
+    scoutingVertices=cms.InputTag("hltScoutingMuonPackerVtx", "displacedVtx")
+)
+
+# Dimuon vertices for NoVtx muons - only available from 2024+
+scoutingDimuonVerticesNoVtx = cms.EDProducer("ScoutingDimuonVtxProducer",
+    scoutingMuons=cms.InputTag("hltScoutingMuonPackerNoVtx"),
+    scoutingVertices=cms.InputTag("hltScoutingMuonPackerNoVtx", "displacedVtx"),
+    patMuons=cms.InputTag("slimmedMuonsNoVtx")
+)
+
 # Electrons - standard MiniAOD name
 slimmedElectrons = cms.EDProducer("PatFromScoutingElectronProducer",
     src=cms.InputTag("hltScoutingEgammaPacker")
@@ -99,6 +121,7 @@ scoutingToMiniAODTask = cms.Task(
     offlineSlimmedPrimaryVertices,
     offlineBeamSpot,
     slimmedMuons,
+    scoutingDimuonVertices,
     slimmedElectrons,
     slimmedPhotons,
     slimmedJets,
@@ -110,9 +133,10 @@ scoutingToMiniAODTask = cms.Task(
     caloStage2Digis
 )
 
-# For 2024+, add displaced muon collection (NoVtx)
+# For 2024+, add NoVtx muon collection and its dimuon vertices
 _scoutingToMiniAODTask_2024 = scoutingToMiniAODTask.copy()
 _scoutingToMiniAODTask_2024.add(slimmedMuonsNoVtx)
+_scoutingToMiniAODTask_2024.add(scoutingDimuonVerticesNoVtx)
 run3_scouting_2024.toReplaceWith(scoutingToMiniAODTask, _scoutingToMiniAODTask_2024)
 
 # Sequence for backward compatibility
@@ -174,6 +198,8 @@ def customiseScoutingToMiniAOD(process):
             outputModule.outputCommands.extend([
                 # Keep scouting-specific collections
                 'keep patMuons_slimmedMuonsNoVtx_*_*',
+                'keep *_scoutingDimuonVertices_*_*',
+                'keep *_scoutingDimuonVerticesNoVtx_*_*',
                 'keep recoTracks_scoutingTracks__*',
                 'keep *_scoutingTracks_vertexIndex_*',
                 'keep *_gtStage2Digis_*_*',
