@@ -277,7 +277,7 @@
   <class name="edm::Ptr<l1t::io_v1::L1Candidate>"/>
 
   <class name="l1t::io_v1::Vertex" ClassVersion="3">
-    <version ClassVersion="3" checksum="318255824"/>
+    <version ClassVersion="3" checksum="3405271232"/>
   </class>
   <class name="std::vector<l1t::io_v1::Vertex>"/>
   <class name="edm::Wrapper<std::vector<l1t::io_v1::Vertex> >"/>
