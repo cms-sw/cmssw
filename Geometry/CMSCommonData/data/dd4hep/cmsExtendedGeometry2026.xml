@@ -371,6 +371,7 @@
     <Include ref='Geometry/ForwardSimData/data/pltsens.xml'/>
     <Include ref='Geometry/ForwardSimData/data/bcm1fsens.xml'/>
     <Include ref='Geometry/ForwardSimData/data/zdcsens/2021/v1/zdcsens.xml'/>
+    <Include ref='Geometry/ForwardSimData/data/fscsens.xml'/>
     <Include ref='Geometry/HcalSimData/data/HcalProdCuts/2021/v2/HcalProdCuts.xml'/>
     <Include ref='Geometry/EcalSimData/data/EcalProdCuts.xml'/>
     <Include ref='Geometry/EcalSimData/data/ESProdCuts.xml'/>

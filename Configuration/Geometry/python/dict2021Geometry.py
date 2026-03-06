@@ -2633,7 +2633,7 @@ forwardDict = {
             'Geometry/ForwardSimData/data/pltsens.xml',
             'Geometry/ForwardSimData/data/bcm1fsens.xml',
             'Geometry/ForwardSimData/data/zdcsens/2021/v1/zdcsens.xml',
-#            'Geometry/ForwardSimData/data/fscsens.xml',
+            'Geometry/ForwardSimData/data/fscsens.xml',
         ],
         4 : [
             'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
