@@ -26,7 +26,8 @@ private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryRcdToken_;
   const edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > inputToken_;
   const bool useOnlySaturatedPixels_;
-  const unsigned int min_nPixels_, min_nSatPixels_;
+  const unsigned int min_nPixels_, max_nPixels_;
+  const unsigned int min_nSatPixels_, max_nSatPixels_;
   const double min_thrust_;  // minimum thrust
   const double max_thrust_;  // maximum thrust
 };
@@ -40,7 +41,9 @@ HLTPixelThrustFilter::HLTPixelThrustFilter(const edm::ParameterSet& config)
       inputToken_(consumes<edmNew::DetSetVector<SiPixelCluster> >(config.getParameter<edm::InputTag>("inputTag"))),
       useOnlySaturatedPixels_(config.getParameter<bool>("useOnlySaturatedPixels")),
       min_nPixels_(config.getParameter<unsigned int>("minNPixels")),
+      max_nPixels_(config.getParameter<unsigned int>("maxNPixels")),
       min_nSatPixels_(config.getParameter<unsigned int>("minNSaturatedPixels")),
+      max_nSatPixels_(config.getParameter<unsigned int>("maxNSaturatedPixels")),
       min_thrust_(config.getParameter<double>("minThrust")),
       max_thrust_(config.getParameter<double>("maxThrust")) {}
 
@@ -49,7 +52,9 @@ void HLTPixelThrustFilter::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("inputTag", edm::InputTag("hltSiPixelClusters"));
   desc.add<bool>("useOnlySaturatedPixels", false);
   desc.add<unsigned int>("minNPixels", 2);
+  desc.add<unsigned int>("maxNPixels", 0);
   desc.add<unsigned int>("minNSaturatedPixels", 0);
+  desc.add<unsigned int>("maxNSaturatedPixels", 0);
   desc.add<double>("minThrust", 0);
   desc.add<double>("maxThrust", 0);
   descriptions.add("hltPixelThrustFilter", desc);
@@ -71,6 +76,8 @@ bool HLTPixelThrustFilter::filter(edm::StreamID, edm::Event& event, edm::EventSe
       nSatPixels += cluster.isSaturated();
     }
   if (nPixels < min_nPixels_ || nSatPixels < min_nSatPixels_)
+    return false;
+  if ((max_nPixels_ > 0 && nPixels > max_nPixels_) || (max_nSatPixels_ > 0 && nSatPixels > max_nSatPixels_))
     return false;
 
   std::vector<reco::LeafCandidate> vec;
