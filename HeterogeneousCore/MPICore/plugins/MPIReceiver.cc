@@ -33,8 +33,9 @@ class MPIReceiver : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
   MPIReceiver(edm::ParameterSet const& config)
       : upstream_(consumes<MPIToken>(config.getParameter<edm::InputTag>("upstream"))),
-        token_(produces<MPIToken>()),
-        instance_(config.getParameter<int32_t>("instance"))  //
+        instance_(config.getParameter<int32_t>("instance")),
+        enableTrivialSerialisation_(config.getUntrackedParameter<bool>("enableTrivialSerialisation")),
+        token_(produces<MPIToken>())  //
   {
     // instance 0 is reserved for the MPIController / MPISource pair
     // instance values greater than 255 may not fit in the MPI tag
@@ -121,6 +122,11 @@ public:
       }
 
       else if (product_meta.kind == ProductMetadata::Kind::TrivialCopy) {
+        if (not enableTrivialSerialisation_) {
+          throw cms::Exception("MPIReceiver")
+              << "Received a trivially-serialised product, but enableTrivialSerialisation is set to false in this "
+                 "MPIReceiver. Please check that the MPISender and MPIReceiver have consistent settings.";
+        }
         std::unique_ptr<ngt::SerialiserBase> serialiser =
             ngt::SerialiserFactory::get()->tryToCreate(entry.type.typeInfo().name());
         if (not serialiser) {
@@ -168,6 +174,10 @@ public:
         ->setComment("Products to be received by a separate CMSSW job and produced into the event.");
     desc.add<int32_t>("instance", 0)
         ->setComment("A value between 1 and 255 used to identify a matching pair of \"MPISender\"/\"MPIReceiver\".");
+    desc.addUntracked<bool>("enableTrivialSerialisation", true)
+        ->setComment(
+            "If true (default), use the trivial serialisation mechanism for supported types. If false, always use "
+            "ROOT serialisation for all types. Useful for benchmarking.");
 
     descriptions.addWithDefaultLabel(desc);
   }
@@ -179,11 +189,14 @@ private:
     edm::EDPutToken token;
   };
 
+  // configuration
   edm::EDGetTokenT<MPIToken> const upstream_;  // MPIToken used to establish the communication channel
-  edm::EDPutTokenT<MPIToken> const token_;  // copy of the MPIToken that may be used to implement an ordering relation
-  std::vector<Entry> products_;             // data to be read over the channel and put into the Event
-  int32_t const instance_;                  // instance used to identify the source-destination pair
+  int32_t const instance_;                     // instance used to identify the source-destination pair
+  bool const enableTrivialSerialisation_;      // whether to use the trivial serialisation mechanism
 
+  edm::EDPutTokenT<MPIToken> const token_;  // copy of the MPIToken that may be used to implement an ordering relation
+
+  std::vector<Entry> products_;  // data to be read over the channel and put into the Event
   std::shared_ptr<ProductMetadataBuilder> received_meta_;
 };
 

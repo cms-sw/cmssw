@@ -40,11 +40,11 @@ class MPISender : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
   MPISender(edm::ParameterSet const& config)
       : upstream_(consumes<MPIToken>(config.getParameter<edm::InputTag>("upstream"))),
-        token_(produces<MPIToken>()),
-        patterns_(edm::productPatterns(config.getParameter<std::vector<std::string>>("products"))),
         instance_(config.getParameter<int32_t>("instance")),
+        patterns_(edm::productPatterns(config.getParameter<std::vector<std::string>>("products"))),
+        enableTrivialSerialisation_(config.getUntrackedParameter<bool>("enableTrivialSerialisation")),
         buffer_(std::make_unique<TBufferFile>(TBuffer::kWrite)),
-        metadata_size_(0) {
+        token_(produces<MPIToken>()) {
     // instance 0 is reserved for the MPIController / MPISource pair
     // instance values greater than 255 may not fit in the MPI tag
     if (instance_ < 1 or instance_ > 255) {
@@ -124,8 +124,10 @@ public:
 
       if (handle.isValid()) {
         edm::WrapperBase const* wrapper = handle.product();
-        std::unique_ptr<ngt::SerialiserBase> serialiser =
-            ngt::SerialiserFactory::get()->tryToCreate(entry.type.typeInfo().name());
+        std::unique_ptr<ngt::SerialiserBase> serialiser;
+        if (enableTrivialSerialisation_) {
+          serialiser = ngt::SerialiserFactory::get()->tryToCreate(entry.type.typeInfo().name());
+        }
 
         if (serialiser) {
           LogDebug("MPISender") << "Found serializer for type \"" << entry.type.name() << "\" ("
@@ -188,8 +190,10 @@ public:
       edm::WrapperBase const* wrapper = handle.product();
       // we don't send missing products
       if (handle.isValid()) {
-        std::unique_ptr<ngt::SerialiserBase> serialiser =
-            ngt::SerialiserFactory::get()->tryToCreate(entry.type.typeInfo().name());
+        std::unique_ptr<ngt::SerialiserBase> serialiser;
+        if (enableTrivialSerialisation_) {
+          serialiser = ngt::SerialiserFactory::get()->tryToCreate(entry.type.typeInfo().name());
+        }
         if (serialiser) {
           auto reader = serialiser->reader(*wrapper);
           token.channel()->sendTrivialCopyProduct(instance_, *reader);
@@ -220,6 +224,10 @@ public:
             "and \"*\") are allowed in a module label or in each field of a branch name.");
     desc.add<int32_t>("instance", 0)
         ->setComment("A value between 1 and 255 used to identify a matching pair of \"MPISender\"/\"MPIReceiver\".");
+    desc.addUntracked<bool>("enableTrivialSerialisation", true)
+        ->setComment(
+            "If true (default), use the trivial serialisation mechanism for supported types. If false, use "
+            "ROOT serialisation for all types. Intended to be disabled only for benchmarking purposes");
 
     descriptions.addWithDefaultLabel(desc);
   }
@@ -237,15 +245,19 @@ private:
     edm::EDGetToken token;
   };
 
-  edm::EDGetTokenT<MPIToken> const upstream_;  // MPIToken used to establish the communication channel
-  edm::EDPutTokenT<MPIToken> const token_;  // copy of the MPIToken that may be used to implement an ordering relation
-  std::vector<edm::ProductNamePattern> patterns_;  // branches to read from the Event and send over the MPI channel
-  std::vector<Entry> products_;                    // types and tokens corresponding to the branches
+  // from the configuration
+  edm::EDGetTokenT<MPIToken> const upstream_;      // MPIToken used to establish the communication channel
   int32_t const instance_;                         // instance used to identify the source-destination pair
+  std::vector<edm::ProductNamePattern> patterns_;  // branches to read from the Event and send over the MPI channel
+  bool const enableTrivialSerialisation_;          // whether to use the trivial serialisation mechanism
+
+  std::vector<Entry> products_;  // types and tokens corresponding to the branches
   std::unique_ptr<TBufferFile> buffer_;
-  size_t metadata_size_;
+  size_t metadata_size_ = 0;
   bool has_serialized_ = false;
   bool is_active_ = true;
+
+  edm::EDPutTokenT<MPIToken> const token_;  // copy of the MPIToken that may be used to implement an ordering relation
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
