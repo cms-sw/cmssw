@@ -2,16 +2,16 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.nano_cff import nanoMetadata
 
-hltUpgradeNanoTask = cms.Task(nanoMetadata)
+hgcalUpgradeNanoTask = cms.Task(nanoMetadata)
 
-hltTiclCandidateTable = cms.EDProducer(
+ticlCandidateTable = cms.EDProducer(
     "TICLCandidateTableProducer",
     skipNonExistingSrc=cms.bool(True),
-    src=cms.InputTag("hltTiclCandidate"),
+    src=cms.InputTag("ticlCandidate"),
     cut=cms.string(""),
-    name=cms.string("hltTICLCandidates"),
+    name=cms.string("TICLCandidates"),
     doc=cms.string("TICLCandidates"),
-    singleton=cms.bool(False),  # the number of entries is variable
+    singleton=cms.bool(False),
     variables=cms.PSet(
         raw_energy=Var("rawEnergy", "float",
                        doc="Raw Energy of the TICLCandidate [GeV]"),
@@ -26,7 +26,7 @@ hltTiclCandidateTable = cms.EDProducer(
         pz=Var(
             "pz", "float", doc="TICLCandidate z component of mementum, computed from trackster raw energy and direction or from associated track [GeV]"),
         energy=Var("energy", "float",
-                             doc="Energy of the TICLCandidate, computed from the raw energy of the associated Trackster or from the associated track"),
+                   doc="Energy of the TICLCandidate, computed from the raw energy of the associated Trackster or from the associated track"),
         eta=Var(
             "eta", "float", doc="TICLCandidate pseudorapidity, derived from p4 built from associated Tracksters or from associated Track"),
         phi=Var(
@@ -45,19 +45,19 @@ hltTiclCandidateTable = cms.EDProducer(
         MTDtimeError=Var("MTDtimeError", "float",
                          doc="Trackster associated MTD time error, meaningful only for offline reconstruction"),
         trackIdx=Var("trackPtr().key", "int",
-                     doc="Index of hltGeneralTrack associated with TICLCandidate")
+                     doc="Index of generalTrack associated with TICLCandidate")
     ),
 )
 
-
-hltSimTiclCandidateTable = cms.EDProducer(
+# SimTICLCandidates for validation
+ticlSimCandidateTable = cms.EDProducer(
     "TICLCandidateTableProducer",
     skipNonExistingSrc=cms.bool(True),
-    src=cms.InputTag("hltTiclSimTracksters"),
+    src=cms.InputTag("ticlSimTracksters"),
     cut=cms.string(""),
-    name=cms.string("hltSimTICLCandidates"),
+    name=cms.string("SimTICLCandidates"),
     doc=cms.string("SimTICLCandidates"),
-    singleton=cms.bool(False),  # the number of entries is variable
+    singleton=cms.bool(False),
     variables=cms.PSet(
         raw_energy=Var("rawEnergy", "float",
                        doc="Raw Energy of the TICLCandidate [GeV]"),
@@ -72,7 +72,7 @@ hltSimTiclCandidateTable = cms.EDProducer(
         pz=Var(
             "pz", "float", doc="TICLCandidate z component of mementum, computed from trackster raw energy and direction or from associated track [GeV]"),
         energy=Var("energy", "float",
-                             doc="Energy of the TICLCandidate, computed from the raw energy of the associated Trackster or from the associated track"),
+                   doc="Energy of the TICLCandidate, computed from the raw energy of the associated Trackster or from the associated track"),
         eta=Var(
             "eta", "float", doc="TICLCandidate pseudorapidity, derived from p4 built from associated Tracksters or from associated Track"),
         phi=Var(
@@ -91,49 +91,48 @@ hltSimTiclCandidateTable = cms.EDProducer(
         MTDtimeError=Var("MTDtimeError", "float",
                          doc="Trackster associated MTD time error, meaningful only for offline reconstruction"),
         trackIdx=Var("trackPtr().key", "int",
-                     doc="Index of hltGeneralTrack associated with TICLCandidate")
+                     doc="Index of generalTrack associated with TICLCandidate")
     ),
 )
-hltTiclCandidateExtraTable = cms.EDProducer(
+
+# Extra tables for linking tracksters to candidates
+ticlCandidateExtraTable = cms.EDProducer(
     "TICLCandidateExtraTableProducer",
-    src = cms.InputTag("hltTiclCandidate"),
-    name = cms.string("hltTICLCandidates"),
-    skipNonExistingSrc = cms.bool(True),
-    doc = cms.string("TICLCandidates extra table with linked Tracksters"),
-    tracksters = cms.InputTag("hltTiclTrackstersCLUE3DHigh"),
-    tracks = cms.InputTag("hltGeneralTracks"),
-    detector = cms.string("HGCAL"),
-    propagator = cms.string("PropagatorWithMaterial"),
-    collectionVariables = cms.PSet(
-        tracksters = cms.PSet(
-            name = cms.string("hltTICLCandidatesExtra"),
-            doc = cms.string("Tracksters linked to TICLCandidates with track boundary information"),
-            useCount = cms.bool(True),
-            useOffset = cms.bool(False),
-            variables = cms.PSet()
+    src=cms.InputTag("ticlCandidate"),
+    name=cms.string("TICLCandidates"),
+    doc=cms.string("TICLCandidates extra table with linked Tracksters"),
+    tracksters=cms.InputTag("ticlTrackstersCLUE3DHigh"),
+    tracks=cms.InputTag("generalTracks"),
+    detector=cms.string("HGCAL"),
+    propagator=cms.string("PropagatorWithMaterial"),
+    collectionVariables=cms.PSet(
+        tracksters=cms.PSet(
+            name=cms.string("TICLCandidatesExtra"),
+            doc=cms.string("Tracksters linked to TICLCandidates with track boundary information"),
+            useCount=cms.bool(True),
+            useOffset=cms.bool(False),
+            variables=cms.PSet()
         ),
     ),
 )
 
-hltSimTiclCandidateExtraTable = cms.EDProducer(
+ticlSimCandidateExtraTable = cms.EDProducer(
     "TICLCandidateExtraTableProducer",
-    src = cms.InputTag("hltTiclSimTracksters"),
-    name = cms.string("hltSimTICLCandidates"),
-    skipNonExistingSrc = cms.bool(True),
-    doc = cms.string("TICLCandidates extra table with linked Tracksters"),
-    tracksters = cms.InputTag("hltTiclSimTracksters"),
-    tracks = cms.InputTag("hltGeneralTracks"),
-    detector = cms.string("HGCAL"),
-    propagator = cms.string("PropagatorWithMaterial"),
-    collectionVariables = cms.PSet(
-        tracksters = cms.PSet(
-            name = cms.string("hltSimTICLCandidatesExtra"),
-            doc = cms.string("Tracksters linked to SimTICLCandidates with track boundary information"),
-            useCount = cms.bool(True),
-            useOffset = cms.bool(False),
-            variables = cms.PSet()
+    src=cms.InputTag("ticlSimTracksters"),
+    name=cms.string("SimTICLCandidates"),
+    doc=cms.string("TICLCandidates extra table with linked Tracksters"),
+    tracksters=cms.InputTag("ticlSimTracksters"),
+    tracks=cms.InputTag("generalTracks"),
+    detector=cms.string("HGCAL"),
+    propagator=cms.string("PropagatorWithMaterial"),
+    collectionVariables=cms.PSet(
+        tracksters=cms.PSet(
+            name=cms.string("SimTICLCandidatesExtra"),
+            doc=cms.string("Tracksters linked to SimTICLCandidates with track boundary information"),
+            useCount=cms.bool(True),
+            useOffset=cms.bool(False),
+            variables=cms.PSet()
         ),
     ),
 )
-
 

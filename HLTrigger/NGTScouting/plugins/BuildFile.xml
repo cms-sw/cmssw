@@ -13,6 +13,13 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
+<use name="Geometry/HGCalCommonData"/>
+<use name="MagneticField/Engine"/>
+<use name="MagneticField/Records"/>
 <use name="PhysicsTools/NanoAOD"/>
 <use name="RecoVertex/VertexTools"/>
+<use name="RecoLocalCalo/HGCalRecAlgos"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="TrackingTools/Records"/>
+<use name="TrackingTools/TrajectoryState"/>
 <use name="boost"/>

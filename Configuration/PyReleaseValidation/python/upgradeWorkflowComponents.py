@@ -2333,6 +2333,72 @@ upgradeWFs['ecalDevelAlpaka'] = UpgradeWorkflow_ecalDevel(
     offset = 0.612,
 )
 
+# Offline HGCAL NanoAOD workflows
+class UpgradeWorkflow_HGCALNano(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        else:
+            stepDict[stepName][k] = merge([stepDict[step][k]])
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        # Apply to all Run4 workflows
+        return 'Run4' in key
+
+upgradeWFs['HGCALNano'] = UpgradeWorkflow_HGCALNano(
+    steps = [
+        'RecoGlobal',
+        'HARVESTGlobal',
+        'ALCAPhase2',
+    ],
+    PU = [
+        'RecoGlobal',
+        'HARVESTGlobal',
+        'ALCAPhase2',
+    ],
+    suffix = '_HGCALNano',
+    offset = 0.212,
+)
+
+upgradeWFs['HGCALNano'].step3 = {
+    '-s': 'RAW2DIGI,RECO,RECOSIM,PAT,NANO:@HGCAL,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM',
+    '--datatier': 'GEN-SIM-RECO,MINIAODSIM,DQMIO,NANOAODSIM',
+    '--eventcontent': 'FEVTDEBUGHLT,MINIAODSIM,DQM,NANOAODSIM'
+}
+
+# Offline HGCAL NanoAOD with validation objects 
+class UpgradeWorkflow_HGCALNanoVal(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        else:
+            stepDict[stepName][k] = merge([stepDict[step][k]])
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        # Apply to all Run4 workflows
+        return 'Run4' in key
+
+upgradeWFs['HGCALNanoVal'] = UpgradeWorkflow_HGCALNanoVal(
+    steps = [
+        'RecoGlobal',
+        'HARVESTGlobal',
+        'ALCAPhase2',
+    ],
+    PU = [
+        'RecoGlobal',
+        'HARVESTGlobal',
+        'ALCAPhase2',
+    ],
+    suffix = '_HGCALNanoVal',
+    offset = 0.213,
+)
+
+upgradeWFs['HGCALNanoVal'].step3 = {
+    '-s': 'RAW2DIGI,RECO,RECOSIM,PAT,NANO:@HGCALVal,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM',
+    '--datatier': 'GEN-SIM-RECO,MINIAODSIM,DQMIO,NANOAODSIM',
+    '--eventcontent': 'FEVTDEBUGHLT,MINIAODSIM,DQM,NANOAODSIM'
+}
+
 # ECAL component
 class UpgradeWorkflow_ECalComponent(UpgradeWorkflow):
     def __init__(self, suffix, offset, ecalTPPh2, ecalMod,
