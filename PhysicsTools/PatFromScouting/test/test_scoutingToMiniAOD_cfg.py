@@ -34,6 +34,7 @@ process.offlineSlimmedPrimaryVertices = offlineSlimmedPrimaryVertices
 process.slimmedMuons = slimmedMuons.clone(
     src = cms.InputTag("hltScoutingMuonPackerVtx")
 )
+process.slimmedMuonsNoVtx = slimmedMuonsNoVtx
 process.slimmedElectrons = slimmedElectrons
 process.slimmedPhotons = slimmedPhotons
 process.slimmedJets = slimmedJets
@@ -51,6 +52,7 @@ process.p = cms.Path(
     process.packedPFCandidates +
     process.offlineBeamSpot +
     process.slimmedMuons +
+    process.slimmedMuonsNoVtx +
     process.slimmedElectrons +
     process.slimmedPhotons +
     process.slimmedJets +
@@ -69,6 +71,7 @@ process.out = cms.OutputModule("PoolOutputModule",
         'keep *_packedPFCandidates_*_*',
         'keep *_offlineSlimmedPrimaryVertices_*_*',
         'keep *_slimmedMuons_*_*',
+        'keep *_slimmedMuonsNoVtx_*_*',
         'keep *_slimmedElectrons_*_*',
         'keep *_slimmedPhotons_*_*',
         'keep *_slimmedJets_*_*',

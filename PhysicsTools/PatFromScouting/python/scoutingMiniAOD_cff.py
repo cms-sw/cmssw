@@ -8,6 +8,7 @@ Output collections (matching standard MiniAOD names):
 - packedPFCandidates: pat::PackedCandidateCollection from scouting particles
 - offlineSlimmedPrimaryVertices: reco::VertexCollection from scouting vertices
 - slimmedMuons: pat::MuonCollection from scouting muons
+- slimmedMuonsNoVtx: pat::MuonCollection from displaced scouting muons (2024+)
 - slimmedElectrons: pat::ElectronCollection from scouting electrons
 - slimmedPhotons: pat::PhotonCollection from scouting photons
 - slimmedJets: pat::JetCollection from scouting PF jets
@@ -54,6 +55,11 @@ packedPFCandidates = cms.EDProducer("Run3ScoutingParticleToPackedCandidateProduc
 
 slimmedMuons = cms.EDProducer("PatFromScoutingMuonProducer",
     src = cms.InputTag("hltScoutingMuonPacker")
+)
+
+# Displaced muons (no vertex constraint) - available from 2024+
+slimmedMuonsNoVtx = cms.EDProducer("PatFromScoutingMuonProducer",
+    src = cms.InputTag("hltScoutingMuonPackerNoVtx")
 )
 
 # ============================================================
@@ -165,6 +171,8 @@ gtStage2Digis = cms.EDProducer("L1TRawToDigi",
 # ============================================================
 
 # Core task - objects needed for standard NanoAOD
+# Note: slimmedMuonsNoVtx is not included here; it is only available from 2024+
+# and should be added explicitly when processing 2024+ data
 scoutingMiniAODCoreTask = cms.Task(
     packedPFCandidates,
     offlineSlimmedPrimaryVertices,

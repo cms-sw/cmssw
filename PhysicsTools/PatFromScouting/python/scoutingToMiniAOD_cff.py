@@ -29,6 +29,12 @@ slimmedMuons = cms.EDProducer("PatFromScoutingMuonProducer",
 # For 2024 data, use hltScoutingMuonPackerVtx which includes vertex information
 run3_scouting_2024.toModify(slimmedMuons, src="hltScoutingMuonPackerVtx")
 
+# Displaced muons (no vertex constraint) - only available from 2024+
+# Before 2024, there was only hltScoutingMuonPacker (no Vtx/NoVtx split)
+slimmedMuonsNoVtx = cms.EDProducer("PatFromScoutingMuonProducer",
+    src=cms.InputTag("hltScoutingMuonPackerNoVtx")
+)
+
 # Electrons - standard MiniAOD name
 slimmedElectrons = cms.EDProducer("PatFromScoutingElectronProducer",
     src=cms.InputTag("hltScoutingEgammaPacker")
@@ -104,6 +110,11 @@ scoutingToMiniAODTask = cms.Task(
     caloStage2Digis
 )
 
+# For 2024+, add displaced muon collection (NoVtx)
+_scoutingToMiniAODTask_2024 = scoutingToMiniAODTask.copy()
+_scoutingToMiniAODTask_2024.add(slimmedMuonsNoVtx)
+run3_scouting_2024.toReplaceWith(scoutingToMiniAODTask, _scoutingToMiniAODTask_2024)
+
 # Sequence for backward compatibility
 scoutingToMiniAODSequence = cms.Sequence(scoutingToMiniAODTask)
 
@@ -162,6 +173,7 @@ def customiseScoutingToMiniAOD(process):
             outputModule = getattr(process, name)
             outputModule.outputCommands.extend([
                 # Keep scouting-specific collections
+                'keep patMuons_slimmedMuonsNoVtx_*_*',
                 'keep recoTracks_scoutingTracks__*',
                 'keep *_scoutingTracks_vertexIndex_*',
                 'keep *_gtStage2Digis_*_*',
