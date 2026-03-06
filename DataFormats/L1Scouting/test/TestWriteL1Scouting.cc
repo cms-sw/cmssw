@@ -2,7 +2,7 @@
 #include "DataFormats/L1Scouting/interface/L1ScoutingMuon.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingCalo.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingCaloTower.h"
-#include "DataFormats/L1Scouting/interface/L1ScoutingFastJet.h"
+#include "DataFormats/L1Scouting/interface/L1ScoutingCaloJet.h"
 #include "DataFormats/L1Scouting/interface/OrbitCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -23,6 +23,8 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   private:
+    static constexpr unsigned int kNBXPlus1 = 3565;
+
     void produceMuons(edm::Event& iEvent) const;
     void produceJets(edm::Event& iEvent) const;
     void produceEGammas(edm::Event& iEvent) const;
@@ -30,7 +32,7 @@ namespace edmtest {
     void produceBxSums(edm::Event& iEvent) const;
     void produceBmtfStubs(edm::Event& iEvent) const;
     void produceCaloTowers(edm::Event& iEvent) const;
-    void produceFastJets(edm::Event& iEvent) const;
+    void produceCaloJets(edm::Event& iEvent) const;
 
     void throwWithMessage(const char*) const;
 
@@ -57,9 +59,9 @@ namespace edmtest {
     const std::vector<int> caloTowerValues_;
     const edm::EDPutTokenT<OrbitCollection<l1ScoutingRun3::CaloTower>> caloTowersPutToken_;
 
-    const std::vector<double> fastJetFloatingPointValues_;
-    const std::vector<int> fastJetIntegralValues_;
-    const edm::EDPutTokenT<OrbitCollection<l1ScoutingRun3::FastJet>> fastJetsPutToken_;
+    const std::vector<double> caloJetFloatingPointValues_;
+    const std::vector<int> caloJetIntegralValues_;
+    const edm::EDPutTokenT<OrbitCollection<l1ScoutingRun3::CaloJet>> caloJetsPutToken_;
   };
 
   TestWriteL1Scouting::TestWriteL1Scouting(edm::ParameterSet const& iPSet)
@@ -78,9 +80,9 @@ namespace edmtest {
         bmtfStubsPutToken_(produces()),
         caloTowerValues_(iPSet.getParameter<std::vector<int>>("caloTowerValues")),
         caloTowersPutToken_(produces()),
-        fastJetFloatingPointValues_(iPSet.getParameter<std::vector<double>>("fastJetFloatingPointValues")),
-        fastJetIntegralValues_(iPSet.getParameter<std::vector<int>>("fastJetIntegralValues")),
-        fastJetsPutToken_(produces()) {
+        caloJetFloatingPointValues_(iPSet.getParameter<std::vector<double>>("caloJetFloatingPointValues")),
+        caloJetIntegralValues_(iPSet.getParameter<std::vector<int>>("caloJetIntegralValues")),
+        caloJetsPutToken_(produces()) {
     if (bxValues_.size() != 2) {
       throwWithMessage("bxValues must have 2 elements and it does not");
     }
@@ -105,11 +107,11 @@ namespace edmtest {
     if (caloTowerValues_.size() != 5) {
       throwWithMessage("caloTowerValues must have 5 elements and it does not");
     }
-    if (fastJetFloatingPointValues_.size() != 3) {
-      throwWithMessage("fastJetFloatingPointValues must have 3 elements and it does not");
+    if (caloJetFloatingPointValues_.size() != 3) {
+      throwWithMessage("caloJetFloatingPointValues must have 3 elements and it does not");
     }
-    if (fastJetIntegralValues_.size() != 3) {
-      throwWithMessage("fastJetIntegralValues must have 3 elements and it does not");
+    if (caloJetIntegralValues_.size() != 3) {
+      throwWithMessage("caloJetIntegralValues must have 3 elements and it does not");
     }
   }
 
@@ -121,13 +123,13 @@ namespace edmtest {
     produceBxSums(iEvent);
     produceBmtfStubs(iEvent);
     produceCaloTowers(iEvent);
-    produceFastJets(iEvent);
+    produceCaloJets(iEvent);
   }
 
   void TestWriteL1Scouting::produceMuons(edm::Event& iEvent) const {
     std::unique_ptr<l1ScoutingRun3::MuonOrbitCollection> muons(new l1ScoutingRun3::MuonOrbitCollection);
 
-    std::vector<std::vector<l1ScoutingRun3::Muon>> orbitBufferMuons(3565);
+    std::vector<std::vector<l1ScoutingRun3::Muon>> orbitBufferMuons(kNBXPlus1);
     int nMuons = 0;
     for (auto const bx : bxValues_) {
       for (auto const val : muonValues_) {
@@ -143,7 +145,7 @@ namespace edmtest {
   void TestWriteL1Scouting::produceJets(edm::Event& iEvent) const {
     std::unique_ptr<l1ScoutingRun3::JetOrbitCollection> jets(new l1ScoutingRun3::JetOrbitCollection);
 
-    std::vector<std::vector<l1ScoutingRun3::Jet>> orbitBufferJets(3565);
+    std::vector<std::vector<l1ScoutingRun3::Jet>> orbitBufferJets(kNBXPlus1);
     int nJets = 0;
     for (auto const bx : bxValues_) {
       for (auto const val : jetValues_) {
@@ -159,7 +161,7 @@ namespace edmtest {
   void TestWriteL1Scouting::produceEGammas(edm::Event& iEvent) const {
     std::unique_ptr<l1ScoutingRun3::EGammaOrbitCollection> eGammas(new l1ScoutingRun3::EGammaOrbitCollection);
 
-    std::vector<std::vector<l1ScoutingRun3::EGamma>> orbitBufferEGammas(3565);
+    std::vector<std::vector<l1ScoutingRun3::EGamma>> orbitBufferEGammas(kNBXPlus1);
     int nEGammas = 0;
     for (auto const bx : bxValues_) {
       for (auto const val : eGammaValues_) {
@@ -175,7 +177,7 @@ namespace edmtest {
   void TestWriteL1Scouting::produceTaus(edm::Event& iEvent) const {
     std::unique_ptr<l1ScoutingRun3::TauOrbitCollection> taus(new l1ScoutingRun3::TauOrbitCollection);
 
-    std::vector<std::vector<l1ScoutingRun3::Tau>> orbitBufferTaus(3565);
+    std::vector<std::vector<l1ScoutingRun3::Tau>> orbitBufferTaus(kNBXPlus1);
     int nTaus = 0;
     for (auto const bx : bxValues_) {
       for (auto const val : tauValues_) {
@@ -191,7 +193,7 @@ namespace edmtest {
   void TestWriteL1Scouting::produceBxSums(edm::Event& iEvent) const {
     std::unique_ptr<l1ScoutingRun3::BxSumsOrbitCollection> bxSums(new l1ScoutingRun3::BxSumsOrbitCollection);
 
-    std::vector<std::vector<l1ScoutingRun3::BxSums>> orbitBufferBxSums(3565);
+    std::vector<std::vector<l1ScoutingRun3::BxSums>> orbitBufferBxSums(kNBXPlus1);
     int nBxSums = 0;
     for (auto const bx : bxValues_) {
       for (auto const val : bxSumsValues_) {
@@ -208,7 +210,7 @@ namespace edmtest {
   void TestWriteL1Scouting::produceBmtfStubs(edm::Event& iEvent) const {
     std::unique_ptr<l1ScoutingRun3::BMTFStubOrbitCollection> stubs(new l1ScoutingRun3::BMTFStubOrbitCollection);
 
-    std::vector<std::vector<l1ScoutingRun3::BMTFStub>> orbitBufferStubs(3565);
+    std::vector<std::vector<l1ScoutingRun3::BMTFStub>> orbitBufferStubs(kNBXPlus1);
     int nStubs = 0;
     for (auto const bx : bxValues_) {
       for (auto const val : bmtfStubsValues_) {
@@ -223,7 +225,7 @@ namespace edmtest {
 
   void TestWriteL1Scouting::produceCaloTowers(edm::Event& iEvent) const {
     auto caloTowers = std::make_unique<l1ScoutingRun3::CaloTowerOrbitCollection>();
-    std::vector<std::vector<l1ScoutingRun3::CaloTower>> orbitBufferCaloTowers(3565);
+    std::vector<std::vector<l1ScoutingRun3::CaloTower>> orbitBufferCaloTowers(kNBXPlus1);
     int nCaloTowers = 0;
 
     for (auto bx_idx = 0u; bx_idx < bxValues_.size(); ++bx_idx) {
@@ -240,24 +242,24 @@ namespace edmtest {
     iEvent.put(caloTowersPutToken_, std::move(caloTowers));
   }
 
-  void TestWriteL1Scouting::produceFastJets(edm::Event& iEvent) const {
-    auto fastJets = std::make_unique<l1ScoutingRun3::FastJetOrbitCollection>();
-    std::vector<std::vector<l1ScoutingRun3::FastJet>> orbitBufferFastJets(3565);
-    int nFastJets = 0;
+  void TestWriteL1Scouting::produceCaloJets(edm::Event& iEvent) const {
+    auto caloJets = std::make_unique<l1ScoutingRun3::CaloJetOrbitCollection>();
+    std::vector<std::vector<l1ScoutingRun3::CaloJet>> orbitBufferCaloJets(kNBXPlus1);
+    int nCaloJets = 0;
 
     for (auto bx_idx = 0u; bx_idx < bxValues_.size(); ++bx_idx) {
       auto const bx = bxValues_[bx_idx];
       int const val_offset = iEvent.id().event() % 100 + bx_idx;
-      for (auto val_idx = 0u; val_idx < fastJetIntegralValues_.size(); ++val_idx) {
-        float const val_flp = fastJetFloatingPointValues_.at(val_idx) + val_offset;
-        int const val_int = fastJetIntegralValues_[val_idx] + val_offset;
-        orbitBufferFastJets[bx].emplace_back(val_flp, val_flp + 1, val_flp + 2, val_flp + 3, val_int, val_flp + 4);
-        ++nFastJets;
+      for (auto val_idx = 0u; val_idx < caloJetIntegralValues_.size(); ++val_idx) {
+        float const val_flp = caloJetFloatingPointValues_.at(val_idx) + val_offset;
+        int const val_int = caloJetIntegralValues_[val_idx] + val_offset;
+        orbitBufferCaloJets[bx].emplace_back(val_flp, val_flp + 1, val_flp + 2, val_flp + 3, val_flp + 4, val_int);
+        ++nCaloJets;
       }
     }
 
-    fastJets->fillAndClear(orbitBufferFastJets, nFastJets);
-    iEvent.put(fastJetsPutToken_, std::move(fastJets));
+    caloJets->fillAndClear(orbitBufferCaloJets, nCaloJets);
+    iEvent.put(caloJetsPutToken_, std::move(caloJets));
   }
 
   void TestWriteL1Scouting::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -270,8 +272,8 @@ namespace edmtest {
     desc.add<std::vector<int>>("bxSumsValues");
     desc.add<std::vector<int>>("bmtfStubValues");
     desc.add<std::vector<int>>("caloTowerValues");
-    desc.add<std::vector<double>>("fastJetFloatingPointValues");
-    desc.add<std::vector<int>>("fastJetIntegralValues");
+    desc.add<std::vector<double>>("caloJetFloatingPointValues");
+    desc.add<std::vector<int>>("caloJetIntegralValues");
 
     descriptions.addDefault(desc);
   }
