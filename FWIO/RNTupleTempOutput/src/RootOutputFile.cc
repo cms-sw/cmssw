@@ -32,7 +32,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/StoredProcessBlockHelper.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
@@ -410,7 +410,6 @@ namespace edm::rntuple_temp {
       model->AddField(setupProcessHistoryRegistry());
       model->AddField(setupProductDescriptionRegistry());
       model->AddField(setupBranchIDListRegistry());
-      model->AddField(setupThinnedAssociationsHelper());
       model->AddField(setupProductDependencies());
       if (!om_->outputProcessBlockHelper().processesWithProcessBlockProducts().empty()) {
         model->AddField(setupProcessBlockHelper());
@@ -429,7 +428,6 @@ namespace edm::rntuple_temp {
     writeProcessHistoryRegistry(*rentry);
     writeProductDescriptionRegistry(*rentry, iReg);
     writeBranchIDListRegistry(*rentry);
-    writeThinnedAssociationsHelper(*rentry);
     writeProductDependencies(*rentry);
     writeProcessBlockHelper(*rentry);
     metaData->Fill(*rentry);
@@ -485,11 +483,6 @@ namespace edm::rntuple_temp {
         .Unwrap();
   }
 
-  std::unique_ptr<ROOT::RFieldBase> RootOutputFile::setupThinnedAssociationsHelper() {
-    return ROOT::RFieldBase::Create(poolNames::thinnedAssociationsHelperBranchName(), "edm::ThinnedAssociationsHelper")
-        .Unwrap();
-  }
-
   std::unique_ptr<ROOT::RFieldBase> RootOutputFile::setupProductDescriptionRegistry() {
     return ROOT::RFieldBase::Create(poolNames::productDescriptionBranchName(), "edm::ProductRegistry").Unwrap();
   }
@@ -531,11 +524,6 @@ namespace edm::rntuple_temp {
 
   void RootOutputFile::writeBranchIDListRegistry(ROOT::REntry& rentry) {
     rentry.BindRawPtr(poolNames::branchIDListBranchName(), const_cast<BranchIDLists*>(om_->branchIDLists()));
-  }
-
-  void RootOutputFile::writeThinnedAssociationsHelper(ROOT::REntry& rentry) {
-    auto* p = const_cast<ThinnedAssociationsHelper*>(om_->thinnedAssociationsHelper());
-    rentry.BindRawPtr(poolNames::thinnedAssociationsHelperBranchName(), p);
   }
 
   void RootOutputFile::writeProductDescriptionRegistry(ROOT::REntry& rentry, ProductRegistry const& iReg) {

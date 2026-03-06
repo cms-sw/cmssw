@@ -17,7 +17,6 @@ Test program for edm::Event.
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "DataFormats/TestObjects/interface/Thing.h"
@@ -171,7 +170,6 @@ private:
 
   std::shared_ptr<SignallingProductRegistryFiller> availableProducts_;
   std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
-  std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
   std::shared_ptr<edm::LuminosityBlockPrincipal> lbp_;
   std::shared_ptr<EventPrincipal> principal_;
   std::shared_ptr<Event> currentEvent_;
@@ -316,7 +314,6 @@ std::unique_ptr<ProducerBase> testEvent::emplaceProduct(T product,
 testEvent::testEvent()
     : availableProducts_(new SignallingProductRegistryFiller()),
       branchIDListHelper_(new BranchIDListHelper()),
-      thinnedAssociationsHelper_(new ThinnedAssociationsHelper()),
       principal_(),
       currentEvent_(),
       currentModuleDescription_(),
@@ -448,7 +445,6 @@ void testEvent::setUp() {
   principal_.reset(new edm::EventPrincipal(preg,
                                            edm::productResolversFactory::makePrimary,
                                            branchIDListHelper_,
-                                           thinnedAssociationsHelper_,
                                            pc,
                                            &historyAppender_,
                                            edm::StreamID::invalidStreamID()));

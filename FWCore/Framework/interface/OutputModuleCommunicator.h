@@ -34,7 +34,6 @@ namespace edm {
   class ActivityRegistry;
   class MergeableRunProductMetadata;
   class ProcessContext;
-  class ThinnedAssociationsHelper;
   class WaitingTaskHolder;
 
   class OutputModuleCommunicator {
@@ -77,9 +76,7 @@ namespace edm {
 
     virtual SelectedProductsForBranchType const& keptProducts() const = 0;
 
-    virtual void selectProducts(ProductRegistry const& preg,
-                                ThinnedAssociationsHelper const&,
-                                ProcessBlockHelperBase const&) = 0;
+    virtual void selectProducts(ProductRegistry const& preg, ProcessBlockHelperBase const&) = 0;
 
     virtual void setEventSelectionInfo(
         std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,

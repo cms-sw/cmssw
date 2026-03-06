@@ -165,13 +165,11 @@ namespace edm::rntuple_temp {
                                .promptReading = not input_.delayReadingEventProducts(),
                                .enableIMT = input_.optimizations().enableIMT},
         RootFile::ProductChoices{.productSelectorRules = input_.productSelectorRules(),
-                                 .associationsFromSecondary = nullptr,  // associationsFromSecondary
                                  .dropDescendantsOfDroppedProducts = input_.dropDescendants(),
                                  .labelRawDataLikeMC = input_.labelRawDataLikeMC()},
         RootFile::CrossFileInfo{.runHelper = input_.runHelper(),
                                 .branchIDListHelper = input_.branchIDListHelper(),
                                 .processBlockHelper = input_.processBlockHelper().get(),
-                                .thinnedAssociationsHelper = input_.thinnedAssociationsHelper(),
                                 .duplicateChecker = duplicateChecker(),
                                 .indexesIntoFiles = indexesIntoFiles(),
                                 .currentIndexIntoFile = currentIndexIntoFile},

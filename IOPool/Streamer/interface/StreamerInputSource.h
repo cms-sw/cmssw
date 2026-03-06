@@ -23,7 +23,7 @@
 namespace edm {
   class BranchIDListHelper;
   class ParameterSetDescription;
-  class ThinnedAssociationsHelper;
+
 }  // namespace edm
 
 namespace edm::streamer {
@@ -102,13 +102,6 @@ namespace edm::streamer {
       ~EventPrincipalHolder() override;
 
       WrapperBase const* getIt(ProductID const& id) const override;
-      std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> getThinnedProduct(ProductID const&,
-                                                                                         unsigned int) const override;
-      void getThinnedProducts(ProductID const& pid,
-                              std::vector<WrapperBase const*>& wrappers,
-                              std::vector<unsigned int>& keys) const override;
-      OptionalThinnedKey getThinnedKeyFrom(ProductID const&, unsigned int, ProductID const&) const override;
-
       unsigned int transitionIndex_() const override;
 
       void setEventPrincipal(EventPrincipal* ep);

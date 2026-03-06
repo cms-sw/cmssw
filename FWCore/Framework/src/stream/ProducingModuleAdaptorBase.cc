@@ -273,13 +273,5 @@ namespace edm {
       mod->endLuminosityBlock(lb, c);
       streamEndLuminosityBlockSummary(mod, lb, c);
     }
-
-    template <typename T>
-    void ProducingModuleAdaptorBase<T>::doRegisterThinnedAssociations(ProductRegistry const& registry,
-                                                                      ThinnedAssociationsHelper& helper) {
-      assert(not m_streamModules.empty());
-      auto mod = m_streamModules[0];
-      mod->registerThinnedAssociations(registry, helper);
-    }
   }  // namespace stream
 }  // namespace edm
