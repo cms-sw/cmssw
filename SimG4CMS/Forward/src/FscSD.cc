@@ -35,7 +35,9 @@ FscSD::FscSD(const std::string& name,
   birk3_ = m_p.getParameter<double>("BirkC3");
 
   if (verbn_ > 0)
-    edm::LogVerbatim("FscSim") << "Use " << name << " and FscNumberingSchem \nUse of Birks law is set to      " << useBirk_ << "  with three constants kB = " << birk1_ << ", C1 = " << birk2_ << ", C2 = " << birk3_;
+    edm::LogVerbatim("FscSim") << "Use " << name << " and FscNumberingSchem \nUse of Birks law is set to      "
+                               << useBirk_ << "  with three constants kB = " << birk1_ << ", C1 = " << birk2_
+                               << ", C2 = " << birk3_;
 }
 
 uint32_t FscSD::setDetUnitId(const G4Step* aStep) { return FscNumberingScheme::getUnitID(aStep); }

@@ -25,7 +25,6 @@ private:
   int verbn_;
   bool useBirk_;
   double birk1_, birk2_, birk3_;
-
 };
 
 #endif  // FscSD_h
