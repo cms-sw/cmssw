@@ -42,6 +42,7 @@
 // February, 2018: Implement cluster charge reweighting (P. Schuetze, with code from A. Hazi)
 #include <iostream>
 #include <iomanip>
+#include <unordered_set>
 #include <gsl/gsl_sf_erf.h>
 
 #include "CLHEP/Random/RandFlat.h"
@@ -109,45 +110,26 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
     scenarioProbability_ = &es.getData(scenarioProbabilityToken_);
     quality_map = &es.getData(PixelFEDChannelCollectionMapToken_);
 
-    SiPixelQualityProbabilities::probabilityMap m_probabilities = scenarioProbability_->getProbability_Map();
-    std::vector<std::string> allScenarios;
+    SiPixelQualityProbabilities::probabilityMap const& m_probabilities = scenarioProbability_->getProbability_Map();
 
-    std::transform(quality_map->begin(),
-                   quality_map->end(),
-                   std::back_inserter(allScenarios),
-                   [](const PixelFEDChannelCollectionMap::value_type& pair) { return pair.first; });
-
-    std::vector<std::string> allScenariosInProb;
-
-    for (auto it = m_probabilities.begin(); it != m_probabilities.end(); ++it) {
-      //int PUbin = it->first;
-      for (const auto& entry : it->second) {
-        auto scenario = entry.first;
-        auto probability = entry.second;
-        if (probability != 0) {
-          if (std::find(allScenariosInProb.begin(), allScenariosInProb.end(), scenario) == allScenariosInProb.end()) {
-            allScenariosInProb.push_back(scenario);
+    {
+      std::unordered_set<std::string_view> notFound;
+      for (auto const& [PUbin, vec] : m_probabilities) {
+        for (auto const& [scenario, probability] : vec) {
+          if (probability != 0 and not quality_map->contains(scenario)) {
+            notFound.emplace(scenario);
           }
-        }  // if prob!=0
-      }  // loop on the scenarios for that PU bin
-    }  // loop on PU bins
-
-    std::vector<std::string> notFound;
-    std::copy_if(allScenariosInProb.begin(),
-                 allScenariosInProb.end(),
-                 std::back_inserter(notFound),
-                 [&allScenarios](const std::string& arg) {
-                   return (std::find(allScenarios.begin(), allScenarios.end(), arg) == allScenarios.end());
-                 });
-
-    if (!notFound.empty()) {
-      for (const auto& entry : notFound) {
-        LogError("SiPixelFEDChannelContainer")
-            << "The requested scenario: " << entry << " is not found in the map!! \n";
+        }
       }
-      throw cms::Exception("SiPixelDigitizerAlgorithm") << "Found: " << notFound.size()
-                                                        << " missing scenario(s) in SiPixelStatusScenariosRcd while "
-                                                           "present in SiPixelStatusScenarioProbabilityRcd \n";
+      if (!notFound.empty()) {
+        for (const auto& entry : notFound) {
+          LogError("SiPixelFEDChannelContainer")
+              << "The requested scenario: " << entry << " is not found in the map!! \n";
+        }
+        throw cms::Exception("SiPixelDigitizerAlgorithm") << "Found: " << notFound.size()
+                                                          << " missing scenario(s) in SiPixelStatusScenariosRcd while "
+                                                             "present in SiPixelStatusScenarioProbabilityRcd \n";
+      }
     }
   }
   LogInfo("PixelDigitizer ") << " PixelDigitizerAlgorithm init \n";
