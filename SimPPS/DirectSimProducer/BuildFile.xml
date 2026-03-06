@@ -3,8 +3,7 @@
 <use name="Geometry/VeryForwardGeometryBuilder"/>
 <use name="Geometry/VeryForwardRPTopology"/>
 <use name="SimDataFormats/GeneratorProducts"/>
-<use name="SimPPS/DirectSimProducer"/>
 <use name="rootcore"/>
-<library name="SimPPSDirectSimProducerPlugins" file="*.cc">
-  <flags EDM_PLUGIN="1"/>
-</library>
+<export>
+  <lib name="1"/>
+</export>
