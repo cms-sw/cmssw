@@ -4,7 +4,7 @@ import argparse
 import sys
 
 parser = argparse.ArgumentParser(prog=sys.argv[0], description='Generate XML geometry.')
-parser.add_argument("--geom", help="Name of parameter", type=str, default='ExtendedGeometry2026x')
+parser.add_argument("--geom", help="Name of parameter", type=str, default='ExtendedGeometry2026')
 parser.add_argument("--out", help="Prefix for output file", type=str, default='ge')
 
 args = parser.parse_args()
