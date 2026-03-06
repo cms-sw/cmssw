@@ -85,12 +85,12 @@ HGCalNeighbourCheck::HGCalNeighbourCheck(const edm::ParameterSet &iC)
         unsigned int id = static_cast<unsigned int>(std::atoi(items[0].c_str()));
         DetId::Detector det = DetId(id).det();
         if (det == dets_) {
-	  auto itr = std::find(detIds_.begin(), detIds_.end(), DetId(id));
-	  if (itr == detIds_.end()) {
-	    detIds_.emplace_back(DetId(id));
-	    edm::LogVerbatim("HGCGeom") << "[" << detIds_.size() << "] " << HGCSiliconDetId(id);
-	  }
-	}
+          auto itr = std::find(detIds_.begin(), detIds_.end(), DetId(id));
+          if (itr == detIds_.end()) {
+            detIds_.emplace_back(DetId(id));
+            edm::LogVerbatim("HGCGeom") << "[" << detIds_.size() << "] " << HGCSiliconDetId(id);
+          }
+        }
       }
       fInput.close();
     }
@@ -123,9 +123,10 @@ void HGCalNeighbourCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &
       std::ostringstream st1;
       HGCSiliconDetId id(detIds_[k]);
       std::vector<DetId> ids = geom->topology().neighbors(id);
-      st1 << "["  << k << "]" << id << " with " << ids.size() << " neighbours:";
-      for (auto& idx:ids) {
-	st1 << "(" << HGCSiliconDetId(idx).waferU() << "," << HGCSiliconDetId(idx).waferV() << "," << HGCSiliconDetId(idx).cellU() << "," << HGCSiliconDetId(idx).cellV() << ")";
+      st1 << "[" << k << "]" << id << " with " << ids.size() << " neighbours:";
+      for (auto &idx : ids) {
+        st1 << "(" << HGCSiliconDetId(idx).waferU() << "," << HGCSiliconDetId(idx).waferV() << ","
+            << HGCSiliconDetId(idx).cellU() << "," << HGCSiliconDetId(idx).cellV() << ")";
       }
       edm::LogVerbatim("HGCGeom") << st1.str();
     }
