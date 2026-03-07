@@ -25,12 +25,15 @@
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/IsolatedPFCandidate.h"
 #include "DataFormats/MuonReco/interface/MuonSimInfo.h"
 
 // Define typedefs for convenience
+class Run3ScoutingMuon;
+
 namespace pat {
   class Muon;
   typedef std::vector<Muon> MuonCollection;
@@ -59,6 +62,8 @@ namespace pat {
     Muon(const edm::RefToBase<reco::Muon>& aMuonRef);
     /// constructor from a Ptr to a reco muon
     Muon(const edm::Ptr<reco::Muon>& aMuonRef);
+    /// constructor from a scouting muon
+    Muon(const Run3ScoutingMuon& aMuon);
     /// destructor
     ~Muon() override;
 
@@ -344,6 +349,46 @@ namespace pat {
     }
     bool triggered(const char* pathName) const { return triggerObjectMatchByPath(pathName, true, true) != nullptr; }
 
+    // ---- Methods that hide reco::Muon methods for scouting muon compatibility ----
+    // For ScoutingMuon, these return cached values; otherwise delegate to reco::Muon
+
+    /// Number of chambers (hides reco::Muon::numberOfChambers)
+    int numberOfChambers() const;
+    /// Number of chambers CSC or DT only (hides reco::Muon::numberOfChambersCSCorDT)
+    int numberOfChambersCSCorDT() const;
+    /// Number of muon stations with matches (hides reco::Muon::numberOfMatches)
+    int numberOfMatches(reco::Muon::ArbitrationType type = reco::Muon::SegmentAndTrackArbitration) const;
+    /// Number of matched stations (hides reco::Muon::numberOfMatchedStations)
+    int numberOfMatchedStations(reco::Muon::ArbitrationType type = reco::Muon::SegmentAndTrackArbitration) const;
+    /// Expected number of matched stations (hides reco::Muon::expectedNnumberOfMatchedStations)
+    unsigned int expectedNnumberOfMatchedStations(float minDistanceFromEdge = 10.0) const;
+    /// Muon station mask (hides reco::Muon::stationMask)
+    unsigned int stationMask(reco::Muon::ArbitrationType type = reco::Muon::SegmentAndTrackArbitration) const;
+    /// Number of matched RPC layers (hides reco::Muon::numberOfMatchedRPCLayers)
+    int numberOfMatchedRPCLayers(reco::Muon::ArbitrationType type = reco::Muon::RPCHitAndTrackArbitration) const;
+    /// RPC layer mask (hides reco::Muon::RPClayerMask)
+    unsigned int RPClayerMask(reco::Muon::ArbitrationType type = reco::Muon::RPCHitAndTrackArbitration) const;
+
+    // ---- Hit information accessors ----
+    // For scouting muons return cached values; for standard muons compute from tracks
+
+    /// Number of valid muon hits (from global track hitPattern for standard muons)
+    int numberOfValidMuonHits() const;
+    /// Number of valid standalone muon hits
+    int numberOfValidStandAloneMuonHits() const;
+    /// Number of standalone muon matched stations
+    int numberOfStandAloneMuonMatchedStations() const;
+    /// Number of valid pixel hits (from inner track hitPattern)
+    int numberOfValidPixelHits() const;
+    /// Number of valid strip hits (from inner track hitPattern)
+    int numberOfValidStripHits() const;
+    /// Number of pixel layers with measurement
+    int numberOfPixelLayersWithMeasurement() const;
+    /// Number of tracker layers with measurement
+    int numberOfTrackerLayersWithMeasurement() const;
+    /// Track hit pattern (from inner track for standard muons, from scouting data for scouting muons)
+    reco::HitPattern const& trkHitPattern() const;
+
   protected:
     // ---- for content embedding ----
 
@@ -439,6 +484,22 @@ namespace pat {
     float simEta_;
     float simPhi_;
     float simMatchQuality_;
+
+  private:
+    // ---- Cached values for scouting muons ----
+    // Filled by constructor from Run3ScoutingMuon; accessors check isScoutingMuon()
+    int scoutingNChambers_{0};
+    int scoutingNChambersCSCorDT_{0};
+    int scoutingNMatches_{0};
+    int scoutingNMatchedStations_{0};
+    unsigned int scoutingExpectedMatchedStations_{0};
+    unsigned int scoutingStationMask_{0};
+    int scoutingNMatchedRPCLayers_{0};
+    unsigned int scoutingRPCLayerMask_{0};
+    int scoutingNValidMuonHits_{0};
+    int scoutingNValidStandAloneMuonHits_{0};
+    int scoutingNStandAloneMuonMatchedStations_{0};
+    reco::HitPattern scoutingTrkHitPattern_;
   };
 
 }  // namespace pat

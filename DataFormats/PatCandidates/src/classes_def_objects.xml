@@ -16,7 +16,8 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="38">
+  <class name="pat::Electron"  ClassVersion="39">
+   <version ClassVersion="39" checksum="1668510077"/>
    <version ClassVersion="38" checksum="1251314096"/>
    <version ClassVersion="37" checksum="4284869321"/>
    <version ClassVersion="36" checksum="199321903"/>
@@ -63,7 +64,8 @@
   </ioread>
 
 
-  <class name="pat::Muon"  ClassVersion="31">
+  <class name="pat::Muon"  ClassVersion="32">
+   <version ClassVersion="32" checksum="2701118833"/>
    <version ClassVersion="31" checksum="4230437113"/>
    <version ClassVersion="30" checksum="3276039509"/>
    <version ClassVersion="29" checksum="4221614933"/>
@@ -214,7 +216,8 @@
   </ioread>
 
   <class name="std::vector<pat::tau::TauPFEssential>" />
-  <class name="pat::Photon"  ClassVersion="22">
+  <class name="pat::Photon"  ClassVersion="23">
+   <version ClassVersion="23" checksum="2627861008"/>
    <version ClassVersion="22" checksum="1415449268"/>
    <version ClassVersion="21" checksum="3263223164"/>
    <version ClassVersion="20" checksum="1579185367"/>
