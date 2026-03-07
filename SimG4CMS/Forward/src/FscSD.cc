@@ -13,7 +13,7 @@
 #include "G4Step.hh"
 #include <iostream>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 //-------------------------------------------------------------------
 FscSD::FscSD(const std::string& name,

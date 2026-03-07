@@ -7,7 +7,7 @@
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 namespace FscNumberingScheme {
   unsigned int getUnitID(const G4Step* aStep) {
