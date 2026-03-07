@@ -5,6 +5,8 @@
 #include "ap_fixed.h"
 #include "nnet_common.h"
 
+namespace hls4ml_nnpuppitau_v0 {
+
 namespace nnet {
 
   struct activ_config {
@@ -90,5 +92,7 @@ namespace nnet {
   }
 
 }  // namespace nnet
+
+}  // namespace hls4ml_nnpuppitau_v0
 
 #endif

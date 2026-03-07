@@ -192,6 +192,7 @@ void L1NNTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
 void L1NNTauProducer::makeTau_HW(const l1t::PFCandidate& seed,
                                  l1t::PFCandidateCollection& parts,
                                  std::unique_ptr<l1t::PFTauCollection>& iTaus) {
+  using namespace hls4ml_nnpuppitau_v0;
   // Seed Cone Jet algorithm with ap_fixed types and hardware emulation
   L1TauEmu::detaphi_t rCone2 =
       L1TauEmu::detaphi_t(fTauSize_ * fTauSize_ * L1TauEmu::etaphi_base * L1TauEmu::etaphi_base);
