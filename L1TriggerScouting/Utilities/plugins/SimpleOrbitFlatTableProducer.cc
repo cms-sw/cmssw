@@ -188,7 +188,7 @@ public:
 
     std::vector<const T *> selobjs;
     std::vector<edm::Ptr<T>> selptrs;  // for external variables
-    std::vector<unsigned int> selbxOffsets;
+    std::vector<unsigned int> selbxOffsets(l1ScoutingRun3::OrbitFlatTable::NBX + 2, 0);
 
     if (src.isValid() || !skipNonExistingSrc_) {
       if (singleton_) {
