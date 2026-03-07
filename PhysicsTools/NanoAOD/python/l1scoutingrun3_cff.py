@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+
 from PhysicsTools.NanoAOD.common_cff import *
 
 ##############################
@@ -13,7 +14,7 @@ l1scoutingMuonUnconvertedVariables = cms.PSet(
     hwPt = Var("hwPt()", "int", doc="hardware pt"),
     hwEta = Var("hwEta()", "int", doc="hardware eta"),
     hwPhi = Var("hwPhi()", "int", doc="hardware phi"),
-    hwPtUnconstrained = Var("hwPtUnconstrained", "int", doc="harware unconstrained pt"),
+    hwPtUnconstrained = Var("hwPtUnconstrained", "int", doc="hardware unconstrained pt"),
     hwEtaAtVtx = Var("hwEtaAtVtx()", "int", doc="hardware eta extrapolated at beam line"),
     hwPhiAtVtx = Var("hwPhiAtVtx()", "int", doc="hardware phi extrapolated at beam line"),
 )
@@ -23,6 +24,13 @@ l1scoutingCaloObjectUnconvertedVariables = cms.PSet(
     hwEt = Var("hwEt()", "int", doc="hardware Et"),
     hwEta = Var("hwEta()", "int", doc="hardware eta"),
     hwPhi = Var("hwPhi()", "int", doc="hardware phi"),
+)
+
+# CaloTowers
+l1scoutingCaloTowerUnconvertedVariables = cms.PSet(
+    hwEt = Var("hwEt()", "int16", doc="hardware Et"),
+    hwEta = Var("hwEta()", "int16", doc="hardware eta"),
+    hwPhi = Var("hwPhi()", "int16", doc="hardware phi"),
 )
 
 #################################################
@@ -64,6 +72,11 @@ l1scoutingTauPhysicalValueMap = cms.EDProducer("L1ScoutingTauPhysicalValueMapPro
 l1scoutingJetPhysicalValueMap = cms.EDProducer("L1ScoutingJetPhysicalValueMapProducer",
     src = cms.InputTag("l1ScCaloUnpacker", "Jet"),
     conversions = l1scoutingCaloObjectConversions
+)
+
+# Physical values (Et, Eta, Phi) for CaloTowers (Calo Layer-1)
+l1scoutingCaloTowerPhysicalValueMap = cms.EDProducer("L1ScoutingCaloTowerPhysicalValueMapProducer",
+    src = cms.InputTag("l1ScCaloTowerUnpacker", "CaloTower")
 )
 
 ####################
@@ -181,4 +194,22 @@ l1scoutingBMTFStubTable = cms.EDProducer("SimpleL1ScoutingBMTFStubOrbitFlatTable
         sector = Var("sector()", "int16", doc="sector (raw L1T units)"),
         tag = Var("tag()", "int16", doc="tag (raw L1T units)"),
     ),
+)
+
+# CaloTowers
+l1scoutingCaloTowerTable = cms.EDProducer("SimpleL1ScoutingCaloTowerOrbitFlatTableProducer",
+    src = cms.InputTag("l1ScCaloTowerUnpacker", "CaloTower"),
+    name = cms.string("L1CaloTower"),
+    doc = cms.string("CaloTowers from Calo Layer-1"),
+    singleton = cms.bool(False),
+    skipNonExistingSrc = cms.bool(False),
+    variables = cms.PSet(
+        erBits = Var("erBits()", "int16", doc="hardware energy-ratio bits"),
+        miscBits = Var("miscBits()", "int16", doc="hardware misc-bits"),
+    ),
+    externalVariables = cms.PSet(
+        pt = ExtVar(cms.InputTag("l1scoutingCaloTowerPhysicalValueMap", "fEt"), "float", doc="pt", precision=10),
+        eta = ExtVar(cms.InputTag("l1scoutingCaloTowerPhysicalValueMap", "fEta"), "float", doc="eta", precision=10),
+        phi = ExtVar(cms.InputTag("l1scoutingCaloTowerPhysicalValueMap", "fPhi"), "float", doc="phi", precision=10),
+    )
 )
