@@ -298,6 +298,9 @@ _barrelSerenityTM18 = _barrelWriterOutputOnly.clone(
     gttLink = 4*28+3,
     eventsPerFile = 4,
 )
+_barrelSerenityTM18.gctEmSectors = cms.VPSet(*[ cms.PSet(gctEmLink = cms.int32(-1)) for s in range(6) ])
+_barrelSerenityTM18.gctHadSectors = cms.VPSet(*[ cms.PSet(gctHadLink = cms.int32(-1)) for s in range(6) ])
+
 barrelSerenityOutputTM18WriterConfig = _barrelSerenityTM18.clone(
     outputRegions = cms.vuint32(*range(54)),
     outputBoard = cms.int32(0),
