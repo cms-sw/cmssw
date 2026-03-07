@@ -10,7 +10,7 @@
 
   <class name="l1t::io_v1::PFTrack::TrackRef" />
   <class name="l1t::io_v1::PFTrack"  ClassVersion="3">
-      <version ClassVersion="3" checksum="3854171349"/>
+      <version ClassVersion="3" checksum="2193628913"/>
   </class>
   <class name="l1t::PFTrackCollection" />
   <class name="edm::Wrapper<l1t::PFTrackCollection>" />
