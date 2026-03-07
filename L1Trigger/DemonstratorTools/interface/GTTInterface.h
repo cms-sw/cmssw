@@ -19,6 +19,7 @@ namespace l1t::demo::gtt {
   static constexpr size_t kGapLengthOutputToGlobalTriggerSums = 3;
   static constexpr size_t kGapLengthOutputToGlobalTriggerTaus = 36;
   static constexpr size_t kGapLengthOutputToGlobalTriggerMesons = 15;
+  static constexpr size_t kGapLengthOutputToGlobalTriggerTriplets = 15;
   static constexpr size_t kGapLengthOutputToGlobalTriggerVertices = 6;
   static constexpr size_t kTrackTMUX = 18;  //TMUX of the TrackFindingProcessors
   static constexpr size_t kGTTBoardTMUX =
@@ -93,14 +94,16 @@ namespace l1t::demo::gtt {
       /* logical channel within time slice -> vector of channel indices (one entry per time slice) */
       {{"sums", 0}, {0}},
       {{"taus", 1}, {1}},
-      {{"mesons", 2}, {2}},
+      //{{"mesons", 2}, {2}},
+      {{"triplets", 2}, {2}},
       {{"vertices", 3}, {3}}};
 
   static const std::map<std::string, l1t::demo::ChannelSpec> kChannelSpecsOutputToGlobalTrigger = {
       /* interface name -> {link TMUX, inter-packet gap} */
       {"sums", {kGTTBoardTMUX, kGapLengthOutputToGlobalTriggerSums}},
       {"taus", {kGTTBoardTMUX, kGapLengthOutputToGlobalTriggerTaus}},
-      {"mesons", {kGTTBoardTMUX, kGapLengthOutputToGlobalTriggerMesons}},
+      {"triplets", {kGTTBoardTMUX, kGapLengthOutputToGlobalTriggerTriplets}},
+      //{"mesons", {kGTTBoardTMUX, kGapLengthOutputToGlobalTriggerMesons}},
       {"vertices", {kGTTBoardTMUX, kGapLengthOutputToGlobalTriggerVertices}}};
 
 }  // namespace l1t::demo::gtt
