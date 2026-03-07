@@ -13,3 +13,4 @@
 <use name="Geometry/RPCGeometry"/>
 <use name="L1Trigger/CSCTriggerPrimitives"/>
 <use name="L1Trigger/DTUtilities"/>
+<use name="SimDataFormats/Track"/>
