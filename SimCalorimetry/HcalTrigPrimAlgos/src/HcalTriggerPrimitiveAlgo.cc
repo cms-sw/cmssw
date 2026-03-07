@@ -25,6 +25,7 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(bool pf,
                                                    int latency,
                                                    uint32_t FG_threshold,
                                                    const std::vector<uint32_t>& FG_HF_thresholds,
+                                                   bool useTDCfromDB,
                                                    uint32_t ZS_threshold,
                                                    int numberOfSamples,
                                                    int numberOfPresamples,
@@ -45,6 +46,7 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo(bool pf,
       latency_(latency),
       FG_threshold_(FG_threshold),
       FG_HF_thresholds_(FG_HF_thresholds),
+      useTDCfromDB_(useTDCfromDB),
       ZS_threshold_(ZS_threshold),
       numberOfSamples_(numberOfSamples),
       numberOfPresamples_(numberOfPresamples),
@@ -1073,6 +1075,40 @@ void HcalTriggerPrimitiveAlgo::addUpgradeTDCFG(const HcalTrigTowerDetId& id, con
     // 0 if frame.flavor is 0 (uncompressed), 1 if frame.flavor is 3 (compressed)
   }
 
+  // Access tdc1, tdc2 thresholds from first two bytes of auxi1 field of HcalTPChannelParameters, if dedicated switch is on
+  int tdc1 = 0;
+  int tdc2 = 0;
+  bool hasTDCThr = false;
+
+  if (useTDCfromDB_) {
+    auto tpchparams = conditions_->getHcalTPChannelParameter(detId, false);
+    const uint32_t auxi1 = tpchparams->getauxi1();
+    const int tp_tdc1 = auxi1 & 0xFF;
+    const int tp_tdc2 = (auxi1 >> 8) & 0xFF;
+
+    // accept only if sane and nonzero
+    const bool empty = (tp_tdc1 == 0 && tp_tdc2 == 0);
+    const bool bad = (tp_tdc2 < tp_tdc1) || (tp_tdc2 > 49);
+
+    if (empty || bad) {
+      throw cms::Exception("HBTDCThresholds") << "Missing/invalid HB TDC thresholds from HcalTPChannelParameters for "
+                                              << detId << " (auxi1: tdc1/tdc2 not set or out of range).";
+    }
+
+    tdc1 = tp_tdc1;
+    tdc2 = tp_tdc2;
+    hasTDCThr = true;
+  }
+
+  // Pack bits12_15 with tdc1, tdc2, and hasTDCThr
+  auto packBits = [&](unsigned short b1215) -> int {
+    int packed = (int(b1215) & 0xF);        // bits 0..3   : original bits12-15
+    packed |= ((tdc1 & 0xFF) << 4);         // bits 4..11  : tdc1
+    packed |= ((tdc2 & 0xFF) << 12);        // bits 12..19 : tdc2
+    packed |= ((hasTDCThr ? 1 : 0) << 20);  // bit  20     : hasTDCThr flag
+    return packed;
+  };
+
   auto it = fgUpgradeTDCMap_.find(id);
   if (it == fgUpgradeTDCMap_.end()) {
     FGUpgradeTDCContainer element;
@@ -1080,8 +1116,8 @@ void HcalTriggerPrimitiveAlgo::addUpgradeTDCFG(const HcalTrigTowerDetId& id, con
     it = fgUpgradeTDCMap_.insert(std::make_pair(id, element)).first;
   }
   for (int i = 0; i < frame.samples(); i++) {
-    it->second[i][detId.depth() - 1] =
-        std::make_pair(std::make_pair(bits12_15[i], is_compressed), std::make_pair(frame[i].tdc(), samples1[i]));
+    it->second[i][detId.depth() - 1] = std::make_pair(std::make_pair(packBits(bits12_15[i]), is_compressed),
+                                                      std::make_pair(frame[i].tdc(), samples1[i]));
   }
 }
 
