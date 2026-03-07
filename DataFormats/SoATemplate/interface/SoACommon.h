@@ -17,8 +17,6 @@
 
 #include <boost/preprocessor.hpp>
 
-#include <format>
-
 #include "FWCore/Utilities/interface/typedefs.h"
 
 // CUDA attributes
@@ -48,8 +46,10 @@
     abort();                                                 \
   }
 #else
-#define SOA_THROW_OUT_OF_RANGE(A, I, R) \
-  { throw std::out_of_range(std::format("{}: index {} out of range {}", (A), (I), (R))); }
+#define SOA_THROW_OUT_OF_RANGE(A, I, R)                    \
+  {                                                        \
+    cms::soa::detail::throwOutOfRangeError((A), (I), (R)); \
+  }
 #endif
 
 /* declare "scalars" (one value shared across the whole SoA) and "columns" (one value per element) */
@@ -121,6 +121,16 @@ namespace cms::soa {
     using ReferenceToConst = const T&;
   };
 
+  // Matryoshka template to avoid commas inside macros
+  template <CMS_SOA_BYTE_SIZE_TYPE ALIGNMENT>
+  struct LayoutParameters {
+    template <bool ALIGNMENT_ENFORCEMENT>
+    struct AlignmentEnforcement {
+      template <template <CMS_SOA_BYTE_SIZE_TYPE, bool> typename T>
+      using Layout = T<ALIGNMENT, ALIGNMENT_ENFORCEMENT>;
+    };
+  };
+
   // Forward declarations
   template <SoAColumnType COLUMN_TYPE, typename T>
   struct SoAConstParametersImpl;
@@ -135,27 +145,22 @@ namespace cms::soa {
 
     using ValueType = T;
     using ScalarType = T;
-    using TupleOrPointerType = const ValueType*;
 
     // default constructor
     SoAConstParametersImpl() = default;
 
     // constructor from address and size
-    SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(ValueType const* addr) : addr_(addr) {}
+    SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(ScalarType const* addr) : addr_(addr) {}
 
     // constructor from a non-const parameter set
     SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(SoAParametersImpl<columnType, ValueType> const& o)
         : addr_{o.addr_} {}
 
-    static constexpr bool checkAlignment(ValueType* addr, byte_size_type alignment) {
-      return reinterpret_cast<intptr_t>(addr) % alignment;
-    }
-
-    TupleOrPointerType tupleOrPointer() { return addr_; }
+    SOA_HOST_DEVICE SOA_INLINE ScalarType const* data() const { return addr_; }
 
   public:
     // scalar or column
-    ValueType const* addr_ = nullptr;
+    ScalarType const* addr_ = nullptr;
   };
 
   // Templated const parameter specialisation for Eigen columns
@@ -165,7 +170,6 @@ namespace cms::soa {
 
     using ValueType = T;
     using ScalarType = typename T::Scalar;
-    using TupleOrPointerType = std::tuple<const ScalarType*, byte_size_type>;
 
     // default constructor
     SoAConstParametersImpl() = default;
@@ -174,35 +178,17 @@ namespace cms::soa {
     SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(ScalarType const* addr, byte_size_type stride)
         : addr_(addr), stride_(stride) {}
 
-    // constructor from address and stride packed in a tuple
-    SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(TupleOrPointerType const& tuple)
-        : addr_(std::get<0>(tuple)), stride_(std::get<1>(tuple)) {}
-
     // constructor from a non-const parameter set
     SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(SoAParametersImpl<columnType, ValueType> const& o)
         : addr_{o.addr_}, stride_{o.stride_} {}
 
-    static constexpr bool checkAlignment(TupleOrPointerType const& tuple, byte_size_type alignment) {
-      const auto& [addr, stride] = tuple;
-      return reinterpret_cast<intptr_t>(addr) % alignment;
-    }
-
-    TupleOrPointerType tupleOrPointer() { return {addr_, stride_}; }
+    SOA_HOST_DEVICE SOA_INLINE ScalarType const* data() const { return addr_; }
+    SOA_HOST_DEVICE SOA_INLINE byte_size_type stride() const { return stride_; }
 
   public:
     // address, stride and size
     ScalarType const* addr_ = nullptr;
     byte_size_type stride_ = 0;
-  };
-
-  // Matryoshka template to avoid commas inside macros
-  template <CMS_SOA_BYTE_SIZE_TYPE ALIGNMENT>
-  struct LayoutParameters {
-    template <bool ALIGNMENT_ENFORCEMENT>
-    struct AlignmentEnforcement {
-      template <template <CMS_SOA_BYTE_SIZE_TYPE, bool> typename T>
-      using Layout = T<ALIGNMENT, ALIGNMENT_ENFORCEMENT>;
-    };
   };
 
   // Matryoshka template to avoid commas inside macros
@@ -219,7 +205,6 @@ namespace cms::soa {
 
     using ValueType = T;
     using ScalarType = T;
-    using TupleOrPointerType = ValueType*;
 
     using ConstType = SoAConstParametersImpl<columnType, ValueType>;
     friend ConstType;
@@ -228,17 +213,13 @@ namespace cms::soa {
     SoAParametersImpl() = default;
 
     // constructor from address and size
-    SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl(ValueType* addr) : addr_(addr) {}
+    SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl(ScalarType* addr) : addr_(addr) {}
 
-    static constexpr bool checkAlignment(ValueType* addr, byte_size_type alignment) {
-      return reinterpret_cast<intptr_t>(addr) % alignment;
-    }
-
-    TupleOrPointerType tupleOrPointer() { return addr_; }
+    SOA_HOST_DEVICE SOA_INLINE ScalarType* data() const { return addr_; }
 
   public:
     // scalar or column
-    ValueType* addr_ = nullptr;
+    ScalarType* addr_ = nullptr;
   };
 
   // Templated parameter specialisation for Eigen columns
@@ -248,7 +229,6 @@ namespace cms::soa {
 
     using ValueType = T;
     using ScalarType = typename T::Scalar;
-    using TupleOrPointerType = std::tuple<ScalarType*, byte_size_type>;
 
     using ConstType = SoAConstParametersImpl<columnType, ValueType>;
     friend ConstType;
@@ -260,16 +240,8 @@ namespace cms::soa {
     SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl(ScalarType* addr, byte_size_type stride)
         : addr_(addr), stride_(stride) {}
 
-    // constructor from address and stride packed in a tuple
-    SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl(TupleOrPointerType const& tuple)
-        : addr_(std::get<0>(tuple)), stride_(std::get<1>(tuple)) {}
-
-    static constexpr bool checkAlignment(TupleOrPointerType const& tuple, byte_size_type alignment) {
-      const auto& [addr, stride] = tuple;
-      return reinterpret_cast<intptr_t>(addr) % alignment;
-    }
-
-    TupleOrPointerType tupleOrPointer() { return {addr_, stride_}; }
+    SOA_HOST_DEVICE SOA_INLINE ScalarType* data() const { return addr_; }
+    SOA_HOST_DEVICE SOA_INLINE byte_size_type stride() const { return stride_; }
 
   public:
     // address, stride and size
@@ -617,8 +589,9 @@ namespace cms::soa {
 #endif
 
   // Helper function to compute aligned size
-  //this is an integer division -> it rounds size to the next multiple of alignment
+  // this is an integer division -> it rounds size to the next multiple of alignment
   constexpr inline byte_size_type alignSize(byte_size_type size, byte_size_type alignment) {
+    assert(alignment > 0 && "Alignment for SoA must be > 0");
     return ((size + alignment - 1) / alignment) * alignment;
   }
 
@@ -856,99 +829,92 @@ SOA_HOST_ONLY std::ostream& operator<<(std::ostream& os, const SOA& soa) {
 }
 
 namespace cms::soa::detail {
-  // Helper function for streaming column
-  template <typename T>
-  void printColumn(std::ostream& soa_impl_os,
-                   const cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::scalar, T>& column,
-                   std::string_view name,
-                   cms::soa::byte_size_type& soa_impl_offset,
-                   cms::soa::size_type,
-                   cms::soa::byte_size_type alignment) {
-    soa_impl_os << " Scalar " << name << " at offset " << soa_impl_offset << " has size " << sizeof(T)
-                << " and padding " << ((sizeof(T) - 1) / alignment + 1) * alignment - sizeof(T) << std::endl;
-    soa_impl_offset += ((sizeof(T) - 1) / alignment + 1) * alignment;
-  }
+  [[noreturn]] void throwOutOfRangeError(const char* message, cms::soa::size_type index, cms::soa::size_type range);
+  // Helper function to check alignment of a pointer. Returns true if the pointer is not aligned to the specified alignment.
+  [[noreturn]] void throwRuntimeError(const char* message);
 
   template <typename T>
-  void printColumn(std::ostream& soa_impl_os,
-                   const cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::column, T>& column,
-                   std::string_view name,
-                   cms::soa::byte_size_type& soa_impl_offset,
-                   cms::soa::size_type elements,
-                   cms::soa::byte_size_type alignment) {
-    soa_impl_os << " Column " << name << " at offset " << soa_impl_offset << " has size " << sizeof(T) * elements
-                << " and padding " << cms::soa::alignSize(elements * sizeof(T), alignment) - (elements * sizeof(T))
-                << std::endl;
-    soa_impl_offset += cms::soa::alignSize(elements * sizeof(T), alignment);
+  SOA_INLINE void checkAlignment(const T* addr, byte_size_type alignment, const char* message) {
+    if (reinterpret_cast<uintptr_t>(addr) % alignment)
+      throwRuntimeError(message);
   }
 
-  template <typename T>
-  void printColumn(std::ostream& soa_impl_os,
-                   const cms::soa::SoAConstParametersImpl<cms::soa::SoAColumnType::eigen, T>& column,
-                   std::string_view name,
-                   cms::soa::byte_size_type& soa_impl_offset,
-                   cms::soa::size_type elements,
-                   cms::soa::byte_size_type alignment) {
-    soa_impl_os << " Eigen value " << name << " at offset " << soa_impl_offset << " has dimension "
-                << "(" << T::RowsAtCompileTime << " x " << T::ColsAtCompileTime << ")"
-                << " and per column size " << sizeof(T::Scalar) * elements << " and padding "
-                << cms::soa::alignSize(elements * sizeof(T::Scalar), alignment) - (elements * sizeof(T::Scalar))
-                << std::endl;
-    soa_impl_offset +=
-        cms::soa::alignSize(elements * sizeof(T::Scalar), alignment) * T::RowsAtCompileTime * T::ColsAtCompileTime;
-  }
-
-  // Helper functions for accumulating column elements
   template <typename ColumnType>
-  struct AccumulateColumnByteSizes;
+  struct PrintColumn;
+
+  // Helper struct for streaming columns
+  template <typename T>
+  struct PrintColumn<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
+    void operator()(std::ostream& soa_impl_os,
+                    std::string_view name,
+                    cms::soa::byte_size_type& soa_impl_offset,
+                    cms::soa::size_type,
+                    cms::soa::byte_size_type alignment) {
+      const auto size = sizeof(T);
+      soa_impl_os << " Scalar " << name << " at offset " << soa_impl_offset << " has size " << size << " and padding "
+                  << cms::soa::alignSize(size, alignment) - size << std::endl;
+      soa_impl_offset += cms::soa::alignSize(size, alignment);
+    }
+  };
 
   template <typename T>
-  struct AccumulateColumnByteSizes<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
-    cms::soa::byte_size_type operator()(cms::soa::size_type, cms::soa::byte_size_type alignment) const {
+  struct PrintColumn<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::column, T>> {
+    void operator()(std::ostream& soa_impl_os,
+                    std::string_view name,
+                    cms::soa::byte_size_type& soa_impl_offset,
+                    cms::soa::size_type elements,
+                    cms::soa::byte_size_type alignment) {
+      const auto size = sizeof(T) * elements;
+      soa_impl_os << " Column " << name << " at offset " << soa_impl_offset << " has size " << size << " and padding "
+                  << cms::soa::alignSize(size, alignment) - size << std::endl;
+      soa_impl_offset += cms::soa::alignSize(size, alignment);
+    }
+  };
+
+  template <typename T>
+  struct PrintColumn<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::eigen, T>> {
+    void operator()(std::ostream& soa_impl_os,
+                    std::string_view name,
+                    cms::soa::byte_size_type& soa_impl_offset,
+                    cms::soa::size_type elements,
+                    cms::soa::byte_size_type alignment) {
+      const auto size = elements * sizeof(typename T::Scalar);
+      soa_impl_os << " Eigen value " << name << " at offset " << soa_impl_offset << " has dimension "
+                  << "(" << T::RowsAtCompileTime << " x " << T::ColsAtCompileTime << ")"
+                  << " and per column size " << size << " and padding " << cms::soa::alignSize(size, alignment) - size
+                  << std::endl;
+      soa_impl_offset += cms::soa::alignSize(size, alignment) * T::RowsAtCompileTime * T::ColsAtCompileTime;
+    }
+  };
+
+  // Helper struct for computing the pitch of each column
+  template <typename ColumnType>
+  struct ComputePitch;
+
+  template <typename T>
+  struct ComputePitch<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::scalar, T>> {
+    SOA_HOST_DEVICE constexpr cms::soa::byte_size_type operator()(cms::soa::size_type,
+                                                                  cms::soa::byte_size_type alignment) const {
       return cms::soa::alignSize(sizeof(T), alignment);
     }
   };
 
   template <typename T>
-  struct AccumulateColumnByteSizes<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::column, T>> {
-    cms::soa::byte_size_type operator()(cms::soa::size_type elements, cms::soa::byte_size_type alignment) const {
+  struct ComputePitch<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::column, T>> {
+    SOA_HOST_DEVICE constexpr cms::soa::byte_size_type operator()(cms::soa::size_type elements,
+                                                                  cms::soa::byte_size_type alignment) const {
       return cms::soa::alignSize(elements * sizeof(T), alignment);
     }
   };
 
   template <typename T>
-  struct AccumulateColumnByteSizes<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::eigen, T>> {
-    cms::soa::byte_size_type operator()(cms::soa::size_type elements, cms::soa::byte_size_type alignment) const {
+  struct ComputePitch<cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::eigen, T>> {
+    SOA_HOST_DEVICE constexpr cms::soa::byte_size_type operator()(cms::soa::size_type elements,
+                                                                  cms::soa::byte_size_type alignment) const {
       return cms::soa::alignSize(elements * sizeof(typename T::Scalar), alignment) * T::RowsAtCompileTime *
              T::ColsAtCompileTime;
     }
   };
-
-  // Helper functions for computing the pitch of each column
-  template <typename T>
-  SOA_HOST_DEVICE constexpr cms::soa::byte_size_type computePitch(
-      const cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::scalar, T>& column,
-      cms::soa::byte_size_type alignment,
-      cms::soa::size_type elements) {
-    return cms::soa::alignSize(sizeof(T), alignment);
-  }
-
-  template <typename T>
-  SOA_HOST_DEVICE constexpr cms::soa::byte_size_type computePitch(
-      const cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::column, T>& column,
-      cms::soa::byte_size_type alignment,
-      cms::soa::size_type elements) {
-    return cms::soa::alignSize(elements * sizeof(T), alignment);
-  }
-
-  template <typename T>
-  SOA_HOST_DEVICE constexpr cms::soa::byte_size_type computePitch(
-      const cms::soa::SoAParametersImpl<cms::soa::SoAColumnType::eigen, T>& column,
-      cms::soa::byte_size_type alignment,
-      cms::soa::size_type elements) {
-    return cms::soa::alignSize(elements * sizeof(typename T::Scalar), alignment) * T::RowsAtCompileTime *
-           T::ColsAtCompileTime;
-  }
 
   // Helper type trait for obtaining a span type for a column
   template <typename ColumnType>
