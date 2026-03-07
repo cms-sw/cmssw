@@ -37,6 +37,7 @@ namespace edm {
     bool fOverlapping = false;
     bool fRandomShoot = false;
     bool fUseDeltaT = false;
+    int fVerbosity = 0;
     std::vector<int> fPartIDs;
 
     const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_fieldToken;

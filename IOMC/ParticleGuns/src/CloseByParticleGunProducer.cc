@@ -1,30 +1,28 @@
-#include <ostream>
+#include <algorithm>
 #include <cmath>
+#include <numbers>
+#include <ostream>
 
-#include "IOMC/ParticleGuns/interface/CloseByParticleGunProducer.h"
-
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include <CLHEP/Random/RandFlat.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include "DataFormats/Math/interface/Vector3D.h"
 
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <CLHEP/Random/RandFlat.h>
-#include <CLHEP/Units/SystemOfUnits.h>
-#include <CLHEP/Units/GlobalPhysicalConstants.h>
-#include <CLHEP/Random/RandFlat.h>
+#include "IOMC/ParticleGuns/interface/CloseByParticleGunProducer.h"
 
-using namespace edm;
-using namespace std;
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
-    : BaseFlatGunProducer(pset), m_fieldToken(esConsumes()) {
-  ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters");
+edm::CloseByParticleGunProducer::CloseByParticleGunProducer(const edm::ParameterSet& pset)
+    : edm::BaseFlatGunProducer(pset), m_fieldToken(esConsumes()) {
+  edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters");
   fControlledByEta = pgun_params.getParameter<bool>("ControlledByEta");
   fControlledByREta = pgun_params.getParameter<bool>("ControlledByREta");
   if (fControlledByEta and fControlledByREta)
@@ -75,7 +73,7 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
         << " Can't generate non pointing FlatPt samples; please disable FlatPt generation or generate pointing sample";
   fRandomShoot = pgun_params.getParameter<bool>("RandomShoot");
   fNParticles = pgun_params.getParameter<int>("NParticles");
-  fPartIDs = pgun_params.getParameter<vector<int>>("PartID");
+  fPartIDs = pgun_params.getParameter<std::vector<int>>("PartID");
 
   // set dt between particles
   fUseDeltaT = pgun_params.getParameter<bool>("UseDeltaT");
@@ -85,16 +83,17 @@ CloseByParticleGunProducer::CloseByParticleGunProducer(const ParameterSet& pset)
     throw cms::Exception("CloseByParticleGunProducer") << " Please fix TMin and TMax values in the configuration";
   // set a fixed time offset for the particles
   fOffsetFirst = pgun_params.getParameter<double>("OffsetFirst");
+  fVerbosity = pset.getUntrackedParameter<int>("Verbosity", 0);
 
-  produces<HepMCProduct>("unsmeared");
+  produces<edm::HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
 }
 
-CloseByParticleGunProducer::~CloseByParticleGunProducer() {
+edm::CloseByParticleGunProducer::~CloseByParticleGunProducer() {
   // no need to cleanup GenEvent memory - done in HepMCProduct
 }
 
-void CloseByParticleGunProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+void edm::CloseByParticleGunProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("AddAntiParticle", false);
   {
@@ -108,9 +107,9 @@ void CloseByParticleGunProducer::fillDescriptions(ConfigurationDescriptions& des
     psd0.add<bool>("LogSpacedVar", false);
     psd0.add<bool>("FlatPtGeneration", false);
     psd0.add<double>("MaxEta", 2.7);
-    psd0.add<double>("MaxPhi", 3.14159265359);
+    psd0.add<double>("MaxPhi", std::numbers::pi);
     psd0.add<double>("MinEta", 1.7);
-    psd0.add<double>("MinPhi", -3.14159265359);
+    psd0.add<double>("MinPhi", -std::numbers::pi);
     psd0.add<int>("NParticles", 2);
     psd0.add<bool>("Overlapping", false);
     psd0.add<std::vector<int>>("PartID",
@@ -135,20 +134,22 @@ void CloseByParticleGunProducer::fillDescriptions(ConfigurationDescriptions& des
   descriptions.add("CloseByParticleGunProducer", desc);
 }
 
-void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
+void edm::CloseByParticleGunProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
   if (fVerbosity > 0) {
-    LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Begin New Event Generation" << endl;
+    LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Begin New Event Generation" << std::endl;
   }
   fEvt = new HepMC::GenEvent();
 
   auto const& field = es.getData(m_fieldToken);
+  const double bz = field.inTesla({0.f, 0.f, 0.f}).z();
 
   int barcode = 1;
-  unsigned int numParticles = fRandomShoot ? CLHEP::RandFlat::shoot(engine, 1, fNParticles) : fNParticles;
-
+  const unsigned int numParticles = fRandomShoot
+                                        ? static_cast<unsigned int>(CLHEP::RandFlat::shoot(engine, 1, fNParticles + 1))
+                                        : static_cast<unsigned int>(fNParticles);
   double phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
   double fZ;
   double fR, fEta;
@@ -159,15 +160,15 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
 
     if (!fControlledByEta) {
       fR = CLHEP::RandFlat::shoot(engine, fRMin, fRMax);
-      fEta = asinh(fZ / fR);
+      fEta = std::asinh(fZ / fR);
     } else {
       fEta = CLHEP::RandFlat::shoot(engine, fEtaMin, fEtaMax);
-      fR = (fZ / sinh(fEta));
+      fR = (fZ / std::sinh(fEta));
     }
   } else {
     fR = CLHEP::RandFlat::shoot(engine, fRMin, fRMax);
     fEta = CLHEP::RandFlat::shoot(engine, fEtaMin, fEtaMax);
-    fZ = sinh(fEta) * fR;
+    fZ = std::sinh(fEta) * fR;
   }
 
   if (fUseDeltaT) {
@@ -196,9 +197,12 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
     } else
       fVar = CLHEP::RandFlat::shoot(engine, fVarMin, fVarMax);
 
-    int partIdx = CLHEP::RandFlat::shoot(engine, 0, fPartIDs.size());
+    const auto partIdx = static_cast<std::size_t>(CLHEP::RandFlat::shoot(engine, 0, fPartIDs.size()));
     int PartID = fPartIDs[partIdx];
-    const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
+    const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(std::abs(PartID)));
+    if (!PData) {
+      throw cms::Exception("CloseByParticleGunProducer") << "Particle ID " << PartID << " not found in PDG table";
+    }
     double mass = PData->mass().value();
 
     double mom, px, py, pz;
@@ -208,50 +212,56 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
       double mom2 = fVar * fVar - mass * mass;
       mom = 0.;
       if (mom2 > 0.) {
-        mom = sqrt(mom2);
+        mom = std::sqrt(mom2);
       }
       px = 0.;
       py = 0.;
       pz = mom;
       energy = fVar;
     } else {
-      double theta = 2. * atan(exp(-fEta));
-      mom = fVar / sin(theta);
-      px = fVar * cos(phi);
-      py = fVar * sin(phi);
-      pz = mom * cos(theta);
+      double theta = 2. * std::atan(std::exp(-fEta));
+      mom = fVar / std::sin(theta);
+      px = fVar * std::cos(phi);
+      py = fVar * std::sin(phi);
+      pz = mom * std::cos(theta);
       double energy2 = mom * mom + mass * mass;
-      energy = sqrt(energy2);
+      energy = std::sqrt(energy2);
     }
     // Compute Vertex Position
-    double x = fR * cos(phi);
-    double y = fR * sin(phi);
-    HepMC::FourVector p(px, py, pz, energy);
+    double x = fR * std::cos(phi);
+    double y = fR * std::sin(phi);
+    const double r3d = std::hypot(fR, fZ);
+    const double rhoXY = std::hypot(x, y);
 
     // If we are requested to be pointing to (0,0,0), correct the momentum direction
     if (fPointing) {
       math::XYZVector direction(x, y, fZ);
       math::XYZVector momentum = direction.unit() * mom;
-      p.setX(momentum.x());
-      p.setY(momentum.y());
-      p.setZ(momentum.z());
+      px = momentum.x();
+      py = momentum.y();
+      pz = momentum.z();
     }
-
+    HepMC::FourVector p(px, py, pz, energy);
+    constexpr double kGeVToCmFactor = 1.e5;
     // compute correct path assuming uniform magnetic field in CMS
     double pathLength = 0.;
-    const double speed = p.pz() / p.e() * c_light / CLHEP::cm;
-    if (PData->charge()) {
+    const auto pt = std::hypot(p.px(), p.py());
+
+    const auto pabs = std::hypot(pt, p.pz());
+    const auto speed = pabs / p.e() * c_light / CLHEP::cm;
+    if (PData->charge() != 0 and bz != 0 and pt > 0) {
       // Radius [cm] = P[GeV/c] * 10^9 / (c[mm/ns] * 10^6 * q[C] * B[T]) * 100[cm/m]
-      const double radius = std::sqrt(p.px() * p.px() + p.py() * p.py()) * std::pow(10, 5) /
-                            (c_light * field.inTesla({0.f, 0.f, 0.f}).z());  // cm
-      const double arc = 2 * asinf(std::sqrt(x * x + y * y) / (2 * radius)) * radius;
+      const double radius = pt * kGeVToCmFactor / (std::abs(PData->charge()) * c_light * std::abs(bz));  // cm
+      const double arg = std::clamp(
+          rhoXY / (2.0 * radius), 0.0, 1.0);  // protect against out of range values due to floating point rounding
+      const double arc = 2.0 * std::asin(arg) * radius;
       pathLength = std::sqrt(arc * arc + fZ * fZ);
     } else {
-      pathLength = std::sqrt(x * x + y * y + fZ * fZ);
+      pathLength = r3d;
     }
 
     // if not pointing time doesn't mean a lot, keep the old way
-    const double pathTime = fPointing ? (pathLength / speed) : (std::sqrt(x * x + y * y + fZ * fZ) / speed);
+    const double pathTime = fPointing ? (pathLength / speed) : (r3d / speed);
     double timeOffset = fOffsetFirst + (pathTime + ip * fT) * CLHEP::ns * c_light;
 
     HepMC::GenVertex* Vtx =
@@ -277,14 +287,13 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
     fEvt->print();
   }
 
-  unique_ptr<HepMCProduct> BProduct(new HepMCProduct());
-  BProduct->addHepMCData(fEvt);
-  e.put(std::move(BProduct), "unsmeared");
-
-  unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+  auto bProduct = std::make_unique<edm::HepMCProduct>();
+  bProduct->addHepMCData(fEvt);
+  e.put(std::move(bProduct), "unsmeared");
+  auto genEventInfo = std::make_unique<GenEventInfoProduct>(fEvt);
   e.put(std::move(genEventInfo));
 
   if (fVerbosity > 0) {
-    LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Event Generation Done " << endl;
+    LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Event Generation Done " << std::endl;
   }
 }
