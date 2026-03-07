@@ -49,8 +49,24 @@ process.sender = MPISender(
     ]
 )
 
+# Same thing, but this time disabling TrivialSerialisation so all products are
+# serialized through ROOT
+process.senderNoTrivialSerialisation = MPISender(
+    upstream = "sender",
+    instance = 43,
+    enableTrivialSerialisation = False,
+    products = [
+        "portabletestTestStructPortableHostObject_producePortableObjects__*",
+        "128falseportabletestTestSoALayoutPortableHostCollection_producePortableObjects__*",
+        "128falseportabletestSoABlocks2PortableHostCollection_producePortableObjects__*",
+        "128falseportabletestSoABlocks3PortableHostCollection_producePortableObjects__*",
+        "ushort_producePortableObjects_backend_*"
+    ]
+)
+
 process.pathSoA = cms.Path(
     process.mpiController +
     process.producePortableObjects +
-    process.sender
+    process.sender +
+    process.senderNoTrivialSerialisation
 )
