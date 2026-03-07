@@ -87,6 +87,32 @@ They also produce a copy of the `MPIToken`, so other modules can consume it to d
 
 An automated test is available in the `test/` directory.
 
+## Automatic configuration splitter
+
+In order to use MPI functionality in CMSSW, you need to create special configurations with MPI modules performing the 
+communication. Therefore we provide ```local_remote_splitter.py``` script which allows to split any given
+python process configuration into 2 parts: local and remote.
+
+The tool takes modules to offload as a command line parameter and analyzes data dependencies between CMSSW modules.
+It generates two derived configuration files: a *local* process config and a *remote* process config.
+
+Modules specified for offloading will be moved to the remote process.
+Any required data products are automatically identified and forwarded
+between processes unless the producing module is explicitly marked as shared.
+
+The example command to offload GPU component of ECAL, HCAL and Pixels would be following:
+
+```
+python3 local_remote_splitter.py hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
+        hltHcalDigisSoA hltHbheRecoSoA hltParticleFlowRecHitHBHESoA hltParticleFlowClusterHBHESoA \
+        hltSiPixelClustersSoA hltSiPixelRecHitsSoA hltPixelTracksSoA hltPixelVerticesSoA \
+        --duplicate-modules hltHcalDigis hltOnlineBeamSpot   hltOnlineBeamSpotDevice \
+        --output-local local_pixels.py \
+        --output-remote remote_pixels.py
+```
+
+For more information about input parameters of the script you could run ```local_remote_splitter.py -h```.
+
 
 ## Current limitations
 
