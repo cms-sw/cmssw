@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from HeterogeneousCore.AlpakaCore.functions import makeSerialClone
 
 from ..modules.hltPhase2OtRecHitsSoA_cfi import hltPhase2OtRecHitsSoA
 from ..modules.hltPhase2PixelFitterByHelixProjections_cfi import hltPhase2PixelFitterByHelixProjections
@@ -13,7 +14,7 @@ from ..modules.hltPhase2PixelTracksHitSeeds_cfi import hltPhase2PixelTracksHitSe
 from ..modules.hltPhase2PixelTracksSeedLayers_cfi import hltPhase2PixelTracksSeedLayers
 from ..modules.hltPhase2PixelTracksSoA_cfi import hltPhase2PixelTracksSoA
 from ..modules.hltPhase2PixelVertices_cfi import *
-from ..sequences.HLTPhase2PixelVertexingSequence_cfi import HLTPhase2PixelVertexingSequence
+from ..sequences.HLTPhase2PixelVertexingSequence_cfi import *
 from ..sequences.HLTBeamSpotSequence_cfi import HLTBeamSpotSequence
 
 HLTPhase2PixelTracksAndVerticesSequence = cms.Sequence(
@@ -28,6 +29,34 @@ HLTPhase2PixelTracksAndVerticesSequence = cms.Sequence(
     +HLTPhase2PixelVertexingSequence
     +hltPhase2PixelTracksCutClassifier
     +hltPhase2PixelTracks
+)
+
+# Serial sequence for CPU vs. GPU validation, to be kept in sync with default sequence
+hltPhase2PixelTracksSoASerialSync = makeSerialClone(hltPhase2PixelTracksSoA)
+hltPhase2PixelTracksCAExtensionSerialSync = hltPhase2PixelTracksCAExtension.clone(
+    trackSrc = "hltPhase2PixelTracksSoASerialSync"
+)
+hltPhase2PixelTracksCutClassifierSerialSync = hltPhase2PixelTracksCutClassifier.clone(
+    src = "hltPhase2PixelTracksCAExtensionSerialSync",
+    vertices = "hltPhase2PixelVerticesSerialSync"
+)
+hltPhase2PixelTracksSerialSync = hltPhase2PixelTracks.clone(
+    originalMVAVals = cms.InputTag("hltPhase2PixelTracksCutClassifierSerialSync","MVAValues"),
+    originalQualVals = cms.InputTag("hltPhase2PixelTracksCutClassifierSerialSync","QualityMasks"),
+    originalSource = cms.InputTag("hltPhase2PixelTracksCAExtensionSerialSync")
+)
+HLTPhase2PixelTracksAndVerticesSequenceSerialSync = cms.Sequence(
+    HLTBeamSpotSequence
+    +hltPhase2PixelTracksAndHighPtStepTrackingRegions # needed by highPtTripletStep iteration
+    +hltPhase2PixelFitterByHelixProjections # needed by tracker muons
+    +hltPhase2PixelTrackFilterByKinematics  # needed by tracker muons
+    +hltPhase2OtRecHitsSoA
+    +hltPhase2PixelRecHitsExtendedSoA
+    +hltPhase2PixelTracksSoASerialSync
+    +hltPhase2PixelTracksCAExtensionSerialSync
+    +HLTPhase2PixelVertexingSequenceSerialSync
+    +hltPhase2PixelTracksCutClassifierSerialSync
+    +hltPhase2PixelTracksSerialSync
 )
 
 from ..modules.hltPhase2TrimmedPixelVertices_cfi import hltPhase2TrimmedPixelVertices

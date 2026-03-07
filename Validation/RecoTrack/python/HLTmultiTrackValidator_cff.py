@@ -69,6 +69,39 @@ phase2_tracker.toReplaceWith(
     )
 )
 
+from DQM.TrackingMonitorSource.TrackToTrackComparisonHists_cfi import TrackToTrackComparisonHists as _TrackToTrackComparisonHists
+hltPixelTrackToTrackSerialSync = _TrackToTrackComparisonHists.clone(
+    requireValidHLTPaths = False,
+    ignoreLumiPUPlots = True,
+    monitoredTrack = "hltPhase2PixelTracks",
+    monitoredBeamSpot = "hltOnlineBeamSpot",
+    monitoredPrimaryVertices = "hltPhase2PixelVertices",
+    referenceTrack = "hltPhase2PixelTracksSerialSync",
+    referenceBeamSpot = "hltOnlineBeamSpot",
+    referencePrimaryVertices = "hltPhase2PixelVerticesSerialSync",
+    topDirName = cms.string('HLT/Tracking/ValidationWRTSerialSync/pixelTracks'),
+    genericTriggerEventPSet = dict(hltInputTag = "")
+)
+
+hltInitialStepSeedsTrackToTrackSerialSync = _TrackToTrackComparisonHists.clone(
+    requireValidHLTPaths = False,
+    ignoreLumiPUPlots = True,
+    monitoredTrack = "hltInitialStepTrajectorySeedsLSTTracks",
+    monitoredBeamSpot = "hltOnlineBeamSpot",
+    monitoredPrimaryVertices = "hltPhase2PixelVertices",
+    referenceTrack = "hltInitialStepTrajectorySeedsLSTTracksSerialSync",
+    referenceBeamSpot = "hltOnlineBeamSpot",
+    referencePrimaryVertices = "hltPhase2PixelVerticesSerialSync",
+    topDirName = cms.string('HLT/Tracking/ValidationWRTSerialSync/initialStepSeedTracks'),
+    genericTriggerEventPSet = dict(hltInputTag = "")
+)
+
+_hltHeterogeneousMultiTrackValidation = hltMultiTrackValidation.copyAndExclude([])
+_hltHeterogeneousMultiTrackValidation.insert(-1, hltPixelTrackToTrackSerialSync)
+_hltHeterogeneousMultiTrackValidation.insert(-1, hltInitialStepSeedsTrackToTrackSerialSync)
+from Configuration.ProcessModifiers.alpakaValidationHLT_cff import alpakaValidationHLT
+alpakaValidationHLT.toReplaceWith(hltMultiTrackValidation, _hltHeterogeneousMultiTrackValidation)
+
 from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
 from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
