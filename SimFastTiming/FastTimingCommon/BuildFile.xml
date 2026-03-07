@@ -8,6 +8,7 @@
 <use name="hepmc"/>
 <use name="CLHEP"/>
 <use name="CommonTools/Utils"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
 <use name="vdt_headers"/>
 <use name="rootmath"/>
 <export>

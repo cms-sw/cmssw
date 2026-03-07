@@ -1,6 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/FTLDigi"/>
+<use name="DataFormats/FTLDigiSoA"/>
 <use name="SimFastTiming/FastTimingCommon"/>
 <use name="rootgraphics"/>
 <library file="MTDDigiDump.cc" name="MTDDigiDump">
