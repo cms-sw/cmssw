@@ -1,3 +1,4 @@
 <test name="createDBObjects" command="createTestDBObjects.sh"/>
 <test name="SiPixelGainCalibrationTests" command="testSiPixelGainCalibrationHandlers.sh"/>
 <test name="SiPixelCondPlottingTests" command="testPlottingSiPixelObjects.sh"/>
+<test name="SiPixelBadFEDChannelSimulationSanityChecker" command="siPixelBadFEDChannelSimulationSanityChecker.sh"/>
