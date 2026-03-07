@@ -42,6 +42,7 @@
 #include "SimDataFormats/CaloAnalysis/interface/MtdSimTracksterFwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/SimHitCategory.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 
 #include "SimGeneral/MixingModule/interface/DecayGraph.h"
@@ -59,14 +60,17 @@
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 
-#include "SimG4CMS/Forward/interface/MtdHitCategory.h"
-
 #include <CLHEP/Units/SystemOfUnits.h>
 
 namespace {
   using Index_t = unsigned;
-  using Barcode_t = int;
+  using Barcode_t = int64_t;
   const std::string messageCategoryGraph_("MtdTruthAccumulatorGraphProducer");
+  inline int64_t tidAndProc(int a, unsigned short b) {
+    auto tmpout = static_cast<int64_t>(a) << 32;
+    tmpout |= b;
+    return tmpout;
+  }
 }  // namespace
 
 class MtdTruthAccumulator : public DigiAccumulatorMixMod {
@@ -88,10 +92,11 @@ private:
   /** @brief Fills the supplied vector with pointers to the SimHits, checking
    * for bad modules if required */
   template <class T>
-  void fillSimHits(std::vector<std::pair<uint64_t, const PSimHit *>> &returnValue,
-                   std::unordered_map<int, std::map<uint64_t, std::tuple<float, float, LocalPoint>>> &simTrackDetIdMap,
-                   const T &event,
-                   const edm::EventSetup &setup);
+  void fillSimHits(
+      std::vector<std::pair<uint64_t, const PSimHit *>> &returnValue,
+      std::unordered_map<int64_t, std::map<uint64_t, std::tuple<float, float, LocalPoint>>> &simTrackDetIdMap,
+      const T &event,
+      const edm::EventSetup &setup);
 
   const std::string messageCategory_;
 
@@ -164,13 +169,14 @@ private:
 /* Graph utility functions */
 
 namespace {
+
   class CaloParticle_dfs_visitor : public boost::default_dfs_visitor {
   public:
     CaloParticle_dfs_visitor(
         MtdTruthAccumulator::OutputCollections &output,
         MtdTruthAccumulator::calo_particles &caloParticles,
         std::unordered_multimap<Barcode_t, Index_t> &simHitBarcodeToIndex,
-        std::unordered_map<int, std::map<uint64_t, std::tuple<float, float, LocalPoint>>> &simTrackDetIdMap,
+        std::unordered_map<int64_t, std::map<uint64_t, std::tuple<float, float, LocalPoint>>> &simTrackDetIdMap,
         std::unordered_map<uint32_t, float> &vertex_time_map,
         Selector selector)
         : output_(output),
@@ -188,10 +194,9 @@ namespace {
       auto const vertex_property = get(vertex_name, g, u);
       if (!vertex_property.simTrack)
         return;
-      // -- loop over possible trackIdOffsets to save also sim clusters from non-direct hits
-      for (unsigned int offset = 0; offset < MtdHitCategory::n_categories + 1; offset++) {
-        auto trackIdx = vertex_property.simTrack->trackId();
-        trackIdx += offset * (static_cast<int>(PSimHit::k_tidOffset));
+      // -- loop over possible hitProdTypes to save also sim clusters from non-direct hits
+      for (unsigned int offset = 0; offset < SimHitCategory::nCategoriesMTD; offset++) {
+        auto trackIdx = tidAndProc(vertex_property.simTrack->trackId(), offset);
         IfLogDebug(DEBUG, messageCategoryGraph_)
             << " Found " << simHitBarcodeToIndex_.count(trackIdx) << " associated simHits" << std::endl;
         if (simHitBarcodeToIndex_.count(trackIdx)) {
@@ -205,12 +210,10 @@ namespace {
             simcluster.addHitAndFraction(hit_and_energy.first, hit_and_energy.second);
             simcluster.addHitEnergy(hit_and_energy.second);
             simcluster.addHitTime(std::get<1>(
-                simTrackDetIdMap_[simcluster.g4Tracks()[0].trackId() +
-                                  offset * (static_cast<int>(PSimHit::k_tidOffset))][hit_and_energy.first]));
+                simTrackDetIdMap_[tidAndProc(simcluster.g4Tracks()[0].trackId(), offset)][hit_and_energy.first]));
             simcluster.addHitPosition(std::get<2>(
-                simTrackDetIdMap_[simcluster.g4Tracks()[0].trackId() +
-                                  offset * (static_cast<int>(PSimHit::k_tidOffset))][hit_and_energy.first]));
-            simcluster.setTrackIdOffset(offset);
+                simTrackDetIdMap_[tidAndProc(simcluster.g4Tracks()[0].trackId(), offset)][hit_and_energy.first]));
+            simcluster.setHitProdType(offset);
           }
         }
       }
@@ -248,7 +251,7 @@ namespace {
     MtdTruthAccumulator::OutputCollections &output_;
     MtdTruthAccumulator::calo_particles &caloParticles_;
     std::unordered_multimap<Barcode_t, Index_t> &simHitBarcodeToIndex_;
-    std::unordered_map<int, std::map<uint64_t, std::tuple<float, float, LocalPoint>>> &simTrackDetIdMap_;
+    std::unordered_map<int64_t, std::map<uint64_t, std::tuple<float, float, LocalPoint>>> &simTrackDetIdMap_;
     std::unordered_map<uint32_t, float> &vertex_time_map_;
     Selector selector_;
   };
@@ -472,7 +475,7 @@ void MtdTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup const
       SimLCz = 0.;
       tmpLC.addCluIndex(SC_index);
       tmpLC.computeClusterTime();
-      tmpLC.setTrackIdOffset(sc.trackIdOffset());  // add trackIdoffset
+      tmpLC.setHitProdType(sc.hitProdType());  // add hitProdType
       output_.pMtdSimLayerClusters->push_back(tmpLC);
       LC_indices.push_back(LC_index);
       LC_index++;
@@ -605,13 +608,14 @@ void MtdTruthAccumulator::accumulateEvent(const T &event,
   event.getByLabel(genParticleLabel_, hGenParticleIndices);
 
   std::vector<std::pair<uint64_t, const PSimHit *>> simHitPointers;
-  std::unordered_map<int, std::map<uint64_t, std::tuple<float, float, LocalPoint>>> simTrackDetIdMap;
+  std::unordered_map<int64_t, std::map<uint64_t, std::tuple<float, float, LocalPoint>>> simTrackDetIdMap;
   fillSimHits(simHitPointers, simTrackDetIdMap, event, setup);
 
   // Clear maps from previous event fill them for this one
   m_simHitBarcodeToIndex.clear();
   for (unsigned int i = 0; i < simHitPointers.size(); ++i) {
-    m_simHitBarcodeToIndex.emplace(simHitPointers[i].second->trackId(), i);
+    m_simHitBarcodeToIndex.emplace(
+        tidAndProc(simHitPointers[i].second->trackId(), simHitPointers[i].second->hitProdType()), i);
   }
 
   auto const &tracks = *hSimTracks;
@@ -740,7 +744,7 @@ void MtdTruthAccumulator::accumulateEvent(const T &event,
 template <class T>
 void MtdTruthAccumulator::fillSimHits(
     std::vector<std::pair<uint64_t, const PSimHit *>> &returnValue,
-    std::unordered_map<int, std::map<uint64_t, std::tuple<float, float, LocalPoint>>> &simTrackDetIdMap,
+    std::unordered_map<int64_t, std::map<uint64_t, std::tuple<float, float, LocalPoint>>> &simTrackDetIdMap,
     const T &event,
     const edm::EventSetup &setup) {
   using namespace geant_units::operators;
@@ -781,19 +785,20 @@ void MtdTruthAccumulator::fillSimHits(
       uniqueId |= pixel.first << 16;
       uniqueId |= pixel.second;
 
-      std::get<0>(simTrackDetIdMap[simHit.trackId()][uniqueId]) += simHit.energyLoss();
+      int64_t trackIdx = tidAndProc(simHit.trackId(), simHit.hitProdType());
+      std::get<0>(simTrackDetIdMap[trackIdx][uniqueId]) += simHit.energyLoss();
       m_detIdToTotalSimEnergy[uniqueId] += simHit.energyLoss();
       // --- Get the time of the first SIM hit in the cell
-      if (std::get<1>(simTrackDetIdMap[simHit.trackId()][uniqueId]) == 0. ||
-          simHit.tof() < std::get<1>(simTrackDetIdMap[simHit.trackId()][uniqueId])) {
-        std::get<1>(simTrackDetIdMap[simHit.trackId()][uniqueId]) = simHit.tof();
+      if (std::get<1>(simTrackDetIdMap[trackIdx][uniqueId]) == 0. ||
+          simHit.tof() < std::get<1>(simTrackDetIdMap[trackIdx][uniqueId])) {
+        std::get<1>(simTrackDetIdMap[trackIdx][uniqueId]) = simHit.tof();
       }
 
-      float xSim = std::get<2>(simTrackDetIdMap[simHit.trackId()][uniqueId]).x() + simscaled.x() * simHit.energyLoss();
-      float ySim = std::get<2>(simTrackDetIdMap[simHit.trackId()][uniqueId]).y() + simscaled.y() * simHit.energyLoss();
-      float zSim = std::get<2>(simTrackDetIdMap[simHit.trackId()][uniqueId]).z() + simscaled.z() * simHit.energyLoss();
+      float xSim = std::get<2>(simTrackDetIdMap[trackIdx][uniqueId]).x() + simscaled.x() * simHit.energyLoss();
+      float ySim = std::get<2>(simTrackDetIdMap[trackIdx][uniqueId]).y() + simscaled.y() * simHit.energyLoss();
+      float zSim = std::get<2>(simTrackDetIdMap[trackIdx][uniqueId]).z() + simscaled.z() * simHit.energyLoss();
       LocalPoint posSim(xSim, ySim, zSim);
-      std::get<2>(simTrackDetIdMap[simHit.trackId()][uniqueId]) = posSim;
+      std::get<2>(simTrackDetIdMap[trackIdx][uniqueId]) = posSim;
 
 #ifdef PRINT_DEBUG
       IfLogDebug(DEBUG, messageCategory_)

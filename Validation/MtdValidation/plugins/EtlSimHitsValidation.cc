@@ -182,7 +182,7 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       (simHitIt->second).y = hit_pos.y();
       (simHitIt->second).z = hit_pos.z();
 
-      if (simHit.offsetTrackId() == 0) {
+      if (simHit.hitProdType() == 0) {
         if (simHit.exitPoint() != simHit.entryPoint()) {
           (simHitIt->second).thetaAtEntry =
               angle_units::operators::convertRadToDeg((simHit.exitPoint() - simHit.entryPoint()).bareTheta());
