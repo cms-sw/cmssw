@@ -255,7 +255,7 @@ steps['scoutingNANO_monitor_data13.0'] = merge([{'-s': 'NANO:@ScoutMonitor'},
 
 
 ################################################################
-# current release cycle workflows : 14.0
+# 14.0 workflows
 steps['TTbarMINIAOD14.0'] = {'INPUT': InputInfo(
     location='STD', dataSet='/RelValTTbar_14TeV/CMSSW_14_0_0-PU_140X_mcRun3_2024_realistic_v3_STD_2024_PU-v2/MINIAODSIM')}
 
@@ -431,6 +431,12 @@ steps['ScoutingPFRun3_Run2025C_HLTSCOUT_150X'] = {'INPUT': InputInfo(location='S
 steps['ScoutingPFMonitor_Run2025C_MINIAOD_150X'] = {'INPUT': InputInfo(
     location='STD', ls=lumis_Run2025C, dataSet='/ScoutingPFMonitor/Run2025C-PromptReco-v1/MINIAOD')}
 
+steps['L1Scouting2025RAW15.0'] = {'INPUT': InputInfo(location='STD', ls={398860: [[498, 498]]},
+                                                     dataSet='/L1Scouting/Run2025G-v1/L1SCOUT')}
+
+steps['L1ScoutingSelection2025RAW15.0'] = {'INPUT': InputInfo(location='STD', ls={398860: [[498, 498]]},
+                                                              dataSet='/L1ScoutingSelection/Run2025G-v1/L1SCOUT')}
+
 steps['NANO_data15.0'] = merge([{'--era': 'Run3_2025', '--conditions': 'auto:run3_data_prompt'}, _NANO_data])
 
 steps['NANO_data15.0_prompt'] = merge([{'-s': 'NANO:@Prompt,DQM:@nanoAODDQM', '-n': '1000'},
@@ -465,6 +471,29 @@ steps['scoutingNANO_monitor_data15.0'] = merge([{'-s': 'NANO:@ScoutMonitor'},
 
 steps['scoutingNANO_monitorWithPrompt_data15.0'] = merge([{'-s': 'NANO:@Prompt+@ScoutMonitor'},
                                                           steps['NANO_data15.0']])
+
+steps['l1ScoutingNANO_data15.0'] = merge([{'-s': 'NANO:@L1Scout', '-n': '1000'},
+                                          steps['NANO_data15.0']])
+
+steps['l1ScoutingSelectionNANO_data15.0'] = merge([{'-s': 'NANO:@L1ScoutSelect', '-n': '1000'},
+                                                   steps['NANO_data15.0']])
+
+################################################################
+# Run-3, 16_0_X (2026 data-taking)
+
+steps['L1Scouting2026RAW16.0'] = {'INPUT': InputInfo(location='STD', ls={402144: [[100, 100]]},
+                                                     dataSet='/L1Scouting/Run2026B-v1/L1SCOUT')}
+
+steps['L1ScoutingSelection2026RAW16.0'] = {'INPUT': InputInfo(location='STD', ls={402144: [[100, 100]]},
+                                                              dataSet='/L1ScoutingSelection/Run2026B-v1/L1SCOUT')}
+
+steps['NANO_data16.0'] = merge([{'--era': 'Run3_2026', '--conditions': 'auto:run3_data_prompt'}, _NANO_data])
+
+steps['l1ScoutingNANO_data16.0'] = merge([{'-s': 'NANO:@L1Scout', '-n': '1000'},
+                                          steps['NANO_data16.0']])
+
+steps['l1ScoutingSelectionNANO_data16.0'] = merge([{'-s': 'NANO:@L1ScoutSelect', '-n': '1000'},
+                                                   steps['NANO_data16.0']])
 
 ################################################################
 # NANOGEN
@@ -633,6 +662,8 @@ workflows[_wfn()] = ['ScoutingNANOdata150Xrun3', ['ScoutingPFRun3_Run2025C_HLTSC
 workflows[_wfn()] = ['ScoutingNANOmonitordata150Xrun3', ['ScoutingPFMonitor_Run2025C_MINIAOD_150X', 'scoutingNANO_monitor_data15.0']]  # noqa
 workflows[_wfn()] = ['ScoutingNANOmonitorWithPromptdata150Xrun3', ['ScoutingPFMonitor_Run2025C_MINIAOD_150X', 'scoutingNANO_monitorWithPrompt_data15.0']]  # noqa
 workflows[_wfn()] = ['BPHNANOdata150Xrun3', ['JetMET1_Run2025C_MINIAOD_150X', 'BPHNANO_data15.0']]
+workflows[_wfn()] = ['L1ScoutingNANOdata150Xrun3', ['L1Scouting2025RAW15.0', 'l1ScoutingNANO_data15.0']]
+workflows[_wfn()] = ['L1ScoutingSelectionNANOdata150Xrun3', ['L1ScoutingSelection2025RAW15.0', 'l1ScoutingSelectionNANO_data15.0']]
 
 # DPG custom NANOs, data
 _wfn.subnext()
@@ -640,6 +671,27 @@ _wfn.subnext()
 # DPG custom NANOs, MC
 _wfn.subnext()
 
+_wfn.next(4)
+######## 2500.4xxx ########
+# Run3, 16_0_X input (2026 data-taking)
+# Standard NANO, MC
+
+# Standard NANO, data
+_wfn.subnext()
+
+# POG/PAG custom NANOs, MC
+_wfn.subnext()
+
+# POG/PAG custom NANOs, data
+_wfn.subnext()
+workflows[_wfn()] = ['L1ScoutingNANOdata160Xrun3', ['L1Scouting2026RAW16.0', 'l1ScoutingNANO_data16.0']]
+workflows[_wfn()] = ['L1ScoutingSelectionNANOdata160Xrun3', ['L1ScoutingSelection2026RAW16.0', 'l1ScoutingSelectionNANO_data16.0']]
+
+# DPG custom NANOs, data
+_wfn.subnext()
+
+# DPG custom NANOs, MC
+_wfn.subnext()
 
 _wfn.next(9)
 ######## 2500.9xxx ########
