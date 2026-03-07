@@ -9,7 +9,9 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.cerr.enable = False
 process.MessageLogger.SiPixelBadFEDChannelSimulationSanityChecker=dict()  
 process.MessageLogger.SiPixelFEDChannelContainer=dict()
-process.MessageLogger.SiPixelQualityProbabilities=dict()    
+process.MessageLogger.SiPixelQualityProbabilities=dict()
+process.MessageLogger.SimpleMemoryCheck=dict()
+process.MessageLogger.TimeReport=dict()
 process.MessageLogger.cout = cms.untracked.PSet(
     enable    = cms.untracked.bool(True),
     enableStatistics = cms.untracked.bool(True),
@@ -20,9 +22,26 @@ process.MessageLogger.cout = cms.untracked.PSet(
                                    ),                                                      
     SiPixelBadFEDChannelSimulationSanityChecker  = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     SiPixelFEDChannelContainer              = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
-    SiPixelQualityProbabilities             = cms.untracked.PSet( limit = cms.untracked.int32(-1))
+    SiPixelQualityProbabilities             = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+    TimeReport                              = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+    SimpleMemoryCheck                       = cms.untracked.PSet( limit = cms.untracked.int32(-1))
     )
-process.MessageLogger.cout.enableStatistics = cms.untracked.bool(True)  
+# process.MessageLogger.cout.enableStatistics = cms.untracked.bool(True)
+
+##
+## Timing And Memory Service
+##
+process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")
+process.Timing = cms.Service("Timing",
+                             summaryOnly = cms.untracked.bool(True),
+                             )
+##
+## Want Summary
+##
+process.options = cms.untracked.PSet(
+    wantSummary = cms.untracked.bool(True)
+)
+
 
 ##
 ## Empty Source
@@ -42,7 +61,8 @@ CondDBQualityCollection = CondDB.clone(connect = cms.string("frontier://Frontier
 process.dbInput = cms.ESSource("PoolDBESSource",
                                CondDBQualityCollection,
                                toGet = cms.VPSet(cms.PSet(record = cms.string('SiPixelStatusScenariosRcd'),
-                                                          tag = cms.string('SiPixelStatusScenarios_UltraLegacy2018_v0_mc') # choose tag you want
+                                                          tag = cms.string('SiPixelStatusScenarios_2025_v2_reduced_mc') # choose tag you want
+                                                          #tag = cms.string('SiPixelStatusScenarios_2025_v2_mc') # choose tag you want
                                                           )
                                                  )
                                )
@@ -52,7 +72,8 @@ CondDBProbabilities = CondDB.clone(connect = cms.string("frontier://FrontierProd
 process.dbInput2 = cms.ESSource("PoolDBESSource",
                                 CondDBProbabilities,
                                 toGet = cms.VPSet(cms.PSet(record = cms.string('SiPixelStatusScenarioProbabilityRcd'),
-                                                           tag = cms.string('SiPixelQualityProbabilities_UltraLegacy2018_v0_mc') # choose tag you want
+                                                           tag = cms.string('SiPixelQualityProbabilities_2025_v2_reduced_mc') # choose tag you want
+                                                           #tag = cms.string('SiPixelQualityProbabilities_2025_v2_mc') # choose tag you want
                                                            )
                                                   )
                                 )
@@ -74,5 +95,5 @@ process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
 ## Read it back
 ##
 process.ReadDB = cms.EDAnalyzer("SiPixelBadFEDChannelSimulationSanityChecker")
-process.ReadDB.printDebug = cms.untracked.bool(True)
+process.ReadDB.printDebug = cms.untracked.bool(False)
 process.p = cms.Path(process.get+process.ReadDB)
