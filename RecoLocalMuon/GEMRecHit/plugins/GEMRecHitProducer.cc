@@ -29,8 +29,12 @@ GEMRecHitProducer::GEMRecHitProducer(const ParameterSet& config)
       gemGeomToken_(esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>()) {
   produces<GEMRecHitCollection>();
 
-  // Turns off GE2/1 demonstrator reconstruction in Run3
+  // GE2/1 rec hits are saved in a separate container in Run 3
+  // So they are dropped off from the muon reconstruction
   ge21Off_ = config.getParameter<bool>("ge21Off");
+  if (ge21Off_)
+    produces<GEMRecHitCollection>("GE21");
+
   // Get masked- and dead-strip information from file
   applyMasking_ = config.getParameter<bool>("applyMasking");
   if (applyMasking_) {
@@ -108,9 +112,6 @@ void GEMRecHitProducer::beginRun(const edm::Run& r, const edm::EventSetup& setup
     for (auto gems : gemGeom_->etaPartitions()) {
       // Getting the EtaPartitionMask mask, that includes dead strips, for the given GEMDet
       GEMDetId gemId = gems->id();
-      if (ge21Off_ && gemId.station() == 2) {
-        continue;
-      }
       EtaPartitionMask mask;
       const int rawId = gemId.rawId();
       for (const auto& tomask : theGEMMaskedStripsObj->getMaskVec()) {
@@ -143,14 +144,15 @@ void GEMRecHitProducer::produce(Event& event, const EventSetup& setup) {
 
   // Create the pointer to the collection which will store the rechits
   auto recHitCollection = std::make_unique<GEMRecHitCollection>();
+  unique_ptr<GEMRecHitCollection> recHitCollection_ge21;
+
+  if (ge21Off_)
+    recHitCollection_ge21 = std::make_unique<GEMRecHitCollection>();
 
   // Iterate through all digi collections ordered by LayerId
   for (auto gemdgIt = digis->begin(); gemdgIt != digis->end(); ++gemdgIt) {
     // The layerId
     const GEMDetId& gemId = (*gemdgIt).first;
-    if (ge21Off_ && gemId.station() == 2) {
-      continue;
-    }
 
     // Get the GeomDet from the setup
     const GEMEtaPartition* roll = gemGeom_->etaPartition(gemId);
@@ -173,9 +175,14 @@ void GEMRecHitProducer::produce(Event& event, const EventSetup& setup) {
     // Call the reconstruction algorithm
     OwnVector<GEMRecHit> recHits = theAlgo->reconstruct(*roll, gemId, range, mask);
 
-    if (!recHits.empty())  //FIXME: is it really needed?
+    if (ge21Off_ && gemId.station() == 2) {
+      recHitCollection_ge21->put(gemId, recHits.begin(), recHits.end());
+    } else {
       recHitCollection->put(gemId, recHits.begin(), recHits.end());
+    }
   }
 
-  event.put(std::move(recHitCollection));
+  event.put(std::move(recHitCollection), "");
+  if (ge21Off_)
+    event.put(std::move(recHitCollection_ge21), "GE21");
 }
