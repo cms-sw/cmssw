@@ -18,7 +18,7 @@ l1t::RegionalMuonShower::RegionalMuonShower(bool oneNominalInTime,
       processor_(0),
       trackFinder_(l1t::tftype::bmtf) {}
 
-l1t::RegionalMuonShower::~RegionalMuonShower() {}
+l1t::io_v1::RegionalMuonShower::~RegionalMuonShower() {}
 
 void l1t::RegionalMuonShower::setTFIdentifiers(int processor, tftype trackFinder) {
   trackFinder_ = trackFinder;
