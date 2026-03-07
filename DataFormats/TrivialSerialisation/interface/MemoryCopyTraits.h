@@ -54,36 +54,38 @@ namespace ngt {
 
   // Checks if the properties method is defined
   template <typename T>
-  concept HasTrivialCopyProperties = requires(T const& object) { MemoryCopyTraits<T>::properties(object); };
+  concept HasTrivialCopyProperties = requires(T const& object) { ngt::MemoryCopyTraits<T>::properties(object); };
 
   // Get the return type of properties(...), if it exists.
   template <typename T>
-    requires HasTrivialCopyProperties<T>
-  using TrivialCopyProperties = decltype(MemoryCopyTraits<T>::properties(std::declval<T const&>()));
+    requires ngt::HasTrivialCopyProperties<T>
+  using TrivialCopyProperties = decltype(ngt::MemoryCopyTraits<T>::properties(std::declval<T const&>()));
 
   // Checks if the declaration of initialize(...) is consistent with the presence or absence of properties.
   template <typename T>
   concept HasValidInitialize =
       // does not have properties(...) and initialize(object) takes a single argument, or
-      (not HasTrivialCopyProperties<T> and requires(T& object) { MemoryCopyTraits<T>::initialize(object); }) or
+      (not ngt::HasTrivialCopyProperties<T> and
+       requires(T& object) { ngt::MemoryCopyTraits<T>::initialize(object); }) or
       // does have properties(...) and initialize(object, props) takes two arguments
-      (HasTrivialCopyProperties<T> and
-       requires(T& object, TrivialCopyProperties<T> props) { MemoryCopyTraits<T>::initialize(object, props); });
+      (ngt::HasTrivialCopyProperties<T> and requires(T& object, ngt::TrivialCopyProperties<T> props) {
+        ngt::MemoryCopyTraits<T>::initialize(object, props);
+      });
 
   // Checks for const and non const memory regions
   template <typename T>
   concept HasRegions = requires(T& object, T const& const_object) {
-    MemoryCopyTraits<T>::regions(object);
-    MemoryCopyTraits<T>::regions(const_object);
+    ngt::MemoryCopyTraits<T>::regions(object);
+    ngt::MemoryCopyTraits<T>::regions(const_object);
   };
 
   // Checks if there is a valid specialisation of MemoryCopyTraits for a type T
   template <typename T>
   concept HasMemoryCopyTraits =
       // Has memory regions declared and
-      (HasRegions<T>) and
+      (ngt::HasRegions<T>) and
       // has either no initialize(...) or a valid one
-      (not requires { &MemoryCopyTraits<T>::initialize; } or HasValidInitialize<T>);
+      (not requires { &ngt::MemoryCopyTraits<T>::initialize; } or ngt::HasValidInitialize<T>);
 
   // Checks if finalize(...) is defined
   template <typename T>
