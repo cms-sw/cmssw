@@ -1038,7 +1038,7 @@ muonDict = {
 forwardDict = {
     "abbrev" : "F",
     "name" : "forward",
-    "default" : 8,
+    "default" : 9,
     "F8" : {
         1 : [
             'Geometry/ForwardCommonData/data/forwardshield/2030/v4/forwardshield.xml',
@@ -1065,6 +1065,29 @@ forwardDict = {
     "F9" : {
         1 : [
             'Geometry/ForwardCommonData/data/forwardshield/2030/v5/forwardshield.xml',
+            'Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml',
+            'Geometry/ForwardCommonData/data/lumimaterials.xml',
+            'Geometry/ForwardCommonData/data/zdcrotations.xml',
+            'Geometry/ForwardCommonData/data/lumirotations.xml',
+            'Geometry/ForwardCommonData/data/zdc/2030/v1/zdc.xml',
+            'Geometry/ForwardCommonData/data/zdclumi/2021/v2/zdclumi.xml',
+            'Geometry/ForwardCommonData/data/cmszdc.xml',
+        ],
+        3 : [
+            'Geometry/ForwardSimData/data/zdcsens.xml',
+        ],
+        4 : [
+            'Geometry/ForwardSimData/data/zdcProdCuts/2021/v2/zdcProdCuts.xml',
+            'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
+        ],
+        "reco" :[
+            'from Geometry.ForwardGeometry.zdcTopologyEP_cfi import *',
+            'from Geometry.ForwardGeometry.ZdcGeometry_cfi import *',
+        ]
+    },
+    "F10" : {
+        1 : [
+            'Geometry/ForwardCommonData/data/forwardshield/2030/v6/forwardshield.xml',
             'Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml',
             'Geometry/ForwardCommonData/data/lumimaterials.xml',
             'Geometry/ForwardCommonData/data/zdcrotations.xml',
