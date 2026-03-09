@@ -29,6 +29,8 @@
 
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterizerHelper.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCEpilogue.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCEpilogueMultiBlock.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCFinalizeEpilogue.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFClusterHostCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/alpaka/PFClusterDeviceCollection.h"
@@ -52,8 +54,11 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringCCLabelsHostCollection.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthECLCCEpilogueArgsDeviceCollection.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
+
+#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterizerHelper.h"
 
 #ifdef EPILOGUE_COOPERATIVE
 static constexpr bool cooperative = true;
@@ -147,7 +152,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void apply(Queue &queue,
                reco::PFClusterDeviceCollection &outPFCluster,
                reco::PFRecHitFractionDeviceCollection &outPFRecHitFracs,
-               const reco::PFMultiDepthClusteringCCLabelsDeviceCollection &mdpfClusteringVars,
+               reco::PFMultiDepthClusteringCCLabelsDeviceCollection &mdpfClusteringVars,
                const reco::PFClusterDeviceCollection &pfClusters,
                const reco::PFRecHitFractionDeviceCollection &pfRecHitFracs,
                const reco::PFRecHitDeviceCollection &pfRecHit) const;
@@ -156,7 +161,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void EpilogueTest::apply(Queue &queue,
                            reco::PFClusterDeviceCollection &outPFCluster,
                            reco::PFRecHitFractionDeviceCollection &outPFRecHitFracs,
-                           const reco::PFMultiDepthClusteringCCLabelsDeviceCollection &mdpfClusteringVars,
+                           reco::PFMultiDepthClusteringCCLabelsDeviceCollection &mdpfClusteringVars,
                            const reco::PFClusterDeviceCollection &pfClusters,
                            const reco::PFRecHitFractionDeviceCollection &pfRecHitFracs,
                            const reco::PFRecHitDeviceCollection &pfRecHit) const {
@@ -174,16 +179,43 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(groups, items);
 
+    reco::PFMultiDepthECLCCEpilogueArgsDeviceCollection devClusteringEpilogueArgs{queue, n};
+
+    //auto nonisoVertexMask = cms::alpakatools::make_device_buffer<warp::warp_mask_t>(queue, n);
+    warp::warp_mask_t *nonisoVertexMask = nullptr;
+
+    //alpaka::memset(queue, nonisoVertexMask, 0);
+#if 1
     alpaka::exec<Acc1D>(queue,
                         workDiv,
-                        ECLCCEpilogueKernel<32, cooperative>{},
+                        ECLCCEpilogueRecHitFracOffsetsKernel{},
+                        devClusteringEpilogueArgs.view(),
+                        //nonisoVertexMask.data(),
+                        nonisoVertexMask,
+                        mdpfClusteringVars.view(),
+                        pfClusters.view());
+#endif
+    alpaka::exec<Acc1D>(queue,
+                        workDiv,
+                        ECLCCEpilogueCCOffsetsKernel{},
+                        outPFCluster.view(),
+                        devClusteringEpilogueArgs.view(),
+                        mdpfClusteringVars.view(),
+                        pfClusters.view());
+#if 1
+    alpaka::exec<Acc1D>(queue,
+                        workDiv,
+                        ECLCCFinalizeEpilogueKernel<32, cooperative>{},
                         outPFCluster.view(),
                         outPFRecHitFracs.view(),
+                        devClusteringEpilogueArgs.view(),
+                        //nonisoVertexMask.data(),
+                        nonisoVertexMask,
                         mdpfClusteringVars.view(),
                         pfClusters.view(),
                         pfRecHitFracs.view(),
                         pfRecHit.view());
-
+#endif
     alpaka::wait(queue);
   }
 

@@ -29,6 +29,7 @@
 
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterizerHelper.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCPrologue.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCPrologueMultiBlock.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFClusterHostCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/alpaka/PFClusterDeviceCollection.h"
@@ -40,6 +41,7 @@
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringCCLabelsHostCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringEdgeVarsHostCollection.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthECLCCPrologueArgsDeviceCollection.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -67,7 +69,26 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(groups, items);
 
+    reco::PFMultiDepthECLCCPrologueArgsDeviceCollection devClusteringPrologueArgs{queue, n};
+
     alpaka::exec<Acc1D>(queue, workDiv, ECLCCPrologueKernel{}, pfClusteringEdgeVars.view(), mdpfClusteringVars.view());
+
+    //ECLCCComputeExternNeighsKernel
+    alpaka::exec<Acc1D>(
+        queue, workDiv, ECLCCComputeExternNeighsKernel{}, devClusteringPrologueArgs.view(), mdpfClusteringVars.view());
+    //ECLCCPrologueComputeOffsetsKernel
+    alpaka::exec<Acc1D>(queue,
+                        workDiv,
+                        ECLCCPrologueComputeOffsetsKernel{},
+                        devClusteringPrologueArgs.view(),
+                        mdpfClusteringVars.view());
+    //ECLCCFinalizePrologueKernel
+    alpaka::exec<Acc1D>(queue,
+                        workDiv,
+                        ECLCCFinalizePrologueKernel{},
+                        pfClusteringEdgeVars.view(),
+                        devClusteringPrologueArgs.view(),
+                        mdpfClusteringVars.view());
 
     alpaka::wait(queue);
   }

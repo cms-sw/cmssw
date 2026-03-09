@@ -171,7 +171,7 @@ namespace cms::alpakaintrinsics {
  * @param val  Per-lane value to be compared across the warp.
  *
  * @return A warp mask with bits set for lanes (enabled in 'mask') whose
- *         'val' equals the calling lane’s value.
+ *         'val' equals the calling lane's value.
  */
     template <alpaka::concepts::Acc TAcc, typename T>
       requires std::is_arithmetic_v<T>

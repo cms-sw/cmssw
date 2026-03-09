@@ -9,6 +9,7 @@ namespace reco {
   GENERATE_SOA_LAYOUT(PFMultiDepthClusteringCCLabelsSoALayout,
                       SOA_COLUMN(int, mdpf_topoId),
                       SOA_COLUMN(int, workl),
+                      SOA_SCALAR(int, ncomponents),
                       SOA_SCALAR(int, topH),
                       SOA_SCALAR(int, posH),
                       SOA_SCALAR(int, topL),

@@ -80,20 +80,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
     // ECL-CC prologue:
     if (threadsPerBlock <= 256) {
       constexpr unsigned int max_w_items = 8;
-      if (blocks == 1) {
-        alpaka::exec<Acc1D>(queue,
-                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
-                            ECLCCPrologueKernel<max_w_items>{},
-                            mdpfClusteringEdgeVars.view(),
-                            mdpfCCLabels.view());
-      } else {
-        constexpr bool multi_block = true;
-        alpaka::exec<Acc1D>(queue,
-                            ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
-                            ECLCCPrologueKernel<max_w_items, multi_block>{},
-                            mdpfClusteringEdgeVars.view(),
-                            mdpfCCLabels.view());
-      }
+      alpaka::exec<Acc1D>(queue,
+                          ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
+                          ECLCCPrologueKernel<max_w_items>{},
+                          mdpfClusteringEdgeVars.view(),
+                          mdpfCCLabels.view());
     } else if (threadsPerBlock <= 512) {
       constexpr unsigned int max_w_items = 16;
       alpaka::exec<Acc1D>(queue,

@@ -138,37 +138,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const unsigned int w_extent = alpaka::warp::getSize(acc);
 
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {  //loop over thread blocks
-        for (auto idx : ::cms::alpakatools::uniform_group_elements(
-                 acc, group, ::cms::alpakatools::round_up_by(nClusters, w_extent))) {
-          const warp::warp_mask_t active_lanes_mask = alpaka::warp::ballot(acc, idx.global < nClusters);
 
-          const unsigned int lane_idx = idx.local % w_extent;
+        double accum_etaSum_div_en{0.};
+        double accum_phiSum_div_en{0.};
 
-          const unsigned int eff_w_extent = alpaka::popcount(acc, active_lanes_mask);
-          // Skip inactive lanes:
-          if (idx.global >= nClusters)
-            continue;
-          const int i = idx.global;
+        for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nClusters)) {
+          const auto pfc_energy = pfClusters[idx.global].energy();
 
-          const auto pfc_energy = pfClusters[i].energy();
+          mdpfClusteringVars[idx.global].depth() = pfClusters[idx.global].depth();
+          mdpfClusteringVars[idx.global].energy() = pfc_energy;
 
-          mdpfClusteringVars[i].depth() = pfClusters[i].depth();
-          mdpfClusteringVars[i].energy() = pfc_energy;
-
-          const double x_c = pfClusters[i].x();
-          const double y_c = pfClusters[i].y();
-          const double z_c = pfClusters[i].z();
+          const double x_c = pfClusters[idx.global].x();
+          const double y_c = pfClusters[idx.global].y();
+          const double z_c = pfClusters[idx.global].z();
 
           const float eta_c = static_cast<float>(cms::alpakamath::eta(acc, x_c, y_c, z_c));
           const float phi_c = static_cast<float>(::cms::alpakatools::phi(acc, x_c, y_c));
 
-          mdpfClusteringVars[i].eta() = eta_c;
-          mdpfClusteringVars[i].phi() = phi_c;
+          mdpfClusteringVars[idx.global].eta() = eta_c;
+          mdpfClusteringVars[idx.global].phi() = phi_c;
 
-          int pfrhf_offset = pfClusters[i].rhfracOffset();
-          int pfrhf_size = pfClusters[i].rhfracSize();
+          int pfrhf_offset = pfClusters[idx.global].rhfracOffset();
+          int pfrhf_size = pfClusters[idx.global].rhfracSize();
 
-          auto addFn = [] ALPAKA_FN_ACC(double a, double b) -> double { return a + b; };
+          double iter_accum_etaSum{0};
+          double iter_accum_phiSum{0};
 
           // Cooperative mode: each "master" lane (iter_lane_idx) owns a PFRecHitFraction span
           // [pfrhf_offset, pfrhf_offset + pfrhf_size). If that span is longer than 1, we recruit a
@@ -182,11 +176,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           //                       also includes lanes for later swap operation
           // - swap_lanes_mask   : lanes that currently hold state and must be preserved to be swapped out to some free lanes.
           if constexpr (is_cooperative) {
+            auto addFn = [] ALPAKA_FN_ACC(double a, double b) -> double { return a + b; };
+
+            const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
+
+            const unsigned int lane_idx = idx.local % w_extent;
+
+            const unsigned int eff_w_extent = alpaka::popcount(acc, active_lanes_mask);
+
             // Define iteration parameters:
             unsigned int iter_lane_idx = 0;
-
-            double iter_accum_etaSum{0};
-            double iter_accum_phiSum{0};
 
             bool keep_accum = false;
 
@@ -211,7 +210,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
               bool update_params = true;
 
-              bool load_flag = false;
+              bool cache_vals = false;
               // Ensure masks and per-lane state updates from previous iteration are visible before scheduling.
               warp::syncWarpThreads_mask(acc, active_lanes_mask);
 
@@ -234,7 +233,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 }
                 // 'iter_lane_idx' is warp-uniform; thus all lanes agree on which lane is the current master.
                 // Check whether the current lane has exactly one element of work remaining.
-                const bool is_single_work_lane = is_work_lane(single_worklane_mask, iter_lane_idx, w_extent);
+                const bool is_single_work_lane = is_work_lane(single_worklane_mask, iter_lane_idx);
                 // Available cooperative subgroup capacity: free lanes minus those reserved to preserve state (swap lanes).
                 // Note: the name 'subgroup' is used here because it does not take into account iterative (master) lane itself.
                 const unsigned int free_subgroup_size = alpaka::popcount(acc, free_lanes_mask) - swap_lanes_num;
@@ -243,7 +242,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   if (is_master_lane) {
                     proc_lane_idx = iter_lane_idx;
                     proc_pfrhf_offset = pfrhf_offset;
-                    load_flag = true;
+                    cache_vals = true;
                   }
                   iter_lane_idx += 1;
                   update_params = iter_lane_idx < eff_w_extent &&
@@ -265,7 +264,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 //    (using logical indexing over free_lanes_mask)
                 // -- vacant lanes must not be reserved for swapping operation (which is already taking into account in 'coop_subgroup_size')
                 const bool is_coop_subgroup_lane =
-                    is_work_lane(free_lanes_mask, lane_idx, w_extent)
+                    is_work_lane(free_lanes_mask, lane_idx)
                         ? (get_logical_lane_idx(acc, free_lanes_mask, lane_idx) < coop_subgroup_size)
                         : false;
                 // Cooperative subgroup lanes are drawn from free_lanes_mask; by construction this excludes the master lane
@@ -286,7 +285,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 if (iter_pfrhf_size <= free_subgroup_size) {
                   iter_lane_idx += 1;
                   if (is_master_lane)
-                    load_flag = true;  //master lane must store its values in the global arrays later
+                    cache_vals = true;  //master lane must store its values in the global arrays later
                 } else if (is_master_lane) {
                   // Otherwise, the master lane has more work than available helpers; keep a leftover tail.
                   // We advance pfrhf_offset by (coop helpers + master) and reduce pfrhf_size accordingly.
@@ -304,8 +303,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               }
 
               // Now we need to swap cached values to vacant lanes:
-              if (is_work_lane(free_lanes_mask | swap_lanes_mask, lane_idx, w_extent)) {
-                const unsigned int src_log_lane_idx = is_work_lane(free_lanes_mask, lane_idx, w_extent)
+              if (is_work_lane(free_lanes_mask | swap_lanes_mask, lane_idx)) {
+                const unsigned int src_log_lane_idx = is_work_lane(free_lanes_mask, lane_idx)
                                                           ? get_logical_lane_idx(acc, free_lanes_mask, lane_idx)
                                                           : w_extent;
                 const unsigned int src_phys_lane_idx =
@@ -315,14 +314,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                 const unsigned int tmp_proc_lane_idx =
                     warp::shfl_mask(acc, free_lanes_mask | swap_lanes_mask, swap_lane_idx, src_phys_lane_idx, w_extent);
 
-                if (is_work_lane(free_lanes_mask, lane_idx, w_extent) && src_log_lane_idx < swap_lanes_num)
+                if (is_work_lane(free_lanes_mask, lane_idx) && src_log_lane_idx < swap_lanes_num)
                   proc_lane_idx = tmp_proc_lane_idx;
               }
 
               const warp::warp_mask_t nonvacant_lanes_mask =
                   warp::ballot_mask(acc, active_lanes_mask, proc_lane_idx != w_extent);
 
-              if (is_work_lane(nonvacant_lanes_mask, lane_idx, w_extent) == false)
+              if (is_work_lane(nonvacant_lanes_mask, lane_idx) == false)
                 continue;
 
               const warp::warp_mask_t coop_group_mask = warp::match_any_mask(acc, nonvacant_lanes_mask, proc_lane_idx);
@@ -353,25 +352,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               iter_accum_etaSum += warp_sparse_reduce(acc, coop_group_mask, lane_idx, etaSum_, addFn);
               iter_accum_phiSum += warp_sparse_reduce(acc, coop_group_mask, lane_idx, phiSum_, addFn);
 
-              if (load_flag) {
-                const double etaRMS2_ = alpaka::math::max(acc, iter_accum_etaSum / proc_pfc_energy, rms2_threshold);
-                mdpfClusteringVars[i].etaRMS2() = etaRMS2_ * etaRMS2_;
-
-                const double phiRMS2_ = alpaka::math::max(acc, iter_accum_phiSum / proc_pfc_energy, rms2_threshold);
-                mdpfClusteringVars[i].phiRMS2() = phiRMS2_ * phiRMS2_;
+              if (cache_vals) {
+                accum_etaSum_div_en = iter_accum_etaSum / proc_pfc_energy;
+                accum_phiSum_div_en = iter_accum_phiSum / proc_pfc_energy;
               }
 
               if (keep_accum == false) {
                 iter_accum_etaSum = 0.;
                 iter_accum_phiSum = 0.;
+              } else {
+                keep_accum = false;
               }
-
-              keep_accum = false;
             }  // end while
           } else {  //non cooperative work
-            double accum_etaSum = 0.;
-            double accum_phiSum = 0.;
-
             for (int pfrhfrac_idx = pfrhf_offset; pfrhfrac_idx < (pfrhf_offset + pfrhf_size); pfrhfrac_idx++) {
               const int pfrh_idx = pfRecHitFracs[pfrhfrac_idx].pfrhIdx();
               const float frac = pfRecHitFracs[pfrhfrac_idx].frac();
@@ -388,17 +381,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               auto phiSum_tmp =
                   (frac * energy) * alpaka::math::abs(acc, ::cms::alpakatools::deltaPhi(acc, phi_rh, phi_c));
 
-              accum_etaSum += etaSum_tmp;
-              accum_phiSum += phiSum_tmp;
+              iter_accum_etaSum += etaSum_tmp;
+              iter_accum_phiSum += phiSum_tmp;
             }
 
-            const double etaRMS2_ = alpaka::math::max(acc, accum_etaSum / pfc_energy, rms2_threshold);
-            mdpfClusteringVars[i].etaRMS2() = etaRMS2_ * etaRMS2_;
-
-            const double phiRMS2_ = alpaka::math::max(acc, accum_phiSum / pfc_energy, rms2_threshold);
-            mdpfClusteringVars[i].phiRMS2() = phiRMS2_ * phiRMS2_;
+            accum_etaSum_div_en = iter_accum_etaSum / pfc_energy;
+            accum_phiSum_div_en = iter_accum_phiSum / pfc_energy;
           }
-        }  //end uniform_groups
+        }  //end uniform_groups_elements
+
+        alpaka::syncBlockThreads(acc);
+
+        for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nClusters)) {
+          const double etaRMS2_ = alpaka::math::max(acc, accum_etaSum_div_en, rms2_threshold);
+          const double phiRMS2_ = alpaka::math::max(acc, accum_phiSum_div_en, rms2_threshold);
+
+          mdpfClusteringVars[idx.global].etaRMS2() = etaRMS2_ * etaRMS2_;
+          mdpfClusteringVars[idx.global].phiRMS2() = phiRMS2_ * phiRMS2_;
+        }
       }
     }
   };

@@ -58,15 +58,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  *
  * @param mask Input mask.
  * @param mask Input lane index in the warp
- * @param w_extent (Sub)warp size
  * 
  * @return True if active, otherwise false.
  */
-  ALPAKA_FN_ACC constexpr inline bool is_work_lane(const warp::warp_mask_t work_mask,
-                                                   const unsigned int lane_idx,
-                                                   const unsigned extent) {
-    if (lane_idx >= extent)
-      return false;
+  ALPAKA_FN_ACC constexpr inline bool is_work_lane(const warp::warp_mask_t work_mask, const unsigned int lane_idx) {
     return ((work_mask >> lane_idx) & 1);
   }
 
@@ -92,6 +87,40 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     const auto pos = alpaka::ffs(acc, static_cast<signed_warp_mask_t>(mask));
     return static_cast<warp::warp_mask_t>(pos - 1);
+  }
+
+  /**
+ * @brief Returns true if a given lane is represented in the least significant bit in a mask.
+ *
+ * @tparam TAcc Alpaka accelerator type.
+ * 
+ * @param acc   Alpaka accelerator instance.
+ * @param mask  Input mask.
+ * @param lane_idx Current thread's lane index.
+ * 
+ * @return True if lane_idx is the least significant bit in a mask, otherwise faulse .
+ */
+  template <alpaka::concepts::Acc TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool is_ls1b_idx(const warp::warp_mask_t mask, const unsigned int lane_idx) {
+    if (mask == 0)
+      return false;
+
+    if constexpr (std::is_same_v<alpaka::Dev<TAcc>, alpaka::DevCpu>)
+      return true;
+
+    const warp::warp_mask_t lane_mask = get_lane_mask(lane_idx);
+
+    // First check wether the lane is represented at all, otherwise check the trivial case:
+    if ((mask & lane_mask) == 0)
+      return false;
+    else if (lane_idx == 0)
+      return true;
+
+    constexpr unsigned int w_extent = get_warp_size<TAcc>();
+
+    const warp::warp_mask_t inverted_mask = mask << (w_extent - lane_idx);
+
+    return (inverted_mask == 0);
   }
 
   /**
@@ -257,7 +286,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return mask == 0 ? 0 : in;
 
     // Non-active lanes should skip the reduction:
-    if (is_work_lane(mask, lane_idx, w_extent) == false)
+    if (is_work_lane(mask, lane_idx) == false)
       return in;
 
     unsigned int nActiveLanes = alpaka::popcount(acc, mask);  // count number of active lanes
@@ -320,7 +349,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return all == false ? 0 : (mask == 0 ? 0 : val);
 
     // Non-active lanes should skip the reduction:
-    if (is_work_lane(mask, lane_idx, w_extent) == false)
+    if (is_work_lane(mask, lane_idx) == false)
       return 0;
 
     // count number of active lanes
