@@ -107,7 +107,15 @@
 /*
  * Initialize the array of sizes for the View of an SoA by blocks
  */
-#define _DECLARE_CONST_VIEW_SIZES_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) (BOOST_PP_CAT(NAME, View_).metadata().size())
+#define _DECLARE_CONST_VIEW_SIZES_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME)      \
+  if constexpr (requires { LayoutFor<LAYOUT_NAME>::blocksNumber; }) {      \
+    const auto sizes = BOOST_PP_CAT(NAME, View_).metadata().size();        \
+    for (size_type i = 0; i < LayoutFor<LAYOUT_NAME>::blocksNumber; ++i) { \
+      sizes_[idx++] = sizes[i];                                            \
+    }                                                                      \
+  } else {                                                                 \
+    sizes_[idx++] = BOOST_PP_CAT(NAME, View_).metadata().size();           \
+  }
 
 #define _DECLARE_CONST_VIEW_SIZES(R, DATA, NAME)                                 \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
@@ -125,6 +133,18 @@
               BOOST_PP_EMPTY(),                                                  \
               BOOST_PP_EXPAND(_DECLARE_MEMBERS_CONST_VIEW_BLOCKS_IMPL NAME))
 
+/**
+ * Declare the const_cast version of the blocks
+ * This is used to convert a ConstView into a View
+ */
+#define _DECLARE_CONST_CAST_VIEWS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
+  (LayoutFor<LAYOUT_NAME>::const_cast_View(view.NAME()))
+
+#define _DECLARE_CONST_CAST_VIEWS(R, DATA, NAME)                                 \
+  BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
+              BOOST_PP_EMPTY(),                                                  \
+              BOOST_PP_EXPAND(_DECLARE_CONST_CAST_VIEWS_IMPL NAME))
+
 /*
  * Declare accessors for the Layout of each block
  */
@@ -139,9 +159,10 @@
 /*
  * Computation of the size for each block
  */
-#define _ACCUMULATE_SOA_BLOCKS_SIZE_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME)   \
-  _soa_impl_ret += LayoutFor<LAYOUT_NAME>::computeDataSize(sizes[index]); \
-  index++;
+#define _ACCUMULATE_SOA_BLOCKS_SIZE_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME)                      \
+  _soa_impl_ret += LayoutFor<LAYOUT_NAME>::computeDataSize(                                  \
+      cms::soa::detail::extractSegment<LayoutFor<LAYOUT_NAME>, blocksNumber>(sizes, index)); \
+  index += cms::soa::detail::nBlocks<LayoutFor<LAYOUT_NAME>>();
 
 #define _ACCUMULATE_SOA_BLOCKS_SIZE(R, DATA, NAME)                               \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
@@ -151,10 +172,12 @@
 /*
  * Computation of the block location in the memory layout (at SoA by blocks construction time)
  */
-#define _DECLARE_MEMBER_CONSTRUCTION_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
-  BOOST_PP_CAT(NAME, _) = LayoutFor<LAYOUT_NAME>(mem + offset, sizes_[index]);  \
-  offset += LayoutFor<LAYOUT_NAME>::computeDataSize(sizes_[index]);             \
-  index++;
+#define _DECLARE_MEMBER_CONSTRUCTION_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME)                             \
+  BOOST_PP_CAT(NAME, _) = LayoutFor<LAYOUT_NAME>(                                                           \
+      mem + offset, cms::soa::detail::extractSegment<LayoutFor<LAYOUT_NAME>, blocksNumber>(sizes_, index)); \
+  offset += LayoutFor<LAYOUT_NAME>::computeDataSize(                                                        \
+      cms::soa::detail::extractSegment<LayoutFor<LAYOUT_NAME>, blocksNumber>(sizes_, index));               \
+  index += cms::soa::detail::nBlocks<LayoutFor<LAYOUT_NAME>>();
 
 #define _DECLARE_MEMBER_CONSTRUCTION_BLOCKS(R, DATA, NAME)                       \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
@@ -174,7 +197,8 @@
 /*
  * Computate number of blocks
  */
-#define _COUNT_SOA_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) soa_blocks_count += 1;
+#define _COUNT_SOA_BLOCKS_IMPL(VALUE_TYPE, NAME, LAYOUT_NAME) \
+  soa_blocks_count += cms::soa::detail::nBlocks<LayoutFor<LAYOUT_NAME>>();
 
 #define _COUNT_SOA_BLOCKS(R, DATA, NAME)                                         \
   BOOST_PP_IF(BOOST_PP_GREATER(BOOST_PP_TUPLE_ELEM(0, NAME), _VALUE_TYPE_BLOCK), \
@@ -392,10 +416,10 @@
             sizes_{blocks.sizes_} {}                                                                                   \
                                                                                                                        \
       /* Constructor relying on user provided const views for each block */                                            \
-      SOA_HOST_ONLY ConstViewTemplateFreeParams(                                                                       \
+      SOA_HOST_DEVICE ConstViewTemplateFreeParams(                                                                     \
             _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_VIEW_CONSTRUCTOR_BLOCKS, ~, __VA_ARGS__))                             \
-          : _ITERATE_ON_ALL_COMMA(_INITIALIZE_MEMBER_CONST_VIEW_BLOCKS, ~, __VA_ARGS__),                               \
-            sizes_{{_ITERATE_ON_ALL_COMMA(_DECLARE_CONST_VIEW_SIZES, ~, __VA_ARGS__)}} {}                              \
+          : _ITERATE_ON_ALL_COMMA(_INITIALIZE_MEMBER_CONST_VIEW_BLOCKS, ~, __VA_ARGS__){                               \
+              std::size_t idx = 0; _ITERATE_ON_ALL(_DECLARE_CONST_VIEW_SIZES, ~, __VA_ARGS__)}                         \
                                                                                                                        \
       /* Accessors for the const views for each block */                                                               \
       _ITERATE_ON_ALL(_DECLARE_ACCESSORS_CONST_VIEW_BLOCKS, ~, __VA_ARGS__)                                            \
@@ -476,7 +500,7 @@
           : base_type{blocks} {}                                                                                       \
                                                                                                                        \
       /* Constructor relying on user provided views for each block */                                                  \
-      SOA_HOST_ONLY ViewTemplateFreeParams(_ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONSTRUCTOR_BLOCKS, ~, __VA_ARGS__)) :  \
+      SOA_HOST_DEVICE ViewTemplateFreeParams(_ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONSTRUCTOR_BLOCKS, ~, __VA_ARGS__)) :\
         base_type{_ITERATE_ON_ALL_COMMA(_INITIALIZE_MEMBER_VIEW_BLOCKS, ~, __VA_ARGS__)} {}                            \
                                                                                                                        \
       /* Accessors for the views for each block */                                                                     \
@@ -514,6 +538,14 @@
       sizes_ = _soa_impl_other.sizes_;                                                                                 \
       _ITERATE_ON_ALL(_DECLARE_BLOCKS_MEMBER_ASSIGNMENT, ~, __VA_ARGS__)                                               \
       return *this;                                                                                                    \
+    }                                                                                                                  \
+                                                                                                                       \
+    /* Helper to implement View as derived from ConstView in SoABlocks implementation */                               \
+    template <bool RESTRICT_QUALIFY, cms::soa::RangeChecking::Mode RANGE_CHECKING>                                     \
+    SOA_HOST_DEVICE SOA_INLINE static ViewTemplate<RESTRICT_QUALIFY, RANGE_CHECKING> const_cast_View(                  \
+      ConstViewTemplate<RESTRICT_QUALIFY, RANGE_CHECKING> const& view)  {                                              \
+      return ViewTemplate<RESTRICT_QUALIFY, RANGE_CHECKING>{                                                           \
+        _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_CAST_VIEWS, ~, __VA_ARGS__)};                                             \
     }                                                                                                                  \
                                                                                                                        \
     /*                                                                                                                 \
