@@ -55,6 +55,7 @@
 #include "SimDataFormats/Associations/interface/TTStubAssociationMap.h"
 #include "SimDataFormats/Associations/interface/TTTrackAssociationMap.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "Validation/SiTrackerPhase2V/interface/TrackerPhase2HistUtil.h"
 #include "Validation/SiTrackerPhase2V/interface/TrackerPhase2ValidationUtil.h"
 
 class Phase2OTValidateTracks : public DQMEDAnalyzer {
@@ -214,7 +215,6 @@ Phase2OTValidateTracks::Phase2OTValidateTracks(const edm::ParameterSet &iConfig)
                                                          // particle
   TP_minNLayersStub = conf_.getParameter<int>("TP_minNLayersStub");  // Minimum number of layers with stubs for the
                                                                      // tracking particle to be considered for matching
-  TP_minNLayersStub = conf_.getParameter<int>("TP_minNLayersStub");
   TP_minPt = conf_.getParameter<double>("TP_minPt");    // min pT to consider matching
   TP_maxEta = conf_.getParameter<double>("TP_maxEta");  // max eta to consider matching
   TP_maxZ0 = conf_.getParameter<double>("TP_maxZ0");    // max vertZ (or z0) to consider matching
@@ -650,677 +650,119 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
   edm::ParameterSet psRes_d0 = conf_.getParameter<edm::ParameterSet>("TH1Res_d0");
   edm::ParameterSet psRes_displaced_d0 = conf_.getParameter<edm::ParameterSet>("TH1Resdisplaced_d0");
   edm::ParameterSet n_trackParticles = conf_.getParameter<edm::ParameterSet>("n_trackParticles");
-  // Histogram setup and definitions
-  std::string HistoName;
+
+  using phase2tkutil::book1DFromPS;
+
+  // |eta| bin labels for resolution ingredients
+  std::string ranges[6] = { "eta0to0p7", "eta0p7to1", "eta1to1p2", "eta1p2to1p6", "eta1p6to2", "eta2to2p4" };
+  
+  // Tracking particle kinematics 
   iBooker.setCurrentFolder(topFolderName_ + "/trackParticles");
-
-  // 1D: pT
-  HistoName = "trackParts_Pt";
-  trackParts_Pt = iBooker.book1D(HistoName,
-                                 HistoName,
-                                 psTrackParts_Pt.getParameter<int32_t>("Nbinsx"),
-                                 psTrackParts_Pt.getParameter<double>("xmin"),
-                                 psTrackParts_Pt.getParameter<double>("xmax"));
-  trackParts_Pt->setAxisTitle("p_{T} [GeV]", 1);
-  trackParts_Pt->setAxisTitle("# tracking particles", 2);
-
-  // 1D: eta
-  HistoName = "trackParts_Eta";
-  trackParts_Eta = iBooker.book1D(HistoName,
-                                  HistoName,
-                                  psTrackParts_Eta.getParameter<int32_t>("Nbinsx"),
-                                  psTrackParts_Eta.getParameter<double>("xmin"),
-                                  psTrackParts_Eta.getParameter<double>("xmax"));
-  trackParts_Eta->setAxisTitle("#eta", 1);
-  trackParts_Eta->setAxisTitle("# tracking particles", 2);
-
-  // 1D: phi
-  HistoName = "trackParts_Phi";
-  trackParts_Phi = iBooker.book1D(HistoName,
-                                  HistoName,
-                                  psTrackParts_Phi.getParameter<int32_t>("Nbinsx"),
-                                  psTrackParts_Phi.getParameter<double>("xmin"),
-                                  psTrackParts_Phi.getParameter<double>("xmax"));
-  trackParts_Phi->setAxisTitle("#phi", 1);
-  trackParts_Phi->setAxisTitle("# tracking particles", 2);
-
-  HistoName = "n_trackParts";
-  n_trackParts = iBooker.book1D(HistoName,
-                                HistoName,
-                                n_trackParticles.getParameter<int32_t>("Nbinsx"),
-                                n_trackParticles.getParameter<double>("xmin"),
-                                n_trackParticles.getParameter<double>("xmax"));
-  n_trackParts->setAxisTitle("# track particles per event", 1);
-
-  // 1D plots for nominal collection efficiency
+  trackParts_Pt  = book1DFromPS(iBooker, "trackParts_Pt",  psTrackParts_Pt,  "p_{T} [GeV]", "# tracking particles");
+  trackParts_Eta = book1DFromPS(iBooker, "trackParts_Eta", psTrackParts_Eta, "#eta",        "# tracking particles");
+  trackParts_Phi = book1DFromPS(iBooker, "trackParts_Phi", psTrackParts_Phi, "#phi",        "# tracking particles");
+  trackParts_Num = book1DFromPS(iBooker, "trackParts_Num", psTrackParts_Phi, "# track particles per event",        "# tracking particles");
+   
+  // Nominal L1TF: efficiency ingredients (denominator + matched numerator)
   iBooker.setCurrentFolder(topFolderName_ + "/Nominal_L1TF/EfficiencyIngredients");
-  // pT
-  HistoName = "tp_pt";
-  tp_pt = iBooker.book1D(HistoName,
-                         HistoName,
-                         psEffic_pt.getParameter<int32_t>("Nbinsx"),
-                         psEffic_pt.getParameter<double>("xmin"),
-                         psEffic_pt.getParameter<double>("xmax"));
-  tp_pt->setAxisTitle("p_{T} [GeV]", 1);
-  tp_pt->setAxisTitle("# tracking particles", 2);
+  // Denominator: all selected TPs
+  tp_pt      = book1DFromPS(iBooker, "tp_pt",      psEffic_pt,      "p_{T} [GeV]", "# tracking particles");
+  tp_pt_zoom = book1DFromPS(iBooker, "tp_pt_zoom", psEffic_pt_zoom, "p_{T} [GeV]", "# tracking particles");
+  tp_eta     = book1DFromPS(iBooker, "tp_eta",     psEffic_eta,     "#eta",        "# tracking particles");
+  tp_d0      = book1DFromPS(iBooker, "tp_d0",      psEffic_d0,      "d_{0} [cm]",  "# tracking particles");
+  tp_Lxy     = book1DFromPS(iBooker, "tp_Lxy",     psEffic_Lxy,     "L_{xy} [cm]", "# tracking particles");
+  tp_z0      = book1DFromPS(iBooker, "tp_z0",      psEffic_z0,      "z_{0} [cm]",  "# tracking particles");
 
-  // Matched TP's pT
-  HistoName = "match_tp_pt";
-  match_tp_pt = iBooker.book1D(HistoName,
-                               HistoName,
-                               psEffic_pt.getParameter<int32_t>("Nbinsx"),
-                               psEffic_pt.getParameter<double>("xmin"),
-                               psEffic_pt.getParameter<double>("xmax"));
-  match_tp_pt->setAxisTitle("p_{T} [GeV]", 1);
-  match_tp_pt->setAxisTitle("# matched tracking particles", 2);
-
-  // pT zoom (0-10 GeV)
-  HistoName = "tp_pt_zoom";
-  tp_pt_zoom = iBooker.book1D(HistoName,
-                              HistoName,
-                              psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
-                              psEffic_pt_zoom.getParameter<double>("xmin"),
-                              psEffic_pt_zoom.getParameter<double>("xmax"));
-  tp_pt_zoom->setAxisTitle("p_{T} [GeV]", 1);
-  tp_pt_zoom->setAxisTitle("# tracking particles", 2);
-
-  // Matched pT zoom (0-10 GeV)
-  HistoName = "match_tp_pt_zoom";
-  match_tp_pt_zoom = iBooker.book1D(HistoName,
-                                    HistoName,
-                                    psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
-                                    psEffic_pt_zoom.getParameter<double>("xmin"),
-                                    psEffic_pt_zoom.getParameter<double>("xmax"));
-  match_tp_pt_zoom->setAxisTitle("p_{T} [GeV]", 1);
-  match_tp_pt_zoom->setAxisTitle("# matched tracking particles", 2);
-
-  // eta
-  HistoName = "tp_eta";
-  tp_eta = iBooker.book1D(HistoName,
-                          HistoName,
-                          psEffic_eta.getParameter<int32_t>("Nbinsx"),
-                          psEffic_eta.getParameter<double>("xmin"),
-                          psEffic_eta.getParameter<double>("xmax"));
-  tp_eta->setAxisTitle("#eta", 1);
-  tp_eta->setAxisTitle("# tracking particles", 2);
-
-  // Matched eta
-  HistoName = "match_tp_eta";
-  match_tp_eta = iBooker.book1D(HistoName,
-                                HistoName,
-                                psEffic_eta.getParameter<int32_t>("Nbinsx"),
-                                psEffic_eta.getParameter<double>("xmin"),
-                                psEffic_eta.getParameter<double>("xmax"));
-  match_tp_eta->setAxisTitle("#eta", 1);
-  match_tp_eta->setAxisTitle("# matched tracking particles", 2);
-
-  // d0
-  HistoName = "tp_d0";
-  tp_d0 = iBooker.book1D(HistoName,
-                         HistoName,
-                         psEffic_d0.getParameter<int32_t>("Nbinsx"),
-                         psEffic_d0.getParameter<double>("xmin"),
-                         psEffic_d0.getParameter<double>("xmax"));
-  tp_d0->setAxisTitle("d_{0} [cm]", 1);
-  tp_d0->setAxisTitle("# tracking particles", 2);
-
-  // Matched d0
-  HistoName = "match_tp_d0";
-  match_tp_d0 = iBooker.book1D(HistoName,
-                               HistoName,
-                               psEffic_d0.getParameter<int32_t>("Nbinsx"),
-                               psEffic_d0.getParameter<double>("xmin"),
-                               psEffic_d0.getParameter<double>("xmax"));
-  match_tp_d0->setAxisTitle("d_{0} [cm]", 1);
-  match_tp_d0->setAxisTitle("# matched tracking particles", 2);
-
-  // Lxy (also known as vxy)
-  HistoName = "tp_Lxy";
-  tp_Lxy = iBooker.book1D(HistoName,
-                          HistoName,
-                          psEffic_Lxy.getParameter<int32_t>("Nbinsx"),
-                          psEffic_Lxy.getParameter<double>("xmin"),
-                          psEffic_Lxy.getParameter<double>("xmax"));
-  tp_Lxy->setAxisTitle("L_{xy} [cm]", 1);
-  tp_Lxy->setAxisTitle("# tracking particles", 2);
-
-  // Matched Lxy
-  HistoName = "match_tp_Lxy";
-  match_tp_Lxy = iBooker.book1D(HistoName,
-                                HistoName,
-                                psEffic_Lxy.getParameter<int32_t>("Nbinsx"),
-                                psEffic_Lxy.getParameter<double>("xmin"),
-                                psEffic_Lxy.getParameter<double>("xmax"));
-  match_tp_Lxy->setAxisTitle("L_{xy} [cm]", 1);
-  match_tp_Lxy->setAxisTitle("# matched tracking particles", 2);
-
-  // z0
-  HistoName = "tp_z0";
-  tp_z0 = iBooker.book1D(HistoName,
-                         HistoName,
-                         psEffic_z0.getParameter<int32_t>("Nbinsx"),
-                         psEffic_z0.getParameter<double>("xmin"),
-                         psEffic_z0.getParameter<double>("xmax"));
-  tp_z0->setAxisTitle("z_{0} [cm]", 1);
-  tp_z0->setAxisTitle("# tracking particles", 2);
-
-  // Matched d0
-  HistoName = "match_tp_z0";
-  match_tp_z0 = iBooker.book1D(HistoName,
-                               HistoName,
-                               psEffic_z0.getParameter<int32_t>("Nbinsx"),
-                               psEffic_z0.getParameter<double>("xmin"),
-                               psEffic_z0.getParameter<double>("xmax"));
-  match_tp_z0->setAxisTitle("z_{0} [cm]", 1);
-  match_tp_z0->setAxisTitle("# matched tracking particles", 2);
-
-  // 1D plots for residual
+  // Numerator: matched TPs
+  match_tp_pt      = book1DFromPS(iBooker, "match_tp_pt",      psEffic_pt,      "p_{T} [GeV]", "# matched tracking particles");
+  match_tp_pt_zoom = book1DFromPS(iBooker, "match_tp_pt_zoom", psEffic_pt_zoom, "p_{T} [GeV]", "# matched tracking particles");
+  match_tp_eta     = book1DFromPS(iBooker, "match_tp_eta",     psEffic_eta,     "#eta",        "# matched tracking particles");
+  match_tp_d0      = book1DFromPS(iBooker, "match_tp_d0",      psEffic_d0,      "d_{0} [cm]",  "# matched tracking particles");
+  match_tp_Lxy     = book1DFromPS(iBooker, "match_tp_Lxy",     psEffic_Lxy,     "L_{xy} [cm]", "# matched tracking particles");
+  match_tp_z0      = book1DFromPS(iBooker, "match_tp_z0",      psEffic_z0,      "z_{0} [cm]",  "# matched tracking particles");
+   
+  // Nominal L1TF: residual distributions
   iBooker.setCurrentFolder(topFolderName_ + "/Nominal_L1TF/Residual");
-  // full pT
-  HistoName = "res_pt";
-  res_pt = iBooker.book1D(HistoName,
-                          HistoName,
-                          psRes_pt.getParameter<int32_t>("Nbinsx"),
-                          psRes_pt.getParameter<double>("xmin"),
-                          psRes_pt.getParameter<double>("xmax"));
-  res_pt->setAxisTitle("p_{T} [GeV]", 1);
-  res_pt->setAxisTitle("# tracking particles", 2);
-
-  // Full eta
-  HistoName = "res_eta";
-  res_eta = iBooker.book1D(HistoName,
-                           HistoName,
-                           psRes_eta.getParameter<int32_t>("Nbinsx"),
-                           psRes_eta.getParameter<double>("xmin"),
-                           psRes_eta.getParameter<double>("xmax"));
-  res_eta->setAxisTitle("#eta", 1);
-  res_eta->setAxisTitle("# tracking particles", 2);
-
-  // Relative pT
-  HistoName = "res_ptRel";
-  res_ptRel = iBooker.book1D(HistoName,
-                             HistoName,
-                             psRes_ptRel.getParameter<int32_t>("Nbinsx"),
-                             psRes_ptRel.getParameter<double>("xmin"),
-                             psRes_ptRel.getParameter<double>("xmax"));
-  res_ptRel->setAxisTitle("Relative p_{T} [GeV]", 1);
-  res_ptRel->setAxisTitle("# tracking particles", 2);
-
-  HistoName = "res_d0";
-  d0_res_hist = iBooker.book1D(HistoName,
-                               HistoName,
-                               psRes_d0.getParameter<int32_t>("Nbinsx"),
-                               psRes_d0.getParameter<double>("xmin"),
-                               psRes_d0.getParameter<double>("xmax"));
-  d0_res_hist->setAxisTitle("trk d_{0} - tp d_{0} [cm]", 1);
-  d0_res_hist->setAxisTitle("# tracking particles", 2);
-
+  res_pt      = book1DFromPS(iBooker, "res_pt",    psRes_pt,    "trk p_{T} - tp p_{T} [GeV]",              "# tracking particles");
+  res_eta     = book1DFromPS(iBooker, "res_eta",   psRes_eta,   "trk #eta - tp #eta",                     "# tracking particles");
+  res_ptRel   = book1DFromPS(iBooker, "res_ptRel", psRes_ptRel, "Relative p_{T} [GeV]",     "# tracking particles");
+  d0_res_hist = book1DFromPS(iBooker, "res_d0",    psRes_d0,    "trk d_{0} - tp d_{0} [cm]","# tracking particles");
+   
+  // Nominal L1TF: resolution vs eta and pT slices
   iBooker.setCurrentFolder(topFolderName_ + "/Nominal_L1TF/ResolutionIngredients");
-  std::string ranges[6] = {"eta0to0p7", "eta0p7to1", "eta1to1p2", "eta1p2to1p6", "eta1p6to2", "eta2to2p4"};
   for (int i = 0; i < 6; i++) {
-    // Eta parts (for resolution)
-    HistoName = "reseta_" + ranges[i];
-    reseta_vect[i] = iBooker.book1D(HistoName,
-                                    HistoName,
-                                    psRes_eta.getParameter<int32_t>("Nbinsx"),
-                                    psRes_eta.getParameter<double>("xmin"),
-                                    psRes_eta.getParameter<double>("xmax"));
-    reseta_vect[i]->setAxisTitle("#eta_{trk} - #eta_{tp}", 1);
-    reseta_vect[i]->setAxisTitle("# tracking particles", 2);
-
-    // pT parts for resolution (pT res vs eta)
-    // pT a (2 to 3 GeV)
-    HistoName = "respt_" + ranges[i] + "_pt2to3";
-    respt_pt2to3[i] = iBooker.book1D(HistoName,
-                                     HistoName,
-                                     psRes_pt.getParameter<int32_t>("Nbinsx"),
-                                     psRes_pt.getParameter<double>("xmin"),
-                                     psRes_pt.getParameter<double>("xmax"));
-    respt_pt2to3[i]->setAxisTitle("(p_{T}(trk) - p_{T}(tp))/p_{T}(tp)", 1);
-    respt_pt2to3[i]->setAxisTitle("# tracking particles", 2);
-
-    // pT b (3 to 8 GeV)
-    HistoName = "respt_" + ranges[i] + "_pt3to8";
-    respt_pt3to8[i] = iBooker.book1D(HistoName,
-                                     HistoName,
-                                     psRes_pt.getParameter<int32_t>("Nbinsx"),
-                                     psRes_pt.getParameter<double>("xmin"),
-                                     psRes_pt.getParameter<double>("xmax"));
-    respt_pt3to8[i]->setAxisTitle("(p_{T}(trk) - p_{T}(tp))/p_{T}(tp)", 1);
-    respt_pt3to8[i]->setAxisTitle("# tracking particles", 2);
-
-    // pT c (>8 GeV)
-    HistoName = "respt_" + ranges[i] + "_pt8toInf";
-    respt_pt8toInf[i] = iBooker.book1D(HistoName,
-                                       HistoName,
-                                       psRes_pt.getParameter<int32_t>("Nbinsx"),
-                                       psRes_pt.getParameter<double>("xmin"),
-                                       psRes_pt.getParameter<double>("xmax"));
-    respt_pt8toInf[i]->setAxisTitle("(p_{T}(trk) - p_{T}(tp))/p_{T}(tp)", 1);
-    respt_pt8toInf[i]->setAxisTitle("# tracking particles", 2);
-
-    // Phi parts (for resolution)
-    HistoName = "resphi_" + ranges[i];
-    resphi_vect[i] = iBooker.book1D(HistoName,
-                                    HistoName,
-                                    psRes_phi.getParameter<int32_t>("Nbinsx"),
-                                    psRes_phi.getParameter<double>("xmin"),
-                                    psRes_phi.getParameter<double>("xmax"));
-    resphi_vect[i]->setAxisTitle("#phi_{trk} - #phi_{tp}", 1);
-    resphi_vect[i]->setAxisTitle("# tracking particles", 2);
-
-    // z0 parts (for resolution)
-    HistoName = "resz0_" + ranges[i];
-    resz0_vect[i] = iBooker.book1D(HistoName,
-                                   HistoName,
-                                   psRes_z0.getParameter<int32_t>("Nbinsx"),
-                                   psRes_z0.getParameter<double>("xmin"),
-                                   psRes_z0.getParameter<double>("xmax"));
-    resz0_vect[i]->setAxisTitle("z0_{trk} - z0_{tp} [cm]", 1);
-    resz0_vect[i]->setAxisTitle("# tracking particles", 2);
-
-    // d0 parts (for resolution)
-    HistoName = "resd0_" + ranges[i];
-    resd0_vect[i] = iBooker.book1D(HistoName,
-                                   HistoName,
-                                   psRes_d0.getParameter<int32_t>("Nbinsx"),
-                                   psRes_d0.getParameter<double>("xmin"),
-                                   psRes_d0.getParameter<double>("xmax"));
-    resd0_vect[i]->setAxisTitle("d0_{trk} - d0_{tp} [cm]", 1);
-    resd0_vect[i]->setAxisTitle("# tracking particles", 2);
+    reseta_vect[i]      = book1DFromPS(iBooker, "reseta_" + ranges[i],          psRes_eta, "#eta_{trk} - #eta_{tp}",       "# tracking particles");
+    resphi_vect[i]      = book1DFromPS(iBooker, "resphi_" + ranges[i],          psRes_phi, "#phi_{trk} - #phi_{tp}",       "# tracking particles");
+    resz0_vect[i]       = book1DFromPS(iBooker, "resz0_"  + ranges[i],          psRes_z0,  "z0_{trk} - z0_{tp} [cm]",      "# tracking particles");
+    resd0_vect[i]       = book1DFromPS(iBooker, "resd0_"  + ranges[i],          psRes_d0,  "d0_{trk} - d0_{tp} [cm]",      "# tracking particles");
+    respt_pt2to3[i]     = book1DFromPS(iBooker, "respt_" + ranges[i] + "_pt2to3",   psRes_pt, "(p_{T}(trk) - p_{T}(tp))/p_{T}(tp)", "# tracking particles");
+    respt_pt3to8[i]     = book1DFromPS(iBooker, "respt_" + ranges[i] + "_pt3to8",   psRes_pt, "(p_{T}(trk) - p_{T}(tp))/p_{T}(tp)", "# tracking particles");
+    respt_pt8toInf[i]   = book1DFromPS(iBooker, "respt_" + ranges[i] + "_pt8toInf", psRes_pt, "(p_{T}(trk) - p_{T}(tp))/p_{T}(tp)", "# tracking particles");
   }
-
+   
+  // Extended L1TF (Displaced): efficiency ingredients
   iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Displaced/EfficiencyIngredients");
-  // tp pt for denom for displaced tracks
-  HistoName = "tp_pt_for_dis";
-  tp_pt_for_dis = iBooker.book1D(HistoName,
-                                 HistoName,
-                                 psEffic_pt.getParameter<int32_t>("Nbinsx"),
-                                 psEffic_pt.getParameter<double>("xmin"),
-                                 psEffic_pt.getParameter<double>("xmax"));
-  tp_pt_for_dis->setAxisTitle("p_{T} [GeV]", 1);
-  tp_pt_for_dis->setAxisTitle("# tracking particles", 2);
+  // Denominator: displaced TP selection
+  tp_pt_for_dis      = book1DFromPS(iBooker, "tp_pt_for_dis",      psEffic_pt,      "p_{T} [GeV]", "# tracking particles");
+  tp_pt_zoom_for_dis = book1DFromPS(iBooker, "tp_pt_zoom_for_dis", psEffic_pt_zoom, "p_{T} [GeV]", "# tracking particles");
+  tp_eta_for_dis     = book1DFromPS(iBooker, "tp_eta_for_dis",     psEffic_eta,     "#eta",        "# tracking particles");
+  tp_d0_for_dis      = book1DFromPS(iBooker, "tp_d0_for_dis",      psDisEffic_d0,   "d_{0} [cm]",  "# tracking particles");
+  tp_z0_for_dis      = book1DFromPS(iBooker, "tp_z0_for_dis",      psEffic_z0,      "z_{0} [cm]",  "# tracking particles");
 
-  // Matched Extended TP's pt
-  HistoName = "match_displaced_tp_pt";
-  match_displaced_tp_pt = iBooker.book1D(HistoName,
-                                         HistoName,
-                                         psEffic_pt.getParameter<int32_t>("Nbinsx"),
-                                         psEffic_pt.getParameter<double>("xmin"),
-                                         psEffic_pt.getParameter<double>("xmax"));
-  match_displaced_tp_pt->setAxisTitle("p_{T} [GeV]", 1);
-  match_displaced_tp_pt->setAxisTitle("# matched extended tracking particles", 2);
+  // Numerator: matched displaced TPs
+  match_displaced_tp_pt       = book1DFromPS(iBooker, "match_displaced_tp_pt",       psEffic_pt,      "p_{T} [GeV]", "# matched extended tracking particles");
+  match_displaced_tp_pt_zoom  = book1DFromPS(iBooker, "match_displaced_tp_pt_zoom",  psEffic_pt_zoom, "p_{T} [GeV]", "# matched extended tracking particles");
+  match_displaced_tp_eta      = book1DFromPS(iBooker, "match_displaced_tp_eta",      psEffic_eta,     "#eta",        "# matched extended tracking particles");
+  match_displaced_tp_d0       = book1DFromPS(iBooker, "match_displaced_tp_d0",       psDisEffic_d0,   "d_{0} [cm]",  "# matched extended tracking particles");
+  match_displaced_tp_Lxy      = book1DFromPS(iBooker, "match_displaced_tp_Lxy",      psEffic_Lxy,     "L_{xy} [cm]", "# matched extended tracking particles");
+  match_displaced_tp_z0       = book1DFromPS(iBooker, "match_displaced_tp_z0",       psEffic_z0,      "z_{0} [cm]",  "# matched extended tracking particles");
 
-  // Zoom version
-  HistoName = "tp_pt_zoom_for_dis";
-  tp_pt_zoom_for_dis = iBooker.book1D(HistoName,
-                                      HistoName,
-                                      psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
-                                      psEffic_pt_zoom.getParameter<double>("xmin"),
-                                      psEffic_pt_zoom.getParameter<double>("xmax"));
-  tp_pt_zoom_for_dis->setAxisTitle("p_{T} [GeV]", 1);
-  tp_pt_zoom_for_dis->setAxisTitle("# tracking particles", 2);
-
-  // Zoom version
-  HistoName = "match_displaced_tp_pt_zoom";
-  match_displaced_tp_pt_zoom = iBooker.book1D(HistoName,
-                                              HistoName,
-                                              psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
-                                              psEffic_pt_zoom.getParameter<double>("xmin"),
-                                              psEffic_pt_zoom.getParameter<double>("xmax"));
-  match_displaced_tp_pt_zoom->setAxisTitle("p_{T} [GeV]", 1);
-  match_displaced_tp_pt_zoom->setAxisTitle("# matched extended tracking particles", 2);
-
-  // TP's eta for denom for displaced tracks
-  HistoName = "tp_eta_for_dis";
-  tp_eta_for_dis = iBooker.book1D(HistoName,
-                                  HistoName,
-                                  psEffic_eta.getParameter<int32_t>("Nbinsx"),
-                                  psEffic_eta.getParameter<double>("xmin"),
-                                  psEffic_eta.getParameter<double>("xmax"));
-  tp_eta_for_dis->setAxisTitle("#eta", 1);
-  tp_eta_for_dis->setAxisTitle("# tracking particles", 2);
-
-  // Matched Extended TP's eta
-  HistoName = "match_displaced_tp_eta";
-  match_displaced_tp_eta = iBooker.book1D(HistoName,
-                                          HistoName,
-                                          psEffic_eta.getParameter<int32_t>("Nbinsx"),
-                                          psEffic_eta.getParameter<double>("xmin"),
-                                          psEffic_eta.getParameter<double>("xmax"));
-  match_displaced_tp_eta->setAxisTitle("#eta", 1);
-  match_displaced_tp_eta->setAxisTitle("# matched extended tracking particles", 2);
-
-  // TP's d0 for denom for displaced tracks
-  HistoName = "tp_d0_for_dis";
-  tp_d0_for_dis = iBooker.book1D(HistoName,
-                                 HistoName,
-                                 psDisEffic_d0.getParameter<int32_t>("Nbinsx"),
-                                 psDisEffic_d0.getParameter<double>("xmin"),
-                                 psDisEffic_d0.getParameter<double>("xmax"));
-  tp_d0_for_dis->setAxisTitle("d_{0} [cm]", 1);
-  tp_d0_for_dis->setAxisTitle("# tracking particles", 2);
-
-  // Matched Extended TP's d0
-  HistoName = "match_displaced_tp_d0";
-  match_displaced_tp_d0 = iBooker.book1D(HistoName,
-                                         HistoName,
-                                         psDisEffic_d0.getParameter<int32_t>("Nbinsx"),
-                                         psDisEffic_d0.getParameter<double>("xmin"),
-                                         psDisEffic_d0.getParameter<double>("xmax"));
-  match_displaced_tp_d0->setAxisTitle("d_{0} [cm]", 1);
-  match_displaced_tp_d0->setAxisTitle("# matched extended tracking particles", 2);
-
-  // Matched Extended TP's Lxy
-  HistoName = "match_displaced_tp_Lxy";
-  match_displaced_tp_Lxy = iBooker.book1D(HistoName,
-                                          HistoName,
-                                          psEffic_Lxy.getParameter<int32_t>("Nbinsx"),
-                                          psEffic_Lxy.getParameter<double>("xmin"),
-                                          psEffic_Lxy.getParameter<double>("xmax"));
-  match_displaced_tp_Lxy->setAxisTitle("L_{xy} [cm]", 1);
-  match_displaced_tp_Lxy->setAxisTitle("# matched extended tracking particles", 2);
-
-  // TP's z0 for denom for displaced tracks
-  HistoName = "tp_z0_for_dis";
-  tp_z0_for_dis = iBooker.book1D(HistoName,
-                                 HistoName,
-                                 psEffic_z0.getParameter<int32_t>("Nbinsx"),
-                                 psEffic_z0.getParameter<double>("xmin"),
-                                 psEffic_z0.getParameter<double>("xmax"));
-  tp_z0_for_dis->setAxisTitle("z_{0} [cm]", 1);
-  tp_z0_for_dis->setAxisTitle("# tracking particles", 2);
-
-  // Matched Extended TP's z0
-  HistoName = "match_displaced_tp_z0";
-  match_displaced_tp_z0 = iBooker.book1D(HistoName,
-                                         HistoName,
-                                         psEffic_z0.getParameter<int32_t>("Nbinsx"),
-                                         psEffic_z0.getParameter<double>("xmin"),
-                                         psEffic_z0.getParameter<double>("xmax"));
-  match_displaced_tp_z0->setAxisTitle("z_{0} [cm]", 1);
-  match_displaced_tp_z0->setAxisTitle("# matched extended tracking particles", 2);
-
+  // Extended L1TF (Displaced): residual distributions
   iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Displaced/Residual");
+  res_displaced_d0    = book1DFromPS(iBooker, "res_displaced_d0",    psRes_displaced_d0, "trk d_{0} - tp d_{0} [cm]", "# displaced tracks");
+  res_displaced_eta   = book1DFromPS(iBooker, "res_displaced_eta",   psRes_eta,          "#eta_{trk} - #eta_{tp}",    "# tracking particles");
+  res_displaced_pt    = book1DFromPS(iBooker, "res_displaced_pt",    psRes_pt,           "p_{T}(trk)-p_{T}(tp)",      "# tracking particles");
+  res_displaced_ptRel = book1DFromPS(iBooker, "res_displaced_ptRel", psRes_ptRel,        "Relative p_{T} [GeV]",      "# tracking particles");
 
-  HistoName = "res_displaced_d0";
-  res_displaced_d0 = iBooker.book1D(HistoName,
-                                    HistoName,
-                                    psRes_displaced_d0.getParameter<int32_t>("Nbinsx"),
-                                    psRes_displaced_d0.getParameter<double>("xmin"),
-                                    psRes_displaced_d0.getParameter<double>("xmax"));
-  res_displaced_d0->setAxisTitle("trk d_{0} - tp d_{0} [cm]", 1);
-  res_displaced_d0->setAxisTitle("# displaced tracks", 2);
-
-  HistoName = "res_displaced_eta";
-  res_displaced_eta = iBooker.book1D(HistoName,
-                                     HistoName,
-                                     psRes_eta.getParameter<int32_t>("Nbinsx"),
-                                     psRes_eta.getParameter<double>("xmin"),
-                                     psRes_eta.getParameter<double>("xmax"));
-  res_displaced_eta->setAxisTitle("#eta_{trk} - #eta_{tp}", 1);
-  res_displaced_eta->setAxisTitle("# tracking particles", 2);
-
-  HistoName = "res_displaced_pt";
-  res_displaced_pt = iBooker.book1D(HistoName,
-                                    HistoName,
-                                    psRes_pt.getParameter<int32_t>("Nbinsx"),
-                                    psRes_pt.getParameter<double>("xmin"),
-                                    psRes_pt.getParameter<double>("xmax"));
-  res_displaced_pt->setAxisTitle("p_{T}(trk)-p_{T}(tp)", 1);
-  res_displaced_pt->setAxisTitle("# tracking particles", 2);
-
-  HistoName = "res_displaced_ptRel";
-  res_displaced_ptRel = iBooker.book1D(HistoName,
-                                       HistoName,
-                                       psRes_ptRel.getParameter<int32_t>("Nbinsx"),
-                                       psRes_ptRel.getParameter<double>("xmin"),
-                                       psRes_ptRel.getParameter<double>("xmax"));
-  res_displaced_ptRel->setAxisTitle("Relative p_{T} [GeV]", 1);
-  res_displaced_ptRel->setAxisTitle("# tracking particles", 2);
-
+  // Extended L1TF (Displaced): resolution vs eta and pT slices
   iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Displaced/ResolutionIngredients");
-
   for (int i = 0; i < 6; i++) {
-    // reseta_displaced_vect[i]
-    HistoName = "reseta_displaced_" + ranges[i];
-    reseta_displaced_vect[i] = iBooker.book1D(HistoName,
-                                              HistoName,
-                                              psRes_eta.getParameter<int32_t>("Nbinsx"),
-                                              psRes_eta.getParameter<double>("xmin"),
-                                              psRes_eta.getParameter<double>("xmax"));
-    reseta_displaced_vect[i]->setAxisTitle("#eta_{trk} - #eta_{tp}", 1);
-    reseta_displaced_vect[i]->setAxisTitle("# tracking particles", 2);
-
-    // resphi_displaced_vect[i]
-    HistoName = "resphi_displaced_" + ranges[i];
-    resphi_displaced_vect[i] = iBooker.book1D(HistoName,
-                                              HistoName,
-                                              psRes_phi.getParameter<int32_t>("Nbinsx"),
-                                              psRes_phi.getParameter<double>("xmin"),
-                                              psRes_phi.getParameter<double>("xmax"));
-    resphi_displaced_vect[i]->setAxisTitle("#phi_{trk} - #phi_{tp}", 1);
-    resphi_displaced_vect[i]->setAxisTitle("# tracking particles", 2);
-
-    // resd0_displaced_vect[i]
-    HistoName = "resd0_displaced_" + ranges[i];
-    resd0_displaced_vect[i] = iBooker.book1D(HistoName,
-                                             HistoName,
-                                             psRes_displaced_d0.getParameter<int32_t>("Nbinsx"),
-                                             psRes_displaced_d0.getParameter<double>("xmin"),
-                                             psRes_displaced_d0.getParameter<double>("xmax"));
-    resd0_displaced_vect[i]->setAxisTitle("d0_{trk} - d0_{tp} [cm]", 1);
-    resd0_displaced_vect[i]->setAxisTitle("# tracking particles", 2);
-
-    HistoName = "resz0_displaced_" + ranges[i];
-    resz0_displaced_vect[i] = iBooker.book1D(HistoName,
-                                             HistoName,
-                                             psRes_z0.getParameter<int32_t>("Nbinsx"),
-                                             psRes_z0.getParameter<double>("xmin"),
-                                             psRes_z0.getParameter<double>("xmax"));
-    resz0_displaced_vect[i]->setAxisTitle("z0_{trk} - z0_{tp} [cm]", 1);
-    resz0_displaced_vect[i]->setAxisTitle("# tracking particles", 2);
-
-    // pT resolution in bins (2‐3, 3‐8, >8 GeV)
-    HistoName = "respt_displaced_" + ranges[i] + "_pt2to3";
-    respt_displaced_pt2to3[i] = iBooker.book1D(HistoName,
-                                               HistoName,
-                                               psRes_pt.getParameter<int32_t>("Nbinsx"),
-                                               psRes_pt.getParameter<double>("xmin"),
-                                               psRes_pt.getParameter<double>("xmax"));
-    respt_displaced_pt2to3[i]->setAxisTitle("p_{T}(trk)-p_{T}(tp)", 1);
-    respt_displaced_pt2to3[i]->setAxisTitle("# tracking particles", 2);
-
-    HistoName = "respt_displaced_" + ranges[i] + "_pt3to8";
-    respt_displaced_pt3to8[i] = iBooker.book1D(HistoName,
-                                               HistoName,
-                                               psRes_pt.getParameter<int32_t>("Nbinsx"),
-                                               psRes_pt.getParameter<double>("xmin"),
-                                               psRes_pt.getParameter<double>("xmax"));
-    respt_displaced_pt3to8[i]->setAxisTitle("p_{T}(trk)-p_{T}(tp)", 1);
-    respt_displaced_pt3to8[i]->setAxisTitle("# tracking particles", 2);
-
-    HistoName = "respt_displaced_" + ranges[i] + "_pt8toInf";
-    respt_displaced_pt8toInf[i] = iBooker.book1D(HistoName,
-                                                 HistoName,
-                                                 psRes_pt.getParameter<int32_t>("Nbinsx"),
-                                                 psRes_pt.getParameter<double>("xmin"),
-                                                 psRes_pt.getParameter<double>("xmax"));
-    respt_displaced_pt8toInf[i]->setAxisTitle("p_{T}(trk)-p_{T}(tp)", 1);
-    respt_displaced_pt8toInf[i]->setAxisTitle("# tracking particles", 2);
+    reseta_displaced_vect[i]      = book1DFromPS(iBooker, "reseta_displaced_"  + ranges[i],          psRes_eta,          "#eta_{trk} - #eta_{tp}",       "# tracking particles");
+    resphi_displaced_vect[i]      = book1DFromPS(iBooker, "resphi_displaced_"  + ranges[i],          psRes_phi,          "#phi_{trk} - #phi_{tp}",       "# tracking particles");
+    resd0_displaced_vect[i]       = book1DFromPS(iBooker, "resd0_displaced_"   + ranges[i],          psRes_displaced_d0, "d0_{trk} - d0_{tp} [cm]",      "# tracking particles");
+    resz0_displaced_vect[i]       = book1DFromPS(iBooker, "resz0_displaced_"   + ranges[i],          psRes_z0,           "z0_{trk} - z0_{tp} [cm]",      "# tracking particles");
+    respt_displaced_pt2to3[i]     = book1DFromPS(iBooker, "respt_displaced_" + ranges[i] + "_pt2to3",   psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
+    respt_displaced_pt3to8[i]     = book1DFromPS(iBooker, "respt_displaced_" + ranges[i] + "_pt3to8",   psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
+    respt_displaced_pt8toInf[i]   = book1DFromPS(iBooker, "respt_displaced_" + ranges[i] + "_pt8toInf", psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
   }
 
+  // Extended L1TF (Prompt): efficiency ingredients (matched prompt TPs)
   iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Prompt/EfficiencyIngredients");
-
-  // Matched prompt TPs that come from the extended collection
-  HistoName = "match_prompt_tp_pt";
-  match_prompt_tp_pt = iBooker.book1D(HistoName,
-                                      HistoName,
-                                      psEffic_pt.getParameter<int32_t>("Nbinsx"),
-                                      psEffic_pt.getParameter<double>("xmin"),
-                                      psEffic_pt.getParameter<double>("xmax"));
-  match_prompt_tp_pt->setAxisTitle("p_{T} [GeV]", 1);
-  match_prompt_tp_pt->setAxisTitle("# matched tracking particles", 2);
-
-  // Zoom version
-  HistoName = "match_prompt_tp_pt_zoom";
-  match_prompt_tp_pt_zoom = iBooker.book1D(HistoName,
-                                           HistoName,
-                                           psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
-                                           psEffic_pt_zoom.getParameter<double>("xmin"),
-                                           psEffic_pt_zoom.getParameter<double>("xmax"));
-  match_prompt_tp_pt_zoom->setAxisTitle("p_{T} [GeV]", 1);
-  match_prompt_tp_pt_zoom->setAxisTitle("# matched tracking particles", 2);
-
-  // Matched Extended TP's eta
-  HistoName = "match_prompt_tp_eta";
-  match_prompt_tp_eta = iBooker.book1D(HistoName,
-                                       HistoName,
-                                       psEffic_eta.getParameter<int32_t>("Nbinsx"),
-                                       psEffic_eta.getParameter<double>("xmin"),
-                                       psEffic_eta.getParameter<double>("xmax"));
-  match_prompt_tp_eta->setAxisTitle("#eta", 1);
-  match_prompt_tp_eta->setAxisTitle("# matched tracking particles", 2);
-
-  // Matched Extended TP's d0
-  HistoName = "match_prompt_tp_d0";
-  match_prompt_tp_d0 = iBooker.book1D(HistoName,
-                                      HistoName,
-                                      psEffic_d0.getParameter<int32_t>("Nbinsx"),
-                                      psEffic_d0.getParameter<double>("xmin"),
-                                      psEffic_d0.getParameter<double>("xmax"));
-  match_prompt_tp_d0->setAxisTitle("d_{0} [cm]", 1);
-  match_prompt_tp_d0->setAxisTitle("# matched tracking particles", 2);
-
-  // Matched Extended TP's Lxy
-  HistoName = "match_prompt_tp_Lxy";
-  match_prompt_tp_Lxy = iBooker.book1D(HistoName,
-                                       HistoName,
-                                       psEffic_Lxy.getParameter<int32_t>("Nbinsx"),
-                                       psEffic_Lxy.getParameter<double>("xmin"),
-                                       psEffic_Lxy.getParameter<double>("xmax"));
-  match_prompt_tp_Lxy->setAxisTitle("L_{xy} [cm]", 1);
-  match_prompt_tp_Lxy->setAxisTitle("# matched tracking particles", 2);
-
-  // Matched Extended TP's z0
-  HistoName = "match_prompt_tp_z0";
-  match_prompt_tp_z0 = iBooker.book1D(HistoName,
-                                      HistoName,
-                                      psEffic_z0.getParameter<int32_t>("Nbinsx"),
-                                      psEffic_z0.getParameter<double>("xmin"),
-                                      psEffic_z0.getParameter<double>("xmax"));
-  match_prompt_tp_z0->setAxisTitle("z_{0} [cm]", 1);
-  match_prompt_tp_z0->setAxisTitle("# matched tracking particles", 2);
-
+  match_prompt_tp_pt       = book1DFromPS(iBooker, "match_prompt_tp_pt",      psEffic_pt,      "p_{T} [GeV]", "# matched tracking particles");
+  match_prompt_tp_pt_zoom  = book1DFromPS(iBooker, "match_prompt_tp_pt_zoom", psEffic_pt_zoom, "p_{T} [GeV]", "# matched tracking particles");
+  match_prompt_tp_eta      = book1DFromPS(iBooker, "match_prompt_tp_eta",     psEffic_eta,     "#eta",        "# matched tracking particles");
+  match_prompt_tp_d0       = book1DFromPS(iBooker, "match_prompt_tp_d0",      psEffic_d0,      "d_{0} [cm]",  "# matched tracking particles");
+  match_prompt_tp_Lxy      = book1DFromPS(iBooker, "match_prompt_tp_Lxy",     psEffic_Lxy,     "L_{xy} [cm]", "# matched tracking particles");
+  match_prompt_tp_z0       = book1DFromPS(iBooker, "match_prompt_tp_z0",      psEffic_z0,      "z_{0} [cm]",  "# matched tracking particles");
+   
+  // Extended L1TF (Prompt): residual distributions
   iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Prompt/Residual");
+  res_prompt_d0    = book1DFromPS(iBooker, "res_prompt_d0",    psRes_d0,    "trk d_{0} - tp d_{0} [cm]", "# tracking particles");
+  res_prompt_eta   = book1DFromPS(iBooker, "res_prompt_eta",   psRes_eta,   "#eta_{trk} - #eta_{tp}",    "# tracking particles");
+  res_prompt_pt    = book1DFromPS(iBooker, "res_prompt_pt",    psRes_pt,    "p_{T}(trk)-p_{T}(tp)",      "# tracking particles");
+  res_prompt_ptRel = book1DFromPS(iBooker, "res_prompt_ptRel", psRes_ptRel, "Relative p_{T} [GeV]",      "# tracking particles");
 
-  HistoName = "res_prompt_d0";
-  res_prompt_d0 = iBooker.book1D(HistoName,
-                                 HistoName,
-                                 psRes_d0.getParameter<int32_t>("Nbinsx"),
-                                 psRes_d0.getParameter<double>("xmin"),
-                                 psRes_d0.getParameter<double>("xmax"));
-  res_prompt_d0->setAxisTitle("trk d_{0} - tp d_{0} [cm]", 1);
-  res_prompt_d0->setAxisTitle("# tracking particles", 2);
-
-  HistoName = "res_prompt_eta";
-  res_prompt_eta = iBooker.book1D(HistoName,
-                                  HistoName,
-                                  psRes_eta.getParameter<int32_t>("Nbinsx"),
-                                  psRes_eta.getParameter<double>("xmin"),
-                                  psRes_eta.getParameter<double>("xmax"));
-  res_prompt_eta->setAxisTitle("#eta_{trk} - #eta_{tp}", 1);
-  res_prompt_eta->setAxisTitle("# tracking particles", 2);
-
-  HistoName = "res_prompt_pt";
-  res_prompt_pt = iBooker.book1D(HistoName,
-                                 HistoName,
-                                 psRes_pt.getParameter<int32_t>("Nbinsx"),
-                                 psRes_pt.getParameter<double>("xmin"),
-                                 psRes_pt.getParameter<double>("xmax"));
-  res_prompt_pt->setAxisTitle("p_{T}(trk)-p_{T}(tp)", 1);
-  res_prompt_pt->setAxisTitle("# tracking particles", 2);
-
-  HistoName = "res_prompt_ptRel";
-  res_prompt_ptRel = iBooker.book1D(HistoName,
-                                    HistoName,
-                                    psRes_ptRel.getParameter<int32_t>("Nbinsx"),
-                                    psRes_ptRel.getParameter<double>("xmin"),
-                                    psRes_ptRel.getParameter<double>("xmax"));
-  res_prompt_ptRel->setAxisTitle("Relative p_{T} [GeV]", 1);
-  res_prompt_ptRel->setAxisTitle("# tracking particles", 2);
-
+  // Extended L1TF (Prompt): resolution vs eta and pT slices
   iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Prompt/ResolutionIngredients");
-
   for (int i = 0; i < 6; i++) {
-    // reseta_prompt_vect[i]
-    HistoName = "reseta_prompt_" + ranges[i];
-    reseta_prompt_vect[i] = iBooker.book1D(HistoName,
-                                           HistoName,
-                                           psRes_eta.getParameter<int32_t>("Nbinsx"),
-                                           psRes_eta.getParameter<double>("xmin"),
-                                           psRes_eta.getParameter<double>("xmax"));
-    reseta_prompt_vect[i]->setAxisTitle("#eta_{trk} - #eta_{tp}", 1);
-    reseta_prompt_vect[i]->setAxisTitle("# tracking particles", 2);
-
-    // resphi_prompt_vect[i]
-    HistoName = "resphi_prompt_" + ranges[i];
-    resphi_prompt_vect[i] = iBooker.book1D(HistoName,
-                                           HistoName,
-                                           psRes_phi.getParameter<int32_t>("Nbinsx"),
-                                           psRes_phi.getParameter<double>("xmin"),
-                                           psRes_phi.getParameter<double>("xmax"));
-    resphi_prompt_vect[i]->setAxisTitle("#phi_{trk} - #phi_{tp}", 1);
-    resphi_prompt_vect[i]->setAxisTitle("# tracking particles", 2);
-
-    // resd0_prompt_vect[i]
-    HistoName = "resd0_prompt_" + ranges[i];
-    resd0_prompt_vect[i] = iBooker.book1D(HistoName,
-                                          HistoName,
-                                          psRes_d0.getParameter<int32_t>("Nbinsx"),
-                                          psRes_d0.getParameter<double>("xmin"),
-                                          psRes_d0.getParameter<double>("xmax"));
-    resd0_prompt_vect[i]->setAxisTitle("d0_{trk} - d0_{tp} [cm]", 1);
-    resd0_prompt_vect[i]->setAxisTitle("# tracking particles", 2);
-
-    HistoName = "resz0_prompt_" + ranges[i];
-    resz0_prompt_vect[i] = iBooker.book1D(HistoName,
-                                          HistoName,
-                                          psRes_z0.getParameter<int32_t>("Nbinsx"),
-                                          psRes_z0.getParameter<double>("xmin"),
-                                          psRes_z0.getParameter<double>("xmax"));
-    resz0_prompt_vect[i]->setAxisTitle("z0_{trk} - z0_{tp} [cm]", 1);
-    resz0_prompt_vect[i]->setAxisTitle("# tracking particles", 2);
-
-    // pT resolution in bins (2‐3, 3‐8, >8 GeV)
-    HistoName = "respt_prompt_" + ranges[i] + "_pt2to3";
-    respt_prompt_pt2to3[i] = iBooker.book1D(HistoName,
-                                            HistoName,
-                                            psRes_pt.getParameter<int32_t>("Nbinsx"),
-                                            psRes_pt.getParameter<double>("xmin"),
-                                            psRes_pt.getParameter<double>("xmax"));
-    respt_prompt_pt2to3[i]->setAxisTitle("p_{T}(trk)-p_{T}(tp)", 1);
-    respt_prompt_pt2to3[i]->setAxisTitle("# tracking particles", 2);
-
-    HistoName = "respt_prompt_" + ranges[i] + "_pt3to8";
-    respt_prompt_pt3to8[i] = iBooker.book1D(HistoName,
-                                            HistoName,
-                                            psRes_pt.getParameter<int32_t>("Nbinsx"),
-                                            psRes_pt.getParameter<double>("xmin"),
-                                            psRes_pt.getParameter<double>("xmax"));
-    respt_prompt_pt3to8[i]->setAxisTitle("p_{T}(trk)-p_{T}(tp)", 1);
-    respt_prompt_pt3to8[i]->setAxisTitle("# tracking particles", 2);
-
-    HistoName = "respt_prompt_" + ranges[i] + "_pt8toInf";
-    respt_prompt_pt8toInf[i] = iBooker.book1D(HistoName,
-                                              HistoName,
-                                              psRes_pt.getParameter<int32_t>("Nbinsx"),
-                                              psRes_pt.getParameter<double>("xmin"),
-                                              psRes_pt.getParameter<double>("xmax"));
-    respt_prompt_pt8toInf[i]->setAxisTitle("p_{T}(trk)-p_{T}(tp)", 1);
-    respt_prompt_pt8toInf[i]->setAxisTitle("# tracking particles", 2);
+    reseta_prompt_vect[i]      = book1DFromPS(iBooker, "reseta_prompt_" + ranges[i],          psRes_eta, "#eta_{trk} - #eta_{tp}",       "# tracking particles");
+    resphi_prompt_vect[i]      = book1DFromPS(iBooker, "resphi_prompt_" + ranges[i],          psRes_phi, "#phi_{trk} - #phi_{tp}",       "# tracking particles");
+    resd0_prompt_vect[i]       = book1DFromPS(iBooker, "resd0_prompt_"  + ranges[i],          psRes_d0,  "d0_{trk} - d0_{tp} [cm]",      "# tracking particles");
+    resz0_prompt_vect[i]       = book1DFromPS(iBooker, "resz0_prompt_"  + ranges[i],          psRes_z0,  "z0_{trk} - z0_{tp} [cm]",      "# tracking particles");
+    respt_prompt_pt2to3[i]     = book1DFromPS(iBooker, "respt_prompt_" + ranges[i] + "_pt2to3",   psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
+    respt_prompt_pt3to8[i]     = book1DFromPS(iBooker, "respt_prompt_" + ranges[i] + "_pt3to8",   psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
+    respt_prompt_pt8toInf[i]   = book1DFromPS(iBooker, "respt_prompt_" + ranges[i] + "_pt8toInf", psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
   }
-
 }  // end of method
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
