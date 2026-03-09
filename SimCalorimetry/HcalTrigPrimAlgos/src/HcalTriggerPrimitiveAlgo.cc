@@ -13,6 +13,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 
@@ -1088,7 +1089,7 @@ void HcalTriggerPrimitiveAlgo::addUpgradeTDCFG(const HcalTrigTowerDetId& id, con
 
     // accept only if sane and nonzero
     const bool empty = (tp_tdc1 == 0 && tp_tdc2 == 0);
-    const bool bad = (tp_tdc2 < tp_tdc1) || (tp_tdc2 > 49);
+    const bool bad = (tp_tdc2 < tp_tdc1) || (tp_tdc2 > tdcmax_);
 
     if (empty || bad) {
       throw cms::Exception("HBTDCThresholds") << "Missing/invalid HB TDC thresholds from HcalTPChannelParameters for "

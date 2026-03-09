@@ -243,6 +243,9 @@ private:
   bool override_tdc_hf_ = false;
   unsigned long long override_tdc_hf_value_;
 
+  // Maximum valid TDC value for setting timing bits
+  static constexpr int tdcmax_ = 49;
+
   // HE constants
   static const int HBHE_OVERLAP_TOWER = 16;
   static const int FIRST_DEPTH7_TOWER = 26;

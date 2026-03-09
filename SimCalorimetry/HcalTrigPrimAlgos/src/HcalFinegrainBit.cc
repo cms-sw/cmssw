@@ -1,7 +1,5 @@
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFinegrainBit.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
-
 #include <cassert>
 
 std::bitset<2> HcalFinegrainBit::compute(const HcalFinegrainBit::Tower& tower) const {
