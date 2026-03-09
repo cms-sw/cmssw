@@ -1,5 +1,5 @@
-#ifndef FWCore_Catalog_FileLocator_h
-#define FWCore_Catalog_FileLocator_h
+#ifndef FWStorage_Catalog_FileLocator_h
+#define FWStorage_Catalog_FileLocator_h
 
 #include <filesystem>
 #include <map>
@@ -41,4 +41,4 @@ namespace edm {
   };
 }  // namespace edm
 
-#endif  //  FWCore_Catalog_FileLocator_h
+#endif
