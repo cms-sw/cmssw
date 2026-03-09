@@ -16,9 +16,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWStorage/Services/interface/setupSiteLocalConfig.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
-#include "FWCore/Catalog/interface/StorageURLModifier.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
+#include "FWStorage/Catalog/interface/StorageURLModifier.h"
 
 static int copy_files(const boost::program_options::variables_map& vm) {
   auto operate = edm::setupSiteLocalConfig();

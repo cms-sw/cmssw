@@ -1,5 +1,5 @@
-<use name="FWCore/Catalog"/>
 <use name="FWCore/Framework"/>
+<use name="FWStorage/Catalog"/>
 <use name="CondCore/ESSources"/>
 <use name="boost_regex"/>
 <use name="json"/>

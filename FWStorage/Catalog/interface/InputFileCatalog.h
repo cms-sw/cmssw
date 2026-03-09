@@ -1,5 +1,5 @@
-#ifndef FWCore_Catalog_InputFileCatalog_h
-#define FWCore_Catalog_InputFileCatalog_h
+#ifndef FWStorage_Catalog_InputFileCatalog_h
+#define FWStorage_Catalog_InputFileCatalog_h
 //////////////////////////////////////////////////////////////////////
 //
 // Class InputFileCatalog.
@@ -24,8 +24,8 @@
 #include <utility>
 #include <vector>
 
-#include "FWCore/Catalog/interface/StorageURLModifier.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWStorage/Catalog/interface/StorageURLModifier.h"
 
 namespace edm {
 

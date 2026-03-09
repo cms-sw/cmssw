@@ -26,7 +26,6 @@
 
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Sources/interface/PuttableSourceBase.h"
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ExceptionPropagate.h"
 
@@ -48,6 +47,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 
 #include "format.h"
 

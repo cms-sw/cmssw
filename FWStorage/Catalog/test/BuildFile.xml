@@ -1,5 +1,5 @@
-<use name="FWCore/Catalog"/>
 <use name="FWCore/ServiceRegistry"/>
+<use name="FWStorage/Catalog"/>
 <use name="catch2"/>
-<bin name="TestFWCoreCatalog" file="FileLocator_t.cpp,InputFileCatalog_t.cpp">
+<bin name="TestFWStorageCatalog" file="FileLocator_t.cpp,InputFileCatalog_t.cpp">
 </bin>

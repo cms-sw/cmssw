@@ -28,15 +28,15 @@ Disclaimer: Most of the code here is randomly written during
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/StreamerInputFile.h"
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
-#include "FWCore/Catalog/interface/StorageURLModifier.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "FWStorage/Services/interface/setupSiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
+#include "FWStorage/Catalog/interface/StorageURLModifier.h"
+#include "FWStorage/Services/interface/setupSiteLocalConfig.h"
+#
 #include <iostream>
 
 using namespace edm::streamer;

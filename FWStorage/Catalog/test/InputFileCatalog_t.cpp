@@ -1,17 +1,17 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
-#include "FWCore/Catalog/interface/StorageURLModifier.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
+#include "FWStorage/Catalog/interface/StorageURLModifier.h"
 
 #include "TestSiteLocalConfig.h"
 #include "TestScitagConfig.h"
 
 #include "catch2/catch_all.hpp"
 
-TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWCore/Catalog]") {
+TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWStorage/Catalog]") {
   edm::ServiceToken tempToken = edmtest::catalog::makeTestSiteLocalConfigToken();
   edm::ServiceToken testToken = edmtest::catalog::makeTestScitagConfigToken(tempToken);
 

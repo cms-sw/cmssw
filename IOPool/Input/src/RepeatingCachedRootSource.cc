@@ -33,7 +33,6 @@
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
@@ -41,6 +40,7 @@
 #include "FWCore/Sources/interface/InputSourceRunHelper.h"
 
 #include "FWCore/Framework/interface/InputSourceMacros.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 
 #include "RootFile.h"
 #include "InputFile.h"

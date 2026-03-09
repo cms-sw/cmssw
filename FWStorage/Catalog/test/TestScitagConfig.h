@@ -1,13 +1,13 @@
-#ifndef FWCore_Catalog_test_TestScitagConfig_h
-#define FWCore_Catalog_test_TestScitagConfig_h
+#ifndef FWStorage_Catalog_test_TestScitagConfig_h
+#define FWStorage_Catalog_test_TestScitagConfig_h
 
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "FWCore/Catalog/interface/StorageURLModifier.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWStorage/Catalog/interface/StorageURLModifier.h"
 
 namespace edmtest::catalog {
 

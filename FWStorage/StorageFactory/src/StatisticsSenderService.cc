@@ -1,12 +1,12 @@
 
-#include "FWStorage/StorageFactory/interface/StatisticsSenderService.h"
-#include "FWStorage/StorageFactory/interface/StorageAccount.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/processGUID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
+#include "FWStorage/StorageFactory/interface/StatisticsSenderService.h"
+#include "FWStorage/StorageFactory/interface/StorageAccount.h"
 
 #include <string>
 #include <cmath>

@@ -4,11 +4,11 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 
 #include <cassert>
 namespace edm::streamer {

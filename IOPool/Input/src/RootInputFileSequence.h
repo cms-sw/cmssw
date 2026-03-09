@@ -12,9 +12,9 @@ fileIter_.
 
 #include "InputFile.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Utilities/interface/InputType.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 
 #include <memory>
 #include <string>
