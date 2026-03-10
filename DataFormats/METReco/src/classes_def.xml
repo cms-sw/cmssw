@@ -169,7 +169,7 @@
   <class name="edm::Wrapper<reco::io_v1::CSCHaloData>"/>
 
   <class name="reco::io_v1::GlobalHaloData" ClassVersion="3">
-   <version ClassVersion="3" checksum="3564100210"/>
+   <version ClassVersion="3" checksum="2590774178"/>
   </class>
   <class name="edm::Wrapper<reco::io_v1::GlobalHaloData>"/>
 
@@ -192,7 +192,7 @@
   <class name="edm::Wrapper<std::vector<BoundaryInformation> >"/>
   
   <class name="reco::HaloClusterCandidateECAL" ClassVersion="3">
-    <version ClassVersion="3" checksum="149544819"/>
+    <version ClassVersion="3" checksum="2487939807"/>
   </class>
   <class name="std::vector<reco::HaloClusterCandidateECAL>"/>
   <class name="edm::Wrapper<std::vector<reco::HaloClusterCandidateECAL> >"/>
