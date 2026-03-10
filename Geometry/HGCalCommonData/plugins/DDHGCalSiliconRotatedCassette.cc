@@ -667,7 +667,9 @@ void DDHGCalSiliconRotatedCassette::positionPassiveNew(const DDLogicalPart& glog
                                                        int absType,
                                                        DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: positionPassiveNew is called for layer " << layer << " absType " << absType << " cassettes_ " << cassettes_ << " number of layers " << layers_.size();
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: positionPassiveNew is called for layer " << layer
+                                << " absType " << absType << " cassettes_ " << cassettes_ << " number of layers "
+                                << layers_.size();
   int kount(0);
 #endif
   bool type = (absType <= waferTypes_);
