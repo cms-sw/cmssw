@@ -6,7 +6,7 @@ hltGeneralTracks = cms.EDProducer("TrackListMerger",
     LostHitPenalty = cms.double(5.0),
     MaxNormalizedChisq = cms.double(1000.0),
     MinFound = cms.int32(3),
-    MinPT = cms.double(0.9),
+    MinPT = cms.double(0.8),
     ShareFrac = cms.double(0.19),
     TrackProducers = cms.VInputTag("hltInitialStepTrackSelectionHighPurity"),
     allowFirstHitShare = cms.bool(True),
@@ -28,6 +28,7 @@ hltGeneralTracks = cms.EDProducer("TrackListMerger",
 
 from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
 _hltGeneralTracksLegacy = hltGeneralTracks.clone(
+    MinPT = cms.double(0.9),
     TrackProducers = ["hltInitialStepTrackSelectionHighPurity", "hltHighPtTripletStepTrackSelectionHighPurity"],
     hasSelector = [0, 0],
     indivShareFrac = [1.0, 1.0],
@@ -41,6 +42,7 @@ from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
 from ..modules.hltPhase2PixelTracks_cfi import *
 _hltGeneralTracksNGTScoutingLST = hltGeneralTracks.clone(
+    MinPT = cms.double(0.9),
     TrackProducers = ["hltPhase2PixelTracks", "hltInitialStepTracksT4T5TCLST"],
     hasSelector = [0,0],
     indivShareFrac = [0.1,0.1],
