@@ -104,9 +104,9 @@ bool HLTEcalPhiSymFilter::filter(edm::StreamID, edm::Event& event, const edm::Ev
 
   // Get ChannelStatus from DB
   edm::ESHandle<EcalChannelStatus> csHandle;
+  const EcalChannelStatus* channelStatus = nullptr;
   if (!useRecoFlag_)
-    csHandle = setup.getHandle(ecalChannelStatusRcdToken_);
-  const EcalChannelStatus& channelStatus = *csHandle;
+    channelStatus = &setup.getData(ecalChannelStatusRcdToken_);
 
   // Get iRing-geometry
   auto const& geoHandle = setup.getHandle(caloGeometryRecordToken_);
@@ -165,7 +165,7 @@ bool HLTEcalPhiSymFilter::filter(edm::StreamID, edm::Event& event, const edm::Ev
         }
       }
     } else {
-      statusCode = channelStatus[hitDetId.rawId()].getStatusCode();
+      statusCode = (*channelStatus)[hitDetId.rawId()].getStatusCode();
     }
 
     if (statusCode <= statusThreshold_) {
@@ -208,7 +208,7 @@ bool HLTEcalPhiSymFilter::filter(edm::StreamID, edm::Event& event, const edm::Ev
         }
       }
     } else {
-      statusCode = channelStatus[hitDetId.rawId()].getStatusCode();
+      statusCode = (*channelStatus)[hitDetId.rawId()].getStatusCode();
     }
 
     if (statusCode <= statusThreshold_) {
