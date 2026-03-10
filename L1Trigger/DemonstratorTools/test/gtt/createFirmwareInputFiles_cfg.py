@@ -40,9 +40,15 @@ options.register ('readerformat',
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "File format of loaded tracks and vertices (APx, EMPv2)")
+options.register('vertexAlgo',
+                 'NNEmulation',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Vertex algo: fastHisto / fastHistoEmulation / NNEmulation / ...")
+
 options.parseArguments()
 
-inputFiles = []
+inputFiles = ['/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/2560000/a1c0916c-3068-4935-90ad-f2f4da74ab36.root']
 inputBuffers = []
 inputTrackBuffers = []
 for filePath in options.inputFiles:
@@ -67,8 +73,8 @@ for filePath in options.inputFiles:
 
 process = cms.Process("GTTFileWriter")
 
-process.load('Configuration.Geometry.GeometryExtendedRun4D88Reco_cff')
-process.load('Configuration.Geometry.GeometryExtendedRun4D88_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -88,6 +94,9 @@ process.options = cms.untracked.PSet(
 process.load('L1Trigger.L1TTrackMatch.l1tGTTInputProducer_cfi')
 process.load('L1Trigger.L1TTrackMatch.l1tTrackSelectionProducer_cfi')
 process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
+
+process.l1tVertexFinderEmulator.VertexReconstruction.Algorithm = cms.string(options.vertexAlgo)
+
 process.load('L1Trigger.L1TTrackMatch.l1tTrackVertexAssociationProducer_cfi')
 process.load('L1Trigger.L1TTrackMatch.l1tTrackJetsEmulation_cfi')
 process.load('L1Trigger.L1TTrackMatch.l1tTrackerEmuHTMiss_cfi')
