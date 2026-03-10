@@ -14,7 +14,8 @@ process.source = MPISource()
 
 process.maxEvents.input = -1
 
-# receive and validate a portable object, a portable collection, and some portable multi-block collections
+# receive and validate a portable object, a portable collection, and some
+# portable multi-block collections
 process.receiver = MPIReceiver(
     upstream = "source",
     instance = 42,
@@ -50,8 +51,50 @@ process.validatePortableObject = cms.EDAnalyzer("TestAlpakaObjectAnalyzer",
     source = cms.InputTag("receiver")
 )
 
+
+# Same thing, but this time disabling TrivialSerialisation so all products are
+# serialized through ROOT
+process.receiverNoTrivialSerialisation = MPIReceiver(
+    upstream = "receiver",
+    instance = 43,
+    enableTrivialSerialisation = False,
+    products = [
+        dict(
+            type = "PortableHostObject<portabletest::TestStruct>",
+            label = ""
+        ),
+        dict(
+            type = "PortableHostCollection<portabletest::TestSoALayout<128,false> >",
+            label = ""
+        ),
+        dict(
+            type = "PortableHostCollection<portabletest::SoABlocks2<128,false> >",
+            label = ""
+        ),
+        dict(
+            type = "PortableHostCollection<portabletest::SoABlocks3<128,false> >",
+            label = ""
+        ),
+        dict(
+            type = "ushort",
+            label = "backend"
+        )
+    ]
+)
+
+process.validatePortableCollectionsNoTrivialSerialisation = cms.EDAnalyzer("TestAlpakaAnalyzer",
+    source = cms.InputTag("receiverNoTrivialSerialisation")
+)
+
+process.validatePortableObjectNoTrivialSerialisation = cms.EDAnalyzer("TestAlpakaObjectAnalyzer",
+    source = cms.InputTag("receiverNoTrivialSerialisation")
+)
+
 process.pathSoA = cms.Path(
     process.receiver +
     process.validatePortableCollections +
-    process.validatePortableObject
+    process.validatePortableObject +
+    process.receiverNoTrivialSerialisation +
+    process.validatePortableCollectionsNoTrivialSerialisation +
+    process.validatePortableObjectNoTrivialSerialisation
 )
