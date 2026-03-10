@@ -76,6 +76,7 @@ namespace {
   }
   //==========================================================================
   void readfile(std::string filename, std::string outfile) {
+    uint32 num_metadata(0);
     uint32 num_events(0);
     uint32 num_badevents(0);
     uint32 num_baduncompress(0);
@@ -114,6 +115,12 @@ namespace {
 
       while (StreamerInputFile::Next::kEvent == stream_reader.next()) {
         eview = stream_reader.currentRecord();
+        // for now skip the metadata records
+        if (eview->isEventMetaData()) {
+          ++num_metadata;
+          continue;
+        }
+
         ++num_events;
         bool good_event(true);
         if (seenEventMap.find(eview->event()) == seenEventMap.end()) {
@@ -192,7 +199,8 @@ namespace {
 
       std::cout << std::endl
                 << "------------END--------------" << std::endl
-                << "read " << num_events << " events" << std::endl
+                << "read " << num_metadata << " metadata records" << std::endl
+                << "and " << num_events << " events" << std::endl
                 << "and " << num_badevents << " events with bad headers" << std::endl
                 << "and " << num_badchksum << " events with bad check sum" << std::endl
                 << "and " << num_baduncompress << " events with bad uncompress" << std::endl
