@@ -29,8 +29,7 @@
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/StreamerInputFile.h"
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
-
-#include "zlib.h"
+#include "IOPool/Streamer/interface/uncompress.h"
 
 #include <iostream>
 #include <map>
@@ -40,7 +39,7 @@ using namespace edm::streamer;
 
 namespace {
   bool compares_bad(EventMsgView const* eview1, EventMsgView const* eview2);
-  bool uncompressBuffer(unsigned char* inputBuffer,
+  bool uncompressBuffer(unsigned char const* inputBuffer,
                         unsigned int inputSize,
                         std::vector<unsigned char>& outputBuffer,
                         unsigned int expectedFullSize);
@@ -264,36 +263,25 @@ namespace {
   //==========================================================================
   bool test_uncompress(EventMsgView const* eview, std::vector<unsigned char>& dest) {
     unsigned long origsize = eview->origDataSize();
-    bool success = false;
     if (origsize != 0 && origsize != 78) {
       // compressed
-      success = uncompressBuffer(
-          const_cast<unsigned char*>((unsigned char const*)eview->eventData()), eview->eventLength(), dest, origsize);
+      return uncompressBuffer(
+          static_cast<unsigned char const*>(eview->eventData()), eview->eventLength(), dest, origsize);
     } else {
       // uncompressed anyway
-      success = true;
+      return false;
     }
-    return success;
   }
 
   //==========================================================================
-  bool uncompressBuffer(unsigned char* inputBuffer,
+  bool uncompressBuffer(unsigned char const* inputBuffer,
                         unsigned int inputSize,
                         std::vector<unsigned char>& outputBuffer,
                         unsigned int expectedFullSize) {
-    unsigned long origSize = expectedFullSize;
-    unsigned long uncompressedSize = expectedFullSize * 1.1;
-    outputBuffer.resize(uncompressedSize);
-    int ret = uncompress(&outputBuffer[0], &uncompressedSize, inputBuffer, inputSize);
-    if (ret == Z_OK) {
-      // check the length against original uncompressed length
-      if (origSize != uncompressedSize) {
-        std::cout << "Problem with uncompress, original size = " << origSize
-                  << " uncompress size = " << uncompressedSize << std::endl;
-        return false;
-      }
-    } else {
-      std::cout << "Problem with uncompress, return value = " << ret << std::endl;
+    try {
+      edm::streamer::uncompress::uncompressBuffer(inputBuffer, inputSize, outputBuffer, expectedFullSize);
+    } catch (cms::Exception& e) {
+      std::cout << "Problem with uncompress: " << e.what() << std::endl;
       return false;
     }
     return true;
