@@ -7,7 +7,7 @@
 #include "catch2/catch_all.hpp"
 #include <string>
 
-TEST_CASE("DescriptionCloner") {
+TEST_CASE("DescriptionCloner", "[DescriptionCloner]") {
   SECTION("basic usage") {
     edm::DescriptionCloner cloner;
     cloner.set("level1.level2.intParam", 42);

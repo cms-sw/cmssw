@@ -93,14 +93,14 @@ namespace edm {
           //this is a PSet
           auto const& subEntry = std::get<std::vector<DescriptionCloner::WhichEntry>>(whichEntry.entry);
           ParameterSetDescription subDesc = createDifferenceFromEntries(subEntry);
-          if (whichEntry.isTracked) {
+          if (whichEntry.isTracked.value()) {
             diffDesc.add(whichEntry.label, subDesc);
           } else {
             diffDesc.addUntracked(whichEntry.label, subDesc);
           }
         } else if (std::holds_alternative<std::shared_ptr<DescriptionCloner::EntryTypeBase>>(whichEntry.entry)) {
           auto const& entryPtr = std::get<std::shared_ptr<DescriptionCloner::EntryTypeBase>>(whichEntry.entry);
-          entryPtr->addTo(diffDesc, whichEntry.label, whichEntry.isTracked);
+          entryPtr->addTo(diffDesc, whichEntry.label, whichEntry.isTracked.value());
         }
       }
       return diffDesc;
