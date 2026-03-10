@@ -15,36 +15,39 @@
  *
  * Basically a cluster (TotemRPCluster), the position of which has been converted into actual geometry (in mm).
  **/
-class TotemRPRecHit {
-public:
-  TotemRPRecHit(double position = 0, double sigma = 0) : position_(position), sigma_(sigma) {}
+namespace io_v1 {
+  class TotemRPRecHit {
+  public:
+    TotemRPRecHit(double position = 0, double sigma = 0) : position_(position), sigma_(sigma) {}
 
-  inline double position() const { return position_; }
-  inline void setPosition(double position) { position_ = position; }
+    inline double position() const { return position_; }
+    inline void setPosition(double position) { position_ = position; }
 
-  inline double sigma() const { return sigma_; }
-  inline void setSigma(double sigma) { sigma_ = sigma; }
+    inline double sigma() const { return sigma_; }
+    inline void setSigma(double sigma) { sigma_ = sigma; }
 
-private:
-  /// position of the hit in mm, wrt detector center (see RPTopology::GetHitPositionInReadoutDirection)
-  double position_;
+  private:
+    /// position of the hit in mm, wrt detector center (see RPTopology::GetHitPositionInReadoutDirection)
+    double position_;
 
-  /// position uncertainty, in mm
-  double sigma_;
-};
+    /// position uncertainty, in mm
+    double sigma_;
+  };
 
-//----------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------------------------------
 
-inline bool operator<(const TotemRPRecHit &l, const TotemRPRecHit &r) {
-  if (l.position() < r.position())
-    return true;
-  if (l.position() > r.position())
+  inline bool operator<(const TotemRPRecHit &l, const TotemRPRecHit &r) {
+    if (l.position() < r.position())
+      return true;
+    if (l.position() > r.position())
+      return false;
+
+    if (l.sigma() < r.sigma())
+      return true;
+
     return false;
-
-  if (l.sigma() < r.sigma())
-    return true;
-
-  return false;
-}
+  }
+}  // namespace io_v1
+using TotemRPRecHit = io_v1::TotemRPRecHit;
 
 #endif

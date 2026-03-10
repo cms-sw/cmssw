@@ -1,6 +1,6 @@
 <lcgdict>
   <class name="reco::io_v1::ForwardProton" ClassVersion="3">
-    <version ClassVersion="3" checksum="2994769763"/>
+    <version ClassVersion="3" checksum="3997932219"/>
   </class>
   <class name="std::vector<reco::io_v1::ForwardProton>"/>
   <class name="edm::Wrapper<std::vector<reco::io_v1::ForwardProton> >"/>
