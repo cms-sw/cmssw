@@ -4,7 +4,9 @@
 
 #include <string_view>
 #include <variant>
+#include <optional>
 #include <memory>
+#include <vector>
 
 namespace edm {
   class DescriptionCloner {
@@ -36,7 +38,7 @@ namespace edm {
     struct WhichEntry {
       std::string label;
       std::variant<std::vector<WhichEntry>, std::shared_ptr<EntryTypeBase>> entry;
-      bool isTracked;
+      std::optional<bool> isTracked;
     };
 
     template <typename T>
