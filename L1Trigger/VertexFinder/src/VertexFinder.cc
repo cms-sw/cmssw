@@ -1083,7 +1083,11 @@ namespace l1tVertexFinder {
     // Loop over tracks -> weight the network -> set track weights
     uint counter = 0;
     ap_ufixed<22,9> trk_input[3];
-    ap_ufixed<8,1,AP_RND_CONV,AP_SAT,0> trk_output;   	
+
+    // read_result expects result_t* (pointer), so give it an array buffer
+    ap_ufixed<8,1,AP_RND_CONV,AP_SAT,0> trk_output[1];
+    std::vector<ap_uint<8>> trk_w8;
+    trk_w8.reserve(fitTracks_.size());
 
     for (auto& track : fitTracks_) {
       // Quantised Network: Use values from L1GTTInputProducer pT, MVA1, eta
@@ -1109,13 +1113,13 @@ namespace l1tVertexFinder {
              : ap_fixed<16,3,AP_TRN,AP_SAT>( etaEmulation);
 
       // CNN output: track weight
-      
-      wt_model->prepare_input(trk_input);
+      wt_model->prepare_input(static_cast<ap_ufixed<22,9>*>(trk_input));
       wt_model->predict();
-      wt_model->read_result(trk_output);
-      // Set track weight pack into tracks:
+      wt_model->read_result(static_cast<ap_ufixed<8,1,AP_RND_CONV,AP_SAT,0>*>(trk_output));
+      track.setWeight(trk_output[0]);
 
-      track.setWeight(trk_output);
+      ap_uint<8> w8 = trk_output[0].range(7, 0);
+      trk_w8.push_back(w8);
 
       ++counter;
     }
@@ -1123,7 +1127,6 @@ namespace l1tVertexFinder {
 
     // #### Find Vertices: ####
     RecoVertexCollection vertices(settings_->vx_histogram_numbins());
-    std::map<float, int> vertexMap;
     std::map<int, float> histogram;
     std::map<int, float> nnOutput;
 
@@ -1136,7 +1139,7 @@ namespace l1tVertexFinder {
 
     for (int z = 0; z < settings_->vx_histogram_numbins(); z += 1) {
       counter = 0;
-      double vxWeight = 0;
+      ap_uint<16> sumW_q17 = 0;
 
       for (const L1Track& track : fitTracks_) {
         auto& gttTrack = fitTracks_.at(counter);
@@ -1146,26 +1149,28 @@ namespace l1tVertexFinder {
 
         if (track_z >= z && track_z < (z + 1)) {
           vertices.at(z).insert(&track);
-          vxWeight += track.weight();
+
+          ap_uint<8> w8 = trk_w8.at(counter);
+          sumW_q17 += w8;
         }
         ++counter;
-      }
-      // Get centre of bin before setting z0
-      vertices.at(z).setZ0(((z + 0.5) * binWidth) - settings_->vx_histogram_max());
+        }
 
-      vertexMap[vxWeight] = z;
-      vx_input[z] = vxWeight;
-      //inputPV.tensor<float, 3>()(0, z, 0) = vxWeight;
-      //Fill histogram for 3 bin sliding window:
-      histogram[z] = vxWeight;
+      // Keep the original z0 assignment for the bin center
+      vertices.at(z).setZ0(((z + 0.5) * binWidth) - settings_->vx_histogram_max());
+      ap_uint<16> vxin_bits = (sumW_q17 << 4);
+      ap_ufixed<16,5> vxin;
+      vxin.V = vxin_bits;
+
+      vx_input[z] = vxin;
+      histogram[z] = vxin.to_double();
     }
 
     // Run PV Network:
-    pat_model->prepare_input(vx_input);
+
+    pat_model->prepare_input(static_cast<ap_ufixed<16,5>*>(vx_input));
     pat_model->predict();
-    pat_model->read_result(vx_output);
-
-
+    pat_model->read_result(static_cast<ap_fixed<10,1>*>(vx_output));
     
     // Threshold needed due to rounding differences in internal CNN layer emulation versus firmware
     const float histogrammingThreshold_ = 0.0;
