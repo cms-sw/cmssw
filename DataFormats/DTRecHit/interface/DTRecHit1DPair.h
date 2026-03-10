@@ -23,87 +23,89 @@
 
 class DTLayer;
 
-class DTRecHit1DPair : public RecHit1D {
-public:
-  /// Constructor without components: must use setPos and Err!
-  DTRecHit1DPair(const DTWireId& wireId, const DTDigi& digi);
+namespace io_v1 {
+  class DTRecHit1DPair : public RecHit1D {
+  public:
+    /// Constructor without components: must use setPos and Err!
+    DTRecHit1DPair(const DTWireId& wireId, const DTDigi& digi);
 
-  /// Default constructor. Needed to write the RecHit into a STL container.
-  DTRecHit1DPair();
+    /// Default constructor. Needed to write the RecHit into a STL container.
+    DTRecHit1DPair();
 
-  /// Destructor
-  ~DTRecHit1DPair() override;
+    /// Destructor
+    ~DTRecHit1DPair() override;
 
-  // Operations
+    // Operations
 
-  DTRecHit1DPair* clone() const override;
+    DTRecHit1DPair* clone() const override;
 
-  /// Return the 3-dimensional local position.
-  /// The average theLeftHit/theRightHit hits position, namely the wire position
-  /// is returned.
-  LocalPoint localPosition() const override;
+    /// Return the 3-dimensional local position.
+    /// The average theLeftHit/theRightHit hits position, namely the wire position
+    /// is returned.
+    LocalPoint localPosition() const override;
 
-  /// Return the 3-dimensional error on the local position.
-  /// The error is defiened as half
-  /// the distance between theLeftHit and theRightHit pos
-  LocalError localPositionError() const override;
+    /// Return the 3-dimensional error on the local position.
+    /// The error is defiened as half
+    /// the distance between theLeftHit and theRightHit pos
+    LocalError localPositionError() const override;
 
-  /// Access to component RecHits.
-  /// Return the two recHits (L/R)
-  std::vector<const TrackingRecHit*> recHits() const override;
+    /// Access to component RecHits.
+    /// Return the two recHits (L/R)
+    std::vector<const TrackingRecHit*> recHits() const override;
 
-  /// Non-const access to component RecHits.
-  /// Return the two recHits (L/R)
-  std::vector<TrackingRecHit*> recHits() override;
+    /// Non-const access to component RecHits.
+    /// Return the two recHits (L/R)
+    std::vector<TrackingRecHit*> recHits() override;
 
-  /// Return the detId of the Det (a DTLayer).
-  virtual DetId geographicalId() const;
+    /// Return the detId of the Det (a DTLayer).
+    virtual DetId geographicalId() const;
 
-  /// Return the digi time (ns) used to build the rechits
-  float digiTime() const { return theLeftHit.digiTime(); }
+    /// Return the digi time (ns) used to build the rechits
+    float digiTime() const { return theLeftHit.digiTime(); }
 
-  /// Comparison operator, based on the wireId and the digi time
-  bool operator==(const DTRecHit1DPair& hit) const;
+    /// Comparison operator, based on the wireId and the digi time
+    bool operator==(const DTRecHit1DPair& hit) const;
 
-  /// Inequality operator, defined as the mirror image of the comparions
-  /// operator
-  bool operator!=(const DTRecHit1DPair& hit) const { return !(*this == hit); }
+    /// Inequality operator, defined as the mirror image of the comparions
+    /// operator
+    bool operator!=(const DTRecHit1DPair& hit) const { return !(*this == hit); }
 
-  /// Return position in the local (layer) coordinate system for a
-  /// certain hypothesis about the L/R cell side
-  LocalPoint localPosition(DTEnums::DTCellSide lrside) const;
+    /// Return position in the local (layer) coordinate system for a
+    /// certain hypothesis about the L/R cell side
+    LocalPoint localPosition(DTEnums::DTCellSide lrside) const;
 
-  /// Return position error in the local (layer) coordinate system for a
-  /// certain hypothesis about the L/R cell side
-  LocalError localPositionError(DTEnums::DTCellSide lrside) const;
+    /// Return position error in the local (layer) coordinate system for a
+    /// certain hypothesis about the L/R cell side
+    LocalError localPositionError(DTEnums::DTCellSide lrside) const;
 
-  /// Set the 3-dimensional local position for the component hit
-  /// corresponding to the given cell side. Default value is assumed for the error.
-  void setPosition(DTEnums::DTCellSide lrside, const LocalPoint& point);
+    /// Set the 3-dimensional local position for the component hit
+    /// corresponding to the given cell side. Default value is assumed for the error.
+    void setPosition(DTEnums::DTCellSide lrside, const LocalPoint& point);
 
-  /// Set the 3-dimensional local position and error for the component hit
-  /// corresponding to the given cell side. Default value is assumed for the error.
-  void setPositionAndError(DTEnums::DTCellSide lrside, const LocalPoint& point, const LocalError& err);
+    /// Set the 3-dimensional local position and error for the component hit
+    /// corresponding to the given cell side. Default value is assumed for the error.
+    void setPositionAndError(DTEnums::DTCellSide lrside, const LocalPoint& point, const LocalError& err);
 
-  // Return the wireId
-  DTWireId wireId() const { return theLeftHit.wireId(); }
+    // Return the wireId
+    DTWireId wireId() const { return theLeftHit.wireId(); }
 
-  /// Return the left/right DTRecHit1D
-  const DTRecHit1D* componentRecHit(DTEnums::DTCellSide lrSide) const;
+    /// Return the left/right DTRecHit1D
+    const DTRecHit1D* componentRecHit(DTEnums::DTCellSide lrSide) const;
 
-  /// Get the left and right 1D rechits (first and second respectively).
-  std::pair<const DTRecHit1D*, const DTRecHit1D*> componentRecHits() const;
+    /// Get the left and right 1D rechits (first and second respectively).
+    std::pair<const DTRecHit1D*, const DTRecHit1D*> componentRecHits() const;
 
-private:
-  /// Non const access to left/right DTRecHit1D
-  DTRecHit1D* componentRecHit(DTEnums::DTCellSide lrSide);
+  private:
+    /// Non const access to left/right DTRecHit1D
+    DTRecHit1D* componentRecHit(DTEnums::DTCellSide lrSide);
 
-  // The two rechits
-  DTRecHit1D theLeftHit;
-  DTRecHit1D theRightHit;
-};
+    // The two rechits
+    DTRecHit1D theLeftHit;
+    DTRecHit1D theRightHit;
+  };
 
-/// Ostream operator
-std::ostream& operator<<(std::ostream& os, const DTRecHit1DPair& hit);
-
+  /// Ostream operator
+  std::ostream& operator<<(std::ostream& os, const DTRecHit1DPair& hit);
+}  // namespace io_v1
+using DTRecHit1DPair = io_v1::DTRecHit1DPair;
 #endif
