@@ -308,7 +308,6 @@ struct HGCalSiliconRotatedCassette {
             unsigned int num = (-layerSense_[ly] <= waferTypes_) ? passiveAbsorb_.size() : passiveCool_.size();
             if (num > 0)
               positionPassiveNew(ctxt, e, glog, i, -layerSense_[ly]);
-            //            positionPassiveNew(ctxt, e, glog, (copy - firstLayer_), -layerSense_[ly]);
           } else {
             positionPassive(ctxt, e, glog, (copy - firstLayer_), -layerSense_[ly]);
           }
@@ -576,7 +575,7 @@ struct HGCalSiliconRotatedCassette {
   void positionPassiveNew(cms::DDParsingContext& ctxt, xml_h e, const dd4hep::Volume& glog, int layer, int absType) {
     cms::DDNamespace ns(ctxt, e, true);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: positionPassiveNew is called";
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: positionPassiveNew is called for layer " << layer << " absType " << absType << " cassettes_ " << cassettes_ << " number of layers " << layers_.size();
     int kount(0);
 #endif
     bool type = (absType <= waferTypes_);
