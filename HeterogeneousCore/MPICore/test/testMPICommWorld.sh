@@ -13,5 +13,7 @@ fi
 # Until this is understood and fixed, keep it disabled.
 export OMPI_MCA_pml='^cm'
 
-# Launch the controller and follower processes
-mpirun -n 1 cmsRun ${CONTROLLER} : -n 1 cmsRun ${FOLLOWER}
+# Launch the controller and follower processes.
+# The timeout is to prevent indefinite hangs if one side crashes without the
+# other side being aware of it.
+timeout --signal=SIGTERM 120 mpirun -n 1 cmsRun ${CONTROLLER} : -n 1 cmsRun ${FOLLOWER}
