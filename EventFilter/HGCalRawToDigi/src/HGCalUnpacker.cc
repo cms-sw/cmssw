@@ -286,7 +286,7 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
         continue;
       }
 
-      // parse ECON-D body(eRx subpackets)      
+      // parse ECON-D body(eRx subpackets)
       const auto enabledErx = fedConfig.econds[globalECONDIdx].enabledErx;
       const auto erxMax = moduleIndexer.globalTypesNErx()[fedReadoutSequence.readoutTypes_[globalECONDIdx]];
       const bool pass_through_mode = (econd_headers[0] >> ECOND_FRAME::BITP_POS) & 0b1;
@@ -299,7 +299,8 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
         for (uint32_t erxIdx = 0; erxIdx < erxMax; erxIdx++) {
           // check if the eRx is enabled
           if ((enabledErx >> erxIdx & 1) == 0) {
-	    LogDebug("[HGCalUnpacker]") << "Skipping eRx=" << erxIdx << " for ECON-D "<< globalECONDIdx << " @ FED=" << fedReadoutSequence.id;
+            LogDebug("[HGCalUnpacker]") << "Skipping eRx=" << erxIdx << " for ECON-D " << globalECONDIdx
+                                        << " @ FED=" << fedReadoutSequence.id;
             continue;
           }
           LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
@@ -369,7 +370,8 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
         for (uint32_t erxIdx = 0; erxIdx < erxMax; erxIdx++) {
           // check if the eRx is enabled
           if ((enabledErx >> erxIdx & 1) == 0) {
-	    LogDebug("[HGCalUnpacker]") << "Skipping eRx=" << erxIdx << " for ECON-D "<< globalECONDIdx << " @ FED=" << fedReadoutSequence.id;
+            LogDebug("[HGCalUnpacker]") << "Skipping eRx=" << erxIdx << " for ECON-D " << globalECONDIdx
+                                        << " @ FED=" << fedReadoutSequence.id;
             continue;
           }
           LogDebug("[HGCalUnpacker]") << "fedId = " << fedId << ", captureblockIdx = " << captureblockIdx
@@ -448,8 +450,8 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
         edm::LogWarning("[HGCalUnpacker]")
             << "Mismatch between unpacked and expected ECON-D #" << (int)globalECONDIdx << " payload length\n"
             << "  unpacked payload length=" << iword + 1 << "\n"
-            << "  expected payload length=" << econd_payload_length
-	    << " enabledErx=" << enabledErx << " erxMax=" << erxMax;
+            << "  expected payload length=" << econd_payload_length << " enabledErx=" << enabledErx
+            << " erxMax=" << erxMax;
         return (0x1 << hgcaldigi::FEDUnpackingFlags::ECONDPayloadLengthMismatch) |
                (hasActiveCBFlags << hgcaldigi::FEDUnpackingFlags::ActiveCaptureBlockFlags);
       }
