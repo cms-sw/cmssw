@@ -18,7 +18,7 @@ namespace ticl {
   }
 
   // clang-format off
-  template <concepts::trivially_copyable TMapped, std::integral TKey>
+  template <std::integral TKey, concepts::trivially_copyable TMapped>
   struct AssociationMapLayout {
     GENERATE_SOA_LAYOUT(ContentBuffersLayout, SOA_COLUMN(TMapped, values))
     GENERATE_SOA_LAYOUT(OffsetBufferLayout, SOA_COLUMN(TKey, keys_offsets))
@@ -42,8 +42,7 @@ namespace ticl {
 							  return std::span<const TMapped>{this->content().values().data() + offset, size};
 							}
 							constexpr SOA_HOST_DEVICE auto contains(TKey key) const {
-							  return (key == 0u) ? this->offsets()[0].keys_offsets() > 0 
-                                   : this->offsets()[key].keys_offsets() > this->offsets()[key - 1].keys_offsets();
+							  return this->count(key) > 0;
 							}
 							constexpr SOA_HOST_DEVICE auto count(TKey key) const {
 							  return (key == 0u) ? this->offsets()[0].keys_offsets()
@@ -60,11 +59,11 @@ namespace ticl {
   };
   // clang-format on
 
-  template <concepts::trivially_copyable TMapped = uint32_t, std::integral TKey = uint32_t>
+  template <std::integral TKey = uint32_t, concepts::trivially_copyable TMapped = uint32_t>
   using AssociationMap = typename AssociationMapLayout<TMapped, TKey>::template Layout<>;
-  template <concepts::trivially_copyable TMapped = uint32_t, std::integral TKey = uint32_t>
+  template <std::integral TKey = uint32_t, concepts::trivially_copyable TMapped = uint32_t>
   using AssociationMapView = typename AssociationMap<TMapped, TKey>::View;
-  template <concepts::trivially_copyable TMapped = uint32_t, std::integral TKey = uint32_t>
+  template <std::integral TKey = uint32_t, concepts::trivially_copyable TMapped = uint32_t>
   using AssociationMapConstView = typename AssociationMap<TMapped, TKey>::ConstView;
 
 }  // namespace ticl
