@@ -23,6 +23,7 @@
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
 #include "PackerHelp.h"
 
@@ -54,6 +55,7 @@ private:
   const vector<int> tdc1_;
   const vector<int> tdc2_;
   const bool packHBTDC_;
+  const bool useTDCfromDB_;
   static constexpr int tdcmax_ = 49;
 
   const edm::EDGetTokenT<HcalDataFrameContainer<QIE10DataFrame>> tok_QIE10DigiCollection_;
@@ -62,6 +64,7 @@ private:
   const edm::EDGetTokenT<HFDigiCollection> tok_HFDigiCollection_;
   const edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_TPDigiCollection_;
   const edm::ESGetToken<HcalElectronicsMap, HcalElectronicsMapRcd> tok_electronicsMap_;
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbService_;
 
   const bool premix_;
 };
@@ -71,6 +74,7 @@ HcalDigiToRawuHTR::HcalDigiToRawuHTR(const edm::ParameterSet& iConfig)
       tdc1_(iConfig.getParameter<vector<int>>("tdc1")),
       tdc2_(iConfig.getParameter<vector<int>>("tdc2")),
       packHBTDC_(iConfig.getParameter<bool>("packHBTDC")),
+      useTDCfromDB_(iConfig.getParameter<bool>("useTDCfromDB")),
       tok_QIE10DigiCollection_(
           consumes<HcalDataFrameContainer<QIE10DataFrame>>(iConfig.getParameter<edm::InputTag>("QIE10"))),
       tok_QIE11DigiCollection_(
@@ -80,6 +84,7 @@ HcalDigiToRawuHTR::HcalDigiToRawuHTR(const edm::ParameterSet& iConfig)
       tok_TPDigiCollection_(consumes<HcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("TP"))),
       tok_electronicsMap_(esConsumes<HcalElectronicsMap, HcalElectronicsMapRcd>(
           edm::ESInputTag("", iConfig.getParameter<std::string>("ElectronicsMap")))),
+      tok_dbService_(esConsumes<HcalDbService, HcalDbRecord>()),
       premix_(iConfig.getParameter<bool>("premix")) {
   produces<FEDRawDataCollection>("");
   for (size_t i = 0; i < tdc1_.size(); i++) {
@@ -97,11 +102,12 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
   edm::ESHandle<HcalElectronicsMap> item = iSetup.getHandle(tok_electronicsMap_);
   const HcalElectronicsMap* readoutMap = item.product();
 
-  //collection to be inserted into event
+  const auto& db = iSetup.getData(tok_dbService_);
+
+  // collection to be inserted into event
   std::unique_ptr<FEDRawDataCollection> fed_buffers(new FEDRawDataCollection());
 
-  //
-  //  Extracting All the Collections containing useful Info
+  // Extracting All the Collections containing useful Info
   edm::Handle<QIE10DigiCollection> qie10DigiCollection;
   edm::Handle<QIE11DigiCollection> qie11DigiCollection;
   edm::Handle<HBHEDigiCollection> hbheDigiCollection;
@@ -159,9 +165,9 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
       int uhtrIndex = ((slotId & 0xF) << 8) | (crateId & 0xFF);
       int presamples = qiedf.presamples();
 
-      //   convert to hb qie data if hb
+      // convert to hb qie data if hb
       if (packHBTDC_ && HcalDetId(detid.rawId()).subdet() == HcalSubdetector::HcalBarrel)
-        qiedf = convertHB(qiedf, tdc1_, tdc2_, tdcmax_);
+        qiedf = convertHB(qiedf, db, tdc1_, tdc2_, useTDCfromDB_, tdcmax_);
 
       if (!uhtrs.exist(uhtrIndex)) {
         uhtrs.newUHTR(uhtrIndex, presamples);
@@ -293,6 +299,7 @@ void HcalDigiToRawuHTR::fillDescriptions(edm::ConfigurationDescriptions& descrip
                                  14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14,
                                  14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14});
   desc.add<bool>("packHBTDC", true);
+  desc.add<bool>("useTDCfromDB", false);
   desc.add<std::string>("ElectronicsMap", "");
   desc.add<edm::InputTag>("QIE10", edm::InputTag("simHcalDigis", "HFQIE10DigiCollection"));
   desc.add<edm::InputTag>("QIE11", edm::InputTag("simHcalDigis", "HBHEQIE11DigiCollection"));
