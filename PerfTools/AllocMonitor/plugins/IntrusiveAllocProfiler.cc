@@ -55,13 +55,204 @@ namespace {
     std::size_t count_ = 0;
   };
 
+  // Statistics Strategy Pattern
+  class StatisticsStrategy {
+  public:
+    virtual ~StatisticsStrategy() = default;
+
+    // RAII timer for measuring operation durations
+    class ScopedTimer {
+    public:
+      ScopedTimer(std::chrono::duration<double, std::milli>* target) : target_(target) {
+        if (target_) {
+          start_ = std::chrono::steady_clock::now();
+        }
+      }
+      ~ScopedTimer() {
+        if (target_) {
+          *target_ = std::chrono::steady_clock::now() - start_;
+        }
+      }
+
+    private:
+      std::chrono::duration<double, std::milli>* target_;
+      std::chrono::steady_clock::time_point start_;
+    };
+
+    // Combined recording: timing and counting
+    virtual ScopedTimer recordAllocation() = 0;
+    virtual ScopedTimer recordDeallocation() = 0;
+
+    // Allocation printing measurements
+    virtual void recordAllocationsUniqueAggregated(std::size_t value) = 0;
+    virtual ScopedTimer timeAllocationsAggregation() = 0;
+    virtual ScopedTimer timeAllocationsSorting() = 0;
+    virtual ScopedTimer timeAllocationsFormatting() = 0;
+    virtual ScopedTimer timeAllocationsAtMaxActualSorting() = 0;
+    virtual ScopedTimer timeAllocationsAtMaxActualFormatting() = 0;
+    virtual ScopedTimer timeAllocationsAddedFiltering() = 0;
+    virtual ScopedTimer timeAllocationsAddedFormatting() = 0;
+
+    // Deallocation printing measurements
+    virtual void recordDeallocationsUniqueAggregated(std::size_t value) = 0;
+    virtual ScopedTimer timeDeallocationAggregation() = 0;
+    virtual ScopedTimer timeDeallocationsSorting() = 0;
+    virtual ScopedTimer timeDeallocationsFormatting() = 0;
+
+    // Churn printing measurements
+    virtual void recordChurnUniqueAggregated(std::size_t value) = 0;
+    virtual void recordChurnMaxInnerSize(std::size_t value) = 0;
+    virtual ScopedTimer timeChurnAggregation() = 0;
+    virtual ScopedTimer timeChurnSorting() = 0;
+    virtual ScopedTimer timeChurnFormatting() = 0;
+
+    // Final statistics printout (accesses internal member data)
+    virtual void printStatistics(edm::LogSystem& log,
+                                 std::size_t numAllocTraces,
+                                 std::size_t numDeallocTraces) const = 0;
+  };
+
+  // No-op strategy: zero overhead, no measurements
+  class NoOpStatisticsStrategy : public StatisticsStrategy {
+  public:
+    ScopedTimer recordAllocation() override { return ScopedTimer(nullptr); }
+    ScopedTimer recordDeallocation() override { return ScopedTimer(nullptr); }
+
+    void recordAllocationsUniqueAggregated(std::size_t) override {}
+    ScopedTimer timeAllocationsAggregation() override { return ScopedTimer(nullptr); }
+    ScopedTimer timeAllocationsSorting() override { return ScopedTimer(nullptr); }
+    ScopedTimer timeAllocationsFormatting() override { return ScopedTimer(nullptr); }
+    ScopedTimer timeAllocationsAtMaxActualSorting() override { return ScopedTimer(nullptr); }
+    ScopedTimer timeAllocationsAtMaxActualFormatting() override { return ScopedTimer(nullptr); }
+    ScopedTimer timeAllocationsAddedFiltering() override { return ScopedTimer(nullptr); }
+    ScopedTimer timeAllocationsAddedFormatting() override { return ScopedTimer(nullptr); }
+
+    void recordDeallocationsUniqueAggregated(std::size_t) override {}
+    ScopedTimer timeDeallocationAggregation() override { return ScopedTimer(nullptr); }
+    ScopedTimer timeDeallocationsSorting() override { return ScopedTimer(nullptr); }
+    ScopedTimer timeDeallocationsFormatting() override { return ScopedTimer(nullptr); }
+
+    void recordChurnUniqueAggregated(std::size_t) override {}
+    void recordChurnMaxInnerSize(std::size_t) override {}
+    ScopedTimer timeChurnAggregation() override { return ScopedTimer(nullptr); }
+    ScopedTimer timeChurnSorting() override { return ScopedTimer(nullptr); }
+    ScopedTimer timeChurnFormatting() override { return ScopedTimer(nullptr); }
+
+    void printStatistics(edm::LogSystem&, std::size_t, std::size_t) const override {}
+  };
+
+  // Collecting strategy: measures and reports all statistics
+  class CollectingStatisticsStrategy : public StatisticsStrategy {
+  public:
+    ScopedTimer recordAllocation() override {
+      ++numAllocations_;
+      return ScopedTimer(&allocationsTime_);
+    }
+    ScopedTimer recordDeallocation() override {
+      ++numDeallocations_;
+      return ScopedTimer(&deallocationsTime_);
+    }
+
+    void recordAllocationsUniqueAggregated(std::size_t value) override { allocStats_.uniqueAggregated = value; }
+    ScopedTimer timeAllocationsAggregation() override { return ScopedTimer(&allocStats_.t_aggregation); }
+    ScopedTimer timeAllocationsSorting() override { return ScopedTimer(&allocStats_.t_sorting); }
+    ScopedTimer timeAllocationsFormatting() override { return ScopedTimer(&allocStats_.t_format); }
+    ScopedTimer timeAllocationsAtMaxActualSorting() override { return ScopedTimer(&allocStats_.t_atMaxActualSorting); }
+    ScopedTimer timeAllocationsAtMaxActualFormatting() override {
+      return ScopedTimer(&allocStats_.t_atMaxActualFormat);
+    }
+    ScopedTimer timeAllocationsAddedFiltering() override { return ScopedTimer(&allocStats_.t_addedFiltering); }
+    ScopedTimer timeAllocationsAddedFormatting() override { return ScopedTimer(&allocStats_.t_addedFormat); }
+
+    void recordDeallocationsUniqueAggregated(std::size_t value) override { deallocStats_.uniqueAggregated = value; }
+    ScopedTimer timeDeallocationAggregation() override { return ScopedTimer(&deallocStats_.t_aggregation); }
+    ScopedTimer timeDeallocationsSorting() override { return ScopedTimer(&deallocStats_.t_sorting); }
+    ScopedTimer timeDeallocationsFormatting() override { return ScopedTimer(&deallocStats_.t_format); }
+
+    void recordChurnUniqueAggregated(std::size_t value) override { churnStats_.uniqueAggregated = value; }
+    void recordChurnMaxInnerSize(std::size_t value) override {
+      churnStats_.maxInnerSize = std::max(churnStats_.maxInnerSize, value);
+    }
+    ScopedTimer timeChurnAggregation() override { return ScopedTimer(&churnStats_.t_aggregation); }
+    ScopedTimer timeChurnSorting() override { return ScopedTimer(&churnStats_.t_sorting); }
+    ScopedTimer timeChurnFormatting() override { return ScopedTimer(&churnStats_.t_format); }
+
+    void printStatistics(edm::LogSystem& log, std::size_t numAllocTraces, std::size_t numDeallocTraces) const override {
+      log.format("\nStatistics:\nAllocations recorded {} in {}\nDeallocations recorded {} in {}\n",
+                 numAllocations_,
+                 allocationsTime_,
+                 numDeallocations_,
+                 deallocationsTime_);
+      log.format("Allocation traces total {} aggregated {}; aggregation {} sorting {} formatting {}\n",
+                 numAllocTraces,
+                 allocStats_.uniqueAggregated,
+                 allocStats_.t_aggregation,
+                 allocStats_.t_sorting,
+                 allocStats_.t_format);
+      log.format(
+          "AtMaxActual sorting {} formatting {}\n", allocStats_.t_atMaxActualSorting, allocStats_.t_atMaxActualFormat);
+      log.format("Added filtering {} formatting {}\n", allocStats_.t_addedFiltering, allocStats_.t_addedFormat);
+      log.format("Deallocation traces total {} aggregated {}; aggregation {} sorting {} formatting {}\n",
+                 numDeallocTraces,
+                 deallocStats_.uniqueAggregated,
+                 deallocStats_.t_aggregation,
+                 deallocStats_.t_sorting,
+                 deallocStats_.t_format);
+      log.format("Churn aggregated traces {} inner container max size {}; aggregation {} sorting {} formatting {}",
+                 churnStats_.uniqueAggregated,
+                 churnStats_.maxInnerSize,
+                 churnStats_.t_aggregation,
+                 churnStats_.t_sorting,
+                 churnStats_.t_format);
+    }
+
+  private:
+    struct AllocPrintStats {
+      std::chrono::duration<double, std::milli> t_aggregation{};
+      std::chrono::duration<double, std::milli> t_sorting{};
+      std::chrono::duration<double, std::milli> t_format{};
+      std::chrono::duration<double, std::milli> t_atMaxActualSorting{};
+      std::chrono::duration<double, std::milli> t_atMaxActualFormat{};
+      std::chrono::duration<double, std::milli> t_addedFiltering{};
+      std::chrono::duration<double, std::milli> t_addedFormat{};
+      std::size_t uniqueAggregated = 0;
+    };
+
+    struct DeallocPrintStats {
+      std::chrono::duration<double, std::milli> t_aggregation{};
+      std::chrono::duration<double, std::milli> t_sorting{};
+      std::chrono::duration<double, std::milli> t_format{};
+      std::size_t uniqueAggregated = 0;
+    };
+
+    struct ChurnPrintStats {
+      std::chrono::duration<double, std::milli> t_aggregation{};
+      std::chrono::duration<double, std::milli> t_sorting{};
+      std::chrono::duration<double, std::milli> t_format{};
+      std::size_t uniqueAggregated = 0;
+      std::size_t maxInnerSize = 0;
+    };
+
+    std::chrono::duration<double, std::milli> allocationsTime_{};
+    std::chrono::duration<double, std::milli> deallocationsTime_{};
+    std::size_t numAllocations_ = 0;
+    std::size_t numDeallocations_ = 0;
+    AllocPrintStats allocStats_;
+    DeallocPrintStats deallocStats_;
+    ChurnPrintStats churnStats_;
+  };
+
   class StackNodeData;
   using MonitorStackNode = cms::perftools::allocMon::MonitorStackNode<StackNodeData>;
 
   class StackNodeData {
   public:
     StackNodeData(std::stacktrace trace, unsigned int fileCount, std::string filePattern, bool printStatistics)
-        : trace_(std::move(trace)), filePattern_(std::move(filePattern)), printStatistics_(printStatistics) {
+        : trace_(std::move(trace)),
+          filePattern_(std::move(filePattern)),
+          statistics_(printStatistics ? static_cast<std::unique_ptr<StatisticsStrategy>>(
+                                            std::make_unique<CollectingStatisticsStrategy>())
+                                      : std::make_unique<NoOpStatisticsStrategy>()) {
       // Skip first entries that are internals for AllocMonitor if they are in the trace
       // By experience these entries are not always part of the stack trace
       auto it = trace_.cbegin();
@@ -93,7 +284,7 @@ namespace {
     std::stacktrace const& stacktrace() const { return trace_; }
 
     void recordAllocation(std::stacktrace trace, AllocationRecord record, void const* ptr) {
-      auto start = std::chrono::steady_clock::now();
+      auto timer = statistics_->recordAllocation();
 
       UniqueTraceIndex traceIndex;
       auto hash = std::hash<std::stacktrace>()(trace);
@@ -117,22 +308,16 @@ namespace {
         }
         maxActual_ = presentActual_;
       }
-
-      stats_.t_allocations_ += (std::chrono::steady_clock::now() - start);
-      stats_.num_allocations_ += 1;
     }
 
     void recordDeallocation(std::stacktrace trace,
                             DeallocationRecord record,
                             void const* ptr,
                             MonitorStackNode* prevNode) {
-      auto start = std::chrono::steady_clock::now();
+      auto timer = statistics_->recordDeallocation();
 
       auto const deallocIndex = addDeallocation(std::move(trace), record);
       subtractDeallocationFromAllocations(deallocIndex, ptr, prevNode);
-
-      stats_.t_deallocations_ += (std::chrono::steady_clock::now() - start);
-      stats_.num_deallocations_ += 1;
     }
 
     void recordDeallocationFromNestedMeasurement(void const* ptr, MonitorStackNode* prevNode) {
@@ -143,38 +328,11 @@ namespace {
     void print(T&& log, std::string_view measurementName) const {
       log.format(" Reported stack traces are based on\n{}", formatTrace(trace_, startFromEntry_, 0));
 
-      auto const allocStats = printAllocations(log, measurementName);
-      auto const deallocStats = printDeallocations(log, measurementName);
-      auto const churnStats = printChurn(log, measurementName);
+      printAllocations(log, measurementName);
+      printDeallocations(log, measurementName);
+      printChurn(log, measurementName);
 
-      if (printStatistics_) {
-        log.format("\nStatistics:\nAllocations recorded {} in {}\nDeallocations recorded {} in {}\n",
-                   stats_.num_allocations_,
-                   stats_.t_allocations_,
-                   stats_.num_deallocations_,
-                   stats_.t_deallocations_);
-        log.format("Allocation traces total {} aggregated {}; aggregation {} sorting {} formatting {}\n",
-                   uniqueAllocTraces_.size(),
-                   allocStats.uniqueAggregated,
-                   allocStats.t_aggregation,
-                   allocStats.t_sorting,
-                   allocStats.t_format);
-        log.format(
-            "AtMaxActual sorting {} formatting {}\n", allocStats.t_atMaxActualSorting, allocStats.t_atMaxActualFormat);
-        log.format("Added filtering {} formatting {}\n", allocStats.t_addedFiltering, allocStats.t_addedFormat);
-        log.format("Deallocation traces total {} aggregated {}; aggregation {} sorting {} formatting {}\n",
-                   uniqueDeallocTraces_.size(),
-                   deallocStats.uniqueAggregated,
-                   deallocStats.t_aggregation,
-                   deallocStats.t_sorting,
-                   deallocStats.t_format);
-        log.format("Churn aggregated traces {} inner container max size {}; aggregation {} sorting {} formatting {}",
-                   churnStats.uniqueAggregated,
-                   churnStats.maxInnerSize,
-                   churnStats.t_aggregation,
-                   churnStats.t_sorting,
-                   churnStats.t_format);
-      }
+      statistics_->printStatistics(log, uniqueAllocTraces_.size(), uniqueDeallocTraces_.size());
     }
 
   private:
@@ -223,224 +381,203 @@ namespace {
       AllocationRecord total_;
     };
 
-    struct AllocPrintStats {
-      std::chrono::duration<double, std::milli> t_aggregation{};
-      std::chrono::duration<double, std::milli> t_sorting{};
-      std::chrono::duration<double, std::milli> t_format{};
-      std::chrono::duration<double, std::milli> t_atMaxActualSorting{};
-      std::chrono::duration<double, std::milli> t_atMaxActualFormat{};
-      std::chrono::duration<double, std::milli> t_addedFiltering{};
-      std::chrono::duration<double, std::milli> t_addedFormat{};
-      std::size_t uniqueAggregated = 0;
-    };
-
-    struct DeallocPrintStats {
-      std::chrono::duration<double, std::milli> t_aggregation{};
-      std::chrono::duration<double, std::milli> t_sorting{};
-      std::chrono::duration<double, std::milli> t_format{};
-      std::size_t uniqueAggregated = 0;
-    };
-
-    struct ChurnPrintStats {
-      std::chrono::duration<double, std::milli> t_aggregation{};
-      std::chrono::duration<double, std::milli> t_sorting{};
-      std::chrono::duration<double, std::milli> t_format{};
-      std::size_t uniqueAggregated = 0;
-      std::size_t maxInnerSize = 0;
-    };
-
     template <typename T>
-    AllocPrintStats printAllocations(T&& log, std::string_view measurementName) const {
-      AllocPrintStats stats;
+    void printAllocations(T&& log, std::string_view measurementName) const {
       using AggregationMap = std::unordered_map<std::string, AllocationTrace::Records>;
 
-      auto start = std::chrono::steady_clock::now();
       AggregationMap aggregatedAllocs;
-      for (auto const& record : uniqueAllocTraces_) {
-        aggregatedAllocs[formatTrace(record.trace_, 0, stackDepth_ - 1)].add(record.records_);
-      }
-      stats.t_aggregation = (std::chrono::steady_clock::now() - start);
-      stats.uniqueAggregated = aggregatedAllocs.size();
-
-      start = std::chrono::steady_clock::now();
-      auto orderAllocs =
-          makeSortedIterators(aggregatedAllocs, [](auto const& it) { return it->second.total_.actual_; });
-      stats.t_sorting = (std::chrono::steady_clock::now() - start);
-
-      start = std::chrono::steady_clock::now();
-      log.format("\nAll allocations");
-      writeFileOrMessage("alloc", measurementName, log, [&](std::ostream& os) {
-        for (auto const& itTrace : orderAllocs) {
-          auto const& records = itTrace->second;
-          std::print(os,
-                     "count {} requested {} actual {}\n{}",
-                     records.total_.count_,
-                     records.total_.requested_,
-                     records.total_.actual_,
-                     itTrace->first);
+      {
+        auto timer = statistics_->timeAllocationsAggregation();
+        for (auto const& record : uniqueAllocTraces_) {
+          aggregatedAllocs[formatTrace(record.trace_, 0, stackDepth_ - 1)].add(record.records_);
         }
-      });
-      stats.t_format = (std::chrono::steady_clock::now() - start);
+        statistics_->recordAllocationsUniqueAggregated(aggregatedAllocs.size());
+      }
+
+      std::vector<std::unordered_map<std::string, AllocationTrace::Records>::const_iterator> orderAllocs;
+      {
+        auto timer = statistics_->timeAllocationsSorting();
+        orderAllocs = makeSortedIterators(aggregatedAllocs, [](auto const& it) { return it->second.total_.actual_; });
+      }
+
+      {
+        auto timer = statistics_->timeAllocationsFormatting();
+        log.format("\nAll allocations");
+        writeFileOrMessage("alloc", measurementName, log, [&](std::ostream& os) {
+          for (auto const& itTrace : orderAllocs) {
+            auto const& records = itTrace->second;
+            std::print(os,
+                       "count {} requested {} actual {}\n{}",
+                       records.total_.count_,
+                       records.total_.requested_,
+                       records.total_.actual_,
+                       itTrace->first);
+          }
+        });
+      }
 
       // AtMaxActual
-      start = std::chrono::steady_clock::now();
-      std::ranges::sort(orderAllocs, std::greater{}, [](auto const& it) { return it->second.atMaxActual_.actual_; });
-      stats.t_atMaxActualSorting = (std::chrono::steady_clock::now() - start);
+      {
+        auto timer = statistics_->timeAllocationsAtMaxActualSorting();
+        std::ranges::sort(orderAllocs, std::greater{}, [](auto const& it) { return it->second.atMaxActual_.actual_; });
+      }
 
-      start = std::chrono::steady_clock::now();
-      log.format("\nAllocated memory at the max actual moment");
-      writeFileOrMessage("atMaxActual", measurementName, log, [&](std::ostream& os) {
-        for (auto const& itTrace : orderAllocs) {
-          auto const& records = itTrace->second;
-          std::print(os,
-                     "count {} requested {} actual {}\n{}",
-                     records.atMaxActual_.count_,
-                     records.atMaxActual_.requested_,
-                     records.atMaxActual_.actual_,
-                     itTrace->first);
-        }
-      });
-      stats.t_atMaxActualFormat = (std::chrono::steady_clock::now() - start);
+      {
+        auto timer = statistics_->timeAllocationsAtMaxActualFormatting();
+        log.format("\nAllocated memory at the max actual moment");
+        writeFileOrMessage("atMaxActual", measurementName, log, [&](std::ostream& os) {
+          for (auto const& itTrace : orderAllocs) {
+            auto const& records = itTrace->second;
+            std::print(os,
+                       "count {} requested {} actual {}\n{}",
+                       records.atMaxActual_.count_,
+                       records.atMaxActual_.requested_,
+                       records.atMaxActual_.actual_,
+                       itTrace->first);
+          }
+        });
+      }
 
       // Added
-      start = std::chrono::steady_clock::now();
-      std::erase_if(orderAllocs, [](auto const& it) { return it->second.added_.count_ == 0; });
-      std::ranges::sort(orderAllocs, std::greater{}, [](auto const& it) { return it->second.added_.actual_; });
-      stats.t_addedFiltering = (std::chrono::steady_clock::now() - start);
+      {
+        auto timer = statistics_->timeAllocationsAddedFiltering();
+        std::erase_if(orderAllocs, [](auto const& it) { return it->second.added_.count_ == 0; });
+        std::ranges::sort(orderAllocs, std::greater{}, [](auto const& it) { return it->second.added_.actual_; });
+      }
 
-      start = std::chrono::steady_clock::now();
-      log.format("\nAdded memory");
-      writeFileOrMessage("added", measurementName, log, [&](std::ostream& os) {
-        for (auto const& itTrace : orderAllocs) {
-          auto const& records = itTrace->second;
-          std::print(os,
-                     "count {} requested {} actual {}\n{}",
-                     records.added_.count_,
-                     records.added_.requested_,
-                     records.added_.actual_,
-                     itTrace->first);
-          // The keys of aggregatedAllocs are large, so destruct them as soon as possible. The erase() does not invalidate
-          // the iterators to other elements, so it's safe to erase while iterating through orderAllocs.
-          aggregatedAllocs.erase(itTrace);
-        }
-      });
-      stats.t_addedFormat = (std::chrono::steady_clock::now() - start);
-
-      return stats;
+      {
+        auto timer = statistics_->timeAllocationsAddedFormatting();
+        log.format("\nAdded memory");
+        writeFileOrMessage("added", measurementName, log, [&](std::ostream& os) {
+          for (auto const& itTrace : orderAllocs) {
+            auto const& records = itTrace->second;
+            std::print(os,
+                       "count {} requested {} actual {}\n{}",
+                       records.added_.count_,
+                       records.added_.requested_,
+                       records.added_.actual_,
+                       itTrace->first);
+            // The keys of aggregatedAllocs are large, so destruct them as soon as possible. The erase() does not invalidate
+            // the iterators to other elements, so it's safe to erase while iterating through orderAllocs.
+            aggregatedAllocs.erase(itTrace);
+          }
+        });
+      }
     }
 
     template <typename T>
-    DeallocPrintStats printDeallocations(T&& log, std::string_view measurementName) const {
-      DeallocPrintStats stats;
+    void printDeallocations(T&& log, std::string_view measurementName) const {
       using AggregationMap = std::unordered_map<std::string, DeallocationRecord>;
       AggregationMap aggregatedDeallocs;
 
-      auto start = std::chrono::steady_clock::now();
-      for (auto const& record : uniqueDeallocTraces_) {
-        aggregatedDeallocs[formatTrace(record.trace_, 0, stackDepth_ - 1)].add(record.total_);
-      }
-      stats.t_aggregation = (std::chrono::steady_clock::now() - start);
-      stats.uniqueAggregated = aggregatedDeallocs.size();
-
-      start = std::chrono::steady_clock::now();
-      auto orderDeallocs = makeSortedIterators(aggregatedDeallocs, [](auto const& it) { return it->second.actual_; });
-      stats.t_sorting = (std::chrono::steady_clock::now() - start);
-
-      start = std::chrono::steady_clock::now();
-      log.format("\nAll deallocations");
-      writeFileOrMessage("dealloc", measurementName, log, [&](std::ostream& os) {
-        for (auto const& itTrace : orderDeallocs) {
-          auto const& record = itTrace->second;
-          std::print(os, "count {} actual {}\n{}", record.count_, record.actual_, itTrace->first);
-          aggregatedDeallocs.erase(itTrace);
+      {
+        auto timer = statistics_->timeDeallocationAggregation();
+        for (auto const& record : uniqueDeallocTraces_) {
+          aggregatedDeallocs[formatTrace(record.trace_, 0, stackDepth_ - 1)].add(record.total_);
         }
-      });
-      stats.t_format = (std::chrono::steady_clock::now() - start);
+        statistics_->recordDeallocationsUniqueAggregated(aggregatedDeallocs.size());
+      }
 
-      return stats;
+      std::vector<std::unordered_map<std::string, DeallocationRecord>::const_iterator> orderDeallocs;
+      {
+        auto timer = statistics_->timeDeallocationsSorting();
+        orderDeallocs = makeSortedIterators(aggregatedDeallocs, [](auto const& it) { return it->second.actual_; });
+      }
+
+      {
+        auto timer = statistics_->timeDeallocationsFormatting();
+        log.format("\nAll deallocations");
+        writeFileOrMessage("dealloc", measurementName, log, [&](std::ostream& os) {
+          for (auto const& itTrace : orderDeallocs) {
+            auto const& record = itTrace->second;
+            std::print(os, "count {} actual {}\n{}", record.count_, record.actual_, itTrace->first);
+            aggregatedDeallocs.erase(itTrace);
+          }
+        });
+      }
     }
 
     template <typename T>
-    ChurnPrintStats printChurn(T&& log, std::string_view measurementName) const {
-      ChurnPrintStats stats;
+    void printChurn(T&& log, std::string_view measurementName) const {
       using AggregationMap = std::unordered_map<std::string, AllocationRecord>;
       AggregationMap aggregatedChurn;
       AggregationMap aggregatedChurnAllocs;
 
-      auto start = std::chrono::steady_clock::now();
-      auto traceToString = [](auto const& traceEntry) { return traceEntry.description(); };
-      // zip stops at the shorter range, naturally handling churnRecords_ being possibly smaller than uniqueAllocTraces_
-      for (auto const& [allocRecord, churnVec] : std::views::zip(uniqueAllocTraces_, churnRecords_)) {
-        auto const& allocTrace = allocRecord.trace_;
-        // can skip the topmost stackDepth entries because they are the same throughout the measurement
-        // subtract 1 in case the measurement starting function is doing the churn
-        auto const allocTraceStrings = allocTrace | std::views::take(allocTrace.size() - (stackDepth_ - 1)) |
-                                       std::views::transform(traceToString) |
-                                       std::ranges::to<std::vector<std::string>>();
+      {
+        auto timer = statistics_->timeChurnAggregation();
+        auto traceToString = [](auto const& traceEntry) { return traceEntry.description(); };
+        // zip stops at the shorter range, naturally handling churnRecords_ being possibly smaller than uniqueAllocTraces_
+        for (auto const& [allocRecord, churnVec] : std::views::zip(uniqueAllocTraces_, churnRecords_)) {
+          auto const& allocTrace = allocRecord.trace_;
+          // can skip the topmost stackDepth entries because they are the same throughout the measurement
+          // subtract 1 in case the measurement starting function is doing the churn
+          auto const allocTraceStrings = allocTrace | std::views::take(allocTrace.size() - (stackDepth_ - 1)) |
+                                         std::views::transform(traceToString) |
+                                         std::ranges::to<std::vector<std::string>>();
 
-        stats.maxInnerSize = std::max(stats.maxInnerSize, churnVec.size());
-        for (auto const& record : churnVec) {
-          // Stopping to the lowest common stacktrace_entry between allocation and deallocation
-          {
-            auto const& deallocTrace = uniqueDeallocTraces_[record.deallocIndex_].trace_;
-            auto const deallocTraceStrings = deallocTrace | std::views::take(deallocTrace.size() - (stackDepth_ - 1)) |
-                                             std::views::transform(traceToString) |
-                                             std::ranges::to<std::vector<std::string>>();
+          statistics_->recordChurnMaxInnerSize(churnVec.size());
+          for (auto const& record : churnVec) {
+            // Stopping to the lowest common stacktrace_entry between allocation and deallocation
+            {
+              auto const& deallocTrace = uniqueDeallocTraces_[record.deallocIndex_].trace_;
+              auto const deallocTraceStrings =
+                  deallocTrace | std::views::take(deallocTrace.size() - (stackDepth_ - 1)) |
+                  std::views::transform(traceToString) | std::ranges::to<std::vector<std::string>>();
 
-            // iterate from the top (outermost) downward to find where the traces first diverge
-            auto allocEntries = allocTraceStrings | std::views::reverse;
-            auto deallocEntries = deallocTraceStrings | std::views::reverse;
+              // iterate from the top (outermost) downward to find where the traces first diverge
+              auto allocEntries = allocTraceStrings | std::views::reverse;
+              auto deallocEntries = deallocTraceStrings | std::views::reverse;
 
-            auto [it_alloc, it_dealloc] = std::ranges::mismatch(allocEntries, deallocEntries);
-            assert(it_alloc != allocEntries.end() and it_dealloc != deallocEntries.end());
+              auto [it_alloc, it_dealloc] = std::ranges::mismatch(allocEntries, deallocEntries);
+              assert(it_alloc != allocEntries.end() and it_dealloc != deallocEntries.end());
 
-            // Because the comparisons were done with strings, the
-            // it_alloc and it_dealloc should point to different
-            // functions. Go one level up (toward outer frames) to find the common function
-            assert(it_alloc != allocEntries.begin());
-            --it_alloc;
+              // Because the comparisons were done with strings, the
+              // it_alloc and it_dealloc should point to different
+              // functions. Go one level up (toward outer frames) to find the common function
+              assert(it_alloc != allocEntries.begin());
+              --it_alloc;
 
-            auto str_trace = formatTrace(std::ranges::subrange(std::prev(it_alloc.base()), allocTraceStrings.end()));
-            aggregatedChurn[str_trace].add(record.total_);
-          }
-          // Churn allocation stack traces
-          {
-            auto str_trace = formatTrace(allocTraceStrings);
-            aggregatedChurnAllocs[str_trace].add(record.total_);
+              auto str_trace = formatTrace(std::ranges::subrange(std::prev(it_alloc.base()), allocTraceStrings.end()));
+              aggregatedChurn[str_trace].add(record.total_);
+            }
+            // Churn allocation stack traces
+            {
+              auto str_trace = formatTrace(allocTraceStrings);
+              aggregatedChurnAllocs[str_trace].add(record.total_);
+            }
           }
         }
+        statistics_->recordChurnUniqueAggregated(aggregatedChurn.size());
       }
-      stats.t_aggregation = (std::chrono::steady_clock::now() - start);
-      stats.uniqueAggregated = aggregatedChurn.size();
 
-      start = std::chrono::steady_clock::now();
-      auto orderChurn = makeSortedIterators(aggregatedChurn, [](auto const& it) { return it->second.count_; });
-      auto orderChurnAllocs =
-          makeSortedIterators(aggregatedChurnAllocs, [](auto const& it) { return it->second.count_; });
-      stats.t_sorting = (std::chrono::steady_clock::now() - start);
+      std::vector<std::unordered_map<std::string, AllocationRecord>::const_iterator> orderChurn, orderChurnAllocs;
+      {
+        auto timer = statistics_->timeChurnSorting();
+        orderChurn = makeSortedIterators(aggregatedChurn, [](auto const& it) { return it->second.count_; });
+        orderChurnAllocs = makeSortedIterators(aggregatedChurnAllocs, [](auto const& it) { return it->second.count_; });
+      }
 
-      start = std::chrono::steady_clock::now();
-      log.format("\nMemory allocation+deallocation churn");
-      writeFileOrMessage("churn", measurementName, log, [&](std::ostream& os) {
-        for (auto const& it : orderChurn) {
-          auto const& record = it->second;
-          std::print(
-              os, "count {} requested {} actual {}\n{}", record.count_, record.requested_, record.actual_, it->first);
-          aggregatedChurn.erase(it);
-        }
-      });
-      log.format("\nMemory allocation+deallocation churn allocations");
-      writeFileOrMessage("churnalloc", measurementName, log, [&](std::ostream& os) {
-        for (auto const& it : orderChurnAllocs) {
-          auto const& record = it->second;
-          std::print(
-              os, "count {} requested {} actual {}\n{}", record.count_, record.requested_, record.actual_, it->first);
-          aggregatedChurnAllocs.erase(it);
-        }
-      });
-      stats.t_format = (std::chrono::steady_clock::now() - start);
-
-      return stats;
+      {
+        auto timer = statistics_->timeChurnFormatting();
+        log.format("\nMemory allocation+deallocation churn");
+        writeFileOrMessage("churn", measurementName, log, [&](std::ostream& os) {
+          for (auto const& it : orderChurn) {
+            auto const& record = it->second;
+            std::print(
+                os, "count {} requested {} actual {}\n{}", record.count_, record.requested_, record.actual_, it->first);
+            aggregatedChurn.erase(it);
+          }
+        });
+        log.format("\nMemory allocation+deallocation churn allocations");
+        writeFileOrMessage("churnalloc", measurementName, log, [&](std::ostream& os) {
+          for (auto const& it : orderChurnAllocs) {
+            auto const& record = it->second;
+            std::print(
+                os, "count {} requested {} actual {}\n{}", record.count_, record.requested_, record.actual_, it->first);
+            aggregatedChurnAllocs.erase(it);
+          }
+        });
+      }
     }
 
     void subtractDeallocationFromAllocations(std::optional<UniqueTraceIndex> deallocIndex,
@@ -558,7 +695,7 @@ namespace {
     int startFromEntry_ = 0;
     std::size_t stackDepth_ = 0;
     std::string filePattern_;
-    bool printStatistics_;
+    std::unique_ptr<StatisticsStrategy> statistics_;
 
     // Collection of stack traces
     long long presentActual_ = 0;
@@ -574,14 +711,6 @@ namespace {
     // allocating trace would be small enough that a linear search is
     // good enough
     std::vector<std::vector<ChurnRecord>> churnRecords_;
-
-    struct Statistics {
-      std::chrono::duration<double, std::milli> t_allocations_{};
-      std::chrono::duration<double, std::milli> t_deallocations_{};
-      std::size_t num_allocations_ = 0;
-      std::size_t num_deallocations_ = 0;
-    };
-    Statistics stats_;
   };
   std::unique_ptr<MonitorStackNode>& currentMonitorStackNode() {
     static thread_local std::unique_ptr<MonitorStackNode> ptr;
