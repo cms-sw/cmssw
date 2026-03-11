@@ -6,9 +6,9 @@
  */
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DFwd.h"
+#include "DataFormats/DTRecHit/interface/DTRecHit1DFwd.h"
 
 class DTGeometry;
-class DTRecHit1D;
 
 class DTRecHitSegmentResidual {
 public:
