@@ -67,10 +67,7 @@ namespace cms::alpakatools {
       reco::TrackingRecHitDevice<TDevice> deviceData(queue, nHits, hostData.nModules());
 
       if (nHits == 0) {
-        std::memset(
-            deviceData.buffer().data(),
-            0,
-            alpaka::getExtentProduct(deviceData.buffer()) * sizeof(alpaka::Elem<reco::TrackingRecHitHost::Buffer>));
+        deviceData.zeroInitialise(queue);
         return deviceData;
       }
 
