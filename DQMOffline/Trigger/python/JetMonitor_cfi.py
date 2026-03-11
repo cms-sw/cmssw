@@ -23,6 +23,10 @@ hltJetMETmonitoring = jetMonitoring.clone(
     ptcut = 30.,
     ispfjettrg = True, # is PFJet Trigger ?
     iscalojettrg = False, # is CaloJet Trigger ?
+    isscoutingpfjettrg = False, # is ScoutingPFJet Trigger ?
+    doVariablebinning = False,
+    JetIDQuality = 'TIGHT',
+    JetIDVersion = 'RUN3Scouting',  #maybe put a pfpuppi version, but need to define it in the relevant if above
 
     numGenericTriggerEventPSet = dict(
         andOr         =  False,
