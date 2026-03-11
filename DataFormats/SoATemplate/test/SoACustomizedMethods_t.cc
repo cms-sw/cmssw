@@ -30,7 +30,7 @@ TEST_CASE("SoACustomizedMethods") {
   }
   view.detectorType() = 42;
 
-  SECTION("ConstView methods") {
+  SECTION("ConstElement methods") {
     // arrays of norms
     std::array<float, elems> position_norms;
     std::array<double, elems> velocity_norms;
@@ -46,7 +46,7 @@ TEST_CASE("SoACustomizedMethods") {
     }
   }
 
-  SECTION("View methods") {
+  SECTION("Element methods") {
     // array of times
     std::array<double, elems> times;
 
@@ -70,5 +70,34 @@ TEST_CASE("SoACustomizedMethods") {
       REQUIRE_THAT(view[i].square_norm_position(), Catch::Matchers::WithinAbs(1.f, 1.e-6));
       REQUIRE_THAT(view[i].square_norm_velocity(), Catch::Matchers::WithinAbs(1., 1.e-9));
     }
+  }
+
+  const auto points_sizes = std::array<cms::soa::size_type, 2>{{2, 2}};
+  const std::size_t blocksBufferSize = Points::computeDataSize(points_sizes);
+
+  std::unique_ptr<std::byte, decltype(std::free) *> points_buffer{
+      reinterpret_cast<std::byte *>(aligned_alloc(Points::alignment, blocksBufferSize)), std::free};
+
+  Points points(points_buffer.get(), points_sizes);
+  PointsView points_view{points};
+  PointsConstView points_const_view{points};
+  points_view.position()[0].x() = 2.f;
+  points_view.position()[0].y() = 4.f;
+  points_view.position()[0].z() = 3.f;
+  points_view.position()[1].x() = 1.f;
+  points_view.position()[1].y() = 1.f;
+  points_view.position()[1].z() = 1.f;
+
+  SECTION("View methods") { REQUIRE(points_const_view.distance2(0, 1) == 14.f); }
+
+  SECTION("ConstView methods") {
+    points_view.velocity()[0].vx() = 1.f;
+    points_view.velocity()[0].vy() = 3.f;
+    points_view.velocity()[0].vz() = 5.f;
+    const auto time = .5f;
+    points_view.update_position(0, time);
+    REQUIRE(points_view.position()[0].x() == 2.5f);
+    REQUIRE(points_view.position()[0].y() == 5.5f);
+    REQUIRE(points_view.position()[0].z() == 5.5f);
   }
 }

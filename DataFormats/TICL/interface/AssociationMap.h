@@ -60,11 +60,11 @@ namespace ticl {
   // clang-format on
 
   template <std::integral TKey = uint32_t, concepts::trivially_copyable TMapped = uint32_t>
-  using AssociationMap = typename AssociationMapLayout<TMapped, TKey>::template Layout<>;
+  using AssociationMap = typename AssociationMapLayout<TKey, TMapped>::template Layout<>;
   template <std::integral TKey = uint32_t, concepts::trivially_copyable TMapped = uint32_t>
-  using AssociationMapView = typename AssociationMap<TMapped, TKey>::View;
+  using AssociationMapView = typename AssociationMap<TKey, TMapped>::View;
   template <std::integral TKey = uint32_t, concepts::trivially_copyable TMapped = uint32_t>
-  using AssociationMapConstView = typename AssociationMap<TMapped, TKey>::ConstView;
+  using AssociationMapConstView = typename AssociationMap<TKey, TMapped>::ConstView;
 
 }  // namespace ticl
 
