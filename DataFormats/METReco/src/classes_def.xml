@@ -103,8 +103,8 @@
   <class name="edm::Ref<std::vector<reco::PFClusterMET>,reco::PFClusterMET,edm::refhelper::FindUsingAdvance<std::vector<reco::PFClusterMET>,reco::PFClusterMET> >"/>
 
 
-  <class name="reco::HcalNoiseHPD" ClassVersion="10">
-   <version ClassVersion="10" checksum="2302635745"/>
+  <class name="reco::HcalNoiseHPD" ClassVersion="3">
+   <version ClassVersion="3" checksum="2695906177"/>
     <field name="refrechitset_" transient="true"/>
   </class>
   <class name="reco::HcalNoiseHPDCollection"/>
@@ -169,7 +169,7 @@
   <class name="edm::Wrapper<reco::io_v1::CSCHaloData>"/>
 
   <class name="reco::io_v1::GlobalHaloData" ClassVersion="3">
-   <version ClassVersion="3" checksum="3627454218"/>
+   <version ClassVersion="3" checksum="3564100210"/>
   </class>
   <class name="edm::Wrapper<reco::io_v1::GlobalHaloData>"/>
 
@@ -191,14 +191,14 @@
   <class name="std::vector<BoundaryInformation>"/>
   <class name="edm::Wrapper<std::vector<BoundaryInformation> >"/>
   
-  <class name="reco::HaloClusterCandidateECAL" ClassVersion="2">
-    <version ClassVersion="2" checksum="149544819"/>
+  <class name="reco::HaloClusterCandidateECAL" ClassVersion="3">
+    <version ClassVersion="3" checksum="149544819"/>
   </class>
   <class name="std::vector<reco::HaloClusterCandidateECAL>"/>
   <class name="edm::Wrapper<std::vector<reco::HaloClusterCandidateECAL> >"/>
     
-  <class name="reco::HaloClusterCandidateHCAL" ClassVersion="2">
-    <version ClassVersion="2" checksum="1519027004"/>
+  <class name="reco::HaloClusterCandidateHCAL" ClassVersion="3">
+    <version ClassVersion="3" checksum="4228642932"/>
   </class> 
   <class name="std::vector<reco::HaloClusterCandidateHCAL>"/>
   <class name="edm::Wrapper<std::vector<reco::HaloClusterCandidateHCAL> >"/>
