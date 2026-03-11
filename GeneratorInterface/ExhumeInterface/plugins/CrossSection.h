@@ -19,9 +19,9 @@
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Vector/ThreeVector.h"
 
-#include "GeneratorInterface/ExhumeInterface/interface/I.h"
-//#include "GeneratorInterface/ExhumeInterface/interface/PythiaRecord.h"
-#include "GeneratorInterface/ExhumeInterface/interface/Particle.h"
+#include "I.h"
+//#include "PythiaRecord.h"
+#include "Particle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
