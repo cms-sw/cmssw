@@ -117,9 +117,9 @@ class CLIHelper(object):
         check_opts_parser = argparse.ArgumentParser(add_help=False)
         check_opts_group = check_opts_parser.add_argument_group(
             description ="Options for Job submission")
-        check_opts_group.add_argument("--check-interval", default = 600,type=int,
+        check_opts_group.add_argument("--check-interval", default = 600, type=int,
             help="Time in seconds between check operations default: %(default)s")
-        check_opts_group.add_argument("--max-checks", default =1000, type=int,
+        check_opts_group.add_argument("--max-checks", default = 1000, type=int,
             help="Maximum number of checks before check is considered failed default: %(default)s")
         return check_opts_parser
 

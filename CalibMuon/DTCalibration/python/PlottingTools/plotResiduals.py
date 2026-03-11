@@ -17,7 +17,7 @@ def plot(fileName,sl,dir='DTResiduals', run='1',option="HISTOPE1",draw=True):
         mean_ymin = -0.02
         mean_ymax =  0.02
         sig_ymin = 0.
-        sig_ymax = 0.07
+        sig_ymax = 0.10
 
     slType = sl
     slStr = "SL%d" % slType

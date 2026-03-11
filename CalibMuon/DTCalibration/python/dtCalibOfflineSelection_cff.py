@@ -18,7 +18,7 @@ hltDTCalibration.HLTPaths = ['HLT_DTCalibration_v*']
 ALCARECODtCalibHIHLTFilter = copy.deepcopy(hltHighLevel)
 
 ALCARECODtCalibHIHLTFilter.HLTPaths = ['HLT_HIL2SingleMu*']
-
+#ALCARECODtCalibHIHLTFilter.HLTPaths = ['HLT_OxyL1SingleMu*']
 
 from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
 l1tech = hltLevel1GTSeed.clone()
