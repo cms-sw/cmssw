@@ -2613,7 +2613,7 @@ forwardDict = {
         2 : [
             'Geometry/ForwardCommonData/data/forward/2021/v1/forward.xml',
             'Geometry/ForwardCommonData/data/totemt2/2021/v1/totemt2.xml',
-            'Geometry/ForwardCommonData/data/forwardshield/2021/v1/forwardshield.xml',
+            'Geometry/ForwardCommonData/data/forwardshield/2021/v2/forwardshield.xml',
             'Geometry/ForwardCommonData/data/bhm.xml',
             'Geometry/ForwardCommonData/data/pltbcm/2021/v1/pltbcm.xml',
             'Geometry/ForwardCommonData/data/bcm1f/2021/v1/bcm1f.xml',
