@@ -29,8 +29,7 @@
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/StreamerInputFile.h"
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
-
-#include "zlib.h"
+#include "IOPool/Streamer/interface/uncompress.h"
 
 #include <iostream>
 #include <map>
@@ -40,7 +39,7 @@ using namespace edm::streamer;
 
 namespace {
   bool compares_bad(EventMsgView const* eview1, EventMsgView const* eview2);
-  bool uncompressBuffer(unsigned char* inputBuffer,
+  bool uncompressBuffer(unsigned char const* inputBuffer,
                         unsigned int inputSize,
                         std::vector<unsigned char>& outputBuffer,
                         unsigned int expectedFullSize);
@@ -77,6 +76,7 @@ namespace {
   }
   //==========================================================================
   void readfile(std::string filename, std::string outfile) {
+    uint32 num_metadata(0);
     uint32 num_events(0);
     uint32 num_badevents(0);
     uint32 num_baduncompress(0);
@@ -115,6 +115,12 @@ namespace {
 
       while (StreamerInputFile::Next::kEvent == stream_reader.next()) {
         eview = stream_reader.currentRecord();
+        // for now skip the metadata records
+        if (eview->isEventMetaData()) {
+          ++num_metadata;
+          continue;
+        }
+
         ++num_events;
         bool good_event(true);
         if (seenEventMap.find(eview->event()) == seenEventMap.end()) {
@@ -193,7 +199,8 @@ namespace {
 
       std::cout << std::endl
                 << "------------END--------------" << std::endl
-                << "read " << num_events << " events" << std::endl
+                << "read " << num_metadata << " metadata records" << std::endl
+                << "and " << num_events << " events" << std::endl
                 << "and " << num_badevents << " events with bad headers" << std::endl
                 << "and " << num_badchksum << " events with bad check sum" << std::endl
                 << "and " << num_baduncompress << " events with bad uncompress" << std::endl
@@ -264,36 +271,25 @@ namespace {
   //==========================================================================
   bool test_uncompress(EventMsgView const* eview, std::vector<unsigned char>& dest) {
     unsigned long origsize = eview->origDataSize();
-    bool success = false;
     if (origsize != 0 && origsize != 78) {
       // compressed
-      success = uncompressBuffer(
-          const_cast<unsigned char*>((unsigned char const*)eview->eventData()), eview->eventLength(), dest, origsize);
+      return uncompressBuffer(
+          static_cast<unsigned char const*>(eview->eventData()), eview->eventLength(), dest, origsize);
     } else {
       // uncompressed anyway
-      success = true;
+      return false;
     }
-    return success;
   }
 
   //==========================================================================
-  bool uncompressBuffer(unsigned char* inputBuffer,
+  bool uncompressBuffer(unsigned char const* inputBuffer,
                         unsigned int inputSize,
                         std::vector<unsigned char>& outputBuffer,
                         unsigned int expectedFullSize) {
-    unsigned long origSize = expectedFullSize;
-    unsigned long uncompressedSize = expectedFullSize * 1.1;
-    outputBuffer.resize(uncompressedSize);
-    int ret = uncompress(&outputBuffer[0], &uncompressedSize, inputBuffer, inputSize);
-    if (ret == Z_OK) {
-      // check the length against original uncompressed length
-      if (origSize != uncompressedSize) {
-        std::cout << "Problem with uncompress, original size = " << origSize
-                  << " uncompress size = " << uncompressedSize << std::endl;
-        return false;
-      }
-    } else {
-      std::cout << "Problem with uncompress, return value = " << ret << std::endl;
+    try {
+      edm::streamer::uncompress::uncompressBuffer(inputBuffer, inputSize, outputBuffer, expectedFullSize);
+    } catch (cms::Exception& e) {
+      std::cout << "Problem with uncompress: " << e.what() << std::endl;
       return false;
     }
     return true;
