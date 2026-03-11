@@ -31,6 +31,7 @@ public:
                            int latency,
                            uint32_t FG_threshold,
                            const std::vector<uint32_t>& FG_HF_thresholds,
+                           bool useTDCfromDB,
                            uint32_t ZS_threshold,
                            int numberOfSamples,
                            int numberOfPresamples,
@@ -148,6 +149,7 @@ private:
   int latency_;
   uint32_t FG_threshold_;
   std::vector<uint32_t> FG_HF_thresholds_;
+  bool useTDCfromDB_;
   uint32_t ZS_threshold_;
   int ZS_threshold_I_;
   int numberOfSamples_;
@@ -240,6 +242,9 @@ private:
   uint32_t override_adc_hf_value_;
   bool override_tdc_hf_ = false;
   unsigned long long override_tdc_hf_value_;
+
+  // Maximum valid TDC value for setting timing bits
+  static constexpr int tdcmax_ = 49;
 
   // HE constants
   static const int HBHE_OVERLAP_TOWER = 16;
