@@ -5,8 +5,8 @@
 #ifndef EVENT_HH
 #define EVENT_HH
 
-#include "GeneratorInterface/ExhumeInterface/interface/Weight.h"
-#include "GeneratorInterface/ExhumeInterface/interface/CrossSection.h"
+#include "Weight.h"
+#include "CrossSection.h"
 
 namespace CLHEP {
   class HepRandomEngine;

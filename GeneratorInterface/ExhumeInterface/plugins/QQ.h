@@ -5,7 +5,7 @@
 #ifndef QQ_HH
 #define QQ_HH
 
-#include "GeneratorInterface/ExhumeInterface/interface/TwoSpace.h"
+#include "TwoSpace.h"
 
 namespace Exhume {
   class QQ : public TwoSpace {

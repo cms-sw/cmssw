@@ -5,8 +5,8 @@
 #ifndef TWOSPACE_HH
 #define TWOSPACE_HH
 
-#include "GeneratorInterface/ExhumeInterface/interface/CrossSection.h"
-#include "GeneratorInterface/ExhumeInterface/interface/Weight.h"
+#include "CrossSection.h"
+#include "Weight.h"
 
 namespace Exhume {
 

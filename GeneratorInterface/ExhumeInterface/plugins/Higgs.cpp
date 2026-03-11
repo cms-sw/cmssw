@@ -2,8 +2,8 @@
 //-*-Higgs.cpp-*-
 //   Written by James Monk and Andrew Pilkington
 /////////////////////////////////////////////////////////////////////////////
-#include "GeneratorInterface/ExhumeInterface/interface/Higgs.h"
-#include "GeneratorInterface/ExhumeInterface/interface/hdecay.h"
+#include "Higgs.h"
+#include "hdecay.h"
 
 //#include "CLHEP/HepMC/include/PythiaWrapper6_2.h"
 

@@ -6,7 +6,7 @@
 #ifndef DUMMY_HH
 #define DUMMY_HH
 
-#include "GeneratorInterface/ExhumeInterface/interface/CrossSection.h"
+#include "CrossSection.h"
 
 namespace Exhume {
 

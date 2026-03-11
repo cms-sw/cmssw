@@ -2,7 +2,7 @@
 //-*-Weighting.cpp-*-
 //   Written by James Monk and Andrew Pilkington
 /////////////////////////////////////////////////////////////////////////////
-#include "GeneratorInterface/ExhumeInterface/interface/Weight.h"
+#include "Weight.h"
 
 /////////////////////////////////////////////////////////////////////////////
 void Exhume::Weight::WeightInit(const double &min, const double &max) {

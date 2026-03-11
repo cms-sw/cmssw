@@ -2,7 +2,7 @@
 //-*-Dummy.cpp-*-
 //   Written by James Monk and Andrew Pilkington
 /////////////////////////////////////////////////////////////////////////////
-#include "GeneratorInterface/ExhumeInterface/interface/Dummy.h"
+#include "Dummy.h"
 
 /////////////////////////////////////////////////////////////////////////////
 Exhume::Dummy::Dummy(const edm::ParameterSet& pset) : CrossSection(pset) {
