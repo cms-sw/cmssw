@@ -261,13 +261,13 @@
   <class name="std::pair<FTLClusterRef, std::vector<MtdSimLayerClusterRef> >" />
   <class name="std::vector<std::pair<FTLClusterRef, std::vector<MtdSimLayerClusterRef> > >" />
   <class name="MtdRecoClusterToSimLayerClusterAssociationMap" ClassVersion="3">
-    <version ClassVersion="3" checksum="3711078147"/>
+    <version ClassVersion="3" checksum="1411787573"/>
   </class>
   <class name="edm::Wrapper<MtdRecoClusterToSimLayerClusterAssociationMap>" />
   <class name="std::pair<MtdSimLayerClusterRef, std::vector<FTLClusterRef> >" />
   <class name="std::vector<std::pair<MtdSimLayerClusterRef, std::vector<FTLClusterRef> > >" />
   <class name="MtdSimLayerClusterToRecoClusterAssociationMap" ClassVersion="3">
-    <version ClassVersion="3" checksum="4259123457"/>
+    <version ClassVersion="3" checksum="3331727647"/>
   </class><class name="edm::Wrapper<MtdSimLayerClusterToRecoClusterAssociationMap>" />
   <class name="reco::MtdRecoClusterToSimLayerClusterAssociator" persistent="false"/>
   <class name="edm::Wrapper<reco::MtdRecoClusterToSimLayerClusterAssociator>" persistent="false"/>
