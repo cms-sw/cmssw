@@ -3,12 +3,12 @@
 // Package:    LHEPtFilter
 // Class:      LHEPtFilter
 //
-/* 
+/*
 
- Description: Filter to select events with pT in a given range.
+ Description: Filter to select events with pT in a given range; includes a switch for sum type (vector or scalar).
  (Based on LHEGenericFilter)
 
-     
+
 */
 //
 
@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
@@ -40,6 +41,7 @@ public:
   ~LHEPtFilter() override;
 
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   // ----------member data ---------------------------
@@ -49,6 +51,7 @@ private:
   std::set<int> pdgIds_;  // Set of PDG Ids to include
   double ptMin_;          // number of particles required to pass filter
   double ptMax_;          // number of particles required to pass filter
+  bool isScalar_;         // true for scalar sum or false for vector sum
 };
 
 using namespace edm;
@@ -57,7 +60,8 @@ using namespace std;
 LHEPtFilter::LHEPtFilter(const edm::ParameterSet& iConfig)
     : pdgIdVec_(iConfig.getParameter<std::vector<int>>("selectedPdgIds")),
       ptMin_(iConfig.getParameter<double>("ptMin")),
-      ptMax_(iConfig.getParameter<double>("ptMax")) {
+      ptMax_(iConfig.getParameter<double>("ptMax")),
+      isScalar_(iConfig.getParameter<bool>("isScalar")) {
   //here do whatever other initialization is needed
   src_ = consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("src"));
   pdgIds_ = std::set<int>(pdgIdVec_.begin(), pdgIdVec_.end());
@@ -87,18 +91,43 @@ bool LHEPtFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetu
     }
   }
   double vpt_ = -1;
-  if (!cands.empty()) {
-    ROOT::Math::PxPyPzEVector tot = cands.at(0);
-    for (unsigned icand = 1; icand < cands.size(); ++icand) {
-      tot += cands.at(icand);
+  if (isScalar_) {  // do the scalar sum
+    if (!cands.empty()) {
+      double tot = cands.at(0).pt();
+      for (unsigned icand = 1; icand < cands.size(); ++icand) {
+        tot += cands.at(icand).pt();
+      }
+      vpt_ = tot;
     }
-    vpt_ = tot.pt();
+    if ((ptMax_ < 0. || vpt_ <= ptMax_) && vpt_ > ptMin_) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {  // else do the vector sum
+    if (!cands.empty()) {
+      ROOT::Math::PxPyPzEVector tot = cands.at(0);
+      for (unsigned icand = 1; icand < cands.size(); ++icand) {
+        tot += cands.at(icand);
+      }
+      vpt_ = tot.pt();
+    }
+    if ((ptMax_ < 0. || vpt_ <= ptMax_) && vpt_ > ptMin_) {
+      return true;
+    } else {
+      return false;
+    }
   }
-  if ((ptMax_ < 0. || vpt_ <= ptMax_) && vpt_ > ptMin_) {
-    return true;
-  } else {
-    return false;
-  }
+}
+
+void LHEPtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::vector<int>>("selectedPdgIds", {});
+  desc.add<double>("ptMin", 0);
+  desc.add<double>("ptMax", -1);      // default is -1, meaning no max
+  desc.add<bool>("isScalar", false);  // default is false
+  desc.add<edm::InputTag>("src", edm::InputTag("externalLHEProducer"));
+  descriptions.addDefault(desc);
 }
 
 //define this as a plug-in
