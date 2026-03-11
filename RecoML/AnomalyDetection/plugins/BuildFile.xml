@@ -1,0 +1,16 @@
+<use name="DataFormats/EgammaReco"/>
+<use name="DataFormats/GsfTrackReco"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/MuonReco"/>
+<use name="DataFormats/RecoCandidate"/>
+<use name="DataFormats/VertexReco"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="PhysicsTools/PyTorch"/>
+<use name="pytorch"/>
+<use name="torch-interface"/>
+<library file="*.cc" name="RecoMLAnomalyDetectionPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
