@@ -112,104 +112,106 @@ void ScoutingPi0Analyzer::fillDescriptions(edm::ConfigurationDescriptions& descr
 void ScoutingPi0Analyzer::bookHistSet(DQMStore::IBooker& ibook, Pi0Histograms& h, const std::string& suffix) {
   // Input Kinematics
   h.h_input_pt = ibook.book1D(("h_input_pt_" + suffix).c_str(),
-                              ("Input Photon p_{T} (" + suffix + ")#gamma ;p_{T} [GeV];Entries").c_str(),
+                              ("Input Photon p_{T} (" + suffix + ");#gamma p_{T} [GeV];Photons").c_str(),
                               50,
                               0,
                               20);
   h.h_input_eta = ibook.book1D(("h_input_eta_" + suffix).c_str(),
-                               ("Input Photon #eta (" + suffix + ")#gamma ;#eta;Entries").c_str(),
+                               ("Input Photon #eta (" + suffix + ");#gamma #eta;Photons").c_str(),
                                60,
                                -3.0,
                                3.0);
   h.h_input_phi = ibook.book1D(("h_input_phi_" + suffix).c_str(),
-                               ("Input Photon #phi (" + suffix + ");#gamma #phi;Entries").c_str(),
+                               ("Input Photon #phi (" + suffix + ");#gamma #phi [rad];Photons").c_str(),
                                64,
                                -3.2,
                                3.2);
 
   // Selected Kinematics
   h.h_sel_pt = ibook.book1D(("h_sel_pt_" + suffix).c_str(),
-                            ("Selected Photon p_{T} (" + suffix + ");#gamma p_{T} [GeV];Entries").c_str(),
+                            ("Selected Photon p_{T} (" + suffix + ");#gamma p_{T} [GeV];Photons").c_str(),
                             50,
                             0,
                             20);
   h.h_sel_eta = ibook.book1D(("h_sel_eta_" + suffix).c_str(),
-                             ("Selected Photon #eta (" + suffix + ");#gamma #eta;Entries").c_str(),
+                             ("Selected Photon #eta (" + suffix + ");#gamma #eta;Photons").c_str(),
                              60,
                              -3.0,
                              3.0);
   h.h_sel_phi = ibook.book1D(("h_sel_phi_" + suffix).c_str(),
-                             ("Selected Photon #phi (" + suffix + ");#gamma #phi;Entries").c_str(),
+                             ("Selected Photon #phi (" + suffix + ");#gamma #phi [rad];Photons").c_str(),
                              64,
                              -3.2,
                              3.2);
 
   // Cut Variables: Isolation
   h.h_iso_maxPtRatio = ibook.book1D(("h_iso_maxPtRatio_" + suffix).c_str(),
-                                    ("Max Hadron p_{T} / Photon p_{T} in Cone (" + suffix + ");Ratio;Entries").c_str(),
+                                    ("Max Hadron p_{T} / Photon p_{T} in Cone (" + suffix + ");Ratio;Photons").c_str(),
                                     50,
                                     0,
                                     2.0);
   h.h_iso_minDr = ibook.book1D(("h_iso_minDr_" + suffix).c_str(),
-                               ("Min #Delta R #gamma to Hadron (" + suffix + ");#Delta R(#gamma,had);Entries").c_str(),
+                               ("Min #Delta R #gamma to Hadron (" + suffix + ");#Delta R(#gamma,had);Photons").c_str(),
                                50,
                                0,
                                0.5);
 
   // Cut Variables: Pairs
   h.h_pair_pt = ibook.book1D(("h_pair_pt_" + suffix).c_str(),
-                             ("Diphoton p_{T} (" + suffix + ");#gamma#gamma p_{T} [GeV];Entries").c_str(),
+                             ("Diphoton p_{T} (" + suffix + ");#gamma#gamma p_{T} [GeV];Photon Pairs").c_str(),
                              50,
                              0,
                              50);
-  h.h_pair_asym = ibook.book1D(
-      ("h_pair_asym_" + suffix).c_str(),
-      ("Diphoton Energy Asymmetry (" + suffix + ");|E_{#gamma 1}-E_{#gamma 2}|/(E_{#gamma 1}+E_{#gamma 2});Entries")
-          .c_str(),
-      50,
-      0,
-      1.0);
+  h.h_pair_asym = ibook.book1D(("h_pair_asym_" + suffix).c_str(),
+                               ("Diphoton Energy Asymmetry (" + suffix +
+                                ");|E_{#gamma 1}-E_{#gamma 2}|/(E_{#gamma 1}+E_{#gamma 2});Photon Pairs")
+                                   .c_str(),
+                               50,
+                               0,
+                               1.0);
   h.h_pair_dr = ibook.book1D(("h_pair_dr_" + suffix).c_str(),
-                             ("Diphoton #Delta R (" + suffix + ");#Delta R(#gamma,#gamma);Entries").c_str(),
+                             ("Diphoton #Delta R (" + suffix + ");#Delta R(#gamma,#gamma);Photon Pairs").c_str(),
                              50,
                              0,
                              1.0);
 
   // Selected final di-photons plots
-  h.h_selpair_mass = ibook.book1D(("h_mass_" + suffix).c_str(),
-                                  ("Diphoton Invariant Mass (" + suffix + ");M_{#gamma#gamma} [GeV];Entries").c_str(),
-                                  100,
-                                  0,
-                                  1.0);
+  h.h_selpair_mass =
+      ibook.book1D(("h_mass_" + suffix).c_str(),
+                   ("Diphoton Invariant Mass (" + suffix + ");M_{#gamma#gamma} [GeV];Photon Pairs").c_str(),
+                   100,
+                   0,
+                   1.0);
 
-  h.h_selpair_pt = ibook.book1D(("h_selpair_pt_" + suffix).c_str(),
-                                ("Selected Diphoton p_{T} (" + suffix + ");#gamma#gamma p_{T} [GeV];Entries").c_str(),
-                                50,
-                                0,
-                                50);
+  h.h_selpair_pt =
+      ibook.book1D(("h_selpair_pt_" + suffix).c_str(),
+                   ("Selected Diphoton p_{T} (" + suffix + ");#gamma#gamma p_{T} [GeV];Photon Pairs").c_str(),
+                   50,
+                   0,
+                   50);
 
   // Selected final photons kinematics
   h.h_selpair_leadPt =
       ibook.book1D(("h_selpair_leadPt_" + suffix).c_str(),
-                   ("Leading Photon p_{T} (" + suffix + ");leading #gamma p_{T} [GeV];Entries").c_str(),
+                   ("Leading Photon p_{T} (" + suffix + ");leading #gamma p_{T} [GeV];Photon Pairs").c_str(),
                    50,
                    0,
                    50);
   h.h_selpair_leadEta = ibook.book1D(("h_selpair_leadEta_" + suffix).c_str(),
-                                     ("Leading Photon #eta (" + suffix + ");leading #gamma #eta;Entries").c_str(),
+                                     ("Leading Photon #eta (" + suffix + ");leading #gamma #eta;Photons").c_str(),
                                      60,
                                      -3.0,
                                      3.0);
 
   h.h_selpair_subleadPt =
       ibook.book1D(("h_selpair_subleadPt_" + suffix).c_str(),
-                   ("Subleading Photon p_{T} (" + suffix + ");subleading #gamma p_{T} [GeV];Entries").c_str(),
+                   ("Subleading Photon p_{T} (" + suffix + ");subleading #gamma p_{T} [GeV];Photons").c_str(),
                    50,
                    0,
                    50);
   h.h_selpair_subleadEta =
       ibook.book1D(("h_selpair_subleadEta_" + suffix).c_str(),
-                   ("Subleading Photon #eta (" + suffix + ");subleading #gamma #eta;Entries").c_str(),
+                   ("Subleading Photon #eta (" + suffix + ");subleading #gamma #eta;Photons").c_str(),
                    60,
                    -3.0,
                    3.0);
