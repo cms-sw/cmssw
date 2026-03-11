@@ -126,84 +126,48 @@
 
 	<!-- GenRunInfoProduct -->
 
-	<class name="GenRunInfoProduct" ClassVersion="10">
-  <version ClassVersion="10" checksum="3638379298"/>
+	<class name="io_v1::GenRunInfoProduct" ClassVersion="3">
+  <version ClassVersion="3" checksum="775309126"/>
  </class>
-	<class name="GenRunInfoProduct::XSec" ClassVersion="10">
-  <version ClassVersion="10" checksum="658524022"/>
+	<class name="io_v1::GenRunInfoProduct::XSec" ClassVersion="3">
+  <version ClassVersion="3" checksum="2763417590"/>
  </class>
-	<class name="edm::Wrapper&lt;GenRunInfoProduct&gt;"/>
+	<class name="edm::Wrapper&lt;io_v1::GenRunInfoProduct&gt;"/>
 
 	<!-- GenFilterInfo -->
 
-	<class name="GenFilterInfo" ClassVersion="11">
-  <version ClassVersion="11" checksum="1506634242"/>
-  <version ClassVersion="10" checksum="2060912306"/>
+	<class name="io_v1::GenFilterInfo" ClassVersion="3">
+  <version ClassVersion="3" checksum="599722626"/>
  </class>
-	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsPassed_" version="[-10]" targetClass="GenFilterInfo" target="numPassPositiveEvents_">
-	  <![CDATA[numPassPositiveEvents_ = onfile.numEventsPassed_;]]>
-	</ioread> 
-	<ioread sourceClass = "GenFilterInfo" source = "" version="[-10]" targetClass="GenFilterInfo" target="numPassNegativeEvents_">
-	  <![CDATA[numPassNegativeEvents_ = 0;]]>
-	</ioread> 
-	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsTried_" version="[-10]" targetClass="GenFilterInfo" target="numTotalPositiveEvents_">
-	  <![CDATA[numTotalPositiveEvents_ = onfile.numEventsTried_;]]>
-	</ioread> 
-	<ioread sourceClass = "GenFilterInfo" source = "" version="[-10]" targetClass="GenFilterInfo" target="numTotalNegativeEvents_">
-	  <![CDATA[numTotalNegativeEvents_ = 0;]]>
-	</ioread> 
-	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsPassed_" version="[-10]" targetClass="GenFilterInfo" target="sumPassWeights_">
-	  <![CDATA[sumPassWeights_ = onfile.numEventsPassed_;]]>
-	</ioread> 
-	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsPassed_" version="[-10]" targetClass="GenFilterInfo" target="sumPassWeights2_">
-	  <![CDATA[sumPassWeights2_ = onfile.numEventsPassed_;]]>
-	</ioread> 
-	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsTried_" version="[-10]" targetClass="GenFilterInfo" target="sumTotalWeights_">
-	  <![CDATA[sumTotalWeights_ = onfile.numEventsTried_;]]>
-	</ioread> 
-	<ioread sourceClass = "GenFilterInfo" source = "unsigned int numEventsTried_" version="[-10]" targetClass="GenFilterInfo" target="sumTotalWeights2_">
-	  <![CDATA[sumTotalWeights2_ = onfile.numEventsTried_;]]>
-	</ioread> 
-	<class name="edm::Wrapper&lt;GenFilterInfo&gt;"/>
+	<class name="edm::Wrapper&lt;io_v1::GenFilterInfo&gt;"/>
 
 	<!-- GenLumiInfoProduct -->
 
-	<class name="GenLumiInfoProduct" ClassVersion="10">
-	  <version ClassVersion="10" checksum="2365797689"/> 
+	<class name="io_v1::GenLumiInfoProduct" ClassVersion="3">
+	  <version ClassVersion="3" checksum="3940387225"/>
 	</class>
-	<class name="GenLumiInfoHeader" ClassVersion="10">
-	  <version ClassVersion="10" checksum="1270500179"/> 
+	<class name="io_v1::GenLumiInfoHeader" ClassVersion="3">
+	  <version ClassVersion="3" checksum="1445104595"/>
 	</class>
-	<class name="GenLumiInfoProduct::FinalStat" ClassVersion="10">
-	  <version ClassVersion="10" checksum="1937303025"/>  
+	<class name="io_v1::GenLumiInfoProduct::FinalStat" ClassVersion="3">
+	  <version ClassVersion="3" checksum="2086020977"/>
 	</class>
-	<class name="GenLumiInfoProduct::XSec" ClassVersion="10">
-	  <version ClassVersion="10" checksum="1482608724"/> 
+	<class name="io_v1::GenLumiInfoProduct::XSec" ClassVersion="3">
+	  <version ClassVersion="3" checksum="3502322132"/>
 	</class>
-	<class name="std::vector&lt;GenLumiInfoProduct::ProcessInfo&gt;"/>
-	<class name="GenLumiInfoProduct::ProcessInfo" ClassVersion="10">
-	  <version ClassVersion="10" checksum="621228037"/>
+	<class name="std::vector&lt;io_v1::GenLumiInfoProduct::ProcessInfo&gt;"/>
+	<class name="io_v1::GenLumiInfoProduct::ProcessInfo" ClassVersion="3">
+	  <version ClassVersion="3" checksum="1666000409"/>
 	</class>
-	<class name="edm::Wrapper&lt;GenLumiInfoProduct&gt;"/>
-        <class name="edm::Wrapper&lt;GenLumiInfoHeader&gt;"/>
+	<class name="edm::Wrapper&lt;io_v1::GenLumiInfoProduct&gt;"/>
+        <class name="edm::Wrapper&lt;io_v1::GenLumiInfoHeader&gt;"/>
 
 	<!-- GenEventInfoProduct -->
 
- <class name="GenEventInfoProduct" ClassVersion="12">
-  <version ClassVersion="12" checksum="4234939286"/>
-  <version ClassVersion="11" checksum="4154339631"/>
-  <version ClassVersion="10" checksum="2479857328"/>
+ <class name="io_v1::GenEventInfoProduct" ClassVersion="3">
+  <version ClassVersion="3" checksum="1505447958"/>
  </class>
- <ioread sourceClass = "GenEventInfoProduct" version="[-11]" targetClass="GenEventInfoProduct" source = "pdfinfo_autoptr_rootio::deprecated_auto_ptr<gen::PdfInfo> pdf_;" target="pdf_">
-   <![CDATA[pdf_.reset(onfile.pdf_._M_ptr); onfile.pdf_._M_ptr = nullptr;]]>
- </ioread>
- <ioread sourceClass = "GenEventInfoProduct" version="[-10]" targetClass="GenEventInfoProduct" source = "" target="nMEPartons_">
-    <![CDATA[nMEPartons_ = -1;]]>
- </ioread> 
- <ioread sourceClass = "GenEventInfoProduct" version="[-10]" targetClass="GenEventInfoProduct" source = "" target="nMEPartonsFiltered_">
-    <![CDATA[nMEPartonsFiltered_ = -1;]]>
- </ioread> 
-	<class name="edm::Wrapper&lt;GenEventInfoProduct&gt;"/>
+	<class name="edm::Wrapper&lt;io_v1::GenEventInfoProduct&gt;"/>
 
 	<class name="GenEventInfoProduct3" ClassVersion="3">
 		<version ClassVersion="3" checksum="2242328487"/>
@@ -222,41 +186,26 @@
 	<class name="lhef::HEPEUP" ClassVersion="10">
   <version ClassVersion="10" checksum="2595629275"/>
  </class>
-	<class name="LHERunInfoProduct::Header" ClassVersion="10">
-  <version ClassVersion="10" checksum="1310911082"/>
+	<class name="io_v1::LHERunInfoProduct::Header" ClassVersion="3">
+  <version ClassVersion="3" checksum="3197754090"/>
  </class>
- <class name="LHEXMLStringProduct" ClassVersion="11">
-  <version ClassVersion="10" checksum="4158740350"/>
-  <version ClassVersion="11" checksum="3778311764"/>
- </class> 
- <class name="edm::Wrapper&lt;LHEXMLStringProduct&gt;"/>
-	<class name="std::vector&lt;LHERunInfoProduct::Header&gt;"/>
-	<class name="LHERunInfoProduct" ClassVersion="10">
-  <version ClassVersion="10" checksum="2098560362"/>
+ <class name="io_v1::LHEXMLStringProduct" ClassVersion="3">
+  <version ClassVersion="3" checksum="3553897172"/>
  </class>
-	<class name="LHEEventProduct" ClassVersion="15">
-  <version ClassVersion="10" checksum="1026978494"/>
-  <version ClassVersion="11" checksum="619154414"/>
-  <version ClassVersion="12" checksum="259352862"/>
-  <version ClassVersion="13" checksum="3927731647"/>
-  <version ClassVersion="14" checksum="905719452"/>
-  <version ClassVersion="15" checksum="898288635"/>
+ <class name="edm::Wrapper&lt;io_v1::LHEXMLStringProduct&gt;"/>
+	<class name="std::vector&lt;io_v1::LHERunInfoProduct::Header&gt;"/>
+	<class name="io_v1::LHERunInfoProduct" ClassVersion="3">
+  <version ClassVersion="3" checksum="563723700"/>
  </class>
- <ioread sourceClass = "LHEEventProduct" version="[-13]" targetClass="LHEEventProduct" source = "pdfinfo_autoptr_rootio::deprecated_auto_ptr<gen::PdfInfo> pdf_;" target="pdf_">
-   <![CDATA[pdf_.reset(onfile.pdf_._M_ptr); onfile.pdf_._M_ptr = nullptr;]]>
- </ioread> 
- <ioread sourceClass = "LHEEventProduct" version="[-12]" targetClass="LHEEventProduct" source = "" target="npLO_">
-    <![CDATA[npLO_ = -99;]]>
-  </ioread> 
- <ioread sourceClass = "LHEEventProduct" version="[-12]" targetClass="LHEEventProduct" source = "" target="npNLO_">
-    <![CDATA[npNLO_ = -99;]]>
-  </ioread>   
+	<class name="io_v1::LHEEventProduct" ClassVersion="3">
+  <version ClassVersion="3" checksum="1154874491"/>
+ </class>
  <class name="gen::WeightsInfo" ClassVersion="10">
   <version ClassVersion="10" checksum="2663143460"/>
  </class>
  <class name="std::vector<gen::WeightsInfo>"/>
-	<class name="edm::Wrapper&lt;LHERunInfoProduct&gt;"/>
-	<class name="edm::Wrapper&lt;LHEEventProduct&gt;"/>
+	<class name="edm::Wrapper&lt;io_v1::LHERunInfoProduct&gt;"/>
+	<class name="edm::Wrapper&lt;io_v1::LHEEventProduct&gt;"/>
 
  <!--needed for backward compatibility between HepMC 2.06.xx and 2.05.yy-->
  <ioread sourceClass = "HepMC::Polarization" version="[1-10]" targetClass="HepMC::Polarization" source = "" target="m_defined">
@@ -269,10 +218,10 @@
  </ioread>        
 
 <class name="ExternalGeneratorLumiInfo" ClassVersion="3">
-  <version ClassVersion="3" checksum="2760887354"/>
+  <version ClassVersion="3" checksum="3974375576"/>
 </class>
 <class name="ExternalGeneratorEventInfo" ClassVersion="3">
-  <version ClassVersion="3" checksum="613647201"/>
+  <version ClassVersion="3" checksum="185204867"/>
 </class>
 
 </lcgdict>
