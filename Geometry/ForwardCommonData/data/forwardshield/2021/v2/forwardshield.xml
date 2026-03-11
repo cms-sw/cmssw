@@ -1,0 +1,2115 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+  <!--+++++++++++++++++++++++++++++++++++++ INFO +++++++++++++++++++++++++++++++++++++++++++-->
+  <!-- NEW FORWARD SHIELD (NFS) added to the original file forwardshield.xml (Scenario 2026)-->
+  <!-- Author: Sergio Lo Meo (sergio.lo.meo@cern.ch)                                        -->
+  <!-- First Version (2021/v2): 10/03/2026                                                  -->
+  <!-- Details: All volumes belonging to the NFS have names starting with the prefix NFS    -->
+  <!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<ConstantsSection label="forwardshield.xml" eval="true">
+  <Constant name="ForwdRmax" value="3.00*m"/>
+  <Constant name="ForwdZv01" value="14.300*m"/>
+  <Constant name="ForwdZv02" value="21.700*m"/>
+  <Constant name="CalShldZ1" value="13.250*m"/>
+  <Constant name="CalShldZ2" value="13.350*m"/>
+  <Constant name="VcalEleZ1" value="13.750*m"/>
+  <Constant name="VcalEleZ2" value="14.150*m"/>
+  <Constant name="VcalEleR1" value="1.0200*m"/>
+  <Constant name="VcalEleR2" value="1.4500*m"/>
+  <Constant name="VcalEleBoxDx" value="85.0*mm"/>
+  <Constant name="VcalEleBoxDy" value="155.0*mm"/>
+  <Constant name="VcalEleBoxDz" value="140.0*mm"/>
+  <Constant name="VcalEleBoxR0" value="1075.0*mm"/>
+  <Constant name="VcalLGR" value="13.5*mm"/>
+  <Constant name="VcalPMTx" value="30.0*mm"/>
+  <Constant name="VcalPMTy" value="30.0*mm"/>
+  <Constant name="VcalPMTz" value="22.0*mm"/>
+  <Constant name="VcalPMTDist" value="130.0*mm"/>
+  <Constant name="VcalPMTSep" value="42.0*mm"/>
+  <Constant name="VcalCathx" value="9.0*mm"/>
+  <Constant name="VcalCathy" value="9.0*mm"/>
+  <Constant name="VcalCathz" value="0.6*mm"/>
+  <Constant name="halfAngHF" value="10*deg"/>
+  <Constant name="VcalEleR3" value="([VcalEleR2]*cos([halfAngHF]))"/>
+  <Constant name="dxLowEleBox" value="([VcalEleR1]*tan([halfAngHF]))"/>
+  <Constant name="dxTopEleBox" value="([VcalEleR2]*sin([halfAngHF]))"/>
+  <Constant name="dyEleBox" value="([VcalEleR3]-[VcalEleR1])/2"/>
+  <Constant name="dzEleBox" value="([VcalEleZ2]-[VcalEleZ1])/2"/>
+  <Constant name="yposEleBox" value="([VcalEleR3]+[VcalEleR1])/2"/>
+  <Constant name="zposEleBox" value="([VcalEleZ2]+[VcalEleZ1])/2"/>
+  <Constant name="VcalPlateT" value="10.0*mm"/>
+  <Constant name="VcalEleBoxX" value="([VcalEleBoxR0] + 
+                                       [VcalEleBoxDy]) * sin([halfAngHF]/2)"/>
+  <Constant name="VcalEleBoxY" value="([VcalEleBoxR0] + 
+                                       [VcalEleBoxDy]) * cos([halfAngHF]/2) - 
+                                       [yposEleBox]"/>
+  <Constant name="VcalEleBoxZ" value="([VcalPlateT]*2 + [VcalEleBoxDz] - 
+                                       [dzEleBox])"/>
+  <Constant name="FixRotRad" value="1.0000*m"/>
+  <Constant name="FixShldZ1" value="10.910*m"/>
+  <Constant name="FixShldZ2" value="11.110*m"/>
+  <Constant name="FixShldZ3" value="13.125*m"/>
+  <Constant name="FixShldZ4" value="13.550*m"/>
+  <Constant name="FixShldZ5" value="13.650*m"/>
+  <Constant name="FixShldZ6" value="13.688*m"/>
+  <Constant name="FixShldZ7" value="13.713*m"/>
+  <Constant name="FixShldZ8" value="13.726*m"/>
+  <Constant name="FixShldZ9" value="13.750*m"/>
+  <Constant name="FixShldZ10" value="18.050*m"/>
+  <Constant name="FixShldZ11" value="[cms:ForwdBeamZ11]"/>
+  <Constant name="FixShldZ12" value="[cms:ForwdBeamZ12]"/>
+  <Constant name="FixShldZ13" value="21.900*m"/>
+  <Constant name="FixShldZ14" value="22.500*m"/>
+  <Constant name="FixShldZ15" value="22.550*m"/>
+  <Constant name="dZFixShld5" value="([FixShldZ4]-[CalShldZ2])/2"/>
+  <Constant name="dZFixShld6" value="([FixShldZ5]-[FixShldZ4])/2"/>
+  <Constant name="dZFixShld7" value="([FixShldZ6]-[FixShldZ5])/2"/>
+  <Constant name="dZFixShld8" value="([FixShldZ7]-[FixShldZ6])/2"/>
+  <Constant name="dZFixShld9" value="([FixShldZ8]-[FixShldZ7])/2"/>
+  <Constant name="dZFixShld10" value="([FixShldZ9]-[FixShldZ8])/2"/>
+  <Constant name="FixShldR1" value="1.1130*m"/>
+  <Constant name="FixShldR2" value="[cms:ForwdVcalR1]"/>
+  <Constant name="FixShldR3" value="1.5200*m"/>
+  <Constant name="FixShldR4" value="1.6000*m"/>
+  <Constant name="FixShldR5" value="1.7000*m"/>
+  <Constant name="FixShldR6" value="1.7500*m"/>
+  <Constant name="FixShldR7" value="2.1000*m"/>
+  <Constant name="FixShldR8" value="2.1500*m"/>
+  <Constant name="FixShldR9" value="3.55*cm"/>
+  <Constant name="FixShldR10" value="25.00*cm"/>
+  <Constant name="FixShldR11" value="27.00*cm"/>
+  <Constant name="FixShldR12" value="60.00*cm"/>
+  <Constant name="FixShldR13" value="70.00*cm"/>
+  <Constant name="FixShldR14" value="75.70*cm"/>
+  <Constant name="FixShldR15" value="66.00*cm"/>
+  <Constant name="FixShldR16" value="92.00*cm"/>
+  <Constant name="FixShldR17" value="1.1600*m"/>
+  <Constant name="FixShldR18" value="1.4000*m"/>
+  <Constant name="FixShldR19" value="1.0000*m"/>
+  <Constant name="FixShldR20" value="2.7000*m"/>
+  <Constant name="RotShldZ1" value="13.000*m"/>
+  <Constant name="RotShldZ2" value="13.150*m"/>
+  <Constant name="RotShldZ3" value="13.350*m"/>
+  <Constant name="RotShldZ4" value="13.550*m"/>
+  <Constant name="RotShldZ5" value="14.6464*m"/>
+  <Constant name="RotShldZ6" value="14.6897*m"/>
+  <Constant name="RotShldZ7" value="14.7330*m"/>
+  <Constant name="RotShldZ8" value="15.600*m"/>
+  <Constant name="RotShldZ9" value="17.750*m"/>
+  <Constant name="RotShldZ10" value="17.860*m"/>
+  <Constant name="RotShldZ11" value="18.200*m"/>
+  <Constant name="RotShldZ12" value="18.840*m"/>
+  <Constant name="RotShldZ13" value="18.890*m"/>
+  <Constant name="RotShldZ14" value="19.839*m"/>
+  <Constant name="RotShldZ15" value="19.889*m"/>
+  <Constant name="RotShldR1" value="[cms:ForwdDetsR1]"/>
+  <Constant name="RotShldR2" value="40.00*cm"/>
+  <Constant name="RotShldR3" value="74.29*cm"/>
+  <Constant name="RotShldR4" value="70.00*cm"/>
+  <Constant name="RotShldR5" value="90.00*cm"/>
+  <Constant name="RotShldR6" value="97.50*cm"/>
+  <Constant name="RotShldR7" value="55.00*cm"/>
+  <Constant name="RotShldR8" value="1.1500*m"/>
+  <Constant name="RotShldR9" value="1.1250*m"/>
+  <Constant name="RotShldR10" value="1.2000*m"/>
+  <Constant name="RotShldR11" value="1.1750*m"/>
+  <Constant name="RotShldR12" value="72.25*cm"/>
+  <Constant name="RotShldR13" value="80.00*cm"/>
+  <Constant name="RotShldR14" value="91.22*cm"/>
+  <Constant name="RotShldR15" value="1.1156*m"/>
+  <Constant name="RotShldR16" value="1.2600*m"/>
+  <Constant name="RotShldR17" value="1.6000*m"/>
+  <Constant name="RotShldR18" value="1.6700*m"/>
+  <Constant name="RotShldR19" value="1.7350*m"/>
+  <Constant name="RotShldR20" value="1.6500*m"/>
+  <Constant name="RotShldR21" value="1.7200*m"/>
+  <Constant name="RotShldR22" value="1.7850*m"/>
+  <Constant name="RotShldR23" value="65.714*cm"/>
+  <Constant name="QuadZ1" value="22.500*m"/>
+  <Constant name="QuadR1" value="2.300*cm"/>
+  <Constant name="QuadR2" value="3.500*cm"/>
+  <Constant name="QuadR3" value="6.900*cm"/>
+  <Constant name="QuadR4" value="22.00*cm"/>
+  <Constant name="FibreR1" value="13.24*mm"/>
+  <Constant name="FibreR2" value="14.43*mm"/>
+  <Constant name="FibreR3" value="12.22*mm"/>
+  <Constant name="FibreR4" value="10.16*mm"/>
+  <Constant name="FibreR5" value="8.57*mm"/>
+  <Constant name="FibreR6" value="7.29*mm"/>
+  <Constant name="FibreR7" value="6.18*mm"/>
+  <Constant name="FibreR8" value="5.29*mm"/>
+  <Constant name="FibreR9" value="4.48*mm"/>
+  <Constant name="FibreR10" value="3.83*mm"/>
+  <Constant name="FibreR11" value="3.38*mm"/>
+  <Constant name="FibreR12" value="4.07*mm"/>
+  <Constant name="FibreR13" value="3.99*mm"/>
+  <Constant name="FibreDz" value="([CalShldZ2]-[CalShldZ1])"/>
+  <!-- NFS Constant Section -->
+  <Constant name="lxbaseNFS" value="998.0*mm"/> 
+  <Constant name="lybaseNFS" value="350.0*mm"/>
+  <Constant name="lzbaseNFS" value="2275.0*mm"/>
+  <Constant name="lztopblock1NFS" value="1163.0*mm"/>
+  <Constant name="lztopblock2NFS" value="838.0*mm"/>
+  <Constant name="lzmaxNFS" value="6000.0*mm"/>
+  <Constant name="bl1topblock1NFS" value="2100.0*mm"/>
+  <Constant name="tl1topblock1NFS" value="1300.0*mm"/>
+  <Constant name="bl1topblock2NFS" value="3000.0*mm"/>
+  <Constant name="tl1topblock2NFS" value="2000.0*mm"/>
+  <Constant name="h1topblock1NFS" value="293.5*mm"/>
+  <Constant name="h1topblock2NFS" value="349.0*mm"/>
+  <Constant name="lytopblock1NFS" value="85.0*mm"/>
+  <Constant name="lytopblock2NFS" value="100.0*mm"/>
+  <Constant name="lytopblock1bisNFS" value="26.5*mm"/>
+  <Constant name="offsetztopblock1NFS" value="1006.0*mm"/> 
+  <Constant name="zCentreBaseNFS" value="([ForwdZv01] - [lzbaseNFS] + [lzmaxNFS]  + 1320.0*mm)"/>
+  <Constant name="yCentreBaseNFS" value="(-[FixShldR8] - [lybaseNFS] + 365.0*mm - 96.0*mm)"/>
+  <Constant name="yCentreTopBlock1NFS" value="([FixShldR8] + [lztopblock1NFS] - [h1topblock1NFS] - 578.0*mm + 53.0*mm - 96.0*mm)"/> 
+  <Constant name="lzbox1level1nearNFS" value="468.0*mm"/> 
+  <Constant name="lybox1level1nearNFS" value="700.0*mm"/>
+  <Constant name="lxbox1level1nearNFS" value="500.0*mm"/>
+  <Constant name="offsetzlevel1NFS" value="680.0*mm"/>
+  <Constant name="lztrap1level1nearNFS" value="544.5*mm"/>
+  <Constant name="Xbox1level1nearNFS" value="(2.0*[lxbaseNFS] - 161.0*mm)"/> 
+  <Constant name="lybox1level2nearNFS" value="600.0*mm"/>
+  <Constant name="lzbox1level2nearNFS" value="636.0*mm"/>
+  <Constant name="lzbox2level2nearNFS" value="1350.5*mm"/>
+  <Constant name="lxbox3level1nearNFS" value="250.0*mm"/> 
+  <Constant name="lzbox3level1nearNFS" value="250.0*mm"/>
+  <Constant name="dsteel" value="6.0*mm"/>
+  <!-- End NFS Constant Section -->
+</ConstantsSection>
+
+<RotationSection label="forwardshield.xml">
+  <Rotation name="R005" thetaX="90*deg" phiX="5*deg" thetaY="90*deg" phiY="95*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R010" thetaX="90*deg" phiX="10*deg" thetaY="90*deg" phiY="100*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R350" thetaX="90*deg" phiX="-10*deg" thetaY="90*deg" phiY="80*deg" thetaZ="0*deg" phiZ="0*deg"/>
+  <Rotation name="R355" thetaX="90*deg" phiX="-5*deg" thetaY="90*deg" phiY="85*deg" thetaZ="0*deg" phiZ="0*deg"/>
+ <Rotation name="R-045" thetaX="90*deg"  phiX="315*deg" thetaY="90*deg"  phiY="45*deg" thetaZ="0*deg"   phiZ="0*deg"/> <!-- used for NFS --> 
+</RotationSection>
+
+<SolidSection label="forwardshield.xml">
+  <!--  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++NFS Solid Section++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+  <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++NFS BASE++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+  <!-- NFS Base Mother -->
+  <Box name="NFSbaseCenter" dx="[lxbaseNFS]" dy="[lybaseNFS]" dz="[lzbaseNFS]" />
+  <Box name="NFSbaseNear"  dx="[lxbaseNFS]" dy="[lybaseNFS]" dz="[lzbaseNFS]" />
+  <Box name="NFSbaseFar"  dx="[lxbaseNFS]" dy="[lybaseNFS]" dz="[lzbaseNFS]" />
+    <!-- NFS Base Daughter -->
+  <Box name="NFSbaseCenterD" dx="[lxbaseNFS] - [dsteel]" dy="[lybaseNFS] - [dsteel]" dz="[lzbaseNFS] - [dsteel]" />
+  <Box name="NFSbaseNearD"  dx="[lxbaseNFS] - [dsteel]" dy="[lybaseNFS] - [dsteel]" dz="[lzbaseNFS] - [dsteel]" />
+  <Box name="NFSbaseFarD"  dx="[lxbaseNFS] - [dsteel]" dy="[lybaseNFS] - [dsteel]" dz="[lzbaseNFS] - [dsteel]" />
+  <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++END NFS BASE++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+    <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++TOP BLOCKS++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+  <!-- NFS Top Block 1 Mother -->
+  <Trapezoid name="NFStopblock1" dz="[lztopblock1NFS]" alp1="0*deg" bl1="[bl1topblock1NFS]" tl1="[tl1topblock1NFS]" h1="[h1topblock1NFS]" alp2="0*deg" bl2="[bl1topblock1NFS]" tl2="[tl1topblock1NFS]" h2="[h1topblock1NFS]" phi="0*deg" theta="0*deg"/>
+  <Box name="NFSbasetopblock1"  dx="[bl1topblock1NFS]" dy="[lytopblock1NFS]" dz="[lztopblock1NFS]" />
+  <Box name="NFSbasebistopblock1"  dx="[tl1topblock1NFS]" dy="[lytopblock1bisNFS]" dz="[lztopblock1NFS]" />
+  <Box name="NFSbasetrisFtopblock1"  dx="237.5*mm" dy="137.5*mm" dz="[lztopblock1NFS]" />
+  <Box name="NFSbasetrisNtopblock1"  dx="237.5*mm" dy="137.5*mm" dz="[lztopblock1NFS]" />
+  <Trapezoid name="NFStopblock1bisF" dz="[lztopblock1NFS]" alp1="0*deg" bl1="195.0*mm" tl1="0.01*mm" h1="97.5*mm" alp2="0*deg" bl2="195.0*mm" tl2="0.01*mm" h2="97.5*mm" phi="0*deg" theta="0*deg"/>
+  <Trapezoid name="NFStopblock1bisN" dz="[lztopblock1NFS]" alp1="0*deg" bl1="195.0*mm" tl1="0.01*mm" h1="97.5*mm" alp2="0*deg" bl2="195.0*mm" tl2="0.01*mm" h2="97.5*mm" phi="0*deg" theta="0*deg"/>
+   <!-- NFS Top Block 1 Daughter -->
+  <Trapezoid name="NFStopblock1D" dz="[lztopblock1NFS] - [dsteel]" alp1="0*deg" bl1="[bl1topblock1NFS] - [dsteel]" tl1="[tl1topblock1NFS] - [dsteel]" h1="[h1topblock1NFS] - [dsteel]" alp2="0*deg" bl2="[bl1topblock1NFS] - [dsteel]" tl2="[tl1topblock1NFS] - [dsteel]" h2="[h1topblock1NFS] - [dsteel]" phi="0*deg" theta="0*deg"/>
+  <Box name="NFSbasetopblock1D"  dx="[bl1topblock1NFS] - [dsteel]" dy="[lytopblock1NFS] - [dsteel]" dz="[lztopblock1NFS] - [dsteel]" />
+  <Box name="NFSbasebistopblock1D"  dx="[tl1topblock1NFS] - [dsteel]" dy="[lytopblock1bisNFS] - [dsteel]" dz="[lztopblock1NFS] - [dsteel]" />
+  <Box name="NFSbasetrisFtopblock1D"  dx="237.5*mm - [dsteel]" dy="137.5*mm - [dsteel]" dz="[lztopblock1NFS] - [dsteel]" />
+  <Box name="NFSbasetrisNtopblock1D"  dx="237.5*mm - [dsteel]" dy="137.5*mm - [dsteel]" dz="[lztopblock1NFS] - [dsteel]" />
+  <!-- NFS Top Block 2 Mother -->
+  <Box name="NFSbasetopblock2"  dx="[bl1topblock2NFS]" dy="[lytopblock2NFS]" dz="[lztopblock2NFS]" />
+  <Trapezoid name="NFStopblock2" dz="[lztopblock2NFS]" alp1="0*deg" bl1="[bl1topblock2NFS]" tl1="[tl1topblock2NFS]" h1="[h1topblock2NFS]" alp2="0*deg" bl2="[bl1topblock2NFS]" tl2="[tl1topblock2NFS]" h2="[h1topblock2NFS]" phi="0*deg" theta="0*deg"/>
+<!-- NFS Top Block 2 Daughter -->
+  <Box name="NFSbasetopblock2D"  dx="[bl1topblock2NFS] - [dsteel]" dy="[lytopblock2NFS] - [dsteel]" dz="[lztopblock2NFS] - [dsteel]" />
+  <Trapezoid name="NFStopblock2D" dz="[lztopblock2NFS] - [dsteel]" alp1="0*deg" bl1="[bl1topblock2NFS] - [dsteel]" tl1="[tl1topblock2NFS] - [dsteel]" h1="[h1topblock2NFS] - [dsteel]" alp2="0*deg" bl2="[bl1topblock2NFS] - [dsteel]" tl2="[tl1topblock2NFS] - [dsteel]" h2="[h1topblock2NFS] - [dsteel]" phi="0*deg" theta="0*deg"/>  
+  <!-- NFS Top Block 3 Mother -->
+  <Box name="NFSbasetopblock3"  dx="[bl1topblock2NFS]" dy="[lytopblock2NFS]" dz="[lztopblock2NFS]"/>
+  <Trapezoid name="NFStopblock3" dz="[lztopblock2NFS]" alp1="0*deg" bl1="[bl1topblock2NFS]" tl1="[tl1topblock2NFS]" h1="[h1topblock2NFS]" alp2="0*deg" bl2="[bl1topblock2NFS]" tl2="[tl1topblock2NFS]" h2="[h1topblock2NFS]" phi="0*deg" theta="0*deg"/>
+  <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++END TOP BLOCKS++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++LEVEL 1++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+  <!-- NFS Level 1 Near  Mother -->
+  <Box name="NFSbox1level1near"  dx="[lxbox1level1nearNFS]" dy="[lybox1level1nearNFS]" dz="[lzbox1level1nearNFS]"/>
+  <Trapezoid name="NFStrap1level1near" dz="[lztrap1level1nearNFS]" alp1="0*deg" bl1="[lxbox1level1nearNFS]" tl1="[lxbox1level1nearNFS]" h1="[lybox1level1nearNFS]" alp2="0*deg" bl2="[lxbox1level1nearNFS]" tl2="[lxbox1level1nearNFS]" h2="[lybox1level1nearNFS]" phi="0*deg" theta="32.1*deg"/>
+  <Box name="NFSbox2level1near"  dx="[lxbox1level1nearNFS]" dy="[lybox1level1nearNFS]" dz="[lzbox2level2nearNFS]"/>
+  <Box name="NFSbox3level1near"  dx="[lxbox1level1nearNFS]" dy="[lybox1level1nearNFS]" dz="[lzbox3level1nearNFS]"/>
+ <!-- NFS Level 1 Near  Daughter -->
+  <Box name="NFSbox1level1nearD"  dx="[lxbox1level1nearNFS] - [dsteel]" dy="[lybox1level1nearNFS] - [dsteel]" dz="[lzbox1level1nearNFS] - [dsteel]"/>
+  <Trapezoid name="NFStrap1level1nearD" dz="[lztrap1level1nearNFS] - [dsteel]" alp1="0*deg" bl1="[lxbox1level1nearNFS] - [dsteel]" tl1="[lxbox1level1nearNFS] - [dsteel]" h1="[lybox1level1nearNFS] - [dsteel]" alp2="0*deg" bl2="[lxbox1level1nearNFS] - [dsteel]" tl2="[lxbox1level1nearNFS] - [dsteel]" h2="[lybox1level1nearNFS] - [dsteel]" phi="0*deg" theta="32.1*deg"/>
+  <Box name="NFSbox2level1nearD"  dx="[lxbox1level1nearNFS] - [dsteel]" dy="[lybox1level1nearNFS] - [dsteel]" dz="[lzbox2level2nearNFS] - [dsteel]"/>
+  <Box name="NFSbox3level1nearD"  dx="[lxbox1level1nearNFS] - [dsteel]" dy="[lybox1level1nearNFS] - [dsteel]" dz="[lzbox3level1nearNFS] - [dsteel]"/>  
+  <!-- NFS Level 1 Far  Mother -->
+  <Box name="NFSbox1level1far"  dx="[lxbox1level1nearNFS]" dy="[lybox1level1nearNFS]" dz="[lzbox1level1nearNFS]"/>
+  <Trapezoid name="NFStrap1level1far" dz="[lztrap1level1nearNFS]" alp1="0*deg" bl1="[lxbox1level1nearNFS]" tl1="[lxbox1level1nearNFS]" h1="[lybox1level1nearNFS]" alp2="0*deg" bl2="[lxbox1level1nearNFS]" tl2="[lxbox1level1nearNFS]" h2="[lybox1level1nearNFS]" phi="0*deg" theta="-32.1*deg"/>
+  <Box name="NFSbox2level1far"  dx="[lxbox1level1nearNFS]" dy="[lybox1level1nearNFS]" dz="[lzbox2level2nearNFS]"/>
+  <Box name="NFSbox3level1far"  dx="[lxbox1level1nearNFS]" dy="[lybox1level1nearNFS]" dz="[lzbox3level1nearNFS]"/>
+   <!-- NFS Level 1 Far Daughter -->
+  <Box name="NFSbox1level1farD"  dx="[lxbox1level1nearNFS] - [dsteel]" dy="[lybox1level1nearNFS] - [dsteel]" dz="[lzbox1level1nearNFS] - [dsteel]"/>
+  <Trapezoid name="NFStrap1level1farD" dz="[lztrap1level1nearNFS] - [dsteel]" alp1="0*deg" bl1="[lxbox1level1nearNFS] - [dsteel]" tl1="[lxbox1level1nearNFS] - [dsteel]" h1="[lybox1level1nearNFS] - [dsteel]" alp2="0*deg" bl2="[lxbox1level1nearNFS] - [dsteel]" tl2="[lxbox1level1nearNFS] - [dsteel]" h2="[lybox1level1nearNFS] - [dsteel]" phi="0*deg" theta="-32.1*deg"/>
+  <Box name="NFSbox2level1farD"  dx="[lxbox1level1nearNFS] - [dsteel]" dy="[lybox1level1nearNFS] - [dsteel]" dz="[lzbox2level2nearNFS] - [dsteel]"/>
+  <Box name="NFSbox3level1farD"  dx="[lxbox1level1nearNFS] - [dsteel]" dy="[lybox1level1nearNFS] - [dsteel]" dz="[lzbox3level1nearNFS] - [dsteel]"/>
+  <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++END LEVEL 1++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+     <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++LEVEL 2++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+  <!-- NFS Level 2 Near  Mother -->
+ <Box name="NFSbox1level2near"  dx="[lxbox1level1nearNFS]" dy="[lybox1level2nearNFS]" dz="[lzbox1level2nearNFS]"/>
+ <Trapezoid name="NFStrap1level2near" dz="[lztrap1level1nearNFS]" alp1="0*deg" bl1="[lxbox1level1nearNFS]" tl1="[lxbox1level1nearNFS]" h1="[lybox1level2nearNFS]" alp2="0*deg" bl2="[lxbox1level1nearNFS]" tl2="[lxbox1level1nearNFS]" h2="[lybox1level2nearNFS]" phi="0*deg" theta="32.1*deg"/>
+ <Box name="NFSbox2level2near"  dx="[lxbox1level1nearNFS]" dy="[lybox1level2nearNFS]" dz="[lzbox2level2nearNFS]"/>
+ <Box name="NFSbox3level2near"  dx="[lxbox1level1nearNFS]" dy="[lybox1level2nearNFS]" dz="[lzbox3level1nearNFS]"/>
+ <!-- NFS Level 2 Near Daughter -->
+ <Box name="NFSbox1level2nearD"  dx="[lxbox1level1nearNFS] - [dsteel]" dy="[lybox1level2nearNFS] - [dsteel]" dz="[lzbox1level2nearNFS] - [dsteel]"/>
+ <Trapezoid name="NFStrap1level2nearD" dz="[lztrap1level1nearNFS] - [dsteel]" alp1="0*deg" bl1="[lxbox1level1nearNFS] - [dsteel]" tl1="[lxbox1level1nearNFS] - [dsteel]" h1="[lybox1level2nearNFS] - [dsteel]" alp2="0*deg" bl2="[lxbox1level1nearNFS] - [dsteel]" tl2="[lxbox1level1nearNFS] - [dsteel]" h2="[lybox1level2nearNFS] - [dsteel]" phi="0*deg" theta="32.1*deg"/>
+ <Box name="NFSbox2level2nearD"  dx="[lxbox1level1nearNFS] - [dsteel]" dy="[lybox1level2nearNFS] - [dsteel]" dz="[lzbox2level2nearNFS] - [dsteel]"/>
+ <Box name="NFSbox3level2nearD"  dx="[lxbox1level1nearNFS] - [dsteel]" dy="[lybox1level2nearNFS] - [dsteel]" dz="[lzbox3level1nearNFS] - [dsteel]"/>
+ <!-- NFS Level 2 Far  Mother -->
+ <Box name="NFSbox1level2far"  dx="[lxbox1level1nearNFS]" dy="[lybox1level2nearNFS]" dz="[lzbox1level2nearNFS]"/>
+ <Trapezoid name="NFStrap1level2far" dz="[lztrap1level1nearNFS]" alp1="0*deg" bl1="[lxbox1level1nearNFS]" tl1="[lxbox1level1nearNFS]" h1="[lybox1level2nearNFS]" alp2="0*deg" bl2="[lxbox1level1nearNFS]" tl2="[lxbox1level1nearNFS]" h2="[lybox1level2nearNFS]" phi="0*deg" theta="-32.1*deg"/>
+ <Box name="NFSbox2level2far"  dx="[lxbox1level1nearNFS]" dy="[lybox1level2nearNFS]" dz="[lzbox2level2nearNFS]"/>
+ <Box name="NFSbox3level2far"  dx="[lxbox1level1nearNFS]" dy="[lybox1level2nearNFS]" dz="[lzbox3level1nearNFS]"/>
+ <!-- NFS Level 2 Far Daughter -->
+ <Box name="NFSbox1level2farD"  dx="[lxbox1level1nearNFS] - [dsteel]" dy="[lybox1level2nearNFS] - [dsteel]" dz="[lzbox1level2nearNFS] - [dsteel]"/>
+ <Trapezoid name="NFStrap1level2farD" dz="[lztrap1level1nearNFS] - [dsteel]" alp1="0*deg" bl1="[lxbox1level1nearNFS] - [dsteel]" tl1="[lxbox1level1nearNFS] - [dsteel]" h1="[lybox1level2nearNFS] - [dsteel]" alp2="0*deg" bl2="[lxbox1level1nearNFS] - [dsteel]" tl2="[lxbox1level1nearNFS] - [dsteel]" h2="[lybox1level2nearNFS] - [dsteel]" phi="0*deg" theta="-32.1*deg"/>
+ <Box name="NFSbox2level2farD"  dx="[lxbox1level1nearNFS] - [dsteel]" dy="[lybox1level2nearNFS] - [dsteel]" dz="[lzbox2level2nearNFS] - [dsteel]"/>
+ <Box name="NFSbox3level2farD"  dx="[lxbox1level1nearNFS] - [dsteel]" dy="[lybox1level2nearNFS] - [dsteel]" dz="[lzbox3level1nearNFS] - [dsteel]"/>
+ <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++END LEVEL 2++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+   <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++LEVEL 3++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+ <!-- NFS Level 3 Near  Mother -->
+ <Box name="NFSbox1level3near"  dx="[lxbox1level1nearNFS]" dy="[lybox1level2nearNFS]" dz="[lzbox1level2nearNFS]"/>
+ <Trapezoid name="NFStrap1level3near" dz="[lztrap1level1nearNFS]" alp1="0*deg" bl1="[lxbox1level1nearNFS]" tl1="[lxbox1level1nearNFS]" h1="[lybox1level2nearNFS]" alp2="0*deg" bl2="[lxbox1level1nearNFS]" tl2="[lxbox1level1nearNFS]" h2="[lybox1level2nearNFS]" phi="0*deg" theta="32.1*deg"/>
+ <Box name="NFSbox2level3near"  dx="[lxbox1level1nearNFS]" dy="[lybox1level2nearNFS]" dz="[lzbox2level2nearNFS]"/>
+ <Box name="NFSbox3level3near"  dx="[lxbox1level1nearNFS]" dy="[lybox1level2nearNFS]" dz="[lzbox3level1nearNFS]"/>
+  <!-- NFS Level 3 Far  Mother -->
+ <Box name="NFSbox1level3far"  dx="[lxbox1level1nearNFS]" dy="[lybox1level2nearNFS]" dz="[lzbox1level2nearNFS]"/>
+ <Trapezoid name="NFStrap1level3far" dz="[lztrap1level1nearNFS]" alp1="0*deg" bl1="[lxbox1level1nearNFS]" tl1="[lxbox1level1nearNFS]" h1="[lybox1level2nearNFS]" alp2="0*deg" bl2="[lxbox1level1nearNFS]" tl2="[lxbox1level1nearNFS]" h2="[lybox1level2nearNFS]" phi="0*deg" theta="-32.1*deg"/>
+ <Box name="NFSbox2level3far"  dx="[lxbox1level1nearNFS]" dy="[lybox1level2nearNFS]" dz="[lzbox2level2nearNFS]"/>
+ <Box name="NFSbox3level3far"  dx="[lxbox1level1nearNFS]" dy="[lybox1level2nearNFS]" dz="[lzbox3level1nearNFS]"/>
+  <!-- NFS Level 3 Near Daughter -->
+ <Box name="NFSbox1level3nearD"  dx="[lxbox1level1nearNFS] - [dsteel]" dy="[lybox1level2nearNFS] - [dsteel]" dz="[lzbox1level2nearNFS] - [dsteel]"/>
+ <Trapezoid name="NFStrap1level3nearD" dz="[lztrap1level1nearNFS] - [dsteel]" alp1="0*deg" bl1="[lxbox1level1nearNFS] - [dsteel]" tl1="[lxbox1level1nearNFS] - [dsteel]" h1="[lybox1level2nearNFS] - [dsteel]" alp2="0*deg" bl2="[lxbox1level1nearNFS] - [dsteel]" tl2="[lxbox1level1nearNFS] - [dsteel]" h2="[lybox1level2nearNFS] - [dsteel]" phi="0*deg" theta="32.1*deg"/>
+ <Box name="NFSbox2level3nearD"  dx="[lxbox1level1nearNFS] - [dsteel]" dy="[lybox1level2nearNFS] - [dsteel]" dz="[lzbox2level2nearNFS] - [dsteel]"/>
+ <Box name="NFSbox3level3nearD"  dx="[lxbox1level1nearNFS] - [dsteel]" dy="[lybox1level2nearNFS] - [dsteel]" dz="[lzbox3level1nearNFS] - [dsteel]"/>
+  <!-- NFS Level 3 Far Daughter -->
+ <Box name="NFSbox1level3farD"  dx="[lxbox1level1nearNFS] - [dsteel]" dy="[lybox1level2nearNFS] - [dsteel]" dz="[lzbox1level2nearNFS] - [dsteel]"/>
+ <Trapezoid name="NFStrap1level3farD" dz="[lztrap1level1nearNFS] - [dsteel]" alp1="0*deg" bl1="[lxbox1level1nearNFS] - [dsteel]" tl1="[lxbox1level1nearNFS] - [dsteel]" h1="[lybox1level2nearNFS] - [dsteel]" alp2="0*deg" bl2="[lxbox1level1nearNFS] - [dsteel]" tl2="[lxbox1level1nearNFS] - [dsteel]" h2="[lybox1level2nearNFS] - [dsteel]" phi="0*deg" theta="-32.1*deg"/>
+ <Box name="NFSbox2level3farD"  dx="[lxbox1level1nearNFS] - [dsteel]" dy="[lybox1level2nearNFS] - [dsteel]" dz="[lzbox2level2nearNFS] - [dsteel]"/>
+ <Box name="NFSbox3level3farD"  dx="[lxbox1level1nearNFS] - [dsteel]" dy="[lybox1level2nearNFS] - [dsteel]" dz="[lzbox3level1nearNFS] - [dsteel]"/>
+ <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++END LEVEL 3++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+ 
+ 
+  <Polycone name="OQUA" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[cms:ForwdVcalZ1]" rMin="[cms:ForwdVcalR1]" rMax="[cms:CMSR3]"/>
+    <ZSection z="[cms:ForwdVcalZ2]" rMin="[cms:ForwdVcalR1]" rMax="[cms:CMSR3]"/>
+    <ZSection z="[cms:ForwdVcalZ2]" rMin="[cms:ForwdBeamR1]" rMax="[cms:CMSR3]"/>
+    <ZSection z="[cms:ForwdBeamZ3]" rMin="[cms:ForwdBeamR1]" rMax="[cms:CMSR3]"/>
+    <ZSection z="[cms:ForwdBeamZ3]" rMin="[cms:ForwdDetsR1]" rMax="[cms:CMSR3]"/>
+    <ZSection z="[cms:ForwdDetsZ1]" rMin="[cms:ForwdDetsR1]" rMax="[cms:CMSR3]"/>
+    <ZSection z="[cms:ForwdDetsZ1]" rMin="[cms:ForwdBeamR3]" rMax="[cms:CMSR3] + 2000.0*mm"/>
+    <ZSection z="[cms:ForwdBeamZ9]" rMin="[cms:ForwdBeamR3]" rMax="[ForwdRmax] + 5050.0*mm"/>
+    <ZSection z="[cms:ForwdBeamZ9]" rMin="[cms:ForwdBeamR8]" rMax="[ForwdRmax] + 5050.0*mm"/>
+    <ZSection z="[cms:ForwdBeamZ10]" rMin="[cms:ForwdBeamR8]" rMax="[ForwdRmax] + 5050.0*mm"/>
+    <ZSection z="[cms:ForwdBeamZ10]" rMin="[cms:ForwdBeamR9]" rMax="[ForwdRmax] + 5050.0*mm"/>
+    <ZSection z="[cms:ForwdBeamZ11]" rMin="[cms:ForwdBeamR9]" rMax="[ForwdRmax] + 5050.0*mm"/>
+    <ZSection z="[cms:ForwdBeamZ11]" rMin="[cms:ForwdBeamR10]" rMax="[ForwdRmax] + 5050.0*mm"/>
+    <ZSection z="[cms:ForwdBeamZ12]" rMin="[cms:ForwdBeamR10]" rMax="[ForwdRmax] + 5050.0*mm"/>
+    <ZSection z="[cms:ForwdBeamZ12]" rMin="[cms:ForwdBeamR12]" rMax="[ForwdRmax] + 5050.0*mm"/>
+    <ZSection z="[cms:ForwdBeamZ14]" rMin="[cms:ForwdBeamR12]" rMax="[ForwdRmax] + 5050.0*mm"/>
+    <ZSection z="[cms:ForwdBeamZ14]" rMin="[cms:ForwdBeamR13]" rMax="[ForwdRmax] + 5050.0*mm"/>
+    <ZSection z="[cms:CMSZ2]" rMin="[cms:ForwdBeamR13]" rMax="[ForwdRmax] + 800.0*mm"/>
+    <ZSection z="[cms:CMSZ2]" rMin="[cms:ForwdBeamR13]" rMax="[cms:CMSR2]"/>
+    <ZSection z="[cms:HallZ]" rMin="[cms:ForwdBeamR13]" rMax="[cms:CMSR2]"/>
+  </Polycone>
+  <Cone name="VcalFibreBundleContainer" dz="([CalShldZ1]-[cms:ForwdVcalZ2])/2" rMin1="[cms:ForwdBeamR1]" rMax1="[VcalEleR2]" rMin2="[VcalEleR1]" rMax2="[VcalEleR2]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Cone name="VcalFibreBundleSector" dz="([CalShldZ1]-[cms:ForwdVcalZ2])/2" rMin1="[cms:ForwdBeamR1]" rMax1="[VcalEleR2]" rMin2="[VcalEleR1]" rMax2="[VcalEleR2]" startPhi="-10*deg" deltaPhi="20*deg"/>
+  <Cone name="VcalFibreBundleHalfSector" dz="([CalShldZ1]-[cms:ForwdVcalZ2])/2" rMin1="[cms:ForwdBeamR1]" rMax1="[VcalEleR2]" rMin2="[VcalEleR1]" rMax2="[VcalEleR2]" startPhi="-5*deg" deltaPhi="10*deg"/>
+  <Tubs name="VcalElectronics" rMin="[VcalEleR1]" rMax="[VcalEleR2]" dz="([VcalEleZ2]-[VcalEleZ1])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trapezoid name="VcalEleBox" dz="[dzEleBox]" alp1="0*deg" bl1="[dxLowEleBox]" tl1="[dxTopEleBox]" h1="[dyEleBox]" alp2="0*deg" bl2="[dxLowEleBox]" tl2="[dxTopEleBox]" h2="[dyEleBox]" phi="0*deg" theta="0*deg"/>
+  <Trapezoid name="VcalPlate" dz="[VcalPlateT]" alp1="0*deg" bl1="[dxLowEleBox]" tl1="[dxTopEleBox]" h1="[dyEleBox]" alp2="0*deg" bl2="[dxLowEleBox]" tl2="[dxTopEleBox]" h2="[dyEleBox]" phi="0*deg" theta="0*deg"/>
+  <Box name="VcalElecRBX" dx="[VcalEleBoxDx]" dy="[VcalEleBoxDy]" dz="[VcalEleBoxDz]"/>
+        <Box name="VcalElecPMT" dx="[VcalPMTx]/2" dy="[VcalPMTy]/2" dz="[VcalPMTz]/2"/>
+        <Box name="VcalElecCathode" dx="[VcalCathx]/2" dy="[VcalCathy]/2" dz="[VcalCathz]/2"/>
+  <Polycone name="FixedShield02" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[cms:ForwdVcalZ1]" rMin="[FixShldR2]" rMax="[FixShldR5]"/>
+    <ZSection z="[cms:ForwdVcalZ2]" rMin="[FixShldR2]" rMax="[FixShldR5]"/>
+    <ZSection z="[FixShldZ3]" rMin="[FixShldR3]" rMax="[FixShldR5]"/>
+    <ZSection z="[FixShldZ3]" rMin="[FixShldR3]" rMax="[FixShldR6]"/>
+    <ZSection z="[FixShldZ9]" rMin="[FixShldR3]" rMax="[FixShldR6]"/>
+    <ZSection z="[FixShldZ9]" rMin="[FixShldR4]" rMax="[FixShldR6]"/>
+    <ZSection z="[ForwdZv01]" rMin="[FixShldR4]" rMax="[FixShldR6]"/>
+  </Polycone>
+  <Polycone name="FixedShield03" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[cms:ForwdVcalZ1]" rMin="[FixShldR5]" rMax="[FixShldR7]"/>
+    <ZSection z="[FixShldZ3]" rMin="[FixShldR5]" rMax="[FixShldR7]"/>
+    <ZSection z="[FixShldZ3]" rMin="[FixShldR6]" rMax="[FixShldR7]"/>
+    <ZSection z="[ForwdZv01]" rMin="[FixShldR6]" rMax="[FixShldR7]"/>
+  </Polycone>
+  <Tubs name="FixedShield04" rMin="[FixShldR7]" rMax="[FixShldR8]" dz="([ForwdZv01]-[cms:ForwdVcalZ1])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FibreContainer" rMin="[FixRotRad]" rMax="[FixShldR3]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FixedShield05" rMin="[FixRotRad]" rMax="[FixShldR3]" dz="([FixShldZ4]-[CalShldZ2])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FixedShield06" rMin="[FixRotRad]" rMax="[FixShldR3]" dz="([FixShldZ5]-[FixShldZ4])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FixedShield07" rMin="[FixRotRad]" rMax="[FixShldR3]" dz="([FixShldZ6]-[FixShldZ5])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FixedShield08" rMin="[FixRotRad]" rMax="[FixShldR3]" dz="([FixShldZ7]-[FixShldZ6])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FixedShield09" rMin="[FixRotRad]" rMax="[FixShldR3]" dz="([FixShldZ8]-[FixShldZ7])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FixedShieldBK" rMin="[FixRotRad]" rMax="[FixShldR3]" dz="([FixShldZ9]-[FixShldZ8])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FixedShield10" rMin="[FixShldR9]" rMax="[FixShldR10]" dz="([FixShldZ12]-[FixShldZ11])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Polycone name="FixedShield11" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[FixShldZ10]" rMin="[FixShldR11]" rMax="[FixShldR15]"/>
+    <ZSection z="[FixShldZ12]" rMin="[FixShldR11]" rMax="[FixShldR16]"/>
+    <ZSection z="[FixShldZ12]" rMin="[FixShldR12]" rMax="[FixShldR16]"/>
+    <ZSection z="[FixShldZ13]" rMin="[FixShldR13]" rMax="[FixShldR17]"/>
+    <ZSection z="[FixShldZ13]" rMin="[FixShldR13]" rMax="[FixShldR18]"/>
+    <ZSection z="[FixShldZ14]" rMin="[FixShldR14]" rMax="[FixShldR18]"/>
+  </Polycone>
+  <Polycone name="FixedShield12" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[ForwdZv02]" rMin="[FixShldR18]" rMax="[FixShldR20]"/>
+    <ZSection z="[FixShldZ15]" rMin="[FixShldR18]" rMax="[FixShldR20]"/>
+    <ZSection z="[FixShldZ15]" rMin="[FixShldR19]" rMax="[FixShldR20]"/>
+    <ZSection z="[cms:CMSZ2]" rMin="[FixShldR19]" rMax="[FixShldR20]"/>
+  </Polycone>
+  <Trapezoid name="FibreBoxTrap" dz="[FibreDz]/2" alp1="0*deg" bl1="[dxLowEleBox]" tl1="[dxTopEleBox]" h1="[dyEleBox]" alp2="0*deg" bl2="[dxLowEleBox]" tl2="[dxTopEleBox]" h2="[dyEleBox]" phi="0*deg" theta="0*deg"/>
+  <Box name="FibreBox" dx="[VcalEleBoxDx]" dy="[VcalEleBoxDy]" dz="[FibreDz]/2"/>
+  <Tubs name="FibreBundle1" rMin="0*fm" rMax="[FibreR1]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FibreBundle2" rMin="0*fm" rMax="[FibreR2]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FibreBundle3" rMin="0*fm" rMax="[FibreR3]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FibreBundle4" rMin="0*fm" rMax="[FibreR4]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FibreBundle5" rMin="0*fm" rMax="[FibreR5]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FibreBundle6" rMin="0*fm" rMax="[FibreR6]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FibreBundle7" rMin="0*fm" rMax="[FibreR7]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FibreBundle8" rMin="0*fm" rMax="[FibreR8]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FibreBundle9" rMin="0*fm" rMax="[FibreR9]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FibreBundle10" rMin="0*fm" rMax="[FibreR10]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FibreBundle11" rMin="0*fm" rMax="[FibreR11]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FibreBundle12" rMin="0*fm" rMax="[FibreR12]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FibreBundle13" rMin="0*fm" rMax="[FibreR13]" dz="[FibreDz]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trapezoid name="FixedShieldTrap5" dz="[dZFixShld5]" alp1="0*deg" bl1="[dxLowEleBox]" tl1="[dxTopEleBox]" h1="[dyEleBox]" alp2="0*deg" bl2="[dxLowEleBox]" tl2="[dxTopEleBox]" h2="[dyEleBox]" phi="0*deg" theta="0*deg"/>
+  <Box name="FixedShieldBox5" dx="[VcalEleBoxDx]" dy="[VcalEleBoxDy]" dz="[dZFixShld5]"/>
+  <Tubs name="FixedShieldTube5" rMin="0*fm" rMax="[VcalLGR]" dz="[dZFixShld5]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trapezoid name="FixedShieldTrap6" dz="[dZFixShld6]" alp1="0*deg" bl1="[dxLowEleBox]" tl1="[dxTopEleBox]" h1="[dyEleBox]" alp2="0*deg" bl2="[dxLowEleBox]" tl2="[dxTopEleBox]" h2="[dyEleBox]" phi="0*deg" theta="0*deg"/>
+  <Box name="FixedShieldBox6" dx="[VcalEleBoxDx]" dy="[VcalEleBoxDy]" dz="[dZFixShld6]"/>
+  <Tubs name="FixedShieldTube6" rMin="0*fm" rMax="[VcalLGR]" dz="[dZFixShld6]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trapezoid name="FixedShieldTrap7" dz="[dZFixShld7]" alp1="0*deg" bl1="[dxLowEleBox]" tl1="[dxTopEleBox]" h1="[dyEleBox]" alp2="0*deg" bl2="[dxLowEleBox]" tl2="[dxTopEleBox]" h2="[dyEleBox]" phi="0*deg" theta="0*deg"/>
+  <Box name="FixedShieldBox7" dx="[VcalEleBoxDx]" dy="[VcalEleBoxDy]" dz="[dZFixShld7]"/>
+  <Tubs name="FixedShieldTube7" rMin="0*fm" rMax="[VcalLGR]" dz="[dZFixShld7]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trapezoid name="FixedShieldTrap8" dz="[dZFixShld8]" alp1="0*deg" bl1="[dxLowEleBox]" tl1="[dxTopEleBox]" h1="[dyEleBox]" alp2="0*deg" bl2="[dxLowEleBox]" tl2="[dxTopEleBox]" h2="[dyEleBox]" phi="0*deg" theta="0*deg"/>
+  <Box name="FixedShieldBox8" dx="[VcalEleBoxDx]" dy="[VcalEleBoxDy]" dz="[dZFixShld8]"/>
+  <Tubs name="FixedShieldTube8" rMin="0*fm" rMax="[VcalLGR]" dz="[dZFixShld8]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Trapezoid name="FixedShieldTrap9" dz="[dZFixShld9]" alp1="0*deg" bl1="[dxLowEleBox]" tl1="[dxTopEleBox]" h1="[dyEleBox]" alp2="0*deg" bl2="[dxLowEleBox]" tl2="[dxTopEleBox]" h2="[dyEleBox]" phi="0*deg" theta="0*deg"/>
+  <Box name="FixedShieldBox9" dx="[VcalEleBoxDx]" dy="[VcalEleBoxDy]" dz="[dZFixShld9]"/>
+  <Tubs name="FixedShieldTube9" rMin="0*fm" rMax="[VcalLGR]" dz="[dZFixShld9]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Polycone name="RotatedShield01" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[RotShldZ1]" rMin="[RotShldR1]" rMax="[RotShldR2]"/>
+    <ZSection z="[RotShldZ2]" rMin="[RotShldR1]" rMax="[RotShldR2]"/>
+    <ZSection z="[RotShldZ3]" rMin="[RotShldR1]" rMax="[RotShldR3]"/>
+    <ZSection z="[RotShldZ3]" rMin="[RotShldR1]" rMax="[FixRotRad]"/>
+    <ZSection z="[RotShldZ4]" rMin="[RotShldR1]" rMax="[FixRotRad]"/>
+    <ZSection z="[RotShldZ4]" rMin="[RotShldR1]" rMax="[RotShldR4]"/>
+    <ZSection z="[ForwdZv01]" rMin="[RotShldR1]" rMax="[RotShldR4]"/>
+  </Polycone>
+  <Polycone name="RotatedShield02" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[RotShldZ1]" rMin="[RotShldR2]" rMax="[RotShldR2]"/>
+    <ZSection z="[RotShldZ2]" rMin="[RotShldR2]" rMax="[RotShldR23]"/>
+    <ZSection z="[RotShldZ3]" rMin="[RotShldR3]" rMax="[FixRotRad]"/>
+  </Polycone>
+  <Tubs name="RotatedShield03" rMin="[RotShldR4]" rMax="[RotShldR5]" dz="([ForwdZv01]-[RotShldZ4])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="RotatedShield04" rMin="[RotShldR5]" rMax="[RotShldR6]" dz="([ForwdZv01]-[RotShldZ4])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="RotatedShield05" rMin="[RotShldR6]" rMax="[FixRotRad]" dz="([ForwdZv01]-[RotShldZ4])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="RotatedShield06" rMin="[RotShldR1]" rMax="[RotShldR7]" dz="([RotShldZ8]-[ForwdZv01])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Polycone name="RotatedShield07" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[ForwdZv01]" rMin="[RotShldR7]" rMax="[RotShldR5]"/>
+    <ZSection z="[RotShldZ7]" rMin="[RotShldR7]" rMax="[RotShldR8]"/>
+    <ZSection z="[RotShldZ8]" rMin="[RotShldR7]" rMax="[RotShldR8]"/>
+  </Polycone>
+  <Polycone name="RotatedShield08" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[ForwdZv01]" rMin="[RotShldR5]" rMax="[RotShldR6]"/>
+    <ZSection z="[RotShldZ6]" rMin="[RotShldR9]" rMax="[RotShldR10]"/>
+    <ZSection z="[RotShldZ7]" rMin="[RotShldR8]" rMax="[RotShldR10]"/>
+    <ZSection z="[RotShldZ8]" rMin="[RotShldR8]" rMax="[RotShldR10]"/>
+  </Polycone>
+  <Polycone name="RotatedShield09" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[ForwdZv01]" rMin="[RotShldR6]" rMax="[FixRotRad]"/>
+    <ZSection z="[RotShldZ5]" rMin="[RotShldR11]" rMax="[RotShldR10]"/>
+    <ZSection z="[RotShldZ6]" rMin="[RotShldR10]" rMax="[RotShldR10]"/>
+  </Polycone>
+  <Tubs name="RotatedShield10" rMin="[RotShldR1]" rMax="[RotShldR7]" dz="([RotShldZ10]-[RotShldZ8])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Polycone name="RotatedShield11" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[RotShldZ8]" rMin="[RotShldR7]" rMax="[RotShldR8]"/>
+    <ZSection z="[RotShldZ9]" rMin="[RotShldR7]" rMax="[RotShldR8]"/>
+    <ZSection z="[RotShldZ10]" rMin="[RotShldR7]" rMax="[RotShldR16]"/>
+    <ZSection z="[RotShldZ10]" rMin="[RotShldR12]" rMax="[RotShldR16]"/>
+    <ZSection z="[RotShldZ11]" rMin="[RotShldR12]" rMax="[RotShldR17]"/>
+    <ZSection z="[RotShldZ13]" rMin="[RotShldR13]" rMax="[RotShldR17]"/>
+    <ZSection z="[RotShldZ13]" rMin="[RotShldR13]" rMax="[RotShldR18]"/>
+    <ZSection z="[RotShldZ15]" rMin="[RotShldR14]" rMax="[RotShldR18]"/>
+    <ZSection z="[RotShldZ15]" rMin="[RotShldR14]" rMax="[RotShldR19]"/>
+    <ZSection z="[ForwdZv02]" rMin="[RotShldR15]" rMax="[RotShldR19]"/>
+  </Polycone>
+  <Polycone name="RotatedShield12" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[RotShldZ8]" rMin="[RotShldR8]" rMax="[RotShldR10]"/>
+    <ZSection z="[RotShldZ9]" rMin="[RotShldR8]" rMax="[RotShldR10]"/>
+    <ZSection z="[RotShldZ11]" rMin="[RotShldR17]" rMax="[RotShldR20]"/>
+    <ZSection z="[RotShldZ12]" rMin="[RotShldR17]" rMax="[RotShldR20]"/>
+    <ZSection z="[RotShldZ12]" rMin="[RotShldR17]" rMax="[RotShldR21]"/>
+    <ZSection z="[RotShldZ13]" rMin="[RotShldR17]" rMax="[RotShldR21]"/>
+    <ZSection z="[RotShldZ13]" rMin="[RotShldR18]" rMax="[RotShldR21]"/>
+    <ZSection z="[RotShldZ14]" rMin="[RotShldR18]" rMax="[RotShldR21]"/>
+    <ZSection z="[RotShldZ14]" rMin="[RotShldR18]" rMax="[RotShldR22]"/>
+    <ZSection z="[RotShldZ15]" rMin="[RotShldR18]" rMax="[RotShldR22]"/>
+    <ZSection z="[RotShldZ15]" rMin="[RotShldR19]" rMax="[RotShldR22]"/>
+    <ZSection z="[ForwdZv02]" rMin="[RotShldR19]" rMax="[RotShldR22]"/>
+  </Polycone>
+  <Tubs name="QuadInner" rMin="[QuadR1]" rMax="[QuadR2]" dz="([cms:HallZ]-[QuadZ1])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="QuadCoil" rMin="[QuadR2]" rMax="[QuadR3]" dz="([cms:HallZ]-[QuadZ1])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="QuadOuter" rMin="[QuadR3]" rMax="[QuadR4]" dz="([cms:HallZ]-[QuadZ1])/2" startPhi="0*deg" deltaPhi="360*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="forwardshield.xml">
+  
+    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++NFS BASE++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+    <!-- NFS Base Mother-->
+    <LogicalPart name="NFSbaseCenter" category="unspecified">
+      <rSolid name="NFSbaseCenter"/>
+      <rMaterial name="materials:YokeSteel"/>
+    </LogicalPart>
+    <LogicalPart name="NFSbaseNear" category="unspecified">
+      <rSolid name="NFSbaseNear"/>
+      <rMaterial name="materials:YokeSteel"/>
+    </LogicalPart>
+    <LogicalPart name="NFSbaseFar" category="unspecified">
+      <rSolid name="NFSbaseFar"/>
+      <rMaterial name="materials:YokeSteel"/>
+    </LogicalPart>
+    <!-- NFS Base Daughter-->
+  <LogicalPart name="NFSbaseCenterD" category="unspecified">
+    <rSolid name="NFSbaseCenterD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbaseNearD" category="unspecified">
+    <rSolid name="NFSbaseNearD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbaseFarD" category="unspecified">
+    <rSolid name="NFSbaseFarD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++END NFS BASE++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++TOP BLOCKS++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+  <!-- NFS Top Block 1 Mother-->
+  <LogicalPart name="NFStopblock1" category="unspecified">
+    <rSolid name="NFStopblock1"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbasetopblock1" category="unspecified">
+    <rSolid name="NFSbasetopblock1"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbasebistopblock1" category="unspecified">
+    <rSolid name="NFSbasebistopblock1"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbasetrisFtopblock1" category="unspecified">
+    <rSolid name="NFSbasetrisFtopblock1"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbasetrisNtopblock1" category="unspecified">
+    <rSolid name="NFSbasetrisNtopblock1"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFStopblock1bisF" category="unspecified">
+    <rSolid name="NFStopblock1bisF"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFStopblock1bisN" category="unspecified">
+    <rSolid name="NFStopblock1bisN"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <!-- NFS Top Block 1 Daughter-->
+  <LogicalPart name="NFStopblock1D" category="unspecified">
+    <rSolid name="NFStopblock1D"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbasetopblock1D" category="unspecified">
+    <rSolid name="NFSbasetopblock1D"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbasebistopblock1D" category="unspecified">
+    <rSolid name="NFSbasebistopblock1D"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbasetrisFtopblock1D" category="unspecified">
+    <rSolid name="NFSbasetrisFtopblock1D"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbasetrisNtopblock1D" category="unspecified">
+    <rSolid name="NFSbasetrisNtopblock1D"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <!-- NFS Top Block 2 Mother-->
+  <LogicalPart name="NFSbasetopblock2" category="unspecified">
+    <rSolid name="NFSbasetopblock2"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFStopblock2" category="unspecified">
+    <rSolid name="NFStopblock2"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+    <!-- NFS Top Block 2 Daughter-->
+  <LogicalPart name="NFSbasetopblock2D" category="unspecified">
+    <rSolid name="NFSbasetopblock2D"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFStopblock2D" category="unspecified">
+    <rSolid name="NFStopblock2D"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+      <!-- NFS Top Block 3 Mother-->
+  <LogicalPart name="NFSbasetopblock3" category="unspecified">
+    <rSolid name="NFSbasetopblock3"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFStopblock3" category="unspecified">
+    <rSolid name="NFStopblock3"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++END TOP BLOCKS++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++LEVEL 1++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+  <!-- NFS Level 1 Near Mother-->
+  <LogicalPart name="NFSbox1level1near" category="unspecified">
+    <rSolid name="NFSbox1level1near"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFStrap1level1near" category="unspecified">
+    <rSolid name="NFStrap1level1near"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+    <LogicalPart name="NFSbox2level1near" category="unspecified">
+    <rSolid name="NFSbox2level1near"/>
+    <rMaterial name="materials:YokeSteel"/>
+    </LogicalPart>
+    <LogicalPart name="NFSbox3level1near" category="unspecified">
+    <rSolid name="NFSbox3level1near"/>
+    <rMaterial name="materials:YokeSteel"/>
+    </LogicalPart>
+     <!-- NFS Level 1 Near Daughter-->
+  <LogicalPart name="NFSbox1level1nearD" category="unspecified">
+    <rSolid name="NFSbox1level1nearD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFStrap1level1nearD" category="unspecified">
+    <rSolid name="NFStrap1level1nearD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbox2level1nearD" category="unspecified">
+    <rSolid name="NFSbox2level1nearD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+    </LogicalPart>
+    <LogicalPart name="NFSbox3level1nearD" category="unspecified">
+    <rSolid name="NFSbox3level1nearD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+    </LogicalPart>
+    <!-- NFS Level 1 Far Mother-->
+  <LogicalPart name="NFSbox1level1far" category="unspecified">
+    <rSolid name="NFSbox1level1far"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFStrap1level1far" category="unspecified">
+    <rSolid name="NFStrap1level1far"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbox2level1far" category="unspecified">
+    <rSolid name="NFSbox2level1far"/>
+    <rMaterial name="materials:YokeSteel"/>
+    </LogicalPart>
+    <LogicalPart name="NFSbox3level1far" category="unspecified">
+      <rSolid name="NFSbox3level1far"/>
+    <rMaterial name="materials:YokeSteel"/>
+    </LogicalPart>
+    <!-- NFS Level 1 Far Daughter-->
+  <LogicalPart name="NFSbox1level1farD" category="unspecified">
+    <rSolid name="NFSbox1level1farD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFStrap1level1farD" category="unspecified">
+    <rSolid name="NFStrap1level1farD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbox2level1farD" category="unspecified">
+    <rSolid name="NFSbox2level1farD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+    </LogicalPart>
+    <LogicalPart name="NFSbox3level1farD" category="unspecified">
+      <rSolid name="NFSbox3level1farD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+    </LogicalPart>
+    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++END LEVEL 1++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+        <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++LEVEL 2++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+    <!-- NFS Level 2 Near Mother-->
+  <LogicalPart name="NFSbox1level2near" category="unspecified">
+    <rSolid name="NFSbox1level2near"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFStrap1level2near" category="unspecified">
+    <rSolid name="NFStrap1level2near"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbox2level2near" category="unspecified">
+    <rSolid name="NFSbox2level2near"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbox3level2near" category="unspecified">
+    <rSolid name="NFSbox3level2near"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <!-- NFS Level 2 Near Daughter-->
+  <LogicalPart name="NFSbox1level2nearD" category="unspecified">
+    <rSolid name="NFSbox1level2nearD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFStrap1level2nearD" category="unspecified">
+    <rSolid name="NFStrap1level2nearD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbox2level2nearD" category="unspecified">
+    <rSolid name="NFSbox2level2nearD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbox3level2nearD" category="unspecified">
+    <rSolid name="NFSbox3level2nearD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <!-- NFS Level 2 Far Mother-->
+  <LogicalPart name="NFSbox1level2far" category="unspecified">
+    <rSolid name="NFSbox1level2far"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFStrap1level2far" category="unspecified">
+    <rSolid name="NFStrap1level2far"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+    <LogicalPart name="NFSbox2level2far" category="unspecified">
+    <rSolid name="NFSbox2level2far"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbox3level2far" category="unspecified">
+    <rSolid name="NFSbox3level2far"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <!-- NFS Level 2 Far Daughter-->
+  <LogicalPart name="NFSbox1level2farD" category="unspecified">
+    <rSolid name="NFSbox1level2farD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFStrap1level2farD" category="unspecified">
+    <rSolid name="NFStrap1level2farD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+    <LogicalPart name="NFSbox2level2farD" category="unspecified">
+    <rSolid name="NFSbox2level2farD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbox3level2farD" category="unspecified">
+    <rSolid name="NFSbox3level2farD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++END LEVEL 2++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++LEVEL 3++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+  <!-- NFS Level 3 Near Mother-->
+  <LogicalPart name="NFSbox1level3near" category="unspecified">
+    <rSolid name="NFSbox1level3near"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFStrap1level3near" category="unspecified">
+    <rSolid name="NFStrap1level3near"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbox2level3near" category="unspecified">
+    <rSolid name="NFSbox2level3near"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbox3level3near" category="unspecified">
+    <rSolid name="NFSbox3level3near"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <!-- NFS Level 3 Far Mother-->
+  <LogicalPart name="NFSbox1level3far" category="unspecified">
+    <rSolid name="NFSbox1level3far"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFStrap1level3far" category="unspecified">
+    <rSolid name="NFStrap1level3far"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbox2level3far" category="unspecified">
+    <rSolid name="NFSbox2level3far"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbox3level3far" category="unspecified">
+    <rSolid name="NFSbox3level3far"/>
+    <rMaterial name="materials:YokeSteel"/>
+  </LogicalPart>
+    <!-- NFS Level 3 Near Daughter-->
+  <LogicalPart name="NFSbox1level3nearD" category="unspecified">
+    <rSolid name="NFSbox1level3nearD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFStrap1level3nearD" category="unspecified">
+    <rSolid name="NFStrap1level3nearD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbox2level3nearD" category="unspecified">
+    <rSolid name="NFSbox2level3nearD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbox3level3nearD" category="unspecified">
+    <rSolid name="NFSbox3level3nearD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <!-- NFS Level 3 Far Daughter-->
+  <LogicalPart name="NFSbox1level3farD" category="unspecified">
+    <rSolid name="NFSbox1level3farD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFStrap1level3farD" category="unspecified">
+    <rSolid name="NFStrap1level3farD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbox2level3farD" category="unspecified">
+    <rSolid name="NFSbox2level3farD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <LogicalPart name="NFSbox3level3farD" category="unspecified">
+    <rSolid name="NFSbox3level3farD"/>
+    <rMaterial name="materials:Stand.Concrete"/>
+  </LogicalPart>
+  <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++END LEVEL 3++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+      
+    <LogicalPart name="OQUA" category="unspecified">
+      <rSolid name="OQUA"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="VcalFibreBundleContainer" category="unspecified">
+      <rSolid name="VcalFibreBundleContainer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="VcalFibreBundleSector" category="unspecified">
+      <rSolid name="VcalFibreBundleSector"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="VcalFibreBundleHalfSectorL" category="unspecified">
+      <rSolid name="VcalFibreBundleHalfSector"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="VcalFibreBundleHalfSectorR" category="unspecified">
+      <rSolid name="VcalFibreBundleHalfSector"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="VcalElectronics" category="unspecified">
+      <rSolid name="VcalElectronics"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="VcalEleBox" category="unspecified">
+      <rSolid name="VcalEleBox"/>
+      <rMaterial name="materials:FrontEnd Electronics"/>
+    </LogicalPart>
+    <LogicalPart name="VcalPlate" category="unspecified">
+      <rSolid name="VcalPlate"/>
+      <rMaterial name="materials:Steel-008"/>
+    </LogicalPart>
+    <LogicalPart name="VcalElecRBX" category="unspecified">
+      <rSolid name="VcalElecRBX"/>
+      <rMaterial name="materials:FrontEnd Electronics"/>
+    </LogicalPart>
+    <LogicalPart name="VcalElecPMT" category="unspecified">
+      <rSolid name="VcalElecPMT"/>
+      <rMaterial name="materials:FrontEnd Electronics"/>
+    </LogicalPart>
+    <LogicalPart name="VcalElecCathode" category="unspecified">
+      <rSolid name="VcalElecCathode"/>
+      <rMaterial name="materials:PhotoCathode"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShield02" category="unspecified">
+      <rSolid name="FixedShield02"/>
+      <rMaterial name="materials:Steel-008"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShield03" category="unspecified">
+      <rSolid name="FixedShield03"/>
+      <rMaterial name="materials:MagnetiteConc"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShield04" category="unspecified">
+      <rSolid name="FixedShield04"/>
+      <rMaterial name="materials:Borated Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="FixedShield05" category="unspecified">
+      <rSolid name="FixedShield05"/>
+      <rMaterial name="materials:Steel-008"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShield06" category="unspecified">
+      <rSolid name="FixedShield06"/>
+      <rMaterial name="materials:Borated Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="FixedShield07" category="unspecified">
+      <rSolid name="FixedShield07"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShield08" category="unspecified">
+      <rSolid name="FixedShield08"/>
+      <rMaterial name="materials:Borated Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="FixedShield09" category="unspecified">
+      <rSolid name="FixedShield09"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShieldBK" category="unspecified">
+      <rSolid name="FixedShieldBK"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShield10" category="unspecified">
+      <rSolid name="FixedShield10"/>
+      <rMaterial name="materials:Copper"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShield11" category="unspecified">
+      <rSolid name="FixedShield11"/>
+      <rMaterial name="materials:Steel-008"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShield12" category="unspecified">
+      <rSolid name="FixedShield12"/>
+      <rMaterial name="materials:Stand.Concrete"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShieldTrap5" category="unspecified">
+      <rSolid name="FixedShieldTrap5"/>
+      <rMaterial name="materials:Steel-008"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShieldBox5" category="unspecified">
+      <rSolid name="FixedShieldBox5"/>
+      <rMaterial name="materials:Steel-008"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShieldTube5" category="unspecified">
+      <rSolid name="FixedShieldTube5"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShieldTrap6" category="unspecified">
+      <rSolid name="FixedShieldTrap6"/>
+      <rMaterial name="materials:Borated Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="FixedShieldBox6" category="unspecified">
+      <rSolid name="FixedShieldBox6"/>
+      <rMaterial name="materials:Borated Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="FixedShieldTube6" category="unspecified">
+      <rSolid name="FixedShieldTube6"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShieldTrap7" category="unspecified">
+      <rSolid name="FixedShieldTrap7"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShieldBox7" category="unspecified">
+      <rSolid name="FixedShieldBox7"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShieldTube7" category="unspecified">
+      <rSolid name="FixedShieldTube7"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShieldTrap8" category="unspecified">
+      <rSolid name="FixedShieldTrap8"/>
+      <rMaterial name="materials:Borated Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="FixedShieldBox8" category="unspecified">
+      <rSolid name="FixedShieldBox8"/>
+      <rMaterial name="materials:Borated Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="FixedShieldTube8" category="unspecified">
+      <rSolid name="FixedShieldTube8"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShieldTrap9" category="unspecified">
+      <rSolid name="FixedShieldTrap9"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShieldBox9" category="unspecified">
+      <rSolid name="FixedShieldBox9"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <LogicalPart name="FixedShieldTube9" category="unspecified">
+      <rSolid name="FixedShieldTube9"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="RotatedShield01" category="unspecified">
+      <rSolid name="RotatedShield01"/>
+      <rMaterial name="materials:Steel-008"/>
+    </LogicalPart>
+    <LogicalPart name="RotatedShield02" category="unspecified">
+      <rSolid name="RotatedShield02"/>
+      <rMaterial name="materials:Borated Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="RotatedShield03" category="unspecified">
+      <rSolid name="RotatedShield03"/>
+      <rMaterial name="materials:MagnetiteConc"/>
+    </LogicalPart>
+    <LogicalPart name="RotatedShield04" category="unspecified">
+      <rSolid name="RotatedShield04"/>
+      <rMaterial name="materials:Borated Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="RotatedShield05" category="unspecified">
+      <rSolid name="RotatedShield05"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <LogicalPart name="RotatedShield06" category="unspecified">
+      <rSolid name="RotatedShield06"/>
+      <rMaterial name="materials:Steel-008"/>
+    </LogicalPart>
+    <LogicalPart name="RotatedShield07" category="unspecified">
+      <rSolid name="RotatedShield07"/>
+      <rMaterial name="materials:Stand.Concrete"/>
+    </LogicalPart>
+    <LogicalPart name="RotatedShield08" category="unspecified">
+      <rSolid name="RotatedShield08"/>
+      <rMaterial name="materials:Borated Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="RotatedShield09" category="unspecified">
+      <rSolid name="RotatedShield09"/>
+      <rMaterial name="materials:Lead"/>
+    </LogicalPart>
+    <LogicalPart name="RotatedShield10" category="unspecified">
+      <rSolid name="RotatedShield10"/>
+      <rMaterial name="materials:Steel-008"/>
+    </LogicalPart>
+    <LogicalPart name="RotatedShield11" category="unspecified">
+      <rSolid name="RotatedShield11"/>
+      <rMaterial name="materials:Stand.Concrete"/>
+    </LogicalPart>
+    <LogicalPart name="RotatedShield12" category="unspecified">
+      <rSolid name="RotatedShield12"/>
+      <rMaterial name="materials:Borated Polyethyl."/>
+    </LogicalPart>
+    <LogicalPart name="QuadInner" category="unspecified">
+      <rSolid name="QuadInner"/>
+      <rMaterial name="materials:StainlessSteel"/>
+    </LogicalPart>
+    <LogicalPart name="QuadCoil" category="unspecified">
+      <rSolid name="QuadCoil"/>
+      <rMaterial name="materials:Super Conductor"/>
+    </LogicalPart>
+    <LogicalPart name="QuadOuter" category="unspecified">
+      <rSolid name="QuadOuter"/>
+      <rMaterial name="materials:YokeSteel"/>
+    </LogicalPart>
+    <LogicalPart name="FibreContainer" category="unspecified">
+      <rSolid name="FibreContainer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="FibreBoxTrap" category="unspecified">
+      <rSolid name="FibreBoxTrap"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="FibreBoxL" category="unspecified">
+      <rSolid name="FibreBox"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="FibreBoxR" category="unspecified">
+      <rSolid name="FibreBox"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="FibreBundle1" category="unspecified">
+      <rSolid name="FibreBundle1"/>
+      <rMaterial name="hcalforwardmaterial:QuartzF"/>
+    </LogicalPart>
+    <LogicalPart name="FibreBundle2" category="unspecified">
+      <rSolid name="FibreBundle2"/>
+      <rMaterial name="hcalforwardmaterial:QuartzF"/>
+    </LogicalPart>
+    <LogicalPart name="FibreBundle3" category="unspecified">
+      <rSolid name="FibreBundle3"/>
+      <rMaterial name="hcalforwardmaterial:QuartzF"/>
+    </LogicalPart>
+    <LogicalPart name="FibreBundle4" category="unspecified">
+      <rSolid name="FibreBundle4"/>
+      <rMaterial name="hcalforwardmaterial:QuartzF"/>
+    </LogicalPart>
+    <LogicalPart name="FibreBundle5" category="unspecified">
+      <rSolid name="FibreBundle5"/>
+      <rMaterial name="hcalforwardmaterial:QuartzF"/>
+    </LogicalPart>
+    <LogicalPart name="FibreBundle6" category="unspecified">
+      <rSolid name="FibreBundle6"/>
+      <rMaterial name="hcalforwardmaterial:QuartzF"/>
+    </LogicalPart>
+    <LogicalPart name="FibreBundle7" category="unspecified">
+      <rSolid name="FibreBundle7"/>
+      <rMaterial name="hcalforwardmaterial:QuartzF"/>
+    </LogicalPart>
+    <LogicalPart name="FibreBundle8" category="unspecified">
+      <rSolid name="FibreBundle8"/>
+      <rMaterial name="hcalforwardmaterial:QuartzF"/>
+    </LogicalPart>
+    <LogicalPart name="FibreBundle9" category="unspecified">
+      <rSolid name="FibreBundle9"/>
+      <rMaterial name="hcalforwardmaterial:QuartzF"/>
+    </LogicalPart>
+    <LogicalPart name="FibreBundle10" category="unspecified">
+      <rSolid name="FibreBundle10"/>
+      <rMaterial name="hcalforwardmaterial:QuartzF"/>
+    </LogicalPart>
+    <LogicalPart name="FibreBundle11" category="unspecified">
+      <rSolid name="FibreBundle11"/>
+      <rMaterial name="hcalforwardmaterial:QuartzF"/>
+    </LogicalPart>
+    <LogicalPart name="FibreBundle12" category="unspecified">
+      <rSolid name="FibreBundle12"/>
+      <rMaterial name="hcalforwardmaterial:QuartzF"/>
+    </LogicalPart>
+    <LogicalPart name="FibreBundle13" category="unspecified">
+      <rSolid name="FibreBundle13"/>
+      <rMaterial name="hcalforwardmaterial:QuartzF"/>
+    </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="forwardshield.xml">
+      <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++NFS BASE++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+  <!-- NFS Base Mother -->
+  <PosPart copyNumber="1">
+    <rParent name="forwardshield:OQUA"/>
+    <rChild name="forwardshield:NFSbaseCenter"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*fm" y="[yCentreBaseNFS]" z="[zCentreBaseNFS]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="forwardshield:OQUA"/>
+    <rChild name="forwardshield:NFSbaseNear"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="2.0*[lxbaseNFS]" y="[yCentreBaseNFS]" z="[zCentreBaseNFS]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="forwardshield:OQUA"/>
+    <rChild name="forwardshield:NFSbaseFar"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="-2.0*[lxbaseNFS]" y="[yCentreBaseNFS]" z="[zCentreBaseNFS]"/>
+  </PosPart>
+  <!-- NFS Base Daughter -->
+  <PosPart copyNumber="1">
+    <rParent name="forwardshield:NFSbaseCenter"/>
+    <rChild name="NFSbaseCenterD"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*fm" y="0*fm" z="0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="forwardshield:NFSbaseNear"/>
+    <rChild name="NFSbaseNearD"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*fm" y="0*fm" z="0*fm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="forwardshield:NFSbaseFar"/>
+    <rChild name="NFSbaseFarD"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*fm" y="0*fm" z="0*fm"/>
+  </PosPart>
+  <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++END NFS BASE++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++TOP BLOCKS++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+  <!-- NFS Top Block 1 Mother -->
+  <PosPart copyNumber="1">
+  <rParent name="forwardshield:OQUA"/>
+  <rChild  name="forwardshield:NFStopblock1"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*mm" y="[yCentreTopBlock1NFS]" z="[zCentreBaseNFS] - [lztopblock1NFS] - [offsetztopblock1NFS]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+  <rParent name="forwardshield:OQUA"/>
+  <rChild  name="forwardshield:NFSbasetopblock1"/>
+  <rRotation name="rotations:000D"/>
+  <Translation x="0*mm" y="([yCentreTopBlock1NFS] - [h1topblock1NFS] - [lytopblock1NFS])" z="[zCentreBaseNFS] - [lztopblock1NFS] - [offsetztopblock1NFS]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="forwardshield:OQUA"/>
+    <rChild  name="forwardshield:NFSbasebistopblock1"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*mm" y="([yCentreTopBlock1NFS] - [h1topblock1NFS] - 2.0*[lytopblock1NFS] - [lytopblock1bisNFS])" z="[zCentreBaseNFS] - [lztopblock1NFS] - [offsetztopblock1NFS]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="forwardshield:OQUA"/>
+    <rChild  name="forwardshield:NFSbasetrisNtopblock1"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="1300.0*mm - 237.5*mm" y="([yCentreTopBlock1NFS] - [h1topblock1NFS] - 2.0*[lytopblock1NFS] - 2.0*[lytopblock1bisNFS] - 137.5*mm)" z="[zCentreBaseNFS] - [lztopblock1NFS] - [offsetztopblock1NFS]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="forwardshield:OQUA"/>
+    <rChild  name="forwardshield:NFSbasetrisFtopblock1"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="-1300.0*mm + 237.5*mm" y="([yCentreTopBlock1NFS] - [h1topblock1NFS] - 2.0*[lytopblock1NFS] - 2.0*[lytopblock1bisNFS] - 137.5*mm)" z="[zCentreBaseNFS] - [lztopblock1NFS] - [offsetztopblock1NFS]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="forwardshield:OQUA"/>
+    <rChild  name="forwardshield:NFStopblock1bisN"/>
+    <rRotation name="R-045"/>   
+    <Translation x="1300.0*mm - 475.0*mm - 69.0*mm" y="([yCentreTopBlock1NFS] - [h1topblock1NFS] - 2.0*[lytopblock1NFS] - 2.0*[lytopblock1bisNFS] - 69.0*mm)" z="[zCentreBaseNFS] - [lztopblock1NFS] - [offsetztopblock1NFS]"/>
+  </PosPart>
+    <PosPart copyNumber="1">
+    <rParent name="forwardshield:OQUA"/>
+    <rChild  name="forwardshield:NFStopblock1bisF"/>
+    <rRotation name="rotations:R045"/>
+    <Translation x="-1300.0*mm + 475.0*mm + 69.0*mm" y="([yCentreTopBlock1NFS] - [h1topblock1NFS] - 2.0*[lytopblock1NFS] - 2.0*[lytopblock1bisNFS] - 69.0*mm)" z="[zCentreBaseNFS] - [lztopblock1NFS] - [offsetztopblock1NFS]"/>
+    </PosPart>
+    <!-- NFS Top Block 1 Daughter -->
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFStopblock1"/>
+      <rChild  name="NFStopblock1D"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="-2.0*mm" z="0*mm"/>
+    </PosPart>
+     <PosPart copyNumber="1">
+       <rParent name="forwardshield:NFSbasetopblock1"/>
+       <rChild  name="NFSbasetopblock1D"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*mm" y="0*mm" z="0*mm"/>
+     </PosPart>
+     <PosPart copyNumber="1">
+       <rParent name="forwardshield:NFSbasebistopblock1"/>
+       <rChild  name="NFSbasebistopblock1D"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*mm" y="0*mm" z="0*mm"/>
+     </PosPart>
+     <PosPart copyNumber="1">
+       <rParent name="forwardshield:NFSbasetrisNtopblock1"/>
+       <rChild  name="NFSbasetrisNtopblock1D"/>
+       <rRotation name="rotations:000D"/>
+       <Translation x="0*mm" y="0*mm" z="0*mm"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="forwardshield:NFSbasetrisFtopblock1"/>
+    <rChild  name="NFSbasetrisFtopblock1D"/>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*mm" y="0*mm" z="0*mm"/>
+  </PosPart>
+  <!-- NFS Top Block 2 Mother -->
+  <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbasetopblock2"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="([yCentreTopBlock1NFS] - [h1topblock1NFS] - [lytopblock1NFS])" z="[zCentreBaseNFS] - [lztopblock1NFS] - [offsetztopblock1NFS] + [lztopblock1NFS] + [lztopblock2NFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFStopblock2"/>
+      <rRotation name="rotations:000D"/>
+       <Translation x="0*mm" y="[yCentreTopBlock1NFS] + 70.5*mm" z="[zCentreBaseNFS] - [lztopblock1NFS] - [offsetztopblock1NFS]  + [lztopblock1NFS] + [lztopblock2NFS]"/>
+    </PosPart>
+    <!-- NFS Top Block 2 Daughter -->
+  <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbasetopblock2"/>
+      <rChild  name="NFSbasetopblock2D"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/> 
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFStopblock2"/>
+      <rChild  name="NFStopblock2D"/>
+      <rRotation name="rotations:000D"/>
+       <Translation x="0*mm" y="-2.0*mm" z="0*mm"/>
+    </PosPart>
+    <!-- NFS Top Block 3 Mother -->
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbasetopblock3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="([yCentreTopBlock1NFS] - [h1topblock1NFS] - [lytopblock1NFS])" z="[zCentreBaseNFS] - [lztopblock1NFS] - [offsetztopblock1NFS] + [lztopblock1NFS] + 3.0*[lztopblock2NFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFStopblock3"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="[yCentreTopBlock1NFS] + 70.5*mm" z="[zCentreBaseNFS] - [lztopblock1NFS] - [offsetztopblock1NFS]  + [lztopblock1NFS] + 3.0*[lztopblock2NFS]"/>
+    </PosPart> 
+    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++END TOP BLOCKS++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+  <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++LEVEL 1++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+     <!-- NFS Level 1 Near Mother-->
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbox1level1near"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Xbox1level1nearNFS]" y="[yCentreBaseNFS] + [lybaseNFS] + [lybox1level1nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + [lzbox1level1nearNFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFStrap1level1near"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Xbox1level1nearNFS] + 340.0*mm" y="[yCentreBaseNFS] + [lybaseNFS] + [lybox1level1nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] + [lztrap1level1nearNFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbox2level1near"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Xbox1level1nearNFS] + 680.0*mm" y="[yCentreBaseNFS] + [lybaseNFS] + [lybox1level1nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] + 2.0*[lztrap1level1nearNFS] + [lzbox2level2nearNFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbox3level1near"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Xbox1level1nearNFS] + 680.0*mm" y="[yCentreBaseNFS] + [lybaseNFS] + [lybox1level1nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] + 2.0*[lztrap1level1nearNFS] + 2.0*[lzbox2level2nearNFS] + [lzbox3level1nearNFS]"/>
+    </PosPart>
+    <!-- NFS Level 1 Near Daughter-->
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbox1level1near"/>
+      <rChild  name="NFSbox1level1nearD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFStrap1level1near"/>
+      <rChild  name="NFStrap1level1nearD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbox2level1near"/>
+      <rChild  name="NFSbox2level1nearD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbox3level1near"/>
+      <rChild  name="NFSbox3level1nearD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <!-- NFS Level 1 Far Mother-->
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbox1level1far"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Xbox1level1nearNFS]" y="[yCentreBaseNFS] + [lybaseNFS] + [lybox1level1nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + [lzbox1level1nearNFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFStrap1level1far"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-([Xbox1level1nearNFS] + 340.0*mm)" y="[yCentreBaseNFS] + [lybaseNFS] + [lybox1level1nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] + [lztrap1level1nearNFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbox2level1far"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-([Xbox1level1nearNFS] + 680.0*mm)" y="[yCentreBaseNFS] + [lybaseNFS] + [lybox1level1nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] + 2.0*[lztrap1level1nearNFS] + [lzbox2level2nearNFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbox3level1far"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-([Xbox1level1nearNFS] + 680.0*mm)" y="[yCentreBaseNFS] + [lybaseNFS] + [lybox1level1nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] + 2.0*[lztrap1level1nearNFS] + 2.0*[lzbox2level2nearNFS] + [lzbox3level1nearNFS]"/>
+    </PosPart>
+    <!-- NFS Level 1 Far Daughter-->
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbox1level1far"/>
+      <rChild  name="NFSbox1level1farD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFStrap1level1far"/>
+      <rChild  name="NFStrap1level1farD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbox2level1far"/>
+      <rChild  name="NFSbox2level1farD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbox3level1far"/>
+      <rChild  name="NFSbox3level1farD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++END LEVEL 1++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+         <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++LEVEL 2++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+    <!-- NFS Level 2 Near Mother-->
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbox1level2near"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Xbox1level1nearNFS]" y="[yCentreBaseNFS] + [lybaseNFS] + 2.0*[lybox1level1nearNFS] + [lybox1level2nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS]  - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] - [lzbox1level2nearNFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFStrap1level2near"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Xbox1level1nearNFS] + 340.0*mm" y="[yCentreBaseNFS] + [lybaseNFS] + 2.0*[lybox1level1nearNFS] + [lybox1level2nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] + [lztrap1level1nearNFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbox2level2near"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Xbox1level1nearNFS] + 680.0*mm" y="[yCentreBaseNFS] + [lybaseNFS] + 2.0*[lybox1level1nearNFS] + [lybox1level2nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] + 2.0*[lztrap1level1nearNFS] + [lzbox2level2nearNFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbox3level2near"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Xbox1level1nearNFS] + 680.0*mm" y="[yCentreBaseNFS] + [lybaseNFS] + 2.0*[lybox1level1nearNFS] + [lybox1level2nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] + 2.0*[lztrap1level1nearNFS] + 2.0*[lzbox2level2nearNFS] + [lzbox3level1nearNFS]"/>
+    </PosPart>
+    <!-- NFS Level 2 Near Daughter-->
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbox1level2near"/>
+      <rChild  name="NFSbox1level2nearD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFStrap1level2near"/>
+      <rChild  name="NFStrap1level2nearD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbox2level2near"/>
+      <rChild  name="NFSbox2level2nearD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbox3level2near"/>
+      <rChild  name="NFSbox3level2nearD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <!-- NFS Level 2 Far Mother-->
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbox1level2far"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Xbox1level1nearNFS]" y="[yCentreBaseNFS] + [lybaseNFS] + 2.0*[lybox1level1nearNFS] + [lybox1level2nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS]  - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] - [lzbox1level2nearNFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFStrap1level2far"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-([Xbox1level1nearNFS] + 340.0*mm)" y="[yCentreBaseNFS] + [lybaseNFS] + 2.0*[lybox1level1nearNFS] + [lybox1level2nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] + [lztrap1level1nearNFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbox2level2far"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-([Xbox1level1nearNFS] + 680.0*mm)" y="[yCentreBaseNFS] + [lybaseNFS] + 2.0*[lybox1level1nearNFS] + [lybox1level2nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] + 2.0*[lztrap1level1nearNFS] + [lzbox2level2nearNFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbox3level2far"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-([Xbox1level1nearNFS] + 680.0*mm)" y="[yCentreBaseNFS] + [lybaseNFS] + 2.0*[lybox1level1nearNFS] + [lybox1level2nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] + 2.0*[lztrap1level1nearNFS] + 2.0*[lzbox2level2nearNFS] + [lzbox3level1nearNFS]"/>
+    </PosPart>
+    <!-- NFS Level 2 Far Daughter-->
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbox1level2far"/>
+      <rChild  name="NFSbox1level2farD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFStrap1level2far"/>
+      <rChild  name="NFStrap1level2farD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbox2level2far"/>
+      <rChild  name="NFSbox2level2farD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbox3level2far"/>
+      <rChild  name="NFSbox3level2farD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++END LEVEL 2++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+        <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++LEVEL 3++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+    <!-- NFS Level 3 Near Mother-->
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbox1level3near"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Xbox1level1nearNFS]" y="[yCentreBaseNFS] + [lybaseNFS] + 2.0*[lybox1level1nearNFS] + 3.0*[lybox1level2nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS]  - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] - [lzbox1level2nearNFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFStrap1level3near"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Xbox1level1nearNFS] + 340.0*mm" y="[yCentreBaseNFS] + [lybaseNFS] + 2.0*[lybox1level1nearNFS] + 3.0*[lybox1level2nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] + [lztrap1level1nearNFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbox2level3near"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Xbox1level1nearNFS] + 680.0*mm" y="[yCentreBaseNFS] + [lybaseNFS] + 2.0*[lybox1level1nearNFS] + 3.0*[lybox1level2nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] + 2.0*[lztrap1level1nearNFS] + [lzbox2level2nearNFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbox3level3near"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="[Xbox1level1nearNFS] + 680.0*mm" y="[yCentreBaseNFS] + [lybaseNFS] + 2.0*[lybox1level1nearNFS] + 3.0*[lybox1level2nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] + 2.0*[lztrap1level1nearNFS] + 2.0*[lzbox2level2nearNFS] + [lzbox3level1nearNFS]"/>
+    </PosPart>
+        <!-- NFS Level 3 Far Mother-->
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbox1level3far"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-[Xbox1level1nearNFS]" y="[yCentreBaseNFS] + [lybaseNFS] + 2.0*[lybox1level1nearNFS] + 3.0*[lybox1level2nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS]  - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] - [lzbox1level2nearNFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFStrap1level3far"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-([Xbox1level1nearNFS] + 340.0*mm)" y="[yCentreBaseNFS] + [lybaseNFS] + 2.0*[lybox1level1nearNFS] + 3.0*[lybox1level2nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] + [lztrap1level1nearNFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbox2level3far"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-([Xbox1level1nearNFS] + 680.0*mm)" y="[yCentreBaseNFS] + [lybaseNFS] + 2.0*[lybox1level1nearNFS] + 3.0*[lybox1level2nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] + 2.0*[lztrap1level1nearNFS] + [lzbox2level2nearNFS]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild  name="forwardshield:NFSbox3level3far"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="-([Xbox1level1nearNFS] + 680.0*mm)" y="[yCentreBaseNFS] + [lybaseNFS] + 2.0*[lybox1level1nearNFS] + 3.0*[lybox1level2nearNFS]" z="[zCentreBaseNFS] - [lzbaseNFS] - [offsetzlevel1NFS] + 2.0*[lzbox1level1nearNFS] + 2.0*[lztrap1level1nearNFS] + 2.0*[lzbox2level2nearNFS] + [lzbox3level1nearNFS]"/>
+    </PosPart>
+    <!-- NFS Level 3 Near Daughter-->
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbox1level3near"/>
+      <rChild  name="NFSbox1level3nearD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFStrap1level3near"/>
+      <rChild  name="NFStrap1level3nearD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbox2level3near"/>
+      <rChild  name="NFSbox2level3nearD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbox3level3near"/>
+      <rChild  name="NFSbox3level3nearD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+        <!-- NFS Level 3 Far Daughter-->
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbox1level3far"/>
+      <rChild  name="NFSbox1level3farD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFStrap1level3far"/>
+      <rChild  name="NFStrap1level3farD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbox2level3far"/>
+      <rChild  name="NFSbox2level3farD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:NFSbox3level3far"/>
+      <rChild  name="NFSbox3level3farD"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*mm" y="0*mm" z="0*mm"/>
+    </PosPart>
+    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++END LEVEL 3++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+    
+    <!--  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ end NFS Position Section++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+
+    <PosPart copyNumber="1">
+      <rParent name="cms:CMSE"/>
+      <rChild name="forwardshield:OQUA"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="cms:CMSE"/>
+      <rChild name="forwardshield:OQUA"/>
+      <rRotation name="rotations:180D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:VcalFibreBundleContainer"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([CalShldZ1]+[cms:ForwdVcalZ2])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:VcalFibreBundleSector"/>
+      <rChild name="forwardshield:VcalFibreBundleHalfSectorL"/>
+      <rRotation name="forwardshield:R355"/>
+      <Translation x="0*fm" y="0*fm" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="forwardshield:VcalFibreBundleSector"/>
+      <rChild name="forwardshield:VcalFibreBundleHalfSectorR"/>
+      <rRotation name="forwardshield:R005"/>
+      <Translation x="0*fm" y="0*fm" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:VcalElectronics"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([VcalEleZ2]+[VcalEleZ1])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:VcalEleBox"/>
+      <rChild name="forwardshield:VcalPlate"/>
+      <Translation x="0*fm" y="0*fm" z="([VcalPlateT]-[dzEleBox])"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:VcalEleBox"/>
+      <rChild name="forwardshield:VcalElecRBX"/>
+      <rRotation name="forwardshield:R355"/>
+      <Translation x="[VcalEleBoxX]" y="[VcalEleBoxY]" z="[VcalEleBoxZ]"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="forwardshield:VcalEleBox"/>
+      <rChild name="forwardshield:VcalElecRBX"/>
+      <rRotation name="forwardshield:R005"/>
+      <Translation x="-[VcalEleBoxX]" y="[VcalEleBoxY]" z="[VcalEleBoxZ]"/>
+    </PosPart>
+                <PosPart copyNumber="1">
+                        <rParent name="forwardshield:VcalElecPMT"/>
+                        <rChild name="forwardshield:VcalElecCathode"/>
+                        <Translation x="-[VcalCathx]/2" y="[VcalCathy]/2" z="([VcalCathz]-[VcalPMTz])/2"/>
+                </PosPart>
+                <PosPart copyNumber="2">
+                        <rParent name="forwardshield:VcalElecPMT"/>
+                        <rChild name="forwardshield:VcalElecCathode"/>
+                        <Translation x="[VcalCathx]/2" y="[VcalCathy]/2" z="([VcalCathz]-[VcalPMTz])/2"/>
+                </PosPart>
+                <PosPart copyNumber="3">
+                        <rParent name="forwardshield:VcalElecPMT"/>
+                        <rChild name="forwardshield:VcalElecCathode"/>
+                        <Translation x="[VcalCathx]/2" y="-[VcalCathy]/2" z="([VcalCathz]-[VcalPMTz])/2"/>
+                </PosPart>
+                <PosPart copyNumber="4">
+                        <rParent name="forwardshield:VcalElecPMT"/>
+                        <rChild name="forwardshield:VcalElecCathode"/>
+                        <Translation x="-[VcalCathx]/2" y="-[VcalCathy]/2" z="([VcalCathz]-[VcalPMTz])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:FibreContainer"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([CalShldZ2]+[CalShldZ1])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:FixedShield02"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:FixedShield03"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:FixedShield04"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([ForwdZv01]+[cms:ForwdVcalZ1])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:FixedShield05"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([FixShldZ4]+[CalShldZ2])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:FixedShield06"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([FixShldZ5]+[FixShldZ4])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:FixedShield07"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([FixShldZ6]+[FixShldZ5])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:FixedShield08"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([FixShldZ7]+[FixShldZ6])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:FixedShield09"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([FixShldZ8]+[FixShldZ7])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:FixedShieldBK"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([FixShldZ9]+[FixShldZ8])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:FixedShield10"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([FixShldZ12]+[FixShldZ11])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:FixedShield11"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:FixedShield12"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:FixedShieldTrap5"/>
+      <rChild name="forwardshield:FixedShieldBox5"/>
+      <rRotation name="forwardshield:R355"/>
+      <Translation x="[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="forwardshield:FixedShieldTrap5"/>
+      <rChild name="forwardshield:FixedShieldBox5"/>
+      <rRotation name="forwardshield:R005"/>
+      <Translation x="-[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:FixedShieldTrap6"/>
+      <rChild name="forwardshield:FixedShieldBox6"/>
+      <rRotation name="forwardshield:R355"/>
+      <Translation x="[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="forwardshield:FixedShieldTrap6"/>
+      <rChild name="forwardshield:FixedShieldBox6"/>
+      <rRotation name="forwardshield:R005"/>
+      <Translation x="-[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:FixedShieldTrap7"/>
+      <rChild name="forwardshield:FixedShieldBox7"/>
+      <rRotation name="forwardshield:R355"/>
+      <Translation x="[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="forwardshield:FixedShieldTrap7"/>
+      <rChild name="forwardshield:FixedShieldBox7"/>
+      <rRotation name="forwardshield:R005"/>
+      <Translation x="-[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:FixedShieldTrap8"/>
+      <rChild name="forwardshield:FixedShieldBox8"/>
+      <rRotation name="forwardshield:R355"/>
+      <Translation x="[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="forwardshield:FixedShieldTrap8"/>
+      <rChild name="forwardshield:FixedShieldBox8"/>
+      <rRotation name="forwardshield:R005"/>
+      <Translation x="-[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:FixedShieldTrap9"/>
+      <rChild name="forwardshield:FixedShieldBox9"/>
+      <rRotation name="forwardshield:R355"/>
+      <Translation x="[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="forwardshield:FixedShieldTrap9"/>
+      <rChild name="forwardshield:FixedShieldBox9"/>
+      <rRotation name="forwardshield:R005"/>
+      <Translation x="-[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:RotatedShield01"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:RotatedShield02"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:RotatedShield03"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([ForwdZv01]+[RotShldZ4])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:RotatedShield04"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([ForwdZv01]+[RotShldZ4])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:RotatedShield05"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([ForwdZv01]+[RotShldZ4])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:RotatedShield06"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([RotShldZ8]+[ForwdZv01])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:RotatedShield07"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:RotatedShield08"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:RotatedShield09"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:RotatedShield10"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([RotShldZ10]+[RotShldZ8])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:RotatedShield11"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:RotatedShield12"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:QuadInner"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([cms:HallZ]+[QuadZ1])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:QuadCoil"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([cms:HallZ]+[QuadZ1])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:OQUA"/>
+      <rChild name="forwardshield:QuadOuter"/>
+      <rRotation name="rotations:000D"/>
+      <Translation x="0*fm" y="0*fm" z="([cms:HallZ]+[QuadZ1])/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="forwardshield:FibreBoxTrap"/>
+      <rChild name="forwardshield:FibreBoxL"/>
+      <rRotation name="forwardshield:R355"/>
+      <Translation x="[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="forwardshield:FibreBoxTrap"/>
+      <rChild name="forwardshield:FibreBoxR"/>
+      <rRotation name="forwardshield:R005"/>
+      <Translation x="-[VcalEleBoxX]" y="[VcalEleBoxY]" z="0*fm"/>
+    </PosPart>
+</PosPartSection>
+
+<Algorithm name="hcal:DDHCalAngular">
+  <rParent name="forwardshield:VcalElectronics"/>
+  <String name="ChildName" value="VcalEleBox"/>
+  <String name="RotNameSpace" value="hcalrotations"/>
+  <Numeric name="n" value="18"/>
+  <Numeric name="startCopyNo" value="1"/>
+  <Numeric name="incrCopyNo" value="1"/>
+  <Numeric name="rangeAngle" value="360*deg"/>
+  <Numeric name="startAngle" value="-90*deg"/>
+  <Numeric name="shiftY" value="[yposEleBox]"/>
+  <Numeric name="shiftX" value="0*fm"/>
+  <Numeric name="zoffset" value="0*fm"/>
+</Algorithm>
+<Algorithm name="hcal:DDHCalLinearXY">
+  <rParent name="forwardshield:VcalElecRBX"/>
+  <Vector name="Child" type="string" nEntries="1">
+    forwardshield:VcalElecPMT</Vector>
+  <Numeric name="DeltaX" value="[VcalPMTSep]"/>
+  <Numeric name="DeltaY" value="[VcalPMTSep]"/>
+  <Numeric name="NumberX" value="4"/>
+  <Numeric name="NumberY" value="7"/>
+  <Vector name="Center" type="numeric" nEntries="3">
+    0., 0., 0.
+  </Vector>
+</Algorithm>
+<Algorithm name="hcal:DDHCalAngular">
+  <rParent name="forwardshield:FixedShield05"/>
+  <String name="ChildName" value="FixedShieldTrap5"/>
+  <String name="RotNameSpace" value="hcalrotations"/>
+  <Numeric name="n" value="18"/>
+  <Numeric name="startCopyNo" value="1"/>
+  <Numeric name="incrCopyNo" value="1"/>
+  <Numeric name="rangeAngle" value="360*deg"/>
+  <Numeric name="startAngle" value="-90*deg"/>
+  <Numeric name="shiftY" value="[yposEleBox]"/>
+  <Numeric name="shiftX" value="0*fm"/>
+  <Numeric name="zoffset" value="0*fm"/>
+</Algorithm>
+<Algorithm name="hcal:DDHCalLinearXY">
+  <rParent name="forwardshield:FixedShieldBox5"/>
+  <Vector name="Child" type="string" nEntries="1">
+    forwardshield:FixedShieldTube5</Vector>
+  <Numeric name="DeltaX" value="[VcalPMTSep]"/>
+  <Numeric name="DeltaY" value="[VcalPMTSep]"/>
+  <Numeric name="NumberX" value="4"/>
+  <Numeric name="NumberY" value="7"/>
+  <Vector name="Center" type="numeric" nEntries="3">
+    0., 0., 0.
+  </Vector>
+</Algorithm>
+<Algorithm name="hcal:DDHCalAngular">
+  <rParent name="forwardshield:FixedShield06"/>
+  <String name="ChildName" value="FixedShieldTrap6"/>
+  <String name="RotNameSpace" value="hcalrotations"/>
+  <Numeric name="n" value="18"/>
+  <Numeric name="startCopyNo" value="1"/>
+  <Numeric name="incrCopyNo" value="1"/>
+  <Numeric name="rangeAngle" value="360*deg"/>
+  <Numeric name="startAngle" value="-90*deg"/>
+  <Numeric name="shiftY" value="[yposEleBox]"/>
+  <Numeric name="shiftX" value="0*fm"/>
+  <Numeric name="zoffset" value="0*fm"/>
+</Algorithm>
+<Algorithm name="hcal:DDHCalLinearXY">
+  <rParent name="forwardshield:FixedShieldBox6"/>
+  <Vector name="Child" type="string" nEntries="1">
+    forwardshield:FixedShieldTube6</Vector>
+  <Numeric name="DeltaX" value="[VcalPMTSep]"/>
+  <Numeric name="DeltaY" value="[VcalPMTSep]"/>
+  <Numeric name="NumberX" value="4"/>
+  <Numeric name="NumberY" value="7"/>
+  <Vector name="Center" type="numeric" nEntries="3">
+    0., 0., 0.
+  </Vector>
+</Algorithm>
+<Algorithm name="hcal:DDHCalAngular">
+  <rParent name="forwardshield:FixedShield07"/>
+  <String name="ChildName" value="FixedShieldTrap7"/>
+  <String name="RotNameSpace" value="hcalrotations"/>
+  <Numeric name="n" value="18"/>
+  <Numeric name="startCopyNo" value="1"/>
+  <Numeric name="incrCopyNo" value="1"/>
+  <Numeric name="rangeAngle" value="360*deg"/>
+  <Numeric name="startAngle" value="-90*deg"/>
+  <Numeric name="shiftY" value="[yposEleBox]"/>
+  <Numeric name="shiftX" value="0*fm"/>
+  <Numeric name="zoffset" value="0*fm"/>
+</Algorithm>
+<Algorithm name="hcal:DDHCalLinearXY">
+  <rParent name="forwardshield:FixedShieldBox7"/>
+  <Vector name="Child" type="string" nEntries="1">
+    forwardshield:FixedShieldTube7</Vector>
+  <Numeric name="DeltaX" value="[VcalPMTSep]"/>
+  <Numeric name="DeltaY" value="[VcalPMTSep]"/>
+  <Numeric name="NumberX" value="4"/>
+  <Numeric name="NumberY" value="7"/>
+  <Vector name="Center" type="numeric" nEntries="3">
+    0., 0., 0.
+  </Vector>
+</Algorithm>
+<Algorithm name="hcal:DDHCalAngular">
+  <rParent name="forwardshield:FixedShield08"/>
+  <String name="ChildName" value="FixedShieldTrap8"/>
+  <String name="RotNameSpace" value="hcalrotations"/>
+  <Numeric name="n" value="18"/>
+  <Numeric name="startCopyNo" value="1"/>
+  <Numeric name="incrCopyNo" value="1"/>
+  <Numeric name="rangeAngle" value="360*deg"/>
+  <Numeric name="startAngle" value="-90*deg"/>
+  <Numeric name="shiftY" value="[yposEleBox]"/>
+  <Numeric name="shiftX" value="0*fm"/>
+  <Numeric name="zoffset" value="0*fm"/>
+</Algorithm>
+<Algorithm name="hcal:DDHCalLinearXY">
+  <rParent name="forwardshield:FixedShieldBox8"/>
+  <Vector name="Child" type="string" nEntries="1">
+    forwardshield:FixedShieldTube8</Vector>
+  <Numeric name="DeltaX" value="[VcalPMTSep]"/>
+  <Numeric name="DeltaY" value="[VcalPMTSep]"/>
+  <Numeric name="NumberX" value="4"/>
+  <Numeric name="NumberY" value="7"/>
+  <Vector name="Center" type="numeric" nEntries="3">
+    0., 0., 0.
+  </Vector>
+</Algorithm>
+<Algorithm name="hcal:DDHCalAngular">
+  <rParent name="forwardshield:FixedShield09"/>
+  <String name="ChildName" value="FixedShieldTrap9"/>
+  <String name="RotNameSpace" value="hcalrotations"/>
+  <Numeric name="n" value="18"/>
+  <Numeric name="startCopyNo" value="1"/>
+  <Numeric name="incrCopyNo" value="1"/>
+  <Numeric name="rangeAngle" value="360*deg"/>
+  <Numeric name="startAngle" value="-90*deg"/>
+  <Numeric name="shiftY" value="[yposEleBox]"/>
+  <Numeric name="shiftX" value="0*fm"/>
+  <Numeric name="zoffset" value="0*fm"/>
+</Algorithm>
+<Algorithm name="hcal:DDHCalLinearXY">
+  <rParent name="forwardshield:FixedShieldBox9"/>
+  <Vector name="Child" type="string" nEntries="1">
+    forwardshield:FixedShieldTube9</Vector>
+  <Numeric name="DeltaX" value="[VcalPMTSep]"/>
+  <Numeric name="DeltaY" value="[VcalPMTSep]"/>
+  <Numeric name="NumberX" value="4"/>
+  <Numeric name="NumberY" value="7"/>
+  <Vector name="Center" type="numeric" nEntries="3">
+    0., 0., 0.
+  </Vector>
+</Algorithm>
+<Algorithm name="hcal:DDHCalAngular">
+  <rParent name="forwardshield:FibreContainer"/>
+  <String name="ChildName" value="FibreBoxTrap"/>
+  <String name="RotNameSpace" value="hcalrotations"/>
+  <Numeric name="n" value="18"/>
+  <Numeric name="startCopyNo" value="1"/>
+  <Numeric name="incrCopyNo" value="1"/>
+  <Numeric name="rangeAngle" value="360*deg"/>
+  <Numeric name="startAngle" value="-90*deg"/>
+  <Numeric name="shiftY" value="[yposEleBox]"/>
+  <Numeric name="shiftX" value="0*fm"/>
+  <Numeric name="zoffset" value="0*fm"/>
+</Algorithm>
+<Algorithm name="hcal:DDHCalLinearXY">
+  <rParent name="forwardshield:FibreBoxL"/>
+  <Vector name="Child" type="string" nEntries="28">
+    Null, forwardshield:FibreBundle12, forwardshield:FibreBundle10, 
+    forwardshield:FibreBundle8,  forwardshield:FibreBundle6,
+    forwardshield:FibreBundle4,  forwardshield:FibreBundle2,  
+    Null, forwardshield:FibreBundle12, forwardshield:FibreBundle10, 
+    forwardshield:FibreBundle8,  forwardshield:FibreBundle6,
+    forwardshield:FibreBundle4,  forwardshield:FibreBundle2,  
+    Null, forwardshield:FibreBundle11, forwardshield:FibreBundle9, 
+    forwardshield:FibreBundle7,  forwardshield:FibreBundle5,
+    forwardshield:FibreBundle3,  forwardshield:FibreBundle1,  
+    Null, forwardshield:FibreBundle11, forwardshield:FibreBundle9, 
+    forwardshield:FibreBundle7,  forwardshield:FibreBundle5,
+    forwardshield:FibreBundle3,  forwardshield:FibreBundle1</Vector>
+  <Numeric name="DeltaX" value="[VcalPMTSep]"/>
+  <Numeric name="DeltaY" value="[VcalPMTSep]"/>
+  <Numeric name="NumberX" value="4"/>
+  <Numeric name="NumberY" value="7"/>
+  <Vector name="Center" type="numeric" nEntries="3">
+    0., 0., 0.
+  </Vector>
+</Algorithm>
+<Algorithm name="hcal:DDHCalLinearXY">
+  <rParent name="forwardshield:FibreBoxR"/>
+  <Vector name="Child" type="string" nEntries="28">
+    Null, forwardshield:FibreBundle11, forwardshield:FibreBundle9, 
+    forwardshield:FibreBundle7,  forwardshield:FibreBundle5,
+    forwardshield:FibreBundle3,  forwardshield:FibreBundle1,  
+    Null, forwardshield:FibreBundle11, forwardshield:FibreBundle9, 
+    forwardshield:FibreBundle7,  forwardshield:FibreBundle5,
+    forwardshield:FibreBundle3,  forwardshield:FibreBundle1,  
+    Null, forwardshield:FibreBundle13, forwardshield:FibreBundle10,
+    forwardshield:FibreBundle8,  forwardshield:FibreBundle6,
+    forwardshield:FibreBundle4,  forwardshield:FibreBundle2,  
+    Null, forwardshield:FibreBundle13, forwardshield:FibreBundle10,
+    forwardshield:FibreBundle8,  forwardshield:FibreBundle6,
+    forwardshield:FibreBundle4,  forwardshield:FibreBundle2</Vector>
+  <Numeric name="DeltaX" value="[VcalPMTSep]"/>
+  <Numeric name="DeltaY" value="[VcalPMTSep]"/>
+  <Numeric name="NumberX" value="4"/>
+  <Numeric name="NumberY" value="7"/>
+  <Vector name="Center" type="numeric" nEntries="3">
+    0., 0., 0.
+  </Vector>
+</Algorithm>
+<Algorithm name="hcal:DDHCalAngular">
+  <rParent name="forwardshield:VcalFibreBundleContainer"/>
+  <String name="ChildName" value="VcalFibreBundleSector"/>
+  <String name="RotNameSpace" value="hcalrotations"/>
+  <Numeric name="n" value="18"/>
+  <Numeric name="startCopyNo" value="1"/>
+  <Numeric name="incrCopyNo" value="1"/>
+  <Numeric name="rangeAngle" value="360*deg"/>
+  <Numeric name="startAngle" value="0*deg"/>
+  <Numeric name="shiftY" value="0*fm"/>
+  <Numeric name="shiftX" value="0*fm"/>
+  <Numeric name="zoffset" value="0*fm"/>
+</Algorithm>
+<Algorithm name="hcal:DDHCalFibreBundle">
+  <rParent name="forwardshield:VcalFibreBundleHalfSectorL"/>
+  <Numeric name="DeltaPhi" value="10*deg"/>
+  <Numeric name="DeltaZ" value="([CalShldZ1]-[cms:ForwdVcalZ2])"/>
+  <Numeric name="NumberPhi" value="4"/>
+  <Numeric name="TiltAngle" value="5.0*deg"/>
+  <String name="Material" value="hcalforwardmaterial:QuartzF"/>
+  <String name="Child" value="VcalFibreBundleL"/>
+  <Vector name="AreaSection" type="numeric" nEntries="13">
+    551*mm2, 652*mm2, 469*mm2, 324*mm2, 231*mm2, 167*mm2,
+    120*mm2,  88*mm2,  63*mm2,  46*mm2,  35*mm2,  52*mm2,  50*mm2
+  </Vector>
+  <Vector name="RadiusStart" type="numeric" nEntries="13">
+    1231.0*mm, 1068.5*mm,  896.5*mm,  757.0*mm,  631.0*mm,  529.5*mm,
+    444.5*mm,  373.0*mm,  313.0*mm,  263.0*mm,  220.5*mm,  185.0*mm, 147.0*mm
+  </Vector>
+  <Vector name="RadiusEnd" type="numeric" nEntries="13">
+    1350.0*mm, 1350.0*mm, 1308.0*mm, 1308.0*mm, 1266.0*mm, 1266.0*mm,
+    1224.0*mm, 1224.0*mm, 1182.0*mm, 1182.0*mm, 1140.0*mm, 1140.0*mm,1140.0*mm
+  </Vector>
+  <Vector name="Bundles" type="numeric" nEntries="28">
+    -1, 11,  9,  7,  5,  3,  1, -1, 11,  9,  7,  5,  3,  1,
+    -1, 10,  8,  6,  4,  2,  0, -1, 10,  8,  6,  4,  2,  0
+  </Vector>
+</Algorithm>
+<Algorithm name="hcal:DDHCalFibreBundle">
+  <rParent name="forwardshield:VcalFibreBundleHalfSectorR"/>
+  <Numeric name="DeltaPhi" value="10*deg"/>
+  <Numeric name="DeltaZ" value="([CalShldZ1]-[cms:ForwdVcalZ2])"/>
+  <Numeric name="NumberPhi" value="4"/>
+  <Numeric name="TiltAngle" value="5.0*deg"/>
+  <String name="Material" value="hcalforwardmaterial:QuartzF"/>
+  <String name="Child" value="VcalFibreBundleR"/>
+  <Vector name="AreaSection" type="numeric" nEntries="13">
+    551*mm2, 652*mm2, 469*mm2, 324*mm2, 231*mm2, 167*mm2,
+    120*mm2,  88*mm2,  63*mm2,  46*mm2,  35*mm2,  52*mm2,  50*mm2
+  </Vector>
+  <Vector name="RadiusStart" type="numeric" nEntries="13">
+    1231.0*mm, 1068.5*mm,  896.5*mm,  757.0*mm,  631.0*mm,  529.5*mm,
+    444.5*mm,  373.0*mm,  313.0*mm,  263.0*mm,  220.5*mm,  185.0*mm, 147.0*mm
+  </Vector>
+  <Vector name="RadiusEnd" type="numeric" nEntries="13">
+    1350.0*mm, 1350.0*mm, 1308.0*mm, 1308.0*mm, 1266.0*mm, 1266.0*mm,
+    1224.0*mm, 1224.0*mm, 1182.0*mm, 1182.0*mm, 1140.0*mm, 1140.0*mm,1140.0*mm
+  </Vector>
+  <Vector name="Bundles" type="numeric" nEntries="28">
+    -1, 10,  8,  6,  4,  2,  0, -1, 10,  8,  6,  4,  2,  0,
+    -1, 12,  9,  7,  5,  3,  1, -1, 12,  9,  7,  5,  3,  1
+  </Vector>
+</Algorithm>
+
+</DDDefinition>
