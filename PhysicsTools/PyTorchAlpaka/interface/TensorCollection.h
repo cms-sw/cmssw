@@ -101,13 +101,13 @@ namespace cms::torch::alpakatools {
              std::tuple<TSoAParamsImpl, cms::soa::size_type> column,
              std::tuple<Others, cms::soa::size_type>... others) {
       using DataType = typename TSoAParamsImpl::ScalarType;
-      auto [ptr, stride] = std::get<0>(column).tupleOrPointer();
+      auto ptr = std::get<0>(column).data();
       int n_elems =
           cms::torch::alpakatools::detail::num_elements_per_column(batch_size, SoALayout::alignment, sizeof(DataType));
       assert_location(
           n_elems * TSoAParamsImpl::ValueType::RowsAtCompileTime * TSoAParamsImpl::ValueType::ColsAtCompileTime,
           ptr,
-          std::get<0>(std::get<0>(others).tupleOrPointer())...);
+          std::get<0>(others).data()...);
 
       std::vector<int> tensor_dims;
       if constexpr (TSoAParamsImpl::ValueType::ColsAtCompileTime > 1)
@@ -140,8 +140,8 @@ namespace cms::torch::alpakatools {
       using DataType = typename TSoAParamsImpl::ScalarType;
       int n_elems =
           cms::torch::alpakatools::detail::num_elements_per_column(batch_size, SoALayout::alignment, sizeof(DataType));
-      assert_location(n_elems, std::get<0>(column).tupleOrPointer(), std::get<0>(others).tupleOrPointer()...);
-      auto ptr = std::get<0>(column).tupleOrPointer();
+      assert_location(n_elems, std::get<0>(column).data(), std::get<0>(others).data()...);
+      auto ptr = std::get<0>(column).data();
       emplace_tensor(name, SoALayout::alignment, ptr, batch_size, {1 + sizeof...(Others)});
     }
 
@@ -161,7 +161,7 @@ namespace cms::torch::alpakatools {
     void add(const std::string& name,
              int batch_size,
              std::tuple<cms::soa::SoAParametersImpl<column_t, T>, cms::soa::size_type> column) {
-      auto ptr = std::get<0>(column).tupleOrPointer();
+      auto ptr = std::get<0>(column).data();
       emplace_tensor(name, SoALayout::alignment, ptr, batch_size, {1}, true);
     }
 
