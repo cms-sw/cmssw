@@ -829,14 +829,18 @@ class ConfigBuilder(object):
         # load the geometry file
         try:
             if len(self.stepMap):
-                self.loadAndRemember(self.GeometryCFF)
-                if (self.GeometryCFF == 'Configuration/StandardSequences/GeometryRecoDB_cff' and not self.geometryDBLabel):
-                    print("Warning: The default GeometryRecoDB_cff is being used; however, the DB geometry is not applied. You may need to verify your cmsDriver.")
-                if ('SIM' in self.stepMap or 'reSIM' in self.stepMap) and not self._options.fast:
-                    self.loadAndRemember(self.SimGeometryCFF)
-                    if self.geometryDBLabel:
-                        self.executeAndRemember('if hasattr(process, "XMLFromDBSource"): process.XMLFromDBSource.label="%s"'%(self.geometryDBLabel))
-                        self.executeAndRemember('if hasattr(process, "DDDetectorESProducerFromDB"): process.DDDetectorESProducerFromDB.label="%s"'%(self.geometryDBLabel))
+                if isinstance(self.GeometryCFF, list):
+                    for cff in self.GeometryCFF:
+                        self.loadAndRemember(cff)
+                else:
+                    self.loadAndRemember(self.GeometryCFF)
+                    if (self.GeometryCFF == 'Configuration/StandardSequences/GeometryRecoDB_cff' and not self.geometryDBLabel):
+                        print("Warning: The default GeometryRecoDB_cff is being used; however, the DB geometry is not applied. You may need to verify your cmsDriver.")
+                    if ('SIM' in self.stepMap or 'reSIM' in self.stepMap) and not self._options.fast:
+                        self.loadAndRemember(self.SimGeometryCFF)
+                        if self.geometryDBLabel:
+                            self.executeAndRemember('if hasattr(process, "XMLFromDBSource"): process.XMLFromDBSource.label="%s"'%(self.geometryDBLabel))
+                            self.executeAndRemember('if hasattr(process, "DDDetectorESProducerFromDB"): process.DDDetectorESProducerFromDB.label="%s"'%(self.geometryDBLabel))
 
         except ImportError:
             print("Geometry option",self._options.geometry,"unknown.")
@@ -1183,44 +1187,39 @@ class ConfigBuilder(object):
         self.GeometryCFF='Configuration/StandardSequences/GeometryRecoDB_cff'
         self.geometryDBLabel=None
         simGeometry=''
-        if self._options.fast:
-            if 'start' in self._options.conditions.lower():
-                self.GeometryCFF='FastSimulation/Configuration/Geometries_START_cff'
+
+        def inGeometryKeys(opt):
+            from Configuration.StandardSequences.GeometryConf import GeometryConf
+            if opt in GeometryConf:
+                return GeometryConf[opt]
             else:
-                self.GeometryCFF='FastSimulation/Configuration/Geometries_MC_cff'
+                if (opt=='SimDB' or opt.startswith('DB:')):
+                    return opt
+                else:
+                    raise Exception("Geometry "+opt+" does not exist!")
+
+        geoms=self._options.geometry.split(',')
+        if len(geoms)==1: geoms=inGeometryKeys(geoms[0]).split(',')
+        if len(geoms)==2:
+            #may specify the reco geometry
+            if '/' in geoms[1] or '_cff' in geoms[1]:
+                self.GeometryCFF=geoms[1]
+            else:
+                self.GeometryCFF='Configuration/Geometry/Geometry'+geoms[1]+'_cff'
+
+        if (geoms[0].startswith('DB:')):
+            self.SimGeometryCFF='Configuration/StandardSequences/GeometrySimDB_cff'
+            self.geometryDBLabel=geoms[0][3:]
+            print("with DB:")
         else:
-            def inGeometryKeys(opt):
-                from Configuration.StandardSequences.GeometryConf import GeometryConf
-                if opt in GeometryConf:
-                    return GeometryConf[opt]
-                else:
-                    if (opt=='SimDB' or opt.startswith('DB:')):
-                        return opt
-                    else:
-                        raise Exception("Geometry "+opt+" does not exist!")
-
-            geoms=self._options.geometry.split(',')
-            if len(geoms)==1: geoms=inGeometryKeys(geoms[0]).split(',')
-            if len(geoms)==2:
-                #may specify the reco geometry
-                if '/' in geoms[1] or '_cff' in geoms[1]:
-                    self.GeometryCFF=geoms[1]
-                else:
-                    self.GeometryCFF='Configuration/Geometry/Geometry'+geoms[1]+'_cff'
-
-            if (geoms[0].startswith('DB:')):
-                self.SimGeometryCFF='Configuration/StandardSequences/GeometrySimDB_cff'
-                self.geometryDBLabel=geoms[0][3:]
-                print("with DB:")
+            if '/' in geoms[0] or '_cff' in geoms[0]:
+                self.SimGeometryCFF=geoms[0]
             else:
-                if '/' in geoms[0] or '_cff' in geoms[0]:
-                    self.SimGeometryCFF=geoms[0]
+                simGeometry=geoms[0]
+                if self._options.gflash==True:
+                    self.SimGeometryCFF='Configuration/Geometry/Geometry'+geoms[0]+'GFlash_cff'
                 else:
-                    simGeometry=geoms[0]
-                    if self._options.gflash==True:
-                        self.SimGeometryCFF='Configuration/Geometry/Geometry'+geoms[0]+'GFlash_cff'
-                    else:
-                        self.SimGeometryCFF='Configuration/Geometry/Geometry'+geoms[0]+'_cff'
+                    self.SimGeometryCFF='Configuration/Geometry/Geometry'+geoms[0]+'_cff'
 
         # synchronize the geometry configuration and the FullSimulation sequence to be used
         if simGeometry not in defaultOptions.geometryExtendedOptions:
@@ -1232,6 +1231,16 @@ class ConfigBuilder(object):
 
         # fastsim requires some changes to the default cff files and sequences
         if self._options.fast:
+            # always use reco geometry
+            if 'Reco' not in self.GeometryCFF and 'DB' not in self.GeometryCFF:
+                self.GeometryCFF = self.GeometryCFF.replace("_cff","Reco_cff")
+            self.GeometryCFF = [self.GeometryCFF]
+
+            self.GeometryCFF.append('FastSimulation/Configuration/Geometries_cff')
+            self.GeometryCFF.append('FastSimulation/Configuration/Geometries_MC_cff')
+            if 'start' in self._options.conditions.lower():
+                self.GeometryCFF.append('FastSimulation/Configuration/Geometries_START_cff')
+
             self.SIMDefaultCFF = 'FastSimulation.Configuration.SimIdeal_cff'
             self.RECODefaultCFF= 'FastSimulation.Configuration.Reconstruction_AftMix_cff'
             self.RECOBEFMIXDefaultCFF = 'FastSimulation.Configuration.Reconstruction_BefMix_cff'
