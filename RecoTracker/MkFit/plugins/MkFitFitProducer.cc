@@ -57,6 +57,8 @@ private:
   const bool algoCandCutSelection_;
   const float algoCandMinPtCut_;
   const int algoCandMinNHitsCut_;
+  const float algoCandMinPtRelaxedCut_;
+  const float algoCandMinAbsEtaForRelaxedCut_;
   const edm::EDPutTokenT<MkFitOutputWrapper> putToken_;
   const bool mkFitSilent_;
   const bool limitConcurrency_;
@@ -72,6 +74,8 @@ MkFitFitProducer::MkFitFitProducer(edm::ParameterSet const& iConfig)
       algoCandCutSelection_{bool(iConfig.getParameter<bool>("candCutSel"))},
       algoCandMinPtCut_{float(iConfig.getParameter<double>("candMinPtCut"))},
       algoCandMinNHitsCut_{iConfig.getParameter<int>("candMinNHitsCut")},
+      algoCandMinPtRelaxedCut_{float(iConfig.getParameter<double>("candMinPtRelaxedCut"))},
+      algoCandMinAbsEtaForRelaxedCut_{float(iConfig.getParameter<double>("candMinAbsEtaForRelaxedCut"))},
       putToken_{produces<MkFitOutputWrapper>()},
       mkFitSilent_{iConfig.getUntrackedParameter<bool>("mkFitSilent")},
       limitConcurrency_{iConfig.getUntrackedParameter<bool>("limitConcurrency")} {
@@ -100,6 +104,8 @@ void MkFitFitProducer::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<bool>("candCutSel", false)->setComment("flag used to trigger cut-based selection at cand level");
   desc.add<double>("candMinPtCut", 0)->setComment("min pt cut at cand level");
   desc.add<int>("candMinNHitsCut", 0)->setComment("min cut on number of hits at cand level");
+  desc.add<double>("candMinPtRelaxedCut", 0)->setComment("min pt cut at cand level");
+  desc.add<double>("candMinAbsEtaForRelaxedCut", 0)->setComment("eta region for different selection");
 
   descriptions.add("MkFitFitProducerDefault", desc);
 }
@@ -124,8 +130,13 @@ void MkFitFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm:
   if (algoCandCutSelection_) {
     mkfit::TrackVec reducedInput;
     for (auto const& t : intracks) {
-      if (!(t.pT() < algoCandMinPtCut_ || t.nTotalHits() < algoCandMinPtCut_))
-        reducedInput.push_back(t);
+      const auto minPtCutForCand =
+          (algoCandMinPtRelaxedCut_ > 0 && std::abs(t.momEta()) > algoCandMinAbsEtaForRelaxedCut_)
+              ? algoCandMinPtRelaxedCut_
+              : algoCandMinPtCut_;
+      if (t.pT() < minPtCutForCand || t.nTotalHits() < algoCandMinNHitsCut_)
+        continue;
+      reducedInput.push_back(t);
     }
     intracks.swap(reducedInput);
   }
