@@ -63,11 +63,11 @@ private:
                               const std::vector<pat::Jet>& jets,
                               const reco::Vertex& vertex,
                               const double rho,
-                              std::vector<int>* jetIdx,
+                              std::vector<int>& jetIdx,
                               std::vector<float> relIso0p4,
-                              std::vector<float>* jetPtRatio,
-                              std::vector<float>* jetPtRel,
-                              std::vector<int>* jetSelectedChargedMultiplicity) const;
+                              std::vector<float>& jetPtRatio,
+                              std::vector<float>& jetPtRel,
+                              std::vector<int>& jetSelectedChargedMultiplicity) const;
 
   std::string name_;
   edm::EDGetTokenT<double> rhoTag_;
@@ -144,7 +144,7 @@ void MuonExtendedTableProducer::produce(edm::StreamID, edm::Event& iEvent, const
     relIso0p4.push_back(getPFIso(muon));
 
     fillLeptonJetVariables(
-        &muon, jets, pv, rho, &jetIdx, relIso0p4, &jetPtRatio, &jetPtRel, &jetSelectedChargedMultiplicity);
+        &muon, jets, pv, rho, jetIdx, relIso0p4, jetPtRatio, jetPtRel, jetSelectedChargedMultiplicity);
 
     const reco::Candidate* mu_cand = dynamic_cast<const reco::Candidate*>(&muon);
     jetFatIdx.push_back(findMatchedJet(*mu_cand, jetFat));
@@ -246,8 +246,6 @@ bool isSourceCandidatePtrMatch(const T1& lhs, const T2& rhs) {
 }
 
 int MuonExtendedTableProducer::findMatchedJet(const reco::Candidate& lepton, const std::vector<pat::Jet>& jets) const {
-  int iJet = -1;
-
   unsigned int nJets = jets.size();
 
   for (unsigned int i = 0; i < nJets; i++) {
@@ -257,28 +255,28 @@ int MuonExtendedTableProducer::findMatchedJet(const reco::Candidate& lepton, con
     }
   }
 
-  return iJet;
+  return -1;
 }
 
 void MuonExtendedTableProducer::fillLeptonJetVariables(const reco::Muon* mu,
                                                        const std::vector<pat::Jet>& jets,
                                                        const reco::Vertex& vertex,
                                                        const double rho,
-                                                       std::vector<int>* jetIdx,
+                                                       std::vector<int>& jetIdx,
                                                        std::vector<float> relIso0p4,
-                                                       std::vector<float>* jetPtRatio,
-                                                       std::vector<float>* jetPtRel,
-                                                       std::vector<int>* jetSelectedChargedMultiplicity) const {
+                                                       std::vector<float>& jetPtRatio,
+                                                       std::vector<float>& jetPtRel,
+                                                       std::vector<int>& jetSelectedChargedMultiplicity) const {
   const reco::Candidate* cand = dynamic_cast<const reco::Candidate*>(mu);
   int matchedJetIdx = findMatchedJet(*cand, jets);
 
-  jetIdx->push_back(matchedJetIdx);
+  jetIdx.push_back(matchedJetIdx);
 
   if (matchedJetIdx < 0) {
     float ptRatio = (1. / (1. + relIso0p4.back()));
-    jetPtRatio->push_back(ptRatio);
-    jetPtRel->push_back(0);
-    jetSelectedChargedMultiplicity->push_back(0);
+    jetPtRatio.push_back(ptRatio);
+    jetPtRel.push_back(0);
+    jetSelectedChargedMultiplicity.push_back(0);
   } else {
     const pat::Jet& jet = jets[matchedJetIdx];
     auto rawJetP4 = jet.correctedP4("Uncorrected");
@@ -287,9 +285,9 @@ void MuonExtendedTableProducer::fillLeptonJetVariables(const reco::Muon* mu,
     bool leptonEqualsJet = ((rawJetP4 - leptonP4).P() < 1e-4);
 
     if (leptonEqualsJet) {
-      jetPtRatio->push_back(1);
-      jetPtRel->push_back(0);
-      jetSelectedChargedMultiplicity->push_back(0);
+      jetPtRatio.push_back(1);
+      jetPtRel.push_back(0);
+      jetSelectedChargedMultiplicity.push_back(0);
     } else {
       auto L1JetP4 = jet.correctedP4("L1FastJet");
       double L2L3JEC = jet.pt() / L1JetP4.pt();
@@ -297,37 +295,28 @@ void MuonExtendedTableProducer::fillLeptonJetVariables(const reco::Muon* mu,
 
       float ptRatio = cand->pt() / lepAwareJetP4.pt();
       float ptRel = leptonP4.Vect().Cross((lepAwareJetP4 - leptonP4).Vect().Unit()).R();
-      jetPtRatio->push_back(ptRatio);
-      jetPtRel->push_back(ptRel);
-      jetSelectedChargedMultiplicity->push_back(0);
+      jetPtRatio.push_back(ptRatio);
+      jetPtRel.push_back(ptRel);
+      jetSelectedChargedMultiplicity.push_back(0);
 
       for (const auto& daughterPtr : jet.daughterPtrVector()) {
         const pat::PackedCandidate& daughter = *((const pat::PackedCandidate*)daughterPtr.get());
 
-        if (daughter.charge() == 0)
+        if (daughter.charge() == 0 || daughter.fromPV() < 2 || reco::deltaR(daughter, *cand) > 0.4 ||
+            !daughter.hasTrackDetails()) {
           continue;
-        if (daughter.fromPV() < 2)
-          continue;
-        if (reco::deltaR(daughter, *cand) > 0.4)
-          continue;
-        if (!daughter.hasTrackDetails())
-          continue;
+        }
 
         auto daughterTrack = daughter.pseudoTrack();
 
-        if (daughterTrack.pt() <= 1)
+        if (daughterTrack.pt() <= 1 || daughterTrack.hitPattern().numberOfValidHits() < 8 ||
+            daughterTrack.hitPattern().numberOfValidPixelHits() < 2 || daughterTrack.normalizedChi2() >= 5 ||
+            std::abs(daughterTrack.dz(vertex.position())) >= 17 ||
+            std::abs(daughterTrack.dxy(vertex.position())) >= 0.2) {
           continue;
-        if (daughterTrack.hitPattern().numberOfValidHits() < 8)
-          continue;
-        if (daughterTrack.hitPattern().numberOfValidPixelHits() < 2)
-          continue;
-        if (daughterTrack.normalizedChi2() >= 5)
-          continue;
-        if (std::abs(daughterTrack.dz(vertex.position())) >= 17)
-          continue;
-        if (std::abs(daughterTrack.dxy(vertex.position())) >= 0.2)
-          continue;
-        ++jetSelectedChargedMultiplicity->back();
+        }
+
+        ++jetSelectedChargedMultiplicity.back();
       }
     }
   }

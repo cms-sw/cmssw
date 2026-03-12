@@ -40,7 +40,7 @@ public:
         dtgeometryToken_(esConsumes<DTGeometry, MuonGeometryRecord>()),
         rpcgeometryToken_(esConsumes<RPCGeometry, MuonGeometryRecord>()),
         inputToken_(consumes<CSCRecHit2DCollection>(iConfig.getParameter<edm::InputTag>("recHitLabel"))),
-        dtSegmentToken_(consumes<DTRecSegment4DCollection>(iConfig.getParameter<edm::InputTag>("segmentLabel"))),
+        dtSegmentToken_(consumes<DTRecSegment4DCollection>(iConfig.getParameter<edm::InputTag>("dtSegmentLabel"))),
         rpchitToken_(consumes<RPCRecHitCollection>(iConfig.getParameter<edm::InputTag>("rpcLabel"))),
         rParam_(iConfig.getParameter<double>("rParam")),
         nRechitMin_(iConfig.getParameter<int>("nRechitMin")),
@@ -58,7 +58,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("recHitLabel")->setComment("input cscRechit collection");
-    desc.add<edm::InputTag>("segmentLabel")->setComment("input dt segment collection for veto");
+    desc.add<edm::InputTag>("dtSegmentLabel")->setComment("input dt segment collection for veto");
     desc.add<edm::InputTag>("rpcLabel")->setComment("input rpcRechit collection for veto");
     desc.add<double>("rParam", 0.4);
     desc.add<int>("nRechitMin", 50);

@@ -102,78 +102,6 @@ public:
         mu_IVF_tracksignedIP3Dsig;
     std::vector<float> mu_IVF_signedIP2D, mu_IVF_signedIP3D, mu_IVF_signedIP2Dsig, mu_IVF_signedIP3Dsig;
 
-    el_idx.clear();
-    el_lIVF_match.clear();
-    el_IVF_df.clear();
-    el_IVF_ntracks.clear();
-    el_IVF_elid.clear();
-    el_IVF_x.clear();
-    el_IVF_y.clear();
-    el_IVF_z.clear();
-    el_IVF_cx.clear();
-    el_IVF_cy.clear();
-    el_IVF_cz.clear();
-    el_IVF_chi2.clear();
-    el_IVF_pt.clear();
-    el_IVF_eta.clear();
-    el_IVF_phi.clear();
-    el_IVF_E.clear();
-    el_IVF_mass.clear();
-    el_IVF_trackcharge.clear();
-    el_IVF_trackelid.clear();
-    el_IVF_trackvtxid.clear();
-    el_IVF_trackpt.clear();
-    el_IVF_tracketa.clear();
-    el_IVF_trackphi.clear();
-    el_IVF_trackE.clear();
-    el_IVF_trackdxy.clear();
-    el_IVF_trackdz.clear();
-    el_IVF_tracksignedIP2D.clear();
-    el_IVF_tracksignedIP2Dsig.clear();
-    el_IVF_tracksignedIP3D.clear();
-    el_IVF_tracksignedIP3Dsig.clear();
-
-    el_IVF_signedIP2D.clear();
-    el_IVF_signedIP2Dsig.clear();
-    el_IVF_signedIP3D.clear();
-    el_IVF_signedIP3Dsig.clear();
-
-    mu_idx.clear();
-    mu_lIVF_match.clear();
-    mu_IVF_df.clear();
-    mu_IVF_ntracks.clear();
-    mu_IVF_muid.clear();
-    mu_IVF_x.clear();
-    mu_IVF_y.clear();
-    mu_IVF_z.clear();
-    mu_IVF_cx.clear();
-    mu_IVF_cy.clear();
-    mu_IVF_cz.clear();
-    mu_IVF_chi2.clear();
-    mu_IVF_pt.clear();
-    mu_IVF_eta.clear();
-    mu_IVF_phi.clear();
-    mu_IVF_E.clear();
-    mu_IVF_mass.clear();
-    mu_IVF_trackcharge.clear();
-    mu_IVF_trackmuid.clear();
-    mu_IVF_trackvtxid.clear();
-    mu_IVF_trackpt.clear();
-    mu_IVF_tracketa.clear();
-    mu_IVF_trackphi.clear();
-    mu_IVF_trackE.clear();
-    mu_IVF_trackdxy.clear();
-    mu_IVF_trackdz.clear();
-    mu_IVF_tracksignedIP2D.clear();
-    mu_IVF_tracksignedIP2Dsig.clear();
-    mu_IVF_tracksignedIP3D.clear();
-    mu_IVF_tracksignedIP3Dsig.clear();
-
-    mu_IVF_signedIP2D.clear();
-    mu_IVF_signedIP2Dsig.clear();
-    mu_IVF_signedIP3D.clear();
-    mu_IVF_signedIP3Dsig.clear();
-
     int ntrack_max = 100;
     int nElectronsSel = 0;
     int nMuonsSel = 0;
@@ -181,12 +109,9 @@ public:
     for (unsigned int i = 0; i < nElectrons; i++) {
       const pat::Electron& el = electrons[i];
 
-      if (el.gsfTrack().isNull())
+      if (el.gsfTrack().isNull() || el.pt() < 7 || fabs(el.eta()) > 2.5) {
         continue;
-      if (el.pt() < 7)
-        continue;
-      if (fabs(el.eta()) > 2.5)
-        continue;
+      }
 
       el_idx.push_back(i);
       el_lIVF_match.push_back(false);
@@ -284,16 +209,10 @@ public:
     for (unsigned int i = 0; i < nMuons; i++) {
       const pat::Muon& mu = muons[i];
 
-      if (mu.innerTrack().isNull())
+      if (mu.innerTrack().isNull() || mu.pt() < 5 || fabs(mu.eta()) > 2.4 || !mu.isPFMuon() ||
+          !(mu.isTrackerMuon() || mu.isGlobalMuon())) {
         continue;
-      if (mu.pt() < 5)
-        continue;
-      if (fabs(mu.eta()) > 2.4)
-        continue;
-      if (!mu.isPFMuon())
-        continue;
-      if (!(mu.isTrackerMuon() || mu.isGlobalMuon()))
-        continue;
+      }
 
       mu_idx.push_back(i);
       mu_lIVF_match.push_back(false);

@@ -88,7 +88,7 @@ from PhysicsTools.NanoAOD.dtMDSshowerTable_cfi import dtMDSshowerTable
 cscMDSshowerTable = cscMDSshowerTable.clone( 
     name = cms.string("cscMDSCluster"),
     recHitLabel = cms.InputTag("csc2DRecHits"),
-    segmentLabel = cms.InputTag("dt4DSegments"),
+    dtSegmentLabel = cms.InputTag("dt4DSegments"),
     rpcLabel = cms.InputTag("rpcRecHits")
 )
 

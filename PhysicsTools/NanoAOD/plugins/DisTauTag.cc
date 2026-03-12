@@ -285,9 +285,7 @@ void DisTauTag::produce(edm::StreamID, edm::Event& event, const edm::EventSetup&
 
     // Running inference on batch
     std::vector<tensorflow::Tensor> outputs;
-    {
-      tensorflow::run(session_, {{"input_1", input_1}, {"input_2", input_2}}, {"final_out"}, &outputs);
-    }
+    { tensorflow::run(session_, {{"input_1", input_1}, {"input_2", input_2}}, {"final_out"}, &outputs); }
 
     // Storing results
     for (size_t batch_jet_idx = 0; batch_jet_idx < current_batch_size; ++batch_jet_idx) {
