@@ -440,14 +440,15 @@ void l1ct::tdr_regionizer::Regionizer<T>::printDebug(int count) const {
 
   dbgCout() << "SMALL REGIONS" << std::endl;
   for (unsigned int region = 0; region < regionmap_.size(); region++) {
-    dbgCout() << count << "\tregion\t\tphysRegion\titem\tpt\tloceta\tlocphi" << std::endl;
+    dbgCout() << count << "\tregion\t\tphysRegion\titem\tpt\tloceta\tlocphi\tpacked" << std::endl;
     auto physRegIdx = regionIndex(region);
     auto etaC = regions_[physRegIdx].intEtaCenter();
     auto phiC = regions_[physRegIdx].intPhiCenter();
     for (unsigned int j = 0; j < smallRegionObjects_[physRegIdx].size(); j++) {
       dbgCout() << "\t" << region << " (" << etaC << ", " << phiC << ")\t\t" << physRegIdx << "\t" << j << "\t"
                 << smallRegionObjects_[physRegIdx][j].intPt() << "\t" << smallRegionObjects_[physRegIdx][j].intEta()
-                << "\t" << smallRegionObjects_[physRegIdx][j].intPhi() << std::endl;
+                << "\t" << smallRegionObjects_[physRegIdx][j].intPhi()
+                << "\t" << smallRegionObjects_[physRegIdx][j].pack().to_string(16) << std::endl;
     }
     dbgCout() << "-------------------------------" << std::endl;
   }
