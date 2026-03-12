@@ -77,7 +77,7 @@ def loadDigiAliases(process, premix=False):
                 )
            }
           )
-    
+
     process.hcalDigis = cms.EDAlias(
         **{"simHcalDigis" if nopremix else "DMHcalDigis" :
             cms.VPSet(

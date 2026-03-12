@@ -22,7 +22,6 @@ import RecoTracker.IterativeTracking.iterativeTkUtils as _utils
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from Configuration.ProcessModifiers.hltClusterSplitting_cff import hltClusterSplitting
 
-
 ####Importing phase2 modifier
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 
@@ -45,7 +44,6 @@ for _eraName, _postfix, _era in _cfg.allEras():
         locals()["_electronSeedProducers"+_postfix] = ["tripletElectronSeeds", "pixelPairElectronSeeds", "stripPairElectronSeeds"]
     else:
         locals()["_electronSeedProducers"+_postfix] = ["tripletElectronSeeds"]
-
 
 _removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
                                  "jetCoreRegionalStepSeeds",
@@ -158,8 +156,6 @@ def _addSeedToTrackProducers(seedProducers,modDict):
 
 _relevantEras = _cfg.allEras()
 _relevantErasAndFastSim = _relevantEras + [("fastSim", "_fastSim", fastSim)]
-
-
 def _translateArgs(args, postfix, modDict):
     ret = []
     for arg in args:
@@ -562,7 +558,7 @@ trackValidatorBuildingPreSplitting = trackValidatorBuilding.clone(
 )
 for _eraName, _postfix, _era in _relevantErasAndFastSim:
     _setForEra(trackValidatorBuilding, _eraName, _era, label = locals()["_trackProducers"+_postfix])
-    
+
 fastSim.toModify(trackValidatorBuilding, doMVAPlots=False)
 (trackingPhase2PU140 & fastSim).toModify(trackValidatorBuilding, label = cms.VInputTag(_trackProducers_trackingPhase2PU140_fastSim))
 
@@ -953,9 +949,7 @@ tracksValidationSeedSelectorsTrackingOnly.add(tracksValidationSeedSelectorsPreSp
 
 trackingPhase2PU140_fastSim_trackprod, trackingPhase2PU140_fastSim_trackprod_task = _addSeedToTrackProducers(_seedProducers_trackingPhase2PU140_fastSim, modDict=globals())
 
-
 (trackingPhase2PU140 & fastSim).toReplaceWith(tracksValidationSeedSelectorsTrackingOnly, trackingPhase2PU140_fastSim_trackprod_task)
-
 
 # MTV instances
 trackValidatorTrackingOnly = trackValidatorStandalone.clone(
@@ -971,9 +965,6 @@ trackValidatorSeedingTrackingOnly = _trackValidatorSeedingBuilding.clone(
     doResolutionPlotsForLabels = [ "seedTracksjetCoreRegionalStepSeeds" ]
 )
 seedingDeepCore.toModify(trackValidatorSeedingTrackingOnly, doResolutionPlotsForLabels = ["seedTracksjetCoreRegionalStepSeedsBarrel","seedTracksjetCoreRegionalStepSeedsEndcap"] )
-
-#trackValidatorSeedingTrackingOnly
-#(trackingPhase2PU140 & fastSim).toModify(trackValidatorSeedingTrackingOnly, label = somename)
 
 trackValidatorSeedingPreSplittingTrackingOnly = trackValidatorSeedingTrackingOnly.clone(
     associators = ["quickTrackAssociatorByHitsPreSplitting"],

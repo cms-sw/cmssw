@@ -149,8 +149,6 @@ fastSim.toReplaceWith(vertexrecoTask,_fastSim_vertexrecoTask)
 _fastSim_globalrecoTask = globalrecoTask.copyAndExclude([CastorFullRecoTask,muoncosmicrecoTask])
 _fastSim_globalrecoTask.add(newCombinedSeeds,trackExtrapolator,caloTowerForTrk,firstStepPrimaryVerticesUnsorted,ak4CaloJetsForTrk,initialStepTrackRefsForJets,firstStepPrimaryVertices)
 
-#_fastSim_globalrecoTask.add(newCombinedSeeds,trackExtrapolator)
-
 fastSim.toReplaceWith(globalrecoTask,_fastSim_globalrecoTask)
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal

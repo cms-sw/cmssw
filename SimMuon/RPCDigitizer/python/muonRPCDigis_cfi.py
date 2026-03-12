@@ -34,7 +34,6 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
 
 #the digitizer for PhaseII muon upgrade is RPCSimModelTiming and for the moment is based on  RPCSimAverageNoiseEffCls
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-#fastSim.toModify(simMuonRPCDigis, InputCollection = 'MuonSimHitsMuonRPCHits')
 
 _simMuonRPCDigisPhaseII = cms.EDProducer("RPCandIRPCDigiProducer",
     Noise = cms.bool(True),

@@ -125,6 +125,7 @@ mixSimVertices = cms.PSet(
 # fastsim customs
 fastSim.toModify(mixSimTracks, input = ["fastSimProducer"])
 fastSim.toModify(mixSimVertices, input = ["fastSimProducer"])
+
 mixHepMCProducts = cms.PSet(
     makeCrossingFrame = cms.untracked.bool(True),
     input = cms.VInputTag(cms.InputTag("generatorSmeared"),cms.InputTag("generator")),
@@ -258,8 +259,6 @@ phase2_muon.toModify( theMixObjects,
         crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonME0Hits' ]
     )
 )
-
-
 (premix_stage1 & phase2_muon).toModify(theMixObjects,
     mixSH = dict(
         pcrossingFrames = theMixObjects.mixSH.pcrossingFrames + [ 'MuonME0Hits' ]
@@ -281,7 +280,6 @@ phase2_GE0.toModify( theMixObjects,
 )
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-
 phase2_hgcal.toModify( theMixObjects,
     mixCH = dict(
         input = theMixObjects.mixCH.input + [ cms.InputTag("g4SimHits",hgceeDigitizer.hitCollection.value()),

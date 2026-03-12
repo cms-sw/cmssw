@@ -110,8 +110,6 @@ premix_stage2.toModify(theDigitizers,
     MC_fastTimingLayer = dict(premixStage1 = True),
 )
 
-#(fastSim & phase2_hgcal).toModify(theDigitizersValid, calotruth = None)
-
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 (phase2_tracker& ~fastSim).toModify(theDigitizers,
                         strip = None)

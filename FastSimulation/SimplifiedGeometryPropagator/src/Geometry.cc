@@ -133,7 +133,6 @@ Geometry::Geometry(const edm::ParameterSet& cfg,
   for (unsigned index = 0; index < forwardLayers_.size(); index++) {
     // set index
     forwardLayers_[index]->setIndex(index);
-    std::cout<<"FWD Layer "<<index <<" , z pos:" <<forwardLayers_[index]->getZ()<<std::endl;
     // check order
     if (index > 0) {
       if (forwardLayers_[index]->getZ() < forwardLayers_[index - 1]->getZ()) {
