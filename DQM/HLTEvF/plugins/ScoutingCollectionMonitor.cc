@@ -1110,22 +1110,22 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   PF_dxy_n13_hist = ibook.book1DD("dxy_mu_minus", "PF #mu^{-} d_{xy} (cm);d_{xy} (cm);Entries", 100, -0.5, 0.5);
 
   PF_dzsig_211_hist =
-      ibook.book1DD("dzsig_posHad", "PF h^{+} d_{z} Signficance;d_{z}/#sigma_{dz};Entries", 100, 0.0, 10.0);
+      ibook.book1DD("dzsig_posHad", "PF h^{+} d_{z} Signficance;d_{z}/#sigma_{dz};Entries", 100, -10.0, 10.0);
   PF_dzsig_n211_hist =
-      ibook.book1DD("dzsig_negHad", "PF h^{-} d_{z} Signficance;d_{z}/#sigma_{dz};Entries", 100, 0.0, 10.0);
+      ibook.book1DD("dzsig_negHad", "PF h^{-} d_{z} Signficance;d_{z}/#sigma_{dz};Entries", 100, -10.0, 10.0);
   PF_dzsig_13_hist =
-      ibook.book1DD("dzsig_mu_plus", "PF #mu^{+} d_{z} Signficance;d_{z}/#sigma_{dz};Entries", 100, 0.0, 10.0);
+      ibook.book1DD("dzsig_mu_plus", "PF #mu^{+} d_{z} Signficance;d_{z}/#sigma_{dz};Entries", 100, -10.0, 10.0);
   PF_dzsig_n13_hist =
-      ibook.book1DD("dzsig_mu_minus", "PF #mu^{-} d_{z} Signficance;d_{z}/#sigma_{dz};Entries", 100, 0.0, 10.0);
+      ibook.book1DD("dzsig_mu_minus", "PF #mu^{-} d_{z} Signficance;d_{z}/#sigma_{dz};Entries", 100, -10.0, 10.0);
 
   PF_dxysig_211_hist =
-      ibook.book1DD("dxysig_posHad", "PF h^{+} d_{xy} Significance;d_{xy}/#sigma_{dxy};Entries", 100, 0.0, 10.0);
+      ibook.book1DD("dxysig_posHad", "PF h^{+} d_{xy} Significance;d_{xy}/#sigma_{dxy};Entries", 100, -10.0, 10.0);
   PF_dxysig_n211_hist =
-      ibook.book1DD("dxysig_negHad", "PF h^{-} d_{xy} Significance;d_{xy}/#sigma_{dxy};Entries", 100, 0.0, 10.0);
+      ibook.book1DD("dxysig_negHad", "PF h^{-} d_{xy} Significance;d_{xy}/#sigma_{dxy};Entries", 100, -10.0, 10.0);
   PF_dxysig_13_hist =
-      ibook.book1DD("dxysig_mu_plus", "PF #mu^{+} d_{xy} Significance;d_{xy}/#sigma_{dxy};Entries", 100, 0.0, 10.0);
+      ibook.book1DD("dxysig_mu_plus", "PF #mu^{+} d_{xy} Significance;d_{xy}/#sigma_{dxy};Entries", 100, -10.0, 10.0);
   PF_dxysig_n13_hist =
-      ibook.book1DD("dxysig_mu_minus", "PF #mu^{-} d_{xy} Significance;d_{xy}/#sigma_{dxy};Entries", 100, 0.0, 10.0);
+      ibook.book1DD("dxysig_mu_minus", "PF #mu^{-} d_{xy} Significance;d_{xy}/#sigma_{dxy};Entries", 100, -10.0, 10.0);
 
   // These variables are actually the difference between the PF candidate reconstructed kinematics and it's bestTrack ones.
   // This behaviour is governed by the "relativeTrackVars" parameter of HLTScoutingPFProducer
@@ -1505,30 +1505,30 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
         "ebRechitsN" + sfx, "Number of EB RecHits (" + lbl + "); number of EB recHits; Entries", 100, 0.0, 1000.0);
 
     ebRecHits_energy_hist[i] =
-        ibook.book1D("ebRechits_energy" + sfx,
-                     "Energy spectrum of EB RecHits (" + lbl + "); Energy of EB recHits (Gev); Entries",
-                     100,
-                     0.0,
-                     500.0);
+        ibook.book1DD("ebRechits_energy" + sfx,
+                      "Energy spectrum of EB RecHits (" + lbl + "); Energy of EB recHits (Gev); Entries",
+                      100,
+                      0.0,
+                      500.0);
 
-    ebRecHits_time_hist[i] = ibook.book1D("ebRechits_time" + sfx,
-                                          "Time of EB RecHits (" + lbl + "); Energy of EB recHits (ns); Entries",
-                                          200,
-                                          -100.,
-                                          100.0);
+    ebRecHits_time_hist[i] = ibook.book1DD("ebRechits_time" + sfx,
+                                           "Time of EB RecHits (" + lbl + "); Energy of EB recHits (ns); Entries",
+                                           200,
+                                           -100.,
+                                           100.0);
     eeRecHitsNumber_hist[i] = ibook.book1D(
         "eeRechitsN" + sfx, "Number of EE RecHits (" + lbl + "); number of EE recHits; Entries", 100, 0.0, 1000.0);
     eeRecHits_energy_hist[i] =
-        ibook.book1D("eeRechits_energy" + sfx,
-                     "Energy spectrum of EE RecHits (" + lbl + "); Energy of EE recHits (GeV); Entries",
-                     100,
-                     0.0,
-                     1000.0);
-    eeRecHits_time_hist[i] = ibook.book1D("eeRechits_time" + sfx,
-                                          "Time of EE RecHits (" + lbl + "); Time of EE recHits (ns); Entries",
-                                          200,
-                                          -100.0,
-                                          100.0);
+        ibook.book1DD("eeRechits_energy" + sfx,
+                      "Energy spectrum of EE RecHits (" + lbl + "); Energy of EE recHits (GeV); Entries",
+                      100,
+                      0.0,
+                      1000.0);
+    eeRecHits_time_hist[i] = ibook.book1DD("eeRechits_time" + sfx,
+                                           "Time of EE RecHits (" + lbl + "); Time of EE recHits (ns); Entries",
+                                           200,
+                                           -100.0,
+                                           100.0);
 
     ebRecHitsEtaPhiMap[i] = ibook.book2D("ebRecHitsEtaPhitMap" + sfx,
                                          "Occupancy map of EB rechits (" + lbl + ");ieta;iphi;Entries",
@@ -1587,11 +1587,11 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
                      2000.0);
 
     hbheRecHits_energy_hist[i] =
-        ibook.book1D(name + "Rechits_energy",
-                     "Energy spectrum of " + subdet + " RecHits; Energy of " + subdet + " recHits (GeV); RecHits",
-                     100,
-                     0.0,
-                     200.0);
+        ibook.book1DD(name + "Rechits_energy",
+                      "Energy spectrum of " + subdet + " RecHits; Energy of " + subdet + " recHits (GeV); RecHits",
+                      100,
+                      0.0,
+                      200.0);
 
     // Energy > 5 GeV histograms
     hbheRecHits_energy_egt5_hist[i] = ibook.book1D(
@@ -1602,11 +1602,11 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
         30.0);
 
     hbheRecHits_time_hist[i] =
-        ibook.book1D(name + "Rechits_time",
-                     "Time of " + subdet + " RecHits; Time of " + subdet + " recHits (ns); RecHits",
-                     100,
-                     0.,
-                     30.0);
+        ibook.book1DD(name + "Rechits_time",
+                      "Time of " + subdet + " RecHits; Time of " + subdet + " recHits (ns); RecHits",
+                      100,
+                      0.,
+                      30.0);
 
     // Energy > 5 GeV histograms
     hbheRecHits_time_egt5_hist[i] =
