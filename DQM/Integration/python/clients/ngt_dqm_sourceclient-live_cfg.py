@@ -32,11 +32,6 @@ else:
 #    input = cms.untracked.int32(100)
 #)
 
-# import beamspot
-from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer as _onlineBeamSpotProducer
-process.hltOnlineBeamSpot = _onlineBeamSpotProducer.clone()
-
-
 process.load("DQM.Integration.config.environment_cfi")
 
 process.dqmEnv.subSystemFolder = 'NGT'
@@ -53,6 +48,10 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus: change and possibly customise the GT
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
 #process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
+
+# import beamspot
+from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer as _onlineBeamSpotProducer
+process.hltOnlineBeamSpot = _onlineBeamSpotProducer.clone()
 
 ### for pp collisions
 process.load("DQM.HLTEvF.ScoutingCollectionMonitor_cfi")
@@ -73,13 +72,25 @@ process.ScoutingPi0MonitorOnline.isolationPtRatio = 0.8
 process.ScoutingPi0MonitorOnline.asymmetryCut = 0.85
 process.ScoutingPi0MonitorOnline.pairMaxDr = 0.1
 
+# needed by ScoutingMuonPropertiesMonitor
+process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
+process.load("DQM.HLTEvF.ScoutingMuonMonitoring_cff")
+process.ScoutingMuonPropertiesMonitorOnline.OutputInternalPath = "NGT/ScoutingOnline/Muons/Properties"
+
+process.load("DQM.HLTEvF.ScoutingRechitMonitoring_cff")
+process.ScoutingEBRechitAnalyzerOnline.topFolderName  = 'NGT/ScoutingOnline/EBRechits'
+process.ScoutingEBCleanedRechitAnalyzerOnline.topFolderName = 'NGT/ScoutingOnline/EBCleanedRechits'
+process.ScoutingHBHERechitAnalyzerOnline.topFolderName = 'NGT/ScoutingOnline/HBHERechits'
+
 process.dqmcommon = cms.Sequence(process.dqmEnv
                                * process.dqmSaver)#*process.dqmSaverPB)
 
 process.p = cms.Path(process.dqmcommon *
                      process.hltOnlineBeamSpot *
                      process.scoutingCollectionMonitor *
+                     process.ScoutingRecHitsMonitoring *
                      process.ScoutingDileptonMonitorOnline *
+                     process.ScoutingMuonPropertiesMonitorOnline *
                      process.ScoutingPi0MonitorOnline)
 
 ### process customizations included here
