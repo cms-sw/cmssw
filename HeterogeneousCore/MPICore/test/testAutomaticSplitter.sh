@@ -10,6 +10,6 @@ REMOTE_PATH="./autosplit_result/remote_test_config.py"
 
 python3 "$SPLITTER" "$WHOLE_CONFIG" \
   --remote-modules triggerEventProducer testReadTriggerResults rawDataBufferProducer testReadFEDRawDataCollection \
-  -ol "$LOCAL_PATH" -or "$REMOTE_PATH"
+  -l "$LOCAL_PATH" -r "$REMOTE_PATH"
 
 "$CMSSW_BASE"/src/HeterogeneousCore/MPICore/test/testMPICommWorld.sh "$LOCAL_PATH" "$REMOTE_PATH"

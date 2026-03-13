@@ -80,7 +80,29 @@ def make_receiver_psets(products):
         psets.append(
             cms.PSet(
                 type=cms.string(p["type"]),
-                label=cms.string(p["product_instance"])
+                label=cms.string(p['product_instance'])
+            )
+        )
+
+    return cms.VPSet(*psets)
+
+
+def make_grouped_receiver_psets(products):
+    psets = []
+
+    for p in products:
+        if is_device_product(p):
+            continue
+        
+        if p["product_instance"] == "":
+            label = p["module"]
+        else:
+            label = f"{p['module']}@{p['product_instance']}"
+
+        psets.append(
+            cms.PSet(
+                type=cms.string(p["type"]),
+                label=cms.string(label)
             )
         )
 
@@ -91,10 +113,6 @@ def replace_module(process, name, new_module):
     if hasattr(process, name):
         delattr(process, name)
     setattr(process, name, new_module)
-
-
-def get_sender_name(module_name):
-    return f"mpiSender{module_name[0].upper()}{module_name[1:]}"
 
 
 def create_sender(
@@ -120,6 +138,65 @@ def create_sender(
     )
 
     return sender
+
+
+def create_group_sender(
+    group,
+    all_products,
+    instance,
+    upstream_module,
+    path_state_capture=None,
+):
+    """
+    Add MPISender for multiple modules.
+    """
+    sender_products = []
+    for offloaded_module in group:
+        sender_products.extend(make_sender_patterns(offloaded_module, all_products[offloaded_module]))
+
+    if path_state_capture is not None:
+        sender_products.append(f"*_{path_state_capture}__*".replace(" ", ""))
+
+    sender = cms.EDProducer(
+        "MPISender",
+        upstream=cms.InputTag(upstream_module),
+        instance=cms.int32(instance),
+        products=cms.vstring(*sender_products),
+    )
+
+    return sender
+
+
+def create_group_receiver(
+    group,
+    all_products,
+    instance,
+    receiver_upstream,
+    path_state_capture=False,
+):
+    """
+    MPIReceiver for one module.
+    """
+    receiver_products = []
+    for offloaded_module in group:
+        receiver_products.extend(make_grouped_receiver_psets(all_products[offloaded_module]))
+
+    if path_state_capture:
+        receiver_products.append(
+            cms.PSet(
+                type=cms.string("edm::PathStateToken"),
+                label=cms.string(""),
+            )
+        )
+
+    receiver = cms.EDProducer(
+        "MPIReceiver",
+        upstream=cms.InputTag(receiver_upstream),
+        instance=cms.int32(instance),
+        products=cms.VPSet(*receiver_products),
+    )
+
+    return receiver
 
 
 def create_receiver(
@@ -149,6 +226,42 @@ def create_receiver(
     )
 
     return receiver
+
+
+def create_receiver_alias(receiver_name,
+    products,
+    module_name
+):
+    """
+    Create module aliases for receiver group
+    """
+    psets = []
+
+    for p in products:
+        if is_device_product(p):
+            continue
+        
+        if p["product_instance"] == "":
+            fromProductInstance_string = module_name
+        else:
+            fromProductInstance_string = f"{module_name}@{p['product_instance']}"
+
+        psets.append(
+            cms.PSet(
+                type=cms.string(p["friendly_type_name"]),
+                fromProductInstance=cms.string(fromProductInstance_string),
+                toProductInstance = cms.string(p["product_instance"])
+            )
+        )
+    
+    alias = cms.EDAlias(
+            **{
+                receiver_name: cms.VPSet(*psets)
+            }
+        )
+
+    return alias
+    
 
 
 def make_new_path(
