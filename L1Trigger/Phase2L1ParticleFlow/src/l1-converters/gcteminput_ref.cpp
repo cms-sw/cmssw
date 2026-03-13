@@ -47,7 +47,6 @@ l1ct::EmCaloObjEmu l1ct::GctEmClusterDecoderEmulator::decode(const l1ct::PFRegio
     calo.hwPt = l1ct::Scales::makePtFromFloat(newpt);
   }
 
-  // Note: at this point still
   calo.hwPtErr =
       l1ct::Scales::makePtFromFloat(resol_(calo.floatPt(), calo.floatEta()));  // NOTE: this is still abs(globalEta)
 
@@ -56,6 +55,12 @@ l1ct::EmCaloObjEmu l1ct::GctEmClusterDecoderEmulator::decode(const l1ct::PFRegio
   // bit 1: looseL1TkMatchWP: is_looseTkiso && is_looseTkss
   // bit 2: photonWP:
   calo.hwEmID = inclus.wp();
+
+  // Should any of these values be corrected? At the moment they are not
+  calo.hwRelIso = l1ct::Scales::makeRelIso(inclus.iso() * inclus.ptLSB() / inclus.ptFloat());
+
+  calo.hwShowerShape = inclus.shape();
+
   // convert eta to local
   if (sector.hwEtaCenter < 0) {
     calo.hwEta = -calo.hwEta - sector.hwEtaCenter;
