@@ -1,16 +1,23 @@
 // C++ headers
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <ctime>
+#include <iomanip>
 
 // {fmt} headers
 #include <fmt/printf.h>
 
+// ROOT headers
+#include <TLinearFitter.h>
+
 // CMSSW headers
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 #include "HLTrigger/Timer/interface/processor_model.h"
+
 #include "ThroughputService.h"
 
 using namespace std::literals;
@@ -171,19 +178,33 @@ void ThroughputService::postEndJob() {
     info << '\n';
   }
 
-  // measure the time to process each block of m_resolution events
-  std::vector<double> delta(steps);
-  for (uint32_t i = 0; i < steps; ++i) {
-    delta[i] = std::chrono::duration_cast<std::chrono::duration<double>>(m_events[i + 1] - m_events[i]).count();
+  // evaluate the throughput with a least square fit to the linear formula e = a×t + b
+  uint32_t n = m_events.size();
+  std::vector<double> t(n);
+  std::vector<double> e(n);
+  for (uint32_t i = 0; i < n; ++i) {
+    t[i] = std::chrono::duration_cast<std::chrono::duration<double>>(m_events[i] - m_startup).count();
+    e[i] = front + i * m_resolution;
   }
-  // measure the average and standard deviation of the time to process m_resolution
-  double time_avg = TMath::Mean(delta.begin(), delta.begin() + delta.size());
-  double time_dev = TMath::StdDev(delta.begin(), delta.begin() + delta.size());
-  // compute the throughput and its standard deviation across the job
-  double throughput_avg = double(m_resolution) / time_avg;
-  double throughput_dev = double(m_resolution) * time_dev / time_avg / time_avg;
+  TLinearFitter fit(1, "pol1");
+  fit.AssignData(n, 1, t.data(), e.data());
+  fit.Eval();
+  double throughput_avg = fit.GetParameter(1);
+  double throughput_dev = fit.GetParError(1);
 
-  info << "Average throughput: " << throughput_avg << " ± " << throughput_dev << " ev/s";
+  // evaluate the throughout with a robust fit, allowing the rejection of up to 5% of outliers
+  fit.EvalRobust(0.95);
+  double robust_avg = fit.GetParameter(1);
+
+  // number of digits to use, depending on the accurracy of the measurment
+  int precision = 2;
+  if (throughput_dev > 0) {
+    int digit = std::log10(throughput_dev);
+    precision = std::max(2, 2 - digit);
+  }
+
+  info << std::fixed << std::setprecision(precision) << "Average throughput: " << throughput_avg << " ± "
+       << throughput_dev << " ev/s (robust estimate with 5\% outlier rejection: " << robust_avg << " ev/s)";
 }
 
 // declare ThroughputService as a framework Service
