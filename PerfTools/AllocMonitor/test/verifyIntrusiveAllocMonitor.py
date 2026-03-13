@@ -376,14 +376,55 @@ def verify_nested_with_string_messages(test_case):
     if test_case['sum'] != 433:
         raise ValueError(f"nested with string messages: expected sum 433, got {test_case['sum']}")
 
+def verify_nested_churning(test_case):
+    """Verify conditions for 'nested churning' test case."""
+    name = test_case['name']
+    if name != 'nested churning':
+        raise ValueError(f"Expected 'nested churning', got '{name}'")
+
+    messages = test_case['messages']
+    if len(messages) != 1:
+        raise ValueError(f"nested churning: expected 1 message, got {len(messages)}")
+
+    msg = messages[0]
+
+    # Check labels
+    expected_labels = ['Nested churning']
+    if msg['labels'] != expected_labels:
+        raise ValueError(f"nested churning: expected labels {expected_labels}, got {msg['labels']}")
+
+    # added is 0: vec is destroyed before the guard (reverse declaration order), so all
+    # memory allocated during the scope is also freed within the scope
+    if msg['added'] != 0:
+        raise ValueError(f"nested churning: added must be 0, got {msg['added']}")
+
+    # nAlloc equals nDealloc
+    if msg['nAlloc'] != msg['nDealloc']:
+        raise ValueError(f"nested churning: nAlloc ({msg['nAlloc']}) must equal nDealloc ({msg['nDealloc']})")
+
+    # nAlloc is larger than 1 (multiple reallocations during push_back)
+    if msg['nAlloc'] <= 1:
+        raise ValueError(f"nested churning: nAlloc must be > 1, got {msg['nAlloc']}")
+
+    # peak and max_alloc are larger than 0
+    if msg['peak'] <= 0:
+        raise ValueError(f"nested churning: peak must be > 0, got {msg['peak']}")
+    if msg['max_alloc'] <= 0:
+        raise ValueError(f"nested churning: max alloc must be > 0, got {msg['max_alloc']}")
+
+    # Verify sum
+    if test_case['sum'] != 149935000:
+        raise ValueError(f"nested churning: expected sum 149935000, got {test_case['sum']}")
+
+
 def main():
     """Main function to parse and verify IntrusiveAllocMonitor output."""
     try:
         test_cases = read_test_cases()
 
-        # Check that we have exactly 5 test cases
-        if len(test_cases) != 5:
-            raise ValueError(f"Expected exactly 5 test cases, got {len(test_cases)}")
+        # Check that we have exactly 6 test cases
+        if len(test_cases) != 6:
+            raise ValueError(f"Expected exactly 6 test cases, got {len(test_cases)}")
 
         # Verify each test case
         verify_vector_fill(test_cases[0])
@@ -391,6 +432,7 @@ def main():
         verify_nested_empty_outer(test_cases[2])
         verify_nested_allocation(test_cases[3])
         verify_nested_with_string_messages(test_cases[4])
+        verify_nested_churning(test_cases[5])
 
         # All checks passed, exit silently with code 0
         sys.exit(0)
