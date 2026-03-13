@@ -16,12 +16,23 @@ namespace Phase2L1GMT {
   class KMTFCore {
   public:
     typedef ROOT::Math::SVector<double, 2> Vector2;
+    typedef ROOT::Math::SVector<double, 3> Vector3;
+    typedef ROOT::Math::SVector<double, 4> Vector4;
     typedef ROOT::Math::SMatrix<double, 2, 2, ROOT::Math::MatRepSym<double, 2> > CovarianceMatrix2;
+    typedef ROOT::Math::SMatrix<double, 3, 3, ROOT::Math::MatRepSym<double, 3> > CovarianceMatrix3;
+    typedef ROOT::Math::SMatrix<double, 4, 4, ROOT::Math::MatRepSym<double, 4> > CovarianceMatrix4;
     typedef ROOT::Math::SMatrix<double, 3, 2> Matrix32;
+    typedef ROOT::Math::SMatrix<double, 5, 3> Matrix53;
     typedef ROOT::Math::SMatrix<double, 2, 3> Matrix23;
+    typedef ROOT::Math::SMatrix<double, 4, 5> Matrix45;
+    typedef ROOT::Math::SMatrix<double, 5, 4> Matrix54;
     typedef ROOT::Math::SMatrix<double, 1, 3> Matrix13;
+    typedef ROOT::Math::SMatrix<double, 3, 5> Matrix35;
     typedef ROOT::Math::SMatrix<double, 3, 1> Matrix31;
     typedef ROOT::Math::SMatrix<double, 3, 3> Matrix33;
+    typedef ROOT::Math::SMatrix<double, 5, 5> Matrix55;
+    typedef ROOT::Math::SMatrix<double, 1, 5> Matrix15;
+    typedef ROOT::Math::SMatrix<double, 5, 1> Matrix51;
 
     KMTFCore(const edm::ParameterSet& settings);
 
@@ -138,8 +149,13 @@ namespace Phase2L1GMT {
     ///////////////////////////////////////////////////////
 
     bool useOfflineAlgo_;
+	//used for z propagation
+    std::vector<double> zdeltaR_;
+	//multiple scattering constants used in multiple scattering matrix to build RMS values
     std::vector<double> mScatteringPhi_;
     std::vector<double> mScatteringPhiB_;
+    std::vector<double> mScatteringz_;
+    std::vector<double> mScatteringkSlope_;
     //point resolution for phi
     double pointResolutionPhi_;
     //point resolution for phiB
@@ -149,6 +165,10 @@ namespace Phase2L1GMT {
     //double pointResolutionPhiB_;
     //point resolution for vertex
     double pointResolutionVertex_;
+	// point resolution for z 
+    std::vector<double> pointResolutionz_;
+	// point resolution for kSlope 
+    std::vector<double> pointResolutionkSlope_;
     std::vector<double> curvResolution1_;
     std::vector<double> curvResolution2_;
     //Sorter

@@ -47,13 +47,18 @@ KMTFCore::KMTFCore(const edm::ParameterSet& settings)
       combos1_(settings.getParameter<std::vector<int> >("combos1")),
 
       useOfflineAlgo_(settings.getParameter<bool>("useOfflineAlgo")),
+      zdeltaR_(settings.getParameter<std::vector<double> >("zdeltaR")),
       mScatteringPhi_(settings.getParameter<std::vector<double> >("mScatteringPhi")),
       mScatteringPhiB_(settings.getParameter<std::vector<double> >("mScatteringPhiB")),
+      mScatteringz_(settings.getParameter<std::vector<double> >("mScatteringz")),
+      mScatteringkSlope_(settings.getParameter<std::vector<double> >("mScatteringkSlope")),
       pointResolutionPhi_(settings.getParameter<double>("pointResolutionPhi")),
       pointResolutionPhiB_(settings.getParameter<double>("pointResolutionPhiB")),
       pointResolutionPhiBH_(settings.getParameter<std::vector<double> >("pointResolutionPhiBH")),
       pointResolutionPhiBL_(settings.getParameter<std::vector<double> >("pointResolutionPhiBL")),
       pointResolutionVertex_(settings.getParameter<double>("pointResolutionVertex")),
+      pointResolutionz_(settings.getParameter<std::vector<double> >("pointResolutionz")),
+      pointResolutionkSlope_(settings.getParameter<std::vector<double> >("pointResolutionkSlope")),
       curvResolution1_(settings.getParameter<std::vector<double> >("curvResolution1")),
       curvResolution2_(settings.getParameter<std::vector<double> >("curvResolution2")) {}
 
@@ -79,10 +84,10 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
       throw cms::Exception("KMTFCore") << "Something really bad happend\n";
   }
 
-  l1t::KMTFTrack nullTrack(seed, seed->coord1(), correctedPhiB(seed));
+  l1t::KMTFTrack nullTrack(seed, seed->coord1(), correctedPhiB(seed), seed->eta1(), seed->eta2());
   seedQual = seed->quality();
   for (const auto& mask : combinatorics) {
-    l1t::KMTFTrack track(seed, seed->coord1(), correctedPhiB(seed));
+    l1t::KMTFTrack track(seed, seed->coord1(), correctedPhiB(seed), seed->eta1(), seed->eta2());
     int phiB = correctedPhiB(seed);
     int charge;
     if (phiB == 0)
@@ -103,16 +108,16 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
       initialK = pow(2, BITSCURV - 1) - 1;
     if (initialK <= -pow(2, BITSCURV - 1))
       initialK = -pow(2, BITSCURV - 1) + 1;
-    track.setCoordinates(seed->depthRegion(), initialK, seed->coord1(), phiB);
+    track.setCoordinates(seed->depthRegion(), initialK, seed->coord1(), phiB, seed->eta1(), seed->eta2());
     if (seed->quality() < 6) {
-      track.setCoordinates(seed->depthRegion(), initialK, seed->coord1(), 0);
+      track.setCoordinates(seed->depthRegion(), initialK, seed->coord1(), 0, seed->eta1(), seed->eta2());
     }
     if (verbose_) {
       edm::LogInfo("KMTFCore") << "Initial state: phiB=" << phiB << " addr=" << address << " K=" << initialK;
     }
     track.setHitPattern(hitPattern(track));
     //set covariance
-    l1t::KMTFTrack::CovarianceMatrix covariance;
+    l1t::CovarianceMatrix5dim covariance;
     float DK = curvResolution1_[track.step() - 1] + curvResolution2_[track.step() - 1] * initialK * initialK;
     if (seed->quality() < 6)
       DK = pow(2, 22);
@@ -134,6 +139,8 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
       else
         covariance(2, 2) = float(pointResolutionPhiBH_[seed->depthRegion() - 1]);
     }
+	covariance(3,3) = float(pointResolutionz_[seed->depthRegion() - 1]);
+	covariance(4,4) = float(pointResolutionkSlope_[seed->depthRegion() - 1]);
     track.setCovariance(covariance);
 
     //
@@ -429,6 +436,8 @@ void KMTFCore::propagate(l1t::KMTFTrack& track) {
   int phi = track.positionAngle();
   int phiB = track.bendingAngle();
   unsigned int step = track.step();
+  int z = track.zPosition();
+  int kSlope = track.kSlope();
 
   int charge = 1;
   if (K != 0)
@@ -503,42 +512,76 @@ void KMTFCore::propagate(l1t::KMTFTrack& track) {
   //Rest of the stuff  is for the offline version only
   //where we want to check what is happening in the covariance matrix
 
+  //z and kSlope propagation offline studies
+  //zdeltaR are in phyiscal units. convert for the propagation of z. 
+  constexpr double ZRES_CONV = 65536. / 1500.;
+  constexpr double KRES_CONV = 65536. / 2. ;
+  constexpr double zdR_CONV = ZRES_CONV / KRES_CONV ; 
+  double zdeltaR_dig = zdeltaR_[step - 1] * zdR_CONV ; 
+  int kSlopeNew = kSlope;
+  int zNew = z + (int)(kSlope * zdeltaR_dig);
+  
+
   //Create the transformation matrix
-  double a[9];
-  a[0] = 1.;
+  double a[25];
+  a[0] = 1.0;
   a[1] = 0.0;
   a[2] = 0.0;
-  a[3] = aPhi_[step - 1];
-  //  a[3] = 0.0;
-  a[4] = 1.0;
-  a[5] = -bPhi_[step - 1];
-  //a[6]=0.0;
-  a[6] = aPhiB_[step - 1];
+  a[3] = 0.0;
+  a[4] = 0.0;
+  a[5] = aPhi_[step - 1];
+  a[6] = 1.0;
+  a[7] = -bPhi_[step - 1];
+  a[8] = 0.0;
+  a[9] = 0.0;
+  a[10] = aPhiB_[step - 1];
   if (step == 1)
-    a[6] = aPhiB_[step - 1] / 2.0;
+    a[10] = aPhiB_[step - 1] / 2.0;
+  a[11] = 0.0;
+  a[12] = bPhiB_[step - 1];
+  a[13] = 0.0;
+  a[14] = 0.0;
+  a[15] = 0.0;
+  a[16] = 0.0;
+  a[17] = 0.0;
+  a[18] = 1.0;
+  a[19] = zdeltaR_dig;
+  a[20] = 0.0;
+  a[21] = 0.0;
+  a[22] = 0.0;
+  a[23] = 0.0;
+  a[24] = 1.0;
 
-  a[7] = 0.0;
-  a[8] = bPhiB_[step - 1];
-
-  ROOT::Math::SMatrix<double, 3> P(a, 9);
+  ROOT::Math::SMatrix<double, 5> P(a, 25);
 
   const std::vector<double>& covLine = track.covariance();
-  l1t::KMTFTrack::CovarianceMatrix cov(covLine.begin(), covLine.end());
+  l1t::CovarianceMatrix5dim cov(covLine.begin(), covLine.end());
   cov = ROOT::Math::Similarity(P, cov);
 
   //Add the multiple scattering
   double phiRMS = mScatteringPhi_[step - 1] * K * K;
   double phiBRMS = mScatteringPhiB_[step - 1] * K * K;
+  double zRMS = mScatteringz_[step - 1] * K * K ;
+  double kSlopeRMS = mScatteringkSlope_[step - 1] * K * K;
 
-  std::vector<double> b(6);
+  std::vector<double> b(15);
   b[0] = 0;
   b[1] = 0;
   b[2] = phiRMS;
   b[3] = 0;
   b[4] = 0;
   b[5] = phiBRMS;
+  b[6] = 0;
+  b[7] = 0;
+  b[8] = 0;
+  b[9] = zRMS;
+  b[10] = 0;
+  b[11] = 0;
+  b[12] = 0;
+  b[13] = 0;
+  b[14] = kSlopeRMS;
 
-  reco::Candidate::CovarianceMatrix MS(b.begin(), b.end());
+  l1t::CovarianceMatrix5dim MS(b.begin(), b.end());
 
   cov = cov + MS;
 
@@ -548,7 +591,7 @@ void KMTFCore::propagate(l1t::KMTFTrack& track) {
   }
 
   track.setCovariance(cov);
-  track.setCoordinates(step - 1, KNew, phiNew, phiBNew);
+  track.setCoordinates(step - 1, KNew, phiNew, phiBNew, zNew, kSlopeNew);
 }
 
 bool KMTFCore::update(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub, int mask, int seedQual) {
@@ -567,45 +610,71 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
   int trackK = track.curvature();
   int trackPhi = track.positionAngle();
   int trackPhiB = track.bendingAngle();
+  int trackz = track.zPosition();
+  int trackSlope = track.kSlope();
 
   int phi = stub->coord1();
   int phiB = correctedPhiB(stub);
+  int z = stub->eta1();
+  int kSlope = stub->eta2();
 
-  Vector2 residual;
+  Vector4 residual;
   residual[0] = ap_fixed<BITSPHI, BITSPHI>(phi - trackPhi);
   residual[1] = phiB - trackPhiB;
+  residual[2] = z - trackz;
+  residual[3] = kSlope - trackSlope;
 
-  Matrix23 H;
+  Matrix45 H;
   H(0, 0) = 0.0;
   H(0, 1) = 1.0;
   H(0, 2) = 0.0;
+  H(0, 3) = 0.0;
+  H(0, 4) = 0.0;
   H(1, 0) = 0.0;
   H(1, 1) = 0.0;
   H(1, 2) = 1.0;
+  H(1, 3) = 0.0;
+  H(1, 4) = 0.0;
+  H(2, 0) = 0.0;
+  H(2, 1) = 0.0;
+  H(2, 2) = 0.0;
+  H(2, 3) = 1.0;
+  H(2, 4) = 0.0;
+  H(3, 0) = 0.0;
+  H(3, 1) = 0.0;
+  H(3, 2) = 0.0;
+  H(3, 3) = 0.0;
+  H(3, 4) = 1.0;
 
   const auto r11{stub->quality() < 6 ? pointResolutionPhiBL_[track.step() - 1]
                                      : pointResolutionPhiBH_[track.step() - 1]};
-  const double r[]{pointResolutionPhi_, 0.0, 0.0, r11};
-  const CovarianceMatrix2 R(r, 4);
+  const double r[]{
+					pointResolutionPhi_, 0.0, 0.0, 0.0, 
+					0.0, r11, 0.0, 0.0, 
+					0.0, 0.0, pointResolutionz_[track.step() - 1], 0.0, 
+					0.0, 0.0, 0.0, pointResolutionkSlope_[track.step() - 1]};
+  const CovarianceMatrix4 R(r, 16);
 
   const std::vector<double>& covLine = track.covariance();
-  const l1t::KMTFTrack::CovarianceMatrix cov(covLine.begin(), covLine.end());
-  CovarianceMatrix2 S = ROOT::Math::Similarity(H, cov) + R;
+  const l1t::CovarianceMatrix5dim cov(covLine.begin(), covLine.end());
+  CovarianceMatrix4 S = ROOT::Math::Similarity(H, cov) + R;
   if (!S.Invert())
     return false;
-  const Matrix32 Gain = cov * ROOT::Math::Transpose(H) * S;
+  const Matrix54 Gain = cov * ROOT::Math::Transpose(H) * S;
 
-  track.setKalmanGain(
-      track.step(), fabs(trackK), Gain(0, 0), Gain(0, 1), Gain(1, 0), Gain(1, 1), Gain(2, 0), Gain(2, 1));
+  //track.setKalmanGain(
+      //track.step(), fabs(trackK), Gain(0, 0), Gain(0, 1), Gain(1, 0), Gain(1, 1), Gain(2, 0), Gain(2, 1));
 
-  int KNew = (trackK + int(Gain(0, 0) * residual(0) + Gain(0, 1) * residual(1)));
+  int KNew = (trackK + int(Gain(0, 0) * residual(0) + Gain(0, 1) * residual(1) + Gain(0, 2) * residual(2) + Gain(0, 3) * residual(3)));
   if (fabs(KNew) > pow(2, BITSCURV - 1))
     return false;
 
   int phiNew = wrapAround(trackPhi + residual(0), pow(2, BITSPHI - 1));
-  int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1)), pow(2, BITSPHIB - 1));
+  int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1) + Gain(2, 2) * residual(2) + Gain(2, 3) * residual(3)), pow(2, BITSPHIB - 1));
+  int zNew = trackz + int(Gain(3, 0) * residual(0) + Gain(3, 1) * residual(1) + Gain(3, 2) * residual(2) + Gain(3, 3) * residual(3));
+  int kSlopeNew = trackSlope + int(Gain(4, 0) * residual(0) + Gain(4, 1) * residual(1) + Gain(4, 2) * residual(2) + Gain(4, 3) * residual(3));
 
-  track.setResidual(stub->depthRegion() - 1, fabs(phi - phiNew) + fabs(phiB - phiBNew));
+  track.setResidual(stub->depthRegion() - 1, fabs(phi - phiNew) + fabs(phiB - phiBNew) + fabs(z - zNew) + fabs(kSlope - kSlopeNew));
 
   if (verbose_) {
     edm::LogInfo("KMTFCore") << "residual " << phi << " - " << trackPhi << " = " << int(residual[0]) << " " << phiB
@@ -618,19 +687,14 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
                              << Gain(2, 1) << " * " << residual(1);
   }
 
-  track.setCoordinates(track.step(), KNew, phiNew, phiBNew);
+  track.setCoordinates(track.step(), KNew, phiNew, phiBNew, zNew, kSlopeNew);
   const auto covNew{cov - Gain * (H * cov)};
-  l1t::KMTFTrack::CovarianceMatrix c;
+  l1t::CovarianceMatrix5dim c;
 
-  c(0, 0) = covNew(0, 0);
-  c(0, 1) = covNew(0, 1);
-  c(0, 2) = covNew(0, 2);
-  c(1, 0) = covNew(1, 0);
-  c(1, 1) = covNew(1, 1);
-  c(1, 2) = covNew(1, 2);
-  c(2, 0) = covNew(2, 0);
-  c(2, 1) = covNew(2, 1);
-  c(2, 2) = covNew(2, 2);
+  for (int i = 0; i < 5; i++)
+    for (int j = i; j < 5; j++)
+      c(i, j) = covNew(i, j);
+
   if (verbose_) {
     edm::LogInfo("KMTFCore") << "Post Fit Covariance Matrix " << cov(0, 0) << " " << cov(1, 1) << " " << cov(2, 2);
   }
@@ -646,51 +710,76 @@ bool KMTFCore::updateOffline1D(l1t::KMTFTrack& track, const l1t::MuonStubRef& st
   int trackK = track.curvature();
   int trackPhi = track.positionAngle();
   int trackPhiB = track.bendingAngle();
+  int trackz = track.zPosition();
+  int trackSlope = track.kSlope();
 
   int phi = stub->coord1();
+  int z = stub->eta1();
+  int kSlope = stub->eta2();
 
-  double residual = ap_fixed<BITSPHI, BITSPHI>(phi - trackPhi);
+  Vector3 residual;
+  residual[0] = ap_fixed<BITSPHI, BITSPHI>(phi - trackPhi);
+  residual[1] = z - trackz;
+  residual[2] = kSlope - trackSlope;
 
-  if (verbose_)
-    edm::LogInfo("KMTFCore") << "residuals " << phi << " - " << trackPhi << " = " << int(residual);
+  if (verbose_) {
+    edm::LogInfo("KMTFCore") << "residual phi" << phi << " - " << trackPhi << " = " << int(residual(0));
+    edm::LogInfo("KMTFCore") << "residual z" << z << " - " << trackz << " = " << int(residual(1));
+    edm::LogInfo("KMTFCore") << "residual kSlope" << kSlope << " - " << trackSlope << " = " << int(residual(2));
+	}
 
-  Matrix13 H;
+  Matrix35 H;
   H(0, 0) = 0.0;
   H(0, 1) = 1.0;
   H(0, 2) = 0.0;
+  H(0, 3) = 0.0;
+  H(0, 4) = 0.0;
+  H(1, 0) = 0.0;
+  H(1, 1) = 0.0;
+  H(1, 2) = 0.0;
+  H(1, 3) = 1.0;
+  H(1, 4) = 0.0;
+  H(2, 0) = 0.0;
+  H(2, 1) = 0.0;
+  H(2, 2) = 0.0;
+  H(2, 3) = 0.0;
+  H(2, 4) = 1.0;
+
+  const double r[]{pointResolutionPhi_, 0.0, 0.0, 0.0, pointResolutionz_[track.step() - 1], 0.0, 0.0, 0.0, pointResolutionkSlope_[track.step() - 1]};
+  const CovarianceMatrix3 R(r, 9);
 
   const std::vector<double>& covLine = track.covariance();
-  l1t::KMTFTrack::CovarianceMatrix cov(covLine.begin(), covLine.end());
+  l1t::CovarianceMatrix5dim cov(covLine.begin(), covLine.end());
 
-  double S = ROOT::Math::Similarity(H, cov)(0, 0) + pointResolutionPhi_;
-  if (S == 0.0)
+  CovarianceMatrix3 S = ROOT::Math::Similarity(H, cov) + R;
+  if (!S.Invert())
     return false;
-  Matrix31 Gain = cov * ROOT::Math::Transpose(H) / S;
+  Matrix53 Gain = cov * ROOT::Math::Transpose(H) * S;
 
-  track.setKalmanGain(track.step(), fabs(trackK), Gain(0, 0), 0.0, Gain(1, 0), 0.0, Gain(2, 0), 0.0);
+  //track.setKalmanGain(track.step(), fabs(trackK), Gain(0, 0), 0.0, Gain(1, 0), 0.0, Gain(2, 0), 0.0);
 
-  int KNew = wrapAround(trackK + int(Gain(0, 0) * residual), pow(2, BITSCURV - 1));
-  int phiNew = wrapAround(trackPhi + residual, pow(2, BITSPHI - 1));
-  int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual), pow(2, BITSPHIB - 1));
-  track.setCoordinates(track.step(), KNew, phiNew, phiBNew);
-  Matrix33 covNew = cov - Gain * (H * cov);
-  l1t::KMTFTrack::CovarianceMatrix c;
+  int KNew = wrapAround(trackK + int(Gain(0, 0) * residual(0) + Gain(0, 1) * residual(1) + Gain(0, 2) * residual(2)), pow(2, BITSCURV - 1));
+  int phiNew = wrapAround(trackPhi + residual(0), pow(2, BITSPHI - 1));
+  int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1) + Gain(2, 2) * residual(2)), pow(2, BITSPHIB - 1));
+  int zNew = trackz + int(Gain(3, 0) * residual(0) + Gain(3, 1) * residual(1) + Gain(3, 2) * residual(2));
+  int kSlopeNew = trackSlope + int(Gain(4, 0) * residual(0) + Gain(4, 1) * residual(1) + Gain(4, 2) * residual(2));
+
+  track.setCoordinates(track.step(), KNew, phiNew, phiBNew, zNew, kSlopeNew);
+  Matrix55 covNew = cov - Gain * (H * cov);
+  l1t::CovarianceMatrix5dim c;
 
   if (verbose_) {
-    edm::LogInfo("KMTFCore") << "phiUpdate: " << int(Gain(0, 0) * residual) << " " << int(Gain(2, 0) * residual);
-    edm::LogInfo("KMTFCore") << " K = " << trackK << " + " << Gain(0, 0) << " * " << residual;
-    edm::LogInfo("KMTFCore") << " phiBNew = " << trackPhiB << " + " << Gain(2, 0) << " * " << residual;
+    edm::LogInfo("KMTFCore") << "phiUpdate: " << int(Gain(0, 0) * residual(0)) << " " << int(Gain(2, 0) * residual(0));
+    edm::LogInfo("KMTFCore") << " K = " << trackK << " + " << Gain(0, 0) << " * " << residual(0) << " + " << Gain(0, 1) << " * " << residual(1) << " + " << Gain(0, 2) << " * " << residual(2);
+    edm::LogInfo("KMTFCore") << " phiBNew = " << trackPhiB << " + " << Gain(2, 0) << " * " << residual(0) << " + " << Gain(2, 1) << " * " << residual(1) << " + " << Gain(2, 2) << " * " << residual(2);
+    edm::LogInfo("KMTFCore") << " zNew = " << trackz << " + " << Gain(2, 0) << " * " << residual(0) << " + " << Gain(2, 1) << " * " << residual(1) << " + " << Gain(2, 2) << " * " << residual(2);
+    edm::LogInfo("KMTFCore") << " kSlopeNew = " << trackSlope << " + " << Gain(3, 0) << " * " << residual(0) << " + " << Gain(3, 1) << " * " << residual(1) << " + " << Gain(3, 2) << " * " << residual(2);
   }
 
-  c(0, 0) = covNew(0, 0);
-  c(0, 1) = covNew(0, 1);
-  c(0, 2) = covNew(0, 2);
-  c(1, 0) = covNew(1, 0);
-  c(1, 1) = covNew(1, 1);
-  c(1, 2) = covNew(1, 2);
-  c(2, 0) = covNew(2, 0);
-  c(2, 1) = covNew(2, 1);
-  c(2, 2) = covNew(2, 2);
+  for (int i = 0; i < 5; i++)
+    for (int j = i; j < 5; j++)
+      c(i, j) = covNew(i, j);
+
   track.setCovariance(c);
   track.addStub(stub);
   track.setHitPattern(hitPattern(track));
@@ -794,7 +883,7 @@ bool KMTFCore::updateLUT(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub, in
   if ((phiBNew > (pow(2, BITSPHIB - 1) - 1)) || (phiBNew < (-pow(2, BITSPHIB - 1))))
     return false;
 
-  track.setCoordinates(track.step(), KNew, phiNew, phiBNew);
+  track.setCoordinates(track.step(), KNew, phiNew, phiBNew, track.zPosition(), track.kSlope());
   track.addStub(stub);
   track.setHitPattern(hitPattern(track));
   if (verbose_) {
@@ -813,71 +902,75 @@ void KMTFCore::vertexConstraint(l1t::KMTFTrack& track) {
     vertexConstraintLUT(track);
 }
 
-void KMTFCore::vertexConstraintOffline(l1t::KMTFTrack& track) {
-  double residual = -track.dxy();
-  Matrix13 H;
-  H(0, 0) = 0;
-  H(0, 1) = 0;
-  H(0, 2) = 1;
 
-  const std::vector<double>& covLine = track.covariance();
-  l1t::KMTFTrack::CovarianceMatrix cov(covLine.begin(), covLine.end());
+void KMTFCore::vertexConstraintOffline(l1t::KMTFTrack& track){}
+void KMTFCore::vertexConstraintLUT(l1t::KMTFTrack& track){}
 
-  double S = (ROOT::Math::Similarity(H, cov))(0, 0) + pointResolutionVertex_;
-  S = 1.0 / S;
-  Matrix31 Gain = cov * (ROOT::Math::Transpose(H)) * S;
-  track.setKalmanGain(track.step(), fabs(track.curvature()), Gain(0, 0), Gain(1, 0), Gain(2, 0));
+//void KMTFCore::vertexConstraintOffline(l1t::KMTFTrack& track) {
+//  double residual = -track.dxy();
+//  Matrix13 H;
+//  H(0, 0) = 0;
+//  H(0, 1) = 0;
+//  H(0, 2) = 1;
 
-  if (verbose_) {
-    edm::LogInfo("KMTFCore") << "sigma3=" << cov(0, 3) << " sigma6=" << cov(3, 3);
-    edm::LogInfo("KMTFCore") << " K = " << track.curvature() << " + " << Gain(0, 0) << " * " << residual;
-  }
+//  const std::vector<double>& covLine = track.covariance();
+//  l1t::KMTFTrack::CovarianceMatrix cov(covLine.begin(), covLine.end());
 
-  int KNew = wrapAround(int(track.curvature() + Gain(0, 0) * residual), pow(2, BITSCURV - 1));
-  int phiNew = wrapAround(int(track.positionAngle() + Gain(1, 0) * residual), pow(2, BITSPHI));
-  int dxyNew = wrapAround(int(track.dxy() + Gain(2, 0) * residual), pow(2, BITSPHIB));
-  if (verbose_)
-    edm::LogInfo("KMTFCore") << "Post fit impact parameter=" << dxyNew;
-  track.setCoordinatesAtVertex(KNew, phiNew, -residual);
-  Matrix33 covNew = cov - Gain * (H * cov);
-  l1t::KMTFTrack::CovarianceMatrix c;
-  c(0, 0) = covNew(0, 0);
-  c(0, 1) = covNew(0, 1);
-  c(0, 2) = covNew(0, 2);
-  c(1, 0) = covNew(1, 0);
-  c(1, 1) = covNew(1, 1);
-  c(1, 2) = covNew(1, 2);
-  c(2, 0) = covNew(2, 0);
-  c(2, 1) = covNew(2, 1);
-  c(2, 2) = covNew(2, 2);
-  track.setCovariance(c);
-  //  track.covariance = track.covariance - Gain*H*track.covariance;
-}
+//  double S = (ROOT::Math::Similarity(H, cov))(0, 0) + pointResolutionVertex_;
+//  S = 1.0 / S;
+//  Matrix31 Gain = cov * (ROOT::Math::Transpose(H)) * S;
+//  track.setKalmanGain(track.step(), fabs(track.curvature()), Gain(0, 0), Gain(1, 0), Gain(2, 0));
 
-void KMTFCore::vertexConstraintLUT(l1t::KMTFTrack& track) {
-  double residual = -track.dxy();
-  uint absK = fabs(track.curvature());
-  if (absK > pow(2, BITSCURV - 4) - 1)
-    absK = pow(2, BITSCURV - 4) - 1;
+//  if (verbose_) {
+//    edm::LogInfo("KMTFCore") << "sigma3=" << cov(0, 3) << " sigma6=" << cov(3, 3);
+//    edm::LogInfo("KMTFCore") << " K = " << track.curvature() << " + " << Gain(0, 0) << " * " << residual;
+//  }
 
-  std::pair<float, float> GAIN = lutService_->vertexGain(track.hitPattern(), absK / 4);
-  track.setKalmanGain(track.step(), fabs(track.curvature()), GAIN.first, GAIN.second, -1);
+//  int KNew = wrapAround(int(track.curvature() + Gain(0, 0) * residual), pow(2, BITSCURV - 1));
+//  int phiNew = wrapAround(int(track.positionAngle() + Gain(1, 0) * residual), pow(2, BITSPHI));
+//  int dxyNew = wrapAround(int(track.dxy() + Gain(2, 0) * residual), pow(2, BITSPHIB));
+//  if (verbose_)
+//    edm::LogInfo("KMTFCore") << "Post fit impact parameter=" << dxyNew;
+//  track.setCoordinatesAtVertex(KNew, phiNew, -residual);
+//  Matrix33 covNew = cov - Gain * (H * cov);
+//  l1t::KMTFTrack::CovarianceMatrix c;
+//  c(0, 0) = covNew(0, 0);
+//  c(0, 1) = covNew(0, 1);
+//  c(0, 2) = covNew(0, 2);
+//  c(1, 0) = covNew(1, 0);
+//  c(1, 1) = covNew(1, 1);
+//  c(1, 2) = covNew(1, 2);
+//  c(2, 0) = covNew(2, 0);
+//  c(2, 1) = covNew(2, 1);
+ // c(2, 2) = covNew(2, 2);
+//  track.setCovariance(c);
+//  //  track.covariance = track.covariance - Gain*H*track.covariance;
+//}
 
-  ap_fixed<BITSCURV, BITSCURV> k_0 =
-      -(ap_ufixed<GAIN_V0, GAIN_V0INT>(fabs(GAIN.first))) * ap_fixed<BITSPHIB, BITSPHIB>(residual);
-  int KNew = ap_fixed<BITSCURV, BITSCURV>(k_0 + ap_fixed<BITSCURV, BITSCURV>(track.curvature()));
+//void KMTFCore::vertexConstraintLUT(l1t::KMTFTrack& track) {
+//  double residual = -track.dxy();
+//  uint absK = fabs(track.curvature());
+//  if (absK > pow(2, BITSCURV - 4) - 1)
+//    absK = pow(2, BITSCURV - 4) - 1;
 
-  if (verbose_) {
-    edm::LogInfo("KMTFCore") << "VERTEX GAIN(" << absK / 4 << ")= -"
-                             << ap_ufixed<GAIN_V0, GAIN_V0INT>(fabs(GAIN.first)).to_float() << " * "
-                             << ap_fixed<BITSPHIB, BITSPHIB>(residual).to_int() << " = " << k_0.to_int();
-  }
+//  std::pair<float, float> GAIN = lutService_->vertexGain(track.hitPattern(), absK / 4);
+//  track.setKalmanGain(track.step(), fabs(track.curvature()), GAIN.first, GAIN.second, -1);
+
+//  ap_fixed<BITSCURV, BITSCURV> k_0 =
+//      -(ap_ufixed<GAIN_V0, GAIN_V0INT>(fabs(GAIN.first))) * ap_fixed<BITSPHIB, BITSPHIB>(residual);
+//  int KNew = ap_fixed<BITSCURV, BITSCURV>(k_0 + ap_fixed<BITSCURV, BITSCURV>(track.curvature()));
+
+//  if (verbose_) {
+//    edm::LogInfo("KMTFCore") << "VERTEX GAIN(" << absK / 4 << ")= -"
+//                             << ap_ufixed<GAIN_V0, GAIN_V0INT>(fabs(GAIN.first)).to_float() << " * "
+//                             << ap_fixed<BITSPHIB, BITSPHIB>(residual).to_int() << " = " << k_0.to_int();
+//  }
 
   //int p_0 = fp_product(GAIN.second, int(residual), 7);
-  int p_0 = GAIN.second * int(residual);
-  int phiNew = wrapAround(track.positionAngle() + p_0, pow(2, BITSPHI - 1));
-  track.setCoordinatesAtVertex(KNew, phiNew, -residual);
-}
+//  int p_0 = GAIN.second * int(residual);
+//  int phiNew = wrapAround(track.positionAngle() + p_0, pow(2, BITSPHI - 1));
+//  track.setCoordinatesAtVertex(KNew, phiNew, -residual);
+//}
 
 int KMTFCore::hitPattern(const l1t::KMTFTrack& track) {
   unsigned int mask = 0;
