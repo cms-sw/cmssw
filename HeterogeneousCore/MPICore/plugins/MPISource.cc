@@ -2,6 +2,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 // MPI headers
 #include <mpi.h>
@@ -35,6 +36,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 #include "HeterogeneousCore/MPICore/interface/api.h"
 #include "HeterogeneousCore/MPICore/interface/conversion.h"
 #include "HeterogeneousCore/MPICore/interface/messages.h"
@@ -68,10 +70,14 @@ private:
   char port_[MPI_MAX_PORT_NAME];
   MPI_Comm comm_ = MPI_COMM_NULL;
   MPIChannel channel_;
+  std::vector<std::shared_ptr<MPIChannel>> channels_;
   edm::EDPutTokenT<MPIToken> token_;
   Mode mode_;
 
   edm::ProcessHistory history_;
+
+  // temporary value used to pass information from setRunAndEventInfo() to produce()
+  unsigned int controller_sid_ = edm::StreamID::invalidStreamID();
 };
 
 MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescription const& desc)
@@ -276,7 +282,27 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
       case EDM_MPI_ProcessEvent: {
         // receive the EventAuxiliary
         edm::EventAuxiliary aux;
-        status = channel_.receiveEvent(aux, message);
+        unsigned int sid;
+        status = channel_.receiveEvent(aux, sid, message);
+
+        // keep a duplicate of the MPIChannel for each controller's framework stream
+        if (sid >= channels_.size()) {
+          channels_.resize(sid + 1);
+        }
+        if (not channels_[sid]) {
+          // TODO move this to begin stream
+          channels_[sid] = std::shared_ptr<MPIChannel>(new MPIChannel(channel_.duplicate()), [](MPIChannel* ptr) {
+            ptr->reset();
+            delete ptr;
+          });
+        }
+
+        // store the controller's framework stream to reuse it in produce()
+        controller_sid_ = sid;
+        if (controller_sid_ == edm::StreamID::invalidStreamID()) {
+          throw cms::Exception("InvalidValue")
+              << "The MPISource has received an EDM_MPI_ProcessEvent with invalid stream id.";
+        }
 
         // extract the rank of the other process (currently unused)
         int source = status.MPI_SOURCE;
@@ -302,12 +328,9 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
 }
 
 void MPISource::produce(edm::Event& event) {
-  // duplicate the MPIChannel and put the copy into the Event
-  std::shared_ptr<MPIChannel> channel(new MPIChannel(channel_.duplicate()), [](MPIChannel* ptr) {
-    ptr->reset();
-    delete ptr;
-  });
-  event.emplace(token_, std::move(channel));
+  // create a new channel object reusing the same communicator that will synchronise at the end pf the event
+  event.emplace(token_, channels_[controller_sid_]->syncChannel());
+  controller_sid_ = edm::StreamID::invalidStreamID();
 }
 
 void MPISource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

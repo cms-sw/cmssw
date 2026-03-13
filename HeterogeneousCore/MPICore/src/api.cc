@@ -37,6 +37,7 @@ namespace {
 
 // build a new MPIChannel that uses a duplicate of the underlying communicator and the same destination
 MPIChannel MPIChannel::duplicate() const {
+  // This is a blocking collective operation.
   MPI_Comm newcomm;
   MPI_Comm_dup(comm_, &newcomm);
   return MPIChannel(newcomm, dest_);
@@ -44,6 +45,7 @@ MPIChannel MPIChannel::duplicate() const {
 
 // close the underlying communicator and reset the MPIChannel to an invalid state
 void MPIChannel::reset() {
+  // This is a blocking collective operation.
   MPI_Comm_disconnect(&comm_);
   dest_ = MPI_UNDEFINED;
 }
@@ -81,7 +83,7 @@ void MPIChannel::edmToBuffer_(EDM_MPI_LuminosityBlockAuxiliary_t& buffer, edm::L
 }
 
 // fill an edm::EventAuxiliary object from an EDM_MPI_EventAuxiliary buffer
-void MPIChannel::edmFromBuffer_(EDM_MPI_EventAuxiliary_t const& buffer, edm::EventAuxiliary& aux) {
+void MPIChannel::edmFromBuffer_(EDM_MPI_EventAuxiliary_t const& buffer, edm::EventAuxiliary& aux, unsigned int& sid) {
   aux = edm::EventAuxiliary({buffer.run, buffer.lumi, buffer.event},
                             std::string(buffer.processGuid, std::size(buffer.processGuid)),
                             edm::Timestamp(buffer.time),
@@ -92,10 +94,11 @@ void MPIChannel::edmFromBuffer_(EDM_MPI_EventAuxiliary_t const& buffer, edm::Eve
                             buffer.orbitNumber);
   aux.setProcessHistoryID(
       edm::ProcessHistoryID(std::string(buffer.processHistoryID, std::size(buffer.processHistoryID))));
+  sid = buffer.streamId;
 }
 
 // fill an EDM_MPI_EventAuxiliary buffer from an edm::EventAuxiliary object
-void MPIChannel::edmToBuffer_(EDM_MPI_EventAuxiliary_t& buffer, edm::EventAuxiliary const& aux) {
+void MPIChannel::edmToBuffer_(EDM_MPI_EventAuxiliary_t& buffer, edm::EventAuxiliary const& aux, unsigned int sid) {
   copy_and_fill(buffer.processHistoryID, aux.processHistoryID().compactForm());
   copy_and_fill(buffer.processGuid, aux.processGUID());
   buffer.time = aux.time().value();
@@ -107,6 +110,7 @@ void MPIChannel::edmToBuffer_(EDM_MPI_EventAuxiliary_t& buffer, edm::EventAuxili
   buffer.run = aux.id().run();
   buffer.lumi = aux.id().luminosityBlock();
   buffer.event = aux.id().event();
+  buffer.streamId = sid;
 }
 
 // fill and send an EDM_MPI_Empty_t buffer
@@ -133,33 +137,33 @@ void MPIChannel::sendLuminosityBlockAuxiliary_(int tag, edm::LuminosityBlockAuxi
 }
 
 // fill and send an EDM_MPI_EventAuxiliary_t buffer
-void MPIChannel::sendEventAuxiliary_(edm::EventAuxiliary const& aux) {
+void MPIChannel::sendEventAuxiliary_(edm::EventAuxiliary const& aux, unsigned int sid) {
   EDM_MPI_EventAuxiliary_t buffer;
   buffer.messageTag = EDM_MPI_ProcessEvent;
-  edmToBuffer_(buffer, aux);
+  edmToBuffer_(buffer, aux, sid);
   MPI_Send(&buffer, 1, EDM_MPI_EventAuxiliary, dest_, EDM_MPI_ProcessEvent, comm_);
 }
 
 /*
 // receive an EDM_MPI_EventAuxiliary_t buffer and populate an edm::EventAuxiliary
-MPI_Status MPIChannel::receiveEventAuxiliary_(edm::EventAuxiliary& aux, int source, int tag) {
+MPI_Status MPIChannel::receiveEventAuxiliary_(edm::EventAuxiliary& aux, unsigned int& sid, int source, int tag) {
   MPI_Status status;
   EDM_MPI_EventAuxiliary_t buffer;
   MPI_Recv(&buffer, 1, EDM_MPI_EventAuxiliary, source, tag, comm_, &status);
-  edmFromBuffer_(buffer, aux);
+  edmFromBuffer_(buffer, aux, sid);
   return status;
 }
 */
 
 // receive an EDM_MPI_EventAuxiliary_t buffer and populate an edm::EventAuxiliary
-MPI_Status MPIChannel::receiveEventAuxiliary_(edm::EventAuxiliary& aux, MPI_Message& message) {
+MPI_Status MPIChannel::receiveEventAuxiliary_(edm::EventAuxiliary& aux, unsigned int& sid, MPI_Message& message) {
   MPI_Status status = {};
   EDM_MPI_EventAuxiliary_t buffer;
 #ifdef EDM_ML_DEBUG
   memset(&buffer, 0x00, sizeof(buffer));
 #endif
   status.MPI_ERROR = MPI_Mrecv(&buffer, 1, EDM_MPI_EventAuxiliary, &message, &status);
-  edmFromBuffer_(buffer, aux);
+  edmFromBuffer_(buffer, aux, sid);
   return status;
 }
 

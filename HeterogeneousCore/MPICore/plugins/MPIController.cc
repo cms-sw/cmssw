@@ -1,7 +1,7 @@
 // C++ headers
 #include <iostream>
 #include <memory>
-#include <sstream>
+#include <vector>
 
 // MPI headers
 #include <mpi.h>
@@ -77,6 +77,7 @@ private:
 
   MPI_Comm comm_ = MPI_COMM_NULL;
   MPIChannel channel_;
+  std::vector<std::shared_ptr<MPIChannel>> channels_;
   edm::EDPutTokenT<MPIToken> token_;
   Mode mode_;
 };
@@ -263,14 +264,22 @@ void MPIController::produce(edm::Event& event, edm::EventSetup const& setup) {
   }
 
   // signal a new event, and transmit the EventAuxiliary
-  channel_.sendEvent(event.eventAuxiliary());
+  channel_.sendEvent(event.eventAuxiliary(), event.streamID().value());
 
-  // duplicate the MPIChannel and put the copy into the Event
-  std::shared_ptr<MPIChannel> link(new MPIChannel(channel_.duplicate()), [](MPIChannel* ptr) {
-    ptr->reset();
-    delete ptr;
-  });
-  event.emplace(token_, std::move(link));
+  // keep a duplicate of the MPIChannel for each framework stream
+  unsigned int sid = event.streamID().value();
+  if (sid >= channels_.size()) {
+    channels_.resize(sid + 1);
+  }
+  if (not channels_[sid]) {
+    // TODO move this to begin stream
+    channels_[sid] = std::shared_ptr<MPIChannel>(new MPIChannel(channel_.duplicate()), [](MPIChannel* ptr) {
+      ptr->reset();
+      delete ptr;
+    });
+  }
+  // create a new channel object reusing the same communicator that will synchronise at the end pf the event
+  event.emplace(token_, channels_[sid]->syncChannel());
 }
 
 void MPIController::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
