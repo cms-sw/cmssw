@@ -59,7 +59,8 @@ void EDM_MPI_build_types_() {
                    storeNumber,               // LHC fill number ?
                    run,                       // edm::RunNumber_t
                    lumi,                      // edm::LuminosityBlockNumber_t
-                   event);                    // edm::EventNumber_t
+                   event,                     // edm::EventNumber_t
+                   streamId);                 // edm::StreamID
 
   EDM_MPI_MessageType[EDM_MPI_Connect] = EDM_MPI_Empty;                                  //
   EDM_MPI_MessageType[EDM_MPI_Disconnect] = EDM_MPI_Empty;                               //
