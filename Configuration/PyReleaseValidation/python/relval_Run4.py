@@ -29,6 +29,9 @@ numWFIB.extend([35234.0]) #Run4D123
 numWFIB.extend([35634.0]) #Run4D124
 numWFIB.extend([36034.0]) #Run4D125
 
+#Run4 FS (TTbar)
+numWFIB.extend([36434.0])
+
 #Additional sample for short matrix and IB
 #Default Phase-2 Det NoPU
 numWFIB.extend([prefixDet+34.911]) #DD4hep XML

@@ -94,6 +94,8 @@ upgradeKeys['Run4'] = [
     'Run4D124PU',
     'Run4D125',
     'Run4D125PU',
+    'Run4D110FS',
+    'Run4D110FSPU',
 ]
 
 # pre-generation of WF numbers
@@ -237,6 +239,8 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'HLT75e33',
         'FastSimRun3',
         'HARVESTFastRun3',
+        'FastSimRun4',
+        'HARVESTFastRun4',
     ],
     PU =  [
         'DigiTrigger',
@@ -261,6 +265,8 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'HLT75e33',
         'FastSimRun3',
         'HARVESTFastRun3',
+        'FastSimRun4',
+        'HARVESTFastRun4',
     ],
     suffix = '',
     offset = 0.0,
@@ -3750,6 +3756,13 @@ upgradeProperties['Run4'] = {
         'Era' : 'Phase2C22I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
+    'Run4D110FS' : {
+        'Geom' : 'ExtendedRun4D110',
+        'HLTmenu': '@relvalRun4',
+        'GT' : 'auto:phase2_realistic_T35',
+        'Era' : 'Phase2C17I13M9_FastSim',
+        'ScenToRun' : ['GenHLBeamSpot','FastSimRun4','HARVESTFastRun4'],
+    },
 }
 
 # standard PU sequences
@@ -3757,7 +3770,10 @@ for key in list(upgradeProperties['Run4'].keys()):
     if "GenOnly" in key:
         continue
     upgradeProperties['Run4'][key+'PU'] = deepcopy(upgradeProperties['Run4'][key])
-    upgradeProperties['Run4'][key+'PU']['ScenToRun'] = ['GenSimHLBeamSpot','DigiTriggerPU','RecoGlobalPU', 'HARVESTGlobalPU']
+    if 'FS' not in key:
+        upgradeProperties['Run4'][key+'PU']['ScenToRun'] = ['GenSimHLBeamSpot','DigiTriggerPU','RecoGlobalPU', 'HARVESTGlobalPU']
+    else:
+        upgradeProperties['Run4'][key+'PU']['ScenToRun'] = ['GenHLBeamSpot','FastSimRun4PU','HARVESTFastRun4PU']
 
 # for relvals
 defaultDataSets = {}
