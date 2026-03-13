@@ -11,7 +11,7 @@ fastSimProducer = cms.EDProducer(
     src = cms.InputTag("generatorSmeared"),
     particleFilter =  ParticleFilterBlock.ParticleFilter,
     trackerDefinition = TrackerMaterialBlock.TrackerMaterial,
-    simulateCalorimetry = cms.bool(False),
+    simulateCalorimetry = cms.bool(True),
     simulateMuons = cms.bool(True),
     useFastSimDecayer = cms.bool(False),
     verboseDecayer = cms.bool(False),
@@ -81,3 +81,6 @@ fastSimProducer = cms.EDProducer(
     MaterialEffectsForMuonsInHCAL = MaterialEffectsForMuonsInHCALBlock.MaterialEffectsForMuonsInHCAL,
     GFlash = FamosCalorimetryBlock.GFlash,
 )
+
+from Configuration.Eras.Modifier_phase2_fastSim_cff import phase2_fastSim
+phase2_fastSim.toModify(fastSimProducer, simulateCalorimetry = False)
