@@ -25,7 +25,8 @@
      <class name="edm::Wrapper<std::vector<l1t::SAMuon > >"/>
      <class name="edm::Ref<l1t::SAMuonCollection>" splitLevel="0"/>
 
-   <class name="l1t::KMTFTrack" ClassVersion="3">
+   <class name="l1t::KMTFTrack" ClassVersion="4">
+    <version ClassVersion="4" checksum="3027492099"/>
     <version ClassVersion="3" checksum="502486181"/>
    </class>
    <class name="std::vector<l1t::KMTFTrack>"/>
