@@ -15,7 +15,7 @@ BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset, edm::Consume
       lcepositionSlope_(pset.getParameter<double>("LCEpositionSlope")),
       sigmaLCEpositionSlope_(pset.getParameter<double>("SigmaLCEpositionSlope")),
       pulseT2Threshold_(pset.getParameter<double>("PulseT2Threshold")),
-      pulseEThreshold_(pset.getParameter<double>("PulseEThrershold")),
+      pulseEThreshold_(pset.getParameter<double>("PulseEThreshold")),
       channelRearmMode_(pset.getParameter<uint32_t>("ChannelRearmMode")),
       channelRearmNClocks_(pset.getParameter<double>("ChannelRearmNClocks")),
       t1Delay_(pset.getParameter<double>("T1Delay")),
@@ -43,6 +43,7 @@ BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset, edm::Consume
       sinPhi_(0.5 * corrCoeff_ / cosPhi_),
       scintillatorDecayTimeInv_(1. / scintillatorDecayTime_),
       sigmaConst2_(sigmaTDC_ * sigmaTDC_ + sigmaClockGlobal_ * sigmaClockGlobal_),
+      paramSiPMSaturation_(pset.getParameter<std::vector<double>>("SiPMSaturationParam")),
 #ifdef EDM_ML_DEBUG
       debug_(true) {
 #else
@@ -131,18 +132,18 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       // ================================================================================
 
       // --- Skip the hit if its amplitude is below the T2 threshold
-      if (pulse_tbranch_uA(npe[iside]) < pulseT2Threshold_) {
+      if (pulse_tbranch_uA(effective_npe(npe[iside])) < pulseT2Threshold_) {
         continue;
       }
 
       // --- Skip the hit if its amplitude is below the energy threshold
-      if (pulse_ebranch_uA(npe[iside]) < pulseEThreshold_) {
+      if (pulse_ebranch_uA(effective_npe(npe[iside])) < pulseEThreshold_) {
         continue;
       }
 
       // --- Add the T1 and T2 threshold crossing times on the pulse rising edge to the SimHit time
-      float finalToA1 = (it->second).hit_info[1 + 2 * iside][iBX] + time_at_Thr1Rise(npe[iside]);
-      float finalToA2 = (it->second).hit_info[1 + 2 * iside][iBX] + time_at_Thr2Rise(npe[iside]);
+      float finalToA1 = (it->second).hit_info[1 + 2 * iside][iBX] + time_at_Thr1Rise(effective_npe(npe[iside]));
+      float finalToA2 = (it->second).hit_info[1 + 2 * iside][iBX] + time_at_Thr2Rise(effective_npe(npe[iside]));
 
       // --- Loop over the earlier OOT hits in the current bar to determine the channel
       //     rearming time and estimate the photon flux arriving at the in-time BX
@@ -159,16 +160,17 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
 
         // Calculate the channel rearming time for this hit (the hit is skipped if it
         // doesn't pass the T2 threshold or an earlier hit is holding the channel)
-        float time_at_T1_oot = time_at_Thr1Rise(hit_npe_oot);
+        float time_at_T1_oot = time_at_Thr1Rise(effective_npe(hit_npe_oot));
 
-        if (channelRearmMode_ && pulse_tbranch_uA(hit_npe_oot) > pulseT2Threshold_ &&
+        if (channelRearmMode_ && pulse_tbranch_uA(effective_npe(hit_npe_oot)) > pulseT2Threshold_ &&
             hit_time_oot + time_at_T1_oot > channelRearmingTime) {
-          channelRearmingTime = rearming_time(hit_time_oot + time_at_T1_oot, hit_npe_oot);
+          channelRearmingTime = rearming_time(hit_time_oot + time_at_T1_oot, effective_npe(hit_npe_oot));
         }
 
         // Rate of photons from earlier OOT hits in the current BTL cell
         if (smearTimeForOOTtails_) {
-          rate_oot += hit_npe_oot * exp(hit_time_oot * scintillatorDecayTimeInv_) * scintillatorDecayTimeInv_;
+          rate_oot += hit_npe_oot * exp(hit_time_oot * scintillatorDecayTimeInv_) *
+                      scintillatorDecayTimeInv_;  /// ?? which Npe?
         }
 
       }  // ibx loop
@@ -180,7 +182,8 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
 
       // --- Uncertainty due to photons from earlier OOT hits in the current BTL cell
       if (smearTimeForOOTtails_ && rate_oot > 0.) {
-        float sigma_oot = sqrt(rate_oot * scintillatorRiseTime_) * scintillatorDecayTime_ / npe[iside];
+        float sigma_oot =
+            sqrt(rate_oot * scintillatorRiseTime_) * scintillatorDecayTime_ / npe[iside];  // which npe ????
         float smearing_oot = CLHEP::RandGaussQ::shoot(hre, 0., sigma_oot);
         finalToA1 += smearing_oot;
         finalToA2 += smearing_oot;
@@ -224,12 +227,12 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       // ================================================================================
 
       // --- Get the pulse amplitude in ADC counts
-      float amp = pulse_q(npe[iside]);
+      float amp = pulse_q(effective_npe(npe[iside]));
 
       // --- Get the average uncertainty on the pulse amplitude (here the unsmeared
       //     value of Npe is used, because the parameterization of the relative
       //     amplitude resolution already includes the photostatistics fluctuation)
-      float sigma_amp = amp * pulse_qRes((it->second).hit_info[2 * iside][iBX]);
+      float sigma_amp = amp * pulse_qRes(effective_npe((it->second).hit_info[2 * iside][iBX]));
 
       charge_adc[iside] = CLHEP::RandGaussQ::shoot(hre, amp, sigma_amp);
 
@@ -385,4 +388,8 @@ float BTLElectronicsSim::pulse_q(const float& npe) const { return paramPulseQ_[0
 
 float BTLElectronicsSim::pulse_qRes(const float& npe) const {
   return paramPulseQRes_[0] * std::pow(npe, paramPulseQRes_[1]);
+}
+
+float BTLElectronicsSim::effective_npe(const float& npe) const {
+  return paramSiPMSaturation_[0] * npe * npe + paramSiPMSaturation_[1] * npe;
 }
