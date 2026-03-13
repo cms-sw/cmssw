@@ -8,11 +8,10 @@ from typing import Dict, Set, List
 import FWCore.ParameterSet.Config as cms
 from HLTrigger.Configuration.common import *
 
-def add_activity_filter(process, module_name):
+def add_activity_filter(process, module_name, filter_name):
     filter_object =  cms.EDFilter("PathStateRelease",
             state = cms.InputTag(module_name)
         )
-    filter_name = f"activityFilter{module_name}"
     setattr(process, filter_name, filter_object)
     return filter_name
 
@@ -27,9 +26,6 @@ def insert_path_state_capture_before(
       - create one PathStateCapture EDProducer
       - insert it at position 0 of each passed in sequence
     """
-
-    # unique module name per group
-    capture_name = f"{prefix}{capture_name}"
 
     # create the EDProducer
     setattr(

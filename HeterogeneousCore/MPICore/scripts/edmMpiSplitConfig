@@ -25,20 +25,20 @@ Required arguments:
         all modules of that sequence will be offloaded
 
 Optional arguments:
-    -ol, --output-local
+    -l, --output-local
         Path to the output configuration for the local process.
         (default: local.py)
 
-    -or, --output-remote
+    -r, --output-remote
         Path to the output configuration for the remote process.
         (default: remote.py)
 
-    --duplicate-modules
+    -d, --duplicate-modules
         List of module labels that must run on both local and remote
         processes. Products from these modules are not transferred
         between processes.
     
-    --reuse-cpp-names
+    -c, --reuse-cpp-names
         False by default. If this script was run before, pass this 
         argument to reuse the generated file with C++ product names
     
@@ -46,14 +46,14 @@ Optional arguments:
         Print debug outputs
 
 Example 1 (offloading GPU part of ECAL and HCAL):
-    python3 edmMpiSplitConfig.py hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
+    python3 edmMpiSplitConfig hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
         hltHcalDigisSoA hltHbheRecoSoA hltParticleFlowRecHitHBHESoA hltParticleFlowClusterHBHESoA \
         --duplicate-modules hltHcalDigis \
         --output-local local.py \
         --output-remote remote.py
 
 Example 2 (offloading GPU part of ECAL, HCAL and pixels):
-    python3 edmMpiSplitConfig.py hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
+    python3 edmMpiSplitConfig hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
         hltHcalDigisSoA hltHbheRecoSoA hltParticleFlowRecHitHBHESoA hltParticleFlowClusterHBHESoA \
         hltSiPixelClustersSoA hltSiPixelRecHitsSoA hltPixelTracksSoA hltPixelVerticesSoA \
         --duplicate-modules hltHcalDigis hltOnlineBeamSpot   hltOnlineBeamSpotDevice \
@@ -122,38 +122,45 @@ def main():
         " instead of sending their products. Use --duplicate-modules option to specify them.\n"
         "  • Only dependencies expressed via InputTag are analyzed.\n"
         "  • Execution order inside dependency groups is preserved.\n"
-        "  • Use '--' to separate positional argument 'config' from multi-value options.\n"
     ),
-    formatter_class=argparse.RawDescriptionHelpFormatter,
+    formatter_class=argparse.RawTextHelpFormatter,
     )
-    parser.add_argument("config", type=pathlib.Path, help="HLT python config")
     parser.add_argument(
+        "config",
+        metavar="[--] config.py",
+        type=pathlib.Path,
+        help="python configuration file to be split; use '--' to separate the positional argument from multi-value options"
+    )
+    parser.add_argument(
+        "-m",
         "--remote-modules",
         nargs="+",
         default=[],
         help="Modules and/or sequences to offload",
     )
     parser.add_argument(
-        "-ol",
+        "-l",
         "--output-local",
         type=pathlib.Path,
         default=pathlib.Path("local.py"),
         help="Output config path for the local process",
     )
     parser.add_argument(
-        "-or",
+        "-r",
         "--output-remote",
         type=pathlib.Path,
         default=pathlib.Path("remote.py"),
         help="Output config path for the remote process",
     )
     parser.add_argument(
+        "-d",
         "--duplicate-modules",
         nargs="+",
         default=[],
         help="Modules that must run on both local and remote processes",
     )
     parser.add_argument(
+        "-c",
         "--reuse-cpp-names",
         action="store_true",
         help="Assume the file with C++ product names already exists; "
@@ -242,7 +249,8 @@ def main():
     local_sender_by_group = [[] for _ in range(len(groups))]
     for local_dependency, group_indices in producer_to_groups.items():
         first_dependency_in_a_group = [groups[i][0] for i in group_indices]
-        capture_name = insert_path_state_capture_before(local_process, first_modules_in_a_group=first_dependency_in_a_group, capture_name=local_dependency)
+        capture_name = f"activityCaptureBefore{local_dependency.title()}"
+        insert_path_state_capture_before(local_process, first_modules_in_a_group=first_dependency_in_a_group, capture_name=capture_name)
         sender = create_sender(
                 module_name=local_dependency,
                 products=cpp_names_of_the_products[local_dependency],
@@ -250,7 +258,7 @@ def main():
                 sender_upstream="mpiController",
                 path_state_capture = capture_name
             )
-        sender_name = get_sender_name(local_dependency)
+        sender_name = f"mpiSender{local_dependency.title()}"
         setattr(local_process, sender_name, sender)
 
         receiver = create_receiver(
@@ -260,7 +268,8 @@ def main():
                 path_state_capture=True,
             )
         # create filter for the path state
-        filter_name = add_activity_filter(remote_process, local_dependency)
+        filter_name = f"activityFilterAfter{local_dependency.title()}"
+        add_activity_filter(remote_process, local_dependency, filter_name)
         for group_idx in group_indices:
             remote_filters_by_group[group_idx].append(filter_name)
             local_sender_by_group[group_idx].append(sender_name)
@@ -277,7 +286,8 @@ def main():
         # In this approach if there are 2 senders with intersecting groups, it will result in only one group activation sender-receiver pair per group
         if len(group_indices) >= 2:
             for group_idx in group_indices:
-                capture_name = insert_path_state_capture_before(local_process, first_modules_in_a_group=[groups[group_idx][0]], capture_name=f"Group{group_idx}Activation")
+                capture_name=f"activityCaptureBeforeGroup{group_idx}"
+                insert_path_state_capture_before(local_process, first_modules_in_a_group=[groups[group_idx][0]], capture_name=capture_name)
                 sender = create_sender(
                         module_name=local_dependency,
                         products=[],
@@ -285,7 +295,7 @@ def main():
                         sender_upstream="mpiController",
                         path_state_capture = capture_name
                     )
-                sender_name = f"Group{group_idx}ActivationSender"
+                sender_name = f"mpiSenderGroup{group_idx}Activity"
                 setattr(local_process, sender_name, sender)
 
                 receiver = create_receiver(
@@ -294,11 +304,12 @@ def main():
                         receiver_upstream="source",
                         path_state_capture=True,
                     )
-                receiver_name = f"MPIReceiverGroup{group_idx}Activation"
+                receiver_name = f"mpiReceiverGroup{group_idx}Activity"
                 setattr(remote_process, receiver_name, receiver)
 
                 # create filter for the path state
-                filter_name = add_activity_filter(remote_process, receiver_name)
+                filter_name = f"activityFilterBeforeGroup{group_idx}"
+                add_activity_filter(remote_process, receiver_name, filter_name)
                 remote_filters_by_group[group_idx].append(filter_name)
                 local_sender_by_group[group_idx].append(sender_name)
 
@@ -314,52 +325,54 @@ def main():
         if len(group)==0:
             continue
 
-        remote_capture_name = f"PathStateCaptureGroup{group_idx}"
+        remote_capture_name = f"activityCaptureAfterGroup{group_idx}"
         setattr(remote_process, remote_capture_name, cms.EDProducer("PathStateCapture"))
         per_group_remote_captures[group_idx].append(remote_capture_name)
         
+        sender = create_group_sender(
+            group=group,
+            all_products=cpp_names_of_the_products,
+            instance=instance,
+            upstream_module=mpi_path_modules_remote[0],
+            path_state_capture=remote_capture_name,
+        )
+        sender_name = f"mpiSenderGroup{group_idx}"
+        setattr(remote_process, sender_name, sender)
+        
+        if len(local_sender_by_group[group_idx]) != 0:
+            receiver_upstream = local_sender_by_group[group_idx][-1]
+        else:
+            receiver_upstream = "mpiController"
+        
+        receiver = create_group_receiver(
+            group=group,
+            all_products=cpp_names_of_the_products,
+            instance=instance,
+            receiver_upstream=receiver_upstream,
+            path_state_capture=True,
+        )
+        receiver_name = f"mpiReceiverGroup{group_idx}"
+        setattr(local_process, receiver_name, receiver)
+        
+        instance += 1
+        
+        # insert filter on local before the first module which was supposed to run (is it correct?)
+        filter_name = f"activityFilterAfterGroup{group_idx}"
+        add_activity_filter(local_process, receiver_name, filter_name)
+        insert_modules_before(local_process, getattr(local_process, group[0]), getattr(local_process, filter_name))
+        
+        mpi_path_modules_remote.append(sender_name)
+        mpi_path_modules_local.append(receiver_name)
+        
+        
         for i, offloaded_module in enumerate(group):
-            if i == 0:
-                # First sender in the group has to depend on source 
-                sender_upstream=mpi_path_modules_remote[0]
-                # First receiver on local depend on the last sender from group or on local controller
-                if len(local_sender_by_group[group_idx]) != 0:
-                    receiver_upstream = local_sender_by_group[group_idx][-1]
-                else:
-                    receiver_upstream = "mpiController"
-            else:
-                sender_upstream=mpi_path_modules_remote[-1]
-                receiver_upstream=mpi_path_modules_local[-1]
-            
-            sender = create_sender(
-                module_name=offloaded_module,
-                products=cpp_names_of_the_products[offloaded_module],
-                instance=instance,
-                sender_upstream=sender_upstream,
-                path_state_capture = remote_capture_name
-            )
-            sender_name = get_sender_name(offloaded_module)
-            setattr(remote_process, sender_name, sender)
-
-            receiver = create_receiver(
-                products=cpp_names_of_the_products[offloaded_module],
-                instance=instance,
-                receiver_upstream=receiver_upstream,
-                path_state_capture=True,
-            )
-
-            # insert filter on local before the first module which was supposed to run (is it correct?)
-            if i == 0:
-                filter_name = add_activity_filter(local_process, offloaded_module)
-                insert_modules_before(local_process, getattr(local_process, offloaded_module), getattr(local_process, filter_name))
-
             delattr(local_process, offloaded_module)
-            setattr(local_process, offloaded_module, receiver)
+            module_alias = create_receiver_alias(receiver_name=receiver_name,
+                products=cpp_names_of_the_products[offloaded_module],
+                module_name=offloaded_module
+            )
+            setattr(local_process, offloaded_module, module_alias)
 
-
-            instance += 1
-            mpi_path_modules_local.append(offloaded_module)
-            mpi_path_modules_remote.append(sender_name)
     
     # delete offloaded modules whose products are not needed on local from the local process:
     for product in modules_without_local_deps:
