@@ -7,7 +7,6 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthClusteringCCLabelsDeviceCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthECLCCPrologueArgsDeviceCollection.h"
 
-
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace ::cms::alpakatools;
@@ -19,18 +18,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         Acc1D const& acc,
         reco::PFMultiDepthECLCCPrologueArgsDeviceCollection::View args,
         const reco::PFMultiDepthClusteringCCLabelsDeviceCollection::ConstView pfClusteringCCLabels) const {
+      const unsigned int nVertices = pfClusteringCCLabels.size();
 
-            const unsigned int nVertices = pfClusteringCCLabels.size();
+      if (::cms::alpakatools::once_per_grid(acc)) {
+        args.blockCount() = 0;
+      }
 
-            if (::cms::alpakatools::once_per_grid(acc)) {
-                args.blockCount() = 0;
-            }
-
-            for (int v : ::cms::alpakatools::uniform_elements(acc, nVertices)) {;
-              args[v].ccOffset() = 0;
-              args[v].ccSize() = 0;
-              args[v].blockInternCCSize() = 0;
-            }
+      for (int v : ::cms::alpakatools::uniform_elements(acc, nVertices)) {
+        ;
+        args[v].ccOffset() = 0;
+        args[v].ccSize() = 0;
+        args[v].blockInternCCSize() = 0;
+      }
     }
   };
 

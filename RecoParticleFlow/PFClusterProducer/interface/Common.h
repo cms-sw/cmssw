@@ -3,7 +3,7 @@
 
 namespace cms::alpakaintrinsics {
   namespace warp {
-    
+
 #if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
 #if defined(ALPAKA_ACC_GPU_CUDA_ENABLED)
     using warp_mask_t = std::uint32_t;  // 32-bit masks on NVIDIA
@@ -15,8 +15,8 @@ namespace cms::alpakaintrinsics {
     using warp_mask_t = std::uint32_t;  // for host (no-op)
 #endif
 
-  }
-}
+  }  // namespace warp
+}  // namespace cms::alpakaintrinsics
 
 struct ccSeed {
   uint32_t value;

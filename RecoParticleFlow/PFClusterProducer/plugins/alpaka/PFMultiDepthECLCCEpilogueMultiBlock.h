@@ -320,8 +320,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             if (warp_idx > 0) {
               cc_rhf_offset += cc_rhf_block_offset;
             }
-            // currently block local rhfrac offsets?
-            //outPFCluster[global_topo_idx].rhfracOffset() = cc_rhf_offset;
+
             args[idx.global].blockRHFOffset() = cc_rhf_offset;
           }
         }  // end of nBlockLocalComponents branch
