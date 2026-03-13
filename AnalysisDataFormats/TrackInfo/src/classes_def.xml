@@ -1,7 +1,6 @@
 <lcgdict>
-  <class name="reco::TrackingRecHitInfo" ClassVersion="11">
-   <version ClassVersion="11" checksum="803167075"/>
-   <version ClassVersion="10" checksum="2470257581"/>
+  <class name="reco::TrackingRecHitInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="803167075"/>
   </class>
   <class name="reco::TrackingStateInfo"/>
   <class name="std::pair<reco::StateType, reco::TrackingStateInfo>"/>
@@ -9,7 +8,7 @@
   <class name="std::pair< edm::Ref< edm::OwnVector< TrackingRecHit, edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit>  >, reco::TrackingRecHitInfo >"/>
   <class name="std::map< edm::Ref< edm::OwnVector< TrackingRecHit, edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit>  >, reco::TrackingRecHitInfo >"/>
   <class name="reco::TrackInfo" ClassVersion="3">
-   <version ClassVersion="3" checksum="2183695104"/>
+   <version ClassVersion="3" checksum="189107500"/>
   </class>
   <class name="std::vector<reco::TrackInfo>"/>
   <class name="edm::Wrapper<std::vector<reco::TrackInfo> >"/>

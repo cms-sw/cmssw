@@ -47,7 +47,7 @@
   <class name="edm::Wrapper<edmNew::DetSetVector<edm::Ref<edmNew::DetSetVector<io_v1::FTLCluster>,io_v1::FTLCluster,edmNew::DetSetVector<io_v1::FTLCluster>::FindForDetSetVector> > >" />
   
   <class name="FTLTrackingRecHitFromHit" ClassVersion="3">
-    <version ClassVersion="3" checksum="3143543127"/>
+    <version ClassVersion="3" checksum="337216123"/>
   </class>
   <class name="FTLTrackingRecHitCollection"/>
   <class name="edm::Wrapper<FTLTrackingRecHitCollection>"/>

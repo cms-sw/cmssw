@@ -1,10 +1,10 @@
 <lcgdict>
 <selection>
   <class name="io_v1::DTRecHit1D" ClassVersion="3">
-   <version ClassVersion="3" checksum="630827352"/>
+   <version ClassVersion="3" checksum="764711668"/>
   </class>
   <class name="io_v1::DTRecHit1DPair" ClassVersion="3">
-   <version ClassVersion="3" checksum="3170834952"/>
+   <version ClassVersion="3" checksum="1616450748"/>
   </class>
   <class name="std::vector<io_v1::DTRecHit1DPair*>"/>
   <class name="std::map<DTLayerId,std::pair<unsigned int,unsigned int> >"/>
@@ -18,17 +18,17 @@
   <class name="std::vector<io_v1::DTRecHit1D>"/>
   <class name="std::vector<io_v1::DTRecHit1DPair>"/>
   <class name="DTSLRecCluster" ClassVersion="3">
-   <version ClassVersion="3" checksum="1148535115"/>
+   <version ClassVersion="3" checksum="680230887"/>
   </class>
   <class name="std::vector<DTSLRecCluster*>"/>
   <class name="edm::OwnVector<DTSLRecCluster,edm::ClonePolicy<DTSLRecCluster> >"   rntupleStreamerMode="true"/>
   <class name="edm::RangeMap <DTSuperLayerId, edm::OwnVector<DTSLRecCluster,edm::ClonePolicy<DTSLRecCluster> >,edm::ClonePolicy<DTSLRecCluster> >"/>
   <class name="edm::Wrapper<edm::RangeMap <DTSuperLayerId, edm::OwnVector<DTSLRecCluster,edm::ClonePolicy<DTSLRecCluster> >,edm::ClonePolicy<DTSLRecCluster> > >"/>
   <class name="DTRecSegment2D" ClassVersion="3">
-   <version ClassVersion="3" checksum="3938200617"/>
+   <version ClassVersion="3" checksum="4107105771"/>
   </class>
   <class name="DTSLRecSegment2D" ClassVersion="3">
-   <version ClassVersion="3" checksum="2570862318"/>
+   <version ClassVersion="3" checksum="2739767472"/>
   </class>
   <class name="std::vector<DTSLRecSegment2D*>"/>
   <class name="std::map<DTSuperLayerId,std::pair<unsigned int,unsigned int> >"/>
@@ -37,10 +37,10 @@
   <class name="edm::RangeMap <DTSuperLayerId, edm::OwnVector<DTSLRecSegment2D,edm::ClonePolicy<DTSLRecSegment2D> >,edm::ClonePolicy<DTSLRecSegment2D> >"/>
   <class name="edm::Wrapper<edm::RangeMap <DTSuperLayerId, edm::OwnVector<DTSLRecSegment2D,edm::ClonePolicy<DTSLRecSegment2D> >,edm::ClonePolicy<DTSLRecSegment2D> > >"/>
   <class name="DTChamberRecSegment2D" ClassVersion="3">
-   <version ClassVersion="3" checksum="1819600361"/>
+   <version ClassVersion="3" checksum="1988505515"/>
   </class>
   <class name="io_v1::DTRecSegment4D" ClassVersion="3">
-   <version ClassVersion="3" checksum="4236178838"/>
+   <version ClassVersion="3" checksum="4135091528"/>
   </class>
   <class name="std::vector<io_v1::DTRecSegment4D*>"/>
   <class name="std::map<DTChamberId,std::pair<unsigned int,unsigned int> >"/>

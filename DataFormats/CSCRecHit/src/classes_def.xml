@@ -1,7 +1,7 @@
 <lcgdict>
 <selection>
   <class name="io_v1::CSCRecHit2D" ClassVersion="3">
-   <version ClassVersion="3" checksum="703422205"/>
+   <version ClassVersion="3" checksum="4267777761"/>
   </class>
   <class name="std::vector<io_v1::CSCRecHit2D>"/>
   <class name="std::vector<io_v1::CSCRecHit2D*>"/>
@@ -17,7 +17,7 @@
   <class name="std::vector<io_v1::CSCSegment>"/>
   <class name="std::vector<io_v1::CSCSegment*>"/>
   <class name="io_v1::CSCSegment" ClassVersion="3">
-   <version ClassVersion="3" checksum="985709"/>
+   <version ClassVersion="3" checksum="1566595635"/>
   </class>
   <class name="edm::OwnVector<io_v1::CSCSegment,edm::ClonePolicy<io_v1::CSCSegment> >"  rntupleStreamerMode="true" />
   <class name="edm::RangeMap<CSCDetId,edm::OwnVector<io_v1::CSCSegment,edm::ClonePolicy<io_v1::CSCSegment> >,edm::ClonePolicy<io_v1::CSCSegment> >"/>

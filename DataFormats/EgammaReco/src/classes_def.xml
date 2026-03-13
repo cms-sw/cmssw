@@ -87,7 +87,7 @@
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::io_v1::PreshowerClusterShape>,reco::io_v1::PreshowerClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PreshowerClusterShape>,reco::io_v1::PreshowerClusterShape> > >" splitLevel="0"/>
 
   <class name="reco::io_v1::ElectronSeed" ClassVersion="3">
-    <version ClassVersion="3" checksum="1973570835"/>
+    <version ClassVersion="3" checksum="3355931837"/>
   </class>
   <class name="reco::io_v1::ElectronSeed::PMVars" ClassVersion="3">
     <version ClassVersion="3" checksum="788727658"/>
