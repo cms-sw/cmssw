@@ -144,6 +144,14 @@ public:
               << ")!";
         mod.rocs.resize(nrocs);
 
+        //by default are enabled except if configured otherwise
+        mod.enabledErx = (0b1 << nrocs) - 0b1;
+        if (mod_config_data[modkey].count("enabledErx") > 0) {
+          mod.enabledErx = gethex(mod_config_data[modkey]["enabledErx"], -1);
+          edm::LogWarning("HGCalConfigurationESProducer") << "Overwritting default eRx enabled mask with 0x" << std::hex
+                                                          << mod.enabledErx << std::dec << " for " << typecode;
+        }
+
         // fill eRX (half-ROC) configuration
         for (uint32_t iroc = 0; iroc < nrocs; iroc++) {
           ntot_rocs++;
