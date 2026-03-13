@@ -38,6 +38,7 @@ BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset, edm::Consume
       sigmaClockRU_(pset.getParameter<double>("SigmaClockRU")),
       paramPulseQ_(pset.getParameter<std::vector<double>>("PulseQParam")),
       paramPulseQRes_(pset.getParameter<std::vector<double>>("PulseQResParam")),
+      integrationTimeFixed_(pset.getParameter<uint32_t>("IntegrationTimeFixed")),
       corrCoeff_(pset.getParameter<double>("CorrelationCoefficient")),
       cosPhi_(0.5 * (sqrt(1. + corrCoeff_) + sqrt(1. - corrCoeff_))),
       sinPhi_(0.5 * corrCoeff_ / cosPhi_),
@@ -75,6 +76,7 @@ BTLElectronicsSim::~BTLElectronicsSim() { delete smearingClockRU_; }
 
 void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
                             BTLDigiCollection& output,
+                            BTLDigiTempCollection& outputTemp,
                             CLHEP::HepRandomEngine* hre) const {
   // --- Fill the readout-unit clock jitter array
   for (unsigned int iRU = 0; iRU < numberOfRUs_; ++iRU) {
@@ -235,6 +237,15 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
 
     }  // iside loop
 
+    if (debug_) {
+      edm::LogError("BTLElectronicsSim") << "Hit before trivial Shaper with rawId    : " << it->first.detid_
+                                         << ", row: " << static_cast<int>(it->first.row_)
+                                         << ", column: " << static_cast<int>(it->first.column_)
+                                         << ", time1L: " << toa1[0] << ", time2L: " << toa2[0]
+                                         << ", chargeL: " << charge_adc[0] << ", time1R: " << toa1[1]
+                                         << ", time2R: " << toa2[1] << ", chargeR: " << charge_adc[1] << std::endl;
+    }
+
     // --- skip if both sides are empty
     if (charge_adc[0] == 0 && charge_adc[1] == 0)
       continue;
@@ -244,8 +255,64 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
     // --- Run the shaper to create a new data frame
     BTLDataFrame rawDataFrame(it->first.detid_);
     runTrivialShaper(rawDataFrame, charge_adc, toa1, toa2, it->first.row_, it->first.column_);
+
+    if (!checkValidHit(rawDataFrame)) {
+      continue;
+    }
+
     updateOutput(output, rawDataFrame);
 
+    uint32_t rawId = rawDataFrame.id().rawId();
+    uint16_t BC0count = static_cast<uint16_t>(iBX);
+    bool status = true;    // status is always true in this implementation
+    uint32_t BCcount = 0;  // BCcount is always 0 in this implementation
+
+    uint8_t chIDR = static_cast<uint8_t>(elMap_.TOFHIRCh(static_cast<uint32_t>(rawId), static_cast<uint32_t>(1)));
+    uint16_t T1coarseR = timetoTcoarse(toa1[1], T1coarseMask);
+    uint16_t T2coarseR = timetoTcoarse(toa2[1], T2coarseMask);
+    uint16_t EOIcoarseR = T1coarseR + static_cast<uint16_t>(integrationTimeFixed_);
+    uint16_t ChargeR = chargetoQfine(charge_adc[1], toa1[1], EOIcoarseR);
+    uint16_t T1fineR = timetoTfine(toa1[1], T1coarseR);
+    uint16_t T2fineR = timetoTfine(toa2[1], T2coarseR);
+    uint16_t IdleTimeR = 0;  // IdleTimeR is not used in this implementation
+    uint8_t PrevTrigFR = 0;  // Previous trigger flag is not used in this implementation
+    uint8_t TACIDR = 0;      // TACIDR is not used in this implementation
+
+    uint8_t chIDL = static_cast<uint8_t>(elMap_.TOFHIRCh(static_cast<uint32_t>(rawId), static_cast<uint32_t>(0)));
+    uint16_t T1coarseL = timetoTcoarse(toa1[0], T1coarseMask);
+    uint16_t T2coarseL = timetoTcoarse(toa2[0], T2coarseMask);
+    uint16_t EOIcoarseL = T1coarseL + static_cast<uint16_t>(integrationTimeFixed_);
+    uint16_t ChargeL = chargetoQfine(charge_adc[0], toa1[0], EOIcoarseL);
+    uint16_t T1fineL = timetoTfine(toa1[0], T1coarseL);
+    uint16_t T2fineL = timetoTfine(toa2[0], T2coarseL);
+    uint16_t IdleTimeL = 0;  // IdleTimeL is not used in this implementation
+    uint8_t PrevTrigFL = 0;  // Previous trigger flag is not used in this implementation
+    uint8_t TACIDL = 0;      // TACIDL is not used in this implementation
+
+    outputTemp.emplace_back(rawId,
+                            BC0count,
+                            status,
+                            BCcount,
+                            chIDR,
+                            T1coarseR,
+                            T2coarseR,
+                            EOIcoarseR,
+                            ChargeR,
+                            T1fineR,
+                            T2fineR,
+                            IdleTimeR,
+                            PrevTrigFR,
+                            TACIDR,
+                            chIDL,
+                            T1coarseL,
+                            T2coarseL,
+                            EOIcoarseL,
+                            ChargeL,
+                            T1fineL,
+                            T2fineL,
+                            IdleTimeL,
+                            PrevTrigFL,
+                            TACIDL);
   }  // MTDSimHitDataAccumulator loop
 }
 
@@ -267,9 +334,9 @@ void BTLElectronicsSim::runTrivialShaper(BTLDataFrame& dataFrame,
     newSample.set(false, false, 0, 0, 0, row, col);
 
     //brute force saturation, maybe could to better with an exponential like saturation
-    const uint32_t adc = std::min((uint32_t)std::round(charge_adc[iside]), adcBitSaturation_);
-    const uint32_t tdc_time1 = std::min((uint32_t)std::round(toa1[iside] / tdcLSB_ns_), tdcBitSaturation_);
-    const uint32_t tdc_time2 = std::min((uint32_t)std::round(toa2[iside] / tdcLSB_ns_), tdcBitSaturation_);
+    const uint32_t adc = std::min(static_cast<uint32_t>(std::round(charge_adc[iside])), adcBitSaturation_);
+    const uint32_t tdc_time1 = std::min(static_cast<uint32_t>(std::round(toa1[iside] / tdcLSB_ns_)), tdcBitSaturation_);
+    const uint32_t tdc_time2 = std::min(static_cast<uint32_t>(std::round(toa2[iside] / tdcLSB_ns_)), tdcBitSaturation_);
 
     newSample.set(true, tdc_time1 == tdcBitSaturation_, tdc_time2, tdc_time1, adc, row, col);
     dataFrame.setSample(iside, newSample);
@@ -288,7 +355,7 @@ void BTLElectronicsSim::runTrivialShaper(BTLDataFrame& dataFrame,
   }
 }
 
-void BTLElectronicsSim::updateOutput(BTLDigiCollection& coll, const BTLDataFrame& rawDataFrame) const {
+bool BTLElectronicsSim::checkValidHit(const BTLDataFrame& rawDataFrame) const {
   BTLDataFrame dataFrame(rawDataFrame.id());
   dataFrame.resize(dfSIZE);
   bool putInEvent(false);
@@ -297,9 +364,48 @@ void BTLElectronicsSim::updateOutput(BTLDigiCollection& coll, const BTLDataFrame
     if (it == 0)
       putInEvent = rawDataFrame[it].threshold();
   }
+  return putInEvent;
+}
 
-  if (putInEvent) {
-    coll.push_back(dataFrame);
+void BTLElectronicsSim::updateOutput(BTLDigiCollection& coll, const BTLDataFrame& rawDataFrame) const {
+  BTLDataFrame dataFrame(rawDataFrame.id());
+  dataFrame.resize(dfSIZE);
+  coll.push_back(rawDataFrame);
+}
+
+void BTLElectronicsSim::updateOutputSoA(mtd_digitizer::BTLDigiTempCollection& outputTemp,
+                                        btldigi::BTLDigiHostCollection& hostColl) const {
+  btldigi::BTLDigiSoAView& btlDigiView = hostColl.view();
+  size_t nDigis = outputTemp.size();
+  if (debug_) {
+    edm::LogError("BTLElectronicsSim") << "Updating output SoA with " << nDigis << " digis." << std::endl;
+  }
+  for (size_t hitIndex = 0; hitIndex < nDigis; ++hitIndex) {
+    const auto& digiTemp = outputTemp[hitIndex];
+    btlDigiView[hitIndex] = {digiTemp.rawId_,      digiTemp.BC0count_,   digiTemp.status_,     digiTemp.BCcount_,
+                             digiTemp.chIDR_,      digiTemp.T1coarseR_,  digiTemp.T2coarseR_,  digiTemp.EOIcoarseR_,
+                             digiTemp.ChargeR_,    digiTemp.T1fineR_,    digiTemp.T2fineR_,    digiTemp.IdleTimeR_,
+                             digiTemp.PrevTrigFR_, digiTemp.TACIDR_,     digiTemp.chIDL_,      digiTemp.T1coarseL_,
+                             digiTemp.T2coarseL_,  digiTemp.EOIcoarseL_, digiTemp.ChargeL_,    digiTemp.T1fineL_,
+                             digiTemp.T2fineL_,    digiTemp.IdleTimeL_,  digiTemp.PrevTrigFL_, digiTemp.TACIDL_};
+
+    if (debug_) {
+      edm::LogError("BTLElectronicsSim") << "Processed hit with rawId: " << btlDigiView[hitIndex].rawId()
+                                         << ", chIDL: " << static_cast<int>(btlDigiView[hitIndex].chIDL())
+                                         << ", T1coarseL: " << btlDigiView[hitIndex].T1coarseL()
+                                         << ", T1fineL: " << btlDigiView[hitIndex].T1fineL()
+                                         << ", T2coarseL: " << btlDigiView[hitIndex].T2coarseL()
+                                         << ", T2fineL: " << btlDigiView[hitIndex].T2fineL()
+                                         << ", EOIcoarseL: " << btlDigiView[hitIndex].EOIcoarseL()
+                                         << ", ChargeL: " << btlDigiView[hitIndex].ChargeL()
+                                         << ", chIDR: " << static_cast<int>(btlDigiView[hitIndex].chIDR())
+                                         << ", T1coarseR: " << btlDigiView[hitIndex].T1coarseR()
+                                         << ", T1fineR: " << btlDigiView[hitIndex].T1fineR()
+                                         << ", T2coarseR: " << btlDigiView[hitIndex].T2coarseR()
+                                         << ", T2fineR: " << btlDigiView[hitIndex].T2fineR()
+                                         << ", EOIcoarseR: " << btlDigiView[hitIndex].EOIcoarseR()
+                                         << ", ChargeR: " << btlDigiView[hitIndex].ChargeR() << std::endl;
+    }
   }
 }
 
@@ -385,4 +491,48 @@ float BTLElectronicsSim::pulse_q(const float& npe) const { return paramPulseQ_[0
 
 float BTLElectronicsSim::pulse_qRes(const float& npe) const {
   return paramPulseQRes_[0] * std::pow(npe, paramPulseQRes_[1]);
+}
+
+uint16_t BTLElectronicsSim::timetoTcoarse(const float time, const uint16_t mask) const {
+  // Convert time to Tcoarse
+  float time_clk_units = time / tofhirClock_;  // Convert time to clock units
+  uint16_t tcoarse = 0;
+  if (time_clk_units - std::floor(time_clk_units) < 0.5) {
+    tcoarse = static_cast<uint16_t>(std::floor(time_clk_units) + 1) & mask;  // Mask to keep only the lower 15 bits
+  } else
+    tcoarse = static_cast<uint16_t>(std::floor(time_clk_units) + 2) & mask;  // Mask to keep only the lower 15 bits
+  return tcoarse;  // by design, Tcoarse is at least 1 clk cycle after the arrival of the signal
+}
+
+uint16_t BTLElectronicsSim::timetoTfine(const float time, const uint16_t tcoarse) const {
+  // Convert time to Tfine
+  float time_clk_units = time / tofhirClock_;     // Convert time to clock units
+  float qtfine = tcoarse - time_clk_units - t0_;  // Get the fine time part in clock units
+  uint16_t Tfine =
+      static_cast<uint16_t>(std::floor(a2_ * qtfine * qtfine + a1_ * qtfine + a0_));  // convert into Tfine digits
+
+  if (Tfine > tdcBitSaturation_) {
+    edm::LogWarning("BTLElectronicsSim") << "BTLElectronicsSim::timetoTfine: Tfine value " << Tfine
+                                         << " exceeds the maximum allowed value of " << tdcBitSaturation_
+                                         << ". Setting Tfine to the maximum allowed value.";
+    Tfine = tdcBitSaturation_;  // Ensure Tfine does not exceed the maximum allowed value
+  }
+
+  return Tfine;
+}
+
+uint16_t BTLElectronicsSim::chargetoQfine(const float charge, const float toa1, uint16_t EOI) const {
+  // Convert charge to qfine
+  float ti = (EOI - toa1 / tofhirClock_);  // integration time in clock units
+
+  // evaluate pedestal (qdc calibs, 9-deg polynomial)
+  uint32_t pedestal =
+      (p0_ +
+       (p1_ + (p2_ + (p3_ + (p4_ + (p5_ + (p6_ + (p7_ + (p8_ + p9_ * ti) * ti) * ti) * ti) * ti) * ti) * ti) * ti) *
+           ti);
+
+  const uint32_t adc = std::min(static_cast<uint32_t>(std::floor(charge)), adcBitSaturation_);
+  uint16_t Qfine = adc + pedestal;  // Qfine is the ADC value + pedestal
+
+  return Qfine;
 }

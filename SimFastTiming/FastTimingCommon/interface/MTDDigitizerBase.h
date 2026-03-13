@@ -9,6 +9,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
+#include "DataFormats/FTLDigiSoA/interface/BTLDigiHostCollection.h"
 #include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"
 #include "DataFormats/FTLDigi/interface/PMTDSimAccumulator.h"
 #include "SimFastTiming/FastTimingCommon/interface/MTDDigitizerTypes.h"
@@ -35,6 +36,9 @@ public:
                    edm::ConsumesCollector& iC)
       : inputSimHits_(config.getParameter<edm::InputTag>("inputSimHits")),
         digiCollection_(config.getParameter<std::string>("digiCollectionTag")),
+        digiCollectionSoA_(config.existsAs<std::string>("digiCollectionSoATag")
+                               ? config.getParameter<std::string>("digiCollectionSoATag")
+                               : ""),
         verbosity_(config.getUntrackedParameter<uint32_t>("verbosity", 0)),
         refSpeed_(0.1 * CLHEP::c_light),
         premixStage1MinCharge_(config.getParameter<double>("premixStage1MinCharge")),
@@ -48,6 +52,7 @@ public:
         producesCollector.produces<PMTDSimAccumulator>(digiCollection_);
       } else {
         producesCollector.produces<BTLDigiCollection>(digiCollection_);
+        producesCollector.produces<btldigi::BTLDigiHostCollection>(digiCollectionSoA_);
       }
     } else if (name_ == "ETLDigitizer")
       if (premixStage1_) {
@@ -84,6 +89,7 @@ protected:
   //input/output names
   const edm::InputTag inputSimHits_;
   const std::string digiCollection_;
+  const std::string digiCollectionSoA_;
 
   //misc switches
   const uint32_t verbosity_;
