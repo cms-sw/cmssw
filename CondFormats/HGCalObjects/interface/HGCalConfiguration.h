@@ -17,6 +17,7 @@ struct HGCalROCConfig {
 struct HGCalECONDConfig {
   //std::string typecode;
   uint32_t headerMarker;  // begin of event marker/identifier for ECON-D
+  uint16_t enabledErx;
   std::vector<HGCalROCConfig> rocs;
   COND_SERIALIZABLE;
 };

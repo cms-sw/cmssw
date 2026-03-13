@@ -127,8 +127,7 @@ void HGCalMappingModuleIndexer::finalize() {
       uint32_t internalData_offset = globalTypesNWords_[type_val] * typeCounters[type_val];
       fedit.chDataOffsets_[i] = baseData_offset + internalData_offset;
 
-      //enabled erx flags
-      //FIXME: assume all eRx are enabled now
+      //enabled erx flags: by default all available are enabled - configuration may override
       fedit.enabledErx_[i] = (0b1 << globalTypesNErx_[type_val]) - 0b1;
       typeCounters[type_val]++;
     }
