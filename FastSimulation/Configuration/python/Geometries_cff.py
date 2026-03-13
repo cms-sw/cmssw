@@ -43,5 +43,16 @@ def _fastSimGeometryCustoms(process):
     # The muon geometry left-over
     process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
 
+    # These used to be applied in separate Geometries_MC_cff and Geometries_START_cff files
+    # Since those are the only FastSim variants ever used/exposed through cmsDriver,
+    # just include these settings here as default
+    # Apply Tracker and Muon misalignment
+    process.misalignedTrackerGeometry.applyAlignment = True
+    process.misalignedDTGeometry.applyAlignment = True
+    process.misalignedCSCGeometry.applyAlignment = True
+
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 modifyGeom_fastSim = fastSim.makeProcessModifier(_fastSimGeometryCustoms)
+
+# now executed directly in cmsDriver.py instead of separate Geometries_START_cff file
+_fastSimGeometryCustomStart = 'process.fastSimProducer.detectorDefinition.trackerAlignmentLabel = cms.untracked.string("")'

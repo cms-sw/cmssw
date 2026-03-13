@@ -1237,9 +1237,9 @@ class ConfigBuilder(object):
             self.GeometryCFF = [self.GeometryCFF]
 
             self.GeometryCFF.append('FastSimulation/Configuration/Geometries_cff')
-            self.GeometryCFF.append('FastSimulation/Configuration/Geometries_MC_cff')
             if 'start' in self._options.conditions.lower():
-                self.GeometryCFF.append('FastSimulation/Configuration/Geometries_START_cff')
+                from FastSimulation.Configuration.Geometries_cff import _fastSimGeometryCustomStart
+                self.executeAndRemember(_fastSimGeometryCustomStart)
 
             self.SIMDefaultCFF = 'FastSimulation.Configuration.SimIdeal_cff'
             self.RECODefaultCFF= 'FastSimulation.Configuration.Reconstruction_AftMix_cff'
