@@ -4,3 +4,7 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities" source_only="1"/>
 <use name="PerfTools/AllocMonitor"/>
+<!-- Needed by monitors that use std::stacktrace, presently available only in CPP23 builds -->
+<ifrelease name="CPP23">
+  <lib name="stdc++exp"/>
+</ifrelease>
