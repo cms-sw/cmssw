@@ -10,13 +10,14 @@ namespace l1t {
   class KMTFTrack;
   typedef std::vector<KMTFTrack> KMTFTrackCollection;
   typedef BXVector<KMTFTrack> KMTFTrackBxCollection;
+  typedef math::Error<5>::type CovarianceMatrix5dim;
 
   class KMTFTrack : public reco::LeafCandidate {
   public:
     KMTFTrack()
         : reco::LeafCandidate(-1, reco::LeafCandidate::PolarLorentzVector(0.1, 0.0, 0.0, 0.105)),
           unconstrainedP4_(reco::LeafCandidate::PolarLorentzVector(0.1, 0.0, 0.0, 0.105)),
-          covariance_(std::vector<double>(6, 0.0)),
+          covariance_(std::vector<double>(15, 0.0)),
           curvVertex_(0),
           ptC_(0),
           phiVertex_(0),
@@ -28,6 +29,8 @@ namespace l1t {
           curv_(0),
           phi_(0),
           phiB_(0),
+		  z_(0),
+		  kSlope_(0),
           coarseEta_(0),
           approxPromptChi2_(0),
           approxPromptErrChi2_(0),
@@ -46,10 +49,10 @@ namespace l1t {
 
     ~KMTFTrack() override = default;
 
-    KMTFTrack(const l1t::MuonStubRef& seed, int phi, int phiB)
+    KMTFTrack(const l1t::MuonStubRef& seed, int phi, int phiB, int z, int kSlope)
         : reco::LeafCandidate(-1, reco::LeafCandidate::PolarLorentzVector(0.1, 0.0, 0.0, 0.105)),
           unconstrainedP4_(reco::LeafCandidate::PolarLorentzVector(0.1, 0.0, 0.0, 0.105)),
-          covariance_(std::vector<double>(6, 0.0)),
+          covariance_(std::vector<double>(15, 0.0)),
           curvVertex_(0),
           ptC_(0),
           phiVertex_(0),
@@ -61,6 +64,8 @@ namespace l1t {
           curv_(0),
           phi_(phi),
           phiB_(phiB),
+		  z_(z),
+		  kSlope_(kSlope),
           coarseEta_(0),
           approxPromptChi2_(0),
           approxPromptErrChi2_(0),
@@ -107,6 +112,10 @@ namespace l1t {
     int positionAngle() const { return phi_; }
     //Unconstrained bending angle at the Muon systen
     int bendingAngle() const { return phiB_; }
+	
+	//global z and slope of stub 
+	int zPosition() const {return z_;}
+	int kSlope() const {return kSlope_;}
     //Coarse eta caluclated only using phi segments
     int coarseEta() const { return coarseEta_; }
     //Approximate Chi2 metrics
@@ -188,11 +197,13 @@ namespace l1t {
     }
 
     //Set coordinates general
-    void setCoordinates(int step, int curv, int phi, int phiB) {
+    void setCoordinates(int step, int curv, int phi, int phiB, int z, int kSlope) {
       step_ = step;
       curv_ = curv;
       phiB_ = phiB;
       phi_ = phi;
+	  z_ = z;
+	  kSlope_ = kSlope;
     }
 
     void setCoordinatesAtVertex(int curv, int phi, int dxy) {
@@ -306,13 +317,23 @@ namespace l1t {
     }
 
     //set covariance
-    void setCovariance(const CovarianceMatrix& c) {
+    void setCovariance(const CovarianceMatrix5dim& c) {
       covariance_[0] = c(0, 0);
       covariance_[1] = c(0, 1);
       covariance_[2] = c(1, 1);
       covariance_[3] = c(0, 2);
       covariance_[4] = c(1, 2);
       covariance_[5] = c(2, 2);
+      covariance_[6] = c(0, 3);
+      covariance_[7] = c(1, 3);
+      covariance_[8] = c(2, 3);
+      covariance_[9] = c(3, 3);
+      covariance_[10] = c(0, 4);
+      covariance_[11] = c(1, 4);
+      covariance_[12] = c(2, 4);
+      covariance_[13] = c(3, 4);
+      covariance_[14] = c(4, 4);
+	
     }
 
     //set fine eta
@@ -347,6 +368,8 @@ namespace l1t {
     int curv_;
     int phi_;
     int phiB_;
+	int z_;
+	int kSlope_;
     //common coordinates
     int coarseEta_;
 
