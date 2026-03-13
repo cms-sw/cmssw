@@ -155,7 +155,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                               const reco::PFClusterDeviceCollection& pfClusters,
                               const reco::PFRecHitFractionDeviceCollection& pfRecHitFracs,
                               const reco::PFRecHitDeviceCollection& pfRecHit) const {
-    uint32_t items = 160;
+    uint32_t items = 64;
 
     auto n = static_cast<uint32_t>(pfClusters->metadata().size());
     uint32_t groups = ::cms::alpakatools::divide_up_by(n, items);
@@ -504,7 +504,8 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
-  const int nClusters = 145;
+  const int nClusters = 16348;
+
   const int maxHitsPerCluster = 67;
   const int minHitsPerCluster = 23;
 

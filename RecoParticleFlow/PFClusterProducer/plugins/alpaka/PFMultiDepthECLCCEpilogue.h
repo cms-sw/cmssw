@@ -51,7 +51,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * @param pfRecHit            Input PF rec hit device collection.
  */
 
-  template <unsigned int max_w_items = 32, bool is_cooperative = false, bool multi_block = false>
+  template <unsigned int max_w_items = 32, bool is_cooperative = false>
   class ECLCCEpilogueKernel {
   public:
     ALPAKA_FN_ACC void operator()(
@@ -69,7 +69,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const unsigned int nVertices = pfClusteringCCLabels.size();
 
       if constexpr (std::is_same_v<Device, alpaka::DevCpu> ||
-                    std::is_same_v<alpaka::AccToTag<Acc1D>, alpaka::TagGpuHipRt> || multi_block) {
+                    std::is_same_v<alpaka::AccToTag<Acc1D>, alpaka::TagGpuHipRt>) {
         if (::cms::alpakatools::once_per_grid(acc)) {
           unsigned int ccrhfrac_idx = 0;
           unsigned int cc_idx = 0;

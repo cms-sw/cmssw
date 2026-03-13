@@ -29,6 +29,8 @@
 
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterizerHelper.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCPrologue.h"
+
+#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCInitPrologueArgs.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCPrologueMultiBlock.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFClusterHostCollection.h"
@@ -41,7 +43,19 @@
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringCCLabelsHostCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringEdgeVarsHostCollection.h"
+
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthECLCCPrologueArgsDeviceCollection.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthECLCCPrologueArgsHostCollection.h"
+
+#ifdef PROLOGUE_MULTIBLOCK
+#if __CUDA_ARCH__ >= 800
+static constexpr bool multiblock = true;
+#else
+static constexpr bool multiblock = false;
+#endif
+#else
+static constexpr bool multiblock = false;
+#endif
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -55,7 +69,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void PrologueTest::apply(Queue &queue,
                            reco::PFMultiDepthClusteringEdgeVarsDeviceCollection &pfClusteringEdgeVars,
                            const reco::PFMultiDepthClusteringCCLabelsDeviceCollection &mdpfClusteringVars) const {
-    uint32_t items = 160;
+    uint32_t items = multiblock ? 64 : 160;
 
     auto n = static_cast<uint32_t>(mdpfClusteringVars->metadata().size());
     uint32_t groups = cms::alpakatools::divide_up_by(n, items);
@@ -68,27 +82,38 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(groups, items);
+    if constexpr (multiblock) {
+      reco::PFMultiDepthECLCCPrologueArgsDeviceCollection devClusteringPrologueArgs{queue, n};
 
-    reco::PFMultiDepthECLCCPrologueArgsDeviceCollection devClusteringPrologueArgs{queue, n};
+      alpaka::exec<Acc1D>(
+          queue, workDiv, ECLCCInitPrologueArgsKernel{}, devClusteringPrologueArgs.view(), mdpfClusteringVars.view());
 
-    alpaka::exec<Acc1D>(queue, workDiv, ECLCCPrologueKernel{}, pfClusteringEdgeVars.view(), mdpfClusteringVars.view());
+      alpaka::exec<Acc1D>(
+          queue, workDiv, ECLCCComputeExternNeighsKernel{}, devClusteringPrologueArgs.view(), mdpfClusteringVars.view());
 
-    //ECLCCComputeExternNeighsKernel
-    alpaka::exec<Acc1D>(
-        queue, workDiv, ECLCCComputeExternNeighsKernel{}, devClusteringPrologueArgs.view(), mdpfClusteringVars.view());
-    //ECLCCPrologueComputeOffsetsKernel
-    alpaka::exec<Acc1D>(queue,
-                        workDiv,
-                        ECLCCPrologueComputeOffsetsKernel{},
-                        devClusteringPrologueArgs.view(),
-                        mdpfClusteringVars.view());
-    //ECLCCFinalizePrologueKernel
-    alpaka::exec<Acc1D>(queue,
-                        workDiv,
-                        ECLCCFinalizePrologueKernel{},
-                        pfClusteringEdgeVars.view(),
-                        devClusteringPrologueArgs.view(),
-                        mdpfClusteringVars.view());
+      alpaka::exec<Acc1D>(queue,
+                          workDiv,
+                          ECLCCPrologueComputeOffsetsKernel{},
+                          devClusteringPrologueArgs.view(),
+                          mdpfClusteringVars.view());
+
+      alpaka::exec<Acc1D>(queue,
+                          workDiv,
+                          ECLCCFinalizePrologueKernel{},
+                          pfClusteringEdgeVars.view(),
+                          devClusteringPrologueArgs.view(),
+                          mdpfClusteringVars.view());
+
+      alpaka::exec<Acc1D>(queue,
+                          workDiv,
+                          ECLCCLoadCrossBlockNeighKernel{},
+                          pfClusteringEdgeVars.view(),
+                          devClusteringPrologueArgs.view(),
+                          mdpfClusteringVars.view());
+    } else {
+      alpaka::exec<Acc1D>(
+          queue, workDiv, ECLCCPrologueKernel{}, pfClusteringEdgeVars.view(), mdpfClusteringVars.view());
+    }
 
     alpaka::wait(queue);
   }
@@ -194,19 +219,34 @@ int checkPrologue(const ::reco::PFMultiDepthClusteringEdgeVarsHostCollection &ho
     }
     std::cout << "]   ";
 
+    std::vector<std::pair<int, int>> broken_idx;
+    broken_idx.reserve(end - begin);
+
+    int loc_nerrors = 0;
+
     std::cout << "\t\t Alpaka [";
     for (int j = begin; j < end; j++) {
       const int idx = hClusteringEdgeVars[j].mdpf_adjacencyList();
       const bool is_found = std::binary_search(adj[i].begin(), adj[i].end(), idx);
 
       if (is_found == false) {
-        nerrors += 1;
-        std::cout << "mismatch detected for vertex " << i << ", index  " << idx << std::endl;
+        loc_nerrors += 1;
+        broken_idx.push_back(std::make_pair(idx, j));
+        std::cout << "? ";
+      } else {
+        std::cout << hClusteringEdgeVars[j].mdpf_adjacencyList() << " ";
       }
-
-      std::cout << hClusteringEdgeVars[j].mdpf_adjacencyList() << " ";
     }
     std::cout << "]\n";
+
+    if (loc_nerrors > 0) {
+      nerrors += loc_nerrors;
+      std::cout << "\nError: mismatch detected for vertex : " << i;
+      for (auto &ii : broken_idx) {
+        std::cout << ", index " << ii.first << ", at address " << ii.second;
+      }
+      std::cout << "\n\n";
+    }
   }
 
   return nerrors;
@@ -224,7 +264,7 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
-  const int nClusters = 145;
+  const int nClusters = multiblock ? 1200 : 145;  //145
 
   std::vector<int> roots = {0, 3, 7, 11, 19, 29, 37, 41, 71, 83, 97, 101, 137};
 

@@ -38,7 +38,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(
         Acc1D const& acc,
         reco::PFMultiDepthECLCCEpilogueArgsDeviceCollection::View args,
-        warp::warp_mask_t* nonisoVertexMask,
         const reco::PFMultiDepthClusteringCCLabelsDeviceCollection::ConstView pfClusteringCCLabels,
         const reco::PFClusterDeviceCollection::ConstView pfCluster) const {
       constexpr unsigned int w_extent = get_warp_size<Acc1D>();
@@ -51,6 +50,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           const unsigned int vertex_idx = idx.global;
           const unsigned int rep_idx = pfClusteringCCLabels[vertex_idx].mdpf_topoId();
+          const warp::warp_mask_t rep_lane_mask = get_lane_mask(rep_idx % w_extent);
 
           const bool is_representative = vertex_idx == rep_idx;
 
@@ -61,34 +61,41 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           const warp::warp_mask_t subcomp_mask = warp::match_any_mask(acc, active_lanes_mask, rep_idx);
 
-          const unsigned int local_subcomponent_rep_idx = get_ls1b_idx(acc, subcomp_mask);
+          const unsigned int subcomp_rep_idx = get_ls1b_idx(acc, subcomp_mask);
 
-          bool unpdate_iso_root_lane = false;
+          bool update_iso_root_lane = false;
 
           unsigned int which_global_warp_idx = nVertices;
 
-          if (lane_idx == local_subcomponent_rep_idx) {
+          if (lane_idx == subcomp_rep_idx) {
             const unsigned int subcomp_size = alpaka::popcount(acc, subcomp_mask);
             if ((subcomp_size > 1) || (subcomp_size == 1 && !is_representative)) {
-              unpdate_iso_root_lane = true;
+              update_iso_root_lane = true;
               which_global_warp_idx = rep_idx / w_extent;
             }
           }
 
-          const warp::warp_mask_t iso_root_lanes = warp::ballot_mask(acc, active_lanes_mask, unpdate_iso_root_lane);
+          const warp::warp_mask_t iso_root_lanes = warp::ballot_mask(acc, active_lanes_mask, update_iso_root_lane);
 
-          if (iso_root_lanes != 0) {
+          if (is_work_lane(iso_root_lanes, lane_idx)) {
             const warp::warp_mask_t iso_root_lanes_subgroup =
                 warp::match_any_mask(acc, iso_root_lanes, which_global_warp_idx);
 
+            // Construct correct rep mask:
+            auto orFn = [] ALPAKA_FN_ACC(const warp::warp_mask_t m1, const warp::warp_mask_t m2) -> warp::warp_mask_t {
+              return m1 | m2;
+            };
+
+            warp::warp_mask_t selected_iso_root_mask =
+                warp_sparse_reduce(acc, iso_root_lanes_subgroup, lane_idx, rep_lane_mask, orFn);
+
             if (is_ls1b_idx<Acc1D>(iso_root_lanes_subgroup, lane_idx)) {
-              //FIXME : atomicOr leads to memory corruption!
-              //alpaka::atomicOr(acc, &isolated_root_mask[which_warp_idx], iso_root_lanes, alpaka::hierarchy::Threads{});
-              // Temporary WAR (general form of De Morgan's law):
-              const warp::warp_mask_t nonisolated_vertex_lanes = ~iso_root_lanes;
+              // Temporary WAR (using De Morgan's law):
+              const warp::warp_mask_t non_isolated_vertex_lanes = ~selected_iso_root_mask;
+
               alpaka::atomicAnd(acc,
-                                &nonisoVertexMask[which_global_warp_idx],
-                                nonisolated_vertex_lanes,
+                                &args[which_global_warp_idx].vertexMask(),  //must be init to full mask!
+                                non_isolated_vertex_lanes,
                                 alpaka::hierarchy::Threads{});
             }
           }
@@ -97,7 +104,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           unsigned int relative_rhf_offset_stub = 0;
 
-          if (lane_idx == local_subcomponent_rep_idx) {
+          if (lane_idx == subcomp_rep_idx) {
             // Remark: exclusive sum returns total number of elements
             // (i.e., subcomponent rhf size) for the lowest lane idx in the mask.
             relative_rhf_offset_stub =
@@ -106,7 +113,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           }
 
           const unsigned int relative_rhf_offset =
-              warp::shfl_mask(acc, subcomp_mask, relative_rhf_offset_stub, local_subcomponent_rep_idx, w_extent);
+              warp::shfl_mask(acc, subcomp_mask, relative_rhf_offset_stub, subcomp_rep_idx, w_extent);
           //connected comp rhf offsets for all vertices:
           args[vertex_idx].ccRHFOffset() = relative_rhf_offset + subcomp_rhf_offset;  // store relative offsets
         }
@@ -136,12 +143,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <unsigned int max_w_items = 32>
   class ECLCCEpilogueCCOffsetsKernel {
   public:
-    ALPAKA_FN_ACC void operator()(
-        Acc1D const& acc,
-        reco::PFClusterDeviceCollection::View outPFCluster,
-	reco::PFMultiDepthECLCCEpilogueArgsDeviceCollection::View args,
-        reco::PFMultiDepthClusteringCCLabelsDeviceCollection::View pfClusteringCCLabels,
-        const reco::PFClusterDeviceCollection::ConstView pfCluster) const {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  reco::PFClusterDeviceCollection::View outPFCluster,
+                                  reco::PFMultiDepthECLCCEpilogueArgsDeviceCollection::View args,
+                                  reco::PFMultiDepthClusteringCCLabelsDeviceCollection::View pfClusteringCCLabels,
+                                  const reco::PFClusterDeviceCollection::ConstView pfCluster) const {
       constexpr unsigned int w_extent = get_warp_size<Acc1D>();
 
       static_assert(max_w_items <= 32, "ECLCCEpilogueKernel: number of warps per block is unsupported.");
@@ -149,6 +155,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const unsigned int nVertices = pfClusteringCCLabels.size();
 
       const unsigned int blockDim = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
+
+      const unsigned int gridDim = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u];
       const unsigned int nBlocks = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
 
       // component offsets
@@ -162,7 +170,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       unsigned int& isLastBlockDone = alpaka::declareSharedVar<unsigned int, __COUNTER__>(acc);
       unsigned int& topo_block_offset = alpaka::declareSharedVar<unsigned int, __COUNTER__>(acc);
 
-
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
         if (::cms::alpakatools::once_per_block(acc)) {
           localNComponents = 0;
@@ -173,21 +180,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         unsigned int vertex_idx = nVertices;
 
         for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
-          common_buf1[idx.local] = nVertices;
-          common_buf2[idx.local] = 0;
-
           if (idx.local < max_w_items) {
             subcc_offsets[idx.local] = 0;
           }
-
           vertex_idx = idx.global;
         }
 
-        const unsigned int rep_idx = vertex_idx < nVertices ? pfClusteringCCLabels[vertex_idx].mdpf_topoId() : 0;
+        const unsigned int rep_idx = vertex_idx < nVertices ? pfClusteringCCLabels[vertex_idx].mdpf_topoId() : gridDim;
 
         const bool is_representative = vertex_idx < nVertices ? vertex_idx == rep_idx : false;
-
-        alpaka::syncBlockThreads(acc);
 
         auto& block_local_component_map = common_buf1;
         auto& block_local_cc_idx_record = common_buf2;
@@ -198,8 +199,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           const warp::warp_mask_t rep_mask = warp::ballot_mask(acc, active_lanes_mask, is_representative);
 
-          if (is_representative == false)
+          if (is_representative == false) {
+            block_local_component_map[idx.local] = nVertices;
+            block_local_cc_idx_record[idx.local] = 0;
             continue;
+          }
 
           const unsigned int low_rep_idx = get_ls1b_idx(acc, rep_mask);
 
@@ -221,14 +225,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         const unsigned int nBlockLocalComponents = localNComponents;
 
-        const bool is_local_rep = ((group * blockDim <= rep_idx) && (rep_idx < (group + 1) * blockDim)) ? true : false;
-
-        const unsigned int rep_cc_idx =
-            is_local_rep && vertex_idx < nVertices ? block_local_component_map[rep_idx % blockDim] : blockDim;
-
         if (::cms::alpakatools::once_per_block(acc)) {
-          topo_block_offset = alpaka::atomicAdd(
-              acc, &pfClusteringCCLabels.ncomponents(), static_cast<int>(nBlockLocalComponents), alpaka::hierarchy::Threads{});
+          topo_block_offset = alpaka::atomicAdd(acc,
+                                                &pfClusteringCCLabels.ncomponents(),
+                                                static_cast<int>(nBlockLocalComponents),
+                                                alpaka::hierarchy::Threads{});
 
           alpaka::mem_fence(acc, alpaka::memory_scope::Device{});
         }
@@ -239,8 +240,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           unsigned int global_topo_idx = nVertices;
 
           // Store relevant data (per thread):
-          for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nBlockLocalComponents)) {
-            const unsigned int root_idx = block_local_cc_idx_record[idx.local];  //rep_idx
+          for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
+            if (is_representative)
+              args[rep_idx].rootLocalMap() = block_local_component_map[idx.local];
+
+            if (idx.local >= nBlockLocalComponents)
+              continue;
+            const unsigned int root_idx = block_local_cc_idx_record[idx.local];  //collection of rep indices
             global_topo_idx = idx.local + topo_block_offset;
 
             outPFCluster[global_topo_idx].depth() = pfCluster[root_idx].depth();
@@ -250,18 +256,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             outPFCluster[global_topo_idx].y() = pfCluster[root_idx].y();
             outPFCluster[global_topo_idx].z() = pfCluster[root_idx].z();
             outPFCluster[global_topo_idx].topoRHCount() = pfCluster[root_idx].topoRHCount();
-            // store topo_block_offset :
-            //args[ group ].topoBlockOffset() = topo_block_offset;//????
-            args[root_idx].rootMap() = global_topo_idx;  
-            args[root_idx].rootLocalMap() = rep_cc_idx;
+            // note that root idx is within the block range:
+            args[root_idx].rootMap() = global_topo_idx;
             // now we can reset common_buf2 buffer (block_local_cc_idx_record):
             common_buf2[idx.local] = 0;
           }
 
-          // total rhfrac count per component (compact indexing).
-          auto& cc_rhf_sizes = common_buf1;
+          alpaka::syncBlockThreads(acc);
 
-          if (is_representative) {// rep_cc_idx in the range [0,nBlockLocalComponents) 
+          // total rhfrac count per component (compact indexing).
+          auto& cc_rhf_sizes = common_buf2;
+
+          if (is_representative) {  // rep_cc_idx in the range [0,nBlockLocalComponents)
+            const unsigned int rep_cc_idx = block_local_component_map[rep_idx % blockDim];
+            args[rep_idx].rootLocalMap() = rep_cc_idx;
             cc_rhf_sizes[rep_cc_idx] = args[rep_idx].ccRHFSize();
           }
 
@@ -270,13 +278,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           unsigned int cc_rhf_offset = 0;
 
           // Compute block-local rhf offsets:
-          for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nBlockLocalComponents)) {
+          for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
+            if (idx.local >= nBlockLocalComponents)
+              continue;
             const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
 
             const unsigned int warp_idx = idx.local / w_extent;
             const unsigned int lane_idx = idx.local % w_extent;
 
-            const unsigned int cc_rhf_size = cc_rhf_sizes[idx.local];  // rhf_size for each block-local representative
+            const unsigned int cc_rhf_size = cc_rhf_sizes[idx.local];
             // Store rhf sizes in memory:
             outPFCluster[global_topo_idx].rhfracSize() = cc_rhf_size;
 
@@ -300,7 +310,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           alpaka::syncBlockThreads(acc);
 
-          for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nBlockLocalComponents)) {
+          for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
+            if (idx.local >= nBlockLocalComponents)
+              continue;
             const unsigned int warp_idx = idx.local / w_extent;
 
             const unsigned int cc_rhf_block_offset = warp_idx == 0 ? 0 : subcc_offsets[warp_idx];
@@ -308,19 +320,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             if (warp_idx > 0) {
               cc_rhf_offset += cc_rhf_block_offset;
             }
-            // currently block local rhfrac offsets:
-            outPFCluster[global_topo_idx].rhfracOffset() =
-                cc_rhf_offset;  // outPFCluster[topo_block_offset].rhfracOffset() contains zero!
+            // currently block local rhfrac offsets?
+            //outPFCluster[global_topo_idx].rhfracOffset() = cc_rhf_offset;
+            args[idx.global].blockRHFOffset() = cc_rhf_offset;
           }
-        } else {
-          //args[ group ].topo_offset() = topo_block_offset;
-        }
+        }  // end of nBlockLocalComponents branch
+
+        alpaka::mem_fence(acc, alpaka::memory_scope::Device{});
 
         if (::cms::alpakatools::once_per_block(acc)) {
-          args[group].blockRHFSize() = subcc_offsets[0];
-
-          alpaka::mem_fence(acc, alpaka::memory_scope::Device{});
-
           const unsigned int whichBlockDone =
               alpaka::atomicAdd(acc, &args.blockCount(), +1, alpaka::hierarchy::Threads{});
 
@@ -334,28 +342,35 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::syncBlockThreads(acc);
 
         if (isLastBlockDone) {
-
-	        if (::cms::alpakatools::once_per_block(acc)) {
-
-
-	    const unsigned int totNComponents = pfClusteringCCLabels.ncomponents();
+          if (::cms::alpakatools::once_per_block(acc)) {
+            const unsigned int totNComponents = pfClusteringCCLabels.ncomponents();
 
             outPFCluster.nTopos() = totNComponents;
             outPFCluster.nSeeds() = totNComponents;
             outPFCluster.size() = totNComponents;
-		}
+          }
 
-         auto& reduce_buf = common_buf2;
+          for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
+            common_buf2[idx.local] = 0;
+          }
+          alpaka::syncBlockThreads(acc);
+
+          auto& reduce_buf = common_buf2;
           //warning nBlocks must be <= blockDim
-          unsigned int block_offset = 0;		
+          unsigned int block_offset = 0;
 
-          for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nBlocks)) {
+          for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, gridDim)) {
+            if (idx.local >= nBlocks)
+              continue;
+
             const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
 
             const unsigned int warp_idx = idx.local / w_extent;
             const unsigned int lane_idx = idx.local % w_extent;
 
-            const unsigned int block_rhf_size = args[idx.local].blockRHFSize();
+            const unsigned int load_idx = idx.local * blockDim;
+
+            const unsigned int block_rhf_size = args[load_idx].blockRHFOffset();
 
             warp::syncWarpThreads_mask(acc, active_lanes_mask);
 
@@ -374,12 +389,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
             const unsigned int global_offset = warp_exclusive_sum(acc, tmp, idx.local);
 
-            reduce_buf[idx.local] = global_offset;  //reduce_buf[0] contains block total nnz
+            reduce_buf[idx.local] = global_offset;  //reduce_buf[0] contains total nnz
           }
 
           alpaka::syncBlockThreads(acc);
 
-          for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nBlocks)) {
+          for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, gridDim)) {
+            if (idx.local >= nBlocks)
+              continue;
+
             const unsigned int warp_idx = idx.local / w_extent;
 
             const unsigned int shift = warp_idx == 0 ? 0 : reduce_buf[warp_idx];
@@ -388,16 +406,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               block_offset += shift;
             }
             // now re-use buffer for the offsets:
-            args[idx.local].blockRHFSize() = block_offset;
-          }
-          if (::cms::alpakatools::once_per_block(acc)) {
-            args.blockCount() = 0;
+            const unsigned int load_idx = idx.local * blockDim;
+
+            args[load_idx].blockRHFOffset() = block_offset;
           }
         }
       }
     }
   };
-
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 #endif

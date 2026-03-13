@@ -8,8 +8,8 @@ namespace reco {
 
   GENERATE_SOA_LAYOUT(PFMultiDepthECLCCPrologueArgsSoALayout,
                       SOA_COLUMN(uint32_t, ccOffset),
+                      SOA_COLUMN(uint32_t, ccLocalOffset),
                       SOA_COLUMN(uint32_t, ccSize),
-                      SOA_COLUMN(uint32_t, warpInternCCSize),
                       SOA_COLUMN(uint32_t, blockInternCCSize),
                       SOA_SCALAR(int, blockCount),
                       SOA_SCALAR(int, size))
