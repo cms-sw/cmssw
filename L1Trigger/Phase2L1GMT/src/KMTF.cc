@@ -77,7 +77,7 @@ std::pair<std::vector<l1t::KMTFTrack>, std::vector<l1t::KMTFTrack> > KMTF::proce
   for (unsigned int i = 0; i < 32; ++i) {
     //print the stubs taking into account
 
-    bool patterns = pre_patterns && ((i < Nstubs4) || (i < Nstubs3) || (i << Nstubs2));
+    bool patterns = pre_patterns && ((i < Nstubs4) || (i < Nstubs3) || (i < Nstubs2));
 
     if (patterns) {
       edm::LogInfo("KMTF") << "KMTFPattern " << std::flush;
