@@ -5,6 +5,8 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhiThetaPair.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhiThetaPairContainer.h"
 #include "DataFormats/L1TMuonPhase2/interface/MuonStub.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
@@ -17,9 +19,10 @@ public:
 
   ~L1TPhase2GMTBarrelStubProcessor();
 
-  l1t::MuonStubCollection makeStubs(const L1Phase2MuDTPhContainer*, const L1MuDTChambThContainer*);
+  l1t::MuonStubCollection makeStubs(const L1Phase2MuDTExtPhiThetaPairContainer*);
 
 private:
+  l1t::MuonStub buildStubwithZandK(const L1Phase2MuDTExtPhiThetaPair&);
   l1t::MuonStub buildStub(const L1Phase2MuDTPhDigi&, const L1MuDTChambThDigi*);
   l1t::MuonStub buildStubNoEta(const L1Phase2MuDTPhDigi&);
 

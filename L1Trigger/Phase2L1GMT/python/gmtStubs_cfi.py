@@ -3,8 +3,7 @@ import FWCore.ParameterSet.Config as cms
 gmtStubs = cms.EDProducer("Phase2L1TGMTStubProducer",
    verbose = cms.int32(0),
    srcCSC = cms.InputTag("simCscTriggerPrimitiveDigis"),
-   srcDT = cms.InputTag("dtTriggerPhase2PrimitiveDigis"),
-   srcDTTheta = cms.InputTag("simDtTriggerPrimitiveDigis"),
+   srcDTPairs = cms.InputTag("dtTriggerPhase2PrimitivePairDigis"),
    srcRPC = cms.InputTag("simMuonRPCDigis"),
    Endcap =cms.PSet(                            
         verbose              = cms.uint32(0),

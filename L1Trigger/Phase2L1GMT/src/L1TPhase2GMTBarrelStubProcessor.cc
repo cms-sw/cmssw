@@ -112,25 +112,85 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubNoEta(const L1Phase2MuDT
   return stub;
 }
 
-l1t::MuonStubCollection L1TPhase2GMTBarrelStubProcessor::makeStubs(const L1Phase2MuDTPhContainer* phiContainer,
-                                                                   const L1MuDTChambThContainer* etaContainer) {
+l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubwithZandK(const L1Phase2MuDTExtPhiThetaPair& pairs) {
+   
+  const auto& phiS = pairs.phiDigi();
+
+  static constexpr double ZCenterPhysPositive[] = {268.4783935546875, 533.9012145996094}; 
+  static constexpr double ZCenterPhysNegative[] = {-267.72308349609375, -533.0657958984375}; 
+  static constexpr double ZCenterPhysZero[] = {0.5035400390625}; 
+  static constexpr int RadiusStationPhys[] = {445, 526, 634, 720}; 
+  int wheel = phiS.whNum();
+  int abswheel = fabs(phiS.whNum());
+  int sector = phiS.scNum();
+  int station = phiS.stNum();
+
+  ap_uint<18> normalization0 = sector * ap_uint<15>(21845);
+  ap_int<18> normalization1 = ap_int<18>(ap_int<17>(phiS.phi()) * ap_ufixed<8, 0>(0.3183));
+  ap_int<18> kmtf_phi = ap_int<18>(normalization0 + normalization1);
+  int phi = int(kmtf_phi);
+  float globalPhi = phi * M_PI / (1 << 17);
+
+  //  double globalPhi = (sector * 30) + phiS.phi() * 30. / 65535.;
+  int tag = phiS.index();
+
+  int bx = phiS.bxNum() - 20;
+  int quality = phiS.quality();
+  uint tfLayer = phiS.stNum() - 1;
+
+  // instantiate stub with eta1=0, eta2=0, etaQuality=0 values which eventually get written over with stub.setEta below.
+  l1t::MuonStub stub(wheel, sector, station, tfLayer, phi, phiS.phiBend(), tag, bx, quality, 0, 0, 0, 1);
+
+  //defining z, k, zPhys, kPhys for case where theta digi exists
+  //defining k_centerPhys, z_centerPhys, k_centerDigi, z_centerDigi for case where theta digi does not exist
+  constexpr float ZRES_CONV = 65536.0 / 1500.0 ;
+  constexpr float KRES_CONV = 65536.0 / 2.0 ;
+  int z = pairs.thetaDigi().z();
+  int k = pairs.thetaDigi().k();
+  double zPhys = z / ZRES_CONV;
+  double kPhys = k / KRES_CONV;
+
+  //slight asymmetry in wheels w.r.t. the origin calls for different z_center values for case where no theta digi was matched
+  double z_centerPhys;
+  if (wheel > 0){
+	z_centerPhys= ZCenterPhysPositive[abswheel - 1];
+  } else if (wheel < 0) {
+	z_centerPhys= ZCenterPhysNegative[abswheel - 1];
+  } else {
+	z_centerPhys= ZCenterPhysZero[0];
+  }
+
+  double R_centerPhys = RadiusStationPhys[station - 1];
+  double k_centerPhys = z_centerPhys / R_centerPhys;	
+  int k_centerDigi = (int)(KRES_CONV * k_centerPhys);
+  int z_centerDigi = (int)(ZRES_CONV * z_centerPhys);
+
+  // check if theta digi exists with non-default constructor quality --> use z, k with etaQuality=3 from theta digi.
+  // if theta digi has no real data, use z_center and slope which points to origin with etaQuality=0..
+  if (pairs.thetaDigi().quality() >= 0) {
+	stub.setEta(z, k, 3);
+	stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), zPhys, kPhys);
+  } else {
+		if (abswheel == 0) {
+			stub.setEta(0,0,0);
+			stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), z_centerPhys, k_centerPhys);
+		} else {
+			stub.setEta(z_centerDigi, k_centerDigi, 0);
+			stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), z_centerPhys, k_centerPhys);
+		}
+  }
+  return stub;
+}
+
+l1t::MuonStubCollection L1TPhase2GMTBarrelStubProcessor::makeStubs(const L1Phase2MuDTExtPhiThetaPairContainer* pairContainer) { 
   l1t::MuonStubCollection out;
   for (int bx = minBX_; bx <= maxBX_; bx++) {
     ostringstream os;
     if (verbose_ == 2)
       os << "PATTERN ";
-    for (int wheel = -2; wheel <= 2; wheel++) {
-      for (int sector = 0; sector < 12; sector++) {
-        for (int station = 1; station < 5; station++) {
-          bool hasEta = false;
-          const L1MuDTChambThDigi* tseta = etaContainer->chThetaSegm(wheel, station, sector, bx);
-          if (tseta != nullptr) {
-            hasEta = true;
-          }
-
-          for (const auto& phiDigi : *phiContainer->getContainer()) {
-            if ((phiDigi.bxNum() - 20) != bx || phiDigi.whNum() != wheel || phiDigi.scNum() != sector ||
-                phiDigi.stNum() != station)
+	for (const auto& pair : pairContainer->getContainer()){
+		const auto& phiDigi = pair.phiDigi();
+            if ((phiDigi.bxNum() - 20) != bx)
               continue;
             if (phiDigi.quality() < minPhiQuality_)
               continue;
@@ -147,19 +207,11 @@ l1t::MuonStubCollection L1TPhase2GMTBarrelStubProcessor::makeStubs(const L1Phase
               sN = sN | (wr1 << 30);
               sN = sN | (wq << 51);
               sN = sN | (wr2 << 55);
-              os << std::setw(0) << std::dec << sector << " " << wheel << " " << station << " ";
+              os << std::setw(0) << std::dec << phiDigi.scNum() << " " << phiDigi.whNum() << " " << phiDigi.stNum() << " ";
               os << std::uppercase << std::setfill('0') << std::setw(16) << std::hex << uint64_t(sN) << " ";
             }
-
-            if (hasEta) {
-              out.push_back(buildStub(phiDigi, tseta));
-            } else {
-              out.push_back(buildStubNoEta(phiDigi));
+            out.push_back(buildStubwithZandK(pair));
             }
-          }
-        }
-      }
-    }
     if (verbose_ == 2)
       edm::LogInfo("BarrelStub") << os.str() << std::endl;
   }
@@ -201,3 +253,4 @@ int L1TPhase2GMTBarrelStubProcessor::calculateEta(uint i, int wheel, uint sector
 
   return eta;
 }
+
