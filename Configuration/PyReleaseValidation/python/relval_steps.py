@@ -2318,6 +2318,10 @@ steps['RAWPRIMESIMHI18']={ '--scenario':'pp',
                            '--process':'REHLT'
 }
 
+steps['RAWPRIMESIMHI22']=merge([{'--conditions':'auto:phase1_2022_realistic_hi', '--era':'Run3_pp_on_PbPb'},steps['RAWPRIMESIMHI18']])
+steps['RAWPRIMESIMHI23']=merge([{'--conditions':'auto:phase1_2023_realistic_hi', '--era':'Run3_pp_on_PbPb_2023'},steps['RAWPRIMESIMHI18']])
+steps['RAWPRIMESIMHI24']=merge([{'--conditions':'auto:phase1_2024_realistic_hi', '--era':'Run3_pp_on_PbPb_2024'},steps['RAWPRIMESIMHI18']])
+
 steps['RECOHID18APPROXCLUSTERS']=merge([{ '--scenario':'pp',
                                           '--conditions':'auto:run2_data_promptlike_hi',
                                           '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiPixelCalZeroBias,SKIM:PbPbEMu+PbPbZEE+PbPbZMM+PbPbZMu,DQM:@commonFakeHLT+@standardDQMFakeHLT',
