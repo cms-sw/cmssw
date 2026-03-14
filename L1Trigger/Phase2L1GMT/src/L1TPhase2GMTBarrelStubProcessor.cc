@@ -172,7 +172,7 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubwithZandK(const L1Phase2
 	stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), zPhys, kPhys);
   } else {
 		if (abswheel == 0) {
-			stub.setEta(0,0,0);
+			stub.setEta(z_centerDigi,k_centerDigi,0);
 			stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), z_centerPhys, k_centerPhys);
 		} else {
 			stub.setEta(z_centerDigi, k_centerDigi, 0);
