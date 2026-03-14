@@ -2005,6 +2005,10 @@ upgradeWFs['HLTHeterogeneousValid'].step2['-s'] = upgradeWFs['HLTHeterogeneousVa
     'HLT:75e33_timing', 'HLT:75e33'
 )
 upgradeWFs['HLTHeterogeneousValid'].step2['--procModifiers'] = 'alpakaValidationHLT'
+upgradeWFs['HLTHeterogeneousValid'].step3['-s'] = upgradeWFs['HLTHeterogeneousValid'].step3['-s'].replace(
+    'HARVESTING:@hltValidation', 'HARVESTING:@hltValidation+HLTHeterogeneousMonitoringHarvesting'
+)
+upgradeWFs['HLTHeterogeneousValid'].step3['--procModifiers'] = 'alpakaValidationHLT'
 
 upgradeWFs['HLTTiming75e33Alpaka'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33Alpaka'].suffix = '_HLT75e33TimingAlpaka'
