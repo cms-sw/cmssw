@@ -1236,7 +1236,10 @@ class ConfigBuilder(object):
                 self.GeometryCFF = self.GeometryCFF.replace("_cff","Reco_cff")
             self.GeometryCFF = [self.GeometryCFF]
 
-            self.GeometryCFF.append('FastSimulation/Configuration/Geometries_cff')
+            if 'DB' in self.GeometryCFF[0]:
+                self.GeometryCFF.append('FastSimulation/Configuration/GeometryDB_cff')
+            else:
+                self.GeometryCFF.append('FastSimulation/Configuration/GeometryXML_cff')
             if 'start' in self._options.conditions.lower():
                 from FastSimulation.Configuration.Geometries_cff import _fastSimGeometryCustomStart
                 self.executeAndRemember(_fastSimGeometryCustomStart)

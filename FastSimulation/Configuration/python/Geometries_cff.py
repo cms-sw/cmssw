@@ -1,12 +1,9 @@
 import FWCore.ParameterSet.Config as cms
-from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import trackerGeometry as _trackerGeometry
-from Geometry.DTGeometryBuilder.dtGeometry_cfi import DTGeometryESModule as _DTGeometryESModule
-from Geometry.CSCGeometryBuilder.cscGeometry_cfi import CSCGeometryESModule as _CSCGeometryESModule
 
-def _fastSimGeometryCustoms(process):
+def _fastSimGeometryCustoms(process, _trackerGeometry, _DTGeometryESModule, _CSCGeometryESModule, suff=''):
     # The tracker geometry left-over (for aligned/misaligned geometry)
     # The goemetry used for reconstruction must not be misaligned.
-    process.trackerGeometry.applyAlignment = False
+    getattr(process,'trackerGeometry'+suff).applyAlignment = False
     # Create a misaligned geometry for simulation
     process.misalignedTrackerGeometry = _trackerGeometry.clone()
     # The misalignment is not applied by default
@@ -50,9 +47,6 @@ def _fastSimGeometryCustoms(process):
     process.misalignedTrackerGeometry.applyAlignment = True
     process.misalignedDTGeometry.applyAlignment = True
     process.misalignedCSCGeometry.applyAlignment = True
-
-from Configuration.Eras.Modifier_fastSim_cff import fastSim
-modifyGeom_fastSim = fastSim.makeProcessModifier(_fastSimGeometryCustoms)
 
 # now executed directly in cmsDriver.py instead of separate Geometries_START_cff file
 _fastSimGeometryCustomStart = 'process.fastSimProducer.detectorDefinition.trackerAlignmentLabel = cms.untracked.string("")'
