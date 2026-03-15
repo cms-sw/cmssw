@@ -446,6 +446,167 @@ namespace {
     TrackerTopology m_trackerTopo;
   };
 
+  /************************************************
+   TrackerMap of difference per Module L- H- L||V Voff
+  *************************************************/
+  template <int ntags, IOVMultiplicity nIOVs>
+  class SiStripDetVOffComparisonTrackerMapBase : public PlotImage<SiStripDetVOff, nIOVs, ntags> {
+  public:
+    SiStripDetVOffComparisonTrackerMapBase()
+        : PlotImage<SiStripDetVOff, nIOVs, ntags>("SiStripDetVOff Comparison TrackerMap") {}
+
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      std::string tagname2 = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        tagname2 = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      std::shared_ptr<SiStripDetVOff> payload1 = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripDetVOff> payload2 = this->fetchPayload(std::get<1>(firstiov));
+
+      if (!payload1 || !payload2)
+        return false;
+
+      std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      std::stringstream title;
+      title << "SiStripDetVOff comparison\n"
+            << "IOV " << firstIOVsince << " -> " << lastIOVsince;
+
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>(title.str());
+
+      //---------------------------------------
+      // build union of detids
+      //---------------------------------------
+
+      std::vector<uint32_t> detids1;
+      payload1->getDetIds(detids1);
+      std::vector<uint32_t> detids2;
+      payload1->getDetIds(detids1);
+
+      std::set<uint32_t> detids;
+
+      for (auto const& d : detids1)
+        detids.insert(d);
+
+      for (auto const& d : detids2)
+        detids.insert(d);
+
+      //---------------------------------------
+      // statistics
+      //---------------------------------------
+
+      int becameOff = 0;
+      int becameOn = 0;
+      int unchangedOff = 0;
+      int unchangedOn = 0;
+
+      std::map<std::string, int> subdetStats;
+
+      //---------------------------------------
+      // loop modules
+      //---------------------------------------
+
+      for (auto detid : detids) {
+        bool off1 = payload1->IsModuleVOff(detid);
+        bool off2 = payload2->IsModuleVOff(detid);
+
+        float value = 0;
+
+        if (!off1 && off2) {
+          value = 1;
+          becameOff++;
+        } else if (off1 && !off2) {
+          value = -1;
+          becameOn++;
+        } else if (off1 && off2) {
+          value = 0.5;
+          unchangedOff++;
+        } else {
+          value = 0;
+          unchangedOn++;
+        }
+
+        tmap->fill(detid, value);
+
+        //-----------------------------------
+        // subdetector classification
+        //-----------------------------------
+
+        uint32_t subdet = DetId(detid).subdetId();
+
+        std::string label;
+
+        if (subdet == StripSubdetector::TIB)
+          label = "TIB";
+        if (subdet == StripSubdetector::TID)
+          label = "TID";
+        if (subdet == StripSubdetector::TOB)
+          label = "TOB";
+        if (subdet == StripSubdetector::TEC)
+          label = "TEC";
+
+        if (off2)
+          subdetStats[label]++;
+      }
+
+      //---------------------------------------
+      // configure color scale
+      //---------------------------------------
+
+      tmap->setRange(-1, 1);
+
+      //---------------------------------------
+      // summary text
+      //---------------------------------------
+
+      std::stringstream summary;
+
+      summary << "ON->OFF: " << becameOff << "  OFF->ON: " << becameOn << "  OFF->OFF: " << unchangedOff
+              << "  ON->ON: " << unchangedOn;
+
+      summary << "\n";
+
+      for (auto const& s : subdetStats)
+        summary << s.first << ":" << s.second << " ";
+
+      std::cout << summary.str() << std::endl;
+      //tmap->setTitle(summary.str());
+
+      //---------------------------------------
+      // save
+      //---------------------------------------
+
+      std::string fileName = "SiStripDetVOffComparisonTrackerMap.png";
+
+      tmap->setPalette(1);  // after setting palette ensure background not cyan
+      gStyle->SetCanvasColor(kWhite);
+      
+      tmap->save(true, 0, 0, fileName);
+
+      this->m_imageFileName = fileName;
+
+      return true;
+    }
+  };
+
+  using SiStripDetVOffComparisonTrackerMapSingleTag = SiStripDetVOffComparisonTrackerMapBase<1, MULTI_IOV>;
+  using SiStripDetVOffComparisonTrackerMapTwoTags = SiStripDetVOffComparisonTrackerMapBase<2, SINGLE_IOV>;
+
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(SiStripDetVOff) {
@@ -459,4 +620,6 @@ PAYLOAD_INSPECTOR_MODULE(SiStripDetVOff) {
   PAYLOAD_INSPECTOR_CLASS(SiStripLVOffListOfModules);
   PAYLOAD_INSPECTOR_CLASS(SiStripHVOffListOfModules);
   PAYLOAD_INSPECTOR_CLASS(SiStripDetVOffByRegion);
+  PAYLOAD_INSPECTOR_CLASS(SiStripDetVOffComparisonTrackerMapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripDetVOffComparisonTrackerMapTwoTags);
 }
