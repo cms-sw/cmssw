@@ -70,7 +70,7 @@ void AllLayerClusterToTracksterAssociatorsProducer::produce(edm::StreamID,
     const auto& trackstersHandle = iEvent.getHandle(tracksterToken.second);
     // If tracksters collection is missing, produce empty map and continue
     if (!trackstersHandle.isValid()) {
-      edm::LogWarning("MissingInput") << "Tracksters collection '" << tracksterToken.first << "' not found.";
+      LogDebug("MissingInput") << "Tracksters collection '" << tracksterToken.first << "' not found.";
       iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithSharedEnergy,
                                                        std::vector<reco::CaloCluster>,
                                                        std::vector<ticl::Trackster>>>(),
