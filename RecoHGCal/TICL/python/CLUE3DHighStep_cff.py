@@ -27,7 +27,19 @@ ticlTrackstersCLUE3DHigh = _trackstersProducer.clone(
         doPidCut = True,
         cutHadProb = 999
     ),
-    inferenceAlgo = cms.string('TracksterInferenceByPFN'),
+    inferenceAlgo = cms.string('TracksterInferenceByCNN'),
+    pluginInferenceAlgoTracksterInferenceByCNN = cms.PSet(
+        algo_verbosity = cms.int32(0),
+        type = cms.string("TracksterInferenceByCNN"),
+        onnxModelPath = cms.string("RecoHGCal/TICL/data/ticlv5/onnx_models/CNN/patternrecognition/id_v0.onnx"),
+        inputNames = cms.vstring("input"),
+        outputNames = cms.vstring("pid_output"),
+        eid_min_cluster_energy = cms.double(1.0),
+        eid_n_layers = cms.int32(50),
+        eid_n_clusters = cms.int32(10),
+        doPID = cms.int32(1),
+        miniBatchSize = cms.untracked.int32(64),
+    ),
     pluginInferenceAlgoTracksterInferenceByDNN = cms.PSet(
         algo_verbosity = cms.int32(0),
         onnxPIDModelPath = cms.string('RecoHGCal/TICL/data/ticlv5/onnx_models/DNN/patternrecognition/id_v0.onnx'),
