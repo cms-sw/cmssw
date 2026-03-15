@@ -10,13 +10,17 @@ namespace ticl {
 
   template <typename CLUSTER>
   ticl::RecoToSimCollectionT<CLUSTER> LayerClusterToCaloParticleAssociatorBaseImplT<CLUSTER>::associateRecoToSim(
-      const edm::Handle<CLUSTER> &cCCH, const edm::Handle<CaloParticleCollection> &cPCH, const std::vector<DetId::Detector> &detIds) const {
+      const edm::Handle<CLUSTER> &cCCH,
+      const edm::Handle<CaloParticleCollection> &cPCH,
+      const std::vector<DetId::Detector> &detIds) const {
     return ticl::RecoToSimCollectionT<CLUSTER>();
   }
 
   template <typename CLUSTER>
   ticl::SimToRecoCollectionT<CLUSTER> LayerClusterToCaloParticleAssociatorBaseImplT<CLUSTER>::associateSimToReco(
-      const edm::Handle<CLUSTER> &cCCH, const edm::Handle<CaloParticleCollection> &cPCH, const std::vector<DetId::Detector> &detIds) const {
+      const edm::Handle<CLUSTER> &cCCH,
+      const edm::Handle<CaloParticleCollection> &cPCH,
+      const std::vector<DetId::Detector> &detIds) const {
     return ticl::SimToRecoCollectionT<CLUSTER>();
   }
 }  // namespace ticl

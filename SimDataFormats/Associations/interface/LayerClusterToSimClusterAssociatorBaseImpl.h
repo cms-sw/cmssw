@@ -36,11 +36,15 @@ namespace ticl {
 
     /// Associate a LayerCluster to SimClusters
     virtual RecoToSimCollectionWithSimClustersT<CLUSTER> associateRecoToSim(
-        const edm::Handle<CLUSTER> &cCH, const edm::Handle<SimClusterCollection> &sCCH, const std::vector<DetId::Detector> &detIds) const;
+        const edm::Handle<CLUSTER> &cCH,
+        const edm::Handle<SimClusterCollection> &sCCH,
+        const std::vector<DetId::Detector> &detIds) const;
 
     /// Associate a SimCluster to LayerClusters
     virtual SimToRecoCollectionWithSimClustersT<CLUSTER> associateSimToReco(
-        const edm::Handle<CLUSTER> &cCH, const edm::Handle<SimClusterCollection> &sCCH, const std::vector<DetId::Detector> &detIds) const;
+        const edm::Handle<CLUSTER> &cCH,
+        const edm::Handle<SimClusterCollection> &sCCH,
+        const std::vector<DetId::Detector> &detIds) const;
   };
 }  // namespace ticl
 

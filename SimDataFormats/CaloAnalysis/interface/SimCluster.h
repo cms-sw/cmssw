@@ -39,9 +39,10 @@ public:
   typedef std::vector<SimTrack>::const_iterator g4t_iterator;
 
   // Zero-copy hit+fraction view (iterates as pairs)
-  struct HitsAndFractionsView {
+  // Not used directly; use the named derived structs below.
+  struct HitsAndValuesViewBase {
     std::span<const uint32_t> hits;
-    std::span<const float> fractions;
+    std::span<const float> values;
 
     struct iterator {
       using iterator_category = std::random_access_iterator_tag;
@@ -50,18 +51,38 @@ public:
       using reference = value_type;  // returned by value
       using pointer = void;
 
-      const uint32_t* h = nullptr;
-      const float* f = nullptr;
+      const uint32_t *h = nullptr;
+      const float *v = nullptr;
 
-      reference operator*() const { return {*h, *f}; }
+      reference operator*() const { return {*h, *v}; }
 
-      iterator& operator++() { ++h; ++f; return *this; }
-      iterator operator++(int) { auto tmp = *this; ++(*this); return tmp; }
-      iterator& operator--() { --h; --f; return *this; }
-      iterator operator--(int) { auto tmp = *this; --(*this); return tmp; }
+      iterator &operator++() {
+        ++h;
+        ++v;
+        return *this;
+      }
+      iterator operator++(int) {
+        auto tmp = *this;
+        ++(*this);
+        return tmp;
+      }
+      iterator &operator--() {
+        --h;
+        --v;
+        return *this;
+      }
+      iterator operator--(int) {
+        auto tmp = *this;
+        --(*this);
+        return tmp;
+      }
 
-      iterator& operator+=(difference_type n) { h += n; f += n; return *this; }
-      iterator& operator-=(difference_type n) { return (*this) += (-n); }
+      iterator &operator+=(difference_type n) {
+        h += n;
+        v += n;
+        return *this;
+      }
+      iterator &operator-=(difference_type n) { return (*this) += (-n); }
 
       friend iterator operator+(iterator it, difference_type n) { return it += n; }
       friend iterator operator-(iterator it, difference_type n) { return it -= n; }
@@ -72,14 +93,26 @@ public:
       friend bool operator<(iterator a, iterator b) { return a.h < b.h; }
     };
 
-    iterator begin() const { return iterator{hits.data(), fractions.data()}; }
+    iterator begin() const { return iterator{hits.data(), values.data()}; }
     iterator end() const {
       return iterator{hits.data() + static_cast<std::ptrdiff_t>(hits.size()),
-                      fractions.data() + static_cast<std::ptrdiff_t>(fractions.size())};
+                      values.data() + static_cast<std::ptrdiff_t>(values.size())};
+    }
+
+    iterator::value_type operator[](size_t n) const {
+      assert(n < values.size());
+      return {hits[n], values[n]};
     }
 
     size_t size() const { return hits.size(); }
     bool empty() const { return hits.empty(); }
+  };
+
+  struct HitsAndFractionsView : HitsAndValuesViewBase {
+    std::span<const float> &fractions = values;
+  };
+  struct HitsAndEnergiesView : HitsAndValuesViewBase {
+    std::span<const float> &energies = values;
   };
 
   SimCluster() = default;
@@ -87,7 +120,7 @@ public:
   SimCluster(const SimTrack &simtrk) {
     g4Tracks_.push_back(simtrk);
     theMomentum_.SetPxPyPzE(
-      simtrk.momentum().px(), simtrk.momentum().py(), simtrk.momentum().pz(), simtrk.momentum().E());
+        simtrk.momentum().px(), simtrk.momentum().py(), simtrk.momentum().pz(), simtrk.momentum().E());
     event_ = simtrk.eventId();
     particleId_ = simtrk.trackId();
   }
@@ -237,7 +270,7 @@ public:
     // legacy returns a copy; now deterministic because finalizeHits() sorted it
     std::vector<std::pair<uint32_t, float>> result;
     result.reserve(hits_.size());
-    for (size_t i = 0; i < hits_.size(); ++i) {
+	for (size_t i = 0; i < hits_.size(); ++i) {
       result.emplace_back(hits_[i], fractions_[i]);
     }
     return result;
@@ -249,7 +282,8 @@ public:
     std::vector<std::pair<uint32_t, float>> result;
     for (size_t i = 0; i < hits_.size(); ++i) {
       DetId detid(hits_[i]);
-      if (predicate(detid)) result.emplace_back(hits_[i], fractions_[i]);
+      if (predicate(detid))
+        result.emplace_back(hits_[i], fractions_[i]);
     }
     return result;
   }
@@ -259,7 +293,8 @@ public:
     assert(hits_.size() == energies_.size());
     std::vector<std::pair<uint32_t, float>> result;
     result.reserve(hits_.size());
-    for (size_t i = 0; i < hits_.size(); ++i) result.emplace_back(hits_[i], energies_[i]);
+    for (size_t i = 0; i < hits_.size(); ++i)
+      result.emplace_back(hits_[i], energies_[i]);
     return result;
   }
 
@@ -290,10 +325,12 @@ public:
     // Keep your original implicit invariant:
     assert(hits_.size() == fractions_.size() && !hits_.empty());
     // Energies are optional but if present must align.
-    if (!energies_.empty()) assert(energies_.size() == hits_.size());
+    if (!energies_.empty())
+      assert(energies_.size() == hits_.size());
 
     // Already finalized? keep it cheap and idempotent.
-    if (hitsFinalized_) return;
+    if (hitsFinalized_)
+      return;
 
     // Sort by (det, subdet, rawid)
     std::vector<size_t> order(hits_.size());
@@ -308,7 +345,8 @@ public:
 
     applyPermutation_(hits_, order);
     applyPermutation_(fractions_, order);
-    if (!energies_.empty()) applyPermutation_(energies_, order);
+    if (!energies_.empty())
+      applyPermutation_(energies_, order);
 
     buildDetRanges_();
 
@@ -316,69 +354,56 @@ public:
   }
 
   // --------------------------------------------------------------------------
-  // cost-free views (require finalizeHits has been called)
+  // cost-free views (requires a call to finalizeHits())
   // --------------------------------------------------------------------------
   HitsAndFractionsView hits_and_fractions_view() const {
     assertFinalized_();
-    return HitsAndFractionsView{std::span<const uint32_t>(hits_.data(), hits_.size()),
-                               std::span<const float>(fractions_.data(), fractions_.size())};
+    return HitsAndFractionsView{{hits_, fractions_}};
   }
 
   HitsAndFractionsView hits_and_fractions_view(DetId::Detector det) const {
     assertFinalized_();
-    const auto idx = detIndex_(det);
-    auto [b, e] = detRanges_[idx];
-    return HitsAndFractionsView{std::span<const uint32_t>(hits_.data() + b, e - b),
-                               std::span<const float>(fractions_.data() + b, e - b)};
+    auto [b, e] = detRanges_[detIndex_(det)];
+    return HitsAndFractionsView{{{hits_.data() + b, e - b}, {fractions_.data() + b, e - b}}};
   }
 
-  // det + subdet (still zero-copy; uses binary search within the det block)
   HitsAndFractionsView hits_and_fractions_view(DetId::Detector det, int subdetId) const {
     assertFinalized_();
-    const auto idx = detIndex_(det);
-    auto [b, e] = detRanges_[idx];
-    if (b == e) return HitsAndFractionsView{};
-
-    auto beginIt = hits_.begin() + static_cast<std::ptrdiff_t>(b);
-    auto endIt   = hits_.begin() + static_cast<std::ptrdiff_t>(e);
-
-    auto keyOf = [](uint32_t rawid) {
-      DetId id(rawid);
-      return std::pair<int, uint32_t>(id.subdetId(), rawid);
-    };
-
-    const auto lowKey  = std::pair<int, uint32_t>(subdetId, 0u);
-    const auto highKey = std::pair<int, uint32_t>(subdetId, std::numeric_limits<uint32_t>::max());
-
-    auto lo = std::lower_bound(beginIt, endIt, lowKey,
-                               [&](uint32_t rawid, const auto &k) { return keyOf(rawid) < k; });
-    auto hi = std::upper_bound(beginIt, endIt, highKey,
-                               [&](const auto &k, uint32_t rawid) { return k < keyOf(rawid); });
-
-    const size_t bb = static_cast<size_t>(std::distance(hits_.begin(), lo));
-    const size_t ee = static_cast<size_t>(std::distance(hits_.begin(), hi));
-
-    return HitsAndFractionsView{std::span<const uint32_t>(hits_.data() + bb, ee - bb),
-                               std::span<const float>(fractions_.data() + bb, ee - bb)};
+    auto [bb, ee] = subdetRange_(det, subdetId);
+    return HitsAndFractionsView{{{hits_.data() + bb, ee - bb}, {fractions_.data() + bb, ee - bb}}};
   }
 
-  // min, max detids
   HitsAndFractionsView hits_and_fractions_view(DetId::Detector detIdMin, DetId::Detector detIdMax) const {
     assertFinalized_();
+    auto [begin, end] = detMinMaxRange_(detIdMin, detIdMax);
+    return HitsAndFractionsView{{{hits_.data() + begin, end - begin}, {fractions_.data() + begin, end - begin}}};
+  }
 
-    // Find the first and last indices using the same ranges used
-    // for the per-detector lookup.
-    const auto idxMin = detIndex_(detIdMin);
-    const auto idxMax = detIndex_(detIdMax);
+  HitsAndEnergiesView hits_and_energies_view() const {
+    assertFinalized_();
+    assertEnergies_();
+    return HitsAndEnergiesView{{hits_, energies_}};
+  }
 
-    const auto [bMin, eMin] = detRanges_[idxMin];
-    const auto [bMax, eMax] = detRanges_[idxMax];
+  HitsAndEnergiesView hits_and_energies_view(DetId::Detector det) const {
+    assertFinalized_();
+    assertEnergies_();
+    auto [b, e] = detRanges_[detIndex_(det)];
+    return HitsAndEnergiesView{{{hits_.data() + b, e - b}, {energies_.data() + b, e - b}}};
+  }
 
-    const uint32_t begin = bMin;  // inclusive
-    const uint32_t end = eMax;    // exclusive
+  HitsAndEnergiesView hits_and_energies_view(DetId::Detector det, int subdetId) const {
+    assertFinalized_();
+    assertEnergies_();
+    auto [bb, ee] = subdetRange_(det, subdetId);
+    return HitsAndEnergiesView{{{hits_.data() + bb, ee - bb}, {energies_.data() + bb, ee - bb}}};
+  }
 
-    return HitsAndFractionsView{std::span<const uint32_t>(hits_.data() + begin, end - begin),
-                                std::span<const float>(fractions_.data() + begin, end - begin)};
+  HitsAndEnergiesView hits_and_energies_view(DetId::Detector detIdMin, DetId::Detector detIdMax) const {
+    assertFinalized_();
+    assertEnergies_();
+    auto [begin, end] = detMinMaxRange_(detIdMin, detIdMax);
+    return HitsAndEnergiesView{{{hits_.data() + begin, end - begin}, {energies_.data() + begin, end - begin}}};
   }
 
 protected:
@@ -398,7 +423,7 @@ protected:
   reco::GenParticleRefVector genParticles_;
 
 private:
-  static constexpr size_t kMaxDetectors_ = 32; // Probably 16 could be enough
+  static constexpr size_t kMaxDetectors_ = 32;  // Probably 16 could be enough
 
   bool hitsFinalized_{false};
   std::array<std::pair<size_t, size_t>, kMaxDetectors_> detRanges_{};  // [begin,end) per detector
@@ -413,6 +438,46 @@ private:
     assert(hitsFinalized_ && "SimCluster: hits not finalized. Call finalizeHits() in the producer before persisting.");
   }
 
+  void assertEnergies_() const {
+    assert(!energies_.empty() &&
+           "SimCluster: energies is empty; populate it with addHitEnergy() before calling this view.");
+  }
+
+  // Returns the [begin, end) index range within hits_ for a det+subdet pair.
+  std::pair<size_t, size_t> subdetRange_(DetId::Detector det, int subdetId) const {
+    auto [b, e] = detRanges_[detIndex_(det)];
+    if (b == e)
+      return {b, e};
+
+    auto beginIt = hits_.begin() + static_cast<std::ptrdiff_t>(b);
+    auto endIt = hits_.begin() + static_cast<std::ptrdiff_t>(e);
+
+    auto keyOf = [](uint32_t rawid) {
+      DetId id(rawid);
+      return std::pair<int, uint32_t>(id.subdetId(), rawid);
+    };
+
+    const auto lowKey = std::pair<int, uint32_t>(subdetId, 0u);
+    const auto highKey = std::pair<int, uint32_t>(subdetId, std::numeric_limits<uint32_t>::max());
+
+    auto lo = std::lower_bound(beginIt, endIt, lowKey, [&](uint32_t rawid, const auto &k) { return keyOf(rawid) < k; });
+    auto hi =
+        std::upper_bound(beginIt, endIt, highKey, [&](const auto &k, uint32_t rawid) { return k < keyOf(rawid); });
+
+    return {static_cast<size_t>(std::distance(hits_.begin(), lo)),
+            static_cast<size_t>(std::distance(hits_.begin(), hi))};
+  }
+
+  // Returns the [begin, end) index range spanning all detectors in [detIdMin, detIdMax].
+  std::pair<size_t, size_t> detMinMaxRange_(DetId::Detector detIdMin, DetId::Detector detIdMax) const {
+    const auto detIndexMin = detIndex_(detIdMin);
+    const auto detIndexMax = detIndex_(detIdMax);
+    assert(detIndexMin <= detIndexMax);
+    const auto [bMin, eMin] = detRanges_[detIndexMin];
+    const auto [bMax, eMax] = detRanges_[detIndexMax];
+    return {bMin, eMax};
+  }
+
   void buildDetRanges_() {
     detRanges_.fill({0u, 0u});
     size_t i = 0;
@@ -420,7 +485,9 @@ private:
       DetId id(hits_[i]);
       const auto idx = detIndex_(static_cast<DetId::Detector>(id.det()));
       const size_t begin = i;
-      do { ++i; } while (i < hits_.size() && DetId(hits_[i]).det() == id.det());
+      do {
+        ++i;
+      } while (i < hits_.size() && DetId(hits_[i]).det() == id.det());
       detRanges_[idx] = {begin, i};
     }
   }
@@ -429,7 +496,8 @@ private:
   static void applyPermutation_(std::vector<T> &v, const std::vector<size_t> &order) {
     std::vector<T> tmp;
     tmp.reserve(v.size());
-    for (size_t idx : order) tmp.push_back(v[idx]);
+    for (size_t idx : order)
+      tmp.push_back(v[idx]);
     v.swap(tmp);
   }
 };

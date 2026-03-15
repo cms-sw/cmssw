@@ -75,10 +75,14 @@ public:
                                               const multiCollectionT &hits);
 
   ticl::RecoToSimCollectionWithSimClustersT<CLUSTER> associateRecoToSim(
-      const edm::Handle<CLUSTER> &cCH, const edm::Handle<SimClusterCollection> &sCCH, const std::vector<DetId::Detector> &detIds) const override;
+      const edm::Handle<CLUSTER> &cCH,
+      const edm::Handle<SimClusterCollection> &sCCH,
+      const std::vector<DetId::Detector> &detIds) const override;
 
   ticl::SimToRecoCollectionWithSimClustersT<CLUSTER> associateSimToReco(
-      const edm::Handle<CLUSTER> &cCH, const edm::Handle<SimClusterCollection> &sCCH, const std::vector<DetId::Detector> &detIds) const override;
+      const edm::Handle<CLUSTER> &cCH,
+      const edm::Handle<SimClusterCollection> &sCCH,
+      const std::vector<DetId::Detector> &detIds) const override;
 
 private:
   const bool hardScatterOnly_;

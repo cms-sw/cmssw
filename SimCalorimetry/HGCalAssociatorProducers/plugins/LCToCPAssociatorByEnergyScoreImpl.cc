@@ -33,7 +33,9 @@ LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::LCToCPAssociatorByEnergyScoreI
 
 template <typename HIT, typename CLUSTER>
 ticl::association LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnections(
-    const edm::Handle<CLUSTER>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH, const std::vector<DetId::Detector>& detIds) const {
+    const edm::Handle<CLUSTER>& cCCH,
+    const edm::Handle<CaloParticleCollection>& cPCH,
+    const std::vector<DetId::Detector>& detIds) const {
   // Get collections
   const auto& clusters = *cCCH.product();
   const auto& caloParticles = *cPCH.product();
@@ -76,12 +78,12 @@ ticl::association LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
     for (const auto& it_sc : simClusterRefVector) {
       const SimCluster& simCluster = (*(it_sc));
 
-      SimCluster::HitsAndFractionsView hafView = 
-        detIds.empty() ? simCluster.hits_and_fractions_view() :
-        (detIds.size() == 1 ? simCluster.hits_and_fractions_view(detIds[0]) :
-                              simCluster.hits_and_fractions_view(*detIds.begin(), *(detIds.rbegin())));
+      SimCluster::HitsAndFractionsView hafView =
+          detIds.empty() ? simCluster.hits_and_fractions_view()
+                         : simCluster.hits_and_fractions_view(*std::min_element(detIds.begin(), detIds.end()),
+                                                              *std::max_element(detIds.begin(), detIds.end()));
 
-      for (size_t i = 0; i < hafView.hits.size(); ++i) {
+      for (size_t i = 0; i < hafView.size(); ++i) {
         const uint32_t hitid = hafView.hits[i];
         const float fraction = hafView.fractions[i];
 
@@ -543,7 +545,9 @@ ticl::association LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
 
 template <typename HIT, typename CLUSTER>
 ticl::RecoToSimCollectionT<CLUSTER> LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::associateRecoToSim(
-    const edm::Handle<CLUSTER>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH, const std::vector<DetId::Detector>& detIds) const {
+    const edm::Handle<CLUSTER>& cCCH,
+    const edm::Handle<CaloParticleCollection>& cPCH,
+    const std::vector<DetId::Detector>& detIds) const {
   ticl::RecoToSimCollectionT<CLUSTER> returnValue(productGetter_);
 
   if (!hitMap_ || hitMap_->empty()) {
@@ -569,7 +573,9 @@ ticl::RecoToSimCollectionT<CLUSTER> LCToCPAssociatorByEnergyScoreImplT<HIT, CLUS
 
 template <typename HIT, typename CLUSTER>
 ticl::SimToRecoCollectionT<CLUSTER> LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::associateSimToReco(
-    const edm::Handle<CLUSTER>& cCCH, const edm::Handle<CaloParticleCollection>& cPCH, const std::vector<DetId::Detector>& detIds) const {
+    const edm::Handle<CLUSTER>& cCCH,
+    const edm::Handle<CaloParticleCollection>& cPCH,
+    const std::vector<DetId::Detector>& detIds) const {
   ticl::SimToRecoCollectionT<CLUSTER> returnValue(productGetter_);
 
   if (!hitMap_ || hitMap_->empty()) {
