@@ -31,6 +31,7 @@ namespace edm {
     virtual std::vector<std::string> const& gpuModels() const = 0;
 
     virtual bool hasGpuNvidia() const = 0;
+    virtual bool hasGpuAMD() const = 0;
 
     virtual std::string const& nvidiaDriverVersion() const = 0;
     virtual int cudaDriverVersion() const = 0;
@@ -45,8 +46,11 @@ namespace edm {
     virtual void setGPUModels(std::vector<std::string> const&) = 0;
 
     virtual void setNvidiaDriverVersion(std::string const&) = 0;
+    virtual void setAMDDriverVersion(std::string const&) = 0;
     virtual void setCudaDriverVersion(int) = 0;
     virtual void setCudaRuntimeVersion(int) = 0;
+    virtual void setRocmDriverVersion(int) = 0;
+    virtual void setRocmRuntimeVersion(int) = 0;
 
     virtual void setCpuModelsFormatted(std::string const&) = 0;
     virtual void setCpuAverageSpeed(double) = 0;
