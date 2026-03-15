@@ -6,6 +6,11 @@
 // Changes: Implementation of the delta time feature under a new DNN input version (v3) for the superclustering DNN and correcting the seed pT calculation.
 // Date: 07/2025
 
+// Modified by Felice Pantaleo <felice.pantaleo@cern.ch>
+// Improved memory usage and inference performance.
+// Date: 02/2026
+//
+
 #ifndef __RecoHGCal_TICL_SuperclusteringDNNInputs_H__
 #define __RecoHGCal_TICL_SuperclusteringDNNInputs_H__
 
@@ -13,44 +18,46 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <span>
+#include <string>
+#include <vector>
 
 namespace ticl {
 
   // any raw_dt outside +/- kDeltaTimeDefault is considered bad
-  static constexpr float kDeltaTimeDefault = 50.f;
-  static constexpr float kBadDeltaTime = -5.f;
+  inline constexpr float kDeltaTimeDefault = 50.f;
+  inline constexpr float kBadDeltaTime = -5.f;
 
   // Abstract base class for DNN input preparation.
   class AbstractSuperclusteringDNNInput {
   public:
     virtual ~AbstractSuperclusteringDNNInput() = default;
 
-    virtual unsigned int featureCount() const { return featureNames().size(); };
+    virtual unsigned int featureCount() const = 0;
 
-    /** Get name of features. Used for SuperclusteringSampleDumper branch names (inference does not use the names, only the indices) 
-     * The default implementation is meant to be overriden by inheriting classes
-    */
+    /** Get name of features. Used for SuperclusteringSampleDumper branch names (inference does not use the names, only the indices) */
     virtual std::vector<std::string> featureNames() const {
       std::vector<std::string> defaultNames;
       defaultNames.reserve(featureCount());
-      for (unsigned int i = 1; i <= featureCount(); i++) {
-        defaultNames.push_back(std::string("nb_") + std::to_string(i));
+      for (unsigned int i = 1; i <= featureCount(); ++i) {
+        defaultNames.emplace_back(std::string("nb_") + std::to_string(i));
       }
       return defaultNames;
     }
 
-    /** Compute feature for seed and candidate pair */
-    virtual std::vector<float> computeVector(ticl::Trackster const& ts_base, ticl::Trackster const& ts_toCluster) = 0;
+    /** Compute features for seed and candidate pair into user-provided buffer (size = featureCount()). */
+    virtual void computeInto(Trackster const& ts_base, Trackster const& ts_toCluster, std::span<float> out) const = 0;
+
+  protected:
+    AbstractSuperclusteringDNNInput() = default;
   };
 
-  /* First version of DNN by Alessandro Tarabini. Meant as a DNN equivalent of Mustache algorithm (superclustering algo in ECAL)
-  Uses features : ['DeltaEta', 'DeltaPhi', 'multi_en', 'multi_eta', 'multi_pt', 'seedEta','seedPhi','seedEn', 'seedPt']
-  */
-  class SuperclusteringDNNInputV1 : public AbstractSuperclusteringDNNInput {
+  class SuperclusteringDNNInputV1 final : public AbstractSuperclusteringDNNInput {
   public:
-    unsigned int featureCount() const override { return 9; }
+    static constexpr unsigned int kNFeatures = 9;
+    unsigned int featureCount() const override { return kNFeatures; }
 
-    std::vector<float> computeVector(ticl::Trackster const& ts_base, ticl::Trackster const& ts_toCluster) override;
+    void computeInto(Trackster const& ts_base, Trackster const& ts_toCluster, std::span<float> out) const override;
 
     std::vector<std::string> featureNames() const override {
       return {"DeltaEtaBaryc",
@@ -65,14 +72,12 @@ namespace ticl {
     }
   };
 
-  /* Second version of DNN by Alessandro Tarabini, making use of HGCAL-specific features.
-  Uses features : ['DeltaEta', 'DeltaPhi', 'multi_en', 'multi_eta', 'multi_pt', 'seedEta','seedPhi','seedEn', 'seedPt', 'theta', 'theta_xz_seedFrame', 'theta_yz_seedFrame', 'theta_xy_cmsFrame', 'theta_yz_cmsFrame', 'theta_xz_cmsFrame', 'explVar', 'explVarRatio']
-  */
-  class SuperclusteringDNNInputV2 : public AbstractSuperclusteringDNNInput {
+  class SuperclusteringDNNInputV2 final : public AbstractSuperclusteringDNNInput {
   public:
-    unsigned int featureCount() const override { return 17; }
+    static constexpr unsigned int kNFeatures = 17;
+    unsigned int featureCount() const override { return kNFeatures; }
 
-    std::vector<float> computeVector(ticl::Trackster const& ts_base, ticl::Trackster const& ts_toCluster) override;
+    void computeInto(Trackster const& ts_base, Trackster const& ts_toCluster, std::span<float> out) const override;
 
     std::vector<std::string> featureNames() const override {
       return {"DeltaEtaBaryc",
@@ -95,15 +100,12 @@ namespace ticl {
     }
   };
 
-  /* Third version of DNN by Gamze Sokmen and Shamik Ghosh, making use of time information as new variables.
-  Uses features : ['DeltaEta', 'DeltaPhi', 'multi_en', 'multi_eta', 'multi_pt', 'seedEta','seedPhi','seedEn', 'seedPt',   theta', 'theta_xz_seedFrame', 'theta_yz_seedFrame', 'theta_xy_cmsFrame', 'theta_yz_cmsFrame', 'theta_xz_cmsFrame', 'explVar', 'explVarRatio', 'mod_deltaTime']
-  */
-
-  class SuperclusteringDNNInputV3 : public AbstractSuperclusteringDNNInput {
+  class SuperclusteringDNNInputV3 final : public AbstractSuperclusteringDNNInput {
   public:
-    unsigned int featureCount() const override { return 18; }
+    static constexpr unsigned int kNFeatures = 18;
+    unsigned int featureCount() const override { return kNFeatures; }
 
-    std::vector<float> computeVector(ticl::Trackster const& ts_base, ticl::Trackster const& ts_toCluster) override;
+    void computeInto(Trackster const& ts_base, Trackster const& ts_toCluster, std::span<float> out) const override;
 
     std::vector<std::string> featureNames() const override {
       return {"DeltaEtaBaryc",
@@ -128,6 +130,7 @@ namespace ticl {
   };
 
   std::unique_ptr<AbstractSuperclusteringDNNInput> makeSuperclusteringDNNInputFromString(std::string dnnVersion);
+
 }  // namespace ticl
 
 #endif
