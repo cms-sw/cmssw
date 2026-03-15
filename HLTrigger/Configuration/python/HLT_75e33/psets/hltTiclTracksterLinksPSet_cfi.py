@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltTiclTracksterLinksPSet = cms.PSet(
+      onnxModelPath = cms.string(""),
       cylinder_radius_sqr_split = cms.double(9),
       proj_distance_split = cms.double(5),
       track_time_quality_threshold = cms.double(0.5),
