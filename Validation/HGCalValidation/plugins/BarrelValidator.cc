@@ -305,7 +305,7 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
   const auto& hits = event.get(hitsToken_);
   for (std::size_t index = 0; const auto& pfRecHitCollection : hits) {
     if (pfRecHitCollection->empty()) {
-      edm::LogWarning("BarrelValidator") << "PFRecHitCollections #" << index << " is not valid.";
+      LogDebug("BarrelValidator") << "PFRecHitCollections #" << index << " is empty.";
     }
     index++;
   }
@@ -567,7 +567,7 @@ void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<std::vector<edm::InputTag>>("label_tst",
                                        {
                                            edm::InputTag("ticlTrackstersCLUE3DHigh"),
-                                           edm::InputTag("ticlTrackstersMerge"),
+                                           edm::InputTag("ticlCandidate"),
                                            edm::InputTag("ticlSimTracksters", "fromCPs"),
                                            edm::InputTag("ticlSimTracksters"),
                                        });
