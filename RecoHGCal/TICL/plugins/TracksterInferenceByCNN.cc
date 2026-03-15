@@ -110,8 +110,7 @@ namespace ticl {
             continue;
           }
 
-          const int base =
-              (bi * eidNLayers_ + j) * (eidNClusters_ * eidNFeatures_) + seenClusters[j] * eidNFeatures_;
+          const int base = (bi * eidNLayers_ + j) * (eidNClusters_ * eidNFeatures_) + seenClusters[j] * eidNFeatures_;
 
           inputTensor[base + 0] = static_cast<float>(cl.energy() / static_cast<float>(ts.vertex_multiplicity(k)));
           inputTensor[base + 1] = static_cast<float>(std::abs(cl.eta()));

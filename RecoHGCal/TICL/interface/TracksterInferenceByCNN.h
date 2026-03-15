@@ -37,7 +37,7 @@ namespace ticl {
     int doPID_;
     int miniBatchSize_;
 
-cms::Ort::ONNXRuntime const* onnxSession_ = nullptr;
+    cms::Ort::ONNXRuntime const* onnxSession_ = nullptr;
     bool enabled_ = false;
 
     static constexpr int eidNFeatures_ = 3;
