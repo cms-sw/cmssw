@@ -242,6 +242,11 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
       edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByDNN", true));
   desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByDNN", inferenceDescDNN);
 
+  edm::ParameterSetDescription inferenceDescCNN;
+  inferenceDescCNN.addNode(
+      edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByCNN", true));
+  desc.add<edm::ParameterSetDescription>("pluginInferenceAlgoTracksterInferenceByCNN", inferenceDescCNN);
+
   edm::ParameterSetDescription inferenceDescPFN;
   inferenceDescPFN.addNode(
       edm::PluginDescription<TracksterInferenceAlgoFactory>("type", "TracksterInferenceByPFN", true));
