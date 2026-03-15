@@ -271,6 +271,9 @@ private:
   dqm::reco::MonitorElement* r9_ele_hist;
   dqm::reco::MonitorElement* sMin_ele_hist;
   dqm::reco::MonitorElement* sMaj_ele_hist;
+  dqm::reco::MonitorElement* nClusters_ele_hist;
+  dqm::reco::MonitorElement* nCrystals_ele_hist;
+  dqm::reco::MonitorElement* rechitZeroSuppression_ele_hist;
 
   // muon histograms (index 0: noVtx, index1: Vtx)
   dqm::reco::MonitorElement* pt_mu_hist[2];
@@ -667,6 +670,9 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     r9_pho_hist->Fill(pho.r9());
     sMin_pho_hist->Fill(pho.sMin());
     sMaj_pho_hist->Fill(pho.sMaj());
+    nClusters_pho_hist->Fill(pho.nClusters());
+    nCrystals_pho_hist->Fill(pho.nCrystals());
+    rechitZeroSuppression_pho_hist->Fill(pho.rechitZeroSuppression() ? -1. : 1.);
   }
 
   // fill all the electron histograms
@@ -690,6 +696,9 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     r9_ele_hist->Fill(ele.r9());
     sMin_ele_hist->Fill(ele.sMin());
     sMaj_ele_hist->Fill(ele.sMaj());
+    nClusters_ele_hist->Fill(ele.nClusters());
+    nCrystals_ele_hist->Fill(ele.nCrystals());
+    rechitZeroSuppression_ele_hist->Fill(ele.rechitZeroSuppression() ? -1. : 1.);
   }
 
   // Apply to both collections
@@ -1198,6 +1207,11 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   r9_pho_hist = ibook.book1DD("r9_pho", "R9; R9; Entries", 100, 0.0, 5);
   sMin_pho_hist = ibook.book1DD("sMin_pho", "sMin Photon; sMin; Entries", 100, 0.0, 3);
   sMaj_pho_hist = ibook.book1DD("sMaj_pho", "sMaj Photon; sMaj; Entries", 100, 0.0, 3);
+  nClusters_pho_hist =
+      ibook.book1I("nClusters_pho", "nunmber of Clusters Photon; n. Clusters; Entries", 20, -0.5, 19.5);
+  nCrystals_pho_hist = ibook.book1I("nCrystals_pho", "number of Crystals Photon; n. Crystals; Entries", 100, -0.5, 99.5);
+  rechitZeroSuppression_pho_hist =
+      ibook.book1I("rechitZS_pho", "recHit ZS Photon; recHit ZeroSuppression (-1=True,1=False); Entries", 3, -1.5, 1.5);
 
   ibook.setCurrentFolder(topfoldername_ + "/Electron");
   pt_ele_hist = ibook.book1DD("pt_ele", "Electron p_{T}; p_{T} (GeV); Entries", 100, 0.0, 100.0);
@@ -1223,6 +1237,12 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   r9_ele_hist = ibook.book1DD("r9_ele", "R9 Electron; R9; Entries", 100, 0.0, 5);
   sMin_ele_hist = ibook.book1DD("sMin_ele", "sMin Electron; sMin; Entries", 100, 0.0, 3);
   sMaj_ele_hist = ibook.book1DD("sMaj_ele", "sMaj Electron; sMaj; Entries", 100, 0.0, 3);
+  nClusters_ele_hist =
+      ibook.book1I("nClusters_ele", "nunmber of Clusters Electron; n. Clusters; Entries", 20, -0.5, 19.5);
+  nCrystals_ele_hist =
+      ibook.book1I("nCrystals_ele", "number of Crystals Electron; n. Crystals; Entries", 100, -0.5, 99.5);
+  rechitZeroSuppression_ele_hist =
+      ibook.book1I("rechitZS_ele", "recHit ZS Electron; recHit ZeroSuppression (-1=True,1=False); Entries", 3, -1.5, 1.5);
 
   // book the muon histograms (noVtx and Vtx collections)
   const std::array<std::string, 2> muonLabels = {{"muonsNoVtx", "muonsVtx"}};
