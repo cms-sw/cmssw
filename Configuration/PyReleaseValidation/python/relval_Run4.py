@@ -62,8 +62,7 @@ numWFIB.extend([prefixDet+34.7501]) # HLTTrackingOnly75e33
 numWFIB.extend([prefixDet+34.7502]) # HLTTrackingNtuple75e33
 numWFIB.extend([prefixDet+34.7503]) # HLTHeterogeneousValid
 numWFIB.extend([prefixDet+34.751])  # HLTTiming75e33, alpaka
-numWFIB.extend([prefixDet+34.752])  # HLTTiming75e33, ticl_v5
-numWFIB.extend([prefixDet+34.7521]) # HLTTiming75e33, ticl_v5, ticlv5TrackLinkingGNN
+numWFIB.extend([prefixDet+34.7521]) # HLTTiming75e33, ticlv5TrackLinkingGNN
 numWFIB.extend([prefixDet+34.753])  # HLTTiming75e33, legacy tracking
 numWFIB.extend([prefixDet+34.754])  # HLTTiming75e33, legacy tracking with Patatrack quads
 numWFIB.extend([prefixDet+34.755])  # HLTTiming75e33, trackingLST
@@ -72,7 +71,7 @@ numWFIB.extend([prefixDet+34.757])  # HLTTiming75e33, MkFitFit
 numWFIB.extend([prefixDet+34.758])  # HLTTiming75e33, ticl_barrel
 numWFIB.extend([prefixDet+34.759])  # HLTTiming75e33 + NANO
 numWFIB.extend([prefixDet+34.77])   # NGTScouting
-numWFIB.extend([prefixDet+34.771])  # NGTScouting + alpaka + TICL-v5 + TICL-Barrel
+numWFIB.extend([prefixDet+34.771])  # NGTScouting + alpaka + TICL-Barrel
 numWFIB.extend([prefixDet+34.772])  # NGTScouting + NANO
 numWFIB.extend([prefixDet+34.773])  # NGTScouting + NANO (including validation)
 numWFIB.extend([prefixDet+34.775])  # NGTScouting + Phase2CAExtension&LSTT5 as GeneralTracks

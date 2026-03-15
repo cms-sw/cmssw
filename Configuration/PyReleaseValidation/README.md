@@ -59,8 +59,7 @@ The offsets currently in use are:
 * 0.7502: HLT phase-2 menu, with tracking ntuple
 * 0.7503: HLT phase-2 menu, CPU vs. GPU validation
 * 0.751: HLT phase-2 timing menu Alpaka variant
-* 0.752: HLT phase-2 timing menu ticl_v5 variant
-* 0.7521: HLT phase-2 timing menu ticl_v5, ticlv5TrackLinkingGNN variant
+* 0.7521: HLT phase-2 timing menu ticlv5TrackLinkingGNN variant
 * 0.753: HLT phase-2 timing menu legacy tracking
 * 0.754: HLT phase-2 timing menu legacy tracking with Patatrack quads
 * 0.755: HLT phase-2 timing menu LST building variant
@@ -70,7 +69,7 @@ The offsets currently in use are:
 * 0.759: HLT phase-2 timing menu, with NANO:@Phase2HLT
 * 0.76: HLT phase-2 reduced menu, with DIGI step
 * 0.77: HLT phase-2 NGT Scouting menu
-* 0.771: HLT phase-2 NGT Scouting menu, Alpaka, TICL-v5, TICL-Barrel
+* 0.771: HLT phase-2 NGT Scouting menu, Alpaka, TICL-Barrel
 * 0.772: HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
 * 0.773: HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
 * 0.775: HLT phase-2 NGT Scouting menu with Pixeltracks CA Extension + LST T5s as GeneralTracks
@@ -111,11 +110,8 @@ The offsets currently in use are:
 * 0.914: DDD DB
 * 0.101: Phase-2 aging, 1000fb-1
 * 0.103: Phase-2 aging, 3000fb-1
-* 0.201: HGCAL special TICL Pattern recognition Workflows: clue3D
-* 0.202: HGCAL special TICL Pattern recognition Workflows: FastJet
-* 0.203: HGCAL TICLv5
-* 0.204: HGCAL superclustering : using Mustache in TICLv5
-* 0.205: HGCAL superclustering : using old PFCluster-based Mustache algorithm with TICLv5
+* 0.204: HGCAL superclustering : using Mustache in TICL
+* 0.205: HGCAL superclustering : using old PFCluster-based Mustache algorithm with TICL
 * 0.209: TICL barrel : run TICL in HGCAL and barrel calorimeters
 * 0.2091: TICL barrel with CaloParticles from PU enabled
 * 0.302: FastSim Run-3 trackingOnly validation
