@@ -1,22 +1,18 @@
 <lcgdict>
-  <class name="PileupSummaryInfo" ClassVersion="13">
-   <version ClassVersion="13" checksum="1980628569"/>
-   <version ClassVersion="12" checksum="231481749"/>
-   <version ClassVersion="11" checksum="1526417022"/>
+  <class name="io_v1::PileupSummaryInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="612161497"/>
   </class>
-  <class name="std::vector<PileupSummaryInfo>"/>  
-  <class name="edm::Wrapper<PileupSummaryInfo>"/>
-  <class name="edm::Wrapper<std::vector<PileupSummaryInfo> >"/>
-  <class name="PileupMixingContent" ClassVersion="12">
-   <version ClassVersion="11" checksum="468037571"/>
-   <version ClassVersion="12" checksum="624720677"/>
+  <class name="std::vector<io_v1::PileupSummaryInfo>"/>
+  <class name="edm::Wrapper<io_v1::PileupSummaryInfo>"/>
+  <class name="edm::Wrapper<std::vector<io_v1::PileupSummaryInfo> >"/>
+  <class name="PileupMixingContent" ClassVersion="3">
+   <version ClassVersion="3" checksum="624720677"/>
   </class>
   <class name="std::vector<PileupMixingContent>"/>  
   <class name="edm::Wrapper<PileupMixingContent>"/>
   <class name="edm::Wrapper<std::vector<PileupMixingContent> >"/>
-  <class name="PileupVertexContent" ClassVersion="4">
-   <version ClassVersion="4" checksum="1959165237"/>
-   <version ClassVersion="3" checksum="3263569137"/>
+  <class name="PileupVertexContent" ClassVersion="3">
+   <version ClassVersion="3" checksum="1959165237"/>
   </class>
   <class name="std::vector<PileupVertexContent>"/>  
   <class name="edm::Wrapper<PileupVertexContent>"/>
