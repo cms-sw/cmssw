@@ -56,8 +56,10 @@ l1ct::EmCaloObjEmu l1ct::GctEmClusterDecoderEmulator::decode(const l1ct::PFRegio
   // bit 2: photonWP:
   calo.hwEmID = inclus.wp();
 
-  // Should any of these values be corrected? At the moment they are not
-  calo.hwRelIso = l1ct::Scales::makeRelIso(inclus.iso() * inclus.ptLSB() / inclus.ptFloat());
+  // Should any of these values be corrected? Choose corrected pt, uncorrected iso energy
+  calo.hwRelIso = (calo.hwPt > 0) ?
+    l1ct::Scales::makeRelIso(inclus.iso() * inclus.ptLSB() / calo.floatPt()) :
+    static_cast<rel_iso_t>(0);
 
   calo.hwShowerShape = inclus.shape();
 
