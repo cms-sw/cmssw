@@ -143,7 +143,7 @@ void HGCalUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions
                                                });
   desc.add<edm::ParameterSetDescription>("HGCHFNoseConfig", HGCHFNoseConfigPSet);
   desc.add<std::string>("algo", "HGCalUncalibRecHitWorkerWeights");
-  desc.add<bool>("computeLocalTime", false);
+  desc.add<bool>("computeLocalTime", true);
   descriptions.add("HGCalUncalibRecHitProducer", desc);
 }
 
