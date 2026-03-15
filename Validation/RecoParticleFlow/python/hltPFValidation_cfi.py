@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+_filter_sim_hits = cms.vstring("Ecal",)
+
 hltPFScAssocByEnergyScoreProducer = cms.EDProducer("BarrelPCToSCAssociatorByEnergyScoreProducer",
     hardScatterOnly = cms.bool(True),
     hitMapTag = cms.InputTag("hltRecHitMapProducer:pfRecHitMap"),
@@ -10,7 +12,7 @@ hltPFClusterSimClusterAssociationProducerECAL = cms.EDProducer("PCToSCAssociator
     associator = cms.InputTag("hltPFScAssocByEnergyScoreProducer"),
     label_lcl = cms.InputTag("hltParticleFlowClusterECALUnseeded"),
     label_scl = cms.InputTag("mix","MergedCaloTruth"),
-    filter_sim_hits = cms.string("Ecal")
+    filter_sim_hits = _filter_sim_hits
 )
 
 hltPFCpAssocByEnergyScoreProducer = cms.EDProducer("BarrelPCToCPAssociatorByEnergyScoreProducer",
@@ -23,7 +25,7 @@ hltPFClusterCaloParticleAssociationProducerECAL = cms.EDProducer("PCToCPAssociat
     associator = cms.InputTag("hltPFCpAssocByEnergyScoreProducer"),
     label_lc = cms.InputTag("hltParticleFlowClusterECALUnseeded"),
     label_cp = cms.InputTag("mix","MergedCaloTruth"),
-    filter_sim_hits = cms.string("Ecal")
+    filter_sim_hits = _filter_sim_hits
 )
 
 hltPFClusterTesterECAL = cms.EDProducer("PFClusterTester",
@@ -34,12 +36,13 @@ hltPFClusterTesterECAL = cms.EDProducer("PFClusterTester",
     CaloParticle = cms.InputTag("mix","MergedCaloTruth"),
     ClusterSimClusterAssociator = cms.InputTag("hltPFClusterSimClusterAssociationProducerECAL"),
     ClusterCaloParticleAssociator = cms.InputTag("hltPFClusterCaloParticleAssociationProducerECAL"),
+    filter_sim_hits = _filter_sim_hits,
     outFolder = cms.string('HLT/ParticleFlow'),
     assocScoreThresholds = cms.vdouble(1.1, 0.9, 0.5, 0.1),
     doMatchByScore = cms.bool(True),
     enFracCut = cms.double(0.),
     ptCut = cms.double(0.),
-    etaCut = cms.double(3.0)
+    etaCut = cms.double(3.0),
 )
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(hltPFClusterTesterECAL, PFCand = cms.InputTag("hltParticleFlowTmp"), etaCut = cms.double(1.48))

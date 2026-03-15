@@ -77,11 +77,13 @@ public:
                                               const std::unordered_map<DetId, const unsigned int> *,
                                               const multiCollectionT &hits);
 
-  ticl::RecoToSimCollectionT<CLUSTER> associateRecoToSim(
-      const edm::Handle<CLUSTER> &cCH, const edm::Handle<CaloParticleCollection> &cPCH, const std::vector<DetId::Detector> &detIds) const override;
+  ticl::RecoToSimCollectionT<CLUSTER> associateRecoToSim(const edm::Handle<CLUSTER> &cCH,
+                                                         const edm::Handle<CaloParticleCollection> &cPCH,
+                                                         const std::vector<DetId::Detector> &detIds) const override;
 
-  ticl::SimToRecoCollectionT<CLUSTER> associateSimToReco(
-      const edm::Handle<CLUSTER> &cCH, const edm::Handle<CaloParticleCollection> &cPCH, const std::vector<DetId::Detector> &detIds) const override;
+  ticl::SimToRecoCollectionT<CLUSTER> associateSimToReco(const edm::Handle<CLUSTER> &cCH,
+                                                         const edm::Handle<CaloParticleCollection> &cPCH,
+                                                         const std::vector<DetId::Detector> &detIds) const override;
 
 private:
   const bool hardScatterOnly_;

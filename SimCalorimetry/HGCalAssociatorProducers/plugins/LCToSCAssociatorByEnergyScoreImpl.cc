@@ -5,6 +5,8 @@
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
+#include <iostream>
+
 template <typename HIT, typename CLUSTER>
 LCToSCAssociatorByEnergyScoreImplT<HIT, CLUSTER>::LCToSCAssociatorByEnergyScoreImplT(
     edm::EDProductGetter const& productGetter,
@@ -25,7 +27,9 @@ LCToSCAssociatorByEnergyScoreImplT<HIT, CLUSTER>::LCToSCAssociatorByEnergyScoreI
 
 template <typename HIT, typename CLUSTER>
 ticl::association LCToSCAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnections(
-    const edm::Handle<CLUSTER>& cCCH, const edm::Handle<SimClusterCollection>& sCCH, const std::vector<DetId::Detector>& detIds) const {
+    const edm::Handle<CLUSTER>& cCCH,
+    const edm::Handle<SimClusterCollection>& sCCH,
+    const std::vector<DetId::Detector>& detIds) const {
   // Get collections
   const auto& clusters = *cCCH.product();
   const auto& simClusters = *sCCH.product();
@@ -74,10 +78,10 @@ ticl::association LCToSCAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
   edm::MultiSpan<HIT> hitsMS(hits_);
 
   for (const auto& scId : sCIndices) {
-    SimCluster::HitsAndFractionsView hafView = 
-      detIds.empty() ? simClusters[scId].hits_and_fractions_view() :
-      (detIds.size() == 1 ? simClusters[scId].hits_and_fractions_view(detIds[0]) :
-                            simClusters[scId].hits_and_fractions_view(*detIds.begin(), *(detIds.rbegin())));
+    SimCluster::HitsAndFractionsView hafView =
+        detIds.empty() ? simClusters[scId].hits_and_fractions_view()
+                       : simClusters[scId].hits_and_fractions_view(*std::min_element(detIds.begin(), detIds.end()),
+                                                                   *std::max_element(detIds.begin(), detIds.end()));
 
     for (size_t i = 0; i < hafView.hits.size(); ++i) {
       const uint32_t hitid = hafView.hits[i];
@@ -178,6 +182,7 @@ ticl::association LCToSCAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
       if (hit_find_in_SC != detIdToSimClusterId_Map.end()) {
         const auto itcheck = hitMap_->find(rh_detid);
         const HIT* hit = &hitsMS[itcheck->second];
+
         //Loops through all the simclusters that have the layer cluster rechit under study
         //Here is time to update the lcsInSimCluster and connect the SimCluster with all
         //the layer clusters that have the current rechit detid matched.
@@ -556,7 +561,9 @@ ticl::association LCToSCAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
 
 template <typename HIT, typename CLUSTER>
 ticl::RecoToSimCollectionWithSimClustersT<CLUSTER> LCToSCAssociatorByEnergyScoreImplT<HIT, CLUSTER>::associateRecoToSim(
-    const edm::Handle<CLUSTER>& cCCH, const edm::Handle<SimClusterCollection>& sCCH, const std::vector<DetId::Detector>& detIds) const {
+    const edm::Handle<CLUSTER>& cCCH,
+    const edm::Handle<SimClusterCollection>& sCCH,
+    const std::vector<DetId::Detector>& detIds) const {
   ticl::RecoToSimCollectionWithSimClustersT<CLUSTER> returnValue(productGetter_);
 
   if (!hitMap_ || hitMap_->empty()) {
@@ -582,7 +589,9 @@ ticl::RecoToSimCollectionWithSimClustersT<CLUSTER> LCToSCAssociatorByEnergyScore
 
 template <typename HIT, typename CLUSTER>
 ticl::SimToRecoCollectionWithSimClustersT<CLUSTER> LCToSCAssociatorByEnergyScoreImplT<HIT, CLUSTER>::associateSimToReco(
-    const edm::Handle<CLUSTER>& cCCH, const edm::Handle<SimClusterCollection>& sCCH, const std::vector<DetId::Detector>& detIds) const {
+    const edm::Handle<CLUSTER>& cCCH,
+    const edm::Handle<SimClusterCollection>& sCCH,
+    const std::vector<DetId::Detector>& detIds) const {
   ticl::SimToRecoCollectionWithSimClustersT<CLUSTER> returnValue(productGetter_);
 
   if (!hitMap_ || hitMap_->empty()) {
