@@ -9,32 +9,33 @@
 #include "DataFormats/CTPPSReco/interface/TotemRPUVPattern.h"
 
 //----------------------------------------------------------------------------------------------------
+namespace io_v1 {
+  bool operator<(const TotemRPUVPattern &l, const TotemRPUVPattern &r) {
+    if (l.projection_ < r.projection_)
+      return true;
+    if (l.projection_ > r.projection_)
+      return false;
 
-bool operator<(const TotemRPUVPattern &l, const TotemRPUVPattern &r) {
-  if (l.projection_ < r.projection_)
-    return true;
-  if (l.projection_ > r.projection_)
+    if (l.a_ < r.a_)
+      return true;
+    if (l.a_ > r.a_)
+      return false;
+
+    if (l.b_ < r.b_)
+      return true;
+    if (l.b_ > r.b_)
+      return false;
+
+    if (l.w_ < r.w_)
+      return true;
+    if (l.w_ > r.w_)
+      return false;
+
+    if (l.fittable_ < r.fittable_)
+      return true;
+    if (l.fittable_ > r.fittable_)
+      return false;
+
     return false;
-
-  if (l.a_ < r.a_)
-    return true;
-  if (l.a_ > r.a_)
-    return false;
-
-  if (l.b_ < r.b_)
-    return true;
-  if (l.b_ > r.b_)
-    return false;
-
-  if (l.w_ < r.w_)
-    return true;
-  if (l.w_ > r.w_)
-    return false;
-
-  if (l.fittable_ < r.fittable_)
-    return true;
-  if (l.fittable_ > r.fittable_)
-    return false;
-
-  return false;
-}
+  }
+}  // namespace io_v1

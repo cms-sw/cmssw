@@ -14,10 +14,12 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class TotemTimingLocalTrack : public CTPPSTimingLocalTrack {
-public:
-  using CTPPSTimingLocalTrack::CTPPSTimingLocalTrack;
-  // no specific class members yet
-};
-
+namespace io_v1 {
+  class TotemTimingLocalTrack : public CTPPSTimingLocalTrack {
+  public:
+    using CTPPSTimingLocalTrack::CTPPSTimingLocalTrack;
+    // no specific class members yet
+  };
+}  // namespace io_v1
+using TotemTimingLocalTrack = io_v1::TotemTimingLocalTrack;
 #endif

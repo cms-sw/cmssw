@@ -2,255 +2,183 @@
 
 <!-- strips objects -->
 
-  <class name="TotemRPCluster" ClassVersion="2">
-    <version ClassVersion="2" checksum="386147628"/>
+  <class name="io_v1::TotemRPCluster" ClassVersion="3">
+    <version ClassVersion="3" checksum="4086268588"/>
   </class>
-  <class name="edm::DetSet<TotemRPCluster>"/>
-  <class name="std::vector<TotemRPCluster>"/>
-  <class name="std::vector<edm::DetSet<TotemRPCluster> >"/>
-  <class name="edm::DetSetVector<TotemRPCluster>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<TotemRPCluster> >"/>
+  <class name="edm::DetSet<io_v1::TotemRPCluster>"/>
+  <class name="std::vector<io_v1::TotemRPCluster>"/>
+  <class name="std::vector<edm::DetSet<io_v1::TotemRPCluster> >"/>
+  <class name="edm::DetSetVector<io_v1::TotemRPCluster>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<io_v1::TotemRPCluster> >"/>
 
-  <class name="TotemRPRecHit" ClassVersion="2">
-    <version ClassVersion="2" checksum="916894760"/>
+  <class name="io_v1::TotemRPRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="3166479784"/>
   </class>
-  <class name="edm::DetSet<TotemRPRecHit>"/>
-  <class name="edm::DetSetVector<TotemRPRecHit>"/>
-  <class name="std::vector<edm::DetSet<TotemRPRecHit> >"/>
-  <class name="edm::Wrapper<edm::DetSetVector<TotemRPRecHit> >"/>
-  <class name="std::vector<TotemRPRecHit>"/>
-  <class name="std::vector<const TotemRPRecHit*>"/>
-  <class name="std::map<int, edm::DetSetVector<TotemRPRecHit>>"/>
-  <class name="std::pair<const int, edm::DetSetVector<TotemRPRecHit>>"/>
-  <class name="edm::Wrapper<std::map<int, edm::DetSetVector<TotemRPRecHit>>>"/>
+  <class name="edm::DetSet<io_v1::TotemRPRecHit>"/>
+  <class name="edm::DetSetVector<io_v1::TotemRPRecHit>"/>
+  <class name="std::vector<edm::DetSet<io_v1::TotemRPRecHit> >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<io_v1::TotemRPRecHit> >"/>
+  <class name="std::vector<io_v1::TotemRPRecHit>"/>
+  <class name="std::vector<const io_v1::TotemRPRecHit*>"/>
+  <class name="std::map<int, edm::DetSetVector<io_v1::TotemRPRecHit>>"/>
+  <class name="std::pair<const int, edm::DetSetVector<io_v1::TotemRPRecHit>>"/>
+  <class name="edm::Wrapper<std::map<int, edm::DetSetVector<io_v1::TotemRPRecHit>>>"/>
 
-  <class name="TotemRPUVPattern" ClassVersion="3">
-    <version ClassVersion="2" checksum="3530058029"/>
-    <version ClassVersion="3" checksum="1693481125"/>
+  <class name="io_v1::TotemRPUVPattern" ClassVersion="3">
+    <version ClassVersion="3" checksum="2310454009"/>
   </class>
-  <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="double a" target="a_">
-  <![CDATA[a_ = onfile.a;]]>
-  </ioread>
-  <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="double b" target="b_">
-  <![CDATA[b_ = onfile.b;]]>
-  </ioread>
-  <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="double w" target="w_">
-  <![CDATA[w_ = onfile.w;]]>
-  </ioread>
-  <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="bool fittable" target="fittable_">
-  <![CDATA[fittable_ = onfile.fittable;]]>
-  </ioread>
-  <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="TotemRPUVPattern::ProjectionType projection" target="projection_">
-  <![CDATA[projection_ = onfile.projection;]]>
-  </ioread>
-  <ioread sourceClass="TotemRPUVPattern" version="[2]" targetClass="TotemRPUVPattern" source="edm::DetSetVector<TotemRPRecHit> hits" target="hits_">
-  <![CDATA[hits_ = onfile.hits;]]>
-  </ioread>
-  <class name="edm::DetSet<TotemRPUVPattern>"/>
-  <class name="std::vector<TotemRPUVPattern>"/>
-  <class name="std::vector<edm::DetSet<TotemRPUVPattern> >"/>
-  <class name="edm::DetSetVector<TotemRPUVPattern>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<TotemRPUVPattern>>"/>
+  <class name="edm::DetSet<io_v1::TotemRPUVPattern>"/>
+  <class name="std::vector<io_v1::TotemRPUVPattern>"/>
+  <class name="std::vector<edm::DetSet<io_v1::TotemRPUVPattern> >"/>
+  <class name="edm::DetSetVector<io_v1::TotemRPUVPattern>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<io_v1::TotemRPUVPattern>>"/>
 
-  <class name="TotemRPLocalTrack" ClassVersion="2">
-    <version ClassVersion="2" checksum="3328119645"/>
+  <class name="io_v1::TotemRPLocalTrack" ClassVersion="3">
+    <version ClassVersion="3" checksum="150243101"/>
   </class>
-  <class name="edm::DetSet<TotemRPLocalTrack>"/>
-  <class name="std::vector<TotemRPLocalTrack>"/>
-  <class name="std::vector<edm::DetSet<TotemRPLocalTrack> >"/>
-  <class name="edm::DetSetVector<TotemRPLocalTrack>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<TotemRPLocalTrack>>"/>
+  <class name="edm::DetSet<io_v1::TotemRPLocalTrack>"/>
+  <class name="std::vector<io_v1::TotemRPLocalTrack>"/>
+  <class name="std::vector<edm::DetSet<io_v1::TotemRPLocalTrack> >"/>
+  <class name="edm::DetSetVector<io_v1::TotemRPLocalTrack>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<io_v1::TotemRPLocalTrack>>"/>
   <!-- FittedRecHit holds a TVector3 which RNTuple can not handle -->
-  <class name="TotemRPLocalTrack::FittedRecHit" ClassVersion="3" rntupleStreamerMode="true">
-    <version ClassVersion="3" checksum="839012906"/>
+  <class name="io_v1::TotemRPLocalTrack::FittedRecHit" ClassVersion="3" rntupleStreamerMode="true">
+    <version ClassVersion="3" checksum="870597466"/>
   </class>
-  <class name="edm::DetSet<TotemRPLocalTrack::FittedRecHit>"/>
-  <class name="edm::DetSetVector<TotemRPLocalTrack::FittedRecHit>"/>
-  <class name="std::vector<edm::DetSet<TotemRPLocalTrack::FittedRecHit> >"/>
-  <class name="std::vector<TotemRPLocalTrack::FittedRecHit>"/>
+  <class name="edm::DetSet<io_v1::TotemRPLocalTrack::FittedRecHit>"/>
+  <class name="edm::DetSetVector<io_v1::TotemRPLocalTrack::FittedRecHit>"/>
+  <class name="std::vector<edm::DetSet<io_v1::TotemRPLocalTrack::FittedRecHit> >"/>
+  <class name="std::vector<io_v1::TotemRPLocalTrack::FittedRecHit>"/>
 
 <!-- timing objects -->
 
-  <class name="CTPPSTimingRecHit" ClassVersion="3">
-    <version ClassVersion="3" checksum="33948116"/>
+  <class name="io_v1::CTPPSTimingRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="3231082068"/>
   </class>
-  <class name="edm::Ptr<CTPPSTimingRecHit>"/>
-  <class name="edm::Wrapper<CTPPSTimingRecHit>"/>
-  <class name="std::vector<CTPPSTimingRecHit>"/>
-  <class name="std::vector<edm::DetSet<CTPPSTimingRecHit> >"/>
-  <class name="edm::DetSet<CTPPSTimingRecHit>"/>
-  <class name="edm::DetSetVector<CTPPSTimingRecHit>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<CTPPSTimingRecHit> >"/>
-  <class name="edm::Wrapper<std::vector<CTPPSTimingRecHit> >"/>
-  <class name="std::map<int, edm::DetSetVector<CTPPSTimingRecHit>>"/>
-  <class name="edm::Wrapper<std::map<int, edm::DetSetVector<CTPPSTimingRecHit>>>"/>
+  <class name="edm::Ptr<io_v1::CTPPSTimingRecHit>"/>
+  <class name="edm::Wrapper<io_v1::CTPPSTimingRecHit>"/>
+  <class name="std::vector<io_v1::CTPPSTimingRecHit>"/>
+  <class name="std::vector<edm::DetSet<io_v1::CTPPSTimingRecHit> >"/>
+  <class name="edm::DetSet<io_v1::CTPPSTimingRecHit>"/>
+  <class name="edm::DetSetVector<io_v1::CTPPSTimingRecHit>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<io_v1::CTPPSTimingRecHit> >"/>
+  <class name="edm::Wrapper<std::vector<io_v1::CTPPSTimingRecHit> >"/>
+  <class name="std::map<int, edm::DetSetVector<io_v1::CTPPSTimingRecHit>>"/>
+  <class name="edm::Wrapper<std::map<int, edm::DetSetVector<io_v1::CTPPSTimingRecHit>>>"/>
 
-  <class name="TotemTimingRecHit" ClassVersion="3">
-    <version ClassVersion="3" checksum="156399384"/>
+  <class name="io_v1::TotemTimingRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="2944994214"/>
   </class>
-  <class name="edm::Ptr<TotemTimingRecHit>"/>
-  <class name="edm::Wrapper<TotemTimingRecHit>"/>
-  <class name="std::vector<TotemTimingRecHit>"/>
-  <class name="std::vector<edm::DetSet<TotemTimingRecHit> >"/>
-  <class name="edm::DetSet<TotemTimingRecHit>"/>
-  <class name="edm::DetSetVector<TotemTimingRecHit>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<TotemTimingRecHit> >"/>
-  <class name="edm::Wrapper<std::vector<TotemTimingRecHit> >"/>
+  <class name="edm::Ptr<io_v1::TotemTimingRecHit>"/>
+  <class name="edm::Wrapper<io_v1::TotemTimingRecHit>"/>
+  <class name="std::vector<io_v1::TotemTimingRecHit>"/>
+  <class name="std::vector<edm::DetSet<io_v1::TotemTimingRecHit> >"/>
+  <class name="edm::DetSet<io_v1::TotemTimingRecHit>"/>
+  <class name="edm::DetSetVector<io_v1::TotemTimingRecHit>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<io_v1::TotemTimingRecHit> >"/>
+  <class name="edm::Wrapper<std::vector<io_v1::TotemTimingRecHit> >"/>
 
-  <class name="CTPPSDiamondRecHit" ClassVersion="6">
-    <version ClassVersion="3" checksum="2377257106"/>
-    <version ClassVersion="4" checksum="2150979176"/>
-    <version ClassVersion="5" checksum="2528095961"/>
-    <version ClassVersion="6" checksum="1515076457"/>
+  <class name="io_v1::CTPPSDiamondRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="1805648527"/>
   </class>
-  <class name="edm::Ptr<CTPPSDiamondRecHit>"/>
-  <class name="edm::Wrapper<CTPPSDiamondRecHit>"/>
-  <class name="std::vector<CTPPSDiamondRecHit>"/>
-  <class name="std::vector<edm::DetSet<CTPPSDiamondRecHit> >"/>
-  <class name="edm::DetSet<CTPPSDiamondRecHit>"/>
-  <class name="edm::DetSetVector<CTPPSDiamondRecHit>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<CTPPSDiamondRecHit> >"/>
-  <class name="edm::Wrapper<std::vector<CTPPSDiamondRecHit> >"/>
-  <class name="std::pair<const int, edm::DetSetVector<CTPPSDiamondRecHit>>"/>
-  <class name="std::map<int, edm::DetSetVector<CTPPSDiamondRecHit>>"/>
-  <class name="edm::Wrapper<std::map<int, edm::DetSetVector<CTPPSDiamondRecHit>>>"/>
+  <class name="edm::Ptr<io_v1::CTPPSDiamondRecHit>"/>
+  <class name="edm::Wrapper<io_v1::CTPPSDiamondRecHit>"/>
+  <class name="std::vector<io_v1::CTPPSDiamondRecHit>"/>
+  <class name="std::vector<edm::DetSet<io_v1::CTPPSDiamondRecHit> >"/>
+  <class name="edm::DetSet<io_v1::CTPPSDiamondRecHit>"/>
+  <class name="edm::DetSetVector<io_v1::CTPPSDiamondRecHit>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<io_v1::CTPPSDiamondRecHit> >"/>
+  <class name="edm::Wrapper<std::vector<io_v1::CTPPSDiamondRecHit> >"/>
+  <class name="std::pair<const int, edm::DetSetVector<io_v1::CTPPSDiamondRecHit>>"/>
+  <class name="std::map<int, edm::DetSetVector<io_v1::CTPPSDiamondRecHit>>"/>
+  <class name="edm::Wrapper<std::map<int, edm::DetSetVector<io_v1::CTPPSDiamondRecHit>>>"/>
 
-  <class name="CTPPSTimingLocalTrack" ClassVersion="3">
-    <version ClassVersion="3" checksum="3964976910"/>
+  <class name="io_v1::CTPPSTimingLocalTrack" ClassVersion="3">
+    <version ClassVersion="3" checksum="3045501838"/>
   </class>
-  <class name="edm::Ptr<CTPPSTimingLocalTrack>"/>
-  <class name="edm::Wrapper<CTPPSTimingLocalTrack>"/>
-  <class name="std::vector<CTPPSTimingLocalTrack>"/>
-  <class name="edm::DetSet<CTPPSTimingLocalTrack>"/>
-  <class name="std::vector<edm::DetSet<CTPPSTimingLocalTrack> >"/>
-  <class name="edm::Wrapper<std::vector<CTPPSTimingLocalTrack> >"/>
-  <class name="edm::DetSetVector<CTPPSTimingLocalTrack>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<CTPPSTimingLocalTrack> >"/>
+  <class name="edm::Ptr<io_v1::CTPPSTimingLocalTrack>"/>
+  <class name="edm::Wrapper<io_v1::CTPPSTimingLocalTrack>"/>
+  <class name="std::vector<io_v1::CTPPSTimingLocalTrack>"/>
+  <class name="edm::DetSet<io_v1::CTPPSTimingLocalTrack>"/>
+  <class name="std::vector<edm::DetSet<io_v1::CTPPSTimingLocalTrack> >"/>
+  <class name="edm::Wrapper<std::vector<io_v1::CTPPSTimingLocalTrack> >"/>
+  <class name="edm::DetSetVector<io_v1::CTPPSTimingLocalTrack>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<io_v1::CTPPSTimingLocalTrack> >"/>
 
-  <class name="CTPPSDiamondLocalTrack" ClassVersion="5">
-    <version ClassVersion="3" checksum="2739193553"/>
-    <version ClassVersion="4" checksum="3974505177"/>
-    <version ClassVersion="5" checksum="3653987785"/>
+  <class name="io_v1::CTPPSDiamondLocalTrack" ClassVersion="3">
+    <version ClassVersion="3" checksum="1878285213"/>
   </class>
-  <class name="edm::Ptr<CTPPSDiamondLocalTrack>"/>
-  <class name="edm::Wrapper<CTPPSDiamondLocalTrack>"/>
-  <class name="std::vector<CTPPSDiamondLocalTrack>"/>
-  <class name="edm::DetSet<CTPPSDiamondLocalTrack>"/>
-  <class name="std::vector<edm::DetSet<CTPPSDiamondLocalTrack> >"/>
-  <class name="edm::Wrapper<std::vector<CTPPSDiamondLocalTrack> >"/>
-  <class name="edm::DetSetVector<CTPPSDiamondLocalTrack>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<CTPPSDiamondLocalTrack> >"/>
+  <class name="edm::Ptr<io_v1::CTPPSDiamondLocalTrack>"/>
+  <class name="edm::Wrapper<io_v1::CTPPSDiamondLocalTrack>"/>
+  <class name="std::vector<io_v1::CTPPSDiamondLocalTrack>"/>
+  <class name="edm::DetSet<io_v1::CTPPSDiamondLocalTrack>"/>
+  <class name="std::vector<edm::DetSet<io_v1::CTPPSDiamondLocalTrack> >"/>
+  <class name="edm::Wrapper<std::vector<io_v1::CTPPSDiamondLocalTrack> >"/>
+  <class name="edm::DetSetVector<io_v1::CTPPSDiamondLocalTrack>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<io_v1::CTPPSDiamondLocalTrack> >"/>
 
-  <class name="TotemTimingLocalTrack" ClassVersion="3">
-    <version ClassVersion="3" checksum="2184949517"/>
+  <class name="io_v1::TotemTimingLocalTrack" ClassVersion="3">
+    <version ClassVersion="3" checksum="1582974563"/>
   </class>
-  <class name="edm::Ptr<TotemTimingLocalTrack>"/>
-  <class name="edm::Wrapper<TotemTimingLocalTrack>"/>
-  <class name="std::vector<TotemTimingLocalTrack>"/>
-  <class name="edm::DetSet<TotemTimingLocalTrack>"/>
-  <class name="std::vector<edm::DetSet<TotemTimingLocalTrack> >"/>
-  <class name="edm::Wrapper<std::vector<TotemTimingLocalTrack> >"/>
-  <class name="edm::DetSetVector<TotemTimingLocalTrack>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<TotemTimingLocalTrack> >"/>
+  <class name="edm::Ptr<io_v1::TotemTimingLocalTrack>"/>
+  <class name="edm::Wrapper<io_v1::TotemTimingLocalTrack>"/>
+  <class name="std::vector<io_v1::TotemTimingLocalTrack>"/>
+  <class name="edm::DetSet<io_v1::TotemTimingLocalTrack>"/>
+  <class name="std::vector<edm::DetSet<io_v1::TotemTimingLocalTrack> >"/>
+  <class name="edm::Wrapper<std::vector<io_v1::TotemTimingLocalTrack> >"/>
+  <class name="edm::DetSetVector<io_v1::TotemTimingLocalTrack>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<io_v1::TotemTimingLocalTrack> >"/>
 
 <!-- pixel objects -->
 
-  <class name="CTPPSPixelCluster" ClassVersion="3">
-    <version ClassVersion="3" checksum="2858478211"/>
+  <class name="io_v1::CTPPSPixelCluster" ClassVersion="3">
+    <version ClassVersion="3" checksum="1032049411"/>
   </class>
-  <class name="edm::DetSet<CTPPSPixelCluster>"/>
-  <class name="std::vector<CTPPSPixelCluster>"/>
-  <class name="std::vector<edm::DetSet<CTPPSPixelCluster> >"/>
-  <class name="edm::DetSetVector<CTPPSPixelCluster>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelCluster> >"/>
+  <class name="edm::DetSet<io_v1::CTPPSPixelCluster>"/>
+  <class name="std::vector<io_v1::CTPPSPixelCluster>"/>
+  <class name="std::vector<edm::DetSet<io_v1::CTPPSPixelCluster> >"/>
+  <class name="edm::DetSetVector<io_v1::CTPPSPixelCluster>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<io_v1::CTPPSPixelCluster> >"/>
 
-  <class name="CTPPSPixelRecHit" ClassVersion="3">
-    <version ClassVersion="3" checksum="2784452215"/>
+  <class name="io_v1::CTPPSPixelRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="2339055351"/>
   </class>
-  <class name="edm::DetSet<CTPPSPixelRecHit>"/>
-  <class name="std::vector<CTPPSPixelRecHit>"/>
-  <class name="std::vector<edm::DetSet<CTPPSPixelRecHit> >"/>
-  <class name="edm::DetSetVector<CTPPSPixelRecHit>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelRecHit> >"/>
-  <class name="std::map<int, edm::DetSetVector<CTPPSPixelRecHit>>"/>
-  <class name="std::pair<const int, edm::DetSetVector<CTPPSPixelRecHit>>"/>
-  <class name="edm::Wrapper<std::map<int, edm::DetSetVector<CTPPSPixelRecHit>>>"/>
+  <class name="edm::DetSet<io_v1::CTPPSPixelRecHit>"/>
+  <class name="std::vector<io_v1::CTPPSPixelRecHit>"/>
+  <class name="std::vector<edm::DetSet<io_v1::CTPPSPixelRecHit> >"/>
+  <class name="edm::DetSetVector<io_v1::CTPPSPixelRecHit>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<io_v1::CTPPSPixelRecHit> >"/>
+  <class name="std::map<int, edm::DetSetVector<io_v1::CTPPSPixelRecHit>>"/>
+  <class name="std::pair<const int, edm::DetSetVector<io_v1::CTPPSPixelRecHit>>"/>
+  <class name="edm::Wrapper<std::map<int, edm::DetSetVector<io_v1::CTPPSPixelRecHit>>>"/>
 
-  <class name="CTPPSPixelLocalTrack" ClassVersion="4">
-    <version ClassVersion="3" checksum="4150373475"/>
-    <version ClassVersion="4" checksum="298693321"/>
+  <class name="io_v1::CTPPSPixelLocalTrack" ClassVersion="3">
+    <version ClassVersion="3" checksum="812170731"/>
   </class>
-  <ioread sourceClass="CTPPSPixelLocalTrack" version="[3]" targetClass="CTPPSPixelLocalTrack" source="int numberOfPointUsedForFit_" target="numberOfPointsUsedForFit_">
-  <![CDATA[numberOfPointsUsedForFit_ = onfile.numberOfPointUsedForFit_;]]>
-  </ioread>
-  <class name="edm::DetSet<CTPPSPixelLocalTrack>"/>
-  <class name="std::vector<CTPPSPixelLocalTrack>"/>
-  <class name="std::vector<edm::DetSet<CTPPSPixelLocalTrack> >"/>
-  <class name="edm::DetSetVector<CTPPSPixelLocalTrack>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelLocalTrack> >"/>
-  <class name="edm::DetSetVector<CTPPSPixelFittedRecHit>"/>
-  <class name="edm::Wrapper<edm::DetSetVector<CTPPSPixelFittedRecHit>>"/>
-  <class name="std::vector<edm::DetSet<CTPPSPixelFittedRecHit> >"/>
-  <class name="edm::DetSet<CTPPSPixelFittedRecHit>"/>
-  <class name="std::vector<CTPPSPixelFittedRecHit>"/>
-  <class name="CTPPSPixelFittedRecHit" ClassVersion="10">
-    <version ClassVersion="10" checksum="2285724696"/>
+  <class name="edm::DetSet<io_v1::CTPPSPixelLocalTrack>"/>
+  <class name="std::vector<io_v1::CTPPSPixelLocalTrack>"/>
+  <class name="std::vector<edm::DetSet<io_v1::CTPPSPixelLocalTrack> >"/>
+  <class name="edm::DetSetVector<io_v1::CTPPSPixelLocalTrack>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<io_v1::CTPPSPixelLocalTrack> >"/>
+  <class name="edm::DetSetVector<io_v1::CTPPSPixelFittedRecHit>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<io_v1::CTPPSPixelFittedRecHit>>"/>
+  <class name="std::vector<edm::DetSet<io_v1::CTPPSPixelFittedRecHit> >"/>
+  <class name="edm::DetSet<io_v1::CTPPSPixelFittedRecHit>"/>
+  <class name="std::vector<io_v1::CTPPSPixelFittedRecHit>"/>
+  <class name="io_v1::CTPPSPixelFittedRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="4095907278"/>
   </class>
 
 <!-- common objects -->
 
-  <class name="CTPPSLocalTrackLite" ClassVersion="5">
-    <version ClassVersion="3" checksum="3838813906"/>
-    <version ClassVersion="4" checksum="2435718827"/>
-    <version ClassVersion="5" checksum="4235453685"/>
+  <class name="io_v1::CTPPSLocalTrackLite" ClassVersion="3">
+    <version ClassVersion="3" checksum="1223676533"/>
   </class>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="uint32_t rpId" target="rp_id_">
-  <![CDATA[rp_id_ = onfile.rpId;]]>
-  </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float x" target="x_">
-  <![CDATA[x_ = onfile.x;]]>
-  </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float x_unc" target="x_unc_">
-  <![CDATA[x_unc_ = onfile.x_unc;]]>
-  </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float y" target="y_">
-  <![CDATA[y_ = onfile.y;]]>
-  </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float y_unc" target="y_unc_">
-  <![CDATA[y_unc_ = onfile.y_unc;]]>
-  </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[4]" targetClass="CTPPSLocalTrackLite" source="float tx" target="tx_">
-  <![CDATA[tx_ = onfile.tx;]]>
-  </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[4]" targetClass="CTPPSLocalTrackLite" source="float tx_unc" target="tx_unc_">
-  <![CDATA[tx_unc_ = onfile.tx_unc;]]>
-  </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[4]" targetClass="CTPPSLocalTrackLite" source="float ty" target="ty_">
-  <![CDATA[ty_ = onfile.ty;]]>
-  </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[4]" targetClass="CTPPSLocalTrackLite" source="float ty_unc" target="ty_unc_">
-  <![CDATA[ty_unc_ = onfile.ty_unc;]]>
-  </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[4]" targetClass="CTPPSLocalTrackLite" source="float chiSquaredOverNDF" target="chi2_norm_">
-  <![CDATA[chi2_norm_ = onfile.chiSquaredOverNDF;]]>
-  </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[4]" targetClass="CTPPSLocalTrackLite" source="CTPPSpixelLocalTrackReconstructionInfo pixelTrack_reco_info" target="pixel_track_reco_info_">
-  <![CDATA[pixel_track_reco_info_ = onfile.pixelTrack_reco_info;]]>
-  </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[4]" targetClass="CTPPSLocalTrackLite" source="unsigned short numberOfPointsUsedForFit" target="num_points_fit_">
-  <![CDATA[num_points_fit_ = onfile.numberOfPointsUsedForFit;]]>
-  </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float time" target="time_">
-  <![CDATA[time_ = onfile.time;]]>
-  </ioread>
-  <ioread sourceClass="CTPPSLocalTrackLite" version="[3-4]" targetClass="CTPPSLocalTrackLite" source="float time_unc" target="time_unc_">
-  <![CDATA[time_unc_ = onfile.time_unc;]]>
-  </ioread>
-  <class name="std::vector<CTPPSLocalTrackLite>"/>
-  <class name="edm::Wrapper<CTPPSLocalTrackLite>"/>
-  <class name="edm::Wrapper<std::vector<CTPPSLocalTrackLite>>"/>
-  <class name="edm::RefProd<std::vector<CTPPSLocalTrackLite> >"/>
-  <class name="edm::Ref<std::vector<CTPPSLocalTrackLite>,CTPPSLocalTrackLite,edm::refhelper::FindUsingAdvance<std::vector<CTPPSLocalTrackLite>,CTPPSLocalTrackLite> >"/>
-  <class name="edm::RefVector<vector<CTPPSLocalTrackLite>,CTPPSLocalTrackLite,edm::refhelper::FindUsingAdvance<vector<CTPPSLocalTrackLite>,CTPPSLocalTrackLite> >"/>
+  <class name="std::vector<io_v1::CTPPSLocalTrackLite>"/>
+  <class name="edm::Wrapper<io_v1::CTPPSLocalTrackLite>"/>
+  <class name="edm::Wrapper<std::vector<io_v1::CTPPSLocalTrackLite>>"/>
+  <class name="edm::RefProd<std::vector<io_v1::CTPPSLocalTrackLite> >"/>
+  <class name="edm::Ref<std::vector<io_v1::CTPPSLocalTrackLite>,io_v1::CTPPSLocalTrackLite,edm::refhelper::FindUsingAdvance<std::vector<io_v1::CTPPSLocalTrackLite>,io_v1::CTPPSLocalTrackLite> >"/>
+  <class name="edm::RefVector<vector<io_v1::CTPPSLocalTrackLite>,io_v1::CTPPSLocalTrackLite,edm::refhelper::FindUsingAdvance<vector<io_v1::CTPPSLocalTrackLite>,io_v1::CTPPSLocalTrackLite> >"/>
 </lcgdict>
 

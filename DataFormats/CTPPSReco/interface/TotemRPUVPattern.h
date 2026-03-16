@@ -20,45 +20,47 @@
  * The global coordinate system is used (wrt. the beam). This is the same convention
  * as for the 1-RP track fits.
  **/
-class TotemRPUVPattern {
-public:
-  enum ProjectionType { projInvalid, projU, projV };
+namespace io_v1 {
+  class TotemRPUVPattern {
+  public:
+    enum ProjectionType { projInvalid, projU, projV };
 
-  TotemRPUVPattern() : projection_(projInvalid), a_(0.), b_(0.), w_(0.), fittable_(false) {}
+    TotemRPUVPattern() : projection_(projInvalid), a_(0.), b_(0.), w_(0.), fittable_(false) {}
 
-  ProjectionType projection() const { return projection_; }
-  void setProjection(ProjectionType type) { projection_ = type; }
+    ProjectionType projection() const { return projection_; }
+    void setProjection(ProjectionType type) { projection_ = type; }
 
-  double a() const { return a_; }
-  void setA(double a) { a_ = a; }
+    double a() const { return a_; }
+    void setA(double a) { a_ = a; }
 
-  double b() const { return b_; }
-  void setB(double b) { b_ = b; }
+    double b() const { return b_; }
+    void setB(double b) { b_ = b; }
 
-  double w() const { return w_; }
-  void setW(double w) { w_ = w; }
+    double w() const { return w_; }
+    void setW(double w) { w_ = w; }
 
-  bool fittable() const { return fittable_; }
-  void setFittable(bool fittable) { fittable_ = fittable; }
+    bool fittable() const { return fittable_; }
+    void setFittable(bool fittable) { fittable_ = fittable; }
 
-  void addHit(edm::det_id_type detId, const TotemRPRecHit &hit) { hits_.find_or_insert(detId).push_back(hit); }
+    void addHit(edm::det_id_type detId, const TotemRPRecHit &hit) { hits_.find_or_insert(detId).push_back(hit); }
 
-  const edm::DetSetVector<TotemRPRecHit> &hits() const { return hits_; }
+    const edm::DetSetVector<TotemRPRecHit> &hits() const { return hits_; }
 
-  friend bool operator<(const TotemRPUVPattern &l, const TotemRPUVPattern &r);
+    friend bool operator<(const TotemRPUVPattern &l, const TotemRPUVPattern &r);
 
-private:
-  ProjectionType projection_;  ///< projection
-  double a_;                   ///< slope in rad
-  double b_;                   ///< intercept in mm
-  double w_;                   ///< weight
-  bool fittable_;              ///< whether this pattern is worth including in track fits
+  private:
+    ProjectionType projection_;  ///< projection
+    double a_;                   ///< slope in rad
+    double b_;                   ///< intercept in mm
+    double w_;                   ///< weight
+    bool fittable_;              ///< whether this pattern is worth including in track fits
 
-  edm::DetSetVector<TotemRPRecHit> hits_;  ///< hits associated with the pattern
-};
+    edm::DetSetVector<TotemRPRecHit> hits_;  ///< hits associated with the pattern
+  };
 
-//----------------------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------------------------------
 
-extern bool operator<(const TotemRPUVPattern &l, const TotemRPUVPattern &r);
-
+  extern bool operator<(const TotemRPUVPattern &l, const TotemRPUVPattern &r);
+}  // namespace io_v1
+using TotemRPUVPattern = io_v1::TotemRPUVPattern;
 #endif
