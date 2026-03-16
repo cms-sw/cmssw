@@ -1231,9 +1231,11 @@ class ConfigBuilder(object):
 
         # fastsim requires some changes to the default cff files and sequences
         if self._options.fast:
-            # always use reco geometry
+            # always use reco geometry for xml (includes sim components)
             if 'Reco' not in self.GeometryCFF and 'DB' not in self.GeometryCFF:
                 self.GeometryCFF = self.GeometryCFF.replace("_cff","Reco_cff")
+            if 'DB' in self.GeometryCFF:
+                self.GeometryCFF = 'Configuration/StandardSequences/GeometryDB_cff'
             self.GeometryCFF = [self.GeometryCFF]
 
             if 'DB' in self.GeometryCFF[0]:
