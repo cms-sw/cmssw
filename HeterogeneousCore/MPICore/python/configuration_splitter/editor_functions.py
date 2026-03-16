@@ -128,14 +128,21 @@ def create_sender(
     sender_products = make_sender_patterns(module_name, products)
 
     if path_state_capture is not None:
-        sender_products.append(f"*_{path_state_capture}__*".replace(" ", ""))
-
-    sender = cms.EDProducer(
-        "MPISender",
-        upstream=cms.InputTag(sender_upstream),
-        instance=cms.int32(instance),
-        products=cms.vstring(*sender_products),
-    )
+        activity = cms.string(f"*_{path_state_capture}__*".replace(" ", ""))
+        sender = cms.EDProducer(
+            "MPISender",
+            upstream=cms.InputTag(sender_upstream),
+            instance=cms.int32(instance),
+            products=cms.vstring(*sender_products),
+            activity=activity,
+        )
+    else:
+        sender = cms.EDProducer(
+            "MPISender",
+            upstream=cms.InputTag(sender_upstream),
+            instance=cms.int32(instance),
+            products=cms.vstring(*sender_products),
+        )
 
     return sender
 
@@ -155,14 +162,21 @@ def create_group_sender(
         sender_products.extend(make_sender_patterns(offloaded_module, all_products[offloaded_module]))
 
     if path_state_capture is not None:
-        sender_products.append(f"*_{path_state_capture}__*".replace(" ", ""))
-
-    sender = cms.EDProducer(
-        "MPISender",
-        upstream=cms.InputTag(upstream_module),
-        instance=cms.int32(instance),
-        products=cms.vstring(*sender_products),
-    )
+        activity = cms.string(f"*_{path_state_capture}__*".replace(" ", ""))
+        sender = cms.EDProducer(
+            "MPISender",
+            upstream=cms.InputTag(upstream_module),
+            instance=cms.int32(instance),
+            products=cms.vstring(*sender_products),
+            activity=activity,
+        )
+    else:
+        sender = cms.EDProducer(
+            "MPISender",
+            upstream=cms.InputTag(upstream_module),
+            instance=cms.int32(instance),
+            products=cms.vstring(*sender_products),
+        )
 
     return sender
 
@@ -181,19 +195,12 @@ def create_group_receiver(
     for offloaded_module in group:
         receiver_products.extend(make_grouped_receiver_psets(all_products[offloaded_module]))
 
-    if path_state_capture:
-        receiver_products.append(
-            cms.PSet(
-                type=cms.string("edm::PathStateToken"),
-                label=cms.string(""),
-            )
-        )
-
     receiver = cms.EDProducer(
         "MPIReceiver",
         upstream=cms.InputTag(receiver_upstream),
         instance=cms.int32(instance),
         products=cms.VPSet(*receiver_products),
+        activity=cms.bool(path_state_capture),
     )
 
     return receiver
@@ -210,19 +217,12 @@ def create_receiver(
     """
     receiver_products = make_receiver_psets(products)
 
-    if path_state_capture:
-        receiver_products.append(
-            cms.PSet(
-                type=cms.string("edm::PathStateToken"),
-                label=cms.string(""),
-            )
-        )
-
     receiver = cms.EDProducer(
         "MPIReceiver",
         upstream=cms.InputTag(receiver_upstream),
         instance=cms.int32(instance),
         products=cms.VPSet(*receiver_products),
+        activity=cms.bool(path_state_capture),
     )
 
     return receiver
