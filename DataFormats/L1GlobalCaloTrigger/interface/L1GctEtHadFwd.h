@@ -1,6 +1,9 @@
 #ifndef DataFormats_L1GlobalCaloTrigger_L1GctEtHadFwd_h
 #define DataFormats_L1GlobalCaloTrigger_L1GctEtHadFwd_h
 
-class L1GctEtHad;
+namespace io_v1 {
+  class L1GctEtHad;
+}
+using L1GctEtHad = io_v1::L1GctEtHad;
 
 #endif

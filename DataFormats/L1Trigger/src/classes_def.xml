@@ -135,24 +135,24 @@
   <class name="edm::Wrapper<l1t::CaloSpareBxCollection>"/>
 
   <class name="l1extra::L1EmParticle" ClassVersion="3">
-   <version ClassVersion="3" checksum="1758571202"/>
+   <version ClassVersion="3" checksum="2885876978"/>
   </class>
   <class name="l1extra::L1JetParticle" ClassVersion="3">
-   <version ClassVersion="3" checksum="3147792133"/>
+   <version ClassVersion="3" checksum="2662336813"/>
   </class>
   <class name="l1extra::L1MuonParticle" ClassVersion="3">
    <version ClassVersion="3" checksum="2101229128"/>
   </class>
   <class name="l1extra::L1EtMissParticle" ClassVersion="3">
-   <version ClassVersion="3" checksum="878707437"/>
+   <version ClassVersion="3" checksum="2918830125"/>
   </class>
   <class name="l1extra::L1ParticleMap" ClassVersion="11">
    <version ClassVersion="11" checksum="3029280877"/>
    <field name="indexCombosState_" transient="true"/>
    <version ClassVersion="10" checksum="72905536"/>
   </class>
-  <class name="l1extra::L1HFRings" ClassVersion="10">
-   <version ClassVersion="10" checksum="3430623962"/>
+  <class name="l1extra::L1HFRings" ClassVersion="3">
+   <version ClassVersion="3" checksum="2328198394"/>
   </class>
   <class name="std::vector<l1extra::L1EmParticle>"/>
   <class name="std::vector<l1extra::L1JetParticle>"/>

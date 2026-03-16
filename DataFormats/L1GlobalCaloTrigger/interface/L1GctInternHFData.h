@@ -13,123 +13,125 @@
 /// Will store 4 sums/counts of up to 8 bits each
 ///
 
-class L1GctInternHFData {
-public:
-  /// et sum type - not clear this is required
-  enum L1GctInternHFDataType {
-    null,
-    conc_hf_ring_et_sums,
-    conc_hf_bit_counts,
-    wheel_hf_ring_et_sums,
-    wheel_hf_bit_counts
-  };
+namespace io_v1 {
+  class L1GctInternHFData {
+  public:
+    /// et sum type - not clear this is required
+    enum L1GctInternHFDataType {
+      null,
+      conc_hf_ring_et_sums,
+      conc_hf_bit_counts,
+      wheel_hf_ring_et_sums,
+      wheel_hf_bit_counts
+    };
 
-  /// default constructor (for vector initialisation etc.)
-  L1GctInternHFData();
+    /// default constructor (for vector initialisation etc.)
+    L1GctInternHFData();
 
-  /// destructor
-  ~L1GctInternHFData();
+    /// destructor
+    ~L1GctInternHFData();
 
-  static L1GctInternHFData fromConcRingSums(const uint16_t capBlock,
-                                            const uint16_t capIndex,
-                                            const int16_t bx,
-                                            const uint32_t data);
-
-  static L1GctInternHFData fromConcBitCounts(const uint16_t capBlock,
-                                             const uint16_t capIndex,
-                                             const int16_t bx,
-                                             const uint32_t data);
-
-  static L1GctInternHFData fromWheelRingSums(const uint16_t capBlock,
-                                             const uint16_t capIndex,
-                                             const int16_t bx,
-                                             const uint32_t data);
-
-  static L1GctInternHFData fromWheelBitCounts(const uint16_t capBlock,
+    static L1GctInternHFData fromConcRingSums(const uint16_t capBlock,
                                               const uint16_t capIndex,
                                               const int16_t bx,
                                               const uint32_t data);
 
-  /// metadata
+    static L1GctInternHFData fromConcBitCounts(const uint16_t capBlock,
+                                               const uint16_t capIndex,
+                                               const int16_t bx,
+                                               const uint32_t data);
 
-  /// 'type' of object
-  L1GctInternHFData::L1GctInternHFDataType type() const { return type_; }
+    static L1GctInternHFData fromWheelRingSums(const uint16_t capBlock,
+                                               const uint16_t capIndex,
+                                               const int16_t bx,
+                                               const uint32_t data);
 
-  /// get capture block
-  uint16_t capBlock() const { return capBlock_; }
+    static L1GctInternHFData fromWheelBitCounts(const uint16_t capBlock,
+                                                const uint16_t capIndex,
+                                                const int16_t bx,
+                                                const uint32_t data);
 
-  /// get index within capture block
-  uint16_t capIndex() const { return capIndex_; }
+    /// metadata
 
-  /// get BX number
-  int16_t bx() const { return bx_; }
+    /// 'type' of object
+    L1GctInternHFData::L1GctInternHFDataType type() const { return type_; }
 
-  /// is the sum non-zero
-  bool empty() const { return (data_ == 0); }
+    /// get capture block
+    uint16_t capBlock() const { return capBlock_; }
 
-  /// get the actual data
+    /// get index within capture block
+    uint16_t capIndex() const { return capIndex_; }
 
-  /// is this ring sums or bit counts?
-  bool isRingSums() const { return (type_ == conc_hf_ring_et_sums || type_ == wheel_hf_ring_et_sums); }
+    /// get BX number
+    int16_t bx() const { return bx_; }
 
-  /// get the raw data
-  uint32_t raw() const { return data_; }
+    /// is the sum non-zero
+    bool empty() const { return (data_ == 0); }
 
-  /// get value
-  uint16_t value(unsigned i) const;
+    /// get the actual data
 
-  /// get the et sums
-  uint16_t et(unsigned i) const;
+    /// is this ring sums or bit counts?
+    bool isRingSums() const { return (type_ == conc_hf_ring_et_sums || type_ == wheel_hf_ring_et_sums); }
 
-  /// get the counts
-  uint16_t count(unsigned i) const;
+    /// get the raw data
+    uint32_t raw() const { return data_; }
 
-  // setters
+    /// get value
+    uint16_t value(unsigned i) const;
 
-  /// set cap block
-  void setCapBlock(uint16_t const capBlock) { capBlock_ = capBlock; }
+    /// get the et sums
+    uint16_t et(unsigned i) const;
 
-  /// set cap index
-  void setCapIndex(uint16_t const capIndex) { capIndex_ = capIndex; }
+    /// get the counts
+    uint16_t count(unsigned i) const;
 
-  /// set bx
-  void setBx(int16_t const bx) { bx_ = bx; }
+    // setters
 
-  /// set type
-  void setType(L1GctInternHFDataType type) { type_ = type; }
+    /// set cap block
+    void setCapBlock(uint16_t const capBlock) { capBlock_ = capBlock; }
 
-  /// set value
-  void setValue(unsigned const i, uint16_t const val);
+    /// set cap index
+    void setCapIndex(uint16_t const capIndex) { capIndex_ = capIndex; }
 
-  /// set the sum
-  void setEt(unsigned const i, uint16_t const et);
+    /// set bx
+    void setBx(int16_t const bx) { bx_ = bx; }
 
-  /// set the count
-  void setCount(unsigned const i, uint16_t const count);
+    /// set type
+    void setType(L1GctInternHFDataType type) { type_ = type; }
 
-  void setData(uint32_t const data) { data_ = data; }
+    /// set value
+    void setValue(unsigned const i, uint16_t const val);
 
-  /// operators
+    /// set the sum
+    void setEt(unsigned const i, uint16_t const et);
 
-  /// equality operator
-  bool operator==(const L1GctInternHFData& c) const;
+    /// set the count
+    void setCount(unsigned const i, uint16_t const count);
 
-  /// inequality operator
-  bool operator!=(const L1GctInternHFData& c) const { return !(*this == c); }
+    void setData(uint32_t const data) { data_ = data; }
 
-private:
-  // type of data
-  L1GctInternHFDataType type_;
+    /// operators
 
-  // source of the data
-  uint16_t capBlock_;
-  uint16_t capIndex_;
-  int16_t bx_;
+    /// equality operator
+    bool operator==(const L1GctInternHFData& c) const;
 
-  // the captured data
-  uint32_t data_;
-};
+    /// inequality operator
+    bool operator!=(const L1GctInternHFData& c) const { return !(*this == c); }
 
-std::ostream& operator<<(std::ostream& s, const L1GctInternHFData& cand);
+  private:
+    // type of data
+    L1GctInternHFDataType type_;
 
+    // source of the data
+    uint16_t capBlock_;
+    uint16_t capIndex_;
+    int16_t bx_;
+
+    // the captured data
+    uint32_t data_;
+  };
+
+  std::ostream& operator<<(std::ostream& s, const L1GctInternHFData& cand);
+}  // namespace io_v1
+using L1GctInternHFData = io_v1::L1GctInternHFData;
 #endif
