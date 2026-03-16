@@ -35,6 +35,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCountsFwd.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFBitCountsFwd.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctHFRingEtSumsFwd.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCandFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecordFwd.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -49,7 +50,6 @@
 #include <cstdint>
 
 // forward declarations
-class L1GctCand;
 
 // class declaration
 class L1GlobalTriggerPSB {
