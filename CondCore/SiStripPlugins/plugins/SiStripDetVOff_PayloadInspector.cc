@@ -56,10 +56,11 @@ namespace {
     SiStripDetVOff_TrackerMapBase() : PlotImage<SiStripDetVOff, SINGLE_IOV>("Tracker Map: Is Module VOff") {}
 
     bool fill() override {
-      auto tag = PlotBase::getTag<0>();
-      auto iov = tag.iovs.front();
-      auto tagname = tag.name;
-      unsigned long IOVsince = std::get<0>(iov);
+      const auto& tag = PlotBase::getTag<0>();
+      cond::Tag_t tagInfo = PlotBase::getTagInfo(tag.name);
+      const auto& iov = tag.iovs.front();
+      const auto& tagname = tag.name;
+      const auto& IOVsince = std::get<0>(iov);
       std::shared_ptr<SiStripDetVOff> payload = fetchPayload(std::get<1>(iov));
 
       std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripIsModuleVOff");
@@ -68,16 +69,18 @@ namespace {
 
       switch (my_type) {
         case SiStripDetVOffPI::t_LV: {
-          titleMap = fmt::sprintf("TrackerMap of LV VOff modules | Tag: %s | IOV: %s", tagname, getIOVsince(IOVsince));
+          titleMap = fmt::sprintf(
+              "TrackerMap of LV VOff modules | Tag: %s | IOV: %s", tagname, getIOVsince(tagInfo, IOVsince));
           break;
         }
         case SiStripDetVOffPI::t_HV: {
-          titleMap = fmt::sprintf("TrackerMap of HV VOff modules | Tag: %s | IOV: %s", tagname, getIOVsince(IOVsince));
+          titleMap = fmt::sprintf(
+              "TrackerMap of HV VOff modules | Tag: %s | IOV: %s", tagname, getIOVsince(tagInfo, IOVsince));
           break;
         }
         case SiStripDetVOffPI::t_V: {
-          titleMap =
-              fmt::sprintf("TrackerMap of VOff modules (HV or LV) | Tag: %s | IOV: %s", tagname, getIOVsince(IOVsince));
+          titleMap = fmt::sprintf(
+              "TrackerMap of VOff modules (HV or LV) | Tag: %s | IOV: %s", tagname, getIOVsince(tagInfo, IOVsince));
           break;
         }
         default:
@@ -106,21 +109,33 @@ namespace {
     }
 
   private:
-    const char* getIOVsince(const unsigned long IOV) {
-      int run = 0;
+    const char* getIOVsince(const cond::Tag_t& tagInfo, cond::Time_t IOV) {
       static char buf[256];
+      buf[0] = '\0';
 
-      if (IOV < 4294967296) {  // run type IOV
-        run = IOV;
-        std::sprintf(buf, "%d", run);
-      } else {  // time type IOV
-        run = IOV >> 32;
-        time_t t = run;
+      if (tagInfo.timeType == cond::runnumber) {
+        unsigned int run = static_cast<unsigned int>(IOV);
+        std::snprintf(buf, sizeof(buf), "%u", run);
+      }
+
+      else if (tagInfo.timeType == cond::lumiid) {
+        unsigned int run = IOV >> 32;
+        unsigned int lumi = IOV & 0xFFFFFFFF;
+        std::snprintf(buf, sizeof(buf), "%u:%u", run, lumi);
+      }
+
+      else if (tagInfo.timeType == cond::timestamp) {
+        time_t t = IOV >> 32;  // seconds part
         struct tm lt;
         localtime_r(&t, &lt);
-        strftime(buf, sizeof(buf), "%F %R:%S", &lt);
-        buf[sizeof(buf) - 1] = 0;
+        strftime(buf, sizeof(buf), "%F %T", &lt);
       }
+
+      else {
+        std::snprintf(buf, sizeof(buf), "%llu", (unsigned long long)IOV);
+      }
+
+      buf[sizeof(buf) - 1] = 0;
       return buf;
     }
   };
@@ -449,7 +464,7 @@ namespace {
   /************************************************
    TrackerMap of difference per Module L- H- L||V Voff
   *************************************************/
-  template <int ntags, IOVMultiplicity nIOVs>
+  template <int ntags, IOVMultiplicity nIOVs, SiStripDetVOffPI::type my_type>
   class SiStripDetVOffComparisonTrackerMapBase : public PlotImage<SiStripDetVOff, nIOVs, ntags> {
   public:
     SiStripDetVOffComparisonTrackerMapBase()
@@ -457,18 +472,21 @@ namespace {
 
     bool fill() override {
       // trick to deal with the multi-ioved tag and two tag case at the same time
-      auto theIOVs = PlotBase::getTag<0>().iovs;
-      auto tagname1 = PlotBase::getTag<0>().name;
+      const auto& theIOVs = PlotBase::getTag<0>().iovs;
+      const auto& tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
-      auto firstiov = theIOVs.front();
+      cond::Tag_t tagInfo1 = PlotBase::getTagInfo(tagname1);
+      cond::Tag_t tagInfo2 = tagInfo1;
+      const auto& firstiov = theIOVs.front();
       std::tuple<cond::Time_t, cond::Hash> lastiov;
 
       // we don't support (yet) comparison with more than 2 tags
       assert(this->m_plotAnnotations.ntags < 3);
 
       if (this->m_plotAnnotations.ntags == 2) {
-        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        const auto& tag2iovs = PlotBase::getTag<1>().iovs;
         tagname2 = PlotBase::getTag<1>().name;
+        tagInfo2 = PlotBase::getTagInfo(tagname2);
         lastiov = tag2iovs.front();
       } else {
         lastiov = theIOVs.back();
@@ -480,14 +498,16 @@ namespace {
       if (!payload1 || !payload2)
         return false;
 
-      std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
-      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+      const auto& lastIOVsince = std::get<0>(lastiov);
+      const auto& firstIOVsince = std::get<0>(firstiov);
 
       std::stringstream title;
-      title << "SiStripDetVOff comparison\n"
-            << "IOV " << firstIOVsince << " -> " << lastIOVsince;
+      title << "SiStripDetVOff comparison (" << typeLabel(my_type) << ")\n"
+            << " IOV " << getIOVsince(tagInfo1, firstIOVsince) << " -> " << getIOVsince(tagInfo2, lastIOVsince);
 
       std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>(title.str());
+      // change color background
+      tmap->setBackgroundColor(30);
 
       //---------------------------------------
       // build union of detids
@@ -521,9 +541,28 @@ namespace {
       // loop modules
       //---------------------------------------
 
+      bool off1, off2;
       for (auto detid : detids) {
-        bool off1 = payload1->IsModuleVOff(detid);
-        bool off2 = payload2->IsModuleVOff(detid);
+        switch (my_type) {
+          case SiStripDetVOffPI::t_LV: {
+            off1 = payload1->IsModuleLVOff(detid);
+            off2 = payload2->IsModuleLVOff(detid);
+            break;
+          }
+          case SiStripDetVOffPI::t_HV: {
+            off1 = payload1->IsModuleHVOff(detid);
+            off2 = payload2->IsModuleHVOff(detid);
+            break;
+          }
+          case SiStripDetVOffPI::t_V: {
+            off1 = payload1->IsModuleVOff(detid);
+            off2 = payload2->IsModuleVOff(detid);
+            break;
+          }
+          default:
+            edm::LogError("SiStripDetVOffComparisonTrackerMapBase") << "Unrecognized type: " << my_type << std::endl;
+            break;
+        }
 
         float value = 0;
 
@@ -591,21 +630,70 @@ namespace {
       // save
       //---------------------------------------
 
-      std::string fileName = "SiStripDetVOffComparisonTrackerMap.png";
-
-      tmap->setPalette(1);  // after setting palette ensure background not cyan
-      gStyle->SetCanvasColor(kWhite);
-      
+      std::string fileName(this->m_imageFileName);
       tmap->save(true, 0, 0, fileName);
-
-      this->m_imageFileName = fileName;
 
       return true;
     }
+
+  private:
+    const char* getIOVsince(const cond::Tag_t& tagInfo, cond::Time_t IOV) {
+      static char buf[256];
+      buf[0] = '\0';
+
+      if (tagInfo.timeType == cond::runnumber) {
+        unsigned int run = static_cast<unsigned int>(IOV);
+        std::snprintf(buf, sizeof(buf), "%u", run);
+      }
+
+      else if (tagInfo.timeType == cond::lumiid) {
+        unsigned int run = IOV >> 32;
+        unsigned int lumi = IOV & 0xFFFFFFFF;
+        std::snprintf(buf, sizeof(buf), "%u:%u", run, lumi);
+      }
+
+      else if (tagInfo.timeType == cond::timestamp) {
+        time_t t = IOV >> 32;  // seconds part
+        struct tm lt;
+        localtime_r(&t, &lt);
+        strftime(buf, sizeof(buf), "%F %T", &lt);
+      }
+
+      else {
+        std::snprintf(buf, sizeof(buf), "%llu", (unsigned long long)IOV);
+      }
+
+      buf[sizeof(buf) - 1] = 0;
+      return buf;
+    }
+
+    constexpr const char* typeLabel(SiStripDetVOffPI::type t) {
+      switch (t) {
+        case SiStripDetVOffPI::t_LV:
+          return "LV";
+        case SiStripDetVOffPI::t_HV:
+          return "HV";
+        case SiStripDetVOffPI::t_V:
+          return "LV OR HV";
+      }
+      return "";
+    }
   };
 
-  using SiStripDetVOffComparisonTrackerMapSingleTag = SiStripDetVOffComparisonTrackerMapBase<1, MULTI_IOV>;
-  using SiStripDetVOffComparisonTrackerMapTwoTags = SiStripDetVOffComparisonTrackerMapBase<2, SINGLE_IOV>;
+  using SiStripDetLVOffComparisonTrackerMapSingleTag =
+      SiStripDetVOffComparisonTrackerMapBase<1, MULTI_IOV, SiStripDetVOffPI::t_LV>;
+  using SiStripDetLVOffComparisonTrackerMapTwoTags =
+      SiStripDetVOffComparisonTrackerMapBase<2, SINGLE_IOV, SiStripDetVOffPI::t_LV>;
+
+  using SiStripDetHVOffComparisonTrackerMapSingleTag =
+      SiStripDetVOffComparisonTrackerMapBase<1, MULTI_IOV, SiStripDetVOffPI::t_HV>;
+  using SiStripDetHVOffComparisonTrackerMapTwoTags =
+      SiStripDetVOffComparisonTrackerMapBase<2, SINGLE_IOV, SiStripDetVOffPI::t_HV>;
+
+  using SiStripDetVOffComparisonTrackerMapSingleTag =
+      SiStripDetVOffComparisonTrackerMapBase<1, MULTI_IOV, SiStripDetVOffPI::t_V>;
+  using SiStripDetVOffComparisonTrackerMapTwoTags =
+      SiStripDetVOffComparisonTrackerMapBase<2, SINGLE_IOV, SiStripDetVOffPI::t_V>;
 
 }  // namespace
 
@@ -620,6 +708,10 @@ PAYLOAD_INSPECTOR_MODULE(SiStripDetVOff) {
   PAYLOAD_INSPECTOR_CLASS(SiStripLVOffListOfModules);
   PAYLOAD_INSPECTOR_CLASS(SiStripHVOffListOfModules);
   PAYLOAD_INSPECTOR_CLASS(SiStripDetVOffByRegion);
+  PAYLOAD_INSPECTOR_CLASS(SiStripDetLVOffComparisonTrackerMapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripDetLVOffComparisonTrackerMapTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripDetHVOffComparisonTrackerMapSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripDetHVOffComparisonTrackerMapTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiStripDetVOffComparisonTrackerMapSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiStripDetVOffComparisonTrackerMapTwoTags);
 }
