@@ -1,16 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-# This is an ugly hack (but better what was before) to record if the
-# loadDigiAliases() was called with premixing or not. Unfortunately
-# which alias to use depends on that. If we had a premixing Modifier,
-# this hack would not be needed.
-_loadDigiAliasesWasCalledPremix = None
-
-def loadGeneralTracksAlias(process):
-    if _loadDigiAliasesWasCalledPremix is None:
-        raise Exception("This function may be called only after loadDigiAliases() has been called")
-
-    nopremix = not _loadDigiAliasesWasCalledPremix
+def loadGeneralTracksAlias(process, premix=False):
+    nopremix = not premix
     process.generalTracks = cms.EDAlias(
         **{"mix" if nopremix else "mixData" :
            cms.VPSet(
@@ -35,8 +26,6 @@ def loadGeneralTracksAlias(process):
 
 def loadDigiAliases(process, premix=False):
     nopremix = not premix
-    global _loadDigiAliasesWasCalledPremix
-    _loadDigiAliasesWasCalledPremix = premix
 
     process.ecalPreshowerDigis = cms.EDAlias(
         **{"simEcalPreshowerDigis" if nopremix else "DMEcalPreshowerDigis" :
