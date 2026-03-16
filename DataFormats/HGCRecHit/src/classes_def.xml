@@ -9,38 +9,35 @@
   <class name="edm::RefVector<edm::SortedCollection<HGCUncalibratedRecHit,edm::StrictWeakOrdering<HGCUncalibratedRecHit> >,HGCUncalibratedRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HGCUncalibratedRecHit,edm::StrictWeakOrdering<HGCUncalibratedRecHit> >,HGCUncalibratedRecHit> >"/>
   <class name="edm::RefProd<edm::SortedCollection<HGCUncalibratedRecHit,edm::StrictWeakOrdering<HGCUncalibratedRecHit> > >"/>
 
-  <class name="HGCRecHit" ClassVersion="14">
-   <version ClassVersion="14" checksum="1119576013"/>
-   <version ClassVersion="13" checksum="311955435"/>
-   <version ClassVersion="12" checksum="3568613480"/>
-   <version ClassVersion="11" checksum="3873633606"/>
+  <class name="io_v1::HGCRecHit" ClassVersion="3">
+   <version ClassVersion="3" checksum="446332237"/>
   </class>
-  <class name="std::vector<HGCRecHit>"/>
-  <class name="edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> >"/>
-  <class name="edm::Wrapper<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> > >" />
-  <class name="edm::Ref<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> >,HGCRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> >,HGCRecHit> >"/>
-  <class name="edm::RefVector<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> >,HGCRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> >,HGCRecHit> >"/>
-  <class name="edm::RefProd<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> > >"/>
-  <class name="edm::Wrapper<std::vector<edm::RefProd<std::vector<HGCRecHit> > > >"/>
-  <class name="edm::Wrapper<std::vector<HGCRecHit>>"/>
+  <class name="std::vector<io_v1::HGCRecHit>"/>
+  <class name="edm::SortedCollection<io_v1::HGCRecHit,edm::StrictWeakOrdering<io_v1::HGCRecHit> >"/>
+  <class name="edm::Wrapper<edm::SortedCollection<io_v1::HGCRecHit,edm::StrictWeakOrdering<io_v1::HGCRecHit> > >" />
+  <class name="edm::Ref<edm::SortedCollection<io_v1::HGCRecHit,edm::StrictWeakOrdering<io_v1::HGCRecHit> >,io_v1::HGCRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<io_v1::HGCRecHit,edm::StrictWeakOrdering<io_v1::HGCRecHit> >,io_v1::HGCRecHit> >"/>
+  <class name="edm::RefVector<edm::SortedCollection<io_v1::HGCRecHit,edm::StrictWeakOrdering<io_v1::HGCRecHit> >,io_v1::HGCRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<io_v1::HGCRecHit,edm::StrictWeakOrdering<io_v1::HGCRecHit> >,io_v1::HGCRecHit> >"/>
+  <class name="edm::RefProd<edm::SortedCollection<io_v1::HGCRecHit,edm::StrictWeakOrdering<io_v1::HGCRecHit> > >"/>
+  <class name="edm::Wrapper<std::vector<edm::RefProd<std::vector<io_v1::HGCRecHit> > > >"/>
+  <class name="edm::Wrapper<std::vector<io_v1::HGCRecHit>>"/>
  
 
-  <class name="edm::RefProd<std::vector<HGCRecHit> >"/>
-  <class name="vector<edm::RefProd<std::vector<HGCRecHit> > >"/>
-  <class name="edm::DetSet<HGCRecHit>"/>
-  <class name="edm::DetSetVector<HGCRecHit>"/>
-  <class name="std::vector<edm::DetSet<HGCRecHit> >"/>
-  <class name="std::vector<std::vector<edm::DetSet<HGCRecHit> > >"/>
-  <class name="edm::Wrapper<edm::DetSet<HGCRecHit> >"/>
-  <class name="edm::Wrapper<std::vector<edm::DetSet<HGCRecHit> > >"/>
-  <class name="edm::Wrapper<edm::DetSetVector<HGCRecHit> >"/>
-  <class name="edm::Wrapper<std::vector<std::vector<edm::DetSet<HGCRecHit> > > >"/>
+  <class name="edm::RefProd<std::vector<io_v1::HGCRecHit> >"/>
+  <class name="vector<edm::RefProd<std::vector<io_v1::HGCRecHit> > >"/>
+  <class name="edm::DetSet<io_v1::HGCRecHit>"/>
+  <class name="edm::DetSetVector<io_v1::HGCRecHit>"/>
+  <class name="std::vector<edm::DetSet<io_v1::HGCRecHit> >"/>
+  <class name="std::vector<std::vector<edm::DetSet<io_v1::HGCRecHit> > >"/>
+  <class name="edm::Wrapper<edm::DetSet<io_v1::HGCRecHit> >"/>
+  <class name="edm::Wrapper<std::vector<edm::DetSet<io_v1::HGCRecHit> > >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<io_v1::HGCRecHit> >"/>
+  <class name="edm::Wrapper<std::vector<std::vector<edm::DetSet<io_v1::HGCRecHit> > > >"/>
 
-  <class name="edm::reftobase::Holder<CaloRecHit, edm::Ref<edm::SortedCollection<HGCRecHit, edm::StrictWeakOrdering<HGCRecHit> >, HGCRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<HGCRecHit, edm::StrictWeakOrdering<HGCRecHit> >, HGCRecHit> > >" />
+  <class name="edm::reftobase::Holder<CaloRecHit, edm::Ref<edm::SortedCollection<io_v1::HGCRecHit, edm::StrictWeakOrdering<io_v1::HGCRecHit> >, io_v1::HGCRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<io_v1::HGCRecHit, edm::StrictWeakOrdering<io_v1::HGCRecHit> >, io_v1::HGCRecHit> > >" />
   <enum name="HGCSeverityLevel::SeverityLevel"/> 
 
-  <class name="std::unordered_map<DetId,const HGCRecHit*>" persistent="false"/>
-  <class name="edm::Wrapper<std::unordered_map<DetId,const HGCRecHit*>>" persistent="false"/>
-  <class name="std::pair<const DetId,const HGCRecHit*>" />
+  <class name="std::unordered_map<DetId,const io_v1::HGCRecHit*>" persistent="false"/>
+  <class name="edm::Wrapper<std::unordered_map<DetId,const io_v1::HGCRecHit*>>" persistent="false"/>
+  <class name="std::pair<const DetId,const io_v1::HGCRecHit*>" />
   
 </lcgdict>
