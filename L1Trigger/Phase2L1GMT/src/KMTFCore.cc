@@ -648,8 +648,11 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
 
   const auto r11{stub->quality() < 6 ? pointResolutionPhiBL_[track.step() - 1]
                                      : pointResolutionPhiBH_[track.step() - 1]};
-  const double r[]{pointResolutionPhi_, 0.0, r11, 0.0, 0.0, pointResolutionz_[track.step() - 1], 0.0, 0.0, 0.0, pointResolutionkSlope_[track.step() - 1]};
-  const CovarianceMatrix4 R(r, 10);
+  const double r[]{pointResolutionPhi_, 0.0, 0.0, 0.0, 
+					0.0, r11, 0.0, 0.0, 
+					0.0, 0.0, pointResolutionz_[track.step() - 1], 0.0, 
+					0.0, 0.0, 0.0, pointResolutionkSlope_[track.step() - 1]};
+  const CovarianceMatrix4 R(r, 16);
 
   const std::vector<double>& covLine = track.covariance();
   const l1t::CovarianceMatrix5dim cov(covLine.begin(), covLine.end());
@@ -657,6 +660,7 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
   if (!S.Invert())
     return false;
   const Matrix54 Gain = cov * ROOT::Math::Transpose(H) * S;
+
 
   //track.setKalmanGain(
       //track.step(), fabs(trackK), Gain(0, 0), Gain(0, 1), Gain(1, 0), Gain(1, 1), Gain(2, 0), Gain(2, 1));
@@ -741,8 +745,10 @@ bool KMTFCore::updateOffline1D(l1t::KMTFTrack& track, const l1t::MuonStubRef& st
   H(2, 3) = 0.0;
   H(2, 4) = 1.0;
 
-  const double r[]{pointResolutionPhi_, 0.0, pointResolutionz_[track.step() - 1], 0.0, 0.0, pointResolutionkSlope_[track.step() - 1]};
-  const CovarianceMatrix3 R(r, 6);
+  const double r[]{pointResolutionPhi_, 0.0,0.0,
+					0.0,pointResolutionz_[track.step() - 1], 0.0, 
+					0.0,0.0, pointResolutionkSlope_[track.step() - 1]};
+  const CovarianceMatrix3 R(r, 9);
 
   const std::vector<double>& covLine = track.covariance();
   l1t::CovarianceMatrix5dim cov(covLine.begin(), covLine.end());
