@@ -39,11 +39,8 @@ theDigitizers = cms.PSet(
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(theDigitizers,
-    # fastsim does not model castor
-    castor = None,
     # fastsim does not digitize pixel and strip hits
     pixel = None,
-    strip = None,
     tracks = recoTrackAccumulator
 )
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
@@ -70,7 +67,8 @@ phase2_hfnose.toModify( theDigitizers,
 )
 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
-(run3_common & ~fastSim).toModify( theDigitizers, castor = None )
+# fastsim does not model castor
+(run3_common | fastSim).toModify( theDigitizers, castor = None )
 
 from SimGeneral.MixingModule.ecalTimeDigitizer_cfi import ecalTimeDigitizer
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
@@ -111,7 +109,7 @@ premix_stage2.toModify(theDigitizers,
 )
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-(phase2_tracker& ~fastSim).toModify(theDigitizers,
+(phase2_tracker | fastSim).toModify(theDigitizers,
                         strip = None)
 
 theDigitizersValid = cms.PSet(theDigitizers)

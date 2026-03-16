@@ -81,8 +81,9 @@ simAPVsaturation = cms.EDAlias(
     )
 )
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
-run3_common.toModify(simCastorDigis, mix = None)
+(run3_common | fastSim).toModify(simCastorDigis, mix = None)
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 (~phase2_hgcal).toModify(simHGCalUnsuppressedDigis, mix = None)
@@ -110,12 +111,8 @@ phase1Pixel.toModify(simSiPixelDigis, mix = _pixelCommon + [cms.PSet(type = cms.
 (phase1Pixel & runDependentForPixelVal).toModify(simSiPixelDigis, mix = _pixelCommon + [cms.PSet(type = cms.string('PixelSimHitExtraInfoedmDetSetVector'))] + [cms.PSet(type = cms.string('PixelSimHitExtraInfoLiteedmDetSetVector'))] + [cms.PSet(type = cms.string('PixelFEDChanneledmNewDetSetVector'))])
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(simSiStripDigis, mix = None)
-phase2_tracker.toModify(simAPVsaturation, mix = None)
+(phase2_tracker | fastSim).toModify(simSiStripDigis, mix = None)
+(phase2_tracker | fastSim).toModify(simAPVsaturation, mix = None)
 
 # no castor,pixel,strip digis in fastsim
-from Configuration.Eras.Modifier_fastSim_cff import fastSim
-(fastSim & ~run3_common).toModify(simCastorDigis, mix = None)
 fastSim.toModify(simSiPixelDigis, mix = None)
-(fastSim & ~phase2_tracker).toModify(simSiStripDigis, mix = None)
-(fastSim & ~phase2_tracker).toModify(simAPVsaturation, mix = None)
