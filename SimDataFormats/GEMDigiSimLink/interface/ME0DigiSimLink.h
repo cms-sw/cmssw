@@ -3,6 +3,9 @@
 
 #include "SimDataFormats/GEMDigiSimLink/interface/GEMDigiSimLink.h"
 
-typedef GEMDigiSimLink ME0DigiSimLink;
+namespace io_v1 {
+  using ME0DigiSimLink = GEMDigiSimLink;
+}  // namespace io_v1
+using ME0DigiSimLink = io_v1::ME0DigiSimLink;
 
 #endif
