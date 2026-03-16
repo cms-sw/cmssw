@@ -497,12 +497,14 @@ _PixelPairStepTask_pp_on_AA.replace(pixelPairStepHitDoublets, cms.Task(pixelPair
 #fastSim
 import FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi
 pixelPairStepMasks = FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi.maskProducerFromClusterRemover(pixelPairStepClusters)
-fastSim.toReplaceWith(PixelPairStepTask,
-                      cms.Task(pixelPairStepMasks
-                                   ,pixelPairStepTrackingRegions
-                                   ,pixelPairStepSeeds
-                                   ,pixelPairStepTrackCandidates
-                                   ,pixelPairStepTracks
-                                   ,pixelPairStepSelector
-                                   )
+_PixelPairStepTask_fastSim = cms.Task(pixelPairStepMasks
+                                     ,pixelPairStepTrackingRegions
+                                     ,pixelPairStepSeeds
+                                     ,pixelPairStepTrackCandidates
+                                     ,pixelPairStepTracks
+                                     ,pixelPairStep
 )
+_PixelPairStepTask_fastSim_phase2 = _PixelPairStepTask_fastSim.copy()
+_PixelPairStepTask_fastSim_phase2.replace(pixelPairStep, pixelPairStepSelector)
+fastSim.toReplaceWith(PixelPairStepTask, _PixelPairStepTask_fastSim)
+(fastSim & trackingPhase2PU140).toReplaceWith(PixelPairStepTask, _PixelPairStepTask_fastSim_phase2)

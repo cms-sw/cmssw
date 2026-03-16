@@ -483,9 +483,12 @@ _InitialStepTask_fastSim = cms.Task(initialStepTrackingRegions
                            ,initialStepTracks
                            ,firstStepPrimaryVerticesBeforeMixing
                            ,initialStepClassifier1,initialStepClassifier2,initialStepClassifier3
-                           ,initialStepSelector
+                           ,initialStep
                            )
+_InitialStepTask_fastSim_Phase2 = _InitialStepTask_fastSim.copy()
+_InitialStepTask_fastSim_Phase2.replace(initialStep, initialStepSelector)
 fastSim.toReplaceWith(InitialStepTask, _InitialStepTask_fastSim)
+(fastSim & trackingPhase2PU140).toReplaceWith(InitialStepTask, _InitialStepTask_fastSim_Phase2)
 
 ##
 ## Modify for the tau embedding methods reco sim step

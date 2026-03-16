@@ -472,11 +472,14 @@ HighPtTripletStepTaskSerialSync = cms.Task()
 # fast tracking mask producer 
 from FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi import maskProducerFromClusterRemover
 highPtTripletStepMasks = maskProducerFromClusterRemover(highPtTripletStepClusters)
-fastSim.toReplaceWith(HighPtTripletStepTask,
-                      cms.Task(highPtTripletStepMasks
-                               ,highPtTripletStepTrackingRegions
-                               ,highPtTripletStepSeeds
-                               ,highPtTripletStepTrackCandidates
-                               ,highPtTripletStepTracks
-                               ,highPtTripletStepSelector
-                               ) )
+_HighPtTripletStepTask_fastSim = cms.Task(highPtTripletStepMasks
+                                         ,highPtTripletStepTrackingRegions
+                                         ,highPtTripletStepSeeds
+                                         ,highPtTripletStepTrackCandidates
+                                         ,highPtTripletStepTracks
+                                         ,highPtTripletStep
+)
+_HighPtTripletStepTask_fastSim_phase2 = _HighPtTripletStepTask_fastSim.copy()
+_HighPtTripletStepTask_fastSim_phase2.replace(highPtTripletStep, highPtTripletStepSelector)
+fastSim.toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_fastSim)
+(fastSim & trackingPhase2PU140).toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_fastSim_phase2)

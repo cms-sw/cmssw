@@ -450,11 +450,14 @@ trackingPhase2PU140.toReplaceWith(LowPtTripletStepTask, _LowPtTripletStepTask_Lo
 #fastsim
 from FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi import maskProducerFromClusterRemover
 lowPtTripletStepMasks = maskProducerFromClusterRemover(lowPtTripletStepClusters)
-fastSim.toReplaceWith(LowPtTripletStepTask,
-                      cms.Task(lowPtTripletStepMasks
-                                   ,lowPtTripletStepTrackingRegions
-                                   ,lowPtTripletStepSeeds
-                                   ,lowPtTripletStepTrackCandidates
-                                   ,lowPtTripletStepTracks  
-                                   ,lowPtTripletStepSelector
-                                   ))
+_LowPtTripletStepTask_fastSim = cms.Task(lowPtTripletStepMasks
+                                        ,lowPtTripletStepTrackingRegions
+                                        ,lowPtTripletStepSeeds
+                                        ,lowPtTripletStepTrackCandidates
+                                        ,lowPtTripletStepTracks
+                                        ,lowPtTripletStep
+)
+_LowPtTripletStepTask_fastSim_phase2 = _LowPtTripletStepTask_fastSim.copy()
+_LowPtTripletStepTask_fastSim_phase2.replace(lowPtTripletStep, lowPtTripletStepSelector)
+fastSim.toReplaceWith(LowPtTripletStepTask, _LowPtTripletStepTask_fastSim)
+(fastSim & trackingPhase2PU140).toReplaceWith(LowPtTripletStepTask, _LowPtTripletStepTask_fastSim_phase2)

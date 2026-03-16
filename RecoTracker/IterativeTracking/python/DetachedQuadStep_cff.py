@@ -385,12 +385,14 @@ trackingPhase2PU140.toReplaceWith(DetachedQuadStepTask, _DetachedQuadStepTask_Ph
 #fastsim
 from FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi import maskProducerFromClusterRemover
 detachedQuadStepMasks = maskProducerFromClusterRemover(detachedQuadStepClusters)
-fastSim.toReplaceWith(DetachedQuadStepTask,
-                      cms.Task(detachedQuadStepMasks
-                               ,detachedQuadStepTrackingRegions
-                               ,detachedQuadStepSeeds
-                               ,detachedQuadStepTrackCandidates
-                               ,detachedQuadStepTracks
-                               ,detachedQuadStepSelector
-                               ,detachedQuadStep
-                               ) )
+_DetachedQuadStepTask_fastSim = cms.Task(detachedQuadStepMasks
+                                        ,detachedQuadStepTrackingRegions
+                                        ,detachedQuadStepSeeds
+                                        ,detachedQuadStepTrackCandidates
+                                        ,detachedQuadStepTracks
+                                        ,detachedQuadStep
+)
+_DetachedQuadStepTask_fastSim_phase2 = _DetachedQuadStepTask_fastSim.copy()
+_DetachedQuadStepTask_fastSim_phase2.replace(detachedQuadStep, cms.Task(detachedQuadStepSelector,detachedQuadStep))
+fastSim.toReplaceWith(DetachedQuadStepTask, _DetachedQuadStepTask_fastSim)
+(fastSim & trackingPhase2PU140).toReplaceWith(DetachedQuadStepTask, _DetachedQuadStepTask_fastSim_phase2)
