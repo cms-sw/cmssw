@@ -1,28 +1,27 @@
 <lcgdict>
- <class name="L1MuRegionalCand" ClassVersion="10">
-  <version ClassVersion="10" checksum="362725807"/>
+ <class name="io_v1::L1MuRegionalCand" ClassVersion="3">
+  <version ClassVersion="3" checksum="138311215"/>
  </class>
- <class name="std::vector<L1MuRegionalCand>"/>
- <class name="edm::Wrapper<std::vector<L1MuRegionalCand> >" splitLevel="0"/>
- <class name="L1MuGMTCand" ClassVersion="10">
-  <version ClassVersion="10" checksum="727951624"/>
+ <class name="std::vector<io_v1::L1MuRegionalCand>"/>
+ <class name="edm::Wrapper<std::vector<io_v1::L1MuRegionalCand> >" splitLevel="0"/>
+ <class name="io_v1::L1MuGMTCand" ClassVersion="3">
+  <version ClassVersion="3" checksum="3854477960"/>
  </class>
- <class name="std::vector<L1MuGMTCand>"/>
- <class name="edm::Ref<std::vector<L1MuGMTCand>,L1MuGMTCand,edm::refhelper::FindUsingAdvance<std::vector<L1MuGMTCand>,L1MuGMTCand>>"/>
- <class name="edm::Wrapper<std::vector<L1MuGMTCand> >" splitLevel="0"/>
- <class name="L1MuGMTExtendedCand" ClassVersion="11">
-  <version ClassVersion="11" checksum="2699493987"/>
-  <version ClassVersion="10" checksum="2092543389"/>
+ <class name="std::vector<io_v1::L1MuGMTCand>"/>
+ <class name="edm::Ref<std::vector<io_v1::L1MuGMTCand>,io_v1::L1MuGMTCand,edm::refhelper::FindUsingAdvance<std::vector<io_v1::L1MuGMTCand>,io_v1::L1MuGMTCand>>"/>
+ <class name="edm::Wrapper<std::vector<io_v1::L1MuGMTCand> >" splitLevel="0"/>
+ <class name="L1MuGMTExtendedCand" ClassVersion="3">
+  <version ClassVersion="3" checksum="2673907231"/>
  </class>
  <class name="std::vector<L1MuGMTExtendedCand>"/>
- <class name="L1MuGMTReadoutRecord" ClassVersion="10">
-  <version ClassVersion="10" checksum="2492432397"/>
+ <class name="L1MuGMTReadoutRecord" ClassVersion="3">
+  <version ClassVersion="3" checksum="496579533"/>
  </class>
  <class name="std::vector<L1MuGMTReadoutRecord>"/>
- <class name="L1MuGMTReadoutCollection" ClassVersion="10">
-  <version ClassVersion="10" checksum="3757645496"/>
+ <class name="io_v1::L1MuGMTReadoutCollection" ClassVersion="3">
+  <version ClassVersion="3" checksum="581696312"/>
  </class>
- <class name="edm::Wrapper<L1MuGMTReadoutCollection>" splitLevel="0"/>
- <class name="edm::RefProd<L1MuGMTReadoutCollection>"/>
+ <class name="edm::Wrapper<io_v1::L1MuGMTReadoutCollection>" splitLevel="0"/>
+ <class name="edm::RefProd<io_v1::L1MuGMTReadoutCollection>"/>
 
 </lcgdict>
