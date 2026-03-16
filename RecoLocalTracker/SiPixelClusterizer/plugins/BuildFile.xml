@@ -21,6 +21,8 @@
   <use name="FWCore/Framework"/>
   <use name="HeterogeneousCore/AlpakaCore"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
+  <!-- work around for cms-sw/cmssw#50400 -->
+  <use name="no-array-bounds-flag" for="alpaka/serial"/>
   <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>
