@@ -34,7 +34,6 @@ namespace edm {
   template <typename T>
   class WorkerT;
   class ProductRegistry;
-  class ThinnedAssociationsHelper;
   class EventForTransformer;
 
   namespace stream {
@@ -70,8 +69,6 @@ namespace edm {
       virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
       virtual void endRun(edm::Run const&, edm::EventSetup const&) {}
       virtual void endStream() {}
-
-      virtual void registerThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) {}
 
       virtual void doAcquire_(Event const&, EventSetup const&, WaitingTaskHolder&&) = 0;
       virtual size_t transformIndex_(edm::ProductDescription const& iBranch) const noexcept;

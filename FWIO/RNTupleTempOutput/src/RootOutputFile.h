@@ -83,7 +83,6 @@ namespace edm::rntuple_temp {
     std::unique_ptr<ROOT::RFieldBase> setupProcessHistoryRegistry();
     std::unique_ptr<ROOT::RFieldBase> setupProductDescriptionRegistry();
     std::unique_ptr<ROOT::RFieldBase> setupBranchIDListRegistry();
-    std::unique_ptr<ROOT::RFieldBase> setupThinnedAssociationsHelper();
     std::unique_ptr<ROOT::RFieldBase> setupProductDependencies();
     std::unique_ptr<ROOT::RFieldBase> setupProcessBlockHelper();
 
@@ -94,7 +93,6 @@ namespace edm::rntuple_temp {
     void writeProcessHistoryRegistry(ROOT::REntry&);
     void writeProductDescriptionRegistry(ROOT::REntry&, ProductRegistry const&);
     void writeBranchIDListRegistry(ROOT::REntry&);
-    void writeThinnedAssociationsHelper(ROOT::REntry&);
     void writeProductDependencies(ROOT::REntry&);
     void writeProcessBlockHelper(ROOT::REntry&);
 

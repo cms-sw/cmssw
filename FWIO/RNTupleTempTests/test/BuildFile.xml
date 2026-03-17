@@ -7,7 +7,6 @@
 <test name="TestRNTupleTempEventHistory" command="eventHistoryTest.sh"/>
 
 <test name="TestRNTupleTempDropOnInput" command="run_TestDropOnInput.sh"/>
-<test name="TestRNTupleTempThinningTests" command="run_ThinningTests.sh"/>
 
 <test name="TestRNTupleTempSeriesOfProcesses" command="run_SeriesOfProcesses.sh"/>
 

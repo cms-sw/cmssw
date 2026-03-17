@@ -1,4 +1,4 @@
-/** \class edm::ThinningProducer
+/** \class edm::TrackOfThingsProducer
 \author W. David Dagenhart, created 11 June 2014
 */
 

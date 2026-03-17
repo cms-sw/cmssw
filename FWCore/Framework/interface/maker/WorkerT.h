@@ -26,7 +26,6 @@ WorkerT: Code common to all workers.
 namespace edm {
 
   class ProductResolverIndexAndSkipBit;
-  class ThinnedAssociationsHelper;
 
   namespace eventsetup {
     struct ComponentDescription;
