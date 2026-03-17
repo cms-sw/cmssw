@@ -52,6 +52,8 @@ private:
 
   // event time buffer
   const uint32_t m_resolution;
+  const uint32_t m_skip;  // ignore events before the measurement
+  const uint32_t m_clip;  // ignore events after the measurement
   std::atomic<uint32_t> m_counter;
   tbb::concurrent_vector<std::chrono::system_clock::time_point> m_events;
   bool m_print_event_summary;
