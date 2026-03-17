@@ -162,7 +162,7 @@ namespace edm {
         unsigned int iIndex) const {
       typedef typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type
           ReturnType;
-      return *(static_cast<ReturnType const*>(m_values[I]) + iIndex);
+      return *(std::launder(static_cast<ReturnType const*>(m_values[I])) + iIndex);
     }
 
     /** Returns the beginning of the container holding all Ith data elements*/
@@ -171,7 +171,7 @@ namespace edm {
         const {
       typedef soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type> Helper;
       typedef typename Helper::Type ReturnType;
-      return std::assume_aligned<Helper::kAlignment>(static_cast<ReturnType const*>(m_values[I]));
+      return std::assume_aligned<Helper::kAlignment>(std::launder(static_cast<ReturnType const*>(m_values[I])));
     }
     /** Returns the end of the container holding all Ith data elements*/
     template <unsigned int I>
@@ -179,7 +179,7 @@ namespace edm {
         const {
       typedef typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type
           ReturnType;
-      return static_cast<ReturnType const*>(m_values[I]) + m_size;
+      return std::launder(static_cast<ReturnType const*>(m_values[I])) + m_size;
     }
 
     // ---------- member functions ---------------------------
@@ -222,7 +222,7 @@ namespace edm {
         unsigned int iIndex) {
       typedef typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type
           ReturnType;
-      return *(static_cast<ReturnType*>(m_values[I]) + iIndex);
+      return *(std::launder(static_cast<ReturnType*>(m_values[I]) + iIndex));
     }
 
     /** Returns the beginning of the container holding all Ith data elements*/
@@ -230,18 +230,14 @@ namespace edm {
     typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type* begin() {
       typedef soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type> Helper;
       typedef typename Helper::Type ReturnType;
-#if GCC_PREREQUISITE(4, 7, 0)
-      return static_cast<ReturnType*>(__builtin_assume_aligned(m_values[I], Helper::kAlignment));
-#else
-      return static_cast<ReturnType*>(m_values[I]);
-#endif
+      return std::assume_aligned<Helper::kAlignment>(std::launder(static_cast<ReturnType*>(m_values[I])));
     }
     /** Returns the end of the container holding all Ith data elements*/
     template <unsigned int I>
     typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type* end() {
       typedef typename soahelper::AlignmentHelper<typename std::tuple_element<I, std::tuple<Args...>>::type>::Type
           ReturnType;
-      return static_cast<ReturnType*>(m_values[I]) + m_size;
+      return std::launder(static_cast<ReturnType*>(m_values[I])) + m_size;
     }
 
     void swap(SoATuple<Args...>& iOther) {
