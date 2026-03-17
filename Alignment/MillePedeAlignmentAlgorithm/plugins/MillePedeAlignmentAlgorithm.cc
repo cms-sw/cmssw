@@ -742,8 +742,11 @@ void MillePedeAlignmentAlgorithm::beginLuminosityBlock(const edm::EventSetup &) 
 void MillePedeAlignmentAlgorithm::endLuminosityBlock(const edm::EventSetup &) {
   if (!runAtPCL_)
     return;
-  if (this->isMode(myMilleBit))
+  if (this->isMode(myMilleBit)) {
     theMille->flushOutputFile();
+    // GBL output has to be flushed also at end of LB - otherwise miss final LB of job.
+    theBinary.reset();
+  }
 }
 
 //____________________________________________________
