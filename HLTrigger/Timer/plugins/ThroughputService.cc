@@ -1,16 +1,23 @@
 // C++ headers
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <ctime>
+#include <iomanip>
 
 // {fmt} headers
 #include <fmt/printf.h>
 
+// ROOT headers
+#include <TLinearFitter.h>
+
 // CMSSW headers
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
 #include "HLTrigger/Timer/interface/processor_model.h"
+
 #include "ThroughputService.h"
 
 using namespace std::literals;
@@ -19,6 +26,10 @@ using namespace std::literals;
 void ThroughputService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<uint32_t>("eventRange", 10000)->setComment("Preallocate a buffer for N events");
+  desc.addUntracked<uint32_t>("eventSkip", 0)
+      ->setComment("Start measuring the throughput this many events after the start of the job");
+  desc.addUntracked<uint32_t>("eventClip", 0)
+      ->setComment("Stop measuring the throughput this many events before the end of the job");
   desc.addUntracked<uint32_t>("eventResolution", 1)->setComment("Sample the processing time every N events");
   desc.addUntracked<bool>("printEventSummary", false);
   desc.ifValue(edm::ParameterDescription<bool>("enableDQM", true, false),  // "false" means untracked
@@ -37,15 +48,21 @@ ThroughputService::ThroughputService(const edm::ParameterSet& config, edm::Activ
       m_startup(std::chrono::system_clock::now()),
       // configuration
       m_resolution(config.getUntrackedParameter<uint32_t>("eventResolution")),
+      m_skip(config.getUntrackedParameter<uint32_t>("eventSkip")),
+      m_clip(config.getUntrackedParameter<uint32_t>("eventClip")),
       m_counter(0),
-      m_events(config.getUntrackedParameter<uint32_t>("eventRange") / m_resolution),  // allocate initial size
+      m_events(),
       m_print_event_summary(config.getUntrackedParameter<bool>("printEventSummary")),
       m_enable_dqm(config.getUntrackedParameter<bool>("enableDQM")),
       m_dqm_bynproc(m_enable_dqm ? config.getUntrackedParameter<bool>("dqmPathByProcesses") : false),
       m_dqm_path(m_enable_dqm ? config.getUntrackedParameter<std::string>("dqmPath") : ""),
       m_time_range(m_enable_dqm ? config.getUntrackedParameter<double>("timeRange") : 0.),
       m_time_resolution(m_enable_dqm ? config.getUntrackedParameter<double>("timeResolution") : 0.) {
-  m_events.clear();  // erases all elements, but does not free internal arrays
+  // pre-allocate the initial buffer size
+  uint32_t range = config.getUntrackedParameter<uint32_t>("eventRange");
+  if (range > m_skip) {
+    m_events.reserve((range - m_skip) / m_resolution + 1);
+  }
   registry.watchPreallocate(this, &ThroughputService::preallocate);
   registry.watchPreGlobalBeginRun(this, &ThroughputService::preGlobalBeginRun);
   registry.watchPreSourceEvent(this, &ThroughputService::preSourceEvent);
@@ -117,44 +134,77 @@ void ThroughputService::postEvent(edm::StreamContext const& sc) {
   if (m_enable_dqm) {
     m_retired_events->Fill(interval);
   }
-  ++m_counter;
-  if (m_counter % m_resolution == 0) {
+  uint32_t event = ++m_counter;
+  if (event >= m_skip and (event - m_skip) % m_resolution == 0) {
     m_events.push_back(timestamp);
   }
 }
 
 void ThroughputService::postEndJob() {
-  if (m_counter < 2 * m_resolution) {
-    // not enough mesurements to estimate the throughput
+  // event corresponding to m_events.front()
+  uint32_t front = m_skip > 0 ? m_skip : m_resolution;
+
+  // check that there are enough events to measure the throughput
+  if (m_counter < front + 2 * m_resolution + m_clip) {
     edm::LogWarning("ThroughputService") << "Not enough events to measure the throughput with a resolution of "
                                          << m_resolution << " events";
     return;
   }
 
+  // measurement intervals
+  uint32_t steps = m_events.size() - 1;
+
+  // event corresponding to m_events.back()
+  uint32_t back = front + steps * m_resolution;
+
+  // last event to use for the measurement
+  uint32_t last = m_counter - m_clip;
+
+  // clip the last m_clip events
+  if (back > last) {
+    uint32_t size = (last - front) / m_resolution + 1;
+    assert(m_events.size() > size);
+    m_events.resize(size);
+  }
+
   edm::LogInfo info("ThroughputService");
 
+  // print the timestamps
   if (m_print_event_summary) {
     for (uint32_t i = 0; i < m_events.size(); ++i) {
-      info << std::setw(8) << (i + 1) * m_resolution << ", " << std::setprecision(6) << edm::TimeOfDay(m_events[i])
+      info << std::setw(8) << front + i * m_resolution << ", " << std::setprecision(6) << edm::TimeOfDay(m_events[i])
            << "\n";
     }
     info << '\n';
   }
 
-  // measure the time to process each block of m_resolution events
-  uint32_t blocks = m_counter / m_resolution - 1;
-  std::vector<double> delta(blocks);
-  for (uint32_t i = 0; i < blocks; ++i) {
-    delta[i] = std::chrono::duration_cast<std::chrono::duration<double>>(m_events[i + 1] - m_events[i]).count();
+  // evaluate the throughput with a least square fit to the linear formula e = a×t + b
+  uint32_t n = m_events.size();
+  std::vector<double> t(n);
+  std::vector<double> e(n);
+  for (uint32_t i = 0; i < n; ++i) {
+    t[i] = std::chrono::duration_cast<std::chrono::duration<double>>(m_events[i] - m_startup).count();
+    e[i] = front + i * m_resolution;
   }
-  // measure the average and standard deviation of the time to process m_resolution
-  double time_avg = TMath::Mean(delta.begin(), delta.begin() + blocks);
-  double time_dev = TMath::StdDev(delta.begin(), delta.begin() + blocks);
-  // compute the throughput and its standard deviation across the job
-  double throughput_avg = double(m_resolution) / time_avg;
-  double throughput_dev = double(m_resolution) * time_dev / time_avg / time_avg;
+  TLinearFitter fit(1, "pol1");
+  fit.AssignData(n, 1, t.data(), e.data());
+  fit.Eval();
+  double throughput_avg = fit.GetParameter(1);
+  double throughput_dev = fit.GetParError(1);
 
-  info << "Average throughput: " << throughput_avg << " ± " << throughput_dev << " ev/s";
+  // evaluate the throughout with a robust fit, allowing the rejection of up to 5% of outliers
+  fit.EvalRobust(0.95);
+  double robust_avg = fit.GetParameter(1);
+
+  // number of digits to use, depending on the accurracy of the measurment
+  int precision = 2;
+  if (throughput_dev > 0) {
+    int digit = std::log10(throughput_dev);
+    precision = std::max(2, 2 - digit);
+  }
+
+  info << std::fixed << std::setprecision(precision) << "Average throughput: " << throughput_avg << " ± "
+       << throughput_dev << " ev/s (robust estimate with 5\% outlier rejection: " << robust_avg << " ev/s)";
 }
 
 // declare ThroughputService as a framework Service

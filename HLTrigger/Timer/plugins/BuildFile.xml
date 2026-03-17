@@ -2,6 +2,7 @@
   <use name="boost_regex"/>
   <use name="fmt"/>
   <use name="json"/>
+  <use name="rootminuit"/>
   <use name="tbb"/>
   <use name="DQMServices/Core"/>
   <use name="DataFormats/Provenance"/>
