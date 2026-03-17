@@ -58,12 +58,12 @@
   <class name="edm::Wrapper<TICLSeedingRegion>" />
   <class name="edm::Wrapper<std::vector<TICLSeedingRegion> >" />
 
-  <class name="TICLCandidate" ClassVersion="3">
-   <version ClassVersion="3" checksum="3268647916"/>
+  <class name="io_v1::TICLCandidate" ClassVersion="3">
+   <version ClassVersion="3" checksum="2436690028"/>
   </class>
-  <class name="std::vector<TICLCandidate>" />
-  <class name="edm::Wrapper<TICLCandidate>" />
-  <class name="edm::Wrapper<std::vector<TICLCandidate> >" />
+  <class name="std::vector<io_v1::TICLCandidate>" />
+  <class name="edm::Wrapper<io_v1::TICLCandidate>" />
+  <class name="edm::Wrapper<std::vector<io_v1::TICLCandidate> >" />
 
   <class name="MtdHostCollection" rntupleStreamerMode="true"/>
   <!-- MtdHostCollection::Layout must be listed before the aliased-to type -->
