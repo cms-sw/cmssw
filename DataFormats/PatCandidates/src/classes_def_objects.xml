@@ -17,7 +17,7 @@
 
   <!-- PAT Objects, and embedded data  -->
   <class name="pat::io_v1::Electron"  ClassVersion="3">
-   <version ClassVersion="3" checksum="1162514746"/>
+   <version ClassVersion="3" checksum="582056784"/>
    <field name="superClusterRelinked_" transient="true"/>
   </class>
   <ioread sourceClass="pat::io_v1::Electron" targetClass="pat::io_v1::Electron" version="[1-]" source="" target="superClusterRelinked_">
@@ -90,7 +90,7 @@
 
   <class name="std::vector<pat::tau::TauPFEssential>" />
   <class name="pat::io_v1::Photon"  ClassVersion="3">
-   <version ClassVersion="3" checksum="2881732216"/>
+   <version ClassVersion="3" checksum="1208569934"/>
    <field name="superClusterRelinked_" transient="true"/>
   </class>
   <ioread sourceClass="pat::io_v1::Photon" targetClass="pat::io_v1::Photon" version="[1-]" source="" target="superClusterRelinked_">
