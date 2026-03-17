@@ -360,8 +360,8 @@ namespace edm {
     writeParameterSetRegistry();
     writeProductDescriptionRegistry();
     writeParentageRegistry();
+    writeThinnedAssociationsHelper();  //only for forward compatibility
     writeBranchIDListRegistry();
-    writeThinnedAssociationsHelper();
     writeProductDependencies();  //productDependencies used here
     writeProcessBlockHelper();
     productDependencies_.clear();

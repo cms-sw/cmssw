@@ -20,4 +20,5 @@ process.source = cms.Source("EmptySource")
 process.p = cms.Path(process.Thing*process.OtherThing)
 process.ep = cms.EndPath(process.output)
 
-
+#from FWCore.Services.modules import Tracer
+#process.add_(Tracer(dumpPathsAndConsumes = True))

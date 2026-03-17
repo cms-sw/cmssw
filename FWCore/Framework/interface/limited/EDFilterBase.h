@@ -37,7 +37,6 @@ namespace edm {
   class PreallocationConfiguration;
   class StreamID;
   class ActivityRegistry;
-  class ThinnedAssociationsHelper;
   class EventForTransformer;
   class ServiceWeakToken;
 

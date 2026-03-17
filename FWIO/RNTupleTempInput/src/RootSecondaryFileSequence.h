@@ -38,7 +38,6 @@ namespace edm::rntuple_temp {
     RootSecondaryFileSequence& operator=(RootSecondaryFileSequence const&) = delete;  // Disallow copying and moving
 
     void endJob();
-    void initAssociationsFromSecondary(std::set<BranchID> const&);
 
   private:
     void closeFile_() override;
@@ -46,7 +45,6 @@ namespace edm::rntuple_temp {
     RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) override;
 
     RNTupleTempSource& input_;
-    std::vector<BranchID> associationsFromSecondary_;
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;
     bool enablePrefetching_;
     bool enforceGUIDInFileName_;

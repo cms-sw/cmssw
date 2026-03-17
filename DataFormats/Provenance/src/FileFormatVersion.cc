@@ -42,8 +42,6 @@ namespace edm {
 
   bool FileFormatVersion::useReducedProcessHistoryID() const { return value_ >= 19; }
 
-  bool FileFormatVersion::hasThinnedAssociations() const { return value_ >= 20; }
-
   std::ostream& operator<<(std::ostream& os, FileFormatVersion const& ff) {
     os << ff.value();
     return os;

@@ -57,7 +57,6 @@ namespace edm {
         processHistoryRegistry_(new ProcessHistoryRegistry),
         branchIDListHelper_(desc.branchIDListHelper_),
         processBlockHelper_(desc.processBlockHelper_),
-        thinnedAssociationsHelper_(desc.thinnedAssociationsHelper_),
         processGUID_(edm::processGUID().toBinary()),
         time_(),
         newRun_(true),

@@ -19,7 +19,7 @@
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventToProcessBlockIndexes.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 
@@ -73,17 +73,6 @@ namespace edm {
           : map_(iMap), wrappers_(iWrappers) {}
 
       WrapperBase const* getIt(ProductID const&) const override;
-
-      std::optional<std::tuple<WrapperBase const*, unsigned int>> getThinnedProduct(ProductID const&,
-                                                                                    unsigned int key) const override;
-
-      void getThinnedProducts(ProductID const& pid,
-                              std::vector<WrapperBase const*>& foundContainers,
-                              std::vector<unsigned int>& keys) const override;
-
-      OptionalThinnedKey getThinnedKeyFrom(ProductID const& parent,
-                                           unsigned int key,
-                                           ProductID const& thinned) const override;
 
     private:
       unsigned int transitionIndex_() const override;
@@ -246,11 +235,9 @@ void RepeatingCachedRootSource::beginJob(ProductRegistry const&) {
   //in order to use the source's internal ProductRegistry for looking up date
   // it needs to be frozen (which setups the other structures)
   productRegistryUpdate().setFrozen();
-  //Thinned collection associations are not supported at this time
   EventPrincipal eventPrincipal(std::shared_ptr<ProductRegistry const>(&productRegistry(), do_nothing_deleter()),
                                 edm::productResolversFactory::makePrimary,
                                 branchIDListHelper(),
-                                std::make_shared<ThinnedAssociationsHelper>(),
                                 processConfiguration,
                                 nullptr);
   {
@@ -343,13 +330,11 @@ std::unique_ptr<RootFile> RepeatingCachedRootSource::makeRootFile(
                                                            .treeMaxVirtualSize = -1,
                                                            .enablePrefetching = enablePrefetching},
                                     RootFile::ProductChoices{.productSelectorRules = selectorRules_,
-                                                             .associationsFromSecondary = nullptr,
                                                              .dropDescendantsOfDroppedProducts = false,
                                                              .labelRawDataLikeMC = true},
                                     RootFile::CrossFileInfo{.runHelper = runHelper_.get(),
                                                             .branchIDListHelper = branchIDListHelper(),
                                                             .processBlockHelper = processBlockHelper().get(),
-                                                            .thinnedAssociationsHelper = thinnedAssociationsHelper(),
                                                             .duplicateChecker = duplicateChecker,
                                                             .indexesIntoFiles = indexesIntoFiles,
                                                             .currentIndexIntoFile = 0},
@@ -443,20 +428,6 @@ WrapperBase const* RepeatingCachedRootSource::RCProductGetter::getIt(ProductID c
   return (*wrappers_)[itFound->second].get();
 }
 
-std::optional<std::tuple<WrapperBase const*, unsigned int>>
-RepeatingCachedRootSource::RCProductGetter::getThinnedProduct(ProductID const&, unsigned int key) const {
-  return {};
-};
-
-void RepeatingCachedRootSource::RCProductGetter::getThinnedProducts(ProductID const& pid,
-                                                                    std::vector<WrapperBase const*>& foundContainers,
-                                                                    std::vector<unsigned int>& keys) const {}
-
-OptionalThinnedKey RepeatingCachedRootSource::RCProductGetter::getThinnedKeyFrom(ProductID const& parent,
-                                                                                 unsigned int key,
-                                                                                 ProductID const& thinned) const {
-  return {};
-}
 unsigned int RepeatingCachedRootSource::RCProductGetter::transitionIndex_() const { return 0; }
 
 //

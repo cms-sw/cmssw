@@ -34,7 +34,6 @@ namespace edm {
     RootSecondaryFileSequence& operator=(RootSecondaryFileSequence const&) = delete;  // Disallow copying and moving
 
     void endJob();
-    void initAssociationsFromSecondary(std::set<BranchID> const&);
 
   private:
     void closeFile_() override;
@@ -42,7 +41,6 @@ namespace edm {
     RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) override;
 
     PoolSource& input_;
-    std::vector<BranchID> associationsFromSecondary_;
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;
     bool enablePrefetching_;
     bool enforceGUIDInFileName_;

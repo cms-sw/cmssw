@@ -13,7 +13,6 @@ namespace edm {
   class ParameterSet;
   class ParameterSetDescription;
   class EventForOutput;
-  class ThinnedAssociationsHelper;
   class TriggerResults;
 
   namespace streamer {
@@ -43,8 +42,7 @@ namespace edm {
                                                         ParameterSetID const& toplevel,
                                                         SendJobHeader::ParameterSetMap const* psetMap);
 
-      std::unique_ptr<EventMsgBuilder> serializeEventMetaData(BranchIDLists const& branchLists,
-                                                              ThinnedAssociationsHelper const& helper);
+      std::unique_ptr<EventMsgBuilder> serializeEventMetaData(BranchIDLists const& branchLists);
 
       std::unique_ptr<EventMsgBuilder> serializeEvent(EventForOutput const& e,
                                                       Handle<TriggerResults> const& triggerResults,
