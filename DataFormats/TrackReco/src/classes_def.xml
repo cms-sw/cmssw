@@ -491,7 +491,7 @@
 
 
    <class name="reco::io_v1::DeDxHitInfo" ClassVersion="3">
-    <version ClassVersion="3" checksum="4266756504"/>
+    <version ClassVersion="3" checksum="2566600024"/>
    </class>
    <class name="reco::DeDxHitInfoCollection"/>
    <class name="reco::DeDxHitInfoRef"/>
