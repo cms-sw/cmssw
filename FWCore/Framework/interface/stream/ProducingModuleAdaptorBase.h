@@ -52,7 +52,6 @@ namespace edm {
   class EDConsumerBase;
   class PreallocationConfiguration;
   class ProductResolverIndexAndSkipBit;
-  class ThinnedAssociationsHelper;
   class ActivityRegistry;
   class WaitingTaskHolder;
   class ServiceWeakToken;
@@ -192,7 +191,6 @@ namespace edm {
       virtual void doEndLuminosityBlock(LumiTransitionInfo const&, ModuleCallingContext const*) = 0;
 
       virtual void doRespondToCloseOutputFile() = 0;
-      void doRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&);
 
       // ---------- member data --------------------------------
       void setModuleDescription(ModuleDescription const& md) { moduleDescription_ = md; }

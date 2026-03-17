@@ -241,8 +241,7 @@ namespace edm {
     // this is woefully inefficient and could be optimized
     // to run much faster with some nontrivial effort. There
     // is only 1 place in the code base where this function
-    // is used at all and I'm not sure whether it will ever
-    // be used with thinned collections, so for the moment I
+    // is used at all, so for the moment I
     // am not spending the time to optimize this.
     for (size_type i = 0; i < size(); ++i) {
       if (!(*this)[i].isAvailable()) {

@@ -40,7 +40,6 @@ namespace edm {
   class ProductResolverIndexHelper;
   class ProductResolverIndexAndSkipBit;
   class ProductRegistry;
-  class ThinnedAssociationsHelper;
   class ModuleConsumesInfo;
   struct ModuleConsumesMinimalESInfo;
   namespace maker {
@@ -76,7 +75,6 @@ namespace edm {
 
       virtual std::unique_ptr<OutputModuleCommunicator> createOutputModuleCommunicator() = 0;
 
-      void registerThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper);
       //Used to make EDGetToken work
       virtual void updateLookup(BranchType iBranchType, ProductResolverIndexHelper const&) = 0;
       virtual void updateLookup(eventsetup::ESRecordsToProductResolverIndices const&) = 0;
@@ -89,8 +87,6 @@ namespace edm {
       virtual void convertCurrentProcessAlias(std::string const& processName) = 0;
 
     private:
-      virtual void implRegisterThinnedAssociations(ProductRegistry const& registry,
-                                                   ThinnedAssociationsHelper& helper) = 0;
       virtual void implRespondToOpenInputFile(FileBlock const& fb) = 0;
       virtual void implRespondToCloseInputFile(FileBlock const& fb) = 0;
       virtual void implRespondToCloseOutputFile() = 0;
@@ -152,8 +148,6 @@ namespace edm {
       }
 
     private:
-      void implRegisterThinnedAssociations(ProductRegistry const& registry, ThinnedAssociationsHelper& helper) final;
-
       void implRespondToOpenInputFile(FileBlock const& fb) final;
       void implRespondToCloseInputFile(FileBlock const& fb) final;
       void implRespondToCloseOutputFile() final;

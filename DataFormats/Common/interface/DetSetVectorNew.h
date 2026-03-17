@@ -717,31 +717,4 @@ namespace edm {
     }
   };
 }  // namespace edm
-
-// Thinning support
-#include "DataFormats/Common/interface/fillCollectionForThinning.h"
-namespace edm::detail {
-  template <typename T>
-  struct ElementType<edmNew::DetSetVector<T>> {
-    using type = typename edmNew::DetSetVector<T>::data_type;
-  };
-}  // namespace edm::detail
-namespace edmNew {
-  template <typename T, typename Selector>
-  void fillCollectionForThinning(edmNew::DetSet<T> const& detset,
-                                 Selector& selector,
-                                 unsigned int& iIndex,
-                                 edmNew::DetSetVector<T>& output,
-                                 edm::ThinnedAssociation& association) {
-    typename edmNew::DetSetVector<T>::FastFiller ff(output, detset.detId());
-    for (auto iter = detset.begin(), end = detset.end(); iter != end; ++iter, ++iIndex) {
-      edm::detail::fillCollectionForThinning(*iter, selector, iIndex, ff, association);
-    }
-    if (detset.begin() != detset.end()) {
-      // need to decrease the global index by one because the outer loop will increase it
-      --iIndex;
-    }
-  }
-}  // namespace edmNew
-
 #endif

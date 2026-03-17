@@ -41,7 +41,6 @@ class TClass;
 namespace edm {
   class BranchID;
   class ProductID;
-  class ThinnedAssociation;
 }  // namespace edm
 
 class BareRootProductGetterBase : public edm::EDProductGetter {
@@ -53,41 +52,6 @@ public:
 
   // ---------- const member functions ---------------------
   edm::WrapperBase const* getIt(edm::ProductID const&) const override;
-
-  // getThinnedProduct assumes getIt was already called and failed to find
-  // the product. The input key is the index of the desired element in the
-  // container identified by ProductID (which cannot be found).
-  // If the return value is not null, then the desired element was
-  // found in a thinned container. If the desired element is not
-  // found, then an optional without a value is returned.
-  std::optional<std::tuple<edm::WrapperBase const*, unsigned int>> getThinnedProduct(edm::ProductID const&,
-                                                                                     unsigned int key) const override;
-
-  // getThinnedProducts assumes getIt was already called and failed to find
-  // the product. The input keys are the indexes into the container identified
-  // by ProductID (which cannot be found). On input the WrapperBase pointers
-  // must all be set to nullptr (except when the function calls itself
-  // recursively where non-null pointers mark already found elements).
-  // Thinned containers derived from the product are searched to see
-  // if they contain the desired elements. For each that is
-  // found, the corresponding WrapperBase pointer is set and the key
-  // is modified to be the key into the container where the element
-  // was found. The WrapperBase pointers might or might not all point
-  // to the same thinned container.
-  void getThinnedProducts(edm::ProductID const&,
-                          std::vector<edm::WrapperBase const*>& foundContainers,
-                          std::vector<unsigned int>& keys) const override;
-
-  // This overload is allowed to be called also without getIt()
-  // being called first, but the thinned ProductID must come from an
-  // existing RefCore. The input key is the index of the desired
-  // element in the container identified by the parent ProductID.
-  // If the return value is not null, then the desired element was found
-  // in a thinned container. If the desired element is not found, then
-  // an optional without a value is returned.
-  edm::OptionalThinnedKey getThinnedKeyFrom(edm::ProductID const& parent,
-                                            unsigned int key,
-                                            edm::ProductID const& thinned) const override;
 
 private:
   // ---------- static member functions --------------------
@@ -112,7 +76,6 @@ private:
   };
 
   Buffer* createNewBuffer(edm::BranchID const&) const;
-  edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID, Long_t eventEntry) const;
 
   // ---------- member data --------------------------------
 

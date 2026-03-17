@@ -24,7 +24,6 @@
 #include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/ProductIDToBranchID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
@@ -78,22 +77,15 @@ namespace fwlite {
       edm::ProductDescription const& productToBranch(edm::ProductID const& pid) override;
       edm::ProductDescription const& branchIDToBranch(edm::BranchID const& bid) const override;
       std::vector<edm::ProductDescription> const& getProductDescriptions() override;
-      edm::ThinnedAssociationsHelper const& thinnedAssociationsHelper() const override {
-        return *thinnedAssociationsHelper_;
-      }
 
       TBranch* getBranchRegistry(edm::ProductRegistry** pReg);
 
       bidToDesc productDescriptionMap_;
       std::vector<edm::ProductDescription> bDesc_;
       bool mapperFilled_;
-      edm::propagate_const<std::unique_ptr<edm::ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     };
 
-    Strategy::Strategy(TFile* file, int fileVersion)
-        : BMRStrategy(file, fileVersion),
-          mapperFilled_(false),
-          thinnedAssociationsHelper_(new edm::ThinnedAssociationsHelper) {
+    Strategy::Strategy(TFile* file, int fileVersion) : BMRStrategy(file, fileVersion), mapperFilled_(false) {
       // do in derived obects
       // updateFile(file);
     }
@@ -492,14 +484,6 @@ namespace fwlite {
       if (nullptr == metaDataTree) {
         throw edm::Exception(edm::errors::EventCorruption)
             << "No " << edm::poolNames::metaDataTreeName() << " TTree in file";
-      }
-
-      thinnedAssociationsHelper_ = std::make_unique<edm::ThinnedAssociationsHelper>();
-      edm::ThinnedAssociationsHelper* thinnedAssociationsHelperPtr = thinnedAssociationsHelper_.get();
-      if (metaDataTree->FindBranch(edm::poolNames::thinnedAssociationsHelperBranchName().c_str()) != nullptr) {
-        TBranch* b = metaDataTree->GetBranch(edm::poolNames::thinnedAssociationsHelperBranchName().c_str());
-        b->SetAddress(&thinnedAssociationsHelperPtr);
-        b->GetEntry(0);
       }
 
       branchIDLists_ = std::make_unique<edm::BranchIDLists>();

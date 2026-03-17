@@ -54,7 +54,6 @@ namespace edm {
   class ModuleCallingContext;
   class PreallocationConfiguration;
   class ActivityRegistry;
-  class ThinnedAssociationsHelper;
   class SignallingProductRegistryFiller;
 
   template <typename T>
@@ -93,7 +92,7 @@ namespace edm {
 
       bool selected(ProductDescription const& desc) const;
 
-      void selectProducts(ProductRegistry const& preg, ThinnedAssociationsHelper const&, ProcessBlockHelperBase const&);
+      void selectProducts(ProductRegistry const& preg, ProcessBlockHelperBase const&);
       std::string const& processName() const { return process_name_; }
       SelectedProductsForBranchType const& keptProducts() const { return keptProducts_; }
       std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const { return hasNewlyDroppedBranch_; }
@@ -111,8 +110,6 @@ namespace edm {
       BranchIDLists const* branchIDLists() const;
 
       OutputProcessBlockHelper const& outputProcessBlockHelper() const { return outputProcessBlockHelper_; }
-
-      ThinnedAssociationsHelper const* thinnedAssociationsHelper() const;
 
       const ModuleDescription& moduleDescription() const { return moduleDescription_; }
 
@@ -191,9 +188,6 @@ namespace edm {
       std::map<BranchID::value_type, BranchID::value_type> droppedBranchIDToKeptBranchID_;
       edm::propagate_const<std::unique_ptr<BranchIDLists>> branchIDLists_;
       BranchIDLists const* origBranchIDLists_;
-
-      edm::propagate_const<std::unique_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
-      std::map<BranchID, bool> keepAssociation_;
 
       OutputProcessBlockHelper outputProcessBlockHelper_;
 

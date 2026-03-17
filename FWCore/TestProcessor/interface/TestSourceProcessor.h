@@ -74,7 +74,6 @@ namespace edm::test {
     std::shared_ptr<ProductRegistry> preg_;
     std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
     std::shared_ptr<ProcessBlockHelper> processBlockHelper_;
-    std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
     ServiceToken serviceToken_;
 
     std::shared_ptr<ProcessConfiguration const> processConfiguration_;
