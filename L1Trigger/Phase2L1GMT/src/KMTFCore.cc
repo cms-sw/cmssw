@@ -519,7 +519,17 @@ void KMTFCore::propagate(l1t::KMTFTrack& track) {
   constexpr double zdR_CONV = ZRES_CONV / KRES_CONV ; 
   double zdeltaR_dig = zdeltaR_[step - 1] * zdR_CONV ; 
   int kSlopeNew = kSlope;
-  int zNew = z + (int)(kSlope * zdeltaR_dig);
+
+  //convention is plus sign with default kSlope and negative zdeltaR to propagate inward
+  int convergeTerm = abs((int)(kSlope * zdeltaR_dig));
+  int wheel = track.wheel();
+  int zNew;
+  if (wheel > 0)
+	zNew = z - convergeTerm;
+  else if (wheel < 0)
+	zNew = z + convergeTerm;
+  else
+	zNew = (z > 0) ? z - convergeTerm : z + convergeTerm;
   
 
   //Create the transformation matrix
@@ -545,7 +555,12 @@ void KMTFCore::propagate(l1t::KMTFTrack& track) {
   a[16] = 0.0;
   a[17] = 0.0;
   a[18] = 1.0;
-  a[19] = zdeltaR_dig;
+  if (wheel > 0)
+	a[19] = -zdeltaR_dig;
+  else if (wheel < 0)
+	a[19] = zdeltaR_dig;
+  else
+	a[19] = (z > 0) ? -zdeltaR_dig : zdeltaR_dig;
   a[20] = 0.0;
   a[21] = 0.0;
   a[22] = 0.0;
@@ -656,6 +671,8 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
 
   const std::vector<double>& covLine = track.covariance();
   const l1t::CovarianceMatrix5dim cov(covLine.begin(), covLine.end());
+  edm::LogInfo("KMTFCore") << "=== updateOffline step=" << track.step() << " ===";
+  edm::LogInfo("KMTFCore") << "Pre-fit cov diag: " << cov(0,0) << " " << cov(1,1) << " " << cov(2,2) << " " << cov(3,3) << " " << cov(4,4);
   CovarianceMatrix4 S = ROOT::Math::Similarity(H, cov) + R;
   if (!S.Invert())
     return false;
@@ -688,7 +705,7 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
   }
 
   track.setCoordinates(track.step(), KNew, phiNew, phiBNew, zNew, kSlopeNew);
-  const auto covNew{cov - Gain * (H * cov)};
+  const Matrix55 covNew = cov - Gain * (H * cov);
   l1t::CovarianceMatrix5dim c;
 
   for (int i = 0; i < 5; i++)
