@@ -13,7 +13,7 @@
    <version ClassVersion="3" checksum="2351437140"/>
   </class>
   <class name="reco::RecoCaloTowerCandidate" ClassVersion="3">
-   <version ClassVersion="3" checksum="583643428"/>
+   <version ClassVersion="3" checksum="2222553080"/>
   </class>
   <class name="reco::CaloRecHitCandidate" ClassVersion="3">
    <version ClassVersion="3" checksum="1842643264"/>
