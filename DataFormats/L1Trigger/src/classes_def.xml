@@ -261,11 +261,11 @@
   <class name="l1t::MuonRefPairBxCollection"/>
   <class name="edm::Wrapper<l1t::MuonRefPairBxCollection>"/>
 
-  <class name="L1TriggerError" ClassVersion="10">
-   <version ClassVersion="10" checksum="3499325937"/>
+  <class name="io_v1::L1TriggerError" ClassVersion="3">
+   <version ClassVersion="3" checksum="3648911985"/>
   </class>
-  <class name="std::vector<L1TriggerError>"/>
-  <class name="edm::Wrapper<std::vector<L1TriggerError> >"/>
+  <class name="std::vector<io_v1::L1TriggerError>"/>
+  <class name="edm::Wrapper<std::vector<io_v1::L1TriggerError> >"/>
 
   <class name="l1t::L1DataEmulResult" ClassVersion="10">
     <version ClassVersion="10" checksum="604440326"/>
