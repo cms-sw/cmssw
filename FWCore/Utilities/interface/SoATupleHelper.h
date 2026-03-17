@@ -119,9 +119,10 @@ namespace edm {
       auto do_move = [&]<typename T>(T const*, auto I) {
         using Type = typename AlignmentHelper<T>::Type;
         constexpr unsigned int boundary = AlignmentHelper<T>::kAlignment;
-        Type* newStart = reinterpret_cast<Type*>(iNewMemory + usedSoFar + padding_needed(usedSoFar, boundary));
+        Type* newStart =
+            std::launder(reinterpret_cast<Type*>(iNewMemory + usedSoFar + padding_needed(usedSoFar, boundary)));
         void** oldStart = oToSet + I;
-        Type* oldValues = static_cast<Type*>(*oldStart);
+        Type* oldValues = std::launder(static_cast<Type*>(*oldStart));
         if (oldValues != nullptr) {
           auto ptr = newStart;
           for (auto it = oldValues; it != oldValues + iSize; ++it, ++ptr) {
@@ -150,9 +151,10 @@ namespace edm {
       auto do_copy = [&]<typename T>(T const*, auto I) {
         using Type = typename AlignmentHelper<T>::Type;
         constexpr unsigned int boundary = AlignmentHelper<T>::kAlignment;
-        Type* newStart = reinterpret_cast<Type*>(iNewMemory + usedSoFar + padding_needed(usedSoFar, boundary));
+        Type* newStart =
+            std::launder(reinterpret_cast<Type*>(iNewMemory + usedSoFar + padding_needed(usedSoFar, boundary)));
         void* const* oldStart = iFrom + I;
-        Type* oldValues = static_cast<Type*>(*oldStart);
+        Type* oldValues = std::launder(static_cast<Type*>(*oldStart));
         if (oldValues != nullptr) {
           auto ptr = newStart;
           for (auto it = oldValues; it != oldValues + iSize; ++it, ++ptr) {
@@ -192,7 +194,7 @@ namespace edm {
     void SoATupleHelper<Args...>::push_back(void** iToSet, size_t iSize, std::tuple<Args...> const& iValues) {
       auto do_placement = [&]<typename T>(auto Index, T const*) {
         using Type = typename AlignmentHelper<T>::Type;
-        new (static_cast<Type*>(*(iToSet + Index)) + iSize) Type(std::get<Index>(iValues));
+        new (std::launder(static_cast<Type*>(*(iToSet + Index))) + iSize) Type(std::get<Index>(iValues));
       };
       //The use of index_sequence gives an index for each type in Args...
       [&]<std::size_t... Is>(std::index_sequence<Is...>) {
@@ -206,7 +208,7 @@ namespace edm {
     void SoATupleHelper<Args...>::emplace_back(void** iToSet, size_t iSize, FArgs... iValues) {
       auto do_placement = [&]<typename T>(auto Index, T const*) {
         using Type = typename AlignmentHelper<T>::Type;
-        new (static_cast<Type*>(*(iToSet + Index)) + iSize)
+        new (std::launder(static_cast<Type*>(*(iToSet + Index))) + iSize)
             Type(arg_puller<0, Index, Type const&, FArgs...>::pull(std::forward<FArgs>(iValues)...));
       };
       //The use of index_sequence gives an index for each type in Args...
@@ -221,7 +223,7 @@ namespace edm {
       auto do_destroy = [&]<typename T>(std::size_t I, T const*) {
         void** start = iToSet + I;
         using Type = typename AlignmentHelper<T>::Type;
-        Type* values = static_cast<Type*>(*start);
+        Type* values = std::launder(static_cast<Type*>(*start));
 
         for (auto it = values; it != values + iSize; ++it) {
           it->~Type();
