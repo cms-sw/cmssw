@@ -34,14 +34,14 @@
  <class name="std::vector<L1Phase2MuDTExtThDigi>"/>
  <class name="std::vector<L1Phase2MuDTShower>"/>
 
- <class name="L1MuDTChambPhContainer" ClassVersion="10">
-  <version ClassVersion="10" checksum="407874824"/>
+ <class name="io_v1::L1MuDTChambPhContainer" ClassVersion="3">
+  <version ClassVersion="3" checksum="4107995784"/>
  </class>
- <class name="L1MuDTChambThContainer" ClassVersion="10">
-  <version ClassVersion="10" checksum="1394032816"/>
+ <class name="io_v1::L1MuDTChambThContainer" ClassVersion="3">
+  <version ClassVersion="3" checksum="799186480"/>
  </class>
- <class name="L1MuDTTrackContainer" ClassVersion="10">
-  <version ClassVersion="10" checksum="1310842826"/>
+ <class name="io_v1::L1MuDTTrackContainer" ClassVersion="3">
+  <version ClassVersion="3" checksum="8529994"/>
  </class>
 
  <class name="L1Phase2MuDTPhContainer" ClassVersion="3">
@@ -57,9 +57,9 @@
  <class name="L1Phase2MuDTExtThContainer"/>
 
 
- <class name="edm::Wrapper<L1MuDTChambPhContainer>" splitLevel="0"/>
- <class name="edm::Wrapper<L1MuDTChambThContainer>" splitLevel="0"/>
- <class name="edm::Wrapper<L1MuDTTrackContainer>"/>
+ <class name="edm::Wrapper<io_v1::L1MuDTChambPhContainer>" splitLevel="0"/>
+ <class name="edm::Wrapper<io_v1::L1MuDTChambThContainer>" splitLevel="0"/>
+ <class name="edm::Wrapper<io_v1::L1MuDTTrackContainer>"/>
 
  <class name="edm::Wrapper<L1Phase2MuDTPhContainer>" splitLevel="0"/>
  <class name="edm::Wrapper<L1Phase2MuDTThContainer>" splitLevel="0"/>
