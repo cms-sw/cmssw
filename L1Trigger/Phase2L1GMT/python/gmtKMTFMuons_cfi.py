@@ -3,9 +3,9 @@ import FWCore.ParameterSet.Config as cms
 
 gmtKMTFMuons = cms.EDProducer('Phase2L1TGMTKMTFProducer',
                                  stubs      = cms.InputTag('gmtStubs','kmtf'),
-                                 verbose    = cms.int32(0),
+                                 verbose    = cms.int32(1),
                                  algo       = cms.PSet(
-                                     verbose = cms.bool(False),
+                                     verbose = cms.bool(True),
                                      lutFile = cms.string("L1Trigger/Phase2L1GMT/data/packedGainLUTs.root"),
                                      initialK = cms.vdouble(-0.4576229536749278, -0.6364802777566145, -1.0305030909883524, -1.7272067322624118),
                                      initialK2 = cms.vdouble(-6.442002637356136e-05, -9.582709649965545e-05, -0.0002741064246218815, -0.0014910074450869175),
