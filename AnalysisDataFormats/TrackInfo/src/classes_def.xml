@@ -8,8 +8,8 @@
   <class name="std::map<reco::StateType, reco::TrackingStateInfo>"/>
   <class name="std::pair< edm::Ref< edm::OwnVector< TrackingRecHit, edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit>  >, reco::TrackingRecHitInfo >"/>
   <class name="std::map< edm::Ref< edm::OwnVector< TrackingRecHit, edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit>  >, reco::TrackingRecHitInfo >"/>
-  <class name="reco::TrackInfo" ClassVersion="10">
-   <version ClassVersion="10" checksum="604971424"/>
+  <class name="reco::TrackInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="2183695104"/>
   </class>
   <class name="std::vector<reco::TrackInfo>"/>
   <class name="edm::Wrapper<std::vector<reco::TrackInfo> >"/>

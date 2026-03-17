@@ -1,6 +1,6 @@
 <lcgdict>
       <class name="L2MuonTrajectorySeed"  ClassVersion="3">
-       <version ClassVersion="3" checksum="846735298"/>
+       <version ClassVersion="3" checksum="2040219864"/>
       </class>
       <class name="edm::reftobase::BaseHolder<L2MuonTrajectorySeed>" />
       <class name="edm::reftobase::IndirectHolder<L2MuonTrajectorySeed>" />
@@ -26,7 +26,7 @@
 
 
       <class name="L3MuonTrajectorySeed"  ClassVersion="3">
-        <version ClassVersion="3" checksum="1398743106"/>
+        <version ClassVersion="3" checksum="1994193054"/>
       </class>
       <class name="edm::reftobase::BaseHolder<L3MuonTrajectorySeed>" />
       <class name="edm::reftobase::IndirectHolder<L3MuonTrajectorySeed>" />
