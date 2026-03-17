@@ -91,39 +91,13 @@ namespace edm {
   // In this case the pointer cache in the RefCore
   // is for a pointer to an element in the container product.
   // In this case we try only, which means we do not throw
-  // if we fail. This gives the calling function the
-  // chance to look in thinned containers.
+  // if we fail.
   template <typename T>
   inline T const* tryToGetProductWithCoreFromRef(RefCore const& ref, EDProductGetter const* prodGetter) {
     if (ref.isTransient()) {
       ref.nullPointerForTransientException(typeid(T));
     }
     return refcore::tryToGetProductWithCoreFromRef_<T>(ref, prodGetter);
-  }
-
-  namespace refcore {
-    template <typename T>
-    inline std::tuple<T const*, unsigned int> getThinnedProduct_(RefCore const& ref,
-                                                                 unsigned int key,
-                                                                 EDProductGetter const* prodGetter) {
-      auto [product, thinnedKey] = ref.getThinnedProductPtr(typeid(T), key, prodGetter);
-      Wrapper<T> const* wrapper = static_cast<Wrapper<T> const*>(product);
-      return std::tuple(wrapper->product(), thinnedKey);
-    }
-  }  // namespace refcore
-
-  template <typename T>
-  inline std::tuple<T const*, unsigned int> getThinnedProduct(RefCore const& ref,
-                                                              unsigned int key,
-                                                              EDProductGetter const* prodGetter) {
-    // The pointer to a thinned collection will never be cached
-    // T const* p = static_cast<T const*>(ref.productPtr());
-    // if (p != 0) return p;
-
-    if (ref.isTransient()) {
-      ref.nullPointerForTransientException(typeid(T));
-    }
-    return refcore::getThinnedProduct_<T>(ref, key, prodGetter);
   }
 }  // namespace edm
 #endif

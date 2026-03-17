@@ -50,7 +50,6 @@ namespace edm {
   class ExceptionToActionTable;
   class BranchIDListHelper;
   class MergeableRunProductMetadata;
-  class ThinnedAssociationsHelper;
   class EDLooperBase;
   class HistoryAppender;
   class ProcessDesc;
@@ -283,12 +282,6 @@ namespace edm {
       return get_underlying_safe(branchIDListHelper_);
     }
     std::shared_ptr<BranchIDListHelper>& branchIDListHelper() { return get_underlying_safe(branchIDListHelper_); }
-    std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper() const {
-      return get_underlying_safe(thinnedAssociationsHelper_);
-    }
-    std::shared_ptr<ThinnedAssociationsHelper>& thinnedAssociationsHelper() {
-      return get_underlying_safe(thinnedAssociationsHelper_);
-    }
     std::shared_ptr<EDLooperBase const> looper() const { return get_underlying_safe(looper_); }
     std::shared_ptr<EDLooperBase>& looper() { return get_underlying_safe(looper_); }
 
@@ -312,7 +305,6 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<ProductRegistry>> preg_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
     edm::propagate_const<std::shared_ptr<ProcessBlockHelper>> processBlockHelper_;
-    edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     ServiceToken serviceToken_;
     edm::propagate_const<std::unique_ptr<InputSource>> input_;
     InputSource::ItemTypeInfo lastSourceTransition_;
