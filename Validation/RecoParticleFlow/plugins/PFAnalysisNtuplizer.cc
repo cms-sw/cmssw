@@ -3,8 +3,6 @@
 // Author and maintainer: Joosep Pata (KBFI, Tallinn, Estonia)
 // cms-mlpf@cern.ch
 
-#define LOG LogTrace("PFAnalysisNtuplizer")
-
 #include <map>
 #include <set>
 #include <string>
@@ -665,7 +663,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       daughters[j] = static_cast<int>(it_p->daughterRefVector().at(j).key());
     }
     gen_daughters_.push_back(daughters);
-    LOG << "gp pt=" << it_p->pt() << " pid=" << it_p->pdgId() << " dau=" << daughters.size() << std::endl;
+    LogTrace("PFAnalysisNtuplizer") << "gp pt=" << it_p->pt() << " pid=" << it_p->pdgId() << " dau=" << daughters.size() << std::endl;
   }
 
   edm::Handle<edm::View<reco::GenJet>> genJetsHandle;
@@ -707,27 +705,27 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
 #ifdef EDM_ML_DEBUG
-  LOG << "RecoToSim";
+  LogTrace("PFAnalysisNtuplizer") << "RecoToSim";
   for (const auto& x : recotosim) {
-    LOG << "reco=" << x.key.key();
+    LogTrace("PFAnalysisNtuplizer") << "reco=" << x.key.key();
     for (const auto& tp : x.val) {
-      LOG << "tp=" << tp.first.key();
+      LogTrace("PFAnalysisNtuplizer") << "tp=" << tp.first.key();
     }
   }
 
-  LOG << "GsfRecoToSim" << std::endl;
+  LogTrace("PFAnalysisNtuplizer") << "GsfRecoToSim" << std::endl;
   for (const auto& x : gsfrecotosim) {
-    LOG << "reco=" << x.key.key();
+    LogTrace("PFAnalysisNtuplizer") << "reco=" << x.key.key();
     for (const auto& tp : x.val) {
-      LOG << "tp=" << tp.first.key();
+      LogTrace("PFAnalysisNtuplizer") << "tp=" << tp.first.key();
     }
   }
 #endif
 
-  LOG << "Gsf";
+  LogTrace("PFAnalysisNtuplizer") << "Gsf";
   for (unsigned long ntrack = 0; ntrack < gsftracks.size(); ntrack++) {
     edm::RefToBase<reco::Track> trackref(gsftrackHandle, ntrack);
-    LOG << "trackref=" << trackref.key();
+    LogTrace("PFAnalysisNtuplizer") << "trackref=" << trackref.key();
     const auto vec_idx_in_all_elements = find_element_ref(all_elements, trackref);
 
     //track was not used by PF, we skip as well
@@ -740,7 +738,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       for (const auto& tp : tps) {
         edm::Ref<std::vector<TrackingParticle>> tpr = tp.first;
         for (auto idx_in_all_elements : vec_idx_in_all_elements) {
-          LOG << "GSF assoc " << ntrack << " " << idx_in_all_elements << " " << tpr.key();
+          LogTrace("PFAnalysisNtuplizer") << "GSF assoc " << ntrack << " " << idx_in_all_elements << " " << tpr.key();
           trackingparticle_to_element.emplace_back(tpr.key(), idx_in_all_elements);
           trackingparticle_to_element_cmp.emplace_back(tp.second);
         }
@@ -748,11 +746,11 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
 
-  LOG << "Track";
+  LogTrace("PFAnalysisNtuplizer") << "Track";
   //We need to use the original reco::Track collection for track association
   for (unsigned long ntrack = 0; ntrack < tracks.size(); ntrack++) {
     edm::RefToBase<reco::Track> trackref(trackHandle, ntrack);
-    LOG << "trackref=" << trackref.key() << std::endl;
+    LogTrace("PFAnalysisNtuplizer") << "trackref=" << trackref.key() << std::endl;
     const auto vec_idx_in_all_elements = find_element_ref(all_elements, trackref);
 
     //track was not used by PF, we skip as well
@@ -765,7 +763,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       for (const auto& tp : tps) {
         edm::Ref<std::vector<TrackingParticle>> tpr = tp.first;
         for (auto idx_in_all_elements : vec_idx_in_all_elements) {
-          LOG << "track assoc " << ntrack << " " << idx_in_all_elements << " " << tpr.key();
+          LogTrace("PFAnalysisNtuplizer") << "track assoc " << ntrack << " " << idx_in_all_elements << " " << tpr.key();
           trackingparticle_to_element.emplace_back(tpr.key(), idx_in_all_elements);
           trackingparticle_to_element_cmp.emplace_back(tp.second);
         }
@@ -795,7 +793,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     caloparticle_pid_.push_back(cp.pdgId());
     caloparticle_charge_.push_back(cp.charge());
 
-    LOG << "cp=" << ncaloparticle << " pt=" << cp.p4().pt() << " typ=" << cp.pdgId();
+    LogTrace("PFAnalysisNtuplizer") << "cp=" << ncaloparticle << " pt=" << cp.p4().pt() << " typ=" << cp.pdgId();
 
     const auto& simtrack = cp.g4Tracks().at(0);
 
@@ -822,7 +820,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       simcluster_bx_.push_back(simcluster.eventId().bunchCrossing());
       simcluster_ev_.push_back(simcluster.eventId().event());
       simcluster_idx_caloparticle_.push_back(ncaloparticle);
-      LOG << "  sc pt=" << simcluster.p4().pt() << " typ=" << simcluster.pdgId()
+      LogTrace("PFAnalysisNtuplizer") << "  sc pt=" << simcluster.p4().pt() << " typ=" << simcluster.pdgId()
           << " gen=" << simcluster.genParticles().size() << " tid=" << simcluster.g4Tracks().at(0).trackId()
           << std::endl;
 
@@ -840,7 +838,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       simcluster_idx_trackingparticle_.push_back(simcluster_to_trackingparticle);
 
       for (const auto& hf : simcluster.hits_and_fractions()) {
-        LOG << "  cp=" << ncaloparticle << " sc=" << nsimcluster << " detid=" << hf.first << " " << hf.second;
+        LogTrace("PFAnalysisNtuplizer") << "  cp=" << ncaloparticle << " sc=" << nsimcluster << " detid=" << hf.first << " " << hf.second;
         simhit_to_caloparticle[hf.first].push_back({ncaloparticle, hf.second});
         simhit_to_simcluster[hf.first].push_back({nsimcluster, hf.second});
       }
@@ -854,7 +852,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   for (size_t ielem = 0; ielem < all_elements.size(); ielem++) {
     const auto& elem = all_elements[ielem];
     const auto& type = elem.orig.type();
-    LOG << "elem=" << ielem << " typ=" << type;
+    LogTrace("PFAnalysisNtuplizer") << "elem=" << ielem << " typ=" << type;
     if (type == reco::PFBlockElement::ECAL || type == reco::PFBlockElement::HCAL || type == reco::PFBlockElement::PS1 ||
         type == reco::PFBlockElement::PS2 || type == reco::PFBlockElement::HO || type == reco::PFBlockElement::HFHAD ||
         type == reco::PFBlockElement::HFEM) {
@@ -866,7 +864,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       const vector<reco::PFRecHitFraction>& rechit_fracs = cluster.recHitFractions();
       for (const auto& rh : rechit_fracs) {
         const reco::PFRecHit pfrh = *rh.recHitRef();
-        LOG << "  elem=" << ielem << " detid=" << pfrh.detId() << " " << pfrh.energy() << " " << rh.fraction();
+        LogTrace("PFAnalysisNtuplizer") << "  elem=" << ielem << " detid=" << pfrh.detId() << " " << pfrh.energy() << " " << rh.fraction();
         pfcluster_to_rechit[ielem].push_back({pfrh.detId(), pfrh.energy() * rh.fraction()});
       }  //rechit_fracs
     } else if (type == reco::PFBlockElement::SC) {
@@ -877,7 +875,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       //all rechits and the energy fractions in this cluster
       const auto& rechit_fracs = cluster.hitsAndFractions();
       for (const auto& rh : rechit_fracs) {
-        LOG << "  elem=" << ielem << " detid=" << rh.first.rawId() << " " << rh.second;
+        LogTrace("PFAnalysisNtuplizer") << "  elem=" << ielem << " detid=" << rh.first.rawId() << " " << rh.second;
         pfcluster_to_rechit[ielem].push_back({rh.first.rawId(), rh.second});
       }  //rechit_fracs
     }
@@ -899,7 +897,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
             if (caloparticle_to_pfcluster.find(key) == caloparticle_to_pfcluster.end()) {
               caloparticle_to_pfcluster[key] = 0.0;
             }
-            LOG << "cp match " << key.first << " " << key.second << " " << rechit_frac.second << " "
+            LogTrace("PFAnalysisNtuplizer") << "cp match " << key.first << " " << key.second << " " << rechit_frac.second << " "
                 << simhit_frac.second;
             caloparticle_to_pfcluster[key] += rechit_frac.second * simhit_frac.second;
           }
@@ -912,7 +910,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
             if (simcluster_to_pfcluster.find(key) == simcluster_to_pfcluster.end()) {
               simcluster_to_pfcluster[key] = 0.0;
             }
-            LOG << "sc match " << key.first << " " << key.second << " " << rechit_frac.second << " "
+            LogTrace("PFAnalysisNtuplizer") << "sc match " << key.first << " " << key.second << " " << rechit_frac.second << " "
                 << simhit_frac.second;
             simcluster_to_pfcluster[key] += rechit_frac.second * simhit_frac.second;
           }
@@ -984,7 +982,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     const auto energy = cp_to_pf.second;
     caloparticle_to_element.push_back(cp_pf);
     caloparticle_to_element_cmp.push_back(energy);
-    LOG << "cp_to_elem=" << cp_pf.first << "," << cp_pf.second << " e=" << energy;
+    LogTrace("PFAnalysisNtuplizer") << "cp_to_elem=" << cp_pf.first << "," << cp_pf.second << " e=" << energy;
   }
 
   for (const auto& sc_to_pf : simcluster_to_pfcluster) {
@@ -992,7 +990,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     const auto energy = sc_to_pf.second;
     simcluster_to_element.push_back(sc_pf);
     simcluster_to_element_cmp.push_back(energy);
-    LOG << "sc_to_elem=" << sc_pf.first << "," << sc_pf.second << " e=" << energy;
+    LogTrace("PFAnalysisNtuplizer") << "sc_to_elem=" << sc_pf.first << "," << sc_pf.second << " e=" << energy;
   }
 
   //associate candidates to elements
@@ -1065,7 +1063,7 @@ void PFAnalysis::processTrackingParticles(const edm::View<TrackingParticle>& tra
 
     trackingparticle_pid_.push_back(tp.pdgId());
     trackingparticle_charge_.push_back(tp.charge());
-    LOG << "tp=" << ntrackingparticle << " pt=" << tp.p4().pt() << " typ=" << tp.pdgId()
+    LogTrace("PFAnalysisNtuplizer") << "tp=" << ntrackingparticle << " pt=" << tp.p4().pt() << " typ=" << tp.pdgId()
         << " gen=" << tp.genParticles().size() << " tid=" << tp.g4Tracks().at(0).trackId() << std::endl;
   }
 }
