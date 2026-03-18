@@ -14,7 +14,7 @@ from HeterogeneousCore.MPICore.modules import *
 
 process.source = MPISource(
     mode = 'CommWorld',
-    remoteRank = 0
+    controller = 0
 )
 
 process.maxEvents.input = -1
