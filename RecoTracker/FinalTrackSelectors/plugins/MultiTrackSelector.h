@@ -89,6 +89,9 @@ protected:
   edm::EDGetTokenT<reco::BeamSpot> beamspot_;
   bool useVertices_;
   bool useVtxError_;
+  bool passThroughForAll_;
+  bool passThroughForDisplaced_;
+  uint32_t minLayersForDisplaced_;
   bool useAnyMVA_;
   edm::EDGetTokenT<reco::VertexCollection> vertices_;
 

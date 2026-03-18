@@ -20,7 +20,10 @@ MultiTrackSelector::MultiTrackSelector(const edm::ParameterSet& cfg)
       hSrc_(consumes<TrackingRecHitCollection>(cfg.getParameter<edm::InputTag>("src"))),
       beamspot_(consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamspot"))),
       useVertices_(cfg.getParameter<bool>("useVertices")),
-      useVtxError_(cfg.getParameter<bool>("useVtxError"))
+      useVtxError_(cfg.getParameter<bool>("useVtxError")),
+      passThroughForAll_(cfg.getParameter<bool>("passThroughForAll")),
+      passThroughForDisplaced_(cfg.getParameter<bool>("passThroughForDisplaced")),
+      minLayersForDisplaced_(cfg.getParameter<int>("minLayersForDisplaced"))
 // now get the pset for each selector
 {
   if (useVertices_)
@@ -344,6 +347,15 @@ bool MultiTrackSelector::select(unsigned int tsNum,
 
   using namespace std;
 
+  if (passThroughForAll_)
+    return true;
+  uint32_t nlayers = tk.hitPattern().trackerLayersWithMeasurement();
+  uint32_t npixhits = tk.hitPattern().numberOfValidPixelHits();
+  if (passThroughForDisplaced_) {
+    if (npixhits == 0 && nlayers >= minLayersForDisplaced_)
+      return true;
+  }
+
   //cuts on number of valid hits
   auto nhits = tk.numberOfValidHits();
   if ((nhits >= min_hits_bypass_[tsNum]) || (nhits == 0))
@@ -368,7 +380,6 @@ bool MultiTrackSelector::select(unsigned int tsNum,
   ///////////////////////////////
 
   // Cuts on numbers of layers with hits/3D hits/lost hits.
-  uint32_t nlayers = tk.hitPattern().trackerLayersWithMeasurement();
   uint32_t nlayers3D =
       tk.hitPattern().pixelLayersWithMeasurement() + tk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
   uint32_t nlayersLost = tk.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);

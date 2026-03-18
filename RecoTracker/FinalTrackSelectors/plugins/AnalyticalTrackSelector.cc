@@ -113,6 +113,9 @@ AnalyticalTrackSelector::AnalyticalTrackSelector(const edm::ParameterSet& cfg) :
   beamspot_ = consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("beamspot"));
   useVertices_ = cfg.getParameter<bool>("useVertices");
   useVtxError_ = cfg.getParameter<bool>("useVtxError");
+  passThroughForAll_ = cfg.getParameter<bool>("passThroughForAll");
+  passThroughForDisplaced_ = cfg.getParameter<bool>("passThroughForDisplaced");
+  minLayersForDisplaced_ = cfg.getParameter<int>("minLayersForDisplaced");
   if (useVertices_)
     vertices_ = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"));
   copyExtras_ = cfg.getUntrackedParameter<bool>("copyExtras", false);
@@ -401,6 +404,11 @@ void AnalyticalTrackSelector::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<edm::InputTag>("vertices", edm::InputTag("firstStepPrimaryVertices"));
   desc.add<int32_t>("vtxNumber", -1);
   desc.add<std::string>("vertexCut", "ndof>=2&!isFake");
+
+  // pass-through options
+  desc.add<bool>("passThroughForAll", false);
+  desc.add<bool>("passThroughForDisplaced", false);
+  desc.add<uint32_t>("minLayersForDisplaced", 4);
 
   desc.addUntracked<bool>("copyExtras", false);
   desc.addUntracked<bool>("copyTrajectories", false);

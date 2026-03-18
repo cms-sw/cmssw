@@ -381,9 +381,11 @@ from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
 vectorHits.toModify(highPtTripletStepSelector.trackSelectors[2], minNumberLayers = 3, minNumber3DLayers = 3, d0_par1 = ( 0.5, 4.0 ), dz_par1 = ( 0.6, 4.0 ))
 
 (trackingPhase2PU140 & trackingLST).toModify(highPtTripletStepSelector, src = 'highPtTripletStepLSTpTracks')
+(trackingPhase2PU140 & (trackingLST | seedingLST)).toModify(highPtTripletStepSelector, passThroughForAll = True)
 # Passthrough selector to satisfy the TrackListMerger requirement for selector values
 highPtTripletStepSelectorLSTT4T5 = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src = 'highPtTripletStepLSTT4T5Tracks',
+    passThroughForDisplaced = True,
     trackSelectors = [
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'highPtTripletStepLSTT4T5Loose',
