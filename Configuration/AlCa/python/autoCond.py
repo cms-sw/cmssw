@@ -37,8 +37,8 @@ autoCond = {
     'run3_data_express'            :    '150X_dataRun3_Express_frozen250613_v1',
     # GlobalTag for Run3 data relvals (prompt GT): same as 150X_dataRun3_Prompt_v1 but with snapshot at 2025-06-13 05:06:05 (UTC)
     'run3_data_prompt'             :    '150X_dataRun3_Prompt_frozen250613_v1',
-    # GlobalTag for Run3 offline data reprocessing - snapshot at 2025-11-11 14:11:48 (UTC)
-    'run3_data'                    :    '150X_dataRun3_v6',
+    # GlobalTag for Run3 offline data reprocessing - snapshot at 2026-03-17 08:48:50 (UTC)
+    'run3_data'                    :    '150X_dataRun3_v7',
     # GlobalTag for Run3 offline data reprocessing with Prompt GT, currently for 2022FG - snapshot at 2024-05-31 08:53:25 (UTC)
     'run3_data_PromptAnalysis'     :    '140X_dataRun3_PromptAnalysis_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
@@ -108,7 +108,7 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2025, Strip tracker in DECO mode
     'phase1_2025_cosmics'          :    '150X_mcRun3_2025cosmics_realistic_deco_v4',
     # GlobalTag for MC production with realistic conditions for Phase1 2025 detector for Heavy Ion
-    'phase1_2025_realistic_hi'     :    '151X_mcRun3_2025_realistic_HI_v2',
+    'phase1_2025_realistic_hi'     :    '151X_mcRun3_2025_realistic_HI_v4',
     # GlobalTag for MC production with realistic conditions for Phase2
     'phase2_realistic'             :    '150X_mcRun4_realistic_v1'
 }
