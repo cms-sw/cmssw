@@ -56,12 +56,9 @@ l1ct::EmCaloObjEmu l1ct::GctEmClusterDecoderEmulator::decode(const l1ct::PFRegio
   // bit 2: photonWP:
   calo.hwEmID = inclus.wp();
 
-  // Should any of these values be corrected? Choose corrected pt, uncorrected iso energy
-  calo.hwRelIso = (calo.hwPt > 0) ?
-    static_cast<rel_iso_t>(inclus.iso() * inclus.ptLSB() / calo.floatPt()) :
-    static_cast<rel_iso_t>(0);
-
-  calo.hwShowerShape = inclus.shape();
+  // Copying the bits directly.
+  calo.hwRelIso(rel_iso_t::width-1, 0) = inclus.iso()(rel_iso_t::width-1, 0);
+  calo.hwShowerShape(shower_shape_t::width-1, 0) = inclus.shape()(shower_shape_t::width-1, 0);
 
   // convert eta to local
   if (sector.hwEtaCenter < 0) {
