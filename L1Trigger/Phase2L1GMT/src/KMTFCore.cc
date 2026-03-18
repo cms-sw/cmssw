@@ -109,6 +109,12 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
     if (initialK <= -pow(2, BITSCURV - 1))
       initialK = -pow(2, BITSCURV - 1) + 1;
     track.setCoordinates(seed->depthRegion(), initialK, seed->coord1(), phiB, seed->eta1(), seed->eta2());
+	edm::LogWarning("KMTFCore") << "------------------";
+	edm::LogWarning("KMTFCore") << "[INIT] mask=" << mask << " step=" << track.step()
+    << " K=" << initialK << " phi=" << seed->coord1() << " phiB=" << phiB
+    << " z=" << seed->eta1() << " kSlope=" << seed->eta2()
+    << " seedQual=" << seed->quality() << " wheel=" << seed->etaRegion();
+
     if (seed->quality() < 6) {
       track.setCoordinates(seed->depthRegion(), initialK, seed->coord1(), 0, seed->eta1(), seed->eta2());
     }
@@ -146,7 +152,7 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
     //
     if (verbose_) {
       edm::LogWarning("KMTFCore") << "New Kalman fit staring at step=" << track.step() << ", phi=" << track.positionAngle()
-                               << ", phiB=" << track.bendingAngle() << ", with curvature=" << track.curvature();
+                               << ", phiB=" << track.bendingAngle() << ", z=" << track.zPosition() << ",kSlope =  " << track.kSlope() <<   ", with curvature=" << track.curvature() ;
       edm::LogWarning("KMTFCore") << "BITMASK:" << std::flush;
       for (unsigned int i = 0; i < 4; ++i)
         edm::LogWarning("KMTFCore") << getBit(mask, i) << std::flush;
@@ -159,8 +165,7 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
         edm::LogWarning("KMTFCore") << "station=" << stub->depthRegion() << " phi=" << stub->coord1()
                                  << " phiB=" << correctedPhiB(stub) << " qual=" << stub->quality()
                                  << " tag=" << stub->id() << " sector=" << stub->phiRegion()
-                                 << " wheel=" << stub->etaRegion() << " fineEta= " << stub->eta1() << " "
-                                 << stub->eta2();
+                                 << " wheel=" << stub->etaRegion() << " z= " << stub->eta1() << " kSlope = " << stub->eta2();
       edm::LogWarning("KMTFCore") << "------------------------------------------------------";
       edm::LogWarning("KMTFCore") << "------------------------------------------------------";
     }
@@ -181,15 +186,16 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
         setFourVectors(track);
         //calculate coarse eta
         //////////////////////
-        if (verbose_)
+        if (verbose_){
           edm::LogWarning("KMTFCore") << "Unconstrained PT  in Muon System: pt=" << track.displacedP4().pt();
+		}
         calculateEta(track);
       }
 
       propagate(track);
       if (verbose_)
         edm::LogWarning("KMTFCore") << "propagated Coordinates step:" << track.step() << "phi=" << track.positionAngle()
-                                 << "phiB=" << track.bendingAngle() << "K=" << track.curvature();
+                                 << "phiB=" << track.bendingAngle() << "K=" << track.curvature() << ", z=" << track.zPosition() << ", kSlope=" << track.kSlope();
       if (track.step() > 0)
         if (getBit(mask, track.step() - 1)) {
           std::pair<bool, uint> bestStub = match(seed, stubs, track.step());
@@ -201,7 +207,7 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
             break;
           if (verbose_) {
             edm::LogWarning("KMTFCore") << "updated Coordinates step:" << track.step() << " phi=" << track.positionAngle()
-                                     << " phiB=" << track.bendingAngle() << " K=" << track.curvature();
+                                     << " phiB=" << track.bendingAngle() << " K=" << track.curvature() << ", z=" << track.zPosition() << ", kSlope=" << track.kSlope();
           }
         }
 
@@ -210,7 +216,7 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
         if (verbose_)
           edm::LogWarning("KMTFCore") << " Coordinates before vertex constraint step:" << track.step()
                                    << " phi=" << track.phiAtVertex() << " dxy=" << track.dxy()
-                                   << " K=" << track.curvatureAtVertex();
+                                   << " K=" << track.curvatureAtVertex() << ", z=" << track.zPosition() << ", kSlope=" << track.kSlope();
 
         //apply vertex constraint for non single tracks
         if (track.stubs().size() > 1)
@@ -238,6 +244,12 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
         if (verbose_)
           edm::LogWarning("KMTFCore") << "Floating point coordinates at vertex: pt=" << track.pt()
                                    << ", eta=" << track.eta() << " phi=" << track.phi();
+        edm::LogWarning("KMTFCore") << "[RESULT] mask=" << mask
+    	<< " K=" << track.curvatureAtVertex() << " phi=" << track.phiAtVertex()
+    	<< " dxy=" << track.dxy() << " z=" << track.zPosition() << " kSlope=" << track.kSlope()
+    	<< " pt=" << track.pt() << " eta=" << track.eta()
+    	<< " chi2_prompt=" << track.approxPromptChi2() << " chi2_disp=" << track.approxDispChi2()
+    	<< " nstubs=" << track.stubs().size() << " hitPattern=" << track.hitPattern();
 
         pretracks.push_back(track);
       }
@@ -438,6 +450,10 @@ void KMTFCore::propagate(l1t::KMTFTrack& track) {
   unsigned int step = track.step();
   int z = track.zPosition();
   int kSlope = track.kSlope();
+  edm::LogWarning("KMTFCore") << "[PRE-PROP] step " << step << "->" << (step - 1)
+    << ": K=" << K << " phi=" << phi << " phiB=" << phiB
+    << " z=" << z << " kSlope=" << kSlope << " wheel=" << track.wheel();
+
 
   int charge = 1;
   if (K != 0)
@@ -606,14 +622,12 @@ void KMTFCore::propagate(l1t::KMTFTrack& track) {
     edm::LogWarning("KMTFCore") << "Multiple scattering term for z = " << MS(3, 3);
     edm::LogWarning("KMTFCore") << "Multiple scattering term for kSlope = " << MS(4, 4);
   }
+  edm::LogWarning("KMTFCore") << "[POST-PROP] step " << (step - 1)
+    << ": KNew=" << KNew << " phiNew=" << phiNew << " phiBNew=" << phiBNew
+    << " zNew=" << zNew << " kSlopeNew=" << kSlopeNew
+    << " convergeTerm=" << convergeTerm << " zdeltaR_dig=" << zdeltaR_dig;
 
   track.setCovariance(cov);
-  if (verbose_) {
-  	edm::LogWarning("KMTFCore") << "z prop step " << step << "->" << (step-1)
-                           << ": z=" << z << " -> " << zNew
-                           << " (convergeTerm=" << convergeTerm << ", kSlope=" << kSlope
-                           << ", zdeltaR_dig=" << zdeltaR_dig << ", wheel=" << track.wheel() << ")";
-	}
   track.setCoordinates(step - 1, KNew, phiNew, phiBNew, zNew, kSlopeNew);
 }
 
@@ -646,6 +660,11 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
   residual[1] = phiB - trackPhiB;
   residual[2] = z - trackz;
   residual[3] = kSlope - trackSlope;
+  
+  edm::LogWarning("KMTFCore") << "[STUB] step=" << track.step()
+    << " stub(phi=" << phi << " phiB=" << phiB << " z=" << z << " kSlope=" << kSlope << ")"
+    << " track(phi=" << trackPhi << " phiB=" << trackPhiB << " z=" << trackz << " kSlope=" << trackSlope << ")"
+    << " residual=(" << int(residual[0]) << " " << int(residual[1]) << " " << int(residual[2]) << " " << int(residual[3]) << ")";
 
   Matrix45 H;
   H(0, 0) = 0.0;
@@ -722,18 +741,19 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
                          << " | residual z=" << residual(2) << " kSlope=" << residual(3);
 
   }
-
+ 
   track.setCoordinates(track.step(), KNew, phiNew, phiBNew, zNew, kSlopeNew);
   const Matrix55 covNew = cov - Gain * (H * cov);
   l1t::CovarianceMatrix5dim c;
 
-  for (int i = 0; i < 5; i++)
-    for (int j = i; j < 5; j++)
-      c(i, j) = covNew(i, j);
+  for (int i = 0; i < 5; i++){
+    for (int j = i; j < 5; j++){
+      c(i, j) = covNew(i, j);}}
 
-  if (verbose_) {
-    edm::LogWarning("KMTFCore") << "Post Fit Covariance Matrix " << cov(0, 0) << " " << cov(1, 1) << " " << cov(2, 2);
-  }
+  edm::LogWarning("KMTFCore") << "[POST-UPDATE] step=" << track.step()
+  << ": KNew=" << KNew << " phiNew=" << phiNew << " phiBNew=" << phiBNew
+  << " zNew=" << zNew << " kSlopeNew=" << kSlopeNew
+  << " cov_diag=(" << covNew(0,0) << " " << covNew(1,1) << " " << covNew(2,2) << " " << covNew(3,3) << " " << covNew(4,4) << ")";
 
   track.setCovariance(c);
   track.addStub(stub);
@@ -757,7 +777,7 @@ bool KMTFCore::updateOffline1D(l1t::KMTFTrack& track, const l1t::MuonStubRef& st
   residual[0] = ap_fixed<BITSPHI, BITSPHI>(phi - trackPhi);
   residual[1] = z - trackz;
   residual[2] = kSlope - trackSlope;
-
+  
   if (verbose_) {
     edm::LogWarning("KMTFCore") << "residual phi" << phi << " - " << trackPhi << " = " << int(residual(0));
     edm::LogWarning("KMTFCore") << "residual z" << z << " - " << trackz << " = " << int(residual(1));
@@ -806,6 +826,11 @@ bool KMTFCore::updateOffline1D(l1t::KMTFTrack& track, const l1t::MuonStubRef& st
   Matrix55 covNew = cov - Gain * (H * cov);
   l1t::CovarianceMatrix5dim c;
 
+  edm::LogWarning("KMTFCore") << "[POST-UPDATE-1D] step=" << track.step()
+    << ": K=" << track.curvature() << " phi=" << track.positionAngle() << "trac phiB=" << track.bendingAngle()
+    << " Track z=" << track.zPosition() << "Track kSlope=" << track.kSlope()
+    << " cov_diag=(" << covNew(0,0) << " " << covNew(1,1) << " " << covNew(2,2) << " " << covNew(3,3) << " " << covNew(4,4) << ")";
+
   if (verbose_) {
     edm::LogWarning("KMTFCore") << "phiUpdate: " << int(Gain(0, 0) * residual(0)) << " " << int(Gain(2, 0) * residual(0));
     edm::LogWarning("KMTFCore") << " K = " << trackK << " + " << Gain(0, 0) << " * " << residual(0) << " + " << Gain(0, 1) << " * " << residual(1) << " + " << Gain(0, 2) << " * " << residual(2);
@@ -840,6 +865,7 @@ bool KMTFCore::updateLUT(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub, in
   if (verbose_)
     edm::LogWarning("KMTFCore") << "residual " << phi << " - " << trackPhi << " = " << residualPhi.to_int() << " " << phiB
                              << " - " << trackPhiB << " = " << residualPhiB.to_int();
+     
 
   uint absK = fabs(trackK);
   if (absK > pow(2, BITSCURV - 2) - 1)
@@ -1217,7 +1243,7 @@ int KMTFCore::encode(bool ownwheel, int sector, int tag) {
 
 std::pair<bool, uint> KMTFCore::getByCode(const std::vector<l1t::KMTFTrack>& tracks, int mask) {
   for (uint i = 0; i < tracks.size(); ++i) {
-    edm::LogWarning("KMTFCore") << "Code=" << tracks[i].hitPattern() << ", track=" << mask;
+    //edm::LogWarning("KMTFCore") << "Code=" << tracks[i].hitPattern() << ", track=" << mask;
     if (tracks[i].hitPattern() == mask)
       return std::make_pair(true, i);
   }
