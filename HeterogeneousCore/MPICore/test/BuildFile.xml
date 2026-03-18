@@ -18,6 +18,16 @@
 />
 
 <test
+  name="testMPIRoundRobinEventId"
+  command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_rr_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_cfg.py"
+/>
+
+<test
+  name="testMPIRoundRobinMultiEventId"
+  command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_multi_rr_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_multi1_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_multi1_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_multi2_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_multi2_cfg.py"
+/>
+
+<test
   name="testMPISoATransfer"
   command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_soa_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_soa_cfg.py"
 />
