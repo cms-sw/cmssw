@@ -2,6 +2,7 @@
 <use name="FWCore/Sources"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
+<use name="FWStorage/Catalog"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="hepmc"/>
 <use name="clhep"/>

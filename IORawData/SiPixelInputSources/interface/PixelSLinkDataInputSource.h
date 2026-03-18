@@ -29,14 +29,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
+#include "FWCore/Sources/interface/ProducerSourceBase.h"
+#include "FWStorage/Catalog/interface/FromFiles.h"
 #include "FWStorage/StorageFactory/interface/Storage.h"
 #include "FWStorage/StorageFactory/interface/StorageAccount.h"
 #include "FWStorage/StorageFactory/interface/StorageFactory.h"
 
 class FEDRawDataCollection;
 
-class PixelSLinkDataInputSource : public edm::ProducerSourceFromFiles {
+class PixelSLinkDataInputSource : public edm::ProducerSourceBase {
 public:
   explicit PixelSLinkDataInputSource(const edm::ParameterSet &pset, const edm::InputSourceDescription &desc);
 
@@ -58,5 +59,6 @@ private:
   int32_t m_eventnumber_shift;
   int getEventNumberFromFillWords(const std::vector<uint64_t> &data, uint32_t &totword);
   std::unique_ptr<FEDRawDataCollection> buffers;
+  edm::FromFiles m_fromFiles;
 };
 #endif

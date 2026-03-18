@@ -5,20 +5,26 @@
  *
  * \version   1st Version Dec. 27, 2005  
 
+ * Comment added 3/17/2026:
+ * As far as I can tell, the only purpose of this class is
+ * to verify that when setRunAndEventInfo returns false
+ * data processing stops. This source will request a stop
+ * if the event number is greater than 2. OtherThingProducer
+ * and OtherThingAnalyzer are run in the same test, but there
+ * other unit tests that already do that. Failure mode is
+ * that the unit test runs forever (probably times out
+ * at some point). See inputExtSourceTest_cfg.py.
  *
  ************************************************************/
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
+#include "FWCore/Sources/interface/ProducerSourceBase.h"
 #include "ThingAlgorithm.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 namespace edmtest {
-  class ThingExtSource : public edm::ProducerSourceFromFiles {
+  class ThingExtSource : public edm::ProducerSourceBase {
   public:
-    // The following is not yet used, but will be the primary
-    // constructor when the parameter set system is available.
-    //
     explicit ThingExtSource(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc);
 
     ~ThingExtSource() override;
