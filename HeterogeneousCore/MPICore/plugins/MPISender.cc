@@ -12,6 +12,7 @@
 #include <TClass.h>
 
 // CMSSW include files
+#include "DataFormats/Common/interface/PathStateToken.h"
 #include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ProductNamePattern.h"
 #include "FWCore/Concurrency/interface/Async.h"
@@ -45,6 +46,7 @@ public:
         instance_(config.getParameter<int32_t>("instance")),
         buffer_(std::make_unique<TBufferFile>(TBuffer::kWrite)),
         metadata_size_(0),
+        activity_(config.getParameter<edm::InputTag>("activity")),
         enableTrivialSerialisation_(config.getUntrackedParameter<bool>("enableTrivialSerialisation")) {
     // instance 0 is reserved for the MPIController / MPISource pair
     // instance values greater than 255 may not fit in the MPI tag
@@ -52,11 +54,11 @@ public:
       throw cms::Exception("InvalidValue") << "Invalid MPISender instance value, please use a value between 1 and 255";
     }
 
-    if (config.existsAs<std::string>("activity")) {
-      activityPattern_.emplace(config.getParameter<std::string>("activity"));
-    }
-
     products_.resize(patterns_.size());
+
+    if (not activity_.label().empty()) {
+      activityToken_ = consumes<edm::PathStateToken>(activity_);
+    }
 
     callWhenNewProductsRegistered([this](edm::ProductDescription const& product) {
       static const std::string_view kPathStatus("edm::PathStatus");
@@ -89,20 +91,6 @@ public:
               break;
             }
           }
-          if (activityPattern_ && activityPattern_->match(product)) {
-            Entry entry;
-            entry.type = product.unwrappedType();
-            entry.wrappedType = product.wrappedType();
-            entry.token =
-                consumes(edm::TypeToGet{product.unwrappedTypeID(), edm::PRODUCT_TYPE},
-                         edm::InputTag{product.moduleLabel(), product.productInstanceName(), product.processName()});
-
-            LogDebug("MPISender") << "send activity product \"" << product.friendlyClassName() << '_'
-                                  << product.moduleLabel() << '_' << product.productInstanceName() << '_'
-                                  << product.processName() << "\" over MPI channel instance " << instance_;
-
-            activity_ = std::move(entry);
-          }
           break;
 
         case edm::InLumi:
@@ -129,11 +117,10 @@ public:
     has_serialized_ = false;
     is_active_ = true;
 
-    if (activity_) {
-      edm::Handle<edm::WrapperBase> handle(activity_->type.typeInfo());
-      event.getByToken(activity_->token, handle);
+    if (not activity_.label().empty()) {
+      const edm::Handle<edm::PathStateToken>& pathStateTokenHandle = event.getHandle(activityToken_);
 
-      if (!handle.isValid()) {
+      if (!pathStateTokenHandle.isValid()) {
         meta->setProductCount(-1);
         is_active_ = false;
       }
@@ -248,10 +235,10 @@ public:
             "and \"*\") are allowed in a module label or in each field of a branch name.");
     desc.add<int32_t>("instance", 0)
         ->setComment("A value between 1 and 255 used to identify a matching pair of \"MPISender\"/\"MPIReceiver\".");
-    desc.addOptional<std::string>("activity")
+    desc.add<edm::InputTag>("activity", edm::InputTag(""))
         ->setComment(
-            "Optional activity product. If parameter is present but the token is missing in the event, "
-            "the sender will mark the event as inactive and skip data transfer.");
+            "Activity product. If empty (default), sender is always active. "
+            "If set but missing in event, the sender skips transfer.");
     desc.addUntracked<bool>("enableTrivialSerialisation", true)
         ->setComment(
             "If true (default), use the trivial serialisation mechanism for supported types. If false, use "
@@ -280,11 +267,11 @@ private:
   int32_t const instance_;                         // instance used to identify the source-destination pair
   std::unique_ptr<TBufferFile> buffer_;
   size_t metadata_size_;
-  std::optional<edm::ProductNamePattern> activityPattern_;  // activity product (optional)
-  std::optional<Entry> activity_;
+  edm::InputTag activity_;
+  edm::EDGetTokenT<edm::PathStateToken> activityToken_;
+  bool is_active_ = true;
   bool enableTrivialSerialisation_ = true;
   bool has_serialized_ = false;
-  bool is_active_ = true;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

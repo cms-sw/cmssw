@@ -35,7 +35,7 @@ public:
   MPIReceiver(edm::ParameterSet const& config)
       : upstream_(consumes<MPIToken>(config.getParameter<edm::InputTag>("upstream"))),
         token_(produces<MPIToken>()),
-        instance_(config.getParameter<int32_t>("instance")),  //
+        instance_(config.getParameter<int32_t>("instance")),
         activity_(config.getParameter<bool>("activity")),
         enableTrivialSerialisation_(config.getUntrackedParameter<bool>("enableTrivialSerialisation")) {
     // instance 0 is reserved for the MPIController / MPISource pair

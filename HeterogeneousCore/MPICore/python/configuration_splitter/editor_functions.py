@@ -128,13 +128,12 @@ def create_sender(
     sender_products = make_sender_patterns(module_name, products)
 
     if path_state_capture is not None:
-        activity = cms.string(f"*_{path_state_capture}__*".replace(" ", ""))
         sender = cms.EDProducer(
             "MPISender",
             upstream=cms.InputTag(sender_upstream),
             instance=cms.int32(instance),
             products=cms.vstring(*sender_products),
-            activity=activity,
+            activity=cms.InputTag(path_state_capture),
         )
     else:
         sender = cms.EDProducer(
@@ -162,13 +161,12 @@ def create_group_sender(
         sender_products.extend(make_sender_patterns(offloaded_module, all_products[offloaded_module]))
 
     if path_state_capture is not None:
-        activity = cms.string(f"*_{path_state_capture}__*".replace(" ", ""))
         sender = cms.EDProducer(
             "MPISender",
             upstream=cms.InputTag(upstream_module),
             instance=cms.int32(instance),
             products=cms.vstring(*sender_products),
-            activity=activity,
+            activity=cms.InputTag(path_state_capture),
         )
     else:
         sender = cms.EDProducer(
