@@ -231,8 +231,18 @@ void MLPFProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
 }
 
 std::unique_ptr<ONNXRuntime> MLPFProducer::initializeGlobalCache(const edm::ParameterSet& params) {
-  auto session_options =
-      ONNXRuntime::defaultSessionOptions(params.getParameter<bool>("use_cuda") ? Backend::cuda : Backend::cpu);
+  edm::Service<edm::ResourceInformation> ri;
+
+  Backend backend = Backend::cpu;
+
+  if (ri.isAvailable() && ri->hasGpuNvidia()) {
+    backend = Backend::cuda;
+    edm::LogInfo("MLPFProducer") << "NVIDIA GPU detected. Running ONNX model on CUDA.";
+  } else {
+    edm::LogInfo("MLPFProducer") << "No NVIDIA GPU detected. Running ONNX model on CPU.";
+  }
+
+  auto session_options = ONNXRuntime::defaultSessionOptions(backend);
   return std::make_unique<ONNXRuntime>(params.getParameter<edm::FileInPath>("model_path").fullPath(), &session_options);
 }
 
@@ -245,7 +255,6 @@ void MLPFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions
       "model_path",
       edm::FileInPath("RecoParticleFlow/PFProducer/data/mlpf/"
                       "mlpf_5M_attn2x3x256_bm12_relu_checkpoint10_8xmi250_fp32_fused_20250722.onnx"));
-  desc.add<bool>("use_cuda", false);
   descriptions.addWithDefaultLabel(desc);
 }
 
