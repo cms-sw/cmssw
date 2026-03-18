@@ -13,6 +13,7 @@
 #include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
@@ -52,7 +53,7 @@ public:
 
   ~ElectronSeedFitter() override = default;
 
-  static void fillDescription(edm::ConfigurationDescriptions& description);
+  static void fillDescriptions(edm::ConfigurationDescriptions& description);
 
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
@@ -93,10 +94,13 @@ protected:
 
   TkClonerImpl cloner_;
 
+  reco::BeamSpot::Point beamSpot_;
+
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryESToken_;
   const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorESToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldESToken_;
   const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> transientTrackingRecHitBuilderESToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
   const edm::EDPutTokenT<reco::ElectronSeedCollection> putToken_;
 };
 
@@ -113,9 +117,10 @@ ElectronSeedFitter::ElectronSeedFitter(const edm::ParameterSet& cfg)
       propagatorESToken_(esConsumes(edm::ESInputTag("", propagatorLabel_))),
       magneticFieldESToken_(esConsumes(edm::ESInputTag("", mfName_))),
       transientTrackingRecHitBuilderESToken_(esConsumes(edm::ESInputTag("", ttrhBuilder_))),
+      beamSpotToken_(consumes(cfg.getParameter<edm::InputTag>("beamSpot"))),
       putToken_{produces()} {}
 
-void ElectronSeedFitter::fillDescription(edm::ConfigurationDescriptions& descriptions) {
+void ElectronSeedFitter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("eleSeedCollection", edm::InputTag("hltEgammaFittedElectronPixelSeeds"));
@@ -125,12 +130,15 @@ void ElectronSeedFitter::fillDescription(edm::ConfigurationDescriptions& descrip
   desc.add<double>("MinOneOverPtError", 1.0);
   desc.add<std::string>("TTRHBuilder", "WithTrackAngle");
   desc.add<std::string>("magneticField", "ParabolicMf");
+  desc.add<edm::InputTag>("beamSpot", {"hltOnlineBeamSpot"});
 
   descriptions.addWithDefaultLabel(desc);
 }
 
 void ElectronSeedFitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   init(iSetup);
+
+  beamSpot_ = iEvent.get(beamSpotToken_).position();
 
   const auto& electronSeedsIn = *iEvent.getHandle(eleSeedCollectionToken_);
 
@@ -178,7 +186,7 @@ void ElectronSeedFitter::initialKinematic(GlobalTrajectoryParameters& kine, cons
   const TrackingRecHit& tth1 = *(seed.recHits().begin());
   const TrackingRecHit& tth2 = *(seed.recHits().begin() + 1);
 
-  const GlobalPoint vertexPos;
+  const GlobalPoint vertexPos(beamSpot_.x(), beamSpot_.y(), 0.0);
 
   FastHelix helix(tth2.globalPosition(), tth1.globalPosition(), vertexPos, nomField_, magneticField_);
   if (helix.isValid()) {
