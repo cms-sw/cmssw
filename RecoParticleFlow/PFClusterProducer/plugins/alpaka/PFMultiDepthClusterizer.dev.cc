@@ -15,7 +15,6 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthECLCCPrologueArgsDeviceCollection.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/alpaka/PFMultiDepthECLCCEpilogueArgsDeviceCollection.h"
 
-#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCInitPrologueArgs.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCPrologueMultiBlock.h"
 
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCInitEpilogueArgs.h"
@@ -101,11 +100,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
     if (do_opt_prologue) {
       reco::PFMultiDepthECLCCPrologueArgsDeviceCollection prologueArgs{queue, static_cast<int>(nClusters)};
 
-      alpaka::exec<Acc1D>(queue,
-                          ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
-                          ECLCCInitPrologueArgsKernel{},
-                          prologueArgs.view(),
-                          mdpfCCLabels.view());
+      prologueArgs.zeroInitialise(queue);
 
       alpaka::exec<Acc1D>(queue,
                           ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
@@ -307,9 +302,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
                           ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
                           ECLCCLoadSeedsKernel{},
                           outPFCluster.view(),
-                          epilogueArgs.view(),
-                          pfCluster.view(),
-                          mdpfCCLabels.view());
+                          epilogueArgs.view());
 
     } else {
       constexpr bool cooperative_work = true;

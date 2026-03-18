@@ -25,15 +25,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
 
       for (int v : ::cms::alpakatools::uniform_elements(acc, nVertices)) {
-        ;
         args[v].ccRHFOffset() = 0;
         args[v].ccRHFSize() = 0;
         args[v].rootMap() = 0;
         args[v].rootLocalMap() = 0;
         args[v].blockRHFOffset() = 0;
-        args[v].ccEnergies() = 0;
-        args[v].ccSeeds() = {0, 0};
-        args[v].vertexMask() = ~0u;  // Correctly set bits
+        args[v].ccEnergySeed() = 0;
+        args[v].vertexMask() = ~0u;  // set bits to 1
       }
     }
   };

@@ -72,11 +72,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       const unsigned int blockDim = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
 
-      auto& cc_energies(alpaka::declareSharedVar<unsigned int[max_w_items * w_extent], __COUNTER__>(acc));
+      auto& cc_energy_seed(alpaka::declareSharedVar<uint64_t[max_w_items * w_extent], __COUNTER__>(acc));
 
       //block-local number of components
-      unsigned int& nComponents = alpaka::declareSharedVar<unsigned int, __COUNTER__>(acc);
-      unsigned int& blockRHFShift = alpaka::declareSharedVar<unsigned int, __COUNTER__>(acc);
+      unsigned int& nComponents = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);
+      unsigned int& blockRHFShift = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);
 
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
         if (::cms::alpakatools::once_per_block(acc)) {
@@ -87,7 +87,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         unsigned int vertex_idx = nVertices;
 
         for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
-          cc_energies[idx.local] = 0;
+          cc_energy_seed[idx.local] = 0;
           vertex_idx = idx.global;
         }
         alpaka::syncBlockThreads(acc);
@@ -311,28 +311,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         const bool is_block_local_represantative = (group * blockDim < rep_idx) || ((group + 1) * blockDim < rep_idx);
 
-        unsigned int vertex_energy = 0;
+        if (is_isolated_root)
+          args[global_topo_idx].ccEnergySeed() = static_cast<uint64_t>(vertex_seed);
 
         auto compFn = [] ALPAKA_FN_ACC(const float a, const float b) -> float { return a > b ? a : b; };
 
         for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
-          const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
-
-          const warp::warp_mask_t rep_mask = warp::ballot_mask(acc, active_lanes_mask, is_block_local_represantative);
-
-          if (is_block_local_represantative == false)
+          if (!is_block_local_represantative || is_isolated_root) {
             continue;
+          }
+
+          const warp::warp_mask_t rep_mask = alpaka::warp::activemask(acc);
 
           const unsigned int lane_idx = idx.local % w_extent;
 
-          const warp::warp_mask_t updated_active_lanes_mask = warp::ballot_mask(acc, rep_mask, !is_isolated_root);
-
-          if (is_isolated_root)
-            continue;
-
           const float energy = pfRecHit[vertex_seed].energy();
 
-          const warp::warp_mask_t subcomponent_mask = warp::match_any_mask(acc, updated_active_lanes_mask, rep_idx);
+          const warp::warp_mask_t subcomponent_mask = warp::match_any_mask(acc, rep_mask, rep_idx);
 
           const float max_energy = warp_sparse_reduce(acc, subcomponent_mask, lane_idx, energy, compFn);
           // Equality on energy is intentional: max_energy is selected from lane values via shuffles/reduction,
@@ -348,55 +343,47 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           // Energies are assumed non-negative; bit-cast uint ordering matches float ordering for atomicMax.
           if (is_ls1b_idx<Acc1D>(subcomponent_mask, lane_idx)) {
-            unsigned int x = std::bit_cast<unsigned int>(energy_max);
-            alpaka::atomicMax(acc, &cc_energies[rep_cc_idx], x);
-            vertex_seed = seed_max;
-            vertex_energy = x;
+            uint32_t e_uint = std::bit_cast<unsigned int>(energy_max);
+            uint64_t x = (static_cast<uint64_t>(e_uint) << 32) | static_cast<uint64_t>(seed_max);
+            alpaka::atomicMax(acc, &cc_energy_seed[rep_cc_idx], x);
           }
         }
 
         alpaka::syncBlockThreads(acc);
 
         for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
-          const warp::warp_mask_t active_lane_mask = alpaka::warp::activemask(acc);
-
           if (is_isolated_root)
             continue;
 
-          const unsigned int lane_idx = idx.local % w_extent;
+          uint64_t energy_seed = is_representative ? cc_energy_seed[rep_cc_idx] : 0;
 
-          unsigned int seed_max = 0;
-          float energy_max = 0;
+          if (is_block_local_represantative == false) {
+            const unsigned int lane_idx = idx.local % w_extent;
 
-          const warp::warp_mask_t subcomponent_mask = warp::match_any_mask(acc, active_lane_mask, rep_idx);
+            const warp::warp_mask_t active_lane_mask = alpaka::warp::activemask(acc);
 
-          if (is_block_local_represantative == true && is_ls1b_idx<Acc1D>(subcomponent_mask, lane_idx)) {
-            seed_max = vertex_seed;
-            energy_max = std::bit_cast<float>(vertex_energy);
-          } else if (is_block_local_represantative == false) {
-            const warp::warp_mask_t updated_active_lane_mask = alpaka::warp::activemask(acc);
-
-            const warp::warp_mask_t updated_subcomponent_mask =
-                warp::match_any_mask(acc, updated_active_lane_mask, rep_idx);
+            const warp::warp_mask_t subcomponent_mask = warp::match_any_mask(acc, active_lane_mask, rep_idx);
 
             const float energy = pfRecHit[vertex_seed].energy();
 
-            const float max_energy = warp_sparse_reduce(acc, updated_subcomponent_mask, lane_idx, energy, compFn);
+            const float max_energy = warp_sparse_reduce(acc, subcomponent_mask, lane_idx, energy, compFn);
 
             const warp::warp_mask_t max_energy_lanes_mask =
-                warp::ballot_mask(acc, updated_subcomponent_mask, max_energy == energy);
+                warp::ballot_mask(acc, subcomponent_mask, max_energy == energy);
 
             const unsigned int max_energy_lane_idx = alpaka::ffs(acc, static_cast<int>(max_energy_lanes_mask)) - 1;
 
-            seed_max = warp::shfl_mask(acc, updated_subcomponent_mask, vertex_seed, max_energy_lane_idx, w_extent);
-            energy_max = warp::shfl_mask(acc, updated_subcomponent_mask, max_energy, max_energy_lane_idx, w_extent);
+            const auto seed_max = warp::shfl_mask(acc, subcomponent_mask, vertex_seed, max_energy_lane_idx, w_extent);
+            const auto energy_max = warp::shfl_mask(acc, subcomponent_mask, max_energy, max_energy_lane_idx, w_extent);
+
+            if (is_ls1b_idx<Acc1D>(subcomponent_mask, lane_idx)) {
+              uint32_t e_uint = std::bit_cast<unsigned int>(energy_max);
+              energy_seed = (static_cast<uint64_t>(e_uint) << 32) | static_cast<uint64_t>(seed_max);
+            }
           }
           // Energies are assumed non-negative; bit-cast uint ordering matches float ordering for atomicMax.
-          if (is_ls1b_idx<Acc1D>(subcomponent_mask, lane_idx)) {
-            unsigned int x = std::bit_cast<unsigned int>(energy_max);
-            alpaka::atomicMax(acc, &args[global_topo_idx].ccEnergies(), x);
-
-            args[idx.global].ccSeeds() = ccSeed(seed_max, x);
+          if (energy_seed != 0) {
+            alpaka::atomicMax(acc, &args[global_topo_idx].ccEnergySeed(), energy_seed);
           }
         }
       }
@@ -405,54 +392,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class ECLCCLoadSeedsKernel {
   public:
-    ALPAKA_FN_ACC void operator()(
-        Acc1D const& acc,
-        reco::PFClusterDeviceCollection::View outPFCluster,
-        reco::PFMultiDepthECLCCEpilogueArgsDeviceCollection::View args,
-        const reco::PFClusterDeviceCollection::ConstView pfCluster,
-        const reco::PFMultiDepthClusteringCCLabelsDeviceCollection::ConstView pfClusteringCCLabels) const {
-      constexpr unsigned int w_extent = get_warp_size<Acc1D>();
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  reco::PFClusterDeviceCollection::View outPFCluster,
+                                  reco::PFMultiDepthECLCCEpilogueArgsDeviceCollection::View args) const {
+      const unsigned int nComponents = outPFCluster.nSeeds();
 
-      const unsigned int nVertices = pfClusteringCCLabels.size();
+      for (auto global_topo_idx : ::cms::alpakatools::uniform_elements(acc, nComponents)) {
+        uint64_t energy_seed_packed = args[global_topo_idx].ccEnergySeed();
+        uint32_t seed_to_store = static_cast<uint32_t>(energy_seed_packed & 0xFFFFFFFF);
 
-      for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
-        for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
-          const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
-
-          const unsigned int lane_idx = idx.local % w_extent;
-
-          const unsigned int vertex_idx = idx.global;
-
-          const unsigned int rep_idx = pfClusteringCCLabels[vertex_idx].mdpf_topoId();
-
-          const warp::warp_mask_t non_isolated_vertices =
-              vertex_idx == rep_idx ? args[rep_idx / w_extent].vertexMask() : 0;
-
-          const bool is_isolated_root =
-              vertex_idx == rep_idx ? ((get_lane_mask(lane_idx) & non_isolated_vertices)) : false;
-
-          const warp::warp_mask_t updated_active_lanes_mask =
-              warp::ballot_mask(acc, active_lanes_mask, !is_isolated_root);
-
-          if (is_isolated_root) {
-            const unsigned int global_topo_idx = args[rep_idx].rootMap();
-            outPFCluster[global_topo_idx].seedRHIdx() = pfCluster[rep_idx].seedRHIdx();
-            continue;
-          }
-
-          const warp::warp_mask_t subcomponent_mask = warp::match_any_mask(acc, updated_active_lanes_mask, rep_idx);
-
-          if (is_ls1b_idx<Acc1D>(subcomponent_mask, lane_idx)) {
-            const unsigned int global_topo_idx = args[rep_idx].rootMap();
-            const unsigned int max_energy = args[global_topo_idx].ccEnergies();
-            // We have only one vertex that holds max energy, so no race condition here:
-            const auto ccSeed = args[idx.global].ccSeeds();
-            const unsigned int vertex_energy = ccSeed.key;
-
-            if (vertex_energy == max_energy)
-              outPFCluster[global_topo_idx].seedRHIdx() = ccSeed.value;
-          }
-        }
+        outPFCluster[global_topo_idx].seedRHIdx() = seed_to_store;
       }
     }
   };

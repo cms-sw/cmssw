@@ -16,8 +16,7 @@ namespace reco {
                       SOA_COLUMN(uint32_t, rootMap),
                       SOA_COLUMN(uint32_t, rootLocalMap),
                       SOA_COLUMN(uint32_t, blockRHFOffset),
-                      SOA_COLUMN(uint32_t, ccEnergies),
-                      SOA_COLUMN(ccSeed, ccSeeds),
+                      SOA_COLUMN(uint64_t, ccEnergySeed),
                       SOA_COLUMN(warp::warp_mask_t, vertexMask),
                       SOA_SCALAR(int, blockCount),
                       SOA_SCALAR(int, size))

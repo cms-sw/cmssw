@@ -66,11 +66,7 @@
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterizerHelper.h"
 
 #ifdef EPILOGUE_MULTIBLOCK
-#if __CUDA_ARCH__ >= 800
 static constexpr bool multiblock = true;
-#else
-static constexpr bool multiblock = false;
-#endif
 #else
 static constexpr bool multiblock = false;
 #endif
@@ -180,7 +176,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                            const reco::PFClusterDeviceCollection &pfClusters,
                            const reco::PFRecHitFractionDeviceCollection &pfRecHitFracs,
                            const reco::PFRecHitDeviceCollection &pfRecHit) const {
-    uint32_t items = multiblock ? 128 : 160;
+    uint32_t items = multiblock ? 128 : 512;
 
     auto n = static_cast<uint32_t>(mdpfClusteringVars->metadata().size());
     uint32_t groups = cms::alpakatools::divide_up_by(n, items);
@@ -226,14 +222,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           pfRecHitFracs.view(),
                           pfRecHit.view());
 
-      alpaka::exec<Acc1D>(queue,
-                          workDiv,
-                          ECLCCLoadSeedsKernel{},
-                          outPFCluster.view(),
-                          devClusteringEpilogueArgs.view(),
-                          pfClusters.view(),
-                          mdpfClusteringVars.view());
+      alpaka::exec<Acc1D>(
+          queue, workDiv, ECLCCLoadSeedsKernel{}, outPFCluster.view(), devClusteringEpilogueArgs.view());
     } else {
+      if constexpr (cooperative) {
+        printf("Running legacy epilogue in cooperative mode.\n");
+      } else {
+        printf("Running legacy epilogue in noncooperative mode.\n");
+      }
       alpaka::exec<Acc1D>(queue,
                           workDiv,
                           ECLCCEpilogueKernel<32, cooperative>{},
@@ -660,9 +656,9 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
-  const int nClusters = multiblock ? 1200 : 145;
-  const int maxHitsPerCluster = 8;  //67
-  const int minHitsPerCluster = 1;  //23
+  const int nClusters = multiblock ? 1200 : 500;
+  const int maxHitsPerCluster = multiblock ? 8 : 23;
+  const int minHitsPerCluster = 1;
 
   ::reco::PFClusterCollection clusters;
   clusters.reserve(nClusters);
@@ -680,7 +676,7 @@ int main() {
   const int nHits = sizes.first;
   const int nFracs = sizes.second;
 
-  std::vector<int> cc_roots = {0, 1, 5, 9, 33, 38, 101};
+  std::vector<int> cc_roots = {0, 1, 5, 9, 33, 38, 101, 113, 313, 331};
 
   const int cc_num = static_cast<int>(cc_roots.size());
 

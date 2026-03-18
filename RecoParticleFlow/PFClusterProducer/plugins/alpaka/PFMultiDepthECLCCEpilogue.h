@@ -135,17 +135,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         return;
       } else {
         // component offsets
-        auto& subcc_offsets(alpaka::declareSharedVar<unsigned int[max_w_items], __COUNTER__>(acc));
+        auto& subcc_offsets(alpaka::declareSharedVar<uint32_t[max_w_items], __COUNTER__>(acc));
         // isolate root flag : 0 - an isolated root vertex, 1 - a non-isolated root vertex
-        //auto& isolated_root_mask(alpaka::declareSharedVar<warp::warp_mask_t[max_w_items], __COUNTER__>(acc));
-        auto& nonisolated_vertex_mask(alpaka::declareSharedVar<warp::warp_mask_t[max_w_items], __COUNTER__>(acc));
+        auto& vertex_mask(alpaka::declareSharedVar<warp::warp_mask_t[max_w_items], __COUNTER__>(acc));
 
-        auto& common_buf1(alpaka::declareSharedVar<unsigned int[max_w_items * w_extent], __COUNTER__>(acc));
-        auto& common_buf2(alpaka::declareSharedVar<unsigned int[max_w_items * w_extent], __COUNTER__>(acc));
-        auto& common_buf3(alpaka::declareSharedVar<unsigned int[max_w_items * w_extent], __COUNTER__>(acc));
+        auto& common_buf1(alpaka::declareSharedVar<uint32_t[max_w_items * w_extent], __COUNTER__>(acc));
+        auto& common_buf2(alpaka::declareSharedVar<uint32_t[max_w_items * w_extent], __COUNTER__>(acc));
+        auto& common_buf3(alpaka::declareSharedVar<uint32_t[max_w_items * w_extent], __COUNTER__>(acc));
+
+        auto& cc_energy_seed(alpaka::declareSharedVar<uint64_t[max_w_items * w_extent], __COUNTER__>(acc));
 
         //block-local number of components
-        unsigned int& localNComponents = alpaka::declareSharedVar<unsigned int, __COUNTER__>(acc);
+        unsigned int& localNComponents = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);
 
         for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
           if (::cms::alpakatools::once_per_block(acc)) {
@@ -156,15 +157,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
             const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
-            // idx.local < max_w_items * w_extent
+
             common_buf1[idx.local] = nVertices;
             common_buf2[idx.local] = 0;
             common_buf3[idx.local] = 0;
 
+            cc_energy_seed[idx.local] = 0;
+
             if (idx.local < max_w_items) {
               subcc_offsets[idx.local] = 0;
-              //isolated_root_mask[idx.local] = 0;
-              nonisolated_vertex_mask[idx.local] = active_lanes_mask;  //needed for AND operation
+              vertex_mask[idx.local] = active_lanes_mask;  //needed for AND operation
             }
 
             vertex_idx = idx.local;
@@ -245,6 +247,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
 
             const unsigned int lane_idx = idx.local % w_extent;
+            const warp::warp_mask_t rep_lane_mask = get_lane_mask(rep_idx % w_extent);
 
             const warp::warp_mask_t subcomp_mask = warp::match_any_mask(acc, active_lanes_mask, rep_idx);
 
@@ -268,15 +271,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               const warp::warp_mask_t iso_root_lanes_subgroup =
                   warp::match_any_mask(acc, iso_root_lanes, which_warp_idx);
 
+              // Construct correct rep mask:
+              auto orFn = [] ALPAKA_FN_ACC(const warp::warp_mask_t m1,
+                                           const warp::warp_mask_t m2) -> warp::warp_mask_t { return m1 | m2; };
+
+              warp::warp_mask_t selected_iso_root_mask =
+                  warp_sparse_reduce(acc, iso_root_lanes_subgroup, lane_idx, rep_lane_mask, orFn);
+
               if (is_ls1b_idx<Acc1D>(iso_root_lanes_subgroup, lane_idx)) {
-                //FIXME : atomicOr leads to memory corruption!
-                //alpaka::atomicOr(acc, &isolated_root_mask[which_warp_idx], iso_root_lanes, alpaka::hierarchy::Threads{});
                 // Temporary WAR (general form of De Morgan's law):
-                const warp::warp_mask_t nonisolated_vertex_lanes = ~iso_root_lanes;
-                alpaka::atomicAnd(acc,
-                                  &nonisolated_vertex_mask[which_warp_idx],
-                                  nonisolated_vertex_lanes,
-                                  alpaka::hierarchy::Threads{});
+                const warp::warp_mask_t nonisolated_vertex_lanes = ~selected_iso_root_mask;
+
+                alpaka::atomicAnd(
+                    acc, &vertex_mask[which_warp_idx], nonisolated_vertex_lanes, alpaka::hierarchy::Threads{});
               }
             }
 
@@ -552,31 +559,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             }
           }
 
-          bool is_isolated_root = false;
-          unsigned int vertex_energy = 0;
-
-          // max energy (bit-cast) per component, cc_energies stores float energies bit-cast to uint for atomicMax():
-          auto& cc_energies = common_buf1;
-
           for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
-            const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
-
+            const unsigned int warp_idx = idx.local / w_extent;
             const unsigned int lane_idx = idx.local % w_extent;
 
-            const unsigned int warp_idx = idx.local / w_extent;
+            if (is_representative) {
+              const warp::warp_mask_t lane_mask = get_lane_mask(lane_idx);
+              const warp::warp_mask_t non_isolated_vertices = vertex_mask[warp_idx];
+              const bool is_isolated_root = ((lane_mask & non_isolated_vertices));
 
-            //const warp::warp_mask_t isolated_roots = is_representative ? isolated_root_mask[warp_idx] : 0;
-            const warp::warp_mask_t nonisolated_vertices =
-                is_representative ? nonisolated_vertex_mask[warp_idx] : active_lanes_mask;
-            const warp::warp_mask_t isolated_roots = ~nonisolated_vertices;
+              if (is_isolated_root) {
+                cc_energy_seed[rep_cc_idx] = static_cast<uint64_t>(vertex_seed);
+                continue;
+              }
+            }
 
-            is_isolated_root = is_work_lane(isolated_roots, lane_idx);
-
-            const warp::warp_mask_t updated_active_lanes_mask =
-                warp::ballot_mask(acc, active_lanes_mask, is_isolated_root == false);
-
-            if (is_isolated_root)
-              continue;
+            const warp::warp_mask_t updated_active_lanes_mask = alpaka::warp::activemask(acc);
 
             const float energy = pfRecHit[vertex_seed].energy();
 
@@ -598,46 +596,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
             // Energies are assumed non-negative; bit-cast uint ordering matches float ordering for atomicMax.
             if (is_ls1b_idx<Acc1D>(subcomponent_mask, lane_idx)) {
-              unsigned int x = std::bit_cast<unsigned int>(energy_max);
-              alpaka::atomicMax(acc, &cc_energies[rep_cc_idx], x);
-              vertex_seed = seed_max;
-              vertex_energy = x;
-            }
-            // we don't need cc_rhf_sizes anymore, reset buffer 3:
-            common_buf3[idx.local] = 0;
-          }
-
-          alpaka::syncBlockThreads(acc);
-
-          // selected seed per component:
-          auto& cc_seeds = common_buf3;
-
-          for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
-            const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
-
-            const unsigned int lane_idx = idx.local % w_extent;
-
-            const warp::warp_mask_t updated_active_lanes_mask =
-                warp::ballot_mask(acc, active_lanes_mask, is_isolated_root == false);
-
-            if (is_isolated_root) {
-              cc_seeds[rep_cc_idx] = vertex_seed;
-              continue;
-            }
-
-            const warp::warp_mask_t subcomponent_mask = warp::match_any_mask(acc, updated_active_lanes_mask, rep_idx);
-            if (is_ls1b_idx<Acc1D>(subcomponent_mask, lane_idx)) {
-              const unsigned int max_energy = cc_energies[rep_cc_idx];
-              // We have only one vertex that holds max energy, so no race condition here:
-              if (vertex_energy == max_energy)
-                cc_seeds[rep_cc_idx] = vertex_seed;
+              uint32_t e_uint = std::bit_cast<unsigned int>(energy_max);
+              uint64_t x = (static_cast<uint64_t>(e_uint) << 32) | static_cast<uint64_t>(seed_max);
+              alpaka::atomicMax(acc, &cc_energy_seed[rep_cc_idx], x);
             }
           }
+
           alpaka::syncBlockThreads(acc);
 
           for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nComponents)) {
             const unsigned int topo_idx = idx.local;
-            outPFCluster[topo_idx].seedRHIdx() = cc_seeds[topo_idx];
+            // Retrieve relevant seed :
+            uint64_t energy_seed_packed = cc_energy_seed[topo_idx];
+            uint32_t seed_to_store = static_cast<uint32_t>(energy_seed_packed & 0xFFFFFFFF);
+
+            outPFCluster[topo_idx].seedRHIdx() = seed_to_store;
           }
         }
       }  //end of solo-block branch

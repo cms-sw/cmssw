@@ -30,7 +30,6 @@
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterizerHelper.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCPrologue.h"
 
-#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCInitPrologueArgs.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCPrologueMultiBlock.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFClusterHostCollection.h"
@@ -48,11 +47,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthECLCCPrologueArgsHostCollection.h"
 
 #ifdef PROLOGUE_MULTIBLOCK
-#if __CUDA_ARCH__ >= 800
 static constexpr bool multiblock = true;
-#else
-static constexpr bool multiblock = false;
-#endif
 #else
 static constexpr bool multiblock = false;
 #endif
@@ -85,8 +80,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     if constexpr (multiblock) {
       reco::PFMultiDepthECLCCPrologueArgsDeviceCollection devClusteringPrologueArgs{queue, n};
 
-      alpaka::exec<Acc1D>(
-          queue, workDiv, ECLCCInitPrologueArgsKernel{}, devClusteringPrologueArgs.view(), mdpfClusteringVars.view());
+      devClusteringPrologueArgs.zeroInitialise(queue);
 
       alpaka::exec<Acc1D>(
           queue, workDiv, ECLCCComputeExternNeighsKernel{}, devClusteringPrologueArgs.view(), mdpfClusteringVars.view());
@@ -264,7 +258,7 @@ int main() {
     exit(EXIT_FAILURE);
   }
 
-  const int nClusters = multiblock ? 1200 : 145;  //145
+  const int nClusters = multiblock ? 1200 : 145;
 
   std::vector<int> roots = {0, 3, 7, 11, 19, 29, 37, 41, 71, 83, 97, 101, 137};
 
