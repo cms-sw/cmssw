@@ -16,7 +16,7 @@ l1t::MuonShower::MuonShower(bool oneNominalInTime,
       musOutOfTime0_(false),
       musOutOfTime1_(false) {}
 
-l1t::MuonShower::~MuonShower() {}
+l1t::io_v1::MuonShower::~MuonShower() {}
 
 bool l1t::MuonShower::isValid() const {
   return oneNominalInTime_ or oneTightInTime_ or twoLooseDiffSectorsInTime_ or musOutOfTime0_ or musOutOfTime1_;
