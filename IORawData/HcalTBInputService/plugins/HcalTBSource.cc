@@ -14,10 +14,11 @@ using namespace edm;
 using namespace std;
 
 HcalTBSource::HcalTBSource(const edm::ParameterSet& pset, edm::InputSourceDescription const& desc)
-    : edm::ProducerSourceFromFiles(pset, desc, true),
+    : edm::ProducerSourceBase(pset, desc, true),
       m_quiet(pset.getUntrackedParameter<bool>("quiet", true)),
       m_onlyRemapped(pset.getUntrackedParameter<bool>("onlyRemapped", false)),
-      m_skip(pset.getUntrackedParameter<uint32_t>("skipEvents", 0)) {
+      m_skip(pset.getUntrackedParameter<uint32_t>("skipEvents", 0)),
+      m_fromFiles(pset) {
   m_tree = nullptr;
   m_fileCounter = -1;
   m_file = nullptr;
@@ -122,9 +123,9 @@ bool HcalTBSource::setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::Event
       m_file = nullptr;
       m_tree = nullptr;
     }
-    if (m_fileCounter >= int(fileNames(0).size()))
+    if (m_fileCounter >= int(m_fromFiles.fileNames(0).size()))
       return false;  // nothing good
-    openFile(fileNames(0)[m_fileCounter]);
+    openFile(m_fromFiles.fileNames(0)[m_fileCounter]);
     is_new = true;
   }
 

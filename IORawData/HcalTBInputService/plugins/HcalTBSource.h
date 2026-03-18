@@ -8,7 +8,8 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
+#include "FWCore/Sources/interface/ProducerSourceBase.h"
+#include "FWStorage/Catalog/interface/FromFiles.h"
 
 class TFile;
 class TTree;
@@ -18,7 +19,7 @@ class CDFEventInfo;
 /** \class HcalTBSource
    \note Notice that there is a hack to renumber events from runs where the first event number was zero.
 */
-class HcalTBSource : public edm::ProducerSourceFromFiles {
+class HcalTBSource : public edm::ProducerSourceBase {
 public:
   explicit HcalTBSource(const edm::ParameterSet& pset, edm::InputSourceDescription const& desc);
   ~HcalTBSource() override;
@@ -39,6 +40,7 @@ private:
   std::map<std::string, int> m_sourceIdRemap;
   CDFEventInfo* m_eventInfo;
   int m_eventNumberOffset, m_skip;
+  edm::FromFiles m_fromFiles;
 };
 
 #endif  // HcalTBSource_h_included
