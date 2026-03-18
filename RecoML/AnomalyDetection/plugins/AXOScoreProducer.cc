@@ -1,5 +1,5 @@
-/** \class HLTADFilter
- * HLT filter using PyTorch anomaly detection model.
+/** \class AXOScoreProducer
+ * Produce the AXO Anaomlay detection score, using PyTorch
  * Author: Maciej Glowacki
  */
 
@@ -22,7 +22,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/stream/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/PyTorch/interface/Model.h"
 
@@ -44,33 +44,33 @@ namespace {
   }
 }  // namespace
 
-class HLTADFilter : public edm::stream::EDFilter<> {
+class AXOScoreProducer : public edm::stream::EDProducer<> {
 public:
-  explicit HLTADFilter(const edm::ParameterSet& cfg)
+  explicit AXOScoreProducer(const edm::ParameterSet& cfg)
       : pfToken_(consumes<std::vector<reco::PFCandidate>>(cfg.getParameter<edm::InputTag>("pfCandidates"))),
         muonToken_(consumes<reco::MuonCollection>(cfg.getParameter<edm::InputTag>("muons"))),
         egammaCandToken_(consumes<reco::RecoEcalCandidateCollection>(cfg.getParameter<edm::InputTag>("egammaCands"))),
         gsfTrackToken_(consumes<reco::GsfTrackCollection>(cfg.getParameter<edm::InputTag>("gsfTracks"))),
         vertexToken_(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
         tensorBuffer_(kMaxObjects * kNFeatures, 0.0f),
-        threshold_(cfg.getParameter<double>("threshold")) {
+        scoreToken_(produces<float>("score")) {
     edm::FileInPath modelFilePath = cfg.getParameter<edm::FileInPath>("modelPath");
     model_ = std::make_unique<cms::torch::Model>(modelFilePath.fullPath(), torch::Device(torch::kCPU));
     InputTensor_ = torch::from_blob(
         tensorBuffer_.data(), {1, static_cast<long>(kMaxObjects), static_cast<long>(kNFeatures)}, torch::kFloat32);
   }
 
-  bool filter(edm::Event& event, const edm::EventSetup&) override {
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
     std::vector<UnifiedParticle> allParticles;
     allParticles.reserve(kMaxObjects);
 
-    const auto& vertexCollection = event.getHandle(vertexToken_);
+    const auto& vertexCollection = iEvent.getHandle(vertexToken_);
     const reco::Vertex* pv =
         (vertexCollection.isValid() && !vertexCollection->empty()) ? &((*vertexCollection)[0]) : nullptr;
 
     // --- 1. Collect PF Candidates ---
     edm::Handle<std::vector<reco::PFCandidate>> pfH;
-    if (event.getByToken(pfToken_, pfH)) {
+    if (iEvent.getByToken(pfToken_, pfH)) {
       for (const auto& cand : *pfH) {
         if (cand.pdgId() == reco::PFCandidate::h || cand.pdgId() == reco::PFCandidate::e)
           continue;
@@ -90,7 +90,7 @@ public:
 
     // --- 2. Collect Muons ---
     edm::Handle<std::vector<reco::Muon>> muH;
-    if (event.getByToken(muonToken_, muH)) {
+    if (iEvent.getByToken(muonToken_, muH)) {
       for (const auto& m : *muH) {
         float dxy = 0, dxysig = 0;
         auto trk = m.innerTrack();
@@ -106,10 +106,10 @@ public:
 
     // --- 3. Collect EGamma ---
     edm::Handle<reco::GsfTrackCollection> gsfTrkH;
-    event.getByToken(gsfTrackToken_, gsfTrkH);
+    iEvent.getByToken(gsfTrackToken_, gsfTrkH);
 
     edm::Handle<reco::RecoEcalCandidateCollection> egammaH;
-    event.getByToken(egammaCandToken_, egammaH);
+    iEvent.getByToken(egammaCandToken_, egammaH);
 
     // Build map from SuperCluster to GsfTrack
     std::map<reco::SuperClusterRef, const reco::GsfTrack*> scToTrack;
@@ -159,9 +159,7 @@ public:
     inputs.push_back(InputTensor_);
 
     at::Tensor output = model_->forward(inputs).toTensor();
-    bool accept = output.item<float>() > threshold_;
-
-    return accept;
+    iEvent.emplace(scoreToken_, output.item<float>());
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -172,8 +170,7 @@ public:
     desc.add<edm::InputTag>("gsfTracks", edm::InputTag("hltEgammaGsfTracks"));
     desc.add<edm::InputTag>("vertices", edm::InputTag("hltPixelVertices"));
     desc.add<edm::FileInPath>("modelPath", edm::FileInPath("HLTrigger/HLTfilters/data/hlt_ad_model.pt"));
-    desc.add<double>("threshold", 21.499275);
-    descriptions.add("hltADFilter", desc);
+    descriptions.addWithDefaultLabel(desc);
   }
 
 private:
@@ -186,7 +183,8 @@ private:
   std::unique_ptr<cms::torch::Model> model_;
   std::vector<float> tensorBuffer_;
   torch::Tensor InputTensor_;
-  const double threshold_;
+
+  const edm::EDPutTokenT<float> scoreToken_;
 };
 
-DEFINE_FWK_MODULE(HLTADFilter);
+DEFINE_FWK_MODULE(AXOScoreProducer);
