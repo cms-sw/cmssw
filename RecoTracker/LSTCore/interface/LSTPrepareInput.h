@@ -1,6 +1,7 @@
 #ifndef RecoTracker_LSTCore_interface_LSTPrepareInput_h
 #define RecoTracker_LSTCore_interface_LSTPrepareInput_h
 
+#include <algorithm>
 #include <memory>
 #include <Math/Vector3D.h>
 #include <Math/VectorUtil.h>
@@ -219,42 +220,42 @@ namespace lst {
 
     auto hits = lstInputHC.view().hits();
     hits.nHitsOT() = nHitsOT;
-    std::memcpy(hits.xs().data(), ph2_x.data(), nHitsOT * sizeof(float));
-    std::memcpy(hits.ys().data(), ph2_y.data(), nHitsOT * sizeof(float));
-    std::memcpy(hits.zs().data(), ph2_z.data(), nHitsOT * sizeof(float));
-    std::memcpy(hits.detid().data(), ph2_detId.data(), nHitsOT * sizeof(unsigned int));
-    std::memcpy(hits.clustsize().data(), ph2_clustSize.data(), nHitsOT * sizeof(uint16_t));
+    std::copy_n(ph2_x.data(), nHitsOT, hits.xs().data());
+    std::copy_n(ph2_y.data(), nHitsOT, hits.ys().data());
+    std::copy_n(ph2_z.data(), nHitsOT, hits.zs().data());
+    std::copy_n(ph2_detId.data(), nHitsOT, hits.detid().data());
+    std::copy_n(ph2_clustSize.data(), nHitsOT, hits.clustsize().data());
 #ifndef LST_STANDALONE
-    std::memcpy(hits.hits().data(), ph2_hits.data(), nHitsOT * sizeof(TrackingRecHit const*));
+    std::copy_n(ph2_hits.data(), nHitsOT, hits.hits().data());
 #endif
 
-    std::memcpy(hits.xs().data() + nHitsOT, trkX.data(), nHitsIT * sizeof(float));
-    std::memcpy(hits.ys().data() + nHitsOT, trkY.data(), nHitsIT * sizeof(float));
-    std::memcpy(hits.zs().data() + nHitsOT, trkZ.data(), nHitsIT * sizeof(float));
-    std::memcpy(hits.detid().data() + nHitsOT, hitId.data(), nHitsIT * sizeof(unsigned int));
-    std::memcpy(hits.clustsize().data() + nHitsOT, hitClustSize.data(), nHitsIT * sizeof(uint16_t));
+    std::copy_n(trkX.data(), nHitsIT, hits.xs().data() + nHitsOT);
+    std::copy_n(trkY.data(), nHitsIT, hits.ys().data() + nHitsOT);
+    std::copy_n(trkZ.data(), nHitsIT, hits.zs().data() + nHitsOT);
+    std::copy_n(hitId.data(), nHitsIT, hits.detid().data() + nHitsOT);
+    std::copy_n(hitClustSize.data(), nHitsIT, hits.clustsize().data() + nHitsOT);
 #ifndef LST_STANDALONE
-    std::memset(hits.hits().data() + nHitsOT, 0, nHitsIT * sizeof(TrackingRecHit const*));
+    std::fill_n(hits.hits().data() + nHitsOT, nHitsIT, nullptr);
 #endif
 
-    std::memcpy(hits.idxs().data(), hitIdxs.data(), (nHitsIT + nHitsOT) * sizeof(unsigned int));
+    std::copy_n(hitIdxs.data(), nHitsIT + nHitsOT, hits.idxs().data());
 
     auto pixelSeeds = lstInputHC.view().pixelSeeds();
-    std::memcpy(pixelSeeds.hitIndices().data(), hitIndices_vec.data(), nPixelSeeds * sizeof(Params_pLS::ArrayUxHits));
-    std::memcpy(pixelSeeds.deltaPhi().data(), deltaPhi_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.ptIn().data(), ptIn_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.ptErr().data(), ptErr_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.px().data(), px_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.py().data(), py_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.pz().data(), pz_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.etaErr().data(), etaErr_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.isQuad().data(), isQuad_vec.data(), nPixelSeeds * sizeof(char));
-    std::memcpy(pixelSeeds.eta().data(), eta_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.phi().data(), phi_vec.data(), nPixelSeeds * sizeof(float));
-    std::memcpy(pixelSeeds.charge().data(), charge_vec.data(), nPixelSeeds * sizeof(int));
-    std::memcpy(pixelSeeds.seedIdx().data(), seedIdx_vec.data(), nPixelSeeds * sizeof(unsigned int));
-    std::memcpy(pixelSeeds.superbin().data(), superbin_vec.data(), nPixelSeeds * sizeof(int));
-    std::memcpy(pixelSeeds.pixelType().data(), pixelType_vec.data(), nPixelSeeds * sizeof(PixelType));
+    std::copy_n(hitIndices_vec.data(), nPixelSeeds, pixelSeeds.hitIndices().data());
+    std::copy_n(deltaPhi_vec.data(), nPixelSeeds, pixelSeeds.deltaPhi().data());
+    std::copy_n(ptIn_vec.data(), nPixelSeeds, pixelSeeds.ptIn().data());
+    std::copy_n(ptErr_vec.data(), nPixelSeeds, pixelSeeds.ptErr().data());
+    std::copy_n(px_vec.data(), nPixelSeeds, pixelSeeds.px().data());
+    std::copy_n(py_vec.data(), nPixelSeeds, pixelSeeds.py().data());
+    std::copy_n(pz_vec.data(), nPixelSeeds, pixelSeeds.pz().data());
+    std::copy_n(etaErr_vec.data(), nPixelSeeds, pixelSeeds.etaErr().data());
+    std::copy_n(isQuad_vec.data(), nPixelSeeds, pixelSeeds.isQuad().data());
+    std::copy_n(eta_vec.data(), nPixelSeeds, pixelSeeds.eta().data());
+    std::copy_n(phi_vec.data(), nPixelSeeds, pixelSeeds.phi().data());
+    std::copy_n(charge_vec.data(), nPixelSeeds, pixelSeeds.charge().data());
+    std::copy_n(seedIdx_vec.data(), nPixelSeeds, pixelSeeds.seedIdx().data());
+    std::copy_n(superbin_vec.data(), nPixelSeeds, pixelSeeds.superbin().data());
+    std::copy_n(pixelType_vec.data(), nPixelSeeds, pixelSeeds.pixelType().data());
 
     return lstInputHC;
   }
