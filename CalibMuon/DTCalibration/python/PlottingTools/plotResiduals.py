@@ -1,4 +1,4 @@
-import ROOT
+import ROOT as R
 from .fitResidual import fitResidual
 from .drawHistoAllChambers import drawHisto
 
@@ -24,9 +24,9 @@ def plot(fileName,sl,dir='DTResiduals', run='1',option="HISTOPE1",draw=True):
     verbose = False
     nSigmas = 2
 
-    ROOT.TH1.AddDirectory(False)
+    R.TH1.AddDirectory(False)
 
-    file = ROOT.TFile(fileName,'read')
+    file = R.TFile(fileName,'read')
 
     wheels = (-2,-1,0,1,2)
     stations = (1,2,3,4)
@@ -35,8 +35,8 @@ def plot(fileName,sl,dir='DTResiduals', run='1',option="HISTOPE1",draw=True):
     # (Wh-2 MB2 Sec1 ... Wh-2 MB2 Sec12 ... Wh-1 MB2 Sec1 ... Wh-1 MB1 Sec12 ...) ...
     nBins = 250
     if slType == 2: nBins = 180
-    histoMean = ROOT.TH1F("h_ResMeanAll","Mean of residuals for Run=%s at %s" % (run,slStr),nBins,0,nBins)
-    histoSigma = ROOT.TH1F("h_ResSigmaAll","Sigma of residuals for Run=%s at %s" % (run,slStr),nBins,0,nBins)
+    histoMean = R.TH1F("h_ResMeanAll","Mean of residuals for Run=%s at %s" % (run,slStr),nBins,0,nBins)
+    histoSigma = R.TH1F("h_ResSigmaAll","Sigma of residuals for Run=%s at %s" % (run,slStr),nBins,0,nBins)
     for st in stations:
         nSectors = 12
         if st == 4: nSectors = 14

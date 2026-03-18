@@ -40,6 +40,9 @@ DTResidualCalibration::DTResidualCalibration(const edm::ParameterSet& pset)
   select_ = new DTSegmentSelector(pset, collector);
 
   LogDebug("Calibration") << "[DTResidualCalibration] Constructor called.";
+
+  //std::cout<<" ** \t This is a test 3" << std::endl;
+  
   std::string rootFileName = pset.getUntrackedParameter<std::string>("rootFileName", "residuals.root");
   rootFile_ = new TFile(rootFileName.c_str(), "RECREATE");
   rootFile_->cd();
@@ -60,6 +63,8 @@ DTResidualCalibration::~DTResidualCalibration() {
 void DTResidualCalibration::beginJob() { TH1::SetDefaultSumw2(true); }
 
 void DTResidualCalibration::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
+
+  
   // get the geometry
   edm::ESHandle<DTGeometry> dtGeomH;
   dtGeomH = setup.getHandle(dtGeomToken_);
@@ -234,6 +239,8 @@ void DTResidualCalibration::bookHistos(DTSuperLayerId slId) {
                               200,
                               -histRange_,
                               histRange_);
+  histosTH1F->SetDirectory(sectorDir);
+  
   TH2F* histosTH2F = new TH2F(("hResDistVsDist" + slHistoName).c_str(),
                               "Residuals on the dist. (cm) from wire (rec_hit - segm_extr) vs dist. (cm)",
                               100,
@@ -242,6 +249,9 @@ void DTResidualCalibration::bookHistos(DTSuperLayerId slId) {
                               200,
                               -histRange_,
                               histRange_);
+
+  histosTH2F->SetDirectory(sectorDir);
+
   histoMapTH1F_[slId] = histosTH1F;
   histoMapTH2F_[slId] = histosTH2F;
 }
@@ -305,6 +315,7 @@ void DTResidualCalibration::bookHistos(DTLayerId layerId) {
 
 // Fill a set of histograms for a given SL
 void DTResidualCalibration::fillHistos(DTSuperLayerId slId, float distance, float residualOnDistance) {
+  LogDebug("Calibration")<< "Filling the histogram "<< slId <<" with res=" <<residualOnDistance;
   histoMapTH1F_[slId]->Fill(residualOnDistance);
   histoMapTH2F_[slId]->Fill(distance, residualOnDistance);
 }
