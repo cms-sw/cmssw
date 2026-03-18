@@ -40,8 +40,6 @@ DTResidualCalibration::DTResidualCalibration(const edm::ParameterSet& pset)
   select_ = new DTSegmentSelector(pset, collector);
 
   LogDebug("Calibration") << "[DTResidualCalibration] Constructor called.";
-
-  //std::cout<<" ** \t This is a test 3" << std::endl;
   
   std::string rootFileName = pset.getUntrackedParameter<std::string>("rootFileName", "residuals.root");
   rootFile_ = new TFile(rootFileName.c_str(), "RECREATE");
@@ -249,7 +247,6 @@ void DTResidualCalibration::bookHistos(DTSuperLayerId slId) {
                               200,
                               -histRange_,
                               histRange_);
-
   histosTH2F->SetDirectory(sectorDir);
 
   histoMapTH1F_[slId] = histosTH1F;
