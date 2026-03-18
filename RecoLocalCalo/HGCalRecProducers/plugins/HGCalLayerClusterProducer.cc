@@ -35,6 +35,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterHostCollection.h"
+#include "DataFormats/TICL/interface/AssociationMap.h"
 
 #if DEBUG_CLUSTERS_ALPAKA
 #include "RecoLocalCalo/HGCalRecProducers/interface/DumpClustersDetails.h"
@@ -260,11 +261,12 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
   algo_->makeClusters();
 
-  auto clusters = std::make_unique<reco::CaloClusterHostCollection>(new reco::CaloClusterHostCollection);
-  *clusters = algo_->getClusters(false);
+  auto clusters_and_associations = algo_->getClusters(false);
+  auto clusters = std::move(clusters_and_associations.layer_clusters);
+  auto hits_and_fractions = std::move(clusters_and_associations.hits_and_fractions);
 
   std::vector<std::pair<float, float>> times;
-  times.reserve(clusters->view().metadata().size());
+  times.reserve(clusters->view().position().metadata().size());
 
   // for (unsigned i = 0; i < legacy_clusters->size(); ++i) {
   //   reco::CaloCluster& sCl = (*legacy_clusters)[i];
@@ -287,13 +289,11 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
   dumper.dumpInfos(*legacy_clusters, moduleLabel_, runNumber, lumiNumber, evtNumber, true);
 #endif
 
-  // auto clusterHandle = evt.put(std::move(clusters));
-
-  // if (detector_ == "HFNose") {
-  //   std::unique_ptr<std::vector<float>> layerClustersMask(new std::vector<float>);
-  //   layerClustersMask->resize(legacy_clusters->size(), 1.0);
-  //   evt.put(std::move(layerClustersMask), "InitialLayerClustersMask");
-  // }
+  if (detector_ == "HFNose") {
+    std::unique_ptr<std::vector<float>> layerClustersMask(new std::vector<float>);
+    layerClustersMask->resize(clusters->view().position().metadata().size(), 1.0);
+    evt.put(std::move(layerClustersMask), "InitialLayerClustersMask");
+  }
 
   // auto timeCl = std::make_unique<edm::ValueMap<std::pair<float, float>>>();
   // edm::ValueMap<std::pair<float, float>>::Filler filler(*timeCl);
@@ -301,12 +301,8 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
   // filler.fill();
   // evt.put(std::move(timeCl), timeClname_);
 
-  // for (auto i = 0; i < timeCl->size(); ++i) {
-  //   clusters->view().timing().time()[i] = (*timeCl)[i].first;
-  //   clusters->view().timing().timeError()[i] = (*timeCl)[i].second;
-  // }
-
   evt.put(std::move(clusters));
+  evt.put(std::move(hits_and_fractions));
 
   algo_->reset();
 }

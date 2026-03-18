@@ -90,27 +90,29 @@ void HGCalCLUEAlgoT<T, STRATEGY>::populate(const HGCRecHitCollection &hits) {
 // input (reset should be called between events)
 template <typename T, typename STRATEGY>
 void HGCalCLUEAlgoT<T, STRATEGY>::makeClusters() {
-  float delta;
-  if constexpr (std::is_same_v<STRATEGY, HGCalSiliconStrategy>) {
-    // maximum search distance (critical distance) for local density
-    // calculation
-    float delta_c;
-    if (i % maxlayer_ < lastLayerEE_)
-      delta_c = vecDeltas_[0];
-    else if (i % maxlayer_ < (firstLayerBH_ - 1))
-      delta_c = vecDeltas_[1];
-    else
-      delta_c = vecDeltas_[2];
-    delta = delta_c;
-  } else {
-    float delta_r = vecDeltas_[3];
-    delta = delta_r;
-  }
-  auto clusterer = clue::Clusterer<2>(delta);
-  auto queue = clue::get_queue(0u);
+  for (auto l = 0u; l < maxlayer_; ++l) {
+    float delta;
+    if constexpr (std::is_same_v<STRATEGY, HGCalSiliconStrategy>) {
+      // maximum search distance (critical distance) for local density
+      // calculation
+      float delta_c;
+      if (l % maxlayer_ < lastLayerEE_)
+        delta_c = vecDeltas_[0];
+      else if (l % maxlayer_ < (firstLayerBH_ - 1))
+        delta_c = vecDeltas_[1];
+      else
+        delta_c = vecDeltas_[2];
+      delta = delta_c;
+    } else {
+      float delta_r = vecDeltas_[3];
+      delta = delta_r;
+    }
 
-  for (auto l = 0; l < maxlayer_; ++l) {
-    auto points = clue::PointsHost<2>(queue, cells_[l].dim1.size(), cells_[l].dim1, cells_[l].dim2, cells_[l].weight);
+    auto clusterer = clue::Clusterer<2>(delta, kappa_);
+    auto queue = clue::get_queue(0u);
+    auto points = clue::PointsHost<2>(
+        queue, cells_[l].dim1.size(), cells_[l].dim1, cells_[l].dim2, cells_[l].weight, cells_[l].clusterIndex);
+    points.set_density_uncertainty(cells_[l].sigmaNoise);
     clusterer.make_clusters(points);
     numberOfClustersPerLayer_[l] = points.n_clusters();
   }
@@ -121,54 +123,47 @@ void HGCalCLUEAlgoT<T, STRATEGY>::makeClusters() {
 }
 
 template <typename T, typename STRATEGY>
-std::pair<reco::CaloClusterHostCollection, PortableHostCollection<ticl::AssociationMap<uint32_t, ticl::HitAndShared>>>
-HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
+ticl::LayerClustersAndAssociations HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
   std::vector<int> offsets(numberOfClustersPerLayer_.size(), 0);
-
   int maxClustersOnLayer = numberOfClustersPerLayer_[0];
-
   for (unsigned layerId = 1; layerId < offsets.size(); ++layerId) {
     offsets[layerId] = offsets[layerId - 1] + numberOfClustersPerLayer_[layerId - 1];
-
     maxClustersOnLayer = std::max(maxClustersOnLayer, numberOfClustersPerLayer_[layerId]);
   }
-
   auto totalNumberOfClusters = offsets.back() + numberOfClustersPerLayer_.back();
-  // clusters_v_.resize(totalNumberOfClusters);
-  std::vector<std::vector<int>> cellsIdInCluster;
-  cellsIdInCluster.reserve(maxClustersOnLayer);
-  reco::CaloClusterHostCollection layer_clusters(cms::alpakatools::host(),
-                                                 totalNumberOfClusters,
-                                                 totalNumberOfClusters,
-                                                 totalNumberOfClusters,
-                                                 totalNumberOfClusters);
-  // FIXME: put the real number of hits
-  PortableHostCollection<ticl::AssociationMap<uint32_t, ticl::HitAndShared>> hits_associations(
-      cms::alpakatools::host(), totalNumberOfClusters, 1);
 
-  std::vector<ticl::HitAndShared> detid_and_fractions;
+  // std::vector<std::vector<int>> cellsIdInCluster;
+  // cellsIdInCluster.reserve(maxClustersOnLayer);
+  const auto total_rechits = std::accumulate(
+      cells_.begin(), cells_.end(), 0, [](auto acc, const auto &cell) { return acc + cell.dim1.size(); });
+  ticl::LayerClustersAndAssociations clusters_and_associations(totalNumberOfClusters, total_rechits);
+
+  std::vector<ticl::HitAndFraction> detid_and_fractions;
   std::vector<int> cluster_hit_associations;
   for (unsigned int layerId = 0; layerId < 2 * maxlayer_ + 2; ++layerId) {
     auto queue = clue::get_queue(0u);
-    auto points = clue::PointsHost<2>(
-        queue, cells_[layerId].dim1.size(), cells_[layerId].dim1, cells_[layerId].dim2, cells_[layerId].weight);
+    auto points = clue::PointsHost<2>(queue,
+                                      cells_[layerId].dim1.size(),
+                                      cells_[layerId].dim1,
+                                      cells_[layerId].dim2,
+                                      cells_[layerId].weight,
+                                      cells_[layerId].clusterIndex);
 
     std::ranges::copy(points.clusterIndexes(), std::back_inserter(cluster_hit_associations));
 
     auto clusters = clue::get_clusters(points);
-    auto to_hit_and_fraction = [&](auto idx) { return std::make_pair(cells_[layerId].detid[idx], -1.f); };
+    auto to_hit_and_fraction = [&](auto idx) { return ticl::HitAndFraction{cells_[layerId].detid[idx], -1.f}; };
     std::ranges::copy(clusters | std::views::transform(to_hit_and_fraction), std::back_inserter(detid_and_fractions));
-    for (auto cl = 0; cl < clusters.size(); ++cl) {
+    for (auto cl = 0u; cl < clusters.size(); ++cl) {
       const auto cluster = clusters[cl];
       auto x = 0.f;
       auto y = 0.f;
       const auto z = cells_[layerId].layerDim3;
       auto energy = std::reduce(
-          cluster.begin(), cluster.end(), 0.f, [](auto acc, auto idx) { return acc + points.weights()[idx]; });
-      auto max_energy_it = std::ranges::max_element(points.weights);
-      const auto max_energy = *max_energy_it;
-      const auto max_energy_idx = std::distance(points.weights.begin(), max_energy_it);
-      const auto max_energy_detid = cells_[layerId].detid[max_energy_id];
+          cluster.begin(), cluster.end(), 0.f, [&](auto acc, auto idx) { return acc + points.weights()[idx]; });
+      auto max_energy_it = std::ranges::max_element(points.weights());
+      const auto max_energy_idx = std::distance(points.weights().begin(), max_energy_it);
+      const auto max_energy_detid = cells_[layerId].detid[max_energy_idx];
 
       if constexpr (std::is_same_v<STRATEGY, HGCalSiliconStrategy>) {
         auto thick = rhtools_.getSiThickIndex(max_energy_detid);
@@ -177,7 +172,7 @@ HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
           const auto d1 = points.coords(0)[p] - points.coords(0)[max_energy_idx];
           const auto d2 = points.coords(1)[p] - points.coords(1)[max_energy_idx];
           if ((d1 * d1 + d2 * d2) < positionDeltaRho2_) {
-            auto Wi = std::max(thresholdW0_[thick] + std::log(points.weights()[p] / energy), 0.f);
+            auto Wi = std::max(thresholdW0_[thick] + std::log(points.weights()[p] / energy), 0.);
             x += points.coords(0)[p] * Wi;
             y += points.coords(1)[p] * Wi;
             total_weight_log += Wi;
@@ -189,8 +184,8 @@ HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
           x *= inv_tot_weight;
           y *= inv_tot_weight;
         } else {
-          x = cellsOnLayer.dim1[maxEnergyCellIndex];
-          y = cellsOnLayer.dim2[maxEnergyCellIndex];
+          x = points.coords(0)[max_energy_idx];
+          y = points.coords(1)[max_energy_idx];
         }
       } else {
         const auto centroid = clue::weighted_cluster_centroid(points, cl);
@@ -198,23 +193,29 @@ HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
         y = centroid[1];
       }
 
-      layer_clusters.view().position().x()[globalClusterIndex] = x;
-      layer_clusters.view().position().y()[globalClusterIndex] = y;
-      layer_clusters.view().position().z()[globalClusterIndex] = z;
-      layer_clusters.view().energy().energy()[globalClusterIndex] = energy;
-      layer_clusters.view().energy().correctedEnergy()[globalClusterIndex] = -1.f;
-      layer_clusters.view().energy().correctedEnergyUncertainty()[globalClusterIndex] = -1.f;
-      layer_clusters.view().indexes().caloID()[globalClusterIndex] = reco::CaloID::DET_HGCAL_ENDCAP;
-      layer_clusters.view().indexes().algoID()[globalClusterIndex] = algoId_;
-      layer_clusters.view().indexes().seedID()[globalClusterIndex] = seedDetId;
-      layer_clusters.view().indexes().flags()[globalClusterIndex] = 0;
+      auto globalClusterIndex = cl + offsets[layerId];
+      auto &layer_clusters_view = clusters_and_associations.layer_clusters->view();
+      layer_clusters_view.position().x()[globalClusterIndex] = x;
+      layer_clusters_view.position().y()[globalClusterIndex] = y;
+      layer_clusters_view.position().z()[globalClusterIndex] = z;
+      layer_clusters_view.energy().energy()[globalClusterIndex] = energy;
+      layer_clusters_view.energy().correctedEnergy()[globalClusterIndex] = -1.f;
+      layer_clusters_view.energy().correctedEnergyUncertainty()[globalClusterIndex] = -1.f;
+      layer_clusters_view.indexes().caloID()[globalClusterIndex] = reco::CaloID::DET_HGCAL_ENDCAP;
+      layer_clusters_view.indexes().algoID()[globalClusterIndex] = algoId_;
+      // TODO: do we really care about the seed?
+      // layer_clusters.view().indexes().seedID()[globalClusterIndex] = seedDetId;
+      layer_clusters_view.indexes().flags()[globalClusterIndex] = 0;
     }
   }
   alpaka_serial_sync::Queue queue(cms::alpakatools::host());
-  // ticl::associator::fill<alpaka_serial_sync::Acc1D>(
-  //     queue, hits_associations, cluster_hit_associations, detid_and_fractions);
+  ticl::associator::fill<alpaka_serial_sync::Acc1D>(
+      queue,
+      clusters_and_associations.hits_and_fractions->view(),
+      static_cast<std::span<const int>>(cluster_hit_associations),
+      static_cast<std::span<const ticl::HitAndFraction>>(detid_and_fractions));
 
-  return std::make_pair(layer_clusters, hits_associations);
+  return clusters_and_associations;
 }
 
 template <typename T, typename STRATEGY>
