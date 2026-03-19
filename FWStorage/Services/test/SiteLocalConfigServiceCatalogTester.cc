@@ -3,10 +3,10 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 
 #include <string>
 
