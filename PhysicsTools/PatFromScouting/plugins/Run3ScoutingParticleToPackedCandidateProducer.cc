@@ -150,7 +150,7 @@ void Run3ScoutingParticleToPackedCandidateProducer::produce(edm::Event& iEvent, 
     }
 
     // Match charged candidates to reco::Tracks and embed track details
-    if (particle.pdgId() != 22 && particle.pdgId() != 130 && trkPt > 0) {
+    if (particle.pdgId() != 22 && particle.pdgId() != 130 && abs(particle.pdgId()) > 2 && trkPt > 0) {
       int bestIdx = -1;
       float bestMetric = 999.f;
       for (size_t iTk = 0; iTk < tracks.size(); ++iTk) {
