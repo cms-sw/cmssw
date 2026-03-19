@@ -3,7 +3,7 @@
 //   Written by James Monk and Andrew Pilkington
 /////////////////////////////////////////////////////////////////////////////
 
-#include "GeneratorInterface/ExhumeInterface/interface/Event.h"
+#include "Event.h"
 #include "CLHEP/Random/RandomEngine.h"
 //////////////////////////////////////////////////////////////////////////////
 Exhume::Event::Event(CrossSection &Process_, CLHEP::HepRandomEngine *engine) {
