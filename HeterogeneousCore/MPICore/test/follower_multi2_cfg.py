@@ -25,16 +25,7 @@ process.maxEvents.input = -1
 
 process.receiver = MPIReceiver(
     upstream = "source",
-    instance = 42,
-    products = [ dict(
-        type = "edm::EventID",
-        label = ""
-    )]
-)
-
-process.otherreceiver = MPIReceiver(
-    upstream = "source",
-    instance = 19,
+    instance = 21,
     products = [ dict(
         type = "edm::EventID",
         label = ""
@@ -42,13 +33,13 @@ process.otherreceiver = MPIReceiver(
 )
 
 process.sender = MPISender(
-    upstream = "otherreceiver", # guarantees that this module will only run after otherreceiver has run
-    instance = 99,
-    products = [ "edmEventID_otherreceiver__*" ]
+    upstream = "receiver", # guarantees that this module will only run after receiver has run
+    instance = 22,
+    products = [ "edmEventID_receiver__*" ]
 )
 
 process.analyzer = cms.EDAnalyzer("edmtest::EventIDValidator",
     source = cms.untracked.InputTag("receiver")
 )
 
-process.path = cms.Path(process.receiver + process.analyzer + process.otherreceiver + process.sender)
+process.path = cms.Path(process.receiver + process.analyzer + process.sender)
