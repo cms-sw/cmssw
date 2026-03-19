@@ -22,6 +22,9 @@ import RecoTracker.IterativeTracking.iterativeTkUtils as _utils
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from Configuration.ProcessModifiers.hltClusterSplitting_cff import hltClusterSplitting
 
+####Importing phase2 modifier
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+
 ### First define the stuff for the standard validation sequence
 ## Track selectors
 for _eraName, _postfix, _era in _cfg.allEras():
@@ -58,6 +61,12 @@ _removeForFastTrackProducers = ["initialStepTracksPreSplitting",
                                 "muonSeededTracksOutIn"]
 _trackProducers_fastSim = [ x for x in _trackProducers if x not in _removeForFastTrackProducers]
 _trackProducers_hltSplit = [ x for x in _trackProducers if x not in ["initialStepTracksPreSplitting"]]
+
+
+#Adding separate seed and track producers for Phase 2 - fastsim
+_seedProducers_trackingPhase2PU140_fastSim = [ x for x in _seedProducers_trackingPhase2PU140 if x not in _removeForFastSimSeedProducers]
+_trackProducers_trackingPhase2PU140_fastSim = [ x for x in _trackProducers_trackingPhase2PU140 if x not in _removeForFastTrackProducers]
+
 
 def _algoToSelector(algo):
     sel = ""
@@ -549,7 +558,10 @@ trackValidatorBuildingPreSplitting = trackValidatorBuilding.clone(
 )
 for _eraName, _postfix, _era in _relevantErasAndFastSim:
     _setForEra(trackValidatorBuilding, _eraName, _era, label = locals()["_trackProducers"+_postfix])
+
 fastSim.toModify(trackValidatorBuilding, doMVAPlots=False)
+(trackingPhase2PU140 & fastSim).toModify(trackValidatorBuilding, label = cms.VInputTag(_trackProducers_trackingPhase2PU140_fastSim))
+
 for _eraName, _postfix, _era in _relevantEras:
     _setForEra(trackValidatorBuilding, _eraName, _era, mvaLabels = locals()["_mvaSelectors"+_postfix])
     _setForEra(trackValidatorBuildingPreSplitting, _eraName, _era, label = locals()["_trackProducersPreSplitting"+_postfix])
@@ -935,6 +947,10 @@ _taskForEachEra(_addSeedToTrackProducers, args=["_seedProducers"], names="_seedS
 _taskForEachEra(_addSeedToTrackProducers, args=["_seedProducersPreSplitting"], names="_seedSelectorsPreSplitting", task="_tracksValidationSeedSelectorsPreSplittingTrackingOnly", modDict=globals())
 tracksValidationSeedSelectorsTrackingOnly.add(tracksValidationSeedSelectorsPreSplittingTrackingOnly)
 
+trackingPhase2PU140_fastSim_trackprod, trackingPhase2PU140_fastSim_trackprod_task = _addSeedToTrackProducers(_seedProducers_trackingPhase2PU140_fastSim, modDict=globals())
+
+(trackingPhase2PU140 & fastSim).toReplaceWith(tracksValidationSeedSelectorsTrackingOnly, trackingPhase2PU140_fastSim_trackprod_task)
+
 # MTV instances
 trackValidatorTrackingOnly = trackValidatorStandalone.clone(
     label = [ x for x in trackValidatorStandalone.label if x != "cutsRecoTracksAK4PFJets"],
@@ -976,6 +992,8 @@ for _eraName, _postfix, _era in _relevantErasAndFastSim:
 for _eraName, _postfix, _era in _relevantEras:
     _setForEra(trackValidatorSeedingPreSplittingTrackingOnly, _eraName, _era, label = locals()["_seedSelectorsPreSplitting"+_postfix])
 
+#Only if both phase2 and fastsim are called then replace seedselectors with correct producers
+(trackingPhase2PU140 & fastSim).toModify(trackValidatorSeedingTrackingOnly, label = trackingPhase2PU140_fastSim_trackprod)
 
 trackValidatorConversionTrackingOnly = trackValidatorConversion.clone(label = [x for x in trackValidatorConversion.label if x not in ["ckfInOutTracksFromConversions", "ckfOutInTracksFromConversions"]])
 

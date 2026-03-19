@@ -303,6 +303,7 @@ lowPtQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
     ] #end of vpset
 ) #end of clone
 
+fastSim.toModify(lowPtQuadStepSelector,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # Final sequence
 LowPtQuadStepTask = cms.Task(lowPtQuadStepClusters,
@@ -327,11 +328,14 @@ trackingPhase2PU140.toReplaceWith(LowPtQuadStepTask, _LowPtQuadStepTask_Phase2PU
 # fast tracking mask producer
 from FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi import maskProducerFromClusterRemover
 lowPtQuadStepMasks = maskProducerFromClusterRemover(lowPtQuadStepClusters)
-fastSim.toReplaceWith(LowPtQuadStepTask,
-                      cms.Task(lowPtQuadStepMasks
-                               ,lowPtQuadStepTrackingRegions
-                               ,lowPtQuadStepSeeds
-                               ,lowPtQuadStepTrackCandidates
-                               ,lowPtQuadStepTracks
-                               ,lowPtQuadStep
-                               ) )
+_LowPtQuadStepTask_fastSim = cms.Task(lowPtQuadStepMasks
+                                     ,lowPtQuadStepTrackingRegions
+                                     ,lowPtQuadStepSeeds
+                                     ,lowPtQuadStepTrackCandidates
+                                     ,lowPtQuadStepTracks
+                                     ,lowPtQuadStep
+)
+_LowPtQuadStepTask_fastSim_phase2 = _LowPtQuadStepTask_fastSim.copy()
+_LowPtQuadStepTask_fastSim_phase2.replace(lowPtQuadStep, lowPtQuadStepSelector)
+fastSim.toReplaceWith(LowPtQuadStepTask, _LowPtQuadStepTask_fastSim)
+(fastSim & trackingPhase2PU140).toReplaceWith(LowPtQuadStepTask, _LowPtQuadStepTask_fastSim_phase2)
