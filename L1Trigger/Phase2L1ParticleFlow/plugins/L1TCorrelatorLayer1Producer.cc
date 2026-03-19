@@ -50,7 +50,7 @@
 
 //#include "DataFormats/L1TCalorimeterPhase2/interface/GCTHadDigiCluster.h"
 //#include "DataFormats/L1TCalorimeterPhase2/interface/GCTEmDigiCluster.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedCaloToCorrelatorTMI18.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedCaloToCorrelatorTM18.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 
@@ -81,7 +81,7 @@ private:
   edm::EDGetTokenT<l1t::HGCalMulticlusterBxCollection> hadHGCalCands_;
 
   // can alternately give the raw containers (for GCT)
-  edm::EDGetTokenT<l1tp2::DigitizedCaloToCorrelatorCollectionTMI18> gctRawCands_;
+  edm::EDGetTokenT<l1tp2::DigitizedCaloToCorrelatorCollectionTM18> gctRawCands_;
 
   float emPtCut_, hadPtCut_;
 
@@ -282,7 +282,7 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
   const edm::InputTag gctClusters = iConfig.getParameter<edm::InputTag>("gctClusters");
   if (!gctClusters.label().empty()) {
     if (gctEmInAlgo == "Emulator" || gctHadInAlgo == "Emulator") {
-      gctRawCands_ = consumes<l1tp2::DigitizedCaloToCorrelatorCollectionTMI18>(gctClusters);
+      gctRawCands_ = consumes<l1tp2::DigitizedCaloToCorrelatorCollectionTM18>(gctClusters);
     }
     if (gctEmInAlgo == "Emulator") {
       gctEmInput_ = std::make_unique<l1ct::GctEmClusterDecoderEmulator>(  // FIXME

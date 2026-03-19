@@ -1,5 +1,5 @@
-#ifndef Phase2L1CaloToCorrelatorTMI18_H
-#define Phase2L1CaloToCorrelatorTMI18_H
+#ifndef Phase2L1CaloToCorrelatorTM18_H
+#define Phase2L1CaloToCorrelatorTM18_H
 
 // system include files
 #include <memory>
@@ -36,7 +36,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/GCTEmDigiCluster.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/GCTHadDigiCluster.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedCaloToCorrelatorTMI18.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedCaloToCorrelatorTM18.h"
 
 //
 // class declaration

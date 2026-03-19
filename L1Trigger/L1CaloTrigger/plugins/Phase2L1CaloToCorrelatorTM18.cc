@@ -19,16 +19,16 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "L1Trigger/L1CaloTrigger/interface/Phase2L1CaloToCorrelatorTMI18.h"
+#include "L1Trigger/L1CaloTrigger/interface/Phase2L1CaloToCorrelatorTM18.h"
 
 #include "DataFormats/L1TCalorimeterPhase2/interface/GCTEmDigiCluster.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/GCTHadDigiCluster.h"
-#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedCaloToCorrelatorTMI18.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedCaloToCorrelatorTM18.h"
 
-class Phase2L1CaloToCorrelatorTMI18 : public edm::stream::EDProducer<> {
+class Phase2L1CaloToCorrelatorTM18 : public edm::stream::EDProducer<> {
 public:
-  explicit Phase2L1CaloToCorrelatorTMI18(const edm::ParameterSet&);
-  ~Phase2L1CaloToCorrelatorTMI18() override = default;
+  explicit Phase2L1CaloToCorrelatorTM18(const edm::ParameterSet&);
+  ~Phase2L1CaloToCorrelatorTM18() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -38,18 +38,18 @@ private:
   edm::EDGetTokenT<l1tp2::GCTHadDigiClusterCollection> gctHadDigiClustersSrc_;
 };
 
-Phase2L1CaloToCorrelatorTMI18::Phase2L1CaloToCorrelatorTMI18(const edm::ParameterSet& cfg)
+Phase2L1CaloToCorrelatorTM18::Phase2L1CaloToCorrelatorTM18(const edm::ParameterSet& cfg)
     : gctEmDigiClustersSrc_(
           consumes<l1tp2::GCTEmDigiClusterCollection>(cfg.getParameter<edm::InputTag>("gctEmDigiClusters"))),
       gctHadDigiClustersSrc_(
           consumes<l1tp2::GCTHadDigiClusterCollection>(cfg.getParameter<edm::InputTag>("gctHadDigiClusters"))) {
-  produces<l1tp2::DigitizedCaloToCorrelatorCollectionTMI18>("DigitizedCaloToCorrelatorTMI18");
+  produces<l1tp2::DigitizedCaloToCorrelatorCollectionTM18>("DigitizedCaloToCorrelatorTM18");
 }
 
-void Phase2L1CaloToCorrelatorTMI18::produce(edm::Event& evt, const edm::EventSetup& es) {
+void Phase2L1CaloToCorrelatorTM18::produce(edm::Event& evt, const edm::EventSetup& es) {
   using namespace edm;
-  std::unique_ptr<l1tp2::DigitizedCaloToCorrelatorCollectionTMI18> caloCandsTMI18(
-      std::make_unique<l1tp2::DigitizedCaloToCorrelatorCollectionTMI18>());
+  std::unique_ptr<l1tp2::DigitizedCaloToCorrelatorCollectionTM18> caloCandsTM18(
+      std::make_unique<l1tp2::DigitizedCaloToCorrelatorCollectionTM18>());
 
   int EM_SLR1_POS_OFFSET = 1;
   int EM_SLR1_NEG_OFFSET = 17;
@@ -266,21 +266,21 @@ void Phase2L1CaloToCorrelatorTMI18::produce(edm::Event& evt, const edm::EventSet
     }
   }
 
-  l1tp2::DigitizedCaloToCorrelatorTMI18 l1CaloTMI18_0 =
-      l1tp2::DigitizedCaloToCorrelatorTMI18(dataToCL1Card0, clusterCollCard0);
-  l1tp2::DigitizedCaloToCorrelatorTMI18 l1CaloTMI18_1 =
-      l1tp2::DigitizedCaloToCorrelatorTMI18(dataToCL1Card1, clusterCollCard1);
-  l1tp2::DigitizedCaloToCorrelatorTMI18 l1CaloTMI18_2 =
-      l1tp2::DigitizedCaloToCorrelatorTMI18(dataToCL1Card2, clusterCollCard2);
+  l1tp2::DigitizedCaloToCorrelatorTM18 l1CaloTM18_0 =
+      l1tp2::DigitizedCaloToCorrelatorTM18(dataToCL1Card0, clusterCollCard0);
+  l1tp2::DigitizedCaloToCorrelatorTM18 l1CaloTM18_1 =
+      l1tp2::DigitizedCaloToCorrelatorTM18(dataToCL1Card1, clusterCollCard1);
+  l1tp2::DigitizedCaloToCorrelatorTM18 l1CaloTM18_2 =
+      l1tp2::DigitizedCaloToCorrelatorTM18(dataToCL1Card2, clusterCollCard2);
 
-  caloCandsTMI18->push_back(l1CaloTMI18_0);
-  caloCandsTMI18->push_back(l1CaloTMI18_1);
-  caloCandsTMI18->push_back(l1CaloTMI18_2);
-  evt.put(std::move(caloCandsTMI18), "DigitizedCaloToCorrelatorTMI18");
+  caloCandsTM18->push_back(l1CaloTM18_0);
+  caloCandsTM18->push_back(l1CaloTM18_1);
+  caloCandsTM18->push_back(l1CaloTM18_2);
+  evt.put(std::move(caloCandsTM18), "DigitizedCaloToCorrelatorTM18");
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void Phase2L1CaloToCorrelatorTMI18::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void Phase2L1CaloToCorrelatorTM18::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("gctEmDigiClusters",
                           edm::InputTag("l1tPhase2GCTBarrelToCorrelatorLayer1Emulator", "GCTEmDigiClusters"));
@@ -289,4 +289,4 @@ void Phase2L1CaloToCorrelatorTMI18::fillDescriptions(edm::ConfigurationDescripti
   descriptions.addWithDefaultLabel(desc);
 }
 
-DEFINE_FWK_MODULE(Phase2L1CaloToCorrelatorTMI18);
+DEFINE_FWK_MODULE(Phase2L1CaloToCorrelatorTM18);

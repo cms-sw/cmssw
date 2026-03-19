@@ -1312,12 +1312,23 @@ namespace p2eg {
       ap_uint<3> quality =
           (standaloneWP() * std::pow(2, 0)) + (looseL1TkMatchWP() * std::pow(2, 1)) + (photonWP() * std::pow(2, 2));
 
+      // normalize relIso to 0x3F
+      int relIso_int = 0;
+      if (et > iso && et > 0) {
+        relIso_int = (int)(iso * 63 / et);
+      } else {
+        relIso_int = 63;
+      }
+
+      // normalize hoe to 0x3F
+      int hoe_int = (int)(hoe * 63 /15); 
+
       return l1tp2::DigitizedClusterCorrelator(
           et,  // technically we are just multiplying and then dividing again by the LSB
           abseta,
           phivscenter,
-          ap_uint<6>(hoe & 0x3F),
-          ap_uint<6>(iso & 0x3F),
+          ap_uint<6>(hoe_int & 0x3F),
+          ap_uint<6>(relIso_int & 0x3F),
           ap_uint<6>(shape),
           ap_uint<3>(quality),
           ap_uint<5>(timing),
@@ -1362,7 +1373,7 @@ namespace p2eg {
   class GCTtower_t {
   public:
     ap_uint<12> et;
-    ap_uint<4> hoe;
+    ap_uint<6> hoe;
     ap_uint<2> fb;  // not defined yet in emulator
     // For CMSSW outputs, not firmware
     ap_uint<12> ecalEt;
@@ -1383,41 +1394,27 @@ namespace p2eg {
        */
     void initFromRCTTower(const RCTtower_t& rctTower) {
       et = rctTower.et;
-      hoe = rctTower.hoe;
+      int hoe_int = 0;
+      //hoe_int = (int)(rctTower.hoe * 63 / 15); // RCT hoe is 4 bits
+      hoe = hoe_int & 0x3F;
       ecalEt = rctTower.ecalEt;
       hcalEt = rctTower.hcalEt;
+      if (ecalEt > hcalEt && ecalEt > 0) {
+        hoe_int = (int)(hcalEt * 63 / ecalEt);
+      } else {
+        hoe_int = 63;
+      }
+      hoe = hoe_int & 0x3F;
     }
 
-    void addHoverEToTower(ap_uint<12> ECAL, ap_uint<12> HCAL) {
-      ap_uint<4> hoeOut = 0;
-      ap_uint<1> hoeLSB = 0;
-      ap_uint<12> A;
-      ap_uint<12> B;
-
-      A = (ECAL > HCAL) ? ECAL : HCAL;
-      B = (ECAL > HCAL) ? HCAL : ECAL;
-
-      if (ECAL == 0 || HCAL == 0 || HCAL >= ECAL)
-        hoeLSB = 0;
-      else
-        hoeLSB = 1;
-      if (A > B) {
-        if (A > 2 * B)
-          hoeOut = 0x1;
-        if (A > 4 * B)
-          hoeOut = 0x2;
-        if (A > 8 * B)
-          hoeOut = 0x3;
-        if (A > 16 * B)
-          hoeOut = 0x4;
-        if (A > 32 * B)
-          hoeOut = 0x5;
-        if (A > 64 * B)
-          hoeOut = 0x6;
-        if (A > 128 * B)
-          hoeOut = 0x7;
+    void addHoverEToTower(ap_uint<12> ecalEt, ap_uint<12> hcalEt) {
+      int hoe_int = 0;
+      if (ecalEt > hcalEt && ecalEt > 0) {
+        hoe_int = (int)(hcalEt * 63 / ecalEt);
+      } else {
+        hoe_int = 63;
       }
-      hoe = hoeLSB | (hoeOut << 1);
+      hoe = hoe_int & 0x3F;
     }
 
     /*
