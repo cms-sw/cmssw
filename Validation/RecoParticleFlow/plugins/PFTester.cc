@@ -66,6 +66,7 @@ protected:
   MonitorElement* h_NumECALElements_;
   MonitorElement* h_NumHCALElements_;
   MonitorElement* h_NumHGCALElements_;
+  MonitorElement* h_NumPFClusters_;
 
   MonitorElement* h_TrackCharge_;
   MonitorElement* h_TrackNumPoints_;
@@ -529,6 +530,7 @@ void PFTesterT<RecoClusterCollection>::bookHistograms(DQMStore::IBooker& ibook,
   h_NumECALElements_ = ibook.book1D("NumECALElements", "NumECALElements", 5, 0, 5);
   h_NumHCALElements_ = ibook.book1D("NumHCALElements", "NumHCALElements", 5, 0, 5);
   h_NumHGCALElements_ = ibook.book1D("NumHGCALElements", "NumHGCALElements", 5, 0, 5);
+  h_NumPFClusters_ = ibook.book1D("NumPFClusters", "NumPFClusters", 150, 0, 150);
 
   ibook.setCurrentFolder(outFolder_ + "/" + matching + "/PFTracks");
   h_TrackCharge_ = ibook.book1D("TrackCharge", "TrackCharge", 5, -2, 2);
@@ -1225,6 +1227,7 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
     h_NumECALElements_->Fill(numECALElements);
     h_NumHCALElements_->Fill(numHCALElements);
     h_NumHGCALElements_->Fill(numHGCALElements);
+    h_NumPFClusters_->Fill(numPFClusters);
   }
 }
 
