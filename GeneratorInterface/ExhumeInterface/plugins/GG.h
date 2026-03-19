@@ -5,7 +5,7 @@
 #ifndef GG_HH
 #define GG_HH
 
-#include "GeneratorInterface/ExhumeInterface/interface/TwoSpace.h"
+#include "TwoSpace.h"
 
 namespace Exhume {
   class GG : public TwoSpace {

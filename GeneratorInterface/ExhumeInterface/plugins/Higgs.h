@@ -6,7 +6,7 @@
 #ifndef HIGGS_HH
 #define HIGGS_HH
 
-#include "GeneratorInterface/ExhumeInterface/interface/CrossSection.h"
+#include "CrossSection.h"
 
 namespace Exhume {
 

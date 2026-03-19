@@ -3,8 +3,8 @@
 //   Written by James Monk and Andrew Pilkington
 /////////////////////////////////////////////////////////////////////////////
 
-#include "GeneratorInterface/ExhumeInterface/interface/CrossSection.h"
-#include "GeneratorInterface/ExhumeInterface/interface/PythiaRecord.h"
+#include "CrossSection.h"
+#include "PythiaRecord.h"
 
 #include "HepMC/PythiaWrapper6_4.h"
 //#include "CLHEP/HepMC/ConvertHEPEVT.h"
