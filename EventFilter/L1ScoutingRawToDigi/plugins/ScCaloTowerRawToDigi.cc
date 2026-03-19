@@ -144,6 +144,7 @@ void ScCaloTowerRawToDigi::unpackOrbit(const unsigned char* buf, size_t len, int
                   l1ScoutingRun3::calol1::masksCaloTowers::miscBits);
 
       phi = ((ct_raw >> l1ScoutingRun3::calol1::shiftsCaloTowers::phi) & l1ScoutingRun3::calol1::masksCaloTowers::phi);
+      phi += 1;
 
       eta = ((ct_raw >> l1ScoutingRun3::calol1::shiftsCaloTowers::eta) & l1ScoutingRun3::calol1::masksCaloTowers::eta);
       eta = eta >= 128 ? eta - 256 : eta;
