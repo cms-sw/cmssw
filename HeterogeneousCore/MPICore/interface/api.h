@@ -25,12 +25,46 @@
 class MPIChannel {
 public:
   MPIChannel() = default;
-  MPIChannel(MPI_Comm comm, int destination) : comm_(comm), dest_(destination) {}
+  MPIChannel(MPI_Comm comm, int destination) : comm_(comm), dest_(destination), sync_(false) {}
+
+  MPIChannel(MPIChannel const& other) : comm_(other.comm_), dest_(other.dest_), sync_(false) {}
+
+  MPIChannel& operator=(MPIChannel const& other) {
+    comm_ = other.comm_;
+    dest_ = other.dest_;
+    sync_ = false;
+    return *this;
+  }
+
+  MPIChannel(MPIChannel&& other) : comm_(other.comm_), dest_(other.dest_), sync_(other.sync_) { other.sync_ = false; }
+
+  MPIChannel& operator=(MPIChannel&& other) {
+    comm_ = other.comm_;
+    dest_ = other.dest_;
+    sync_ = other.sync_;
+    other.sync_ = false;
+    return *this;
+  }
+
+  ~MPIChannel() {
+    // make sure both endpoints have completed processing the event(s) that were transmitted
+    if (sync_) {
+      MPI_Barrier(comm_);
+    }
+  }
 
   // build a new MPIChannel that uses a duplicate of the underlying communicator and the same destination
+  // Note: this is a blocking collective operation.
   MPIChannel duplicate() const;
 
+  std::unique_ptr<MPIChannel> syncChannel() const {
+    auto channel = std::make_unique<MPIChannel>(*this);
+    channel->sync_ = true;
+    return channel;
+  }
+
   // close the underlying communicator and reset the MPIChannel to an invalid state
+  // Note: this is a blocking collective operation.
   void reset();
 
   // announce that a client has just connected
@@ -62,18 +96,11 @@ public:
   }
 
   // signal a new event, and transmit the EventAuxiliary
-  void sendEvent(edm::EventAuxiliary const& aux) { sendEventAuxiliary_(aux); }
-
-  /*
-  // start processing a new event, and receive the EventAuxiliary
-  MPI_Status receiveEvent(edm::EventAuxiliary& aux, int source) {
-    return receiveEventAuxiliary_(aux, source, EDM_MPI_ProcessEvent);
-  }
-  */
+  void sendEvent(edm::EventAuxiliary const& aux, unsigned int sid) { sendEventAuxiliary_(aux, sid); }
 
   // start processing a new event, and receive the EventAuxiliary
-  MPI_Status receiveEvent(edm::EventAuxiliary& aux, MPI_Message& message) {
-    return receiveEventAuxiliary_(aux, message);
+  MPI_Status receiveEvent(edm::EventAuxiliary& aux, unsigned int& sid, MPI_Message& message) {
+    return receiveEventAuxiliary_(aux, sid, message);
   }
 
   void sendMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta);
@@ -129,12 +156,12 @@ private:
   // serialize an EDM object to a simplified representation that can be transmitted as an MPI message
   void edmToBuffer_(EDM_MPI_RunAuxiliary_t& buffer, edm::RunAuxiliary const& aux);
   void edmToBuffer_(EDM_MPI_LuminosityBlockAuxiliary_t& buffer, edm::LuminosityBlockAuxiliary const& aux);
-  void edmToBuffer_(EDM_MPI_EventAuxiliary_t& buffer, edm::EventAuxiliary const& aux);
+  void edmToBuffer_(EDM_MPI_EventAuxiliary_t& buffer, edm::EventAuxiliary const& aux, unsigned int sid);
 
   // deserialize an EDM object from a simplified representation transmitted as an MPI message
   void edmFromBuffer_(EDM_MPI_RunAuxiliary_t const& buffer, edm::RunAuxiliary& aux);
   void edmFromBuffer_(EDM_MPI_LuminosityBlockAuxiliary_t const& buffer, edm::LuminosityBlockAuxiliary& aux);
-  void edmFromBuffer_(EDM_MPI_EventAuxiliary_t const& buffer, edm::EventAuxiliary& aux);
+  void edmFromBuffer_(EDM_MPI_EventAuxiliary_t const& buffer, edm::EventAuxiliary& aux, unsigned int& sid);
 
   // fill and send an EDM_MPI_Empty_t buffer
   void sendEmpty_(int tag);
@@ -146,11 +173,11 @@ private:
   void sendLuminosityBlockAuxiliary_(int tag, edm::LuminosityBlockAuxiliary const& aux);
 
   // fill and send an EDM_MPI_EventAuxiliary_t buffer
-  void sendEventAuxiliary_(edm::EventAuxiliary const& aux);
+  void sendEventAuxiliary_(edm::EventAuxiliary const& aux, unsigned int sid);
 
   // receive an EDM_MPI_EventAuxiliary_t buffer and populate an edm::EventAuxiliary
-  MPI_Status receiveEventAuxiliary_(edm::EventAuxiliary& aux, int source, int tag);
-  MPI_Status receiveEventAuxiliary_(edm::EventAuxiliary& aux, MPI_Message& message);
+  MPI_Status receiveEventAuxiliary_(edm::EventAuxiliary& aux, unsigned int& sid, int source, int tag);
+  MPI_Status receiveEventAuxiliary_(edm::EventAuxiliary& aux, unsigned int& sid, MPI_Message& message);
 
   // this is what is used for sending when product is of raw fundamental type
   template <typename T>
@@ -172,11 +199,14 @@ private:
     MPI_Mrecv(&product, size, MPI_BYTE, &message, MPI_STATUS_IGNORE);
   }
 
-  // MPI intercommunicator
+  // MPI communicator
   MPI_Comm comm_ = MPI_COMM_NULL;
 
-  // MPI destination
+  // MPI remote rank
   int dest_ = MPI_UNDEFINED;
+
+  // whether the MPI channel should use a barrier to synchronise both endpoints when it's being destructed
+  bool sync_;
 };
 
 #endif  // HeterogeneousCore_MPICore_interface_api_h
