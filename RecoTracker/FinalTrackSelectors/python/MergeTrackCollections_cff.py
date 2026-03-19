@@ -66,10 +66,15 @@ fastSim.toReplaceWith(generalTracksTask,
                                duplicateTrackClassifier)
 )
 
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 def _fastSimGeneralTracks(process):
     from FastSimulation.Configuration.DigiAliases_cff import loadGeneralTracksAlias
     loadGeneralTracksAlias(process)
-modifyMergeTrackCollections_fastSimGeneralTracks = fastSim.makeProcessModifier( _fastSimGeneralTracks )
+modifyMergeTrackCollections_fastSimGeneralTracks = (fastSim & ~premix_stage2).makeProcessModifier( _fastSimGeneralTracks )
+def _fastSimGeneralTracksPremix(process):
+    from FastSimulation.Configuration.DigiAliases_cff import loadGeneralTracksAlias
+    loadGeneralTracksAlias(process, premix=True)
+modifyMergeTrackCollections_fastSimGeneralTracksPremix = (fastSim & premix_stage2).makeProcessModifier( _fastSimGeneralTracksPremix )
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 conversionStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(

@@ -96,10 +96,12 @@ class Eras (object):
                  'Phase2C11I13T26M9_noMkFit',
                  'Phase2C17I13M9',
                  'Phase2C17I13M9_noMkFit',
+                 'Phase2C17I13M9_FastSim',
                  'Phase2C20I13M9',
                  'Phase2C20I13M9_noMkFit', 
                  'Phase2C22I13M9',
                  'Phase2C22I13M9_noMkFit',
+                 'Phase2C22I13M9_FastSim',
                  'Phase2C26I13M9',
                  'Phase2C26I13M9_noMkFit'
         ]

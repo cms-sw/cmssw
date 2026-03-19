@@ -1,0 +1,11 @@
+import FWCore.ParameterSet.Config as cms
+from FastSimulation.Configuration.Geometries_cff import _fastSimGeometryCustoms
+from Geometry.TrackerGeometryBuilder.trackerGeometry_cfi import trackerGeometry as _trackerGeometry
+from Geometry.DTGeometryBuilder.dtGeometry_cfi import DTGeometryESModule as _DTGeometryESModule
+from Geometry.CSCGeometryBuilder.cscGeometry_cfi import CSCGeometryESModule as _CSCGeometryESModule
+
+def _fastSimGeometryCustomsXML(process):
+    _fastSimGeometryCustoms(process, _trackerGeometry, _DTGeometryESModule, _CSCGeometryESModule)
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+modifyGeomXML_fastSim = fastSim.makeProcessModifier(_fastSimGeometryCustomsXML)
