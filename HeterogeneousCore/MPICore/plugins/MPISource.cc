@@ -1,15 +1,11 @@
 // C++ headers
-#include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 // MPI headers
 #include <mpi.h>
-
-// ROOT headers
-#include <TBuffer.h>
-#include <TBufferFile.h>
-#include <TClass.h>
 
 // CMSSW headers
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
@@ -35,6 +31,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h"
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 #include "HeterogeneousCore/MPICore/interface/api.h"
 #include "HeterogeneousCore/MPICore/interface/conversion.h"
 #include "HeterogeneousCore/MPICore/interface/messages.h"
@@ -68,10 +65,14 @@ private:
   char port_[MPI_MAX_PORT_NAME];
   MPI_Comm comm_ = MPI_COMM_NULL;
   MPIChannel channel_;
+  std::vector<std::optional<MPIChannel>> streams_;
   edm::EDPutTokenT<MPIToken> token_;
   Mode mode_;
 
   edm::ProcessHistory history_;
+
+  // temporary value used to pass information from setRunAndEventInfo() to produce()
+  unsigned int controller_sid_ = edm::StreamID::invalidStreamID();
 };
 
 MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescription const& desc)
@@ -82,8 +83,7 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
       token_(produces<MPIToken>()),
       mode_(parseMode(config.getUntrackedParameter<std::string>("mode")))  //
 {
-  // make sure that MPI is initialised
-
+  // Make sure that MPI is initialised.
   MPIService::required();
 
   // Make sure the EDM MPI types are available.
@@ -91,24 +91,46 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
 
   if (mode_ == kCommWorld) {
     // All processes are in MPI_COMM_WORLD.
-    // The current implementation supports only two processes: one controller and one source.
     edm::LogAbsolute("MPI") << "MPISource in " << ModeDescription[mode_] << " mode.";
 
     // Check how many processes are there in MPI_COMM_WORLD
     int size;
     MPI_Comm_size(MPI_COMM_WORLD, &size);
-    if (size != 2) {
-      throw edm::Exception(edm::errors::Configuration)
-          << "The current implementation supports only two processes: one controller and one source.";
-    }
 
-    // Check the rank of this process, and determine the rank of the other process.
+    // Check the rank of this process.
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    edm::LogAbsolute("MPI") << "MPISource has rank " << rank << " in MPI_COMM_WORLD.";
-    int other_rank = 1 - rank;
-    comm_ = MPI_COMM_WORLD;
-    channel_ = MPIChannel(comm_, other_rank);
+
+    // Determine the rank of the other process.
+    int remote = config.getUntrackedParameter<int>("controller");
+    if (remote == -1) {
+      // When there are only two proccesses, we can assume the ranks to be 0 and 1,
+      // and we can infer the other process rank from our own.
+      if (size == 2) {
+        remote = 1 - rank;
+      } else {
+        throw edm::Exception(edm::errors::Configuration)
+            << "Setting the remote rank to -1 is valid only where there are exactly two processes.";
+      }
+    }
+    if (remote < 0 or remote >= size) {
+      throw edm::Exception(edm::errors::Configuration)
+          << "The rank of the remote process (" << remote << ") is invalid. Valid ranks are 0 to " << size - 1 << ".";
+    }
+
+    // Create a new communicator that spans only this process and the one with the given remote rank.
+    int ranks[2] = {remote, rank};
+    MPI_Group world_group, comm_group;
+    MPI_Comm_group(MPI_COMM_WORLD, &world_group);
+    MPI_Group_incl(world_group, 2, ranks, &comm_group);
+    MPI_Comm_create_group(MPI_COMM_WORLD, comm_group, 0, &comm_);
+    MPI_Group_free(&world_group);
+    MPI_Group_free(&comm_group);
+    edm::LogAbsolute("MPI") << "The remote process and MPISource have ranks " << remote << ", " << rank
+                            << " in MPI_COMM_WORLD, mapped to ranks 0, 1 in their private communicator.";
+    // The remote process always has rank 0 in the new communicator.
+    remote = 0;
+    channel_ = MPIChannel(comm_, remote);
   } else if (mode_ == kIntercommunicator) {
     // Use an intercommunicator to let two groups of processes communicate with each other.
     // The current implementation supports only two processes: one controller and one source.
@@ -153,6 +175,14 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
 }
 
 MPISource::~MPISource() {
+  // Disconnect the per-stream communicators.
+  for (auto& stream : streams_) {
+    // TODO move this to end stream
+    if (stream) {
+      stream->reset();
+    }
+  }
+
   if (mode_ == kIntercommunicator) {
     // Close the intercommunicator.
     MPI_Comm_disconnect(&comm_);
@@ -276,7 +306,24 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
       case EDM_MPI_ProcessEvent: {
         // receive the EventAuxiliary
         edm::EventAuxiliary aux;
-        status = channel_.receiveEvent(aux, message);
+        unsigned int sid;
+        status = channel_.receiveEvent(aux, sid, message);
+        if (sid == edm::StreamID::invalidStreamID()) {
+          throw cms::Exception("InvalidValue")
+              << "The MPISource has received an EDM_MPI_ProcessEvent with invalid stream id.";
+        }
+
+        // keep a duplicate of the MPIChannel for each controller's framework stream
+        if (sid >= streams_.size()) {
+          streams_.resize(sid + 1);
+        }
+        if (not streams_[sid]) {
+          // TODO move this to begin stream
+          streams_[sid] = channel_.duplicate();
+        }
+
+        // store the controller's framework stream to reuse it in produce()
+        controller_sid_ = sid;
 
         // extract the rank of the other process (currently unused)
         int source = status.MPI_SOURCE;
@@ -302,12 +349,9 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
 }
 
 void MPISource::produce(edm::Event& event) {
-  // duplicate the MPIChannel and put the copy into the Event
-  std::shared_ptr<MPIChannel> channel(new MPIChannel(channel_.duplicate()), [](MPIChannel* ptr) {
-    ptr->reset();
-    delete ptr;
-  });
-  event.emplace(token_, std::move(channel));
+  // create a new channel object reusing the same communicator that will synchronise at the end pf the event
+  event.emplace(token_, streams_[controller_sid_]->syncChannel());
+  controller_sid_ = edm::StreamID::invalidStreamID();
 }
 
 void MPISource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -319,7 +363,14 @@ void MPISource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ProducerSourceBase::fillDescription(desc);
   desc.ifValue(
           edm::ParameterDescription<std::string>("mode", "CommWorld", false),
-          ModeDescription[kCommWorld] >> edm::EmptyGroupDescription() or
+          ModeDescription[kCommWorld] >>
+                  edm::ParameterDescription<int>(
+                      "controller",
+                      -1,
+                      false,
+                      edm::Comment("Rank of the remote \"controller\" process.\n"
+                                   "When there are only two processes, pass -1 to autodetect the rank of the remote "
+                                   "process based on the rank of the current process.")) or
               ModeDescription[kIntercommunicator] >> edm::ParameterDescription<std::string>("name", "server", false))
       ->setComment(
           "Valid modes are CommWorld (use MPI_COMM_WORLD) and Intercommunicator (use an MPI name server to setup an "
