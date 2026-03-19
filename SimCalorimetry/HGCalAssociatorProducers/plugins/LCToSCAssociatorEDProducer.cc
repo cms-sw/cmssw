@@ -47,7 +47,6 @@ private:
   edm::EDGetTokenT<SimClusterCollection> SCCollectionToken_;
   edm::EDGetTokenT<CLUSTER> LCCollectionToken_;
   edm::EDGetTokenT<ticl::LayerClusterToSimClusterAssociatorT<CLUSTER>> associatorToken_;
-
 };
 
 template <typename CLUSTER>
@@ -115,7 +114,7 @@ void LCToSCAssociatorEDProducerT<CLUSTER>::produce(edm::StreamID,
   }
 
   std::vector<DetId::Detector> detIds = simcluster_utils::join_detids(filter_sim_hits);
-  
+
   // associate LC and SC
   LogTrace("AssociatorValidator") << "Calling associateRecoToSim method\n";
   ticl::RecoToSimCollectionWithSimClustersT<CLUSTER> recSimColl =
