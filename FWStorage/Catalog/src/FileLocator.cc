@@ -5,9 +5,9 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-#include "FWCore/Catalog/interface/FileLocator.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWStorage/Catalog/interface/FileLocator.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
 
 namespace {
 
@@ -54,7 +54,9 @@ namespace edm {
       return catalogAttributes.storageSite == siteName && catalogAttributes.volume == volName;
     });
 
-    //let enforce that site-local-config.xml and storage.json contains valid catalogs in <data-access>, in which site defined in site-local-config.xml <data-access> should be found in storage.json
+    // enforce that site-local-config.xml and storage.json contain
+    // valid catalogs in <data-access>, in which the site defined in
+    // site-local-config.xml <data-access> should be found in storage.json
     if (found_site == json.end()) {
       cms::Exception ex("FileCatalog");
       ex << "Can not find storage site \"" << catalogAttributes.storageSite << "\" and volume \""
@@ -70,7 +72,8 @@ namespace edm {
       return catalogAttributes.protocol == protName;
     });
 
-    //let enforce that site-local-config.xml and storage.json contains valid catalogs, in which protocol defined in site-local-config.xml <data-access> should be found in storage.json
+    // enforce that site-local-config.xml and storage.json contain valid catalogs, in which
+    // the protocol defined in site-local-config.xml <data-access> should be found in storage.json
     if (found_protocol == protocols.end()) {
       cms::Exception ex("FileCatalog");
       ex << "Can not find protocol \"" << catalogAttributes.protocol << "\" for the storage site \""
@@ -82,11 +85,11 @@ namespace edm {
 
     m_protocol = found_protocol->second.get("protocol", kEmptyString);
 
-    //store all prefixes and rules to m_directRules. We need to do this so that "applyRules" can find the rule in case chaining is used
-    //loop over protocols
+    // store all prefixes and rules to m_directRules. We need to do this so that "applyRules"
+    // can find the rule in the case that chaining is used loop over protocols
     for (pt::ptree::value_type const& protocol : protocols) {
       std::string protName = protocol.second.get("protocol", kEmptyString);
-      //loop over rules
+      // loop over rules
       std::string prefixTmp = protocol.second.get("prefix", kEmptyString);
       if (prefixTmp == kEmptyString) {
         const pt::ptree& rules = protocol.second.find("rules")->second;
@@ -94,7 +97,7 @@ namespace edm {
           parseRule(storageRule, protName, m_directRules);
         }
       }
-      //now convert prefix to a rule and save it
+      // now convert prefix to a rule and save it
       else {
         Rule rule;
         rule.pathMatch.assign("/?(.*)");
@@ -106,7 +109,7 @@ namespace edm {
   }
 
   std::string FileLocator::pfn(std::string const& ilfn) const {
-    //check if ilfn is an authentic LFN
+    // check if ilfn is an authentic LFN
     if (ilfn.compare(0, 7, kLFNPrefix) != 0) {
       return "";
     }
@@ -141,7 +144,7 @@ namespace edm {
 
     std::smatch nameMatches;
 
-    /* Look up for a matching rule*/
+    // Look for a matching rule
     for (auto const& rule : rules) {
       if (!std::regex_match(name, rule.pathMatch)) {
         continue;

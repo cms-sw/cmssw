@@ -5,11 +5,11 @@
   <use name="rootntuple"/>
   <use name="DataFormats/Common"/>
   <use name="DataFormats/Provenance"/>
-  <use name="FWCore/Catalog"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/ServiceRegistry"/>
-  <use name="FWStorage/Services"/>
   <use name="FWCore/Utilities"/>
+  <use name="FWStorage/Catalog"/>
+  <use name="FWStorage/Services"/>
 </bin>
 
 <bin name="edmRNTupleTempFileUtil" file="EdmRNTupleTempFileUtil.cpp,CollUtil.cc">
@@ -19,10 +19,10 @@
   <use name="rootntuple"/>
   <use name="roothistmatrix"/>
   <use name="DataFormats/Provenance"/>
-  <use name="FWCore/Catalog"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/PluginManager"/>
   <use name="FWCore/ServiceRegistry"/>
+  <use name="FWStorage/Catalog"/>
   <use name="FWStorage/Services"/>
 </bin>
 
