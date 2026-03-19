@@ -81,7 +81,7 @@ ticlTracksterLinks = _tracksterLinksProducer.clone(
         eid_n_clusters = cms.int32(10),
         eid_n_layers = cms.int32(50),
         onnxEnergyModelPath = cms.string('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/energy_v1.onnx'),
-        onnxPIDModelPath = cms.string('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/id_v0.onnx'),
+        onnxPIDModelPath = cms.string('RecoHGCal/TICL/data/ticlv5/onnx_models/CNN/linking/id_v0.onnx'),
         type = cms.string('TracksterInferenceByPFN')
     )
 )
@@ -91,7 +91,7 @@ ticlCandidate = _ticlCandidateProducer.clone(
     regressionAndPid = cms.bool(True),
     pluginInferenceAlgoTracksterInferenceByPFN=cms.PSet(
         algo_verbosity=cms.int32(0),
-        onnxPIDModelPath=cms.string('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/id_v0.onnx'),
+        onnxPIDModelPath=cms.string('RecoHGCal/TICL/data/ticlv5/onnx_models/CNN/linking/id_v0.onnx'),
         onnxEnergyModelPath=cms.string('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/energy_v1.onnx'),
         inputNames=cms.vstring('input', 'input_tr_features'),
         output_en=cms.vstring('enreg_output'),
