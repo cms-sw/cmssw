@@ -85,8 +85,13 @@ process.ScoutingHBHERechitAnalyzerOnline.topFolderName = 'NGT/ScoutingOnline/HBH
 process.dqmcommon = cms.Sequence(process.dqmEnv
                                * process.dqmSaver)#*process.dqmSaverPB)
 
+## best electron track producer
+from PhysicsTools.Scouting.Run3ScoutingElectronBestTrackProducer_cfi import Run3ScoutingElectronBestTrackProducer as _Run3ScoutingElectronBestTrackProducer
+process.run3ScoutingElectronBestTrack =  _Run3ScoutingElectronBestTrackProducer.clone()
+
 process.p = cms.Path(process.dqmcommon *
                      process.hltOnlineBeamSpot *
+                     process.run3ScoutingElectronBestTrack *
                      process.scoutingCollectionMonitor *
                      process.ScoutingRecHitsMonitoring *
                      process.ScoutingDileptonMonitorOnline *
