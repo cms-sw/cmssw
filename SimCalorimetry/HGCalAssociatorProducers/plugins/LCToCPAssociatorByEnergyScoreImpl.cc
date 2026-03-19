@@ -78,14 +78,12 @@ ticl::association LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
     for (const auto& it_sc : simClusterRefVector) {
       const SimCluster& simCluster = (*(it_sc));
 
-	  SimCluster::HitsAndFractionsView hafView =
-		detIds.empty()
-        ? simCluster.hits_and_fractions_view()
-        : ([&detIds, &simCluster]() {
-		  auto [minIt, maxIt] = std::minmax_element(detIds.begin(), detIds.end());
-		  return simCluster.hits_and_fractions_view(*minIt, *maxIt);
-		})();
-	  
+      SimCluster::HitsAndFractionsView hafView =
+          detIds.empty() ? simCluster.hits_and_fractions_view() : ([&detIds, &simCluster]() {
+            auto [minIt, maxIt] = std::minmax_element(detIds.begin(), detIds.end());
+            return simCluster.hits_and_fractions_view(*minIt, *maxIt);
+          })();
+
       for (size_t i = 0; i < hafView.size(); ++i) {
         const uint32_t hitid = hafView.hits[i];
         const float fraction = hafView.fractions[i];
