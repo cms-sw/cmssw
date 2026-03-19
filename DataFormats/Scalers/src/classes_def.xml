@@ -1,64 +1,61 @@
 <lcgdict>
-  <class name="L1AcceptBunchCrossing" ClassVersion="10">
-   <version ClassVersion="10" checksum="2158810149"/>
+  <class name="io_v1::L1AcceptBunchCrossing" ClassVersion="3">
+   <version ClassVersion="3" checksum="3005314213"/>
   </class>
-  <class name="L1TriggerScalers" ClassVersion="11">
-   <version ClassVersion="11" checksum="2922897410"/>
-   <version ClassVersion="10" checksum="2108701177"/>
+  <class name="io_v1::L1TriggerScalers" ClassVersion="3">
+   <version ClassVersion="3" checksum="1619448962"/>
   </class>
-  <class name="L1TriggerRates" ClassVersion="10">
-   <version ClassVersion="10" checksum="1983467977"/>
+  <class name="L1TriggerRates" ClassVersion="3">
+   <version ClassVersion="3" checksum="1983467977"/>
   </class>
-  <class name="Level1TriggerScalers" ClassVersion="11">
-   <version ClassVersion="11" checksum="1969787996"/>
-   <version ClassVersion="10" checksum="733799432"/>
+  <class name="io_v1::Level1TriggerScalers" ClassVersion="3">
+   <version ClassVersion="3" checksum="3438933468"/>
   </class>
-  <class name="Level1TriggerRates" ClassVersion="11">
-   <version ClassVersion="11" checksum="1342807468"/>
-   <version ClassVersion="10" checksum="1930374175"/>
+  <class name="Level1TriggerRates" ClassVersion="3">
+   <version ClassVersion="3" checksum="1342807468"/>
   </class>
-  <class name="LumiScalers" ClassVersion="16">
-   <version ClassVersion="16" checksum="3479164400"/>
+  <class name="io_v1::LumiScalers" ClassVersion="3">
+   <version ClassVersion="3" checksum="4290270832"/>
   </class>
-  <class name="DcsStatus" ClassVersion="10">
-   <version ClassVersion="10" checksum="1373867021"/>
+  <class name="io_v1::DcsStatus" ClassVersion="3">
+   <version ClassVersion="3" checksum="1017866381"/>
   </class>
-  <class name="BeamSpotOnline" ClassVersion="10">
-   <version ClassVersion="10" checksum="3395641892"/>
+  <class name="io_v1::BeamSpotOnline" ClassVersion="3">
+   <version ClassVersion="3" checksum="1538451364"/>
   </class>
-  <class name="TimeSpec" ClassVersion="10">
-   <version ClassVersion="10" checksum="3936062714"/>
+  <class name="TimeSpec" ClassVersion="3">
+   <version ClassVersion="3" checksum="3936062714"/>
   </class>
-  <class name="std::vector<L1AcceptBunchCrossing>"/>
-  <class name="std::vector<L1TriggerScalers>"/>
+  <class name="std::vector<io_v1::L1AcceptBunchCrossing>"/>
+  <class name="std::vector<io_v1::L1TriggerScalers>"/>
   <class name="std::vector<L1TriggerRates>"/>
-  <class name="std::vector<Level1TriggerScalers>"/>
+  <class name="std::vector<io_v1::Level1TriggerScalers>"/>
   <class name="std::vector<Level1TriggerRates>"/>
-  <class name="std::vector<LumiScalers>"/>
-  <class name="std::vector<DcsStatus>"/>
-  <class name="std::vector<BeamSpotOnline>"/>
-  <class name="edm::RefProd<L1AcceptBunchCrossing>"/>
-  <class name="edm::RefProd<L1TriggerScalers>"/>
+  <class name="std::vector<io_v1::LumiScalers>"/>
+  <class name="std::vector<io_v1::DcsStatus>"/>
+  <class name="std::vector<io_v1::BeamSpotOnline>"/>
+  <class name="edm::RefProd<io_v1::L1AcceptBunchCrossing>"/>
+  <class name="edm::RefProd<io_v1::L1TriggerScalers>"/>
   <class name="edm::RefProd<L1TriggerRates>"/>
-  <class name="edm::RefProd<Level1TriggerScalers>"/>
+  <class name="edm::RefProd<io_v1::Level1TriggerScalers>"/>
   <class name="edm::RefProd<Level1TriggerRates>"/>
-  <class name="edm::RefProd<LumiScalers>"/>
-  <class name="edm::RefProd<DcsStatus>"/>
-  <class name="edm::RefProd<BeamSpotOnline>"/>
-  <class name="edm::Wrapper<L1AcceptBunchCrossing>"/>
-  <class name="edm::Wrapper<L1TriggerScalers>"/>
+  <class name="edm::RefProd<io_v1::LumiScalers>"/>
+  <class name="edm::RefProd<io_v1::DcsStatus>"/>
+  <class name="edm::RefProd<io_v1::BeamSpotOnline>"/>
+  <class name="edm::Wrapper<io_v1::L1AcceptBunchCrossing>"/>
+  <class name="edm::Wrapper<io_v1::L1TriggerScalers>"/>
   <class name="edm::Wrapper<L1TriggerRates>"/>
-  <class name="edm::Wrapper<Level1TriggerScalers>"/>
+  <class name="edm::Wrapper<io_v1::Level1TriggerScalers>"/>
   <class name="edm::Wrapper<Level1TriggerRates>"/>
-  <class name="edm::Wrapper<LumiScalers>"/>
-  <class name="edm::Wrapper<DcsStatus>"/>
-  <class name="edm::Wrapper<BeamSpotOnline>"/>
-  <class name="edm::Wrapper<std::vector<L1AcceptBunchCrossing>>"/>
-  <class name="edm::Wrapper<std::vector<L1TriggerScalers>>"/>
+  <class name="edm::Wrapper<io_v1::LumiScalers>"/>
+  <class name="edm::Wrapper<io_v1::DcsStatus>"/>
+  <class name="edm::Wrapper<io_v1::BeamSpotOnline>"/>
+  <class name="edm::Wrapper<std::vector<io_v1::L1AcceptBunchCrossing>>"/>
+  <class name="edm::Wrapper<std::vector<io_v1::L1TriggerScalers>>"/>
   <class name="edm::Wrapper<std::vector<L1TriggerRates>>"/>
-  <class name="edm::Wrapper<std::vector<Level1TriggerScalers>>"/>
+  <class name="edm::Wrapper<std::vector<io_v1::Level1TriggerScalers>>"/>
   <class name="edm::Wrapper<std::vector<Level1TriggerRates>>"/>
-  <class name="edm::Wrapper<std::vector<LumiScalers>>"/>
-  <class name="edm::Wrapper<std::vector<DcsStatus>>"/>
-  <class name="edm::Wrapper<std::vector<BeamSpotOnline>>"/>
+  <class name="edm::Wrapper<std::vector<io_v1::LumiScalers>>"/>
+  <class name="edm::Wrapper<std::vector<io_v1::DcsStatus>>"/>
+  <class name="edm::Wrapper<std::vector<io_v1::BeamSpotOnline>>"/>
 </lcgdict>
