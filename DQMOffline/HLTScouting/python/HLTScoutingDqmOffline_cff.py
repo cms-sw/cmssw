@@ -19,6 +19,9 @@ from HLTriggerOffline.Scouting.HLTScoutingEGammaDqmOffline_cff import *
 from DQMOffline.JetMET.jetMETDQMOfflineSource_cff import *
 from DQMOffline.Trigger.JetMETPromptMonitor_cff import *
 
+### Electron best track producer
+from PhysicsTools.Scouting.Run3ScoutingElectronBestTrackProducer_cfi import Run3ScoutingElectronBestTrackProducer as run3ScoutingElectronBestTrack
+
 ### Miscellaneous monitoring
 from DQM.HLTEvF.ScoutingCollectionMonitor_cfi import *
 
@@ -52,6 +55,7 @@ hltScoutingDqmOffline = cms.Sequence(hltScoutingMuonDqmOffline +
                                      hltScoutingJetDqmOffline +
                                      hltScoutingDileptonMonitor +
                                      hltScoutingPi0Monitor +
+                                     run3ScoutingElectronBestTrack +
                                      hltScoutingCollectionMonitor)
 
 ## Add the scouting rechits monitoring (only for 2025, integrated in menu GRun 2025 V1.3)
