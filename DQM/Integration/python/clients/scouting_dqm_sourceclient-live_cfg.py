@@ -60,8 +60,13 @@ process.load("DQM.HLTEvF.ScoutingRechitMonitoring_cff")
 process.load("DQM.HLTEvF.ScoutingDileptonMonitor_cfi")
 process.load("DQM.HLTEvF.ScoutingPi0Monitor_cfi")
 
+## best electron track producer
+from PhysicsTools.Scouting.Run3ScoutingElectronBestTrackProducer_cfi import Run3ScoutingElectronBestTrackProducer as _Run3ScoutingElectronBestTrackProducer
+process.run3ScoutingElectronBestTrack =  _Run3ScoutingElectronBestTrackProducer.clone()
+
 process.p = cms.Path(process.dqmcommon *
                      process.hltOnlineBeamSpot *
+                     process.run3ScoutingElectronBestTrack *
                      process.scoutingCollectionMonitor *
                      process.ScoutingMuonMonitoring *
                      process.ScoutingJetMonitoring *
