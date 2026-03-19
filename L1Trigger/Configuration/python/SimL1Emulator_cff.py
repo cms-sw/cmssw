@@ -79,6 +79,8 @@ from L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi import *
 _phase2_siml1emulator.add(dtTriggerPhase2PrimitiveDigis)
 from L1Trigger.DTTriggerPhase2.dtTriggerPhase2Showers_cfi import *
 _phase2_siml1emulator.add(dtTriggerPhase2Shower)
+from L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitivePairDigis_cfi import *
+_phase2_siml1emulator.add(dtTriggerPhase2PrimitivePairDigis)
 
 # HGCAL TP 
 # ########################################################################

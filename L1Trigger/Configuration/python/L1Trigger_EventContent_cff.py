@@ -258,6 +258,9 @@ def _appendPhase2Digis(obj):
 	'keep *_l1tPhase2L1CaloEGammaEmulator_*_*',
         'keep *_l1tGTProducer_*_*',
         'keep *_l1tGTAlgoBlockProducer_*_*',
+        'keep *_dtTriggerPhase2PrimitiveDigis_*_*',
+        'keep *_dtTriggerPhase2Showers_*_*',
+        'keep *_dtTriggerPhase2PrimitivePairDigis_*_*'
         ]
     obj.outputCommands += l1Phase2Digis
 
