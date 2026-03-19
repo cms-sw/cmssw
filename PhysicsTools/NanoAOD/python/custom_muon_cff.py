@@ -365,6 +365,13 @@ def IncreaseGenPrecesion(process):
     
     return process
 
+def ModifyMuonSelection(process):
+
+    process.finalMuons.cut = cms.string("pt > 2")
+
+    return process
+
+
 def PrepMuonCustomNanoAOD(process):
     
     process = Custom_Muon_Task(process)
@@ -372,6 +379,6 @@ def PrepMuonCustomNanoAOD(process):
     process = AddVariablesForMuon(process)
     process = AddTriggerObjectBits(process)
     process = IncreaseGenPrecesion(process)
-
+    process = ModifyMuonSelection(process)
 
     return process
