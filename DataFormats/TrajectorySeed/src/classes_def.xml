@@ -1,24 +1,23 @@
 <lcgdict>
-  <class name="TrajectorySeed" ClassVersion="11">
-   <version ClassVersion="11" checksum="1603723857"/>
-   <version ClassVersion="10" checksum="611162820"/>
+  <class name="io_v1::TrajectorySeed" ClassVersion="3">
+   <version ClassVersion="3" checksum="1211492305"/>
   </class>
-  <class name="edm::RefToBase<TrajectorySeed>" rntupleStreamerMode="true"/>
-  <class name="edm::reftobase::BaseHolder<TrajectorySeed>"/>
-  <class name="edm::reftobase::IndirectHolder<TrajectorySeed>"/>
+  <class name="edm::RefToBase<io_v1::TrajectorySeed>" rntupleStreamerMode="true"/>
+  <class name="edm::reftobase::BaseHolder<io_v1::TrajectorySeed>"/>
+  <class name="edm::reftobase::IndirectHolder<io_v1::TrajectorySeed>"/>
 
-  <class name="std::vector<TrajectorySeed>"/>
-  <class name="edm::Wrapper<std::vector<TrajectorySeed> >" splitLevel="0"/>
-  <class name="edm::Ref<std::vector<TrajectorySeed>,TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<TrajectorySeed>,TrajectorySeed> >"/>
-  <class name="edm::RefProd<std::vector<TrajectorySeed> >"/>
-  <class name="edm::RefVector<std::vector<TrajectorySeed>,TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<TrajectorySeed>,TrajectorySeed> >"/>
-  <class name="edm::RefVectorIterator<std::vector<TrajectorySeed>,TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<TrajectorySeed>,TrajectorySeed> >"/>
-  <!-- Warning: Unused class rule: std::iterator<*edm::Ref*TrajectorySeed*> -->
-  <!-- <class pattern="std::iterator<*edm::Ref*TrajectorySeed*>"/> -->
+  <class name="std::vector<io_v1::TrajectorySeed>"/>
+  <class name="edm::Wrapper<std::vector<io_v1::TrajectorySeed> >" splitLevel="0"/>
+  <class name="edm::Ref<std::vector<io_v1::TrajectorySeed>,io_v1::TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<io_v1::TrajectorySeed>,io_v1::TrajectorySeed> >"/>
+  <class name="edm::RefProd<std::vector<io_v1::TrajectorySeed> >"/>
+  <class name="edm::RefVector<std::vector<io_v1::TrajectorySeed>,io_v1::TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<io_v1::TrajectorySeed>,io_v1::TrajectorySeed> >"/>
+  <class name="edm::RefVectorIterator<std::vector<io_v1::TrajectorySeed>,io_v1::TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<io_v1::TrajectorySeed>,io_v1::TrajectorySeed> >"/>
+  <!-- Warning: Unused class rule: std::iterator<*edm::Ref*io_v1::TrajectorySeed*> -->
+  <!-- <class pattern="std::iterator<*edm::Ref*io_v1::TrajectorySeed*>"/> -->
 
-  <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<TrajectorySeed>,TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<TrajectorySeed>,TrajectorySeed> > >"/>
-  <class name="edm::Ptr<TrajectorySeed>"/>
-  <class name="edm::reftobase::RefHolder<edm::Ptr<TrajectorySeed> >"/>
-  <class name="edm::reftobase::Holder<TrajectorySeed,edm::Ref<std::vector<TrajectorySeed>,TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<TrajectorySeed>,TrajectorySeed> > >"/>
+  <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<io_v1::TrajectorySeed>,io_v1::TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<io_v1::TrajectorySeed>,io_v1::TrajectorySeed> > >"/>
+  <class name="edm::Ptr<io_v1::TrajectorySeed>"/>
+  <class name="edm::reftobase::RefHolder<edm::Ptr<io_v1::TrajectorySeed> >"/>
+  <class name="edm::reftobase::Holder<io_v1::TrajectorySeed,edm::Ref<std::vector<io_v1::TrajectorySeed>,io_v1::TrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<io_v1::TrajectorySeed>,io_v1::TrajectorySeed> > >"/>
 
 </lcgdict>

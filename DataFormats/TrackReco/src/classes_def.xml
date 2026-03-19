@@ -319,7 +319,7 @@
 
 
   <class name="reco::io_v1::TrackExtra" ClassVersion="3">
-   <version ClassVersion="3" checksum="1477568196"/>
+   <version ClassVersion="3" checksum="592326124"/>
     <field name="outerPosition_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="outerMomentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="innerPosition_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 

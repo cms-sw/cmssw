@@ -1,32 +1,32 @@
 <lcgdict>
-      <class name="L2MuonTrajectorySeed"  ClassVersion="3">
-       <version ClassVersion="3" checksum="846735298"/>
+      <class name="io_v1::L2MuonTrajectorySeed"  ClassVersion="3">
+       <version ClassVersion="3" checksum="131663448"/>
       </class>
-      <class name="edm::reftobase::BaseHolder<L2MuonTrajectorySeed>" />
-      <class name="edm::reftobase::IndirectHolder<L2MuonTrajectorySeed>" />
+      <class name="edm::reftobase::BaseHolder<io_v1::L2MuonTrajectorySeed>" />
+      <class name="edm::reftobase::IndirectHolder<io_v1::L2MuonTrajectorySeed>" />
     
-      <class name="std::vector<L2MuonTrajectorySeed>" />
-      <class name="edm::Wrapper<std::vector<L2MuonTrajectorySeed> >" splitLevel="0"/>
-      <class name="edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >"/>
-      <class name="edm::RefProd<std::vector<L2MuonTrajectorySeed> >"/>
-      <class name="edm::RefVector<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >"/>
-      <class name="edm::RefVectorIterator<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >"/>
+      <class name="std::vector<io_v1::L2MuonTrajectorySeed>" />
+      <class name="edm::Wrapper<std::vector<io_v1::L2MuonTrajectorySeed> >" splitLevel="0"/>
+      <class name="edm::Ref<std::vector<io_v1::L2MuonTrajectorySeed>,io_v1::L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<io_v1::L2MuonTrajectorySeed>,io_v1::L2MuonTrajectorySeed> >"/>
+      <class name="edm::RefProd<std::vector<io_v1::L2MuonTrajectorySeed> >"/>
+      <class name="edm::RefVector<std::vector<io_v1::L2MuonTrajectorySeed>,io_v1::L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<io_v1::L2MuonTrajectorySeed>,io_v1::L2MuonTrajectorySeed> >"/>
+      <class name="edm::RefVectorIterator<std::vector<io_v1::L2MuonTrajectorySeed>,io_v1::L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<io_v1::L2MuonTrajectorySeed>,io_v1::L2MuonTrajectorySeed> >"/>
     
-      <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > >"/>
-      <class name="edm::reftobase::Holder<L2MuonTrajectorySeed,edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > >"/>
+      <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<io_v1::L2MuonTrajectorySeed>,io_v1::L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<io_v1::L2MuonTrajectorySeed>,io_v1::L2MuonTrajectorySeed> > >"/>
+      <class name="edm::reftobase::Holder<io_v1::L2MuonTrajectorySeed,edm::Ref<std::vector<io_v1::L2MuonTrajectorySeed>,io_v1::L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<io_v1::L2MuonTrajectorySeed>,io_v1::L2MuonTrajectorySeed> > >"/>
 
-      <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<L2MuonTrajectorySeed> >, edm::RefProd<std::vector<L2MuonTrajectorySeed> > >"/>
-      <class name="edm::AssociationMap<edm::OneToMany<std::vector<L2MuonTrajectorySeed>,std::vector<L2MuonTrajectorySeed>, unsigned int > >">
+      <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<io_v1::L2MuonTrajectorySeed> >, edm::RefProd<std::vector<io_v1::L2MuonTrajectorySeed> > >"/>
+      <class name="edm::AssociationMap<edm::OneToMany<std::vector<io_v1::L2MuonTrajectorySeed>,std::vector<io_v1::L2MuonTrajectorySeed>, unsigned int > >">
         <field name="transientMap_" transient="true"/>
       </class>
 
-      <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<L2MuonTrajectorySeed>,std::vector<L2MuonTrajectorySeed>, unsigned int > > >"/>
-      <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >,edm::RefVector<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > > >"/>
-      <class name="edm::helpers::KeyVal<edm::Ref<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> >,edm::RefVector<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<L2MuonTrajectorySeed>,L2MuonTrajectorySeed> > >"/>
+      <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<io_v1::L2MuonTrajectorySeed>,std::vector<io_v1::L2MuonTrajectorySeed>, unsigned int > > >"/>
+      <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<io_v1::L2MuonTrajectorySeed>,io_v1::L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<io_v1::L2MuonTrajectorySeed>,io_v1::L2MuonTrajectorySeed> >,edm::RefVector<std::vector<io_v1::L2MuonTrajectorySeed>,io_v1::L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<io_v1::L2MuonTrajectorySeed>,io_v1::L2MuonTrajectorySeed> > > >"/>
+      <class name="edm::helpers::KeyVal<edm::Ref<std::vector<io_v1::L2MuonTrajectorySeed>,io_v1::L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<io_v1::L2MuonTrajectorySeed>,io_v1::L2MuonTrajectorySeed> >,edm::RefVector<std::vector<io_v1::L2MuonTrajectorySeed>,io_v1::L2MuonTrajectorySeed,edm::refhelper::FindUsingAdvance<std::vector<io_v1::L2MuonTrajectorySeed>,io_v1::L2MuonTrajectorySeed> > >"/>
 
 
       <class name="L3MuonTrajectorySeed"  ClassVersion="3">
-        <version ClassVersion="3" checksum="1398743106"/>
+        <version ClassVersion="3" checksum="1994193054"/>
       </class>
       <class name="edm::reftobase::BaseHolder<L3MuonTrajectorySeed>" />
       <class name="edm::reftobase::IndirectHolder<L3MuonTrajectorySeed>" />
