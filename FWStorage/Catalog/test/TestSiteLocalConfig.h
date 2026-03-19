@@ -1,21 +1,21 @@
-#ifndef FWCore_Catalog_test_TestSiteLocalConfig_h
-#define FWCore_Catalog_test_TestSiteLocalConfig_h
+#ifndef FWStorage_Catalog_test_TestSiteLocalConfig_h
+#define FWStorage_Catalog_test_TestSiteLocalConfig_h
 
 #include <cstdlib>
 #include <filesystem>
 #include <string>
 #include <vector>
 
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
 
 namespace edmtest::catalog {
 
   inline std::filesystem::path const storageDescriptionPathImpl(const edm::CatalogAttributes& aDataCatalog) {
     std::string CMSSW_BASE(std::getenv("CMSSW_BASE"));
     std::string CMSSW_RELEASE_BASE(std::getenv("CMSSW_RELEASE_BASE"));
-    std::string file_name("/src/FWCore/Catalog/test/storage.json");
+    std::string file_name("/src/FWStorage/Catalog/test/storage.json");
     std::string full_file_name = std::filesystem::exists((CMSSW_BASE + file_name).c_str())
                                      ? CMSSW_BASE + file_name
                                      : CMSSW_RELEASE_BASE + file_name;

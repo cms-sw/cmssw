@@ -6,8 +6,8 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/Catalog/interface/FileLocator.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
+#include "FWStorage/Catalog/interface/FileLocator.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
 
 #include "TestSiteLocalConfig.h"
 
@@ -20,7 +20,7 @@ namespace {
   }
 }  // namespace
 
-TEST_CASE("FileLocator with Rucio data catalog", "[FWCore/Catalog]") {
+TEST_CASE("FileLocator with Rucio data catalog", "[FWStorage/Catalog]") {
   SECTION("prefix") {
     auto fl = makeFileLocator(0);
     CHECK("root://cmsxrootd.fnal.gov/store/group/bha/bho" == fl->pfn("/store/group/bha/bho"));

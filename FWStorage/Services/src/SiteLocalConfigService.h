@@ -10,9 +10,9 @@
 #include <string>
 #include <list>
 #include <vector>
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
-#include "FWCore/Utilities/interface/propagate_const.h"
 #include "tinyxml2.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
 
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
 //<<<<<< PUBLIC CONSTANTS                                               >>>>>>

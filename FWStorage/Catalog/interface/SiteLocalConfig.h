@@ -1,25 +1,24 @@
-#ifndef FWCore_Catalog_SiteLocalConfig_h
-#define FWCore_Catalog_SiteLocalConfig_h
+#ifndef FWStorage_Catalog_SiteLocalConfig_h
+#define FWStorage_Catalog_SiteLocalConfig_h
 ////////////////////////////////////////////////////////////
 //
-// Abstract class. dataCatalogs() returns multiple data catalogs from site-local-config.xml. It is overridden in derived classes.
+// Abstract class. dataCatalogs() returns multiple data catalogs from site-local-config.xml.
+// It is overridden in derived classes.
 //
 ////////////////////////////////////////////////////////////
 
-// INCLUDES
 #include <set>
 #include <string>
 #include <vector>
 #include <netdb.h>
 #include <filesystem>
-// PUBLIC DEFINES
-// PUBLIC CONSTANTS
-// PUBLIC TYPES
+
 namespace edm {
   class ParameterSet;
   class ActivityRegistry;
 
-  //attributes of a data catalog (Rucio format) defined in <data-access> block of site-local-config.xml. See further description in SiteLocalConfigService.cc
+  // Attributes of a data catalog (Rucio format) defined in <data-access> block of
+  // site-local-config.xml. See further description in SiteLocalConfigService.cc
   struct CatalogAttributes {
     CatalogAttributes() = default;
     CatalogAttributes(std::string input_site,
@@ -44,10 +43,6 @@ namespace edm {
     std::string protocol;
   };
 }  // namespace edm
-
-// PUBLIC VARIABLES
-// PUBLIC FUNCTIONS
-// CLASS DECLARATIONS
 
 namespace edm {
   class SiteLocalConfig {
@@ -77,13 +72,7 @@ namespace edm {
     virtual std::string const& localConnectPrefix() const = 0;
     virtual std::string const& localConnectSuffix() const = 0;
 
-    // implicit copy constructor
-    // implicit assignment operator
   private:
   };
 }  // namespace edm
-
-// INLINE PUBLIC FUNCTIONS
-// INLINE MEMBER FUNCTIONS
-
-#endif  //FWCore_Catalog_SiteLocalConfig_h
+#endif

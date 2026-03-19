@@ -5,8 +5,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
-
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 #include "FWStorage/StorageFactory/interface/IOFlags.h"
 #include "FWStorage/StorageFactory/interface/StorageFactory.h"
 
