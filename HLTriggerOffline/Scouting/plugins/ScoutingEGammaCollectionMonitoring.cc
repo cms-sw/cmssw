@@ -158,7 +158,14 @@ void ScoutingEGammaCollectionMonitoring::analyze(edm::Event const& iEvent, edm::
       histos.patElectron.electrons.h1Pt->Fill(el->pt());
       histos.patElectron.electrons.h1Eta->Fill(el->eta());
       histos.patElectron.electrons.h1Phi->Fill(el->phi());
-      if (((*tight_ele_id_decisions)[el]))
+      const auto& orig = el->originalObjectRef();
+
+      bool passTight = false;
+      if (orig.isNonnull() && orig.isAvailable() && tight_ele_id_decisions->contains(orig.id())) {
+        passTight = tight_ele_id_decisions->get(orig.id(), orig.key());
+      }
+
+      if (passTight)
         tight_patElectron_index.push_back(i);
     }
 
