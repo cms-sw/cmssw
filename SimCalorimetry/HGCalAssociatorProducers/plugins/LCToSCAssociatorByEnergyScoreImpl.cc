@@ -78,10 +78,13 @@ ticl::association LCToSCAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
   edm::MultiSpan<HIT> hitsMS(hits_);
 
   for (const auto& scId : sCIndices) {
-    SimCluster::HitsAndFractionsView hafView =
-        detIds.empty() ? simClusters[scId].hits_and_fractions_view()
-                       : simClusters[scId].hits_and_fractions_view(*std::min_element(detIds.begin(), detIds.end()),
-                                                                   *std::max_element(detIds.begin(), detIds.end()));
+	SimCluster::HitsAndFractionsView hafView =
+	  detIds.empty()
+	  ? simClusters[scId].hits_and_fractions_view()
+	  : ([&]() {
+		auto [minIt, maxIt] = std::minmax_element(detIds.begin(), detIds.end());
+		return simClusters[scId].hits_and_fractions_view(*minIt, *maxIt);
+	  })();
 
     for (size_t i = 0; i < hafView.hits.size(); ++i) {
       const uint32_t hitid = hafView.hits[i];

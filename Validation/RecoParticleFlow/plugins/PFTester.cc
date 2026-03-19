@@ -550,10 +550,12 @@ void PFTesterT<RecoClusterCollection>::bookHistograms(DQMStore::IBooker& ibook,
 template <typename RecoClusterCollection>
 void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<DetId::Detector> detIds = simcluster_utils::join_detids(filter_sim_hits_);
-  DetId::Detector minDet, maxDet;
+  DetId::Detector minDet = DetId::Detector(0); //dummy detector id value
+  DetId::Detector maxDet = DetId::Detector(0); //dummy detector id value
   if (!detIds.empty()) {
-    minDet = *std::min_element(detIds.begin(), detIds.end());
-    maxDet = *std::max_element(detIds.begin(), detIds.end());
+	const auto minmaxDet = std::minmax_element(detIds.begin(), detIds.end());
+    minDet = *minmaxDet.first;
+    maxDet = *minmaxDet.second;
   }
 
   // --------------------------------------------------------------------
