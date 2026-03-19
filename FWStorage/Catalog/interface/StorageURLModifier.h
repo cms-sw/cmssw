@@ -1,5 +1,5 @@
-#ifndef FWCore_Catalog_StorageURLModifier_h
-#define FWCore_Catalog_StorageURLModifier_h
+#ifndef FWStorage_Catalog_StorageURLModifier_h
+#define FWStorage_Catalog_StorageURLModifier_h
 
 /**\class edm::StorageURLModifier
 
