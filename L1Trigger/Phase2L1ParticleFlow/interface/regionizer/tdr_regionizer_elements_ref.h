@@ -103,8 +103,10 @@ namespace l1ct {
       std::pair<size_t, size_t> get_small_region(size_t sr) const;
 
       /// physical links associated with a logical sr (customized for each type)
-      std::vector<size_t> linksForSR(size_t sr) const;
-      std::vector<size_t> caloLinksHelper(size_t iphi) const;
+      /// Note that these are grouped in bundles (to help model calo order)
+      std::vector<std::vector<size_t>> linksForSR(size_t sr) const;
+      std::vector<std::vector<size_t>> caloLinksHelper(size_t iphi) const;
+      void getNextIndex(size_t sr, const std::vector<size_t>& bundle, size_t& nextIdx) const;
 
       unsigned int numBuffers() const { return buffers_.size(); }
       unsigned int numEntries(unsigned int bufferIndex) const { return buffers_[bufferIndex].numEntries(); }

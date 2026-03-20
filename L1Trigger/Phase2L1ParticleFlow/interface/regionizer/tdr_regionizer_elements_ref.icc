@@ -283,44 +283,44 @@ void l1ct::tdr_regionizer::Regionizer<T>::addToSmallRegion(size_t sr, BufferEntr
 
 // This is a dummy, should never be used.
 template <typename T>
-inline std::vector<size_t> l1ct::tdr_regionizer::Regionizer<T>::linksForSR(size_t) const {
-  std::vector<size_t> retval;
+inline std::vector<std::vector<size_t>> l1ct::tdr_regionizer::Regionizer<T>::linksForSR(size_t) const {
+  std::vector<std::vector<size_t>> retval;
   throw cms::Exception("LogicError") << "This should be customized per type.";
   return retval;
 }
 
 // returns the physical links
 template <>
-inline std::vector<size_t> l1ct::tdr_regionizer::Regionizer<l1ct::TkObjEmu>::linksForSR(size_t sr) const {
+inline std::vector<std::vector<size_t>> l1ct::tdr_regionizer::Regionizer<l1ct::TkObjEmu>::linksForSR(size_t sr) const {
   std::pair logic_sr = get_small_region(sr);
   const auto& ieta = logic_sr.first;
   const auto& iphi = logic_sr.second;
-  std::vector<size_t> retval;
+  std::vector<std::vector<size_t>> retval;
   if (ieta < 3) {
     auto nom = iphi;
     auto smaller = (nom == 0) ? 8 : nom - 1;
     auto bigger = (nom == 8) ? 0 : nom + 1;
-    retval.push_back(sectorMapLogToPhys_[nom]);
-    retval.push_back(sectorMapLogToPhys_[smaller]);
-    retval.push_back(sectorMapLogToPhys_[bigger]);
+    retval.emplace_back(1, sectorMapLogToPhys_[nom]);
+    retval.emplace_back(1, sectorMapLogToPhys_[smaller]);
+    retval.emplace_back(1, sectorMapLogToPhys_[bigger]);
     if (ieta == 2) {
       // also add the other ones
-      retval.push_back(sectorMapLogToPhys_[nom + 9]);
-      retval.push_back(sectorMapLogToPhys_[smaller + 9]);
-      retval.push_back(sectorMapLogToPhys_[bigger + 9]);
+      retval.emplace_back(1, sectorMapLogToPhys_[nom + 9]);
+      retval.emplace_back(1, sectorMapLogToPhys_[smaller + 9]);
+      retval.emplace_back(1, sectorMapLogToPhys_[bigger + 9]);
     }
   } else {
     auto nom = iphi + 9;
     auto smaller = (nom == 9) ? 17 : nom - 1;
     auto bigger = (nom == 17) ? 9 : nom + 1;
-    retval.push_back(sectorMapLogToPhys_[nom]);
-    retval.push_back(sectorMapLogToPhys_[smaller]);
-    retval.push_back(sectorMapLogToPhys_[bigger]);
+    retval.emplace_back(1, sectorMapLogToPhys_[nom]);
+    retval.emplace_back(1, sectorMapLogToPhys_[smaller]);
+    retval.emplace_back(1, sectorMapLogToPhys_[bigger]);
     if (ieta == 3) {
       // also add the other ones
-      retval.push_back(sectorMapLogToPhys_[nom - 9]);
-      retval.push_back(sectorMapLogToPhys_[smaller - 9]);
-      retval.push_back(sectorMapLogToPhys_[bigger - 9]);
+      retval.emplace_back(1, sectorMapLogToPhys_[nom - 9]);
+      retval.emplace_back(1, sectorMapLogToPhys_[smaller - 9]);
+      retval.emplace_back(1, sectorMapLogToPhys_[bigger - 9]);
     }
   }
   return retval;
@@ -328,43 +328,43 @@ inline std::vector<size_t> l1ct::tdr_regionizer::Regionizer<l1ct::TkObjEmu>::lin
 
 // Note that these are phyisical links
 template <typename T>
-inline std::vector<size_t> l1ct::tdr_regionizer::Regionizer<T>::caloLinksHelper(size_t iphi) const {
+inline std::vector<std::vector<size_t>> l1ct::tdr_regionizer::Regionizer<T>::caloLinksHelper(size_t iphi) const {
   if (iphi < 2) {
-    std::vector<size_t> retval = {9, 3, 8, 2, 11, 5, 10, 4};
+    std::vector<std::vector<size_t>> retval = {{9, 3, 8, 2}, {11, 5, 10, 4}};
     return retval;
   } else if (iphi < 3) {
-    std::vector<size_t> retval = {11, 5, 10, 4};
+    std::vector<std::vector<size_t>> retval = {{11, 5, 10, 4}};
     return retval;
   } else if (iphi < 5) {
-    std::vector<size_t> retval = {11, 5, 10, 4, 7, 1, 6, 0};
+    std::vector<std::vector<size_t>> retval = {{11, 5, 10, 4}, {7, 1, 6, 0}};
     return retval;
   } else if (iphi < 6) {
-    std::vector<size_t> retval = {7, 1, 6, 0};
+    std::vector<std::vector<size_t>> retval = {{7, 1, 6, 0}};
     return retval;
   } else if (iphi < 8) {
-    std::vector<size_t> retval = {7, 1, 6, 0, 9, 3, 8, 2};
+    std::vector<std::vector<size_t>> retval = {{7, 1, 6, 0}, {9, 3, 8, 2}};
     return retval;
   } else {
-    std::vector<size_t> retval = {9, 3, 8, 2};
+    std::vector<std::vector<size_t>> retval = {{9, 3, 8, 2}};
     return retval;
   }
 }
 
 template <>
-inline std::vector<size_t> l1ct::tdr_regionizer::Regionizer<l1ct::HadCaloObjEmu>::linksForSR(size_t sr) const {
+inline std::vector<std::vector<size_t>> l1ct::tdr_regionizer::Regionizer<l1ct::HadCaloObjEmu>::linksForSR(size_t sr) const {
   const std::pair logic_sr = get_small_region(sr);
   return caloLinksHelper(logic_sr.second);
 }
 
 template <>
-inline std::vector<size_t> l1ct::tdr_regionizer::Regionizer<l1ct::EmCaloObjEmu>::linksForSR(size_t sr) const {
+inline std::vector<std::vector<size_t>> l1ct::tdr_regionizer::Regionizer<l1ct::EmCaloObjEmu>::linksForSR(size_t sr) const {
   const std::pair logic_sr = get_small_region(sr);
   return caloLinksHelper(logic_sr.second);
 }
 
 template <>
-inline std::vector<size_t> l1ct::tdr_regionizer::Regionizer<l1ct::MuObjEmu>::linksForSR(size_t) const {
-  std::vector<size_t> retval = {0};
+inline std::vector<std::vector<size_t>> l1ct::tdr_regionizer::Regionizer<l1ct::MuObjEmu>::linksForSR(size_t) const {
+  std::vector<std::vector<size_t>> retval = {{0}};
   return retval;
 }
 
@@ -384,6 +384,19 @@ std::pair<size_t, size_t> l1ct::tdr_regionizer::Regionizer<T>::get_small_region(
   return rval;
 }
 
+// Note that this also updates the index so that if if's not empty, you can directly access value
+// One needs to check that the next index is not bundle.size()
+template <typename T>
+void l1ct::tdr_regionizer::Regionizer<T>::getNextIndex(size_t sr, const std::vector<size_t>& bundle, size_t& nextIdx) const {
+  for (;nextIdx < bundle.size(); nextIdx++) {
+    auto& buffer = buffers_[bundle[nextIdx]];
+    if (!buffer.empty(sr)) {
+      return;
+    }
+  }
+}
+
+
 template <typename T>
 void l1ct::tdr_regionizer::Regionizer<T>::run() {
   if (debug_)
@@ -391,14 +404,17 @@ void l1ct::tdr_regionizer::Regionizer<T>::run() {
 
   for (size_t sr = 0; sr < regionmap_.size(); sr++) {
     // iterate over the (logical) SRs
-    auto links = linksForSR(sr);  // these are the physical links
+    auto links = linksForSR(sr);  // these are the physical links, in bundles
+    std::vector<size_t> nextIndex(links.size(), 0); // this is per bundle
     auto physSR = regionmap_[sr];
     bool allEmpty;
     do {
       allEmpty = true;
-      for (auto link : links) {
-        auto& buffer = buffers_[link];
-        if (!buffer.empty(sr)) {
+      for (size_t bundleIdx = 0; bundleIdx < links.size(); bundleIdx++) {
+        getNextIndex(sr, links[bundleIdx], nextIndex[bundleIdx]);
+        if (nextIndex[bundleIdx] < links[bundleIdx].size()) {
+          // found a non-empty buffer in the bundle
+          auto& buffer = buffers_[links[bundleIdx][nextIndex[bundleIdx]]];
           allEmpty = false;
           auto entry = buffer.getEntry(sr);
           if (debug_) {
