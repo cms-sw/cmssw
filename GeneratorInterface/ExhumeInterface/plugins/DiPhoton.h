@@ -5,7 +5,7 @@
 #ifndef DI_PHOTON_HH
 #define DI_PHOTON_HH
 
-#include "GeneratorInterface/ExhumeInterface/interface/TwoSpace.h"
+#include "TwoSpace.h"
 
 namespace Exhume {
   class DiPhoton : public TwoSpace {

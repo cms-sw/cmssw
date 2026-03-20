@@ -69,7 +69,7 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(const std::string& name,
   theRegularPixelResolutions = std::make_shared<PixelResolutionHistograms>(theRegularPixelResolutionFileName, "");
   if ((status = theRegularPixelResolutions->status()) != 0) {
     throw cms::Exception("PixelTemplateSmearerBase:")
-        << " constructing PixelResolutionHistograms file " << theRegularPixelResolutionFileName
+        << " constructing Regular PixelResolutionHistograms file " << theRegularPixelResolutionFileName
         << " failed with status = " << status << std::endl;
   }
 
@@ -77,7 +77,7 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(const std::string& name,
       theBigPixelResolutionFileName, "", detType, (!isBarrel), false, true);  // can miss qBin
   if ((status = theBigPixelResolutions->status()) != 0) {
     throw cms::Exception("PixelTemplateSmearerBase:")
-        << " constructing PixelResolutionHistograms file " << theBigPixelResolutionFileName
+        << " constructing Big PixelResolutionHistograms file " << theBigPixelResolutionFileName
         << " failed with status = " << status << std::endl;
   }
 
@@ -85,7 +85,7 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(const std::string& name,
       theEdgePixelResolutionFileName, "", detType, false, true, true);  // can miss both single & qBin
   if ((status = theEdgePixelResolutions->status()) != 0) {
     throw cms::Exception("PixelTemplateSmearerBase:")
-        << " constructing PixelResolutionHistograms file " << theEdgePixelResolutionFileName
+        << " constructing Edge PixelResolutionHistograms file " << theEdgePixelResolutionFileName
         << " failed with status = " << status << std::endl;
   }
 
