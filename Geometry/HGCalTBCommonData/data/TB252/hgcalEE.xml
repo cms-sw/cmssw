@@ -4,7 +4,7 @@
 <PosPartSection label="hgcalEE.xml">
   <Algorithm name="hgcal:DDHGCalSiliconRotatedCassette">
     <rParent name="hgcal:HGCalEE"/>
-    <Numeric name="WaferTypes"       value="3"/>
+    <Numeric name="WaferTypes"       value="1"/>
     <Numeric name="PassiveTypes"     value="4"/>
     <Numeric name="FacingTypes"      value="2"/>
     <Numeric name="OrientationTypes" value="6"/>
@@ -231,9 +231,13 @@
     <Vector name="RMaxFront" type="numeric" nEntries="4">
       [hgcal:rMaxHGCal], [hgcal:rMaxHGCal], [hgcal:rMaxHGCal], 
       [hgcal:rMaxHGCal]</Vector>
-    <Vector name="LayerTypes" type="numeric" nEntries="10">
-       0, 1, 0, 1, 0, 1, 0, 1, 0, 0 
-    </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="48">
+      0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+      0, 0, 0, 0, 0, 0, 0, 1, 0,
+      0, 0, 0, 0, 0, 0, 1, 0,
+      0, 0, 0, 0, 0, 0, 1, 0,
+      0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0</Vector>
     <Vector name="WaferIndex" type="numeric" nEntries="10">
         262152,  524296,  786440, 1048584, 1310728, 1572872, 1835016,
        2097160, 2359304, 2621448 

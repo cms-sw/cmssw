@@ -26,7 +26,7 @@
     <rSolid name="HGCalFeCover"/>
     <rMaterial name="materials:StainlessSteel"/>
   </LogicalPart>
-  <LogicalPart name="HGCalCooling category="unspecified">
+  <LogicalPart name="HGCalCooling" category="unspecified">
     <rSolid name="HGCalCooling"/>
     <rMaterial name="materials:Copper"/>
   </LogicalPart>

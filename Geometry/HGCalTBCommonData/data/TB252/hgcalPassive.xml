@@ -44,7 +44,7 @@
     <rSolid name="HGCalAbsorberMy"/>
     <rMaterial name="materials:Mylar"/>
   </LogicalPart>
-  <LogicalPart name="HGCalCooling category="unspecified">
+  <LogicalPart name="HGCalCooling" category="unspecified">
     <rSolid name="HGCalCooling"/>
     <rMaterial name="materials:Copper"/>
   </LogicalPart>

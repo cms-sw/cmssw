@@ -8,7 +8,7 @@
 <PosPartSection label="hgcalEE.xml">
   <Algorithm name="hgcal:DDHGCalSiliconRotatedCassette">
     <rParent name="hgcal:HGCalEE"/>
-    <Numeric name="WaferTypes"       value="3"/>
+    <Numeric name="WaferTypes"       value="1"/>
     <Numeric name="PassiveTypes"     value="1"/>
     <Numeric name="FacingTypes"      value="2"/>
     <Numeric name="OrientationTypes" value="6"/>
@@ -22,7 +22,7 @@
     <Numeric name="waferSize"        value="[hgcal:WaferSize]"/>
     <Numeric name="SensorSeparation" value="[hgcal:SensorSeparation]"/>
     <Numeric name="Sectors"          value="36"/>
-    <Numeric name="Cassettes"        value="6"/>
+    <Numeric name="Cassettes"        value="1"/>
     <String  name="LayerRotation"    value="hgcal:LayerRotation"/>
     <Vector name="WaferNamesFull" type="string" nEntries="48">
       hgcalwafer:HGCalEEWafer00HD120, hgcalwafer:HGCalEEWafer01HD120, 
@@ -182,10 +182,24 @@
       hgcalwafer:HGCalEEWafer06HD200HD5, hgcalwafer:HGCalEEWafer07HD200HD5, 
       hgcalwafer:HGCalEEWafer08HD200HD5, hgcalwafer:HGCalEEWafer09HD200HD5, 
       hgcalwafer:HGCalEEWafer10HD200HD5, hgcalwafer:HGCalEEWafer11HD200HD5</Vector>
-    <Vector name="PassiveNamesFull" type="string" nEntries="1">
-      hgcalPassive:HGCalAbsorber</Vector>
-    <Vector name="PassiveNamesPartial" type="string" nEntries="1">
-      HGCalPassive:HGCalCooling</Vector>
+    <Vector name="PassiveNamesFull" type="string" nEntries="16">
+      hgcalPassive:HGCalAbsorber, hgcalPassive:HGCalAbsorber,
+      hgcalPassive:HGCalAbsorber, hgcalPassive:HGCalAbsorber,
+      hgcalPassive:HGCalAbsorber, hgcalPassive:HGCalAbsorber,
+      hgcalPassive:HGCalAbsorber, hgcalPassive:HGCalAbsorber,
+      hgcalPassive:HGCalAbsorber, hgcalPassive:HGCalAbsorber,
+      hgcalPassive:HGCalAbsorber, hgcalPassive:HGCalAbsorber,
+      hgcalPassive:HGCalAbsorber, hgcalPassive:HGCalAbsorber,
+      hgcalPassive:HGCalAbsorber, hgcalPassive:HGCalAbsorber </Vector>
+    <Vector name="PassiveNamesPartial" type="string" nEntries="16">
+      HGCalPassive:HGCalCooling, HGCalPassive:HGCalCooling,
+      HGCalPassive:HGCalCooling, HGCalPassive:HGCalCooling,
+      HGCalPassive:HGCalCooling, HGCalPassive:HGCalCooling,
+      HGCalPassive:HGCalCooling, HGCalPassive:HGCalCooling,
+      HGCalPassive:HGCalCooling, HGCalPassive:HGCalCooling,
+      HGCalPassive:HGCalCooling, HGCalPassive:HGCalCooling,
+      HGCalPassive:HGCalCooling, HGCalPassive:HGCalCooling,
+      HGCalPassive:HGCalCooling, HGCalPassive:HGCalCooling</Vector>
     <Vector name="MaterialNames" type="string" nEntries="7">
       materials:Air, materials:Air, materials:Air, materials:Air,
       materials:Air, materials:Air, materials:Air</Vector>
@@ -195,13 +209,10 @@
     <Vector name="Thickness" type="numeric" nEntries="7">
       [absorberT], [hgcal:thickEECooling], [hgcal:ModuleThicknessEE],
       [hgcal:ModuleThicknessEE], 1.0*mm, 17.0*mm, 20.0*mm</Vector>
-    <Vector name="Layers" type="numeric" nEntries="16"> 
-      2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4</Vector>
-    <Vector name="LayerThick" type="numeric" nEntries="16">
-      6.50*mm, 6.50*mm, 6.50*mm, 6.50*mm, 6.50*mm, 6.50*mm, 6.50*mm, 6.50*mm,
-      6.50*mm, 22.50*mm, [hgcal:thickEEModule], [hgcal:thickEEModule],
-      [hgcal:thickEEModule], [hgcal:thickEEModule], [hgcal:thickEEModule],
-      [hgcal:thickEEModule]</Vector>
+    <Vector name="Layers" type="numeric" nEntries="6"> 
+      23, 4, 4, 4, 4, 4</Vector>
+    <Vector name="LayerThick" type="numeric" nEntries="6">
+      104.02*mm, 43.02*mm, 43.02*mm, 43.02*mm, 43.02*mm, 43.02*mm</Vector>
     <Vector name="LayerType" type="numeric" nEntries="44">
       0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 4, 0, 5,
       2, 1, 3, 6, 2, 1, 3, 6, 2, 1, 3, 6, 2, 1, 3, 6, 2, 1, 3, 6, 2, 1, 3, 6
@@ -226,9 +237,10 @@
     <Vector name="RMaxFront" type="numeric" nEntries="4">
       [hgcal:rMaxHGCal], [hgcal:rMaxHGCal], [hgcal:rMaxHGCal], 
       [hgcal:rMaxHGCal]</Vector>
-    <Vector name="LayerTypes" type="numeric" nEntries="12">
-       0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1 
-    </Vector>
+    <Vector name="LayerTypes" type="numeric" nEntries="44">
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0,
+      0, 0, 1, 0</Vector>
     <Vector name="WaferIndex" type="numeric" nEntries="12">
         262152,  524296,  786440, 1048584, 1310728, 1572872, 1835016,
        2097160, 2359304, 2621448, 2883592, 3145736 
@@ -241,31 +253,11 @@
           0,    1,    2,    3,    4,    5,    6,    7,    8,    9,
          10,   11 
     </Vector>
-    <Vector name="CassetteShift" type="numeric" nEntries="144">
+    <Vector name="CassetteShift" type="numeric" nEntries="24">
               0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
-              0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
               0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
-              0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
               0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
-              0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-              0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
-              0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-              0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
-              0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-              0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
-              0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-              0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
-              0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-              0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
-              0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-              0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
-              0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-              0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
-              0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-              0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
-              0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-              0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
-              0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm
+              0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm
     </Vector>
   </Algorithm>
 </PosPartSection> 
