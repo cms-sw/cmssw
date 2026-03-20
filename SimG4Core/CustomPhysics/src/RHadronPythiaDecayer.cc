@@ -1,5 +1,4 @@
 #include "SimG4Core/CustomPhysics/interface/RHadronPythiaDecayer.h"
-#include "SimG4Core/CustomPhysics/interface/RHadronPythiaDecayDataManager.h"
 
 #include "CLHEP/Vector/LorentzVector.h"
 #include "G4Track.hh"
@@ -20,7 +19,6 @@
 #include <cmath>
 #include <fstream>
 
-RHadronPythiaDecayDataManager* gRHadronPythiaDecayDataManager = new RHadronPythiaDecayDataManager();
 static inline unsigned short int nth_digit(const int& val, const unsigned short& n) {
   return (std::abs(val) / (int(std::pow(10, n - 1)))) % 10;
 }
@@ -54,7 +52,6 @@ RHadronPythiaDecayer::~RHadronPythiaDecayer() {
 G4VParticleChange* RHadronPythiaDecayer::DecayIt(const G4Track& aTrack, const G4Step& aStep) {
   // First, clear the secondary displacements and call the standard DecayIt to generate secondaries
   secondaryDisplacements_.clear();
-  gRHadronPythiaDecayDataManager->addDecayParent(aTrack);
   G4VParticleChange* fParticleChangeForDecay = G4Decay::DecayIt(aTrack, aStep);
 
   // Update the position of the secondaries in geant to match the potentially displaced positions from pythia. The list is stored in reverse order
@@ -62,7 +59,6 @@ G4VParticleChange* RHadronPythiaDecayer::DecayIt(const G4Track& aTrack, const G4
   for (G4int i = fParticleChangeForDecay->GetNumberOfSecondaries() - 1; i >= 0; --i) {
     G4Track* secondary = fParticleChangeForDecay->GetSecondary(i);
     secondary->SetPosition(secondary->GetPosition() + secondaryDisplacements_[secondaryDisplacementIndex]);
-    gRHadronPythiaDecayDataManager->addDecayDaughter(*secondary);
     ++secondaryDisplacementIndex;
   }
 
