@@ -1,6 +1,8 @@
 #ifndef PFClusterProducer_plugins_alpaka_PFMultiDepthECLCCEpilogueMultiBlock_h
 #define PFClusterProducer_plugins_alpaka_PFMultiDepthECLCCEpilogueMultiBlock_h
 
+#include <limits>
+
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/VecArray.h"
@@ -65,7 +67,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           bool update_iso_root_lane = false;
 
-          unsigned int which_global_warp_idx = nVertices;
+          unsigned int which_global_warp_idx = std::numeric_limits<unsigned int>::max();
 
           if (lane_idx == subcomp_rep_idx) {
             const unsigned int subcomp_size = alpaka::popcount(acc, subcomp_mask);
@@ -78,18 +80,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           const warp::warp_mask_t iso_root_lanes = warp::ballot_mask(acc, active_lanes_mask, update_iso_root_lane);
 
           if (is_work_lane(iso_root_lanes, lane_idx)) {
+// Avoid 'illigal instruction' crash on pre-Ampere GPUs
+#if __CUDA_ARCH__ >= 800
             const warp::warp_mask_t iso_root_lanes_subgroup =
                 warp::match_any_mask(acc, iso_root_lanes, which_global_warp_idx);
-
+#else
+            const warp::warp_mask_t iso_root_lanes_subgroup =
+                warp::match_any_mask(acc, active_lanes_mask, which_global_warp_idx);
+#endif
             // Construct correct rep mask:
             auto orFn = [] ALPAKA_FN_ACC(const warp::warp_mask_t m1, const warp::warp_mask_t m2) -> warp::warp_mask_t {
               return m1 | m2;
             };
 
             warp::warp_mask_t selected_iso_root_mask =
-                warp_sparse_reduce(acc, iso_root_lanes_subgroup, lane_idx, rep_lane_mask, orFn);
+                update_iso_root_lane ? warp_sparse_reduce(acc, iso_root_lanes_subgroup, lane_idx, rep_lane_mask, orFn)
+                                     : 0;
 
-            if (is_ls1b_idx<Acc1D>(iso_root_lanes_subgroup, lane_idx)) {
+            if (update_iso_root_lane && is_ls1b_idx<Acc1D>(iso_root_lanes_subgroup, lane_idx)) {
               // Temporary WAR (using De Morgan's law):
               const warp::warp_mask_t non_isolated_vertex_lanes = ~selected_iso_root_mask;
 
