@@ -27,13 +27,12 @@ phase2OTEffClient = cms.EDProducer(
 
         # Prompt
         # Note: If Prompt/Displaced use different ingredient names, ensure they match here.
-        # Assuming the histogram names in ROOT are "match_prompt_tp_eta", etc.
-        "FinalEfficiency/EtaEfficiency        '#eta efficiency;tracking particle #eta;Efficiency'    EfficiencyIngredients/match_prompt_tp_eta       EfficiencyIngredients/tp_eta",
-        "FinalEfficiency/PtEfficiency         'p_{T} efficiency;p_{T} [GeV];Efficiency'              EfficiencyIngredients/match_prompt_tp_pt        EfficiencyIngredients/tp_pt",
-        "FinalEfficiency/PtEfficiencyZoom     'p_{T} efficiency;p_{T} [GeV];Efficiency'              EfficiencyIngredients/match_prompt_tp_pt_zoom   EfficiencyIngredients/tp_pt_zoom",
-        "FinalEfficiency/d0Efficiency         'd_{0} efficiency;d_{0} [cm];Efficiency'               EfficiencyIngredients/match_prompt_tp_d0        EfficiencyIngredients/tp_d0",
-        "FinalEfficiency/LxyEfficiency        'L_{xy} efficiency;L_{xy} [cm];Efficiency'             EfficiencyIngredients/match_prompt_tp_Lxy       EfficiencyIngredients/tp_Lxy",
-        "FinalEfficiency/z0Efficiency         'z_{0} efficiency;z_{0} [cm];Efficiency'               EfficiencyIngredients/match_prompt_tp_z0        EfficiencyIngredients/tp_z0",
+        "FinalEfficiency/EtaEfficiency        '#eta efficiency;tracking particle #eta;Efficiency'    EfficiencyIngredients/match_prompt_tp_eta       EfficiencyIngredients/tp_eta_for_prompt",
+        "FinalEfficiency/PtEfficiency         'p_{T} efficiency;p_{T} [GeV];Efficiency'              EfficiencyIngredients/match_prompt_tp_pt        EfficiencyIngredients/tp_pt_for_prompt",
+        "FinalEfficiency/PtEfficiencyZoom     'p_{T} efficiency;p_{T} [GeV];Efficiency'              EfficiencyIngredients/match_prompt_tp_pt_zoom   EfficiencyIngredients/tp_pt_zoom_for_prompt",
+        "FinalEfficiency/d0Efficiency         'd_{0} efficiency;d_{0} [cm];Efficiency'               EfficiencyIngredients/match_prompt_tp_d0        EfficiencyIngredients/tp_d0_for_prompt",
+        "FinalEfficiency/LxyEfficiency        'L_{xy} efficiency;L_{xy} [cm];Efficiency'             EfficiencyIngredients/match_prompt_tp_Lxy       EfficiencyIngredients/tp_Lxy_for_prompt",
+        "FinalEfficiency/z0Efficiency         'z_{0} efficiency;z_{0} [cm];Efficiency'               EfficiencyIngredients/match_prompt_tp_z0        EfficiencyIngredients/tp_z0_for_prompt",
 
         # Displaced
         "FinalEfficiency/EtaEfficiency        '#eta efficiency;tracking particle #eta;Efficiency'    EfficiencyIngredients/match_displaced_tp_eta       EfficiencyIngredients/tp_eta_for_dis",
