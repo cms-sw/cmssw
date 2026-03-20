@@ -1307,7 +1307,8 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   ibook.setCurrentFolder(topfoldername_ + "/Electron");
   pt_ele_hist = ibook.book1DD("pt_ele", "Electron p_{T}; p_{T} (GeV); Entries", 100, 0.0, 100.0);
   eta_ele_hist = ibook.book1DD("eta_ele", "Electron #eta; #eta; Entries", 100, -2.7, 2.7);
-  phi_ele_hist = ibook.book1DD("phi_ele", "Electron #phi; #phi (rad); Entries", 100, -std::numbers::pi, std::numbers::pi);
+  phi_ele_hist =
+      ibook.book1DD("phi_ele", "Electron #phi; #phi (rad); Entries", 100, -std::numbers::pi, std::numbers::pi);
   rawEnergy_ele_hist = ibook.book1DD("rawEnergy_ele", "Raw Energy Electron; Energy (GeV); Entries", 100, 0.0, 250.0);
   preshowerEnergy_ele_hist =
       ibook.book1DD("preshowerEnergy_ele", "Preshower Energy Electron; Energy (GeV); Entries", 100, 0.0, 10.0);
@@ -1363,7 +1364,8 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
 
     pt_mu_hist[i] = ibook.book1DD("pt_mu" + sfx, "Muon p_{T} (" + lbl + "); p_{T} (GeV); Entries", 100, 0.0, 200.0);
     eta_mu_hist[i] = ibook.book1DD("eta_mu" + sfx, "Muon #eta (" + lbl + "); #eta; Entries", 100, -2.7, 2.7);
-    phi_mu_hist[i] = ibook.book1DD("phi_mu" + sfx, "Muon #phi (" + lbl + "); #phi (rad); Entries", 100, -std::numbers::pi, std::numbers::pi);
+    phi_mu_hist[i] = ibook.book1DD(
+        "phi_mu" + sfx, "Muon #phi (" + lbl + "); #phi (rad); Entries", 100, -std::numbers::pi, std::numbers::pi);
     type_mu_hist[i] = ibook.book1DD("type_mu" + sfx, "Muon Type (" + lbl + "); Type; Entries", 10, 0, 10);
     charge_mu_hist[i] = ibook.book1DD("charge_mu" + sfx, "Muon Charge (" + lbl + "); Charge; Entries", 3, -1, 2);
     normalizedChi2_mu_hist[i] =
@@ -1437,8 +1439,11 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
         ibook.book1DD("trk_lambda_mu" + sfx, "Muon Lambda (" + lbl + "); #lambda; Entries", 100, -2, 2);
     trk_pt_mu_hist[i] =
         ibook.book1DD("trk_pt_mu" + sfx, "Muon Tracker p_{T} (" + lbl + "); p_{T} (GeV); Entries", 100, 0.0, 200.0);
-    trk_phi_mu_hist[i] =
-        ibook.book1DD("trk_phi_mu" + sfx, "Muon Tracker #phi (" + lbl + "); #phi (rad); Entries", 100, -std::numbers::pi, std::numbers::pi);
+    trk_phi_mu_hist[i] = ibook.book1DD("trk_phi_mu" + sfx,
+                                       "Muon Tracker #phi (" + lbl + "); #phi (rad); Entries",
+                                       100,
+                                       -std::numbers::pi,
+                                       std::numbers::pi);
     trk_eta_mu_hist[i] =
         ibook.book1DD("trk_eta_mu" + sfx, "Muon Tracker #eta (" + lbl + "); #eta; Entries", 100, -3.0, 3.0);
     trk_dxyError_mu_hist[i] = ibook.book1DD(
@@ -1589,7 +1594,8 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   ibook.setCurrentFolder(topfoldername_ + "/Tracking");
   tk_pt_tk_hist = ibook.book1DD("tk_pt_tk", "Track p_{T}; p_{T} (GeV); Entries", 100, 0.0, 30.0);
   tk_eta_tk_hist = ibook.book1DD("tk_eta_tk", "Track #eta; #eta; Entries", 100, -2.7, 2.7);
-  tk_phi_tk_hist = ibook.book1DD("tk_phi_tk", "Track #phi; #phi (rad); Entries", 100, -std::numbers::pi, std::numbers::pi);
+  tk_phi_tk_hist =
+      ibook.book1DD("tk_phi_tk", "Track #phi; #phi (rad); Entries", 100, -std::numbers::pi, std::numbers::pi);
   tk_chi2_tk_hist = ibook.book1DD("tk_chi2_tk", "Track #chi^{2}; #chi^{2}; Entries", 100, 0.0, 50.0);
   tk_ndof_tk_hist = ibook.book1DD("tk_ndof_tk", "Track Ndof; Ndof; Entries", 100, 0, 10);
   tk_charge_tk_hist = ibook.book1DD("tk_charge_tk", "Track Charge; Charge; Entries", 3, -1, 2);

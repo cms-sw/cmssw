@@ -53,6 +53,7 @@ process.scoutingCollectionMonitor.rho = ["hltScoutingPFPacker", "rho"]
 process.dqmcommon = cms.Sequence(process.dqmEnv
                                * process.dqmSaver)#*process.dqmSaverPB)
 
+process.load("DQM.HLTEvF.ScoutingTrackingMonitor_cff")
 process.load("DQM.HLTEvF.ScoutingMuonMonitoring_cff")
 process.load("DQM.HLTEvF.ScoutingJetMonitoring_cff")
 process.load("DQM.HLTEvF.ScoutingElectronMonitoring_cff")
@@ -66,6 +67,7 @@ process.run3ScoutingElectronBestTrack =  _Run3ScoutingElectronBestTrackProducer.
 
 process.p = cms.Path(process.dqmcommon *
                      process.hltOnlineBeamSpot *
+                     process.ScoutingTracksMonitoring *
                      process.run3ScoutingElectronBestTrack *
                      process.scoutingCollectionMonitor *
                      process.ScoutingMuonMonitoring *

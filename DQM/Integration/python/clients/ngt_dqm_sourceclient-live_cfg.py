@@ -54,6 +54,9 @@ from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProduce
 process.hltOnlineBeamSpot = _onlineBeamSpotProducer.clone()
 
 ### for pp collisions
+process.load("DQM.HLTEvF.ScoutingTrackingMonitor_cff")
+process.ScoutingTrackMonitorOnline.topFolderName = 'NGT/ScoutingOnline/Tracks'
+
 process.load("DQM.HLTEvF.ScoutingCollectionMonitor_cfi")
 process.scoutingCollectionMonitor.topfoldername = "NGT/ScoutingOnline/ScoutingCollections"
 process.scoutingCollectionMonitor.onlyScouting = False
@@ -98,6 +101,7 @@ process.dqmHLTFiltersDQMonitor.lightMonitor = True
 
 process.p = cms.Path(process.dqmcommon *
                      process.hltOnlineBeamSpot *
+                     process.ScoutingTracksMonitoring *
                      process.run3ScoutingElectronBestTrack *
                      process.scoutingCollectionMonitor *
                      process.ScoutingRecHitsMonitoring *
