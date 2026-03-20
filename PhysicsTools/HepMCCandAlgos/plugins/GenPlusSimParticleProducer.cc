@@ -296,7 +296,7 @@ void GenPlusSimParticleProducer::produce(Event &event, const EventSetup &iSetup)
       }
     }
 
-    else if {
+    else {
       // Skip PYTHIA tracks.
       if (isimtrk->genpartIndex() != -1)
         continue;
