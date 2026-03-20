@@ -3,33 +3,33 @@
    <version ClassVersion="11" checksum="4063982642"/>
    <version ClassVersion="10" checksum="2444816232"/>
   </class>
-  <class name="CaloTower" ClassVersion="3">
-   <version ClassVersion="3" checksum="3730265685"/>
+  <class name="io_v1::CaloTower" ClassVersion="3">
+   <version ClassVersion="3" checksum="1932800725"/>
   </class>
   <class name="CaloTowerPtr"/>
   <class name="CaloTowerFwdPtr"/>
-  <class name="std::vector<CaloTower>"/>
-  <class name="edm::Wrapper<std::vector<CaloTower> >"/>
-  <class name="edm::SortedCollection<CaloTower,edm::StrictWeakOrdering<CaloTower> >"/>
-  <class name="edm::StrictWeakOrdering<CaloTower>"/>
-  <class name="edm::Ref<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower, edm::refhelper::FindUsingAdvance<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower > >"/>  
-  <class name="edm::RefVector<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower, edm::refhelper::FindUsingAdvance<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower > >"/> 
-  <class name="edm::RefProd<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> > >"/> 
-  <class name="edm::Wrapper<edm::SortedCollection<CaloTower,edm::StrictWeakOrdering<CaloTower> > >"/> 
-  <class name="edm::FwdRef<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower, edm::refhelper::FindUsingAdvance<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower > >"/>
-  <class name="edm::refhelper::FindUsingAdvance<edm::SortedCollection<CaloTower,edm::StrictWeakOrdering<CaloTower> >,CaloTower>" /> <!-- Root6 -->
-  <class name="std::vector<edm::FwdRef<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower, edm::refhelper::FindUsingAdvance<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower > > >"/>
-  <class name="edm::Wrapper< std::vector<edm::FwdRef<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower, edm::refhelper::FindUsingAdvance<edm::SortedCollection<CaloTower, edm::StrictWeakOrdering<CaloTower> >, CaloTower > > > >"/>
+  <class name="std::vector<io_v1::CaloTower>"/>
+  <class name="edm::Wrapper<std::vector<io_v1::CaloTower> >"/>
+  <class name="edm::SortedCollection<io_v1::CaloTower,edm::StrictWeakOrdering<io_v1::CaloTower> >"/>
+  <class name="edm::StrictWeakOrdering<io_v1::CaloTower>"/>
+  <class name="edm::Ref<edm::SortedCollection<io_v1::CaloTower, edm::StrictWeakOrdering<io_v1::CaloTower> >, io_v1::CaloTower, edm::refhelper::FindUsingAdvance<edm::SortedCollection<io_v1::CaloTower, edm::StrictWeakOrdering<io_v1::CaloTower> >, io_v1::CaloTower > >"/>  
+  <class name="edm::RefVector<edm::SortedCollection<io_v1::CaloTower, edm::StrictWeakOrdering<io_v1::CaloTower> >, io_v1::CaloTower, edm::refhelper::FindUsingAdvance<edm::SortedCollection<io_v1::CaloTower, edm::StrictWeakOrdering<io_v1::CaloTower> >, io_v1::CaloTower > >"/> 
+  <class name="edm::RefProd<edm::SortedCollection<io_v1::CaloTower, edm::StrictWeakOrdering<io_v1::CaloTower> > >"/> 
+  <class name="edm::Wrapper<edm::SortedCollection<io_v1::CaloTower,edm::StrictWeakOrdering<io_v1::CaloTower> > >"/> 
+  <class name="edm::FwdRef<edm::SortedCollection<io_v1::CaloTower, edm::StrictWeakOrdering<io_v1::CaloTower> >, io_v1::CaloTower, edm::refhelper::FindUsingAdvance<edm::SortedCollection<io_v1::CaloTower, edm::StrictWeakOrdering<io_v1::CaloTower> >, io_v1::CaloTower > >"/>
+  <class name="edm::refhelper::FindUsingAdvance<edm::SortedCollection<io_v1::CaloTower,edm::StrictWeakOrdering<io_v1::CaloTower> >,io_v1::CaloTower>" /> <!-- Root6 -->
+  <class name="std::vector<edm::FwdRef<edm::SortedCollection<io_v1::CaloTower, edm::StrictWeakOrdering<io_v1::CaloTower> >, io_v1::CaloTower, edm::refhelper::FindUsingAdvance<edm::SortedCollection<io_v1::CaloTower, edm::StrictWeakOrdering<io_v1::CaloTower> >, io_v1::CaloTower > > >"/>
+  <class name="edm::Wrapper< std::vector<edm::FwdRef<edm::SortedCollection<io_v1::CaloTower, edm::StrictWeakOrdering<io_v1::CaloTower> >, io_v1::CaloTower, edm::refhelper::FindUsingAdvance<edm::SortedCollection<io_v1::CaloTower, edm::StrictWeakOrdering<io_v1::CaloTower> >, io_v1::CaloTower > > > >"/>
 
   <class name="edm::reftobase::Holder<reco::io_v1::Candidate, CaloTowerRef>" />
   <class name="edm::reftobase::RefHolder<CaloTowerRef>" />
   <class name="edm::reftobase::VectorHolder<reco::io_v1::Candidate, CaloTowerRefs>" />
   <class name="edm::reftobase::RefVectorHolder<CaloTowerRefs>" />
-  <class name="edm::Ptr<CaloTower>"/>
-  <class name="edm::PtrVector<CaloTower>"/>
-  <class name="std::vector<edm::Ptr<CaloTower> >"/>
-  <class name="edm::FwdPtr<CaloTower>"/>
-  <class name="std::vector<edm::FwdPtr<CaloTower> >"/>
+  <class name="edm::Ptr<io_v1::CaloTower>"/>
+  <class name="edm::PtrVector<io_v1::CaloTower>"/>
+  <class name="std::vector<edm::Ptr<io_v1::CaloTower> >"/>
+  <class name="edm::FwdPtr<io_v1::CaloTower>"/>
+  <class name="std::vector<edm::FwdPtr<io_v1::CaloTower> >"/>
 
   <class name="std::vector<CaloTowerDetId>"/>
   <class name="std::pair<uint8_t, CaloTowerDetId>"/>

@@ -98,7 +98,7 @@
   </ioread>
 
   <class name="pat::io_v1::Jet"  ClassVersion="3">
-   <version ClassVersion="3" checksum="387523721"/>
+   <version ClassVersion="3" checksum="2400232157"/>
    <field name="daughtersTemp_" transient="true"/>
    <field name="caloTowersTemp_" transient="true"/>
    <field name="pfCandidatesTemp_" transient="true"/>
@@ -135,7 +135,7 @@
    <version ClassVersion="3" checksum="213995894"/>
   </class>
   <class name="pat::GenericParticle"  ClassVersion="3">
-   <version ClassVersion="3" checksum="2807844620"/>
+   <version ClassVersion="3" checksum="3105008866"/>
   </class>
   <class name="pat::Hemisphere"  ClassVersion="3">
    <version ClassVersion="3" checksum="3728411613"/>
