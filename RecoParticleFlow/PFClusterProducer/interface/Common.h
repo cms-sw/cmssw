@@ -1,6 +1,8 @@
 #ifndef PFClusterProducer_interface_Common_h
 #define PFClusterProducer_interface_Common_h
 
+#include <cstdint>
+
 namespace cms::alpakaintrinsics {
   namespace warp {
 

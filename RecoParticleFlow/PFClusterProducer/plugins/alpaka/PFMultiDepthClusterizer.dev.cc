@@ -21,14 +21,6 @@
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCEpilogueMultiBlock.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCFinalizeEpilogue.h"
 
-#if (__CUDA_ARCH__ >= 800)
-constexpr bool enable_multiblock_prologue = true;
-constexpr bool enable_multiblock_epilogue = true;
-#else
-constexpr bool enable_multiblock_prologue = false;
-constexpr bool enable_multiblock_epilogue = false;
-#endif
-
 /**
  * @file PFMultiDepthClusterizer.dev.cc
  * @brief Alpaka-based particle flow multi-depth clustering using Alpaka.
@@ -70,6 +62,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
                   const reco::PFRecHitDeviceCollection& pfRecHit,
                   const PFMultiDepthClusterParams* params,
                   const unsigned int nClusters) {
+    constexpr bool enable_multiblock_prologue = !std::is_same_v<Device, alpaka::DevCpu>;
+    constexpr bool enable_multiblock_epilogue = !std::is_same_v<Device, alpaka::DevCpu>;
+
     const unsigned int wExtend = alpaka::getPreferredWarpSize(alpaka::getDev(queue));
     const unsigned int maxThreadsPerBlock = nClusters <= 768 ? 768 : 256;
     const unsigned int threadsPerBlock = std::min(static_cast<alpaka_common::Idx>(maxThreadsPerBlock),
