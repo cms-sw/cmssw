@@ -51,9 +51,8 @@
   <class name="MtdSimClusterRefProd"/>
   <class name="MtdSimClusterContainer"/>
 
-
-  <class name="MtdSimLayerCluster" ClassVersion="3">
-    <version ClassVersion="3" checksum="2285442532"/>
+  <class name="MtdSimLayerCluster" ClassVersion="4">
+    <version ClassVersion="4" checksum="532784653"/>
   </class>
   <class name="MtdSimLayerClusterCollection"/>
   <class name="edm::Wrapper<MtdSimLayerClusterCollection>"/>
@@ -62,8 +61,8 @@
   <class name="MtdSimLayerClusterRefProd"/>
   <class name="MtdSimLayerClusterContainer"/>
 
-  <class name="MtdSimTrackster" ClassVersion="3">
-    <version ClassVersion="3" checksum="1833899382"/>
+  <class name="MtdSimTrackster" ClassVersion="4">
+    <version ClassVersion="4" checksum="870893041"/>
   </class>
   <class name="MtdSimTracksterCollection"/>
   <class name="edm::Wrapper<MtdSimTracksterCollection>"/>
