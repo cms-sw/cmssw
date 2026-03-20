@@ -265,7 +265,8 @@ void GenPlusSimParticleProducer::produce(Event &event, const EventSetup &iSetup)
 
   for (SimTrackContainer::const_iterator isimtrk = simtracks->begin(); isimtrk != simtracks->end(); ++isimtrk) {
     // Special case for when simTracks need to be added to pythia track filtered by particleType, e.g. a particle with ctau=0.1mm
-    if (isimtrk->genpartIndex() != -1 && !pdgIds_.empty() && (pdgIds_.find(std::abs(isimtrk->type())) != pdgIds_.end())) {
+    if (isimtrk->genpartIndex() != -1 && !pdgIds_.empty() &&
+        (pdgIds_.find(std::abs(isimtrk->type())) != pdgIds_.end())) {
       std::vector<int>::const_iterator itIndex;
       if (barcodesAreSorted) {
         itIndex = std::lower_bound(genBarcodes->begin(), genBarcodes->end(), isimtrk->genpartIndex());
@@ -275,7 +276,8 @@ void GenPlusSimParticleProducer::produce(Event &event, const EventSetup &iSetup)
 
       if ((itIndex != genBarcodes->end()) && (*itIndex == isimtrk->genpartIndex())) {
         const unsigned int momidx = itIndex - genBarcodes->begin();
-        for (SimTrackContainer::const_iterator idau = simtracksSorted->begin(); idau != simtracksSorted->end(); ++idau) {
+        for (SimTrackContainer::const_iterator idau = simtracksSorted->begin(); idau != simtracksSorted->end();
+             ++idau) {
           if (idau->noVertex())
             continue;
           const SimVertex &dvtx = (*simvertices)[idau->vertIndex()];
@@ -283,14 +285,14 @@ void GenPlusSimParticleProducer::produce(Event &event, const EventSetup &iSetup)
             continue;
           if (dvtx.parentIndex() == static_cast<int>(isimtrk->trackId())) {
             addGenParticle(*isimtrk,
-                          *idau,
-                          momidx,
-                          *simtracksSorted,
-                          *simvertices,
-                          *candsPtr,
-                          ref,
-                          *newGenBarcodes,
-                          barcodesAreSorted);
+                           *idau,
+                           momidx,
+                           *simtracksSorted,
+                           *simvertices,
+                           *candsPtr,
+                           ref,
+                           *newGenBarcodes,
+                           barcodesAreSorted);
           }
         }
       }
@@ -335,14 +337,14 @@ void GenPlusSimParticleProducer::produce(Event &event, const EventSetup &iSetup)
                 // pass the mother and daughter sim tracks and the mother genParticle to method to create the daughter genParticle and recur
                 unsigned int momidx = itIndex - genBarcodes->begin();
                 addGenParticle(*it,
-                              *isimtrk,
-                              momidx,
-                              *simtracksSorted,
-                              *simvertices,
-                              *candsPtr,
-                              ref,
-                              *newGenBarcodes,
-                              barcodesAreSorted);
+                               *isimtrk,
+                               momidx,
+                               *simtracksSorted,
+                               *simvertices,
+                               *candsPtr,
+                               ref,
+                               *newGenBarcodes,
+                               barcodesAreSorted);
               }
             }
           }
