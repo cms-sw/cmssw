@@ -81,7 +81,7 @@ public:
   MonitorElement *trackParts_Eta = nullptr;
   MonitorElement *trackParts_Phi = nullptr;
   MonitorElement *trackParts_Pt = nullptr;
-  MonitorElement *n_trackParts = nullptr;
+  MonitorElement *trackParts_Num = nullptr; 
   unsigned int nTrackParts = 0;
 
   // pT and eta for efficiency plots
@@ -104,6 +104,15 @@ public:
   MonitorElement *tp_eta_for_dis = nullptr;      // denominator
   MonitorElement *tp_d0_for_dis = nullptr;       // denominator
   MonitorElement *tp_z0_for_dis = nullptr;       // denominator
+  MonitorElement *tp_Lxy_for_dis = nullptr;      // denominator
+
+  // extended prompt plots for denom
+  MonitorElement *tp_pt_for_prompt = nullptr;       // denominator
+  MonitorElement *tp_pt_zoom_for_prompt = nullptr;  // denominator
+  MonitorElement *tp_eta_for_prompt = nullptr;      // denominator
+  MonitorElement *tp_d0_for_prompt = nullptr;       // denominator
+  MonitorElement *tp_z0_for_prompt = nullptr;       // denominator
+  MonitorElement *tp_Lxy_for_prompt = nullptr;      // denominator
 
   // extended tracks pT and eta for efficiency plots
   MonitorElement *match_prompt_tp_pt = nullptr;          // numerator
@@ -338,6 +347,7 @@ void Phase2OTValidateTracks::processTrackCollection(
     int match_id = associatedTP->pdgId();
     float chi2dof = thisTrack->chi2Red();
 
+    // ensure that track is uniquely matched to the TP we are looking at!
     if (dmatch_pt < 0.1 && dmatch_eta < 0.1 && dmatch_phi < 0.1 && tmp_tp_pdgid == match_id) {
       tp_nMatch++;
       if (bestTrackIndex < 0 || chi2dof < bestChi2dof) {
@@ -361,9 +371,8 @@ void Phase2OTValidateTracks::processTrackCollection(
     return;
 
   if (isExtended) {
-    // if extended, if "prompt" or "displaced"
-    if (std::fabs(bestTrack_d0) < TP_maxD0 && tmp_tp_Lxy < TP_maxLxy) {
-      // extended + prompt
+    // if extended, if "prompt"
+    if (std::fabs(tmp_tp_d0) < TP_maxD0) {
       reseta_vect_ptr = &reseta_prompt_vect;
       resphi_vect_ptr = &resphi_prompt_vect;
       resz0_vect_ptr = &resz0_prompt_vect;
@@ -379,12 +388,15 @@ void Phase2OTValidateTracks::processTrackCollection(
 
       match_tp_pt_ptr = match_prompt_tp_pt;
       match_tp_pt_zoom_ptr = match_prompt_tp_pt_zoom;
+      match_tp_Lxy_ptr = match_prompt_tp_Lxy;
+      
+      // Unconditional pointer assignment (cuts happen at Fill)
       match_tp_eta_ptr = match_prompt_tp_eta;
       match_tp_d0_ptr = match_prompt_tp_d0;
-      match_tp_Lxy_ptr = match_prompt_tp_Lxy;
       match_tp_z0_ptr = match_prompt_tp_z0;
+      
+    // if extended, if "displaced"
     } else {
-      // extended + displaced
       reseta_vect_ptr = &reseta_displaced_vect;
       resphi_vect_ptr = &resphi_displaced_vect;
       resz0_vect_ptr = &resz0_displaced_vect;
@@ -400,9 +412,9 @@ void Phase2OTValidateTracks::processTrackCollection(
 
       match_tp_pt_ptr = match_displaced_tp_pt;
       match_tp_pt_zoom_ptr = match_displaced_tp_pt_zoom;
+      match_tp_Lxy_ptr = match_displaced_tp_Lxy;
       match_tp_eta_ptr = match_displaced_tp_eta;
       match_tp_d0_ptr = match_displaced_tp_d0;
-      match_tp_Lxy_ptr = match_displaced_tp_Lxy;
       match_tp_z0_ptr = match_displaced_tp_z0;
     }
 
@@ -419,15 +431,15 @@ void Phase2OTValidateTracks::processTrackCollection(
     res_eta_ptr = res_eta;
     res_pt_ptr = res_pt;
     res_ptRel_ptr = res_ptRel;
+    res_d0_hist_ptr = d0_res_hist;
 
     match_tp_pt_ptr = match_tp_pt;
     match_tp_pt_zoom_ptr = match_tp_pt_zoom;
+    match_tp_Lxy_ptr = match_tp_Lxy;
+    
     match_tp_eta_ptr = match_tp_eta;
     match_tp_d0_ptr = match_tp_d0;
-    match_tp_Lxy_ptr = match_tp_Lxy;
     match_tp_z0_ptr = match_tp_z0;
-
-    res_d0_hist_ptr = d0_res_hist;
   }
 
   // Compute residuals & fill them
@@ -442,17 +454,33 @@ void Phase2OTValidateTracks::processTrackCollection(
   res_eta_ptr->Fill(eta_res);
   res_pt_ptr->Fill(pt_diff);
   res_ptRel_ptr->Fill(pt_res);
-
   res_d0_hist_ptr->Fill(d0_res);
 
   // Fill efficiency histograms
-  match_tp_pt_ptr->Fill(tmp_tp_pt);
-  if (tmp_tp_pt > 0.f && tmp_tp_pt <= 10.f)
-    match_tp_pt_zoom_ptr->Fill(tmp_tp_pt);
-  match_tp_eta_ptr->Fill(tmp_tp_eta);
-  match_tp_d0_ptr->Fill(tmp_tp_d0);
+  if (tmp_tp_Lxy < 1.0) {
+    match_tp_pt_ptr->Fill(tmp_tp_pt);
+    if (tmp_tp_pt > 0.f && tmp_tp_pt <= 10.f) {
+      match_tp_pt_zoom_ptr->Fill(tmp_tp_pt);
+    }
+  }
+
+  // Lxy efficiency (NO Lxy cut)
   match_tp_Lxy_ptr->Fill(tmp_tp_Lxy);
-  match_tp_z0_ptr->Fill(tmp_tp_z0);
+
+  // Eta, d0, z0 efficiencies
+  if (isExtended && std::fabs(bestTrack_d0) >= TP_maxD0) {
+    // Displaced track: Fill unconditionally (no Lxy cut for displaced)
+    match_tp_eta_ptr->Fill(tmp_tp_eta);
+    match_tp_d0_ptr->Fill(tmp_tp_d0);
+    match_tp_z0_ptr->Fill(tmp_tp_z0);
+  } else {
+    // Prompt or Nominal track: Must pass Lxy cut
+    if (tmp_tp_Lxy < TP_maxLxy) {
+      match_tp_eta_ptr->Fill(tmp_tp_eta);
+      match_tp_d0_ptr->Fill(tmp_tp_d0);
+      match_tp_z0_ptr->Fill(tmp_tp_z0);
+    }
+  }
 
   // Fill resolution plots for different abs(eta) bins:
   float bins[7] = {0.f, 0.7f, 1.0f, 1.2f, 1.6f, 2.0f, 2.4f};
@@ -565,23 +593,49 @@ void Phase2OTValidateTracks::analyze(const edm::Event &iEvent, const edm::EventS
     if (std::fabs(tmp_tp_z0) > TP_maxZ0)
       continue;
 
-    // To make efficiency plots where the denominator has NO stub cuts
+    // pT Denominators (No minPt cut yet, strict Lxy cut)
     if (tmp_tp_Lxy < 1.0) {
-      tp_pt->Fill(tmp_tp_pt);  // pT effic, no cut on pT, but Lxy cut
-      if (tmp_tp_pt <= 10)
-        tp_pt_zoom->Fill(tmp_tp_pt);  // pT effic, no cut on pT, but Lxy cut
-    }
-    tp_pt_for_dis->Fill(tmp_tp_pt);  // pT effic for displaced, no cut on pT or Lxy
-    if (tmp_tp_pt <= 10) {
-      tp_pt_zoom_for_dis->Fill(tmp_tp_pt);  // pT effic for displaced, no cut on pT or Lxy
+      tp_pt->Fill(tmp_tp_pt);
+      if (tmp_tp_pt <= 10.f) {
+        tp_pt_zoom->Fill(tmp_tp_pt);
+      }
+
+      if (std::fabs(tmp_tp_d0) < TP_maxD0) {
+        tp_pt_for_prompt->Fill(tmp_tp_pt);
+        if (tmp_tp_pt <= 10.f) {
+          tp_pt_zoom_for_prompt->Fill(tmp_tp_pt);
+        }
+      } else {
+        tp_pt_for_dis->Fill(tmp_tp_pt);
+        if (tmp_tp_pt <= 10.f) {
+          tp_pt_zoom_for_dis->Fill(tmp_tp_pt);
+        }
+      }
+    } else {
+      // Displaced has no Lxy cut, fill unconditionally for Lxy
+      if (std::fabs(tmp_tp_d0) >= TP_maxD0) {
+        tp_pt_for_dis->Fill(tmp_tp_pt);
+        if (tmp_tp_pt <= 10.f) {
+          tp_pt_zoom_for_dis->Fill(tmp_tp_pt);
+        }
+      }
     }
 
     if (tmp_tp_pt < TP_minPt)
       continue;
-    tp_Lxy->Fill(tmp_tp_Lxy);  // Lxy efficiency has no cut on Lxy
-    tp_eta_for_dis->Fill(tmp_tp_eta);
-    tp_d0_for_dis->Fill(tmp_tp_d0);
-    tp_z0_for_dis->Fill(tmp_tp_z0);
+
+    // Lxy Denominators (minPt applied, NO Lxy cut)
+    tp_Lxy->Fill(tmp_tp_Lxy);
+    if (std::fabs(tmp_tp_d0) < TP_maxD0) {
+      tp_Lxy_for_prompt->Fill(tmp_tp_Lxy);
+    } else {
+      tp_Lxy_for_dis->Fill(tmp_tp_Lxy);
+      
+      // Displaced has NO Lxy cut at all, fill its eta, d0, z0 here
+      tp_eta_for_dis->Fill(tmp_tp_eta);
+      tp_d0_for_dis->Fill(tmp_tp_d0);
+      tp_z0_for_dis->Fill(tmp_tp_z0);
+    }
 
     if (MCTruthTTTrackExtendedHandle.isValid()) {
       if (nStubTP >= TP_minNStub || nStubLayerTP >= TP_minNLayersStub) {
@@ -605,6 +659,12 @@ void Phase2OTValidateTracks::analyze(const edm::Event &iEvent, const edm::EventS
     tp_eta->Fill(tmp_tp_eta);
     tp_d0->Fill(tmp_tp_d0);
     tp_z0->Fill(tmp_tp_z0);
+    
+    if (std::fabs(tmp_tp_d0) < TP_maxD0) {
+      tp_eta_for_prompt->Fill(tmp_tp_eta);
+      tp_d0_for_prompt->Fill(tmp_tp_d0);
+      tp_z0_for_prompt->Fill(tmp_tp_z0);
+    }
 
     if (nStubTP < TP_minNStub || nStubLayerTP < TP_minNLayersStub)
       continue;  // nStub cut not included in denominator of efficiency plots
@@ -623,7 +683,7 @@ void Phase2OTValidateTracks::analyze(const edm::Event &iEvent, const edm::EventS
                              iEvent);  // Regular L1 Tracks
     }
   }  // end loop over tracking particles
-  n_trackParts->Fill(nTrackParts);
+  trackParts_Num->Fill(nTrackParts);
   nTrackParts = 0;
 }  // end of method
 
@@ -641,6 +701,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
   edm::ParameterSet psEffic_d0 = conf_.getParameter<edm::ParameterSet>("TH1Effic_d0");
   edm::ParameterSet psDisEffic_d0 = conf_.getParameter<edm::ParameterSet>("TH1DisEffic_d0");
   edm::ParameterSet psEffic_Lxy = conf_.getParameter<edm::ParameterSet>("TH1Effic_Lxy");
+  edm::ParameterSet psEffic_displaced_Lxy = conf_.getParameter<edm::ParameterSet>("TH1displacedEffic_Lxy");
   edm::ParameterSet psEffic_z0 = conf_.getParameter<edm::ParameterSet>("TH1Effic_z0");
   edm::ParameterSet psRes_pt = conf_.getParameter<edm::ParameterSet>("TH1Res_pt");
   edm::ParameterSet psRes_eta = conf_.getParameter<edm::ParameterSet>("TH1Res_eta");
@@ -661,7 +722,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
   trackParts_Pt  = book1DFromPS(iBooker, "trackParts_Pt",  psTrackParts_Pt,  "p_{T} [GeV]", "# tracking particles");
   trackParts_Eta = book1DFromPS(iBooker, "trackParts_Eta", psTrackParts_Eta, "#eta",        "# tracking particles");
   trackParts_Phi = book1DFromPS(iBooker, "trackParts_Phi", psTrackParts_Phi, "#phi",        "# tracking particles");
-  trackParts_Num = book1DFromPS(iBooker, "trackParts_Num", psTrackParts_Phi, "# track particles per event",        "# tracking particles");
+  trackParts_Num = book1DFromPS(iBooker, "trackParts_Num", n_trackParticles, "# track particles per event", "# tracking particles");
    
   // Nominal L1TF: efficiency ingredients (denominator + matched numerator)
   iBooker.setCurrentFolder(topFolderName_ + "/Nominal_L1TF/EfficiencyIngredients");
@@ -708,13 +769,14 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
   tp_eta_for_dis     = book1DFromPS(iBooker, "tp_eta_for_dis",     psEffic_eta,     "#eta",        "# tracking particles");
   tp_d0_for_dis      = book1DFromPS(iBooker, "tp_d0_for_dis",      psDisEffic_d0,   "d_{0} [cm]",  "# tracking particles");
   tp_z0_for_dis      = book1DFromPS(iBooker, "tp_z0_for_dis",      psEffic_z0,      "z_{0} [cm]",  "# tracking particles");
+  tp_Lxy_for_dis     = book1DFromPS(iBooker, "tp_Lxy_for_dis",     psEffic_displaced_Lxy,     "L_{xy} [cm]", "# tracking particles");
 
   // Numerator: matched displaced TPs
   match_displaced_tp_pt       = book1DFromPS(iBooker, "match_displaced_tp_pt",       psEffic_pt,      "p_{T} [GeV]", "# matched extended tracking particles");
   match_displaced_tp_pt_zoom  = book1DFromPS(iBooker, "match_displaced_tp_pt_zoom",  psEffic_pt_zoom, "p_{T} [GeV]", "# matched extended tracking particles");
   match_displaced_tp_eta      = book1DFromPS(iBooker, "match_displaced_tp_eta",      psEffic_eta,     "#eta",        "# matched extended tracking particles");
   match_displaced_tp_d0       = book1DFromPS(iBooker, "match_displaced_tp_d0",       psDisEffic_d0,   "d_{0} [cm]",  "# matched extended tracking particles");
-  match_displaced_tp_Lxy      = book1DFromPS(iBooker, "match_displaced_tp_Lxy",      psEffic_Lxy,     "L_{xy} [cm]", "# matched extended tracking particles");
+  match_displaced_tp_Lxy      = book1DFromPS(iBooker, "match_displaced_tp_Lxy",      psEffic_displaced_Lxy,     "L_{xy} [cm]", "# matched extended tracking particles");
   match_displaced_tp_z0       = book1DFromPS(iBooker, "match_displaced_tp_z0",       psEffic_z0,      "z_{0} [cm]",  "# matched extended tracking particles");
 
   // Extended L1TF (Displaced): residual distributions
@@ -738,6 +800,16 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 
   // Extended L1TF (Prompt): efficiency ingredients (matched prompt TPs)
   iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Prompt/EfficiencyIngredients");
+  
+  // Denominator: prompt TP selection
+  tp_pt_for_prompt         = book1DFromPS(iBooker, "tp_pt_for_prompt",        psEffic_pt,      "p_{T} [GeV]", "# tracking particles");
+  tp_pt_zoom_for_prompt    = book1DFromPS(iBooker, "tp_pt_zoom_for_prompt",   psEffic_pt_zoom, "p_{T} [GeV]", "# tracking particles");
+  tp_eta_for_prompt        = book1DFromPS(iBooker, "tp_eta_for_prompt",       psEffic_eta,     "#eta",        "# tracking particles");
+  tp_d0_for_prompt         = book1DFromPS(iBooker, "tp_d0_for_prompt",        psEffic_d0,      "d_{0} [cm]",  "# tracking particles");
+  tp_Lxy_for_prompt        = book1DFromPS(iBooker, "tp_Lxy_for_prompt",       psEffic_Lxy,     "L_{xy} [cm]", "# tracking particles");
+  tp_z0_for_prompt         = book1DFromPS(iBooker, "tp_z0_for_prompt",        psEffic_z0,      "z_{0} [cm]",  "# tracking particles");
+
+  // Numerator: matched prompt TPs
   match_prompt_tp_pt       = book1DFromPS(iBooker, "match_prompt_tp_pt",      psEffic_pt,      "p_{T} [GeV]", "# matched tracking particles");
   match_prompt_tp_pt_zoom  = book1DFromPS(iBooker, "match_prompt_tp_pt_zoom", psEffic_pt_zoom, "p_{T} [GeV]", "# matched tracking particles");
   match_prompt_tp_eta      = book1DFromPS(iBooker, "match_prompt_tp_eta",     psEffic_eta,     "#eta",        "# matched tracking particles");
@@ -770,132 +842,39 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 void Phase2OTValidateTracks::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   // OuterTrackerMonitorTrackingParticles
   edm::ParameterSetDescription desc;
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 45);
-    psd0.add<double>("xmax", 3);
-    psd0.add<double>("xmin", -3);
-    desc.add<edm::ParameterSetDescription>("TH1TrackParts_Eta", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 60);
-    psd0.add<double>("xmax", 3.141592653589793);
-    psd0.add<double>("xmin", -3.141592653589793);
-    desc.add<edm::ParameterSetDescription>("TH1TrackParts_Phi", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 45);
-    psd0.add<double>("xmax", 100);
-    psd0.add<double>("xmin", 0);
-    desc.add<edm::ParameterSetDescription>("TH1TrackParts_Pt", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 200);
-    psd0.add<double>("xmax", 0.5);
-    psd0.add<double>("xmin", -0.5);
-    desc.add<edm::ParameterSetDescription>("TH1Res_ptRel", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 50);
-    psd0.add<double>("xmax", 100);
-    psd0.add<double>("xmin", 0);
-    desc.add<edm::ParameterSetDescription>("TH1Effic_pt", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 50);
-    psd0.add<double>("xmax", 10);
-    psd0.add<double>("xmin", 0);
-    desc.add<edm::ParameterSetDescription>("TH1Effic_pt_zoom", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 50);
-    psd0.add<double>("xmax", 2.5);
-    psd0.add<double>("xmin", -2.5);
-    desc.add<edm::ParameterSetDescription>("TH1Effic_eta", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 101);
-    psd0.add<double>("xmax", 0.15);
-    psd0.add<double>("xmin", -0.15);
-    desc.add<edm::ParameterSetDescription>("TH1Effic_d0", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 101);
-    psd0.add<double>("xmax", 10);
-    psd0.add<double>("xmin", -10);
-    desc.add<edm::ParameterSetDescription>("TH1DisEffic_d0", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 25);
-    psd0.add<double>("xmax", 1.0);
-    psd0.add<double>("xmin", 0);
-    desc.add<edm::ParameterSetDescription>("TH1Effic_Lxy", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 40);
-    psd0.add<double>("xmax", 16);
-    psd0.add<double>("xmin", -16);
-    desc.add<edm::ParameterSetDescription>("TH1Effic_z0", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 100);
-    psd0.add<double>("xmax", 0.2);
-    psd0.add<double>("xmin", -0.2);
-    desc.add<edm::ParameterSetDescription>("TH1Res_pt", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 100);
-    psd0.add<double>("xmax", 0.01);
-    psd0.add<double>("xmin", -0.01);
-    desc.add<edm::ParameterSetDescription>("TH1Res_eta", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 100);
-    psd0.add<double>("xmax", 0.01);
-    psd0.add<double>("xmin", -0.01);
-    desc.add<edm::ParameterSetDescription>("TH1Res_phi", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 100);
-    psd0.add<double>("xmax", 1.0);
-    psd0.add<double>("xmin", -1.0);
-    desc.add<edm::ParameterSetDescription>("TH1Res_z0", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 100);
-    psd0.add<double>("xmax", 0.05);
-    psd0.add<double>("xmin", -0.05);
-    desc.add<edm::ParameterSetDescription>("TH1Res_d0", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 101);
-    psd0.add<double>("xmax", 2.0);
-    psd0.add<double>("xmin", -2.0);
-    desc.add<edm::ParameterSetDescription>("TH1Resdisplaced_d0", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 100);
-    psd0.add<double>("xmax", 600.0);
-    psd0.add<double>("xmin", 0.0);
-    desc.add<edm::ParameterSetDescription>("n_trackParticles", psd0);
-  }
+  auto addHist = [&desc](const std::string& name, int bins, double xmin, double xmax) {
+    edm::ParameterSetDescription psd;
+    psd.add<int>("Nbinsx", bins);
+    psd.add<double>("xmin", xmin);
+    psd.add<double>("xmax", xmax);
+    desc.add<edm::ParameterSetDescription>(name, psd);
+  };
+
+  // Tracking particle kinematics
+  addHist("TH1TrackParts_Eta",      45,  -3.0,   3.0);
+  addHist("TH1TrackParts_Phi",      60,  -3.141592653589793, 3.141592653589793);
+  addHist("TH1TrackParts_Pt",       45,   0.0,   100.0);
+  addHist("n_trackParticles",      100,   0.0,   600.0);
+
+  // Efficiency plots
+  addHist("TH1Effic_pt",            50,   0.0,   100.0);
+  addHist("TH1Effic_pt_zoom",       50,   0.0,   10.0);
+  addHist("TH1Effic_eta",           50,  -2.5,   2.5);
+  addHist("TH1Effic_d0",           101,  -0.15,  0.15);
+  addHist("TH1DisEffic_d0",        101,  -10.0,  10.0);
+  addHist("TH1Effic_Lxy",           25,   0.0,   1.0);
+  addHist("TH1displacedEffic_Lxy",  50,   0.0,   10.0);
+  addHist("TH1Effic_z0",            40,  -16.0,  16.0);
+
+  // Resolution plots
+  addHist("TH1Res_ptRel",          200,  -0.5,   0.5);
+  addHist("TH1Res_pt",             100,  -0.2,   0.2);
+  addHist("TH1Res_eta",            100,  -0.01,  0.01);
+  addHist("TH1Res_phi",            100,  -0.01,  0.01);
+  addHist("TH1Res_z0",             100,  -1.0,   1.0);
+  addHist("TH1Res_d0",             100,  -0.05,  0.05);
+  addHist("TH1Resdisplaced_d0",    101,  -2.0,   2.0);
+  
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTL1TrackV");
   desc.add<edm::InputTag>("trackingParticleToken", edm::InputTag("mix", "MergedTrackTruth"));
   desc.add<edm::InputTag>("MCTruthStubInputTag", edm::InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"));
