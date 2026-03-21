@@ -42,6 +42,7 @@ def mergeProcess(*inputFiles, **options):
     newDQMIO = options.get("newDQMIO", False)
     mergeNANO = options.get("mergeNANO", False)
     bypassVersionCheck = options.get("bypassVersionCheck", False)
+    isL1Scouting = options.get("isL1Scouting", False)
     #  //
     # // build process
     #//
@@ -72,7 +73,18 @@ def mergeProcess(*inputFiles, **options):
         outMod = OutputModule("DQMRootOutputModule")
     elif mergeNANO:
         import Configuration.EventContent.EventContent_cff
-        outMod = OutputModule("NanoAODOutputModule",Configuration.EventContent.EventContent_cff.NANOAODEventContent.clone())
+        if isL1Scouting:
+            # For Run-3 L1-Scouting data, the plugin "OrbitNanoAODOutputModule"
+            # is used in the "merge" step, instead of "NanoAODOutputModule".
+            # "OrbitNanoAODOutputModule" converts orbit-based NanoAOD tables (EDM)
+            # to event/BX-based "flat" NanoAOD branches.
+            outMod = OutputModule("OrbitNanoAODOutputModule",
+                Configuration.EventContent.EventContent_cff.L1SCOUTNANOAODEventContent.clone(),
+                # skip BXs in which all the L1-Scouting tables are empty
+                skipEmptyBXs = CfgTypes.bool(True)
+            )
+        else:
+            outMod = OutputModule("NanoAODOutputModule", Configuration.EventContent.EventContent_cff.NANOAODEventContent.clone())
     else:
         outMod = OutputModule("PoolOutputModule")
         outMod.mergeJob = CfgTypes.untracked.bool(True)
