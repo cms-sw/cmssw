@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.l1scoutingrun3_cff import *
+from PhysicsTools.NanoAOD.L1SCOUTNanoAODEDMEventContent_cff import L1SCOUTNanoAODEDMEventContent, L1SCOUTNANOAODEventContent
 
 from Configuration.Eras.Modifier_run3_l1scouting_2026_cff import run3_l1scouting_2026
 
@@ -51,24 +52,26 @@ def _getOrbitNanoAODOutputModuleLabels(process):
 def customiseL1ScoutingNanoAOD(process):
     """Customisation to run on the "L1Scouting" primary dataset
     """
+    # NANOEDM: customise the event content of instances of PoolOutputModule
+    for outModLabel in _getNanoPoolOutputModuleLabels(process):
+        outMod = getattr(process, outModLabel)
+        outMod.update_(L1SCOUTNanoAODEDMEventContent)
+
     # NANO: convert instances of NanoAODOutputModule to instances of OrbitNanoAODOutputModule
+    #       (and customise the event content and compression settings)
     nanoAODOutputModuleLabels = _getNanoAODOutputModuleLabels(process)
     for outModLabel in nanoAODOutputModuleLabels:
         outMod = getattr(process, outModLabel)
+        # customise the event content and compression settings
+        outMod.update_(L1SCOUTNANOAODEventContent)
+        # convert to OrbitNanoAODOutputModule
         setattr(process, outModLabel, cms.OutputModule("OrbitNanoAODOutputModule",
             **outMod.parameters_(),
-            skipEmptyBXs = cms.bool(True), # drop empty BXs
-            selectedBx = cms.InputTag("") # not used if the InputTag's label is empty
+            # skip BXs in which all the L1-Scouting tables are empty
+            skipEmptyBXs = cms.bool(True),
+            # "selectedBx" is not used if the InputTag's label is empty
+            selectedBx = cms.InputTag("")
         ))
-
-    # NANO and NANOEDM: customise the event content
-    nanoPoolOutputModuleLabels = _getNanoPoolOutputModuleLabels(process)
-    for outModLabel in (nanoAODOutputModuleLabels + nanoPoolOutputModuleLabels):
-        outMod = getattr(process, outModLabel)
-        outMod.outputCommands = [
-            "drop *",
-            "keep l1ScoutingRun3OrbitFlatTable_*_*_*",
-        ]
 
     return process
 
@@ -96,13 +99,8 @@ def customiseL1ScoutingNanoAODSelection(process):
     # NANO: customise instances of OrbitNanoAODOutputModule
     for outModLabel in _getOrbitNanoAODOutputModuleLabels(process):
         outMod = getattr(process, outModLabel)
-        outMod.outputCommands += ["keep uints_*_SelBx_*"] # keep SelBx
-        outMod.selectedBx = "FinalBxSelector:SelBx" # use to select products
-
-    # NANOEDM: modify outputCommands of PoolOutputModule instances
-    for outModLabel in _getNanoPoolOutputModuleLabels(process):
-        outMod = getattr(process, outModLabel)
-        outMod.outputCommands += ["keep uints_*_SelBx_*"] # keep SelBx
+        # keep only the BXs in "selectedBx"
+        outMod.selectedBx = "FinalBxSelector:SelBx"
 
     return process
 
