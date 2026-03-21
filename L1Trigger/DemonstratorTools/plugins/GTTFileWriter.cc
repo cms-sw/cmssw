@@ -220,6 +220,9 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     eventDataVertexAssociatedTracks.add({"tracks", i}, vertexAssociatedTrackData.at(i));
   }
 
+  // Define zero padding size
+  const int padding = 36;
+
   l1t::demo::EventData eventDataVertices;
   eventDataVertices.add({"vertices", 0}, vertexData.at(0));
 
@@ -231,14 +234,12 @@ void GTTFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   sumsData.insert(sumsData.end(), htMissDispData.at(0).begin(), htMissDispData.at(0).end());
   sumsData.insert(sumsData.end(), etMissData.at(0).begin(), etMissData.at(0).end());
 
-  std::vector<ap_uint<64>> mesonsData;
-
   std::vector<ap_uint<64>> tripletData;
   tripletData.insert(tripletData.end(), tripletsData.at(0).begin(), tripletsData.at(0).end());
-  tripletData.insert(tripletData.end(), 36, 0);
+  tripletData.insert(tripletData.end(), padding, 0);
 
   std::vector<ap_uint<64>> tracksVerticesData;
-  tracksVerticesData.insert(tracksVerticesData.end(), 36, 0);
+  tracksVerticesData.insert(tracksVerticesData.end(), padding, 0);
   tracksVerticesData.insert(tracksVerticesData.end(), vertexData.at(0).begin(), vertexData.at(0).end());
   tracksVerticesData.insert(tracksVerticesData.end(), 2, 0);
 
