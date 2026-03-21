@@ -143,11 +143,10 @@ void ExternalDecayInjector::produce(edm::Event& evt, const edm::EventSetup&) {
   int RandomID = static_cast<int>(rand.Uniform(nentries));
 
   tree->GetEntry(RandomID);
+  int ndecays_ = 0;
 
   for (HepMC::GenEvent::particle_iterator part = evtPtr->particles_begin(); part != evtPtr->particles_end(); ++part) {
     HepMC::GenParticle* p = *part;
-
-    int ndecays_ = 0;
 
     //Mother PDG ID filter
     if (p->pdg_id() == motherID_ && p->status() == 1) {
