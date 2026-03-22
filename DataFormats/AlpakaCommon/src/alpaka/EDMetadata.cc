@@ -1,7 +1,7 @@
 #include <alpaka/alpaka.hpp>
 
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadata.h"
+#include "DataFormats/AlpakaCommon/interface/alpaka/EDMetadata.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #ifndef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
