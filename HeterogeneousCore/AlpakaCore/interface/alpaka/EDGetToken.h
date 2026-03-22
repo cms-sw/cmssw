@@ -1,9 +1,9 @@
 #ifndef HeterogeneousCore_AlpakaCore_interface_alpaka_EDGetToken_h
 #define HeterogeneousCore_AlpakaCore_interface_alpaka_EDGetToken_h
 
+#include "DataFormats/AlpakaCommon/interface/alpaka/DeviceProductType.h"
 #include "DataFormats/Common/interface/DeviceProduct.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/DeviceProductType.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
