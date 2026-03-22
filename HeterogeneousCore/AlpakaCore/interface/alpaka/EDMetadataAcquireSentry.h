@@ -43,7 +43,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     private:
 #ifndef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
       // all asynchronous backends
-      void enqueueCallback();
+      void asyncWait();
 #endif
 
       std::shared_ptr<EDMetadata> metadata_;
