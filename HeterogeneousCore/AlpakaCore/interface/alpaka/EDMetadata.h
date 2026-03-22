@@ -79,9 +79,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // the host copy.
     std::shared_ptr<Queue> shared_queue() const { return queue_; }
 
-    void enqueueCallback(edm::WaitingTaskWithArenaHolder holder);
-
-    void recordEvent() { alpaka::enqueue(*queue_, *event_); }
+    std::shared_ptr<Event> recordEvent() {
+      alpaka::enqueue(*queue_, *event_);
+      return event_;
+    }
     void discardEvent() { event_.reset(); }
 
     /**
