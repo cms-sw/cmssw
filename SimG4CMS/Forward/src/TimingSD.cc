@@ -238,6 +238,7 @@ bool TimingSD::checkHit(const G4Step*, BscG4Hit* hit) {
 
     hit->setParentId(theTrack->GetParentID());
     hit->setProcessId(theEnumerator->processId(theTrack->GetCreatorProcess()));
+    hit->setHitProdType(hitClassID);
 
     hit->setVertexPosition(theTrack->GetVertexPosition());
   }
@@ -294,6 +295,7 @@ void TimingSD::createNewHit(const G4Step* aStep) {
 
   currentHit->setParentId(theTrack->GetParentID());
   currentHit->setProcessId(theEnumerator->processId(theTrack->GetCreatorProcess()));
+  currentHit->setHitProdType(hitClassID);
 
   currentHit->setVertexPosition(theTrack->GetVertexPosition());
 

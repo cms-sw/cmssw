@@ -182,7 +182,7 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       (simHitIt->second).y = hit_pos.y();
       (simHitIt->second).z = hit_pos.z();
 
-      if (simHit.offsetTrackId() == 0) {
+      if (simHit.hitProdType() == 0) {
         if (simHit.exitPoint() != simHit.entryPoint()) {
           (simHitIt->second).thetaAtEntry =
               angle_units::operators::convertRadToDeg((simHit.exitPoint() - simHit.entryPoint()).bareTheta());
@@ -194,7 +194,9 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
         (simHitIt->second).thetaAtEntry = -90.;
       }
     }
-    LogDebug("EtlSimHitsValidation") << "Registered in idet " << idet;
+
+    LogDebug("EtlSimHitsValidation") << "Registered in idet " << idet << " EtlDetId " << id.rawId() << " r/c "
+                                     << (uint32_t)pixel.first << " " << (uint32_t)pixel.second;
 
   }  // simHit loop
 
