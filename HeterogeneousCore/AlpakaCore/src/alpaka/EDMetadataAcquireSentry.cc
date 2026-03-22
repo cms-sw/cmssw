@@ -37,13 +37,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       if (synchronize_) {
         alpaka::wait(metadata_->queue());
       } else {
-        enqueueCallback();
+        asyncWait();
       }
       return std::move(metadata_);
     }
 
     // all asynchronous backends
-    void EDMetadataAcquireSentry::enqueueCallback() {
+    void EDMetadataAcquireSentry::asyncWait() {
       edm::Service<edm::Async> async;
       auto event = metadata_->recordEvent();
       // wait for the event to be ready in an async thread, then notify the waitingTaskHolder_
@@ -52,7 +52,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           [event = std::move(event)]() mutable { alpaka::wait(*event); },
           []() {
             return "Enqueued via " EDM_STRINGIZE(
-                ALPAKA_ACCELERATOR_NAMESPACE) "::detail::EDMetadataAcquireSentry::enqueueCallback()";
+                ALPAKA_ACCELERATOR_NAMESPACE) "::detail::EDMetadataAcquireSentry::asyncWait()";
           });
     }
 #endif
