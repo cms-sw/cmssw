@@ -168,9 +168,23 @@ void MPIChannel::sendMetadata(int instance, std::shared_ptr<ProductMetadataBuild
   MPI_Ssend(meta->data(), meta->size(), MPI_BYTE, dest_, tag, comm_);
 }
 
+MPI_Request MPIChannel::sendMetadataAsync(int instance, std::shared_ptr<ProductMetadataBuilder> meta) {
+  int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
+  MPI_Request request;
+  MPI_Isend(meta->data(), meta->size(), MPI_BYTE, dest_, tag, comm_, &request);
+  return request;
+}
+
+void MPIChannel::waitMetadata(MPI_Request& request) { MPI_Wait(&request, MPI_STATUS_IGNORE); }
+
 void MPIChannel::receiveMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta) {
   int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
   meta->receiveMetadata(dest_, tag, comm_);
+}
+
+void MPIChannel::receiveMetadataAsync(int instance, std::shared_ptr<ProductMetadataBuilder> meta) {
+  int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
+  meta->receiveMetadataAsync(dest_, tag, comm_);
 }
 
 void MPIChannel::sendBuffer(const void* buf, size_t size, int instance, EDM_MPI_MessageTag tag) {

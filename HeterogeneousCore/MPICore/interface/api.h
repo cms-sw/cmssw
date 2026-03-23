@@ -77,7 +77,10 @@ public:
   }
 
   void sendMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta);
+  MPI_Request sendMetadataAsync(int instance, std::shared_ptr<ProductMetadataBuilder> meta);
+  static void waitMetadata(MPI_Request& request);
   void receiveMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta);
+  void receiveMetadataAsync(int instance, std::shared_ptr<ProductMetadataBuilder> meta);
 
   // send buffer of serialized products
   void sendBuffer(const void* buf, size_t size, int instance, EDM_MPI_MessageTag tag);
@@ -124,6 +127,18 @@ public:
 
   // receive into wrapped object
   void receiveInitializedTrivialCopy(int instance, ngt::WriterBase& writer);
+
+  // receive into a device writer (any type with regions())
+  template <typename Writer>
+  void receiveInitializedTrivialCopy(int instance, Writer& writer) {
+    int tag = EDM_MPI_SendTrivialCopyProduct | instance * EDM_MPI_MessageTagWidth_;
+    MPI_Status status;
+    auto regions = writer.regions();
+    for (size_t i = 0; i < regions.size(); ++i) {
+      assert(regions[i].data() != nullptr);
+      MPI_Recv(regions[i].data(), regions[i].size_bytes(), MPI_BYTE, dest_, tag, comm_, &status);
+    }
+  }
 
 private:
   // serialize an EDM object to a simplified representation that can be transmitted as an MPI message

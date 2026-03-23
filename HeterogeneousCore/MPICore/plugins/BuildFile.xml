@@ -12,3 +12,19 @@
   <use name="HeterogeneousCore/TrivialSerialisation"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="alpaka/*.cc" name="HeterogeneousCoreMPICorePluginsPortable">
+  <use name="alpaka"/>
+  <use name="DataFormats/Common"/>
+  <use name="FWCore/Concurrency"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="HeterogeneousCore/MPICore"/>
+  <use name="HeterogeneousCore/TrivialSerialisation"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

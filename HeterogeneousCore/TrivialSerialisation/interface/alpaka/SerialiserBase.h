@@ -2,6 +2,7 @@
 #define HeterogeneousCore_TrivialSerialisation_interface_alpaka_SerialiserBase_h
 
 #include <memory>
+#include <typeinfo>
 
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/AlpakaCommon/interface/alpaka/EDMetadata.h"
@@ -18,6 +19,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ngt {
     virtual std::unique_ptr<const ReaderBase> reader(const edm::WrapperBase& wrapper,
                                                      EDMetadata& metadata,
                                                      bool tryReuseQueue) = 0;
+
+    // Return the type_info of the product type (DeviceProduct<T> for async backends, T for serial_sync)
+    virtual std::type_info const& productTypeID() const = 0;
 
     virtual ~SerialiserBase() = default;
   };

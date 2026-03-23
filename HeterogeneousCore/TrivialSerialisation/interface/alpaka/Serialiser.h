@@ -23,6 +23,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ngt {
 
     std::unique_ptr<WriterBase> writer() override { return std::make_unique<Writer<T>>(); }
 
+    std::type_info const& productTypeID() const override { return typeid(detail::DeviceProductType<T>); }
+
     std::unique_ptr<const ReaderBase> reader(edm::WrapperBase const& wrapper,
                                              EDMetadata& metadata,
                                              bool tryReuseQueue) override {

@@ -86,7 +86,7 @@ MPIService::MPIService(edm::ParameterSet const& config) {
 
 MPIService::~MPIService() {
   // terminate the MPI execution environment
-  MPI_Finalize();
+  // MPI_Finalize();
 }
 
 void MPIService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

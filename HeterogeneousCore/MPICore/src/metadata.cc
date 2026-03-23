@@ -113,6 +113,20 @@ void ProductMetadataBuilder::receiveMetadata(int src, int tag, MPI_Comm comm) {
   readOffset_ = sizeof(MetadataHeader);
 }
 
+void ProductMetadataBuilder::receiveMetadataAsync(int src, int tag, MPI_Comm comm) {
+  MPI_Irecv(buffer_, maxMetadataSize_, MPI_BYTE, src, tag, comm, &receiveRequest_);
+}
+
+void ProductMetadataBuilder::waitReceiveMetadata() {
+  MPI_Status status;
+  MPI_Wait(&receiveRequest_, &status);
+  int receivedBytes = 0;
+  MPI_Get_count(&status, MPI_BYTE, &receivedBytes);
+  assert(static_cast<size_t>(receivedBytes) >= sizeof(MetadataHeader) && "received metadata was less than header size");
+  size_ = receivedBytes;
+  readOffset_ = sizeof(MetadataHeader);
+}
+
 ProductMetadata ProductMetadataBuilder::getNext() {
   if (readOffset_ >= size_)
     throw std::out_of_range("No more metadata entries");
