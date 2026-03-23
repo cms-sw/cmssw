@@ -22,7 +22,6 @@ class TOPOTemplate;
 
 namespace l1t {
 
-  class L1Candidate;
   class GlobalBoard;
 
   // class declaration

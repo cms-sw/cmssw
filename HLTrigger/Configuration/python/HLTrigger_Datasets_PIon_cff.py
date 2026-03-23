@@ -104,8 +104,8 @@ streamPhysicsIonPhysics_datasetIonPhysics_selector.triggerConditions = cms.vstri
     'HLT_OxySingleMuOpen_OR_SingleMuCosmic_EMTF_BptxAND_v1',
     'HLT_OxySingleMuOpen_OR_SingleMuCosmic_EMTF_NotMBHF2AND_v1',
     'HLT_OxyZDC1nOR_v1',
-    'HLT_OxyZeroBias_MinPixelCluster400_v2',
-    'HLT_OxyZeroBias_SinglePixelTrackLowPt_MaxPixelCluster400_v2',
+    'HLT_OxyZeroBias_MinPixelCluster400_v3',
+    'HLT_OxyZeroBias_SinglePixelTrackLowPt_MaxPixelCluster400_v3',
     'HLT_OxyZeroBias_v1'
 )
 

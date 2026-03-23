@@ -1,5 +1,10 @@
 HLTriggerFirstPath
+
 HLT_Random_HighRate_v*
+
+HLT_ZeroBias_HighRate_v*	# CMSHLT-3713
+HLT_Random_v*			# CMSHLT-3713
+HLT_ZeroBias_v*			# CMSHLT-3713
 
 Status_OnCPU # CMSHLT-3186
 Status_OnGPU # CMSHLT-3186
@@ -7,6 +12,8 @@ Status_OnGPU # CMSHLT-3186
 HLTriggerFinalPath
 
 ## EndPaths ##
+
+DQMOutput   # CMSHLT-3713
 
 PhysicsVRRandom0Output   # CMSHLT-3405
 PhysicsVRRandom1Output
@@ -16,6 +23,33 @@ PhysicsVRRandom4Output
 PhysicsVRRandom5Output
 PhysicsVRRandom6Output
 PhysicsVRRandom7Output
+
+PhysicsVRZeroBias0Output   # CMSHLT-3713
+PhysicsVRZeroBias1Output   # CMSHLT-3713
+PhysicsVRZeroBias2Output   # CMSHLT-3713
+PhysicsVRZeroBias3Output   # CMSHLT-3713
+PhysicsVRZeroBias4Output   # CMSHLT-3713
+PhysicsVRZeroBias5Output   # CMSHLT-3713
+PhysicsVRZeroBias6Output   # CMSHLT-3713
+PhysicsVRZeroBias7Output   # CMSHLT-3713
+PhysicsVRZeroBias8Output   # CMSHLT-3713
+PhysicsVRZeroBias9Output   # CMSHLT-3713
+PhysicsVRZeroBias10Output  # CMSHLT-3713
+PhysicsVRZeroBias11Output  # CMSHLT-3713
+PhysicsVRZeroBias12Output  # CMSHLT-3713
+PhysicsVRZeroBias13Output  # CMSHLT-3713
+PhysicsVRZeroBias14Output  # CMSHLT-3713
+PhysicsVRZeroBias15Output  # CMSHLT-3713
+PhysicsVRZeroBias16Output  # CMSHLT-3713
+PhysicsVRZeroBias17Output  # CMSHLT-3713
+PhysicsVRZeroBias18Output  # CMSHLT-3713
+PhysicsVRZeroBias19Output  # CMSHLT-3713
+PhysicsVRZeroBias20Output  # CMSHLT-3713
+PhysicsVRZeroBias21Output  # CMSHLT-3713
+PhysicsVRZeroBias22Output  # CMSHLT-3713
+PhysicsVRZeroBias23Output  # CMSHLT-3713
+PhysicsVRZeroBias24Output  # CMSHLT-3713
+PhysicsVRZeroBias25Output  # CMSHLT-3713
 
 ######## Paths that are different between online and offline ########
 

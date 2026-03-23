@@ -46,7 +46,6 @@ hcalSimBlock = cms.PSet(
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify( hcalSimBlock, hitsProducer = "fastSimProducer" )
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 premix_stage1.toModify(hcalSimBlock,
@@ -71,3 +70,5 @@ phase2_hgcal.toModify(hcalSimBlock,
 # enable ZDC digitization
 from Configuration.ProcessModifiers.zdcDigi_cff import zdcDigi
 zdcDigi.toModify(hcalSimBlock, doZDCDigi = True )
+
+fastSim.toModify( hcalSimBlock, hitsProducer = "fastSimProducer" )

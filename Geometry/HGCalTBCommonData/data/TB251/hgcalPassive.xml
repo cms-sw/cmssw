@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="hgcalPassive.xml" eval="true">i
+  <Constant name="absorbH"         value="0.5*[hgcal:WaferW]"/>
+  <Constant name="absorbW"         value="[hgcal:WaferW]*[hgcal:tan30deg]"/>
+  <Constant name="WaferSize"       value="[hgcal:WaferSize]"/>
+  <Constant name="absorberT"       value="[hgcal:absorberT]"/>
+  <Constant name="absorberPbT"     value="[hgcal:absorberPbT]"/>
+  <Constant name="absorberFeT"     value="[hgcal:absorberFeT]"/>
+</ConstantsSection>
+
+<SolidSection label="hgcalPassive.xml" eval="true">
+  <Box name="HGCalAbsorber" dx="[absorbW]" dy="[absorbW]" dz="[absorberT]"/>
+  <Box name="HGCalFeCover"  dx="[absorbW]" dy="[absorbW]" dz="[absorberFeT]"/>
+  <Box name="HGCalPbCore"   dx="[absorbW]" dy="[absorbW]" dz="[absorberPbT]"/>
+  <Box name="HGCalCooling"  dx="[absorbW]" dy="[absorbW]" dz="0.5*[hgcal:thickEECooling]"/>
+</SolidSection>
+
+<LogicalPartSection label="hgcalPasive.xml">
+  <LogicalPart name="HGCalAbsorber" category="unspecified">
+    <rSolid name="HGCalAbsorber"/>
+    <rMaterial name="materials:Lead"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalFeCover" category="unspecified">
+    <rSolid name="HGCalFeCover"/>
+    <rMaterial name="materials:StainlessSteel"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalCooling" category="unspecified">
+    <rSolid name="HGCalCooling"/>
+    <rMaterial name="materials:Copper"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hgcalPassive.xml">
+  <PosPart copyNumber="1">
+   <rParent name="hgcalPassive:HGCalAbsorber"/>
+   <rChild name="hgcalwafer:HGCalFeCover"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="(-[absorberT]+[absorberFeT])"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="hgcalPassive:HGCalAbsorber"/>
+   <rChild name="hgcalwafer:HGCalFeCover"/>
+   <Translation x="0.0*mm" y="0.0*mm" z="([absorberT]-[absorberFeT])"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>
+

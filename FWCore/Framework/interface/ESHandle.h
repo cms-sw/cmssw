@@ -64,6 +64,7 @@ namespace edm {
       }
       return data_;
     }
+    static void throwIfDataNotAvailable();
 
   private:
     // ---------- member data --------------------------------
@@ -85,7 +86,13 @@ namespace edm {
     // ---------- const member functions ---------------------
     T const* product() const { return static_cast<T const*>(productStorage()); }
     T const* operator->() const { return product(); }
-    T const& operator*() const { return *product(); }
+    T const& operator*() const {
+      auto const* p = product();
+      if (nullptr == p) [[unlikely]] {
+        throwIfDataNotAvailable();
+      }
+      return *p;
+    }
     // ---------- static member functions --------------------
     static constexpr bool transientAccessOnly = false;
 

@@ -4,6 +4,7 @@
   <use name="Validation/MuonGEMDigis"/>
   <use name="DataFormats/GEMDigi"/>
   <use name="DQMServices/Core"/>
+  <use name="SimDataFormats/TrackingHit"/>
   <use name="HepMC"/>
   <flags EDM_PLUGIN="1"/>
 </library>

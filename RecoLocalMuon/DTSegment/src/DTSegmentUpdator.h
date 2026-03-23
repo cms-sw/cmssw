@@ -19,6 +19,7 @@
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DFwd.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -30,7 +31,6 @@
 /* Collaborating Class Declarations */
 class DTSegmentCand;
 class DTRecSegment2D;
-class DTRecSegment4D;
 class DTLinearFit;
 class DTRecHitBaseAlgo;
 class DTChamberRecSegment2D;

@@ -1,7 +1,8 @@
 #ifndef CaloSimAlgos_CaloVSimParameterMap_h
 #define CaloSimAlgos_CaloVSimParameterMap_h
 
-class DetId;
+#include "DataFormats/DetId/interface/DetIdFwd.h"
+
 class CaloSimParameters;
 
 class CaloVSimParameterMap {

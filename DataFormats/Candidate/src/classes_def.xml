@@ -7,7 +7,7 @@
    <field name="p4Cartesian_" transient="true" />
   </class>
   <!--The 'int pdgId_' is a workaround for ROOT bug which affects iorules for split classes-->
-  <ioread sourceClass = "reco::ParticleState" version="[1-]" targetClass="reco::ParticleState" source="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > p4Polar_;int pdgId_" target="p4Cartesian_">
+  <ioread sourceClass = "reco::ParticleState" version="[1-]" targetClass="reco::ParticleState" source="ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<Double32_t> > p4Polar_;int pdgId_" target="p4Cartesian_">
    <![CDATA[newObj->setCartesian();]]>
   </ioread>
 

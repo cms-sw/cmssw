@@ -9,14 +9,24 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 
 #include <cassert>
+#include <format>
 #include <memory>
+#include <string_view>
 #include <vector>
 
-std::unique_ptr<int> nested() {
+[[gnu::noinline]] std::vector<int> nestedChurn() {
+  std::vector<int> vec;
+  for (int i = 0; i < 10000; ++i) {
+    vec.push_back(i * 3 - 5);
+  }
+  return vec;
+}
+
+int* nested() {
   edm::Service<edm::IntrusiveMonitorBase> imb;
   auto guard = imb->startMonitoring("inner unique_ptr");
 
-  return std::make_unique<int>(42);
+  return new int(42);
 }
 
 // dirty tricks to prevent compiler from optimizing allocations away...
@@ -25,14 +35,20 @@ std::atomic<int*> ptr2 = nullptr;
 std::atomic<int*> ptr3 = nullptr;
 std::atomic<int*> ptr4 = nullptr;
 
-int main() {
+int main(int argc, char** argv) {
   edmplugin::PluginManager::configure(edmplugin::standard::config());
 
-  std::string const config = R"_(
+  if (argc < 2) {
+    edm::LogProblem("Test").format("Need one argument for the intrusive monitor name");
+    return 1;
+  }
+
+  std::string const config = std::format(R"_(
 import FWCore.ParameterSet.Config as cms
 process = cms.Process('Test')
-process.add_(cms.Service('IntrusiveAllocMonitor'))
-)_";
+process.add_(cms.Service('{}'))
+)_",
+                                         argv[1]);
   std::unique_ptr<edm::ParameterSet> params;
   edm::makeParameterSets(config, params);
   auto token = edm::ServiceToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
@@ -84,8 +100,9 @@ process.add_(cms.Service('IntrusiveAllocMonitor'))
     int sum = 0;
     {
       auto guard = imb->startMonitoring("Nested allocation empty outer");
-      auto ptr2 = nested();
+      ptr2 = nested();
       sum = *ptr2;
+      delete ptr2.load();
     }
     edm::LogPrint("Test").format("Sum {}", sum);
   }
@@ -96,9 +113,11 @@ process.add_(cms.Service('IntrusiveAllocMonitor'))
     int sum = 0;
     {
       auto guard = imb->startMonitoring("Nested allocation outer unique_ptr");
-      auto ptr1 = std::make_unique<int>(42);
-      auto ptr2 = nested();
+      ptr1 = new int(42);
+      ptr2 = nested();
       sum = *ptr1 + *ptr2;
+      delete ptr2.load();
+      delete ptr1.load();
     }
 
     edm::LogPrint("Test").format("Sum {}", sum);
@@ -134,6 +153,20 @@ process.add_(cms.Service('IntrusiveAllocMonitor'))
       delete ptr3.load();
       delete ptr2.load();
       delete ptr1.load();
+    }
+    edm::LogPrint("Test").format("Sum {}", sum);
+  }
+  edm::LogPrint("Test").format("====================");
+
+  edm::LogPrint("Test").format("Test nested churning");
+  {
+    int sum = 0;
+    {
+      auto guard = imb->startMonitoring("Nested churning");
+      auto vec = nestedChurn();
+      for (int a : vec) {
+        sum += a;
+      }
     }
     edm::LogPrint("Test").format("Sum {}", sum);
   }

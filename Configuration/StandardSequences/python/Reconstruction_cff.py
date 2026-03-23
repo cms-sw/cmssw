@@ -139,9 +139,16 @@ globalreco = cms.Sequence(globalrecoTask)
 _run3_globalrecoTask = globalrecoTask.copyAndExclude([CastorFullRecoTask])
 run3_common.toReplaceWith(globalrecoTask, _run3_globalrecoTask)
 
-_fastSim_globalrecoTask = globalrecoTask.copyAndExclude([CastorFullRecoTask,muoncosmicrecoTask])
+# these modules are needed for other modules in this task
+# keep them together to ensure e.g. trackingOnly reco can work
+_fastSim_vertexrecoTask = vertexrecoTask.copy()
+_fastSim_vertexrecoTask.add(firstStepPrimaryVerticesUnsorted,initialStepTrackRefsForJets,firstStepPrimaryVertices)
+fastSim.toReplaceWith(vertexrecoTask,_fastSim_vertexrecoTask)
+
 # insert the few tracking modules to be run after mixing back in the globalreco sequence
+_fastSim_globalrecoTask = globalrecoTask.copyAndExclude([CastorFullRecoTask,muoncosmicrecoTask])
 _fastSim_globalrecoTask.add(newCombinedSeeds,trackExtrapolator,caloTowerForTrk,firstStepPrimaryVerticesUnsorted,ak4CaloJetsForTrk,initialStepTrackRefsForJets,firstStepPrimaryVertices)
+
 fastSim.toReplaceWith(globalrecoTask,_fastSim_globalrecoTask)
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal

@@ -39,7 +39,7 @@
 
   <PosPartSection label="fsc.xml">
     <PosPart copyNumber="3">
-      <rParent name="cmsextent:CMSFSCt2"/>
+      <rParent name="cmsextent:CMSFSCSt2"/>
       <rChild name="fsc:FSC1"/>    
       <rRotation name="rotations:000D"/>
       <Translation x="0*fm" y="-[FSCdyby2]" z="0*fm"/>
@@ -72,7 +72,7 @@
       <rParent name="cmsextent:CMSFSCSt3"/>
       <rChild name="fsc:FSC2"/>    
       <rRotation name="rotations:RPCD"/>
-      <Translation x="-[FSCdxby2]" y="[FSCdyby2]" z="0*fm"/>
+      <Translation x="[FSCdxby2]" y="-[FSCdyby2]" z="0*fm"/>
     </PosPart>
   </PosPartSection>
 

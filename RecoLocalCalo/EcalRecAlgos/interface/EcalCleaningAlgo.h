@@ -12,9 +12,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 #include <vector>
-
-class DetId;
 
 class EcalCleaningAlgo {
 public:

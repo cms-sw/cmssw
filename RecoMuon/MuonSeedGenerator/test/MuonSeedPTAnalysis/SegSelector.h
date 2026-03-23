@@ -12,6 +12,7 @@
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
+#include "DataFormats/MuonDetId/interface/DTLayerIdFwd.h"
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegment.h>
@@ -47,10 +48,7 @@
 
 //class PSimHit;
 class CSCLayer;
-class CSCDetId;
-class DTLayerId;
 class DTSuperLayerId;
-class DTChamberId;
 
 // Sim_CSCSegments products
 struct SimSegment {

@@ -14,20 +14,22 @@
 #include <algorithm>
 #include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
 
-namespace l1t {
-  inline bool operator>(l1t::EGamma& a, l1t::EGamma& b) {
-    if (a.pt() == b.pt()) {
-      if (a.hwPhi() == b.hwPhi()) {
-        return a.hwEta() > b.hwEta();
-      } else {
-        return a.hwPhi() > b.hwPhi();
-      }
+namespace {
+  struct Greater {
+    inline bool operator()(l1t::EGamma& a, l1t::EGamma& b) const {
+      if (a.pt() == b.pt()) {
+        if (a.hwPhi() == b.hwPhi()) {
+          return a.hwEta() > b.hwEta();
+        } else {
+          return a.hwPhi() > b.hwPhi();
+        }
 
-    } else {
-      return a.pt() > b.pt();
+      } else {
+        return a.pt() > b.pt();
+      }
     }
-  }
-}  // namespace l1t
+  };
+}  // namespace
 
 l1t::Stage2Layer2DemuxEGAlgoFirmwareImp1::Stage2Layer2DemuxEGAlgoFirmwareImp1(CaloParamsHelper const* params)
     : params_(params) {}
@@ -97,5 +99,5 @@ void l1t::Stage2Layer2DemuxEGAlgoFirmwareImp1::processEvent(const std::vector<l1
   //sorting with descending pT
   std::vector<l1t::EGamma>::iterator start_ = outputEGammas.begin();
   std::vector<l1t::EGamma>::iterator end_ = outputEGammas.end();
-  BitonicSort<l1t::EGamma>(down, start_, end_);
+  BitonicSort<l1t::EGamma, Greater>(down, start_, end_);
 }

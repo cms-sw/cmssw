@@ -1,0 +1,6 @@
+#ifndef DataFormats_HcalDigi_QIE11DataFrameFwd_h
+#define DataFormats_HcalDigi_QIE11DataFrameFwd_h
+
+class QIE11DataFrame;
+
+#endif

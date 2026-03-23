@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/DescriptionCloner.h"
 
 #include <memory>
 #include <string>
@@ -88,14 +89,10 @@ void MTDDigiGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& d
   descDB.add<bool>("fromDDD", false);
   descDB.add<bool>("applyAlignment", true);
   descDB.add<std::string>("alignmentsLabel", "");
-  descriptions.addDefault(descDB);
   descriptions.add("mtdGeometryDB", descDB);
 
-  edm::ParameterSetDescription desc;
-  desc.add<std::string>("appendToDataLabel", "");
-  desc.add<bool>("fromDDD", true);
-  desc.add<bool>("applyAlignment", true);
-  desc.add<std::string>("alignmentsLabel", "");
+  edm::DescriptionCloner desc;
+  desc.set<bool>("fromDDD", true);
   descriptions.add("mtdGeometry", desc);
 }
 

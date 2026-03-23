@@ -163,8 +163,6 @@ private:
   // event processor for the tracklet track finding
   trklet::TrackletEventProcessor eventProcessor;
 
-  // used to "kill" stubs from a selected area of the detector
-  StubKiller* stubKiller_;
   int failScenario_;
 
   unsigned int nHelixPar_;
@@ -394,8 +392,8 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   } else
     failType = failScenario_;
 
-  stubKiller_ = new StubKiller();
-  stubKiller_->initialise(failType, tTopo, theTrackerGeom);
+  StubKiller stubKiller;
+  stubKiller.initialise(failType, tTopo, theTrackerGeom);
 
   ////////////////////////
   // GET THE PRIMITIVES //
@@ -603,7 +601,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
         // check killing stubs for detector degredation studies
         const TTStub<Ref_Phase2TrackerDigi_>* theStub = &(*stubRef);
-        bool killThisStub = stubKiller_->killStub(theStub);
+        bool killThisStub = stubKiller.killStub(theStub);
         if (!killThisStub) {
           ev.addStub(dtcname,
                      region,
@@ -716,9 +714,10 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       }
     }
 
-    // pt consistency
-    aTrack.setStubPtConsistency(
-        StubPtConsistency::getConsistency(aTrack, theTrackerGeom, tTopo, settings_.bfield(), settings_.nHelixPar()));
+    // stub bend pt consistency chi2/ndf
+    float chi2BendRed =
+        StubPtConsistency::getConsistency(aTrack, theTrackerGeom, tTopo, settings_.bfield(), settings_.nHelixPar());
+    aTrack.setChi2BendRed(chi2BendRed);
 
     // set track word before TQ MVA calculated which uses track word variables
     aTrack.setTrackWordBits();

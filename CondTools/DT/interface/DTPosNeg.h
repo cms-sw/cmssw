@@ -18,7 +18,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-class DTChamberId;
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
 
 //---------------
 // C++ Headers --

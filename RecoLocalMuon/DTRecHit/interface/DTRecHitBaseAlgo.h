@@ -13,12 +13,12 @@
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "DataFormats/DTDigi/interface/DTDigiFwd.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
 #include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/MuonDetId/interface/DTLayerIdFwd.h"
 
-class DTDigi;
 class DTLayer;
-class DTLayerId;
 class DTTTrigBaseSync;
 
 namespace edm {

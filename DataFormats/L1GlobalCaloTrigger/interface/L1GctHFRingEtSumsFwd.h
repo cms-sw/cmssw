@@ -1,0 +1,6 @@
+#ifndef DataFormats_L1GlobalCaloTrigger_L1GctHFRingEtSumsFwd_h
+#define DataFormats_L1GlobalCaloTrigger_L1GctHFRingEtSumsFwd_h
+
+class L1GctHFRingEtSums;
+
+#endif

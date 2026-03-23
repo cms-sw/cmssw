@@ -23,6 +23,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/DescriptionCloner.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauTagInfoAlgorithm.h"
 
 using namespace reco;
@@ -132,34 +133,13 @@ void PFRecoTauTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& 
     desc.add<double>("smearedPVsigmaZ", 0.005);
     desc.add<double>("ChargedHadrCand_tkPVmaxDZ", 0.2);
     desc.add<double>("tkmaxipt", 0.03);
-    descriptions.addDefault(desc);
     descriptions.add("pfRecoTauTagInfoProducerInsideOut", desc);
   }
   {
     // pfRecoTauTagInfoProducer
-    edm::ParameterSetDescription desc;
-    desc.add<int>("tkminTrackerHitsn", 3);
-    desc.add<double>("tkminPt", 0.5);
-    desc.add<double>("tkmaxChi2", 100.0);
-    desc.add<double>("ChargedHadrCand_AssociationCone", 0.8);
-    desc.add<int>("ChargedHadrCand_tkminTrackerHitsn", 3);
-    desc.add<double>("ChargedHadrCand_tkmaxChi2", 100.0);
-    desc.add<double>("tkPVmaxDZ", 0.2);
-    desc.add<double>("GammaCand_EcalclusMinEt", 1.0);
-    desc.add<int>("tkminPixelHitsn", 0);
-    desc.add<edm::InputTag>("PVProducer", edm::InputTag("offlinePrimaryVertices"));
-    desc.add<edm::InputTag>("PFCandidateProducer", edm::InputTag("particleFlow"));
-    desc.add<double>("ChargedHadrCand_tkminPt", 0.5);
-    desc.add<double>("ChargedHadrCand_tkmaxipt", 0.03);
-    desc.add<int>("ChargedHadrCand_tkminPixelHitsn", 0);
-    desc.add<bool>("UsePVconstraint", true);
-    desc.add<double>("NeutrHadrCand_HcalclusMinEt", 1.0);
-    desc.add<edm::InputTag>("PFJetTracksAssociatorProducer", edm::InputTag("ak4PFJetTracksAssociatorAtVertex"));
-    desc.add<double>("smearedPVsigmaY", 0.0015);
-    desc.add<double>("smearedPVsigmaX", 0.0015);
-    desc.add<double>("smearedPVsigmaZ", 0.005);
-    desc.add<double>("ChargedHadrCand_tkPVmaxDZ", 0.2);
-    desc.add<double>("tkmaxipt", 0.03);
+    edm::DescriptionCloner desc;
+    desc.set<double>("ChargedHadrCand_AssociationCone", 0.8);
+    desc.set<edm::InputTag>("PFJetTracksAssociatorProducer", edm::InputTag("ak4PFJetTracksAssociatorAtVertex"));
     descriptions.add("pfRecoTauTagInfoProducer", desc);
   }
 }

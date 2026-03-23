@@ -24,8 +24,8 @@ private:
 
   unsigned sp_slot_number : 5;  // SP_PADR, or physical address, or slot number
   unsigned sp_ersv : 3;         // event record structure version
-  unsigned
-      sp_trigger_sector : 4;  // SP Trigger Sector 1, 2, 3, 4, 5, 6 for +Z EMU side and 7, 8, 9, 10, 11, 12 for -Z EMU side
+  unsigned sp_trigger_sector
+      : 4;  // SP Trigger Sector 1, 2, 3, 4, 5, 6 for +Z EMU side and 7, 8, 9, 10, 11, 12 for -Z EMU side
 
   unsigned header_mark_6 : 4;  // constant, should be 1010 = 0xA
                                /*

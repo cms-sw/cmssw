@@ -47,7 +47,6 @@ namespace edm {
   class StreamContext;
   class ModuleCallingContext;
   class SharedResourcesAcquirer;
-  class ThinnedAssociationsHelper;
 
   class InputSource {
   public:
@@ -179,14 +178,6 @@ namespace edm {
       return get_underlying_safe(processBlockHelper_);
     }
     std::shared_ptr<ProcessBlockHelper>& processBlockHelper() { return get_underlying_safe(processBlockHelper_); }
-
-    /// Accessors for thinnedAssociationsHelper
-    std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper() const {
-      return get_underlying_safe(thinnedAssociationsHelper_);
-    }
-    std::shared_ptr<ThinnedAssociationsHelper>& thinnedAssociationsHelper() {
-      return get_underlying_safe(thinnedAssociationsHelper_);
-    }
 
     /// Reset the remaining number of events/lumis to the maximum number.
     void repeat() {
@@ -451,7 +442,6 @@ namespace edm {
     edm::propagate_const<std::unique_ptr<ProcessHistoryRegistry>> processHistoryRegistry_;
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
     edm::propagate_const<std::shared_ptr<ProcessBlockHelper>> processBlockHelper_;
-    edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     std::string processGUID_;
     Timestamp time_;
     mutable bool newRun_;

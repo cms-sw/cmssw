@@ -13,13 +13,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 namespace lhef {
   class LHERunInfo;
   class LHEEvent;
 }  // namespace lhef
-
-class LHEEventProduct;
 
 namespace HepMC {
   class GenEvent;

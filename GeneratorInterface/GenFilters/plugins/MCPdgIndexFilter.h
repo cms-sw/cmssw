@@ -17,9 +17,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-namespace edm {
-  class HepMCProduct;
-}
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProductFwd.h"
 
 class MCPdgIndexFilter : public edm::global::EDFilter<> {
 public:

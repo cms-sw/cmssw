@@ -14,6 +14,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/DetLayers/interface/NavigationDirection.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonBestMeasurementFinder.h"
@@ -22,7 +23,6 @@
 class Propagator;
 class DetLayer;
 class MuonTrajectoryUpdator;
-class Trajectory;
 class MuonDetLayerMeasurements;
 class MeasurementEstimator;
 class MuonServiceProxy;

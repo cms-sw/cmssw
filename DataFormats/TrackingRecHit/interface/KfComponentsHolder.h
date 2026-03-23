@@ -3,10 +3,9 @@
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/Math/interface/ProjectMatrix.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include <cstdint>
 #include <cassert>
-
-class TrackingRecHit;
 
 // #define Debug_KfComponentsHolder
 

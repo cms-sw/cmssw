@@ -26,10 +26,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-
-namespace trigger {
-  class TriggerEvent;
-}
+#include "DataFormats/HLTReco/interface/TriggerEventFwd.h"
 
 class EwkMuLumiMonitorDQM : public DQMEDAnalyzer {
 public:

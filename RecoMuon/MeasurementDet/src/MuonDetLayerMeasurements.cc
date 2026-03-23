@@ -48,29 +48,16 @@ MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
       theGEMEventCacheID(0),
       theME0EventCacheID(0),
       theEvent(nullptr) {
-  dtToken_ = iC.consumes<DTRecSegment4DCollection>(dtlabel);
-  cscToken_ = iC.consumes<CSCSegmentCollection>(csclabel);
-  rpcToken_ = iC.consumes<RPCRecHitCollection>(rpclabel);
-  gemToken_ = iC.consumes<GEMRecHitCollection>(gemlabel);
-  me0Token_ = iC.consumes<ME0SegmentCollection>(me0label);
-
-  static std::atomic<int> procInstance{0};
-  std::ostringstream sDT;
-  sDT << "MuonDetLayerMeasurements::checkDTRecHits::" << procInstance;
-  //  theDTCheckName = sDT.str();
-  std::ostringstream sRPC;
-  sRPC << "MuonDetLayerMeasurements::checkRPCRecHits::" << procInstance;
-  //theRPCCheckName = sRPC.str();
-  std::ostringstream sCSC;
-  sCSC << "MuonDetLayerMeasurements::checkCSCRecHits::" << procInstance;
-  //theCSCCheckName = sCSC.str();
-  std::ostringstream sGEM;
-  sGEM << "MuonDetLayerMeasurements::checkGEMRecHits::" << procInstance;
-  //theGEMCheckName = sGEM.str();
-  std::ostringstream sME0;
-  sME0 << "MuonDetLayerMeasurements::checkME0RecHits::" << procInstance;
-  //theME0CheckName = sME0.str();
-  procInstance++;
+  if (enableDTMeasurement)
+    dtToken_ = iC.consumes<DTRecSegment4DCollection>(dtlabel);
+  if (enableCSCMeasurement)
+    cscToken_ = iC.consumes<CSCSegmentCollection>(csclabel);
+  if (enableRPCMeasurement)
+    rpcToken_ = iC.consumes<RPCRecHitCollection>(rpclabel);
+  if (enableGEMMeasurement)
+    gemToken_ = iC.consumes<GEMRecHitCollection>(gemlabel);
+  if (enableME0Measurement)
+    me0Token_ = iC.consumes<ME0SegmentCollection>(me0label);
 }
 
 MuonDetLayerMeasurements::~MuonDetLayerMeasurements() {}
@@ -198,7 +185,9 @@ void MuonDetLayerMeasurements::checkDTRecHits() {
   if (cacheID == theDTEventCacheID)
     return;
 
-  { theEvent->getByToken(dtToken_, theDTRecHits); }
+  {
+    theEvent->getByToken(dtToken_, theDTRecHits);
+  }
   if (!theDTRecHits.isValid()) {
     throw cms::Exception("MuonDetLayerMeasurements") << "Cannot get DT RecHits";
   }

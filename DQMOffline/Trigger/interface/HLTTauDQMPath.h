@@ -3,6 +3,7 @@
 #define DQMOffline_Trigger_HLTTauDQMPath_h
 
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/HLTReco/interface/TriggerEventFwd.h"
 
 #include <tuple>
 #include <vector>
@@ -13,8 +14,8 @@ namespace edm {
   class ParameterSet;
   class TriggerResults;
 }  // namespace edm
+
 namespace trigger {
-  class TriggerEvent;
   class TriggerObject;
 }  // namespace trigger
 struct HLTTauDQMOfflineObjects;

@@ -1,0 +1,6 @@
+#ifndef DataFormats_Scalers_L1AcceptBunchCrossingFwd_h
+#define DataFormats_Scalers_L1AcceptBunchCrossingFwd_h
+
+class L1AcceptBunchCrossing;
+
+#endif

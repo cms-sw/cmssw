@@ -24,6 +24,7 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -36,7 +37,6 @@ class TrajectoryFitter;
 class TrajectorySmoother;
 class Propagator;
 class TransientTrackingRecHitBuilder;
-class Trajectory;
 class GlobalTrackingGeometryRecord;
 class IdealMagneticFieldRecord;
 class TrajectoryFitterRecord;

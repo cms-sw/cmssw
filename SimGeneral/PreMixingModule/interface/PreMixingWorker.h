@@ -2,13 +2,13 @@
 #define SimGeneral_PreMixingModule_PreMixingWorker_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfoFwd.h"
 
 #include <vector>
 
 namespace edm {
   class ModuleCallingContext;
 }
-class PileupSummaryInfo;
 class PileUpEventPrincipal;
 
 class PreMixingWorker {

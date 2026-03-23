@@ -1,7 +1,8 @@
 import sys
+from copy import deepcopy
 from functools import partial
 
-from .MatrixUtil import *
+from .MatrixUtil import Steps, merge, remove, Kby, Mby, genvalid, InputInfo, selectedLS, stCond
 
 from Configuration.HLT.autoHLT import autoHLT
 from Configuration.AlCa.autoPCL import autoPCL
@@ -2532,6 +2533,12 @@ steps['RAWPRIMESIMHI18']={ '--scenario':'pp',
                            '--process':'REHLT'
 }
 
+steps['RAWPRIMESIMHI22']=merge([{'--conditions':'auto:phase1_2022_realistic_hi', '--era':'Run3_pp_on_PbPb'},steps['RAWPRIMESIMHI18']])
+steps['RAWPRIMESIMHI23']=merge([{'--conditions':'auto:phase1_2023_realistic_hi', '--era':'Run3_pp_on_PbPb_2023'},steps['RAWPRIMESIMHI18']])
+steps['RAWPRIMESIMHI24']=merge([{'--conditions':'auto:phase1_2024_realistic_hi', '--era':'Run3_pp_on_PbPb_2024'},steps['RAWPRIMESIMHI18']])
+steps['RAWPRIMESIMHI25']=merge([{'--conditions':'auto:phase1_2025_realistic_hi', '--era':'Run3_pp_on_PbPb_2025'},steps['RAWPRIMESIMHI18']])
+steps['RAWPRIMESIMHI26']=merge([{'--conditions':'auto:phase1_2026_realistic_hi', '--era':'Run3_pp_on_PbPb_2026'},steps['RAWPRIMESIMHI18']])
+
 steps['RECOHID18APPROXCLUSTERS']=merge([{ '--scenario':'pp',
                                           '--conditions':'auto:run2_data_promptlike_hi',
                                           '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiPixelCalZeroBias,SKIM:PbPbEMu+PbPbZEE+PbPbZMM+PbPbZMu,DQM:@commonFakeHLT+@standardDQMFakeHLT',
@@ -2989,6 +2996,7 @@ steps['RECODR3_2025_UPC_OXY']=merge([{'--era':'Run3_2025_UPC_OXY'},steps['RECODR
 steps['RECODR3_2025_OXY_SKIMIONPHYSICS0']=merge([{'--era':'Run3_2025_OXY', '-s':'RAW2DIGI,L1Reco,RECO,SKIM:%s,PAT,DQM:@commonFakeHLT+@standardDQMFakeHLT'%(autoSkim['IonPhysics0'])},steps['RECODR3_2025_HIN']])
 steps['RECODR3_2026_HIN']=merge([{'--conditions':'auto:run3_data_prompt', '-s':'RAW2DIGI,L1Reco,RECO,PAT,DQM:@commonFakeHLT+@standardDQMFakeHLT','--repacked':'', '-n':1000},steps['RECODR3_2026']])
 steps['RECODR3_2026_UPC']=merge([{'--era':'Run3_2026_UPC', '--conditions':'151X_dataRun3_Prompt_v1'},steps['RECODR3_2026_HIN']])
+steps['RECONANODR3_2026_UPC']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@commonFakeHLT+@standardDQMFakeHLT', '--datatier':'RECO,MINIAOD,NANOAOD,DQMIO','--eventcontent':'RECO,MINIAOD,NANOAOD,DQM'},steps['RECODR3_2026_UPC']])
 
 steps['RECODR3Splash']=merge([{'-n': 2,
                                '--procModifiers': 'beamSplash',
@@ -3499,6 +3507,7 @@ steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
 
 steps['RECOUP15_ID']=merge([{'--hltProcess':'HLT2'},steps['RECOUP15']])
 
+steps['RECONANOUPC2026']=merge([upcDefaults2026,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM+@nanoAODDQM','--datatier':'GEN-SIM-RECO,MINIAODSIM,NANOAODSIM,DQMIO','--eventcontent':'RECOSIM,MINIAODSIM,NANOAODSIM,DQM'},step3Up2015Defaults])
 steps['RECOUPC2026']=merge([upcDefaults2026,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM','--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO','--eventcontent':'RECOSIM,MINIAODSIM,DQM'},step3Up2015Defaults])
 steps['MINIUPC2026']=merge([upcDefaults2026,{'-s':'PAT','--datatier':'MINIAODSIM','--eventcontent':'MINIAODSIM'},step3Up2015Defaults])
 steps['ALCARECOUPC2026']=merge([upcDefaults2026,{'-s':'ALCA:TkAlMinBias+SiStripCalMinBias','--datatier':'ALCARECO','--eventcontent':'ALCARECO'}])
@@ -3809,9 +3818,6 @@ steps['RECOHIR10D11']=merge([{'--filein':'file:step2_inREPACKRAW.root',
 #steps['RECOFS']=merge([{'--fast':'',
 #                        '-s':'RECO,HLT:@fake,VALIDATION'},
 #                       steps['RECO']])
-
-#add this line when testing from an input file that is not strictly GEN-SIM
-#addForAll(step3,{'--hltProcess':'DIGI'})
 
 steps['ALCACOSD']={'--conditions':'auto:run1_data',
                    '--datatier':'ALCARECO',
@@ -4931,96 +4937,72 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     upgradeStepDict['GenHLBeamSpot'][k] = merge([{'--conditions' : gt+'_13TeV'}, upgradeStepDict['Gen'][k]])
     upgradeStepDict['GenHLBeamSpot14'][k] = merge([{}, upgradeStepDict['Gen'][k]])
     
-    upgradeStepDict['GenSim'][k]= {'-s' : 'GEN,SIM',
-                                       '-n' : 10,
-                                       '--conditions' : gt,
-                                       '--beamspot' : 'Realistic25ns13TeVEarly2017Collision',
-                                       '--datatier' : 'GEN-SIM',
-                                       '--eventcontent': 'FEVTDEBUG',
-                                       '--geometry' : geom
-                                       }
+    upgradeStepDict['GenSim'][k] = {'-s' : 'GEN,SIM',
+                                    '-n' : 10,
+                                    '--conditions' : gt,
+                                    '--beamspot' : 'Realistic25ns13TeVEarly2017Collision',
+                                    '--datatier' : 'GEN-SIM',
+                                    '--eventcontent': 'FEVTDEBUG',
+                                    '--geometry' : geom
+                                    }
     
     if beamspot is not None: upgradeStepDict['GenSim'][k]['--beamspot']=beamspot
 
-    upgradeStepDict['GenSimHLBeamSpot'][k]= {'-s' : 'GEN,SIM',
-                                       '-n' : 10,
-                                       '--conditions' : gt+'_13TeV',
-                                       '--beamspot' : 'DBrealisticHLLHC',
-                                       '--datatier' : 'GEN-SIM',
-                                       '--eventcontent': 'FEVTDEBUG',
-                                       '--geometry' : geom
-                                       }
+    upgradeStepDict['GenSimCloseBy'][k] = deepcopy(upgradeStepDict['GenSim'][k])
+    upgradeStepDict['GenSimCloseBy'][k]['--beamspot'] = 'CloseBy'
+    
+    upgradeStepDict['GenSimHLBeamSpot'][k] = {'-s' : 'GEN,SIM',
+                                              '-n' : 10,
+                                              '--conditions' : gt+'_13TeV',
+                                              '--beamspot' : 'DBrealisticHLLHC',
+                                              '--datatier' : 'GEN-SIM',
+                                              '--eventcontent': 'FEVTDEBUG',
+                                              '--geometry' : geom
+                                              }
 
-    upgradeStepDict['GenSimHLBeamSpot14'][k]= {'-s' : 'GEN,SIM',
-                                       '-n' : 10,
-                                       '--conditions' : gt,
-                                       '--beamspot' : 'DBrealisticHLLHC',
-                                       '--datatier' : 'GEN-SIM',
-                                       '--eventcontent': 'FEVTDEBUG',
-                                       '--geometry' : geom
-                                       }
+    upgradeStepDict['GenSimHLBeamSpot14'][k] = deepcopy(upgradeStepDict['GenSimHLBeamSpot'][k])
+    upgradeStepDict['GenSimHLBeamSpot14'][k]['--conditions'] = gt
 
-    upgradeStepDict['GenSimHLBeamSpotCloseBy'][k]= {'-s' : 'GEN,SIM',
-                                       '-n' : 10,
-                                       '--conditions' : gt,
-                                       '--beamspot' : 'CloseBy',
-                                       '--datatier' : 'GEN-SIM',
-                                       '--eventcontent': 'FEVTDEBUG',
-                                       '--geometry' : geom
-                                       }
-
-    upgradeStepDict['Sim'][k]= {'-s' : 'SIM',
-                                       '-n' : 10,
-                                       '--conditions' : gt,
-                                       '--beamspot' : 'Realistic25ns13TeVEarly2017Collision',
-                                       '--datatier' : 'SIM',
-                                       '--eventcontent': 'FEVTDEBUG',
-                                       '--geometry' : geom
-                                       }
+    upgradeStepDict['GenSimHLBeamSpotCloseBy'][k] = upgradeStepDict['GenSimCloseBy'][k]
+    
+    upgradeStepDict['Sim'][k] = {'-s' : 'SIM',
+                                 '-n' : 10,
+                                 '--conditions' : gt,
+                                 '--beamspot' : 'Realistic25ns13TeVEarly2017Collision',
+                                 '--datatier' : 'SIM',
+                                 '--eventcontent': 'FEVTDEBUG',
+                                 '--geometry' : geom
+                                 }
     
     if beamspot is not None: upgradeStepDict['Sim'][k]['--beamspot']=beamspot
     
 
     upgradeStepDict['Digi'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:%s'%(hltversion),
-                                      '--conditions':gt,
-                                      '--datatier':'GEN-SIM-DIGI-RAW',
-                                      '-n':'10',
-                                      '--eventcontent':'FEVTDEBUGHLT',
-                                      '--geometry' : geom
-                                      }
+                                  '--conditions':gt,
+                                  '--datatier':'GEN-SIM-DIGI-RAW',
+                                  '-n':'10',
+                                  '--eventcontent':'FEVTDEBUGHLT',
+                                  '--geometry' : geom
+                                  }
     
-    upgradeStepDict['DigiNoHLT'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
-                                      '--conditions':gt,
-                                      '--datatier':'GEN-SIM-DIGI-RAW',
-                                      '-n':'10',
-                                      '--eventcontent':'FEVTDEBUGHLT',
-                                      '--geometry' : geom
-                                      }
+    upgradeStepDict['DigiNoHLT'][k] = deepcopy(upgradeStepDict['Digi'][k])
+    upgradeStepDict['DigiNoHLT'][k]['-s'] = 'DIGI:pdigi_valid,L1,DIGI2RAW'
     
-    upgradeStepDict['HLTOnly'][k] = {'-s':'HLT:%s'%(hltversion),
-                                 '--conditions':gt,
-                                 '--datatier':'GEN-SIM-DIGI-RAW',
-                                 '-n':'10',
-                                 '--eventcontent':'FEVTDEBUGHLT',
-                                 '--geometry' : geom,
-                                 }
+    upgradeStepDict['HLTOnly'][k] = deepcopy(upgradeStepDict['Digi'][k])
+    upgradeStepDict['HLTOnly'][k]['-s'] = 'HLT:%s'%(hltversion)
+
     # Adding Track trigger step in step2
-    upgradeStepDict['DigiTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:%s'%(hltversion),
-                                      '--conditions':gt,
-                                      '--datatier':'GEN-SIM-DIGI-RAW',
-                                      '-n':'10',
-                                      '--eventcontent':'FEVTDEBUGHLT',
-                                      '--geometry' : geom
-                                      }
+    upgradeStepDict['DigiTrigger'][k] = deepcopy(upgradeStepDict['Digi'][k])
+    upgradeStepDict['DigiTrigger'][k]['-s'] = 'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:%s'%(hltversion)
 
     upgradeStepDict['HLTRun3'][k] = {'-s':'HLT:%s'%(hltversion),
-                                 '--conditions':gt,
-                                 '--datatier':'GEN-SIM-DIGI-RAW',
-                                 '-n':'10',
-                                 '--eventcontent':'FEVTDEBUGHLT',
-                                 '--geometry' : geom,
-                                 '--outputCommands' : '"drop *_*_*_GEN,drop *_*_*_DIGI2RAW"'
-                                 }
+                                     '--conditions':gt,
+                                     '--datatier':'GEN-SIM-DIGI-RAW',
+                                     '-n':'10',
+                                     '--eventcontent':'FEVTDEBUGHLT',
+                                     '--geometry' : geom,
+                                     '--outputCommands' : '"drop *_*_*_GEN,drop *_*_*_DIGI2RAW"'
+                                     }
 
     upgradeStepDict['HLT75e33'][k] = {'-s':'HLT:@relvalRun4',
                                       '--processName':'HLTX',
@@ -5183,6 +5165,24 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                              '--eventcontent':'RECOSIM,MINIAODSIM,NANOEDMAODSIM,DQM',
                                              '--geometry' : geom,
                                             }
+
+    upgradeStepDict['FastSimRun4'][k]={'-s':'SIM,RECOBEFMIX,DIGI:pdigi_valid,DIGI2RAW,RECO:reconstruction_trackingOnly,VALIDATION:@trackingOnlyValidation',
+                                       '--fast':'',
+                                       '--beamspot':beamspot,
+                                       '--conditions':gt,
+                                       '--geometry':geom,
+                                       '--eventcontent':'RECOSIM,DQM',
+                                       '--datatier':'GEN-SIM-RECO,DQMIO',
+                                       }
+
+    upgradeStepDict['HARVESTFastRun4'][k]={'-s':'HARVESTING:@trackingOnlyValidation',
+                                           '--conditions':gt,
+                                           '--mc':'',
+                                           '--fast':'',
+                                           '--geometry':geom,
+                                           '--scenario':'pp',
+                                           '--filetype':'DQM',
+                                           '--filein':'file:step2_inDQM.root'}
 
     # setup baseline and variations
     for specialType,specialWF in upgradeWFs.items():

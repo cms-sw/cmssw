@@ -15,6 +15,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitFwd.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
@@ -34,7 +35,6 @@ class TFile;
 class TH1F;
 class TH2F;
 
-class RPCRecHit;
 class RPCGeometry;
 class MuonGeometryRecord;
 

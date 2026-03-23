@@ -3,10 +3,10 @@
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedFwd.h"
 
 #include <memory>
 
-class TrajectorySeed;
 class TrajectoryStateOnSurface;
 class TkCloner;
 

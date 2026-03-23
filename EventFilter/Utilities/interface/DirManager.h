@@ -17,7 +17,7 @@ namespace evf {
     unsigned int findHighestRun();
     std::string findHighestRunDir();
     std::string findRunDir(unsigned int);
-    bool checkDirEmpty(std::string &);
+    bool checkDirEmpty(const std::string &);
 
   private:
     std::string dir_;  // this is the base dir with all runs in it

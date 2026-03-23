@@ -1,0 +1,6 @@
+#ifndef DataFormats_L1GlobalMuonTrigger_L1MuRegionalCandFwd_h
+#define DataFormats_L1GlobalMuonTrigger_L1MuRegionalCandFwd_h
+
+class L1MuRegionalCand;
+
+#endif

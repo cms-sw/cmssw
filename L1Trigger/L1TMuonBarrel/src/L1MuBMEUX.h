@@ -36,8 +36,8 @@
 
 #include "CondFormats/L1TObjects/interface/L1TMuonBarrelParams.h"
 #include "CondFormats/DataRecord/interface/L1TMuonBarrelParamsRcd.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhiFwd.h"
 
-class L1MuBMTrackSegPhi;
 class L1MuBMSectorProcessor;
 class L1MuBMSEU;
 class L1MuDTExtLut;

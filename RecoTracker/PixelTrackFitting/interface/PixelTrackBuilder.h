@@ -6,7 +6,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-class TrackingRecHit;
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 class MagneticField;
 class FreeTrajectoryState;
 

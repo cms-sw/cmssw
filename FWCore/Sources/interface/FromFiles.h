@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 
 namespace edm {
   class ParameterSet;

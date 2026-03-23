@@ -12,8 +12,8 @@ private:
   unsigned wire_group_id : 7;  // radial position of the pattern within the chamber (0-111)
   unsigned zero_1 : 1;         // format specific
   /////// word 2 ///////
-  unsigned
-      clct_pattern_id : 8;  // azimuthal position ot the pattern at the third (key) layer: (0-159 for half-strips 0-39 for di-strips)
+  unsigned clct_pattern_id
+      : 8;  // azimuthal position ot the pattern at the third (key) layer: (0-159 for half-strips 0-39 for di-strips)
   unsigned csc_id : 4;      // chamber # (1-9)
   unsigned left_right : 1;  // L/R - track is heading towards lower/higher strip number
   unsigned bx0_ : 1;        // BX counter least significant bit
@@ -23,9 +23,9 @@ private:
   unsigned me_bxn : 12;              // LCT arrival time picked from a local 12-bit BX Counter, that runs at link timing
   unsigned receiver_status_er1 : 1;  // receiver status for the frame 1 (see below)
   unsigned receiver_status_dv1 : 1;  // receiver status for the frame 1 (see below)
-  unsigned
-      aligment_fifo_full : 1;  // Alignment FIFO Full Flag, should be 0, if AF has been initialized successfully by L1Reset
-  unsigned zero_3 : 1;         // format specific
+  unsigned aligment_fifo_full
+      : 1;              // Alignment FIFO Full Flag, should be 0, if AF has been initialized successfully by L1Reset
+  unsigned zero_3 : 1;  // format specific
   /////// word 4 ///////
   unsigned link_id : 2;              // Link number (1-3)         [reported by MPC on every L1 Reset]
   unsigned mpc_id : 6;               // MPC Crate number (0-63)   [reported by MPC on every L1 Reset]

@@ -2,8 +2,7 @@
 #define _TRACKER_UPDATOR_H_
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
-class TrackingRecHit;
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
 /** The TrajectoryState updator is a basic track fititng component 
  *  that combines the information from a measurement

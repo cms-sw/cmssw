@@ -57,21 +57,23 @@ process.load("DQM.HLTEvF.ScoutingMuonMonitoring_cff")
 process.load("DQM.HLTEvF.ScoutingJetMonitoring_cff")
 process.load("DQM.HLTEvF.ScoutingElectronMonitoring_cff")
 process.load("DQM.HLTEvF.ScoutingRechitMonitoring_cff")
-## Run-1 L1TGT required by ScoutingJetMonitoring https://github.com/cms-sw/cmssw/blob/master/DQMOffline/JetMET/src/JetAnalyzer.cc#L2603-L2611
-process.GlobalTag.toGet.append(
- cms.PSet(
- record = cms.string("L1GtTriggerMenuRcd"),
- tag = cms.string('L1GtTriggerMenu_CRAFT09_hlt'),
- )
-)
+process.load("DQM.HLTEvF.ScoutingDileptonMonitor_cfi")
+process.load("DQM.HLTEvF.ScoutingPi0Monitor_cfi")
+
+## best electron track producer
+from PhysicsTools.Scouting.Run3ScoutingElectronBestTrackProducer_cfi import Run3ScoutingElectronBestTrackProducer as _Run3ScoutingElectronBestTrackProducer
+process.run3ScoutingElectronBestTrack =  _Run3ScoutingElectronBestTrackProducer.clone()
 
 process.p = cms.Path(process.dqmcommon *
                      process.hltOnlineBeamSpot *
+                     process.run3ScoutingElectronBestTrack *
                      process.scoutingCollectionMonitor *
                      process.ScoutingMuonMonitoring *
                      process.ScoutingJetMonitoring *
                      process.ScoutingElectronMonitoring *
-                     process.ScoutingRecHitsMonitoring)
+                     process.ScoutingRecHitsMonitoring *
+                     process.ScoutingDileptonMonitorOnline *
+                     process.ScoutingPi0MonitorOnline)
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *

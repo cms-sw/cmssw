@@ -40,6 +40,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "SimDataFormats/Vertex/interface/SimVertexFwd.h"
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -69,8 +71,6 @@ class TH1F;
 class TH2F;
 class TProfile;
 class TTree;
-class SimVertex;
-class SimTrack;
 
 class PiZeroAnalyzer : public DQMEDAnalyzer {
 public:

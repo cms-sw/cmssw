@@ -36,6 +36,7 @@ equivDict = \
                            '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi.*TrackingParticle']},
          {'TrajectoryState'         : ['TrajectoryStateOnSurface']},
          {'L1TrackTrigger'        : ['(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi']},
+         {'L1Scouting'            : ['l1ScoutingRun3::CaloTower.*']},
          {'L1TCalorimeterPhase2'  : ['l1tp2::CaloTower.*']},
          {'L1TCalorimeter'        : ['l1t::CaloTower.*']},
          {'VertexFinder'          : ['l1tVertexFinder::Vertex']},

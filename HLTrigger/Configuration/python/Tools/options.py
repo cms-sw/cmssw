@@ -10,7 +10,7 @@ globalTag = {
   'PRef' : 'auto:run3_mc_PRef',
   'Special' : 'auto:run3_mc_GRun',    # same as GRun
   'data' : 'auto:run3_hlt_relval',
-  '2025v13' : 'auto:run3_mc_2025v13',
+  '2026v10' : 'auto:run3_mc_2026v10',
 }
 
 

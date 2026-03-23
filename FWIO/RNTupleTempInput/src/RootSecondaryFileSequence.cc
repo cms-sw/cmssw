@@ -10,12 +10,12 @@
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
 #include "FWStorage/StorageFactory/interface/StorageFactory.h"
 
 namespace edm::rntuple_temp {
@@ -86,23 +86,14 @@ namespace edm::rntuple_temp {
                                .promptReading = not input_.delayReadingEventProducts(),
                                .enableIMT = input_.optimizations().enableIMT},
         RootFile::ProductChoices{.productSelectorRules = input_.productSelectorRules(),
-                                 .associationsFromSecondary = &associationsFromSecondary_,
                                  .dropDescendantsOfDroppedProducts = input_.dropDescendants(),
                                  .labelRawDataLikeMC = input_.labelRawDataLikeMC()},
         RootFile::CrossFileInfo{.runHelper = input_.runHelper(),
                                 .branchIDListHelper = input_.branchIDListHelper(),
-                                .thinnedAssociationsHelper = input_.thinnedAssociationsHelper(),
                                 .indexesIntoFiles = indexesIntoFiles(),
                                 .currentIndexIntoFile = currentIndexIntoFile},
         input_.nStreams(),
         input_.processHistoryRegistryForUpdate(),
         orderedProcessHistoryIDs_);
-  }
-
-  void RootSecondaryFileSequence::initAssociationsFromSecondary(std::set<BranchID> const& associationsFromSecondary) {
-    for (auto const& branchID : associationsFromSecondary) {
-      associationsFromSecondary_.push_back(branchID);
-    }
-    rootFile()->initAssociationsFromSecondary(associationsFromSecondary_);
   }
 }  // namespace edm::rntuple_temp

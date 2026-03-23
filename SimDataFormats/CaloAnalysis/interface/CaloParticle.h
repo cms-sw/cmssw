@@ -7,11 +7,9 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include <vector>
-
-class SimTrack;
-class EncodedEventId;
 
 class CaloParticle {
   friend std::ostream &operator<<(std::ostream &s, CaloParticle const &tp);
@@ -177,6 +175,7 @@ public:
   /** @brief Returns list of rechit IDs and fractions for this CaloParticle */
   std::vector<std::pair<uint32_t, float>> hits_and_fractions() const {
     std::vector<std::pair<uint32_t, float>> result;
+    result.reserve(hits_.size());
     for (size_t i = 0; i < hits_.size(); ++i) {
       result.emplace_back(hits_[i], fractions_[i]);
     }

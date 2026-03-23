@@ -59,6 +59,8 @@ namespace edm {
     postEventSetupModulesConstructionSignal_.connect(std::cref(iOther.postEventSetupModulesConstructionSignal_));
     preESModuleConstructionSignal_.connect(std::cref(iOther.preESModuleConstructionSignal_));
     postESModuleConstructionSignal_.connect(std::cref(iOther.postESModuleConstructionSignal_));
+    preModulesAndSourceConstructionSignal_.connect(std::cref(iOther.preModulesAndSourceConstructionSignal_));
+    postModulesAndSourceConstructionSignal_.connect(std::cref(iOther.postModulesAndSourceConstructionSignal_));
     preFinishScheduleSignal_.connect(std::cref(iOther.preFinishScheduleSignal_));
     postFinishScheduleSignal_.connect(std::cref(iOther.postFinishScheduleSignal_));
     prePrincipalsCreationSignal_.connect(std::cref(iOther.prePrincipalsCreationSignal_));
@@ -99,6 +101,12 @@ namespace edm {
 
     preCloseFileSignal_.connect(std::cref(iOther.preCloseFileSignal_));
     postCloseFileSignal_.connect(std::cref(iOther.postCloseFileSignal_));
+
+    preOpenOutputFilesSignal_.connect(std::cref(iOther.preOpenOutputFilesSignal_));
+    postOpenOutputFilesSignal_.connect(std::cref(iOther.postOpenOutputFilesSignal_));
+
+    preCloseOutputFilesSignal_.connect(std::cref(iOther.preCloseOutputFilesSignal_));
+    postCloseOutputFilesSignal_.connect(std::cref(iOther.postCloseOutputFilesSignal_));
 
     preSourceConstructionSignal_.connect(std::cref(iOther.preSourceConstructionSignal_));
     postSourceConstructionSignal_.connect(std::cref(iOther.postSourceConstructionSignal_));
@@ -279,6 +287,8 @@ namespace edm {
     copySlotsToFromReverse(postEventSetupModulesConstructionSignal_, iOther.postEventSetupModulesConstructionSignal_);
     copySlotsToFrom(preESModuleConstructionSignal_, iOther.preESModuleConstructionSignal_);
     copySlotsToFromReverse(postESModuleConstructionSignal_, iOther.postESModuleConstructionSignal_);
+    copySlotsToFrom(preModulesAndSourceConstructionSignal_, iOther.preModulesAndSourceConstructionSignal_);
+    copySlotsToFromReverse(postModulesAndSourceConstructionSignal_, iOther.postModulesAndSourceConstructionSignal_);
     copySlotsToFrom(preFinishScheduleSignal_, iOther.preFinishScheduleSignal_);
     copySlotsToFromReverse(postFinishScheduleSignal_, iOther.postFinishScheduleSignal_);
     copySlotsToFrom(prePrincipalsCreationSignal_, iOther.prePrincipalsCreationSignal_);
@@ -322,6 +332,12 @@ namespace edm {
 
     copySlotsToFrom(preCloseFileSignal_, iOther.preCloseFileSignal_);
     copySlotsToFromReverse(postCloseFileSignal_, iOther.postCloseFileSignal_);
+
+    copySlotsToFrom(preOpenOutputFilesSignal_, iOther.preOpenOutputFilesSignal_);
+    copySlotsToFromReverse(postOpenOutputFilesSignal_, iOther.postOpenOutputFilesSignal_);
+
+    copySlotsToFrom(preCloseOutputFilesSignal_, iOther.preCloseOutputFilesSignal_);
+    copySlotsToFromReverse(postCloseOutputFilesSignal_, iOther.postCloseOutputFilesSignal_);
 
     copySlotsToFrom(preBeginStreamSignal_, iOther.preBeginStreamSignal_);
     copySlotsToFromReverse(postBeginStreamSignal_, iOther.postBeginStreamSignal_);

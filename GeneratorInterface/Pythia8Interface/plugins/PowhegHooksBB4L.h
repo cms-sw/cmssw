@@ -108,10 +108,10 @@ namespace Pythia8 {
   class PowhegHooksBB4L : public UserHooks {
   public:
     PowhegHooksBB4L() {}
-    ~PowhegHooksBB4L() { std::cout << "Number of FSR vetoed in BB4l = " << nInResonanceFSRveto << std::endl; }
+    ~PowhegHooksBB4L() override { std::cout << "Number of FSR vetoed in BB4l = " << nInResonanceFSRveto << std::endl; }
 
     //--- Initialization -------------------------------------------------------
-    bool initAfterBeams() {
+    bool initAfterBeams() override {
       // initialize settings of this class
       vetoFSREmission = settingsPtr->flag("POWHEG:bb4l:FSREmission:veto");
       vetoDipoleFrame = settingsPtr->flag("POWHEG:bb4l:FSREmission:vetoDipoleFrame");
@@ -128,8 +128,8 @@ namespace Pythia8 {
     //--- PROCESS LEVEL HOOK ---------------------------------------------------
     // This hook gets triggered for each event before the shower starts, i.e. at
     // the LHE level. We use it to calculate the scales of resonances.
-    inline bool canVetoProcessLevel() { return true; }
-    inline bool doVetoProcessLevel(Event &e) {
+    inline bool canVetoProcessLevel() override { return true; }
+    inline bool doVetoProcessLevel(Event &e) override {
       // extract the radtype from the event comment
       stringstream ss;
       // use eventattribute as comments not filled when using edm input
@@ -168,8 +168,8 @@ namespace Pythia8 {
     //--- FSR EMISSION LEVEL HOOK ----------------------------------------------
     // This hook gets triggered everytime the parton shower attempts to attach
     // a FSR emission.
-    inline bool canVetoFSREmission() { return vetoFSREmission; }
-    inline bool doVetoFSREmission(int sizeOld, const Event &e, int iSys, bool inResonance) {
+    inline bool canVetoFSREmission() override { return vetoFSREmission; }
+    inline bool doVetoFSREmission(int sizeOld, const Event &e, int iSys, bool inResonance) override {
       // FSR VETO INSIDE THE RESONANCE (if it is switched on)
       if (inResonance && vetoFSREmission) {
         // get the participants of the splitting: the recoiler, the radiator and the emitted
@@ -264,14 +264,14 @@ namespace Pythia8 {
 
     //--- SCALE RESONANCE HOOK -------------------------------------------------
     // called before each resonance decay shower
-    inline bool canSetResonanceScale() { return scaleResonanceVeto; }
+    inline bool canSetResonanceScale() override { return scaleResonanceVeto; }
     // if the resonance is the (anti)top or W+/W- set the scale to:
     // - if radtype=2 (remnant): resonance virtuality
     // - if radtype=1 (btilde):
     //  - (a)topresscale/wp(m)resscale for tops and Ws
     //  - a large number otherwise
     // if is not the top, set it to a big number
-    inline double scaleResonance(int iRes, const Event &e) {
+    inline double scaleResonance(int iRes, const Event &e) override {
       if (!vetoAllRadtypes && radtype == 2)
         return sqrt(e[iRes].m2Calc());
       else {

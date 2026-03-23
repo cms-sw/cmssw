@@ -34,6 +34,9 @@
 
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
+#include "DataFormats/MuonDetId/interface/DTLayerIdFwd.h"
+
 #include <memory>
 #include <iostream>
 #include <fstream>
@@ -42,8 +45,6 @@
 #include <map>
 
 class DTGeometry;
-class DTChamberId;
-class DTLayerId;
 class DTMtime;
 class DTRecoConditions;
 

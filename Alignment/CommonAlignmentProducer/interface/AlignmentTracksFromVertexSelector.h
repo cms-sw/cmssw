@@ -4,6 +4,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -15,8 +16,6 @@ namespace edm {
   class Event;
   class ParameterSet;
 }  // namespace edm
-
-class TrackingRecHit;
 
 class AlignmentTrackFromVertexSelector {
 public:

@@ -3,23 +3,45 @@ import FWCore.ParameterSet.Config as cms
 from ..modules.hltGeneralTracks_cfi import *
 from ..modules.hltTrackerClusterCheck_cfi import *
 from ..sequences.HLTHighPtTripletStepSequence_cfi import *
-from ..sequences.HLTPhase2PixelTracksAndVerticesSequence_cfi import *
 from ..sequences.HLTInitialStepSequence_cfi import *
 from ..sequences.HLTItLocalRecoSequence_cfi import *
 from ..sequences.HLTOtLocalRecoSequence_cfi import *
+from ..sequences.HLTPhase2PixelTracksAndVerticesSequence_cfi import *
 
-HLTTrackingSequence = cms.Sequence(HLTItLocalRecoSequence+
-                                   HLTOtLocalRecoSequence+
-                                   hltTrackerClusterCheck+
-                                   HLTPhase2PixelTracksAndVerticesSequence+
-                                   HLTInitialStepSequence+
-                                   HLTHighPtTripletStepSequence+
-                                   hltGeneralTracks)
+_HLTTrackingSequenceLegacy = cms.Sequence(
+    HLTItLocalRecoSequence
+    +HLTOtLocalRecoSequence
+    +hltTrackerClusterCheck
+    +HLTPhase2PixelTracksAndVerticesSequence
+    +HLTInitialStepSequence
+    +HLTHighPtTripletStepSequence
+    +hltGeneralTracks
+)
 
-from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
-singleIterPatatrack.toReplaceWith(HLTTrackingSequence, HLTTrackingSequence.copyAndExclude([HLTHighPtTripletStepSequence]))
+HLTTrackingSequence = _HLTTrackingSequenceLegacy.copyAndExclude([HLTHighPtTripletStepSequence])
+
+
+# Empty sequence as a placeholder to be filled when alpakaValidationHLT is active
+HLTTrackingSequenceSerialSync = cms.Sequence()
+
+# Sequence for CPU vs. GPU validation, to be kept in sync with default sequence:
+# A copy of the nominal sequence, dropping modules not used
+# for CPU vs. GPU validation, i.e. hltGeneralTracks.
+from Configuration.ProcessModifiers.alpakaValidationHLT_cff import alpakaValidationHLT
+alpakaValidationHLT.toReplaceWith(HLTTrackingSequenceSerialSync,
+    cms.Sequence(
+        HLTItLocalRecoSequence
+        +HLTOtLocalRecoSequence
+        +hltTrackerClusterCheck
+        +HLTPhase2PixelTracksAndVerticesSequenceSerialSync
+        +HLTInitialStepSequenceSerialSync
+    )
+)
+
 
 from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
-(ngtScouting & trackingLST).toReplaceWith(HLTTrackingSequence, HLTTrackingSequence.copyAndExclude([HLTHighPtTripletStepSequence]))
-(ngtScouting & ~trackingLST).toReplaceWith(HLTTrackingSequence, HLTTrackingSequence.copyAndExclude([HLTInitialStepSequence,HLTHighPtTripletStepSequence]))
+(ngtScouting & ~trackingLST).toReplaceWith(HLTTrackingSequence, HLTTrackingSequence.copyAndExclude([HLTInitialStepSequence]))
+
+from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
+hltPhase2LegacyTracking.toReplaceWith(HLTTrackingSequence, _HLTTrackingSequenceLegacy)

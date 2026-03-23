@@ -9,8 +9,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-
-class Trajectory;
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 
 namespace edm {
   class ConsumesCollector;

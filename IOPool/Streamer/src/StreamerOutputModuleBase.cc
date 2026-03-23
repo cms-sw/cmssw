@@ -67,7 +67,7 @@ namespace edm::streamer {
     Handle<TriggerResults> const& triggerResults = getTriggerResults(trToken_, e);
 
     if (lastCallWasBeginRun_) {
-      auto msg = serializeEventMetaData(*branchIDLists(), *thinnedAssociationsHelper());
+      auto msg = serializeEventMetaData(*branchIDLists());
       doOutputEvent(*msg);
       lastCallWasBeginRun_ = false;
     }

@@ -20,6 +20,7 @@
  */
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
 #include <vector>
 #include <utility>
@@ -30,7 +31,6 @@ class AlignableMuon;
 class AlignableExtras;
 
 class TrajectoryStateOnSurface;
-class TrackingRecHit;
 
 namespace edm {
   class EventSetup;

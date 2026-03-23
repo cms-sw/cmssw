@@ -315,11 +315,13 @@ std::vector<int> HcalLaserEventFilter::GetCMSSWVersion(std::string const& instri
   int t;
   buffer >> t;
   temp.push_back(t);
-  buffer.str();
+  buffer.str("");
+  buffer.clear();
   buffer << v2;
   buffer >> t;
   temp.push_back(t);
-  buffer.str();
+  buffer.str("");
+  buffer.clear();
   buffer << v3;
   buffer >> t;
   temp.push_back(t);

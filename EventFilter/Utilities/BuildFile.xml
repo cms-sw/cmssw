@@ -1,5 +1,4 @@
 <use name="curl"/>
-<use name="stdcxx-fs"/>
 <use name="tbb"/>
 <use name="fmt"/>
 <use name="DataFormats/FEDRawData"/>

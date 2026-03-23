@@ -1,0 +1,6 @@
+#ifndef DataFormats_TrajectorySeed_TrajectorySeedFwd_h
+#define DataFormats_TrajectorySeed_TrajectorySeedFwd_h
+
+class TrajectorySeed;
+
+#endif

@@ -2,8 +2,8 @@
 #define FTSFromSimHitFactory_H
 
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 
-class PSimHit;
 class GeomDet;
 class MagneticField;
 

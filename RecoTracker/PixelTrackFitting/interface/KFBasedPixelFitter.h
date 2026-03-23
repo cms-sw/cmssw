@@ -13,7 +13,7 @@ class TransientTrackingRecHitBuilder;
 class TrackerGeometry;
 class MagneticField;
 class TrackingRegion;
-class TrackingRecHit;
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 class Propagator;
 
 class KFBasedPixelFitter : public PixelFitterBase {

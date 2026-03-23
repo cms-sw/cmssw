@@ -57,8 +57,6 @@ private:
 
   const bool applyGain_;
   const double MeVPerElectron_;
-  const int VCaltoElectronGain_, VCaltoElectronGain_L1_, VCaltoElectronOffset_, VCaltoElectronOffset_L1_;
-  const int pixelSaturationThr_;
   const edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
   const edm::EDGetTokenT<reco::DeDxHitInfoAss> dedxHitInfoToken_;
   const edm::ESGetToken<DeDxCalibration, DeDxCalibrationRcd> dedxCalibToken_;
@@ -74,11 +72,6 @@ private:
 DeDxHitCalibrator::DeDxHitCalibrator(const edm::ParameterSet& iConfig)
     : applyGain_(iConfig.getParameter<bool>("applyGain")),
       MeVPerElectron_(iConfig.getParameter<double>("MeVPerElectron")),
-      VCaltoElectronGain_(iConfig.getParameter<int>("VCaltoElectronGain")),
-      VCaltoElectronGain_L1_(iConfig.getParameter<int>("VCaltoElectronGain_L1")),
-      VCaltoElectronOffset_(iConfig.getParameter<int>("VCaltoElectronOffset")),
-      VCaltoElectronOffset_L1_(iConfig.getParameter<int>("VCaltoElectronOffset_L1")),
-      pixelSaturationThr_(iConfig.getParameter<int>("pixelSaturationThr")),
       tracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackProducer"))),
       dedxHitInfoToken_(consumes<reco::DeDxHitInfoAss>(iConfig.getParameter<edm::InputTag>("dedxHitInfo"))),
       dedxCalibToken_(esConsumes<DeDxCalibration, DeDxCalibrationRcd, edm::Transition::BeginRun>()),
@@ -93,11 +86,6 @@ void DeDxHitCalibrator::fillDescriptions(edm::ConfigurationDescriptions& descrip
   edm::ParameterSetDescription desc;
   desc.add<bool>("applyGain", true);
   desc.add<double>("MeVPerElectron", 3.61e-06);
-  desc.add<int>("VCaltoElectronGain", 65);
-  desc.add<int>("VCaltoElectronGain_L1", 65);
-  desc.add<int>("VCaltoElectronOffset", -414);
-  desc.add<int>("VCaltoElectronOffset_L1", -414);
-  desc.add<int>("pixelSaturationThr", 254);
   desc.add<edm::InputTag>("trackProducer", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("dedxHitInfo", edm::InputTag("dedxHitInfo"));
   descriptions.add("dedxHitCalibrator", desc);
@@ -190,32 +178,8 @@ void DeDxHitCalibrator::processHitInfo(const reco::DeDxHitInfo& info,
           ChipId(detId, (int(pixelCluster->x() / ROCSizeInX) << 3) + int(pixelCluster->y() / ROCSizeInY));
       // Collect adc
       double delta(0);
-      bool isSaturated(false);
-      for (size_t j = 0; j < pixelCluster->pixelADC().size(); j++) {
-        const auto& elec = pixelCluster->pixelADC()[j];
-        delta += elec * MeVPerElectron_;
-        if (isSaturated)
-          continue;
-        // ( pos , (x , y) )
-        const auto& row = pixelCluster->minPixelRow() + pixelCluster->pixelOffset()[2 * j];
-        const auto& col = pixelCluster->minPixelCol() + pixelCluster->pixelOffset()[2 * j + 1];
-        // Go back to adc
-        const auto& DBgain = pixelCalib_.getGain(detId, col, row);
-        const auto& DBpedestal = pixelCalib_.getPedestal(detId, col, row);
-        if (elec == std::numeric_limits<uint16_t>::max())
-          isSaturated = true;
-        else if (DBgain > 0.) {
-          double vcal;
-          const auto& theLayer = (detId.subdetId() == 1) ? tkTopo_->pxbLayer(detId) : 0;
-          if (theLayer == 1)
-            vcal = (elec - VCaltoElectronOffset_L1_) / VCaltoElectronGain_L1_;
-          else
-            vcal = (elec - VCaltoElectronOffset_) / VCaltoElectronGain_;
-          const auto adc = std::round(DBpedestal + vcal / DBgain);
-          if (adc > pixelSaturationThr_)
-            isSaturated = true;
-        }
-      }
+      for (size_t j = 0; j < pixelCluster->pixelADC().size(); j++)
+        delta += pixelCluster->pixelADC()[j] * MeVPerElectron_;
       // Compute energy
       const auto& energy = correctEnergy(delta, chipId);
       if (det != PXF && energy <= 50e-3)
@@ -225,7 +189,7 @@ void DeDxHitCalibrator::processHitInfo(const reco::DeDxHitInfo& info,
       const auto esigma = 10e-3 * std::sqrt(nChannels);
       // Compute charge
       const auto& charge = pathLength != 0. ? energy / pathLength : 0.;
-      pixelHits.emplace_back(charge, trackMomentum, pathLength, isSaturated, esigma);
+      pixelHits.emplace_back(charge, trackMomentum, pathLength, pixelCluster->isSaturated(), esigma);
     }
   }
 }

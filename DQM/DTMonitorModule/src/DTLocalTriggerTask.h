@@ -27,6 +27,8 @@
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DFwd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <vector>
@@ -35,8 +37,6 @@
 
 class DTGeometry;
 class DTTrigGeomUtils;
-class DTChamberId;
-class DTRecSegment4D;
 class DTLocalTrigger;
 class L1MuDTChambPhDigi;
 class L1MuDTChambThDigi;

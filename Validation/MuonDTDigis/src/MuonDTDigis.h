@@ -36,7 +36,6 @@
 
 class TH1F;
 class TFile;
-class PSimHit;
 class hDigis;
 
 namespace edm {

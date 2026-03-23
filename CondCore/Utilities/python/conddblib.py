@@ -494,6 +494,7 @@ def make_url(database='pro',read_only = True):
     officialdbs = { 
         # frontier 
         'pro' :         ('frontier','PromptProd',             { 'R': schema_name }, ),
+        'onlinepro' :   ('frontier','FrontierProd',           { 'R': schema_name }, ),
         'arc' :         ('frontier','FrontierArc',            { 'R': schema_name }, ),
         'int' :         ('frontier','FrontierInt',            { 'R': schema_name }, ),
         'dev' :         ('frontier','FrontierPrep',           { 'R': schema_name }, ),

@@ -19,6 +19,8 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetIdFwd.h"
+#include "DataFormats/EcalDetId/interface/EEDetIdFwd.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
@@ -38,8 +40,6 @@
 #include <set>
 #include <fstream>
 
-class EBDetId;
-class EEDetId;
 class EcalElectronicsMapping;
 class EcalTrigTowerConstituentsMap;
 

@@ -10,6 +10,7 @@
  *
  */
 
+#include "DataFormats/MuonDetId/interface/GEMDetIdFwd.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -23,7 +24,6 @@ namespace cms {  // DD4hep
 }  // namespace cms
 class MuonGeometryConstants;
 class RecoIdealGeometry;
-class GEMDetId;
 
 class GEMGeometryParsFromDD {
 public:

@@ -16,13 +16,13 @@
     <Constant name="CMSZSt3"       value="114.0*m"/>
     <Constant name="CMSZDCFront"   value="139.0*m"/>
     <Constant name="CMSdzSt"       value="0.5*cm"/>
-    <Constant name="CMSdzSt1"      value="0.5 * ([CMSZSt1] - [CMSZ3] - [CMSdzSt])"/>
+    <Constant name="CMSdzSt1"      value="(0.5 * ([CMSZSt1] - [HallZ] - [CMSdzSt]))"/>
     <Constant name="CMSdzSt2"      value="(0.5 * ([CMSZSt2] - [CMSZSt1]) - [CMSdzSt])"/>
     <Constant name="CMSdzSt3"      value="(0.5 * ([CMSZSt3] - [CMSZSt2]) - [CMSdzSt])"/>
-    <Constant name="CMSdzZDC"      value="([CMSZDCFront] - [CMSZSt3] - [CMSdzSt])"/>
-    <Constant name="CMSzSt1"       value="([CMSZSt1] - [CMSdzSt1])"/>
-    <Constant name="CMSzSt2"       value="([CMSZSt2] - [CMSdzSt2])"/>
-    <Constant name="CMSzSt3"       value="([CMSZSt3] - [CMSdzSt3])"/>
+    <Constant name="CMSdzZDC"      value="(0.5 * ([CMSZDCFront] - [CMSZSt3] - [CMSdzSt]))"/>
+    <Constant name="CMSzSt1"       value="([HallZ] + [CMSdzSt1])"/>
+    <Constant name="CMSzSt2"       value="([CMSZSt1] + [CMSdzSt2])"/>
+    <Constant name="CMSzSt3"       value="([CMSZSt2] + [CMSdzSt3])"/>
     <Constant name="CMSzZDC"       value="([CMSZDCFront] - [CMSdzZDC])"/>
     <Constant name="ZDCtoFP420Z1L" value="150.0*m"/>
     <Constant name="ZDCtoFP420Z1R" value="202.769*m"/>
@@ -31,8 +31,8 @@
   </ConstantsSection>
 
   <SolidSection label="cmsextent.xml">
-    <Tubs name="CMStoSt1" rMin="[Rmin]" rMax="[CMSR2]" dz="[CMSdzSt1]" startPhi="0*deg" deltaPhi="360*deg"/>
     <Tubs name="CMSFSCSt" rMin="[Rmin]" rMax="[CMSR2]" dz="[CMSdzSt]" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Tubs name="CMStoSt1" rMin="[Rmin]" rMax="[CMSR2]" dz="[CMSdzSt1]" startPhi="0*deg" deltaPhi="360*deg"/>
     <Tubs name="St1toSt2" rMin="[Rmin]" rMax="[CMSR2]" dz="[CMSdzSt2]" startPhi="0*deg" deltaPhi="360*deg"/>
     <Tubs name="St2toSt3" rMin="[Rmin]" rMax="[CMSR2]" dz="[CMSdzSt3]" startPhi="0*deg" deltaPhi="360*deg"/>
     <Tubs name="CMStoZDC" rMin="[Rmin]" rMax="[CMSR2]" dz="[CMSdzZDC]" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -41,29 +41,29 @@
   </SolidSection>
 
   <LogicalPartSection label="cmsextent.xml">
-    <LogicalPart name="CMStoSt1" category="unspecified">
-      <rSolid name="CMStoSt1"/>
-      <rMaterial name="materials:Vacuum"/>
-    </LogicalPart>
     <LogicalPart name="CMSFSCSt1" category="unspecified">
       <rSolid name="CMSFSCSt"/>
       <rMaterial name="materials:Air"/>
-    </LogicalPart>
-    <LogicalPart name="St1toSt2" category="unspecified">
-      <rSolid name="St1toSt2"/>
-      <rMaterial name="materials:Vacuum"/>
     </LogicalPart>
     <LogicalPart name="CMSFSCSt2" category="unspecified">
       <rSolid name="CMSFSCSt"/>
       <rMaterial name="materials:Air"/>
     </LogicalPart>
-    <LogicalPart name="St2toSt3" category="unspecified">
-      <rSolid name="St2toSt3"/>
-      <rMaterial name="materials:Vacuum"/>
-    </LogicalPart>
     <LogicalPart name="CMSFSCSt3" category="unspecified">
       <rSolid name="CMSFSCSt"/>
       <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="CMStoSt1" category="unspecified">
+      <rSolid name="CMStoSt1"/>
+      <rMaterial name="materials:Vacuum"/>
+    </LogicalPart>
+    <LogicalPart name="St1toSt2" category="unspecified">
+      <rSolid name="St1toSt2"/>
+      <rMaterial name="materials:Vacuum"/>
+    </LogicalPart>
+    <LogicalPart name="St2toSt3" category="unspecified">
+      <rSolid name="St2toSt3"/>
+      <rMaterial name="materials:Vacuum"/>
     </LogicalPart>
     <LogicalPart name="CMStoZDC" category="unspecified">
       <rSolid name="CMStoZDC"/>

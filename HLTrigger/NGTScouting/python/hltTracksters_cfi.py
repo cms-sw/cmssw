@@ -78,7 +78,7 @@ for iterLabel in hltTiclIterLabels:
     tracksterTableProducers.append(globals()[label])
     for iterLabelSim in hltSimTrackstersLabels:
         CP_SC_label = "CP" if "CP" in iterLabelSim else "SC"
-        trackstersAssociationOneToManyTable = cms.EDProducer(
+        trackstersAssociationOneToManyS2RTable = cms.EDProducer(
             "TracksterTracksterEnergyScoreFlatTableProducer",
             src=cms.InputTag(
                 f"hltAllTrackstersToSimTrackstersAssociationsByHits:{iterLabelSim}To{iterLabel}"
@@ -92,7 +92,7 @@ for iterLabel in hltTiclIterLabels:
                         f"Sim{CP_SC_label}2{iterLabel}ByHitsLinks"),
                     doc=cms.string("Association links."),
                     useCount=cms.bool(True),
-                    useOffset=cms.bool(False),
+                    useOffset=cms.bool(True),
                     variables=cms.PSet(
                         index=Var("index", "uint",
                                   doc="Index of the associated Trackster."),
@@ -101,13 +101,45 @@ for iterLabel in hltTiclIterLabels:
                             "float",
                             doc="Shared energy with associated Trackster.",
                         ),
-                        score=Var("score", "float", doc="Association score."),
+                        score=Var("score", "float", doc="Sim2Reco Association score."),
                     ),
                 )
             ),
         )
         labelAssociation = f"{iterLabelSim}To{iterLabel}AssociationTableProducer"
-        globals()[labelAssociation] = trackstersAssociationOneToManyTable.clone()
+        globals()[labelAssociation] = trackstersAssociationOneToManyS2RTable.clone()
+        hltTrackstersAssociationOneToManyTableProducers.append(
+            globals()[labelAssociation])
+
+        trackstersAssociationOneToManyR2STable = cms.EDProducer(
+            "TracksterTracksterEnergyScoreFlatTableProducer",
+            src=cms.InputTag(
+                f"hltAllTrackstersToSimTrackstersAssociationsByHits:{iterLabel}To{iterLabelSim}"
+            ),
+            name=cms.string(f"Reco{iterLabel}2Sim{CP_SC_label}ByHits"),
+            doc=cms.string(
+                f"Association between {iterLabel} and SimTracksters, by hits."),
+            collectionVariables=cms.PSet(
+                links=cms.PSet(
+                    name=cms.string(f"Reco{iterLabel}2Sim{CP_SC_label}ByHitsLinks"),
+                    doc=cms.string("Association links."),
+                    useCount=cms.bool(True),
+                    useOffset=cms.bool(False),
+                    variables=cms.PSet(
+                        index=Var("index", "uint",
+                                  doc="Index of the associated SimTrackster."),
+                        sharedEnergy=Var(
+                            "sharedEnergy",
+                            "float",
+                            doc="Shared energy with associated SimTrackster.",
+                        ),
+                        score=Var("score", "float", doc="Reco2Sim Association score."),
+                    ),
+                )
+            ),
+        )
+        labelAssociation = f"{iterLabel}To{iterLabelSim}AssociationTableProducer"
+        globals()[labelAssociation] = trackstersAssociationOneToManyR2STable.clone()
         hltTrackstersAssociationOneToManyTableProducers.append(
             globals()[labelAssociation])
 

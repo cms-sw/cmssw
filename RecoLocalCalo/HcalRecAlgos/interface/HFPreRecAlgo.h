@@ -2,8 +2,8 @@
 #define RecoLocalCalo_HcalRecAlgos_HFPreRecAlgo_h_
 
 #include "DataFormats/HcalRecHit/interface/HFQIE10Info.h"
+#include "DataFormats/HcalDigi/interface/QIE10DataFrameFwd.h"
 
-class QIE10DataFrame;
 class HcalCoder;
 struct HcalChannelProperties;
 

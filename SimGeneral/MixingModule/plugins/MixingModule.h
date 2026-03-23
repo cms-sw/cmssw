@@ -21,6 +21,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoNewFwd.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -35,7 +36,6 @@
 #include <vector>
 #include <string>
 
-class CrossingFramePlaybackInfoNew;
 class DigiAccumulatorMixMod;
 class PileUpEventPrincipal;
 

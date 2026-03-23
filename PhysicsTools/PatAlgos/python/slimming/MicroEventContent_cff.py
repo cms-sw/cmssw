@@ -168,6 +168,7 @@ _upc_extraCommands = [
     'keep recoClusterCompatibility_hiClusterCompatibility_*_*',
     'keep QIE10DataFrameHcalDataFrameContainer_hcalDigis_ZDC_*',
     'keep *_dedxEstimator_*_*',
+    'keep ClusterSummary_clusterSummaryProducer_*_*',
 ]
 
 from Configuration.Eras.Modifier_run3_upc_cff import run3_upc

@@ -24,6 +24,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
@@ -41,7 +42,6 @@ class MeasurementTracker;
 class GeometricSearchTracker;
 class DirectTrackerNavigation;
 struct TrajectoryStateTransform;
-class SimTrack;
 class TrackerGeometry;
 class TrackerTopology;
 class TransientRecHitRecord;

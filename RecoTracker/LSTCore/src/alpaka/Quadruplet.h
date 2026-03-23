@@ -53,14 +53,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quadruplets.lowerModuleIndices()[quadrupletIndex][1] = lowerModule2;
     quadruplets.lowerModuleIndices()[quadrupletIndex][2] = lowerModule3;
     quadruplets.lowerModuleIndices()[quadrupletIndex][3] = lowerModule4;
+    quadruplets.eta()[quadrupletIndex] = __F2H(eta);
+    quadruplets.phi()[quadrupletIndex] = __F2H(phi);
+    quadruplets.isDup()[quadrupletIndex] = 0;
     quadruplets.innerRadius()[quadrupletIndex] = __F2H(innerRadius);
     quadruplets.outerRadius()[quadrupletIndex] = __F2H(outerRadius);
     quadruplets.pt()[quadrupletIndex] = __F2H(pt);
-    quadruplets.eta()[quadrupletIndex] = __F2H(eta);
-    quadruplets.phi()[quadrupletIndex] = __F2H(phi);
+#ifdef CUT_VALUE_DEBUG
     quadruplets.score_rphisum()[quadrupletIndex] = __F2H(scores);
     quadruplets.layer()[quadrupletIndex] = layer;
-    quadruplets.isDup()[quadrupletIndex] = 0;
+#endif
     quadruplets.logicalLayers()[quadrupletIndex][0] = triplets.logicalLayers()[innerTripletIndex][0];
     quadruplets.logicalLayers()[quadrupletIndex][1] = triplets.logicalLayers()[innerTripletIndex][1];
     quadruplets.logicalLayers()[quadrupletIndex][2] = triplets.logicalLayers()[innerTripletIndex][2];
@@ -75,14 +77,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quadruplets.hitIndices()[quadrupletIndex][6] = triplets.hitIndices()[outerTripletIndex][4];
     quadruplets.hitIndices()[quadrupletIndex][7] = triplets.hitIndices()[outerTripletIndex][5];
 
-    quadruplets.rzChiSquared()[quadrupletIndex] = rzChiSquared;
-    quadruplets.dBeta()[quadrupletIndex] = dBeta;
-    quadruplets.promptScore()[quadrupletIndex] = promptScore;
     quadruplets.displacedScore()[quadrupletIndex] = displacedScore;
     quadruplets.fakeScore()[quadrupletIndex] = fakeScore;
 
     quadruplets.regressionRadius()[quadrupletIndex] = regressionRadius;
+#ifdef CUT_VALUE_DEBUG
+    quadruplets.rzChiSquared()[quadrupletIndex] = rzChiSquared;
+    quadruplets.dBeta()[quadrupletIndex] = dBeta;
+    quadruplets.promptScore()[quadrupletIndex] = promptScore;
     quadruplets.nonAnchorRegressionRadius()[quadrupletIndex] = nonAnchorRegressionRadius;
+#endif
     quadruplets.regressionCenterX()[quadrupletIndex] = regressionCenterX;
     quadruplets.regressionCenterY()[quadrupletIndex] = regressionCenterY;
   };

@@ -11,13 +11,18 @@ hltMultiPVanalysis = vertexAnalysis.clone(
     vertexAssociator      = "VertexAssociatorByPositionAndTracks"
 )
 
-from Validation.RecoTrack.associators_cff import hltTPClusterProducer, hltTrackAssociatorByHits, tpToHLTpixelTrackAssociation
+from Validation.RecoTrack.associators_cff import hltTPClusterProducer, hltTrackAssociatorByHits, tpToHLTpixelTrackAssociation, tpToHLTpixelTracksCAExtAssociation
 from SimTracker.VertexAssociation.VertexAssociatorByPositionAndTracks_cfi import VertexAssociatorByPositionAndTracks as _VertexAssociatorByPositionAndTracks
 vertexAssociatorByPositionAndTracks4pixelTracks = _VertexAssociatorByPositionAndTracks.clone(
     trackAssociation = "tpToHLTpixelTrackAssociation",
     sharedTrackFraction = -1, # requires optimization
     weightMethod = "dzError",
+    sigmaZ = 10e6
 )
+vertexAssociatorByPositionAndTracks4pixelExtendedTracks = vertexAssociatorByPositionAndTracks4pixelTracks.clone(
+    trackAssociation = "tpToHLTpixelTracksCAExtAssociation",
+)
+
 hltOtherTPClusterProducer = hltTPClusterProducer.clone(
     stripClusterOtherSrc = "hltSiStripRawToClustersFacilityOnDemand"
 )
@@ -62,6 +67,22 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(hltPixelPVanalysis, _modifyPixelPVanalysisForPhase2)
 phase2_tracker.toModify(hltPixelPVanalysisReconstructable, _modifyPixelPVanalysisForPhase2)
 
+def _modifyPixelPVanalysisForCAExt(pvanalysis):
+    pvanalysis.trackAssociatorMap = "tpToHLTpixelTracksCAExtAssociation"
+    pvanalysis.vertexAssociator = "vertexAssociatorByPositionAndTracks4pixelExtendedTracks"
+
+from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
+
+(phase2_tracker & ~hltPhase2LegacyTracking).toModify(
+    hltPixelPVanalysis,
+    _modifyPixelPVanalysisForCAExt
+)
+
+(phase2_tracker & ~hltPhase2LegacyTracking).toModify(
+    hltPixelPVanalysisReconstructable,
+    _modifyPixelPVanalysisForCAExt
+)
+
 hltPVanalysis = hltMultiPVanalysis.clone(
     trackAssociatorMap = "tpToHLTpfMuonMergingTrackAssociation",
     vertexAssociator   = "vertexAssociatorByPositionAndTracks4pfMuonMergingTracks",
@@ -90,6 +111,7 @@ vertexAssociatorByPositionAndTracks4phase2HLTTracks = _VertexAssociatorByPositio
     trackAssociation = "tpToHLTphase2TrackAssociation",
     sharedTrackFraction = 0.5, # requires optimization
     weightMethod = "dzError",
+    sigmaZ = 10e6
 )
 
 def _modifyFullPVanalysisForPhase2(pvanalysis):
@@ -110,6 +132,21 @@ hltMultiPVAssociations = cms.Task(
     vertexAssociatorByPositionAndTracks4pfMuonMergingTracks,
     tpToHLTphase2TrackAssociation,
     vertexAssociatorByPositionAndTracks4phase2HLTTracks
+)
+
+(phase2_tracker & ~hltPhase2LegacyTracking).toReplaceWith(
+    hltMultiPVAssociations,
+    cms.Task(
+        hltOtherTPClusterProducer,
+        hltTrackAssociatorByHits,
+        hltOtherTrackAssociatorByHits,
+        tpToHLTpixelTracksCAExtAssociation,
+        vertexAssociatorByPositionAndTracks4pixelExtendedTracks,
+        tpToHLTpfMuonMergingTrackAssociation,
+        vertexAssociatorByPositionAndTracks4pfMuonMergingTracks,
+        tpToHLTphase2TrackAssociation,
+        vertexAssociatorByPositionAndTracks4phase2HLTTracks
+    )
 )
 
 hltMultiPVValidation = cms.Sequence(hltPixelPVanalysis +

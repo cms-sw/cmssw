@@ -28,6 +28,7 @@ from DQMOffline.Trigger.BTaggingMonitoring_Client_cff import *
 from DQMOffline.Trigger.BPHMonitoring_Client_cff import *
 from DQMOffline.Trigger.JetMETPromptMonitoring_Client_cff import *
 from DQMOffline.Trigger.DiJetMonitor_Client_cff import *
+from DQMOffline.Trigger.ZGammaplusJetsPostProcessor_cff import *
 from DQMOffline.Trigger.BTagAndProbeMonitoring_Client_cff import *
 
 from DQMOffline.Trigger.ParticleNetJetTag_Client_cff import *
@@ -58,6 +59,7 @@ hltOfflineDQMClient = cms.Sequence(
   * bphClient
   * JetMetPromClient
   * dijetClient
+  * ZGammaPostProc
   * BTagAndProbeClient
   * particleNetClientHLT
 )

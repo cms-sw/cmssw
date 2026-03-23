@@ -1,0 +1,6 @@
+#ifndef DataFormats_L1TMuon_L1MuBMTrackSegEtaFwd_h
+#define DataFormats_L1TMuon_L1MuBMTrackSegEtaFwd_h
+
+class L1MuBMTrackSegEta;
+
+#endif

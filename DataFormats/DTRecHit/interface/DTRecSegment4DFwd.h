@@ -1,0 +1,6 @@
+#ifndef DataFormats_DTRecHit_DTRecSegment4DFwd_h
+#define DataFormats_DTRecHit_DTRecSegment4DFwd_h
+
+class DTRecSegment4D;
+
+#endif

@@ -226,7 +226,7 @@ private:
     TTTrackBendChi2MaxSelector(double bendChi2Max) : bendChi2Max_(bendChi2Max) {}
     TTTrackBendChi2MaxSelector(const edm::ParameterSet& cfg)
         : bendChi2Max_(cfg.template getParameter<double>("reducedBendChi2Max")) {}
-    bool operator()(const L1Track& t) const { return t.stubPtConsistency() < bendChi2Max_; }
+    bool operator()(const L1Track& t) const { return t.chi2BendRed() < bendChi2Max_; }
 
   private:
     double bendChi2Max_;
@@ -343,8 +343,8 @@ private:
         : reducedBendChi2MaxNstub4_(cfg.template getParameter<double>("reducedBendChi2MaxNstub4")),
           reducedBendChi2MaxNstub5_(cfg.template getParameter<double>("reducedBendChi2MaxNstub5")) {}
     bool operator()(const L1Track& t) const {
-      return (((t.stubPtConsistency() < reducedBendChi2MaxNstub4_) && (t.getStubRefs().size() == 4)) ||
-              ((t.stubPtConsistency() < reducedBendChi2MaxNstub5_) && (t.getStubRefs().size() > 4)));
+      return (((t.chi2BendRed() < reducedBendChi2MaxNstub4_) && (t.getStubRefs().size() == 4)) ||
+              ((t.chi2BendRed() < reducedBendChi2MaxNstub5_) && (t.getStubRefs().size() > 4)));
     }
 
   private:
@@ -498,7 +498,7 @@ void L1TrackSelectionProducer::printDebugInfo(const TTTrackCollectionHandle& l1T
 
 void L1TrackSelectionProducer::printTrackInfo(edm::LogInfo& log, const L1Track& track, bool printEmulation) const {
   log << "\t(" << track.momentum().perp() << ", " << track.momentum().eta() << ", " << track.momentum().phi() << ", "
-      << track.getStubRefs().size() << ", " << track.stubPtConsistency() << ", " << track.chi2ZRed() << ", "
+      << track.getStubRefs().size() << ", " << track.chi2BendRed() << ", " << track.chi2ZRed() << ", "
       << track.chi2XYRed() << ", " << track.z0() << ")\n";
 
   if (printEmulation) {

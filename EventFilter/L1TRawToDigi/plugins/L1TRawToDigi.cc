@@ -325,7 +325,12 @@ namespace l1t {
   // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
   void L1TRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     descriptions.addDefault(makeDesc({}, 0, "", edm::InputTag("rawDataCollector")));
-    descriptions.add("l1tRawToDigi", makeDesc({1352}, 1, "stage2::CaloSetup", edm::InputTag("l1tDigiToRaw")));
+    edm::DescriptionCloner labeled;
+    labeled.set<std::vector<int>>("FedIds", {1352});
+    labeled.set<unsigned int>("FWId", 1);
+    labeled.set<std::string>("Setup", "stage2::CaloSetup");
+    labeled.set("InputLabel", edm::InputTag("l1tDigiToRaw"));
+    descriptions.add("l1tRawToDigi", labeled);
   }
 }  // namespace l1t
 

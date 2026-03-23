@@ -8,13 +8,13 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "DataFormats/MuonDetId/interface/DTLayerIdFwd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <string>
 #include <map>
 
 //class DTT0;
-class DTLayerId;
 class DTWireId;
 class DTGeometry;
 class DTTTrigBaseSync;

@@ -10,8 +10,8 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "RecoTracker/MeasurementDet/src/TkMeasurementDetSet.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
-class TrackingRecHit;
 class LocalTrajectoryParameters;
 
 class dso_hidden TkPixelMeasurementDet final : public MeasurementDet {

@@ -6,12 +6,12 @@
 #include <vector>
 
 class SimCluster;
+std::ostream &operator<<(std::ostream &s, SimCluster const &tp);
+
 typedef std::vector<SimCluster> SimClusterCollection;
 typedef edm::Ref<SimClusterCollection> SimClusterRef;
 typedef edm::RefVector<SimClusterCollection> SimClusterRefVector;
 typedef edm::RefProd<SimClusterCollection> SimClusterRefProd;
 typedef edm::RefVector<SimClusterCollection> SimClusterContainer;
-
-std::ostream &operator<<(std::ostream &s, SimCluster const &tp);
 
 #endif

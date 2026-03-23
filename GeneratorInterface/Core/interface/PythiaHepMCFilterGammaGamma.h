@@ -15,10 +15,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-namespace edm {
-  class HepMCProduct;
-}
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProductFwd.h"
 
 class PythiaHepMCFilterGammaGamma : public BaseHepMCFilter {
 public:

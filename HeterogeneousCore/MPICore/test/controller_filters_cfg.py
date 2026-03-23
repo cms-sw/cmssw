@@ -44,19 +44,14 @@ process.sender = MPISender(
 process.receiver = MPIReceiver(
     upstream = "sender",
     instance = 99,
-    products = [
-        dict(
-            type = "edm::PathStateToken",
-            label = "remoteCapture"
-        )
-    ]
+    activity = cms.bool(True)
 )
 
 # The PathStateRelease module below is a filter that will pass if the
 # edm::PathStateToken above is present, and will not pass otherwise.
 from FWCore.Modules.modules import PathStateRelease
 process.remoteRelease = PathStateRelease(
-    state = cms.InputTag("receiver", "remoteCapture")
+    state = cms.InputTag("receiver")
 )
 
 # The Follower runs "ModuloEventIDFilter" which accepts only events where (event

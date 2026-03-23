@@ -18,6 +18,8 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "SimDataFormats/Vertex/interface/SimVertexFwd.h"
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -38,8 +40,6 @@ class TH1F;
 class TH2F;
 class TProfile;
 class TTree;
-class SimVertex;
-class SimTrack;
 /** \class TkConvValidator
  **
  **

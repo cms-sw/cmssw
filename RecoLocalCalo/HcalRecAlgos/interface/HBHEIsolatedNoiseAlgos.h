@@ -31,7 +31,9 @@ Original Author: John Paul Chou (Brown University)
 #include "CondFormats/HcalObjects/interface/HcalFrontEndMap.h"
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HcalRecHit/interface/HBHERecHitFwd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/JetReco/interface/TrackExtrapolation.h"
 
@@ -40,8 +42,6 @@ Original Author: John Paul Chou (Brown University)
 #include <map>
 
 // forward declarations
-class HBHERecHit;
-class EcalRecHit;
 class HcalChannelQuality;
 class HcalSeverityLevelComputer;
 class EcalSeverityLevelAlgo;

@@ -3,7 +3,7 @@
 # Test suite for miniaod from prompt
 
 # Pass in name and status
-declare -a arr=("ppEra_Run3_2025")
+declare -a arr=("ppEra_Run3_2025" "ppEra_Run3_2026" "ppEra_Run3_2026_UPC" "ppEra_Run3_pp_on_PbPb_approxSiStripClusters_2026" "ppEra_Run3_pp_on_PbPb_2026")
 for scenario in "${arr[@]}"
 do
     rm -rf RunPromptRecoCfg.pkl

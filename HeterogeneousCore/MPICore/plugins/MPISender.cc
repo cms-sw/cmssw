@@ -12,6 +12,7 @@
 #include <TClass.h>
 
 // CMSSW include files
+#include "DataFormats/Common/interface/PathStateToken.h"
 #include "DataFormats/Provenance/interface/ProductDescription.h"
 #include "DataFormats/Provenance/interface/ProductNamePattern.h"
 #include "FWCore/Concurrency/interface/Async.h"
@@ -30,7 +31,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "HeterogeneousCore/MPICore/interface/api.h"
+#include "HeterogeneousCore/MPICore/interface/MPIChannel.h"
 #include "HeterogeneousCore/MPICore/interface/MPIToken.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/AnyBuffer.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/SerialiserBase.h"
@@ -44,7 +45,9 @@ public:
         patterns_(edm::productPatterns(config.getParameter<std::vector<std::string>>("products"))),
         instance_(config.getParameter<int32_t>("instance")),
         buffer_(std::make_unique<TBufferFile>(TBuffer::kWrite)),
-        metadata_size_(0) {
+        metadata_size_(0),
+        activity_(config.getParameter<edm::InputTag>("activity")),
+        enableTrivialSerialisation_(config.getUntrackedParameter<bool>("enableTrivialSerialisation")) {
     // instance 0 is reserved for the MPIController / MPISource pair
     // instance values greater than 255 may not fit in the MPI tag
     if (instance_ < 1 or instance_ > 255) {
@@ -52,6 +55,10 @@ public:
     }
 
     products_.resize(patterns_.size());
+
+    if (not activity_.label().empty()) {
+      activityToken_ = consumes<edm::PathStateToken>(activity_);
+    }
 
     callWhenNewProductsRegistered([this](edm::ProductDescription const& product) {
       static const std::string_view kPathStatus("edm::PathStatus");
@@ -110,46 +117,52 @@ public:
     has_serialized_ = false;
     is_active_ = true;
 
-    for (auto const& entry : products_) {
-      // Get the product
-      edm::Handle<edm::WrapperBase> handle(entry.type.typeInfo());
-      event.getByToken(entry.token, handle);
+    if (not activity_.label().empty()) {
+      const edm::Handle<edm::PathStateToken>& pathStateTokenHandle = event.getHandle(activityToken_);
 
-      // product count -1 indicates that the event was filtered out on given path
-      if (not handle.isValid() and entry.type.name() == "edm::PathStateToken") {
+      if (!pathStateTokenHandle.isValid()) {
         meta->setProductCount(-1);
         is_active_ = false;
-        break;
       }
+    }
 
-      if (handle.isValid()) {
-        edm::WrapperBase const* wrapper = handle.product();
-        std::unique_ptr<ngt::SerialiserBase> serialiser =
-            ngt::SerialiserFactory::get()->tryToCreate(entry.type.typeInfo().name());
+    if (is_active_) {
+      for (auto const& entry : products_) {
+        // Get the product
+        edm::Handle<edm::WrapperBase> handle(entry.type.typeInfo());
+        event.getByToken(entry.token, handle);
 
-        if (serialiser) {
-          LogDebug("MPISender") << "Found serializer for type \"" << entry.type.name() << "\" ("
-                                << entry.type.typeInfo().name() << ")";
-          auto reader = serialiser->reader(*wrapper);
-          ngt::AnyBuffer buffer = reader->parameters();
-          meta->addTrivialCopy(buffer.data(), buffer.size_bytes());
-        } else {
-          LogDebug("MPISender") << "No serializer for type \"" << entry.type.name() << "\" ("
-                                << entry.type.typeInfo().name() << "), using ROOT serialization";
-          TClass* cls = entry.wrappedType.getClass();
-          if (!cls) {
-            throw cms::Exception("MPISender") << "Failed to get TClass for type: " << entry.type.name();
+        if (handle.isValid()) {
+          edm::WrapperBase const* wrapper = handle.product();
+          std::unique_ptr<ngt::SerialiserBase> serialiser;
+          if (enableTrivialSerialisation_) {
+            serialiser = ngt::SerialiserFactory::get()->tryToCreate(entry.type.typeInfo().name());
           }
-          size_t bufLen = serializeAndStoreBuffer_(index, cls, wrapper);
-          meta->addSerialized(bufLen);
-          has_serialized_ = true;
-        }
 
-      } else {
-        // handle missing product
-        meta->addMissing();
+          if (serialiser) {
+            LogDebug("MPISender") << "Found serializer for type \"" << entry.type.name() << "\" ("
+                                  << entry.type.typeInfo().name() << ")";
+            auto reader = serialiser->reader(*wrapper);
+            ngt::AnyBuffer buffer = reader->parameters();
+            meta->addTrivialCopy(buffer.data(), buffer.size_bytes());
+          } else {
+            LogDebug("MPISender") << "No serializer for type \"" << entry.type.name() << "\" ("
+                                  << entry.type.typeInfo().name() << "), using ROOT serialization";
+            TClass* cls = entry.wrappedType.getClass();
+            if (!cls) {
+              throw cms::Exception("MPISender") << "Failed to get TClass for type: " << entry.type.name();
+            }
+            size_t bufLen = serializeAndStoreBuffer_(index, cls, wrapper);
+            meta->addSerialized(bufLen);
+            has_serialized_ = true;
+          }
+
+        } else {
+          // handle missing product
+          meta->addMissing();
+        }
+        index++;
       }
-      index++;
     }
 
     // Submit sending of all products to run in the additional asynchronous threadpool
@@ -188,8 +201,10 @@ public:
       edm::WrapperBase const* wrapper = handle.product();
       // we don't send missing products
       if (handle.isValid()) {
-        std::unique_ptr<ngt::SerialiserBase> serialiser =
-            ngt::SerialiserFactory::get()->tryToCreate(entry.type.typeInfo().name());
+        std::unique_ptr<ngt::SerialiserBase> serialiser;
+        if (enableTrivialSerialisation_) {
+          serialiser = ngt::SerialiserFactory::get()->tryToCreate(entry.type.typeInfo().name());
+        }
         if (serialiser) {
           auto reader = serialiser->reader(*wrapper);
           token.channel()->sendTrivialCopyProduct(instance_, *reader);
@@ -220,6 +235,14 @@ public:
             "and \"*\") are allowed in a module label or in each field of a branch name.");
     desc.add<int32_t>("instance", 0)
         ->setComment("A value between 1 and 255 used to identify a matching pair of \"MPISender\"/\"MPIReceiver\".");
+    desc.add<edm::InputTag>("activity", edm::InputTag(""))
+        ->setComment(
+            "Activity product. If empty (default), sender is always active. "
+            "If set but missing in event, the sender skips transfer.");
+    desc.addUntracked<bool>("enableTrivialSerialisation", true)
+        ->setComment(
+            "If true (default), use the trivial serialisation mechanism for supported types. If false, use "
+            "ROOT serialisation for all types. Intended to be disabled only for benchmarking purposes");
 
     descriptions.addWithDefaultLabel(desc);
   }
@@ -244,8 +267,11 @@ private:
   int32_t const instance_;                         // instance used to identify the source-destination pair
   std::unique_ptr<TBufferFile> buffer_;
   size_t metadata_size_;
-  bool has_serialized_ = false;
+  edm::InputTag activity_;
+  edm::EDGetTokenT<edm::PathStateToken> activityToken_;
   bool is_active_ = true;
+  bool enableTrivialSerialisation_ = true;
+  bool has_serialized_ = false;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

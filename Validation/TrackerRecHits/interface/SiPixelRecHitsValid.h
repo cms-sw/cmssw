@@ -16,11 +16,11 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 
 #include <string>
 
-class DetId;
-class PSimHit;
 class PixelGeomDetUnit;
 class SiPixelRecHit;
 class TrackerTopology;

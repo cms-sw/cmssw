@@ -12,7 +12,6 @@
 
 class CaloGeometry;
 class CaloSubdetectorGeometry;
-class DetId;
 
 namespace edm {
   class Event;

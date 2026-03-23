@@ -19,10 +19,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
-class CSCDetId;
-
-std::ostream& operator<<(std::ostream& os, const CSCDetId& id);
-
 class CSCDetId : public DetId {
 public:
   /// Default constructor; fills the common part in the base
@@ -319,5 +315,7 @@ private:
     START_ENDCAP = START_STATION + BITS_STATION
   };
 };
+
+std::ostream& operator<<(std::ostream& os, const CSCDetId& id);
 
 #endif

@@ -1,0 +1,6 @@
+#ifndef DataFormats_GEMDigi_GEMPadDigiClusterFwd_h
+#define DataFormats_GEMDigi_GEMPadDigiClusterFwd_h
+
+class GEMPadDigiCluster;
+
+#endif

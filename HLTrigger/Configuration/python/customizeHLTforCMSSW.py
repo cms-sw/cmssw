@@ -166,6 +166,7 @@ def customizeHLTfor49436(process):
                 MinOneOverPtError=cms.double(1.0),
                 TTRHBuilder=cms.string("hltESPTTRHBWithTrackAngle"),
                 magneticField=cms.string("ParabolicMf"),
+                beamSpot=cms.InputTag("hltOnlineBeamSpot")
             )
         )
 
@@ -198,38 +199,6 @@ def customizeHLTfor49436(process):
 
     return process
 
-def customizeHLTfor49936(process):
-    """
-    Update Pixel comparison and monitoring modules to comply with the
-    SoA-based plugin migration introduced in PR #49936.
-
-    Existing HLT menus use legacy plugin types (e.g.
-    SiPixelPhase1CompareRecHits); this customization updates the C++
-    plugin type in place while preserving:
-      - module labels
-      - parameters
-      - path and task scheduling
-    """
-
-    from HLTrigger.Configuration.common import producers_by_type
-
-    type_map = {
-        "SiPixelPhase1CompareRecHits": "SiPixelCompareRecHitsSoA",
-        "SiPixelPhase1CompareTracks": "SiPixelCompareTracksSoA",
-        "SiPixelCompareVertices": "SiPixelCompareVerticesSoA",
-
-        "SiPixelPhase1MonitorRecHitsSoAAlpaka": "SiPixelMonitorRecHitsSoA",
-        "SiPixelPhase1MonitorTrackSoAAlpaka": "SiPixelMonitorTrackSoA",
-        "SiPixelMonitorVertexSoAAlpaka": "SiPixelMonitorVertexSoA",
-    }
-
-    for old_type, new_type in type_map.items():
-        for module in producers_by_type(process, old_type):
-            module._TypedParameterizable__type = new_type
-
-    return process
-
-
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -238,7 +207,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     # process = customizeHLTfor49436(process)
-
-    process = customizeHLTfor49936(process)
 
     return process

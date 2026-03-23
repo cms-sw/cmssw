@@ -1,0 +1,6 @@
+<use name="catch2"/>
+<bin file="test_TopoXGB.cc" name="RecoMLTopoMuonHtPNetBXGBTest">
+  <use name="FWCore/ParameterSet"/>
+  <use name="PhysicsTools/XGBoost"/>
+  <use name="xgboost"/>
+</bin>

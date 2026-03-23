@@ -19,7 +19,7 @@
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventToProcessBlockIndexes.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 
@@ -33,7 +33,6 @@
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
@@ -41,6 +40,7 @@
 #include "FWCore/Sources/interface/InputSourceRunHelper.h"
 
 #include "FWCore/Framework/interface/InputSourceMacros.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 
 #include "RootFile.h"
 #include "InputFile.h"
@@ -73,17 +73,6 @@ namespace edm {
           : map_(iMap), wrappers_(iWrappers) {}
 
       WrapperBase const* getIt(ProductID const&) const override;
-
-      std::optional<std::tuple<WrapperBase const*, unsigned int>> getThinnedProduct(ProductID const&,
-                                                                                    unsigned int key) const override;
-
-      void getThinnedProducts(ProductID const& pid,
-                              std::vector<WrapperBase const*>& foundContainers,
-                              std::vector<unsigned int>& keys) const override;
-
-      OptionalThinnedKey getThinnedKeyFrom(ProductID const& parent,
-                                           unsigned int key,
-                                           ProductID const& thinned) const override;
 
     private:
       unsigned int transitionIndex_() const override;
@@ -137,7 +126,8 @@ namespace edm {
                                            std::shared_ptr<InputFile> filePtr,
                                            std::shared_ptr<EventSkipperByID> skipper,
                                            std::shared_ptr<DuplicateChecker> duplicateChecker,
-                                           std::vector<std::shared_ptr<IndexIntoFile>>& indexesIntoFiles);
+                                           std::vector<std::shared_ptr<IndexIntoFile>>& indexesIntoFiles,
+                                           bool enablePrefetching);
 
     RootServiceChecker rootServiceChecker_;
     ProductSelectorRules selectorRules_;
@@ -198,6 +188,7 @@ RepeatingCachedRootSource::RepeatingCachedRootSource(ParameterSet const& pset, I
   auto const& physicalFileName = catalog.fileCatalogItems().front().fileNames().front();
   auto const nEventsToSkip = pset.getUntrackedParameter<unsigned int>("skipEvents");
   std::shared_ptr<EventSkipperByID> skipper(EventSkipperByID::create(pset).release());
+  auto const enablePrefetching = pset.getUntrackedParameter<bool>("enablePrefetching");
 
   auto duplicateChecker = std::make_shared<DuplicateChecker>(pset);
 
@@ -205,8 +196,14 @@ RepeatingCachedRootSource::RepeatingCachedRootSource(ParameterSet const& pset, I
 
   auto input =
       std::make_shared<InputFile>(physicalFileName.c_str(), "  Initiating request to open file ", InputType::Primary);
-  rootFile_ = makeRootFile(
-      logicalFileName, physicalFileName, 0 != nEventsToSkip, input, skipper, duplicateChecker, indexesIntoFiles);
+  rootFile_ = makeRootFile(logicalFileName,
+                           physicalFileName,
+                           0 != nEventsToSkip,
+                           input,
+                           skipper,
+                           duplicateChecker,
+                           indexesIntoFiles,
+                           enablePrefetching);
   rootFile_->reportOpened("repeating");
 
   std::vector<std::string> processOrder;
@@ -238,11 +235,9 @@ void RepeatingCachedRootSource::beginJob(ProductRegistry const&) {
   //in order to use the source's internal ProductRegistry for looking up date
   // it needs to be frozen (which setups the other structures)
   productRegistryUpdate().setFrozen();
-  //Thinned collection associations are not supported at this time
   EventPrincipal eventPrincipal(std::shared_ptr<ProductRegistry const>(&productRegistry(), do_nothing_deleter()),
                                 edm::productResolversFactory::makePrimary,
                                 branchIDListHelper(),
-                                std::make_shared<ThinnedAssociationsHelper>(),
                                 processConfiguration,
                                 nullptr);
   {
@@ -294,6 +289,10 @@ void RepeatingCachedRootSource::fillDescriptions(ConfigurationDescriptions& desc
   desc.addUntracked<unsigned int>("repeatNEvents", 10U)
       ->setComment("Number of events to read from file and then repeat in sequence.");
   desc.addUntracked<unsigned int>("skipEvents", 0);
+  desc.addUntracked<bool>("enablePrefetching", false)
+      ->setComment(
+          "Theoretically prefetching should make the initial read more efficient. However, we have experienced "
+          "problems with that. See issue #49215 for more details.");
   ProductSelectorRules::fillDescription(desc, "inputCommands");
   InputSource::fillDescription(desc);
 
@@ -311,38 +310,37 @@ std::unique_ptr<RootFile> RepeatingCachedRootSource::makeRootFile(
     std::shared_ptr<InputFile> filePtr,
     std::shared_ptr<EventSkipperByID> skipper,
     std::shared_ptr<DuplicateChecker> duplicateChecker,
-    std::vector<std::shared_ptr<IndexIntoFile>>& indexesIntoFiles) {
-  return std::make_unique<RootFile>(
-      RootFile::FileOptions{.fileName = pName,
-                            .logicalFileName = logicalFileName,
-                            .filePtr = filePtr,
-                            .bypassVersionCheck = false,
-                            .enforceGUIDInFileName = false},
-      InputType::Primary,
-      RootFile::ProcessingOptions{.eventSkipperByID = skipper,
-                                  .skipAnyEvents = isSkipping,
-                                  .remainingEvents = remainingEvents(),
-                                  .remainingLumis = remainingLuminosityBlocks(),
-                                  .processingMode = processingMode(),
-                                  .noRunLumiSort = false,
-                                  .noEventSort = true,
-                                  .usingGoToEvent = false},
-      RootFile::TTreeOptions{
-          .treeCacheSize = roottree::defaultCacheSize, .treeMaxVirtualSize = -1, .enablePrefetching = true},
-      RootFile::ProductChoices{.productSelectorRules = selectorRules_,
-                               .associationsFromSecondary = nullptr,
-                               .dropDescendantsOfDroppedProducts = false,
-                               .labelRawDataLikeMC = true},
-      RootFile::CrossFileInfo{.runHelper = runHelper_.get(),
-                              .branchIDListHelper = branchIDListHelper(),
-                              .processBlockHelper = processBlockHelper().get(),
-                              .thinnedAssociationsHelper = thinnedAssociationsHelper(),
-                              .duplicateChecker = duplicateChecker,
-                              .indexesIntoFiles = indexesIntoFiles,
-                              .currentIndexIntoFile = 0},
-      1,
-      processHistoryRegistryForUpdate(),
-      orderedProcessHistoryIDs_);
+    std::vector<std::shared_ptr<IndexIntoFile>>& indexesIntoFiles,
+    bool enablePrefetching) {
+  return std::make_unique<RootFile>(RootFile::FileOptions{.fileName = pName,
+                                                          .logicalFileName = logicalFileName,
+                                                          .filePtr = filePtr,
+                                                          .bypassVersionCheck = false,
+                                                          .enforceGUIDInFileName = false},
+                                    InputType::Primary,
+                                    RootFile::ProcessingOptions{.eventSkipperByID = skipper,
+                                                                .skipAnyEvents = isSkipping,
+                                                                .remainingEvents = remainingEvents(),
+                                                                .remainingLumis = remainingLuminosityBlocks(),
+                                                                .processingMode = processingMode(),
+                                                                .noRunLumiSort = false,
+                                                                .noEventSort = true,
+                                                                .usingGoToEvent = false},
+                                    RootFile::TTreeOptions{.treeCacheSize = roottree::defaultCacheSize,
+                                                           .treeMaxVirtualSize = -1,
+                                                           .enablePrefetching = enablePrefetching},
+                                    RootFile::ProductChoices{.productSelectorRules = selectorRules_,
+                                                             .dropDescendantsOfDroppedProducts = false,
+                                                             .labelRawDataLikeMC = true},
+                                    RootFile::CrossFileInfo{.runHelper = runHelper_.get(),
+                                                            .branchIDListHelper = branchIDListHelper(),
+                                                            .processBlockHelper = processBlockHelper().get(),
+                                                            .duplicateChecker = duplicateChecker,
+                                                            .indexesIntoFiles = indexesIntoFiles,
+                                                            .currentIndexIntoFile = 0},
+                                    1,
+                                    processHistoryRegistryForUpdate(),
+                                    orderedProcessHistoryIDs_);
 }
 
 std::shared_ptr<WrapperBase> RepeatingCachedRootSource::getProduct(unsigned int iStreamIndex,
@@ -430,20 +428,6 @@ WrapperBase const* RepeatingCachedRootSource::RCProductGetter::getIt(ProductID c
   return (*wrappers_)[itFound->second].get();
 }
 
-std::optional<std::tuple<WrapperBase const*, unsigned int>>
-RepeatingCachedRootSource::RCProductGetter::getThinnedProduct(ProductID const&, unsigned int key) const {
-  return {};
-};
-
-void RepeatingCachedRootSource::RCProductGetter::getThinnedProducts(ProductID const& pid,
-                                                                    std::vector<WrapperBase const*>& foundContainers,
-                                                                    std::vector<unsigned int>& keys) const {}
-
-OptionalThinnedKey RepeatingCachedRootSource::RCProductGetter::getThinnedKeyFrom(ProductID const& parent,
-                                                                                 unsigned int key,
-                                                                                 ProductID const& thinned) const {
-  return {};
-}
 unsigned int RepeatingCachedRootSource::RCProductGetter::transitionIndex_() const { return 0; }
 
 //

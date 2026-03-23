@@ -4,15 +4,13 @@
 
 #include "DQMOffline/Trigger/interface/HLTTauDQMPlotter.h"
 #include "DQMOffline/Trigger/interface/HistoWrapper.h"
+#include "DataFormats/HLTReco/interface/TriggerEventFwd.h"
 
 #include <vector>
 
 class HLTTauDQMPath;
 namespace edm {
   class TriggerResults;
-}
-namespace trigger {
-  class TriggerEvent;
 }
 
 class HLTTauDQMPathSummaryPlotter : private HLTTauDQMPlotter {

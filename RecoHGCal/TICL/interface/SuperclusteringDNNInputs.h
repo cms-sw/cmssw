@@ -9,6 +9,7 @@
 #ifndef __RecoHGCal_TICL_SuperclusteringDNNInputs_H__
 #define __RecoHGCal_TICL_SuperclusteringDNNInputs_H__
 
+#include "DataFormats/HGCalReco/interface/TracksterFwd.h"
 #include <vector>
 #include <string>
 #include <memory>
@@ -18,8 +19,6 @@ namespace ticl {
   // any raw_dt outside +/- kDeltaTimeDefault is considered bad
   static constexpr float kDeltaTimeDefault = 50.f;
   static constexpr float kBadDeltaTime = -5.f;
-
-  class Trackster;
 
   // Abstract base class for DNN input preparation.
   class AbstractSuperclusteringDNNInput {

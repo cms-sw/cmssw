@@ -1,0 +1,6 @@
+#ifndef DataFormats_L1GlobalCaloTrigger_L1GctInternJetDataFwd_h
+#define DataFormats_L1GlobalCaloTrigger_L1GctInternJetDataFwd_h
+
+class L1GctInternJetData;
+
+#endif

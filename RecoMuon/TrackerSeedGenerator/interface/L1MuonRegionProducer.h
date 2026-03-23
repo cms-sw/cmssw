@@ -4,11 +4,11 @@
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCandFwd.h"
 #include <vector>
 #include <memory>
 
 class TrackingRegion;
-class L1MuGMTCand;
 class MagneticField;
 class IdealMagneticFieldRecord;
 class MultipleScatteringParametrisationMaker;

@@ -7,6 +7,7 @@
  */
 
 #include "CondFormats/DTObjects/interface/DTTPGParameters.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include <fstream>
 #include <string>
@@ -16,8 +17,6 @@ namespace edm {
   class Event;
   class EventSetup;
 }  // namespace edm
-
-class DTChamberId;
 
 class DTTPGParamsWriter : public edm::one::EDAnalyzer<> {
 public:

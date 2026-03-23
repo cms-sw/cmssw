@@ -12,7 +12,8 @@
 #include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-class TrajectorySeed;
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedFwd.h"
+
 class StandAloneMuonFilter;
 class StandAloneMuonBackwardFilter;
 class StandAloneMuonRefitter;

@@ -281,8 +281,8 @@ namespace edm {
     if (p.first != p.second)
       return *p.first;
 
-      // Insert the right thing, in the right place, and return a
-      // reference to the newly inserted thing.
+    // Insert the right thing, in the right place, and return a
+    // reference to the newly inserted thing.
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
     return *(_sets.emplace(p.first, id));
 #else

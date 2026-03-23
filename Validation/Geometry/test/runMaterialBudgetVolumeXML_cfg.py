@@ -3,7 +3,7 @@
 #   cmsRun runMaterialBudgetVolumeXML_cfg.py type=DDD
 #
 #   Options for type DDD, DD4hep
-#   Options for geometry 2021, 2023, 2024, 2025
+#   Options for geometry 2021, 2023, 2024, 2025, 2026
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -17,7 +17,7 @@ options.register('geometry',
                  "2021",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: 2021, 2023, 2024, 2025")
+                  "geometry of operations: 2021, 2023, 2024, 2025, 2026")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,

@@ -3,6 +3,8 @@
 
 // Data Formats
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
+#include "SimDataFormats/Vertex/interface/SimVertexFwd.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
 // HepPDT Headers
@@ -25,9 +27,6 @@
 class FSimTrack;
 class FSimVertex;
 class KineParticleFilter;
-
-class SimTrack;
-class SimVertex;
 
 namespace edm {
   class ParameterSet;

@@ -72,6 +72,14 @@ namespace edm {
     node_right_->writeCfi(os, modifier, startWithComma, indentation, options, wroteSomething);
   }
 
+  cfi::Trackiness ANDGroupDescription::trackiness_(std::string_view path) const {
+    cfi::Trackiness trackinessLeft = node_left_->trackiness(path);
+    if (trackinessLeft != cfi::Trackiness::kNotAllowed) {
+      return trackinessLeft;
+    }
+    return node_right_->trackiness(path);
+  }
+
   void ANDGroupDescription::print_(std::ostream& os, Modifier modifier, bool writeToCfi, DocFormatHelper& dfh) const {
     if (dfh.parent() == DocFormatHelper::AND) {
       dfh.decrementCounter();

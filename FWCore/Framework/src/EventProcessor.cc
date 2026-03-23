@@ -134,7 +134,6 @@ namespace edm {
                                          CommonParams const& common,
                                          std::shared_ptr<BranchIDListHelper> branchIDListHelper,
                                          std::shared_ptr<ProcessBlockHelper> const& processBlockHelper,
-                                         std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
                                          std::shared_ptr<ActivityRegistry> areg,
                                          std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                          PreallocationConfiguration const& allocations) {
@@ -178,7 +177,6 @@ namespace edm {
     InputSourceDescription isdesc(md,
                                   branchIDListHelper,
                                   processBlockHelper,
-                                  thinnedAssociationsHelper,
                                   areg,
                                   common.maxEventsInput_,
                                   common.maxLumisInput_,
@@ -492,28 +490,33 @@ namespace edm {
         // initialize the input source
         auto sourceID = ModuleDescription::getUniqueID();
 
-        group.run([&, this]() {
-          // initialize the Schedule
-          ServiceRegistry::Operate operate(serviceToken_);
-          auto const& tns = ServiceRegistry::instance().get<service::TriggerNamesService>();
-          madeModules =
-              items.initModules(*parameterSet, tns, preallocations_, &processContext_, moduleTypeResolverMaker_.get());
-        });
+        {
+          items.actReg_->preModulesAndSourceConstructionSignal_.emit();
+          auto guard = makeGuard([&items]() { items.actReg_->postModulesAndSourceConstructionSignal_.emit(); });
 
-        group.run([&, this]() {
-          ServiceRegistry::Operate operate(serviceToken_);
-          input_ = makeInput(sourceID,
-                             *parameterSet,
-                             *common,
-                             items.branchIDListHelper(),
-                             get_underlying_safe(processBlockHelper_),
-                             items.thinnedAssociationsHelper(),
-                             items.actReg_,
-                             items.processConfiguration(),
-                             preallocations_);
-        });
+          group.run([&, this]() {
+            // initialize the Schedule
+            ServiceRegistry::Operate operate(serviceToken_);
+            auto const& tns = ServiceRegistry::instance().get<service::TriggerNamesService>();
+            madeModules = items.initModules(
+                *parameterSet, tns, preallocations_, &processContext_, moduleTypeResolverMaker_.get());
+          });
 
-        group.wait();
+          group.run([&, this]() {
+            ServiceRegistry::Operate operate(serviceToken_);
+            input_ = makeInput(sourceID,
+                               *parameterSet,
+                               *common,
+                               items.branchIDListHelper(),
+                               get_underlying_safe(processBlockHelper_),
+                               items.actReg_,
+                               items.processConfiguration(),
+                               preallocations_);
+          });
+
+          group.wait();
+        }
+
         items.preg()->addFromInput(input_->productRegistry());
         {
           items.actReg_->preFinishScheduleSignal_.emit();
@@ -530,7 +533,6 @@ namespace edm {
       preg_ = std::make_shared<ProductRegistry>(items.preg()->moveTo());
       mergeableRunProductProcesses_.setProcessesWithMergeableRunProducts(*preg_);
       branchIDListHelper_ = items.branchIDListHelper();
-      thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
       processConfiguration_ = items.processConfiguration();
       processContext_.setProcessConfiguration(processConfiguration_.get());
 
@@ -552,7 +554,6 @@ namespace edm {
           auto ep = std::make_shared<EventPrincipal>(preg(),
                                                      productResolversFactory::makePrimary,
                                                      branchIDListHelper(),
-                                                     thinnedAssociationsHelper(),
                                                      *processConfiguration_,
                                                      historyAppender_.get(),
                                                      index,
@@ -1023,12 +1024,18 @@ namespace edm {
 
   void EventProcessor::openOutputFiles() {
     if (fileBlockValid()) {
+      auto guard = makeGuard([this]() { actReg_->postOpenOutputFilesSignal_.emit(); });
+      actReg_->preOpenOutputFilesSignal_.emit();
       schedule_->openOutputFiles(*fb_);
     }
   }
 
   void EventProcessor::closeOutputFiles() {
-    schedule_->closeOutputFiles();
+    {
+      auto guard = makeGuard([this]() { actReg_->postCloseOutputFilesSignal_.emit(); });
+      actReg_->preCloseOutputFilesSignal_.emit();
+      schedule_->closeOutputFiles();
+    }
     processBlockHelper_->clearAfterOutputFilesClose();
   }
 

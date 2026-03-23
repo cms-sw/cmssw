@@ -26,6 +26,7 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 
 namespace edm {
   class ParameterSet;
@@ -39,7 +40,6 @@ class TrajectoryFitter;
 class TrajectorySmoother;
 class Propagator;
 class TransientTrackingRecHitBuilder;
-class Trajectory;
 class TrackerTopology;
 
 class TrackTransformerForGlobalCosmicMuons : public TrackTransformerBase {
