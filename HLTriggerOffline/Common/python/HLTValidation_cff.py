@@ -163,5 +163,3 @@ hltvalidation_withDQM = cms.Sequence(
     hltvalidation
     +trigdqm_forValidation
 )
-
-    
