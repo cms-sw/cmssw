@@ -60,6 +60,7 @@ numWFIB.extend([prefixDet+234.711])  #LST tracking on CPU (initialStep+HighPtTri
 # Phase-2 HLT tests
 numWFIB.extend([prefixDet+34.7501]) # HLTTrackingOnly75e33
 numWFIB.extend([prefixDet+34.7502]) # HLTTrackingNtuple75e33
+numWFIB.extend([prefixDet+34.7503]) # HLTHeterogeneousValid
 numWFIB.extend([prefixDet+34.751])  # HLTTiming75e33, alpaka
 numWFIB.extend([prefixDet+34.752])  # HLTTiming75e33, ticl_v5
 numWFIB.extend([prefixDet+34.7521]) # HLTTiming75e33, ticl_v5, ticlv5TrackLinkingGNN
