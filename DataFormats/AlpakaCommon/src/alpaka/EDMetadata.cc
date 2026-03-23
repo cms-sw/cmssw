@@ -1,22 +1,11 @@
 #include <alpaka/alpaka.hpp>
 
-#include "FWCore/Concurrency/interface/Async.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadata.h"
+#include "DataFormats/AlpakaCommon/interface/alpaka/EDMetadata.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #ifndef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
   EDMetadata::~EDMetadata() noexcept { synchronize(); }
-
-  void EDMetadata::enqueueCallback(edm::WaitingTaskWithArenaHolder holder) {
-    edm::Service<edm::Async> async;
-    recordEvent();
-    async->runAsync(
-        std::move(holder),
-        [event = event_]() mutable { alpaka::wait(*event); },
-        []() { return "Enqueued via " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) "::EDMetadata::enqueueCallback()"; });
-  }
 
   void EDMetadata::synchronize() const noexcept {
     // Make sure that the production of the product in the GPU is
