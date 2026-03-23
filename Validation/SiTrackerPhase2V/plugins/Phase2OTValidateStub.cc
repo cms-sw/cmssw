@@ -17,7 +17,7 @@
 //
 // Original Author:
 //
-// Updated by: Brandi Skipworth, 2025
+// Updated by: Brandi Skipworth, 2026
 
 // system include files
 #include <memory>
@@ -93,7 +93,7 @@ public:
   MonitorElement* r_res_is2S_fw_endcap = nullptr;
   MonitorElement* r_res_isPS_bw_endcap = nullptr;
   MonitorElement* r_res_is2S_bw_endcap = nullptr;
-  
+
   // delta_phi hists (PS / 2S, barrel vs endcap)
   MonitorElement* phi_res_isPS_barrel = nullptr;
   MonitorElement* phi_res_is2S_barrel = nullptr;
@@ -213,7 +213,6 @@ float Phase2OTValidateStub::phiOverBendCorrection(bool isBarrel,
     float deltaR = std::abs(R1 - R0);
     float deltaZ = (R1 - R0 > 0) ? (Z1 - Z0) : -(Z1 - Z0);  // if module parallel, tilt angle should
                                                             // be π/2 and deltaZ would approach zero
-    // fill histograms here
     tiltAngle = atan(deltaR / std::abs(deltaZ));
   }
 
@@ -299,7 +298,7 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
 
   int nStubs = 0;
   for (auto const& detSet : *Phase2TrackerDigiTTStubHandle) {
-      nStubs += detSet.size();
+    nStubs += detSet.size();
   }
   number_of_stubs->Fill(nStubs);
 
@@ -490,7 +489,6 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
           bend_res_is2S_barrel->Fill(bendRes);
         }
       } else {
-        
         // Fill Summary Endcap plots
         if (isPSmodule) {
           r_res_isPS_endcap->Fill(rRes);
@@ -507,7 +505,7 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
           // Forward Endcap
           bend_res_fw_endcap->Fill(bendRes);
           phi_res_fw_endcap->Fill(phiRes);
-          
+
           // Set pointers to FW vectors
           phi_res_vec = &phi_res_fw_endcap_discs;
           bend_res_vec = &bend_res_fw_endcap_discs;
@@ -521,7 +519,7 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
           // Backward Endcap
           bend_res_bw_endcap->Fill(bendRes);
           phi_res_bw_endcap->Fill(phiRes);
-          
+
           // Set pointers to BW vectors
           phi_res_vec = &phi_res_bw_endcap_discs;
           bend_res_vec = &bend_res_bw_endcap_discs;
@@ -533,16 +531,16 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
           }
         }
       }
-      
+
       if (isBarrel) {
         if (layer >= 1 && layer <= trklet::N_LAYER) {
-           (*bend_res_vec)[layer - 1]->Fill(bendRes);
-           (*phi_res_vec)[layer - 1]->Fill(phiRes);
+          (*bend_res_vec)[layer - 1]->Fill(bendRes);
+          (*phi_res_vec)[layer - 1]->Fill(phiRes);
         }
       } else {
         if (layer >= 1 && layer <= trklet::N_DISK) {
-           (*bend_res_vec)[layer - 1]->Fill(bendRes);
-           (*phi_res_vec)[layer - 1]->Fill(phiRes);
+          (*bend_res_vec)[layer - 1]->Fill(bendRes);
+          (*phi_res_vec)[layer - 1]->Fill(phiRes);
         }
       }
     }  // end loop over input stubs
@@ -568,11 +566,6 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
       else if (detid.subdetId() == StripSubdetector::TID)
         layer = static_cast<int>(tTopo->layer(detid)) + 5;  // fill in array as entries 6-10
 
-      // treat genuine stubs separately (==2 is genuine, ==1 is not)
-      // Prioritize "Genuine" stubs (value 2) over "Combinatorial/Unknown" stubs (value 1)
-      // Check if the stub is NOT genuine (findTrackingParticlePtr is null)
-      // If it is NOT genuine, only record it as '1' if we haven't already found a genuine stub (value < 2) in this layer
-      // Otherwise (the stub IS genuine), strictly mark the layer as '2', overwriting any previous '1'
       if (MCTruthTTStubHandle->findTrackingParticlePtr(theStubRefs.at(is)).isNull() && hasStubInLayer[layer] < 2)
         hasStubInLayer[layer] = 1;
       else
@@ -609,8 +602,7 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
     if (nStubTP < TP_minNStub || nStubLayerTP < TP_minNLayersStub)
       continue;
 
-    // Find all clusters that can be associated to a tracking particle with at
-    // least one hit
+    // Find all clusters that can be associated to a tracking particle with at least one hit
     std::vector<edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>>
         associatedClusters = MCTruthTTClusterHandle->findTTClusterRefs(tp_ptr);
 
@@ -619,12 +611,15 @@ void Phase2OTValidateStub::analyze(const edm::Event& iEvent, const edm::EventSet
 
     // Count genuine clusters first
     for (const auto& clus : associatedClusters) {
-        if (!MCTruthTTClusterHandle->isGenuine(clus)) continue;
-        DetId detid = clus->getDetId();
-        if (detid.subdetId() == StripSubdetector::TOB) nValidClustersBarrel++;
-        else if (detid.subdetId() == StripSubdetector::TID) nValidClustersEndcap++;
+      if (!MCTruthTTClusterHandle->isGenuine(clus))
+        continue;
+      DetId detid = clus->getDetId();
+      if (detid.subdetId() == StripSubdetector::TOB)
+        nValidClustersBarrel++;
+      else if (detid.subdetId() == StripSubdetector::TID)
+        nValidClustersEndcap++;
     }
-    
+
     // Define weights (1.0 / N)
     float weightBarrel = (nValidClustersBarrel > 0) ? 1.0f / nValidClustersBarrel : 0.0f;
     float weightEndcap = (nValidClustersEndcap > 0) ? 1.0f / nValidClustersEndcap : 0.0f;
@@ -758,131 +753,129 @@ void Phase2OTValidateStub::bookHistograms(DQMStore::IBooker& iBooker, edm::Run c
 
   iBooker.setCurrentFolder(topFolderName_ + "/Residual");
   // z residuals barrel (Summary)
-  z_res_isPS_barrel  = book1DFromPS(iBooker, "#Delta z Barrel PS modules",  ps_PS_Res,  "tp_z - stub_z",        "events");
-  z_res_is2S_barrel  = book1DFromPS(iBooker, "#Delta z Barrel 2S modules",  ps_2S_Res,  "tp_z - stub_z [cm]",   "events");
-  
+  z_res_isPS_barrel = book1DFromPS(iBooker, "#Delta z Barrel PS modules", ps_PS_Res, "tp_z - stub_z", "events");
+  z_res_is2S_barrel = book1DFromPS(iBooker, "#Delta z Barrel 2S modules", ps_2S_Res, "tp_z - stub_z [cm]", "events");
+
   // r residuals endcaps (Summary)
-  r_res_isPS_endcap  = book1DFromPS(iBooker, "#Delta r Endcaps PS modules",  ps_PS_Res,  "tp_r - stub_r [cm]",   "events");
-  r_res_is2S_endcap  = book1DFromPS(iBooker, "#Delta r Endcaps 2S modules",  ps_2S_Res,  "tp_r - stub_r [cm]",   "events");
-  
+  r_res_isPS_endcap = book1DFromPS(iBooker, "#Delta r Endcaps PS modules", ps_PS_Res, "tp_r - stub_r [cm]", "events");
+  r_res_is2S_endcap = book1DFromPS(iBooker, "#Delta r Endcaps 2S modules", ps_2S_Res, "tp_r - stub_r [cm]", "events");
+
   // phi residuals (PS / 2S, barrel vs endcaps) (Summary)
-  phi_res_isPS_barrel = book1DFromPS(iBooker, "#Delta #phi Barrel PS modules", psPhi_Res, "tp_phi - stub_phi", "events");
-  phi_res_is2S_barrel = book1DFromPS(iBooker, "#Delta #phi Barrel 2S modules", psPhi_Res, "tp_phi - stub_phi", "events");
-  phi_res_isPS_endcap = book1DFromPS(iBooker, "#Delta #phi Endcaps PS modules", psPhi_Res, "tp_phi - stub_phi", "events");
-  phi_res_is2S_endcap = book1DFromPS(iBooker, "#Delta #phi Endcaps 2S modules", psPhi_Res, "tp_phi - stub_phi", "events");
+  phi_res_isPS_barrel =
+      book1DFromPS(iBooker, "#Delta #phi Barrel PS modules", psPhi_Res, "tp_phi - stub_phi", "events");
+  phi_res_is2S_barrel =
+      book1DFromPS(iBooker, "#Delta #phi Barrel 2S modules", psPhi_Res, "tp_phi - stub_phi", "events");
+  phi_res_isPS_endcap =
+      book1DFromPS(iBooker, "#Delta #phi Endcaps PS modules", psPhi_Res, "tp_phi - stub_phi", "events");
+  phi_res_is2S_endcap =
+      book1DFromPS(iBooker, "#Delta #phi Endcaps 2S modules", psPhi_Res, "tp_phi - stub_phi", "events");
 
   // bend residuals (PS / 2S, barrel vs endcaps) (Summary)
-  bend_res_isPS_barrel = book1DFromPS(iBooker, "#Delta bend Barrel PS modules", psBend_Res, "tp_bend - stub_bend", "events");
-  bend_res_is2S_barrel = book1DFromPS(iBooker, "#Delta bend Barrel 2S modules", psBend_Res, "tp_bend - stub_bend", "events");
-  bend_res_isPS_endcap = book1DFromPS(iBooker, "#Delta bend Endcaps PS modules", psBend_Res, "tp_bend - stub_bend", "events");
-  bend_res_is2S_endcap = book1DFromPS(iBooker, "#Delta bend Endcaps 2S modules", psBend_Res, "tp_bend - stub_bend", "events");
+  bend_res_isPS_barrel =
+      book1DFromPS(iBooker, "#Delta bend Barrel PS modules", psBend_Res, "tp_bend - stub_bend", "events");
+  bend_res_is2S_barrel =
+      book1DFromPS(iBooker, "#Delta bend Barrel 2S modules", psBend_Res, "tp_bend - stub_bend", "events");
+  bend_res_isPS_endcap =
+      book1DFromPS(iBooker, "#Delta bend Endcaps PS modules", psBend_Res, "tp_bend - stub_bend", "events");
+  bend_res_is2S_endcap =
+      book1DFromPS(iBooker, "#Delta bend Endcaps 2S modules", psBend_Res, "tp_bend - stub_bend", "events");
 
   iBooker.setCurrentFolder(topFolderName_ + "/Residual/Detailed");
 
   // Detailed Endcap R-Residuals (Split by FW/BW)
-  r_res_isPS_fw_endcap = book1DFromPS(iBooker, "#Delta r FW Endcap PS modules", ps_PS_Res, "tp_r - stub_r [cm]", "events");
-  r_res_is2S_fw_endcap = book1DFromPS(iBooker, "#Delta r FW Endcap 2S modules", ps_2S_Res, "tp_r - stub_r [cm]", "events");
-  r_res_isPS_bw_endcap = book1DFromPS(iBooker, "#Delta r BW Endcap PS modules", ps_PS_Res, "tp_r - stub_r [cm]", "events");
-  r_res_is2S_bw_endcap = book1DFromPS(iBooker, "#Delta r BW Endcap 2S modules", ps_2S_Res, "tp_r - stub_r [cm]", "events");
+  r_res_isPS_fw_endcap =
+      book1DFromPS(iBooker, "#Delta r FW Endcap PS modules", ps_PS_Res, "tp_r - stub_r [cm]", "events");
+  r_res_is2S_fw_endcap =
+      book1DFromPS(iBooker, "#Delta r FW Endcap 2S modules", ps_2S_Res, "tp_r - stub_r [cm]", "events");
+  r_res_isPS_bw_endcap =
+      book1DFromPS(iBooker, "#Delta r BW Endcap PS modules", ps_PS_Res, "tp_r - stub_r [cm]", "events");
+  r_res_is2S_bw_endcap =
+      book1DFromPS(iBooker, "#Delta r BW Endcap 2S modules", ps_2S_Res, "tp_r - stub_r [cm]", "events");
 
   // Detailed Endcap Phi/Bend (Split by FW/BW)
-  phi_res_fw_endcap  = book1DFromPS(iBooker, "#Delta #phi FW Endcap", psPhi_Res,  "tp_phi - stub_phi",   "events");
-  phi_res_bw_endcap  = book1DFromPS(iBooker, "#Delta #phi BW Endcap", psPhi_Res,  "tp_phi - stub_phi",   "events");
+  phi_res_fw_endcap = book1DFromPS(iBooker, "#Delta #phi FW Endcap", psPhi_Res, "tp_phi - stub_phi", "events");
+  phi_res_bw_endcap = book1DFromPS(iBooker, "#Delta #phi BW Endcap", psPhi_Res, "tp_phi - stub_phi", "events");
   bend_res_fw_endcap = book1DFromPS(iBooker, "#Delta bend FW Endcap", psBend_Res, "tp_bend - stub_bend", "events");
   bend_res_bw_endcap = book1DFromPS(iBooker, "#Delta bend BW Endcap", psBend_Res, "tp_bend - stub_bend", "events");
-  
+
   // Barrel Layers (Per Layer)
   for (int i = 0; i < trklet::N_LAYER; ++i) {
     std::string layerParams = "L" + std::to_string(i + 1);
-    phi_res_barrel_layers[i] = book1DFromPS(iBooker, "#Delta #phi Barrel " + layerParams, psPhi_Res, "tp_phi - stub_phi", "events");
-    bend_res_barrel_layers[i] = book1DFromPS(iBooker, "#Delta bend Barrel " + layerParams, psBend_Res, "tp_bend - stub_bend", "events");
+    phi_res_barrel_layers[i] =
+        book1DFromPS(iBooker, "#Delta #phi Barrel " + layerParams, psPhi_Res, "tp_phi - stub_phi", "events");
+    bend_res_barrel_layers[i] =
+        book1DFromPS(iBooker, "#Delta bend Barrel " + layerParams, psBend_Res, "tp_bend - stub_bend", "events");
   }
 
   // Endcap Disks (Per Disk, Split FW/BW)
   for (int i = 0; i < trklet::N_DISK; ++i) {
     std::string diskParams = "D" + std::to_string(i + 1);
-    phi_res_fw_endcap_discs[i] = book1DFromPS(iBooker, "#Delta #phi FW Endcap " + diskParams, psPhi_Res, "tp_phi - stub_phi", "events");
-    bend_res_fw_endcap_discs[i] = book1DFromPS(iBooker, "#Delta bend FW Endcap " + diskParams, psBend_Res, "tp_bend - stub_bend", "events");
-    phi_res_bw_endcap_discs[i] = book1DFromPS(iBooker, "#Delta #phi BW Endcap " + diskParams, psPhi_Res, "tp_phi - stub_phi", "events");
-    bend_res_bw_endcap_discs[i] = book1DFromPS(iBooker, "#Delta bend BW Endcap " + diskParams, psBend_Res, "tp_bend - stub_bend", "events");
+    phi_res_fw_endcap_discs[i] =
+        book1DFromPS(iBooker, "#Delta #phi FW Endcap " + diskParams, psPhi_Res, "tp_phi - stub_phi", "events");
+    bend_res_fw_endcap_discs[i] =
+        book1DFromPS(iBooker, "#Delta bend FW Endcap " + diskParams, psBend_Res, "tp_bend - stub_bend", "events");
+    phi_res_bw_endcap_discs[i] =
+        book1DFromPS(iBooker, "#Delta #phi BW Endcap " + diskParams, psPhi_Res, "tp_phi - stub_phi", "events");
+    bend_res_bw_endcap_discs[i] =
+        book1DFromPS(iBooker, "#Delta bend BW Endcap " + diskParams, psBend_Res, "tp_bend - stub_bend", "events");
   }
 
   // 1D plots for stub efficiency vs pT
   iBooker.setCurrentFolder(topFolderName_ + "/EfficiencyIngredients");
 
-  gen_clusters_barrel              = book1DFromPS(iBooker, "gen_clusters_barrel",              psEffic_pt,      "p_{T} [GeV]", "# tracking particles");
-  gen_clusters_if_stub_barrel      = book1DFromPS(iBooker, "gen_clusters_if_stub_barrel",      psEffic_pt,      "p_{T} [GeV]", "# tracking particles");
-  gen_clusters_endcaps             = book1DFromPS(iBooker, "gen_clusters_endcaps",             psEffic_pt,      "p_{T} [GeV]", "# tracking particles");
-  gen_clusters_if_stub_endcaps     = book1DFromPS(iBooker, "gen_clusters_if_stub_endcaps",     psEffic_pt,      "p_{T} [GeV]", "# tracking particles");
+  gen_clusters_barrel = book1DFromPS(iBooker, "gen_clusters_barrel", psEffic_pt, "p_{T} [GeV]", "# tracking particles");
+  gen_clusters_if_stub_barrel =
+      book1DFromPS(iBooker, "gen_clusters_if_stub_barrel", psEffic_pt, "p_{T} [GeV]", "# tracking particles");
+  gen_clusters_endcaps =
+      book1DFromPS(iBooker, "gen_clusters_endcaps", psEffic_pt, "p_{T} [GeV]", "# tracking particles");
+  gen_clusters_if_stub_endcaps =
+      book1DFromPS(iBooker, "gen_clusters_if_stub_endcaps", psEffic_pt, "p_{T} [GeV]", "# tracking particles");
 
-  gen_clusters_zoom_barrel         = book1DFromPS(iBooker, "gen_clusters_zoom_barrel",         psEffic_pt_zoom, "p_{T} [GeV]", "# tracking particles");
-  gen_clusters_if_stub_zoom_barrel = book1DFromPS(iBooker, "gen_clusters_if_stub_zoom_barrel", psEffic_pt_zoom, "p_{T} [GeV]", "# tracking particles");
-  gen_clusters_zoom_endcaps        = book1DFromPS(iBooker, "gen_clusters_zoom_endcaps",        psEffic_pt_zoom, "p_{T} [GeV]", "# tracking particles");
-  gen_clusters_if_stub_zoom_endcaps= book1DFromPS(iBooker, "gen_clusters_if_stub_zoom_endcaps",psEffic_pt_zoom, "p_{T} [GeV]", "# tracking particles");
+  gen_clusters_zoom_barrel =
+      book1DFromPS(iBooker, "gen_clusters_zoom_barrel", psEffic_pt_zoom, "p_{T} [GeV]", "# tracking particles");
+  gen_clusters_if_stub_zoom_barrel =
+      book1DFromPS(iBooker, "gen_clusters_if_stub_zoom_barrel", psEffic_pt_zoom, "p_{T} [GeV]", "# tracking particles");
+  gen_clusters_zoom_endcaps =
+      book1DFromPS(iBooker, "gen_clusters_zoom_endcaps", psEffic_pt_zoom, "p_{T} [GeV]", "# tracking particles");
+  gen_clusters_if_stub_zoom_endcaps = book1DFromPS(
+      iBooker, "gen_clusters_if_stub_zoom_endcaps", psEffic_pt_zoom, "p_{T} [GeV]", "# tracking particles");
 }
 
 void Phase2OTValidateStub::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // Phase2OTValidateStub
   edm::ParameterSetDescription desc;
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 900);
-    psd0.add<double>("xmax", 300);
-    psd0.add<double>("xmin", -300);
-    psd0.add<int>("Nbinsy", 900);
-    psd0.add<double>("ymax", 120);
-    psd0.add<double>("ymin", 0);
-    desc.add<edm::ParameterSetDescription>("TH2TTStub_RZ", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 100);
-    psd0.add<double>("xmax", 25000);
-    psd0.add<double>("xmin", 0);
-    desc.add<edm::ParameterSetDescription>("TH1NStubs", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 99);
-    psd0.add<double>("xmax", 5.5);
-    psd0.add<double>("xmin", -5.5);
-    desc.add<edm::ParameterSetDescription>("TH1_2S_Res", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 99);
-    psd0.add<double>("xmax", 2.0);
-    psd0.add<double>("xmin", -2.0);
-    desc.add<edm::ParameterSetDescription>("TH1_PS_Res", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 100);
-    psd0.add<double>("xmax", 0.025);
-    psd0.add<double>("xmin", -0.025);
-    desc.add<edm::ParameterSetDescription>("TH1Phi_Res", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 59);
-    psd0.add<double>("xmax", 5.0);
-    psd0.add<double>("xmin", -5.5);
-    desc.add<edm::ParameterSetDescription>("TH1Bend_Res", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 50);
-    psd0.add<double>("xmax", 100);
-    psd0.add<double>("xmin", 0);
-    desc.add<edm::ParameterSetDescription>("TH1Effic_pt", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 50);
-    psd0.add<double>("xmax", 10);
-    psd0.add<double>("xmin", 0);
-    desc.add<edm::ParameterSetDescription>("TH1Effic_pt_zoom", psd0);
-  }
+  // Helper for 1D histograms
+  auto addHist = [&desc](const std::string &name, int bins, double xmin, double xmax) {
+    edm::ParameterSetDescription psd;
+    psd.add<int>("Nbinsx", bins);
+    psd.add<double>("xmin", xmin);
+    psd.add<double>("xmax", xmax);
+    desc.add<edm::ParameterSetDescription>(name, psd);
+  };
+
+  // Helper for 2D histograms
+  auto addHist2D = [&desc](const std::string &name, int binsX, double xmin, double xmax, int binsY, double ymin, double ymax) {
+    edm::ParameterSetDescription psd;
+    psd.add<int>("Nbinsx", binsX);
+    psd.add<double>("xmin", xmin);
+    psd.add<double>("xmax", xmax);
+    psd.add<int>("Nbinsy", binsY);
+    psd.add<double>("ymin", ymin);
+    psd.add<double>("ymax", ymax);
+    desc.add<edm::ParameterSetDescription>(name, psd);
+  };
+
+  // 2D Histograms
+  addHist2D("TH2TTStub_RZ", 900, -300.0, 300.0, 900, 0.0, 120.0);
+
+  // 1D Histograms
+  addHist("TH1NStubs", 100, 0.0, 25000.0);
+  addHist("TH1_2S_Res", 99, -5.5, 5.5);
+  addHist("TH1_PS_Res", 99, -2.0, 2.0);
+  addHist("TH1Phi_Res", 100, -0.025, 0.025);
+  addHist("TH1Bend_Res", 59, -5.5, 5.0);
+  addHist("TH1Effic_pt", 50, 0.0, 100.0);
+  addHist("TH1Effic_pt_zoom", 50, 0.0, 10.0);
 
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTStubV");
   desc.add<edm::InputTag>("TTStubs", edm::InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"));
