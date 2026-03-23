@@ -15,14 +15,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         synchronize_(
             iConfig.getUntrackedParameter<edm::ParameterSet>("alpaka").getUntrackedParameter("synchronize", false)) {}
 
-  void ESProducer::enqueueCallback(Queue& queue, edm::WaitingTaskWithArenaHolder holder) {
+  void ESProducer::asyncWait(Queue& queue, edm::WaitingTaskWithArenaHolder holder) {
     edm::Service<edm::Async> async;
     auto event = cms::alpakatools::getEventCache<Event>().get(alpaka::getDev(queue));
     alpaka::enqueue(queue, *event);
     async->runAsync(
         std::move(holder),
         [event = std::move(event)]() mutable { alpaka::wait(*event); },
-        []() { return "Enqueued via " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) "::ESProducer::enqueueCallback()"; });
+        []() { return "Enqueued via " EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE) "::ESProducer::asyncWait()"; });
   }
 
   void ESProducer::throwSomeNullException() {

@@ -1,8 +1,8 @@
 #ifndef HeterogeneousCore_AlpakaCore_interface_alpaka_EDMetadataSentry_h
 #define HeterogeneousCore_AlpakaCore_interface_alpaka_EDMetadataSentry_h
 
+#include "DataFormats/AlpakaCommon/interface/alpaka/EDMetadata.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadata.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace detail {
