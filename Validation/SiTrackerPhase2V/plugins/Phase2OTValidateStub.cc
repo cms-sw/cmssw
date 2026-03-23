@@ -845,7 +845,7 @@ void Phase2OTValidateStub::fillDescriptions(edm::ConfigurationDescriptions& desc
   // Phase2OTValidateStub
   edm::ParameterSetDescription desc;
   // Helper for 1D histograms
-  auto addHist = [&desc](const std::string &name, int bins, double xmin, double xmax) {
+  auto addHist = [&desc](const std::string& name, int bins, double xmin, double xmax) {
     edm::ParameterSetDescription psd;
     psd.add<int>("Nbinsx", bins);
     psd.add<double>("xmin", xmin);
@@ -854,16 +854,17 @@ void Phase2OTValidateStub::fillDescriptions(edm::ConfigurationDescriptions& desc
   };
 
   // Helper for 2D histograms
-  auto addHist2D = [&desc](const std::string &name, int binsX, double xmin, double xmax, int binsY, double ymin, double ymax) {
-    edm::ParameterSetDescription psd;
-    psd.add<int>("Nbinsx", binsX);
-    psd.add<double>("xmin", xmin);
-    psd.add<double>("xmax", xmax);
-    psd.add<int>("Nbinsy", binsY);
-    psd.add<double>("ymin", ymin);
-    psd.add<double>("ymax", ymax);
-    desc.add<edm::ParameterSetDescription>(name, psd);
-  };
+  auto addHist2D =
+      [&desc](const std::string& name, int binsX, double xmin, double xmax, int binsY, double ymin, double ymax) {
+        edm::ParameterSetDescription psd;
+        psd.add<int>("Nbinsx", binsX);
+        psd.add<double>("xmin", xmin);
+        psd.add<double>("xmax", xmax);
+        psd.add<int>("Nbinsy", binsY);
+        psd.add<double>("ymin", ymin);
+        psd.add<double>("ymax", ymax);
+        desc.add<edm::ParameterSetDescription>(name, psd);
+      };
 
   // 2D Histograms
   addHist2D("TH2TTStub_RZ", 900, -300.0, 300.0, 900, 0.0, 120.0);

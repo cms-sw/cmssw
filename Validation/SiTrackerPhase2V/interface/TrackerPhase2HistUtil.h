@@ -1,8 +1,8 @@
 
 // TrackerPhase2HistUtil.h
 // -----------------------------------------------------------------------------
-// Helper utility for booking 1D histograms from ParameterSets and filling 
-// resolution MonitorElements (using standard deviations) in Phase-2 tracker 
+// Helper utility for booking 1D histograms from ParameterSets and filling
+// resolution MonitorElements (using standard deviations) in Phase-2 tracker
 // validation & harvesting code.
 //
 // Author: Brandi Skipworth
