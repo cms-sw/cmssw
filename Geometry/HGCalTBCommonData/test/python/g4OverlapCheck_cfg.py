@@ -29,8 +29,9 @@ options.parseArguments()
 print(options)
 
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+from Configuration.Eras.Modifier_hgcaltb_cff import hgcaltb
 
-process = cms.Process("OverlapCheck",Phase2C17I13M9)
+process = cms.Process("OverlapCheck", Phase2C17I13M9, hgcaltb)
 
 ####################################################################
 # Use the options

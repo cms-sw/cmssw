@@ -3,10 +3,12 @@
 
 <ConstantsSection label="hgcal.xml" eval="true">
   <Constant name="WaferSize"             value="167.4408*mm"/>
+  <Constant name="WaferSizeNominal"      value="167.4408*mm"/>
   <Constant name="WaferThickness"        value="0.30*mm"/>
   <Constant name="WaferThicknessFine"    value="0.30*mm"/>
   <Constant name="WaferThicknessCoarse1" value="0.20*mm"/>
   <Constant name="WaferThicknessCoarse2" value="0.30*mm"/>
+  <Constant name="WaferW"                value="200.0*mm"/>
   <Constant name="SensorSeparation"      value="0.10*mm"/>
   <Constant name="SensorSizeOffset"      value="0.87*mm"/>
   <Constant name="GuardRingOffset"       value="0.8985*mm"/>
@@ -40,6 +42,10 @@
   <Constant name="ChoiceType"            value="0"/>
   <Constant name="NCornerCut"            value="2"/>
   <Constant name="FracAreaMin"           value="0.2"/>
+  <Constant name="tan30deg"              value="tan(30.0*deg)"/>
+  <Constant name="absorberPbT"           value="0.245*mm"/>
+  <Constant name="absorberFeT"           value="0.15*mm"/>
+  <Constant name="absorberT"             value="([absorberPbT]+2*[absorberFeT])"/>
   <Constant name="radMixL0"              value="1537.05*mm"/>
   <Constant name="radMixL1"              value="1537.05*mm"/>
   <Constant name="radMixL2"              value="1537.05*mm"/>
