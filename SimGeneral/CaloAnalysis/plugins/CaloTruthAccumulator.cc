@@ -358,6 +358,7 @@ namespace {
     void doEndCluster(SimClassNameT &cluster) {
       for (auto const &hit_and_energy : acc_energy) {
         cluster.addRecHitAndFraction(hit_and_energy.first, hit_and_energy.second);
+		cluster.addHitEnergy(hit_and_energy.second);
       }
       acc_energy.clear();
     }
@@ -737,9 +738,8 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
     std::copy(m_detIdToTotalSimEnergy.begin(), m_detIdToTotalSimEnergy.end(), std::back_inserter(*totalEnergies));
     std::sort(totalEnergies->begin(), totalEnergies->end());
     event.put(std::move(totalEnergies), "MergedCaloTruth");
-    // make sure persisted SimClusters have sorted hits and built ranges
     for (auto &sc : *(output_.pSimClusters)) {
-      sc.finalizeHits();
+      sc.finalizeHits();  // make sure persisted SimClusters have sorted hits and built ranges
     }
   } else {
     applyToSimClusterConfig(

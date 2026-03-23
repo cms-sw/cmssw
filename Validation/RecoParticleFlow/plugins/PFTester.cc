@@ -651,7 +651,6 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
       // Compute energy of caloParticle as sum of simClusters energies (from SimTrack energy)
       energySumSimClusters += sc.energy();
       // Compute energy of caloParticle as sum of all hits from all simClusters
-
       energySumSimHits += simClusterEnergy(haeView);
       // Compute energy of caloParticle as sum of all rechits energy multiplied by sim fraction from all simClusters
       recoEnergySumWeightedBySimFrac += recoClusterEnergyWeightedBySimFraction(hafView, pfRechit);
