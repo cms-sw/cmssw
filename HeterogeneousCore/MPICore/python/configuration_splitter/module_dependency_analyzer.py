@@ -5,24 +5,32 @@ from itertools import chain
 import FWCore.ParameterSet.Config as cms
 
 
-def flatten_all_to_module_set(process, user_args):
+def flatten_all_to_module_list(process, user_args):
     """
-    This function ensures that if one of the input arguments was path or sequence, 
-    it will be flattened to a module set for input consistency
+    Flatten input arguments into an ordered list of module names.
+    Preserves user-provided order and avoids duplicates.
     """
-    module_list = set()
+    module_list = []
+    seen = set()
+
     for name in user_args:
         if not hasattr(process, name):
             print(f"[WARN] process has no attribute named '{name}'")
             continue
-        obj_ = getattr(process, name)
-        if hasattr(obj_, "moduleNames"):
-            print("is sequence")
-            module_list.extend(obj_.moduleNames())
-        else:
-            module_list.add(name)
-    return module_list
 
+        obj_ = getattr(process, name)
+
+        if hasattr(obj_, "moduleNames"):
+            for mod in obj_.moduleNames():
+                if mod not in seen:
+                    module_list.append(mod)
+                    seen.add(mod)
+        else:
+            if name not in seen:
+                module_list.append(name)
+                seen.add(name)
+
+    return module_list
 
 class ModuleDependencyAnalyzer:
     def __init__(self, process):
@@ -74,7 +82,7 @@ class ModuleDependencyAnalyzer:
 
         return tags
 
-    def direct_dependencies(self, modules: Set[str]) -> Set[str]:
+    def direct_dependencies(self, modules: List[str]) -> Set[str]:
         """
         Get the modules whose products are needed
         """
@@ -89,7 +97,7 @@ class ModuleDependencyAnalyzer:
         """
         return self.producer_to_consumers.get(producer, set())
 
-    def _restricted_graph(self, modules: Set[str]) -> Dict[str, Set[str]]:
+    def _restricted_graph(self, modules: List[str]) -> Dict[str, Set[str]]:
         """
         Restricted dependency graph, reflecting the relationships between the modules to offload
         """
@@ -104,7 +112,11 @@ class ModuleDependencyAnalyzer:
 
         return graph
     
-    def _connected_groups(self, graph: Dict[str, Set[str]]) -> List[List[str]]:
+    def _connected_groups(
+        self,
+        graph: Dict[str, Set[str]],
+        module_order: List[str],
+    ) -> List[List[str]]:
         """
         Return list of weakly connected components.
         Each component is returned as a list of modules ordered
@@ -114,34 +126,35 @@ class ModuleDependencyAnalyzer:
         # ---- build undirected graph ----
         undirected = defaultdict(set)
 
-        for src, dsts in graph.items():
-            undirected[src]  # ensure node exists
-            for dst in dsts:
+        for src in graph:
+            undirected[src]
+            for dst in graph[src]:
                 undirected[src].add(dst)
                 undirected[dst].add(src)
 
         seen = set()
         components = []
 
-        # ---- find weakly connected components ----
-        for node in undirected:
-            if node in seen:
+        # ---- deterministic traversal using module_order ----
+        for node in module_order:
+            if node not in undirected or node in seen:
                 continue
 
             stack = [node]
-            comp = set()
+            comp = []
 
             while stack:
                 n = stack.pop()
                 if n in seen:
                     continue
                 seen.add(n)
-                comp.add(n)
+                comp.append(n)
+
                 stack.extend(undirected[n] - seen)
 
             components.append(comp)
 
-        # ---- order each component by dependencies ----
+         # ---- order each component by dependencies ----
         ordered_components = []
 
         for comp in components:
@@ -175,13 +188,13 @@ class ModuleDependencyAnalyzer:
             ordered_components.append(ordered)
 
         return ordered_components
-
-    def dependency_groups(self, modules: Set[str]) -> List[List[str]]:
+    
+    def dependency_groups(self, modules: List[str]) -> List[List[str]]:
         """
         Get dependency groups (ordered)
         """
         graph = self._restricted_graph(modules)
-        return self._connected_groups(graph)
+        return self._connected_groups(graph, modules)
 
     def grouped_external_dependencies(
         self,
@@ -222,7 +235,7 @@ class ModuleDependencyAnalyzer:
     def modules_to_send_back_by_group(
         self,
         groups: List[List[str]],
-        modules_to_run_on_both: Set[str],
+        modules_to_run_on_both: List[str],
     ):
         """
         Which offloaded modules must send products back, and which are not needed on local
