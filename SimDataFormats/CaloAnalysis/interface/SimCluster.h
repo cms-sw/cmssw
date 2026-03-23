@@ -319,7 +319,7 @@ public:
   }
 
   // --------------------------------------------------------------------------
-  // New: producer-side "finalization" (to be called before putting in the event)
+  // Producer-side "finalization" (to be called before putting in the event)
   // --------------------------------------------------------------------------
   void finalizeHits() {
     // Keep your original implicit invariant:
