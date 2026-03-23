@@ -28,9 +28,9 @@
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Guid.h"
-#include "HeterogeneousCore/MPICore/interface/api.h"
-#include "HeterogeneousCore/MPICore/interface/messages.h"
+#include "HeterogeneousCore/MPICore/interface/MPIChannel.h"
 #include "HeterogeneousCore/MPICore/interface/MPIToken.h"
+#include "HeterogeneousCore/MPICore/interface/messages.h"
 #include "HeterogeneousCore/MPIServices/interface/MPIService.h"
 
 /* MPIController class

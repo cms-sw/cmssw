@@ -31,7 +31,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "HeterogeneousCore/MPICore/interface/api.h"
+#include "HeterogeneousCore/MPICore/interface/MPIChannel.h"
 #include "HeterogeneousCore/MPICore/interface/MPIToken.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/AnyBuffer.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/SerialiserBase.h"
