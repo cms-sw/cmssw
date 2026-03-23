@@ -1,6 +1,7 @@
 <lcgdict>
+
   <class name="io_v1::TrajectorySeed" ClassVersion="3">
-   <version ClassVersion="3" checksum="1211492305"/>
+   <version ClassVersion="3" checksum="2477503995"/>
   </class>
   <class name="edm::RefToBase<io_v1::TrajectorySeed>" rntupleStreamerMode="true"/>
   <class name="edm::reftobase::BaseHolder<io_v1::TrajectorySeed>"/>

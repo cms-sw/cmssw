@@ -2,8 +2,8 @@
 <selection>
 
 
-  <class name="reco::PFNuclearInteraction"  ClassVersion="10">
-   <version ClassVersion="10" checksum="1573561360"/>
+  <class name="reco::PFNuclearInteraction"  ClassVersion="3">
+   <version ClassVersion="3" checksum="1573561360"/>
   </class>
   <class name="std::vector<reco::PFNuclearInteraction>" />
   <class name="edm::Wrapper<std::vector<reco::PFNuclearInteraction> >" />
@@ -43,7 +43,7 @@
 
 
   <class name="reco::ConvBremSeed" ClassVersion="3">
-   <version ClassVersion="3" checksum="2319603487"/>
+   <version ClassVersion="3" checksum="1103564569"/>
   </class>
   <class name="std::vector<reco::ConvBremSeed>"/>
   <class name="edm::Ref<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed> >"/>

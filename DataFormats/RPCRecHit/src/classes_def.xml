@@ -1,7 +1,7 @@
 <lcgdict>
 <selection>
   <class name="io_v1::RPCRecHit" splitLevel="0" ClassVersion="3">
-   <version ClassVersion="3" checksum="3050022817"/>
+   <version ClassVersion="3" checksum="3054862125"/>
   </class>
   <class name="std::vector<io_v1::RPCRecHit>" splitLevel="0"/>
   <class name="std::vector<io_v1::RPCRecHit*>" splitLevel="0"/>

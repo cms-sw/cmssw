@@ -1,45 +1,39 @@
 <lcgdict>
 <selection>
-  <class name="TrackingRecHit" ClassVersion="11">
-   <version ClassVersion="11" checksum="1162527707"/>
-   <version ClassVersion="10" checksum="1481465852"/>
+  <class name="io_v1::TrackingRecHit" ClassVersion="3">
+   <version ClassVersion="3" checksum="2160079195"/>
    <field name="m_det" transient="true" />
   </class>
-  <class name="RecHit1D" ClassVersion="11">
-   <version ClassVersion="11" checksum="312395919"/>
-   <version ClassVersion="10" checksum="2579934268"/>
+  <class name="RecHit1D" ClassVersion="3">
+   <version ClassVersion="3" checksum="428694059"/>
   </class>
-  <class name="InvalidTrackingRecHit" ClassVersion="11">
-   <version ClassVersion="11" checksum="2642266668"/>
-   <version ClassVersion="10" checksum="3356557851"/>
+  <class name="InvalidTrackingRecHit" ClassVersion="3">
+   <version ClassVersion="3" checksum="2024809066"/>
   </class>
-  <class name="InvalidTrackingRecHitNoDet" ClassVersion="11">
-   <version ClassVersion="11" checksum="3858174036"/>
-   <version ClassVersion="10" checksum="405302456"/>
+  <class name="InvalidTrackingRecHitNoDet" ClassVersion="3">
+   <version ClassVersion="3" checksum="3240716434"/>
    <field name="m_surface" transient="true" />
   </class>
-  <class name="RecHit2DLocalPos" ClassVersion="11">
-   <version ClassVersion="11" checksum="373569091"/>
-   <version ClassVersion="10" checksum="1168669560"/>
+  <class name="RecHit2DLocalPos" ClassVersion="3">
+   <version ClassVersion="3" checksum="1070435047"/>
   </class>
-  <class name="RecSegment" ClassVersion="11">
-   <version ClassVersion="11" checksum="754678582"/>
-   <version ClassVersion="10" checksum="1295706057"/>
+  <class name="RecSegment" ClassVersion="3">
+   <version ClassVersion="3" checksum="1333236440"/>
   </class>
-  <class name="std::vector<TrackingRecHit*>"/>
-  <class name="edm::OwnVector<TrackingRecHit, edm::ClonePolicy<TrackingRecHit> >" rntupleStreamerMode="true"/>
-  <class name="edm::ClonePolicy<TrackingRecHit>"/> <!-- Root6 -->
-  <class name="edm::Ref<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit> >"/>
-  <class name="edm::RefVectorIterator<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit> >"/>
+  <class name="std::vector<io_v1::TrackingRecHit*>"/>
+  <class name="edm::OwnVector<io_v1::TrackingRecHit, edm::ClonePolicy<io_v1::TrackingRecHit> >" rntupleStreamerMode="true"/>
+  <class name="edm::ClonePolicy<io_v1::TrackingRecHit>"/> <!-- Root6 -->
+  <class name="edm::Ref<edm::OwnVector<io_v1::TrackingRecHit,edm::ClonePolicy<io_v1::TrackingRecHit> >,io_v1::TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<io_v1::TrackingRecHit,edm::ClonePolicy<io_v1::TrackingRecHit> >,io_v1::TrackingRecHit> >"/>
+  <class name="edm::RefVectorIterator<edm::OwnVector<io_v1::TrackingRecHit,edm::ClonePolicy<io_v1::TrackingRecHit> >,io_v1::TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<io_v1::TrackingRecHit,edm::ClonePolicy<io_v1::TrackingRecHit> >,io_v1::TrackingRecHit> >"/>
   <!-- Warning: Unused class rule: std::iterator<*edm::Ref*> -->
   <!-- <class pattern="std::iterator<*edm::Ref*>"/> -->
-  <class name="std::pair<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >::const_iterator,edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >::const_iterator>"/>
-  <class name="edm::RefProd<edm::OwnVector<TrackingRecHit, edm::ClonePolicy<TrackingRecHit> > >"/>
-  <class name="edm::RefVector<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit> >"/>
-  <class name="edm::Wrapper<edm::OwnVector<TrackingRecHit, edm::ClonePolicy<TrackingRecHit> > >"/>
+  <class name="std::pair<edm::OwnVector<io_v1::TrackingRecHit,edm::ClonePolicy<io_v1::TrackingRecHit> >::const_iterator,edm::OwnVector<io_v1::TrackingRecHit,edm::ClonePolicy<io_v1::TrackingRecHit> >::const_iterator>"/>
+  <class name="edm::RefProd<edm::OwnVector<io_v1::TrackingRecHit, edm::ClonePolicy<io_v1::TrackingRecHit> > >"/>
+  <class name="edm::RefVector<edm::OwnVector<io_v1::TrackingRecHit,edm::ClonePolicy<io_v1::TrackingRecHit> >,io_v1::TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<io_v1::TrackingRecHit,edm::ClonePolicy<io_v1::TrackingRecHit> >,io_v1::TrackingRecHit> >"/>
+  <class name="edm::Wrapper<edm::OwnVector<io_v1::TrackingRecHit, edm::ClonePolicy<io_v1::TrackingRecHit> > >"/>
 </selection>
 <exclusion>
-  <class name="edm::OwnVector<TrackingRecHit, edm::ClonePolicy<TrackingRecHit> >">
+  <class name="edm::OwnVector<io_v1::TrackingRecHit, edm::ClonePolicy<io_v1::TrackingRecHit> >">
     <method name="sort" />
   </class>
 </exclusion>
