@@ -123,6 +123,11 @@ void HGCalCLUEAlgoT<T, STRATEGY>::makeClusters() {
 }
 
 template <typename T, typename STRATEGY>
+std::vector<reco::BasicCluster> HGCalCLUEAlgoT<T, STRATEGY>::getClustersLegacy(bool) {
+  return std::vector<reco::BasicCluster>(1);
+}
+
+template <typename T, typename STRATEGY>
 ticl::LayerClustersAndAssociations HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
   std::vector<int> offsets(numberOfClustersPerLayer_.size(), 0);
   int maxClustersOnLayer = numberOfClustersPerLayer_[0];

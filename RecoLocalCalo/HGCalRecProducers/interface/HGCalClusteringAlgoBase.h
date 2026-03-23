@@ -64,6 +64,7 @@ public:
   virtual void populate(const reco::PFRecHitCollection &hits) = 0;
   virtual void makeClusters() = 0;
   virtual ticl::LayerClustersAndAssociations getClusters(bool) = 0;
+  virtual std::vector<reco::BasicCluster> getClustersLegacy(bool) = 0;
   virtual void reset() = 0;
   virtual hgcal_clustering::Density getDensity() { return {}; };        // implementation is in some child class
   virtual void getEventSetupPerAlgorithm(const edm::EventSetup &es) {}  // implementation is in some child class

@@ -17,6 +17,7 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalLayerTiles.h"
+#include "RecoLocalCalo/HGCalRecProducers/interface/LayerClusterAndAssociations.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
@@ -24,6 +25,7 @@
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
 #include "CondFormats/HcalObjects/interface/HcalPFCuts.h"
+
 
 // C/C++ headers
 #include <set>
@@ -59,7 +61,8 @@ public:
   void makeClusters() override;
 
   // this is the method to get the cluster collection out
-  std::vector<reco::BasicCluster> getClusters(bool) override;
+  ticl::LayerClustersAndAssociations getClusters(bool) override;
+  std::vector<reco::BasicCluster> getClustersLegacy(bool) override;
 
   void reset() override {
     clusters_v_.clear();

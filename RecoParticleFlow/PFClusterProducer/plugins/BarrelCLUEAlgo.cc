@@ -98,7 +98,12 @@ void BarrelCLUEAlgoT<T>::makeClusters() {
 }
 
 template <typename T>
-std::vector<reco::BasicCluster> BarrelCLUEAlgoT<T>::getClusters(bool) {
+ticl::LayerClustersAndAssociations BarrelCLUEAlgoT<T>::getClusters(bool) { 
+  return ticl::LayerClustersAndAssociations(1, 1);
+}
+
+template <typename T>
+std::vector<reco::BasicCluster> BarrelCLUEAlgoT<T>::getClustersLegacy(bool) {
   std::vector<int> offsets(numberOfClustersPerLayer_.size(), 0);
 
   int maxClustersOnLayer = numberOfClustersPerLayer_[0];
