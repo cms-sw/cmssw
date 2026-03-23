@@ -7,7 +7,6 @@
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/Common/interface/DeviceProduct.h"
-#include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -79,9 +78,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // the host copy.
     std::shared_ptr<Queue> shared_queue() const { return queue_; }
 
-    void enqueueCallback(edm::WaitingTaskWithArenaHolder holder);
-
-    void recordEvent() { alpaka::enqueue(*queue_, *event_); }
+    // Used by EDMetadataSentry and EDMetadataAcquireSentry to record the event
+    // corresponding to the completion of the work of the EDProducer associated
+    // to this metadata object.
+    std::shared_ptr<Event> recordEvent() {
+      alpaka::enqueue(*queue_, *event_);
+      return event_;
+    }
     void discardEvent() { event_.reset(); }
 
     /**
