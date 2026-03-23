@@ -16,12 +16,12 @@
  */
 
 #include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
+#include "DataFormats/DTDigi/interface/DTDigiFwd.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 #include <utility>
 
 class DTLayer;
-class DTDigi;
 
 class DTRecHit1DPair : public RecHit1D {
 public:

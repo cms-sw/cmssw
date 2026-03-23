@@ -1,0 +1,6 @@
+#ifndef DataFormats_EcalDigi_ESDigiCollectionFwd_h
+#define DataFormats_EcalDigi_ESDigiCollectionFwd_h
+
+class ESDigiCollection;
+
+#endif

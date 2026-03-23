@@ -1,0 +1,6 @@
+#ifndef DataFormats_L1GlobalMuonTrigger_L1MuGMTCandFwd_h
+#define DataFormats_L1GlobalMuonTrigger_L1MuGMTCandFwd_h
+
+class L1MuGMTCand;
+
+#endif

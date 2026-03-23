@@ -20,7 +20,6 @@
 
 class TH1F;
 class TFile;
-class PSimHit;
 // class DTMCStatistics;
 // class DTMuonDigiStatistics;
 // class DTHitsAnalysis;

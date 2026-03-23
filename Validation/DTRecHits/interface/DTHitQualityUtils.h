@@ -14,11 +14,11 @@
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 
 #include <atomic>
 #include <map>
 
-class PSimHit;
 class DTGeometry;
 
 namespace DTHitQualityUtils {

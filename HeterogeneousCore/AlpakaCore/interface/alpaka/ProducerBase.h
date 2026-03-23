@@ -1,14 +1,14 @@
 #ifndef HeterogeneousCore_AlpakaCore_interface_ProducerBase_h
 #define HeterogeneousCore_AlpakaCore_interface_ProducerBase_h
 
+#include "DataFormats/AlpakaCommon/interface/alpaka/DeviceProductType.h"
 #include "DataFormats/Common/interface/DeviceProduct.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/Framework/interface/moduleAbilities.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/Transition.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/DeviceProductType.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadataAcquireSentry.h"
 #include "HeterogeneousCore/AlpakaCore/interface/modulePrevalidate.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/Backend.h"

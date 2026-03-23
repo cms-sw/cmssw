@@ -1,0 +1,6 @@
+#ifndef SimDataFormats_PileupSummaryInfo_PileupSummaryInfoFwd_h
+#define SimDataFormats_PileupSummaryInfo_PileupSummaryInfoFwd_h
+
+class PileupSummaryInfo;
+
+#endif

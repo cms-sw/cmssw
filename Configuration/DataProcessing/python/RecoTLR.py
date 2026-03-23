@@ -99,6 +99,11 @@ def customisePostEra_Run3_2025(process):
     customisePostEra_Run3_2024(process)
     return process
 
+def customisePostEra_Run3_2026(process):
+    #start with a repeat of 2025
+    customisePostEra_Run3_2025(process)
+    return process
+
 def customisePostEra_Run3_express_trackingOnly(process):
     #start with a repeat of 2018
     customisePostEra_Run2_2018_express_trackingOnly(process)
@@ -155,6 +160,18 @@ def customisePostEra_Run3_2025_UPC(process):
 
 def customisePostEra_Run3_2025_OXY(process):
     customisePostEra_Run3_2025(process)
+    return process
+
+def customisePostEra_Run3_pp_on_PbPb_2026(process):
+    customisePostEra_Run3_2026(process)
+    return process
+
+def customisePostEra_Run3_pp_on_PbPb_approxSiStripClusters_2026(process):
+    customisePostEra_Run3_pp_on_PbPb_2026(process)
+    return process
+
+def customisePostEra_Run3_2026_UPC(process):
+    customisePostEra_Run3_2026(process)
     return process
 
 ##############################################################################

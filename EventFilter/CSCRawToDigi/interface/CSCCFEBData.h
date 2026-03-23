@@ -1,8 +1,9 @@
 #ifndef EventFilter_CSCRawToDigi_CSCCFEBData_h
 #define EventFilter_CSCRawToDigi_CSCCFEBData_h
 
+#include "DataFormats/CSCDigi/interface/CSCStripDigiFwd.h"
+
 class CSCCFEBTimeSlice;
-class CSCStripDigi;
 class CSCCFEBStatusDigi;
 
 #include <vector>

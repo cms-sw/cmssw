@@ -64,7 +64,7 @@ std::vector<GEMInternalCluster> GEMClusterProcessor::getClusters(int bx, Cluster
 
   for (const auto& cl : clusters_) {
     // valid single clusters with the right BX
-    if (cl.bx() == bx and cl.isValid()) {
+    if (cl.isValid() and cl.bx() == bx) {
       // ignore the coincidence clusters
       if (option == SingleClusters and cl.isCoincidence())
         continue;

@@ -12,10 +12,3 @@ hltHighPtTripletStepClusters = cms.EDProducer("TrackClusterRemoverPhase2",
     trackClassifier = cms.InputTag("","QualityMasks"),
     trajectories = cms.InputTag("hltInitialStepTrackSelectionHighPurity")
 )
-
-_hltHighPtTripletStepClustersLST = hltHighPtTripletStepClusters.clone(
-    trajectories = "hltInitialStepSeedTracksLST"
-)
-
-from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
-trackingLST.toReplaceWith(hltHighPtTripletStepClusters, _hltHighPtTripletStepClustersLST)

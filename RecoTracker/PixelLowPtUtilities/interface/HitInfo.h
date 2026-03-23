@@ -1,9 +1,9 @@
 #ifndef RecoTracker_PixelLowPtUtilities_HitInfo_h
 #define RecoTracker_PixelLowPtUtilities_HitInfo_h
 
-class DetId;
-class TrackingRecHit;
-class PSimHit;
+#include "DataFormats/DetId/interface/DetIdFwd.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 
 #include <vector>
 #include <string>

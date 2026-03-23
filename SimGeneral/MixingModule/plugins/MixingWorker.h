@@ -22,6 +22,8 @@
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/PCrossingFrame.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
+#include "SimDataFormats/Vertex/interface/SimVertexFwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <memory>
@@ -30,8 +32,6 @@
 #include <typeinfo>
 #include "MixingWorkerBase.h"
 
-class SimTrack;
-class SimVertex;
 namespace edm {
   template <class T>
   class MixingWorker : public MixingWorkerBase {

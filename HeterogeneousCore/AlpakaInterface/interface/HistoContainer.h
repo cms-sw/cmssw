@@ -119,19 +119,21 @@ namespace cms::alpakatools {
     }
   }
 
-  template <typename T,      // the type of the discretized input values
-            uint32_t NBINS,  // number of bins
-            int32_t SIZE,    // max number of element. If -1 is initialized at runtime using external storage
+  template <typename T,                         // the type of the discretized input values
+            FlexiStorageBase::size_type NBINS,  // number of bins
+            // max number of element. If cms::alpakatools::kDynamicSize is initialized at runtime using external storage
+            FlexiStorageBase::size_type SIZE,
             uint32_t S = sizeof(T) * 8,  // number of significant bits in T
             typename I = uint32_t,  // type stored in the container (usually an index in a vector of the input values)
-            uint32_t NHISTS = 1     // number of histos stored
+            FlexiStorageBase::size_type NHISTS = 1  // number of histos stored
             >
   class HistoContainer : public OneToManyAssocRandomAccess<I, NHISTS * NBINS + 1, SIZE> {
   public:
     using Base = OneToManyAssocRandomAccess<I, NHISTS * NBINS + 1, SIZE>;
     using View = typename Base::View;
     using Counter = typename Base::Counter;
-    using index_type = typename Base::index_type;
+    using value_type = typename Base::value_type;
+    using size_type = typename Base::size_type;
     using UT = typename std::make_unsigned<T>::type;
 
     static constexpr uint32_t ilog2(uint32_t v) {
@@ -147,13 +149,13 @@ namespace cms::alpakatools {
       return r;
     }
 
+    static constexpr size_type nhists() { return NHISTS; }
+    static constexpr size_type nbins() { return NBINS; }
+    static constexpr size_type totbins() { return NHISTS * NBINS + 1; }
     static constexpr uint32_t sizeT() { return S; }
-    static constexpr int32_t nhists() { return NHISTS; }
-    static constexpr uint32_t nbins() { return NBINS; }
-    static constexpr uint32_t totbins() { return NHISTS * NBINS + 1; }
     static constexpr uint32_t nbits() { return ilog2(NBINS - 1) + 1; }
 
-    static constexpr auto histOff(uint32_t nh) { return NBINS * nh; }
+    static constexpr size_type histOff(size_type nh) { return NBINS * nh; }
 
     static constexpr UT bin(T t) {
       constexpr uint32_t shift = sizeT() - nbits();
@@ -163,14 +165,14 @@ namespace cms::alpakatools {
 
     template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void count(const TAcc &acc, T t) {
-      uint32_t b = bin(t);
+      size_type b = bin(t);
       ALPAKA_ASSERT_ACC(b < nbins());
       Base::atomicIncrement(acc, this->off[b]);
     }
 
     template <alpaka::concepts::Acc TAcc>
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE void fill(const TAcc &acc, T t, index_type j) {
-      uint32_t b = bin(t);
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void fill(const TAcc &acc, T t, value_type j) {
+      size_type b = bin(t);
       ALPAKA_ASSERT_ACC(b < nbins());
       auto w = Base::atomicDecrement(acc, this->off[b]);
       ALPAKA_ASSERT_ACC(w > 0);
@@ -178,8 +180,8 @@ namespace cms::alpakatools {
     }
 
     template <alpaka::concepts::Acc TAcc>
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE void count(const TAcc &acc, T t, uint32_t nh) {
-      uint32_t b = bin(t);
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void count(const TAcc &acc, T t, size_type nh) {
+      size_type b = bin(t);
       ALPAKA_ASSERT_ACC(b < nbins());
       b += histOff(nh);
       ALPAKA_ASSERT_ACC(b < totbins());
@@ -187,8 +189,8 @@ namespace cms::alpakatools {
     }
 
     template <alpaka::concepts::Acc TAcc>
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE void fill(const TAcc &acc, T t, index_type j, uint32_t nh) {
-      uint32_t b = bin(t);
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void fill(const TAcc &acc, T t, value_type j, size_type nh) {
+      size_type b = bin(t);
       ALPAKA_ASSERT_ACC(b < nbins());
       b += histOff(nh);
       ALPAKA_ASSERT_ACC(b < totbins());

@@ -25,7 +25,9 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecordFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+#include "DataFormats/L1TGlobal/interface/GlobalObjectMapRecordFwd.h"
 #include "DataFormats/L1TGlobal/interface/GlobalLogicParser.h"
 #include "DataFormats/L1TGlobal/interface/GlobalObject.h"
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
@@ -35,9 +37,7 @@
 // forward declarations
 class L1GtTriggerMenu;
 class L1GtTriggerMask;
-class L1GlobalTriggerReadoutRecord;
 
-class GlobalObjectMapRecord;
 namespace edm {
   class ConfigurationDescriptions;
 }

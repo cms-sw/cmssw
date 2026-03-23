@@ -5,8 +5,8 @@
 
 #include "DQM/EcalCommon/interface/DQWorker.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 
-class DetId;
 namespace edm {
   class ConsumesCollector;
 }  // namespace edm

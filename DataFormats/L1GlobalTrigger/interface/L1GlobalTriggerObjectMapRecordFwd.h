@@ -1,0 +1,6 @@
+#ifndef DataFormats_L1GlobalTrigger_L1GlobalTriggerObjectMapRecordFwd_h
+#define DataFormats_L1GlobalTrigger_L1GlobalTriggerObjectMapRecordFwd_h
+
+class L1GlobalTriggerObjectMapRecord;
+
+#endif

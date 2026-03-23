@@ -13,6 +13,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHit.h"
+#include "DataFormats/MuonDetId/interface/GEMDetIdFwd.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 
 #include "RecoLocalMuon/GEMRecHit/interface/GEMEtaPartitionMask.h"
@@ -20,7 +21,6 @@
 
 class GEMCluster;
 class GEMEtaPartition;
-class GEMDetId;
 
 namespace edm {
   class ParameterSet;

@@ -12,24 +12,30 @@
 #include <boost/program_options.hpp>
 #include "CollUtil.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
-#include "FWCore/Catalog/interface/StorageURLModifier.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "FWStorage/Services/interface/setupSiteLocalConfig.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
+#include "FWStorage/Catalog/interface/StorageURLModifier.h"
+#include "FWStorage/Services/interface/setupSiteLocalConfig.h"
 
 #include "TFile.h"
 #include "TError.h"
 #include "TTree.h"
 #include "ROOT/RNTuple.hxx"
 #include "ROOT/RNTupleReader.hxx"
+#include "TApplication.h"
 
 int main(int argc, char* argv[]) {
+  // TApplication sets up atexit handlers such that header parsing
+  // should not happen there
+  // A simpler solution would be nice
+  TApplication application("edmRNTupleTempFileUtil", nullptr, nullptr);
+
   gErrorIgnoreLevel = kError;
 
   // Add options here

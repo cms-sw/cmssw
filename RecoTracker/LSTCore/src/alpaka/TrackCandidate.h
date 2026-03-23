@@ -39,11 +39,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     // Initialize all slots to empty
     auto& tcHits = candsBase.hitIndices()[trackCandidateIndex];
-    auto& tcModules = candsExtended.lowerModuleIndices()[trackCandidateIndex];
-    auto& tcLayers = candsExtended.logicalLayers()[trackCandidateIndex];
     CMS_UNROLL_LOOP for (int layerSlot = 0; layerSlot < Params_TC::kLayers; ++layerSlot) {
-      tcLayers[layerSlot] = 0;
-      tcModules[layerSlot] = lst::kTCEmptyLowerModule;
+      candsExtended.logicalLayers()[trackCandidateIndex][layerSlot] = 0;
+      candsExtended.lowerModuleIndices()[trackCandidateIndex][layerSlot] = lst::kTCEmptyLowerModule;
       tcHits[layerSlot][0] = lst::kTCEmptyHitIdx;
       tcHits[layerSlot][1] = lst::kTCEmptyHitIdx;
     }
@@ -64,11 +62,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       uint16_t lowerModule,
       unsigned int hitIndex0,
       unsigned int hitIndex1) {
-    auto& tcModules = candsExtended.lowerModuleIndices()[trackCandidateIndex];
-    auto& tcLayers = candsExtended.logicalLayers()[trackCandidateIndex];
     auto& tcHits = candsBase.hitIndices()[trackCandidateIndex];
-    tcLayers[layerSlot] = logicalLayer;
-    tcModules[layerSlot] = lowerModule;
+    candsExtended.logicalLayers()[trackCandidateIndex][layerSlot] = logicalLayer;
+    candsExtended.lowerModuleIndices()[trackCandidateIndex][layerSlot] = lowerModule;
     tcHits[layerSlot][0] = hitIndex0;
     tcHits[layerSlot][1] = hitIndex1;
   }
@@ -96,11 +92,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     // Initialize all slots to empty
     auto& tcHits = candsBase.hitIndices()[trackCandidateIndex];
-    auto& tcModules = candsExtended.lowerModuleIndices()[trackCandidateIndex];
-    auto& tcLayers = candsExtended.logicalLayers()[trackCandidateIndex];
     CMS_UNROLL_LOOP for (int layerSlot = 0; layerSlot < Params_TC::kLayers; ++layerSlot) {
-      tcLayers[layerSlot] = 0;  // 0 is "pixel" when filled
-      tcModules[layerSlot] = lst::kTCEmptyLowerModule;
+      candsExtended.logicalLayers()[trackCandidateIndex][layerSlot] = 0;  // 0 is "pixel" when filled
+      candsExtended.lowerModuleIndices()[trackCandidateIndex][layerSlot] = lst::kTCEmptyLowerModule;
       tcHits[layerSlot][0] = lst::kTCEmptyHitIdx;
       tcHits[layerSlot][1] = lst::kTCEmptyHitIdx;
     }
@@ -146,9 +140,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           candsBase, candsExtended, trackCandidateIndex, layerSlot, logicalLayer, lowerModule, hit0, hit1);
     }
 
+#ifdef CUT_VALUE_DEBUG
     candsExtended.centerX()[trackCandidateIndex] = __F2H(centerX);
     candsExtended.centerY()[trackCandidateIndex] = __F2H(centerY);
     candsExtended.radius()[trackCandidateIndex] = __F2H(radius);
+#endif
   }
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE int checkPixelHits(
@@ -506,6 +502,69 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   };
 
+  struct CountSurvivingTCs {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  uint16_t nLowerModules,
+                                  PixelQuintupletsConst pixelQuintuplets,
+                                  PixelTripletsConst pixelTriplets,
+                                  QuintupletsConst quintuplets,
+                                  QuintupletsOccupancyConst quintupletsOccupancy,
+                                  QuadrupletsConst quadruplets,
+                                  QuadrupletsOccupancyConst quadrupletsOccupancy,
+                                  SegmentsOccupancyConst segmentsOccupancy,
+                                  PixelSeedsConst pixelSeeds,
+                                  PixelSegmentsConst pixelSegments,
+                                  ObjectRangesConst ranges,
+                                  unsigned int* nSurviving,
+                                  bool tc_pls_triplets) const {
+      // Count surviving pT5s
+      unsigned int nPixelQuintuplets = pixelQuintuplets.nPixelQuintuplets();
+      for (unsigned int i : cms::alpakatools::uniform_elements(acc, nPixelQuintuplets)) {
+        if (!pixelQuintuplets.isDup()[i])
+          alpaka::atomicAdd(acc, &nSurviving[0], 1u, alpaka::hierarchy::Threads{});
+      }
+
+      // Count surviving pT3s
+      unsigned int nPixelTriplets = pixelTriplets.nPixelTriplets();
+      for (unsigned int i : cms::alpakatools::uniform_elements(acc, nPixelTriplets)) {
+        if (!pixelTriplets.isDup()[i])
+          alpaka::atomicAdd(acc, &nSurviving[1], 1u, alpaka::hierarchy::Threads{});
+      }
+
+      // Count surviving T5s
+      for (unsigned int idx : cms::alpakatools::uniform_elements(acc, (unsigned int)nLowerModules)) {
+        if (ranges.quintupletModuleIndices()[idx] == -1)
+          continue;
+        unsigned int nQuints = quintupletsOccupancy.nQuintuplets()[idx];
+        for (unsigned int jdx = 0; jdx < nQuints; ++jdx) {
+          unsigned int quintupletIndex = ranges.quintupletModuleIndices()[idx] + jdx;
+          if (!quintuplets.isDup()[quintupletIndex] && !quintuplets.partOfPT5()[quintupletIndex] &&
+              quintuplets.tightCutFlag()[quintupletIndex])
+            alpaka::atomicAdd(acc, &nSurviving[2], 1u, alpaka::hierarchy::Threads{});
+        }
+      }
+
+      // Count surviving T4s (upper bound - before CrossCleanT4)
+      for (unsigned int idx : cms::alpakatools::uniform_elements(acc, (unsigned int)nLowerModules)) {
+        if (ranges.quadrupletModuleIndices()[idx] == -1)
+          continue;
+        unsigned int nQuads = quadrupletsOccupancy.nQuadruplets()[idx];
+        for (unsigned int jdx = 0; jdx < nQuads; ++jdx) {
+          unsigned int quadrupletIndex = ranges.quadrupletModuleIndices()[idx] + jdx;
+          if (!quadruplets.isDup()[quadrupletIndex])
+            alpaka::atomicAdd(acc, &nSurviving[3], 1u, alpaka::hierarchy::Threads{});
+        }
+      }
+
+      // Count surviving pLS (upper bound - before CrossCleanpLS)
+      unsigned int nPixels = segmentsOccupancy.nSegments()[nLowerModules];
+      for (unsigned int i : cms::alpakatools::uniform_elements(acc, nPixels)) {
+        if ((tc_pls_triplets || pixelSeeds.isQuad()[i]) && !pixelSegments.isDup()[i])
+          alpaka::atomicAdd(acc, &nSurviving[4], 1u, alpaka::hierarchy::Threads{});
+      }
+    }
+  };
+
   struct AddpT3asTrackCandidates {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   uint16_t nLowerModules,
@@ -513,7 +572,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   TrackCandidatesBase candsBase,
                                   TrackCandidatesExtended candsExtended,
                                   PixelSeedsConst pixelSeeds,
-                                  ObjectRangesConst ranges) const {
+                                  ObjectRangesConst ranges,
+                                  unsigned int nAllocated) const {
       // implementation is 1D with a single block
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
 
@@ -525,8 +585,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
         unsigned int trackCandidateIdx =
             alpaka::atomicAdd(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
-        if (trackCandidateIdx >= n_max_pixel_track_candidates)  // This is done before any non-pixel TCs are added
-        {
+        if (trackCandidateIdx >= nAllocated) {
 #ifdef WARNINGS
           printf("Track Candidate excess alert! Type = pT3");
 #endif
@@ -565,7 +624,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   QuintupletsOccupancyConst quintupletsOccupancy,
                                   TrackCandidatesBase candsBase,
                                   TrackCandidatesExtended candsExtended,
-                                  ObjectRangesConst ranges) const {
+                                  ObjectRangesConst ranges,
+                                  unsigned int nAllocated) const {
       for (int idx : cms::alpakatools::uniform_elements_y(acc, nLowerModules)) {
         if (ranges.quintupletModuleIndices()[idx] == -1)
           continue;
@@ -580,9 +640,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
           unsigned int trackCandidateIdx =
               alpaka::atomicAdd(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
-          if (trackCandidateIdx - candsExtended.nTrackCandidatespT5() - candsExtended.nTrackCandidatespT3() >=
-              n_max_nonpixel_track_candidates)  // pT5 and pT3 TCs have been added, but not pLS TCs
-          {
+          if (trackCandidateIdx >= nAllocated) {
 #ifdef WARNINGS
             printf("Track Candidate excess alert! Type = T5");
 #endif
@@ -618,7 +676,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   SegmentsOccupancyConst segmentsOccupancy,
                                   PixelSeedsConst pixelSeeds,
                                   PixelSegmentsConst pixelSegments,
-                                  bool tc_pls_triplets) const {
+                                  bool tc_pls_triplets,
+                                  unsigned int nAllocated) const {
       unsigned int nPixels = segmentsOccupancy.nSegments()[nLowerModules];
       for (unsigned int pixelArrayIndex : cms::alpakatools::uniform_elements(acc, nPixels)) {
         if ((tc_pls_triplets ? 0 : !pixelSeeds.isQuad()[pixelArrayIndex]) || (pixelSegments.isDup()[pixelArrayIndex]))
@@ -626,9 +685,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
         unsigned int trackCandidateIdx =
             alpaka::atomicAdd(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
-        if (trackCandidateIdx - candsExtended.nTrackCandidatesT5() - candsExtended.nTrackCandidatesT4() >=
-            n_max_pixel_track_candidates)  // T5, T4 TCs have already been added
-        {
+        if (trackCandidateIdx >= nAllocated) {
 #ifdef WARNINGS
           printf("Track Candidate excess alert! Type = pLS");
 #endif
@@ -878,7 +935,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   TrackCandidatesBase candsBase,
                                   TrackCandidatesExtended candsExtended,
                                   PixelSeedsConst pixelSeeds,
-                                  ObjectRangesConst ranges) const {
+                                  ObjectRangesConst ranges,
+                                  unsigned int nAllocated) const {
       // implementation is 1D with a single block
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
 
@@ -890,8 +948,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
         unsigned int trackCandidateIdx =
             alpaka::atomicAdd(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
-        if (trackCandidateIdx >= n_max_pixel_track_candidates)  // No other TCs have been added yet
-        {
+        if (trackCandidateIdx >= nAllocated) {
 #ifdef WARNINGS
           printf("Track Candidate excess alert! Type = pT5");
 #endif
@@ -931,7 +988,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   TripletsConst triplets,
                                   TrackCandidatesBase candsBase,
                                   TrackCandidatesExtended candsExtended,
-                                  ObjectRangesConst ranges) const {
+                                  ObjectRangesConst ranges,
+                                  unsigned int nAllocated) const {
       for (int idx : cms::alpakatools::uniform_elements_y(acc, nLowerModules)) {
         if (ranges.quadrupletModuleIndices()[idx] == -1)
           continue;
@@ -945,10 +1003,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
           unsigned int trackCandidateIdx =
               alpaka::atomicAdd(acc, &candsBase.nTrackCandidates(), 1u, alpaka::hierarchy::Threads{});
-          if (trackCandidateIdx - candsExtended.nTrackCandidatespT5() - candsExtended.nTrackCandidatespT3() -
-                  candsExtended.nTrackCandidatesT5() >=
-              n_max_nonpixel_track_candidates)  // pT5, pT3, T5 TCs have been added, but not pLS TCs
-          {
+          if (trackCandidateIdx >= nAllocated) {
 #ifdef WARNINGS
             printf("Track Candidate excess alert! Type = T4");
 #endif

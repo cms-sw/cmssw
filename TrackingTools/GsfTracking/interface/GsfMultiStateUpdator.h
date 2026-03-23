@@ -2,9 +2,9 @@
 #define _GSFMULTISTATEUPDATOR_H_
 
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
 class TrajectoryStateOnSurface;
-class TrackingRecHit;
 
 /** Class which updates a Gaussian mixture trajectory state 
  *  with the information from a

@@ -16,11 +16,11 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
 #include <vector>
 
 class RectangularEtaPhiTrackingRegion;
 class TrackingRegion;
-class SimTrack;
 
 class FastTSGFromIOHit : public TrackerSeedGenerator {
 public:

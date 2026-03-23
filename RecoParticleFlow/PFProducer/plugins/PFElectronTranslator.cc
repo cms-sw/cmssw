@@ -19,8 +19,8 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
 #include "CondFormats/DataRecord/interface/EcalMustacheSCParametersRcd.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 
-class DetId;
 namespace edm {
   class EventSetup;
 }  // namespace edm

@@ -96,32 +96,6 @@ namespace edm {
     return product;
   }
 
-  std::tuple<WrapperBase const*, unsigned int> RefCore::getThinnedProductPtr(std::type_info const& type,
-                                                                             unsigned int key,
-                                                                             EDProductGetter const* prodGetter) const {
-    ProductID tId = id();
-    std::optional product = prodGetter->getThinnedProduct(tId, key);
-
-    if (not product.has_value()) {
-      productNotFoundException(type);
-    }
-    WrapperBase const* wrapper = std::get<WrapperBase const*>(*product);
-    if (!(type == wrapper->dynamicTypeInfo())) {
-      wrongTypeException(type, wrapper->dynamicTypeInfo());
-    }
-    return *product;
-  }
-
-  bool RefCore::isThinnedAvailable(unsigned int key, EDProductGetter const* prodGetter) const {
-    ProductID tId = id();
-    if (!tId.isValid() || prodGetter == nullptr) {
-      //another thread may have changed it
-      return nullptr != productPtr();
-    }
-    std::optional product = prodGetter->getThinnedProduct(tId, key);
-    return product.has_value();
-  }
-
   void RefCore::productNotFoundException(std::type_info const& type) const {
     throw edm::Exception(errors::ProductNotFound)
         << "RefCore: A request to resolve a reference to a product of type '" << TypeID(type) << "' with ProductID '"

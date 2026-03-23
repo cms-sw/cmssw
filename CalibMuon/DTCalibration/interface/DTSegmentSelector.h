@@ -14,13 +14,13 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DFwd.h"
+#include "DataFormats/DTRecHit/interface/DTRecHit1DFwd.h"
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 #include <vector>
 
-class DTRecSegment4D;
-class DTRecHit1D;
 class DTStatusFlag;
 
 class DTSegmentSelector {

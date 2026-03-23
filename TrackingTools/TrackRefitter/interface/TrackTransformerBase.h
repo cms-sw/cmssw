@@ -8,8 +8,8 @@
  */
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 
-class Trajectory;
 namespace edm {
   class EventSetup;
 }

@@ -1,0 +1,6 @@
+#ifndef TrackingTools_PatternTools_TrajectoryFwd_h
+#define TrackingTools_PatternTools_TrajectoryFwd_h
+
+class Trajectory;
+
+#endif

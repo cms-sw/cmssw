@@ -1,6 +1,9 @@
 #include "EventFilter/Utilities/interface/DirManager.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
 #include <iostream>
+#include <string>
+#include <string_view>
 
 namespace evf {
 
@@ -9,11 +12,13 @@ namespace evf {
     struct dirent *buf;
     int maxrun = 0;
     while ((buf = readdir(dir))) {
-      std::string dirnameNum = buf->d_name;
-      if (dirnameNum.find("run") != std::string::npos)
-        dirnameNum = dirnameNum.substr(3, std::string::npos);
-      if (atoi(dirnameNum.c_str()) > maxrun) {
-        maxrun = atoi(dirnameNum.c_str());
+      if (buf->d_type != DT_DIR and buf->d_type != DT_UNKNOWN)
+        continue;
+      std::string_view dirnameNum = buf->d_name;
+      if (dirnameNum.starts_with("run"))
+        dirnameNum.remove_prefix(3);
+      if (int run = atoi(dirnameNum.data()); run > maxrun) {
+        maxrun = run;
       }
     }
     closedir(dir);
@@ -27,12 +32,14 @@ namespace evf {
     struct dirent *buf;
     int maxrun = 0;
     while ((buf = readdir(dir))) {
-      std::string dirnameNum = buf->d_name;
-      if (dirnameNum.find("run") != std::string::npos)
-        dirnameNum = dirnameNum.substr(3, std::string::npos);
-      if (atoi(dirnameNum.c_str()) > maxrun) {
+      if (buf->d_type != DT_DIR and buf->d_type != DT_UNKNOWN)
+        continue;
+      std::string_view dirnameNum = buf->d_name;
+      if (dirnameNum.starts_with("run"))
+        dirnameNum.remove_prefix(3);
+      if (int run = atoi(dirnameNum.data()); run > maxrun) {
         tmpdir = buf->d_name;
-        maxrun = atoi(dirnameNum.c_str());
+        maxrun = run;
       }
     }
     closedir(dir);
@@ -46,10 +53,12 @@ namespace evf {
     DIR *dir = opendir(dir_.c_str());
     struct dirent *buf;
     while ((buf = readdir(dir))) {
-      std::string dirnameNum = buf->d_name;
-      if (dirnameNum.find("run") != std::string::npos)
-        dirnameNum = dirnameNum.substr(3, std::string::npos);
-      if ((unsigned int)atoi(dirnameNum.c_str()) == run) {
+      if (buf->d_type != DT_DIR and buf->d_type != DT_UNKNOWN)
+        continue;
+      std::string_view dirnameNum = buf->d_name;
+      if (dirnameNum.starts_with("run"))
+        dirnameNum.remove_prefix(3);
+      if ((unsigned int)atoi(dirnameNum.data()) == run) {
         tmpdir = buf->d_name;
         break;
       }
@@ -61,12 +70,13 @@ namespace evf {
     return retval;
   }
 
-  bool DirManager::checkDirEmpty(std::string &d) {
+  bool DirManager::checkDirEmpty(const std::string &d) {
     int filecount = 0;
     DIR *dir = opendir(d.c_str());
     while (readdir(dir)) {
       filecount++;
     }
+    closedir(dir);
     return (filecount == 0);
   }
 }  // namespace evf

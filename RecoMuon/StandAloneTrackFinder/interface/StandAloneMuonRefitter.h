@@ -19,7 +19,6 @@ namespace edm {
 }  // namespace edm
 class MuonServiceProxy;
 class TrajectoryFitter;
-class Trajectory;
 
 class StandAloneMuonRefitter {
 public:

@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/DescriptionCloner.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
@@ -94,14 +95,10 @@ void TrackerDigiGeometryESModule::fillDescriptions(edm::ConfigurationDescription
   descDB.add<bool>("fromDDD", false);
   descDB.add<bool>("applyAlignment", true);
   descDB.add<std::string>("alignmentsLabel", "");
-  descriptions.addDefault(descDB);
   descriptions.add("trackerGeometryDB", descDB);
 
-  edm::ParameterSetDescription desc;
-  desc.add<std::string>("appendToDataLabel", "");
-  desc.add<bool>("fromDDD", true);
-  desc.add<bool>("applyAlignment", true);
-  desc.add<std::string>("alignmentsLabel", "");
+  edm::DescriptionCloner desc;
+  desc.set<bool>("fromDDD", true);
   descriptions.add("trackerGeometry", desc);
 }
 

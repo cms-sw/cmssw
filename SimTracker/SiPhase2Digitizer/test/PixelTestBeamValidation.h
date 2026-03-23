@@ -29,6 +29,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -47,7 +48,6 @@
 
 //class MonitorElement;
 class GeomDet;
-class PSimHit;
 class PixelGeomDetUnit;
 
 class PixelTestBeamValidation : public DQMEDAnalyzer {

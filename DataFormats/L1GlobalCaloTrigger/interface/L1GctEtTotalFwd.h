@@ -1,0 +1,6 @@
+#ifndef DataFormats_L1GlobalCaloTrigger_L1GctEtTotalFwd_h
+#define DataFormats_L1GlobalCaloTrigger_L1GctEtTotalFwd_h
+
+class L1GctEtTotal;
+
+#endif

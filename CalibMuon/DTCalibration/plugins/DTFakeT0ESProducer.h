@@ -26,13 +26,13 @@
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
+#include "DataFormats/MuonDetId/interface/DTLayerIdFwd.h"
 
 //#include <pair>
 #include <map>
 
 class DTT0;
 class DTT0Rcd;
-class DTLayerId;
 
 class DTFakeT0ESProducer : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:

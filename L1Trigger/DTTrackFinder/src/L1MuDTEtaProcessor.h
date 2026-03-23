@@ -41,7 +41,7 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTAddressArray.h"
-class L1MuDTChambThContainer;
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainerFwd.h"
 class L1MuDTTrackSegEta;
 class L1MuDTTrackFinder;
 class L1MuDTTrack;

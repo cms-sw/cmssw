@@ -4,14 +4,13 @@
 #include <vector>
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 namespace edm {
   class Event;
   class ParameterSet;
 }  // namespace edm
-
-class TrackingRecHit;
 
 class AlignmentCSCBeamHaloSelector {
 public:

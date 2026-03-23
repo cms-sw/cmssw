@@ -21,6 +21,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -42,7 +43,6 @@
 
 class DTGeometry;
 class DetLayer;
-class DetId;
 
 class DTRunConditionVar : public DQMEDAnalyzer {
 public:

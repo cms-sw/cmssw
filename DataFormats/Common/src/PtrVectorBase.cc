@@ -131,19 +131,6 @@ namespace edm {
     }
 
     tmpCachedItems->resize(indicies_.size(), nullptr);
-
-    std::vector<unsigned int> thinnedKeys;
-    thinnedKeys.assign(indicies_.begin(), indicies_.end());
-    std::vector<WrapperBase const*> wrappers(indicies_.size(), nullptr);
-    tmpProductGetter->getThinnedProducts(id(), wrappers, thinnedKeys);
-    unsigned int nWrappers = wrappers.size();
-    assert(wrappers.size() == indicies_.size());
-    assert(wrappers.size() == tmpCachedItems->size());
-    for (unsigned k = 0; k < nWrappers; ++k) {
-      if (wrappers[k] != nullptr) {
-        wrappers[k]->setPtr(typeInfo(), thinnedKeys[k], (*tmpCachedItems)[k]);
-      }
-    }
     {
       std::vector<void const*>* expected = nullptr;
       if (cachedItems_.compare_exchange_strong(expected, tmpCachedItems.get())) {

@@ -1,0 +1,6 @@
+#ifndef SimDataFormats_TrackingAnalysis_TrackingVertexFwd_h
+#define SimDataFormats_TrackingAnalysis_TrackingVertexFwd_h
+
+class TrackingVertex;
+
+#endif

@@ -23,6 +23,7 @@
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include <vector>
@@ -32,7 +33,6 @@
 
 class DTGeometry;
 class DTTrigGeomUtils;
-class DTChamberId;
 class L1MuDTChambPhDigi;
 
 typedef std::array<std::array<std::array<int, 13>, 5>, 6> DTArr3int;

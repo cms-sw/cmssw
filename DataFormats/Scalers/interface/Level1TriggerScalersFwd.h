@@ -1,0 +1,6 @@
+#ifndef DataFormats_Scalers_Level1TriggerScalersFwd_h
+#define DataFormats_Scalers_Level1TriggerScalersFwd_h
+
+class Level1TriggerScalers;
+
+#endif

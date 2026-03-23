@@ -15,8 +15,8 @@
 ///  (last update by $Author: cklae $)
 
 #include <utility>
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 
-class DetId;
 class TrackerTopology;
 
 class TrackerAlignableId {

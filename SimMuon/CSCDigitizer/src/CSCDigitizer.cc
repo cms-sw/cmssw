@@ -109,7 +109,9 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> &simHits,
     //       << " C" << layer->id().chamber() << " L" << layer->id().layer();
 
     // turn the edm::PSimHits into WireHits, using the WireHitSim
-    { newWireHits.swap(theWireHitSim->simulate(layer, layerSimHits, engine)); }
+    {
+      newWireHits.swap(theWireHitSim->simulate(layer, layerSimHits, engine));
+    }
     if (!newWireHits.empty()) {
       newStripHits.swap(theStripHitSim->simulate(layer, newWireHits));
     }

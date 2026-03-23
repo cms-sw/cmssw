@@ -7,5 +7,4 @@
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/HcalObjects"/>
 <use name="root"/>
-<use name="stdcxx-fs"/>
 <flags EDM_PLUGIN="1"/>

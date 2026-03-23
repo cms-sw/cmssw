@@ -13,6 +13,7 @@
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalTrajectoryBuilderBase.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -31,7 +32,6 @@ namespace edm {
 }  // namespace edm
 
 class MuonServiceProxy;
-class Trajectory;
 class TrajectoryCleaner;
 
 class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {

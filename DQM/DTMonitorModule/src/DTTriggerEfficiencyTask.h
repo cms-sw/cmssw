@@ -28,6 +28,7 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
@@ -36,7 +37,6 @@
 #include <map>
 
 class DTGeometry;
-class DTChamberId;
 class DTTrigGeomUtils;
 
 class DTTriggerEfficiencyTask : public DQMEDAnalyzer {

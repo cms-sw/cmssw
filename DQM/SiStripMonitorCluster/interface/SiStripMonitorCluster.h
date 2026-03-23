@@ -26,6 +26,7 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelClusterFwd.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -38,7 +39,6 @@
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
 class SiStripCluster;
-class SiPixelCluster;
 class EventWithHistory;
 class APVCyclePhaseCollection;
 class SiStripDCSStatus;

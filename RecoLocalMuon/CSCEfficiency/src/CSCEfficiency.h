@@ -39,6 +39,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/MuonDetId/interface/CSCDetIdFwd.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
@@ -90,7 +91,6 @@ namespace edm {
 
 class TFile;
 class CSCLayer;
-class CSCDetId;
 
 class CSCEfficiency : public edm::one::EDFilter<> {
 public:

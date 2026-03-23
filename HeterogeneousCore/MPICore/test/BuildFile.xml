@@ -3,14 +3,46 @@
     <flags TEST_RUNNER_CMD="mpirun -np 4 testMPI -s 1000 -r 12345 -n 10"/>
 </bin>
 
-<test name="testMPIEventId" command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_cfg.py"/>
-
-<test name="testMPISoATransfer" command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_soa_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_soa_cfg.py"/>
-
-<test name="testMPIComplexTransfer" command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_complex_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_complex_cfg.py"/>
-
-<test name="testMPIFilters" command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_filters_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_filters_cfg.py"/>
-
 <bin name="testSerialisation" file="testSerialisation.cc">
     <use name="root"/>
 </bin>
+
+<test
+  name="testMPIEventId"
+  command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_cfg.py"
+/>
+
+<test
+  name="testMPIMultiEventId"
+  command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_multi_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_multi1_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_multi2_cfg.py"
+/>
+
+<test
+  name="testMPIRoundRobinEventId"
+  command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_rr_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_cfg.py"
+/>
+
+<test
+  name="testMPIRoundRobinMultiEventId"
+  command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_multi_rr_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_multi1_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_multi1_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_multi2_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_multi2_cfg.py"
+/>
+
+<test
+  name="testMPISoATransfer"
+  command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_soa_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_soa_cfg.py"
+/>
+
+<test
+  name="testMPIComplexTransfer"
+  command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_complex_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_complex_cfg.py"
+/>
+
+<test
+  name="testMPIFilters"
+  command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_filters_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_filters_cfg.py"
+/>
+
+<test
+  name="testMPIAutosplitter"
+  command="testAutomaticSplitter.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/scripts/edmMpiSplitConfig ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/configutration_for_automatic_splitter.py"
+/>

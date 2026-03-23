@@ -39,6 +39,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/L1TMuon/interface/BMTF/L1MuBMAddressArray.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegEtaFwd.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackFwd.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -48,9 +50,7 @@
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTQualPatternLut.h"
 #include "L1Trigger/L1TMuonBarrel/interface/L1MuBMTEtaPatternLut.h"
 
-class L1MuBMTrackSegEta;
 class L1MuBMTrackFinder;
-class L1MuBMTrack;
 class L1MuBMTEtaPatternLut;
 class L1MuBMTQualPatternLut;
 class L1MuDTTFMasks;

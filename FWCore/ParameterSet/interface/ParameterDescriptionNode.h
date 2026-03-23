@@ -26,6 +26,7 @@ namespace edm {
   template <typename T>
   class ParameterDescriptionCases;
   class DocFormatHelper;
+  class Entry;
 
   // Originally these were defined such that the values were the
   // same as in the ParameterSet Entry class and the validation
@@ -35,6 +36,8 @@ namespace edm {
   // a task for the future when someone has free time would be
   // to define the values in a common header, but that would involve
   // significant changes to ParameterSet ...)
+  // NOTE: the only difference is k_PSet and k_VPSet which do not match
+  // the Entry class values of kTPSet, KTvPSet
   enum ParameterTypes {
     k_int32 = 'I',
     k_vint32 = 'i',
@@ -47,6 +50,7 @@ namespace edm {
     k_double = 'D',
     k_vdouble = 'd',
     k_bool = 'B',
+    k_vbool = 'b',
     k_stringRaw = 'Z',
     k_vstringRaw = 'z',
     k_stringHex = 'S',
@@ -68,6 +72,7 @@ namespace edm {
     k_VPSet = 'q'
   };
 
+  bool compareEntryCodeToParameterType(char code, ParameterTypes type);
   std::string parameterTypeEnumToString(ParameterTypes iType);
 
   enum class ParameterModifier : unsigned char { kNone, kOptional, kObsolete };
@@ -188,6 +193,8 @@ namespace edm {
       }
       return std::pair(false, NodeGuard(iOpt));
     }
+
+    enum class Trackiness { kTracked, kUntracked, kUnknown, kNotAllowed };
   }  // namespace cfi
   using CfiOptions = cfi::CfiOptions;
 
@@ -258,6 +265,10 @@ namespace edm {
     bool hasNestedContent() const { return hasNestedContent_(); }
 
     void printNestedContent(std::ostream& os, bool optional, DocFormatHelper& dfh) const;
+
+    /// @brief Determine the trackiness of the parameter at the given path. Used by DescriptionCloner,
+    /// @param path The path through embedded PSets to the parameter
+    cfi::Trackiness trackiness(std::string_view path) const { return trackiness_(path); }
 
     // The next three functions are only called by the logical nodes
     // on their subnodes.  When executing these functions, the
@@ -362,6 +373,8 @@ namespace edm {
                            CfiOptions&,
                            bool& wroteSomething) const = 0;
 
+    virtual cfi::Trackiness trackiness_(std::string_view path) const = 0;
+
     virtual void print_(std::ostream&, Modifier /*modifier*/, bool /*writeToCfi*/, DocFormatHelper&) const {}
 
     virtual bool hasNestedContent_() const { return false; }
@@ -383,6 +396,22 @@ namespace edm {
     static void destroy(ParameterDescriptionNode* p) { delete p; }
   };
 
+  namespace pdn {
+    constexpr std::string_view parameterLabelFromPath(std::string_view path) noexcept {
+      auto pos = path.find('.');
+      if (pos == std::string_view::npos) {
+        return path;
+      }
+      return path.substr(0, pos);
+    }
+    constexpr std::string_view remainingPathAfterLabel(std::string_view path) noexcept {
+      auto pos = path.find('.');
+      if (pos == std::string_view::npos) {
+        return std::string_view{};
+      }
+      return path.substr(pos + 1);
+    }
+  }  // namespace pdn
   // operator>> ---------------------------------------------
 
   std::unique_ptr<ParameterDescriptionCases<bool>> operator>>(bool caseValue, ParameterDescriptionNode const& node);

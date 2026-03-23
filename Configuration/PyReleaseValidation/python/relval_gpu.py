@@ -1,6 +1,7 @@
 
 # import the definition of the steps and input files:
 from  Configuration.PyReleaseValidation.relval_steps import *
+from .MatrixUtil import Matrix
 
 # here only define the workflows as a combination of the steps defined above:
 workflows = Matrix()
@@ -81,13 +82,15 @@ numWFIB = [
            prefixDet+34.402, prefixDet+34.4021, prefixDet+34.403, prefixDet+34.404, prefixDet+34.406,
            prefixDet+34.612,
            prefixDet+61.402,
-           prefixDet+34.704,
+           prefixDet+34.712, prefixDet+34.713,
+           prefixDet+34.7503,
            prefixDet+34.751,
            prefixDet+61.751,
 
            # Run4, Alpaka-based PU
            prefixDet+234.402, prefixDet+234.4021, prefixDet+234.403, prefixDet+234.404,
-           prefixDet+234.704,
+           prefixDet+234.712, prefixDet+234.713,
+           prefixDet+234.7503,
            prefixDet+234.751,
         ]
 

@@ -19,6 +19,11 @@ ScoutingEBRechitAnalyzerOnline = ScoutingEBRechitAnalyzer.clone(
     topFolderName = cms.string('HLT/ScoutingOnline/EBRechits')
 )
 
+ScoutingEBCleanedRechitAnalyzerOnline = ScoutingEBCleanedRechitAnalyzer.clone(
+    L1TriggerResults = cms.InputTag('L1BitsScoutingOnline'),
+    topFolderName = cms.string('HLT/ScoutingOnline/EBCleanedRechits')
+)
+
 ScoutingHBHERechitAnalyzerOnline = ScoutingHBHERechitAnalyzer.clone(
     L1TriggerResults = cms.InputTag('L1BitsScoutingOnline'),
     topFolderName = cms.string('HLT/ScoutingOnline/HBHERechits')
@@ -26,4 +31,5 @@ ScoutingHBHERechitAnalyzerOnline = ScoutingHBHERechitAnalyzer.clone(
 
 ScoutingRecHitsMonitoring = cms.Sequence(L1BitsSequence +
                                          ScoutingEBRechitAnalyzerOnline +
+                                         ScoutingEBCleanedRechitAnalyzerOnline +
                                          ScoutingHBHERechitAnalyzerOnline)

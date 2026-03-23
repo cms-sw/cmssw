@@ -15,9 +15,9 @@
 #include <vector>
 #include <fstream>
 #include <stdint.h>
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionFwd.h"
 
 class L1GlobalCaloTrigger;
-class L1CaloRegion;
 
 class L1GctChannelMask;
 

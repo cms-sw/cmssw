@@ -17,12 +17,13 @@
 #include <unordered_map>
 #include <string>
 
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProductFwd.h"
+
 namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
   class ConsumesCollector;
-  class HepMCProduct;
   class HepMC3Product;
 }  // namespace edm
 

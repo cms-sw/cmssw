@@ -13,10 +13,9 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonGeometryConstants.h"
 #include "Geometry/MuonNumbering/interface/DTNumberingScheme.h"
+#include "DataFormats/MuonDetId/interface/DTLayerIdFwd.h"
 
 #include <map>
-
-class DTLayerId;
 
 class DTGeometryParserFromDDD {
 public:

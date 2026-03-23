@@ -221,15 +221,6 @@ namespace edm {
     void addDroppedProduct(ProductDescription const& bd);
 
     WrapperBase const* getIt(ProductID const&) const override;
-    std::optional<std::tuple<WrapperBase const*, unsigned int>> getThinnedProduct(ProductID const&,
-                                                                                  unsigned int) const override;
-    void getThinnedProducts(ProductID const&,
-                            std::vector<WrapperBase const*>&,
-                            std::vector<unsigned int>&) const override;
-    OptionalThinnedKey getThinnedKeyFrom(ProductID const& parent,
-                                         unsigned int key,
-                                         ProductID const& thinned) const override;
-
     ProductData const* findProductByLabel(KindOfType kindOfType,
                                           TypeID const& typeID,
                                           InputTag const& inputTag,

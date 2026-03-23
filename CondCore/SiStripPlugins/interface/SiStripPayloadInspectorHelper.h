@@ -659,7 +659,7 @@ namespace SiStripPI {
                            const TrackerTopology m_trackerTopo)
   /*--------------------------------------------------------------------*/
   {
-    std::vector<SiStripQuality::BadComponent> BC = siStripQuality_->getBadComponentList();
+    const std::vector<SiStripQuality::BadComponent>& BC = siStripQuality_->getBadComponentList();
 
     for (size_t i = 0; i < BC.size(); ++i) {
       //&&&&&&&&&&&&&

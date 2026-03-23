@@ -58,7 +58,6 @@
 // class declaration
 //
 class ClusterVariables;
-class ClusterSummary;
 
 class ClusterSummaryProducer : public edm::stream::EDProducer<> {
 public:

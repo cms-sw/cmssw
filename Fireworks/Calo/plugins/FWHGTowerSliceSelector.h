@@ -21,7 +21,7 @@
 // system include files
 
 // user include files
-class DetId;
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 class TEveCaloDataVec;
 
 #include "Fireworks/Calo/interface/FWFromSliceSelector.h"

@@ -11,9 +11,11 @@
 #include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
 #include "L1Trigger/L1TCalorimeter/interface/AccumulatingSort.h"
 
-namespace l1t {
-  bool operator>(const l1t::Tau& a, const l1t::Tau& b) { return a.pt() > b.pt(); }
-}  // namespace l1t
+namespace {
+  struct Greater {
+    bool operator()(const l1t::Tau& a, const l1t::Tau& b) const noexcept { return a.pt() > b.pt(); }
+  };
+}  // namespace
 
 l1t::Stage2Layer2TauAlgorithmFirmwareImp1::Stage2Layer2TauAlgorithmFirmwareImp1(CaloParamsHelper const* params)
     : params_(params) {
@@ -435,8 +437,8 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::dosorting(std::vector<l1t::Tau>&
       tauEtaNeg.at(-(taus.at(iTau).hwEta() + 1)).at((72 - taus.at(iTau).hwPhi()) / 4) = taus.at(iTau);
   }
 
-  AccumulatingSort<l1t::Tau> etaPosSorter(6);
-  AccumulatingSort<l1t::Tau> etaNegSorter(6);
+  AccumulatingSort<l1t::Tau, Greater> etaPosSorter(6);
+  AccumulatingSort<l1t::Tau, Greater> etaNegSorter(6);
   std::vector<l1t::Tau> accumEtaPos;
   std::vector<l1t::Tau> accumEtaNeg;
 
@@ -445,13 +447,13 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::dosorting(std::vector<l1t::Tau>&
     std::vector<l1t::Tau>::iterator start_, end_;
     start_ = tauEtaPos.at(ieta).begin();
     end_ = tauEtaPos.at(ieta).end();
-    BitonicSort<l1t::Tau>(down, start_, end_);
+    BitonicSort<l1t::Tau, Greater>(down, start_, end_);
     etaPosSorter.Merge(tauEtaPos.at(ieta), accumEtaPos);
 
     // eta -
     start_ = tauEtaNeg.at(ieta).begin();
     end_ = tauEtaNeg.at(ieta).end();
-    BitonicSort<l1t::Tau>(down, start_, end_);
+    BitonicSort<l1t::Tau, Greater>(down, start_, end_);
     etaNegSorter.Merge(tauEtaNeg.at(ieta), accumEtaNeg);
   }
 

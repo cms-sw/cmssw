@@ -10,7 +10,6 @@
 namespace edm {
   class ActivityRegistry;
   class MergeableRunProductMetadata;
-  class ThinnedAssociationsHelper;
 
   namespace one {
     class OutputModuleBase;
@@ -66,9 +65,7 @@ namespace edm {
 
     edm::SelectedProductsForBranchType const& keptProducts() const override;
 
-    void selectProducts(edm::ProductRegistry const& preg,
-                        ThinnedAssociationsHelper const&,
-                        ProcessBlockHelperBase const&) override;
+    void selectProducts(edm::ProductRegistry const& preg, ProcessBlockHelperBase const&) override;
 
     void setEventSelectionInfo(
         std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,

@@ -186,6 +186,7 @@ public:
   inline bool v16OrLess() const { return (mode_ < HGCalGeometryMode::Hexagon8Cassette); }
   inline bool v17OrLess() const { return (mode_ < HGCalGeometryMode::Hexagon8CalibCell); }
   inline bool v18OrLess() const { return (mode_ < HGCalGeometryMode::Hexagon8FineCell); }
+  inline bool v18OrMore() const { return (mode_ >= HGCalGeometryMode::Hexagon8CalibCell); }
   inline unsigned int volumes() const { return hgpar_->moduleLayR_.size(); }
   inline bool waferExist(int layer, int waferU, int waferV) const { return hgpar_->waferExist(layer, waferU, waferV); }
   int waferFromCopy(int copy) const;
@@ -223,7 +224,7 @@ public:
             (mode_ == HGCalGeometryMode::Hexagon8Cassette) || (mode_ == HGCalGeometryMode::Hexagon8CalibCell) ||
             (mode_ == HGCalGeometryMode::Hexagon8FineCell));
   }
-  inline bool waferHexagon8Fine() const { return ((mode_ == HGCalGeometryMode::Hexagon8FineCell)); }
+  inline bool waferHexagon8Fine() const { return ((mode_ >= HGCalGeometryMode::Hexagon8FineCell)); }
   inline bool waferHexagon8Module() const {
     return ((mode_ == HGCalGeometryMode::Hexagon8Module) || (mode_ == HGCalGeometryMode::Hexagon8Cassette) ||
             (mode_ == HGCalGeometryMode::Hexagon8CalibCell) || (mode_ == HGCalGeometryMode::Hexagon8FineCell));

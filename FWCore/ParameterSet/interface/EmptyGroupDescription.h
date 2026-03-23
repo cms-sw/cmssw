@@ -32,6 +32,8 @@ namespace edm {
                    CfiOptions&,
                    bool& wroteSomething) const override;
 
+    cfi::Trackiness trackiness_(std::string_view path) const override;
+
     void print_(std::ostream& os, Modifier modifier, bool writeToCfi, DocFormatHelper& dfh) const override;
 
     bool exists_(ParameterSet const& pset) const override;

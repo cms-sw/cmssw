@@ -7,23 +7,23 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigiFwd.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLinkFwd.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigiFwd.h"
+class TrackerGeometry;
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 // DQM Histograming
-class PixelDigiSimLink;
-class SimTrack;
 class SimHit;
 class TrackerTopology;
-class PixelDigi;
-class Phase2TrackerDigi;
-class TrackerGeometry;
 class TrackerDigiGeometryRecord;
 class TrackerTopologyRcd;
 class Phase2TrackerValidateDigi : public DQMEDAnalyzer {

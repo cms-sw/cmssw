@@ -30,6 +30,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 
 #include <string>
 #include <vector>
@@ -43,7 +44,6 @@ class MuonServiceProxy;
 
 class FreeTrajectoryState;
 class DetLayer;
-class DetId;
 class NavigationSchool;
 
 class DTChamberEfficiency : public DQMEDAnalyzer {

@@ -2,6 +2,8 @@
 #define SimVertex_H
 
 #include "SimDataFormats/Vertex/interface/CoreSimVertex.h"
+#include <iosfwd>
+
 class SimVertex : public CoreSimVertex {
 public:
   typedef CoreSimVertex Core;
@@ -41,7 +43,6 @@ private:
   unsigned int procType;
 };
 
-#include <iosfwd>
 std::ostream& operator<<(std::ostream& o, const SimVertex& v);
 
 #endif

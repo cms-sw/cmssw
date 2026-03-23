@@ -377,7 +377,7 @@ bool HLTMuonMatchAndPlot::passTriggerMatching(const reco::Muon& muon,
                                               const trigger::TriggerEvent& triggerSummary,
                                               const std::string& triggerPath,
                                               double deltaRCut) const {
-  trigger::TriggerObjectCollection allTriggerObjects = triggerSummary.getObjects();
+  const trigger::TriggerObjectCollection& allTriggerObjects = triggerSummary.getObjects();
   trigger::TriggerObjectCollection hltMuons;
 
   for (size_t i = 0; i < triggerSummary.sizeFilters(); ++i) {

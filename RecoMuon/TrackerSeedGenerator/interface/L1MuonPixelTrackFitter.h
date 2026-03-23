@@ -8,6 +8,8 @@
 #include "DataFormats/GeometryVector/interface/Point3DBase.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCandFwd.h"
 
 #include <vector>
 
@@ -16,8 +18,6 @@ namespace reco {
 }
 
 class TrackingRegion;
-class TrackingRecHit;
-class L1MuGMTCand;
 class PixelRecoLineRZ;
 class SeedingHitSet;
 class MagneticField;

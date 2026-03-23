@@ -124,13 +124,8 @@ namespace edm::streamer {
                                        unsigned int reserveSize) const {
     EventSelectionIDVector selectionIDs = event.eventSelectionIDs();
     selectionIDs.push_back(selectorConfig);
-    SendEvent se(event.eventAuxiliary(),
-                 event.processHistory(),
-                 selectionIDs,
-                 event.branchListIndexes(),
-                 {},
-                 {},
-                 metaDataChecksum);
+    SendEvent se(
+        event.eventAuxiliary(), event.processHistory(), selectionIDs, event.branchListIndexes(), {}, metaDataChecksum);
 
     // Loop over EDProducts, fill the provenance, and write.
 
@@ -170,11 +165,10 @@ namespace edm::streamer {
 
   int StreamSerializer::serializeEventMetaData(SerializeDataBuffer &data_buffer,
                                                const BranchIDLists &branchIDLists,
-                                               ThinnedAssociationsHelper const &thinnedAssociationsHelper,
                                                StreamerCompressionAlgo compressionAlgo,
                                                int compression_level,
                                                unsigned int reserveSize) const {
-    SendEvent se({}, {}, {}, {}, branchIDLists, thinnedAssociationsHelper, 0);
+    SendEvent se({}, {}, {}, {}, branchIDLists, 0);
 
     return serializeEventCommon(data_buffer, se, compressionAlgo, compression_level, reserveSize);
   }

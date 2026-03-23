@@ -19,15 +19,12 @@
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefsFwd.h"
 
 #include <vector>
 
 namespace edm {
   class ConfigurationDescriptions;
-}
-
-namespace trigger {
-  class TriggerFilterObjectWithRefs;
 }
 
 template <typename T1, typename T2>

@@ -18,8 +18,7 @@
 //------------------------------------
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "FWCore/Utilities/interface/ConstRespectingPtr.h"
-
-class DTChamberId;
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
 
 //---------------
 // C++ Headers --

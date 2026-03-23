@@ -234,12 +234,12 @@ namespace edm::streamer {
   }
 
   std::pair<std::unique_ptr<EventMsgBuilder>, uint32_t> StreamerOutputMsgBuilders::serializeEventMetaData(
-      SerializeDataBuffer& sbuf, BranchIDLists const& branchLists, ThinnedAssociationsHelper const& helper) const {
+      SerializeDataBuffer& sbuf, BranchIDLists const& branchLists) const {
     constexpr unsigned int reserve_size = SerializeDataBuffer::reserve_size;
     //Lets Build the Event Message first
 
     std::vector<unsigned char> hltbits;
-    serializer_.serializeEventMetaData(sbuf, branchLists, helper, compressionAlgo_, compressionLevel_, reserve_size);
+    serializer_.serializeEventMetaData(sbuf, branchLists, compressionAlgo_, compressionLevel_, reserve_size);
     auto eventMetaDataChecksum = sbuf.adler32_chksum_;
 
     return std::make_pair(serializeEventCommon(0, 0, 0, hltbits, 0, sbuf), eventMetaDataChecksum);

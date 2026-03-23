@@ -4,11 +4,11 @@
 #include "FastSimulation/CalorimeterProperties/interface/Calorimeter.h"
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
 #include "FastSimulation/CaloGeometryTools/interface/BaseCrystal.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 
 #include <vector>
 #include <array>
 
-class DetId;
 class Crystal;
 
 namespace edm {

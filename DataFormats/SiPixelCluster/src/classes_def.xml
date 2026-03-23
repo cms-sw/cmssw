@@ -1,9 +1,10 @@
 <lcgdict>
-  <class name="SiPixelCluster" ClassVersion="13">
+  <class name="SiPixelCluster" ClassVersion="14">
    <version ClassVersion="10" checksum="2468063768"/>
    <version ClassVersion="11" checksum="1473312403"/>
    <version ClassVersion="12" checksum="2042538185"/>
    <version ClassVersion="13" checksum="2314992115"/>
+   <version ClassVersion="14" checksum="274013346"/>
    <field name="theOriginalClusterId" transient="true"/>
    <field name="err_x" transient="true"/>
    <field name="err_y" transient="true"/>

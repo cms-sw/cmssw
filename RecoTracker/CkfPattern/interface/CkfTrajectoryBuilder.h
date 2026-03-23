@@ -6,7 +6,6 @@
 class Propagator;
 class TrajectoryStateUpdator;
 class MeasurementEstimator;
-class TrajectorySeed;
 class TrajectoryStateOnSurface;
 class TrajectoryFilter;
 

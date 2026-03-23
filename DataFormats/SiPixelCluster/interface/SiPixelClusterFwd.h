@@ -1,0 +1,6 @@
+#ifndef DataFormats_SiPixelCluster_SiPixelClusterFwd_h
+#define DataFormats_SiPixelCluster_SiPixelClusterFwd_h
+
+class SiPixelCluster;
+
+#endif

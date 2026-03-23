@@ -2,9 +2,9 @@
 #define RecoTrackerTrackProducerAlgoProductTraits_H
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 #include "DataFormats/Common/interface/View.h"
 #include <vector>
-class Trajectory;
 
 template <class T>
 class AlgoProductTraits {

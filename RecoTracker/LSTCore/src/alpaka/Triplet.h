@@ -646,9 +646,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   struct CountSegmentConnections {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
+                                  MiniDoubletsConst mds,
                                   Segments segments,
                                   SegmentsOccupancyConst segOcc,
-                                  ObjectRangesConst ranges) const {
+                                  ObjectRangesConst ranges,
+                                  const float ptCut) const {
       // The atomicAdd below with hierarchy::Threads{} requires one block in x, y dimensions.
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
                         (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
@@ -673,10 +675,29 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           for (unsigned int outerSegmentArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterSegments)) {
             const unsigned int outerSegmentIndex = segmentRanges[middleLowerModuleIndex][0] + outerSegmentArrayIndex;
 
-            // Increment the count of connected segments for this segment.
-            if (mdIndices[outerSegmentIndex][0] == mdShared) {
-              alpaka::atomicAdd(acc, &segments.connectedMax()[innerSegmentIndex], 1u, alpaka::hierarchy::Threads{});
-            }
+            if (mdIndices[outerSegmentIndex][0] != mdShared)
+              continue;
+
+            unsigned int firstMDIndex = mdIndices[innerSegmentIndex][0];
+            unsigned int secondMDIndex = mdShared;
+            unsigned int thirdMDIndex = mdIndices[outerSegmentIndex][1];
+            uint16_t outerOuterLowerModuleIndex = outerLowerModuleIndices[outerSegmentIndex];
+
+            if (not passPointingConstraint(acc,
+                                           modules,
+                                           mds,
+                                           segments,
+                                           firstMDIndex,
+                                           secondMDIndex,
+                                           thirdMDIndex,
+                                           innerLowerModuleArrayIdx,
+                                           middleLowerModuleIndex,
+                                           outerOuterLowerModuleIndex,
+                                           innerSegmentIndex,
+                                           ptCut))
+              continue;
+
+            alpaka::atomicAdd(acc, &segments.connectedMax()[innerSegmentIndex], 1u, alpaka::hierarchy::Threads{});
           }
         }
       }

@@ -1,0 +1,6 @@
+#ifndef DataFormats_L1DTTrackFinder_L1MuDTChambPhContainerFwd_h
+#define DataFormats_L1DTTrackFinder_L1MuDTChambPhContainerFwd_h
+
+class L1MuDTChambPhContainer;
+
+#endif

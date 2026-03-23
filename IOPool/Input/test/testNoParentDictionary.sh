@@ -15,10 +15,18 @@ mkdir DataFormats
 
 # Copy DataFormats/Common if it was modified locally
 if [ -d ${CMSSW_BASE}/src/DataFormats/Common ]; then
-    cp -Lr ${CMSSW_BASE}/src/DataFormats/Common DataFormats/
+    # the tests directory adds additional unwanted dependencies
+    mkdir DataFormats/Common
+    cp -Lr ${CMSSW_BASE}/src/DataFormats/Common/interface DataFormats/Common
+    cp -Lr ${CMSSW_BASE}/src/DataFormats/Common/src DataFormats/Common
+    cp -Lr ${CMSSW_BASE}/src/DataFormats/Common/BuildFile.xml DataFormats/Common
 fi
 if [ -d ${CMSSW_BASE}/src/DataFormats/Provenance ]; then
-    cp -Lr ${CMSSW_BASE}/src/DataFormats/Provenance DataFormats/
+    # the tests directory adds additional unwanted dependencies
+    mkdir DataFormats/Provenance
+    cp -Lr ${CMSSW_BASE}/src/DataFormats/Provenance/interface DataFormats/Provenance
+    cp -Lr ${CMSSW_BASE}/src/DataFormats/Provenance/src DataFormats/Provenance
+    cp -Lr ${CMSSW_BASE}/src/DataFormats/Provenance/BuildFile.xml DataFormats/Provenance
 fi
 #DataFormats/Common and DataFormat/Provenance depend on Utilities
 if [ -d ${CMSSW_BASE}/src/FWCore/Utilities ]; then

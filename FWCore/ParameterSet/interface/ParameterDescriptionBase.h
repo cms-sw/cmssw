@@ -81,6 +81,8 @@ namespace edm {
                       CfiOptions&,
                       bool& wroteSomething) const;
 
+    cfi::Trackiness trackiness_(std::string_view path) const override;
+
     bool partiallyExists_(ParameterSet const& pset) const override;
 
     int howManyXORSubNodesExist_(ParameterSet const& pset) const override;

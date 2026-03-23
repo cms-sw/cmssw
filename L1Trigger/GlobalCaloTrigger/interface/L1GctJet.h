@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCandFwd.h"
 #include <cstdint>
 
 /*!
@@ -20,7 +21,6 @@
  *  Move this to DataFormats/L1GlobalCaloTrigger if possible
  */
 
-class L1GctJetCand;
 class L1GctJetEtCalibrationLut;
 
 class L1GctJet {

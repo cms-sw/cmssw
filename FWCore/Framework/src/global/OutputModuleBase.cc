@@ -36,7 +36,9 @@ namespace edm {
     bool OutputModuleBase::doEvent(EventTransitionInfo const& info,
                                    ActivityRegistry* act,
                                    ModuleCallingContext const* mcc) {
-      { core::OutputModuleCore::doEvent_(info, act, mcc); }
+      {
+        core::OutputModuleCore::doEvent_(info, act, mcc);
+      }
 
       auto remainingEvents = remainingEvents_.load();
       bool keepTrying = remainingEvents > 0;

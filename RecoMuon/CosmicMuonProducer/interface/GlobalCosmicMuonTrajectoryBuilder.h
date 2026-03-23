@@ -21,6 +21,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonSmoother.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFwd.h"
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonTrackMatcher.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
@@ -30,7 +31,6 @@ namespace edm {
   class EventSetup;
 }  // namespace edm
 
-class Trajectory;
 class TrajectoryMeasurement;
 class CosmicMuonUtilities;
 

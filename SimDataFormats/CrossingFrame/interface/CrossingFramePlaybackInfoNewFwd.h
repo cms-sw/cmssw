@@ -1,0 +1,6 @@
+#ifndef SimDataFormats_CrossingFrame_CrossingFramePlaybackInfoNewFwd_h
+#define SimDataFormats_CrossingFrame_CrossingFramePlaybackInfoNewFwd_h
+
+class CrossingFramePlaybackInfoNew;
+
+#endif

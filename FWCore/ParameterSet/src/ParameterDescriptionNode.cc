@@ -1,6 +1,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterDescriptionNode.h"
 #include "FWCore/ParameterSet/interface/ParameterDescriptionCases.h"
+#include "FWCore/ParameterSet/interface/Entry.h"
 #include "FWCore/ParameterSet/src/ANDGroupDescription.h"
 #include "FWCore/ParameterSet/src/ORGroupDescription.h"
 #include "FWCore/ParameterSet/src/XORGroupDescription.h"
@@ -43,6 +44,7 @@ namespace edm {
   TYPE_TO_ENUM(double, k_double)
   TYPE_TO_ENUM(std::vector<double>, k_vdouble)
   TYPE_TO_ENUM(bool, k_bool)
+  TYPE_TO_ENUM(std::vector<bool>, k_vbool)
   TYPE_TO_ENUM(std::string, k_stringRaw)
   TYPE_TO_ENUM(std::vector<std::string>, k_vstringRaw)
   TYPE_TO_ENUM(EventID, k_EventID)
@@ -77,6 +79,7 @@ namespace edm {
       TYPE_TO_NAME(double);
       TYPE_TO_NAME(vdouble);
       TYPE_TO_NAME(bool);
+      TYPE_TO_NAME(vbool);
       TYPE_TO_NAME2(k_stringRaw, string);
       TYPE_TO_NAME2(k_vstringRaw, vstring);
       TYPE_TO_NAME(EventID);
@@ -98,6 +101,16 @@ namespace edm {
         assert(false);
     }
     return "";
+  }
+
+  bool compareEntryCodeToParameterType(char code, ParameterTypes type) {
+    if (code == detail::kTPSet) {
+      return type == k_PSet;
+    }
+    if (code == detail::kTvPSet) {
+      return type == k_VPSet;
+    }
+    return code == static_cast<char>(type);
   }
 
   Comment::Comment() {}

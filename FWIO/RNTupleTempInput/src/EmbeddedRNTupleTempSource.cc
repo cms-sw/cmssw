@@ -3,12 +3,12 @@
 #include "EmbeddedRNTupleTempSource.h"
 #include "InputFile.h"
 #include "RootEmbeddedFileSequence.h"
-#include "FWCore/Catalog/interface/StorageURLModifier.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Sources/interface/VectorInputSourceDescription.h"
 #include "FWCore/Sources/interface/InputSourceRunHelper.h"
 #include "FWCore/Sources/interface/SciTagCategoryForEmbeddedSources.h"
+#include "FWStorage/Catalog/interface/StorageURLModifier.h"
 
 namespace edm {
 

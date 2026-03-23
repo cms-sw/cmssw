@@ -18,6 +18,7 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
 
 #include "TH2F.h"
 
@@ -26,7 +27,6 @@
 #include <map>
 
 class DTGeometry;
-class DTChamberId;
 
 #include "TFile.h"
 #include "TNtuple.h"

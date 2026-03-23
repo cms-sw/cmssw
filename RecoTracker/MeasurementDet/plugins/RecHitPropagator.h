@@ -2,8 +2,8 @@
 #define RecHitPropagator_H
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
-class TrackingRecHit;
 class MagneticField;
 class Plane;
 

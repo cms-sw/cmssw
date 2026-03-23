@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include <vector>
@@ -13,8 +14,6 @@ namespace edm {
   class Event;
   class ParameterSet;
 }  // namespace edm
-
-class TrackingRecHit;
 
 class AlignmentTrackFromVertexCompositeCandidateSelector {
 public:

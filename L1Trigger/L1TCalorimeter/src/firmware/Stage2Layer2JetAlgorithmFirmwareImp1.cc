@@ -18,9 +18,11 @@
 #include <algorithm>
 #include <cmath>
 
-namespace l1t {
-  bool operator>(const l1t::Jet& a, const l1t::Jet& b) { return a.hwPt() > b.hwPt(); }
-}  // namespace l1t
+namespace {
+  struct Greater {
+    bool operator()(const l1t::Jet& a, const l1t::Jet& b) const noexcept { return a.hwPt() > b.hwPt(); }
+  };
+}  // namespace
 
 // jet mask, needs to be configurable at some point
 // just a square for now
@@ -264,7 +266,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
         // sort these jets and keep top 6
         auto start_ = jetsRing.begin();
         auto end_ = jetsRing.end();
-        BitonicSort<l1t::Jet>(down, start_, end_);
+        BitonicSort<l1t::Jet, Greater>(down, start_, end_);
         if (jetsRing.size() > 6)
           jetsRing.resize(6);
 
@@ -289,8 +291,8 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::accuSort(std::vector<l1t::Jet>& 
       jetEtaNeg.at(-(jets.at(iJet).hwEta() + 1)).at((72 - jets.at(iJet).hwPhi()) / 4) = jets.at(iJet);
   }
 
-  AccumulatingSort<l1t::Jet> etaPosSorter(7);
-  AccumulatingSort<l1t::Jet> etaNegSorter(7);
+  AccumulatingSort<l1t::Jet, Greater> etaPosSorter(7);
+  AccumulatingSort<l1t::Jet, Greater> etaNegSorter(7);
   std::vector<l1t::Jet> accumEtaPos;
   std::vector<l1t::Jet> accumEtaNeg;
 
@@ -299,13 +301,13 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::accuSort(std::vector<l1t::Jet>& 
     std::vector<l1t::Jet>::iterator start_, end_;
     start_ = jetEtaPos.at(ieta).begin();
     end_ = jetEtaPos.at(ieta).end();
-    BitonicSort<l1t::Jet>(down, start_, end_);
+    BitonicSort<l1t::Jet, Greater>(down, start_, end_);
     etaPosSorter.Merge(jetEtaPos.at(ieta), accumEtaPos);
 
     // eta -
     start_ = jetEtaNeg.at(ieta).begin();
     end_ = jetEtaNeg.at(ieta).end();
-    BitonicSort<l1t::Jet>(down, start_, end_);
+    BitonicSort<l1t::Jet, Greater>(down, start_, end_);
     etaNegSorter.Merge(jetEtaNeg.at(ieta), accumEtaNeg);
   }
 

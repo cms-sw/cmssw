@@ -3,12 +3,12 @@
 
 #include "vector"
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHitCollection.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedFwd.h"
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
 
-class TrajectorySeed;
 class Propagator;
 class MagneticField;
 class TrajectoryStateOnSurface;
-class SimTrack;
 class TrackerGeometry;
 
 class SeedMatcher {

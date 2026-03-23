@@ -10,7 +10,7 @@
  * \warning EVERY INDEX COUNTS FROM ONE
  */
 
-class CSCDetId;
+#include "DataFormats/MuonDetId/interface/CSCDetIdFwd.h"
 
 class CSCTriggerNumbering {
 public:

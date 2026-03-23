@@ -51,3 +51,14 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
 from Configuration.Eras.Modifier_ppRef_2024_cff import ppRef_2024
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 (pp_on_AA | ppRef_2024).toModify(prunedGenParticles.select, func = lambda list: list.append('keep++ abs(pdgId) == 9920443 || abs(pdgId) == 20443 || abs(pdgId) == 511'))
+
+from Configuration.Eras.Modifier_run3_upc_cff import run3_upc
+def _keep_forward_zdc_fsc_truth(lst):
+    # keep neutrons (stable)
+    lst.append("keep abs(pdgId) == 2112 && status == 1")
+
+    # Nuclear fragments / ions
+    lst.append("keep abs(pdgId) >= 1000000000 && status == 1")
+
+run3_upc.toModify(prunedGenParticles.select, func=_keep_forward_zdc_fsc_truth)
+

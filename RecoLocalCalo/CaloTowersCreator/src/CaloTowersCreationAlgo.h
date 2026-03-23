@@ -5,6 +5,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 // channel status
@@ -38,7 +39,6 @@ class CaloGeometry;
 class CaloSubdetectorGeometry;
 class CaloTowerConstituentsMap;
 class CaloRecHit;
-class DetId;
 
 /** \class CaloTowersCreationAlgo
   *  

@@ -12,6 +12,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitFwd.h"
 
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
@@ -27,7 +28,6 @@ namespace edm {
   class EventSetup;
 }  // namespace edm
 
-class PSimHit;
 class TFile;
 class DTLayer;
 class DTWireId;

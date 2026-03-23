@@ -69,6 +69,7 @@ private:
   int m_eventsSinceFlush{0};
   std::string m_compressionAlgorithm;
   bool m_writeProvenance;
+  bool m_writeTriggerResults;
   bool m_fakeName;  //crab workaround, remove after crab is fixed
   int m_autoFlush;
   edm::ProcessHistoryRegistry m_processHistoryRegistry;
@@ -160,6 +161,7 @@ NanoAODOutputModule::NanoAODOutputModule(edm::ParameterSet const& pset)
       m_compressionLevel(pset.getUntrackedParameter<int>("compressionLevel")),
       m_compressionAlgorithm(pset.getUntrackedParameter<std::string>("compressionAlgorithm")),
       m_writeProvenance(pset.getUntrackedParameter<bool>("saveProvenance", true)),
+      m_writeTriggerResults(pset.getUntrackedParameter<bool>("saveTriggerResults")),
       m_fakeName(pset.getUntrackedParameter<bool>("fakeNameForCrab", false)),
       m_autoFlush(pset.getUntrackedParameter<int>("autoFlush", -10000000)),
       m_processHistoryRegistry() {}
@@ -210,19 +212,24 @@ void NanoAODOutputModule::write(edm::EventForOutput const& iEvent) {
     for (auto& t : m_tables)
       t.fill(iEvent, *m_tree, extensions);
   }
-  if (!m_triggers_areSorted) {  // sort triggers/flags in inverse processHistory order, to save without any special label the most recent ones
-    std::vector<std::string> pnames;
-    for (auto& p : iEvent.processHistory())
-      pnames.push_back(p.processName());
-    std::sort(m_triggers.begin(), m_triggers.end(), [pnames](TriggerOutputBranches& a, TriggerOutputBranches& b) {
-      return ((std::find(pnames.begin(), pnames.end(), a.processName()) - pnames.begin()) >
-              (std::find(pnames.begin(), pnames.end(), b.processName()) - pnames.begin()));
-    });
-    m_triggers_areSorted = true;
+
+  if (m_writeTriggerResults) {
+    if (!m_triggers_areSorted) {  // sort triggers/flags in inverse processHistory order, to save without any special label the most recent ones
+      std::vector<std::string> pnames;
+      for (auto& p : iEvent.processHistory())
+        pnames.push_back(p.processName());
+      std::sort(m_triggers.begin(), m_triggers.end(), [pnames](TriggerOutputBranches& a, TriggerOutputBranches& b) {
+        return ((std::find(pnames.begin(), pnames.end(), a.processName()) - pnames.begin()) >
+                (std::find(pnames.begin(), pnames.end(), b.processName()) - pnames.begin()));
+      });
+      m_triggers_areSorted = true;
+    }
+    // fill triggers
+    for (auto& t : m_triggers) {
+      t.fill(iEvent, *m_tree);
+    }
   }
-  // fill triggers
-  for (auto& t : m_triggers)
-    t.fill(iEvent, *m_tree);
+
   // fill event branches
   for (auto& t : m_evstrings)
     t.fill(iEvent, *m_tree);
@@ -313,8 +320,12 @@ void NanoAODOutputModule::openFile(edm::FileBlock const&) {
   }
   /* Setup file structure here */
   m_tables.clear();
-  m_triggers.clear();
-  m_triggers_areSorted = false;
+
+  if (m_writeTriggerResults) {
+    m_triggers.clear();
+    m_triggers_areSorted = false;
+  }
+
   m_evstrings.clear();
   m_runTables.clear();
   m_lumiTables.clear();
@@ -325,7 +336,9 @@ void NanoAODOutputModule::openFile(edm::FileBlock const&) {
     if (keep.first->className() == "nanoaod::FlatTable")
       m_tables.emplace_back(keep.first, keep.second);
     else if (keep.first->className() == "edm::TriggerResults") {
-      m_triggers.emplace_back(keep.first, keep.second);
+      if (m_writeTriggerResults) {
+        m_triggers.emplace_back(keep.first, keep.second);
+      }
     } else if (keep.first->className() == "std::basic_string<char,std::char_traits<char> >" &&
                keep.first->productInstanceName() == "genModel") {  // friendlyClassName == "String"
       m_evstrings.emplace_back(keep.first, keep.second, true);     // update only at lumiBlock transitions
@@ -414,6 +427,8 @@ void NanoAODOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descr
       ->setComment("Algorithm used to compress data in the ROOT output file, allowed values are ZLIB and LZMA");
   desc.addUntracked<bool>("saveProvenance", true)
       ->setComment("Save process provenance information, e.g. for edmProvDump");
+  desc.addUntracked<bool>("saveTriggerResults", true)
+      ->setComment("Save the content of edm::TriggerResults in dedicated output branches (one per trigger)");
   desc.addUntracked<bool>("fakeNameForCrab", false)
       ->setComment(
           "Change the OutputModule name in the fwk job report to fake PoolOutputModule. This is needed to run on cran "

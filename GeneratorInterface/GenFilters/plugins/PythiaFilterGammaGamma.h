@@ -16,11 +16,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "GeneratorInterface/Core/interface/PythiaHepMCFilterGammaGamma.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProductFwd.h"
 
-namespace edm {
-  class HepMCProduct;
-}
+#include "GeneratorInterface/Core/interface/PythiaHepMCFilterGammaGamma.h"
 
 class PythiaFilterGammaGamma : public edm::global::EDFilter<> {
 public:

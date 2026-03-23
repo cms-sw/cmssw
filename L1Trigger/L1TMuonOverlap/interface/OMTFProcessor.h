@@ -6,11 +6,10 @@
 #include "L1Trigger/L1TMuonOverlap/interface/GoldenPattern.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFResult.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFConfiguration.h"
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
 
 class L1TMuonOverlapParams;
 class OMTFinput;
-
-class SimTrack;
 
 namespace edm {
   class ParameterSet;

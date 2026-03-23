@@ -196,15 +196,11 @@ public:
   enum { CHARGE_START = 23 };
   enum { CHARGE_LENGTH = 1 };  // Bit  23 Charge: 0 = positive
   enum { CHVALID_START = 24 };
-  enum {
-    CHVALID_LENGTH = 1
-  };  // Bit  24 Charge is vaild (1=valid)
-      // Bits 26 to 29: Synchronization
+  enum { CHVALID_LENGTH = 1 };  // Bit  24 Charge is vaild (1=valid)
+  // Bits 26 to 29: Synchronization
 
   enum { TYPE_START = 30 };
-  enum {
-    TYPE_LENGTH = 2
-  };  // Bit  30/31 type DT, bRPC, CSC, fRPC
-      // these bits are not sent to the GMT in hardware
+  enum { TYPE_LENGTH = 2 };  // Bit  30/31 type DT, bRPC, CSC, fRPC
+  // these bits are not sent to the GMT in hardware
 };
 #endif

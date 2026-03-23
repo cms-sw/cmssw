@@ -1,13 +1,13 @@
 #ifndef HeterogeneousCore_AlpakaCore_interface_alpaka_Event_h
 #define HeterogeneousCore_AlpakaCore_interface_alpaka_Event_h
 
+#include "DataFormats/AlpakaCommon/interface/alpaka/DeviceProductType.h"
+#include "DataFormats/AlpakaCommon/interface/alpaka/EDMetadata.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/DeviceProductType.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDGetToken.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadata.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 

@@ -226,7 +226,7 @@ void OniaPhotonConversionProducer::removeDuplicates(reco::ConversionCollection& 
         c.erase(c.begin() + iter2);
       } else {
         iter2++;  // Increment index only if this element is no duplicate.
-            // If it is duplicate check again the same index since the vector rearranged elements index after erasing
+        // If it is duplicate check again the same index since the vector rearranged elements index after erasing
       }
     iter1++;
   }

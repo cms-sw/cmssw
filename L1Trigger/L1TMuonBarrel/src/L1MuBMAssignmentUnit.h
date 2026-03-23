@@ -39,8 +39,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/L1TMuon/interface/BMTF/L1MuBMAddressArray.h"
+#include "DataFormats/L1TMuon/interface/L1MuBMTrackSegPhiFwd.h"
 
-class L1MuBMTrackSegPhi;
 class L1MuBMSectorProcessor;
 class L1MuBMLUTHandler;
 //              ---------------------

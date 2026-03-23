@@ -2,7 +2,6 @@
 <use name="tbb"/>
 <use name="rootcling"/>
 <use name="FWCore/Utilities"/>
-<use name="stdcxx-fs"/>
 <export>
   <lib name="1"/>
 </export>

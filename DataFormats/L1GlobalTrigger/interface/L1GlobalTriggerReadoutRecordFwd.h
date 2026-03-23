@@ -1,0 +1,6 @@
+#ifndef DataFormats_L1GlobalTrigger_L1GlobalTriggerReadoutRecordFwd_h
+#define DataFormats_L1GlobalTrigger_L1GlobalTriggerReadoutRecordFwd_h
+
+class L1GlobalTriggerReadoutRecord;
+
+#endif

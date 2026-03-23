@@ -251,12 +251,12 @@ namespace L1TUtmTriggerMenuInspectorHelper {
 
   // Explicit specialization outside the class
   template <>
-  std::string L1TUtmTriggerMenuDisplay<L1TUtmCondition>::getLabel() const {
+  inline std::string L1TUtmTriggerMenuDisplay<L1TUtmCondition>::getLabel() const {
     return "#scale[1.1]{Condition Name}";
   }
 
   template <>
-  std::string L1TUtmTriggerMenuDisplay<L1TUtmAlgorithm>::getLabel() const {
+  inline std::string L1TUtmTriggerMenuDisplay<L1TUtmAlgorithm>::getLabel() const {
     return "#scale[1.1]{Algo Name}";
   }
 }  // namespace L1TUtmTriggerMenuInspectorHelper

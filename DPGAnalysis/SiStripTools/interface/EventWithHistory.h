@@ -4,15 +4,16 @@
 #include <vector>
 #include "DPGAnalysis/SiStripTools/interface/TinyEvent.h"
 
+#include "DataFormats/Scalers/interface/L1AcceptBunchCrossingFwd.h"
+#include "DataFormats/TCDS/interface/TCDSRecordFwd.h"
+
 namespace edm {
   class Event;
   class EventAuxiliary;
 }  // namespace edm
 
 class EventBXHistory;
-class L1AcceptBunchCrossing;
 typedef std::vector<L1AcceptBunchCrossing> L1AcceptBunchCrossingCollection;
-class TCDSRecord;
 
 class EventWithHistory : public TinyEvent {
 public:

@@ -9,6 +9,7 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -24,8 +25,6 @@
 #include "RecoTracker/MeasurementDet/interface/ClusterFilterPayload.h"
 
 #include <tuple>
-
-class TrackingRecHit;
 
 class TkStripMeasurementDet;
 

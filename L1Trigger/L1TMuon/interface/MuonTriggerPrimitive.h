@@ -24,29 +24,23 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/L1TMuon/interface/L1TMuonSubsystems.h"
+#include "DataFormats/MuonDetId/interface/DTChamberIdFwd.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiFwd.h"
+#include "DataFormats/MuonDetId/interface/CSCDetIdFwd.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitFwd.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiFwd.h"
+#include "DataFormats/MuonDetId/interface/RPCDetIdFwd.h"
+#include "DataFormats/MuonDetId/interface/GEMDetIdFwd.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiClusterFwd.h"
 
 // DT digi types
-class DTChamberId;
 class L1MuDTChambPhDigi;
 class L1MuDTChambThDigi;
-
-// CSC digi types
-class CSCCorrelatedLCTDigi;
-class CSCDetId;
-
-// RPC digi types
-class RPCRecHit;
-class RPCDigi;
-class RPCDetId;
 
 // CPPF digi types
 namespace l1t {
   class CPPFDigi;
 }
-
-// GEM digi types
-class GEMPadDigiCluster;
-class GEMDetId;
 
 // ME0 digi types
 class ME0TriggerDigi;

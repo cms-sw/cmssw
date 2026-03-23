@@ -7,9 +7,10 @@ _barrelAlgo = cms.PSet(
     invLightSpeedLYSO = mtdDigitizer.barrelDigitizer.DeviceSimulation.LightCollectionSlope, # [ns/cm]
     npeToADC = mtdDigitizer.barrelDigitizer.ElectronicsSimulation.PulseQParam, # Npe to ADC counts conversion
     npePerMeV = mtdDigitizer.barrelDigitizer.DeviceSimulation.LightOutput, # [Npe/MeV]
+    npeSaturationCorrection = mtdDigitizer.barrelDigitizer.ElectronicsSimulation.SiPMSaturationParam, # effective Npe to true Npe conversion (SiPM saturation)
     tdcLSB_ns = cms.double(0.020), # [ns]
     timeResolutionInNs = cms.string("0.0593858*pow(x,-1.02826)+0.0156719"), # [ns]
-    timeWalkCorrection = cms.string("1.9e6/0.020*pow(9.389e5/0.0348*(x+22.5),-0.663)-7.5e-4*x-3.5e-3") # linear ad hoc correction for bias from global delay removal
+    timeWalkCorrection = cms.string("1.16946*pow(x,-0.671018)+0.0443454") # [ns]
 )
 
 _endcapAlgo = cms.PSet(

@@ -15,7 +15,7 @@ namespace gen {
   class CepGenEventGenerator : public BaseHadronizer {
   public:
     explicit CepGenEventGenerator(const edm::ParameterSet&, edm::ConsumesCollector&&);
-    virtual ~CepGenEventGenerator();
+    ~CepGenEventGenerator() override;
 
     bool readSettings(int) { return true; }
     bool declareStableParticles(const std::vector<int>&) { return true; }

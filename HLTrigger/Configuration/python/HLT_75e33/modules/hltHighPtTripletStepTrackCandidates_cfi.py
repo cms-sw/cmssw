@@ -24,9 +24,3 @@ hltHighPtTripletStepTrackCandidates = cms.EDProducer("CkfTrackCandidateMaker",
     src = cms.InputTag("hltHighPtTripletStepSeeds"),
     useHitsSplitting = cms.bool(False)
 )
-
-from Configuration.ProcessModifiers.singleIterPatatrack_cff import singleIterPatatrack
-from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
-from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
-
-(~singleIterPatatrack & trackingLST & seedingLST).toModify(hltHighPtTripletStepTrackCandidates, src = "hltInitialStepTrackCandidates:pLSTSsLST")

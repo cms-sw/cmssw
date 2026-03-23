@@ -38,9 +38,9 @@
 
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCandFwd.h"
 
 class L1MuGlobalMuonTrigger;
-class L1MuGMTCand;
 class L1MuGMTPhiProjectionUnit;
 class L1MuGMTEtaProjectionUnit;
 

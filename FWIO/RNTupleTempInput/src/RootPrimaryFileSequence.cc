@@ -10,13 +10,13 @@
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "FWCore/Catalog/interface/InputFileCatalog.h"
-#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
+#include "FWStorage/Catalog/interface/SiteLocalConfig.h"
 #include "FWStorage/StorageFactory/interface/StorageFactory.h"
 
 namespace edm::rntuple_temp {
@@ -165,13 +165,11 @@ namespace edm::rntuple_temp {
                                .promptReading = not input_.delayReadingEventProducts(),
                                .enableIMT = input_.optimizations().enableIMT},
         RootFile::ProductChoices{.productSelectorRules = input_.productSelectorRules(),
-                                 .associationsFromSecondary = nullptr,  // associationsFromSecondary
                                  .dropDescendantsOfDroppedProducts = input_.dropDescendants(),
                                  .labelRawDataLikeMC = input_.labelRawDataLikeMC()},
         RootFile::CrossFileInfo{.runHelper = input_.runHelper(),
                                 .branchIDListHelper = input_.branchIDListHelper(),
                                 .processBlockHelper = input_.processBlockHelper().get(),
-                                .thinnedAssociationsHelper = input_.thinnedAssociationsHelper(),
                                 .duplicateChecker = duplicateChecker(),
                                 .indexesIntoFiles = indexesIntoFiles(),
                                 .currentIndexIntoFile = currentIndexIntoFile},

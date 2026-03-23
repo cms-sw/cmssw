@@ -134,21 +134,30 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
                         ),
                         XYPositionMapH = cms.PSet(
                             Nxbins = cms.int32(1250),
-                            xmin   = cms.double(-1250.),
-                            xmax   = cms.double(1250.),
+                            xmin   = cms.double(-125.),
+                            xmax   = cms.double(125.),
                             Nybins = cms.int32(1250),
-                            ymin   = cms.double(-1250.),
-                            ymax   = cms.double(1250.),
+                            ymin   = cms.double(-125.),
+                            ymax   = cms.double(125.),
                             switch = cms.bool(True)
                         ),
                         RZPositionMapH = cms.PSet(
                             Nxbins = cms.int32(3000),
-                            xmin   = cms.double(-3000.),
-                            xmax   = cms.double(3000.),
+                            xmin   = cms.double(-300.),
+                            xmax   = cms.double(300.),
                             Nybins = cms.int32(1250),
                             ymin   = cms.double(0.),
-                            ymax   = cms.double(1250.),
+                            ymax   = cms.double(125.),
                             switch = cms.bool(True)
+                        ),
+                        CrackOverview = cms.PSet(
+                            name = cms.string('Crack_Overview_digis'),
+                            title = cms.string('Crack_Overview_digis;Module;Layer'),
+                            xmin   = cms.double(0),
+                            xmax   = cms.double(13.5),
+                            ymin   = cms.double(0),
+                            ymax   = cms.double(7.5),
+                            switch = cms.bool(False)
                         )
                     )
 

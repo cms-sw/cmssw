@@ -20,6 +20,9 @@
 #include "CondFormats/ESObjects/interface/ESMIPToGeVConstant.h"
 #include "CondFormats/ESObjects/interface/ESPedestals.h"
 #include "DataFormats/Math/interface/Error.h"
+#include "DataFormats/EcalDigi/interface/EBDigiCollectionFwd.h"
+#include "DataFormats/EcalDigi/interface/EEDigiCollectionFwd.h"
+#include "DataFormats/EcalDigi/interface/ESDigiCollectionFwd.h"
 #include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
@@ -60,9 +63,6 @@ class ESElectronicsSim;
 class ESElectronicsSimFast;
 class EcalBaseSignalGenerator;
 class CaloGeometry;
-class EBDigiCollection;
-class EEDigiCollection;
-class ESDigiCollection;
 class PileUpEventPrincipal;
 
 namespace edm {

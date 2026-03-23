@@ -1,7 +1,7 @@
+#include "SimDataFormats/Track/interface/SimTrackFwd.h"
 class HTrackVariables;
 class HResolution;
 class TFile;
-class SimTrack;
 class TrajectoryStateOnSurface;
 class FreeTrajectoryState;
 

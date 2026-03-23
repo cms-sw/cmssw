@@ -124,6 +124,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::vector<float> see_stateTrajGlbPz;
     std::vector<int> see_q;
     std::vector<std::vector<int>> see_hitIdx;
+    std::vector<std::vector<int>> see_hitType;
     TrajectorySeedCollection see_seeds;
 
     for (auto const& seedToken : seedTokens_) {
@@ -160,17 +161,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto const& stateGlobal = tsos.globalParameters();
 
         std::vector<int> hitIdx;
+        std::vector<int> hitType;
         for (auto const& hit : seed.recHits()) {
           auto det = hit.geographicalId().det();
-          int subid = hit.geographicalId().subdetId();
           if (det == DetId::Tracker) {
             const BaseTrackerRecHit* bhit = dynamic_cast<const BaseTrackerRecHit*>(&hit);
             const auto& clusterRef = bhit->firstClusterRef();
-            if (subid == (int)PixelSubdetector::PixelBarrel || subid == (int)PixelSubdetector::PixelEndcap) {
-              const auto clusterKey = clusterRef.cluster_pixel().key();
-              hitIdx.push_back(clusterKey);
+            hitIdx.push_back(clusterRef.index());
+            if (clusterRef.isPixel()) {
+              hitType.push_back(static_cast<int>(lst::HitType::Pixel));
             } else if (clusterRef.isPhase2()) {
-              hitIdx.push_back(clusterRef.rawIndex());
+              hitType.push_back(static_cast<int>(lst::HitType::Phase2OT));
             } else {
               throw cms::Exception("LSTInputProducer") << "Unknown tracker hit type found!";
             }
@@ -195,6 +196,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         see_stateTrajGlbPz.push_back(stateGlobal.momentum().z());
         see_q.push_back(seedTrack.charge());
         see_hitIdx.emplace_back(std::move(hitIdx));
+        see_hitType.emplace_back(std::move(hitType));
         see_seeds.push_back(seed);
       }
     }
@@ -214,6 +216,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                         see_stateTrajGlbPz,
                                         see_q,
                                         see_hitIdx,
+                                        see_hitType,
                                         {},
                                         ph2_detId,
                                         ph2_clustSize,

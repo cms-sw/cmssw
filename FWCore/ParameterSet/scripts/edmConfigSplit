@@ -31,9 +31,6 @@ parser.add_argument('-s', '--subdirectories',
 
 args = parser.parse_args()
 
-# make the behaviour of 'cmsRun file.py' and 'edmConfigSplit file.py' more consistent
-sys.path.append(os.getcwd())
-
 process = processFromFile(args.file, args.configArgs)
 
 options = PrintOptions()

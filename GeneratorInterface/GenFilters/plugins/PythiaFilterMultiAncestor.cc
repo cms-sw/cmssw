@@ -44,10 +44,6 @@ process.jpsi_from_bhadron_filter = cms.EDFilter("PythiaFilterMultiAncestor",
 using namespace edm;
 using namespace std;
 
-namespace edm {
-  class HepMCProduct;
-}
-
 class PythiaFilterMultiAncestor : public edm::global::EDFilter<> {
 public:
   explicit PythiaFilterMultiAncestor(const edm::ParameterSet&);

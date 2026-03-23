@@ -140,7 +140,7 @@ void Phase2OTMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::EventS
 
     float track_eta = tempTrackPtr->momentum().eta();
     float track_d0 = tempTrackPtr->d0();
-    float track_bendchi2 = tempTrackPtr->stubPtConsistency();
+    float track_bendchi2 = tempTrackPtr->chi2BendRed();
     float track_chi2 = tempTrackPtr->chi2();
     float track_chi2dof = tempTrackPtr->chi2Red();
     float track_chi2rz = tempTrackPtr->chi2Z();

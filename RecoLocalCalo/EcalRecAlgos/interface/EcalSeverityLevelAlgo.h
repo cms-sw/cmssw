@@ -12,6 +12,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalSeverityLevel.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitFwd.h"
+#include "DataFormats/DetId/interface/DetIdFwd.h"
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
 #include <vector>
@@ -26,9 +28,6 @@
      Do not cache the algorithm, or the channel status will not be updated.
      
  */
-
-class EcalRecHit;
-class DetId;
 
 class EcalSeverityLevelAlgo {
 public:

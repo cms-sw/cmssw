@@ -332,7 +332,7 @@ def HGCal_setRealisticNoiseSi(process,byDose=True,byDoseAlgo=0,byDoseMap=doseMap
     phase2_hgcalV19.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19] ) #100,200,300 um, to be deprecated
     phase2_hgcalV19.toModify(HGCAL_noise_fC, values = [x*fC_per_ele for x in endOfLifeNoises_v19] ) #100,200,300 um, to be deprecated
     phase2_hgcalV19.toModify(HGCAL_chargeCollectionEfficiencies, values = endOfLifeNoises_v19)
-    phase2_hgcalV19.toModify(HGCAL_noise, values = [x for x in endOfLifeNoises_v19])
+    phase2_hgcalV19.toModify(HGCAL_noises, values = [x for x in endOfLifeNoises_v19])
 
     return process
 

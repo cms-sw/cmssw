@@ -113,125 +113,11 @@ process.trackOfThingsProducerO = cms.EDProducer("TrackOfThingsProducer",
     keysToReference = cms.vuint32(44, 45, 46, 47)
 )
 
-process.thinningThingProducerA = cms.EDProducer("ThinningThingProducer",
-    inputTag = cms.InputTag('thingProducer'),
-    trackTag = cms.InputTag('trackOfThingsProducerA'),
-    offsetToThinnedKey = cms.uint32(0),
-    expectedCollectionSize = cms.uint32(50)
-)
-
-process.thinningThingProducerB = cms.EDProducer("ThinningThingProducer",
-    inputTag = cms.InputTag('thinningThingProducerA'),
-    trackTag = cms.InputTag('trackOfThingsProducerB'),
-    offsetToThinnedKey = cms.uint32(0),
-    expectedCollectionSize = cms.uint32(9)
-)
-
-process.thinningThingProducerC = cms.EDProducer("ThinningThingProducer",
-    inputTag = cms.InputTag('thinningThingProducerA'),
-    trackTag = cms.InputTag('trackOfThingsProducerC'),
-    offsetToThinnedKey = cms.uint32(0),
-    expectedCollectionSize = cms.uint32(9)
-)
-
-process.thinningThingProducerD = cms.EDProducer("ThinningThingProducer",
-    inputTag = cms.InputTag('thingProducer'),
-    trackTag = cms.InputTag('trackOfThingsProducerD'),
-    offsetToThinnedKey = cms.uint32(0),
-    expectedCollectionSize = cms.uint32(50)
-)
-
-process.thinningThingProducerE = cms.EDProducer("ThinningThingProducer",
-    inputTag = cms.InputTag('thinningThingProducerD'),
-    trackTag = cms.InputTag('trackOfThingsProducerE'),
-    offsetToThinnedKey = cms.uint32(10),
-    expectedCollectionSize = cms.uint32(9)
-)
-
-process.thinningThingProducerF = cms.EDProducer("ThinningThingProducer",
-    inputTag = cms.InputTag('thinningThingProducerD'),
-    trackTag = cms.InputTag('trackOfThingsProducerF'),
-    offsetToThinnedKey = cms.uint32(10),
-    expectedCollectionSize = cms.uint32(9)
-)
-
-process.thinningThingProducerG = cms.EDProducer("ThinningThingProducer",
-    inputTag = cms.InputTag('thingProducer'),
-    trackTag = cms.InputTag('trackOfThingsProducerG'),
-    offsetToThinnedKey = cms.uint32(0),
-    expectedCollectionSize = cms.uint32(50)
-)
-
-process.thinningThingProducerH = cms.EDProducer("ThinningThingProducer",
-    inputTag = cms.InputTag('thinningThingProducerG'),
-    trackTag = cms.InputTag('trackOfThingsProducerH'),
-    offsetToThinnedKey = cms.uint32(20),
-    expectedCollectionSize = cms.uint32(9)
-)
-
-process.thinningThingProducerI = cms.EDProducer("ThinningThingProducer",
-    inputTag = cms.InputTag('thinningThingProducerG'),
-    trackTag = cms.InputTag('trackOfThingsProducerI'),
-    offsetToThinnedKey = cms.uint32(20),
-    expectedCollectionSize = cms.uint32(9)
-)
-
-process.thinningThingProducerJ = cms.EDProducer("ThinningThingProducer",
-    inputTag = cms.InputTag('thingProducer'),
-    trackTag = cms.InputTag('trackOfThingsProducerJ'),
-    offsetToThinnedKey = cms.uint32(0),
-    expectedCollectionSize = cms.uint32(50)
-)
-
-process.thinningThingProducerK = cms.EDProducer("ThinningThingProducer",
-    inputTag = cms.InputTag('thinningThingProducerJ'),
-    trackTag = cms.InputTag('trackOfThingsProducerK'),
-    offsetToThinnedKey = cms.uint32(30),
-    expectedCollectionSize = cms.uint32(9)
-)
-
-process.thinningThingProducerL = cms.EDProducer("ThinningThingProducer",
-    inputTag = cms.InputTag('thinningThingProducerJ'),
-    trackTag = cms.InputTag('trackOfThingsProducerL'),
-    offsetToThinnedKey = cms.uint32(30),
-    expectedCollectionSize = cms.uint32(9)
-)
-
-process.thinningThingProducerM = cms.EDProducer("ThinningThingProducer",
-    inputTag = cms.InputTag('thingProducer'),
-    trackTag = cms.InputTag('trackOfThingsProducerM'),
-    offsetToThinnedKey = cms.uint32(0),
-    expectedCollectionSize = cms.uint32(50)
-)
-
-process.thinningThingProducerN = cms.EDProducer("ThinningThingProducer",
-    inputTag = cms.InputTag('thinningThingProducerM'),
-    trackTag = cms.InputTag('trackOfThingsProducerN'),
-    offsetToThinnedKey = cms.uint32(40),
-    expectedCollectionSize = cms.uint32(9)
-)
-
-process.thinningThingProducerO = cms.EDProducer("ThinningThingProducer",
-    inputTag = cms.InputTag('thinningThingProducerM'),
-    trackTag = cms.InputTag('trackOfThingsProducerO'),
-    offsetToThinnedKey = cms.uint32(40),
-    expectedCollectionSize = cms.uint32(9)
-)
-
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('good.root'),
     outputCommands = cms.untracked.vstring(
         'keep *',
-        'drop *_thingProducer_*_*',
-        'drop *_thinningThingProducerD_*_*',
-        'drop *_thinningThingProducerH_*_*',
-        'drop *_thinningThingProducerI_*_*',
-        'drop *_thinningThingProducerJ_*_*',
-        'drop *_thinningThingProducerK_*_*',
-        'drop *_thinningThingProducerL_*_*',
-        'drop *_thinningThingProducerM_*_*',
-        'drop *_thinningThingProducerN_*_*',
-    )
+        'drop *_thingProducer_*_*'    )
 )
 
 process.out2 = cms.OutputModule("PoolOutputModule",
@@ -263,21 +149,6 @@ process.thinningTestPath = cms.Path(process.thingProducer
                                     * process.trackOfThingsProducerM
                                     * process.trackOfThingsProducerN
                                     * process.trackOfThingsProducerO
-                                    * process.thinningThingProducerA
-                                    * process.thinningThingProducerB
-                                    * process.thinningThingProducerC
-                                    * process.thinningThingProducerD
-                                    * process.thinningThingProducerE
-                                    * process.thinningThingProducerF
-                                    * process.thinningThingProducerG
-                                    * process.thinningThingProducerH
-                                    * process.thinningThingProducerI
-                                    * process.thinningThingProducerJ
-                                    * process.thinningThingProducerK
-                                    * process.thinningThingProducerL
-                                    * process.thinningThingProducerM
-                                    * process.thinningThingProducerN
-                                    * process.thinningThingProducerO
 )
 
 process.p = cms.Path(process.Thing*process.OtherThing)
