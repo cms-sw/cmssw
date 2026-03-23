@@ -9,12 +9,15 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
@@ -22,13 +25,44 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
-#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
+#include "GeneratorInterface/LHEInterface/plugins/LHEProvenanceHelper.h"
 #include "GeneratorInterface/LHEInterface/interface/LH5Reader.h"
-
-#include "LH5Source.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 
 using namespace lhef;
+
+class LH5Source : public edm::ProducerSourceFromFiles {
+public:
+  explicit LH5Source(const edm::ParameterSet& params, const edm::InputSourceDescription& desc);
+  ~LH5Source() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void endJob() override;
+  bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override;
+  void readRun_(edm::RunPrincipal& runPrincipal) override;
+  void readLuminosityBlock_(edm::LuminosityBlockPrincipal& lumiPrincipal) override;
+  void readEvent_(edm::EventPrincipal& eventPrincipal) override;
+  void produce(edm::Event&) override {}
+  std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override;
+  std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override;
+
+  void nextEvent();
+
+  void putRunInfoProduct(edm::RunPrincipal&);
+  void fillRunInfoProduct(lhef::LHERunInfo const&, LHERunInfoProduct&);
+
+  std::unique_ptr<lhef::LH5Reader> reader_;
+
+  std::shared_ptr<lhef::LHERunInfo> runInfoLast_;
+  std::shared_ptr<lhef::LHEEvent> partonLevel_;
+
+  std::unique_ptr<LHERunInfoProduct> runInfoProductLast_;
+  edm::LHEProvenanceHelper lheProvenanceHelper_;
+  edm::ProcessHistoryID phid_;
+};
 
 LH5Source::LH5Source(const edm::ParameterSet& params, const edm::InputSourceDescription& desc)
     : ProducerSourceFromFiles(params, desc, false),

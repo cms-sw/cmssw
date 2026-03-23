@@ -377,6 +377,8 @@ highPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_c
     ] #end of vpset
 ) #end of clone
 
+fastSim.toModify(highPtTripletStepSelector,vertices = "firstStepPrimaryVerticesBeforeMixing")
+
 from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
 vectorHits.toModify(highPtTripletStepSelector.trackSelectors[2], minNumberLayers = 3, minNumber3DLayers = 3, d0_par1 = ( 0.5, 4.0 ), dz_par1 = ( 0.6, 4.0 ))
 
@@ -471,11 +473,14 @@ HighPtTripletStepTaskSerialSync = cms.Task()
 # fast tracking mask producer 
 from FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi import maskProducerFromClusterRemover
 highPtTripletStepMasks = maskProducerFromClusterRemover(highPtTripletStepClusters)
-fastSim.toReplaceWith(HighPtTripletStepTask,
-                      cms.Task(highPtTripletStepMasks
-                               ,highPtTripletStepTrackingRegions
-                               ,highPtTripletStepSeeds
-                               ,highPtTripletStepTrackCandidates
-                               ,highPtTripletStepTracks
-                               ,highPtTripletStep
-                               ) )
+_HighPtTripletStepTask_fastSim = cms.Task(highPtTripletStepMasks
+                                         ,highPtTripletStepTrackingRegions
+                                         ,highPtTripletStepSeeds
+                                         ,highPtTripletStepTrackCandidates
+                                         ,highPtTripletStepTracks
+                                         ,highPtTripletStep
+)
+_HighPtTripletStepTask_fastSim_phase2 = _HighPtTripletStepTask_fastSim.copy()
+_HighPtTripletStepTask_fastSim_phase2.replace(highPtTripletStep, highPtTripletStepSelector)
+fastSim.toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_fastSim)
+(fastSim & trackingPhase2PU140).toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_fastSim_phase2)

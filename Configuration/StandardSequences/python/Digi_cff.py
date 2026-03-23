@@ -67,14 +67,17 @@ modifyDigi_premixStage2GenPUProtons = (~premix_stage2).makeProcessModifier(_prem
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 def _fastSimDigis(process):
-    import FastSimulation.Configuration.DigiAliases_cff as DigiAliases
-
     # pretend these digis have been through digi2raw and raw2digi, by using the approprate aliases
     # use an alias to make the mixed track collection available under the usual label
     from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliases
     loadDigiAliases(process)
 # no need for the aliases for premixing stage1
 modifyDigi_fastSimDigis = (fastSim & ~premix_stage1).makeProcessModifier(_fastSimDigis)
+
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+def _fastSimDigisHGCal(process):
+    from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliasesHGCal
+modifyDigi_fastSimDigisHGCal = (fastSim & phase2_hgcal).makeProcessModifier(_fastSimDigisHGCal)
 
 #phase 2 common mods
 def _modifyEnableHcalHardcode( theProcess ):

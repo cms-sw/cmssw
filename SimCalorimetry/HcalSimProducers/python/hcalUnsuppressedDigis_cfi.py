@@ -83,3 +83,5 @@ phase2_hgcal.toModify(hcalSimBlock,
 # enable ZDC digitization
 from Configuration.ProcessModifiers.zdcDigi_cff import zdcDigi
 zdcDigi.toModify(hcalSimBlock, doZDCDigi = True )
+
+fastSim.toModify( hcalSimBlock, hitsProducer = "fastSimProducer" )

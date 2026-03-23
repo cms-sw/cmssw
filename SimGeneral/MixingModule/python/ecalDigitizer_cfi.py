@@ -56,3 +56,5 @@ phase2_ecal_devel.toReplaceWith(ecalDigitizer,_ecalDigitizer_Ph2)
 ##
 from Configuration.ProcessModifiers.tau_embedding_sim_cff import tau_embedding_sim
 tau_embedding_sim.toModify(ecalDigitizer, doENoise = False, doESNoise = False)
+
+fastSim.toModify(ecalDigitizer, hitsProducer = "fastSimProducer")
