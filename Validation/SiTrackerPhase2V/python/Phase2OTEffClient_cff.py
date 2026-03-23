@@ -1,3 +1,15 @@
+# ==============================================================================
+# Phase-2 Outer Tracker DQM Efficiency Client Configuration
+#
+# This configuration defines DQMGenericClient modules to calculate final
+# tracking and stub efficiencies for the Phase-2 Outer Tracker. It computes
+# ratios for Nominal, Extended Prompt, and Extended Displaced L1 tracks,
+# along with Barrel and Endcap stubs, reading from EfficiencyIngredients and
+# outputting to FinalEfficiency folders.
+#
+# Author: Brandi Skipworth
+# ==============================================================================
+
 import FWCore.ParameterSet.Config as cms
 
 # ============================================================================
@@ -7,13 +19,11 @@ _topFolder = "TrackerPhase2OTL1TrackV"
 
 phase2OTEffClient = cms.EDProducer(
     "DQMGenericClient",
-    # FIX: Point to the folders that actually EXIST in the input file
     subDirs=cms.untracked.vstring(
         f"{_topFolder}/Nominal_L1TF",
         f"{_topFolder}/Extended_L1TF/Prompt",
         f"{_topFolder}/Extended_L1TF/Displaced",
     ),
-    # FIX: Define Inputs/Outputs relative to those existing folders
     # Output: FinalEfficiency/Name
     # Input:  EfficiencyIngredients/Name
     efficiency=cms.vstring(
@@ -54,11 +64,10 @@ _topFolderStubs = "TrackerPhase2OTStubV"
 
 phase2OTStubEffClient = cms.EDProducer(
     "DQMGenericClient",
-    # FIX: Point to the Top Folder (which definitely exists)
     subDirs=cms.untracked.vstring(
         f"{_topFolderStubs}",
     ),
-    # FIX: Path logic: FinalEfficiency/Name vs EfficiencyIngredients/Name
+    # Path logic: FinalEfficiency/Name vs EfficiencyIngredients/Name
     efficiency=cms.vstring(
         "FinalEfficiency/StubEfficiencyBarrel       'Stub Efficiency Barrel;tracking particle p_{T} [GeV];Efficiency'        EfficiencyIngredients/gen_clusters_if_stub_barrel         EfficiencyIngredients/gen_clusters_barrel",
         "FinalEfficiency/StubEfficiencyZoomBarrel   'Stub Efficiency Zoom Barrel;tracking particle p_{T} [GeV];Efficiency'   EfficiencyIngredients/gen_clusters_if_stub_zoom_barrel    EfficiencyIngredients/gen_clusters_zoom_barrel",
