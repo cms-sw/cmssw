@@ -136,6 +136,8 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Ele5_Open_Unseeded_cfi
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_JME_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_TRK_cfi")
 
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/DQM_TRKHeterogeneousValidation_cfi")
+
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/ClusterShapeTrajectoryFilter_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/HGCAL_chargeCollectionEfficiencies_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/HGCAL_noise_fC_cfi")
@@ -289,7 +291,6 @@ fragment.schedule = cms.Schedule(*[
     fragment.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_FromL1TkMuon,
     fragment.HLT_TriMu_10_5_5_DZ_FromL1TkMuon,
 
-
     fragment.HLT_Ele32_WPTight_Unseeded,
     fragment.HLT_Ele26_WP70_Unseeded,
     fragment.HLT_Photon108EB_TightID_TightIso_Unseeded,
@@ -318,6 +319,9 @@ fragment.schedule = cms.Schedule(*[
     fragment.MC_TRK,
     fragment.MC_Ele5_Open_Unseeded,
     fragment.MC_Ele5_Open_L1Seeded,
+    
+    # Paths for CPU vs. GPU validation
+    fragment.DQM_TRKHeterogeneousValidation,
 
     fragment.HLTriggerFinalPath,
     fragment.HLTAnalyzerEndpath,

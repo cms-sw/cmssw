@@ -106,6 +106,7 @@ private:
   const double dxyCutForPlateau_;
   const double dzWRTPvCut_;
   const bool requireValidHLTPaths_;
+  bool ignoreLumiPUPlots_;
 
   bool hltPathsAreValid_ = false;
   std::unique_ptr<GenericTriggerEventFlag> genTriggerEventFlag_;
@@ -174,6 +175,7 @@ TrackToTrackComparisonHists::TrackToTrackComparisonHists(const edm::ParameterSet
       dxyCutForPlateau_(iConfig.getParameter<double>("dxyCutForPlateau")),
       dzWRTPvCut_(iConfig.getParameter<double>("dzWRTPvCut")),
       requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+      ignoreLumiPUPlots_(iConfig.getParameter<bool>("ignoreLumiPUPlots")),
       genTriggerEventFlag_(new GenericTriggerEventFlag(
           iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this))
 
@@ -234,8 +236,13 @@ void TrackToTrackComparisonHists::analyze(const edm::Event& iEvent, const edm::E
     onlinelumi = scalit->instantLumi();
     PU = scalit->pileup();
   } else {
-    edm::LogError("TrackToTrackComparisonHists") << "lumiScalersHandle not found or empty, skipping event";
-    return;
+    // When ignoring lumi and PU plots, keep their initial values to -1 and continue.
+    if (ignoreLumiPUPlots_) {
+      edm::LogInfo("TrackToTrackComparisonHists") << "ignoring lumi and PU plots";
+    } else {
+      edm::LogError("TrackToTrackComparisonHists") << "lumiScalersHandle not found or empty, skipping event";
+      return;
+    }
   }
 
   // lambda function to get the event data products
@@ -434,6 +441,7 @@ void TrackToTrackComparisonHists::fillDescriptions(edm::ConfigurationDescription
   edm::ParameterSetDescription desc;
 
   desc.add<bool>("requireValidHLTPaths", true);
+  desc.add<bool>("ignoreLumiPUPlots", false);
   desc.add<bool>("isCosmics", false);
 
   desc.add<edm::InputTag>("monitoredTrack", edm::InputTag("hltMergedTracks"));
@@ -547,13 +555,15 @@ void TrackToTrackComparisonHists::book_generic_tracks_histos(DQMStore::IBooker& 
   // counts of tracks vs lumi
   // for this moment, xmin,xmax and binning are hardcoded, maybe in future in a config file!
   // have to add (declare) this in the .h file as well
-  (mes.h_onlinelumi) = ibooker.book1D(label + "_onlinelumi",
-                                      "number of tracks vs onlinelumi",
-                                      onlinelumi_nbin,
-                                      onlinelumi_rangeMin,
-                                      onlinelumi_rangeMax);
-  (mes.h_ls) = ibooker.book1D(label + "_ls", "number of tracks vs ls", ls_nbin, ls_rangeMin, ls_rangeMax);
-  (mes.h_PU) = ibooker.book1D(label + "_PU", "number of tracks vs PU", PU_nbin, PU_rangeMin, PU_rangeMax);
+  if (!ignoreLumiPUPlots_) {
+    (mes.h_onlinelumi) = ibooker.book1D(label + "_onlinelumi",
+                                        "number of tracks vs onlinelumi",
+                                        onlinelumi_nbin,
+                                        onlinelumi_rangeMin,
+                                        onlinelumi_rangeMax);
+    (mes.h_ls) = ibooker.book1D(label + "_ls", "number of tracks vs ls", ls_nbin, ls_rangeMin, ls_rangeMax);
+    (mes.h_PU) = ibooker.book1D(label + "_PU", "number of tracks vs PU", PU_nbin, PU_rangeMin, PU_rangeMax);
+  }
 }
 
 void TrackToTrackComparisonHists::book_matching_tracks_histos(DQMStore::IBooker& ibooker,
@@ -643,9 +653,11 @@ void TrackToTrackComparisonHists::fill_generic_tracks_histos(generalME& mes,
     (mes.h_dzWRTpv)->Fill(dzWRTpv);
     (mes.h_charge)->Fill(charge);
     (mes.h_hits)->Fill(nhits);
-    (mes.h_onlinelumi)->Fill(onlinelumi);
-    (mes.h_ls)->Fill(ls);
-    (mes.h_PU)->Fill(PU);
+    if (!ignoreLumiPUPlots_) {
+      (mes.h_onlinelumi)->Fill(onlinelumi);
+      (mes.h_ls)->Fill(ls);
+      (mes.h_PU)->Fill(PU);
+    }
   }
 
   if (pTOnPlateau || !requirePlateau) {
