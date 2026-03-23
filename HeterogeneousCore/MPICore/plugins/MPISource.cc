@@ -32,10 +32,10 @@
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "HeterogeneousCore/MPICore/interface/api.h"
+#include "HeterogeneousCore/MPICore/interface/MPIChannel.h"
+#include "HeterogeneousCore/MPICore/interface/MPIToken.h"
 #include "HeterogeneousCore/MPICore/interface/conversion.h"
 #include "HeterogeneousCore/MPICore/interface/messages.h"
-#include "HeterogeneousCore/MPICore/interface/MPIToken.h"
 #include "HeterogeneousCore/MPIServices/interface/MPIService.h"
 
 class MPISource : public edm::ProducerSourceBase {
