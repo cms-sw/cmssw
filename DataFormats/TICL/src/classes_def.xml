@@ -2,5 +2,6 @@
   <class name="ticl::ClusterMask"/>
   <class name="ticl::ClusterMaskHost"/>
 
+  <class name="ticl::AssociationMap<int, ticl::HostAndFraction>" />
   <class name="ticl::HitsAndFractionsHost"/>
 </lcgdict>
