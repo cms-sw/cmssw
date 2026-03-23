@@ -27,9 +27,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ticl {
         : EDProducer(config),
           deviceTokenSoAClusters_{consumes(config.getParameter<edm::InputTag>("layerClusters"))},
           clustersMaskToken_{consumes(config.getParameter<edm::InputTag>("layerClustersInputMask"))},
+          filteredClustersMaskToken_{produces()},
           minClusterSize_{config.getParameter<unsigned int>("minClusterSize")},
           maxClusterSize_{config.getParameter<unsigned int>("maxClusterSize")},
-          deviceTokenFilteredSoAClusters_{produces()} {}
+          algo_(config) {}
     ~HeterogeneousFilteredLayerClustersProducer() override = default;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -45,11 +46,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ticl {
 
     void produce(device::Event& iEvent, const device::EventSetup& iSetup) override {
       const auto& layerClusters = iEvent.get(deviceTokenSoAClusters_);
-      auto& layerClustersMask = iEvent.get(clustersMaskToken_);
+      const auto& layerClustersMask = iEvent.get(clustersMaskToken_);
 
-      ClusterFilterByAlgoAndSize::filter(iEvent.queue(), layerClusters.view(), minClusterSize_, maxClusterSize_);
+      auto& queue = iEvent.queue();
+      ticl::ClusterMaskDevice filteredMask(queue, layerClustersMask.view().metadata().size());
+      alpaka::memcpy(queue, filteredMask.buffer(), layerClustersMask.buffer());
+      algo_.filter(queue, layerClusters, filteredMask, minClusterSize_, maxClusterSize_);
 
-      iEvent.emplace(layerClustersMask, clustersMaskToken_);
+      iEvent.emplace(filteredClustersMaskToken_, std::move(filteredMask));
     }
 
   private:
@@ -63,4 +67,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ticl {
     ClusterFilterByAlgoAndSize algo_;
   };
 
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::ticl
