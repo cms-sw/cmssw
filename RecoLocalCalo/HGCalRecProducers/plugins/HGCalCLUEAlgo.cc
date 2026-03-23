@@ -198,6 +198,7 @@ ticl::LayerClustersAndAssociations HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool
       layer_clusters_view.position().x()[globalClusterIndex] = x;
       layer_clusters_view.position().y()[globalClusterIndex] = y;
       layer_clusters_view.position().z()[globalClusterIndex] = z;
+      layer_clusters_view.position().cells()[globalClusterIndex] = clusters.count(cl);
       layer_clusters_view.energy().energy()[globalClusterIndex] = energy;
       layer_clusters_view.energy().correctedEnergy()[globalClusterIndex] = -1.f;
       layer_clusters_view.energy().correctedEnergyUncertainty()[globalClusterIndex] = -1.f;
