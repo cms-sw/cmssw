@@ -63,15 +63,17 @@ def runvdrift(name, run, filename):
         mean[0].Print(name+run+"-SL"+str(SL)+"-mean.png")
         #mean[0].Print(name+run+"-SL"+str(SL)+"-mean.pdf")
         #mean[0].SaveAs(name+run+"-SL"+str(SL)+"-mean.root")
-        #sigma[0].Print(name+run+"-SL"+str(SL)+"-sigma.pdf")
+        del mean
         
 def runt0(name,filename,run):
     from CalibMuon.DTCalibration.PlottingTools.plotT0FromHistos import plot
     for SL in [1,2,3]:
         mean = plot(filename, SL ,run)
-        mean[0].Print(name+run+"-SL"+str(SL)+"-mean.pdf")
-        mean[0].SaveAs(name+run+"-SL"+str(SL)+"-mean.root")
-
+        mean[0].Print(name+run+"-SL"+str(SL)+"-mean.png")
+        #mean[0].Print(name+run+"-SL"+str(SL)+"-mean.pdf")
+        #mean[0].SaveAs(name+run+"-SL"+str(SL)+"-mean.root")
+        del mean
+        
 if __name__=="__main__":
     main()
 

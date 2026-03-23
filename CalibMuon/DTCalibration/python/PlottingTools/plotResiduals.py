@@ -52,6 +52,8 @@ def plot(fileName,sl,dir='DTResiduals', run='1',option="HISTOPE1",draw=True):
                 histo = file.Get(histoName)
                 (histo,fitFunc) = fitResidual(histo,nSigmas,verbose)
                 fitMean = fitFunc.GetParameter(1)
+                if abs(fitMean)>0.01:
+                    print("Large mean residual at (SL: %r,  Station: %r, Wheel: %r, Section: %r);   res = %.3f" % (sl, st, wh, sec, fitMean))
                 fitMeanErr = fitFunc.GetParError(1)
                 fitSigma = fitFunc.GetParameter(2)
                 fitSigmaErr = fitFunc.GetParError(2)

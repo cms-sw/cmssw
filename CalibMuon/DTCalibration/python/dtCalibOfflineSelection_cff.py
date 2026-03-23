@@ -1,5 +1,3 @@
-
-
 from L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskAlgoTrigConfig_cff import *
 from L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff import *
 es_prefer_l1GtTriggerMaskAlgoTrig = cms.ESPrefer("L1GtTriggerMaskAlgoTrigTrivialProducer","l1GtTriggerMaskAlgoTrig")
@@ -7,39 +5,42 @@ es_prefer_l1GtTriggerMaskTechTrig = cms.ESPrefer("L1GtTriggerMaskTechTrigTrivial
 
 import copy
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-hltL1SingleMuOpen = copy.deepcopy(hltHighLevel)
-hltL1SingleMuOpen.HLTPaths = ['HLT_L1SingleMuOpen*']
-#hltL1SingleMuOpen.HLTPaths = ['HLT_L1SingleMuOpen_AntiBPTX_v*']
-hltDtCalibTest = copy.deepcopy(hltHighLevel)
-hltDtCalibTest.HLTPaths = ['HLT_Mu50_v*', 'HLT_IsoMu*', 'HLT_Mu13_Mu8_v*', 'HLT_Mu17_Mu8_v*']
-hltDTCalibration = copy.deepcopy(hltHighLevel)
-hltDTCalibration.HLTPaths = ['HLT_DTCalibration_v*']
 
-ALCARECODtCalibHIHLTFilter = copy.deepcopy(hltHighLevel)
+hltL1SingleMuOpen = hltHighLevel.clone(
+  HLTPaths = ['HLT_L1SingleMuOpen*']
+)
 
-ALCARECODtCalibHIHLTFilter.HLTPaths = ['HLT_HIL2SingleMu*']
-#ALCARECODtCalibHIHLTFilter.HLTPaths = ['HLT_OxyL1SingleMu*']
+hltDtCalibTest = hltHighLevel.clone(
+  HLTPaths = ['HLT_Mu50_v*', 'HLT_IsoMu*', 'HLT_Mu13_Mu8_v*', 'HLT_Mu17_Mu8_v*']
+)
+hltDTCalibration = hltHighLevel.clone(
+  HLTPaths = ['HLT_DTCalibration_v*']
+)
+ALCARECODtCalibHIHLTFilter = hltHighLevel.clone(
+  HLTPaths = ['HLT_HIL2SingleMu*']
+  #HLTPaths = ['HLT_OxyL1SingleMu*']
+)
 
 from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
-l1tech = hltLevel1GTSeed.clone()
-l1tech.L1TechTriggerSeeding = cms.bool(True)
+l1tech = hltLevel1GTSeed.clone(
+  L1TechTriggerSeeding = True
+)
+l1Algo = hltLevel1GTSeed.clone(
+  L1TechTriggerSeeding = False
+)
+bptx = l1tech.clone(
+  L1SeedsLogicalExpression = '0'
+)
+bscAnd = l1tech.clone(
+  L1SeedsLogicalExpression = '40 OR 41'
+)
+beamHaloVeto = l1tech.clone(
+  L1SeedsLogicalExpression = 'NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))'
+)
+l1SingleMuOpen = l1Algo.clone(
+  L1SeedsLogicalExpression = 'L1_SingleMuOpen'
+)
 
-l1Algo = hltLevel1GTSeed.clone()
-l1Algo.L1TechTriggerSeeding = cms.bool(False)
-
-bptx = l1tech.clone()
-bptx.L1SeedsLogicalExpression = cms.string('0')
-
-bscAnd = l1tech.clone()
-bscAnd.L1SeedsLogicalExpression = cms.string('40 OR 41')
-
-beamHaloVeto = l1tech.clone()
-beamHaloVeto.L1SeedsLogicalExpression = cms.string('NOT (36 OR 37 OR 38 OR 39) AND NOT ((42 AND NOT 43) OR (43 AND NOT 42))')
-
-l1SingleMuOpen = l1Algo.clone()
-l1SingleMuOpen.L1SeedsLogicalExpression = cms.string('L1_SingleMuOpen')
-
-#l1Coll = cms.Sequence(bptx + beamHaloVeto)
 l1Coll = cms.Sequence(bptx)
 l1CollBscAnd = cms.Sequence(bptx + bscAnd + beamHaloVeto)
 
@@ -104,33 +105,15 @@ goodCosmicTracksPt5 = cms.EDFilter("TrackSelector",
     filter = cms.bool(True)
 )
 
-offlineSelectionPt15 = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelectionPt15)
-offlineSelectionALCARECOPt15 = cms.Sequence(muonSelectionPt15)
-offlineSelectionPt5 = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelectionPt5)
-offlineSelectionALCARECOPt5 = cms.Sequence(muonSelectionPt5)
-offlineSelectionCosmicsPt5 = cms.Sequence(hltL1SingleMuOpen + goodCosmicTracksPt5)
-offlineSelectionHIPt5 = cms.Sequence(ALCARECODtCalibHIHLTFilter + primaryVertexFilter + muonSelectionPt5)
-
-offlineSelectionHIALCARECOPt5 = cms.Sequence(primaryVertexFilterHI + muonSelectionPt5)
-offlineSelectionHIRAWPt5 = cms.Sequence(ALCARECODtCalibHIHLTFilter)
 
 offlineSelection = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelectionPt15)
 offlineSelectionALCARECO = cms.Sequence(muonSelectionPt15)
 offlineSelectionALCARECODtCalibTest = cms.Sequence(hltDtCalibTest + muonSelectionPt15)
 offlineSelectionCosmics = cms.Sequence(hltL1SingleMuOpen)
-offlineSelectionHI = cms.Sequence(offlineSelectionHIPt5)
-offlineSelectionHIALCARECO = cms.Sequence(offlineSelectionHIALCARECOPt5)
-offlineSelectionHIRAW = cms.Sequence(offlineSelectionHIRAWPt5)
+offlineSelectionHI = cms.Sequence(ALCARECODtCalibHIHLTFilter + primaryVertexFilter + muonSelectionPt5)
+offlineSelectionHIALCARECO = cms.Sequence(primaryVertexFilterHI + muonSelectionPt5)
+offlineSelectionHIRAW = cms.Sequence(ALCARECODtCalibHIHLTFilter)
 offlineSelectionTestEnables = cms.Sequence(hltDTCalibration)
-
-dtCalibOfflineSelectionPt15 = cms.Sequence(offlineSelectionPt15)
-dtCalibOfflineSelectionALCARECOPt15 = cms.Sequence(offlineSelectionALCARECOPt15)
-dtCalibOfflineSelectionPt5 = cms.Sequence(offlineSelectionPt5)
-dtCalibOfflineSelectionALCARECOPt5 = cms.Sequence(offlineSelectionALCARECOPt5)
-dtCalibOfflineSelectionCosmicsPt5 = cms.Sequence(offlineSelectionCosmicsPt5)
-dtCalibOfflineSelectionHIPt5 = cms.Sequence(offlineSelectionHIPt5)
-dtCalibOfflineSelectionHIALCARECOPt5 = cms.Sequence(offlineSelectionHIALCARECOPt5)
-dtCalibOfflineSelectionHIRAWPt5 = cms.Sequence(offlineSelectionHIRAWPt5)
 
 dtCalibOfflineSelection = cms.Sequence(offlineSelection)
 dtCalibOfflineSelectionALCARECO = cms.Sequence(offlineSelectionALCARECO)
