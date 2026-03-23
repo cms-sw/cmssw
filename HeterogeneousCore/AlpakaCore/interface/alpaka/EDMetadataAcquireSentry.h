@@ -3,9 +3,9 @@
 
 #include <memory>
 
+#include "DataFormats/AlpakaCommon/interface/alpaka/EDMetadata.h"
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadata.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace detail {
@@ -41,6 +41,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
     private:
+#ifndef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
+      // all asynchronous backends
+      void asyncWait();
+#endif
+
       std::shared_ptr<EDMetadata> metadata_;
 
       edm::WaitingTaskWithArenaHolder waitingTaskHolder_;
