@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "DataFormats/CaloRecHit/interface/CaloClusterSoA.h"
+#include "DataFormats/TICL/interface/CaloClusterSoA.h"
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include <alpaka/alpaka.hpp>
 

@@ -17,7 +17,7 @@ namespace ticl {
   }
 
   // clang-format off
-  template <std::integral TKey, concepts::trivially_copyable TMapped>
+  template <typename TKey, typename TMapped>
   struct AssociationMapLayout {
     GENERATE_SOA_LAYOUT(ContentBuffersLayout, SOA_COLUMN(TMapped, values))
     GENERATE_SOA_LAYOUT(OffsetBufferLayout, SOA_COLUMN(TKey, keys_offsets))
@@ -28,7 +28,7 @@ namespace ticl {
                         SOA_VIEW_METHODS(
 							constexpr SOA_HOST_DEVICE auto operator[](TKey key) {
 							auto offset = (key == 0u) ? 0u : this->offsets()[key].keys_offsets();
-							auto size = (key == 0u) ? this->offsets()[0].keys_offsets() 
+							auto size = (key == 0u) ? this->offsets()[0].keys_offsets()
                                         : this->offsets()[key].keys_offsets() - this->offsets()[key - 1].keys_offsets();
 							return std::span<TMapped>{this->content().values().data() + offset, static_cast<std::size_t>(size)};
 							}
@@ -59,11 +59,11 @@ namespace ticl {
   // clang-format on
 
   template <std::integral TKey = uint32_t, concepts::trivially_copyable TMapped = uint32_t>
-  using AssociationMap = typename AssociationMapLayout<TKey, TMapped>::template Layout<>;
+  using TICLAssociationMap = typename AssociationMapLayout<TKey, TMapped>::template Layout<>;
   template <std::integral TKey = uint32_t, concepts::trivially_copyable TMapped = uint32_t>
-  using AssociationMapView = typename AssociationMap<TKey, TMapped>::View;
+  using TICLAssociationMapView = typename TICLAssociationMap<TKey, TMapped>::View;
   template <std::integral TKey = uint32_t, concepts::trivially_copyable TMapped = uint32_t>
-  using AssociationMapConstView = typename AssociationMap<TKey, TMapped>::ConstView;
+  using TICLAssociationMapConstView = typename TICLAssociationMap<TKey, TMapped>::ConstView;
 
 }  // namespace ticl
 

@@ -5,9 +5,9 @@
 
 namespace ticl {
 
-struct HitAndFraction {
-  DetId hit;
-  float fraction;
-};
+  struct HitAndFraction {
+    DetId hit;
+    float fraction;
+  };
 
-} // namespace ticl
+}  // namespace ticl

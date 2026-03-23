@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "DataFormats/CaloRecHit/interface/alpaka/CaloClusterDeviceCollection.h"
+#include "DataFormats/TICL/interface/alpaka/CaloClusterDeviceCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {

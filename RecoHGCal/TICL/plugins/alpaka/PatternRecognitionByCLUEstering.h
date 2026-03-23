@@ -30,8 +30,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         : PatternRecognitionAlgoBase(config),
           m_rhoc(config.getParameter<double>("rho_c")),
           m_dc(config.getParameter<double>("dc")),
-          m_dm(config.getParameter<double>("dm")) {
-    }
+          m_dm(config.getParameter<double>("dm")) {}
     ~PatternRecognitionByCLUEstering() override = default;
 
     void makeTracksters(Queue& queue,

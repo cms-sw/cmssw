@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/CaloRecHit/interface/CaloClusterHostCollection.h"
+#include "DataFormats/TICL/interface/CaloClusterHostCollection.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/Math/interface/Point3D.h"

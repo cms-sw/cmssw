@@ -98,7 +98,7 @@ void BarrelCLUEAlgoT<T>::makeClusters() {
 }
 
 template <typename T>
-ticl::LayerClustersAndAssociations BarrelCLUEAlgoT<T>::getClusters(bool) { 
+ticl::LayerClustersAndAssociations BarrelCLUEAlgoT<T>::getClusters(bool) {
   return ticl::LayerClustersAndAssociations(1, 1);
 }
 

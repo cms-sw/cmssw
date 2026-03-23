@@ -4,10 +4,6 @@
 <use name="FWCore/Utilities"/>
 <use name="rootmath"/>
 <use name="eigen"/>
-<use name="DataFormats/SoATemplate"/>
-<use name="DataFormats/Portable"/>
-<use name="HeterogeneousCore/AlpakaInterface"/>
-<flags ALPAKA_BACKENDS="!serial"/>
 <export>
   <lib name="1"/>
 </export>

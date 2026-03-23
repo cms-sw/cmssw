@@ -24,7 +24,7 @@ namespace ticl::associator::detail {
   struct KernelFillAssociator {
     template <alpaka::concepts::Acc TAcc, std::integral TKey, concepts::trivially_copyable TMapped>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                  ticl::AssociationMapView<TKey, TMapped> view,
+                                  ticl::TICLAssociationMapView<TKey, TMapped> view,
                                   std::span<const TKey> keys,
                                   std::span<const TMapped> values,
                                   TKey* temp_offsets) const {
@@ -39,7 +39,7 @@ namespace ticl::associator::detail {
   template <alpaka::concepts::Acc TAcc, typename TQueue, std::integral TKey, concepts::trivially_copyable TMapped>
     requires alpaka::isQueue<TQueue>
   ALPAKA_FN_HOST auto fill(TQueue& queue,
-                           ticl::AssociationMapView<TKey, TMapped>& map,
+                           ticl::TICLAssociationMapView<TKey, TMapped>& map,
                            std::span<const TKey> keys,
                            std::span<const TMapped> values) {
     using namespace ::cms::alpakatools;

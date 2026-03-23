@@ -1,7 +1,17 @@
 <lcgdict>
+
+  <class name="reco::CaloClusterSoA"/>
+  <class name="reco::CaloClusterHostCollection"/>
+
   <class name="ticl::ClusterMask"/>
   <class name="ticl::ClusterMaskHost"/>
 
-  <class name="ticl::AssociationMap<int, ticl::HostAndFraction>" />
   <class name="ticl::HitsAndFractionsHost"/>
+  <class name="ticl::HitsAndFractionsHost::Layout"/>
+  <class name="ticl::AssociationMapLayout<int, ticl::HitAndFraction>"/>
+  <class name="ticl::AssociationMapLayout<int, ticl::HitAndFraction>::Layout<128, false>"/>
+  <class name="ticl::AssociationMapLayout<int, ticl::HitAndFraction>::ContentBuffersLayout<128, false>"/>
+  <class name="ticl::AssociationMapLayout<int, ticl::HitAndFraction>::OffsetBufferLayout<128, false>"/>
+ 
+  <class name="edm::Wrapper<ticl::HitsAndFractionsHost>" splitLevel="0"/>
 </lcgdict>

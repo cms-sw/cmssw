@@ -34,7 +34,7 @@
   <use name="CondFormats/DataRecord"/>
   <use name="CondFormats/HGCalObjects"/>
   <use name="DataFormats/HGCalReco"/>
-  <use name="DataFormats/CaloRecHit"/>
+  <use name="DataFormats/TICL"/>
   <use name="DataFormats/Portable"/>
   <use name="Geometry/CaloGeometry"/>
   <use name="Geometry/HGCalCommonData"/>

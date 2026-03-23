@@ -7,6 +7,6 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::ticl {
 
-  using HitsAndFractionsDevice = PortableCollection<ticl::AssociationMap<int, HitAndFraction>>;
+  using HitsAndFractionsDevice = PortableCollection<ticl::TICLAssociationMap<int, HitAndFraction>>;
 
 }

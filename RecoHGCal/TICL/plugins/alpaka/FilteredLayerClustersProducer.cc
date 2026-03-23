@@ -1,6 +1,6 @@
 #include <alpaka/alpaka.hpp>
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "DataFormats/CaloRecHit/interface/alpaka/CaloClusterDeviceCollection.h"
+#include "DataFormats/TICL/interface/alpaka/CaloClusterDeviceCollection.h"
 #include "DataFormats/TICL/interface/alpaka/ClusterMaskDevice.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"

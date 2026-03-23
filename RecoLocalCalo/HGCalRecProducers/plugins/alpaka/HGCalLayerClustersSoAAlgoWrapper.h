@@ -7,7 +7,7 @@
 #include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsDeviceCollection.h"
 #include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsExtraDeviceCollection.h"
 // #include "DataFormats/HGCalReco/interface/alpaka/HGCalSoAClustersDeviceCollection.h"
-#include "DataFormats/CaloRecHit/interface/alpaka/CaloClusterDeviceCollection.h"
+#include "DataFormats/TICL/interface/alpaka/CaloClusterDeviceCollection.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/alpaka/HGCalSoAClustersExtraDeviceCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"

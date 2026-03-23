@@ -1,7 +1,7 @@
 #include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalCLUEAlgo.h"
 
 // Geometry
-#include "DataFormats/CaloRecHit/interface/CaloClusterHostCollection.h"
+#include "DataFormats/TICL/interface/CaloClusterHostCollection.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/TICL/interface/AssociationMap.h"
 #include "DataFormats/TICL/interface/FillAssociator.h"

@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "DataFormats/CaloRecHit/interface/CaloClusterHostCollection.h"
+#include "DataFormats/TICL/interface/CaloClusterHostCollection.h"
 #include "DataFormats/TICL/interface/HitsAndFractionsHost.h"
 #include <memory>
 

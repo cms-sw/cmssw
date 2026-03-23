@@ -5,7 +5,7 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-#include "DataFormats/CaloRecHit/interface/CaloClusterHostCollection.h"
+#include "DataFormats/TICL/interface/CaloClusterHostCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"

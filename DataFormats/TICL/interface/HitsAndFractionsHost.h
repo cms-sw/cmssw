@@ -7,6 +7,7 @@
 
 namespace ticl {
 
-  using HitsAndFractionsHost = PortableHostCollection<ticl::AssociationMap<int, HitAndFraction>>;
+  using TICLAssociationMap_t = AssociationMapLayout<int, HitAndFraction>::Layout<128, false>;
+  using HitsAndFractionsHost = PortableHostCollection<TICLAssociationMap_t>;
 
-}
+}  // namespace ticl

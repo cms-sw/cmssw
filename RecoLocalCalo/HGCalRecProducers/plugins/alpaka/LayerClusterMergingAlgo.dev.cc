@@ -24,9 +24,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   void LayerClusterMerger::merge(Queue& queue,
-                                reco::CaloClusterDeviceCollection::View merged,
-                                reco::CaloClusterDeviceCollection::ConstView input,
-                                uint32_t& start) {
+                                 reco::CaloClusterDeviceCollection::View merged,
+                                 reco::CaloClusterDeviceCollection::ConstView input,
+                                 uint32_t& start) {
     const auto blocksize = 1024u;
     const auto gridsize = cms::alpakatools::divide_up_by(input.position().metadata().size(), blocksize);
     const auto workdivision = cms::alpakatools::make_workdiv<Acc1D>(gridsize, blocksize);

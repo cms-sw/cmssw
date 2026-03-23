@@ -31,7 +31,4 @@
   <class name="edm::ValueMap<reco::CaloClusterPtrVector>" />
   <class name="edm::Wrapper<edm::ValueMap<reco::CaloClusterPtr> >" />
   <class name="edm::Wrapper<edm::ValueMap<reco::CaloClusterPtrVector> >" />
-
-  <class name="reco::CaloClusterSoA"/>
-  <class name="reco::CaloClusterHostCollection"/>
 </lcgdict>

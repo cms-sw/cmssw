@@ -1,6 +1,6 @@
 
-#include "DataFormats/CaloRecHit/interface/CaloClusterHostCollection.h"
-#include "DataFormats/CaloRecHit/interface/alpaka/CaloClusterDeviceCollection.h"
+#include "DataFormats/TICL/interface/CaloClusterHostCollection.h"
+#include "DataFormats/TICL/interface/alpaka/CaloClusterDeviceCollection.h"
 #include "DataFormats/TICL/interface/ClusterMaskHost.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"

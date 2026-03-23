@@ -2,7 +2,7 @@
 #include "DataFormats/HGCalReco/interface/HGCalSoARecHitsHostCollection.h"
 #include "DataFormats/HGCalReco/interface/alpaka/HGCalSoAClustersDeviceCollection.h"
 #include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsExtraDeviceCollection.h"
-#include "DataFormats/CaloRecHit/interface/alpaka/CaloClusterDeviceCollection.h"
+#include "DataFormats/TICL/interface/alpaka/CaloClusterDeviceCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

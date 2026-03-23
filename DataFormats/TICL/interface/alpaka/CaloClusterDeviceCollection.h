@@ -2,7 +2,7 @@
 #pragma once
 
 #include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
-#include "DataFormats/CaloRecHit/interface/CaloClusterSoA.h"
+#include "DataFormats/TICL/interface/CaloClusterSoA.h"
 #include <alpaka/alpaka.hpp>
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::reco {
