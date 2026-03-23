@@ -16,7 +16,7 @@
 
 // Original Author:  Emily MacDonald
 
-// Updated by: Brandi Skipworth, 2025
+// Updated by: Brandi Skipworth, 2026
 
 // system include files
 #include <fstream>
@@ -81,7 +81,7 @@ public:
   MonitorElement *trackParts_Eta = nullptr;
   MonitorElement *trackParts_Phi = nullptr;
   MonitorElement *trackParts_Pt = nullptr;
-  MonitorElement *trackParts_Num = nullptr; 
+  MonitorElement *trackParts_Num = nullptr;
   unsigned int nTrackParts = 0;
 
   // pT and eta for efficiency plots
@@ -183,8 +183,7 @@ private:
   edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>
       ttTrackMCTruthToken_;  // MC truth association map for tracks
   edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>
-      ttTrackMCTruthExtendedToken_;  // MC truth association map for extended
-                                     // tracks
+      ttTrackMCTruthExtendedToken_;  // MC truth association map for extended tracks
   edm::EDGetTokenT<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>> ttStubToken_;  // L1 Stub token
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> getTokenTrackerGeom_;     // Tracker geometry token
   int L1Tk_minNStub;
@@ -224,11 +223,11 @@ Phase2OTValidateTracks::Phase2OTValidateTracks(const edm::ParameterSet &iConfig)
                                                          // particle
   TP_minNLayersStub = conf_.getParameter<int>("TP_minNLayersStub");  // Minimum number of layers with stubs for the
                                                                      // tracking particle to be considered for matching
-  TP_minPt = conf_.getParameter<double>("TP_minPt");    // min pT to consider matching
-  TP_maxEta = conf_.getParameter<double>("TP_maxEta");  // max eta to consider matching
-  TP_maxZ0 = conf_.getParameter<double>("TP_maxZ0");    // max vertZ (or z0) to consider matching
-  TP_maxLxy = conf_.getParameter<double>("TP_maxLxy");  // max Lxy to consider prompt matching
-  TP_maxD0 = conf_.getParameter<double>("TP_maxD0");    // max d0 to consider prompt matching
+  TP_minPt = conf_.getParameter<double>("TP_minPt");                 // min pT to consider matching
+  TP_maxEta = conf_.getParameter<double>("TP_maxEta");               // max eta to consider matching
+  TP_maxZ0 = conf_.getParameter<double>("TP_maxZ0");                 // max vertZ (or z0) to consider matching
+  TP_maxLxy = conf_.getParameter<double>("TP_maxLxy");               // max Lxy to consider prompt matching
+  TP_maxD0 = conf_.getParameter<double>("TP_maxD0");                 // max d0 to consider prompt matching
 }
 
 Phase2OTValidateTracks::~Phase2OTValidateTracks() = default;
@@ -389,13 +388,11 @@ void Phase2OTValidateTracks::processTrackCollection(
       match_tp_pt_ptr = match_prompt_tp_pt;
       match_tp_pt_zoom_ptr = match_prompt_tp_pt_zoom;
       match_tp_Lxy_ptr = match_prompt_tp_Lxy;
-      
-      // Unconditional pointer assignment (cuts happen at Fill)
       match_tp_eta_ptr = match_prompt_tp_eta;
       match_tp_d0_ptr = match_prompt_tp_d0;
       match_tp_z0_ptr = match_prompt_tp_z0;
-      
-    // if extended, if "displaced"
+
+      // if extended, if "displaced"
     } else {
       reseta_vect_ptr = &reseta_displaced_vect;
       resphi_vect_ptr = &resphi_displaced_vect;
@@ -436,7 +433,7 @@ void Phase2OTValidateTracks::processTrackCollection(
     match_tp_pt_ptr = match_tp_pt;
     match_tp_pt_zoom_ptr = match_tp_pt_zoom;
     match_tp_Lxy_ptr = match_tp_Lxy;
-    
+
     match_tp_eta_ptr = match_tp_eta;
     match_tp_d0_ptr = match_tp_d0;
     match_tp_z0_ptr = match_tp_z0;
@@ -630,7 +627,7 @@ void Phase2OTValidateTracks::analyze(const edm::Event &iEvent, const edm::EventS
       tp_Lxy_for_prompt->Fill(tmp_tp_Lxy);
     } else {
       tp_Lxy_for_dis->Fill(tmp_tp_Lxy);
-      
+
       // Displaced has NO Lxy cut at all, fill its eta, d0, z0 here
       tp_eta_for_dis->Fill(tmp_tp_eta);
       tp_d0_for_dis->Fill(tmp_tp_d0);
@@ -659,7 +656,7 @@ void Phase2OTValidateTracks::analyze(const edm::Event &iEvent, const edm::EventS
     tp_eta->Fill(tmp_tp_eta);
     tp_d0->Fill(tmp_tp_d0);
     tp_z0->Fill(tmp_tp_z0);
-    
+
     if (std::fabs(tmp_tp_d0) < TP_maxD0) {
       tp_eta_for_prompt->Fill(tmp_tp_eta);
       tp_d0_for_prompt->Fill(tmp_tp_d0);
@@ -715,125 +712,177 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
   using phase2tkutil::book1DFromPS;
 
   // |eta| bin labels for resolution ingredients
-  std::string ranges[6] = { "eta0to0p7", "eta0p7to1", "eta1to1p2", "eta1p2to1p6", "eta1p6to2", "eta2to2p4" };
-  
-  // Tracking particle kinematics 
+  std::string ranges[6] = {"eta0to0p7", "eta0p7to1", "eta1to1p2", "eta1p2to1p6", "eta1p6to2", "eta2to2p4"};
+
+  // Tracking particle kinematics
   iBooker.setCurrentFolder(topFolderName_ + "/trackParticles");
-  trackParts_Pt  = book1DFromPS(iBooker, "trackParts_Pt",  psTrackParts_Pt,  "p_{T} [GeV]", "# tracking particles");
-  trackParts_Eta = book1DFromPS(iBooker, "trackParts_Eta", psTrackParts_Eta, "#eta",        "# tracking particles");
-  trackParts_Phi = book1DFromPS(iBooker, "trackParts_Phi", psTrackParts_Phi, "#phi",        "# tracking particles");
-  trackParts_Num = book1DFromPS(iBooker, "trackParts_Num", n_trackParticles, "# track particles per event", "# tracking particles");
-   
+  trackParts_Pt = book1DFromPS(iBooker, "trackParts_Pt", psTrackParts_Pt, "p_{T} [GeV]", "# tracking particles");
+  trackParts_Eta = book1DFromPS(iBooker, "trackParts_Eta", psTrackParts_Eta, "#eta", "# tracking particles");
+  trackParts_Phi = book1DFromPS(iBooker, "trackParts_Phi", psTrackParts_Phi, "#phi", "# tracking particles");
+  trackParts_Num =
+      book1DFromPS(iBooker, "trackParts_Num", n_trackParticles, "# track particles per event", "# tracking particles");
+
   // Nominal L1TF: efficiency ingredients (denominator + matched numerator)
   iBooker.setCurrentFolder(topFolderName_ + "/Nominal_L1TF/EfficiencyIngredients");
   // Denominator: all selected TPs
-  tp_pt      = book1DFromPS(iBooker, "tp_pt",      psEffic_pt,      "p_{T} [GeV]", "# tracking particles");
+  tp_pt = book1DFromPS(iBooker, "tp_pt", psEffic_pt, "p_{T} [GeV]", "# tracking particles");
   tp_pt_zoom = book1DFromPS(iBooker, "tp_pt_zoom", psEffic_pt_zoom, "p_{T} [GeV]", "# tracking particles");
-  tp_eta     = book1DFromPS(iBooker, "tp_eta",     psEffic_eta,     "#eta",        "# tracking particles");
-  tp_d0      = book1DFromPS(iBooker, "tp_d0",      psEffic_d0,      "d_{0} [cm]",  "# tracking particles");
-  tp_Lxy     = book1DFromPS(iBooker, "tp_Lxy",     psEffic_Lxy,     "L_{xy} [cm]", "# tracking particles");
-  tp_z0      = book1DFromPS(iBooker, "tp_z0",      psEffic_z0,      "z_{0} [cm]",  "# tracking particles");
+  tp_eta = book1DFromPS(iBooker, "tp_eta", psEffic_eta, "#eta", "# tracking particles");
+  tp_d0 = book1DFromPS(iBooker, "tp_d0", psEffic_d0, "d_{0} [cm]", "# tracking particles");
+  tp_Lxy = book1DFromPS(iBooker, "tp_Lxy", psEffic_Lxy, "L_{xy} [cm]", "# tracking particles");
+  tp_z0 = book1DFromPS(iBooker, "tp_z0", psEffic_z0, "z_{0} [cm]", "# tracking particles");
 
   // Numerator: matched TPs
-  match_tp_pt      = book1DFromPS(iBooker, "match_tp_pt",      psEffic_pt,      "p_{T} [GeV]", "# matched tracking particles");
-  match_tp_pt_zoom = book1DFromPS(iBooker, "match_tp_pt_zoom", psEffic_pt_zoom, "p_{T} [GeV]", "# matched tracking particles");
-  match_tp_eta     = book1DFromPS(iBooker, "match_tp_eta",     psEffic_eta,     "#eta",        "# matched tracking particles");
-  match_tp_d0      = book1DFromPS(iBooker, "match_tp_d0",      psEffic_d0,      "d_{0} [cm]",  "# matched tracking particles");
-  match_tp_Lxy     = book1DFromPS(iBooker, "match_tp_Lxy",     psEffic_Lxy,     "L_{xy} [cm]", "# matched tracking particles");
-  match_tp_z0      = book1DFromPS(iBooker, "match_tp_z0",      psEffic_z0,      "z_{0} [cm]",  "# matched tracking particles");
-   
+  match_tp_pt = book1DFromPS(iBooker, "match_tp_pt", psEffic_pt, "p_{T} [GeV]", "# matched tracking particles");
+  match_tp_pt_zoom =
+      book1DFromPS(iBooker, "match_tp_pt_zoom", psEffic_pt_zoom, "p_{T} [GeV]", "# matched tracking particles");
+  match_tp_eta = book1DFromPS(iBooker, "match_tp_eta", psEffic_eta, "#eta", "# matched tracking particles");
+  match_tp_d0 = book1DFromPS(iBooker, "match_tp_d0", psEffic_d0, "d_{0} [cm]", "# matched tracking particles");
+  match_tp_Lxy = book1DFromPS(iBooker, "match_tp_Lxy", psEffic_Lxy, "L_{xy} [cm]", "# matched tracking particles");
+  match_tp_z0 = book1DFromPS(iBooker, "match_tp_z0", psEffic_z0, "z_{0} [cm]", "# matched tracking particles");
+
   // Nominal L1TF: residual distributions
   iBooker.setCurrentFolder(topFolderName_ + "/Nominal_L1TF/Residual");
-  res_pt      = book1DFromPS(iBooker, "res_pt",    psRes_pt,    "trk p_{T} - tp p_{T} [GeV]",              "# tracking particles");
-  res_eta     = book1DFromPS(iBooker, "res_eta",   psRes_eta,   "trk #eta - tp #eta",                     "# tracking particles");
-  res_ptRel   = book1DFromPS(iBooker, "res_ptRel", psRes_ptRel, "Relative p_{T} [GeV]",     "# tracking particles");
-  d0_res_hist = book1DFromPS(iBooker, "res_d0",    psRes_d0,    "trk d_{0} - tp d_{0} [cm]","# tracking particles");
-   
+  res_pt = book1DFromPS(iBooker, "res_pt", psRes_pt, "trk p_{T} - tp p_{T} [GeV]", "# tracking particles");
+  res_eta = book1DFromPS(iBooker, "res_eta", psRes_eta, "trk #eta - tp #eta", "# tracking particles");
+  res_ptRel = book1DFromPS(iBooker, "res_ptRel", psRes_ptRel, "Relative p_{T} [GeV]", "# tracking particles");
+  d0_res_hist = book1DFromPS(iBooker, "res_d0", psRes_d0, "trk d_{0} - tp d_{0} [cm]", "# tracking particles");
+
   // Nominal L1TF: resolution vs eta and pT slices
   iBooker.setCurrentFolder(topFolderName_ + "/Nominal_L1TF/ResolutionIngredients");
   for (int i = 0; i < 6; i++) {
-    reseta_vect[i]      = book1DFromPS(iBooker, "reseta_" + ranges[i],          psRes_eta, "#eta_{trk} - #eta_{tp}",       "# tracking particles");
-    resphi_vect[i]      = book1DFromPS(iBooker, "resphi_" + ranges[i],          psRes_phi, "#phi_{trk} - #phi_{tp}",       "# tracking particles");
-    resz0_vect[i]       = book1DFromPS(iBooker, "resz0_"  + ranges[i],          psRes_z0,  "z0_{trk} - z0_{tp} [cm]",      "# tracking particles");
-    resd0_vect[i]       = book1DFromPS(iBooker, "resd0_"  + ranges[i],          psRes_d0,  "d0_{trk} - d0_{tp} [cm]",      "# tracking particles");
-    respt_pt2to3[i]     = book1DFromPS(iBooker, "respt_" + ranges[i] + "_pt2to3",   psRes_pt, "(p_{T}(trk) - p_{T}(tp))/p_{T}(tp)", "# tracking particles");
-    respt_pt3to8[i]     = book1DFromPS(iBooker, "respt_" + ranges[i] + "_pt3to8",   psRes_pt, "(p_{T}(trk) - p_{T}(tp))/p_{T}(tp)", "# tracking particles");
-    respt_pt8toInf[i]   = book1DFromPS(iBooker, "respt_" + ranges[i] + "_pt8toInf", psRes_pt, "(p_{T}(trk) - p_{T}(tp))/p_{T}(tp)", "# tracking particles");
+    reseta_vect[i] =
+        book1DFromPS(iBooker, "reseta_" + ranges[i], psRes_eta, "#eta_{trk} - #eta_{tp}", "# tracking particles");
+    resphi_vect[i] =
+        book1DFromPS(iBooker, "resphi_" + ranges[i], psRes_phi, "#phi_{trk} - #phi_{tp}", "# tracking particles");
+    resz0_vect[i] =
+        book1DFromPS(iBooker, "resz0_" + ranges[i], psRes_z0, "z0_{trk} - z0_{tp} [cm]", "# tracking particles");
+    resd0_vect[i] =
+        book1DFromPS(iBooker, "resd0_" + ranges[i], psRes_d0, "d0_{trk} - d0_{tp} [cm]", "# tracking particles");
+    respt_pt2to3[i] = book1DFromPS(iBooker,
+                                   "respt_" + ranges[i] + "_pt2to3",
+                                   psRes_pt,
+                                   "(p_{T}(trk) - p_{T}(tp))/p_{T}(tp)",
+                                   "# tracking particles");
+    respt_pt3to8[i] = book1DFromPS(iBooker,
+                                   "respt_" + ranges[i] + "_pt3to8",
+                                   psRes_pt,
+                                   "(p_{T}(trk) - p_{T}(tp))/p_{T}(tp)",
+                                   "# tracking particles");
+    respt_pt8toInf[i] = book1DFromPS(iBooker,
+                                     "respt_" + ranges[i] + "_pt8toInf",
+                                     psRes_pt,
+                                     "(p_{T}(trk) - p_{T}(tp))/p_{T}(tp)",
+                                     "# tracking particles");
   }
-   
+
   // Extended L1TF (Displaced): efficiency ingredients
   iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Displaced/EfficiencyIngredients");
   // Denominator: displaced TP selection
-  tp_pt_for_dis      = book1DFromPS(iBooker, "tp_pt_for_dis",      psEffic_pt,      "p_{T} [GeV]", "# tracking particles");
-  tp_pt_zoom_for_dis = book1DFromPS(iBooker, "tp_pt_zoom_for_dis", psEffic_pt_zoom, "p_{T} [GeV]", "# tracking particles");
-  tp_eta_for_dis     = book1DFromPS(iBooker, "tp_eta_for_dis",     psEffic_eta,     "#eta",        "# tracking particles");
-  tp_d0_for_dis      = book1DFromPS(iBooker, "tp_d0_for_dis",      psDisEffic_d0,   "d_{0} [cm]",  "# tracking particles");
-  tp_z0_for_dis      = book1DFromPS(iBooker, "tp_z0_for_dis",      psEffic_z0,      "z_{0} [cm]",  "# tracking particles");
-  tp_Lxy_for_dis     = book1DFromPS(iBooker, "tp_Lxy_for_dis",     psEffic_displaced_Lxy,     "L_{xy} [cm]", "# tracking particles");
+  tp_pt_for_dis = book1DFromPS(iBooker, "tp_pt_for_dis", psEffic_pt, "p_{T} [GeV]", "# tracking particles");
+  tp_pt_zoom_for_dis =
+      book1DFromPS(iBooker, "tp_pt_zoom_for_dis", psEffic_pt_zoom, "p_{T} [GeV]", "# tracking particles");
+  tp_eta_for_dis = book1DFromPS(iBooker, "tp_eta_for_dis", psEffic_eta, "#eta", "# tracking particles");
+  tp_d0_for_dis = book1DFromPS(iBooker, "tp_d0_for_dis", psDisEffic_d0, "d_{0} [cm]", "# tracking particles");
+  tp_z0_for_dis = book1DFromPS(iBooker, "tp_z0_for_dis", psEffic_z0, "z_{0} [cm]", "# tracking particles");
+  tp_Lxy_for_dis =
+      book1DFromPS(iBooker, "tp_Lxy_for_dis", psEffic_displaced_Lxy, "L_{xy} [cm]", "# tracking particles");
 
   // Numerator: matched displaced TPs
-  match_displaced_tp_pt       = book1DFromPS(iBooker, "match_displaced_tp_pt",       psEffic_pt,      "p_{T} [GeV]", "# matched extended tracking particles");
-  match_displaced_tp_pt_zoom  = book1DFromPS(iBooker, "match_displaced_tp_pt_zoom",  psEffic_pt_zoom, "p_{T} [GeV]", "# matched extended tracking particles");
-  match_displaced_tp_eta      = book1DFromPS(iBooker, "match_displaced_tp_eta",      psEffic_eta,     "#eta",        "# matched extended tracking particles");
-  match_displaced_tp_d0       = book1DFromPS(iBooker, "match_displaced_tp_d0",       psDisEffic_d0,   "d_{0} [cm]",  "# matched extended tracking particles");
-  match_displaced_tp_Lxy      = book1DFromPS(iBooker, "match_displaced_tp_Lxy",      psEffic_displaced_Lxy,     "L_{xy} [cm]", "# matched extended tracking particles");
-  match_displaced_tp_z0       = book1DFromPS(iBooker, "match_displaced_tp_z0",       psEffic_z0,      "z_{0} [cm]",  "# matched extended tracking particles");
+  match_displaced_tp_pt = book1DFromPS(
+      iBooker, "match_displaced_tp_pt", psEffic_pt, "p_{T} [GeV]", "# matched extended tracking particles");
+  match_displaced_tp_pt_zoom = book1DFromPS(
+      iBooker, "match_displaced_tp_pt_zoom", psEffic_pt_zoom, "p_{T} [GeV]", "# matched extended tracking particles");
+  match_displaced_tp_eta =
+      book1DFromPS(iBooker, "match_displaced_tp_eta", psEffic_eta, "#eta", "# matched extended tracking particles");
+  match_displaced_tp_d0 = book1DFromPS(
+      iBooker, "match_displaced_tp_d0", psDisEffic_d0, "d_{0} [cm]", "# matched extended tracking particles");
+  match_displaced_tp_Lxy = book1DFromPS(
+      iBooker, "match_displaced_tp_Lxy", psEffic_displaced_Lxy, "L_{xy} [cm]", "# matched extended tracking particles");
+  match_displaced_tp_z0 =
+      book1DFromPS(iBooker, "match_displaced_tp_z0", psEffic_z0, "z_{0} [cm]", "# matched extended tracking particles");
 
   // Extended L1TF (Displaced): residual distributions
   iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Displaced/Residual");
-  res_displaced_d0    = book1DFromPS(iBooker, "res_displaced_d0",    psRes_displaced_d0, "trk d_{0} - tp d_{0} [cm]", "# displaced tracks");
-  res_displaced_eta   = book1DFromPS(iBooker, "res_displaced_eta",   psRes_eta,          "#eta_{trk} - #eta_{tp}",    "# tracking particles");
-  res_displaced_pt    = book1DFromPS(iBooker, "res_displaced_pt",    psRes_pt,           "p_{T}(trk)-p_{T}(tp)",      "# tracking particles");
-  res_displaced_ptRel = book1DFromPS(iBooker, "res_displaced_ptRel", psRes_ptRel,        "Relative p_{T} [GeV]",      "# tracking particles");
+  res_displaced_d0 =
+      book1DFromPS(iBooker, "res_displaced_d0", psRes_displaced_d0, "trk d_{0} - tp d_{0} [cm]", "# displaced tracks");
+  res_displaced_eta =
+      book1DFromPS(iBooker, "res_displaced_eta", psRes_eta, "#eta_{trk} - #eta_{tp}", "# tracking particles");
+  res_displaced_pt =
+      book1DFromPS(iBooker, "res_displaced_pt", psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
+  res_displaced_ptRel =
+      book1DFromPS(iBooker, "res_displaced_ptRel", psRes_ptRel, "Relative p_{T} [GeV]", "# tracking particles");
 
   // Extended L1TF (Displaced): resolution vs eta and pT slices
   iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Displaced/ResolutionIngredients");
   for (int i = 0; i < 6; i++) {
-    reseta_displaced_vect[i]      = book1DFromPS(iBooker, "reseta_displaced_"  + ranges[i],          psRes_eta,          "#eta_{trk} - #eta_{tp}",       "# tracking particles");
-    resphi_displaced_vect[i]      = book1DFromPS(iBooker, "resphi_displaced_"  + ranges[i],          psRes_phi,          "#phi_{trk} - #phi_{tp}",       "# tracking particles");
-    resd0_displaced_vect[i]       = book1DFromPS(iBooker, "resd0_displaced_"   + ranges[i],          psRes_displaced_d0, "d0_{trk} - d0_{tp} [cm]",      "# tracking particles");
-    resz0_displaced_vect[i]       = book1DFromPS(iBooker, "resz0_displaced_"   + ranges[i],          psRes_z0,           "z0_{trk} - z0_{tp} [cm]",      "# tracking particles");
-    respt_displaced_pt2to3[i]     = book1DFromPS(iBooker, "respt_displaced_" + ranges[i] + "_pt2to3",   psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
-    respt_displaced_pt3to8[i]     = book1DFromPS(iBooker, "respt_displaced_" + ranges[i] + "_pt3to8",   psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
-    respt_displaced_pt8toInf[i]   = book1DFromPS(iBooker, "respt_displaced_" + ranges[i] + "_pt8toInf", psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
+    reseta_displaced_vect[i] = book1DFromPS(
+        iBooker, "reseta_displaced_" + ranges[i], psRes_eta, "#eta_{trk} - #eta_{tp}", "# tracking particles");
+    resphi_displaced_vect[i] = book1DFromPS(
+        iBooker, "resphi_displaced_" + ranges[i], psRes_phi, "#phi_{trk} - #phi_{tp}", "# tracking particles");
+    resd0_displaced_vect[i] = book1DFromPS(
+        iBooker, "resd0_displaced_" + ranges[i], psRes_displaced_d0, "d0_{trk} - d0_{tp} [cm]", "# tracking particles");
+    resz0_displaced_vect[i] = book1DFromPS(
+        iBooker, "resz0_displaced_" + ranges[i], psRes_z0, "z0_{trk} - z0_{tp} [cm]", "# tracking particles");
+    respt_displaced_pt2to3[i] = book1DFromPS(
+        iBooker, "respt_displaced_" + ranges[i] + "_pt2to3", psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
+    respt_displaced_pt3to8[i] = book1DFromPS(
+        iBooker, "respt_displaced_" + ranges[i] + "_pt3to8", psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
+    respt_displaced_pt8toInf[i] = book1DFromPS(
+        iBooker, "respt_displaced_" + ranges[i] + "_pt8toInf", psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
   }
 
   // Extended L1TF (Prompt): efficiency ingredients (matched prompt TPs)
   iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Prompt/EfficiencyIngredients");
-  
+
   // Denominator: prompt TP selection
-  tp_pt_for_prompt         = book1DFromPS(iBooker, "tp_pt_for_prompt",        psEffic_pt,      "p_{T} [GeV]", "# tracking particles");
-  tp_pt_zoom_for_prompt    = book1DFromPS(iBooker, "tp_pt_zoom_for_prompt",   psEffic_pt_zoom, "p_{T} [GeV]", "# tracking particles");
-  tp_eta_for_prompt        = book1DFromPS(iBooker, "tp_eta_for_prompt",       psEffic_eta,     "#eta",        "# tracking particles");
-  tp_d0_for_prompt         = book1DFromPS(iBooker, "tp_d0_for_prompt",        psEffic_d0,      "d_{0} [cm]",  "# tracking particles");
-  tp_Lxy_for_prompt        = book1DFromPS(iBooker, "tp_Lxy_for_prompt",       psEffic_Lxy,     "L_{xy} [cm]", "# tracking particles");
-  tp_z0_for_prompt         = book1DFromPS(iBooker, "tp_z0_for_prompt",        psEffic_z0,      "z_{0} [cm]",  "# tracking particles");
+  tp_pt_for_prompt = book1DFromPS(iBooker, "tp_pt_for_prompt", psEffic_pt, "p_{T} [GeV]", "# tracking particles");
+  tp_pt_zoom_for_prompt =
+      book1DFromPS(iBooker, "tp_pt_zoom_for_prompt", psEffic_pt_zoom, "p_{T} [GeV]", "# tracking particles");
+  tp_eta_for_prompt = book1DFromPS(iBooker, "tp_eta_for_prompt", psEffic_eta, "#eta", "# tracking particles");
+  tp_d0_for_prompt = book1DFromPS(iBooker, "tp_d0_for_prompt", psEffic_d0, "d_{0} [cm]", "# tracking particles");
+  tp_Lxy_for_prompt = book1DFromPS(iBooker, "tp_Lxy_for_prompt", psEffic_Lxy, "L_{xy} [cm]", "# tracking particles");
+  tp_z0_for_prompt = book1DFromPS(iBooker, "tp_z0_for_prompt", psEffic_z0, "z_{0} [cm]", "# tracking particles");
 
   // Numerator: matched prompt TPs
-  match_prompt_tp_pt       = book1DFromPS(iBooker, "match_prompt_tp_pt",      psEffic_pt,      "p_{T} [GeV]", "# matched tracking particles");
-  match_prompt_tp_pt_zoom  = book1DFromPS(iBooker, "match_prompt_tp_pt_zoom", psEffic_pt_zoom, "p_{T} [GeV]", "# matched tracking particles");
-  match_prompt_tp_eta      = book1DFromPS(iBooker, "match_prompt_tp_eta",     psEffic_eta,     "#eta",        "# matched tracking particles");
-  match_prompt_tp_d0       = book1DFromPS(iBooker, "match_prompt_tp_d0",      psEffic_d0,      "d_{0} [cm]",  "# matched tracking particles");
-  match_prompt_tp_Lxy      = book1DFromPS(iBooker, "match_prompt_tp_Lxy",     psEffic_Lxy,     "L_{xy} [cm]", "# matched tracking particles");
-  match_prompt_tp_z0       = book1DFromPS(iBooker, "match_prompt_tp_z0",      psEffic_z0,      "z_{0} [cm]",  "# matched tracking particles");
-   
+  match_prompt_tp_pt =
+      book1DFromPS(iBooker, "match_prompt_tp_pt", psEffic_pt, "p_{T} [GeV]", "# matched tracking particles");
+  match_prompt_tp_pt_zoom =
+      book1DFromPS(iBooker, "match_prompt_tp_pt_zoom", psEffic_pt_zoom, "p_{T} [GeV]", "# matched tracking particles");
+  match_prompt_tp_eta =
+      book1DFromPS(iBooker, "match_prompt_tp_eta", psEffic_eta, "#eta", "# matched tracking particles");
+  match_prompt_tp_d0 =
+      book1DFromPS(iBooker, "match_prompt_tp_d0", psEffic_d0, "d_{0} [cm]", "# matched tracking particles");
+  match_prompt_tp_Lxy =
+      book1DFromPS(iBooker, "match_prompt_tp_Lxy", psEffic_Lxy, "L_{xy} [cm]", "# matched tracking particles");
+  match_prompt_tp_z0 =
+      book1DFromPS(iBooker, "match_prompt_tp_z0", psEffic_z0, "z_{0} [cm]", "# matched tracking particles");
+
   // Extended L1TF (Prompt): residual distributions
   iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Prompt/Residual");
-  res_prompt_d0    = book1DFromPS(iBooker, "res_prompt_d0",    psRes_d0,    "trk d_{0} - tp d_{0} [cm]", "# tracking particles");
-  res_prompt_eta   = book1DFromPS(iBooker, "res_prompt_eta",   psRes_eta,   "#eta_{trk} - #eta_{tp}",    "# tracking particles");
-  res_prompt_pt    = book1DFromPS(iBooker, "res_prompt_pt",    psRes_pt,    "p_{T}(trk)-p_{T}(tp)",      "# tracking particles");
-  res_prompt_ptRel = book1DFromPS(iBooker, "res_prompt_ptRel", psRes_ptRel, "Relative p_{T} [GeV]",      "# tracking particles");
+  res_prompt_d0 = book1DFromPS(iBooker, "res_prompt_d0", psRes_d0, "trk d_{0} - tp d_{0} [cm]", "# tracking particles");
+  res_prompt_eta = book1DFromPS(iBooker, "res_prompt_eta", psRes_eta, "#eta_{trk} - #eta_{tp}", "# tracking particles");
+  res_prompt_pt = book1DFromPS(iBooker, "res_prompt_pt", psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
+  res_prompt_ptRel =
+      book1DFromPS(iBooker, "res_prompt_ptRel", psRes_ptRel, "Relative p_{T} [GeV]", "# tracking particles");
 
   // Extended L1TF (Prompt): resolution vs eta and pT slices
   iBooker.setCurrentFolder(topFolderName_ + "/Extended_L1TF/Prompt/ResolutionIngredients");
   for (int i = 0; i < 6; i++) {
-    reseta_prompt_vect[i]      = book1DFromPS(iBooker, "reseta_prompt_" + ranges[i],          psRes_eta, "#eta_{trk} - #eta_{tp}",       "# tracking particles");
-    resphi_prompt_vect[i]      = book1DFromPS(iBooker, "resphi_prompt_" + ranges[i],          psRes_phi, "#phi_{trk} - #phi_{tp}",       "# tracking particles");
-    resd0_prompt_vect[i]       = book1DFromPS(iBooker, "resd0_prompt_"  + ranges[i],          psRes_d0,  "d0_{trk} - d0_{tp} [cm]",      "# tracking particles");
-    resz0_prompt_vect[i]       = book1DFromPS(iBooker, "resz0_prompt_"  + ranges[i],          psRes_z0,  "z0_{trk} - z0_{tp} [cm]",      "# tracking particles");
-    respt_prompt_pt2to3[i]     = book1DFromPS(iBooker, "respt_prompt_" + ranges[i] + "_pt2to3",   psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
-    respt_prompt_pt3to8[i]     = book1DFromPS(iBooker, "respt_prompt_" + ranges[i] + "_pt3to8",   psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
-    respt_prompt_pt8toInf[i]   = book1DFromPS(iBooker, "respt_prompt_" + ranges[i] + "_pt8toInf", psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
+    reseta_prompt_vect[i] = book1DFromPS(
+        iBooker, "reseta_prompt_" + ranges[i], psRes_eta, "#eta_{trk} - #eta_{tp}", "# tracking particles");
+    resphi_prompt_vect[i] = book1DFromPS(
+        iBooker, "resphi_prompt_" + ranges[i], psRes_phi, "#phi_{trk} - #phi_{tp}", "# tracking particles");
+    resd0_prompt_vect[i] =
+        book1DFromPS(iBooker, "resd0_prompt_" + ranges[i], psRes_d0, "d0_{trk} - d0_{tp} [cm]", "# tracking particles");
+    resz0_prompt_vect[i] =
+        book1DFromPS(iBooker, "resz0_prompt_" + ranges[i], psRes_z0, "z0_{trk} - z0_{tp} [cm]", "# tracking particles");
+    respt_prompt_pt2to3[i] = book1DFromPS(
+        iBooker, "respt_prompt_" + ranges[i] + "_pt2to3", psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
+    respt_prompt_pt3to8[i] = book1DFromPS(
+        iBooker, "respt_prompt_" + ranges[i] + "_pt3to8", psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
+    respt_prompt_pt8toInf[i] = book1DFromPS(
+        iBooker, "respt_prompt_" + ranges[i] + "_pt8toInf", psRes_pt, "p_{T}(trk)-p_{T}(tp)", "# tracking particles");
   }
 }  // end of method
 
@@ -842,7 +891,7 @@ void Phase2OTValidateTracks::bookHistograms(DQMStore::IBooker &iBooker,
 void Phase2OTValidateTracks::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   // OuterTrackerMonitorTrackingParticles
   edm::ParameterSetDescription desc;
-  auto addHist = [&desc](const std::string& name, int bins, double xmin, double xmax) {
+  auto addHist = [&desc](const std::string &name, int bins, double xmin, double xmax) {
     edm::ParameterSetDescription psd;
     psd.add<int>("Nbinsx", bins);
     psd.add<double>("xmin", xmin);
@@ -851,30 +900,30 @@ void Phase2OTValidateTracks::fillDescriptions(edm::ConfigurationDescriptions &de
   };
 
   // Tracking particle kinematics
-  addHist("TH1TrackParts_Eta",      45,  -3.0,   3.0);
-  addHist("TH1TrackParts_Phi",      60,  -3.141592653589793, 3.141592653589793);
-  addHist("TH1TrackParts_Pt",       45,   0.0,   100.0);
-  addHist("n_trackParticles",      100,   0.0,   600.0);
+  addHist("TH1TrackParts_Eta", 45, -3.0, 3.0);
+  addHist("TH1TrackParts_Phi", 60, -3.141592653589793, 3.141592653589793);
+  addHist("TH1TrackParts_Pt", 45, 0.0, 100.0);
+  addHist("n_trackParticles", 100, 0.0, 600.0);
 
   // Efficiency plots
-  addHist("TH1Effic_pt",            50,   0.0,   100.0);
-  addHist("TH1Effic_pt_zoom",       50,   0.0,   10.0);
-  addHist("TH1Effic_eta",           50,  -2.5,   2.5);
-  addHist("TH1Effic_d0",           101,  -0.15,  0.15);
-  addHist("TH1DisEffic_d0",        101,  -10.0,  10.0);
-  addHist("TH1Effic_Lxy",           25,   0.0,   1.0);
-  addHist("TH1displacedEffic_Lxy",  50,   0.0,   10.0);
-  addHist("TH1Effic_z0",            40,  -16.0,  16.0);
+  addHist("TH1Effic_pt", 50, 0.0, 100.0);
+  addHist("TH1Effic_pt_zoom", 50, 0.0, 10.0);
+  addHist("TH1Effic_eta", 50, -2.5, 2.5);
+  addHist("TH1Effic_d0", 101, -0.15, 0.15);
+  addHist("TH1DisEffic_d0", 101, -10.0, 10.0);
+  addHist("TH1Effic_Lxy", 25, 0.0, 1.0);
+  addHist("TH1displacedEffic_Lxy", 50, 0.0, 10.0);
+  addHist("TH1Effic_z0", 40, -16.0, 16.0);
 
   // Resolution plots
-  addHist("TH1Res_ptRel",          200,  -0.5,   0.5);
-  addHist("TH1Res_pt",             100,  -0.2,   0.2);
-  addHist("TH1Res_eta",            100,  -0.01,  0.01);
-  addHist("TH1Res_phi",            100,  -0.01,  0.01);
-  addHist("TH1Res_z0",             100,  -1.0,   1.0);
-  addHist("TH1Res_d0",             100,  -0.05,  0.05);
-  addHist("TH1Resdisplaced_d0",    101,  -2.0,   2.0);
-  
+  addHist("TH1Res_ptRel", 200, -0.5, 0.5);
+  addHist("TH1Res_pt", 100, -0.2, 0.2);
+  addHist("TH1Res_eta", 100, -0.01, 0.01);
+  addHist("TH1Res_phi", 100, -0.01, 0.01);
+  addHist("TH1Res_z0", 100, -1.0, 1.0);
+  addHist("TH1Res_d0", 100, -0.05, 0.05);
+  addHist("TH1Resdisplaced_d0", 101, -2.0, 2.0);
+
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTL1TrackV");
   desc.add<edm::InputTag>("trackingParticleToken", edm::InputTag("mix", "MergedTrackTruth"));
   desc.add<edm::InputTag>("MCTruthStubInputTag", edm::InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"));
