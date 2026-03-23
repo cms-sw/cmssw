@@ -31,9 +31,9 @@ ZCounting = DQMEDAnalyzer('ZCounting',
                           MassMin=cms.untracked.double(50.0),
                           MassMax=cms.untracked.double(130.0),
 
-                          LumiBin=cms.untracked.int32(2500),
+                          LumiBin=cms.untracked.int32(10000),
                           LumiMin=cms.untracked.double(0.5),
-                          LumiMax=cms.untracked.double(2500.5),
+                          LumiMax=cms.untracked.double(10000.5),
 
                           PVBin=cms.untracked.int32(100),
                           PVMin=cms.untracked.double(0.5),
