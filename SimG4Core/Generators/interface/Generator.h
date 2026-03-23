@@ -45,6 +45,7 @@ private:
   bool fEtaCuts;
   bool fPhiCuts;
   bool fFiductialCuts;
+  bool fSlepton;
   double theMinPhiCut;
   double theMaxPhiCut;
   double theMinEtaCut;
