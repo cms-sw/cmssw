@@ -276,7 +276,7 @@ void Phase2GCTBarrelToCorrelatorLayer1::produce(edm::Event& iEvent, const edm::E
           spare = 4;  // 3rd bit encode PosEta
         ap_uint<12> pf_et = (ap_uint<12>)(pfIn.clusterEt() / p2eg::ECAL_LSB);
         ap_uint<12> pf_ecal = (ap_uint<12>)(pfIn.ecalEt() / p2eg::ECAL_LSB);
-        l1tp2::GCTHadDigiCluster pfOut = l1tp2::GCTHadDigiCluster(pf_et, pf_eta, pf_phi, pf_ecal, 0x3F, spare);
+        l1tp2::GCTHadDigiCluster pfOut = l1tp2::GCTHadDigiCluster(pf_et, pf_eta, pf_phi, pf_ecal, 0x0, spare);
 
         pfOut.setRef(edm::Ref<l1tp2::CaloPFClusterCollection>(inputPFClusters, iCluster));
 
