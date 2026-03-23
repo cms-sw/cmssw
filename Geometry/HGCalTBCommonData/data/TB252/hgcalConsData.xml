@@ -2,9 +2,13 @@
 <DDDefinition>
 
 <ConstantsSection label="hgcalConsData.xml" eval="true">
-  <Vector name="LayerTypesEE" type="numeric" nEntries="10">
-     0, 1, 0, 1, 0, 1, 0, 1, 0, 0
-  </Vector>
+  <Vector name="LayerTypesEE" type="numeric" nEntries="48">
+     0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+     0, 0, 0, 0, 0, 0, 0, 1, 0,
+     0, 0, 0, 0, 0, 0, 1, 0,
+     0, 0, 0, 0, 0, 0, 1, 0,
+     0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0</Vector>
   <Vector name="WaferIndexEE" type="numeric" nEntries="10">
       262152,  524296,  786440, 1048584, 1310728, 1572872, 1835016,
      2097160, 2359304, 2621448 
