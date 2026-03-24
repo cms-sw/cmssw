@@ -83,6 +83,7 @@ public:
   void build();
   void init();
   void drawModule(TmModule* mod, int key, int layer, bool total, std::ofstream* file);
+  void setBackgroundColor(Color_t color = 38);
   void print(bool print_total = true, float minval = 0., float maxval = 0., std::string s = "svgmap");
   void printall(bool print_total = true,
                 float minval = 0.,
@@ -669,6 +670,7 @@ protected:
   bool temporary_file;
 
 private:
+  Color_t padColor_;
   float oldz;
   bool saveAsSingleLayer;
   bool addPixelFlag;
