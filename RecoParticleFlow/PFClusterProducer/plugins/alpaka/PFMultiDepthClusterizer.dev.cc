@@ -66,7 +66,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
     constexpr bool enable_multiblock_epilogue = !std::is_same_v<Device, alpaka::DevCpu>;
 
     const unsigned int wExtend = alpaka::getPreferredWarpSize(alpaka::getDev(queue));
-    const unsigned int maxThreadsPerBlock = nClusters <= 768 ? 768 : 256;
+    const unsigned int maxThreadsPerBlock = std::is_same_v<Device, alpaka::DevCpu> ? 1 : (nClusters <= 768 ? 768 : 256);
     const unsigned int threadsPerBlock = std::min(static_cast<alpaka_common::Idx>(maxThreadsPerBlock),
                                                   ::cms::alpakatools::round_up_by(nClusters, wExtend));
 

@@ -176,7 +176,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                            const reco::PFClusterDeviceCollection &pfClusters,
                            const reco::PFRecHitFractionDeviceCollection &pfRecHitFracs,
                            const reco::PFRecHitDeviceCollection &pfRecHit) const {
-    uint32_t items = multiblock ? 128 : 512;
+    uint32_t items = std::is_same_v<Device, alpaka::DevCpu> ? 1 : (multiblock ? 128 : 512);
 
     auto n = static_cast<uint32_t>(mdpfClusteringVars->metadata().size());
     uint32_t groups = cms::alpakatools::divide_up_by(n, items);
