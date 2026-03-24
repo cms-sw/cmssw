@@ -47,6 +47,7 @@ hltScoutingPi0Monitor = cms.Sequence(ScoutingPi0Monitor)
 hltScoutingDqmOffline = cms.Sequence(hltScoutingMuonDqmOffline +
                                      hltScoutingEGammaDqmOffline +
                                      hltScoutingJetDqmOffline +
+                                     run3ScoutingElectronBestTrack +
                                      hltScoutingDileptonMonitor +
                                      hltScoutingPi0Monitor +
                                      hltScoutingCollectionMonitor)
