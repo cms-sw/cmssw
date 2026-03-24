@@ -84,13 +84,13 @@ hltBarrelScAssocByEnergyScoreProducer = _barrelScAssocByEnergyScoreProducer.clon
 hltBarrelLayerClusterCaloParticleAssociationProducer = _barrelLayerClusterCaloParticleAssociation.clone(
     associator = cms.InputTag("hltBarrelLcAssocByEnergyScoreProducer"),
     label_lc = cms.InputTag("hltBarrelLayerClustersEB"),
-    filter_sim_hits = cms.string("Ecal")
+    filter_sim_hits = cms.vstring("Ecal",)
 )
 
 hltBarrelLayerClusterSimClusterAssociationProducer = _barrelLayerClusterSimClusterAssociation.clone(
     associator = cms.InputTag("hltBarrelScAssocByEnergyScoreProducer"),
     label_lcl = cms.InputTag("hltBarrelLayerClustersEB"),
-    filter_sim_hits = cms.string("Ecal")
+    filter_sim_hits = cms.vstring("Ecal",)
 )
 
 hltHgcalAndBarrelLayerClustersAssociatorsTask = cms.Task(
