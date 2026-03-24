@@ -46,9 +46,7 @@ process.remoteCapture = PathStateCapture()
 process.sender = MPISender(
     upstream = "receiver",
     instance = 99,
-    products = [
-        "edmPathStateToken_remoteCapture__*"
-    ]
+    activity = "remoteCapture"
 )
 
 # Path for the filter (+ the PathStateCapture)

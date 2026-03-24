@@ -9,6 +9,7 @@
 #include <TClass.h>
 
 // CMSSW include files
+#include "DataFormats/Common/interface/PathStateToken.h"
 #include "FWCore/Concurrency/interface/Async.h"
 #include "FWCore/Concurrency/interface/chain_first.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -23,7 +24,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "HeterogeneousCore/MPICore/interface/api.h"
+#include "HeterogeneousCore/MPICore/interface/MPIChannel.h"
 #include "HeterogeneousCore/MPICore/interface/MPIToken.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/AnyBuffer.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/SerialiserBase.h"
@@ -34,13 +35,18 @@ public:
   MPIReceiver(edm::ParameterSet const& config)
       : upstream_(consumes<MPIToken>(config.getParameter<edm::InputTag>("upstream"))),
         token_(produces<MPIToken>()),
-        instance_(config.getParameter<int32_t>("instance"))  //
-  {
+        instance_(config.getParameter<int32_t>("instance")),
+        activity_(config.getParameter<bool>("activity")),
+        enableTrivialSerialisation_(config.getUntrackedParameter<bool>("enableTrivialSerialisation")) {
     // instance 0 is reserved for the MPIController / MPISource pair
     // instance values greater than 255 may not fit in the MPI tag
     if (instance_ < 1 or instance_ > 255) {
       throw cms::Exception("InvalidValue")
           << "Invalid MPIReceiver instance value, please use a value between 1 and 255";
+    }
+
+    if (activity_) {
+      pathStateToken_ = produces<edm::PathStateToken>();
     }
 
     auto const& products = config.getParameter<std::vector<edm::ParameterSet>>("products");
@@ -86,6 +92,9 @@ public:
       event.emplace(token_, token);
       return;
     }
+    if (activity_) {
+      event.emplace(pathStateToken_);
+    }
 
     std::unique_ptr<TBufferFile> serialized_buffer;
     if (received_meta_->hasSerialized()) {
@@ -121,6 +130,12 @@ public:
       }
 
       else if (product_meta.kind == ProductMetadata::Kind::TrivialCopy) {
+        if (not enableTrivialSerialisation_) {
+          edm::LogError("MPIReceiver")
+              << "Received a trivially-serialised product, but enableTrivialSerialisation is set to false in this "
+                 "MPIReceiver. Please check that the MPISender and MPIReceiver have consistent settings.";
+          MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
+        }
         std::unique_ptr<ngt::SerialiserBase> serialiser =
             ngt::SerialiserFactory::get()->tryToCreate(entry.type.typeInfo().name());
         if (not serialiser) {
@@ -168,6 +183,12 @@ public:
         ->setComment("Products to be received by a separate CMSSW job and produced into the event.");
     desc.add<int32_t>("instance", 0)
         ->setComment("A value between 1 and 255 used to identify a matching pair of \"MPISender\"/\"MPIReceiver\".");
+    desc.add<bool>("activity", false)
+        ->setComment("Whether this receiver will get activity information from the sender.");
+    desc.addUntracked<bool>("enableTrivialSerialisation", true)
+        ->setComment(
+            "If true (default), use the trivial serialisation mechanism for supported types. If false, always use "
+            "ROOT serialisation for all types. Useful for benchmarking.");
 
     descriptions.addWithDefaultLabel(desc);
   }
@@ -183,8 +204,10 @@ private:
   edm::EDPutTokenT<MPIToken> const token_;  // copy of the MPIToken that may be used to implement an ordering relation
   std::vector<Entry> products_;             // data to be read over the channel and put into the Event
   int32_t const instance_;                  // instance used to identify the source-destination pair
-
+  bool activity_;                           // indicator whether the PathStateToken will be received by the module
+  edm::EDPutTokenT<edm::PathStateToken> pathStateToken_;
   std::shared_ptr<ProductMetadataBuilder> received_meta_;
+  bool enableTrivialSerialisation_ = true;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

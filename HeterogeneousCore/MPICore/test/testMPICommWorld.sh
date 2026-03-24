@@ -40,4 +40,6 @@ for CFG in "${CONFIGS[@]:1}"; do
 done
 
 # Launch the cmsRun processes
-mpirun $CMD
+# The timeout is to prevent indefinite hangs if one process crashes without the
+# other sides being aware of it.
+timeout --signal=SIGTERM 120 mpirun $CMD
