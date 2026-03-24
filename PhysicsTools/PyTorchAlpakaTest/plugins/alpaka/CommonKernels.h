@@ -9,7 +9,9 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest::kernels {
 
-  void randomFillParticleCollection(Queue& queue, portabletest::ParticleDeviceCollection& particles);
+  void randomFillParticleCollection(Queue& queue,
+                                    portabletest::ParticleDeviceCollection& particles,
+                                    portabletest::ParticleDeviceCollectionFPX& particlesFPX);
   void randomFillImageCollection(Queue& queue, portabletest::ImageDeviceCollection& images);
   void fillMask(Queue& queue, portabletest::MaskDeviceCollection& mask);
 

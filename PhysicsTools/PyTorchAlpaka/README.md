@@ -17,6 +17,15 @@ The interface provides a converter to dynamically wrap SoA data into one or more
 
 **Due to the lack of const correctness ensured by PyTorch, `const` data is currently being copied.**
 
+## Model behavior
+
+The `Model` wrapper automatically sets the loaded TorchScript module to evaluation mode (`eval()`).
+
+Optionally, the model can be automatically frozen using `torch::jit::freeze` at construction time when a device is specified, or the first time it is moved.
+**Important:** Once a model is frozen, it cannot be moved to another device. Attempting to do so will trigger a runtime assertion.
+
+
+
 ### TensorCollection
 The structural information of the inputs/outputs SoA are stored in an `TensorCollection`. Which is a high level object to register column lists from which tensors are created
 
@@ -41,10 +50,12 @@ GENERATE_SOA_LAYOUT(SoATemplate,
 GENERATE_SOA_LAYOUT(SoAOutputTemplate,
                     SOA_COLUMN(int, cluster));
 ```
+
 - **Get Metarecords from Portable Collections:**
+If constructed with a single argument (`total_size`), the entire dataset is treated as a single batch.
 ```cpp
-PortableCollection<SoA, Device> deviceCollection(batch_size, queue);
-PortableCollection<SoA_Result, Device> deviceResultCollection(batch_size, queue);
+PortableCollection<SoA, Device> deviceCollection(total_size, queue);
+PortableCollection<SoA_Result, Device> deviceResultCollection(total_size, queue);
 fill(queue, deviceCollection);
 auto records = deviceCollection.view().records();
 auto result_records = deviceResultCollection.view().records();
@@ -53,14 +64,14 @@ auto result_records = deviceResultCollection.view().records();
 
 **IMPORTANT:** continuity of memory is a strict requirement!
 ```
-TensorCollection input(batch_size);
+TensorCollection input(total_size);
 input.add<SoA>("eigen_vector", records.a(), records.b());
 input.add<SoA>("eigen_matrix", records.c());
 input.add<SoA>("column", records.x(), records.y(), records.z());
 input.add<SoA>("scalar", records.type());
 input.change_order({"column", "scalar", "eigen_matrix", "eigen_vector"});
 
-TensorCollection output(batch_size);
+TensorCollection output(total_size);
 output.add<SoA>("result", result_view.cluster());
 ```
 
@@ -71,6 +82,26 @@ In other words, if you pass only one Eigen vector, its components are treated as
 After adding all the blocks to the `TensorCollection`, the order of the blocks for inference can be adapted by calling `change_order()`. The order should match the expected input configuration of the PyTorch model.
 
 More examples about usage can be found in [PyTorchAlpakaTest](../PyTorchAlpakaTest).
+
+### Batching semantics
+
+When using batched inference, `TensorCollection` is constructed with `(batch_size, total_size)` and internally manages batch offsets.
+
+**IMPORTANT:** the batchsize should be chosen carefully in order to respect the alignment. Otherwise, an assert will be trigged.
+
+**Constraints:**
+- `total_size` must be divisible by `batch_size`
+- All batches are assumed to be of equal size
+- Partial (last) batches are currently not supported
+
+The `batch_id` passed to `add()` selects which batch slice is exposed to the model.
+
+Runtime checks are performed to ensure:
+- valid batch indices
+- consistency between batch size and total size
+- memory contiguity between columns
+
+These checks rely on `assert`.
 
 ## Limitations
 - Current implementation supports `SerialSync` and `CudaAsync` backends only. `ROCmAsync` backend is supported via SerialSync fallback mechanism due to missing `pytorch-hip` library in CMSSW (see: https://github.com/pytorch/pytorch/blob/main/aten/CMakeLists.txt#L75), with explicit `alpaka::wait()` call to copy data to host and back to device.

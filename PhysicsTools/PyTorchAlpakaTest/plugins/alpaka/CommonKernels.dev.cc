@@ -6,7 +6,9 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest::kernels {
 
-  void randomFillParticleCollection(Queue& queue, portabletest::ParticleDeviceCollection& particles) {
+  void randomFillParticleCollection(Queue& queue,
+                                    portabletest::ParticleDeviceCollection& particles,
+                                    portabletest::ParticleDeviceCollectionFPX& particlesFPX) {
     const uint32_t threads_per_block = 64;
     const uint32_t blocks_per_grid = particles.view().metadata().size();
     const auto grid = cms::alpakatools::make_workdiv<Acc1D>(blocks_per_grid, threads_per_block);
@@ -14,16 +16,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest::kernels {
     alpaka::exec<Acc1D>(
         queue,
         grid,
-        [] ALPAKA_FN_ACC(Acc1D const& acc, portabletest::ParticleDeviceCollection::View particles_view) {
+        [] ALPAKA_FN_ACC(Acc1D const& acc,
+                         portabletest::ParticleDeviceCollection::View particles_view,
+                         portabletest::ParticleDeviceCollectionFPX::View particlesFPX_view) {
           for (int32_t thread_idx : cms::alpakatools::uniform_elements(acc, particles_view.metadata().size())) {
             auto rnd_gen = alpaka::rand::engine::createDefault(acc, 43, thread_idx);
             auto dist = alpaka::rand::distribution::createUniformReal<float>(acc);
             particles_view[thread_idx].pt() = dist(rnd_gen);
             particles_view[thread_idx].eta() = dist(rnd_gen);
             particles_view[thread_idx].phi() = dist(rnd_gen);
+
+            particlesFPX_view[thread_idx].pt() = particles_view[thread_idx].pt();
+            particlesFPX_view[thread_idx].eta() = particles_view[thread_idx].eta();
+            particlesFPX_view[thread_idx].phi() = particles_view[thread_idx].phi();
           }
         },
-        particles.view());
+        particles.view(),
+        particlesFPX.view());
   }
 
   struct RandomFillImageCollectionKernel {

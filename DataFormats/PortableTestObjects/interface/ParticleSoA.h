@@ -5,6 +5,7 @@
 #include <Eigen/Dense>
 
 #include "DataFormats/Common/interface/StdArray.h"
+#include "DataFormats/Common/interface/FPX.h"
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
@@ -12,6 +13,8 @@ namespace portabletest {
 
   GENERATE_SOA_LAYOUT(ParticleLayout, SOA_COLUMN(float, pt), SOA_COLUMN(float, eta), SOA_COLUMN(float, phi))
   using ParticleSoA = ParticleLayout<>;
+  GENERATE_SOA_LAYOUT(ParticleLayoutFPX, SOA_COLUMN(FPX, pt), SOA_COLUMN(FPX, eta), SOA_COLUMN(FPX, phi))
+  using ParticleSoAFPX = ParticleLayoutFPX<>;
 
 }  // namespace portabletest
 

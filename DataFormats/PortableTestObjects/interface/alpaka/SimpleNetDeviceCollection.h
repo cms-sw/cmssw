@@ -15,6 +15,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     using namespace ::portabletest;
 
     using SimpleNetDeviceCollection = PortableCollection<SimpleNetSoA>;
+    using SimpleNetDeviceCollectionFPX = PortableCollection<SimpleNetSoAFPX>;
 
   }  // namespace portabletest
 
@@ -22,5 +23,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 // heterogeneous ml data checks
 ASSERT_DEVICE_MATCHES_HOST_COLLECTION(portabletest::SimpleNetDeviceCollection, portabletest::SimpleNetHostCollection);
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(portabletest::SimpleNetDeviceCollectionFPX,
+                                      portabletest::SimpleNetHostCollectionFPX);
 
 #endif  // DataFormats_PortableTestObjects_interface_alpaka_SimpleNetDeviceCollection_h

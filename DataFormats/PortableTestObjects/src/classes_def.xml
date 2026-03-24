@@ -43,6 +43,14 @@
   <class name="portabletest::ParticleSoA::ConstView"/>
   <class name="edm::Wrapper<portabletest::ParticleHostCollection>" splitLevel="0"/>
 
+  <class name="portabletest::ParticleHostCollectionFPX" rntupleStreamerMode="true"/>
+  <!-- portabletest::ParticleHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="portabletest::ParticleHostCollectionFPX::Layout"/>
+  <class name="portabletest::ParticleSoAFPX"/>
+  <class name="portabletest::ParticleSoAFPX::View"/>
+  <class name="portabletest::ParticleSoAFPX::ConstView"/>
+  <class name="edm::Wrapper<portabletest::ParticleHostCollectionFPX>" splitLevel="0"/>
+
   <class name="portabletest::SimpleNetHostCollection" rntupleStreamerMode="true"/>
   <!-- portabletest::SimpleNetHostCollection::Layout must be listed before the aliased-to type -->
   <class name="portabletest::SimpleNetHostCollection::Layout"/>
@@ -50,6 +58,14 @@
   <class name="portabletest::SimpleNetSoA::View"/>
   <class name="portabletest::SimpleNetSoA::ConstView"/>
   <class name="edm::Wrapper<portabletest::SimpleNetHostCollection>" splitLevel="0"/>
+
+  <class name="portabletest::SimpleNetHostCollectionFPX" rntupleStreamerMode="true"/>
+  <!-- portabletest::SimpleNetHostCollection::Layout must be listed before the aliased-to type -->
+  <class name="portabletest::SimpleNetHostCollectionFPX::Layout"/>
+  <class name="portabletest::SimpleNetSoAFPX"/>
+  <class name="portabletest::SimpleNetSoAFPX::View"/>
+  <class name="portabletest::SimpleNetSoAFPX::ConstView"/>
+  <class name="edm::Wrapper<portabletest::SimpleNetHostCollectionFPX>" splitLevel="0"/>
 
   <class name="portabletest::MultiHeadNetHostCollection" rntupleStreamerMode="true"/>
   <!-- portabletest::MultiHeadNetHostCollection::Layout must be listed before the aliased-to type -->

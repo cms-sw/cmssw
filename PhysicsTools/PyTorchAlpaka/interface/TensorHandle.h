@@ -8,6 +8,7 @@
 #include <alpaka/alpaka.hpp>
 
 #include "PhysicsTools/PyTorch/interface/TorchInterface.h"
+#include "PhysicsTools/PyTorch/interface/PyTorchFPXBridge.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/Policy.h"
 
 // Forward declaration for friend
@@ -21,7 +22,7 @@ namespace cms::torch::alpakatools::detail {
 
   template <typename T>
   ::torch::ScalarType get_type() {
-    return ::torch::CppTypeToScalarType<std::remove_const_t<T>>();
+    return c10::CppTypeToScalarType<std::remove_const_t<T>>::value;
   }
 
   inline int num_elements_per_column(const int n_elems, const size_t alignment, const size_t bytes) {
@@ -86,13 +87,15 @@ namespace cms::torch::alpakatools::detail {
                           const size_t bytes,
                           T* data,
                           const int batch_size,
+                          const int total_size,
                           const std::vector<int> dims,
                           const bool is_scalar = false)
         : alignment_(alignment),
           bytes_(bytes),
           data_(data),
+          total_size_(total_size),
           dims_(batch_size, dims, is_scalar),
-          policy_(data, dims_.volume() * num_elements_per_column(batch_size, alignment, bytes)) {
+          policy_(data, dims_.volume() * num_elements_per_column(total_size, alignment, bytes)) {
       init_sizes();
       init_strides();
     }
@@ -130,7 +133,7 @@ namespace cms::torch::alpakatools::detail {
       strides_ = std::vector<long int>(N);
 
       int per_bunch = alignment_ / bytes_;
-      int bunches = std::ceil(1.0 * dims_.batch_size() / per_bunch);
+      int bunches = std::ceil(1.0 * total_size_ / per_bunch);
 
       // base stride initialization
       if (!dims_.is_scalar())
@@ -160,6 +163,7 @@ namespace cms::torch::alpakatools::detail {
     const size_t alignment_;
     const size_t bytes_;
     T* data_;
+    const int total_size_;
     const Dims dims_;
 
     std::vector<long int> strides_;

@@ -19,6 +19,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     DataSource(const edm::ParameterSet &params)
         : FixedQueueEDProducer<>(params),
           particles_token_{produces()},
+          particlesFPX_token_{produces()},
           images_token_{produces()},
           batch_size_(params.getParameter<uint32_t>("batchSize")),
           environment_{static_cast<::torchtest::Environment>(params.getUntrackedParameter<int>("environment"))} {}
@@ -26,14 +27,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     void produce(device::Event &event, const device::EventSetup &event_setup) override {
       // allocate data sources
       auto particles = portabletest::ParticleDeviceCollection(event.queue(), batch_size_);
+      auto particlesFPX = portabletest::ParticleDeviceCollectionFPX(event.queue(), batch_size_);
       auto images = portabletest::ImageDeviceCollection(event.queue(), batch_size_);
 
       // fill data
-      kernels::randomFillParticleCollection(event.queue(), particles);
+      kernels::randomFillParticleCollection(event.queue(), particles, particlesFPX);
       kernels::randomFillImageCollection(event.queue(), images);
 
       // put device-side data into event
       event.emplace(particles_token_, std::move(particles));
+      event.emplace(particlesFPX_token_, std::move(particlesFPX));
       event.emplace(images_token_, std::move(images));
     }
 
@@ -46,6 +49,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
   private:
     const device::EDPutToken<portabletest::ParticleDeviceCollection> particles_token_;
+    const device::EDPutToken<portabletest::ParticleDeviceCollectionFPX> particlesFPX_token_;
     const device::EDPutToken<portabletest::ImageDeviceCollection> images_token_;
     const uint32_t batch_size_;
     const ::torchtest::Environment environment_;
