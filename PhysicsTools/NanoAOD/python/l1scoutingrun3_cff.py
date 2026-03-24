@@ -11,19 +11,21 @@ from PhysicsTools.NanoAOD.common_cff import *
 
 # Muon
 l1scoutingMuonUnconvertedVariables = cms.PSet(
-    hwPt = Var("hwPt()", "int", doc="hardware pt"),
-    hwEta = Var("hwEta()", "int", doc="hardware eta"),
-    hwPhi = Var("hwPhi()", "int", doc="hardware phi"),
-    hwPtUnconstrained = Var("hwPtUnconstrained", "int", doc="hardware unconstrained pt"),
-    hwEtaAtVtx = Var("hwEtaAtVtx()", "int", doc="hardware eta extrapolated at beam line"),
-    hwPhiAtVtx = Var("hwPhiAtVtx()", "int", doc="hardware phi extrapolated at beam line"),
+    # use hwPt instead of hwEt in order to match the branch names used in the L1T-DPG NanoAOD flavour
+    hwPt = Var("hwPt()", "int16", doc="hardware pt"),
+    hwEta = Var("hwEta()", "int16", doc="hardware eta"),
+    hwPhi = Var("hwPhi()", "int16", doc="hardware phi"),
+    hwPtUnconstrained = Var("hwPtUnconstrained", "int16", doc="hardware unconstrained pt"),
+    hwEtaAtVtx = Var("hwEtaAtVtx()", "int16", doc="hardware eta extrapolated at beam line"),
+    hwPhiAtVtx = Var("hwPhiAtVtx()", "int16", doc="hardware phi extrapolated at beam line"),
 )
 
 # Calo objects
 l1scoutingCaloObjectUnconvertedVariables = cms.PSet(
-    hwEt = Var("hwEt()", "int", doc="hardware Et"),
-    hwEta = Var("hwEta()", "int", doc="hardware eta"),
-    hwPhi = Var("hwPhi()", "int", doc="hardware phi"),
+    # use hwPt instead of hwEt in order to match the branch names used in the L1T-DPG NanoAOD flavour
+    hwPt = Var("hwEt()", "int16", doc="hardware pt"),
+    hwEta = Var("hwEta()", "int16", doc="hardware eta"),
+    hwPhi = Var("hwPhi()", "int16", doc="hardware phi"),
 )
 
 # CaloTowers
@@ -89,15 +91,16 @@ l1scoutingCaloTowerPhysicalValueMap = cms.EDProducer("L1ScoutingCaloTowerPhysica
 # Muon
 l1scoutingMuonTable = cms.EDProducer("SimpleL1ScoutingMuonOrbitFlatTableProducer",
     src = cms.InputTag("l1ScGmtUnpacker", "Muon"),
-    name = cms.string("L1Muon"),
+    name = cms.string("L1Mu"),
     doc = cms.string("Muons from GMT"),
     singleton = cms.bool(False),
     extension = cms.bool(False),
     variables = cms.PSet(
-        hwCharge = Var("hwCharge()", "int", doc="charge (0 = invalid)"),
-        hwQuality = Var("hwQual()", "int", doc="quality"),
-        tfMuonIndex = Var("tfMuonIndex()", "int", 
+        hwCharge = Var("hwCharge()", "int16", doc="charge (0 = invalid)"),
+        hwQual = Var("hwQual()", "int16", doc="hardware quality"),
+        tfMuonIndex = Var("tfMuonIndex()", "uint16",
             doc="index of muon at the uGMT input. 3 indices per link/sector/wedge. EMTF+ are 0-17, OMTF+ are 18-35, BMTF are 36-71, OMTF- are 72-89, EMTF- are 90-107"),
+        hwDXY = Var("hwDXY()", "uint16", doc="hardware dxy"),
     ),
     externalVariables = cms.PSet(
         pt = ExtVar(cms.InputTag("l1scoutingMuonPhysicalValueMap", "fPt"), "float", doc="pt"),
@@ -117,7 +120,7 @@ l1scoutingEGammaTable = cms.EDProducer("SimpleL1ScoutingEGammaOrbitFlatTableProd
     singleton = cms.bool(False),
     extension = cms.bool(False),
     variables = cms.PSet(
-        hwIso = Var("hwIso()", "int", doc="hardware isolation (trigger units)")
+        hwIso = Var("hwIso()", "int16", doc="hardware isolation (trigger units)")
     ),
     externalVariables = cms.PSet(
         pt = ExtVar(cms.InputTag("l1scoutingEGammaPhysicalValueMap", "fEt"), "float", doc="pt"),
@@ -134,7 +137,7 @@ l1scoutingTauTable = cms.EDProducer("SimpleL1ScoutingTauOrbitFlatTableProducer",
     singleton = cms.bool(False),
     extension = cms.bool(False),
     variables = cms.PSet(
-        hwIso = Var("hwIso()", "int", doc="hardware isolation (trigger units)")
+        hwIso = Var("hwIso()", "int16", doc="hardware isolation (trigger units)")
     ),
     externalVariables = cms.PSet(
         pt = ExtVar(cms.InputTag("l1scoutingTauPhysicalValueMap", "fEt"), "float", doc="pt"),
@@ -152,7 +155,7 @@ l1scoutingJetTable = cms.EDProducer("SimpleL1ScoutingJetOrbitFlatTableProducer",
     extension = cms.bool(False),
     skipNonExistingSrc = cms.bool(False),
     variables = cms.PSet(
-        hwQual = Var("hwQual()", "int", doc="qualitiy"),
+        hwQual = Var("hwQual()", "int16", doc="hardware quality"),
     ),
     externalVariables = cms.PSet(
         pt = ExtVar(cms.InputTag("l1scoutingJetPhysicalValueMap", "fEt"), "float", doc="pt"),

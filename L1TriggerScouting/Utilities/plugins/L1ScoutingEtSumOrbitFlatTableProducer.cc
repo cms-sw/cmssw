@@ -401,7 +401,8 @@ std::unique_ptr<l1ScoutingRun3::OrbitFlatTable> L1ScoutingEtSumOrbitFlatTablePro
     out->template addColumn<float>("phi", phi, "phi", phiPrecision_);
   }
   if (writeHardwareValues_) {
-    out->template addColumn<int>("hwEt", pt, "hardware Et");
+    // use hwPt instead of hwEt in order to match the branch names used in the L1T-DPG NanoAOD flavour
+    out->template addColumn<int>("hwPt", pt, "hardware Pt");
     out->template addColumn<int>("hwPhi", phi, "hardware phi");
   }
 
