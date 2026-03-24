@@ -19,7 +19,7 @@
 
 #include <string>
 
-class MuBaseFlatTableProducer : public edm::stream::EDProducer<> {
+class MuBaseFlatTableProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   /// Constructor
   explicit MuBaseFlatTableProducer(const edm::ParameterSet &);
@@ -29,9 +29,6 @@ public:
 
   /// Fill ntuples event by event
   void produce(edm::Event &, const edm::EventSetup &) final;
-
-  /// Empty, needed by interface
-  void endRun(const edm::Run &, const edm::EventSetup &) final {}
 
 protected:
   /// The label name of the FlatTableProducer
