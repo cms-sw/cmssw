@@ -6,7 +6,7 @@
 </ConstantsSection>
 
 <PosPartSection label="hgcalEE.xml">
-  <Algorithm name="hgcal:DDHGCalSiliconRotatedCassette">
+  <Algorithm name="hgcal:DDHGCalTBSiliconRotatedCassette">
     <rParent name="hgcal:HGCalEE"/>
     <Numeric name="WaferTypes"       value="1"/>
     <Numeric name="PassiveTypes"     value="1"/>
@@ -192,14 +192,14 @@
       hgcalPassive:HGCalAbsorber, hgcalPassive:HGCalAbsorber,
       hgcalPassive:HGCalAbsorber, hgcalPassive:HGCalAbsorber </Vector>
     <Vector name="PassiveNamesPartial" type="string" nEntries="16">
-      HGCalPassive:HGCalCooling, HGCalPassive:HGCalCooling,
-      HGCalPassive:HGCalCooling, HGCalPassive:HGCalCooling,
-      HGCalPassive:HGCalCooling, HGCalPassive:HGCalCooling,
-      HGCalPassive:HGCalCooling, HGCalPassive:HGCalCooling,
-      HGCalPassive:HGCalCooling, HGCalPassive:HGCalCooling,
-      HGCalPassive:HGCalCooling, HGCalPassive:HGCalCooling,
-      HGCalPassive:HGCalCooling, HGCalPassive:HGCalCooling,
-      HGCalPassive:HGCalCooling, HGCalPassive:HGCalCooling</Vector>
+      hgcalPassive:HGCalCooling, hgcalPassive:HGCalCooling,
+      hgcalPassive:HGCalCooling, hgcalPassive:HGCalCooling,
+      hgcalPassive:HGCalCooling, hgcalPassive:HGCalCooling,
+      hgcalPassive:HGCalCooling, hgcalPassive:HGCalCooling,
+      hgcalPassive:HGCalCooling, hgcalPassive:HGCalCooling,
+      hgcalPassive:HGCalCooling, hgcalPassive:HGCalCooling,
+      hgcalPassive:HGCalCooling, hgcalPassive:HGCalCooling,
+      hgcalPassive:HGCalCooling, hgcalPassive:HGCalCooling</Vector>
     <Vector name="MaterialNames" type="string" nEntries="7">
       materials:Air, materials:Air, materials:Air, materials:Air,
       materials:Air, materials:Air, materials:Air</Vector>
