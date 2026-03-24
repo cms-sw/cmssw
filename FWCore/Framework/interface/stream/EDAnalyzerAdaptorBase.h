@@ -143,13 +143,19 @@ namespace edm {
       void doBeginStream(StreamID id);
       void doEndStream(StreamID id);
       void doStreamBeginRun(StreamID, RunTransitionInfo const&, ModuleCallingContext const*);
-      virtual void setupRun(EDAnalyzerBase*, RunIndex) = 0;
+      virtual void streamBeginRun(EDAnalyzerBase*, edm::RunTransitionInfo const&, ModuleCallingContext const*) = 0;
       void doStreamEndRun(StreamID, RunTransitionInfo const&, ModuleCallingContext const*);
+      virtual void streamEndRun(EDAnalyzerBase*, edm::RunTransitionInfo const&, ModuleCallingContext const*) = 0;
       virtual void streamEndRunSummary(EDAnalyzerBase*, edm::Run const&, edm::EventSetup const&) = 0;
 
       void doStreamBeginLuminosityBlock(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
-      virtual void setupLuminosityBlock(EDAnalyzerBase*, LuminosityBlockIndex) = 0;
+      virtual void streamBeginLuminosityBlock(EDAnalyzerBase*,
+                                              LumiTransitionInfo const&,
+                                              ModuleCallingContext const*) = 0;
       void doStreamEndLuminosityBlock(StreamID, LumiTransitionInfo const&, ModuleCallingContext const*);
+      virtual void streamEndLuminosityBlock(EDAnalyzerBase*,
+                                            LumiTransitionInfo const&,
+                                            ModuleCallingContext const*) = 0;
       virtual void streamEndLuminosityBlockSummary(EDAnalyzerBase*,
                                                    edm::LuminosityBlock const&,
                                                    edm::EventSetup const&) = 0;

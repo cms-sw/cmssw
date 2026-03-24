@@ -266,6 +266,7 @@ namespace edmtest {
       }
     }
 
+    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final {}
     void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final {
       if (edm::Service<AsyncServiceTesterService>()->stillWaiting() and *streamId_ != throwingStream_) {
         throw cms::Exception("Assert") << "In endLuminosityBlock for stream " << *streamId_
@@ -274,6 +275,7 @@ namespace edmtest {
       }
     }
 
+    void beginRun(edm::Run const&, edm::EventSetup const&) final {}
     void endRun(edm::Run const&, edm::EventSetup const&) final {
       if (edm::Service<AsyncServiceTesterService>()->stillWaiting() and *streamId_ != throwingStream_) {
         throw cms::Exception("Assert") << "In endRun for stream " << *streamId_
