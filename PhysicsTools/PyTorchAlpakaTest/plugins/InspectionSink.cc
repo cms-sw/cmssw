@@ -32,26 +32,32 @@ namespace torchtest {
         : environment_{static_cast<Environment>(params.getUntrackedParameter<int>("environment"))},
           particles_token_{consumes(params.getParameter<edm::InputTag>("particles"))},
           simple_net_token_{consumes(params.getParameter<edm::InputTag>("simple_net"))},
+          simple_net_batch_token_{consumes(params.getParameter<edm::InputTag>("simple_net_batch"))},
           masked_net_token_{consumes(params.getParameter<edm::InputTag>("masked_net"))},
           multi_head_net_token_{consumes(params.getParameter<edm::InputTag>("multi_head_net"))},
           images_token_{consumes(params.getParameter<edm::InputTag>("images"))},
           logits_token_{consumes(params.getParameter<edm::InputTag>("resnet18"))},
+          logits_batch_token_{consumes(params.getParameter<edm::InputTag>("resnet18_batch"))},
           particles_backend_{consumes(getBackendTag(params.getParameter<edm::InputTag>("particles")))},
           simple_net_backend_{consumes(getBackendTag(params.getParameter<edm::InputTag>("simple_net")))},
+          simple_net_batch_backend_{consumes(getBackendTag(params.getParameter<edm::InputTag>("simple_net_batch")))},
           masked_net_backend_{consumes(getBackendTag(params.getParameter<edm::InputTag>("masked_net")))},
           multi_head_net_backend_{consumes(getBackendTag(params.getParameter<edm::InputTag>("multi_head_net")))},
           images_backend_{consumes(getBackendTag(params.getParameter<edm::InputTag>("images")))},
-          logits_backend_{consumes(getBackendTag(params.getParameter<edm::InputTag>("resnet18")))} {}
+          logits_backend_{consumes(getBackendTag(params.getParameter<edm::InputTag>("resnet18")))},
+          logits_batch_backend_{consumes(getBackendTag(params.getParameter<edm::InputTag>("resnet18_batch")))} {}
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.addUntracked<int>("environment", static_cast<int>(Environment::kProduction));
       desc.add<edm::InputTag>("particles");
       desc.add<edm::InputTag>("simple_net");
+      desc.add<edm::InputTag>("simple_net_batch");
       desc.add<edm::InputTag>("masked_net");
       desc.add<edm::InputTag>("multi_head_net");
       desc.add<edm::InputTag>("images");
       desc.add<edm::InputTag>("resnet18");
+      desc.add<edm::InputTag>("resnet18_batch");
       descriptions.addWithDefaultLabel(desc);
     }
 
@@ -68,10 +74,12 @@ namespace torchtest {
       // particles
       auto particles_handle = event.getHandle(particles_token_);
       auto simple_net_handle = event.getHandle(simple_net_token_);
+      auto simple_net_batch_handle = event.getHandle(simple_net_batch_token_);
       auto masked_net_handle = event.getHandle(masked_net_token_);
       auto multi_head_net_handle = event.getHandle(multi_head_net_token_);
       auto images_handle = event.getHandle(images_token_);
       auto logits_handle = event.getHandle(logits_token_);
+      auto logits_batch_handle = event.getHandle(logits_batch_token_);
 
       // debug
       if (environment_ >= Environment::kDevelopment) {
@@ -79,7 +87,8 @@ namespace torchtest {
         if (particles_handle.isValid()) {
           auto const& particles = *particles_handle;
           auto const particles_backend = static_cast<cms::alpakatools::Backend>(event.get(particles_backend_));
-          if (simple_net_handle.isValid() || masked_net_handle.isValid() || multi_head_net_handle.isValid()) {
+          if (simple_net_handle.isValid() || simple_net_batch_handle.isValid() || masked_net_handle.isValid() ||
+              multi_head_net_handle.isValid()) {
             print(particles.const_view(), cms::alpakatools::toString(particles_backend));
             // assert ranges
             for (int32_t idx = 0; idx < particles.const_view().metadata().size(); idx++) {
@@ -94,6 +103,26 @@ namespace torchtest {
             auto const simple_net_backend = static_cast<cms::alpakatools::Backend>(event.get(simple_net_backend_));
             print(simple_net.const_view(), cms::alpakatools::toString(simple_net_backend));
           }
+          // simple_net_batch
+          if (simple_net_batch_handle.isValid()) {
+            auto const& simple_net_batch = *simple_net_batch_handle;
+            auto const simple_net_batch_backend =
+                static_cast<cms::alpakatools::Backend>(event.get(simple_net_batch_backend_));
+            print(simple_net_batch.const_view(), cms::alpakatools::toString(simple_net_batch_backend));
+          }
+          // if simple_net and simple_net_batch are both valid, assert they are producing the same results
+          if (simple_net_handle.isValid() && simple_net_batch_handle.isValid()) {
+            auto const& ref = *simple_net_handle;
+            auto const& batched = *simple_net_batch_handle;
+
+            assert(ref.const_view().metadata().size() == batched.const_view().metadata().size());
+            for (auto i = 0; i < ref.const_view().metadata().size(); i++) {
+              auto diff = std::abs(ref.const_view()[i].reco_pt() - batched.const_view()[i].reco_pt()) /
+                          ref.const_view()[i].reco_pt();
+              assert(diff < 1e-5 && "Results from simple_net and simple_net_batch do not match!");
+            }
+          }
+
           // masked_net
           if (masked_net_handle.isValid()) {
             auto const& masked_net = *masked_net_handle;
@@ -145,6 +174,39 @@ namespace torchtest {
             assert(std::abs(sum - 1.0) < 1e-4);
           }
         }
+        if (images_handle.isValid() && logits_batch_handle.isValid()) {
+          auto const& images = *images_handle;
+          auto const images_backend = static_cast<cms::alpakatools::Backend>(event.get(images_backend_));
+          print(images.const_view(), cms::alpakatools::toString(images_backend));
+
+          auto const& logits = *logits_batch_handle;
+          auto const logits_backend = static_cast<cms::alpakatools::Backend>(event.get(logits_batch_backend_));
+          print(logits.const_view(), cms::alpakatools::toString(logits_backend));
+
+          const int dims = portabletest::LogitsType::RowsAtCompileTime;
+          for (int32_t idx = 0; idx < logits.const_view().metadata().size(); idx++) {
+            float sum = 0.0f;
+            const auto& logit = logits.const_view()[idx];
+            for (int i = 0; i < dims; i++) {
+              sum += logit.logits()[i];
+            }
+            assert(std::abs(sum - 1.0) < 1e-4);
+          }
+        }
+        if (logits_handle.isValid() && logits_batch_handle.isValid()) {
+          auto const& ref = *logits_handle;
+          auto const& batched = *logits_batch_handle;
+
+          const int dims = portabletest::LogitsType::RowsAtCompileTime;
+          for (int32_t idx = 0; idx < ref.const_view().metadata().size(); idx++) {
+            const auto& ref_logit = ref.const_view()[idx];
+            const auto& batched_logit = batched.const_view()[idx];
+            for (int i = 0; i < dims; i++) {
+              auto diff = std::abs(ref_logit.logits()[i] - batched_logit.logits()[i]) / ref_logit.logits()[i];
+              assert(diff < 1e-5 && "Results from logits and logits_batch do not match!");
+            }
+          }
+        }
       }
     }
 
@@ -169,17 +231,21 @@ namespace torchtest {
 
     const edm::EDGetTokenT<portabletest::ParticleHostCollection> particles_token_;
     const edm::EDGetTokenT<portabletest::SimpleNetHostCollection> simple_net_token_;
+    const edm::EDGetTokenT<portabletest::SimpleNetHostCollection> simple_net_batch_token_;
     const edm::EDGetTokenT<portabletest::SimpleNetHostCollection> masked_net_token_;
     const edm::EDGetTokenT<portabletest::MultiHeadNetHostCollection> multi_head_net_token_;
     const edm::EDGetTokenT<portabletest::ImageHostCollection> images_token_;
     const edm::EDGetTokenT<portabletest::LogitsHostCollection> logits_token_;
+    const edm::EDGetTokenT<portabletest::LogitsHostCollection> logits_batch_token_;
 
     const edm::EDGetTokenT<unsigned short> particles_backend_;
     const edm::EDGetTokenT<unsigned short> simple_net_backend_;
+    const edm::EDGetTokenT<unsigned short> simple_net_batch_backend_;
     const edm::EDGetTokenT<unsigned short> masked_net_backend_;
     const edm::EDGetTokenT<unsigned short> multi_head_net_backend_;
     const edm::EDGetTokenT<unsigned short> images_backend_;
     const edm::EDGetTokenT<unsigned short> logits_backend_;
+    const edm::EDGetTokenT<unsigned short> logits_batch_backend_;
 
     const int32_t kMaxView = 5;
 

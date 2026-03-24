@@ -38,8 +38,15 @@ def parse_args():
     parser.add_argument(
         "-bs", "--batchSize",
         type=int,
-        default=8,
+        default=64,
         help="Batch size"
+    )
+
+    parser.add_argument(
+        "-mbs", "--miniBatchSize",
+        type=int,
+        default=32,
+        help="Mini-batch size"
     )
 
     parser.add_argument(
@@ -58,6 +65,19 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--simpleNetBatch",
+        type=str,
+        default="PhysicsTools/PyTorchAlpakaTest/data/SimpleNet.pt",
+        help="SimpleNet model (just-in-time compiled)"
+    )
+
+    parser.add_argument(
+        "--compareBatch",
+        action="store_true",
+        help="Compare batched vs non-batched outputs"
+    )
+
+    parser.add_argument(
         "--maskedNet",
         type=str,
         default="PhysicsTools/PyTorchAlpakaTest/data/MaskedNet.pt",
@@ -73,6 +93,13 @@ def parse_args():
 
     parser.add_argument(
         "--tinyResNet",
+        type=str,
+        default="PhysicsTools/PyTorchAlpakaTest/data/TinyResNet.pt",
+        help="TinyResNet model (just-in-time compiled)"
+    )
+
+    parser.add_argument(
+        "--tinyResNetBatch",
         type=str,
         default="PhysicsTools/PyTorchAlpakaTest/data/TinyResNet.pt",
         help="TinyResNet model (just-in-time compiled)"
