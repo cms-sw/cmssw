@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing
 from Configuration.Eras.Era_Run3_cff import Run3
 from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+from CalibMuon.CSCCalibration.CSCCustomizeBendingAngle_cfi import set_6bit_gemcsc_bending_LUTs
 
 options = VarParsing('analysis')
 options.register("unpack", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
@@ -58,6 +59,8 @@ options.register("dropNonMuonCollections", True, VarParsing.multiplicity.singlet
                  "Option to drop most non-muon collections generally considered unnecessary for GEM/CSC analysis")
 options.register("dqmOutputFile", "step_DQM.root", VarParsing.multiplicity.singleton, VarParsing.varType.string,
                  "Name of the DQM output file. Default: step_DQM.root")
+options.register("use6BitGEMCSCBendingAngle", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+                 "Set to True if you want to use 6 bit LUTs for the GEM-CSC bending angle in the CSCGEMMatcher.")
 options.parseArguments()
 
 process_era = Run3
@@ -79,6 +82,11 @@ process.load("CalibMuon.CSCCalibration.CSCL1TPLookupTableEP_cff")
 process.load('L1Trigger.L1TGEM.simGEMDigis_cff')
 process.load("DQM.L1TMonitor.L1TdeCSCTPG_cfi")
 process.load("DQM.L1TMonitor.L1TdeGEMTPG_cfi")
+
+
+if options.use6BitGEMCSCBendingAngle:
+      process = set_6bit_gemcsc_bending_LUTs(process)
+
 
 process.maxEvents = cms.untracked.PSet(
       input = cms.untracked.int32(options.maxEvents)

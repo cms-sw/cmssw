@@ -161,7 +161,7 @@ std::ostream& operator<<(std::ostream& o, const CSCCorrelatedLCTDigi& digi) {
   if (digi.isRun3())
     return o << "CSC LCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " BX = " << digi.getBX()
              << " Run-2 Pattern = " << digi.getPattern() << " Run-3 Pattern = " << digi.getRun3Pattern()
-             << " Quality = " << digi.getQuality() << " Bend = " << digi.getBend() << " Slope = " << digi.getSlope()
+             << " Quality = " << digi.getQuality() << " Bend = " << digi.getBend() << " Slope = " << digi.getSlope() << " GemLayer = " << digi.getGemLayerUsedForSlopeComputation()
              << "\n"
              << " KeyHalfStrip = " << digi.getStrip() << " KeyQuartStrip = " << digi.getStrip(4)
              << " KeyEighthStrip = " << digi.getStrip(8) << " KeyWireGroup = " << digi.getKeyWG()

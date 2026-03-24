@@ -526,11 +526,13 @@ void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
     if (assign_gem_csc_bending_ &&
         gem.isValid()) {  //calculate new slope from strip difference between CLCT and associated GEM
       int slope = cscGEMMatcher_->calculateGEMCSCBending(clct, gem, lookupTableME11ILT, lookupTableME21ILT);
+      int gemLayer = gem.isMatchingLayer1() ? 1 : (gem.isMatchingLayer2() ? 2 : 0);
+      thisLCT.setGemLayerUsedForSlopeComputation(gemLayer);
       thisLCT.setSlope(abs(slope));
       thisLCT.setBend(std::signbit(slope));
       thisLCT.setPattern(Run2PatternConverter(slope));
     } else
-      thisLCT.setSlope(clct.getSlope());
+      thisLCT.setSlope(clct.getSlope()*4);
     thisLCT.setQuartStripBit(clct.getQuartStripBit());
     thisLCT.setEighthStripBit(clct.getEighthStripBit());
     thisLCT.setRun3Pattern(clct.getRun3Pattern());
@@ -559,7 +561,7 @@ void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& aLCT,
   if (runCCLUT_) {
     thisLCT.setRun3(true);
     // 4-bit slope value derived with the CCLUT algorithm
-    thisLCT.setSlope(cLCT.getSlope());
+    thisLCT.setSlope(cLCT.getSlope()*4);
     thisLCT.setQuartStripBit(cLCT.getQuartStripBit());
     thisLCT.setEighthStripBit(cLCT.getEighthStripBit());
     thisLCT.setRun3Pattern(cLCT.getRun3Pattern());
@@ -593,11 +595,13 @@ void CSCGEMMotherboard::constructLCTsGEM(const CSCCLCTDigi& clct,
     if (assign_gem_csc_bending_ &&
         gem.isValid()) {  //calculate new slope from strip difference between CLCT and associated GEM
       int slope = cscGEMMatcher_->calculateGEMCSCBending(clct, gem, lookupTableME11ILT, lookupTableME21ILT);
+      int gemLayer = gem.isMatchingLayer1() ? 1 : (gem.isMatchingLayer2() ? 2 : 0);
+      thisLCT.setGemLayerUsedForSlopeComputation(gemLayer);
       thisLCT.setSlope(abs(slope));
       thisLCT.setBend(pow(-1, std::signbit(slope)));
       thisLCT.setPattern(Run2PatternConverter(slope));
     } else
-      thisLCT.setSlope(clct.getSlope());
+      thisLCT.setSlope(clct.getSlope()*4);
     thisLCT.setQuartStripBit(clct.getQuartStripBit());
     thisLCT.setEighthStripBit(clct.getEighthStripBit());
     thisLCT.setRun3Pattern(clct.getRun3Pattern());
