@@ -161,6 +161,7 @@ if __name__ == '__main__':
         'ph2_hlt' : [prefixDet+34.75,    # HLT phase-2 timing menu
                      prefixDet+34.7501,  # HLT phase-2 tracking-only menu
                      prefixDet+34.7502,  # HLT phase-2 tracking menu with tracking ntuple
+                     prefixDet+34.7503,  # HLT phase-2 menu, CPU vs. GPU validation
                      prefixDet+34.751,   # HLT phase-2 timing menu Alpaka variant
                      prefixDet+34.752,   # HLT phase-2 timing menu ticl_v5 variant
                      prefixDet+34.7521,  # HLT phase-2 timing menu ticlv5TrackLinkGNN variant   
