@@ -1,5 +1,5 @@
-#ifndef HeterogeneousCore_MPICore_interface_api_h
-#define HeterogeneousCore_MPICore_interface_api_h
+#ifndef HeterogeneousCore_MPICore_interface_MPIChannel_h
+#define HeterogeneousCore_MPICore_interface_MPIChannel_h
 
 // C++ standard library headers
 #include <bitset>
@@ -209,4 +209,4 @@ private:
   bool sync_;
 };
 
-#endif  // HeterogeneousCore_MPICore_interface_api_h
+#endif  // HeterogeneousCore_MPICore_interface_MPIChannel_h
