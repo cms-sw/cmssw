@@ -39,7 +39,7 @@ class EcalElectronicsMapper;
 class EcalElectronicsMapping;
 class DCCDataUnpacker;
 
-class EcalRawToDigi : public edm::stream::EDProducer<> {
+class EcalRawToDigi : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   /**
    * Class constructor
