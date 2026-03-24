@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/stream/Contexts.h"
 #include "FWCore/Framework/interface/stream/AbilityChecker.h"
 #include "FWCore/Framework/interface/stream/EDProducerBase.h"
+#include "FWCore/Framework/interface/stream/EDProducerAdaptor.h"
 #include "FWCore/Framework/interface/stream/ProducingModuleHelper.h"
 
 namespace edm {

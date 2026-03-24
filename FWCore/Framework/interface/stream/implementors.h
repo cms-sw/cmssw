@@ -33,6 +33,7 @@
 #include "FWCore/Framework/interface/InputProcessBlockCacheImpl.h"
 #include "FWCore/Framework/interface/TransformerBase.h"
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/StreamID.h"
@@ -46,6 +47,8 @@ namespace edm {
   class WaitingTaskWithArenaHolder;
 
   namespace stream {
+    template <typename T, bool, bool>
+    struct CallInputProcessBlockImpl;
     namespace impl {
       class EmptyType {};
 
@@ -298,8 +301,8 @@ namespace edm {
         WatchLuminosityBlocks& operator=(WatchLuminosityBlocks const&) = delete;
         virtual ~WatchLuminosityBlocks() noexcept(false) {}
 
-        // virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) = 0;
-        // virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
+        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) = 0;
+        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
       };
 
       class WatchRuns {
@@ -309,8 +312,8 @@ namespace edm {
         WatchRuns& operator=(WatchRuns const&) = delete;
         virtual ~WatchRuns() noexcept(false) {}
 
-        // virtual void beginRun(edm::Run const&, edm::EventSetup const&) = 0;
-        // virtual void endRun(edm::Run const&, edm::EventSetup const&) {}
+        virtual void beginRun(edm::Run const&, edm::EventSetup const&) = 0;
+        virtual void endRun(edm::Run const&, edm::EventSetup const&) {}
       };
       class Transformer : private TransformerBase, public EDProducerBase {
       public:
