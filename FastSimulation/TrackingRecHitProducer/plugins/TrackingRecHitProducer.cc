@@ -40,7 +40,7 @@
 #include <memory>
 #include <vector>
 
-class TrackingRecHitProducer : public edm::stream::EDProducer<> {
+class TrackingRecHitProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 private:
   edm::EDGetTokenT<std::vector<PSimHit>> _simHitToken;
   std::vector<std::unique_ptr<TrackingRecHitAlgorithm>> _recHitAlgorithms;

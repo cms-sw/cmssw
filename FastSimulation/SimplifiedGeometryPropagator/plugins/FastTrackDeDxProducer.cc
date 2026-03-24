@@ -64,7 +64,7 @@
 // class declaration
 //
 
-class FastTrackDeDxProducer : public edm::stream::EDProducer<> {
+class FastTrackDeDxProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit FastTrackDeDxProducer(const edm::ParameterSet&);
   ~FastTrackDeDxProducer() override = default;

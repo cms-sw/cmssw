@@ -53,7 +53,7 @@
 typedef math::XYZVector XYZVector;
 typedef math::XYZVector XYZPoint;
 
-class testEcalHitMaker : public edm::stream::EDAnalyzer<> {
+class testEcalHitMaker : public edm::stream::EDAnalyzer<edm::stream::WatchRuns> {
 public:
   explicit testEcalHitMaker(const edm::ParameterSet&);
   ~testEcalHitMaker();
