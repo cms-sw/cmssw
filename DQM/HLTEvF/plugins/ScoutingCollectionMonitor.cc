@@ -120,6 +120,23 @@ private:
   const edm::EDGetTokenT<std::vector<Run3ScoutingTrack>> tracksToken_;
   const edm::EDGetTokenT<OnlineLuminosityRecord> onlineMetaDataDigisToken_;
   const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+
+  // best electron tracks tokens
+  // One ValueMap per track variable: each map is keyed on the electron
+  // collection and already holds the best-track scalar for every electron.
+  const edm::EDGetTokenT<edm::ValueMap<int>> vmBestTrackIndexToken_;
+  const edm::EDGetTokenT<edm::ValueMap<float>> vmTrkd0Token_;
+  const edm::EDGetTokenT<edm::ValueMap<float>> vmTrkdzToken_;
+  const edm::EDGetTokenT<edm::ValueMap<float>> vmTrkptToken_;
+  const edm::EDGetTokenT<edm::ValueMap<float>> vmTrketaToken_;
+  const edm::EDGetTokenT<edm::ValueMap<float>> vmTrkphiToken_;
+  const edm::EDGetTokenT<edm::ValueMap<float>> vmTrkpModeToken_;
+  const edm::EDGetTokenT<edm::ValueMap<float>> vmTrketaModeToken_;
+  const edm::EDGetTokenT<edm::ValueMap<float>> vmTrkphiModeToken_;
+  const edm::EDGetTokenT<edm::ValueMap<float>> vmTrkqoverpModeErrorToken_;
+  const edm::EDGetTokenT<edm::ValueMap<float>> vmTrkchi2overndfToken_;
+  const edm::EDGetTokenT<edm::ValueMap<int>> vmTrkchargeToken_;
+
   const std::string topfoldername_;
 
   // calo rechits (only 2025 V1.3 onwards, see https://its.cern.ch/jira/browse/CMSHLT-3607)
@@ -271,6 +288,23 @@ private:
   dqm::reco::MonitorElement* r9_ele_hist;
   dqm::reco::MonitorElement* sMin_ele_hist;
   dqm::reco::MonitorElement* sMaj_ele_hist;
+  dqm::reco::MonitorElement* nClusters_ele_hist;
+  dqm::reco::MonitorElement* nCrystals_ele_hist;
+  dqm::reco::MonitorElement* rechitZeroSuppression_ele_hist;
+  dqm::reco::MonitorElement* nTracks_ele_hist;
+  // ---- electron best track variables
+  dqm::reco::MonitorElement* trkBestIdx_ele_hist;
+  dqm::reco::MonitorElement* trkd0_ele_hist;
+  dqm::reco::MonitorElement* trkdz_ele_hist;
+  dqm::reco::MonitorElement* trkpt_ele_hist;
+  dqm::reco::MonitorElement* trketa_ele_hist;
+  dqm::reco::MonitorElement* trkphi_els_hist;
+  dqm::reco::MonitorElement* trkpMode_ele_hist;
+  dqm::reco::MonitorElement* trketaMode_ele_hist;
+  dqm::reco::MonitorElement* trkphiMode_ele_hist;
+  dqm::reco::MonitorElement* trkqoverpModeError_ele_hist;
+  dqm::reco::MonitorElement* trkchi2overndf_ele_hist;
+  dqm::reco::MonitorElement* trkcharge_ele_hist;
 
   // muon histograms (index 0: noVtx, index1: Vtx)
   dqm::reco::MonitorElement* pt_mu_hist[2];
@@ -469,6 +503,20 @@ ScoutingCollectionMonitor::ScoutingCollectionMonitor(const edm::ParameterSet& iC
       tracksToken_(consumes<std::vector<Run3ScoutingTrack>>(iConfig.getParameter<edm::InputTag>("tracks"))),
       onlineMetaDataDigisToken_(consumes(iConfig.getParameter<edm::InputTag>("onlineMetaDataDigis"))),
       beamSpotToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+      // ---- ValueMap tokens: instanceLabel must match what the producer puts ----
+      vmBestTrackIndexToken_(consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("vmBestTrackIndex"))),
+      vmTrkd0Token_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("vmTrkd0"))),
+      vmTrkdzToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("vmTrkdz"))),
+      vmTrkptToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("vmTrkpt"))),
+      vmTrketaToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("vmTrketa"))),
+      vmTrkphiToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("vmTrkphi"))),
+      vmTrkpModeToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("vmTrkpMode"))),
+      vmTrketaModeToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("vmTrketaMode"))),
+      vmTrkphiModeToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("vmTrkphiMode"))),
+      vmTrkqoverpModeErrorToken_(
+          consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("vmTrkqoverpModeError"))),
+      vmTrkchi2overndfToken_(consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("vmTrkchi2overndf"))),
+      vmTrkchargeToken_(consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("vmTrkcharge"))),
       topfoldername_(iConfig.getParameter<std::string>("topfoldername")) {
   setToken(ebRecHitsToken_, iConfig, "pfRecHitsEB");
   setToken(eeRecHitsToken_, iConfig, "pfRecHitsEE");
@@ -667,10 +715,31 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     r9_pho_hist->Fill(pho.r9());
     sMin_pho_hist->Fill(pho.sMin());
     sMaj_pho_hist->Fill(pho.sMaj());
+    nClusters_pho_hist->Fill(pho.nClusters());
+    nCrystals_pho_hist->Fill(pho.nCrystals());
+    rechitZeroSuppression_pho_hist->Fill(pho.rechitZeroSuppression() ? -1. : 1.);
   }
 
+  // --- ValueMaps ---
+  const auto& vmBestIdx = iEvent.get(vmBestTrackIndexToken_);
+  const auto& vmD0 = iEvent.get(vmTrkd0Token_);
+  const auto& vmDz = iEvent.get(vmTrkdzToken_);
+  const auto& vmPt = iEvent.get(vmTrkptToken_);
+  const auto& vmEta = iEvent.get(vmTrketaToken_);
+  const auto& vmPhi = iEvent.get(vmTrkphiToken_);
+  const auto& vmPMode = iEvent.get(vmTrkpModeToken_);
+  const auto& vmEtaMode = iEvent.get(vmTrketaModeToken_);
+  const auto& vmPhiMode = iEvent.get(vmTrkphiModeToken_);
+  const auto& vmQoverpModeErr = iEvent.get(vmTrkqoverpModeErrorToken_);
+  const auto& vmChi2 = iEvent.get(vmTrkchi2overndfToken_);
+  const auto& vmCharge = iEvent.get(vmTrkchargeToken_);
+
   // fill all the electron histograms
-  for (const auto& ele : *electronsH) {
+  for (std::size_t iEl = 0; iEl < electronsH->size(); ++iEl) {
+    // Ref needed to index into the ValueMaps
+    const edm::Ref<Run3ScoutingElectronCollection> elRef(electronsH, iEl);
+    const Run3ScoutingElectron& ele = *elRef;
+
     pt_ele_hist->Fill(ele.pt());
     eta_ele_hist->Fill(ele.eta());
     phi_ele_hist->Fill(ele.phi());
@@ -690,6 +759,35 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     r9_ele_hist->Fill(ele.r9());
     sMin_ele_hist->Fill(ele.sMin());
     sMaj_ele_hist->Fill(ele.sMaj());
+    nClusters_ele_hist->Fill(ele.nClusters());
+    nCrystals_ele_hist->Fill(ele.nCrystals());
+    rechitZeroSuppression_ele_hist->Fill(ele.rechitZeroSuppression() ? -1. : 1.);
+
+    // ----- Track-vector size -----
+    nTracks_ele_hist->Fill(static_cast<double>(ele.trkpt().size()));
+
+    // ----- Best-track scalars from ValueMaps -----
+    // The producer sets the value to numeric_limits<float>::max() when no
+    // best track was found (index == -1), so guard before filling.
+    const int bestIdx = vmBestIdx[elRef];
+    trkBestIdx_ele_hist->Fill(static_cast<double>(bestIdx));
+
+    if (bestIdx < 0)
+      continue;  // no valid track for this electron
+
+    // All float maps are safe to fill: the producer guarantees they hold the
+    // best-track value whenever bestIdx >= 0.
+    trkd0_ele_hist->Fill(vmD0[elRef]);
+    trkdz_ele_hist->Fill(vmDz[elRef]);
+    trkpt_ele_hist->Fill(vmPt[elRef]);
+    trketa_ele_hist->Fill(vmEta[elRef]);
+    trkphi_els_hist->Fill(vmPhi[elRef]);
+    trkpMode_ele_hist->Fill(vmPMode[elRef]);
+    trketaMode_ele_hist->Fill(vmEtaMode[elRef]);
+    trkphiMode_ele_hist->Fill(vmPhiMode[elRef]);
+    trkqoverpModeError_ele_hist->Fill(vmQoverpModeErr[elRef]);
+    trkchi2overndf_ele_hist->Fill(vmChi2[elRef]);
+    trkcharge_ele_hist->Fill(static_cast<double>(vmCharge[elRef]));
   }
 
   // Apply to both collections
@@ -1198,6 +1296,12 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   r9_pho_hist = ibook.book1DD("r9_pho", "R9; R9; Entries", 100, 0.0, 5);
   sMin_pho_hist = ibook.book1DD("sMin_pho", "sMin Photon; sMin; Entries", 100, 0.0, 3);
   sMaj_pho_hist = ibook.book1DD("sMaj_pho", "sMaj Photon; sMaj; Entries", 100, 0.0, 3);
+  nClusters_pho_hist =
+      ibook.book1I("nClusters_pho", "nunmber of Clusters Photon; n. Clusters; Entries", 20, -0.5, 19.5);
+  nCrystals_pho_hist =
+      ibook.book1I("nCrystals_pho", "number of Crystals Photon; n. Crystals; Entries", 100, -0.5, 99.5);
+  rechitZeroSuppression_pho_hist =
+      ibook.book1I("rechitZS_pho", "recHit ZS Photon; recHit ZeroSuppression (-1=True,1=False); Entries", 3, -1.5, 1.5);
 
   ibook.setCurrentFolder(topfoldername_ + "/Electron");
   pt_ele_hist = ibook.book1DD("pt_ele", "Electron p_{T}; p_{T} (GeV); Entries", 100, 0.0, 100.0);
@@ -1223,6 +1327,29 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   r9_ele_hist = ibook.book1DD("r9_ele", "R9 Electron; R9; Entries", 100, 0.0, 5);
   sMin_ele_hist = ibook.book1DD("sMin_ele", "sMin Electron; sMin; Entries", 100, 0.0, 3);
   sMaj_ele_hist = ibook.book1DD("sMaj_ele", "sMaj Electron; sMaj; Entries", 100, 0.0, 3);
+  nClusters_ele_hist =
+      ibook.book1I("nClusters_ele", "nunmber of Clusters Electron; n. Clusters; Entries", 20, -0.5, 19.5);
+  nCrystals_ele_hist =
+      ibook.book1I("nCrystals_ele", "number of Crystals Electron; n. Crystals; Entries", 100, -0.5, 99.5);
+  rechitZeroSuppression_ele_hist = ibook.book1I(
+      "rechitZS_ele", "recHit ZS Electron; recHit ZeroSuppression (-1=True,1=False); Entries", 3, -1.5, 1.5);
+  nTracks_ele_hist = ibook.book1D("nTracksPerElectron", "Number of tracks per electron;N_{trk};Electrons", 20, 0, 20);
+
+  // --- Best-track variables (from ValueMaps) ---
+  trkBestIdx_ele_hist = ibook.book1D("trkBestIdx", "Best-track index;index;Electrons", 20, 0, 20);
+  trkd0_ele_hist = ibook.book1D("trkd0", "Best-track d_{0};d_{0} [cm];Electrons", 100, -0.5, 0.5);
+  trkdz_ele_hist = ibook.book1D("trkdz", "Best-track d_{z};d_{z} [cm];Electrons", 100, -25, 25);
+  trkpt_ele_hist = ibook.book1D("trkpt", "Best-track p_{T};p_{T} [GeV];Electrons", 100, 0, 200);
+  trketa_ele_hist = ibook.book1D("trketa", "Best-track #eta;#eta;Electrons", 60, -3, 3);
+  trkphi_els_hist = ibook.book1D("trkphi", "Best-track #phi;#phi [rad];Electrons", 64, -3.2, 3.2);
+  trkpMode_ele_hist = ibook.book1D("trkpMode", "Best-track p (mode);p_{mode} [GeV];Electrons", 100, 0, 200);
+  trketaMode_ele_hist = ibook.book1D("trketaMode", "Best-track #eta (mode);#eta_{mode};Electrons", 60, -3, 3);
+  trkphiMode_ele_hist = ibook.book1D("trkphiMode", "Best-track #phi (mode);#phi_{mode} [rad];Electrons", 64, -3.2, 3.2);
+  trkqoverpModeError_ele_hist = ibook.book1D(
+      "trkqoverpModeError", "Best-track #sigma(q/p) (mode);#sigma(q/p)_{mode} [GeV^{-1}];Electrons", 100, 0, 0.01);
+  trkchi2overndf_ele_hist =
+      ibook.book1D("trkchi2overndf", "Best-track #chi^{2}/ndof;#chi^{2}/ndof;Electrons", 100, 0, 10);
+  trkcharge_ele_hist = ibook.book1D("trkcharge", "Best-track charge;charge;Electrons", 3, -1.5, 1.5);
 
   // book the muon histograms (noVtx and Vtx collections)
   const std::array<std::string, 2> muonLabels = {{"muonsNoVtx", "muonsVtx"}};
@@ -1654,6 +1781,22 @@ void ScoutingCollectionMonitor::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::InputTag>("pfRecHitsHBHE", edm::InputTag("hltScoutingRecHitPacker", "HBHE"));
   desc.add<edm::InputTag>("pfCleanedRecHitsEB", edm::InputTag("hltScoutingRecHitPacker", "EBCleaned"));
   desc.add<edm::InputTag>("pfCleanedRecHitsEE", edm::InputTag("hltScoutingRecHitPacker", "EECleaned"));
+
+  // Each InputTag is  ("producerLabel", "instanceLabel")
+  const std::string prod = "run3ScoutingElectronBestTrack";
+  desc.add<edm::InputTag>("vmBestTrackIndex", edm::InputTag(prod, "Run3ScoutingElectronBestTrackIndex"));
+  desc.add<edm::InputTag>("vmTrkd0", edm::InputTag(prod, "Run3ScoutingElectronTrackd0"));
+  desc.add<edm::InputTag>("vmTrkdz", edm::InputTag(prod, "Run3ScoutingElectronTrackdz"));
+  desc.add<edm::InputTag>("vmTrkpt", edm::InputTag(prod, "Run3ScoutingElectronTrackpt"));
+  desc.add<edm::InputTag>("vmTrketa", edm::InputTag(prod, "Run3ScoutingElectronTracketa"));
+  desc.add<edm::InputTag>("vmTrkphi", edm::InputTag(prod, "Run3ScoutingElectronTrackphi"));
+  desc.add<edm::InputTag>("vmTrkpMode", edm::InputTag(prod, "Run3ScoutingElectronTrackpMode"));
+  desc.add<edm::InputTag>("vmTrketaMode", edm::InputTag(prod, "Run3ScoutingElectronTracketaMode"));
+  desc.add<edm::InputTag>("vmTrkphiMode", edm::InputTag(prod, "Run3ScoutingElectronTrackphiMode"));
+  desc.add<edm::InputTag>("vmTrkqoverpModeError", edm::InputTag(prod, "Run3ScoutingElectronTrackqoverpModeError"));
+  desc.add<edm::InputTag>("vmTrkchi2overndf", edm::InputTag(prod, "Run3ScoutingElectronTrackchi2overndf"));
+  desc.add<edm::InputTag>("vmTrkcharge", edm::InputTag(prod, "Run3ScoutingElectronTrackcharge"));
+
   desc.add<std::string>("topfoldername", "HLT/ScoutingOffline/Miscellaneous");
   descriptions.addWithDefaultLabel(desc);
 }
