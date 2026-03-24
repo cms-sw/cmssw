@@ -20,27 +20,11 @@
   <Vector name="WaferLayerStartEE" type="numeric" nEntries="10">
         0,    1,    2,    3,    4,    5,    6,    7,    8,    9 
   </Vector>
-  <Vector name="CassetteShiftEE" type="numeric" nEntries="120">
-            0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-           -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-            0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-           -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-            0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-           -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-            0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-           -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-            0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-           -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-            0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-           -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-            0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-           -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-            0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-           -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-            0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-           -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-            0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-           -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm
+  <Vector name="CassetteShiftEE" type="numeric" nEntries="24">
+            0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
+            0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
+            0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
+            0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm
   </Vector>
 </ConstantsSection>
 

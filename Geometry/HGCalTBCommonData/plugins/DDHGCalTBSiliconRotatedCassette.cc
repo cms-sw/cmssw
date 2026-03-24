@@ -411,8 +411,10 @@ void DDHGCalTBSiliconRotatedCassette::constructLayers(const DDLogicalPart& modul
       int inc = ((layerSense_[ly] > 0) && (facingTypes_ > 1)) ? 2 : 1;
 #ifdef EDM_ML_DEBUG
       if (layerSense_[ly] > 0)
-	edm::LogVerbatim("HGCalGeom") << " LayerIndex " << i << ":" << ii << ":" << ly;
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalTBSiliconRotatedCassette: " << glog.name() << " number " << copy << ":" << inc << ":" << layerSense_[ly] << ":" << facingTypes_ << " positioned in " << module.name() << " at " << r1 << " with " << rotName  << " rotation";
+        edm::LogVerbatim("HGCalGeom") << " LayerIndex " << i << ":" << ii << ":" << ly;
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalTBSiliconRotatedCassette: " << glog.name() << " number " << copy << ":"
+                                    << inc << ":" << layerSense_[ly] << ":" << facingTypes_ << " positioned in "
+                                    << module.name() << " at " << r1 << " with " << rotName << " rotation";
 #endif
       copyNumber_[ii] = copy + inc;
       zz += hthick;
@@ -422,9 +424,12 @@ void DDHGCalTBSiliconRotatedCassette::constructLayers(const DDLogicalPart& modul
     // Make consistency check of all the partitions of the block
     if (std::abs(thickTot - layerThick_[i]) >= tol2_) {
       if (thickTot > layerThick_[i]) {
-	edm::LogError("HGCalGeom") << "DHGCalSiliconRotatedCassette:Thickness of the partition " << layerThick_[i] << " is smaller than " << thickTot << ": thickness of all its components **** ERROR ****";
+        edm::LogError("HGCalGeom") << "DHGCalSiliconRotatedCassette:Thickness of the partition " << layerThick_[i]
+                                   << " is smaller than " << thickTot
+                                   << ": thickness of all its components **** ERROR ****";
       } else {
-	edm::LogWarning("HGCalGeom") << "DHGCalSiliconRotatedCassette:Thickness of the partition " << layerThick_[i] << " does not match with " << thickTot << " of the components";
+        edm::LogWarning("HGCalGeom") << "DHGCalSiliconRotatedCassette:Thickness of the partition " << layerThick_[i]
+                                     << " does not match with " << thickTot << " of the components";
       }
     }
   }  // End of loop over blocks
@@ -532,7 +537,7 @@ void DDHGCalTBSiliconRotatedCassette::positionSensitive(const DDLogicalPart& glo
                                   << layertype << ":" << type << " positioned in " << glog.ddname() << " at " << tran
                                   << " with no rotation";
 #endif
-  } 
+  }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalTBSiliconRotatedCassette: Maximum # of u " << ium << " # of v " << ivm
                                 << " and " << kount << " passives (" << ntype[0] << ":" << ntype[1] << ":" << ntype[2]
@@ -557,7 +562,8 @@ void DDHGCalTBSiliconRotatedCassette::positionPassive(const DDLogicalPart& glog,
   int absnum = type ? (absType - 1) : (absType - 1 - passiveTypes_);
   absnum *= (cassettes_ * layers_.size());
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalTBSiliconRotatedCassette: Type " << type << ":" << absnum << " number per cassette " << num;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalTBSiliconRotatedCassette: Type " << type << ":" << absnum
+                                << " number per cassette " << num;
 #endif
   for (int k = 0; k < cassettes_; ++k) {
     double xpos(0), ypos(0), zpos(0);
