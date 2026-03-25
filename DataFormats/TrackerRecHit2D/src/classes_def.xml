@@ -63,7 +63,7 @@
  <class name="edm::Wrapper<edmNew::DetSetVector<SiPixelRecHit> >"/>
 
   <class name="reco::ClusterRemovalInfo"  ClassVersion="3">
-   <version ClassVersion="3" checksum="2739546420"/>
+   <version ClassVersion="3" checksum="2001758756"/>
   </class>
   <class name="reco::ClusterRemovalInfo::SiPixelClusterRefProd" />
   <class name="reco::ClusterRemovalInfo::SiStripClusterRefProd" />
