@@ -66,7 +66,9 @@ class SiPixelStatusProducer :
                                    edm::RunCache<SiPixelTopoFinder>,
                                    edm::LuminosityBlockSummaryCache<std::vector<SiPixelDetectorStatus>>,
                                    edm::EndLuminosityBlockProducer,
-                                   edm::Accumulator> {
+                                   edm::Accumulator,
+                                   edm::stream::WatchRuns,
+                                   edm::stream::WatchLuminosityBlocks> {
 public:
   SiPixelStatusProducer(edm::ParameterSet const& iPSet, SiPixelStatusCache const*);
   ~SiPixelStatusProducer() override;
