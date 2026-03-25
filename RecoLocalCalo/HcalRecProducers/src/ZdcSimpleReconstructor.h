@@ -31,7 +31,7 @@ class HcalTimeSlewRecord;
     \author E. Garcia - CSU
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
-class ZdcSimpleReconstructor : public edm::stream::EDProducer<> {
+class ZdcSimpleReconstructor : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit ZdcSimpleReconstructor(const edm::ParameterSet& ps);
   ~ZdcSimpleReconstructor() override;

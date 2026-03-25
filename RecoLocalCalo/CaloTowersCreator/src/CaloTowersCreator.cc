@@ -29,7 +29,7 @@
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 
-class CaloTowersCreator : public edm::stream::EDProducer<> {
+class CaloTowersCreator : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit CaloTowersCreator(const edm::ParameterSet& ps);
   ~CaloTowersCreator() override {}

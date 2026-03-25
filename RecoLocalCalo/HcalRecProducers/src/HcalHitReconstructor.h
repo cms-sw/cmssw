@@ -49,7 +49,7 @@ class HcalChannelQualityRcd;
 class HcalSeverityLevelComputer;
 class HcalSeverityLevelComputerRcd;
 
-class HcalHitReconstructor : public edm::stream::EDProducer<> {
+class HcalHitReconstructor : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit HcalHitReconstructor(const edm::ParameterSet& ps);
   ~HcalHitReconstructor() override;
