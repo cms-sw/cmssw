@@ -151,8 +151,7 @@ void AllHitToTracksterAssociatorsProducerT<HIT>::fillDescriptions(edm::Configura
     desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "RefProdVectorHGCRecHitCollection"));
     descriptions.add("AllHitToTracksterAssociatorsProducer", desc);
   } else if constexpr (std::is_same_v<HIT, reco::PFRecHit>) {
-    desc.add<std::vector<edm::InputTag>>("tracksterCollections",
-                                         {edm::InputTag("ticlTrackstersCLUE3DBarrel")});
+    desc.add<std::vector<edm::InputTag>>("tracksterCollections", {edm::InputTag("ticlTrackstersCLUE3DBarrel")});
     desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "barrelRecHitMap"));
     desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "RefProdVectorPFRecHitCollection"));
     descriptions.add("AllHitToBarrelTracksterAssociatorsProducer", desc);
