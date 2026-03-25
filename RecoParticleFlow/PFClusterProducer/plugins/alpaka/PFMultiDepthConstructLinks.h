@@ -274,6 +274,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       if (::cms::alpakatools::once_per_grid(acc)) {
         mdpfClusteringCCLabels.size() = nClusters;
+        mdpfClusteringCCLabels.ncomponents() = 0;
       }
 
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {

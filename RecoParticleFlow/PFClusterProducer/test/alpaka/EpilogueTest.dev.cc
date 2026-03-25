@@ -709,6 +709,7 @@ int main() {
     outHClusters.size() = cc_num;
 
     hClusteringVars.size() = nClusters;
+    hClusteringVars.ncomponents() = 0;
 
     load(hostClusters, hostRecHits, hostRecHitFracs, clusters, hits, rhfracs, seedIdx);
 
