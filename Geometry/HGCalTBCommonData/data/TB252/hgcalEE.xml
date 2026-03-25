@@ -2,7 +2,7 @@
 <DDDefinition>
 
 <PosPartSection label="hgcalEE.xml">
-  <Algorithm name="hgcal:DDHGCalSiliconRotatedCassette">
+  <Algorithm name="hgcal:DDHGCalTBSiliconRotatedCassette">
     <rParent name="hgcal:HGCalEE"/>
     <Numeric name="WaferTypes"       value="1"/>
     <Numeric name="PassiveTypes"     value="4"/>
@@ -18,7 +18,7 @@
     <Numeric name="waferSize"        value="[hgcal:WaferSize]"/>
     <Numeric name="SensorSeparation" value="[hgcal:SensorSeparation]"/>
     <Numeric name="Sectors"          value="36"/>
-    <Numeric name="Cassettes"        value="6"/>
+    <Numeric name="Cassettes"        value="1"/>
     <String  name="LayerRotation"    value="hgcal:LayerRotation"/>
     <Vector name="WaferNamesFull" type="string" nEntries="48">
       hgcalwafer:HGCalEEWafer00HD120, hgcalwafer:HGCalEEWafer01HD120, 
@@ -178,11 +178,23 @@
       hgcalwafer:HGCalEEWafer06HD200HD5, hgcalwafer:HGCalEEWafer07HD200HD5, 
       hgcalwafer:HGCalEEWafer08HD200HD5, hgcalwafer:HGCalEEWafer09HD200HD5, 
       hgcalwafer:HGCalEEWafer10HD200HD5, hgcalwafer:HGCalEEWafer11HD200HD5</Vector>
-    <Vector name="PassiveNamesFull" type="string" nEntries="4">
-      hgcalPassive:HGCalAbsorber,   hgcalPassive:HGCalAbsorberW,
-      hgcalPassive:HGCalAbsorberPl, hgcalPassive:HGCalAbsorberMy</Vector>
-    <Vector name="PassiveNamesPartial" type="string" nEntries="1">
-      HGCalPassive:HGCalCooling</Vector>
+    <Vector name="PassiveNamesFull" type="string" nEntries="24">
+      hgcalPassive:HGCalAbsorber,   hgcalPassive:HGCalAbsorber,
+      hgcalPassive:HGCalAbsorber,   hgcalPassive:HGCalAbsorber,
+      hgcalPassive:HGCalAbsorber,   hgcalPassive:HGCalAbsorber,
+      hgcalPassive:HGCalAbsorberW,  hgcalPassive:HGCalAbsorberW,
+      hgcalPassive:HGCalAbsorberW,  hgcalPassive:HGCalAbsorberW,
+      hgcalPassive:HGCalAbsorberW,  hgcalPassive:HGCalAbsorberW,
+      hgcalPassive:HGCalAbsorberPl, hgcalPassive:HGCalAbsorberPl,
+      hgcalPassive:HGCalAbsorberPl, hgcalPassive:HGCalAbsorberPl,
+      hgcalPassive:HGCalAbsorberPl, hgcalPassive:HGCalAbsorberPl,
+      hgcalPassive:HGCalAbsorberMy, hgcalPassive:HGCalAbsorberMy,
+      hgcalPassive:HGCalAbsorberMy, hgcalPassive:HGCalAbsorberMy,
+      hgcalPassive:HGCalAbsorberMy, hgcalPassive:HGCalAbsorberMy</Vector>
+    <Vector name="PassiveNamesPartial" type="string" nEntries="6">
+      hgcalPassive:HGCalCooling,    hgcalPassive:HGCalCooling,
+      hgcalPassive:HGCalCooling,    hgcalPassive:HGCalCooling,
+      hgcalPassive:HGCalCooling,    hgcalPassive:HGCalCooling</Vector>
     <Vector name="MaterialNames" type="string" nEntries="9">
       materials:Air, materials:Air, materials:Air, materials:Air,
       materials:Air, materials:Air, materials:Air, materials:Air,
@@ -196,7 +208,7 @@
       [hgcal:ModuleThicknessEE], 0.9*mm, 0.45*mm, [hgcal:absorberWT],
       [hgcal:absorberPlasticT], [hgcal:absorberMylarT]</Vector>
     <Vector name="Layers" type="numeric" nEntries="6">
-      10, 13, 14, 14, 13, 12</Vector>
+      10, 9, 8, 8, 7, 6</Vector>
     <Vector name="LayerThick" type="numeric" nEntries="6">
       34.02*mm, 37.62*mm, 39.62*mm, 39.62*mm, 31.135*mm, 31.135*mm</Vector>
     <Vector name="LayerType" type="numeric" nEntries="48">
@@ -249,27 +261,11 @@
     <Vector name="WaferLayerStart" type="numeric" nEntries="10">
           0,    1,    2,    3,    4,    5,    6,    7,    8,    9 
     </Vector>
-    <Vector name="CassetteShift" type="numeric" nEntries="120">
-              0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-             -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-              0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-             -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-              0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-             -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-              0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-             -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-              0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-             -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-              0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-             -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-              0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-             -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-              0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-             -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-              0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-             -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm,
-              0*mm,        0*mm,        0*mm,        0*mm,       -0*mm,        0*mm,
-             -0*mm,       -0*mm,       -0*mm,       -0*mm,        0*mm,       -0*mm
+    <Vector name="CassetteShift" type="numeric" nEntries="24">
+              0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
+              0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
+              0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
+              0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm
     </Vector>
   </Algorithm>
 </PosPartSection> 

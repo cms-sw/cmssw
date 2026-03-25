@@ -4,6 +4,7 @@
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Sources"/>
   <use name="FWCore/Utilities"/>
+  <use name="FWStorage/Catalog"/>
   <use name="GeneratorInterface/AlpgenInterface"/>
   <use name="SimDataFormats/GeneratorProducts"/>
   <use name="boost"/>
