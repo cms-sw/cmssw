@@ -45,7 +45,8 @@ namespace alCaHBHEMuonFilter {
   };
 }  // namespace alCaHBHEMuonFilter
 
-class AlCaHBHEMuonFilter : public edm::stream::EDFilter<edm::GlobalCache<alCaHBHEMuonFilter::Counters> > {
+class AlCaHBHEMuonFilter
+    : public edm::stream::EDFilter<edm::GlobalCache<alCaHBHEMuonFilter::Counters>, edm::stream::WatchRuns> {
 public:
   explicit AlCaHBHEMuonFilter(edm::ParameterSet const&, const alCaHBHEMuonFilter::Counters* count);
   ~AlCaHBHEMuonFilter() override = default;
