@@ -49,7 +49,7 @@
 using namespace ticl;
 using cms::Ort::ONNXRuntime;
 
-class TracksterLinksProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
+class TracksterLinksProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>, edm::stream::WatchRuns> {
 public:
   explicit TracksterLinksProducer(const edm::ParameterSet &ps, const ONNXRuntime *);
   ~TracksterLinksProducer() override {};

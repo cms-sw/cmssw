@@ -20,7 +20,7 @@
 
 #include <string>
 
-class FilteredLayerClustersProducer : public edm::stream::EDProducer<> {
+class FilteredLayerClustersProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   FilteredLayerClustersProducer(const edm::ParameterSet&);
   ~FilteredLayerClustersProducer() override {}
