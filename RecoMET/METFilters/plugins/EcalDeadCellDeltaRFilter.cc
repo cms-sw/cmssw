@@ -83,7 +83,7 @@
 
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
-class EcalDeadCellDeltaRFilter : public edm::stream::EDFilter<> {
+class EcalDeadCellDeltaRFilter : public edm::stream::EDFilter<edm::stream::WatchRuns> {
 public:
   explicit EcalDeadCellDeltaRFilter(const edm::ParameterSet &);
   ~EcalDeadCellDeltaRFilter() override = default;
