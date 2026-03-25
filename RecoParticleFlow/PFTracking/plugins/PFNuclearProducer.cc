@@ -8,13 +8,12 @@
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
-class PFNuclearProducer : public edm::stream::EDProducer<> {
+#include <memory>
+
+class PFNuclearProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   ///Constructor
   explicit PFNuclearProducer(const edm::ParameterSet&);
-
-  ///Destructor
-  ~PFNuclearProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -26,7 +25,7 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   ///PFTrackTransformer
-  PFTrackTransformer* pfTransformer_;
+  std::unique_ptr<PFTrackTransformer> pfTransformer_;
   double likelihoodCut_;
   std::vector<edm::EDGetTokenT<reco::NuclearInteractionCollection>> nuclearContainers_;
 
@@ -58,8 +57,6 @@ PFNuclearProducer::PFNuclearProducer(const ParameterSet& iConfig)
 
   likelihoodCut_ = iConfig.getParameter<double>("likelihoodCut");
 }
-
-PFNuclearProducer::~PFNuclearProducer() { delete pfTransformer_; }
 
 void PFNuclearProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   typedef reco::NuclearInteraction::trackRef_iterator trackRef_iterator;
@@ -107,12 +104,9 @@ void PFNuclearProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 // ------------ method called once each job just before starting event loop  ------------
 void PFNuclearProducer::beginRun(const edm::Run& run, const EventSetup& iSetup) {
   auto const& magneticField = &iSetup.getData(magneticFieldToken_);
-  pfTransformer_ = new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0))));
+  pfTransformer_ = std::make_unique<PFTrackTransformer>(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0))));
   pfTransformer_->OnlyProp();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void PFNuclearProducer::endRun(const edm::Run& run, const EventSetup& iSetup) {
-  delete pfTransformer_;
-  pfTransformer_ = nullptr;
-}
+void PFNuclearProducer::endRun(const edm::Run& run, const EventSetup& iSetup) { pfTransformer_.reset(); }

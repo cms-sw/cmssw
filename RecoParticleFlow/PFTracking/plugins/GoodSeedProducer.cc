@@ -65,7 +65,8 @@ namespace goodseedhelpers {
   };
 }  // namespace goodseedhelpers
 
-class GoodSeedProducer final : public edm::stream::EDProducer<edm::GlobalCache<goodseedhelpers::HeavyObjectCache>> {
+class GoodSeedProducer final
+    : public edm::stream::EDProducer<edm::GlobalCache<goodseedhelpers::HeavyObjectCache>, edm::stream::WatchRuns> {
   typedef TrajectoryStateOnSurface TSOS;
 
 public:

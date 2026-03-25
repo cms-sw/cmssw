@@ -13,7 +13,7 @@
 // class declaration
 //
 
-class PFRecHitProducer final : public edm::stream::EDProducer<> {
+class PFRecHitProducer final : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit PFRecHitProducer(const edm::ParameterSet& iConfig);
   ~PFRecHitProducer() override;

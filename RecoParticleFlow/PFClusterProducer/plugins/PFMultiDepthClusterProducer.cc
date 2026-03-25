@@ -14,7 +14,7 @@
 
 #include <memory>
 
-class PFMultiDepthClusterProducer : public edm::stream::EDProducer<> {
+class PFMultiDepthClusterProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
   typedef InitialClusteringStepBase ICSB;
   typedef PFClusterBuilderBase PFCBB;
   typedef PFCPositionCalculatorBase PosCalc;

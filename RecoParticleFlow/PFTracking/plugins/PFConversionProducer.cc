@@ -14,13 +14,10 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
-class PFConversionProducer : public edm::stream::EDProducer<> {
+class PFConversionProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   ///Constructor
   explicit PFConversionProducer(const edm::ParameterSet&);
-
-  ///Destructor
-  ~PFConversionProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -32,7 +29,7 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   ///PFTrackTransformer
-  PFTrackTransformer* pfTransformer_;
+  std::unique_ptr<PFTrackTransformer> pfTransformer_;
   edm::EDGetTokenT<reco::ConversionCollection> pfConversionContainer_;
   edm::EDGetTokenT<reco::VertexCollection> vtx_h;
 
@@ -65,8 +62,6 @@ PFConversionProducer::PFConversionProducer(const ParameterSet& iConfig)
 
   vtx_h = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("PrimaryVertexLabel"));
 }
-
-PFConversionProducer::~PFConversionProducer() { delete pfTransformer_; }
 
 void PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   //create the empty collections
@@ -205,12 +200,9 @@ void PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 // ------------ method called once each job just before starting event loop  ------------
 void PFConversionProducer::beginRun(const edm::Run& run, const EventSetup& iSetup) {
   auto const& magneticField = &iSetup.getData(magneticFieldToken_);
-  pfTransformer_ = new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0))));
+  pfTransformer_ = std::make_unique<PFTrackTransformer>(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0))));
   pfTransformer_->OnlyProp();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void PFConversionProducer::endRun(const edm::Run& run, const EventSetup& iSetup) {
-  delete pfTransformer_;
-  pfTransformer_ = nullptr;
-}
+void PFConversionProducer::endRun(const edm::Run& run, const EventSetup& iSetup) { pfTransformer_.reset(); }
