@@ -20,7 +20,7 @@
 
 #include <memory>
 
-class HGCalBackendStage1Producer : public edm::stream::EDProducer<> {
+class HGCalBackendStage1Producer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   HGCalBackendStage1Producer(const edm::ParameterSet&);
   ~HGCalBackendStage1Producer() override = default;

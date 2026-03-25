@@ -15,7 +15,7 @@
 
 #include <memory>
 
-class HGCalTowerProducer : public edm::stream::EDProducer<> {
+class HGCalTowerProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   HGCalTowerProducer(const edm::ParameterSet&);
   ~HGCalTowerProducer() override {}

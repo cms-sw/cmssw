@@ -56,7 +56,7 @@
 //
 using namespace l1t;
 
-class L1TMuonProducer : public edm::stream::EDProducer<> {
+class L1TMuonProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit L1TMuonProducer(const edm::ParameterSet&);
   ~L1TMuonProducer() override;

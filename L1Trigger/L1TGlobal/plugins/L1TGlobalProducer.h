@@ -40,7 +40,7 @@ class TriggerMenu;
 
 // class declaration
 
-class L1TGlobalProducer : public edm::stream::EDProducer<> {
+class L1TGlobalProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit L1TGlobalProducer(const edm::ParameterSet&);
   ~L1TGlobalProducer() override = default;

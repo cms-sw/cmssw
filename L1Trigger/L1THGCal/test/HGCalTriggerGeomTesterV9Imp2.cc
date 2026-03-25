@@ -40,7 +40,7 @@ namespace {
   };
 }  // namespace
 
-class HGCalTriggerGeomTesterV9Imp2 : public edm::stream::EDAnalyzer<> {
+class HGCalTriggerGeomTesterV9Imp2 : public edm::stream::EDAnalyzer<edm::stream::WatchRuns> {
 public:
   explicit HGCalTriggerGeomTesterV9Imp2(const edm::ParameterSet&);
   ~HGCalTriggerGeomTesterV9Imp2() override = default;

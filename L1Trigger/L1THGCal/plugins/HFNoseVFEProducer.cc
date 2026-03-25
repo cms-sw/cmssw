@@ -15,7 +15,7 @@
 
 #include <memory>
 
-class HFNoseVFEProducer : public edm::stream::EDProducer<> {
+class HFNoseVFEProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   HFNoseVFEProducer(const edm::ParameterSet&);
   ~HFNoseVFEProducer() override {}

@@ -55,7 +55,7 @@ using namespace l1tcalo;
 // class declaration
 //
 
-class L1TCaloLayer1 : public edm::stream::EDProducer<> {
+class L1TCaloLayer1 : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit L1TCaloLayer1(const edm::ParameterSet&);
 
