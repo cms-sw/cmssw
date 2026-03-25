@@ -7,8 +7,9 @@
  * Joanna Weng & Filip Moortgat 08/2005 
  ***************************************/
 
-#include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
+#include "FWCore/Sources/interface/ProducerSourceBase.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWStorage/Catalog/interface/FromFiles.h"
 
 class HepMCFileReader;
 
@@ -23,7 +24,7 @@ namespace edm {
   class ParameterSet;
   class Timestamp;
 
-  class MCFileSource : public ProducerSourceFromFiles {
+  class MCFileSource : public ProducerSourceBase {
   public:
     MCFileSource(const ParameterSet& pset, const InputSourceDescription& desc);
     ~MCFileSource() override;
@@ -35,6 +36,7 @@ namespace edm {
 
     edm::propagate_const<HepMCFileReader*> reader_;
     edm::propagate_const<HepMC::GenEvent*> evt_;
+    edm::FromFiles fromFiles_;
     bool useExtendedAscii_;
   };
 }  // namespace edm
