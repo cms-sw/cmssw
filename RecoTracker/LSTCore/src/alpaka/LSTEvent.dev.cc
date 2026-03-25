@@ -768,7 +768,7 @@ void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets)
   alpaka::wait(queue_);  // wait to get the value before using it
 
   auto nTrackCandidatesTotal = *nTrackCanTotalHost_buf.data();
-  if (nTrackCandidatesTotal >= nTotal) {
+  if (nTrackCandidatesTotal > nMaxTC) {
     lstWarning(
         "\
         ****************************************************************************************************\n\
