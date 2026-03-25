@@ -1,4 +1,4 @@
-import ROOT
+import ROOT as R
 from .fitResidual import fitResidual
 from .drawHistoAllChambers import drawHisto
 
@@ -17,16 +17,16 @@ def plot(fileName,sl,dir='DTResiduals', run='1',option="HISTOPE1",draw=True):
         mean_ymin = -0.02
         mean_ymax =  0.02
         sig_ymin = 0.
-        sig_ymax = 0.07
+        sig_ymax = 0.10
 
     slType = sl
     slStr = "SL%d" % slType
     verbose = False
     nSigmas = 2
 
-    ROOT.TH1.AddDirectory(False)
+    R.TH1.AddDirectory(False)
 
-    file = ROOT.TFile(fileName,'read')
+    file = R.TFile(fileName,'read')
 
     wheels = (-2,-1,0,1,2)
     stations = (1,2,3,4)
@@ -35,8 +35,8 @@ def plot(fileName,sl,dir='DTResiduals', run='1',option="HISTOPE1",draw=True):
     # (Wh-2 MB2 Sec1 ... Wh-2 MB2 Sec12 ... Wh-1 MB2 Sec1 ... Wh-1 MB1 Sec12 ...) ...
     nBins = 250
     if slType == 2: nBins = 180
-    histoMean = ROOT.TH1F("h_ResMeanAll","Mean of residuals for Run=%s at %s" % (run,slStr),nBins,0,nBins)
-    histoSigma = ROOT.TH1F("h_ResSigmaAll","Sigma of residuals for Run=%s at %s" % (run,slStr),nBins,0,nBins)
+    histoMean = R.TH1F("h_ResMeanAll","Mean of residuals for Run=%s at %s" % (run,slStr),nBins,0,nBins)
+    histoSigma = R.TH1F("h_ResSigmaAll","Sigma of residuals for Run=%s at %s" % (run,slStr),nBins,0,nBins)
     for st in stations:
         nSectors = 12
         if st == 4: nSectors = 14
@@ -52,6 +52,8 @@ def plot(fileName,sl,dir='DTResiduals', run='1',option="HISTOPE1",draw=True):
                 histo = file.Get(histoName)
                 (histo,fitFunc) = fitResidual(histo,nSigmas,verbose)
                 fitMean = fitFunc.GetParameter(1)
+                if abs(fitMean)>0.01:
+                    print("Large mean residual at (SL: %r,  Station: %r, Wheel: %r, Section: %r);   res = %.3f" % (sl, st, wh, sec, fitMean))
                 fitMeanErr = fitFunc.GetParError(1)
                 fitSigma = fitFunc.GetParameter(2)
                 fitSigmaErr = fitFunc.GetParError(2)
