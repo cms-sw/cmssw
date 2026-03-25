@@ -197,6 +197,9 @@ void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   if (useOfflineObject_) {
     edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
     iEvent.getByToken(triggerObjects_, triggerObjects);
+    if (triggerObjects.failedToGet()) {
+      return;  // add protection against missing input
+    }
     for (size_t iteFilter = 0; iteFilter < filterToMatch_.size(); iteFilter++) {
       std::string filterTag = filterToMatch_.at(iteFilter);
       for (pat::TriggerObjectStandAlone obj : *triggerObjects) {
