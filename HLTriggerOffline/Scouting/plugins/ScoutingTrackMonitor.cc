@@ -45,6 +45,8 @@ private:
   // helpers
   reco::Track makeRecoTrack(const Run3ScoutingTrack& sTrack) const;
   reco::Vertex makeRecoVertex(const Run3ScoutingVertex& sVertex) const;
+  std::pair<unsigned int, const Run3ScoutingVertex*> findClosestScoutingVertex(
+      const reco::Track* track, const std::vector<Run3ScoutingVertex>& vertices);
 };
 
 // constructor
@@ -80,20 +82,23 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     // --- build reco track ---
     reco::Track recoTrk = makeRecoTrack(trk);
 
-    float bestDist = 1e9;
-    const Run3ScoutingVertex* closestVtx = nullptr;
-
-    // --- find closest vertex in z ---
-    for (const auto& vtx : vertices) {
-      float dz = std::abs(trk.tk_vz() - vtx.z());
-      if (dz < bestDist) {
-        bestDist = dz;
-        closestVtx = &vtx;
-      }
-    }
-
+    auto [vtxIndex, closestVtx] = findClosestScoutingVertex(&recoTrk, vertices);
     if (!closestVtx)
       continue;
+
+    // // --- find closest vertex in z ---
+    // float bestDist = 1e9;
+    // const Run3ScoutingVertex* closestVtx = nullptr;
+    // for (const auto& vtx : vertices) {
+    //   float dz = std::abs(trk.tk_vz() - vtx.z());
+    //   if (dz < bestDist) {
+    //     bestDist = dz;
+    //     closestVtx = &vtx;
+    //   }
+    // }
+
+    // if (!closestVtx)
+    //   continue;
 
     // --- build reco vertex ---
     reco::Vertex recoVtx = makeRecoVertex(*closestVtx);
@@ -163,6 +168,31 @@ reco::Vertex ScoutingTrackMonitor::makeRecoVertex(const Run3ScoutingVertex& sVer
                       sVertex.chi2(),
                       sVertex.ndof(),
                       sVertex.tracksSize());
+}
+
+std::pair<unsigned int, const Run3ScoutingVertex*> ScoutingTrackMonitor::findClosestScoutingVertex(
+    const reco::Track* track, const std::vector<Run3ScoutingVertex>& vertices) {
+  double minDistance = std::numeric_limits<double>::max();
+  const Run3ScoutingVertex* closestVertex = nullptr;
+
+  unsigned int index{0}, theIndex{999};
+
+  for (const auto& vertex : vertices) {
+    math::XYZPoint vertexPosition(vertex.x(), vertex.y(), vertex.z());
+
+    const auto& trackMomentum = track->momentum();
+    const auto& vertexToPoint = vertexPosition - track->referencePoint();
+
+    double distance = vertexToPoint.Cross(trackMomentum).R() / trackMomentum.R();
+
+    if (distance < minDistance) {
+      minDistance = distance;
+      closestVertex = &vertex;
+      theIndex = index;
+    }
+    index++;
+  }
+  return std::make_pair(theIndex, closestVertex);
 }
 
 void ScoutingTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
