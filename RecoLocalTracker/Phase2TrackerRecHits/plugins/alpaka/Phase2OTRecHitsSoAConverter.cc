@@ -28,7 +28,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  class Phase2OTRecHitsSoAConverter : public stream::EDProducer<> {
+  class Phase2OTRecHitsSoAConverter : public stream::EDProducer<edm::stream::WatchRuns> {
     using Hits = ::reco::TrackingRecHitHost;
     using HMSstorage = typename std::vector<uint32_t>;
 
@@ -60,7 +60,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };
 
   Phase2OTRecHitsSoAConverter::Phase2OTRecHitsSoAConverter(const edm::ParameterSet& iConfig)
-      : stream::EDProducer<>(iConfig),
+      : stream::EDProducer<edm::stream::WatchRuns>(iConfig),
         geomToken_(esConsumes()),
         geomTokenRun_(esConsumes<edm::Transition::BeginRun>()),
         recHitToken_{consumes(iConfig.getParameter<edm::InputTag>("otRecHitSource"))},
