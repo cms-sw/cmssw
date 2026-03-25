@@ -50,7 +50,7 @@ class NavigationSchoolRecord;
  *
  */
 
-class NuclearSeedsEDProducer : public edm::stream::EDProducer<> {
+class NuclearSeedsEDProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit NuclearSeedsEDProducer(const edm::ParameterSet&);
   ~NuclearSeedsEDProducer() override;

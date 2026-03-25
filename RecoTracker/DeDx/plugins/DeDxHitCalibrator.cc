@@ -24,7 +24,7 @@
 
 #include <fstream>
 
-class DeDxHitCalibrator : public edm::stream::EDProducer<> {
+class DeDxHitCalibrator : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   static constexpr int kIsNormal = 0, kIsBelow = 1, kIsOver = 2;
   static constexpr int PXB = 0, PXF = 1, TIB = 2, TID = 3, TOB = 4, TECThin = 5, TECThick = 6;
