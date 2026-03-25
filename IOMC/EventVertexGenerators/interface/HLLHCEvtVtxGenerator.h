@@ -27,7 +27,7 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class HLLHCEvtVtxGenerator : public BaseEvtVtxGenerator {
+class HLLHCEvtVtxGenerator : public BaseEvtVtxGeneratorWithLumi {
 public:
   HLLHCEvtVtxGenerator(const edm::ParameterSet& p);
 

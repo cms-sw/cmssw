@@ -29,7 +29,7 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class BetafuncEvtVtxGenerator : public BaseEvtVtxGenerator {
+class BetafuncEvtVtxGenerator : public BaseEvtVtxGeneratorWithLumi {
 public:
   BetafuncEvtVtxGenerator(const edm::ParameterSet& p);
   /** Copy constructor */

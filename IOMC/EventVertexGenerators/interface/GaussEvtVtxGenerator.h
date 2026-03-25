@@ -18,7 +18,7 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class GaussEvtVtxGenerator : public BaseEvtVtxGenerator {
+class GaussEvtVtxGenerator : public BaseEvtVtxGeneratorWithLumi {
 public:
   GaussEvtVtxGenerator(const edm::ParameterSet& p);
   /** Copy constructor */

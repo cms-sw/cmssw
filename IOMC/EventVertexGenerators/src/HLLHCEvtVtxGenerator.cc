@@ -46,7 +46,7 @@ void HLLHCEvtVtxGenerator::fillDescriptions(edm::ConfigurationDescriptions& desc
   descriptions.add("HLLHCEvtVtxGenerator", desc);
 }
 
-HLLHCEvtVtxGenerator::HLLHCEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVtxGenerator(p) {
+HLLHCEvtVtxGenerator::HLLHCEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVtxGeneratorWithLumi(p) {
   readDB_ = p.getParameter<bool>("readDB");
   if (!readDB_) {
     // Read configurable parameters
