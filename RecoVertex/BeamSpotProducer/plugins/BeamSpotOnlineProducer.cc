@@ -33,7 +33,7 @@ ________________________________________________________________**/
 
 #include <optional>
 
-class BeamSpotOnlineProducer : public edm::stream::EDProducer<> {
+class BeamSpotOnlineProducer : public edm::stream::EDProducer<edm::stream::WatchLuminosityBlocks> {
 public:
   /// constructor
   explicit BeamSpotOnlineProducer(const edm::ParameterSet& iConf);
