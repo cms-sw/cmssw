@@ -24,7 +24,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "RecoLocalMuon/GEMRecHit/interface/GEMRecHitBaseAlgo.h"
 
-class GEMRecHitProducer : public edm::stream::EDProducer<> {
+class GEMRecHitProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   /// Constructor
   GEMRecHitProducer(const edm::ParameterSet& config);
