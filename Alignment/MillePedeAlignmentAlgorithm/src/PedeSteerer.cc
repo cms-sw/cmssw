@@ -828,8 +828,11 @@ int PedeSteerer::runPede(const std::string &masterSteer) const {
   // The real pede return flag is written into
   // a single-character 'millepede.end'
   // file. Read this here.
-  std::ifstream mpend("millepede.end");  // open the Pede exit code file
-  std::string statusMessage;
+  std::string mpExit = "millepede.end";
+  if (!myRunDirectory.empty())
+    mpExit = myRunDirectory + "/" + mpExit;
+  std::ifstream mpend(mpExit);  // open the Pede exit code file
+  std::string statusMessage = "";
 
   if (shellReturn != 0 || !mpend.is_open()) {
     edm::LogError("Alignment") << "@SUB=PedeSteerer::runPede"
