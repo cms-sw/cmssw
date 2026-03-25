@@ -78,7 +78,8 @@ namespace alcaHcalHBHEMuonProducer {
   };
 }  // namespace alcaHcalHBHEMuonProducer
 
-class AlCaHcalHBHEMuonProducer : public edm::stream::EDProducer<edm::GlobalCache<alcaHcalHBHEMuonProducer::Counters>> {
+class AlCaHcalHBHEMuonProducer
+    : public edm::stream::EDProducer<edm::GlobalCache<alcaHcalHBHEMuonProducer::Counters>, edm::stream::WatchRuns> {
 public:
   explicit AlCaHcalHBHEMuonProducer(const edm::ParameterSet&, const alcaHcalHBHEMuonProducer::Counters*);
   ~AlCaHcalHBHEMuonProducer() override = default;

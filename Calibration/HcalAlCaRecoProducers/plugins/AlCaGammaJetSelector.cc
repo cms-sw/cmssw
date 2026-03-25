@@ -60,10 +60,6 @@ public:
   static void globalEndJob(const alCaGammaJetSelector::Counters* counters);
 
 private:
-  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
-  void endRun(edm::Run const&, edm::EventSetup const&) override {}
-  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
-  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {}
   bool select(const reco::PhotonCollection&, const reco::PFJetCollection&);
 
   // ----------member data ---------------------------
