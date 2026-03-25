@@ -26,7 +26,7 @@
 #include <iostream>
 #include <memory>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 HGCScintSD::HGCScintSD(const std::string& name,
                        const HGCalDDDConstants* hgc,
