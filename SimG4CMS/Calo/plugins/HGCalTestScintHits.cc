@@ -53,7 +53,8 @@ HGCalTestScintHits::HGCalTestScintHits(const edm::ParameterSet& ps)
       tileFileName_(ps.getParameter<std::string>("tileFileName")),
       tok_calo_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, caloHitSource_))),
       geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})),
-      nEvents_(0), nHits_(0) {
+      nEvents_(0),
+      nHits_(0) {
   edm::LogVerbatim("HGCalSim") << "Test Hit ID using SimHits for " << nameSense_ << " with module Label: " << g4Label_
                                << "   Hits: " << caloHitSource_ << " Tile file " << tileFileName_;
   if (!tileFileName_.empty()) {
