@@ -1,4 +1,4 @@
-<library name="GeometryHGCalTBCommonDataESModules" file="HGCal*.cc">
+<library name="GeometryHGCalTBCommonDataESModules" file="*HGCal*.cc">
   <use name="DetectorDescription/Core"/>
   <use name="DetectorDescription/DDCMS"/>
   <use name="FWCore/Framework"/>
