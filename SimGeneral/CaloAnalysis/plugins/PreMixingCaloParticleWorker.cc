@@ -145,6 +145,7 @@ void PreMixingCaloParticleWorker::put(edm::Event &iEvent,
       sc.addRecHitAndFraction(hAndE.first, fraction);
       sc.addHitEnergy(hAndE.second);
     }
+    sc.finalizeHits();
   }
 
   // clear memory
