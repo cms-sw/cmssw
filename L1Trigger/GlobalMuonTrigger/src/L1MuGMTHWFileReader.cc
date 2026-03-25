@@ -35,7 +35,7 @@
 // Constructors --
 //----------------
 L1MuGMTHWFileReader::L1MuGMTHWFileReader(edm::ParameterSet const& ps, edm::InputSourceDescription const& desc)
-    : ProducerSourceFromFiles(ps, desc, true) {
+    : ProducerSourceBase(ps, desc, true), m_fromFiles(ps) {
   produces<std::vector<L1MuRegionalCand> >("DT");
   produces<std::vector<L1MuRegionalCand> >("CSC");
   produces<std::vector<L1MuRegionalCand> >("RPCb");
@@ -43,13 +43,13 @@ L1MuGMTHWFileReader::L1MuGMTHWFileReader(edm::ParameterSet const& ps, edm::Input
 
   produces<L1CaloRegionCollection>();
 
-  if (fileNames(0).empty()) {
+  if (m_fromFiles.fileNames(0).empty()) {
     throw std::runtime_error("L1MuGMTHWFileReader: no input file");
   }
-  edm::LogInfo("GMT_HWFileReader_info") << "opening file " << fileNames(0)[0];
-  m_in.open((fileNames(0)[0].substr(fileNames(0)[0].find(':') + 1)).c_str());
+  edm::LogInfo("GMT_HWFileReader_info") << "opening file " << m_fromFiles.fileNames(0)[0];
+  m_in.open((m_fromFiles.fileNames(0)[0].substr(m_fromFiles.fileNames(0)[0].find(':') + 1)).c_str());
   if (!m_in) {
-    throw std::runtime_error("L1MuGMTHWFileReader: file " + fileNames(0)[0] + " could not be openned");
+    throw std::runtime_error("L1MuGMTHWFileReader: file " + m_fromFiles.fileNames(0)[0] + " could not be openned");
   }
 }
 

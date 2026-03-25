@@ -35,13 +35,13 @@
 <PosPartSection label="hgcalPassive.xml">
   <PosPart copyNumber="1">
    <rParent name="hgcalPassive:HGCalAbsorber"/>
-   <rChild name="hgcalwafer:HGCalFeCover"/>
+   <rChild name="hgcalPassive:HGCalFeCover"/>
    <Translation x="0.0*mm" y="0.0*mm" z="(-[absorberT]+[absorberFeT])"/>
    <rRotation name="rotations:000D"/>
   </PosPart>
   <PosPart copyNumber="2">
    <rParent name="hgcalPassive:HGCalAbsorber"/>
-   <rChild name="hgcalwafer:HGCalFeCover"/>
+   <rChild name="hgcalPassive:HGCalFeCover"/>
    <Translation x="0.0*mm" y="0.0*mm" z="([absorberT]-[absorberFeT])"/>
    <rRotation name="rotations:000D"/>
   </PosPart>
