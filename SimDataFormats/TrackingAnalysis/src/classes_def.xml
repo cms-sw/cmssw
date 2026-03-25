@@ -1,47 +1,47 @@
 <lcgdict>
-  <class name="TrackingVertex"  ClassVersion="3">
-   <version ClassVersion="3" checksum="1296296226"/>
+  <class name="io_v1::TrackingVertex"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3766521220"/>
   </class>
-  <class name="std::vector<TrackingVertex>" />
-  <class name="std::vector<TrackingVertex>::iterator" />
-  <class name="std::vector<TrackingVertex>::const_iterator" />
-  <class name="edm::Wrapper<std::vector<TrackingVertex> >" />
+  <class name="std::vector<io_v1::TrackingVertex>" />
+  <class name="std::vector<io_v1::TrackingVertex>::iterator" />
+  <class name="std::vector<io_v1::TrackingVertex>::const_iterator" />
+  <class name="edm::Wrapper<std::vector<io_v1::TrackingVertex> >" />
   <class name="TrackingVertexRef" />
   <class name="TrackingVertexRefVector" />
-  <class name="edm::RefProd<std::vector<TrackingVertex> >" />
+  <class name="edm::RefProd<std::vector<io_v1::TrackingVertex> >" />
 
-  <class name="TrackingParticle" ClassVersion="3">
-   <version ClassVersion="3" checksum="3602175482"/>
+  <class name="io_v1::TrackingParticle" ClassVersion="3">
+   <version ClassVersion="3" checksum="1589723766"/>
   </class>
-  <class name="std::vector<TrackingParticle>" />
-  <class name="edm::Wrapper<std::vector<TrackingParticle> >" />
-  <class name="edm::RefProd<std::vector<TrackingParticle> >" />
+  <class name="std::vector<io_v1::TrackingParticle>" />
+  <class name="edm::Wrapper<std::vector<io_v1::TrackingParticle> >" />
+  <class name="edm::RefProd<std::vector<io_v1::TrackingParticle> >" />
   <class name="TrackingParticleRef" />
-  <class name="edm::Ptr<TrackingParticle>" />
-  <class name="std::vector<edm::Ptr<TrackingParticle>>" />
+  <class name="edm::Ptr<io_v1::TrackingParticle>" />
+  <class name="std::vector<edm::Ptr<io_v1::TrackingParticle>>" />
 
   <class name="TrackingParticleRefVector" />
   <class name="edm::Wrapper<TrackingParticleRefVector>"/>
 
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<TrackingParticle> >,edm::RefToBaseProd<reco::io_v1::Track> >" />
-  <class name="edm::helpers::KeyVal<edm::RefToBaseProd<reco::io_v1::Track>,edm::RefProd<std::vector<TrackingParticle> > >" />
-  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,std::vector<std::pair<edm::RefToBase<reco::io_v1::Track>,double> > > >" />
-  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::RefToBase<reco::io_v1::Track>,std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> > > >" />
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<io_v1::TrackingParticle> >,edm::RefToBaseProd<reco::io_v1::Track> >" />
+  <class name="edm::helpers::KeyVal<edm::RefToBaseProd<reco::io_v1::Track>,edm::RefProd<std::vector<io_v1::TrackingParticle> > >" />
+  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<io_v1::TrackingParticle>,io_v1::TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<io_v1::TrackingParticle>,io_v1::TrackingParticle> >,std::vector<std::pair<edm::RefToBase<reco::io_v1::Track>,double> > > >" />
+  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::RefToBase<reco::io_v1::Track>,std::vector<std::pair<edm::Ref<std::vector<io_v1::TrackingParticle>,io_v1::TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<io_v1::TrackingParticle>,io_v1::TrackingParticle> >,double> > > >" />
 
-  <class name="edm::helpers::KeyVal<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,std::vector<std::pair<edm::RefToBase<reco::io_v1::Track>,double> > >" />
-  <class name="edm::helpers::KeyVal<edm::RefToBase<reco::io_v1::Track>,std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> > >" />
+  <class name="edm::helpers::KeyVal<edm::Ref<std::vector<io_v1::TrackingParticle>,io_v1::TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<io_v1::TrackingParticle>,io_v1::TrackingParticle> >,std::vector<std::pair<edm::RefToBase<reco::io_v1::Track>,double> > >" />
+  <class name="edm::helpers::KeyVal<edm::RefToBase<reco::io_v1::Track>,std::vector<std::pair<edm::Ref<std::vector<io_v1::TrackingParticle>,io_v1::TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<io_v1::TrackingParticle>,io_v1::TrackingParticle> >,double> > >" />
 
-  <class name="std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> >" />
-  <class name="std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double>" />
+  <class name="std::vector<std::pair<edm::Ref<std::vector<io_v1::TrackingParticle>,io_v1::TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<io_v1::TrackingParticle>,io_v1::TrackingParticle> >,double> >" />
+  <class name="std::pair<edm::Ref<std::vector<io_v1::TrackingParticle>,io_v1::TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<io_v1::TrackingParticle>,io_v1::TrackingParticle> >,double>" />
   <class name="UniqueSimTrackId"/>
-  <class name="std::pair<UniqueSimTrackId, edm::Ref<std::vector<TrackingParticle>, TrackingParticle, edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>, TrackingParticle> > >"/>
+  <class name="std::pair<UniqueSimTrackId, edm::Ref<std::vector<io_v1::TrackingParticle>, io_v1::TrackingParticle, edm::refhelper::FindUsingAdvance<std::vector<io_v1::TrackingParticle>, io_v1::TrackingParticle> > >"/>
   <class name="std::unordered_map<UniqueSimTrackId, TrackingParticleRef, UniqueSimTrackIdHash>"/>
   <class name="edm::Wrapper<std::unordered_map<UniqueSimTrackId, TrackingParticleRef, UniqueSimTrackIdHash>>"/>
-  <class name="SimTrackToTPMap" rntupleStreamerMode="true"/>
-  <class name="edm::Wrapper<SimTrackToTPMap>"/>
+  <class name="io_v1::SimTrackToTPMap" rntupleStreamerMode="true"/>
+  <class name="edm::Wrapper<io_v1::SimTrackToTPMap>"/>
 
   <class name="SimDoublets" ClassVersion="3">
-   <version ClassVersion="3" checksum="2009082523"/>
+   <version ClassVersion="3" checksum="1562824955"/>
   </class>
   <class name="std::vector<SimDoublets>"/>
   <class name="edm::Wrapper< std::vector<SimDoublets> >"/>

@@ -1,10 +1,10 @@
 <lcgdict>
-  <class name="PCaloHit" ClassVersion="10">
-   <version ClassVersion="10" checksum="682759659"/>
+  <class name="io_v1::PCaloHit" ClassVersion="3">
+   <version ClassVersion="3" checksum="2244110187"/>
   </class>
-  <class name="std::vector<PCaloHit>"/>
-  <class name="std::vector<const PCaloHit*>"/>
-  <class name="edm::Wrapper<std::vector<PCaloHit>>" splitLevel="0"/>
+  <class name="std::vector<io_v1::PCaloHit>"/>
+  <class name="std::vector<const io_v1::PCaloHit*>"/>
+  <class name="edm::Wrapper<std::vector<io_v1::PCaloHit>>" splitLevel="0"/>
   <class name="HFShowerPhoton" ClassVersion="10">
    <version ClassVersion="10" checksum="3736969110"/>
   </class>

@@ -20,9 +20,8 @@
   <class name="edm::Wrapper< std::vector<FSimVertexType> >"/>  
   <class name="edm::Ref< std::vector<FSimVertexType>, FSimVertexType, edm::refhelper::FindUsingAdvance< std::vector<FSimVertexType>, FSimVertexType> >"/>
 
-  <class name="FSimDisplacedVertex" ClassVersion="11">
-   <version ClassVersion="11" checksum="2164432722"/>
-   <version ClassVersion="10" checksum="251560649"/>
+  <class name="FSimDisplacedVertex" ClassVersion="3">
+   <version ClassVersion="3" checksum="4095934988"/>
   </class>
   <class name="std::vector<FSimDisplacedVertex>"/>
   <class name="edm::Wrapper< std::vector<FSimDisplacedVertex> >"/>  

@@ -13,6 +13,8 @@ typedef edm::RefVector<MtdSimLayerClusterCollection> MtdSimLayerClusterRefVector
 typedef edm::RefProd<MtdSimLayerClusterCollection> MtdSimLayerClusterRefProd;
 typedef edm::RefVector<MtdSimLayerClusterCollection> MtdSimLayerClusterContainer;
 
-std::ostream &operator<<(std::ostream &s, MtdSimLayerCluster const &tp);
+namespace io_v1 {
+  std::ostream &operator<<(std::ostream &s, MtdSimLayerCluster const &tp);
+}  // namespace io_v1
 
 #endif
