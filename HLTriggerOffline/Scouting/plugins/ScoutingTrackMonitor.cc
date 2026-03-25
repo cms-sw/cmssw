@@ -37,6 +37,7 @@ private:
   // histograms
   MonitorElement* h_dxy;
   MonitorElement* h_dz;
+  MonitorElement* h_vtx_idx;
   MonitorElement* p_dxy_eta;
   MonitorElement* p_dxy_phi;
   MonitorElement* p_dz_eta;
@@ -62,6 +63,8 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
   h_dxy = ibooker.book1D("dxy", "dxy;dxy [cm];Entries", 100, -0.5, 0.5);
   h_dz = ibooker.book1D("dz", "dz;dz [cm];Entries", 100, -1.0, 1.0);
 
+  h_vtx_idx = ibooker.book1DD("vertexIndex", "tracks Vertex Index;Vertex index;Entries", 17, -1.5, 15.5);
+
   p_dxy_eta = ibooker.bookProfile("dxy_vs_eta", "dxy vs eta;eta;<dxy>", 50, -3.0, 3.0, -0.5, 0.5, "");
   p_dxy_phi =
       ibooker.bookProfile("dxy_vs_phi", "dxy vs phi;phi;<dxy>", 50, -std::numbers::pi, std::numbers::pi, -0.5, 0.5, "");
@@ -85,6 +88,8 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     auto [vtxIndex, closestVtx] = findClosestScoutingVertex(&recoTrk, vertices);
     if (!closestVtx)
       continue;
+
+    h_vtx_idx->Fill(vtxIndex);
 
     // // --- find closest vertex in z ---
     // float bestDist = 1e9;
