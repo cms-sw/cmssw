@@ -15,6 +15,6 @@ from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 from Configuration.Eras.Modifier_run3_GEM_2025_cff import run3_GEM_2025
 from Configuration.Eras.Modifier_phase2_GEM_cff import phase2_GEM
 
-run3_GEM.toModify(gemRecHits, ge21Off=True, applyMasking=False)
-run3_GEM_2025.toModify(gemRecHits, ge21Off=True, applyMasking=True)
-phase2_GEM.toModify(gemRecHits, ge21Off=False, applyMasking=False)
+run3_GEM.toModify(gemRecHits, ge21Container=True, applyMasking=False)
+run3_GEM_2025.toModify(gemRecHits, ge21Container=True, applyMasking=True)
+phase2_GEM.toModify(gemRecHits, ge21Container=False, applyMasking=False)

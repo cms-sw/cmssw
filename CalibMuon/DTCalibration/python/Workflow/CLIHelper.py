@@ -117,21 +117,21 @@ class CLIHelper(object):
         check_opts_parser = argparse.ArgumentParser(add_help=False)
         check_opts_group = check_opts_parser.add_argument_group(
             description ="Options for Job submission")
-        check_opts_group.add_argument("--check-interval", default = 600,type=int,
+        check_opts_group.add_argument("--check-interval", default = 600, type=int,
             help="Time in seconds between check operations default: %(default)s")
-        check_opts_group.add_argument("--max-checks", default =1000, type=int,
+        check_opts_group.add_argument("--max-checks", default = 1000, type=int,
             help="Maximum number of checks before check is considered failed default: %(default)s")
         return check_opts_parser
 
     @classmethod
     def get_write_options_parser(cls):
         """ Return a parser object with options relevant to write results to dbs"""
-        check_opts_parser = argparse.ArgumentParser(add_help=False)
-        check_opts_group = check_opts_parser.add_argument_group(
+        write_opts_parser = argparse.ArgumentParser(add_help=False)
+        write_opts_group = write_opts_parser.add_argument_group(
             description ="Options for write jobs")
-        check_opts_group.add_argument("--skip-stageout", action="store_true",
+        write_opts_group.add_argument("--skip-stageout", action="store_true",
             help="Skip stageout to local disk and merging")
-        return check_opts_parser
+        return write_opts_parser
 
     @classmethod
     def get_dump_options_parser(cls):

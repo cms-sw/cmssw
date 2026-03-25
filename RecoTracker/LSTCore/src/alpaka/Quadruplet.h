@@ -254,20 +254,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       error2 = moduleTypei == 0 ? kPixelPSZpitch * kPixelPSZpitch : kStrip2SZpitch * kStrip2SZpitch;
 
       //check the tilted module, side: PosZ, NegZ, Center(for not tilted)
-      float drdz;
-      short side, subdets;
-      if (i == 2) {
-        drdz = alpaka::math::abs(acc, modules.drdzs()[lowerModuleIndex2]);
-        side = modules.sides()[lowerModuleIndex2];
-        subdets = modules.subdets()[lowerModuleIndex2];
-      }
-      if (i == 3) {
-        drdz = alpaka::math::abs(acc, modules.drdzs()[lowerModuleIndex3]);
-        side = modules.sides()[lowerModuleIndex3];
-        subdets = modules.subdets()[lowerModuleIndex3];
-      }
-      const bool isEndcapOrCenter = (subdets == lst::Endcap) or (side == lst::Center);
       if (i == 2 || i == 3) {
+        uint16_t moduleIndex = (i == 2) ? lowerModuleIndex2 : lowerModuleIndex3;
+        float drdz = alpaka::math::abs(acc, modules.drdzs()[moduleIndex]);
+        short side = modules.sides()[moduleIndex];
+        short subdets = modules.subdets()[moduleIndex];
+        const bool isEndcapOrCenter = (subdets == lst::Endcap) or (side == lst::Center);
         residual = (layeri <= 6 && ((side == Center) or (drdz < 1))) ? diffz : diffr;
         float projection_missing2 = 1.f;
         if (drdz < 1)
