@@ -106,6 +106,7 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
       // theTofCut 12.5, cut in particle TOD +/- 12.5ns
       theTofLowerCut_(conf_specific.getParameter<double>("TofLowerCut")),
       theTofUpperCut_(conf_specific.getParameter<double>("TofUpperCut")),
+      cosmicShift_(conf_common.getParameter<double>("CosmicDelayShift")),
 
       // Get the Lorentz angle from the cfg file:
       tanLorentzAnglePerTesla_Endcap_(
@@ -193,7 +194,7 @@ void Phase2TrackerDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::co
                                          << hit.detUnitId() << hit.entryPoint() << " " << hit.exitPoint();
     double signalScale = 1.0;
     // fill collection_points for this SimHit, indpendent of topology
-    if (select_hit(hit, (pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv), signalScale)) {
+    if (select_hit(hit, (pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv) + cosmicShift_, signalScale)) {
       const auto& ionization_points = primary_ionization(hit);  // fills ionization_points
 
       // transforms ionization_points -> collection_points
