@@ -25,7 +25,7 @@ namespace trackerTFP {
    *  \author Thomas Schuh
    *  \date   2023, Feb
    */
-  class ProducerDR : public edm::stream::EDProducer<> {
+  class ProducerDR : public edm::stream::EDProducer<edm::stream::WatchRuns> {
   public:
     explicit ProducerDR(const edm::ParameterSet&);
     ~ProducerDR() override = default;

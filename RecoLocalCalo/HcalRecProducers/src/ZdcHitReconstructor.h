@@ -43,7 +43,7 @@ class HcalSeverityLevelComputerRcd;
     \author E. Garcia - CSU
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
-class ZdcHitReconstructor : public edm::stream::EDProducer<> {
+class ZdcHitReconstructor : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit ZdcHitReconstructor(const edm::ParameterSet& ps);
   ~ZdcHitReconstructor() override;
