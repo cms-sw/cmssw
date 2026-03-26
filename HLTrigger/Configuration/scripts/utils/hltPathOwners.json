@@ -378,6 +378,12 @@
       "HLT-Scouting"
     ]
   },
+  "DST_PFScouting_HLTPhysics_v": {
+    "online?": true,
+    "owners": [
+      "HLT-Scouting"
+    ]
+  },
   "DST_PFScouting_JetHT_v": {
     "online?": true,
     "owners": [
@@ -1193,6 +1199,18 @@
     "online?": true,
     "owners": [
       "HIG",
+      "SMP"
+    ]
+  },
+  "HLT_DiPFJet15_FBEta3_L1SingleJet35_FWD2p5_v": {
+    "online?": true,
+    "owners": [
+      "SMP"
+    ]
+  },
+  "HLT_DiPFJet15_FBEta3_v": {
+    "online?": true,
+    "owners": [
       "SMP"
     ]
   },
@@ -2124,6 +2142,41 @@
       "BPH"
     ]
   },
+  "HLT_DoublePFJet25_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
+      "TOP"
+    ]
+  },
+  "HLT_DoublePFJet40_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
+      "TOP"
+    ]
+  },
+  "HLT_DoublePFJet60_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
+      "TOP"
+    ]
+  },
+  "HLT_DoublePFJet70_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
+      "TOP"
+    ]
+  },
+  "HLT_DoublePFJet80_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
+      "TOP"
+    ]
+  },
   "HLT_DoublePFJets100_PNetBTag_0p11_v": {
     "online?": true,
     "owners": [
@@ -2310,6 +2363,13 @@
       "HIG",
       "SMP",
       "NPS",
+      "TOP"
+    ]
+  },
+  "HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
       "TOP"
     ]
   },
@@ -4750,6 +4810,12 @@
       "EXO"
     ]
   },
+  "HLT_HT360_DisplacedDijet50_Inclusive1PtrkShortSig5_v": {
+    "online?": true,
+    "owners": [
+      "EXO"
+    ]
+  },
   "HLT_HT390_DisplacedDijet40_Inclusive1PtrkShortSig5_v": {
     "online?": true,
     "owners": [
@@ -4931,6 +4997,12 @@
     ]
   },
   "HLT_HT430_DisplacedDijet40_Inclusive1PtrkShortSig5_v": {
+    "online?": true,
+    "owners": [
+      "EXO"
+    ]
+  },
+  "HLT_HT450_DisplacedDijet40_Inclusive1PtrkShortSig5_v": {
     "online?": true,
     "owners": [
       "EXO"
@@ -5899,6 +5971,36 @@
       "HIG"
     ]
   },
+  "HLT_L1TopoLooseEmu_Mu12_PFHT50_HLTTopo0p95_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
+    ]
+  },
+  "HLT_L1TopoLooseEmu_Mu12_PFHT50_HLTTopo0p98_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
+    ]
+  },
+  "HLT_L1TopoLooseEmu_Mu12_PFHT50_HLTTopo0p9_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
+    ]
+  },
+  "HLT_L1TopoLooseEmu_Mu12_PFHT50_Monitor_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
+    ]
+  },
+  "HLT_L1TopoLooseEmu_Mu12_PFHT50_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
+    ]
+  },
   "HLT_L1TopoLoose_Mu12_IsoVVL_PFHT150_PNetBTag0p53_v": {
     "online?": true,
     "owners": [
@@ -5924,6 +6026,36 @@
     ]
   },
   "HLT_L1TopoTight_Mu12_IsoVVL_PFHT150_PNetBTag0p53_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
+    ]
+  },
+  "HLT_L1Topo_Mu12_PFHT50_HLTTopo0p95_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
+    ]
+  },
+  "HLT_L1Topo_Mu12_PFHT50_HLTTopo0p98_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
+    ]
+  },
+  "HLT_L1Topo_Mu12_PFHT50_HLTTopo0p9_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
+    ]
+  },
+  "HLT_L1Topo_Mu12_PFHT50_Monitor_v": {
+    "online?": true,
+    "owners": [
+      "HIG"
+    ]
+  },
+  "HLT_L1Topo_Mu12_PFHT50_v": {
     "online?": true,
     "owners": [
       "HIG"
@@ -6064,9 +6196,25 @@
       "HIN"
     ]
   },
+  "HLT_MinimumBiasHF_AND_v": {
+    "online?": true,
+    "owners": [
+      "BPH",
+      "SMP",
+      "HIN"
+    ]
+  },
   "HLT_MinimumBiasHF_OR_BptxAND_v": {
     "online?": true,
     "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_MinimumBiasHF_OR_v": {
+    "online?": true,
+    "owners": [
+      "BPH",
+      "SMP",
       "HIN"
     ]
   },
@@ -6929,6 +7077,13 @@
       "BPH"
     ]
   },
+  "HLT_Mu9_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
+      "TOP"
+    ]
+  },
   "HLT_OxyDoubleEG2_NotMBHF2AND_v": {
     "online?": true,
     "owners": [
@@ -7197,10 +7352,24 @@
       "TOP"
     ]
   },
+  "HLT_PFHT160_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
+      "TOP"
+    ]
+  },
   "HLT_PFHT180_v": {
     "online?": true,
     "owners": [
       "NPS"
+    ]
+  },
+  "HLT_PFHT200_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
+      "TOP"
     ]
   },
   "HLT_PFHT250_QuadPFJet25_PNet1BTag0p20_PNet1Tauh0p50_v": {
@@ -7442,10 +7611,24 @@
       "NPS"
     ]
   },
+  "HLT_PFJet110_L1Jet90withBptxAND_v": {
+    "online?": true,
+    "owners": [
+      "HIN",
+      "SMP"
+    ]
+  },
   "HLT_PFJet110_v": {
     "online?": true,
     "owners": [
       "JME"
+    ]
+  },
+  "HLT_PFJet140_L1Jet90withBptxAND_v": {
+    "online?": true,
+    "owners": [
+      "HIN",
+      "SMP"
     ]
   },
   "HLT_PFJet140_v": {
@@ -7479,6 +7662,13 @@
     "owners": [
       "JME",
       "SMP"
+    ]
+  },
+  "HLT_PFJet30_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
+      "TOP"
     ]
   },
   "HLT_PFJet320_v": {
@@ -8753,6 +8943,27 @@
       "HIG"
     ]
   },
+  "HLT_QuadPFJet25_L1QuadJet20_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
+      "TOP"
+    ]
+  },
+  "HLT_QuadPFJet25_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
+      "TOP"
+    ]
+  },
+  "HLT_QuadPFJet30_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
+      "TOP"
+    ]
+  },
   "HLT_Random_HighRate_v": {
     "online?": true,
     "owners": [
@@ -8915,6 +9126,27 @@
     "online?": true,
     "owners": [
       "NPS",
+      "TOP"
+    ]
+  },
+  "HLT_TriplePFJet25_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
+      "TOP"
+    ]
+  },
+  "HLT_TriplePFJet40_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
+      "TOP"
+    ]
+  },
+  "HLT_TriplePFJet50_v": {
+    "online?": true,
+    "owners": [
+      "SMP",
       "TOP"
     ]
   },
