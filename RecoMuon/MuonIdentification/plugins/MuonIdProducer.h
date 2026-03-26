@@ -66,7 +66,7 @@
 class MuonMesh;
 class MuonKinkFinder;
 
-class MuonIdProducer : public edm::stream::EDProducer<> {
+class MuonIdProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   typedef reco::Muon::MuonTrackType TrackType;
 

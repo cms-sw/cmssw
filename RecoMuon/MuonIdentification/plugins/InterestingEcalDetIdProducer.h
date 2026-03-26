@@ -13,7 +13,7 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 
 class CaloTopology;
-class InterestingEcalDetIdProducer : public edm::stream::EDProducer<> {
+class InterestingEcalDetIdProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit InterestingEcalDetIdProducer(const edm::ParameterSet&);
   ~InterestingEcalDetIdProducer() override;

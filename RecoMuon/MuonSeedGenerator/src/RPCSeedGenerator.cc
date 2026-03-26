@@ -83,7 +83,7 @@ typedef RPCSeedPattern::weightedTrajectorySeed weightedTrajectorySeed;
 
 class RPCSeedFinder;
 
-class RPCSeedGenerator : public edm::stream::EDProducer<> {
+class RPCSeedGenerator : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit RPCSeedGenerator(const edm::ParameterSet& iConfig);
   ~RPCSeedGenerator() override;

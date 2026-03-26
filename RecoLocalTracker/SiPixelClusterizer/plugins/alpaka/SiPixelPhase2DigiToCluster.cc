@@ -34,7 +34,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  class SiPixelPhase2DigiToCluster : public stream::SynchronizingEDProducer<> {
+  class SiPixelPhase2DigiToCluster : public stream::SynchronizingEDProducer<edm::stream::WatchRuns> {
   public:
     explicit SiPixelPhase2DigiToCluster(const edm::ParameterSet& iConfig);
     ~SiPixelPhase2DigiToCluster() override = default;
