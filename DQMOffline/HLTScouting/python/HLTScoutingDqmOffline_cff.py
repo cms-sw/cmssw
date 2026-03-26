@@ -56,7 +56,6 @@ hltScoutingDqmOffline = cms.Sequence(hltScoutingMuonDqmOffline +
                                      run3ScoutingElectronBestTrack +
                                      hltScoutingDileptonMonitor +
                                      hltScoutingPi0Monitor +
-                                     jetmetScoutingMonitorHLT +
                                      hltScoutingCollectionMonitor)
 
 ## Add the scouting rechits monitoring (only for 2025, integrated in menu GRun 2025 V1.3)
