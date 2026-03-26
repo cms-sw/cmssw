@@ -33,7 +33,7 @@ namespace edm {
 }
 
 namespace citk {
-  class PFIsolationSumProducer : public edm::stream::EDProducer<> {
+  class PFIsolationSumProducer : public edm::stream::EDProducer<edm::stream::WatchLuminosityBlocks> {
   public:
     PFIsolationSumProducer(const edm::ParameterSet&);
 

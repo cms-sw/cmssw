@@ -59,7 +59,7 @@
 using namespace ticl;
 using cms::Ort::ONNXRuntime;
 
-class TICLCandidateProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>> {
+class TICLCandidateProducer : public edm::stream::EDProducer<edm::GlobalCache<ONNXRuntime>, edm::stream::WatchRuns> {
 public:
   explicit TICLCandidateProducer(const edm::ParameterSet &ps, const ONNXRuntime *);
   ~TICLCandidateProducer() override {}

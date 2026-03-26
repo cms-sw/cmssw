@@ -44,7 +44,7 @@
 #include <unordered_set>
 #include <vector>
 
-class ReducedEGProducer : public edm::stream::EDProducer<> {
+class ReducedEGProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   ReducedEGProducer(const edm::ParameterSet& ps);
 
