@@ -241,6 +241,7 @@ barrelWriterDebugPFInConfigsAPx = _barrelWriterOutputOnly.clone(
     nPFInEmCalo = cms.uint32(12),
     nPFInHadCalo = cms.uint32(15),
     nPFInMuon = cms.uint32(2),
+    nOutputFramesPerBX = cms.uint32(3),  #(18 * 2/3 (going to 240) * 1/2 (doing II = 2))
     debugFileName = cms.string("l1BarrelApx-pfin")
 )
 
@@ -250,6 +251,7 @@ barrelWriterDebugPFOutConfigsAPx = _barrelWriterOutputOnly.clone(
     nPFOutPhoton = cms.uint32(12),
     nPFOutNeutral = cms.uint32(15),
     nPFOutMuon = cms.uint32(2),
+    nOutputFramesPerBX = cms.uint32(3),  #(18 * 2/3 (going to 240) * 1/2 (doing II = 2))
     debugFileName = cms.string("l1BarrelApx-pfout")
 )
 

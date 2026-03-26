@@ -458,7 +458,7 @@ void L1TCorrelatorLayer1PatternFileWriter::writeGTT(const l1ct::Event& event, l1
 
 // Debug functions output internal data for debugging purposes, mainly emulation/simulation comparison
 void L1TCorrelatorLayer1PatternFileWriter::writeDebugs(const l1ct::Event& event, l1t::demo::EventData& out) {
-  // Note:  the writers have a width of 64 very much hardcoded in the sizes. Therefore, send the 73 bits as
+  // Note:  the writers have a width of 64 very much hardcoded in the sizes. Therefore, send the bits as
   //        two separate "fibers"
 
   constexpr unsigned int MAX_BITWIDTH =
