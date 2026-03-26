@@ -42,7 +42,7 @@
 // class declaration
 //
 
-class DeDxEstimatorProducer : public edm::stream::EDProducer<> {
+class DeDxEstimatorProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit DeDxEstimatorProducer(const edm::ParameterSet&);
   ~DeDxEstimatorProducer() override;
