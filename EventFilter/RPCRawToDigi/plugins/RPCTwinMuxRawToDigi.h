@@ -29,7 +29,7 @@ namespace edm {
   class Run;
 }  // namespace edm
 
-class RPCTwinMuxRawToDigi : public edm::stream::EDProducer<> {
+class RPCTwinMuxRawToDigi : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   RPCTwinMuxRawToDigi(edm::ParameterSet const& config);
   ~RPCTwinMuxRawToDigi() override;
