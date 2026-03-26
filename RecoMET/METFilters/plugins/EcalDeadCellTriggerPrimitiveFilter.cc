@@ -69,7 +69,7 @@
 
 using namespace std;
 
-class EcalDeadCellTriggerPrimitiveFilter : public edm::stream::EDFilter<> {
+class EcalDeadCellTriggerPrimitiveFilter : public edm::stream::EDFilter<edm::stream::WatchRuns> {
 public:
   explicit EcalDeadCellTriggerPrimitiveFilter(const edm::ParameterSet&);
   ~EcalDeadCellTriggerPrimitiveFilter() override;
