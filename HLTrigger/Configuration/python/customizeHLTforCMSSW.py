@@ -199,6 +199,14 @@ def customizeHLTfor49436(process):
 
     return process
 
+def customizeHLTfor49476(process):
+
+    for prod in producers_by_type(process, "GEMRecHitProducer"):
+        if hasattr(prod,"ge21Off") : delattr(prod,"ge21Off")
+        prod.ge21Container = cms.bool( True )
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -207,5 +215,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     # process = customizeHLTfor49436(process)
+    process = customizeHLTfor49476(process)
 
     return process
