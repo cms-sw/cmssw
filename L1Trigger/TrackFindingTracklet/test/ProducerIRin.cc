@@ -27,15 +27,13 @@ namespace trklet {
    *  \author Thomas Schuh
    *  \date   2021, Oct
    */
-  class ProducerIRin : public edm::stream::EDProducer<> {
+  class ProducerIRin : public edm::stream::EDProducer<edm::stream::WatchRuns> {
   public:
     explicit ProducerIRin(const edm::ParameterSet&);
-    ~ProducerIRin() override {}
 
   private:
     void beginRun(const edm::Run&, const edm::EventSetup&) override;
     void produce(edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() {}
     // ED input token of DTC Stubs
     edm::EDGetTokenT<TTDTC> edGetTokenTTDTC_;
     // ED output token for stubs
