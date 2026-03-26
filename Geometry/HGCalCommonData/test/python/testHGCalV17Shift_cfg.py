@@ -6,7 +6,7 @@ from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process('SingleMuonSim',Phase2C17I13M9)
 
 geomFile = "Geometry.HGCalCommonData.testHGCalV17ShiftReco_cff"
-globalTag = "auto:phase2_realistic_T21"
+globalTag = "auto:phase2_realistic_T35"
 outFile = "file:step1V17ShiftMu.root"
 
 print("Geometry file: ", geomFile)
