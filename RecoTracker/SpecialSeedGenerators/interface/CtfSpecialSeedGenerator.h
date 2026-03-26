@@ -39,7 +39,7 @@
 
 #include <map>
 
-class CtfSpecialSeedGenerator : public edm::stream::EDProducer<> {
+class CtfSpecialSeedGenerator : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   typedef TrajectoryStateOnSurface TSOS;
 
