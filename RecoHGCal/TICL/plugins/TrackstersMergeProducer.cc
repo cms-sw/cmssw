@@ -50,7 +50,7 @@
 
 using namespace ticl;
 
-class TrackstersMergeProducer : public edm::stream::EDProducer<> {
+class TrackstersMergeProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit TrackstersMergeProducer(const edm::ParameterSet &ps);
   ~TrackstersMergeProducer() override {}
@@ -60,9 +60,6 @@ public:
   // static methods for handling the global cache
   static std::unique_ptr<TrackstersCache> initializeGlobalCache(const edm::ParameterSet &);
   static void globalEndJob(TrackstersCache *);
-
-  void beginJob();
-  void endJob();
 
   void beginRun(edm::Run const &iEvent, edm::EventSetup const &es) override;
 
@@ -195,10 +192,6 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps)
   auto algoType = linkingPSet.getParameter<std::string>("type");
   linkingAlgo_ = LinkingAlgoFactory::get()->create(algoType, linkingPSet);
 }
-
-void TrackstersMergeProducer::beginJob() {}
-
-void TrackstersMergeProducer::endJob() {}
 
 void TrackstersMergeProducer::beginRun(edm::Run const &iEvent, edm::EventSetup const &es) {
   edm::ESHandle<HGCalDDDConstants> hdc = es.getHandle(hdc_token_);
