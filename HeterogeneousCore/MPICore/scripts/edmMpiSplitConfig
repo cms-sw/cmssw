@@ -46,14 +46,14 @@ Optional arguments:
         Print debug outputs
 
 Example 1 (offloading GPU part of ECAL and HCAL):
-    python3 edmMpiSplitConfig hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
+    edmMpiSplitConfig hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
         hltHcalDigisSoA hltHbheRecoSoA hltParticleFlowRecHitHBHESoA hltParticleFlowClusterHBHESoA \
         --duplicate-modules hltHcalDigis \
         --output-local local.py \
         --output-remote remote.py
 
 Example 2 (offloading GPU part of ECAL, HCAL and pixels):
-    python3 edmMpiSplitConfig hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
+    edmMpiSplitConfig hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
         hltHcalDigisSoA hltHbheRecoSoA hltParticleFlowRecHitHBHESoA hltParticleFlowClusterHBHESoA \
         hltSiPixelClustersSoA hltSiPixelRecHitsSoA hltPixelTracksSoA hltPixelVerticesSoA \
         --duplicate-modules hltHcalDigis hltOnlineBeamSpot   hltOnlineBeamSpotDevice \
@@ -79,7 +79,7 @@ import os
 import sys
 
 from HeterogeneousCore.MPICore.configuration_splitter.cpp_name_getter import CPPNameGetter
-from HeterogeneousCore.MPICore.configuration_splitter.module_dependency_analyzer import ModuleDependencyAnalyzer, flatten_all_to_module_set
+from HeterogeneousCore.MPICore.configuration_splitter.module_dependency_analyzer import ModuleDependencyAnalyzer, flatten_all_to_module_list
 from HeterogeneousCore.MPICore.configuration_splitter.editor_functions import *
 from HeterogeneousCore.MPICore.configuration_splitter.path_state_helpers import *
 from FWCore.ParameterSet.processFromFile import processFromFile
@@ -97,7 +97,7 @@ def main():
         "Examples:\n"
         "\n"
         "Offload ECAL and HCAL GPU reconstruction modules:\n"
-        "  python3 edmMpiSplitConfig.py hlt.py --remote-modules \\\n"
+        "  edmMpiSplitConfig hlt.py --remote-modules \\\n"
         "      hltEcalDigisSoA hltEcalUncalibRecHitSoA \\\n"
         "      hltHcalDigisSoA hltHbheRecoSoA \\\n"
         "      hltParticleFlowRecHitHBHESoA hltParticleFlowClusterHBHESoA \\\n"
@@ -105,7 +105,7 @@ def main():
         "      --output-local local.py --output-remote remote.py\n"
         "\n"
         "Offload ECAL, HCAL and Pixel GPU reconstruction:\n"
-        "  python3 edmMpiSplitConfig.py hlt.py --remote-modules \\\n"
+        "  edmMpiSplitConfig hlt.py --remote-modules \\\n"
         "      hltEcalDigisSoA hltEcalUncalibRecHitSoA \\\n"
         "      hltHcalDigisSoA hltHbheRecoSoA \\\n"
         "      hltParticleFlowRecHitHBHESoA hltParticleFlowClusterHBHESoA \\\n"
@@ -177,11 +177,10 @@ def main():
 
     local_process = processFromFile(str(args.config))
 
-    modules_to_offload = flatten_all_to_module_set(local_process, args.remote_modules)
-    modules_to_run_on_both = flatten_all_to_module_set(local_process, args.duplicate_modules)
+    modules_to_offload = flatten_all_to_module_list(local_process, args.remote_modules)
+    modules_to_run_on_both = flatten_all_to_module_list(local_process, args.duplicate_modules)
     
-    # list of all modules to run on remote
-    modules_to_offload |= modules_to_run_on_both
+    modules_to_offload.extend(m for m in modules_to_run_on_both if m not in modules_to_offload)
 
     analyzer = ModuleDependencyAnalyzer(local_process)
 
