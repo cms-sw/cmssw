@@ -45,7 +45,8 @@
  * updates Feb 2022
  */
 
-class PFECALSuperClusterProducer : public edm::stream::EDProducer<edm::GlobalCache<reco::SCProducerCache>> {
+class PFECALSuperClusterProducer
+    : public edm::stream::EDProducer<edm::GlobalCache<reco::SCProducerCache>, edm::stream::WatchLuminosityBlocks> {
 public:
   explicit PFECALSuperClusterProducer(const edm::ParameterSet&, const reco::SCProducerCache* gcache);
   ~PFECALSuperClusterProducer() override;
@@ -57,7 +58,7 @@ public:
     return std::make_unique<reco::SCProducerCache>(config);
   }
 
-  static void globalEndJob(const reco::SCProducerCache*){};
+  static void globalEndJob(const reco::SCProducerCache*) {};
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

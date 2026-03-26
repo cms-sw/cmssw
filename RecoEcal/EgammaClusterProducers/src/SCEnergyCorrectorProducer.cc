@@ -15,7 +15,7 @@
 //although its perfectly possible somebody could use it in some prod workflow
 //author S. Harper (RAL/CERN)
 
-class SCEnergyCorrectorProducer : public edm::stream::EDProducer<> {
+class SCEnergyCorrectorProducer : public edm::stream::EDProducer<edm::stream::WatchLuminosityBlocks> {
 public:
   explicit SCEnergyCorrectorProducer(const edm::ParameterSet& iConfig);
 
