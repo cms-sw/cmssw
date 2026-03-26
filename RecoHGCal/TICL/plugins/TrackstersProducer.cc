@@ -36,7 +36,7 @@
 using namespace ticl;
 using namespace cms::Ort;
 
-class TrackstersProducer : public edm::stream::EDProducer<> {
+class TrackstersProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit TrackstersProducer(const edm::ParameterSet&);
   ~TrackstersProducer() override {}

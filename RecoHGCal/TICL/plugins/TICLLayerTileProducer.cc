@@ -14,7 +14,7 @@
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
-class TICLLayerTileProducer : public edm::stream::EDProducer<> {
+class TICLLayerTileProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit TICLLayerTileProducer(const edm::ParameterSet &ps);
   ~TICLLayerTileProducer() override {}

@@ -27,7 +27,7 @@ Modified from the ECAL version "InterestingDetIdCollectionProducer" to be HCAL
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EGHcalRecHitSelector.h"
 
-class EgammaIsoHcalDetIdCollectionProducer : public edm::stream::EDProducer<> {
+class EgammaIsoHcalDetIdCollectionProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit EgammaIsoHcalDetIdCollectionProducer(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
