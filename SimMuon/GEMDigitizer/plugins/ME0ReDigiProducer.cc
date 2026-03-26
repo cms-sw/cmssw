@@ -38,7 +38,7 @@
 
 typedef class Point3DBase<float, LocalTag> LocalPoint;
 
-class ME0ReDigiProducer : public edm::stream::EDProducer<> {
+class ME0ReDigiProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 private:
   //Class used to define custom geometry, if required
   //assume that all ME0 chambers have the same dimension
