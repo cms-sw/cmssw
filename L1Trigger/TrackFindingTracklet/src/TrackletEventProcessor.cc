@@ -17,13 +17,15 @@
 using namespace trklet;
 using namespace std;
 
-TrackletEventProcessor::TrackletEventProcessor() : settings_(nullptr) {}
+TrackletEventProcessor::TrackletEventProcessor() : settings_(nullptr), sector_(nullptr), histbase_(nullptr) {}
 
 TrackletEventProcessor::~TrackletEventProcessor() {
   if (settings_ && settings_->bookHistos()) {
-    histbase_->close();
+    if (histbase_)
+      histbase_->close();
   }
-  sector_->clean();
+  if (sector_)
+    sector_->clean();
 }
 
 void TrackletEventProcessor::init(Settings const& theSettings, const tt::Setup* setup) {
