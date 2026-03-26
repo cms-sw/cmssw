@@ -20,7 +20,7 @@ namespace edm {
   class Run;
 }  // namespace edm
 
-class RPCUnpackingModule : public edm::stream::EDProducer<> {
+class RPCUnpackingModule : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   ///Constructor
   RPCUnpackingModule(const edm::ParameterSet& pset);
