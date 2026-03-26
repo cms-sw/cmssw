@@ -20,7 +20,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "RPCRecHitBaseAlgo.h"
 
-class RPCRecHitProducer : public edm::stream::EDProducer<> {
+class RPCRecHitProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   /// Constructor
   RPCRecHitProducer(const edm::ParameterSet& config);
