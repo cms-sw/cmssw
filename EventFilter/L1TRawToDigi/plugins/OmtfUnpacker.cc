@@ -49,7 +49,7 @@
 
 namespace omtf {
 
-  class OmtfUnpacker : public edm::stream::EDProducer<> {
+  class OmtfUnpacker : public edm::stream::EDProducer<edm::stream::WatchRuns> {
   public:
     OmtfUnpacker(const edm::ParameterSet& pset);
 
