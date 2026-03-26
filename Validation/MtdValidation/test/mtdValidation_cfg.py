@@ -68,7 +68,6 @@ etlValidation = cms.Sequence(process.etlSimHitsValid + process.etlDigiHitsValid 
 
 # --- Global Validation
 process.load("Validation.MtdValidation.mtdTracksValid_cfi")
-process.load("Validation.MtdValidation.mtdEleIsoValid_cfi")
 process.load("Validation.MtdValidation.vertices4DValid_cff")
 
 # process.btlSimHitsValid.optionalPlots = True
@@ -79,7 +78,7 @@ process.load("Validation.MtdValidation.vertices4DValid_cff")
 # process.mtdTracksValid.optionalPlots = True
 # process.vertices4DValid.optionalPlots = True
 
-process.validation = cms.Sequence(btlValidation + etlValidation + process.mtdTracksValid + process.mtdEleIsoValid + process.vertices4DValid)
+process.validation = cms.Sequence(btlValidation + etlValidation + process.mtdTracksValid + process.vertices4DValid)
 
 process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
     dataset = cms.untracked.PSet(
