@@ -36,7 +36,7 @@
 #include <memory>
 #include <unordered_map>
 
-class HGCalTrackCollectionProducer : public edm::stream::EDProducer<> {
+class HGCalTrackCollectionProducer : public edm::stream::EDProducer<edm::stream::WatchLuminosityBlocks> {
 public:
   HGCalTrackCollectionProducer(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

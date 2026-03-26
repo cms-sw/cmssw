@@ -17,7 +17,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-class LegacyPFRecHitProducer : public edm::stream::EDProducer<> {
+class LegacyPFRecHitProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   LegacyPFRecHitProducer(edm::ParameterSet const& config)
       : alpakaPfRecHitsToken_(consumes(config.getParameter<edm::InputTag>("src"))),

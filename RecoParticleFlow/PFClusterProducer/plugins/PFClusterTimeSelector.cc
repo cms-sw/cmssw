@@ -17,8 +17,6 @@ public:
   explicit PFClusterTimeSelector(const edm::ParameterSet&);
   ~PFClusterTimeSelector() override;
 
-  void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
-
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -214,6 +212,3 @@ void PFClusterTimeSelector::produce(edm::Event& iEvent, const edm::EventSetup& i
 }
 
 PFClusterTimeSelector::~PFClusterTimeSelector() = default;
-
-// ------------ method called once each job just before starting event loop  ------------
-void PFClusterTimeSelector::beginRun(const edm::Run& run, const EventSetup& es) {}

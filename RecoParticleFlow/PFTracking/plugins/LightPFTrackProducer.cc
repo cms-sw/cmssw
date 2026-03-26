@@ -11,13 +11,12 @@
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
-class LightPFTrackProducer : public edm::stream::EDProducer<> {
+#include <memory>
+
+class LightPFTrackProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   ///Constructor
   explicit LightPFTrackProducer(const edm::ParameterSet&);
-
-  ///Destructor
-  ~LightPFTrackProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -29,7 +28,7 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   ///PFTrackTransformer
-  PFTrackTransformer* pfTransformer_;
+  std::unique_ptr<PFTrackTransformer> pfTransformer_;
   std::vector<edm::EDGetTokenT<reco::TrackCollection>> tracksContainers_;
 
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
@@ -65,8 +64,6 @@ LightPFTrackProducer::LightPFTrackProducer(const ParameterSet& iConfig)
   trackQuality_ = reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
 }
 
-LightPFTrackProducer::~LightPFTrackProducer() { delete pfTransformer_; }
-
 void LightPFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   //create the empty collections
   auto PfTrColl = std::make_unique<reco::PFRecTrackCollection>();
@@ -94,12 +91,9 @@ void LightPFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 // ------------ method called once each job just before starting event loop  ------------
 void LightPFTrackProducer::beginRun(const edm::Run& run, const EventSetup& iSetup) {
   auto const& magneticField = &iSetup.getData(magneticFieldToken_);
-  pfTransformer_ = new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0))));
+  pfTransformer_ = std::make_unique<PFTrackTransformer>(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0))));
   pfTransformer_->OnlyProp();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void LightPFTrackProducer::endRun(const edm::Run& run, const EventSetup& iSetup) {
-  delete pfTransformer_;
-  pfTransformer_ = nullptr;
-}
+void LightPFTrackProducer::endRun(const edm::Run& run, const EventSetup& iSetup) { pfTransformer_.reset(); }
