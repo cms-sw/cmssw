@@ -47,7 +47,7 @@
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 #include <vector>
 
-class ConversionTrackCandidateProducer : public edm::stream::EDProducer<> {
+class ConversionTrackCandidateProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   ConversionTrackCandidateProducer(const edm::ParameterSet& ps);
 

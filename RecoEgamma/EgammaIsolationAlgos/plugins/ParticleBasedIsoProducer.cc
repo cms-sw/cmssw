@@ -13,7 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/PFBlockBasedIsolation.h"
 
-class ParticleBasedIsoProducer : public edm::stream::EDProducer<> {
+class ParticleBasedIsoProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   ParticleBasedIsoProducer(const edm::ParameterSet& conf);
 
