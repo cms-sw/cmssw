@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-class ReducedESRecHitCollectionProducer : public edm::stream::EDProducer<> {
+class ReducedESRecHitCollectionProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   ReducedESRecHitCollectionProducer(const edm::ParameterSet& pset);
   ~ReducedESRecHitCollectionProducer() override;
