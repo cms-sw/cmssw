@@ -2,7 +2,7 @@
 #define DeDxTools_H
 
 #include <vector>
-
+#include <variant>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
