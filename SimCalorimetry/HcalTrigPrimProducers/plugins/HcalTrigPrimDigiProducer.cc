@@ -30,10 +30,9 @@
 #include <algorithm>
 #include <vector>
 
-class HcalTrigPrimDigiProducer : public edm::stream::EDProducer<> {
+class HcalTrigPrimDigiProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit HcalTrigPrimDigiProducer(const edm::ParameterSet& ps);
-  ~HcalTrigPrimDigiProducer() override {}
 
   /**Produces the EDM products,*/
   void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
