@@ -281,7 +281,7 @@ namespace {
 //
 // class declaration
 //
-class HBHEPhase1Reconstructor : public edm::stream::EDProducer<> {
+class HBHEPhase1Reconstructor : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit HBHEPhase1Reconstructor(const edm::ParameterSet&);
   ~HBHEPhase1Reconstructor() override;
