@@ -104,14 +104,8 @@ public:
   //! Destructor
   ~DTTrigPhase2PairsProd() override;
 
-  //! Create Trigger Units before starting event processing
-  void beginRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
-
   //! Producer: process every event and generates trigger data
   void produce(edm::Event& iEvent, const edm::EventSetup& iEventSetup) override;
-
-  //! endRun: finish things
-  void endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) override;
 
   // Methods
   std::vector<L1Phase2MuDTExtPhiThetaPair> bestPairsPerChamber(const std::vector<L1Phase2MuDTExtPhDigi>& phiDigis,
@@ -166,11 +160,6 @@ DTTrigPhase2PairsProd::DTTrigPhase2PairsProd(const edm::ParameterSet& pset) {
 DTTrigPhase2PairsProd::~DTTrigPhase2PairsProd() {
   if (debug_)
     LogDebug("DTTrigPhase2PairsProd") << "calling destructor" << std::endl;
-}
-
-void DTTrigPhase2PairsProd::beginRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) {
-  if (debug_)
-    LogDebug("DTTrigPhase2PairsProd") << "beginRun " << iRun.id().run();
 }
 
 void DTTrigPhase2PairsProd::produce(edm::Event& iEvent, const edm::EventSetup& iEventSetup) {
@@ -264,8 +253,6 @@ void DTTrigPhase2PairsProd::produce(edm::Event& iEvent, const edm::EventSetup& i
   allPairs.clear();
   allPairs.erase(allPairs.begin(), allPairs.end());
 }
-
-void DTTrigPhase2PairsProd::endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) {};
 
 void DTTrigPhase2PairsProd::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // dtTriggerPhase2PrimitivePairDigis

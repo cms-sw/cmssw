@@ -53,7 +53,7 @@
 using namespace edm;
 using namespace cmsdt;
 
-class DTTrigPhase2ShowerProd : public edm::stream::EDProducer<> {
+class DTTrigPhase2ShowerProd : public edm::stream::EDProducer<edm::stream::WatchRuns> {
   /* Declaration of the plugin */
 
   // Types

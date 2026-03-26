@@ -44,7 +44,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const int maxchans_, maxmods_, maxfeds_;
     const std::string fedjson_;  // JSON file of FED configuration
     void produce(device::Event&, device::EventSetup const&) override;
-    void beginRun(edm::Run const&, edm::EventSetup const&) override;
     edm::ESWatcher<HGCalModuleConfigurationRcd> configWatcher_;
     edm::ESGetToken<HGCalMappingModuleIndexer, HGCalElectronicsMappingRcd> indexerToken_;
     edm::ESGetToken<HGCalConfiguration, HGCalModuleConfigurationRcd> configToken_;
@@ -73,10 +72,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     desc.add<int>("maxfeds", 25)->setComment("Maximum number of FED IDs to test");
     desc.add<std::string>("fedjson", "")->setComment("JSON file with FED configuration parameters");
     descriptions.addWithDefaultLabel(desc);
-  }
-
-  void HGCalRecHitESProducersTest::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-    std::cout << "HGCalRecHitESProducersTest::beginRun" << std::endl;
   }
 
   static std::string int2hex(int value) {
