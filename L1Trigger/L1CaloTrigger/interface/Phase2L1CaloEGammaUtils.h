@@ -686,34 +686,25 @@ namespace p2eg {
     void addHoverEToTower(ap_uint<12> ECAL, ap_uint<12> HCAL) {
       ap_uint<4> hoeOut;
       ap_uint<1> hoeLSB = 0;
-      ap_uint<4> hoe = 0;
+      ap_uint<3> hoe = 0;
       ap_uint<12> A;
       ap_uint<12> B;
 
       A = (ECAL > HCAL) ? ECAL : HCAL;
       B = (ECAL > HCAL) ? HCAL : ECAL;
 
-      if (ECAL == 0 || HCAL == 0 || HCAL >= ECAL)
-        hoeLSB = 0;
-      else
-        hoeLSB = 1;
-      if (A > B) {
-        if (A > 2 * B)
-          hoe = 0x1;
-        if (A > 4 * B)
-          hoe = 0x2;
-        if (A > 8 * B)
-          hoe = 0x3;
-        if (A > 16 * B)
-          hoe = 0x4;
-        if (A > 32 * B)
-          hoe = 0x5;
-        if (A > 64 * B)
-          hoe = 0x6;
-        if (A > 128 * B)
-          hoe = 0x7;
-      }
-      hoeOut = hoeLSB | (hoe << 1);
+      if (HCAL >= ECAL) hoeLSB = 0 ; 
+      else hoeLSB = 1 ; 
+      if (A > (B << 7)) hoe = 0b111;
+      else if (A > (B << 6)) hoe = 0b110;
+      else if (A > (B << 5)) hoe = 0b101;
+      else if (A > (B << 4)) hoe = 0b100;
+      else if (A > (B << 3)) hoe = 0b011;
+      else if (A > (B << 2)) hoe = 0b010;
+      else if (A > (B << 1)) hoe = 0b001;
+      else hoe = 0b000;
+
+      hoeOut = hoeLSB | (hoe << 1) ;
       ap_uint<16> hoeOutLong =
           ((((ap_uint<16>)hoeOut) << 12) | 0x0000);  // e.g. 0b ____ 0000 0000 0000 where ___ are the hoe digits
       // Take the logical OR to preserve the saturation and tower ET bits
@@ -1373,7 +1364,7 @@ namespace p2eg {
   class GCTtower_t {
   public:
     ap_uint<12> et;
-    ap_uint<6> hoe;
+    ap_uint<4> hoe;
     ap_uint<2> fb;  // not defined yet in emulator
     // For CMSSW outputs, not firmware
     ap_uint<12> ecalEt;
@@ -1394,28 +1385,36 @@ namespace p2eg {
        */
     void initFromRCTTower(const RCTtower_t& rctTower) {
       et = rctTower.et;
-      int hoe_int = 0;
-      //hoe_int = (int)(rctTower.hoe * 63 / 15); // RCT hoe is 4 bits
-      hoe = hoe_int & 0x3F;
-      ecalEt = rctTower.ecalEt;
-      hcalEt = rctTower.hcalEt;
-      if (ecalEt > hcalEt && ecalEt > 0) {
-        hoe_int = (int)(hcalEt * 63 / ecalEt);
-      } else {
-        hoe_int = 63;
-      }
-      hoe = hoe_int & 0x3F;
+      hoe = rctTower.hoe;
+      // get E and H from et and hoe
+      ap_uint<12> A = et >> (hoe >> 1);
+      ap_uint<12> B = et - A;
+      ecalEt = ((hoe & 0x1) == 1) ? B : A;
+      hcalEt = ((hoe & 0x1) == 1) ? A : B;
     }
 
-    void addHoverEToTower(ap_uint<12> ecalEt, ap_uint<12> hcalEt) {
-      int hoe_int = 0;
-      if (ecalEt > hcalEt && ecalEt > 0) {
-        hoe_int = (int)(hcalEt * 63 / ecalEt);
-      } else {
-        hoe_int = 63;
-      }
-      hoe = hoe_int & 0x3F;
-    }
+    void addHoverEToTower(ap_uint<12> ECAL, ap_uint<12> HCAL) {
+      ap_uint<3> hoeOut;
+      ap_uint<1> hoeLSB = 0 ;
+      ap_uint<12> A;
+      ap_uint<12> B;
+
+      A = (ECAL > HCAL) ? ECAL : HCAL;
+      B = (ECAL > HCAL) ? HCAL : ECAL;
+
+      if (HCAL >= ECAL) hoeLSB = 0 ;
+      else hoeLSB = 1 ;
+      if (A > (B << 7)) hoeOut = 0b111;
+      else if (A > (B << 6)) hoeOut = 0b110;
+      else if (A > (B << 5)) hoeOut = 0b101;
+      else if (A > (B << 4)) hoeOut = 0b100;
+      else if (A > (B << 3)) hoeOut = 0b011;
+      else if (A > (B << 2)) hoeOut = 0b010;
+      else if (A > (B << 1)) hoeOut = 0b001;
+      else hoeOut = 0b000;
+
+      hoe = hoeLSB | (hoeOut << 1) ;
+   }
 
     /*
       * Correlator fiber convention -> Global GCT convention
