@@ -76,7 +76,7 @@ set EraRun2pp2016  = " --era=Run2_2016 "
 set EraRun2pp2017  = " --era=Run2_2017 "
 set EraRun2pp2018  = " --era=Run2_2018 "
 set EraRun2HI      = " --era=Run2_2018_pp_on_AA "
-set EraRun3pp      = " --era=Run3_2025 "
+set EraRun3pp      = " --era=Run3_2026 "
 set EraRun3HI      = " --era=Run3_pp_on_PbPb_2024 "
 
 set XL1T    = "" # syntax: tag,record[,connect,label]
@@ -136,7 +136,7 @@ foreach gtag ( MC DATA )
   if ( $1 == "" ) then
     set tables = ( GRun )
   else if ( ($1 == all) || ($1 == ALL) ) then
-    set tables = ( GRun HIon PIon PRef Special 2026v10 Fake Fake1 Fake2 )
+    set tables = ( GRun HIon PIon PRef Special 2026v11 Fake Fake1 Fake2 )
   else if ( ($1 == ib) || ($1 == IB) ) then
     set tables = ( GRun HIon PIon PRef Special )
   else if ( ($1 == dev) || ($1 == DEV) ) then
@@ -146,7 +146,7 @@ foreach gtag ( MC DATA )
   else if ( ($1 == fake) || ($1 == FAKE) ) then
     set tables = ( Fake Fake1 Fake2 )
   else if ( ($1 == frozen) || ($1 == FROZEN) ) then
-    set tables = ( 2026v10 )
+    set tables = ( 2026v11 )
   else
     set tables = ( $1 )
   endif
@@ -220,11 +220,11 @@ foreach gtag ( MC DATA )
       set Custom = " "
       set L1REPACK = L1REPACK:Full
       set DIGI = DIGI:pdigi
-    else if ( $table == 2026v10 ) then
+    else if ( $table == 2026v11 ) then
       set XL1T = $XL1TPP3
-      set XHLT = HLT:2026v10
-      set GTAG = ${BASE3}_2026v10
-      set RTAG = ${RECO3}_2026v10
+      set XHLT = HLT:2026v11
+      set GTAG = ${BASE3}_2026v11
+      set RTAG = ${RECO3}_2026v11
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun3
