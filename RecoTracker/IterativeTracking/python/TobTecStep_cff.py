@@ -423,7 +423,7 @@ trackdnn.toReplaceWith(tobTecStep, trackTfClassifier.clone(
 ))
 (trackdnn & fastSim).toModify(tobTecStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
 
-pp_on_AA.toModify(tobTecStep, qualityCuts = [-0.6,-0.3,0.7])
+pp_on_AA.toModify(tobTecStep, qualityCuts = [0.7,0.8,0.96])
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 trackingLowPU.toReplaceWith(tobTecStep, RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
