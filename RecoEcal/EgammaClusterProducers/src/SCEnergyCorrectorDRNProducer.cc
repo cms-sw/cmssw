@@ -40,7 +40,7 @@ namespace {
   float correction(float x) { return exp(-logcorrection(x)); }
 }  // namespace
 
-class SCEnergyCorrectorDRNProducer : public TritonEDProducer<> {
+class SCEnergyCorrectorDRNProducer : public TritonEDProducer<edm::stream::WatchLuminosityBlocks> {
 public:
   explicit SCEnergyCorrectorDRNProducer(const edm::ParameterSet& iConfig);
 
@@ -57,7 +57,7 @@ private:
 };
 
 SCEnergyCorrectorDRNProducer::SCEnergyCorrectorDRNProducer(const edm::ParameterSet& iConfig)
-    : TritonEDProducer<>(iConfig),
+    : TritonEDProducer<edm::stream::WatchLuminosityBlocks>(iConfig),
       energyCorrector_(iConfig.getParameterSet("correctorCfg"), consumesCollector()),
       inputSCToken_(consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("inputSCs"))) {
   produces<reco::SuperClusterCollection>();
