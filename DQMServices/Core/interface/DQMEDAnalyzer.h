@@ -39,7 +39,9 @@ struct DQMEDAnalyzerGlobalCache {
 class DQMEDAnalyzer : public edm::stream::EDProducer<edm::GlobalCache<DQMEDAnalyzerGlobalCache>,
                                                      edm::EndRunProducer,
                                                      edm::EndLuminosityBlockProducer,
-                                                     edm::Accumulator> {
+                                                     edm::Accumulator,
+                                                     edm::stream::WatchRuns,
+                                                     edm::stream::WatchLuminosityBlocks> {
 public:
   typedef dqm::reco::DQMStore DQMStore;
   typedef dqm::reco::MonitorElement MonitorElement;
