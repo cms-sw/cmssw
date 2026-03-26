@@ -30,7 +30,7 @@ class HcalRecoParamsRcd;
 class HcalDbService;
 class HcalDbRecord;
 
-class HcalSimpleReconstructor : public edm::stream::EDProducer<> {
+class HcalSimpleReconstructor : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit HcalSimpleReconstructor(const edm::ParameterSet& ps);
   ~HcalSimpleReconstructor() override;

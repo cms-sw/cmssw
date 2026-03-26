@@ -30,7 +30,7 @@
   in neighboring eta partitions
 */
 
-class GEMPadDigiProducer : public edm::stream::EDProducer<> {
+class GEMPadDigiProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit GEMPadDigiProducer(const edm::ParameterSet& ps);
 

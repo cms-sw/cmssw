@@ -17,7 +17,7 @@
 
 #include <memory>
 
-class HGCalBackendLayer1Producer : public edm::stream::EDProducer<> {
+class HGCalBackendLayer1Producer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   HGCalBackendLayer1Producer(const edm::ParameterSet&);
   ~HGCalBackendLayer1Producer() override {}

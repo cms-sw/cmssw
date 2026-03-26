@@ -39,7 +39,7 @@ namespace tmtt {
   typedef TTStubAlgorithm<Ref_Phase2TrackerDigi_> StubAlgorithm;
   typedef TTStubAlgorithm_official<Ref_Phase2TrackerDigi_> StubAlgorithmOfficial;
 
-  class TMTrackProducer : public edm::stream::EDProducer<edm::GlobalCache<GlobalCacheTMTT>> {
+  class TMTrackProducer : public edm::stream::EDProducer<edm::GlobalCache<GlobalCacheTMTT>, edm::stream::WatchRuns> {
   public:
     explicit TMTrackProducer(const edm::ParameterSet &, GlobalCacheTMTT const *globalCacheTMTT);
     ~TMTrackProducer() override {}

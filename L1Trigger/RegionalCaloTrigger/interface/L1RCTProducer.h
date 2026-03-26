@@ -42,7 +42,7 @@
 class L1RCT;
 class L1RCTLookupTables;
 
-class L1RCTProducer : public edm::stream::EDProducer<> {
+class L1RCTProducer : public edm::stream::EDProducer<edm::stream::WatchRuns, edm::stream::WatchLuminosityBlocks> {
 public:
   explicit L1RCTProducer(const edm::ParameterSet &ps);
 
