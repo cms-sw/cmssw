@@ -18,3 +18,9 @@ castorDigitizer = cms.PSet(
         timePhase = cms.double(-4.0)
     )
 )
+
+##
+## Disable all noise for the tau embedding methods simulation step
+##
+from Configuration.ProcessModifiers.tau_embedding_sim_cff import tau_embedding_sim
+tau_embedding_sim.toModify(castorDigitizer, doNoise=False)

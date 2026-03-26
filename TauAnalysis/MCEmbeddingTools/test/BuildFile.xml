@@ -2,4 +2,5 @@
 <test name="testTauEmbeddingWorkflow2016preVFP" command="run_2016postVFPUL_workflow_tests.sh"/>
 <test name="testTauEmbeddingWorkflow2017" command="run_2017UL_workflow_tests.sh"/>
 <test name="testTauEmbeddingWorkflow2018" command="run_2018UL_workflow_tests.sh"/>
+<test name="testTauEmbeddingWorkflow2022postEE" command="run_2022_workflow_tests.sh"/>
 

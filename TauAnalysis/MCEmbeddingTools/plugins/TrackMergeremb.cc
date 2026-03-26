@@ -1,4 +1,4 @@
-#include "TauAnalysis/MCEmbeddingTools/plugins/TrackMergeremb.h"
+#include "TauAnalysis/MCEmbeddingTools/interface/TrackMergeremb.h"
 
 #include <memory>
 
@@ -53,7 +53,7 @@ typedef TrackMergeremb<reco::PFCandidateCollection> PFColMerger;
 template <typename T1>
 TrackMergeremb<T1>::TrackMergeremb(const edm::ParameterSet &iConfig) {
   alias = iConfig.getParameter<std::string>("@module_label");
-  std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag>>("mergCollections");
+  std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag>>("mergeCollections");
   globalGeomToken_ = esConsumes();
   for (const auto &inCollection : inCollections) {
     inputs_[inCollection.instance()].push_back(consumes<TrackCollectionemb>(inCollection));

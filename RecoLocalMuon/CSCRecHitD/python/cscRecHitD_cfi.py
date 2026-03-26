@@ -73,3 +73,10 @@ from Configuration.Eras.Modifier_run2_common_cff import run2_common
 run2_common.toModify( csc2DRecHits, 
      readBadChannels = False,
      CSCUseGasGainCorrections = False )
+
+##
+## Modify for the tau embedding methods cleaning step
+##
+from Configuration.ProcessModifiers.tau_embedding_cleaning_cff import tau_embedding_cleaning
+from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import tau_embedding_csc2DRecHits_cleaner
+tau_embedding_cleaning.toReplaceWith(csc2DRecHits, tau_embedding_csc2DRecHits_cleaner)
