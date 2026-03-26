@@ -44,7 +44,7 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 
-class DeDxHitInfoProducer : public edm::stream::EDProducer<> {
+class DeDxHitInfoProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit DeDxHitInfoProducer(const edm::ParameterSet&);
   ~DeDxHitInfoProducer() override;
