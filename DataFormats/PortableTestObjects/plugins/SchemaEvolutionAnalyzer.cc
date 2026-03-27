@@ -19,8 +19,7 @@
 class SchemaEvolutionAnalyzer : public edm::global::EDAnalyzer<> {
 public:
   SchemaEvolutionAnalyzer(edm::ParameterSet const& config)
-      : source_{config.getParameter<edm::InputTag>("source")},
-        soaToken_{consumes(source_)} {}
+      : source_{config.getParameter<edm::InputTag>("source")}, soaToken_{consumes(source_)} {}
 
   void analyze(edm::StreamID sid, edm::Event const& event, edm::EventSetup const&) const override {
     std::cout << "Starting SchemaEvolutionAnalyzer.analyze" << std::endl;
@@ -39,6 +38,7 @@ public:
       ok = false;
     };
 
+    portabletest::SEEigenVector::Scalar counter = 0;
     for (int i = 0; i < view.metadata().size(); i++) {
       auto element = view[i];
 
@@ -71,18 +71,28 @@ public:
         }
       }
 
-      Eigen::Vector3d expectedVec(
-          static_cast<double>(i) + 0.1, static_cast<double>(i) + 0.2, static_cast<double>(i) + 0.3);
+      portabletest::SEEigenVector expectedVec;
 
-      Eigen::Vector3d actualVec = element.eOneVector3d();
+      for (int r = 0; r < portabletest::SEEigenVector::RowsAtCompileTime; ++r) {
+        for (int c = 0; c < portabletest::SEEigenVector::ColsAtCompileTime; ++c) {
+          expectedVec(r, c) = static_cast<portabletest::SEEigenVector::Scalar>(counter++);
+        }
+      }
 
-      if (!actualVec.isApprox(expectedVec, EPS_D)) {
-        for (int j = 0; j < 3; j++) {
-          if (std::abs(actualVec[j] - expectedVec[j]) >= EPS_D) {
-            report("eOneVector3d[" + std::to_string(j) + "]", i, expectedVec[j], actualVec[j]);
+      portabletest::SEEigenVector actualVec = element.eOneVector3d();
+
+      for (int r = 0; r < portabletest::SEEigenVector::RowsAtCompileTime; ++r) {
+        for (int c = 0; c < portabletest::SEEigenVector::ColsAtCompileTime; ++c) {
+          std::cout << "Checking eOneVector3d[" << r << "][" << c << "]: expected=" << expectedVec(r, c)
+                    << " actual=" << actualVec(r, c) << std::endl;
+          if (std::abs(actualVec(r, c) - expectedVec(r, c)) >= EPS_D) {
+            report("eOneVector3d[" + std::to_string(r) + "][" + std::to_string(c) + "]",
+                   i,
+                   expectedVec(r, c),
+                   actualVec(r, c));
           }
         }
-      }  
+      }
     }
 
     // Scalars
@@ -113,7 +123,8 @@ public:
 
 private:
   const edm::InputTag source_;
-  const edm::EDGetTokenT<portabletest::SchemaEvolutionHostCollection> soaToken_;;
+  const edm::EDGetTokenT<portabletest::SchemaEvolutionHostCollection> soaToken_;
+  ;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

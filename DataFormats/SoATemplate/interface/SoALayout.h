@@ -244,6 +244,8 @@ namespace cms::soa {
       (BOOST_PP_CAT(NAME, ElementsWithPadding_){_soa_impl_other.BOOST_PP_CAT(NAME, ElementsWithPadding_)})             \
       (BOOST_PP_CAT(NAME, _){_soa_impl_other.BOOST_PP_CAT(NAME, _)})                                                   \
       (BOOST_PP_CAT(NAME, Stride_){_soa_impl_other.BOOST_PP_CAT(NAME, Stride_)})                                       \
+      (BOOST_PP_CAT(NAME, Rows_){_soa_impl_other.BOOST_PP_CAT(NAME, Rows_)})                                           \
+      (BOOST_PP_CAT(NAME, Cols_){_soa_impl_other.BOOST_PP_CAT(NAME, Cols_)})                                           \
   )
 // clang-format on
 
@@ -263,6 +265,8 @@ namespace cms::soa {
       BOOST_PP_CAT(NAME, ElementsWithPadding_) = _soa_impl_other.BOOST_PP_CAT(NAME, ElementsWithPadding_);             \
       BOOST_PP_CAT(NAME, _) = _soa_impl_other.BOOST_PP_CAT(NAME, _);                                                   \
       BOOST_PP_CAT(NAME, Stride_) = _soa_impl_other.BOOST_PP_CAT(NAME, Stride_);                                       \
+      BOOST_PP_CAT(NAME, Rows_) = _soa_impl_other.BOOST_PP_CAT(NAME, Rows_);                                           \
+      BOOST_PP_CAT(NAME, Cols_) = _soa_impl_other.BOOST_PP_CAT(NAME, Cols_);                                           \
   )
 // clang-format on
 
@@ -377,6 +381,8 @@ namespace cms::soa {
         / sizeof(CPP_TYPE::Scalar);                                                                                    \
       BOOST_PP_CAT(NAME, ElementsWithPadding_) = BOOST_PP_CAT(NAME, Stride_)                                           \
         *  CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                                                  \
+      BOOST_PP_CAT(NAME, Rows_) = CPP_TYPE::RowsAtCompileTime;                                                         \
+      BOOST_PP_CAT(NAME, Cols_) = CPP_TYPE::ColsAtCompileTime;                                                         \
       BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE::Scalar*>(_soa_impl_curMem);                                   \
       _soa_impl_curMem += cms::soa::alignSize(elements_ * sizeof(CPP_TYPE::Scalar), alignment)                         \
         * CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;                                                   \
@@ -470,10 +476,23 @@ namespace cms::soa {
         memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE) * onfile.elements_);              \
         ,                                                                                                              \
         /* Eigen column */                                                                                             \
-        for (unsigned int i = 0; i < CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime; ++i) {                 \
-          memcpy(BOOST_PP_CAT(NAME, _) + i * BOOST_PP_CAT(NAME, Stride_),                                              \
-                 onfile.BOOST_PP_CAT(NAME, _) + i * onfile.BOOST_PP_CAT(NAME, Stride_),                                \
-                 sizeof(CPP_TYPE::Scalar) * onfile.elements_);                                                         \
+        const int rows = onfile.BOOST_PP_CAT(NAME, Rows_);                                                             \
+        const int cols = onfile.BOOST_PP_CAT(NAME, Cols_);                                                             \
+        if((rows * cols) > 0 && (rows != CPP_TYPE::RowsAtCompileTime || cols != CPP_TYPE::ColsAtCompileTime)){         \
+          cms::soa::detail::throwRuntimeError(("Incompatible eigen column dimensions. On file: "                       \
+                                               + std::to_string(rows) + "x" + std::to_string(cols) + ", expected: "    \
+                                               + std::to_string(CPP_TYPE::RowsAtCompileTime) + "x"                     \
+                                               + std::to_string(CPP_TYPE::ColsAtCompileTime)).c_str());                \
+        }                                                                                                              \
+        if(BOOST_PP_CAT(NAME, Stride_) == onfile.BOOST_PP_CAT(NAME, Stride_)) {                                        \
+          memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _),                                                  \
+                 sizeof(CPP_TYPE::Scalar) * BOOST_PP_CAT(NAME, ElementsWithPadding_));                                 \
+        } else {                                                                                                       \
+          for (int i = 0; i < CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime; ++i) {                        \
+            memcpy(BOOST_PP_CAT(NAME, _) + i * BOOST_PP_CAT(NAME, Stride_),                                            \
+                   onfile.BOOST_PP_CAT(NAME, _) + i * onfile.BOOST_PP_CAT(NAME, Stride_),                              \
+                   sizeof(CPP_TYPE::Scalar) * onfile.elements_);                                                       \
+          }                                                                                                            \
         }                                                                                                              \
       )                                                                                                                \
     } else {                                                                                                           \
@@ -508,6 +527,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
   size_type BOOST_PP_CAT(NAME, ElementsWithPadding_) = 0; /* For ROOT serialization */                                 \
   CPP_TYPE::Scalar * BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(BOOST_PP_CAT(NAME, ElementsWithPadding_)) = nullptr;        \
   byte_size_type BOOST_PP_CAT(NAME, Stride_) = 0;                                                                      \
+  int BOOST_PP_CAT(NAME, Rows_) = 0;                                                                                   \
+  int BOOST_PP_CAT(NAME, Cols_) = 0;                                                                                   \
 )
 // clang-format on
 

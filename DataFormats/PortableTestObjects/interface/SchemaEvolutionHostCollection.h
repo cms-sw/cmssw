@@ -5,7 +5,7 @@
 #include "DataFormats/PortableTestObjects/interface/SchemaEvolutionSoA.h"
 
 namespace portabletest {
-    using SchemaEvolutionHostCollection = PortableHostCollection<SchemaEvolutionSoA>;
+  using SchemaEvolutionHostCollection = PortableHostCollection<SchemaEvolutionSoA>;
 }
 
 #endif  // DataFormats_PortableTestObjects_interface_SchemaEvolutionHostCollection_h
