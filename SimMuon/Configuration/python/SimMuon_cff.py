@@ -1,17 +1,23 @@
 import FWCore.ParameterSet.Config as cms
 
 # Muon Digitization (CSC, DT, RPC electronics responce)
+
 # CSC digitizer
 #
 from SimMuon.CSCDigitizer.muonCSCDigis_cfi import *
 from CalibMuon.CSCCalibration.CSCChannelMapper_cfi import *
 from CalibMuon.CSCCalibration.CSCIndexer_cfi import *
+
 # DT digitizer
 #
 from SimMuon.DTDigitizer.muondtdigi_cfi import *
+
 # RPC digitizer
-# 
-from SimMuon.RPCDigitizer.muonrpcdigi_cfi import *
+#
+# If your branch still uses the legacy filename muonrpcdigi_cfi.py,
+# change only this import line back to that filename.
+from SimMuon.RPCDigitizer.muonRPCDigis_cfi import *
+
 muonDigiTask = cms.Task(simMuonCSCDigis, simMuonDTDigis, simMuonRPCDigis)
 muonDigi = cms.Sequence(muonDigiTask)
 
@@ -27,7 +33,10 @@ _phase2_muonDigiTask.add(muonME0DigiTask)
 # while GE0 is in development, just turn off ME0 tasks
 _phase2_ge0 = _phase2_muonDigiTask.copyAndExclude([muonME0DigiTask])
 
-_phase2_rpc_devel = _phase2_muonDigiTask.copyAndExclude([muonME0DigiTask,simMuonRPCDigis])
+# phase2_rpc_devel:
+# keep legacy simMuonRPCDigis for side-by-side validation
+# and add the new Phase-2 RPC + iRPC digis
+_phase2_rpc_devel = _phase2_muonDigiTask.copyAndExclude([muonME0DigiTask])
 _phase2_rpc_devel.add(simMuonRPCDigisPhase2)
 _phase2_rpc_devel.add(simMuonIRPCDigis)
 
@@ -40,12 +49,5 @@ from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith( muonDigiTask, _phase2_muonDigiTask )
 from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
 phase2_GE0.toReplaceWith( muonDigiTask, _phase2_ge0 )
-
-# phase2_rpc_devel modifier
 from Configuration.Eras.Modifier_phase2_rpc_devel_cff import phase2_rpc_devel
-def _modifyRPCDigiForPhase2( theProcess ) :
-    phase2_muon.toReplaceWith( muonDigiTask, _phase2_rpc_devel)
-
-SimMuonConfigurationSimMuonRPCDigiForPhase2_ = phase2_rpc_devel.makeProcessModifier(_modifyRPCDigiForPhase2)
-
-
+phase2_rpc_devel.toReplaceWith(muonDigiTask, _phase2_rpc_devel)
