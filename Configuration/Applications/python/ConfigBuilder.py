@@ -1844,6 +1844,47 @@ class ConfigBuilder(object):
 
     def prepare_PAT(self, stepSpec = "patTask"):
         ''' Enrich the schedule with PAT '''
+
+        # Handle @-prefixed flavors (e.g., @Scout for scouting MiniAOD)
+        if '@' in stepSpec:
+            from PhysicsTools.PatFromScouting.autoPAT import autoPAT, expandPATMapping
+
+            _patSeq = stepSpec.split('+')
+            _patCustoms = stepSpec.split('+')
+            expandPATMapping(_patSeq, autoPAT, 'sequence')
+            expandPATMapping(_patCustoms, autoPAT, 'customize')
+
+            # Remove duplicates while preserving order
+            _patSeq = list(sorted(set(_patSeq), key=_patSeq.index))
+            _patCustoms = list(sorted(set(_patCustoms), key=_patCustoms.index))
+            # Remove empty strings
+            _patSeq = [s for s in _patSeq if s]
+            _patCustoms = [c for c in _patCustoms if c]
+
+            # Load and schedule sequences
+            _seqToSchedule = []
+            for _subSeq in _patSeq:
+                if '.' in _subSeq:
+                    _cff, _seq = _subSeq.rsplit('.', 1)
+                    print(f"PAT: scheduling: {_seq} from {_cff}")
+                    self.loadAndRemember(_cff)
+                    _seqToSchedule.append(_seq)
+                elif '/' in _subSeq:
+                    self.loadAndRemember(_subSeq)
+
+            if _seqToSchedule:
+                self.scheduleSequence('+'.join(_seqToSchedule), 'patMiniAOD_step')
+
+            # Add customizations
+            for custom in _patCustoms:
+                self._options.customisation_file.append(custom)
+
+            # cpu efficiency boost when running PAT by itself
+            if self.stepKeys[0] == 'PAT':
+                self._customise_coms.append( 'process.source.delayReadingEventProducts = cms.untracked.bool(False)')
+
+            return
+
         _,pat_sequence,pat_cff = self.loadDefaultOrSpecifiedCFF(stepSpec,self.PATDefaultCFF)
         ## handle the noise filters as Flag_* path that were loaded
         for existing_path,path_ in self.process.paths_().items():
@@ -1888,6 +1929,12 @@ class ConfigBuilder(object):
         print(_nanoSeq)
         # create full specified sequence using autoNANO
         from PhysicsTools.NanoAOD.autoNANO import autoNANO, expandNanoMapping
+        # Extend with scouting-specific NANO flavors if available
+        try:
+            from PhysicsTools.PatFromScouting.autoPAT import autoNANO_scouting
+            autoNANO.update(autoNANO_scouting)
+        except ImportError:
+            pass  # PatFromScouting not available
         # if not a autoNANO mapping, load an empty customization, which later will be converted into the default.
         _nanoCustoms = _nanoSeq.split('+') if '@' in stepSpec else ['']
         _nanoSeq = _nanoSeq.split('+')
