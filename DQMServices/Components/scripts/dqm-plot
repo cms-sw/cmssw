@@ -92,7 +92,7 @@ class DQMPlotter:
 
         self.colors.extend(new_colors)
 
-    def root_to_numpy(self, hist):
+    def root_to_numpy(self, hist, rebin=None):
         """
         Convert ROOT histogram to numpy arrays.
 
@@ -102,6 +102,9 @@ class DQMPlotter:
         Returns:
             tuple: (bin_centers, bin_contents, bin_errors, bin_edges, bin_labels, has_labels)
         """
+        if rebin is not None:
+            hist = hist.Rebin(int(rebin), hist.GetName() + "_rebin")
+            
         n_bins = hist.GetNbinsX()
         bin_edges = np.array([hist.GetBinLowEdge(i) for i in range(1, n_bins + 2)])
         bin_centers = np.array([hist.GetBinCenter(i) for i in range(1, n_bins + 1)])
@@ -315,9 +318,9 @@ class DQMPlotter:
         if len(wrapped_labels) > 10:
             legend_fontsize = "18"
 
-        legend_title_fontsize = "24"
+        legend_title_fontsize = "18"
         if legend_title and len(legend_title) > 30:
-            legend_title_fontsize = "20"
+            legend_title_fontsize = "16"
 
         if place_outside:
             y_min, y_max = ax.get_ylim()
@@ -336,7 +339,7 @@ class DQMPlotter:
             )
             return
 
-        legend_padding = 0.5 if len(wrapped_labels) <= 2 else np.ceil(len(wrapped_labels) / 2) * 0.25
+        legend_padding = 0.05 if len(wrapped_labels) <= 3 else np.ceil(len(wrapped_labels) / 2) * 0.025
         legend_padding = min(legend_padding, 2.0)
         if logy or ax.get_yscale() == "log":
             legend_padding *= 50
@@ -547,38 +550,67 @@ class DQMPlotter:
         result = pattern.sub(_token_repl, result)
 
         return result
+    
+    def contains_regex_markers(self, pattern):
+        # Return True if the pattern contains regex metacharacters
+        return re.search(r'[.*+?|()\\[\]{}$^]', pattern)
 
-    def find_histograms_in_file(self, root_file, pattern):
+    def get_path_up_to_regex(self, path):
+        # Find the first occurrence of any regex character
+        rxmatch = self.contains_regex_markers(path) ### <- ISSUE!
+        if rxmatch:
+            # Get the path up to the first regex character
+            base_path = path[:rxmatch.start()]
+            # Get the directory part of that path
+            dir_path = os.path.dirname(base_path)
+            return dir_path
+        else:
+            # If no regex character, return the directory part of the full path
+            return os.path.dirname(path)
+    
+    def find_histograms_in_file(self, root_file, pattern, use_regex=False):
         """
         Find all histogram paths matching a regex pattern in a ROOT file.
-
+        
         Args:
-            root_file: Open ROOT file
-            pattern: Regex pattern to match histogram paths
+            root_file: opened ROOT file
+            pattern: regex pattern to match histogram paths
+            full_pattern: boolean specifying whether the provided pattern contains the full directory structure (faster)
 
         Returns:
             list: List of histogram paths that match the pattern
         """
+        regex = re.compile(pattern)
 
-        def traverse_directory(directory, current_path=""):
+        def traverse_directory(directory, current_path="", pattern=None):
             """Recursively traverse ROOT file directory structure."""
             hist_paths = []
+
+            if pattern and current_path != "":
+                directory = directory.Get(current_path)
+
             for key in directory.GetListOfKeys():
                 obj_name = key.GetName()
                 obj_path = f"{current_path}/{obj_name}" if current_path else obj_name
-
+                if pattern and not self.contains_regex_markers(pattern) and obj_name not in pattern:
+                    continue
                 obj = key.ReadObj()
                 if obj.InheritsFrom("TDirectory"):
-                    hist_paths.extend(traverse_directory(obj, obj_path))
+                    hist_paths.extend(traverse_directory(directory=obj, current_path=obj_path))
                 # Skip 2D histograms
                 elif obj.InheritsFrom("TH1") and not obj.InheritsFrom("TH2"):
-                    if re.search(pattern, obj_path):
+                    print('PATH: ' , obj_path)
+                    if regex.search(obj_path):
                         hist_paths.append(obj_path)
-
             return hist_paths
-
-        return traverse_directory(root_file)
-
+        
+        if use_regex:
+            return traverse_directory(root_file)
+        else:
+            if self.contains_regex_markers(pattern):
+                return traverse_directory(root_file, current_path=self.get_path_up_to_regex(pattern), pattern=pattern)
+            return traverse_directory(root_file, current_path=self.get_path_up_to_regex(pattern), pattern=pattern) 
+    
     def _parse_overlay_groups(self, overlay_specs):
         """
         Parse overlay specifications into groups.
@@ -691,6 +723,7 @@ class DQMPlotter:
         output_path,
         logy=False,
         normalize=False,
+        rebin=None,
         cms_text="Preliminary",
         energy_text=None,
         show_energy=False,
@@ -699,6 +732,7 @@ class DQMPlotter:
         plot_histograms=False,
         do_ratio=True,
         save_as_pdf=False,
+        legend_title=None,
         legend_outside=False,
         overlay_groups=None,
     ):
@@ -717,6 +751,7 @@ class DQMPlotter:
             grid: Whether to show grid on both main and ratio plots
             plot_histograms: Whether to plot histograms instead of individual bin points with errors
             pdf: Whether to save as PDF in addition to PNG
+            legend_title: Title of the legend. If not present it uses the legend labels.
             legend_outside: Force legend to be placed outside the plot area
             overlay_groups: List of pattern groups to overlay
         """
@@ -725,8 +760,7 @@ class DQMPlotter:
 
         title, xlabel, ylabel = self.extract_labels_from_hist(histograms[0])
 
-        legend_title = None
-        if hasattr(self, "_current_output_path"):
+        if legend_title is None and hasattr(self, "_current_output_path"):
             output_parts = self._current_output_path.replace("\\", "/").split("/")
             if len(output_parts) > 1:
                 # Get the parent directory name (second to last part)
@@ -771,7 +805,7 @@ class DQMPlotter:
         
         for i, (hist, label) in enumerate(zip(histograms, labels)):
             bin_centers, bin_contents, bin_errors, bin_edges, bin_labels, has_labels = (
-                self.root_to_numpy(hist)
+                self.root_to_numpy(hist, rebin)
             )
 
             if normalize and np.sum(bin_contents) > 0:
@@ -890,6 +924,7 @@ class DQMPlotter:
         create_web_index=False,
         overlay_groups=None,
         overlay_individual=True,
+        use_regex=False,
         **plot_kwargs,
     ):
         """
@@ -950,7 +985,7 @@ class DQMPlotter:
 
                 total_for_file = 0
                 for pat in patterns:
-                    file_hists = self.find_histograms_in_file(root_file, pat)
+                    file_hists = self.find_histograms_in_file(root_file, pat, use_regex)
                     total_for_file += len(file_hists)
                     all_matching_hists.update(file_hists)
                     for hp in file_hists:
@@ -1068,6 +1103,7 @@ class DQMPlotter:
                 "is_overlay": False,
             })
 
+        breakpoint()
         self._process_files(plot_tasks)
 
         if create_web_index:
@@ -1090,10 +1126,9 @@ class DQMPlotter:
         if match:
             match_end = match.end()
             remaining_path = hist_path[match_end:].lstrip("/")
-
             if remaining_path:
                 path_parts = remaining_path.split("/")
-
+                
                 if len(path_parts) > 1:
                     # Create subdirectories and filename
                     subdirs = "/".join(path_parts[:-1])
@@ -1101,7 +1136,7 @@ class DQMPlotter:
                     output_path = os.path.join(output_dir, subdirs, f"{filename}")
                 else:
                     # Single file, no subdirectories
-                    filename = path_parts[0]
+                    filename = os.path.basename(hist_path)
                     output_path = os.path.join(output_dir, f"{filename}")
             else:
                 # If no remaining path, use the last part of the matched path
@@ -1127,13 +1162,23 @@ class DQMPlotter:
             return
 
         n_index = 0
-        for root, dirs, files in os.walk(output_dir):
-            index_php_path = os.path.join(root, "index.php")
-            with open(index_php_path, "w", encoding="utf-8") as f:
-                f.write(index_php_content)
-            n_index += 1
-        print(f"Created index.php files in {n_index} directories for web viewing")
 
+        # Walk up the directory tree (only if "/www/" is present)
+        current_dir = output_dir
+        while True:
+            parent_dir = os.path.dirname(current_dir)
+            if parent_dir == current_dir or "/www/" not in parent_dir:
+                break
+            self._write_php_index(index_php_content, parent_dir)
+            current_dir = parent_dir          
+
+        # Walk down the directory tree
+        for root, dirs, files in os.walk(output_dir):
+            self._write_php_index(index_php_content, root)
+            n_index += 1
+
+        print(f"Created index.php files in {n_index} directories for web viewing")
+            
     def _process_files(self, plot_tasks):
         """Process plotting tasks using multiprocessing."""
         print(f"Using {self.processors} parallel processes")
@@ -1172,6 +1217,12 @@ class DQMPlotter:
             if failed > 0:
                 print(f"\n{failed} tasks failed out of {len(plot_tasks)} total")
         print()
+
+    def _write_php_index(self, content, path):
+        """Write the content of the index.php file to a path."""
+        index_php_path = os.path.join(path, "index.php")
+        with open(index_php_path, "w", encoding="utf-8") as f:
+            f.write(content)
 
 def process_histogram_task(task):
     """Process a single histogram task in a separate process."""
@@ -1216,6 +1267,21 @@ def process_histogram_task(task):
         raise
 
 if __name__ == "__main__":
+
+    class RemoveDuplicates(argparse.Action):
+        """Custom action to remove duplicate elements in a list added via 'append'."""
+        def __call__(self, parser, namespace, values, option_string=None):
+            current = getattr(namespace, self.dest) or []
+            seen = set(current)
+            
+            # values is a list because of nargs="+"
+            dups = [v for v in values if v in seen]
+            if dups:
+                parser.error(f"Duplicate {option_string} value(s): {', '.join(dict.fromkeys(dups))}")
+
+            current.extend(values)
+            setattr(namespace, self.dest, current)
+
     """Command line interface for DQM plotter."""
     parser = argparse.ArgumentParser(
         description="Compare DQM histograms with CMS styling"
@@ -1226,15 +1292,21 @@ if __name__ == "__main__":
         "--source",
         required=True,
         nargs="+",
-        action="append",
-        help="Histogram path or regex pattern(s) to match. "
-             "Use multiple -s or space-separated values to provide several patterns.",
+        action=RemoveDuplicates,
+        help="Regex pattern(s) to match. "
+             "Use multiple -s or space-separated values to provide several patterns."
+             "Can be accelerated with `--use-regex.`",
     )
     parser.add_argument(
         "-l", "--legend", help="Comma-separated list of legend entries for each file. Use \\n for explicit line breaks."
     )
+    parser.add_argument(
+        "--legend_title", default=None,
+        help="Title of the legend. If not present it uses the legend labels."
+    )
     parser.add_argument("-o", "--output-dir", default="plots", help="Output directory")
     parser.add_argument("--logy", action="store_true", help="Use log scale for y-axis")
+    parser.add_argument("--rebin", default=None, type=int, help="Rebin histograms. One number 'X' implies that each new bin corresponds to the merge of X bins. Multiple numbers represent the edges of the new bins.")
     parser.add_argument("--normalize", action="store_true", help="Normalize histograms")
     parser.add_argument(
         "--cms-text",
@@ -1273,7 +1345,7 @@ if __name__ == "__main__":
         "-n",
         "--nProcessors",
         type=int,
-        default=None,
+        default=4,
         help="Number of parallel processes to use (default: auto-detect)",
     )
     parser.add_argument(
@@ -1298,23 +1370,26 @@ if __name__ == "__main__":
         action="store_true",
         help="Disable creation of individual plots for collections that are overlaid (default: create both overlay and individual plots)",
     )
+    parser.add_argument(
+        "--use-regex",
+        action="store_true",
+        help="Requires source containing the full directory structure of the DQM file. Example: `-s DQMData/Run 1/HLT/Run summary/ParticleFlow/MatchByScore/PFClusterValidation/SimClustersEn` works, but `-s PFClusterValidation/SimClustersEn` does not, assuming the base diretory is `DQMData`. If the sources are provided in full, this options accelerates the script by scanning only the directories appearing in the sources.",
+    )
 
     args = parser.parse_args()
 
     plotter = DQMPlotter(processors=args.nProcessors)
-
-    # Flatten list of patterns
-    source_patterns = [p for group in args.source for p in group] if isinstance(args.source, list) else [args.source]
 
     # Parse overlay groups
     overlay_groups = plotter._parse_overlay_groups(args.overlay) if args.overlay else None
 
     plotter.compare_files(
         file_paths=args.files,
-        hist_pattern=source_patterns,
+        hist_pattern=args.source,
         labels=args.legend,
         output_dir=args.output_dir,
         logy=args.logy,
+        rebin=args.rebin,
         normalize=args.normalize,
         cms_text=args.cms_text,
         energy_text=args.energy_text,
@@ -1326,7 +1401,9 @@ if __name__ == "__main__":
         save_as_pdf=args.pdf,
         more_files=args.more_files,
         create_web_index=args.web,
+        legend_title=args.legend_title,
         legend_outside=args.legend_outside,
         overlay_groups=overlay_groups,
         overlay_individual=not args.no_overlay_individual,
+        use_regex=args.use_regex,
     )
