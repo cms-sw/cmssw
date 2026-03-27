@@ -20,9 +20,7 @@ std::ostream &operator<<(std::ostream &s, SimCluster const &tp);
 
 namespace simcluster_utils {
   extern const std::unordered_map<std::string, std::vector<DetId::Detector>> DetIdMap;
-
-  std::vector<DetId::Detector> join_detids(const std::vector<std::string> &dets_v);
-  void check_detids(const std::vector<std::string> &dets_v);
+  std::vector<DetId::Detector> check_and_join_detids(const std::vector<std::string> &dets_v);
 }  // namespace simcluster_utils
 
 #endif

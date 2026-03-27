@@ -60,9 +60,7 @@ LCToCPAssociatorEDProducerT<CLUSTER>::LCToCPAssociatorEDProducerT(const edm::Par
 
   label_lc_ = pset.getParameter<edm::InputTag>("label_lc");
   std::vector<std::string> filter_sim_hits = pset.getParameter<std::vector<std::string>>("filter_sim_hits");
-
-  simcluster_utils::check_detids(filter_sim_hits);
-  detIds_ = simcluster_utils::join_detids(filter_sim_hits);
+  detIds_ = simcluster_utils::check_and_join_detids(filter_sim_hits);
 
   CPCollectionToken_ = consumes<CaloParticleCollection>(pset.getParameter<edm::InputTag>("label_cp"));
   LCCollectionToken_ = consumes<CLUSTER>(label_lc_);

@@ -46,6 +46,7 @@ protected:
   edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClustersT<RecoClusterCollection>> RecoToSimAssociatorToken_;
   edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClustersT<RecoClusterCollection>> SimToRecoAssociatorToken_;
 
+  std::vector<DetId::Detector> detIds_;
   std::vector<std::string> filter_sim_hits_;
 
   edm::EDGetTokenT<ticl::RecoToSimCollectionT<RecoClusterCollection>> RecoToCpAssociatorToken_;
@@ -236,7 +237,7 @@ PFTesterT<RecoClusterCollection>::PFTesterT(const edm::ParameterSet& iConfig)
   h_nSimMatchedToOneReco_.resize(nAssocScoreThresholds_);
   h_nRecoMatchedToOneSim_.resize(nAssocScoreThresholds_);
 
-  simcluster_utils::check_detids(filter_sim_hits_);
+  detIds_ = simcluster_utils::check_and_join_detids(filter_sim_hits_);
 }
 
 template <typename RecoClusterCollection>
@@ -552,11 +553,10 @@ void PFTesterT<RecoClusterCollection>::bookHistograms(DQMStore::IBooker& ibook,
 
 template <typename RecoClusterCollection>
 void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::vector<DetId::Detector> detIds = simcluster_utils::join_detids(filter_sim_hits_);
   DetId::Detector minDet = DetId::Detector(0);  //dummy detector id value
   DetId::Detector maxDet = DetId::Detector(0);  //dummy detector id value
-  if (!detIds.empty()) {
-    const auto minmaxDet = std::minmax_element(detIds.begin(), detIds.end());
+  if (!detIds_.empty()) {
+    const auto minmaxDet = std::minmax_element(detIds_.begin(), detIds_.end());
     minDet = *minmaxDet.first;
     maxDet = *minmaxDet.second;
   }
@@ -644,9 +644,9 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
     for (const auto& scRef : caloParticles[cpId].simClusters()) {
       auto const& sc = *(scRef);
       SimCluster::HitsAndFractionsView hafView =
-          detIds.empty() ? sc.hits_and_fractions_view() : sc.hits_and_fractions_view(minDet, maxDet);
+          detIds_.empty() ? sc.hits_and_fractions_view() : sc.hits_and_fractions_view(minDet, maxDet);
       SimCluster::HitsAndEnergiesView haeView =
-          detIds.empty() ? sc.hits_and_energies_view() : sc.hits_and_energies_view(minDet, maxDet);
+          detIds_.empty() ? sc.hits_and_energies_view() : sc.hits_and_energies_view(minDet, maxDet);
 
       // Compute energy of caloParticle as sum of simClusters energies (from SimTrack energy)
       energySumSimClusters += sc.energy();
@@ -712,9 +712,9 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
   for (unsigned int simId = 0; simId < simClusters.size(); ++simId) {
     const auto& simCluster = simClusters[simId];
     SimCluster::HitsAndFractionsView hafView =
-        detIds.empty() ? simCluster.hits_and_fractions_view() : simCluster.hits_and_fractions_view(minDet, maxDet);
+        detIds_.empty() ? simCluster.hits_and_fractions_view() : simCluster.hits_and_fractions_view(minDet, maxDet);
     SimCluster::HitsAndEnergiesView haeView =
-        detIds.empty() ? simCluster.hits_and_energies_view() : simCluster.hits_and_energies_view(minDet, maxDet);
+        detIds_.empty() ? simCluster.hits_and_energies_view() : simCluster.hits_and_energies_view(minDet, maxDet);
 
     double energySumSimHits = simClusterEnergy(haeView);
     h_SimTrackToSimHitsEnergyFraction_->Fill(energySumSimHits / simCluster.energy());
@@ -966,7 +966,7 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
         const auto& simCluster = simClusters[simPairIdx];
 
         SimCluster::HitsAndEnergiesView haeView =
-            detIds.empty() ? simCluster.hits_and_energies_view() : simCluster.hits_and_energies_view(minDet, maxDet);
+            detIds_.empty() ? simCluster.hits_and_energies_view() : simCluster.hits_and_energies_view(minDet, maxDet);
 
 #ifdef debug
         edm::LogPrint("PFTester") << " recoToSimAssoc recoCluster id " << recoId
@@ -1041,9 +1041,9 @@ void PFTesterT<RecoClusterCollection>::analyze(const edm::Event& iEvent, const e
   for (unsigned int simId = 0; simId < simClusters.size(); ++simId) {
     const auto& simCluster = simClusters[simId];
     SimCluster::HitsAndFractionsView hafView =
-        detIds.empty() ? simCluster.hits_and_fractions_view() : simCluster.hits_and_fractions_view(minDet, maxDet);
+        detIds_.empty() ? simCluster.hits_and_fractions_view() : simCluster.hits_and_fractions_view(minDet, maxDet);
     SimCluster::HitsAndEnergiesView haeView =
-        detIds.empty() ? simCluster.hits_and_energies_view() : simCluster.hits_and_energies_view(minDet, maxDet);
+        detIds_.empty() ? simCluster.hits_and_energies_view() : simCluster.hits_and_energies_view(minDet, maxDet);
 
     double energySumSimHits = simClusterEnergy(haeView);
 
