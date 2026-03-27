@@ -5,7 +5,9 @@
 
 #ifndef B20_H_
 #define B20_H_
+namespace hls4ml_nnpuppitau_v0 {
 
 bias20_t b20[1] = {0.238281};
+}
 
 #endif
