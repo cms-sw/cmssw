@@ -7,3 +7,8 @@
 <test name="TestFWCoreReflectionCheckClassVersion" command="run_checkClassVersion.sh"/>
 <test name="TestFWCoreReflectionDumpClassVersion" command="run_dumpClassVersion.sh"/>
 <test name="TestFWCoreReflectionClassVersionUpdate" command="run_classVersionUpdate.sh"/>
+<bin name="testFWCoreReflection" file="test_catch2_*.cc">
+  <use name="catch2"/>
+  <use name="tbb"/>
+  <use name="FWCore/Reflection"/>
+</bin>
