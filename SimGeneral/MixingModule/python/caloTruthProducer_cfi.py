@@ -30,6 +30,9 @@ caloParticles = cms.PSet(
 	genParticleCollection = cms.InputTag('genParticles'),
 	allowDifferentSimHitProcesses = cms.bool(False), # should be True for FastSim, False for FullSim
 	HepMCProductLabel = cms.InputTag('generatorSmeared'),
+    simClusterMergerConfig = cms.PSet(
+        jetClusteringRadius = cms.double(0.05)
+    )
 )
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1

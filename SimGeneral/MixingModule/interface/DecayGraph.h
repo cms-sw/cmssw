@@ -60,7 +60,7 @@ struct EdgeProperty {
   EdgeProperty(const SimTrack *t, int h, int c) : simTrack(t), simHits(h), cumulative_simHits(c) {}
   const SimTrack *simTrack;
   int simHits;
-  int cumulative_simHits;
+  int cumulative_simHits;  //  might count part of siblings cumulative simhits energies as well, depends on graph traversal order. To be investigated. Currently not used anywhere
 };
 
 struct VertexProperty {
@@ -137,7 +137,7 @@ namespace {
       auto const src_vertex_property = get(vertex_name, g, src);
       put(get(vertex_name, const_cast<Graph &>(g)), src, VertexProperty(src_vertex_property.simTrack, cumulative));
       put(get(edge_weight, const_cast<Graph &>(g)),
-          e,
+          e,  // Here EdgeProperty.cumulative_simHits has also the source vertex cumulative_simHits added, which seems weird (depends on graph traversal order ?). It's not used in this algo though
           EdgeProperty(edge_property.simTrack, edge_property.simHits, cumulative));
       IfLogDebug(DEBUG, messageCategoryGraph_)
           << " Finished edge: " << e << " Track id: " << get(edge_weight, g, e).simTrack->trackId()
