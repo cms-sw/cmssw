@@ -614,7 +614,6 @@ double DAClusterizerInZ_vect::beta0(double betamax, track_t const& tks, vertex_t
       sumwz += w * tks.zpca[i];
       sumw += w;
     }
-
     y.zvtx[k] = sumwz / sumw;
 
     // estimate Tcrit
@@ -625,8 +624,8 @@ double DAClusterizerInZ_vect::beta0(double betamax, track_t const& tks, vertex_t
       a += w * std::pow(dx, 2) * tks.dz2[i];
       b += w;
     }
-    double Tc = 2. * a / b;  // the critical temperature of this vertex
 
+    double Tc = 2. * a / b;  // the critical temperature of this vertex
     if (Tc > T0)
       T0 = Tc;
 
