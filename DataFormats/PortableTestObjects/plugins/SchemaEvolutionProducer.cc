@@ -24,16 +24,25 @@ DEFINE_FWK_MODULE(SchemaEvolutionProducer);
 
 void SchemaEvolutionProducer::produce(edm::StreamID iID, edm::Event& event, const edm::EventSetup& iSetup) const {
   std::size_t elems = 16;
-  auto SchemaEvolutionProduct = std::make_unique<portabletest::SchemaEvolutionHostCollection>(cms::alpakatools::host(), elems);
+  auto SchemaEvolutionProduct =
+      std::make_unique<portabletest::SchemaEvolutionHostCollection>(cms::alpakatools::host(), elems);
   auto& view = SchemaEvolutionProduct->view();
 
+  portabletest::SEEigenVector::Scalar counter = 0;
   for (int i = 0; i < view.metadata().size(); i++) {
     auto element = view[i];
     element.cOneFloat() = static_cast<float>(i) + 0.1f;
     element.cTwoInt() = static_cast<int>(i);
     element.cThreeDouble() = std::sin(static_cast<double>(i)) * 1e3;
-    element.eOneVector3d() =
-        Eigen::Vector3d(static_cast<double>(i) + 0.1, static_cast<double>(i) + 0.2, static_cast<double>(i) + 0.3);
+
+    portabletest::SEEigenVector inputVec;
+
+    for (int r = 0; r < portabletest::SEEigenVector::RowsAtCompileTime; ++r) {
+      for (int c = 0; c < portabletest::SEEigenVector::ColsAtCompileTime; ++c) {
+        inputVec(r, c) = static_cast<portabletest::SEEigenVector::Scalar>(counter++);
+      }
+    }
+    element.eOneVector3d() = inputVec;
     element.cFourArray() = portabletest::SEArray{{i, i + 1, i + 2}};
   }
   view.sOneInt() = 42;
