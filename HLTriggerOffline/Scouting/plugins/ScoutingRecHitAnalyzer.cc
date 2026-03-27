@@ -146,7 +146,7 @@ ScoutingRecHitAnalyzer<RecHitType>::ScoutingRecHitAnalyzer(const edm::ParameterS
 template <typename RecHitType>
 void ScoutingRecHitAnalyzer<RecHitType>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("src");
+  desc.add<edm::InputTag>("src", edm::InputTag(""));
   desc.add<std::string>("topFolderName", "HLT/ScoutingOffline/CaloRecHits");
   desc.add<edm::InputTag>("L1TriggerResults", edm::InputTag("l1bits"));
   desc.add<edm::InputTag>("HLTTriggerResults", edm::InputTag("TriggerResults", "", "HLT"));
