@@ -17,6 +17,21 @@ EVENTS=1000
 THREADS=4
 
 ############################
+# GPU Monitoring config
+############################
+
+ENABLE_GPU_MONITORING=true
+MONITOR_INTERVAL=1
+
+# Check dependencies
+if [[ "$ENABLE_GPU_MONITORING" = true ]]; then
+    if ! command -v nvidia-smi &>/dev/null; then
+        echo "Error: nvidia-smi not found but GPU monitoring enabled"
+        exit 1
+    fi
+fi
+
+############################
 # Utility functions
 ############################
 
@@ -43,6 +58,16 @@ ensure_patatrack_scripts() {
     if [[ ! -d patatrack-scripts ]]; then
         git clone https://github.com/cms-patatrack/patatrack-scripts --depth 1
     fi
+}
+
+get_current_total_gpu_mem() {
+    nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits \
+        | awk '{ total += $1 } END { print total }'
+}
+
+get_current_gpus_usage() {
+    nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits \
+        | paste -sd ','
 }
 
 ############################
@@ -127,6 +152,7 @@ run_benchmark() {
 
     local cfg=$1
     local output_json=$2
+    local logdir="logs.$(basename ${cfg%.py})"
 
     if [[ ! -e "$cfg" ]]; then
         echo "Config $cfg not found"
@@ -134,20 +160,118 @@ run_benchmark() {
     fi
 
     ensure_patatrack_scripts
+    mkdir -p "$logdir"
 
-    patatrack-scripts/benchmark \
-        -j 8 -t 16 -s 16 \
-        -e ${EVENTS} \
-        --no-input-benchmark \
-        --slot "numa=0-3:mem=0-3" \
-        --event-skip 100 \
-        --event-resolution 10 \
-        -k Phase2Timing_resources.json \
-        -- ${cfg}
+    if [[ "$ENABLE_GPU_MONITORING" = true ]]; then
+
+        echo "Running benchmark WITH GPU monitoring"
+
+        local CSV_FILE="${logdir}/gpu_memory.csv"
+        local CSV_GPU_FILE="${logdir}/gpu_usage.csv"
+        local TMP_LOG_FILE="${logdir}/benchmark.tmp.log"
+
+        echo "elapsed_seconds,memory_mib" > "$CSV_FILE"
+        echo "elapsed_seconds,gpu_usage" > "$CSV_GPU_FILE"
+
+        local max_mem=0
+        local sum_mem=0
+        local count=0
+
+        declare -a totals
+        declare -a max_usage
+
+        local START_TIME=$(date +%s)
+
+        # Run benchmark in background
+        patatrack-scripts/benchmark \
+            -j 8 -t 16 -s 16 \
+            -e ${EVENTS} \
+            --no-input-benchmark \
+            --slot "numa=0-3:mem=0-3" \
+            --event-skip 100 \
+            --event-resolution 10 \
+            -k Phase2Timing_resources.json \
+            -- ${cfg} > "$TMP_LOG_FILE" 2>&1 &
+
+        local PID=$!
+
+        # Live output
+        tail -f "$TMP_LOG_FILE" &
+        local TAIL_PID=$!
+
+        trap "kill $PID $TAIL_PID 2>/dev/null" EXIT
+
+        while ps -p $PID > /dev/null; do
+
+            # Memory
+            mem=$(get_current_total_gpu_mem)
+            now=$(date +%s)
+            elapsed=$((now - START_TIME))
+
+            if [[ "$mem" =~ ^[0-9]+$ ]]; then
+                echo "$elapsed,$mem" >> "$CSV_FILE"
+                ((mem > max_mem)) && max_mem=$mem
+                sum_mem=$((sum_mem + mem))
+                count=$((count + 1))
+            fi
+
+            # GPU usage
+            usage=$(get_current_gpus_usage)
+            if [[ "$usage" =~ ^[0-9,]+$ ]]; then
+                echo "$elapsed,$usage" >> "$CSV_GPU_FILE"
+
+                IFS=',' read -ra vals <<< "$usage"
+                for i in "${!vals[@]}"; do
+                    totals[$i]=$((${totals[$i]:-0} + vals[$i]))
+                    ((vals[$i] > ${max_usage[$i]:-0})) && max_usage[$i]=${vals[$i]}
+                done
+            fi
+
+            sleep $MONITOR_INTERVAL
+        done
+
+        kill $TAIL_PID 2>/dev/null
+        mv "$TMP_LOG_FILE" "${logdir}/output.log"
+
+        # Compute mean
+        if ((count > 0)); then
+            mean_mem=$((sum_mem / count))
+        else
+            mean_mem=0
+        fi
+
+        {
+            echo ""
+            echo "----- GPU SUMMARY -----"
+            echo "Peak memory: ${max_mem} MiB"
+            echo "Mean memory: ${mean_mem} MiB"
+            echo ""
+            echo "Per-GPU usage:"
+            for i in "${!totals[@]}"; do
+                avg=$((totals[$i] / count))
+                echo "GPU $i: avg=${avg}% max=${max_usage[$i]}%"
+            done
+            echo "-----------------------"
+        } | tee -a "${logdir}/output.log"
+
+    else
+
+        echo "Running benchmark WITHOUT GPU monitoring"
+
+        patatrack-scripts/benchmark \
+            -j 8 -t 16 -s 16 \
+            -e ${EVENTS} \
+            --no-input-benchmark \
+            --slot "numa=0-3:mem=0-3" \
+            --event-skip 100 \
+            --event-resolution 10 \
+            -k Phase2Timing_resources.json \
+            -- ${cfg} | tee "${logdir}/output.log"
+    fi
 
     check_logs_for_errors || exit 1
 
-    mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json > ${output_json}
+    mergeResourcesJson.py logs/step*/pid*/Phase2Timing_resources.json > "${output_json}"
 }
 
 ############################
