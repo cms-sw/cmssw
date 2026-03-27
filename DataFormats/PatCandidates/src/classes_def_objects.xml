@@ -298,7 +298,8 @@
    <version ClassVersion="11" checksum="3492108938"/>
    <version ClassVersion="10" checksum="417284221"/>
   </class>
-  <class name="pat::PFParticle"  ClassVersion="16">
+  <class name="pat::PFParticle"  ClassVersion="17">
+   <version ClassVersion="17" checksum="265229913"/>
    <version ClassVersion="16" checksum="4057492004"/>
    <version ClassVersion="15" checksum="1485536104"/>
    <version ClassVersion="14" checksum="2795911745"/>
