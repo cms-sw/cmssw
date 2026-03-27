@@ -50,11 +50,9 @@
 
 class EcalEBPhase2TrigPrimAlgo;
 
-class EcalEBTrigPrimPhase2Producer : public edm::stream::EDProducer<> {
+class EcalEBTrigPrimPhase2Producer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit EcalEBTrigPrimPhase2Producer(const edm::ParameterSet& conf);
-
-  ~EcalEBTrigPrimPhase2Producer() override;
 
   void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
@@ -179,8 +177,6 @@ unsigned long long EcalEBTrigPrimPhase2Producer::getRecords(edm::EventSetup cons
 }
 
 void EcalEBTrigPrimPhase2Producer::endRun(edm::Run const& run, edm::EventSetup const& setup) { algo_.reset(); }
-
-EcalEBTrigPrimPhase2Producer::~EcalEBTrigPrimPhase2Producer() {}
 
 // ------------ method called to produce the data  ------------
 void EcalEBTrigPrimPhase2Producer::produce(edm::Event& e, const edm::EventSetup& iSetup) {
