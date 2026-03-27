@@ -447,6 +447,10 @@ ticl::association LCToSCAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
                                                      << "\t score \t-1"
                                                      << "\n";
 #endif
+    // avoid floating point rounding errors; force score to lie between 0 and 1
+    for (auto& scPair : scsInLayerCluster[lcId]) {
+      scPair.second = std::clamp(scPair.second, 0.f, 1.f);
+    }
   }  // End of loop over LayerClusters
 
   // Compute the SimCluster-To-LayerCluster score
@@ -553,6 +557,10 @@ ticl::association LCToSCAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
             << (lcPair.second.first / SCenergy) << "\n";
       }
 #endif
+      // avoid floating point rounding errors; force score to lie between 0 and 1
+      for (auto& lcPair : lcsInSimCluster[scId][layerId].layerClusterIdToEnergyAndScore) {
+        lcPair.second.second = std::clamp(lcPair.second.second, 0.f, 1.f);
+      }
     }  // End of loop over layers
   }  // End of loop over SimClusters
 
