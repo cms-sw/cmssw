@@ -341,11 +341,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
         for (uint32_t pIndex : cms::alpakatools::independent_group_elements_x(acc, maxpIndex)) {
           // FIXME implement alpaka::ldg and use it here? or is it const* __restrict__ enough?
           auto oi = p[pIndex];
-          ALPAKA_ASSERT_ACC(oi >= offsets[outer]);
-          ALPAKA_ASSERT_ACC(oi < offsets[outer + 1]);
 #ifdef DOUBLETS_DEBUG
           printf("Exploring couple i: %d o: %d\n", i, oi);
+          printf("	- offsets[outer]: %d   offsets[outer+1]: %d\n", offsets[outer], offsets[outer + 1]);
 #endif
+          ALPAKA_ASSERT_ACC(oi >= offsets[outer]);
+          ALPAKA_ASSERT_ACC(oi < offsets[outer + 1]);
           auto mo = hh[oi].detectorIndex();
 
           // invalid
