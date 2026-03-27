@@ -27,9 +27,6 @@ class dotdict(dict):
     __getattr__ = dict.get
     __setattr__ = dict.__setitem__
     __delattr__ = dict.__delitem__
-
-def debug(mes):
-    print('### INFO: ' + mes)
     
 def rate_errorbar_declutter(plotter, eff, err, yaxmin, frac=0.01):
     """
@@ -172,7 +169,7 @@ class Plotter:
 
     def save(self, name):
         for ext in self.extensions:
-            debug('Saving ' + name + '.' + ext)
+            utils.debug('Saving ' + name + '.' + ext)
             plt.savefig(name + '.' + ext)
         plt.close()
 
@@ -206,16 +203,19 @@ def plotProject(h, sample_label, era, props, rebin_edges, outname):
 
         if props.fit and hproj.GetMean() > 0. and hproj.GetRMS() > 0:
             gausTF1 = utils.findBestGaussianCoreFit(hproj, meanForRange=0.9, rmsForRange=0.05, quiet=True)
-            nsigmas = 3
-            xfunc = np.linspace(gausTF1.GetParameter(1) - nsigmas*abs(gausTF1.GetParameter(2)),
-                                gausTF1.GetParameter(1) + nsigmas*abs(gausTF1.GetParameter(2)))
-            yfunc = np.array([gausTF1.Eval(xi) for xi in xfunc])
-            if not (gausTF1.GetParameter(1) < hproj.GetBinLowEdge(1)
-                    or gausTF1.GetParameter(1) > hproj.GetBinLowEdge(hproj.GetNbinsX())):
-                plotter.ax.plot(xfunc, yfunc, color=line.get_edgecolor(),
-                                linewidth=1., linestyle='-')
-            fit_params[(low,high)] = (gausTF1.GetParameter(1), gausTF1.GetParameter(2),
-                                      gausTF1.GetParError(1), gausTF1.GetParError(2))
+            if gausTF1 is None:
+                fit_params = None
+            else:
+                nsigmas = 3
+                xfunc = np.linspace(gausTF1.GetParameter(1) - nsigmas*abs(gausTF1.GetParameter(2)),
+                                    gausTF1.GetParameter(1) + nsigmas*abs(gausTF1.GetParameter(2)))
+                yfunc = np.array([gausTF1.Eval(xi) for xi in xfunc])
+                if not (gausTF1.GetParameter(1) < hproj.GetBinLowEdge(1)
+                        or gausTF1.GetParameter(1) > hproj.GetBinLowEdge(hproj.GetNbinsX())):
+                    plotter.ax.plot(xfunc, yfunc, color=line.get_edgecolor(),
+                                    linewidth=1., linestyle='-')
+                fit_params[(low,high)] = (gausTF1.GetParameter(1), gausTF1.GetParameter(2),
+                                          gausTF1.GetParError(1), gausTF1.GetParError(2))
             
     plotter.limits_with_margin(valuesList, errorsList, logY=props.logy)
     
@@ -553,7 +553,7 @@ if __name__ == '__main__':
     afile = ROOT.TFile.Open(args.file)
     utils.checkRootDir(afile, dqm_dir)
 
-    debug('Start caching PFCluster histograms...')
+    utils.debug('Start caching PFCluster histograms...')
     subdirs = []
     cached_histos = {}
     directory = afile.GetDirectory(dqm_dir)
@@ -568,7 +568,7 @@ if __name__ == '__main__':
         else:
             name = key.GetName()
             cached_histos[name] = key.ReadObj()
-    debug(' ...done.')
+    utils.debug(' ...done.')
 
     # create and setup folders
     for subdir in subdirs:
@@ -878,7 +878,7 @@ if __name__ == '__main__':
         fitpars = plotProject(root_hist, args.sample_label, args.era, props, rebin_edges=props.rebin,
                               outname=os.path.join(args.odir, name + '_Projected'))
 
-        if props.fit:
+        if props.fit and fitpars is not None:
             n_bins = len(fitpars)
             xmin = min(low for low, _ in fitpars.keys())
             xmax = max(high for _, high in fitpars.keys())
@@ -984,7 +984,7 @@ if __name__ == '__main__':
     afile = ROOT.TFile.Open(args.file)
     utils.checkRootDir(afile, dqm_dir)
 
-    debug('Start caching PFCluster histograms...')
+    utils.debug('Start caching PFCluster histograms...')
     subdirs = []
     cached_histos = {}
     directory = afile.GetDirectory(dqm_dir)
@@ -999,7 +999,7 @@ if __name__ == '__main__':
         else:
             name = key.GetName()
             cached_histos[name] = key.ReadObj()
-    debug(' ...done.')
+    utils.debug(' ...done.')
 
     vars1D = {
         'CP_simToRecoShEnF': dict(xtitle='SimToReco Shared Energy Fraction', ytitle='# CaloParticles', var='CaloParticles', logy=False),

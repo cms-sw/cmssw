@@ -21,11 +21,18 @@ def createIndexPHP(src, dest):
     php_file = os.path.join(src, 'index.php')
     if os.path.exists(php_file) and not os.path.exists(os.path.join(src, 'index.php')):
         os.system(f'cp {php_file} {dest}')
-        
+
+def debug(mes):
+    print('### INFO: ' + mes)
+
 def findBestGaussianCoreFit(histo, quiet=True, meanForRange=1., rmsForRange=0.1):
     """
-    The meanForRange and rmsForRange are initial estimates.
+    Implementation of a gaussian core fit.
     """
+    if histo.Integral() < 50:
+        debug(' [findBestGaussianCoreFit] There is not enough data for running the fit.')
+        return None
+    
     Xmax = histo.GetXaxis().GetBinCenter(histo.GetMaximumBin())
 
     gausTF1 = ROOT.TF1()
@@ -36,6 +43,7 @@ def findBestGaussianCoreFit(histo, quiet=True, meanForRange=1., rmsForRange=0.1)
 
     PvalueBest = 0.    
     rms_step_minus = 2.2
+    # the meanForRange and rmsForRange are initial estimates.
     RangeLowBest = meanForRange - rms_step_minus*rmsForRange
     RangeUpBest = meanForRange + rms_step_minus*rmsForRange
     
@@ -67,9 +75,9 @@ def findBestGaussianCoreFit(histo, quiet=True, meanForRange=1., rmsForRange=0.1)
                 meanForRange = gausTF1.GetParameter(1)
 
             if not quiet:
-                print(f"\nFitting range used: [{meanForRange} - {rms_step_minus} sigma, {meanForRange} + {rms_step_plus} sigma ] ")
-                print(f"ChiSquare = {ChiSquare}, NDF = {ndf}, Prob = {Pvalue},  Best Prob so far = {PvalueBest}")
-                print(f"Sigma limit = {range_max_dist}")
+                debug(f"[findBestGaussianCoreFit] \nFitting range used: [{meanForRange} - {rms_step_minus} sigma, {meanForRange} + {rms_step_plus} sigma ] ")
+                debug(f"ChiSquare = {ChiSquare}, NDF = {ndf}, Prob = {Pvalue},  Best Prob so far = {PvalueBest}")
+                debug(f"Sigma limit = {range_max_dist}")
 
             rms_step_plus -= sigma_step
             
@@ -79,9 +87,9 @@ def findBestGaussianCoreFit(histo, quiet=True, meanForRange=1., rmsForRange=0.1)
         histo.Fit("gaus", "0Q", "0", RangeLowBest, RangeUpBest)
     else:
         histo.Fit("gaus","0","0", RangeLowBest, RangeUpBest)
-        print("Fit found!")
-        print(f"Final fitting range used: [{meanForRange} - {StepMinusBest} rms(WHF), {meanForRange} + {StepPlusBest} rms(WHF) ]")
-        print(f"ChiSquare = {ChiSquareBest}, NDF = {ndfBest}, Prob = {PvalueBest}\n\n")
+        debug("[findBestGaussianCoreFit] Fit found!")
+        debug(f"Final fitting range used: [{meanForRange} - {StepMinusBest} rms(WHF), {meanForRange} + {StepPlusBest} rms(WHF) ]")
+        debug(f"ChiSquare = {ChiSquareBest}, NDF = {ndfBest}, Prob = {PvalueBest}\n\n")
         
     return histo.GetListOfFunctions().FindObject("gaus")
 
