@@ -1,5 +1,6 @@
 <library file="*.cc" name="RecoLocalCaloHGCalRecProducersPlugins">
   <use name="alpaka"/>
+  <use name="cluestering"/>
   <use name="fmt"/>
   <use name="tbb"/>
   <use name="CommonTools/UtilAlgos"/>
@@ -20,6 +21,7 @@
   <use name="RecoLocalCalo/HGCalRecAlgos"/>
   <use name="RecoLocalCalo/HGCalRecProducers"/>
   <flags EDM_PLUGIN="1"/>
+  <flags ALPAKA_BACKENDS="serial"/>
 </library>
 
 <!-- alpaka-based portable plugins -->
@@ -32,6 +34,7 @@
   <use name="CondFormats/DataRecord"/>
   <use name="CondFormats/HGCalObjects"/>
   <use name="DataFormats/HGCalReco"/>
+  <use name="DataFormats/TICL"/>
   <use name="DataFormats/Portable"/>
   <use name="Geometry/CaloGeometry"/>
   <use name="Geometry/HGCalCommonData"/>

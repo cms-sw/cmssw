@@ -30,6 +30,7 @@
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/TICL/interface/CaloClusterHostCollection.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -139,6 +140,7 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
   produces<std::vector<float>>("InitialLayerClustersMask");
   produces<std::vector<reco::BasicCluster>>();
   //time for layer clusters
+  produces<reco::CaloClusterHostCollection>();
   produces<edm::ValueMap<std::pair<float, float>>>(timeClname_);
 }
 
@@ -285,6 +287,9 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
 #endif
 
   auto clusterHandle = evt.put(std::move(clusters));
+  auto empty_clusters = std::make_unique<reco::CaloClusterHostCollection>(cms::alpakatools::host(), 0, 0, 0, 0);
+
+  evt.put(std::move(empty_clusters));
 
   if (detector_ == "HFNose") {
     std::unique_ptr<std::vector<float>> layerClustersMask(new std::vector<float>);

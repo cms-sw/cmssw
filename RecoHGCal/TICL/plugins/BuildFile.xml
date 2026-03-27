@@ -38,3 +38,4 @@
 <library file="*.cc" name="RecoHGCalTICLPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
+
