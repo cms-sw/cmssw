@@ -544,9 +544,11 @@ void ParticleNetFeatureEvaluator::fillParticleFeatures(DeepBoostedJetFeatures &f
     fts.fill("pfcand_mask", 1);
 
     if (track) {
-      fts.fill(
-          "jet_pfcand_dzsig",
-          std::isnan(fabs(cand->dz(pv_ass_pos)) / cand->dzError()) ? 0 : fabs(cand->dz(pv_ass_pos)) / cand->dzError());
+      // FIXME: old behavior dzError returned dszError; update after retraining to actual significance
+      fts.fill("jet_pfcand_dzsig",
+               std::isnan(fabs(cand->dz(pv_ass_pos)) / cand->dszError())
+                   ? 0
+                   : fabs(cand->dz(pv_ass_pos)) / cand->dszError());
       fts.fill("jet_pfcand_dxysig",
                std::isnan(fabs(cand->dxy(pv_ass_pos)) / cand->dxyError())
                    ? 0
@@ -818,10 +820,11 @@ void ParticleNetFeatureEvaluator::fillLostTrackFeatures(DeepBoostedJetFeatures &
                std::isnan(fabs(ltrack.dxy(pv_ass_pos)) / ltrack.dxyError())
                    ? 0
                    : fabs(ltrack.dxy(pv_ass_pos)) / ltrack.dxyError());
+      // FIXME: old behavior dzError returned dszError; update after retraining to actual significance
       fts.fill("jet_losttrack_dzsig",
-               std::isnan(fabs(ltrack.dz(pv_ass_pos)) / ltrack.dzError())
+               std::isnan(fabs(ltrack.dz(pv_ass_pos)) / ltrack.dszError())
                    ? 0
-                   : fabs(ltrack.dz(pv_ass_pos)) / ltrack.dzError());
+                   : fabs(ltrack.dz(pv_ass_pos)) / ltrack.dszError());
 
       reco::TransientTrack transientTrack = track_builder_->build(*track);
       Measurement1D meas_ip3d = IPTools::signedImpactParameter3D(transientTrack, jet_ref_track_dir, *pv_).second;
