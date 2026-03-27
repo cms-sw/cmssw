@@ -132,6 +132,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           outPFCluster.nTopos() = cc_idx;
           outPFCluster.nSeeds() = cc_idx;
+          outPFCluster.nRHFracs() = pfCluster.nRHFracs();
           outPFCluster.size() = cc_idx;
         }
         return;
@@ -219,6 +220,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           if (::cms::alpakatools::once_per_block(acc)) {
             outPFCluster.nTopos() = nComponents;
             outPFCluster.nSeeds() = nComponents;
+            outPFCluster.nRHFracs() = pfCluster.nRHFracs();
             outPFCluster.size() = nComponents;
           }
 
