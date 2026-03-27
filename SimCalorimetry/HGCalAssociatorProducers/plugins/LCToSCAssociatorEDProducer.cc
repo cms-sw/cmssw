@@ -58,8 +58,7 @@ LCToSCAssociatorEDProducerT<CLUSTER>::LCToSCAssociatorEDProducerT(const edm::Par
   label_scl_ = pset.getParameter<edm::InputTag>("label_scl");
 
   std::vector<std::string> filter_sim_hits = pset.getParameter<std::vector<std::string>>("filter_sim_hits");
-  simcluster_utils::check_detids(filter_sim_hits);
-  detIds_ = simcluster_utils::join_detids(filter_sim_hits);
+  detIds_ = simcluster_utils::check_and_join_detids(filter_sim_hits);
 
   LCCollectionToken_ = consumes<CLUSTER>(label_lcl_);
   SCCollectionToken_ = consumes<SimClusterCollection>(label_scl_);
