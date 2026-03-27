@@ -66,7 +66,7 @@
 // class declaration
 //
 
-class CSCChamberMasker : public edm::stream::EDProducer<> {
+class CSCChamberMasker : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit CSCChamberMasker(const edm::ParameterSet &);
   ~CSCChamberMasker() override;
