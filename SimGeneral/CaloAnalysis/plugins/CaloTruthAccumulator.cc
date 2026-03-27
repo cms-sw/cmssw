@@ -73,9 +73,10 @@ namespace {
         : outputClusters_token(c.produces<SimClusterCollection>(tag)),
           clustersToCaloParticleMap_token(c.produces<SimClusterRefVector>(tag)) {}
 
-    void clear() {
-      outputClusters.clear();
-      clustersToCaloParticleMap.clear();
+    void clearAndReleaseMemory() {
+      // Using the clear-and-minimize idiom to ensure the vector memory is completely released after each event is processed
+      SimClusterCollection().swap(outputClusters);
+      SimClusterRefVector().swap(clustersToCaloParticleMap);
     }
   };
 
@@ -189,9 +190,9 @@ namespace {
                                        jetDefinition_);
     }
 
-    void clear() /* override */ {
-      SimClusterConfig::clear();
-      subClustersToMergedClusterMap.clear();
+    void clearAndReleaseMemory() /* override */ {
+      SimClusterConfig::clearAndReleaseMemory();
+      SimClusterRefVector().swap(subClustersToMergedClusterMap);
     }
 
     /// For the map from subCluster to merged SimCluster
@@ -605,11 +606,6 @@ CaloTruthAccumulator::CaloTruthAccumulator(const edm::ParameterSet &config,
 }
 
 void CaloTruthAccumulator::initializeEvent(edm::Event const &event, edm::EventSetup const &setup) {
-  outputCaloParticles_.clear();
-  applyToSimClusterConfig([](auto &config) { config.clear(); });
-
-  m_detIdToTotalSimEnergy.clear();
-
   if (geomWatcher_.check(setup)) {
     auto const &geom = setup.getData(geomToken_);
     const HGCalGeometry *eegeom = nullptr, *fhgeom = nullptr, *bhgeomnew = nullptr;
@@ -737,15 +733,21 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
   }
 
   event.emplace(outputCaloParticles_token_, std::move(outputCaloParticles_));
+  // puts the vector into "empty" determined state (instead of "moved-from" undetermined state)
+  // also uses clear-and-minimize idiom to ensure the memory is released
+  CaloParticleCollection().swap(outputCaloParticles_);
 
   applyToSimClusterConfig([&event](auto &config) {
     event.emplace(config.outputClusters_token, std::move(config.outputClusters));
     event.emplace(config.clustersToCaloParticleMap_token, std::move(config.clustersToCaloParticleMap));
+    // puts the vector into "empty" determined state (instead of "moved-from" undetermined state)
+    // and ensure the memory is released (should already be released due to the move, but make sure)
+    config.clearAndReleaseMemory();
   });
   event.emplace(simClusterMergerFastJet_config_.subClustersToMergedClusterMap_token,
                 std::move(simClusterMergerFastJet_config_.subClustersToMergedClusterMap));
 
-  m_detIdToTotalSimEnergy.clear();
+  std::unordered_map<Index_t, float>().swap(m_detIdToTotalSimEnergy);  // clear-and-minimize idiom
 }
 
 template <class T>
