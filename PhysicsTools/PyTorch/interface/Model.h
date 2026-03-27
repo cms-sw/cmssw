@@ -13,17 +13,34 @@ namespace cms::torch {
   // - https://docs.pytorch.org/cppdocs/api/classtorch_1_1nn_1_1_module.html#class-module
   class Model {
   public:
-    explicit Model(const std::string &model_path) : model_(cms::torch::load(model_path)), device_(::torch::kCPU) {}
+    explicit Model(const std::string &model_path, bool auto_freeze = true)
+        : model_(cms::torch::load(model_path)), device_(::torch::kCPU), auto_freeze_(auto_freeze) {
+      model_.eval();
+    }
 
-    explicit Model(const std::string &model_path, ::torch::Device dev)
-        : model_(cms::torch::load(model_path, dev)), device_(dev) {}
+    explicit Model(const std::string &model_path, ::torch::Device dev, bool auto_freeze = true)
+        : model_(cms::torch::load(model_path, dev)), device_(dev), auto_freeze_(auto_freeze) {
+      model_.eval();
+    }
 
     // Move model to specified device memory space. Async load by specifying `non_blocking` (in default stream if not overridden by the caller)
     void to(::torch::Device dev, const bool non_blocking = false) {
       if (dev == device_)
         return;
+
+      assert(!is_frozen_ && "Model is frozen, cannot be moved to another device!");
       model_.to(dev, non_blocking);
       device_ = dev;
+      if (auto_freeze_) {
+        freeze();
+      }
+    }
+
+    void freeze() {
+      if (!is_frozen_) {
+        model_ = ::torch::jit::freeze(model_);
+        is_frozen_ = true;
+      }
     }
 
     // Forward pass (inference) of model, returns torch::IValue (multi output support). Match native torchlib interface.
@@ -39,6 +56,8 @@ namespace cms::torch {
   protected:
     ::torch::jit::script::Module model_;  // underlying JIT model
     ::torch::Device device_;              // device where the model is allocated (default CPU)
+    bool auto_freeze_;  // flag to indicate if the model should be automatically frozen after loading or moving to device
+    bool is_frozen_ = false;  // flag to indicate if the model is frozen
   };
 
 }  // namespace cms::torch
