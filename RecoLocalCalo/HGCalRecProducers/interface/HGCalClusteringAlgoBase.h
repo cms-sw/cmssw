@@ -1,26 +1,24 @@
 #ifndef RecoLocalCalo_HGCalRecProducers_HGCalClusteringAlgoBase_h
 #define RecoLocalCalo_HGCalRecProducers_HGCalClusteringAlgoBase_h
 
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include "DataFormats/TICL/interface/CaloClusterHostCollection.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
-#include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-#include "RecoLocalCalo/HGCalRecProducers/interface/LayerClusterAndAssociations.h"
 
 #include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
-#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/HcalPFCutsRcd.h"
 #include "CondFormats/HcalObjects/interface/HcalPFCuts.h"
 
 // C/C++ headers
-#include <numeric>
 #include <vector>
+#include <numeric>
 
 namespace hgcal_clustering {
   template <typename T>
@@ -48,7 +46,7 @@ namespace hgcal_clustering {
     return (*maxidx);
   }
 
-  // Density collection
+  //Density collection
   typedef std::map<DetId, float> Density;
 
 };  // namespace hgcal_clustering
@@ -63,11 +61,10 @@ public:
   virtual void populate(const HGCRecHitCollection &hits) = 0;
   virtual void populate(const reco::PFRecHitCollection &hits) = 0;
   virtual void makeClusters() = 0;
-  virtual ticl::LayerClustersAndAssociations getClusters(bool) = 0;
-  virtual std::vector<reco::BasicCluster> getClustersLegacy(bool) = 0;
+  virtual std::vector<reco::BasicCluster> getClusters(bool) = 0;
   virtual void reset() = 0;
-  virtual hgcal_clustering::Density getDensity() { return {}; };        // implementation is in some child class
-  virtual void getEventSetupPerAlgorithm(const edm::EventSetup &es) {}  // implementation is in some child class
+  virtual hgcal_clustering::Density getDensity() { return {}; };        //implementation is in some child class
+  virtual void getEventSetupPerAlgorithm(const edm::EventSetup &es) {}  //implementation is in some child class
 
   inline void getEventSetup(const edm::EventSetup &es, hgcal::RecHitTools rhtools) {
     rhtools_ = rhtools;
@@ -86,7 +83,7 @@ public:
   virtual void setThresholds(edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>,
                              edm::ESGetToken<HcalPFCuts, HcalPFCutsRcd>){};
 
-  // max number of layers
+  //max number of layers
   unsigned int maxlayer_ = 0;
   // last layer per subdetector
   unsigned int lastLayerEE_ = 0;
@@ -101,8 +98,6 @@ protected:
 
   // The vector of clusters
   std::vector<reco::BasicCluster> clusters_v_;
-
-  // reco::CaloClusterHostCollection layer_clusters_;
 
   hgcal::RecHitTools rhtools_;
 

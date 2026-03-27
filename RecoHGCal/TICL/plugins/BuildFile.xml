@@ -39,15 +39,3 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<library file="alpaka/*.cc" name="HeterogeneousTrackstersPluginsPortable">
-  <use name="alpaka"/>
-  <use name="CLUEstering"/>
-  <use name="CondFormats/DataRecord"/>
-  <use name="CondFormats/HGCalObjects"/>
-  <use name="DataFormats/Portable"/>
-  <use name="Geometry/HGCalGeometry"/>
-  <use name="HeterogeneousCore/AlpakaCore"/>
-  <use name="HeterogeneousCore/AlpakaInterface"/>
-  <flags ALPAKA_BACKENDS="serial"/>
-  <flags EDM_PLUGIN="1"/>
-</library>
