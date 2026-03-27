@@ -45,8 +45,8 @@ public:
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
-  edm::InputTag label_lc;
-  std::vector<std::string> filter_sim_hits;
+  edm::InputTag label_lc_;
+  std::vector<DetId::Detector> detIds_;
 
   edm::EDGetTokenT<CaloParticleCollection> CPCollectionToken_;
   edm::EDGetTokenT<CLUSTER> LCCollectionToken_;
@@ -58,13 +58,14 @@ LCToCPAssociatorEDProducerT<CLUSTER>::LCToCPAssociatorEDProducerT(const edm::Par
   produces<ticl::SimToRecoCollectionT<CLUSTER>>();
   produces<ticl::RecoToSimCollectionT<CLUSTER>>();
 
-  label_lc = pset.getParameter<edm::InputTag>("label_lc");
-  filter_sim_hits = pset.getParameter<std::vector<std::string>>("filter_sim_hits");
+  label_lc_ = pset.getParameter<edm::InputTag>("label_lc");
+  std::vector<std::string> filter_sim_hits = pset.getParameter<std::vector<std::string>>("filter_sim_hits");
 
   simcluster_utils::check_detids(filter_sim_hits);
+  detIds_ = simcluster_utils::join_detids(filter_sim_hits);
 
   CPCollectionToken_ = consumes<CaloParticleCollection>(pset.getParameter<edm::InputTag>("label_cp"));
-  LCCollectionToken_ = consumes<CLUSTER>(label_lc);
+  LCCollectionToken_ = consumes<CLUSTER>(label_lc_);
   associatorToken_ =
       consumes<ticl::LayerClusterToCaloParticleAssociatorT<CLUSTER>>(pset.getParameter<edm::InputTag>("associator"));
 }
@@ -99,7 +100,7 @@ void LCToCPAssociatorEDProducerT<CLUSTER>::produce(edm::StreamID,
   // Protection against missing cluster collection
   if (!LCCollection.isValid()) {
     edm::LogWarning("LCToCPAssociatorEDProducerT")
-        << "CaloCluster collection with label " << label_lc << " is unavailable. Producing empty associations.";
+        << "CaloCluster collection with label " << label_lc_ << " is unavailable. Producing empty associations.";
 
     // Return empty collections
     auto emptyRecSimColl = std::make_unique<ticl::RecoToSimCollectionT<CLUSTER>>();
@@ -110,16 +111,14 @@ void LCToCPAssociatorEDProducerT<CLUSTER>::produce(edm::StreamID,
     return;
   }
 
-  std::vector<DetId::Detector> detIds = simcluster_utils::join_detids(filter_sim_hits);
-
   // associate LC and CP
   LogTrace("AssociatorValidator") << "Calling associateRecoToSim method\n";
   ticl::RecoToSimCollectionT<CLUSTER> recSimColl =
-      theAssociator->associateRecoToSim(LCCollection, CPCollection, detIds);
+      theAssociator->associateRecoToSim(LCCollection, CPCollection, detIds_);
 
   LogTrace("AssociatorValidator") << "Calling associateSimToReco method\n";
   ticl::SimToRecoCollectionT<CLUSTER> simRecColl =
-      theAssociator->associateSimToReco(LCCollection, CPCollection, detIds);
+      theAssociator->associateSimToReco(LCCollection, CPCollection, detIds_);
 
   auto rts = std::make_unique<ticl::RecoToSimCollectionT<CLUSTER>>(recSimColl);
   auto str = std::make_unique<ticl::SimToRecoCollectionT<CLUSTER>>(simRecColl);
