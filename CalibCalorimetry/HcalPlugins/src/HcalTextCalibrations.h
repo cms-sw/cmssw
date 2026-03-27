@@ -18,6 +18,7 @@ class HcalPedestalWidthsRcd;
 class HcalGainsRcd;
 class HcalGainWidthsRcd;
 class HcalPFCutsRcd;
+class HcalPulseDelaysRcd;
 class HcalQIEDataRcd;
 class HcalQIETypesRcd;
 class HcalChannelQualityRcd;
@@ -97,6 +98,7 @@ protected:
   std::unique_ptr<HcalGains> produceGains(const HcalGainsRcd& rcd);
   std::unique_ptr<HcalGainWidths> produceGainWidths(const HcalGainWidthsRcd& rcd);
   std::unique_ptr<HcalPFCuts> producePFCuts(const HcalPFCutsRcd& rcd);
+  std::unique_ptr<HcalPulseDelays> producePulseDelays(const HcalPulseDelaysRcd& rcd);
   std::unique_ptr<HcalQIEData> produceQIEData(const HcalQIEDataRcd& rcd);
   std::unique_ptr<HcalQIETypes> produceQIETypes(const HcalQIETypesRcd& rcd);
   std::unique_ptr<HcalChannelQuality> produceChannelQuality(const HcalChannelQualityRcd& rcd);

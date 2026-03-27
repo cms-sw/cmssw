@@ -56,8 +56,9 @@ std::vector<std::string> splitString(const std::string& fLine) {
   std::vector<std::string> result;
   int start = 0;
   bool empty = true;
-  for (unsigned i = 0; i <= fLine.size(); i++) {
-    if (fLine[i] == ' ' || i == fLine.size()) {
+  const unsigned sz = fLine.size();
+  for (unsigned i = 0; i <= sz; i++) {
+    if (i == sz || fLine[i] == ' ' || fLine[i] == '\t') {
       if (!empty) {
         std::string item(fLine, start, i - start);
         result.push_back(item);
@@ -304,6 +305,49 @@ bool getHcalDoubleFloatObject(std::istream& fInput, T* fObject) {
 }
 
 template <class T>
+bool dumpHcalStringFloatObject(std::ostream& fOutput, const T& fObject) {
+  char buffer[1024];
+  sprintf(buffer, "# %15s %15s %15s %15s %10s %10s %10s\n", "eta", "phi", "dep", "det", "value0", "value1", "DetId");
+  fOutput << buffer;
+  std::vector<DetId> channels = fObject.getAllChannels();
+  std::sort(channels.begin(), channels.end(), DetIdLess());
+  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+    const std::string& value0 = fObject.getValues(*channel)->getValue0();
+    const float value1 = fObject.getValues(*channel)->getValue1();
+    HcalDbASCIIIO::dumpId(fOutput, *channel);
+    fOutput << ' ' << value0;
+    sprintf(buffer, " %10.7f %10X\n", value1, channel->rawId());
+    fOutput << buffer;
+  }
+  return true;
+}
+
+template <class S, class T>
+bool getHcalStringFloatObject(std::istream& fInput, T* fObject) {
+  if (!fObject)
+    return false;  //fObject = new T;
+  char buffer[1024];
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer[0] == '#')
+      continue;  //ignore comment
+    std::vector<std::string> items = splitString(std::string(buffer));
+    if (items.empty())
+      continue;  // blank line
+    if (items.size() < 6) {
+      edm::LogWarning("Format Error") << "Bad line: " << buffer
+                                      << "\n line must contain 6 items: eta, phi, depth, subdet, value0, value1"
+                                      << std::endl;
+      continue;
+    }
+    DetId id = HcalDbASCIIIO::getId(items);
+    S fCondObject(id, items[4], atof(items[5].c_str()));
+    fObject->addValues(fCondObject);
+  }
+
+  return true;
+}
+
+template <class T>
 bool dumpHcalSingleFloatObject(std::ostream& fOutput, const T& fObject) {
   char buffer[1024];
   sprintf(buffer, "# %15s %15s %15s %15s %8s %10s\n", "eta", "phi", "dep", "det", "value", "DetId");
@@ -436,6 +480,13 @@ namespace HcalDbASCIIIO {
   }
   bool dumpObject(std::ostream& fOutput, const HcalPFCuts& fObject) {
     return dumpHcalDoubleFloatObject(fOutput, fObject);
+  }
+
+  bool getObject(std::istream& fInput, HcalPulseDelays* fObject) {
+    return getHcalStringFloatObject<HcalPulseDelay>(fInput, fObject);
+  }
+  bool dumpObject(std::ostream& fOutput, const HcalPulseDelays& fObject) {
+    return dumpHcalStringFloatObject(fOutput, fObject);
   }
 
   bool getObject(std::istream& fInput, HcalRespCorrs* fObject) {

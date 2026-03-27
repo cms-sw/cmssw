@@ -272,6 +272,12 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations(const edm::ParameterSet& iCon
       zdcTopoTokens_[kPFCuts] = c.consumes();
       findingRecord<HcalPFCutsRcd>();
     }
+    if ((objectName == "PulseDelays") || all) {
+      auto c = setWhatProduced(this, &HcalHardcodeCalibrations::producePulseDelays);
+      topoTokens_[kPulseDelays] = c.consumes();
+      zdcTopoTokens_[kPulseDelays] = c.consumes();
+      findingRecord<HcalPulseDelaysRcd>();
+    }
     if ((objectName == "QIEData") || all) {
       auto c = setWhatProduced(this, &HcalHardcodeCalibrations::produceQIEData);
       topoTokens_[kQIEData] = c.consumes();
@@ -547,6 +553,24 @@ std::unique_ptr<HcalPFCuts> HcalHardcodeCalibrations::producePFCuts(const HcalPF
     // Use only standard Hcal channels for now, no TrigPrims
     if (!cell.isHcalTrigTowerDetId()) {
       HcalPFCut item = dbHardcode.makePFCut(cell, iLumi, dbHardcode.killHE());
+      result->addValues(item);
+    }
+  }
+  return result;
+}
+
+std::unique_ptr<HcalPulseDelays> HcalHardcodeCalibrations::producePulseDelays(const HcalPulseDelaysRcd& rec) {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCAL") << "HcalHardcodeCalibrations::producePulseDelays-> ...";
+#endif
+  auto const& topo = rec.get(topoTokens_[kPulseDelays]);
+  auto const& zdcTopo = rec.get(zdcTopoTokens_[kPulseDelays]);
+  auto result = std::make_unique<HcalPulseDelays>(&topo);
+  const std::vector<HcalGenericDetId>& cells = allCells(topo, zdcTopo, dbHardcode.killHE());
+  for (auto cell : cells) {
+    // Use only standard Hcal channels for now, no TrigPrims
+    if (!cell.isHcalTrigTowerDetId()) {
+      HcalPulseDelay item = dbHardcode.makePulseDelay(cell);
       result->addValues(item);
     }
   }
@@ -1077,6 +1101,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_hb.add<bool>("doRadiationDamage", false);
   desc_hb.add<double>("noiseThreshold", 0.0);
   desc_hb.add<double>("seedThreshold", 0.1);
+  desc_hb.add<double>("pulseDelay", 0.0);
   desc.add<edm::ParameterSetDescription>("hb", desc_hb);
 
   edm::ParameterSetDescription desc_hbRaddam;
@@ -1105,6 +1130,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_hbUpgrade.add<edm::ParameterSetDescription>("radiationDamage", desc_hbRaddam);
   desc_hbUpgrade.add<double>("noiseThreshold", 0.0);
   desc_hbUpgrade.add<double>("seedThreshold", 0.1);
+  desc_hbUpgrade.add<double>("pulseDelay", 0.0);
   desc.add<edm::ParameterSetDescription>("hbUpgrade", desc_hbUpgrade);
 
   edm::ParameterSetDescription desc_he;
@@ -1124,6 +1150,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_he.add<bool>("doRadiationDamage", false);
   desc_he.add<double>("noiseThreshold", 0.0);
   desc_he.add<double>("seedThreshold", 0.1);
+  desc_he.add<double>("pulseDelay", 0.0);
   desc.add<edm::ParameterSetDescription>("he", desc_he);
 
   edm::ParameterSetDescription desc_heRaddam;
@@ -1152,6 +1179,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_heUpgrade.add<edm::ParameterSetDescription>("radiationDamage", desc_heRaddam);
   desc_heUpgrade.add<double>("noiseThreshold", 0.0);
   desc_heUpgrade.add<double>("seedThreshold", 0.1);
+  desc_heUpgrade.add<double>("pulseDelay", 0.0);
   desc.add<edm::ParameterSetDescription>("heUpgrade", desc_heUpgrade);
 
   edm::ParameterSetDescription desc_hf;
@@ -1171,6 +1199,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_hf.add<bool>("doRadiationDamage", false);
   desc_hf.add<double>("noiseThreshold", 0.0);
   desc_hf.add<double>("seedThreshold", 0.1);
+  desc_hf.add<double>("pulseDelay", 0.0);
   desc.add<edm::ParameterSetDescription>("hf", desc_hf);
 
   edm::ParameterSetDescription desc_hfUpgrade;
@@ -1190,6 +1219,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_hfUpgrade.add<bool>("doRadiationDamage", false);
   desc_hfUpgrade.add<double>("noiseThreshold", 0.0);
   desc_hfUpgrade.add<double>("seedThreshold", 0.1);
+  desc_hfUpgrade.add<double>("pulseDelay", 0.0);
   desc.add<edm::ParameterSetDescription>("hfUpgrade", desc_hfUpgrade);
 
   edm::ParameterSetDescription desc_hfrecal;
@@ -1216,6 +1246,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_ho.add<bool>("doRadiationDamage", false);
   desc_ho.add<double>("noiseThreshold", 0.0);
   desc_ho.add<double>("seedThreshold", 0.1);
+  desc_ho.add<double>("pulseDelay", 0.0);
   desc.add<edm::ParameterSetDescription>("ho", desc_ho);
 
   edm::ParameterSetDescription validator_sipm;
