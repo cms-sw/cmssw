@@ -298,10 +298,16 @@ void ScoutingMuonTriggerAnalyzer::fillDescriptions(edm::ConfigurationDescription
   desc.add<edm::InputTag>("l1tAlgBlkInputTag", edm::InputTag("gtStage2Digis"));
   desc.add<edm::InputTag>("l1tExtBlkInputTag", edm::InputTag("gtStage2Digis"));
   desc.add<bool>("ReadPrescalesFromFile", false);
+  desc.add<std::string>("muonSelection", "");
+
   edm::ParameterSetDescription triggerConfig;
-  desc.add<std::string>("muonSelection");
-  triggerConfig.setAllowAnything();
+  triggerConfig.add<edm::InputTag>("hltResults", edm::InputTag("TriggerResults", "", "HLT"));
+  triggerConfig.add<edm::InputTag>("l1tResults", edm::InputTag(""));
+  triggerConfig.add<bool>("l1tIgnoreMaskAndPrescale", false);
+  triggerConfig.add<bool>("throw", true);
+  triggerConfig.add<bool>("usePathStatus", false);
   desc.add<edm::ParameterSetDescription>("triggerConfiguration", triggerConfig);
+
   descriptions.addWithDefaultLabel(desc);
 }
 
