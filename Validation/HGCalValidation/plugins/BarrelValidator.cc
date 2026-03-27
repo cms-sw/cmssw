@@ -65,6 +65,13 @@ bool assignTracksterMaps(const edm::Handle<std::vector<ticl::Trackster>>& tracks
 BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
     : caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       label_lcl(pset.getParameter<edm::InputTag>("label_lcl")),
+      label_tst(pset.getParameter<std::vector<edm::InputTag>>("label_tst")),
+      allTracksterTracksterAssociatorsLabels_(
+          pset.getParameter<std::vector<edm::InputTag>>("allTracksterTracksterAssociatorsLabels")),
+      allTracksterTracksterByHitsAssociatorsLabels_(
+          pset.getParameter<std::vector<edm::InputTag>>("allTracksterTracksterByHitsAssociatorsLabels")),
+      label_simTS(pset.getParameter<edm::InputTag>("label_simTS")),
+      label_simTSFromCP(pset.getParameter<edm::InputTag>("label_simTSFromCP")),
       associator_(pset.getUntrackedParameter<std::vector<edm::InputTag>>("associator")),
       associatorSim_(pset.getUntrackedParameter<std::vector<edm::InputTag>>("associatorSim")),
       SaveGeneralInfo_(pset.getUntrackedParameter<bool>("SaveGeneralInfo")),
@@ -76,6 +83,12 @@ BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
       doLayerClustersPlots_(pset.getUntrackedParameter<bool>("doLayerClustersPlots")),
       label_layerClustersPlots_(pset.getParameter<std::string>("label_layerClustersPlots")),
       label_LCToCPLinking_(pset.getParameter<std::string>("label_LCToCPLinking")),
+      doTrackstersPlots_(pset.getUntrackedParameter<bool>("doTrackstersPlots")),
+      label_TS_(pset.getParameter<std::string>("label_TS")),
+      label_TSbyHitsCP_(pset.getParameter<std::string>("label_TSbyHitsCP")),
+      label_TSbyHits_(pset.getParameter<std::string>("label_TSbyHits")),
+      label_TSbyLCsCP_(pset.getParameter<std::string>("label_TSbyLCsCP")),
+      label_TSbyLCs_(pset.getParameter<std::string>("label_TSbyLCs")),
       hitsToken_(consumes<edm::RefProdVector<reco::PFRecHitCollection>>(pset.getParameter<edm::InputTag>("hits"))),
       scToCpMapToken_(
           consumes<SimClusterToCaloParticleMap>(pset.getParameter<edm::InputTag>("simClustersToCaloParticlesMap"))) {
@@ -101,6 +114,8 @@ BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
         consumes<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>>(itag));
   }
 
+  simTrackstersMap_ = consumes<std::map<uint, std::vector<uint>>>(pset.getParameter<edm::InputTag>("simTrackstersMap"));
+
   barrelHitMap_ =
       consumes<std::unordered_map<DetId, const unsigned int>>(edm::InputTag("recHitMapProducer", "barrelRecHitMap"));
 
@@ -114,6 +129,21 @@ BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
   for (auto& itag : associator_) {
     associatorMapStR.push_back(consumes<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>>(itag));
   }
+
+  for (const auto& tag : allTracksterTracksterAssociatorsLabels_) {
+    tracksterToTracksterAssociatorsTokens_.emplace_back(consumes<TracksterToTracksterMap>(tag));
+  }
+
+  for (const auto& tag : allTracksterTracksterByHitsAssociatorsLabels_) {
+    tracksterToTracksterByHitsAssociatorsTokens_.emplace_back(consumes<TracksterToTracksterMap>(tag));
+  }
+
+  for (auto& itag : label_tst) {
+    label_tstTokens.push_back(consumes<ticl::TracksterCollection>(itag));
+  }
+
+  simTracksters_ = consumes<ticl::TracksterCollection>(label_simTS);
+  simTracksters_fromCPs_ = consumes<ticl::TracksterCollection>(label_simTSFromCP);
 
   cpSelector = CaloParticleSelector(pset.getParameter<double>("ptMinCP"),
                                     pset.getParameter<double>("ptMaxCP"),
@@ -211,6 +241,51 @@ void BarrelValidator::bookHistograms(DQMStore::IBooker& ibook,
     ibook.setCurrentFolder(dirName_ + label_layerClustersPlots_ + "/CellLevel");
     histoProducerAlgo_->bookClusterHistos_CellLevel(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
   }
+
+  //Booking histograms for Tracksters
+  for (unsigned int www = 0; www < label_tst.size(); www++) {
+    ibook.cd();
+    InputTag algo = label_tst[www];
+    string dirName = dirName_;
+    if (!algo.process().empty())
+      dirName += algo.process() + "_";
+    LogDebug("BarrelValidator") << dirName << "\n";
+    if (!algo.label().empty())
+      dirName += algo.label() + "_";
+    LogDebug("BarrelValidator") << dirName << "\n";
+    if (!algo.instance().empty())
+      dirName += algo.instance() + "_";
+    LogDebug("BarrelValidator") << dirName << "\n";
+
+    if (!dirName.empty()) {
+      dirName.resize(dirName.size() - 1);
+    }
+
+    ibook.setCurrentFolder(dirName);
+
+    // Booking histograms concerning tracksters
+    if (doTrackstersPlots_) {
+      // Generic histos
+      ibook.setCurrentFolder(dirName + "/" + label_TS_);
+      histoProducerAlgo_->bookTracksterHistos(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
+      // CP Linking by Hits
+      ibook.setCurrentFolder(dirName + "/" + label_TSbyHitsCP_);
+      histoProducerAlgo_->bookTracksterSTSHistos(
+          ibook, histograms.histoProducerAlgo, BarrelVHistoProducerAlgo::validationType::byHits_CP);
+      // CP Linking by LCs
+      ibook.setCurrentFolder(dirName + "/" + label_TSbyLCsCP_);
+      histoProducerAlgo_->bookTracksterSTSHistos(
+          ibook, histograms.histoProducerAlgo, BarrelVHistoProducerAlgo::validationType::byLCs_CP);
+      // SimTracksters Linking by Hits
+      ibook.setCurrentFolder(dirName + "/" + label_TSbyHits_);
+      histoProducerAlgo_->bookTracksterSTSHistos(
+          ibook, histograms.histoProducerAlgo, BarrelVHistoProducerAlgo::validationType::byHits);
+      // SimTracksters Linking by LCs
+      ibook.setCurrentFolder(dirName + "/" + label_TSbyLCs_);
+      histoProducerAlgo_->bookTracksterSTSHistos(
+          ibook, histograms.histoProducerAlgo, BarrelVHistoProducerAlgo::validationType::byLCs);
+    }
+  }  //end of booking Tracksters loop
 }
 
 void BarrelValidator::cpParametersAndSelection(const Histograms& histograms,
@@ -256,6 +331,26 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
   edm::Handle<std::vector<CaloParticle>> caloParticleHandle;
   event.getByToken(label_cp_effic, caloParticleHandle);
   std::vector<CaloParticle> const& caloParticles = *caloParticleHandle;
+
+  edm::Handle<ticl::TracksterCollection> simTracksterHandle;
+  event.getByToken(simTracksters_, simTracksterHandle);
+  if (!simTracksterHandle.isValid()) {
+    edm::LogWarning("MissingInput") << "Missing SimTrackster collection";
+    return;
+  }
+  ticl::TracksterCollection const& simTracksters = *simTracksterHandle;
+
+  edm::Handle<ticl::TracksterCollection> simTracksterFromCPHandle;
+  event.getByToken(simTracksters_fromCPs_, simTracksterFromCPHandle);
+  if (!simTracksterFromCPHandle.isValid()) {
+    edm::LogWarning("MissingInput") << "Missing SimTrackster collection from CP";
+    return;
+  }
+  ticl::TracksterCollection const& simTrackstersFromCPs = *simTracksterFromCPHandle;
+
+  edm::Handle<std::map<uint, std::vector<uint>>> simTrackstersMapHandle;
+  event.getByToken(simTrackstersMap_, simTrackstersMapHandle);
+  const std::map<uint, std::vector<uint>>& cpToSc_SimTrackstersMap = *simTrackstersMapHandle;
 
   edm::ESHandle<CaloGeometry> geom = setup.getHandle(caloGeomToken_);
   tools_->setGeometry(*geom);
@@ -324,6 +419,24 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
   edm::Handle<reco::CaloClusterCollection> clusterHandle;
   event.getByToken(layerclusters_, clusterHandle);
   const reco::CaloClusterCollection& clusters = *clusterHandle;
+
+  std::vector<edm::Handle<TracksterToTracksterMap>> tracksterToTracksterMapsHandles;
+  for (auto& token : tracksterToTracksterAssociatorsTokens_) {
+    edm::Handle<TracksterToTracksterMap> tracksterToTracksterMapHandle;
+    event.getByToken(token, tracksterToTracksterMapHandle);
+    tracksterToTracksterMapsHandles.push_back(tracksterToTracksterMapHandle);
+  }
+
+  std::vector<edm::Handle<TracksterToTracksterMap>> tracksterToTracksterByHitsMapsHandles;
+  for (auto& token : tracksterToTracksterByHitsAssociatorsTokens_) {
+    edm::Handle<TracksterToTracksterMap> tracksterToTracksterByHitsMapHandle;
+    event.getByToken(token, tracksterToTracksterByHitsMapHandle);
+    tracksterToTracksterByHitsMapsHandles.push_back(tracksterToTracksterByHitsMapHandle);
+  }
+
+  edm::Handle<SimClusterToCaloParticleMap> scToCpMapHandle;
+  event.getByToken(scToCpMapToken_, scToCpMapHandle);
+  const SimClusterToCaloParticleMap& scToCpMap = *scToCpMapHandle;
 
   auto nSimClusters = simClusters.size();
   std::vector<size_t> sCIndices;
@@ -408,6 +521,71 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
     LogTrace("BarrelValidator") << "\n# of layer clusters with " << label_lcl.process() << ":" << label_lcl.label()
                                 << ":" << label_lcl.instance() << ": " << clusters.size() << "\n";
   }
+
+  // ##############################################
+  // Fill Trackster histograms
+  // ##############################################
+  for (unsigned int wml = 0; wml < label_tstTokens.size(); wml++) {
+    if (doTrackstersPlots_) {
+      edm::Handle<ticl::TracksterCollection> tracksterHandle;
+      event.getByToken(label_tstTokens[wml], tracksterHandle);
+
+      if (!tracksterHandle.isValid()) {
+        edm::LogWarning("MissingInput") << "Failed to retrieve tracksters for wml index: " << wml;
+        continue;  // Or handle the error as needed
+      }
+
+      const ticl::TracksterCollection& tracksters = *tracksterHandle;
+      edm::Handle<TracksterToTracksterMap> trackstersToSimTrackstersMapH, simTrackstersToTrackstersMapH,
+          trackstersToSimTrackstersFromCPsMapH, simTrackstersFromCPsToTrackstersMapH,
+          trackstersToSimTrackstersByHitsMapH, simTrackstersToTrackstersByHitsMapH,
+          trackstersToSimTrackstersFromCPsByHitsMapH, simTrackstersFromCPsToTrackstersByHitsMapH;
+
+      bool mapsFound = assignTracksterMaps(tracksterHandle,
+                                           simTracksterHandle,
+                                           simTracksterFromCPHandle,
+                                           tracksterToTracksterMapsHandles,
+                                           trackstersToSimTrackstersMapH,
+                                           simTrackstersToTrackstersMapH,
+                                           trackstersToSimTrackstersFromCPsMapH,
+                                           simTrackstersFromCPsToTrackstersMapH);
+
+      mapsFound = mapsFound and assignTracksterMaps(tracksterHandle,
+                                                    simTracksterHandle,
+                                                    simTracksterFromCPHandle,
+                                                    tracksterToTracksterByHitsMapsHandles,
+                                                    trackstersToSimTrackstersByHitsMapH,
+                                                    simTrackstersToTrackstersByHitsMapH,
+                                                    trackstersToSimTrackstersFromCPsByHitsMapH,
+                                                    simTrackstersFromCPsToTrackstersByHitsMapH);
+
+      histoProducerAlgo_->fill_trackster_histos(histograms.histoProducerAlgo,
+                                                wml,
+                                                tracksters,
+                                                clusters,
+                                                simTracksters,
+                                                simTrackstersFromCPs,
+                                                cpToSc_SimTrackstersMap,
+                                                simClusters,
+                                                caloParticleHandle.id(),
+                                                caloParticles,
+                                                cPIndices,
+                                                selected_cPeff,
+                                                barrelHitMap,
+                                                totallayers_to_monitor_,
+                                                barrelRechitSpan,
+                                                mapsFound,
+                                                trackstersToSimTrackstersMapH,
+                                                simTrackstersToTrackstersMapH,
+                                                trackstersToSimTrackstersFromCPsMapH,
+                                                simTrackstersFromCPsToTrackstersMapH,
+                                                trackstersToSimTrackstersByHitsMapH,
+                                                simTrackstersToTrackstersByHitsMapH,
+                                                trackstersToSimTrackstersFromCPsByHitsMapH,
+                                                simTrackstersFromCPsToTrackstersByHitsMapH,
+                                                scToCpMap);
+    }
+  }  //end of loop over Trackster input labels
 }
 
 void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -473,11 +651,11 @@ void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd1.add<double>("maxZpos", 550.0);
     psd1.add<int>("nintZpos", 1100);
     psd1.add<double>("minTotNsimClsperlay", 0.0);
-    psd1.add<double>("maxTotNsimClsperlay", 50.0);
+    psd1.add<double>("maxTotNsimClsperlay", 10.0);
     psd1.add<int>("nintTotNsimClsperlay", 50);
     psd1.add<double>("minTotNClsperlay", 0.0);
-    psd1.add<double>("maxTotNClsperlay", 1000.0);
-    psd1.add<int>("nintTotNClsperlay", 50);
+    psd1.add<double>("maxTotNClsperlay", 100.0);
+    psd1.add<int>("nintTotNClsperlay", 10);
     psd1.add<double>("minEneClperlay", 0.0);
     psd1.add<double>("maxEneClperlay", 1000.0);
     psd1.add<int>("nintEneClperlay", 110);
@@ -525,13 +703,10 @@ void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<edm::InputTag>("label_lcl", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<std::vector<edm::InputTag>>("label_tst",
                                        {
-                                           edm::InputTag("ticlTrackstersCLUE3DHigh"),
-                                           edm::InputTag("ticlTrackstersMerge"),
-                                           edm::InputTag("ticlSimTracksters", "fromCPs"),
-                                           edm::InputTag("ticlSimTracksters"),
+                                           edm::InputTag("ticlTrackstersCLUE3DBarrel"),
                                        });
-  desc.add<edm::InputTag>("label_simTS", edm::InputTag("ticlSimTracksters"));
-  desc.add<edm::InputTag>("label_simTSFromCP", edm::InputTag("ticlSimTracksters", "fromCPs"));
+  desc.add<edm::InputTag>("label_simTS", edm::InputTag("ticlSimTrackstersBarrel"));
+  desc.add<edm::InputTag>("label_simTSFromCP", edm::InputTag("ticlSimTrackstersBarrel", "fromCPs"));
   desc.addUntracked<std::vector<edm::InputTag>>("associator",
                                                 {edm::InputTag("barrelLayerClusterCaloParticleAssociation")});
   desc.addUntracked<std::vector<edm::InputTag>>("associatorSim",
@@ -545,11 +720,42 @@ void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.addUntracked<bool>("doLayerClustersPlots", true);
   desc.add<std::string>("label_layerClustersPlots", "LayerClusters");
   desc.add<std::string>("label_LCToCPLinking", "LCToCP_association");
+  desc.addUntracked<bool>("doTrackstersPlots", true);
+  desc.add<std::string>("label_TS", "Morphology");
+  desc.add<std::string>("label_TSbyHitsCP", "TSbyHits_CP");
+  desc.add<std::string>("label_TSbyHits", "TSbyHits");
+  desc.add<std::string>("label_TSbyLCs", "TSbyLCs");
+  desc.add<std::string>("label_TSbyLCsCP", "TSbyLCs_CP");
   desc.add<edm::InputTag>("simClustersToCaloParticlesMap",
                           edm::InputTag("SimClusterToCaloParticleAssociation", "simClusterToCaloParticleMap"));
+  desc.add<std::vector<edm::InputTag>>("allTracksterTracksterAssociatorsLabels",
+                                       {
+                                           edm::InputTag("allBarrelTrackstersToSimTrackstersAssociationsByLCs",
+                                                         "ticlTrackstersCLUE3DBarrelToticlSimTrackstersBarrel"),
+                                           edm::InputTag("allBarrelTrackstersToSimTrackstersAssociationsByLCs",
+                                                         "ticlSimTrackstersBarrelToticlTrackstersCLUE3DBarrel"),
+                                           edm::InputTag("allBarrelTrackstersToSimTrackstersAssociationsByLCs",
+                                                         "ticlTrackstersCLUE3DBarrelToticlSimTrackstersBarrelfromCPs"),
+                                           edm::InputTag("allBarrelTrackstersToSimTrackstersAssociationsByLCs",
+                                                         "ticlSimTrackstersBarrelfromCPsToticlTrackstersCLUE3DBarrel"),
+                                       });
+
+  desc.add<std::vector<edm::InputTag>>("allTracksterTracksterByHitsAssociatorsLabels",
+                                       {
+                                           edm::InputTag("allBarrelTrackstersToSimTrackstersAssociationsByHits",
+                                                         "ticlTrackstersCLUE3DBarrelToticlSimTrackstersBarrel"),
+                                           edm::InputTag("allBarrelTrackstersToSimTrackstersAssociationsByHits",
+                                                         "ticlSimTrackstersBarrelToticlTrackstersCLUE3DBarrel"),
+                                           edm::InputTag("allBarrelTrackstersToSimTrackstersAssociationsByHits",
+                                                         "ticlTrackstersCLUE3DBarrelToticlSimTrackstersBarrelfromCPs"),
+                                           edm::InputTag("allBarrelTrackstersToSimTrackstersAssociationsByHits",
+                                                         "ticlSimTrackstersBarrelfromCPsToticlTrackstersCLUE3DBarrel"),
+                                       });
+
   desc.add<edm::InputTag>("label_cp_effic", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("label_cp_fake", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("label_scl", edm::InputTag("mix", "MergedCaloTruth"));
+  desc.add<edm::InputTag>("simTrackstersMap", edm::InputTag("ticlSimTrackstersBarrel"));
   desc.add<edm::InputTag>("simVertices", edm::InputTag("g4SimHits"));
   desc.add<int>("totallayers_to_monitor", 5);
   desc.add<std::string>("dirName", "BarrelCalorimeters/BarrelValidator/");

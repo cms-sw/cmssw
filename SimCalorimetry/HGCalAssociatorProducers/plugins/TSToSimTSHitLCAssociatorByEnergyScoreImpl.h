@@ -7,6 +7,7 @@
 
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "SimDataFormats/Associations/interface/TracksterToSimTracksterHitLCAssociator.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
@@ -43,13 +44,14 @@ namespace ticl {
   // several instances of the same SimTrackster from several related SimClusters that each contributed to the same Trackster.
 }  // namespace ticl
 
+template <typename HIT>
 class TSToSimTSHitLCAssociatorByEnergyScoreImpl : public ticl::TracksterToSimTracksterHitLCAssociatorBaseImpl {
 public:
   explicit TSToSimTSHitLCAssociatorByEnergyScoreImpl(edm::EDProductGetter const &,
                                                      bool,
                                                      std::shared_ptr<hgcal::RecHitTools>,
                                                      const std::unordered_map<DetId, const unsigned int> *,
-                                                     std::vector<const HGCRecHit *> &hits);
+                                                     std::vector<const HIT *> &hits);
 
   ticl::association_t makeConnections(const edm::Handle<ticl::TracksterCollection> &tCH,
                                       const edm::Handle<reco::CaloClusterCollection> &lCCH,
@@ -75,7 +77,10 @@ private:
   const bool hardScatterOnly_;
   std::shared_ptr<hgcal::RecHitTools> recHitTools_;
   const std::unordered_map<DetId, const unsigned int> *hitMap_;
-  std::vector<const HGCRecHit *> hits_;
+  std::vector<const HIT *> hits_;
   unsigned layers_;
   edm::EDProductGetter const *productGetter_;
 };
+
+extern template class TSToSimTSHitLCAssociatorByEnergyScoreImpl<HGCRecHit>;
+extern template class TSToSimTSHitLCAssociatorByEnergyScoreImpl<reco::PFRecHit>;
