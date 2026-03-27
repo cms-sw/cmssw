@@ -87,7 +87,7 @@ public:
     uint32_t nfeds = moduleMap.numFEDs();
     uint32_t ntot_mods = 0, ntot_rocs = 0;
     const std::vector<std::string> fedkeys = {"mismatchPassthroughMode", "cbHeaderMarker", "slinkHeaderMarker"};
-    const std::vector<std::string> modkeys = {"headerMarker", "CalibrationSC"};
+    const std::vector<std::string> modkeys = {"headerMarker", "CalibrationSC" , "MultiPlex"};
     if (nfeds != fed_config_data.size())
       edm::LogWarning("HGCalConfigurationESProducer")
           << "Total number of FEDs found in JSON file " << fedjsonurl << " (" << fed_config_data.size()
@@ -157,6 +157,7 @@ public:
           ntot_rocs++;
           HGCalROCConfig roc;
           roc.charMode = getint(mod_config_data[modkey]["CalibrationSC"][iroc], charMode_);
+	  roc.muxMode  = getint(mod_config_data[modkey]["MultiPlex"][iroc],-1);
           mod.rocs[iroc] = roc;  // add to ECON-D's vector<HGCalROCConfig> of eRx half-ROCs
         }
         fed.econds[imod] = mod;  // add to FED's vector<HGCalECONDConfig> of ECON-D modules
