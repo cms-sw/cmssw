@@ -102,7 +102,7 @@ BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
   }
 
   barrelHitMap_ =
-      consumes<std::unordered_map<DetId, const unsigned int>>(edm::InputTag("recHitMapProducer", "barrelRecHitMap"));
+      consumes<std::unordered_map<DetId, const unsigned int>>(edm::InputTag("recHitMapProducer", "pfRecHitMap"));
 
   simClusters_ = consumes<std::vector<SimCluster>>(pset.getParameter<edm::InputTag>("label_scl"));
 

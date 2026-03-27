@@ -133,6 +133,7 @@ void PreMixingCaloParticleWorker::put(edm::Event &iEvent,
   for (auto &sc : *newClusters_) {
     auto hitsAndEnergies = sc.hits_and_fractions();
     sc.clearHitsAndFractions();
+    sc.clearHitsEnergy();
     for (auto &hAndE : hitsAndEnergies) {
       const float totalenergy = totalEnergy_[hAndE.first];
       float fraction = 0.;
@@ -142,7 +143,9 @@ void PreMixingCaloParticleWorker::put(edm::Event &iEvent,
         edm::LogWarning("PreMixingParticleWorker")
             << "TotalSimEnergy for hit " << hAndE.first << " is 0! The fraction for this hit cannot be computed.";
       sc.addRecHitAndFraction(hAndE.first, fraction);
+      sc.addHitEnergy(hAndE.second);
     }
+    sc.finalizeHits();
   }
 
   // clear memory

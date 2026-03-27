@@ -47,3 +47,46 @@ ticl_v5.toModify(hltHgcalValidator,
                  mergeRecoToSimAssociator = cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs:hltTiclCandidateTohltTiclSimTrackstersfromCPs"),
                  )
 
+hltLayerClusterTesterECAL = cms.EDProducer("CaloClusterTester",
+    PFCand = cms.InputTag("hltParticleFlowTmp"),
+    Rechit = cms.InputTag("hltParticleFlowRecHitECALUnseeded"),
+    RecoCluster = cms.InputTag("hltBarrelLayerClustersEB"),
+    SimCluster = cms.InputTag("mix","MergedCaloTruth"),
+    CaloParticle = cms.InputTag("mix","MergedCaloTruth"),
+    ClusterSimClusterAssociator = cms.InputTag("hltBarrelLayerClusterSimClusterAssociationProducer"),
+    ClusterCaloParticleAssociator = cms.InputTag("hltBarrelLayerClusterCaloParticleAssociationProducer"),
+    outFolder = cms.string('HLT/TiclBarrel'),
+    assocScoreThresholds = cms.vdouble(1., 0.5, 0.1),
+    doMatchByScore = cms.bool(True),
+    enFracCut = cms.double(0.),
+    ptCut = cms.double(0.),
+    etaCut = cms.double(1.48)
+)
+
+hltLayerClusterTesterECALWithCut = hltLayerClusterTesterECAL.clone(
+    enFracCut =  cms.double(0.01),
+    ptCut = cms.double(0.1)
+)
+
+# SimToReco match based on shared energy fraction
+hltLayerClusterTesterECALShEnF = hltLayerClusterTesterECAL.clone(
+    doMatchByScore = cms.bool(False)
+)
+
+hltLayerClusterTesterECALShEnFWithCut = hltLayerClusterTesterECALShEnF.clone(
+    enFracCut =  cms.double(0.01),
+    ptCut = cms.double(0.1)
+)
+
+
+hltHgcalValSeq = cms.Sequence(
+    hltHgcalValidator)
+
+hltHgcalAndBarrelValSeq = cms.Sequence(
+    hltHgcalValidator
+    +hltLayerClusterTesterECALWithCut
+    +hltLayerClusterTesterECALShEnFWithCut
+)
+
+from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
+ticl_barrel.toReplaceWith(hltHgcalValSeq, hltHgcalAndBarrelValSeq)
