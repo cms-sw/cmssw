@@ -401,8 +401,9 @@ std::unique_ptr<l1ScoutingRun3::OrbitFlatTable> L1ScoutingEtSumOrbitFlatTablePro
     out->template addColumn<float>("phi", phi, "phi", phiPrecision_);
   }
   if (writeHardwareValues_) {
-    out->template addColumn<int>("hwEt", pt, "hardware Et");
-    out->template addColumn<int>("hwPhi", phi, "hardware phi");
+    // use "hwPt" (instead of "hwEt") in order to match the branch names used in the L1T-DPG NanoAOD flavour
+    out->template addColumn<int>("hwPt", hwEt, "hardware pt");
+    out->template addColumn<int>("hwPhi", hwPhi, "hardware phi");
   }
 
   out->template addColumn<int>(
@@ -410,6 +411,7 @@ std::unique_ptr<l1ScoutingRun3::OrbitFlatTable> L1ScoutingEtSumOrbitFlatTablePro
       sumType,
       "the type of the EtSum "
       "(https://github.com/cms-sw/cmssw/blob/master/DataFormats/L1Trigger/interface/EtSum.h#L27-L56)");
+
   return out;
 }
 
