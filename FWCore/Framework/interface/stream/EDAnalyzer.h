@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/stream/Contexts.h"
 #include "FWCore/Framework/interface/stream/AbilityChecker.h"
 #include "FWCore/Framework/interface/stream/EDAnalyzerBase.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzerAdaptor.h"
 
 namespace edm {
   namespace stream {

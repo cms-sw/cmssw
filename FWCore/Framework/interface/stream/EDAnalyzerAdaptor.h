@@ -31,6 +31,8 @@
 #include "FWCore/Framework/interface/stream/callAbilities.h"
 #include "FWCore/Framework/interface/stream/dummy_helpers.h"
 #include "FWCore/Framework/interface/stream/makeGlobal.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzerBase.h"
+#include "FWCore/Framework/interface/stream/implementors.h"
 #include "FWCore/Framework/interface/maker/MakeModuleHelper.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
@@ -75,11 +77,15 @@ namespace edm {
       bool wantsGlobalRuns() const noexcept final {
         return T::HasAbility::kRunCache or T::HasAbility::kRunSummaryCache;
       }
-      bool wantsStreamRuns() const noexcept final { return T::HasAbility::kWatchRuns; }
+      bool wantsStreamRuns() const noexcept final {
+        return T::HasAbility::kWatchRuns or T::HasAbility::kRunSummaryCache;
+      }
       bool wantsGlobalLuminosityBlocks() const noexcept final {
         return T::HasAbility::kLuminosityBlockCache or T::HasAbility::kLuminosityBlockSummaryCache;
       }
-      bool wantsStreamLuminosityBlocks() const noexcept final { return T::HasAbility::kWatchLuminosityBlocks; }
+      bool wantsStreamLuminosityBlocks() const noexcept final {
+        return T::HasAbility::kWatchLuminosityBlocks or T::HasAbility::kLuminosityBlockSummaryCache;
+      }
 
     private:
       using MyGlobal = CallGlobal<T>;
@@ -111,14 +117,82 @@ namespace edm {
 
       void doBeginJob() final { MyGlobal::beginJob(m_global.get()); }
       void doEndJob() final { MyGlobal::endJob(m_global.get()); }
-      void setupRun(EDAnalyzerBase* iProd, RunIndex iIndex) final { MyGlobalRun::set(iProd, m_runs[iIndex].get()); }
+      void setupRun(EDAnalyzerBase* iProd, RunIndex iIndex) { MyGlobalRun::set(iProd, m_runs[iIndex].get()); }
+      void streamBeginRun(EDAnalyzerBase* mod, RunTransitionInfo const& info, ModuleCallingContext const* mcc) final {
+        if constexpr (T::HasAbility::kWatchRuns or T::HasAbility::kRunSummaryCache) {
+          RunPrincipal const& rp = info.principal();
+          setupRun(mod, rp.index());
+
+          if constexpr (T::HasAbility::kWatchRuns) {
+            Run r(rp, moduleDescription(), mcc, false);
+            ESParentContext parentC(mcc);
+            const EventSetup c{info,
+                               static_cast<unsigned int>(Transition::BeginRun),
+                               mod->esGetTokenIndices(Transition::BeginRun),
+                               parentC};
+            r.setConsumer(mod);
+            static_cast<impl::WatchRuns*>(static_cast<T*>(mod))->beginRun(r, c);
+          }
+        }
+      }
+
+      void streamEndRun(EDAnalyzerBase* mod, RunTransitionInfo const& info, ModuleCallingContext const* mcc) final {
+        if constexpr (T::HasAbility::kWatchRuns or T::HasAbility::kRunSummaryCache) {
+          Run r(info, moduleDescription(), mcc, true);
+          r.setConsumer(mod);
+          ESParentContext parentC(mcc);
+          const EventSetup c{
+              info, static_cast<unsigned int>(Transition::EndRun), mod->esGetTokenIndices(Transition::EndRun), parentC};
+          if constexpr (T::HasAbility::kWatchRuns) {
+            static_cast<impl::WatchRuns*>(static_cast<T*>(mod))->endRun(r, c);
+          }
+          streamEndRunSummary(mod, r, c);
+        }
+      }
+
+      void streamBeginLuminosityBlock(EDAnalyzerBase* mod,
+                                      LumiTransitionInfo const& info,
+                                      ModuleCallingContext const* mcc) final {
+        if constexpr (T::HasAbility::kWatchLuminosityBlocks or T::HasAbility::kLuminosityBlockSummaryCache) {
+          LuminosityBlockPrincipal const& lbp = info.principal();
+          setupLuminosityBlock(mod, lbp.index());
+
+          if constexpr (T::HasAbility::kWatchLuminosityBlocks) {
+            LuminosityBlock lb(lbp, moduleDescription(), mcc, false);
+            lb.setConsumer(mod);
+            ESParentContext parentC(mcc);
+            const EventSetup c{info,
+                               static_cast<unsigned int>(Transition::BeginLuminosityBlock),
+                               mod->esGetTokenIndices(Transition::BeginLuminosityBlock),
+                               parentC};
+            static_cast<impl::WatchLuminosityBlocks*>(static_cast<T*>(mod))->beginLuminosityBlock(lb, c);
+          }
+        }
+      }
+      void streamEndLuminosityBlock(EDAnalyzerBase* mod,
+                                    LumiTransitionInfo const& info,
+                                    ModuleCallingContext const* mcc) final {
+        if constexpr (T::HasAbility::kWatchLuminosityBlocks or T::HasAbility::kLuminosityBlockSummaryCache) {
+          LuminosityBlock lb(info, moduleDescription(), mcc, true);
+          lb.setConsumer(mod);
+          ESParentContext parentC(mcc);
+          const EventSetup c{info,
+                             static_cast<unsigned int>(Transition::EndLuminosityBlock),
+                             mod->esGetTokenIndices(Transition::EndLuminosityBlock),
+                             parentC};
+          if constexpr (T::HasAbility::kWatchLuminosityBlocks) {
+            static_cast<impl::WatchLuminosityBlocks*>(static_cast<T*>(mod))->endLuminosityBlock(lb, c);
+          }
+          streamEndLuminosityBlockSummary(mod, lb, c);
+        }
+      }
       void streamEndRunSummary(EDAnalyzerBase* iProd, edm::Run const& iRun, edm::EventSetup const& iES) final {
         auto s = m_runSummaries[iRun.index()].get();
         std::lock_guard<decltype(m_runSummaryLock)> guard(m_runSummaryLock);
         MyGlobalRunSummary::streamEndRunSummary(iProd, iRun, iES, s);
       }
 
-      void setupLuminosityBlock(EDAnalyzerBase* iProd, LuminosityBlockIndex iIndex) final {
+      void setupLuminosityBlock(EDAnalyzerBase* iProd, LuminosityBlockIndex iIndex) {
         MyGlobalLuminosityBlock::set(iProd, m_lumis[iIndex].get());
       }
       void streamEndLuminosityBlockSummary(EDAnalyzerBase* iProd,

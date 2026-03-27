@@ -24,14 +24,16 @@
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDFilterAdaptor.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ParentageID.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-
+#include "FWCore/Utilities/interface/StreamID.h"
+#include "DataFormats/Provenance/interface/BranchID.h"
 // forward declarations
 namespace edm {
 
   class ProductRegistry;
+  class WaitingTaskHolder;
 
   namespace stream {
     class EDFilterAdaptorBase;
@@ -60,11 +62,11 @@ namespace edm {
 
     private:
       virtual void beginStream(StreamID) {}
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&) {}
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
+      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) {}
+      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
       virtual bool filter(Event&, EventSetup const&) = 0;
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
-      virtual void endRun(edm::Run const&, edm::EventSetup const&) {}
+      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
+      //virtual void endRun(edm::Run const&, edm::EventSetup const&) {}
       virtual void endStream() {}
 
       virtual void doAcquire_(Event const&, EventSetup const&, WaitingTaskHolder&&) = 0;
