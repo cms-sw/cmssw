@@ -123,12 +123,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <bool is_cooperative = false>
   class ShowerShapeKernel {
   public:
+    using reduce_t = double;
+    using compute_t = double;
+
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   reco::PFMultiDepthClusteringVarsDeviceCollection::View mdpfClusteringVars,
                                   const reco::PFClusterDeviceCollection::ConstView pfClusters,
                                   const reco::PFRecHitFractionDeviceCollection::ConstView pfRecHitFracs,
                                   const reco::PFRecHitDeviceCollection::ConstView pfRecHit,
-                                  const float rms2_threshold = 0.1) const {
+                                  const float rms2_threshold = 0.1f) const {
       const unsigned int nClusters = pfClusters.nSeeds();
 
       if (::cms::alpakatools::once_per_grid(acc)) {
@@ -138,267 +141,163 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const unsigned int w_extent = alpaka::warp::getSize(acc);
 
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {  //loop over thread blocks
-        for (auto idx : ::cms::alpakatools::uniform_group_elements(
-                 acc, group, ::cms::alpakatools::round_up_by(nClusters, w_extent))) {
-          const warp::warp_mask_t active_lanes_mask = alpaka::warp::ballot(acc, idx.global < nClusters);
 
-          const unsigned int lane_idx = idx.local % w_extent;
+        reduce_t accum_etaSum_div_en{0.};
+        reduce_t accum_phiSum_div_en{0.};
 
-          const unsigned int eff_w_extent = alpaka::popcount(acc, active_lanes_mask);
-          // Skip inactive lanes:
-          if (idx.global >= nClusters)
-            continue;
-          const int i = idx.global;
+        for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nClusters)) {
+          const float pfc_energy = pfClusters[idx.global].energy();
 
-          const auto pfc_energy = pfClusters[i].energy();
+          mdpfClusteringVars[idx.global].depth() = pfClusters[idx.global].depth();
+          mdpfClusteringVars[idx.global].energy() = pfc_energy;
 
-          mdpfClusteringVars[i].depth() = pfClusters[i].depth();
-          mdpfClusteringVars[i].energy() = pfc_energy;
-
-          const double x_c = pfClusters[i].x();
-          const double y_c = pfClusters[i].y();
-          const double z_c = pfClusters[i].z();
+          const compute_t x_c = pfClusters[idx.global].x();
+          const compute_t y_c = pfClusters[idx.global].y();
+          const compute_t z_c = pfClusters[idx.global].z();
 
           const float eta_c = static_cast<float>(cms::alpakamath::eta(acc, x_c, y_c, z_c));
           const float phi_c = static_cast<float>(::cms::alpakatools::phi(acc, x_c, y_c));
 
-          mdpfClusteringVars[i].eta() = eta_c;
-          mdpfClusteringVars[i].phi() = phi_c;
+          mdpfClusteringVars[idx.global].eta() = eta_c;
+          mdpfClusteringVars[idx.global].phi() = phi_c;
 
-          int pfrhf_offset = pfClusters[i].rhfracOffset();
-          int pfrhf_size = pfClusters[i].rhfracSize();
+          int pfrhf_offset = pfClusters[idx.global].rhfracOffset();
+          int pfrhf_size = pfClusters[idx.global].rhfracSize();
 
-          auto addFn = [] ALPAKA_FN_ACC(double a, double b) -> double { return a + b; };
+          reduce_t iter_accum_etaSum{0};
+          reduce_t iter_accum_phiSum{0};
 
-          // Cooperative mode: each "master" lane (iter_lane_idx) owns a PFRecHitFraction span
-          // [pfrhf_offset, pfrhf_offset + pfrhf_size). If that span is longer than 1, we recruit a
-          // subgroup of currently "free" lanes to help process the span in parallel.
-          //
-          // Mask conventions in this scope:
-          // - active_lanes_mask : lanes corresponding to in-range clusters (plus any forced lanes).
-          // - free_lanes_mask   : lanes currently available to be assigned as cooperative workers
-          //                       (subset of active_lanes_mask).
-          //                       if a swap_lanes_mask (see below) is a non-empty set, then free lanes mask
-          //                       also includes lanes for later swap operation
-          // - swap_lanes_mask   : lanes that currently hold state and must be preserved to be swapped out to some free lanes.
-          if constexpr (is_cooperative) {
-            // Define iteration parameters:
-            unsigned int iter_lane_idx = 0;
+          constexpr int pfrhf_size_threshold = 32;
 
-            double iter_accum_etaSum{0};
-            double iter_accum_phiSum{0};
+          const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
 
-            bool keep_accum = false;
+          const warp::warp_mask_t high_occup_lanes_mask =
+              is_cooperative ? warp::ballot_mask(acc, active_lanes_mask, pfrhf_size > pfrhf_size_threshold) : 0;
 
-            while (iter_lane_idx < eff_w_extent) {
-              // Identify lanes whose remaining PFRecHitFraction work is exactly one element.
-              // These lanes cannot benefit from recruiting cooperative helpers and are handled by a fast path.
-              // Note: pfrhf_size may have been reduced in a previous iteration due to leftover handling.
-              const warp::warp_mask_t single_worklane_mask = warp::ballot_mask(acc, active_lanes_mask, pfrhf_size == 1);
+          const unsigned int lane_idx = idx.local % w_extent;
 
-              // Create temporary per-iteration masks for cooperative scheduling:
-              // -- how many vacant lanes in the warp, i.e., lanes available to become cooperators in this iteration ('free_lanes_mask')
-              // -- how many reserved lanes in the warp ('swap_lanes_mask'); note that free_lanes_mask must also include reserved lanes
-              warp::warp_mask_t free_lanes_mask = active_lanes_mask;
-              warp::warp_mask_t swap_lanes_mask = static_cast<warp::warp_mask_t>(0);
-
-              unsigned int swap_lane_idx{
-                  w_extent};  //assigned to some default value (note that it's outside of the warp range)
-              unsigned int swap_lanes_num{0};  //no lanes in the warp keep iter lane idx for swap operation
-
-              unsigned int proc_lane_idx{w_extent};
-              unsigned int proc_pfrhf_offset{static_cast<unsigned int>(pfrhf_offset)};
-
-              bool update_params = true;
-
-              bool load_flag = false;
-              // Ensure masks and per-lane state updates from previous iteration are visible before scheduling.
-              warp::syncWarpThreads_mask(acc, active_lanes_mask);
-
-              while (update_params) {
-                const warp::warp_mask_t iter_lane_mask = get_lane_mask(iter_lane_idx);
-
-                const bool is_master_lane = iter_lane_idx == lane_idx;
-                // first we need to check whether the current iter lane itself is vacant.
-                if ((free_lanes_mask & iter_lane_mask) == 0) {
-                  // The current iteration lane is not free: it currently holds state that must be preserved.
-                  // Mark it as reserved-for-swap; later we move its state into an actually free lane.
-                  swap_lanes_mask = swap_lanes_mask | iter_lane_mask;
-                  ++swap_lanes_num;  // number of lanes reserved for swap in this iteration
-
-                  if (is_master_lane && iter_lane_idx != proc_lane_idx)
-                    swap_lane_idx = proc_lane_idx;
-                } else {
-                  // update the free mask (erase master-lane bit):
-                  free_lanes_mask &= ~iter_lane_mask;
-                }
-                // 'iter_lane_idx' is warp-uniform; thus all lanes agree on which lane is the current master.
-                // Check whether the current lane has exactly one element of work remaining.
-                const bool is_single_work_lane = is_work_lane(single_worklane_mask, iter_lane_idx, w_extent);
-                // Available cooperative subgroup capacity: free lanes minus those reserved to preserve state (swap lanes).
-                // Note: the name 'subgroup' is used here because it does not take into account iterative (master) lane itself.
-                const unsigned int free_subgroup_size = alpaka::popcount(acc, free_lanes_mask) - swap_lanes_num;
-
-                if (is_single_work_lane) {
-                  if (is_master_lane) {
-                    proc_lane_idx = iter_lane_idx;
-                    proc_pfrhf_offset = pfrhf_offset;
-                    load_flag = true;
-                  }
-                  iter_lane_idx += 1;
-                  update_params = iter_lane_idx < eff_w_extent &&
-                                  (static_cast<std::uint32_t>(alpaka::popcount(acc, free_lanes_mask)) > swap_lanes_num);
-                  continue;
-                }
-
-                const unsigned int proc_pfrhf_size =
-                    is_master_lane ? (pfrhf_size - 1) : 0;  //exclude master lane itself..
-                // Broadcast worksize (all active lanes):
-                const unsigned int iter_pfrhf_size =
-                    warp::shfl_mask(acc, active_lanes_mask, proc_pfrhf_size, iter_lane_idx, w_extent);
-
-                const unsigned int coop_subgroup_size = alpaka::math::min(acc, iter_pfrhf_size, free_subgroup_size);
-
-                // Check which lane can cooperate in the work:
-                // -- it must be vacant (corresponding bit in 'free_lanes_mask' must be set)
-                // -- among free lanes, it must be within the first 'coop_subgroup_size' positions
-                //    (using logical indexing over free_lanes_mask)
-                // -- vacant lanes must not be reserved for swapping operation (which is already taking into account in 'coop_subgroup_size')
-                const bool is_coop_subgroup_lane =
-                    is_work_lane(free_lanes_mask, lane_idx, w_extent)
-                        ? (get_logical_lane_idx(acc, free_lanes_mask, lane_idx) < coop_subgroup_size)
-                        : false;
-                // Cooperative subgroup lanes are drawn from free_lanes_mask; by construction this excludes the master lane
-                // (because the master lane was already removed from free_lanes_mask earlier).
-                const warp::warp_mask_t coop_subgroup_mask =
-                    warp::ballot_mask(acc, active_lanes_mask, is_coop_subgroup_lane);
-                // Erase corresponding bits in 'free_lanes_mask'
-                free_lanes_mask &= ~coop_subgroup_mask;
-                // Update parameters only for cooperative subgroup lanes (and the master lane):
-                // Broadcast from the current master lane (iter_lane_idx): which lane owns the work and its current offset.
-                // Only the cooperative subgroup lanes and the master lane participate in these shuffles
-                if (is_coop_subgroup_lane || is_master_lane)
-                  proc_lane_idx =
-                      warp::shfl_mask(acc, coop_subgroup_mask | iter_lane_mask, iter_lane_idx, iter_lane_idx, w_extent);
-
-                // Now we need to check whether we need to increment iteration lane index.
-                // Check if worksize less or equal subgroup size, if 'true', increment iter lane index for the next rec hit fraction array:
-                if (iter_pfrhf_size <= free_subgroup_size) {
-                  iter_lane_idx += 1;
-                  if (is_master_lane)
-                    load_flag = true;  //master lane must store its values in the global arrays later
-                } else if (is_master_lane) {
-                  // Otherwise, the master lane has more work than available helpers; keep a leftover tail.
-                  // We advance pfrhf_offset by (coop helpers + master) and reduce pfrhf_size accordingly.
-                  keep_accum = true;
-                  // update rechit fraction offset for the next iteration
-                  proc_pfrhf_offset = pfrhf_offset;
-                  pfrhf_offset += coop_subgroup_size + 1;  // +1 accounts for the master lane processing one element
-                  // compute remaining work size (that is a leftover rec hit fraction size)
-                  pfrhf_size = iter_pfrhf_size - coop_subgroup_size;
-                }
-                // Continue scheduling while we have remaining iter lanes and enough free capacity
-                // to eventually place swap lanes
-                update_params = (iter_lane_idx < eff_w_extent) &&
-                                (static_cast<std::uint32_t>(alpaka::popcount(acc, free_lanes_mask)) > swap_lanes_num);
-              }
-
-              // Now we need to swap cached values to vacant lanes:
-              if (is_work_lane(free_lanes_mask | swap_lanes_mask, lane_idx, w_extent)) {
-                const unsigned int src_log_lane_idx = is_work_lane(free_lanes_mask, lane_idx, w_extent)
-                                                          ? get_logical_lane_idx(acc, free_lanes_mask, lane_idx)
-                                                          : w_extent;
-                const unsigned int src_phys_lane_idx =
-                    src_log_lane_idx < swap_lanes_num ? get_physical_lane_idx(acc, swap_lanes_mask, src_log_lane_idx)
-                                                      : lane_idx;
-
-                const unsigned int tmp_proc_lane_idx =
-                    warp::shfl_mask(acc, free_lanes_mask | swap_lanes_mask, swap_lane_idx, src_phys_lane_idx, w_extent);
-
-                if (is_work_lane(free_lanes_mask, lane_idx, w_extent) && src_log_lane_idx < swap_lanes_num)
-                  proc_lane_idx = tmp_proc_lane_idx;
-              }
-
-              const warp::warp_mask_t nonvacant_lanes_mask =
-                  warp::ballot_mask(acc, active_lanes_mask, proc_lane_idx != w_extent);
-
-              if (is_work_lane(nonvacant_lanes_mask, lane_idx, w_extent) == false)
-                continue;
-
-              const warp::warp_mask_t coop_group_mask = warp::match_any_mask(acc, nonvacant_lanes_mask, proc_lane_idx);
-
-              const float proc_eta_c = warp::shfl_mask(acc, coop_group_mask, eta_c, proc_lane_idx, w_extent);
-              const float proc_phi_c = warp::shfl_mask(acc, coop_group_mask, phi_c, proc_lane_idx, w_extent);
-              const float proc_pfc_energy = warp::shfl_mask(acc, coop_group_mask, pfc_energy, proc_lane_idx, w_extent);
-
-              const unsigned int coop_pfrhf_offset =
-                  warp::shfl_mask(acc, coop_group_mask, proc_pfrhf_offset, proc_lane_idx, w_extent);
-
-              const int pfrhfrac_idx = get_logical_lane_idx(acc, coop_group_mask, lane_idx) + coop_pfrhf_offset;
-
+          if (!is_cooperative || is_work_lane(high_occup_lanes_mask, lane_idx) == false) {
+            for (int pfrhfrac_idx = pfrhf_offset; pfrhfrac_idx < (pfrhf_offset + pfrhf_size); pfrhfrac_idx++) {
               const int pfrh_idx = pfRecHitFracs[pfrhfrac_idx].pfrhIdx();
-              const float frac_energy = pfRecHitFracs[pfrhfrac_idx].frac() * pfRecHit[pfrh_idx].energy();
+              const float fracXenergy = pfRecHitFracs[pfrhfrac_idx].frac() * pfRecHit[pfrh_idx].energy();
 
-              const double x_rh = pfRecHit[pfrh_idx].x();
-              const double y_rh = pfRecHit[pfrh_idx].y();
-              const double z_rh = pfRecHit[pfrh_idx].z();
+              const compute_t x_rh = pfRecHit[pfrh_idx].x();
+              const compute_t y_rh = pfRecHit[pfrh_idx].y();
+              const compute_t z_rh = pfRecHit[pfrh_idx].z();
 
               const float eta_rh = static_cast<float>(cms::alpakamath::eta(acc, x_rh, y_rh, z_rh));
               const float phi_rh = static_cast<float>(::cms::alpakatools::phi(acc, x_rh, y_rh));
 
-              const double etaSum_ = static_cast<double>(frac_energy * alpaka::math::abs(acc, eta_rh - proc_eta_c));
-              const double phiSum_ = static_cast<double>(
-                  frac_energy * alpaka::math::abs(acc, ::cms::alpakatools::deltaPhi(acc, phi_rh, proc_phi_c)));
+              auto etaSum_tmp = fracXenergy * alpaka::math::abs(acc, eta_rh - eta_c);
+              auto phiSum_tmp = fracXenergy * alpaka::math::abs(acc, ::cms::alpakatools::deltaPhi(acc, phi_rh, phi_c));
+
+              iter_accum_etaSum += etaSum_tmp;
+              iter_accum_phiSum += phiSum_tmp;
+            }
+
+            accum_etaSum_div_en = iter_accum_etaSum / pfc_energy;
+            accum_phiSum_div_en = iter_accum_phiSum / pfc_energy;
+          }
+
+          if constexpr (!is_cooperative)  //uniform condition for all lanes
+            continue;
+
+          const unsigned int eff_w_extent = alpaka::popcount(acc, high_occup_lanes_mask);
+
+          auto addFn = [] ALPAKA_FN_ACC(reduce_t a, reduce_t b) -> reduce_t { return a + b; };
+
+          // Define iteration parameters:
+          unsigned int iter_lane_idx = 0;
+
+          float iter_eta_c{0};
+          float iter_phi_c{0};
+          float iter_pfc_energy{0};
+
+          bool update_iter_params = true;
+
+          while (iter_lane_idx < eff_w_extent) {
+            warp::syncWarpThreads_mask(acc, active_lanes_mask);
+
+            const unsigned int src_lane_idx = get_physical_lane_idx(acc, high_occup_lanes_mask, iter_lane_idx);
+
+            const unsigned int iter_pfrhf_size =
+                warp::shfl_mask(acc, active_lanes_mask, pfrhf_size, src_lane_idx, w_extent);  // exclude the source lane
+
+            const bool is_src_in_range = (src_lane_idx < iter_pfrhf_size);
+
+            const bool is_coop_lane = lane_idx == src_lane_idx || (is_src_in_range && lane_idx < iter_pfrhf_size) ||
+                                      (!is_src_in_range && lane_idx < (iter_pfrhf_size - 1));
+
+            const unsigned int coop_group_mask = warp::ballot_mask(acc, active_lanes_mask, is_coop_lane);
+
+            if (is_work_lane(coop_group_mask, lane_idx)) {
+              if (update_iter_params) {
+                iter_eta_c = warp::shfl_mask(acc, coop_group_mask, eta_c, src_lane_idx, w_extent);
+                iter_phi_c = warp::shfl_mask(acc, coop_group_mask, phi_c, src_lane_idx, w_extent);
+                iter_pfc_energy = warp::shfl_mask(acc, coop_group_mask, pfc_energy, src_lane_idx, w_extent);
+
+                iter_accum_etaSum = 0;
+                iter_accum_phiSum = 0;
+
+                update_iter_params = false;
+              }
+
+              const unsigned int iter_pfrhf_offset_stub =
+                  warp::shfl_mask(acc, coop_group_mask, pfrhf_offset, src_lane_idx, w_extent);
+
+              const unsigned int stride =
+                  (lane_idx != src_lane_idx || is_src_in_range) ? lane_idx : (iter_pfrhf_size - 1);
+
+              const unsigned int pfrhfrac_idx = iter_pfrhf_offset_stub + stride;
+
+              const int pfrh_idx = pfRecHitFracs[pfrhfrac_idx].pfrhIdx();
+              const float fracXenergy = pfRecHitFracs[pfrhfrac_idx].frac() * pfRecHit[pfrh_idx].energy();
+
+              const compute_t x_rh = pfRecHit[pfrh_idx].x();
+              const compute_t y_rh = pfRecHit[pfrh_idx].y();
+              const compute_t z_rh = pfRecHit[pfrh_idx].z();
+
+              const float eta_rh = static_cast<float>(cms::alpakamath::eta(acc, x_rh, y_rh, z_rh));
+              const float phi_rh = static_cast<float>(::cms::alpakatools::phi(acc, x_rh, y_rh));
+
+              const reduce_t etaSum_ = static_cast<reduce_t>(fracXenergy * alpaka::math::abs(acc, eta_rh - iter_eta_c));
+              const reduce_t phiSum_ = static_cast<reduce_t>(
+                  fracXenergy * alpaka::math::abs(acc, ::cms::alpakatools::deltaPhi(acc, phi_rh, iter_phi_c)));
 
               iter_accum_etaSum += warp_sparse_reduce(acc, coop_group_mask, lane_idx, etaSum_, addFn);
               iter_accum_phiSum += warp_sparse_reduce(acc, coop_group_mask, lane_idx, phiSum_, addFn);
 
-              if (load_flag) {
-                const double etaRMS2_ = alpaka::math::max(acc, iter_accum_etaSum / proc_pfc_energy, rms2_threshold);
-                mdpfClusteringVars[i].etaRMS2() = etaRMS2_ * etaRMS2_;
+              const unsigned int coop_group_size = alpaka::popcount(acc, coop_group_mask);
 
-                const double phiRMS2_ = alpaka::math::max(acc, iter_accum_phiSum / proc_pfc_energy, rms2_threshold);
-                mdpfClusteringVars[i].phiRMS2() = phiRMS2_ * phiRMS2_;
+              if (iter_pfrhf_size == coop_group_size) {  //done for this iteration
+                if (src_lane_idx == lane_idx) {
+                  accum_etaSum_div_en = iter_accum_etaSum / iter_pfc_energy;
+                  accum_phiSum_div_en = iter_accum_phiSum / iter_pfc_energy;
+                }
+                iter_lane_idx += 1;
+                update_iter_params = true;
+              } else {
+                if (src_lane_idx == lane_idx) {
+                  pfrhf_size -= coop_group_size;
+                  pfrhf_offset += coop_group_size;
+                }
               }
-
-              if (keep_accum == false) {
-                iter_accum_etaSum = 0.;
-                iter_accum_phiSum = 0.;
-              }
-
-              keep_accum = false;
-            }  // end while
-          } else {  //non cooperative work
-            double accum_etaSum = 0.;
-            double accum_phiSum = 0.;
-
-            for (int pfrhfrac_idx = pfrhf_offset; pfrhfrac_idx < (pfrhf_offset + pfrhf_size); pfrhfrac_idx++) {
-              const int pfrh_idx = pfRecHitFracs[pfrhfrac_idx].pfrhIdx();
-              const float frac = pfRecHitFracs[pfrhfrac_idx].frac();
-              const float energy = pfRecHit[pfrh_idx].energy();
-
-              const double x_rh = pfRecHit[pfrh_idx].x();
-              const double y_rh = pfRecHit[pfrh_idx].y();
-              const double z_rh = pfRecHit[pfrh_idx].z();
-
-              const float eta_rh = static_cast<float>(cms::alpakamath::eta(acc, x_rh, y_rh, z_rh));
-              const float phi_rh = static_cast<float>(::cms::alpakatools::phi(acc, x_rh, y_rh));
-
-              auto etaSum_tmp = (frac * energy) * alpaka::math::abs(acc, eta_rh - eta_c);
-              auto phiSum_tmp =
-                  (frac * energy) * alpaka::math::abs(acc, ::cms::alpakatools::deltaPhi(acc, phi_rh, phi_c));
-
-              accum_etaSum += etaSum_tmp;
-              accum_phiSum += phiSum_tmp;
+            } else {
+              iter_lane_idx += 1;
+              update_iter_params = true;
             }
+          }  //end of while
+        }  //end uniform_groups_elements
 
-            const double etaRMS2_ = alpaka::math::max(acc, accum_etaSum / pfc_energy, rms2_threshold);
-            mdpfClusteringVars[i].etaRMS2() = etaRMS2_ * etaRMS2_;
+        alpaka::syncBlockThreads(acc);
 
-            const double phiRMS2_ = alpaka::math::max(acc, accum_phiSum / pfc_energy, rms2_threshold);
-            mdpfClusteringVars[i].phiRMS2() = phiRMS2_ * phiRMS2_;
-          }
-        }  //end uniform_groups
+        for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nClusters)) {
+          const reduce_t etaRMS2_ = alpaka::math::max(acc, accum_etaSum_div_en, rms2_threshold);
+          const reduce_t phiRMS2_ = alpaka::math::max(acc, accum_phiSum_div_en, rms2_threshold);
+
+          mdpfClusteringVars[idx.global].etaRMS2() = etaRMS2_ * etaRMS2_;
+          mdpfClusteringVars[idx.global].phiRMS2() = phiRMS2_ * phiRMS2_;
+        }
       }
     }
   };

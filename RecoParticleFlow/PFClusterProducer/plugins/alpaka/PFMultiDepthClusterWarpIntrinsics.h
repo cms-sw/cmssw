@@ -2,23 +2,13 @@
 #define PFClusterProducer_plugins_alpaka_PFMultiDepthClusterWarpIntrinsics_h
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/Common.h"
 
 #include <type_traits>
 #include <concepts>
 
 namespace cms::alpakaintrinsics {
   namespace warp {
-
-#if defined(__CUDA_ARCH__) || defined(__HIP_DEVICE_COMPILE__)
-#if defined(ALPAKA_ACC_GPU_CUDA_ENABLED)
-    using warp_mask_t = std::uint32_t;  // 32-bit masks on NVIDIA
-#elif defined(ALPAKA_ACC_GPU_HIP_ENABLED)
-    using warp_mask_t = std::uint64_t;  // 64-bit masks on AMD (!)
-#endif
-
-#else
-    using warp_mask_t = std::uint32_t;  // for host (no-op)
-#endif
 
 #ifdef __HIP_DEVICE_COMPILE__
 
@@ -171,7 +161,7 @@ namespace cms::alpakaintrinsics {
  * @param val  Per-lane value to be compared across the warp.
  *
  * @return A warp mask with bits set for lanes (enabled in 'mask') whose
- *         'val' equals the calling lane’s value.
+ *         'val' equals the calling lane's value.
  */
     template <alpaka::concepts::Acc TAcc, typename T>
       requires std::is_arithmetic_v<T>
