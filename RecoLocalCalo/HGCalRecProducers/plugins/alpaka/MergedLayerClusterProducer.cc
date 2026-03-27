@@ -31,7 +31,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         device_layer_cluster_tokens_.push_back(consumes(tag));
       }
     }
-    ~MergedLayerClustersProducer() = default;
+    ~MergedLayerClustersProducer() override = default;
 
     static void fillDescription(edm::ConfigurationDescriptions& description) {
       edm::ParameterSetDescription desc;
