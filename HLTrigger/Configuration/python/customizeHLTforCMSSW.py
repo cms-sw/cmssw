@@ -37,6 +37,77 @@ def customiseForOffline(process):
 
     return process
 
+def customizeHLTfor50303(process):
+    ''' Includes customization to run alpaka MDPF clustering
+    '''
+    old_hltParticleFlowClusterHCAL = process.hltParticleFlowClusterHCAL
+    old_hltParticleFlowClusterHCALSerialSync = process.hltParticleFlowClusterHCALSerialSync
+
+    process.hltPFMultiDepthClusterSoA = cms.EDProducer('PFMultiDepthClusterSoAProducer@alpaka',
+        clustersSrc = cms.InputTag("hltParticleFlowClusterHBHESoA"),
+        rhfracSrc   = cms.InputTag('hltParticleFlowClusterHBHESoA'),
+        rechitSrc   = cms.InputTag('hltParticleFlowRecHitHBHESoA')
+    )
+
+    process.hltParticleFlowClusterHCAL = cms.EDProducer('LegacyMultiDepthPFClusterProducer',
+        pfClusterSoA   = cms.InputTag('hltPFMultiDepthClusterSoA'),
+        pfRecHitFractionSoA = cms.InputTag('hltPFMultiDepthClusterSoA'),
+        pfRecHitsSoA        = cms.InputTag('hltParticleFlowRecHitHBHESoA'),
+        recHitsSource  = cms.InputTag('hltParticleFlowRecHitHBHE'),
+    )
+
+    process.HLTPFHcalClustering = cms.Sequence(
+        process.hltParticleFlowRecHitHBHESoA +
+        process.hltParticleFlowRecHitHBHE +
+        process.hltParticleFlowClusterHBHESoA +
+        process.hltParticleFlowClusterHBHE +
+        process.hltPFMultiDepthClusterSoA +
+        process.hltParticleFlowClusterHCAL  # This now refers to LegacyMultiDepth producer
+    )
+
+    # Serial sync changes
+    process.hltPFMultiDepthClusterSoASerialSync = cms.EDProducer('alpaka_serial_sync::PFMultiDepthClusterSoAProducer',
+        clustersSrc = cms.InputTag("hltParticleFlowClusterHBHESoASerialSync"),
+        rhfracSrc   = cms.InputTag('hltParticleFlowClusterHBHESoASerialSync'),
+        rechitSrc   = cms.InputTag('hltParticleFlowRecHitHBHESoASerialSync')
+    )
+
+    process.hltParticleFlowClusterHCALSerialSync = cms.EDProducer('LegacyMultiDepthPFClusterProducer',
+        pfClusterSoA   = cms.InputTag('hltPFMultiDepthClusterSoASerialSync'),
+        pfRecHitFractionSoA = cms.InputTag('hltPFMultiDepthClusterSoASerialSync'),
+        pfRecHitsSoA        = cms.InputTag('hltParticleFlowRecHitHBHESoASerialSync'),
+        recHitsSource  = cms.InputTag('hltParticleFlowRecHitHBHESerialSync'),
+    )
+
+    process.HLTPFHcalClusteringSerialSync = cms.Sequence(
+        process.hltParticleFlowRecHitHBHESoASerialSync +
+        process.hltParticleFlowRecHitHBHESerialSync +
+        process.hltParticleFlowClusterHBHESoASerialSync +
+        process.hltParticleFlowClusterHBHESerialSync +
+        process.hltPFMultiDepthClusterSoASerialSync +
+        process.hltParticleFlowClusterHCALSerialSync  # This now refers to LegacyMultiDepth producer
+    )
+
+    def replaceItemsInSequence(process, itemsToReplace, replacingSequence):
+        for sequence, items in process.sequences.items():
+            containsAll = all(items.contains(item) for item in itemsToReplace)
+            if(containsAll):
+                for item in itemsToReplace:
+                    if(item != itemsToReplace[-1]):
+                        items.remove(item)
+                    else:
+                        items.replace(item, replacingSequence)
+        return process
+
+    itemsList = [ old_hltParticleFlowClusterHCAL ]
+
+    serialItemsList = [ old_hltParticleFlowClusterHCALSerialSync ]
+
+    process = replaceItemsInSequence(process, itemsList, process.HLTPFHcalClustering)
+    process = replaceItemsInSequence(process, serialItemsList, process.HLTPFHcalClusteringSerialSync)
+
+    return process
+
 def replace_all_pixel_seed_inputtags(process):
     import FWCore.ParameterSet.Config as cms
 
