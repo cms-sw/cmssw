@@ -5,9 +5,14 @@ from DQMOffline.Trigger.HLTTauPostProcessor_cfi import *
 from DQMOffline.Trigger.HLTTauQualityTester_cfi import *
 from DQMOffline.Trigger.HLTTauCertifier_cfi import *
 
-HLTTauDQMOffline = cms.Sequence(TauRefProducer
+from DQMOffline.Trigger.HLTTauDQMOfflineTauProducer_cfi import *
+
+
+HLTTauDQMOffline = cms.Sequence(HLTTauDQMOfflineTauProducer+TauRefProducer+TauRefProducerLowPurity
                                 +hltTauOfflineMonitor_PFTaus
+                                +hltTauOfflineMonitor_PFTausLowPurity
                                 +hltTauOfflineMonitor_PNetTaus
+                                +hltTauOfflineMonitor_PNetTausLowPurity
                                 +hltTauOfflineMonitor_Inclusive
                                 +hltTauOfflineMonitor_TagAndProbe
                                 )
