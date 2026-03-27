@@ -15,3 +15,6 @@
 #include "DataFormats/PortableTestObjects/interface/SimpleNetHostCollection.h"
 #include "DataFormats/PortableTestObjects/interface/MultiHeadNetHostCollection.h"
 #include "DataFormats/PortableTestObjects/interface/MaskHostCollection.h"
+
+#include "DataFormats/PortableTestObjects/interface/SchemaEvolutionHostCollection.h"
+#include "DataFormats/PortableTestObjects/interface/SchemaEvolutionSoA.h"
