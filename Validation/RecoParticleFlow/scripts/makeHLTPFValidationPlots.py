@@ -671,13 +671,7 @@ if __name__ == '__main__':
                 ratio=f'{subdir}/Fake_vs_En', 
                 den=f'RecoClustersEn', legden='RecoClusters',
                 num=f'{subdir}/RecoClustersMatchedSimClustersEn', legnum='Matched RecoClusters', 
-                xtitle='Energy [GeV]', ytitle=nPFClustersLabel, rebin=4, logy=True,
-            ),
-            f'{subdir}/Fake_vs_Pt': InputArgs(
-                ratio=f'{subdir}/Fake_vs_Pt', 
-                den=f'RecoClustersPt', legden='RecoClusters',
-                num=f'{subdir}/RecoClustersMatchedSimClustersPt', legnum='Matched RecoClusters', 
-                xtitle=r'$p_{T}$ [GeV]', ytitle=nPFClustersLabel, rebin=4,
+                xtitle='RecoCluster Energy [GeV]', ytitle=nPFClustersLabel, rebin=4, logy=True,
             ),
             f'{subdir}/Fake_vs_Eta': InputArgs(
                 ratio=f'{subdir}/Fake_vs_Eta', 
@@ -692,7 +686,7 @@ if __name__ == '__main__':
                 xtitle=r'$\phi$', ytitle=nPFClustersLabel,
             ),
             f'{subdir}/Fake_vs_Mult': InputArgs(
-                ratio=f'{subdir}/Fake_vs_Mult', 
+                ratio=f'{subdir}/Fake_vs_Mult',
                 den=f'RecoClustersMult', legden='RecoClusters',
                 num=f'{subdir}/RecoClustersMatchedSimClustersMult', legnum='Matched RecoClusters', 
                 xtitle='Multiplicity', ytitle=nPFClustersLabel, rebin=4,
