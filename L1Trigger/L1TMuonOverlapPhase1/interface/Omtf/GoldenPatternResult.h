@@ -58,8 +58,6 @@ public:
 
   void set(int refLayer, int phi, int eta, int refHitPhi);
 
-  void setStubResult(float pdfVal, bool valid, int pdfBin, int layer, MuonStubPtr stub);
-
   void setStubResult(int layer, StubResult& stubResult);
 
   int getRefLayer() const { return this->refLayer; }

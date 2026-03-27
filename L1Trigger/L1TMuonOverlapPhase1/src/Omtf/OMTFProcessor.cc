@@ -28,6 +28,7 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <boost/timer/timer.hpp>
 
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
@@ -62,7 +63,8 @@ void OMTFProcessor<GoldenPatternType>::init(const edm::ParameterSet& edmCfg, edm
 
   if (this->myOmtfConfig->getGhostBusterType() == "GhostBusterPreferRefDt" ||
       this->myOmtfConfig->getGhostBusterType() == "byLLH" || this->myOmtfConfig->getGhostBusterType() == "byFPLLH" ||
-      this->myOmtfConfig->getGhostBusterType() == "byRefLayer") {
+      this->myOmtfConfig->getGhostBusterType() == "byRefLayer" ||
+      this->myOmtfConfig->getGhostBusterType() == "byRefLayerAndHitQual") {
     setGhostBuster(new GhostBusterPreferRefDt(this->myOmtfConfig));
     edm::LogVerbatim("OMTFReconstruction") << "setting " << this->myOmtfConfig->getGhostBusterType() << std::endl;
   } else {
@@ -84,8 +86,8 @@ void OMTFProcessor<GoldenPatternType>::init(const edm::ParameterSet& edmCfg, edm
   }
 
   if (this->myOmtfConfig->usePhiBExtrapolationMB1() || this->myOmtfConfig->usePhiBExtrapolationMB2()) {
-    extrapolFactors.resize(2, std::vector<std::map<int, double> >(this->myOmtfConfig->nLayers()));
-    extrapolFactorsNorm.resize(2, std::vector<std::map<int, int> >(this->myOmtfConfig->nLayers()));
+    extrapolFactors.resize(2 * 3, std::vector<std::map<int, double> >(this->myOmtfConfig->nLayers()));
+    extrapolFactorsNorm.resize(2 * 3, std::vector<std::map<int, int> >(this->myOmtfConfig->nLayers()));
 
     //when useFloatingPointExtrapolation is true the extrapolFactors are not used,
     //all calculations are done in the extrapolateDtPhiBFloatPoint
@@ -98,211 +100,263 @@ void OMTFProcessor<GoldenPatternType>::init(const edm::ParameterSet& edmCfg, edm
 }
 
 template <class GoldenPatternType>
-std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::getFinalcandidates(unsigned int iProcessor,
-                                                                                        l1t::tftype mtfType,
-                                                                                        const AlgoMuons& algoCands) {
-  std::vector<l1t::RegionalMuonCand> result;
+void OMTFProcessor<GoldenPatternType>::assignQuality(AlgoMuons::value_type& algoMuon) {
+  unsigned int quality = 12;
+  if (this->myOmtfConfig->fwVersion() <= 6)
+    quality = checkHitPatternValidity(algoMuon->getFiredLayerBits()) ? 0 | (1 << 2) | (1 << 3) : 0 | (1 << 2);  //12 : 4
+  unsigned int firedLayerBits = static_cast<unsigned int>(algoMuon->getFiredLayerBits());
+  if (abs(algoMuon->getEtaHw()) == 115 &&  //115 is eta 1.25                        rrrrrrrrccccdddddd
+      (firedLayerBits == std::bitset<18>("100000001110000000").to_ulong() ||
+       firedLayerBits == std::bitset<18>("000000001110000000").to_ulong() ||
+       firedLayerBits == std::bitset<18>("100000000110000000").to_ulong() ||
+       firedLayerBits == std::bitset<18>("100000001100000000").to_ulong() ||
+       firedLayerBits == std::bitset<18>("100000001010000000").to_ulong())) {
+    if (this->myOmtfConfig->fwVersion() <= 6)
+      quality = 4;
+    else
+      quality = 1;
+  }
 
-  for (auto& myCand : algoCands) {
-    l1t::RegionalMuonCand candidate;
+  if (this->myOmtfConfig->fwVersion() >= 5 && this->myOmtfConfig->fwVersion() <= 6) {
+    if (firedLayerBits == std::bitset<18>("000000010000000011").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000000100000000011").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000001000000000011").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000010000000000011").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000100000000000011").to_ulong() ||
+        firedLayerBits == std::bitset<18>("001000000000000011").to_ulong() ||
+        firedLayerBits == std::bitset<18>("010000000000000011").to_ulong() ||
+        firedLayerBits == std::bitset<18>("100000000000000011").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000000010000001100").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000000100000001100").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000001000000001100").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000010000000001100").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000100000000001100").to_ulong() ||
+        firedLayerBits == std::bitset<18>("001000000000001100").to_ulong() ||
+        firedLayerBits == std::bitset<18>("010000000000001100").to_ulong() ||
+        firedLayerBits == std::bitset<18>("100000000000001100").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000000010000110000").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000000100000110000").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000001000000110000").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000010000000110000").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000100000000110000").to_ulong() ||
+        firedLayerBits == std::bitset<18>("001000000000110000").to_ulong() ||
+        firedLayerBits == std::bitset<18>("010000000000110000").to_ulong() ||
+        firedLayerBits == std::bitset<18>("100000000000110000").to_ulong())
+      quality = 1;
+  } else if (this->myOmtfConfig->fwVersion() >= 8) {  //TODO fix the fwVersion     rrrrrrrrccccdddddd
+    if (firedLayerBits == std::bitset<18>("000000110000000011").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000000100000000011").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000000010000000011").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000000110000000001").to_ulong() ||
+
+        firedLayerBits == std::bitset<18>("000001000000001100").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000011000000001100").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000010000000001100").to_ulong() ||
+        firedLayerBits == std::bitset<18>("000011000000000100").to_ulong() ||
+
+        firedLayerBits == std::bitset<18>("000000011000000001").to_ulong() ||
+        firedLayerBits == std::bitset<18>("001000010000000001").to_ulong())
+      quality = 1;
+    else if (firedLayerBits == std::bitset<18>("000000010000000101").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000000010001000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000000011000000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000000011000000011").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000000011100000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000000100000000011").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000000100001000100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000000100100000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000000110100000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000000111000000000").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000000111000000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000000111000000011").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000001000001000100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000001010000000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000001010000000011").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000001010000000100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000001100000000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000001100000000100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000001100000000111").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000001100001000000").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000001110000000100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000001110000000101").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000010000000000101").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000010010000000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000010010000000100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000010010000000101").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000010100000000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000010100000000101").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000011110000000100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000011110000000101").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000101000000010101").to_ulong() ||
+             firedLayerBits == std::bitset<18>("001000010000000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("001000011000000000").to_ulong() ||
+             firedLayerBits == std::bitset<18>("001000011000000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("001000100000000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("001000110000000000").to_ulong() ||
+             firedLayerBits == std::bitset<18>("001001000000000100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("001001100000000100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("001010000000000100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("010000000010000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("010000000011000100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("010000010000000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("010000100000000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("100000011000000000").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000000110000000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000000010000000011").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000000110000000011").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000011000000001100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000011000000000100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000000010010000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000010000000001100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("001001000001000100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000001100000000101").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000000100000000101").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000001100000000011").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000001110000000111").to_ulong() ||
+             firedLayerBits == std::bitset<18>("001000110001000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000001110000000011").to_ulong() ||
+             firedLayerBits == std::bitset<18>("001000000001000100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000000110001000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000001000000000101").to_ulong() ||
+             firedLayerBits == std::bitset<18>("001010000001000000").to_ulong() ||
+             firedLayerBits == std::bitset<18>("001100000001000000").to_ulong() ||
+             firedLayerBits == std::bitset<18>("100000010000000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("010000010010000000").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000010100000001100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("001000110000000011").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000001000000001100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000000000000111101").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000001100000110001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000100000000010100").to_ulong() ||
+             firedLayerBits == std::bitset<18>("001000100000000011").to_ulong() ||
+             firedLayerBits == std::bitset<18>("001000110000000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("010000100010000001").to_ulong() ||
+             firedLayerBits == std::bitset<18>("000100000000110000").to_ulong())
+      quality = 8;
+  }  //  if (abs(myCand->getEta()) == 121) quality = 4;
+  if (abs(algoMuon->getEtaHw()) >= 121)
+    quality = 0;  // changed from 4 on request from HI
+
+  algoMuon->setQuality(quality);
+}
+
+template <class GoldenPatternType>
+FinalMuons OMTFProcessor<GoldenPatternType>::getFinalMuons(unsigned int iProcessor,
+                                                           l1t::tftype mtfType,
+                                                           const AlgoMuons& gbCandidates) {
+  LogTrace("l1tOmtfEventPrint") << __FUNCTION__ << ":" << __LINE__ << " gbCandidates.size() " << gbCandidates.size()
+                                << std::endl;
+  FinalMuons finalMuons;
+
+  for (auto& algoMuon : gbCandidates) {
+    auto finalMuon = std::make_shared<FinalMuon>(algoMuon);
 
     //the charge is only for the constrained measurement. The constrained measurement is always defined for a valid candidate
-    if (ptAssignment) {
-      if (myCand->getPdfSumConstr() > 0 && myCand->getFiredLayerCntConstr() >= 3)
-        candidate.setHwPt(myCand->getPtNNConstr());
-      else if (myCand->getPtUnconstr() > 0)
-        candidate.setHwPt(1);
-      else
-        candidate.setHwPt(0);
-
-      candidate.setHwSign(myCand->getChargeNNConstr() < 0 ? 1 : 0);
+    if (algoMuon->getPdfSumConstr() > 0) {
+      finalMuon->setPtGev(this->myOmtfConfig->hwPtToGev(algoMuon->getPtConstr()));
+    } else if (algoMuon->getPtUnconstr() > 0) {
+      //if myCand->getPdfSumConstr() == 0, the myCand->getPtConstr() might not be 0, see the end of GhostBusterPreferRefDt::select
+      //pT is set to 0 here, i.e. as in convertToGmtScalesPhase1, pt=1 in GMT scale means 0 GeV
+      finalMuon->setPtGev(0.0);
     } else {
-      if (myCand->getPdfSumConstr() > 0 && myCand->getFiredLayerCntConstr() >= 3)
-        candidate.setHwPt(myCand->getPtConstr());
-      else if (myCand->getPtUnconstr() > 0)
-        //if myCand->getPdfSumConstr() == 0, the myCand->getPtConstr() might not be 0, see the end of GhostBusterPreferRefDt::select
-        //but 0 means empty candidate, 1 means pt=0, therefore here we set HwPt to 1, as the PtUnconstr > 0
-        candidate.setHwPt(1);
-      else
-        candidate.setHwPt(0);
-
-      candidate.setHwSign(myCand->getChargeConstr() < 0 ? 1 : 0);
+      //empty candidates are not added to the finalMuons
+      continue;
     }
 
-    if (mtfType == l1t::omtf_pos)
-      candidate.setHwEta(myCand->getEtaHw());
-    else
-      candidate.setHwEta((-1) * myCand->getEtaHw());
+    finalMuon->setPtUnconstrGev(this->myOmtfConfig->hwPtToGev(algoMuon->getPtUnconstr()));
 
-    int phiValue = myCand->getPhi();
-    if (phiValue >= int(this->myOmtfConfig->nPhiBins()))
-      phiValue -= this->myOmtfConfig->nPhiBins();
-    phiValue = this->myOmtfConfig->procPhiToGmtPhi(phiValue);
-    candidate.setHwPhi(phiValue);
+    finalMuon->setSign(algoMuon->getChargeConstr() < 0 ? 1 : 0);
 
+    if (mtfType == l1t::omtf_pos) {
+      finalMuon->setEtaRad(this->myOmtfConfig->hwEtaToEta(algoMuon->getEtaHw()));
+    } else {
+      finalMuon->setEtaRad((-1) * this->myOmtfConfig->hwEtaToEta(algoMuon->getEtaHw()));
+    }
+
+    finalMuon->setPhiRad(this->myOmtfConfig->procPhiOmtfToPhiRad(iProcessor, algoMuon->getPhi()));
+
+    //finalMuon->setFiredLayerCnt(algoMuon->getFiredLayerCnt());
+    finalMuon->setProcessor(iProcessor);
+    finalMuon->setTrackFinderType(mtfType);
+
+    finalMuons.emplace_back(finalMuon);
+  }
+  return finalMuons;
+}
+
+template <class GoldenPatternType>
+void OMTFProcessor<GoldenPatternType>::convertToGmtScalesPhase1(unsigned int iProcessor,
+                                                                l1t::tftype mtfType,
+                                                                FinalMuonPtr& finalMuon) {
+  //the charge is only for the constrained measurement. The constrained result is always defined for a valid candidate
+  if (finalMuon->getAlgoMuon()->getPdfSumConstr() > 0)
+    finalMuon->setPtGmt(finalMuon->getAlgoMuon()->getPtConstr());
+  else if (finalMuon->getAlgoMuon()->getPtUnconstr() > 0)
+    //if myCand->getPdfSumConstr() == 0, the myCand->getPtConstr() might not be 0, see the end of GhostBusterPreferRefDt::select
+    //but 0 means empty candidate, 1 means pt=0, therefore here we set HwPt to 1, as the PtUnconstr > 0
+    finalMuon->setPtGmt(1);
+  else
+    finalMuon->setPtGmt(0);
+
+  //N.B. the phase-1 GMT upt has different hardware scale than the pt, the upt unit is 1 GeV
+  if (finalMuon->getAlgoMuon()->getPtUnconstr() == 0)
+    finalMuon->setPtUnconstrGmt(0);
+  else
+    finalMuon->setPtUnconstrGmt((finalMuon->getAlgoMuon()->getPtUnconstr() - 1) / 2 + 1);
+
+  if (mtfType == l1t::omtf_pos) {
+    finalMuon->setEtaGmt(finalMuon->getAlgoMuon()->getEtaHw());
+  } else {
+    finalMuon->setEtaGmt((-1) * finalMuon->getAlgoMuon()->getEtaHw());
+  }
+
+  //TODO why it is needed?
+  int phiValue = finalMuon->getAlgoMuon()->getPhi();
+  if (phiValue >= int(this->myOmtfConfig->nPhiBins()))
+    phiValue -= this->myOmtfConfig->nPhiBins();
+  phiValue = this->myOmtfConfig->procPhiToGmtPhase1Phi(phiValue);
+  finalMuon->setPhiGmt(phiValue);
+  //finalMuon.setHwSignValid(1);
+}
+///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////
+template <class GoldenPatternType>
+std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::getRegionalMuonCands(unsigned int iProcessor,
+                                                                                          l1t::tftype mtfType,
+                                                                                          FinalMuons& finalMuons) {
+  std::vector<l1t::RegionalMuonCand> result;
+
+  for (auto& finalMuon : finalMuons) {
+    convertToGmtScalesPhase1(iProcessor, mtfType, finalMuon);
+
+    l1t::RegionalMuonCand candidate;
+
+    candidate.setHwPt(finalMuon->getPtGmt());
+    candidate.setHwPtUnconstrained(finalMuon->getPtUnconstrGmt());
+
+    candidate.setHwPhi(finalMuon->getPhiGmt());
+    candidate.setHwEta(finalMuon->getEtaGmt());
+
+    candidate.setHwSign(finalMuon->getSign());
     candidate.setHwSignValid(1);
 
-    if (myCand->getPtUnconstr() >= 0) {  //empty PtUnconstrained is -1, maybe should be corrected on the source
-      //the upt has different hardware scale than the pt, the upt unit is 1 GeV
-      candidate.setHwPtUnconstrained(myCand->getPtUnconstr());
-    } else
-      candidate.setHwPtUnconstrained(0);
-
-    unsigned int quality = 12;
-    if (this->myOmtfConfig->fwVersion() <= 6)
-      quality = checkHitPatternValidity(myCand->getFiredLayerBits()) ? 0 | (1 << 2) | (1 << 3) : 0 | (1 << 2);  //12 : 4
-
-    if (abs(myCand->getEtaHw()) == 115 &&  //115 is eta 1.25                        rrrrrrrrccccdddddd
-        (static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("100000001110000000").to_ulong() ||
-         static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000001110000000").to_ulong() ||
-         static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("100000000110000000").to_ulong() ||
-         static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("100000001100000000").to_ulong() ||
-         static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("100000001010000000").to_ulong())) {
-      if (this->myOmtfConfig->fwVersion() <= 6)
-        quality = 4;
-      else
-        quality = 1;
-    }
-
-    if (this->myOmtfConfig->fwVersion() >= 5 && this->myOmtfConfig->fwVersion() <= 6) {
-      if (static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000010000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000100000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001000000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000010000000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000100000000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001000000000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("010000000000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("100000000000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000010000001100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000100000001100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001000000001100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000010000000001100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000100000000001100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001000000000001100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("010000000000001100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("100000000000001100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000010000110000").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000100000110000").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001000000110000").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000010000000110000").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000100000000110000").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001000000000110000").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("010000000000110000").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("100000000000110000").to_ulong())
-        quality = 1;
-    } else if (this->myOmtfConfig->fwVersion() >= 8) {  //TODO fix the fwVersion     rrrrrrrrccccdddddd
-      if (static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000110000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000100000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000010000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000110000000001").to_ulong() ||
-
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001000000001100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000011000000001100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000010000000001100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000011000000000100").to_ulong() ||
-
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000011000000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001000010000000001").to_ulong())
-        quality = 1;
-      else if (
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000010000000101").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000010001000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000011000000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000011000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000011100000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000100000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000100001000100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000100100000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000110100000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000111000000000").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000111000000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000111000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001000001000100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001010000000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001010000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001010000000100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001100000000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001100000000100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001100000000111").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001100001000000").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001110000000100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001110000000101").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000010000000000101").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000010010000000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000010010000000100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000010010000000101").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000010100000000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000010100000000101").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000011110000000100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000011110000000101").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000101000000010101").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001000010000000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001000011000000000").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001000011000000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001000100000000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001000110000000000").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001001000000000100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001001100000000100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001010000000000100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("010000000010000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("010000000011000100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("010000010000000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("010000100000000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("100000011000000000").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000110000000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000010000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000110000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000011000000001100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000011000000000100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000010010000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000010000000001100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001001000001000100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001100000000101").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000100000000101").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001100000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001110000000111").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001000110001000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001110000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001000000001000100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000110001000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001000000000101").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001010000001000000").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001100000001000000").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("100000010000000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("010000010010000000").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000010100000001100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001000110000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001000000001100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000000000000111101").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000001100000110001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000100000000010100").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001000100000000011").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("001000110000000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("010000100010000001").to_ulong() ||
-          static_cast<unsigned int>(myCand->getFiredLayerBits()) == std::bitset<18>("000100000000110000").to_ulong())
-        quality = 8;
-    }  //  if (abs(myCand->getEta()) == 121) quality = 4;
-    if (abs(myCand->getEtaHw()) >= 121)
-      quality = 0;  // changed from 4 on request from HI
-
-    candidate.setHwQual(quality);
+    candidate.setHwQual(finalMuon->getQuality());
 
     std::map<int, int> trackAddr;
-    trackAddr[0] = myCand->getFiredLayerBits();
+    trackAddr[0] = finalMuon->getAlgoMuon()->getFiredLayerBits();
     //TODO in the hardware, the uPt is sent to the uGMT at the trackAddr = (uPt << 18) + trackAddr;
     //check if it matters if it needs to be here as well
-    trackAddr[1] = myCand->getRefLayer();
-    trackAddr[2] = myCand->getDisc();
+    trackAddr[1] = finalMuon->getAlgoMuon()->getRefLayer();
+    trackAddr[2] = finalMuon->getAlgoMuon()->getDisc();
     if (candidate.hwPt() > 0 || candidate.hwPtUnconstrained() > 0) {
       candidate.setTrackAddress(trackAddr);
       candidate.setTFIdentifiers(iProcessor, mtfType);
       result.push_back(candidate);
     }
   }
+
   return result;
 }
-///////////////////////////////////////////////////////
-///////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
@@ -349,6 +403,7 @@ template <class GoldenPatternType>
 int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFloatPoint(const int& refLogicLayer,
                                                                   const int& refPhi,
                                                                   const int& refPhiB,
+                                                                  const int& refHitSuperLayer,
                                                                   unsigned int targetLayer,
                                                                   const int& targetStubPhi,
                                                                   const int& targetStubQuality,
@@ -357,7 +412,8 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFloatPoint(const int& ref
                                                                   const OMTFConfiguration* omtfConfig) {
   LogTrace("l1tOmtfEventPrint") << "\n"
                                 << __FUNCTION__ << ":" << __LINE__ << " refLogicLayer " << refLogicLayer
-                                << " targetLayer " << targetLayer << std::endl;
+                                << " refHitSuperLayer " << refHitSuperLayer << " targetLayer " << targetLayer
+                                << std::endl;
   LogTrace("l1tOmtfEventPrint") << "refPhi " << refPhi << " refPhiB " << refPhiB << " targetStubPhi " << targetStubPhi
                                 << " targetStubQuality " << targetStubQuality << std::endl;
 
@@ -372,15 +428,32 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFloatPoint(const int& ref
   }
 
   int reflLayerIndex = refLogicLayer == 0 ? 0 : 1;
+  if (useStubQualInExtr) {
+    //the phase-2 DT Trigger Primitives, since CMSSW_14_2_0_pre1 define phi always in "the middle of the chamber"
+    //also for the uncorrelated stubs
+    //so the below correction has sense only for the phase-1
+    if (refHitSuperLayer == 1) {
+      rRefLayer = rRefLayer - 23.5 / 2;  //inner superlayer
+    } else if (refHitSuperLayer == 3) {  //using refHitSuperLayer = 3 here as in the L1Phase2MuDTPhDigi::slNum()
+      rRefLayer = rRefLayer + 23.5 / 2;  //inner superlayer
+    }
+
+    reflLayerIndex = (refHitSuperLayer << 1) | reflLayerIndex;
+  }
 
   if (targetLayer == 0 || targetLayer == 2 || targetLayer == 4 || (targetLayer >= 10 && targetLayer <= 14)) {
     //all units are cm. Values from the CMS geometry
-    float rTargetLayer = 512.401;  //MB2
+    float rTargetLayer = 512.475;  //MB2
 
     if (targetLayer == 0)
-      rTargetLayer = 431.133;  //MB1
-    else if (targetLayer == 4)
-      rTargetLayer = 617.946;  //MB3
+      rTargetLayer = 431.175;     //MB1
+    else if (targetLayer == 4) {  //MB3
+      //it is different than in the phase-1, as in the phase-2 it is a middle of the DT chamber, not muon station
+      if (omtfConfig->usePhase2DTPrimitives())
+        rTargetLayer = 619.675;
+      else
+        rTargetLayer = 617.946;
+    }
 
     else if (targetLayer == 10)
       rTargetLayer = 413.675;  //RB1in
@@ -505,6 +578,7 @@ template <class GoldenPatternType>
 int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFixedPoint(const int& refLogicLayer,
                                                                   const int& refPhi,
                                                                   const int& refPhiB,
+                                                                  const int& refHitSuperLayer,
                                                                   unsigned int targetLayer,
                                                                   const int& targetStubPhi,
                                                                   const int& targetStubQuality,
@@ -514,6 +588,10 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFixedPoint(const int& ref
   int phiExtr = 0;  //delta phi extrapolated
 
   int reflLayerIndex = refLogicLayer == 0 ? 0 : 1;
+
+  if (useStubQualInExtr)
+    reflLayerIndex = (refHitSuperLayer << 1) | reflLayerIndex;
+
   int extrFactor = 0;
 
   if (targetLayer == 0 || targetLayer == 2 || targetLayer == 4) {
@@ -539,8 +617,8 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFixedPoint(const int& ref
       //if given abs(targetStubEta) value is not present in the map, it is added with default value of 0
       //so it should be good. The only problem is that the map can grow...
       //TODO change to targetStubR when it is implemented in the FW
-      extrFactor = extrapolFactors[reflLayerIndex][targetLayer][abs(targetStubEta)];
-      //extrFactor = extrapolFactors[reflLayerIndex][targetLayer][abs(targetStubR)];
+      //extrFactor = extrapolFactors[reflLayerIndex][targetLayer][abs(targetStubEta)];
+      extrFactor = extrapolFactors[reflLayerIndex][targetLayer][abs(targetStubR)];
     } else {
       extrFactor = extrapolFactors[reflLayerIndex][targetLayer][0];
     }
@@ -565,10 +643,20 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiB(const MuonStubPtr& refSt
                                                         const MuonStubPtr& targetStub,
                                                         unsigned int targetLayer,
                                                         const OMTFConfiguration* omtfConfig) {
+  //0 is correlated segment, so middle of the chamber
+  // 1 is inner SL, 2 is outer.
+  //N.B. that in L1Phase2MuDTPhDigi::slNum() out SL is 3
+  int refHitSuperLayer = 0;
+  if (refStub->qualityHw == 2 || refStub->qualityHw == 0)
+    refHitSuperLayer = 1;
+  else if (refStub->qualityHw == 3 || refStub->qualityHw == 1)
+    refHitSuperLayer = 2;
+
   if (useFloatingPointExtrapolation)
     return OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFloatPoint(refStub->logicLayer,
                                                                          refStub->phiHw,
                                                                          refStub->phiBHw,
+                                                                         refHitSuperLayer,
                                                                          targetLayer,
                                                                          targetStub->phiHw,
                                                                          targetStub->qualityHw,
@@ -578,6 +666,7 @@ int OMTFProcessor<GoldenPatternType>::extrapolateDtPhiB(const MuonStubPtr& refSt
   return OMTFProcessor<GoldenPatternType>::extrapolateDtPhiBFixedPoint(refStub->logicLayer,
                                                                        refStub->phiHw,
                                                                        refStub->phiBHw,
+                                                                       refHitSuperLayer,
                                                                        targetLayer,
                                                                        targetStub->phiHw,
                                                                        targetStub->qualityHw,
@@ -625,7 +714,7 @@ void OMTFProcessor<GoldenPatternType>::processInput(unsigned int iProcessor,
   }
 
   boost::property_tree::ptree procDataTree;
-  LogTrace("l1tOmtfEventPrint") << __FUNCTION__ << " " << __LINE__;
+  LogTrace("l1tOmtfEventPrint") << __FUNCTION__ << " " << __LINE__ << std::endl;
   for (unsigned int iLayer = 0; iLayer < this->myOmtfConfig->nLayers(); ++iLayer) {
     //debug
     /*for(auto& h : layerHits) {
@@ -662,7 +751,7 @@ void OMTFProcessor<GoldenPatternType>::processInput(unsigned int iProcessor,
               LogTrace("l1tOmtfEventPrint")
                   << "\n"
                   << __FUNCTION__ << ":" << __LINE__ << " extrapolating from layer " << refLayerLogicNum
-                  << " - iRefLayer " << aRefHitDef.iRefLayer << " to layer " << iLayer << " stub " << targetStub
+                  << " - iRefLayer " << aRefHitDef.iRefLayer << " to layer " << iLayer << " stub " << *targetStub
                   << " value " << extrapolatedPhi[iStub] << std::endl;
 
               if (this->myOmtfConfig->getDumpResultToXML()) {
@@ -713,25 +802,29 @@ void OMTFProcessor<GoldenPatternType>::processInput(unsigned int iProcessor,
     int etaRef = refStub->etaHw;
 
     //calculating the phiExtrp in the case the RefLayer is MB1, to include it in the  candidate phi of candidate
+    unsigned int layerPhiOut = 2;  //the layer at which the candidate output phi is defined
+    unsigned int extrRefLayer = layerPhiOut == 0 ? 2 : 0;
+    //N.B. is seems that using layer 0 (MB1) as the layer where the phi is defined gives much worse results - worse phi and more ghosts
+
     int phiExtrp = 0;
-    if ((this->myOmtfConfig->usePhiBExtrapolationMB1() && aRefHitDef.iRefLayer == 0)) {
+    if ((this->myOmtfConfig->usePhiBExtrapolationMB1() && aRefHitDef.iRefLayer == extrRefLayer)) {
       //||(this->myOmtfConfig->getUsePhiBExtrapolationMB2() && aRefHitDef.iRefLayer == 2) ) {  //the extrapolation from the layer 2 to the layer 2 has no sense, so phiExtrp is 0
       LogTrace("l1tOmtfEventPrint") << "\n"
                                     << __FUNCTION__ << ":" << __LINE__
                                     << "extrapolating ref hit to get the phi of the candidate" << std::endl;
       if (useFloatingPointExtrapolation)
         phiExtrp = extrapolateDtPhiBFloatPoint(
-            aRefHitDef.iRefLayer, phiRef, refStub->phiBHw, 2, 0, 6, 0, 0, this->myOmtfConfig);
+            aRefHitDef.iRefLayer, phiRef, refStub->phiBHw, 0, layerPhiOut, 0, 6, 0, 0, this->myOmtfConfig);
       else
         phiExtrp = extrapolateDtPhiBFixedPoint(
-            aRefHitDef.iRefLayer, phiRef, refStub->phiBHw, 2, 0, 6, 0, 0, this->myOmtfConfig);
+            aRefHitDef.iRefLayer, phiRef, refStub->phiBHw, 0, layerPhiOut, 0, 6, 0, 0, this->myOmtfConfig);
     }
 
     for (auto& itGP : this->theGPs) {
       if (itGP->key().thePt == 0)  //empty pattern
         continue;
 
-      int phiRefSt2 = itGP->propagateRefPhi(phiRef + phiExtrp, etaRef, aRefHitDef.iRefLayer);
+      int phiRefSt2 = itGP->propagateRefPhi(phiRef + phiExtrp, etaRef, aRefHitDef.iRefLayer, layerPhiOut);
       itGP->getResults()[procIndx][iRefHit].set(aRefHitDef.iRefLayer, phiRefSt2, etaRef, phiRef);
     }
   }
@@ -759,12 +852,11 @@ void OMTFProcessor<GoldenPatternType>::processInput(unsigned int iProcessor,
 ///////////////////////////////////////////////////////
 
 template <class GoldenPatternType>
-std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::run(
-    unsigned int iProcessor,
-    l1t::tftype mtfType,
-    int bx,
-    OMTFinputMaker* inputMaker,
-    std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) {
+FinalMuons OMTFProcessor<GoldenPatternType>::run(unsigned int iProcessor,
+                                                 l1t::tftype mtfType,
+                                                 int bx,
+                                                 OMTFinputMaker* inputMaker,
+                                                 std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) {
   //uncomment if you want to check execution time of each method
   //boost::timer::auto_cpu_timer t("%ws wall, %us user in getProcessorCandidates\n");
 
@@ -797,37 +889,29 @@ std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::run(
   //LogTrace("l1tOmtfEventPrint")<<"processInput       "; t.report();
   AlgoMuons algoCandidates = sortResults(iProcessor, mtfType);
 
-  if (ptAssignment) {
-    for (auto& myCand : algoCandidates) {
-      if (myCand->isValid()) {
-        auto pts = ptAssignment->getPts(myCand, observers);
-        /*for (unsigned int i = 0; i < pts.size(); i++) {
-        trackAddr[10 + i] = this->myOmtfConfig->ptGevToHw(pts[i]);
-      }*/
-      }
-    }
-  }
-
   //LogTrace("l1tOmtfEventPrint")<<"sortResults        "; t.report();
   // perform GB
   //watch out: etaBits2HwEta is used in the ghostBust to convert the AlgoMuons eta, it affect algoCandidates as they are pointers
   AlgoMuons gbCandidates = ghostBust(algoCandidates);
 
-  //LogTrace("l1tOmtfEventPrint")<<"ghostBust"; t.report();
-  // fill RegionalMuonCand colleciton
-  std::vector<l1t::RegionalMuonCand> candMuons = getFinalcandidates(iProcessor, mtfType, gbCandidates);
+  //assignQuality must be called after ghostBust, because eta is set there
+  for (auto& gbCandidate : gbCandidates) {
+    assignQuality(gbCandidate);
+  }
 
-  //LogTrace("l1tOmtfEventPrint")<<"getFinalcandidates "; t.report();
-  //fill outgoing collection
-  for (auto& candMuon : candMuons) {
-    candMuon.setHwQual(candMuon.hwQual());
+  //LogTrace("l1tOmtfEventPrint")<<"ghostBust"; t.report();
+
+  FinalMuons finalMuons = getFinalMuons(iProcessor, mtfType, gbCandidates);
+
+  for (auto& finalMuon : finalMuons) {
+    finalMuon->setBx(bx);
   }
 
   for (auto& obs : observers) {
-    obs->observeProcesorEmulation(iProcessor, mtfType, input, algoCandidates, gbCandidates, candMuons);
+    obs->observeProcesorEmulation(iProcessor, mtfType, input, algoCandidates, gbCandidates, finalMuons);
   }
 
-  return candMuons;
+  return finalMuons;
 }
 
 template <class GoldenPatternType>

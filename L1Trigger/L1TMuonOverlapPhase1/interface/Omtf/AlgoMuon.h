@@ -42,10 +42,8 @@ public:
   //hardware pt
   int getPtConstr() const { return goldenPaternConstr == nullptr ? 0 : goldenPaternConstr->key().thePt; }
 
-  //hardware upt, in the phase1 the upt scale unit is 1 GeV, while for the pt the unit is 0.5GeV
-  int getPtUnconstr() const {
-    return goldenPaternUnconstr == nullptr ? 0 : (goldenPaternUnconstr->key().thePt - 1) / 2 + 1;
-  }
+  //hardware upt, in the pattens scale, not in the GMT scale
+  int getPtUnconstr() const { return goldenPaternUnconstr == nullptr ? 0 : goldenPaternUnconstr->key().thePt; }
 
   int getChargeConstr() const { return goldenPaternConstr == nullptr ? -1 : goldenPaternConstr->key().theCharge; }
 
@@ -125,21 +123,29 @@ public:
     this->goldenPaternUnconstr = goldenPaternUnconstr;
   }
 
+  int getQuality() const { return quality; }
+
+  void setQuality(int quality = 0) { this->quality = quality; }
+
   int getChargeNNConstr() const { return chargeNNConstr; }
 
   void setChargeNNConstr(int chargeNn = 0) { chargeNNConstr = chargeNn; }
 
-  int getPtNNConstr() const { return ptNNConstr; }
+  float getPtNNConstr() const { return ptNNConstr; }
 
-  void setPtNNConstr(int ptNn = 0) { ptNNConstr = ptNn; }
+  void setPtNNConstr(float ptNn = 0) { ptNNConstr = ptNn; }
 
-  int getChargeNNUnconstr() const { return chargeNNUnconstr; }
+  float getPtNNUnconstr() const { return ptNNUnconstr; }
 
-  void setChargeNNUnconstr(int chargeNnUnconstr = 0) { chargeNNUnconstr = chargeNnUnconstr; }
+  void setPtNNUnconstr(float ptNnUnconstr) { ptNNUnconstr = ptNnUnconstr; }
 
-  int getPtNNUnconstr() const { return ptNNUnconstr; }
+  int getDxyNn() const { return dxyNN; }
 
-  void setPtNNUnconstr(int ptNnUnconstr = 0) { ptNNUnconstr = ptNnUnconstr; }
+  void setDxyNn(int dxyNn = 0) { dxyNN = dxyNn; }
+
+  const std::vector<double>& getNnOutputs() const { return nnOutputs; }
+
+  void setNnOutputs(const std::vector<double>& nnOutputs) { this->nnOutputs = nnOutputs; }
 
 private:
   ///FIXME maybe the gpResult cannot be a reference or pointer, ad not a copy
@@ -165,11 +171,16 @@ private:
 
   std::vector<std::shared_ptr<AlgoMuon>> killedMuons;
 
-  int ptNNConstr = 0;
+  int quality = 0;
+
+  float ptNNConstr = 0;
   int chargeNNConstr = 0;
 
-  int ptNNUnconstr = 0;
-  int chargeNNUnconstr = 0;
+  float ptNNUnconstr = 0;
+
+  int dxyNN = 0;
+
+  std::vector<double> nnOutputs;
 };
 
 typedef std::shared_ptr<AlgoMuon> AlgoMuonPtr;
