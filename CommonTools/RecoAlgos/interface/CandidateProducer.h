@@ -69,7 +69,7 @@ template <typename TColl,
           typename Conv = typename converter::helper::CandConverter<typename TColl::value_type>::type,
           typename Creator = typename converter::helper::CandCreator<CColl>::type,
           typename Init = typename ::reco::modules::EventSetupInit<Selector>::type>
-class CandidateProducer : public edm::stream::EDProducer<> {
+class CandidateProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   /// constructor from parameter set
   CandidateProducer(const edm::ParameterSet& cfg)
