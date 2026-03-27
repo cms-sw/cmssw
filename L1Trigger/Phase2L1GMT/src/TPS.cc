@@ -27,28 +27,62 @@ std::vector<l1t::TrackerMuon> TPS::processEvent(const std::vector<edm::Ptr<l1t::
   for (int i = 0; i < 9; ++i)
     stubs[i] = associateStubsWithNonant(muonStubs, i);
 
+  //print all tracks and stubs for an event
+  if (verbose_ == 1) {
+    for (unsigned i = 0; i < 9; ++i) {
+      edm::LogInfo("TPS") << "Sector " << i << ":\n"
+                          << "    L1 Tracks:";
+      for (const auto& t : loctracks[i]) {
+        edm::LogInfo("TPS") << "        RinvBits = " << ap_int<BITSTTCURV>(t->getRinvBits()) << ", eta = " << t->eta()
+                            << ", phi = " << t->phi() << std::flush;
+        edm::LogInfo("TPS") << "            l1track word = " << std::setfill('0') << std::setw(8) << std::hex
+                            << ((t->getTrackWord()) >> 64).to_uint64() << std::setw(16)
+                            << (t->getTrackWord()).to_uint64() << std::dec << std::flush;
+      }
+      edm::LogInfo("TPS") << "    Converted Tracks:";
+      for (const auto& track : convertedTracks[i]) {
+        track.print("TPS", 8, false);
+        track.printWord("TPS", 12, true);
+      }
+      edm::LogInfo("TPS") << "    Stubs:";
+      for (const auto& stub : stubs[i]) {
+        stub->printHybridStub("TPS", 8, false);
+        stub->printHybridStubWord("TPS", 12, true);
+      }
+    }
+  }
+
   //run track - muon matching per nonant
   std::array<std::vector<PreTrackMatchedMuon>, 9> mus;
   for (int i = 0; i < 9; ++i)
     mus[i] = tps_->processNonant(convertedTracks.at(i), stubs.at(i));
 
-  //clean neighboring nonants
-  std::vector<std::vector<PreTrackMatchedMuon> > muCleaneds;
-  muCleaneds.push_back(tps_->cleanNeighbor(mus[0], mus[8], mus[1], true));
-  muCleaneds.push_back(tps_->cleanNeighbor(mus[1], mus[0], mus[2], false));
-  muCleaneds.push_back(tps_->cleanNeighbor(mus[2], mus[1], mus[3], true));
-  muCleaneds.push_back(tps_->cleanNeighbor(mus[3], mus[2], mus[4], false));
-  muCleaneds.push_back(tps_->cleanNeighbor(mus[4], mus[3], mus[5], true));
-  muCleaneds.push_back(tps_->cleanNeighbor(mus[5], mus[4], mus[6], false));
-  muCleaneds.push_back(tps_->cleanNeighbor(mus[6], mus[5], mus[7], true));
-  muCleaneds.push_back(tps_->cleanNeighbor(mus[7], mus[6], mus[8], false));
-  //ARGH! 9 sectors - so some duplicates very rarely
-  muCleaneds.push_back(tps_->cleanNeighbor(mus[8], mus[7], mus[0], false));
+  //examine match and overall muon qualities pre and post cleaning
+  if (verbose_ == 1) {
+    edm::LogInfo("TPS") << "Before cleaning premuons:";
+    for (unsigned i = 0; i < 9; ++i) {
+      std::vector<PreTrackMatchedMuon> sector_mus = mus[i];
+      for (const auto& sector_mu : sector_mus) {
+        edm::LogInfo("TPS") << "    (Sector " << i << ")" << std::flush;
+        sector_mu.print("TPS", 4, false);
+        sector_mu.printWord("TPS", 8, true);
+      }
+    }
+  }
 
-  //merge all the collections
-  std::vector<PreTrackMatchedMuon> mergedCleaned;
-  for (auto&& v : muCleaneds) {
-    mergedCleaned.insert(mergedCleaned.end(), v.begin(), v.end());
+  //clean all of the nonants at once
+  std::vector<PreTrackMatchedMuon> mergedPrecleaned;
+  for (auto&& v : mus) {
+    mergedPrecleaned.insert(mergedPrecleaned.end(), v.begin(), v.end());
+  }
+  std::vector<PreTrackMatchedMuon> mergedCleaned = tps_->cleanAll(mergedPrecleaned);
+
+  if (verbose_ == 1) {
+    edm::LogInfo("TPS") << "After cleaning premuons:";
+    for (const auto& cleaned_mu : mergedCleaned) {
+      cleaned_mu.print("TPS", 4, false);
+      cleaned_mu.printWord("TPS", 8, true);
+    }
   }
 
   std::vector<l1t::TrackerMuon> trackMatchedMuonsNoIso = tps_->convert(mergedCleaned, 32);
@@ -115,7 +149,7 @@ l1t::MuonStubRefVector TPS::associateStubsWithNonant(const l1t::MuonStubRefVecto
     ap_int<BITSSTUBCOORD> deltaPhi = phi - center;
     ap_uint<BITSSTUBCOORD - 1> absDeltaPhi =
         (deltaPhi < 0) ? ap_uint<BITSSTUBCOORD - 1>(-deltaPhi) : ap_uint<BITSSTUBCOORD - 1>(deltaPhi);
-    if (absDeltaPhi < 284)  //important to see pt = 3 to 4 //was 168 //was 42
+    if (absDeltaPhi < 284)  //was 284 //was 168 //was 42
       out.push_back(s);
   }
   return out;
