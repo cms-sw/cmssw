@@ -333,6 +333,10 @@ private:
   edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> pdtToken_;
 
   // histogram declaration
+  MonitorElement* meSelVtxTrk_;
+  MonitorElement* meSelVtxTrkwTime_;
+  MonitorElement* meSelVtxTrkvsEta_;
+  MonitorElement* meSelVtxTrkwTimevsEta_;
   MonitorElement* meUnAssocTracks_;
   MonitorElement* meUnAssocTracksFake_;
   MonitorElement* meFractionUnAssocTracks_;
@@ -643,6 +647,12 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                                                edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(folder_);
   // --- histograms booking
+  meSelVtxTrk_ = ibook.book1D("SelVtxTrk", "Log10 of Multiplicity of tracks selected for PV", 80, 0., 4.);
+  meSelVtxTrkwTime_ =
+      ibook.book1D("SelVtxTrkwTime", "Log10 of Multiplicity of tracks selected for PV with MTD time", 80, 0., 4.);
+  meSelVtxTrkvsEta_ = ibook.book1D("SelVtxTrkvsEta", "Eta distribution of tracks selected for PV", 80, -4., 4.);
+  meSelVtxTrkwTimevsEta_ =
+      ibook.book1D("SelVtxTrkwTimevsEta", "Eta distribution of tracks selected for PV with MTD time", 80, -4., 4.);
   meUnAssocTracks_ = ibook.book1D("UnAssocTracks", "Log10(Unassociated tracks)", 160, 0.5, 4.5);
   meUnAssocTracksFake_ = ibook.book1D("UnAssocTracksFake", "Log10(Unassociated fake tracks)", 160, 0.5, 4.5);
   meFractionUnAssocTracks_ = ibook.book1D("FractionUnAssocTracks", "Fraction Unassociated tracks", 160, 0.0, 1.);
@@ -2327,7 +2337,13 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
   int unassociatedCount = 0;
   int unassociatedCountFake = 0;
+  size_t trkwTime(0);
   for (std::vector<reco::TransientTrack>::const_iterator itk = seltks.begin(); itk != seltks.end(); itk++) {
+    meSelVtxTrkvsEta_->Fill(itk->track().eta());
+    if (itk->dtErrorExt() < TransientTrackBuilder::defaultInvalidTrackTimeReso) {
+      trkwTime++;
+      meSelVtxTrkwTimevsEta_->Fill(itk->track().eta());
+    }
     reco::TrackBaseRef trackref = (*itk).trackBaseRef();
     bool isAssociated = false;
     for (unsigned int iv = 0; iv < recopv.size(); iv++) {
@@ -2349,6 +2365,8 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
         unassociatedCountFake++;
     }
   }
+  meSelVtxTrk_->Fill(log10(seltks.size()));
+  meSelVtxTrkwTime_->Fill(log10(trkwTime));
   double fraction = double(unassociatedCount) / (seltks.size());
   meUnAssocTracks_->Fill(log10(unassociatedCount));
   meFractionUnAssocTracks_->Fill(fraction);
