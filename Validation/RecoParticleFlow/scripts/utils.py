@@ -28,22 +28,23 @@ def debug(mes):
 def findBestGaussianCoreFit(histo, quiet=True, meanForRange=1., rmsForRange=0.1):
     """
     Implementation of a gaussian core fit.
+    The meanForRange and rmsForRange are initial estimates for the position and width of the gaussian.
+    The peak must lie within the initial estimates, otherwise the fit will fail.
     """
-    if histo.Integral() < 50:
-        debug(' [findBestGaussianCoreFit] There is not enough data for running the fit.')
+    nDataMin = 60
+    if histo.Integral(1, histo.GetNbinsX()) < nDataMin:
+        debug(f'[findBestGaussianCoreFit] The fit needs at least {nDataMin} data elements. Skipping.')
         return None
     
     Xmax = histo.GetXaxis().GetBinCenter(histo.GetMaximumBin())
 
     gausTF1 = ROOT.TF1()
-
     Pvalue = 0.
     RangeLow = histo.GetBinLowEdge(2)
     RangeUp = histo.GetBinLowEdge(histo.GetNbinsX())
 
     PvalueBest = 0.    
     rms_step_minus = 2.2
-    # the meanForRange and rmsForRange are initial estimates.
     RangeLowBest = meanForRange - rms_step_minus*rmsForRange
     RangeUpBest = meanForRange + rms_step_minus*rmsForRange
     
@@ -51,14 +52,28 @@ def findBestGaussianCoreFit(histo, quiet=True, meanForRange=1., rmsForRange=0.1)
     sigma_step = 0.1
     StepMinusBest, StepPlusBest, ChiSquareBest, ndfBest = (None for _ in range(4))
 
-    while rms_step_minus>range_max_dist:
+    stop = False
+    while rms_step_minus>range_max_dist and not stop:
         RangeLow = meanForRange - rms_step_minus*rmsForRange
         rms_step_plus = rms_step_minus
 
-        while rms_step_plus>range_max_dist:
-            RangeUp = meanForRange + rms_step_plus*rmsForRange 
-            histo.Fit("gaus", "0Q" if quiet else "0", "0", RangeLow, RangeUp)
+        while rms_step_plus>range_max_dist and not stop:
+            RangeUp = meanForRange + rms_step_plus*rmsForRange
 
+            # if there is not enough data in the initial region (first iteration), the fit will never converge
+            if PvalueBest==0 and histo.Integral(histo.FindBin(RangeLow), histo.FindBin(RangeUp)) < nDataMin / 2:
+                debug(f'[findBestGaussianCoreFit] The fit needs at least {nDataMin / 2} data elements in the fit region. Skipping.')
+                debug(f'You likely provided wrong initial estimates (the histogram has {histo.Integral(1, histo.GetNbinsX())} data elements). Skipping.')
+                return None
+            if histo.FindBin(RangeUp) - histo.FindBin(RangeLow) < 2:
+                debug(f'[findBestGaussianCoreFit] The gaussian fit needs at least two bins to run.')
+                if PvalueBest==0: # first iteration
+                    return None
+                else:
+                    stop = True
+                    continue
+
+            histo.Fit("gaus", "0Q" if quiet else "0", "0", RangeLow, RangeUp)
             gausTF1 = histo.GetListOfFunctions().FindObject("gaus")
             ChiSquare = gausTF1.GetChisquare()
             ndf       = gausTF1.GetNDF()

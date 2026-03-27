@@ -182,7 +182,7 @@ def plotProject(h, sample_label, era, props, rebin_edges, outname):
     valuesList, errorsList = [], []
     fit_params = {} if props.fit else None
     plotter = Plotter(sample_label, grid_color=None, era=era)
-
+    
     for ibin, (low, high) in enumerate(zip(rebin_edges[:-1],rebin_edges[1:])):
         hproj = h.ProjectionY(h.GetName() + "_proj" + str(ibin),
                               h.GetXaxis().FindBin(low), h.GetXaxis().FindBin(high), "e")
@@ -201,10 +201,10 @@ def plotProject(h, sample_label, era, props, rebin_edges, outname):
                             color=line.get_edgecolor(),
                             fmt='s', label=label, **errorbar_kwargs)
 
-        if props.fit and hproj.GetMean() > 0. and hproj.GetRMS() > 0:
+        if props.fit:
             gausTF1 = utils.findBestGaussianCoreFit(hproj, meanForRange=0.9, rmsForRange=0.05, quiet=True)
             if gausTF1 is None:
-                fit_params = None
+                fit_params[(low,high)] = (None, None, None, None)
             else:
                 nsigmas = 3
                 xfunc = np.linspace(gausTF1.GetParameter(1) - nsigmas*abs(gausTF1.GetParameter(2)),
@@ -238,11 +238,9 @@ def plotOverlay(subdirs, cached_histos, name, match_by_score, sample_label, era,
     plotter = Plotter(sample_label, grid_color=None, era=era)
     for sub in subdirs:
         root_hist = cached_histos[f"{sub}/{name}"]
-
         if props.rebin is not None:
             root_hist = root_hist.Clone(f"{name}" + "_clone")
             root_hist.SetDirectory(0) # detach from file
-
             if isinstance(props.rebin, (int, float)):
                 root_hist = root_hist.Rebin(int(props.rebin), f"{name}" + "_rebin")
             elif hasattr(props.rebin, '__iter__'):
@@ -268,8 +266,6 @@ def plotOverlay(subdirs, cached_histos, name, match_by_score, sample_label, era,
                             fmt='s', label=sublabel, **errorbar_kwargs)
             plotter.limits(y=(0,1.1), x=(bin_edges[0], bin_edges[-1]))
         else:
-            # if "Response" in name:
-            #     plotter.limits(y=(0, 2.0))
             plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
                             color=line.get_edgecolor(),
                             fmt='s', label=sublabel, **errorbar_kwargs)
@@ -853,7 +849,6 @@ if __name__ == '__main__':
         **{f'{subdir}/ResponseE_Eta':
            InputArgs(
                xtitle=titles['response'], ytitle='# Clusters', var=r'$\eta$',
-               # rebin=(-1.5, -1.3, -1., -0.75, -0.5, -0.25, 0., 0.25, 0.5, 0.75, 1., 1.3, 1.5)
                rebin=(-1.5, -0.75, 0., 0.75, 1.5)
            ) for subdir in subdirs},
         **{f'{subdir}/ResponseE_Phi':
@@ -873,29 +868,33 @@ if __name__ == '__main__':
         ),
     }
 
+    fitpars = {}
     for name, props in vars2DProjection.items():
         root_hist = cached_histos[f"{name}"]
-        fitpars = plotProject(root_hist, args.sample_label, args.era, props, rebin_edges=props.rebin,
-                              outname=os.path.join(args.odir, name + '_Projected'))
+        fp = plotProject(root_hist, args.sample_label, args.era, props, rebin_edges=props.rebin,
+                         outname=os.path.join(args.odir, name + '_Projected'))
+        fitpars[name] = fp
 
-        if props.fit and fitpars is not None:
-            n_bins = len(fitpars)
-            xmin = min(low for low, _ in fitpars.keys())
-            xmax = max(high for _, high in fitpars.keys())
+        if props.fit and fp is not None:
+            n_bins = len(fp)
+            xmin = min(low for low, _ in fp.keys())
+            xmax = max(high for _, high in fp.keys())
 
             fitstr = 'FromFit{}_'+os.path.basename(name)
             fitdir = os.path.dirname(name) + '/' + fitstr
             cached_histos[fitdir.format('Mean')] = ROOT.TH1F(fitdir.format('Mean').replace('/','_'), fitstr.format('Mean'), n_bins, xmin, xmax)
             cached_histos[fitdir.format('Width')] = ROOT.TH1F(fitdir.format('Width').replace('/','_'), fitstr.format('Width'), n_bins, xmin, xmax)
 
-            for i, ((low, high), (mean, width, mean_err, width_err)) in enumerate(fitpars.items(), 1):
-                cached_histos[fitdir.format('Mean')].SetBinContent(i, mean)
-                cached_histos[fitdir.format('Mean')].SetBinError(i, mean_err)
-                cached_histos[fitdir.format('Width')].SetBinContent(i, width)
-                cached_histos[fitdir.format('Width')].SetBinError(i, width_err)
-                
+            for i, ((low, high), (mean, width, mean_err, width_err)) in enumerate(fp.items(), 1):
+                if mean is not None:
+                    cached_histos[fitdir.format('Mean')].SetBinContent(i, mean)
+                    cached_histos[fitdir.format('Mean')].SetBinError(i, mean_err)
+                    cached_histos[fitdir.format('Width')].SetBinContent(i, width)
+                    cached_histos[fitdir.format('Width')].SetBinError(i, width_err)
+
     for name, props in vars2DProjection.items():
-        if props.fit:
+        if props.fit and fitpars[name] is not None:
+            fitstr = 'FromFit{}_'+os.path.basename(name)
             props.xtitle = 'Energy [GeV]'
             props.ytitle = 'Response'
             plotOverlay(subdirs, cached_histos, fitstr.format('Mean'), args.match_by_score, args.sample_label, args.era, props, outdir=args.odir)
@@ -960,9 +959,9 @@ if __name__ == '__main__':
         **{f'{subdir}/ResponseE_Phi': dict(ytitle=titles['response'], var='# Clusters', xtitle=r'$\phi$') for subdir in subdirs},
     })
 
-    for name, props in vars2D.items():
-        root_hist = cached_histos[f"{name}"]
-        plot2D(root_hist, args.sample_label, args.era, props, outname=os.path.join(args.odir, name))
+    # for name, props in vars2D.items():
+    #     root_hist = cached_histos[f"{name}"]
+    #     plot2D(root_hist, args.sample_label, args.era, props, outname=os.path.join(args.odir, name))
 
     vars1D = {
         'simToRecoShEnF': dict(xtitle='SimToReco Shared Energy Fraction', ytitle='# SimClusters', var='SimClusters', logy=False),
@@ -970,9 +969,9 @@ if __name__ == '__main__':
         'recoToSimScore': dict(xtitle='RecoToSim Score', ytitle='# SimClusters', var='SimClusters', logy=False),
     }
 
-    for name, props in vars1D.items():
-        root_hist = cached_histos[f"{name}"]
-        plot1D(root_hist, args.sample_label, args.era, props, outname=os.path.join(args.odir, name))
+    # for name, props in vars1D.items():
+    #     root_hist = cached_histos[f"{name}"]
+    #     plot1D(root_hist, args.sample_label, args.era, props, outname=os.path.join(args.odir, name))
 
     ##################################################################################
     # Temporary hack to access CaloParticle histrograms
@@ -1007,14 +1006,14 @@ if __name__ == '__main__':
         'CP_recoToSimScore': dict(xtitle='RecoToSim Score', ytitle='# CaloParticles', var='CaloParticles', logy=False),
     }
 
-    for name, props in vars1D.items():
-        root_hist = cached_histos[f"{name}"]
-        plot1D(root_hist, args.sample_label, args.era, props, outname=os.path.join(args.odir, name))
+    # for name, props in vars1D.items():
+    #     root_hist = cached_histos[f"{name}"]
+    #     plot1D(root_hist, args.sample_label, args.era, props, outname=os.path.join(args.odir, name))
     
     vars2D = {
         'CP_simToRecoShEnF_Score': dict(ytitle='SimToReco Score', var='# CaloParticles', xtitle='SimToReco Shared Energy Fraction', logz=True),
     }
 
-    for name, props in vars2D.items():
-        root_hist = cached_histos[f"{name}"]
-        plot2D(root_hist, args.sample_label, args.era, props, outname=os.path.join(args.odir, name))
+    # for name, props in vars2D.items():
+    #     root_hist = cached_histos[f"{name}"]
+    #     plot2D(root_hist, args.sample_label, args.era, props, outname=os.path.join(args.odir, name))
