@@ -42,7 +42,9 @@ private:
   // ----------member functions ----------------------
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
-  std::vector<ap_uint<64>> encodeJets(const std::vector<l1t::PFJet> jets, unsigned nJets);
+  std::vector<ap_uint<64>> encodeJets(const std::vector<l1t::PFJet> jets,
+                                      unsigned nJets,
+                                      l1t::PFJet::HWEncoding encoding);
   std::vector<ap_uint<64>> encodeSums(const std::vector<l1t::EtSum> sums, unsigned nSums);
 
   l1t::demo::BoardDataWriter fileWriterOutputToGT_;
@@ -50,6 +52,7 @@ private:
   std::vector<std::pair<bool, bool>> tokensToWrite_;
   std::vector<unsigned> nJets_;
   std::vector<unsigned> nSums_;
+  std::vector<l1t::PFJet::HWEncoding> jetEncodings_;
 };
 
 L1CTJetFileWriter::L1CTJetFileWriter(const edm::ParameterSet& iConfig)
@@ -73,6 +76,12 @@ L1CTJetFileWriter::L1CTJetFileWriter(const edm::ParameterSet& iConfig)
     unsigned nSums = pset.getParameter<unsigned>("nSums");
     nJets_.push_back(nJets);
     nSums_.push_back(nSums);
+
+    // Parse encoding string and convert to enum
+    std::string encodingStr = pset.getParameter<std::string>("jetEncoding");
+    l1t::PFJet::HWEncoding encoding = l1t::PFJet::encodingFromString(encodingStr);
+    jetEncodings_.push_back(encoding);
+
     bool writeJetToken(false), writeMhtToken(false);
     if (nJets > 0) {
       jetToken = consumes<edm::View<l1t::PFJet>>(pset.getParameter<edm::InputTag>("jets"));
@@ -103,7 +112,7 @@ void L1CTJetFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
       std::stable_sort(
           sortedJets.begin(), sortedJets.end(), [](l1t::PFJet i, l1t::PFJet j) { return (i.hwPt() > j.hwPt()); });
-      const auto outputJets(encodeJets(sortedJets, nJets_.at(iCollection)));
+      const auto outputJets(encodeJets(sortedJets, nJets_.at(iCollection), jetEncodings_.at(iCollection)));
       link_words.insert(link_words.end(), outputJets.begin(), outputJets.end());
     }
 
@@ -129,13 +138,15 @@ void L1CTJetFileWriter::endJob() {
   fileWriterOutputToGT_.flush();
 }
 
-std::vector<ap_uint<64>> L1CTJetFileWriter::encodeJets(const std::vector<l1t::PFJet> jets, const unsigned nJets) {
+std::vector<ap_uint<64>> L1CTJetFileWriter::encodeJets(const std::vector<l1t::PFJet> jets,
+                                                       const unsigned nJets,
+                                                       l1t::PFJet::HWEncoding encoding) {
   // Encode up to nJets jets, padded with 0s
   std::vector<ap_uint<64>> jet_words(2 * nJets, 0);  // allocate 2 words per jet
   for (unsigned i = 0; i < std::min(nJets, (uint)jets.size()); i++) {
     const l1t::PFJet& j = jets.at(i);
-    jet_words[2 * i] = j.encodedJet()[0];
-    jet_words[2 * i + 1] = j.encodedJet()[1];
+    jet_words[2 * i] = j.encodedJet(encoding)[0];
+    jet_words[2 * i + 1] = j.encodedJet(encoding)[1];
   }
   return jet_words;
 }
@@ -146,7 +157,8 @@ std::vector<ap_uint<64>> L1CTJetFileWriter::encodeSums(const std::vector<l1t::Et
   for (unsigned i = 0; i < nSums; i++) {
     if (2 * i < sums.size()) {
       l1gt::Sum gtSum;
-      gtSum.valid = 1;  // if the sums are sent at all, they are valid
+      gtSum.valid = sums.at(2 * i + 1).hwPt() != 0 ||
+                    sums.at(2 * i).hwPt() != 0;  // In accordance with toGT(), make sure vector and scalar pt are valid
       gtSum.vector_pt.V = sums.at(2 * i + 1).hwPt();
       gtSum.vector_phi.V = sums.at(2 * i + 1).hwPhi();
       gtSum.scalar_pt.V = sums.at(2 * i).hwPt();
@@ -167,6 +179,7 @@ void L1CTJetFileWriter::fillDescriptions(edm::ConfigurationDescriptions& descrip
     vpsd1.addOptional<edm::InputTag>("mht");
     vpsd1.add<uint>("nJets", 0);
     vpsd1.add<uint>("nSums", 0);
+    vpsd1.add<std::string>("jetEncoding", "GT");
     desc.addVPSet("collections", vpsd1);
   }
   desc.add<std::string>("outputFilename");

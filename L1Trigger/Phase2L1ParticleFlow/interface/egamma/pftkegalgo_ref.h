@@ -232,6 +232,21 @@ namespace l1ct {
       };
     };
 
+#if defined(BDT_DEBUG)
+
+    struct BDTDebugData {
+      std::vector<unsigned int> inputs;
+      unsigned int raw_score;
+      unsigned int norm_score;
+    };
+    TkEGEleAssociationModel::BDTDebugData bdtData() const { return bdt_debug_data_; }
+
+  protected:
+    mutable BDTDebugData bdt_debug_data_;
+
+  public:
+#endif
+
     static std::unique_ptr<WP> createWP(const std::vector<double> &bin_low_edges,
                                         const std::vector<double> &wp_values) {
       assert(bin_low_edges.size() == wp_values.size() && "The size of bin_low_edges must match the size of wp_values.");
@@ -356,6 +371,10 @@ namespace l1ct {
     bool writeEgSta() const { return cfg.writeEgSta; }
 
     static float deltaPhi(float phi1, float phi2);
+
+#if defined(BDT_DEBUG)
+    std::vector<TkEGEleAssociationModel::BDTDebugData> bdtDebugData() const { return bdt_debug_datas_; }
+#endif
 
   private:
     void link_emCalo2emCalo(const std::vector<EmCaloObjEmu> &emcalo, std::vector<int> &emCalo2emCalo) const;
@@ -542,6 +561,9 @@ namespace l1ct {
     // Could use a std::variant
     std::unique_ptr<TkEGEleAssociationModel> tkEleModel_;
 
+#if defined(BDT_DEBUG)
+    mutable std::vector<TkEGEleAssociationModel::BDTDebugData> bdt_debug_datas_;
+#endif
     int debug_;
   };
 }  // namespace l1ct
