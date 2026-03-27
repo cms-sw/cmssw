@@ -258,7 +258,6 @@ def plotOverlay(subdirs, cached_histos, name, match_by_score, sample_label, era,
                                  baseline=None, color=next(colors_iter))
 
         sublabel = re.sub(pattern, replacement, sub)
-        if sublabel == f'{matching} = 1.1': sublabel = f'{matching} = 1.0' # Temporary fix 
         if any(x in name for x in ('Eff', 'Fake', 'Split', 'Merge')):
             eff_filt, (err_filt_lo, err_filt_hi), up_error, transform = rate_errorbar_declutter(plotter, values, errors, 0)
             plotter.ax.errorbar(bin_centers, values, xerr=None, yerr=[err_filt_lo,err_filt_hi],
@@ -318,7 +317,6 @@ def plotOverlayRatio(subdirs, cached_histos, num, den, match_by_score, sample_la
                                  baseline=None, color=next(colors_iter))
 
         sublabel = re.sub(pattern, replacement, sub)
-        if sublabel == f'{matching} = 1.1': sublabel = f'{matching} = 1.0' # Temporary fix
         plotter.ax.errorbar(bin_centers, ratio_vals, xerr=None, yerr=ratio_errors,
                             color=line.get_edgecolor(),
                             fmt='s', label=sublabel, **errorbar_kwargs)

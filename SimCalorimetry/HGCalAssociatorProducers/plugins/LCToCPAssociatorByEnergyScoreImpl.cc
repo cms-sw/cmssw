@@ -436,6 +436,10 @@ ticl::association LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
       LogDebug("LCToCPAssociatorByEnergyScoreImplT") << "layerCluster Id: \t" << lcId << "\tCP id:\t-1 "
                                                      << "\t score \t-1\n";
 #endif
+    // avoid floating point rounding errors; force score to lie between 0 and 1
+    for (auto& cpPair : cpsInLayerCluster[lcId]) {
+      cpPair.second = std::clamp(cpPair.second, 0.f, 1.f);
+    }
   }  // End of loop over LayerClusters
 
   // Compute the CaloParticle-To-LayerCluster score
@@ -538,6 +542,10 @@ ticl::association LCToCPAssociatorByEnergyScoreImplT<HIT, CLUSTER>::makeConnecti
             << (lcPair.second.first / CPenergy) << "\n";
       }
 #endif
+      // avoid floating point rounding errors; force score to lie between 0 and 1
+      for (auto& lcPair : cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore) {
+        lcPair.second.second = std::clamp(lcPair.second.second, 0.f, 1.f);
+      }
     }  // End of loop over layers
   }  // End of loop over CaloParticles
 
