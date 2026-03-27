@@ -461,17 +461,33 @@ namespace cms::soa {
  */
 // clang-format off
 #define _STREAMER_READ_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                          \
-    _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                        \
-      /* Scalar */                                                                                                     \
-      memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE));                                   \
-      ,                                                                                                                \
-      /* Column */                                                                                                     \
-      memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE) * onfile.elements_);                \
-      ,                                                                                                                \
-      /* Eigen column */                                                                                               \
-      memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _),                                                      \
-        sizeof(CPP_TYPE::Scalar) * BOOST_PP_CAT(NAME, ElementsWithPadding_));                                          \
-    )
+    if (onfile.BOOST_PP_CAT(NAME, _) != nullptr) {                                                                     \
+      _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                      \
+        /* Scalar */                                                                                                   \
+        memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE));                                 \
+        ,                                                                                                              \
+        /* Column */                                                                                                   \
+        memcpy(BOOST_PP_CAT(NAME, _), onfile.BOOST_PP_CAT(NAME, _), sizeof(CPP_TYPE) * onfile.elements_);              \
+        ,                                                                                                              \
+        /* Eigen column */                                                                                             \
+        for (unsigned int i = 0; i < CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime; ++i) {                 \
+          memcpy(BOOST_PP_CAT(NAME, _) + i * BOOST_PP_CAT(NAME, Stride_),                                              \
+                 onfile.BOOST_PP_CAT(NAME, _) + i * onfile.BOOST_PP_CAT(NAME, Stride_),                                \
+                 sizeof(CPP_TYPE::Scalar) * onfile.elements_);                                                         \
+        }                                                                                                              \
+      )                                                                                                                \
+    } else {                                                                                                           \
+      _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                      \
+        /* Scalar */                                                                                                   \
+        memset(BOOST_PP_CAT(NAME, _), 0x00, sizeof(CPP_TYPE));                                                         \
+        ,                                                                                                              \
+        /* Column */                                                                                                   \
+        memset(BOOST_PP_CAT(NAME, _), 0x00, sizeof(CPP_TYPE) * onfile.elements_);                                      \
+        ,                                                                                                              \
+        /* Eigen column */                                                                                             \
+        memset(BOOST_PP_CAT(NAME, _), 0x00, sizeof(CPP_TYPE::Scalar) * BOOST_PP_CAT(NAME, ElementsWithPadding_));      \
+      )                                                                                                                \
+    }
 // clang-format on
 
 #define _STREAMER_READ_SOA_DATA_MEMBER(R, DATA, TYPE_NAME)                                  \
