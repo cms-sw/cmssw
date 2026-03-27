@@ -40,9 +40,9 @@ public:
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
-  edm::InputTag label_lcl;
-  edm::InputTag label_scl;
-  std::vector<std::string> filter_sim_hits;
+  edm::InputTag label_lcl_;
+  edm::InputTag label_scl_;
+  std::vector<DetId::Detector> detIds_;
 
   edm::EDGetTokenT<SimClusterCollection> SCCollectionToken_;
   edm::EDGetTokenT<CLUSTER> LCCollectionToken_;
@@ -54,13 +54,15 @@ LCToSCAssociatorEDProducerT<CLUSTER>::LCToSCAssociatorEDProducerT(const edm::Par
   produces<ticl::SimToRecoCollectionWithSimClustersT<CLUSTER>>();
   produces<ticl::RecoToSimCollectionWithSimClustersT<CLUSTER>>();
 
-  label_lcl = pset.getParameter<edm::InputTag>("label_lcl");
-  label_scl = pset.getParameter<edm::InputTag>("label_scl");
-  filter_sim_hits = pset.getParameter<std::vector<std::string>>("filter_sim_hits");
-  simcluster_utils::check_detids(filter_sim_hits);
+  label_lcl_ = pset.getParameter<edm::InputTag>("label_lcl");
+  label_scl_ = pset.getParameter<edm::InputTag>("label_scl");
 
-  LCCollectionToken_ = consumes<CLUSTER>(label_lcl);
-  SCCollectionToken_ = consumes<SimClusterCollection>(label_scl);
+  std::vector<std::string> filter_sim_hits = pset.getParameter<std::vector<std::string>>("filter_sim_hits");
+  simcluster_utils::check_detids(filter_sim_hits);
+  detIds_ = simcluster_utils::join_detids(filter_sim_hits);
+
+  LCCollectionToken_ = consumes<CLUSTER>(label_lcl_);
+  SCCollectionToken_ = consumes<SimClusterCollection>(label_scl_);
   associatorToken_ =
       consumes<ticl::LayerClusterToSimClusterAssociatorT<CLUSTER>>(pset.getParameter<edm::InputTag>("associator"));
 }
@@ -98,11 +100,11 @@ void LCToSCAssociatorEDProducerT<CLUSTER>::produce(edm::StreamID,
   // Protections
   if (!SCCollection.isValid()) {
     edm::LogWarning("LCToSCAssociatorEDProducerT")
-        << "CaloCluster collection with label " << label_scl << " is unavailable. Producing empty associations.";
+        << "CaloCluster collection with label " << label_scl_ << " is unavailable. Producing empty associations.";
   }
   if (!LCCollection.isValid()) {
     edm::LogWarning("LCToSCAssociatorEDProducer")
-        << "CaloCluster collection with label " << label_lcl << " is unavailable. Producing empty associations.";
+        << "CaloCluster collection with label " << label_lcl_ << " is unavailable. Producing empty associations.";
 
     // Return empty collections
     auto emptyRecSimColl = std::make_unique<ticl::RecoToSimCollectionWithSimClustersT<CLUSTER>>();
@@ -113,16 +115,14 @@ void LCToSCAssociatorEDProducerT<CLUSTER>::produce(edm::StreamID,
     return;
   }
 
-  std::vector<DetId::Detector> detIds = simcluster_utils::join_detids(filter_sim_hits);
-
   // associate LC and SC
   LogTrace("AssociatorValidator") << "Calling associateRecoToSim method\n";
   ticl::RecoToSimCollectionWithSimClustersT<CLUSTER> recSimColl =
-      theAssociator->associateRecoToSim(LCCollection, SCCollection, detIds);
+      theAssociator->associateRecoToSim(LCCollection, SCCollection, detIds_);
 
   LogTrace("AssociatorValidator") << "Calling associateSimToReco method\n";
   ticl::SimToRecoCollectionWithSimClustersT<CLUSTER> simRecColl =
-      theAssociator->associateSimToReco(LCCollection, SCCollection, detIds);
+      theAssociator->associateSimToReco(LCCollection, SCCollection, detIds_);
 
   auto rts = std::make_unique<ticl::RecoToSimCollectionWithSimClustersT<CLUSTER>>(recSimColl);
   auto str = std::make_unique<ticl::SimToRecoCollectionWithSimClustersT<CLUSTER>>(simRecColl);
