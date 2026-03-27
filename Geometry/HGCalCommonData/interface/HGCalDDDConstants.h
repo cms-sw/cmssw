@@ -183,6 +183,10 @@ public:
     return ((mode_ == HGCalGeometryMode::TrapezoidFile) || (mode_ == HGCalGeometryMode::TrapezoidModule) ||
             (mode_ == HGCalGeometryMode::TrapezoidCassette) || (mode_ == HGCalGeometryMode::TrapezoidFineCell));
   }
+  inline bool trapezoidModule() const {
+    return ((mode_ == HGCalGeometryMode::TrapezoidModule) || (mode_ == HGCalGeometryMode::TrapezoidCassette) ||
+            (mode_ == HGCalGeometryMode::TrapezoidFineCell));
+  }
   inline bool v16OrLess() const { return (mode_ < HGCalGeometryMode::Hexagon8Cassette); }
   inline bool v17OrLess() const { return (mode_ < HGCalGeometryMode::Hexagon8CalibCell); }
   inline bool v18OrLess() const { return (mode_ < HGCalGeometryMode::Hexagon8FineCell); }
