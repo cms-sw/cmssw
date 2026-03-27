@@ -40,7 +40,7 @@
 // class declarations
 //
 
-class EventWithHistoryProducerFromL1ABC : public edm::stream::EDProducer<> {
+class EventWithHistoryProducerFromL1ABC : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit EventWithHistoryProducerFromL1ABC(const edm::ParameterSet&);
   ~EventWithHistoryProducerFromL1ABC() override;
