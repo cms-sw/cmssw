@@ -100,7 +100,6 @@ namespace edm {
   template <typename T>
   void SerialTaskQueueChain::actionToRun(T&& iAction) {
     //even if an exception happens we will resume the queues.
-    using Queues = std::vector<std::shared_ptr<SerialTaskQueue>>;
     auto sentryAction = [](SerialTaskQueueChain* iChain) {
       auto& vec = iChain->m_queues;
       for (auto it = vec.rbegin() + 1; it != vec.rend(); ++it) {
