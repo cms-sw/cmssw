@@ -24,6 +24,7 @@
 <use name="Geometry/MTDGeometryBuilder"/>
 <use name="Geometry/MTDNumberingBuilder"/>
 <use name="SimG4CMS/Forward"/>
+<use name="fastjet"/>
 
 <library file="*.cc" name="SimGeneralCaloAnalysisPlugins">
   <flags EDM_PLUGIN="1"/>
