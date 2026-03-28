@@ -128,11 +128,14 @@ int main(int argc, const char* argv[]) {
       context = "Processing command line arguments";
       edm::CmsRunParser parser(argv[0]);
 
+      // Parse the command line options
       const auto& parserOutput = parser.parse(argc, argv);
-      //return with exit code from parser
-      if (edm::CmsRunParser::hasExit(parserOutput))
-        return edm::CmsRunParser::getExit(parserOutput);
-      auto vm = edm::CmsRunParser::getVM(parserOutput);
+
+      // If there was an error, exit with the error code from the parser
+      if (not parserOutput.has_value()) {
+        return parserOutput.error();
+      }
+      auto vm = parserOutput.value();
 
       std::string cmdString;
       std::string fileName;
