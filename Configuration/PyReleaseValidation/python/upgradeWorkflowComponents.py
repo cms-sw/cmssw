@@ -3132,53 +3132,6 @@ upgradeWFs['Phase2_HeavyIon'] = UpgradeWorkflow_Phase2_HeavyIon(
     offset = 0.85,
 )
 
-# RPC development WF
-class UpgradeWorkflow_rpcDevel(UpgradeWorkflow):
-    def __init__(self, digi = {}, reco = {}, harvest = {}, **kwargs):
-        super(UpgradeWorkflow_rpcDevel, self).__init__(
-            steps = [
-                'DigiTrigger',
-                'RecoGlobal',
-                'RecoGlobalFakeHLT',
-                'HARVESTGlobal',
-                'HARVESTGlobalFakeHLT',
-                'ALCAPhase2',
-            ],
-            PU = [
-                'DigiTrigger',
-                'RecoGlobal',
-                'RecoGlobalFakeHLT',
-                'HARVESTGlobal',
-                'HARVESTGlobalFakeHLT',
-                'ALCAPhase2',
-            ],
-            **kwargs
-        )
-        self.__digi = digi
-        self.__reco = reco
-        self.__harvest = harvest
-
-    def setup_(self, step, stepName, stepDict, k, properties):
-        mods = {'--era': stepDict[step][k]['--era'] + ',phase2_rpc_devel'}
-
-        if 'Digi' in step:
-            mods |= self.__digi
-        elif 'Reco' in step:
-            mods |= self.__reco
-        elif 'HARVEST' in step:
-            mods |= self.__harvest
-
-        stepDict[stepName][k] = merge([mods, stepDict[step][k]])
-
-    def condition(self, fragment, stepList, key, hasHarvest):
-        return fragment == "TTbar_14TeV" and 'Run4' in key
-
-
-upgradeWFs['rpcDevel'] = UpgradeWorkflow_rpcDevel(
-    suffix = '_rpcDevel',
-    offset = 0.62,
-)
-
 # check for duplicates in offsets or suffixes
 offsets  = [specialWF.offset for specialType,specialWF in upgradeWFs.items()]
 suffixes = [specialWF.suffix for specialType,specialWF in upgradeWFs.items()]

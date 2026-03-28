@@ -69,14 +69,13 @@ run3_GEM.toModify( SimMuonPREMIX, outputCommands = SimMuonPREMIX.outputCommands 
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonME0PseudoDigis_*_*',
                                                                                             'keep *_simMuonME0PseudoReDigis_*_*',
-                                                                                            'keep *_simMuonME0Digis_*_*'] )
+                                                                                            'keep *_simMuonME0Digis_*_*',
+                                                                                            'keep *_simMuonIRPCDigis_*_*',
+                                                                                            'keep *_simMuonRPCDigisPhase2_*_*'] )
 phase2_muon.toModify( SimMuonRAW, outputCommands = SimMuonRAW.outputCommands + ['keep *DigiSimLinkedmDetSetVector_simMuonME0Digis_*_*'] )
 phase2_muon.toModify( SimMuonRECO, outputCommands = SimMuonRECO.outputCommands + ['keep *DigiSimLinkedmDetSetVector_simMuonME0Digis_*_*'] )
 phase2_muon.toModify( SimMuonPREMIX, outputCommands = SimMuonPREMIX.outputCommands + ['keep *_mix_g4SimHitsMuonME0Hits_*'] )
 
-from Configuration.Eras.Modifier_phase2_rpc_devel_cff import phase2_rpc_devel
-phase2_rpc_devel.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonRPCDigisPhase2_*_*', 
-                                                                                                 'keep *_simMuonIRPCDigis_*_*'] )
 
 # FastSim uses different naming convention
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
