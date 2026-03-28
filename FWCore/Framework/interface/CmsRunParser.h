@@ -13,7 +13,7 @@ namespace edm {
     using Options = edm::expected<boost::program_options::variables_map, int>;
     Options parse(int argc, const char* argv[]) const;
 
-    // Command line parameters
+    // Command line options
     static inline const char* const kParameterSetOpt = "parameter-set";
     static inline const char* const kPythonOpt = "pythonOptions";
     static inline const char* const kPythonOptDefault = "CMSRUN_PYTHONOPT_DEFAULT";
@@ -25,13 +25,18 @@ namespace edm {
     static inline const char* const kEnableJobreportOpt = "enablejobreport";
     static inline const char* const kJobModeCommandOpt = "mode,m";
     static inline const char* const kJobModeOpt = "mode";
+    static inline const char* const kOptionCommandOpt = "option,o";
+    static inline const char* const kOptionOpt = "option";
+    static inline const char* const kHelpCommandOpt = "help,h";
+    static inline const char* const kHelpOpt = "help";
+    static inline const char* const kStrictOpt = "strict";
+
+    // Obsolete command line options
+    static inline const char* const kFwkOpt = "fwk";
     static inline const char* const kNumberOfThreadsCommandOpt = "numThreads,n";
     static inline const char* const kNumberOfThreadsOpt = "numThreads";
     static inline const char* const kSizeOfStackForThreadCommandOpt = "sizeOfStackForThreadsInKB,s";
     static inline const char* const kSizeOfStackForThreadOpt = "sizeOfStackForThreadsInKB";
-    static inline const char* const kHelpOpt = "help";
-    static inline const char* const kHelpCommandOpt = "help,h";
-    static inline const char* const kStrictOpt = "strict";
 
   private:
     boost::program_options::options_description desc_;

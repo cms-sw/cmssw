@@ -73,16 +73,22 @@ namespace edm {
             kJobModeCommandOpt,
             boost::program_options::value<std::string>(),
             "Job Mode for MessageLogger defaults - default mode is grid")
+        // -o, --option
+        (  //
+            kOptionCommandOpt,
+            boost::program_options::value<std::vector<std::string>>(),
+            "set a top-level process option: -o name=value is equivalent to process.options.name = value")
         // -n, --numThreads
         (  //
             kNumberOfThreadsCommandOpt,
             boost::program_options::value<unsigned int>(),
-            "Number of threads to use in job (0 is use all CPUs)")
+            "Number of threads to use in job (0 is use all CPUs); depracated, use -o numberOfThreads=THREADS")
         // -s, --sizeOfStackForThreadsInKB
         (  //
             kSizeOfStackForThreadCommandOpt,
             boost::program_options::value<unsigned int>(),
-            "Size of stack in KB to use for extra threads (0 is use system default size)")
+            "Size of stack in KB to use for extra threads (0 is use system default size); deprecated, use -o "
+            "sizeOfStackForThreadsInKB=SIZE")
         // --strict
         (  //
             kStrictOpt,
@@ -104,7 +110,7 @@ namespace edm {
     hidden.add_options()
         // --fwk
         (  //
-            "fwk",
+            kFwkOpt,
             "For use only by Framework Developers")
         // config.py
         (  //
