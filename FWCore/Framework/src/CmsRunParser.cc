@@ -54,23 +54,44 @@ namespace edm {
   CmsRunParser::CmsRunParser(const char* name)
       : desc_(std::string(name) + " [options] [--] config_file [python options]\nAllowed options"),
         all_options_("All Options") {
-    // clang-format off
-      desc_.add_options()(kHelpCommandOpt, "produce help message")(
-          kJobreportCommandOpt,
-          boost::program_options::value<std::string>(),
-          "file name to use for a job report file: default extension is .xml")(
-          kEnableJobreportCommandOpt, "enable job report files (if any) specified in configuration file")(
-          kJobModeCommandOpt,
-          boost::program_options::value<std::string>(),
-          "Job Mode for MessageLogger defaults - default mode is grid")(
-          kNumberOfThreadsCommandOpt,
-          boost::program_options::value<unsigned int>(),
-          "Number of threads to use in job (0 is use all CPUs)")(
-          kSizeOfStackForThreadCommandOpt,
-          boost::program_options::value<unsigned int>(),
-          "Size of stack in KB to use for extra threads (0 is use system default size)")(kStrictOpt, "strict parsing")(
-          kCmdCommandOpt, boost::program_options::value<std::string>(), "config passed in as string (cannot be used with config_file)");
-    // clang-format on
+    desc_.add_options()
+        // --help
+        (  //
+            kHelpCommandOpt,
+            "produce help message")
+        // -j, --jobreport
+        (  //
+            kJobreportCommandOpt,
+            boost::program_options::value<std::string>(),
+            "file name to use for a job report file: default extension is .xml")
+        // -e, --enablejobreport
+        (  //
+            kEnableJobreportCommandOpt,
+            "enable job report files (if any) specified in configuration file")
+        // -m, --mode
+        (  //
+            kJobModeCommandOpt,
+            boost::program_options::value<std::string>(),
+            "Job Mode for MessageLogger defaults - default mode is grid")
+        // -n, --numThreads
+        (  //
+            kNumberOfThreadsCommandOpt,
+            boost::program_options::value<unsigned int>(),
+            "Number of threads to use in job (0 is use all CPUs)")
+        // -s, --sizeOfStackForThreadsInKB
+        (  //
+            kSizeOfStackForThreadCommandOpt,
+            boost::program_options::value<unsigned int>(),
+            "Size of stack in KB to use for extra threads (0 is use system default size)")
+        // --strict
+        (  //
+            kStrictOpt,
+            "strict parsing")
+        // -c "... python code ..."
+        (  //
+            kCmdCommandOpt,
+            boost::program_options::value<std::string>(),
+            "config passed in as string (cannot be used with config_file)");
 
     // anything at the end will be ignored, and sent to python
     pos_options_.add(kParameterSetOpt, 1).add(kPythonOpt, -1);
@@ -80,11 +101,21 @@ namespace edm {
     // purposes.  We originally used it when implementing the boost
     // state machine code.
     boost::program_options::options_description hidden("hidden options");
-    hidden.add_options()("fwk", "For use only by Framework Developers")(
-        kParameterSetOpt, boost::program_options::value<std::string>(), "configuration file")(
-        kPythonOpt,
-        boost::program_options::value<std::vector<std::string>>(),
-        "options at the end to be passed to python");
+    hidden.add_options()
+        // --fwk
+        (  //
+            "fwk",
+            "For use only by Framework Developers")
+        // config.py
+        (  //
+            kParameterSetOpt,
+            boost::program_options::value<std::string>(),
+            "configuration file")
+        // all options after the configuration file are passed to the python parser
+        (  //
+            kPythonOpt,
+            boost::program_options::value<std::vector<std::string>>(),
+            "options at the end to be passed to python");
 
     all_options_.add(desc_).add(hidden);
   }
