@@ -259,6 +259,7 @@ private:
   edm::ESWatcher<CaloGeometryRecord> geomWatcher_;
 
   const double minEnergy_, maxPseudoRapidity_;  ///< CaloParticle creation criteria
+  bool produceLegacySimCluster_, produceBoundaryAndMergedSimCluster_;
   const bool premixStage1_;
 
   CaloParticleCollection outputCaloParticles_;
@@ -273,11 +274,18 @@ private:
   /// apply a function to all SimCluster config
   template <typename T>
   void applyToSimClusterConfig(T f) {
-    std::apply([f](auto &&...args) { (f(args), ...); },
-               std::tie(legacySimClusters_config_,
-                        boundarySimClusters_config_,
-                        caloParticleSimClusters_config_,
-                        simClusterMergerFastJet_config_));
+    if (produceLegacySimCluster_ && produceBoundaryAndMergedSimCluster_)
+      std::apply([f](auto &&...args) { (f(args), ...); },
+                 std::tie(legacySimClusters_config_,
+                          boundarySimClusters_config_,
+                          caloParticleSimClusters_config_,
+                          simClusterMergerFastJet_config_));
+    else if (produceLegacySimCluster_)
+      f(legacySimClusters_config_);
+    else if (produceBoundaryAndMergedSimCluster_)
+      std::apply(
+          [f](auto &&...args) { (f(args), ...); },
+          std::tie(boundarySimClusters_config_, caloParticleSimClusters_config_, simClusterMergerFastJet_config_));
   }
 
   /// To build the RefVector from SimCluster to "CaloParticle" SimCluster collection
@@ -571,6 +579,8 @@ CaloTruthAccumulator::CaloTruthAccumulator(const edm::ParameterSet &config,
       geomToken_(iC.esConsumes()),
       minEnergy_(config.getParameter<double>("MinEnergy")),
       maxPseudoRapidity_(config.getParameter<double>("MaxPseudoRapidity")),
+      produceLegacySimCluster_(config.getParameter<bool>("produceLegacySimCluster")),
+      produceBoundaryAndMergedSimCluster_(config.getParameter<bool>("produceBoundaryAndMergedSimCluster")),
       premixStage1_(config.getParameter<bool>("premixStage1")),
       outputCaloParticles_token_(producesCollector.produces<CaloParticleCollection>("MergedCaloTruth")),
       legacySimClusters_config_(producesCollector, "MergedCaloTruth"),
@@ -646,8 +656,9 @@ void CaloTruthAccumulator::initializeEvent(edm::Event const &event, edm::EventSe
   // Seems const_cast is necessary here
   caloParticles_refProd_ = const_cast<edm::Event &>(event).getRefBeforePut<SimClusterCollection>(
       caloParticleSimClusters_config_.outputClusters_token);
-  boundarySimCluster_refProd_ = const_cast<edm::Event &>(event).getRefBeforePut<SimClusterCollection>(
-      boundarySimClusters_config_.outputClusters_token);
+  if (produceBoundaryAndMergedSimCluster_)
+    boundarySimCluster_refProd_ = const_cast<edm::Event &>(event).getRefBeforePut<SimClusterCollection>(
+        boundarySimClusters_config_.outputClusters_token);
 }
 
 /** Create handle to edm::HepMCProduct here because event.getByLabel with
@@ -724,12 +735,14 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
         [this](auto &config) { normalizeCollection(config.outputClusters, m_detIdToTotalSimEnergy); });
   }
 
-  // fill the calo particles with their ref to SimCluster
-  auto legacySimClustersRefProd = event.getRefBeforePut(legacySimClusters_config_.outputClusters_token);
-  for (unsigned i = 0; i < legacySimClusters_config_.outputClusters.size(); ++i) {
-    // get the key of the edm::Ref<CaloParticle>
-    auto &cp = outputCaloParticles_[legacySimClusters_config_.clustersToCaloParticleMap[i].key()];
-    cp.addSimCluster(edm::Ref<SimClusterCollection>(legacySimClustersRefProd, i));
+  if (produceLegacySimCluster_) {
+    // fill the calo particles with their ref to SimCluster
+    auto legacySimClustersRefProd = event.getRefBeforePut(legacySimClusters_config_.outputClusters_token);
+    for (unsigned i = 0; i < legacySimClusters_config_.outputClusters.size(); ++i) {
+      // get the key of the edm::Ref<CaloParticle>
+      auto &cp = outputCaloParticles_[legacySimClusters_config_.clustersToCaloParticleMap[i].key()];
+      cp.addSimCluster(edm::Ref<SimClusterCollection>(legacySimClustersRefProd, i));
+    }
   }
 
   event.emplace(outputCaloParticles_token_, std::move(outputCaloParticles_));
@@ -744,8 +757,9 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
     // and ensure the memory is released (should already be released due to the move, but make sure)
     config.clearAndReleaseMemory();
   });
-  event.emplace(simClusterMergerFastJet_config_.subClustersToMergedClusterMap_token,
-                std::move(simClusterMergerFastJet_config_.subClustersToMergedClusterMap));
+  if (produceBoundaryAndMergedSimCluster_)
+    event.emplace(simClusterMergerFastJet_config_.subClustersToMergedClusterMap_token,
+                  std::move(simClusterMergerFastJet_config_.subClustersToMergedClusterMap));
 
   std::unordered_map<Index_t, float>().swap(m_detIdToTotalSimEnergy);  // clear-and-minimize idiom
 }
@@ -877,44 +891,67 @@ void CaloTruthAccumulator::accumulateEvent(const T &event,
             std::abs(edge_property.simTrack->momentum().Eta()) < maxPseudoRapidity_);
   };
 
-  // Do the graph search for all 3 vistors at the same time
-  PrimaryVisitor primaryVisitor(
-      visitorHelper,
-      outputCaloParticles_,
-      passGenPartSelections_lambda,
-      std::make_tuple(
-          SubClusterVisitor(  // "CaloParticle" SimCluster
-              caloParticleSimClusters_config_.outputClusters,
-              // Trivial 1-1 mapping, kept for convenience
-              ClusterParentIndexRecorder(caloParticleSimClusters_config_.clustersToCaloParticleMap,
-                                         caloParticles_refProd_),
-              visitorHelper,
-              [&](EdgeProperty const &edge_property) -> bool {
-                // Create a SimCluster for every CaloParticle (duplicates the CaloParticle for convenience of use, to have one single dataformat)
-                return true;
-              }),
+  auto makeCaloParticleSimCluster = [&]() {  // "CaloParticle" SimCluster
+    return SubClusterVisitor(
+        caloParticleSimClusters_config_.outputClusters,
+        // Trivial 1-1 mapping, kept for convenience
+        ClusterParentIndexRecorder(caloParticleSimClusters_config_.clustersToCaloParticleMap, caloParticles_refProd_),
+        visitorHelper,
+        [&](EdgeProperty const &edge_property) -> bool {
+          // Create a SimCluster for every CaloParticle (duplicates the CaloParticle for convenience of use, to have one single dataformat)
+          return true;
+        });
+  };
+  auto makeLegacySimCluster = [&]() {  // "legacy" SimCluster (from every SimTrack with simhits)
+    return LegacySimClusterVisitor(
+        legacySimClusters_config_.outputClusters,
+        ClusterParentIndexRecorder(legacySimClusters_config_.clustersToCaloParticleMap, caloParticles_refProd_),
+        visitorHelper);
+  };
+  auto makeBoundarySimCluster = [&]() {  // "boundary" SimCluster (from every SimTrack crossing boundary)
+    return SubClusterVisitor(
+        boundarySimClusters_config_.outputClusters,
+        ClusterParentIndexRecorder(boundarySimClusters_config_.clustersToCaloParticleMap, caloParticles_refProd_),
+        visitorHelper,
+        [&](EdgeProperty const &edge_property) -> bool {
+          // Create SimCluster from every SimTrack crossing boundary (and which has simhits either itself as in its descendants), and that is inside a CaloParticle
+          return edge_property.cumulative_simHits != 0 && edge_property.simTrack->crossedBoundary();
+        },
+        // "merging" subcluster configuration
+        std::make_tuple(simClusterMergerFastJet_config_.getMerger(
+            ClusterParentIndexRecorder(simClusterMergerFastJet_config_.clustersToCaloParticleMap,
+                                       caloParticles_refProd_),
+            ClusterParentIndexRecorder(simClusterMergerFastJet_config_.subClustersToMergedClusterMap,
+                                       boundarySimCluster_refProd_))));
+  };
 
-          LegacySimClusterVisitor(  // "legacy" SimCluster (from every SimTrack with simhits)
-              legacySimClusters_config_.outputClusters,
-              ClusterParentIndexRecorder(legacySimClusters_config_.clustersToCaloParticleMap, caloParticles_refProd_),
-              visitorHelper),
-
-          SubClusterVisitor(  // "boundary" SimCluster (from every SimTrack crossing boundary)
-              boundarySimClusters_config_.outputClusters,
-              ClusterParentIndexRecorder(boundarySimClusters_config_.clustersToCaloParticleMap, caloParticles_refProd_),
-              visitorHelper,
-              [&](EdgeProperty const &edge_property) -> bool {
-                // Create SimCluster from every SimTrack crossing boundary (and which has simhits either itself as in its descendants), and that is inside a CaloParticle
-                return edge_property.cumulative_simHits != 0 && edge_property.simTrack->crossedBoundary();
-              },
-              // "merging" subcluster configuration
-              std::make_tuple(simClusterMergerFastJet_config_.getMerger(
-                  ClusterParentIndexRecorder(simClusterMergerFastJet_config_.clustersToCaloParticleMap,
-                                             caloParticles_refProd_),
-                  ClusterParentIndexRecorder(simClusterMergerFastJet_config_.subClustersToMergedClusterMap,
-                                             boundarySimCluster_refProd_))))));
-
-  depth_first_search(decay, visitor(primaryVisitor));  //  "visitor()" is a Boost BGL named parameter
+  if (produceLegacySimCluster_ && produceBoundaryAndMergedSimCluster_) {
+    // Do the graph search for all 3 vistors at the same time
+    //  "visitor()" is a Boost BGL named parameter
+    depth_first_search(
+        decay,
+        visitor(PrimaryVisitor(
+            visitorHelper,
+            outputCaloParticles_,
+            passGenPartSelections_lambda,
+            std::make_tuple(makeCaloParticleSimCluster(), makeLegacySimCluster(), makeBoundarySimCluster()))));
+  } else if (produceLegacySimCluster_) {
+    depth_first_search(decay,
+                       visitor(PrimaryVisitor(visitorHelper,
+                                              outputCaloParticles_,
+                                              passGenPartSelections_lambda,
+                                              std::make_tuple(makeLegacySimCluster()))));
+  } else if (produceBoundaryAndMergedSimCluster_) {
+    depth_first_search(
+        decay,
+        visitor(PrimaryVisitor(visitorHelper,
+                               outputCaloParticles_,
+                               passGenPartSelections_lambda,
+                               std::make_tuple(makeCaloParticleSimCluster(), makeBoundarySimCluster()))));
+  } else
+    depth_first_search(
+        decay,
+        visitor(PrimaryVisitor(visitorHelper, outputCaloParticles_, passGenPartSelections_lambda, std::make_tuple())));
 
 #if DEBUG
   boost::write_graphviz(std::cout,
