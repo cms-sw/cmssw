@@ -685,7 +685,7 @@ namespace edm {
 
   Entry::Entry(std::string name, std::string_view type, std::string_view value, bool is_tracked)
       : name_(std::move(name)), rep_(), type_('?'), tracked_('?') {
-    std::string codedString(is_tracked ? "-" : "+");
+    std::string codedString(is_tracked ? "+" : "-");
 
     codedString += codeFromType(type);
     codedString += '(';
@@ -701,7 +701,7 @@ namespace edm {
 
   Entry::Entry(std::string name, std::string_view type, std::vector<std::string> const& value, bool is_tracked)
       : name_(std::move(name)), rep_(), type_('?'), tracked_('?') {
-    std::string codedString(is_tracked ? "-" : "+");
+    std::string codedString(is_tracked ? "+" : "-");
 
     codedString += codeFromType(type);
     codedString += '(';
