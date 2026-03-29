@@ -39,7 +39,8 @@
 #include "Randomize.hh"
 
 // for some reason void doesn't compile
-class OscarMTProducer : public edm::stream::EDProducer<edm::GlobalCache<OscarMTMasterThread>, edm::RunCache<int>> {
+class OscarMTProducer
+    : public edm::stream::EDProducer<edm::GlobalCache<OscarMTMasterThread>, edm::RunCache<int>, edm::stream::WatchRuns> {
 public:
   typedef std::vector<std::shared_ptr<SimProducer>> Producers;
 
