@@ -20,7 +20,7 @@
 //
 // class declaration
 //
-class CandidateTriggerObjectProducer : public edm::stream::EDProducer<> {
+class CandidateTriggerObjectProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit CandidateTriggerObjectProducer(const edm::ParameterSet&);
   ~CandidateTriggerObjectProducer() override;
