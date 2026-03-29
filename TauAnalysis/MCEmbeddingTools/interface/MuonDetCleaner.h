@@ -39,7 +39,7 @@
 #include <vector>
 
 template <typename T1, typename T2>
-class MuonDetCleaner : public edm::stream::EDProducer<> {
+class MuonDetCleaner : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit MuonDetCleaner(const edm::ParameterSet &);
   ~MuonDetCleaner() override;
