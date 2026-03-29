@@ -1,1 +1,3 @@
+<!-- COMMENT: reads old format file
 <test name="testPromptCalibProdSiStripLA" command="testPromptCalibProdSiStripLA.sh"/>
+-->
