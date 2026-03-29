@@ -39,7 +39,9 @@ namespace edm {
     };
   }  // namespace MixingCache
 
-  class BMixingModule : public stream::EDProducer<GlobalCache<MixingCache::Config>> {
+  class BMixingModule : public stream::EDProducer<GlobalCache<MixingCache::Config>,
+                                                  edm::stream::WatchRuns,
+                                                  edm::stream::WatchLuminosityBlocks> {
   public:
     /** standard constructor*/
     explicit BMixingModule(const edm::ParameterSet& ps,
