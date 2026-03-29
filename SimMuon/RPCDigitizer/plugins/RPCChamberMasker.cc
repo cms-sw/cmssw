@@ -49,7 +49,7 @@
 // class declaration
 //
 
-class RPCChamberMasker : public edm::stream::EDProducer<> {
+class RPCChamberMasker : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   explicit RPCChamberMasker(const edm::ParameterSet&);
   ~RPCChamberMasker() override;
