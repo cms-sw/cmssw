@@ -27,13 +27,12 @@
 #include "SimDataFormats/CrossingFrame/interface/PCrossingFrame.h"
 
 namespace edm {
-  class CFWriter : public edm::stream::EDProducer<> {
+  class CFWriter : public edm::stream::EDProducer<edm::stream::WatchRuns> {
   public:
     explicit CFWriter(const edm::ParameterSet& conf);
 
     ~CFWriter() override;
 
-    //void beginJob() {}
     void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
     void produce(edm::Event& e, const edm::EventSetup& c) override;
     virtual void put(edm::Event& e) { ; }

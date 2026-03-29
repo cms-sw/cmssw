@@ -161,7 +161,7 @@ uint32_t HGCScintSD::setDetUnitId(const G4Step* aStep) {
   int iz(globalZ > 0 ? 1 : -1);
 
   int layer(0), module(-1), cell(-1);
-  if ((geom_mode_ == HGCalGeometryMode::TrapezoidModule) || (geom_mode_ == HGCalGeometryMode::TrapezoidCassette)) {
+  if (hgcons_->trapezoidModule()) {
     layer = touch->GetReplicaNumber(1);
   } else if ((touch->GetHistoryDepth() == levelT1_) || (touch->GetHistoryDepth() == levelT2_)) {
     layer = touch->GetReplicaNumber(0);
