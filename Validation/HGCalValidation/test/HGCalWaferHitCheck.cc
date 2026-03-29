@@ -43,7 +43,8 @@ namespace HGCalValidSimhitCheck {
   };
 }  // namespace HGCalValidSimhitCheck
 
-class HGCalWaferHitCheck : public edm::stream::EDAnalyzer<edm::GlobalCache<HGCalValidSimhitCheck::Counters> > {
+class HGCalWaferHitCheck
+    : public edm::stream::EDAnalyzer<edm::GlobalCache<HGCalValidSimhitCheck::Counters>, edm::stream::WatchRuns> {
 public:
   explicit HGCalWaferHitCheck(const edm::ParameterSet&, const HGCalValidSimhitCheck::Counters* count);
 
