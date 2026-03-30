@@ -5,7 +5,6 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include <vector>
-#include <iostream>
 
 class SimCluster;
 std::ostream &operator<<(std::ostream &s, SimCluster const &tp);

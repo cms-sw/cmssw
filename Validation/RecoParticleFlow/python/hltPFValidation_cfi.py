@@ -11,7 +11,7 @@ hltPFScAssocByEnergyScoreProducer = cms.EDProducer("BarrelPCToSCAssociatorByEner
 hltPFClusterSimClusterAssociationProducerECAL = cms.EDProducer("PCToSCAssociatorEDProducer",
     associator = cms.InputTag("hltPFScAssocByEnergyScoreProducer"),
     label_lcl = cms.InputTag("hltParticleFlowClusterECALUnseeded"),
-    label_scl = cms.InputTag("mix","MergedCaloTruth"),
+    label_scl = cms.InputTag("mix", "MergedCaloTruth"),
     filter_sim_hits = _filter_sim_hits
 )
 
@@ -24,7 +24,7 @@ hltPFCpAssocByEnergyScoreProducer = cms.EDProducer("BarrelPCToCPAssociatorByEner
 hltPFClusterCaloParticleAssociationProducerECAL = cms.EDProducer("PCToCPAssociatorEDProducer",
     associator = cms.InputTag("hltPFCpAssocByEnergyScoreProducer"),
     label_lc = cms.InputTag("hltParticleFlowClusterECALUnseeded"),
-    label_cp = cms.InputTag("mix","MergedCaloTruth"),
+    label_cp = cms.InputTag("mix", "MergedCaloTruth"),
     filter_sim_hits = _filter_sim_hits
 )
 
@@ -32,8 +32,8 @@ hltPFClusterTesterECAL = cms.EDProducer("PFClusterTester",
     PFCand = cms.InputTag("hltParticleFlow"),
     Rechit = cms.InputTag("hltParticleFlowRecHitECALUnseeded"),
     RecoCluster = cms.InputTag("hltParticleFlowClusterECALUnseeded"),
-    SimCluster = cms.InputTag("mix","MergedCaloTruth"),
-    CaloParticle = cms.InputTag("mix","MergedCaloTruth"),
+    SimCluster = cms.InputTag("mix", "MergedCaloTruth"),
+    CaloParticle = cms.InputTag("mix", "MergedCaloTruth"),
     ClusterSimClusterAssociator = cms.InputTag("hltPFClusterSimClusterAssociationProducerECAL"),
     ClusterCaloParticleAssociator = cms.InputTag("hltPFClusterCaloParticleAssociationProducerECAL"),
     filter_sim_hits = _filter_sim_hits,
