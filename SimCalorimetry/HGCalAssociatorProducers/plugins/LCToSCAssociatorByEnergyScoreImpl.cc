@@ -5,8 +5,6 @@
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
-#include <iostream>
-
 template <typename HIT, typename CLUSTER>
 LCToSCAssociatorByEnergyScoreImplT<HIT, CLUSTER>::LCToSCAssociatorByEnergyScoreImplT(
     edm::EDProductGetter const& productGetter,
