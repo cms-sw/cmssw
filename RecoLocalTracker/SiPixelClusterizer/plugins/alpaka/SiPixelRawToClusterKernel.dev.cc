@@ -469,7 +469,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       if (includeErrors) {
         digiErrors_d = SiPixelDigiErrorsSoACollection(queue, wordCounter);
       }
-      clusters_d = SiPixelClustersSoACollection(numberOfModules, queue);
+      clusters_d = SiPixelClustersSoACollection(queue, numberOfModules);
       // protect in case of empty event....
       if (wordCounter) {
         const int threadsPerBlockOrElementsPerThread =
@@ -669,7 +669,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       using pixelTopology::Phase2;
       nDigis = numDigis;
       constexpr int numberOfModules = pixelTopology::Phase2::numberOfModules;
-      clusters_d = SiPixelClustersSoACollection(numberOfModules, queue);
+      clusters_d = SiPixelClustersSoACollection(queue, numberOfModules);
       const auto threadsPerBlockOrElementsPerThread = 512;
       const auto blocks =
           cms::alpakatools::divide_up_by(std::max<int>(numDigis, numberOfModules), threadsPerBlockOrElementsPerThread);
