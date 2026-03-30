@@ -22,6 +22,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       if (::cms::alpakatools::once_per_grid(acc)) {
         args.blockCount() = 0;
+        args.size() = nVertices;
       }
 
       for (int v : ::cms::alpakatools::uniform_elements(acc, nVertices)) {

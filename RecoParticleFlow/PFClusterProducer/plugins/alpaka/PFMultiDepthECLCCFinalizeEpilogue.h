@@ -119,8 +119,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
           const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
 
+          const unsigned int rep_group_idx = rep_idx / blockDim;
+          const unsigned int shift =
+              rep_group_idx == group ? blockRHFShift : args[rep_group_idx * blockDim].blockRHFOffset();
+
           const unsigned int cc_rhf_global_offset =
-              rep_cc_idx > 0 ? args[group * blockDim + rep_cc_idx].blockRHFOffset() + blockRHFShift : blockRHFShift;
+              rep_cc_idx > 0 ? args[rep_group_idx * blockDim + rep_cc_idx].blockRHFOffset() + shift : shift;
 
           if (is_representative)
             outPFCluster[global_topo_idx].rhfracOffset() = cc_rhf_global_offset;

@@ -316,7 +316,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               continue;
             const unsigned int warp_idx = idx.local / w_extent;
 
-            const unsigned int cc_rhf_block_offset = warp_idx > 0 || idx.local == 0 ? subcc_offsets[idx.local] : 0;
+            const unsigned int cc_rhf_block_offset = warp_idx > 0 || idx.local == 0 ? subcc_offsets[warp_idx] : 0;
 
             cc_rhf_offset += cc_rhf_block_offset;
 
