@@ -137,7 +137,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto& adjacency_list(alpaka::declareSharedVar<unsigned int[2 * max_w_items * w_extent], __COUNTER__>(acc));
 
         // Per-warp total offsets used for coarse-grained scan across warps.
-        auto& subdomain_offsets(alpaka::declareSharedVar<unsigned int[max_w_items], __COUNTER__>(acc));
+        auto& subdomain_offsets(alpaka::declareSharedVar<unsigned int[w_extent], __COUNTER__>(acc));
 
         unsigned int dst_vertex_idx = nVertices;
         unsigned int src_vertex_idx = nVertices;

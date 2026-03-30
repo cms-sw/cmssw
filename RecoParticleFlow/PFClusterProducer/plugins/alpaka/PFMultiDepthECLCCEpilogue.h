@@ -138,7 +138,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         return;
       } else {
         // component offsets
-        auto& subcc_offsets(alpaka::declareSharedVar<uint32_t[max_w_items], __COUNTER__>(acc));
+        auto& subcc_offsets(alpaka::declareSharedVar<uint32_t[w_extent], __COUNTER__>(acc));
         // isolate root flag : 0 - an isolated root vertex, 1 - a non-isolated root vertex
         auto& vertex_mask(alpaka::declareSharedVar<warp::warp_mask_t[max_w_items], __COUNTER__>(acc));
 

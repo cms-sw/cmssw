@@ -150,7 +150,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto& block_local_nlist(alpaka::declareSharedVar<unsigned int[max_w_items * w_extent], __COUNTER__>(acc));
 
       // Per-warp total offsets used for coarse-grained scan across warps.
-      auto& subdomain_offsets(alpaka::declareSharedVar<unsigned int[max_w_items], __COUNTER__>(acc));
+      auto& subdomain_offsets(alpaka::declareSharedVar<unsigned int[w_extent], __COUNTER__>(acc));
 
       unsigned int& isLastBlockDone = alpaka::declareSharedVar<unsigned int, __COUNTER__>(acc);
 

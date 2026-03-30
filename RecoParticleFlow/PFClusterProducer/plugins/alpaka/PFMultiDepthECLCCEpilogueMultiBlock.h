@@ -300,11 +300,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           alpaka::syncBlockThreads(acc);
 
           for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, w_extent)) {
-            if (nBlockLocalComponents == 1)
+            if (nBlockLocalComponents == 1 || idx.local > max_w_items)
               continue;
+
+            const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
+
             const unsigned int cc_warp_nnz = subcc_offsets[idx.local];  //load nnz per warp
 
-            const unsigned int cc_rhf_global_offset = warp_exclusive_sum(acc, cc_warp_nnz, idx.local);
+            const unsigned int cc_rhf_global_offset =
+                warp_sparse_exclusive_sum(acc, active_lanes_mask, cc_warp_nnz, idx.local);
 
             subcc_offsets[idx.local] = cc_rhf_global_offset;  //subcc_offsets[0] contains block nnz
           }
