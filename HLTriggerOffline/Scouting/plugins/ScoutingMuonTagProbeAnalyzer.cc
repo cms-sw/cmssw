@@ -144,7 +144,7 @@ void ScoutingMuonTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   edm::Handle<std::vector<Run3ScoutingMuon>> sctMuons;
   iEvent.getByToken(scoutingMuonCollection_, sctMuons);
   if (sctMuons.failedToGet()) {
-    edm::LogWarning("ScoutingMonitoring") << "Run3ScoutingMuon collection not found.";
+    edm::LogWarning("ScoutingMuonTagProbeAnalyzer") << "Run3ScoutingMuon collection not found.";
     return;
   }
 
@@ -152,13 +152,13 @@ void ScoutingMuonTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   edm::Handle<std::vector<Run3ScoutingVertex>> sctVertex;
   iEvent.getByToken(scoutingVtxCollection_, sctVertex);
   if (sctVertex.failedToGet()) {
-    edm::LogWarning("ScoutingMonitoring") << "Run3ScoutingVertex collection not found.";
+    edm::LogWarning("ScoutingMuonTagProbeAnalyzer") << "Run3ScoutingVertex collection not found.";
     return;
   }
 
-  edm::LogInfo("ScoutingMonitoring") << "Process Run3ScoutingMuons: " << sctMuons->size();
+  edm::LogInfo("ScoutingMuonTagProbeAnalyzer") << "Process Run3ScoutingMuons: " << sctMuons->size();
 
-  edm::LogInfo("ScoutingMonitoring") << "Process Run3ScoutingVertex: " << sctVertex->size();
+  edm::LogInfo("ScoutingMuonTagProbeAnalyzer") << "Process Run3ScoutingVertex: " << sctVertex->size();
 
   // Core of Tag and Probe implementation
   bool foundTag = false;
@@ -182,7 +182,7 @@ void ScoutingMuonTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
       const std::vector<int>& vtxIndx_probe = sct_mu_second.vtxIndx();
 
       float invMass = (tag_sct_mu + probe_sct_mu).mass();
-      edm::LogInfo("ScoutingMonitoring") << "Inv Mass: " << invMass;
+      edm::LogInfo("ScoutingMuonTagProbeAnalyzer") << "Inv Mass: " << invMass;
       // If dimuon system comes from J/Psi, process event
       if ((2.4 < invMass && invMass < 3.8)) {
         // Boolean added because hltScoutingMuonPackerVtx collection doesn't

@@ -157,7 +157,7 @@ void ScoutingMuonTriggerAnalyzer::analyze(edm::Event const& iEvent, edm::EventSe
   edm::Handle<std::vector<Run3ScoutingMuon>> sctMuons;
   iEvent.getByToken(scoutingMuonCollection_, sctMuons);
   if (sctMuons.failedToGet()) {
-    edm::LogWarning("ScoutingMonitoring") << "Run3ScoutingMuon collection not found.";
+    edm::LogWarning("ScoutingMuonTriggerAnalyzer") << "Run3ScoutingMuon collection not found.";
     return;
   }
   //Apply cuts specified in config file
