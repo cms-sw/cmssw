@@ -583,6 +583,10 @@ run3_GEM.toModify(FEVTEventContent,
     outputCommands = FEVTEventContent.outputCommands + ['keep *_muonGEMDigis_*_*'])
 pp_on_AA.toModify(FEVTEventContent, 
     outputCommands = FEVTEventContent.outputCommands + ['keep FEDRawDataCollection_rawDataRepacker_*_*'])
+approxSiStripClusters.toModify(FEVTEventContent,
+    outputCommands = FEVTEventContent.outputCommands + [
+        'keep FEDRawDataCollection_rawPrimeDataRepacker_*_*',
+        'keep *_hltSiStripClusters2ApproxClusters_*_*'])
 phase2_timing_layer.toModify(FEVTEventContent, 
     outputCommands = FEVTEventContent.outputCommands + RecoLocalFastTimeFEVT.outputCommands)
 phase2_timing_layer.toModify(FEVTEventContent, 
