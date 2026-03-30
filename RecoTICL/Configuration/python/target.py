@@ -34,6 +34,8 @@ class Target:
     merged_lc: Optional[str] = None
     # InputTag for layer_clusters_barrel_tiles; None -> keep the cfi default
     barrel_tile_tag: Optional[object] = None
+    # label of the barrel TICLLayerTile producer (created for barrel iterations)
+    barrel_tile_label: str = "ticlLayerTileBarrel"
 
     # -- group naming ------------------------------------------------------ #
 
@@ -127,6 +129,7 @@ HLT = Target(
     },
     merged_lc="hltMergeLayerClusters",
     barrel_tile_tag=cms.InputTag("hltTiclLayerTileBarrelProducer", "ticlLayerTilesBarrel"),
+    barrel_tile_label="hltTiclLayerTileBarrelProducer",
 )
 
 

@@ -78,6 +78,13 @@ def _build_layer_tile(target):
     return _cfi_default("TICLLayerTileProducer").clone(**ov)
 
 
+def _build_barrel_tile(target):
+    ov = dict(detector="Barrel")
+    if target.lc_tag() is not None:
+        ov["layer_clusters"] = target.lc_tag()
+    return _cfi_default("TICLLayerTileProducer").clone(**ov)
+
+
 def _build_filter(it, prev_trackster, target):
     base = _cfi_default("FilteredLayerClustersProducer")
     ov = dict(clusterFilter=it.filter_type, iteration_label=it.name)
@@ -110,6 +117,10 @@ def _build_trackster(it, flabel, seed_label, prev_trackster, target):
             ov["layer_clusters_barrel_tiles"] = target.barrel_tile_tag
         if not prev_trackster:
             ov["original_mask"] = target.initial_mask_tag()
+    if it.detector == "Barrel":   # barrel iteration: detector + barrel tile
+        ov["detector"] = "Barrel"
+        ov["layer_clusters_barrel_tiles"] = cms.InputTag(
+            target.barrel_tile_label, "ticlLayerTilesBarrel")
     ov.update(it.trackster_extra)
     return base.clone(**ov)
 
@@ -207,10 +218,16 @@ def assemble(cfg):
             m[label] = _build_seeding(stype)
         return label
 
-    # shared infrastructure: layer tile
+    # shared infrastructure: layer tile(s)
+    tile_children = []
     if cfg.include_layer_tile:
         m[target.layer_tile_label] = _build_layer_tile(target)
-        mkgroup(target.gname("layer_tile"), target.layer_tile_label)
+        tile_children.append(target.layer_tile_label)
+    if any(it.detector == "Barrel" for it in cfg.iterations):
+        m[target.barrel_tile_label] = _build_barrel_tile(target)
+        tile_children.append(target.barrel_tile_label)
+    if tile_children:
+        mkgroup(target.gname("layer_tile"), *tile_children)
 
     # iterations
     step_groups = []

@@ -102,11 +102,17 @@ Run them with `scram b runtests` (from the package) or directly with `python3`.
 
 ## Status / roadmap
 
-Implemented: the v5 TICL core (iterations, links, superclustering, candidate,
-pf), type-aware validation, cff export, drift tests, and the **Phase-2 HLT
-target** (reproduces `HLTIterTICLSequence`).
+Implemented and validated byte-for-byte against the live baselines:
 
-Planned (see the package design notes): auto-derived & scheduled
-labels/validation/dumper/associators; local reconstruction + layer clustering
-(HGCAL/ECAL/HCAL) with real CPU/GPU (alpaka) backend selection; the TICL barrel
-path.
+* the v5 TICL core (iterations, links, superclustering, candidate, pf);
+* type-aware plumbing validation and drift detection;
+* standalone cff export;
+* single-source-of-truth labels / associators (auto-created & scheduled) /
+  dumper / `hgcalValidator` derivation;
+* CPU/GPU (alpaka) backend selection;
+* the **Phase-2 HLT target** (`HLTIterTICLSequence`);
+* the **TICL barrel** iteration (`CLUE3DBarrel`).
+
+Natural extensions: full HGCAL/ECAL/HCAL local-reco orchestration (existing
+modules that plug into the backend mechanism) and the barrel
+SimTracksters/dumper/associator wiring.

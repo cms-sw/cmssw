@@ -127,9 +127,29 @@ def _preset_recovery(it):
     )
 
 
+def _preset_clue3dbarrel(it):
+    it.detector = "Barrel"
+    it.seeding_type = "SeedingRegionGlobal"
+    it.filter_type = "ClusterFilterByAlgo"
+    it.filter_params = dict(algo_number=[10, 11], max_layerId=5)
+    it.pattern_type = "CLUE3D"
+    it.pattern_params = dict(
+        algo_verbosity=9999,
+        criticalDensity=[0.5, 0.5, 0.5],
+        criticalSelfDensity=[0.0, 0.0, 0.0],
+        criticalEtaPhiDistance=[3 * 0.0175, 3 * 0.087, 3 * 0.087, 3 * 0.087],
+        nearestHigherOnSameLayer=False,
+        densityOnSameLayer=False,
+        minNumLayerCluster=[1, 1, 1],
+        useAbsoluteProjectiveScale=False,
+        densitySiblingLayers=[2, 4, 4],
+    )
+
+
 _ITERATION_PRESETS = {
     "CLUE3DHigh": _preset_clue3dhigh,
     "Recovery": _preset_recovery,
+    "CLUE3DBarrel": _preset_clue3dbarrel,
 }
 
 
@@ -236,6 +256,13 @@ def pf_defaults():
 # --------------------------------------------------------------------------- #
 # Full v5 default configuration
 # --------------------------------------------------------------------------- #
+
+def barrel(name="barrel"):
+    """Return a :class:`TICLConfig` with the CLUE3DBarrel iteration (ticl_barrel)."""
+    cfg = TICLConfig(name).iteration("CLUE3DBarrel").preset()
+    cfg.include_mtd = False
+    return cfg
+
 
 def v5(name="v5"):
     """Return a :class:`TICLConfig` reproducing the default ``iterTICLTask`` (v5)."""
