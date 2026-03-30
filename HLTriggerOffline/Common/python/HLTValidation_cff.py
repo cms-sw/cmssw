@@ -138,58 +138,15 @@ ticl_barrel.toModify(hltRecHitMapProducer,
                      hgcalOnly = False
                      )
 
-# ["hltHGCalRecHit:HGCEERecHits", "hltHGCalRecHit:HGCHEFRecHits", "hltHGCalRecHit:HGCHEBRecHits"]
-# ["hltParticleFlowRecHitECALUnseeded", "hltParticleFlowRecHitHBHE"]
-hlthits_hgcal = cms.InputTag("hltRecHitMapProducer", "RefProdVectorHGCRecHitCollection")
-hlthits_barrel = cms.InputTag("hltRecHitMapProducer", "RefProdVectorPFRecHitCollection")
-
-# adapt associators for HLT Barrel
-assoc_barrel_args = dict(
-    hitMapTag = cms.InputTag('hltRecHitMapProducer', 'barrelRecHitMap'),
-    hits = hlthits_barrel,
-)
-assoc_hgcal_args = dict(
-    hitMapTag = cms.InputTag('hltRecHitMapProducer', 'hgcalRecHitMap'),
-    hits = hlthits_hgcal,
-)
-
-from SimCalorimetry.HGCalAssociatorProducers.barrelLCToSCAssociatorByEnergyScoreProducer_cfi import *
-from SimCalorimetry.HGCalAssociatorProducers.barrelLCToCPAssociatorByEnergyScoreProducer_cfi import *
-hltBarrelLCToCPAssociatorByEnergyScoreProducer = barrelLCToCPAssociatorByEnergyScoreProducer.clone(**assoc_barrel_args)
-hltBarrelLCToSCAssociatorByEnergyScoreProducer = barrelLCToSCAssociatorByEnergyScoreProducer.clone(**assoc_barrel_args)
-
-from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import lcAssocByEnergyScoreProducer, scAssocByEnergyScoreProducer
-hltHGCalLCToCPAssociatorByEnergyScoreProducer = lcAssocByEnergyScoreProducer.clone(**assoc_hgcal_args)
-hltHGCalLCToSCAssociatorByEnergyScoreProducer = scAssocByEnergyScoreProducer.clone(**assoc_hgcal_args)
-
-from SimCalorimetry.HGCalAssociatorProducers.LCToCPAssociation_cfi import barrelLayerClusterCaloParticleAssociation as _barrelLayerClusterCaloParticleAssociation
-hltBarrelLayerClusterCaloParticleAssociation = _barrelLayerClusterCaloParticleAssociation.clone(
-    associator = cms.InputTag('hltBarrelLCToCPAssociatorByEnergyScoreProducer'),
-    label_lc = cms.InputTag('hltMergeLayerClusters')
-)
-from SimCalorimetry.HGCalAssociatorProducers.LCToCPAssociation_cfi import layerClusterCaloParticleAssociation as _layerClusterCaloParticleAssociation
-hltHGCalLayerClusterCaloParticleAssociation = _layerClusterCaloParticleAssociation.clone(
-    associator = cms.InputTag('hltHGCalLCToCPAssociatorByEnergyScoreProducer'),
-    label_lc = cms.InputTag('hltMergeLayerClusters')
-)
-
-from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cfi import barrelLayerClusterSimClusterAssociation as _barrelLayerClusterSimClusterAssociation
-hltBarrelLayerClusterSimClusterAssociation = _barrelLayerClusterSimClusterAssociation.clone(
-    associator = cms.InputTag('hltBarrelLCToSCAssociatorByEnergyScoreProducer'),
-    label_lcl = cms.InputTag('hltMergeLayerClusters')
-)
-from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cfi import layerClusterSimClusterAssociation as _layerClusterSimClusterAssociation
-hltHGCalLayerClusterSimClusterAssociation = _layerClusterSimClusterAssociation.clone(
-    associator = cms.InputTag('hltHGCalLCToSCAssociatorByEnergyScoreProducer'),
-    label_lcl = cms.InputTag('hltMergeLayerClusters')
-)
-
-from Validation.HGCalValidation.barrelValidator_cfi import barrelValidator as _barrelValidator
-
 # from Configuration.StandardSequences.Validation_cff import prevalidation
 # ImportError: cannot import name 'prevalidation' from partially initialized module 'Configuration.StandardSequences.Validation_cff' (most likely due to a circular import) (/shared/CMSSW_15_1_X_2025-07-16-2300/src/Configuration/StandardSequences/python/Validation_cff.py)
 hltprevalidation = cms.Sequence( cms.SequencePlaceholder("mix") * globalPrevalidation * hltassociation * metPreValidSeq * jetPreValidSeq )
 phase2_common.toReplaceWith(hltprevalidation, hltprevalidation.copyAndExclude([cms.SequencePlaceholder("mix"),globalPrevalidation,metPreValidSeq,jetPreValidSeq]))
+
+from SimCalorimetry.HGCalAssociatorProducers.hltLCToCPAssociation_cfi import (hltHGCalLCToCPAssociatorByEnergyScoreProducer,
+                                                                              hltHGCalLayerClusterCaloParticleAssociation)
+from SimCalorimetry.HGCalAssociatorProducers.hltLCToSCAssociation_cfi import (hltHGCalLCToSCAssociatorByEnergyScoreProducer,
+                                                                              hltHGCalLayerClusterSimClusterAssociation)
 
 _hltprevalidation_Phase2 = hltprevalidation.copy()
 _hltprevalidation_Phase2.insert(
@@ -201,9 +158,13 @@ _hltprevalidation_Phase2.insert(
         hltHGCalLayerClusterCaloParticleAssociation *
         hltHGCalLayerClusterSimClusterAssociation
     )
-    )
-
+)
 phase2_common.toReplaceWith(hltprevalidation, _hltprevalidation_Phase2)
+                                                                              
+from SimCalorimetry.HGCalAssociatorProducers.hltLCToCPAssociation_cfi import (hltBarrelLCToCPAssociatorByEnergyScoreProducer,
+                                                                              hltBarrelLayerClusterCaloParticleAssociation)
+from SimCalorimetry.HGCalAssociatorProducers.hltLCToSCAssociation_cfi import (hltBarrelLCToSCAssociatorByEnergyScoreProducer,
+                                                                              hltBarrelLayerClusterSimClusterAssociation)
 
 _hltprevalidation_Phase2_WithBarrel = _hltprevalidation_Phase2.copy()
 _hltprevalidation_Phase2_WithBarrel.insert(
@@ -226,20 +187,9 @@ phase2_common.toReplaceWith(hltvalidationWithMC, _hltvalidationWithMC_Phase2)
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 _hltvalidationWithMC_Phase2_WithBarrel = _hltvalidationWithMC_Phase2.copy()
 
-hltbarrelvalidation = _barrelValidator.clone(
-    lclTag = "hltMergeLayerClusters",
-    hits = hlthits_barrel,
-    rechitmapTag = cms.InputTag("hltRecHitMapProducer", "barrelRecHitMap"),
-    associator = ['hltBarrelLayerClusterCaloParticleAssociation',],
-    associatorSim = ['hltBarrelLayerClusterSimClusterAssociation',],
-    dirName = 'HLT/BarrelCalorimeters/BarrelValidator/'
-)
-_hltvalidationWithMC_Phase2_WithBarrel.insert(-1, hltbarrelvalidation)
+from Validation.HGCalValidation.HLTBarrelValidator_cff import hltBarrelValidator
+_hltvalidationWithMC_Phase2_WithBarrel.insert(-1, hltBarrelValidator)
 ticl_barrel.toReplaceWith(hltvalidationWithMC, _hltvalidationWithMC_Phase2_WithBarrel)
-
-# hgcalLocalRecoTask = cms.Task( HGCalUncalibRecHit,
-#                                        HGCalRecHit,
-#                                        recHitMapProducer,
 
 hltvalidation = cms.Sequence(
     hltvalidationCommon * # HCAL RecHit analyzer
@@ -281,5 +231,3 @@ hltvalidation_withDQM = cms.Sequence(
     hltvalidation
     +trigdqm_forValidation
 )
-
-    
