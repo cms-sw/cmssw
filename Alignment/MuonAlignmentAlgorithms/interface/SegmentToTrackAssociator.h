@@ -26,6 +26,8 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 
 namespace edm {
+  class ParameterSet;
+  class Event;
   class EventSetup;
 }  // namespace edm
 

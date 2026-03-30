@@ -43,11 +43,14 @@
 
 #include "TMatrixDSym.h"
 #include "TMatrixD.h"
+#include "TTree.h"
 
 #include <vector>
 #include <map>
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonChamberResidual.h"
+#include "Alignment/MuonAlignmentAlgorithms/interface/DTTTree.h"
+#include "Alignment/MuonAlignmentAlgorithms/interface/CSCTTree.h"
 
 class MuonResidualsFromTrack {
 public:
@@ -63,7 +66,13 @@ public:
                          const Trajectory *traj,
                          const reco::Track *recoTrack,
                          AlignableNavigator *navigator,
-                         double maxResidual);
+                         double maxResidual,
+                         bool fillLayerPlotDT = false,
+                         bool fillLayerPlotCSC = false,
+                         struct DTLayerData *layerData_DT = nullptr,
+                         TTree *layerTree_DT = nullptr,
+                         struct CSCLayerData *layerData_CSC = nullptr,
+                         TTree *layerTree_CSC = nullptr);
 
   // residuals from tracker muons
   MuonResidualsFromTrack(edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
@@ -105,7 +114,13 @@ private:
             const Trajectory *traj,
             const reco::Track *recoTrack,
             AlignableNavigator *navigator,
-            double maxResidual);
+            double maxResidual,
+            bool fillLayerPlotDT,
+            bool fillLayerPlotCSC,
+            struct DTLayerData* layerData_DT,
+            TTree* layerTree_DT,
+            struct CSCLayerData* layerData_CSC,
+            TTree* layerTree_CSC);
 
   TrajectoryStateCombiner m_tsoscomb;
 

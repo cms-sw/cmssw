@@ -34,6 +34,7 @@ maxResSlopeY = float(os.environ["ALIGNMENT_MAXRESSLOPEY"])
 residualsModel = os.environ["ALIGNMENT_RESIDUALSMODEL"]
 peakNSigma = float(os.environ["ALIGNMENT_PEAKNSIGMA"])
 useResiduals = os.environ["ALIGNMENT_USERESIDUALS"]
+is_MC = (os.environ["ALIGNMENT_ISMC"] == "True")
 
 # optionally do selective DT or CSC alignment
 doDT = True
@@ -54,8 +55,8 @@ envNtuple = os.getenv("ALIGNMENT_CREATEALIGNNTUPLE")
 if envNtuple is not None:
   if envNtuple=='True': createAlignNtuple = True
 
-
-process = cms.Process("ALIGN")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("ALIGN", Run3)
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
@@ -68,7 +69,7 @@ process.MuonNumberingRecord = cms.ESSource( "EmptyESSource",
     firstValid = cms.vuint32( 1 )
 )
 
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("Alignment.MuonAlignmentAlgorithms.MuonAlignmentFromReference_cff")
@@ -104,37 +105,37 @@ process.MuonAlignmentFromReferenceInputDB.connect = cms.string("sqlite_file:%s" 
 process.MuonAlignmentFromReferenceInputDB.toGet = cms.VPSet(cms.PSet(record = cms.string("DTAlignmentRcd"), tag = cms.string("DTAlignmentRcd")),
                                                             cms.PSet(record = cms.string("CSCAlignmentRcd"), tag = cms.string("CSCAlignmentRcd")))
 
-if trackerconnect != "":
-    from CondCore.DBCommon.CondDBSetup_cfi import *
-    process.TrackerAlignmentInputDB = cms.ESSource("PoolDBESSource",
-                                                   CondDBSetup,
-                                                   connect = cms.string(trackerconnect),
-                                                   toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"), tag = cms.string(trackeralignment))))
-    process.es_prefer_TrackerAlignmentInputDB = cms.ESPrefer("PoolDBESSource", "TrackerAlignmentInputDB")
+from CondCore.CondDB.CondDB_cfi import *
+CondDBSetup = CondDB.clone()
+CondDBSetup.__delattr__('connect')
+if is_MC:
+    if trackerconnect != "":
+        process.TrackerAlignmentInputDB = cms.ESSource("PoolDBESSource",
+                                                       CondDBSetup,
+                                                       connect = cms.string(trackerconnect),
+                                                       toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"), tag = cms.string(trackeralignment))))
+        process.es_prefer_TrackerAlignmentInputDB = cms.ESPrefer("PoolDBESSource", "TrackerAlignmentInputDB")
 
-if trackerAPEconnect != "":
-    from CondCore.DBCommon.CondDBSetup_cfi import *
-    process.TrackerAlignmentErrorInputDB = cms.ESSource("PoolDBESSource",
-                                                   CondDBSetup,
-                                                   connect = cms.string(trackerAPEconnect),
-                                                   toGet = cms.VPSet(cms.PSet(cms.PSet(record = cms.string("TrackerAlignmentErrorExtendedRcd"), tag = cms.string(trackerAPE)))))
-    process.es_prefer_TrackerAlignmentErrorInputDB = cms.ESPrefer("PoolDBESSource", "TrackerAlignmentErrorInputDB")
+    if trackerAPEconnect != "":
+        process.TrackerAlignmentErrorInputDB = cms.ESSource("PoolDBESSource",
+                                                       CondDBSetup,
+                                                       connect = cms.string(trackerAPEconnect),
+                                                       toGet = cms.VPSet(cms.PSet(cms.PSet(record = cms.string("TrackerAlignmentErrorExtendedRcd"), tag = cms.string(trackerAPE)))))
+        process.es_prefer_TrackerAlignmentErrorInputDB = cms.ESPrefer("PoolDBESSource", "TrackerAlignmentErrorInputDB")
 
-if trackerBowsconnect != "":
-    from CondCore.DBCommon.CondDBSetup_cfi import *
-    process.TrackerSurfaceDeformationInputDB = cms.ESSource("PoolDBESSource",
-                                                   CondDBSetup,
-                                                   connect = cms.string(trackerBowsconnect),
-                                                   toGet = cms.VPSet(cms.PSet(cms.PSet(record = cms.string("TrackerSurfaceDeformationRcd"), tag = cms.string(trackerBows)))))
-    process.es_prefer_TrackerSurfaceDeformationInputDB = cms.ESPrefer("PoolDBESSource", "TrackerSurfaceDeformationInputDB")
+    if trackerBowsconnect != "":
+        process.TrackerSurfaceDeformationInputDB = cms.ESSource("PoolDBESSource",
+                                                       CondDBSetup,
+                                                       connect = cms.string(trackerBowsconnect),
+                                                       toGet = cms.VPSet(cms.PSet(cms.PSet(record = cms.string("TrackerSurfaceDeformationRcd"), tag = cms.string(trackerBows)))))
+        process.es_prefer_TrackerSurfaceDeformationInputDB = cms.ESPrefer("PoolDBESSource", "TrackerSurfaceDeformationInputDB")
 
 if gprcdconnect != "":
-    from CondCore.DBCommon.CondDBSetup_cfi import *
-    process.GlobalPositionInputDB = cms.ESSource("PoolDBESSource",
-                                                   CondDBSetup,
-                                                   connect = cms.string(gprcdconnect),
-                                                   toGet = cms.VPSet(cms.PSet(record = cms.string("GlobalPositionRcd"), tag = cms.string(gprcd))))
-    process.es_prefer_GlobalPositionInputDB = cms.ESPrefer("PoolDBESSource", "GlobalPositionInputDB")
+   process.GlobalPositionInputDB = cms.ESSource("PoolDBESSource",
+                                                  CondDBSetup,
+                                                  connect = cms.string(gprcdconnect),
+                                                  toGet = cms.VPSet(cms.PSet(record = cms.string("GlobalPositionRcd"), tag = cms.string(gprcd))))
+   process.es_prefer_GlobalPositionInputDB = cms.ESPrefer("PoolDBESSource", "GlobalPositionInputDB")
 
 process.looper.saveToDB = True
 process.looper.saveApeToDB = True
