@@ -22,17 +22,29 @@ namespace reco {
 
   class TrackingRecHitHost : public HitPortableCollectionHost {
   public:
-    TrackingRecHitHost(edm::Uninitialized) : PortableHostCollection<reco::TrackingBlocksSoA>{edm::kUninitialized} {}
+    explicit TrackingRecHitHost(edm::Uninitialized)
+        : PortableHostCollection<reco::TrackingBlocksSoA>{edm::kUninitialized} {}
 
-    // Constructor which specifies only the SoA size, to be used when copying the results from the device to the host
-    // FIXME add an explicit overload for the host case
+    // Constructor which specifies only the SoA size, to be used when copying
+    // the results from the device to the host.
+    // Construct the object in pageable system memory.
+    explicit TrackingRecHitHost(alpaka_common::DevHost const& host, uint32_t nHits, uint32_t nModules)
+        : HitPortableCollectionHost(host, nHits, nModules + 1) {}
+    // Why this +1? See TrackingRecHitDevice.h constructor for an explanation
+
+    // Constructor which specifies only the SoA size, to be used when copying
+    // the results from the device to the host.
+    // Construct the object in pinned host memory associated to the given work
+    // queue, accessible by the queue's device.
     template <typename TQueue>
+      requires(alpaka::isQueue<TQueue>)
     explicit TrackingRecHitHost(TQueue queue, uint32_t nHits, uint32_t nModules)
         : HitPortableCollectionHost(queue, nHits, nModules + 1) {}
     // Why this +1? See TrackingRecHitDevice.h constructor for an explanation
 
     // Constructor from clusters
     template <typename TQueue>
+      requires(alpaka::isQueue<TQueue>)
     explicit TrackingRecHitHost(TQueue queue, SiPixelClustersHost const& clusters)
         : HitPortableCollectionHost(queue, clusters.nClusters(), clusters.view().metadata().size()) {
       auto hitsView = view().trackingHits();
@@ -74,8 +86,17 @@ namespace ngt {
     static Properties properties(value_type const& object) { return {object.nHits(), object.nModules()}; }
 
     static void initialize(value_type& object, Properties const& prop) {
-      // replace the default-constructed empty object with one where the buffer has been allocated in pageable system memory
+      // Replace the default-constructed empty object with one where the buffer
+      // has been allocated in pageable host memory.
       object = value_type(cms::alpakatools::host(), prop.nHits, prop.nModules);
+    }
+
+    template <typename TQueue>
+      requires(alpaka::isQueue<TQueue>)
+    static void initialize(TQueue& queue, value_type& object, Properties const& prop) {
+      // Replace the default-constructed empty object with one where the buffer
+      // has been allocated in pinned host memory.
+      object = value_type(queue, prop.nHits, prop.nModules);
     }
 
     static std::vector<std::span<std::byte>> regions(value_type& object) {
