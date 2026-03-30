@@ -11,7 +11,7 @@
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "DataFormats/Common/interface/RandomNumberGeneratorState.h"
 
-#include "FWCore/Services/interface/ExternalRandomNumberGeneratorService.h"
+#include "GeneratorInterface/Core/interface/ExternalRandomNumberGeneratorService.h"
 
 #include "FWCore/SharedMemory/interface/WriteBuffer.h"
 #include "FWCore/SharedMemory/interface/WorkerChannel.h"
