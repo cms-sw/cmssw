@@ -253,15 +253,15 @@ public:
   int numberOfRecHits() const { return hits_.size(); }
 
   /** @brief add rechit with fraction */
-  void addRecHitAndFraction(uint32_t hit, float fraction) {
+  void addRecHitAndEnergy(uint32_t hit, float energy) {
     hits_.emplace_back(hit);
-    fractions_.emplace_back(fraction);
+    energies_.emplace_back(energy);
     hitsFinalized_ = false;
   }
 
   /** @brief add rechit energy */
-  void addHitEnergy(float energy) {
-    energies_.emplace_back(energy);
+  void addHitFraction(float fraction) {
+    fractions_.emplace_back(fraction);
     hitsFinalized_ = false;
   }
 
@@ -298,14 +298,14 @@ public:
     return result;
   }
 
-  void clearHitsAndFractions() {
+  void clearHitsAndEnergies() {
     std::vector<uint32_t>().swap(hits_);
-    std::vector<float>().swap(fractions_);
+    std::vector<float>().swap(energies_);
     hitsFinalized_ = false;
   }
 
-  void clearHitsEnergy() {
-    std::vector<float>().swap(energies_);
+  void clearFractions() {
+    std::vector<float>().swap(fractions_);
     hitsFinalized_ = false;
   }
 
@@ -323,10 +323,7 @@ public:
   // --------------------------------------------------------------------------
   void finalizeHits() {
     // Keep your original implicit invariant:
-    assert(hits_.size() == fractions_.size() && !hits_.empty());
-    // Energies are optional but if present must align.
-    if (!energies_.empty())
-      assert(energies_.size() == hits_.size());
+    assert(hits_.size() == fractions_.size() && hits_.size() == energies_.size() && !hits_.empty());
 
     // Already finalized? keep it cheap and idempotent.
     if (hitsFinalized_)
@@ -345,8 +342,7 @@ public:
 
     applyPermutation_(hits_, order);
     applyPermutation_(fractions_, order);
-    if (!energies_.empty())
-      applyPermutation_(energies_, order);
+    applyPermutation_(energies_, order);
 
     buildDetRanges_();
 
@@ -381,27 +377,23 @@ public:
 
   HitsAndEnergiesView hits_and_energies_view() const {
     assertFinalized_();
-    assertEnergies_();
     return HitsAndEnergiesView{{hits_, energies_}};
   }
 
   HitsAndEnergiesView hits_and_energies_view(DetId::Detector det) const {
     assertFinalized_();
-    assertEnergies_();
     auto [b, e] = detRanges_[detIndex_(det)];
     return HitsAndEnergiesView{{{hits_.data() + b, e - b}, {energies_.data() + b, e - b}}};
   }
 
   HitsAndEnergiesView hits_and_energies_view(DetId::Detector det, int subdetId) const {
     assertFinalized_();
-    assertEnergies_();
     auto [bb, ee] = subdetRange_(det, subdetId);
     return HitsAndEnergiesView{{{hits_.data() + bb, ee - bb}, {energies_.data() + bb, ee - bb}}};
   }
 
   HitsAndEnergiesView hits_and_energies_view(DetId::Detector detIdMin, DetId::Detector detIdMax) const {
     assertFinalized_();
-    assertEnergies_();
     auto [begin, end] = detMinMaxRange_(detIdMin, detIdMax);
     return HitsAndEnergiesView{{{hits_.data() + begin, end - begin}, {energies_.data() + begin, end - begin}}};
   }
@@ -422,10 +414,11 @@ protected:
   std::vector<SimTrack> g4Tracks_;
   reco::GenParticleRefVector genParticles_;
 
+  bool hitsFinalized_{false};
+
 private:
   static constexpr size_t kMaxDetectors_ = 32;  // Probably 16 could be enough
 
-  bool hitsFinalized_{false};
   std::array<std::pair<size_t, size_t>, kMaxDetectors_> detRanges_{};  // [begin,end) per detector
 
   static size_t detIndex_(DetId::Detector det) {
@@ -436,11 +429,6 @@ private:
 
   void assertFinalized_() const {
     assert(hitsFinalized_ && "SimCluster: hits not finalized. Call finalizeHits() in the producer before persisting.");
-  }
-
-  void assertEnergies_() const {
-    assert(!energies_.empty() &&
-           "SimCluster: energies is empty; populate it with addHitEnergy() before calling this view.");
   }
 
   // Returns the [begin, end) index range within hits_ for a det+subdet pair.

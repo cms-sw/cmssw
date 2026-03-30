@@ -182,8 +182,7 @@ namespace {
           acc_energy[hit_and_energy.first] += hit_and_energy.second;
         }
         for (auto const &hit_and_energy : acc_energy) {
-          simcluster.addRecHitAndFraction(hit_and_energy.first, hit_and_energy.second);
-          simcluster.addHitEnergy(hit_and_energy.second);
+          simcluster.addRecHitAndEnergy(hit_and_energy.first, hit_and_energy.second);
         }
       }
     }
@@ -368,9 +367,8 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
     }
   } else {
     for (auto &sc : *(output_.pSimClusters)) {
-      auto hitsAndEnergies = sc.hits_and_fractions();
-      sc.clearHitsAndFractions();
-      sc.clearHitsEnergy();
+      auto hitsAndEnergies = sc.hits_and_energies();
+      sc.clearFractions();
       for (auto &hAndE : hitsAndEnergies) {
         const float totalenergy = m_detIdToTotalSimEnergy[hAndE.first];
         float fraction = 0.;
@@ -379,8 +377,7 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
         else
           edm::LogWarning(messageCategory_)
               << "TotalSimEnergy for hit " << hAndE.first << " is 0! The fraction for this hit cannot be computed.";
-        sc.addRecHitAndFraction(hAndE.first, fraction);
-        sc.addHitEnergy(hAndE.second);
+        sc.addHitFraction(fraction);
       }
       sc.finalizeHits();
     }
