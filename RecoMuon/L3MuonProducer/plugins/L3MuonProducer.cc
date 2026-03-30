@@ -284,6 +284,7 @@ void L3MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
                                             "hltESPSmartPropagatorAny",                      // propagator
                                             "insideOut",                                     // refit direction
                                             true,                                            // refit rpc hits
+                                            true,                                            // refit muon hits
                                             "hltESPTTRHBWithTrackAngle",                     // tracker rechit builder
                                             "hltESPMuonTransientTrackingRecHitBuilder"       // muon rechit builder
       );
