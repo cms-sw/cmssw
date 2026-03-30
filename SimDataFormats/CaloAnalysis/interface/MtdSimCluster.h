@@ -27,9 +27,10 @@ public:
   }
 
   /** @brief add hit with fraction */
-  void addHitAndFraction(uint64_t hit, float fraction) {
+  void addHitAndEnergy(uint64_t hit, float energy) {
     mtdHits_.emplace_back(hit);
-    fractions_.emplace_back(fraction);
+    energies_.emplace_back(energy);
+    hitsFinalized_ = false;
   }
 
   /** @brief add hit position*/
@@ -58,9 +59,10 @@ public:
   }
 
   /** @brief clear the hits and fractions list */
-  void clearHitsAndFractions() {
+  void clearHitsAndEnergies() {
     std::vector<uint64_t>().swap(mtdHits_);
-    std::vector<float>().swap(fractions_);
+    std::vector<float>().swap(energies_);
+    hitsFinalized_ = false;
   }
 
   /** @brief Returns list of hit IDs and times for this SimCluster */
@@ -104,8 +106,8 @@ public:
   void clearHitsPosition() { std::vector<LocalPoint>().swap(positions_); }
 
   void clear() {
-    clearHitsAndFractions();
-    clearHitsEnergy();
+    clearHitsAndEnergies();
+    clearFractions();
     clearHitsTime();
     clearHitsPosition();
   }

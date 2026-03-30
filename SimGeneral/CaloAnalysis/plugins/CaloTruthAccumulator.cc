@@ -357,8 +357,7 @@ namespace {
 
     void doEndCluster(SimClassNameT &cluster) {
       for (auto const &hit_and_energy : acc_energy) {
-        cluster.addRecHitAndFraction(hit_and_energy.first, hit_and_energy.second);
-		cluster.addHitEnergy(hit_and_energy.second);
+        cluster.addRecHitAndEnergy(hit_and_energy.first, hit_and_energy.second);
       }
       acc_energy.clear();
     }
@@ -704,8 +703,7 @@ namespace {
                            std::unordered_map<Index_t, float> const &detIdToTotalSimEnergy) {
     for (auto &sc : simClusters) {
       auto hitsAndEnergies = sc.hits_and_fractions();
-      sc.clearHitsAndFractions();
-	  sc.clearHitsEnergy();
+      sc.clearFractions();
       for (auto &hAndE : hitsAndEnergies) {
         const float totalenergy = detIdToTotalSimEnergy.at(hAndE.first);
         float fraction = 0.;
@@ -714,8 +712,7 @@ namespace {
         else
           edm::LogWarning("CaloTruthAccumulator")
               << "TotalSimEnergy for hit " << hAndE.first << " is 0! The fraction for this hit cannot be computed.";
-        sc.addRecHitAndFraction(hAndE.first, fraction);
-		sc.addHitEnergy(hAndE.second);
+        sc.addHitFraction(fraction);
       }
 	  sc.finalizeHits();
     }
