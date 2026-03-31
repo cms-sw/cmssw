@@ -3,6 +3,7 @@
 <use name="FWCore/Utilities"/>
 <use name="FWCore/Framework"/>
 <use name="SimDataFormats/GeneratorProducts"/>
+<use name="SimDataFormats/RandomEngine"/>
 <use name="GeneratorInterface/LHEInterface"/>
 <use name="heppdt"/>
 <use name="boost"/>

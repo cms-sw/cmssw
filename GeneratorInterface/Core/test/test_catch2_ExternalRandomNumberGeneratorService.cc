@@ -1,4 +1,4 @@
-#include "FWCore/Services/interface/ExternalRandomNumberGeneratorService.h"
+#include "GeneratorInterface/Core/ExternalRandomNumberGeneratorService.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
 #include "CLHEP/Random/JamesRandom.h"

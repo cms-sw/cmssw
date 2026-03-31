@@ -123,18 +123,6 @@
     <use name="boost"/>
   </library>
 
-  <library file="TestInterProcessRandomProd.cc,RandomIntProducer.cc" name="TestInterProcessRandomProd">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/AbstractServices"/>
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="FWCore/Sources"/>
-    <use name="FWCore/SharedMemory"/>
-    <use name="FWCore/Utilities"/>
-    <use name="DataFormats/TestObjects"/>
-    <use name="boost"/>
-    <use name="clhep"/>
-  </library>
   <library file="TestServicesOnNonFrameworkThreadsAnalyzer.cc" name = "TestServicesOnNonFrameworkThreadsAnalyzer">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/AbstractServices"/>
