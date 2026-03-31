@@ -58,7 +58,7 @@ namespace hcaldqm {
     //	get the run info FEDs - FEDs registered at cDAQ
     //	and determine if there are any HCAL FEDs in.
     //	push them as ElectronicsIds into the vector
-    //    _vcdaqEids.clear();
+    _vcdaqEids.clear();
     if (auto runInfoRec = es.tryToGet<RunInfoRcd>()) {
       const RunInfo &runInfo = es.getData(runInfoToken_);
       std::vector<int> vfeds = runInfo.m_fed_in;

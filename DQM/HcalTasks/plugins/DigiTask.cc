@@ -566,7 +566,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
     _filter_FEDHF.initialize(filter::fPreserver, hcaldqm::hashfunctions::fFED, vFEDHF);
 
     //	push the rawIds of each fed into the vector...
-    //    _vhashFEDs.clear();
+    _vhashFEDs.clear();
     for (std::vector<int>::const_iterator it = vFEDsVME.begin(); it != vFEDsVME.end(); ++it)
       _vhashFEDs.push_back(
           HcalElectronicsId(constants::FIBERCH_MIN, FIBER_VME_MIN, SPIGOT_MIN, (*it) - FED_VME_MIN).rawId());
