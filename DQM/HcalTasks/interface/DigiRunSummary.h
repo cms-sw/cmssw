@@ -43,10 +43,13 @@ namespace hcaldqm {
       fNChsHF = 1,
       fUnknownIds = 2,
       fLED = 3,
-      nLSFlags = 4,  // defines the boundary between lumi-based and run-based flags
-      fUniHF = 5,
-      fDead = 6,
-      nDigiFlag = 7
+      fRADDAM = 4,
+      fLASER = 5,
+      fPinDiode = 6,
+      nLSFlags = 7,  // defines the boundary between lumi-based and run-based flags
+      fUniHF = 8,
+      fDead = 9,
+      nDigiFlag = 10
     };
   };
 }  // namespace hcaldqm
