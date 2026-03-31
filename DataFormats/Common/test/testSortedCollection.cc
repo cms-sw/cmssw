@@ -13,7 +13,7 @@ typedef int DetId;
 #include <ostream>
 #include <vector>
 
-#include "cppunit/extensions/HelperMacros.h"
+#include <catch2/catch_all.hpp>
 #include "DataFormats/Common/interface/SortedCollection.h"
 
 using namespace edm;
@@ -73,59 +73,7 @@ std::ostream& operator<<(std::ostream& os, const Value& v) {
   return os;
 }
 
-class testSortedCollection : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(testSortedCollection);
-  CPPUNIT_TEST(constructTest);
-  CPPUNIT_TEST(insertTest);
-  CPPUNIT_TEST(accessTest);
-  CPPUNIT_TEST(swapTest);
-  CPPUNIT_TEST(frontbackTest);
-  CPPUNIT_TEST(squarebracketTest);
-  CPPUNIT_TEST_SUITE_END();
-
-public:
-  void setUp() {}
-  void tearDown() {}
-
-  void constructTest();
-  void insertTest();
-  void accessTest();
-  void swapTest();
-  void frontbackTest();
-  void squarebracketTest();
-};
-
-///registration of the test so that the runner can find it
-CPPUNIT_TEST_SUITE_REGISTRATION(testSortedCollection);
-
 typedef edm::SortedCollection<Value, StrictWeakOrdering<Value> > scoll_type;
-
-void testSortedCollection::constructTest() {
-  scoll_type c1;
-  CPPUNIT_ASSERT(c1.size() == 0);
-
-  scoll_type c2(20);
-  CPPUNIT_ASSERT(c2.size() == 20);
-
-  std::vector<Value> values(3);
-  scoll_type c3(values);
-  CPPUNIT_ASSERT(c3.size() == values.size());
-
-  scoll_type c4(c3);
-  CPPUNIT_ASSERT(c4.size() == c3.size());
-  CPPUNIT_ASSERT(c3 == c4);
-}
-
-void testSortedCollection::insertTest() {
-  scoll_type c;
-  Value v1(1.1, 1);
-  Value v2(2.2, 2);
-
-  c.push_back(v1);
-  CPPUNIT_ASSERT(c.size() == 1);
-  c.push_back(v2);
-  CPPUNIT_ASSERT(c.size() == 2);
-}
 
 template <class T, class SORT>
 void append_to_both(edm::SortedCollection<T, SORT>& sc, std::vector<T>& vec, const T& t) {
@@ -133,123 +81,152 @@ void append_to_both(edm::SortedCollection<T, SORT>& sc, std::vector<T>& vec, con
   vec.push_back(t);
 }
 
-void testSortedCollection::accessTest() {
-  scoll_type c;
-  std::vector<Value> vec;
-  append_to_both(c, vec, Value(1.5, 3));
-  append_to_both(c, vec, Value(2.5, 200));
-  append_to_both(c, vec, Value(3.5, 1));
-  append_to_both(c, vec, Value(4.5, 1001));
-  append_to_both(c, vec, Value(5.5, 2));
-  //  append_to_both(c, vec, Value(10.5, 3));
+TEST_CASE("SortedCollection", "[SortedCollection]") {
+  SECTION("constructTest") {
+    scoll_type c1;
+    REQUIRE(c1.size() == 0);
 
-  CPPUNIT_ASSERT(c.size() == vec.size());
-  c.sort();
+    scoll_type c2(20);
+    REQUIRE(c2.size() == 20);
 
-  // DO NOT ADD ANY MORE ITEMS TO c!
-  CPPUNIT_ASSERT(c.size() == vec.size());
+    std::vector<Value> values(3);
+    scoll_type c3(values);
+    REQUIRE(c3.size() == values.size());
 
-  {
-    scoll_type::iterator i = c.find(DetId(100));  // does not exist!
-    CPPUNIT_ASSERT(i == c.end());
+    scoll_type c4(c3);
+    REQUIRE(c4.size() == c3.size());
+    REQUIRE(c3 == c4);
   }
 
-  {
-    std::cerr << "Dumping SortedCollection" << std::endl;
-    std::copy(c.begin(), c.end(), std::ostream_iterator<Value>(std::cerr, "\n"));
+  SECTION("insertTest") {
+    scoll_type c;
+    Value v1(1.1, 1);
+    Value v2(2.2, 2);
+
+    c.push_back(v1);
+    REQUIRE(c.size() == 1);
+    c.push_back(v2);
+    REQUIRE(c.size() == 2);
   }
 
-  {
-    std::vector<Value>::const_iterator i = vec.begin();
-    std::vector<Value>::const_iterator e = vec.end();
-    std::cerr << "There are " << vec.size() << " searches to do...\n";
-    while (i != e) {
-      DetId id = i->id();
-      std::cerr << "Looking for id: " << id << "...   ";
-      //scoll_type::iterator loc = c.find(i->id());
-      scoll_type::iterator loc = c.find(id);
-      if (loc == c.end())
-        std::cerr << "Failed to find this id!\n";
-      else
-        std::cerr << "Found it, record is: " << *loc << '\n';
-      CPPUNIT_ASSERT(loc != c.end());
-      CPPUNIT_ASSERT(*loc == *i);
-      ++i;
+  SECTION("accessTest") {
+    scoll_type c;
+    std::vector<Value> vec;
+    append_to_both(c, vec, Value(1.5, 3));
+    append_to_both(c, vec, Value(2.5, 200));
+    append_to_both(c, vec, Value(3.5, 1));
+    append_to_both(c, vec, Value(4.5, 1001));
+    append_to_both(c, vec, Value(5.5, 2));
+    //  append_to_both(c, vec, Value(10.5, 3));
+
+    REQUIRE(c.size() == vec.size());
+    c.sort();
+
+    // DO NOT ADD ANY MORE ITEMS TO c!
+    REQUIRE(c.size() == vec.size());
+
+    {
+      scoll_type::iterator i = c.find(DetId(100));  // does not exist!
+      REQUIRE(i == c.end());
+    }
+
+    {
+      std::cerr << "Dumping SortedCollection" << std::endl;
+      std::copy(c.begin(), c.end(), std::ostream_iterator<Value>(std::cerr, "\n"));
+    }
+
+    {
+      std::vector<Value>::const_iterator i = vec.begin();
+      std::vector<Value>::const_iterator e = vec.end();
+      std::cerr << "There are " << vec.size() << " searches to do...\n";
+      while (i != e) {
+        DetId id = i->id();
+        std::cerr << "Looking for id: " << id << "...   ";
+        //scoll_type::iterator loc = c.find(i->id());
+        scoll_type::iterator loc = c.find(id);
+        if (loc == c.end())
+          std::cerr << "Failed to find this id!\n";
+        else
+          std::cerr << "Found it, record is: " << *loc << '\n';
+        REQUIRE(loc != c.end());
+        REQUIRE(*loc == *i);
+        ++i;
+      }
     }
   }
-}
 
-void testSortedCollection::swapTest() {
-  scoll_type c;
-  std::vector<Value> vec;
-  append_to_both(c, vec, Value(1.5, 3));
-  append_to_both(c, vec, Value(2.5, 200));
-  append_to_both(c, vec, Value(3.5, 1));
-  append_to_both(c, vec, Value(4.5, 1001));
-  append_to_both(c, vec, Value(5.5, 2));
+  SECTION("swapTest") {
+    scoll_type c;
+    std::vector<Value> vec;
+    append_to_both(c, vec, Value(1.5, 3));
+    append_to_both(c, vec, Value(2.5, 200));
+    append_to_both(c, vec, Value(3.5, 1));
+    append_to_both(c, vec, Value(4.5, 1001));
+    append_to_both(c, vec, Value(5.5, 2));
 
-  {
-    scoll_type copy(c);
-    CPPUNIT_ASSERT(copy == c);
-    scoll_type empty;
-    CPPUNIT_ASSERT(empty.empty());
+    {
+      scoll_type copy(c);
+      REQUIRE(copy == c);
+      scoll_type empty;
+      REQUIRE(empty.empty());
 
-    empty.swap(copy);
-    CPPUNIT_ASSERT(copy.empty());
-    CPPUNIT_ASSERT(empty == c);
+      empty.swap(copy);
+      REQUIRE(copy.empty());
+      REQUIRE(empty == c);
+    }
+
+    {
+      std::vector<Value> copy(vec);
+      scoll_type empty;
+      REQUIRE(empty.empty());
+
+      empty.swap_contents(copy);
+      REQUIRE(copy.empty());
+      REQUIRE(empty == vec);
+    }
   }
 
-  {
-    std::vector<Value> copy(vec);
-    scoll_type empty;
-    CPPUNIT_ASSERT(empty.empty());
+  SECTION("frontbackTest") {
+    scoll_type c;
+    std::vector<Value> vec;
+    append_to_both(c, vec, Value(1.5, 3));
+    append_to_both(c, vec, Value(2.5, 200));
+    append_to_both(c, vec, Value(3.5, 1));
+    append_to_both(c, vec, Value(4.5, 1001));
+    append_to_both(c, vec, Value(5.5, 2));
 
-    empty.swap_contents(copy);
-    CPPUNIT_ASSERT(copy.empty());
-    CPPUNIT_ASSERT(empty == vec);
+    c.sort();
+
+    REQUIRE(c.front() == Value(3.5, 1));
+    REQUIRE(c.back() == Value(4.5, 1001));
+
+    scoll_type const& cr = c;
+    REQUIRE(cr.front() == Value(3.5, 1));
+    REQUIRE(cr.back() == Value(4.5, 1001));
   }
-}
 
-void testSortedCollection::frontbackTest() {
-  scoll_type c;
-  std::vector<Value> vec;
-  append_to_both(c, vec, Value(1.5, 3));
-  append_to_both(c, vec, Value(2.5, 200));
-  append_to_both(c, vec, Value(3.5, 1));
-  append_to_both(c, vec, Value(4.5, 1001));
-  append_to_both(c, vec, Value(5.5, 2));
+  SECTION("squarebracketTest") {
+    scoll_type c;
+    std::vector<Value> vec;
+    append_to_both(c, vec, Value(1.5, 3));
+    append_to_both(c, vec, Value(2.5, 200));
+    append_to_both(c, vec, Value(3.5, 1));
+    append_to_both(c, vec, Value(4.5, 1001));
+    append_to_both(c, vec, Value(5.5, 2));
 
-  c.sort();
+    c.sort();
 
-  CPPUNIT_ASSERT(c.front() == Value(3.5, 1));
-  CPPUNIT_ASSERT(c.back() == Value(4.5, 1001));
+    REQUIRE(c[0] == Value(3.5, 1));
+    REQUIRE(c[1] == Value(5.5, 2));
+    REQUIRE(c[2] == Value(1.5, 3));
+    REQUIRE(c[3] == Value(2.5, 200));
+    REQUIRE(c[4] == Value(4.5, 1001));
 
-  scoll_type const& cr = c;
-  CPPUNIT_ASSERT(cr.front() == Value(3.5, 1));
-  CPPUNIT_ASSERT(cr.back() == Value(4.5, 1001));
-}
-
-void testSortedCollection::squarebracketTest() {
-  scoll_type c;
-  std::vector<Value> vec;
-  append_to_both(c, vec, Value(1.5, 3));
-  append_to_both(c, vec, Value(2.5, 200));
-  append_to_both(c, vec, Value(3.5, 1));
-  append_to_both(c, vec, Value(4.5, 1001));
-  append_to_both(c, vec, Value(5.5, 2));
-
-  c.sort();
-
-  CPPUNIT_ASSERT(c[0] == Value(3.5, 1));
-  CPPUNIT_ASSERT(c[1] == Value(5.5, 2));
-  CPPUNIT_ASSERT(c[2] == Value(1.5, 3));
-  CPPUNIT_ASSERT(c[3] == Value(2.5, 200));
-  CPPUNIT_ASSERT(c[4] == Value(4.5, 1001));
-
-  scoll_type const& cr = c;
-  CPPUNIT_ASSERT(cr[0] == Value(3.5, 1));
-  CPPUNIT_ASSERT(cr[1] == Value(5.5, 2));
-  CPPUNIT_ASSERT(cr[2] == Value(1.5, 3));
-  CPPUNIT_ASSERT(cr[3] == Value(2.5, 200));
-  CPPUNIT_ASSERT(cr[4] == Value(4.5, 1001));
+    scoll_type const& cr = c;
+    REQUIRE(cr[0] == Value(3.5, 1));
+    REQUIRE(cr[1] == Value(5.5, 2));
+    REQUIRE(cr[2] == Value(1.5, 3));
+    REQUIRE(cr[3] == Value(2.5, 200));
+    REQUIRE(cr[4] == Value(4.5, 1001));
+  }
 }
