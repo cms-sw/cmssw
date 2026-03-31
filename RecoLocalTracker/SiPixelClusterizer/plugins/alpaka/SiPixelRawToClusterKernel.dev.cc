@@ -465,9 +465,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::cout << "decoding " << wordCounter << " digis." << std::endl;
 #endif
       constexpr int numberOfModules = TrackerTraits::numberOfModules;
-      digis_d = SiPixelDigisSoACollection(wordCounter, queue);
+      digis_d = SiPixelDigisSoACollection(queue, wordCounter);
       if (includeErrors) {
-        digiErrors_d = SiPixelDigiErrorsSoACollection(wordCounter, queue);
+        digiErrors_d = SiPixelDigiErrorsSoACollection(queue, wordCounter);
       }
       clusters_d = SiPixelClustersSoACollection(numberOfModules, queue);
       // protect in case of empty event....
@@ -579,7 +579,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           const auto workDivFindClus = cms::alpakatools::make_workdiv<Acc1D>(blocks, elementsPerBlockFindClus);
 
           // allocate a transient collection for the fake pixels recovered by the digi morphing algorithm
-          auto fakes_d = SiPixelDigisSoACollection(blocks * digiMorphingConfig.maxFakesInModule, queue);
+          auto fakes_d = SiPixelDigisSoACollection(queue, blocks * digiMorphingConfig.maxFakesInModule);
 #ifdef GPU_DEBUG
           alpaka::wait(queue);
           std::cout << "FindClus kernel launch with " << blocks << " blocks of " << elementsPerBlockFindClus
@@ -697,7 +697,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::cout << "FindClus kernel launch with " << numberOfModules << " blocks of " << elementsPerBlockFindClus
                 << " threadsPerBlockOrElementsPerThread\n";
 #endif
-      auto unused = SiPixelDigisSoACollection(0, queue);
+      auto unused = SiPixelDigisSoACollection(queue, 0);
 
       alpaka::exec<Acc1D>(queue,
                           workDivMaxNumModules,
