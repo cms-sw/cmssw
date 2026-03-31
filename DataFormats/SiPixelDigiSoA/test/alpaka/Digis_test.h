@@ -6,7 +6,7 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::testDigisSoA {
 
-  void runKernels(SiPixelDigisSoAView digis_view, Queue& queue);
+  void runKernels(Queue& queue, SiPixelDigisSoAView digis_view);
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::testDigisSoA
 

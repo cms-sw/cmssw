@@ -34,12 +34,12 @@ int main() {
     {
       // Instantiate tracks on device. PortableDeviceCollection allocates
       // SoA on device automatically.
-      SiPixelDigiErrorsSoACollection digiErrors_d(1000, queue);
-      testDigisSoA::runKernels(digiErrors_d.view(), queue);
+      SiPixelDigiErrorsSoACollection digiErrors_d(queue, 1000);
+      testDigisSoA::runKernels(queue, digiErrors_d.view());
 
       // Instantate tracks on host. This is where the data will be
       // copied to from device.
-      SiPixelDigiErrorsHost digiErrors_h(digiErrors_d.view().metadata().size(), queue);
+      SiPixelDigiErrorsHost digiErrors_h(queue, digiErrors_d.view().metadata().size());
       alpaka::memcpy(queue, digiErrors_h.buffer(), digiErrors_d.const_buffer());
       std::cout << "digiErrors_h.view().metadata().size(): " << digiErrors_h.view().metadata().size() << std::endl;
       std::cout << "digiErrors_h.view()[100].pixelErrors().rawId: " << digiErrors_h.view()[100].pixelErrors().rawId

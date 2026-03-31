@@ -14,11 +14,20 @@
 // See: https://github.com/cms-sw/cmssw/pull/40465#discussion_r1067364306
 class SiPixelClustersHost : public PortableHostCollection<SiPixelClustersSoA> {
 public:
-  SiPixelClustersHost(edm::Uninitialized) : PortableHostCollection<SiPixelClustersSoA>{edm::kUninitialized} {}
+  explicit SiPixelClustersHost(edm::Uninitialized) : PortableHostCollection<SiPixelClustersSoA>{edm::kUninitialized} {}
 
-  // FIXME add an explicit overload for the host case
+  // Constructor for code that does not use alpaka explicitly, using the global "host" object returned by cms::alpakatools::host(), construct the object in pageable system memory.
+  explicit SiPixelClustersHost(size_t maxModules)
+      : PortableHostCollection<SiPixelClustersSoA>(cms::alpakatools::host(), maxModules + 1) {}
+
+  // Construct the object in pageable system memory.
+  explicit SiPixelClustersHost(alpaka_common::DevHost const& host, size_t maxModules)
+      : PortableHostCollection<SiPixelClustersSoA>(host, maxModules + 1) {}
+
+  // Construct the object in pinned host memory associated to the given work queue, accessible by the queue's device.
   template <typename TQueue>
-  explicit SiPixelClustersHost(size_t maxModules, TQueue queue)
+    requires(alpaka::isQueue<TQueue>)
+  explicit SiPixelClustersHost(TQueue queue, size_t maxModules)
       : PortableHostCollection<SiPixelClustersSoA>(queue, maxModules + 1) {}
 
   void setNClusters(uint32_t nClusters, int32_t offsetBPIX2) {
@@ -51,8 +60,18 @@ namespace ngt {
     }
 
     static void initialize(value_type& object, Properties const& prop) {
-      // replace the default-constructed empty object with one where the buffer has been allocated in pageable system memory
-      object = value_type(prop.size, cms::alpakatools::host());
+      // Replace the default-constructed empty object with one where the buffer
+      // has been allocated in pageable host memory.
+      object = value_type(cms::alpakatools::host(), prop.size);
+      object.setNClusters(prop.nClusters, prop.offsetBPIX2);
+    }
+
+    template <typename TQueue>
+      requires(alpaka::isQueue<TQueue>)
+    static void initialize(TQueue& queue, value_type& object, Properties const& prop) {
+      // Replace the default-constructed empty object with one where the buffer
+      // has been allocated in pinned host memory.
+      object = value_type(queue, prop.size);
       object.setNClusters(prop.nClusters, prop.offsetBPIX2);
     }
 
