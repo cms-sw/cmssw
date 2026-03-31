@@ -38,7 +38,8 @@ private:
 };
 
 template <typename HIT>
-TSToSimTSHitLCAssociatorByEnergyScoreProducer<HIT>::TSToSimTSHitLCAssociatorByEnergyScoreProducer(const edm::ParameterSet &ps)
+TSToSimTSHitLCAssociatorByEnergyScoreProducer<HIT>::TSToSimTSHitLCAssociatorByEnergyScoreProducer(
+    const edm::ParameterSet &ps)
     : hitMap_(consumes<std::unordered_map<DetId, const unsigned int>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
       caloGeometry_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")),
@@ -67,11 +68,10 @@ void TSToSimTSHitLCAssociatorByEnergyScoreProducer<HIT>::produce(edm::StreamID,
   for (auto &token : hits_token_) {
     edm::Handle<std::vector<HIT>> hits_handle;
     iEvent.getByToken(token, hits_handle);
-    for (const auto& hit : *hits_handle) {
-        hits.push_back(&hit);
+    for (const auto &hit : *hits_handle) {
+      hits.push_back(&hit);
     }
   }
- 
 
   if (hits.empty()) {
     edm::LogWarning("TSToSimTSHitLCAssociatorByEnergyScoreProducer")
@@ -108,13 +108,12 @@ void TSToSimTSHitLCAssociatorByEnergyScoreProducer<HIT>::fillDescriptions(edm::C
                                           edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
   } else {
     desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "barrelRecHitMap"));
-    desc.add<std::vector<edm::InputTag>>("hits", 
-                                         {edm::InputTag("particleFlowRecHitECAL"),
-                                          edm::InputTag("particleFlowRecHitHBHE")});
+    desc.add<std::vector<edm::InputTag>>(
+        "hits", {edm::InputTag("particleFlowRecHitECAL"), edm::InputTag("particleFlowRecHitHBHE")});
   }
   desc.add<bool>("hardScatterOnly", true);
 
-  if constexpr (std::is_same_v<HIT, HGCRecHit>) 
+  if constexpr (std::is_same_v<HIT, HGCRecHit>)
     cfg.add("hgcalSimTracksterHitLCAssociatorByEnergyScore", desc);
   else
     cfg.add("barrelSimTracksterHitLCAssociatorByEnergyScore", desc);
@@ -125,6 +124,6 @@ template class TSToSimTSHitLCAssociatorByEnergyScoreProducer<HGCRecHit>;
 using HGCalTSToSimTSHitLCAssociatorByEnergyScoreProducer = TSToSimTSHitLCAssociatorByEnergyScoreProducer<HGCRecHit>;
 DEFINE_FWK_MODULE(HGCalTSToSimTSHitLCAssociatorByEnergyScoreProducer);
 template class TSToSimTSHitLCAssociatorByEnergyScoreProducer<reco::PFRecHit>;
-using BarrelTSToSimTSHitLCAssociatorByEnergyScoreProducer = TSToSimTSHitLCAssociatorByEnergyScoreProducer<reco::PFRecHit>;
+using BarrelTSToSimTSHitLCAssociatorByEnergyScoreProducer =
+    TSToSimTSHitLCAssociatorByEnergyScoreProducer<reco::PFRecHit>;
 DEFINE_FWK_MODULE(BarrelTSToSimTSHitLCAssociatorByEnergyScoreProducer);
-

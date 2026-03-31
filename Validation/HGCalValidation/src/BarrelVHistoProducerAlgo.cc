@@ -83,7 +83,7 @@ BarrelVHistoProducerAlgo::BarrelVHistoProducerAlgo(const edm::ParameterSet& pset
       maxSharedEneFrac_(pset.getParameter<double>("maxSharedEneFrac")),
       nintSharedEneFrac_(pset.getParameter<int>("nintSharedEneFrac")),
       minTSTSharedEneFracEfficiency_(pset.getParameter<double>("minTSTSharedEneFracEfficiency")),
-      
+
       minTSTSharedEneFrac_(pset.getParameter<double>("minTSTSharedEneFrac")),
       maxTSTSharedEneFrac_(pset.getParameter<double>("maxTSTSharedEneFrac")),
       nintTSTSharedEneFrac_(pset.getParameter<int>("nintTSTSharedEneFrac")),
@@ -685,7 +685,9 @@ void BarrelVHistoProducerAlgo::bookClusterHistos_CellLevel(DQMStore::IBooker& ib
 }
 //----------------------------------------------------------------------------------------------------------------------------
 
-void BarrelVHistoProducerAlgo::bookTracksterHistos(DQMStore::IBooker& ibook, Histograms& histograms, unsigned int layers) {
+void BarrelVHistoProducerAlgo::bookTracksterHistos(DQMStore::IBooker& ibook,
+                                                   Histograms& histograms,
+                                                   unsigned int layers) {
   std::unordered_map<int, dqm::reco::MonitorElement*> clusternum_in_trackster_perlayer;
   clusternum_in_trackster_perlayer.clear();
 
@@ -704,7 +706,7 @@ void BarrelVHistoProducerAlgo::bookTracksterHistos(DQMStore::IBooker& ibook, His
 
   histograms.h_tracksternum.push_back(ibook.book1D(
       "tottracksternum", "total number of Tracksters;# of Tracksters", nintTotNTSTs_, minTotNTSTs_, maxTotNTSTs_));
-  
+
   histograms.h_clusternum_in_trackster.push_back(
       ibook.book1D("clusternum_in_trackster",
                    "total number of layer clusters in Trackster;# of LayerClusters",
@@ -736,8 +738,7 @@ void BarrelVHistoProducerAlgo::bookTracksterHistos(DQMStore::IBooker& ibook, His
                                                                            nintMplofLCs_,
                                                                            minMplofLCs_,
                                                                            maxMplofLCs_));
-  
-  
+
   histograms.h_multiplicityOfLCinTST_vs_layerclusterenergy.push_back(
       ibook.book2D("multiplicityOfLCinTST_vs_layerclusterenergy",
                    "Multiplicity vs Layer cluster energy;LayerCluster multiplicity in Tracksters;Cluster energy [GeV]",
@@ -747,7 +748,7 @@ void BarrelVHistoProducerAlgo::bookTracksterHistos(DQMStore::IBooker& ibook, His
                    nintClEnepermultiplicity_,
                    minClEnepermultiplicity_,
                    maxClEnepermultiplicity_));
-   
+
   histograms.h_trackster_pt.push_back(
       ibook.book1D("trackster_pt", "Pt of the Trackster;Trackster p_{T} [GeV]", nintPt_, minPt_, maxPt_));
   histograms.h_trackster_eta.push_back(
@@ -766,17 +767,13 @@ void BarrelVHistoProducerAlgo::bookTracksterHistos(DQMStore::IBooker& ibook, His
       "trackster_firstlayer", "First layer of the Trackster;Trackster First Layer", layers, 0., (float)layers));
   histograms.h_trackster_lastlayer.push_back(ibook.book1D(
       "trackster_lastlayer", "Last layer of the Trackster;Trackster Last Layer", layers, 0., (float)layers));
-  histograms.h_trackster_layersnum.push_back(
-      ibook.book1D("trackster_layersnum",
-                   "Number of layers of the Trackster;Trackster Number of Layers",
-                   layers,
-                   0.,
-                   (float)layers));
+  histograms.h_trackster_layersnum.push_back(ibook.book1D(
+      "trackster_layersnum", "Number of layers of the Trackster;Trackster Number of Layers", layers, 0., (float)layers));
 }
 
 void BarrelVHistoProducerAlgo::bookTracksterSTSHistos(DQMStore::IBooker& ibook,
-                                                  Histograms& histograms,
-                                                  const validationType valType) {
+                                                      Histograms& histograms,
+                                                      const validationType valType) {
   const string rtos = ";score Reco-to-Sim";
   const string stor = ";score Sim-to-Reco";
   const string shREnFr = ";shared Reco energy fraction";
@@ -1832,15 +1829,16 @@ void BarrelVHistoProducerAlgo::fill_generic_cluster_histos(
   }  //end of loop over layers
 }
 
-void BarrelVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& histograms,
-                                                          const int count,
-                                                          const TracksterToTracksterMap& trackstersToSimTrackstersMap,
-                                                          const TracksterToTracksterMap& simTrackstersToTrackstersMap,
-                                                          const validationType valType,
-                                                          const SimClusterToCaloParticleMap& scToCpMap,
-                                                          const std::vector<size_t>& cPIndices,
-                                                          const std::vector<size_t>& cPSelectedIndices,
-                                                          const edm::ProductID& cPHandle_id) const {
+void BarrelVHistoProducerAlgo::tracksters_to_SimTracksters_fp(
+    const Histograms& histograms,
+    const int count,
+    const TracksterToTracksterMap& trackstersToSimTrackstersMap,
+    const TracksterToTracksterMap& simTrackstersToTrackstersMap,
+    const validationType valType,
+    const SimClusterToCaloParticleMap& scToCpMap,
+    const std::vector<size_t>& cPIndices,
+    const std::vector<size_t>& cPSelectedIndices,
+    const edm::ProductID& cPHandle_id) const {
   const auto nTracksters = trackstersToSimTrackstersMap.getMap().size();
   const auto nSimTracksters = simTrackstersToTrackstersMap.getMap().size();
   std::vector<int> tracksters_FakeMerge(nTracksters, 0);
@@ -2023,14 +2021,15 @@ void BarrelVHistoProducerAlgo::fill_trackster_histos(
     const edm::Handle<TracksterToTracksterMap>& simTrackstersFromCPsToTrackstersByHitsMapH,
     const SimClusterToCaloParticleMap& scToCpMap) const {
   //Each event to be treated as two events:
-  if (tracksters.size() == 0) return;
+  if (tracksters.empty())
+    return;
 
   //[tstId]-> vector of 2d layer clusters size
   std::unordered_map<unsigned int, std::vector<unsigned int>> multiplicity;
   //[tstId]-> [layer][cluster size]
   std::unordered_map<unsigned int, std::vector<unsigned int>> multiplicity_vs_layer;
   //We will need for the scale text option
-  
+
   unsigned int totalLcInTsts = 0;
   for (unsigned int tstId = 0; tstId < tracksters.size(); ++tstId) {
     totalLcInTsts = totalLcInTsts + tracksters[tstId].vertices().size();
@@ -2048,7 +2047,7 @@ void BarrelVHistoProducerAlgo::fill_trackster_histos(
 
     //To keep track of total num of layer clusters per Trackster
     //tnLcInTstperlaypz[layerid], tnLcInTstperlaymz[layerid]
-    std::vector<int> tnLcInTstperlay(layers, 0);  
+    std::vector<int> tnLcInTstperlay(layers, 0);
 
     //For the layers the Trackster expands to. Will use a set because there would be many
     //duplicates and then go back to vector for random access, since they say it is faster.
@@ -2083,7 +2082,6 @@ void BarrelVHistoProducerAlgo::fill_trackster_histos(
         histograms.h_clusternum_in_trackster_vs_layer[count]->Fill((float)ilayer, (float)tnLcInTstperlay[ilayer]);
       }
     }  // end of loop over layers
-
 
     histograms.h_clusternum_in_trackster[count]->Fill(tnLcInTst);
 

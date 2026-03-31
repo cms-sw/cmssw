@@ -95,7 +95,8 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
 
   // We need to partition the two sides of the HGCAL detector
   auto lastLayerPerSide = static_cast<unsigned int>(rhtools_.lastLayer(isHFnose)) - 1;
-  if (isBarrel) lastLayerPerSide = static_cast<unsigned int>(rhtools_.lastLayerBarrel()) -1;
+  if (isBarrel)
+    lastLayerPerSide = static_cast<unsigned int>(rhtools_.lastLayerBarrel()) - 1;
   unsigned int maxLayer = isBarrel ? lastLayerPerSide + 1 : 2 * lastLayerPerSide - 1;
   std::vector<fastjet::PseudoJet> fjInputs;
   fjInputs.clear();

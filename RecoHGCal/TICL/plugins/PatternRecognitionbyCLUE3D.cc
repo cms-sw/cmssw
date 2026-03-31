@@ -47,7 +47,8 @@ void PatternRecognitionbyCLUE3D<TILES>::dumpTiles(const TILES &tiles) const {
   constexpr int nPhiBin = TILES::constants_type_t::nPhiBins;
   constexpr bool isBarrel = std::is_same<TILES, TICLLayerTilesBarrel>::value;
   auto lastLayerPerSide = static_cast<int>(rhtools_.lastLayer());
-  if (isBarrel) lastLayerPerSide = static_cast<int>(rhtools_.lastLayerBarrel());
+  if (isBarrel)
+    lastLayerPerSide = static_cast<int>(rhtools_.lastLayerBarrel());
   int maxLayer = isBarrel ? lastLayerPerSide : 2 * lastLayerPerSide - 1;
   for (int layer = 0; layer <= maxLayer; layer++) {
     for (int ieta = 0; ieta < nEtaBin; ieta++) {
@@ -155,7 +156,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
   if (input.regions.empty())
     return;
 
-  constexpr bool isBarrel = std::is_same<TILES, TICLLayerTilesBarrel>::value;  
+  constexpr bool isBarrel = std::is_same<TILES, TICLLayerTilesBarrel>::value;
   const int eventNumber = input.ev.eventAuxiliary().event();
   if (PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_ > VerbosityLevel::Advanced) {
     edm::LogVerbatim("PatternRecognitionbyCLUE3D") << "New Event";
@@ -186,7 +187,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
 
   if (isBarrel)
     clusters_.resize(rhtools_.lastLayerBarrel() + 1);
-  else 
+  else
     clusters_.resize(2 * rhtools_.lastLayer());
   std::vector<std::pair<int, int>> layerIdx2layerandSoa;  //used everywhere also to propagate cluster masking
 
@@ -271,7 +272,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     clusters_[layer].cells.push_back(lc.hitsAndFractions().size());
     if (!isBarrel)
       clusters_[layer].algoId.push_back(lc.algo() - reco::CaloCluster::hgcal_em);
-    else 
+    else
       clusters_[layer].algoId.push_back(lc.algo() - reco::CaloCluster::barrel_em);
     clusters_[layer].isSilicon.push_back(rhtools_.isSilicon(detId));
     clusters_[layer].energy.emplace_back(lc.energy());

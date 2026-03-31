@@ -1457,8 +1457,8 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
     cluster_number_of_hits.push_back(number_of_hits);
     if (!detectorTools_->rhtools.isBarrel(haf[0].first))
       cluster_type.push_back(detectorTools_->rhtools.getCellType(lc_seed));
-    else 
-      cluster_type.push_back(-1); 
+    else
+      cluster_type.push_back(-1);
     cluster_timeErr.push_back(layerClustersTimes.get(c_id).second);
     cluster_time.push_back(layerClustersTimes.get(c_id).first);
     c_id += 1;

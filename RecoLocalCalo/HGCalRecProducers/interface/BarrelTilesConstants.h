@@ -9,7 +9,7 @@
 #include <array>
 
 struct EBTilesConstants {
-  static constexpr float cellWidthEta = 3*0.0175f;
+  static constexpr float cellWidthEta = 3 * 0.0175f;
   static constexpr float cellWidthPhi = cellWidthEta;
   static constexpr float tileSizeEtaPhi = cellWidthEta;
   static constexpr float minDim1 = -1.5f;

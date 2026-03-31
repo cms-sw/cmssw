@@ -20,7 +20,6 @@
 template <typename HIT>
 class AllTracksterToSimTracksterAssociatorsByHitsProducerT : public edm::global::EDProducer<> {
 public:
-
   using multiCollectionT = edm::RefProdVector<std::vector<HIT>>;
 
   explicit AllTracksterToSimTracksterAssociatorsByHitsProducerT(const edm::ParameterSet&);
@@ -103,8 +102,8 @@ AllTracksterToSimTracksterAssociatorsByHitsProducerT<HIT>::AllTracksterToSimTrac
 
 template <typename HIT>
 void AllTracksterToSimTracksterAssociatorsByHitsProducerT<HIT>::produce(edm::StreamID,
-                                                                       edm::Event& iEvent,
-                                                                       const edm::EventSetup&) const {
+                                                                        edm::Event& iEvent,
+                                                                        const edm::EventSetup&) const {
   using namespace edm;
 
   if (!iEvent.getHandle(hitsToken_).isValid()) {
@@ -498,7 +497,9 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducerT<HIT>::fillDescriptions
 }
 
 // Define this as a plug-in
-using AllTracksterToSimTracksterAssociatorsByHitsProducer = AllTracksterToSimTracksterAssociatorsByHitsProducerT<HGCRecHit>;
+using AllTracksterToSimTracksterAssociatorsByHitsProducer =
+    AllTracksterToSimTracksterAssociatorsByHitsProducerT<HGCRecHit>;
 DEFINE_FWK_MODULE(AllTracksterToSimTracksterAssociatorsByHitsProducer);
-using AllBarrelTracksterToSimTracksterAssociatorsByHitsProducer = AllTracksterToSimTracksterAssociatorsByHitsProducerT<reco::PFRecHit>;
+using AllBarrelTracksterToSimTracksterAssociatorsByHitsProducer =
+    AllTracksterToSimTracksterAssociatorsByHitsProducerT<reco::PFRecHit>;
 DEFINE_FWK_MODULE(AllBarrelTracksterToSimTracksterAssociatorsByHitsProducer);

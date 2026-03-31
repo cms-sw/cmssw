@@ -98,7 +98,7 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps)
   } else if (doBarrel_) {
     myAlgoBarrel_ = PatternRecognitionBarrelFactory::get()->create(
         ps.getParameter<std::string>("patternRecognitionBy"), pluginPSet, consumesCollector());
-    layer_clusters_tiles_barrel_token_ = 
+    layer_clusters_tiles_barrel_token_ =
         consumes<TICLLayerTilesBarrel>(ps.getParameter<edm::InputTag>("layer_clusters_barrel_tiles"));
   } else {
     myAlgo_ = PatternRecognitionFactory::get()->create(
@@ -136,7 +136,8 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::InputTag>("original_mask", edm::InputTag("hgcalMergeLayerClusters", "InitialLayerClustersMask"));
   desc.add<edm::InputTag>("time_layerclusters", edm::InputTag("hgcalMergeLayerClusters", "timeLayerCluster"));
   desc.add<edm::InputTag>("layer_clusters_tiles", edm::InputTag("ticlLayerTileProducer"));
-  desc.add<edm::InputTag>("layer_clusters_barrel_tiles", edm::InputTag("ticlLayerTileProducer", "ticlLayerTilesBarrel"));
+  desc.add<edm::InputTag>("layer_clusters_barrel_tiles",
+                          edm::InputTag("ticlLayerTileProducer", "ticlLayerTilesBarrel"));
   desc.add<edm::InputTag>("layer_clusters_hfnose_tiles", edm::InputTag("ticlLayerTileHFNose"));
   desc.add<edm::InputTag>("seeding_regions", edm::InputTag("ticlSeedingRegionProducer"));
   desc.add<std::string>("patternRecognitionBy", "CA");
@@ -225,7 +226,7 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     } else {
       const auto& layer_clusters_tiles = evt.get(layer_clusters_tiles_token_);
       const typename PatternRecognitionAlgoBaseT<TICLLayerTiles>::Inputs input(
-        evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions);
+          evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions);
       myAlgo_->makeTracksters(input, *initialResult, seedToTrackstersAssociation);
       // Run inference algorithm
       inferenceAlgo_->inputData(layerClusters, *initialResult, rhtools_);

@@ -33,7 +33,9 @@ template <typename HIT>
 HitToTracksterAssociatorProducerT<HIT>::~HitToTracksterAssociatorProducerT() {}
 
 template <typename HIT>
-void HitToTracksterAssociatorProducerT<HIT>::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
+void HitToTracksterAssociatorProducerT<HIT>::produce(edm::StreamID,
+                                                     edm::Event &iEvent,
+                                                     const edm::EventSetup &iSetup) const {
   using namespace edm;
 
   Handle<std::vector<reco::CaloCluster>> layer_clusters;
@@ -95,10 +97,9 @@ void HitToTracksterAssociatorProducerT<HIT>::fillDescriptions(edm::Configuration
   } else if constexpr (std::is_same_v<HIT, reco::PFRecHit>) {
     desc.add<edm::InputTag>("layer_clusters", edm::InputTag("barrelLayerClusters"));
     desc.add<edm::InputTag>("tracksters", edm::InputTag("ticlBarrelTracksters")),
-    desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "barrelRecHitMap"));
-    desc.add<std::vector<edm::InputTag>>("hits",
-                                         {edm::InputTag("particleFlowRecHitECAL"),
-                                          edm::InputTag("particleFlowRecHitHBHE")});
+        desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "barrelRecHitMap"));
+    desc.add<std::vector<edm::InputTag>>(
+        "hits", {edm::InputTag("particleFlowRecHitECAL"), edm::InputTag("particleFlowRecHitHBHE")});
     descriptions.add("hitToBarrelTracksterAssociator", desc);
   }
 }

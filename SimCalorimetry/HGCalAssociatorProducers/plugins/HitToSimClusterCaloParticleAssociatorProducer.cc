@@ -29,8 +29,8 @@ HitToSimClusterCaloParticleAssociatorProducerT<HIT>::HitToSimClusterCaloParticle
 
 template <typename HIT>
 void HitToSimClusterCaloParticleAssociatorProducerT<HIT>::produce(edm::StreamID,
-                                                                 edm::Event &iEvent,
-                                                                 const edm::EventSetup &iSetup) const {
+                                                                  edm::Event &iEvent,
+                                                                  const edm::EventSetup &iSetup) const {
   using namespace edm;
 
   Handle<std::vector<CaloParticle>> caloParticlesHandle;
@@ -98,7 +98,8 @@ void HitToSimClusterCaloParticleAssociatorProducerT<HIT>::produce(edm::StreamID,
 }
 
 template <typename HIT>
-void HitToSimClusterCaloParticleAssociatorProducerT<HIT>::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void HitToSimClusterCaloParticleAssociatorProducerT<HIT>::fillDescriptions(
+    edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("caloParticles", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("simClusters", edm::InputTag("mix", "MergedCaloTruth"));
@@ -117,5 +118,6 @@ void HitToSimClusterCaloParticleAssociatorProducerT<HIT>::fillDescriptions(edm::
 // Define this as a plug-in
 using HitToSimClusterCaloParticleAssociatorProducer = HitToSimClusterCaloParticleAssociatorProducerT<HGCRecHit>;
 DEFINE_FWK_MODULE(HitToSimClusterCaloParticleAssociatorProducer);
-using BarrelHitToSimClusterCaloParticleAssociatorProducer = HitToSimClusterCaloParticleAssociatorProducerT<reco::PFRecHit>;
+using BarrelHitToSimClusterCaloParticleAssociatorProducer =
+    HitToSimClusterCaloParticleAssociatorProducerT<reco::PFRecHit>;
 DEFINE_FWK_MODULE(BarrelHitToSimClusterCaloParticleAssociatorProducer);

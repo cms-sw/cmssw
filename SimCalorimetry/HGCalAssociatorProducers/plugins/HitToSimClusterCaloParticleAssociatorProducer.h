@@ -22,11 +22,9 @@
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 
-
 template <typename HIT>
 class HitToSimClusterCaloParticleAssociatorProducerT : public edm::global::EDProducer<> {
 public:
-
   using multiCollectionT = edm::RefProdVector<std::vector<HIT>>;
 
   explicit HitToSimClusterCaloParticleAssociatorProducerT(const edm::ParameterSet &);
