@@ -31,7 +31,7 @@
 #include "DPGAnalysis/HcalNanoAOD/interface/QIE10DigiSortedTable.h"
 #include "DPGAnalysis/HcalNanoAOD/interface/HODigiSortedTable.h"
 
-class HcalDigiSortedTableProducer : public edm::stream::EDProducer<> {
+class HcalDigiSortedTableProducer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 private:
   std::map<HcalSubdetector, edm::Handle<std::vector<HcalDetId>>> dids_;
 
