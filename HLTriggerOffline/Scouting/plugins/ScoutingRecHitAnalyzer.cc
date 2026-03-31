@@ -141,6 +141,16 @@ ScoutingRecHitAnalyzer<RecHitType>::ScoutingRecHitAnalyzer(const edm::ParameterS
     triggers_.push_back(trigger);
     trigger_names_.push_back(trigger_name);
   }
+  const size_t n = trigger_names_.size();
+  number_histograms_.reserve(n);
+  energy_histograms_.reserve(n);
+  time_histograms_.reserve(n);
+  ieta_iphi_histograms_.reserve(n);
+  eta_phi_histograms_.reserve(n);
+  energy_time_histograms_.reserve(n);
+  ieta_iphi_energy_profiles_.reserve(n);
+  eta_phi_energy_profiles_.reserve(n);
+  ieta_iphi_time_profiles_.reserve(n);
 }
 
 template <typename RecHitType>
@@ -185,19 +195,24 @@ void ScoutingRecHitAnalyzer<RecHitType>::bookHistograms(DQMStore::IBooker& ibook
   ibooker.setCurrentFolder(topFolderName_);
   for (auto const& trigger_name : trigger_names_) {
     ibooker.setCurrentFolder(topFolderName_ + "/" + trigger_name);
+
+    auto n = [&](const std::string& base) { return (base + "_" + trigger_name); };
+
     if constexpr (std::is_same<RecHitType, Run3ScoutingEBRecHit>()) {
       // 1D histograms
-      number_histograms_.push_back(ibooker.book1D("number", "Number or RecHits;RecHits Number;Events", 100, 0., 1000.));
+      number_histograms_.push_back(
+          ibooker.book1D(n("number"), "Number or RecHits;RecHits Number;Events", 100, 0., 1000.));
       energy_histograms_.push_back(
-          ibooker.book1DD("energy", "Energy of RecHits;RecHit Energy (GeV);RecHits", 100, 0., 20.));
-      time_histograms_.push_back(ibooker.book1DD("time", "Time of RecHits;RecHit Time (ns);RecHits", 200, -100., 100.));
+          ibooker.book1DD(n("energy"), "Energy of RecHits;RecHit Energy (GeV);RecHits", 100, 0., 20.));
+      time_histograms_.push_back(
+          ibooker.book1DD(n("time"), "Time of RecHits;RecHit Time (ns);RecHits", 200, -100., 100.));
 
       // 2D histograms
       energy_time_histograms_.push_back(book2D(
-          "energy_time", "RecHit Time vs Energy;Energy (GeV);Time (ns);Entries", 100, 0., 20., 100, -100., 100.));
+          n("energy_time"), "RecHit Time vs Energy;Energy (GeV);Time (ns);Entries", 100, 0., 20., 100, -100., 100.));
       ieta_iphi_histograms_.push_back(
-          book2D("ieta_iphi", "RecHit i#phi vs i#eta;i#eta;i#phi;Entries", 171, -85.5, 85.5, 360, 0.5, 360.5));
-      eta_phi_histograms_.push_back(book2D("eta_phi",
+          book2D(n("ieta_iphi"), "RecHit i#phi vs i#eta;i#eta;i#phi;Entries", 171, -85.5, 85.5, 360, 0.5, 360.5));
+      eta_phi_histograms_.push_back(book2D(n("eta_phi"),
                                            "RecHit #phi vs #eta;#eta;#phi (rad);Entries",
                                            170,
                                            -85 * kDegToRad,
@@ -208,8 +223,8 @@ void ScoutingRecHitAnalyzer<RecHitType>::bookHistograms(DQMStore::IBooker& ibook
 
       // 2D profiles
       ieta_iphi_energy_profiles_.push_back(bookProfile2D(
-          "ieta_iphi_energy", "mean RecHit Energy;i#eta;i#phi;mean Energy", 171, -85.5, 85.5, 360, 0.5, 360.5, 0, 20));
-      eta_phi_energy_profiles_.push_back(bookProfile2D("eta_phi_energy",
+          n("ieta_iphi_energy"), "mean RecHit Energy;i#eta;i#phi;mean Energy", 171, -85.5, 85.5, 360, 0.5, 360.5, 0, 20));
+      eta_phi_energy_profiles_.push_back(bookProfile2D(n("eta_phi_energy"),
                                                        "mean RecHit Energy;#eta;#phi (rad);mean Energy",
                                                        170,
                                                        -85 * kDegToRad,
@@ -221,8 +236,8 @@ void ScoutingRecHitAnalyzer<RecHitType>::bookHistograms(DQMStore::IBooker& ibook
                                                        20));
 
       ieta_iphi_time_profiles_.push_back(bookProfile2D(
-          "ieta_iphi_time", "Mean RecHit time;i#eta;i#phi;mean Time", 171, -85.5, 85.5, 360, 0.5, 360.5, 0, 20));
-      eta_phi_time_profiles_.push_back(bookProfile2D("eta_phi_time",
+          n("ieta_iphi_time"), "Mean RecHit time;i#eta;i#phi;mean Time", 171, -85.5, 85.5, 360, 0.5, 360.5, 0, 20));
+      eta_phi_time_profiles_.push_back(bookProfile2D(n("eta_phi_time"),
                                                      "Mean RecHit time;#eta;#phi (rad);mean Time",
                                                      170,
                                                      -85 * kDegToRad,
@@ -257,44 +272,47 @@ void ScoutingRecHitAnalyzer<RecHitType>::bookHistograms(DQMStore::IBooker& ibook
         return phiMin + i * dphi;
       });
 
+      auto n = [&](const std::string& base) { return (base + "_" + trigger_name); };
+
       // 1D histograms
-      number_histograms_.push_back(ibooker.book1D("number", "Number of RecHits;RecHits Number;Events", 100, 0., 2000.));
+      number_histograms_.push_back(
+          ibooker.book1D(n("number"), "Number of RecHits;RecHits Number;Events", 100, 0., 2000.));
       energy_histograms_.push_back(
-          ibooker.book1DD("energy", "Energy of RecHits;RecHit Energy (GeV);RecHits", 100, 0., 20.));
-      time_histograms_.push_back(ibooker.book1DD("time", "Time of RecHits;RecHit Time (ns);RecHits", 100, 0., 30.));
+          ibooker.book1DD(n("energy"), "Energy of RecHits;RecHit Energy (GeV);RecHits", 100, 0., 20.));
+      time_histograms_.push_back(ibooker.book1DD(n("time"), "Time of RecHits;RecHit Time (ns);RecHits", 100, 0., 30.));
 
       // 2D histograms
-      energy_time_histograms_.push_back(
-          book2D("energy_time", "RecHit Time vs Energy;Energy (GeV);Time (ns);Entries", 100., 0., 50., 100., 0, 30.));
+      energy_time_histograms_.push_back(book2D(
+          n("energy_time"), "RecHit Time vs Energy;Energy (GeV);Time (ns);Entries", 100., 0., 50., 100., 0, 30.));
 
       ieta_iphi_histograms_.push_back(
-          book2D("ieta_iphi", "RecHit i#phi vs i#eta;i#eta;i#phi;Entries", 59, -29.5, 29.5, 72, 0.5, 72.5));
+          book2D(n("ieta_iphi"), "RecHit i#phi vs i#eta;i#eta;i#phi;Entries", 59, -29.5, 29.5, 72, 0.5, 72.5));
 
       // 2D profiles
       ieta_iphi_energy_profiles_.push_back(bookProfile2D(
-          "ieta_iphi_energy", "mean RecHit Energy;i#eta;i#phi;mean Energy", 59, -29.5, 29.5, 72, 0.5, 72.5, 0, 100.));
+          n("ieta_iphi_energy"), "mean RecHit Energy;i#eta;i#phi;mean Energy", 59, -29.5, 29.5, 72, 0.5, 72.5, 0, 100.));
 
       ieta_iphi_time_profiles_.push_back(bookProfile2D(
-          "ieta_iphi_time", "mean RecHit time;i#eta;i#phi;mean Time", 59, -29.5, 29.5, 72, 0.5, 72.5, 0, 30.));
+          n("ieta_iphi_time"), "mean RecHit time;i#eta;i#phi;mean Time", 59, -29.5, 29.5, 72, 0.5, 72.5, 0, 30.));
 
       // demote edges from double to float
       std::vector<float> eta_edges_f(eta_edges.begin(), eta_edges.end());
       std::vector<float> phi_edges_f(phi_edges.begin(), phi_edges.end());
-      eta_phi_histograms_.push_back(book2D("eta_phi",
+      eta_phi_histograms_.push_back(book2D(n("eta_phi"),
                                            "RecHit #phi vs #eta;#eta;#phi (rad);Entries",
                                            eta_edges_f.size() - 1,
                                            eta_edges_f.data(),
                                            phi_edges_f.size() - 1,
                                            phi_edges_f.data()));
 
-      eta_phi_energy_profiles_.push_back(bookProfile2D("eta_phi_energy",
+      eta_phi_energy_profiles_.push_back(bookProfile2D(n("eta_phi_energy"),
                                                        "mean RecHit Energy;#eta;#phi (rad);mean Energy",
                                                        eta_edges.size() - 1,
                                                        eta_edges.data(),
                                                        phi_edges.size() - 1,
                                                        phi_edges.data()));
 
-      eta_phi_time_profiles_.push_back(bookProfile2D("eta_phi_time",
+      eta_phi_time_profiles_.push_back(bookProfile2D(n("eta_phi_time"),
                                                      "mean RecHit Time;#eta;#phi (rad);mean Time",
                                                      eta_edges.size() - 1,
                                                      eta_edges.data(),
@@ -308,13 +326,13 @@ template <typename RecHitType>
 void ScoutingRecHitAnalyzer<RecHitType>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& l1TriggerResults_handle = iEvent.getHandle(l1TriggerResults_token_);
   if (!l1TriggerResults_handle.isValid()) {
-    edm::LogWarning("Handle") << "L1 TriggerResults is invalid";
+    edm::LogWarning("ScoutingRecHitAnalyzer") << "L1 TriggerResults is invalid";
     return;
   }
 
   const auto& hltTriggerResults_handle = iEvent.getHandle(hltTriggerResults_token_);
   if (!hltTriggerResults_handle.isValid()) {
-    edm::LogWarning("Handle") << "HLT TriggerResults is invalid";
+    edm::LogWarning("ScoutingRecHitAnalyzer") << "HLT TriggerResults is invalid";
     return;
   }
 
@@ -322,7 +340,7 @@ void ScoutingRecHitAnalyzer<RecHitType>::analyze(const edm::Event& iEvent, const
 
   const auto& rechit_collection_handle = iEvent.getHandle(rechit_collection_token_);
   if (!rechit_collection_handle.isValid()) {
-    edm::LogWarning("Handle") << "rechit is invalid";
+    edm::LogWarning("ScoutingRecHitAnalyzer") << "rechit is invalid";
     return;
   }
 
