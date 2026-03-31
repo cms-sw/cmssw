@@ -762,7 +762,6 @@ namespace edm {
 
       msg << "\n<LumiSections>";
       msg << "\n<Inputs>";
-      typedef std::vector<JobReport::Token>::iterator iterator;
       for (auto const& iInput : f.contributingInputs) {
         addInputElement(impl_->inputFiles_[iInput], f.fastCopyingInputs, msg);
       }

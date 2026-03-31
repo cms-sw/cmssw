@@ -25,8 +25,6 @@ namespace edm {
     inline void install(exception_actions::ActionCodes code,
                         ExceptionToActionTable::ActionMap& out,
                         ParameterSet const& pset) {
-      typedef std::vector<std::string> vstring;
-
       // we cannot have parameters in the main process section so look
       // for an untracked (optional) ParameterSet called "options" for
       // now.  Notice that all exceptions (most actally) throw
