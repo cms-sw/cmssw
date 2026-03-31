@@ -1,5 +1,5 @@
-#ifndef TrivialSerialisation_Common_interface_Writer_h
-#define TrivialSerialisation_Common_interface_Writer_h
+#ifndef HeterogeneousCore_TrivialSerialisation_interface_Writer_h
+#define HeterogeneousCore_TrivialSerialisation_interface_Writer_h
 
 #include <cstddef>
 #include <span>
@@ -8,10 +8,12 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/TrivialSerialisation/interface/MemoryCopyTraits.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/AnyBuffer.h"
+#include "HeterogeneousCore/TrivialSerialisation/interface/Common.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/WriterBase.h"
 
 namespace ngt {
 
+  // Writer for host products: creates a Wrapper<T> and exposes its memory regions for writing.
   template <typename T>
   class Writer : public WriterBase {
     static_assert(ngt::HasMemoryCopyTraits<T>, "No specialization of MemoryCopyTraits found for type T");
@@ -28,19 +30,12 @@ namespace ngt {
       }
     }
 
-    ngt::AnyBuffer uninitialized_parameters() const override {
-      if constexpr (not ngt::HasTrivialCopyProperties<T>) {
-        // if ngt::MemoryCopyTraits<T>::properties(...) is not declared, do not call it.
-        return {};
-      } else {
-        // if ngt::MemoryCopyTraits<T>::properties(...) is declared, call it and wrap the result in an ngt::AnyBuffer
-        return ngt::AnyBuffer(ngt::MemoryCopyTraits<T>::properties(object()));
-      }
-    }
+    ngt::AnyBuffer uninitialized_parameters() const override { return ngt::get_properties<T>(object()); }
 
     void initialize(ngt::AnyBuffer const& args) override {
       if constexpr (not ngt::HasValidInitialize<T>) {
-        // If there is no valid initialize(), this shouldn't be present.
+        // If MemoryCopyTraits<T> has no valid initialize() then the object must be default-constructible.
+        // Check that Properties are not present, as they are not needed and cannot be used.
         static_assert(not ngt::HasTrivialCopyProperties<T>);
       } else if constexpr (not ngt::HasTrivialCopyProperties<T>) {
         // If T has no TrivialCopyProperties, call initialize() without any additional arguments.
@@ -51,16 +46,9 @@ namespace ngt {
       }
     }
 
-    std::vector<std::span<std::byte>> regions() override {
-      static_assert(ngt::HasRegions<T>);
-      return ngt::MemoryCopyTraits<T>::regions(object());
-    }
+    std::vector<std::span<std::byte>> regions() override { return ngt::get_regions<T>(object()); }
 
-    void finalize() override {
-      if constexpr (ngt::HasTrivialCopyFinalize<T>) {
-        ngt::MemoryCopyTraits<T>::finalize(object());
-      }
-    }
+    void finalize() override { ngt::do_finalize<T>(object()); }
 
   private:
     const T& object() const { return static_cast<const WrapperType*>(ptr_.get())->bareProduct(); }
@@ -70,4 +58,4 @@ namespace ngt {
 
 }  // namespace ngt
 
-#endif  // TrivialSerialisation_Common_interface_Writer_h
+#endif  // HeterogeneousCore_TrivialSerialisation_interface_Writer_h
