@@ -103,12 +103,7 @@ void ScoutingDimuonVtxProducer::produce(edm::Event& iEvent, const edm::EventSetu
     }
 
     reco::VertexCompositePtrCandidate vtxCand(
-        charge,
-        p4,
-        reco::Candidate::Point(sVtx.x(), sVtx.y(), sVtx.z()),
-        err,
-        sVtx.chi2(),
-        sVtx.ndof());
+        charge, p4, reco::Candidate::Point(sVtx.x(), sVtx.y(), sVtx.z()), err, sVtx.chi2(), sVtx.ndof());
 
     // Add daughter CandidatePtrs
     if (it != vtxToMuons.end()) {
