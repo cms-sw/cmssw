@@ -148,22 +148,22 @@ namespace hcaldqm {
     vtmpflags[fDigiSize] = flag::Flag("DigiSize");
     vtmpflags[fNChsHF] = flag::Flag("NChsHF");
     vtmpflags[fUnknownIds] = flag::Flag("UnknownIds");
-    vtmpflags[fLED] = flag::Flag("LEDMisfire");
+    vtmpflags[fLED] = flag::Flag("LedMonCU");
+    vtmpflags[fRADDAM] = flag::Flag("RaddamMon");
+    vtmpflags[fLASER] = flag::Flag("LaserMonCU");
+    vtmpflags[fPinDiode] = flag::Flag("LaserMon");
+
     for (std::vector<uint32_t>::const_iterator it = _vhashCrates.begin(); it != _vhashCrates.end(); ++it) {
       HcalElectronicsId eid(*it);
 
-      // skip monitoring for ZDC crate for now (Oct. 1 2023), the Hcal DQM group need to discuss with the ZDC group on the monitoring flags settings.
-      if (HcalGenericDetId(_emap->lookup(eid)).isHcalZDCDetId()) {
+      // ZDC: skip detailed monitoring (consistent with FED loop)
+      if (utilities::isFEDZDC(eid)) {
         for (std::vector<flag::Flag>::iterator ft = vtmpflags.begin(); ft != vtmpflags.end(); ++ft)
           ft->reset();
         lssum._vflags.push_back(vtmpflags);
         continue;
       }
 
-      HcalDetId did = HcalDetId(_emap->lookup(eid));
-
-      //	reset all the tmp flags to fNA
-      //	MUST DO IT NOW! AS NCDAQ MIGHT OVERWRITE IT!
       for (std::vector<flag::Flag>::iterator ft = vtmpflags.begin(); ft != vtmpflags.end(); ++ft)
         ft->reset();
 
@@ -172,7 +172,7 @@ namespace hcaldqm {
       else
         vtmpflags[fDigiSize]._state = flag::fGOOD;
 
-      if (did.subdet() == HcalForward) {
+      if (utilities::isFEDHF(eid)) {
         if (_xNChs.get(eid) != _xNChsNominal.get(eid))
           vtmpflags[fNChsHF]._state = flag::fBAD;
         else
@@ -185,33 +185,187 @@ namespace hcaldqm {
       else
         vtmpflags[fUnknownIds]._state = flag::fGOOD;
 
-      if ((did.subdet() == HcalBarrel) || (did.subdet() == HcalEndcap) || (did.subdet() == HcalOuter) ||
-          (did.subdet() == HcalForward)) {
-        std::string ledHistName = _subsystem + "/" + _taskname + "/CU_LED/CU_LED_CUCountvsLS/Subdet/";
-        if (did.subdet() == HcalBarrel) {
-          ledHistName += "HB";
-        } else if (did.subdet() == HcalEndcap) {
-          ledHistName += "HE";
-        } else if (did.subdet() == HcalOuter) {
-          ledHistName += "HO";
-        } else if (did.subdet() == HcalForward) {
-          ledHistName += "HF";
-        }
-        MonitorElement* ledHist = ig.get(ledHistName);
-        if (ledHist) {
-          bool ledSignalPresent = (ledHist->getEntries() > 0);
-          if (ledSignalPresent)
-            vtmpflags[fLED]._state = flag::fBAD;
-          else
-            vtmpflags[fLED]._state = flag::fGOOD;
+      const bool isHBHE = utilities::isFEDHBHE(eid);
+      const bool isHF = utilities::isFEDHF(eid);
+      const bool isHO = utilities::isFEDHO(eid) || eid.isVMEid();
+
+      if (isHBHE || isHF || isHO) {
+        const std::string ledBase = _subsystem + "/" + _taskname + "/CU_LED/CU_LED_CUCountvsLS/Subdet/";
+        const std::string laserBase = _subsystem + "/" + _taskname + "/CU_Laser/CU_LASER_CUCountvsLS/Subdet/";
+
+        // LED CU — HBHE checks both HB and HE
+        if (isHBHE) {
+          MonitorElement* ledHB = ig.get(ledBase + "HB");
+          MonitorElement* ledHE = ig.get(ledBase + "HE");
+          if (ledHB || ledHE) {
+            bool signal =
+                (ledHB && ledHB->getBinContent(_currentLS) > 0) || (ledHE && ledHE->getBinContent(_currentLS) > 0);
+            vtmpflags[fLED]._state = signal ? flag::fBAD : flag::fGOOD;
+          } else {
+            vtmpflags[fLED]._state = flag::fNA;
+          }
         } else {
-          vtmpflags[fLED]._state = flag::fNA;
+          const std::string subdet = isHF ? "HF" : "HO";
+          MonitorElement* ledHist = ig.get(ledBase + subdet);
+          vtmpflags[fLED]._state =
+              ledHist ? ((ledHist->getBinContent(_currentLS) > 0) ? flag::fBAD : flag::fGOOD) : flag::fNA;
+        }
+
+        // Laser CU — HBHE checks both HB and HE
+        if (isHBHE) {
+          MonitorElement* laserHB = ig.get(laserBase + "HB");
+          MonitorElement* laserHE = ig.get(laserBase + "HE");
+          if (laserHB || laserHE) {
+            bool signal = (laserHB && laserHB->getBinContent(_currentLS) > 0) ||
+                          (laserHE && laserHE->getBinContent(_currentLS) > 0);
+            vtmpflags[fLASER]._state = signal ? flag::fBAD : flag::fGOOD;
+          } else {
+            vtmpflags[fLASER]._state = flag::fNA;
+          }
+        } else {
+          const std::string subdet = isHF ? "HF" : "HO";
+          MonitorElement* laserHist = ig.get(laserBase + subdet);
+          vtmpflags[fLASER]._state =
+              laserHist ? ((laserHist->getBinContent(_currentLS) > 0) ? flag::fBAD : flag::fGOOD) : flag::fNA;
+        }
+
+        // Pin Diode (LaserMon) — HBHE only
+        if (isHBHE) {
+          MonitorElement* pinDiodeHist = ig.get(_subsystem + "/" + _taskname + "/PinDiodeMon/sumQvsLS/sumQvsLS");
+          vtmpflags[fPinDiode]._state =
+              pinDiodeHist ? ((pinDiodeHist->getBinContent(_currentLS) > 2000) ? flag::fBAD : flag::fGOOD) : flag::fNA;
+        } else {
+          vtmpflags[fPinDiode]._state = flag::fNA;
+        }
+
+        // Raddam CU — HF only
+        if (isHF) {
+          MonitorElement* raddamHist =
+              ig.get(_subsystem + "/" + _taskname + "/CU_Raddam/CU_Raddam_CUCountvsLS/CU_Raddam_CUCountvsLS");
+          vtmpflags[fRADDAM]._state =
+              raddamHist ? ((raddamHist->getBinContent(_currentLS) > 0) ? flag::fBAD : flag::fGOOD) : flag::fNA;
+        } else {
+          vtmpflags[fRADDAM]._state = flag::fNA;
         }
       } else {
         vtmpflags[fLED]._state = flag::fNA;
+        vtmpflags[fLASER]._state = flag::fNA;
+        vtmpflags[fPinDiode]._state = flag::fNA;
+        vtmpflags[fRADDAM]._state = flag::fNA;
       }
 
       // push all the flags for this crate
+      lssum._vflags.push_back(vtmpflags);
+    }
+
+    // In addition to crate flags, also push FED-based flags for this LS
+    for (std::vector<uint32_t>::const_iterator it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
+      HcalElectronicsId eid(*it);
+
+      // ZDC: skip detailed monitoring entirely (crate2fed-based, no emap lookup)
+      if (utilities::isFEDZDC(eid)) {
+        for (std::vector<flag::Flag>::iterator ft = vtmpflags.begin(); ft != vtmpflags.end(); ++ft)
+          ft->reset();
+        lssum._vflags.push_back(vtmpflags);
+        continue;
+      }
+
+      // reset flags to NA
+      for (std::vector<flag::Flag>::iterator ft = vtmpflags.begin(); ft != vtmpflags.end(); ++ft)
+        ft->reset();
+
+      if (_xDigiSize.get(eid) > 0)
+        vtmpflags[fDigiSize]._state = flag::fBAD;
+      else
+        vtmpflags[fDigiSize]._state = flag::fGOOD;
+
+      // NChsHF is only relevant for HF FEDs
+      if (utilities::isFEDHF(eid)) {
+        if (_xNChs.get(eid) != _xNChsNominal.get(eid))
+          vtmpflags[fNChsHF]._state = flag::fBAD;
+        else
+          vtmpflags[fNChsHF]._state = flag::fGOOD;
+      } else {
+        vtmpflags[fNChsHF]._state = flag::fNA;
+      }
+      if (unknownIdsPresent)
+        vtmpflags[fUnknownIds]._state = flag::fBAD;
+      else
+        vtmpflags[fUnknownIds]._state = flag::fGOOD;
+
+      // Determine subdetector category directly from FED number — no emap lookup.
+      // crateListHF = {22,29,32}, crateListHO = {23,26,27,38}, VME crates are HO.
+      // HBHE crates serve both HB and HE: check both subdet histograms and OR the results.
+      const bool isHBHE = utilities::isFEDHBHE(eid);
+      const bool isHF = utilities::isFEDHF(eid);
+      const bool isHO = utilities::isFEDHO(eid) || eid.isVMEid();
+
+      if (isHBHE || isHF || isHO) {
+        const std::string ledBase = _subsystem + "/" + _taskname + "/CU_LED/CU_LED_CUCountvsLS/Subdet/";
+        const std::string laserBase = _subsystem + "/" + _taskname + "/CU_Laser/CU_LASER_CUCountvsLS/Subdet/";
+
+        // LED CU — per-subdetector; HBHE checks both HB and HE
+        if (isHBHE) {
+          MonitorElement* ledHB = ig.get(ledBase + "HB");
+          MonitorElement* ledHE = ig.get(ledBase + "HE");
+          if (ledHB || ledHE) {
+            bool signal =
+                (ledHB && ledHB->getBinContent(_currentLS) > 0) || (ledHE && ledHE->getBinContent(_currentLS) > 0);
+            vtmpflags[fLED]._state = signal ? flag::fBAD : flag::fGOOD;
+          } else {
+            vtmpflags[fLED]._state = flag::fNA;
+          }
+        } else {
+          const std::string subdet = isHF ? "HF" : "HO";
+          MonitorElement* ledHist = ig.get(ledBase + subdet);
+          vtmpflags[fLED]._state =
+              ledHist ? ((ledHist->getBinContent(_currentLS) > 0) ? flag::fBAD : flag::fGOOD) : flag::fNA;
+        }
+
+        // Laser CU — per-subdetector; HBHE checks both HB and HE
+        if (isHBHE) {
+          MonitorElement* laserHB = ig.get(laserBase + "HB");
+          MonitorElement* laserHE = ig.get(laserBase + "HE");
+          if (laserHB || laserHE) {
+            bool signal = (laserHB && laserHB->getBinContent(_currentLS) > 0) ||
+                          (laserHE && laserHE->getBinContent(_currentLS) > 0);
+            vtmpflags[fLASER]._state = signal ? flag::fBAD : flag::fGOOD;
+          } else {
+            vtmpflags[fLASER]._state = flag::fNA;
+          }
+        } else {
+          const std::string subdet = isHF ? "HF" : "HO";
+          MonitorElement* laserHist = ig.get(laserBase + subdet);
+          vtmpflags[fLASER]._state =
+              laserHist ? ((laserHist->getBinContent(_currentLS) > 0) ? flag::fBAD : flag::fGOOD) : flag::fNA;
+        }
+
+        // Pin Diode (LaserMon) — HBHE only
+        if (isHBHE) {
+          MonitorElement* pinDiodeHist = ig.get(_subsystem + "/" + _taskname + "/PinDiodeMon/sumQvsLS/sumQvsLS");
+          vtmpflags[fPinDiode]._state =
+              pinDiodeHist ? ((pinDiodeHist->getBinContent(_currentLS) > 2000) ? flag::fBAD : flag::fGOOD) : flag::fNA;
+        } else {
+          vtmpflags[fPinDiode]._state = flag::fNA;
+        }
+
+        // Raddam CU — HF only
+        if (isHF) {
+          MonitorElement* raddamHist =
+              ig.get(_subsystem + "/" + _taskname + "/CU_Raddam/CU_Raddam_CUCountvsLS/CU_Raddam_CUCountvsLS");
+          vtmpflags[fRADDAM]._state =
+              raddamHist ? ((raddamHist->getBinContent(_currentLS) > 0) ? flag::fBAD : flag::fGOOD) : flag::fNA;
+        } else {
+          vtmpflags[fRADDAM]._state = flag::fNA;
+        }
+      } else {
+        vtmpflags[fLED]._state = flag::fNA;
+        vtmpflags[fLASER]._state = flag::fNA;
+        vtmpflags[fPinDiode]._state = flag::fNA;
+        vtmpflags[fRADDAM]._state = flag::fNA;
+      }
+
+      // push all the flags for this FED
       lssum._vflags.push_back(vtmpflags);
     }
 
@@ -240,7 +394,10 @@ namespace hcaldqm {
     vflagsPerLS[fDigiSize] = flag::Flag("DigiSize");
     vflagsPerLS[fNChsHF] = flag::Flag("NChsHF");
     vflagsPerLS[fUnknownIds] = flag::Flag("UnknownIds");
-    vflagsPerLS[fLED] = flag::Flag("LEDMisfire");
+    vflagsPerLS[fLED] = flag::Flag("LedMonCU");
+    vflagsPerLS[fRADDAM] = flag::Flag("RaddamMon");
+    vflagsPerLS[fLASER] = flag::Flag("LaserMonCU");
+    vflagsPerLS[fPinDiode] = flag::Flag("LaserMon");
     vflagsPerRun[fDigiSize] = flag::Flag("DigiSize");
     vflagsPerRun[fNChsHF] = flag::Flag("NChsHF");
     vflagsPerRun[fUniHF - nLSFlags + 1] = flag::Flag("UniSlotHF");
@@ -264,6 +421,25 @@ namespace hcaldqm {
                                   new quantity::ValueQuantity(quantity::fState),
                                   0);
     cSummaryvsLS_Crate.book(ib, _emap, _subsystem);
+
+    // Also initialize FED-based Summary vs LS containers
+    ContainerSingle2D cSummaryvsLS_FEDSummary;
+    Container2D cSummaryvsLS_FED;
+    cSummaryvsLS_FEDSummary.initialize(_name,
+                                       "SummaryvsLS_FED",
+                                       new quantity::LumiSection(_maxProcessedLS),
+                                       new quantity::FEDQuantity(_vFEDs),
+                                       new quantity::ValueQuantity(quantity::fState),
+                                       0);
+    cSummaryvsLS_FED.initialize(_name,
+                                "SummaryvsLS_FED",
+                                hashfunctions::fFED,
+                                new quantity::LumiSection(_maxProcessedLS),
+                                new quantity::FlagQuantity(vflagsPerLS),
+                                new quantity::ValueQuantity(quantity::fState),
+                                0);
+    cSummaryvsLS_FED.book(ib, _emap, _subsystem);
+    cSummaryvsLS_FEDSummary.book(ib, _subsystem);
 
     // INITIALIZE CONTAINERS WE NEED TO LOAD or BOOK
     Container2D cOccupancyCut_depth;
@@ -348,6 +524,7 @@ namespace hcaldqm {
       // skip monitoring for ZDC crate for now (Oct. 1 2023), the Hcal DQM group need to discuss with the ZDC group on the monitoring flags settings.
       if (HcalGenericDetId(_emap->lookup(eid)).isHcalZDCDetId()) {
         sumflags.push_back(fSumRun);
+        icrate++;
         continue;
       }
 
@@ -386,6 +563,28 @@ namespace hcaldqm {
 
       //	 increment fed
       icrate++;
+    }
+
+    // Additionally, fill FED-based Summary vs LS using the FED flags appended after crates per LS
+    const int numCrates = static_cast<int>(_vhashCrates.size());
+    int ifed = 0;
+    for (auto& it_fed : _vhashFEDs) {
+      HcalElectronicsId eid(it_fed);
+
+      // Iterate over each LS and fill per-flag and single-state FED summaries
+      for (std::vector<LSSummary>::const_iterator itls = _vflagsLS.begin(); itls != _vflagsLS.end(); ++itls) {
+        int iflag = 0;
+        flag::Flag fSumLS("DIGI");
+        const int idx = numCrates + ifed;  // FED flags were appended after crate flags
+        for (std::vector<flag::Flag>::const_iterator ft = itls->_vflags[idx].begin(); ft != itls->_vflags[idx].end();
+             ++ft) {
+          cSummaryvsLS_FED.setBinContent(eid, itls->_LS, int(iflag), ft->_state);
+          fSumLS += (*ft);
+          iflag++;
+        }
+        cSummaryvsLS_FEDSummary.setBinContent(eid, itls->_LS, fSumLS._state);
+      }
+      ifed++;
     }
 
     return sumflags;
