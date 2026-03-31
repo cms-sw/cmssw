@@ -1,4 +1,4 @@
-#include "FWCore/Services/interface/ExternalRandomNumberGeneratorService.h"
+#include "GeneratorInterface/Core/interface/ExternalRandomNumberGeneratorService.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"

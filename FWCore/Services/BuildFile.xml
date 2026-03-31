@@ -1,4 +1,3 @@
-<use name="SimDataFormats/RandomEngine"/>
 <use name="FWCore/AbstractServices"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
@@ -8,7 +7,6 @@
 <use name="tinyxml2"/>
 <use name="rootcore"/>
 <use name="roothistmatrix"/>
-<use name="clhep"/>
 <export>
   <lib name="1"/>
 </export>
