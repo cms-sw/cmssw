@@ -7,4 +7,3 @@ HLTTiclLayerTileSequence = cms.Sequence(hltTiclLayerTileProducer)
 
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 ticl_barrel.toReplaceWith(HLTTiclLayerTileSequence, cms.Sequence(hltTiclLayerTileProducer+hltTiclLayerTileBarrelProducer))
-

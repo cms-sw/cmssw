@@ -7,7 +7,6 @@ hltFilteredLayerClustersCLUE3DBarrel = cms.EDProducer("FilteredLayerClustersProd
     iteration_label = cms.string('CLUE3DBarrel'),
     max_cluster_size = cms.int32(9999),
     max_layerId = cms.int32(9999),
-    mightGet = cms.optional.untracked.vstring,
     min_cluster_size = cms.int32(0),
     min_layerId = cms.int32(0),
     algo_number = cms.vint32(10, 11)
