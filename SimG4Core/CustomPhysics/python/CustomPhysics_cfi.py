@@ -11,6 +11,9 @@ customPhysicsSetup = cms.PSet(
     processesDef = cms.FileInPath('SimG4Core/CustomPhysics/data/RhadronProcessList.txt'),
     amplitude = cms.double(100.0), ##
 
+    # Path to pythia arguments for rhadron decay
+    RhadronPythiaDecayerCommandFile = cms.FileInPath('SimG4Core/CustomPhysics/data/RhadronPythiaDecayerCommands.txt'),
+
     # R-hadron physics setup
     rhadronPhysics = cms.bool(True),
     resonant = cms.bool(False),
