@@ -1,5 +1,5 @@
-#ifndef TrivialSerialisation_Common_interface_Reader_h
-#define TrivialSerialisation_Common_interface_Reader_h
+#ifndef HeterogeneousCore_TrivialSerialisation_interface_Reader_h
+#define HeterogeneousCore_TrivialSerialisation_interface_Reader_h
 
 #include <vector>
 #include <span>
@@ -9,10 +9,12 @@
 #include "DataFormats/TrivialSerialisation/interface/MemoryCopyTraits.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/AnyBuffer.h"
+#include "HeterogeneousCore/TrivialSerialisation/interface/Common.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/ReaderBase.h"
 
 namespace ngt {
 
+  // Reader for host products: extracts properties and memory regions from a Wrapper<T>.
   template <typename T>
   class Reader : public ReaderBase {
     static_assert(ngt::HasMemoryCopyTraits<T>, "No specialization of MemoryCopyTraits found for type T");
@@ -20,22 +22,11 @@ namespace ngt {
   public:
     using WrapperType = edm::Wrapper<T>;
 
-    Reader(WrapperType const& wrapper) : ReaderBase(&wrapper) {}
+    explicit Reader(WrapperType const& wrapper) : ReaderBase(&wrapper) {}
 
-    ngt::AnyBuffer parameters() const override {
-      if constexpr (not ngt::HasTrivialCopyProperties<T>) {
-        // if ngt::MemoryCopyTraits<T>::properties(...) is not declared, do not call it.
-        return {};
-      } else {
-        // if ngt::MemoryCopyTraits<T>::properties(...) is declared, call it and wrap the result in an ngt::AnyBuffer
-        return ngt::AnyBuffer(ngt::MemoryCopyTraits<T>::properties(object()));
-      }
-    }
+    ngt::AnyBuffer parameters() const override { return ngt::get_properties<T>(object()); }
 
-    std::vector<std::span<const std::byte>> regions() const override {
-      static_assert(ngt::HasRegions<T>);
-      return ngt::MemoryCopyTraits<T>::regions(object());
-    }
+    std::vector<std::span<const std::byte>> regions() const override { return ngt::get_regions<T>(object()); }
 
   private:
     const T& object() const {
@@ -49,4 +40,4 @@ namespace ngt {
 
 }  // namespace ngt
 
-#endif  // TrivialSerialisation_Common_interface_Reader_h
+#endif  // HeterogeneousCore_TrivialSerialisation_interface_Reader_h

@@ -41,7 +41,7 @@ namespace reco {
 
     // Constructor from clusters
     template <typename TQueue>
-    explicit TrackingRecHitDevice(TQueue queue, SiPixelClustersDevice<TDev> const &clusters)
+    explicit TrackingRecHitDevice(TQueue queue, SiPixelClustersDevice<TDev> const& clusters)
         : HitPortableCollectionDevice<TDev>(queue, clusters.nClusters(), clusters.view().metadata().size()),
           offsetBPIX2_{clusters.offsetBPIX2()} {
       auto hitsView = this->view().trackingHits();
@@ -78,4 +78,40 @@ namespace reco {
   };
 }  // namespace reco
 
-#endif  // DataFormats_RecHits_interface_TrackingRecHitSoADevice_h
+namespace ngt {
+
+  template <typename TDev>
+  struct MemoryCopyTraits<reco::TrackingRecHitDevice<TDev>> {
+    using value_type = reco::TrackingRecHitDevice<TDev>;
+
+    struct Properties {
+      uint32_t nHits;
+      uint32_t nModules;
+    };
+
+    static Properties properties(value_type const& object) { return {object.nHits(), object.nModules()}; }
+
+    template <typename TQueue>
+      requires(alpaka::isQueue<TQueue>)
+    static void initialize(TQueue& queue, value_type& object, Properties const& prop) {
+      // Replace the default-constructed empty object with one where the buffer
+      // has been allocated in device global memory.
+      object = value_type(queue, prop.nHits, prop.nModules);
+    }
+
+    static std::vector<std::span<std::byte>> regions(value_type& object) {
+      std::byte* address = reinterpret_cast<std::byte*>(object.buffer().data());
+      size_t size = alpaka::getExtentProduct(object.buffer());
+      return {{address, size}};
+    }
+
+    static std::vector<std::span<const std::byte>> regions(value_type const& object) {
+      const std::byte* address = reinterpret_cast<const std::byte*>(object.buffer().data());
+      size_t size = alpaka::getExtentProduct(object.buffer());
+      return {{address, size}};
+    }
+  };
+
+}  // namespace ngt
+
+#endif  // DataFormats_TrackingRecHitSoA_interface_TrackingRecHitSoADevice_h
