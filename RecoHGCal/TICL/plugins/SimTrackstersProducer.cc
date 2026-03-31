@@ -427,7 +427,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                               layerClustersTimes,
                               rhtools_.getPositionLayer(rhtools_.lastLayerEE(doNose_)).z(),
                               rhtools_,
-                              computeLocalTime_, 
+                              computeLocalTime_,
                               true,
                               false,
                               doBarrel_);

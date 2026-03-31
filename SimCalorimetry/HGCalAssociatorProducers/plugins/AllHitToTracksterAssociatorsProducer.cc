@@ -17,7 +17,6 @@
 template <typename HIT>
 class AllHitToTracksterAssociatorsProducerT : public edm::global::EDProducer<> {
 public:
-
   using multiCollectionT = edm::RefProdVector<std::vector<HIT>>;
 
   explicit AllHitToTracksterAssociatorsProducerT(const edm::ParameterSet&);
@@ -52,7 +51,9 @@ AllHitToTracksterAssociatorsProducerT<HIT>::AllHitToTracksterAssociatorsProducer
 }
 
 template <typename HIT>
-void AllHitToTracksterAssociatorsProducerT<HIT>::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
+void AllHitToTracksterAssociatorsProducerT<HIT>::produce(edm::StreamID,
+                                                         edm::Event& iEvent,
+                                                         const edm::EventSetup&) const {
   using namespace edm;
 
   Handle<std::vector<reco::CaloCluster>> layer_clusters;
@@ -71,12 +72,10 @@ void AllHitToTracksterAssociatorsProducerT<HIT>::produce(edm::StreamID, edm::Eve
   iEvent.getByToken(hitMapToken_, hitMap);
 
   if (!iEvent.getHandle(hitsToken_)) {
-    edm::LogWarning("AllHitToTracksterAssociatorsProducer") 
-        << "Missing edm::RefProdVector<RecHitCollection>.";
+    edm::LogWarning("AllHitToTracksterAssociatorsProducer") << "Missing edm::RefProdVector<RecHitCollection>.";
     for (const auto& tracksterToken : tracksterCollectionTokens_) {
       iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), "hitTo" + tracksterToken.first);
       iEvent.put(std::make_unique<ticl::AssociationMap<ticl::mapWithFraction>>(), tracksterToken.first + "ToHit");
-    
     }
     return;
   }
@@ -153,8 +152,7 @@ void AllHitToTracksterAssociatorsProducerT<HIT>::fillDescriptions(edm::Configura
     desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "RefProdVectorHGCRecHitCollection"));
     descriptions.add("AllHitToTracksterAssociatorsProducer", desc);
   } else if constexpr (std::is_same_v<HIT, reco::PFRecHit>) {
-    desc.add<std::vector<edm::InputTag>>("tracksterCollections",
-                                         {edm::InputTag("ticlTrackstersCLUE3DBarrel")});
+    desc.add<std::vector<edm::InputTag>>("tracksterCollections", {edm::InputTag("ticlTrackstersCLUE3DBarrel")});
     desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "barrelRecHitMap"));
     desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "RefProdVectorPFRecHitCollection"));
     descriptions.add("AllHitToBarrelTracksterAssociatorsProducer", desc);

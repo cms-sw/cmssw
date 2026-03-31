@@ -20,7 +20,6 @@
 template <typename HIT>
 class AllTracksterToSimTracksterAssociatorsByHitsProducerT : public edm::global::EDProducer<> {
 public:
-
   using multiCollectionT = edm::RefProdVector<std::vector<HIT>>;
 
   explicit AllTracksterToSimTracksterAssociatorsByHitsProducerT(const edm::ParameterSet&);
@@ -103,12 +102,12 @@ AllTracksterToSimTracksterAssociatorsByHitsProducerT<HIT>::AllTracksterToSimTrac
 
 template <typename HIT>
 void AllTracksterToSimTracksterAssociatorsByHitsProducerT<HIT>::produce(edm::StreamID,
-                                                                       edm::Event& iEvent,
-                                                                       const edm::EventSetup&) const {
+                                                                        edm::Event& iEvent,
+                                                                        const edm::EventSetup&) const {
   using namespace edm;
 
   if (!iEvent.getHandle(hitsToken_).isValid()) {
-    edm::LogWarning("AllTracksterToSimTracksterAssociatorsByHitsProducer") 
+    edm::LogWarning("AllTracksterToSimTracksterAssociatorsByHitsProducer")
         << "Missing MultiRecHitCollection. Association maps will be empty.";
     for (const auto& tracksterToken : tracksterCollectionTokens_) {
       for (const auto& simTracksterToken : simTracksterCollectionTokens_) {
@@ -129,8 +128,7 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducerT<HIT>::produce(edm::Str
   const auto hits = iEvent.get(hitsToken_);
   for (std::size_t index = 0; const auto& hitCollection : hits) {
     if (hitCollection->empty()) {
-      LogDebug("AllTracksterToSimTracksterAssociatorsByHitsProducer")
-          << "RecHitCollections #" << index << " is empty.";
+      LogDebug("AllTracksterToSimTracksterAssociatorsByHitsProducer") << "RecHitCollections #" << index << " is empty.";
     }
     index++;
   }
@@ -499,7 +497,9 @@ void AllTracksterToSimTracksterAssociatorsByHitsProducerT<HIT>::fillDescriptions
 }
 
 // Define this as a plug-in
-using AllTracksterToSimTracksterAssociatorsByHitsProducer = AllTracksterToSimTracksterAssociatorsByHitsProducerT<HGCRecHit>;
+using AllTracksterToSimTracksterAssociatorsByHitsProducer =
+    AllTracksterToSimTracksterAssociatorsByHitsProducerT<HGCRecHit>;
 DEFINE_FWK_MODULE(AllTracksterToSimTracksterAssociatorsByHitsProducer);
-using AllBarrelTracksterToSimTracksterAssociatorsByHitsProducer = AllTracksterToSimTracksterAssociatorsByHitsProducerT<reco::PFRecHit>;
+using AllBarrelTracksterToSimTracksterAssociatorsByHitsProducer =
+    AllTracksterToSimTracksterAssociatorsByHitsProducerT<reco::PFRecHit>;
 DEFINE_FWK_MODULE(AllBarrelTracksterToSimTracksterAssociatorsByHitsProducer);

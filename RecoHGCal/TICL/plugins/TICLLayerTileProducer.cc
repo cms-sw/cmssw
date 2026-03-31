@@ -70,9 +70,9 @@ void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
   }
 
   edm::Handle<std::vector<reco::CaloCluster>> cluster_h;
-  if (doNose_) 
+  if (doNose_)
     evt.getByToken(clusters_HFNose_token_, cluster_h);
-   else 
+  else
     evt.getByToken(clusters_token_, cluster_h);
 
   const auto &layerClusters = *cluster_h;
@@ -80,7 +80,7 @@ void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
   for (auto const &lc : layerClusters) {
     const auto firstHitDetId = lc.hitsAndFractions()[0].first;
     int layer = rhtools_.getLayerWithOffset(firstHitDetId);
-    bool isBarrelLC = rhtools_.isBarrel(firstHitDetId); 
+    bool isBarrelLC = rhtools_.isBarrel(firstHitDetId);
     if (!isBarrelLC) {
       layer += rhtools_.lastLayer(doNose_) * ((rhtools_.zside(firstHitDetId) + 1) >> 1) - 1;
     }
@@ -102,7 +102,7 @@ void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
   if (doNose_)
     evt.put(std::move(resultHFNose));
   else {
-    if (doBarrel_) 
+    if (doBarrel_)
       evt.put(std::move(resultBarrel), "ticlLayerTilesBarrel");
     else
       evt.put(std::move(result));

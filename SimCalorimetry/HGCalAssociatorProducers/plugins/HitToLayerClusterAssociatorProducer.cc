@@ -29,8 +29,8 @@ HitToLayerClusterAssociatorProducerT<HIT>::~HitToLayerClusterAssociatorProducerT
 
 template <typename HIT>
 void HitToLayerClusterAssociatorProducerT<HIT>::produce(edm::StreamID,
-                                                       edm::Event &iEvent,
-                                                       const edm::EventSetup &iSetup) const {
+                                                        edm::Event &iEvent,
+                                                        const edm::EventSetup &iSetup) const {
   using namespace edm;
 
   Handle<std::vector<reco::CaloCluster>> layer_clusters;
@@ -79,10 +79,8 @@ void HitToLayerClusterAssociatorProducerT<HIT>::fillDescriptions(edm::Configurat
   } else if constexpr (std::is_same_v<HIT, reco::PFRecHit>) {
     desc.add<edm::InputTag>("layer_clusters", edm::InputTag("barrelLayerClusters"));
     desc.add<edm::InputTag>("hitMap", edm::InputTag("recHitMapProducer", "barrelRecHitMap"));
-    desc.add<std::vector<edm::InputTag>>("hits",
-                                         {edm::InputTag("particleFlowRecHitECAL"),
-                                          edm::InputTag("particleFlowRecHitHBHE")});
+    desc.add<std::vector<edm::InputTag>>(
+        "hits", {edm::InputTag("particleFlowRecHitECAL"), edm::InputTag("particleFlowRecHitHBHE")});
     descriptions.add("hitToBarrelLayerClusterAssociator", desc);
   }
 }
-

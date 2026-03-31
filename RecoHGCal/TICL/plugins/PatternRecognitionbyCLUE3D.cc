@@ -156,7 +156,7 @@ void PatternRecognitionbyCLUE3D<TILES>::setGeometry(hgcal::RecHitTools const &rh
       auto x2 = std::pow(this->rhtools_->getPositionLayer(i, false, true).x(), 2);
       auto y2 = std::pow(this->rhtools_->getPositionLayer(i, false, true).y(), 2);
       layersPosZ_.push_back(std::sqrt(x2 + y2));
-    } else { 
+    } else {
       layersPosZ_.push_back(static_cast<float>(this->rhtools_->getPositionLayer(i + 1).z()));
     }
   }
@@ -191,7 +191,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
   clusters_.resize(2 * rhtools->lastLayer(false));
   if constexpr (isBarrel_)
     clusters_.resize(rhtools->lastLayerBarrel() + 1);
-  else 
+  else
     clusters_.resize(2 * rhtools->lastLayer(false));
   std::vector<std::pair<int, int>> layerIdx2layerandSoa;  //used everywhere also to propagate cluster masking
 
@@ -276,7 +276,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     clusters_[layer].cells.push_back(lc.hitsAndFractions().size());
     if constexpr (!isBarrel_) {
       clusters_[layer].algoId.push_back(lc.algo() - reco::CaloCluster::hgcal_em);
-    } else { 
+    } else {
       clusters_[layer].algoId.push_back(lc.algo() - reco::CaloCluster::barrel_em);
     }
     clusters_[layer].isSilicon.push_back(rhtools->isSilicon(detId));
@@ -294,8 +294,7 @@ void PatternRecognitionbyCLUE3D<TILES>::makeTracksters(
     clusters_[layer].followers.resize(clusters_[layer].x.size());
   }
 
-  int maxLayer = (isBarrel_) ? rhtools->lastLayerBarrel() : 
-                               2 * static_cast<int>(rhtools->lastLayer(false)) - 1;
+  int maxLayer = (isBarrel_) ? rhtools->lastLayerBarrel() : 2 * static_cast<int>(rhtools->lastLayer(false)) - 1;
   std::vector<int> numberOfClustersPerLayer(maxLayer, 0);
   for (int i = 0; i <= maxLayer; i++) {
     calculateLocalDensity(input.tiles, i, layerIdx2layerandSoa);
