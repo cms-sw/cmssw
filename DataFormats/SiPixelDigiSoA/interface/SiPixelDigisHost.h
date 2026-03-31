@@ -11,10 +11,23 @@
 // See: https://github.com/cms-sw/cmssw/pull/40465#discussion_r1067364306
 class SiPixelDigisHost : public PortableHostCollection<SiPixelDigisSoA> {
 public:
-  SiPixelDigisHost(edm::Uninitialized) : PortableHostCollection<SiPixelDigisSoA>{edm::kUninitialized} {}
+  explicit SiPixelDigisHost(edm::Uninitialized) : PortableHostCollection<SiPixelDigisSoA>{edm::kUninitialized} {}
 
+  // Constructor for code that does not use alpaka explicitly, using the global
+  // "host" object returned by cms::alpakatools::host().
+  // Construct the object in pageable host memory.
+  explicit SiPixelDigisHost(size_t maxFedWords)
+      : PortableHostCollection<SiPixelDigisSoA>(cms::alpakatools::host(), maxFedWords + 1) {}
+
+  // Construct the object in pageable host memory.
+  explicit SiPixelDigisHost(alpaka_common::DevHost const& host, size_t maxFedWords)
+      : PortableHostCollection<SiPixelDigisSoA>(host, maxFedWords + 1) {}
+
+  // Construct the object in pinned host memory associated to the given work
+  // queue, accessible by the queue's device.
   template <typename TQueue>
-  explicit SiPixelDigisHost(size_t maxFedWords, TQueue queue)
+    requires(alpaka::isQueue<TQueue>)
+  explicit SiPixelDigisHost(TQueue queue, size_t maxFedWords)
       : PortableHostCollection<SiPixelDigisSoA>(queue, maxFedWords + 1) {}
 
   void setNModules(uint32_t nModules) { nModules_h = nModules; }
@@ -40,8 +53,18 @@ namespace ngt {
     static Properties properties(value_type const& object) { return {object.nDigis(), object.nModules()}; }
 
     static void initialize(value_type& object, Properties const& props) {
-      // replace the default-constructed empty object with one where the buffer has been allocated in pageable system memory
-      object = value_type(props.nDigis, cms::alpakatools::host());
+      // Replace the default-constructed empty object with one where the buffer
+      // has been allocated in pageable host memory.
+      object = value_type(cms::alpakatools::host(), props.nDigis);
+      object.setNModules(props.nModules);
+    }
+
+    template <typename TQueue>
+      requires(alpaka::isQueue<TQueue>)
+    static void initialize(TQueue& queue, value_type& object, Properties const& props) {
+      // Replace the default-constructed empty object with one where the buffer
+      // has been allocated in pinned host memory.
+      object = value_type(queue, props.nDigis);
       object.setNModules(props.nModules);
     }
 

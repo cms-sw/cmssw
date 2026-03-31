@@ -1,0 +1,8 @@
+#include "DataFormats/HGCalReco/interface/alpaka/HGCalSoAClustersDeviceCollection.h"
+#include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsExtraDeviceCollection.h"
+#include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsDeviceCollection.h"
+#include "HeterogeneousCore/TrivialSerialisation/interface/alpaka/SerialiserFactoryDevice.h"
+
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(HGCalSoAClustersDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(HGCalSoARecHitsExtraDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(HGCalSoARecHitsDeviceCollection);

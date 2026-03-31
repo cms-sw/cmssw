@@ -21,7 +21,7 @@ namespace cms::alpakatools {
     template <typename TQueue>
     static auto copyAsync(TQueue &queue, SiPixelClustersDevice<TDevice> const &srcData) {
       // SiPixelClustersHost and SiPixelClustersDevice have a capacity larger than the ctor argument by one
-      SiPixelClustersHost dstData(srcData->metadata().size() - 1, queue);
+      SiPixelClustersHost dstData(queue, srcData->metadata().size() - 1);
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
       dstData.setNClusters(srcData.nClusters(), srcData.offsetBPIX2());
 #ifdef GPU_DEBUG  //keeping this untiil copies are in the Tracer
