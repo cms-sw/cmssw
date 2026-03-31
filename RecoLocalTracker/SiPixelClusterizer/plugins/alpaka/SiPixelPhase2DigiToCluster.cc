@@ -139,12 +139,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     for (const auto& det : input) {
       nDigis_ += det.size();
     }
-    digis_d_ = SiPixelDigisSoACollection(nDigis_, iEvent.queue());
+    digis_d_ = SiPixelDigisSoACollection(iEvent.queue(), nDigis_);
 
     if (nDigis_ == 0)
       return;
 
-    SiPixelDigisHost digis_h(nDigis_, iEvent.queue());
+    SiPixelDigisHost digis_h(iEvent.queue(), nDigis_);
 
     uint32_t nDigis = 0;
     for (const auto& det : input) {

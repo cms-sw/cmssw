@@ -1,0 +1,6 @@
+#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigiErrorsSoACollection.h"
+#include "DataFormats/SiPixelDigiSoA/interface/alpaka/SiPixelDigisSoACollection.h"
+#include "HeterogeneousCore/TrivialSerialisation/interface/alpaka/SerialiserFactoryDevice.h"
+
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(SiPixelDigiErrorsSoACollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(SiPixelDigisSoACollection);

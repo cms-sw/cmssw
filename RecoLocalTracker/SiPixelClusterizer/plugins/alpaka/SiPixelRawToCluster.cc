@@ -420,10 +420,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // are no valid pointers to clusters' Collection columns, instantiation
       // of TrackingRecHits fail. Example: workflow 11604.0
 
-      iEvent.emplace(digiPutToken_, 0, iEvent.queue());
       iEvent.emplace(clusterPutToken_, pixelTopology::Phase1::numberOfModules, iEvent.queue());
+      iEvent.emplace(digiPutToken_, iEvent.queue(), 0);
       if (includeErrors_) {
-        iEvent.emplace(digiErrorPutToken_, 0, iEvent.queue());
+        iEvent.emplace(digiErrorPutToken_, iEvent.queue(), 0);
         iEvent.emplace(fmtErrorToken_);
       }
       return;

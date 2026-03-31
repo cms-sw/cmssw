@@ -6,11 +6,10 @@
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
-#include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigiErrorsHost.h"
 #include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigiErrorsDevice.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+#include "DataFormats/SiPixelDigiSoA/interface/SiPixelDigiErrorsHost.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -24,11 +23,8 @@ namespace cms::alpakatools {
   struct CopyToHost<SiPixelDigiErrorsDevice<TDevice>> {
     template <typename TQueue>
     static auto copyAsync(TQueue& queue, SiPixelDigiErrorsDevice<TDevice> const& srcData) {
-      SiPixelDigiErrorsHost dstData(srcData.maxFedWords(), queue);
+      SiPixelDigiErrorsHost dstData(queue, srcData.maxFedWords());
       alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
-#ifdef GPU_DEBUG
-      printf("SiPixelDigiErrorsSoACollection: I'm copying to host.\n");
-#endif
       return dstData;
     }
   };

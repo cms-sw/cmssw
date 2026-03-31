@@ -37,7 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::testDigisSoA {
     }
   };
 
-  void runKernels(SiPixelDigiErrorsSoAView digiErrors_view, Queue& queue) {
+  void runKernels(Queue& queue, SiPixelDigiErrorsSoAView digiErrors_view) {
     uint32_t items = 64;
     uint32_t groups = cms::alpakatools::divide_up_by(digiErrors_view.metadata().size(), items);
     auto workDiv = cms::alpakatools::make_workdiv<Acc1D>(groups, items);
