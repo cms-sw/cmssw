@@ -618,9 +618,11 @@ def addFixedEventsTestingWfs(years, pds, eras):
 
             wf_number = round(float(y) + offset_pd * pds.index(pd) + fixed_events_offset, 7)
             step_name = 'Run' + pd.replace('ParkingDouble','Park2') + y + era + "_10k"
-
+            
+            # With PAT, standard reconstruction
             workflows[wf_number] = ['',[step_name,'HLTDR3_' + y,'RECONANORUN3_reHLT_' + y,'HARVESTRUN3_' + suff + y]]
-
+            # No PAT, for condition validation
+            workflows[round(wf_number + 1e-7,7)] = ['',[step_name,'HLTDR3_' + y,'RECODR3_reHLT_' + y,'HARVESTRUN3_' + suff + y]]
 ## 2025 
 pds  = ['ZeroBias', 'JetMET0', 'EGamma0']
 eras = ['B','C','D']
