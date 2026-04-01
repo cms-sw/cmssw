@@ -157,7 +157,7 @@ void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   edm::Handle<std::vector<Run3ScoutingElectron>> sctEls;
   iEvent.getByToken(scoutingElectronCollection_, sctEls);
   if (sctEls.failedToGet()) {
-    edm::LogWarning("ScoutingMonitoring") << "Run3ScoutingElectron collection not found.";
+    edm::LogWarning("ScoutingElectronTagProbeAnalyzer") << "Run3ScoutingElectron collection not found.";
     return;
   }
 
@@ -167,7 +167,7 @@ void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
 
   // Trigger result
   if (triggerResults.failedToGet()) {
-    edm::LogWarning("ScoutingEGammaCollectionMonitoring") << "Trgger Results not found.";
+    edm::LogWarning("ScoutingElectronTagProbeAnalyzer") << "Trgger Results not found.";
     return;
   }
   int nTriggers = triggerResults->size();
@@ -211,7 +211,7 @@ void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
     }
   }
 
-  edm::LogInfo("ScoutingMonitoring") << "Process Run3ScoutingElectrons: " << sctEls->size();
+  edm::LogInfo("ScoutingElectronTagProbeAnalyzer") << "Process Run3ScoutingElectrons: " << sctEls->size();
 
   // Pt ordered sct electron collection
 
@@ -243,7 +243,7 @@ void ScoutingElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
       math::PtEtaPhiMLorentzVector probe_sct_el(
           sct_el_second.pt(), sct_el_second.eta(), sct_el_second.phi(), sct_el_second.m());
       float invMass = (tag_sct_el + probe_sct_el).mass();
-      edm::LogInfo("ScoutingMonitoring") << "Inv Mass: " << invMass;
+      edm::LogInfo("ScoutingElectronTagProbeAnalyzer") << "Inv Mass: " << invMass;
       if ((80 < invMass) && (invMass < 100)) {
         fillHistograms_resonance(
             histos.resonanceZ, sct_el_second, invMass, legObjects, passBaseDST, second_sct_pt_order);
