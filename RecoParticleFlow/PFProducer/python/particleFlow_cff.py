@@ -49,5 +49,4 @@ run3_common.toModify(particleFlowTmp.PFEGammaFiltersParameters,
 )
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-pp_on_AA.toModify(particleFlowTmp.PFEGammaFiltersParameters, electron_ecalDrivenHademPreselCut = 0.5)
 pp_on_AA.toModify(particleFlowTmp.PFEGammaFiltersParameters.electron_protectionsForJetMET, maxHcalE = 2000)

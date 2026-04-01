@@ -43,7 +43,8 @@ class TFAOTTests(unittest.TestCase):
         config_file = os.path.join(m.group(1), "share", "test_models", "simple", "aot_config.yaml")
         self.assertTrue(os.path.exists(config_file))
 
-        arch = "{0}-pc-linux".format(platform.processor())
+        arch = f"{platform.machine()}-pc-linux"
+
 
         # run the dev workflow
         # create the test model

@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGains_cff import ALCARECOCalibrationTracks,ALCARECOCalibrationTracksRefit
 
 # ------------------------------------------------------------------------------
 # configure a filter to run only on the events selected by TkAlMinBias AlcaReco
@@ -9,19 +10,6 @@ ALCARECOCalMinBiasFilterForSiStripHitEff = hltHighLevel.clone(
     TriggerResultsTag = ("TriggerResults","","RECO")
 )
 
-# ------------------------------------------------------------------------------
-# This is the sequence for track refitting of the track saved by SiStripCalMinBias
-# to have access to transient objects produced during RECO step and not saved
-from Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi import *
-ALCARECOMonitoringTracks = AlignmentTrackSelector.clone(
-    #    src = 'generalTracks',
-    src = 'ALCARECOSiStripCalMinBias',
-    filter = True,
-    applyBasicCuts = True,
-    ptMin = 0.8,
-    nHitMin = 6,
-    chi2nMax = 10.)
-
 # FIXME: the beam-spot should be kept in the AlCaReco (if not already there) and dropped from here
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoTracker.IterativeTracking.InitialStep_cff import *
@@ -30,18 +18,13 @@ from RecoTracker.TrackProducer.TrackRefitter_cfi import *
 from DQM.SiStripCommon.TkHistoMap_cff import *
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
 
-ALCARECOMonitoringTracksRefit = TrackRefitter.clone(
-         src = "ALCARECOMonitoringTracks",
-         NavigationSchool = cms.string("")
-)
-
 # ------------------------------------------------------------------------------
 # refit and BS can be dropped if done together with RECO.
 # track filter can be moved in acalreco if no otehr users
-ALCARECOTrackFilterRefit = cms.Sequence(ALCARECOMonitoringTracks +
-                                        MeasurementTrackerEvent +
-                                        offlineBeamSpot +
-                                        ALCARECOMonitoringTracksRefit)
+ALCARECOTrackFilterRefitForSiStripHitEff = cms.Sequence(ALCARECOCalibrationTracks  +
+                                                        MeasurementTrackerEvent +
+                                                        offlineBeamSpot +
+                                                        ALCARECOCalibrationTracksRefit)
 
 # ------------------------------------------------------------------------------
 # This is the module actually doing the calibration
@@ -52,8 +35,8 @@ ALCARECOSiStripHitEff =  siStripHitEfficiencyWorker.clone(
     addLumi = True,
     commonMode = "siStripDigis:CommonMode",
     addCommonMode= False,
-    combinatorialTracks = "ALCARECOMonitoringTracksRefit",
-    trajectories        = "ALCARECOMonitoringTracksRefit",
+    combinatorialTracks = "ALCARECOCalibrationTracksRefit",
+    trajectories        = "ALCARECOCalibrationTracksRefit",
     siStripClusters     = "siStripClusters",
     siStripDigis        = "siStripDigis",
     trackerEvent        = "MeasurementTrackerEvent",
@@ -90,6 +73,6 @@ MEtoEDMConvertSiStripHitEff = cms.EDProducer("MEtoEDMConverter",
 # The actual sequence
 seqALCARECOPromptCalibProdSiStripHitEfficiency = cms.Sequence(
     ALCARECOCalMinBiasFilterForSiStripHitEff *
-    ALCARECOTrackFilterRefit *
+    ALCARECOTrackFilterRefitForSiStripHitEff *
     ALCARECOSiStripHitEff *
     MEtoEDMConvertSiStripHitEff)

@@ -31,7 +31,7 @@ ScoutingMuonTriggerAnalysis_DoubleMu = DQMEDAnalyzer('ScoutingMuonTriggerAnalyze
     OutputInternalPath = cms.string('/HLT/ScoutingOffline/Muons/L1Efficiency/DoubleMu'), #Output of the root file
     ScoutingMuonCollection = cms.InputTag('hltScoutingMuonPackerVtx'),
     triggerSelection = cms.vstring(["DST_PFScouting_ZeroBias_v*", "DST_PFScouting_DoubleEG_v*", "DST_PFScouting_JetHT_v*"]), #Denominator
-    special_HLT_Menus = cms.vstring(["LumiScan"]), # list of menus to use to reset the trigge selections
+    special_HLT_Menus = cms.vstring(["LumiScan"]), # list of menus to use to reset the trigger selections
     triggerConfiguration = cms.PSet(
         hltResults            = cms.InputTag('TriggerResults','','HLT'),
         l1tResults            = cms.InputTag('','',''),
@@ -39,6 +39,7 @@ ScoutingMuonTriggerAnalysis_DoubleMu = DQMEDAnalyzer('ScoutingMuonTriggerAnalyze
         throw                 = cms.bool(True),
         usePathStatus = cms.bool(False),
     ),
+    hltProcessName = cms.string("HLT"),
     AlgInputTag = cms.InputTag("gtStage2Digis"),
     l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
     l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),

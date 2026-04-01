@@ -47,27 +47,97 @@ void HcalTimeSlewEP::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& 
 }
 
 void HcalTimeSlewEP::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // HcalTimeSlewEP
   edm::ParameterSetDescription desc;
-
-  edm::ParameterSetDescription desc_M2;
-  desc_M2.add<double>("tzero");
-  desc_M2.add<double>("slope");
-  desc_M2.add<double>("tmax");
-  std::vector<edm::ParameterSet> default_M2(1);
-  desc.addVPSet("timeSlewParametersM2", desc_M2, default_M2);
-
-  edm::ParameterSetDescription desc_M3;
-  desc_M3.add<double>("cap");
-  desc_M3.add<double>("tspar0");
-  desc_M3.add<double>("tspar1");
-  desc_M3.add<double>("tspar2");
-  desc_M3.add<double>("tspar0_siPM");
-  desc_M3.add<double>("tspar1_siPM");
-  desc_M3.add<double>("tspar2_siPM");
-  std::vector<edm::ParameterSet> default_M3(1);
-  desc.addVPSet("timeSlewParametersM3", desc_M3, default_M3);
-
-  descriptions.addDefault(desc);
+  desc.add<std::string>("appendToDataLabel", "HBHE");
+  {
+    edm::ParameterSetDescription vpsd1;
+    vpsd1.add<double>("tzero", 23.960177);
+    vpsd1.add<double>("slope", -3.178648);
+    vpsd1.add<double>("tmax", 16.0);
+    std::vector<edm::ParameterSet> temp1;
+    temp1.reserve(3);
+    {
+      edm::ParameterSet temp2;
+      temp2.addParameter<double>("tzero", 23.960177);
+      temp2.addParameter<double>("slope", -3.178648);
+      temp2.addParameter<double>("tmax", 16.0);
+      temp1.push_back(temp2);
+    }
+    {
+      edm::ParameterSet temp2;
+      temp2.addParameter<double>("tzero", 11.977461);
+      temp2.addParameter<double>("slope", -1.5610227);
+      temp2.addParameter<double>("tmax", 10.0);
+      temp1.push_back(temp2);
+    }
+    {
+      edm::ParameterSet temp2;
+      temp2.addParameter<double>("tzero", 9.109694);
+      temp2.addParameter<double>("slope", -1.075824);
+      temp2.addParameter<double>("tmax", 6.25);
+      temp1.push_back(temp2);
+    }
+    desc.addVPSet("timeSlewParametersM2", vpsd1, temp1);
+  }
+  {
+    edm::ParameterSetDescription vpsd1;
+    vpsd1.add<double>("cap", 6.0);
+    vpsd1.add<double>("tspar0", 12.2999);
+    vpsd1.add<double>("tspar1", -2.19142);
+    vpsd1.add<double>("tspar2", 0.0);
+    vpsd1.add<double>("tspar0_siPM", 0.0);
+    vpsd1.add<double>("tspar1_siPM", 0.0);
+    vpsd1.add<double>("tspar2_siPM", 0.0);
+    std::vector<edm::ParameterSet> temp1;
+    temp1.reserve(4);
+    {
+      edm::ParameterSet temp2;
+      temp2.addParameter<double>("cap", 6.0);
+      temp2.addParameter<double>("tspar0", 12.2999);
+      temp2.addParameter<double>("tspar1", -2.19142);
+      temp2.addParameter<double>("tspar2", 0.0);
+      temp2.addParameter<double>("tspar0_siPM", 0.0);
+      temp2.addParameter<double>("tspar1_siPM", 0.0);
+      temp2.addParameter<double>("tspar2_siPM", 0.0);
+      temp1.push_back(temp2);
+    }
+    {
+      edm::ParameterSet temp2;
+      temp2.addParameter<double>("cap", 6.0);
+      temp2.addParameter<double>("tspar0", 15.5);
+      temp2.addParameter<double>("tspar1", -3.2);
+      temp2.addParameter<double>("tspar2", 32.0);
+      temp2.addParameter<double>("tspar0_siPM", 0.0);
+      temp2.addParameter<double>("tspar1_siPM", 0.0);
+      temp2.addParameter<double>("tspar2_siPM", 0.0);
+      temp1.push_back(temp2);
+    }
+    {
+      edm::ParameterSet temp2;
+      temp2.addParameter<double>("cap", 6.0);
+      temp2.addParameter<double>("tspar0", 12.2999);
+      temp2.addParameter<double>("tspar1", -2.19142);
+      temp2.addParameter<double>("tspar2", 0.0);
+      temp2.addParameter<double>("tspar0_siPM", 0.0);
+      temp2.addParameter<double>("tspar1_siPM", 0.0);
+      temp2.addParameter<double>("tspar2_siPM", 0.0);
+      temp1.push_back(temp2);
+    }
+    {
+      edm::ParameterSet temp2;
+      temp2.addParameter<double>("cap", 6.0);
+      temp2.addParameter<double>("tspar0", 12.2999);
+      temp2.addParameter<double>("tspar1", -2.19142);
+      temp2.addParameter<double>("tspar2", 0.0);
+      temp2.addParameter<double>("tspar0_siPM", 0.0);
+      temp2.addParameter<double>("tspar1_siPM", 0.0);
+      temp2.addParameter<double>("tspar2_siPM", 0.0);
+      temp1.push_back(temp2);
+    }
+    desc.addVPSet("timeSlewParametersM3", vpsd1, temp1);
+  }
+  descriptions.addWithDefaultLabel(desc);
 }
 
 // ------------ method called to produce the data  ------------

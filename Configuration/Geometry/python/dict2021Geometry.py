@@ -170,6 +170,34 @@ commonDict = {
         ],
         "era" : "run3_common, stage2L1Trigger_2021",
     },
+    "O10" : {
+        1 : [
+            'Geometry/CMSCommonData/data/materials/2021/v4/materials.xml',
+            'Geometry/TrackerCommonData/data/trackermaterial/2021/v2/trackermaterial.xml',
+            'Geometry/CMSCommonData/data/rotations.xml',
+            'Geometry/CMSCommonData/data/extend/v4/cmsextent.xml',
+            'Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml',
+            'Geometry/CMSCommonData/data/cms/2021/v3/cms.xml',
+            'Geometry/CMSCommonData/data/cmsMother.xml',
+            'Geometry/CMSCommonData/data/eta3/etaMax.xml',
+            'Geometry/CMSCommonData/data/cmsTracker.xml',
+            'Geometry/CMSCommonData/data/caloBase/2017/v1/caloBase.xml',
+            'Geometry/CMSCommonData/data/cmsCalo.xml',
+            'Geometry/CMSCommonData/data/muonBase/2018/v1/muonBase.xml',
+            'Geometry/CMSCommonData/data/cmsMuon.xml',
+            'Geometry/CMSCommonData/data/mgnt.xml',
+            'Geometry/CMSCommonData/data/beampipe/2021/v1/beampipe.xml',
+            'Geometry/CMSCommonData/data/cmsBeam/2021/v1/cmsBeam.xml',
+            'Geometry/CMSCommonData/data/muonMB.xml',
+            'Geometry/CMSCommonData/data/muonMagnet.xml',
+            'Geometry/CMSCommonData/data/cavern/2021/v1/cavern.xml',
+            'Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml',
+        ],
+        5 : [
+            'Geometry/CMSCommonData/data/FieldParameters.xml',
+        ],
+        "era" : "run3_common, stage2L1Trigger_2021",
+    },
 }
 
 trackerDict = {
@@ -2387,7 +2415,7 @@ muonDict = {
 forwardDict = {
     "abbrev" : "F",
     "name" : "forward",
-    "default" : 3,
+    "default" : 5,
     "F1" : {
         2 : [
             'Geometry/ForwardCommonData/data/forward/2021/v1/forward.xml',
@@ -2468,6 +2496,72 @@ forwardDict = {
             'Geometry/ForwardCommonData/data/zdcrotations.xml',
             'Geometry/ForwardCommonData/data/lumirotations.xml',
             'Geometry/ForwardCommonData/data/zdc/2021/v3/zdc.xml',
+            'Geometry/ForwardCommonData/data/rpd/2021/v2/rpd.xml',
+            'Geometry/ForwardCommonData/data/cmszdc.xml',
+        ],
+        3 : [
+            'Geometry/ForwardSimData/data/totemsensT2/2021/totemsensT2.xml',
+            'Geometry/ForwardCommonData/data/bhmsens.xml',
+            'Geometry/ForwardSimData/data/pltsens.xml',
+            'Geometry/ForwardSimData/data/bcm1fsens.xml',
+            'Geometry/ForwardSimData/data/zdcsens/2021/v1/zdcsens.xml',
+        ],
+        4 : [
+            'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
+            'Geometry/ForwardSimData/data/bhmProdCuts/2021/v1/bhmProdCuts.xml',
+            'Geometry/ForwardSimData/data/zdcProdCuts/2021/v3/zdcProdCuts.xml',
+        ],
+        "reco" :[
+            'from Geometry.ForwardGeometry.ForwardGeometry_cfi import *',
+        ]
+    },
+    "F4" : {
+        2 : [
+            'Geometry/ForwardCommonData/data/forward/2021/v1/forward.xml',
+            'Geometry/ForwardCommonData/data/totemt2/2021/v1/totemt2.xml',
+            'Geometry/ForwardCommonData/data/forwardshield/2021/v1/forwardshield.xml',
+            'Geometry/ForwardCommonData/data/bhm.xml',
+            'Geometry/ForwardCommonData/data/pltbcm/2021/v1/pltbcm.xml',
+            'Geometry/ForwardCommonData/data/bcm1f/2021/v1/bcm1f.xml',
+            'Geometry/ForwardCommonData/data/plt/2021/v1/plt.xml',
+            'Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml',
+            'Geometry/ForwardCommonData/data/lumimaterials.xml',
+            'Geometry/ForwardCommonData/data/zdcrotations.xml',
+            'Geometry/ForwardCommonData/data/lumirotations.xml',
+            'Geometry/ForwardCommonData/data/zdc/2025/v1/zdc.xml',
+            'Geometry/ForwardCommonData/data/rpd/2021/v2/rpd.xml',
+            'Geometry/ForwardCommonData/data/cmszdc.xml',
+        ],
+        3 : [
+            'Geometry/ForwardSimData/data/totemsensT2/2021/totemsensT2.xml',
+            'Geometry/ForwardCommonData/data/bhmsens.xml',
+            'Geometry/ForwardSimData/data/pltsens.xml',
+            'Geometry/ForwardSimData/data/bcm1fsens.xml',
+            'Geometry/ForwardSimData/data/zdcsens/2021/v1/zdcsens.xml',
+        ],
+        4 : [
+            'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
+            'Geometry/ForwardSimData/data/bhmProdCuts/2021/v1/bhmProdCuts.xml',
+            'Geometry/ForwardSimData/data/zdcProdCuts/2021/v3/zdcProdCuts.xml',
+        ],
+        "reco" :[
+            'from Geometry.ForwardGeometry.ForwardGeometry_cfi import *',
+        ]
+    },
+    "F5" : {
+        2 : [
+            'Geometry/ForwardCommonData/data/forward/2021/v1/forward.xml',
+            'Geometry/ForwardCommonData/data/totemt2/2021/v1/totemt2.xml',
+            'Geometry/ForwardCommonData/data/forwardshield/2021/v1/forwardshield.xml',
+            'Geometry/ForwardCommonData/data/bhm.xml',
+            'Geometry/ForwardCommonData/data/pltbcm/2021/v1/pltbcm.xml',
+            'Geometry/ForwardCommonData/data/bcm1f/2021/v1/bcm1f.xml',
+            'Geometry/ForwardCommonData/data/plt/2021/v1/plt.xml',
+            'Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml',
+            'Geometry/ForwardCommonData/data/lumimaterials.xml',
+            'Geometry/ForwardCommonData/data/zdcrotations.xml',
+            'Geometry/ForwardCommonData/data/lumirotations.xml',
+            'Geometry/ForwardCommonData/data/zdc/2025/v2/zdc.xml',
             'Geometry/ForwardCommonData/data/rpd/2021/v2/rpd.xml',
             'Geometry/ForwardCommonData/data/cmszdc.xml',
         ],
@@ -2712,7 +2806,7 @@ detectorVersionDict = {
     ("O5","T6","C2","M11","F2","P7") : "2024FlatMinus10Percent",
     ("O5","T7","C2","M11","F2","P7") : "2024FlatPlus05Percent",
     ("O5","T8","C2","M11","F2","P7") : "2024FlatPlus10Percent",
-    ("O7","T3","C2","M17","F3","P8") : "2025",
+    ("O10","T3","C2","M17","F5","P8") : "2025",
     ("O8","T4","C2","M12","F3","P8") : "2025ZeroMaterial",
     ("O9","T5","C2","M12","F3","P8") : "2025FlatMinus05Percent",
     ("O9","T6","C2","M12","F3","P8") : "2025FlatMinus10Percent",

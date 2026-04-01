@@ -95,6 +95,7 @@ public:
   std::vector<uint64_t> bufferEnds_;
   std::vector<uint64_t> fileSizes_;
   std::vector<unsigned int> fileOrder_;
+  std::vector<uint16_t> fileDataType_;
   bool deleteFile_;
   int rawFd_;
   uint64_t fileSize_;
@@ -106,8 +107,8 @@ public:
 
   tbb::concurrent_vector<InputChunk*> chunks_;
 
-  uint32_t bufferPosition_ = 0;
-  uint32_t chunkPosition_ = 0;
+  uint64_t bufferPosition_ = 0;
+  uint64_t chunkPosition_ = 0;
   unsigned int currentChunk_ = 0;
 
   InputFile(evf::EvFDaqDirector::FileStatus status,
@@ -115,6 +116,7 @@ public:
             std::string const& name = std::string(),
             bool deleteFile = true,
             int rawFd = -1,
+            uint16_t rawDataType = 0,
             uint64_t fileSize = 0,
             uint16_t rawHeaderSize = 0,
             uint16_t nChunks = 0,
@@ -134,6 +136,7 @@ public:
         nProcessed_(0) {
     fileNames_.push_back(name);
     fileOrder_.push_back(fileOrder_.size());
+    fileDataType_.push_back(rawDataType);
     diskFileSizes_.push_back(fileSize);
     fileSizes_.push_back(0);
     bufferOffsets_.push_back(0);
@@ -159,6 +162,7 @@ public:
     numFiles_++;
     fileNames_.push_back(name);
     fileOrder_.push_back(fileOrder_.size());
+    fileDataType_.push_back(0);
     diskFileSizes_.push_back(size);
     fileSizes_.push_back(0);
     bufferOffsets_.push_back(prevOffset + prevSize);
@@ -205,6 +209,13 @@ public:
       throw cms::Exception("InputFile") << "buffers are inconsistent for input files with primary " << fileName_;
     return complete > 0;
   }
+  void setFileDataType(unsigned int j, uint16_t dataType) { fileDataType_[j] = dataType; }
+  int daqRunEndFlagIndex() const {
+    for (unsigned j = 0; j < fileDataType_.size(); j++)
+      if (fileDataType_[j] == 0xffff)
+        return (int)j;
+    return -1;
+  }
 };
 
 class DAQSource;
@@ -216,12 +227,14 @@ public:
                std::string const& name = std::string(),
                bool deleteFile = true,
                int rawFd = -1,
+               uint16_t rawDataType = 0,
                uint64_t fileSize = 0,
                uint16_t rawHeaderSize = 0,
                uint32_t nChunks = 0,
                int nEvents = 0,
                DAQSource* parent = nullptr)
-      : InputFile(status, lumi, name, deleteFile, rawFd, fileSize, rawHeaderSize, nChunks, nEvents, nullptr),
+      : InputFile(
+            status, lumi, name, deleteFile, rawFd, rawDataType, fileSize, rawHeaderSize, nChunks, nEvents, nullptr),
         sourceParent_(parent) {}
   bool advance(std::mutex& m, std::condition_variable& cv, unsigned char*& dataPosition, const size_t size);
   void advance(const size_t size) {

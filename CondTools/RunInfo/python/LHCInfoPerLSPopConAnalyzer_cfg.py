@@ -131,25 +131,28 @@ options.register( 'defaultBetaY'
                      The default payload is inserted after the last processed fill has ended
                      and there's no ongoing stable beam yet. """
                   )
-
-
+# checking for invalid values, duringFill mode specific
 # it's unlikely to ever use values different from the defaults, added as a parameter just in case
 options.register('minBetaStar',  0.1 
                 , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.float
-                , """duringFill only: [meters] min value of the range of valid values.
+                , """duringFill only: [meters] min value of the range of valid values (inclusive).
                      If the value is outside of this range the payload is not uploaded""")
 options.register('maxBetaStar',  100.
                 , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.float
-                , """duringFill only: [meters] min value of the range of valid values.
+                , """duringFill only: [meters] max value of the range of valid values (inclusive).
                      If the value is outside of this range the payload is not uploaded""")
 options.register('minCrossingAngle',  10.
                 , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.float
-                , """duringFill only: [urad] min value of the range of valid values.
+                , """duringFill only: [urad] min value of the range of valid values (inclusive).
                      If the value is outside of this range the payload is not uploaded""")
 options.register('maxCrossingAngle',  500.
                 , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.float
-                , """duringFill only: [urad] min value of the range of valid values.
+                , """duringFill only: [urad] max value of the range of valid values (inclusive).
                      If the value is outside of this range the payload is not uploaded""")
+options.register('throwOnInvalid', False, # Intended production setup: False for endFill, True for duringFill
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.bool,
+                "duringFill only: If true, throw on invalid payloads; if false, filter them out.")
 
 # as the previous options, so far there was no need to use option, added just in case
 options.register( 'authenticationPath'
@@ -164,6 +167,8 @@ if options.mode is None:
   raise ValueError("mode argument not provided. Supported modes are: duringFill endFill")
 if options.mode not in ("duringFill", "endFill"):
   raise ValueError("Wrong mode argument. Supported modes are: duringFill endFill")
+if options.throwOnInvalid and options.mode != "duringFill":
+  raise ValueError("throwOnInvalid option can be True only in duringFill mode")
 
 CondDBConnection = CondDB.clone( connect = cms.string( options.destinationConnection ) )
 CondDBConnection.DBParameters.messageLevel = cms.untracked.int32( options.messageLevel )
@@ -241,6 +246,7 @@ process.Test1 = cms.EDAnalyzer(("LHCInfoPerLSPopConAnalyzer" if options.mode == 
                                    maxBetaStar = cms.untracked.double(options.maxBetaStar),
                                    minCrossingAngle = cms.untracked.double(options.minCrossingAngle),
                                    maxCrossingAngle = cms.untracked.double(options.maxCrossingAngle),
+                                   throwOnInvalid = cms.untracked.bool(options.throwOnInvalid)
                                ),
                                loggingOn = cms.untracked.bool(True),
                                IsDestDbCheckedInQueryLog = cms.untracked.bool(False)

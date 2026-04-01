@@ -9,34 +9,35 @@ function die {
     exit $2
 }
 
-## This is a PRE SKIMED dataset
-dataset="root://eoscms.cern.ch//store/group/phys_tau/embedding_test_files/2022_G_RAW.root"
+## This is a dataset from the CMSSW integration file catalog (IBEos) from the release validation tests (runTheMatrix.py)
+dataset="root://eoscms.cern.ch//store/user/cmsbuild/store/data/Run2022C/DoubleMuon/RAW/v1/000/356/381/00000/0b55fb47-4e17-49f2-a753-e625a741e44c.root"
 
 echo "################ Selection ################"
-cmsDriver.py RECO \
-    --step RAW2DIGI,L1Reco,RECO,PAT \
+cmsDriver.py \
+    --step RAW2DIGI,L1Reco,RECO,PAT,FILTER:TauAnalysis/MCEmbeddingTools/Selection_FILTER_cff.makePatMuonsZmumuSelection \
+    --processName SELECT \
     --data \
     --scenario pp \
     --conditions auto:run3_data \
     --era Run3 \
-    --eventcontent RAWRECO \
+    --eventcontent TauEmbeddingSelection \
     --datatier RAWRECO \
-    --customise TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting \
     --filein $dataset \
     --fileout file:selection.root \
-    -n -1 \
+    -n 100 \
     --python_filename selection.py || die 'Failure during selecting step' $?
 
 echo "################ LHE production and cleaning ################"
-cmsDriver.py LHEprodandCLEAN \
-    --step RAW2DIGI,RECO,PAT \
+cmsDriver.py \
+    --step USER:TauAnalysis/MCEmbeddingTools/LHE_USER_cff.embeddingLHEProducerTask,RAW2DIGI,RECO \
+    --processName LHEembeddingCLEAN \
     --data \
     --scenario pp \
     --conditions auto:run3_data \
     --era Run3 \
-    --eventcontent RAWRECO \
+    --eventcontent TauEmbeddingCleaning \
     --datatier RAWRECO \
-    --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning \
+    --procModifiers tau_embedding_cleaning,tau_embedding_mutauh \
     --filein file:selection.root \
     --fileout file:lhe_and_cleaned.root \
     -n -1 \
@@ -44,18 +45,17 @@ cmsDriver.py LHEprodandCLEAN \
 
 # Simulation (MC & Detector)
 echo "################ Simulation (MC & Detector) ################"
-cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py \
+cmsDriver.py TauAnalysis/MCEmbeddingTools/python/Simulation_GEN_cfi.py \
     --step GEN,SIM,DIGI,L1,DIGI2RAW \
+    --processName SIMembeddingpreHLT \
     --mc \
     --beamspot Realistic25ns13p6TeVEarly2022Collision \
     --geometry DB:Extended \
     --era Run3 \
     --conditions auto:phase1_2022_realistic_postEE \
-    --eventcontent RAWSIM \
+    --eventcontent TauEmbeddingSimGen \
     --datatier RAWSIM \
-    --customise \
-    TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_preHLT \
-    --customise_commands 'process.generator.HepMCFilter.filterParameters.MuMuCut = cms.string("(Mu.Pt > 18 && Had.Pt > 18 && Mu.Eta < 2.2 && Had.Eta < 2.4)");process.generator.HepMCFilter.filterParameters.Final_States = cms.vstring("MuHad");process.generator.nAttempts = cms.uint32(1000);' \
+    --procModifiers tau_embedding_sim,tau_embedding_mutauh \
     --filein file:lhe_and_cleaned.root \
     --fileout file:simulated_and_cleaned_prehlt.root \
     -n -1 \
@@ -63,18 +63,16 @@ cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.
 
 # Simulation (Trigger)
 echo "################ Simulation (Trigger) ################"
-cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py \
-    --step HLT:Fake2 \
+cmsDriver.py \
+    --step HLT:Fake2+TauAnalysis/MCEmbeddingTools/Simulation_HLT_customiser_cff.embeddingHLTCustomiser \
+    --processName SIMembeddingHLT \
     --mc \
     --beamspot Realistic25ns13p6TeVEarly2022Collision \
     --geometry DB:Extended \
     --era Run3 \
     --conditions auto:phase1_2022_realistic_postEE \
-    --eventcontent RAWSIM \
+    --eventcontent TauEmbeddingSimHLT \
     --datatier RAWSIM \
-    --customise \
-    TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_HLT \
-    --customise_commands 'process.source.bypassVersionCheck = cms.untracked.bool(True);' \
     --filein file:simulated_and_cleaned_prehlt.root \
     --fileout file:simulated_and_cleaned_hlt.root \
     -n -1 \
@@ -82,18 +80,17 @@ cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.
 
 # Simulation (Reconstruction)
 echo "################ Simulation (Reconstruction) ################"
-cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py \
+cmsDriver.py \
     --step RAW2DIGI,L1Reco,RECO,RECOSIM \
+    --processName SIMembedding \
     --mc \
     --beamspot Realistic25ns13p6TeVEarly2022Collision \
     --geometry DB:Extended \
     --era Run3 \
     --conditions auto:phase1_2022_realistic_postEE \
-    --eventcontent RAWRECOSIMHLT \
+    --eventcontent TauEmbeddingSimReco \
     --datatier RAW-RECO-SIM \
-    --customise \
-    TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator_postHLT \
-    --customise_commands 'process.source.bypassVersionCheck = cms.untracked.bool(True);' \
+    --procModifiers tau_embedding_sim \
     --filein file:simulated_and_cleaned_hlt.root \
     --fileout file:simulated_and_cleaned_posthlt.root \
     -n -1 \
@@ -101,16 +98,16 @@ cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.
 
 # Merging
 echo "################ Merging ################"
-cmsDriver.py PAT \
-    --step PAT \
+cmsDriver.py \
+    --step USER:TauAnalysis/MCEmbeddingTools/Merging_USER_cff.merge_step,PAT \
     --data \
     --scenario pp \
     --conditions auto:run3_data \
     --era Run3 \
-    --eventcontent MINIAODSIM \
+    --eventcontent TauEmbeddingMergeMINIAOD \
     --datatier USER \
-    --customise \
-    TauAnalysis/MCEmbeddingTools/customisers.customiseMerging \
+    --procModifiers tau_embedding_merging \
+    --inputCommands 'keep *_*_*_*' \
     --filein file:simulated_and_cleaned_posthlt.root \
     --fileout file:merged.root \
     -n -1 \
@@ -119,13 +116,12 @@ cmsDriver.py PAT \
 # NanoAOD Production
 echo "################ NanoAOD Production ################"
 cmsDriver.py \
-    --step NANO \
+    --step NANO:@TauEmbedding \
     --data \
     --conditions auto:run3_data \
     --era Run3 \
-    --eventcontent NANOAODSIM \
+    --eventcontent TauEmbeddingNANOAOD \
     --datatier NANOAODSIM \
-    --customise TauAnalysis/MCEmbeddingTools/customisers.customiseNanoAOD \
     --filein file:merged.root \
     --fileout file:merged_nano.root \
     -n -1 \

@@ -604,6 +604,7 @@ protected:
   };
 
   int SortingLayers(std::vector<ME4IdsKey> &listLayers);
+  int getDisplayModuleNumber(int station, int layer, int module_number);
   dqm::impl::MonitorElement *CreateSummaryHist(DQMStore::IBooker &ibooker, TString strName);
 
   template <typename T>
@@ -755,7 +756,7 @@ inline std::string GEMDQMBase::getNameDirLayer(ME4IdsKey key4) {
   char cRegion = (keyToRegion(key4) > 0 ? 'P' : 'M');
   auto nLayer = keyToLayer(key4);
   if (nStation == 2) {
-    auto nModule = keyToModule(key4);
+    auto nModule = getDisplayModuleNumber(nStation, nLayer, keyToModule(key4));
     return std::string(Form("GE%i1-%c-L%i-M%i", nStation, cRegion, nLayer, nModule));
   }
   return std::string(Form("GE%i1-%c-L%i", nStation, cRegion, nLayer));

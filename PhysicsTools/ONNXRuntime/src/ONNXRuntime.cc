@@ -104,17 +104,24 @@ namespace cms::Ort {
       auto input_pos = iter - input_names.begin();
       auto value = input_values.begin() + input_pos;
       std::vector<int64_t> input_dims;
-      if (input_shapes.empty()) {
-        input_dims = input_node_dims_.at(name);
-        input_dims[0] = batch_size;
-      } else {
-        input_dims = input_shapes[input_pos];
-        // rely on the given input_shapes to set the batch size
-        if (input_dims[0] != batch_size) {
-          throw cms::Exception("RuntimeError") << "The first element of `input_shapes` (" << input_dims[0]
-                                               << ") does not match the given `batch_size` (" << batch_size << ")";
+
+      //Get input dimensions: use provided shapes if available, otherwise fall back to ONNX model defaults
+      const auto& onnx_dims = input_node_dims_.at(name);
+      input_dims = input_shapes.empty() ? onnx_dims : input_shapes[input_pos];
+
+      // Check if the model expects a dynamic batch dimension (indicated by -1)
+      const bool has_dynamic_batch = !onnx_dims.empty() && (onnx_dims[0] == -1);
+
+      if (has_dynamic_batch) {
+        if (input_shapes.empty()) {
+          // No shapes provided then enforce the current batch size
+          input_dims[0] = batch_size;
+        } else if (input_dims[0] != batch_size) {
+          // Shapes provided but batch size mismatch then update global batch size
+          batch_size = input_dims[0];
         }
       }
+
       auto expected_len = std::accumulate(input_dims.begin(), input_dims.end(), 1, std::multiplies<int64_t>());
       if (expected_len != (int64_t)value->size()) {
         throw cms::Exception("RuntimeError")

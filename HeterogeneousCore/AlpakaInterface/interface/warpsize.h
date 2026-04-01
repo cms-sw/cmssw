@@ -12,8 +12,14 @@ namespace cms::alpakatools {
   // CUDA always has a warp size of 32
   inline constexpr int warpSize = 32;
 #elif defined(__HIP_DEVICE_COMPILE__)
-  // HIP/ROCm defines warpSize as a constant expression in device code, with value 32 or 64 depending on the target device
-  inline constexpr int warpSize = ::warpSize;
+  // HIP/ROCm may have a warp size of 32 or 64 depending on the target device
+#if defined(__GFX9__)
+  inline constexpr int warpSize = 64;
+#elif defined(__GFX10__) or defined(__GFX11__) or defined(__GFX12__)
+  inline constexpr int warpSize = 32;
+#else
+#error "Unknown AMDGCN architecture"
+#endif
 #else
   // CPU back-ends always have a warp size of 1
   inline constexpr int warpSize = 1;

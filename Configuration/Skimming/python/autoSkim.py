@@ -50,7 +50,7 @@ for i_split in range(20):
 
 # For 2023 PbPb skims
 for i_split in range(60):
-    autoSkim[f'HIPhysicsRawPrime{i_split}'] = 'PbPbEMu+PbPbZEE+PbPbZMu+PbPbHighPtJets+LogError+LogErrorMonitor'
+    autoSkim[f'HIPhysicsRawPrime{i_split}'] = 'PbPbEW+PbPbHighPtJets'
 
 autoSkimRunII = {
  'BTagCSV' : 'LogError+LogErrorMonitor',

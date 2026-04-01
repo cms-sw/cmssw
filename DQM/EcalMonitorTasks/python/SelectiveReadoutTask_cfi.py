@@ -1,10 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-dccSizeBinEdges = []
-for i in range(11) :
-    dccSizeBinEdges.append(0.608 / 10. * i)
+binSize = 0.0608
+dccSizeBinEdges = [0]
+for i in range(1, 11) :
+    dccSizeBinEdges.append(dccSizeBinEdges[-1]+binSize)
+binSize = binSize * 10.
 for i in range(11, 79) :
-    dccSizeBinEdges.append(0.608 * (i - 10.))
+    dccSizeBinEdges.append(dccSizeBinEdges[-1]+binSize)
 
 ecalSelectiveReadoutTask = cms.untracked.PSet(
     params = cms.untracked.PSet(

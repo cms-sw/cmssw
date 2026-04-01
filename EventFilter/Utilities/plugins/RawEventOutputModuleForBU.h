@@ -255,6 +255,7 @@ void RawEventOutputModuleForBU<Consumer>::fillDescriptions(edm::ConfigurationDes
   desc.addUntracked<std::string>("rawProductName", "FEDRawDataCollection")
       ->setComment("FEDRawDataCollection or RawDataBuffer");
   desc.addUntracked<std::vector<unsigned int>>("sourceIdList", std::vector<unsigned int>());
+  desc.addUntracked<bool>("writeToOpen", false);
   Consumer::extendDescription(desc);
 
   descriptions.addWithDefaultLabel(desc);

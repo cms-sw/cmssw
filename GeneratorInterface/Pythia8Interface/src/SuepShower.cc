@@ -155,7 +155,7 @@ const Pythia8::Vec4 SuepShower::generateFourVector() {
   // compose the 4 std::vector
   en = sqrt(momentum * momentum + darkmeson_mass_ * darkmeson_mass_);
   Pythia8::Vec4 daughterFourMomentum =
-      Pythia8::Vec4(momentum * cos(phi) * sin(theta), momentum * sin(phi) * sin(theta), momentum * sin(theta), en);
+      Pythia8::Vec4(momentum * cos(phi) * sin(theta), momentum * sin(phi) * sin(theta), momentum * cos(theta), en);
   return daughterFourMomentum;
 }
 

@@ -1,27 +1,10 @@
 #!/bin/sh
 
 SCRIPTS_DIR=${CMSSW_BASE}/src/CondTools/RunInfo/python
+LOCAL_TEST_DIR=$CMSSW_BASE/src/CondTools/RunInfo/test
 
-function die {
-  log_file="$3"
-  if [ -f "$log_file" ]; then
-    echo "Log output:"
-    cat "$log_file"
-  fi
-  echo "Failure $1: status $2"
-  exit $2
-}
-
-assert_equal() {
-  expected="$1"
-  actual="$2"
-  message="$3"
-  log_file="$4"
-  
-  if [ "$expected" != "$actual" ]; then
-    die "$message: Expected $expected, but got $actual" 1 "$log_file"
-  fi
-}
+# Source shared utility functions
+source "${LOCAL_TEST_DIR}/testing_utils.sh"
 
 function assert_found_fills {
   log_file="$1"
@@ -71,7 +54,7 @@ cmsRun ${SCRIPTS_DIR}/LHCInfoPerFillPopConAnalyzer_cfg.py mode=duringFill \
     startTime="2022-10-24 01:00:00.000" endTime="2022-10-24 20:00:00.000" \
     lastLumiFile=last_lumi.txt \
     tag=fill_during_test > fill_during_test.log || die "cmsRun LHCInfoPerFillPopConAnalyzer_cfg.py" $? "fill_during_test.log"
-assert_equal 1 `cat fill_during_test.log | grep -E 'uploaded with since' | \
+assert_equal 0 `cat fill_during_test.log | grep -E 'uploaded with since' | \
     wc -l` "LHCInfoPerFillPopConAnalyzer in DuringFill written wrong number of payloads" "fill_during_test.log"
 
 echo "testing LHCInfoPerLSPopConAnalyzer in duringFill mode for startTime=\"2022-10-24 01:00:00.000\" endTime=\"2022-10-24 20:00:00.000\"" 

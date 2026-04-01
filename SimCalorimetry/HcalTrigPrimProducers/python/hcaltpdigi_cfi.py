@@ -46,6 +46,7 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
 
     latency = cms.int32(1),
     FG_threshold = cms.uint32(12), ## threshold for setting fine grain bit
+    overrideFGHF = cms.bool(False), ## switch: False = read thresholds from TPParameters (default), True = override with FG_HF_thresholds
     FG_HF_thresholds = cms.vuint32(17, 255), ## thresholds for setting fine grain bit
     ZS_threshold = cms.uint32(1),  ## threshold for setting TP zero suppression
 

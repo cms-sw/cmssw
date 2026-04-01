@@ -57,8 +57,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #ifdef GPU_DEBUG
     std::cout << "Allocation for tuple building with: " << std::endl;
     std::cout << "- nHits          = " << nHits << std::endl;
-    std::cout << "- maxDoublets    = " << maxTuples << std::endl;
-    std::cout << "- maxTracks      = " << maxDoublets << std::endl;
+    std::cout << "- outerHits      = " << outerHits << std::endl;
+    std::cout << "- maxDoublets    = " << maxDoublets << std::endl;
+    std::cout << "- maxTracks      = " << maxTuples << std::endl;
 
     std::cout << "- nCellsToCells  = " << nCellsToCells << std::endl;
     std::cout << "- nHitsToCells   = " << nHitsToCells << std::endl;

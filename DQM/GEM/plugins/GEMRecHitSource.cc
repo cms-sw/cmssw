@@ -166,7 +166,8 @@ int GEMRecHitSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
       mapCLSOver5_.FindHist(key)->setYTitle("Module");
     }
     for (Int_t i = 1; i <= stationInfo.nNumModules_; i++) {
-      std::string strLabel = std::string(Form("M%i", i));
+      Int_t module_number = getDisplayModuleNumber(keyToStation(key), keyToLayer(key), i);
+      std::string strLabel = std::string(Form("M%i", module_number));
       if (mapCLSAverage_.isOperating()) {
         mapCLSAverage_.FindHist(key)->setBinLabel(i, strLabel, 2);
       }
@@ -199,7 +200,8 @@ int GEMRecHitSource::ProcessWithMEMap4WithChamber(BookingHelper& bh, ME4IdsKey k
       mapCLSPerCh_.FindHist(key)->setYTitle("Module");
     }
     for (Int_t i = 1; i <= stationInfo.nNumModules_; i++) {
-      std::string strLabel = std::string(Form("M%i", i));
+      Int_t module_number = getDisplayModuleNumber(keyToStation(key), keyToLayer(key), i);
+      std::string strLabel = std::string(Form("M%i", module_number));
       if (mapCLSPerCh_.isOperating()) {
         mapCLSPerCh_.FindHist(key)->setBinLabel(i, strLabel, 2);
       }

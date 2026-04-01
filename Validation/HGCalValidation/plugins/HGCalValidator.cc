@@ -420,6 +420,8 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   for (const auto& token : hits_tokens_) {
     Handle<HGCRecHitCollection> hitsHandle;
     event.getByToken(token, hitsHandle);
+    if (!hitsHandle.isValid())
+      continue;
     rechitManager.addVector(*hitsHandle);
   }
 
@@ -451,6 +453,10 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   //Layer clusters
   edm::Handle<reco::CaloClusterCollection> clusterHandle;
   event.getByToken(layerclusters_, clusterHandle);
+
+  if (!clusterHandle.isValid())
+    return;
+
   const reco::CaloClusterCollection& clusters = *clusterHandle;
 
   std::vector<edm::Handle<TracksterToTracksterMap>> tracksterToTracksterMapsHandles;

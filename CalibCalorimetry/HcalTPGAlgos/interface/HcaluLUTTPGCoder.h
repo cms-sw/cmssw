@@ -60,6 +60,7 @@ public:
   void update(const char* filename, bool appendMSB = false);
   void updateXML(const char* filename);
   void setLUTGenerationMode(bool gen) { LUTGenerationMode_ = gen; };
+  void setOverrideFGHF(bool overrideFGHF) { overrideFGHF_ = overrideFGHF; };
   void setFGHFthresholds(const std::vector<uint32_t>& fgthresholds) { FG_HF_thresholds_ = fgthresholds; };
   void setMaskBit(int bit) { bitToMask_ = bit; };
   void setAllLinear(bool linear, double lsb8, double lsb11, double lsb11overlap) {
@@ -114,6 +115,7 @@ private:
   const HcalElectronicsMap* emap_;
   const HcalTimeSlew* delay_;
   bool LUTGenerationMode_;
+  bool overrideFGHF_ = false;
   std::vector<uint32_t> FG_HF_thresholds_;
   int bitToMask_;
   int firstHBEta_, lastHBEta_, nHBEta_, maxDepthHB_, sizeHB_;

@@ -7,7 +7,7 @@
     <Include ref='Geometry/CMSCommonData/data/materials/2021/v4/materials.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/trackermaterial/2021/v2/trackermaterial.xml'/>
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
-    <Include ref='Geometry/CMSCommonData/data/extend/v3/cmsextent.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/extend/v4/cmsextent.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cms/2021/v3/cms.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cmsMother.xml'/>
@@ -261,7 +261,7 @@
     <Include ref='Geometry/ForwardCommonData/data/lumimaterials.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/zdcrotations.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/lumirotations.xml'/>
-    <Include ref='Geometry/ForwardCommonData/data/zdc/2021/v3/zdc.xml'/>
+    <Include ref='Geometry/ForwardCommonData/data/zdc/2025/v2/zdc.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/rpd/2021/v2/rpd.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/cmszdc.xml'/>
     <Include ref='Geometry/VeryForwardData/data/RP_Box.xml'/>

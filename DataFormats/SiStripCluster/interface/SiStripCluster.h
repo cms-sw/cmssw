@@ -3,11 +3,10 @@
 
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster.h"
+#include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster_v1.h"
 #include <vector>
 #include <numeric>
 #include <iostream>
-
-class SiStripApproximateCluster;
 
 class SiStripCluster {
 public:
@@ -45,6 +44,11 @@ public:
   }
 
   SiStripCluster(const SiStripApproximateCluster cluster, const uint16_t maxStrips);
+  SiStripCluster(const v1::SiStripApproximateCluster cluster,
+                 const uint16_t maxStrips,
+                 float pc = -999,
+                 unsigned int module_length = 0,
+                 unsigned int previous_module_length = 0);
 
   // extend the cluster
   template <typename Iter>

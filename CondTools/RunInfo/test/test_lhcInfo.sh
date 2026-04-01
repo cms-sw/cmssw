@@ -2,7 +2,8 @@
 
 LOCAL_TEST_DIR=$CMSSW_BASE/src/CondTools/RunInfo/test
 
-function die { echo Failure $1: status $2 ; exit $2 ; }
+# Source shared utility functions
+source "${LOCAL_TEST_DIR}/testing_utils.sh"
 
 cmsRun ${LOCAL_TEST_DIR}/LHCInfoPerFillWriter_cfg.py || die "cmsRun LHCInfoPerFillWriter_cfg.py" $?
 cmsRun ${LOCAL_TEST_DIR}/LHCInfoPerFillTester_cfg.py || die "cmsRun LHCInfoPerFillTester_cfg.py" $?

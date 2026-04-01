@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 from  PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
-from Configuration.Eras.Modifier_run3_scouting_nanoAOD_2023_cff import run3_scouting_nanoAOD_2023
-from Configuration.Eras.Modifier_run3_scouting_nanoAOD_2024_cff import run3_scouting_nanoAOD_2024
+from Configuration.Eras.Modifier_run3_scouting_2023_cff import run3_scouting_2023
+from Configuration.Eras.Modifier_run3_scouting_2024_cff import run3_scouting_2024
+from Configuration.Eras.Modifier_run3_scouting_2025_cff import run3_scouting_2025
 
 #####################################
 ##### Scouting Original Objects #####
@@ -125,7 +126,7 @@ scoutingVertexVariables = cms.PSet(
 # used for both primary vertex and dimuon displaced vertex
 # https://github.com/cms-sw/cmssw/blob/CMSSW_14_0_X/DataFormats/Scouting/interface/Run3ScoutingVertex.h
 
-run3_scouting_nanoAOD_2024.toModify(
+(run3_scouting_2024 | run3_scouting_2025).toModify(
     scoutingVertexVariables,
     xyCov = Var('xyCov', 'float', precision=10, doc='xy covariance'),
     xzCov = Var('xzCov', 'float', precision=10, doc='xz covariance'),
@@ -234,7 +235,7 @@ scoutingElectronBestTrack = cms.EDProducer("Run3ScoutingElectronBestTrackProduce
     DeltaPhiMax = cms.vdouble(0.06, 0.06)
 )
 
-(run3_scouting_nanoAOD_2023 | run3_scouting_nanoAOD_2024).toModify(
+(run3_scouting_2023 | run3_scouting_2024 | run3_scouting_2025).toModify(
     scoutingElectronTable.variables,
     d0 = None,      # replaced with trkd0 (std::vector)
     dz = None,      # replaced with trkdz (std::vector)
@@ -253,7 +254,7 @@ scoutingElectronBestTrack = cms.EDProducer("Run3ScoutingElectronBestTrackProduce
 # scouting electron format changed for 2024 data-taking in https://github.com/cms-sw/cmssw/pull/43744
 # https://github.com/cms-sw/cmssw/blob/CMSSW_14_0_X/DataFormats/Scouting/interface/Run3ScoutingElectron.h
 
-run3_scouting_nanoAOD_2024.toModify(
+(run3_scouting_2024 | run3_scouting_2025).toModify(
     scoutingElectronTable.variables,
     rawEnergy = Var("rawEnergy", "float", precision=10, doc="raw energy"),
     preshowerEnergy = Var("preshowerEnergy", "float", precision=10, doc='preshower energy'),
@@ -301,7 +302,7 @@ scoutingPhotonTable = cms.EDProducer("SimpleRun3ScoutingPhotonFlatTableProducer"
 # scouting photon format changed for 2024 data-taking in https://github.com/cms-sw/cmssw/pull/43744
 # https://github.com/cms-sw/cmssw/blob/CMSSW_14_0_X/DataFormats/Scouting/interface/Run3ScoutingPhoton.h
 
-run3_scouting_nanoAOD_2024.toModify(
+(run3_scouting_2024 | run3_scouting_2025).toModify(
     scoutingPhotonTable.variables,
     rawEnergy = Var("rawEnergy", "float", precision=10, doc="raw energy"),
     preshowerEnergy = Var("preshowerEnergy", "float", precision=10, doc='preshower energy'),
@@ -702,7 +703,7 @@ scoutingFatPFJetReclusterGlobalParticleTransformerJetTags = cms.EDProducer("Boos
     debugMode = cms.untracked.bool(False),
 )
 
-run3_scouting_nanoAOD_2024.toModify(
+(run3_scouting_2024 | run3_scouting_2025).toModify(
     scoutingFatPFJetReclusterGlobalParticleTransformerJetTags,
     model_path = cms.FileInPath("RecoBTag/Combined/data/Run3Scouting/GlobalParticleTransformerAK8/General/V00/global-part_2024.onnx")
 )

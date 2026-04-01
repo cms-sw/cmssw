@@ -486,7 +486,7 @@ namespace {
         l_tagname[1] = l_tagname[0];
       }
       run[1] = std::get<0>(lastiov);
-      for (int irun = 0; irun < nIOVs; irun++) {
+      for (int irun = 0; irun < 2; irun++) {
         std::shared_ptr<EcalPedestals> payload;
         if (irun == 0) {
           payload = this->fetchPayload(std::get<1>(firstiov));
@@ -606,7 +606,7 @@ namespace {
               }
             }  // loop over cellid
           }  //  barrel data present
-          if (payload->endcapItems().empty()) {
+          if (!payload->endcapItems().empty()) {
             // looping over the EE channels
             for (int iz = -1; iz < 2; iz = iz + 2) {  // -1 or +1
               for (int iy = IY_MIN; iy < IY_MAX + IY_MIN; iy++) {
@@ -824,9 +824,9 @@ namespace {
       return true;
     }  // fill method
   };  // class EcalPedestalsBase
-  using EcalPedestalsDiffOneTag = EcalPedestalsBase<cond::payloadInspector::SINGLE_IOV, 1, 0>;
+  using EcalPedestalsDiffOneTag = EcalPedestalsBase<cond::payloadInspector::MULTI_IOV, 1, 0>;
   using EcalPedestalsDiffTwoTags = EcalPedestalsBase<cond::payloadInspector::SINGLE_IOV, 2, 0>;
-  using EcalPedestalsRatioOneTag = EcalPedestalsBase<cond::payloadInspector::SINGLE_IOV, 1, 1>;
+  using EcalPedestalsRatioOneTag = EcalPedestalsBase<cond::payloadInspector::MULTI_IOV, 1, 1>;
   using EcalPedestalsRatioTwoTags = EcalPedestalsBase<cond::payloadInspector::SINGLE_IOV, 2, 1>;
 
   /*************************************************  

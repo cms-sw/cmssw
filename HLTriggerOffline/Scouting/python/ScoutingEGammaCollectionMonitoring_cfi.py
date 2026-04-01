@@ -39,7 +39,7 @@ SinglePhotonL1 = [
   'L1_SingleIsoEG34er2p5'
 ]
 
-ScoutingEGammaCollectionMonitoring = DQMEDAnalyzer('ScoutingEGammaCollectionMonitoring',
+ScoutingEGammaCollectionMonitoringOffline = DQMEDAnalyzer('ScoutingEGammaCollectionMonitoring',
                                                    OutputInternalPath = cms.string('/HLT/ScoutingOffline/EGamma/Collection'),
                                                    TriggerResultTag   = cms.InputTag("TriggerResults", "", "HLT"),
                                                    AlgInputTag  = cms.InputTag("gtStage2Digis"),
@@ -50,7 +50,14 @@ ScoutingEGammaCollectionMonitoring = DQMEDAnalyzer('ScoutingEGammaCollectionMoni
                                                    L1Seeds            = cms.vstring(DoubleEGL1 + SinglePhotonL1),
                                                    ElectronCollection = cms.InputTag('slimmedElectrons'),
                                                    ScoutingElectronCollection = cms.InputTag("hltScoutingEgammaPacker"),
-                                                   eleIdMapTight = cms.InputTag('egmGsfElectronIDsForScoutingDQM:cutBasedElectronID-RunIIIWinter22-V1-loose')
+                                                   eleIdMapTight = cms.InputTag('egmGsfElectronIDsForScoutingDQM:cutBasedElectronID-RunIIIWinter22-V1-loose'),
+                                                   useOfflineObject  = cms.bool(True)
                                                    )
 
-scoutingMonitoringEGM = cms.Sequence(ScoutingEGammaCollectionMonitoring)
+ScoutingEGammaCollectionMonitoringOnline = ScoutingEGammaCollectionMonitoringOffline.clone(
+                                                   OutputInternalPath = '/HLT/ScoutingOnline/EGamma/Collection',
+                                                   useOfflineObject = False
+                                                   )
+
+scoutingMonitoringEGMOffline= cms.Sequence(ScoutingEGammaCollectionMonitoringOffline)
+scoutingMonitoringEGMOnline= cms.Sequence(ScoutingEGammaCollectionMonitoringOnline)

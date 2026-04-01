@@ -464,7 +464,21 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
       heldFilesCount_--;
     //release last chunk (it is never released elsewhere)
     freeChunks_.push(currentFile_->chunks_[currentFile_->currentChunk_]);
-    if (currentFile_->nEvents_ >= 0 && currentFile_->nEvents_ != int(currentFile_->nProcessed_)) {
+
+    bool filesIncomplete = currentFile_->nEvents_ >= 0 && currentFile_->nEvents_ != int(currentFile_->nProcessed_);
+    bool retRunEnd = false;
+
+    int runEndFlagIndex = currentFile_->daqRunEndFlagIndex();
+    if (runEndFlagIndex != -1) {
+      if (filesIncomplete)
+        edm::LogError("DAQSource::getNextDataBlock")
+            << "Detected DAQ Run End flag in RAW file " << currentFile_->fileNames_[runEndFlagIndex];
+      else
+        edm::LogError("DAQSource::getNextDataBlock")
+            << "Detected DAQ Run End flag in RAW file " << currentFile_->fileNames_[runEndFlagIndex]
+            << " but files appear to be complete";
+      retRunEnd = true;
+    } else if (filesIncomplete) {
       std::stringstream str;
       for (auto& s : currentFile_->fileNames_) {
         struct stat bufs;
@@ -499,7 +513,10 @@ evf::EvFDaqDirector::FileStatus DAQSource::getNextDataBlock() {
       currentFile_.reset();
     }
     setMonState(inProcessingFile);
-    return evf::EvFDaqDirector::noFile;
+    if (retRunEnd)
+      return evf::EvFDaqDirector::runEnded;
+    else
+      return evf::EvFDaqDirector::noFile;
   }
 
   //handle RAW file header in new file
@@ -794,6 +811,7 @@ void DAQSource::readSupervisor() {
     uint32_t lsFromRaw = 0;
     int32_t serverEventsInNewFile = -1;
     int rawFd = -1;
+    uint16_t rawDataType = 0;
 
     int backoff_exp = 0;
 
@@ -838,7 +856,6 @@ void DAQSource::readSupervisor() {
         //return LS if LS not set, otherwise return file
         status = getFile(ls, nextFile, thisLockWaitTimeUs);
         if (status == evf::EvFDaqDirector::newFile) {
-          uint16_t rawDataType;
           if (evf::EvFDaqDirector::parseFRDFileHeader(nextFile,
                                                       rawFd,
                                                       rawHeaderSize,  ///possibility to use by new formats
@@ -866,6 +883,7 @@ void DAQSource::readSupervisor() {
                                                      ls,
                                                      nextFile,
                                                      rawFd,
+                                                     rawDataType,
                                                      rawHeaderSize,  //which format?
                                                      serverEventsInNewFile,
                                                      fileSizeFromMetadata,
@@ -1058,6 +1076,7 @@ void DAQSource::readSupervisor() {
                                                                   rawFile,
                                                                   !fileListMode_,
                                                                   rawFd,
+                                                                  rawDataType,
                                                                   fileSize,
                                                                   rawHeaderSize,  //for which format
                                                                   0,
@@ -1347,6 +1366,7 @@ void DAQSource::readWorker(unsigned int tid) {
 
       size_t skipped = bufferLeft;
       auto start = std::chrono::high_resolution_clock::now();
+
       for (unsigned int i = 0; i < readBlocks; i++) {
         ssize_t last;
         edm::LogInfo("DAQSource") << "readWorker read -: " << (int64_t)(chunk->usedSize_ - bufferLeft) << " or "
@@ -1408,8 +1428,7 @@ void DAQSource::readWorker(unsigned int tid) {
       LogDebug("DAQSource") << " finished reading block -: " << (bufferLeft >> 20) << " MB"
                             << " in " << msec.count() << " ms (" << (bufferLeft >> 20) / double(msec.count())
                             << " GB/s)";
-    };
-    //END primary function
+    };  //END primary function
 
     //SECONDARY files function
     auto readSecondary = [&](uint64_t bufferLeft, unsigned int j) {
@@ -1445,6 +1464,11 @@ void DAQSource::readWorker(unsigned int tid) {
           setExceptionState_ = true;
           close(fileDescriptor);
           break;
+        }
+        if (i == 0) {
+          uint16_t dataType = daqDirector_->frdFileDataType(chunk->buf_ + bufferLeft);
+          if (dataType)
+            file->setFileDataType(j, dataType);
         }
         if (last > 0) {
           bufferLeft += last;

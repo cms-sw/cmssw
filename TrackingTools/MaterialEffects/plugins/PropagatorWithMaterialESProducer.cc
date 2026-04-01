@@ -1,11 +1,11 @@
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "PropagatorWithMaterialESProducer.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include <string>
 #include <memory>
@@ -48,13 +48,14 @@ std::unique_ptr<Propagator> PropagatorWithMaterialESProducer::produce(const Trac
 
 void PropagatorWithMaterialESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   ParameterSetDescription desc;
-  desc.add<std::string>("PropagationDirection");
+  desc.ifValue(edm::ParameterDescription<std::string>("PropagationDirection", "alongMomentum", true),
+               edm::allowedValues<std::string>("oppositeToMomentum", "alongMomentum", "anyDirection"));
   desc.add<std::string>("SimpleMagneticField", "");
-  desc.add<std::string>("ComponentName");
-  desc.add<double>("Mass");
-  desc.add<double>("MaxDPhi");
-  desc.add<bool>("useRungeKutta");
+  desc.add<std::string>("ComponentName", "");
+  desc.add<double>("Mass", 0.);
+  desc.add<double>("MaxDPhi", 0.);
+  desc.add<bool>("useRungeKutta", false);
   desc.add<bool>("useOldAnalPropLogic", true);
   desc.add<double>("ptMin", -1.0);
-  descriptions.addDefault(desc);
+  descriptions.addWithDefaultLabel(desc);
 }

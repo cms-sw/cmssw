@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from HLTriggerOffline.Scouting. ScoutingEGammaCollectionMonitoring_cfi import *
+from HLTriggerOffline.Scouting.ScoutingEGammaCollectionMonitoring_cfi import *
 from HLTriggerOffline.Scouting.ScoutingElectronTagProbeAnalyzer_cfi import *
 from HLTriggerOffline.Scouting.PatElectronTagProbeAnalyzer_cfi import *
 
@@ -19,4 +19,4 @@ for id_module_name in my_id_modules:
         if hasattr(item,'idName') and hasattr(item,'cutFlow'):
             setupVIDSelection(egmGsfElectronIDsForScoutingDQM,item)
 
-hltScoutingEGammaDqmOffline = cms.Sequence(egmGsfElectronIDsForScoutingDQM + scoutingMonitoringEGM + scoutingMonitoringTagProbe + scoutingMonitoringPatElectronTagProbe)
+hltScoutingEGammaDqmOffline = cms.Sequence(egmGsfElectronIDsForScoutingDQM + scoutingMonitoringEGMOffline + scoutingMonitoringTagProbeOffline + scoutingMonitoringPatElectronTagProbe)

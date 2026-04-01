@@ -12,10 +12,10 @@
 
 // system include files
 #include <dlfcn.h>  // dlsym
+#include <exception>
 
 // user include files
 #include "PerfTools/AllocMonitor/interface/AllocMonitorRegistry.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 //
@@ -101,12 +101,21 @@ bool AllocMonitorRegistry::necessaryLibraryWasPreloaded() {
   return dlsym(RTLD_DEFAULT, "alloc_monitor_start") != nullptr;
 }
 
+namespace {
+
+  class AllocMonitorException : public std::exception {
+  public:
+    const char* what() const noexcept final {
+      return "The libPerfToolsAllocMonitorPreload.so was not LD_PRELOADed into the job";
+    }
+  };
+}  // namespace
+
 void AllocMonitorRegistry::start() {
   if (monitors_.empty()) {
     void* start = dlsym(RTLD_DEFAULT, "alloc_monitor_start");
     if (start == nullptr) {
-      throw cms::Exception("NoAllocMonitorPreload")
-          << "The libPerfToolsAllocMonitorPreload.so was not LD_PRELOADed into the job";
+      throw AllocMonitorException();
     }
     auto s = reinterpret_cast<decltype(&::alloc_monitor_start)>(start);
     s();

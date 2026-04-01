@@ -1,0 +1,2 @@
+<!-- test the L1TZDCEtSumsProducer plugin -->
+<test name="testL1TZDCEtSumsProducer" command="testL1TZDCEtSumsProducer.sh"/>
