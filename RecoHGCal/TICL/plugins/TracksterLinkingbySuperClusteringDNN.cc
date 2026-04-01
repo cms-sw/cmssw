@@ -26,12 +26,12 @@ Modified by Felice Pantaleo <felice.pantaleo@cern.ch>
 Improved memory usage and inference performance. 
 Date: 02/2026
 */
-
-#include <string>
-#include <memory>
+#include <cstdint>
 #include <algorithm>
-#include <vector>
+#include <memory>
 #include <numeric>
+#include <string>
+#include <vector>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -96,20 +96,6 @@ bool TracksterLinkingbySuperClusteringDNN::checkExplainedVarianceRatioCut(ticl::
     return false;
 }
 
-bool TracksterLinkingbySuperClusteringDNN::checkExplainedVarianceRatioCut(
-    edm::MultiSpan<ticl::Trackster> const& tracksters,
-    unsigned int index,
-    std::unordered_map<unsigned int, bool>& cache) const {
-  auto cache_it = cache.find(index);
-  if (cache_it != cache.end()) {
-    return cache_it->second;
-  } else {
-    bool result = checkExplainedVarianceRatioCut(tracksters[index]);
-    cache[index] = result;
-    return result;
-  }
-}
-
 bool TracksterLinkingbySuperClusteringDNN::trackstersPassesPIDCut(const Trackster& tst) const {
   if (filterByTracksterPID_) {
     float probTotal = 0.0f;
@@ -138,7 +124,6 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
     return;
   }
 
-  // ---- sort by decreasing pT (indices only)
   std::vector<unsigned int> trackstersIndicesPt(tracksterCount);
   std::iota(trackstersIndicesPt.begin(), trackstersIndicesPt.end(), 0u);
   std::stable_sort(
@@ -146,42 +131,47 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
         return inputTracksters[a].raw_pt() > inputTracksters[b].raw_pt();
       });
 
-  // ---- batch sizing (rows = pairs, cols = featureCount)
+  // -1 = unknown, 0 = false, 1 = true
+  std::vector<int8_t> explVarRatioCache(tracksterCount, -1);
+  auto passesExplainedVarianceRatioCut = [&](unsigned int index) -> bool {
+    int8_t& cached = explVarRatioCache[index];
+    if (cached == -1) {
+      cached = checkExplainedVarianceRatioCut(inputTracksters[index]) ? 1 : 0;
+    }
+    return cached == 1;
+  };
+
   const auto featuresPerPair = static_cast<unsigned int>(dnnInputs_->featureCount());
-  const auto maxPairsPerBatch = static_cast<unsigned int>(inferenceBatchSize_) / featuresPerPair;  // number of rows
+  const auto maxPairsPerBatch = static_cast<unsigned int>(inferenceBatchSize_) / featuresPerPair;
 
   if (maxPairsPerBatch == 0u) {
     throw cms::Exception("Configuration") << "inferenceBatchSize (" << inferenceBatchSize_
                                           << ") is smaller than featureCount (" << featuresPerPair << ").";
   }
 
-  // ---- reusable batch buffers
+  // ---- event-local reusable batch buffers
   std::vector<float> inputBatch;
-  inputBatch.reserve(static_cast<size_t>(maxPairsPerBatch) * featuresPerPair);
-
   std::vector<std::pair<unsigned int, unsigned int>> batchPairs;
-  batchPairs.reserve(maxPairsPerBatch);
 
-  // ONNX I/O buffers reused across flushes
-  cms::Ort::FloatArrays inputs_for_onnx;
+  const auto reservePairs = std::min<unsigned int>(maxPairsPerBatch, std::max(64u, 4u * tracksterCount));
+  inputBatch.reserve(static_cast<size_t>(reservePairs) * featuresPerPair);
+  batchPairs.reserve(reservePairs);
+
+  cms::Ort::FloatArrays inputs_for_onnx(1);
   cms::Ort::FloatArrays outputs_for_onnx;
-  inputs_for_onnx.resize(1);
-
-  // Reuse shapes buffer: one input tensor of rank 2: [batch, features]
   std::vector<std::vector<int64_t>> input_shapes(1, std::vector<int64_t>(2, 0));
 
   static const std::vector<std::string> kInputNames = {"input"};
 
-  // ---- tiles (one per endcap)
   std::array<TICLLayerTile, 2> tracksterTilesBothEndcaps_pt;
   for (unsigned int i_pt = 0; i_pt < tracksterCount; ++i_pt) {
     auto const& ts = inputTracksters[trackstersIndicesPt[i_pt]];
     tracksterTilesBothEndcaps_pt[ts.barycenter().eta() > 0.f].fill(ts.barycenter().eta(), ts.barycenter().phi(), i_pt);
   }
 
-  // ---- bookkeeping masks
   std::vector<bool> tracksterMask(tracksterCount, false);
   std::vector<bool> usedAsCandidate(tracksterCount, false);
+  std::vector<int> seedToOutputIndex(tracksterCount, -1);
 
   constexpr auto kInvalid = std::numeric_limits<unsigned int>::max();
   unsigned int previousCand = kInvalid;
@@ -196,20 +186,17 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
     tracksterMask[candIdx] = true;
     usedAsCandidate[candIdx] = true;
 
-    auto seed_it = std::find_if(outputSuperclusters.begin(), outputSuperclusters.end(), [bestSeed](auto const& sc) {
-      return sc[0] == bestSeed;
-    });
-
-    if (seed_it == outputSuperclusters.end()) {
+    int& outIdxRef = seedToOutputIndex[bestSeed];
+    if (outIdxRef < 0) {
       outputSuperclusters.emplace_back(std::initializer_list<unsigned int>{bestSeed});
       resultTracksters.emplace_back(inputTracksters[bestSeed]);
       linkedTracksterIdToInputTracksterId.emplace_back(std::initializer_list<unsigned int>{bestSeed});
-      seed_it = std::prev(outputSuperclusters.end());
+      outIdxRef = static_cast<int>(outputSuperclusters.size()) - 1;
       tracksterMask[bestSeed] = true;
     }
 
-    const auto outIdx = static_cast<unsigned int>(seed_it - outputSuperclusters.begin());
-    seed_it->push_back(candIdx);
+    const auto outIdx = static_cast<unsigned int>(outIdxRef);
+    outputSuperclusters[outIdx].push_back(candIdx);
     resultTracksters[outIdx].mergeTracksters(inputTracksters[candIdx]);
     linkedTracksterIdToInputTracksterId[outIdx].push_back(candIdx);
 
@@ -223,21 +210,14 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
       return;
     }
 
-    // shape: [pairs, features]
     input_shapes[0][0] = static_cast<int64_t>(pairsInBatch);
     input_shapes[0][1] = static_cast<int64_t>(featuresPerPair);
 
-    // Provide ONNX with the batch buffer without realloc/copy
     inputs_for_onnx[0].swap(inputBatch);
 
     outputs_for_onnx.clear();
-    onnxRuntime_->runInto(kInputNames,
-                          inputs_for_onnx,
-                          input_shapes,
-                          {},                // all outputs
-                          outputs_for_onnx,  // resized as needed
-                          {},                // optional output_shapes
-                          static_cast<int64_t>(pairsInBatch));
+    onnxRuntime_->runInto(
+        kInputNames, inputs_for_onnx, input_shapes, {}, outputs_for_onnx, {}, static_cast<int64_t>(pairsInBatch));
 
     if (outputs_for_onnx.empty()) {
       throw cms::Exception("RuntimeError") << "ONNX model returned no outputs.";
@@ -249,7 +229,6 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
           << "ONNX output has size " << out.size() << " but expected at least " << pairsInBatch;
     }
 
-    // Consume in-order
     for (unsigned int i = 0; i < pairsInBatch; ++i) {
       const auto [seedIdx, candIdx] = batchPairs[i];
 
@@ -259,7 +238,6 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
 
       const float score = out[i];
 
-      // Ignore seed if it was previously used as a candidate
       if (score > bestScore && !usedAsCandidate[seedIdx]) {
         bestSeed = seedIdx;
         bestScore = score;
@@ -268,16 +246,11 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
       previousCand = candIdx;
     }
 
-    // Restore storage for reuse
     inputBatch.swap(inputs_for_onnx[0]);
     inputBatch.clear();
     batchPairs.clear();
   };
 
-  // Cache for explained variance ratio cut results to avoid expensive redundant calculations across seeds and candidates
-  std::unordered_map<unsigned int, bool> checkExplainedVarianceRatioCut_cache;
-
-  // ---- main loops: candidate then seed
   for (unsigned int cand_pt = 1; cand_pt < tracksterCount; ++cand_pt) {
     auto const& ts_cand = inputTracksters[trackstersIndicesPt[cand_pt]];
 
@@ -285,10 +258,7 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
       continue;
     }
 
-    bool passes_cut = checkExplainedVarianceRatioCut(
-        inputTracksters, trackstersIndicesPt[cand_pt], checkExplainedVarianceRatioCut_cache);
-
-    if (!passes_cut) {
+    if (!passesExplainedVarianceRatioCut(trackstersIndicesPt[cand_pt])) {
       continue;
     }
 
@@ -303,19 +273,16 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
         const auto bin = tiles.globalBin(eta_i, (phi_i % TileConstants::nPhiBins));
         for (unsigned int seed_pt : tiles[bin]) {
           if (seed_pt >= cand_pt) {
-            continue;  // only higher-pT seeds
+            continue;
           }
 
           auto const& ts_seed = inputTracksters[trackstersIndicesPt[seed_pt]];
 
           if (ts_seed.raw_pt() < seedPtThreshold_) {
-            break;  // due to pT ordering
+            break;
           }
 
-          bool passes_cut = checkExplainedVarianceRatioCut(
-              inputTracksters, trackstersIndicesPt[seed_pt], checkExplainedVarianceRatioCut_cache);
-
-          if (!passes_cut || !trackstersPassesPIDCut(ts_seed)) {
+          if (!passesExplainedVarianceRatioCut(trackstersIndicesPt[seed_pt]) || !trackstersPassesPIDCut(ts_seed)) {
             continue;
           }
 
@@ -330,10 +297,8 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
             flushBatch();
           }
 
-          // Append one feature row directly into the flat buffer
           const size_t base = inputBatch.size();
           inputBatch.resize(base + featuresPerPair);
-
           dnnInputs_->computeInto(ts_seed, ts_cand, std::span<float>(inputBatch.data() + base, featuresPerPair));
           batchPairs.emplace_back(trackstersIndicesPt[seed_pt], trackstersIndicesPt[cand_pt]);
         }
@@ -341,11 +306,9 @@ void TracksterLinkingbySuperClusteringDNN::linkTracksters(
     }
   }
 
-  // Flush tail and finalize last candidate
   flushBatch();
   onCandidateTransition(previousCand);
 
-  // Singleton superclusters for unused tracksters with enough pt
   for (unsigned int ts_id = 0; ts_id < tracksterCount; ++ts_id) {
     if (!tracksterMask[ts_id] && inputTracksters[ts_id].raw_pt() >= seedPtThreshold_) {
       outputSuperclusters.emplace_back(std::initializer_list<unsigned int>{ts_id});
@@ -372,7 +335,7 @@ void TracksterLinkingbySuperClusteringDNN::fillPSetDescription(edm::ParameterSet
                edm::allowedValues<std::string>("v1", "v2", "v3"))
       ->setComment(
           "DNN inputs version tag. Defines which set of features is fed to the DNN. Must match with the actual DNN.");
-  desc.add<unsigned int>("inferenceBatchSize", 1e5)
+  desc.add<unsigned int>("inferenceBatchSize", 256)
       ->setComment(
           "Size of inference batches fed to DNN. Increasing it should produce faster inference but higher memory "
           "usage. "
