@@ -14,10 +14,10 @@ namespace ticl::associator::detail {
     template <alpaka::concepts::Acc TAcc, std::integral TKey>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   std::span<const TKey> keys,
-                                  uint32_t* keys_counts,
+                                  TKey* keys_counts,
                                   std::size_t size) const {
       for (auto i : alpaka::uniformElements(acc, size)) {
-        alpaka::atomicAdd(acc, &keys_counts[keys[i]], 1u);
+        alpaka::atomicAdd(acc, &keys_counts[keys[i]], TKey{1});
       }
     }
   };
@@ -31,7 +31,7 @@ namespace ticl::associator::detail {
                                   TKey* temp_offsets) const {
       for (auto i : alpaka::uniformElements(acc, values.size())) {
         const auto key = keys[i];
-        const auto offset = alpaka::atomicAdd(acc, &temp_offsets[key], 1u);
+        const auto offset = alpaka::atomicAdd(acc, &temp_offsets[key], TKey{1});
         view.content().values()[offset] = values[i];
       }
     }
@@ -48,7 +48,7 @@ namespace ticl::associator::detail {
     const auto nkeys = map.metadata().size()[1];
     const auto nvalues = map.metadata().size()[0];
 
-    const auto blocksize = 1024;
+    const auto blocksize = 1024u;
     const auto gridsize = divide_up_by(keys.size(), blocksize);
     const auto workdiv = make_workdiv<TAcc>(gridsize, blocksize);
     auto keys_counts = make_device_buffer<TKey[]>(queue, nkeys);
@@ -66,7 +66,7 @@ namespace ticl::associator::detail {
     auto warp_size = alpaka::getPreferredWarpSize(alpaka::getDev(queue));
     alpaka::exec<TAcc>(queue,
                        workdiv_multiblockscan,
-                       multiBlockPrefixScan<uint32_t>{},
+                       multiBlockPrefixScan<TKey>{},
                        keys_counts.data(),
                        temp_offsets.data() + 1,
                        nkeys,
