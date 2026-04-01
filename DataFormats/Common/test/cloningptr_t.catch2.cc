@@ -1,20 +1,8 @@
-#include "cppunit/extensions/HelperMacros.h"
+#include <catch2/catch_all.hpp>
 #include "DataFormats/Common/interface/CloningPtr.h"
 
 #include <vector>
 
-class testCloningPtr : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(testCloningPtr);
-  CPPUNIT_TEST(check);
-  CPPUNIT_TEST_SUITE_END();
-
-public:
-  void setUp() {}
-  void tearDown() {}
-  void check();
-};
-
-CPPUNIT_TEST_SUITE_REGISTRATION(testCloningPtr);
 namespace testcloningptr {
   struct Base {
     virtual ~Base() {}
@@ -32,22 +20,22 @@ namespace testcloningptr {
 
 using namespace testcloningptr;
 
-void testCloningPtr::check() {
+TEST_CASE("test CloningPtr", "[CloningPtr]") {
   using namespace edm;
 
   Inherit one(1);
   CloningPtr<Base> cpOne(one);
-  CPPUNIT_ASSERT(&one != cpOne.get());
-  CPPUNIT_ASSERT(1 == cpOne->val());
-  CPPUNIT_ASSERT(1 == (*cpOne).val());
+  REQUIRE(&one != cpOne.get());
+  REQUIRE(1 == cpOne->val());
+  REQUIRE(1 == (*cpOne).val());
 
   CloningPtr<Base> cpOtherOne(cpOne);
-  CPPUNIT_ASSERT(cpOne.get() != cpOtherOne.get());
-  CPPUNIT_ASSERT(cpOtherOne->val() == 1);
+  REQUIRE(cpOne.get() != cpOtherOne.get());
+  REQUIRE(cpOtherOne->val() == 1);
 
   CloningPtr<Base> eqOne;
   eqOne = cpOne;
 
-  CPPUNIT_ASSERT(cpOne.get() != eqOne.get());
-  CPPUNIT_ASSERT(eqOne->val() == 1);
+  REQUIRE(cpOne.get() != eqOne.get());
+  REQUIRE(eqOne->val() == 1);
 }
