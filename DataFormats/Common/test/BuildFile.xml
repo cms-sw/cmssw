@@ -1,9 +1,8 @@
-<use name="boost"/>
-<use name="cppunit"/>
-<use name="DataFormats/Common"/>
 
 <library name="testTriggerResults" file="TestReadTriggerResults.cc,TestWriteTriggerResults.cc">
   <flags EDM_PLUGIN="1"/>
+  <use name="boost"/>
+  <use name="DataFormats/Common"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
@@ -11,11 +10,20 @@
 
 <test name="TestTriggerResultsFormat" command="TestTriggerResultsFormat.sh"/>
 
-<bin name="testDataFormatsCommon" file="testRunner.cpp,testOwnVector.cc,testOneToOneAssociation.cc,testValueMap.cc,testOneToManyAssociation.cc,testAssociationVector.cc,testAssociationNew.cc,testValueMapNew.cc,testSortedCollection.cc,testRangeMap.cc,ref_t.cppunit.cc,DetSetRefVector_t.cppunit.cc,reftobasevector_t.cppunit.cc,cloningptr_t.cppunit.cc,ptr_t.cppunit.cc,containermask_t.cppunit.cc,reftobaseprod_t.cppunit.cc,handle_t.cppunit.cc">
+<bin name="testDataFormatsCommon" file="testOwnVector.cc,testOneToOneAssociation.cc,testValueMap.cc,testOneToManyAssociation.cc,testAssociationVector.cc,testAssociationNew.cc,testValueMapNew.cc,testSortedCollection.cc,testRangeMap.cc,ref_t.catch2.cc,DetSetRefVector_t.catch2.cc,reftobasevector_t.catch2.cc,cloningptr_t.catch2.cc,ptr_t.catch2.cc,containermask_t.catch2.cc,reftobaseprod_t.catch2.cc,handle_t.catch2.cc">
+  <use name="catch2"/>
+  <use name="boost"/>
+  <use name="DataFormats/Common"/>
 </bin>
 
 <bin name="testDataFormatsCommonCatch2" file="test_catch2_*.cpp">
-<use name="catch2"/>
+  <use name="catch2"/>
+  <use name="boost"/>
+  <use name="DataFormats/Common"/>
 </bin>
 
-<bin name="testMultiAssociation" file="testRunner.cpp,testMultiAssociation.cc"/>
+<bin name="testMultiAssociation" file="testMultiAssociation.cc">
+  <use name="catch2"/>
+  <use name="boost"/>
+  <use name="DataFormats/Common"/>
+</bin>
