@@ -140,10 +140,10 @@ uint16_t CSCCorrelatedLCTDigi::getSlope() const {
 
 uint16_t CSCCorrelatedLCTDigi::getSlopeEx(uint16_t resolution) const {
   if (resolution > 16)
-    throw cms::Exception("InvalidSlopeResolution") << "Requested slope resolution " << resolution
-                                           << " is larger than 16 bits, which is not supported.";
+    throw cms::Exception("InvalidSlopeResolution")
+        << "Requested slope resolution " << resolution << " is larger than 16 bits, which is not supported.";
   const uint16_t rawResolution = getRawSlopeResolution();
-  if(resolution == 0 || resolution == rawResolution)
+  if (resolution == 0 || resolution == rawResolution)
     return run3_slope_;
   if (resolution > rawResolution)
     return run3_slope_ << (resolution - rawResolution);
@@ -177,8 +177,7 @@ std::ostream& operator<<(std::ostream& o, const CSCCorrelatedLCTDigi& digi) {
              << " Run-2 Pattern = " << digi.getPattern() << " Run-3 Pattern = " << digi.getRun3Pattern()
              << " Quality = " << digi.getQuality() << " Bend = " << digi.getBend() << " Slope = " << digi.getSlope()
              << " Slope resolution = " << digi.getRawSlopeResolution() << " bits"
-             << " GemLayer = " << digi.getGemLayerUsedForSlopeComputation()
-             << "\n"
+             << " GemLayer = " << digi.getGemLayerUsedForSlopeComputation() << "\n"
              << " KeyHalfStrip = " << digi.getStrip() << " KeyQuartStrip = " << digi.getStrip(4)
              << " KeyEighthStrip = " << digi.getStrip(8) << " KeyWireGroup = " << digi.getKeyWG()
              << " Type (SIM) = " << digi.getType() << " MPC Link = " << digi.getMPCLink();

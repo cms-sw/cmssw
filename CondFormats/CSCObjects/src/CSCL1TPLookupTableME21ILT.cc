@@ -28,12 +28,14 @@ DEFINE_LUT(CSC_slope_corr_L2_ME21_even);
 DEFINE_LUT(CSC_slope_corr_L2_ME21_odd);
 
 unsigned CSCL1TPLookupTableME21ILT::es_diff_slope_bit_width() const {
-  return CSCL1TPLookupTableUtils::get_common_lut_bit_width({
-      es_diff_slope_L1_ME21_even_bit_width(),
-      es_diff_slope_L1_ME21_odd_bit_width(),
-      es_diff_slope_L2_ME21_even_bit_width(),
-      es_diff_slope_L2_ME21_odd_bit_width(),
-  }, "es_diff_slope");
+  return CSCL1TPLookupTableUtils::get_common_lut_bit_width(
+      {
+          es_diff_slope_L1_ME21_even_bit_width(),
+          es_diff_slope_L1_ME21_odd_bit_width(),
+          es_diff_slope_L2_ME21_even_bit_width(),
+          es_diff_slope_L2_ME21_odd_bit_width(),
+      },
+      "es_diff_slope");
 }
 
 #undef DEFINE_LUT

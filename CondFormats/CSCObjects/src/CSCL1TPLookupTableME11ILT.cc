@@ -11,8 +11,8 @@ unsigned CSCL1TPLookupTableUtils::get_common_lut_bit_width(std::initializer_list
                                                            std::string_view lut_group_name) {
   const auto min_max = std::minmax(luts_bit_width);
   if (min_max.first != min_max.second)
-    throw cms::Exception("InvalidLookupTable") << "Inconsistent bit widths among " << lut_group_name << " LUTs: "
-      << min_max.first << " vs " << min_max.second;
+    throw cms::Exception("InvalidLookupTable")
+        << "Inconsistent bit widths among " << lut_group_name << " LUTs: " << min_max.first << " vs " << min_max.second;
   return min_max.first;
 }
 
@@ -62,16 +62,18 @@ DEFINE_LUT(es_diff_slope_L2_ME11b_even);
 DEFINE_LUT(es_diff_slope_L2_ME11b_odd);
 
 unsigned CSCL1TPLookupTableME11ILT::es_diff_slope_bit_width() const {
-  return CSCL1TPLookupTableUtils::get_common_lut_bit_width({
-      es_diff_slope_L1_ME11a_even_bit_width(),
-      es_diff_slope_L1_ME11a_odd_bit_width(),
-      es_diff_slope_L1_ME11b_even_bit_width(),
-      es_diff_slope_L1_ME11b_odd_bit_width(),
-      es_diff_slope_L2_ME11a_even_bit_width(),
-      es_diff_slope_L2_ME11a_odd_bit_width(),
-      es_diff_slope_L2_ME11b_even_bit_width(),
-      es_diff_slope_L2_ME11b_odd_bit_width(),
-  }, "es_diff_slope");
+  return CSCL1TPLookupTableUtils::get_common_lut_bit_width(
+      {
+          es_diff_slope_L1_ME11a_even_bit_width(),
+          es_diff_slope_L1_ME11a_odd_bit_width(),
+          es_diff_slope_L1_ME11b_even_bit_width(),
+          es_diff_slope_L1_ME11b_odd_bit_width(),
+          es_diff_slope_L2_ME11a_even_bit_width(),
+          es_diff_slope_L2_ME11a_odd_bit_width(),
+          es_diff_slope_L2_ME11b_even_bit_width(),
+          es_diff_slope_L2_ME11b_odd_bit_width(),
+      },
+      "es_diff_slope");
 }
 
 #undef DEFINE_LUT

@@ -504,27 +504,33 @@ void CSCGEMMotherboard::fillBaseInfo(CSCCorrelatedLCTDigi& thisLCT) const {
 }
 
 void CSCGEMMotherboard::fillCCLUTInfo(CSCCorrelatedLCTDigi& thisLCT,
-                                       const CSCCLCTDigi* clct,
-                                       const GEMInternalCluster* gem,
-                                       const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
-                                       const CSCL1TPLookupTableME21ILT* lookupTableME21ILT) const {
-  if (!runCCLUT_) return;
+                                      const CSCCLCTDigi* clct,
+                                      const GEMInternalCluster* gem,
+                                      const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                                      const CSCL1TPLookupTableME21ILT* lookupTableME21ILT) const {
+  if (!runCCLUT_)
+    return;
   CSCCorrelatedLCTDigi::Version version = CSCCorrelatedLCTDigi::Version::Run3;
-  if(lookupTableME11ILT || lookupTableME21ILT) {
-    const auto me11_n_bits = lookupTableME11ILT ? std::make_optional(lookupTableME11ILT->es_diff_slope_bit_width()) : std::nullopt;
-    const auto me21_n_bits = lookupTableME21ILT ? std::make_optional(lookupTableME21ILT->es_diff_slope_bit_width()) : std::nullopt;
+  if (lookupTableME11ILT || lookupTableME21ILT) {
+    const auto me11_n_bits =
+        lookupTableME11ILT ? std::make_optional(lookupTableME11ILT->es_diff_slope_bit_width()) : std::nullopt;
+    const auto me21_n_bits =
+        lookupTableME21ILT ? std::make_optional(lookupTableME21ILT->es_diff_slope_bit_width()) : std::nullopt;
     if (me11_n_bits.has_value() && me21_n_bits.has_value() && me11_n_bits != me21_n_bits) {
-      throw cms::Exception("CSCGEMMotherboard") << "Mismatch in ES diff slope bit width between ME11 and ME21 LUTs! ME11: " << *me11_n_bits << " bits, ME21: " << *me21_n_bits << " bits. This may lead to incorrect slope and pattern assignment.";
+      throw cms::Exception("CSCGEMMotherboard")
+          << "Mismatch in ES diff slope bit width between ME11 and ME21 LUTs! ME11: " << *me11_n_bits
+          << " bits, ME21: " << *me21_n_bits << " bits. This may lead to incorrect slope and pattern assignment.";
     }
     const unsigned n_bits = me11_n_bits.has_value() ? *me11_n_bits : *me21_n_bits;
-    if(n_bits != 4 && n_bits != 6) {
-      throw cms::Exception("CSCGEMMotherboard") << "Unsupported ES diff slope bit width in LUTs! Expected 4 or 6 bits, but got " << n_bits << " bits.";
+    if (n_bits != 4 && n_bits != 6) {
+      throw cms::Exception("CSCGEMMotherboard")
+          << "Unsupported ES diff slope bit width in LUTs! Expected 4 or 6 bits, but got " << n_bits << " bits.";
     }
     if (n_bits == 6)
       version = CSCCorrelatedLCTDigi::Version::Run3HR;
   }
   thisLCT.setVersion(version);
-  if(clct) {
+  if (clct) {
     if (assign_gem_csc_bending_ && gem && gem->isValid()) {
       //calculate new slope from strip difference between CLCT and associated GEM
       const int slope = cscGEMMatcher_->calculateGEMCSCBending(*clct, *gem, lookupTableME11ILT, lookupTableME21ILT);

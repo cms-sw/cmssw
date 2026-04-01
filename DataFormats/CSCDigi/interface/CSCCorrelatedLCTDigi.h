@@ -116,7 +116,7 @@ public:
   /// return the slope
   uint16_t getSlope() const;
   // return the slope with extended resolution. The raw slope resolution is 4 bits for Legacy and Run3, and 6 bits for Run3HR. If resolution=0, return raw slope value with the full resolution.
-  uint16_t getSlopeEx(uint16_t resolution=0) const;
+  uint16_t getSlopeEx(uint16_t resolution = 0) const;
   uint16_t getRawSlopeResolution() const { return version_ == Version::Run3HR ? 6 : 4; }
 
   /// slope in number of half-strips/layer
