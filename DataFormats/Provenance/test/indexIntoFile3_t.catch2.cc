@@ -2,7 +2,7 @@
  *  indexIntoFile_t.cppunit.cc
  */
 
-#include "cppunit/extensions/HelperMacros.h"
+#include <catch2/catch_all.hpp>
 
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
@@ -16,18 +16,7 @@
 
 using namespace edm;
 
-class TestIndexIntoFile3 : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(TestIndexIntoFile3);
-  CPPUNIT_TEST(testIterEndWithEvent);
-  CPPUNIT_TEST(testOverlappingLumis);
-  CPPUNIT_TEST(testOverlappingLumisMore);
-  CPPUNIT_TEST(testOverlappingLumisOutOfOrderEvent);
-  CPPUNIT_TEST(testOverlappingLumisWithEndWithEmptyLumi);
-  CPPUNIT_TEST(testOverlappingLumisWithLumiEndOrderChanged);
-  CPPUNIT_TEST(testNonContiguousRun);
-  CPPUNIT_TEST(testNonValidLumiInsideValidLumis);
-  CPPUNIT_TEST_SUITE_END();
-
+class TestIndexIntoFile3 {
 public:
   static const IndexIntoFile::EntryType kRun = IndexIntoFile::kRun;
   static const IndexIntoFile::EntryType kLumi = IndexIntoFile::kLumi;
@@ -43,8 +32,12 @@ public:
     IndexIntoFile::EntryNumber_t skippedEventEntry_;
   };
 
-  Skipped skipped_;
+  ProcessHistoryID nullPHID;
+  ProcessHistoryID fakePHID1;
+  ProcessHistoryID fakePHID2;
+  ProcessHistoryID fakePHID3;
 
+  Skipped skipped_;
   void setUp() {
     // Make some fake processHistoryID's to work with
     nullPHID = ProcessHistoryID();
@@ -69,8 +62,6 @@ public:
     fakePHID3 = ph3.id();
   }
 
-  void tearDown() {}
-
   void testIterEndWithEvent();
   void testOverlappingLumis();
   void testOverlappingLumisMore();
@@ -79,11 +70,6 @@ public:
   void testOverlappingLumisWithLumiEndOrderChanged();
   void testNonContiguousRun();
   void testNonValidLumiInsideValidLumis();
-
-  ProcessHistoryID nullPHID;
-  ProcessHistoryID fakePHID1;
-  ProcessHistoryID fakePHID2;
-  ProcessHistoryID fakePHID3;
 
   bool check(edm::IndexIntoFile::IndexIntoFileItr const& iter,
              IndexIntoFile::EntryType type,
@@ -108,7 +94,6 @@ public:
 };
 
 ///registration of the test so that the runner can find it
-CPPUNIT_TEST_SUITE_REGISTRATION(TestIndexIntoFile3);
 
 bool TestIndexIntoFile3::check(edm::IndexIntoFile::IndexIntoFileItr const& iter,
                                IndexIntoFile::EntryType type,
@@ -143,7 +128,7 @@ void TestIndexIntoFile3::checkSkipped(int phIndexOfSkippedEvent,
     std::cout << "Actual          " << skipped_.phIndexOfSkippedEvent_ << "  " << skipped_.runOfSkippedEvent_ << "  "
               << skipped_.lumiOfSkippedEvent_ << "  " << skipped_.skippedEventEntry_ << "\n";
   }
-  CPPUNIT_ASSERT(theyMatch);
+  REQUIRE(theyMatch);
 }
 
 void TestIndexIntoFile3::checkIDRunLumiEntry(edm::IndexIntoFile::IndexIntoFileItr const& iter,
@@ -159,7 +144,7 @@ void TestIndexIntoFile3::checkIDRunLumiEntry(edm::IndexIntoFile::IndexIntoFileIt
     std::cout << "Actual          " << iter.processHistoryIDIndex() << "  " << iter.run() << "  " << iter.lumi() << "  "
               << iter.entry() << "\n";
   }
-  CPPUNIT_ASSERT(theyMatch);
+  REQUIRE(theyMatch);
 }
 
 void TestIndexIntoFile3::skipEventForward(edm::IndexIntoFile::IndexIntoFileItr& iter) {
@@ -201,20 +186,20 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
       &indexIntoFile, IndexIntoFile::firstAppearanceOrder, IndexIntoFile::kEvent, 0, 3, 2, 1, 2);
   edm::IndexIntoFile::IndexIntoFileItr iter1(iter3);
 
-  CPPUNIT_ASSERT(iter1 == iter3);
-  CPPUNIT_ASSERT(iter1.indexIntoFile() == &indexIntoFile);
-  CPPUNIT_ASSERT(iter1.size() == 10);
-  CPPUNIT_ASSERT(iter1.type() == kEvent);
-  CPPUNIT_ASSERT(iter1.indexToRun() == 0);
-  CPPUNIT_ASSERT(iter1.indexToLumi() == 3);
-  CPPUNIT_ASSERT(iter1.indexToEventRange() == 2);
-  CPPUNIT_ASSERT(iter1.indexToEvent() == 1);
-  CPPUNIT_ASSERT(iter1.nEvents() == 2);
+  REQUIRE(iter1 == iter3);
+  REQUIRE(iter1.indexIntoFile() == &indexIntoFile);
+  REQUIRE(iter1.size() == 10);
+  REQUIRE(iter1.type() == kEvent);
+  REQUIRE(iter1.indexToRun() == 0);
+  REQUIRE(iter1.indexToLumi() == 3);
+  REQUIRE(iter1.indexToEventRange() == 2);
+  REQUIRE(iter1.indexToEvent() == 1);
+  REQUIRE(iter1.nEvents() == 2);
 
   iter1 = ++iter3;
-  CPPUNIT_ASSERT(iter1 == iter3);
+  REQUIRE(iter1 == iter3);
 
-  CPPUNIT_ASSERT(indexIntoFile.iterationWillBeInEntryOrder(IndexIntoFile::firstAppearanceOrder) == true);
+  REQUIRE(indexIntoFile.iterationWillBeInEntryOrder(IndexIntoFile::firstAppearanceOrder) == true);
 
   edm::IndexIntoFile::IndexIntoFileItr iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
   edm::IndexIntoFile::IndexIntoFileItr iterFirstCopy = iterFirst;
@@ -222,85 +207,85 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
   edm::IndexIntoFile::IndexIntoFileItr iterFirstEnd = indexIntoFile.end(IndexIntoFile::firstAppearanceOrder);
   int i = 0;
   for (i = 0; iterFirst != iterFirstEnd; ++iterFirst, ++iterFirstCopy, ++i) {
-    CPPUNIT_ASSERT(iterFirst == iterFirstCopy);
+    REQUIRE(iterFirst == iterFirstCopy);
     iterFirstCopy2 = iterFirstCopy;
-    CPPUNIT_ASSERT(iterFirst == iterFirstCopy2);
+    REQUIRE(iterFirst == iterFirstCopy2);
     if (i == 0) {
-      CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 1, 1, 0, 2));
-      CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-      CPPUNIT_ASSERT(iterFirst.size() == 10);
-      CPPUNIT_ASSERT(iterFirst.indexedSize() == 10);
-      CPPUNIT_ASSERT(iterFirst.shouldProcessRun());
+      REQUIRE(check(iterFirst, kRun, 0, 1, 1, 0, 2));
+      REQUIRE(iterFirst.indexIntoFile() == &indexIntoFile);
+      REQUIRE(iterFirst.size() == 10);
+      REQUIRE(iterFirst.indexedSize() == 10);
+      REQUIRE(iterFirst.shouldProcessRun());
     } else if (i == 1) {
-      CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 1, 1, 0, 2));
-      CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
+      REQUIRE(check(iterFirst, kLumi, 0, 1, 1, 0, 2));
+      REQUIRE(iterFirst.shouldProcessLumi());
     } else if (i == 2)
-      CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 2, 1, 0, 2));
+      REQUIRE(check(iterFirst, kLumi, 0, 2, 1, 0, 2));
     else if (i == 3)
-      CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 3, 1, 0, 2));
+      REQUIRE(check(iterFirst, kLumi, 0, 3, 1, 0, 2));
     else if (i == 4)
-      CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 1, 0, 2));
+      REQUIRE(check(iterFirst, kEvent, 0, 3, 1, 0, 2));
     else if (i == 5)
-      CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 1, 1, 2));
+      REQUIRE(check(iterFirst, kEvent, 0, 3, 1, 1, 2));
     else if (i == 6)
-      CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 3, 0, 2));
+      REQUIRE(check(iterFirst, kEvent, 0, 3, 3, 0, 2));
     else if (i == 7)
-      CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 3, 1, 2));
+      REQUIRE(check(iterFirst, kEvent, 0, 3, 3, 1, 2));
     else if (i == 8)
-      CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 4, 0, 2));
+      REQUIRE(check(iterFirst, kLumi, 0, 4, 4, 0, 2));
     else if (i == 9)
-      CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 4, 0, 2));
+      REQUIRE(check(iterFirst, kEvent, 0, 4, 4, 0, 2));
     else if (i == 10)
-      CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 4, 1, 2));
+      REQUIRE(check(iterFirst, kEvent, 0, 4, 4, 1, 2));
     else if (i == 11)
-      CPPUNIT_ASSERT(check(iterFirst, kRun, 5, 7, -1, 0, 0));
+      REQUIRE(check(iterFirst, kRun, 5, 7, -1, 0, 0));
     else if (i == 12)
-      CPPUNIT_ASSERT(check(iterFirst, kRun, 6, 7, -1, 0, 0));
+      REQUIRE(check(iterFirst, kRun, 6, 7, -1, 0, 0));
     else if (i == 13)
-      CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 7, -1, 0, 0));
+      REQUIRE(check(iterFirst, kLumi, 6, 7, -1, 0, 0));
     else if (i == 14)
-      CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 8, 9, 0, 1));
+      REQUIRE(check(iterFirst, kLumi, 6, 8, 9, 0, 1));
     else if (i == 15)
-      CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 9, 9, 0, 1));
+      REQUIRE(check(iterFirst, kLumi, 6, 9, 9, 0, 1));
     else if (i == 16)
-      CPPUNIT_ASSERT(check(iterFirst, kEvent, 6, 9, 9, 0, 1));
+      REQUIRE(check(iterFirst, kEvent, 6, 9, 9, 0, 1));
     else
-      CPPUNIT_ASSERT(false);
+      REQUIRE(false);
 
     switch (i) {
       case 0:
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+        REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
         break;
       case 10:
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+        REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
         break;
       case 12:
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
+        REQUIRE(iterFirst.firstEventEntryThisRun() == 6);
         break;
     }
 
     switch (i) {
       case 0:
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+        REQUIRE(iterFirst.firstEventEntryThisLumi() == 0);
         break;
       case 1:
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+        REQUIRE(iterFirst.firstEventEntryThisLumi() == 0);
         break;
       case 2:
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+        REQUIRE(iterFirst.firstEventEntryThisLumi() == 0);
         break;
       case 3:
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+        REQUIRE(iterFirst.firstEventEntryThisLumi() == 0);
         break;
       case 10:
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
+        REQUIRE(iterFirst.firstEventEntryThisLumi() == 4);
         break;
       case 12:
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+        REQUIRE(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
         break;
     }
   }
-  CPPUNIT_ASSERT(i == 17);
+  REQUIRE(i == 17);
 
   for (i = 0, iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder); iterFirst != iterFirstEnd;
        ++iterFirst, ++i) {
@@ -360,7 +345,7 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
   }
   checkIDRunLumiEntry(iterFirst, -1, 0, 0, -1);  // Event
 
-  CPPUNIT_ASSERT(indexIntoFile.runOrLumiIndexes().empty());
+  REQUIRE(indexIntoFile.runOrLumiIndexes().empty());
 
   // Now repeat the above tests for the sorted iteration
 
@@ -368,17 +353,17 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
       &indexIntoFile, IndexIntoFile::numericalOrder, IndexIntoFile::kEvent, 0, 3, 1, 3, 4);
   edm::IndexIntoFile::IndexIntoFileItr iter2(iter4);
 
-  CPPUNIT_ASSERT(iter2 == iter4);
-  CPPUNIT_ASSERT(iter2.indexIntoFile() == &indexIntoFile);
-  CPPUNIT_ASSERT(iter2.size() == 10);
-  CPPUNIT_ASSERT(iter2.type() == kEvent);
-  CPPUNIT_ASSERT(iter2.indexToRun() == 0);
-  CPPUNIT_ASSERT(iter2.indexToLumi() == 3);
-  CPPUNIT_ASSERT(iter2.indexToEventRange() == 1);
-  CPPUNIT_ASSERT(iter2.indexToEvent() == 3);
-  CPPUNIT_ASSERT(iter2.nEvents() == 4);
+  REQUIRE(iter2 == iter4);
+  REQUIRE(iter2.indexIntoFile() == &indexIntoFile);
+  REQUIRE(iter2.size() == 10);
+  REQUIRE(iter2.type() == kEvent);
+  REQUIRE(iter2.indexToRun() == 0);
+  REQUIRE(iter2.indexToLumi() == 3);
+  REQUIRE(iter2.indexToEventRange() == 1);
+  REQUIRE(iter2.indexToEvent() == 3);
+  REQUIRE(iter2.nEvents() == 4);
 
-  CPPUNIT_ASSERT(!indexIntoFile.runOrLumiIndexes().empty());
+  REQUIRE(!indexIntoFile.runOrLumiIndexes().empty());
 
   std::vector<IndexIntoFile::EventEntry>& eventEntries = indexIntoFile.eventEntries();
   eventEntries.emplace_back(7, 0);
@@ -390,7 +375,7 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
   eventEntries.emplace_back(4, 6);
   indexIntoFile.sortEventEntries();
 
-  CPPUNIT_ASSERT(indexIntoFile.iterationWillBeInEntryOrder(IndexIntoFile::numericalOrder) == false);
+  REQUIRE(indexIntoFile.iterationWillBeInEntryOrder(IndexIntoFile::numericalOrder) == false);
 
   edm::IndexIntoFile::IndexIntoFileItr iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
   edm::IndexIntoFile::IndexIntoFileItr iterNumCopy = iterNum;
@@ -399,83 +384,83 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
   i = 0;
   for (; iterNum != iterNumEnd; ++iterNum, ++iterNumCopy, ++i) {
     iterNumCopy2 = iterNumCopy;
-    CPPUNIT_ASSERT(iterNum == iterNumCopy);
-    CPPUNIT_ASSERT(iterNum == iterNumCopy2);
+    REQUIRE(iterNum == iterNumCopy);
+    REQUIRE(iterNum == iterNumCopy2);
     if (i == 0) {
-      CPPUNIT_ASSERT(check(iterNum, kRun, 0, 1, 1, 0, 4));
-      CPPUNIT_ASSERT(iterNum.indexIntoFile() == &indexIntoFile);
-      CPPUNIT_ASSERT(iterNum.size() == 10);
-      CPPUNIT_ASSERT(iterNum.indexedSize() == 10);
-      CPPUNIT_ASSERT(iterNum.shouldProcessRun());
+      REQUIRE(check(iterNum, kRun, 0, 1, 1, 0, 4));
+      REQUIRE(iterNum.indexIntoFile() == &indexIntoFile);
+      REQUIRE(iterNum.size() == 10);
+      REQUIRE(iterNum.indexedSize() == 10);
+      REQUIRE(iterNum.shouldProcessRun());
     } else if (i == 1) {
-      CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 1, 1, 0, 4));
-      CPPUNIT_ASSERT(iterNum.shouldProcessLumi());
+      REQUIRE(check(iterNum, kLumi, 0, 1, 1, 0, 4));
+      REQUIRE(iterNum.shouldProcessLumi());
     } else if (i == 2)
-      CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 2, 1, 0, 4));
+      REQUIRE(check(iterNum, kLumi, 0, 2, 1, 0, 4));
     else if (i == 3)
-      CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 3, 1, 0, 4));
+      REQUIRE(check(iterNum, kLumi, 0, 3, 1, 0, 4));
     else if (i == 4)
-      CPPUNIT_ASSERT(check(iterNum, kEvent, 0, 3, 1, 0, 4));
+      REQUIRE(check(iterNum, kEvent, 0, 3, 1, 0, 4));
     else if (i == 5)
-      CPPUNIT_ASSERT(check(iterNum, kEvent, 0, 3, 1, 1, 4));
+      REQUIRE(check(iterNum, kEvent, 0, 3, 1, 1, 4));
     else if (i == 6)
-      CPPUNIT_ASSERT(check(iterNum, kEvent, 0, 3, 1, 2, 4));
+      REQUIRE(check(iterNum, kEvent, 0, 3, 1, 2, 4));
     else if (i == 7)
-      CPPUNIT_ASSERT(check(iterNum, kEvent, 0, 3, 1, 3, 4));
+      REQUIRE(check(iterNum, kEvent, 0, 3, 1, 3, 4));
     else if (i == 8)
-      CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 4, 4, 0, 2));
+      REQUIRE(check(iterNum, kLumi, 0, 4, 4, 0, 2));
     else if (i == 9)
-      CPPUNIT_ASSERT(check(iterNum, kEvent, 0, 4, 4, 0, 2));
+      REQUIRE(check(iterNum, kEvent, 0, 4, 4, 0, 2));
     else if (i == 10)
-      CPPUNIT_ASSERT(check(iterNum, kEvent, 0, 4, 4, 1, 2));
+      REQUIRE(check(iterNum, kEvent, 0, 4, 4, 1, 2));
     else if (i == 11)
-      CPPUNIT_ASSERT(check(iterNum, kRun, 5, 7, -1, 0, 0));
+      REQUIRE(check(iterNum, kRun, 5, 7, -1, 0, 0));
     else if (i == 12)
-      CPPUNIT_ASSERT(check(iterNum, kRun, 6, 7, -1, 0, 0));
+      REQUIRE(check(iterNum, kRun, 6, 7, -1, 0, 0));
     else if (i == 13)
-      CPPUNIT_ASSERT(check(iterNum, kLumi, 6, 7, -1, 0, 0));
+      REQUIRE(check(iterNum, kLumi, 6, 7, -1, 0, 0));
     else if (i == 14)
-      CPPUNIT_ASSERT(check(iterNum, kLumi, 6, 8, 8, 0, 1));
+      REQUIRE(check(iterNum, kLumi, 6, 8, 8, 0, 1));
     else if (i == 15)
-      CPPUNIT_ASSERT(check(iterNum, kLumi, 6, 9, 8, 0, 1));
+      REQUIRE(check(iterNum, kLumi, 6, 9, 8, 0, 1));
     else if (i == 16)
-      CPPUNIT_ASSERT(check(iterNum, kEvent, 6, 9, 8, 0, 1));
+      REQUIRE(check(iterNum, kEvent, 6, 9, 8, 0, 1));
     else
-      CPPUNIT_ASSERT(false);
+      REQUIRE(false);
 
     switch (i) {
       case 0:
-        CPPUNIT_ASSERT(iterNum.firstEventEntryThisRun() == 3);
+        REQUIRE(iterNum.firstEventEntryThisRun() == 3);
         break;
       case 10:
-        CPPUNIT_ASSERT(iterNum.firstEventEntryThisRun() == 3);
+        REQUIRE(iterNum.firstEventEntryThisRun() == 3);
         break;
       case 12:
-        CPPUNIT_ASSERT(iterNum.firstEventEntryThisRun() == 6);
+        REQUIRE(iterNum.firstEventEntryThisRun() == 6);
         break;
     }
     switch (i) {
       case 0:
-        CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
+        REQUIRE(iterNum.firstEventEntryThisLumi() == 3);
         break;
       case 1:
-        CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
+        REQUIRE(iterNum.firstEventEntryThisLumi() == 3);
         break;
       case 2:
-        CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
+        REQUIRE(iterNum.firstEventEntryThisLumi() == 3);
         break;
       case 3:
-        CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
+        REQUIRE(iterNum.firstEventEntryThisLumi() == 3);
         break;
       case 10:
-        CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 5);
+        REQUIRE(iterNum.firstEventEntryThisLumi() == 5);
         break;
       case 12:
-        CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+        REQUIRE(iterNum.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
         break;
     }
   }
-  CPPUNIT_ASSERT(i == 17);
+  REQUIRE(i == 17);
 
   for (i = 0, iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder); iterNum != iterNumEnd; ++iterNum, ++i) {
     switch (i) {
@@ -539,20 +524,20 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
         &indexIntoFile, IndexIntoFile::entryOrder, IndexIntoFile::kEvent, 0, 3, 2, 1, 2);
     edm::IndexIntoFile::IndexIntoFileItr iter1(iter3);
 
-    CPPUNIT_ASSERT(iter1 == iter3);
-    CPPUNIT_ASSERT(iter1.indexIntoFile() == &indexIntoFile);
-    CPPUNIT_ASSERT(iter1.size() == 10);
-    CPPUNIT_ASSERT(iter1.type() == kEvent);
-    CPPUNIT_ASSERT(iter1.indexToRun() == 0);
-    CPPUNIT_ASSERT(iter1.indexToLumi() == 3);
-    CPPUNIT_ASSERT(iter1.indexToEventRange() == 2);
-    CPPUNIT_ASSERT(iter1.indexToEvent() == 1);
-    CPPUNIT_ASSERT(iter1.nEvents() == 2);
+    REQUIRE(iter1 == iter3);
+    REQUIRE(iter1.indexIntoFile() == &indexIntoFile);
+    REQUIRE(iter1.size() == 10);
+    REQUIRE(iter1.type() == kEvent);
+    REQUIRE(iter1.indexToRun() == 0);
+    REQUIRE(iter1.indexToLumi() == 3);
+    REQUIRE(iter1.indexToEventRange() == 2);
+    REQUIRE(iter1.indexToEvent() == 1);
+    REQUIRE(iter1.nEvents() == 2);
 
     iter1 = ++iter3;
-    CPPUNIT_ASSERT(iter1 == iter3);
+    REQUIRE(iter1 == iter3);
 
-    CPPUNIT_ASSERT(indexIntoFile.iterationWillBeInEntryOrder(IndexIntoFile::entryOrder) == true);
+    REQUIRE(indexIntoFile.iterationWillBeInEntryOrder(IndexIntoFile::entryOrder) == true);
 
     edm::IndexIntoFile::IndexIntoFileItr iterEntry = indexIntoFile.begin(IndexIntoFile::entryOrder);
     edm::IndexIntoFile::IndexIntoFileItr iterEntryCopy = iterEntry;
@@ -560,82 +545,82 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
     edm::IndexIntoFile::IndexIntoFileItr iterEntryEnd = indexIntoFile.end(IndexIntoFile::entryOrder);
     int i = 0;
     for (i = 0; iterEntry != iterEntryEnd; ++iterEntry, ++iterEntryCopy, ++i) {
-      CPPUNIT_ASSERT(iterEntry == iterEntryCopy);
+      REQUIRE(iterEntry == iterEntryCopy);
       iterEntryCopy2 = iterEntryCopy;
-      CPPUNIT_ASSERT(iterEntry == iterEntryCopy2);
+      REQUIRE(iterEntry == iterEntryCopy2);
       if (i == 0) {
-        CPPUNIT_ASSERT(check(iterEntry, kRun, 0, 1, 1, 0, 2));
-        CPPUNIT_ASSERT(iterEntry.indexIntoFile() == &indexIntoFile);
-        CPPUNIT_ASSERT(iterEntry.size() == 10);
+        REQUIRE(check(iterEntry, kRun, 0, 1, 1, 0, 2));
+        REQUIRE(iterEntry.indexIntoFile() == &indexIntoFile);
+        REQUIRE(iterEntry.size() == 10);
       } else if (i == 1)
-        CPPUNIT_ASSERT(check(iterEntry, kLumi, 0, 1, 1, 0, 2));
+        REQUIRE(check(iterEntry, kLumi, 0, 1, 1, 0, 2));
       else if (i == 2)
-        CPPUNIT_ASSERT(check(iterEntry, kLumi, 0, 2, 1, 0, 2));
+        REQUIRE(check(iterEntry, kLumi, 0, 2, 1, 0, 2));
       else if (i == 3)
-        CPPUNIT_ASSERT(check(iterEntry, kLumi, 0, 3, 1, 0, 2));
+        REQUIRE(check(iterEntry, kLumi, 0, 3, 1, 0, 2));
       else if (i == 4)
-        CPPUNIT_ASSERT(check(iterEntry, kEvent, 0, 3, 1, 0, 2));
+        REQUIRE(check(iterEntry, kEvent, 0, 3, 1, 0, 2));
       else if (i == 5)
-        CPPUNIT_ASSERT(check(iterEntry, kEvent, 0, 3, 1, 1, 2));
+        REQUIRE(check(iterEntry, kEvent, 0, 3, 1, 1, 2));
       else if (i == 6)
-        CPPUNIT_ASSERT(check(iterEntry, kEvent, 0, 3, 3, 0, 2));
+        REQUIRE(check(iterEntry, kEvent, 0, 3, 3, 0, 2));
       else if (i == 7)
-        CPPUNIT_ASSERT(check(iterEntry, kEvent, 0, 3, 3, 1, 2));
+        REQUIRE(check(iterEntry, kEvent, 0, 3, 3, 1, 2));
       else if (i == 8)
-        CPPUNIT_ASSERT(check(iterEntry, kLumi, 0, 4, 4, 0, 2));
+        REQUIRE(check(iterEntry, kLumi, 0, 4, 4, 0, 2));
       else if (i == 9)
-        CPPUNIT_ASSERT(check(iterEntry, kEvent, 0, 4, 4, 0, 2));
+        REQUIRE(check(iterEntry, kEvent, 0, 4, 4, 0, 2));
       else if (i == 10)
-        CPPUNIT_ASSERT(check(iterEntry, kEvent, 0, 4, 4, 1, 2));
+        REQUIRE(check(iterEntry, kEvent, 0, 4, 4, 1, 2));
       else if (i == 11)
-        CPPUNIT_ASSERT(check(iterEntry, kRun, 5, 7, -1, 0, 0));
+        REQUIRE(check(iterEntry, kRun, 5, 7, -1, 0, 0));
       else if (i == 12)
-        CPPUNIT_ASSERT(check(iterEntry, kRun, 6, 7, -1, 0, 0));
+        REQUIRE(check(iterEntry, kRun, 6, 7, -1, 0, 0));
       else if (i == 13)
-        CPPUNIT_ASSERT(check(iterEntry, kLumi, 6, 7, -1, 0, 0));
+        REQUIRE(check(iterEntry, kLumi, 6, 7, -1, 0, 0));
       else if (i == 14)
-        CPPUNIT_ASSERT(check(iterEntry, kLumi, 6, 8, 9, 0, 1));
+        REQUIRE(check(iterEntry, kLumi, 6, 8, 9, 0, 1));
       else if (i == 15)
-        CPPUNIT_ASSERT(check(iterEntry, kLumi, 6, 9, 9, 0, 1));
+        REQUIRE(check(iterEntry, kLumi, 6, 9, 9, 0, 1));
       else if (i == 16)
-        CPPUNIT_ASSERT(check(iterEntry, kEvent, 6, 9, 9, 0, 1));
+        REQUIRE(check(iterEntry, kEvent, 6, 9, 9, 0, 1));
       else
-        CPPUNIT_ASSERT(false);
+        REQUIRE(false);
 
       switch (i) {
         case 0:
-          CPPUNIT_ASSERT(iterEntry.firstEventEntryThisRun() == 0);
+          REQUIRE(iterEntry.firstEventEntryThisRun() == 0);
           break;
         case 10:
-          CPPUNIT_ASSERT(iterEntry.firstEventEntryThisRun() == 0);
+          REQUIRE(iterEntry.firstEventEntryThisRun() == 0);
           break;
         case 12:
-          CPPUNIT_ASSERT(iterEntry.firstEventEntryThisRun() == 6);
+          REQUIRE(iterEntry.firstEventEntryThisRun() == 6);
           break;
       }
 
       switch (i) {
         case 0:
-          CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == 0);
+          REQUIRE(iterEntry.firstEventEntryThisLumi() == 0);
           break;
         case 1:
-          CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == 0);
+          REQUIRE(iterEntry.firstEventEntryThisLumi() == 0);
           break;
         case 2:
-          CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == 0);
+          REQUIRE(iterEntry.firstEventEntryThisLumi() == 0);
           break;
         case 3:
-          CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == 0);
+          REQUIRE(iterEntry.firstEventEntryThisLumi() == 0);
           break;
         case 10:
-          CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == 4);
+          REQUIRE(iterEntry.firstEventEntryThisLumi() == 4);
           break;
         case 12:
-          CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+          REQUIRE(iterEntry.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
           break;
       }
     }
-    CPPUNIT_ASSERT(i == 17);
+    REQUIRE(i == 17);
 
     for (i = 0, iterEntry = indexIntoFile.begin(IndexIntoFile::entryOrder); iterEntry != iterEntryEnd;
          ++iterEntry, ++i) {
@@ -696,73 +681,73 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
     checkIDRunLumiEntry(iterEntry, -1, 0, 0, -1);  // Event
   }
   iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 1, 1, 0, 2));
+  REQUIRE(check(iterFirst, kRun, 0, 1, 1, 0, 2));
 
   skipEventForward(iterFirst);
   checkSkipped(0, 11, 101, 0);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 1, 1, 1, 2));
+  REQUIRE(check(iterFirst, kRun, 0, 1, 1, 1, 2));
 
   skipEventForward(iterFirst);
   checkSkipped(0, 11, 101, 1);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 1, 3, 0, 2));
+  REQUIRE(check(iterFirst, kRun, 0, 1, 3, 0, 2));
 
   skipEventForward(iterFirst);
   checkSkipped(0, 11, 101, 2);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 1, 3, 1, 2));
+  REQUIRE(check(iterFirst, kRun, 0, 1, 3, 1, 2));
 
   skipEventForward(iterFirst);
   checkSkipped(0, 11, 101, 3);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 4, 4, 0, 2));
+  REQUIRE(check(iterFirst, kRun, 0, 4, 4, 0, 2));
 
   skipEventForward(iterFirst);
   checkSkipped(0, 11, 102, 4);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 4, 4, 1, 2));
+  REQUIRE(check(iterFirst, kRun, 0, 4, 4, 1, 2));
 
   skipEventForward(iterFirst);
   checkSkipped(0, 11, 102, 5);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 5, 7, -1, 0, 0));
+  REQUIRE(check(iterFirst, kRun, 5, 7, -1, 0, 0));
 
   skipEventForward(iterFirst);
   checkSkipped(1, 11, 102, 6);
-  CPPUNIT_ASSERT(check(iterFirst, kEnd, -1, -1, -1, 0, 0));
+  REQUIRE(check(iterFirst, kEnd, -1, -1, -1, 0, 0));
 
   skipEventForward(iterFirst);
   checkSkipped(-1, 0, 0, -1);
-  CPPUNIT_ASSERT(check(iterFirst, kEnd, -1, -1, -1, 0, 0));
+  REQUIRE(check(iterFirst, kEnd, -1, -1, -1, 0, 0));
 
   iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
   ++iterFirst;
 
   skipEventForward(iterFirst);
   checkSkipped(0, 11, 101, 0);
-  CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 1, 1, 1, 2));
+  REQUIRE(check(iterFirst, kLumi, 0, 1, 1, 1, 2));
 
   skipEventForward(iterFirst);
   checkSkipped(0, 11, 101, 1);
-  CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 1, 3, 0, 2));
+  REQUIRE(check(iterFirst, kLumi, 0, 1, 3, 0, 2));
 
   skipEventForward(iterFirst);
   checkSkipped(0, 11, 101, 2);
-  CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 1, 3, 1, 2));
+  REQUIRE(check(iterFirst, kLumi, 0, 1, 3, 1, 2));
 
   skipEventForward(iterFirst);
   checkSkipped(0, 11, 101, 3);
-  CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 4, 0, 2));
+  REQUIRE(check(iterFirst, kLumi, 0, 4, 4, 0, 2));
 
   skipEventForward(iterFirst);
   checkSkipped(0, 11, 102, 4);
-  CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 4, 1, 2));
+  REQUIRE(check(iterFirst, kLumi, 0, 4, 4, 1, 2));
 
   skipEventForward(iterFirst);
   checkSkipped(0, 11, 102, 5);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 5, 7, -1, 0, 0));
+  REQUIRE(check(iterFirst, kRun, 5, 7, -1, 0, 0));
 
   ++iterFirst;
   ++iterFirst;
   ++iterFirst;
   skipEventForward(iterFirst);
   checkSkipped(1, 11, 102, 6);
-  CPPUNIT_ASSERT(check(iterFirst, kEnd, -1, -1, -1, 0, 0));
+  REQUIRE(check(iterFirst, kEnd, -1, -1, -1, 0, 0));
 
   iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
   ++iterFirst;
@@ -772,135 +757,135 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
 
   skipEventForward(iterFirst);
   checkSkipped(0, 11, 101, 0);
-  CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 1, 1, 2));
+  REQUIRE(check(iterFirst, kEvent, 0, 3, 1, 1, 2));
 
   skipEventForward(iterFirst);
   checkSkipped(0, 11, 101, 1);
-  CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 3, 0, 2));
+  REQUIRE(check(iterFirst, kEvent, 0, 3, 3, 0, 2));
 
   skipEventForward(iterFirst);
   checkSkipped(0, 11, 101, 2);
-  CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 3, 1, 2));
+  REQUIRE(check(iterFirst, kEvent, 0, 3, 3, 1, 2));
 
   skipEventForward(iterFirst);
   checkSkipped(0, 11, 101, 3);
-  CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 4, 0, 2));
+  REQUIRE(check(iterFirst, kLumi, 0, 4, 4, 0, 2));
 
   ++iterFirst;
   skipEventForward(iterFirst);
   checkSkipped(0, 11, 102, 4);
-  CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 4, 1, 2));
+  REQUIRE(check(iterFirst, kEvent, 0, 4, 4, 1, 2));
 
   skipEventForward(iterFirst);
   checkSkipped(0, 11, 102, 5);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 5, 7, -1, 0, 0));
+  REQUIRE(check(iterFirst, kRun, 5, 7, -1, 0, 0));
 
   iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
   iterFirst.advanceToNextLumiOrRun();
-  CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 1, 1, 0, 2));
+  REQUIRE(check(iterFirst, kLumi, 0, 1, 1, 0, 2));
   iterFirst.advanceToNextLumiOrRun();
-  CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 4, 0, 2));
+  REQUIRE(check(iterFirst, kLumi, 0, 4, 4, 0, 2));
   iterFirst.advanceToNextLumiOrRun();
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 5, 7, -1, 0, 0));
+  REQUIRE(check(iterFirst, kRun, 5, 7, -1, 0, 0));
   iterFirst.advanceToNextLumiOrRun();
-  CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 7, -1, 0, 0));
+  REQUIRE(check(iterFirst, kLumi, 6, 7, -1, 0, 0));
   iterFirst.advanceToNextLumiOrRun();
-  CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 8, 9, 0, 1));
+  REQUIRE(check(iterFirst, kLumi, 6, 8, 9, 0, 1));
   iterFirst.advanceToNextLumiOrRun();
-  CPPUNIT_ASSERT(check(iterFirst, kEnd, -1, -1, -1, 0, 0));
-
-  iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
-  ++iterFirst;
-  ++iterFirst;
-  ++iterFirst;
-  ++iterFirst;
-  CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 1, 0, 2));
-  iterFirst.advanceToNextLumiOrRun();
-  CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 4, 0, 2));
-  ++iterFirst;
-  iterFirst.advanceToNextLumiOrRun();
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 5, 7, -1, 0, 0));
+  REQUIRE(check(iterFirst, kEnd, -1, -1, -1, 0, 0));
 
   iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
   ++iterFirst;
   ++iterFirst;
   ++iterFirst;
   ++iterFirst;
-  CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 1, 0, 2));
+  REQUIRE(check(iterFirst, kEvent, 0, 3, 1, 0, 2));
+  iterFirst.advanceToNextLumiOrRun();
+  REQUIRE(check(iterFirst, kLumi, 0, 4, 4, 0, 2));
+  ++iterFirst;
+  iterFirst.advanceToNextLumiOrRun();
+  REQUIRE(check(iterFirst, kRun, 5, 7, -1, 0, 0));
+
+  iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder);
+  ++iterFirst;
+  ++iterFirst;
+  ++iterFirst;
+  ++iterFirst;
+  REQUIRE(check(iterFirst, kEvent, 0, 3, 1, 0, 2));
   iterFirst.advanceToNextRun();
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 5, 7, -1, 0, 0));
+  REQUIRE(check(iterFirst, kRun, 5, 7, -1, 0, 0));
 
   // Repeat skip tests with the other sort order
 
   iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 0, 1, 1, 0, 4));
+  REQUIRE(check(iterNum, kRun, 0, 1, 1, 0, 4));
 
   skipEventForward(iterNum);
   checkSkipped(0, 11, 101, 3);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 0, 1, 1, 1, 4));
+  REQUIRE(check(iterNum, kRun, 0, 1, 1, 1, 4));
 
   skipEventForward(iterNum);
   checkSkipped(0, 11, 101, 2);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 0, 1, 1, 2, 4));
+  REQUIRE(check(iterNum, kRun, 0, 1, 1, 2, 4));
 
   skipEventForward(iterNum);
   checkSkipped(0, 11, 101, 1);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 0, 1, 1, 3, 4));
+  REQUIRE(check(iterNum, kRun, 0, 1, 1, 3, 4));
 
   skipEventForward(iterNum);
   checkSkipped(0, 11, 101, 0);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 0, 4, 4, 0, 2));
+  REQUIRE(check(iterNum, kRun, 0, 4, 4, 0, 2));
 
   skipEventForward(iterNum);
   checkSkipped(0, 11, 102, 5);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 0, 4, 4, 1, 2));
+  REQUIRE(check(iterNum, kRun, 0, 4, 4, 1, 2));
 
   skipEventForward(iterNum);
   checkSkipped(0, 11, 102, 4);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 5, 7, -1, 0, 0));
+  REQUIRE(check(iterNum, kRun, 5, 7, -1, 0, 0));
 
   skipEventForward(iterNum);
   checkSkipped(1, 11, 102, 6);
-  CPPUNIT_ASSERT(check(iterNum, kEnd, -1, -1, -1, 0, 0));
+  REQUIRE(check(iterNum, kEnd, -1, -1, -1, 0, 0));
 
   skipEventForward(iterNum);
   checkSkipped(-1, 0, 0, -1);
-  CPPUNIT_ASSERT(check(iterNum, kEnd, -1, -1, -1, 0, 0));
+  REQUIRE(check(iterNum, kEnd, -1, -1, -1, 0, 0));
 
   iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
   ++iterNum;
 
   skipEventForward(iterNum);
   checkSkipped(0, 11, 101, 3);
-  CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 1, 1, 1, 4));
+  REQUIRE(check(iterNum, kLumi, 0, 1, 1, 1, 4));
 
   skipEventForward(iterNum);
   checkSkipped(0, 11, 101, 2);
-  CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 1, 1, 2, 4));
+  REQUIRE(check(iterNum, kLumi, 0, 1, 1, 2, 4));
 
   skipEventForward(iterNum);
   checkSkipped(0, 11, 101, 1);
-  CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 1, 1, 3, 4));
+  REQUIRE(check(iterNum, kLumi, 0, 1, 1, 3, 4));
 
   skipEventForward(iterNum);
   checkSkipped(0, 11, 101, 0);
-  CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 4, 4, 0, 2));
+  REQUIRE(check(iterNum, kLumi, 0, 4, 4, 0, 2));
 
   skipEventForward(iterNum);
   checkSkipped(0, 11, 102, 5);
-  CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 4, 4, 1, 2));
+  REQUIRE(check(iterNum, kLumi, 0, 4, 4, 1, 2));
 
   skipEventForward(iterNum);
   checkSkipped(0, 11, 102, 4);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 5, 7, -1, 0, 0));
+  REQUIRE(check(iterNum, kRun, 5, 7, -1, 0, 0));
 
   ++iterNum;
   ++iterNum;
   ++iterNum;
-  CPPUNIT_ASSERT(check(iterNum, kLumi, 6, 8, 8, 0, 1));
+  REQUIRE(check(iterNum, kLumi, 6, 8, 8, 0, 1));
   skipEventForward(iterNum);
   checkSkipped(1, 11, 102, 6);
-  CPPUNIT_ASSERT(check(iterNum, kEnd, -1, -1, -1, 0, 0));
+  REQUIRE(check(iterNum, kEnd, -1, -1, -1, 0, 0));
 
   iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
   ++iterNum;
@@ -910,63 +895,63 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
 
   skipEventForward(iterNum);
   checkSkipped(0, 11, 101, 3);
-  CPPUNIT_ASSERT(check(iterNum, kEvent, 0, 3, 1, 1, 4));
+  REQUIRE(check(iterNum, kEvent, 0, 3, 1, 1, 4));
 
   skipEventForward(iterNum);
   checkSkipped(0, 11, 101, 2);
-  CPPUNIT_ASSERT(check(iterNum, kEvent, 0, 3, 1, 2, 4));
+  REQUIRE(check(iterNum, kEvent, 0, 3, 1, 2, 4));
 
   skipEventForward(iterNum);
   checkSkipped(0, 11, 101, 1);
-  CPPUNIT_ASSERT(check(iterNum, kEvent, 0, 3, 1, 3, 4));
+  REQUIRE(check(iterNum, kEvent, 0, 3, 1, 3, 4));
 
   skipEventForward(iterNum);
   checkSkipped(0, 11, 101, 0);
-  CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 4, 4, 0, 2));
+  REQUIRE(check(iterNum, kLumi, 0, 4, 4, 0, 2));
 
   ++iterNum;
   skipEventForward(iterNum);
   checkSkipped(0, 11, 102, 5);
-  CPPUNIT_ASSERT(check(iterNum, kEvent, 0, 4, 4, 1, 2));
+  REQUIRE(check(iterNum, kEvent, 0, 4, 4, 1, 2));
 
   skipEventForward(iterNum);
   checkSkipped(0, 11, 102, 4);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 5, 7, -1, 0, 0));
+  REQUIRE(check(iterNum, kRun, 5, 7, -1, 0, 0));
 
   iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
   iterNum.advanceToNextLumiOrRun();
-  CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 1, 1, 0, 4));
+  REQUIRE(check(iterNum, kLumi, 0, 1, 1, 0, 4));
   iterNum.advanceToNextLumiOrRun();
-  CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 4, 4, 0, 2));
+  REQUIRE(check(iterNum, kLumi, 0, 4, 4, 0, 2));
   iterNum.advanceToNextLumiOrRun();
-  CPPUNIT_ASSERT(check(iterNum, kRun, 5, 7, -1, 0, 0));
+  REQUIRE(check(iterNum, kRun, 5, 7, -1, 0, 0));
   iterNum.advanceToNextLumiOrRun();
-  CPPUNIT_ASSERT(check(iterNum, kLumi, 6, 7, -1, 0, 0));
+  REQUIRE(check(iterNum, kLumi, 6, 7, -1, 0, 0));
   iterNum.advanceToNextLumiOrRun();
-  CPPUNIT_ASSERT(check(iterNum, kLumi, 6, 8, 8, 0, 1));
+  REQUIRE(check(iterNum, kLumi, 6, 8, 8, 0, 1));
   iterNum.advanceToNextLumiOrRun();
-  CPPUNIT_ASSERT(check(iterNum, kEnd, -1, -1, -1, 0, 0));
-
-  iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
-  ++iterNum;
-  ++iterNum;
-  ++iterNum;
-  ++iterNum;
-  CPPUNIT_ASSERT(check(iterNum, kEvent, 0, 3, 1, 0, 4));
-  iterNum.advanceToNextLumiOrRun();
-  CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 4, 4, 0, 2));
-  ++iterNum;
-  iterNum.advanceToNextLumiOrRun();
-  CPPUNIT_ASSERT(check(iterNum, kRun, 5, 7, -1, 0, 0));
+  REQUIRE(check(iterNum, kEnd, -1, -1, -1, 0, 0));
 
   iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
   ++iterNum;
   ++iterNum;
   ++iterNum;
   ++iterNum;
-  CPPUNIT_ASSERT(check(iterNum, kEvent, 0, 3, 1, 0, 4));
+  REQUIRE(check(iterNum, kEvent, 0, 3, 1, 0, 4));
+  iterNum.advanceToNextLumiOrRun();
+  REQUIRE(check(iterNum, kLumi, 0, 4, 4, 0, 2));
+  ++iterNum;
+  iterNum.advanceToNextLumiOrRun();
+  REQUIRE(check(iterNum, kRun, 5, 7, -1, 0, 0));
+
+  iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder);
+  ++iterNum;
+  ++iterNum;
+  ++iterNum;
+  ++iterNum;
+  REQUIRE(check(iterNum, kEvent, 0, 3, 1, 0, 4));
   iterNum.advanceToNextRun();
-  CPPUNIT_ASSERT(check(iterNum, kRun, 5, 7, -1, 0, 0));
+  REQUIRE(check(iterNum, kRun, 5, 7, -1, 0, 0));
 
   // Check backwards iteration
 
@@ -974,35 +959,35 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
 
   skipEventBackward(iterFirst);
   checkSkipped(1, 11, 102, 6);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 5, 8, 9, 0, 1));
+  REQUIRE(check(iterFirst, kRun, 5, 8, 9, 0, 1));
 
   skipEventBackward(iterFirst);
   checkSkipped(0, 11, 102, 5);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 4, 4, 1, 2));
+  REQUIRE(check(iterFirst, kRun, 0, 4, 4, 1, 2));
 
   skipEventBackward(iterFirst);
   checkSkipped(0, 11, 102, 4);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 4, 4, 0, 2));
+  REQUIRE(check(iterFirst, kRun, 0, 4, 4, 0, 2));
 
   skipEventBackward(iterFirst);
   checkSkipped(0, 11, 101, 3);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 1, 3, 1, 2));
+  REQUIRE(check(iterFirst, kRun, 0, 1, 3, 1, 2));
 
   skipEventBackward(iterFirst);
   checkSkipped(0, 11, 101, 2);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 1, 3, 0, 2));
+  REQUIRE(check(iterFirst, kRun, 0, 1, 3, 0, 2));
 
   skipEventBackward(iterFirst);
   checkSkipped(0, 11, 101, 1);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 1, 1, 1, 2));
+  REQUIRE(check(iterFirst, kRun, 0, 1, 1, 1, 2));
 
   skipEventBackward(iterFirst);
   checkSkipped(0, 11, 101, 0);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 1, 1, 0, 2));
+  REQUIRE(check(iterFirst, kRun, 0, 1, 1, 0, 2));
 
   skipEventBackward(iterFirst);
   checkSkipped(-1, 0, 0, -1);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 1, 1, 0, 2));
+  REQUIRE(check(iterFirst, kRun, 0, 1, 1, 0, 2));
 
   ++iterFirst;
   ++iterFirst;
@@ -1014,79 +999,79 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
   ++iterFirst;
   ++iterFirst;
   ++iterFirst;
-  CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 4, 1, 2));
-
-  skipEventBackward(iterFirst);
-  checkSkipped(0, 11, 102, 4);
-  CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 4, 0, 2));
-
-  skipEventBackward(iterFirst);
-  checkSkipped(0, 11, 101, 3);
-  CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 1, 3, 1, 2));
-
-  skipEventForward(iterFirst);
-  skipEventForward(iterFirst);
-  CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 4, 1, 2));
+  REQUIRE(check(iterFirst, kEvent, 0, 4, 4, 1, 2));
 
   skipEventBackward(iterFirst);
   checkSkipped(0, 11, 102, 4);
-  CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 4, 0, 2));
+  REQUIRE(check(iterFirst, kEvent, 0, 4, 4, 0, 2));
 
   skipEventBackward(iterFirst);
   checkSkipped(0, 11, 101, 3);
-  CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 1, 3, 1, 2));
+  REQUIRE(check(iterFirst, kLumi, 0, 1, 3, 1, 2));
+
+  skipEventForward(iterFirst);
+  skipEventForward(iterFirst);
+  REQUIRE(check(iterFirst, kLumi, 0, 4, 4, 1, 2));
+
+  skipEventBackward(iterFirst);
+  checkSkipped(0, 11, 102, 4);
+  REQUIRE(check(iterFirst, kLumi, 0, 4, 4, 0, 2));
+
+  skipEventBackward(iterFirst);
+  checkSkipped(0, 11, 101, 3);
+  REQUIRE(check(iterFirst, kLumi, 0, 1, 3, 1, 2));
 
   iterFirst.advanceToNextRun();
   iterFirst.advanceToEvent();
-  CPPUNIT_ASSERT(check(iterFirst, kEvent, 6, 9, 9, 0, 1));
+  REQUIRE(check(iterFirst, kEvent, 6, 9, 9, 0, 1));
 
   skipEventBackward(iterFirst);
   checkSkipped(0, 11, 102, 5);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 4, 4, 1, 2));
+  REQUIRE(check(iterFirst, kRun, 0, 4, 4, 1, 2));
 
   iterFirst.advanceToNextRun();
   ++iterFirst;
   ++iterFirst;
   ++iterFirst;
-  CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 8, 9, 0, 1));
+  REQUIRE(check(iterFirst, kLumi, 6, 8, 9, 0, 1));
 
   skipEventBackward(iterFirst);
   checkSkipped(0, 11, 102, 5);
-  CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 4, 4, 1, 2));
+  REQUIRE(check(iterFirst, kRun, 0, 4, 4, 1, 2));
 
   iterNum = indexIntoFile.end(IndexIntoFile::numericalOrder);
 
   skipEventBackward(iterNum);
   checkSkipped(1, 11, 102, 6);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 5, 8, 8, 0, 1));
+  REQUIRE(check(iterNum, kRun, 5, 8, 8, 0, 1));
 
   skipEventBackward(iterNum);
   checkSkipped(0, 11, 102, 4);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 0, 4, 4, 1, 2));
+  REQUIRE(check(iterNum, kRun, 0, 4, 4, 1, 2));
 
   skipEventBackward(iterNum);
   checkSkipped(0, 11, 102, 5);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 0, 4, 4, 0, 2));
+  REQUIRE(check(iterNum, kRun, 0, 4, 4, 0, 2));
 
   skipEventBackward(iterNum);
   checkSkipped(0, 11, 101, 0);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 0, 1, 1, 3, 4));
+  REQUIRE(check(iterNum, kRun, 0, 1, 1, 3, 4));
 
   skipEventBackward(iterNum);
   checkSkipped(0, 11, 101, 1);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 0, 1, 1, 2, 4));
+  REQUIRE(check(iterNum, kRun, 0, 1, 1, 2, 4));
 
   skipEventBackward(iterNum);
   checkSkipped(0, 11, 101, 2);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 0, 1, 1, 1, 4));
+  REQUIRE(check(iterNum, kRun, 0, 1, 1, 1, 4));
 
   skipEventBackward(iterNum);
   checkSkipped(0, 11, 101, 3);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 0, 1, 1, 0, 4));
+  REQUIRE(check(iterNum, kRun, 0, 1, 1, 0, 4));
 
   skipEventBackward(iterNum);
   checkSkipped(-1, 0, 0, -1);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 0, 1, 1, 0, 4));
+  REQUIRE(check(iterNum, kRun, 0, 1, 1, 0, 4));
 
   ++iterNum;
   ++iterNum;
@@ -1098,45 +1083,45 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
   ++iterNum;
   ++iterNum;
   ++iterNum;
-  CPPUNIT_ASSERT(check(iterNum, kEvent, 0, 4, 4, 1, 2));
-
-  skipEventBackward(iterNum);
-  checkSkipped(0, 11, 102, 5);
-  CPPUNIT_ASSERT(check(iterNum, kEvent, 0, 4, 4, 0, 2));
-
-  skipEventBackward(iterNum);
-  checkSkipped(0, 11, 101, 0);
-  CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 1, 1, 3, 4));
-
-  skipEventForward(iterNum);
-  skipEventForward(iterNum);
-  CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 4, 4, 1, 2));
+  REQUIRE(check(iterNum, kEvent, 0, 4, 4, 1, 2));
 
   skipEventBackward(iterNum);
   checkSkipped(0, 11, 102, 5);
-  CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 4, 4, 0, 2));
+  REQUIRE(check(iterNum, kEvent, 0, 4, 4, 0, 2));
 
   skipEventBackward(iterNum);
   checkSkipped(0, 11, 101, 0);
-  CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 1, 1, 3, 4));
+  REQUIRE(check(iterNum, kLumi, 0, 1, 1, 3, 4));
+
+  skipEventForward(iterNum);
+  skipEventForward(iterNum);
+  REQUIRE(check(iterNum, kLumi, 0, 4, 4, 1, 2));
+
+  skipEventBackward(iterNum);
+  checkSkipped(0, 11, 102, 5);
+  REQUIRE(check(iterNum, kLumi, 0, 4, 4, 0, 2));
+
+  skipEventBackward(iterNum);
+  checkSkipped(0, 11, 101, 0);
+  REQUIRE(check(iterNum, kLumi, 0, 1, 1, 3, 4));
 
   iterNum.advanceToNextRun();
   iterNum.advanceToEvent();
-  CPPUNIT_ASSERT(check(iterNum, kEvent, 6, 9, 8, 0, 1));
+  REQUIRE(check(iterNum, kEvent, 6, 9, 8, 0, 1));
 
   skipEventBackward(iterNum);
   checkSkipped(0, 11, 102, 4);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 0, 4, 4, 1, 2));
+  REQUIRE(check(iterNum, kRun, 0, 4, 4, 1, 2));
 
   iterNum.advanceToNextRun();
   ++iterNum;
   ++iterNum;
   ++iterNum;
-  CPPUNIT_ASSERT(check(iterNum, kLumi, 6, 8, 8, 0, 1));
+  REQUIRE(check(iterNum, kLumi, 6, 8, 8, 0, 1));
 
   skipEventBackward(iterNum);
   checkSkipped(0, 11, 102, 4);
-  CPPUNIT_ASSERT(check(iterNum, kRun, 0, 4, 4, 1, 2));
+  REQUIRE(check(iterNum, kRun, 0, 4, 4, 1, 2));
 }
 
 void TestIndexIntoFile3::testOverlappingLumis() {
@@ -1180,69 +1165,69 @@ void TestIndexIntoFile3::testOverlappingLumis() {
     int i = 0;
     for (i = 0; iterFirst != iterFirstEnd; ++iterFirst, ++i) {
       if (i == 0) {
-        CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 1, -1, 0, 0));
-        CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-        CPPUNIT_ASSERT(iterFirst.size() == 11);
+        REQUIRE(check(iterFirst, kRun, 0, 1, -1, 0, 0));
+        REQUIRE(iterFirst.indexIntoFile() == &indexIntoFile);
+        REQUIRE(iterFirst.size() == 11);
       }
       //values are 'IndexIntoFile::EntryType' 'indexToRun' 'indexToLumi' 'indexToEventRange' 'indexToEvent' 'nEvents'
       else if (i == 1)
-        CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 1, -1, 0, 0));
+        REQUIRE(check(iterFirst, kLumi, 0, 1, -1, 0, 0));
       else if (i == 2)
-        CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 3, 2, 0, 4));
+        REQUIRE(check(iterFirst, kLumi, 0, 3, 2, 0, 4));
       else if (i == 3)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 2, 0, 4));
+        REQUIRE(check(iterFirst, kEvent, 0, 3, 2, 0, 4));
       else if (i == 4)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 2, 1, 4));
+        REQUIRE(check(iterFirst, kEvent, 0, 3, 2, 1, 4));
       else if (i == 5)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 2, 2, 4));
+        REQUIRE(check(iterFirst, kEvent, 0, 3, 2, 2, 4));
       else if (i == 6)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 2, 3, 4));
+        REQUIRE(check(iterFirst, kEvent, 0, 3, 2, 3, 4));
       else if (i == 7)
-        CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 5, 4, 0, 1));
+        REQUIRE(check(iterFirst, kLumi, 0, 5, 4, 0, 1));
       else if (i == 8)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 5, 4, 0, 1));
+        REQUIRE(check(iterFirst, kEvent, 0, 5, 4, 0, 1));
       else if (i == 9)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 5, 5, 0, 1));
+        REQUIRE(check(iterFirst, kEvent, 0, 5, 5, 0, 1));
       else if (i == 10)
-        CPPUNIT_ASSERT(check(iterFirst, kRun, 6, 8, -1, 0, 0));
+        REQUIRE(check(iterFirst, kRun, 6, 8, -1, 0, 0));
       else if (i == 11)
-        CPPUNIT_ASSERT(check(iterFirst, kRun, 7, 8, -1, 0, 0));
+        REQUIRE(check(iterFirst, kRun, 7, 8, -1, 0, 0));
       else if (i == 12)
-        CPPUNIT_ASSERT(check(iterFirst, kLumi, 7, 8, -1, 0, 0));
+        REQUIRE(check(iterFirst, kLumi, 7, 8, -1, 0, 0));
       else if (i == 13)
-        CPPUNIT_ASSERT(check(iterFirst, kLumi, 7, 9, 10, 0, 1));
+        REQUIRE(check(iterFirst, kLumi, 7, 9, 10, 0, 1));
       else if (i == 14)
-        CPPUNIT_ASSERT(check(iterFirst, kLumi, 7, 10, 10, 0, 1));
+        REQUIRE(check(iterFirst, kLumi, 7, 10, 10, 0, 1));
       else if (i == 15)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 7, 10, 10, 0, 1));
+        REQUIRE(check(iterFirst, kEvent, 7, 10, 10, 0, 1));
       else
-        CPPUNIT_ASSERT(false);
+        REQUIRE(false);
 
       switch (i) {
         case 1:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
           break;
         case 9:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
           break;
         case 11:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 6);
           break;
       }
 
       switch (i) {
         case 2:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 0);
           break;
         case 9:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 4);
           break;
         case 11:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
           break;
       }
     }
-    CPPUNIT_ASSERT(i == 16);
+    REQUIRE(i == 16);
   }
   {
     edm::IndexIntoFile::IndexIntoFileItr iterFirst = indexIntoFile.begin(IndexIntoFile::numericalOrder);
@@ -1251,45 +1236,45 @@ void TestIndexIntoFile3::testOverlappingLumis() {
     for (i = 0; iterFirst != iterFirstEnd; ++iterFirst, ++i) {
       //values are 'IndexIntoFile::EntryType' 'indexToRun' 'indexToLumi' 'indexToEventRange' 'indexToEvent' 'nEvents'
       if (i == 0) {
-        CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 2, 1, 0, 2));
+        REQUIRE(check(iterFirst, kRun, 0, 2, 1, 0, 2));
 
         iterFirst.getLumisInRun(lumis);
         std::vector<LuminosityBlockNumber_t> expected{102, 103, 104};
-        CPPUNIT_ASSERT(lumis == expected);
+        REQUIRE(lumis == expected);
       } else if (i == 1)
-        CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 2, 1, 0, 2));
+        REQUIRE(check(iterFirst, kLumi, 0, 2, 1, 0, 2));
       else if (i == 2)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 1, 0, 2));
+        REQUIRE(check(iterFirst, kEvent, 0, 2, 1, 0, 2));
       else if (i == 3)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 1, 1, 2));
+        REQUIRE(check(iterFirst, kEvent, 0, 2, 1, 1, 2));
       else if (i == 4)
-        CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 3, 0, 4));
+        REQUIRE(check(iterFirst, kLumi, 0, 4, 3, 0, 4));
       else if (i == 5)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 3, 0, 4));
+        REQUIRE(check(iterFirst, kEvent, 0, 4, 3, 0, 4));
       else if (i == 6)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 3, 1, 4));
+        REQUIRE(check(iterFirst, kEvent, 0, 4, 3, 1, 4));
       else if (i == 7)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 3, 2, 4));
+        REQUIRE(check(iterFirst, kEvent, 0, 4, 3, 2, 4));
       else if (i == 8)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 3, 3, 4));
+        REQUIRE(check(iterFirst, kEvent, 0, 4, 3, 3, 4));
       else if (i == 9)
-        CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 5, -1, 0, 0));
+        REQUIRE(check(iterFirst, kLumi, 0, 5, -1, 0, 0));
       else if (i == 10)
-        CPPUNIT_ASSERT(check(iterFirst, kRun, 6, 8, -1, 0, 0));
+        REQUIRE(check(iterFirst, kRun, 6, 8, -1, 0, 0));
       else if (i == 11)
-        CPPUNIT_ASSERT(check(iterFirst, kRun, 7, 8, -1, 0, 0));
+        REQUIRE(check(iterFirst, kRun, 7, 8, -1, 0, 0));
       else if (i == 12)
-        CPPUNIT_ASSERT(check(iterFirst, kLumi, 7, 8, -1, 0, 0));
+        REQUIRE(check(iterFirst, kLumi, 7, 8, -1, 0, 0));
       else if (i == 13)
-        CPPUNIT_ASSERT(check(iterFirst, kLumi, 7, 9, 9, 0, 1));
+        REQUIRE(check(iterFirst, kLumi, 7, 9, 9, 0, 1));
       else if (i == 14)
-        CPPUNIT_ASSERT(check(iterFirst, kLumi, 7, 10, 9, 0, 1));
+        REQUIRE(check(iterFirst, kLumi, 7, 10, 9, 0, 1));
       else if (i == 15)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 7, 10, 9, 0, 1));
+        REQUIRE(check(iterFirst, kEvent, 7, 10, 9, 0, 1));
       else
-        CPPUNIT_ASSERT(false);
+        REQUIRE(false);
     }
-    CPPUNIT_ASSERT(i == 16);
+    REQUIRE(i == 16);
   }
   {
     edm::IndexIntoFile::IndexIntoFileItr iterFirst = indexIntoFile.begin(IndexIntoFile::entryOrder);
@@ -1298,92 +1283,92 @@ void TestIndexIntoFile3::testOverlappingLumis() {
     for (i = 0; iterFirst != iterFirstEnd; ++iterFirst, ++i) {
       //values are 'IndexIntoFile::EntryType' 'indexToRun' 'indexToLumi' 'indexToEventRange' 'indexToEvent' 'nEvents'
       if (i == 0) {
-        CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 1, -1, 0, 0));
-        CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-        CPPUNIT_ASSERT(iterFirst.size() == 11);
+        REQUIRE(check(iterFirst, kRun, 0, 1, -1, 0, 0));
+        REQUIRE(iterFirst.indexIntoFile() == &indexIntoFile);
+        REQUIRE(iterFirst.size() == 11);
       }
       //values are 'IndexIntoFile::EntryType' 'indexToRun' 'indexToLumi' 'indexToEventRange' 'indexToEvent' 'nEvents'
       else if (i == 1)
-        CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 1, -1, 0, 0));
+        REQUIRE(check(iterFirst, kLumi, 0, 1, -1, 0, 0));
       else if (i == 2)
-        CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 3, 2, 0, 4));
+        REQUIRE(check(iterFirst, kLumi, 0, 3, 2, 0, 4));
       else if (i == 3)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 2, 0, 4));
+        REQUIRE(check(iterFirst, kEvent, 0, 3, 2, 0, 4));
       else if (i == 4)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 2, 1, 4));
+        REQUIRE(check(iterFirst, kEvent, 0, 3, 2, 1, 4));
       else if (i == 5)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 2, 2, 4));
+        REQUIRE(check(iterFirst, kEvent, 0, 3, 2, 2, 4));
       else if (i == 6)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 2, 3, 4));
+        REQUIRE(check(iterFirst, kEvent, 0, 3, 2, 3, 4));
       else if (i == 7)
-        CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 5, 4, 0, 1));
+        REQUIRE(check(iterFirst, kLumi, 0, 5, 4, 0, 1));
       else if (i == 8)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 5, 4, 0, 1));
+        REQUIRE(check(iterFirst, kEvent, 0, 5, 4, 0, 1));
       else if (i == 9)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 5, 5, 0, 1));
+        REQUIRE(check(iterFirst, kEvent, 0, 5, 5, 0, 1));
       else if (i == 10)
-        CPPUNIT_ASSERT(check(iterFirst, kRun, 6, 8, -1, 0, 0));
+        REQUIRE(check(iterFirst, kRun, 6, 8, -1, 0, 0));
       else if (i == 11)
-        CPPUNIT_ASSERT(check(iterFirst, kRun, 7, 8, -1, 0, 0));
+        REQUIRE(check(iterFirst, kRun, 7, 8, -1, 0, 0));
       else if (i == 12)
-        CPPUNIT_ASSERT(check(iterFirst, kLumi, 7, 8, -1, 0, 0));
+        REQUIRE(check(iterFirst, kLumi, 7, 8, -1, 0, 0));
       else if (i == 13)
-        CPPUNIT_ASSERT(check(iterFirst, kLumi, 7, 9, 10, 0, 1));
+        REQUIRE(check(iterFirst, kLumi, 7, 9, 10, 0, 1));
       else if (i == 14)
-        CPPUNIT_ASSERT(check(iterFirst, kLumi, 7, 10, 10, 0, 1));
+        REQUIRE(check(iterFirst, kLumi, 7, 10, 10, 0, 1));
       else if (i == 15)
-        CPPUNIT_ASSERT(check(iterFirst, kEvent, 7, 10, 10, 0, 1));
+        REQUIRE(check(iterFirst, kEvent, 7, 10, 10, 0, 1));
       else
-        CPPUNIT_ASSERT(false);
+        REQUIRE(false);
 
       switch (i) {
         case 1:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
           break;
         case 9:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
           break;
         case 11:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 6);
           break;
       }
 
       switch (i) {
         case 2:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 0);
           break;
         case 9:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 4);
           break;
         case 11:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
           break;
       }
     }
-    CPPUNIT_ASSERT(i == 16);
+    REQUIRE(i == 16);
   }
 
   {
     edm::IndexIntoFile::IndexIntoFileItr testIter = indexIntoFile.findPosition(11, 103, 7);
-    CPPUNIT_ASSERT(check(testIter, kRun, 0, 4, 3, 3, 4));
+    REQUIRE(check(testIter, kRun, 0, 4, 3, 3, 4));
     ++testIter;
-    CPPUNIT_ASSERT(check(testIter, kLumi, 0, 4, 3, 3, 4));
+    REQUIRE(check(testIter, kLumi, 0, 4, 3, 3, 4));
     ++testIter;
-    CPPUNIT_ASSERT(check(testIter, kEvent, 0, 4, 3, 3, 4));
+    REQUIRE(check(testIter, kEvent, 0, 4, 3, 3, 4));
     ++testIter;
-    CPPUNIT_ASSERT(check(testIter, kLumi, 0, 5, -1, 0, 0));
+    REQUIRE(check(testIter, kLumi, 0, 5, -1, 0, 0));
   }
   {
     edm::IndexIntoFile::IndexIntoFileItr testIter = indexIntoFile.findPosition(11, 0, 7);
-    CPPUNIT_ASSERT(check(testIter, kRun, 0, 4, 3, 3, 4));
+    REQUIRE(check(testIter, kRun, 0, 4, 3, 3, 4));
     ++testIter;
-    CPPUNIT_ASSERT(check(testIter, kLumi, 0, 4, 3, 3, 4));
+    REQUIRE(check(testIter, kLumi, 0, 4, 3, 3, 4));
     ++testIter;
-    CPPUNIT_ASSERT(check(testIter, kEvent, 0, 4, 3, 3, 4));
+    REQUIRE(check(testIter, kEvent, 0, 4, 3, 3, 4));
     ++testIter;
-    CPPUNIT_ASSERT(check(testIter, kLumi, 0, 5, -1, 0, 0));
+    REQUIRE(check(testIter, kLumi, 0, 5, -1, 0, 0));
     skipEventBackward(testIter);
-    CPPUNIT_ASSERT(check(testIter, kLumi, 0, 4, 3, 3, 4));
+    REQUIRE(check(testIter, kLumi, 0, 4, 3, 3, 4));
   }
 }
 
@@ -1418,106 +1403,106 @@ void TestIndexIntoFile3::testOverlappingLumisMore() {
     for (i = 0; iterFirst != iterFirstEnd; ++iterFirst, ++i) {
       switch (i) {
         case 0: {
-          CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 2, 1, 0, 3));
-          CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-          CPPUNIT_ASSERT(iterFirst.size() == 10);
+          REQUIRE(check(iterFirst, kRun, 0, 2, 1, 0, 3));
+          REQUIRE(iterFirst.indexIntoFile() == &indexIntoFile);
+          REQUIRE(iterFirst.size() == 10);
 
           iterFirst.getLumisInRun(lumis);
           std::vector<LuminosityBlockNumber_t> expected{101, 102};
-          CPPUNIT_ASSERT(lumis == expected);
+          REQUIRE(lumis == expected);
           break;
         }
           //values are 'IndexIntoFile::EntryType' 'indexToRun' 'indexToLumi' 'indexToEventRange' 'indexToEvent' 'nEvents'
         case 1: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 2, 1, 0, 3));
+          REQUIRE(check(iterFirst, kLumi, 0, 2, 1, 0, 3));
           break;
         }
         case 2: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 1, 0, 3));
+          REQUIRE(check(iterFirst, kEvent, 0, 2, 1, 0, 3));
           break;
         }
         case 3: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 1, 1, 3));
+          REQUIRE(check(iterFirst, kEvent, 0, 2, 1, 1, 3));
           break;
         }
         case 4: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 1, 2, 3));
+          REQUIRE(check(iterFirst, kEvent, 0, 2, 1, 2, 3));
           break;
         }
         case 5: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 2, 0, 1));
+          REQUIRE(check(iterFirst, kEvent, 0, 2, 2, 0, 1));
           break;
         }
         case 6: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 3, 0, 1));
+          REQUIRE(check(iterFirst, kLumi, 0, 4, 3, 0, 1));
           break;
         }
         case 7: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 3, 0, 1));
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 3, 0, 1));
           break;
         }
         case 8: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 4, 0, 1));
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 4, 0, 1));
           break;
         }
         case 9: {
-          CPPUNIT_ASSERT(check(iterFirst, kRun, 5, 7, -1, 0, 0));
+          REQUIRE(check(iterFirst, kRun, 5, 7, -1, 0, 0));
 
           iterFirst.getLumisInRun(lumis);
           std::vector<LuminosityBlockNumber_t> expected{101, 102};
-          CPPUNIT_ASSERT(lumis == expected);
+          REQUIRE(lumis == expected);
           break;
         }
         case 10: {
-          CPPUNIT_ASSERT(check(iterFirst, kRun, 6, 7, -1, 0, 0));
+          REQUIRE(check(iterFirst, kRun, 6, 7, -1, 0, 0));
           break;
         }
         case 11: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 7, -1, 0, 0));
+          REQUIRE(check(iterFirst, kLumi, 6, 7, -1, 0, 0));
           break;
         }
         case 12: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 8, 9, 0, 1));
+          REQUIRE(check(iterFirst, kLumi, 6, 8, 9, 0, 1));
           break;
         }
         case 13: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 9, 9, 0, 1));
+          REQUIRE(check(iterFirst, kLumi, 6, 9, 9, 0, 1));
           break;
         }
         case 14: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 6, 9, 9, 0, 1));
+          REQUIRE(check(iterFirst, kEvent, 6, 9, 9, 0, 1));
           break;
         }
         default: {
-          CPPUNIT_ASSERT(false);
+          REQUIRE(false);
         }
       }
 
       switch (i) {
         case 0:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
           break;
         case 8:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
           break;
         case 10:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 6);
           break;
       }
 
       switch (i) {
         case 0:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 0);
           break;
         case 8:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 4);
           break;
         case 10:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
           break;
       }
     }
-    CPPUNIT_ASSERT(i == 15);
+    REQUIRE(i == 15);
   }
 
   {
@@ -1527,105 +1512,105 @@ void TestIndexIntoFile3::testOverlappingLumisMore() {
     for (i = 0; iterFirst != iterFirstEnd; ++iterFirst, ++i) {
       switch (i) {
         case 0: {
-          CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 2, 1, 0, 3));
-          CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-          CPPUNIT_ASSERT(iterFirst.size() == 10);
+          REQUIRE(check(iterFirst, kRun, 0, 2, 1, 0, 3));
+          REQUIRE(iterFirst.indexIntoFile() == &indexIntoFile);
+          REQUIRE(iterFirst.size() == 10);
 
           iterFirst.getLumisInRun(lumis);
           std::vector<LuminosityBlockNumber_t> expected{101, 102};
-          CPPUNIT_ASSERT(lumis == expected);
+          REQUIRE(lumis == expected);
           break;
         }
         //values are 'IndexIntoFile::EntryType' 'indexToRun' 'indexToLumi' 'indexToEventRange' 'indexToEvent' 'nEvents'
         case 1: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 2, 1, 0, 3));
+          REQUIRE(check(iterFirst, kLumi, 0, 2, 1, 0, 3));
           break;
         }
         case 2: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 1, 0, 3));
+          REQUIRE(check(iterFirst, kEvent, 0, 2, 1, 0, 3));
           break;
         }
         case 3: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 1, 1, 3));
+          REQUIRE(check(iterFirst, kEvent, 0, 2, 1, 1, 3));
           break;
         }
         case 4: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 1, 2, 3));
+          REQUIRE(check(iterFirst, kEvent, 0, 2, 1, 2, 3));
           break;
         }
         case 5: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 2, 0, 1));
+          REQUIRE(check(iterFirst, kEvent, 0, 2, 2, 0, 1));
           break;
         }
         case 6: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 3, 0, 1));
+          REQUIRE(check(iterFirst, kLumi, 0, 4, 3, 0, 1));
           break;
         }
         case 7: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 3, 0, 1));
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 3, 0, 1));
           break;
         }
         case 8: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 4, 0, 1));
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 4, 0, 1));
           break;
         }
         case 9: {
-          CPPUNIT_ASSERT(check(iterFirst, kRun, 5, 7, -1, 0, 0));
+          REQUIRE(check(iterFirst, kRun, 5, 7, -1, 0, 0));
 
           iterFirst.getLumisInRun(lumis);
           std::vector<LuminosityBlockNumber_t> expected{101, 102};
-          CPPUNIT_ASSERT(lumis == expected);
+          REQUIRE(lumis == expected);
           break;
         }
         case 10: {
-          CPPUNIT_ASSERT(check(iterFirst, kRun, 6, 7, -1, 0, 0));
+          REQUIRE(check(iterFirst, kRun, 6, 7, -1, 0, 0));
           break;
         }
         case 11: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 7, -1, 0, 0));
+          REQUIRE(check(iterFirst, kLumi, 6, 7, -1, 0, 0));
           break;
         }
         case 12: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 8, 9, 0, 1));
+          REQUIRE(check(iterFirst, kLumi, 6, 8, 9, 0, 1));
           break;
         }
         case 13: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 9, 9, 0, 1));
+          REQUIRE(check(iterFirst, kLumi, 6, 9, 9, 0, 1));
           break;
         }
         case 14: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 6, 9, 9, 0, 1));
+          REQUIRE(check(iterFirst, kEvent, 6, 9, 9, 0, 1));
           break;
         }
         default:
-          CPPUNIT_ASSERT(false);
+          REQUIRE(false);
       }
 
       switch (i) {
         case 0:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
           break;
         case 8:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
           break;
         case 10:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 6);
           break;
       }
 
       switch (i) {
         case 0:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 0);
           break;
         case 8:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 4);
           break;
         case 10:
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
           break;
       }
     }
-    CPPUNIT_ASSERT(i == 15);
+    REQUIRE(i == 15);
   }
 }
 
@@ -1670,88 +1655,88 @@ void TestIndexIntoFile3::testOverlappingLumisOutOfOrderEvent() {
     for (i = 0; iterFirst != iterFirstEnd; ++iterFirst, ++i) {
       switch (i) {
         case 0: {
-          CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 2, 1, 0, 3));  // run 11
-          CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-          CPPUNIT_ASSERT(iterFirst.size() == 10);
+          REQUIRE(check(iterFirst, kRun, 0, 2, 1, 0, 3));  // run 11
+          REQUIRE(iterFirst.indexIntoFile() == &indexIntoFile);
+          REQUIRE(iterFirst.size() == 10);
 
           iterFirst.getLumisInRun(lumis);
           std::vector<LuminosityBlockNumber_t> expected{101, 102};
-          CPPUNIT_ASSERT(lumis == expected);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+          REQUIRE(lumis == expected);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 0);
           break;
         }
           //values are 'IndexIntoFile::EntryType' 'indexToRun' 'indexToLumi' 'indexToEventRange' 'indexToEvent' 'nEvents'
         case 1: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 2, 1, 0, 3));  // lumi 11/101
+          REQUIRE(check(iterFirst, kLumi, 0, 2, 1, 0, 3));  // lumi 11/101
           break;
         }
         case 2: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 1, 0, 3));  // event 11/101/7
+          REQUIRE(check(iterFirst, kEvent, 0, 2, 1, 0, 3));  // event 11/101/7
           break;
         }
         case 3: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 1, 1, 3));  // event 11/101/6
+          REQUIRE(check(iterFirst, kEvent, 0, 2, 1, 1, 3));  // event 11/101/6
           break;
         }
         case 4: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 1, 2, 3));  // event 11/101/5
+          REQUIRE(check(iterFirst, kEvent, 0, 2, 1, 2, 3));  // event 11/101/5
           break;
         }
         case 5: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 2, 0, 1));
+          REQUIRE(check(iterFirst, kEvent, 0, 2, 2, 0, 1));
           break;
         }
         case 6: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 3, 0, 1));
+          REQUIRE(check(iterFirst, kLumi, 0, 4, 3, 0, 1));
           break;
         }
         case 7: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 3, 0, 1));
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 3, 0, 1));
           break;
         }
         case 8: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 4, 0, 1));
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 3);
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 4, 0, 1));
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 3);
           break;
         }
         case 9: {
-          CPPUNIT_ASSERT(check(iterFirst, kRun, 5, 7, -1, 0, 0));
+          REQUIRE(check(iterFirst, kRun, 5, 7, -1, 0, 0));
 
           iterFirst.getLumisInRun(lumis);
           std::vector<LuminosityBlockNumber_t> expected{101, 102};
-          CPPUNIT_ASSERT(lumis == expected);
+          REQUIRE(lumis == expected);
           break;
         }
         case 10: {
-          CPPUNIT_ASSERT(check(iterFirst, kRun, 6, 7, -1, 0, 0));
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+          REQUIRE(check(iterFirst, kRun, 6, 7, -1, 0, 0));
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 6);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
           break;
         }
         case 11: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 7, -1, 0, 0));
+          REQUIRE(check(iterFirst, kLumi, 6, 7, -1, 0, 0));
           break;
         }
         case 12: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 8, 9, 0, 1));
+          REQUIRE(check(iterFirst, kLumi, 6, 8, 9, 0, 1));
           break;
         }
         case 13: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 9, 9, 0, 1));
+          REQUIRE(check(iterFirst, kLumi, 6, 9, 9, 0, 1));
           break;
         }
         case 14: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 6, 9, 9, 0, 1));
+          REQUIRE(check(iterFirst, kEvent, 6, 9, 9, 0, 1));
           break;
         }
         default: {
-          CPPUNIT_ASSERT(false);
+          REQUIRE(false);
         }
       }
     }
-    CPPUNIT_ASSERT(i == 15);
+    REQUIRE(i == 15);
   }
 
   {
@@ -1764,113 +1749,113 @@ void TestIndexIntoFile3::testOverlappingLumisOutOfOrderEvent() {
                 << " firstEventEntryThisLumi:" << iterFirst.firstEventEntryThisLumi() << std::endl; */
       switch (i) {
         case 0: {
-          CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 1, 1, 0, 3));  // run 11
-          CPPUNIT_ASSERT(iterFirst.processHistoryIDIndex() == 0);
-          CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-          CPPUNIT_ASSERT(iterFirst.size() == 10);
-          CPPUNIT_ASSERT(iterFirst.shouldProcessRun());
+          REQUIRE(check(iterFirst, kRun, 0, 1, 1, 0, 3));  // run 11
+          REQUIRE(iterFirst.processHistoryIDIndex() == 0);
+          REQUIRE(iterFirst.indexIntoFile() == &indexIntoFile);
+          REQUIRE(iterFirst.size() == 10);
+          REQUIRE(iterFirst.shouldProcessRun());
 
           iterFirst.getLumisInRun(lumis);
           std::vector<LuminosityBlockNumber_t> expected{101, 102};
-          CPPUNIT_ASSERT(lumis == expected);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+          REQUIRE(lumis == expected);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 0);
           break;
         }
         //values are 'IndexIntoFile::EntryType' 'indexToRun' 'indexToLumi' 'indexToEventRange' 'indexToEvent' 'nEvents'
         case 1: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 1, 1, 0, 3));  // lumi 11/101
-          CPPUNIT_ASSERT(iterFirst.processHistoryIDIndex() == 0);
-          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 1, 1, 0, 3));  // lumi 11/101
+          REQUIRE(iterFirst.processHistoryIDIndex() == 0);
+          REQUIRE(!iterFirst.shouldProcessLumi());
           break;
         }
         case 2: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 1, 1, 0, 3));  // event 11/101/7
-          CPPUNIT_ASSERT(iterFirst.processHistoryIDIndex() == 0);
+          REQUIRE(check(iterFirst, kEvent, 0, 1, 1, 0, 3));  // event 11/101/7
+          REQUIRE(iterFirst.processHistoryIDIndex() == 0);
           break;
         }
         case 3: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 1, 1, 1, 3));  // event 11/101/6
+          REQUIRE(check(iterFirst, kEvent, 0, 1, 1, 1, 3));  // event 11/101/6
           break;
         }
         case 4: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 1, 1, 2, 3));  // event 11/101/5
+          REQUIRE(check(iterFirst, kEvent, 0, 1, 1, 2, 3));  // event 11/101/5
           break;
         }
         case 5: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 2, 2, 0, 1));  // lumi 11/102
-          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 2, 2, 0, 1));  // lumi 11/102
+          REQUIRE(!iterFirst.shouldProcessLumi());
           break;
         }
         case 6: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 2, 0, 1));  // event 11/102/3
+          REQUIRE(check(iterFirst, kEvent, 0, 2, 2, 0, 1));  // event 11/102/3
           break;
         }
         case 7: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 3, 3, 0, 1));  // lumi 11/101
-          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 3, 3, 0, 1));  // lumi 11/101
+          REQUIRE(iterFirst.shouldProcessLumi());
           break;
         }
         case 8: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 3, 0, 1));  // event 11/101/4
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
+          REQUIRE(check(iterFirst, kEvent, 0, 3, 3, 0, 1));  // event 11/101/4
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 4);
           break;
         }
         case 9: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 4, 0, 1));  // lumi 11/102
-          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 4, 4, 0, 1));  // lumi 11/102
+          REQUIRE(iterFirst.shouldProcessLumi());
           break;
         }
         case 10: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 4, 0, 1));  // event 11/102/4
-          CPPUNIT_ASSERT(iterFirst.processHistoryIDIndex() == 0);
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 4, 0, 1));  // event 11/102/4
+          REQUIRE(iterFirst.processHistoryIDIndex() == 0);
           break;
         }
         case 11: {
-          CPPUNIT_ASSERT(check(iterFirst, kRun, 5, 7, -1, 0, 0));  //Run Phid 2 11
-          CPPUNIT_ASSERT(iterFirst.shouldProcessRun());
+          REQUIRE(check(iterFirst, kRun, 5, 7, -1, 0, 0));  //Run Phid 2 11
+          REQUIRE(iterFirst.shouldProcessRun());
 
           iterFirst.getLumisInRun(lumis);
           std::vector<LuminosityBlockNumber_t> expected{101, 102};
-          CPPUNIT_ASSERT(lumis == expected);
+          REQUIRE(lumis == expected);
 
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 6);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
           break;
         }
         case 12: {
-          CPPUNIT_ASSERT(check(iterFirst, kRun, 6, 7, -1, 0, 0));
-          CPPUNIT_ASSERT(iterFirst.processHistoryIDIndex() == 1);
-          CPPUNIT_ASSERT(iterFirst.shouldProcessRun());
+          REQUIRE(check(iterFirst, kRun, 6, 7, -1, 0, 0));
+          REQUIRE(iterFirst.processHistoryIDIndex() == 1);
+          REQUIRE(iterFirst.shouldProcessRun());
           break;
         }
         case 13: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 7, -1, 0, 0));
-          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 6, 7, -1, 0, 0));
+          REQUIRE(iterFirst.shouldProcessLumi());
           break;
         }
         case 14: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 8, 9, 0, 1));
-          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 6, 8, 9, 0, 1));
+          REQUIRE(iterFirst.shouldProcessLumi());
           break;
         }
         case 15: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 9, 9, 0, 1));
-          CPPUNIT_ASSERT(iterFirst.processHistoryIDIndex() == 1);
-          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 6, 9, 9, 0, 1));
+          REQUIRE(iterFirst.processHistoryIDIndex() == 1);
+          REQUIRE(iterFirst.shouldProcessLumi());
           break;
         }
         case 16: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 6, 9, 9, 0, 1));
-          CPPUNIT_ASSERT(iterFirst.processHistoryIDIndex() == 1);
+          REQUIRE(check(iterFirst, kEvent, 6, 9, 9, 0, 1));
+          REQUIRE(iterFirst.processHistoryIDIndex() == 1);
           break;
         }
         default:
-          CPPUNIT_ASSERT(false);
+          REQUIRE(false);
       }
     }
-    CPPUNIT_ASSERT(i == 17);
+    REQUIRE(i == 17);
   }
 }
 
@@ -1916,121 +1901,121 @@ void TestIndexIntoFile3::testOverlappingLumisWithEndWithEmptyLumi() {
       //          << " firstEventEntryThisLumi:" << iterFirst.firstEventEntryThisLumi() << std::endl;
       switch (i) {
         case 0: {
-          CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 4, 1, 0, 2));  // run 1
-          CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-          CPPUNIT_ASSERT(iterFirst.size() == 13);
+          REQUIRE(check(iterFirst, kRun, 0, 4, 1, 0, 2));  // run 1
+          REQUIRE(iterFirst.indexIntoFile() == &indexIntoFile);
+          REQUIRE(iterFirst.size() == 13);
           iterFirst.getLumisInRun(lumis);
           std::vector<LuminosityBlockNumber_t> expected{1, 2, 3, 4};
-          CPPUNIT_ASSERT(lumis == expected);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+          REQUIRE(lumis == expected);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 0);
           break;
         }
           //values are 'IndexIntoFile::EntryType' 'indexToRun' 'indexToLumi' 'indexToEventRange' 'indexToEvent' 'nEvents'
         case 1: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 1, 0, 2));  // lumi 1/1
+          REQUIRE(check(iterFirst, kLumi, 0, 4, 1, 0, 2));  // lumi 1/1
           break;
         }
         case 2: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 1, 0, 2));  // event 1/1/2
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 1, 0, 2));  // event 1/1/2
           break;
         }
         case 3: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 1, 1, 2));  // event 1/1/5
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 1, 1, 2));  // event 1/1/5
           break;
         }
         case 4: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 2, 0, 1));  // event 1/1/3
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 2, 0, 1));  // event 1/1/3
           break;
         }
         case 5: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 3, 0, 2));  // event 1/1/4
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 3, 0, 2));  // event 1/1/4
           break;
         }
         case 6: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 3, 1, 2));  // event 1/1/1
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 3, 1, 2));  // event 1/1/1
           break;
         }
         case 7: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 8, 5, 0, 2));  // lumi 1/2
+          REQUIRE(check(iterFirst, kLumi, 0, 8, 5, 0, 2));  // lumi 1/2
           break;
         }
         case 8: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 8, 5, 0, 2));  // event 1/2/8
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 2);
+          REQUIRE(check(iterFirst, kEvent, 0, 8, 5, 0, 2));  // event 1/2/8
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 2);
           break;
         }
         case 9: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 8, 5, 1, 2));  // event 1/2/6
+          REQUIRE(check(iterFirst, kEvent, 0, 8, 5, 1, 2));  // event 1/2/6
           break;
         }
         case 10: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 8, 6, 0, 1));  // event 1/2/9
+          REQUIRE(check(iterFirst, kEvent, 0, 8, 6, 0, 1));  // event 1/2/9
           break;
         }
         case 11: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 8, 7, 0, 1));  // event 1/2/7
+          REQUIRE(check(iterFirst, kEvent, 0, 8, 7, 0, 1));  // event 1/2/7
           break;
         }
         case 12: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 8, 8, 0, 1));  // event 1/2/10
+          REQUIRE(check(iterFirst, kEvent, 0, 8, 8, 0, 1));  // event 1/2/10
           break;
         }
         case 13: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 10, 9, 0, 4));  // lumi 1/3
+          REQUIRE(check(iterFirst, kLumi, 0, 10, 9, 0, 4));  // lumi 1/3
           break;
         }
         case 14: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 10, 9, 0, 4));  // event 1/3/12
+          REQUIRE(check(iterFirst, kEvent, 0, 10, 9, 0, 4));  // event 1/3/12
           break;
         }
         case 15: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 10, 9, 1, 4));  // event 1/3/11
+          REQUIRE(check(iterFirst, kEvent, 0, 10, 9, 1, 4));  // event 1/3/11
           break;
         }
         case 16: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 10, 9, 2, 4));  // event 1/3/15
+          REQUIRE(check(iterFirst, kEvent, 0, 10, 9, 2, 4));  // event 1/3/15
           break;
         }
         case 17: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 10, 9, 3, 4));  // event 1/3/14
+          REQUIRE(check(iterFirst, kEvent, 0, 10, 9, 3, 4));  // event 1/3/14
           break;
         }
         case 18: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 10, 10, 0, 1));  // event 1/3/13
+          REQUIRE(check(iterFirst, kEvent, 0, 10, 10, 0, 1));  // event 1/3/13
           break;
         }
         case 19: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 12, 11, 0, 3));  // lumi 1/4
+          REQUIRE(check(iterFirst, kLumi, 0, 12, 11, 0, 3));  // lumi 1/4
           break;
         }
         case 20: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 12, 11, 0, 3));  // event 1/4/18
+          REQUIRE(check(iterFirst, kEvent, 0, 12, 11, 0, 3));  // event 1/4/18
           break;
         }
         case 21: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 12, 11, 1, 3));  // event 1/4/17
+          REQUIRE(check(iterFirst, kEvent, 0, 12, 11, 1, 3));  // event 1/4/17
           break;
         }
         case 22: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 12, 11, 2, 3));  // event 1/4/20
+          REQUIRE(check(iterFirst, kEvent, 0, 12, 11, 2, 3));  // event 1/4/20
           break;
         }
         case 23: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 12, 12, 0, 2));  // event 1/4/19
+          REQUIRE(check(iterFirst, kEvent, 0, 12, 12, 0, 2));  // event 1/4/19
           break;
         }
         case 24: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 12, 12, 1, 2));  // event 1/4/16
+          REQUIRE(check(iterFirst, kEvent, 0, 12, 12, 1, 2));  // event 1/4/16
           break;
         }
         default: {
-          CPPUNIT_ASSERT(false);
+          REQUIRE(false);
         }
       }
     }
-    CPPUNIT_ASSERT(i == 25);
+    REQUIRE(i == 25);
   }
 
   {
@@ -2043,169 +2028,169 @@ void TestIndexIntoFile3::testOverlappingLumisWithEndWithEmptyLumi() {
       //          << " firstEventEntryThisLumi:" << iterFirst.firstEventEntryThisLumi() << std::endl;
       switch (i) {
         case 0: {
-          CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 1, 1, 0, 2));  // run 1
-          CPPUNIT_ASSERT(iterFirst.run() == 1);
-          CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-          CPPUNIT_ASSERT(iterFirst.size() == 13);
-          CPPUNIT_ASSERT(iterFirst.shouldProcessRun());
+          REQUIRE(check(iterFirst, kRun, 0, 1, 1, 0, 2));  // run 1
+          REQUIRE(iterFirst.run() == 1);
+          REQUIRE(iterFirst.indexIntoFile() == &indexIntoFile);
+          REQUIRE(iterFirst.size() == 13);
+          REQUIRE(iterFirst.shouldProcessRun());
 
           iterFirst.getLumisInRun(lumis);
           std::vector<LuminosityBlockNumber_t> expected{1, 2, 3, 4};
-          //CPPUNIT_ASSERT(lumis == expected);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+          //REQUIRE(lumis == expected);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 0);
           break;
         }
         //values are 'IndexIntoFile::EntryType' 'indexToRun' 'indexToLumi' 'indexToEventRange' 'indexToEvent' 'nEvents'
         case 1: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 1, 1, 0, 2));  // lumi 1/1
-          CPPUNIT_ASSERT(iterFirst.lumi() == 1);
-          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 1, 1, 0, 2));  // lumi 1/1
+          REQUIRE(iterFirst.lumi() == 1);
+          REQUIRE(!iterFirst.shouldProcessLumi());
           break;
         }
         case 2: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 1, 1, 0, 2));  // event 1/1/2
+          REQUIRE(check(iterFirst, kEvent, 0, 1, 1, 0, 2));  // event 1/1/2
           break;
         }
         case 3: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 1, 1, 1, 2));  // event 1/1/5
+          REQUIRE(check(iterFirst, kEvent, 0, 1, 1, 1, 2));  // event 1/1/5
           break;
         }
         case 4: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 2, 2, 0, 2));  // lumi 1/2
-          CPPUNIT_ASSERT(iterFirst.lumi() == 2);
-          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 2, 2, 0, 2));  // lumi 1/2
+          REQUIRE(iterFirst.lumi() == 2);
+          REQUIRE(!iterFirst.shouldProcessLumi());
           break;
         }
         case 5: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 2, 0, 2));  // event 1/2/8
+          REQUIRE(check(iterFirst, kEvent, 0, 2, 2, 0, 2));  // event 1/2/8
           break;
         }
         case 6: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 2, 1, 2));  // event 1/2/6
+          REQUIRE(check(iterFirst, kEvent, 0, 2, 2, 1, 2));  // event 1/2/6
           break;
         }
         case 7: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 3, 3, 0, 1));  // lumi 1/1
-          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
-          CPPUNIT_ASSERT(iterFirst.lumi() == 1);
+          REQUIRE(check(iterFirst, kLumi, 0, 3, 3, 0, 1));  // lumi 1/1
+          REQUIRE(!iterFirst.shouldProcessLumi());
+          REQUIRE(iterFirst.lumi() == 1);
           break;
         }
         case 8: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 3, 0, 1));  // event 1/1/3
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
+          REQUIRE(check(iterFirst, kEvent, 0, 3, 3, 0, 1));  // event 1/1/3
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 4);
           break;
         }
         case 9: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 4, 0, 1));  // lumi 1/2
-          CPPUNIT_ASSERT(iterFirst.lumi() == 2);
-          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 4, 4, 0, 1));  // lumi 1/2
+          REQUIRE(iterFirst.lumi() == 2);
+          REQUIRE(!iterFirst.shouldProcessLumi());
           break;
         }
         case 10: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 4, 0, 1));  // event 1/2/9
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 4, 0, 1));  // event 1/2/9
           break;
         }
         case 11: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 6, 5, 0, 2));  // lumi 1/1   5
-          CPPUNIT_ASSERT(iterFirst.lumi() == 1);
-          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 6, 5, 0, 2));  // lumi 1/1   5
+          REQUIRE(iterFirst.lumi() == 1);
+          REQUIRE(iterFirst.shouldProcessLumi());
           break;
         }
         case 12: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 6, 5, 0, 2));  // event 1/1/4
+          REQUIRE(check(iterFirst, kEvent, 0, 6, 5, 0, 2));  // event 1/1/4
           break;
         }
         case 13: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 6, 5, 1, 2));  // event 1/1/1
+          REQUIRE(check(iterFirst, kEvent, 0, 6, 5, 1, 2));  // event 1/1/1
           break;
         }
         case 14: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 8, 7, 0, 1));  // lumi 1/2
-          CPPUNIT_ASSERT(iterFirst.lumi() == 2);
-          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 8, 7, 0, 1));  // lumi 1/2
+          REQUIRE(iterFirst.lumi() == 2);
+          REQUIRE(iterFirst.shouldProcessLumi());
           break;
         }
         case 15: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 8, 7, 0, 1));  // event 1/2/7
+          REQUIRE(check(iterFirst, kEvent, 0, 8, 7, 0, 1));  // event 1/2/7
           break;
         }
         case 16: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 8, 8, 0, 1));  // event 1/2/10
-          CPPUNIT_ASSERT(iterFirst.lumi() == 2);
+          REQUIRE(check(iterFirst, kEvent, 0, 8, 8, 0, 1));  // event 1/2/10
+          REQUIRE(iterFirst.lumi() == 2);
           break;
         }
         case 17: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 9, 9, 0, 4));  // lumi 1/3
-          CPPUNIT_ASSERT(iterFirst.lumi() == 3);
-          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 9, 9, 0, 4));  // lumi 1/3
+          REQUIRE(iterFirst.lumi() == 3);
+          REQUIRE(!iterFirst.shouldProcessLumi());
           break;
         }
         case 18: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 9, 9, 0, 4));  // event 1/3/12
+          REQUIRE(check(iterFirst, kEvent, 0, 9, 9, 0, 4));  // event 1/3/12
           break;
         }
         case 19: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 9, 9, 1, 4));  // event 1/3/11
+          REQUIRE(check(iterFirst, kEvent, 0, 9, 9, 1, 4));  // event 1/3/11
           break;
         }
         case 20: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 9, 9, 2, 4));  // event 1/3/15
+          REQUIRE(check(iterFirst, kEvent, 0, 9, 9, 2, 4));  // event 1/3/15
           break;
         }
         case 21: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 9, 9, 3, 4));  // event 1/3/14
+          REQUIRE(check(iterFirst, kEvent, 0, 9, 9, 3, 4));  // event 1/3/14
           break;
         }
         case 22: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 10, 10, 0, 3));  // lumi 1/4
-          CPPUNIT_ASSERT(iterFirst.lumi() == 4);
-          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 10, 10, 0, 3));  // lumi 1/4
+          REQUIRE(iterFirst.lumi() == 4);
+          REQUIRE(!iterFirst.shouldProcessLumi());
           break;
         }
         case 23: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 10, 10, 0, 3));  // event 1/4/16
+          REQUIRE(check(iterFirst, kEvent, 0, 10, 10, 0, 3));  // event 1/4/16
           break;
         }
         case 24: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 10, 10, 1, 3));  // event 1/4/17
+          REQUIRE(check(iterFirst, kEvent, 0, 10, 10, 1, 3));  // event 1/4/17
           break;
         }
         case 25: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 10, 10, 2, 3));  // event 1/4/18
+          REQUIRE(check(iterFirst, kEvent, 0, 10, 10, 2, 3));  // event 1/4/18
           break;
         }
         case 26: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 11, 11, 0, 1));  // lumi 1/3
-          CPPUNIT_ASSERT(iterFirst.lumi() == 3);
-          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 11, 11, 0, 1));  // lumi 1/3
+          REQUIRE(iterFirst.lumi() == 3);
+          REQUIRE(iterFirst.shouldProcessLumi());
           break;
         }
         case 27: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 11, 11, 0, 1));  // event 1/3/13
+          REQUIRE(check(iterFirst, kEvent, 0, 11, 11, 0, 1));  // event 1/3/13
           break;
         }
         case 28: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 12, 12, 0, 2));  // lumi 1/4
-          CPPUNIT_ASSERT(iterFirst.lumi() == 4);
-          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 12, 12, 0, 2));  // lumi 1/4
+          REQUIRE(iterFirst.lumi() == 4);
+          REQUIRE(iterFirst.shouldProcessLumi());
           break;
         }
         case 29: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 12, 12, 0, 2));  // event 1/4/19
+          REQUIRE(check(iterFirst, kEvent, 0, 12, 12, 0, 2));  // event 1/4/19
           break;
         }
         case 30: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 12, 12, 1, 2));  // event 1/4/16
+          REQUIRE(check(iterFirst, kEvent, 0, 12, 12, 1, 2));  // event 1/4/16
           break;
         }
 
         default:
-          CPPUNIT_ASSERT(false);
+          REQUIRE(false);
       }
     }
-    CPPUNIT_ASSERT(i == 31);
+    REQUIRE(i == 31);
   }
 }
 
@@ -2251,121 +2236,121 @@ void TestIndexIntoFile3::testOverlappingLumisWithLumiEndOrderChanged() {
       //          << " firstEventEntryThisLumi:" << iterFirst.firstEventEntryThisLumi() << std::endl;
       switch (i) {
         case 0: {
-          CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 4, 1, 0, 2));  // run 1
-          CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-          CPPUNIT_ASSERT(iterFirst.size() == 11);
+          REQUIRE(check(iterFirst, kRun, 0, 4, 1, 0, 2));  // run 1
+          REQUIRE(iterFirst.indexIntoFile() == &indexIntoFile);
+          REQUIRE(iterFirst.size() == 11);
           iterFirst.getLumisInRun(lumis);
           std::vector<LuminosityBlockNumber_t> expected{1, 2, 3, 4};
-          CPPUNIT_ASSERT(lumis == expected);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+          REQUIRE(lumis == expected);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 0);
           break;
         }
           //values are 'IndexIntoFile::EntryType' 'indexToRun' 'indexToLumi' 'indexToEventRange' 'indexToEvent' 'nEvents'
         case 1: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 1, 0, 2));  // lumi 1/1
+          REQUIRE(check(iterFirst, kLumi, 0, 4, 1, 0, 2));  // lumi 1/1
           break;
         }
         case 2: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 1, 0, 2));  // event 1/1/2
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 1, 0, 2));  // event 1/1/2
           break;
         }
         case 3: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 1, 1, 2));  // event 1/1/5
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 1, 1, 2));  // event 1/1/5
           break;
         }
         case 4: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 2, 0, 1));  // event 1/1/3
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 2, 0, 1));  // event 1/1/3
           break;
         }
         case 5: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 3, 0, 1));  // event 1/1/4
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 3, 0, 1));  // event 1/1/4
           break;
         }
         case 6: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 4, 0, 1));  // event 1/1/1
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 4, 0, 1));  // event 1/1/1
           break;
         }
         case 7: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 7, 5, 0, 2));  // lumi 1/2
+          REQUIRE(check(iterFirst, kLumi, 0, 7, 5, 0, 2));  // lumi 1/2
           break;
         }
         case 8: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 7, 5, 0, 2));  // event 1/2/8
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 2);
+          REQUIRE(check(iterFirst, kEvent, 0, 7, 5, 0, 2));  // event 1/2/8
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 2);
           break;
         }
         case 9: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 7, 5, 1, 2));  // event 1/2/6
+          REQUIRE(check(iterFirst, kEvent, 0, 7, 5, 1, 2));  // event 1/2/6
           break;
         }
         case 10: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 7, 6, 0, 1));  // event 1/2/9
+          REQUIRE(check(iterFirst, kEvent, 0, 7, 6, 0, 1));  // event 1/2/9
           break;
         }
         case 11: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 7, 7, 0, 2));  // event 1/2/7
+          REQUIRE(check(iterFirst, kEvent, 0, 7, 7, 0, 2));  // event 1/2/7
           break;
         }
         case 12: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 7, 7, 1, 2));  // event 1/2/10
+          REQUIRE(check(iterFirst, kEvent, 0, 7, 7, 1, 2));  // event 1/2/10
           break;
         }
         case 13: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 9, 8, 0, 4));  // lumi 1/3
+          REQUIRE(check(iterFirst, kLumi, 0, 9, 8, 0, 4));  // lumi 1/3
           break;
         }
         case 14: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 9, 8, 0, 4));  // event 1/3/12
+          REQUIRE(check(iterFirst, kEvent, 0, 9, 8, 0, 4));  // event 1/3/12
           break;
         }
         case 15: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 9, 8, 1, 4));  // event 1/3/11
+          REQUIRE(check(iterFirst, kEvent, 0, 9, 8, 1, 4));  // event 1/3/11
           break;
         }
         case 16: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 9, 8, 2, 4));  // event 1/3/15
+          REQUIRE(check(iterFirst, kEvent, 0, 9, 8, 2, 4));  // event 1/3/15
           break;
         }
         case 17: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 9, 8, 3, 4));  // event 1/3/14
+          REQUIRE(check(iterFirst, kEvent, 0, 9, 8, 3, 4));  // event 1/3/14
           break;
         }
         case 18: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 9, 9, 0, 1));  // event 1/3/13
+          REQUIRE(check(iterFirst, kEvent, 0, 9, 9, 0, 1));  // event 1/3/13
           break;
         }
         case 19: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 10, 10, 0, 5));  // lumi 1/4
+          REQUIRE(check(iterFirst, kLumi, 0, 10, 10, 0, 5));  // lumi 1/4
           break;
         }
         case 20: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 10, 10, 0, 5));  // event 1/4/18
+          REQUIRE(check(iterFirst, kEvent, 0, 10, 10, 0, 5));  // event 1/4/18
           break;
         }
         case 21: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 10, 10, 1, 5));  // event 1/4/17
+          REQUIRE(check(iterFirst, kEvent, 0, 10, 10, 1, 5));  // event 1/4/17
           break;
         }
         case 22: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 10, 10, 2, 5));  // event 1/4/20
+          REQUIRE(check(iterFirst, kEvent, 0, 10, 10, 2, 5));  // event 1/4/20
           break;
         }
         case 23: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 10, 10, 3, 5));  // event 1/4/19
+          REQUIRE(check(iterFirst, kEvent, 0, 10, 10, 3, 5));  // event 1/4/19
           break;
         }
         case 24: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 10, 10, 4, 5));  // event 1/4/16
+          REQUIRE(check(iterFirst, kEvent, 0, 10, 10, 4, 5));  // event 1/4/16
           break;
         }
         default: {
-          CPPUNIT_ASSERT(false);
+          REQUIRE(false);
         }
       }
     }
-    CPPUNIT_ASSERT(i == 25);
+    REQUIRE(i == 25);
   }
 
   {
@@ -2378,169 +2363,169 @@ void TestIndexIntoFile3::testOverlappingLumisWithLumiEndOrderChanged() {
       //          << " firstEventEntryThisLumi:" << iterFirst.firstEventEntryThisLumi() << std::endl;
       switch (i) {
         case 0: {
-          CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 1, 1, 0, 2));  // run 1
-          CPPUNIT_ASSERT(iterFirst.shouldProcessRun());
-          CPPUNIT_ASSERT(iterFirst.run() == 1);
-          CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
-          CPPUNIT_ASSERT(iterFirst.size() == 11);
+          REQUIRE(check(iterFirst, kRun, 0, 1, 1, 0, 2));  // run 1
+          REQUIRE(iterFirst.shouldProcessRun());
+          REQUIRE(iterFirst.run() == 1);
+          REQUIRE(iterFirst.indexIntoFile() == &indexIntoFile);
+          REQUIRE(iterFirst.size() == 11);
 
           iterFirst.getLumisInRun(lumis);
           std::vector<LuminosityBlockNumber_t> expected{1, 2, 3, 4};
-          //CPPUNIT_ASSERT(lumis == expected);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+          //REQUIRE(lumis == expected);
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 0);
           break;
         }
         //values are 'IndexIntoFile::EntryType' 'indexToRun' 'indexToLumi' 'indexToEventRange' 'indexToEvent' 'nEvents'
         case 1: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 1, 1, 0, 2));  // lumi 1/1
-          CPPUNIT_ASSERT(iterFirst.lumi() == 1);
-          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 1, 1, 0, 2));  // lumi 1/1
+          REQUIRE(iterFirst.lumi() == 1);
+          REQUIRE(!iterFirst.shouldProcessLumi());
           break;
         }
         case 2: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 1, 1, 0, 2));  // event 1/1/2
+          REQUIRE(check(iterFirst, kEvent, 0, 1, 1, 0, 2));  // event 1/1/2
           break;
         }
         case 3: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 1, 1, 1, 2));  // event 1/1/5
+          REQUIRE(check(iterFirst, kEvent, 0, 1, 1, 1, 2));  // event 1/1/5
           break;
         }
         case 4: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 2, 2, 0, 2));  // lumi 1/2
-          CPPUNIT_ASSERT(iterFirst.lumi() == 2);
-          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 2, 2, 0, 2));  // lumi 1/2
+          REQUIRE(iterFirst.lumi() == 2);
+          REQUIRE(!iterFirst.shouldProcessLumi());
           break;
         }
         case 5: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 2, 0, 2));  // event 1/2/8
+          REQUIRE(check(iterFirst, kEvent, 0, 2, 2, 0, 2));  // event 1/2/8
           break;
         }
         case 6: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 2, 2, 1, 2));  // event 1/2/6
+          REQUIRE(check(iterFirst, kEvent, 0, 2, 2, 1, 2));  // event 1/2/6
           break;
         }
         case 7: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 3, 3, 0, 1));  // lumi 1/1
-          CPPUNIT_ASSERT(iterFirst.lumi() == 1);
-          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 3, 3, 0, 1));  // lumi 1/1
+          REQUIRE(iterFirst.lumi() == 1);
+          REQUIRE(!iterFirst.shouldProcessLumi());
           break;
         }
         case 8: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 3, 3, 0, 1));  // event 1/1/3
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
+          REQUIRE(check(iterFirst, kEvent, 0, 3, 3, 0, 1));  // event 1/1/3
+          REQUIRE(iterFirst.firstEventEntryThisRun() == 0);
+          REQUIRE(iterFirst.firstEventEntryThisLumi() == 4);
           break;
         }
         case 9: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 4, 0, 1));  // lumi 1/2
-          CPPUNIT_ASSERT(iterFirst.lumi() == 2);
-          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 4, 4, 0, 1));  // lumi 1/2
+          REQUIRE(iterFirst.lumi() == 2);
+          REQUIRE(!iterFirst.shouldProcessLumi());
           break;
         }
         case 10: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 4, 0, 1));  // event 1/2/9
+          REQUIRE(check(iterFirst, kEvent, 0, 4, 4, 0, 1));  // event 1/2/9
           break;
         }
         case 11: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 5, 5, 0, 1));  // lumi 1/1   5
-          CPPUNIT_ASSERT(iterFirst.lumi() == 1);
-          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 5, 5, 0, 1));  // lumi 1/1   5
+          REQUIRE(iterFirst.lumi() == 1);
+          REQUIRE(!iterFirst.shouldProcessLumi());
           break;
         }
         case 12: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 5, 5, 0, 1));  // event 1/1/4
+          REQUIRE(check(iterFirst, kEvent, 0, 5, 5, 0, 1));  // event 1/1/4
           break;
         }
         case 13: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 6, 6, 0, 2));  // lumi 1/2
-          CPPUNIT_ASSERT(iterFirst.lumi() == 2);
-          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 6, 6, 0, 2));  // lumi 1/2
+          REQUIRE(iterFirst.lumi() == 2);
+          REQUIRE(iterFirst.shouldProcessLumi());
           break;
         }
         case 14: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 6, 6, 0, 2));  // event 1/2/7
+          REQUIRE(check(iterFirst, kEvent, 0, 6, 6, 0, 2));  // event 1/2/7
           break;
         }
         case 15: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 6, 6, 1, 2));  // event 1/2/10
-          CPPUNIT_ASSERT(iterFirst.lumi() == 2);
+          REQUIRE(check(iterFirst, kEvent, 0, 6, 6, 1, 2));  // event 1/2/10
+          REQUIRE(iterFirst.lumi() == 2);
           break;
         }
         case 16: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 7, 7, 0, 1));  // lumi 1/1
-          CPPUNIT_ASSERT(iterFirst.lumi() == 1);
-          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 7, 7, 0, 1));  // lumi 1/1
+          REQUIRE(iterFirst.lumi() == 1);
+          REQUIRE(iterFirst.shouldProcessLumi());
           break;
         }
         case 17: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 7, 7, 0, 1));  // event 1/1/1
+          REQUIRE(check(iterFirst, kEvent, 0, 7, 7, 0, 1));  // event 1/1/1
           break;
         }
         case 18: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 8, 8, 0, 4));  // lumi 1/3
-          CPPUNIT_ASSERT(iterFirst.lumi() == 3);
-          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 8, 8, 0, 4));  // lumi 1/3
+          REQUIRE(iterFirst.lumi() == 3);
+          REQUIRE(!iterFirst.shouldProcessLumi());
           break;
         }
         case 19: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 8, 8, 0, 4));  // event 1/3/12
+          REQUIRE(check(iterFirst, kEvent, 0, 8, 8, 0, 4));  // event 1/3/12
           break;
         }
         case 20: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 8, 8, 1, 4));  // event 1/3/11
+          REQUIRE(check(iterFirst, kEvent, 0, 8, 8, 1, 4));  // event 1/3/11
           break;
         }
         case 21: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 8, 8, 2, 4));  // event 1/3/15
+          REQUIRE(check(iterFirst, kEvent, 0, 8, 8, 2, 4));  // event 1/3/15
           break;
         }
         case 22: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 8, 8, 3, 4));  // event 1/3/14
+          REQUIRE(check(iterFirst, kEvent, 0, 8, 8, 3, 4));  // event 1/3/14
           break;
         }
         case 23: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 9, 9, 0, 5));  // lumi 1/4
-          CPPUNIT_ASSERT(iterFirst.lumi() == 4);
-          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 9, 9, 0, 5));  // lumi 1/4
+          REQUIRE(iterFirst.lumi() == 4);
+          REQUIRE(iterFirst.shouldProcessLumi());
           break;
         }
         case 24: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 9, 9, 0, 5));  // event 1/4/16
+          REQUIRE(check(iterFirst, kEvent, 0, 9, 9, 0, 5));  // event 1/4/16
           break;
         }
         case 25: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 9, 9, 1, 5));  // event 1/4/17
+          REQUIRE(check(iterFirst, kEvent, 0, 9, 9, 1, 5));  // event 1/4/17
           break;
         }
         case 26: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 9, 9, 2, 5));  // event 1/4/18
+          REQUIRE(check(iterFirst, kEvent, 0, 9, 9, 2, 5));  // event 1/4/18
           break;
         }
         case 27: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 9, 9, 3, 5));  // event 1/4/19
+          REQUIRE(check(iterFirst, kEvent, 0, 9, 9, 3, 5));  // event 1/4/19
           break;
         }
         case 28: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 9, 9, 4, 5));  // event 1/4/16
+          REQUIRE(check(iterFirst, kEvent, 0, 9, 9, 4, 5));  // event 1/4/16
           break;
         }
         case 29: {
-          CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 10, 10, 0, 1));  // lumi 1/3
-          CPPUNIT_ASSERT(iterFirst.lumi() == 3);
-          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
+          REQUIRE(check(iterFirst, kLumi, 0, 10, 10, 0, 1));  // lumi 1/3
+          REQUIRE(iterFirst.lumi() == 3);
+          REQUIRE(iterFirst.shouldProcessLumi());
           break;
         }
         case 30: {
-          CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 10, 10, 0, 1));  // event 1/3/13
+          REQUIRE(check(iterFirst, kEvent, 0, 10, 10, 0, 1));  // event 1/3/13
           break;
         }
 
         default:
-          CPPUNIT_ASSERT(false);
+          REQUIRE(false);
       }
     }
-    CPPUNIT_ASSERT(i == 31);
+    REQUIRE(i == 31);
   }
 }
 
@@ -2570,134 +2555,134 @@ void TestIndexIntoFile3::testNonContiguousRun() {
     for (i = 0; iter != iterEnd; ++iter, ++i) {
       switch (i) {
         case 0: {
-          CPPUNIT_ASSERT(check(iter, kRun, 0, 1, 1, 0, 1));  // run 1
-          CPPUNIT_ASSERT(iter.size() == 12);
-          CPPUNIT_ASSERT(iter.indexedSize() == 16);
-          CPPUNIT_ASSERT(!iter.shouldProcessRun());
-          CPPUNIT_ASSERT(iter.entry() == 0);
+          REQUIRE(check(iter, kRun, 0, 1, 1, 0, 1));  // run 1
+          REQUIRE(iter.size() == 12);
+          REQUIRE(iter.indexedSize() == 16);
+          REQUIRE(!iter.shouldProcessRun());
+          REQUIRE(iter.entry() == 0);
           break;
         }
         case 1: {
-          CPPUNIT_ASSERT(check(iter, kLumi, 0, 1, 1, 0, 1));  // lumi 1:1
-          CPPUNIT_ASSERT(!iter.shouldProcessLumi());
+          REQUIRE(check(iter, kLumi, 0, 1, 1, 0, 1));  // lumi 1:1
+          REQUIRE(!iter.shouldProcessLumi());
           // entry has special code in it to look for other entries if the
           // current RunOrLumiEntry has an invalid TTree entry number.
-          CPPUNIT_ASSERT(iter.entry() == 0);
+          REQUIRE(iter.entry() == 0);
           break;
         }
         case 2: {
-          CPPUNIT_ASSERT(check(iter, kEvent, 0, 1, 1, 0, 1));  // event 1:1:1
-          CPPUNIT_ASSERT(iter.entry() == 0);
+          REQUIRE(check(iter, kEvent, 0, 1, 1, 0, 1));  // event 1:1:1
+          REQUIRE(iter.entry() == 0);
           break;
         }
         case 3: {
-          CPPUNIT_ASSERT(check(iter, kRun, 2, 3, 3, 0, 1));  // run 2
-          CPPUNIT_ASSERT(!iter.shouldProcessRun());
-          CPPUNIT_ASSERT(iter.entry() == 1);
+          REQUIRE(check(iter, kRun, 2, 3, 3, 0, 1));  // run 2
+          REQUIRE(!iter.shouldProcessRun());
+          REQUIRE(iter.entry() == 1);
           break;
         }
         case 4: {
-          CPPUNIT_ASSERT(check(iter, kLumi, 2, 3, 3, 0, 1));  // lumi 2:1
-          CPPUNIT_ASSERT(!iter.shouldProcessLumi());
-          CPPUNIT_ASSERT(iter.entry() == 1);
+          REQUIRE(check(iter, kLumi, 2, 3, 3, 0, 1));  // lumi 2:1
+          REQUIRE(!iter.shouldProcessLumi());
+          REQUIRE(iter.entry() == 1);
           break;
         }
         case 5: {
-          CPPUNIT_ASSERT(check(iter, kEvent, 2, 3, 3, 0, 1));  // event 2:1:1
-          CPPUNIT_ASSERT(iter.entry() == 1);
+          REQUIRE(check(iter, kEvent, 2, 3, 3, 0, 1));  // event 2:1:1
+          REQUIRE(iter.entry() == 1);
           break;
         }
         case 6: {
-          CPPUNIT_ASSERT(check(iter, kRun, 4, 5, 5, 0, 1));  // run 1
-          CPPUNIT_ASSERT(!iter.shouldProcessRun());
-          CPPUNIT_ASSERT(iter.entry() == 0);
+          REQUIRE(check(iter, kRun, 4, 5, 5, 0, 1));  // run 1
+          REQUIRE(!iter.shouldProcessRun());
+          REQUIRE(iter.entry() == 0);
           break;
         }
         case 7: {
-          CPPUNIT_ASSERT(check(iter, kLumi, 4, 5, 5, 0, 1));  // lumi 1:1
-          CPPUNIT_ASSERT(!iter.shouldProcessLumi());
-          CPPUNIT_ASSERT(iter.entry() == 0);
+          REQUIRE(check(iter, kLumi, 4, 5, 5, 0, 1));  // lumi 1:1
+          REQUIRE(!iter.shouldProcessLumi());
+          REQUIRE(iter.entry() == 0);
           break;
         }
         case 8: {
-          CPPUNIT_ASSERT(check(iter, kLumi, 4, 6, 5, 0, 1));  // lumi 1:1
-          CPPUNIT_ASSERT(!iter.shouldProcessLumi());
-          CPPUNIT_ASSERT(iter.entry() == 0);
+          REQUIRE(check(iter, kLumi, 4, 6, 5, 0, 1));  // lumi 1:1
+          REQUIRE(!iter.shouldProcessLumi());
+          REQUIRE(iter.entry() == 0);
           break;
         }
         case 9: {
-          CPPUNIT_ASSERT(check(iter, kEvent, 4, 6, 5, 0, 1));  // event 1:1:2
-          CPPUNIT_ASSERT(iter.entry() == 2);
+          REQUIRE(check(iter, kEvent, 4, 6, 5, 0, 1));  // event 1:1:2
+          REQUIRE(iter.entry() == 2);
           break;
         }
         case 10: {
-          CPPUNIT_ASSERT(check(iter, kEvent, 4, 6, 6, 0, 1));  // event 1:1:3
-          CPPUNIT_ASSERT(iter.entry() == 3);
+          REQUIRE(check(iter, kEvent, 4, 6, 6, 0, 1));  // event 1:1:3
+          REQUIRE(iter.entry() == 3);
           break;
         }
         case 11: {
-          CPPUNIT_ASSERT(check(iter, kRun, 7, 10, 9, 0, 1));  // run 2
-          CPPUNIT_ASSERT(iter.shouldProcessRun());
-          CPPUNIT_ASSERT(iter.entry() == 1);
+          REQUIRE(check(iter, kRun, 7, 10, 9, 0, 1));  // run 2
+          REQUIRE(iter.shouldProcessRun());
+          REQUIRE(iter.entry() == 1);
           break;
         }
         case 12: {
-          CPPUNIT_ASSERT(check(iter, kRun, 8, 10, 9, 0, 1));  // run 2
-          CPPUNIT_ASSERT(iter.shouldProcessRun());
-          CPPUNIT_ASSERT(iter.entry() == 3);
+          REQUIRE(check(iter, kRun, 8, 10, 9, 0, 1));  // run 2
+          REQUIRE(iter.shouldProcessRun());
+          REQUIRE(iter.entry() == 3);
           break;
         }
         case 13: {
-          CPPUNIT_ASSERT(check(iter, kLumi, 8, 10, 9, 0, 1));  // lumi 2:1
-          CPPUNIT_ASSERT(iter.shouldProcessLumi());
-          CPPUNIT_ASSERT(iter.entry() == 1);
+          REQUIRE(check(iter, kLumi, 8, 10, 9, 0, 1));  // lumi 2:1
+          REQUIRE(iter.shouldProcessLumi());
+          REQUIRE(iter.entry() == 1);
           break;
         }
         case 14: {
-          CPPUNIT_ASSERT(check(iter, kLumi, 8, 11, 9, 0, 1));  // lumi 2:1
-          CPPUNIT_ASSERT(iter.shouldProcessLumi());
-          CPPUNIT_ASSERT(iter.entry() == 3);
+          REQUIRE(check(iter, kLumi, 8, 11, 9, 0, 1));  // lumi 2:1
+          REQUIRE(iter.shouldProcessLumi());
+          REQUIRE(iter.entry() == 3);
           break;
         }
         case 15: {
-          CPPUNIT_ASSERT(check(iter, kEvent, 8, 11, 9, 0, 1));  // event 2:1:2
-          CPPUNIT_ASSERT(iter.entry() == 4);
+          REQUIRE(check(iter, kEvent, 8, 11, 9, 0, 1));  // event 2:1:2
+          REQUIRE(iter.entry() == 4);
           break;
         }
         case 16: {
-          CPPUNIT_ASSERT(check(iter, kRun, 12, 14, 15, 0, 1));  // run 1
-          CPPUNIT_ASSERT(iter.shouldProcessRun());
-          CPPUNIT_ASSERT(iter.entry() == 0);
+          REQUIRE(check(iter, kRun, 12, 14, 15, 0, 1));  // run 1
+          REQUIRE(iter.shouldProcessRun());
+          REQUIRE(iter.entry() == 0);
           break;
         }
         case 17: {
-          CPPUNIT_ASSERT(check(iter, kRun, 13, 14, 15, 0, 1));  // run 1
-          CPPUNIT_ASSERT(iter.shouldProcessRun());
-          CPPUNIT_ASSERT(iter.entry() == 2);
+          REQUIRE(check(iter, kRun, 13, 14, 15, 0, 1));  // run 1
+          REQUIRE(iter.shouldProcessRun());
+          REQUIRE(iter.entry() == 2);
           break;
         }
         case 18: {
-          CPPUNIT_ASSERT(check(iter, kLumi, 13, 14, 15, 0, 1));  // lumi 1:1
-          CPPUNIT_ASSERT(iter.shouldProcessLumi());
-          CPPUNIT_ASSERT(iter.entry() == 0);
+          REQUIRE(check(iter, kLumi, 13, 14, 15, 0, 1));  // lumi 1:1
+          REQUIRE(iter.shouldProcessLumi());
+          REQUIRE(iter.entry() == 0);
           break;
         }
         case 19: {
-          CPPUNIT_ASSERT(check(iter, kLumi, 13, 15, 15, 0, 1));  // lumi 1:1
-          CPPUNIT_ASSERT(iter.shouldProcessLumi());
-          CPPUNIT_ASSERT(iter.entry() == 2);
+          REQUIRE(check(iter, kLumi, 13, 15, 15, 0, 1));  // lumi 1:1
+          REQUIRE(iter.shouldProcessLumi());
+          REQUIRE(iter.entry() == 2);
           break;
         }
         case 20: {
-          CPPUNIT_ASSERT(check(iter, kEvent, 13, 15, 15, 0, 1));  // event 1:1:4
-          CPPUNIT_ASSERT(iter.entry() == 5);
+          REQUIRE(check(iter, kEvent, 13, 15, 15, 0, 1));  // event 1:1:4
+          REQUIRE(iter.entry() == 5);
           break;
         }
         default:
-          CPPUNIT_ASSERT(false);
+          REQUIRE(false);
       }
     }
-    CPPUNIT_ASSERT(i == 21);
+    REQUIRE(i == 21);
   }
 }
 
@@ -2728,161 +2713,175 @@ void TestIndexIntoFile3::testNonValidLumiInsideValidLumis() {
     for (i = 0; iter != iterEnd; ++iter, ++i) {
       switch (i) {
         case 0: {
-          CPPUNIT_ASSERT(check(iter, kRun, 0, 2, 1, 0, 1));  // run 1
-          CPPUNIT_ASSERT(iter.size() == 11);
-          CPPUNIT_ASSERT(iter.indexedSize() == 14);
-          CPPUNIT_ASSERT(!iter.shouldProcessRun());
+          REQUIRE(check(iter, kRun, 0, 2, 1, 0, 1));  // run 1
+          REQUIRE(iter.size() == 11);
+          REQUIRE(iter.indexedSize() == 14);
+          REQUIRE(!iter.shouldProcessRun());
           break;
         }
         case 1: {
-          CPPUNIT_ASSERT(check(iter, kLumi, 0, 2, 1, 0, 1));  // lumi 1:1
-          CPPUNIT_ASSERT(!iter.shouldProcessLumi());
-          CPPUNIT_ASSERT(iter.lumiIterationStartingIndex(2));
+          REQUIRE(check(iter, kLumi, 0, 2, 1, 0, 1));  // lumi 1:1
+          REQUIRE(!iter.shouldProcessLumi());
+          REQUIRE(iter.lumiIterationStartingIndex(2));
           break;
         }
         case 2: {
-          CPPUNIT_ASSERT(check(iter, kLumi, 0, 3, 1, 0, 1));  // lumi 1:1
-          CPPUNIT_ASSERT(!iter.shouldProcessLumi());
-          CPPUNIT_ASSERT(!iter.lumiIterationStartingIndex(3));
+          REQUIRE(check(iter, kLumi, 0, 3, 1, 0, 1));  // lumi 1:1
+          REQUIRE(!iter.shouldProcessLumi());
+          REQUIRE(!iter.lumiIterationStartingIndex(3));
           break;
         }
         case 3: {
-          CPPUNIT_ASSERT(check(iter, kLumi, 0, 4, 1, 0, 1));  // lumi 1:1
-          CPPUNIT_ASSERT(!iter.shouldProcessLumi());
-          CPPUNIT_ASSERT(iter.lumiIterationStartingIndex(4));
+          REQUIRE(check(iter, kLumi, 0, 4, 1, 0, 1));  // lumi 1:1
+          REQUIRE(!iter.shouldProcessLumi());
+          REQUIRE(iter.lumiIterationStartingIndex(4));
           break;
         }
         case 4: {
-          CPPUNIT_ASSERT(check(iter, kEvent, 0, 4, 1, 0, 1));  // event 1:1:1
-          CPPUNIT_ASSERT(iter.entry() == 0);
+          REQUIRE(check(iter, kEvent, 0, 4, 1, 0, 1));  // event 1:1:1
+          REQUIRE(iter.entry() == 0);
           break;
         }
         case 5: {
-          CPPUNIT_ASSERT(check(iter, kEvent, 0, 4, 2, 0, 1));  // event 1:1:2
-          CPPUNIT_ASSERT(iter.entry() == 1);
+          REQUIRE(check(iter, kEvent, 0, 4, 2, 0, 1));  // event 1:1:2
+          REQUIRE(iter.entry() == 1);
           break;
         }
         case 6: {
-          CPPUNIT_ASSERT(check(iter, kEvent, 0, 4, 3, 0, 1));  // event 1:1:3
-          CPPUNIT_ASSERT(iter.entry() == 2);
+          REQUIRE(check(iter, kEvent, 0, 4, 3, 0, 1));  // event 1:1:3
+          REQUIRE(iter.entry() == 2);
           break;
         }
         case 7: {
-          CPPUNIT_ASSERT(check(iter, kEvent, 0, 4, 4, 0, 1));  // event 1:1:4
-          CPPUNIT_ASSERT(iter.entry() == 3);
+          REQUIRE(check(iter, kEvent, 0, 4, 4, 0, 1));  // event 1:1:4
+          REQUIRE(iter.entry() == 3);
           break;
         }
         case 8: {
-          CPPUNIT_ASSERT(check(iter, kRun, 5, 6, 6, 0, 1));  // run 2
-          CPPUNIT_ASSERT(iter.shouldProcessRun());
+          REQUIRE(check(iter, kRun, 5, 6, 6, 0, 1));  // run 2
+          REQUIRE(iter.shouldProcessRun());
           break;
         }
         case 9: {
-          CPPUNIT_ASSERT(check(iter, kLumi, 5, 6, 6, 0, 1));  // lumi 2:1
-          CPPUNIT_ASSERT(iter.shouldProcessLumi());
+          REQUIRE(check(iter, kLumi, 5, 6, 6, 0, 1));  // lumi 2:1
+          REQUIRE(iter.shouldProcessLumi());
           break;
         }
         case 10: {
-          CPPUNIT_ASSERT(check(iter, kEvent, 5, 6, 6, 0, 1));  // event 2:1:1
-          CPPUNIT_ASSERT(iter.entry() == 4);
+          REQUIRE(check(iter, kEvent, 5, 6, 6, 0, 1));  // event 2:1:1
+          REQUIRE(iter.entry() == 4);
           break;
         }
         case 11: {
-          CPPUNIT_ASSERT(check(iter, kRun, 7, 8, -1, 0, 0));  // run 1
-          CPPUNIT_ASSERT(iter.shouldProcessRun());
+          REQUIRE(check(iter, kRun, 7, 8, -1, 0, 0));  // run 1
+          REQUIRE(iter.shouldProcessRun());
           break;
         }
         case 12: {
-          CPPUNIT_ASSERT(check(iter, kLumi, 7, 8, -1, 0, 0));  // lumi 1:2
-          CPPUNIT_ASSERT(iter.shouldProcessLumi());
+          REQUIRE(check(iter, kLumi, 7, 8, -1, 0, 0));  // lumi 1:2
+          REQUIRE(iter.shouldProcessLumi());
           break;
         }
         case 13: {
-          CPPUNIT_ASSERT(check(iter, kLumi, 7, 9, -1, 0, 0));  // lumi 1:2
-          CPPUNIT_ASSERT(iter.shouldProcessLumi());
+          REQUIRE(check(iter, kLumi, 7, 9, -1, 0, 0));  // lumi 1:2
+          REQUIRE(iter.shouldProcessLumi());
           break;
         }
         case 14: {
-          CPPUNIT_ASSERT(check(iter, kLumi, 7, 10, -1, 0, 0));  // lumi 1:2
-          CPPUNIT_ASSERT(iter.shouldProcessLumi());
+          REQUIRE(check(iter, kLumi, 7, 10, -1, 0, 0));  // lumi 1:2
+          REQUIRE(iter.shouldProcessLumi());
           break;
         }
         case 15: {
-          CPPUNIT_ASSERT(check(iter, kLumi, 7, 11, 13, 0, 1));  // lumi 1:1
-          CPPUNIT_ASSERT(iter.shouldProcessLumi());
-          CPPUNIT_ASSERT(iter.entry() == 1);
+          REQUIRE(check(iter, kLumi, 7, 11, 13, 0, 1));  // lumi 1:1
+          REQUIRE(iter.shouldProcessLumi());
+          REQUIRE(iter.entry() == 1);
           break;
         }
         case 16: {
-          CPPUNIT_ASSERT(check(iter, kLumi, 7, 12, 13, 0, 1));  // lumi 1:1
-          CPPUNIT_ASSERT(iter.shouldProcessLumi());
-          CPPUNIT_ASSERT(iter.entry() == 4);
+          REQUIRE(check(iter, kLumi, 7, 12, 13, 0, 1));  // lumi 1:1
+          REQUIRE(iter.shouldProcessLumi());
+          REQUIRE(iter.entry() == 4);
           break;
         }
         case 17: {
-          CPPUNIT_ASSERT(check(iter, kLumi, 7, 13, 13, 0, 1));  // lumi 1:1
-          CPPUNIT_ASSERT(iter.shouldProcessLumi());
-          CPPUNIT_ASSERT(iter.entry() == 6);
+          REQUIRE(check(iter, kLumi, 7, 13, 13, 0, 1));  // lumi 1:1
+          REQUIRE(iter.shouldProcessLumi());
+          REQUIRE(iter.entry() == 6);
           break;
         }
         case 18: {
-          CPPUNIT_ASSERT(check(iter, kEvent, 7, 13, 13, 0, 1));  // event 1:1:5
-          CPPUNIT_ASSERT(iter.entry() == 5);
+          REQUIRE(check(iter, kEvent, 7, 13, 13, 0, 1));  // event 1:1:5
+          REQUIRE(iter.entry() == 5);
           break;
         }
       }
     }
-    CPPUNIT_ASSERT(i == 19);
+    REQUIRE(i == 19);
 
     skipEventBackward(iter);
     checkSkipped(0, 1, 1, 5);
-    CPPUNIT_ASSERT(check(iter, kRun, 7, 11, 13, 0, 1));
+    REQUIRE(check(iter, kRun, 7, 11, 13, 0, 1));
 
     skipEventBackward(iter);
     checkSkipped(0, 2, 1, 4);
-    CPPUNIT_ASSERT(check(iter, kRun, 5, 6, 6, 0, 1));
+    REQUIRE(check(iter, kRun, 5, 6, 6, 0, 1));
 
     skipEventBackward(iter);
     checkSkipped(0, 1, 1, 3);
-    CPPUNIT_ASSERT(check(iter, kRun, 0, 2, 4, 0, 1));
+    REQUIRE(check(iter, kRun, 0, 2, 4, 0, 1));
 
     skipEventBackward(iter);
     checkSkipped(0, 1, 1, 2);
-    CPPUNIT_ASSERT(check(iter, kRun, 0, 2, 3, 0, 1));
+    REQUIRE(check(iter, kRun, 0, 2, 3, 0, 1));
 
     skipEventBackward(iter);
     checkSkipped(0, 1, 1, 1);
-    CPPUNIT_ASSERT(check(iter, kRun, 0, 2, 2, 0, 1));
+    REQUIRE(check(iter, kRun, 0, 2, 2, 0, 1));
 
     skipEventBackward(iter);
     checkSkipped(0, 1, 1, 0);
-    CPPUNIT_ASSERT(check(iter, kRun, 0, 2, 1, 0, 1));
+    REQUIRE(check(iter, kRun, 0, 2, 1, 0, 1));
 
     skipEventBackward(iter);
     checkSkipped(-1, 0, 0, -1);
-    CPPUNIT_ASSERT(check(iter, kRun, 0, 2, 1, 0, 1));
+    REQUIRE(check(iter, kRun, 0, 2, 1, 0, 1));
 
     iter.advanceToNextRun();
-    CPPUNIT_ASSERT(check(iter, kRun, 5, 6, 6, 0, 1));  // run 2
+    REQUIRE(check(iter, kRun, 5, 6, 6, 0, 1));  // run 2
     iter.advanceToNextRun();
-    CPPUNIT_ASSERT(check(iter, kRun, 7, 8, -1, 0, 0));  // run 1
+    REQUIRE(check(iter, kRun, 7, 8, -1, 0, 0));  // run 1
     iter.advanceToNextRun();
-    CPPUNIT_ASSERT(check(iter, kEnd, -1, -1, -1, 0, 0));
+    REQUIRE(check(iter, kEnd, -1, -1, -1, 0, 0));
 
     iter = indexIntoFile.begin(IndexIntoFile::entryOrder);
     iter.advanceToNextLumiOrRun();
-    CPPUNIT_ASSERT(check(iter, kLumi, 0, 2, 1, 0, 1));  // lumi 1:1
+    REQUIRE(check(iter, kLumi, 0, 2, 1, 0, 1));  // lumi 1:1
     iter.advanceToNextLumiOrRun();
-    CPPUNIT_ASSERT(check(iter, kRun, 5, 6, 6, 0, 1));  // run 2
+    REQUIRE(check(iter, kRun, 5, 6, 6, 0, 1));  // run 2
     iter.advanceToNextLumiOrRun();
-    CPPUNIT_ASSERT(check(iter, kLumi, 5, 6, 6, 0, 1));  // lumi 2:1
+    REQUIRE(check(iter, kLumi, 5, 6, 6, 0, 1));  // lumi 2:1
     iter.advanceToNextLumiOrRun();
-    CPPUNIT_ASSERT(check(iter, kRun, 7, 8, -1, 0, 0));  // run 1
+    REQUIRE(check(iter, kRun, 7, 8, -1, 0, 0));  // run 1
     iter.advanceToNextLumiOrRun();
-    CPPUNIT_ASSERT(check(iter, kLumi, 7, 8, -1, 0, 0));  // lumi 1:2
+    REQUIRE(check(iter, kLumi, 7, 8, -1, 0, 0));  // lumi 1:2
     iter.advanceToNextLumiOrRun();
-    CPPUNIT_ASSERT(check(iter, kLumi, 7, 11, 13, 0, 1));  // lumi 1:1
+    REQUIRE(check(iter, kLumi, 7, 11, 13, 0, 1));  // lumi 1:1
     iter.advanceToNextLumiOrRun();
-    CPPUNIT_ASSERT(check(iter, kEnd, -1, -1, -1, 0, 0));
+    REQUIRE(check(iter, kEnd, -1, -1, -1, 0, 0));
   }
+};  // TestIndexIntoFile3
+
+TEST_CASE("IndexIntoFile3", "[indexIntoFile3_t]") {
+  TestIndexIntoFile3 fixture;
+  fixture.setUp();
+
+  SECTION("testIterEndWithEvent") { fixture.testIterEndWithEvent(); }
+  SECTION("testOverlappingLumis") { fixture.testOverlappingLumis(); }
+  SECTION("testOverlappingLumisMore") { fixture.testOverlappingLumisMore(); }
+  SECTION("testOverlappingLumisOutOfOrderEvent") { fixture.testOverlappingLumisOutOfOrderEvent(); }
+  SECTION("testOverlappingLumisWithEndWithEmptyLumi") { fixture.testOverlappingLumisWithEndWithEmptyLumi(); }
+  SECTION("testOverlappingLumisWithLumiEndOrderChanged") { fixture.testOverlappingLumisWithLumiEndOrderChanged(); }
+  SECTION("testNonContiguousRun") { fixture.testNonContiguousRun(); }
+  SECTION("testNonValidLumiInsideValidLumis") { fixture.testNonValidLumiInsideValidLumis(); }
 }
