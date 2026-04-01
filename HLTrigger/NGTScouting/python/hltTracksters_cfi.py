@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.nano_cff import nanoMetadata
-from Validation.HGCalValidation.HLT_TICLIterLabels_cff import hltTiclIterLabels
+from Validation.HGCalValidation.HLT_TICLIterLabels_cff import hltTiclIterLabelsPSet
 
 hltUpgradeNanoTask = cms.Task(nanoMetadata)
 hltSimTrackstersLabels = [
@@ -11,7 +11,7 @@ hltTrackstersTable = []
 hltSimTrackstersTable = []
 hltTrackstersAssociationOneToManyTableProducers = []
 tracksterTableProducers = []
-for iterLabel in hltTiclIterLabels:
+for iterLabel in hltTiclIterLabelsPSet.labels:
     tracksterTable = cms.EDProducer(
         "TracksterCollectionTableProducer",
         skipNonExistingSrc=cms.bool(True),

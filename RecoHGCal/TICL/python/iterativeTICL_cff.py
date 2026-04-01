@@ -134,10 +134,31 @@ ticlIterationsTask = cms.Task(
     ticlRecoveryStepTask
 )
 
+ticlIterLabelsPSet = cms.PSet(
+    labels=cms.vstring(
+        "ticlTrackstersCLUE3DHigh",
+        "ticlTracksterLinks",
+        "ticlCandidate",
+        "ticlTracksterLinksSuperclusteringDNN"
+    )
+)
 
+ticl_superclustering_mustache_ticl.toModify(
+    ticlIterLabelsPSet,
+    labels=cms.vstring(
+        "ticlTrackstersCLUE3DHigh",
+        "ticlTracksterLinks",
+        "ticlCandidate",
+        "ticlTracksterLinksSuperclusteringMustache"
+    )
+)
 
-# Default labels for v5
-ticlIterLabels = ["ticlTrackstersCLUE3DHigh", "ticlTracksterLinks", "ticlCandidate"]
+associatorsInstances = []
+for labelts in ticlIterLabelsPSet.labels:
+    for labelsts in ["ticlSimTracksters", "ticlSimTrackstersfromCPs"]:
+        associatorsInstances.append(labelts + "To" + labelsts)
+        associatorsInstances.append(labelsts + "To" + labelts)
+
 ticlTracksterLinksTask = cms.Task(ticlTracksterLinks, ticlSuperclusteringTask) 
 
 # mergeTICLTask default for v5
@@ -152,19 +173,6 @@ mtdSoATask = cms.Task(mtdSoA)
 ticlCandidateTask = cms.Task(ticlCandidate)
 
 
-if ticl_superclustering_mustache_ticl._isChosen():
-    ticlIterLabels.append("ticlTracksterLinksSuperclusteringMustache")
-else:
-    ticlIterLabels.append("ticlTracksterLinksSuperclusteringDNN")
-
-
-
-
-associatorsInstances = []
-for labelts in ticlIterLabels:
-    for labelsts in ['ticlSimTracksters', 'ticlSimTrackstersfromCPs']:
-        associatorsInstances.append(labelts+'To'+labelsts)
-        associatorsInstances.append(labelsts+'To'+labelts)
 
 # iterTICLTask default for v5
 iterTICLTask = cms.Task(
