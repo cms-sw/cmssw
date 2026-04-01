@@ -425,6 +425,11 @@ if __name__ == '__main__':
     vars_to_plot = ["pt"] + (["eta"] if PLOT_ETA else [])
     for dm_subdir in dm_subdirs:
         dm = int(dm_subdir.replace("GenDM", ""))
+
+        if dm not in ch_legs_by_dm:
+            print(f"Skipping non-physical DM {dm} (not in ch_legs_by_dm)")
+            continue
+
         d_dm = file.Get(dqm_dir + "/" + dm_subdir)
 
         dm_dir = os.path.join(out_dir, f"dm{dm}")
@@ -482,6 +487,11 @@ if __name__ == '__main__':
     eff_ge_ch_eta_hists = {}  # N -> list of hists
     for dm_subdir in dm_subdirs:
         dm = int(dm_subdir.replace("GenDM", ""))
+
+        if dm not in ch_legs_by_dm:
+            print(f"Skipping non-physical DM {dm} (not in ch_legs_by_dm)")
+            continue
+
         d_dm = file.Get(dqm_dir + "/" + dm_subdir)
 
         dm_dir = os.path.join(out_dir, f"dm{dm}")
@@ -651,10 +661,14 @@ if __name__ == '__main__':
     for dm in dm_list:
         dm_dir = os.path.join(out_dir, f"dm{dm}")
         os.makedirs(dm_dir, exist_ok=True)
-
+        
         d_dm = file.Get(f"{dqm_dir}/GenDM{dm}")
         if not d_dm:
             missing.append(f"{dqm_dir}/GenDM{dm}")
+            continue
+
+        if dm not in ch_legs_by_dm:
+            print(f"Skipping non-physical DM {dm} (not in ch_legs_by_dm)")
             continue
 
         # denominators
