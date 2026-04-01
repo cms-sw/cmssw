@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels
+from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsPSet
 
-trackstersIters = ['keep *_'+iteration+'_*_*' for iteration in ticlIterLabels]
+trackstersIters = ['keep *_'+iteration+'_*_*' for iteration in ticlIterLabelsPSet.labels]
 
 TICL_AOD = cms.PSet(
     outputCommands = cms.untracked.vstring()
