@@ -493,15 +493,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float pixelRadiusTemp, tripletRadius, rPhiChiSquaredTemp, rzChiSquaredTemp, rPhiChiSquaredInwardsTemp, centerXTemp,
         centerYTemp, pixelRadiusErrorTemp;
 
+    PixelSeedData pixelData =
+        loadPixelSeedData(pixelSeeds, pixelSegments, mds, segments, pixelSegmentIndex, pixelSegmentArrayIndex);
+
     if (not runPixelTripletDefaultAlgo<dnn::pt3dnn::pT5WP>(acc,
                                                            modules,
-                                                           ranges,
                                                            mds,
                                                            segments,
-                                                           pixelSeeds,
-                                                           pixelSegments,
+                                                           pixelData,
                                                            triplets,
-                                                           pixelSegmentIndex,
                                                            t5InnerT3Index,
                                                            pixelRadiusTemp,
                                                            tripletRadius,
@@ -520,9 +520,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     unsigned int secondSegmentIndex = triplets.segmentIndices()[t5InnerT3Index][1];
     unsigned int thirdSegmentIndex = triplets.segmentIndices()[t5OuterT3Index][0];
     unsigned int fourthSegmentIndex = triplets.segmentIndices()[t5OuterT3Index][1];
-
-    unsigned int pixelInnerMDIndex = segments.mdIndices()[pixelSegmentIndex][0];
-    unsigned int pixelOuterMDIndex = segments.mdIndices()[pixelSegmentIndex][1];
     unsigned int firstMDIndex = segments.mdIndices()[firstSegmentIndex][0];
     unsigned int secondMDIndex = segments.mdIndices()[secondSegmentIndex][0];
     unsigned int thirdMDIndex = segments.mdIndices()[secondSegmentIndex][1];
@@ -538,10 +535,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     uint16_t lowerModuleIndices[Params_T5::kLayers] = {
         lowerModuleIndex1, lowerModuleIndex2, lowerModuleIndex3, lowerModuleIndex4, lowerModuleIndex5};
 
-    float rtPix[Params_pLS::kLayers] = {mds.anchorRt()[pixelInnerMDIndex], mds.anchorRt()[pixelOuterMDIndex]};
-    float xPix[Params_pLS::kLayers] = {mds.anchorX()[pixelInnerMDIndex], mds.anchorX()[pixelOuterMDIndex]};
-    float yPix[Params_pLS::kLayers] = {mds.anchorY()[pixelInnerMDIndex], mds.anchorY()[pixelOuterMDIndex]};
-    float zPix[Params_pLS::kLayers] = {mds.anchorZ()[pixelInnerMDIndex], mds.anchorZ()[pixelOuterMDIndex]};
+    float rtPix[Params_pLS::kLayers] = {pixelData.rt_InLo, pixelData.rt_InUp};
+    float xPix[Params_pLS::kLayers] = {pixelData.x_InLo, pixelData.x_InUp};
+    float yPix[Params_pLS::kLayers] = {pixelData.y_InLo, pixelData.y_InUp};
+    float zPix[Params_pLS::kLayers] = {pixelData.z_InLo, pixelData.z_InUp};
     float zs[Params_T5::kLayers] = {mds.anchorZ()[firstMDIndex],
                                     mds.anchorZ()[secondMDIndex],
                                     mds.anchorZ()[thirdMDIndex],
@@ -553,16 +550,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                      mds.anchorRt()[fourthMDIndex],
                                      mds.anchorRt()[fifthMDIndex]};
 
-    float pixelSegmentPt = pixelSeeds.ptIn()[pixelSegmentArrayIndex];
-    float pixelSegmentPx = pixelSeeds.px()[pixelSegmentArrayIndex];
-    float pixelSegmentPy = pixelSeeds.py()[pixelSegmentArrayIndex];
-    float pixelSegmentPz = pixelSeeds.pz()[pixelSegmentArrayIndex];
-    int pixelSegmentCharge = pixelSeeds.charge()[pixelSegmentArrayIndex];
-
     rzChiSquared = 0;
 
     //get the appropriate centers
-    pixelRadius = pixelSegments.circleRadius()[pixelSegmentArrayIndex];
+    pixelRadius = pixelData.circleRadius;
 
     rzChiSquared = computePT5RZChiSquared(acc,
                                           modules,
@@ -573,11 +564,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                           zPix,
                                           rts,
                                           zs,
-                                          pixelSegmentPt,
-                                          pixelSegmentPx,
-                                          pixelSegmentPy,
-                                          pixelSegmentPz,
-                                          pixelSegmentCharge);
+                                          pixelData.ptIn,
+                                          pixelData.px,
+                                          pixelData.py,
+                                          pixelData.pz,
+                                          pixelData.charge);
 
     if (pixelRadius < 5.0f * kR1GeVf) {  //only apply r-z chi2 cuts for <5GeV tracks
       if (not passPT5RZChiSquaredCuts(modules,
@@ -603,8 +594,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                     mds.anchorY()[fifthMDIndex]};
 
     //get the appropriate centers
-    centerX = pixelSegments.circleCenterX()[pixelSegmentArrayIndex];
-    centerY = pixelSegments.circleCenterY()[pixelSegmentArrayIndex];
+    centerX = pixelData.circleCenterX;
+    centerY = pixelData.circleCenterY;
 
     float T5CenterX = quintuplets.regressionCenterX()[quintupletIndex];
     float T5CenterY = quintuplets.regressionCenterY()[quintupletIndex];
