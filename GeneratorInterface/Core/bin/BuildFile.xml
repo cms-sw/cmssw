@@ -1,16 +1,18 @@
-<bin name="cmsExternalGenerator" file="externalGenerator.cc">
+<bin name="cmsExternalGenerator" file="externalGenerator.cc, ExternalRandomNumberGeneratorService.cc">
   <use name="boost"/>
+  <use name="CLHEP"/>
   <use name="boost_program_options"/>
   <use name="FWCore/TestProcessor"/>
   <use name="FWCore/SharedMemory"/>
-  <use name="GeneratorInterface/Core"/>
   <use name="SimDataFormats/GeneratorProducts"/>
+  <use name="SimDataFormats/RandomEngine"/>
 </bin>
 
-<bin name="cmsTestInterProcessRandom" file="interprocess_random.cc">
+<bin name="cmsTestInterProcessRandom" file="interprocess_random.cc,ExternalRandomNumberGeneratorService.cc">
   <use name="boost"/>
   <use name="boost_program_options"/>
+  <use name="CLHEP"/>
   <use name="FWCore/TestProcessor"/>
   <use name="FWCore/SharedMemory"/>
-  <use name="GeneratorInterface/Core"/>
+  <use name="SimDataFormats/RandomEngine"/>
 </bin>
