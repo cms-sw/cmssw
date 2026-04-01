@@ -19,7 +19,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/ExternalGeneratorEventInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/ExternalGeneratorLumiInfo.h"
 
-#include "GeneratorInterface/Core/interface/ExternalRandomNumberGeneratorService.h"
+#include "FWCore/Services/interface/ExternalRandomNumberGeneratorService.h"
 
 #include "FWCore/SharedMemory/interface/WriteBuffer.h"
 #include "FWCore/SharedMemory/interface/ReadBuffer.h"
