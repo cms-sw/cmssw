@@ -78,6 +78,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       unsigned int& nComponents = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);
       unsigned int& blockRHFShift = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);
 
+      // TODO: initialization failed on AMD platform
+      if (::cms::alpakatools::once_per_grid(acc)) {
+        args.blockCount() = 0;
+      }
+
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
         if (::cms::alpakatools::once_per_block(acc)) {
           nComponents = outPFCluster.nSeeds();
