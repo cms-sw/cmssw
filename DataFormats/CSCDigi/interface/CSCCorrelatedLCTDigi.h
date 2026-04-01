@@ -18,7 +18,7 @@
 
 class CSCCorrelatedLCTDigi {
 public:
-  enum class Version { Legacy = 0, Run3 };
+  enum class Version { Legacy = 0, Run3, Run3HR };
   // for data vs emulator studies
   enum LCTBXMask { kBXDataMask = 0x1 };
 
@@ -114,7 +114,10 @@ public:
   uint16_t getRun3Pattern() const { return run3_pattern_; }
 
   /// return the slope
-  uint16_t getSlope() const { return run3_slope_; }
+  uint16_t getSlope() const;
+  // return the slope with extended resolution. The raw slope resolution is 4 bits for Legacy and Run3, and 6 bits for Run3HR. If resolution=0, return raw slope value with the full resolution.
+  uint16_t getSlopeEx(uint16_t resolution=0) const;
+  uint16_t getRawSlopeResolution() const { return version_ == Version::Run3HR ? 6 : 4; }
 
   /// slope in number of half-strips/layer
   /// negative means left-bending
@@ -207,7 +210,7 @@ public:
   /// Distinguish Run-1/2 from Run-3
   bool isRun3() const { return version_ == Version::Run3; }
 
-  void setRun3(const bool isRun3);
+  void setVersion(const Version version) { version_ = version; }
 
   int getType() const { return type_; }
 

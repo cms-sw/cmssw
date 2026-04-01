@@ -114,6 +114,13 @@ private:
   // Construct LCT from CSC and GEM information. ALCT+2GEM
   void constructLCTsGEM(const CSCALCTDigi& alct, const GEMInternalCluster& gem, CSCCorrelatedLCTDigi& lct) const;
 
+  void fillBaseInfo(CSCCorrelatedLCTDigi& lct) const;
+  void fillCCLUTInfo(CSCCorrelatedLCTDigi& lct,
+                      const CSCCLCTDigi* clct,
+                                       const GEMInternalCluster* gem,
+                                       const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                                       const CSCL1TPLookupTableME21ILT* lookupTableME21ILT) const;
+
   // LCTs are sorted by quality. If there are two with the same quality,
   // then the sorting is done by the slope
   void sortLCTs(std::vector<CSCCorrelatedLCTDigi>& lcts) const;

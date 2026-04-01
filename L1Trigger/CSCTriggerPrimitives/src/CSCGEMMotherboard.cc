@@ -1,4 +1,5 @@
 #include <memory>
+#include <algorithm>
 
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMotherboard.h"
 CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
@@ -493,6 +494,63 @@ void CSCGEMMotherboard::correlateLCTsGEM(const CSCALCTDigi& ALCT,
   }
 }
 
+void CSCGEMMotherboard::fillBaseInfo(CSCCorrelatedLCTDigi& thisLCT) const {
+  thisLCT.setValid(true);
+  thisLCT.setMPCLink(0);
+  thisLCT.setBX0(0);
+  thisLCT.setSyncErr(0);
+  thisLCT.setCSCID(theTrigChamber);
+  thisLCT.setTrknmb(0);  // will be set later after sorting
+}
+
+void CSCGEMMotherboard::fillCCLUTInfo(CSCCorrelatedLCTDigi& thisLCT,
+                                       const CSCCLCTDigi* clct,
+                                       const GEMInternalCluster* gem,
+                                       const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                                       const CSCL1TPLookupTableME21ILT* lookupTableME21ILT) const {
+  if (!runCCLUT_) return;
+  CSCCorrelatedLCTDigi::Version version = CSCCorrelatedLCTDigi::Version::Run3;
+  if(lookupTableME11ILT || lookupTableME21ILT) {
+    const auto me11_n_bits = lookupTableME11ILT ? std::make_optional(lookupTableME11ILT->es_diff_slope_bit_width()) : std::nullopt;
+    const auto me21_n_bits = lookupTableME21ILT ? std::make_optional(lookupTableME21ILT->es_diff_slope_bit_width()) : std::nullopt;
+    if (me11_n_bits.has_value() && me21_n_bits.has_value() && me11_n_bits != me21_n_bits) {
+      throw cms::Exception("CSCGEMMotherboard") << "Mismatch in ES diff slope bit width between ME11 and ME21 LUTs! ME11: " << *me11_n_bits << " bits, ME21: " << *me21_n_bits << " bits. This may lead to incorrect slope and pattern assignment.";
+    }
+    const unsigned n_bits = me11_n_bits.has_value() ? *me11_n_bits : *me21_n_bits;
+    if(n_bits != 4 && n_bits != 6) {
+      throw cms::Exception("CSCGEMMotherboard") << "Unsupported ES diff slope bit width in LUTs! Expected 4 or 6 bits, but got " << n_bits << " bits.";
+    }
+    if (n_bits == 6)
+      version = CSCCorrelatedLCTDigi::Version::Run3HR;
+  }
+  thisLCT.setVersion(version);
+  if(clct) {
+    if (assign_gem_csc_bending_ && gem && gem->isValid()) {
+      //calculate new slope from strip difference between CLCT and associated GEM
+      const int slope = cscGEMMatcher_->calculateGEMCSCBending(*clct, *gem, lookupTableME11ILT, lookupTableME21ILT);
+      const int gemLayer = gem->isMatchingLayer1() ? 1 : (gem->isMatchingLayer2() ? 2 : 0);
+      thisLCT.setGemLayerUsedForSlopeComputation(gemLayer);
+      thisLCT.setSlope(abs(slope));
+      thisLCT.setBend(std::signbit(slope));
+      thisLCT.setPattern(Run2PatternConverter(slope));
+    } else {
+      unsigned clct_slope = clct->getSlope();
+      if (version == CSCCorrelatedLCTDigi::Version::Run3HR)
+        clct_slope *= 4;
+      thisLCT.setSlope(clct_slope);
+    }
+    thisLCT.setQuartStripBit(clct->getQuartStripBit());
+    thisLCT.setEighthStripBit(clct->getEighthStripBit());
+    thisLCT.setRun3Pattern(clct->getRun3Pattern());
+  } else {
+    thisLCT.setSlope(0);
+    thisLCT.setQuartStripBit(false);
+    thisLCT.setEighthStripBit(false);
+    // ALCT-2GEM type LCTs do not bend in the chamber
+    thisLCT.setRun3Pattern(4);
+  }
+}
+
 // Construct LCT from CSC and GEM information. Option ALCT-CLCT-GEM
 void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
                                          const CSCCLCTDigi& clct,
@@ -500,7 +558,7 @@ void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
                                          const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
                                          const CSCL1TPLookupTableME21ILT* lookupTableME21ILT,
                                          CSCCorrelatedLCTDigi& thisLCT) const {
-  thisLCT.setValid(true);
+  fillBaseInfo(thisLCT);
   if (gem.isCoincidence())
     thisLCT.setType(CSCCorrelatedLCTDigi::ALCTCLCT2GEM);
   else if (gem.isValid())
@@ -512,60 +570,29 @@ void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
   thisLCT.setGEM1(gem.mid1());
   thisLCT.setGEM2(gem.mid2());
   thisLCT.setPattern(encodePattern(clct.getPattern()));
-  thisLCT.setMPCLink(0);
-  thisLCT.setBX0(0);
-  thisLCT.setSyncErr(0);
-  thisLCT.setCSCID(theTrigChamber);
-  thisLCT.setTrknmb(0);  // will be set later after sorting
   thisLCT.setWireGroup(alct.getKeyWG());
   thisLCT.setStrip(clct.getKeyStrip());
   thisLCT.setBend(clct.getBend());
   thisLCT.setBX(alct.getBX());
-  if (runCCLUT_) {
-    thisLCT.setRun3(true);
-    if (assign_gem_csc_bending_ &&
-        gem.isValid()) {  //calculate new slope from strip difference between CLCT and associated GEM
-      int slope = cscGEMMatcher_->calculateGEMCSCBending(clct, gem, lookupTableME11ILT, lookupTableME21ILT);
-      int gemLayer = gem.isMatchingLayer1() ? 1 : (gem.isMatchingLayer2() ? 2 : 0);
-      thisLCT.setGemLayerUsedForSlopeComputation(gemLayer);
-      thisLCT.setSlope(abs(slope));
-      thisLCT.setBend(std::signbit(slope));
-      thisLCT.setPattern(Run2PatternConverter(slope));
-    } else
-      thisLCT.setSlope(clct.getSlope()*4);
-    thisLCT.setQuartStripBit(clct.getQuartStripBit());
-    thisLCT.setEighthStripBit(clct.getEighthStripBit());
-    thisLCT.setRun3Pattern(clct.getRun3Pattern());
-  }
+
+  fillCCLUTInfo(thisLCT, &clct, &gem, lookupTableME11ILT, lookupTableME21ILT);
 }
 
 // Construct LCT from CSC and GEM information. Option ALCT-CLCT
 void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& aLCT,
                                          const CSCCLCTDigi& cLCT,
                                          CSCCorrelatedLCTDigi& thisLCT) const {
-  thisLCT.setValid(true);
+  fillBaseInfo(thisLCT);
   thisLCT.setType(CSCCorrelatedLCTDigi::ALCTCLCT);
   thisLCT.setALCT(getBXShiftedALCT(aLCT));
   thisLCT.setCLCT(getBXShiftedCLCT(cLCT));
   thisLCT.setPattern(encodePattern(cLCT.getPattern()));
-  thisLCT.setMPCLink(0);
-  thisLCT.setBX0(0);
-  thisLCT.setSyncErr(0);
-  thisLCT.setCSCID(theTrigChamber);
-  thisLCT.setTrknmb(0);  // will be set later after sorting
   thisLCT.setWireGroup(aLCT.getKeyWG());
   thisLCT.setStrip(cLCT.getKeyStrip());
   thisLCT.setBend(cLCT.getBend());
   thisLCT.setBX(aLCT.getBX());
   thisLCT.setQuality(qualityAssignment_->findQuality(aLCT, cLCT));
-  if (runCCLUT_) {
-    thisLCT.setRun3(true);
-    // 4-bit slope value derived with the CCLUT algorithm
-    thisLCT.setSlope(cLCT.getSlope()*4);
-    thisLCT.setQuartStripBit(cLCT.getQuartStripBit());
-    thisLCT.setEighthStripBit(cLCT.getEighthStripBit());
-    thisLCT.setRun3Pattern(cLCT.getRun3Pattern());
-  }
+  fillCCLUTInfo(thisLCT, &cLCT, nullptr, nullptr, nullptr);
 }
 
 // Construct LCT from CSC and GEM information. Option CLCT-2GEM
@@ -574,78 +601,43 @@ void CSCGEMMotherboard::constructLCTsGEM(const CSCCLCTDigi& clct,
                                          const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
                                          const CSCL1TPLookupTableME21ILT* lookupTableME21ILT,
                                          CSCCorrelatedLCTDigi& thisLCT) const {
-  thisLCT.setValid(true);
+  fillBaseInfo(thisLCT);
   thisLCT.setType(CSCCorrelatedLCTDigi::CLCT2GEM);
   thisLCT.setQuality(qualityAssignment_->findQuality(clct, gem));
   thisLCT.setCLCT(getBXShiftedCLCT(clct));
   thisLCT.setGEM1(gem.mid1());
   thisLCT.setGEM2(gem.mid2());
   thisLCT.setPattern(encodePattern(clct.getPattern()));
-  thisLCT.setMPCLink(0);
-  thisLCT.setBX0(0);
-  thisLCT.setSyncErr(0);
-  thisLCT.setCSCID(theTrigChamber);
-  thisLCT.setTrknmb(0);  // will be set later after sorting
   thisLCT.setWireGroup(gem.getKeyWG());
   thisLCT.setStrip(clct.getKeyStrip());
   thisLCT.setBend(clct.getBend());
   thisLCT.setBX(gem.bx());
-  if (runCCLUT_) {
-    thisLCT.setRun3(true);
-    if (assign_gem_csc_bending_ &&
-        gem.isValid()) {  //calculate new slope from strip difference between CLCT and associated GEM
-      int slope = cscGEMMatcher_->calculateGEMCSCBending(clct, gem, lookupTableME11ILT, lookupTableME21ILT);
-      int gemLayer = gem.isMatchingLayer1() ? 1 : (gem.isMatchingLayer2() ? 2 : 0);
-      thisLCT.setGemLayerUsedForSlopeComputation(gemLayer);
-      thisLCT.setSlope(abs(slope));
-      thisLCT.setBend(pow(-1, std::signbit(slope)));
-      thisLCT.setPattern(Run2PatternConverter(slope));
-    } else
-      thisLCT.setSlope(clct.getSlope()*4);
-    thisLCT.setQuartStripBit(clct.getQuartStripBit());
-    thisLCT.setEighthStripBit(clct.getEighthStripBit());
-    thisLCT.setRun3Pattern(clct.getRun3Pattern());
-  }
+  fillCCLUTInfo(thisLCT, &clct, &gem, lookupTableME11ILT, lookupTableME21ILT);
 }
 
 // Construct LCT from CSC and GEM information. Option ALCT-2GEM
 void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
                                          const GEMInternalCluster& gem,
                                          CSCCorrelatedLCTDigi& thisLCT) const {
-  thisLCT.setValid(true);
+  fillBaseInfo(thisLCT);
   thisLCT.setType(CSCCorrelatedLCTDigi::ALCT2GEM);
   thisLCT.setQuality(qualityAssignment_->findQuality(alct, gem));
   thisLCT.setALCT(getBXShiftedALCT(alct));
   thisLCT.setGEM1(gem.mid1());
   thisLCT.setGEM2(gem.mid2());
   thisLCT.setPattern(10);
-  thisLCT.setMPCLink(0);
-  thisLCT.setBX0(0);
-  thisLCT.setSyncErr(0);
-  thisLCT.setCSCID(theTrigChamber);
-  thisLCT.setTrknmb(0);  // will be set later after sorting
   thisLCT.setWireGroup(alct.getKeyWG());
   thisLCT.setStrip(gem.getKeyStrip());
   thisLCT.setBend(0);
   thisLCT.setBX(alct.getBX());
-  if (runCCLUT_) {
-    thisLCT.setRun3(true);
-    thisLCT.setSlope(0);
-    thisLCT.setQuartStripBit(false);
-    thisLCT.setEighthStripBit(false);
-    // ALCT-2GEM type LCTs do not bend in the chamber
-    thisLCT.setRun3Pattern(4);
-  }
+  fillCCLUTInfo(thisLCT, nullptr, &gem, nullptr, nullptr);
 }
 
 void CSCGEMMotherboard::sortLCTs(std::vector<CSCCorrelatedLCTDigi>& lcts) const {
   // LCTs are sorted by quality. If there are two with the same quality, then the sorting is done by the slope
   std::sort(lcts.begin(), lcts.end(), [](const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) -> bool {
-    if (lct1.getQuality() > lct2.getQuality())
-      return lct1.getQuality() > lct2.getQuality();
-    else if (lct1.getQuality() == lct2.getQuality())
-      return lct1.getSlope() < lct2.getSlope();
-    else
-      return false;
+    if (lct1.getQuality() == lct2.getQuality())
+      return lct1.getSlopeEx() < lct2.getSlopeEx();
+    return lct1.getQuality() > lct2.getQuality();
   });
 }
