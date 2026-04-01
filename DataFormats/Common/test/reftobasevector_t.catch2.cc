@@ -1,26 +1,13 @@
 
 #include <algorithm>
 
-#include "cppunit/extensions/HelperMacros.h"
+#include <catch2/catch_all.hpp>
 #include "DataFormats/Common/interface/TestHandle.h"
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/Ref.h"
 
 #include <vector>
-
-class testRefToBaseVector : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(testRefToBaseVector);
-  CPPUNIT_TEST(check);
-  CPPUNIT_TEST_SUITE_END();
-
-public:
-  void setUp() {}
-  void tearDown() {}
-  void check();
-};
-
-CPPUNIT_TEST_SUITE_REGISTRATION(testRefToBaseVector);
 
 namespace testreftobase {
   struct Base {
@@ -42,14 +29,14 @@ using namespace testreftobase;
 void do_some_tests(edm::RefToBaseVector<Base> x) {
   edm::RefToBaseVector<Base> copy(x);
 
-  CPPUNIT_ASSERT(x.empty() == copy.empty());
-  CPPUNIT_ASSERT(x.size() == copy.size());
+  REQUIRE(x.empty() == copy.empty());
+  REQUIRE(x.size() == copy.size());
   edm::RefToBaseVector<Base>::const_iterator b = x.begin(), e = x.end(), cb = copy.begin(), ce = copy.end();
-  CPPUNIT_ASSERT(e - b == ce - cb);
-  CPPUNIT_ASSERT(std::distance(b, e) == std::distance(cb, ce));
+  REQUIRE(e - b == ce - cb);
+  REQUIRE(std::distance(b, e) == std::distance(cb, ce));
 }
 
-void testRefToBaseVector::check() {
+TEST_CASE("test RefToBaseVector", "[RefToBaseVector]") {
   using namespace edm;
 
   std::vector<Inherit1> v1(2, Inherit1());
@@ -67,7 +54,7 @@ void testRefToBaseVector::check() {
   RefToBaseVector<Base> empty;
   RefToBaseVector<Base> copy_of_empty(empty);
 
-  CPPUNIT_ASSERT(empty == copy_of_empty);
+  REQUIRE(empty == copy_of_empty);
 
   RefToBaseVector<Base> bv1(rv1);
   RefToBase<Base> r1_0 = bv1[0];
@@ -76,42 +63,42 @@ void testRefToBaseVector::check() {
   RefToBase<Base> r2_0 = bv2[0];
   RefToBase<Base> r2_1 = bv2[1];
 
-  CPPUNIT_ASSERT(bv1.empty() == false);
-  CPPUNIT_ASSERT(bv1.size() == 2);
-  CPPUNIT_ASSERT(bv2.size() == 2);
-  CPPUNIT_ASSERT(r1_0->val() == 1);
-  CPPUNIT_ASSERT(r1_1->val() == 1);
-  CPPUNIT_ASSERT(r2_0->val() == 2);
-  CPPUNIT_ASSERT(r2_1->val() == 2);
+  REQUIRE(bv1.empty() == false);
+  REQUIRE(bv1.size() == 2);
+  REQUIRE(bv2.size() == 2);
+  REQUIRE(r1_0->val() == 1);
+  REQUIRE(r1_1->val() == 1);
+  REQUIRE(r2_0->val() == 2);
+  REQUIRE(r2_1->val() == 2);
 
   RefToBaseVector<Base>::const_iterator b = bv1.begin(), e = bv1.end();
   RefToBaseVector<Base>::const_iterator i = b;
-  CPPUNIT_ASSERT((*i)->val() == 1);
-  CPPUNIT_ASSERT(i != e);
-  CPPUNIT_ASSERT(i - b == 0);
+  REQUIRE((*i)->val() == 1);
+  REQUIRE(i != e);
+  REQUIRE(i - b == 0);
   ++i;
-  CPPUNIT_ASSERT((*i)->val() == 1);
-  CPPUNIT_ASSERT(i != e);
-  CPPUNIT_ASSERT(i - b == 1);
+  REQUIRE((*i)->val() == 1);
+  REQUIRE(i != e);
+  REQUIRE(i - b == 1);
   ++i;
-  CPPUNIT_ASSERT(i == e);
+  REQUIRE(i == e);
 
   RefToBaseVector<Base> assigned_from_bv1;
   do_some_tests(assigned_from_bv1);
-  CPPUNIT_ASSERT(assigned_from_bv1.empty());
+  REQUIRE(assigned_from_bv1.empty());
   assigned_from_bv1 = bv1;
-  CPPUNIT_ASSERT(assigned_from_bv1.size() == bv1.size());
-  CPPUNIT_ASSERT(std::equal(bv1.begin(), bv1.end(), assigned_from_bv1.begin()));
-  CPPUNIT_ASSERT(assigned_from_bv1 == bv1);
+  REQUIRE(assigned_from_bv1.size() == bv1.size());
+  REQUIRE(std::equal(bv1.begin(), bv1.end(), assigned_from_bv1.begin()));
+  REQUIRE(assigned_from_bv1 == bv1);
 
   do_some_tests(assigned_from_bv1);
 
   /// creation of empty vector adding with push_back
   RefToBaseVector<Base> bv3;
   bv3.push_back(r1_0);
-  CPPUNIT_ASSERT(bv3.size() == 1);
-  CPPUNIT_ASSERT(&(*r1_0) == &(*bv3[0]));
+  REQUIRE(bv3.size() == 1);
+  REQUIRE(&(*r1_0) == &(*bv3[0]));
   bv3.push_back(r1_1);
-  CPPUNIT_ASSERT(bv3.size() == 2);
-  CPPUNIT_ASSERT(&(*r1_1) == &(*bv3[1]));
+  REQUIRE(bv3.size() == 2);
+  REQUIRE(&(*r1_1) == &(*bv3[1]));
 }
