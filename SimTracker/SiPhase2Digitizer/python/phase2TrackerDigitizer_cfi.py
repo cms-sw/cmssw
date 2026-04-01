@@ -80,6 +80,7 @@ phase2TrackerDigitizer = cms.PSet(
     AlgorithmCommon = cms.PSet(
       DeltaProductionCut = cms.double(0.03),
       makeDigiSimLinks = cms.untracked.bool(True),
+      CosmicDelayShift = cms.double(0.)
     ),
 # Specific parameters
 #Pixel Digitizer Algorithm
