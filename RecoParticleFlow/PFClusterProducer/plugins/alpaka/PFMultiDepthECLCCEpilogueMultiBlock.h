@@ -162,7 +162,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const unsigned int nBlocks = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
 
       // component offsets
-      auto& subcc_offsets(alpaka::declareSharedVar<unsigned int[max_w_items], __COUNTER__>(acc));
+      auto& subcc_offsets(alpaka::declareSharedVar<unsigned int[w_extent], __COUNTER__>(acc));
 
       auto& common_buf1(alpaka::declareSharedVar<unsigned int[max_w_items * w_extent], __COUNTER__>(acc));
       auto& common_buf2(alpaka::declareSharedVar<unsigned int[max_w_items * w_extent], __COUNTER__>(acc));
@@ -182,7 +182,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         unsigned int vertex_idx = nVertices;
 
         for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
-          if (idx.local < max_w_items) {
+          if (idx.local < w_extent) {
             subcc_offsets[idx.local] = 0;
           }
           vertex_idx = idx.global;
