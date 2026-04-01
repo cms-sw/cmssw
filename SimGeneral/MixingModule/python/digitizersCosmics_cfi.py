@@ -14,6 +14,11 @@ pixelDigitizer.TofLowerCut=cms.double(18.5)
 pixelDigitizer.TofUpperCut=cms.double(43.5)
 stripDigitizer.CosmicDelayShift = cms.untracked.double(31)
 
+# Phase-2: Propagate cosmic time offset to all algorithms
+phase2_tracker.toModify(pixelDigitizer, AlgorithmCommon = dict(
+  CosmicDelayShift = cms.double(31)
+))
+
 ecalDigitizer.cosmicsPhase = cms.bool(True)
 ecalDigitizer.cosmicsShift = cms.double(1.)
 

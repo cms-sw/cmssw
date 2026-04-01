@@ -151,6 +151,7 @@ protected:
 
   const float theTofLowerCut_;                  // Cut on the particle TOF
   const float theTofUpperCut_;                  // Cut on the particle TOF
+  const float cosmicShift_;                     // Cosmic shift to apply before the ToF cut.
   const float tanLorentzAnglePerTesla_Endcap_;  //FPix Lorentz angle tangent per Tesla
   const float tanLorentzAnglePerTesla_Barrel_;  //BPix Lorentz angle tangent per Tesla
 
