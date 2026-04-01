@@ -1,9 +1,25 @@
 
 #include "DQM/HcalTasks/interface/LEDTask.h"
+#include <algorithm>
+#include <cmath>
 
 using namespace hcaldqm;
 using namespace hcaldqm::constants;
 using namespace hcaldqm::filter;
+
+namespace {
+  constexpr double kTiny = 1e-9;
+
+  class FineTimingDiffNs : public hcaldqm::quantity::ValueQuantity {
+  public:
+    FineTimingDiffNs() : ValueQuantity(hcaldqm::quantity::fTimingDiff_ns) {}
+
+    FineTimingDiffNs* makeCopy() override { return new FineTimingDiffNs(); }
+    int nbins() override { return 100; }
+    double min() override { return -50.; }
+    double max() override { return 50.; }
+  };
+}  // namespace
 
 LEDTask::LEDTask(edm::ParameterSet const& ps)
     : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
@@ -184,6 +200,48 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
                                new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
                                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
                                0);
+  _cChargeCorr_depth.initialize(_name,
+                                "ChargeCorrected",
+                                hcaldqm::hashfunctions::fdepth,
+                                new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+                                new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+                                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_generic_400000),
+                                0);
+  _cCWTCorr_depth.initialize(_name,
+                             "CWTCorrected",
+                             hcaldqm::hashfunctions::fdepth,
+                             new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+                             new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+                             new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
+                             0);
+  _cChargeNormLS2_depth.initialize(_name,
+                                   "ChargeNormLS2",
+                                   hcaldqm::hashfunctions::fdepth,
+                                   new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+                                   new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRatio_0to2),
+                                   0);
+  _cCWTNormLS2_depth.initialize(_name,
+                                "CWTNormLS2",
+                                hcaldqm::hashfunctions::fdepth,
+                                new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+                                new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+                                new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTimingDiff_ns),
+                                0);
+  _cChargeAbs_depth.initialize(_name,
+                               "ChargeAbs",
+                               hcaldqm::hashfunctions::fdepth,
+                               new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+                               new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_generic_400000),
+                               0);
+  _cCWTAbs_depth.initialize(_name,
+                            "CWTAbs",
+                            hcaldqm::hashfunctions::fdepth,
+                            new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+                            new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+                            new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),
+                            0);
 
   _cMissing_depth.initialize(_name,
                              "Missing",
@@ -201,6 +259,20 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
                                  new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                  0);
   }
+  _cChargeNormvsLS_SubdetPM.initialize(_name,
+                                       "ChargeNormvsLS",
+                                       hcaldqm::hashfunctions::fSubdetPM,
+                                       new hcaldqm::quantity::LumiSection(_maxLS),
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRatio_0to2),
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                       0);
+  _cCWTNormvsLS_SubdetPM.initialize(_name,
+                                    "CWTNormvsLS",
+                                    hcaldqm::hashfunctions::fSubdetPM,
+                                    new hcaldqm::quantity::LumiSection(_maxLS),
+                                    new FineTimingDiffNs(),
+                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                    0);
 
   // Plots for LED in global
   if (_ptype == fOnline || _ptype == fLocal) {
@@ -261,6 +333,17 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
   _xTimingSum.initialize(hcaldqm::hashfunctions::fDChannel);
   _xTimingSum2.initialize(hcaldqm::hashfunctions::fDChannel);
   _xEntries.initialize(hcaldqm::hashfunctions::fDChannel);
+  _xPedestalChargeSumLS.initialize(hcaldqm::hashfunctions::fDChannel);
+  _xPedestalChargeEntriesLS.initialize(hcaldqm::hashfunctions::fDChannel);
+  _xPedestalChargePrevLS.initialize(hcaldqm::hashfunctions::fDChannel);
+  _xChargeRefLS2.initialize(hcaldqm::hashfunctions::fDChannel);
+  _xCWTRefLS2.initialize(hcaldqm::hashfunctions::fDChannel);
+  _xChargeRefLS2Entries.initialize(hcaldqm::hashfunctions::fDChannel);
+  _xCWTRefLS2Entries.initialize(hcaldqm::hashfunctions::fDChannel);
+  _xChargeNormSumLS.initialize(hcaldqm::hashfunctions::fDChannel);
+  _xCWTNormSumLS.initialize(hcaldqm::hashfunctions::fDChannel);
+  _xChargeNormEntriesLS.initialize(hcaldqm::hashfunctions::fDChannel);
+  _xCWTNormEntriesLS.initialize(hcaldqm::hashfunctions::fDChannel);
 
   //	BOOK
   _cSignalMean_Subdet.book(ib, _emap, _subsystem);
@@ -272,6 +355,14 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
   _cSignalRMS_depth.book(ib, _emap, _subsystem);
   _cTimingMean_depth.book(ib, _emap, _subsystem);
   _cTimingRMS_depth.book(ib, _emap, _subsystem);
+  _cChargeCorr_depth.book(ib, _emap, _subsystem);
+  _cCWTCorr_depth.book(ib, _emap, _subsystem);
+  _cChargeNormLS2_depth.book(ib, _emap, _subsystem);
+  _cCWTNormLS2_depth.book(ib, _emap, _subsystem);
+  _cChargeAbs_depth.book(ib, _emap, _subsystem);
+  _cCWTAbs_depth.book(ib, _emap, _subsystem);
+  _cChargeNormvsLS_SubdetPM.book(ib, _emap, _subsystem);
+  _cCWTNormvsLS_SubdetPM.book(ib, _emap, _subsystem);
 
   _cMissing_depth.book(ib, _emap, _subsystem);
   if (_ptype == fLocal) {  // hidefed2crate
@@ -303,6 +394,17 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
   _xEntries.book(_emap);
   _xTimingSum.book(_emap);
   _xTimingSum2.book(_emap);
+  _xPedestalChargeSumLS.book(_emap);
+  _xPedestalChargeEntriesLS.book(_emap);
+  _xPedestalChargePrevLS.book(_emap);
+  _xChargeRefLS2.book(_emap);
+  _xCWTRefLS2.book(_emap);
+  _xChargeRefLS2Entries.book(_emap);
+  _xCWTRefLS2Entries.book(_emap);
+  _xChargeNormSumLS.book(_emap);
+  _xCWTNormSumLS.book(_emap);
+  _xChargeNormEntriesLS.book(_emap);
+  _xCWTNormEntriesLS.book(_emap);
 
   _ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
 }
@@ -366,6 +468,40 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
   }
 }
 
+/* virtual */ void LEDTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  auto lumiCache = luminosityBlockCache(lb.index());
+  _currentLS = lumiCache->currentLS;
+
+  if (_emap) {
+    std::vector<HcalGenericDetId> dids = _emap->allPrecisionId();
+    for (std::vector<HcalGenericDetId>::const_iterator it = dids.begin(); it != dids.end(); ++it) {
+      if (!it->isHcalDetId())
+        continue;
+      HcalDetId did(it->rawId());
+      int nChargeNorm = _xChargeNormEntriesLS.get(did);
+      if (nChargeNorm > 0) {
+        _cChargeNormvsLS_SubdetPM.fill(did, _currentLS, _xChargeNormSumLS.get(did) / nChargeNorm);
+      }
+      int nCWTNorm = _xCWTNormEntriesLS.get(did);
+      if (nCWTNorm > 0) {
+        _cCWTNormvsLS_SubdetPM.fill(did, _currentLS, _xCWTNormSumLS.get(did) / nCWTNorm);
+      }
+      int nPed = _xPedestalChargeEntriesLS.get(did);
+      if (nPed > 0) {
+        _xPedestalChargePrevLS.set(did, _xPedestalChargeSumLS.get(did) / nPed);
+      }
+    }
+  }
+  _xChargeNormSumLS.reset();
+  _xCWTNormSumLS.reset();
+  _xChargeNormEntriesLS.reset();
+  _xCWTNormEntriesLS.reset();
+  _xPedestalChargeSumLS.reset();
+  _xPedestalChargeEntriesLS.reset();
+
+  DQTask::globalEndLuminosityBlock(lb, es);
+}
+
 /* virtual */ void LEDTask::_process(edm::Event const& e, edm::EventSetup const& es) {
   edm::Handle<HODigiCollection> c_ho;
   edm::Handle<QIE10DigiCollection> c_QIE10;
@@ -380,7 +516,8 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
     _logger.dqmthrow("Collection QIE11DigiCollection isn't available " + _tagQIE11.label() + " " +
                      _tagQIE11.instance());
 
-  //	int currentEvent = e.eventAuxiliary().id().event();
+  auto lumiCache = luminosityBlockCache(e.getLuminosityBlock().index());
+  _currentLS = lumiCache->currentLS;
 
   for (QIE11DigiCollection::const_iterator it = c_QIE11->begin(); it != c_QIE11->end(); ++it) {
     const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
@@ -432,6 +569,21 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
     CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
     //double sumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(digi, 2.5, 0, digi.samples()-1);
     double sumQ = hcaldqm::utilities::sumQDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples() - 1);
+    int const nSamples = digi.samples();
+    if (nSamples <= 0)
+      continue;
+    double rawCharge = 0;
+    double pedestalChargeEvent = 0;
+    for (int i = 0; i < nSamples; ++i) {
+      rawCharge += digi_fC[i];
+    }
+    int nPedestalTS = 1;
+    for (int i = 0; i < nPedestalTS; ++i)
+      pedestalChargeEvent += digi_fC[i];
+    pedestalChargeEvent = (nPedestalTS > 0 ? pedestalChargeEvent * nSamples / nPedestalTS : 0);
+    _xPedestalChargeSumLS.get(did) += pedestalChargeEvent;
+    _xPedestalChargeEntriesLS.get(did)++;
+
     if (sumQ >= _lowHBHE) {
       //double aveTS = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(digi, 2.5, 0,digi.samples()-1);
       double aveTS = hcaldqm::utilities::aveTSDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.size() - 1);
@@ -441,6 +593,56 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
       _xTimingSum.get(did) += aveTS;
       _xTimingSum2.get(did) += aveTS * aveTS;
       _xEntries.get(did)++;
+
+      double pedestalPrevLS = _xPedestalChargePrevLS.get(did);
+      if (pedestalPrevLS <= 0)
+        pedestalPrevLS = pedestalChargeEvent;
+      double pedestalPerTS = pedestalPrevLS / nSamples;
+      double chargeAbs = rawCharge - pedestalPrevLS;
+      double cwtDenom = 0;
+      double cwtNumer = 0;
+      for (int i = 0; i < nSamples; ++i) {
+        double const qCorr = digi_fC[i] - pedestalPerTS;
+        cwtDenom += qCorr;
+        cwtNumer += i * qCorr;
+      }
+      double cwtCorr = (cwtDenom > 0 ? cwtNumer / cwtDenom : constants::GARBAGE_VALUE);
+
+      _cChargeCorr_depth.fill(did, chargeAbs);
+      _cChargeAbs_depth.fill(did, chargeAbs);
+      if (cwtCorr != constants::GARBAGE_VALUE) {
+        _cCWTCorr_depth.fill(did, cwtCorr);
+        _cCWTAbs_depth.fill(did, cwtCorr);
+      }
+
+      if (_currentLS == 2) {
+        int nChargeRef = _xChargeRefLS2Entries.get(did);
+        double chargeRef = _xChargeRefLS2.get(did);
+        _xChargeRefLS2.set(did, (chargeRef * nChargeRef + chargeAbs) / (nChargeRef + 1));
+        _xChargeRefLS2Entries.get(did)++;
+        if (cwtCorr != constants::GARBAGE_VALUE) {
+          int nCWTRef = _xCWTRefLS2Entries.get(did);
+          double cwtRef = _xCWTRefLS2.get(did);
+          _xCWTRefLS2.set(did, (cwtRef * nCWTRef + cwtCorr) / (nCWTRef + 1));
+          _xCWTRefLS2Entries.get(did)++;
+        }
+      }
+
+      if (_xChargeRefLS2Entries.get(did) > 0) {
+        double chargeRef = _xChargeRefLS2.get(did);
+        if (std::abs(chargeRef) > kTiny) {
+          double chargeNorm = chargeAbs / chargeRef;
+          _cChargeNormLS2_depth.fill(did, chargeNorm);
+          _xChargeNormSumLS.get(did) += chargeNorm;
+          _xChargeNormEntriesLS.get(did)++;
+        }
+      }
+      if (cwtCorr != constants::GARBAGE_VALUE && _xCWTRefLS2Entries.get(did) > 0) {
+        double cwtNormNS = (cwtCorr - _xCWTRefLS2.get(did)) * 25.;
+        _cCWTNormLS2_depth.fill(did, cwtNormNS);
+        _xCWTNormSumLS.get(did) += cwtNormNS;
+        _xCWTNormEntriesLS.get(did)++;
+      }
 
       if (_ptype == fLocal) {  // hidefed2crate
         for (int i = 0; i < digi.samples(); i++) {
@@ -505,6 +707,21 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
     //double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(digi, 8.5, 0, digi.size()-1);
     CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HODataFrame>(_dbService, did, digi);
     double sumQ = hcaldqm::utilities::sumQDB<HODataFrame>(_dbService, digi_fC, did, digi, 0, digi.size() - 1);
+    int const nSamples = digi.size();
+    if (nSamples <= 0)
+      continue;
+    double rawCharge = 0;
+    double pedestalChargeEvent = 0;
+    for (int i = 0; i < nSamples; ++i) {
+      rawCharge += digi_fC[i];
+    }
+    int nPedestalTS = 1;
+    for (int i = 0; i < nPedestalTS; ++i)
+      pedestalChargeEvent += digi_fC[i];
+    pedestalChargeEvent = (nPedestalTS > 0 ? pedestalChargeEvent * nSamples / nPedestalTS : 0);
+    _xPedestalChargeSumLS.get(did) += pedestalChargeEvent;
+    _xPedestalChargeEntriesLS.get(did)++;
+
     if (sumQ >= _lowHO) {
       //double aveTS = hcaldqm::utilities::aveTS<HODataFrame>(digi, 8.5, 0, digi.size()-1);
       double aveTS = hcaldqm::utilities::aveTSDB<HODataFrame>(_dbService, digi_fC, did, digi, 0, digi.size() - 1);
@@ -514,6 +731,56 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
       _xTimingSum.get(did) += aveTS;
       _xTimingSum2.get(did) += aveTS * aveTS;
       _xEntries.get(did)++;
+
+      double pedestalPrevLS = _xPedestalChargePrevLS.get(did);
+      if (pedestalPrevLS <= 0)
+        pedestalPrevLS = pedestalChargeEvent;
+      double pedestalPerTS = pedestalPrevLS / nSamples;
+      double chargeAbs = rawCharge - pedestalPrevLS;
+      double cwtDenom = 0;
+      double cwtNumer = 0;
+      for (int i = 0; i < nSamples; ++i) {
+        double const qCorr = digi_fC[i] - pedestalPerTS;
+        cwtDenom += qCorr;
+        cwtNumer += i * qCorr;
+      }
+      double cwtCorr = (cwtDenom > 0 ? cwtNumer / cwtDenom : constants::GARBAGE_VALUE);
+
+      _cChargeCorr_depth.fill(did, chargeAbs);
+      _cChargeAbs_depth.fill(did, chargeAbs);
+      if (cwtCorr != constants::GARBAGE_VALUE) {
+        _cCWTCorr_depth.fill(did, cwtCorr);
+        _cCWTAbs_depth.fill(did, cwtCorr);
+      }
+
+      if (_currentLS == 2) {
+        int nChargeRef = _xChargeRefLS2Entries.get(did);
+        double chargeRef = _xChargeRefLS2.get(did);
+        _xChargeRefLS2.set(did, (chargeRef * nChargeRef + chargeAbs) / (nChargeRef + 1));
+        _xChargeRefLS2Entries.get(did)++;
+        if (cwtCorr != constants::GARBAGE_VALUE) {
+          int nCWTRef = _xCWTRefLS2Entries.get(did);
+          double cwtRef = _xCWTRefLS2.get(did);
+          _xCWTRefLS2.set(did, (cwtRef * nCWTRef + cwtCorr) / (nCWTRef + 1));
+          _xCWTRefLS2Entries.get(did)++;
+        }
+      }
+
+      if (_xChargeRefLS2Entries.get(did) > 0) {
+        double chargeRef = _xChargeRefLS2.get(did);
+        if (std::abs(chargeRef) > kTiny) {
+          double chargeNorm = chargeAbs / chargeRef;
+          _cChargeNormLS2_depth.fill(did, chargeNorm);
+          _xChargeNormSumLS.get(did) += chargeNorm;
+          _xChargeNormEntriesLS.get(did)++;
+        }
+      }
+      if (cwtCorr != constants::GARBAGE_VALUE && _xCWTRefLS2Entries.get(did) > 0) {
+        double cwtNormNS = (cwtCorr - _xCWTRefLS2.get(did)) * 25.;
+        _cCWTNormLS2_depth.fill(did, cwtNormNS);
+        _xCWTNormSumLS.get(did) += cwtNormNS;
+        _xCWTNormEntriesLS.get(did)++;
+      }
 
       if (_ptype == fLocal) {  // hidefed2crate
         for (int i = 0; i < digi.size(); i++) {
@@ -561,6 +828,21 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
     //double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
     CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
     double sumQ = hcaldqm::utilities::sumQDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples() - 1);
+    int const nSamples = digi.samples();
+    if (nSamples <= 0)
+      continue;
+    double rawCharge = 0;
+    double pedestalChargeEvent = 0;
+    for (int i = 0; i < nSamples; ++i) {
+      rawCharge += digi_fC[i];
+    }
+    int nPedestalTS = 1;
+    for (int i = 0; i < nPedestalTS; ++i)
+      pedestalChargeEvent += digi_fC[i];
+    pedestalChargeEvent = (nPedestalTS > 0 ? pedestalChargeEvent * nSamples / nPedestalTS : 0);
+    _xPedestalChargeSumLS.get(did) += pedestalChargeEvent;
+    _xPedestalChargeEntriesLS.get(did)++;
+
     if (sumQ >= _lowHF) {
       //double aveTS = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
       double aveTS = hcaldqm::utilities::aveTSDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.size() - 1);
@@ -570,6 +852,56 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
       _xTimingSum.get(did) += aveTS;
       _xTimingSum2.get(did) += aveTS * aveTS;
       _xEntries.get(did)++;
+
+      double pedestalPrevLS = _xPedestalChargePrevLS.get(did);
+      if (pedestalPrevLS <= 0)
+        pedestalPrevLS = pedestalChargeEvent;
+      double pedestalPerTS = pedestalPrevLS / nSamples;
+      double chargeAbs = rawCharge - pedestalPrevLS;
+      double cwtDenom = 0;
+      double cwtNumer = 0;
+      for (int i = 0; i < nSamples; ++i) {
+        double const qCorr = digi_fC[i] - pedestalPerTS;
+        cwtDenom += qCorr;
+        cwtNumer += i * qCorr;
+      }
+      double cwtCorr = (cwtDenom > 0 ? cwtNumer / cwtDenom : constants::GARBAGE_VALUE);
+
+      _cChargeCorr_depth.fill(did, chargeAbs);
+      _cChargeAbs_depth.fill(did, chargeAbs);
+      if (cwtCorr != constants::GARBAGE_VALUE) {
+        _cCWTCorr_depth.fill(did, cwtCorr);
+        _cCWTAbs_depth.fill(did, cwtCorr);
+      }
+
+      if (_currentLS == 2) {
+        int nChargeRef = _xChargeRefLS2Entries.get(did);
+        double chargeRef = _xChargeRefLS2.get(did);
+        _xChargeRefLS2.set(did, (chargeRef * nChargeRef + chargeAbs) / (nChargeRef + 1));
+        _xChargeRefLS2Entries.get(did)++;
+        if (cwtCorr != constants::GARBAGE_VALUE) {
+          int nCWTRef = _xCWTRefLS2Entries.get(did);
+          double cwtRef = _xCWTRefLS2.get(did);
+          _xCWTRefLS2.set(did, (cwtRef * nCWTRef + cwtCorr) / (nCWTRef + 1));
+          _xCWTRefLS2Entries.get(did)++;
+        }
+      }
+
+      if (_xChargeRefLS2Entries.get(did) > 0) {
+        double chargeRef = _xChargeRefLS2.get(did);
+        if (std::abs(chargeRef) > kTiny) {
+          double chargeNorm = chargeAbs / chargeRef;
+          _cChargeNormLS2_depth.fill(did, chargeNorm);
+          _xChargeNormSumLS.get(did) += chargeNorm;
+          _xChargeNormEntriesLS.get(did)++;
+        }
+      }
+      if (cwtCorr != constants::GARBAGE_VALUE && _xCWTRefLS2Entries.get(did) > 0) {
+        double cwtNormNS = (cwtCorr - _xCWTRefLS2.get(did)) * 25.;
+        _cCWTNormLS2_depth.fill(did, cwtNormNS);
+        _xCWTNormSumLS.get(did) += cwtNormNS;
+        _xCWTNormEntriesLS.get(did)++;
+      }
 
       if (_ptype == fLocal) {  // hidefed2crate
         for (int i = 0; i < digi.samples(); ++i) {
