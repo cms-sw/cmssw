@@ -152,6 +152,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         unsigned int& localNComponents = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);
 
         for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
+          if (group > 0)
+            continue;
+
           if (::cms::alpakatools::once_per_block(acc)) {
             localNComponents = 0;
           }

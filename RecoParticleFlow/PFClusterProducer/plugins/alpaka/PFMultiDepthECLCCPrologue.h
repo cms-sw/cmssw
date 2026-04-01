@@ -142,7 +142,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         unsigned int dst_vertex_idx = nVertices;
         unsigned int src_vertex_idx = nVertices;
 
-        for (auto group : ::cms::alpakatools::uniform_groups(acc)) {  //loop over thread blocks
+        for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
+          if (group > 0)
+            continue;
           // This kernel is intended to run with a single block for the full graph.
           // (If multi-block support is needed, the CSR construction could be made block-partition aware.)
           for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {

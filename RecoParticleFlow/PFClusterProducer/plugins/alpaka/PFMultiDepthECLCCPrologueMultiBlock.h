@@ -251,16 +251,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
         alpaka::syncBlockThreads(acc);
 
-        // Constract coarse-grained offset (offsets for each warp):
-        for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, w_extent)) {
-          const auto lane_idx = idx.local;
+        for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
+          const auto lane_idx = idx.local % w_extent;
+          if (lane_idx >= w_items)
+            continue;
+          const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
 
-          const auto nnz = lane_idx < w_items ? subdomain_offsets[lane_idx] : 0;
+          const auto nnz = subdomain_offsets[lane_idx];
 
-          const auto cross_warp_offset = warp_exclusive_sum(acc, nnz, lane_idx);
+          const auto cross_warp_offset = warp_sparse_exclusive_sum(acc, active_lanes_mask, nnz, lane_idx);
 
-          if (lane_idx < w_items)
-            subdomain_offsets[lane_idx] = cross_warp_offset;  //NOTE: lane 0 get total (block) nnz
+          subdomain_offsets[lane_idx] = cross_warp_offset;  //NOTE: lane 0 get total (block) nnz
         }
         alpaka::syncBlockThreads(acc);
 
@@ -280,8 +281,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::syncBlockThreads(acc);
 
         // Now repeat for the block-external neighbors:
-        for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, w_extent)) {
-          subdomain_offsets[idx.local] = 0;
+        for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
+          if (idx.local < w_extent)
+            subdomain_offsets[idx.local] = 0;
         }
         alpaka::syncBlockThreads(acc);
 
@@ -302,14 +304,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         // Constract coarse-grained offset (offsets for each warp):
         for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, w_extent)) {
-          const auto lane_idx = idx.local;
+          const auto lane_idx = idx.local % w_extent;
+          if (lane_idx >= w_items)
+            continue;
 
-          const auto nnz = lane_idx < w_items ? subdomain_offsets[lane_idx] : 0;
+          const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
 
-          const auto cross_warp_offset = warp_exclusive_sum(acc, nnz, lane_idx);
+          const auto nnz = subdomain_offsets[lane_idx];
 
-          if (lane_idx < w_items)
-            subdomain_offsets[lane_idx] = cross_warp_offset;  //NOTE: lane 0 get total (block) nnz
+          const auto cross_warp_offset = warp_sparse_exclusive_sum(acc, active_lanes_mask, nnz, lane_idx);
+
+          subdomain_offsets[lane_idx] = cross_warp_offset;  //NOTE: lane 0 get total (block) nnz
         }
         alpaka::syncBlockThreads(acc);
 
@@ -338,21 +343,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::syncBlockThreads(acc);
 
         if (isLastBlockDone == 1) {
-          for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, w_extent)) {
+          for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
             // Create the full warp mask (all lanes will vote):
             const auto lane_idx = idx.local % w_extent;
+
+            if (lane_idx >= nBlocks)
+              continue;
+
+            const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
+
             const auto load_idx = lane_idx * blockDim;
 
-            const auto global_nnz = lane_idx < nBlocks ? args[load_idx].ccOffset() : 0;
+            const auto global_nnz = args[load_idx].ccOffset();
 
-            const auto global_offset = warp_exclusive_sum(acc, global_nnz, lane_idx);
+            const auto global_offset = warp_sparse_exclusive_sum(acc, active_lanes_mask, global_nnz, lane_idx);
 
-            if (lane_idx < nBlocks) {
-              args[load_idx].ccOffset() = lane_idx > 0 ? global_offset : 0;
+            args[load_idx].ccOffset() = lane_idx > 0 ? global_offset : 0;
 
-              if (lane_idx == 0)
-                args.size() = global_offset;
-            }
+            if (lane_idx == 0)
+              args.size() = global_offset;
           }
         }
       }
