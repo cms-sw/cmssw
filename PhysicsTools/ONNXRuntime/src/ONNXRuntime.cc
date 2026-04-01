@@ -3,6 +3,8 @@
  *
  *  Created on: Jun 28, 2019
  *      Author: hqu
+ *  Improved on: Mar 30, 2026
+ *      Author: Felice Pantaleo
  */
 
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
