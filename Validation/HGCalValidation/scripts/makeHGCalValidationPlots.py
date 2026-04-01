@@ -21,8 +21,10 @@ allLabel = 'all'
 ticlVersions = [5]
 ticlVersion = 5
 collection_choices = [allLabel]
-collection_choices.extend([hitCalLabel]+[hitValLabel]+[layerClustersLabel]+[trackstersLabel]+[trackstersWithEdgesLabel]+[candidatesLabel]+[simLabel])
+collection_choices.extend([hitCalLabel] + [hitValLabel] + [layerClustersLabel] + [trackstersLabel] +
+                          [trackstersWithEdgesLabel] + [candidatesLabel] + [simLabel])
 tracksters = []
+
 
 def _write_top_index(output_dir, entries):
     """Create a single top-level index.html linking to per-flavour reports."""
@@ -135,28 +137,48 @@ def main(opts):
 
         # Discover which collections exist under this base in the DQM file
         discovered_subdirs = _discover_subdirs(opts.files[0], dqm_base)
-        present_lower = {n.lower(): n for n in discovered_subdirs}
 
-        # Start from known default collections, but keep only the ones that actually exist
+        # Add any folder that looks like a trackster collection (case-insensitive match)
         trackstersIters = []
-
-        # Add any other folder that looks like a trackster collection (case-insensitive match)
         for name in sorted(discovered_subdirs, key=str.lower):
-            if ("trackster" in name.lower()) or ("candidate" in name.lower()) and name not in trackstersIters:
+            if (("trackster" in name.lower()) or ("candidate" in name.lower())) and name not in trackstersIters:
                 trackstersIters.append(name)
+
+        # Add any direct subfolder that contains "layerClusters" in the name, case-insensitive
+        layerClustersIters = [
+            name for name in sorted(discovered_subdirs, key=str.lower)
+            if "layerclusters" in name.lower()
+        ]
+
+        # Fallback to the default validator label if no matching folder is found
+        if not layerClustersIters:
+            default_lc = hgcalValidator.label_layerClustersPlots.value()
+            if default_lc in discovered_subdirs:
+                layerClustersIters = [default_lc]
 
         # Detect candidates presence similarly
         has_candidates = any("candidat" in n.lower() for n in discovered_subdirs)
 
         if opts.verbose:
             print(f"Discovered under {dqm_base}: {sorted(discovered_subdirs, key=str.lower)}")
+            print(f"Using layerClusters collections for {prefix}: {layerClustersIters}")
             print(f"Using tracksters collections for {prefix}: {trackstersIters}")
             print(f"Candidates present for {prefix}: {has_candidates}")
 
         # layerClusters
         def plot_LC():
+            if not layerClustersIters:
+                print(f"Skipping layerClusters for {prefix}: no folder matching 'layerClusters' found under {dqm_base}")
+                return
+
             hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
-            hgcalPlots.append_hgcalLayerClustersPlots(hgcalValidator.label_layerClustersPlots.value(), "Layer Clusters", extendedFlag)
+            for layerClusterCollection in layerClustersIters:
+                print("Searching for layerClusters collection in DQM files: ", layerClusterCollection)
+                hgcalPlots.append_hgcalLayerClustersPlots(
+                    layerClusterCollection,
+                    layerClusterCollection,
+                    extendedFlag
+                )
             val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
 
         # simClusters
@@ -183,11 +205,13 @@ def main(opts):
 
         # caloParticles
         def plot_CP():
-            particletypes = {"pion-":"-211", "pion+":"211", "pion0": "111",
-                             "muon-": "-13", "muon+":"13",
-                             "electron-": "-11", "electron+": "11", "photon": "22",
-                             "kaon0L": "310", "kaon0S": "130",
-                             "kaon-": "-321", "kaon+": "321"}
+            particletypes = {
+                "pion-": "-211", "pion+": "211", "pion0": "111",
+                "muon-": "-13", "muon+": "13",
+                "electron-": "-11", "electron+": "11", "photon": "22",
+                "kaon0L": "310", "kaon0S": "130",
+                "kaon-": "-321", "kaon+": "321"
+            }
             hgcaloPart = [hgcalPlots.hgcalCaloParticlesPlotter]
             for i_part, i_partID in particletypes.items():
                 hgcalPlots.append_hgcalCaloParticlesPlots(sample.files(), i_partID, i_part)
@@ -225,13 +249,13 @@ def main(opts):
             candidatesLabel: [plotCand],
         }
 
-        if (allLabel not in collections):
+        if allLabel not in collections:
             for coll in collections:
                 for task in plotDict[coll]:
                     task()
         else:
             for label in plotDict:
-                if (label == trackstersLabel):
+                if label == trackstersLabel:
                     continue  # already run in trackstersWithEdges
                 for task in plotDict[label]:
                     task()
@@ -247,36 +271,37 @@ def main(opts):
         _write_top_index(output_root, top_index_entries)
         print("Top-level index written to '%s'." % os.path.join(output_root, "index.html"))
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create set of HGCal validation plots from one or more DQM files.")
     parser.add_argument("files", metavar="file", type=str, nargs="+",
-                        default = "DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root",
+                        default="DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root",
                         help="DQM file to plot the validation plots from")
     parser.add_argument("-o", "--outputDir", type=str, default=["plots"], nargs="+",
                         help="Plot output directories (default: 'plots'")
-    parser.add_argument("--subdirprefix", type=str, default=["HLT","offline"], nargs="+",
+    parser.add_argument("--subdirprefix", type=str, default=["HLT", "offline"], nargs="+",
                         help="Prefix for subdirectories inside outputDir (default: 'HLT, offline')")
-    parser.add_argument("--no-ratio", action="store_true", default = False,
+    parser.add_argument("--no-ratio", action="store_true", default=False,
                         help="Disable ratio pads")
-    parser.add_argument("--separate", action="store_true", default = False,
+    parser.add_argument("--separate", action="store_true", default=False,
                         help="Save all plots separately instead of grouping them")
-    parser.add_argument("--png", action="store_true", default = True,
+    parser.add_argument("--png", action="store_true", default=True,
                         help="Save plots in PNG instead of PDF")
-    parser.add_argument("--no-html", action="store_true", default = False,
+    parser.add_argument("--no-html", action="store_true", default=False,
                         help="Disable HTML page generation")
     parser.add_argument("--html-sample", default=os.environ.get('CMSSW_VERSION', 'CMSSW'),
                         help="Sample name for HTML page generation (default: CMSSW version)")
-    parser.add_argument("--html-validation-name", type=str, default=["TICL Validation",""], nargs="+",
+    parser.add_argument("--html-validation-name", type=str, default=["TICL Validation", ""], nargs="+",
                         help="Validation name for HTML page generation (enters to <title> element) (default 'TICL Validation')")
-    parser.add_argument("--collection", default=layerClustersLabel,
+    parser.add_argument("--collection", default=trackstersLabel, type=str,
                         help="Choose output plots collections among possible choices: {collection_choices}")
-    parser.add_argument("--extended", action="store_true", default = False,
+    parser.add_argument("--extended", action="store_true", default=False,
                         help="Include extended set of plots (e.g. bunch of distributions; default off)")
     parser.add_argument("--jobs", default=0, type=int,
                         help="Number of jobs to run in parallel for generating plots. Default is 0 i.e. run number of cpu cores jobs.")
     parser.add_argument("--ticlv", choices=ticlVersions, default=5, type=int,
                         help="TICL Version. Default 5.")
-    parser.add_argument("--verbose", action="store_true", default = False,
+    parser.add_argument("--verbose", action="store_true", default=False,
                         help="Be verbose")
 
     opts = parser.parse_args()
