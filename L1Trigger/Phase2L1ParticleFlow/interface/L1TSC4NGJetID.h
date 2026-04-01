@@ -61,21 +61,21 @@ public:
 private:
   std::vector<inputtype> NNvectorVar_;
   int fNParticles_;
-  unique_ptr<inputtype[]> fPt_;
-  unique_ptr<inputtype[]> fPt_rel_;
-  unique_ptr<inputtype[]> fDEta_;
-  unique_ptr<inputtype[]> fDPhi_;
-  unique_ptr<inputtype[]> fPt_log_;
-  unique_ptr<inputtype[]> fMass_;
-  unique_ptr<inputtype[]> fZ0_;
-  unique_ptr<inputtype[]> fDxy_;
-  unique_ptr<inputtype[]> fIs_filled_;
-  unique_ptr<inputtype[]> fPuppi_weight_;
-  unique_ptr<inputtype[]> fEmID_;
-  unique_ptr<inputtype[]> fQuality_;
+  std::unique_ptr<inputtype[]> fPt_;
+  std::unique_ptr<inputtype[]> fPt_rel_;
+  std::unique_ptr<inputtype[]> fDEta_;
+  std::unique_ptr<inputtype[]> fDPhi_;
+  std::unique_ptr<inputtype[]> fPt_log_;
+  std::unique_ptr<inputtype[]> fMass_;
+  std::unique_ptr<inputtype[]> fZ0_;
+  std::unique_ptr<inputtype[]> fDxy_;
+  std::unique_ptr<inputtype[]> fIs_filled_;
+  std::unique_ptr<inputtype[]> fPuppi_weight_;
+  std::unique_ptr<inputtype[]> fEmID_;
+  std::unique_ptr<inputtype[]> fQuality_;
 
-  unique_ptr<inputtype[]> fCharge_;
-  unique_ptr<inputtype[]> fId_;
+  std::unique_ptr<inputtype[]> fCharge_;
+  std::unique_ptr<inputtype[]> fId_;
   std::shared_ptr<hls4mlEmulator::Model> modelRef_;
 
   bool isDebugEnabled_;

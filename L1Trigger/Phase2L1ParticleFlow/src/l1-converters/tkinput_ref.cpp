@@ -29,7 +29,7 @@ namespace {
       return l1ct::TrackInputEmulator::Encoding::Stepping;
     else if (str == "biased")
       return l1ct::TrackInputEmulator::Encoding::Biased;
-    else if (str == "unbised")
+    else if (str == "unbiased")
       return l1ct::TrackInputEmulator::Encoding::Unbiased;
     else
       throw cms::Exception("Configuration", "TrackInputEmulator: Unsupported track word encoding '" + str + "'\n");
@@ -93,7 +93,7 @@ edm::ParameterSetDescription l1ct::TrackInputEmulator::getParameterSetDescriptio
   description.add<uint32_t>("z0Bits", 12u);
   description.add<uint32_t>("dxyLUTBits", 11u);
   description.ifValue(edm::ParameterDescription<std::string>("trackWordEncoding", "biased", true),
-                      edm::allowedValues<std::string>("biased", "unbised", "stepping"));
+                      edm::allowedValues<std::string>("biased", "unbiased", "stepping"));
   description.add<bool>("bitwiseAccurate", true);
   description.add<bool>("slimDataFormat", false);
   description.addUntracked<bool>("debug", false);

@@ -466,7 +466,7 @@ void l1tpf::corrector::writeToFile(const std::string &filename, const std::strin
   for (unsigned int ieta = 0; ieta < neta_; ++ieta) {
     for (unsigned int iemf = 0; iemf < nemf_; ++iemf) {
       const auto &h = correctionsJson_[ieta * nemf_ + iemf];
-      j["corr"].push_back({{"ieta", ieta}, {"iemf", iemf}, {"pt_bins", h.binEdges}, {"values", h.values}});
+      j["corr"].push_back({{"ieta", ieta + 1}, {"iemf", iemf + 1}, {"pt_bins", h.binEdges}, {"values", h.values}});
     }
   }
   std::ofstream fout(filename);

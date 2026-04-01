@@ -22,7 +22,7 @@ edm::ParameterSetDescription l1ct::HgcalClusterDecoderEmulator::getParameterSetD
   description.add<double>("correctorEmfMax", -1);
   description.add<bool>("emulateCorrections", false);
   description.add<edm::ParameterSetDescription>("multiclass_id", MultiClassID::getParameterSetDescription());
-  description.add<std::string>("emInterpScenario", "No");
+  description.add<std::string>("emInterpScenario", "no");
   return description;
 }
 

@@ -162,7 +162,7 @@ namespace l1ct {
           }
         }
       }
-    };
+    }
   };
 }  // namespace l1ct
 

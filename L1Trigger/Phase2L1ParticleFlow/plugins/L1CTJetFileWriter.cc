@@ -42,7 +42,7 @@ private:
   // ----------member functions ----------------------
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
-  std::vector<ap_uint<64>> encodeJets(const std::vector<l1t::PFJet> jets,
+  std::vector<ap_uint<64>> encodeJets(const std::vector<l1t::PFJet>& jets,
                                       unsigned nJets,
                                       l1t::PFJet::HWEncoding encoding);
   std::vector<ap_uint<64>> encodeSums(const std::vector<l1t::EtSum> sums, unsigned nSums);
@@ -138,7 +138,7 @@ void L1CTJetFileWriter::endJob() {
   fileWriterOutputToGT_.flush();
 }
 
-std::vector<ap_uint<64>> L1CTJetFileWriter::encodeJets(const std::vector<l1t::PFJet> jets,
+std::vector<ap_uint<64>> L1CTJetFileWriter::encodeJets(const std::vector<l1t::PFJet>& jets,
                                                        const unsigned nJets,
                                                        l1t::PFJet::HWEncoding encoding) {
   // Encode up to nJets jets, padded with 0s

@@ -371,7 +371,8 @@ namespace l1ct {
       hwEta = h.hwEta;
       hwPhi = h.hwPhi;
       hwPtAlt = h.hwEmPt;
-      hwEmID = h.hwEmID;
+      hwEmID[5] = false;
+      hwEmID(4, 0) = h.hwEmID(4, 0);
       hwShowerShape = 0;
       hwRelIso = 0;
     }
@@ -384,7 +385,6 @@ namespace l1ct {
       hwEta = e.hwEta;
       hwPhi = e.hwPhi;
       hwPtAlt = e.hwPtErr;
-      hwEmID = e.hwEmID;
       hwEmID[5] = true;
       hwEmID(4, 0) = e.hwEmID(4, 0);
       hwShowerShape = e.hwShowerShape;
