@@ -1,5 +1,4 @@
 <use name="boost"/>
-<use name="cppunit"/>
 <use name="FWCore/ServiceRegistry"/>
 <library file="stubs/DummyService.cc,stubs/DummyServiceE0.cc,stubs/DependsOnDummyService.cc,stubs/DummyStoreConfigService.cc" name="FWCoreServiceRegistryTestDummyService">
 </library>
@@ -9,7 +8,8 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<bin name="testServiceRegistry" file="serviceregistry_t.cppunit.cpp,servicesmanager_t.cppunit.cc,connect_but_block_self_t.cppunit.cc">
+<bin name="testServiceRegistry" file="serviceregistry_t.catch2.cpp,servicesmanager_t.catch2.cc,connect_but_block_self_t.catch2.cc">
+  <use name="catch2"/>
   <lib name="FWCoreServiceRegistryTestDummyService"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/PluginManager"/>
