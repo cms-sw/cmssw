@@ -28,10 +28,6 @@ namespace ticl {
     }
 
     enabled_ = (doPID_ != 0 && onnxSession_ != nullptr);
-
-    // Single input tensor for the CNN model
-    ortScratch_.inputs.resize(1);
-    ortScratch_.input_shapes.resize(1);
   }
 
   void TracksterInferenceByCNN::runInference(const std::vector<reco::CaloCluster>& layerClusters,
@@ -63,26 +59,24 @@ namespace ticl {
 
     const int mb = std::max(1, miniBatchSize_);
 
-    // Reuse buffers across events
-    ortScratch_.clearPerEvent();
+    // Scratch buffers are local to this event.
+    TracksterInferenceAlgoBase::OrtScratch ortScratch;
+    ortScratch.inputs.resize(1);
+    ortScratch.input_shapes.resize(1);
+    ortScratch.clearPerEvent();
 
-    std::vector<int> seenClusters;
-    seenClusters.resize(eidNLayers_);
-
+    std::vector<int> seenClusters(eidNLayers_);
     std::vector<int> clusterIndices;
 
     for (int start = 0; start < total; start += mb) {
       const int n = std::min(mb, total - start);
 
-      ortScratch_.input_shapes[0] = {n, eidNLayers_, eidNClusters_, eidNFeatures_};
+      ortScratch.input_shapes[0] = {n, eidNLayers_, eidNClusters_, eidNFeatures_};
 
       const size_t nInput = static_cast<size_t>(n) * eidNLayers_ * eidNClusters_ * eidNFeatures_;
 
-      auto& inputTensor = ortScratch_.inputs[0];
-      if (inputTensor.size() != nInput) {
-        inputTensor.resize(nInput);
-      }
-      std::fill(inputTensor.begin(), inputTensor.end(), 0.f);
+      auto& inputTensor = ortScratch.inputs[0];
+      inputTensor.assign(nInput, 0.f);
 
       for (int bi = 0; bi < n; ++bi) {
         const int tsIdx = indices[start + bi];
@@ -110,7 +104,9 @@ namespace ticl {
             continue;
           }
 
-          const int base = (bi * eidNLayers_ + j) * (eidNClusters_ * eidNFeatures_) + seenClusters[j] * eidNFeatures_;
+          const size_t base =
+              (static_cast<size_t>(bi) * eidNLayers_ + static_cast<size_t>(j)) * (eidNClusters_ * eidNFeatures_) +
+              static_cast<size_t>(seenClusters[j]) * eidNFeatures_;
 
           inputTensor[base + 0] = static_cast<float>(cl.energy() / static_cast<float>(ts.vertex_multiplicity(k)));
           inputTensor[base + 1] = static_cast<float>(std::abs(cl.eta()));
@@ -120,13 +116,13 @@ namespace ticl {
         }
       }
 
-      ortScratch_.outputs.clear();
+      ortScratch.outputs.clear();
 
       onnxSession_->runInto(
-          inputNames_, ortScratch_.inputs, ortScratch_.input_shapes, outputNames_, ortScratch_.outputs, {}, n);
+          inputNames_, ortScratch.inputs, ortScratch.input_shapes, outputNames_, ortScratch.outputs, {}, n);
 
-      if (!ortScratch_.outputs.empty() && !outputNames_.empty()) {
-        float* probs = ortScratch_.outputs[0].data();
+      if (!ortScratch.outputs.empty() && !outputNames_.empty()) {
+        float* probs = ortScratch.outputs[0].data();
         for (int bi = 0; bi < n; ++bi) {
           auto& ts = tracksters[indices[start + bi]];
           ts.setProbabilities(probs);

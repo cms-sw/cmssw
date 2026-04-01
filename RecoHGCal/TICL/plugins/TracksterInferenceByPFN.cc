@@ -35,10 +35,6 @@ namespace ticl {
     }
 
     enabled_ = ((doPID_ != 0 && onnxPIDSession_ != nullptr) || (doRegression_ != 0 && onnxEnergySession_ != nullptr));
-
-    // 2 inputs for PFN (LC tensor + trackster tensor)
-    ortScratch_.inputs.resize(2);
-    ortScratch_.input_shapes.resize(2);
   }
 
   void TracksterInferenceByPFN::runInference(const std::vector<reco::CaloCluster>& layerClusters,
@@ -48,7 +44,6 @@ namespace ticl {
       return;
     }
 
-    // ---- select tracksters to run on, and reset outputs in one pass
     std::vector<int> indices;
     indices.reserve(tracksters.size());
 
@@ -76,40 +71,39 @@ namespace ticl {
 
     const int mb = std::max(1, miniBatchSize_);
 
-    // Reuse buffers across events
-    ortScratch_.clearPerEvent();
+    // Scratch buffers are local to this event.
+    TracksterInferenceAlgoBase::OrtScratch ortScratch;
+    ortScratch.inputs.resize(2);
+    ortScratch.input_shapes.resize(2);
+    ortScratch.clearPerEvent();
 
-    // Keep these vectors outside the minibatch loop to avoid repeated allocations
-    std::vector<int> seenClusters;
-    seenClusters.resize(eidNLayers_);
-
+    // Reused within the event to avoid minibatch-level churn.
+    std::vector<int> seenClusters(eidNLayers_);
     std::vector<int> clusterIndices;
 
     for (int start = 0; start < total; start += mb) {
       const int n = std::min(mb, total - start);
 
-      // ---- shapes
-      ortScratch_.input_shapes[0] = {n, eidNLayers_, eidNClusters_, eidNFeatures_};  // LC
-      ortScratch_.input_shapes[1] = {n, eidNFeatures_};                              // TR
+      // Input shapes:
+      //  - [B, L, C, F_lc] for layer-cluster tensor
+      //  - [B, F_tr] for trackster-level features
+      ortScratch.input_shapes[0] = {n, eidNLayers_, eidNClusters_, eidNFeatures_};
+      ortScratch.input_shapes[1] = {n, eidNFeatures_};
 
       const size_t nLC = static_cast<size_t>(n) * eidNLayers_ * eidNClusters_ * eidNFeatures_;
       const size_t nTR = static_cast<size_t>(n) * eidNFeatures_;
 
-      // ---- resize staging buffers for this minibatch
-      auto& lcTensor = ortScratch_.inputs[0];
-      auto& trTensor = ortScratch_.inputs[1];
+      auto& lcTensor = ortScratch.inputs[0];
+      auto& trTensor = ortScratch.inputs[1];
 
-      if (lcTensor.size() != nLC)
-        lcTensor.resize(nLC);
-      std::fill(lcTensor.begin(), lcTensor.end(), 0.f);
-      trTensor.resize(nTR);  // fully overwritten
+      lcTensor.assign(nLC, 0.f);  // sparse fill, must zero
+      trTensor.resize(nTR);       // fully overwritten below
 
-      // ---- build tensors
       for (int bi = 0; bi < n; ++bi) {
         const int tsIdx = indices[start + bi];
         Trackster const& ts = tracksters[tsIdx];
 
-        const int base_tr = bi * eidNFeatures_;
+        const size_t base_tr = static_cast<size_t>(bi) * eidNFeatures_;
         trTensor[base_tr + 0] = static_cast<float>(ts.raw_energy());
         trTensor[base_tr + 1] = static_cast<float>(ts.raw_em_energy());
         trTensor[base_tr + 2] = static_cast<float>(ts.barycenter().x());
@@ -118,7 +112,6 @@ namespace ticl {
         trTensor[base_tr + 5] = static_cast<float>(std::abs(ts.barycenter().eta()));
         trTensor[base_tr + 6] = static_cast<float>(ts.barycenter().phi());
 
-        // Sort vertices by cluster energy (descending)
         const int vtxCount = static_cast<int>(ts.vertices().size());
         clusterIndices.resize(vtxCount);
         std::iota(clusterIndices.begin(), clusterIndices.end(), 0);
@@ -141,8 +134,9 @@ namespace ticl {
             continue;
           }
 
-          const int base_lc =
-              (bi * eidNLayers_ + j) * (eidNClusters_ * eidNFeatures_) + seenClusters[j] * eidNFeatures_;
+          const size_t base_lc =
+              (static_cast<size_t>(bi) * eidNLayers_ + static_cast<size_t>(j)) * (eidNClusters_ * eidNFeatures_) +
+              static_cast<size_t>(seenClusters[j]) * eidNFeatures_;
 
           lcTensor[base_lc + 0] = static_cast<float>(cl.energy() / static_cast<float>(ts.vertex_multiplicity(k)));
           lcTensor[base_lc + 1] = static_cast<float>(std::abs(cl.eta()));
@@ -156,15 +150,14 @@ namespace ticl {
         }
       }
 
-      // ---- run regression
       if (doRegression_ != 0 && onnxEnergySession_ != nullptr) {
-        ortScratch_.outputs.clear();
+        ortScratch.outputs.clear();
 
         onnxEnergySession_->runInto(
-            inputNames_, ortScratch_.inputs, ortScratch_.input_shapes, output_en_, ortScratch_.outputs, {}, n);
+            inputNames_, ortScratch.inputs, ortScratch.input_shapes, output_en_, ortScratch.outputs, {}, n);
 
-        if (!ortScratch_.outputs.empty() && !output_en_.empty()) {
-          auto const& energy = ortScratch_.outputs[0];
+        if (!ortScratch.outputs.empty() && !output_en_.empty()) {
+          auto const& energy = ortScratch.outputs[0];
           for (int bi = 0; bi < n; ++bi) {
             auto& ts = tracksters[indices[start + bi]];
             const float regE = energy[bi];
@@ -174,15 +167,14 @@ namespace ticl {
         }
       }
 
-      // ---- run PID
       if (doPID_ != 0 && onnxPIDSession_ != nullptr) {
-        ortScratch_.outputs.clear();
+        ortScratch.outputs.clear();
 
         onnxPIDSession_->runInto(
-            inputNames_, ortScratch_.inputs, ortScratch_.input_shapes, output_id_, ortScratch_.outputs, {}, n);
+            inputNames_, ortScratch.inputs, ortScratch.input_shapes, output_id_, ortScratch.outputs, {}, n);
 
-        if (!ortScratch_.outputs.empty() && !output_id_.empty()) {
-          float* probs = ortScratch_.outputs[0].data();
+        if (!ortScratch.outputs.empty() && !output_id_.empty()) {
+          float* probs = ortScratch.outputs[0].data();
           for (int bi = 0; bi < n; ++bi) {
             auto& ts = tracksters[indices[start + bi]];
             ts.setProbabilities(probs);

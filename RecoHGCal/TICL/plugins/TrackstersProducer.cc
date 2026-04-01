@@ -30,7 +30,8 @@
 
 using namespace ticl;
 
-class TrackstersProducer : public edm::stream::EDProducer<edm::GlobalCache<ticl::TICLONNXGlobalCache>, edm::stream::WatchRuns> {
+class TrackstersProducer
+    : public edm::stream::EDProducer<edm::GlobalCache<ticl::TICLONNXGlobalCache>, edm::stream::WatchRuns> {
 public:
   explicit TrackstersProducer(const edm::ParameterSet&, ticl::TICLONNXGlobalCache const* cache);
   ~TrackstersProducer() override {}

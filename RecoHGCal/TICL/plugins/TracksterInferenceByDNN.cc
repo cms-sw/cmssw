@@ -35,9 +35,6 @@ namespace ticl {
     }
 
     enabled_ = ((doPID_ != 0 && onnxPIDSession_ != nullptr) || (doRegression_ != 0 && onnxEnergySession_ != nullptr));
-
-    ortScratch_.inputs.resize(1);
-    ortScratch_.input_shapes.resize(1);
   }
 
   void TracksterInferenceByDNN::runInference(const std::vector<reco::CaloCluster>& layerClusters,
@@ -47,14 +44,12 @@ namespace ticl {
       return;
     }
 
-    // ---- select tracksters (same physics logic), reset outputs once
     std::vector<int> indices;
     indices.reserve(tracksters.size());
 
     for (int i = 0; i < static_cast<int>(tracksters.size()); ++i) {
       float sumClusterEnergy = 0.f;
 
-      // Note: keep the same semantics you had (skip barrel clusters, sum endcap energy)
       for (const unsigned int& v : tracksters[i].vertices()) {
         if (rhtools.isBarrel(layerClusters[v].seed())) {
           continue;
@@ -76,28 +71,26 @@ namespace ticl {
 
     const int mb = std::max(1, miniBatchSize_);
 
-    // Reuse buffers across events
-    ortScratch_.clearPerEvent();
+    // Scratch buffers are local to this event.
+    OrtScratch ortScratch;
+    ortScratch.inputs.resize(1);
+    ortScratch.input_shapes.resize(1);
+    ortScratch.clearPerEvent();
 
-    // Per-minibatch reusable temporaries to avoid churn
-    std::vector<int> seenClusters;
-    seenClusters.resize(eidNLayers_);
-
+    // Reused within the event to avoid minibatch-level churn.
+    std::vector<int> seenClusters(eidNLayers_);
     std::vector<int> clusterIndices;
 
-    // Alias for input tensor
-    auto& in = ortScratch_.inputs[0];
+    auto& in = ortScratch.inputs[0];
 
     for (int start = 0; start < total; start += mb) {
       const int n = std::min(mb, total - start);
 
-      // shape: [B, L, C, F]
-      ortScratch_.input_shapes[0] = {n, eidNLayers_, eidNClusters_, eidNFeatures_};
+      ortScratch.input_shapes[0] = {n, eidNLayers_, eidNClusters_, eidNFeatures_};
 
       const size_t nFloats = static_cast<size_t>(n) * eidNLayers_ * eidNClusters_ * eidNFeatures_;
-      in.assign(nFloats, 0.f);  // sparse fill -> must zero
+      in.assign(nFloats, 0.f);
 
-      // ---- build sparse tensor for this minibatch
       for (int bi = 0; bi < n; ++bi) {
         const int tsIdx = indices[start + bi];
         Trackster const& ts = tracksters[tsIdx];
@@ -136,30 +129,28 @@ namespace ticl {
         }
       }
 
-      // ---- regression
       if (doRegression_ != 0 && onnxEnergySession_ != nullptr) {
-        ortScratch_.outputs.clear();
+        ortScratch.outputs.clear();
 
         onnxEnergySession_->runInto(
-            inputNames_, ortScratch_.inputs, ortScratch_.input_shapes, output_en_, ortScratch_.outputs, {}, n);
+            inputNames_, ortScratch.inputs, ortScratch.input_shapes, output_en_, ortScratch.outputs, {}, n);
 
-        if (!ortScratch_.outputs.empty() && !output_en_.empty()) {
-          auto const& energy = ortScratch_.outputs[0];
+        if (!ortScratch.outputs.empty() && !output_en_.empty()) {
+          auto const& energy = ortScratch.outputs[0];
           for (int bi = 0; bi < n; ++bi) {
             tracksters[indices[start + bi]].setRegressedEnergy(energy[bi]);
           }
         }
       }
 
-      // ---- PID
       if (doPID_ != 0 && onnxPIDSession_ != nullptr) {
-        ortScratch_.outputs.clear();
+        ortScratch.outputs.clear();
 
         onnxPIDSession_->runInto(
-            inputNames_, ortScratch_.inputs, ortScratch_.input_shapes, output_id_, ortScratch_.outputs, {}, n);
+            inputNames_, ortScratch.inputs, ortScratch.input_shapes, output_id_, ortScratch.outputs, {}, n);
 
-        if (!ortScratch_.outputs.empty() && !output_id_.empty()) {
-          float* probs = ortScratch_.outputs[0].data();
+        if (!ortScratch.outputs.empty() && !output_id_.empty()) {
+          float* probs = ortScratch.outputs[0].data();
           for (int bi = 0; bi < n; ++bi) {
             auto& ts = tracksters[indices[start + bi]];
             ts.setProbabilities(probs);
@@ -188,7 +179,7 @@ namespace ticl {
     iDesc.add<int>("doPID", 1);
     iDesc.add<int>("doRegression", 1);
 
-    iDesc.addUntracked<int>("miniBatchSize", 256)
+    iDesc.addUntracked<int>("miniBatchSize", 64)
         ->setComment("Mini-batch size for inference to limit peak memory usage.");
   }
 

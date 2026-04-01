@@ -57,7 +57,8 @@
 
 using namespace ticl;
 
-class TICLCandidateProducer : public edm::stream::EDProducer<edm::GlobalCache<ticl::TICLONNXGlobalCache>, edm::stream::WatchRuns> {
+class TICLCandidateProducer
+    : public edm::stream::EDProducer<edm::GlobalCache<ticl::TICLONNXGlobalCache>, edm::stream::WatchRuns> {
 public:
   explicit TICLCandidateProducer(const edm::ParameterSet &ps, const ticl::TICLONNXGlobalCache *);
   ~TICLCandidateProducer() override {}
