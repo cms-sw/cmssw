@@ -299,7 +299,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           }
           alpaka::syncBlockThreads(acc);
 
-          for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, w_extent)) {
+          for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
             if (nBlockLocalComponents == 1 || idx.local > max_w_items)
               continue;
 
@@ -385,7 +385,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           alpaka::syncBlockThreads(acc);
 
-          if (nBlocks < w_extent) {
+          if (nBlocks >= w_extent) {
             for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, gridDim)) {
               if (idx.local >= w_extent)
                 continue;
