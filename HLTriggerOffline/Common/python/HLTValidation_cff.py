@@ -33,7 +33,12 @@ hgcalHitCalibrationHLT = _hgcalHitCalibrationDefault.clone(
     recHitsBH = ("hltHGCalRecHit", "HGCHEBRecHits", "HLT"),
     hgcalMultiClusters = "None",
     electrons = "None",
-    photons = "None"
+    photons = "None",
+    caloParticles = cms.InputTag("mix", "MergedCaloTruth")
+)
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(hgcalHitCalibrationHLT,
+    caloParticles = cms.InputTag("mixData", "MergedCaloTruth")
 )
 
 # HGCAL validation

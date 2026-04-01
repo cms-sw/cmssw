@@ -44,12 +44,17 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(theDigitizers,
     # fastsim does not digitize pixel and strip hits
     pixel = None,
-    tracks = recoTrackAccumulator
+    tracks = recoTrackAccumulator,
+    calotruth = None
 )
+
+def _rmCaloTruthIfPresent(pset):
+    if hasattr(pset, "calotruth"):
+        pset.calotruth = None
+
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
-(fastSim & premix_stage2).toModify(theDigitizers,
-    tracks = None
-)
+(fastSim & premix_stage2).toModify(theDigitizers, tracks = None)
+(fastSim & premix_stage2).toModify(theDigitizers, _rmCaloTruthIfPresent)
 
 
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer, HGCAL_noise_fC, HGCAL_noise_heback, HFNose_noise_fC, HGCAL_chargeCollectionEfficiencies, HGCAL_ileakParam_toUse, HGCAL_cceParams_toUse, HGCAL_noises
@@ -59,7 +64,6 @@ phase2_hgcal.toModify( theDigitizers,
                        hgceeDigitizer = cms.PSet(hgceeDigitizer),
                        hgchebackDigitizer = cms.PSet(hgchebackDigitizer),
                        hgchefrontDigitizer = cms.PSet(hgchefrontDigitizer),
-                       calotruth = cms.PSet(caloParticles), #HGCAL still needs calotruth for production mode
 )
 
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hfnoseDigitizer
@@ -71,7 +75,8 @@ phase2_hfnose.toModify( theDigitizers,
 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 # fastsim does not model castor
-(run3_common | fastSim).toModify( theDigitizers, castor = None )
+(run3_common | fastSim).toModify(theDigitizers, castor = None)
+(run3_common | fastSim).toModify(theDigitizers, _rmCaloTruthIfPresent)
 
 from SimGeneral.MixingModule.ecalTimeDigitizer_cfi import ecalTimeDigitizer
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
@@ -81,7 +86,7 @@ phase2_timing.toModify( theDigitizers,
 from SimGeneral.MixingModule.ecalTimeDigitizer_cfi import ecalTimeDigitizer
 from Configuration.Eras.Modifier_run3_ecal_devel_cff import run3_ecal_devel
 run3_ecal_devel.toModify( theDigitizers,
-                        ecalTime = ecalTimeDigitizer.clone() )
+                          ecalTime = ecalTimeDigitizer.clone() )
 
 from SimFastTiming.Configuration.SimFastTiming_cff import mtdDigitizer
 from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
@@ -94,6 +99,8 @@ premix_stage2.toModify(theDigitizers,
     ecal = None,
     hcal = None,
 )
+premix_stage2.toModify(theDigitizers, _rmCaloTruthIfPresent)
+
 (premix_stage2 & phase2_hgcal).toModify(theDigitizers,
     hgceeDigitizer = dict(premixStage1 = True),
     hgchebackDigitizer = dict(premixStage1 = True),
@@ -112,18 +119,13 @@ premix_stage2.toModify(theDigitizers,
 )
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-(phase2_tracker | fastSim).toModify(theDigitizers,
-                        strip = None)
-
+(phase2_tracker | fastSim).toModify(theDigitizers, strip = None)
+(phase2_tracker | fastSim).toModify(theDigitizers, _rmCaloTruthIfPresent)
+    
 theDigitizersValid = cms.PSet(theDigitizers)
 theDigitizers.mergedtruth.select.signalOnlyTP = True
 
-(fastSim & phase2_hgcal).toModify(theDigitizersValid, calotruth = None)
-#No calo clustering for fastsim phase2
-
-from Configuration.ProcessModifiers.run3_ecalclustering_cff import run3_ecalclustering
-run3_ecalclustering.toModify( theDigitizersValid, 
-                              calotruth = cms.PSet( caloParticles ) )
+(fastSim & phase2_hgcal).toModify(theDigitizersValid, _rmCaloTruthIfPresent)
 
 phase2_timing.toModify( theDigitizersValid.mergedtruth,
                         createInitialVertexCollection = cms.bool(True) )
