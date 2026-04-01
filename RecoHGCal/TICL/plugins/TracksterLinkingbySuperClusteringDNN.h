@@ -1,3 +1,5 @@
+#ifndef RecoHGCal_TICL_TracksterLinkingSuperClustering_H
+#define RecoHGCal_TICL_TracksterLinkingSuperClustering_H
 /*
 TICL plugin for electron superclustering in HGCAL using a DNN. 
 DNN designed and trained by Alessandro Tarabini.
@@ -14,17 +16,14 @@ Improved memory usage and inference performance.
 Date: 02/2026
 
 */
-#ifndef RecoHGCal_TICL_TracksterLinkingSuperClustering_H
-#define RecoHGCal_TICL_TracksterLinkingSuperClustering_H
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 namespace cms {
   namespace Ort {
     class ONNXRuntime;
-    using FloatArrays = std::vector<std::vector<float>>;
-  }  // namespace Ort
+  }
 }  // namespace cms
 
 #include "RecoHGCal/TICL/interface/TracksterLinkingAlgoBase.h"
@@ -53,9 +52,6 @@ namespace ticl {
 
   private:
     bool checkExplainedVarianceRatioCut(ticl::Trackster const& ts) const;
-    bool checkExplainedVarianceRatioCut(edm::MultiSpan<ticl::Trackster> const& tracksters,
-                                        unsigned int index,
-                                        std::unordered_map<unsigned int, bool>& cache) const;
     bool trackstersPassesPIDCut(const Trackster& ts) const;
 
     // --- Configuration
@@ -72,14 +68,6 @@ namespace ticl {
     bool filterByTracksterPID_;
     std::vector<int> tracksterPIDCategoriesToFilter_;
     float PIDThreshold_;
-
-    // --- Reusable ORT buffers (per-instance, i.e. per-stream in stream module usage)
-    cms::Ort::FloatArrays ortInputs_;   // size 1: ["input"]
-    cms::Ort::FloatArrays ortOutputs_;  // size 1: model output
-
-    // --- Reusable batch storage
-    std::vector<float> currentBatch_;                                  // flattened [miniBatchSize * featureCount]
-    std::vector<std::pair<unsigned int, unsigned int>> pairsInBatch_;  // (seed_idx, cand_idx) in global indices
   };
 
 }  // namespace ticl
