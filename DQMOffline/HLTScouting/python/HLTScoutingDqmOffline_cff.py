@@ -17,6 +17,7 @@ from HLTriggerOffline.Scouting.HLTScoutingEGammaDqmOffline_cff import *
 
 ### Jets Monitoring
 from DQMOffline.JetMET.jetMETDQMOfflineSource_cff import *
+from DQMOffline.Trigger.JetMETPromptMonitor_cff import *
 
 ### Electron best track producer
 from PhysicsTools.Scouting.Run3ScoutingElectronBestTrackProducer_cfi import Run3ScoutingElectronBestTrackProducer as run3ScoutingElectronBestTrack
@@ -39,9 +40,11 @@ hltScoutingMuonDqmOffline = cms.Sequence(scoutingMonitoringTagProbeMuonNoVtx *
                                          scoutingMonitoringTriggerMuon_SingleMu *
                                          ScoutingMuonPropertiesMonitor )
 
-hltScoutingJetDqmOffline = cms.Sequence(jetMETDQMOfflineSourceScouting)
+hltScoutingJetDqmOffline = cms.Sequence(jetMETDQMOfflineSourceScouting +
+                                        jetmetScoutingMonitorHLT)
 ## remove corrector to not schedule the run of the corrector modules which crash if scouting objects are missing
-hltScoutingJetDqmOfflineForRelVals = cms.Sequence(jetMETDQMOfflineSourceScoutingNoCorrection)
+hltScoutingJetDqmOfflineForRelVals = cms.Sequence(jetMETDQMOfflineSourceScoutingNoCorrection +
+                                                  jetmetScoutingNoJECsMonitorHLT)
 
 hltScoutingCollectionMonitor = cms.Sequence(scoutingCollectionMonitor)
 hltScoutingDileptonMonitor = cms.Sequence(ScoutingDileptonMonitor)
@@ -53,7 +56,6 @@ hltScoutingDqmOffline = cms.Sequence(hltScoutingMuonDqmOffline +
                                      run3ScoutingElectronBestTrack +
                                      hltScoutingDileptonMonitor +
                                      hltScoutingPi0Monitor +
-                                     run3ScoutingElectronBestTrack +
                                      hltScoutingCollectionMonitor)
 
 ## Add the scouting rechits monitoring (only for 2025, integrated in menu GRun 2025 V1.3)
