@@ -4,6 +4,36 @@ from DQMOffline.Trigger.JetMonitor_cfi import hltJetMETmonitoring
 from JetMETCorrections.Configuration.JetCorrectors_cff import *
 from DQMOffline.Trigger.ZGammaplusJetsMonitor_cff import *
 
+###################     Scouting JECs    #################
+ak4PFScoutL1FastjetCorrector = ak4PFL1FastjetCorrector.clone(
+    algorithm   = cms.string('AK4PFHLT'),
+    srcRho = cms.InputTag("hltScoutingPFPacker","rho")
+    )
+    
+ak4PFScoutL2RelativeCorrector = ak4PFL2RelativeCorrector.clone( 
+    algorithm = cms.string('AK4PFHLT'),
+    )
+
+ak4PFScoutL3AbsoluteCorrector = ak4PFL3AbsoluteCorrector.clone( 
+    algorithm = cms.string('AK4PFHLT'),
+    )
+
+ak4PFScoutResidualCorrector  = ak4PFResidualCorrector.clone( 
+    algorithm = cms.string('AK4PFHLT'),
+    )
+
+ak4PFScoutL1FastL2L3ResidualCorrector = cms.EDProducer(
+    'ChainedJetCorrectorProducer',
+    correctors = cms.VInputTag('ak4PFScoutL1FastjetCorrector','ak4PFScoutL2RelativeCorrector','ak4PFScoutL3AbsoluteCorrector','ak4PFScoutResidualCorrector')
+    )
+    
+ak4PFScoutL1FastL2L3ResidualCorrectorTask = cms.Task(
+    ak4PFScoutL1FastjetCorrector, ak4PFScoutL2RelativeCorrector, ak4PFScoutL3AbsoluteCorrector, ak4PFScoutResidualCorrector, ak4PFScoutL1FastL2L3ResidualCorrector
+)
+ak4PFScoutL1FastL2L3ResidualCorrectorChain = cms.Sequence(ak4PFScoutL1FastL2L3ResidualCorrectorTask)
+
+
+
 ### HLT_PFJet Triggers ###
 # HLT_PFJet450
 PFJet450_Prommonitoring = hltJetMETmonitoring.clone(
@@ -713,6 +743,341 @@ CaloJet500_NoJetID_Orthogonal_Prommonitoring = hltJetMETmonitoring.clone(
 )
 
 
+######### Scouitng Trigger and L1 seeds #########
+# DST_PFScouting_JetHT_v
+PFScoutingJetHT_Prommonitoring = hltJetMETmonitoring.clone(
+    FolderName = 'HLT/JME/Jets/AK4/ScoutingPF/PFScoutingJetHT/',
+    jetSrc = "hltScoutingPFPacker",
+    muons = "hltScoutingMuonPackerVtx",
+    vertices = "hltScoutingPrimaryVertexPacker",
+    corrector = "ak4PFScoutL1FastL2L3ResidualCorrector",
+    ispfjettrg = False,
+    isscoutingpfjettrg = True,
+    doVariablebinning = True,
+    JetIDQuality = "TIGHT",
+    JetIDVersion = "RUN3Scouting",
+    dr2cut = 0.16,
+    nmuons = 1,
+    histoPSet = dict(jetptBinning = [0., 20., 40., 50., 60., 70., 80., 90., 100., 110.,
+                120., 130., 140., 150., 160., 170., 180., 190., 200., 210.,
+                220., 230., 240., 250., 260., 280., 300., 320., 340., 360.,
+                380., 400., 450., 500., 600., 800., 1000.]),
+    numGenericTriggerEventPSet = dict(hltPaths = ["DST_PFScouting_JetHT_v*"]),
+    denGenericTriggerEventPSet = dict(
+        andOrHlt = False, # True:=OR; False:=AND (default)
+        hltPaths = ["HLT_TriggersForScoutingPFMonitor_PS1000_v*","DST_PFScouting_SingleMuon_v*"])
+)
+
+# L1_HTT200er
+L1HTT200_Prommonitoring = hltJetMETmonitoring.clone(
+    FolderName = 'HLT/JME/Jets/AK4/ScoutingPF/L1_HTT200er/',
+    jetSrc = "hltScoutingPFPacker",
+    muons = "hltScoutingMuonPackerVtx",
+    vertices = "hltScoutingPrimaryVertexPacker",
+    corrector = "ak4PFScoutL1FastL2L3ResidualCorrector",
+    ispfjettrg = False,
+    isscoutingpfjettrg = True,
+    doVariablebinning = True,
+    JetIDQuality = "TIGHT",
+    JetIDVersion = "RUN3Scouting",
+    dr2cut = 0.16,
+    nmuons = 1,
+    histoPSet = dict(jetptBinning = [0., 20., 40., 50., 60., 70., 80., 90., 100., 110.,
+                120., 130., 140., 150., 160., 170., 180., 190., 200., 210.,
+                220., 230., 240., 250., 260., 280., 300., 320., 340., 360.,
+                380., 400., 450., 500., 600., 800., 1000.]),
+    numGenericTriggerEventPSet = dict(
+        hltPaths          = cms.vstring(),
+        stage2 = cms.bool(True),
+        l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+        l1Algorithms      = cms.vstring("L1_HTT200er")),
+    denGenericTriggerEventPSet = dict(
+        andOrHlt = False, # True:=OR; False:=AND (default)
+        hltPaths = ["HLT_TriggersForScoutingPFMonitor_PS1000_v*","DST_PFScouting_SingleMuon_v*"])
+)
+
+
+# L1_HTT255er
+L1HTT255_Prommonitoring = hltJetMETmonitoring.clone(
+    FolderName = 'HLT/JME/Jets/AK4/ScoutingPF/L1_HTT255er/',
+    jetSrc = "hltScoutingPFPacker",
+    muons = "hltScoutingMuonPackerVtx",
+    vertices = "hltScoutingPrimaryVertexPacker",
+    corrector = "ak4PFScoutL1FastL2L3ResidualCorrector",
+    ispfjettrg = False,
+    isscoutingpfjettrg = True,
+    doVariablebinning = True,
+    JetIDQuality = "TIGHT",
+    JetIDVersion = "RUN3Scouting",
+    dr2cut = 0.16,
+    nmuons = 1,
+    histoPSet = dict(jetptBinning = [0., 20., 40., 50., 60., 70., 80., 90., 100., 110.,
+                120., 130., 140., 150., 160., 170., 180., 190., 200., 210.,
+                220., 230., 240., 250., 260., 280., 300., 320., 340., 360.,
+                380., 400., 450., 500., 600., 800., 1000.]),
+    numGenericTriggerEventPSet = dict(
+        hltPaths          = cms.vstring(),
+        l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+        l1Algorithms      = cms.vstring("L1_HTT255er")),
+    denGenericTriggerEventPSet = dict(
+        andOrHlt = False, # True:=OR; False:=AND (default)
+        hltPaths = ["HLT_TriggersForScoutingPFMonitor_PS1000_v*","DST_PFScouting_SingleMuon_v*"])
+)
+
+
+# L1_HTT280er 
+L1HTT280_Prommonitoring = hltJetMETmonitoring.clone(
+    FolderName = 'HLT/JME/Jets/AK4/ScoutingPF/L1_HTT280er/',
+    jetSrc = "hltScoutingPFPacker",
+    muons = "hltScoutingMuonPackerVtx",
+    vertices = "hltScoutingPrimaryVertexPacker",
+    corrector = "ak4PFScoutL1FastL2L3ResidualCorrector",
+    ispfjettrg = False,
+    isscoutingpfjettrg = True,
+    doVariablebinning = True,
+    JetIDQuality = "TIGHT",
+    JetIDVersion = "RUN3Scouting",
+    dr2cut = 0.16,
+    nmuons = 1,
+    histoPSet = dict(jetptBinning = [0., 20., 40., 50., 60., 70., 80., 90., 100., 110.,
+                120., 130., 140., 150., 160., 170., 180., 190., 200., 210.,
+                220., 230., 240., 250., 260., 280., 300., 320., 340., 360.,
+                380., 400., 450., 500., 600., 800., 1000.]),
+    numGenericTriggerEventPSet = dict(
+        hltPaths          = cms.vstring(),
+        l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+        l1Algorithms      = cms.vstring("L1_HTT280er")),
+    denGenericTriggerEventPSet = dict(
+        andOrHlt = False, # True:=OR; False:=AND (default)
+        hltPaths = ["HLT_TriggersForScoutingPFMonitor_PS1000_v*","DST_PFScouting_SingleMuon_v*"])
+)
+
+
+#  L1_HTT320er
+L1HTT320_Prommonitoring = hltJetMETmonitoring.clone(
+    FolderName = 'HLT/JME/Jets/AK4/ScoutingPF/L1_HTT320er/',
+    jetSrc = "hltScoutingPFPacker",
+    muons = "hltScoutingMuonPackerVtx",
+    vertices = "hltScoutingPrimaryVertexPacker",
+    corrector = "ak4PFScoutL1FastL2L3ResidualCorrector",
+    ispfjettrg = False,
+    isscoutingpfjettrg = True,
+    doVariablebinning = True,
+    JetIDQuality = "TIGHT",
+    JetIDVersion = "RUN3Scouting",
+    dr2cut = 0.16,
+    nmuons = 1,
+    histoPSet = dict(jetptBinning = [0., 20., 40., 50., 60., 70., 80., 90., 100., 110.,
+                120., 130., 140., 150., 160., 170., 180., 190., 200., 210.,
+                220., 230., 240., 250., 260., 280., 300., 320., 340., 360.,
+                380., 400., 450., 500., 600., 800., 1000.]),
+    numGenericTriggerEventPSet = dict(
+        hltPaths          = cms.vstring(),
+        l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+        l1Algorithms      = cms.vstring("L1_HTT320er")),
+    denGenericTriggerEventPSet = dict(
+        andOrHlt = False, # True:=OR; False:=AND (default)
+        hltPaths = ["HLT_TriggersForScoutingPFMonitor_PS1000_v*","DST_PFScouting_SingleMuon_v*"])
+)
+
+
+# L1_HTT360er
+L1HTT360_Prommonitoring = hltJetMETmonitoring.clone(
+    FolderName = 'HLT/JME/Jets/AK4/ScoutingPF/L1_HTT360er/',
+    jetSrc = "hltScoutingPFPacker",
+    muons = "hltScoutingMuonPackerVtx",
+    vertices = "hltScoutingPrimaryVertexPacker",
+    corrector = "ak4PFScoutL1FastL2L3ResidualCorrector",
+    ispfjettrg = False,
+    isscoutingpfjettrg = True,
+    doVariablebinning = True,
+    JetIDQuality = "TIGHT",
+    JetIDVersion = "RUN3Scouting",
+    dr2cut = 0.16,
+    nmuons = 1,
+    histoPSet = dict(jetptBinning = [0., 20., 40., 50., 60., 70., 80., 90., 100., 110.,
+                120., 130., 140., 150., 160., 170., 180., 190., 200., 210.,
+                220., 230., 240., 250., 260., 280., 300., 320., 340., 360.,
+                380., 400., 450., 500., 600., 800., 1000.]),
+    numGenericTriggerEventPSet = dict(
+        stage2 = cms.bool(True),
+        hltPaths          = cms.vstring(),
+        l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+        l1Algorithms      = cms.vstring("L1_HTT360er")),
+    denGenericTriggerEventPSet = dict(
+        andOrHlt = False, # True:=OR; False:=AND (default)
+        hltPaths = ["HLT_TriggersForScoutingPFMonitor_PS1000_v*","DST_PFScouting_SingleMuon_v*"])
+)
+
+# L1_HTT400er
+L1HTT400_Prommonitoring = hltJetMETmonitoring.clone(
+    FolderName = 'HLT/JME/Jets/AK4/ScoutingPF/L1_HTT400er/',
+    jetSrc = "hltScoutingPFPacker",
+    muons = "hltScoutingMuonPackerVtx",
+    vertices = "hltScoutingPrimaryVertexPacker",
+    corrector = "ak4PFScoutL1FastL2L3ResidualCorrector",
+    ispfjettrg = False,
+    isscoutingpfjettrg = True,
+    doVariablebinning = True,
+    JetIDQuality = "TIGHT",
+    JetIDVersion = "RUN3Scouting",
+    dr2cut = 0.16,
+    nmuons = 1,
+    histoPSet = dict(jetptBinning = [0., 20., 40., 50., 60., 70., 80., 90., 100., 110.,
+                120., 130., 140., 150., 160., 170., 180., 190., 200., 210.,
+                220., 230., 240., 250., 260., 280., 300., 320., 340., 360.,
+                380., 400., 450., 500., 600., 800., 1000.]),
+    numGenericTriggerEventPSet = dict(
+        hltPaths          = cms.vstring(),
+        l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+        l1Algorithms      = cms.vstring("L1_HTT400er")),
+    denGenericTriggerEventPSet = dict(
+        andOrHlt = False, # True:=OR; False:=AND (default)
+        hltPaths = ["HLT_TriggersForScoutingPFMonitor_PS1000_v*","DST_PFScouting_SingleMuon_v*"])
+)
+
+
+# L1_HTT450er
+L1HTT450_Prommonitoring = hltJetMETmonitoring.clone(
+    FolderName = 'HLT/JME/Jets/AK4/ScoutingPF/L1_HTT450er/',
+    jetSrc = "hltScoutingPFPacker",
+    muons = "hltScoutingMuonPackerVtx",
+    vertices = "hltScoutingPrimaryVertexPacker",
+    corrector = "ak4PFScoutL1FastL2L3ResidualCorrector",
+    ispfjettrg = False,
+    isscoutingpfjettrg = True,
+    doVariablebinning = True,
+    JetIDQuality = "TIGHT",
+    JetIDVersion = "RUN3Scouting",
+    dr2cut = 0.16,
+    nmuons = 1,
+    histoPSet = dict(jetptBinning = [0., 20., 40., 50., 60., 70., 80., 90., 100., 110.,
+                120., 130., 140., 150., 160., 170., 180., 190., 200., 210.,
+                220., 230., 240., 250., 260., 280., 300., 320., 340., 360.,
+                380., 400., 450., 500., 600., 800., 1000.]),
+    numGenericTriggerEventPSet = dict(
+        hltPaths          = cms.vstring(),
+        l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+        l1Algorithms      = cms.vstring("L1_HTT450er")),
+    denGenericTriggerEventPSet = dict(
+        andOrHlt = False, # True:=OR; False:=AND (default)
+        hltPaths = ["HLT_TriggersForScoutingPFMonitor_PS1000_v*","DST_PFScouting_SingleMuon_v*"])
+)
+
+
+# L1_SingleJet180
+L1SingleJet180_Prommonitoring = hltJetMETmonitoring.clone(
+    FolderName = 'HLT/JME/Jets/AK4/ScoutingPF/L1_SingleJet180/',
+    jetSrc = "hltScoutingPFPacker",
+    muons = "hltScoutingMuonPackerVtx",
+    vertices = "hltScoutingPrimaryVertexPacker",
+    corrector = "ak4PFScoutL1FastL2L3ResidualCorrector",
+    ispfjettrg = False,
+    isscoutingpfjettrg = True,
+    doVariablebinning = True,
+    JetIDQuality = "TIGHT",
+    JetIDVersion = "RUN3Scouting",
+    dr2cut = 0.16,
+    nmuons = 1,
+    histoPSet = dict(jetptBinning = [0., 20., 40., 50., 60., 70., 80., 90., 100., 110.,
+                120., 130., 140., 150., 160., 170., 180., 190., 200., 210.,
+                220., 230., 240., 250., 260., 280., 300., 320., 340., 360.,
+                380., 400., 450., 500., 600., 800., 1000.]),
+    numGenericTriggerEventPSet = dict(
+        hltPaths          = cms.vstring(),
+        l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+        l1Algorithms      = cms.vstring("L1_SingleJet180")),
+    denGenericTriggerEventPSet = dict(
+        andOrHlt = False, # True:=OR; False:=AND (default)
+        hltPaths = ["HLT_TriggersForScoutingPFMonitor_PS1000_v*","DST_PFScouting_SingleMuon_v*"])
+)
+
+
+# L1_SingleJet200
+L1SingleJet200_Prommonitoring = hltJetMETmonitoring.clone(
+    FolderName = 'HLT/JME/Jets/AK4/ScoutingPF/L1_SingleJet200/',
+    jetSrc = "hltScoutingPFPacker",
+    muons = "hltScoutingMuonPackerVtx",
+    vertices = "hltScoutingPrimaryVertexPacker",
+    corrector = "ak4PFScoutL1FastL2L3ResidualCorrector",
+    ispfjettrg = False,
+    isscoutingpfjettrg = True,
+    doVariablebinning = True,
+    JetIDQuality = "TIGHT",
+    JetIDVersion = "RUN3Scouting",
+    dr2cut = 0.16,
+    nmuons = 1,
+    histoPSet = dict(jetptBinning = [0., 20., 40., 50., 60., 70., 80., 90., 100., 110.,
+                120., 130., 140., 150., 160., 170., 180., 190., 200., 210.,
+                220., 230., 240., 250., 260., 280., 300., 320., 340., 360.,
+                380., 400., 450., 500., 600., 800., 1000.]),
+    numGenericTriggerEventPSet = dict(
+        hltPaths          = cms.vstring(),
+        l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+        l1Algorithms      = cms.vstring("L1_SingleJet200")),
+    denGenericTriggerEventPSet = dict(
+        andOrHlt = False, # True:=OR; False:=AND (default)
+        hltPaths = ["HLT_TriggersForScoutingPFMonitor_PS1000_v*","DST_PFScouting_SingleMuon_v*"])
+)
+
+
+### --------- No JECs --------- ###
+PFScoutingJetHT_NoJECs_Prommonitoring = PFScoutingJetHT_Prommonitoring.clone(
+    corrector = ""
+)
+
+# L1_HTT200er
+L1HTT200_NoJECs_Prommonitoring = L1HTT200_Prommonitoring.clone(
+    corrector = ""
+)
+
+
+# L1_HTT255er
+L1HTT255_NoJECs_Prommonitoring = L1HTT255_Prommonitoring.clone(
+    corrector = ""
+)
+
+
+# L1_HTT280er
+L1HTT280_NoJECs_Prommonitoring = L1HTT280_Prommonitoring.clone(
+    corrector = ""
+)
+
+
+#  L1_HTT320er
+L1HTT320_NoJECs_Prommonitoring = L1HTT320_Prommonitoring.clone(
+    corrector = ""
+)
+
+
+# L1_HTT360er
+L1HTT360_NoJECs_Prommonitoring = L1HTT360_Prommonitoring.clone(
+    corrector = ""
+)
+
+# L1_HTT400er
+L1HTT400_NoJECs_Prommonitoring = L1HTT400_Prommonitoring.clone(
+    corrector = ""
+)
+
+
+# L1_HTT450er
+L1HTT450_NoJECs_Prommonitoring = L1HTT450_Prommonitoring.clone(
+    corrector = ""
+)
+
+
+# L1_SingleJet180
+L1SingleJet180_NoJECs_Prommonitoring = L1SingleJet180_Prommonitoring.clone(
+    corrector = ""
+)
+
+
+# L1_SingleJet200
+L1SingleJet200_NoJECs_Prommonitoring = L1SingleJet200_Prommonitoring.clone(
+    corrector = ""
+)
+
 HLTJetmonitoring = cms.Sequence(    
     ak4PFPuppiL1FastL2L3ResidualCorrectorChain
     *PFJet500_Orthogonal_Prommonitoring
@@ -761,4 +1126,32 @@ HLTJetmonitoring = cms.Sequence(
     *ak4CaloL1FastL2L3ResidualCorrectorChain
     *CaloJet500_NoJetID_Prommonitoring
     *CaloJet500_NoJetID_Orthogonal_Prommonitoring
+)
+
+
+HLTScoutingJetmonitoring = cms.Sequence(
+    ak4PFScoutL1FastL2L3ResidualCorrectorChain
+    *PFScoutingJetHT_Prommonitoring
+    *L1HTT200_Prommonitoring
+    *L1HTT255_Prommonitoring
+    *L1HTT280_Prommonitoring
+    *L1HTT320_Prommonitoring
+    *L1HTT360_Prommonitoring
+    *L1HTT400_Prommonitoring
+    *L1HTT450_Prommonitoring
+    *L1SingleJet180_Prommonitoring
+    *L1SingleJet200_Prommonitoring
+)
+
+HLTScoutingJetnoJECsmonitoring = cms.Sequence(
+    PFScoutingJetHT_NoJECs_Prommonitoring
+    *L1HTT200_NoJECs_Prommonitoring
+    *L1HTT255_NoJECs_Prommonitoring
+    *L1HTT280_NoJECs_Prommonitoring
+    *L1HTT320_NoJECs_Prommonitoring
+    *L1HTT360_NoJECs_Prommonitoring
+    *L1HTT400_NoJECs_Prommonitoring
+    *L1HTT450_NoJECs_Prommonitoring
+    *L1SingleJet180_NoJECs_Prommonitoring
+    *L1SingleJet200_NoJECs_Prommonitoring
 )
