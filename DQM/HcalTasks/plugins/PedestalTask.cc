@@ -3,6 +3,11 @@
 
 using namespace hcaldqm;
 using namespace hcaldqm::constants;
+
+namespace {
+  constexpr double kTiny = 1e-9;
+}
+
 PedestalTask::PedestalTask(edm::ParameterSet const& ps)
     : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
   //	tags
@@ -53,9 +58,12 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
   _xPedSum1LS.initialize(hcaldqm::hashfunctions::fDChannel);
   _xPedSum21LS.initialize(hcaldqm::hashfunctions::fDChannel);
   _xPedEntries1LS.initialize(hcaldqm::hashfunctions::fDChannel);
+  _xChargeSum1LS.initialize(hcaldqm::hashfunctions::fDChannel);
   _xPedSumTotal.initialize(hcaldqm::hashfunctions::fDChannel);
   _xPedSum2Total.initialize(hcaldqm::hashfunctions::fDChannel);
   _xPedEntriesTotal.initialize(hcaldqm::hashfunctions::fDChannel);
+  _xChargeRefLS1.initialize(hcaldqm::hashfunctions::fDChannel);
+  _xChargeRefLS1Entries.initialize(hcaldqm::hashfunctions::fDChannel);
 
 #ifndef HIDE_PEDESTAL_CONDITIONS
   _xPedRefMean.initialize(hcaldqm::hashfunctions::fDChannel);
@@ -205,6 +213,13 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
                                       new hcaldqm::quantity::LumiSection(_maxLS),
                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to8000),
                                       0);
+  _cChargeNormvsLS_SubdetPM.initialize(_name,
+                                       "ChargeNormvsLS",
+                                       hcaldqm::hashfunctions::fSubdetPM,
+                                       new hcaldqm::quantity::LumiSection(_maxLS),
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRatio_0to2),
+                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                       0);
   _cNBadMeanvsLS_Subdet.initialize(_name,
                                    "NBadMeanvsLS",
                                    hcaldqm::hashfunctions::fSubdet,
@@ -431,6 +446,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
   _cMissingvsLS_Subdet.book(ib, _emap, _subsystem);
   _cOccupancyvsLS_Subdet.book(ib, _emap, _subsystem);
   _cOccupancyEAvsLS_Subdet.book(ib, _emap, _subsystem);
+  _cChargeNormvsLS_SubdetPM.book(ib, _emap, _subsystem);
   _cNBadMeanvsLS_Subdet.book(ib, _emap, _subsystem);
   _cNBadRMSvsLS_Subdet.book(ib, _emap, _subsystem);
   if (_ptype != fOffline) {  // hidefed2crate
@@ -442,9 +458,12 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
   _xPedSum1LS.book(_emap);
   _xPedSum21LS.book(_emap);
   _xPedEntries1LS.book(_emap);
+  _xChargeSum1LS.book(_emap);
   _xPedSumTotal.book(_emap);
   _xPedSum2Total.book(_emap);
   _xPedEntriesTotal.book(_emap);
+  _xChargeRefLS1.book(_emap);
+  _xChargeRefLS1Entries.book(_emap);
 
 #ifndef HIDE_PEDESTAL_CONDITIONS
   _xPedRefMean.book(_emap);
@@ -588,6 +607,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
 
     HcalDetId did = HcalDetId(it->rawId());
     double sum1LS = _xPedSum1LS.get(did);
+    double sumCharge1LS = _xChargeSum1LS.get(did);
 #ifndef HIDE_PEDESTAL_CONDITIONS
     double refm = _xPedRefMean.get(did);
 #endif
@@ -630,7 +650,19 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
 
     //	compute the means and diffs for this LS
     sum1LS /= n1LS;
+    double meanCharge1LS = sumCharge1LS / n1LS;
     double rms1LS = sqrt(sum21LS / n1LS - sum1LS * sum1LS);
+    if (_currentLS == 1) {
+      _xChargeRefLS1.set(did, meanCharge1LS);
+      _xChargeRefLS1Entries.get(did) = 1;
+    }
+    if (_xChargeRefLS1Entries.get(did) > 0) {
+      double chargeRefLS1 = _xChargeRefLS1.get(did);
+      if (fabs(chargeRefLS1) > kTiny) {
+        double chargeNorm = meanCharge1LS / chargeRefLS1;
+        _cChargeNormvsLS_SubdetPM.fill(did, _currentLS, chargeNorm);
+      }
+    }
 #ifndef HIDE_PEDESTAL_CONDITIONS
     double diffm1LS = sum1LS - refm;
     double diffr1LS = rms1LS - refr;
@@ -778,6 +810,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps)
   _xPedSum1LS.reset();
   _xPedSum21LS.reset();
   _xPedEntries1LS.reset();
+  _xChargeSum1LS.reset();
 }
 
 std::shared_ptr<hcaldqm::Cache> PedestalTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb,
@@ -831,6 +864,7 @@ std::shared_ptr<hcaldqm::Cache> PedestalTask::globalBeginLuminosityBlock(edm::Lu
     if ((did.subdet() != HcalEndcap) && (did.subdet() != HcalBarrel)) {
       continue;
     }
+    CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
     int digiSizeToUse = floor(digi.samples() / constants::CAPS_NUM) * constants::CAPS_NUM - 1;
     did.subdet() == HcalBarrel ? nHB++ : nHE++;
 
@@ -840,6 +874,7 @@ std::shared_ptr<hcaldqm::Cache> PedestalTask::globalBeginLuminosityBlock(edm::Lu
       _xPedSum1LS.get(did) += digi[i].adc();
       _xPedSum21LS.get(did) += digi[i].adc() * digi[i].adc();
       _xPedEntries1LS.get(did)++;
+      _xChargeSum1LS.get(did) += digi_fC[i];
 
       _xPedSumTotal.get(did) += digi[i].adc();
       _xPedSum2Total.get(did) += digi[i].adc() * digi[i].adc();
@@ -853,6 +888,7 @@ std::shared_ptr<hcaldqm::Cache> PedestalTask::globalBeginLuminosityBlock(edm::Lu
   for (HODigiCollection::const_iterator it = c_ho->begin(); it != c_ho->end(); ++it) {
     const HODataFrame digi = (const HODataFrame)(*it);
     HcalDetId did = digi.id();
+    CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HODataFrame>(_dbService, did, digi);
     int digiSizeToUse = floor(digi.size() / constants::CAPS_NUM) * constants::CAPS_NUM - 1;
     nHO++;
     for (int i = 0; i < digiSizeToUse; i++) {
@@ -861,6 +897,7 @@ std::shared_ptr<hcaldqm::Cache> PedestalTask::globalBeginLuminosityBlock(edm::Lu
       _xPedSum1LS.get(did) += it->sample(i).adc();
       _xPedSum21LS.get(did) += it->sample(i).adc() * it->sample(i).adc();
       _xPedEntries1LS.get(did)++;
+      _xChargeSum1LS.get(did) += digi_fC[i];
 
       _xPedSumTotal.get(did) += it->sample(i).adc();
       _xPedSum2Total.get(did) += it->sample(i).adc() * it->sample(i).adc();
@@ -875,6 +912,7 @@ std::shared_ptr<hcaldqm::Cache> PedestalTask::globalBeginLuminosityBlock(edm::Lu
     if (did.subdet() != HcalForward) {
       continue;
     }
+    CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
     // HF has 3 samples in global, so impossible to make divisible by 4
     int digiSizeToUse =
         (digi.samples() >= 4 ? floor(digi.samples() / constants::CAPS_NUM) * constants::CAPS_NUM - 1 : digi.samples());
@@ -885,6 +923,7 @@ std::shared_ptr<hcaldqm::Cache> PedestalTask::globalBeginLuminosityBlock(edm::Lu
       _xPedSum1LS.get(did) += digi[i].adc();
       _xPedSum21LS.get(did) += digi[i].adc() * digi[i].adc();
       _xPedEntries1LS.get(did)++;
+      _xChargeSum1LS.get(did) += digi_fC[i];
 
       _xPedSumTotal.get(did) += digi[i].adc();
       _xPedSum2Total.get(did) += digi[i].adc() * digi[i].adc();
