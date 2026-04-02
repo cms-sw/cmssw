@@ -69,9 +69,12 @@ protected:
   hcaldqm::ContainerXXX<double> _xPedSum1LS;
   hcaldqm::ContainerXXX<double> _xPedSum21LS;
   hcaldqm::ContainerXXX<int> _xPedEntries1LS;
+  hcaldqm::ContainerXXX<double> _xChargeSum1LS;
   hcaldqm::ContainerXXX<double> _xPedSumTotal;
   hcaldqm::ContainerXXX<double> _xPedSum2Total;
   hcaldqm::ContainerXXX<int> _xPedEntriesTotal;
+  hcaldqm::ContainerXXX<double> _xChargeRefLS1;
+  hcaldqm::ContainerXXX<int> _xChargeRefLS1Entries;
   hcaldqm::ContainerXXX<int> _xNChs;     // number of channels per FED as in emap
   hcaldqm::ContainerXXX<int> _xNMsn1LS;  // #missing for 1LS per FED
   hcaldqm::ContainerXXX<int> _xNBadMean1LS, _xNBadRMS1LS;
@@ -120,6 +123,7 @@ protected:
 
   //	averaging per event
   hcaldqm::ContainerProf1D _cOccupancyEAvsLS_Subdet;
+  hcaldqm::Container2D _cChargeNormvsLS_SubdetPM;
 
   //	map of missing channels
   hcaldqm::Container2D _cMissing1LS_depth;
