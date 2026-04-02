@@ -148,7 +148,7 @@ void L1TSC4NGJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 void L1TSC4NGJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jets", edm::InputTag("l1tSC4PFL1PuppiExtendedEmulator"));
-  desc.add<bool>("doJEC", true);
+  desc.add<bool>("doJEC", false);
   desc.add<bool>("returnRawPt", false);
   desc.add<std::string>("correctorFile", "");
   desc.add<std::string>("correctorDir", "");

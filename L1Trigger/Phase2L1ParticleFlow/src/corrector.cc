@@ -350,6 +350,13 @@ void l1tpf::corrector::initJson_(const std::string &jsonPath, bool debug, bool e
 #endif
 
 float l1tpf::corrector::correctedPt(float pt, float emPt, float eta) const {
+  if (!valid()) {
+#ifdef CMSSW_GIT_HASH
+    throw cms::Exception("RuntimeError") << "[l1tpf::corrector]Error: index is not initialized" << std::endl;
+#else
+    throw std::runtime_error("[l1tpf::corrector]Error: index is not initialized");
+#endif
+  }
   unsigned int ipt, ieta;
   float total = std::max(pt, emPt), abseta = std::abs(eta);
   float emf = emPt / total;
