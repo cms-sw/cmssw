@@ -21,6 +21,9 @@ TrackerTrackHitFilter.rejectLowAngleHits= True
 TrackerTrackHitFilter.TrackAngleCut= 0.35 # in rads, starting from the module surface
 TrackerTrackHitFilter.usePixelQualityFlag= True
 
+from Configuration.ProcessModifiers.PixelCPEGeneric_cff import PixelCPEGeneric
+PixelCPEGeneric.toModify(TrackerTrackHitFilter, usePixelQualityFlag = False)
+
 ################################################################################################
 #TRACK PRODUCER
 #now we give the TrackCandidate coming out of the TrackerTrackHitFilter to the track producer
