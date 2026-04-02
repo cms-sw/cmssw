@@ -2,7 +2,10 @@
 //
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingPhoton.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
+
+#include <cmath>
 
 using pat::Photon;
 
@@ -154,6 +157,90 @@ Photon::Photon(const edm::Ptr<reco::Photon>& aPhotonRef)
       iEta_(-999),
       iPhi_(-999) {}
 
+// Helper to create reco::Photon from scouting photon
+namespace {
+  reco::Photon makeRecoPhoton(const Run3ScoutingPhoton& sPhoton) {
+    float px = sPhoton.pt() * std::cos(sPhoton.phi());
+    float py = sPhoton.pt() * std::sin(sPhoton.phi());
+    float pz = sPhoton.pt() * std::sinh(sPhoton.eta());
+    float energy = std::sqrt(px * px + py * py + pz * pz + sPhoton.m() * sPhoton.m());
+    reco::Photon::LorentzVector p4(px, py, pz, energy);
+    reco::Photon::Point caloPos(0, 0, 0);
+    reco::Photon::Point vtx(0, 0, 0);
+    return reco::Photon(p4, caloPos, reco::PhotonCoreRef(), vtx);
+  }
+}  // namespace
+
+/// constructor from Run3ScoutingPhoton
+Photon::Photon(const Run3ScoutingPhoton& sPhoton)
+    : PATObject<reco::Photon>(makeRecoPhoton(sPhoton)),
+      embeddedSuperCluster_(false),
+      embeddedSeedCluster_(false),
+      embeddedRecHits_(false),
+      passElectronVeto_(false),
+      hasPixelSeed_(false),
+      seedEnergy_(0.0),
+      eMax_(0.0),
+      e2nd_(0.0),
+      e3x3_(0.0),
+      eTop_(0.0),
+      eBottom_(0.0),
+      eLeft_(0.0),
+      eRight_(0.0),
+      see_(-999.),
+      spp_(-999.),
+      sep_(-999.),
+      maxDR_(-999.),
+      maxDRDPhi_(-999.),
+      maxDRDEta_(-999.),
+      maxDRRawEnergy_(-999.),
+      subClusRawE1_(-999.),
+      subClusRawE2_(-999.),
+      subClusRawE3_(-999.),
+      subClusDPhi1_(-999.),
+      subClusDPhi2_(-999.),
+      subClusDPhi3_(-999.),
+      subClusDEta1_(-999.),
+      subClusDEta2_(-999.),
+      subClusDEta3_(-999.),
+      cryEta_(-999.),
+      cryPhi_(-999),
+      iEta_(-999),
+      iPhi_(-999) {
+  isScoutingPhoton_ = true;
+
+  // Store shower shape variables as userFloats
+  this->addUserFloat("sigmaIetaIeta", sPhoton.sigmaIetaIeta());
+  this->addUserFloat("hOverE", sPhoton.hOverE());
+  this->addUserFloat("r9", sPhoton.r9());
+  this->addUserFloat("sMin", sPhoton.sMin());
+  this->addUserFloat("sMaj", sPhoton.sMaj());
+
+  // Store energy variables
+  this->addUserFloat("rawEnergy", sPhoton.rawEnergy());
+  this->addUserFloat("preshowerEnergy", sPhoton.preshowerEnergy());
+  this->addUserFloat("corrEcalEnergyError", sPhoton.corrEcalEnergyError());
+
+  // Store isolation as userFloats (for NanoAOD access)
+  this->addUserFloat("ecalIso", sPhoton.ecalIso());
+  this->addUserFloat("hcalIso", sPhoton.hcalIso());
+  this->addUserFloat("trkIso", sPhoton.trkIso());
+
+  // Also set isolation using PAT isolation keys
+  this->setIsolation(pat::TrackIso, sPhoton.trkIso());
+  this->setIsolation(pat::EcalIso, sPhoton.ecalIso());
+  this->setIsolation(pat::HcalIso, sPhoton.hcalIso());
+
+  // Store scouting-specific ECAL crystal and rechit information
+  scoutingSeedId_ = sPhoton.seedId();
+  scoutingNClusters_ = sPhoton.nClusters();
+  scoutingNCrystals_ = sPhoton.nCrystals();
+  scoutingEnergyMatrix_ = sPhoton.energyMatrix();
+  scoutingTimingMatrix_ = sPhoton.timingMatrix();
+  scoutingDetIds_ = sPhoton.detIds();
+  scoutingRechitZeroSuppression_ = sPhoton.rechitZeroSuppression();
+}
+
 /// destructor
 Photon::~Photon() {}
 
@@ -304,4 +391,33 @@ reco::CandidatePtr Photon::sourceCandidatePtr(size_type i) const {
     return reco::CandidatePtr(edm::refToPtr(
         edm::Ref<pat::PackedCandidateCollection>(packedPFCandidates_, associatedPackedFCandidateIndices_[i])));
   }
+}
+
+// ---- Universal accessors with scouting dispatch ----
+
+uint32_t Photon::seedId() const {
+  if (isScoutingPhoton_) {
+    return scoutingSeedId_;
+  }
+  auto sc = superCluster();
+  if (sc.isNonnull() && sc->seed().isNonnull()) {
+    return sc->seed()->seed().rawId();
+  }
+  return 0;
+}
+
+uint32_t Photon::nClusters() const {
+  if (isScoutingPhoton_) {
+    return scoutingNClusters_;
+  }
+  auto sc = superCluster();
+  return sc.isNonnull() ? sc->clustersSize() : 0;
+}
+
+uint32_t Photon::nCrystals() const {
+  if (isScoutingPhoton_) {
+    return scoutingNCrystals_;
+  }
+  auto sc = superCluster();
+  return sc.isNonnull() ? sc->size() : 0;
 }
