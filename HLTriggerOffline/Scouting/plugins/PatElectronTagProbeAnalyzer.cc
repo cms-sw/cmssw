@@ -214,7 +214,7 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   edm::Handle<edm::View<pat::Electron>> patEls;
   iEvent.getByToken(electronCollection_, patEls);
   if (patEls.failedToGet()) {
-    edm::LogWarning("ScoutingMonitoring") << "pat::Electron collection not found.";
+    edm::LogWarning("PatElectronTagProbeAnalyzer") << "pat::Electron collection not found.";
     return;
   }
 
@@ -222,7 +222,7 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   edm::Handle<std::vector<Run3ScoutingElectron>> sctEls;
   iEvent.getByToken(scoutingElectronCollection_, sctEls);
   if (sctEls.failedToGet()) {
-    edm::LogWarning("ScoutingMonitoring") << "Run3ScoutingElectron collection not found.";
+    edm::LogWarning("PatElectronTagProbeAnalyzer") << "Run3ScoutingElectron collection not found.";
     return;
   }
 
@@ -230,8 +230,8 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   edm::Handle<edm::ValueMap<bool>> tight_ele_id_decisions;
   iEvent.getByToken(eleIdMapTightToken_, tight_ele_id_decisions);
 
-  edm::LogInfo("ScoutingMonitoring") << "Process pat::Electrons: " << patEls->size();
-  edm::LogInfo("ScoutingMonitoring") << "Process Run3ScoutingElectrons: " << sctEls->size();
+  edm::LogInfo("PatElectronTagProbeAnalyzer") << "Process pat::Electrons: " << patEls->size();
+  edm::LogInfo("PatElectronTagProbeAnalyzer") << "Process Run3ScoutingElectrons: " << sctEls->size();
 
   // Trigger
   edm::Handle<edm::TriggerResults> triggerResults;
@@ -243,7 +243,7 @@ void PatElectronTagProbeAnalyzer::dqmAnalyze(edm::Event const& iEvent,
 
   // Trigger result
   if (triggerResults.failedToGet()) {
-    edm::LogWarning("ScoutingEGammaCollectionMonitoring") << "Trgger Results not found.";
+    edm::LogWarning("PatElectronTagProbeAnalyzer") << "Trgger Results not found.";
     return;
   }
 
