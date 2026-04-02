@@ -81,7 +81,8 @@ namespace cms::soa {
         cms::soa::SoAParameters_ColumnType<cms::soa::SoAColumnType::scalar>::DataType<CPP_TYPE>;                       \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       BOOST_PP_CAT(ParametersTypeOf_, NAME) BOOST_PP_CAT(parametersOf_, NAME)() const {                                \
-        return  BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _));                                 \
+        return  BOOST_PP_CAT(ParametersTypeOf_, NAME)                                                                  \
+                (reinterpret_cast<cms::soa::detail::EnumTraits<CPP_TYPE>::type*>(parent_.BOOST_PP_CAT(NAME, _)));      \
       },                                                                                                               \
       /* Column */                                                                                                     \
       constexpr static cms::soa::SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, NAME) = cms::soa::SoAColumnType::column;    \
@@ -89,7 +90,8 @@ namespace cms::soa {
         cms::soa::SoAParameters_ColumnType<cms::soa::SoAColumnType::column>::DataType<CPP_TYPE>;                       \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
       BOOST_PP_CAT(ParametersTypeOf_, NAME) BOOST_PP_CAT(parametersOf_, NAME)() const {                                \
-        return  BOOST_PP_CAT(ParametersTypeOf_, NAME) (parent_.BOOST_PP_CAT(NAME, _));                                 \
+        return  BOOST_PP_CAT(ParametersTypeOf_, NAME)                                                                  \
+                (reinterpret_cast<cms::soa::detail::EnumTraits<CPP_TYPE>::type*>(parent_.BOOST_PP_CAT(NAME, _)));      \
       },                                                                                                               \
       /* Eigen column */                                                                                               \
       constexpr static cms::soa::SoAColumnType BOOST_PP_CAT(ColumnTypeOf_, NAME) = cms::soa::SoAColumnType::eigen;     \
@@ -369,11 +371,11 @@ namespace cms::soa {
 #define _ASSIGN_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                            \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
-      BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(_soa_impl_curMem);                                           \
+      BOOST_PP_CAT(NAME, _) = reinterpret_cast<cms::soa::detail::EnumTraits<CPP_TYPE>::value_type*>(_soa_impl_curMem); \
       _soa_impl_curMem += cms::soa::alignSize(sizeof(CPP_TYPE), alignment);                                            \
       ,                                                                                                                \
       /* Column */                                                                                                     \
-      BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(_soa_impl_curMem);                                           \
+      BOOST_PP_CAT(NAME, _) = reinterpret_cast<cms::soa::detail::EnumTraits<CPP_TYPE>::value_type*>(_soa_impl_curMem); \
       _soa_impl_curMem += cms::soa::alignSize(elements_ * sizeof(CPP_TYPE), alignment);                                \
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
@@ -518,10 +520,10 @@ namespace cms::soa {
 #define _DECLARE_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
 _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                            \
   /* Scalar */                                                                                                         \
-  CPP_TYPE* BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(scalar_) = nullptr;                                                  \
+  cms::soa::detail::EnumTraits<CPP_TYPE>::value_type* BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(scalar_) = nullptr;        \
   ,                                                                                                                    \
   /* Column */                                                                                                         \
-  CPP_TYPE * BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(elements_) = nullptr;                                               \
+  cms::soa::detail::EnumTraits<CPP_TYPE>::value_type* BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(elements_) = nullptr;      \
   ,                                                                                                                    \
   /* Eigen column */                                                                                                   \
   size_type BOOST_PP_CAT(NAME, ElementsWithPadding_) = 0; /* For ROOT serialization */                                 \

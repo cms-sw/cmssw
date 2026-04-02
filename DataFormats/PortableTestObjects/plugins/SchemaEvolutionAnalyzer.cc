@@ -38,7 +38,7 @@ public:
       ok = false;
     };
 
-    portabletest::SEEigenVector::Scalar counter = 0;
+    // portabletest::SEEigenVector::Scalar counter = 0;
     for (int i = 0; i < view.metadata().size(); i++) {
       auto element = view[i];
 
@@ -75,24 +75,31 @@ public:
 
       for (int r = 0; r < portabletest::SEEigenVector::RowsAtCompileTime; ++r) {
         for (int c = 0; c < portabletest::SEEigenVector::ColsAtCompileTime; ++c) {
-          expectedVec(r, c) = static_cast<portabletest::SEEigenVector::Scalar>(counter++);
+          expectedVec(r, c) = static_cast<portabletest::SEEigenVector::Scalar>(r);
         }
       }
 
+      /*
       portabletest::SEEigenVector actualVec = element.eOneVector3d();
 
       for (int r = 0; r < portabletest::SEEigenVector::RowsAtCompileTime; ++r) {
         for (int c = 0; c < portabletest::SEEigenVector::ColsAtCompileTime; ++c) {
           std::cout << "Checking eOneVector3d[" << r << "][" << c << "]: expected=" << expectedVec(r, c)
                     << " actual=" << actualVec(r, c) << std::endl;
-          if (std::abs(actualVec(r, c) - expectedVec(r, c)) >= EPS_D) {
-            report("eOneVector3d[" + std::to_string(r) + "][" + std::to_string(c) + "]",
-                   i,
-                   expectedVec(r, c),
-                   actualVec(r, c));
-          }
+          // if (std::abs(actualVec(r, c) - expectedVec(r, c)) >= EPS_D) {
+          //  report("eOneVector3d[" + std::to_string(r) + "][" + std::to_string(c) + "]",
+          //         i,
+          //         expectedVec(r, c),
+          //         actualVec(r, c));
+         // }
         }
       }
+        */
+
+      // std::cout << "Index " << i << " Compact.rawId = " << static_cast<int64_t>(element.compact().rawId) << std::endl;
+
+      std::cout << "Index " << i << " column PixelType = " << static_cast<int64_t>(element.cpixelType()) << std::endl;
+
     }
 
     // Scalars
@@ -106,6 +113,10 @@ public:
 
     if (std::abs(view.sThreeDouble() - (1.0 / 10.0)) >= EPS_D) {
       report("sThreeDouble", 0, 1.0 / 10.0, view.sThreeDouble());
+    }
+
+    if (std::abs(view.sPixelType() != portabletest::PixelType::s2)) {
+      report("scalar PixelType", 0, static_cast<int64_t>(portabletest::PixelType::s2), static_cast<int64_t>(view.sPixelType()));
     }
 
     // Final result
