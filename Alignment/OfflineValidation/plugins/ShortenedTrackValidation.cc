@@ -345,6 +345,8 @@ private:
   std::vector<TH1F *> histsPtDiffAll_;
   std::vector<TH1F *> histsEtaDiffAll_;
   std::vector<TH1F *> histsPhiDiffAll_;
+  std::vector<TH1F *> histsdxyDiffAll_;
+  std::vector<TH1F *> histsdzDiffAll_;
   std::vector<TH2F *> histsPtRatioVsDeltaRAll_;
   std::vector<TH1F *> histsDeltaPtOverPtAll_;
   std::vector<TH1F *> histsPtAll_;
@@ -381,6 +383,8 @@ ShortenedTrackValidation::ShortenedTrackValidation(const edm::ParameterSet &ps)
   histsPtDiffAll_.clear();
   histsEtaDiffAll_.clear();
   histsPhiDiffAll_.clear();
+  histsdxyDiffAll_.clear();
+  histsdzDiffAll_.clear();
   histsPtRatioVsDeltaRAll_.clear();
   histsDeltaPtOverPtAll_.clear();
   histsPtAll_.clear();
@@ -464,6 +468,16 @@ void ShortenedTrackValidation::beginJob() {
     title = fmt::sprintf("Short Track #phi - Full Track #phi - %s layers;#phi^{short} - #phi^{full};n. tracks", label);
     histsPhiDiffAll_.push_back(book1DRes(name, title, 100, -0.001, 0.001));
 
+    name = fmt::sprintf("trackdxyDiff_%s", label);
+    title = fmt::sprintf(
+        "Short Track d_{xy} - Full Track d_{xy} - %s layers;d_{xy}^{short} - d_{xy}^{full} [cm];n. tracks", label);
+    histsdxyDiffAll_.push_back(book1DRes(name, title, 100, -0.1, 0.1));
+
+    name = fmt::sprintf("trackdzDiff_%s", label);
+    title = fmt::sprintf("Short Track d_{z} - Full Track d_{z} - %s layers;d_{z}^{short} - d_{z}^{full} [cm];n. tracks",
+                         label);
+    histsdzDiffAll_.push_back(book1DRes(name, title, 100, -0.1, 0.1));
+
     name = fmt::sprintf("trackPtRatioVsDeltaR_%s", label);
     title = fmt::sprintf(
         "Short Track p_{T} / Full Track p_{T} - %s layers vs #DeltaR;#DeltaR(short,full);p_{T}^{short}/p_{T}^{full};n. "
@@ -517,6 +531,8 @@ void ShortenedTrackValidation::analyze(edm::Event const &iEvent, edm::EventSetup
     beamSpot = reco::BeamSpot();
   }
 
+  math::XYZPoint BS(beamSpot.x0(), beamSpot.y0(), beamSpot.z0());
+
   reco::Vertex pvtx;
   edm::Handle<reco::VertexCollection> vertexHandle = iEvent.getHandle(vertexToken_);
   if (vertexHandle.isValid()) {
@@ -559,6 +575,8 @@ void ShortenedTrackValidation::analyze(edm::Event const &iEvent, edm::EventSetup
             histsDeltaPtOverPtAll_[i]->Fill((track_rereco.pt() - track.pt()) / track.pt());
             histsEtaDiffAll_[i]->Fill(track_rereco.eta() - track.eta());
             histsPhiDiffAll_[i]->Fill(track_rereco.phi() - track.phi());
+            histsdxyDiffAll_[i]->Fill(track_rereco.dxy(BS) - track.dxy(BS));
+            histsdzDiffAll_[i]->Fill(track_rereco.dz(BS) - track.dz(BS));
             histsPtRatioVsDeltaRAll_[i]->Fill(deltaR, track_rereco.pt() / track.pt());
             histsPtAll_[i]->Fill(track_rereco.pt());
             histsNhitsAll_[i]->Fill(track_rereco.numberOfValidHits());
