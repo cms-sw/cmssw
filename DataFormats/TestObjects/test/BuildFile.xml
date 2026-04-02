@@ -1,4 +1,5 @@
 <bin file="Enum_t.cpp">
   <use name="catch2"/>
+  <use name="DataFormats/TestObjects"/>
   <use name="FWCore/Reflection"/>
 </bin>
