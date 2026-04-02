@@ -243,7 +243,7 @@ bool l1ct::HgcalClusterDecoderEmulator::MultiClassID::evaluate(const l1ct::PFReg
   // softmax_stable<>
   unsigned int eta_bin = 0;
   for (size_t i = wp_eta_.size(); i > 0; --i) {
-    if (abs(sector.hwGlbEta(cl.hwEta)) >= wp_eta_[i - 1]) {
+    if (std::abs(sector.hwGlbEta(cl.hwEta)) >= wp_eta_[i - 1]) {
       eta_bin = i;
       break;
     }
