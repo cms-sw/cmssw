@@ -11,8 +11,7 @@
 //
 
 // system include files
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
-#include <cppunit/extensions/HelperMacros.h>
+#include "catch2/catch_all.hpp"
 #include <iostream>
 #include <sstream>
 
@@ -21,30 +20,6 @@
 #include "FWCore/PluginManager/interface/standard.h"
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-
-class TestPluginFactory : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(TestPluginFactory);
-  CPPUNIT_TEST(test);
-  CPPUNIT_TEST(testTry);
-  CPPUNIT_TEST_SUITE_END();
-
-public:
-  void test();
-  void testTry();
-  void setUp() {
-    if (!alreadySetup_) {
-      alreadySetup_ = true;
-      edmplugin::PluginManager::configure(edmplugin::standard::config());
-    }
-  }
-  void tearDown() {}
-  static bool alreadySetup_;
-};
-
-bool TestPluginFactory::alreadySetup_ = false;
-
-///registration of the test so that the runner can find it
-CPPUNIT_TEST_SUITE_REGISTRATION(TestPluginFactory);
 
 namespace edmplugintest {
   struct DummyBase {};
@@ -57,17 +32,25 @@ EDM_REGISTER_PLUGINFACTORY(FactoryType, "Test Dummy");
 
 DEFINE_EDM_PLUGIN(FactoryType, edmplugintest::Dummy, "Dummy");
 
-void TestPluginFactory::test() {
-  using namespace edmplugin;
+TEST_CASE("PluginFactory", "[PluginManager]") {
+  static bool alreadySetup = false;
+  if (!alreadySetup) {
+    alreadySetup = true;
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
+  }
 
-  std::unique_ptr<edmplugintest::DummyBase> p(FactoryType::get()->create("Dummy"));
-  CPPUNIT_ASSERT(0 != p.get());
-}
+  SECTION("test") {
+    using namespace edmplugin;
 
-void TestPluginFactory::testTry() {
-  using namespace edmplugin;
-  CPPUNIT_ASSERT(0 == FactoryType::get()->tryToCreate("ThisDoesNotExist"));
+    std::unique_ptr<edmplugintest::DummyBase> p(FactoryType::get()->create("Dummy"));
+    REQUIRE(nullptr != p.get());
+  }
 
-  std::unique_ptr<edmplugintest::DummyBase> p(FactoryType::get()->tryToCreate("Dummy"));
-  CPPUNIT_ASSERT(0 != p.get());
+  SECTION("tryToCreate") {
+    using namespace edmplugin;
+    REQUIRE(nullptr == FactoryType::get()->tryToCreate("ThisDoesNotExist").get());
+
+    std::unique_ptr<edmplugintest::DummyBase> p(FactoryType::get()->tryToCreate("Dummy"));
+    REQUIRE(nullptr != p.get());
+  }
 }
