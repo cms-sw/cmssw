@@ -9,6 +9,8 @@ if the MessageLogger is not runnning.
 
 ----------------------------------------------------------------------*/
 
+#include "catch2/catch_all.hpp"
+
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
@@ -18,57 +20,40 @@ if the MessageLogger is not runnning.
 // #include "FWCore/Utilities/interface/Presence.h"
 // #include "FWCore/PluginManager/interface/PresenceFactory.h"
 
-#include <cppunit/extensions/HelperMacros.h>
-
 #include <memory>
 #include <string>
 
-class testStandalone : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(testStandalone);
-  CPPUNIT_TEST(writeAndReadFile);
-  CPPUNIT_TEST_SUITE_END();
-
-public:
-  void setUp() {
-    m_handler = std::make_unique<edm::AssertHandler>();
-    m_scheduler = std::make_unique<edm::ThreadsController>(1);
-  }
-
-  void tearDown() {
-    m_handler = nullptr;  // propagate_const<T> has no reset() function
-  }
-
-  void writeAndReadFile();
-
-private:
+TEST_CASE("Standalone", "[Integration]") {
   edm::propagate_const<std::unique_ptr<edm::AssertHandler>> m_handler;
   edm::propagate_const<std::unique_ptr<edm::ThreadsController>> m_scheduler;
-};
 
-///registration of the test so that the runner can find it
-CPPUNIT_TEST_SUITE_REGISTRATION(testStandalone);
+  m_handler = std::make_unique<edm::AssertHandler>();
+  m_scheduler = std::make_unique<edm::ThreadsController>(1);
 
-void testStandalone::writeAndReadFile() {
-  {
-    std::string configuration(
-        "import FWCore.ParameterSet.Config as cms\n"
-        "process = cms.Process('TEST')\n"
-        "process.maxEvents = cms.untracked.PSet(\n"
-        "    input = cms.untracked.int32(5)\n"
-        ")\n"
-        "process.source = cms.Source('EmptySource')\n"
-        "process.JobReportService = cms.Service('JobReportService')\n"
-        "process.InitRootHandlers = cms.Service('InitRootHandlers')\n"
-        "process.m1 = cms.EDProducer('IntProducer',\n"
-        "    ivalue = cms.int32(11)\n"
-        ")\n"
-        "process.out = cms.OutputModule('AsciiOutputModule')\n"
-        "process.p = cms.Path(process.m1)\n"
-        "process.e = cms.EndPath(process.out)\n");
+  SECTION("writeAndReadFile") {
+    {
+      std::string configuration(
+          "import FWCore.ParameterSet.Config as cms\n"
+          "process = cms.Process('TEST')\n"
+          "process.maxEvents = cms.untracked.PSet(\n"
+          "    input = cms.untracked.int32(5)\n"
+          ")\n"
+          "process.source = cms.Source('EmptySource')\n"
+          "process.JobReportService = cms.Service('JobReportService')\n"
+          "process.InitRootHandlers = cms.Service('InitRootHandlers')\n"
+          "process.m1 = cms.EDProducer('IntProducer',\n"
+          "    ivalue = cms.int32(11)\n"
+          ")\n"
+          "process.out = cms.OutputModule('AsciiOutputModule')\n"
+          "process.p = cms.Path(process.m1)\n"
+          "process.e = cms.EndPath(process.out)\n");
 
-    edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
-    proc.beginJob();
-    proc.run();
-    proc.endJob();
+      edm::EventProcessor proc(edm::getPSetFromConfig(configuration));
+      proc.beginJob();
+      proc.run();
+      proc.endJob();
+    }
+
+    m_handler = nullptr;  // propagate_const<T> has no reset() function
   }
 }

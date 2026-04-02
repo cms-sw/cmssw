@@ -1,6 +1,6 @@
 <environment>
-  <bin name="TestFWCoreIntegrationStandalone" file="testRunner.cpp,standalone_t.cppunit.cc">
-    <use name="cppunit"/>
+  <bin name="TestFWCoreIntegrationStandalone" file="standalone_t.cppunit.cc">
+    <use name="catch2"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/PluginManager"/>
     <use name="FWCore/Utilities"/>
