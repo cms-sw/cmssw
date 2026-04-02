@@ -24,9 +24,9 @@ else:
 #### DQM Environment
 #----------------------------
 process.load("DQM.Integration.config.environment_cfi")
-process.dqmEnv.subSystemFolder = 'HLTpb'
+process.dqmEnv.subSystemFolder = options.clientTag
 process.dqmEnv.eventInfoFolder = 'EventInfo'
-process.dqmSaver.tag = 'HLTpb'
+process.dqmSaver.tag = options.clientTag
 #process.dqmSaver.path = './HLT'
 process.dqmSaver.runNumber = options.runNumber
 # process.dqmSaverPB.tag = 'HLTpb'
