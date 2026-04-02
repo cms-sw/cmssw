@@ -6,8 +6,6 @@
 
 namespace reco {
 
-  using namespace ::cms::alpakaintrinsics;
-
   GENERATE_SOA_LAYOUT(PFMultiDepthECLCCEpilogueArgsSoALayout,
                       SOA_COLUMN(uint32_t, ccRHFOffset),
                       SOA_COLUMN(uint32_t, ccRHFSize),
