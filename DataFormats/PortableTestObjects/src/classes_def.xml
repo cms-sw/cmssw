@@ -83,10 +83,14 @@
   <class name="portabletest::MaskSoA::ConstView"/>
   <class name="edm::Wrapper<portabletest::MaskHostCollection>" splitLevel="0"/>
 
+  <class name="portabletest::SiPixelErrorCompact64"/>
   <class name="edm::StdArray<int,3>"/>
   <!-- ::Layout alias must be listed before the aliased-to type -->
   <class name="portabletest::SchemaEvolutionHostCollection::Layout"/>
   <class name="portabletest::SchemaEvolutionSoATemplate<128,false>"/>
-  <class name="portabletest::SchemaEvolutionHostCollection"/>
+  <class name="portabletest::SchemaEvolutionHostCollection" ClassVersion="5">
+   <version ClassVersion="5" checksum="2716141850"/>
+   <version ClassVersion="3" checksum="2152552756"/>
+  </class>
   <class name="edm::Wrapper<portabletest::SchemaEvolutionHostCollection>" splitLevel="0"/>
 </lcgdict>
