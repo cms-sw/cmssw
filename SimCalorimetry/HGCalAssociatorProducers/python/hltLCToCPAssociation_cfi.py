@@ -1,13 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimCalorimetry.HGCalAssociatorProducers.barrelLCToCPAssociatorByEnergyScoreProducer_cfi import *
-hltBarrelLCToCPAssociatorByEnergyScoreProducer = barrelLCToCPAssociatorByEnergyScoreProducer.clone(
+from SimCalorimetry.HGCalAssociatorProducers.barrelLCToCPAssociatorByEnergyScoreProducer_cfi import barrelLCToCPAssociatorByEnergyScoreProducer as _barrelLCToCPAssociatorByEnergyScoreProducer
+hltBarrelLCToCPAssociatorByEnergyScoreProducer = _barrelLCToCPAssociatorByEnergyScoreProducer.clone(
     hitMapTag = cms.InputTag('hltRecHitMapProducer', 'barrelRecHitMap'),
     hits = cms.InputTag("hltRecHitMapProducer", "RefProdVectorPFRecHitCollection")
 )
 
-from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import lcAssocByEnergyScoreProducer
-hltHGCalLCToCPAssociatorByEnergyScoreProducer = lcAssocByEnergyScoreProducer.clone(
+from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import lcAssocByEnergyScoreProducer as _lcAssocByEnergyScoreProducer
+hltHGCalLCToCPAssociatorByEnergyScoreProducer = _lcAssocByEnergyScoreProducer.clone(
     hitMapTag = cms.InputTag('hltRecHitMapProducer', 'hgcalRecHitMap'),
     hits = cms.InputTag("hltRecHitMapProducer", "RefProdVectorHGCRecHitCollection")
 )
@@ -17,6 +17,7 @@ hltBarrelLayerClusterCaloParticleAssociation = _barrelLayerClusterCaloParticleAs
     associator = cms.InputTag('hltBarrelLCToCPAssociatorByEnergyScoreProducer'),
     label_lc = cms.InputTag('hltMergeLayerClusters')
 )
+
 from SimCalorimetry.HGCalAssociatorProducers.LCToCPAssociation_cfi import layerClusterCaloParticleAssociation as _layerClusterCaloParticleAssociation
 hltHGCalLayerClusterCaloParticleAssociation = _layerClusterCaloParticleAssociation.clone(
     associator = cms.InputTag('hltHGCalLCToCPAssociatorByEnergyScoreProducer'),

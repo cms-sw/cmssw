@@ -108,3 +108,15 @@ hltHgcalAssociatorsTask = cms.Task(hltHGCalRecHitMapProducer,
                                    hltHitToSimClusterCaloParticleAssociator,
                                    hltAllTrackstersToSimTrackstersAssociationsByHits
                                    )
+
+from SimCalorimetry.HGCalAssociatorProducers.hltLCToCPAssociation_cfi import (hltHGCalLCToCPAssociatorByEnergyScoreProducer,
+                                                                              hltHGCalLayerClusterCaloParticleAssociation)
+from SimCalorimetry.HGCalAssociatorProducers.hltLCToSCAssociation_cfi import (hltHGCalLCToSCAssociatorByEnergyScoreProducer,
+                                                                              hltHGCalLayerClusterSimClusterAssociation)
+
+hltHgcalPrevalidation = cms.Sequence(
+    hltHGCalLCToCPAssociatorByEnergyScoreProducer *
+    hltHGCalLCToSCAssociatorByEnergyScoreProducer *
+    hltHGCalLayerClusterCaloParticleAssociation *
+    hltHGCalLayerClusterSimClusterAssociation
+)
