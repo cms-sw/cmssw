@@ -336,16 +336,20 @@ void ExternalGeneratorFilter::streamEndLuminosityBlockSummary(edm::StreamID iID,
                                                               edm::LuminosityBlock const& iLuminosityBlock,
                                                               edm::EventSetup const&,
                                                               GenLumiInfoProduct* iProduct) const {
-  iProduct->mergeProduct(*streamCache(iID)->endLumiProduce(iLuminosityBlock.run()));
+  if (iProduct and streamCache(iID) and streamCache(iID)->endLumiProduce(iLuminosityBlock.run())) {
+    iProduct->mergeProduct(*streamCache(iID)->endLumiProduce(iLuminosityBlock.run()));
+  }
 
-  if (!luminosityBlockCache(iLuminosityBlock.index())->selectedStreamTransitionsCompleted_) {
-    externalgen::StreamCache* expected = nullptr;
-    if (availableForBeginLumi_.compare_exchange_strong(expected, streamCache(iID))) {
-      luminosityBlockCache(iLuminosityBlock.index())->selectedStreamTransitionsCompleted_ = true;
-      state_.store(State::kReadyForNextGlobalBeginLumi);
+  if (luminosityBlockCache(iLuminosityBlock.index())) {
+    if (!luminosityBlockCache(iLuminosityBlock.index())->selectedStreamTransitionsCompleted_) {
+      externalgen::StreamCache* expected = nullptr;
+      if (availableForBeginLumi_.compare_exchange_strong(expected, streamCache(iID))) {
+        luminosityBlockCache(iLuminosityBlock.index())->selectedStreamTransitionsCompleted_ = true;
+        state_.store(State::kReadyForNextGlobalBeginLumi);
 
-    } else {
-      luminosityBlockCache(iLuminosityBlock.index())->cacheForAStreamThatCompleted_ = streamCache(iID);
+      } else {
+        luminosityBlockCache(iLuminosityBlock.index())->cacheForAStreamThatCompleted_ = streamCache(iID);
+      }
     }
   }
 }
@@ -364,7 +368,9 @@ void ExternalGeneratorFilter::globalEndLuminosityBlockProduce(edm::LuminosityBlo
     availableForBeginLumi_.store(luminosityBlockCache(iLuminosityBlock.index())->cacheForAStreamThatCompleted_);
     state_.store(State::kReadyForNextGlobalBeginLumi);
   }
-  iLuminosityBlock.emplace(lumiInfoToken_, *iProduct);
+  if (iProduct) {
+    iLuminosityBlock.emplace(lumiInfoToken_, *iProduct);
+  }
 }
 
 DEFINE_FWK_MODULE(ExternalGeneratorFilter);
