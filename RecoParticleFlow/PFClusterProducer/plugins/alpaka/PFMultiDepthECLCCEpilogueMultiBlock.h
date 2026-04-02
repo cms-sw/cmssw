@@ -52,9 +52,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           const unsigned int vertex_idx = idx.global;
           const unsigned int rep_idx = pfClusteringCCLabels[vertex_idx].mdpf_topoId();
-          const warp::warp_mask_t rep_lane_mask = get_lane_mask(rep_idx % w_extent);
-
-          const bool is_representative = vertex_idx == rep_idx;
 
           // Load rhfrac sizes (to compute offsets for rechit fractions):
           const unsigned int rhf_size = pfCluster[vertex_idx].rhfracSize();
@@ -64,43 +61,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           const warp::warp_mask_t subcomp_mask = warp::match_any_mask(acc, active_lanes_mask, rep_idx);
 
           const unsigned int subcomp_rep_idx = get_ls1b_idx(acc, subcomp_mask);
-
-          bool update_iso_root_lane = false;
-
-          unsigned int which_global_warp_idx = std::numeric_limits<unsigned int>::max();
-
-          if (lane_idx == subcomp_rep_idx) {
-            const unsigned int subcomp_size = alpaka::popcount(acc, subcomp_mask);
-            if ((subcomp_size > 1) || (subcomp_size == 1 && !is_representative)) {
-              update_iso_root_lane = true;
-              which_global_warp_idx = rep_idx / w_extent;
-            }
-          }
-
-          const warp::warp_mask_t iso_root_lanes = warp::ballot_mask(acc, active_lanes_mask, update_iso_root_lane);
-
-          const warp::warp_mask_t iso_root_lanes_subgroup =
-              warp::match_any_mask(acc, active_lanes_mask, which_global_warp_idx);
-
-          if (is_work_lane(iso_root_lanes, lane_idx)) {
-            // Construct correct rep mask:
-            auto orFn = [] ALPAKA_FN_ACC(const warp::warp_mask_t m1, const warp::warp_mask_t m2) -> warp::warp_mask_t {
-              return m1 | m2;
-            };
-
-            warp::warp_mask_t selected_iso_root_mask =
-                warp_sparse_reduce(acc, iso_root_lanes_subgroup, lane_idx, rep_lane_mask, orFn);
-
-            if (is_ls1b_idx<Acc1D>(iso_root_lanes_subgroup, lane_idx)) {
-              // Temporary WAR (using De Morgan's law):
-              const warp::warp_mask_t non_isolated_vertex_lanes = ~selected_iso_root_mask;
-
-              alpaka::atomicAnd(acc,
-                                &args[which_global_warp_idx].vertexMask(),  //must be init to full mask!
-                                non_isolated_vertex_lanes,
-                                alpaka::hierarchy::Threads{});
-            }
-          }
 
           unsigned int subcomp_rhf_offset = warp_sparse_exclusive_sum(acc, subcomp_mask, rhf_size, lane_idx);
 
@@ -202,8 +162,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           const warp::warp_mask_t rep_mask = warp::ballot_mask(acc, active_lanes_mask, is_representative);
 
           if (is_representative == false) {
-            block_local_component_map[idx.local] = nVertices;
-            block_local_cc_idx_record[idx.local] = 0;
             continue;
           }
 

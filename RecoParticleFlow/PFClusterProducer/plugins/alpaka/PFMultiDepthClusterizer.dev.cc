@@ -17,7 +17,6 @@
 
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCPrologueMultiBlock.h"
 
-#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCInitEpilogueArgs.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCEpilogueMultiBlock.h"
 #include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthECLCCFinalizeEpilogue.h"
 
@@ -218,11 +217,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
     if (do_opt_epilogue) {
       reco::PFMultiDepthECLCCEpilogueArgsDeviceCollection epilogueArgs{queue, static_cast<int>(nClusters)};
 
-      alpaka::exec<Acc1D>(queue,
-                          ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
-                          ECLCCInitEpilogueArgsKernel{},
-                          epilogueArgs.view(),
-                          mdpfCCLabels.view());
+      epilogueArgs.zeroInitialise(queue);
 
       alpaka::exec<Acc1D>(queue,
                           ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),

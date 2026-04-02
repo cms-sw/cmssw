@@ -78,11 +78,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       unsigned int& nComponents = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);
       unsigned int& blockRHFShift = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);
 
-      // TODO: initialization failed on AMD platform
-      if (::cms::alpakatools::once_per_grid(acc)) {
-        args.blockCount() = 0;
-      }
-
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
         if (::cms::alpakatools::once_per_block(acc)) {
           nComponents = outPFCluster.nSeeds();
@@ -100,18 +95,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const unsigned int rep_idx = vertex_idx < nVertices ? pfClusteringCCLabels[vertex_idx].mdpf_topoId() : 0;
 
         const bool is_representative = vertex_idx < nVertices ? vertex_idx == rep_idx : false;
-
-        bool is_isolated_root = false;
-
-        for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
-          const unsigned int lane_idx = idx.local % w_extent;
-          const warp::warp_mask_t non_isolated_vertices = is_representative ? args[rep_idx / w_extent].vertexMask() : 0;
-
-          if (is_representative) {
-            const warp::warp_mask_t lane_mask = get_lane_mask(lane_idx);
-            is_isolated_root = ((lane_mask & non_isolated_vertices));
-          }
-        }
 
         const unsigned int global_topo_idx = vertex_idx < nVertices ? args[rep_idx].rootMap() : nVertices;
         const unsigned int rep_cc_idx = vertex_idx < nVertices ? args[rep_idx].rootLocalMap() : nVertices;
@@ -318,15 +301,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           }
         }
 
-        const bool is_block_local_represantative = (group * blockDim < rep_idx) || ((group + 1) * blockDim < rep_idx);
-
-        if (is_isolated_root)
-          args[global_topo_idx].ccEnergySeed() = static_cast<uint64_t>(vertex_seed);
+        const bool is_block_local_represantative = (group * blockDim <= rep_idx) && (rep_idx < (group + 1) * blockDim);
 
         auto compFn = [] ALPAKA_FN_ACC(const float a, const float b) -> float { return a > b ? a : b; };
 
         for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
-          if (!is_block_local_represantative || is_isolated_root) {
+          if (is_block_local_represantative == false) {
             continue;
           }
 
@@ -338,22 +318,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           const warp::warp_mask_t subcomponent_mask = warp::match_any_mask(acc, rep_mask, rep_idx);
 
+          // WARNING: warp_sparse_reduce broadcasts the reduced value to all lanes by default.
+          // If this behavior changes in the future, make sure that the value is propagated to all
+          // lanes in the submask!
           const float max_energy = warp_sparse_reduce(acc, subcomponent_mask, lane_idx, energy, compFn);
-          // Equality on energy is intentional: max_energy is selected from lane values via shuffles/reduction,
-          // so it is bitwise-equal to at least one participating lane's energy.
-          const warp::warp_mask_t max_energy_lanes_mask =
-              warp::ballot_mask(acc, subcomponent_mask, max_energy == energy);
 
-          const unsigned int max_energy_lane_idx = alpaka::ffs(acc, static_cast<int>(max_energy_lanes_mask)) - 1;
-
-          //need to store seed:
-          const auto seed_max = warp::shfl_mask(acc, subcomponent_mask, vertex_seed, max_energy_lane_idx, w_extent);
-          const auto energy_max = warp::shfl_mask(acc, subcomponent_mask, max_energy, max_energy_lane_idx, w_extent);
-
-          // Energies are assumed non-negative; bit-cast uint ordering matches float ordering for atomicMax.
-          if (is_ls1b_idx<Acc1D>(subcomponent_mask, lane_idx)) {
-            uint32_t e_uint = std::bit_cast<unsigned int>(energy_max);
-            uint64_t x = (static_cast<uint64_t>(e_uint) << 32) | static_cast<uint64_t>(seed_max);
+          if (max_energy == energy) {
+            uint32_t e_uint = std::bit_cast<unsigned int>(max_energy);
+            uint64_t x = (static_cast<uint64_t>(e_uint) << 32) | static_cast<uint64_t>(vertex_seed);
             alpaka::atomicMax(acc, &cc_energy_seed[rep_cc_idx], x);
           }
         }
@@ -361,9 +333,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::syncBlockThreads(acc);
 
         for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
-          if (is_isolated_root)
-            continue;
-
+          // Note that representatives are always block-local
           uint64_t energy_seed = is_representative ? cc_energy_seed[rep_cc_idx] : 0;
 
           if (is_block_local_represantative == false) {
@@ -374,20 +344,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             const warp::warp_mask_t subcomponent_mask = warp::match_any_mask(acc, active_lane_mask, rep_idx);
 
             const float energy = pfRecHit[vertex_seed].energy();
-
+            // WARNING: warp_sparse_reduce broadcasts the reduced value to all lanes by default.
+            // If this behavior changes in the future, make sure that the value is propagated to all
+            // lanes in the submask!
             const float max_energy = warp_sparse_reduce(acc, subcomponent_mask, lane_idx, energy, compFn);
 
-            const warp::warp_mask_t max_energy_lanes_mask =
-                warp::ballot_mask(acc, subcomponent_mask, max_energy == energy);
-
-            const unsigned int max_energy_lane_idx = alpaka::ffs(acc, static_cast<int>(max_energy_lanes_mask)) - 1;
-
-            const auto seed_max = warp::shfl_mask(acc, subcomponent_mask, vertex_seed, max_energy_lane_idx, w_extent);
-            const auto energy_max = warp::shfl_mask(acc, subcomponent_mask, max_energy, max_energy_lane_idx, w_extent);
-
-            if (is_ls1b_idx<Acc1D>(subcomponent_mask, lane_idx)) {
-              uint32_t e_uint = std::bit_cast<unsigned int>(energy_max);
-              energy_seed = (static_cast<uint64_t>(e_uint) << 32) | static_cast<uint64_t>(seed_max);
+            if (max_energy == energy) {
+              uint32_t e_uint = std::bit_cast<unsigned int>(max_energy);
+              energy_seed = (static_cast<uint64_t>(e_uint) << 32) | static_cast<uint64_t>(vertex_seed);
             }
           }
           // Energies are assumed non-negative; bit-cast uint ordering matches float ordering for atomicMax.
