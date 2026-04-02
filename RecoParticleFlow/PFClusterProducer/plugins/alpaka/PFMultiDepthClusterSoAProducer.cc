@@ -163,7 +163,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         *pfcl_size_);
     } else {
       outPFClusters = std::make_unique<reco::PFClusterDeviceCollection>(event.queue(), 0);
+      outPFClusters->zeroInitialise(event.queue());
       outPFRHFractions = std::make_unique<reco::PFRecHitFractionDeviceCollection>(event.queue(), 0);
+      outPFRHFractions->zeroInitialise(event.queue());
     }
 
     event.emplace(outputPFClusterSoA_Token_, std::move(*outPFClusters));
