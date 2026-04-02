@@ -149,45 +149,49 @@ void LegacyMultiDepthPFClusterProducer::produce(edm::Event& event, const edm::Ev
 
   auto const rechitsHandle = event.getHandle(recHitsLabel_);
 
-  // Build PFClusters in legacy format
+  int sizePFC = pfClusterSoA.metadata().size();
 
-  std::unordered_map<int, int> nTopoSeeds;
-  nTopoSeeds.reserve(pfClusterSoA.nSeeds());
+  if (sizePFC != 0) {
+    // Build PFClusters in legacy format
 
-  for (int i = 0; i < pfClusterSoA.nSeeds(); ++i)
-    nTopoSeeds[pfClusterSoA[i].topoId()]++;
+    std::unordered_map<int, int> nTopoSeeds;
+    nTopoSeeds.reserve(pfClusterSoA.nSeeds());
 
-  // Looping over SoA PFClusters to produce legacy PFCluster collection
-  auto const& recHits = *rechitsHandle;
+    for (int i = 0; i < pfClusterSoA.nSeeds(); ++i)
+      nTopoSeeds[pfClusterSoA[i].topoId()]++;
 
-  for (int i = 0; i < pfClusterSoA.nSeeds(); i++) {
-    unsigned int seedIdx = pfClusterSoA[i].seedRHIdx();
+    // Looping over SoA PFClusters to produce legacy PFCluster collection
+    auto const& recHits = *rechitsHandle;
 
-    if (seedIdx >= static_cast<unsigned>(nRH))
-      continue;
+    for (int i = 0; i < pfClusterSoA.nSeeds(); i++) {
+      unsigned int seedIdx = pfClusterSoA[i].seedRHIdx();
 
-    reco::PFCluster temp;
+      if (seedIdx >= static_cast<unsigned>(nRH))
+        continue;
 
-    temp.setSeed(recHits[seedIdx].detId());
+      reco::PFCluster temp;
 
-    int const offset = pfClusterSoA[i].rhfracOffset();
-    int const size = pfClusterSoA[i].rhfracSize();
+      temp.setSeed(recHits[seedIdx].detId());
 
-    for (int k = offset; k < (offset + size); k++) {  // Looping over PFRecHits in the same topo cluster
-      if (pfRecHitFractionSoA[k].pfrhIdx() < nRH && pfRecHitFractionSoA[k].pfrhIdx() > -1 &&
-          pfRecHitFractionSoA[k].frac() > 0.0f) {
-        const reco::PFRecHitRef& refhit = reco::PFRecHitRef(rechitsHandle, pfRecHitFractionSoA[k].pfrhIdx());
-        temp.addRecHitFraction(reco::PFRecHitFraction(refhit, pfRecHitFractionSoA[k].frac()));
+      int const offset = pfClusterSoA[i].rhfracOffset();
+      int const size = pfClusterSoA[i].rhfracSize();
+
+      for (int k = offset; k < (offset + size); k++) {  // Looping over PFRecHits in the same topo cluster
+        if (pfRecHitFractionSoA[k].pfrhIdx() < nRH && pfRecHitFractionSoA[k].pfrhIdx() > -1 &&
+            pfRecHitFractionSoA[k].frac() > 0.0f) {
+          const reco::PFRecHitRef& refhit = reco::PFRecHitRef(rechitsHandle, pfRecHitFractionSoA[k].pfrhIdx());
+          temp.addRecHitFraction(reco::PFRecHitFraction(refhit, pfRecHitFractionSoA[k].frac()));
+        }
       }
-    }
 
-    // Now PFRecHitFraction of this PFCluster is set. Now compute calculateAndSetPosition (energy, position etc)
-    if (nTopoSeeds[pfClusterSoA[i].topoId()] == 1 && allCellsPositionCalc_) {
-      allCellsPositionCalc_->calculateAndSetPosition(temp, paramPF);
-    } else {
-      positionCalc_->calculateAndSetPosition(temp, paramPF);
+      // Now PFRecHitFraction of this PFCluster is set. Now compute calculateAndSetPosition (energy, position etc)
+      if (nTopoSeeds[pfClusterSoA[i].topoId()] == 1 && allCellsPositionCalc_) {
+        allCellsPositionCalc_->calculateAndSetPosition(temp, paramPF);
+      } else {
+        positionCalc_->calculateAndSetPosition(temp, paramPF);
+      }
+      out.emplace_back(std::move(temp));
     }
-    out.emplace_back(std::move(temp));
   }
 
   event.emplace(legacyPfClustersToken_, std::move(out));
