@@ -326,6 +326,7 @@ void FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
 void FourVectorHLT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<bool>("plotAll", false);
+  desc.addUntracked<bool>("debug", false);
   desc.addUntracked<unsigned int>("Nbins", 50);
   desc.addUntracked<double>("ptMin", 0.);
   desc.addUntracked<double>("ptMax", 200.);
