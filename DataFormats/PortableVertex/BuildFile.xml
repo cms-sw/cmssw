@@ -1,0 +1,10 @@
+<use name="rootcore"/>
+<use name="eigen"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Portable"/>
+<use name="DataFormats/SoATemplate"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="cuda rocm"/>
+<export>
+  <lib name="1"/>
+</export>
