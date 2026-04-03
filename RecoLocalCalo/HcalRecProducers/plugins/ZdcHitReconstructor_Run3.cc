@@ -231,7 +231,7 @@ void ZdcHitReconstructor_Run3::fillDescriptions(edm::ConfigurationDescriptions& 
     psd0.add<int>("maxADCvalue", 255);
     desc.add<edm::ParameterSetDescription>("saturationParameters", psd0);
   }
-  descriptions.add("zdcrecoRun3", desc);
+  descriptions.add("zdcRecoRun3", desc);
   // or use the following to generate the label from the module's C++ type
   //descriptions.addWithDefaultLabel(desc);
 }
