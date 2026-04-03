@@ -20,6 +20,7 @@ from Validation.HcalRecHits.HLTHcalRecHitParam_cfi import *
 from Validation.SiTrackerPhase2V.HLTPhase2TrackerValidationFirstStep_cff import *
 # Gen-level Validation
 from Validation.HLTrigger.HLTGenValidation_cff import *
+from Validation.Configuration.globalValidation_cff import *
 
 # HGCAL Rechit Calibration
 from Validation.HGCalValidation.hgcalHitCalibrationDefault_cfi import hgcalHitCalibrationDefault as _hgcalHitCalibrationDefault
@@ -60,6 +61,7 @@ from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
 # Temporary Phase-2 config
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 
 # Create the modified sequence for phase 2
 _phase2_hltassociation = hltassociation.copyAndExclude([
@@ -98,9 +100,7 @@ hltvalidationWithMC = cms.Sequence(
     +hltHCALdigisAnalyzer+hltHCALRecoAnalyzer+hltHCALNoiseRates # HCAL
 )
 
-# Temporary Phase-2 config
 # Exclude everything except Muon and JetMET for now. Add HGCAL Hit Calibration
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
   HLTTauVal,
   egammaValidationSequence,
@@ -125,6 +125,48 @@ hltvalidationWithData = cms.Sequence(
 
 hltvalidation = cms.Sequence(
     hltvalidationCommon *
+    hltvalidationWithMC *
+    hltvalidationWithData
+)
+
+from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cff import recHitMapProducer as _recHitMapProducer
+hltRecHitMapProducer = _recHitMapProducer.clone()
+
+ticl_barrel.toModify(hltRecHitMapProducer,
+                     hits = ["hltHGCalRecHit:HGCEERecHits", "hltHGCalRecHit:HGCHEFRecHits", "hltHGCalRecHit:HGCHEBRecHits",
+                             "hltParticleFlowRecHitECALUnseeded", "hltParticleFlowRecHitHBHE"],
+                     hgcalOnly = False
+                     )
+
+# from Configuration.StandardSequences.Validation_cff import prevalidation
+# ImportError: cannot import name 'prevalidation' from partially initialized module 'Configuration.StandardSequences.Validation_cff' (most likely due to a circular import) (/shared/CMSSW_15_1_X_2025-07-16-2300/src/Configuration/StandardSequences/python/Validation_cff.py)
+hltprevalidation = cms.Sequence( cms.SequencePlaceholder("mix") * globalPrevalidation * hltassociation * metPreValidSeq * jetPreValidSeq )
+phase2_common.toReplaceWith(hltprevalidation, hltprevalidation.copyAndExclude([cms.SequencePlaceholder("mix"),globalPrevalidation,metPreValidSeq,jetPreValidSeq]))
+hltprevalidation.insert(-1, hltRecHitMapProducer)
+
+from Validation.Configuration import hltHGCalSimValid_cff as _hltHGCalSimValid
+_hltprevalidation_Phase2 = hltprevalidation.copy()
+_hltprevalidation_Phase2.insert(-1, _hltHGCalSimValid.hltHgcalPrevalidation)
+phase2_common.toReplaceWith(hltprevalidation, _hltprevalidation_Phase2)
+
+from Validation.Configuration.hltBarrelSimValid_cff import *
+_hltprevalidation_Phase2_WithBarrel = _hltprevalidation_Phase2.copy()
+_hltprevalidation_Phase2_WithBarrel.insert(-1, hltBarrelPrevalidation)
+ticl_barrel.toReplaceWith(hltprevalidation, _hltprevalidation_Phase2_WithBarrel)
+
+hltvalidationCommon = hltvalidationCommon.copy()
+hltvalidationWithMC = hltvalidationWithMC.copy()
+hltvalidationWithData = hltvalidationWithData.copy()
+_hltvalidationWithMC_Phase2 = _hltvalidationWithMC_Phase2.copy()
+phase2_common.toReplaceWith(hltvalidationWithMC, _hltvalidationWithMC_Phase2)
+
+from Validation.HGCalValidation.HLTBarrelValidator_cff import hltBarrelValidator
+_hltvalidationWithMC_Phase2_WithBarrel = _hltvalidationWithMC_Phase2.copy()
+_hltvalidationWithMC_Phase2_WithBarrel.insert(-1, hltBarrelValidator)
+ticl_barrel.toReplaceWith(hltvalidationWithMC, _hltvalidationWithMC_Phase2_WithBarrel)
+
+hltvalidation = cms.Sequence(
+    hltvalidationCommon * # HCAL RecHit analyzer
     hltvalidationWithMC *
     hltvalidationWithData
 )

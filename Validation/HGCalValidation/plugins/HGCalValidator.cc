@@ -27,7 +27,7 @@ namespace {
     const auto simTrackstersProductId = simTracksterHandle.id();
     const auto simTrackstersFromCPsProductId = simTracksterFromCPHandle.id();
     if (recoTrackstersProductId == simTrackstersProductId or recoTrackstersProductId == simTrackstersFromCPsProductId) {
-      edm::LogInfo("MissingProduct") << "no SimTrackster to Simtrackster map available.";
+      edm::LogInfo("HGCalValidator") << "no SimTrackster to Simtrackster map available.";
       return false;
     }
     for (const auto& handle : tracksterToTracksterMapsHandles) {
@@ -45,19 +45,19 @@ namespace {
       }
     }
     if (not trackstersToSimTrackstersMap.isValid()) {
-      edm::LogError("MissingProduct") << "trackstersToSimTrackstersMap is not valid";
+      edm::LogError("HGCalValidator") << "trackstersToSimTrackstersMap is not valid";
       return false;
     }
     if (not simTrackstersToTrackstersMap.isValid()) {
-      edm::LogError("MissingProduct") << "simTrackstersToTrackstersMap is not valid";
+      edm::LogError("HGCalValidator") << "simTrackstersToTrackstersMap is not valid";
       return false;
     }
     if (not trackstersToSimTrackstersFromCPsMap.isValid()) {
-      edm::LogError("MissingProduct") << "trackstersToSimTrackstersFromCPsMap is not valid";
+      edm::LogError("HGCalValidator") << "trackstersToSimTrackstersFromCPsMap is not valid";
       return false;
     }
     if (not simTrackstersFromCPsToTrackstersMap.isValid()) {
-      edm::LogError("MissingProduct") << "simTrackstersFromCPsToTrackstersMap is not valid";
+      edm::LogError("HGCalValidator") << "simTrackstersFromCPsToTrackstersMap is not valid";
       return false;
     }
     return true;
@@ -382,7 +382,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   edm::Handle<ticl::TracksterCollection> simTracksterHandle;
   event.getByToken(simTracksters_, simTracksterHandle);
   if (!simTracksterHandle.isValid()) {
-    edm::LogWarning("MissingInput") << "Missing SimTrackster collection";
+    edm::LogWarning("HGCalValidator") << "Missing SimTrackster collection";
     return;
   }
   ticl::TracksterCollection const& simTracksters = *simTracksterHandle;
@@ -390,7 +390,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   edm::Handle<ticl::TracksterCollection> simTracksterFromCPHandle;
   event.getByToken(simTracksters_fromCPs_, simTracksterFromCPHandle);
   if (!simTracksterFromCPHandle.isValid()) {
-    edm::LogWarning("MissingInput") << "Missing SimTrackster collection from CP";
+    edm::LogWarning("HGCalValidator") << "Missing SimTrackster collection from CP";
     return;
   }
   ticl::TracksterCollection const& simTrackstersFromCPs = *simTracksterFromCPHandle;
@@ -584,7 +584,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
       event.getByToken(label_tstTokens[wml], tracksterHandle);
 
       if (!tracksterHandle.isValid()) {
-        edm::LogWarning("MissingInput") << "Failed to retrieve tracksters for wml index: " << wml;
+        edm::LogWarning("HGCalValidator") << "Failed to retrieve tracksters for wml index: " << wml;
         continue;  // Or handle the error as needed
       }
 
