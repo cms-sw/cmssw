@@ -25,7 +25,8 @@ l1ct::MiddleBufferMultififoRegionizerEmulator::MiddleBufferMultififoRegionizerEm
                                               /*streaming=*/true,
                                               /*outii=*/2,
                                               /*pauseii=*/1,
-                                              iConfig.getParameter<bool>("useAlsoVtxCoords")) {
+                                              iConfig.getParameter<bool>("useAlsoVtxCoords"),
+                                              iConfig.getParameter<bool>("tmux6GCTinput")) {
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 }
 
@@ -42,6 +43,7 @@ edm::ParameterSetDescription l1ct::MiddleBufferMultififoRegionizerEmulator::getP
   description.add<uint32_t>("nEmCalo", 12);
   description.add<uint32_t>("nMu", 2);
   description.add<bool>("useAlsoVtxCoords", true);
+  description.add<bool>("tmux6GCTinput", false);
   description.addUntracked<bool>("debug", false);
   return description;
 }
@@ -61,7 +63,8 @@ l1ct::MiddleBufferMultififoRegionizerEmulator::MiddleBufferMultififoRegionizerEm
                                                                                        bool streaming,
                                                                                        unsigned int outii,
                                                                                        unsigned int pauseii,
-                                                                                       bool useAlsoVtxCoords)
+                                                                                       bool useAlsoVtxCoords,
+                                                                                       bool tmux6GCTinput)
     : RegionizerEmulator(useAlsoVtxCoords),
       NTK_SECTORS(9),
       NCALO_SECTORS(3),
@@ -83,8 +86,10 @@ l1ct::MiddleBufferMultififoRegionizerEmulator::MiddleBufferMultififoRegionizerEm
       streaming_(streaming),
       init_(false),
       iclock_(0),
+      tmux6GCTinput_(tmux6GCTinput),
       tkRegionizerPre_(ntk, ntk, false, outii, pauseii, useAlsoVtxCoords),
       tkRegionizerPost_(ntk, (ntk + outii - 1) / outii, true, outii, pauseii, useAlsoVtxCoords),
+      commonCaloRegionizerPre_(ncalo, ncalo, false, outii, pauseii),
       hadCaloRegionizerPre_(ncalo, ncalo, false, outii, pauseii),
       hadCaloRegionizerPost_(ncalo, (ncalo + outii - 1) / outii, true, outii, pauseii),
       emCaloRegionizerPre_(nem, nem, false, outii, pauseii),
@@ -119,14 +124,14 @@ l1ct::MiddleBufferMultififoRegionizerEmulator::MiddleBufferMultififoRegionizerEm
       for (unsigned int j = 0; j < 3; ++j) {               // 3 regions x sector
         for (unsigned int il = 0; il < HCAL_LINKS; ++il) {
           caloRoutes_.emplace_back(is, il, 3 * is + j + phisectors * ie, il);
-          if (j) {
-            caloRoutes_.emplace_back((is + 1) % 3, il, 3 * is + j + phisectors * ie, il + HCAL_LINKS);
+          if (j != 2) {
+            caloRoutes_.emplace_back((is + 2) % 3, il, 3 * is + j + phisectors * ie, il + HCAL_LINKS);
           }
         }
         for (unsigned int il = 0; il < ECAL_LINKS; ++il) {
           emCaloRoutes_.emplace_back(is, il, 3 * is + j + phisectors * ie, il);
-          if (j) {
-            emCaloRoutes_.emplace_back((is + 1) % 3, il, 3 * is + j + phisectors * ie, il + ECAL_LINKS);
+          if (j != 2) {
+            emCaloRoutes_.emplace_back((is + 2) % 3, il, 3 * is + j + phisectors * ie, il + ECAL_LINKS);
           }
         }
       }
@@ -138,9 +143,19 @@ l1ct::MiddleBufferMultififoRegionizerEmulator::MiddleBufferMultififoRegionizerEm
       muRoutes_.emplace_back(0, il, j, il);
     }
   }
+
+  init_GCT_slrs(gct_slr_regions_);
 }
 
 l1ct::MiddleBufferMultififoRegionizerEmulator::~MiddleBufferMultififoRegionizerEmulator() {}
+
+float reduceRange(float x) {
+  float o2pi = 1. / (2. * M_PI);
+  if (std::abs(x) <= float(M_PI))
+    return x;
+  float n = std::round(x * o2pi);
+  return x - n * float(2. * M_PI);
+}
 
 void l1ct::MiddleBufferMultififoRegionizerEmulator::initSectorsAndRegions(const RegionizerDecodedInputs& in,
                                                                           const std::vector<PFInputRegion>& out) {
@@ -168,7 +183,7 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::initSectorsAndRegions(const 
       outputRegions_.push_back(reg0);
       outputRegions_.push_back(reg1);
       if (debug_) {
-        dbgCout() << "Created region with etaCenter " << mergedRegions.back().region.hwEtaCenter.to_int()
+        dbgCout() << "Created MERGED region with etaCenter " << mergedRegions.back().region.hwEtaCenter.to_int()
                   << ", halfWidth " << mergedRegions.back().region.hwEtaHalfWidth.to_int() << "\n";
       }
       if (nbuffers_ == nregions_post_) {
@@ -217,9 +232,18 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::initSectorsAndRegions(const 
   }
   if (ncalo_) {
     assert(in.hadcalo.size() == NCALO_SECTORS);
+    std::vector<DetectorSector<l1ct::CommonCaloObjEmu>> commonCaloSectors(NCALO_SECTORS);
+    for (unsigned int isec = 0; isec != NCALO_SECTORS; isec++) {
+      commonCaloSectors[isec].region = in.hadcalo[isec].region;
+    }
+    commonCaloRegionizerPre_.initSectors(commonCaloSectors);
+    commonCaloRegionizerPre_.initRegions(mergedRegions);
+    commonCaloRegionizerPre_.initRouting(caloRoutes_);
+
     hadCaloRegionizerPre_.initSectors(in.hadcalo);
     hadCaloRegionizerPre_.initRegions(mergedRegions);
-    hadCaloRegionizerPre_.initRouting(caloRoutes_);
+    if (ECAL_LINKS)
+      hadCaloRegionizerPre_.initRouting(caloRoutes_);
     hadCaloRegionizerPost_.initRegions(out);
   }
   if (nem_) {
@@ -242,6 +266,7 @@ bool l1ct::MiddleBufferMultififoRegionizerEmulator::step(bool newEvent,
                                                          const std::vector<l1ct::TkObjEmu>& links_tk,
                                                          const std::vector<l1ct::HadCaloObjEmu>& links_hadCalo,
                                                          const std::vector<l1ct::EmCaloObjEmu>& links_emCalo,
+                                                         const std::vector<l1ct::CommonCaloObjEmu>& links_commonCalo,
                                                          const std::vector<l1ct::MuObjEmu>& links_mu,
                                                          std::vector<l1ct::TkObjEmu>& out_tk,
                                                          std::vector<l1ct::HadCaloObjEmu>& out_hadCalo,
@@ -252,6 +277,7 @@ bool l1ct::MiddleBufferMultififoRegionizerEmulator::step(bool newEvent,
   bool newRead = iclock_ == 2 * etabuffer_depth_;
 
   std::vector<l1ct::TkObjEmu> pre_out_tk;
+  std::vector<l1ct::CommonCaloObjEmu> pre_out_commCalo;
   std::vector<l1ct::HadCaloObjEmu> pre_out_hadCalo;
   std::vector<l1ct::EmCaloObjEmu> pre_out_emCalo;
   std::vector<l1ct::MuObjEmu> pre_out_mu;
@@ -260,15 +286,27 @@ bool l1ct::MiddleBufferMultififoRegionizerEmulator::step(bool newEvent,
     ret = tkRegionizerPre_.step(newEvent, links_tk, pre_out_tk, false);
   if (nmu_)
     ret = muRegionizerPre_.step(newEvent, links_mu, pre_out_mu, false);
-  if (ncalo_)
-    ret = hadCaloRegionizerPre_.step(newEvent, links_hadCalo, pre_out_hadCalo, false);
+
+  if (ncalo_) {
+    if (ECAL_LINKS) {
+      ret = hadCaloRegionizerPre_.step(newEvent, links_hadCalo, pre_out_hadCalo, false);
+    } else {
+      ret = commonCaloRegionizerPre_.step(newEvent, links_commonCalo, pre_out_commCalo, false);
+      pre_out_hadCalo.resize(pre_out_commCalo.size());
+      for (unsigned int i = 0, n = pre_out_commCalo.size(); i < n; ++i) {
+        pre_out_commCalo[i].convertTo(pre_out_hadCalo[i]);
+        pre_out_hadCalo[i].src = pre_out_commCalo[i].src;
+      }
+    }
+  }
   if (nem_) {
     if (ECAL_LINKS) {
       ret = emCaloRegionizerPre_.step(newEvent, links_emCalo, pre_out_emCalo, false);
     } else if (ncalo_) {
-      pre_out_emCalo.resize(pre_out_hadCalo.size());
-      for (unsigned int i = 0, n = pre_out_hadCalo.size(); i < n; ++i) {
-        decode(pre_out_hadCalo[i], pre_out_emCalo[i]);
+      pre_out_emCalo.resize(pre_out_commCalo.size());
+      for (unsigned int i = 0, n = pre_out_commCalo.size(); i < n; ++i) {
+        pre_out_commCalo[i].convertTo(pre_out_emCalo[i]);
+        pre_out_emCalo[i].src = pre_out_commCalo[i].src;
       }
     }
   }
@@ -440,8 +478,9 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::fillSharedCaloLinks(
     unsigned int iclock,
     const std::vector<l1ct::DetectorSector<l1ct::EmCaloObjEmu>>& em_in,
     const std::vector<l1ct::DetectorSector<l1ct::HadCaloObjEmu>>& had_in,
-    std::vector<l1ct::HadCaloObjEmu>& links,
+    std::vector<l1ct::CommonCaloObjEmu>& links,
     std::vector<bool>& valid) {
+  // FIXME: the link filling should be done according to TMUX18 GCT-CTL1 interface document
   assert(ECAL_LINKS == 0 && HCAL_LINKS == 1 && ncalo_ != 0 && nem_ != 0);
   links.resize(NCALO_SECTORS);
   valid.resize(links.size());
@@ -467,14 +506,25 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::fillSharedCaloLinks(
 
 void l1ct::MiddleBufferMultififoRegionizerEmulator::fillLinks(unsigned int iclock,
                                                               const l1ct::RegionizerDecodedInputs& in,
+                                                              std::vector<l1ct::CommonCaloObjEmu>& links,
+                                                              std::vector<bool>& valid) {
+  if (ECAL_LINKS == 0 && HCAL_LINKS == 1 && ncalo_ != 0 && nem_ != 0)
+    fillSharedCaloLinks(iclock, in.emcalo, in.hadcalo, links, valid);
+  else
+    return;
+}
+
+void l1ct::MiddleBufferMultififoRegionizerEmulator::fillLinks(unsigned int iclock,
+                                                              const l1ct::RegionizerDecodedInputs& in,
                                                               std::vector<l1ct::HadCaloObjEmu>& links,
                                                               std::vector<bool>& valid) {
   if (ncalo_ == 0)
     return;
-  if (nem_ != 0 && ECAL_LINKS == 0 && HCAL_LINKS == 1)
-    fillSharedCaloLinks(iclock, in.emcalo, in.hadcalo, links, valid);
+
+  if (ECAL_LINKS != 0)
+    fillCaloLinks_(iclock, in.hadcalo, links, valid);  // separate calo links
   else
-    fillCaloLinks_(iclock, in.hadcalo, links, valid);
+    return;
 }
 
 void l1ct::MiddleBufferMultififoRegionizerEmulator::fillLinks(unsigned int iclock,
@@ -524,6 +574,7 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::reset() {
   tkRegionizerPre_.reset();
   emCaloRegionizerPre_.reset();
   hadCaloRegionizerPre_.reset();
+  commonCaloRegionizerPre_.reset();
   muRegionizerPre_.reset();
   tkRegionizerPost_.reset();
   emCaloRegionizerPost_.reset();
@@ -539,13 +590,103 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::reset() {
     b.reset();
 }
 
+void l1ct::MiddleBufferMultififoRegionizerEmulator::convert_GCTinput_tmux(const RegionizerDecodedInputs& in_tm6,
+                                                                          RegionizerDecodedInputs& in_tm18) const {
+  for (auto& sec : in_tm18.hadcalo)
+    sec.clear();
+
+  for (auto& sec : in_tm18.emcalo)
+    sec.clear();
+
+  convert_GCTsector_tmux(in_tm6.hadcalo, in_tm18.hadcalo);
+  convert_GCTsector_tmux(in_tm6.emcalo, in_tm18.emcalo);
+}
+
+void l1ct::MiddleBufferMultififoRegionizerEmulator::init_GCT_tmux18sectors(
+    std::vector<l1ct::DetectorSector<l1ct::HadCaloObjEmu>>& gct_tmux18_hadcalo,
+    std::vector<l1ct::DetectorSector<l1ct::EmCaloObjEmu>>& gct_tmux18_emcalo) const {
+  std::vector<float> etaBoundaries = {-1.5, 1.5};
+  unsigned int phiSlices = 3;
+  // if (!std::is_sorted(etaBoundaries.begin(), etaBoundaries.end()))
+  //   throw cms::Exception("Configuration", "caloSectors.etaBoundaries not sorted\n");
+  float phiWidth = 2 * M_PI / phiSlices;
+  // if (phiWidth > 2 * l1ct::Scales::maxAbsPhi())
+  //   throw cms::Exception("Configuration", "caloSectors phi range too large for phi_t data type");
+  float phiZero = M_PI * 7 / 18;
+  for (unsigned int ieta = 0, neta = etaBoundaries.size() - 1; ieta < neta; ++ieta) {
+    // float etaWidth = etaBoundaries[ieta + 1] - etaBoundaries[ieta];
+    // if (etaWidth > 2 * l1ct::Scales::maxAbsEta())
+    //   throw cms::Exception("Configuration", "caloSectors eta range too large for eta_t data type");
+    for (unsigned int iphi = 0; iphi < phiSlices; ++iphi) {
+      float phiCenter = reduceRange(iphi * phiWidth + phiZero);
+      gct_tmux18_hadcalo.emplace_back(etaBoundaries[ieta],
+                                      etaBoundaries[ieta + 1],
+                                      phiCenter,
+                                      phiWidth,
+                                      0,   // no extra
+                                      0);  // no extra
+      gct_tmux18_emcalo.emplace_back(etaBoundaries[ieta],
+                                     etaBoundaries[ieta + 1],
+                                     phiCenter,
+                                     phiWidth,
+                                     0,   // no extra
+                                     0);  // no extra
+    }
+  }
+}
+
+void l1ct::MiddleBufferMultififoRegionizerEmulator::init_GCT_slrs(
+    std::vector<l1ct::PFRegionEmu>& gct_slr_regions) const {
+  // We Initialize GCT SLR regions (dividing them in eta +- to be able to assign clusters to the correct link and sector
+  std::vector<float> etaBoundaries = {-1.5, 0, 1.5};
+  unsigned int phiSlices = 6;
+  // if (!std::is_sorted(etaBoundaries.begin(), etaBoundaries.end()))
+  //   throw cms::Exception("Configuration", "caloSectors.etaBoundaries not sorted\n");
+  float phiWidth = 2 * M_PI / phiSlices;
+  // if (phiWidth > 2 * l1ct::Scales::maxAbsPhi())
+  //   throw cms::Exception("Configuration", "caloSectors phi range too large for phi_t data type");
+  float phiZero = M_PI * 4 / 18;
+  for (unsigned int ieta = 0, neta = etaBoundaries.size() - 1; ieta < neta; ++ieta) {
+    // float etaWidth = etaBoundaries[ieta + 1] - etaBoundaries[ieta];
+    // if (etaWidth > 2 * l1ct::Scales::maxAbsEta())
+    //   throw cms::Exception("Configuration", "caloSectors eta range too large for eta_t data type");
+    for (unsigned int iphi = 0; iphi < phiSlices; ++iphi) {
+      float phiCenter = reduceRange(iphi * phiWidth + phiZero);
+      gct_slr_regions.emplace_back(etaBoundaries[ieta],
+                                   etaBoundaries[ieta + 1],
+                                   phiCenter,
+                                   phiWidth,
+                                   0,   // no extra
+                                   0);  // no extra
+    }
+  }
+}
 void l1ct::MiddleBufferMultififoRegionizerEmulator::run(const RegionizerDecodedInputs& in,
                                                         std::vector<PFInputRegion>& out) {
+  if (tmux6GCTinput_) {
+    if (!init_) {
+      init_GCT_tmux18sectors(gct_tmux18_hadcalo_, gct_tmux18_emcalo_);
+    }
+    RegionizerDecodedInputs in_tm18;
+    in_tm18.track = in.track;
+    in_tm18.muon = in.muon;
+    in_tm18.hadcalo = gct_tmux18_hadcalo_;
+    in_tm18.emcalo = gct_tmux18_emcalo_;
+    convert_GCTinput_tmux(in, in_tm18);
+    run_worker(in_tm18, out);
+  } else {
+    run_worker(in, out);
+  }
+}
+
+void l1ct::MiddleBufferMultififoRegionizerEmulator::run_worker(const RegionizerDecodedInputs& in,
+                                                               std::vector<PFInputRegion>& out) {
   assert(streaming_);  // doesn't make sense otherwise
   if (!init_)
     initSectorsAndRegions(in, out);
   reset();
   std::vector<l1ct::TkObjEmu> tk_links_in, tk_out;
+  std::vector<l1ct::CommonCaloObjEmu> commonCalo_links_in;
   std::vector<l1ct::EmCaloObjEmu> em_links_in, em_out;
   std::vector<l1ct::HadCaloObjEmu> calo_links_in, calo_out;
   std::vector<l1ct::MuObjEmu> mu_links_in, mu_out;
@@ -555,10 +696,21 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::run(const RegionizerDecodedI
     fillLinks(iclock, in, tk_links_in);
     fillLinks(iclock, in, em_links_in);
     fillLinks(iclock, in, calo_links_in);
+    fillLinks(iclock, in, commonCalo_links_in);
     fillLinks(iclock, in, mu_links_in);
 
     bool newevt = (iclock == 0);
-    step(newevt, tk_links_in, calo_links_in, em_links_in, mu_links_in, tk_out, calo_out, em_out, mu_out, true);
+    step(newevt,
+         tk_links_in,
+         calo_links_in,
+         em_links_in,
+         commonCalo_links_in,
+         mu_links_in,
+         tk_out,
+         calo_out,
+         em_out,
+         mu_out,
+         true);
   }
 
   // set up an empty event
@@ -568,6 +720,8 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::run(const RegionizerDecodedI
     l.clear();
   for (auto& l : calo_links_in)
     l.clear();
+  for (auto& l : commonCalo_links_in)
+    l.clear();
   for (auto& l : mu_links_in)
     l.clear();
 
@@ -575,7 +729,17 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::run(const RegionizerDecodedI
   assert(out.size() == nregions_post_);
   for (unsigned int iclock = 0; iclock < nclocks_; ++iclock) {
     bool newevt = (iclock == 0);
-    step(newevt, tk_links_in, calo_links_in, em_links_in, mu_links_in, tk_out, calo_out, em_out, mu_out, true);
+    step(newevt,
+         tk_links_in,
+         calo_links_in,
+         em_links_in,
+         commonCalo_links_in,
+         mu_links_in,
+         tk_out,
+         calo_out,
+         em_out,
+         mu_out,
+         true);
 
     unsigned int ireg = (iclock / (outii_ + pauseii_));
     if ((iclock % (outii_ + pauseii_)) >= outii_)
@@ -596,36 +760,4 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::run(const RegionizerDecodedI
   }
 
   reset();
-}
-
-void l1ct::MiddleBufferMultififoRegionizerEmulator::encode(const l1ct::EmCaloObjEmu& from, l1ct::HadCaloObjEmu& to) {
-  assert(!from.hwEmID[5]);
-  to.hwPt = from.hwPt;
-  to.hwEmPt = from.hwPtErr;
-  to.hwEta = from.hwEta;
-  to.hwPhi = from.hwPhi;
-  to.hwEmID[5] = true;
-  to.hwEmID(4, 0) = from.hwEmID(4, 0);
-  to.src = from.src;
-}
-void l1ct::MiddleBufferMultififoRegionizerEmulator::encode(const l1ct::HadCaloObjEmu& from, l1ct::HadCaloObjEmu& to) {
-  assert(!from.hwEmID[5]);
-  to = from;
-}
-void l1ct::MiddleBufferMultififoRegionizerEmulator::decode(l1ct::HadCaloObjEmu& had, l1ct::EmCaloObjEmu& em) {
-  if (had.hwPt && had.hwEmID[5]) {
-    em.hwPt = had.hwPt;
-    em.hwPtErr = had.hwEmPt;
-    em.hwEta = had.hwEta;
-    em.hwPhi = had.hwPhi;
-    em.hwEmID[5] = 0;
-    em.hwEmID(4, 0) = had.hwEmID(4, 0);
-    em.hwSrrTot = 0;
-    em.hwMeanZ = 0;
-    em.hwHoe = 0;
-    em.src = had.src;
-    had.clear();
-  } else {
-    em.clear();
-  }
 }

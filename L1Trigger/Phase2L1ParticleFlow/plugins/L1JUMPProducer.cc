@@ -2,8 +2,6 @@
 #include <string>
 #include <ap_int.h>
 #include <ap_fixed.h>
-#include <TVector2.h>
-#include <iostream>
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -35,6 +33,7 @@ class L1JUMPProducer : public edm::global::EDProducer<> {
 public:
   explicit L1JUMPProducer(const edm::ParameterSet&);
   ~L1JUMPProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
@@ -44,15 +43,13 @@ private:
   typedef l1ct::pt_t pt_t;
   typedef l1ct::Jet Jet;
 
-  static constexpr float ptLSB_ = 0.25;
   static constexpr float phiLSB_ = M_PI / 720;
-  static constexpr float maxPt_ = ((1 << pt_t::width) - 1) * ptLSB_;
 
   void CalcJUMP_HLS(const l1t::EtSum& metVector,
                     const std::vector<l1ct::Jet>& jets,
                     reco::Candidate::PolarLorentzVector& JUMPVector) const;
 
-  std::vector<l1ct::Jet> convertEDMToHW(const std::vector<l1t::PFJet> edmJets) const;
+  std::vector<l1ct::Jet> convertEDMToHW(const std::vector<l1t::PFJet>& edmJets) const;
 
   double minJetPt;
   double maxJetEta;
@@ -67,6 +64,16 @@ L1JUMPProducer::L1JUMPProducer(const edm::ParameterSet& cfg)
       jerFilePath_(cfg.getParameter<std::string>("JERFile")) {
   produces<std::vector<l1t::EtSum>>();
   L1JUMPEmu::SetJERFile(jerFilePath_);
+}
+
+void L1JUMPProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("RawMET", edm::InputTag("l1tMETPFProducer"));
+  desc.add<edm::InputTag>("L1PFJets", edm::InputTag("l1tSC4PFL1PuppiCorrectedEmulator"));
+  desc.add<double>("MinJetpT", 30);
+  desc.add<double>("MaxJetEta", 3.0);
+  desc.add<std::string>("JERFile", "L1Trigger/Phase2L1ParticleFlow/data/met/l1jump_jer_v1.json");
+  descriptions.add("L1JUMPProducer", desc);
 }
 
 void L1JUMPProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
@@ -110,9 +117,9 @@ void L1JUMPProducer::CalcJUMP_HLS(const l1t::EtSum& metVector,
   outMet_Vector.SetEta(0);
 }
 
-std::vector<l1ct::Jet> L1JUMPProducer::convertEDMToHW(const std::vector<l1t::PFJet> edmJets) const {
+std::vector<l1ct::Jet> L1JUMPProducer::convertEDMToHW(const std::vector<l1t::PFJet>& edmJets) const {
   std::vector<l1ct::Jet> hwJets;
-  std::for_each(edmJets.begin(), edmJets.end(), [&](const l1t::PFJet jet) {
+  std::for_each(edmJets.begin(), edmJets.end(), [&](const l1t::PFJet& jet) {
     l1ct::Jet hwJet = l1ct::Jet::unpack(jet.getHWJetCT());
     hwJets.push_back(hwJet);
   });
