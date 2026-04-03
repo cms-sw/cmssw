@@ -3,10 +3,10 @@
 #include "DataFormats/AlpakaCommon/interface/alpaka/EDMetadata.h"
 #include "FWCore/Concurrency/interface/Async.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "HeterogeneousCore/AlpakaCore/interface/EventCache.h"
-#include "HeterogeneousCore/AlpakaCore/interface/QueueCache.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadataAcquireSentry.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/chooseDevice.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/EventCache.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/QueueCache.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   namespace detail {

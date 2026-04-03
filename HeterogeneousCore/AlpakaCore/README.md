@@ -38,7 +38,6 @@ The `BuildFile.xml` must contain `<flags ALPAKA_BACKENDS="1"/>` to enable the be
     * Any header containing only macros, e.g. `FWCore/Utilities/interface/CMSUnrollLoop.h`, `FWCore/Utilities/interface/stringize.h`
     * `FWCore/Utilities/interface/Exception.h`
     * `FWCore/MessageLogger/interface/MessageLogger.h`, although it is preferred to issue messages only in the `.cc` files
-    * `HeterogeneousCore/AlpakaCore/interface/EventCache.h` and `HeterogeneousCore/AlpakaCore/interface/QueueCache.h` can, in principle, be used in `.dev.cc` files, even if there should be little need to use them explicitly
 
 ## Data formats
 
