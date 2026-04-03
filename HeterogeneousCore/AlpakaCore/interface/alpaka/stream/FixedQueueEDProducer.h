@@ -26,10 +26,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     public:
       void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) final {
         detail::EDMetadataSentry sentry(queue_, this->synchronize());
-        device::Event ev(iEvent, sentry.metadata());
+        // Force the device::Event to use the queue from the metadata.
+        device::Event ev(iEvent, sentry.metadata(), true);
         device::EventSetup const es(iSetup, ev.device());
-        // mark the queue as used, to force produce() to use it instead of the one associated to the products being consumed
-        static_cast<void>(ev.queue());
         produce(ev, es);
         this->putBackend(iEvent);
         sentry.finish(ev.wasQueueUsed());
