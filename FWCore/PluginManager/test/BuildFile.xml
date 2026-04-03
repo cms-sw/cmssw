@@ -1,25 +1,25 @@
 <bin name="TestFWCorePluginManagerPluginFactoryManager" file="pluginfactorymanager_t.cc">
   <use name="boost"/>
-  <use name="cppunit"/>
+  <use name="catch2"/>
   <use name="FWCore/PluginManager"/>
 </bin>
 
 <bin name="TestFWCorePluginManagerPluginManager" file="pluginmanager_t.cc">
   <use name="boost"/>
-  <use name="cppunit"/>
+  <use name="catch2"/>
   <use name="FWCore/PluginManager"/>
   <lib name="TestFWCorePluginManagerDummyFactory"/>
 </bin>
 
 <bin name="TestFWCorePluginManagerCacheParser" file="cacheparser_t.cc">
   <use name="boost"/>
-  <use name="cppunit"/>
+  <use name="catch2"/>
   <use name="FWCore/PluginManager"/>
 </bin>
 
 <bin name="TestFWCorePluginManagerPluginFactory" file="pluginfactory_t.cc">
   <use name="boost"/>
-  <use name="cppunit"/>
+  <use name="catch2"/>
   <use name="FWCore/PluginManager"/>
 </bin>
 
