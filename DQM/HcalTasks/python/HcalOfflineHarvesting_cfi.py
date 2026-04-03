@@ -18,6 +18,7 @@ hcalOfflineHarvesting = DQMEDHarvester(
 	thresh_FGMsmRate_high = cms.untracked.double(0.2),
 	thresh_FGMsmRate_low = cms.untracked.double(0.1),
 	thresh_unihf = cms.untracked.double(0.2),
+	thresh_pindiode = cms.untracked.double(2000),
 	thresh_tcds = cms.untracked.double(1.5),
 	refDigiSize = digiTask.refDigiSize,
 )

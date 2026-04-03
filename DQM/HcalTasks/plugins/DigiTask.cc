@@ -24,6 +24,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
   _thresh_led = ps.getUntrackedParameter<double>("thresh_led", 20);
   _thresh_laser = ps.getUntrackedParameter<double>("thresh_laser", 20);
   _thresh_raddam = ps.getUntrackedParameter<double>("thresh_raddam", 20);
+  _thresh_pindiode = ps.getUntrackedParameter<double>("thresh_pindiode", 2000);
 
   _vflags.resize(nDigiFlag);
   _vflags[fUni] = hcaldqm::flag::Flag("UniSlotHF");
@@ -50,6 +51,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
   _capidmbx[HcalEndcap] = 1;
   _capidmbx[HcalOuter] = 1;
   _capidmbx[HcalForward] = 1;
+}
+
+void DigiTask::_fillCUFEDCountVsLS(hcaldqm::Container1D& hist, uint32_t detRawId) {
+  auto it = _calibDetId2Eid.find(detRawId);
+  if (it != _calibDetId2Eid.end())
+    hist.fill(it->second, _currentLS);
 }
 
 /* virtual */ void DigiTask::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {
@@ -1048,9 +1055,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                 }
               }
               if (channelLEDSignalPresent) {
-                auto it_eid = _calibDetId2Eid.find(did.rawId());
-                if (it_eid != _calibDetId2Eid.end())
-                  _LED_CUCountvsLS_FED.fill(it_eid->second, _currentLS);
+                _fillCUFEDCountVsLS(_LED_CUCountvsLS_FED, did.rawId());
                 if (_ptype == fOnline) {
                   _LED_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), _currentLS % 60);
                 }
@@ -1069,9 +1074,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                 }
               }
               if (channelLEDSignalPresent) {
-                auto it_eid = _calibDetId2Eid.find(did.rawId());
-                if (it_eid != _calibDetId2Eid.end())
-                  _LED_CUCountvsLS_FED.fill(it_eid->second, _currentLS);
+                _fillCUFEDCountVsLS(_LED_CUCountvsLS_FED, did.rawId());
                 if (_ptype == fOnline) {
                   _LED_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), _currentLS % 60);
                 }
@@ -1090,9 +1093,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                 }
               }
               if (channelLASERSignalPresent) {
-                auto it_eid = _calibDetId2Eid.find(did.rawId());
-                if (it_eid != _calibDetId2Eid.end())
-                  _LASER_CUCountvsLS_FED.fill(it_eid->second, _currentLS);
+                _fillCUFEDCountVsLS(_LASER_CUCountvsLS_FED, did.rawId());
                 if (_ptype == fOnline) {
                   _LASER_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), _currentLS % 60);
                 }
@@ -1109,9 +1110,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                 }
               }
               if (channelLASERSignalPresent) {
-                auto it_eid = _calibDetId2Eid.find(did.rawId());
-                if (it_eid != _calibDetId2Eid.end())
-                  _LASER_CUCountvsLS_FED.fill(it_eid->second, _currentLS);
+                _fillCUFEDCountVsLS(_LASER_CUCountvsLS_FED, did.rawId());
                 if (_ptype == fOnline) {
                   _LASER_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), _currentLS % 60);
                 }
@@ -1340,9 +1339,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                 }
               }
               if (channelLEDSignalPresent) {
-                auto it_eid = _calibDetId2Eid.find(did.rawId());
-                if (it_eid != _calibDetId2Eid.end())
-                  _LED_CUCountvsLS_FED.fill(it_eid->second, _currentLS);
+                _fillCUFEDCountVsLS(_LED_CUCountvsLS_FED, did.rawId());
                 if (_ptype == fOnline) {
                   _LED_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), _currentLS % 60);
                 }
@@ -1361,9 +1358,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                 }
               }
               if (channelLASERSignalPresent) {
-                auto it_eid = _calibDetId2Eid.find(did.rawId());
-                if (it_eid != _calibDetId2Eid.end())
-                  _LASER_CUCountvsLS_FED.fill(it_eid->second, _currentLS);
+                _fillCUFEDCountVsLS(_LASER_CUCountvsLS_FED, did.rawId());
                 if (_ptype == fOnline) {
                   _LASER_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), _currentLS % 60);
                 }
@@ -1536,9 +1531,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                   }
                 }
                 if (channelLEDSignalPresent) {
-                  auto it_eid = _calibDetId2Eid.find(did.rawId());
-                  if (it_eid != _calibDetId2Eid.end())
-                    _LED_CUCountvsLS_FED.fill(it_eid->second, _currentLS);
+                  _fillCUFEDCountVsLS(_LED_CUCountvsLS_FED, did.rawId());
                   if (_ptype == fOnline) {
                     _LED_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), _currentLS % 60);
                   }
@@ -1557,9 +1550,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                   }
                 }
                 if (channelLASERSignalPresent) {
-                  auto it_eid = _calibDetId2Eid.find(did.rawId());
-                  if (it_eid != _calibDetId2Eid.end())
-                    _LASER_CUCountvsLS_FED.fill(it_eid->second, _currentLS);
+                  _fillCUFEDCountVsLS(_LASER_CUCountvsLS_FED, did.rawId());
                   if (_ptype == fOnline) {
                     _LASER_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), _currentLS % 60);
                   }
@@ -1862,8 +1853,9 @@ std::shared_ptr<hcaldqm::Cache> DigiTask::globalBeginLuminosityBlock(edm::Lumino
               (_LASER_CUCountvsLS_FED.getBinContent(eid, _currentLS) > 0) ? hcaldqm::flag::fBAD : hcaldqm::flag::fGOOD;
         }
         if (hcaldqm::utilities::isFEDHBHE(eid)) {
-          _vflags[fPinDiode]._state =
-              (_cSumQvsLS_PinDiode.getBinContent(_currentLS) > 2000) ? hcaldqm::flag::fBAD : hcaldqm::flag::fGOOD;
+          _vflags[fPinDiode]._state = (_cSumQvsLS_PinDiode.getBinContent(_currentLS) > _thresh_pindiode)
+                                          ? hcaldqm::flag::fBAD
+                                          : hcaldqm::flag::fGOOD;
         }
         if (hcaldqm::utilities::isFEDHF(eid)) {
           _vflags[fRADDAM]._state =

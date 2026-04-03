@@ -1,7 +1,6 @@
 #include "DQM/HcalCommon/interface/DQClient.h"
 
 namespace hcaldqm {
-  using namespace hcaldqm;
   using namespace constants;
   DQClient::DQClient(std::string const &name,
                      std::string const &taskname,

@@ -9,6 +9,7 @@ namespace hcaldqm {
                                  edm::ConsumesCollector& iC)
       : DQClient(name, taskname, ps, iC), _booked(false) {
     _thresh_unihf = ps.getUntrackedParameter<double>("thresh_unihf", 0.2);
+    _thresh_pindiode = ps.getUntrackedParameter<double>("thresh_pindiode", 2000);
 
     std::vector<uint32_t> vrefDigiSize = ps.getUntrackedParameter<std::vector<uint32_t>>("refDigiSize");
     _refDigiSize[HcalBarrel] = vrefDigiSize[0];
@@ -198,8 +199,7 @@ namespace hcaldqm {
       if (isHBHE || isHF || isHO) {
         int fed =
             eid.isVMEid() ? eid.dccid() + constants::FED_VME_MIN : utilities::crate2fed(eid.crateId(), eid.slot());
-        char fedName[20];
-        sprintf(fedName, "FED%d", fed);
+        std::string const fedName = "FED" + std::to_string(fed);
         std::string ledFEDPath = _subsystem + "/" + _taskname + "/CU_LED/CU_LED_CUCountvsLS/FED/" + fedName;
         std::string laserFEDPath = _subsystem + "/" + _taskname + "/CU_Laser/CU_LASER_CUCountvsLS/FED/" + fedName;
 
@@ -217,7 +217,8 @@ namespace hcaldqm {
         if (isHBHE) {
           MonitorElement* pinDiodeHist = ig.get(_subsystem + "/" + _taskname + "/PinDiodeMon/sumQvsLS/sumQvsLS");
           vtmpflags[fPinDiode]._state =
-              pinDiodeHist ? ((pinDiodeHist->getBinContent(_currentLS) > 2000) ? flag::fBAD : flag::fGOOD) : flag::fNA;
+              pinDiodeHist ? ((pinDiodeHist->getBinContent(_currentLS) > _thresh_pindiode) ? flag::fBAD : flag::fGOOD)
+                           : flag::fNA;
         } else {
           vtmpflags[fPinDiode]._state = flag::fNA;
         }
@@ -375,7 +376,7 @@ namespace hcaldqm {
         flag::Flag fSumLS("DIGI");
         for (std::vector<flag::Flag>::const_iterator ft = itls->_vflags[ifed].begin(); ft != itls->_vflags[ifed].end();
              ++ft) {
-          cSummaryvsLS_FED.setBinContent(eid, itls->_LS, int(iflag), ft->_state);
+          cSummaryvsLS_FED.setBinContent(eid, itls->_LS, static_cast<int>(iflag), ft->_state);
           fSumLS += (*ft);
           iflag++;
         }

@@ -22,6 +22,7 @@ namespace hcaldqm {
     std::vector<LSSummary> _vflagsLS;
 
     double _thresh_unihf;
+    double _thresh_pindiode;
 
     electronicsmap::ElectronicsMap _ehashmap;
 

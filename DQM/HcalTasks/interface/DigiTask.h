@@ -41,6 +41,9 @@ protected:
   void _process(edm::Event const &, edm::EventSetup const &) override;
   void _resetMonitors(hcaldqm::UpdateFreq) override;
 
+  /// Fill per-FED CU count vs LS when a detRawId is in _calibDetId2Eid (LED/Laser blocks).
+  void _fillCUFEDCountVsLS(hcaldqm::Container1D &hist, uint32_t detRawId);
+
   edm::InputTag _tagQIE11;
   edm::InputTag _tagHO;
   edm::InputTag _tagQIE10;
@@ -230,6 +233,7 @@ protected:
   hcaldqm::ContainerSingle2D _Raddam_ADCvsTS;           // Raddam amplitude vs TS for online DQM
 
   // Laser monitoring for pin diode channel (0, 31, 0)
+  double _thresh_pindiode;
   hcaldqm::ContainerSingleProf1D _cSumQvsBX_PinDiode;
   hcaldqm::ContainerSingleProf1D _cSumQvsLS_PinDiode;
   hcaldqm::ContainerSingle2D _cADCvsTS_PinDiode;
