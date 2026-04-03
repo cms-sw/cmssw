@@ -8,6 +8,7 @@
 #include <cstdio>
 
 // hls-fpga-machine-learning insert numbers
+namespace hls4ml_nnpuppitau_v0 {
 #define N_INPUT_1_1 80
 #define N_LAYER_2 25
 #define N_LAYER_2 25
@@ -66,5 +67,7 @@ typedef ap_fixed<18, 8> jetID_output_table_t;
 typedef ap_fixed<16, 7> weight20_t;
 typedef ap_fixed<16, 7> bias20_t;
 typedef ap_uint<1> layer20_index;
+
+}
 
 #endif

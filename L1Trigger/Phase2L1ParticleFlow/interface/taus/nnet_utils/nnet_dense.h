@@ -5,6 +5,8 @@
 #include "nnet_mult.h"
 #include <math.h>
 
+namespace hls4ml_nnpuppitau_v0 {
+
 namespace nnet {
 
   struct dense_config {
@@ -68,5 +70,7 @@ namespace nnet {
   }
 
 }  // namespace nnet
+
+}  // namespace hls4ml_nnpuppitau_v0
 
 #endif

@@ -5,6 +5,7 @@
 
 #ifndef B8_H_
 #define B8_H_
+namespace hls4ml_nnpuppitau_v0 {
 
 bias8_t b8[15] = {0.093750,
                   0.046875,
@@ -21,5 +22,6 @@ bias8_t b8[15] = {0.093750,
                   -0.109375,
                   -0.046875,
                   0.140625};
+}
 
 #endif

@@ -5,6 +5,7 @@
 
 #ifndef B11_H_
 #define B11_H_
+namespace hls4ml_nnpuppitau_v0 {
 
 bias11_t b11[15] = {0.031250,
                     0.000000,
@@ -21,5 +22,6 @@ bias11_t b11[15] = {0.031250,
                     0.250000,
                     0.109375,
                     -0.046875};
+}
 
 #endif

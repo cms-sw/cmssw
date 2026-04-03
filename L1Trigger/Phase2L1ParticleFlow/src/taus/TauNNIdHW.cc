@@ -15,6 +15,7 @@ void TauNNIdHW::initialize(const std::string &iInput, int iNParticles) {
 
 //Prepare the inputs for the Tau NN
 void TauNNIdHW::SetNNVectorVar() {
+  using namespace hls4ml_nnpuppitau_v0;
   NNvectorVar_.clear();
   for (unsigned i0 = 0; i0 < fNParticles_; i0++) {
     input_t pPt = input_t(fPt_.get()[i0]);
@@ -39,6 +40,7 @@ void TauNNIdHW::SetNNVectorVar() {
 
 // Main architecture of the NN here
 Tau_NN_Result TauNNIdHW::EvaluateNN() {
+  using namespace hls4ml_nnpuppitau_v0;
   input_t model_input[N_INPUT_1_1];
   for (unsigned int i = 0; i < NNvectorVar_.size(); i++) {
     model_input[i] = input_t(NNvectorVar_[i]);
