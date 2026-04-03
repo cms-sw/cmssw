@@ -73,6 +73,9 @@
 
   <class name="edm::RefVector<std::vector<reco::PFRecHit>,reco::PFRecHit,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecHit>,reco::PFRecHit> >"/>
 
+  <class name="edm::Wrapper<std::vector<edm::RefProd<std::vector<reco::PFRecHit> > > >"/>
+  <class name="edm::RefProd<std::vector<reco::PFRecHit> >"/>
+  <class name="vector<edm::RefProd<std::vector<reco::PFRecHit> > >"/>
   
 
   <class name="reco::PFTrack" ClassVersion="11">

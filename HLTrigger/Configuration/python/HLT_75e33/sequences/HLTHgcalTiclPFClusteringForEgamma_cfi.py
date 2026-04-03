@@ -14,9 +14,12 @@ from ..modules.hltParticleFlowSuperClusterHGCal_cfi import *
 from ..modules.hltTiclLayerTileProducer_cfi import *
 from ..modules.hltTiclSeedingGlobal_cfi import *
 from ..modules.hltTiclTrackstersCLUE3DHigh_cfi import *
-# Barrel layer clusters
+# TICL-barrel
 from ..modules.hltBarrelLayerClustersEB_cfi import *
 from ..modules.hltBarrelLayerClustersHB_cfi import *
+from ..modules.hltTiclLayerTileBarrelProducer_cfi import *
+from ..modules.hltTiclTrackstersCLUE3DBarrel_cfi import *
+
 HLTHgcalTiclPFClusteringForEgamma = cms.Sequence((hltHgcalDigis+hltHGCalUncalibRecHit+hltHGCalRecHit+hltParticleFlowRecHitHGC+hltHgcalLayerClustersEE+hltHgcalLayerClustersHSci+hltHgcalLayerClustersHSi+hltMergeLayerClusters+hltFilteredLayerClustersCLUE3DHigh+hltTiclSeedingGlobal+hltTiclLayerTileProducer+hltTiclTrackstersCLUE3DHigh+hltParticleFlowClusterHGCal+hltParticleFlowSuperClusterHGCal))
 
 HLTHgcalTiclPFClusteringForEgamma_barrel = cms.Sequence((
@@ -35,8 +38,11 @@ HLTHgcalTiclPFClusteringForEgamma_barrel = cms.Sequence((
   hltTiclLayerTileProducer+
   hltTiclTrackstersCLUE3DHigh+
   hltParticleFlowClusterHGCal+
-  hltParticleFlowSuperClusterHGCal
+  hltParticleFlowSuperClusterHGCal+
+  hltTiclLayerTileBarrelProducer+
+  hltTiclTrackstersCLUE3DBarrel
 ))
+
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 ticl_barrel.toReplaceWith(HLTHgcalTiclPFClusteringForEgamma, HLTHgcalTiclPFClusteringForEgamma_barrel)
 

@@ -10,6 +10,7 @@ from RecoHGCal.TICL.HADStep_cff import *
 from RecoHGCal.TICL.CLUE3DEM_cff import *
 from RecoHGCal.TICL.CLUE3DHAD_cff import *
 from RecoHGCal.TICL.PRbyRecovery_cff import *
+from RecoHGCal.TICL.CLUE3DBarrel_cff import *
 
 from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
 from RecoHGCal.TICL.pfTICLProducer_cfi import pfTICLProducer as _pfTICLProducer
@@ -28,6 +29,7 @@ from Configuration.ProcessModifiers.ticlv5_TrackLinkingGNN_cff import ticl_v5_Tr
 from Configuration.ProcessModifiers.ticl_superclustering_dnn_cff import ticl_superclustering_dnn
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_pf_cff import ticl_superclustering_mustache_pf
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff import ticl_superclustering_mustache_ticl
+from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 
 ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 
@@ -235,3 +237,17 @@ iterHFNoseTICLTask = cms.Task(ticlLayerTileHFNoseTask
     ,ticlHFNoseHADStepTask
     ,ticlHFNoseMIPStepTask
 )
+
+ticlLayerTileBarrel = ticlLayerTileProducer.clone(
+    detector = 'Barrel',
+)
+
+ticlLayerTileBarrelTask = cms.Task(filteredLayerClustersCLUE3DBarrel
+    ,ticlLayerTileBarrel)
+
+iterBarrelTICLTask = cms.Task(ticlLayerTileBarrel
+    ,ticlCLUE3DBarrelTask
+)
+
+ticl_barrel.toModify(mergeTICLTask, func=lambda x : x.add(ticlLayerTileBarrelTask, iterBarrelTICLTask))
+

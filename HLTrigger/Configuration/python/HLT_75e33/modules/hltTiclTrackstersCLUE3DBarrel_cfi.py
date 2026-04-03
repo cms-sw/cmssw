@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-hltTiclTrackstersCLUE3DHigh = cms.EDProducer("TrackstersProducer",
-    detector = cms.string('HGCAL'),
-    filtered_mask = cms.InputTag("hltFilteredLayerClustersCLUE3DHigh","CLUE3DHigh"),
-    itername = cms.string('CLUE3DHigh'),
+hltTiclTrackstersCLUE3DBarrel = cms.EDProducer("TrackstersProducer",
+    detector = cms.string('Barrel'),
+    filtered_mask = cms.InputTag("hltFilteredLayerClustersCLUE3DBarrel","CLUE3DBarrel"), # TODO change filter
+    itername = cms.string('CLUE3DBarrel'),
     layer_clusters = cms.InputTag("hltMergeLayerClusters"),
     layer_clusters_hfnose_tiles = cms.InputTag("ticlLayerTileHFNose"),
     layer_clusters_tiles = cms.InputTag("hltTiclLayerTileProducer"),
@@ -37,19 +37,19 @@ hltTiclTrackstersCLUE3DHigh = cms.EDProducer("TrackstersProducer",
     pluginPatternRecognitionByCLUE3D = cms.PSet(
     algo_verbosity = cms.int32(0),
     criticalDensity = cms.vdouble(
-      0.6,
-      0.6,
-      0.6
+      0.5,
+      0.5,
+      0.5
     ),
     criticalSelfDensity = cms.vdouble(
-      0.15,
-      0.15,
-      0.15
+      0.,
+      0.,
+      0.
     ),
     densitySiblingLayers = cms.vint32(
-      3,
-      3,
-      3
+      2,
+      4,
+      4
     ),
     densityEtaPhiDistanceSqr = cms.vdouble(
       0.0008,
@@ -68,13 +68,13 @@ hltTiclTrackstersCLUE3DHigh = cms.EDProducer("TrackstersProducer",
     ),
     densityOnSameLayer = cms.bool(False),
     nearestHigherOnSameLayer = cms.bool(False),
-    useAbsoluteProjectiveScale = cms.bool(True),
+    useAbsoluteProjectiveScale = cms.bool(False),
     useClusterDimensionXY = cms.bool(False),
     rescaleDensityByZ = cms.bool(False),
     criticalEtaPhiDistance = cms.vdouble(
-      0.025,
-      0.025,
-      0.025
+      3 * 0.0175,
+      3 * 0.087,
+      3 * 0.087
     ),
     criticalXYDistance = cms.vdouble(
       1.8,
@@ -92,12 +92,12 @@ hltTiclTrackstersCLUE3DHigh = cms.EDProducer("TrackstersProducer",
       2
     ),
     minNumLayerCluster = cms.vint32(
-      2,
-      2,
-      2
+      1,
+      1,
+      1
     ),
     computeLocalTime = cms.bool(False),
-    doPidCut = cms.bool(True),
+    doPidCut = cms.bool(False),
     cutHadProb = cms.double(999.),
     type = cms.string('CLUE3D')
 
@@ -105,7 +105,7 @@ hltTiclTrackstersCLUE3DHigh = cms.EDProducer("TrackstersProducer",
     pluginPatternRecognitionByFastJet = cms.PSet(
         algo_verbosity = cms.int32(0),
         antikt_radius = cms.double(0.09),
-        minNumLayerCluster = cms.int32(5),
+        minNumLayerCluster = cms.int32(0),
         type = cms.string('FastJet')
     ),
     pluginInferenceAlgoTracksterInferenceByCNNv4 = cms.PSet(
@@ -129,7 +129,7 @@ hltTiclTrackstersCLUE3DHigh = cms.EDProducer("TrackstersProducer",
         output_id   = cms.vstring('pid_output'),
         eid_n_layers = cms.int32(50),
         eid_n_clusters = cms.int32(10),
-        doPID = cms.int32(1),
+        doPID = cms.int32(0),
         doRegression = cms.int32(0),
         type = cms.string('TracksterInferenceByDNN')
     ),
@@ -142,7 +142,7 @@ hltTiclTrackstersCLUE3DHigh = cms.EDProducer("TrackstersProducer",
         output_id   = cms.vstring('pid_output'),
         eid_n_layers = cms.int32(50),
         eid_n_clusters = cms.int32(10),
-        doPID = cms.int32(1),
+        doPID = cms.int32(0),
         doRegression = cms.int32(0),
         type = cms.string('TracksterInferenceByPFN')
     ),
@@ -154,7 +154,3 @@ hltTiclTrackstersCLUE3DHigh = cms.EDProducer("TrackstersProducer",
     seeding_regions = cms.InputTag("hltTiclSeedingGlobal"),
     time_layerclusters = cms.InputTag("hltMergeLayerClusters","timeLayerCluster")
     )
-    
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
-ticl_v5.toModify(hltTiclTrackstersCLUE3DHigh.pluginPatternRecognitionByCLUE3D, computeLocalTime = cms.bool(True))
-ticl_v5.toModify(hltTiclTrackstersCLUE3DHigh, inferenceAlgo = cms.string('TracksterInferenceByPFN'))

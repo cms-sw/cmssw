@@ -13,21 +13,24 @@
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
 
-HitToLayerClusterAssociatorProducer::HitToLayerClusterAssociatorProducer(const edm::ParameterSet &pset)
+template <typename HIT>
+HitToLayerClusterAssociatorProducerT<HIT>::HitToLayerClusterAssociatorProducerT(const edm::ParameterSet &pset)
     : LCCollectionToken_(consumes<std::vector<reco::CaloCluster>>(pset.getParameter<edm::InputTag>("layer_clusters"))),
       hitMapToken_(consumes<std::unordered_map<DetId, unsigned int>>(pset.getParameter<edm::InputTag>("hitMap"))) {
   auto hitsTags = pset.getParameter<std::vector<edm::InputTag>>("hits");
   for (const auto &tag : hitsTags) {
-    hitsTokens_.push_back(consumes<HGCRecHitCollection>(tag));
+    hitsTokens_.push_back(consumes<std::vector<HIT>>(tag));
   }
   produces<ticl::AssociationMap<ticl::mapWithFraction>>("hitToLayerClusterMap");
 }
 
-HitToLayerClusterAssociatorProducer::~HitToLayerClusterAssociatorProducer() {}
+template <typename HIT>
+HitToLayerClusterAssociatorProducerT<HIT>::~HitToLayerClusterAssociatorProducerT() {}
 
-void HitToLayerClusterAssociatorProducer::produce(edm::StreamID,
-                                                  edm::Event &iEvent,
-                                                  const edm::EventSetup &iSetup) const {
+template <typename HIT>
+void HitToLayerClusterAssociatorProducerT<HIT>::produce(edm::StreamID,
+                                                        edm::Event &iEvent,
+                                                        const edm::EventSetup &iSetup) const {
   using namespace edm;
 
   Handle<std::vector<reco::CaloCluster>> layer_clusters;
@@ -36,9 +39,9 @@ void HitToLayerClusterAssociatorProducer::produce(edm::StreamID,
   Handle<std::unordered_map<DetId, unsigned int>> hitMap;
   iEvent.getByToken(hitMapToken_, hitMap);
 
-  edm::MultiSpan<HGCRecHit> rechitSpan;
+  edm::MultiSpan<HIT> rechitSpan;
   for (const auto &token : hitsTokens_) {
-    Handle<HGCRecHitCollection> hitsHandle;
+    Handle<std::vector<HIT>> hitsHandle;
     iEvent.getByToken(token, hitsHandle);
     rechitSpan.add(*hitsHandle);
   }
@@ -62,16 +65,22 @@ void HitToLayerClusterAssociatorProducer::produce(edm::StreamID,
   iEvent.put(std::move(hitToLayerClusterMap), "hitToLayerClusterMap");
 }
 
-void HitToLayerClusterAssociatorProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+template <typename HIT>
+void HitToLayerClusterAssociatorProducerT<HIT>::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalMergeLayerClusters"));
-  desc.add<edm::InputTag>("hitMap", edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
-  desc.add<std::vector<edm::InputTag>>("hits",
-                                       {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
-                                        edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
-                                        edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
-  descriptions.add("hitToLayerClusterAssociator", desc);
+  if constexpr (std::is_same_v<HIT, HGCRecHit>) {
+    desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalMergeLayerClusters"));
+    desc.add<edm::InputTag>("hitMap", edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
+    desc.add<std::vector<edm::InputTag>>("hits",
+                                         {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
+                                          edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
+                                          edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
+    descriptions.add("hitToLayerClusterAssociator", desc);
+  } else if constexpr (std::is_same_v<HIT, reco::PFRecHit>) {
+    desc.add<edm::InputTag>("layer_clusters", edm::InputTag("barrelLayerClusters"));
+    desc.add<edm::InputTag>("hitMap", edm::InputTag("recHitMapProducer", "barrelRecHitMap"));
+    desc.add<std::vector<edm::InputTag>>(
+        "hits", {edm::InputTag("particleFlowRecHitECAL"), edm::InputTag("particleFlowRecHitHBHE")});
+    descriptions.add("hitToBarrelLayerClusterAssociator", desc);
+  }
 }
-
-// Define this as a plug-in
-DEFINE_FWK_MODULE(HitToLayerClusterAssociatorProducer);

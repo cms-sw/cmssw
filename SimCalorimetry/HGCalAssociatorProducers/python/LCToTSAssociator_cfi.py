@@ -23,6 +23,19 @@ layerClusterToSimTracksterFromCPsAssociation = LCToTSAssociatorProducer.clone(
     tracksters = cms.InputTag("ticlSimTracksters", "fromCPs")
 )
 
+## Barrel
+barrelLayerClusterToTracksterAssociation = LCToTSAssociatorProducer.clone(
+    tracksters = cms.InputTag('ticlBarrelTracksters')
+)
+
+barrelLayerClusterToSimTracksterAssociation = LCToTSAssociatorProducer.clone(
+    tracksters = cms.InputTag('ticlBarrelSimTracksters')
+)
+
+barrelLayerClusterToSimTracksterFromCPsAssociation = LCToTSAssociatorProducer.clone(
+    tracksters = cms.InputTag('ticlBarrelSimTracksters', 'fromCPs')
+)
+
 from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
 ticl_v5.toModify(layerClusterToTracksterMergeAssociation, tracksters = cms.InputTag("ticlCandidate"))
 
@@ -37,3 +50,7 @@ allLayerClusterToTracksterAssociations = AllLayerClusterToTracksterAssociatorsPr
     )
 )
 
+allBarrelLayerClusterToTracksterAssociations = AllLayerClusterToTracksterAssociatorsProducer.clone(
+    layer_clusters = cms.InputTag("hgcalMergeLayerClusters"),
+    tracksterCollections = cms.VInputTag(cms.InputTag("ticlTrackstersCLUE3DBarrel"), cms.InputTag("ticlSimTrackstersBarrel"), cms.InputTag("ticlSimTrackstersBarrel", "fromCPs"))
+)
