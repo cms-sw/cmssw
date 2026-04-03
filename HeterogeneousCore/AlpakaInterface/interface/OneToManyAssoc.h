@@ -8,12 +8,27 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/AtomicPairCounter.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/FlexiStorage.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
 namespace cms::alpakatools {
+
+  // Verify shared memory requirements
+  template <alpaka::concepts::Acc TAcc, typename TQueue, typename size_type>
+  ALPAKA_FN_INLINE static void checkSharedMemoryPrefixScan(size_type nOnes, uint32_t nBlocks, TQueue &queue) {
+    auto requiredSharedMem = (nBlocks + alpaka::getPreferredWarpSize(alpaka::getDev(queue))) * sizeof(size_type);
+    auto sharedMemLimit = alpaka::getAccDevProps<TAcc>(alpaka::getDev(queue)).m_sharedMemSizeBytes;
+    if (requiredSharedMem > sharedMemLimit) {
+      throw cms::Exception("SharedMemoryLimitExceeded")
+          << "OneToManyAssocRandomAccess::launchFinalize requested a multiBlockPrefixScan for " << nOnes
+          << " elements, using " << nBlocks << " blocks.\n"
+          << "Shared memory requirement (" << requiredSharedMem << " bytes) exceeds device limit (" << sharedMemLimit
+          << " bytes).";
+    }
+  }
 
   template <
       // type stored in the container (usually an index in a vector of the input values)
@@ -262,6 +277,7 @@ namespace cms::alpakatools {
         auto nthreads = 1024;
         auto nblocks = (nOnes + nthreads - 1) / nthreads;
         auto workDiv = cms::alpakatools::make_workdiv<TAcc>(nblocks, nthreads);
+        cms::alpakatools::checkSharedMemoryPrefixScan<TAcc, TQueue, Counter>(nOnes, nblocks, queue);
         alpaka::exec<TAcc>(queue,
                            workDiv,
                            multiBlockPrefixScan<Counter>(),
@@ -279,4 +295,4 @@ namespace cms::alpakatools {
 
 }  // namespace cms::alpakatools
 
-#endif  // HeterogeneousCore_CUDAUtilities_interface_HistoContainer_h
+#endif  //HeterogeneousCore_AlpakaInterface_interface_OneToManyAssoc_h
