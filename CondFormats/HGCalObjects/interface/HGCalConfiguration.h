@@ -10,6 +10,7 @@
 // @short configuration for ECON eRX (one half of HGROC)
 struct HGCalROCConfig {
   uint32_t charMode;  // characterization mode; determines data fields in ROC dataframe
+  uint32_t muxMode;   // multiplexing mode; determines routing of eRx between the ROCs and ECON-Ds
   COND_SERIALIZABLE;
 };
 
