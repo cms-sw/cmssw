@@ -1261,4 +1261,70 @@ filters = cms.VPSet(
         ptMin = cms.untracked.double(0),
         ptMax = cms.untracked.double(200)
       ),
+  cms.PSet(
+      name = cms.string('hltEle32WPTightClusterShapeFilter'),
+      type = cms.int32(0),
+      ptMin = cms.untracked.double(0),
+      ptMax = cms.untracked.double(200)
+  ),
+  cms.PSet(
+      name = cms.string('hltEle32WPTightHEFilter'),
+      type = cms.int32(0),
+      ptMin = cms.untracked.double(0),
+      ptMax = cms.untracked.double(200)
+  ),
+  cms.PSet(
+      name = cms.string('hltEle32WPTightEcalIsoFilter'),
+      type = cms.int32(0),
+      ptMin = cms.untracked.double(0),
+      ptMax = cms.untracked.double(200)
+  ),
+  cms.PSet(
+      name = cms.string('hltEle32WPTightHcalIsoFilter'),
+      type = cms.int32(0),
+      ptMin = cms.untracked.double(0),
+      ptMax = cms.untracked.double(200)
+  ),
+  cms.PSet(
+      name = cms.string('hltEle32WPTightPixelMatchFilter'),
+      type = cms.int32(0),
+      ptMin = cms.untracked.double(0),
+      ptMax = cms.untracked.double(200)
+  ),
+  cms.PSet(
+      name = cms.string('hltEle32WPTightPMS2Filter'),
+      type = cms.int32(0),
+      ptMin = cms.untracked.double(0),
+      ptMax = cms.untracked.double(200)
+  ),
+  cms.PSet(
+      name = cms.string('hltEle32WPTightGsfOneOEMinusOneOPFilter'),
+      type = cms.int32(0),
+      ptMin = cms.untracked.double(0),
+      ptMax = cms.untracked.double(200)
+  ),
+  cms.PSet(
+      name = cms.string('hltEle32WPTightGsfMissingHitsFilter'),
+      type = cms.int32(0),
+      ptMin = cms.untracked.double(0),
+      ptMax = cms.untracked.double(200)
+  ),
+  cms.PSet(
+      name = cms.string('hltEle32WPTightGsfDetaFilter'),
+      type = cms.int32(0),
+      ptMin = cms.untracked.double(0),
+      ptMax = cms.untracked.double(200)
+  ),
+  cms.PSet(
+      name = cms.string('hltEle32WPTightGsfDphiFilter'),
+      type = cms.int32(0),
+      ptMin = cms.untracked.double(0),
+      ptMax = cms.untracked.double(200)
+  ),
+  cms.PSet(
+      name = cms.string('hltEle32WPTightGsfTrackIsoFilter'),
+      type = cms.int32(0),
+      ptMin = cms.untracked.double(0),
+      ptMax = cms.untracked.double(200)
+  )
 )
