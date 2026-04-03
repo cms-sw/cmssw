@@ -25,9 +25,8 @@ namespace Phase2L1GMT {
   const unsigned int BITSHIFTPROP2C2 = 24;
   const unsigned int BITSHIFTPROP3C2 = 19;
   const unsigned int BITSHIFTRES1 = 11;
-  //for comparison with absK to see which functional form to propagate phi according to
-  //coord1 k cutoff: 4096
-  //coord2 k cutoffs: 1024, 7168, 4096, 2048, 4096
+  //curvscale for coord1 is 4096
+  //curvscales for coord2 are 1024, 7168, 4096, 2048, 4096
   const unsigned int BITSHIFTCURVSCALEC1 = 12;
   const unsigned int BITSHIFTCURVSCALEC2LEADS[5] = {10, 13, 12, 11, 12};
   const unsigned int BITSHIFTCURVSCALEC2CORRS[5] = {0, 10, 0, 0, 0};
@@ -71,7 +70,8 @@ namespace Phase2L1GMT {
                                                    const std::vector<PreTrackMatchedMuon>& muonsPrevious,
                                                    const std::vector<PreTrackMatchedMuon>& muonsNext,
                                                    bool equality) const;
-    std::vector<l1t::TrackerMuon> convert(const std::vector<PreTrackMatchedMuon>& muons, uint maximum) const;
+    std::vector<PreTrackMatchedMuon> cleanAll(std::vector<PreTrackMatchedMuon>& muons) const;
+    std::vector<l1t::TrackerMuon> convert(std::vector<PreTrackMatchedMuon>& muons, uint maximum) const;
     bool outputGT(std::vector<l1t::TrackerMuon>& muons) const;
     void SetQualityBits(std::vector<l1t::TrackerMuon>& muons) const;
     std::vector<l1t::TrackerMuon> sort(std::vector<l1t::TrackerMuon>& muons, uint maximum) const;
