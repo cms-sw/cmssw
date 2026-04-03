@@ -134,12 +134,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         this->registerTransformAsync(
             token,
             [](edm::StreamID, TToken const& deviceProduct, edm::WaitingTaskWithArenaHolder holder) {
+              // Reuse the queue associated o the device product for the host copy.
               auto queue = deviceProduct.template metadata<EDMetadata>().shared_queue();
               detail::EDMetadataAcquireSentry sentry(queue, std::move(holder));
               auto metadataPtr = sentry.metadata();
-              constexpr bool tryReuseQueue = true;
-              TProduct const& productOnDevice =
-                  deviceProduct.template getSynchronized<EDMetadata>(*metadataPtr, tryReuseQueue);
+              TProduct const& productOnDevice = deviceProduct.template getSynchronized<EDMetadata>(*metadataPtr);
 
               auto productOnHost = CopyT::copyAsync(*queue, productOnDevice);
 
