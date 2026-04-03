@@ -1,0 +1,8 @@
+#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/TICL/interface/ClusterMask.h"
+#include "DataFormats/TICL/interface/ClusterMaskHost.h"
+#include "DataFormats/TICL/interface/HitAndFraction.h"
+#include "DataFormats/TICL/interface/AssociationMap.h"
+#include "DataFormats/TICL/interface/HitsAndFractionsHost.h"
+#include "DataFormats/TICL/interface/CaloClusterSoA.h"
+#include "DataFormats/TICL/interface/CaloClusterHostCollection.h"
