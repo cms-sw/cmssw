@@ -16,8 +16,6 @@
 #include "PatternRecognitionbyFastJet.h"
 
 #include "TrackstersPCA.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "fastjet/ClusterSequence.hh"
@@ -29,10 +27,15 @@ template <typename TILES>
 PatternRecognitionbyFastJet<TILES>::PatternRecognitionbyFastJet(const edm::ParameterSet &conf,
                                                                 edm::ConsumesCollector iC)
     : PatternRecognitionAlgoBaseT<TILES>(conf, iC),
-      caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
       antikt_radius_(conf.getParameter<double>("antikt_radius")),
       minNumLayerCluster_(conf.getParameter<int>("minNumLayerCluster")),
       computeLocalTime_(conf.getParameter<bool>("computeLocalTime")){};
+
+template <typename TILES>
+void PatternRecognitionbyFastJet<TILES>::setGeometry(hgcal::RecHitTools const &rhtools) {
+  this->rhtools_ = &rhtools;
+  this->geometryReady_ = true;
+}
 
 template <typename TILES>
 void PatternRecognitionbyFastJet<TILES>::buildJetAndTracksters(std::vector<PseudoJet> &fjInputs,
@@ -84,16 +87,18 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
   if (input.regions.empty())
     return;
 
-  edm::EventSetup const &es = input.es;
-  const CaloGeometry &geom = es.getData(caloGeomToken_);
-  rhtools_.setGeometry(geom);
+  auto const *rhtools = this->rhtools_;
+  if (UNLIKELY(!this->geometryReady_ || rhtools == nullptr)) {
+    throw cms::Exception("LogicError")
+        << "PatternRecognitionbyFastJet::setGeometry() must be called in beginRun() before makeTracksters().";
+  }
 
   constexpr auto isHFnose = std::is_same<TILES, TICLLayerTilesHFNose>::value;
   constexpr int nEtaBin = TILES::constants_type_t::nEtaBins;
   constexpr int nPhiBin = TILES::constants_type_t::nPhiBins;
 
   // We need to partition the two sides of the HGCAL detector
-  auto lastLayerPerSide = static_cast<unsigned int>(rhtools_.lastLayer(isHFnose)) - 1;
+  auto lastLayerPerSide = static_cast<unsigned int>(rhtools->lastLayer(isHFnose)) - 1;
   unsigned int maxLayer = 2 * lastLayerPerSide - 1;
   std::vector<fastjet::PseudoJet> fjInputs;
   fjInputs.clear();
@@ -139,8 +144,8 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
   ticl::assignPCAtoTracksters(result,
                               input.layerClusters,
                               input.layerClustersTime,
-                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z(),
-                              rhtools_,
+                              rhtools->getPositionLayer(rhtools->lastLayerEE(isHFnose), isHFnose).z(),
+                              *rhtools,
                               computeLocalTime_);
 
   // run energy regression and ID
@@ -167,7 +172,7 @@ void PatternRecognitionbyFastJet<TILES>::fillPSetDescription(edm::ParameterSetDe
   iDesc.add<int>("algo_verbosity", 0);
   iDesc.add<double>("antikt_radius", 0.09)->setComment("Radius to be used while running the Anti-kt clustering");
   iDesc.add<int>("minNumLayerCluster", 5)->setComment("Not Inclusive");
-  iDesc.add<bool>("computeLocalTime", false);
+  iDesc.add<bool>("computeLocalTime", true);
 }
 
 template class ticl::PatternRecognitionbyFastJet<TICLLayerTiles>;

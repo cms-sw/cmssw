@@ -64,9 +64,6 @@ RecoLocalCaloRECO = cms.PSet(
 )
 RecoLocalCaloRECO.outputCommands.extend(RecoLocalCaloAOD.outputCommands)
 RecoLocalCaloRECO.outputCommands.extend(ecalLocalRecoRECO.outputCommands)
-phase2_hgcal.toModify( RecoLocalCaloRECO, 
-    outputCommands = RecoLocalCaloRECO.outputCommands + ['keep *_hgcalMultiClusters_*_*',
-                                                         'keep *_iterHGCalMultiClusters_*_*'])
 
 #FEVT content
 RecoLocalCaloFEVT = cms.PSet(

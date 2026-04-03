@@ -16,6 +16,5 @@ hgcalHitValidation = DQMEDAnalyzer('HGCalHitValidation',
 )
 
 from Validation.HGCalValidation.hgcalHitCalibration_cfi import hgcalHitCalibration
-from Validation.HGCalValidation.caloparticlevalidation_cfi import caloparticlevalidation
 
-hgcalHitValidationSequence = cms.Sequence(hgcalHitValidation+hgcalHitCalibration+caloparticlevalidation)
+hgcalHitValidationSequence = cms.Sequence(hgcalHitValidation+hgcalHitCalibration)

@@ -12,7 +12,7 @@ layerClusterToCLUE3DTracksterAssociation = LCToTSAssociatorProducer.clone(
 )
 
 layerClusterToTracksterMergeAssociation = LCToTSAssociatorProducer.clone(
-    tracksters = cms.InputTag("ticlTrackstersMerge")
+    tracksters = cms.InputTag("ticlCandidate")
 )
 
 layerClusterToSimTracksterAssociation = LCToTSAssociatorProducer.clone(
@@ -23,15 +23,12 @@ layerClusterToSimTracksterFromCPsAssociation = LCToTSAssociatorProducer.clone(
     tracksters = cms.InputTag("ticlSimTracksters", "fromCPs")
 )
 
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
-ticl_v5.toModify(layerClusterToTracksterMergeAssociation, tracksters = cms.InputTag("ticlCandidate"))
-
 from SimCalorimetry.HGCalAssociatorProducers.AllLayerClusterToTracksterAssociatorsProducer_cfi import AllLayerClusterToTracksterAssociatorsProducer
-from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels
+from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsPSet
 
 allLayerClusterToTracksterAssociations = AllLayerClusterToTracksterAssociatorsProducer.clone(    
     tracksterCollections = cms.VInputTag(
-        *[cms.InputTag(label) for label in ticlIterLabels],
+        *[cms.InputTag(label) for label in ticlIterLabelsPSet.labels],
         cms.InputTag("ticlSimTracksters"),
         cms.InputTag("ticlSimTracksters", "fromCPs"),
     )
