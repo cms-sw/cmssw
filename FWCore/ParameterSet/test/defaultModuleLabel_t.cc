@@ -1,27 +1,13 @@
-#include <cppunit/extensions/HelperMacros.h>
+#include "catch2/catch_all.hpp"
 
 #include "FWCore/ParameterSet/interface/defaultModuleLabel.h"
 
-class testDefaultModuleLabel : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(testDefaultModuleLabel);
-  CPPUNIT_TEST(test);
-  CPPUNIT_TEST_SUITE_END();
-
-public:
-  void setUp() {}
-  void tearDown() {}
-
-  void test();
-};
-
-CPPUNIT_TEST_SUITE_REGISTRATION(testDefaultModuleLabel);
-
-void testDefaultModuleLabel::test() {
-  CPPUNIT_ASSERT(edm::defaultModuleLabel("Dummy") == "dummy");
-  CPPUNIT_ASSERT(edm::defaultModuleLabel("DummyCamelCaps") == "dummyCamelCaps");
-  CPPUNIT_ASSERT(edm::defaultModuleLabel("ALLCAPS") == "allcaps");
-  CPPUNIT_ASSERT(edm::defaultModuleLabel("STARTCaps") == "startCaps");
-  CPPUNIT_ASSERT(edm::defaultModuleLabel("colons::Test") == "colonsTest");
+TEST_CASE("DefaultModuleLabel", "[ParameterSet]") {
+  SECTION("test") {
+    REQUIRE(edm::defaultModuleLabel("Dummy") == "dummy");
+    REQUIRE(edm::defaultModuleLabel("DummyCamelCaps") == "dummyCamelCaps");
+    REQUIRE(edm::defaultModuleLabel("ALLCAPS") == "allcaps");
+    REQUIRE(edm::defaultModuleLabel("STARTCaps") == "startCaps");
+    REQUIRE(edm::defaultModuleLabel("colons::Test") == "colonsTest");
+  }
 }
-
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
