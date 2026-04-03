@@ -24,7 +24,7 @@
  * (i.e. ECL-CC algorithm).
  *
  * Execution model:
- * - Warp-tiling over (source tile × destination lane) pairs.
+ * - Warp-tiling over (source tile x destination lane) pairs.
  * - Candidate filtering: depth > 0 and (eta, phi) within nSigma cuts.
  * - Multi-stage warp pruning using masked collectives (ballot/shuffle/reduction).
  *
@@ -41,7 +41,12 @@
 
 // We perform full warp computation for old NVIDIA and AMD microarchitectures
 #if defined(ALPAKA_ACC_GPU_CUDA_ENABLED) && (__CUDA_ARCH__ < 800) || defined(ALPAKA_ACC_GPU_HIP_ENABLED)
-#define FULL_WARP_COMPUTE
+/*
+* For pre-Ampere CUDA architectures the operations must be done for all lanes in the whole warp.
+*/
+constexpr bool full_warp_compute = true;
+#else
+constexpr bool full_warp_compute = false;
 #endif
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -257,11 +262,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   reco::PFMultiDepthClusteringCCLabelsDeviceCollection::View mdpfClusteringCCLabels,
                                   const reco::PFMultiDepthClusteringVarsDeviceCollection::ConstView mdpfClusteringVars,
                                   const PFMultiDepthClusterParams* nSigma) const {
-#ifdef FULL_WARP_COMPUTE
-      constexpr bool full_warp_compute = true;
-#else
-      constexpr bool full_warp_compute = false;
-#endif
       constexpr unsigned int w_extent = get_warp_size<Acc1D>();
 
       const unsigned int nClusters = mdpfClusteringVars.size();
@@ -271,12 +271,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       const double nSigmaEta = nSigma->nSigmaEta;
       const double nSigmaPhi = nSigma->nSigmaPhi;
-#ifndef FULL_WARP_COMPUTE
-      constexpr PFMDLinkParamKind param_kinds[3] = {
-          PFMDLinkParamKind::DZ, PFMDLinkParamKind::DR, PFMDLinkParamKind::ENERGY};
-#endif
+
       if (::cms::alpakatools::once_per_grid(acc)) {
         mdpfClusteringCCLabels.size() = nClusters;
+        mdpfClusteringCCLabels.ncomponents() = 0;
       }
 
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
@@ -290,15 +288,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           if (idx.global < nClusters) {
             mdpfClusteringCCLabels[idx.global].workl() = 0;
           }
-/*
-* For pre-Ampere CUDA architectures the operations must be done for all lanes in the whole warp.
-*/
-// Active-lane mask for this warp iteration:
-// every warp collective must use a mask that covers all participating lanes;
-// we additionally OR-in the destination lane to keep it active for result updates.
-#ifndef FULL_WARP_COMPUTE
-          const warp::warp_mask_t init_active_lanes_mask = alpaka::warp::ballot(acc, idx.global < nClusters);
-#endif
+
+          // Active-lane mask for this warp iteration:
+          // every warp collective must use a mask that covers all participating lanes;
+          // we additionally OR-in the destination lane to keep it active for result updates.
+          const warp::warp_mask_t init_active_lanes_mask =
+              alpaka::warp::ballot(acc, full_warp_compute || (idx.global < nClusters));
+
           // From this point all warp-level collectives must be accompanied with init_active_lanes_mask (or any derived from it) mask:
           // for example, new_mask = warp::ballot_mask(acc, old_mask, predicate) will generate a new mask that selects a subset of lanes from old_mask
           // Link parameters (by default store its own global index):
@@ -340,104 +336,95 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             for (unsigned int dst_lane_idx = 0; dst_lane_idx < w_extent; dst_lane_idx++) {
               // 1. We need to keep the target cluster lane with dst_lane_idx reserved from divergence
               const warp::warp_mask_t dst_lane_mask = get_lane_mask(dst_lane_idx);
-#ifndef FULL_WARP_COMPUTE
+
               const warp::warp_mask_t active_lanes_mask = init_active_lanes_mask | dst_lane_mask;
-#endif
+
               const bool is_owner_lane = is_owner_tile && (dst_lane_idx == lane_idx);
               // 2. Broadcast values from dst_lane_idx, this will give us warp-local source cluster depth:
-#ifndef FULL_WARP_COMPUTE
               const float dst_depth =
                   warp::shfl_mask(acc, active_lanes_mask, dst_cl_params.depth(), dst_lane_idx, w_extent);
-#else
-              const float dst_depth = alpaka::warp::shfl(acc, dst_cl_params.depth(), dst_lane_idx);
-#endif
+
               // 3. Do not link at the same layer and only link inside out:
               //    Note that if lane_idx == iter_lane_id and is_proper_tile == true, then dz == 0 and the lane is filtered
               //   (but will be not excluded from active lanes)
               const auto dz = (static_cast<int>(dst_depth) - static_cast<int>(src_cl_params.depth()));
               // 4. Select lanes that contain valid candidates, i.e., all lanes for which dz > 0,
               //    excluding lane_idx = iter_lane_id and is_proper_tile = true
-#ifndef FULL_WARP_COMPUTE
               warp::warp_mask_t leftover_lanes_mask = warp::ballot_mask(acc, active_lanes_mask, dz > 0);
-#else
-              warp::warp_mask_t leftover_lanes_mask = alpaka::warp::ballot(acc, dz > 0);
-#endif
+
               // 5. If the warp is 'empty' (no valid lanes), start the next iteration
               //    if no threads detected then coninue, no warp synchronization at the point
-              //warp::syncWarpThreads_mask(acc, valid_candidates_mask || dst_lane_mask);
               // Note that lane with id equal to dst_lane_idx must be always active, since it's responsible for storing
               // result.
               // 6. Skip if there are no active lanes in the leftover lanes mask (all lanes are filtered and must skip);
               if (leftover_lanes_mask == 0)
                 continue;
               // From here on, only lanes in (leftover_lanes_mask | dst_lane_mask) are allowed to call masked collectives.
-#ifndef FULL_WARP_COMPUTE
-              if (is_work_lane(leftover_lanes_mask | dst_lane_mask, lane_idx, w_extent) == false)
+
+              if (is_work_lane(full_warp_compute ? init_active_lanes_mask : leftover_lanes_mask | dst_lane_mask,
+                               lane_idx) == false)
                 continue;
 
-              const float dst_eta = warp::shfl_mask(
-                  acc, leftover_lanes_mask | dst_lane_mask, dst_cl_params.eta(), dst_lane_idx, w_extent);
-              const double dst_etaRMS2 = warp::shfl_mask(
-                  acc, leftover_lanes_mask | dst_lane_mask, dst_cl_params.etaRMS2(), dst_lane_idx, w_extent);
+              const bool is_valid_lane = (is_owner_lane == false) && is_work_lane(leftover_lanes_mask, lane_idx);
+
+              const float dst_eta =
+                  warp::shfl_mask(acc,
+                                  full_warp_compute ? init_active_lanes_mask : leftover_lanes_mask | dst_lane_mask,
+                                  dst_cl_params.eta(),
+                                  dst_lane_idx,
+                                  w_extent);
+              const double dst_etaRMS2 =
+                  warp::shfl_mask(acc,
+                                  full_warp_compute ? init_active_lanes_mask : leftover_lanes_mask | dst_lane_mask,
+                                  dst_cl_params.etaRMS2(),
+                                  dst_lane_idx,
+                                  w_extent);
 
               const auto tmp1 = src_cl_params.eta() - dst_eta;
-              const auto deta = tmp1 * tmp1 / (src_cl_params.etaRMS2() + dst_etaRMS2);
+              const auto deta = is_valid_lane ? tmp1 * tmp1 / (src_cl_params.etaRMS2() + dst_etaRMS2) : 0;
 
-              const float dst_phi = warp::shfl_mask(
-                  acc, leftover_lanes_mask | dst_lane_mask, dst_cl_params.phi(), dst_lane_idx, w_extent);
-              const double dst_phiRMS2 = warp::shfl_mask(
-                  acc, leftover_lanes_mask | dst_lane_mask, dst_cl_params.phiRMS2(), dst_lane_idx, w_extent);
+              const float dst_phi =
+                  warp::shfl_mask(acc,
+                                  full_warp_compute ? init_active_lanes_mask : leftover_lanes_mask | dst_lane_mask,
+                                  dst_cl_params.phi(),
+                                  dst_lane_idx,
+                                  w_extent);
 
-              const auto tmp2 = ::cms::alpakatools::deltaPhi(acc, src_cl_params.phi(), dst_phi);
-              const auto dphi = tmp2 * tmp2 / (src_cl_params.phiRMS2() + dst_phiRMS2);
-#else
-              const float dst_eta = alpaka::warp::shfl(acc, dst_cl_params.eta(), dst_lane_idx);
-              const double dst_etaRMS2 = alpaka::warp::shfl(acc, dst_cl_params.etaRMS2(), dst_lane_idx);
+              const double dst_phiRMS2 =
+                  warp::shfl_mask(acc,
+                                  full_warp_compute ? init_active_lanes_mask : leftover_lanes_mask | dst_lane_mask,
+                                  dst_cl_params.phiRMS2(),
+                                  dst_lane_idx,
+                                  w_extent);
 
-              const auto tmp1 = src_cl_params.eta() - dst_eta;
-              const auto deta = is_work_lane(leftover_lanes_mask | dst_lane_mask, lane_idx, w_extent)
-                                    ? tmp1 * tmp1 / (src_cl_params.etaRMS2() + dst_etaRMS2)
-                                    : 0;
+              const auto tmp2 = is_valid_lane ? ::cms::alpakatools::deltaPhi(acc, src_cl_params.phi(), dst_phi) : 0;
 
-              const float dst_phi = alpaka::warp::shfl(acc, dst_cl_params.phi(), dst_lane_idx);
-              const double dst_phiRMS2 = alpaka::warp::shfl(acc, dst_cl_params.phiRMS2(), dst_lane_idx);
+              const auto dphi = is_valid_lane ? tmp2 * tmp2 / (src_cl_params.phiRMS2() + dst_phiRMS2) : 0;
 
-              const auto tmp2 = is_work_lane(leftover_lanes_mask | dst_lane_mask, lane_idx, w_extent)
-                                    ? ::cms::alpakatools::deltaPhi(acc, src_cl_params.phi(), dst_phi)
-                                    : 0;
-              const auto dphi = is_work_lane(leftover_lanes_mask | dst_lane_mask, lane_idx, w_extent)
-                                    ? tmp2 * tmp2 / (src_cl_params.phiRMS2() + dst_phiRMS2)
-                                    : 0;
-#endif
-              const bool is_valid_lane =
-                  (is_owner_lane == false) && is_work_lane(leftover_lanes_mask, lane_idx, w_extent);
-#ifndef FULL_WARP_COMPUTE
-              warp::warp_mask_t next_leftover_lanes_mask = warp::ballot_mask(
-                  acc,
-                  leftover_lanes_mask | dst_lane_mask,
-                  (deta < nSigmaEta && dphi < nSigmaPhi) && is_valid_lane);  //update valid candidate mask
-#else
               const bool pred = is_valid_lane && (deta < nSigmaEta && dphi < nSigmaPhi);
+
               warp::warp_mask_t next_leftover_lanes_mask =
-                  alpaka::warp::ballot(acc, pred);  //update valid candidate mask
-#endif
+                  warp::ballot_mask(acc,
+                                    full_warp_compute ? init_active_lanes_mask : leftover_lanes_mask | dst_lane_mask,
+                                    pred);  //update valid candidate mask
 
               if (next_leftover_lanes_mask == 0)
                 continue;
 
               leftover_lanes_mask = next_leftover_lanes_mask | dst_lane_mask;
-#ifndef FULL_WARP_COMPUTE
-              if (is_work_lane(leftover_lanes_mask, lane_idx, w_extent) == false)
+
+              if (is_work_lane(full_warp_compute ? init_active_lanes_mask : leftover_lanes_mask, lane_idx) == false)
                 continue;
 
-              const float dst_energy =
-                  warp::shfl_mask(acc, leftover_lanes_mask, dst_cl_params.energy(), dst_lane_idx, w_extent);
-#else
-              const float dst_energy = alpaka::warp::shfl(acc, dst_cl_params.energy(), dst_lane_idx);
-#endif
+              const float dst_energy = warp::shfl_mask(acc,
+                                                       full_warp_compute ? init_active_lanes_mask : leftover_lanes_mask,
+                                                       dst_cl_params.energy(),
+                                                       dst_lane_idx,
+                                                       w_extent);
+
               // 7. Now start inter-warp pruning:
               // 7.1 Create warp-local link params (with the latest leftover lane mask);
-              const bool is_non_owner_lane = is_work_lane(next_leftover_lanes_mask, lane_idx, w_extent);
+              const bool is_non_owner_lane = is_work_lane(next_leftover_lanes_mask, lane_idx);
 
               auto candidate_link_params =
                   is_non_owner_lane
@@ -469,26 +456,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   }
                 }
                 continue;
-              }
-#ifndef FULL_WARP_COMPUTE
-              for (unsigned int k = 0; k < 3; k++) {
-                next_leftover_lanes_mask = prune_link(acc,
-                                                      leftover_lanes_mask,
-                                                      selected_link_params,
-                                                      candidate_link_params,
-                                                      lane_idx,
-                                                      dst_lane_idx,
-                                                      param_kinds[k],
-                                                      is_owner_tile);
-                if (next_leftover_lanes_mask == 0)
-                  break;
+              } else {
+                constexpr PFMDLinkParamKind param_kinds[3] = {
+                    PFMDLinkParamKind::DZ, PFMDLinkParamKind::DR, PFMDLinkParamKind::ENERGY};
 
-                if (is_work_lane(next_leftover_lanes_mask | dst_lane_mask, lane_idx, w_extent) == false)
-                  break;  // exit loop for filtered lanes only
-                // Reset filtered link mask:
-                leftover_lanes_mask = next_leftover_lanes_mask;
+                for (unsigned int k = 0; k < 3; k++) {
+                  next_leftover_lanes_mask = prune_link(acc,
+                                                        leftover_lanes_mask,
+                                                        selected_link_params,
+                                                        candidate_link_params,
+                                                        lane_idx,
+                                                        dst_lane_idx,
+                                                        param_kinds[k],
+                                                        is_owner_tile);
+                  if (next_leftover_lanes_mask == 0)
+                    break;
+
+                  if (is_work_lane(next_leftover_lanes_mask | dst_lane_mask, lane_idx) == false)
+                    break;  // exit loop for filtered lanes only
+                  // Reset filtered link mask:
+                  leftover_lanes_mask = next_leftover_lanes_mask;
+                }
               }
-#endif
             }  //end dst lane id
           }  //end all (full!) tiles
           // Store linked cluster id (or self index, if isolated)

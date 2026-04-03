@@ -58,11 +58,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                  reco::PFMultiDepthClusteringCCLabelsDeviceCollection& mdpfCCLabels,
                                  const reco::PFMultiDepthClusteringVarsDeviceCollection& mdpfClusteringVars,
                                  const PFMultiDepthClusterParams* nSigma) const {
-#ifdef __CUDACC__
-    uint32_t items = 160;
-#else
-    uint32_t items = 192;
-#endif
+    uint32_t items = std::is_same_v<Device, alpaka::DevCpu> ? 1 : 64;
 
     auto n = static_cast<uint32_t>(mdpfClusteringVars->metadata().size());
     uint32_t groups = cms::alpakatools::divide_up_by(n, items);
