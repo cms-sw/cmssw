@@ -73,7 +73,17 @@ namespace clangcms {
     if (support::isSafeClassName(D->getCanonicalDecl()->getQualifiedNameAsString()))
       return;
 
-    const char *sfile = BR.getSourceManager().getPresumedLoc(D->getLocation()).getFilename();
+    const auto &SM = BR.getSourceManager();
+
+    // Normalize to where the code is actually defined
+    clang::SourceLocation loc = SM.getSpellingLoc(D->getLocation());
+
+    // Ignore anything coming from system headers (via -isystem)
+    if (SM.isInSystemHeader(loc)) {
+      return;
+    }
+
+    const char *sfile = SM.getPresumedLoc(loc).getFilename();
     std::string fname(sfile);
     if (!support::isInterestingLocation(fname))
       return;

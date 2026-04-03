@@ -2,9 +2,12 @@
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/Scouting/interface/Run3ScoutingPFJet.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <cmath>
 
 using namespace pat;
 
@@ -37,6 +40,62 @@ Jet::Jet(const edm::RefToBase<pat::Jet>& aJetRef) : Jet(*aJetRef) {
 
 /// constructure from ref to pat::Jet
 Jet::Jet(const edm::Ptr<pat::Jet>& aJetRef) : Jet(*aJetRef) { refToOrig_ = aJetRef; }
+
+/// constructor from Run3ScoutingPFJet
+Jet::Jet(const Run3ScoutingPFJet& sJet)
+    : PATObject<reco::Jet>(reco::Jet()), embeddedCaloTowers_(false), embeddedPFCandidates_(false), jetCharge_(0.) {
+  // Set kinematics
+  float px = sJet.pt() * std::cos(sJet.phi());
+  float py = sJet.pt() * std::sin(sJet.phi());
+  float pz = sJet.pt() * std::sinh(sJet.eta());
+  float energy = std::sqrt(px * px + py * py + pz * pz + sJet.m() * sJet.m());
+  reco::Particle::LorentzVector p4(px, py, pz, energy);
+
+  this->setP4(p4);
+  this->setVertex(math::XYZPoint(0, 0, 0));
+  this->setJetArea(sJet.jetArea());
+
+  // Build PFJet::Specific
+  reco::PFJet::Specific pfSpecific;
+  pfSpecific.mChargedHadronEnergy = sJet.chargedHadronEnergy();
+  pfSpecific.mNeutralHadronEnergy = sJet.neutralHadronEnergy();
+  pfSpecific.mPhotonEnergy = sJet.photonEnergy();
+  pfSpecific.mElectronEnergy = sJet.electronEnergy();
+  pfSpecific.mMuonEnergy = sJet.muonEnergy();
+  pfSpecific.mHFHadronEnergy = sJet.HFHadronEnergy();
+  pfSpecific.mHFEMEnergy = sJet.HFEMEnergy();
+
+  pfSpecific.mChargedHadronMultiplicity = sJet.chargedHadronMultiplicity();
+  pfSpecific.mNeutralHadronMultiplicity = sJet.neutralHadronMultiplicity();
+  pfSpecific.mPhotonMultiplicity = sJet.photonMultiplicity();
+  pfSpecific.mElectronMultiplicity = sJet.electronMultiplicity();
+  pfSpecific.mMuonMultiplicity = sJet.muonMultiplicity();
+  pfSpecific.mHFHadronMultiplicity = sJet.HFHadronMultiplicity();
+  pfSpecific.mHFEMMultiplicity = sJet.HFEMMultiplicity();
+
+  pfSpecific.mHOEnergy = sJet.HOEnergy();
+
+  pfSpecific.mChargedEmEnergy = sJet.electronEnergy();
+  pfSpecific.mChargedMuEnergy = sJet.muonEnergy();
+  pfSpecific.mNeutralEmEnergy = sJet.photonEnergy() + sJet.HFEMEnergy();
+
+  int chargedMultiplicity = sJet.chargedHadronMultiplicity() + sJet.electronMultiplicity() + sJet.muonMultiplicity();
+  int neutralMultiplicity = sJet.neutralHadronMultiplicity() + sJet.photonMultiplicity() + sJet.HFHadronMultiplicity() +
+                            sJet.HFEMMultiplicity();
+
+  pfSpecific.mChargedMultiplicity = chargedMultiplicity;
+  pfSpecific.mNeutralMultiplicity = neutralMultiplicity;
+
+  specificPF_.push_back(pfSpecific);
+
+  // Add b-tagging discriminators
+  this->addBDiscriminatorPair(std::make_pair("pfCombinedSecondaryVertexV2BJetTags", sJet.csv()));
+  this->addBDiscriminatorPair(std::make_pair("pfDeepCSVJetTags:probb", sJet.mvaDiscriminator()));
+
+  // Also store as userFloats for convenience
+  this->addUserFloat("csv", sJet.csv());
+  this->addUserFloat("mvaDiscriminator", sJet.mvaDiscriminator());
+}
 
 std::ostream& reco::operator<<(std::ostream& out, const pat::Jet& obj) {
   if (!out)

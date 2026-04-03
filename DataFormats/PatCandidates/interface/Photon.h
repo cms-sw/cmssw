@@ -17,6 +17,7 @@
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
 */
 
+#include <cstdint>
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -25,6 +26,9 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/Common/interface/AtomicPtrCache.h"
+
+// Forward declaration for scouting
+class Run3ScoutingPhoton;
 
 // Define typedefs for convenience
 namespace pat {
@@ -60,6 +64,8 @@ namespace pat {
       Photon(const edm::RefToBase<reco::Photon>& aPhotonRef);
       /// constructor from a Ptr to a reco photon
       Photon(const edm::Ptr<reco::Photon>& aPhotonRef);
+      /// constructor from Run3ScoutingPhoton
+      Photon(const Run3ScoutingPhoton& scoutingPhoton);
       /// destructor
       ~Photon() override;
 
@@ -335,6 +341,21 @@ namespace pat {
       /// get the source candidate pointer with index i
       reco::CandidatePtr sourceCandidatePtr(size_type i) const override;
 
+      // ---- Scouting flag ----
+      bool isScoutingPhoton() const { return isScoutingPhoton_; }
+
+      // ---- Universal accessors with scouting dispatch ----
+      // ECAL crystal-level: dispatches to superCluster() for standard, scouting members for scouting
+      uint32_t seedId() const;
+      uint32_t nClusters() const;
+      uint32_t nCrystals() const;
+
+      // ---- Scouting-only accessors (no standard equivalent) ----
+      std::vector<float> const& scoutingEnergyMatrix() const { return scoutingEnergyMatrix_; }
+      std::vector<float> const& scoutingTimingMatrix() const { return scoutingTimingMatrix_; }
+      std::vector<uint32_t> const& scoutingDetIds() const { return scoutingDetIds_; }
+      bool scoutingRechitZeroSuppression() const { return scoutingRechitZeroSuppression_; }
+
       friend class pat::PATPhotonSlimmer;
       friend class pat::PATPhotonCandidatesRekeyer;
 
@@ -411,6 +432,16 @@ namespace pat {
       // ---- link to PackedPFCandidates
       edm::RefProd<pat::PackedCandidateCollection> packedPFCandidates_;
       std::vector<uint16_t> associatedPackedFCandidateIndices_;
+
+      // ---- scouting-specific members ----
+      bool isScoutingPhoton_{false};
+      uint32_t scoutingSeedId_{0};
+      uint32_t scoutingNClusters_{0};
+      uint32_t scoutingNCrystals_{0};
+      std::vector<float> scoutingEnergyMatrix_;
+      std::vector<float> scoutingTimingMatrix_;
+      std::vector<uint32_t> scoutingDetIds_;
+      bool scoutingRechitZeroSuppression_{false};
     };
   }  // namespace io_v1
 }  // namespace pat

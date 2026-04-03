@@ -32,6 +32,9 @@
 #include "DataFormats/PatCandidates/interface/ElectronFwd.h"
 #include "DataFormats/Common/interface/AtomicPtrCache.h"
 
+// Forward declaration for scouting
+class Run3ScoutingElectron;
+
 // Define typedefs for convenience
 namespace pat {
   typedef std::vector<Electron> ElectronCollection;
@@ -62,6 +65,8 @@ namespace pat {
       Electron(const edm::RefToBase<reco::GsfElectron>& anElectronRef);
       /// constructor from a Ptr to a reco::GsfElectron
       Electron(const edm::Ptr<reco::GsfElectron>& anElectronRef);
+      /// constructor from Run3ScoutingElectron
+      Electron(const Run3ScoutingElectron& scoutingElectron);
       /// destructor
       ~Electron() override;
 
@@ -270,6 +275,29 @@ namespace pat {
         associatedPackedFCandidateIndices_.insert(associatedPackedFCandidateIndices_.end(), beginIndexItr, endIndexItr);
       }
 
+      // ---- Scouting flag ----
+      bool isScoutingElectron() const { return isScoutingElectron_; }
+
+      // ---- Universal accessors with scouting dispatch ----
+      // Track-related: dispatches to gsfTrack() for standard, scouting members for scouting
+      float trkEta() const;
+      float trkPhi() const;
+      float trkpMode() const;
+      float trketaMode() const;
+      float trkphiMode() const;
+      float trkqoverpModeError() const;
+
+      // ECAL crystal-level: dispatches to superCluster() for standard, scouting members for scouting
+      uint32_t seedId() const;
+      uint32_t nClusters() const;
+      uint32_t nCrystals() const;
+
+      // ---- Scouting-only accessors (no standard equivalent) ----
+      std::vector<float> const& scoutingEnergyMatrix() const { return scoutingEnergyMatrix_; }
+      std::vector<float> const& scoutingTimingMatrix() const { return scoutingTimingMatrix_; }
+      std::vector<uint32_t> const& scoutingDetIds() const { return scoutingDetIds_; }
+      bool scoutingRechitZeroSuppression() const { return scoutingRechitZeroSuppression_; }
+
       friend class pat::PATElectronSlimmer;
       friend class pat::PATElectronCandidatesRekeyer;
 
@@ -378,6 +406,22 @@ namespace pat {
       // ---- link to PackedPFCandidates
       edm::RefProd<pat::PackedCandidateCollection> packedPFCandidates_;
       std::vector<uint16_t> associatedPackedFCandidateIndices_;
+
+      // ---- scouting-specific members ----
+      bool isScoutingElectron_{false};
+      std::vector<float> scoutingTrkEta_;
+      std::vector<float> scoutingTrkPhi_;
+      std::vector<float> scoutingTrkpMode_;
+      std::vector<float> scoutingTrketaMode_;
+      std::vector<float> scoutingTrkphiMode_;
+      std::vector<float> scoutingTrkqoverpModeError_;
+      uint32_t scoutingSeedId_{0};
+      uint32_t scoutingNClusters_{0};
+      uint32_t scoutingNCrystals_{0};
+      std::vector<float> scoutingEnergyMatrix_;
+      std::vector<float> scoutingTimingMatrix_;
+      std::vector<uint32_t> scoutingDetIds_;
+      bool scoutingRechitZeroSuppression_{false};
     };
   }  // namespace io_v1
 }  // namespace pat
