@@ -6,6 +6,7 @@ caloLayer1RawFed1354 = cms.EDProducer(
     ecalDigis = cms.InputTag("simEcalTriggerPrimitiveDigis"),
     hcalDigis = cms.InputTag("simHcalTriggerPrimitiveDigis"),
     caloRegions = cms.InputTag("simCaloStage2Layer1Digis"),
+    CICADAScore = cms.InputTag("simCaloStage2Layer1Summary", "CICADAScore"),
     FedId = cms.int32(1354),
     FWId = cms.uint32(0x12345678),
     lenSlinkHeader = cms.untracked.int32(8),
