@@ -87,6 +87,9 @@ namespace {
     } else {
       s << " none";
     }
+
+    // Dump fit chi^2. It will be set to -1.0f if it is not available.
+    s << "; chi2: " << i.chi2();
   }
 
   void printRecHitAuxInfo(std::ostream& s, const HFRecHit& i, const std::vector<int>& bits, bool) {

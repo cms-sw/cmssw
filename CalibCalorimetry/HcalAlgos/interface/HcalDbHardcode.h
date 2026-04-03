@@ -12,6 +12,7 @@
 #include "CondFormats/HcalObjects/interface/HcalGain.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidth.h"
 #include "CondFormats/HcalObjects/interface/HcalPFCut.h"
+#include "CondFormats/HcalObjects/interface/HcalPulseDelay.h"
 #include "CondFormats/HcalObjects/interface/HcalZSThreshold.h"
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
@@ -102,6 +103,7 @@ public:
   HcalGain makeGain(HcalGenericDetId fId, bool fSmear = false) const;
   HcalGainWidth makeGainWidth(HcalGenericDetId fId) const;
   HcalPFCut makePFCut(HcalGenericDetId fId, double intlumi, bool noHE) const;
+  HcalPulseDelay makePulseDelay(HcalGenericDetId fId) const;
   HcalZSThreshold makeZSThreshold(HcalGenericDetId fId) const;
   HcalQIECoder makeQIECoder(HcalGenericDetId fId) const;
   HcalCalibrationQIECoder makeCalibrationQIECoder(HcalGenericDetId fId) const;
