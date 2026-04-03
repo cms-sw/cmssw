@@ -4,148 +4,76 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <vector>
 
+#define DECLARE_CSCL1TP_LUT(NAME)    \
+private:                             \
+  std::vector<unsigned> NAME##_;     \
+                                     \
+public:                              \
+  void set_##NAME(t_lut lut);        \
+  unsigned NAME(unsigned idx) const; \
+  unsigned NAME##_bit_width() const
+
+#define DEFINE_CSCL1TP_LUT(CLASS, NAME)                                \
+  void CLASS::set_##NAME(t_lut lut) { NAME##_ = std::move(lut); }      \
+  unsigned CLASS::NAME(unsigned idx) const { return NAME##_.at(idx); } \
+  unsigned CLASS::NAME##_bit_width() const { return CSCL1TPLookupTableUtils::get_lut_bit_width(NAME##_); }
+
+struct CSCL1TPLookupTableUtils {
+  using t_lut = std::vector<unsigned>;
+
+  static unsigned get_lut_bit_width(const t_lut& lut);
+  static unsigned get_common_lut_bit_width(std::initializer_list<unsigned> luts_bit_width,
+                                           std::string_view lut_group_name);
+};
+
 class CSCL1TPLookupTableME11ILT {
 public:
-  CSCL1TPLookupTableME11ILT();
+  using t_lut = CSCL1TPLookupTableUtils::t_lut;
 
-  ~CSCL1TPLookupTableME11ILT() {}
+  DECLARE_CSCL1TP_LUT(GEM_pad_CSC_es_ME11b_even);
+  DECLARE_CSCL1TP_LUT(GEM_pad_CSC_es_ME11a_even);
+  DECLARE_CSCL1TP_LUT(GEM_pad_CSC_es_ME11b_odd);
+  DECLARE_CSCL1TP_LUT(GEM_pad_CSC_es_ME11a_odd);
 
-  typedef std::vector<unsigned> t_lut;
+  DECLARE_CSCL1TP_LUT(GEM_roll_CSC_min_wg_ME11_even);
+  DECLARE_CSCL1TP_LUT(GEM_roll_CSC_max_wg_ME11_even);
+  DECLARE_CSCL1TP_LUT(GEM_roll_CSC_min_wg_ME11_odd);
+  DECLARE_CSCL1TP_LUT(GEM_roll_CSC_max_wg_ME11_odd);
 
-  // setters
-  void set_GEM_pad_CSC_es_ME11b_even(t_lut lut);
-  void set_GEM_pad_CSC_es_ME11a_even(t_lut lut);
-  void set_GEM_pad_CSC_es_ME11b_odd(t_lut lut);
-  void set_GEM_pad_CSC_es_ME11a_odd(t_lut lut);
+  DECLARE_CSCL1TP_LUT(CSC_slope_cosi_2to1_L1_ME11a_even);
+  DECLARE_CSCL1TP_LUT(CSC_slope_cosi_2to1_L1_ME11a_odd);
+  DECLARE_CSCL1TP_LUT(CSC_slope_cosi_3to1_L1_ME11a_even);
+  DECLARE_CSCL1TP_LUT(CSC_slope_cosi_3to1_L1_ME11a_odd);
 
-  void set_GEM_roll_CSC_min_wg_ME11_even(t_lut lut);
-  void set_GEM_roll_CSC_max_wg_ME11_even(t_lut lut);
-  void set_GEM_roll_CSC_min_wg_ME11_odd(t_lut lut);
-  void set_GEM_roll_CSC_max_wg_ME11_odd(t_lut lut);
+  DECLARE_CSCL1TP_LUT(CSC_slope_cosi_2to1_L1_ME11b_even);
+  DECLARE_CSCL1TP_LUT(CSC_slope_cosi_2to1_L1_ME11b_odd);
+  DECLARE_CSCL1TP_LUT(CSC_slope_cosi_3to1_L1_ME11b_even);
+  DECLARE_CSCL1TP_LUT(CSC_slope_cosi_3to1_L1_ME11b_odd);
 
-  // GEM-CSC trigger: slope correction
-  void set_CSC_slope_cosi_2to1_L1_ME11a_even(t_lut lut);
-  void set_CSC_slope_cosi_2to1_L1_ME11a_odd(t_lut lut);
-  void set_CSC_slope_cosi_3to1_L1_ME11a_even(t_lut lut);
-  void set_CSC_slope_cosi_3to1_L1_ME11a_odd(t_lut lut);
+  DECLARE_CSCL1TP_LUT(CSC_slope_cosi_corr_L1_ME11a_even);
+  DECLARE_CSCL1TP_LUT(CSC_slope_cosi_corr_L1_ME11b_even);
+  DECLARE_CSCL1TP_LUT(CSC_slope_cosi_corr_L1_ME11a_odd);
+  DECLARE_CSCL1TP_LUT(CSC_slope_cosi_corr_L1_ME11b_odd);
 
-  void set_CSC_slope_cosi_2to1_L1_ME11b_even(t_lut lut);
-  void set_CSC_slope_cosi_2to1_L1_ME11b_odd(t_lut lut);
-  void set_CSC_slope_cosi_3to1_L1_ME11b_even(t_lut lut);
-  void set_CSC_slope_cosi_3to1_L1_ME11b_odd(t_lut lut);
+  DECLARE_CSCL1TP_LUT(CSC_slope_corr_L1_ME11a_even);
+  DECLARE_CSCL1TP_LUT(CSC_slope_corr_L1_ME11b_even);
+  DECLARE_CSCL1TP_LUT(CSC_slope_corr_L1_ME11a_odd);
+  DECLARE_CSCL1TP_LUT(CSC_slope_corr_L1_ME11b_odd);
+  DECLARE_CSCL1TP_LUT(CSC_slope_corr_L2_ME11a_even);
+  DECLARE_CSCL1TP_LUT(CSC_slope_corr_L2_ME11b_even);
+  DECLARE_CSCL1TP_LUT(CSC_slope_corr_L2_ME11a_odd);
+  DECLARE_CSCL1TP_LUT(CSC_slope_corr_L2_ME11b_odd);
 
-  void set_CSC_slope_cosi_corr_L1_ME11a_even(t_lut lut);
-  void set_CSC_slope_cosi_corr_L1_ME11b_even(t_lut lut);
-  void set_CSC_slope_cosi_corr_L1_ME11a_odd(t_lut lut);
-  void set_CSC_slope_cosi_corr_L1_ME11b_odd(t_lut lut);
+  DECLARE_CSCL1TP_LUT(es_diff_slope_L1_ME11a_even);
+  DECLARE_CSCL1TP_LUT(es_diff_slope_L1_ME11a_odd);
+  DECLARE_CSCL1TP_LUT(es_diff_slope_L1_ME11b_even);
+  DECLARE_CSCL1TP_LUT(es_diff_slope_L1_ME11b_odd);
+  DECLARE_CSCL1TP_LUT(es_diff_slope_L2_ME11a_even);
+  DECLARE_CSCL1TP_LUT(es_diff_slope_L2_ME11a_odd);
+  DECLARE_CSCL1TP_LUT(es_diff_slope_L2_ME11b_even);
+  DECLARE_CSCL1TP_LUT(es_diff_slope_L2_ME11b_odd);
 
-  void set_CSC_slope_corr_L1_ME11a_even(t_lut lut);
-  void set_CSC_slope_corr_L1_ME11b_even(t_lut lut);
-  void set_CSC_slope_corr_L1_ME11a_odd(t_lut lut);
-  void set_CSC_slope_corr_L1_ME11b_odd(t_lut lut);
-  void set_CSC_slope_corr_L2_ME11a_even(t_lut lut);
-  void set_CSC_slope_corr_L2_ME11b_even(t_lut lut);
-  void set_CSC_slope_corr_L2_ME11a_odd(t_lut lut);
-  void set_CSC_slope_corr_L2_ME11b_odd(t_lut lut);
-
-  void set_es_diff_slope_L1_ME11a_even(t_lut lut);
-  void set_es_diff_slope_L1_ME11a_odd(t_lut lut);
-  void set_es_diff_slope_L1_ME11b_even(t_lut lut);
-  void set_es_diff_slope_L1_ME11b_odd(t_lut lut);
-  void set_es_diff_slope_L2_ME11a_even(t_lut lut);
-  void set_es_diff_slope_L2_ME11a_odd(t_lut lut);
-  void set_es_diff_slope_L2_ME11b_even(t_lut lut);
-  void set_es_diff_slope_L2_ME11b_odd(t_lut lut);
-
-  // getters
-  unsigned GEM_pad_CSC_es_ME11b_even(unsigned pad) const;
-  unsigned GEM_pad_CSC_es_ME11a_even(unsigned pad) const;
-  unsigned GEM_pad_CSC_es_ME11b_odd(unsigned pad) const;
-  unsigned GEM_pad_CSC_es_ME11a_odd(unsigned pad) const;
-
-  unsigned GEM_roll_CSC_min_wg_ME11_even(unsigned roll) const;
-  unsigned GEM_roll_CSC_max_wg_ME11_even(unsigned roll) const;
-  unsigned GEM_roll_CSC_min_wg_ME11_odd(unsigned roll) const;
-  unsigned GEM_roll_CSC_max_wg_ME11_odd(unsigned roll) const;
-
-  // GEM-CSC trigger: slope correction
-  unsigned CSC_slope_cosi_2to1_L1_ME11a_even(unsigned channel) const;
-  unsigned CSC_slope_cosi_2to1_L1_ME11a_odd(unsigned channel) const;
-  unsigned CSC_slope_cosi_3to1_L1_ME11a_even(unsigned channel) const;
-  unsigned CSC_slope_cosi_3to1_L1_ME11a_odd(unsigned channel) const;
-
-  unsigned CSC_slope_cosi_2to1_L1_ME11b_even(unsigned channel) const;
-  unsigned CSC_slope_cosi_2to1_L1_ME11b_odd(unsigned channel) const;
-  unsigned CSC_slope_cosi_3to1_L1_ME11b_even(unsigned channel) const;
-  unsigned CSC_slope_cosi_3to1_L1_ME11b_odd(unsigned channel) const;
-
-  unsigned CSC_slope_cosi_corr_L1_ME11a_even(unsigned channel) const;
-  unsigned CSC_slope_cosi_corr_L1_ME11b_even(unsigned channel) const;
-  unsigned CSC_slope_cosi_corr_L1_ME11a_odd(unsigned channel) const;
-  unsigned CSC_slope_cosi_corr_L1_ME11b_odd(unsigned channel) const;
-
-  unsigned CSC_slope_corr_L1_ME11a_even(unsigned channel) const;
-  unsigned CSC_slope_corr_L1_ME11b_even(unsigned channel) const;
-  unsigned CSC_slope_corr_L1_ME11a_odd(unsigned channel) const;
-  unsigned CSC_slope_corr_L1_ME11b_odd(unsigned channel) const;
-  unsigned CSC_slope_corr_L2_ME11a_even(unsigned channel) const;
-  unsigned CSC_slope_corr_L2_ME11b_even(unsigned channel) const;
-  unsigned CSC_slope_corr_L2_ME11a_odd(unsigned channel) const;
-  unsigned CSC_slope_corr_L2_ME11b_odd(unsigned channel) const;
-
-  // GEM-CSC trigger: 1/8-strip difference to slope
-  unsigned es_diff_slope_L1_ME11a_even(unsigned es_diff) const;
-  unsigned es_diff_slope_L1_ME11a_odd(unsigned es_diff) const;
-  unsigned es_diff_slope_L1_ME11b_even(unsigned es_diff) const;
-  unsigned es_diff_slope_L1_ME11b_odd(unsigned es_diff) const;
-  unsigned es_diff_slope_L2_ME11a_even(unsigned es_diff) const;
-  unsigned es_diff_slope_L2_ME11a_odd(unsigned es_diff) const;
-  unsigned es_diff_slope_L2_ME11b_even(unsigned es_diff) const;
-  unsigned es_diff_slope_L2_ME11b_odd(unsigned es_diff) const;
-
-private:
-  t_lut GEM_pad_CSC_es_ME11b_even_;
-  t_lut GEM_pad_CSC_es_ME11a_even_;
-  t_lut GEM_pad_CSC_es_ME11b_odd_;
-  t_lut GEM_pad_CSC_es_ME11a_odd_;
-
-  t_lut GEM_roll_CSC_min_wg_ME11_even_;
-  t_lut GEM_roll_CSC_max_wg_ME11_even_;
-  t_lut GEM_roll_CSC_min_wg_ME11_odd_;
-  t_lut GEM_roll_CSC_max_wg_ME11_odd_;
-
-  t_lut CSC_slope_cosi_2to1_L1_ME11a_even_;
-  t_lut CSC_slope_cosi_2to1_L1_ME11a_odd_;
-  t_lut CSC_slope_cosi_3to1_L1_ME11a_even_;
-  t_lut CSC_slope_cosi_3to1_L1_ME11a_odd_;
-
-  t_lut CSC_slope_cosi_2to1_L1_ME11b_even_;
-  t_lut CSC_slope_cosi_2to1_L1_ME11b_odd_;
-  t_lut CSC_slope_cosi_3to1_L1_ME11b_even_;
-  t_lut CSC_slope_cosi_3to1_L1_ME11b_odd_;
-
-  t_lut CSC_slope_cosi_corr_L1_ME11a_even_;
-  t_lut CSC_slope_cosi_corr_L1_ME11b_even_;
-  t_lut CSC_slope_cosi_corr_L1_ME11a_odd_;
-  t_lut CSC_slope_cosi_corr_L1_ME11b_odd_;
-
-  t_lut CSC_slope_corr_L1_ME11a_even_;
-  t_lut CSC_slope_corr_L1_ME11b_even_;
-  t_lut CSC_slope_corr_L1_ME11a_odd_;
-  t_lut CSC_slope_corr_L1_ME11b_odd_;
-  t_lut CSC_slope_corr_L2_ME11a_even_;
-  t_lut CSC_slope_corr_L2_ME11b_even_;
-  t_lut CSC_slope_corr_L2_ME11a_odd_;
-  t_lut CSC_slope_corr_L2_ME11b_odd_;
-
-  t_lut es_diff_slope_L1_ME11a_even_;
-  t_lut es_diff_slope_L1_ME11a_odd_;
-  t_lut es_diff_slope_L1_ME11b_even_;
-  t_lut es_diff_slope_L1_ME11b_odd_;
-  t_lut es_diff_slope_L2_ME11a_even_;
-  t_lut es_diff_slope_L2_ME11a_odd_;
-  t_lut es_diff_slope_L2_ME11b_even_;
-  t_lut es_diff_slope_L2_ME11b_odd_;
+  unsigned es_diff_slope_bit_width() const;
 
   COND_SERIALIZABLE;
 };

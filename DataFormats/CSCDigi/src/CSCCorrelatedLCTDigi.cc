@@ -134,7 +134,21 @@ uint16_t CSCCorrelatedLCTDigi::getHMT() const { return (isRun3() ? hmt : std::nu
 
 void CSCCorrelatedLCTDigi::setHMT(const uint16_t h) { hmt = isRun3() ? h : std::numeric_limits<uint16_t>::max(); }
 
-void CSCCorrelatedLCTDigi::setRun3(const bool isRun3) { version_ = isRun3 ? Version::Run3 : Version::Legacy; }
+uint16_t CSCCorrelatedLCTDigi::getSlope() const {
+  return version_ == Version::Run3HR ? (run3_slope_ >> 2) : run3_slope_;
+}
+
+uint16_t CSCCorrelatedLCTDigi::getSlopeEx(uint16_t resolution) const {
+  if (resolution > 16)
+    throw cms::Exception("InvalidSlopeResolution")
+        << "Requested slope resolution " << resolution << " is larger than 16 bits, which is not supported.";
+  const uint16_t rawResolution = getRawSlopeResolution();
+  if (resolution == 0 || resolution == rawResolution)
+    return run3_slope_;
+  if (resolution > rawResolution)
+    return run3_slope_ << (resolution - rawResolution);
+  return run3_slope_ >> (rawResolution - resolution);
+}
 
 /// Comparison
 bool CSCCorrelatedLCTDigi::operator==(const CSCCorrelatedLCTDigi& rhs) const {
@@ -162,7 +176,8 @@ std::ostream& operator<<(std::ostream& o, const CSCCorrelatedLCTDigi& digi) {
     return o << "CSC LCT #" << digi.getTrknmb() << ": Valid = " << digi.isValid() << " BX = " << digi.getBX()
              << " Run-2 Pattern = " << digi.getPattern() << " Run-3 Pattern = " << digi.getRun3Pattern()
              << " Quality = " << digi.getQuality() << " Bend = " << digi.getBend() << " Slope = " << digi.getSlope()
-             << "\n"
+             << " Slope resolution = " << digi.getRawSlopeResolution() << " bits"
+             << " GemLayer = " << digi.getGemLayerUsedForSlopeComputation() << "\n"
              << " KeyHalfStrip = " << digi.getStrip() << " KeyQuartStrip = " << digi.getStrip(4)
              << " KeyEighthStrip = " << digi.getStrip(8) << " KeyWireGroup = " << digi.getKeyWG()
              << " Type (SIM) = " << digi.getType() << " MPC Link = " << digi.getMPCLink();
