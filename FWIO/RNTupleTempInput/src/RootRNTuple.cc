@@ -84,6 +84,12 @@ namespace edm::rntuple_temp {
           << "\n This is either not an edm RNTuple ROOT file or is one that has been corrupted.";
     }
     entries_ = reader_->GetNEntries();
+    activeEntryTokens_.reserve(entryNumberForIndex_->size());
+    {
+      for (size_t i = 0; i < entryNumberForIndex_->size(); ++i) {
+        activeEntryTokens_.push_back(reader_->CreateActiveEntryToken());
+      }
+    }
   }
 
   RootRNTuple::~RootRNTuple() {}
@@ -104,6 +110,7 @@ namespace edm::rntuple_temp {
   void RootRNTuple::insertEntryForIndex(unsigned int index) {
     assert(index < entryNumberForIndex_->size());
     (*entryNumberForIndex_)[index] = entryNumber();
+    activeEntryTokens_[index].SetEntryNumber(entryNumber());
   }
 
   bool RootRNTuple::isValid() const {
