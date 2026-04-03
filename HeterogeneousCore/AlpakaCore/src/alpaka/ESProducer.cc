@@ -1,8 +1,8 @@
 #include "FWCore/Concurrency/interface/Async.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "HeterogeneousCore/AlpakaCore/interface/EventCache.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/EventCache.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HostOnlyTask.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {

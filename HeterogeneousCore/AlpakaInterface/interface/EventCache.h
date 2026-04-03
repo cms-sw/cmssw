@@ -1,5 +1,5 @@
-#ifndef HeterogeneousCore_AlpakaCore_interface_EventCache_h
-#define HeterogeneousCore_AlpakaCore_interface_EventCache_h
+#ifndef HeterogeneousCore_AlpakaInterface_interface_EventCache_h
+#define HeterogeneousCore_AlpakaInterface_interface_EventCache_h
 
 #include <memory>
 #include <utility>
@@ -9,9 +9,9 @@
 
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/AlpakaServiceFwd.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/AlpakaServiceFwd.h"
 
 namespace cms::alpakatools {
 
@@ -101,4 +101,4 @@ namespace cms::alpakatools {
 
 }  // namespace cms::alpakatools
 
-#endif  // HeterogeneousCore_AlpakaCore_interface_EventCache_h
+#endif  // HeterogeneousCore_AlpakaInterface_interface_EventCache_h
