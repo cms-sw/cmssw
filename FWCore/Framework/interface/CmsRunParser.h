@@ -1,33 +1,19 @@
-#ifndef FWCore_Framework_CmsRunParser_h
-#define FWCore_Framework_CmsRunParser_h
+#ifndef FWCore_Framework_interface_CmsRunParser_h
+#define FWCore_Framework_interface_CmsRunParser_h
 
-#include "boost/program_options.hpp"
+#include <boost/program_options.hpp>
 
-#include <variant>
+#include "FWCore/Utilities/interface/expected.h"
 
 namespace edm {
   class CmsRunParser {
   public:
-    using MapOrExit = std::variant<boost::program_options::variables_map, int>;
     CmsRunParser(const char* name);
-    MapOrExit parse(int argc, const char* argv[]) const;
-    //variant helpers
-    static bool hasVM(const MapOrExit& output) {
-      return std::holds_alternative<boost::program_options::variables_map>(output);
-    }
-    static boost::program_options::variables_map getVM(const MapOrExit& output) {
-      return std::get<boost::program_options::variables_map>(output);
-    }
-    static bool hasExit(const MapOrExit& output) { return std::holds_alternative<int>(output); }
-    static int getExit(const MapOrExit& output) { return std::get<int>(output); }
 
-  private:
-    boost::program_options::options_description desc_;
-    boost::program_options::options_description all_options_;
-    boost::program_options::positional_options_description pos_options_;
+    using Options = edm::expected<boost::program_options::variables_map, int>;
+    Options parse(int argc, const char* argv[]) const;
 
-  public:
-    //Command line parameters
+    // Command line options
     static inline const char* const kParameterSetOpt = "parameter-set";
     static inline const char* const kPythonOpt = "pythonOptions";
     static inline const char* const kPythonOptDefault = "CMSRUN_PYTHONOPT_DEFAULT";
@@ -39,14 +25,24 @@ namespace edm {
     static inline const char* const kEnableJobreportOpt = "enablejobreport";
     static inline const char* const kJobModeCommandOpt = "mode,m";
     static inline const char* const kJobModeOpt = "mode";
+    static inline const char* const kOptionCommandOpt = "option,o";
+    static inline const char* const kOptionOpt = "option";
+    static inline const char* const kHelpCommandOpt = "help,h";
+    static inline const char* const kHelpOpt = "help";
+    static inline const char* const kStrictOpt = "strict";
+
+    // Obsolete command line options
+    static inline const char* const kFwkOpt = "fwk";
     static inline const char* const kNumberOfThreadsCommandOpt = "numThreads,n";
     static inline const char* const kNumberOfThreadsOpt = "numThreads";
     static inline const char* const kSizeOfStackForThreadCommandOpt = "sizeOfStackForThreadsInKB,s";
     static inline const char* const kSizeOfStackForThreadOpt = "sizeOfStackForThreadsInKB";
-    static inline const char* const kHelpOpt = "help";
-    static inline const char* const kHelpCommandOpt = "help,h";
-    static inline const char* const kStrictOpt = "strict";
+
+  private:
+    boost::program_options::options_description desc_;
+    boost::program_options::options_description all_options_;
+    boost::program_options::positional_options_description pos_options_;
   };
 }  // namespace edm
 
-#endif
+#endif  // FWCore_Framework_interface_CmsRunParser_h

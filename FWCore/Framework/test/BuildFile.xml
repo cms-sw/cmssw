@@ -398,6 +398,7 @@
 </bin>
 
 <test name="testFWCoreFrameworkCmsRunParsing" command="run_cmsRun_parsing.sh"/>
+<test name="testFWCoreFrameworkCmsRunOptions" command="run_cmsRun_options.sh"/>
 <test name="testFWCoreFrameworkCmsRunVarparsing" command="run_cmsRun_varparsing.sh"/>
 <test name="testFWCoreFrameworkCmsRunArgparse" command="run_cmsRun_argparse.sh"/>
 <test name="testFWCoreFrameworkCmsRunArgv" command="run_cmsRun_argv.sh"/>
