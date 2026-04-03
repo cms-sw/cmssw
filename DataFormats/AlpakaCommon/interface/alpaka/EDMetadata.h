@@ -7,6 +7,7 @@
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/Common/interface/DeviceProduct.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/EventCache.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -51,7 +52,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     std::shared_ptr<Queue> shared_queue() const { return queue_; }
 
     void recordEvent() {}
-    void discardEvent() {}
 
   private:
     std::shared_ptr<Queue> queue_;
@@ -64,8 +64,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class EDMetadata : public edm::DeviceProductMetadataBase {
   public:
-    EDMetadata(std::shared_ptr<Queue> queue, std::shared_ptr<Event> event)
-        : queue_(std::move(queue)), event_(std::move(event)) {}
+    EDMetadata(std::shared_ptr<Queue> queue) : queue_(std::move(queue)) {}
     ~EDMetadata() noexcept override;
 
     Device device() const { return alpaka::getDev(*queue_); }
@@ -82,10 +81,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // corresponding to the completion of the work of the EDProducer associated
     // to this metadata object.
     std::shared_ptr<Event> recordEvent() {
+      if (not event_) {
+        event_ = cms::alpakatools::getEventCache<Event>().get(alpaka::getDev(*queue_));
+      }
       alpaka::enqueue(*queue_, *event_);
       return event_;
     }
-    void discardEvent() { event_.reset(); }
 
     /**
      * Synchronizes 'this' metadata wrt. host (caller)
@@ -120,4 +121,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-#endif
+#endif  // HeterogeneousCore_AlpakaCore_interface_alpaka_EDMetadata_h
