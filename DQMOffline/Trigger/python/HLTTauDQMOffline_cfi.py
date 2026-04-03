@@ -9,7 +9,9 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                             PFTauDiscriminatorContainers  = cms.untracked.VInputTag(),
                             PFTauDiscriminatorContainerWPs  = cms.untracked.vstring(),
                             PFTauDiscriminators = cms.untracked.VInputTag(
-                                    cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding")
+                                #cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding")
+                                cms.InputTag("decayModeFindingNewDMs"),
+                                cms.InputTag("byMediumCombinedIsolationDeltaBetaCorr3Hits")
                             ),
                             doPFTaus = cms.untracked.bool(True),
                             ptMin = cms.untracked.double(15.0),
@@ -17,7 +19,8 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                             etaMax = cms.untracked.double(2.5),
                             phiMin = cms.untracked.double(-3.15),
                             phiMax = cms.untracked.double(3.15),
-                            PFTauProducer = cms.untracked.InputTag("hpsPFTauProducer")
+                            #PFTauProducer = cms.untracked.InputTag("hpsPFTauProducer")
+                            PatTauProducer = cms.untracked.InputTag("patTaus")
                             ),
                     Electrons = cms.untracked.PSet(
                             ElectronCollection = cms.untracked.InputTag("gedGsfElectrons"),
@@ -69,6 +72,24 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                     PhiMin = cms.untracked.double(-3.15),
                     PhiMax = cms.untracked.double(3.15)
                   )
+
+TauRefProducerLowPurity = TauRefProducer.clone(
+    PFTaus = cms.untracked.PSet(
+        PFTauDiscriminatorContainers  = cms.untracked.VInputTag(),
+        PFTauDiscriminatorContainerWPs  = cms.untracked.vstring(),
+        PFTauDiscriminators = cms.untracked.VInputTag(
+            cms.InputTag("decayModeFindingNewDMs"),
+        ),
+        doPFTaus = cms.untracked.bool(True),
+        ptMin = cms.untracked.double(15.0),
+        etaMin = cms.untracked.double(-2.5),
+        etaMax = cms.untracked.double(2.5),
+        phiMin = cms.untracked.double(-3.15),
+        phiMax = cms.untracked.double(3.15),
+        #PFTauProducer = cms.untracked.InputTag("hpsPFTauProducer")
+        PatTauProducer = cms.untracked.InputTag("patTaus")
+    )
+)
 
 #----------------------------------MONITORS--------------------------------------------------------------------------
 kEverything = 0
@@ -127,6 +148,36 @@ hltTauOfflineMonitor_Inclusive = hltTauOfflineMonitor_PFTaus.clone(
         doMatching            = cms.untracked.bool(False),
         matchFilters          = cms.untracked.VPSet(),
     )
+)
+
+hltTauOfflineMonitor_PFTausLowPurity = hltTauOfflineMonitor_PFTaus.clone(
+    DQMBaseFolder = cms.untracked.string("HLT/TAU/PFTausLowPurity"),
+    Matching = cms.PSet(
+        doMatching            = cms.untracked.bool(True),
+        matchFilters          = cms.untracked.VPSet(
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("TauRefProducerLowPurity","PFTaus"),
+                                        matchObjectID     = cms.untracked.int32(15),
+                                    ),
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("TauRefProducerLowPurity","Electrons"),
+                                        matchObjectID     = cms.untracked.int32(11),
+                                    ),
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("TauRefProducerLowPurity","Muons"),
+                                        matchObjectID     = cms.untracked.int32(13),
+                                    ),
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("TauRefProducerLowPurity","MET"),
+                                        matchObjectID     = cms.untracked.int32(0),
+                                    ),
+                                ),
+    ),
+)
+
+hltTauOfflineMonitor_PNetTausLowPurity = hltTauOfflineMonitor_PFTausLowPurity.clone(
+    DQMBaseFolder = cms.untracked.string("HLT/TAU/PNetTausLowPurity"),
+    Paths = cms.untracked.string("PNetTauh")
 )
 
 def TriggerSelectionParameters(hltpaths):
