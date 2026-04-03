@@ -23,15 +23,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ngt {
 
     std::unique_ptr<WriterBase> writer() override { return std::make_unique<Writer<T>>(); }
 
-    std::unique_ptr<const ReaderBase> reader(edm::WrapperBase const& wrapper,
-                                             EDMetadata& metadata,
-                                             bool tryReuseQueue) override {
+    std::unique_ptr<const ReaderBase> reader(edm::WrapperBase const& wrapper, EDMetadata& metadata) override {
       WrapperType const& w = dynamic_cast<WrapperType const&>(wrapper);
       if constexpr (detail::useProductDirectly) {
         return std::make_unique<Reader<T>>(w.bareProduct());
       } else {
-        return std::make_unique<Reader<T>>(
-            w.bareProduct().template getSynchronized<EDMetadata>(metadata, tryReuseQueue));
+        return std::make_unique<Reader<T>>(w.bareProduct().template getSynchronized<EDMetadata>(metadata));
       }
     }
   };

@@ -7,6 +7,8 @@
 #include <alpaka/alpaka.hpp>
 
 #include "DataFormats/Common/interface/DeviceProduct.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/EventCache.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/QueueCache.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -38,22 +40,36 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class EDMetadata {
   public:
-    EDMetadata(std::shared_ptr<Queue> queue) : queue_(std::move(queue)) {}
+    EDMetadata(Device device) : device_(std::move(device)) {}
+    EDMetadata(std::shared_ptr<Queue> queue) : device_(alpaka::getDev(*queue)), queue_(std::move(queue)) {}
 
-    Device device() const { return alpaka::getDev(*queue_); }
+    Device const& device() const { return device_; }
 
     // Alpaka operations do not accept a temporary as an argument
     // TODO: Returning non-const reference here is BAD
-    Queue& queue() const { return *queue_; }
+    Queue& queue() const {
+      assert(queue_);
+      return *queue_;
+    }
+
+    Queue& queue() {
+      if (not queue_) {
+        queue_ = cms::alpakatools::getQueueCache<Queue>().get(device_);
+      }
+      return *queue_;
+    }
 
     // Used by ProducerBase to reuse the product's queue for enqueueing
     // the host copy.
-    std::shared_ptr<Queue> shared_queue() const { return queue_; }
+    std::shared_ptr<Queue> shared_queue() {
+      assert(queue_);
+      return queue_;
+    }
 
     void recordEvent() {}
-    void discardEvent() {}
 
   private:
+    Device device_;
     std::shared_ptr<Queue> queue_;
   };
 
@@ -64,28 +80,43 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class EDMetadata : public edm::DeviceProductMetadataBase {
   public:
-    EDMetadata(std::shared_ptr<Queue> queue, std::shared_ptr<Event> event)
-        : queue_(std::move(queue)), event_(std::move(event)) {}
+    EDMetadata(Device device) : device_(std::move(device)) {}
+    EDMetadata(std::shared_ptr<Queue> queue) : device_(alpaka::getDev(*queue)), queue_(std::move(queue)) {}
     ~EDMetadata() noexcept override;
 
-    Device device() const { return alpaka::getDev(*queue_); }
+    Device const& device() const { return device_; }
 
     // Alpaka operations do not accept a temporary as an argument
     // TODO: Returning non-const reference here is BAD
-    Queue& queue() const { return *queue_; }
+    Queue& queue() const {
+      assert(queue_);
+      return *queue_;
+    }
+
+    Queue& queue() {
+      if (not queue_) {
+        queue_ = cms::alpakatools::getQueueCache<Queue>().get(device_);
+      }
+      return *queue_;
+    }
 
     // Used by ProducerBase to reuse the product's queue for enqueueing
     // the host copy.
-    std::shared_ptr<Queue> shared_queue() const { return queue_; }
+    std::shared_ptr<Queue> shared_queue() const {
+      assert(queue_);
+      return queue_;
+    }
 
     // Used by EDMetadataSentry and EDMetadataAcquireSentry to record the event
     // corresponding to the completion of the work of the EDProducer associated
     // to this metadata object.
     std::shared_ptr<Event> recordEvent() {
-      alpaka::enqueue(*queue_, *event_);
+      if (not event_) {
+        event_ = cms::alpakatools::getEventCache<Event>().get(device_);
+      }
+      alpaka::enqueue(queue(), *event_);
       return event_;
     }
-    void discardEvent() { event_.reset(); }
 
     /**
      * Synchronizes 'this' metadata wrt. host (caller)
@@ -99,15 +130,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
      * This is a non-blocking call. At the worst case the queue of the 'consumer'
      * will wait for the event of 'this' to complete.
      */
-    void synchronize(EDMetadata& consumer, bool tryReuseQueue) const;
+    void synchronize(EDMetadata& consumer) const;
 
   private:
     /**
      * Returns a shared_ptr to the Queue if it can be reused, or a
      * null shared_ptr if not
      */
-    std::shared_ptr<Queue> tryReuseQueue_() const;
+    bool tryReuseQueue_() const;
 
+    Device device_;
     std::shared_ptr<Queue> queue_;
     std::shared_ptr<Event> event_;
     // This flag tells whether the Queue may be reused by a
@@ -120,4 +152,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-#endif
+#endif  // HeterogeneousCore_AlpakaCore_interface_alpaka_EDMetadata_h
