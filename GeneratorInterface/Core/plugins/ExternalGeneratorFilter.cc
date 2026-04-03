@@ -24,7 +24,6 @@
 #include "CLHEP/Random/RanecuEngine.h"
 
 #include <cstdio>
-#include <iostream>
 
 using namespace edm::shared_memory;
 namespace externalgen {
@@ -279,7 +278,10 @@ std::shared_ptr<externalgen::RunCache> ExternalGeneratorFilter::globalBeginRun(e
 void ExternalGeneratorFilter::streamBeginRun(edm::StreamID iID, edm::Run const& iRun, edm::EventSetup const&) const {}
 void ExternalGeneratorFilter::streamEndRun(edm::StreamID iID, edm::Run const& iRun, edm::EventSetup const&) const {
   if (iID.value() == 0) {
-    runCache(iRun.index())->runInfo_ = *streamCache(iID)->endRunProduce(iRun.run());
+    auto v = streamCache(iID)->endRunProduce(iRun.run());
+    if (v) {
+      runCache(iRun.index())->runInfo_ = *v;
+    }
   } else {
     (void)streamCache(iID)->endRunProduce(iRun.run());
   }
@@ -336,8 +338,11 @@ void ExternalGeneratorFilter::streamEndLuminosityBlockSummary(edm::StreamID iID,
                                                               edm::LuminosityBlock const& iLuminosityBlock,
                                                               edm::EventSetup const&,
                                                               GenLumiInfoProduct* iProduct) const {
-  if (iProduct and streamCache(iID) and streamCache(iID)->endLumiProduce(iLuminosityBlock.run())) {
-    iProduct->mergeProduct(*streamCache(iID)->endLumiProduce(iLuminosityBlock.run()));
+  if (iProduct and streamCache(iID)) {
+    auto v = streamCache(iID)->endLumiProduce(iLuminosityBlock.run());
+    if (v) {
+      iProduct->mergeProduct(*v);
+    }
   }
 
   if (luminosityBlockCache(iLuminosityBlock.index())) {
