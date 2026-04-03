@@ -51,6 +51,7 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
 
   int phiMean = this->meanDistPhiValue(iLayer, iRefLayer, refStub->phiBHw);
   int phiDistMin = myOmtfConfig->nPhiBins();
+  int deltaPhiSel = myOmtfConfig->nPhiBins();
 
   ///Select hit closest to the mean of probability
   ///distribution in given layer
@@ -78,7 +79,9 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
     if (hitPhi >= (int)myOmtfConfig->nPhiBins())  //TODO is this needed now? the empty hit will be empty stub
       continue;  //empty itHits are marked with nPhiBins() in OMTFProcessor::restrictInput
 
-    int phiDist = this->myOmtfConfig->foldPhi(hitPhi - extrapolatedPhi[iStub] - phiMean - phiRefHit);
+    int deltaPhi = hitPhi - extrapolatedPhi[iStub] - phiRefHit;
+    int phiDist = deltaPhi - phiMean;
+    //int phiDist = this->myOmtfConfig->foldPhi(hitPhi - extrapolatedPhi[iStub] - phiMean - phiRefHit);
     /*LogTrace("l1tOmtfEventPrint") <<"\n"<<__FUNCTION__<<":"<<__LINE__<<" "<<theKey<<std::endl;
     LogTrace("l1tOmtfEventPrint") <<__FUNCTION__<<":"<<__LINE__
                <<"  iRefLayer "<<iRefLayer<<" iLayer "<<iLayer
@@ -93,6 +96,7 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
     if (std::abs(phiDist) < std::abs(phiDistMin)) {
       phiDistMin = phiDist;
       selectedStub = stub;
+      deltaPhiSel = deltaPhi;
     }
   }
 
@@ -100,7 +104,7 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
     PdfValueType pdfVal = 0;
     if (this->myOmtfConfig->isNoHitValueInPdf())
       pdfVal = this->pdfValue(iLayer, iRefLayer, 0);
-    return StubResult(pdfVal, false, myOmtfConfig->nPhiBins(), iLayer, selectedStub);
+    return StubResult(pdfVal, false, myOmtfConfig->nPhiBins(), myOmtfConfig->nPhiBins(), iLayer, selectedStub);
   }
 
   int pdfMiddle = 1 << (myOmtfConfig->nPdfAddrBits() - 1);
@@ -113,7 +117,7 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
   ///Check if phiDistMin is within pdf range -63 +63
   ///in firmware here the arithmetic "value and sign" is used, therefore the range is -63 +63, and not -64 +63
   if (std::abs(phiDistMin) > ((1 << (myOmtfConfig->nPdfAddrBits() - 1)) - 1)) {
-    return StubResult(0, false, phiDistMin + pdfMiddle, iLayer, selectedStub);
+    return StubResult(0, false, phiDistMin + pdfMiddle, deltaPhiSel, iLayer, selectedStub);
 
     //in some algorithms versions with thresholds we use the bin 0 to store the pdf value returned when there was no hit.
     //in the version without thresholds, the value in the bin 0 should be 0
@@ -124,9 +128,9 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
   //if (this->getDistPhiBitShift(iLayer, iRefLayer) != 0) LogTrace("l1tOmtfEventPrint")<<__FUNCTION__<<":"<<__LINE__<<" phiDistMin "<<phiDistMin<<std::endl;
   PdfValueType pdfVal = this->pdfValue(iLayer, iRefLayer, phiDistMin);
   if (pdfVal <= 0) {
-    return StubResult(0, false, phiDistMin, iLayer, selectedStub);
+    return StubResult(0, false, phiDistMin, deltaPhiSel, iLayer, selectedStub);
   }
-  return StubResult(pdfVal, true, phiDistMin, iLayer, selectedStub);
+  return StubResult(pdfVal, true, phiDistMin, deltaPhiSel, iLayer, selectedStub);
 }
 
 ////////////////////////////////////////////////////

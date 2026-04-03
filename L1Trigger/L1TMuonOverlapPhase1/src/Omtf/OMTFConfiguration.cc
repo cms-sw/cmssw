@@ -299,6 +299,19 @@ void OMTFConfiguration::configureFromEdmParameterSet(const edm::ParameterSet &ed
   if (edmParameterSet.exists("cleanStubs")) {
     cleanStubs_ = edmParameterSet.getParameter<bool>("cleanStubs");
   }
+
+  if (edmParameterSet.exists("usePhase2DTPrimitives")) {
+    usePhase2DTPrimitives_ = edmParameterSet.getParameter<bool>("usePhase2DTPrimitives");
+  }
+
+  //phase-2
+  if (getStubEtaEncoding() == ProcConfigurationBase::StubEtaEncoding::valueP2Scale) {
+    //in DataFormats/L1TMuonPhase2/interface/Constants.h BITSETA = 13
+    //for OMTF we reduce the precision
+    const int BITSETA = 13 - 2;
+    const float LSBeta = 2. * M_PI / pow(2, BITSETA);
+    etaUnit_ = LSBeta;
+  }
 }
 
 ///////////////////////////////////////////////
@@ -397,15 +410,6 @@ uint32_t OMTFConfiguration::getLayerNumber(uint32_t rawId) const {
   int hwNumber = aLayer + 100 * detId.subdetId();
 
   return hwNumber;
-}
-
-int OMTFConfiguration::calcGlobalPhi(int locPhi, int proc) const {
-  int globPhi = 0;
-  //60 degree sectors = 96 in int-scale
-  globPhi = (proc) * 96 * 6 / nProcessors() + locPhi;
-  // first processor starts at CMS phi = 15 degrees (24 in int)... Handle wrap-around with %. Add 576 to make sure the number is positive
-  globPhi = (globPhi + 600) % 576;
-  return globPhi;
 }
 
 unsigned int OMTFConfiguration::eta2Bits(unsigned int eta) {
@@ -524,36 +528,29 @@ int OMTFConfiguration::etaBit2Code(unsigned int bit) {
 ///////////////////////////////////////////////
 // phiRad should be in the range [-pi,pi]
 int OMTFConfiguration::getProcScalePhi(unsigned int iProcessor, double phiRad) const {
-  double phi15deg =
-      M_PI / 3. * (iProcessor) + M_PI / 12.;  // "0" is 15degree moved cyclically to each processor, note [0,2pi]
+  // "0" is 15degree moved cyclically to each processor, note [0,2pi]
+  double phi15deg = 2 * M_PI / nProcessors() * (iProcessor) + M_PI / 12.;
 
   const double phiUnit = 2 * M_PI / nPhiBins();  //rad/unit
 
   // adjust [0,2pi] and [-pi,pi] to get deltaPhi difference properly
-  switch (iProcessor + 1) {
-    case 1:
-      break;
-    case 6: {
-      phi15deg -= 2 * M_PI;
-      break;
-    }
-    default: {
-      if (phiRad < 0)
-        phiRad += 2 * M_PI;
-      break;
-    }
-  }
+  if ((iProcessor + 1) == nProcessors())
+    phi15deg -= 2 * M_PI;
+  else if (phiRad < 0)
+    phiRad += 2 * M_PI;
 
   // local angle in CSC halfStrip usnits
   return lround((phiRad - phi15deg) / phiUnit);  //FIXME lround or floor ???
 }
 
-///////////////////////////////////////////////
-///////////////////////////////////////////////
-double OMTFConfiguration::procHwPhiToGlobalPhi(int procHwPhi, int procHwPhi0) const {
-  int globalHwPhi = foldPhi(procHwPhi + procHwPhi0);
-  const double phiUnit = 2 * M_PI / nPhiBins();  //rad/unit
-  return globalHwPhi * phiUnit;
+//returns the global phi in the OMTF scale
+int OMTFConfiguration::procPhiOmtfToGlobalPhiOmtf(unsigned int iProcessor, int procHwPhi) const {
+  //24 is 360 deg / 15 deg, 15 deg is the offset of the processor internal scale versus CMS phi = 0 rad
+  int globalPhi = iProcessor * nPhiBins() / nProcessors() + procHwPhi + nPhiBins() / 24;
+  // Handle wrap-around with %. Add nPhiBins to make sure the number is positive
+  globalPhi = (globalPhi + nPhiBins()) % nPhiBins();
+
+  return globalPhi;
 }
 
 ///////////////////////////////////////////////
@@ -605,6 +602,8 @@ void OMTFConfiguration::printConfig() const {
   edm::LogVerbatim("OMTFReconstruction") << "useStubQualInExtr " << useStubQualInExtr_ << std::endl;
   edm::LogVerbatim("OMTFReconstruction") << "useEndcapStubsRInExtr " << useEndcapStubsRInExtr_ << std::endl;
   edm::LogVerbatim("OMTFReconstruction") << "dtRefHitMinQuality " << dtRefHitMinQuality << std::endl;
+
+  edm::LogVerbatim("OMTFReconstruction") << "etaUnit_ " << etaUnit_ << std::endl;
 
   edm::LogVerbatim("OMTFReconstruction") << "cleanStubs " << cleanStubs_ << std::endl;
 }

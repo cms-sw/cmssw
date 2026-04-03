@@ -1,52 +1,55 @@
 # -*- coding: utf-8 -*-
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("L1TMuonEmulation")
+from Configuration.Eras.Era_Run3_2025_cff import Run3_2025
+process = cms.Process("L1TMuonEmulation", Run3_2025)
 import os
 import sys
 
-loadConfigFrom_sqlite_file = True
+loadConfigFrom_sqlite_file = False
 
-loadConfigFrom_fakeOmtfParams = False
+loadConfigFrom_fakeOmtfParams = True
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.MessageLogger = cms.Service("MessageLogger",
-        # suppressInfo       = cms.untracked.vstring('AfterSource', 'PostModule'),
-        destinations=cms.untracked.vstring(
-                                               # 'detailedInfo',
-                                               # 'critical',
+verbose = False
+log_threshold = 'INFO'
+
+if verbose: 
+    process.MessageLogger = cms.Service("MessageLogger",
+       #suppressInfo       = cms.untracked.vstring('AfterSource', 'PostModule'),
+       destinations   = cms.untracked.vstring(
+                                               #'detailedInfo',
+                                               #'critical',
                                                #'cout',
                                                #'cerr',
-                                                'omtfEventPrint'
+                                               'omtfEventPrint'
                     ),
-        categories=cms.untracked.vstring('l1tOmtfEventPrint', 'OMTFReconstruction'), #, 'FwkReport'
-        # cout=cms.untracked.PSet(
-        #                  threshold=cms.untracked.string('INFO'),
-        #                  default=cms.untracked.PSet(limit=cms.untracked.int32(0)),
-        #                  # INFO   =  cms.untracked.int32(0),
-        #                  # DEBUG   = cms.untracked.int32(0),
-        #                  l1tOmtfEventPrint=cms.untracked.PSet(limit=cms.untracked.int32(1000000000)),
-        #                  OMTFReconstruction=cms.untracked.PSet(limit=cms.untracked.int32(1000000000)),
-        #                  #FwkReport=cms.untracked.PSet(reportEvery = cms.untracked.int32(50) ),
-        #                ), 
-        
-        omtfEventPrint = cms.untracked.PSet(    
+       categories        = cms.untracked.vstring('l1tOmtfEventPrint', 'OMTFReconstruction', 'l1MuonAnalyzerOmtf'),
+       omtfEventPrint = cms.untracked.PSet(    
                          filename  = cms.untracked.string('log_MuonOverlap_run3_data'),
                          extension = cms.untracked.string('.txt'),                
-                         threshold = cms.untracked.string('INFO'),
+                         threshold = cms.untracked.string(log_threshold),
                          default = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
                          #INFO   =  cms.untracked.int32(0),
                          #DEBUG   = cms.untracked.int32(0),
                          l1tOmtfEventPrint = cms.untracked.PSet( limit = cms.untracked.int32(1000000000) ),
-                         OMTFReconstruction = cms.untracked.PSet( limit = cms.untracked.int32(1000000000) )
+                         OMTFReconstruction = cms.untracked.PSet( limit = cms.untracked.int32(1000000000) ),
+                         l1MuonAnalyzerOmtf = cms.untracked.PSet( limit = cms.untracked.int32(1000000000) )
                        ),
-       debugModules=cms.untracked.vstring('simOmtfDigis') 
-       # debugModules = cms.untracked.vstring('*')
+       debugModules = cms.untracked.vstring('simOmtfDigis', 'L1MuonAnalyzerOmtf', 'CalibratedDigis') 
+       #debugModules = cms.untracked.vstring('*')
     )
 
-#process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(50)
-process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(False),
-                                         # SkipEvent = cms.untracked.vstring('ProductNotFound') 
+    #process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
+if not verbose:
+    process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(10000)
+    process.MessageLogger.cerr.threshold = cms.untracked.string('INFO')
+    process.MessageLogger.cerr.l1tOmtfEventPrint = cms.untracked.PSet( limit = cms.untracked.int32(1000000000) )
+    process.MessageLogger.cerr.OMTFReconstruction = cms.untracked.PSet( limit = cms.untracked.int32(1000000000) )
+    process.MessageLogger.cerr.l1MuonAnalyzerOmtf = cms.untracked.PSet( limit = cms.untracked.int32(1000000000) )
+    
+    process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(False), 
+                                         #SkipEvent = cms.untracked.vstring('ProductNotFound') 
                                      )
 
 process.source = cms.Source('PoolSource',
@@ -59,9 +62,10 @@ process.source = cms.Source('PoolSource',
      #'/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/344/566/00000/19ef107a-4cd9-4df0-ba93-dbfbab8df1cb.root',
      
      #'/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/342/094/00000/038c179a-d2ce-45f0-a7d5-8b2d40017042.root', # only DT, fw 0x0008
-     '/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/344/266/00000/db2cfbdd-5edf-4ee4-aab0-5bdba105728d.root' #DT and RPC fw 0x0008
+     #'/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/344/266/00000/db2cfbdd-5edf-4ee4-aab0-5bdba105728d.root' #DT and RPC fw 0x0008
      #'/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/344/566/00000/19ef107a-4cd9-4df0-ba93-dbfbab8df1cb.root'  
      #'/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/347/053/00000/7b486245-96ea-4b7c-9fe7-76c957968785.root'  #RPC noise only
+     'file:/eos/home-k/kbunkow/cms_data/run3_data/Run2025G_398240_Muon0_raw.root'
      ),             
  )
 	                    
@@ -70,17 +74,19 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000))
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
-process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
 #process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 #process.load('EventFilter.L1TRawToDigi.omtfStage2Digis_cfi') #unpacker
 
 #process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '113X_dataRun3_Prompt_v3', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, '102X_upgrade2018_realistic_v16', '')
  
@@ -88,7 +94,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 if loadConfigFrom_fakeOmtfParams :
     ####Event Setup Producer
-    process.load('L1Trigger.L1TMuonOverlapPhase1.fakeOmtfParams_cff')
+    process.load('L1Trigger.L1TMuonOverlapPhase1.fakeOmtfParams_extrapolSimple_cff')
     #process.omtfParams.configXMLFile =  cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0008.xml")
     
     process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
@@ -172,6 +178,7 @@ if loadConfigFrom_fakeOmtfParams :
                                    #+ process.dumpED
                                    #+ process.dumpES
                                    )
+    print("Loading OMTF configuration from fakeOmtfParams_cff")
 else :
     process.L1TMuonSeq = cms.Sequence(     
                                     process.omtfStage2Digis + process.simOmtfDigis 
@@ -186,5 +193,5 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 #process.output_step = cms.EndPath(process.out)
-#process.schedule = cms.Schedule(process.L1TMuonPath)
+process.schedule = cms.Schedule(process.L1TMuonPath)
 #process.schedule.extend([process.output_step])
