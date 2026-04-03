@@ -11,6 +11,7 @@
 // user include files
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -36,8 +37,9 @@ public:
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
-  edm::InputTag label_lcl;
-  edm::InputTag label_scl;
+  edm::InputTag label_lcl_;
+  edm::InputTag label_scl_;
+  std::vector<DetId::Detector> detIds_;
 
   edm::EDGetTokenT<SimClusterCollection> SCCollectionToken_;
   edm::EDGetTokenT<CLUSTER> LCCollectionToken_;
@@ -49,11 +51,14 @@ LCToSCAssociatorEDProducerT<CLUSTER>::LCToSCAssociatorEDProducerT(const edm::Par
   produces<ticl::SimToRecoCollectionWithSimClustersT<CLUSTER>>();
   produces<ticl::RecoToSimCollectionWithSimClustersT<CLUSTER>>();
 
-  label_lcl = pset.getParameter<edm::InputTag>("label_lcl");
-  label_scl = pset.getParameter<edm::InputTag>("label_scl");
+  label_lcl_ = pset.getParameter<edm::InputTag>("label_lcl");
+  label_scl_ = pset.getParameter<edm::InputTag>("label_scl");
 
-  LCCollectionToken_ = consumes<CLUSTER>(label_lcl);
-  SCCollectionToken_ = consumes<SimClusterCollection>(label_scl);
+  std::vector<std::string> filter_sim_hits = pset.getParameter<std::vector<std::string>>("filter_sim_hits");
+  detIds_ = simcluster_utils::check_and_join_detids(filter_sim_hits);
+
+  LCCollectionToken_ = consumes<CLUSTER>(label_lcl_);
+  SCCollectionToken_ = consumes<SimClusterCollection>(label_scl_);
   associatorToken_ =
       consumes<ticl::LayerClusterToSimClusterAssociatorT<CLUSTER>>(pset.getParameter<edm::InputTag>("associator"));
 }
@@ -67,8 +72,6 @@ template <typename CLUSTER>
 void LCToSCAssociatorEDProducerT<CLUSTER>::produce(edm::StreamID,
                                                    edm::Event &iEvent,
                                                    const edm::EventSetup &iSetup) const {
-  using namespace edm;
-
   edm::Handle<ticl::LayerClusterToSimClusterAssociatorT<CLUSTER>> theAssociator;
   iEvent.getByToken(associatorToken_, theAssociator);
 
@@ -77,7 +80,7 @@ void LCToSCAssociatorEDProducerT<CLUSTER>::produce(edm::StreamID,
     return;
   }
 
-  Handle<SimClusterCollection> SCCollection;
+  edm::Handle<SimClusterCollection> SCCollection;
   iEvent.getByToken(SCCollectionToken_, SCCollection);
 
   if (!SCCollection.isValid()) {
@@ -87,17 +90,17 @@ void LCToSCAssociatorEDProducerT<CLUSTER>::produce(edm::StreamID,
     return;
   }
 
-  Handle<CLUSTER> LCCollection;
+  edm::Handle<CLUSTER> LCCollection;
   iEvent.getByToken(LCCollectionToken_, LCCollection);
 
   // Protections
   if (!SCCollection.isValid()) {
     edm::LogWarning("LCToSCAssociatorEDProducerT")
-        << "CaloCluster collection with label " << label_scl << " is unavailable. Producing empty associations.";
+        << "CaloCluster collection with label " << label_scl_ << " is unavailable. Producing empty associations.";
   }
   if (!LCCollection.isValid()) {
     edm::LogWarning("LCToSCAssociatorEDProducer")
-        << "CaloCluster collection with label " << label_lcl << " is unavailable. Producing empty associations.";
+        << "CaloCluster collection with label " << label_lcl_ << " is unavailable. Producing empty associations.";
 
     // Return empty collections
     auto emptyRecSimColl = std::make_unique<ticl::RecoToSimCollectionWithSimClustersT<CLUSTER>>();
@@ -111,11 +114,11 @@ void LCToSCAssociatorEDProducerT<CLUSTER>::produce(edm::StreamID,
   // associate LC and SC
   LogTrace("AssociatorValidator") << "Calling associateRecoToSim method\n";
   ticl::RecoToSimCollectionWithSimClustersT<CLUSTER> recSimColl =
-      theAssociator->associateRecoToSim(LCCollection, SCCollection);
+      theAssociator->associateRecoToSim(LCCollection, SCCollection, detIds_);
 
   LogTrace("AssociatorValidator") << "Calling associateSimToReco method\n";
   ticl::SimToRecoCollectionWithSimClustersT<CLUSTER> simRecColl =
-      theAssociator->associateSimToReco(LCCollection, SCCollection);
+      theAssociator->associateSimToReco(LCCollection, SCCollection, detIds_);
 
   auto rts = std::make_unique<ticl::RecoToSimCollectionWithSimClustersT<CLUSTER>>(recSimColl);
   auto str = std::make_unique<ticl::SimToRecoCollectionWithSimClustersT<CLUSTER>>(simRecColl);
@@ -128,6 +131,7 @@ template <typename CLUSTER>
 void LCToSCAssociatorEDProducerT<CLUSTER>::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("label_scl", edm::InputTag("mix", "MergedCaloTruth"));
+  desc.add<std::vector<std::string>>("filter_sim_hits", {""});
   desc.add<edm::InputTag>("label_lcl", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<edm::InputTag>("associator", edm::InputTag("scAssocByEnergyScoreProducer"));
   descriptions.addWithDefaultLabel(desc);

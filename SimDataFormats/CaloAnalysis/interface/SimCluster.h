@@ -1,6 +1,21 @@
 #ifndef SimDataFormats_SimCluster_h
 #define SimDataFormats_SimCluster_h
 
+#include <algorithm>
+#include <array>
+#include <cassert>
+#include <cstdint>
+#include <cmath>
+#include <functional>
+#include <iosfwd>
+#include <limits>
+#include <numeric>
+#include <span>
+#include <tuple>
+#include <utility>
+#include <vector>
+
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -8,24 +23,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
-#include <vector>
-#include <functional>
 
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-
-/** @brief Monte Carlo truth information used for tracking validation.
- *
- * Object with references to the original SimTrack and parent and daughter
- * TrackingVertices. Simulation with high (~100) pileup was taking too much
- * memory so the class was slimmed down and copies of the SimHits were removed.
- *
- * @author original author unknown, re-engineering and slimming by Subir Sarkar
- * (subir.sarkar@cern.ch), some tweaking and documentation by Mark Grimes
- * (mark.grimes@bristol.ac.uk).
- * @date original date unknown, re-engineering Jan-May 2013
- */
 class SimCluster {
   friend std::ostream &operator<<(std::ostream &s, SimCluster const &tp);
 
@@ -40,13 +38,96 @@ public:
   typedef reco::GenParticleRefVector::iterator genp_iterator;
   typedef std::vector<SimTrack>::const_iterator g4t_iterator;
 
-  SimCluster();
+  // Zero-copy hit+fraction view (iterates as pairs)
+  // Not used directly; use the named derived structs below.
+  struct HitsAndValuesViewBase {
+    std::span<const uint32_t> hits;
+    std::span<const float> values;
 
-  SimCluster(const SimTrack &simtrk);
-  SimCluster(EncodedEventId eventID, uint32_t particleID);  // for PU
+    struct iterator {
+      using iterator_category = std::random_access_iterator_tag;
+      using value_type = std::pair<uint32_t, float>;
+      using difference_type = std::ptrdiff_t;
+      using reference = value_type;  // returned by value
+      using pointer = void;
 
-  // destructor
-  ~SimCluster();
+      const uint32_t *h = nullptr;
+      const float *v = nullptr;
+
+      reference operator*() const { return {*h, *v}; }
+
+      iterator &operator++() {
+        ++h;
+        ++v;
+        return *this;
+      }
+      iterator operator++(int) {
+        auto tmp = *this;
+        ++(*this);
+        return tmp;
+      }
+      iterator &operator--() {
+        --h;
+        --v;
+        return *this;
+      }
+      iterator operator--(int) {
+        auto tmp = *this;
+        --(*this);
+        return tmp;
+      }
+
+      iterator &operator+=(difference_type n) {
+        h += n;
+        v += n;
+        return *this;
+      }
+      iterator &operator-=(difference_type n) { return (*this) += (-n); }
+
+      friend iterator operator+(iterator it, difference_type n) { return it += n; }
+      friend iterator operator-(iterator it, difference_type n) { return it -= n; }
+      friend difference_type operator-(iterator a, iterator b) { return a.h - b.h; }
+
+      friend bool operator==(iterator a, iterator b) { return a.h == b.h; }
+      friend bool operator!=(iterator a, iterator b) { return !(a == b); }
+      friend bool operator<(iterator a, iterator b) { return a.h < b.h; }
+    };
+
+    iterator begin() const { return iterator{hits.data(), values.data()}; }
+    iterator end() const {
+      return iterator{hits.data() + static_cast<std::ptrdiff_t>(hits.size()),
+                      values.data() + static_cast<std::ptrdiff_t>(values.size())};
+    }
+
+    iterator::value_type operator[](size_t n) const {
+      assert(n < values.size());
+      return {hits[n], values[n]};
+    }
+
+    size_t size() const { return hits.size(); }
+    bool empty() const { return hits.empty(); }
+  };
+
+  struct HitsAndFractionsView : HitsAndValuesViewBase {
+    std::span<const float> &fractions = values;
+  };
+  struct HitsAndEnergiesView : HitsAndValuesViewBase {
+    std::span<const float> &energies = values;
+  };
+
+  SimCluster() = default;
+
+  SimCluster(const SimTrack &simtrk) {
+    g4Tracks_.push_back(simtrk);
+    theMomentum_.SetPxPyPzE(
+        simtrk.momentum().px(), simtrk.momentum().py(), simtrk.momentum().pz(), simtrk.momentum().E());
+    event_ = simtrk.eventId();
+    particleId_ = simtrk.trackId();
+  }
+
+  SimCluster(EncodedEventId eventID, uint32_t particleID) : event_(eventID), particleId_(particleID) {}
+
+  ~SimCluster() = default;
 
   /** @brief PDG ID.
    *
@@ -172,16 +253,21 @@ public:
   int numberOfRecHits() const { return hits_.size(); }
 
   /** @brief add rechit with fraction */
-  void addRecHitAndFraction(uint32_t hit, float fraction) {
+  void addRecHitAndEnergy(uint32_t hit, float energy) {
     hits_.emplace_back(hit);
-    fractions_.emplace_back(fraction);
+    energies_.emplace_back(energy);
+    hitsFinalized_ = false;
   }
 
   /** @brief add rechit energy */
-  void addHitEnergy(float energy) { energies_.emplace_back(energy); }
+  void addHitFraction(float fraction) {
+    fractions_.emplace_back(fraction);
+    hitsFinalized_ = false;
+  }
 
-  /** @brief Returns list of rechit IDs and fractions for this SimCluster */
+  /** @brief Returns list of rechit IDs and fractions for this SimCluster (copying legacy API) */
   std::vector<std::pair<uint32_t, float>> hits_and_fractions() const {
+    // legacy returns a copy; now deterministic because finalizeHits() sorted it
     std::vector<std::pair<uint32_t, float>> result;
     result.reserve(hits_.size());
     for (size_t i = 0; i < hits_.size(); ++i) {
@@ -190,38 +276,38 @@ public:
     return result;
   }
 
-  /** @brief Returns filtered list of rechit IDs and fractions for this SimCluster based on a predicate */
+  /** @brief Returns filtered list of rechit IDs and fractions for this SimCluster based on a predicate (copying) */
   std::vector<std::pair<uint32_t, float>> filtered_hits_and_fractions(
       const std::function<bool(const DetId &)> &predicate) const {
     std::vector<std::pair<uint32_t, float>> result;
     for (size_t i = 0; i < hits_.size(); ++i) {
       DetId detid(hits_[i]);
-      if (predicate(detid)) {
+      if (predicate(detid))
         result.emplace_back(hits_[i], fractions_[i]);
-      }
     }
     return result;
   }
 
-  /** @brief Returns list of rechit IDs and energies for this SimCluster */
+  /** @brief Returns list of rechit IDs and energies for this SimCluster (copying legacy API) */
   std::vector<std::pair<uint32_t, float>> hits_and_energies() const {
     assert(hits_.size() == energies_.size());
     std::vector<std::pair<uint32_t, float>> result;
     result.reserve(hits_.size());
-    for (size_t i = 0; i < hits_.size(); ++i) {
+    for (size_t i = 0; i < hits_.size(); ++i)
       result.emplace_back(hits_[i], energies_[i]);
-    }
     return result;
   }
 
-  /** @brief clear the hits and fractions list */
-  void clearHitsAndFractions() {
+  void clearHitsAndEnergies() {
     std::vector<uint32_t>().swap(hits_);
-    std::vector<float>().swap(fractions_);
+    std::vector<float>().swap(energies_);
+    hitsFinalized_ = false;
   }
 
-  /** @brief clear the energies list */
-  void clearHitsEnergy() { std::vector<float>().swap(energies_); }
+  void clearFractions() {
+    std::vector<float>().swap(fractions_);
+    hitsFinalized_ = false;
+  }
 
   /** @brief returns the accumulated sim energy in the cluster */
   float simEnergy() const { return simhit_energy_; }
@@ -230,6 +316,86 @@ public:
   void addSimHit(const PCaloHit &hit) {
     simhit_energy_ += hit.energy();
     ++nsimhits_;
+  }
+
+  // --------------------------------------------------------------------------
+  // Producer-side "finalization" (to be called before putting in the event)
+  // --------------------------------------------------------------------------
+  void finalizeHits() {
+    // Keep your original implicit invariant:
+    assert(hits_.size() == fractions_.size() && hits_.size() == energies_.size() && !hits_.empty());
+
+    // Already finalized? keep it cheap and idempotent.
+    if (hitsFinalized_)
+      return;
+
+    // Sort by (det, subdet, rawid)
+    std::vector<size_t> order(hits_.size());
+    std::iota(order.begin(), order.end(), 0);
+
+    auto key = [&](size_t i) {
+      DetId id(hits_[i]);
+      return std::tuple<int, int, uint32_t>(static_cast<int>(id.det()), id.subdetId(), hits_[i]);
+    };
+
+    std::sort(order.begin(), order.end(), [&](size_t a, size_t b) { return key(a) < key(b); });
+
+    applyPermutation_(hits_, order);
+    applyPermutation_(fractions_, order);
+    applyPermutation_(energies_, order);
+
+    buildDetRanges_();
+
+    hitsFinalized_ = true;
+  }
+
+  // --------------------------------------------------------------------------
+  // cost-free views (requires a call to finalizeHits())
+  // --------------------------------------------------------------------------
+  HitsAndFractionsView hits_and_fractions_view() const {
+    assertFinalized_();
+    return HitsAndFractionsView{{hits_, fractions_}};
+  }
+
+  HitsAndFractionsView hits_and_fractions_view(DetId::Detector det) const {
+    assertFinalized_();
+    auto [b, e] = detRanges_[detIndex_(det)];
+    return HitsAndFractionsView{{{hits_.data() + b, e - b}, {fractions_.data() + b, e - b}}};
+  }
+
+  HitsAndFractionsView hits_and_fractions_view(DetId::Detector det, int subdetId) const {
+    assertFinalized_();
+    auto [bb, ee] = subdetRange_(det, subdetId);
+    return HitsAndFractionsView{{{hits_.data() + bb, ee - bb}, {fractions_.data() + bb, ee - bb}}};
+  }
+
+  HitsAndFractionsView hits_and_fractions_view(DetId::Detector detIdMin, DetId::Detector detIdMax) const {
+    assertFinalized_();
+    auto [begin, end] = detMinMaxRange_(detIdMin, detIdMax);
+    return HitsAndFractionsView{{{hits_.data() + begin, end - begin}, {fractions_.data() + begin, end - begin}}};
+  }
+
+  HitsAndEnergiesView hits_and_energies_view() const {
+    assertFinalized_();
+    return HitsAndEnergiesView{{hits_, energies_}};
+  }
+
+  HitsAndEnergiesView hits_and_energies_view(DetId::Detector det) const {
+    assertFinalized_();
+    auto [b, e] = detRanges_[detIndex_(det)];
+    return HitsAndEnergiesView{{{hits_.data() + b, e - b}, {energies_.data() + b, e - b}}};
+  }
+
+  HitsAndEnergiesView hits_and_energies_view(DetId::Detector det, int subdetId) const {
+    assertFinalized_();
+    auto [bb, ee] = subdetRange_(det, subdetId);
+    return HitsAndEnergiesView{{{hits_.data() + bb, ee - bb}, {energies_.data() + bb, ee - bb}}};
+  }
+
+  HitsAndEnergiesView hits_and_energies_view(DetId::Detector detIdMin, DetId::Detector detIdMax) const {
+    assertFinalized_();
+    auto [begin, end] = detMinMaxRange_(detIdMin, detIdMax);
+    return HitsAndEnergiesView{{{hits_.data() + begin, end - begin}, {energies_.data() + begin, end - begin}}};
   }
 
 protected:
@@ -247,6 +413,81 @@ protected:
   /// references to G4 and reco::GenParticle tracks
   std::vector<SimTrack> g4Tracks_;
   reco::GenParticleRefVector genParticles_;
+
+  bool hitsFinalized_{false};
+
+private:
+  static constexpr size_t kMaxDetectors_ = 32;  // Probably 16 could be enough
+
+  std::array<std::pair<size_t, size_t>, kMaxDetectors_> detRanges_{};  // [begin,end) per detector
+
+  static size_t detIndex_(DetId::Detector det) {
+    const auto idx = static_cast<size_t>(det);
+    assert(idx < kMaxDetectors_);
+    return idx;
+  }
+
+  void assertFinalized_() const {
+    assert(hitsFinalized_ && "SimCluster: hits not finalized. Call finalizeHits() in the producer before persisting.");
+  }
+
+  // Returns the [begin, end) index range within hits_ for a det+subdet pair.
+  std::pair<size_t, size_t> subdetRange_(DetId::Detector det, int subdetId) const {
+    auto [b, e] = detRanges_[detIndex_(det)];
+    if (b == e)
+      return {b, e};
+
+    auto beginIt = hits_.begin() + static_cast<std::ptrdiff_t>(b);
+    auto endIt = hits_.begin() + static_cast<std::ptrdiff_t>(e);
+
+    auto keyOf = [](uint32_t rawid) {
+      DetId id(rawid);
+      return std::pair<int, uint32_t>(id.subdetId(), rawid);
+    };
+
+    const auto lowKey = std::pair<int, uint32_t>(subdetId, 0u);
+    const auto highKey = std::pair<int, uint32_t>(subdetId, std::numeric_limits<uint32_t>::max());
+
+    auto lo = std::lower_bound(beginIt, endIt, lowKey, [&](uint32_t rawid, const auto &k) { return keyOf(rawid) < k; });
+    auto hi =
+        std::upper_bound(beginIt, endIt, highKey, [&](const auto &k, uint32_t rawid) { return k < keyOf(rawid); });
+
+    return {static_cast<size_t>(std::distance(hits_.begin(), lo)),
+            static_cast<size_t>(std::distance(hits_.begin(), hi))};
+  }
+
+  // Returns the [begin, end) index range spanning all detectors in [detIdMin, detIdMax].
+  std::pair<size_t, size_t> detMinMaxRange_(DetId::Detector detIdMin, DetId::Detector detIdMax) const {
+    const auto detIndexMin = detIndex_(detIdMin);
+    const auto detIndexMax = detIndex_(detIdMax);
+    assert(detIndexMin <= detIndexMax);
+    const auto [bMin, eMin] = detRanges_[detIndexMin];
+    const auto [bMax, eMax] = detRanges_[detIndexMax];
+    return {bMin, eMax};
+  }
+
+  void buildDetRanges_() {
+    detRanges_.fill({0u, 0u});
+    size_t i = 0;
+    while (i < hits_.size()) {
+      DetId id(hits_[i]);
+      const auto idx = detIndex_(static_cast<DetId::Detector>(id.det()));
+      const size_t begin = i;
+      do {
+        ++i;
+      } while (i < hits_.size() && DetId(hits_[i]).det() == id.det());
+      detRanges_[idx] = {begin, i};
+    }
+  }
+
+  template <typename T>
+  static void applyPermutation_(std::vector<T> &v, const std::vector<size_t> &order) {
+    std::vector<T> tmp;
+    tmp.reserve(v.size());
+    for (size_t idx : order)
+      tmp.push_back(v[idx]);
+    v.swap(tmp);
+  }
 };
 
 #endif  // SimDataFormats_SimCluster_H

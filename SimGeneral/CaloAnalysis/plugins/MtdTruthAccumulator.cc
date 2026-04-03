@@ -202,8 +202,8 @@ namespace {
             acc_energy[hit_and_energy.first] += std::get<0>(hit_and_energy.second);
           }
           for (auto const &hit_and_energy : acc_energy) {
-            simcluster.addHitAndFraction(hit_and_energy.first, hit_and_energy.second);
-            simcluster.addHitEnergy(hit_and_energy.second);
+            simcluster.addHitAndEnergy(hit_and_energy.first, hit_and_energy.second);
+            simcluster.addHitFraction(hit_and_energy.second);
             simcluster.addHitTime(std::get<1>(
                 simTrackDetIdMap_[simcluster.g4Tracks()[0].trackId() +
                                   offset * (static_cast<int>(PSimHit::k_tidOffset))][hit_and_energy.first]));
@@ -368,8 +368,8 @@ void MtdTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup const
   } else {
     for (auto &sc : *(output_.pSimClusters)) {
       auto hitsAndEnergies = sc.hits_and_fractions();
-      sc.clearHitsAndFractions();
-      sc.clearHitsEnergy();
+      sc.clearHitsAndEnergies();
+      sc.clearFractions();
       for (auto &hAndE : hitsAndEnergies) {
         const float totalenergy = m_detIdToTotalSimEnergy[hAndE.first];
         float fraction = 0.;
@@ -378,8 +378,8 @@ void MtdTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup const
         else
           edm::LogWarning(messageCategory_)
               << "TotalSimEnergy for hit " << hAndE.first << " is 0! The fraction for this hit cannot be computed.";
-        sc.addHitAndFraction(hAndE.first, fraction);
-        sc.addHitEnergy(hAndE.second);
+        sc.addHitAndEnergy(hAndE.first, hAndE.second);
+        sc.addHitFraction(fraction);
       }
     }
   }
@@ -438,8 +438,8 @@ void MtdTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup const
     float SimLCx = 0., SimLCy = 0., SimLCz = 0.;
 
     auto push_back_hit = [&](const int &ind) {
-      tmpLC.addHitAndFraction(hAndF[ind].first, hAndF[ind].second);
-      tmpLC.addHitEnergy(hAndE[ind].second);
+      tmpLC.addHitAndEnergy(hAndF[ind].first, hAndE[ind].second);
+      tmpLC.addHitFraction(hAndF[ind].second);
       tmpLC.addHitTime(hAndT[ind].second);
       tmpLC.addHitPosition(hAndP[ind].second);
     };
