@@ -785,6 +785,12 @@ namespace edm {
           }
         });
       }
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 39, 0)
+      auto const printAutoParsed = pset.getUntrackedParameter<bool>("PrintAutoParsed");
+      if (printAutoParsed) {
+        iReg.watchPostEndJob([]() { gInterpreter->Print("autoparsed"); });
+      }
+#endif
 
       if (unloadSigHandler_) {
         // Deactivate all the Root signal handlers and restore the system defaults
@@ -920,6 +926,10 @@ namespace edm {
               "missing is disable during module construction. The current implementation of disabling the parsing is "
               "fragile, and may work only in a single-thread job that does not use reco::parser::cutParser() or "
               "reco::parser::expressionParser() (and it certainly does not work on multiple threads).");
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 39, 0)
+      desc.addUntracked<bool>("PrintAutoParsed", false)
+          ->setComment("If True, ask ROOT to print at the end of the job all classes for which headers were parsed");
+#endif
       desc.addUntracked<bool>("LoadAllDictionaries", false)->setComment("If True, loads all ROOT dictionaries.");
       desc.addUntracked<bool>("EnableIMT", true)->setComment("If True, calls ROOT::EnableImplicitMT().");
       desc.addUntracked<bool>("AbortOnSignal", true)
