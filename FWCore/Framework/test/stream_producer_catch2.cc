@@ -1,5 +1,5 @@
 /*
- *  stream_producer_test.cppunit.cc
+ *  stream_producer_test.catch2.cc
  *  EDMProto
  *
  *  Created by Chris Jones on 2/8/2013.

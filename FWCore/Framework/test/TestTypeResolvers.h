@@ -92,7 +92,8 @@ namespace edm::test {
       if (pset.existsAs<std::string>("variant", false)) {
         variant = pset.getUntrackedParameter<std::string>("variant");
         if (variant != "other" and variant != "cpu") {
-          throw edm::Exception(edm::errors::Configuration) << "Variant must be 'other' or 'cpu'. Got " << variant;
+          throw edm::Exception(edm::errors::Configuration)
+              << "Variant must be 'other' or 'cpu'. Got '" << variant << "' instead.";
         }
       }
       auto found = cache_.find(variant);

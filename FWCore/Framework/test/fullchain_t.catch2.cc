@@ -26,7 +26,7 @@
 #include "FWCore/Concurrency/interface/ThreadsController.h"
 #include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 
-#include "cppunit/extensions/HelperMacros.h"
+#include "catch2/catch_all.hpp"
 
 #include <memory>
 #include <string>
@@ -70,53 +70,37 @@ namespace {
   };
 }  // namespace
 
-class testfullChain : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(testfullChain);
+TEST_CASE("FullChain", "[Framework][EventSetup]") {
+  auto m_scheduler = std::make_unique<edm::ThreadsController>(1);
 
-  CPPUNIT_TEST(getfromproductresolverproviderTest);
+  SECTION("getfromproductresolverproviderTest") {
+    SynchronousEventSetupsController controller;
+    ParameterSet pset = createDummyPset();
+    EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
 
-  CPPUNIT_TEST_SUITE_END();
+    auto dummyFinder = std::make_shared<DummyFinder>();
+    dummyFinder->setInterval(ValidityInterval(IOVSyncValue(Timestamp(1)), IOVSyncValue(Timestamp(5))));
+    provider.add(dummyFinder);
 
-public:
-  void setUp() { m_scheduler = std::make_unique<edm::ThreadsController>(1); }
-  void tearDown() {}
+    auto resolverProvider = std::make_shared<DummyESProductResolverProvider>();
+    provider.add(resolverProvider);
 
-  void getfromproductresolverproviderTest();
+    edm::ESParentContext pc;
+    for (unsigned int iTime = 1; iTime != 6; ++iTime) {
+      const Timestamp time(iTime);
+      controller.eventSetupForInstance(IOVSyncValue(time));
+      DummyDataConsumer consumer;
+      consumer.updateLookup(provider.recordsToResolverIndices());
+      consumer.prefetch(provider.eventSetupImpl());
+      EventSetup eventSetup(provider.eventSetupImpl(),
+                            static_cast<unsigned int>(edm::Transition::Event),
+                            consumer.esGetTokenIndices(edm::Transition::Event),
+                            pc);
+      ESHandle<DummyData> pDummy = eventSetup.getHandle(consumer.m_token);
+      REQUIRE(0 != pDummy.product());
 
-private:
-  edm::propagate_const<std::unique_ptr<edm::ThreadsController>> m_scheduler;
-};
-
-///registration of the test so that the runner can find it
-CPPUNIT_TEST_SUITE_REGISTRATION(testfullChain);
-
-void testfullChain::getfromproductresolverproviderTest() {
-  SynchronousEventSetupsController controller;
-  ParameterSet pset = createDummyPset();
-  EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
-
-  auto dummyFinder = std::make_shared<DummyFinder>();
-  dummyFinder->setInterval(ValidityInterval(IOVSyncValue(Timestamp(1)), IOVSyncValue(Timestamp(5))));
-  provider.add(dummyFinder);
-
-  auto resolverProvider = std::make_shared<DummyESProductResolverProvider>();
-  provider.add(resolverProvider);
-
-  edm::ESParentContext pc;
-  for (unsigned int iTime = 1; iTime != 6; ++iTime) {
-    const Timestamp time(iTime);
-    controller.eventSetupForInstance(IOVSyncValue(time));
-    DummyDataConsumer consumer;
-    consumer.updateLookup(provider.recordsToResolverIndices());
-    consumer.prefetch(provider.eventSetupImpl());
-    EventSetup eventSetup(provider.eventSetupImpl(),
-                          static_cast<unsigned int>(edm::Transition::Event),
-                          consumer.esGetTokenIndices(edm::Transition::Event),
-                          pc);
-    ESHandle<DummyData> pDummy = eventSetup.getHandle(consumer.m_token);
-    CPPUNIT_ASSERT(0 != pDummy.product());
-
-    pDummy = eventSetup.getHandle(consumer.m_token);
-    CPPUNIT_ASSERT(0 != pDummy.product());
+      pDummy = eventSetup.getHandle(consumer.m_token);
+      REQUIRE(0 != pDummy.product());
+    }
   }
 }
