@@ -1,5 +1,5 @@
-<use name="cppunit"/>
-<bin name="testFWCoreFWLite" file="ref_t.cppunit.cpp">
+<use name="catch2"/>
+<bin name="testFWCoreFWLite" file="ref_t.catch2.cpp">
   <flags PRE_TEST="refTestFWCoreFWLite"/>
   <use name="FWCore/FWLite"/>
   <use name="DataFormats/TestObjects"/>
