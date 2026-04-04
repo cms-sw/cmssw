@@ -10,14 +10,14 @@ Test of the EventProcessor class.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "cppunit/extensions/HelperMacros.h"
+#include "catch2/catch_all.hpp"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 
 #include "oneapi/tbb/global_control.h"
 
-// to be called also by the other cppunit...
+// to be called also by the other catch2...
 void doInit() {
   static bool firstTime = true;
   if (firstTime) {
@@ -28,29 +28,6 @@ void doInit() {
     firstTime = false;
   }
 }
-
-class testeventprocessor2 : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(testeventprocessor2);
-  CPPUNIT_TEST(eventprocessor2Test);
-  CPPUNIT_TEST_SUITE_END();
-
-  edm::propagate_const<std::unique_ptr<oneapi::tbb::global_control>> m_control;
-
-public:
-  void setUp() {
-    if (not m_control) {
-      m_control =
-          std::make_unique<oneapi::tbb::global_control>(oneapi::tbb::global_control::max_allowed_parallelism, 1);
-    }
-    //std::cout << "setting up testeventprocessor2" << std::endl;
-    doInit();
-  }
-  void tearDown() {}
-  void eventprocessor2Test();
-};
-
-///registration of the test so that the runner can find it
-CPPUNIT_TEST_SUITE_REGISTRATION(testeventprocessor2);
 
 void work() {
   //std::cout << "work in testeventprocessor2" << std::endl;
@@ -74,17 +51,26 @@ void work() {
   proc.endJob();
 }
 
-void testeventprocessor2::eventprocessor2Test() {
-  try {
-    work();
-  } catch (cms::Exception& e) {
-    std::cerr << "CMS exception caught: " << e.explainSelf() << std::endl;
-    CPPUNIT_ASSERT("cms Exception caught in testeventprocessor2::eventprocessor2Test" == 0);
-  } catch (std::runtime_error& e) {
-    std::cerr << "Standard library exception caught: " << e.what() << std::endl;
-    CPPUNIT_ASSERT("std Exception caught in testeventprocessor2::eventprocessor2Test" == 0);
-  } catch (...) {
-    std::cerr << "Unknown exception caught" << std::endl;
-    CPPUNIT_ASSERT("unkown Exception caught in testeventprocessor2::eventprocessor2Test" == 0);
+TEST_CASE("EventProcessor2", "[Framework]") {
+  static edm::propagate_const<std::unique_ptr<oneapi::tbb::global_control>> m_control;
+
+  if (not m_control) {
+    m_control = std::make_unique<oneapi::tbb::global_control>(oneapi::tbb::global_control::max_allowed_parallelism, 1);
+  }
+  doInit();
+
+  SECTION("eventprocessor2Test") {
+    try {
+      work();
+    } catch (cms::Exception& e) {
+      std::cerr << "CMS exception caught: " << e.explainSelf() << std::endl;
+      REQUIRE("cms Exception caught in testeventprocessor2::eventprocessor2Test" == 0);
+    } catch (std::runtime_error& e) {
+      std::cerr << "Standard library exception caught: " << e.what() << std::endl;
+      REQUIRE("std Exception caught in testeventprocessor2::eventprocessor2Test" == 0);
+    } catch (...) {
+      std::cerr << "Unknown exception caught" << std::endl;
+      REQUIRE("unkown Exception caught in testeventprocessor2::eventprocessor2Test" == 0);
+    }
   }
 }

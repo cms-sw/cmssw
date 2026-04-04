@@ -1,35 +1,20 @@
 
 #include <iostream>
 
-#include "cppunit/extensions/HelperMacros.h"
+#include "catch2/catch_all.hpp"
 
 // ----------------------------------------------
-class testmaker : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(testmaker);
-  CPPUNIT_TEST(makerTest);
-  CPPUNIT_TEST_SUITE_END();
+TEST_CASE("Maker", "[Framework][Factory]") {
+  SECTION("makerTest") {
+    std::string param1 =
+        "string module_type = \"TestMod\"\n "
+        " string module_label = \"t1\"";
 
-public:
-  void setUp() {}
-  void tearDown() {}
-  void makerTest();
-};
+    std::string param2 =
+        "string module_type = \"TestMod\" "
+        "string module_label = \"t2\"";
 
-///registration of the test so that the runner can find it
-CPPUNIT_TEST_SUITE_REGISTRATION(testmaker);
-
-void testmaker::makerTest()
-//int main()
-{
-  std::string param1 =
-      "string module_type = \"TestMod\"\n "
-      " string module_label = \"t1\"";
-
-  std::string param2 =
-      "string module_type = \"TestMod\" "
-      "string module_label = \"t2\"";
-
-  /*try {
+    /*try {
 
     edmplugin::PluginManager::configure(edmplugin::standard::config());
     Factory* f = Factory::get();
@@ -66,4 +51,5 @@ void testmaker::makerTest()
   }
 
   return 0;*/
+  }
 }

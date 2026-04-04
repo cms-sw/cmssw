@@ -156,7 +156,7 @@
   <flags EDM_PLUGIN="1"/>
   <use name="DataFormats/Common"/>
   <use name="FWCore/Framework"/>
-  <use name="cppunit"/>
+  <use name="catch2"/>
 </library>
 
 <library file="stubs/TestBeginEndJobAnalyzerModule.cc" name="FWCoreFrameworkTestBeginEndJobAnalyzer">
@@ -202,7 +202,7 @@
 </library>
 
 
-<bin name="TestFWCoreFramework" file="testRunner.cpp,maker2_t.cppunit.cc,maker_t.cppunit.cc,productregistry.cppunit.cc,edproducer_productregistry_callback.cc,event_getrefbeforeput_t.cppunit.cc,generichandle_t.cppunit.cc,edconsumerbase_t.cppunit.cc,checkForModuleDependencyCorrectness_t.cppunit.cc">
+<bin name="TestFWCoreFramework" file="maker2_t.catch2.cc,maker_t.catch2.cc,productregistry.catch2.cc,edproducer_productregistry_callback.cc,event_getrefbeforeput_t.catch2.cc,generichandle_t.catch2.cc,edconsumerbase_t.catch2.cc,checkForModuleDependencyCorrectness_t.catch2.cc">
   <use name="DataFormats/Common"/>
   <use name="DataFormats/Provenance"/>
   <use name="DataFormats/TestObjects"/>
@@ -211,7 +211,7 @@
   <use name="FWCore/Utilities"/>
   <use name="FWCore/Version"/>
   <use name="FWCore/ParameterSetReader"/>
-  <use name="cppunit"/>
+  <use name="catch2"/>
 </bin>
 
 <bin name="TestFWCoreFrameworkCatch2" file="test_catch2_main.cc,*_producer_catch2.cc,*_filter_catch2.cc,*_outputmodule_catch2.cc">
@@ -226,26 +226,26 @@
   <use name="catch2"/>
 </bin>
 
-<bin name="TestFWCoreFrameworkeventsetup" file="testRunner.cpp,callback_t.cppunit.cc,datakey_t.cppunit.cc,dependentrecord_t.cppunit.cc,esproducer_t.cppunit.cc,esproducts_t.cppunit.cc,eventsetupplugin_t.cppunit.cc,eventsetuprecord_t.cppunit.cc,eventsetup_t.cppunit.cc,fullchain_t.cppunit.cc,interval_t.cppunit.cc,esproductresolverfactoryproducer_t.cppunit.cc,iovsyncvalue_t.cppunit.cc,intersectingiovrecordintervalfinder_t.cppunit.cc,eventsetupscontroller_t.cppunit.cc">
+<bin name="TestFWCoreFrameworkeventsetup" file="callback_t.catch2.cc,datakey_t.catch2.cc,dependentrecord_t.catch2.cc,esproducer_t.catch2.cc,esproducts_t.catch2.cc,eventsetupplugin_t.catch2.cc,eventsetuprecord_t.catch2.cc,eventsetup_t.catch2.cc,fullchain_t.catch2.cc,interval_t.catch2.cc,esproductresolverfactoryproducer_t.catch2.cc,iovsyncvalue_t.catch2.cc,intersectingiovrecordintervalfinder_t.catch2.cc,eventsetupscontroller_t.catch2.cc">
   <lib name="FWCoreFrameworkTestDummyForEventSetup"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
   <use name="FWCore/Version"/>
-  <use name="cppunit"/>
+  <use name="catch2"/>
 </bin>
 
-<bin name="TestFWCoreFrameworkeventprocessor" file="testRunner.cpp,eventprocessor2_t.cppunit.cc,eventprocessor_t.cppunit.cc">
+<bin name="TestFWCoreFrameworkeventprocessor" file="eventprocessor2_t.catch2.cc,eventprocessor_t.catch2.cc">
   <lib name="FWCoreFrameworkTest"/>
   <use name="DataFormats/Provenance"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>
   <use name="FWCore/ParameterSetReader"/>
-  <use name="cppunit"/>
+  <use name="catch2"/>
 </bin>
 
-<bin name="TestFWCoreFrameworkeventprincipal" file="testRunner.cpp,eventprincipal_t.cppunit.cc,sharedresourcesregistry_t.cppunit.cc">
+<bin name="TestFWCoreFrameworkeventprincipal" file="eventprincipal_t.catch2.cc,sharedresourcesregistry_t.catch2.cc">
   <use name="DataFormats/Common"/>
   <use name="DataFormats/Provenance"/>
   <use name="DataFormats/TestObjects"/>
@@ -253,7 +253,7 @@
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
   <use name="FWCore/Version"/>
-  <use name="cppunit"/>
+  <use name="catch2"/>
 </bin>
 
 <bin name="TestFWCoreFrameworkEvent" file="Event_t.cpp">
@@ -264,12 +264,12 @@
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
   <use name="FWCore/Version"/>
-  <use name="cppunit"/>
+  <use name="catch2"/>
 </bin>
 
 <bin name="TestFWCoreFrameworkView" file="View_t.cpp">
   <use name="DataFormats/Common"/>
-  <use name="cppunit"/>
+  <use name="catch2"/>
 </bin>
 
 <test name="TestFWCoreFrameworkCmsRun" command="run_cmsRun.sh"/>
