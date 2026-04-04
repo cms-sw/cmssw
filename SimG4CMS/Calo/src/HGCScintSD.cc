@@ -24,6 +24,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <memory>
 
 //#define EDM_ML_DEBUG
@@ -161,7 +162,9 @@ uint32_t HGCScintSD::setDetUnitId(const G4Step* aStep) {
   int iz(globalZ > 0 ? 1 : -1);
 
   int layer(0), module(-1), cell(-1);
-  if (hgcons_->trapezoidModule()) {
+  if (hgcons_->trapeoidFine()) {
+    layer = touch->GetReplicaNumber(0);
+  } else if (hgcons_->tileTrapezoidModule()) {
     layer = touch->GetReplicaNumber(1);
   } else if ((touch->GetHistoryDepth() == levelT1_) || (touch->GetHistoryDepth() == levelT2_)) {
     layer = touch->GetReplicaNumber(0);
@@ -233,6 +236,13 @@ uint32_t HGCScintSD::setDetUnitId(const G4Step* aStep) {
                           << xy.second << ") distance " << diff << " Valid " << valid
                           << " Rho = " << hitPoint.perp() / CLHEP::cm;
   }
+#ifdef EDM_ML_DEBUG
+  std::ostringstream st1;
+  st1 << "HGCScintSD::Final ID " << std::hex << id << std::dec;
+  if (id != 0)
+    st1 << " " << HGCScintillatorDetId(id);
+  edm::LogVerbatim("HGCSim") << st1.str();
+#endif
   return id;
 }
 
