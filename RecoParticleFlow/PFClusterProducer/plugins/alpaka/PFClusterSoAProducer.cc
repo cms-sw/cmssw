@@ -170,10 +170,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       pfClusteringVars_.emplace(event.queue(), nRH);
       pfClusteringEdgeVars_.emplace(event.queue(), nRH * 8);
       pfClusters_.emplace(event.queue(), nRH);
+      pfClusters_->zeroInitialise(event.queue());
 
       *numRHF_ = 0;
-
-      if (nRH != 0) {
+      if (nRH == 0) {
+        pfClusters_->zeroInitialise(event.queue());
+      } else {
         PFClusterProducerKernel kernel(event.queue());
         kernel.seedTopoAndContract(event.queue(),
                                    params.const_view(),
