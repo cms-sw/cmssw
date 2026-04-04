@@ -32,12 +32,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
   class Event {
   public:
     // To be called in produce()
-    explicit Event(edm::Event& ev, std::shared_ptr<EDMetadata> metadata)
-        : constEvent_(ev), event_(&ev), metadata_(std::move(metadata)) {}
+    explicit Event(edm::Event& ev, std::shared_ptr<EDMetadata> metadata, bool useMetadataQueue = false)
+        : constEvent_(ev), event_(&ev), metadata_(std::move(metadata)), useMetadataQueue_(useMetadataQueue) {}
 
     // To be called in acquire()
-    explicit Event(edm::Event const& ev, std::shared_ptr<EDMetadata> metadata)
-        : constEvent_(ev), metadata_(std::move(metadata)) {}
+    explicit Event(edm::Event const& ev, std::shared_ptr<EDMetadata> metadata, bool useMetadataQueue = false)
+        : constEvent_(ev), metadata_(std::move(metadata)), useMetadataQueue_(useMetadataQueue) {}
 
     Event(Event const&) = delete;
     Event& operator=(Event const&) = delete;
@@ -73,8 +73,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
       if constexpr (detail::useProductDirectly) {
         return deviceProduct;
       } else {
-        // try to re-use queue from deviceProduct if our queue has not yet been used
-        T const& product = deviceProduct.template getSynchronized<EDMetadata>(*metadata_, not queueUsed_);
+        // try to re-use the queue from the deviceProduct if the queue from the Event metadata has not yet been used, and is not required
+        T const& product =
+            deviceProduct.template getSynchronized<EDMetadata>(*metadata_, not useMetadataQueue_ and not queueUsed_);
         queueUsed_ = true;
         return product;
       }
@@ -96,8 +97,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
         if (not deviceProductHandle) {
           return edm::Handle<T>(deviceProductHandle.whyFailedFactory());
         }
-        // try to re-use queue from deviceProduct if our queue has not yet been used
-        T const& product = deviceProductHandle->getSynchronized(*metadata_, not queueUsed_);
+        // try to re-use the queue from the deviceProduct if the queue from the Event metadata has not yet been used, and is not required
+        T const& product = deviceProductHandle->getSynchronized(*metadata_, not useMetadataQueue_ and not queueUsed_);
         queueUsed_ = true;
         return edm::Handle<T>(&product, deviceProductHandle.provenance());
       }
@@ -151,6 +152,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
     // device::Event is not supposed to be const-thread-safe, so no
     // additional protection is needed.
     mutable bool queueUsed_ = false;
+    bool useMetadataQueue_ = false;
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::device
 

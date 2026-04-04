@@ -4,10 +4,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
-#include "HeterogeneousCore/AlpakaCore/interface/QueueCache.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESDeviceProduct.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESDeviceProductType.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/QueueCache.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class ESProducer;

@@ -44,11 +44,7 @@ namespace test {
 
   // helper to create a dummy EDMetadata object for the purpose of these tests.
   std::shared_ptr<EDMetadata> makeMetadata(Device const& device) {
-    if constexpr (detail::useProductDirectly) {
-      return std::make_shared<EDMetadata>(std::make_shared<Queue>(device));
-    } else {
-      return std::make_shared<EDMetadata>(std::make_shared<Queue>(device), std::make_shared<Event>(device));
-    }
+    return std::make_shared<EDMetadata>(std::make_shared<Queue>(device));
   }
 
   // helper to wrap a product in edm::Wrapper<detail::DeviceProductType<T>>.

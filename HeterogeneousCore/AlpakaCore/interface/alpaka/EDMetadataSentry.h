@@ -13,10 +13,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
      */
     class EDMetadataSentry {
     public:
-      // For normal module
+      // For normal modules
       EDMetadataSentry(edm::StreamID stream, bool synchronize);
 
-      // For ExternalWork-module's produce()
+      // For modules bound to a specific queue
+      EDMetadataSentry(std::shared_ptr<Queue> queue, bool synchronize);
+
+      // For ExternalWork-modules' produce()
       EDMetadataSentry(std::shared_ptr<EDMetadata> metadata, bool synchronize)
           : metadata_(std::move(metadata)), synchronize_(synchronize) {}
 
