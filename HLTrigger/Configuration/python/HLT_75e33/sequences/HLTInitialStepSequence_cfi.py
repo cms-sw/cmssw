@@ -3,7 +3,6 @@ from HeterogeneousCore.AlpakaCore.functions import makeSerialClone
 
 from ..modules.hltInputLST_cfi import *
 from ..modules.hltInitialStepMkFitSeeds_cfi import *
-from ..modules.hltInitialStepSeedTracksLST_cfi import *
 from ..modules.hltInitialStepSeeds_cfi import *
 from ..modules.hltInitialStepTrackCandidates_cfi import *
 from ..modules.hltInitialStepTrackCandidatesMkFit_cfi import *
@@ -17,7 +16,6 @@ from ..sequences.HLTMkFitInputSequence_cfi import *
 
 HLTInitialStepSequence = cms.Sequence(
      hltInitialStepSeeds
-    +hltInitialStepSeedTracksLST
     +hltInputLST
     +hltLST
     +hltInitialStepTrajectorySeedsLST
@@ -37,9 +35,6 @@ HLTInitialStepSequenceSerialSync = cms.Sequence()
 hltInitialStepSeedsSerialSync = hltInitialStepSeeds.clone(
     InputCollection = "hltPhase2PixelTracksSerialSync"
 )
-hltInitialStepSeedTracksLSTSerialSync = hltInitialStepSeedTracksLST.clone(
-    src = "hltInitialStepSeedsSerialSync"
-)
 hltInputLSTSerialSync = makeSerialClone(hltInputLST)
 hltLSTSerialSync = makeSerialClone(hltLST,
     lstInput = "hltInputLSTSerialSync"
@@ -58,8 +53,6 @@ hltInitialStepTrajectorySeedsLSTTracksSerialSync = hltInitialStepTrajectorySeeds
 from Configuration.ProcessModifiers.alpakaValidationHLT_cff import alpakaValidationHLT
 alpakaValidationHLT.toReplaceWith(HLTInitialStepSequenceSerialSync, cms.Sequence(
      hltInitialStepSeedsSerialSync
-    +hltInitialStepSeedTracksLSTSerialSync
-    +hltSiPhase2RecHits
     +hltInputLSTSerialSync
     +hltLSTSerialSync
     +hltInitialStepTrajectorySeedsLSTSerialSync
@@ -75,7 +68,6 @@ alpakaValidationHLT.toReplaceWith(HLTInitialStepSequence, _HLTHeterogeneousIniti
 from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
 hltPhase2LegacyTracking.toReplaceWith(HLTInitialStepSequence,
     HLTInitialStepSequence.copyAndExclude([
-        hltInitialStepSeedTracksLST,
         hltInputLST,
         hltLST,
         hltInitialStepTrajectorySeedsLST,
@@ -88,7 +80,6 @@ hltPhase2LegacyTracking.toReplaceWith(HLTInitialStepSequence,
 
 _HLTInitialStepSequenceLST = cms.Sequence(
     hltInitialStepSeeds
-    +hltInitialStepSeedTracksLST
     +hltInputLST
     +hltLST
     +hltInitialStepTrackCandidates
@@ -104,7 +95,6 @@ trackingLST.toReplaceWith(HLTInitialStepSequence, _HLTInitialStepSequenceLST)
 from ..modules.hltInitialStepTracksT4T5TCLST_cfi import *
 _HLTInitialStepSequenceNGTScouting = cms.Sequence(
     hltInitialStepSeeds
-    +hltInitialStepSeedTracksLST
     +hltInputLST
     +hltLST
     +hltInitialStepTrackCandidates
@@ -118,7 +108,6 @@ ngtScouting.toReplaceWith(HLTInitialStepSequence,_HLTInitialStepSequenceNGTScout
 from ..modules.hltInitialStepTrackCandidatesMkFitFit_cfi import *
 _HLTInitialStepSequenceMkFitFit = cms.Sequence(
     hltInitialStepSeeds
-    +hltInitialStepSeedTracksLST
     +hltInputLST
     +hltLST
     +hltInitialStepTrajectorySeedsLST
