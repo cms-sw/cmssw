@@ -22,7 +22,7 @@
 
 
 <bin name="testFEDRawData" file="FEDRawData_t.cpp,FEDRawDataProduct_t.cc, FEDNumbering_t.cpp">
-  <use name="cppunit"/>
+  <use name="catch2"/>
 </bin>
 
 <library name="testDumpFEDRawDataProduct" file="DumpFEDRawDataProduct.cc">
