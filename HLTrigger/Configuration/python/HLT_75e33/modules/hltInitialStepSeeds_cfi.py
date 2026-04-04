@@ -6,14 +6,16 @@ hltInitialStepSeeds = cms.EDProducer("SeedGeneratorFromProtoTracksEDProducer",
     SeedCreatorPSet = cms.PSet(
         refToPSet_ = cms.string('seedFromProtoTracks')
     ),
-    TTRHBuilder = cms.string('WithTrackAngle'),
     originHalfLength = cms.double(0.3),
     originRadius = cms.double(0.1),
-    useEventsWithNoVertex = cms.bool(True),
-    usePV = cms.bool(False),
     useProtoTrackKinematics = cms.bool(False),
+    sortAndFilterProtoTracks = cms.bool(False),
+    useEventsWithNoVertex = cms.bool(True),
+    TTRHBuilder = cms.string('WithTrackAngle'),
+    usePV = cms.bool(False),
     includeFourthHit = cms.bool(True),
-    removeOTRechits = cms.bool(True)
+    removeOTRechits = cms.bool(True),
+    produceComplement = cms.bool(False)
 )
 
 from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
