@@ -24,6 +24,7 @@ namespace hcaldqm {
   void DQClient::beginRun(edm::Run const &r, edm::EventSetup const &es) {
     //	TEMPORARY
     _vhashFEDs.clear();
+    _vFEDs.clear();
     _vcdaqEids.clear();
     _vhashCrates.clear();
 
@@ -73,6 +74,26 @@ namespace hcaldqm {
       std::map<int, uint32_t> crateHashMap = utilities::getCrateHashMap(_emap);
       for (auto &it_crate : _vCrates) {
         _vhashCrates.push_back(crateHashMap[it_crate]);
+      }
+
+      std::vector<int> vFEDsVME = utilities::getFEDVMEList(_emap);
+      std::vector<int> vFEDsuTCA = utilities::getFEDuTCAList(_emap);
+      for (std::vector<int>::const_iterator it = vFEDsVME.begin(); it != vFEDsVME.end(); ++it) {
+        if (*it <= 0)
+          continue;
+        _vFEDs.push_back(*it);
+        _vhashFEDs.push_back(
+            HcalElectronicsId(constants::FIBERCH_MIN, FIBER_VME_MIN, SPIGOT_MIN, (*it) - FED_VME_MIN).rawId());
+      }
+      for (std::vector<int>::const_iterator it = vFEDsuTCA.begin(); it != vFEDsuTCA.end(); ++it) {
+        if (*it <= 0)
+          continue;
+        std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
+        if (cspair.first == 0)
+          continue;
+        _vFEDs.push_back(*it);
+        _vhashFEDs.push_back(
+            HcalElectronicsId(cspair.first, cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
       }
     }
 
