@@ -89,6 +89,12 @@ process.dqmcommon = cms.Sequence(process.dqmEnv
 from PhysicsTools.Scouting.Run3ScoutingElectronBestTrackProducer_cfi import Run3ScoutingElectronBestTrackProducer as _Run3ScoutingElectronBestTrackProducer
 process.run3ScoutingElectronBestTrack =  _Run3ScoutingElectronBestTrackProducer.clone()
 
+# Metadata monitoring
+process.load("DQMOffline.Trigger.dqmHLTFiltersDQMonitor_cfi")
+process.dqmHLTFiltersDQMonitor.triggerEvent = 'hltTriggerSummaryAOD::HLT'
+process.dqmHLTFiltersDQMonitor.triggerResults = 'TriggerResults::HLT'
+process.dqmHLTFiltersDQMonitor.folderName = "NGT/Filters"
+
 process.p = cms.Path(process.dqmcommon *
                      process.hltOnlineBeamSpot *
                      process.run3ScoutingElectronBestTrack *
@@ -96,7 +102,8 @@ process.p = cms.Path(process.dqmcommon *
                      process.ScoutingRecHitsMonitoring *
                      process.ScoutingDileptonMonitorOnline *
                      process.ScoutingMuonPropertiesMonitorOnline *
-                     process.ScoutingPi0MonitorOnline)
+                     process.ScoutingPi0MonitorOnline *
+                     process.dqmHLTFiltersDQMonitor)
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
