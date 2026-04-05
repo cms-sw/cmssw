@@ -13,15 +13,40 @@
 #include "RecoTracker/LSTCore/interface/ObjectRangesSoA.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
+
+  // Pre-computed module-constant data for MiniDoublet kernels.
+  // Populated once per module to avoid redundant SoA loads in the inner hit-pair loop.
+  struct ModuleMDData {
+    float slope;      // dxdys
+    float drdz;       // drdzs[lowerModuleIndex]
+    float moduleSep;  // moduleGapSize result
+    float miniPVoff;
+    float miniMuls;
+    float miniTilt2;             // 0 for non-tilted and endcap
+    float miniMulsAndPVoff;      // miniMuls^2 + miniPVoff^2
+    float sqrtMiniMulsAndPVoff;  // sqrt(miniMulsAndPVoff), valid for barrel flat
+
+    unsigned int iL;  // layer - 1
+
+    uint16_t lowerModuleIndex;
+    short subdet;
+    short side;
+    short moduleType;
+    short moduleLayerType;
+
+    bool isTilted;
+    bool isEndcapTwoS;
+    bool isGloballyInner;
+  };
+
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE void addMDToMemory(TAcc const& acc,
                                                     MiniDoublets mds,
                                                     HitsBaseConst hitsBase,
                                                     HitsExtendedConst hitsExtended,
-                                                    ModulesConst modules,
+                                                    ModuleMDData const& mod,
                                                     unsigned int lowerHitIdx,
                                                     unsigned int upperHitIdx,
-                                                    uint16_t lowerModuleIdx,
                                                     float dz,
                                                     float dPhi,
                                                     float dPhiChange,
@@ -34,9 +59,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     //the index into which this MD needs to be written will be computed in the kernel
     //nMDs variable will be incremented in the kernel, no need to worry about that here
 
-    mds.moduleIndices()[idx] = lowerModuleIdx;
+    mds.moduleIndices()[idx] = mod.lowerModuleIndex;
     unsigned int anchorHitIndex, outerHitIndex;
-    if (modules.moduleType()[lowerModuleIdx] == PS and modules.moduleLayerType()[lowerModuleIdx] == Strip) {
+    if (mod.moduleType == PS and mod.moduleLayerType == Strip) {
       mds.anchorHitIndices()[idx] = upperHitIdx;
       mds.outerHitIndices()[idx] = lowerHitIdx;
 
@@ -72,8 +97,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     mds.anchorHighEdgeY()[idx] = hitsExtended.highEdgeYs()[anchorHitIndex];
     mds.anchorLowEdgeX()[idx] = hitsExtended.lowEdgeXs()[anchorHitIndex];
     mds.anchorLowEdgeY()[idx] = hitsExtended.lowEdgeYs()[anchorHitIndex];
-    mds.anchorHighEdgePhi()[idx] = alpaka::math::atan2(acc, mds.anchorHighEdgeY()[idx], mds.anchorHighEdgeX()[idx]);
-    mds.anchorLowEdgePhi()[idx] = alpaka::math::atan2(acc, mds.anchorLowEdgeY()[idx], mds.anchorLowEdgeX()[idx]);
+    // Edge phi only read downstream when outerLayerEndcapTwoS is true; skip atan2 for other modules.
+    if (mod.isEndcapTwoS) {
+      mds.anchorHighEdgePhi()[idx] = alpaka::math::atan2(acc, mds.anchorHighEdgeY()[idx], mds.anchorHighEdgeX()[idx]);
+      mds.anchorLowEdgePhi()[idx] = alpaka::math::atan2(acc, mds.anchorLowEdgeY()[idx], mds.anchorLowEdgeX()[idx]);
+    } else {
+      mds.anchorHighEdgePhi()[idx] = 0.f;
+      mds.anchorLowEdgePhi()[idx] = 0.f;
+    }
 
     mds.outerX()[idx] = hitsBase.xs()[outerHitIndex];
     mds.outerY()[idx] = hitsBase.ys()[outerHitIndex];
@@ -87,6 +118,49 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     mds.outerLowEdgeX()[idx] = hitsExtended.lowEdgeXs()[outerHitIndex];
     mds.outerLowEdgeY()[idx] = hitsExtended.lowEdgeYs()[outerHitIndex];
 #endif
+  }
+
+  // Overload for callers (Segment.h) that still pass ModulesConst + moduleIndex.
+  template <alpaka::concepts::Acc TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addMDToMemory(TAcc const& acc,
+                                                    MiniDoublets mds,
+                                                    HitsBaseConst hitsBase,
+                                                    HitsExtendedConst hitsExtended,
+                                                    ModulesConst modules,
+                                                    unsigned int lowerHitIdx,
+                                                    unsigned int upperHitIdx,
+                                                    uint16_t lowerModuleIdx,
+                                                    float dz,
+                                                    float dPhi,
+                                                    float dPhiChange,
+                                                    float shiftedX,
+                                                    float shiftedY,
+                                                    float shiftedZ,
+                                                    float noShiftedDphi,
+                                                    float noShiftedDPhiChange,
+                                                    unsigned int idx) {
+    ModuleMDData mod;
+    mod.lowerModuleIndex = lowerModuleIdx;
+    mod.moduleType = modules.moduleType()[lowerModuleIdx];
+    mod.moduleLayerType = modules.moduleLayerType()[lowerModuleIdx];
+    mod.subdet = modules.subdets()[lowerModuleIdx];
+    mod.isEndcapTwoS = (mod.subdet == Endcap && mod.moduleType == TwoS);
+    addMDToMemory(acc,
+                  mds,
+                  hitsBase,
+                  hitsExtended,
+                  mod,
+                  lowerHitIdx,
+                  upperHitIdx,
+                  dz,
+                  dPhi,
+                  dPhiChange,
+                  shiftedX,
+                  shiftedY,
+                  shiftedZ,
+                  noShiftedDphi,
+                  noShiftedDPhiChange,
+                  idx);
   }
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool isTighterTiltedModules(ModulesConst modules, uint16_t moduleIndex) {
@@ -132,76 +206,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   template <alpaka::concepts::Acc TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE float dPhiThreshold(TAcc const& acc,
-                                                     float rt,
-                                                     ModulesConst modules,
-                                                     uint16_t moduleIndex,
-                                                     const float ptCut,
-                                                     float dPhi = 0,
-                                                     float dz = 0) {
-    // =================================================================
-    // Various constants
-    // =================================================================
-    //mean of the horizontal layer position in y; treat this as R below
-
-    // =================================================================
-    // Computing some components that make up the cut threshold
-    // =================================================================
-
-    unsigned int iL = modules.layers()[moduleIndex] - 1;
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE float dPhiThreshold(
+      TAcc const& acc, float rt, ModuleMDData const& mod, const float ptCut, float dPhi = 0, float dz = 0) {
     const float miniSlope = alpaka::math::asin(acc, alpaka::math::min(acc, rt * k2Rinv1GeVf / ptCut, kSinAlphaMax));
-    const float rLayNominal =
-        ((modules.subdets()[moduleIndex] == Barrel) ? kMiniRminMeanBarrel[iL] : kMiniRminMeanEndcap[iL]);
-    const float miniPVoff = 0.1f / rLayNominal;
-    const float miniMuls = ((modules.subdets()[moduleIndex] == Barrel) ? kMiniMulsPtScaleBarrel[iL] * 3.f / ptCut
-                                                                       : kMiniMulsPtScaleEndcap[iL] * 3.f / ptCut);
-    const bool isTilted = modules.subdets()[moduleIndex] == Barrel and modules.sides()[moduleIndex] != Center;
-    //the lower module is sent in irrespective of its layer type. We need to fetch the drdz properly
 
-    float drdz;
-    if (isTilted) {
-      if (modules.moduleType()[moduleIndex] == PS and modules.moduleLayerType()[moduleIndex] == Strip) {
-        drdz = modules.drdzs()[moduleIndex];
-      } else {
-        drdz = modules.drdzs()[modules.partnerModuleIndices()[moduleIndex]];
-      }
-    } else {
-      drdz = 0;
+    // Barrel flat: no tilt or luminous region correction
+    if (mod.subdet == Barrel and mod.side == Center) {
+      return miniSlope + mod.sqrtMiniMulsAndPVoff;
     }
-    const float miniTilt2 = ((isTilted) ? (0.5f * 0.5f) * (kPixelPSZpitch * kPixelPSZpitch) * (drdz * drdz) /
-                                              (1.f + drdz * drdz) / moduleGapSize(modules, moduleIndex)
-                                        : 0);
-
-    // Compute luminous region requirement for endcap
-    const float miniLum = alpaka::math::abs(acc, dPhi * kDeltaZLum / dz);  // Balaji's new error
-
-    // =================================================================
-    // Return the threshold value
-    // =================================================================
-    // Following condition is met if the module is central and flatly lying
-    if (modules.subdets()[moduleIndex] == Barrel and modules.sides()[moduleIndex] == Center) {
-      return miniSlope + alpaka::math::sqrt(acc, miniMuls * miniMuls + miniPVoff * miniPVoff);
+    // Barrel tilted
+    else if (mod.subdet == Barrel) {
+      return miniSlope + alpaka::math::sqrt(acc, mod.miniMulsAndPVoff + mod.miniTilt2 * miniSlope * miniSlope);
     }
-    // Following condition is met if the module is central and tilted
-    else if (modules.subdets()[moduleIndex] == Barrel and
-             modules.sides()[moduleIndex] != Center)  //all types of tilted modules
-    {
-      return miniSlope +
-             alpaka::math::sqrt(acc, miniMuls * miniMuls + miniPVoff * miniPVoff + miniTilt2 * miniSlope * miniSlope);
-    }
-    // If not barrel, it is Endcap
+    // Endcap: luminous region correction
     else {
-      return miniSlope + alpaka::math::sqrt(acc, miniMuls * miniMuls + miniPVoff * miniPVoff + miniLum * miniLum);
+      const float miniLum = alpaka::math::abs(acc, dPhi * kDeltaZLum / dz);
+      return miniSlope + alpaka::math::sqrt(acc, mod.miniMulsAndPVoff + miniLum * miniLum);
     }
   }
 
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_INLINE ALPAKA_FN_ACC void shiftStripHits(TAcc const& acc,
-                                                     ModulesConst modules,
-                                                     uint16_t lowerModuleIndex,
-                                                     uint16_t upperModuleIndex,
-                                                     unsigned int lowerHitIndex,
-                                                     unsigned int upperHitIndex,
+                                                     ModuleMDData const& mod,
                                                      float* shiftedCoords,
                                                      float xLower,
                                                      float yLower,
@@ -219,44 +245,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     // This means that there may be very very subtle edge effects coming from whether the strip hit is center of the module or the at the edge of the module
     // But this should be relatively minor effect
 
-    // dependent variables for this if statement
-    // lowerModule
-    // lowerHit
-    // upperHit
-    // endcapGeometry
-    // tiltedGeometry
-
-    // Some variables relevant to the function
-    float xp;       // pixel x (pixel hit x)
-    float yp;       // pixel y (pixel hit y)
-    float zp;       // pixel y (pixel hit y)
-    float rtp;      // pixel y (pixel hit y)
-    float xa;       // "anchor" x (the anchor position on the strip module plane from pixel hit)
-    float ya;       // "anchor" y (the anchor position on the strip module plane from pixel hit)
-    float xo;       // old x (before the strip hit is moved up or down)
-    float yo;       // old y (before the strip hit is moved up or down)
-    float xn;       // new x (after the strip hit is moved up or down)
-    float yn;       // new y (after the strip hit is moved up or down)
-    float abszn;    // new z in absolute value
-    float zn;       // new z with the sign (+/-) accounted
-    float angleA;   // in r-z plane the theta of the pixel hit in polar coordinate is the angleA
-    float angleB;   // this is the angle of tilted module in r-z plane ("drdz"), for endcap this is 90 degrees
-    bool isEndcap;  // If endcap, drdz = infinity
-    float moduleSeparation;
-    float drprime;    // The radial shift size in x-y plane projection
-    float drprime_x;  // x-component of drprime
-    float drprime_y;  // y-component of drprime
-    const float& slope =
-        modules.dxdys()[lowerModuleIndex];  // The slope of the possible strip hits for a given module in x-y plane
-    float absArctanSlope;
-    float angleM;  // the angle M is the angle of rotation of the module in x-y plane if the possible strip hits are along the x-axis, then angleM = 0, and if the possible strip hits are along y-axis angleM = 90 degrees
-    float absdzprime;  // The distance between the two points after shifting
-    const float& drdz_ = modules.drdzs()[lowerModuleIndex];
-    // Assign hit pointers based on their hit type
+    float xp;   // pixel x (pixel hit x)
+    float yp;   // pixel y (pixel hit y)
+    float zp;   // pixel z
+    float rtp;  // pixel rt
+    float xo;   // old x (before the strip hit is moved up or down)
+    float yo;   // old y (before the strip hit is moved up or down)
     bool pHitInverted = false;
-    if (modules.moduleType()[lowerModuleIndex] == PS) {
-      // TODO: This is somewhat of an mystery.... somewhat confused why this is the case
-      if (modules.moduleLayerType()[lowerModuleIndex] == Pixel) {
+    if (mod.moduleType == PS) {
+      if (mod.moduleLayerType == Pixel) {
         xo = xUpper;
         yo = yUpper;
         xp = xLower;
@@ -281,82 +278,70 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       rtp = rtLower;
     }
 
-    // If it is endcap some of the math gets simplified (and also computers don't like infinities)
-    isEndcap = modules.subdets()[lowerModuleIndex] == Endcap;
+    const bool isEndcap = (mod.subdet == Endcap);
 
-    // NOTE: TODO: Keep in mind that the sin(atan) function can be simplified to something like x / sqrt(1 + x^2) and similar for cos
-    // I am not sure how slow sin, atan, cos, functions are in c++. If x / sqrt(1 + x^2) are faster change this later to reduce arithmetic computation time
-    angleA = alpaka::math::abs(acc, alpaka::math::atan(acc, rtp / zp));
-    angleB =
-        ((isEndcap)
-             ? kPi / 2.f
-             : alpaka::math::atan(
-                   acc,
-                   drdz_));  // The tilt module on the positive z-axis has negative drdz slope in r-z plane and vice versa
+    // Algebraic trig: sin(atan(r/z)) = r/hypot, cos(atan(r/z)) = |z|/hypot
+    const float hypot_rz = alpaka::math::sqrt(acc, rtp * rtp + zp * zp);
+    const float sinA = rtp / hypot_rz;
+    const float cosA = alpaka::math::abs(acc, zp) / hypot_rz;
 
-    moduleSeparation = moduleGapSize(modules, lowerModuleIndex);
+    // sin(A+B) via angle-addition identity; endcap: B=pi/2 so sin(A+pi/2)=cosA
+    // The tilt module on the positive z-axis has negative drdz slope in r-z plane and vice versa
+    float sinApB;
+    if (isEndcap) {
+      sinApB = cosA;
+    } else {
+      const float inv_hypot_drdz = 1.f / alpaka::math::sqrt(acc, 1.f + mod.drdz * mod.drdz);
+      sinApB = sinA * inv_hypot_drdz + cosA * mod.drdz * inv_hypot_drdz;
+    }
+
+    float moduleSeparation = mod.moduleSep;
 
     // Sign flips if the pixel is later layer
-    if (modules.isGloballyInner()[lowerModuleIndex] == pHitInverted) {
+    if (mod.isGloballyInner == pHitInverted) {
       moduleSeparation *= -1;
     }
 
-    drprime = (moduleSeparation / alpaka::math::sin(acc, angleA + angleB)) * alpaka::math::sin(acc, angleA);
+    float drprime = moduleSeparation * sinA / sinApB;
 
-    // Compute arctan of the slope and take care of the slope = infinity case
-    absArctanSlope =
-        ((slope != kVerticalModuleSlope && edm::isFinite(slope)) ? fabs(alpaka::math::atan(acc, slope)) : kPi / 2.f);
-
-    // Depending on which quadrant the pixel hit lies, we define the angleM by shifting them slightly differently
-    if (xp > 0 and yp > 0) {
-      angleM = absArctanSlope;
-    } else if (xp > 0 and yp < 0) {
-      angleM = kPi - absArctanSlope;
-    } else if (xp < 0 and yp < 0) {
-      angleM = kPi + absArctanSlope;
-    } else  // if (xp < 0 and yp > 0)
-    {
-      angleM = 2.f * kPi - absArctanSlope;
-    }
-
-    // Then since the angleM sign is taken care of properly
-    drprime_x = drprime * alpaka::math::sin(acc, angleM);
-    drprime_y = drprime * alpaka::math::cos(acc, angleM);
-
-    // The new anchor position is
-    xa = xp + drprime_x;
-    ya = yp + drprime_y;
-
-    // Compute the new strip hit position (if the slope value is in special condition take care of the exceptions)
-    if (slope == kVerticalModuleSlope ||
-        edm::isNotFinite(slope))  // Designated for tilted module when the slope is infinity (module lying along y-axis)
-    {
-      xn = xa;  // New x point is simply where the anchor is
-      yn = yo;  // No shift in y
-    } else if (slope == 0) {
-      xn = xo;  // New x point is simply where the anchor is
-      yn = ya;  // No shift in y
+    float drprime_x, drprime_y;  // drprime * {sin,cos}(atan(slope))
+    // Algebraic: sin(atan(slope)) = |slope|/sqrt(1+slope^2), cos(atan(slope)) = 1/sqrt(1+slope^2)
+    const float slope = mod.slope;
+    if (slope != kVerticalModuleSlope && edm::isFinite(slope)) {
+      const float inv_hypot_slope = 1.f / alpaka::math::sqrt(acc, 1.f + slope * slope);
+      drprime_x = drprime * ((xp > 0.f) - (xp < 0.f)) * alpaka::math::abs(acc, slope) * inv_hypot_slope;
+      drprime_y = drprime * ((yp > 0.f) - (yp < 0.f)) * inv_hypot_slope;
     } else {
-      xn = (slope * xa + (1.f / slope) * xo - ya + yo) / (slope + (1.f / slope));  // new xn
-      yn = (xn - xa) * slope + ya;                                                 // new yn
+      drprime_x = drprime * ((xp > 0.f) - (xp < 0.f));
+      drprime_y = 0.f;
     }
 
-    // Computing new Z position
-    absdzprime = alpaka::math::abs(
-        acc,
-        moduleSeparation / alpaka::math::sin(acc, angleA + angleB) *
-            alpaka::math::cos(
-                acc,
-                angleA));  // module separation sign is for shifting in radial direction for z-axis direction take care of the sign later
+    float xa = xp + drprime_x;  // anchor x (the guessed position on the strip module plane)
+    float ya = yp + drprime_y;  // anchor y
 
-    // Depending on which one as closer to the interactin point compute the new z wrt to the pixel properly
-    if (modules.moduleLayerType()[lowerModuleIndex] == Pixel) {
+    // Compute the new strip hit position (handle slope = infinity and slope = 0 cases)
+    float xn, yn;
+    if (slope == kVerticalModuleSlope || edm::isNotFinite(slope)) {
+      xn = xa;
+      yn = yo;
+    } else if (slope == 0) {
+      xn = xo;
+      yn = ya;
+    } else {
+      xn = (slope * xa + (1.f / slope) * xo - ya + yo) / (slope + (1.f / slope));
+      yn = (xn - xa) * slope + ya;
+    }
+
+    float absdzprime = alpaka::math::abs(acc, moduleSeparation * cosA / sinApB);
+
+    float abszn;
+    if (mod.moduleLayerType == Pixel) {
       abszn = alpaka::math::abs(acc, zp) + absdzprime;
     } else {
       abszn = alpaka::math::abs(acc, zp) - absdzprime;
     }
 
-    zn = abszn * ((zp > 0) ? 1 : -1);  // Apply the sign of the zn
+    float zn = abszn * ((zp > 0) ? 1 : -1);
 
     shiftedCoords[0] = xn;
     shiftedCoords[1] = yn;
@@ -364,127 +349,111 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   template <alpaka::concepts::Acc TAcc>
-  ALPAKA_FN_ACC bool runMiniDoubletDefaultAlgoBarrel(TAcc const& acc,
-                                                     ModulesConst modules,
-                                                     uint16_t lowerModuleIndex,
-                                                     uint16_t upperModuleIndex,
-                                                     unsigned int lowerHitIndex,
-                                                     unsigned int upperHitIndex,
-                                                     float& dz,
-                                                     float& dPhi,
-                                                     float& dPhiChange,
-                                                     float& shiftedX,
-                                                     float& shiftedY,
-                                                     float& shiftedZ,
-                                                     float& noShiftedDphi,
-                                                     float& noShiftedDphiChange,
-                                                     float xLower,
-                                                     float yLower,
-                                                     float zLower,
-                                                     float rtLower,
-                                                     float xUpper,
-                                                     float yUpper,
-                                                     float zUpper,
-                                                     float rtUpper,
-                                                     const float ptCut) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runMiniDoubletDefaultAlgoBarrel(TAcc const& acc,
+                                                                      ModuleMDData const& mod,
+                                                                      float& dz,
+                                                                      float& dPhi,
+                                                                      float& dPhiChange,
+                                                                      float& shiftedX,
+                                                                      float& shiftedY,
+                                                                      float& shiftedZ,
+                                                                      float& noShiftedDphi,
+                                                                      float& noShiftedDphiChange,
+                                                                      float xLower,
+                                                                      float yLower,
+                                                                      float zLower,
+                                                                      float rtLower,
+                                                                      float xUpper,
+                                                                      float yUpper,
+                                                                      float zUpper,
+                                                                      float rtUpper,
+                                                                      const float ptCut) {
     dz = zLower - zUpper;
-    const float dzCut = modules.moduleType()[lowerModuleIndex] == PS ? 2.f : 10.f;
+    const float dzCut = mod.moduleType == PS ? 2.f : 10.f;
     const float sign = ((dz > 0) - (dz < 0)) * ((zLower > 0) - (zLower < 0));
     const float invertedcrossercut = (alpaka::math::abs(acc, dz) > 2) * sign;
 
-    if ((alpaka::math::abs(acc, dz) >= dzCut) || (invertedcrossercut > 0))
+    if ((alpaka::math::abs(acc, dz) >= dzCut) || (invertedcrossercut > 0)) {
       return false;
+    }
 
-    float miniCut = 0;
+    float miniCut = mod.moduleLayerType == Pixel ? dPhiThreshold(acc, rtLower, mod, ptCut)
+                                                 : dPhiThreshold(acc, rtUpper, mod, ptCut);
 
-    miniCut = modules.moduleLayerType()[lowerModuleIndex] == Pixel
-                  ? dPhiThreshold(acc, rtLower, modules, lowerModuleIndex, ptCut)
-                  : dPhiThreshold(acc, rtUpper, modules, lowerModuleIndex, ptCut);
-
-    // Cut #2: dphi difference
-    // Ref to original code: https://github.com/slava77/cms-tkph2-ntuple/blob/184d2325147e6930030d3d1f780136bc2dd29ce6/doubletAnalysis.C#L3085
-    float xn = 0.f, yn = 0.f;
+    float x1, y1, x2, y2, r1sq, r2sq;
     float shiftedRt2 = 0.f;
-    if (modules.sides()[lowerModuleIndex] != Center)  // If barrel and not center it is tilted
-    {
-      // Shift the hits and calculate new xn, yn position
-      float shiftedCoords[3];
-      shiftStripHits(acc,
-                     modules,
-                     lowerModuleIndex,
-                     upperModuleIndex,
-                     lowerHitIndex,
-                     upperHitIndex,
-                     shiftedCoords,
-                     xLower,
-                     yLower,
-                     zLower,
-                     rtLower,
-                     xUpper,
-                     yUpper,
-                     zUpper,
-                     rtUpper);
-      xn = shiftedCoords[0];
-      yn = shiftedCoords[1];
 
-      // Lower or the upper hit needs to be modified depending on which one was actually shifted
-      if (modules.moduleLayerType()[lowerModuleIndex] == Pixel) {
+    if (mod.isTilted) {
+      float shiftedCoords[3];
+      shiftStripHits(acc, mod, shiftedCoords, xLower, yLower, zLower, rtLower, xUpper, yUpper, zUpper, rtUpper);
+      float xn = shiftedCoords[0];
+      float yn = shiftedCoords[1];
+      shiftedRt2 = xn * xn + yn * yn;
+
+      if (mod.moduleLayerType == Pixel) {
         shiftedX = xn;
         shiftedY = yn;
         shiftedZ = zUpper;
-        shiftedRt2 = xn * xn + yn * yn;
-
-        dPhi = cms::alpakatools::deltaPhi(acc, xLower, yLower, shiftedX, shiftedY);  //function from Hit.cc
-        noShiftedDphi = cms::alpakatools::deltaPhi(acc, xLower, yLower, xUpper, yUpper);
+        x1 = xLower;
+        y1 = yLower;
+        x2 = xn;
+        y2 = yn;
+        r1sq = rtLower * rtLower;
+        r2sq = shiftedRt2;
       } else {
         shiftedX = xn;
         shiftedY = yn;
         shiftedZ = zLower;
-        shiftedRt2 = xn * xn + yn * yn;
-        dPhi = cms::alpakatools::deltaPhi(acc, shiftedX, shiftedY, xUpper, yUpper);
-        noShiftedDphi = cms::alpakatools::deltaPhi(acc, xLower, yLower, xUpper, yUpper);
+        x1 = xn;
+        y1 = yn;
+        x2 = xUpper;
+        y2 = yUpper;
+        r1sq = shiftedRt2;
+        r2sq = rtUpper * rtUpper;
       }
     } else {
       shiftedX = 0.f;
       shiftedY = 0.f;
       shiftedZ = 0.f;
-      shiftedRt2 = 0.f;
-      dPhi = cms::alpakatools::deltaPhi(acc, xLower, yLower, xUpper, yUpper);
-      noShiftedDphi = dPhi;
+      x1 = xLower;
+      y1 = yLower;
+      x2 = xUpper;
+      y2 = yUpper;
+      r1sq = rtLower * rtLower;
+      r2sq = rtUpper * rtUpper;
     }
+
+    // Cross-product pre-checks: Pade [2,2] approximant overestimates tan(miniCut)
+    const float crossDPhi = x1 * y2 - x2 * y1;
+    const float dotDPhi = x1 * x2 + y1 * y2;
+    const float miniCutSq = miniCut * miniCut;
+    const float tanMiniCut = alpaka::math::sqrt(acc, miniCutSq / (1.f - (2.f / 3.f) * miniCutSq));
+    const float absCrossDPhi = alpaka::math::abs(acc, crossDPhi);
+    if (dotDPhi <= 0.f || absCrossDPhi >= tanMiniCut * dotDPhi)
+      return false;
+
+    const float rInnerSq = alpaka::math::min(acc, r1sq, r2sq);
+    const float dotDPhiChange = dotDPhi - rInnerSq;
+    if (dotDPhiChange <= 0.f || absCrossDPhi >= tanMiniCut * dotDPhiChange)
+      return false;
+
+    // Cut #2: dphi difference
+    // Ref to original code: https://github.com/slava77/cms-tkph2-ntuple/blob/184d2325147e6930030d3d1f780136bc2dd29ce6/doubletAnalysis.C#L3085
+    dPhi = alpaka::math::atan2(acc, crossDPhi, dotDPhi);
+    noShiftedDphi = mod.isTilted ? cms::alpakatools::deltaPhi(acc, xLower, yLower, xUpper, yUpper) : dPhi;
 
     if (alpaka::math::abs(acc, dPhi) >= miniCut)
       return false;
 
     // Cut #3: The dphi change going from lower Hit to upper Hit
     // Ref to original code: https://github.com/slava77/cms-tkph2-ntuple/blob/184d2325147e6930030d3d1f780136bc2dd29ce6/doubletAnalysis.C#L3076
-    if (modules.sides()[lowerModuleIndex] != Center) {
-      // When it is tilted, use the new shifted positions
-      if (modules.moduleLayerType()[lowerModuleIndex] == Pixel) {
-        // dPhi Change should be calculated so that the upper hit has higher rt.
-        // In principle, this kind of check rt_lower < rt_upper should not be necessary because the hit shifting should have taken care of this.
-        // (i.e. the strip hit is shifted to be aligned in the line of sight from interaction point to pixel hit of PS module guaranteeing rt ordering)
-        // But I still placed this check for safety. (TODO: After checking explicitly if not needed remove later?)
-        // setdeltaPhiChange(lowerHit.rt() < upperHitMod.rt() ? lowerHit.deltaPhiChange(upperHitMod) : upperHitMod.deltaPhiChange(lowerHit));
-
-        dPhiChange = (rtLower * rtLower < shiftedRt2) ? deltaPhiChange(acc, xLower, yLower, shiftedX, shiftedY)
-                                                      : deltaPhiChange(acc, shiftedX, shiftedY, xLower, yLower);
-        noShiftedDphiChange = rtLower < rtUpper ? deltaPhiChange(acc, xLower, yLower, xUpper, yUpper)
-                                                : deltaPhiChange(acc, xUpper, yUpper, xLower, yLower);
-      } else {
-        // dPhi Change should be calculated so that the upper hit has higher rt.
-        // In principle, this kind of check rt_lower < rt_upper should not be necessary because the hit shifting should have taken care of this.
-        // (i.e. the strip hit is shifted to be aligned in the line of sight from interaction point to pixel hit of PS module guaranteeing rt ordering)
-        // But I still placed this check for safety. (TODO: After checking explicitly if not needed remove later?)
-
-        dPhiChange = (shiftedRt2 < rtUpper * rtUpper) ? deltaPhiChange(acc, shiftedX, shiftedY, xUpper, yUpper)
-                                                      : deltaPhiChange(acc, xUpper, yUpper, shiftedX, shiftedY);
-        noShiftedDphiChange = rtLower < rtUpper ? deltaPhiChange(acc, xLower, yLower, xUpper, yUpper)
-                                                : deltaPhiChange(acc, xUpper, yUpper, xLower, yLower);
-      }
+    // dPhiChange should be calculated so that the upper hit has higher rt.
+    // The strip hit shifting should guarantee rt ordering, but we check explicitly for safety.
+    dPhiChange = alpaka::math::atan2(acc, (r1sq < r2sq) ? crossDPhi : -crossDPhi, dotDPhiChange);
+    if (mod.isTilted) {
+      noShiftedDphiChange = rtLower < rtUpper ? deltaPhiChange(acc, xLower, yLower, xUpper, yUpper)
+                                              : deltaPhiChange(acc, xUpper, yUpper, xLower, yLower);
     } else {
-      // When it is flat lying module, whichever is the lowerSide will always have rt lower
-      dPhiChange = deltaPhiChange(acc, xLower, yLower, xUpper, yUpper);
       noShiftedDphiChange = dPhiChange;
     }
 
@@ -492,154 +461,175 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   }
 
   template <alpaka::concepts::Acc TAcc>
-  ALPAKA_FN_ACC bool runMiniDoubletDefaultAlgoEndcap(TAcc const& acc,
-                                                     ModulesConst modules,
-                                                     uint16_t lowerModuleIndex,
-                                                     uint16_t upperModuleIndex,
-                                                     unsigned int lowerHitIndex,
-                                                     unsigned int upperHitIndex,
-                                                     float& drt,
-                                                     float& dPhi,
-                                                     float& dPhiChange,
-                                                     float& shiftedX,
-                                                     float& shiftedY,
-                                                     float& shiftedZ,
-                                                     float& noShiftedDphi,
-                                                     float& noShiftedDphichange,
-                                                     float xLower,
-                                                     float yLower,
-                                                     float zLower,
-                                                     float rtLower,
-                                                     float xUpper,
-                                                     float yUpper,
-                                                     float zUpper,
-                                                     float rtUpper,
-                                                     const float ptCut) {
-    // There are series of cuts that applies to mini-doublet in a "endcap" region
-    // Cut #1 : dz cut. The dz difference can't be larger than 1cm. (max separation is 4mm for modules in the endcap)
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runMiniDoubletDefaultAlgoEndcap(TAcc const& acc,
+                                                                      ModuleMDData const& mod,
+                                                                      float& drt,
+                                                                      float& dPhi,
+                                                                      float& dPhiChange,
+                                                                      float& shiftedX,
+                                                                      float& shiftedY,
+                                                                      float& shiftedZ,
+                                                                      float& noShiftedDphi,
+                                                                      float& noShiftedDphichange,
+                                                                      float xLower,
+                                                                      float yLower,
+                                                                      float zLower,
+                                                                      float rtLower,
+                                                                      float xUpper,
+                                                                      float yUpper,
+                                                                      float zUpper,
+                                                                      float rtUpper,
+                                                                      const float ptCut) {
+    // Cut #1: dz cut. The dz difference can't be larger than 1cm. (max separation is 4mm for modules in the endcap)
     // Ref to original code: https://github.com/slava77/cms-tkph2-ntuple/blob/184d2325147e6930030d3d1f780136bc2dd29ce6/doubletAnalysis.C#L3093
     // For PS module in case when it is tilted a different dz (after the strip hit shift) is calculated later.
-
     float dz = zLower - zUpper;  // Not const since later it might change depending on the type of module
 
     const float dzCut = 1.f;
 
-    if (alpaka::math::abs(acc, dz) >= dzCut)
+    if (alpaka::math::abs(acc, dz) >= dzCut) {
       return false;
-    // Cut #2 : drt cut. The dz difference can't be larger than 1cm. (max separation is 4mm for modules in the endcap)
+    }
+    // Cut #2: drt cut. The drt difference can't be larger than 1cm. (max separation is 4mm for modules in the endcap)
     // Ref to original code: https://github.com/slava77/cms-tkph2-ntuple/blob/184d2325147e6930030d3d1f780136bc2dd29ce6/doubletAnalysis.C#L3100
-    const float drtCut = modules.moduleType()[lowerModuleIndex] == PS ? 2.f : 10.f;
+    const float drtCut = mod.moduleType == PS ? 2.f : 10.f;
     drt = rtLower - rtUpper;
-    if (alpaka::math::abs(acc, drt) >= drtCut)
+    if (alpaka::math::abs(acc, drt) >= drtCut) {
       return false;
-    // The new scheme shifts strip hits to be "aligned" along the line of sight from interaction point to the pixel hit (if it is PS modules)
+    }
     float xn = 0, yn = 0, zn = 0;
 
     float shiftedCoords[3];
-    shiftStripHits(acc,
-                   modules,
-                   lowerModuleIndex,
-                   upperModuleIndex,
-                   lowerHitIndex,
-                   upperHitIndex,
-                   shiftedCoords,
-                   xLower,
-                   yLower,
-                   zLower,
-                   rtLower,
-                   xUpper,
-                   yUpper,
-                   zUpper,
-                   rtUpper);
+    shiftStripHits(acc, mod, shiftedCoords, xLower, yLower, zLower, rtLower, xUpper, yUpper, zUpper, rtUpper);
 
     xn = shiftedCoords[0];
     yn = shiftedCoords[1];
     zn = shiftedCoords[2];
 
-    if (modules.moduleType()[lowerModuleIndex] == PS) {
-      // Appropriate lower or upper hit is modified after checking which one was actually shifted
-      if (modules.moduleLayerType()[lowerModuleIndex] == Pixel) {
+    float x1, y1, x2, y2;
+    if (mod.moduleType == PS) {
+      if (mod.moduleLayerType == Pixel) {
         shiftedX = xn;
         shiftedY = yn;
         shiftedZ = zUpper;
-        dPhi = cms::alpakatools::deltaPhi(acc, xLower, yLower, shiftedX, shiftedY);
-        noShiftedDphi = cms::alpakatools::deltaPhi(acc, xLower, yLower, xUpper, yUpper);
+        x1 = xLower;
+        y1 = yLower;
+        x2 = xn;
+        y2 = yn;
       } else {
         shiftedX = xn;
         shiftedY = yn;
         shiftedZ = zLower;
-        dPhi = cms::alpakatools::deltaPhi(acc, shiftedX, shiftedY, xUpper, yUpper);
-        noShiftedDphi = cms::alpakatools::deltaPhi(acc, xLower, yLower, xUpper, yUpper);
+        x1 = xn;
+        y1 = yn;
+        x2 = xUpper;
+        y2 = yUpper;
       }
     } else {
       shiftedX = xn;
       shiftedY = yn;
       shiftedZ = zUpper;
-      dPhi = cms::alpakatools::deltaPhi(acc, xLower, yLower, xn, yn);
-      noShiftedDphi = cms::alpakatools::deltaPhi(acc, xLower, yLower, xUpper, yUpper);
+      x1 = xLower;
+      y1 = yLower;
+      x2 = xn;
+      y2 = yn;
     }
+
+    const float crossDPhi = x1 * y2 - x2 * y1;
+    const float dotDPhi = x1 * x2 + y1 * y2;
+
+    // |dPhi| < pi/2
+    if (dotDPhi <= 0.f)
+      return false;
+
+    // |dPhi| < pi/4 (since dotDPhi > 0, equivalent to |tan(dPhi)| < 1)
+    if (alpaka::math::abs(acc, crossDPhi) >= dotDPhi)
+      return false;
 
     // dz needs to change if it is a PS module where the strip hits are shifted in order to properly account for the case when a tilted module falls under "endcap logic"
     // if it was an endcap it will have zero effect
-    if (modules.moduleType()[lowerModuleIndex] == PS) {
-      dz = modules.moduleLayerType()[lowerModuleIndex] == Pixel ? zLower - zn : zUpper - zn;
+    if (mod.moduleType == PS) {
+      dz = mod.moduleLayerType == Pixel ? zLower - zn : zUpper - zn;
     }
 
-    float miniCut = 0;
-    miniCut = modules.moduleLayerType()[lowerModuleIndex] == Pixel
-                  ? dPhiThreshold(acc, rtLower, modules, lowerModuleIndex, ptCut, dPhi, dz)
-                  : dPhiThreshold(acc, rtUpper, modules, lowerModuleIndex, ptCut, dPhi, dz);
+    const float absDz = alpaka::math::abs(acc, dz);
+    const float tanDPhi = alpaka::math::abs(acc, crossDPhi) / dotDPhi;
+    const float miniLum = tanDPhi / absDz * kDeltaZLum;
 
-    if (alpaka::math::abs(acc, dPhi) >= miniCut)
+    const float rt = mod.moduleLayerType == Pixel ? rtLower : rtUpper;
+    const float sdSlopeSin = alpaka::math::min(acc, rt * k2Rinv1GeVf / ptCut, kSinAlphaMax);
+    const float looseCutDPhi = sdSlopeSin + alpaka::math::sqrt(acc, mod.miniMulsAndPVoff + miniLum * miniLum);
+
+    // Algebraic dPhi pre-check: |sin(dPhi)| < looseCutDPhi.
+    // looseCutDPhi = sdSlopeSin + sqrt(mulsAndPVoff + miniLum^2) >= sin(exact_cut)
+    // via sin(A+B) <= sin(A) + B, with A = asin(sdSlopeSin), B = sqrt(...).
+    // Lagrange identity: cross^2 + dot^2 = |r1|^2*|r2|^2, so sin^2(dPhi) = cross^2/(cross^2+dot^2).
+    const float crossSq = crossDPhi * crossDPhi;
+    const float r1r2sq = crossSq + dotDPhi * dotDPhi;
+
+    if (crossSq >= looseCutDPhi * looseCutDPhi * r1r2sq)
       return false;
 
-    // Cut #4: Another cut on the dphi after some modification
+    // dPhiChange pre-check: in endcap, dPhiChange = dPhi * (1+dzFrac)/dzFrac.
+    // So |dPhiChange| >= cut implies |dPhi| >= cut * dzFrac/(1+dzFrac).
+    // Padding looseCutDPhi with 0.5*s^3 gives an upper bound on the exact angle.
+    const float dzFrac = absDz / alpaka::math::abs(acc, zLower);
+    const float looseCutDPhiChange =
+        (looseCutDPhi + 0.5f * sdSlopeSin * sdSlopeSin * sdSlopeSin) * dzFrac / (1.f + dzFrac);
+
+    if (crossSq >= looseCutDPhiChange * looseCutDPhiChange * r1r2sq)
+      return false;
+
+    // Cut #3: dphi
+    dPhi = alpaka::math::atan2(acc, crossDPhi, dotDPhi);
+
+    float miniCut = mod.moduleLayerType == Pixel ? dPhiThreshold(acc, rtLower, mod, ptCut, dPhi, dz)
+                                                 : dPhiThreshold(acc, rtUpper, mod, ptCut, dPhi, dz);
+
+    if (alpaka::math::abs(acc, dPhi) >= miniCut) {
+      return false;
+    }
+
+    // Cut #4: dPhiChange
     // Ref to original code: https://github.com/slava77/cms-tkph2-ntuple/blob/184d2325147e6930030d3d1f780136bc2dd29ce6/doubletAnalysis.C#L3119-L3124
 
-    float dzFrac = alpaka::math::abs(acc, dz) / alpaka::math::abs(acc, zLower);
+    // dzFrac already computed above for dPhiChange pre-check
     dPhiChange = dPhi / dzFrac * (1.f + dzFrac);
+    noShiftedDphi = cms::alpakatools::deltaPhi(acc, xLower, yLower, xUpper, yUpper);
     noShiftedDphichange = noShiftedDphi / dzFrac * (1.f + dzFrac);
 
     return alpaka::math::abs(acc, dPhiChange) < miniCut;
   }
 
   template <alpaka::concepts::Acc TAcc>
-  ALPAKA_FN_ACC bool runMiniDoubletDefaultAlgo(TAcc const& acc,
-                                               ModulesConst modules,
-                                               uint16_t lowerModuleIndex,
-                                               uint16_t upperModuleIndex,
-                                               unsigned int lowerHitIndex,
-                                               unsigned int upperHitIndex,
-                                               float& dz,
-                                               float& dPhi,
-                                               float& dPhiChange,
-                                               float& shiftedX,
-                                               float& shiftedY,
-                                               float& shiftedZ,
-                                               float& noShiftedDphi,
-                                               float& noShiftedDphiChange,
-                                               float xLower,
-                                               float yLower,
-                                               float zLower,
-                                               float rtLower,
-                                               float xUpper,
-                                               float yUpper,
-                                               float zUpper,
-                                               float rtUpper,
-                                               const float ptCut,
-                                               uint16_t clustSizeLower,
-                                               uint16_t clustSizeUpper,
-                                               const uint16_t clustSizeCut) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runMiniDoubletDefaultAlgo(TAcc const& acc,
+                                                                ModuleMDData const& mod,
+                                                                float& dz,
+                                                                float& dPhi,
+                                                                float& dPhiChange,
+                                                                float& shiftedX,
+                                                                float& shiftedY,
+                                                                float& shiftedZ,
+                                                                float& noShiftedDphi,
+                                                                float& noShiftedDphiChange,
+                                                                float xLower,
+                                                                float yLower,
+                                                                float zLower,
+                                                                float rtLower,
+                                                                float xUpper,
+                                                                float yUpper,
+                                                                float zUpper,
+                                                                float rtUpper,
+                                                                const float ptCut,
+                                                                uint16_t clustSizeLower,
+                                                                uint16_t clustSizeUpper,
+                                                                const uint16_t clustSizeCut) {
     if (clustSizeLower > clustSizeCut or clustSizeUpper > clustSizeCut) {
       return false;
     }
-    if (modules.subdets()[lowerModuleIndex] == Barrel) {
+    if (mod.subdet == Barrel) {
       return runMiniDoubletDefaultAlgoBarrel(acc,
-                                             modules,
-                                             lowerModuleIndex,
-                                             upperModuleIndex,
-                                             lowerHitIndex,
-                                             upperHitIndex,
+                                             mod,
                                              dz,
                                              dPhi,
                                              dPhiChange,
@@ -659,11 +649,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                              ptCut);
     } else {
       return runMiniDoubletDefaultAlgoEndcap(acc,
-                                             modules,
-                                             lowerModuleIndex,
-                                             upperModuleIndex,
-                                             lowerHitIndex,
-                                             upperHitIndex,
+                                             mod,
                                              dz,
                                              dPhi,
                                              dPhiChange,
@@ -696,7 +682,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   const float ptCut,
                                   const uint16_t clustSizeCut) const {
       for (uint16_t lowerModuleIndex : cms::alpakatools::uniform_elements_y(acc, modules.nLowerModules())) {
-        uint16_t upperModuleIndex = modules.partnerModuleIndices()[lowerModuleIndex];
         int nLowerHits = hitsRanges.hitRangesnLower()[lowerModuleIndex];
         int nUpperHits = hitsRanges.hitRangesnUpper()[lowerModuleIndex];
         if (hitsRanges.hitRangesLower()[lowerModuleIndex] == -1)
@@ -704,6 +689,42 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         unsigned int upHitArrayIndex = hitsRanges.hitRangesUpper()[lowerModuleIndex];
         unsigned int loHitArrayIndex = hitsRanges.hitRangesLower()[lowerModuleIndex];
         int limit = nUpperHits * nLowerHits;
+
+        // Hoist module-constant data once per module to avoid redundant SoA loads per hit pair.
+        ModuleMDData mod;
+        mod.lowerModuleIndex = lowerModuleIndex;
+        mod.subdet = modules.subdets()[lowerModuleIndex];
+        mod.side = modules.sides()[lowerModuleIndex];
+        mod.moduleType = modules.moduleType()[lowerModuleIndex];
+        mod.moduleLayerType = modules.moduleLayerType()[lowerModuleIndex];
+        mod.iL = modules.layers()[lowerModuleIndex] - 1;
+        mod.isTilted = (mod.subdet == Barrel && mod.side != Center);
+        mod.isEndcapTwoS = (mod.subdet == Endcap && mod.moduleType == TwoS);
+        mod.isGloballyInner = modules.isGloballyInner()[lowerModuleIndex];
+        mod.slope = modules.dxdys()[lowerModuleIndex];
+        mod.drdz = modules.drdzs()[lowerModuleIndex];
+        mod.moduleSep = moduleGapSize(modules, lowerModuleIndex);
+
+        // Pre-compute dPhiThreshold module-constant parts
+        float rLayNominal = (mod.subdet == Barrel) ? kMiniRminMeanBarrel[mod.iL] : kMiniRminMeanEndcap[mod.iL];
+        mod.miniPVoff = 0.1f / rLayNominal;
+        mod.miniMuls = (mod.subdet == Barrel) ? kMiniMulsPtScaleBarrel[mod.iL] * 3.f / ptCut
+                                              : kMiniMulsPtScaleEndcap[mod.iL] * 3.f / ptCut;
+        mod.miniMulsAndPVoff = mod.miniMuls * mod.miniMuls + mod.miniPVoff * mod.miniPVoff;
+        mod.sqrtMiniMulsAndPVoff = alpaka::math::sqrt(acc, mod.miniMulsAndPVoff);
+
+        if (mod.isTilted) {
+          float drdzThresh;
+          if (mod.moduleType == PS and mod.moduleLayerType == Strip) {
+            drdzThresh = modules.drdzs()[lowerModuleIndex];
+          } else {
+            drdzThresh = modules.drdzs()[modules.partnerModuleIndices()[lowerModuleIndex]];
+          }
+          mod.miniTilt2 = 0.25f * (kPixelPSZpitch * kPixelPSZpitch) * (drdzThresh * drdzThresh) /
+                          (1.f + drdzThresh * drdzThresh) / mod.moduleSep;
+        } else {
+          mod.miniTilt2 = 0.f;
+        }
 
         for (int hitIndex : cms::alpakatools::uniform_elements_x(acc, limit)) {
           int lowerHitIndex = hitIndex / nUpperHits;
@@ -727,11 +748,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
           float dz, dphi, dphichange, shiftedX, shiftedY, shiftedZ, noShiftedDphi, noShiftedDphiChange;
           bool success = runMiniDoubletDefaultAlgo(acc,
-                                                   modules,
-                                                   lowerModuleIndex,
-                                                   upperModuleIndex,
-                                                   lowerHitArrayIndex,
-                                                   upperHitArrayIndex,
+                                                   mod,
                                                    dz,
                                                    dphi,
                                                    dphichange,
@@ -769,10 +786,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                             mds,
                             hitsBase,
                             hitsExtended,
-                            modules,
+                            mod,
                             lowerHitArrayIndex,
                             upperHitArrayIndex,
-                            lowerModuleIndex,
                             dz,
                             dphi,
                             dphichange,

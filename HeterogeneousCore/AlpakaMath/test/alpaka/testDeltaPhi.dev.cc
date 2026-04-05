@@ -61,7 +61,10 @@ void testPhiFuncs(uint32_t size, std::vector<double> const& res) {
 
     constexpr T eps = 1.e-5;
     for (size_t i = 0; i < size; ++i) {
-      CHECK_THAT(c_h.data()[i], Catch::Matchers::WithinAbs(res[i], eps));
+      // Allow 2pi periodicity to handle +/-pi equivalence at the boundary
+      CHECK_THAT(c_h.data()[i],
+                 Catch::Matchers::WithinAbs(res[i], eps) || Catch::Matchers::WithinAbs(res[i] + 2 * M_PI, eps) ||
+                     Catch::Matchers::WithinAbs(res[i] - 2 * M_PI, eps));
     }
   }
 }
