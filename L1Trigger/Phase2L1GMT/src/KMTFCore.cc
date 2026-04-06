@@ -718,8 +718,11 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
 
   int phiNew = wrapAround(trackPhi + residual(0), pow(2, BITSPHI - 1));
   int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1) + Gain(2, 2) * residual(2) + Gain(2, 3) * residual(3)), pow(2, BITSPHIB - 1));
+  //int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1) + Gain(2, 2) * residual(2)), pow(2, BITSPHIB - 1));
   int zNew = trackz + int(Gain(3, 0) * residual(0) + Gain(3, 1) * residual(1) + Gain(3, 2) * residual(2) + Gain(3, 3) * residual(3));
+  //int zNew = trackz + int(Gain(3, 1) * residual(1));
   int kSlopeNew = trackSlope + int(Gain(4, 0) * residual(0) + Gain(4, 1) * residual(1) + Gain(4, 2) * residual(2) + Gain(4, 3) * residual(3));
+  //int kSlopeNew = trackSlope + int(Gain(4, 2) * residual(2));
 
   track.setResidual(stub->depthRegion() - 1, fabs(phi - phiNew) + fabs(phiB - phiBNew) + fabs(z - zNew) + fabs(kSlope - kSlopeNew));
 
@@ -830,8 +833,10 @@ bool KMTFCore::updateOffline1D(l1t::KMTFTrack& track, const l1t::MuonStubRef& st
   int KNew = wrapAround(trackK + int(Gain(0, 0) * residual(0) + Gain(0, 1) * residual(1) + Gain(0, 2) * residual(2)), pow(2, BITSCURV - 1));
   int phiNew = wrapAround(trackPhi + residual(0), pow(2, BITSPHI - 1));
   int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1) + Gain(2, 2) * residual(2)), pow(2, BITSPHIB - 1));
-  int zNew = trackz + int(Gain(3, 0) * residual(0) + Gain(3, 1) * residual(1) + Gain(3, 2) * residual(2));
-  int kSlopeNew = trackSlope + int(Gain(4, 0) * residual(0) + Gain(4, 1) * residual(1) + Gain(4, 2) * residual(2));
+  //int zNew = trackz + int(Gain(3, 0) * residual(0) + Gain(3, 1) * residual(1) + Gain(3, 2) * residual(2));
+  int zNew = trackz + int(Gain(3, 1) * residual(1));
+  //int kSlopeNew = trackSlope + int(Gain(4, 0) * residual(0) + Gain(4, 1) * residual(1) + Gain(4, 2) * residual(2));
+  int kSlopeNew = trackSlope + int(Gain(4, 2) * residual(2));
 
   track.setCoordinates(track.step(), KNew, phiNew, phiBNew, zNew, kSlopeNew);
   Matrix55 covNew = cov - Gain * (H * cov);
