@@ -79,7 +79,7 @@ class StandardTester(object):
                   'fastsim'   : ["cmsDriver.py TTbar_8TeV_TuneCUETP8M1_cfi  --conditions auto:run1_mc --fast  -n 100 --eventcontent AODSIM,DQM --relval 100000,1000 -s GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,VALIDATION  --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --datatier GEN-SIM-DIGI-RECO,DQMIO --beamspot Realistic8TeVCollision"],
                   'fastsim1'  : ["cmsDriver.py TTbar_13TeV_TuneCUETP8M1_cfi --conditions auto:run2_mc_l1stage1 --fast  -n 100 --eventcontent AODSIM,DQM --relval 100000,1000 -s GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,VALIDATION  --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --datatier GEN-SIM-DIGI-RECO,DQMIO --beamspot NominalCollision2015 --era Run2_25ns"],
                   'fastsim2'  : ["cmsDriver.py TTbar_13TeV_TuneCUETP8M1_cfi --conditions auto:run2_mc --fast  -n 100 --eventcontent AODSIM,DQM --relval 100000,1000 -s GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,VALIDATION  --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --datatier GEN-SIM-DIGI-RECO,DQMIO --beamspot NominalCollision2015 --era Run2_2016"],
-                  'pat1'      : ['cmsRun '+self.file2Path('PhysicsTools/PatAlgos/test/IntegrationTest_cfg.py')],
+                  #'pat1'      : ['cmsRun '+self.file2Path('PhysicsTools/PatAlgos/test/IntegrationTest_cfg.py')], COMMENT: reads old format file
                 }
 
         hltTests = {}
