@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun runHGC1_cfg.py geometry=V18
-#   Options for geometry D107, D116, D104, D120
-#                        (V16) (V17) (V18) (V19)
+#   cmsRun runHGC1_cfg.py geometry=D120
+#   Options for geometry D107, D116, D104, D120, D121, D122, D123
+#                        (V16) (V17) (V18) (V19) (V17)(V19n)(V19ng)
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
 import os, sys, importlib, re
@@ -12,10 +12,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D116",
+                 "D121",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D107, D116, D104, D120")
+                  "geometry of operations: D107, D116, D104, D120, D121, D122, D123")
 
 ### get and parse the command line arguments
  

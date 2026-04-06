@@ -312,6 +312,9 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
 #endif
     }
   }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeomT") << "assignCellTrap:irad " << irad << " iphi " << iphi << " type " << type;
+#endif
   return std::array<int, 3>{{irad, iphi, type}};
 }
 
