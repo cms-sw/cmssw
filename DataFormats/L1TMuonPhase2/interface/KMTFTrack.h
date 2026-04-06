@@ -85,6 +85,7 @@ namespace l1t {
       residuals_.push_back(0);
       residuals_.push_back(0);
       residuals_.push_back(0);
+      residuals_.push_back(0);
     }
 
     reco::LeafCandidate::PolarLorentzVector displacedP4() const { return unconstrainedP4_; }
