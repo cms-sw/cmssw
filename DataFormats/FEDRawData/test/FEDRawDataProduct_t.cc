@@ -6,42 +6,28 @@
    \date 28 Jun 2005
 */
 
-#include <cppunit/extensions/HelperMacros.h>
+#include "catch2/catch_all.hpp"
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
-class testFEDRawDataProduct : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(testFEDRawDataProduct);
+TEST_CASE("FEDRawDataProduct", "[FEDRawData]") {
+  SECTION("testInsertAndReadBack") {
+    FEDRawData f1(16);
+    f1.data()[0] = 'a';
+    f1.data()[1] = 'b';
 
-  CPPUNIT_TEST(testInsertAndReadBack);
+    FEDRawData f2(24);
+    f2.data()[0] = 'd';
+    f2.data()[1] = 'e';
 
-  CPPUNIT_TEST_SUITE_END();
+    FEDRawDataCollection fp;
+    fp.FEDData(12) = f1;
+    fp.FEDData(121) = f2;
 
-public:
-  void setUp() {}
-  void tearDown() {}
-  void testInsertAndReadBack();
-};
+    REQUIRE(fp.FEDData(12).data()[0] == 'a');
+    REQUIRE(fp.FEDData(12).data()[1] == 'b');
 
-///registration of the test so that the runner can find it
-CPPUNIT_TEST_SUITE_REGISTRATION(testFEDRawDataProduct);
-
-void testFEDRawDataProduct::testInsertAndReadBack() {
-  FEDRawData f1(16);
-  f1.data()[0] = 'a';
-  f1.data()[1] = 'b';
-
-  FEDRawData f2(24);
-  f2.data()[0] = 'd';
-  f2.data()[1] = 'e';
-
-  FEDRawDataCollection fp;
-  fp.FEDData(12) = f1;
-  fp.FEDData(121) = f2;
-
-  CPPUNIT_ASSERT(fp.FEDData(12).data()[0] == 'a');
-  CPPUNIT_ASSERT(fp.FEDData(12).data()[1] == 'b');
-
-  CPPUNIT_ASSERT(fp.FEDData(121).data()[0] == 'd');
-  CPPUNIT_ASSERT(fp.FEDData(121).data()[1] == 'e');
+    REQUIRE(fp.FEDData(121).data()[0] == 'd');
+    REQUIRE(fp.FEDData(121).data()[1] == 'e');
+  }
 }

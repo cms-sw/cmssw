@@ -179,11 +179,15 @@ public:
             (mode_ == HGCalGeometryMode::TrapezoidFineCell));
   }
   std::pair<int, int> tileType(int layer, int ring, int phi) const;
+  bool tileTrapezoidCassette() const {
+    return ((mode_ == HGCalGeometryMode::TrapezoidCassette) || (mode_ == HGCalGeometryMode::TrapezoidFineCell));
+  }
   inline bool trapezoidFile() const {
     return ((mode_ == HGCalGeometryMode::TrapezoidFile) || (mode_ == HGCalGeometryMode::TrapezoidModule) ||
             (mode_ == HGCalGeometryMode::TrapezoidCassette) || (mode_ == HGCalGeometryMode::TrapezoidFineCell));
   }
-  inline bool trapezoidModule() const {
+  inline bool trapeoidFine() const { return (mode_ == HGCalGeometryMode::Hexagon8FineCell); }
+  bool tileTrapezoidModule() const {
     return ((mode_ == HGCalGeometryMode::TrapezoidModule) || (mode_ == HGCalGeometryMode::TrapezoidCassette) ||
             (mode_ == HGCalGeometryMode::TrapezoidFineCell));
   }

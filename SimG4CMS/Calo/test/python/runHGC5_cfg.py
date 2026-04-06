@@ -1,8 +1,31 @@
+###################################u############################################
+# Way to use this:
+#   cmsRun runHGC5_cfg.py geomName=Run4D120
+#   Options for geomName Run4D104, Run4D110, Run4D114, Run4D120, Run4D121.
+#                        Run4D122, Run4D123
+# 
+###############################################################################
 import FWCore.ParameterSet.Config as cms
 import os, sys, importlib, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
-geomName = "Run4D106"
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geomName',
+                 "Run4D120",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geomName of operations: Run4D104, Run4D110, Run4D114, Run4D120, Run4D121, Run4D122, Run4D123")
+
+### get and parse the command line arguments
+ 
+options.parseArguments()
+print(options)
+
+####################################################################
+
+geomName = options.geomName
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
