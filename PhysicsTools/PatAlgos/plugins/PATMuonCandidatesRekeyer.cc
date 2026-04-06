@@ -57,16 +57,25 @@ void PATMuonCandidatesRekeyer::produce(edm::Event &iEvent, edm::EventSetup const
     // copy original pat object and append to vector
     outPtrP->emplace_back(obj);
 
-    //
-    std::vector<unsigned int> keys;
-    for (size_t ic = 0; ic < outPtrP->back().numberOfSourceCandidatePtrs(); ++ic) {
-      const reco::CandidatePtr &candPtr = outPtrP->back().sourceCandidatePtr(ic);
+    auto &muon = outPtrP->back();
+    bool haveKey = false;
+    unsigned int key = 0;
+
+    // Muons can expose both pfCandidateRef_ and refToOrig_, so requiring a
+    // unique sourceCandidatePtr() is too strict for the packed-candidate rekey.
+    if (muon.refToOrig_.isNonnull()) {
+      key = muon.refToOrig_.key();
+      haveKey = true;
+    } else if (muon.numberOfSourceCandidatePtrs() == 1) {
+      const reco::CandidatePtr &candPtr = muon.sourceCandidatePtr(0);
       if (candPtr.isNonnull()) {
-        keys.push_back(candPtr.key());
+        key = candPtr.key();
+        haveKey = true;
       }
     }
-    if (keys.size() == 1) {
-      outPtrP->back().refToOrig_ = reco::CandidatePtr(pcNewCandViewHandle, keys[0]);
+
+    if (haveKey && key < pcNewHandle->size()) {
+      muon.refToOrig_ = reco::CandidatePtr(pcNewCandViewHandle, key);
     }
   }
 
