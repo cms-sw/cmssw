@@ -1130,10 +1130,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                           (hitsBase.zs()[mds.anchorHitIndices()[outerMDIndex]]);
         score_lsq = score_lsq * score_lsq;
 
-        const Params_pLS::ArrayUxHits hits1{{hitsBase.idxs()[mds.anchorHitIndices()[innerMDIndex]],
-                                             hitsBase.idxs()[mds.anchorHitIndices()[outerMDIndex]],
-                                             hitsBase.idxs()[mds.outerHitIndices()[innerMDIndex]],
-                                             hitsBase.idxs()[mds.outerHitIndices()[outerMDIndex]]}};
+        const Params_pLS::ArrayUxHits hits1{{packedHitIdx(mds.anchorHitIndices()[innerMDIndex], hitsBase),
+                                             packedHitIdx(mds.anchorHitIndices()[outerMDIndex], hitsBase),
+                                             packedHitIdx(mds.outerHitIndices()[innerMDIndex], hitsBase),
+                                             packedHitIdx(mds.outerHitIndices()[outerMDIndex], hitsBase)}};
+
         addPixelSegmentToMemory(acc,
                                 segments,
                                 pixelSegments,
