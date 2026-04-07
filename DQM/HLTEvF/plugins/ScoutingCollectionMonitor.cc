@@ -811,37 +811,35 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     trkd0_ele_hist->Fill(vmD0[elRef]);
     trkdz_ele_hist->Fill(vmDz[elRef]);
 
-    // computations to get IP w.r.t. Beamspot
-    float pt = vmPt[elRef];
-    float phi = vmPhi[elRef];
-    float eta = vmEta[elRef];
+    // computations to get IP w.r.t. a point
+    const float pt = vmPt[elRef];
+    const float phi = vmPhi[elRef];
+    const float eta = vmEta[elRef];
 
-    float px = pt * std::cos(phi);
-    float py = pt * std::sin(phi);
-    float pz = pt * std::sinh(eta);
-    float pt2 = pt * pt;
+    const float px = pt * std::cos(phi);
+    const float py = pt * std::sin(phi);
+    const float pz = pt * std::sinh(eta);
+    const float pt2 = pt * pt;
 
-    float bsx = beamspotVertex->x();
-    float bsy = beamspotVertex->y();
-    float bsz = beamspotVertex->z();
+    const float dxy0 = vmD0[elRef];
+    const float dz0 = vmDz[elRef];
 
-    // dxy and dz w.r.t. vertex
-    float dxy_bs = vmD0[elRef] + (-bsx * py + bsy * px) / pt;
-    float dz_bs = vmDz[elRef] - bsz + (bsx * px + bsy * py) * pz / pt2;
+    // lambda to compute IP wrt any (x,y,z)
+    auto computeIP = [&](float x, float y, float z) {
+      float dxy = dxy0 + (-x * py + y * px) / pt;
+      float dz = dz0 - z + (x * px + y * py) * pz / pt2;
+      return std::pair<float, float>{dxy, dz};
+    };
+
+    // compute w.r.t. beamspot
+    auto [dxy_bs, dz_bs] = computeIP(beamspotVertex->x(), beamspotVertex->y(), beamspotVertex->z());
 
     trkd0BS_ele_hist->Fill(dxy_bs);
     trkdzBS_ele_hist->Fill(dz_bs);
 
     const auto* vtx = findClosestVtx(vmDz[elRef]);
     if (vtx) {
-      float vx = vtx->x();
-      float vy = vtx->y();
-      float vz = vtx->z();
-
-      // dxy and dz w.r.t. vertex
-      float dxy_vtx = vmD0[elRef] + (-vx * py + vy * px) / pt;
-      float dz_vtx = vmDz[elRef] - vz + (vx * px + vy * py) * pz / pt2;
-
+      auto [dxy_vtx, dz_vtx] = computeIP(vtx->x(), vtx->y(), vtx->z());
       trkd0Vtx_ele_hist->Fill(dxy_vtx);
       trkdzVtx_ele_hist->Fill(dz_vtx);
     }
