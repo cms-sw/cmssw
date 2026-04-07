@@ -297,6 +297,8 @@ private:
   dqm::reco::MonitorElement* trkBestIdx_ele_hist;
   dqm::reco::MonitorElement* trkd0_ele_hist;
   dqm::reco::MonitorElement* trkdz_ele_hist;
+  dqm::reco::MonitorElement* trkd0BS_ele_hist;
+  dqm::reco::MonitorElement* trkdzBS_ele_hist;
   dqm::reco::MonitorElement* trkpt_ele_hist;
   dqm::reco::MonitorElement* trketa_ele_hist;
   dqm::reco::MonitorElement* trkphi_els_hist;
@@ -735,6 +737,15 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   const auto& vmChi2 = iEvent.get(vmTrkchi2overndfToken_);
   const auto& vmCharge = iEvent.get(vmTrkchargeToken_);
 
+  // determine the beamspot position (if it exists in the event)
+  std::unique_ptr<Run3ScoutingVertex> beamspotVertex{nullptr};
+  edm::Handle<reco::BeamSpot> beamSpotH;
+  if (getValidHandle(iEvent, beamSpotToken_, beamSpotH, "beamSpot")) {
+    const auto& beamspot = *beamSpotH;
+    beamspotVertex = std::make_unique<Run3ScoutingVertex>(
+        beamspot.x0(), beamspot.y0(), beamspot.z0(), 0., 0., 0., 0., 0., true, 0., 0., 0., 0);
+  }
+
   // fill all the electron histograms
   for (std::size_t iEl = 0; iEl < electronsH->size(); ++iEl) {
     // Ref needed to index into the ValueMaps
@@ -780,6 +791,28 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     // best-track value whenever bestIdx >= 0.
     trkd0_ele_hist->Fill(vmD0[elRef]);
     trkdz_ele_hist->Fill(vmDz[elRef]);
+
+    // computations to get IP w.r.t. Beamspot
+    float pt = vmPt[elRef];
+    float phi = vmPhi[elRef];
+    float eta = vmEta[elRef];
+
+    float px = pt * std::cos(phi);
+    float py = pt * std::sin(phi);
+    float pz = pt * std::sinh(eta);
+    float pt2 = pt * pt;
+
+    float vx = beamspotVertex->x();
+    float vy = beamspotVertex->y();
+    float vz = beamspotVertex->z();
+
+    // dxy and dz w.r.t. vertex
+    float dxy_vtx = vmD0[elRef] + (-vx * py + vy * px) / pt;
+    float dz_vtx = vmDz[elRef] - vz + (vx * px + vy * py) * pz / pt2;
+
+    trkd0BS_ele_hist->Fill(dxy_vtx);
+    trkdzBS_ele_hist->Fill(dz_vtx);
+
     trkpt_ele_hist->Fill(vmPt[elRef]);
     trketa_ele_hist->Fill(vmEta[elRef]);
     trkphi_els_hist->Fill(vmPhi[elRef]);
@@ -928,15 +961,6 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   // displaced vertex histograms with MuonNoVtx (index1: NoVtx)
   for (const auto& vtx : *verticesNoVtxH)
     fillVtxHistograms(vtx, 1);
-
-  // determine the beamspot position (if it exists in the event)
-  std::unique_ptr<Run3ScoutingVertex> beamspotVertex{nullptr};
-  edm::Handle<reco::BeamSpot> beamSpotH;
-  if (getValidHandle(iEvent, beamSpotToken_, beamSpotH, "beamSpot")) {
-    const auto& beamspot = *beamSpotH;
-    beamspotVertex = std::make_unique<Run3ScoutingVertex>(
-        beamspot.x0(), beamspot.y0(), beamspot.z0(), 0., 0., 0., 0., 0., true, 0., 0., 0., 0);
-  }
 
   // fill tracks histograms
   for (const auto& tk : *tracksH) {
@@ -1341,12 +1365,17 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   trkBestIdx_ele_hist = ibook.book1DD("trkBestIdx", "Best-track index;index;Electrons", 20, 0, 20);
   trkd0_ele_hist = ibook.book1DD("trkd0", "Best-track d_{0};d_{0} [cm];Electrons", 100, -0.5, 0.5);
   trkdz_ele_hist = ibook.book1DD("trkdz", "Best-track d_{z};d_{z} [cm];Electrons", 100, -25, 25);
+
+  trkd0BS_ele_hist = ibook.book1DD("trkd0BS", "Best-track d_{0}(BS);d_{0}(BS) [cm];Electrons", 100, -0.5, 0.5);
+  trkdzBS_ele_hist = ibook.book1DD("trkdzBS", "Best-track d_{z}(BS);d_{z}(BS) [cm];Electrons", 100, -25, 25);
+
   trkpt_ele_hist = ibook.book1DD("trkpt", "Best-track p_{T};p_{T} [GeV];Electrons", 100, 0, 200);
   trketa_ele_hist = ibook.book1DD("trketa", "Best-track #eta;#eta;Electrons", 60, -3, 3);
   trkphi_els_hist = ibook.book1DD("trkphi", "Best-track #phi;#phi [rad];Electrons", 64, -3.2, 3.2);
   trkpMode_ele_hist = ibook.book1DD("trkpMode", "Best-track p (mode);p_{mode} [GeV];Electrons", 100, 0, 200);
   trketaMode_ele_hist = ibook.book1DD("trketaMode", "Best-track #eta (mode);#eta_{mode};Electrons", 60, -3, 3);
-  trkphiMode_ele_hist = ibook.book1DD("trkphiMode", "Best-track #phi (mode);#phi_{mode} [rad];Electrons", 64, -3.2, 3.2);
+  trkphiMode_ele_hist =
+      ibook.book1DD("trkphiMode", "Best-track #phi (mode);#phi_{mode} [rad];Electrons", 64, -3.2, 3.2);
   trkqoverpModeError_ele_hist = ibook.book1DD(
       "trkqoverpModeError", "Best-track #sigma(q/p) (mode);#sigma(q/p)_{mode} [GeV^{-1}];Electrons", 100, 0, 0.01);
   trkchi2overndf_ele_hist =
