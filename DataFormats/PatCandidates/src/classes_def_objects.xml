@@ -132,7 +132,7 @@
    <version ClassVersion="3" checksum="3450971292"/>
   </class>
   <class name="pat::PFParticle"  ClassVersion="3">
-   <version ClassVersion="3" checksum="213995894"/>
+   <version ClassVersion="3" checksum="2508658165"/>
   </class>
   <class name="pat::GenericParticle"  ClassVersion="3">
    <version ClassVersion="3" checksum="3105008866"/>
