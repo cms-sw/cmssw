@@ -131,10 +131,10 @@ void PreMixingCaloParticleWorker::put(edm::Event &iEvent,
                                       std::vector<PileupSummaryInfo> const &ps,
                                       int bunchSpacing) {
   for (auto &sc : *newClusters_) {
-    auto hitsAndEnergies = sc.hits_and_energies();
+    auto hitsAndEnergies = sc.hits_and_energies_view();
     sc.clearHitsAndEnergies();
     sc.clearFractions();
-    for (auto &hAndE : hitsAndEnergies) {
+    for (auto hAndE : hitsAndEnergies) {
       const float totalenergy = totalEnergy_[hAndE.first];
       float fraction = 0.;
       if (totalenergy > 0)

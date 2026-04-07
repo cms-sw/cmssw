@@ -676,7 +676,6 @@ void CaloTruthAccumulator::initializeEvent(edm::Event const &event, edm::EventSe
 void CaloTruthAccumulator::accumulate(edm::Event const &event, edm::EventSetup const &setup) {
   edm::Handle<edm::HepMCProduct> hepmc;
   event.getByLabel(hepMCproductLabel_, hepmc);
-
   edm::LogInfo(messageCategory_) << " CaloTruthAccumulator::accumulate (signal)";
   accumulateEvent(event, setup, hepmc);
 }

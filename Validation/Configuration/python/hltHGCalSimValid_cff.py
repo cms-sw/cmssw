@@ -130,6 +130,11 @@ hltHitToSimClusterCaloParticleAssociator = _hitToSimClusterCaloParticleAssociato
     hitMap = 'hltHGCalRecHitMapProducer:hgcalRecHitMap',
     hits = 'hltHGCalRecHitMapProducer:RefProdVectorHGCRecHitCollection'
 )
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(hltHitToSimClusterCaloParticleAssociator,
+    caloParticles = cms.InputTag("mixData", "MergedCaloTruth"),
+    simClusters = cms.InputTag("mixData", "MergedCaloTruth")
+)
 
 from SimCalorimetry.HGCalAssociatorProducers.AllHitToTracksterAssociatorsProducer_cfi import AllHitToTracksterAssociatorsProducer as _AllHitToTracksterAssociatorsProducer
 
