@@ -1,0 +1,7 @@
+<library file="DumpLSTGeometry.cc" name="RecoTrackerLSTCoreTest">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="RecoTracker/LSTGeometry"/>
+  <use name="RecoTracker/Record"/>
+</library>
+<test name="testDumpLSTGeometry" command="testDumpLSTGeometry.sh"/>

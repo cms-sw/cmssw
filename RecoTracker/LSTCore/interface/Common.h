@@ -4,6 +4,8 @@
 #include "DataFormats/Common/interface/StdArray.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
+#include "RecoTracker/LSTGeometry/interface/Common.h"
+
 #if defined(FP16_Base)
 #if defined ALPAKA_ACC_GPU_CUDA_ENABLED
 #include <cuda_fp16.h>
@@ -41,6 +43,9 @@ namespace lst {
 
   constexpr uint16_t kTCEmptyLowerModule = 0xFFFF;     // Sentinel for empty lowerModule index
   constexpr unsigned int kTCEmptyHitIdx = 0xFFFFFFFF;  // Sentinel for empty hit slots
+
+  constexpr float kB = lstgeometry::kB;
+  constexpr float kC = lstgeometry::kC;
 
 // Half precision wrapper functions.
 #if defined(FP16_Base)

@@ -1,0 +1,14 @@
+<library file="*.cc" name="RecoTrackerLSTCorePlugins">
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/TrackReco"/>
+  <use name="DataFormats/TrackerCommon"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="Geometry/CommonTopologies"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="RecoTracker/LSTCore"/>
+  <use name="RecoTracker/LSTGeometry"/>
+  <use name="RecoTracker/Record"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

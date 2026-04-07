@@ -1,0 +1,8 @@
+<use name="boost_header"/>
+<use name="eigen"/>
+<use name="DataFormats/Common"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="Geometry/CommonTopologies"/>
+<export>
+  <lib name="1"/>
+</export>

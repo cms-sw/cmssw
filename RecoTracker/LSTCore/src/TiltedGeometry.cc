@@ -2,10 +2,13 @@
 
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <sstream>
 #include <stdexcept>
 
 lst::TiltedGeometry::TiltedGeometry(std::string const& filename) { load(filename); }
+
+lst::TiltedGeometry::TiltedGeometry(lstgeometry::Slopes const& slopes) { load(slopes); }
 
 void lst::TiltedGeometry::load(std::string const& filename) {
   drdzs_.clear();
@@ -26,14 +29,26 @@ void lst::TiltedGeometry::load(std::string const& filename) {
     ifile.read(reinterpret_cast<char*>(&dxdy), sizeof(dxdy));
 
     if (ifile) {
-      drdzs_[detid] = drdz;
-      dxdys_[detid] = dxdy;
+      // TODO: This is needed for now in case old geometry files are used. Remove once deemed unnecessary.
+      constexpr float kLegacyVerticalSlope = 123456789.0f;
+      drdzs_[detid] = (drdz == kLegacyVerticalSlope) ? std::numeric_limits<float>::infinity() : drdz;
+      dxdys_[detid] = (dxdy == kLegacyVerticalSlope) ? std::numeric_limits<float>::infinity() : dxdy;
     } else {
       // End of file or read failed
       if (!ifile.eof()) {
         throw std::runtime_error("Failed to read Tilted Geometry binary data.");
       }
     }
+  }
+}
+
+void lst::TiltedGeometry::load(lstgeometry::Slopes const& slopes) {
+  drdzs_.clear();
+  dxdys_.clear();
+
+  for (const auto& [detId, slope] : slopes) {
+    drdzs_[detId] = slope.drdz;
+    dxdys_[detId] = slope.dxdy;
   }
 }
 
