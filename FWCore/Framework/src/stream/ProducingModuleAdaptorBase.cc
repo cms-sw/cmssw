@@ -214,64 +214,28 @@ namespace edm {
     void ProducingModuleAdaptorBase<T>::doStreamBeginRun(StreamID id,
                                                          RunTransitionInfo const& info,
                                                          ModuleCallingContext const* mcc) {
-      RunPrincipal const& rp = info.principal();
-      auto mod = m_streamModules[id];
-      setupRun(mod, rp.index());
-
-      Run r(rp, moduleDescription_, mcc, false);
-      r.setConsumer(mod);
-      ESParentContext parentC(mcc);
-      const EventSetup c{
-          info, static_cast<unsigned int>(Transition::BeginRun), mod->esGetTokenIndices(Transition::BeginRun), parentC};
-      mod->beginRun(r, c);
+      streamBeginRun(m_streamModules[id], info, mcc);
     }
 
     template <typename T>
     void ProducingModuleAdaptorBase<T>::doStreamEndRun(StreamID id,
                                                        RunTransitionInfo const& info,
                                                        ModuleCallingContext const* mcc) {
-      auto mod = m_streamModules[id];
-      Run r(info, moduleDescription_, mcc, true);
-      r.setConsumer(mod);
-      ESParentContext parentC(mcc);
-      const EventSetup c{
-          info, static_cast<unsigned int>(Transition::EndRun), mod->esGetTokenIndices(Transition::EndRun), parentC};
-      mod->endRun(r, c);
-      streamEndRunSummary(mod, r, c);
+      streamEndRun(m_streamModules[id], info, mcc);
     }
 
     template <typename T>
     void ProducingModuleAdaptorBase<T>::doStreamBeginLuminosityBlock(StreamID id,
                                                                      LumiTransitionInfo const& info,
                                                                      ModuleCallingContext const* mcc) {
-      LuminosityBlockPrincipal const& lbp = info.principal();
-      auto mod = m_streamModules[id];
-      setupLuminosityBlock(mod, lbp.index());
-
-      LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
-      lb.setConsumer(mod);
-      ESParentContext parentC(mcc);
-      const EventSetup c{info,
-                         static_cast<unsigned int>(Transition::BeginLuminosityBlock),
-                         mod->esGetTokenIndices(Transition::BeginLuminosityBlock),
-                         parentC};
-      mod->beginLuminosityBlock(lb, c);
+      streamBeginLuminosityBlock(m_streamModules[id], info, mcc);
     }
 
     template <typename T>
     void ProducingModuleAdaptorBase<T>::doStreamEndLuminosityBlock(StreamID id,
                                                                    LumiTransitionInfo const& info,
                                                                    ModuleCallingContext const* mcc) {
-      auto mod = m_streamModules[id];
-      LuminosityBlock lb(info, moduleDescription_, mcc, true);
-      lb.setConsumer(mod);
-      ESParentContext parentC(mcc);
-      const EventSetup c{info,
-                         static_cast<unsigned int>(Transition::EndLuminosityBlock),
-                         mod->esGetTokenIndices(Transition::EndLuminosityBlock),
-                         parentC};
-      mod->endLuminosityBlock(lb, c);
-      streamEndLuminosityBlockSummary(mod, lb, c);
+      streamEndLuminosityBlock(m_streamModules[id], info, mcc);
     }
   }  // namespace stream
 }  // namespace edm

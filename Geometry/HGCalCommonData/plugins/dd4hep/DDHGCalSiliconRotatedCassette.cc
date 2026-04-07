@@ -151,7 +151,7 @@ struct HGCalSiliconRotatedCassette {
       layerOrient_[k] = HGCalTypes::layerType(layerOrient_[k]);
 #ifdef EDM_ML_DEBUG
     for (unsigned int i = 0; i < layerOrient_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "LayerTypes [" << i << "] " << layerOrient_[i];
+      edm::LogVerbatim("HGCalGeom") << "LayerOrient [" << i << "] " << layerOrient_[i];
 #endif
     if (firstLayer_ > 0) {
       for (unsigned int i = 0; i < layerType_.size(); ++i) {
@@ -224,6 +224,10 @@ struct HGCalSiliconRotatedCassette {
 
     double zi(zMinBlock_);
     int laymin(0);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: Starts constructLayers with " << layers_.size()
+                                  << " layers";
+#endif
     for (unsigned int i = 0; i < layers_.size(); i++) {
       double zo = zi + layerThick_[i];
       double routF = HGCalGeomTools::radius(zi, zFrontT_, rMaxFront_, slopeT_);
@@ -301,6 +305,7 @@ struct HGCalSiliconRotatedCassette {
                                         << cms::convert2mm(routs) << ", " << cms::convert2mm(hthick)
                                         << ", 0.0, 360.0 and position " << glog.name() << " number " << copy << ":"
                                         << layerOrient_[copy - firstLayer_] << " Z " << cms::convert2mm(zz);
+          edm::LogVerbatim("HGCalGeom") << "POSITION: " << layerSense_[ly] << " PassiveMode " << passiveMode_;
 #endif
           if (layerSense_[ly] > 0) {
             positionSensitive(ctxt, e, glog, (copy - firstLayer_));
@@ -377,12 +382,17 @@ struct HGCalSiliconRotatedCassette {
 #ifdef EDM_ML_DEBUG
     int ium(0), ivm(0), kount(0);
     std::vector<int> ntype(3, 0);
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: " << glog.name() << "  r " << cms::convert2mm(delx)
-                                  << " R " << cms::convert2mm(dely) << " dy " << cms::convert2mm(dy) << " Shift "
-                                  << cms::convert2mm(xyoff.first) << ":" << cms::convert2mm(xyoff.second)
-                                  << " WaferSize " << cms::convert2mm(waferSize_ + waferSepar_) << " index "
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: PositionSensitive layer " << layer << "  r "
+                                  << delx << " R " << dely << " dy " << dy << " Shift " << xyoff.first << ":"
+                                  << xyoff.second << " WaferSize " << (waferSize_ + waferSepar_) << " index "
                                   << firstWafer << ":" << (lastWafer - 1) << " Layer Center " << layercenter << ":"
                                   << layertype;
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: PositionSensitive layer " << glog.name() << "  r "
+                                  << cms::convert2mm(delx) << " R " << cms::convert2mm(dely) << " dy "
+                                  << cms::convert2mm(dy) << " Shift " << cms::convert2mm(xyoff.first) << ":"
+                                  << cms::convert2mm(xyoff.second) << " WaferSize "
+                                  << cms::convert2mm(waferSize_ + waferSepar_) << " index " << firstWafer << ":"
+                                  << (lastWafer - 1) << " Layer Center " << layercenter << ":" << layertype;
 #endif
     for (int k = firstWafer; k < lastWafer; ++k) {
       int u = HGCalWaferIndex::waferU(waferIndex_[k]);
@@ -418,6 +428,8 @@ struct HGCalSiliconRotatedCassette {
       if (part == HGCalTypes::WaferFull) {
         i = type * facingTypes_ * orientationTypes_ + place - placeOffset_;
 #ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HGCalGeom") << "facitype " << facingTypes_ << ":" << orientationTypes_ << ":" << placeOffset_
+                                      << " i " << i << ":" << waferFull_.size();
         edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:cassette:place:offsets:ind " << layertype << ":"
                                       << type << ":" << part << ":" << orien << ":" << cassette << ":" << place << ":"
                                       << placeOffset_ << ":" << facingTypes_ << ":" << orientationTypes_ << " wafer "
@@ -587,7 +599,7 @@ struct HGCalSiliconRotatedCassette {
     edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette: Type " << type << " number per cassette " << num;
 #endif
     for (int k = 0; k < cassettes_; ++k) {
-      double xpos(0), ypos(0);
+      double xpos(0), ypos(0), zpos(0);
       for (int n = 0; n < num; ++n) {
         int i1 = num * k + n;
         int i2 = num * layer * cassettes_ + i1;
@@ -599,15 +611,16 @@ struct HGCalSiliconRotatedCassette {
         std::string passive = (type) ? passiveAbsorb_[i2] : passiveCool_[i2];
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedCassette::Passive2 " << passive << " number " << i2
-                                      << " pos " << cms::convert2mm(xpos) << ":" << cms::convert2mm(ypos) << ":0";
+                                      << " pos " << cms::convert2mm(xpos) << ":" << cms::convert2mm(ypos) << ":"
+                                      << cms::convert2mm(zpos);
         kount++;
 #endif
-        dd4hep::Position tran(xpos, ypos, 0.0);
+        dd4hep::Position tran(xpos, ypos, zpos);
         glog.placeVolume(ns.volume(passive), i2, tran);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconRotatedCassette: " << passive << " number " << i2
                                       << " positioned in " << glog.name() << " at (" << cms::convert2mm(xpos) << ","
-                                      << cms::convert2mm(ypos) << ",0) with no rotation";
+                                      << cms::convert2mm(ypos) << "," << cms::convert2mm(zpos) << ") with no rotation";
 #endif
       }
     }
