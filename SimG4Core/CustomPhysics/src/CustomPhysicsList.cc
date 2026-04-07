@@ -6,6 +6,7 @@
 #include "SimG4Core/CustomPhysics/interface/DummyChargeFlipProcess.h"
 #include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.h"
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
+#include "SimG4Core/CustomPhysics/interface/RHadronPythiaDecayer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -15,6 +16,7 @@
 #include "G4hIonisation.hh"
 #include "G4ProcessManager.hh"
 #include "G4HadronicProcess.hh"
+#include "G4Decay.hh"
 
 #include "SimG4Core/CustomPhysics/interface/FullModelHadronicProcess.h"
 #include "SimG4Core/CustomPhysics/interface/CMSDarkPairProductionProcess.h"
@@ -63,6 +65,8 @@ void CustomPhysicsList::ConstructProcess() {
                                              << "for the list of particles";
 
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
+  bool extRHadronDecayerSet = false;
+  G4Decay* pythiaDecayProcess = nullptr;
 
   for (auto particle : fParticleFactory.get()->getCustomParticles()) {
     if (particle->GetParticleType() == "simp") {
@@ -100,6 +104,28 @@ void CustomPhysicsList::ConstructProcess() {
             myHelper = std::make_unique<G4ProcessHelper>(myConfig, fParticleFactory.get());
           }
           pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper.get()));
+        }
+        if ((particle->GetParticleType() == "rhadron" || particle->GetParticleType() == "mesonino" ||
+             particle->GetParticleType() == "sbaryon") &&
+            particle->GetPDGStable() == false) {
+          if (!extRHadronDecayerSet) {
+            // Set the pythia decayer for Rhadrons if they are unstable
+            pythiaDecayProcess = new RHadronPythiaDecayer(myConfig);
+            G4VExtDecayer* extDecayer = dynamic_cast<G4VExtDecayer*>(pythiaDecayProcess);
+            // Set the external decayer to itself. Seems redundant but is necessary as far as I can tell. Without doing this, RHadronPythiaDecayer::ImportDecayProducts() will not be called.
+            pythiaDecayProcess->SetExtDecayer(extDecayer);
+            extRHadronDecayerSet = true;
+          }
+          // Remove native G4 decay process in favor of RHadronPythiaDecayer
+          G4ProcessVector* fullProcessList = pmanager->GetProcessList();
+          for (unsigned int i = 0; i < fullProcessList->size(); ++i) {
+            G4VProcess* process = (*fullProcessList)[i];
+            if (process->GetProcessType() == fDecay) {
+              pmanager->RemoveProcess(process);
+              pmanager->AddProcess(pythiaDecayProcess);
+              pmanager->SetProcessOrdering(pythiaDecayProcess, idxPostStep);
+            }
+          }
         }
         if (particle->GetParticleType() == "darkpho") {
           CMSDarkPairProductionProcess* darkGamma = new CMSDarkPairProductionProcess(dfactor);
