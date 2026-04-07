@@ -264,52 +264,88 @@ void GenPlusSimParticleProducer::produce(Event &event, const EventSetup &iSetup)
   }
 
   for (SimTrackContainer::const_iterator isimtrk = simtracks->begin(); isimtrk != simtracks->end(); ++isimtrk) {
-    // Skip PYTHIA tracks.
-    if (isimtrk->genpartIndex() != -1)
-      continue;
+    // Special case for when simTracks need to be added to pythia track filtered by particleType, e.g. a particle with ctau=0.1mm
+    if (isimtrk->genpartIndex() != -1 && !pdgIds_.empty() &&
+        (pdgIds_.find(std::abs(isimtrk->type())) != pdgIds_.end())) {
+      std::vector<int>::const_iterator itIndex;
+      if (barcodesAreSorted) {
+        itIndex = std::lower_bound(genBarcodes->begin(), genBarcodes->end(), isimtrk->genpartIndex());
+      } else {
+        itIndex = std::find(genBarcodes->begin(), genBarcodes->end(), isimtrk->genpartIndex());
+      }
 
-    // Maybe apply the PdgId filter
-    if (!pdgIds_.empty()) {  // if we have a filter on pdg ids
-      if (pdgIds_.find(std::abs(isimtrk->type())) == pdgIds_.end())
-        continue;
+      if ((itIndex != genBarcodes->end()) && (*itIndex == isimtrk->genpartIndex())) {
+        const unsigned int momidx = itIndex - genBarcodes->begin();
+        for (SimTrackContainer::const_iterator idau = simtracksSorted->begin(); idau != simtracksSorted->end();
+             ++idau) {
+          if (idau->noVertex())
+            continue;
+          const SimVertex &dvtx = (*simvertices)[idau->vertIndex()];
+          if (dvtx.noParent())
+            continue;
+          if (dvtx.parentIndex() == static_cast<int>(isimtrk->trackId())) {
+            addGenParticle(*isimtrk,
+                           *idau,
+                           momidx,
+                           *simtracksSorted,
+                           *simvertices,
+                           *candsPtr,
+                           ref,
+                           *newGenBarcodes,
+                           barcodesAreSorted);
+          }
+        }
+      }
     }
 
-    // find simtrack that has a genParticle match to its parent
-    // Look at the production vertex. If there is no vertex, I can do nothing...
-    if (!isimtrk->noVertex()) {
-      // Pick the vertex (isimtrk.vertIndex() is really an index)
-      const SimVertex &vtx = (*simvertices)[isimtrk->vertIndex()];
+    else {
+      // Skip PYTHIA tracks.
+      if (isimtrk->genpartIndex() != -1)
+        continue;
 
-      // Check if the vertex has a parent track (otherwise, we're lost)
-      if (!vtx.noParent()) {
-        // Now note that vtx.parentIndex() is NOT an index, it's a track id, so I have to search for it
-        unsigned int idx = vtx.parentIndex();
-        SimTrackContainer::const_iterator it =
-            std::lower_bound(simtracksSorted->begin(), simtracksSorted->end(), idx, LessById());
-        if ((it != simtracksSorted->end()) && (it->trackId() == idx)) {  //it is the parent sim track
-          if (it->genpartIndex() != -1) {
-            std::vector<int>::const_iterator itIndex;
-            if (barcodesAreSorted) {
-              itIndex = std::lower_bound(genBarcodes->begin(), genBarcodes->end(), it->genpartIndex());
-            } else {
-              itIndex = std::find(genBarcodes->begin(), genBarcodes->end(), it->genpartIndex());
-            }
+      // Maybe apply the PdgId filter
+      if (!pdgIds_.empty()) {  // if we have a filter on pdg ids
+        if (pdgIds_.find(std::abs(isimtrk->type())) == pdgIds_.end())
+          continue;
+      }
 
-            // Check that I found something
-            // I need to check '*itIndex == it->genpartIndex()' because lower_bound just finds the right spot for an item in a sorted list, not the item
-            if ((itIndex != genBarcodes->end()) && (*itIndex == it->genpartIndex())) {
-              // Ok, I'll make the genParticle for st and add it to the new collection updating the map and parent-child relationship
-              // pass the mother and daughter sim tracks and the mother genParticle to method to create the daughter genParticle and recur
-              unsigned int momidx = itIndex - genBarcodes->begin();
-              addGenParticle(*it,
-                             *isimtrk,
-                             momidx,
-                             *simtracksSorted,
-                             *simvertices,
-                             *candsPtr,
-                             ref,
-                             *newGenBarcodes,
-                             barcodesAreSorted);
+      // find simtrack that has a genParticle match to its parent
+      // Look at the production vertex. If there is no vertex, I can do nothing...
+      if (!isimtrk->noVertex()) {
+        // Pick the vertex (isimtrk.vertIndex() is really an index)
+        const SimVertex &vtx = (*simvertices)[isimtrk->vertIndex()];
+
+        // Check if the vertex has a parent track (otherwise, we're lost)
+        if (!vtx.noParent()) {
+          // Now note that vtx.parentIndex() is NOT an index, it's a track id, so I have to search for it
+          unsigned int idx = vtx.parentIndex();
+          SimTrackContainer::const_iterator it =
+              std::lower_bound(simtracksSorted->begin(), simtracksSorted->end(), idx, LessById());
+          if ((it != simtracksSorted->end()) && (it->trackId() == idx)) {  //it is the parent sim track
+            if (it->genpartIndex() != -1) {
+              std::vector<int>::const_iterator itIndex;
+              if (barcodesAreSorted) {
+                itIndex = std::lower_bound(genBarcodes->begin(), genBarcodes->end(), it->genpartIndex());
+              } else {
+                itIndex = std::find(genBarcodes->begin(), genBarcodes->end(), it->genpartIndex());
+              }
+
+              // Check that I found something
+              // I need to check '*itIndex == it->genpartIndex()' because lower_bound just finds the right spot for an item in a sorted list, not the item
+              if ((itIndex != genBarcodes->end()) && (*itIndex == it->genpartIndex())) {
+                // Ok, I'll make the genParticle for st and add it to the new collection updating the map and parent-child relationship
+                // pass the mother and daughter sim tracks and the mother genParticle to method to create the daughter genParticle and recur
+                unsigned int momidx = itIndex - genBarcodes->begin();
+                addGenParticle(*it,
+                               *isimtrk,
+                               momidx,
+                               *simtracksSorted,
+                               *simvertices,
+                               *candsPtr,
+                               ref,
+                               *newGenBarcodes,
+                               barcodesAreSorted);
+              }
             }
           }
         }
