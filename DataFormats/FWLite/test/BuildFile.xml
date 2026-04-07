@@ -1,7 +1,7 @@
-<use name="cppunit"/>
+<use name="catch2"/>
 <test name="testDataFormatsFWLiteMakeInput" command="RefTest.sh"/>
 
-<bin name="testDataFormatsFWLite" file="test.cppunit.cpp,format_type_name.cppunit.cpp">
+<bin name="testDataFormatsFWLite" file="test.catch2.cpp,format_type_name.catch2.cpp">
   <flags PRE_TEST="testDataFormatsFWLiteMakeInput"/>
   <use name="DataFormats/FWLite"/>
   <use name="FWCore/FWLite"/>
