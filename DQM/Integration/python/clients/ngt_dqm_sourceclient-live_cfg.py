@@ -101,7 +101,7 @@ process.dqmHLTFiltersDQMonitor.lightMonitor = True
 
 process.p = cms.Path(process.dqmcommon *
                      process.hltOnlineBeamSpot *
-                     process.ScoutingTracksMonitoring *
+                     process.ScoutingTrackMonitorOnline *
                      process.run3ScoutingElectronBestTrack *
                      process.scoutingCollectionMonitor *
                      process.ScoutingRecHitsMonitoring *

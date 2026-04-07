@@ -43,6 +43,15 @@ private:
   MonitorElement* p_dz_eta;
   MonitorElement* p_dz_phi;
 
+  MonitorElement* h2_eta_phi;
+
+  // 2D eta-phi profiles
+  MonitorElement* p2_dxy_eta_phi;
+  MonitorElement* p2_dz_eta_phi;
+  MonitorElement* p2_nValidPixelHits_eta_phi;
+  MonitorElement* p2_nTrackerLayersWithMeasurement_eta_phi;
+  MonitorElement* p2_nValidStripHits_eta_phi;
+
   // helpers
   reco::Track makeRecoTrack(const Run3ScoutingTrack& sTrack) const;
   reco::Vertex makeRecoVertex(const Run3ScoutingVertex& sVertex) const;
@@ -71,6 +80,72 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
   p_dz_eta = ibooker.bookProfile("dz_vs_eta", "dz vs eta;eta;<dz>", 50, -3.0, 3.0, -1.0, 1.0, "");
   p_dz_phi =
       ibooker.bookProfile("dz_vs_phi", "dz vs phi;phi;<dz>", 50, -std::numbers::pi, std::numbers::pi, -1.0, 1.0, "");
+
+  // 2D eta-phi occupancy histograms
+  h2_eta_phi =
+      ibooker.book2I("eta_vs_phi", "Track occupancy;#eta;#phi", 50, -3.0, 3.0, 50, -std::numbers::pi, std::numbers::pi);
+
+  // 2D eta-phi profiles
+  p2_dxy_eta_phi = ibooker.bookProfile2D("dxy_vs_eta_phi",
+                                         "dxy vs #eta-#phi;<dxy>;#eta;#phi",
+                                         50,
+                                         -3.0,
+                                         3.0,
+                                         50,
+                                         -std::numbers::pi,
+                                         std::numbers::pi,
+                                         -0.5,
+                                         0.5,
+                                         "");
+
+  p2_dz_eta_phi = ibooker.bookProfile2D("dz_vs_eta_phi",
+                                        "dz vs #eta-#phi;<dz>;#eta;#phi",
+                                        50,
+                                        -3.0,
+                                        3.0,
+                                        50,
+                                        -std::numbers::pi,
+                                        std::numbers::pi,
+                                        -1.0,
+                                        1.0,
+                                        "");
+
+  p2_nValidPixelHits_eta_phi = ibooker.bookProfile2D("nValidPixelHits_vs_eta_phi_prof",
+                                                     "nValidPixelHits vs #eta-#phi;<nValidPixelHits>;#eta;#phi",
+                                                     50,
+                                                     -3.0,
+                                                     3.0,
+                                                     50,
+                                                     -std::numbers::pi,
+                                                     std::numbers::pi,
+                                                     0.,
+                                                     10.,
+                                                     "");
+
+  p2_nTrackerLayersWithMeasurement_eta_phi =
+      ibooker.bookProfile2D("nTrackerLayersWithMeasurement_vs_eta_phi_prof",
+                            "nTrackerLayersWithMeasurement vs #eta-#phi;<nTrackerLayersWithMeasurement>;#eta;#phi",
+                            50,
+                            -3.0,
+                            3.0,
+                            50,
+                            -std::numbers::pi,
+                            std::numbers::pi,
+                            0.,
+                            20.,
+                            "");
+
+  p2_nValidStripHits_eta_phi = ibooker.bookProfile2D("nValidStripHits_vs_eta_phi_prof",
+                                                     "nValidStripHits vs #eta-#phi;<nValidStripHits>;#eta;#phi",
+                                                     50,
+                                                     -3.0,
+                                                     3.0,
+                                                     50,
+                                                     -std::numbers::pi,
+                                                     std::numbers::pi,
+                                                     0.,
+                                                     30.,
+                                                     "");
 }
 
 // main event loop
@@ -91,19 +166,14 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
 
     h_vtx_idx->Fill(vtxIndex);
 
-    // // --- find closest vertex in z ---
-    // float bestDist = 1e9;
-    // const Run3ScoutingVertex* closestVtx = nullptr;
-    // for (const auto& vtx : vertices) {
-    //   float dz = std::abs(trk.tk_vz() - vtx.z());
-    //   if (dz < bestDist) {
-    //     bestDist = dz;
-    //     closestVtx = &vtx;
-    //   }
-    // }
+    const float eta = recoTrk.eta();
+    const float phi = recoTrk.phi();
 
-    // if (!closestVtx)
-    //   continue;
+    // --- fill 2D eta-phi occupancy histograms ---
+    h2_eta_phi->Fill(eta, phi);
+    p2_nValidPixelHits_eta_phi->Fill(eta, phi, trk.tk_nValidPixelHits());
+    p2_nTrackerLayersWithMeasurement_eta_phi->Fill(eta, phi, trk.tk_nTrackerLayersWithMeasurement());
+    p2_nValidStripHits_eta_phi->Fill(eta, phi, trk.tk_nValidStripHits());
 
     // --- build reco vertex ---
     reco::Vertex recoVtx = makeRecoVertex(*closestVtx);
@@ -124,6 +194,10 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
 
     p_dz_eta->Fill(recoTrk.eta(), dz);
     p_dz_phi->Fill(recoTrk.phi(), dz);
+
+    // --- fill 2D eta-phi profiles ---
+    p2_dxy_eta_phi->Fill(eta, phi, dxy);
+    p2_dz_eta_phi->Fill(eta, phi, dz);
   }
 }
 
