@@ -20,7 +20,8 @@ process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
 from HeterogeneousCore.MPICore.modules import *
 
 process.mpiController = MPIController(
-    mode = 'CommWorld'
+    mode = 'CommWorld',
+    followerProcessName = 'MPIFollower'
 )
 
 # Phase-1 FED RAW data collection pseudo object

@@ -24,7 +24,8 @@ process.maxEvents.input = 30
 from HeterogeneousCore.MPICore.modules import MPIController, MPISender, MPIReceiver
 
 process.mpiController = MPIController(
-    mode = 'CommWorld'
+    mode = 'CommWorld',
+    followerProcessName = 'MPIFollower'
 )
 
 # Produce EventID, that will be sent to the Follower
