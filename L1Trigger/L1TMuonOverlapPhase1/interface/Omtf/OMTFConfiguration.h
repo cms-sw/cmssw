@@ -138,7 +138,7 @@ public:
 
   //pt unit of the OMTF patrterns, the same as in the phase-1 uGMT
   //TODO refactor to omtfPtUnit
-  double ptUnit = 0.5;  // GeV/unit
+  const double ptUnit = 0.5;  // GeV/unit
   ///uGMT pt scale conversion
   //TODO refactor to omtfPtToGev
   double hwPtToGev(int hwPt) const override { return (hwPt == 0 ? 0 : (hwPt - 1.) * ptUnit); }
@@ -181,7 +181,7 @@ public:
 
   static int etaBit2Code(unsigned int bit);
 
-  double phiGmtUnit = 2. * M_PI / 576;  //phase-1, from the interface note, should be defined somewhere globally
+  const double phiGmtUnit = 2. * M_PI / 576;  //phase-1, from the interface note, should be defined somewhere globally
 
   ///iProcessor - 0...5
   ///phiRad [-pi,pi]

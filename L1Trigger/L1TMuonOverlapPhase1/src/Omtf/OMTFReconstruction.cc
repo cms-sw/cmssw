@@ -26,7 +26,8 @@
 #include <vector>
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
-OMTFReconstruction::OMTFReconstruction(const edm::ParameterSet& parameterSet, MuStubsInputTokens& muStubsInputTokens)
+OMTFReconstruction::OMTFReconstruction(const edm::ParameterSet& parameterSet,
+                                       const MuStubsInputTokens& muStubsInputTokens)
     : muStubsInputTokens(muStubsInputTokens),
       omtfConfig(new OMTFConfiguration()),
       omtfProc(nullptr),

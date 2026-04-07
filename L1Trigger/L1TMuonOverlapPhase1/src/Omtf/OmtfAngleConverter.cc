@@ -253,7 +253,6 @@ int OmtfAngleConverter::getProcessorPhi(
       stripPhi2 += 2 * M_PI;
   }
   int halfStrip = lround(((stripPhi1 + stripPhi2) / 2.) / hsPhiPitch);
-  halfStrip = config->foldPhi(halfStrip);  //only for the case when the two strips are on different sides of phi = pi
 
   LogTrace("l1tOmtfEventPrint") << __FUNCTION__ << ":" << 185 << " roll " << rollId.rawId() << " " << rollId
                                 << " cluster: firstStrip " << digi1 << " stripPhi1Global " << stripPhi1
@@ -414,7 +413,7 @@ bool OmtfAngleConverter::isCSCCounterClockwise(const CSCLayer* layer) const {
 }
 ///////////////////////////////////////
 ///////////////////////////////////////
-const int OmtfAngleConverter::findBTIgroup(const L1MuDTChambPhDigi& aDigi, const L1MuDTChambThContainer* dtThDigis) {
+int OmtfAngleConverter::findBTIgroup(const L1MuDTChambPhDigi& aDigi, const L1MuDTChambThContainer* dtThDigis) const {
   int bti_group = -1;
 
   const L1MuDTChambThDigi* theta_segm =

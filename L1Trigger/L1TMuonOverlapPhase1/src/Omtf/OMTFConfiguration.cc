@@ -376,7 +376,7 @@ uint32_t OMTFConfiguration::getLayerNumber(uint32_t rawId) const {
 
   DetId detId(rawId);
   if (detId.det() != DetId::Muon) {
-    std::cout << "PROBLEM: hit in unknown Det, detID: " << detId.det() << std::endl;
+    edm::LogError("OMTFReconstruction") << "PROBLEM: hit in unknown Det, detID: " << detId.det() << std::endl;
     return rawId;
   }
 

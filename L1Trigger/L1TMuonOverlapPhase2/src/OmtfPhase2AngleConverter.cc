@@ -20,33 +20,33 @@ int OmtfPhase2AngleConverter::getProcessorPhi(int phiZero, l1t::tftype part, int
   return config->foldPhi(phiConverted);
 }
 
-int OmtfPhase2AngleConverter::getGlobalEtaPhase2(DTChamberId dTChamberId,
-                                                 const L1Phase2MuDTThContainer* dtThDigis,
+int OmtfPhase2AngleConverter::getGlobalEtaPhase2(const DTChamberId& dtChamberId,
+                                                 const L1Phase2MuDTThContainer* dtThetaDigis,
                                                  int bxNum) const {
-  int dtThBins = 65536;  //65536. for [-6.3,6.3]
-  float kconv = 1 / (dtThBins / 2.);
+  const int dtThetaBins = 65536;  //65536. for [-6.3,6.3]
+  const float kconv = 1 / (dtThetaBins / 2.);
 
   float eta = -999;
   // get the theta digi
   bool foundeta = false;
   int thetaDigiCnt = 0;
-  for (const auto& thetaDigi : (*(dtThDigis->getContainer()))) {
-    if (thetaDigi.whNum() == dTChamberId.wheel() && thetaDigi.stNum() == dTChamberId.station() &&
-        thetaDigi.scNum() == (dTChamberId.sector() - 1) && (thetaDigi.bxNum()) == bxNum) {
+  for (const auto& thetaDigi : (*(dtThetaDigis->getContainer()))) {
+    if (thetaDigi.whNum() == dtChamberId.wheel() && thetaDigi.stNum() == dtChamberId.station() &&
+        thetaDigi.scNum() == (dtChamberId.sector() - 1) && (thetaDigi.bxNum()) == bxNum) {
       // get the theta digi
       float k = thetaDigi.k() * kconv;  //-pow(-1.,z<0)*log(tan(atan(1/k)/2.));
       eta = -1. * std::copysign(log(fabs(tan(atan(1 / k) / 2.))), thetaDigi.z());
-      LogTrace("OMTFReconstruction") << "OmtfPhase2AngleConverter::getGlobalEta(" << dTChamberId << ") eta: " << eta
+      LogTrace("OMTFReconstruction") << "OmtfPhase2AngleConverter::getGlobalEta(" << dtChamberId << ") eta: " << eta
                                      << " k: " << k << " thetaDigi.k(): " << thetaDigi.k();
 
       thetaDigiCnt++;
-      //checking if the obtained eta has reasonable range - temporary fix
-      if ((dTChamberId.station() == 1 && (std::abs(eta) < 0.85 || std::abs(eta) > 1.20)) ||
-          (dTChamberId.station() == 2 && (std::abs(eta) < 0.75 || std::abs(eta) > 1.04)) ||
-          (dTChamberId.station() == 3 && (std::abs(eta) < 0.63 || std::abs(eta) > 0.92))) {
+      //checking if the obtained eta has a reasonable range as expected for the DT chambers in the wheels +-2 - temporary fix
+      if ((dtChamberId.station() == 1 && (std::abs(eta) < 0.85 || std::abs(eta) > 1.20)) ||
+          (dtChamberId.station() == 2 && (std::abs(eta) < 0.75 || std::abs(eta) > 1.04)) ||
+          (dtChamberId.station() == 3 && (std::abs(eta) < 0.63 || std::abs(eta) > 0.92))) {
         foundeta = false;
         /*edm::LogVerbatim("OMTFReconstruction")
-            << "OmtfPhase2AngleConverter::getGlobalEta(" << dTChamberId << ") wrong output eta: " << eta << " k: " << k
+            << "OmtfPhase2AngleConverter::getGlobalEta(" << dtChamberId << ") wrong output eta: " << eta << " k: " << k
             << " thetaDigi.k(): " << thetaDigi.k() << " quality " << thetaDigi.quality();*/
       } else
         foundeta = true;
@@ -61,11 +61,11 @@ int OmtfPhase2AngleConverter::getGlobalEtaPhase2(DTChamberId dTChamberId,
     return std::abs(config->etaToHwEta(eta));
   } else {
     //Returning eta of the chamber middle
-    if (dTChamberId.station() == 1)
+    if (dtChamberId.station() == 1)
       eta = config->mb1W2Eta();
-    else if (dTChamberId.station() == 2)
+    else if (dtChamberId.station() == 2)
       eta = config->mb2W2Eta();
-    else if (dTChamberId.station() == 3)
+    else if (dtChamberId.station() == 3)
       eta = config->mb3W2Eta();
 
     return eta;
