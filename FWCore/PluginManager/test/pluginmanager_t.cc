@@ -11,8 +11,7 @@
 //
 
 // system include files
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
-#include <cppunit/extensions/HelperMacros.h>
+#include "catch2/catch_all.hpp"
 #include <iostream>
 
 // user include files
@@ -22,20 +21,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/PluginManager/test/DummyFactory.h"
-
-class TestPluginManager : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(TestPluginManager);
-  CPPUNIT_TEST(test);
-  CPPUNIT_TEST_SUITE_END();
-
-public:
-  void test();
-  void setUp() {}
-  void tearDown() {}
-};
-
-///registration of the test so that the runner can find it
-CPPUNIT_TEST_SUITE_REGISTRATION(TestPluginManager);
 
 class DummyTestPlugin : public edmplugin::PluginFactoryBase {
 public:
@@ -62,52 +47,54 @@ namespace testedmplugin {
 
 DEFINE_EDM_PLUGIN(testedmplugin::DummyFactory, testedmplugin::DummyThree, "DummyThree");
 
-void TestPluginManager::test() {
-  using namespace edmplugin;
-  using namespace testedmplugin;
-  CPPUNIT_ASSERT_THROW(PluginManager::get(), cms::Exception);
+TEST_CASE("PluginManager", "[PluginManager]") {
+  SECTION("test") {
+    using namespace edmplugin;
+    using namespace testedmplugin;
+    REQUIRE_THROWS_AS(PluginManager::get(), cms::Exception);
 
-  PluginManager::Config config;
-  CPPUNIT_ASSERT_THROW(PluginManager::configure(config), cms::Exception);
+    PluginManager::Config config;
+    REQUIRE_THROWS_AS(PluginManager::configure(config), cms::Exception);
 
-  edmplugin::PluginManager& db = edmplugin::PluginManager::configure(edmplugin::standard::config());
+    edmplugin::PluginManager& db = edmplugin::PluginManager::configure(edmplugin::standard::config());
 
-  std::string toLoadCategory("Test Dummy");
-  std::string toLoadPlugin;
-  unsigned int nTimesAsked = 0;
+    std::string toLoadCategory("Test Dummy");
+    std::string toLoadPlugin;
+    unsigned int nTimesAsked = 0;
 
-  edmplugin::PluginManager::get()->askedToLoadCategoryWithPlugin_.connect(
-      [&](std::string const& iCategory, std::string const& iPlugin) {
-        //std::cout <<iCategory<<" "<<iPlugin<<std::endl;
-        CPPUNIT_ASSERT(toLoadCategory == iCategory);
-        CPPUNIT_ASSERT(toLoadPlugin == iPlugin);
-        ++nTimesAsked;
-      });
+    edmplugin::PluginManager::get()->askedToLoadCategoryWithPlugin_.connect(
+        [&](std::string const& iCategory, std::string const& iPlugin) {
+          //std::cout <<iCategory<<" "<<iPlugin<<std::endl;
+          REQUIRE(toLoadCategory == iCategory);
+          REQUIRE(toLoadPlugin == iPlugin);
+          ++nTimesAsked;
+        });
 
-  unsigned int nTimesGoingToLoad = 0;
-  edmplugin::PluginManager::get()->goingToLoad_.connect(
-      [&nTimesGoingToLoad](const std::filesystem::path&) { ++nTimesGoingToLoad; });
+    unsigned int nTimesGoingToLoad = 0;
+    edmplugin::PluginManager::get()->goingToLoad_.connect(
+        [&nTimesGoingToLoad](const std::filesystem::path&) { ++nTimesGoingToLoad; });
 
-  unsigned int nTimesLoaded = 0;
-  edmplugin::PluginManager::get()->justLoaded_.connect(
-      [&nTimesLoaded](const edmplugin::SharedLibrary&) { ++nTimesLoaded; });
+    unsigned int nTimesLoaded = 0;
+    edmplugin::PluginManager::get()->justLoaded_.connect(
+        [&nTimesLoaded](const edmplugin::SharedLibrary&) { ++nTimesLoaded; });
 
-  toLoadPlugin = "DummyOne";
-  std::unique_ptr<DummyBase> ptr(DummyFactory::get()->create("DummyOne"));
-  CPPUNIT_ASSERT(1 == ptr->value());
-  CPPUNIT_ASSERT(nTimesAsked == 1);
-  CPPUNIT_ASSERT(nTimesGoingToLoad == 1);
-  CPPUNIT_ASSERT(nTimesLoaded == 1);
-  CPPUNIT_ASSERT(db.loadableFor("Test Dummy", "DummyThree") == "static");
-  std::unique_ptr<DummyBase> ptr2(DummyFactory::get()->create("DummyThree"));
-  CPPUNIT_ASSERT(3 == ptr2->value());
-  CPPUNIT_ASSERT(nTimesAsked == 1);  //no request to load
-  CPPUNIT_ASSERT(nTimesGoingToLoad == 1);
-  CPPUNIT_ASSERT(nTimesLoaded == 1);
+    toLoadPlugin = "DummyOne";
+    std::unique_ptr<DummyBase> ptr(DummyFactory::get()->create("DummyOne"));
+    REQUIRE(1 == ptr->value());
+    REQUIRE(nTimesAsked == 1);
+    REQUIRE(nTimesGoingToLoad == 1);
+    REQUIRE(nTimesLoaded == 1);
+    REQUIRE(db.loadableFor("Test Dummy", "DummyThree") == "static");
+    std::unique_ptr<DummyBase> ptr2(DummyFactory::get()->create("DummyThree"));
+    REQUIRE(3 == ptr2->value());
+    REQUIRE(nTimesAsked == 1);  //no request to load
+    REQUIRE(nTimesGoingToLoad == 1);
+    REQUIRE(nTimesLoaded == 1);
 
-  toLoadPlugin = "DoesNotExist";
-  CPPUNIT_ASSERT_THROW(DummyFactory::get()->create("DoesNotExist"), cms::Exception);
-  CPPUNIT_ASSERT(nTimesAsked == 2);  //request happens even though it failed
-  CPPUNIT_ASSERT(nTimesGoingToLoad == 1);
-  CPPUNIT_ASSERT(nTimesLoaded == 1);
+    toLoadPlugin = "DoesNotExist";
+    REQUIRE_THROWS_AS(DummyFactory::get()->create("DoesNotExist"), cms::Exception);
+    REQUIRE(nTimesAsked == 2);  //request happens even though it failed
+    REQUIRE(nTimesGoingToLoad == 1);
+    REQUIRE(nTimesLoaded == 1);
+  }
 }

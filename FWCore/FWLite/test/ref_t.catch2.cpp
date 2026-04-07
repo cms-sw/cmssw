@@ -52,7 +52,7 @@ using ROOT's "Draw" interface.
 #include <iostream>
 #include <string>
 #include <vector>
-#include <cppunit/extensions/HelperMacros.h>
+#include "catch2/catch_all.hpp"
 #include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "TFile.h"
 #include "TTree.h"
@@ -63,21 +63,7 @@ using ROOT's "Draw" interface.
 #include "DataFormats/TestObjects/interface/TrackOfThings.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 
-class testRefInROOT : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(testRefInROOT);
-
-  CPPUNIT_TEST(testOneGoodFile);
-  CPPUNIT_TEST_EXCEPTION(failOneBadFile, std::exception);
-  CPPUNIT_TEST(testGoodChain);
-  CPPUNIT_TEST(testTwoGoodFiles);
-  CPPUNIT_TEST(testMissingRef);
-
-  // CPPUNIT_TEST_EXCEPTION(failChainWithMissingFile,std::exception);
-  //failTwoDifferentFiles
-  CPPUNIT_TEST_EXCEPTION(failDidNotCallGetEntryForEvents, std::exception);
-
-  CPPUNIT_TEST_SUITE_END();
-
+class testRefInROOT {
 public:
   testRefInROOT() {}
   ~testRefInROOT() {}
@@ -88,7 +74,6 @@ public:
       sWasRun_ = true;
     }
   }
-  void tearDown() {}
 
   void testOneGoodFile();
   void testTwoGoodFiles();
@@ -104,18 +89,15 @@ private:
 
 bool testRefInROOT::sWasRun_ = false;
 
-///registration of the test so that the runner can find it
-CPPUNIT_TEST_SUITE_REGISTRATION(testRefInROOT);
-
 static void checkMatch(const edmtest::OtherThingCollection* pOthers, const edmtest::ThingCollection* pThings) {
-  CPPUNIT_ASSERT(pOthers != nullptr);
-  CPPUNIT_ASSERT(pThings != nullptr);
-  CPPUNIT_ASSERT(pOthers->size() == pThings->size());
+  REQUIRE(pOthers != nullptr);
+  REQUIRE(pThings != nullptr);
+  REQUIRE(pOthers->size() == pThings->size());
 
   //This test requires at least one entry
-  CPPUNIT_ASSERT(pOthers->size() > 0);
+  REQUIRE(pOthers->size() > 0);
   const edm::View<edmtest::Thing>& view = *(pOthers->front().refToBaseProd);
-  CPPUNIT_ASSERT(view.size() == pOthers->size());
+  REQUIRE(view.size() == pOthers->size());
 
   edmtest::ThingCollection::const_iterator itThing = pThings->begin(), itThingEnd = pThings->end();
   edmtest::OtherThingCollection::const_iterator itOther = pOthers->begin();
@@ -123,36 +105,36 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers, const edmte
 
   for (; itThing != itThingEnd; ++itThing, ++itOther, ++itView) {
     //I'm assuming the following is true
-    CPPUNIT_ASSERT(itOther->ref.key() == static_cast<unsigned int>(itThing - pThings->begin()));
+    REQUIRE(itOther->ref.key() == static_cast<unsigned int>(itThing - pThings->begin()));
     //std::cout <<" ref "<<itOther->ref.get()->a<<" thing "<<itThing->a<<std::endl;
     if (itOther->ref.get()->a != itThing->a) {
       std::cout << " *PROBLEM: ref " << itOther->ref.get()->a << "!= thing " << itThing->a << std::endl;
     }
-    CPPUNIT_ASSERT(itOther->ref.get()->a == itThing->a);
+    REQUIRE(itOther->ref.get()->a == itThing->a);
 
-    CPPUNIT_ASSERT(itOther->refToBase.key() == static_cast<unsigned int>(itThing - pThings->begin()));
+    REQUIRE(itOther->refToBase.key() == static_cast<unsigned int>(itThing - pThings->begin()));
     //std::cout <<" ref "<<itOther->ref.get()->a<<" thing "<<itThing->a<<std::endl;
     if (itOther->refToBase.get()->a != itThing->a) {
       std::cout << " *PROBLEM: refToBase " << itOther->refToBase.get()->a << "!= thing " << itThing->a << std::endl;
     }
-    CPPUNIT_ASSERT(itOther->refToBase.get()->a == itThing->a);
+    REQUIRE(itOther->refToBase.get()->a == itThing->a);
 
-    CPPUNIT_ASSERT(itOther->ptr.key() == static_cast<unsigned int>(itThing - pThings->begin()));
+    REQUIRE(itOther->ptr.key() == static_cast<unsigned int>(itThing - pThings->begin()));
     //std::cout <<" ref "<<itOther->ref.get()->a<<" thing "<<itThing->a<<std::endl;
     if (itOther->ptr.get()->a != itThing->a) {
       std::cout << " *PROBLEM: ptr " << itOther->ptr.get()->a << "!= thing " << itThing->a << std::endl;
     }
-    CPPUNIT_ASSERT(itOther->ptr.get()->a == itThing->a);
+    REQUIRE(itOther->ptr.get()->a == itThing->a);
 
     if (itView->a != itThing->a) {
       std::cout << " *PROBLEM: RefToBaseProd " << itView->a << "!= thing " << itThing->a << std::endl;
     }
-    CPPUNIT_ASSERT(itView->a == itThing->a);
+    REQUIRE(itView->a == itThing->a);
   }
 }
 
 static void testTree(TTree* events) {
-  CPPUNIT_ASSERT(events != 0);
+  REQUIRE(events != nullptr);
 
   /*
    edmtest::OtherThingCollection* pOthers = nullptr;
@@ -162,13 +144,13 @@ static void testTree(TTree* events) {
   edm::Wrapper<edmtest::OtherThingCollection>* pOthers = nullptr;
   TBranch* otherBranch = events->GetBranch("edmtestOtherThings_OtherThing_testUserTag_TEST.");
 
-  CPPUNIT_ASSERT(otherBranch != nullptr);
+  REQUIRE(otherBranch != nullptr);
 
   //edmtest::ThingCollection things;
   edm::Wrapper<edmtest::ThingCollection>* pThings = nullptr;
   //NOTE: the period at the end is needed
   TBranch* thingBranch = events->GetBranch("edmtestThings_Thing__TEST.");
-  CPPUNIT_ASSERT(thingBranch != nullptr);
+  REQUIRE(thingBranch != nullptr);
 
   int nev = events->GetEntries();
   for (int ev = 0; ev < nev; ++ev) {
@@ -191,7 +173,7 @@ void testRefInROOT::failOneBadFile() {
   TFile file("thisFileDoesNotExist.root");
   TTree* events = dynamic_cast<TTree*>(file.Get(edm::poolNames::eventTreeName().c_str()));
 
-  testTree(events);
+  REQUIRE(events == nullptr);
 }
 
 void testRefInROOT::testTwoGoodFiles() {
@@ -232,8 +214,8 @@ void testRefInROOT::testGoodChain() {
     othersBranch->GetEntry(ev);
     thingsBranch->GetEntry(ev);
     eventChain.GetEntry(ev, 0);
-    CPPUNIT_ASSERT(pOthers != nullptr);
-    CPPUNIT_ASSERT(pThings != nullptr);
+    REQUIRE(pOthers != nullptr);
+    REQUIRE(pThings != nullptr);
     checkMatch(pOthers->product(), pThings->product());
   }
 }
@@ -241,14 +223,14 @@ void testRefInROOT::testGoodChain() {
 void testRefInROOT::testMissingRef() {
   TFile file("other_only.root");
   TTree* events = dynamic_cast<TTree*>(file.Get(edm::poolNames::eventTreeName().c_str()));
-  CPPUNIT_ASSERT(events != nullptr);
+  REQUIRE(events != nullptr);
   if (events == nullptr)
     return;  // To silence Coverity
 
   edm::Wrapper<edmtest::OtherThingCollection>* pOthers = nullptr;
   TBranch* otherBranch = events->GetBranch("edmtestOtherThings_OtherThing_testUserTag_TEST.");
 
-  CPPUNIT_ASSERT(otherBranch != nullptr);
+  REQUIRE(otherBranch != nullptr);
 
   int nev = events->GetEntries();
   for (int ev = 0; ev < nev; ++ev) {
@@ -257,8 +239,8 @@ void testRefInROOT::testMissingRef() {
     otherBranch->GetEntry(ev);
 
     for (auto const& prod : *pOthers->product()) {
-      CPPUNIT_ASSERT(not prod.ref.isAvailable());
-      CPPUNIT_ASSERT_THROW(prod.ref.get(), cms::Exception);
+      REQUIRE(not prod.ref.isAvailable());
+      REQUIRE_THROWS_AS(prod.ref.get(), cms::Exception);
     }
   }
 }
@@ -280,8 +262,8 @@ void testRefInROOT::failChainWithMissingFile()
   for( int ev=0; ev<nev; ++ev) {
     std::cout <<"event #" <<ev<<std::endl;    
     eventChain.GetEntry(ev);
-    CPPUNIT_ASSERT(pOthers != nullptr);
-    CPPUNIT_ASSERT(pThings != nullptr);
+    REQUIRE(pOthers != nullptr);
+    REQUIRE(pThings != nullptr);
     checkMatch(pOthers->product(),pThings->product());
   }
   
@@ -290,7 +272,7 @@ void testRefInROOT::failChainWithMissingFile()
 void testRefInROOT::failDidNotCallGetEntryForEvents() {
   TFile file("good.root");
   TTree* events = dynamic_cast<TTree*>(file.Get(edm::poolNames::eventTreeName().c_str()));
-  CPPUNIT_ASSERT(events != nullptr);
+  REQUIRE(events != nullptr);
   if (events == nullptr)
     return;  // To silence Coverity
 
@@ -302,55 +284,26 @@ void testRefInROOT::failDidNotCallGetEntryForEvents() {
   edm::Wrapper<edmtest::OtherThingCollection>* pOthers = nullptr;
   TBranch* otherBranch = events->GetBranch("edmtestOtherThings_OtherThing_testUserTag_TEST.");
 
-  CPPUNIT_ASSERT(otherBranch != nullptr);
+  REQUIRE(otherBranch != nullptr);
   otherBranch->SetAddress(&pOthers);
 
   otherBranch->GetEntry(0);
 
-  CPPUNIT_ASSERT(pOthers->product() != nullptr);
+  REQUIRE(pOthers->product() != nullptr);
 
   pOthers->product()->at(0).ref.get();
 }
 
-//Stolen from Utilities/Testing/interface/CppUnit_testdriver.icpp
-// need to refactor
-#include <cppunit/extensions/TestFactoryRegistry.h>
-#include <cppunit/CompilerOutputter.h>
-#include <cppunit/TestResult.h>
-#include <cppunit/TestResultCollector.h>
-#include <cppunit/TestRunner.h>
-#include <cppunit/TextTestProgressListener.h>
-#include <stdexcept>
+TEST_CASE("ref_t", "[FWLite]") {
+  testRefInROOT test;
+  test.setUp();
 
-int main() {
-  // Create the event manager and test controller
-  CppUnit::TestResult controller;
-
-  // Add a listener that colllects test result
-  CppUnit::TestResultCollector result;
-  controller.addListener(&result);
-
-  // Add a listener that print dots as test run.
-  CppUnit::TextTestProgressListener progress;
-  controller.addListener(&progress);
-
-  // Add the top suite to the test runner
-  CppUnit::TestRunner runner;
-  runner.addTest(CppUnit::TestFactoryRegistry::getRegistry().makeTest());
-  try {
-    std::cout << "Running ";
-    runner.run(controller);
-
-    std::cerr << std::endl;
-
-    // Print test in a compiler compatible format.
-    CppUnit::CompilerOutputter outputter(&result, std::cerr);
-    outputter.write();
-  } catch (std::invalid_argument& e)  // Test path not resolved
-  {
-    std::cerr << std::endl << "ERROR: " << e.what() << std::endl;
-    return 0;
+  SECTION("testOneGoodFile") { test.testOneGoodFile(); }
+  SECTION("failOneBadFile") { test.failOneBadFile(); }
+  SECTION("testGoodChain") { test.testGoodChain(); }
+  SECTION("testTwoGoodFiles") { test.testTwoGoodFiles(); }
+  SECTION("testMissingRef") { test.testMissingRef(); }
+  SECTION("failDidNotCallGetEntryForEvents") {
+    REQUIRE_THROWS_AS(test.failDidNotCallGetEntryForEvents(), std::exception);
   }
-
-  return result.wasSuccessful() ? 0 : 1;
 }
