@@ -623,19 +623,19 @@ void CandidateSimMuonMatcher::match(const FinalMuonPtr& finalMuon, MatchingResul
       result.matchingLikelihood = 1. / (std::abs(result.deltaPhi) + 0.001);
 
       double mean = 0;
-      double treshold = 0;
+      double threshold = 0;
 
       //for displaced muons in H2ll
       //here a coarse threshold are used, as for dispalced muons
-      treshold = 0.15;   //pt > 30
+      threshold = 0.15;  //pt > 30
       if (trackPt < 10)  //TODO!!!!!!!!!!!!!!!!!!!!! tune the threshold!!!!!!
-        treshold = 0.4;
+        threshold = 0.4;
       else if (trackPt < 30)  //TODO!!!!!!!!!!!!!!! tune the threshold!!!!!!
-        treshold = 0.22;
+        threshold = 0.22;
 
       mean = 0;
 
-      if (std::abs(result.deltaPhi - mean) < treshold && std::abs(result.deltaEta) < 0.4)
+      if (std::abs(result.deltaPhi - mean) < threshold && std::abs(result.deltaEta) < 0.4)
         result.result = MatchingResult::ResultType::matched;
     }
 
@@ -717,15 +717,9 @@ void CandidateSimMuonMatcher::propagate(MatchingResult& result) {
       if (result.simVertex) {
         ftsTrack = simTrackToFts(*(result.simTrack), *(result.simVertex));
       } else {
+        //throw, to be sue that the issue is noticed.
         throw cms::Exception("CandidateSimMuonMatcher")
             << "CandidateSimMuonMatcher::propagate - simTrack exists but simVertex is missing!!!";
-        //throw, to be sue that the issue is noticed.
-        // Alternatively, if simTrack exists but simVertex is missing,
-        // fall back to a default vertex at (0,0,0). Or doSimplePropagation().
-        SimVertex defVtx;  // default constructed vertex at origin
-        ftsTrack = simTrackToFts(*(result.simTrack), defVtx);
-        edm::LogImportant("l1tOmtfEventPrint")
-            << "CandidateSimMuonMatcher::propagate - simTrack has no simVertex, using default vertex" << std::endl;
       }
     } else if (result.trackingParticle) {
       if (result.trackingParticle->parentVertex().isNonnull())
@@ -923,25 +917,25 @@ std::vector<MatchingResult> CandidateSimMuonMatcher::matchSimple(
 
         //TODO histogram can be used, like in the usercode/L1MuonAnalyzer  MuonMatcher::matchWithoutPorpagation
         //for prompt muons
-        /*double treshold = 0.3;
+        /*double threshold = 0.3;
         if (simTrack.momentum().pt() < 5)
-          treshold = 1.5;
+          threshold = 1.5;
         else if (simTrack.momentum().pt() < 8)
-          treshold = 0.8;
+          threshold = 0.8;
         else if (simTrack.momentum().pt() < 10)
-          treshold = 0.6;
+          threshold = 0.6;
         else if (simTrack.momentum().pt() < 20)
-          treshold = 0.5;*/
+          threshold = 0.5;*/
 
-        double treshold = 0.5;
+        double threshold = 0.5;
         if (simTrack.momentum().pt() < 5)
-          treshold = 1.5;
+          threshold = 1.5;
         else if (simTrack.momentum().pt() < 10)
-          treshold = 1.0;
+          threshold = 1.0;
         else if (simTrack.momentum().pt() < 25)
-          treshold = 0.7;
+          threshold = 0.7;
 
-        if (std::abs(result.deltaPhi) < treshold && std::abs(result.deltaEta) < 0.5) {
+        if (std::abs(result.deltaPhi) < threshold && std::abs(result.deltaEta) < 0.5) {
           result.result = MatchingResult::ResultType::matched;
           //matchingLikelihood is needed in the cleanMatching, so we put something
           result.matchingLikelihood = 1. / (std::abs(result.deltaPhi) + 0.001);

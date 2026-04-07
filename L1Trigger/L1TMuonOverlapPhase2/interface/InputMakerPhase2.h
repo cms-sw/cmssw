@@ -78,7 +78,7 @@ public:
                                    const OmtfPhase2AngleConverter* angleConverter,
                                    edm::EDGetTokenT<L1Phase2MuDTPhContainer> inputTokenDtPh,
                                    edm::EDGetTokenT<L1Phase2MuDTThContainer> inputTokenDtTh)
-      : DtPhase2DigiToStubsConverter(config, inputTokenDtPh, inputTokenDtTh), angleConverter(*angleConverter) {}
+      : DtPhase2DigiToStubsConverter(config, inputTokenDtPh, inputTokenDtTh), angleConverter(angleConverter) {}
 
   ~DtPhase2DigiToStubsConverterOmtf() override = default;
 
@@ -97,14 +97,14 @@ public:
   bool acceptDigi(const DTChamberId& dTChamberId, unsigned int iProcessor, l1t::tftype procType) override;
 
 private:
-  const OmtfPhase2AngleConverter& angleConverter;
+  const OmtfPhase2AngleConverter* angleConverter;
 };
 
 class InputMakerPhase2 : public OMTFinputMaker {
 public:
   InputMakerPhase2(const edm::ParameterSet& edmParameterSet,
-                   MuStubsInputTokens& muStubsInputTokens,
-                   MuStubsPhase2InputTokens& muStubsPhase2InputTokens,
+                   const MuStubsInputTokens& muStubsInputTokens,
+                   const MuStubsPhase2InputTokens& muStubsPhase2InputTokens,
                    const OMTFConfiguration* config,
                    std::unique_ptr<OmtfAngleConverter> angleConverter);
 

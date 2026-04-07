@@ -333,7 +333,7 @@ bool OMTFinputMaker::acceptDtDigi(const OMTFConfiguration* config,
 ///////////////////////////////////////
 ///////////////////////////////////////
 OMTFinputMaker::OMTFinputMaker(const edm::ParameterSet& edmParameterSet,
-                               MuStubsInputTokens& muStubsInputTokens,
+                               const MuStubsInputTokens& muStubsInputTokens,
                                const OMTFConfiguration* config,
                                std::unique_ptr<OmtfAngleConverter> angleConverter)
     : MuonStubMakerBase(config), config(config), angleConverter(std::move(angleConverter)) {

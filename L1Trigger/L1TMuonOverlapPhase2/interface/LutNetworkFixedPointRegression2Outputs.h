@@ -173,6 +173,7 @@ namespace lutNN {
       //std::cout<<"lutLayer3_0.getLutOutSum()[0] "<<lutLayer3_0.getLutOutSum()[0]<<" lutAddr.to_uint() "<<lutAddr.to_uint()<<" ptCalibrationArray[lutAddr] "<<ptCalibrationArray[lutAddr.to_uint()]<<std::endl;
       //return ptCalibrationArray[lutAddr.to_uint()].to_uint();
 
+      //Numbers from pt calibration
       return 0.216286 + 1.09483 * lutLayer3_0.getLutOutSum()[0].to_float();
       //TODO the same can be obtained by lut[x] -> scale * lut[x] + offset for the last layer
     }

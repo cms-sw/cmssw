@@ -10,6 +10,10 @@
 
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/AlgoMuon.h"
 
+#include <ostream>
+#include <memory>
+#include <vector>
+
 class FinalMuon {
 public:
   FinalMuon() {};

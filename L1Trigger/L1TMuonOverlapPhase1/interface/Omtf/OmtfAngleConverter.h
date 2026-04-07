@@ -72,14 +72,14 @@ public:
   virtual int getGlobalEta(unsigned int rawid, const CSCCorrelatedLCTDigi& aDigi, float& r) const;
 
   ///Convert local eta coordinate to global digital microGMT scale.
-  virtual int getGlobalEtaRpc(unsigned int rawid, const unsigned int& aDigi, float& r) const;
+  virtual int getGlobalEtaRpc(unsigned int rawid, const unsigned int& strip, float& r) const;
 
 protected:
   ///Check orientation of strips in given CSC chamber
   virtual bool isCSCCounterClockwise(const CSCLayer* layer) const;
 
   ///Find BTI group
-  virtual const int findBTIgroup(const L1MuDTChambPhDigi& aDigi, const L1MuDTChambThContainer* dtThDigis);
+  virtual int findBTIgroup(const L1MuDTChambPhDigi& aDigi, const L1MuDTChambThContainer* dtThDigis) const;
 
   // pointers to the current geometry records
   unsigned long long _geom_cache_id = 0;

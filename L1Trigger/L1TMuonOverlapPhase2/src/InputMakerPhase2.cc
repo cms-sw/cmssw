@@ -122,21 +122,21 @@ void DtPhase2DigiToStubsConverterOmtf::addDTphiDigi(MuonStubPtrs2D& muonStubsInL
     return;
 
   unsigned int hwNumber = config->getLayerNumber(detid.rawId());
-  if (config->getHwToLogicLayer().find(hwNumber) == config->getHwToLogicLayer().end())
+  auto iter = config->getHwToLogicLayer().find(hwNumber);
+  if (iter == config->getHwToLogicLayer().end())
     return;
 
-  auto iter = config->getHwToLogicLayer().find(hwNumber);
   unsigned int iLayer = iter->second;
   unsigned int iInput = OMTFinputMaker::getInputNumber(config, detid.rawId(), iProcessor, procTyp);
   //MuonStub& stub = muonStubsInLayers[iLayer][iInput];
 
   stub.type = MuonStub::DT_PHI_ETA;
 
-  stub.phiHw = angleConverter.getProcessorPhi(
+  stub.phiHw = angleConverter->getProcessorPhi(
       OMTFinputMaker::getProcessorPhiZero(config, iProcessor), procTyp, digi.scNum(), digi.phi());
 
   //no config->dtBxShift() here, and also no shift inside getGlobalEtaPhase2
-  stub.etaHw = angleConverter.getGlobalEtaPhase2(detid, dtThDigis, digi.bxNum());
+  stub.etaHw = angleConverter->getGlobalEtaPhase2(detid, dtThDigis, digi.bxNum());
 
   if (iLayer == 0)
     stub.r = 431;  //round(431.175);  //MB1
@@ -187,8 +187,8 @@ bool DtPhase2DigiToStubsConverterOmtf::acceptDigi(const DTChamberId& dTChamberId
 }
 
 InputMakerPhase2::InputMakerPhase2(const edm::ParameterSet& edmParameterSet,
-                                   MuStubsInputTokens& muStubsInputTokens,
-                                   MuStubsPhase2InputTokens& muStubsPhase2InputTokens,
+                                   const MuStubsInputTokens& muStubsInputTokens,
+                                   const MuStubsPhase2InputTokens& muStubsPhase2InputTokens,
                                    const OMTFConfiguration* config,
                                    std::unique_ptr<OmtfAngleConverter> angleConverter)
     : OMTFinputMaker(edmParameterSet, muStubsInputTokens, config, std::move(angleConverter)) {

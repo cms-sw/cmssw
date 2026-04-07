@@ -19,8 +19,8 @@
 class OmtfEmulation : public OMTFReconstruction {
 public:
   OmtfEmulation(const edm::ParameterSet& edmParameterSet,
-                MuStubsInputTokens& muStubsInputTokens,
-                MuStubsPhase2InputTokens& muStubsPhase2InputTokens);
+                const MuStubsInputTokens& muStubsInputTokens,
+                const MuStubsPhase2InputTokens& muStubsPhase2InputTokens);
 
   void beginJob();
 
@@ -33,16 +33,16 @@ public:
                 const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord>& magneticFieldEsToken,
                 const edm::ESGetToken<Propagator, TrackingComponentsRecord>& propagatorEsToken) override;
 
-  struct OmtfOutptuCollections {
+  struct OmtfOutptutCollections {
     std::unique_ptr<l1t::SAMuonCollection> constrSaMuons;                   //ip constrained candidates
     std::unique_ptr<l1t::SAMuonCollection> unConstrSaMuons;                 //ip unconstrained candidates
     std::unique_ptr<l1t::RegionalMuonCandBxCollection> regionalCandidates;  //for backward compatibility of analyzers etc.
   };
 
-  OmtfOutptuCollections run(const edm::Event& iEvent, const edm::EventSetup& evSetup);
+  OmtfOutptutCollections run(const edm::Event& iEvent, const edm::EventSetup& evSetup);
 
 private:
-  MuStubsPhase2InputTokens& muStubsPhase2InputTokens;
+  const MuStubsPhase2InputTokens& muStubsPhase2InputTokens;
 
   OmtfProcessorPhase2 omtfProcPhase2;
 };

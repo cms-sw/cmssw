@@ -86,7 +86,11 @@ void OMTFProcessor<GoldenPatternType>::init(const edm::ParameterSet& edmCfg, edm
   }
 
   if (this->myOmtfConfig->usePhiBExtrapolationMB1() || this->myOmtfConfig->usePhiBExtrapolationMB2()) {
-    extrapolFactors.resize(2 * 3, std::vector<std::map<int, double> >(this->myOmtfConfig->nLayers()));
+    extrapolFactors.resize(
+        2 * 3,
+        std::vector<std::map<int, double> >(
+            this->myOmtfConfig
+                ->nLayers()));  // 2 * 3 because there are two reference layers and three possible quality values for a hit in the layers
     extrapolFactorsNorm.resize(2 * 3, std::vector<std::map<int, int> >(this->myOmtfConfig->nLayers()));
 
     //when useFloatingPointExtrapolation is true the extrapolFactors are not used,

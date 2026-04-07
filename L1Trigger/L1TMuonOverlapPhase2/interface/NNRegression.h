@@ -13,13 +13,13 @@
 
 class NNRegression : public MlModelBase {
 public:
-  NNRegression(const edm::ParameterSet& edmCfg, const OMTFConfiguration* omtfConfig, std::string networkFile);
+  NNRegression(const edm::ParameterSet& edmCfg, const OMTFConfiguration* omtfConfig, const std::string& networkFile);
   ~NNRegression() override = default;
 
   void run(AlgoMuons::value_type& algoMuon, std::vector<std::unique_ptr<IOMTFEmulationObserver> >& observers) override;
 
 private:
-  unique_ptr<lutNN::LutNetworkFixedPointRegressionBase> lutNetworkFP;
+  std::unique_ptr<lutNN::LutNetworkFixedPointRegressionBase> lutNetworkFP;
 };
 
 #endif /* L1Trigger_L1TMuonOverlapPhase2_PtAssigmentNNRegression_h */

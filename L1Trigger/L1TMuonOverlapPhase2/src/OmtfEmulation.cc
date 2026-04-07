@@ -5,8 +5,6 @@
  *      Author: kbunkow
  */
 
-#include <memory>
-
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/OmtfEmulation.h"
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/InputMakerPhase2.h"
 
@@ -17,8 +15,8 @@
 #include <memory>
 
 OmtfEmulation::OmtfEmulation(const edm::ParameterSet& edmParameterSet,
-                             MuStubsInputTokens& muStubsInputTokens,
-                             MuStubsPhase2InputTokens& muStubsPhase2InputTokens)
+                             const MuStubsInputTokens& muStubsInputTokens,
+                             const MuStubsPhase2InputTokens& muStubsPhase2InputTokens)
     : OMTFReconstruction(edmParameterSet, muStubsInputTokens),
       muStubsPhase2InputTokens(muStubsPhase2InputTokens),
       omtfProcPhase2(omtfConfig.get(), omtfProc) {}
@@ -48,7 +46,7 @@ void OmtfEmulation::beginRun(edm::Run const& run,
   omtfProcPhase2.beginRun(edmParameterSet, eventSetup);
 }
 
-OmtfEmulation::OmtfOutptuCollections OmtfEmulation::run(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
+OmtfEmulation::OmtfOutptutCollections OmtfEmulation::run(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   LogTrace("l1tOmtfEventPrint") << "\n" << __FUNCTION__ << ":" << __LINE__ << " iEvent " << iEvent.id().event() << endl;
   inputMaker->loadAndFilterDigis(iEvent);
 
@@ -56,7 +54,7 @@ OmtfEmulation::OmtfOutptuCollections OmtfEmulation::run(const edm::Event& iEvent
     obs->observeEventBegin(iEvent);
   }
 
-  OmtfOutptuCollections outptuCollections;
+  OmtfOutptutCollections outptuCollections;
   outptuCollections.constrSaMuons = std::make_unique<l1t::SAMuonCollection>();
   outptuCollections.unConstrSaMuons = std::make_unique<l1t::SAMuonCollection>();
   outptuCollections.regionalCandidates = std::make_unique<l1t::RegionalMuonCandBxCollection>();
