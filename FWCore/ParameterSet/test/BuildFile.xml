@@ -9,7 +9,7 @@
 <test name="TestFWCoreParameterSetDriver" command="runPythonTests.sh"/>
 
 <bin name="testDefaultModuleLabel" file="defaultModuleLabel_t.cc">
-  <use name="cppunit"/>
+  <use name="catch2"/>
   <use name="FWCore/ParameterSet"/>
 </bin>
 
