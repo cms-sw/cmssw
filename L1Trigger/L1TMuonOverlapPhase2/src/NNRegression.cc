@@ -91,10 +91,8 @@ namespace lutNN {
 
 NNRegression::NNRegression(const edm::ParameterSet& edmCfg,
                            const OMTFConfiguration* omtfConfig,
-                           std::string networkFile)
+                           const std::string& networkFile)
     : MlModelBase(omtfConfig), lutNetworkFP(make_unique<lutNN::LutNetworkFP>()) {
-  std::ifstream ifs(networkFile);
-
   edm::LogImportant("OMTFReconstruction")
       << " " << __FUNCTION__ << ":" << __LINE__ << " networkFile " << networkFile << std::endl;
 
@@ -121,9 +119,9 @@ struct OmtfHit {
 };
 
 bool omtfHitWithQualAndRToEventInput(OmtfHit& hit, std::vector<float>& inputs, unsigned int omtfRefLayer, bool print) {
-  int lustSize = 1024;  //TODO change it if needed
-  int refLayers = 8;
-  float rangeSize = lustSize / (refLayers * 2);
+  const int lutSize = 1024;  //TODO change it if needed
+  const int refLayers = 8;
+  float rangeSize = lutSize / (refLayers * 2);
   //float offset = (omtfRefLayer<<7) + rangeMiddle;
 
   //two ranges for each omtfRefLayer, so that two qualites can be used for each omtfRefLayer
@@ -163,11 +161,11 @@ bool omtfHitWithQualAndRToEventInput(OmtfHit& hit, std::vector<float>& inputs, u
 
   } else if ((hit.layer >= 6 && hit.layer <= 9) || (hit.layer >= 15)) {  //CSC hits and RPCe hits
     int rBins = 16;
-    rangeSize = lustSize / (refLayers * rBins);
+    rangeSize = lutSize / (refLayers * rBins);
     rangeFactor = 4;
     int rBin = std::abs(hit.deltaR) >> 4;
     if (rBin >= rBins) {
-      //cout<<"rBin "<<rBin<<" hit.eta "<<hit.eta<<" hit.layer "<<(int)hit.layer<<" omtfRefLayer "<<omtfRefLayer<<endl;
+      //edm::LogImportant("OMTFReconstruction")<<"rBin "<<rBin<<" hit.eta "<<hit.eta<<" hit.layer "<<(int)hit.layer<<" omtfRefLayer "<<omtfRefLayer<<endl;
       rBin = rBins - 1;
     }
 
@@ -186,7 +184,7 @@ bool omtfHitWithQualAndRToEventInput(OmtfHit& hit, std::vector<float>& inputs, u
 
   if (abs(hit.phiDist) >= ((rangeSize / 2 - 1) * rangeFactor)) {
     if (hit.valid)
-      cout  //<<" muonPt "<<omtfEvent.muonPt<<" omtfPt "<<omtfEvent.omtfPt
+      edm::LogImportant("OMTFReconstruction")  //<<" muonPt "<<omtfEvent.muonPt<<" omtfPt "<<omtfEvent.omtfPt
           << " RefLayer " << omtfRefLayer << " layer " << int(hit.layer) << " hit.phiDist " << hit.phiDist << " valid "
           << ((short)hit.valid) << " quality " << ((short)hit.quality)
           << " hit.phiDist outside the range !!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -196,22 +194,21 @@ bool omtfHitWithQualAndRToEventInput(OmtfHit& hit, std::vector<float>& inputs, u
   inputs.at(hit.layer) = (float)hit.phiDist / (float)rangeFactor + offset;
 
   //the last address i.e. 1023 is reserved for the no-hit value, so interpolation between the 1022 and 1023 has no sense
-  if (inputs.at(hit.layer) >= lustSize - 2)
-    inputs.at(hit.layer) = lustSize - 2;
+  if (inputs.at(hit.layer) >= lutSize - 2)
+    inputs.at(hit.layer) = lutSize - 2;
 
   if (print || inputs.at(hit.layer) < 0) {
-    cout  //<<"rawData "<<hex<<setw(16)<<hit.rawData
-        << " layer " << dec << int(hit.layer);
-    cout << " phiDist " << hit.phiDist << " inputVal " << inputs.at(hit.layer) << " hit.z " << int(hit.z) << " valid "
-         << ((short)hit.valid) << " quality " << (short)hit.quality << " omtfRefLayer " << omtfRefLayer << " offset "
-         << offset;
+    edm::LogImportant("OMTFReconstruction")  //<<"rawData "<<hex<<setw(16)<<hit.rawData
+        << " layer " << dec << int(hit.layer) << " phiDist " << hit.phiDist << " inputVal " << inputs.at(hit.layer)
+        << " hit.z " << int(hit.z) << " valid " << ((short)hit.valid) << " quality " << (short)hit.quality
+        << " omtfRefLayer " << omtfRefLayer << " offset " << offset;
     if (inputs.at(hit.layer) < 0)
-      cout << " event->inputs.at(hit.layer) < 0 !!!!!!!!!!!!!!!!!" << endl;
-    cout << endl;
+      edm::LogImportant("OMTFReconstruction") << " event->inputs.at(hit.layer) < 0 !!!!!!!!!!!!!!!!!" << endl;
   }
 
-  if (inputs[hit.layer] >= lustSize) {  //TODO should be the size of the LUT of the first layer
-    cout << " event->inputs[hit.layer] >= " << lustSize << " !!!!!!!!!!!!!!!!!" << endl;
+  if (inputs[hit.layer] >= lutSize) {  //TODO should be the size of the LUT of the first layer
+    edm::LogImportant("OMTFReconstruction")
+        << " event->inputs[hit.layer] >= " << lutSize << " !!!!!!!!!!!!!!!!!" << endl;
   }
   return true;
 }
@@ -271,7 +268,7 @@ bool omtfHitWithQualToEventInput(OmtfHit& hit, std::vector<float>& inputs, unsig
   rangeFactor *= 4;  //TODO !!!!!!!!!!!!!!!!!!!
 
   if (abs(hit.phiDist) >= ((rangeMiddle - 1) * rangeFactor)) {
-    cout  //<<" muonPt "<<omtfEvent.muonPt<<" omtfPt "<<omtfEvent.omtfPt
+    edm::LogImportant("OMTFReconstruction")  //<<" muonPt "<<omtfEvent.muonPt<<" omtfPt "<<omtfEvent.omtfPt
         << " RefLayer " << omtfRefLayer << " layer " << int(hit.layer) << " hit.phiDist " << hit.phiDist << " valid "
         << ((short)hit.valid) << " quality " << ((short)hit.quality)
         << " hit.phiDist outside the range !!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -285,18 +282,16 @@ bool omtfHitWithQualToEventInput(OmtfHit& hit, std::vector<float>& inputs, unsig
     inputs.at(hit.layer) = 1022;
 
   if (print || inputs.at(hit.layer) < 0) {
-    cout  //<<"rawData "<<hex<<setw(16)<<hit.rawData
-        << " layer " << dec << int(hit.layer);
-    cout << " phiDist " << hit.phiDist << " inputVal " << inputs.at(hit.layer) << " hit.z " << int(hit.z) << " valid "
-         << ((short)hit.valid) << " quality " << (short)hit.quality << " omtfRefLayer " << omtfRefLayer << " offset "
-         << offset;
+    edm::LogImportant("OMTFReconstruction")  //<<"rawData "<<hex<<setw(16)<<hit.rawData
+        << " layer " << dec << int(hit.layer) << " phiDist " << hit.phiDist << " inputVal " << inputs.at(hit.layer)
+        << " hit.z " << int(hit.z) << " valid " << ((short)hit.valid) << " quality " << (short)hit.quality
+        << " omtfRefLayer " << omtfRefLayer << " offset " << offset;
     if (inputs.at(hit.layer) < 0)
-      cout << " event->inputs.at(hit.layer) < 0 !!!!!!!!!!!!!!!!!" << endl;
-    cout << endl;
+      edm::LogImportant("OMTFReconstruction") << " event->inputs.at(hit.layer) < 0 !!!!!!!!!!!!!!!!!" << endl;
   }
 
   if (inputs[hit.layer] >= 1024) {  //TODO should be the size of the LUT of the first layer
-    cout << " event->inputs[hit.layer] >= 1024 !!!!!!!!!!!!!!!!!" << endl;
+    edm::LogImportant("OMTFReconstruction") << " event->inputs[hit.layer] >= 1024 !!!!!!!!!!!!!!!!!" << endl;
   }
   return true;
 }
@@ -336,13 +331,11 @@ bool omtfHitToEventInput(OmtfHit& hit, std::vector<float>& inputs, unsigned int 
 
     if (print || inputs.at(hit.layer) < 0) {
       edm::LogImportant("OMTFReconstruction")  //<<"rawData "<<hex<<setw(16)<<hit.rawData
-          << " layer " << dec << int(hit.layer);
-      edm::LogImportant("OMTFReconstruction")
-          << " phiDist " << hit.phiDist << " inputVal " << inputs.at(hit.layer) << " hit.z " << int(hit.z) << " valid "
-          << ((short)hit.valid) << " quality " << (short)hit.quality << " omtfRefLayer " << omtfRefLayer;
+          << " layer " << dec << int(hit.layer) << " phiDist " << hit.phiDist << " inputVal " << inputs.at(hit.layer)
+          << " hit.z " << int(hit.z) << " valid " << ((short)hit.valid) << " quality " << (short)hit.quality
+          << " omtfRefLayer " << omtfRefLayer;
       if (inputs.at(hit.layer) < 0)
         edm::LogImportant("OMTFReconstruction") << " event->inputs.at(hit.layer) < 0 !!!!!!!!!!!!!!!!!" << endl;
-      edm::LogImportant("OMTFReconstruction") << endl;
     }
 
     if (inputs[hit.layer] >= 1024) {  //TODO should be the size of the LUT of the first layer
@@ -451,7 +444,7 @@ void NNRegression::run(AlgoMuons::value_type& algoMuon,
   double omtfPt = omtfConfig->hwPtToGev(algoMuon->getPtConstr());
   double nnPt = nnResult.at(0);
   double combinedPt = nnPt;
-  if (nnPt < 2.5 || (omtfPt < 0.75 * nnResult[0]))
+  if (nnPt < 2.5 || (omtfPt < 0.75 * nnPt))
     combinedPt = omtfPt;
 
   algoMuon->setPtNNConstr(combinedPt);
@@ -489,22 +482,4 @@ void NNRegression::run(AlgoMuons::value_type& algoMuon,
     for (auto& obs : observers)
       obs->addProcesorData("regressionNN", procDataTree);
   }
-
-  //event.print();
-  /*
-  std::vector<float> pts(classifierToRegressions.size(), 0);
-
-  unsigned int i =0;
-  for(auto& classifierToRegression : classifierToRegressions) {
-    auto orgValue = classifierToRegression->getValue(&event);
-    auto absOrgValue = std::abs(orgValue);
-    pts.at(i) = classifierToRegression->getCalibratedValue(absOrgValue);
-    pts.at(i) = std::copysign(pts.at(i), orgValue);
-
-    LogTrace("OMTFReconstruction") <<" "<<__FUNCTION__<<":"<<__LINE__<<" orgValue "<<orgValue<<" pts["<<i<<"] "<<pts[i]<<std::endl;
-    //std::cout<<"nn pts["<<i<<"] "<<pts[i]<< std::endl;
-    i++;
-  }
-
-  return pts;*/
 }

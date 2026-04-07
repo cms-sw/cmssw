@@ -102,18 +102,6 @@ OmtfProcessorPhase2::OmtfProcessorPhase2(const OMTFConfiguration* omtfConfig,
   firedLayersToQuality[0b000011100000001101] = 8;
   firedLayersToQuality[0b100000011100000000] = 8;
   firedLayersToQuality[0b110000011110000001] = 8;
-  //firedLayersToQuality[0b000000000000110011] = 8;
-  //firedLayersToQuality[0b000000100110000011] = 8;
-  //firedLayersToQuality[0b110000000100000000] = 8;
-  //firedLayersToQuality[0b001011110001001101] = 8;
-  //firedLayersToQuality[0b010000100001000011] = 8;
-  //firedLayersToQuality[0b000001100000001100] = 8;
-  //firedLayersToQuality[0b000001110001000011] = 8;
-  //firedLayersToQuality[0b011000000010000000] = 8;
-  //firedLayersToQuality[0b001000110100000011] = 8;
-  //firedLayersToQuality[0b010001000011000000] = 8;
-  //firedLayersToQuality[0b100000000110000000] = 8;
-  //firedLayersToQuality[0b000000000000111100] = 8;
 }
 
 OmtfProcessorPhase2::~OmtfProcessorPhase2() {}
@@ -211,12 +199,6 @@ void OmtfProcessorPhase2::convertToGmtScalesPhase2(unsigned int iProcessor,
                                  << " PtGev " << finalMuon->getPtGev() << " PtUnconstrGev "
                                  << finalMuon->getPtUnconstrGev() << std::endl;
 
-  if (mtfType == l1t::omtf_pos) {
-    finalMuon->setEtaGmt(finalMuon->getAlgoMuon()->getEtaHw());
-  } else {
-    finalMuon->setEtaGmt((-1) * finalMuon->getAlgoMuon()->getEtaHw());
-  }
-
   int globPhi = omtfConfig->procPhiOmtfToGlobalPhiOmtf(iProcessor, finalMuon->getAlgoMuon()->getPhi());
   int gmtPhiBins = 1 << Phase2L1GMT::BITSPHI;
   int omtfToGmtFactorPhi = std::lround(gmtPhiBins * (1 << 12) / double(omtfConfig->nPhiBins()));
@@ -237,14 +219,14 @@ void OmtfProcessorPhase2::convertToGmtScalesPhase2(unsigned int iProcessor,
 l1t::SAMuonCollection OmtfProcessorPhase2::getSAMuons(unsigned int iProcessor,
                                                       l1t::tftype mtfType,
                                                       FinalMuons& finalMuons,
-                                                      bool costrainedPt) {
+                                                      bool constrainedPt) {
   l1t::SAMuonCollection saMuons;
   for (auto& finalMuon : finalMuons) {
     int charge = finalMuon->getSign();
 
-    unsigned int pt = costrainedPt ? finalMuon->getPtGmt() : finalMuon->getPtUnconstrGmt();
-    int d0 = costrainedPt ? 0 : 50 / Phase2L1GMT::LSBSAd0;  //finalMuon->getHwD0();
-    if (costrainedPt == false) {
+    unsigned int pt = constrainedPt ? finalMuon->getPtGmt() : finalMuon->getPtUnconstrGmt();
+    int d0 = constrainedPt ? 0 : 50 / Phase2L1GMT::LSBSAd0;  //finalMuon->getHwD0();
+    if (constrainedPt == false) {
       //this assures the collection of constrained and unconstrained muons have the same size
       //muons that are not displaced also should be in the unconstrained collection
       if (finalMuon->getPtUnconstrGmt() == 0) {
@@ -328,7 +310,7 @@ FinalMuons OmtfProcessorPhase2::run(unsigned int iProcessor,
   }
 
   //LogTrace("l1tOmtfEventPrint")<<"buildInputForProce "; t.report();
-  omtfProc->processInput(iProcessor, mtfType, *(input.get()), observers);
+  omtfProc->processInput(iProcessor, mtfType, *input, observers);
 
   //LogTrace("l1tOmtfEventPrint")<<"processInput       "; t.report();
   AlgoMuons algoCandidates = omtfProc->sortResults(iProcessor, mtfType);

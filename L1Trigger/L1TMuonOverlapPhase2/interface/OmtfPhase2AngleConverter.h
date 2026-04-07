@@ -14,7 +14,7 @@ public:
   int getProcessorPhi(int phiZero, l1t::tftype part, int dtScNum, int dtPhi) const override;
 
   //using different name of the method to avoid hiding OmtfAngleConverter methods getGlobalEta
-  int getGlobalEtaPhase2(DTChamberId dTChamberId, const L1Phase2MuDTThContainer *dtThDigis, int bxNum) const;
+  int getGlobalEtaPhase2(const DTChamberId& dtChamberId, const L1Phase2MuDTThContainer* dtThetaDigis, int bxNum) const;
 };
 
 #endif

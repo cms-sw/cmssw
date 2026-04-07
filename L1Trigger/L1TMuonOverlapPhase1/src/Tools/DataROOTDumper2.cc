@@ -169,15 +169,16 @@ void DataROOTDumper2::observeEventEnd(const edm::Event& iEvent, FinalMuons& fina
       omtfEvent.muonPhi = trackingParticle->momentum().phi();
       omtfEvent.muonPropEta = matchingResult.propagatedEta;
       omtfEvent.muonPropPhi = matchingResult.propagatedPhi;
-      omtfEvent.muonCharge = (std::abs(trackingParticle->pdgId()) == 13) ? trackingParticle->pdgId() / -13 : 0;
+      //omtfEvent.muonCharge = (std::abs(trackingParticle->pdgId()) == 13) ? trackingParticle->pdgId() / -13 : 0;
       omtfEvent.muonCharge = trackingParticle->charge();
 
       if (trackingParticle->parentVertex().isNonnull()) {
         omtfEvent.muonDxy = trackingParticle->dxy();
         omtfEvent.muonRho = trackingParticle->parentVertex()->position().Rho();
 
-        for (auto& parentTrack : trackingParticle->parentVertex()->sourceTracks()) {
-          omtfEvent.parentPdgId = parentTrack->pdgId();
+        // Normally, parentVertex should have only one sourceTrack (in this context a pion or kaon)
+        if (!trackingParticle->parentVertex()->sourceTracks().empty()) {
+          omtfEvent.parentPdgId = trackingParticle->parentVertex()->sourceTracks()[0]->pdgId();
           LogTrace("l1MuonAnalyzerOmtf") << " DataROOTDumper2 parentTrackPdgId " << omtfEvent.parentPdgId << std::endl;
         }
       }

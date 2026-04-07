@@ -35,7 +35,7 @@ class OMTFConfigMaker;
 
 class OMTFReconstruction {
 public:
-  OMTFReconstruction(const edm::ParameterSet&, MuStubsInputTokens& muStubsInputTokens);
+  OMTFReconstruction(const edm::ParameterSet&, const MuStubsInputTokens& muStubsInputTokens);
 
   virtual ~OMTFReconstruction();
 
@@ -62,7 +62,7 @@ public:
 protected:
   edm::ParameterSet edmParameterSet;
 
-  MuStubsInputTokens& muStubsInputTokens;
+  const MuStubsInputTokens& muStubsInputTokens;
 
   int bxMin, bxMax;
 

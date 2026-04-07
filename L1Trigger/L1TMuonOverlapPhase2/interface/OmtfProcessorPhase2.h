@@ -16,7 +16,7 @@
 class OmtfProcessorPhase2 {
 public:
   //Composition is used over inheritance here, primarily because the OMTFProcessor is a template class and is constructed in OMTFReconstruction
-  OmtfProcessorPhase2(const OMTFConfiguration* omtfConfig, const unique_ptr<IProcessorEmulator>& omtfProc);
+  OmtfProcessorPhase2(const OMTFConfiguration* omtfConfig, const std::unique_ptr<IProcessorEmulator>& omtfProc);
 
   virtual ~OmtfProcessorPhase2();
 
@@ -35,15 +35,15 @@ public:
   l1t::SAMuonCollection getSAMuons(unsigned int iProcessor,
                                    l1t::tftype mtfType,
                                    FinalMuons& finalMuons,
-                                   bool costrainedPt);
+                                   bool constrainedPt);
 
 private:
   const OMTFConfiguration* omtfConfig;
 
   //reference to the unique_ptr is used here, because the omtfProc might be re-constructed in the OMTFReconstruction each run
-  const unique_ptr<IProcessorEmulator>& omtfProc;
+  const std::unique_ptr<IProcessorEmulator>& omtfProc;
 
-  unique_ptr<MlModelBase> mlModel;
+  std::unique_ptr<MlModelBase> mlModel;
 
   std::map<unsigned int, int> firedLayersToQuality;
 };
