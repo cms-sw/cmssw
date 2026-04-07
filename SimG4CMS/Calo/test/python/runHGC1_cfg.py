@@ -53,6 +53,7 @@ if hasattr(process,'MessageLogger'):
     process.MessageLogger.G4cout = dict()
     process.MessageLogger.G4cerr = dict()
     process.MessageLogger.HGCalGeom = dict()
+    process.MessageLogger.HGCalGeomT = dict()
     process.MessageLogger.HGCSim = dict()
 #   process.MessageLogger.CaloSim = dict()
 
