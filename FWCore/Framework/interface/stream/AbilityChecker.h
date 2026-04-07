@@ -141,8 +141,8 @@ namespace edm {
         static constexpr bool kExternalWork = false;
         static constexpr bool kAccumulator = false;
         static constexpr bool kTransformer = false;
-        static constexpr bool kWatchLuminosityBlocks = true;
-        static constexpr bool kWatchRuns = true;
+        static constexpr bool kWatchLuminosityBlocks = false;
+        static constexpr bool kWatchRuns = false;
       };
     }  // namespace impl
     template <typename... T>

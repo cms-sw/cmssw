@@ -19,6 +19,10 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+
+#include "DataFormats/Provenance/interface/BranchID.h"
+
 using namespace edm::stream;
 //
 // constants, enums and typedefs
