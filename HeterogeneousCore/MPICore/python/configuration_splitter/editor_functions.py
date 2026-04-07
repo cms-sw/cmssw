@@ -5,12 +5,17 @@ import FWCore.ParameterSet.Config as cms
 from HLTrigger.Configuration.common import *
 from HeterogeneousCore.MPICore.modules import *
 
-def add_controller_to_local(process):
+
+def add_controller_to_local(process, remote_name):
     process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
     process.MPIService.pmix_server_uri = "file:server.uri"
-    process.mpiController = MPIController()
+    controller_name = f"mpiController{remote_name.title()}"
+    controller = cms.EDProducer("MPIController",
+                               followerProcessName = cms.string(remote_name))
+    setattr(process, controller_name, controller)
     # Multiple luminocity blocks are currently unsupported
     process.options.numberOfConcurrentLuminosityBlocks = 1
+    return controller_name
 
 
 def clone_module_from_process(dst, src, name):
@@ -23,8 +28,8 @@ def clone_module_from_process(dst, src, name):
     setattr(dst, name, getattr(src, name).clone())
 
 
-def create_remote_process(local_process, modules_to_run):
-    remote_process = cms.Process("REMOTE")
+def create_remote_process(local_process, modules_to_run, remote_process_name, local_process_name):
+    remote_process = cms.Process(remote_process_name)
     remote_process.load("Configuration.StandardSequences.Accelerators_cff")
 
     # load the global psets and event setup modules
@@ -39,9 +44,11 @@ def create_remote_process(local_process, modules_to_run):
     remote_process.MPIService.pmix_server_uri = "file:server.uri"
 
     # where do i get this firstRun parameter from?
-    remote_process.source = cms.Source("MPISource")
+    remote_process.source = MPISource(
     #     firstRun = cms.untracked.uint32(process.Source)
-    # )
+        mode = 'CommWorld',
+        controllerProcessName = local_process_name
+    )
     remote_process.maxEvents.input = -1
 
     for module in modules_to_run:

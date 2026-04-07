@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
@@ -99,34 +100,34 @@ MPIController::MPIController(edm::ParameterSet const& config)
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    // Determine the rank of the other process.
-    auto followers = config.getUntrackedParameter<std::vector<int32_t>>("followers");
+    edm::LogInfo("MPI") << "MPIController sees world size " << size;
+
+    // Determine the ranks of the follower processes.
+    auto follower_name = config.getParameter<std::string>("followerProcessName");
+    if (follower_name.empty()) {
+      throw edm::Exception(edm::errors::Configuration)
+          << "ERROR: Follower process name cannot be empty. Aborting MPIController...";
+    }
+
+    edm::Service<edm::service::TriggerNamesService> tns;
+    std::string const& this_process_name = tns->getProcessName();
+    if (follower_name == this_process_name) {
+      throw edm::Exception(edm::errors::Configuration)
+          << "ERROR: controller and follower processes cannot have the same name. Aborting MPIController...";
+    }
+
+    edm::Service<MPIService> mpiservice;
+    auto followers = mpiservice->getRanksByProcessName(follower_name);
     if (followers.empty()) {
-      // When there are only two proccesses, we can assume the ranks to be 0 and 1,
-      // and we can infer the other process rank from our own.
-      if (size == 2) {
-        followers = {1 - rank};
-      } else {
-        throw edm::Exception(edm::errors::Configuration)
-            << "An empty list of remote processes is valid only where there are exactly two processes.";
-      }
-    }
-    if (followers.size() >= static_cast<size_t>(size)) {
       throw edm::Exception(edm::errors::Configuration)
-          << "The number of remote processes is invalid. Please specify at most " << size - 1 << "remote processes.";
+          << "ERROR: No follower process with name " << follower_name << " found. Aborting...";
     }
-    std::vector<int32_t> invalid;
-    for (int follower : followers) {
-      if (follower < 0 or follower >= size) {
-        invalid.push_back(follower);
-      }
-    }
-    if (invalid.size() == 1) {
+
+    if (followers.size() == static_cast<size_t>(size)) {
       throw edm::Exception(edm::errors::Configuration)
-          << fmt::format("The remote process {} is invalid. Valid ranks are 0 to {}.", invalid.front(), size - 1);
-    } else if (invalid.size() > 1) {
-      throw edm::Exception(edm::errors::Configuration) << fmt::format(
-          "The remote processes {} are invalid. Valid ranks are 0 to {}.", fmt::join(invalid, ", "), size - 1);
+          << "The number of found followers equals to the world size. "
+          << "Possible reason could be process names' hash collision. "
+          << "Please check process names in follower and controller. Aborting...";
     }
 
     for (int follower : followers) {
@@ -354,15 +355,12 @@ void MPIController::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.ifValue(
           edm::ParameterDescription<std::string>("mode", "CommWorld", false),
           ModeDescription[kCommWorld] >>
-                  edm::ParameterDescription<std::vector<int32_t>>(
-                      "followers",
-                      {},
-                      false,
-                      edm::Comment("Ranks of the remote \"follower\" processes.\n"
-                                   "When there are two or more follower processes, framework streams are associated to "
-                                   "each follower in a round-robin fashion.\n"
-                                   "When there is only one remote process, pass an empty list to autodetect its rank "
-                                   "based on the rank of the current process.")) or
+                  edm::ParameterDescription<std::string>(
+                      "followerProcessName",
+                      "",
+                      true,
+                      edm::Comment("All processes with this process name should act as followers, "
+                                   "and should be configured with an MPISource that follows this controller.")) or
               ModeDescription[kIntercommunicator] >> edm::ParameterDescription<std::string>("name", "server", false))
       ->setComment(
           "Valid modes are CommWorld (use MPI_COMM_WORLD) and Intercommunicator (use an MPI name server to setup an "
