@@ -299,6 +299,8 @@ private:
   dqm::reco::MonitorElement* trkdz_ele_hist;
   dqm::reco::MonitorElement* trkd0BS_ele_hist;
   dqm::reco::MonitorElement* trkdzBS_ele_hist;
+  dqm::reco::MonitorElement* trkd0Vtx_ele_hist;
+  dqm::reco::MonitorElement* trkdzVtx_ele_hist;
   dqm::reco::MonitorElement* trkpt_ele_hist;
   dqm::reco::MonitorElement* trketa_ele_hist;
   dqm::reco::MonitorElement* trkphi_els_hist;
@@ -746,6 +748,23 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
         beamspot.x0(), beamspot.y0(), beamspot.z0(), 0., 0., 0., 0., 0., true, 0., 0., 0., 0);
   }
 
+  // lambda to find closest vertex
+  auto findClosestVtx = [&](float dz0) -> const Run3ScoutingVertex* {
+    const Run3ScoutingVertex* bestVtx = nullptr;
+    float bestDist = std::numeric_limits<float>::max();
+
+    for (const auto& vtx : *primaryVerticesH) {
+      float dist = std::abs(dz0 - vtx.z());
+
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestVtx = &vtx;
+      }
+    }
+
+    return bestVtx;
+  };
+
   // fill all the electron histograms
   for (std::size_t iEl = 0; iEl < electronsH->size(); ++iEl) {
     // Ref needed to index into the ValueMaps
@@ -802,16 +821,30 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     float pz = pt * std::sinh(eta);
     float pt2 = pt * pt;
 
-    float vx = beamspotVertex->x();
-    float vy = beamspotVertex->y();
-    float vz = beamspotVertex->z();
+    float bsx = beamspotVertex->x();
+    float bsy = beamspotVertex->y();
+    float bsz = beamspotVertex->z();
 
     // dxy and dz w.r.t. vertex
-    float dxy_vtx = vmD0[elRef] + (-vx * py + vy * px) / pt;
-    float dz_vtx = vmDz[elRef] - vz + (vx * px + vy * py) * pz / pt2;
+    float dxy_bs = vmD0[elRef] + (-bsx * py + bsy * px) / pt;
+    float dz_bs = vmDz[elRef] - bsz + (bsx * px + bsy * py) * pz / pt2;
 
-    trkd0BS_ele_hist->Fill(dxy_vtx);
-    trkdzBS_ele_hist->Fill(dz_vtx);
+    trkd0BS_ele_hist->Fill(dxy_bs);
+    trkdzBS_ele_hist->Fill(dz_bs);
+
+    const auto* vtx = findClosestVtx(vmDz[elRef]);
+    if (vtx) {
+      float vx = vtx->x();
+      float vy = vtx->y();
+      float vz = vtx->z();
+
+      // dxy and dz w.r.t. vertex
+      float dxy_vtx = vmD0[elRef] + (-vx * py + vy * px) / pt;
+      float dz_vtx = vmDz[elRef] - vz + (vx * px + vy * py) * pz / pt2;
+
+      trkd0Vtx_ele_hist->Fill(dxy_vtx);
+      trkdzVtx_ele_hist->Fill(dz_vtx);
+    }
 
     trkpt_ele_hist->Fill(vmPt[elRef]);
     trketa_ele_hist->Fill(vmEta[elRef]);
@@ -1365,10 +1398,10 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   trkBestIdx_ele_hist = ibook.book1DD("trkBestIdx", "Best-track index;index;Electrons", 20, 0, 20);
   trkd0_ele_hist = ibook.book1DD("trkd0", "Best-track d_{0};d_{0} [cm];Electrons", 100, -0.5, 0.5);
   trkdz_ele_hist = ibook.book1DD("trkdz", "Best-track d_{z};d_{z} [cm];Electrons", 100, -25, 25);
-
   trkd0BS_ele_hist = ibook.book1DD("trkd0BS", "Best-track d_{0}(BS);d_{0}(BS) [cm];Electrons", 100, -0.5, 0.5);
   trkdzBS_ele_hist = ibook.book1DD("trkdzBS", "Best-track d_{z}(BS);d_{z}(BS) [cm];Electrons", 100, -25, 25);
-
+  trkd0Vtx_ele_hist = ibook.book1DD("trkd0Vtx", "Best-track d_{0}(PV);d_{0}(PV) [cm];Electrons", 100, -0.5, 0.5);
+  trkdzVtx_ele_hist = ibook.book1DD("trkdzVtx", "Best-track d_{z}(PV);d_{z}(PV) [cm];Electrons", 100, -25, 25);
   trkpt_ele_hist = ibook.book1DD("trkpt", "Best-track p_{T};p_{T} [GeV];Electrons", 100, 0, 200);
   trketa_ele_hist = ibook.book1DD("trketa", "Best-track #eta;#eta;Electrons", 60, -3, 3);
   trkphi_els_hist = ibook.book1DD("trkphi", "Best-track #phi;#phi [rad];Electrons", 64, -3.2, 3.2);
