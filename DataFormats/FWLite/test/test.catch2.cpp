@@ -7,7 +7,7 @@ Test program for edm::Ref use in ROOT.
 #include <iostream>
 #include <string>
 #include <vector>
-#include <cppunit/extensions/HelperMacros.h>
+#include "catch2/catch_all.hpp"
 #include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "TFile.h"
 #include "TSystem.h"
@@ -22,28 +22,7 @@ Test program for edm::Ref use in ROOT.
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 
-class testRefInROOT : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(testRefInROOT);
-
-  CPPUNIT_TEST(testOneGoodFile);
-  CPPUNIT_TEST_EXCEPTION(failOneBadFile, std::exception);
-  CPPUNIT_TEST_EXCEPTION(failChainWithMissingFile, std::exception);
-  CPPUNIT_TEST(testRefFirst);
-  CPPUNIT_TEST(testAllLabels);
-  CPPUNIT_TEST(testGoodChain);
-  CPPUNIT_TEST(testTwoGoodFiles);
-  CPPUNIT_TEST(testHandleErrors);
-  CPPUNIT_TEST(testMissingRef);
-  CPPUNIT_TEST(testMissingData);
-  CPPUNIT_TEST(testEventBase);
-  CPPUNIT_TEST(testSometimesMissingData);
-  CPPUNIT_TEST(testTo);
-
-  //failTwoDifferentFiles
-  //CPPUNIT_TEST_EXCEPTION(failDidNotCallGetEntryForEvents,std::exception);
-
-  CPPUNIT_TEST_SUITE_END();
-
+class testRefInROOT {
 public:
   testRefInROOT() {}
   void setUp() {
@@ -77,18 +56,15 @@ private:
 
 bool testRefInROOT::sWasRun_ = false;
 
-///registration of the test so that the runner can find it
-CPPUNIT_TEST_SUITE_REGISTRATION(testRefInROOT);
-
 static void checkMatch(const edmtest::OtherThingCollection* pOthers, const edmtest::ThingCollection* pThings) {
-  CPPUNIT_ASSERT(pOthers != nullptr);
-  CPPUNIT_ASSERT(pThings != nullptr);
-  CPPUNIT_ASSERT(pOthers->size() == pThings->size());
+  REQUIRE(pOthers != nullptr);
+  REQUIRE(pThings != nullptr);
+  REQUIRE(pOthers->size() == pThings->size());
 
   //This test requires at least one entry
-  CPPUNIT_ASSERT(pOthers->size() > 0);
+  REQUIRE(pOthers->size() > 0);
   const edm::View<edmtest::Thing>& view = *(pOthers->front().refToBaseProd);
-  CPPUNIT_ASSERT(view.size() == pOthers->size());
+  REQUIRE(view.size() == pOthers->size());
 
   edmtest::ThingCollection::const_iterator itThing = pThings->begin(), itThingEnd = pThings->end();
   edmtest::OtherThingCollection::const_iterator itOther = pOthers->begin();
@@ -97,12 +73,12 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers, const edmte
   for (; itThing != itThingEnd; ++itThing, ++itOther, ++itView) {
     //std::cout <<"getting data"<<std::endl;
     //I'm assuming the following is true
-    CPPUNIT_ASSERT(itOther->ref.key() == static_cast<unsigned int>(itThing - pThings->begin()));
-    CPPUNIT_ASSERT(itOther->ref.get()->a == itThing->a);
+    REQUIRE(itOther->ref.key() == static_cast<unsigned int>(itThing - pThings->begin()));
+    REQUIRE(itOther->ref.get()->a == itThing->a);
     if (itView->a != itThing->a) {
       std::cout << " *PROBLEM: RefToBaseProd " << itView->a << "!= thing " << itThing->a << std::endl;
     }
-    CPPUNIT_ASSERT(itView->a == itThing->a);
+    REQUIRE(itView->a == itThing->a);
   }
 }
 
@@ -148,35 +124,35 @@ void testRefInROOT::testEventBase() {
     {
       edm::Handle<edmtest::OtherThingCollection> pOthers;
       eventBase->getByLabel(tagFull, pOthers);
-      CPPUNIT_ASSERT(pOthers.isValid());
+      REQUIRE(pOthers.isValid());
 
       // Test that the get function that takes a ProductID works
       // by getting a ProductID from a Ref stored in the OtherThingCollection
       // and testing that one can retrieve the ThingCollection with it.
-      CPPUNIT_ASSERT(pOthers->size() > 0);
+      REQUIRE(pOthers->size() > 0);
       edmtest::OtherThingCollection::const_iterator itOther = pOthers->begin();
       edm::ProductID thingProductID = itOther->ref.id();
       edm::Handle<edmtest::ThingCollection> thingCollectionHandle;
       eventBase->get(thingProductID, thingCollectionHandle);
       edm::Handle<edmtest::ThingCollection> thingCollectionHandle2;
       eventBase->getByLabel(tagThing, thingCollectionHandle2);
-      CPPUNIT_ASSERT(thingCollectionHandle.product() == thingCollectionHandle2.product() &&
-                     thingCollectionHandle.product()->begin()->a == thingCollectionHandle2.product()->begin()->a);
+      REQUIRE(thingCollectionHandle.product() == thingCollectionHandle2.product());
+      REQUIRE(thingCollectionHandle.product()->begin()->a == thingCollectionHandle2.product()->begin()->a);
     }
     {
       edm::Handle<edmtest::OtherThingCollection> pOthers;
       eventBase->getByLabel(tag, pOthers);
-      CPPUNIT_ASSERT(pOthers.isValid());
-      CPPUNIT_ASSERT(pOthers->size() > 0);
+      REQUIRE(pOthers.isValid());
+      REQUIRE(pOthers->size() > 0);
     }
 
     {
       edm::Handle<edmtest::OtherThingCollection> pOthers;
       eventBase->getByLabel(tagNotHere, pOthers);
 
-      CPPUNIT_ASSERT(not pOthers.isValid());
-      CPPUNIT_ASSERT(pOthers.failedToGet());
-      CPPUNIT_ASSERT_THROW(pOthers.product(), cms::Exception);
+      REQUIRE(not pOthers.isValid());
+      REQUIRE(pOthers.failedToGet());
+      REQUIRE_THROWS_AS(pOthers.product(), cms::Exception);
     }
   }
 }
@@ -187,29 +163,29 @@ void testRefInROOT::testTo() {
   edm::InputTag tag("Thing");
   edm::EventBase* eventBase = &events;
 
-  CPPUNIT_ASSERT(events.to(1, 1, 2));
+  REQUIRE(events.to(1, 1, 2));
   {
     edm::Handle<edmtest::ThingCollection> pThings;
     eventBase->getByLabel(tag, pThings);
-    CPPUNIT_ASSERT(pThings.isValid());
-    CPPUNIT_ASSERT(0 != pThings->size());
-    CPPUNIT_ASSERT(3 == (*pThings)[0].a);
+    REQUIRE(pThings.isValid());
+    REQUIRE(0 != pThings->size());
+    REQUIRE(3 == (*pThings)[0].a);
   }
   std::cout << events.id() << std::endl;
-  CPPUNIT_ASSERT(edm::EventID(1, 1, 2) == events.id());
+  REQUIRE(edm::EventID(1, 1, 2) == events.id());
 
-  CPPUNIT_ASSERT(events.to(1, 1, 1));
+  REQUIRE(events.to(1, 1, 1));
   {
     edm::Handle<edmtest::ThingCollection> pThings;
     eventBase->getByLabel(tag, pThings);
-    CPPUNIT_ASSERT(pThings.isValid());
-    CPPUNIT_ASSERT(0 != pThings->size());
-    CPPUNIT_ASSERT(2 == (*pThings)[0].a);
+    REQUIRE(pThings.isValid());
+    REQUIRE(0 != pThings->size());
+    REQUIRE(2 == (*pThings)[0].a);
   }
-  CPPUNIT_ASSERT(edm::EventID(1, 1, 1) == events.id());
+  REQUIRE(edm::EventID(1, 1, 1) == events.id());
 
-  CPPUNIT_ASSERT(events.to(1));
-  CPPUNIT_ASSERT(not events.to(events.size()));
+  REQUIRE(events.to(1));
+  REQUIRE(not events.to(events.size()));
 }
 
 void testRefInROOT::testRefFirst() {
@@ -224,7 +200,7 @@ void testRefInROOT::testRefFirst() {
     for (auto const& other : *pOthers) {
       //std::cout <<"getting ref"<<std::endl;
       int arbitraryBigNumber = 1000000;
-      CPPUNIT_ASSERT(other.ref.get()->a < arbitraryBigNumber);
+      REQUIRE(other.ref.get()->a < arbitraryBigNumber);
     }
     //std::cout <<"get all Refs"<<std::endl;
 
@@ -252,8 +228,8 @@ void testRefInROOT::testMissingRef() {
     pOthers.getByLabel(events, "OtherThing", "testUserTag");
     for (auto const& other : *pOthers) {
       //std::cout <<"getting ref"<<std::endl;
-      CPPUNIT_ASSERT(not other.ref.isAvailable());
-      CPPUNIT_ASSERT_THROW(other.ref.get(), cms::Exception);
+      REQUIRE(not other.ref.isAvailable());
+      REQUIRE_THROWS_AS(other.ref.get(), cms::Exception);
     }
   }
 }
@@ -266,9 +242,9 @@ void testRefInROOT::testMissingData() {
     fwlite::Handle<edmtest::OtherThingCollection> pOthers;
     pOthers.getByLabel(events, "NotHereOtherThing");
 
-    CPPUNIT_ASSERT(not pOthers.isValid());
-    CPPUNIT_ASSERT(pOthers.failedToGet());
-    CPPUNIT_ASSERT_THROW(pOthers.product(), cms::Exception);
+    REQUIRE(not pOthers.isValid());
+    REQUIRE(pOthers.failedToGet());
+    REQUIRE_THROWS_AS(pOthers.product(), cms::Exception);
   }
 }
 
@@ -283,32 +259,32 @@ void testRefInROOT::testSometimesMissingData() {
     pOthers.getByLabel(events, "OtherThing", "testUserTag");
 
     if (0 == index) {
-      CPPUNIT_ASSERT(not pOthers.isValid());
-      CPPUNIT_ASSERT(pOthers.failedToGet());
-      CPPUNIT_ASSERT_THROW(pOthers.product(), cms::Exception);
+      REQUIRE(not pOthers.isValid());
+      REQUIRE(pOthers.failedToGet());
+      REQUIRE_THROWS_AS(pOthers.product(), cms::Exception);
     } else {
-      CPPUNIT_ASSERT(pOthers.isValid());
+      REQUIRE(pOthers.isValid());
     }
 
     edm::Handle<edmtest::OtherThingCollection> edmPOthers;
     events.getByLabel(tag, edmPOthers);
     if (0 == index) {
-      CPPUNIT_ASSERT(not edmPOthers.isValid());
-      CPPUNIT_ASSERT(edmPOthers.failedToGet());
-      CPPUNIT_ASSERT_THROW(edmPOthers.product(), cms::Exception);
+      REQUIRE(not edmPOthers.isValid());
+      REQUIRE(edmPOthers.failedToGet());
+      REQUIRE_THROWS_AS(edmPOthers.product(), cms::Exception);
     } else {
-      CPPUNIT_ASSERT(edmPOthers.isValid());
+      REQUIRE(edmPOthers.isValid());
     }
   }
 }
 
 void testRefInROOT::testHandleErrors() {
   fwlite::Handle<edmtest::ThingCollection> pThings;
-  CPPUNIT_ASSERT_THROW(*pThings, cms::Exception);
+  REQUIRE_THROWS_AS(*pThings, cms::Exception);
 
   //try copy constructor
   fwlite::Handle<edmtest::ThingCollection> pThings2(pThings);
-  CPPUNIT_ASSERT_THROW(*pThings2, cms::Exception);
+  REQUIRE_THROWS_AS(*pThings2, cms::Exception);
 }
 
 void testRefInROOT::testTwoGoodFiles() {
@@ -359,45 +335,21 @@ void testRefInROOT::failChainWithMissingFile() {
   }
 }
 
-//Stolen from Utilities/Testing/interface/CppUnit_testdriver.icpp
-// need to refactor
-#include <cppunit/extensions/TestFactoryRegistry.h>
-#include <cppunit/CompilerOutputter.h>
-#include <cppunit/TestResult.h>
-#include <cppunit/TestResultCollector.h>
-#include <cppunit/TestRunner.h>
-#include <cppunit/TextTestProgressListener.h>
-#include <stdexcept>
+TEST_CASE("FWLite Ref tests", "[FWLite]") {
+  testRefInROOT test;
+  test.setUp();
 
-int main() {
-  // Create the event manager and test controller
-  CppUnit::TestResult controller;
-
-  // Add a listener that colllects test result
-  CppUnit::TestResultCollector result;
-  controller.addListener(&result);
-
-  // Add a listener that print dots as test run.
-  CppUnit::TextTestProgressListener progress;
-  controller.addListener(&progress);
-
-  // Add the top suite to the test runner
-  CppUnit::TestRunner runner;
-  runner.addTest(CppUnit::TestFactoryRegistry::getRegistry().makeTest());
-  try {
-    std::cout << "Running ";
-    runner.run(controller);
-
-    std::cerr << std::endl;
-
-    // Print test in a compiler compatible format.
-    CppUnit::CompilerOutputter outputter(&result, std::cerr);
-    outputter.write();
-  } catch (std::invalid_argument& e)  // Test path not resolved
-  {
-    std::cerr << std::endl << "ERROR: " << e.what() << std::endl;
-    return 0;
-  }
-
-  return result.wasSuccessful() ? 0 : 1;
+  SECTION("testOneGoodFile") { test.testOneGoodFile(); }
+  SECTION("failOneBadFile") { REQUIRE_THROWS_AS(test.failOneBadFile(), std::exception); }
+  SECTION("failChainWithMissingFile") { REQUIRE_THROWS_AS(test.failChainWithMissingFile(), std::exception); }
+  SECTION("testRefFirst") { test.testRefFirst(); }
+  SECTION("testAllLabels") { test.testAllLabels(); }
+  SECTION("testGoodChain") { test.testGoodChain(); }
+  SECTION("testTwoGoodFiles") { test.testTwoGoodFiles(); }
+  SECTION("testHandleErrors") { test.testHandleErrors(); }
+  SECTION("testMissingRef") { test.testMissingRef(); }
+  SECTION("testMissingData") { test.testMissingData(); }
+  SECTION("testEventBase") { test.testEventBase(); }
+  SECTION("testSometimesMissingData") { test.testSometimesMissingData(); }
+  SECTION("testTo") { test.testTo(); }
 }
