@@ -279,6 +279,7 @@ public:
   /** @brief Returns filtered list of rechit IDs and fractions for this SimCluster based on a predicate (copying) */
   std::vector<std::pair<uint32_t, float>> filtered_hits_and_fractions(
       const std::function<bool(const DetId &)> &predicate) const {
+    assert(hits_.size() == fractions_.size());
     std::vector<std::pair<uint32_t, float>> result;
     for (size_t i = 0; i < hits_.size(); ++i) {
       DetId detid(hits_[i]);
@@ -323,7 +324,9 @@ public:
   // --------------------------------------------------------------------------
   void finalizeHits() {
     // Keep your original implicit invariant:
-    assert(hits_.size() == fractions_.size() && hits_.size() == energies_.size() && !hits_.empty());
+    assert(hits_.size() == energies_.size() && !hits_.empty());
+    if (!fractions_.empty())
+      assert(hits_.size() == fractions_.size());
 
     // Already finalized? keep it cheap and idempotent.
     if (hitsFinalized_)
@@ -341,8 +344,9 @@ public:
     std::sort(order.begin(), order.end(), [&](size_t a, size_t b) { return key(a) < key(b); });
 
     applyPermutation_(hits_, order);
-    applyPermutation_(fractions_, order);
     applyPermutation_(energies_, order);
+    if (!fractions_.empty())
+      applyPermutation_(fractions_, order);
 
     buildDetRanges_();
 
@@ -354,23 +358,27 @@ public:
   // --------------------------------------------------------------------------
   HitsAndFractionsView hits_and_fractions_view() const {
     assertFinalized_();
+    assertFractions_();
     return HitsAndFractionsView{{hits_, fractions_}};
   }
 
   HitsAndFractionsView hits_and_fractions_view(DetId::Detector det) const {
     assertFinalized_();
+    assertFractions_();
     auto [b, e] = detRanges_[detIndex_(det)];
     return HitsAndFractionsView{{{hits_.data() + b, e - b}, {fractions_.data() + b, e - b}}};
   }
 
   HitsAndFractionsView hits_and_fractions_view(DetId::Detector det, int subdetId) const {
     assertFinalized_();
+    assertFractions_();
     auto [bb, ee] = subdetRange_(det, subdetId);
     return HitsAndFractionsView{{{hits_.data() + bb, ee - bb}, {fractions_.data() + bb, ee - bb}}};
   }
 
   HitsAndFractionsView hits_and_fractions_view(DetId::Detector detIdMin, DetId::Detector detIdMax) const {
     assertFinalized_();
+    assertFractions_();
     auto [begin, end] = detMinMaxRange_(detIdMin, detIdMax);
     return HitsAndFractionsView{{{hits_.data() + begin, end - begin}, {fractions_.data() + begin, end - begin}}};
   }
@@ -429,6 +437,15 @@ private:
 
   void assertFinalized_() const {
     assert(hitsFinalized_ && "SimCluster: hits not finalized. Call finalizeHits() in the producer before persisting.");
+  }
+
+  void assertFractions_() const {
+    if (hits_.size() != fractions_.size()) {
+      std::cerr << "SimCluster: fractions (" + std::to_string(fractions_.size()) + ") and hits (" +
+                       std::to_string(hits_.size()) + ") must have the same size."
+                << std::endl;
+      std::abort();
+    }
   }
 
   // Returns the [begin, end) index range within hits_ for a det+subdet pair.
