@@ -33,6 +33,8 @@ namespace Phase2L1GMT {
     typedef ROOT::Math::SMatrix<double, 5, 5> Matrix55;
     typedef ROOT::Math::SMatrix<double, 1, 5> Matrix15;
     typedef ROOT::Math::SMatrix<double, 5, 1> Matrix51;
+    typedef ROOT::Math::SMatrix<double, 5, 2> Matrix52;
+    typedef ROOT::Math::SMatrix<double, 2, 5> Matrix25;
 
     KMTFCore(const edm::ParameterSet& settings);
 
