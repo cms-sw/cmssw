@@ -223,8 +223,8 @@
   <class name="edm::RefVector<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack> >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfPFRecTrack>,reco::GsfPFRecTrack> > >"/>
 
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::PFCluster>,reco::PFCluster>"/>
   <class name="edm::Ref<std::vector<reco::PFCluster>,reco::PFCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCluster>,reco::PFCluster> >"/>
-
 
   <class name="pftools::ParticleFiltrationDecision" ClassVersion="11">
    <version ClassVersion="11" checksum="1016852148"/>

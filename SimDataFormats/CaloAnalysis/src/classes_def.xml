@@ -36,7 +36,8 @@
   <class name="edm::Wrapper<SimClusterRefVector>"/>
   <class name="SimClusterRefProd"/>
   <class name="SimClusterContainer"/>
-
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<SimCluster>,SimCluster>"/>
+  
   <class name="std::pair<edm::RefProd<std::vector<SimCluster> >, edm::RefProd<std::vector<CaloParticle> > >"/>
 
   <class name="MtdSimCluster" ClassVersion="7">
