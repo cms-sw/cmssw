@@ -32,13 +32,14 @@ namespace lstgeometry {
   float roundAngle(float angle, float tol = 1e-3);
   float roundCoordinate(float coord, float tol = 1e-3);
   std::pair<float, float> getEtaPhi(float x, float y, float z, float refphi = 0);
+}  // namespace lstgeometry
 
+namespace lst {
   inline std::string floatToStr(float num, unsigned int precision = 1) {
     std::ostringstream outSS;
     outSS << std::setprecision(precision) << num;
     return outSS.str();
   }
-
-}  // namespace lstgeometry
+}  // namespace lst
 
 #endif

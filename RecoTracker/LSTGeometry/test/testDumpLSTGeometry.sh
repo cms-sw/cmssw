@@ -7,4 +7,4 @@ if [ "${SCRAM_TEST_NAME}" != "" ] ; then
   cd ${SCRAM_TEST_NAME}
 fi
 
-(cmsRun ${SCRAM_TEST_PATH}/dumpLSTGeometry.py outputDirectory="data/" ptCut=0.8 binaryOutput=true) || die "failed to run dumpLSTGeometry.py" $?
+(cmsRun ${SCRAM_TEST_PATH}/dumpLSTGeometry.py --outputDirectory data --ptCut 0.8 --binaryOutput) || die "failed to run dumpLSTGeometry.py" $?

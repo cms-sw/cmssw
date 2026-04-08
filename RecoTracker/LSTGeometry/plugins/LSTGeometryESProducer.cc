@@ -36,7 +36,7 @@ private:
 
 LSTGeometryESProducer::LSTGeometryESProducer(const edm::ParameterSet &iConfig)
     : ptCut_(iConfig.getParameter<double>("ptCut")) {
-  std::string ptCutStr = lstgeometry::floatToStr(ptCut_, 1);
+  std::string ptCutStr = lst::floatToStr(ptCut_, 1);
 
   auto cc = setWhatProduced(this, ptCutStr);
   geomToken_ = cc.consumes();
@@ -89,6 +89,11 @@ std::unique_ptr<lstgeometry::Geometry> LSTGeometryESProducer::produce(const Trac
     const unsigned int layer = trackerTopo_->layer(detId);
     const unsigned int ring = trackerTopo_->endcapRingP2(detId);
 
+    if (layer == 0 || (location == lstgeometry::Location::barrel && layer > lstgeometry::kBarrelLayers) ||
+        (location == lstgeometry::Location::endcap && layer > lstgeometry::kEndcapLayers)) {
+      continue;
+    }
+
     if (det->isLeaf()) {
       // Leafs are the sensors
       sensors[detid] = lstgeometry::Sensor(
@@ -107,10 +112,12 @@ std::unique_ptr<lstgeometry::Geometry> LSTGeometryESProducer::produce(const Trac
   }
 
   for (size_t i = 0; i < avg_r_barrel.size(); ++i) {
-    avg_r_barrel[i] /= avg_r_barrel_counter[i];
+    if (avg_r_barrel_counter[i] > 0)
+      avg_r_barrel[i] /= avg_r_barrel_counter[i];
   }
   for (size_t i = 0; i < avg_z_endcap.size(); ++i) {
-    avg_z_endcap[i] /= avg_z_endcap_counter[i];
+    if (avg_z_endcap_counter[i] > 0)
+      avg_z_endcap[i] /= avg_z_endcap_counter[i];
   }
 
   auto lstGeometry = std::make_unique<lstgeometry::Geometry>(std::move(sensors), avg_r_barrel, avg_z_endcap, ptCut_);

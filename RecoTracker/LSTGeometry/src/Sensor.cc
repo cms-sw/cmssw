@@ -75,12 +75,19 @@ Sensor::Sensor(unsigned int detId,
   extra->lower = isLower(moduleId, location, side, layer, detId);
   extra->strip = isStrip(moduleType, extra->inverted, extra->lower);
   extra->centerEta = std::asinh(centerZ / centerRho);
-  extra->centerTheta = 2.f * std::atan(std::exp(-extra->centerEta));
+  extra->centerTheta = std::numbers::pi_v<float> / 2. - std::atan(centerZ / centerRho);
 
   const Bounds &bounds = surface.bounds();
-  const RectangularPlaneBounds &plane_bounds = dynamic_cast<const RectangularPlaneBounds &>(bounds);
-  float wid = plane_bounds.width();
-  float len = plane_bounds.length();
+  const RectangularPlaneBounds *rectangular_bounds = dynamic_cast<const RectangularPlaneBounds *>(&bounds);
+
+  float wid, len;
+  if (rectangular_bounds) {
+    wid = rectangular_bounds->width();
+    len = rectangular_bounds->length();
+  } else {
+    throw std::runtime_error("Sensor::Sensor: Surface bounds are not rectangular");
+  }
+
   auto c1 = GloballyPositioned<float>::LocalPoint(-wid / 2, -len / 2, 0);
   auto c2 = GloballyPositioned<float>::LocalPoint(-wid / 2, len / 2, 0);
   auto c3 = GloballyPositioned<float>::LocalPoint(wid / 2, len / 2, 0);

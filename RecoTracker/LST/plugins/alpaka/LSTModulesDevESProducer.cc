@@ -22,7 +22,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     LSTModulesDevESProducer(edm::ParameterSet const& iConfig)
         : ESProducer(iConfig), ptCut_(iConfig.getParameter<double>("ptCut")) {
-      std::string ptCutStr = lstgeometry::floatToStr(ptCut_, 1);
+      std::string ptCutStr = lst::floatToStr(ptCut_, 1);
 
       auto cc = setWhatProduced(this, ptCutStr);
       lstGeoToken_ = cc.consumes<lstgeometry::Geometry>(edm::ESInputTag("", ptCutStr));

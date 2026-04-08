@@ -1,7 +1,8 @@
+from argparse import ArgumentParser
+
 import FWCore.ParameterSet.Config as cms
 from Configuration.AlCa.GlobalTag import GlobalTag
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
-import FWCore.ParameterSet.VarParsing as VarParsing
 from RecoTracker.LSTGeometry.lstGeometryESProducer_cfi import lstGeometryESProducer as _lstGeom
 
 trackingLSTCommon = cms.Modifier()
@@ -31,33 +32,28 @@ process.MessageLogger.cerr.LSTGeometryESProducer = dict(limit=-1)
 process.source = cms.Source("EmptySource")
 process.maxEvents.input = 1
 
-options = VarParsing.VarParsing()
-options.register(
-    "outputDirectory",
-    "data/",
-    VarParsing.VarParsing.multiplicity.singleton,
-    VarParsing.VarParsing.varType.string,
-    "Output directory for LST geometry files",
+parser = ArgumentParser()
+parser.add_argument(
+    "--outputDirectory",
+    default="data/",
+    help="Output directory for LST geometry files"
 )
-options.register(
-    "ptCut",
-    0.8,
-    VarParsing.VarParsing.multiplicity.singleton,
-    VarParsing.VarParsing.varType.float,
-    "pT cut for LST module maps",
+parser.add_argument(
+    "--ptCut",
+    type=float,
+    default=0.8,
+    help="pT cut for LST module maps"
 )
-options.register(
-    "binaryOutput",
-    True,
-    VarParsing.VarParsing.multiplicity.singleton,
-    VarParsing.VarParsing.varType.bool,
-    "Dump LST geometry as binary files",
+parser.add_argument(
+    "--binaryOutput",
+    action="store_true",
+    help="Dump LST geometry as binary files"
 )
-options.parseArguments()
+options = parser.parse_args()
 
 process.dump = cms.EDAnalyzer(
     "DumpLSTGeometry",
-    outputDirectory = cms.untracked.string(options.outputDirectory),
+    outputDirectory = cms.untracked.string(options.outputDirectory + "/"),
     ptCut = cms.double(options.ptCut),
     outputAsBinary = cms.untracked.bool(options.binaryOutput),
 )

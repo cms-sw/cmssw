@@ -11,9 +11,8 @@
 namespace lstgeometry {
 
   using LayerSubdetChargeKey = std::tuple<unsigned int, unsigned int, int>;
-  using LayerSubdetChargeMap = std::unordered_map<LayerSubdetChargeKey,
-                                                  std::vector<std::vector<unsigned int>>,
-                                                  boost::hash<LayerSubdetChargeKey>>;
+  using LayerSubdetChargeMap =
+      std::unordered_map<LayerSubdetChargeKey, std::vector<std::vector<unsigned int>>, boost::hash<LayerSubdetChargeKey>>;
   using PixelMap = LayerSubdetChargeMap;
 
   PixelMap buildPixelMap(Sensors const& sensors, float pt_cut);
