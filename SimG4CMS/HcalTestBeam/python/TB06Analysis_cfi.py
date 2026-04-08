@@ -5,6 +5,7 @@ from SimG4CMS.HcalTestBeam.TBDirectionParameters_cfi import *
 
 testbeam = cms.EDAnalyzer("HcalTB06Analysis",
                           common_beam_direction_parameters,
+                          common_beam_position_parameters,
                           ECAL = cms.bool(True),
                           TestBeamAnalysis = cms.PSet(
         Verbose = cms.untracked.bool(False),

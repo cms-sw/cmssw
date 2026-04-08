@@ -110,6 +110,7 @@ process.g4SimHits.HCalSD.ForTBH2 = True
 #process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 #    HcalTB04Analysis = cms.PSet(
 #        process.common_beam_direction_parameters,
+#        process.common_beam_position_parameters,
 #        HcalOnly  = cms.bool(False),
 #        Type      = cms.int32(2),
 #        Mode      = cms.int32(1),
