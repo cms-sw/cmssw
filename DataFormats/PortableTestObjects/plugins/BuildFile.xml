@@ -11,11 +11,12 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<library file="SchemaEvolutionProducer.cc SchemaEvolutionAnalyzer.cc" name="SchemaEvolutionPlugins">
+<library file="SchemaEvolutionSoAProducer.cc EvolutionZeroAnalyzer.cc EvolutionOneAnalyzer.cc EvolutionTwoAnalyzer.cc" name="SchemaEvolutionPlugins">
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/MessageLogger"/>
   <use name="DataFormats/Portable"/>
+  <use name="DataFormats/SoATemplate"/>
   <use name="eigen"/>
     <flags EDM_PLUGIN="1"/>
 </library>    

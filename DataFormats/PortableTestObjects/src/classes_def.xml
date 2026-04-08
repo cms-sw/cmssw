@@ -83,14 +83,21 @@
   <class name="portabletest::MaskSoA::ConstView"/>
   <class name="edm::Wrapper<portabletest::MaskHostCollection>" splitLevel="0"/>
 
-  <class name="portabletest::SiPixelErrorCompact64"/>
-  <class name="edm::StdArray<int,3>"/>
   <!-- ::Layout alias must be listed before the aliased-to type -->
-  <class name="portabletest::SchemaEvolutionHostCollection::Layout"/>
-  <class name="portabletest::SchemaEvolutionSoATemplate<128,false>"/>
-  <class name="portabletest::SchemaEvolutionHostCollection" ClassVersion="5">
-   <version ClassVersion="5" checksum="2716141850"/>
-   <version ClassVersion="3" checksum="2152552756"/>
-  </class>
-  <class name="edm::Wrapper<portabletest::SchemaEvolutionHostCollection>" splitLevel="0"/>
+  <class name="portabletest::HostCollectionEvolutionZero::Layout"/>
+  <class name="portabletest::SoAEvolutionZeroLayout<128,false>"/>
+  <class name="portabletest::HostCollectionEvolutionZero"/>
+  <class name="edm::Wrapper<portabletest::HostCollectionEvolutionZero>" splitLevel="0"/>
+
+  <!-- ::Layout alias must be listed before the aliased-to type -->
+  <class name="portabletest::HostCollectionEvolutionOne::Layout"/>
+  <class name="portabletest::SoAEvolutionOneLayout<128,false>"/>
+  <class name="portabletest::HostCollectionEvolutionOne"/>
+  <class name="edm::Wrapper<portabletest::HostCollectionEvolutionOne>" splitLevel="0"/>
+
+  <!-- ::Layout alias must be listed before the aliased-to type -->
+  <class name="portabletest::HostCollectionEvolutionTwo::Layout"/>
+  <class name="portabletest::SoAEvolutionTwoLayout<128,false>"/>
+  <class name="portabletest::HostCollectionEvolutionTwo"/>
+  <class name="edm::Wrapper<portabletest::HostCollectionEvolutionTwo>" splitLevel="0"/>
 </lcgdict>
