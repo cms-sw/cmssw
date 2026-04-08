@@ -24,4 +24,6 @@ SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::ImageHostCollection);
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::LogitsHostCollection);
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::MaskHostCollection);
 
-SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::SchemaEvolutionHostCollection);
+SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::HostCollectionEvolutionZero);
+SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::HostCollectionEvolutionOne);
+SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::HostCollectionEvolutionTwo);
