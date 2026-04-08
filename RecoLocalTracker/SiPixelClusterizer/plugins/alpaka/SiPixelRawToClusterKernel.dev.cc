@@ -624,6 +624,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto bCounter = cms::alpakatools::make_device_buffer<int32_t>(queue);
         alpaka::memset(queue, bCounter, 0);
 
+        cms::alpakatools::checkSharedMemoryPrefixScan<Acc1D>(
+            TrackerTraits::numberOfModules, blocksPrefixScan, alpaka::getDev(queue));
         alpaka::exec<Acc1D>(queue,
                             workDivPrefixScan,
                             cms::alpakatools::multiBlockPrefixScan<uint32_t>(),
@@ -734,6 +736,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto bCounter = cms::alpakatools::make_device_buffer<int32_t>(queue);
       alpaka::memset(queue, bCounter, 0);
 
+      cms::alpakatools::checkSharedMemoryPrefixScan<Acc1D>(
+          TrackerTraits::numberOfModules, blocksPrefixScan, alpaka::getDev(queue));
       alpaka::exec<Acc1D>(queue,
                           workDivPrefixScan,
                           cms::alpakatools::multiBlockPrefixScan<uint32_t>(),

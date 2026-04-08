@@ -108,7 +108,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 ####################################################################
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 process.TrackRefitter.src = config["validation"].get("trackcollection", "generalTracks")
-process.TrackRefitter.TTRHBuilder = config["validation"].get("tthrbuilder", "WithAngleAndTemplate")
+process.TrackRefitter.TTRHBuilder = config["validation"].get("tthrbuilder", "WithTrackAngle")
 process.TrackRefitter.NavigationSchool = ""
 
 ####################################################################

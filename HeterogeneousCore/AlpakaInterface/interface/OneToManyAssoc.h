@@ -262,6 +262,7 @@ namespace cms::alpakatools {
         auto nthreads = 1024;
         auto nblocks = (nOnes + nthreads - 1) / nthreads;
         auto workDiv = cms::alpakatools::make_workdiv<TAcc>(nblocks, nthreads);
+        cms::alpakatools::checkSharedMemoryPrefixScan<TAcc>(nOnes, nblocks, alpaka::getDev(queue));
         alpaka::exec<TAcc>(queue,
                            workDiv,
                            multiBlockPrefixScan<Counter>(),
@@ -279,4 +280,4 @@ namespace cms::alpakatools {
 
 }  // namespace cms::alpakatools
 
-#endif  // HeterogeneousCore_CUDAUtilities_interface_HistoContainer_h
+#endif  //HeterogeneousCore_AlpakaInterface_interface_OneToManyAssoc_h
