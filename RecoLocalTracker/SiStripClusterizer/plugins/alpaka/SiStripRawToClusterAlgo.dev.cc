@@ -719,13 +719,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     const auto workDivMultiBlock = make_workdiv<Acc1D>(nBlocks, threads);
     auto blockCounter_d = make_device_buffer<int32_t>(queue);
     alpaka::memset(queue, blockCounter_d, 0);
+
+    cms::alpakatools::checkSharedMemoryPrefixScan<Acc1D>(
+        static_cast<uint32_t>(stripMapping_d_->view().metadata().size()), nBlocks, alpaka::getDev(queue));
     alpaka::exec<Acc1D>(queue,
                         workDivMultiBlock,
                         multiBlockPrefixScan<uint32_t>(),
                         stripMapping_d_->const_view().fedChStripsN().data(),
                         stripMapping_d_->view().fedChStripsN().data(),
-                        (uint32_t)stripMapping_d_->view().metadata().size(),
-                        (int32_t)nBlocks,
+                        static_cast<uint32_t>(stripMapping_d_->view().metadata().size()),
+                        nBlocks,
                         blockCounter_d.data(),
                         alpaka::getPreferredWarpSize(alpaka::getDev(queue)));
 
@@ -801,6 +804,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     const int32_t nBlocks = divide_up_by(nStrips, nThreads);
     auto blockCounter_d = make_device_buffer<int32_t>(queue);
     alpaka::memset(queue, blockCounter_d, 0);
+
+    cms::alpakatools::checkSharedMemoryPrefixScan<Acc1D>(nStrips, nBlocks, alpaka::getDev(queue));
     alpaka::exec<Acc1D>(queue,
                         make_workdiv<Acc1D>(nBlocks, nThreads),
                         multiBlockPrefixScan<uint32_t>(),
@@ -865,6 +870,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     const int32_t nBlocks = divide_up_by(kMaxSeedStrips_, nThreads);
     auto blockCounter_d = make_device_buffer<int32_t>(queue);
     alpaka::memset(queue, blockCounter_d, 0);
+
+    cms::alpakatools::checkSharedMemoryPrefixScan<Acc1D>(kMaxSeedStrips_, nBlocks, alpaka::getDev(queue));
     alpaka::exec<Acc1D>(queue,
                         make_workdiv<Acc1D>(nBlocks, nThreads),
                         multiBlockPrefixScan<uint32_t>(),

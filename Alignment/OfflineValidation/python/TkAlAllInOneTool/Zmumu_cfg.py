@@ -108,7 +108,7 @@ import RecoTracker.TrackProducer.TrackRefitters_cff
 process.TrackRefitter = process.TrackRefitterP5.clone(
     src = config["validation"].get("trackcollection", "ALCARECOTkAlZMuMu"),
     TrajectoryInEvent = True,
-    TTRHBuilder = config["validation"].get("tthrbuilder", "WithAngleAndTemplate"),
+    TTRHBuilder = config["validation"].get("tthrbuilder", "WithTrackAngle"),
     NavigationSchool = "",
 )
 

@@ -165,7 +165,7 @@ process.refittedMuons = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitte
     src = config["validation"].get("muonTrackcollection", "ALCARECOTkAlDiMuon"), # ALCARECOTkAlDiMuon
     TrajectoryInEvent = True,
     NavigationSchool = '',
-    TTRHBuilder = config["validation"].get("tthrbuilder", "WithAngleAndTemplate"))
+    TTRHBuilder = config["validation"].get("tthrbuilder", "WithTrackAngle"))
 
 ###################################################################
 # refitting the vertex tracks
@@ -174,7 +174,7 @@ process.refittedVtxTracks = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRef
     src = config["validation"].get("trackcollection", "generalTracks"), # ALCARECOTkAlDiMuonVertexTracks
     TrajectoryInEvent = True,
     NavigationSchool = '',
-    TTRHBuilder = config["validation"].get("tthrbuilder", "WithAngleAndTemplate"))
+    TTRHBuilder = config["validation"].get("tthrbuilder", "WithTrackAngle"))
 
 ####################################################################
 # Re-do vertices
