@@ -26,6 +26,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
    * EDModule's Queue to wait for the product's asynchronous
    * production to finish.
    *
+   * The queue used to synchronise all operations is determined as follows:
+   *   - if the Event is constructed with an EDMetadata that already has
+   *     a queue, that queue will be used;
+   *   - if the Event::queue() method is called _before_ consuming any
+   *     device data products, a new queue is allocated and used;
+   *   - if the queue from the first device data product that is consumed
+   *     can be reused, that queue will be used;
+   *   - otherwise, a new queue is allocated and used.
+   *
    * Note that not full interface of edm::Event is replicated here. If
    * something important is missing, that can be added.
    */
@@ -73,8 +82,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
       if constexpr (detail::useProductDirectly) {
         return deviceProduct;
       } else {
-        // try to re-use queue from deviceProduct if our queue has not yet been used
-        T const& product = deviceProduct.template getSynchronized<EDMetadata>(*metadata_, not queueUsed_);
+        // this will try to re-use the queue from the deviceProduct if the queue from the Event metadata has not been set
+        T const& product = deviceProduct.template getSynchronized<EDMetadata>(*metadata_);
         queueUsed_ = true;
         return product;
       }
@@ -96,8 +105,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
         if (not deviceProductHandle) {
           return edm::Handle<T>(deviceProductHandle.whyFailedFactory());
         }
-        // try to re-use queue from deviceProduct if our queue has not yet been used
-        T const& product = deviceProductHandle->getSynchronized(*metadata_, not queueUsed_);
+        // this will try to re-use the queue from the deviceProduct if the queue from the Event metadata has not been set
+        T const& product = deviceProductHandle->getSynchronized(*metadata_);
         queueUsed_ = true;
         return edm::Handle<T>(&product, deviceProductHandle.provenance());
       }
@@ -154,4 +163,4 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::device
 
-#endif
+#endif  // HeterogeneousCore_AlpakaCore_interface_alpaka_Event_h
