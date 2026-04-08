@@ -144,7 +144,9 @@ std::unique_ptr<lst::LSTESData<alpaka_common::DevHost>> lst::fillESDataHost(lstg
 
   std::map<unsigned int, std::vector<unsigned int>> final_modulemap;
   for (auto const& [detId, connections] : lstg.module_map) {
-    final_modulemap[detId] = std::vector<unsigned int>(connections.begin(), connections.end());
+    if (connections.empty())
+      continue;
+    final_modulemap[detId] = connections;
   }
   moduleConnectionMap.load(final_modulemap);
 
@@ -153,17 +155,15 @@ std::unique_ptr<lst::LSTESData<alpaka_common::DevHost>> lst::fillESDataHost(lstg
 
     std::map<unsigned int, std::vector<unsigned int>> final_pixelmap;
     for (unsigned int isuperbin = 0; isuperbin < map.size(); isuperbin++) {
-      auto const& set = map.at(isuperbin);
-      final_pixelmap[isuperbin] = std::vector<unsigned int>(set.begin(), set.end());
+      auto const& vec = map.at(isuperbin);
+      if (vec.empty())
+        continue;
+      final_pixelmap[isuperbin] = vec;
     }
 
-    if (charge == 0) {
-      pLStoLayer[0][layer - 1 + (subdet == Endcap ? 2 : 0)] = lst::ModuleConnectionMap(final_pixelmap);
-    } else if (charge > 0) {
-      pLStoLayer[1][layer - 1 + (subdet == Endcap ? 2 : 0)] = lst::ModuleConnectionMap(final_pixelmap);
-    } else {
-      pLStoLayer[2][layer - 1 + (subdet == Endcap ? 2 : 0)] = lst::ModuleConnectionMap(final_pixelmap);
-    }
+    int charge_index = (charge == 0 ? 0 : (charge > 0 ? 1 : 2));
+    int layer_subdet_index = layer - 1 + (subdet == Endcap ? 2 : 0);
+    pLStoLayer[charge_index][layer_subdet_index] = lst::ModuleConnectionMap(final_pixelmap);
   }
 
   ModuleMetaData mmd;

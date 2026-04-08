@@ -71,9 +71,7 @@ namespace lstgeometry {
     }
   }
 
-  void writeModuleConnections(std::unordered_map<unsigned int, std::unordered_set<unsigned int>> const& connections,
-                              std::string const& base_filename,
-                              bool binary) {
+  void writeModuleConnections(ModuleMap const& connections, std::string const& base_filename, bool binary) {
     std::filesystem::path filepath(base_filename);
     std::filesystem::create_directories(filepath.parent_path());
 
@@ -81,18 +79,18 @@ namespace lstgeometry {
     std::ofstream file(filename, binary ? std::ios::binary : std::ios::out);
 
     if (binary) {
-      for (auto const& [detid, set] : connections) {
+      for (auto const& [detid, list] : connections) {
         file.write(reinterpret_cast<const char*>(&detid), sizeof(detid));
-        unsigned int length = set.size();
+        unsigned int length = list.size();
         file.write(reinterpret_cast<const char*>(&length), sizeof(length));
-        for (unsigned int i : set) {
+        for (unsigned int i : list) {
           file.write(reinterpret_cast<const char*>(&i), sizeof(i));
         }
       }
     } else {
-      for (auto const& [detid, set] : connections) {
-        file << detid << "," << set.size();
-        for (unsigned int i : set) {
+      for (auto const& [detid, list] : connections) {
+        file << detid << "," << list.size();
+        for (unsigned int i : list) {
           file << "," << i;
         }
         file << std::endl;
@@ -104,41 +102,30 @@ namespace lstgeometry {
     std::filesystem::path filepath(base_filename);
     std::filesystem::create_directories(filepath.parent_path());
 
-    if (binary) {
-      for (auto const& [layersubdetcharge, map] : maps) {
-        auto const& [layer, subdet, charge] = layersubdetcharge;
+    for (auto const& [layersubdetcharge, vec_of_vecs] : maps) {
+      auto const& [layer, subdet, charge] = layersubdetcharge;
 
-        std::string charge_str = charge > 0 ? "_pos" : (charge < 0 ? "_neg" : "");
-        std::string filename = std::format("{}{}_layer{}_subdet{}.bin", base_filename, charge_str, layer, subdet);
+      std::string charge_str = charge > 0 ? "_pos" : (charge < 0 ? "_neg" : "");
+      std::string filename =
+          std::format("{}{}_layer{}_subdet{}.{}", base_filename, charge_str, layer, subdet, binary ? "bin" : "txt");
 
-        std::ofstream file(filename, std::ios::binary);
+      std::ofstream file(filename, binary ? std::ios::binary : std::ios::out);
 
-        for (unsigned int isuperbin = 0; isuperbin < map.size(); isuperbin++) {
-          auto const& set = map.at(isuperbin);
+      for (unsigned int isuperbin = 0; isuperbin < vec_of_vecs.size(); isuperbin++) {
+        auto const& vec = vec_of_vecs.at(isuperbin);
+        if (vec.empty())
+          continue;
 
+        unsigned int length = vec.size();
+        if (binary) {
           file.write(reinterpret_cast<const char*>(&isuperbin), sizeof(isuperbin));
-          unsigned int length = set.size();
           file.write(reinterpret_cast<const char*>(&length), sizeof(length));
-          for (unsigned int i : set) {
+          for (unsigned int i : vec) {
             file.write(reinterpret_cast<const char*>(&i), sizeof(i));
           }
-        }
-      }
-    } else {
-      for (auto const& [layersubdetcharge, map] : maps) {
-        auto const& [layer, subdet, charge] = layersubdetcharge;
-
-        std::string charge_str = charge > 0 ? "_pos" : (charge < 0 ? "_neg" : "");
-        std::string filename = std::format("{}{}_layer{}_subdet{}.txt", base_filename, charge_str, layer, subdet);
-
-        std::ofstream file(filename);
-
-        for (unsigned int isuperbin = 0; isuperbin < map.size(); isuperbin++) {
-          auto const& set = map.at(isuperbin);
-
-          unsigned int length = set.size();
+        } else {
           file << isuperbin << "," << length;
-          for (unsigned int i : set) {
+          for (unsigned int i : vec) {
             file << "," << i;
           }
           file << std::endl;

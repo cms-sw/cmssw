@@ -1,3 +1,6 @@
+#include <algorithm>
+#include <iterator>
+
 #include "RecoTracker/LSTGeometry/interface/Common.h"
 #include "RecoTracker/LSTGeometry/interface/PixelMap.h"
 
@@ -81,41 +84,50 @@ namespace lstgeometry {
             if (iphimin_pos <= iphimax_pos) {
               for (unsigned int iphi = iphimin_pos; iphi < iphimax_pos; iphi++) {
                 unsigned int isuperbin = (ipt * kNPhi * kNEta * kNZ) + (ieta * kNPhi * kNZ) + (iphi * kNZ) + iz;
-                maps[{layer, subdet, 1}][isuperbin].insert(detId);
-                maps[{layer, subdet, 0}][isuperbin].insert(detId);
+                maps[{layer, subdet, 1}][isuperbin].push_back(detId);
+                maps[{layer, subdet, 0}][isuperbin].push_back(detId);
               }
             } else {
               for (unsigned int iphi = 0; iphi < iphimax_pos; iphi++) {
                 unsigned int isuperbin = (ipt * kNPhi * kNEta * kNZ) + (ieta * kNPhi * kNZ) + (iphi * kNZ) + iz;
-                maps[{layer, subdet, 1}][isuperbin].insert(detId);
-                maps[{layer, subdet, 0}][isuperbin].insert(detId);
+                maps[{layer, subdet, 1}][isuperbin].push_back(detId);
+                maps[{layer, subdet, 0}][isuperbin].push_back(detId);
               }
               for (unsigned int iphi = iphimin_pos; iphi < kNPhi; iphi++) {
                 unsigned int isuperbin = (ipt * kNPhi * kNEta * kNZ) + (ieta * kNPhi * kNZ) + (iphi * kNZ) + iz;
-                maps[{layer, subdet, 1}][isuperbin].insert(detId);
-                maps[{layer, subdet, 0}][isuperbin].insert(detId);
+                maps[{layer, subdet, 1}][isuperbin].push_back(detId);
+                maps[{layer, subdet, 0}][isuperbin].push_back(detId);
               }
             }
             if (iphimin_neg <= iphimax_neg) {
               for (unsigned int iphi = iphimin_neg; iphi < iphimax_neg; iphi++) {
                 unsigned int isuperbin = (ipt * kNPhi * kNEta * kNZ) + (ieta * kNPhi * kNZ) + (iphi * kNZ) + iz;
-                maps[{layer, subdet, -1}][isuperbin].insert(detId);
-                maps[{layer, subdet, 0}][isuperbin].insert(detId);
+                maps[{layer, subdet, -1}][isuperbin].push_back(detId);
+                maps[{layer, subdet, 0}][isuperbin].push_back(detId);
               }
             } else {
               for (unsigned int iphi = 0; iphi < iphimax_neg; iphi++) {
                 unsigned int isuperbin = (ipt * kNPhi * kNEta * kNZ) + (ieta * kNPhi * kNZ) + (iphi * kNZ) + iz;
-                maps[{layer, subdet, -1}][isuperbin].insert(detId);
-                maps[{layer, subdet, 0}][isuperbin].insert(detId);
+                maps[{layer, subdet, -1}][isuperbin].push_back(detId);
+                maps[{layer, subdet, 0}][isuperbin].push_back(detId);
               }
               for (unsigned int iphi = iphimin_neg; iphi < kNPhi; iphi++) {
                 unsigned int isuperbin = (ipt * kNPhi * kNEta * kNZ) + (ieta * kNPhi * kNZ) + (iphi * kNZ) + iz;
-                maps[{layer, subdet, -1}][isuperbin].insert(detId);
-                maps[{layer, subdet, 0}][isuperbin].insert(detId);
+                maps[{layer, subdet, -1}][isuperbin].push_back(detId);
+                maps[{layer, subdet, 0}][isuperbin].push_back(detId);
               }
             }
           }
         }
+      }
+    }
+
+    for (auto& [key, vec_of_vecs] : maps) {
+      for (auto& vec : vec_of_vecs) {
+        if (vec.empty())
+          continue;
+        std::sort(vec.begin(), vec.end());
+        vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
       }
     }
 

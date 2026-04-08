@@ -128,7 +128,7 @@ namespace lstgeometry {
     // We construct the reference polygon as a vector of polygons because the boost::geometry::difference
     // function can return multiple polygons if the difference results in disjoint pieces
     if (ref_location == Location::barrel) {
-      std::unordered_set<unsigned int> barrel_endcap_connected_tar_detids;
+      std::vector<unsigned int> barrel_endcap_connected_tar_detids;
 
       for (float zshift : {0, 10, -10}) {
         std::vector<Polygon> ref_polygon;
@@ -178,7 +178,7 @@ namespace lstgeometry {
           }
 
           if (intersects)
-            barrel_endcap_connected_tar_detids.insert(tar_detid);
+            barrel_endcap_connected_tar_detids.push_back(tar_detid);
         }
       }
       list_of_detids_etaphi_layer_tar.insert(list_of_detids_etaphi_layer_tar.end(),
@@ -301,7 +301,7 @@ namespace lstgeometry {
     // We construct the reference polygon as a vector of polygons because the boost::geometry::difference
     // function can return multiple polygons if the difference results in disjoint pieces
     if (ref_location == Location::barrel) {
-      std::unordered_set<unsigned int> barrel_endcap_connected_tar_detids;
+      std::vector<unsigned int> barrel_endcap_connected_tar_detids;
 
       int zshift = 0;
 
@@ -350,7 +350,7 @@ namespace lstgeometry {
           }
 
           if (intersects)
-            barrel_endcap_connected_tar_detids.insert(tar_detid);
+            barrel_endcap_connected_tar_detids.push_back(tar_detid);
         }
       }
 
@@ -369,8 +369,13 @@ namespace lstgeometry {
     for (auto* connections : connections_list) {
       for (auto const& [detid, list] : *connections) {
         auto& target = merged[detid];
-        target.insert(list.begin(), list.end());
+        target.insert(target.end(), list.begin(), list.end());
       }
+    }
+
+    for (auto& [detid, list] : merged) {
+      std::sort(list.begin(), list.end());
+      list.erase(std::unique(list.begin(), list.end()), list.end());
     }
 
     return merged;

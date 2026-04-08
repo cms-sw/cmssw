@@ -3,7 +3,6 @@
 
 #include <tuple>
 #include <unordered_map>
-#include <unordered_set>
 #include <boost/functional/hash.hpp>
 
 #include "RecoTracker/LSTGeometry/interface/Sensor.h"
@@ -13,7 +12,7 @@ namespace lstgeometry {
 
   using LayerSubdetChargeKey = std::tuple<unsigned int, unsigned int, int>;
   using LayerSubdetChargeMap = std::unordered_map<LayerSubdetChargeKey,
-                                                  std::vector<std::unordered_set<unsigned int>>,
+                                                  std::vector<std::vector<unsigned int>>,
                                                   boost::hash<LayerSubdetChargeKey>>;
   using PixelMap = LayerSubdetChargeMap;
 
