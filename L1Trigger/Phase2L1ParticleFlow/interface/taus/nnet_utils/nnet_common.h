@@ -13,43 +13,43 @@
 
 namespace hls4ml_nnpuppitau_v0 {
 
-namespace nnet {
+  namespace nnet {
 
-  // Common type definitions
-  enum io_type { io_parallel = 0, io_stream };
-  enum strategy { latency, resource };
+    // Common type definitions
+    enum io_type { io_parallel = 0, io_stream };
+    enum strategy { latency, resource };
 
-  template <class T>
-  class Op_add {
-  public:
-    T operator()(T a, T b) { return a + b; }
-  };
+    template <class T>
+    class Op_add {
+    public:
+      T operator()(T a, T b) { return a + b; }
+    };
 
-  template <class T>
-  class Op_and {
-  public:
-    T operator()(T a, T b) { return a && b; }
-  };
+    template <class T>
+    class Op_and {
+    public:
+      T operator()(T a, T b) { return a && b; }
+    };
 
-  template <class T>
-  class Op_or {
-  public:
-    T operator()(T a, T b) { return a || b; }
-  };
+    template <class T>
+    class Op_or {
+    public:
+      T operator()(T a, T b) { return a || b; }
+    };
 
-  template <class T>
-  class Op_max {
-  public:
-    T operator()(T a, T b) { return a >= b ? a : b; }
-  };
+    template <class T>
+    class Op_max {
+    public:
+      T operator()(T a, T b) { return a >= b ? a : b; }
+    };
 
-  template <class T>
-  class Op_min {
-  public:
-    T operator()(T a, T b) { return a <= b ? a : b; }
-  };
+    template <class T>
+    class Op_min {
+    public:
+      T operator()(T a, T b) { return a <= b ? a : b; }
+    };
 
-}  // namespace nnet
+  }  // namespace nnet
 
 }  // namespace hls4ml_nnpuppitau_v0
 

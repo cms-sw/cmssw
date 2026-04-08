@@ -7,7 +7,7 @@
 #define B17_H_
 namespace hls4ml_nnpuppitau_v0 {
 
-bias17_t b17[1] = {-0.714844};
+  bias17_t b17[1] = {-0.714844};
 }
 
 #endif

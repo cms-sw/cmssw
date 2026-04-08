@@ -16,6 +16,7 @@
 
 #include "ap_int.h"
 #include "ap_fixed.h"
+#include <dlfcn.h>
 
 using namespace l1t;
 
@@ -67,6 +68,24 @@ L1NNTauProducer::L1NNTauProducer(const edm::ParameterSet& cfg, const tensorflow:
       fEMSeed(cfg.getParameter<bool>("emseed")),
       fDebug(cfg.getParameter<bool>("debug")),
       fL1PFToken_(consumes<vector<l1t::PFCandidate>>(cfg.getParameter<edm::InputTag>("L1PFObjects"))) {
+  void* handle = dlopen("libclobber.so", RTLD_NOW | RTLD_GLOBAL);
+  if (!handle) {
+    std::cerr << "dlopen failed: " << dlerror() << "\n";
+    return;
+  }
+
+  using f_t = void (*)();
+
+  dlerror();  // clear any old error
+  f_t f = reinterpret_cast<f_t>(dlsym(handle, "f"));
+
+  const char* err = dlerror();
+  if (err) {
+    std::cerr << "dlsym failed: " << err << "\n";
+    return;
+  }
+
+  f();                                                                // call into proxy
   std::string lNNFile = cfg.getParameter<std::string>("NNFileName");  //,"L1Trigger/Phase2L1Taus/data/tau_3layer.pb");
   if (fHW) {
     fTauNNIdHW_ = std::make_unique<TauNNIdHW>();
