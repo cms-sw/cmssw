@@ -10,12 +10,12 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1
 # enable logging for the analysers
 process.MessageLogger.soAAnalyzer = cms.untracked.PSet()
 
-# Produce an SoA and add it to the event
-process.soaproducer = cms.EDProducer("SchemaEvolutionProducer")
+# Produce zeroth evolution of the SoA product
+process.soaproducer = cms.EDProducer("SchemaEvolutionSoAProducer")
 
 # write all products to a 'test.root' file
 process.output = cms.OutputModule('PoolOutputModule',
-    fileName = cms.untracked.string('test.root'),
+    fileName = cms.untracked.string('SchemaEvolutionTwo.root'),
     outputCommands = cms.untracked.vstring('keep *')
 )
 

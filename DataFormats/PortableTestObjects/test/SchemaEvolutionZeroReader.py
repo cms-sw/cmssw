@@ -5,14 +5,14 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 # read the products from a 'test.root' file
 process.source = cms.Source('PoolSource',
-    fileNames = cms.untracked.vstring('file:test.root')
+    fileNames = cms.untracked.vstring('file:SchemaEvolutionZero.root')
 )
 
 # enable logging for the analyser
 process.MessageLogger.soAAnalyzer = cms.untracked.PSet()
 
-process.soAAnalyzer = cms.EDAnalyzer('SchemaEvolutionAnalyzer',
-    source = cms.InputTag("soaproducer", "SchemaEvolutionProduct"),
+process.evolutionZeroAnalyzer = cms.EDAnalyzer('EvolutionZeroAnalyzer',
+    source = cms.InputTag("soaproducer", "EvolutionZeroProduct"),
 )
 
-process.p = cms.Path(process.soAAnalyzer)
+process.p = cms.Path(process.evolutionZeroAnalyzer)
