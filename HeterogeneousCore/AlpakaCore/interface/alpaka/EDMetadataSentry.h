@@ -1,40 +1,47 @@
 #ifndef HeterogeneousCore_AlpakaCore_interface_alpaka_EDMetadataSentry_h
 #define HeterogeneousCore_AlpakaCore_interface_alpaka_EDMetadataSentry_h
 
+#include <memory>
+#include <utility>
+
 #include "DataFormats/AlpakaCommon/interface/alpaka/EDMetadata.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
-  namespace detail {
-    /**
+namespace ALPAKA_ACCELERATOR_NAMESPACE::detail {
+
+  /**
      * Helper class to be used in produce()
      *
      * TODO: not really a sentry as it doesn't do anything special in its destructor. Better name?
      */
-    class EDMetadataSentry {
-    public:
-      // For normal module
-      EDMetadataSentry(edm::StreamID stream, bool synchronize);
+  class EDMetadataSentry {
+  public:
+    // For normal modules
+    EDMetadataSentry(edm::StreamID stream, bool synchronize);
 
-      // For ExternalWork-module's produce()
-      EDMetadataSentry(std::shared_ptr<EDMetadata> metadata, bool synchronize)
-          : metadata_(std::move(metadata)), synchronize_(synchronize) {}
+    // For modules bound to a specific queue
+    EDMetadataSentry(std::shared_ptr<Queue> queue, bool synchronize)
+        : metadata_(std::make_shared<EDMetadata>(std::move(queue))), synchronize_(synchronize) {}
 
-      EDMetadataSentry(EDMetadataSentry const&) = delete;
-      EDMetadataSentry& operator=(EDMetadataSentry const&) = delete;
-      EDMetadataSentry(EDMetadataSentry&&) = delete;
-      EDMetadataSentry& operator=(EDMetadataSentry&&) = delete;
+    // For ExternalWork-modules' produce()
+    EDMetadataSentry(std::shared_ptr<EDMetadata> metadata, bool synchronize)
+        : metadata_(std::move(metadata)), synchronize_(synchronize) {}
 
-      std::shared_ptr<EDMetadata> metadata() { return metadata_; }
+    EDMetadataSentry(EDMetadataSentry const&) = delete;
+    EDMetadataSentry& operator=(EDMetadataSentry const&) = delete;
+    EDMetadataSentry(EDMetadataSentry&&) = delete;
+    EDMetadataSentry& operator=(EDMetadataSentry&&) = delete;
 
-      // true if asynchronous work was (possibly) launched
-      void finish(bool launchedAsyncWork);
+    std::shared_ptr<EDMetadata> metadata() { return metadata_; }
 
-    private:
-      std::shared_ptr<EDMetadata> metadata_;
-      bool const synchronize_;
-    };
-  }  // namespace detail
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+    // true if asynchronous work was (possibly) launched
+    void finish(bool launchedAsyncWork);
 
-#endif
+  private:
+    std::shared_ptr<EDMetadata> metadata_;
+    bool const synchronize_;
+  };
+
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::detail
+
+#endif  // HeterogeneousCore_AlpakaCore_interface_alpaka_EDMetadataSentry_h

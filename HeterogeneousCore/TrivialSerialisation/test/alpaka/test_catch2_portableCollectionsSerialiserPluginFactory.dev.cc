@@ -43,12 +43,8 @@ namespace alpaka_ngt = ALPAKA_ACCELERATOR_NAMESPACE::ngt;
 namespace test {
 
   // helper to create a dummy EDMetadata object for the purpose of these tests.
-  std::shared_ptr<EDMetadata> makeMetadata(Device const& device) {
-    if constexpr (detail::useProductDirectly) {
-      return std::make_shared<EDMetadata>(std::make_shared<Queue>(device));
-    } else {
-      return std::make_shared<EDMetadata>(std::make_shared<Queue>(device), std::make_shared<Event>(device));
-    }
+  std::shared_ptr<EDMetadata> makeMetadata(Queue const& queue) {
+    return std::make_shared<EDMetadata>(std::make_shared<Queue>(queue));
   }
 
   // helper to wrap a product in edm::Wrapper<detail::DeviceProductType<T>>.
@@ -73,7 +69,7 @@ namespace test {
       return wrapper.bareProduct();
     } else {
       // asynchronous backends, WrapperType is edm::Wrapper<edm::DeviceProduct<T>>
-      return wrapper.bareProduct().template getSynchronized<EDMetadata>(metadata, true);
+      return wrapper.bareProduct().template getSynchronized<EDMetadata>(metadata);
     }
   }
 }  // namespace test
@@ -142,7 +138,7 @@ TEST_CASE("Test MemoryCopyTraits", "[MemoryCopyTraits]") {
       checkPortableCollection(sourceCollection);
 
       // Wrap it in edm::Wrapper
-      auto metadata = test::makeMetadata(device);
+      auto metadata = test::makeMetadata(queue);
       auto wrapper_original = test::wrapProduct<PortableCollectionType>(std::move(sourceCollection), metadata);
 
       // Now cast the wrapper to edm::WrapperBase, hiding the underlying collection type
@@ -157,7 +153,7 @@ TEST_CASE("Test MemoryCopyTraits", "[MemoryCopyTraits]") {
           alpaka_ngt::SerialiserFactoryDevice::get()->create(typeName)};
 
       // Create a "reader" and a "writer", then clone via memory regions
-      auto reader = serialiserSource->reader(*wb_original, *metadata, true);
+      auto reader = serialiserSource->reader(*wb_original, *metadata);
       auto writer = serialiserSource->writer();
 
       writer->initialize(queue, reader->parameters());
@@ -210,7 +206,7 @@ TEST_CASE("Test MemoryCopyTraits", "[MemoryCopyTraits]") {
       alpaka::memcpy(queue, sourceObject.buffer(), hostSource.buffer());
 
       // Wrap it in the WrapperBase (type-erased)
-      auto metadata = test::makeMetadata(device);
+      auto metadata = test::makeMetadata(queue);
       auto wrapper = test::wrapProduct<DeviceObjectType>(std::move(sourceObject), metadata);
       edm::WrapperBase const* wb = static_cast<const edm::WrapperBase*>(&wrapper);
 
@@ -221,7 +217,7 @@ TEST_CASE("Test MemoryCopyTraits", "[MemoryCopyTraits]") {
       REQUIRE(serialiser);
 
       // Read and write
-      auto reader = serialiser->reader(*wb, *metadata, true);
+      auto reader = serialiser->reader(*wb, *metadata);
       auto writer = serialiser->writer();
 
       writer->initialize(queue, reader->parameters());
@@ -290,7 +286,7 @@ TEST_CASE("Test MemoryCopyTraits", "[MemoryCopyTraits]") {
       alpaka::memcpy(queue, sourceCollection.buffer(), refHost.buffer());
 
       // Wrap it and cast to WrapperBase
-      auto metadata = test::makeMetadata(device);
+      auto metadata = test::makeMetadata(queue);
       auto wrapper = test::wrapProduct<DeviceCollection2Type>(std::move(sourceCollection), metadata);
       edm::WrapperBase const* wb = static_cast<const edm::WrapperBase*>(&wrapper);
 
@@ -301,7 +297,7 @@ TEST_CASE("Test MemoryCopyTraits", "[MemoryCopyTraits]") {
       REQUIRE(serialiser);
 
       // Read and write
-      auto reader = serialiser->reader(*wb, *metadata, true);
+      auto reader = serialiser->reader(*wb, *metadata);
       auto writer = serialiser->writer();
 
       writer->initialize(queue, reader->parameters());

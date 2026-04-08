@@ -70,14 +70,14 @@ class DQMPlotter:
             ">",  # triangle right
         ]
         self.processors = (
-            processors if processors is not None else multiprocessing.cpu_count()
+            processors if processors is not None else len(os.sched_getaffinity(0))
         )
 
     def _extend_color_palette(self, needed: int):
         """Ensure self.colors has at least 'needed' distinct entries."""
         if needed <= len(self.colors):
             return
-        
+
         extra_needed = needed - len(self.colors)
         new_colors = []
 
@@ -113,7 +113,7 @@ class DQMPlotter:
         for i in range(1, n_bins + 1):
             label = hist.GetXaxis().GetBinLabel(i)
             bin_labels.append(self._clean_bin_label(label) if label else "")
-        
+
         # Only use extracted labels if meaningful
         has_labels = any(label and not label.isdigit() for label in bin_labels)
 
@@ -139,11 +139,11 @@ class DQMPlotter:
         if ("p_{\mathrm{T}}" in ylabel and "pull" not in ylabel.lower()) or "Sigma" in title:
             if not has_negative_values:
                 ax.set_yscale("log")
-        
+
         if "vertpos" in xlabel:
             ax.set_xscale("log")
             xlabel = "vert r [cm]"
-        
+
         return xlabel, ylabel
 
     def _plot_histogram_data(self, ax, bin_centers, bin_contents, bin_errors, bin_edges, 
@@ -178,7 +178,7 @@ class DQMPlotter:
         """Calculate and plot ratio between current and reference histogram."""
         if ax_ratio is None:
             return []
-        
+
         tolerance = 1e-6
         matching_indices = []
 
@@ -192,7 +192,7 @@ class DQMPlotter:
 
         curr_idxs, ref_idxs = zip(*matching_indices)
         matching_centers = bin_centers[list(curr_idxs)]
-        
+
         matching_ref_contents = ref_contents[list(ref_idxs)]
         matching_contents = bin_contents[list(curr_idxs)]
         matching_ref_errors = ref_errors[list(ref_idxs)]
@@ -244,20 +244,20 @@ class DQMPlotter:
                 explicit_lines = lab.split("\\n")
                 wrapped.append("\n".join(explicit_lines))
                 continue
-            
+
             # Preserve " - " separator (for overlay labels like "File - Collection")
             if " - " in lab:
                 parts = lab.split(" - ", 1)  # Split only on first occurrence
                 file_part = parts[0]
                 collection_part = parts[1] if len(parts) > 1 else ""
-                
+
                 # If the combined length is too long, put on separate lines
                 if len(lab) > width:
                     wrapped.append(f"{file_part}\n- {collection_part}")
                 else:
                     wrapped.append(lab)
                 continue
-            
+
             # Automatic split using / or _
             parts = re.split(r'(/|_)+', lab)
             tokens = []
@@ -548,17 +548,23 @@ class DQMPlotter:
 
         return result
 
-    def find_histograms_in_file(self, root_file, pattern):
+    def find_histograms_in_file(self, root_file, patterns):
         """
-        Find all histogram paths matching a regex pattern in a ROOT file.
+        Find all histogram paths matching regex patterns in a ROOT file.
+
+        Traverses the directory tree once and checks each histogram against
+        all patterns, avoiding redundant I/O when multiple patterns are used.
 
         Args:
             root_file: Open ROOT file
-            pattern: Regex pattern to match histogram paths
+            patterns: Single pattern string or list of regex pattern strings
 
         Returns:
-            list: List of histogram paths that match the pattern
+            list: List of (histogram_path, matched_pattern) tuples
         """
+        if isinstance(patterns, str):
+            patterns = [patterns]
+        compiled = [re.compile(p) for p in patterns]
 
         def traverse_directory(directory, current_path=""):
             """Recursively traverse ROOT file directory structure."""
@@ -572,8 +578,10 @@ class DQMPlotter:
                     hist_paths.extend(traverse_directory(obj, obj_path))
                 # Skip 2D histograms
                 elif obj.InheritsFrom("TH1") and not obj.InheritsFrom("TH2"):
-                    if re.search(pattern, obj_path):
-                        hist_paths.append(obj_path)
+                    for pat in compiled:
+                        if pat.search(obj_path):
+                            hist_paths.append((obj_path, pat.pattern))
+                            break  # first match wins
 
             return hist_paths
 
@@ -591,13 +599,13 @@ class DQMPlotter:
         """
         if not overlay_specs:
             return []
-        
+
         groups = []
         for spec in overlay_specs:
             patterns = [p.strip() for p in spec.split(":")]
             if len(patterns) > 1:
                 groups.append(patterns)
-        
+
         return groups
 
     def _normalize_path_for_overlay(self, hist_path, overlay_patterns):
@@ -616,7 +624,7 @@ class DQMPlotter:
                 # Remove the matching pattern part
                 normalized = re.sub(pattern, "OVERLAY_PLACEHOLDER", hist_path)
                 return normalized, pattern
-        
+
         return None, None
 
     def _group_histograms_by_overlay(self, all_hists, overlay_groups):
@@ -632,27 +640,27 @@ class DQMPlotter:
         """
         grouped = {}
         used_hists = set()
-        
+
         for overlay_patterns in overlay_groups:
             # Find all histograms matching any pattern in this overlay group
             for hist_path in all_hists:
                 normalized, matched_pattern = self._normalize_path_for_overlay(
                     hist_path, overlay_patterns
                 )
-                
+
                 if normalized:
                     if normalized not in grouped:
                         grouped[normalized] = []
                     grouped[normalized].append((hist_path, matched_pattern))
                     used_hists.add(hist_path)
-        
+
         # Filter groups to only include those with multiple histograms
         filtered_groups = {
             norm_path: hists 
             for norm_path, hists in grouped.items() 
             if len(hists) > 1
         }
-        
+
         return filtered_groups, used_hists
 
     def _generate_overlay_output_path(self, normalized_path, matched_patterns, 
@@ -676,12 +684,12 @@ class DQMPlotter:
             name = re.sub(r'[^a-zA-Z0-9_]', '', pat)
             if name:
                 collection_names.append(name)
-        
+
         combined_name = "+".join(sorted(set(collection_names)))
-        
+
         # Replace placeholder with combined name
         overlay_path = normalized_path.replace("OVERLAY_PLACEHOLDER", combined_name)
-        
+
         return self._generate_output_path(overlay_path, pattern, output_dir)
 
     def plot_comparison(
@@ -768,7 +776,7 @@ class DQMPlotter:
 
         all_ratios = []
         ref_centers = ref_contents = ref_errors = None
-        
+
         for i, (hist, label) in enumerate(zip(histograms, labels)):
             bin_centers, bin_contents, bin_errors, bin_edges, bin_labels, has_labels = (
                 self.root_to_numpy(hist)
@@ -940,27 +948,15 @@ class DQMPlotter:
         all_matching_hists = set()
         hist_to_pattern = {}
 
-        print("Scanning all files for histograms matching the pattern(s)...")
-        for i, file_path in enumerate(file_paths):
-            try:
-                root_file = ROOT.TFile.Open(file_path, "READ")
-                if not root_file or root_file.IsZombie():
-                    print(f"Error: Could not open {file_path}")
-                    continue
+        print(f"Scanning all files for histograms matching the pattern(s) using {self.processors} parallel processes...")
+        scan_tasks = [{"file_path": fp, "patterns": patterns} for fp in file_paths]
+        with multiprocessing.Pool(self.processors) as pool:
+            scan_results = pool.map(scan_file_task, scan_tasks)
 
-                total_for_file = 0
-                for pat in patterns:
-                    file_hists = self.find_histograms_in_file(root_file, pat)
-                    total_for_file += len(file_hists)
-                    all_matching_hists.update(file_hists)
-                    for hp in file_hists:
-                        hist_to_pattern.setdefault(hp, pat)
-
-                root_file.Close()
-                print(f"Found {total_for_file} matching histograms in {file_path}")
-
-            except Exception as e:
-                print(f"Error scanning {file_path}: {e}")
+        for file_hists, file_hist_to_pattern in scan_results:
+            all_matching_hists.update(file_hists)
+            for hp, pat in file_hist_to_pattern.items():
+                hist_to_pattern.setdefault(hp, pat)
 
         if not all_matching_hists:
             joined = ", ".join(map(str, patterns))
@@ -972,29 +968,29 @@ class DQMPlotter:
         )
 
         plot_tasks = []
-        
+
         # Handle overlay groups if specified
         if overlay_groups:
             grouped_hists, used_hists = self._group_histograms_by_overlay(
                 all_matching_hists, overlay_groups
             )
-            
+
             if grouped_hists:
                 print(f"Found {len(grouped_hists)} histogram groups to overlay")
-                
+
                 # Create tasks for overlaid histograms
                 for normalized_path, hist_pattern_pairs in grouped_hists.items():
                     # Sort by pattern to ensure consistent ordering
                     hist_pattern_pairs = sorted(hist_pattern_pairs, key=lambda x: x[1])
                     hist_paths = [hp for hp, _ in hist_pattern_pairs]
                     matched_patterns = [pat for _, pat in hist_pattern_pairs]
-                    
+
                     # Use first pattern for output path generation
                     base_pattern = hist_to_pattern.get(hist_paths[0], patterns[0])
                     output_path = self._generate_overlay_output_path(
                         normalized_path, matched_patterns, base_pattern, output_dir
                     )
-                    
+
                     # For single file: overlay collections within the file
                     if len(file_paths) == 1:
                         # Load all histograms from different collections
@@ -1004,7 +1000,7 @@ class DQMPlotter:
                             collection = re.search(pattern, hist_path)
                             collection_name = collection.group(0) if collection else pattern
                             overlay_labels.append(f"{labels[0]} - {collection_name}")
-                        
+
                         plot_tasks.append({
                             "file_paths": file_paths * len(hist_paths),
                             "hist_path": hist_paths,
@@ -1020,7 +1016,7 @@ class DQMPlotter:
                         overlay_labels = []
                         extended_file_paths = []
                         extended_hist_paths = []
-                        
+
                         for file_idx, (file_path, file_label) in enumerate(zip(file_paths, labels)):
                             for hist_path, pattern in hist_pattern_pairs:
                                 collection = re.search(pattern, hist_path)
@@ -1028,7 +1024,7 @@ class DQMPlotter:
                                 overlay_labels.append(f"{file_label} - {collection_name}")
                                 extended_file_paths.append(file_path)
                                 extended_hist_paths.append(hist_path)
-                        
+
                         plot_tasks.append({
                             "file_paths": extended_file_paths,
                             "hist_path": extended_hist_paths,
@@ -1038,7 +1034,7 @@ class DQMPlotter:
                             "plot_kwargs": plot_kwargs,
                             "is_overlay": True,
                         })
-            
+
             # Process non-overlaid histograms separately
             if overlay_individual:
                 # Include individual plots for overlaid collections
@@ -1052,7 +1048,7 @@ class DQMPlotter:
                     print(f"Processing {len(remaining_hists)} non-overlaid histograms separately")
         else:
             remaining_hists = all_matching_hists
-        
+
         # Create tasks for non-overlaid histograms (standard behavior)
         for hist_path in sorted(remaining_hists):
             matched_pat = hist_to_pattern.get(hist_path, patterns[0])
@@ -1173,6 +1169,34 @@ class DQMPlotter:
                 print(f"\n{failed} tasks failed out of {len(plot_tasks)} total")
         print()
 
+def scan_file_task(task):
+    """Scan a single ROOT file for histograms matching patterns, in a separate process."""
+    try:
+        file_path = task["file_path"]
+        patterns = task["patterns"]
+
+        plotter = DQMPlotter()
+        root_file = ROOT.TFile.Open(file_path, "READ")
+        if not root_file or root_file.IsZombie():
+            print(f"Error: Could not open {file_path}")
+            return [], {}
+
+        results = plotter.find_histograms_in_file(root_file, patterns)
+        root_file.Close()
+
+        file_hists = [hp for hp, _ in results]
+        file_hist_to_pattern = {}
+        for hp, pat in results:
+            file_hist_to_pattern.setdefault(hp, pat)
+
+        print(f"Found {len(file_hists)} matching histograms in {file_path}")
+        return file_hists, file_hist_to_pattern
+
+    except Exception as e:
+        print(f"Error scanning {task.get('file_path', '?')}: {e}")
+        return [], {}
+
+
 def process_histogram_task(task):
     """Process a single histogram task in a separate process."""
     try:
@@ -1191,7 +1215,7 @@ def process_histogram_task(task):
             # hist_path is a list of paths for overlay mode
             histograms = []
             valid_labels = []
-            
+
             if isinstance(hist_path, list):
                 # Process in order to maintain consistent color/marker assignment
                 for fp, hp, lab in zip(file_paths, hist_path, labels):
@@ -1214,6 +1238,7 @@ def process_histogram_task(task):
     except Exception as e:
         print(f"Error in process_histogram_task: {e}")
         raise
+
 
 if __name__ == "__main__":
     """Command line interface for DQM plotter."""
@@ -1273,8 +1298,8 @@ if __name__ == "__main__":
         "-n",
         "--nProcessors",
         type=int,
-        default=None,
-        help="Number of parallel processes to use (default: auto-detect)",
+        default=4,
+        help="Number of parallel processes to use (default: 4). Set to 0 or negative to use all available threads.",
     )
     parser.add_argument(
         "--web",
@@ -1300,6 +1325,9 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+
+    if args.nProcessors < 1:
+        args.nProcessors = len(os.sched_getaffinity(0))
 
     plotter = DQMPlotter(processors=args.nProcessors)
 

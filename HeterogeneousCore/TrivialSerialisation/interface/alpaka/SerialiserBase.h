@@ -15,9 +15,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ngt {
   class SerialiserBase {
   public:
     virtual std::unique_ptr<WriterBase> writer() = 0;
-    virtual std::unique_ptr<const ReaderBase> reader(const edm::WrapperBase& wrapper,
-                                                     EDMetadata& metadata,
-                                                     bool tryReuseQueue) = 0;
+    virtual std::unique_ptr<const ReaderBase> reader(const edm::WrapperBase& wrapper, EDMetadata& metadata) = 0;
 
     virtual ~SerialiserBase() = default;
   };

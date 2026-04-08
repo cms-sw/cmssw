@@ -20,7 +20,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return;
     }
 
-    // If the event has been discarded, the produce() function that
+    // If the event has not been set, the produce() function that
     // constructed this EDMetadata object did not launch any
     // asynchronous work.
     if (not event_) {
@@ -35,15 +35,40 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     eventComplete_ = true;
   }
 
-  void EDMetadata::synchronize(EDMetadata& consumer, bool tryReuseQueue) const {
-    if (*queue_ == *consumer.queue_) {
-      return;
-    }
+  // "consumer" is the metadata from an EDProducer's device::Event.
+  // If the consumer queue is not set, try to reuse the queue from the
+  // device product, or allocate a new one.
+  void EDMetadata::synchronize(EDMetadata& consumer) const {
+    assert(queue_);
 
-    if (tryReuseQueue) {
-      if (auto queue = tryReuseQueue_()) {
+    if (consumer.queue_) {
+      if (*queue_ == *consumer.queue_) {
+        // The consumer uses the same queue as the product, no
+        // synchronisation is required.
+        return;
+      } else {
+        // The consumer uses a different queue than the product.
+        // Make sure they use the same device.
+        // TODO: is this check really necessary?
+        if (device_ != consumer.device_) {
+          throw edm::Exception(edm::errors::LogicError) << "Handling data from multiple devices is not yet supported";
+        }
+      }
+    } else {
+      // The consumer does not have a queue, yet.
+      if (tryReuseQueue_()) {
+        // The consumer will use the same queue as the product, no
+        // synchronisation is required.
         consumer.queue_ = queue_;
         return;
+      } else {
+        // The consumer will use a new queue.
+        // Make sure they use the same device.
+        // TODO: is this check really necessary?
+        if (device_ != consumer.device_) {
+          throw edm::Exception(edm::errors::LogicError) << "Handling data from multiple devices is not yet supported";
+        }
+        consumer.queue_ = cms::alpakatools::getQueueCache<Queue>().get(consumer.device_);
       }
     }
 
@@ -51,12 +76,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return;
     }
 
-    // TODO: how necessary this check is?
-    if (alpaka::getDev(*queue_) != alpaka::getDev(*consumer.queue_)) {
-      throw edm::Exception(edm::errors::LogicError) << "Handling data from multiple devices is not yet supported";
-    }
-
-    // If the event has been discarded, the produce() function that
+    // If the event has not been set, the produce() function that
     // constructed this EDMetadata object did not launch any
     // asynchronous work.
     if (not event_) {
@@ -75,14 +95,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   }
 
-  std::shared_ptr<Queue> EDMetadata::tryReuseQueue_() const {
+  bool EDMetadata::tryReuseQueue_() const {
     bool expected = true;
-    if (mayReuseQueue_.compare_exchange_strong(expected, false)) {
-      // If the current thread is the one flipping the flag, it may
-      // reuse the queue.
-      return queue_;
-    }
-    return nullptr;
+    // If the current thread is the one flipping the flag, it may
+    // reuse the queue.
+    return mayReuseQueue_.compare_exchange_strong(expected, false);
   }
 #endif
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
