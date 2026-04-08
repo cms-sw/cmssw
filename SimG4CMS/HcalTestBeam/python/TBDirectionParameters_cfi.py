@@ -7,6 +7,9 @@ common_beam_direction_parameters = cms.PSet(
     MinEta       = cms.double(0.2175),
     MaxEta       = cms.double(0.2175),
     MinPhi       = cms.double(-0.1309),
-    MaxPhi       = cms.double(-0.1309),
+    MaxPhi       = cms.double(-0.1309)
+)
+
+common_beam_position_parameters = cms.PSet(
     BeamPosition = cms.double(-800.0)
-    )
+)

@@ -5,6 +5,7 @@ from SimG4CMS.HcalTestBeam.TBDirectionParameters_cfi import *
 
 VtxSmeared = cms.EDProducer("BeamProfileVtxGenerator",
                             common_beam_direction_parameters,
+                            common_beam_position_parameters,
                             VtxSmearedCommon,
                             BeamMeanX       = cms.double(0.0),
                             BeamMeanY       = cms.double(0.0),
