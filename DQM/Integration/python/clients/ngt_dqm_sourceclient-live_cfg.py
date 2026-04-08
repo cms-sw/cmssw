@@ -94,6 +94,7 @@ process.load("DQMOffline.Trigger.dqmHLTFiltersDQMonitor_cfi")
 process.dqmHLTFiltersDQMonitor.triggerEvent = 'hltTriggerSummaryAOD::HLT'
 process.dqmHLTFiltersDQMonitor.triggerResults = 'TriggerResults::HLT'
 process.dqmHLTFiltersDQMonitor.folderName = "NGT/Filters"
+process.dqmHLTFiltersDQMonitor.lightMonitor = True
 
 process.p = cms.Path(process.dqmcommon *
                      process.hltOnlineBeamSpot *
