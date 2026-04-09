@@ -120,6 +120,7 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
   // 2D eta-phi occupancy histograms
   h2_eta_phi = ibooker.book2I(
       "eta_vs_phi", "Track occupancy;#eta;#phi [rad]", 50, -3.0, 3.0, 50, -std::numbers::pi, std::numbers::pi);
+  h2_eta_phi->setOption("colz");
 
   // 2D eta-phi profiles
   p2_dxy_eta_phi = ibooker.bookProfile2D("dxy_vs_eta_phi",
@@ -133,6 +134,7 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
                                          -0.01 * cmToUm,
                                          0.01 * cmToUm,
                                          "");
+  p2_dxy_eta_phi->setOption("colz");
 
   p2_dz_eta_phi = ibooker.bookProfile2D("dz_vs_eta_phi",
                                         "d_{z} vs #eta-#phi;#eta;#phi [rad];#LTd_{z}#GT [#mum]",
@@ -145,6 +147,7 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
                                         -0.05 * cmToUm,
                                         0.05 * cmToUm,
                                         "");
+  p2_dz_eta_phi->setOption("colz");
 
   p2_nValidPixelHits_eta_phi =
       ibooker.bookProfile2D("nValidPixelHits_vs_eta_phi_prof",
@@ -158,6 +161,7 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
                             0.,
                             10.,
                             "");
+  p2_nValidPixelHits_eta_phi->setOption("colz");
 
   p2_nTrackerLayersWithMeasurement_eta_phi = ibooker.bookProfile2D(
       "nTrackerLayersWithMeasurement_vs_eta_phi_prof",
@@ -171,6 +175,7 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
       0.,
       20.,
       "");
+  p2_nTrackerLayersWithMeasurement_eta_phi->setOption("colz");
 
   p2_nValidStripHits_eta_phi =
       ibooker.bookProfile2D("nValidStripHits_vs_eta_phi_prof",
@@ -184,6 +189,7 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
                             0.,
                             30.,
                             "");
+  p2_nValidStripHits_eta_phi->setOption("colz");
 }
 
 // main event loop
