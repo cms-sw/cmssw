@@ -40,6 +40,7 @@ private:
   std::string processName_;
   bool initFailed_;
   bool skipRun_;
+  bool lightMonitor_;  // in case triggerEvent is missing from EventContent
 
   MonitorElement* meMenu_;
   std::unordered_map<std::string, MonitorElement*> meDatasetMap_;
@@ -61,6 +62,7 @@ HLTFiltersDQMonitor::HLTFiltersDQMonitor(const edm::ParameterSet& iConfig)
       processName_(""),
       initFailed_(false),
       skipRun_(false),
+      lightMonitor_(iConfig.getParameter<bool>("lightMonitor")),
       meMenu_(nullptr) {
   auto const& triggerResultsInputTag = iConfig.getParameter<edm::InputTag>("triggerResults");
 
@@ -172,6 +174,10 @@ void HLTFiltersDQMonitor::bookHistograms(DQMStore::IBooker& iBooker,
   for (size_t idx = 0; idx < triggerNames.size(); ++idx) {
     binIndexMap_[triggerNames[idx]] = idx + 1;
   }
+
+  // in case it's light monitoring, return here
+  if (lightMonitor_)
+    return;
 
   LogTrace("HLTFiltersDQMonitor") << "[HLTFiltersDQMonitor::bookHistograms] HLTConfigProvider::size() = "
                                   << hltConfigProvider_.size()
@@ -331,6 +337,10 @@ void HLTFiltersDQMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
                                            << iPathName << "\", bin_index=" << ibin;
     }
   }
+
+  // if it's light Monitoring do not do further work
+  if (lightMonitor_)
+    return;
 
   auto const& triggerEventHandle = iEvent.getHandle(triggerEventToken_);
   edm::Handle<trigger::TriggerEventWithRefs> triggerEventWithRefs;
@@ -536,6 +546,7 @@ void HLTFiltersDQMonitor::fillDescriptions(edm::ConfigurationDescriptions& descr
   edm::ParameterSetDescription desc;
   desc.add<std::string>("folderName", "HLT/Filters");
   desc.add<std::string>("efficPlotNamePrefix", "effic_");
+  desc.add<bool>("lightMonitor", false);
   desc.add<edm::InputTag>("triggerResults", edm::InputTag("TriggerResults::HLT"));
   desc.add<edm::InputTag>("triggerEvent", edm::InputTag("hltTriggerSummaryAOD::HLT"));
   desc.add<edm::InputTag>("triggerEventWithRefs", edm::InputTag("hltTriggerSummaryRAW::HLT"));

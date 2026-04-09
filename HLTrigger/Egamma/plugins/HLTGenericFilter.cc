@@ -213,44 +213,27 @@ bool HLTGenericFilter<T1>::hltFilter(edm::Event& iEvent,
     cutOverE2EB_ = thrOverE2EB_.at(iEn);
     cutOverE2EE_ = thrOverE2EE_.at(iEn);
 
-    if (lessThan_) {
-      if ((std::abs(EtaSC) < 1.479 && vali <= cutRegularEB_) || (std::abs(EtaSC) >= 1.479 && vali <= cutRegularEE_)) {
-        n++;
-        filterproduct.addObject(trigger_type, ref);
-        continue;
-      }
-      if (energy > 0. && (cutOverEEB_ > 0. || cutOverEEE_ > 0. || cutOverE2EB_ > 0. || cutOverE2EE_ > 0.)) {
-        if ((std::abs(EtaSC) < 1.479 && vali / energy <= cutOverEEB_) ||
-            (std::abs(EtaSC) >= 1.479 && vali / energy <= cutOverEEE_)) {
-          n++;
-          filterproduct.addObject(trigger_type, ref);
-          continue;
-        }
-        if ((std::abs(EtaSC) < 1.479 && vali / (energy * energy) <= cutOverE2EB_) ||
-            (std::abs(EtaSC) >= 1.479 && vali / (energy * energy) <= cutOverE2EE_)) {
-          n++;
-          filterproduct.addObject(trigger_type, ref);
-        }
-      }
-    } else {
-      if ((std::abs(EtaSC) < 1.479 && vali >= cutRegularEB_) || (std::abs(EtaSC) >= 1.479 && vali >= cutRegularEE_)) {
-        n++;
-        filterproduct.addObject(trigger_type, ref);
-        continue;
-      }
-      if (energy > 0. && (cutOverEEB_ > 0. || cutOverEEE_ > 0. || cutOverE2EB_ > 0. || cutOverE2EE_ > 0.)) {
-        if ((std::abs(EtaSC) < 1.479 && vali / energy >= cutOverEEB_) ||
-            (std::abs(EtaSC) >= 1.479 && vali / energy >= cutOverEEE_)) {
-          n++;
-          filterproduct.addObject(trigger_type, ref);
-          continue;
-        }
-        if ((std::abs(EtaSC) < 1.479 && vali / (energy * energy) >= cutOverE2EB_) ||
-            (std::abs(EtaSC) >= 1.479 && vali / (energy * energy) >= cutOverE2EE_)) {
-          n++;
-          filterproduct.addObject(trigger_type, ref);
-        }
-      }
+    const bool isEB = std::abs(EtaSC) < 1.479;
+
+    // pick the right parameters once
+    const float cutRegular = isEB ? cutRegularEB_ : cutRegularEE_;
+    const float cutOverE = isEB ? cutOverEEB_ : cutOverEEE_;
+    const float cutOverE2 = isEB ? cutOverE2EB_ : cutOverE2EE_;
+
+    // helper lambda for comparison direction
+    auto pass = [lessThan = lessThan_](float lhs, float rhs) { return lessThan ? (lhs <= rhs) : (lhs >= rhs); };
+
+    bool accepted = pass(vali, cutRegular);
+    if (!accepted && energy > 0. && (cutOverEEB_ > 0. || cutOverEEE_ > 0. || cutOverE2EB_ > 0. || cutOverE2EE_ > 0.)) {
+      accepted |= pass(vali / energy, cutOverE);
+      accepted |= pass(vali / (energy * energy), cutOverE2);
+    }
+
+    // single decision point
+    if (accepted) {
+      n++;
+      filterproduct.addObject(trigger_type, ref);
+      continue;
     }
   }
 

@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from  FWCore.ParameterSet.Config import ModifierChain,Modifier
+import Configuration.Eras
+import pkgutil
 
 class Eras (object):
     """
@@ -7,151 +9,25 @@ class Eras (object):
     can use to selectively configure depending on what scenario is active.
     """
     def __init__(self):
-        allEras=['Run1_pA',
-                 'Run1_peripheralPbPb',
-                 'Run2_50ns',
-                 'Run2_50ns_HIPM',
-                 'Run2_25ns',
-                 'Run2_25ns_HIPM',
-                 'Run2_25ns_peripheralPbPb',
-                 'Run2_HI',
-                 'Run2_2016',
-                 'Run2_2016_HIPM',
-                 'Run2_2016_trackingLowPU',
-                 'Run2_2016_pA',
-                 'Run2_2016_UPC',
-                 'Run2_2017',
-                 'Run2_2017_noMkFit',
-                 'Run2_2017_FastSim', #new modifier for Phase1 FastSim, skips the muon GEM sequence
-                 'Run2_2017_trackingRun2',
-                 'Run2_2017_trackingLowPU',
-                 'Run2_2017_pp_on_XeXe',
-                 'Run2_2017_ppRef',
-                 'Run2_2018',
-                 'Run2_2018_FastSim', #new modifier for Phase1 FastSim, skips the muon GEM sequence
-                 'Run2_2018_pp_on_AA',
-                 'Run2_2018_pp_on_AA_noHCALmitigation',
-                 'Run2_2018_highBetaStar',
-                 'Run2_2018_noMkFit',
-                 'Run3',
-                 'Run3_2023',
-                 'Run3_2024',
-                 'Run3_2025',
-                 'Run3_2026',
-                 'Run3_noMkFit',
-                 'Run3_pp_on_PbPb',
-                 'Run3_pp_on_PbPb_approxSiStripClusters',
-                 'Run3_pp_on_PbPb_2023',
-                 'Run3_pp_on_PbPb_approxSiStripClusters_2023',
-                 'Run3_pp_on_PbPb_2024',
-                 'Run3_pp_on_PbPb_approxSiStripClusters_2024',
-                 'Run3_pp_on_PbPb_2025',
-                 'Run3_pp_on_PbPb_approxSiStripClusters_2025',
-                 'Run3_pp_on_PbPb_approxSiStripClusters_2025_rawSecond',
-                 'Run3_pp_on_PbPb_2026',
-                 'Run3_pp_on_PbPb_approxSiStripClusters_2026',
-                 'Run3_dd4hep',
-                 'Run3_DDD',
-                 'Run3_FastSim',
-                 'Run3_2023_FastSim',
-                 'Run3_2023_ZDC',
-                 'Run3_2023_UPC',
-                 'Run3_2024_ppRef',
-                 'Run3_2024_UPC',
-                 'Run3_2024_FastSim',
-                 'Run3_2025_UPC',
-                 'Run3_2025_OXY',
-                 'Run3_2025_UPC_OXY',
-                 'Run3_2025_NEON',
-                 'Run3_2025_FastSim',
-                 'Run3_2026_FastSim',
-                 'Run3_2026_UPC',
-                 'Phase2',
-                 'Phase2_noMkFit',
-                 'Phase2C9',
-                 'Phase2C9_noMkFit',
-                 'Phase2C10',
-                 'Phase2C10_noMkFit',
-                 'Phase2C11',
-                 'Phase2C11_noMkFit',
-                 'Phase2C12',
-                 'Phase2C12_noMkFit',
-                 'Phase2C9_dd4hep',
-                 'Phase2C9_dd4hep_noMkFit',
-                 'Phase2C10_dd4hep',
-                 'Phase2C10_dd4hep_noMkFit',
-                 'Phase2C11_dd4hep',
-                 'Phase2C11_dd4hep_noMkFit',
-                 'Phase2C11I13',
-                 'Phase2C11I13_noMkFit',
-                 'Phase2C12_dd4hep',
-                 'Phase2C12_dd4hep_noMkFit',
-                 'Phase2C11M9',
-                 'Phase2C11M9_noMkFit',
-                 'Phase2C11I13M9',
-                 'Phase2C11I13M9_noMkFit',
-                 'Phase2C11I13T25M9',
-                 'Phase2C11I13T25M9_noMkFit',
-                 'Phase2C11I13T26M9',
-                 'Phase2C11I13T26M9_noMkFit',
-                 'Phase2C17I13M9',
-                 'Phase2C17I13M9_noMkFit',
-                 'Phase2C17I13M9_FastSim',
-                 'Phase2C20I13M9',
-                 'Phase2C20I13M9_noMkFit', 
-                 'Phase2C22I13M9',
-                 'Phase2C22I13M9_noMkFit',
-                 'Phase2C22I13M9_FastSim',
-                 'Phase2C26I13M9',
-                 'Phase2C26I13M9_noMkFit'
-        ]
-
-        internalUseMods = ['run2_common', 'run2_25ns_specific',
-                           'run2_50ns_specific', 'run2_HI_specific',
-                           'stage1L1Trigger', 'fastSim',
-                           'peripheralPbPb', 'pA_2016',
-                           'run2_HE_2017', 'stage2L1Trigger', 'stage2L1Trigger_2017', 'stage2L1Trigger_2018', 'stage2L1Trigger_2021',
-                           'run2_HF_2017', 'run2_HCAL_2017', 'run2_HEPlan1_2017', 'run2_HB_2018','run2_HE_2018',
-                           'run3_HB', 'run3_HFSL', 'run3_common', 'run3_RPC',
-                           'phase1Pixel', 'run3_GEM', 'run2_GEM_2017',
-                           'run3_SiPixel_2025',
-                           'run2_CSC_2018',
-                           'phase2_common', 'phase2_tracker',
-                           'phase2_muon', 'phase2_GEM', 'phase2_GE0',
-                           'phase2_hgcal', 'phase2_timing', 'phase2_hfnose', 'phase2_hgcalV10', 'phase2_hgcalV11', 'phase2_hgcalV12',
-                           'phase2_timing_layer', 'phase2_etlV4', 'phase2_hcal', 'phase2_ecal','phase2_ecal_devel', 'phase2_ecalTP_devel',
-                           'phase2_trigger',
-                           'phase2_squarePixels', 'phase2_3DPixels',
-                           'trackingLowPU', 'trackingPhase1',
-                           'ctpps', 'ctpps_2016', 'ctpps_2017', 'ctpps_2018', 'ctpps_2022',
-                           'trackingPhase2PU140','highBetaStar',
-                           'tracker_apv_vfp30_2016', 'pf_badHcalMitigationOff',
-                           'run2_nanoAOD_106Xv2',
-                           'run3_nanoAOD_pre142X',
-                           'run3_ecal_devel',
-                           'run3_upc', 'run3_oxygen',
-                           'hcalHardcodeConditions', 'hcalSkipPacker',
-                           'run2_HLTconditions_2016','run2_HLTconditions_2017','run2_HLTconditions_2018',
-                           'bParking']
-        internalUseModChains = ['run2_2017_noTrackingModifier', 'trackingMkFitProd']
+        allModules = [name for _, name, _ in pkgutil.iter_modules(Configuration.Eras.__path__)]
+        prefixes = ['Era_', 'Modifier_', 'ModifierChain_']
+        allEras = [m for m in allModules if any([m.startswith(p) for p in prefixes])]
 
         self.pythonCfgLines = {}
 
+        def importEraObj(modName):
+            import importlib
+            import re
+            p_pattern = '|'.join(prefixes)
+            s_pattern = '|'.join(['_cff'])
+            eraName = re.match(rf'^(?:{p_pattern})(.*)(?:{s_pattern})$', modName).group(1)
+            eraObj = getattr(importlib.import_module(f'Configuration.Eras.{modName}'), eraName)
+            return eraName, eraObj
+
         for e in allEras:
-            eObj=getattr(__import__('Configuration.Eras.Era_'+e+'_cff',globals(),locals(),[e],0),e)
-            self.addEra(e,eObj)
-            self.pythonCfgLines[e] = 'from Configuration.Eras.Era_'+e+'_cff import '+e
-
-        for e in internalUseMods:
-            eObj=getattr(__import__('Configuration.Eras.Modifier_'+e+'_cff',globals(),locals(),[e],0),e)
-            self.addEra(e,eObj)
-            self.pythonCfgLines[e] = 'from Configuration.Eras.Modifier_'+e+'_cff import '+e
-
-        for e in internalUseModChains:
-            eObj=getattr(__import__('Configuration.Eras.ModifierChain_'+e+'_cff',globals(),locals(),[e],0),e)
-            self.addEra(e,eObj)
-            self.pythonCfgLines[e] = 'from Configuration.Eras.ModifierChain_'+e+'_cff import '+e
-
+            eName, eObj = importEraObj(e)
+            self.addEra(eName,eObj)
+            self.pythonCfgLines[eName] = f'from Configuration.Eras.{e} import {eName}'
 
     def addEra(self,name,obj):
         setattr(self,name,obj)
