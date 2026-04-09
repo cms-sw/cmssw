@@ -2,6 +2,7 @@
 #include <cmath>
 #include <vector>
 #include <numbers>
+#include <fmt/format.h>
 
 // user includes
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -17,11 +18,76 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+namespace sctTrackMonitor {
+  // same logic used for the MTV:
+  // cf https://github.com/cms-sw/cmssw/blob/master/Validation/RecoTrack/src/MTVHistoProducerAlgoForTracker.cc
+  typedef dqm::reco::DQMStore DQMStore;
+
+  inline void setBinLog(TAxis* axis) {
+    int bins = axis->GetNbins();
+    float from = axis->GetXmin();
+    float to = axis->GetXmax();
+    float width = (to - from) / bins;
+    std::vector<float> new_bins(bins + 1, 0);
+    for (int i = 0; i <= bins; i++) {
+      new_bins[i] = TMath::Power(10, from + i * width);
+    }
+    axis->Set(bins, new_bins.data());
+  }
+
+  inline void setBinLogX(TH1* h) {
+    TAxis* axis = h->GetXaxis();
+    setBinLog(axis);
+  }
+  inline void setBinLogY(TH1* h) {
+    TAxis* axis = h->GetYaxis();
+    setBinLog(axis);
+  }
+
+  template <typename... Args>
+  dqm::reco::MonitorElement* makeProfileIfLog(DQMStore::IBooker& ibook, bool logx, bool logy, Args&&... args) {
+    auto prof = std::make_unique<TProfile>(std::forward<Args>(args)...);
+    if (logx)
+      setBinLogX(prof.get());
+    if (logy)
+      setBinLogY(prof.get());
+    const auto& name = prof->GetName();
+    return ibook.bookProfile(name, prof.release());
+  }
+
+  template <typename... Args>
+  dqm::reco::MonitorElement* makeTH1IfLog(DQMStore::IBooker& ibook, bool logx, bool logy, Args&&... args) {
+    auto h1 = std::make_unique<TH1F>(std::forward<Args>(args)...);
+    if (logx)
+      setBinLogX(h1.get());
+    if (logy)
+      setBinLogY(h1.get());
+    const auto& name = h1->GetName();
+    return ibook.book1D(name, h1.release());
+  }
+
+}  // namespace sctTrackMonitor
+
 class ScoutingTrackMonitor : public DQMEDAnalyzer {
 public:
   explicit ScoutingTrackMonitor(const edm::ParameterSet&);
   ~ScoutingTrackMonitor() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  struct IPMonitoring {
+    std::string varname_;
+    float pTcut_;
+    dqm::reco::MonitorElement *IP_, *IPErr_, *IPPull_;
+    dqm::reco::MonitorElement *IPVsPhi_, *IPVsEta_, *IPVsPt_;
+    dqm::reco::MonitorElement *IPErrVsPhi_, *IPErrVsEta_, *IPErrVsPt_;
+    dqm::reco::MonitorElement *IPVsEtaVsPhi_, *IPErrVsEtaVsPhi_;
+
+    void bookIPMonitor(DQMStore::IBooker&, const edm::ParameterSet&);
+
+  private:
+    int PhiBin_, EtaBin_, PtBin_;
+    double PhiMin_, PhiMax_, EtaMin_, EtaMax_, PtMin_, PtMax_;
+  };
 
 protected:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -47,6 +113,9 @@ private:
 
     return {tk_dxyPV, tk_dzPV};
   }
+
+  // configuration
+  const edm::ParameterSet conf_;
 
   // tokens
   const edm::EDGetTokenT<std::vector<Run3ScoutingTrack>> tracksToken_;
@@ -74,6 +143,13 @@ private:
 
   static constexpr int cmToUm = 10000;
 
+  // IP monitoring structs
+  IPMonitoring dxy_pt1;
+  IPMonitoring dxy_pt10;
+
+  IPMonitoring dz_pt1;
+  IPMonitoring dz_pt10;
+
   // helpers
   reco::Track makeRecoTrack(const Run3ScoutingTrack& sTrack) const;
   reco::Vertex makeRecoVertex(const Run3ScoutingVertex& sVertex) const;
@@ -83,7 +159,8 @@ private:
 
 // constructor
 ScoutingTrackMonitor::ScoutingTrackMonitor(const edm::ParameterSet& iConfig)
-    : tracksToken_{consumes<std::vector<Run3ScoutingTrack>>(iConfig.getParameter<edm::InputTag>("tracks"))},
+    : conf_(iConfig),
+      tracksToken_{consumes<std::vector<Run3ScoutingTrack>>(iConfig.getParameter<edm::InputTag>("tracks"))},
       verticesToken_{consumes<std::vector<Run3ScoutingVertex>>(iConfig.getParameter<edm::InputTag>("vertices"))},
       topFolderName_{iConfig.getParameter<std::string>("topFolderName")} {}
 
@@ -190,6 +267,185 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
                             30.,
                             "");
   p2_nValidStripHits_eta_phi->setOption("colz");
+
+  // initialize and book the monitors;
+  dxy_pt1.varname_ = "xy";
+  dxy_pt1.pTcut_ = 1.f;
+  dxy_pt1.bookIPMonitor(ibooker, conf_);
+
+  dxy_pt10.varname_ = "xy";
+  dxy_pt10.pTcut_ = 10.f;
+  dxy_pt10.bookIPMonitor(ibooker, conf_);
+
+  dz_pt1.varname_ = "z";
+  dz_pt1.pTcut_ = 1.f;
+  dz_pt1.bookIPMonitor(ibooker, conf_);
+
+  dz_pt10.varname_ = "z";
+  dz_pt10.pTcut_ = 10.f;
+  dz_pt10.bookIPMonitor(ibooker, conf_);
+}
+
+void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooker, const edm::ParameterSet& config) {
+  int VarBin = config.getParameter<int>(fmt::format("D{}Bin", varname_));
+  double VarMin = config.getParameter<double>(fmt::format("D{}Min", varname_));
+  double VarMax = config.getParameter<double>(fmt::format("D{}Max", varname_));
+
+  PhiBin_ = config.getParameter<int>("PhiBin");
+  PhiMin_ = config.getParameter<double>("PhiMin");
+  PhiMax_ = config.getParameter<double>("PhiMax");
+  int PhiBin2D = config.getParameter<int>("PhiBin2D");
+
+  EtaBin_ = config.getParameter<int>("EtaBin");
+  EtaMin_ = config.getParameter<double>("EtaMin");
+  EtaMax_ = config.getParameter<double>("EtaMax");
+  int EtaBin2D = config.getParameter<int>("EtaBin2D");
+
+  PtBin_ = config.getParameter<int>("PtBin");
+  PtMin_ = config.getParameter<double>("PtMin") * pTcut_;
+  PtMax_ = config.getParameter<double>("PtMax") * pTcut_;
+
+  // 1D variables
+
+  IP_ = iBooker.book1D(fmt::format("d{}_pt{}", varname_, pTcut_),
+                       fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_),
+                       VarBin,
+                       VarMin,
+                       VarMax);
+
+  IPErr_ = iBooker.book1D(fmt::format("d{}Err_pt{}", varname_, pTcut_),
+                          fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_),
+                          100,
+                          0.,
+                          (varname_.find("xy") != std::string::npos) ? 2000. : 10000.);
+
+  IPPull_ = iBooker.book1D(
+      fmt::format("d{}Pull_pt{}", varname_, pTcut_),
+      fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}}/#sigma_{{d_{{{}}}}}", pTcut_, varname_, varname_),
+      100,
+      -5.,
+      5.);
+
+  // IP profiles
+
+  IPVsPhi_ = iBooker.bookProfile(fmt::format("d{}VsPhi_pt{}", varname_, pTcut_),
+                                 fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} VS track #phi", pTcut_, varname_),
+                                 PhiBin_,
+                                 PhiMin_,
+                                 PhiMax_,
+                                 VarBin,
+                                 VarMin,
+                                 VarMax,
+                                 "");
+  IPVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 1);
+  IPVsPhi_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_), 2);
+
+  IPVsEta_ = iBooker.bookProfile(fmt::format("d{}VsEta_pt{}", varname_, pTcut_),
+                                 fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} VS track #eta", pTcut_, varname_),
+                                 EtaBin_,
+                                 EtaMin_,
+                                 EtaMax_,
+                                 VarBin,
+                                 VarMin,
+                                 VarMax,
+                                 "");
+  IPVsEta_->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
+  IPVsEta_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_), 2);
+
+  IPVsPt_ = sctTrackMonitor::makeProfileIfLog(
+      iBooker,
+      true,  /* x-axis */
+      false, /* y-axis */
+      fmt::format("d{}VsPt_pt{}", varname_, pTcut_).c_str(),
+      fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} VS track p_{{T}}", pTcut_, varname_).c_str(),
+      PtBin_,
+      log10(PtMin_),
+      log10(PtMax_),
+      VarMin,
+      VarMax,
+      "");
+  IPVsPt_->setAxisTitle("PV track (p_{T} > 1 GeV) p_{T} [GeV]", 1);
+  IPVsPt_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_), 2);
+
+  // IP error profiles
+
+  IPErrVsPhi_ =
+      iBooker.bookProfile(fmt::format("d{}ErrVsPhi_pt{}", varname_, pTcut_),
+                          fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} error VS track #phi", pTcut_, varname_),
+                          PhiBin_,
+                          PhiMin_,
+                          PhiMax_,
+                          VarBin,
+                          0.,
+                          (varname_.find("xy") != std::string::npos) ? 100. : 200.,
+                          "");
+  IPErrVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 1);
+  IPErrVsPhi_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_), 2);
+
+  IPErrVsEta_ =
+      iBooker.bookProfile(fmt::format("d{}ErrVsEta_pt{}", varname_, pTcut_),
+                          fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} error VS track #eta", pTcut_, varname_),
+                          EtaBin_,
+                          EtaMin_,
+                          EtaMax_,
+                          VarBin,
+                          0.,
+                          (varname_.find("xy") != std::string::npos) ? 100. : 200.,
+                          "");
+  IPErrVsEta_->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
+  IPErrVsEta_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_), 2);
+
+  IPErrVsPt_ = sctTrackMonitor::makeProfileIfLog(
+      iBooker,
+      true,  /* x-axis */
+      false, /* y-axis */
+      fmt::format("d{}ErrVsPt_pt{}", varname_, pTcut_).c_str(),
+      fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} error VS track p_{{T}}", pTcut_, varname_).c_str(),
+      PtBin_,
+      log10(PtMin_),
+      log10(PtMax_),
+      VarMin,
+      VarMax,
+      "");
+  IPErrVsPt_->setAxisTitle("PV track (p_{T} > 1 GeV) p_{T} [GeV]", 1);
+  IPErrVsPt_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_), 2);
+
+  // 2D profiles
+
+  IPVsEtaVsPhi_ = iBooker.bookProfile2D(
+      fmt::format("d{}VsEtaVsPhi_pt{}", varname_, pTcut_),
+      fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} VS track #eta VS track #phi", pTcut_, varname_),
+      EtaBin2D,
+      EtaMin_,
+      EtaMax_,
+      PhiBin2D,
+      PhiMin_,
+      PhiMax_,
+      VarBin,
+      VarMin,
+      VarMax,
+      "");
+  IPVsEtaVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
+  IPVsEtaVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 2);
+  IPVsEtaVsPhi_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_), 3);
+
+  IPErrVsEtaVsPhi_ = iBooker.bookProfile2D(
+      fmt::format("d{}ErrVsEtaVsPhi_pt{}", varname_, pTcut_),
+      fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} error VS track #eta VS track #phi", pTcut_, varname_),
+      EtaBin2D,
+      EtaMin_,
+      EtaMax_,
+      PhiBin2D,
+      PhiMin_,
+      PhiMax_,
+      VarBin,
+      0.,
+      (varname_.find("xy") != std::string::npos) ? 100. : 200.,
+      "");
+  IPErrVsEtaVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
+  IPErrVsEtaVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 2);
+  IPErrVsEtaVsPhi_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_),
+                                 3);
 }
 
 // main event loop
@@ -202,30 +458,31 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
 
   for (const auto& trk : tracks) {
     // --- build reco track ---
-    //reco::Track recoTrk = makeRecoTrack(trk);
-    //auto [vtxIndex, closestVtx] = findClosestScoutingVertex(&recoTrk, vertices);
-    //if (!closestVtx)
-    //  continue;
+    reco::Track recoTrk = makeRecoTrack(trk);
+    auto [vtxIndex, closestVtx] = findClosestScoutingVertex(&recoTrk, vertices);
+    if (!closestVtx)
+      continue;
 
-    // initialize the impact parameters to large values
-    std::pair<float, float> best_offset{9999.f, 99999.f};
+    // // initialize the impact parameters to large values
+    // std::pair<float, float> best_offset{9999.f, 99999.f};
 
-    // loop on all the vertices and find the closest one
-    unsigned int vtxIndex = 999;
-    unsigned int idx = 0;
-    for (const auto& vtx : vertices) {
-      const auto offset = trk_vtx_offSet(trk, vtx);
-      if (std::abs(offset.second) < std::abs(best_offset.second)) {
-        best_offset = offset;
-        vtxIndex = idx;  // save the index of the best vertex
-      }
-      idx++;
-    }
+    // // loop on all the vertices and find the closest one
+    // unsigned int vtxIndex = 999;
+    // unsigned int idx = 0;
+    // for (const auto& vtx : vertices) {
+    //   const auto offset = trk_vtx_offSet(trk, vtx);
+    //   if (std::abs(offset.second) < std::abs(best_offset.second)) {
+    //     best_offset = offset;
+    //     vtxIndex = idx;  // save the index of the best vertex
+    //   }
+    //   idx++;
+    // }
 
     h_vtx_idx->Fill(vtxIndex);
 
     const float eta = trk.tk_eta();
     const float phi = trk.tk_phi();
+    const float pt = trk.tk_pt();
 
     // --- fill 2D eta-phi occupancy histograms ---
     h2_eta_phi->Fill(eta, phi);
@@ -234,31 +491,92 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     p2_nValidStripHits_eta_phi->Fill(eta, phi, trk.tk_nValidStripHits());
 
     // --- build reco vertex ---
-    //reco::Vertex recoVtx = makeRecoVertex(*closestVtx);
+    reco::Vertex recoVtx = makeRecoVertex(*closestVtx);
 
     // --- impact parameters (standard CMSSW definitions) ---
-    //float dxy = recoTrk.dxy(recoVtx.position());
-    //float dz = recoTrk.dz(recoVtx.position());
+    float dxy = recoTrk.dxy(recoVtx.position()) * cmToUm;
+    float dz = recoTrk.dz(recoVtx.position()) * cmToUm;
+    float dxyErr = recoTrk.dxyError() * cmToUm;
+    float dzErr = recoTrk.dzError() * cmToUm;
 
-    float dxy = best_offset.first;
-    float dz = best_offset.second;
-
-    if (trk.tk_pt() < 3.)
-      continue;
+    //float dxy = best_offset.first;
+    //float dz = best_offset.second;
 
     // --- fill histograms ---
-    h_dxy->Fill(dxy * cmToUm);
-    h_dz->Fill(dz * cmToUm);
+    h_dxy->Fill(dxy);
+    h_dz->Fill(dz);
 
-    p_dxy_eta->Fill(eta, dxy * cmToUm);
-    p_dxy_phi->Fill(phi, dxy * cmToUm);
+    p_dxy_eta->Fill(eta, dxy);
+    p_dxy_phi->Fill(phi, dxy);
 
-    p_dz_eta->Fill(eta, dz * cmToUm);
-    p_dz_phi->Fill(phi, dz * cmToUm);
+    p_dz_eta->Fill(eta, dz);
+    p_dz_phi->Fill(phi, dz);
 
     // --- fill 2D eta-phi profiles ---
-    p2_dxy_eta_phi->Fill(eta, phi, dxy * cmToUm);
-    p2_dz_eta_phi->Fill(eta, phi, dz * cmToUm);
+    p2_dxy_eta_phi->Fill(eta, phi, dxy);
+    p2_dz_eta_phi->Fill(eta, phi, dz);
+
+    if (trk.tk_pt() < 1.)
+      continue;
+
+    dxy_pt1.IP_->Fill(dxy);
+    dxy_pt1.IPVsPhi_->Fill(phi, dxy);
+    dxy_pt1.IPVsEta_->Fill(eta, dxy);
+    dxy_pt1.IPVsPt_->Fill(pt, dxy);
+    dxy_pt1.IPVsEtaVsPhi_->Fill(eta, phi, dxy);
+
+    dxy_pt1.IPErr_->Fill(dxyErr);
+    dxy_pt1.IPPull_->Fill(dxy / dxyErr);
+    dxy_pt1.IPErrVsPhi_->Fill(phi, dxyErr);
+    dxy_pt1.IPErrVsEta_->Fill(eta, dxyErr);
+    dxy_pt1.IPErrVsPt_->Fill(pt, dxyErr);
+    dxy_pt1.IPErrVsEtaVsPhi_->Fill(eta, phi, dxyErr);
+
+    // dz pT>1
+
+    dz_pt1.IP_->Fill(dz);
+    dz_pt1.IPVsPhi_->Fill(phi, dz);
+    dz_pt1.IPVsEta_->Fill(eta, dz);
+    dz_pt1.IPVsPt_->Fill(pt, dz);
+    dz_pt1.IPVsEtaVsPhi_->Fill(eta, phi, dz);
+
+    dz_pt1.IPErr_->Fill(dzErr);
+    dz_pt1.IPPull_->Fill(dz / dzErr);
+    dz_pt1.IPErrVsPhi_->Fill(phi, dzErr);
+    dz_pt1.IPErrVsEta_->Fill(eta, dzErr);
+    dz_pt1.IPErrVsPt_->Fill(pt, dzErr);
+    dz_pt1.IPErrVsEtaVsPhi_->Fill(eta, phi, dzErr);
+
+    if (pt < 10.)
+      continue;
+
+    // dxy pT>10
+    dxy_pt10.IP_->Fill(dxy);
+    dxy_pt10.IPVsPhi_->Fill(phi, dxy);
+    dxy_pt10.IPVsEta_->Fill(eta, dxy);
+    dxy_pt10.IPVsPt_->Fill(pt, dxy);
+    dxy_pt10.IPVsEtaVsPhi_->Fill(eta, phi, dxy);
+
+    dxy_pt10.IPErr_->Fill(dxyErr);
+    dxy_pt10.IPPull_->Fill(dxy / dxyErr);
+    dxy_pt10.IPErrVsPhi_->Fill(phi, dxyErr);
+    dxy_pt10.IPErrVsEta_->Fill(eta, dxyErr);
+    dxy_pt10.IPErrVsPt_->Fill(pt, dxyErr);
+    dxy_pt10.IPErrVsEtaVsPhi_->Fill(eta, phi, dxyErr);
+
+    // dxz pT>10
+    dz_pt10.IP_->Fill(dz);
+    dz_pt10.IPVsPhi_->Fill(phi, dz);
+    dz_pt10.IPVsEta_->Fill(eta, dz);
+    dz_pt10.IPVsPt_->Fill(pt, dz);
+    dz_pt10.IPVsEtaVsPhi_->Fill(eta, phi, dz);
+
+    dz_pt10.IPErr_->Fill(dzErr);
+    dz_pt10.IPPull_->Fill(dz / dzErr);
+    dz_pt10.IPErrVsPhi_->Fill(phi, dzErr);
+    dz_pt10.IPErrVsEta_->Fill(eta, dzErr);
+    dz_pt10.IPErrVsPt_->Fill(pt, dzErr);
+    dz_pt10.IPErrVsEtaVsPhi_->Fill(eta, phi, dzErr);
   }
 }
 
@@ -340,6 +658,23 @@ void ScoutingTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("tracks", edm::InputTag("hltScoutingTrackPacker"));
   desc.add<edm::InputTag>("vertices", edm::InputTag("hltScoutingPrimaryVertexPacker", "primaryVtx"));
   desc.add<std::string>("topFolderName", "HLT/ScoutingOffline/Tracks");
+  desc.add<int>("DxyBin", 100);
+  desc.add<double>("DxyMin", -5000.0);
+  desc.add<double>("DxyMax", 5000.0);
+  desc.add<int>("DzBin", 100);
+  desc.add<double>("DzMin", -2000.0);
+  desc.add<double>("DzMax", 2000.0);
+  desc.add<int>("PhiBin", 32);
+  desc.add<double>("PhiMin", -M_PI);
+  desc.add<double>("PhiMax", M_PI);
+  desc.add<int>("EtaBin", 26);
+  desc.add<double>("EtaMin", 2.5);
+  desc.add<double>("EtaMax", -2.5);
+  desc.add<int>("PtBin", 49);
+  desc.add<double>("PtMin", 1.);
+  desc.add<double>("PtMax", 50.);
+  desc.add<int>("PhiBin2D", 12);
+  desc.add<int>("EtaBin2D", 8);
   descriptions.addWithDefaultLabel(desc);
 }
 
