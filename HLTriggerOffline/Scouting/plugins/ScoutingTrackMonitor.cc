@@ -91,8 +91,8 @@ ScoutingTrackMonitor::ScoutingTrackMonitor(const edm::ParameterSet& iConfig)
 void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
   ibooker.setCurrentFolder(topFolderName_);
 
-  h_dxy = ibooker.book1D("dxy", "d_{xy};d_{xy} [#mum];Tracks", 100, -0.01 * cmToUm, 0.01 * cmToUm);
-  h_dz = ibooker.book1D("dz", "d_{z};d_{z} [#mum];Tracks", 100, -0.05 * cmToUm, 0.05 * cmToUm);
+  h_dxy = ibooker.book1D("dxy", "d_{xy};d_{xy} [#mum];Tracks", 100, -0.15 * cmToUm, 0.15 * cmToUm);
+  h_dz = ibooker.book1D("dz", "d_{z};d_{z} [#mum];Tracks", 100, -0.35 * cmToUm, 0.35 * cmToUm);
 
   h_vtx_idx = ibooker.book1DD("vertexIndex", "tracks Vertex Index;Vertex index;Tracks", 17, -1.5, 15.5);
 
@@ -103,8 +103,8 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
                                   50,
                                   -std::numbers::pi,
                                   std::numbers::pi,
-                                  -0.01 * cmToUm,
-                                  0.01 * cmToUm,
+                                  -0.15 * cmToUm,
+                                  0.15 * cmToUm,
                                   "");
   p_dz_eta = ibooker.bookProfile(
       "dz_vs_eta", "d_{z} vs #eta;#eta;#LTd_{z}#GT [#mum]", 50, -3.0, 3.0, -0.05 * cmToUm, 0.05 * cmToUm, "");
@@ -113,8 +113,8 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
                                  50,
                                  -std::numbers::pi,
                                  std::numbers::pi,
-                                 -0.05 * cmToUm,
-                                 0.05 * cmToUm,
+                                 -0.35 * cmToUm,
+                                 0.35 * cmToUm,
                                  "");
 
   // 2D eta-phi occupancy histograms
@@ -131,8 +131,8 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
                                          50,
                                          -std::numbers::pi,
                                          std::numbers::pi,
-                                         -0.01 * cmToUm,
-                                         0.01 * cmToUm,
+                                         -0.15 * cmToUm,
+                                         0.15 * cmToUm,
                                          "");
   p2_dxy_eta_phi->setOption("colz");
 
@@ -144,8 +144,8 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
                                         50,
                                         -std::numbers::pi,
                                         std::numbers::pi,
-                                        -0.05 * cmToUm,
-                                        0.05 * cmToUm,
+                                        -0.35 * cmToUm,
+                                        0.35 * cmToUm,
                                         "");
   p2_dz_eta_phi->setOption("colz");
 
