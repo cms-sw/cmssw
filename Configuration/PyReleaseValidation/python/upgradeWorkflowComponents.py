@@ -896,9 +896,9 @@ upgradeWFs['CPfromPU'] = UpgradeWorkflow_CPfromPU(
     offset = 0.208,
 )
 
-upgradeWFs['CPfromPU'].step2 = {'--procModifiers': 'enableCPfromPU'}
-upgradeWFs['CPfromPU'].step3 = {'--procModifiers': 'enableCPfromPU'}
-upgradeWFs['CPfromPU'].step4 = {'--procModifiers': 'enableCPfromPU'}
+upgradeWFs['CPfromPU'].step2 = {'--procModifiers': 'simTrackstersFromPU'}
+upgradeWFs['CPfromPU'].step3 = {'--procModifiers': 'simTrackstersFromPU'}
+upgradeWFs['CPfromPU'].step4 = {'--procModifiers': 'simTrackstersFromPU'}
 
 class UpgradeWorkflow_ticl_barrel(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
@@ -958,9 +958,9 @@ upgradeWFs['ticl_barrel_CPfromPU'] = UpgradeWorkflow_ticl_barrel_CPfromPU(
     suffix = '_ticl_barrel_CPfromPU',
     offset = 0.2091,
 )
-upgradeWFs['ticl_barrel_CPfromPU'].step2 = {'--procModifiers': 'ticl_barrel,enableCPfromPU'}
-upgradeWFs['ticl_barrel_CPfromPU'].step3 = {'--procModifiers': 'ticl_barrel,enableCPfromPU'}
-upgradeWFs['ticl_barrel_CPfromPU'].step4 = {'--procModifiers': 'ticl_barrel,enableCPfromPU'}
+upgradeWFs['ticl_barrel_CPfromPU'].step2 = {'--procModifiers': 'ticl_barrel,simTrackstersFromPU'}
+upgradeWFs['ticl_barrel_CPfromPU'].step3 = {'--procModifiers': 'ticl_barrel,simTrackstersFromPU'}
+upgradeWFs['ticl_barrel_CPfromPU'].step4 = {'--procModifiers': 'ticl_barrel,simTrackstersFromPU'}
 
 class UpgradeWorkflow_ticlv5_TrackLinkingGNN(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
