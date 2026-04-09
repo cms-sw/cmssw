@@ -15,7 +15,7 @@ process.soaproducer = cms.EDProducer("SchemaEvolutionSoAProducer")
 
 # write all products to a 'test.root' file
 process.output = cms.OutputModule('PoolOutputModule',
-    fileName = cms.untracked.string('SchemaEvolutionTwo.root'),
+    fileName = cms.untracked.string('SchemaEvolutionZero.root'),
     outputCommands = cms.untracked.vstring('keep *')
 )
 

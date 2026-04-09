@@ -48,11 +48,30 @@ namespace portabletest {
                       SOA_SCALAR(float, sFloatNewName),
                       SOA_SCALAR(int8_t, newScalar),
                       SOA_SCALAR(SEEnumType, sEnum));
-					  
+
+  GENERATE_SOA_LAYOUT(SoAEvolutionThreeLayout,
+                      SOA_COLUMN(int, cInt),
+                      SOA_COLUMN(SEEnumType, cEnum),
+                      SOA_EIGEN_COLUMN(SEEigenObject, eEigenObject),
+                      SOA_SCALAR(int, sInt),
+                      SOA_SCALAR(SEEnumType, sEnum));
+
+  GENERATE_SOA_LAYOUT(SoAEvolutionFourLayout,
+                      SOA_EIGEN_COLUMN(SEEigenObject, eEigenObject),
+                      SOA_SCALAR(SEEnumType, sEnum),
+                      SOA_SCALAR(double, sDouble),
+                      SOA_SCALAR(float, sFloat),
+                      SOA_SCALAR(int, sInt),
+                      SOA_COLUMN(SEEnumType, cEnum),
+                      SOA_COLUMN(double, cDouble),
+                      SOA_COLUMN(int, cInt),
+                      SOA_COLUMN(float, cFloat));
 
   using SoAEvolutionZero = SoAEvolutionZeroLayout<>;
   using SoAEvolutionOne = SoAEvolutionOneLayout<>;
   using SoAEvolutionTwo = SoAEvolutionTwoLayout<>;
+  using SoAEvolutionThree = SoAEvolutionThreeLayout<>;
+  using SoAEvolutionFour = SoAEvolutionFourLayout<>;
 
 }  // namespace portabletest
 
