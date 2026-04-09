@@ -150,7 +150,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // component offsets
       auto& subcc_offsets(alpaka::declareSharedVar<uint32_t[w_extent], __COUNTER__>(acc));
       // isolate root flag : 0 - an isolated root vertex, 1 - a non-isolated root vertex
-      auto& vertex_mask(alpaka::declareSharedVar<warp::warp_mask_t[max_w_items], __COUNTER__>(acc));
+      auto& vertex_mask(alpaka::declareSharedVar<warp::warp_mask_t[w_extent], __COUNTER__>(acc));
 
       auto& common_buf1(alpaka::declareSharedVar<uint32_t[max_w_items * w_extent], __COUNTER__>(acc));
       auto& common_buf2(alpaka::declareSharedVar<uint32_t[max_w_items * w_extent], __COUNTER__>(acc));
@@ -180,7 +180,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           cc_energy_seed[idx.local] = 0;
 
-          if (idx.local < max_w_items) {
+          if (idx.local < w_extent) {
             subcc_offsets[idx.local] = 0;
             vertex_mask[idx.local] = active_lanes_mask;  //needed for AND operation
           }
@@ -270,41 +270,41 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           const unsigned int local_subcomponent_rep_idx = get_ls1b_idx(acc, subcomp_mask);
 
-          bool update_iso_root_lane = false;
+          if constexpr (std::is_same_v<alpaka::AccToTag<Acc1D>, alpaka::TagGpuCudaRt>) {
+            bool update_iso_root_lane = false;
 
-          unsigned int which_warp_idx = std::numeric_limits<unsigned int>::max();
+            unsigned int which_warp_idx = std::numeric_limits<unsigned int>::max();
 
-          if (lane_idx == local_subcomponent_rep_idx) {
-            const unsigned int subcomp_size = alpaka::popcount(acc, subcomp_mask);
-            if ((subcomp_size > 1) || (subcomp_size == 1 && !is_representative)) {
-              update_iso_root_lane = true;
-              which_warp_idx = rep_idx / w_extent;
+            if (lane_idx == local_subcomponent_rep_idx) {
+              const unsigned int subcomp_size = alpaka::popcount(acc, subcomp_mask);
+              if ((subcomp_size > 1) || (subcomp_size == 1 && !is_representative)) {
+                update_iso_root_lane = true;
+                which_warp_idx = rep_idx / w_extent;
+              }
+            }
+
+            const warp::warp_mask_t iso_root_lanes = warp::ballot_mask(acc, active_lanes_mask, update_iso_root_lane);
+
+            const warp::warp_mask_t iso_root_lanes_subgroup =
+                warp::match_any_mask(acc, active_lanes_mask, which_warp_idx);
+
+            if (is_work_lane(iso_root_lanes, lane_idx)) {
+              // Construct correct rep mask:
+              auto orFn = [] ALPAKA_FN_ACC(const warp::warp_mask_t m1,
+                                           const warp::warp_mask_t m2) -> warp::warp_mask_t { return m1 | m2; };
+
+              warp::warp_mask_t selected_iso_root_mask =
+                  warp_sparse_reduce(acc, iso_root_lanes_subgroup, lane_idx, rep_lane_mask, orFn);
+
+              if (is_ls1b_idx<Acc1D>(iso_root_lanes_subgroup, lane_idx)) {
+                // Temporary WAR (general form of De Morgan's law):
+                const warp::warp_mask_t nonisolated_vertex_lanes = ~selected_iso_root_mask;
+
+                alpaka::atomicAnd(
+                    acc, &vertex_mask[which_warp_idx], nonisolated_vertex_lanes, alpaka::hierarchy::Threads{});
+              }
             }
           }
-
-          const warp::warp_mask_t iso_root_lanes = warp::ballot_mask(acc, active_lanes_mask, update_iso_root_lane);
-
-          const warp::warp_mask_t iso_root_lanes_subgroup =
-              warp::match_any_mask(acc, active_lanes_mask, which_warp_idx);
-
-          if (is_work_lane(iso_root_lanes, lane_idx)) {
-            // Construct correct rep mask:
-            auto orFn = [] ALPAKA_FN_ACC(const warp::warp_mask_t m1, const warp::warp_mask_t m2) -> warp::warp_mask_t {
-              return m1 | m2;
-            };
-
-            warp::warp_mask_t selected_iso_root_mask =
-                warp_sparse_reduce(acc, iso_root_lanes_subgroup, lane_idx, rep_lane_mask, orFn);
-
-            if (is_ls1b_idx<Acc1D>(iso_root_lanes_subgroup, lane_idx)) {
-              // Temporary WAR (general form of De Morgan's law):
-              const warp::warp_mask_t nonisolated_vertex_lanes = ~selected_iso_root_mask;
-
-              alpaka::atomicAnd(
-                  acc, &vertex_mask[which_warp_idx], nonisolated_vertex_lanes, alpaka::hierarchy::Threads{});
-            }
-          }
-
           unsigned int subcomp_rhf_offset = warp_sparse_exclusive_sum(acc, subcomp_mask, rhf_size, lane_idx);
 
           unsigned int relative_rhf_offset_stub = 0;
@@ -360,9 +360,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::syncBlockThreads(acc);
 
         for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, w_extent)) {
+          if (idx.local >= (nComponents + w_extent) / w_extent)
+            continue;
+
+          const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
+
           const unsigned int cc_rhf_size = subcc_offsets[idx.local];
 
-          const unsigned int cc_rhf_global_offset = warp_exclusive_sum(acc, cc_rhf_size, idx.local);
+          const unsigned int cc_rhf_global_offset =
+              warp_sparse_exclusive_sum(acc, active_lanes_mask, cc_rhf_size, idx.local);
 
           subcc_offsets[idx.local] = cc_rhf_global_offset;
         }
@@ -574,45 +580,39 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           }
         }
 
+        auto compFn = [] ALPAKA_FN_ACC(const float a, const float b) -> float { return a > b ? a : b; };
+
         for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
           const unsigned int warp_idx = idx.local / w_extent;
           const unsigned int lane_idx = idx.local % w_extent;
 
-          if (is_representative) {
-            const warp::warp_mask_t lane_mask = get_lane_mask(lane_idx);
-            const warp::warp_mask_t non_isolated_vertices = vertex_mask[warp_idx];
-            const bool is_isolated_root = ((lane_mask & non_isolated_vertices));
+          if constexpr (std::is_same_v<alpaka::AccToTag<Acc1D>, alpaka::TagGpuCudaRt>) {
+            if (is_representative) {
+              const warp::warp_mask_t lane_mask = get_lane_mask(lane_idx);
+              const warp::warp_mask_t non_isolated_vertices = vertex_mask[warp_idx];
+              const bool is_isolated_root = ((lane_mask & non_isolated_vertices));
 
-            if (is_isolated_root) {
-              cc_energy_seed[rep_cc_idx] = static_cast<uint64_t>(vertex_seed);
-              continue;
+              if (is_isolated_root) {
+                cc_energy_seed[rep_cc_idx] = static_cast<uint64_t>(vertex_seed);
+                continue;
+              }
             }
           }
 
-          const warp::warp_mask_t updated_active_lanes_mask = alpaka::warp::activemask(acc);
+          const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
 
           const float energy = pfRecHit[vertex_seed].energy();
 
-          const warp::warp_mask_t subcomponent_mask = warp::match_any_mask(acc, updated_active_lanes_mask, rep_idx);
+          const warp::warp_mask_t subcomponent_mask = warp::match_any_mask(acc, active_lanes_mask, rep_idx);
 
-          auto compFn = [] ALPAKA_FN_ACC(const float a, const float b) -> float { return a > b ? a : b; };
-
+          // WARNING: warp_sparse_reduce broadcasts the reduced value to all lanes by default.
+          // If this behavior changes in the future, make sure that the value is propagated to all
+          // lanes in the submask!
           const float max_energy = warp_sparse_reduce(acc, subcomponent_mask, lane_idx, energy, compFn);
-          // Equality on energy is intentional: max_energy is selected from lane values via shuffles/reduction,
-          // so it is bitwise-equal to at least one participating lane's energy.
-          const warp::warp_mask_t max_energy_lanes_mask =
-              warp::ballot_mask(acc, subcomponent_mask, max_energy == energy);
 
-          const unsigned int max_energy_lane_idx = alpaka::ffs(acc, static_cast<int>(max_energy_lanes_mask)) - 1;
-
-          //need to store seed:
-          const auto seed_max = warp::shfl_mask(acc, subcomponent_mask, vertex_seed, max_energy_lane_idx, w_extent);
-          const auto energy_max = warp::shfl_mask(acc, subcomponent_mask, max_energy, max_energy_lane_idx, w_extent);
-
-          // Energies are assumed non-negative; bit-cast uint ordering matches float ordering for atomicMax.
-          if (is_ls1b_idx<Acc1D>(subcomponent_mask, lane_idx)) {
-            uint32_t e_uint = std::bit_cast<unsigned int>(energy_max);
-            uint64_t x = (static_cast<uint64_t>(e_uint) << 32) | static_cast<uint64_t>(seed_max);
+          if (max_energy == energy) {
+            uint32_t e_uint = std::bit_cast<unsigned int>(max_energy);
+            uint64_t x = (static_cast<uint64_t>(e_uint) << 32) | static_cast<uint64_t>(vertex_seed);
             alpaka::atomicMax(acc, &cc_energy_seed[rep_cc_idx], x);
           }
         }
