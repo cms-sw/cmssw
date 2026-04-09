@@ -5,7 +5,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 # read the products from a 'testOne.root' file
 process.source = cms.Source('PoolSource',
-    fileNames = cms.untracked.vstring('file:SchemaEvolutionOne.root')
+    fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/m/maholzer/SchemaEvolutionTestData/SEOne.root')
 )
 
 # enable logging for the analyser

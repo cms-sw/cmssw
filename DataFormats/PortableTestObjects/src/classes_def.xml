@@ -100,4 +100,16 @@
   <class name="portabletest::SoAEvolutionTwoLayout<128,false>"/>
   <class name="portabletest::HostCollectionEvolutionTwo"/>
   <class name="edm::Wrapper<portabletest::HostCollectionEvolutionTwo>" splitLevel="0"/>
+
+  <!-- ::Layout alias must be listed before the aliased-to type -->
+  <class name="portabletest::HostCollectionEvolutionThree::Layout"/>
+  <class name="portabletest::SoAEvolutionThreeLayout<128,false>"/>
+  <class name="portabletest::HostCollectionEvolutionThree"/>
+  <class name="edm::Wrapper<portabletest::HostCollectionEvolutionThree>" splitLevel="0"/>
+
+  <!-- ::Layout alias must be listed before the aliased-to type -->
+  <class name="portabletest::HostCollectionEvolutionFour::Layout"/>
+  <class name="portabletest::SoAEvolutionFourLayout<128,false>"/>
+  <class name="portabletest::HostCollectionEvolutionFour"/>
+  <class name="edm::Wrapper<portabletest::HostCollectionEvolutionFour>" splitLevel="0"/>
 </lcgdict>
