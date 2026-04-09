@@ -28,6 +28,26 @@ protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
+  static inline std::pair<float, float> trk_vtx_offSet(const Run3ScoutingTrack& tk, const Run3ScoutingVertex& vtx) {
+    const auto pt = tk.tk_pt();
+    const auto phi = tk.tk_phi();
+    const auto eta = tk.tk_eta();
+
+    const auto px = pt * std::cos(phi);
+    const auto py = pt * std::sin(phi);
+    const auto pz = pt * std::sinh(eta);
+    const auto pt2 = pt * pt;
+
+    const auto dx = tk.tk_vx() - vtx.x();
+    const auto dy = tk.tk_vy() - vtx.y();
+    const auto dz = tk.tk_vz() - vtx.z();
+
+    const auto tk_dxyPV = (-dx * py + dy * px) / pt;
+    const auto tk_dzPV = dz - (dx * px + dy * py) * pz / pt2;
+
+    return {tk_dxyPV, tk_dzPV};
+  }
+
   // tokens
   const edm::EDGetTokenT<std::vector<Run3ScoutingTrack>> tracksToken_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> verticesToken_;
@@ -176,16 +196,30 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
 
   for (const auto& trk : tracks) {
     // --- build reco track ---
-    reco::Track recoTrk = makeRecoTrack(trk);
+    //reco::Track recoTrk = makeRecoTrack(trk);
+    //auto [vtxIndex, closestVtx] = findClosestScoutingVertex(&recoTrk, vertices);
+    //if (!closestVtx)
+    //  continue;
 
-    auto [vtxIndex, closestVtx] = findClosestScoutingVertex(&recoTrk, vertices);
-    if (!closestVtx)
-      continue;
+    // initialize the impact parameters to large values
+    std::pair<float, float> best_offset{9999.f, 99999.f};
+
+    // loop on all the vertices and find the closest one
+    unsigned int vtxIndex = 999;
+    unsigned int idx = 0;
+    for (const auto& vtx : vertices) {
+      const auto offset = trk_vtx_offSet(trk, vtx);
+      if (std::abs(offset.second) < std::abs(best_offset.second)) {
+        best_offset = offset;
+        vtxIndex = idx;  // save the index of the best vertex
+      }
+      idx++;
+    }
 
     h_vtx_idx->Fill(vtxIndex);
 
-    const float eta = recoTrk.eta();
-    const float phi = recoTrk.phi();
+    const float eta = trk.tk_eta();
+    const float phi = trk.tk_phi();
 
     // --- fill 2D eta-phi occupancy histograms ---
     h2_eta_phi->Fill(eta, phi);
@@ -194,24 +228,27 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     p2_nValidStripHits_eta_phi->Fill(eta, phi, trk.tk_nValidStripHits());
 
     // --- build reco vertex ---
-    reco::Vertex recoVtx = makeRecoVertex(*closestVtx);
+    //reco::Vertex recoVtx = makeRecoVertex(*closestVtx);
 
     // --- impact parameters (standard CMSSW definitions) ---
-    float dxy = recoTrk.dxy(recoVtx.position());
-    float dz = recoTrk.dz(recoVtx.position());
+    //float dxy = recoTrk.dxy(recoVtx.position());
+    //float dz = recoTrk.dz(recoVtx.position());
 
-    if (recoTrk.pt() < 3.)
+    float dxy = best_offset.first;
+    float dz = best_offset.second;
+
+    if (trk.tk_pt() < 3.)
       continue;
 
     // --- fill histograms ---
     h_dxy->Fill(dxy * cmToUm);
     h_dz->Fill(dz * cmToUm);
 
-    p_dxy_eta->Fill(recoTrk.eta(), dxy * cmToUm);
-    p_dxy_phi->Fill(recoTrk.phi(), dxy * cmToUm);
+    p_dxy_eta->Fill(eta, dxy * cmToUm);
+    p_dxy_phi->Fill(phi, dxy * cmToUm);
 
-    p_dz_eta->Fill(recoTrk.eta(), dz * cmToUm);
-    p_dz_phi->Fill(recoTrk.phi(), dz * cmToUm);
+    p_dz_eta->Fill(eta, dz * cmToUm);
+    p_dz_phi->Fill(phi, dz * cmToUm);
 
     // --- fill 2D eta-phi profiles ---
     p2_dxy_eta_phi->Fill(eta, phi, dxy * cmToUm);
