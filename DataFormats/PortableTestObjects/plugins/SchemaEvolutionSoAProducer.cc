@@ -14,7 +14,7 @@ constexpr auto productName = "EvolutionZeroProduct";
 class SchemaEvolutionSoAProducer : public edm::global::EDProducer<> {
 public:
   explicit SchemaEvolutionSoAProducer(const edm::ParameterSet&);
-  ~SchemaEvolutionSoAProducer();
+  ~SchemaEvolutionSoAProducer() override;
 
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
