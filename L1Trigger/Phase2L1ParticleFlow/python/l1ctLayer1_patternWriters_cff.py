@@ -248,8 +248,8 @@ barrelWriterDebugPFInConfigsAPx = _barrelWriterOutputOnly.clone(
 barrelWriterDebugPFOutConfigsAPx = _barrelWriterOutputOnly.clone(
     fileFormat = cms.string("APx"),
     nPFOutCharged = cms.uint32(22),
-    nPFOutPhoton = cms.uint32(12),
-    nPFOutNeutral = cms.uint32(15),
+    nPFOutPhoton = cms.uint32(0),  # we are using merged neutrals
+    nPFOutNeutral = cms.uint32(27),
     nPFOutMuon = cms.uint32(2),
     nOutputFramesPerBX = cms.uint32(3),  #(18 * 2/3 (going to 240) * 1/2 (doing II = 2))
     debugFileName = cms.string("l1BarrelApx-pfout")
