@@ -2,16 +2,11 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include <numeric>
+#include <ostream>
 
 namespace io_v1 {
   const unsigned int SimCluster::longLivedTag = 65536;
-
-  SimCluster::SimCluster() {
-    // No operation
-  }
 
   SimCluster::SimCluster(const SimTrack &simtrk) {
     addG4Track(simtrk);
@@ -26,8 +21,6 @@ namespace io_v1 {
     event_ = eventID;
     particleId_ = particleID;
   }
-
-  SimCluster::~SimCluster() {}
 
   std::ostream &operator<<(std::ostream &s, SimCluster const &tp) {
     s << "CP momentum, q, ID, & Event #: " << tp.p4() << " " << tp.charge() << " " << tp.pdgId() << " "

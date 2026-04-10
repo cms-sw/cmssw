@@ -23,6 +23,7 @@
     <flags CXXFLAGS="-O0"/>
   </bin>
   <test name="TestPerfToolsModuleAllocMonitor" command="runModuleAlloc.sh"/>
+  <test name="TestPerfToolsModuleEventAllocMonitor" command="runModuleEventAlloc.sh"/>
 
   <!-- can't be part of the catch2 tests above because of ASAN exclusion -->
   <bin file="test_intrusiveAllocMonitor.cc" name="testIntrusiveAllocMonitor">
