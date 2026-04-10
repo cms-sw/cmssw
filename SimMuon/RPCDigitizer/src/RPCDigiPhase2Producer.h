@@ -20,7 +20,7 @@ class RPCGeometry;
 class RPCSimSetUp;
 class RPCSynchronizer;
 
-class RPCDigiPhase2Producer : public edm::stream::EDProducer<> {
+class RPCDigiPhase2Producer : public edm::stream::EDProducer<edm::stream::WatchRuns> {
 public:
   //  typedef edm::DetSetVector<RPCDigiSimLink> RPCDigiSimLinks;
   typedef RPCDigitizerPhase2::RPCDigiSimLinks RPCDigitizerPhase2SimLinks;
