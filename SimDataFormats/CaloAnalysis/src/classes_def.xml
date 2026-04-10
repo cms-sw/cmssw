@@ -7,6 +7,7 @@
   <class name="edm::Wrapper<CaloParticleCollection>"/>
   <class name="CaloParticleRef"/>
   <class name="CaloParticleRefVector"/>
+  <class name="edm::Wrapper<CaloParticleRefVector>"/>
   <class name="CaloParticleRefProd"/>
   <class name="CaloParticleContainer"/>
 
@@ -31,6 +32,7 @@
   <class name="edm::Wrapper<SimClusterCollection>"/>
   <class name="SimClusterRef"/>
   <class name="SimClusterRefVector"/>
+  <class name="edm::Wrapper<SimClusterRefVector>"/>
   <class name="SimClusterRefProd"/>
   <class name="SimClusterContainer"/>
 

@@ -5,21 +5,21 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
+
 #include <vector>
+#include <unordered_map>
 #include <functional>
+#include <ranges>
 
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-
-/** @brief Monte Carlo truth information used for tracking validation.
+/** @brief Monte Carlo truth information used for calorimeter reco validation
  *
- * Object with references to the original SimTrack and parent and daughter
- * TrackingVertices. Simulation with high (~100) pileup was taking too much
- * memory so the class was slimmed down and copies of the SimHits were removed.
+ * Object with copies to the original SimTrack, and eventual reference to GenParticle
+ * Simulated calorimeter hits are saved as a list of pairs (DetId, fraction of reco hit energy contributed by the SimTrack)
+ * ('absolute' hit energy is usually not saved)
  *
  * @author original author unknown, re-engineering and slimming by Subir Sarkar
  * (subir.sarkar@cern.ch), some tweaking and documentation by Mark Grimes
@@ -40,13 +40,14 @@ public:
   typedef reco::GenParticleRefVector::iterator genp_iterator;
   typedef std::vector<SimTrack>::const_iterator g4t_iterator;
 
-  SimCluster();
+  SimCluster() = default;
 
   SimCluster(const SimTrack &simtrk);
   SimCluster(EncodedEventId eventID, uint32_t particleID);  // for PU
-
-  // destructor
-  ~SimCluster();
+  /** Build a SimCluster from a collection of SimCluster. Hits&fractions are merged, SimTracks are all added in g4Tracks_ */
+  template <typename R>
+    requires std::ranges::input_range<R> && std::same_as<std::ranges::range_value_t<R>, SimCluster>
+  static SimCluster mergeHitsFromCollection(R const &);
 
   /** @brief PDG ID.
    *
@@ -244,9 +245,41 @@ protected:
 
   math::XYZTLorentzVectorF theMomentum_;
 
-  /// references to G4 and reco::GenParticle tracks
-  std::vector<SimTrack> g4Tracks_;
+  std::vector<SimTrack> g4Tracks_;  ///< Copies of SimTrack used to build SimCluster (usually there is only one)
+  /// Ref to GenParticle (in case the SimCluster is created from the entire GenParticle). Usually either empty or length 1
   reco::GenParticleRefVector genParticles_;
 };
+
+template <typename R>
+  requires std::ranges::input_range<R> && std::same_as<std::ranges::range_value_t<R>, SimCluster>
+SimCluster SimCluster::mergeHitsFromCollection(R const &inputs) {
+  assert(!std::ranges::empty(inputs));
+  SimCluster ret;
+  ret.event_ = inputs[0].event_;
+  ret.particleId_ = inputs[0].particleId_;
+
+  ret.g4Tracks_.reserve(inputs.size());
+  std::unordered_map<uint32_t, float> acc_fractions;  ///< Map DetId->(fraction)
+  for (SimCluster const &other : inputs) {
+    ret.simhit_energy_ += other.simhit_energy_;
+
+    assert(other.hits_.size() == other.fractions_.size());
+    for (std::size_t i = 0; i < other.hits_.size(); i++) {
+      acc_fractions[other.hits_[i]] += other.fractions_[i];
+    }
+
+    ret.g4Tracks_.insert(ret.g4Tracks_.end(), other.g4Tracks_.begin(), other.g4Tracks_.end());
+  }
+
+  ret.hits_.reserve(acc_fractions.size());
+  ret.fractions_.reserve(acc_fractions.size());
+  for (const auto &hit_and_fraction : acc_fractions) {
+    ret.hits_.push_back(hit_and_fraction.first);
+    ret.fractions_.push_back(hit_and_fraction.second);
+  }
+  ret.nsimhits_ = ret.hits_.size();
+
+  return ret;
+}
 
 #endif  // SimDataFormats_SimCluster_H
