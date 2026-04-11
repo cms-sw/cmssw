@@ -183,6 +183,12 @@ namespace io_v1 {
       return result;
     }
 
+    /** @brief clear the hits and fractions list */
+    void clearHitsAndFractions() {
+      hits_.clear();
+      fractions_.clear();
+    }
+
     /** @brief returns the accumulated sim energy in the cluster */
     float simEnergy() const { return simhit_energy_; }
 
