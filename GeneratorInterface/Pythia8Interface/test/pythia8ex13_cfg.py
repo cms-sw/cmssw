@@ -22,8 +22,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
                                         'PDF:lepton = off',
                                         'SpaceShower:QEDshowerByL = off',
                                         'HadronLevel:all = on',
-                                        'PartonShowers:model = 2',
-                                        'Vincia:verbose = 2'),
+                                        'PartonShowers:model = 2'),
         parameterSets = cms.vstring('pythia8_example13')
     )
 )

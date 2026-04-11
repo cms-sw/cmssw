@@ -24,6 +24,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
   _thresh_led = ps.getUntrackedParameter<double>("thresh_led", 20);
   _thresh_laser = ps.getUntrackedParameter<double>("thresh_laser", 20);
   _thresh_raddam = ps.getUntrackedParameter<double>("thresh_raddam", 20);
+  _thresh_pindiode = ps.getUntrackedParameter<double>("thresh_pindiode", 2000);
 
   _vflags.resize(nDigiFlag);
   _vflags[fUni] = hcaldqm::flag::Flag("UniSlotHF");
@@ -50,6 +51,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
   _capidmbx[HcalEndcap] = 1;
   _capidmbx[HcalOuter] = 1;
   _capidmbx[HcalForward] = 1;
+}
+
+void DigiTask::_fillCUFEDCountVsLS(hcaldqm::Container1D& hist, uint32_t detRawId) {
+  auto it = _calibDetId2Eid.find(detRawId);
+  if (it != _calibDetId2Eid.end())
+    hist.fill(it->second, _currentLS);
 }
 
 /* virtual */ void DigiTask::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {
@@ -113,9 +120,11 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
 
         if (isLED) {
           _ledCalibrationChannels[this_subdet].push_back(HcalDetId(id.rawId()));
+          _calibDetId2Eid[id.rawId()] = eid;
         }
         if (isLAS) {
           _laserCalibrationChannels[this_subdet].push_back(HcalDetId(id.rawId()));
+          _calibDetId2Eid[id.rawId()] = eid;
         }
         if (isRAD) {
           _raddamCalibrationChannels[this_subdet].push_back(HcalDetId(id.rawId()));
@@ -311,13 +320,13 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                   0);
 
-  // Digi size
-  _cDigiSize_Crate.initialize(_name,
-                              "DigiSize",
-                              hcaldqm::hashfunctions::fCrate,
-                              new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDigiSize),
-                              new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                              0);
+  // Digi size (per FED: online, offline/local)
+  _cDigiSize_FED.initialize(_name,
+                            "DigiSize",
+                            hcaldqm::hashfunctions::fFED,
+                            new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDigiSize),
+                            new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                            0);
   _cADCvsTS_SubdetPM.initialize(_name,
                                 "ADCvsTS",
                                 hcaldqm::hashfunctions::fSubdetPM,
@@ -566,6 +575,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
     _filter_FEDHF.initialize(filter::fPreserver, hcaldqm::hashfunctions::fFED, vFEDHF);
 
     //	push the rawIds of each fed into the vector...
+    _vhashFEDs.clear();
     for (std::vector<int>::const_iterator it = vFEDsVME.begin(); it != vFEDsVME.end(); ++it)
       _vhashFEDs.push_back(
           HcalElectronicsId(constants::FIBERCH_MIN, FIBER_VME_MIN, SPIGOT_MIN, (*it) - FED_VME_MIN).rawId());
@@ -632,13 +642,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                               new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                               0);
 
-    _cDigiSize_FED.initialize(_name,
-                              "DigiSize",
-                              hcaldqm::hashfunctions::fFED,
-                              new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fDigiSize),
-                              new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                              0);
-
     if (_ptype == fOnline) {
       _cSummaryvsLS_FED.initialize(_name,
                                    "SummaryvsLS",
@@ -679,12 +682,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                    0);
 
-    _LED_CUCountvsLS_Subdet.initialize(_name + "/CU_LED",
-                                       "CU_LED_CUCountvsLS",
-                                       hcaldqm::hashfunctions::fSubdet,
-                                       new hcaldqm::quantity::LumiSection(_maxLS),
-                                       new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                       0);
+    _LED_CUCountvsLS_FED.initialize(_name + "/CU_LED",
+                                    "CU_LED_CUCountvsLS",
+                                    hcaldqm::hashfunctions::fFED,
+                                    new hcaldqm::quantity::LumiSection(_maxLS),
+                                    new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                    0);
     if (_ptype == fOnline) {
       _LED_CUCountvsLSmod60_Subdet.initialize(_name + "/CU_LED",
                                               "CU_LED_CUCountvsLSmod60",
@@ -708,12 +711,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                      new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
                                      new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
                                      0);
-    _LASER_CUCountvsLS_Subdet.initialize(_name + "/CU_Laser",
-                                         "CU_LASER_CUCountvsLS",
-                                         hcaldqm::hashfunctions::fSubdet,
-                                         new hcaldqm::quantity::LumiSection(_maxLS),
-                                         new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
-                                         0);
+    _LASER_CUCountvsLS_FED.initialize(_name + "/CU_Laser",
+                                      "CU_LASER_CUCountvsLS",
+                                      hcaldqm::hashfunctions::fFED,
+                                      new hcaldqm::quantity::LumiSection(_maxLS),
+                                      new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),
+                                      0);
     if (_ptype == fOnline) {
       _LASER_CUCountvsLSmod60_Subdet.initialize(_name + "/CU_Laser",
                                                 "CU_LASER_CUCountvsLSmod60",
@@ -805,7 +808,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
     _cDigiSize_FED.book(ib, _emap, _subsystem);
   }
   if (_ptype != fOffline) {  // else book per-lumi later.
-    _cDigiSize_Crate.book(ib, _emap, _subsystem);
     _cOccupancy_depth.book(ib, _emap, _subsystem);
   }
 
@@ -845,14 +847,14 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
   if (_ptype != fLocal) {
     _LED_ADCvsBX_Subdet.book(ib, _emap, _subsystem);
     _LED_ADCvsTS_Subdet.book(ib, _emap, _subsystem);
-    _LED_CUCountvsLS_Subdet.book(ib, _emap, _subsystem);
+    _LED_CUCountvsLS_FED.book(ib, _emap, _subsystem);
     if (_ptype == fOnline) {
       _LED_CUCountvsLSmod60_Subdet.book(ib, _emap, _subsystem);
     }
     // Book laser monitoring containers
     _LASER_ADCvsBX_Subdet.book(ib, _emap, _subsystem);
     _LASER_ADCvsTS_Subdet.book(ib, _emap, _subsystem);
-    _LASER_CUCountvsLS_Subdet.book(ib, _emap, _subsystem);
+    _LASER_CUCountvsLS_FED.book(ib, _emap, _subsystem);
     if (_ptype == fOnline) {
       _LASER_CUCountvsLSmod60_Subdet.book(ib, _emap, _subsystem);
     }
@@ -931,7 +933,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
     auto scope = DQMStore::IBooker::UseLumiScope(ib);
     if (_ptype == fOffline) {
       //_cDigiSize_FED.setLumiFlag();
-      _cDigiSize_Crate.book(ib, _emap, _subsystem);
+      _cDigiSize_FED.book(ib, _emap, _subsystem);
       _cOccupancy_depth.book(ib, _emap, _subsystem);
     }
 
@@ -1053,7 +1055,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                 }
               }
               if (channelLEDSignalPresent) {
-                _LED_CUCountvsLS_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), _currentLS);
+                _fillCUFEDCountVsLS(_LED_CUCountvsLS_FED, did.rawId());
                 if (_ptype == fOnline) {
                   _LED_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), _currentLS % 60);
                 }
@@ -1072,7 +1074,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                 }
               }
               if (channelLEDSignalPresent) {
-                _LED_CUCountvsLS_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), _currentLS);
+                _fillCUFEDCountVsLS(_LED_CUCountvsLS_FED, did.rawId());
                 if (_ptype == fOnline) {
                   _LED_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), _currentLS % 60);
                 }
@@ -1091,7 +1093,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                 }
               }
               if (channelLASERSignalPresent) {
-                _LASER_CUCountvsLS_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), _currentLS);
+                _fillCUFEDCountVsLS(_LASER_CUCountvsLS_FED, did.rawId());
                 if (_ptype == fOnline) {
                   _LASER_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalEndcap, 16, 1, 1), _currentLS % 60);
                 }
@@ -1108,7 +1110,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                 }
               }
               if (channelLASERSignalPresent) {
-                _LASER_CUCountvsLS_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), _currentLS);
+                _fillCUFEDCountVsLS(_LASER_CUCountvsLS_FED, did.rawId());
                 if (_ptype == fOnline) {
                   _LASER_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), _currentLS % 60);
                 }
@@ -1194,9 +1196,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
       _cOccupancyvsiphi_SubdetPM.fill(did);
       _cOccupancyvsieta_Subdet.fill(did);
     }
-    _cDigiSize_Crate.fill(eid, digi.samples());
+    _cDigiSize_FED.fill(eid, digi.samples());
     if (_ptype != fOffline) {  // hidefed2crate
-      _cDigiSize_FED.fill(eid, digi.samples());
       if (!eid.isVMEid()) {
         _cOccupancy_FEDuTCA.fill(eid);
         _cOccupancy_ElectronicsuTCA.fill(eid);
@@ -1338,7 +1339,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                 }
               }
               if (channelLEDSignalPresent) {
-                _LED_CUCountvsLS_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), _currentLS);
+                _fillCUFEDCountVsLS(_LED_CUCountvsLS_FED, did.rawId());
                 if (_ptype == fOnline) {
                   _LED_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), _currentLS % 60);
                 }
@@ -1357,7 +1358,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                 }
               }
               if (channelLASERSignalPresent) {
-                _LASER_CUCountvsLS_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), _currentLS);
+                _fillCUFEDCountVsLS(_LASER_CUCountvsLS_FED, did.rawId());
                 if (_ptype == fOnline) {
                   _LASER_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 4), _currentLS % 60);
                 }
@@ -1426,9 +1427,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
       _cOccupancyvsiphi_SubdetPM.fill(did);
       _cOccupancyvsieta_Subdet.fill(did);
     }
-    _cDigiSize_Crate.fill(eid, it->size());
+    _cDigiSize_FED.fill(eid, it->size());
     if (_ptype != fOffline) {  // hidefed2crate
-      _cDigiSize_FED.fill(eid, it->size());
       if (!eid.isVMEid()) {
         _cOccupancy_FEDuTCA.fill(eid);
         _cOccupancy_ElectronicsuTCA.fill(eid);
@@ -1531,7 +1531,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                   }
                 }
                 if (channelLEDSignalPresent) {
-                  _LED_CUCountvsLS_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), _currentLS);
+                  _fillCUFEDCountVsLS(_LED_CUCountvsLS_FED, did.rawId());
                   if (_ptype == fOnline) {
                     _LED_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), _currentLS % 60);
                   }
@@ -1550,7 +1550,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                   }
                 }
                 if (channelLASERSignalPresent) {
-                  _LASER_CUCountvsLS_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), _currentLS);
+                  _fillCUFEDCountVsLS(_LASER_CUCountvsLS_FED, did.rawId());
                   if (_ptype == fOnline) {
                     _LASER_CUCountvsLSmod60_Subdet.fill(HcalDetId(HcalForward, 29, 1, 1), _currentLS % 60);
                   }
@@ -1649,9 +1649,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
         _cOccupancyvsiphi_SubdetPM.fill(did);
         _cOccupancyvsieta_Subdet.fill(did);
       }
-      _cDigiSize_Crate.fill(eid, digi.samples());
+      _cDigiSize_FED.fill(eid, digi.samples());
       if (_ptype != fOffline) {  // hidefed2crate
-        _cDigiSize_FED.fill(eid, digi.samples());
         if (!eid.isVMEid()) {
           _cOccupancy_FEDuTCA.fill(eid);
           _cOccupancy_ElectronicsuTCA.fill(eid);
@@ -1843,61 +1842,24 @@ std::shared_ptr<hcaldqm::Cache> DigiTask::globalBeginLuminosityBlock(edm::Lumino
       else
         _vflags[fUnknownIds]._state = hcaldqm::flag::fGOOD;
 
-      // LED misfires
+      // LED/Laser/PinDiode/Raddam misfires per-FED granularity
       if (_ptype != fLocal) {
-        if (hcaldqm::utilities::isFEDHBHE(eid)) {
-          HcalDetId did_hb(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalBarrel, 1, 1, 1)));
-          HcalDetId did_he(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalEndcap, 16, 1, 1)));
+        if (hcaldqm::utilities::isFEDHBHE(eid) || hcaldqm::utilities::isFEDHF(eid) ||
+            hcaldqm::utilities::isFEDHO(eid)) {
+          _vflags[fLED]._state =
+              (_LED_CUCountvsLS_FED.getBinContent(eid, _currentLS) > 0) ? hcaldqm::flag::fBAD : hcaldqm::flag::fGOOD;
 
-          if (_LED_CUCountvsLS_Subdet.getBinContent(did_hb, _currentLS) > 0 ||
-              _LED_CUCountvsLS_Subdet.getBinContent(did_he, _currentLS) > 0) {
-            _vflags[fLED]._state = hcaldqm::flag::fBAD;
-          } else {
-            _vflags[fLED]._state = hcaldqm::flag::fGOOD;
-          }
-          // Laser misfires
-          if (_LASER_CUCountvsLS_Subdet.getBinContent(did_hb, _currentLS) > 0 ||
-              _LASER_CUCountvsLS_Subdet.getBinContent(did_he, _currentLS) > 0) {
-            _vflags[fLASER]._state = hcaldqm::flag::fBAD;
-          } else {
-            _vflags[fLASER]._state = hcaldqm::flag::fGOOD;
-          }
-          // Pin diode misfires
-          if (_cSumQvsLS_PinDiode.getBinContent(_currentLS) >
-              2000) {  // 2000 fC is the hardcoded threshold for pin diode misfires, this is a temporary fix
-            _vflags[fPinDiode]._state = hcaldqm::flag::fBAD;
-          } else {
-            _vflags[fPinDiode]._state = hcaldqm::flag::fGOOD;
-          }
-        } else if (hcaldqm::utilities::isFEDHF(eid)) {
-          HcalDetId did_hf(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalForward, 29, 1, 1)));
-          if (_LED_CUCountvsLS_Subdet.getBinContent(did_hf, _currentLS) > 0) {
-            _vflags[fLED]._state = hcaldqm::flag::fBAD;
-          } else {
-            _vflags[fLED]._state = hcaldqm::flag::fGOOD;
-          }
-          if (_LASER_CUCountvsLS_Subdet.getBinContent(did_hf, _currentLS) > 0) {
-            _vflags[fLASER]._state = hcaldqm::flag::fBAD;
-          } else {
-            _vflags[fLASER]._state = hcaldqm::flag::fGOOD;
-          }
-          if (_Raddam_CUCountvsLS.getBinContent(_currentLS) > 0) {
-            _vflags[fRADDAM]._state = hcaldqm::flag::fBAD;
-          } else {
-            _vflags[fRADDAM]._state = hcaldqm::flag::fGOOD;
-          }
-        } else if (hcaldqm::utilities::isFEDHO(eid)) {
-          HcalDetId did_ho(hcaldqm::hashfunctions::hash_Subdet(HcalDetId(HcalOuter, 1, 1, 1)));
-          if (_LED_CUCountvsLS_Subdet.getBinContent(did_ho, _currentLS) > 0) {
-            _vflags[fLED]._state = hcaldqm::flag::fBAD;
-          } else {
-            _vflags[fLED]._state = hcaldqm::flag::fGOOD;
-          }
-          if (_LASER_CUCountvsLS_Subdet.getBinContent(did_ho, _currentLS) > 0) {
-            _vflags[fLASER]._state = hcaldqm::flag::fBAD;
-          } else {
-            _vflags[fLASER]._state = hcaldqm::flag::fGOOD;
-          }
+          _vflags[fLASER]._state =
+              (_LASER_CUCountvsLS_FED.getBinContent(eid, _currentLS) > 0) ? hcaldqm::flag::fBAD : hcaldqm::flag::fGOOD;
+        }
+        if (hcaldqm::utilities::isFEDHBHE(eid)) {
+          _vflags[fPinDiode]._state = (_cSumQvsLS_PinDiode.getBinContent(_currentLS) > _thresh_pindiode)
+                                          ? hcaldqm::flag::fBAD
+                                          : hcaldqm::flag::fGOOD;
+        }
+        if (hcaldqm::utilities::isFEDHF(eid)) {
+          _vflags[fRADDAM]._state =
+              (_Raddam_CUCountvsLS.getBinContent(_currentLS) > 0) ? hcaldqm::flag::fBAD : hcaldqm::flag::fGOOD;
         }
       }
 
