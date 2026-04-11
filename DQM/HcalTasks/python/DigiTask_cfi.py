@@ -28,10 +28,11 @@ digiTask = DQMEDAnalyzer(
 	cutSumQ_HF = cms.untracked.double(20),
 
 	#	ratio thresholds
-	thresh_unifh = cms.untracked.double(0.2),
+	thresh_unihf = cms.untracked.double(0.2),
 	thresh_led = cms.untracked.double(60),
     thresh_laser = cms.untracked.double(60),
 	thresh_raddam = cms.untracked.double(20),
+	thresh_pindiode = cms.untracked.double(2000), #units in fC, currently an adequate approximation to cut off pedestals
 
 	qie10InConditions = cms.untracked.bool(False),
 

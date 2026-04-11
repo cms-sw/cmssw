@@ -1,4 +1,4 @@
-# Using DIRE plugin
+# Using DIRE plugin. Note that this is not included now in pythia8 (version 317)
 
 import FWCore.ParameterSet.Config as cms
 
