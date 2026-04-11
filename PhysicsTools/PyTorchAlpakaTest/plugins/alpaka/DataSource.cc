@@ -7,17 +7,17 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/FixedQueueEDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "PhysicsTools/PyTorchAlpakaTest/interface/Environment.h"
 #include "PhysicsTools/PyTorchAlpakaTest/plugins/alpaka/CommonKernels.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
-  class DataSource : public stream::EDProducer<> {
+  class DataSource : public stream::FixedQueueEDProducer<> {
   public:
     DataSource(const edm::ParameterSet &params)
-        : EDProducer<>(params),
+        : FixedQueueEDProducer<>(params),
           particles_token_{produces()},
           images_token_{produces()},
           batch_size_(params.getParameter<uint32_t>("batchSize")),

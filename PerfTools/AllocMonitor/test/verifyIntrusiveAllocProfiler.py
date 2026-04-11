@@ -623,13 +623,63 @@ def verify_nested_churning(test_case):
         raise ValueError(f"nested churning: expected sum 149935000, got {test_case['sum']}")
 
 
+def verify_realloc(test_case):
+    """Verify the 'realloc' test case."""
+    name = test_case['name']
+    if name != 'realloc':
+        raise ValueError(f"Expected test 'realloc', got '{name}'")
+
+    messages = test_case['messages']
+    if len(messages) != 1:
+        raise ValueError(f"realloc: expected 1 message, got {len(messages)}")
+
+    msg = messages[0]
+    if msg['name'] != 'Realloc':
+        raise ValueError(f"realloc: expected message name 'Realloc', got '{msg['name']}'")
+
+    alloc_t = totals(msg['alloc'])
+    dealloc_t = totals(msg['dealloc'], 'dealloc')
+
+    # At least 3 allocations: malloc + 2 reallocs
+    if alloc_t['count'] < 3:
+        raise ValueError(f"realloc: alloc count must be >= 3 (malloc + 2 reallocs), got {alloc_t['count']}")
+
+    # All memory freed within the scope: added must be empty
+    if msg['added']:
+        raise ValueError("realloc: added section must be empty (all memory freed within scope)")
+
+    # All allocations were freed: dealloc count equals alloc count
+    if dealloc_t['count'] != alloc_t['count']:
+        raise ValueError(
+            f"realloc: dealloc count ({dealloc_t['count']}) must equal "
+            f"alloc count ({alloc_t['count']})"
+        )
+
+    # Churn section must be non-empty (all allocations are alloc+free within scope)
+    if not msg['churn']:
+        raise ValueError("realloc: churn section must be non-empty")
+
+    # churnalloc totals match churn totals
+    churn_t = totals(msg['churn'])
+    churnalloc_t = totals(msg['churnalloc'])
+    if churnalloc_t['count'] != churn_t['count']:
+        raise ValueError(f"realloc: churnalloc count ({churnalloc_t['count']}) must equal churn count ({churn_t['count']})")
+    if churnalloc_t['actual'] != churn_t['actual']:
+        raise ValueError(f"realloc: churnalloc actual ({churnalloc_t['actual']}) must equal churn actual ({churn_t['actual']})")
+
+    # At peak, two buffers are simultaneously live (old + new during the final realloc)
+    atMaxActual_t = totals(msg['atMaxActual'])
+    if atMaxActual_t['count'] != 2:
+        raise ValueError(f"realloc: atMaxActual count must be 2 (two buffers live during realloc peak), got {atMaxActual_t['count']}")
+
+
 def main():
     """Main: parse and verify IntrusiveAllocProfiler output from stdin."""
     try:
         test_cases = read_test_cases()
 
-        if len(test_cases) != 6:
-            raise ValueError(f"Expected exactly 6 test cases, got {len(test_cases)}")
+        if len(test_cases) != 7:
+            raise ValueError(f"Expected exactly 7 test cases, got {len(test_cases)}")
 
         verify_vector_fill(test_cases[0])
         verify_vector_fill_again(test_cases[1])
@@ -637,6 +687,7 @@ def main():
         verify_nested_allocation(test_cases[3])
         verify_nested_with_string_messages(test_cases[4])
         verify_nested_churning(test_cases[5])
+        verify_realloc(test_cases[6])
 
         sys.exit(0)
 

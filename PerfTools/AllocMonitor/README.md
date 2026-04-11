@@ -165,7 +165,7 @@ These services register monitors when the service is created (after python parsi
 
 void someFunction() {
   {
-    edm::Service<IntrusiveMonitorBase> monitor;
+    edm::Service<edm::IntrusiveMonitorBase> monitor;
     auto guard = monitor->startMonitoring("Measurement description");
 
     // more code doing memory allocations
@@ -224,6 +224,8 @@ The Service has the following configuration parameters
 |-----------|---------|-------------|
 | `filePattern` | empty | If empty, print the repots with MessageLogger. If non-empty, specifies the pattern for output text files. Must contain at least one `%I` for a file counter, and `%M` for the measurement name. |
 | `statistics` | `False` | If `True`, print internal statistics to the log. |
+| `deallocationReport` | `True` | Allows to disable deallocation report (can speed up the profiling in presence of deep stack traces) |
+| `churnReport` | `True` | Allows to disable churn report (can speed up the profiling in presence of deep stack traces) |
 
 By default all reports are printed with MessageLogger. With `filePattern` the reports are written into files, with the file names being printed with MessageLogger at the time when each measurment ends. The `edmIntrusiveAllocProfilerFoldStacks.py` script can be used to "fold" the stack traces to a format understood e.g. flamegraph tools such as https://github.com/brendangregg/FlameGraph for one quantity at a time. An example
 ```sh

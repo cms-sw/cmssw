@@ -8,7 +8,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/FixedQueueEDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/TensorCollection.h"
 #include "PhysicsTools/PyTorchAlpaka/interface/alpaka/AlpakaModel.h"
@@ -16,10 +16,10 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
 
-  class TinyResNet : public stream::EDProducer<> {
+  class TinyResNet : public stream::FixedQueueEDProducer<> {
   public:
     TinyResNet(const edm::ParameterSet &params)
-        : EDProducer<>(params),
+        : FixedQueueEDProducer<>(params),
           images_token_(consumes(params.getParameter<edm::InputTag>("images"))),
           logits_token_{produces()},
           model_(params.getParameter<edm::FileInPath>("model").fullPath()),

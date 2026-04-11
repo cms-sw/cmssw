@@ -417,14 +417,52 @@ def verify_nested_churning(test_case):
         raise ValueError(f"nested churning: expected sum 149935000, got {test_case['sum']}")
 
 
+def verify_realloc(test_case):
+    """Verify conditions for 'realloc' test case."""
+    name = test_case['name']
+    if name != 'realloc':
+        raise ValueError(f"Expected 'realloc', got '{name}'")
+
+    messages = test_case['messages']
+    if len(messages) != 1:
+        raise ValueError(f"realloc: expected 1 message, got {len(messages)}")
+
+    msg = messages[0]
+
+    # Check labels
+    expected_labels = ['Realloc']
+    if msg['labels'] != expected_labels:
+        raise ValueError(f"realloc: expected labels {expected_labels}, got {msg['labels']}")
+
+    # added is 0: all memory is freed within the scope
+    if msg['added'] != 0:
+        raise ValueError(f"realloc: added must be 0 (all memory freed), got {msg['added']}")
+
+    # nAlloc equals nDealloc (all allocations freed)
+    if msg['nAlloc'] != msg['nDealloc']:
+        raise ValueError(f"realloc: nAlloc ({msg['nAlloc']}) must equal nDealloc ({msg['nDealloc']})")
+
+    # nAlloc is at least 3 (malloc + 2 reallocs)
+    if msg['nAlloc'] < 3:
+        raise ValueError(f"realloc: nAlloc must be >= 3 (malloc + 2 reallocs), got {msg['nAlloc']}")
+
+    # requested, peak, and max_alloc are larger than 0
+    if msg['requested'] <= 0:
+        raise ValueError(f"realloc: requested must be > 0, got {msg['requested']}")
+    if msg['peak'] <= 0:
+        raise ValueError(f"realloc: peak must be > 0, got {msg['peak']}")
+    if msg['max_alloc'] <= 0:
+        raise ValueError(f"realloc: max alloc must be > 0, got {msg['max_alloc']}")
+
+
 def main():
     """Main function to parse and verify IntrusiveAllocMonitor output."""
     try:
         test_cases = read_test_cases()
 
-        # Check that we have exactly 6 test cases
-        if len(test_cases) != 6:
-            raise ValueError(f"Expected exactly 6 test cases, got {len(test_cases)}")
+        # Check that we have exactly 7 test cases
+        if len(test_cases) != 7:
+            raise ValueError(f"Expected exactly 7 test cases, got {len(test_cases)}")
 
         # Verify each test case
         verify_vector_fill(test_cases[0])
@@ -433,6 +471,7 @@ def main():
         verify_nested_allocation(test_cases[3])
         verify_nested_with_string_messages(test_cases[4])
         verify_nested_churning(test_cases[5])
+        verify_realloc(test_cases[6])
 
         # All checks passed, exit silently with code 0
         sys.exit(0)
