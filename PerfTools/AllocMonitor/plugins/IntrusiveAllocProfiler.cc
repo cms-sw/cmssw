@@ -245,14 +245,21 @@ namespace {
   class StackNodeData;
   using MonitorStackNode = cms::perftools::allocMon::MonitorStackNode<StackNodeData>;
 
+  struct ReportConfiguration {
+    bool printStatistics_ = false;
+    bool deallocationReport_ = true;
+    bool churnReport_ = true;
+  };
+
   class StackNodeData {
   public:
-    StackNodeData(std::stacktrace trace, unsigned int fileCount, std::string filePattern, bool printStatistics)
+    StackNodeData(std::stacktrace trace, unsigned int fileCount, std::string filePattern, ReportConfiguration config)
         : trace_(std::move(trace)),
           filePattern_(std::move(filePattern)),
-          statistics_(printStatistics ? static_cast<std::unique_ptr<StatisticsStrategy>>(
-                                            std::make_unique<CollectingStatisticsStrategy>())
-                                      : std::make_unique<NoOpStatisticsStrategy>()) {
+          statistics_(config.printStatistics_ ? static_cast<std::unique_ptr<StatisticsStrategy>>(
+                                                    std::make_unique<CollectingStatisticsStrategy>())
+                                              : std::make_unique<NoOpStatisticsStrategy>()),
+          config_(config) {
       // Skip first entries that are internals for AllocMonitor if they are in the trace
       // By experience these entries are not always part of the stack trace
       auto it = trace_.cbegin();
@@ -329,8 +336,12 @@ namespace {
       log.format(" Reported stack traces are based on\n{}", formatTrace(trace_, startFromEntry_, 0));
 
       printAllocations(log, measurementName);
-      printDeallocations(log, measurementName);
-      printChurn(log, measurementName);
+      if (config_.deallocationReport_) {
+        printDeallocations(log, measurementName);
+      }
+      if (config_.churnReport_) {
+        printChurn(log, measurementName);
+      }
 
       statistics_->printStatistics(log, uniqueAllocTraces_.size(), uniqueDeallocTraces_.size());
     }
@@ -529,11 +540,14 @@ namespace {
               auto deallocEntries = deallocTraceStrings | std::views::reverse;
 
               auto [it_alloc, it_dealloc] = std::ranges::mismatch(allocEntries, deallocEntries);
-              assert(it_alloc != allocEntries.end() and it_dealloc != deallocEntries.end());
-
-              // Because the comparisons were done with strings, the
-              // it_alloc and it_dealloc should point to different
-              // functions. Go one level up (toward outer frames) to find the common function
+              // If it_alloc and it_dealloc point to different
+              // functions, go one level up (toward outer frames) to
+              // find the common function.
+              //
+              // If it_alloc and it_dealloc point to the same function
+              // (can happen at least with realloc()), it_alloc would
+              // point to allocEntries.end(), and to get the lowest
+              // entry need to decrease the iterator as well.
               assert(it_alloc != allocEntries.begin());
               --it_alloc;
 
@@ -696,6 +710,7 @@ namespace {
     std::size_t stackDepth_ = 0;
     std::string filePattern_;
     std::unique_ptr<StatisticsStrategy> statistics_;
+    ReportConfiguration config_;
 
     // Collection of stack traces
     long long presentActual_ = 0;
@@ -730,14 +745,14 @@ namespace {
 
   class MonitorAdaptor : public cms::perftools::AllocMonitorBase {
   public:
-    static void startOnThread(std::string_view name, std::string filePattern, bool printStatistics) {
+    static void startOnThread(std::string_view name, std::string filePattern, ReportConfiguration config) {
       threadActiveMonitoring() = false;
       auto trace = std::stacktrace::current();
       auto const fileCount = globalFileCounter().fetch_add(1);
       auto node = std::make_unique<MonitorStackNode>(
           name,
           std::move(currentMonitorStackNode()),
-          StackNodeData(std::move(trace), fileCount, std::move(filePattern), printStatistics));
+          StackNodeData(std::move(trace), fileCount, std::move(filePattern), config));
       {
         edm::LogSystem log("IntrusiveAllocProfiler");
         using namespace cms::perftools::allocMon;
@@ -791,7 +806,9 @@ class IntrusiveAllocProfiler : public edm::IntrusiveMonitorBase {
 public:
   IntrusiveAllocProfiler(edm::ParameterSet const& iPSet)
       : pattern_(iPSet.getUntrackedParameter<std::string>("filePattern")),
-        printStatistics_(iPSet.getUntrackedParameter<bool>("statistics")) {
+        config_{.printStatistics_ = iPSet.getUntrackedParameter<bool>("statistics"),
+                .deallocationReport_ = iPSet.getUntrackedParameter<bool>("deallocationReport"),
+                .churnReport_ = iPSet.getUntrackedParameter<bool>("churnReport")} {
     if (not pattern_.empty()) {
       if (not pattern_.contains("%I")) {
         throw edm::Exception(edm::errors::Configuration) << "filePattern did not contain '%I'";
@@ -805,9 +822,7 @@ public:
   };
   ~IntrusiveAllocProfiler() noexcept override = default;
 
-  void start(std::string_view name, bool nameIsString) final {
-    MonitorAdaptor::startOnThread(name, pattern_, printStatistics_);
-  }
+  void start(std::string_view name, bool nameIsString) final { MonitorAdaptor::startOnThread(name, pattern_, config_); }
   void stop(std::string_view name) noexcept final { MonitorAdaptor::stopOnThread(name); }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& iDesc) {
@@ -819,12 +834,20 @@ public:
             "'churnalloc'). If empty (default), results are printed with MessageLogger.");
     ps.addUntracked<bool>("statistics", false)
         ->setComment("Whether to print some timing statistics about the memory measurement itself. Default is false.");
+    ps.addUntracked<bool>("deallocationReport", true)
+        ->setComment(
+            "Whether to produce a report on deallocations. On deep stack traces this can take time, so turning it off "
+            "could speed up if the deallocation report is not needed");
+    ps.addUntracked<bool>("churnReport", true)
+        ->setComment(
+            "Whether to produce reports on memory churn. On deep stack traces this can take time, so turning it off "
+            "could speed up if the deallocation report is not needed");
     iDesc.addDefault(ps);
   }
 
 private:
   std::string pattern_;
-  bool printStatistics_ = false;
+  ReportConfiguration const config_;
 };
 
 typedef edm::serviceregistry::ParameterSetMaker<edm::IntrusiveMonitorBase, IntrusiveAllocProfiler>

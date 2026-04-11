@@ -12,7 +12,33 @@
 #include <format>
 #include <memory>
 #include <string_view>
+#include <tuple>
 #include <vector>
+
+[[gnu::noinline]] std::tuple<int*, int> testReallocInner(int* ptr, int oldsize) {
+  int size = oldsize + 10;
+  ptr = static_cast<int*>(realloc(ptr, size * sizeof(int)));
+  for (int i = oldsize; i < size; ++i) {
+    ptr[i] = i * 2;
+  }
+
+  oldsize = size;
+  size = oldsize + 20;
+  ptr = static_cast<int*>(realloc(ptr, size * sizeof(int)));
+  for (int i = oldsize; i < size; ++i) {
+    ptr[i] = i * 3 - 42;
+  }
+  return std::tuple(ptr, size);
+}
+
+[[gnu::noinline]] std::tuple<int*, int> testRealloc() {
+  int size = 10;
+  int* ptr = static_cast<int*>(malloc(size * sizeof(int)));
+  for (int i = 0; i < size; ++i) {
+    ptr[i] = i + 10;
+  }
+  return testReallocInner(ptr, size);
+}
 
 [[gnu::noinline]] std::vector<int> nestedChurn() {
   std::vector<int> vec;
@@ -171,6 +197,20 @@ process.add_(cms.Service('{}'))
     edm::LogPrint("Test").format("Sum {}", sum);
   }
   edm::LogPrint("Test").format("====================");
+
+  edm::LogPrint("Test").format("Test realloc");
+  {
+    int sum = 0;
+    {
+      auto guard = imb->startMonitoring("Realloc");
+      auto [rawPtr, size] = testRealloc();
+      for (int i = 0; i < size; ++i) {
+        sum += rawPtr[size];
+      }
+      free(rawPtr);
+    }
+    edm::LogPrint("Test").format("Sum {}", sum);
+  }
 
   return 0;
 }
