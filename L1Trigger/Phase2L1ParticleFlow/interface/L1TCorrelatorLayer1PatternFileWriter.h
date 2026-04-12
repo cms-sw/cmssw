@@ -57,6 +57,8 @@ private:
   const uint32_t nPFOutPhoton_;
   const uint32_t nPFOutNeutral_;
   const uint32_t nPFOutMuon_;
+  const uint32_t nEGElectron_;
+  const uint32_t nEGPhoton_;
 
   // Common stuff related to the format
   uint32_t nInputFramesPerBX_, nOutputFramesPerBX_;

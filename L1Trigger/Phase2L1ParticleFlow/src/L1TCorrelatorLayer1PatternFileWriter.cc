@@ -28,6 +28,8 @@ L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const
       nPFOutPhoton_(iConfig.getParameter<uint32_t>("nPFOutPhoton")),
       nPFOutNeutral_(iConfig.getParameter<uint32_t>("nPFOutNeutral")),
       nPFOutMuon_(iConfig.getParameter<uint32_t>("nPFOutMuon")),
+      nEGElectron_(iConfig.getParameter<uint32_t>("nEGElectron")),
+      nEGPhoton_(iConfig.getParameter<uint32_t>("nEGPhoton")),
       fileFormat_(iConfig.getParameter<std::string>("fileFormat")),
       eventsPerFile_(iConfig.getParameter<uint32_t>("eventsPerFile")),
       eventIndex_(0) {
@@ -145,6 +147,12 @@ L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const
     for (unsigned int i = 0; i < nPFOutMuon_ * 2; ++i) {
       channelIdsOutput_[l1t::demo::LinkId{"pfout_muon", i}].push_back(linkCount++);
     }
+    for (unsigned int i = 0; i < nEGElectron_ * 2; ++i) {
+      channelIdsOutput_[l1t::demo::LinkId{"egout_electron", i}].push_back(linkCount++);
+    }
+    for (unsigned int i = 0; i < nEGPhoton_ * 2; ++i) {
+      channelIdsOutput_[l1t::demo::LinkId{"egout_photon", i}].push_back(linkCount++);
+    }
     channelSpecsOutput_["pfin_track"] = {tmuxFactor_, 0};
     channelSpecsOutput_["pfin_emcalo"] = {tmuxFactor_, 0};
     channelSpecsOutput_["pfin_hadcalo"] = {tmuxFactor_, 0};
@@ -153,6 +161,8 @@ L1TCorrelatorLayer1PatternFileWriter::L1TCorrelatorLayer1PatternFileWriter(const
     channelSpecsOutput_["pfout_photon"] = {tmuxFactor_, 0};
     channelSpecsOutput_["pfout_neutral"] = {tmuxFactor_, 0};
     channelSpecsOutput_["pfout_muon"] = {tmuxFactor_, 0};
+    channelSpecsOutput_["egout_electron"] = {tmuxFactor_, 0};
+    channelSpecsOutput_["egout_photon"] = {tmuxFactor_, 0};
 
     debugFileWriter_ =
         std::make_unique<l1t::demo::BoardDataWriter>(l1t::demo::parseFileFormat(fileFormat_),
@@ -193,6 +203,8 @@ edm::ParameterSetDescription L1TCorrelatorLayer1PatternFileWriter::getParameterS
   description.add<uint32_t>("nPFOutPhoton", 0);
   description.add<uint32_t>("nPFOutNeutral", 0);
   description.add<uint32_t>("nPFOutMuon", 0);
+  description.add<uint32_t>("nEGElectron", 0);
+  description.add<uint32_t>("nEGPhoton", 0);
 
   description.ifValue(edm::ParameterDescription<std::string>("partition", "Barrel", true),
                       "Barrel" >> (describeTF() and describeGCT() and describeGTT() and describeGMT() and
@@ -608,6 +620,43 @@ void L1TCorrelatorLayer1PatternFileWriter::writeDebugs(const l1ct::Event& event,
       out.add(l1t::demo::LinkId{"pfout_muon", 2 * i + 1}, linksLow[i]);
     }
   }
+
+  if (nEGElectron_) {
+    std::vector<std::vector<ap_uint<64>>> linksLow(nEGElectron_);   // virtual links -- bits 63:0
+    std::vector<std::vector<ap_uint<64>>> linksHigh(nEGElectron_);  // virtual links -- bits MAX_BITWIDTH-1:64
+    for (auto ir : outputRegions_) {
+      auto egvals = event.out[ir].egelectron;
+      unsigned int negvals = egvals.size();
+      for (unsigned int i = 0; i < nEGElectron_; ++i) {
+        ap_uint<MAX_BITWIDTH> val = i < negvals ? egvals[i].pack() : ap_uint<l1ct::EGIsoEleObjEmu::BITWIDTH>(0);
+        linksHigh[i].push_back(val(MAX_BITWIDTH - 1, 64));
+        linksLow[i].push_back(val(63, 0));
+      }
+    }
+    for (unsigned int i = 0; i < linksLow.size(); ++i) {
+      out.add(l1t::demo::LinkId{"egout_electron", 2 * i}, linksHigh[i]);
+      out.add(l1t::demo::LinkId{"egout_electron", 2 * i + 1}, linksLow[i]);
+    }
+  }
+
+  if (nEGPhoton_) {
+    std::vector<std::vector<ap_uint<64>>> linksLow(nEGPhoton_);   // virtual links -- bits 63:0
+    std::vector<std::vector<ap_uint<64>>> linksHigh(nEGPhoton_);  // virtual links -- bits MAX_BITWIDTH-1:64
+    for (auto ir : outputRegions_) {
+      auto egvals = event.out[ir].egphoton;
+      unsigned int negvals = egvals.size();
+      for (unsigned int i = 0; i < nEGPhoton_; ++i) {
+        ap_uint<MAX_BITWIDTH> val = i < negvals ? egvals[i].pack() : ap_uint<l1ct::EGIsoObjEmu::BITWIDTH>(0);
+        linksHigh[i].push_back(val(MAX_BITWIDTH - 1, 64));
+        linksLow[i].push_back(val(63, 0));
+      }
+    }
+    for (unsigned int i = 0; i < linksLow.size(); ++i) {
+      out.add(l1t::demo::LinkId{"egout_photon", 2 * i}, linksHigh[i]);
+      out.add(l1t::demo::LinkId{"egout_photon", 2 * i + 1}, linksLow[i]);
+    }
+  }
+
 }
 
 void L1TCorrelatorLayer1PatternFileWriter::writePuppi(const l1ct::Event& event, l1t::demo::EventData& out) {

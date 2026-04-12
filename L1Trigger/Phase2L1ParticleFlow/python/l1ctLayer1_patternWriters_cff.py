@@ -255,6 +255,14 @@ barrelWriterDebugPFOutConfigsAPx = _barrelWriterOutputOnly.clone(
     debugFileName = cms.string("l1BarrelApx-pfout")
 )
 
+barrelWriterDebugEGConfigsAPx = _barrelWriterOutputOnly.clone(
+    fileFormat = cms.string("APx"),
+    nEGElectron = cms.uint32(10),
+    nEGPhoton = cms.uint32(10),
+    nOutputFramesPerBX = cms.uint32(3),  #(18 * 2/3 (going to 240) * 1/2 (doing II = 2))
+    debugFileName = cms.string("l1BarrelApx-egamma")
+)
+
 # For the tracker, the logical (firmware) fiber order sorts negative eta first, then positive,
 # and in a given eta from most negative to most positive phi. That is reflected in this remapping
 trackFiberOrder = (4, 5, 6, 7, 8, 0, 1, 2, 3, 13, 14, 15, 16, 17, 9, 10, 11, 12) # phys to logical
