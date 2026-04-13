@@ -66,7 +66,6 @@ namespace sctTrackMonitor {
     const auto& name = h1->GetName();
     return ibook.book1D(name, h1.release());
   }
-
 }  // namespace sctTrackMonitor
 
 class ScoutingTrackMonitor : public DQMEDAnalyzer {
@@ -88,6 +87,18 @@ public:
   private:
     int PhiBin_, EtaBin_, PtBin_;
     double PhiMin_, PhiMax_, EtaMin_, EtaMax_, PtMin_, PtMax_;
+  };
+
+  struct ProfileConfig {
+    std::string name;   // Base name
+    std::string title;  // Human-readable title
+    double ymin;        // Minimum Y value
+    double ymax;        // Maximum Y value
+
+    // MonitorElements
+    MonitorElement* p2_eta_phi = nullptr;
+    MonitorElement* p_eta = nullptr;
+    MonitorElement* p_phi = nullptr;
   };
 
 protected:
@@ -128,19 +139,19 @@ private:
   MonitorElement* h_dxy;
   MonitorElement* h_dz;
   MonitorElement* h_vtx_idx;
-  MonitorElement* p_dxy_eta;
-  MonitorElement* p_dxy_phi;
-  MonitorElement* p_dz_eta;
-  MonitorElement* p_dz_phi;
-
   MonitorElement* h2_eta_phi;
 
-  // 2D eta-phi profiles
+  MonitorElement* p_dxy_eta;
+  MonitorElement* p_dxy_phi;
   MonitorElement* p2_dxy_eta_phi;
+
+  MonitorElement* p_dz_eta;
+  MonitorElement* p_dz_phi;
   MonitorElement* p2_dz_eta_phi;
-  MonitorElement* p2_nValidPixelHits_eta_phi;
-  MonitorElement* p2_nTrackerLayersWithMeasurement_eta_phi;
-  MonitorElement* p2_nValidStripHits_eta_phi;
+
+  // hit profiles configuration
+  std::vector<ProfileConfig> hitProfiles_;
+  std::vector<ProfileConfig> impactParameterProfiles_;
 
   static constexpr int cmToUm = 10000;
 
@@ -178,7 +189,14 @@ ScoutingTrackMonitor::ScoutingTrackMonitor(const edm::ParameterSet& iConfig)
     : conf_(iConfig),
       tracksToken_{consumes<std::vector<Run3ScoutingTrack>>(iConfig.getParameter<edm::InputTag>("tracks"))},
       verticesToken_{consumes<std::vector<Run3ScoutingVertex>>(iConfig.getParameter<edm::InputTag>("vertices"))},
-      topFolderName_{iConfig.getParameter<std::string>("topFolderName")} {}
+      topFolderName_{iConfig.getParameter<std::string>("topFolderName")} {
+  hitProfiles_ = {{"nValidPixelHits", "nValidPixelHits", 0., 10.},
+                  {"nTrackerLayersWithMeasurement", "nTrackerLayersWithMeasurement", 0., 20.},
+                  {"nValidStripHits", "nValidStripHits", 0., 30.}};
+
+  impactParameterProfiles_ = {{"dxy", "d_{xy}", -0.15 * cmToUm, 0.15 * cmToUm},
+                              {"dz", "d_{z}", -0.35 * cmToUm, 0.35 * cmToUm}};
+}
 
 // histogram booking
 void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
@@ -189,100 +207,96 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
 
   h_vtx_idx = ibooker.book1DD("vertexIndex", "tracks Vertex Index;Vertex index;Tracks", 17, -1.5, 15.5);
 
-  p_dxy_eta = ibooker.bookProfile(
-      "dxy_vs_eta", "d_{xy} vs #eta;#eta;#LTd_{xy}#GT [#mum]", 50, -3.0, 3.0, -0.01 * cmToUm, 0.01 * cmToUm, "");
-  p_dxy_phi = ibooker.bookProfile("dxy_vs_phi",
-                                  "d_{xy} vs #phi;#phi [rad];#LTd_{xy}#GT [#mum]",
-                                  50,
-                                  -std::numbers::pi,
-                                  std::numbers::pi,
-                                  -0.15 * cmToUm,
-                                  0.15 * cmToUm,
-                                  "");
-  p_dz_eta = ibooker.bookProfile(
-      "dz_vs_eta", "d_{z} vs #eta;#eta;#LTd_{z}#GT [#mum]", 50, -3.0, 3.0, -0.05 * cmToUm, 0.05 * cmToUm, "");
-  p_dz_phi = ibooker.bookProfile("dz_vs_phi",
-                                 "d_{z} vs #phi;#phi [rad];#LTd_{z}#GT [#mum]",
-                                 50,
-                                 -std::numbers::pi,
-                                 std::numbers::pi,
-                                 -0.35 * cmToUm,
-                                 0.35 * cmToUm,
-                                 "");
-
   // 2D eta-phi occupancy histograms
   h2_eta_phi = ibooker.book2I(
       "eta_vs_phi", "Track occupancy;#eta;#phi [rad]", 50, -3.0, 3.0, 50, -std::numbers::pi, std::numbers::pi);
   h2_eta_phi->setOption("colz");
 
-  // 2D eta-phi profiles
-  p2_dxy_eta_phi = ibooker.bookProfile2D("dxy_vs_eta_phi",
-                                         "d_{xy} vs #eta-#phi;#eta;#phi [rad];#LTd_{xy}#GT [#mum]",
-                                         50,
-                                         -3.0,
-                                         3.0,
-                                         50,
-                                         -std::numbers::pi,
-                                         std::numbers::pi,
-                                         -0.15 * cmToUm,
-                                         0.15 * cmToUm,
-                                         "");
-  p2_dxy_eta_phi->setOption("colz");
+  // Profiles
+  constexpr int nEtaBins = 50;
+  constexpr double etaMin = -3.0;
+  constexpr double etaMax = 3.0;
 
-  p2_dz_eta_phi = ibooker.bookProfile2D("dz_vs_eta_phi",
-                                        "d_{z} vs #eta-#phi;#eta;#phi [rad];#LTd_{z}#GT [#mum]",
-                                        50,
-                                        -3.0,
-                                        3.0,
-                                        50,
-                                        -std::numbers::pi,
-                                        std::numbers::pi,
-                                        -0.35 * cmToUm,
-                                        0.35 * cmToUm,
-                                        "");
-  p2_dz_eta_phi->setOption("colz");
+  constexpr int nPhiBins = 50;
+  constexpr double phiMin = -std::numbers::pi;
+  constexpr double phiMax = std::numbers::pi;
 
-  p2_nValidPixelHits_eta_phi =
-      ibooker.bookProfile2D("nValidPixelHits_vs_eta_phi_prof",
-                            "nValidPixelHits vs #eta-#phi;#eta;#phi [rad];#LTnValidPixelHits#GT",
-                            50,
-                            -3.0,
-                            3.0,
-                            50,
-                            -std::numbers::pi,
-                            std::numbers::pi,
-                            0.,
-                            10.,
-                            "");
-  p2_nValidPixelHits_eta_phi->setOption("colz");
+  // n. hits profiles
+  for (auto& cfg : hitProfiles_) {
+    const std::string& base = cfg.name;
+    const std::string& title = cfg.title;
 
-  p2_nTrackerLayersWithMeasurement_eta_phi = ibooker.bookProfile2D(
-      "nTrackerLayersWithMeasurement_vs_eta_phi_prof",
-      "nTrackerLayersWithMeasurement vs #eta-#phi;#eta;#phi [rad];#LTnTrackerLayersWithMeasurement#GT",
-      50,
-      -3.0,
-      3.0,
-      50,
-      -std::numbers::pi,
-      std::numbers::pi,
-      0.,
-      20.,
-      "");
-  p2_nTrackerLayersWithMeasurement_eta_phi->setOption("colz");
+    // 2D Profile: vs eta-phi
+    cfg.p2_eta_phi = ibooker.bookProfile2D(base + "_vs_eta_phi_prof",
+                                           title + " vs #eta-#phi;#eta;#phi [rad];#LT" + title + "#GT",
+                                           nEtaBins,
+                                           etaMin,
+                                           etaMax,
+                                           nPhiBins,
+                                           phiMin,
+                                           phiMax,
+                                           cfg.ymin,
+                                           cfg.ymax,
+                                           "");
+    cfg.p2_eta_phi->setOption("colz");
 
-  p2_nValidStripHits_eta_phi =
-      ibooker.bookProfile2D("nValidStripHits_vs_eta_phi_prof",
-                            "nValidStripHits vs #eta-#phi;#eta;#phi [rad];#LTnValidStripHits#GT",
-                            50,
-                            -3.0,
-                            3.0,
-                            50,
-                            -std::numbers::pi,
-                            std::numbers::pi,
-                            0.,
-                            30.,
-                            "");
-  p2_nValidStripHits_eta_phi->setOption("colz");
+    // 1D Profile: vs eta
+    cfg.p_eta = ibooker.bookProfile(base + "_vs_eta_prof",
+                                    title + " vs #eta;#eta;#LT" + title + "#GT",
+                                    nEtaBins,
+                                    etaMin,
+                                    etaMax,
+                                    cfg.ymin,
+                                    cfg.ymax,
+                                    "");
+
+    // 1D Profile: vs phi
+    cfg.p_phi = ibooker.bookProfile(base + "_vs_phi_prof",
+                                    title + " vs #phi;#phi [rad];#LT" + title + "#GT",
+                                    nPhiBins,
+                                    phiMin,
+                                    phiMax,
+                                    cfg.ymin,
+                                    cfg.ymax,
+                                    "");
+  }
+
+  // IP profiles
+  for (auto& cfg : impactParameterProfiles_) {
+    // Profile vs eta
+    cfg.p_eta = ibooker.bookProfile(cfg.name + "_vs_eta",
+                                    cfg.title + " vs #eta;#eta;#LT" + cfg.title + "#GT [#mum]",
+                                    nEtaBins,
+                                    etaMin,
+                                    etaMax,
+                                    cfg.ymin,
+                                    cfg.ymax,
+                                    "");
+
+    // Profile vs phi
+    cfg.p_phi = ibooker.bookProfile(cfg.name + "_vs_phi",
+                                    cfg.title + " vs #phi;#phi [rad];#LT" + cfg.title + "#GT [#mum]",
+                                    nPhiBins,
+                                    phiMin,
+                                    phiMax,
+                                    cfg.ymin,
+                                    cfg.ymax,
+                                    "");
+
+    // 2D profile vs eta-phi
+    cfg.p2_eta_phi = ibooker.bookProfile2D(cfg.name + "_vs_eta_phi",
+                                           cfg.title + " vs #eta-#phi;#eta;#phi [rad];#LT" + cfg.title + "#GT [#mum]",
+                                           nEtaBins,
+                                           etaMin,
+                                           etaMax,
+                                           nPhiBins,
+                                           phiMin,
+                                           phiMax,
+                                           cfg.ymin,
+                                           cfg.ymax,
+                                           "");
+    cfg.p2_eta_phi->setOption("colz");
+  }
 
   // intialize the profiles
   double xBins[19] = {0., 0.15, 0.5, 1., 1.5, 2., 2.5, 3., 3.5, 4., 4.5, 5., 7., 10., 15., 25., 40., 100., 200.};
@@ -341,8 +355,8 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
       ibooker.bookProfile("p_chi2Prob_vs_d0",
                           "#chi^{2} probablility vs. |d_{0}|;|d_{0}|[cm];#LT #chi^{2} probability#GT",
                           100,
-                          0,
-                          80,
+                          0.,
+                          80.,
                           0.,
                           1.,
                           ""));
@@ -623,11 +637,23 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     const float phi = trk.tk_phi();
     const float pt = trk.tk_pt();
 
+    const int nValidPixelHits = trk.tk_nValidPixelHits();
+    const int nTrackerLayers = trk.tk_nTrackerLayersWithMeasurement();
+    const int nValidStripHits = trk.tk_nValidStripHits();
+
     // --- fill 2D eta-phi occupancy histograms ---
     h2_eta_phi->Fill(eta, phi);
-    p2_nValidPixelHits_eta_phi->Fill(eta, phi, trk.tk_nValidPixelHits());
-    p2_nTrackerLayersWithMeasurement_eta_phi->Fill(eta, phi, trk.tk_nTrackerLayersWithMeasurement());
-    p2_nValidStripHits_eta_phi->Fill(eta, phi, trk.tk_nValidStripHits());
+    const std::array<double, 3> values = {static_cast<double>(nValidPixelHits),
+                                          static_cast<double>(nTrackerLayers),
+                                          static_cast<double>(nValidStripHits)};
+
+    for (size_t i = 0; i < hitProfiles_.size(); ++i) {
+      const auto& cfg = hitProfiles_[i];
+      const double value = values[i];
+      cfg.p2_eta_phi->Fill(eta, phi, value);
+      cfg.p_eta->Fill(eta, value);
+      cfg.p_phi->Fill(phi, value);
+    }
 
     // --- build reco vertex ---
     reco::Vertex recoVtx = makeRecoVertex(*closestVtx);
@@ -645,15 +671,15 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     h_dxy->Fill(dxy);
     h_dz->Fill(dz);
 
-    p_dxy_eta->Fill(eta, dxy);
-    p_dxy_phi->Fill(phi, dxy);
+    const std::array<double, 2> ipvalues = {dxy, dz};
+    for (size_t i = 0; i < impactParameterProfiles_.size(); ++i) {
+      const auto& cfg = impactParameterProfiles_[i];
+      const double value = ipvalues[i];
 
-    p_dz_eta->Fill(eta, dz);
-    p_dz_phi->Fill(phi, dz);
-
-    // --- fill 2D eta-phi profiles ---
-    p2_dxy_eta_phi->Fill(eta, phi, dxy);
-    p2_dz_eta_phi->Fill(eta, phi, dz);
+      cfg.p_eta->Fill(eta, value);
+      cfg.p_phi->Fill(phi, value);
+      cfg.p2_eta_phi->Fill(eta, phi, value);
+    }
 
     // Fill track profiles
     double chi2Prob = TMath::Prob(recoTrk.chi2(), recoTrk.ndof());
