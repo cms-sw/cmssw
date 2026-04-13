@@ -1194,9 +1194,9 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   pfMetPt_hist = ibook.book1D("pfMetPt", "pf MET p_{T};p_{T} [GeV];Entries", 100, 0.0, 250.0);
 
   if (!onlyScouting_) {
-    PVvsPU_hist =
-        ibook.bookProfile("PVvsPU", "Number of primary vertices vs pile up; pile up; <N_{PV}>", 70, 0, 70, 0, 65);
-    rhovsPU_hist = ibook.bookProfile("rhovsPU", "#rho vs pile up; pile up; <#rho>", 70, 0, 70, 0, 45);
+    PVvsPU_hist = ibook.bookProfile(
+        "PVvsPU", "Number of primary vertices vs pile up; pile up; #LTN_{PV}#GT", 70, 0., 70., 0., 70., "");
+    rhovsPU_hist = ibook.bookProfile("rhovsPU", "#rho vs pile up; pile up; #LT#rho#GT", 70, 0., 70., 0., 45., "");
   }
 
   ibook.setCurrentFolder(topfoldername_ + "/PFcand");
