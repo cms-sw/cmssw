@@ -5,6 +5,7 @@ from DQM.HLTEvF.listOfFilters_cff import filters as _filters
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 hltResults = DQMEDAnalyzer("FourVectorHLT",
      plotAll = cms.untracked.bool(False),
+     debug =  cms.untracked.bool(False),
      ptMax = cms.untracked.double(100.0),
      ptMin = cms.untracked.double(0.0),
      filters = _filters,
