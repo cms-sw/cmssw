@@ -400,6 +400,9 @@ from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
 trackingLST.toModify(locals()["TrackSeedMonhighPtTripletStep"],
     SeedProducer = "lstInputProducer"
 )
+seedingLST.toModify(locals()["TrackSeedMonhighPtTripletStep"],
+    SeedProducer = "highPtTripletStepTrajectorySeedsLST"
+)
 _LST_TrackSeedMonSequence = TrackSeedMonSequence.copyAndExclude([locals()["TrackSeedMoninitialStep"]])
 (seedingLST | trackingLST).toReplaceWith(TrackSeedMonSequence, _LST_TrackSeedMonSequence)
 
