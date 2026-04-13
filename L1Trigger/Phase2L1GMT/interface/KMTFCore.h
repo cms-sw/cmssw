@@ -57,6 +57,7 @@ namespace Phase2L1GMT {
     void vertexConstraintOffline(l1t::KMTFTrack& track);
     void vertexConstraintLUT(l1t::KMTFTrack& track);
     int hitPattern(const l1t::KMTFTrack& track);
+    int thetaDigiPattern(const l1t::KMTFTrack& track);
     int customBitmask(unsigned int bit1, unsigned int bit2, unsigned int bit3, unsigned int bit4);
     bool getBit(int bitmask, int pos);
     void setFourVectors(l1t::KMTFTrack& track);

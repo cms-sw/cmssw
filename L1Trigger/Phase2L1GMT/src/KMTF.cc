@@ -301,6 +301,8 @@ void KMTF::overlapCleanTrack(l1t::KMTFTrack& source, const l1t::KMTFTrack& other
   int id2 = vertex ? other.id() & 0x1 : other.id() & 0x2;
   bool keep = true;
   unsigned int pattern = 0;
+  unsigned int thetaPattern = 0;
+
   if (id1 == 0)
     keep = false;
   else if (id1 != 0 && id2 != 0) {
@@ -320,10 +322,13 @@ void KMTF::overlapCleanTrack(l1t::KMTFTrack& source, const l1t::KMTFTrack& other
     if (ok) {
       stubs.push_back(s1);
       pattern = pattern | (1 << (s1->depthRegion() - 1));
+      if (s1->depthRegion() != 4 && s1->etaQuality() > 0)
+        thetaPattern |= (1 << (s1->depthRegion() - 1));
     }
   }
   source.setStubs(stubs);
   source.setHitPattern(pattern);
+  source.setThetaDigiPattern(thetaPattern);
 }
 
 std::vector<l1t::KMTFTrack> KMTF::cleanRegion(const std::vector<l1t::KMTFTrack>& tracks2,

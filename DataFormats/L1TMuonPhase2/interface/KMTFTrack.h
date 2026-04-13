@@ -37,6 +37,7 @@ namespace l1t {
           approxDispChi2_(0),
           approxDispErrChi2_(0),
           hitPattern_(0),
+          thetaDigiPattern_(0),
           step_(1),
           sector_(0),
           wheel_(0),
@@ -72,6 +73,7 @@ namespace l1t {
           approxDispChi2_(0),
           approxDispErrChi2_(0),
           hitPattern_(0),
+          thetaDigiPattern_(0),
           step_(seed->depthRegion()),
           sector_(seed->phiRegion()),
           wheel_(seed->etaRegion()),
@@ -126,6 +128,7 @@ namespace l1t {
     int approxDispErrChi2() const { return approxDispErrChi2_; }
 
     int hitPattern() const { return hitPattern_; }
+    int thetaDigiPattern() const { return thetaDigiPattern_; }
     //step;
     int step() const { return step_; }
     //sector;
@@ -227,6 +230,7 @@ namespace l1t {
     void setCoarseEta(int eta) { coarseEta_ = eta; }
 
     void setHitPattern(int pattern) { hitPattern_ = pattern; }
+	void setThetaDigiPattern(int theta_pattern) { thetaDigiPattern_ = theta_pattern; }
 
     void setApproxChi2(int chi, int chiErr, bool prompt) {
       if (prompt) {
@@ -382,6 +386,8 @@ namespace l1t {
 
     //phi bitmask
     int hitPattern_;
+	//bitmask pattern based on theta digi presence
+    int thetaDigiPattern_;
 
     //propagation step
     int step_;
