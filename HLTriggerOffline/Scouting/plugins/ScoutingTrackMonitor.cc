@@ -3,6 +3,7 @@
 #include <vector>
 #include <numbers>
 #include <fmt/format.h>
+#include <boost/range/adaptor/indexed.hpp>
 
 // user includes
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -150,11 +151,26 @@ private:
   IPMonitoring dz_pt1;
   IPMonitoring dz_pt10;
 
+  // profiles
+  std::vector<MonitorElement*> vTrackProfiles_;
+
   // helpers
   reco::Track makeRecoTrack(const Run3ScoutingTrack& sTrack) const;
   reco::Vertex makeRecoVertex(const Run3ScoutingVertex& sVertex) const;
   std::pair<unsigned int, const Run3ScoutingVertex*> findClosestScoutingVertex(
       const reco::Track* track, const std::vector<Run3ScoutingVertex>& vertices);
+
+  template <class OBJECT_TYPE>
+  int index(const std::vector<OBJECT_TYPE*>& vec, const TString& name) {
+    for (const auto& iter : vec | boost::adaptors::indexed(0)) {
+      if (iter.value() && iter.value()->getName() == name) {
+        return iter.index();
+      }
+    }
+    edm::LogError("ScoutingTrackMonitor") << "@SUB=ScoutingTrackMonitor::index"
+                                          << " could not find " << name;
+    return -1;
+  }
 };
 
 // constructor
@@ -267,6 +283,129 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
                             30.,
                             "");
   p2_nValidStripHits_eta_phi->setOption("colz");
+
+  // intialize the profiles
+  double xBins[19] = {0., 0.15, 0.5, 1., 1.5, 2., 2.5, 3., 3.5, 4., 4.5, 5., 7., 10., 15., 25., 40., 100., 200.};
+  vTrackProfiles_.push_back(ibooker.bookProfile("p_d0_vs_phi",
+                                                "Transverse Impact Parameter vs. #phi;#phi_{Track};#LT d_{0} #GT [cm]",
+                                                100,
+                                                -std::numbers::pi,
+                                                std::numbers::pi,
+                                                -0.15 * cmToUm,
+                                                0.15 * cmToUm,
+                                                ""));
+  vTrackProfiles_.push_back(
+      ibooker.bookProfile("p_dz_vs_phi",
+                          "Longitudinal Impact Parameter vs. #phi;#phi_{Track};#LT d_{z} #GT [cm]",
+                          100,
+                          -std::numbers::pi,
+                          std::numbers::pi,
+                          -0.35 * cmToUm,
+                          0.35 * cmToUm,
+                          ""));
+  vTrackProfiles_.push_back(ibooker.bookProfile("p_d0_vs_eta",
+                                                "Transverse Impact Parameter vs. #eta;#eta_{Track};#LT d_{0} #GT [cm]",
+                                                100,
+                                                -3.,
+                                                3.,
+                                                -0.15 * cmToUm,
+                                                0.15 * cmToUm,
+                                                ""));
+  vTrackProfiles_.push_back(
+      ibooker.bookProfile("p_dz_vs_eta",
+                          "Longitudinal Impact Parameter vs. #eta;#eta_{Track};#LT d_{z} #GT [cm]",
+                          100,
+                          -3.,
+                          3.,
+                          -0.35 * cmToUm,
+                          0.35 * cmToUm,
+                          ""));
+  vTrackProfiles_.push_back(ibooker.bookProfile("p_chi2_vs_phi",
+                                                "#chi^{2} vs. #phi;#phi_{Track};#LT #chi^{2} #GT",
+                                                100,
+                                                -std::numbers::pi,
+                                                std::numbers::pi,
+                                                0,
+                                                100,
+                                                ""));
+  vTrackProfiles_.push_back(
+      ibooker.bookProfile("p_chi2Prob_vs_phi",
+                          "#chi^{2} probablility vs. #phi;#phi_{Track};#LT #chi^{2} probability#GT",
+                          100,
+                          -std::numbers::pi,
+                          std::numbers::pi,
+                          0.,
+                          1.,
+                          ""));
+  vTrackProfiles_.push_back(
+      ibooker.bookProfile("p_chi2Prob_vs_d0",
+                          "#chi^{2} probablility vs. |d_{0}|;|d_{0}|[cm];#LT #chi^{2} probability#GT",
+                          100,
+                          0,
+                          80,
+                          0.,
+                          1.,
+                          ""));
+  vTrackProfiles_.push_back(ibooker.bookProfile("p_chi2Prob_vs_dz",
+                                                "#chi^{2} probablility vs. dz;d_{z} [cm];#LT #chi^{2} probability#GT",
+                                                100,
+                                                -30,
+                                                30,
+                                                0.,
+                                                1.,
+                                                ""));
+  vTrackProfiles_.push_back(ibooker.bookProfile("p_normchi2_vs_phi",
+                                                "#chi^{2}/ndof vs. #phi;#phi_{Track};#LT #chi^{2}/ndof #GT",
+                                                100,
+                                                -std::numbers::pi,
+                                                std::numbers::pi,
+                                                0.,
+                                                5.,
+                                                ""));
+  vTrackProfiles_.push_back(ibooker.bookProfile(
+      "p_chi2_vs_eta", "#chi^{2} vs. #eta;#eta_{Track};#LT #chi^{2} #GT", 100, -3., 3., 0., 100., ""));
+  vTrackProfiles_.push_back(ibooker.bookProfile("p_normchi2_vs_pt",
+                                                "norm #chi^{2} vs. p_{T}_{Track}; p_{T}_{Track};#LT #chi^{2}/ndof #GT",
+                                                18,
+                                                xBins,
+                                                0.,
+                                                5.,
+                                                ""));
+  vTrackProfiles_.push_back(ibooker.bookProfile(
+      "p_normchi2_vs_p", "#chi^{2}/ndof vs. p_{Track};p_{Track};#LT #chi^{2}/ndof #GT", 18, xBins, 0., 5., ""));
+  vTrackProfiles_.push_back(
+      ibooker.bookProfile("p_chi2Prob_vs_eta",
+                          "#chi^{2} probability vs. #eta;#eta_{Track};#LT #chi^{2} probability #GT",
+                          100,
+                          -3.,
+                          3.,
+                          0.,
+                          1.,
+                          ""));
+  vTrackProfiles_.push_back(ibooker.bookProfile(
+      "p_normchi2_vs_eta", "#chi^{2}/ndof vs. #eta;#eta_{Track};#LT #chi^{2}/ndof #GT", 100, -3., 3., 0., 5, ""));
+  vTrackProfiles_.push_back(ibooker.bookProfile(
+      "p_kappa_vs_phi", "#kappa vs. #phi;#phi_{Track};#kappa", 100, -std::numbers::pi, std::numbers::pi, -5., 5., ""));
+  vTrackProfiles_.push_back(
+      ibooker.bookProfile("p_kappa_vs_eta", "#kappa vs. #eta;#eta_{Track};#kappa", 100, -3., 3., -5., 5., ""));
+  vTrackProfiles_.push_back(
+      ibooker.bookProfile("p_ptResolution_vs_phi",
+                          "#delta_{p_{T}}/p_{T}^{track};#phi^{track};#delta_{p_{T}}/p_{T}^{track}",
+                          100,
+                          -std::numbers::pi,
+                          std::numbers::pi,
+                          0.,
+                          1.,
+                          ""));
+  vTrackProfiles_.push_back(
+      ibooker.bookProfile("p_ptResolution_vs_eta",
+                          "#delta_{p_{T}}/p_{T}^{track};#eta^{track};#delta_{p_{T}}/p_{T}^{track}",
+                          100,
+                          -3.,
+                          3.,
+                          0.,
+                          1.,
+                          ""));
 
   // initialize and book the monitors;
   dxy_pt1.varname_ = "xy";
@@ -516,6 +655,52 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     p2_dxy_eta_phi->Fill(eta, phi, dxy);
     p2_dz_eta_phi->Fill(eta, phi, dz);
 
+    // Fill track profiles
+    double chi2Prob = TMath::Prob(recoTrk.chi2(), recoTrk.ndof());
+    double normchi2 = recoTrk.normalizedChi2();
+    double kappa = trk.tk_qoverp();
+
+    //GlobalPoint gPoint(recoTrk.vx(), recoTrk.vy(), recoTrk.vz());
+    //double theLocalMagFieldInInverseGeV = magneticField_->inInverseGeV(gPoint).z();
+    //double kappa = -recoTrk.charge() * theLocalMagFieldInInverseGeV / recoTrk.pt();
+
+    static const int d0phiindex = this->index(vTrackProfiles_, "p_d0_vs_phi");
+    vTrackProfiles_[d0phiindex]->Fill(recoTrk.phi(), recoTrk.d0());
+    static const int dzphiindex = this->index(vTrackProfiles_, "p_dz_vs_phi");
+    vTrackProfiles_[dzphiindex]->Fill(recoTrk.phi(), recoTrk.dz());
+    static const int d0etaindex = this->index(vTrackProfiles_, "p_d0_vs_eta");
+    vTrackProfiles_[d0etaindex]->Fill(recoTrk.eta(), recoTrk.d0());
+    static const int dzetaindex = this->index(vTrackProfiles_, "p_dz_vs_eta");
+    vTrackProfiles_[dzetaindex]->Fill(recoTrk.eta(), recoTrk.dz());
+    static const int chiProbphiindex = this->index(vTrackProfiles_, "p_chi2Prob_vs_phi");
+    vTrackProfiles_[chiProbphiindex]->Fill(recoTrk.phi(), chi2Prob);
+    static const int chiProbabsd0index = this->index(vTrackProfiles_, "p_chi2Prob_vs_d0");
+    vTrackProfiles_[chiProbabsd0index]->Fill(fabs(recoTrk.d0()), chi2Prob);
+    static const int chiProbabsdzindex = this->index(vTrackProfiles_, "p_chi2Prob_vs_dz");
+    vTrackProfiles_[chiProbabsdzindex]->Fill(recoTrk.dz(), chi2Prob);
+    static const int chiphiindex = this->index(vTrackProfiles_, "p_chi2_vs_phi");
+    vTrackProfiles_[chiphiindex]->Fill(recoTrk.phi(), recoTrk.chi2());
+    static const int normchiphiindex = this->index(vTrackProfiles_, "p_normchi2_vs_phi");
+    vTrackProfiles_[normchiphiindex]->Fill(recoTrk.phi(), normchi2);
+    static const int chietaindex = this->index(vTrackProfiles_, "p_chi2_vs_eta");
+    vTrackProfiles_[chietaindex]->Fill(recoTrk.eta(), recoTrk.chi2());
+    static const int normchiptindex = this->index(vTrackProfiles_, "p_normchi2_vs_pt");
+    vTrackProfiles_[normchiptindex]->Fill(recoTrk.pt(), normchi2);
+    static const int normchipindex = this->index(vTrackProfiles_, "p_normchi2_vs_p");
+    vTrackProfiles_[normchipindex]->Fill(recoTrk.p(), normchi2);
+    static const int chiProbetaindex = this->index(vTrackProfiles_, "p_chi2Prob_vs_eta");
+    vTrackProfiles_[chiProbetaindex]->Fill(recoTrk.eta(), chi2Prob);
+    static const int normchietaindex = this->index(vTrackProfiles_, "p_normchi2_vs_eta");
+    vTrackProfiles_[normchietaindex]->Fill(recoTrk.eta(), normchi2);
+    static const int kappaphiindex = this->index(vTrackProfiles_, "p_kappa_vs_phi");
+    vTrackProfiles_[kappaphiindex]->Fill(recoTrk.phi(), kappa);
+    static const int kappaetaindex = this->index(vTrackProfiles_, "p_kappa_vs_eta");
+    vTrackProfiles_[kappaetaindex]->Fill(recoTrk.eta(), kappa);
+    static const int ptResphiindex = this->index(vTrackProfiles_, "p_ptResolution_vs_phi");
+    vTrackProfiles_[ptResphiindex]->Fill(recoTrk.phi(), recoTrk.ptError() / recoTrk.pt());
+    static const int ptResetaindex = this->index(vTrackProfiles_, "p_ptResolution_vs_eta");
+    vTrackProfiles_[ptResetaindex]->Fill(recoTrk.eta(), recoTrk.ptError() / recoTrk.pt());
+
     if (trk.tk_pt() < 1.)
       continue;
 
@@ -665,8 +850,8 @@ void ScoutingTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("DzMin", -2000.0);
   desc.add<double>("DzMax", 2000.0);
   desc.add<int>("PhiBin", 32);
-  desc.add<double>("PhiMin", -M_PI);
-  desc.add<double>("PhiMax", M_PI);
+  desc.add<double>("PhiMin", -std::numbers::pi);
+  desc.add<double>("PhiMax", std::numbers::pi);
   desc.add<int>("EtaBin", 26);
   desc.add<double>("EtaMin", 2.5);
   desc.add<double>("EtaMax", -2.5);
