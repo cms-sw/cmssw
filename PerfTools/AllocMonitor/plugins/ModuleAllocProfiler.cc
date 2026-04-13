@@ -25,6 +25,8 @@
 #include <vector>
 
 namespace {
+  constexpr int kSourceModuleID = 0;
+
   using namespace cms::perftools::allocMon::profiler;
 
   // ---------------------------------------------------------------------------
@@ -124,8 +126,7 @@ namespace {
     void setGlobalKeep(bool iShouldKeep) { globalKeep_.store(iShouldKeep); }
 
     bool keepModuleInfo(int moduleID) const {
-      if ((nullptr == moduleIDs_) or (moduleIDs_->empty()) or
-          (std::binary_search(moduleIDs_->begin(), moduleIDs_->end(), moduleID))) {
+      if ((nullptr == moduleIDs_) or (std::binary_search(moduleIDs_->begin(), moduleIDs_->end(), moduleID))) {
         return true;
       }
       return false;
@@ -146,8 +147,8 @@ namespace {
   void setupProfilerFile(edm::ActivityRegistry& iAR, ProfilerFilter& filter) {
     // Lambdas for the three callback shapes, capturing filter by reference.
     // Each pair is used by multiple watch* calls below.
-    auto const sourceStart = [&filter](auto const&) { filter.startOnThread(); };
-    auto const sourceStop = [&filter](auto const&) { filter.stopOnThread(); };
+    auto const sourceStart = [&filter](auto const&) { filter.startOnThread(kSourceModuleID); };
+    auto const sourceStop = [&filter](auto const&) { filter.stopOnThread(kSourceModuleID); };
     auto const edStart = [&filter](auto const&, edm::ModuleCallingContext const& mcc) {
       filter.startOnThread(static_cast<int>(module_id(mcc)));
     };
@@ -188,10 +189,14 @@ namespace {
     iAR.watchPostSourceRun(sourceStop);
     iAR.watchPreSourceLumi(sourceStart);
     iAR.watchPostSourceLumi(sourceStop);
-    iAR.watchPreSourceNextTransition([&filter]() { filter.startOnThread(); });
-    iAR.watchPostSourceNextTransition([&filter]() { filter.stopOnThread(); });
-    iAR.watchPreClearEvent(sourceStart);
-    iAR.watchPostClearEvent(sourceStop);
+    iAR.watchPreSourceNextTransition([&filter]() { filter.startOnThread(kSourceModuleID); });
+    iAR.watchPostSourceNextTransition([&filter]() { filter.stopOnThread(kSourceModuleID); });
+    // TODO: I'm not sure what to do with ClearEvent here
+    // On one hand it would be useful in some cases, but I'm not sure if it should be always enabled, or if it should be
+    // optional, and if so how to configure it (since it doesn't have a module description or calling context). In any
+    // case it should not be tied to source.
+    //iAR.watchPreClearEvent(sourceStart);
+    //iAR.watchPostClearEvent(sourceStop);
 
     // --- ED Module begin/end job ---
     iAR.watchPreModuleBeginJob([&filter](auto const& md) { filter.startOnThread(static_cast<int>(md.id())); });
@@ -284,12 +289,12 @@ public:
       }
     }
 
-    (void)cms::perftools::AllocMonitorRegistry::instance().createAndRegisterMonitor<MonitorAdaptor>();
-
-    if (nEventsToSkip_ > 0) {
-      profilerFilter_.setGlobalKeep(false);
+    if (std::find(moduleNames_.begin(), moduleNames_.end(), "source") != moduleNames_.end()) {
+      moduleIDs_.push_back(kSourceModuleID);
     }
 
+    // These callbacks need to be called before of those created in ProfilterFilter constructor, and therefore they need
+    // to be registered first
     iAR.watchPreModuleConstruction([this](edm::ModuleDescription const& description) {
       auto found = std::find(moduleNames_.begin(), moduleNames_.end(), description.moduleLabel());
       if (found != moduleNames_.end()) {
@@ -298,7 +303,7 @@ public:
       }
     });
 
-    iAR.watchPostESModuleRegistration([this](auto const& iDescription) {
+    iAR.watchPreESModuleConstruction([this](auto const& iDescription) {
       auto label = iDescription.label_;
       if (label.empty()) {
         label = iDescription.type_;
@@ -312,6 +317,7 @@ public:
     });
 
     if (nEventsToSkip_ > 0) {
+      profilerFilter_.setGlobalKeep(false);
       iAR.watchPreSourceEvent([this](auto) {
         ++nEventsStarted_;
         if (nEventsStarted_ > nEventsToSkip_) {
@@ -319,6 +325,8 @@ public:
         }
       });
     }
+
+    (void)cms::perftools::AllocMonitorRegistry::instance().createAndRegisterMonitor<MonitorAdaptor>();
 
     setupProfilerFile(iAR, profilerFilter_);
   }
@@ -339,8 +347,8 @@ public:
         ->setComment("Whether to print some timing statistics about the memory measurement itself. Default is false.");
     ps.addUntracked<bool>("deallocationReport", true)
         ->setComment(
-            "Whether to produce a report on deallocations. On deep stack traces this can take time, so turning it off "
-            "could speed up if the deallocation report is not needed.");
+            "Whether to produce a report on deallocations. On deep stack traces this can take time, so turning it "
+            "off could speed up if the deallocation report is not needed.");
     ps.addUntracked<bool>("churnReport", true)
         ->setComment(
             "Whether to produce reports on memory churn. On deep stack traces this can take time, so turning it off "
