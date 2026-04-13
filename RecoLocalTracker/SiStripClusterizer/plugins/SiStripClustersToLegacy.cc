@@ -57,18 +57,19 @@ namespace sistrip {
 
       // Educated guess for the total number of detector IDs,
       // based on Run: 386593 Event: 536278171 with 13883 detectors.
-      // const uint32_t nModulesWithClustersGuess = 15000;
+      const uint32_t nModulesWithClustersGuess = 15000;
       // The number of clusters from x->nClusterCandidates() is an upper limit,
       // the flag trueCluster then mask the real clusters.
       // From Run: 386593 Event: 536278171 there are nClusterCandidates=112735 with
       // 99863 real clusters (so 112735-99863 = 12872 clusters are masked out )
       const uint32_t clusterCandidatesNb = clusters_onHost->nClusterCandidates();
       const uint32_t goodClustersNb = clusters_onHost->candidateAcceptedPrefix(nClusterCandidates - 1);
-      // output->reserve(nModulesWithClustersGuess, goodClustersNb);
+      output->reserve(nModulesWithClustersGuess, goodClustersNb);
 
       uint32_t clusterN = 0;
       for (uint32_t i = 0; i < clusterCandidatesNb && (clusterN < goodClustersNb);) {
         const auto detid = detIdArr[i];
+
         out_t::FastFiller record(*output, detid);
 
         while (i < clusterCandidatesNb && detIdArr[i] == detid) {
@@ -90,9 +91,6 @@ namespace sistrip {
         }
       }
 
-      if (edm::isDebugEnabled()) {
-        dumpClusters(output.get());
-      }
       iEvent.put(siStripClustersSetVecPutToken_, std::move(output));
     }
 
