@@ -171,6 +171,12 @@ private:
   std::pair<unsigned int, const Run3ScoutingVertex*> findClosestScoutingVertex(
       const reco::Track* track, const std::vector<Run3ScoutingVertex>& vertices);
 
+  template <typename T>
+  bool getValidHandle(const edm::Event& iEvent,
+                      const edm::EDGetTokenT<T>& token,
+                      edm::Handle<T>& handle,
+                      const std::string& label);
+
   template <class OBJECT_TYPE>
   int index(const std::vector<OBJECT_TYPE*>& vec, const TString& name) {
     for (const auto& iter : vec | boost::adaptors::indexed(0)) {
@@ -601,10 +607,32 @@ void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
                                  3);
 }
 
+template <typename T>
+bool ScoutingTrackMonitor::getValidHandle(const edm::Event& iEvent,
+                                          const edm::EDGetTokenT<T>& token,
+                                          edm::Handle<T>& handle,
+                                          const std::string& label) {
+  iEvent.getByToken(token, handle);
+  if (!handle.isValid()) {
+    edm::LogWarning("ScoutingTrackMonitor") << "Invalid handle for " << label;
+    return false;
+  }
+  return true;
+}
+
 // main event loop
 void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
-  auto const& tracks = iEvent.get(tracksToken_);
-  auto const& vertices = iEvent.get(verticesToken_);
+  edm::Handle<std::vector<Run3ScoutingVertex>> primaryVerticesH;
+  edm::Handle<std::vector<Run3ScoutingTrack>> tracksH;
+
+  if (!getValidHandle(iEvent, verticesToken_, primaryVerticesH, "primary vertices") ||
+      !getValidHandle(iEvent, tracksToken_, tracksH, "tracks")) {
+    return;
+  }
+
+  // derefernce handles when it's safe to do so.
+  auto const& tracks = *tracksH;
+  auto const& vertices = *primaryVerticesH;
 
   if (vertices.empty())
     return;
