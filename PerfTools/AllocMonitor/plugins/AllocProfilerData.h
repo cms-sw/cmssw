@@ -276,11 +276,21 @@ namespace cms::perftools::allocMon::profiler {
         ++it;
         ++startFromEntry_;
       }
+      // IntrusiveAllocProfiler
       if (it->description().contains("IntrusiveAllocProfiler::start")) {
         ++it;
         ++startFromEntry_;
       }
       if (it->description().contains("edm::IntrusiveMonitorBase::startMonitoring")) {
+        ++it;
+        ++startFromEntry_;
+      }
+      // ModuleAllocProfiler
+      if (it->description().contains("::setupProfilerFile(")) {
+        ++it;
+        ++startFromEntry_;
+      }
+      if (it->description().contains("::emit<")) {
         ++it;
         ++startFromEntry_;
       }
