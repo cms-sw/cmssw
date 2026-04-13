@@ -708,7 +708,7 @@ namespace cms::perftools::allocMon::profiler {
                             F&& format) const {
       if (not filePattern_.empty()) {
         auto fname = filePattern_;
-        boost::replace_all(fname, "%M", measurementType);
+        boost::replace_all(fname, "%T", measurementType);
         std::ofstream os(fname);
         std::print(os, "# {}\n", measurementName);
         format(os);

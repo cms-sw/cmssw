@@ -282,8 +282,8 @@ public:
       if (not filePattern_.contains("%I")) {
         throw edm::Exception(edm::errors::Configuration) << "filePattern did not contain '%I'";
       }
-      if (not filePattern_.contains("%M")) {
-        throw edm::Exception(edm::errors::Configuration) << "filePattern did not contain '%M'";
+      if (not filePattern_.contains("%T")) {
+        throw edm::Exception(edm::errors::Configuration) << "filePattern did not contain '%T'";
       }
     }
 
@@ -336,7 +336,7 @@ public:
     ps.addUntracked<std::string>("filePattern", "")
         ->setComment(
             "Pattern for the file names for the measurement results. Must contain '%I' for the counter of different "
-            "files, and '%M' for the measurement type (that are 'alloc', 'atMaxActual', 'added', 'dealloc', 'churn', "
+            "files, and '%T' for the measurement type (that are 'alloc', 'atMaxActual', 'added', 'dealloc', 'churn', "
             "'churnalloc'). If empty (default), results are printed with MessageLogger.");
     ps.addUntracked<bool>("statistics", false)
         ->setComment("Whether to print some timing statistics about the memory measurement itself. Default is false.");
