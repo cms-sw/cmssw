@@ -20,12 +20,9 @@ namespace {
   public:
     static void startOnThread(std::string_view name, std::string filePattern, ReportConfiguration config) {
       threadActiveMonitoring() = false;
-      auto trace = std::stacktrace::current();
       auto const fileCount = globalFileCounter().fetch_add(1);
       auto node = std::make_unique<MonitorStackNode>(
-          name,
-          std::move(currentMonitorStackNode()),
-          StackNodeData(std::move(trace), fileCount, std::move(filePattern), config));
+          name, std::move(currentMonitorStackNode()), StackNodeData(fileCount, std::move(filePattern), config));
       {
         edm::LogSystem log("IntrusiveAllocProfiler");
         log.format("Starting tracing for \"{}\".", name);

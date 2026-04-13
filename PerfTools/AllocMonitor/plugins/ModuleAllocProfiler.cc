@@ -34,12 +34,9 @@ namespace {
   public:
     static void startOnThread(std::string filePattern, ReportConfiguration config) {
       threadActiveMonitoring() = false;
-      auto trace = std::stacktrace::current();
       auto const fileCount = globalFileCounter().fetch_add(1);
       auto node = std::make_unique<MonitorStackNode>(
-          "",
-          std::move(currentMonitorStackNode()),
-          StackNodeData(std::move(trace), fileCount, std::move(filePattern), config));
+          "", std::move(currentMonitorStackNode()), StackNodeData(fileCount, std::move(filePattern), config));
       currentMonitorStackNode() = std::move(node);
       threadActiveMonitoring() = true;
     }

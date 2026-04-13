@@ -259,52 +259,16 @@ namespace cms::perftools::allocMon::profiler {
 
   class StackNodeData {
   public:
-    StackNodeData(std::stacktrace trace, unsigned int fileCount, std::string filePattern, ReportConfiguration config)
-        : trace_(std::move(trace)),
-          filePattern_(std::move(filePattern)),
+    StackNodeData(unsigned int fileCount, std::string filePattern, ReportConfiguration config)
+        : filePattern_(std::move(filePattern)),
           statistics_(config.printStatistics_ ? static_cast<std::unique_ptr<StatisticsStrategy>>(
                                                     std::make_unique<CollectingStatisticsStrategy>())
                                               : std::make_unique<NoOpStatisticsStrategy>()),
           config_(config) {
-      // Skip first entries that are internals for AllocMonitor if they are in the trace
-      // By experience these entries are not always part of the stack trace
-      auto it = trace_.cbegin();
-      // The startOnThread() is a member of MonitorAdaptor, but with
-      // debug symbols the MonitorAdaptor does not seem to be part of
-      // the symbol name
-      if (it->description().contains("startOnThread")) {
-        ++it;
-        ++startFromEntry_;
-      }
-      // IntrusiveAllocProfiler
-      if (it->description().contains("IntrusiveAllocProfiler::start")) {
-        ++it;
-        ++startFromEntry_;
-      }
-      if (it->description().contains("edm::IntrusiveMonitorBase::startMonitoring")) {
-        ++it;
-        ++startFromEntry_;
-      }
-      // ModuleAllocProfiler
-      if (it->description().contains("::setupProfilerFile(")) {
-        ++it;
-        ++startFromEntry_;
-      }
-      if (it->description().contains("::emit<")) {
-        ++it;
-        ++startFromEntry_;
-      }
-      assert(it != trace.cend());
-      stackDepth_ = std::distance(it, trace_.cend());
-
       if (not filePattern_.empty()) {
         boost::replace_all(filePattern_, "%I", std::to_string(fileCount));
       }
     }
-
-    std::size_t stackDepth() const { return stackDepth_; }
-
-    std::stacktrace const& stacktrace() const { return trace_; }
 
     void recordAllocation(std::stacktrace trace, AllocationRecord record, void const* ptr) {
       auto timer = statistics_->recordAllocation();
@@ -349,14 +313,32 @@ namespace cms::perftools::allocMon::profiler {
 
     template <typename T>
     void print(T&& log, std::string_view measurementName) const {
-      log.format(" Reported stack traces are based on\n{}", formatTrace(trace_, startFromEntry_, 0));
+      // Compute longest list of common trace entries fron the top across al recorded traces (both alloc and dealloc) so
+      // that a single consistent measurement context is stripped from every section of the report.
+      auto allAllocTraces = uniqueAllocTraces_ |
+                            std::views::transform([](auto const& at) -> std::stacktrace const& { return at.trace_; });
+      auto allDeallocTraces = uniqueDeallocTraces_ |
+                              std::views::transform([](auto const& dt) -> std::stacktrace const& { return dt.trace_; });
+      std::size_t const commonTopEntries = computeCommonTopEntries(allAllocTraces, allDeallocTraces);
 
-      printAllocations(log, measurementName);
+      // Print the dynamically computed common context so the user knows what call chain all reported traces are
+      // relative to.  Pick the first available trace as the representative; the common suffix frames are identical
+      // across all traces by definition.
+      auto const* refTrace = !uniqueAllocTraces_.empty()     ? &uniqueAllocTraces_.front().trace_
+                             : !uniqueDeallocTraces_.empty() ? &uniqueDeallocTraces_.front().trace_
+                                                             : nullptr;
+      if (commonTopEntries > 0 && refTrace != nullptr) {
+        auto const skipFromBottom =
+            (commonTopEntries < refTrace->size()) ? static_cast<int>(refTrace->size() - commonTopEntries) : 0;
+        log.format(" Reported stack traces are based on\n{}", formatTrace(*refTrace, skipFromBottom, 0));
+      }
+
+      printAllocations(log, measurementName, commonTopEntries);
       if (config_.deallocationReport_) {
-        printDeallocations(log, measurementName);
+        printDeallocations(log, measurementName, commonTopEntries);
       }
       if (config_.churnReport_) {
-        printChurn(log, measurementName);
+        printChurn(log, measurementName, commonTopEntries);
       }
 
       statistics_->printStatistics(log, uniqueAllocTraces_.size(), uniqueDeallocTraces_.size());
@@ -409,14 +391,17 @@ namespace cms::perftools::allocMon::profiler {
     };
 
     template <typename T>
-    void printAllocations(T&& log, std::string_view measurementName) const {
+    void printAllocations(T&& log, std::string_view measurementName, std::size_t commonTopEntries) const {
       using AggregationMap = std::unordered_map<std::string, AllocationTrace::Records>;
 
       AggregationMap aggregatedAllocs;
       {
         auto timer = statistics_->timeAllocationsAggregation();
         for (auto const& record : uniqueAllocTraces_) {
-          aggregatedAllocs[formatTrace(record.trace_, 0, stackDepth_ - 1)].add(record.records_);
+          auto const skipTop = (commonTopEntries > 0 && commonTopEntries < record.trace_.size())
+                                   ? static_cast<int>(commonTopEntries) - 1
+                                   : 0;
+          aggregatedAllocs[formatTrace(record.trace_, 0, skipTop)].add(record.records_);
         }
         statistics_->recordAllocationsUniqueAggregated(aggregatedAllocs.size());
       }
@@ -493,14 +478,17 @@ namespace cms::perftools::allocMon::profiler {
     }
 
     template <typename T>
-    void printDeallocations(T&& log, std::string_view measurementName) const {
+    void printDeallocations(T&& log, std::string_view measurementName, std::size_t commonTopEntries) const {
       using AggregationMap = std::unordered_map<std::string, DeallocationRecord>;
       AggregationMap aggregatedDeallocs;
 
       {
         auto timer = statistics_->timeDeallocationAggregation();
         for (auto const& record : uniqueDeallocTraces_) {
-          aggregatedDeallocs[formatTrace(record.trace_, 0, stackDepth_ - 1)].add(record.total_);
+          auto const skipTop = (commonTopEntries > 0 && commonTopEntries < record.trace_.size())
+                                   ? static_cast<int>(commonTopEntries) - 1
+                                   : 0;
+          aggregatedDeallocs[formatTrace(record.trace_, 0, skipTop)].add(record.total_);
         }
         statistics_->recordDeallocationsUniqueAggregated(aggregatedDeallocs.size());
       }
@@ -525,7 +513,7 @@ namespace cms::perftools::allocMon::profiler {
     }
 
     template <typename T>
-    void printChurn(T&& log, std::string_view measurementName) const {
+    void printChurn(T&& log, std::string_view measurementName, std::size_t commonTopEntries) const {
       using AggregationMap = std::unordered_map<std::string, AllocationRecord>;
       AggregationMap aggregatedChurn;
       AggregationMap aggregatedChurnAllocs;
@@ -537,9 +525,12 @@ namespace cms::perftools::allocMon::profiler {
         // uniqueAllocTraces_
         for (auto const& [allocRecord, churnVec] : std::views::zip(uniqueAllocTraces_, churnRecords_)) {
           auto const& allocTrace = allocRecord.trace_;
-          // can skip the topmost stackDepth entries because they are the same throughout the measurement
-          // subtract 1 in case the measurement starting function is doing the churn
-          auto const allocTraceStrings = allocTrace | std::views::take(allocTrace.size() - (stackDepth_ - 1)) |
+          // Strip the common topmost frames that are shared across all traces in the measurement.
+          // Subtract 1 so the measurement-starting function itself remains visible in the output.
+          auto const allocKeep = (commonTopEntries > 0 && commonTopEntries < allocTrace.size())
+                                     ? allocTrace.size() - (commonTopEntries - 1)
+                                     : allocTrace.size();
+          auto const allocTraceStrings = allocTrace | std::views::take(allocKeep) |
                                          std::views::transform(traceToString) |
                                          std::ranges::to<std::vector<std::string>>();
 
@@ -548,9 +539,12 @@ namespace cms::perftools::allocMon::profiler {
             // Stopping to the lowest common stacktrace_entry between allocation and deallocation
             {
               auto const& deallocTrace = uniqueDeallocTraces_[record.deallocIndex_].trace_;
-              auto const deallocTraceStrings =
-                  deallocTrace | std::views::take(deallocTrace.size() - (stackDepth_ - 1)) |
-                  std::views::transform(traceToString) | std::ranges::to<std::vector<std::string>>();
+              auto const deallocKeep = (commonTopEntries > 0 && commonTopEntries < deallocTrace.size())
+                                           ? deallocTrace.size() - (commonTopEntries - 1)
+                                           : deallocTrace.size();
+              auto const deallocTraceStrings = deallocTrace | std::views::take(deallocKeep) |
+                                               std::views::transform(traceToString) |
+                                               std::ranges::to<std::vector<std::string>>();
 
               // iterate from the top (outermost) downward to find where the traces first diverge
               auto allocEntries = allocTraceStrings | std::views::reverse;
@@ -568,12 +562,16 @@ namespace cms::perftools::allocMon::profiler {
               assert(it_alloc != allocEntries.begin());
               --it_alloc;
 
-              auto str_trace = formatTrace(std::ranges::subrange(std::prev(it_alloc.base()), allocTraceStrings.end()));
+              // Index back into the original stacktrace_entry range so the formatter
+              // includes source-location info (e.g. "at :0") in the output.
+              auto const idx = static_cast<std::size_t>(std::prev(it_alloc.base()) - allocTraceStrings.begin());
+              auto str_trace =
+                  formatTrace(std::ranges::subrange(allocTrace.cbegin() + idx, allocTrace.cbegin() + allocKeep));
               aggregatedChurn[str_trace].add(record.total_);
             }
             // Churn allocation stack traces
             {
-              auto str_trace = formatTrace(allocTraceStrings);
+              auto str_trace = formatTrace(std::ranges::subrange(allocTrace.cbegin(), allocTrace.cbegin() + allocKeep));
               aggregatedChurnAllocs[str_trace].add(record.total_);
             }
           }
@@ -701,6 +699,77 @@ namespace cms::perftools::allocMon::profiler {
       return ordered;
     }
 
+    // Compute the longest common set of topmost stack frames shared by all traces in the range.
+    // Returns 0 if the range is empty or traces share no common frames.
+    template <typename TraceRange1, typename TraceRange2>
+    static std::size_t computeCommonTopEntries(TraceRange1&& first, TraceRange2&& second) {
+      // Find an initial reference from whichever range is non-empty.
+      auto it1 = std::ranges::begin(first);
+      auto const end1 = std::ranges::end(first);
+      auto it2 = std::ranges::begin(second);
+      auto const end2 = std::ranges::end(second);
+
+      if (it1 == end1 && it2 == end2) {
+        return 0;
+      }
+
+      // Use the first available trace as reference.
+      std::stacktrace const* refPtr = nullptr;
+      if (it1 != end1) {
+        refPtr = &(*it1);
+        ++it1;
+      } else {
+        refPtr = &(*it2);
+        ++it2;
+      }
+      std::stacktrace const& ref = *refPtr;
+      std::size_t commonLen = ref.size();
+      if (commonLen == 0) {
+        return 0;
+      }
+
+      // If there is only one trace in total, there is no meaningful common context to strip.
+      if (it1 == end1 && it2 == end2) {
+        return 0;
+      }
+
+      // Cache for ref descriptions to avoid repeated calls to description() in the inner loop of intersectCommonTopEntries.
+      std::vector<std::string> refDescriptionCache(ref.size());
+
+      for (; it1 != end1 && commonLen > 0; ++it1) {
+        commonLen = intersectCommonTopEntries(ref, refDescriptionCache, commonLen, *it1);
+      }
+      for (; it2 != end2 && commonLen > 0; ++it2) {
+        commonLen = intersectCommonTopEntries(ref, refDescriptionCache, commonLen, *it2);
+      }
+      return commonLen;
+    }
+
+    // Helper: shrink commonLen to the length of the common suffix between ref and tr.
+    static std::size_t intersectCommonTopEntries(std::stacktrace const& ref,
+                                                 std::vector<std::string>& refDescriptionCache,
+                                                 std::size_t commonLen,
+                                                 std::stacktrace const& tr) {
+      std::size_t k = 0;
+      while (k < commonLen && k < tr.size()) {
+        auto const refIdx = ref.size() - 1 - k;
+        auto const trIdx = tr.size() - 1 - k;
+
+        if (ref[refIdx] != tr[trIdx]) {
+          // Frames don't match - check if descriptions match (e.g. due to inlining).
+          auto& cachedDesc = refDescriptionCache[refIdx];
+          if (cachedDesc.empty()) {
+            cachedDesc = ref[refIdx].description();
+          }
+          if (cachedDesc != tr[trIdx].description()) {
+            break;  // Neither operator== nor descriptions match
+          }
+        }
+        ++k;  // Single increment: either frames matched, or descriptions matched
+      }
+      return k;
+    }
+
     template <typename T, typename F>
     void writeFileOrMessage(std::string_view measurementType,
                             std::string_view measurementName,
@@ -722,9 +791,6 @@ namespace cms::perftools::allocMon::profiler {
     }
 
     // About the measurement itself
-    std::stacktrace trace_;
-    int startFromEntry_ = 0;
-    std::size_t stackDepth_ = 0;
     std::string filePattern_;
     std::unique_ptr<StatisticsStrategy> statistics_;
     ReportConfiguration config_;
