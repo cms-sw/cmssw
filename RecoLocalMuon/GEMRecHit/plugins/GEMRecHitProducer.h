@@ -65,6 +65,6 @@ private:
   std::map<GEMDetId, EtaPartitionMask> gemMask_;
 
   bool applyMasking_;
-  bool ge21Off_;
+  bool ge21Container_;
 };
 #endif
