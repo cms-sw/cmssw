@@ -4,6 +4,8 @@
 
 #include "AllocProfilerData.h"
 
+#include <boost/algorithm/string.hpp>
+
 #include "FWCore/AbstractServices/interface/IntrusiveMonitorBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
@@ -16,13 +18,18 @@
 namespace {
   using namespace cms::perftools::allocMon::profiler;
 
+  inline std::atomic<unsigned int>& globalFileCounter() {
+    static std::atomic<unsigned int> counter = 0;
+    return counter;
+  }
+
   class MonitorAdaptor : public cms::perftools::AllocMonitorBase {
   public:
     static void startOnThread(std::string_view name, std::string filePattern, ReportConfiguration config) {
       threadActiveMonitoring() = false;
-      auto const fileCount = globalFileCounter().fetch_add(1);
+      boost::replace_all(filePattern, "%I", std::to_string(globalFileCounter().fetch_add(1)));
       auto node = std::make_unique<MonitorStackNode>(
-          name, std::move(currentMonitorStackNode()), StackNodeData(fileCount, std::move(filePattern), config));
+          name, std::move(currentMonitorStackNode()), StackNodeData(std::move(filePattern), config));
       {
         edm::LogSystem log("IntrusiveAllocProfiler");
         log.format("Starting tracing for \"{}\".", name);

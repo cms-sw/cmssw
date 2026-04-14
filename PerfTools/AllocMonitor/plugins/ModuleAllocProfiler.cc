@@ -3,12 +3,15 @@
     (__cpp_lib_ranges_enumerate >= 202302L) && (__cpp_lib_print >= 202207L)
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "PerfTools/AllocMonitor/interface/AllocMonitorBase.h"
@@ -18,10 +21,17 @@
 #include "ThreadTracker.h"
 #include "monitor_file_utilities.h"
 
+#include <boost/algorithm/string.hpp>
+
+#include <oneapi/tbb/concurrent_unordered_map.h>
+
 #include <algorithm>
 #include <atomic>
+#include <optional>
 #include <stacktrace>
 #include <string>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -34,11 +44,10 @@ namespace {
   // ---------------------------------------------------------------------------
   class MonitorAdaptor : public cms::perftools::AllocMonitorBase {
   public:
-    static void startOnThread(std::string filePattern, ReportConfiguration config) {
+    static void startOnThread(std::string filePattern, std::string_view measurementName, ReportConfiguration config) {
       threadActiveMonitoring() = false;
-      auto const fileCount = globalFileCounter().fetch_add(1);
       auto node = std::make_unique<MonitorStackNode>(
-          "", std::move(currentMonitorStackNode()), StackNodeData(fileCount, std::move(filePattern), config));
+          measurementName, std::move(currentMonitorStackNode()), StackNodeData(std::move(filePattern), config));
       currentMonitorStackNode() = std::move(node);
       threadActiveMonitoring() = true;
     }
@@ -48,7 +57,7 @@ namespace {
       auto node = std::move(currentMonitorStackNode());
       edm::LogSystem log("ModuleAllocProfiler");
       log.format("Ending tracing.");
-      node->get().print(log, "");
+      node->get().print(log, node->name());
       // in module-based monitoring there can't be nested measurement regions
       auto prev = node->popPreviousNode();
       assert(not prev);
@@ -85,26 +94,39 @@ namespace {
   // ---------------------------------------------------------------------------
   class ProfilerFilter {
   public:
-    ProfilerFilter(std::vector<int> const* moduleIDs, std::string filePattern, ReportConfiguration config)
-        : moduleIDs_(moduleIDs), filePattern_(std::move(filePattern)), config_(config) {}
-
-    bool startOnThread(int moduleID) const {
-      if (not globalKeep_.load()) {
-        return false;
-      }
-      if (keepModuleInfo(moduleID)) {
-        MonitorAdaptor::startOnThread(filePattern_, config_);
-        return true;
-      }
-      return false;
+    ProfilerFilter(std::vector<int> const& moduleIDs,
+                   std::size_t nModules,
+                   std::string filePattern,
+                   ReportConfiguration config)
+        : moduleIDs_(moduleIDs), filePattern_(std::move(filePattern)), config_(config) {
+      // unique_ptrs of arrays instead of vectors because atomic is non-copyable
+      accessInputProcessBlockCounters_ = std::make_unique<std::atomic<unsigned int>[]>(nModules);
+      esModuleCallCounters_ =
+          std::make_unique<oneapi::tbb::concurrent_unordered_map<std::uintptr_t, std::atomic<unsigned int>>[]>(
+              nModules);
+      esPendingAcquireCounts_ =
+          std::make_unique<oneapi::tbb::concurrent_unordered_map<std::uintptr_t, std::atomic<int>>[]>(nModules);
     }
 
-    bool startOnThread() const {
-      if (not globalKeep_.load()) {
-        return false;
-      }
-      MonitorAdaptor::startOnThread(filePattern_, config_);
-      return true;
+    // Start monitoring on this thread.
+    // label is the module label (for %M substitution).
+    // signal is the activity signal name (for %S substitution).
+    // count is the per-(module,signal) occurrence counter (for %I substitution).
+    // callID is the ESModule callID (for %C substitution); 0 for non-ES signals.
+    // measurementName is forwarded to StackNodeData::print() as the file comment (e.g. record type for ES modules).
+    // Callers are responsible for checking tryCompactIndex before calling this.
+    void startOnThread(std::string_view label,
+                       std::string_view signal,
+                       unsigned int count,
+                       std::string_view measurementName = "",
+                       std::uintptr_t callID = 0) const {
+      auto filePattern = filePattern_;  // copy the template
+      boost::replace_all(filePattern, "%M", label);
+      boost::replace_all(filePattern, "%S", signal);
+      boost::replace_all(filePattern, "%I", std::to_string(count));
+      boost::replace_all(filePattern, "%C", std::to_string(callID));
+
+      MonitorAdaptor::startOnThread(std::move(filePattern), measurementName, config_);
     }
 
     void stopOnThread(int moduleID) const {
@@ -116,25 +138,103 @@ namespace {
       }
     }
 
-    void stopOnThread() const {
-      if (not globalKeep_.load()) {
-        return;
-      }
-      MonitorAdaptor::stopOnThread();
-    }
-
     void setGlobalKeep(bool iShouldKeep) { globalKeep_.store(iShouldKeep); }
 
     bool keepModuleInfo(int moduleID) const {
-      if ((nullptr == moduleIDs_) or (std::binary_search(moduleIDs_->begin(), moduleIDs_->end(), moduleID))) {
-        return true;
-      }
-      return false;
+      return std::binary_search(moduleIDs_.begin(), moduleIDs_.end(), moduleID);
     }
+
+    std::size_t compactIndex(int moduleID) const {
+      return static_cast<std::size_t>(std::lower_bound(moduleIDs_.begin(), moduleIDs_.end(), moduleID) -
+                                      moduleIDs_.begin());
+    }
+
+    // Checks globalKeep_ and module membership in one step (one binary search).
+    // Returns the compact index if monitoring should proceed, nullopt otherwise.
+    std::optional<std::size_t> tryCompactIndex(int moduleID) const {
+      if (not globalKeep_.load()) {
+        return std::nullopt;
+      }
+      auto it = std::lower_bound(moduleIDs_.begin(), moduleIDs_.end(), moduleID);
+      if (it == moduleIDs_.end() || *it != moduleID) {
+        return std::nullopt;
+      }
+      return static_cast<std::size_t>(it - moduleIDs_.begin());
+    }
+
+    void allocateCounters(unsigned int nStreams, unsigned int nLumis, unsigned int nRuns) {
+      event_.slots.resize(nStreams, 0u);
+      lumi_.slots.resize(nLumis, 0u);
+      run_.slots.resize(nRuns, 0u);
+    }
+
+    // Returns the current call counter for (esModuleID, callID), then increments it.
+    // Generally it is possible to have different callbacks of the same ESModule to be called concurrently, so we need
+    // to keep thread safety in mind (hence concurrent_unordered_map and atomic counters). In practice the ESModule
+    // callbacks do not occur that often.
+    unsigned int getAndIncrementESCounter(std::size_t idx, std::uintptr_t callID) {
+      auto& map = esModuleCallCounters_[idx];
+      auto found = map.find(callID);
+      if (found != map.end()) {
+        return found->second++;
+      }
+      map.emplace(callID, 1u);
+      return 0u;
+    }
+
+    // For ESModuleAcquire: increments the counter and stores the count as pending
+    // so the paired ESModule call can reuse the same count.
+    unsigned int getAndStoreESAcquireCounter(std::size_t idx, std::uintptr_t callID) {
+      unsigned int count = getAndIncrementESCounter(idx, callID);
+      auto& pending = esPendingAcquireCounts_[idx];
+      auto result = pending.emplace(callID, static_cast<int>(count));
+      if (!result.second) {
+        result.first->second.store(static_cast<int>(count));
+      }
+      return count;
+    }
+
+    // For ESModule: reuses the count from a prior ESModuleAcquire for the same callID if available,
+    // otherwise increments the counter as usual.
+    unsigned int getESModuleCounter(std::size_t idx, std::uintptr_t callID) {
+      auto& pending = esPendingAcquireCounts_[idx];
+      auto found = pending.find(callID);
+      if (found != pending.end()) {
+        int val = found->second.exchange(-1);
+        if (val >= 0) {
+          return static_cast<unsigned int>(val);
+        }
+      }
+      return getAndIncrementESCounter(idx, callID);
+    }
+
+    // Slots for concurrent transitions (events, lumis, runs) and a global counter for each
+    struct TransitionCounters {
+      std::vector<unsigned int> slots;
+      std::atomic<unsigned int> global{0};
+    };
+    TransitionCounters event_;  // slots sized [maxNumberOfStreams]
+    TransitionCounters lumi_;   // slots sized [maxNumberOfConcurrentLuminosityBlocks]
+    TransitionCounters run_;    // slots sized [maxNumberOfConcurrentRuns]
+
+    // Per-module counters for moduleAccessInputProcessBlock, indexed by compactIndex(moduleID).
+    // This wastes a little bit of memory for ESModules (for which there will be an entry) and EDModules that do not use
+    // this transition, but simplifies the implementation a lot
+    std::unique_ptr<std::atomic<unsigned int>[]> accessInputProcessBlockCounters_;
+
+    // Per-ES-module call counters keyed by callID, indexed by compactIndex(esModuleID), keyed by callID.
+    // This wastes a little bit of memory for EDModules (for which there will be an entry) but simplifies the
+    // implementation a lot.
+    std::unique_ptr<oneapi::tbb::concurrent_unordered_map<std::uintptr_t, std::atomic<unsigned int>>[]>
+        esModuleCallCounters_;
+
+    // Pending acquire counts for ESModuleAcquire+ESModule pairs, indexed by compactIndex(esModuleID), keyed by callID.
+    // ESModuleAcquire stores the count here (non-negative); ESModule exchanges it to -1 to reuse the same count.
+    std::unique_ptr<oneapi::tbb::concurrent_unordered_map<std::uintptr_t, std::atomic<int>>[]> esPendingAcquireCounts_;
 
   private:
     mutable std::atomic<bool> globalKeep_ = true;
-    std::vector<int> const* moduleIDs_;
+    std::vector<int> const& moduleIDs_;
     std::string filePattern_;
     ReportConfiguration config_;
   };
@@ -145,51 +245,172 @@ namespace {
   // setupProfilerFile
   // ---------------------------------------------------------------------------
   void setupProfilerFile(edm::ActivityRegistry& iAR, ProfilerFilter& filter) {
-    // Lambdas for the three callback shapes, capturing filter by reference.
-    // Each pair is used by multiple watch* calls below.
-    auto const sourceStart = [&filter](auto const&) { filter.startOnThread(kSourceModuleID); };
-    auto const sourceStop = [&filter](auto const&) { filter.stopOnThread(kSourceModuleID); };
-    auto const edStart = [&filter](auto const&, edm::ModuleCallingContext const& mcc) {
-      filter.startOnThread(static_cast<int>(module_id(mcc)));
-    };
-    auto const edStop = [&filter](auto const&, edm::ModuleCallingContext const& mcc) {
+    // Stop lambdas
+    // Generic ED stop (used by all StreamContext/GlobalContext + ModuleCallingContext signals):
+    auto edStop = [&filter](auto const&, edm::ModuleCallingContext const& mcc) {
       filter.stopOnThread(static_cast<int>(module_id(mcc)));
     };
-    auto const esStart = [&filter](auto const&, edm::ESModuleCallingContext const& mcc) {
-      filter.startOnThread(-1 * static_cast<int>(module_id(mcc) + 1));
-    };
-    auto const esStop = [&filter](auto const&, edm::ESModuleCallingContext const& mcc) {
+    // Generic ES stop:
+    auto esStop = [&filter](auto const&, edm::ESModuleCallingContext const& mcc) {
       filter.stopOnThread(-1 * static_cast<int>(module_id(mcc) + 1));
     };
+    // MD stop (ModuleDescription-only signals):
+    auto mdStop = [&filter](edm::ModuleDescription const& md) { filter.stopOnThread(static_cast<int>(md.id())); };
 
+    // Start lambda factories
+
+    // ED stream-scoped signals (StreamContext + ModuleCallingContext)
+    auto makeEdStreamStart = [&filter](std::string_view signal) {
+      return [&filter, signal](edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+        if (not filter.tryCompactIndex(static_cast<int>(module_id(mcc)))) {
+          return;
+        }
+        auto count = filter.event_.slots[sc.streamID().value()];
+        filter.startOnThread(mcc.moduleDescription()->moduleLabel(), signal, count);
+      };
+    };
+
+    // ED global lumi-scoped signals (GlobalContext + ModuleCallingContext)
+    auto makeEdGlobalLumiStart = [&filter](std::string_view signal) {
+      return [&filter, signal](edm::GlobalContext const& gc, edm::ModuleCallingContext const& mcc) {
+        if (not filter.tryCompactIndex(static_cast<int>(module_id(mcc)))) {
+          return;
+        }
+        auto count = filter.lumi_.slots[gc.luminosityBlockIndex().value()];
+        filter.startOnThread(mcc.moduleDescription()->moduleLabel(), signal, count);
+      };
+    };
+
+    // ED global run-scoped signals (GlobalContext + ModuleCallingContext)
+    auto makeEdGlobalRunStart = [&filter](std::string_view signal) {
+      return [&filter, signal](edm::GlobalContext const& gc, edm::ModuleCallingContext const& mcc) {
+        if (not filter.tryCompactIndex(static_cast<int>(module_id(mcc)))) {
+          return;
+        }
+        auto count = filter.run_.slots[gc.runIndex().value()];
+        filter.startOnThread(mcc.moduleDescription()->moduleLabel(), signal, count);
+      };
+    };
+
+    // ED moduleBeginStream / moduleEndStream (stream ID is the counter)
+    auto makeEdStreamOnceStart = [&filter](std::string_view signal) {
+      return [&filter, signal](edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
+        if (not filter.tryCompactIndex(static_cast<int>(module_id(mcc)))) {
+          return;
+        }
+        auto count = static_cast<unsigned int>(sc.streamID().value());
+        filter.startOnThread(mcc.moduleDescription()->moduleLabel(), signal, count);
+      };
+    };
+
+    // ED global once-per-module-per-job signals (GlobalContext + ModuleCallingContext, count=0)
+    auto makeEdGlobalOnceStart = [&filter](std::string_view signal) {
+      return [&filter, signal](auto const&, edm::ModuleCallingContext const& mcc) {
+        if (not filter.tryCompactIndex(static_cast<int>(module_id(mcc)))) {
+          return;
+        }
+        filter.startOnThread(mcc.moduleDescription()->moduleLabel(), signal, 0u);
+      };
+    };
+
+    // ED AccessInputProcessBlock (GlobalContext + ModuleCallingContext, per-module atomic counter)
+    auto makeEdAccessInputProcessBlockStart = [&filter](std::string_view signal) {
+      return [&filter, signal](auto const&, edm::ModuleCallingContext const& mcc) {
+        auto idx = filter.tryCompactIndex(static_cast<int>(module_id(mcc)));
+        if (not idx) {
+          return;
+        }
+        auto count = filter.accessInputProcessBlockCounters_[*idx].fetch_add(1);
+        filter.startOnThread(mcc.moduleDescription()->moduleLabel(), signal, count);
+      };
+    };
+
+    // ED once-per-module signals (ModuleDescription only, count=0)
+    auto makeEdOncePerModule = [&filter](std::string_view signal) {
+      return [&filter, signal](edm::ModuleDescription const& md) {
+        if (not filter.tryCompactIndex(static_cast<int>(md.id()))) {
+          return;
+        }
+        filter.startOnThread(md.moduleLabel(), signal, 0u);
+      };
+    };
+
+    // Source signals (count=0 — source profiling is not event/lumi/run-indexed)
+    auto makeSourceStart = [&filter](std::string_view signal) {
+      return [&filter, signal](auto const&) {
+        if (not filter.tryCompactIndex(kSourceModuleID)) {
+          return;
+        }
+        filter.startOnThread("source", signal, 0u);
+      };
+    };
+
+    // --- ES Module construction ---
     //NOTE: we want the id to start at 1 not 0
-    iAR.watchPreESModuleConstruction(
-        [&filter](auto const& iDescription) { filter.startOnThread(-1 * static_cast<int>(iDescription.id_ + 1)); });
+    iAR.watchPreESModuleConstruction([&filter](auto const& desc) {
+      if (not filter.tryCompactIndex(-1 * static_cast<int>(desc.id_ + 1))) {
+        return;
+      }
+      std::string_view label = desc.label_.empty() ? desc.type_ : desc.label_;
+      filter.startOnThread(label, "esModuleConstruction", 0u);
+    });
     iAR.watchPostESModuleConstruction(
-        [&filter](auto const& iDescription) { filter.stopOnThread(-1 * static_cast<int>(iDescription.id_ + 1)); });
+        [&filter](auto const& desc) { filter.stopOnThread(-1 * static_cast<int>(desc.id_ + 1)); });
 
-    iAR.watchPreModuleConstruction(
-        [&filter](edm::ModuleDescription const& md) { filter.startOnThread(static_cast<int>(md.id())); });
-    iAR.watchPostModuleConstruction(
-        [&filter](edm::ModuleDescription const& md) { filter.stopOnThread(static_cast<int>(md.id())); });
+    // --- ED Module construction / destruction ---
+    iAR.watchPreModuleConstruction(makeEdOncePerModule("moduleConstruction"));
+    iAR.watchPostModuleConstruction(mdStop);
 
-    iAR.watchPreModuleDestruction(
-        [&filter](edm::ModuleDescription const& md) { filter.startOnThread(static_cast<int>(md.id())); });
-    iAR.watchPostModuleDestruction(
-        [&filter](edm::ModuleDescription const& md) { filter.stopOnThread(static_cast<int>(md.id())); });
+    iAR.watchPreModuleDestruction(makeEdOncePerModule("moduleDestruction"));
+    iAR.watchPostModuleDestruction(mdStop);
 
     // --- Source transitions ---
-    iAR.watchPreSourceConstruction(sourceStart);
-    iAR.watchPostSourceConstruction(sourceStop);
-    iAR.watchPreOpenFile(sourceStart);
-    iAR.watchPostOpenFile(sourceStop);
-    iAR.watchPreSourceEvent(sourceStart);
-    iAR.watchPostSourceEvent(sourceStop);
-    iAR.watchPreSourceRun(sourceStart);
-    iAR.watchPostSourceRun(sourceStop);
-    iAR.watchPreSourceLumi(sourceStart);
-    iAR.watchPostSourceLumi(sourceStop);
-    iAR.watchPreSourceNextTransition([&filter]() { filter.startOnThread(kSourceModuleID); });
+    iAR.watchPreSourceConstruction(makeSourceStart("sourceConstruction"));
+    iAR.watchPostSourceConstruction([&filter](auto const&) { filter.stopOnThread(kSourceModuleID); });
+    // using shared_ptr in order to have the lambda copyable as required by the ActivityRegistry
+    iAR.watchPreOpenFile(
+        [&filter, count = std::make_shared<std::atomic<unsigned int>>(0)](std::string const& fileName) {
+          if (not filter.tryCompactIndex(kSourceModuleID)) {
+            return;
+          }
+          filter.startOnThread("source", "openFile", count->fetch_add(1), fileName);
+        });
+    iAR.watchPostOpenFile([&filter](auto const&) { filter.stopOnThread(kSourceModuleID); });
+
+    iAR.watchPreSourceEvent([&filter](edm::StreamID id) {
+      // slot update is unconditional: module callbacks read it while this event runs
+      filter.event_.slots[id.value()] = filter.event_.global.fetch_add(1);
+      if (not filter.tryCompactIndex(kSourceModuleID)) {
+        return;
+      }
+      filter.startOnThread("source", "sourceEvent", filter.event_.slots[id.value()]);
+    });
+    iAR.watchPostSourceEvent([&filter](edm::StreamID) { filter.stopOnThread(kSourceModuleID); });
+
+    iAR.watchPreSourceRun([&filter](edm::RunIndex idx) {
+      filter.run_.slots[idx.value()] = filter.run_.global.fetch_add(1);
+      if (not filter.tryCompactIndex(kSourceModuleID)) {
+        return;
+      }
+      filter.startOnThread("source", "sourceRun", filter.run_.slots[idx.value()]);
+    });
+    iAR.watchPostSourceRun([&filter](edm::RunIndex) { filter.stopOnThread(kSourceModuleID); });
+
+    iAR.watchPreSourceLumi([&filter](edm::LuminosityBlockIndex idx) {
+      filter.lumi_.slots[idx.value()] = filter.lumi_.global.fetch_add(1);
+      if (not filter.tryCompactIndex(kSourceModuleID)) {
+        return;
+      }
+      filter.startOnThread("source", "sourceLumi", filter.lumi_.slots[idx.value()]);
+    });
+    iAR.watchPostSourceLumi([&filter](edm::LuminosityBlockIndex) { filter.stopOnThread(kSourceModuleID); });
+
+    iAR.watchPreSourceNextTransition([&filter, count = 0u]() mutable {
+      if (not filter.tryCompactIndex(kSourceModuleID)) {
+        return;
+      }
+      filter.startOnThread("source", "sourceNextTransition", count++);
+    });
     iAR.watchPostSourceNextTransition([&filter]() { filter.stopOnThread(kSourceModuleID); });
     // TODO: I'm not sure what to do with ClearEvent here
     // On one hand it would be useful in some cases, but I'm not sure if it should be always enabled, or if it should be
@@ -199,64 +420,84 @@ namespace {
     //iAR.watchPostClearEvent(sourceStop);
 
     // --- ED Module begin/end job ---
-    iAR.watchPreModuleBeginJob([&filter](auto const& md) { filter.startOnThread(static_cast<int>(md.id())); });
-    iAR.watchPostModuleBeginJob([&filter](auto const& md) { filter.stopOnThread(static_cast<int>(md.id())); });
-    iAR.watchPreModuleEndJob([&filter](auto const& md) { filter.startOnThread(static_cast<int>(md.id())); });
-    iAR.watchPostModuleEndJob([&filter](auto const& md) { filter.stopOnThread(static_cast<int>(md.id())); });
+    iAR.watchPreModuleBeginJob(makeEdOncePerModule("moduleBeginJob"));
+    iAR.watchPostModuleBeginJob(mdStop);
+    iAR.watchPreModuleEndJob(makeEdOncePerModule("moduleEndJob"));
+    iAR.watchPostModuleEndJob(mdStop);
 
     // --- ED Module stream transitions ---
-    iAR.watchPreModuleBeginStream(edStart);
+    iAR.watchPreModuleBeginStream(makeEdStreamOnceStart("moduleBeginStream"));
     iAR.watchPostModuleBeginStream(edStop);
-    iAR.watchPreModuleEndStream(edStart);
+    iAR.watchPreModuleEndStream(makeEdStreamOnceStart("moduleEndStream"));
     iAR.watchPostModuleEndStream(edStop);
-    iAR.watchPreModuleEvent(edStart);
+    iAR.watchPreModuleEvent(makeEdStreamStart("moduleEvent"));
     iAR.watchPostModuleEvent(edStop);
-    iAR.watchPreModuleEventAcquire(edStart);
+    iAR.watchPreModuleEventAcquire(makeEdStreamStart("moduleEventAcquire"));
     iAR.watchPostModuleEventAcquire(edStop);
-    iAR.watchPreModuleEventDelayedGet(edStart);
+    iAR.watchPreModuleEventDelayedGet(makeEdStreamStart("moduleEventDelayedGet"));
     iAR.watchPostModuleEventDelayedGet(edStop);
-    iAR.watchPreEventReadFromSource(edStart);
+    iAR.watchPreEventReadFromSource(makeEdStreamStart("eventReadFromSource"));
     iAR.watchPostEventReadFromSource(edStop);
-    iAR.watchPreModuleTransform(edStart);
+    iAR.watchPreModuleTransform(makeEdStreamStart("moduleTransform"));
     iAR.watchPostModuleTransform(edStop);
-    iAR.watchPreModuleTransformAcquiring(edStart);
+    iAR.watchPreModuleTransformAcquiring(makeEdStreamStart("moduleTransformAcquiring"));
     iAR.watchPostModuleTransformAcquiring(edStop);
-    iAR.watchPreModuleStreamBeginRun(edStart);
+    iAR.watchPreModuleStreamBeginRun(makeEdStreamStart("moduleStreamBeginRun"));
     iAR.watchPostModuleStreamBeginRun(edStop);
-    iAR.watchPreModuleStreamEndRun(edStart);
+    iAR.watchPreModuleStreamEndRun(makeEdStreamStart("moduleStreamEndRun"));
     iAR.watchPostModuleStreamEndRun(edStop);
-    iAR.watchPreModuleStreamBeginLumi(edStart);
+    iAR.watchPreModuleStreamBeginLumi(makeEdStreamStart("moduleStreamBeginLumi"));
     iAR.watchPostModuleStreamBeginLumi(edStop);
-    iAR.watchPreModuleStreamEndLumi(edStart);
+    iAR.watchPreModuleStreamEndLumi(makeEdStreamStart("moduleStreamEndLumi"));
     iAR.watchPostModuleStreamEndLumi(edStop);
 
     // --- ED Module global transitions ---
-    iAR.watchPreModuleBeginProcessBlock(edStart);
+    iAR.watchPreModuleBeginProcessBlock(makeEdGlobalOnceStart("moduleBeginProcessBlock"));
     iAR.watchPostModuleBeginProcessBlock(edStop);
-    iAR.watchPreModuleAccessInputProcessBlock(edStart);
+    iAR.watchPreModuleAccessInputProcessBlock(makeEdAccessInputProcessBlockStart("moduleAccessInputProcessBlock"));
     iAR.watchPostModuleAccessInputProcessBlock(edStop);
-    iAR.watchPreModuleEndProcessBlock(edStart);
+    iAR.watchPreModuleEndProcessBlock(makeEdGlobalOnceStart("moduleEndProcessBlock"));
     iAR.watchPostModuleEndProcessBlock(edStop);
-    iAR.watchPreModuleGlobalBeginRun(edStart);
+    iAR.watchPreModuleGlobalBeginRun(makeEdGlobalRunStart("moduleGlobalBeginRun"));
     iAR.watchPostModuleGlobalBeginRun(edStop);
-    iAR.watchPreModuleGlobalEndRun(edStart);
+    iAR.watchPreModuleGlobalEndRun(makeEdGlobalRunStart("moduleGlobalEndRun"));
     iAR.watchPostModuleGlobalEndRun(edStop);
-    iAR.watchPreModuleGlobalBeginLumi(edStart);
+    iAR.watchPreModuleGlobalBeginLumi(makeEdGlobalLumiStart("moduleGlobalBeginLumi"));
     iAR.watchPostModuleGlobalBeginLumi(edStop);
-    iAR.watchPreModuleGlobalEndLumi(edStart);
+    iAR.watchPreModuleGlobalEndLumi(makeEdGlobalLumiStart("moduleGlobalEndLumi"));
     iAR.watchPostModuleGlobalEndLumi(edStop);
-    iAR.watchPreModuleWriteProcessBlock(edStart);
+    iAR.watchPreModuleWriteProcessBlock(makeEdGlobalOnceStart("moduleWriteProcessBlock"));
     iAR.watchPostModuleWriteProcessBlock(edStop);
-    iAR.watchPreModuleWriteRun(edStart);
+    iAR.watchPreModuleWriteRun(makeEdGlobalRunStart("moduleWriteRun"));
     iAR.watchPostModuleWriteRun(edStop);
-    iAR.watchPreModuleWriteLumi(edStart);
+    iAR.watchPreModuleWriteLumi(makeEdGlobalLumiStart("moduleWriteLumi"));
     iAR.watchPostModuleWriteLumi(edStop);
 
-    // --- ES Module transitions ---
-    iAR.watchPreESModule(esStart);
-    iAR.watchPostESModule(esStop);
-    iAR.watchPreESModuleAcquire(esStart);
+    // ES Module transitions
+    iAR.watchPreESModuleAcquire(
+        [&filter](edm::eventsetup::EventSetupRecordKey const& iKey, edm::ESModuleCallingContext const& mcc) {
+          auto idx = filter.tryCompactIndex(-1 * static_cast<int>(module_id(mcc) + 1));
+          if (not idx) {
+            return;
+          }
+          auto const& desc = *mcc.componentDescription();
+          std::string_view label = desc.label_.empty() ? desc.type_ : desc.label_;
+          auto count = filter.getAndStoreESAcquireCounter(*idx, mcc.callID());
+          filter.startOnThread(label, "esModuleAcquire", count, iKey.name(), mcc.callID());
+        });
     iAR.watchPostESModuleAcquire(esStop);
+    iAR.watchPreESModule(
+        [&filter](edm::eventsetup::EventSetupRecordKey const& iKey, edm::ESModuleCallingContext const& mcc) {
+          auto idx = filter.tryCompactIndex(-1 * static_cast<int>(module_id(mcc) + 1));
+          if (not idx) {
+            return;
+          }
+          auto const& desc = *mcc.componentDescription();
+          std::string_view label = desc.label_.empty() ? desc.type_ : desc.label_;
+          auto count = filter.getESModuleCounter(*idx, mcc.callID());
+          filter.startOnThread(label, "esModule", count, iKey.name(), mcc.callID());
+        });
+    iAR.watchPostESModule(esStop);
   }
 
 }  // namespace
@@ -273,7 +514,7 @@ public:
         config_{.printStatistics_ = iPSet.getUntrackedParameter<bool>("statistics"),
                 .deallocationReport_ = iPSet.getUntrackedParameter<bool>("deallocationReport"),
                 .churnReport_ = iPSet.getUntrackedParameter<bool>("churnReport")},
-        profilerFilter_(&moduleIDs_, filePattern_, config_) {
+        profilerFilter_(moduleIDs_, moduleNames_.size(), filePattern_, config_) {
     if (moduleNames_.empty()) {
       throw edm::Exception(edm::errors::Configuration)
           << "moduleNames must be non-empty: ModuleAllocProfiler is intended to profile individual modules, "
@@ -281,20 +522,22 @@ public:
     }
 
     if (not filePattern_.empty()) {
-      if (not filePattern_.contains("%I")) {
+      if (not filePattern_.contains("%M"))
+        throw edm::Exception(edm::errors::Configuration) << "filePattern did not contain '%M'";
+      if (not filePattern_.contains("%S"))
+        throw edm::Exception(edm::errors::Configuration) << "filePattern did not contain '%S'";
+      if (not filePattern_.contains("%I"))
         throw edm::Exception(edm::errors::Configuration) << "filePattern did not contain '%I'";
-      }
-      if (not filePattern_.contains("%T")) {
+      if (not filePattern_.contains("%T"))
         throw edm::Exception(edm::errors::Configuration) << "filePattern did not contain '%T'";
-      }
+      if (not filePattern_.contains("%C"))
+        throw edm::Exception(edm::errors::Configuration) << "filePattern did not contain '%C'";
     }
 
     if (std::find(moduleNames_.begin(), moduleNames_.end(), "source") != moduleNames_.end()) {
       moduleIDs_.push_back(kSourceModuleID);
     }
 
-    // These callbacks need to be called before of those created in ProfilterFilter constructor, and therefore they need
-    // to be registered first
     iAR.watchPreModuleConstruction([this](edm::ModuleDescription const& description) {
       auto found = std::find(moduleNames_.begin(), moduleNames_.end(), description.moduleLabel());
       if (found != moduleNames_.end()) {
@@ -311,9 +554,17 @@ public:
       auto found = std::find(moduleNames_.begin(), moduleNames_.end(), label);
       if (found != moduleNames_.end()) {
         //NOTE: we want the id to start at 1 not 0
-        moduleIDs_.push_back(-1 * static_cast<int>(iDescription.id_ + 1));
+        int esID = -1 * static_cast<int>(iDescription.id_ + 1);
+        moduleIDs_.push_back(esID);
         std::sort(moduleIDs_.begin(), moduleIDs_.end());
       }
+    });
+
+    // watchPreallocate must be registered before setupProfilerFile so allocateCounters()
+    // is guaranteed to be called before any source signals fire.
+    iAR.watchPreallocate([this](edm::service::SystemBounds const& b) {
+      profilerFilter_.allocateCounters(
+          b.maxNumberOfStreams(), b.maxNumberOfConcurrentLuminosityBlocks(), b.maxNumberOfConcurrentRuns());
     });
 
     if (nEventsToSkip_ > 0) {
@@ -340,9 +591,10 @@ public:
     ps.addUntracked<unsigned int>("nEventsToSkip", 0);
     ps.addUntracked<std::string>("filePattern", "")
         ->setComment(
-            "Pattern for the file names for the measurement results. Must contain '%I' for the counter of different "
-            "files, and '%T' for the measurement type (that are 'alloc', 'atMaxActual', 'added', 'dealloc', 'churn', "
-            "'churnalloc'). If empty (default), results are printed with MessageLogger.");
+            "Pattern for output file names. Must contain '%M' (module label), '%S' (signal name), "
+            "'%I' (per-signal occurrence counter), '%T' (measurement type: 'alloc', 'atMaxActual', "
+            "'added', 'dealloc', 'churn', 'churnalloc'), and '%C' (ESModule callID, 0 for non-ES signals). "
+            "If empty (default), results are printed with MessageLogger.");
     ps.addUntracked<bool>("statistics", false)
         ->setComment("Whether to print some timing statistics about the memory measurement itself. Default is false.");
     ps.addUntracked<bool>("deallocationReport", true)

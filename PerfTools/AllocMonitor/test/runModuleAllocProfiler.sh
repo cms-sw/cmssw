@@ -11,7 +11,7 @@ grep -q "moduleNames must be non-empty: ModuleAllocProfiler is intended to profi
 ## profile thingProducer (ED module)
 LD_PRELOAD="libPerfToolsAllocMonitorPreload.so" cmsRun ${LOCAL_TEST_DIR}/moduleAllocProfiler_cfg.py  --edmodule > moduleAllocProfiler_edmodule.log 2>&1  || die 'Failure running moduleAllocProfiler_cfg.py --edmodule' $?
 
-LD_PRELOAD="libPerfToolsAllocMonitorPreload.so" cmsRun ${LOCAL_TEST_DIR}/moduleAllocProfiler_cfg.py --edmodule --output "moduleAllocProfiler_edmodule_%I_%T.log"  > moduleAllocProfiler_edmodule_file.log 2>&1 || die 'Failure running moduleAllocProfiler_cfg.py --edmodule' $?
+LD_PRELOAD="libPerfToolsAllocMonitorPreload.so" cmsRun ${LOCAL_TEST_DIR}/moduleAllocProfiler_cfg.py --edmodule --output "moduleAllocProfiler_edmodule_%M_%S_%I_%T.log"  > moduleAllocProfiler_edmodule_file.log 2>&1 || die 'Failure running moduleAllocProfiler_cfg.py --edmodule with file output' $?
 
 ## profile WhatsItESProducer (ES module)
 LD_PRELOAD="libPerfToolsAllocMonitorPreload.so" cmsRun ${LOCAL_TEST_DIR}/moduleAllocProfiler_cfg.py --esmodule > moduleAllocProfiler_esmodule.log 2>&1 || die 'Failure running moduleAllocProfiler_cfg.py --esmodule' $?

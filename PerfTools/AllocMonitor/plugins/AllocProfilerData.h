@@ -259,16 +259,12 @@ namespace cms::perftools::allocMon::profiler {
 
   class StackNodeData {
   public:
-    StackNodeData(unsigned int fileCount, std::string filePattern, ReportConfiguration config)
+    StackNodeData(std::string filePattern, ReportConfiguration config)
         : filePattern_(std::move(filePattern)),
           statistics_(config.printStatistics_ ? static_cast<std::unique_ptr<StatisticsStrategy>>(
                                                     std::make_unique<CollectingStatisticsStrategy>())
                                               : std::make_unique<NoOpStatisticsStrategy>()),
-          config_(config) {
-      if (not filePattern_.empty()) {
-        boost::replace_all(filePattern_, "%I", std::to_string(fileCount));
-      }
-    }
+          config_(config) {}
 
     void recordAllocation(std::stacktrace trace, AllocationRecord record, void const* ptr) {
       auto timer = statistics_->recordAllocation();
@@ -814,11 +810,6 @@ namespace cms::perftools::allocMon::profiler {
   inline std::unique_ptr<MonitorStackNode>& currentMonitorStackNode() {
     static thread_local std::unique_ptr<MonitorStackNode> ptr;
     return ptr;
-  }
-
-  inline std::atomic<unsigned int>& globalFileCounter() {
-    static std::atomic<unsigned int> counter = 0;
-    return counter;
   }
 
   inline bool& threadActiveMonitoring() {
