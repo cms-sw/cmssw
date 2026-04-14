@@ -41,6 +41,9 @@ protected:
   void _process(edm::Event const &, edm::EventSetup const &) override;
   void _resetMonitors(hcaldqm::UpdateFreq) override;
 
+  /// Fill per-FED CU count vs LS when a detRawId is in _calibDetId2Eid (LED/Laser blocks).
+  void _fillCUFEDCountVsLS(hcaldqm::Container1D &hist, uint32_t detRawId);
+
   edm::InputTag _tagQIE11;
   edm::InputTag _tagHO;
   edm::InputTag _tagQIE10;
@@ -156,7 +159,6 @@ protected:
   hcaldqm::ContainerProf1D _cOccupancyBadCapidvsLS_Subdet;
   hcaldqm::Container2D _cOccupancyBadCapidvsLS_depth;
   //	#Time Samples for a digi. Used for Summary generation
-  hcaldqm::Container1D _cDigiSize_Crate;
   hcaldqm::Container1D _cDigiSize_FED;
   hcaldqm::ContainerProf1D _cDigiSizevsLS_FED;     // online only
   hcaldqm::ContainerXXX<uint32_t> _xDigiSize;      // online only
@@ -206,18 +208,21 @@ protected:
   // CU LED monitoring stuff
   double _thresh_led;
   std::map<HcalSubdetector, std::vector<HcalDetId> > _ledCalibrationChannels;
-  hcaldqm::Container1D _LED_CUCountvsLS_Subdet;       // Misfire count vs LS
-  hcaldqm::Container1D _LED_CUCountvsLSmod60_Subdet;  // Misfire count vs LS
+  hcaldqm::Container1D _LED_CUCountvsLSmod60_Subdet;  // Misfire count vs LS (per subdet)
+  hcaldqm::Container1D _LED_CUCountvsLS_FED;          // Misfire count vs LS (per FED)
   hcaldqm::Container2D _LED_ADCvsBX_Subdet;           // Pin diode amplitude vs BX
   hcaldqm::Container2D _LED_ADCvsTS_Subdet;           // Pin diode amplitude vs TS for online DQM
 
   // CU laser monitoring stuff
   double _thresh_laser;
   std::map<HcalSubdetector, std::vector<HcalDetId> > _laserCalibrationChannels;
-  hcaldqm::Container1D _LASER_CUCountvsLS_Subdet;       // Misfire count vs LS
-  hcaldqm::Container1D _LASER_CUCountvsLSmod60_Subdet;  // Misfire count vs LS
+  hcaldqm::Container1D _LASER_CUCountvsLSmod60_Subdet;  // Misfire count vs LS (per subdet)
+  hcaldqm::Container1D _LASER_CUCountvsLS_FED;          // Misfire count vs LS (per FED)
   hcaldqm::Container2D _LASER_ADCvsBX_Subdet;           // Pin diode amplitude vs BX
   hcaldqm::Container2D _LASER_ADCvsTS_Subdet;           // Pin diode amplitude vs TS for online DQM
+
+  // Map from calibration channel DetId to its HcalElectronicsId (for per-FED CU fill)
+  std::map<uint32_t, HcalElectronicsId> _calibDetId2Eid;
 
   // CU Raddam monitoring stuff
   double _thresh_raddam;
@@ -228,6 +233,7 @@ protected:
   hcaldqm::ContainerSingle2D _Raddam_ADCvsTS;           // Raddam amplitude vs TS for online DQM
 
   // Laser monitoring for pin diode channel (0, 31, 0)
+  double _thresh_pindiode;
   hcaldqm::ContainerSingleProf1D _cSumQvsBX_PinDiode;
   hcaldqm::ContainerSingleProf1D _cSumQvsLS_PinDiode;
   hcaldqm::ContainerSingle2D _cADCvsTS_PinDiode;
