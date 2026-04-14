@@ -18,7 +18,7 @@
 //
 
 #include "FWCore/MessageLogger/interface/JobReport.h"
-#include "FWCore/MessageLogger/interface/xmlUtils.h"
+#include "FWCore/MessageLogger/src/xmlUtils.h"
 #include "FWCore/Utilities/interface/Map.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
