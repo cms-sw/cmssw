@@ -92,7 +92,7 @@ namespace l1t {
     lct.setEighthStripBit(eighth_bit);
     lct.setSlope(slope);
     lct.setRun3Pattern(pattern_run3);
-    lct.setRun3(isRun3);
+    lct.setVersion(isRun3 ? CSCCorrelatedLCTDigi::Version::Run3 : CSCCorrelatedLCTDigi::Version::Legacy);
 
     return lct;
     // Added Run 3 parameters - EY 04.07.22

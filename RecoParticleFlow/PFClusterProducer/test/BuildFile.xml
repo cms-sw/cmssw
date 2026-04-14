@@ -40,7 +40,7 @@
   <flags ALPAKA_BACKENDS="1"/>
 </bin>
 
-<bin file="alpaka/PrologueTest.dev.cc">
+<bin name="PrologueTest"  file="alpaka/PrologueTest.dev.cc">
   <use name="alpaka"/>
   <use name="eigen"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
@@ -49,6 +49,18 @@
   <use name="DataFormats/Portable"/>
   <use name="RecoParticleFlow/PFClusterProducer"/>
   <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
+<bin name="PrologueTest_multiblock"  file="alpaka/PrologueTest.dev.cc">
+  <use name="alpaka"/>
+  <use name="eigen"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="DataFormats/Portable"/>
+  <use name="RecoParticleFlow/PFClusterProducer"/>
+  <flags CPPFLAGS="-DEPILOGUE_MULTIBLOCK"/>
+  <flags ALPAKA_BACKENDS="cuda rocm"/>
 </bin>
 
 <bin file="alpaka/ECLCCTest.dev.cc">
@@ -73,6 +85,18 @@
   <flags ALPAKA_BACKENDS="1"/>
 </bin>
 
+<bin name="EpilogueTest_multiblock_noncooperative"  file="alpaka/EpilogueTest.dev.cc">
+  <use name="alpaka"/>
+  <use name="eigen"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/SoATemplate"/>
+  <use name="DataFormats/Portable"/>
+  <use name="RecoParticleFlow/PFClusterProducer"/>
+  <flags CPPFLAGS="-DEPILOGUE_MULTIBLOCK"/>
+  <flags ALPAKA_BACKENDS="cuda rocm"/>
+</bin>
+
 <iftool name="cuda-gcc-support">
  <bin name="EpilogueTest_cooperative" file="alpaka/EpilogueTest.dev.cc">
    <use name="alpaka"/>
@@ -83,6 +107,18 @@
    <use name="DataFormats/Portable"/>
    <use name="RecoParticleFlow/PFClusterProducer"/>
    <flags CPPFLAGS="-DEPILOGUE_COOPERATIVE"/>
+   <flags ALPAKA_BACKENDS="cuda"/>
+ </bin>
+
+  <bin name="EpilogueTest_multiblock_cooperative" file="alpaka/EpilogueTest.dev.cc">
+   <use name="alpaka"/>
+   <use name="eigen"/>
+   <use name="HeterogeneousCore/AlpakaInterface"/>
+   <use name="FWCore/Utilities"/>
+   <use name="DataFormats/SoATemplate"/>
+   <use name="DataFormats/Portable"/>
+   <use name="RecoParticleFlow/PFClusterProducer"/>
+   <flags CPPFLAGS="-DEPILOGUE_COOPERATIVE -DEPILOGUE_MULTIBLOCK"/>
    <flags ALPAKA_BACKENDS="cuda"/>
  </bin>
 
