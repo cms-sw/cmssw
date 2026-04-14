@@ -296,7 +296,6 @@ public:
     iAR.watchPreallocate([this](auto const& alloc) { nStreams_ = alloc.maxNumberOfStreams(); });
     iAR.watchPreBeginJob([this](auto const&) {
       streamModuleAllocs_.resize(nStreams_ * nModules_);
-      streamModuleInAcquire_ = std::vector<std::atomic<bool>>(nStreams_ * nModules_);
       streamModuleFinishOrder_ = std::vector<int>(nStreams_ * nModules_);
       streamNFinishedModules_ = std::vector<std::atomic<unsigned int>>(nStreams_);
       streamSync_ = std::vector<std::atomic<unsigned int>>(nStreams_);
@@ -309,9 +308,6 @@ public:
         //acquire might have started stuff
         streamSync_[iStream.streamID().value()].load();
         auto index = moduleIndex(mod_id);
-        auto const& inAcquire = streamModuleInAcquire_[nModules_ * iStream.streamID().value() + index];
-        while (inAcquire.load())
-          ;
         return streamModuleAllocs_[nModules_ * iStream.streamID().value() + index];
       };
       filter_.startOnThread(mod_id, acquireInfo);
@@ -335,11 +331,7 @@ public:
     });
 
     iAR.watchPreModuleEventAcquire([this](auto const& iStream, auto const& iMod) {
-      auto index = moduleIndex(module_id(iMod));
-      auto acquireInfo = [index, this, iStream]() {
-        streamModuleInAcquire_[nModules_ * iStream.streamID().value() + index].store(true);
-        return AllocMap();
-      };
+      auto acquireInfo = []() { return AllocMap(); };
       filter_.startOnThread(module_id(iMod), acquireInfo);
     });
     iAR.watchPostModuleEventAcquire([this, file](auto const& iStream, auto const& iMod) {
@@ -359,7 +351,6 @@ public:
         }
         streamModuleAllocs_[nModules_ * iStream.streamID().value() + index] = info->allocMap_;
         ++streamSync_[iStream.streamID().value()];
-        streamModuleInAcquire_[nModules_ * iStream.streamID().value() + index].store(false);
       }
     });
     //NOTE: the following watch points may need to be used in the future if allocations occurring during these
@@ -466,7 +457,6 @@ private:
   }
   //The size is (#streams)*(#modules)
   CMS_THREAD_GUARD(streamSync_) std::vector<AllocMap> streamModuleAllocs_;
-  CMS_THREAD_GUARD(streamSync_) std::vector<std::atomic<bool>> streamModuleInAcquire_;
   //This holds the index into the streamModuleAllocs_ for the module which finished
   CMS_THREAD_GUARD(streamSync_) std::vector<int> streamModuleFinishOrder_;
   std::vector<std::atomic<unsigned int>> streamNFinishedModules_;
