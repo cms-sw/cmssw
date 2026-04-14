@@ -538,7 +538,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps)
                                              0);
     _cCapid_BadvsFEDvsLS.initialize(_name,
                                     "CapID",
-                                    new hcaldqm::quantity::LumiSectionCoarse(_maxLS, 10),
+                                    new hcaldqm::quantity::LumiSection(_maxLS),
                                     new hcaldqm::quantity::FEDQuantity(vFEDs),
                                     new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
                                     0);

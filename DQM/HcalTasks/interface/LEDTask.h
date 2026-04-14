@@ -25,6 +25,7 @@ public:
   ~LEDTask() override {}
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   void dqmEndRun(edm::Run const& r, edm::EventSetup const&) override {
     if (_ptype == hcaldqm::fLocal)
       if (r.runAuxiliary().run() == 1)
@@ -84,15 +85,37 @@ protected:
   hcaldqm::ContainerProf2D _cSignalRMS_depth;
   hcaldqm::ContainerProf2D _cTimingMean_depth;
   hcaldqm::ContainerProf2D _cTimingRMS_depth;
+  hcaldqm::ContainerProf2D _cChargeCorr_depth;
+  hcaldqm::ContainerProf2D _cCWTCorr_depth;
+  hcaldqm::ContainerProf2D _cChargeNormLS2_depth;
+  hcaldqm::ContainerProf2D _cCWTNormLS2_depth;
+  hcaldqm::ContainerProf2D _cChargeAbs_depth;
+  hcaldqm::ContainerProf2D _cCWTAbs_depth;
 
   hcaldqm::ContainerProf2D _cSignalMean_FEDuTCA;
   hcaldqm::ContainerProf2D _cTimingMean_FEDuTCA;
   hcaldqm::ContainerProf2D _cSignalRMS_FEDuTCA;
   hcaldqm::ContainerProf2D _cTimingRMS_FEDuTCA;
 
+  hcaldqm::Container2D _cChargeNormvsLS_SubdetPM;
+  hcaldqm::Container2D _cCWTNormvsLS_SubdetPM;
+
   //	Bad Quality and Missing Channels
   hcaldqm::Container2D _cMissing_depth;
   hcaldqm::Container2D _cMissing_FEDuTCA;
+
+  // LS-to-LS pedestal and LS2 references
+  hcaldqm::ContainerXXX<double> _xPedestalChargeSumLS;
+  hcaldqm::ContainerXXX<int> _xPedestalChargeEntriesLS;
+  hcaldqm::ContainerXXX<double> _xPedestalChargePrevLS;
+  hcaldqm::ContainerXXX<double> _xChargeRefLS2;
+  hcaldqm::ContainerXXX<double> _xCWTRefLS2;
+  hcaldqm::ContainerXXX<int> _xChargeRefLS2Entries;
+  hcaldqm::ContainerXXX<int> _xCWTRefLS2Entries;
+  hcaldqm::ContainerXXX<double> _xChargeNormSumLS;
+  hcaldqm::ContainerXXX<double> _xCWTNormSumLS;
+  hcaldqm::ContainerXXX<int> _xChargeNormEntriesLS;
+  hcaldqm::ContainerXXX<int> _xCWTNormEntriesLS;
 
   // For hcalcalib online LED
   hcaldqm::Container2D _cADCvsTS_SubdetPM;
