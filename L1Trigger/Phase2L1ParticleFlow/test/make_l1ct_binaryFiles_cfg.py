@@ -158,6 +158,8 @@ process.l1tLayer1BarrelTDR.puAlgoParameters.nOut = 27
 process.l1tLayer1BarrelTDR.puAlgoParameters.finalSortAlgo = "BitonicVHDL"
 process.l1tLayer1BarrelTDR.tkEgAlgoParameters.nTRACK_EGIN = 22
 process.l1tLayer1BarrelTDR.tkEgAlgoParameters.nEMCALO_EGIN = 12
+process.l1tLayer1BarrelTDR.tkEgAlgoParameters.algorithm = 0
+process.l1tLayer1BarrelTDR.tkEgAlgoParameters.trkQualityPtMin = 10.0
 
 process.l1tLayer1BarrelSerenity = process.l1tLayer1Barrel.clone()
 process.l1tLayer1BarrelSerenity.regionizerAlgo = "MiddleBufferMultififo"
