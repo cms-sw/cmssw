@@ -587,6 +587,7 @@ void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
   IPVsEtaVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
   IPVsEtaVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 2);
   IPVsEtaVsPhi_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_), 3);
+  IPVsEtaVsPhi_->setOption("colz");
 
   IPErrVsEtaVsPhi_ = iBooker.bookProfile2D(
       fmt::format("d{}ErrVsEtaVsPhi_pt{}", varname_, pTcut_),
@@ -605,6 +606,7 @@ void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
   IPErrVsEtaVsPhi_->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 2);
   IPErrVsEtaVsPhi_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_),
                                  3);
+  IPErrVsEtaVsPhi_->setOption("colz");
 }
 
 template <typename T>
