@@ -1,7 +1,8 @@
 <lcgdict>
-   <class name="CaloParticle"  ClassVersion="5">
+  <class name="CaloParticle"  ClassVersion="6">
+	<version ClassVersion="6" checksum="1309721976"/>
     <version ClassVersion="5" checksum="2074797506"/>
-   <version ClassVersion="4" checksum="1423471036"/>
+	<version ClassVersion="4" checksum="1423471036"/>
   </class>
   <class name="CaloParticleCollection"/>
   <class name="edm::Wrapper<CaloParticleCollection>"/>
@@ -11,7 +12,8 @@
   <class name="CaloParticleRefProd"/>
   <class name="CaloParticleContainer"/>
 
-  <class name="MtdCaloParticle" ClassVersion="3">
+  <class name="MtdCaloParticle" ClassVersion="4">
+	<version ClassVersion="4" checksum="820552701"/>
     <version ClassVersion="3" checksum="3222440347"/>
   </class>
   <class name="MtdCaloParticleCollection"/>

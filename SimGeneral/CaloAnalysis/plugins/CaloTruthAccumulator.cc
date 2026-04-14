@@ -20,6 +20,7 @@
 #include <unordered_map>
 #include <string>
 #include <tuple>
+#include <ranges>
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -696,7 +697,7 @@ void CaloTruthAccumulator::accumulate(PileUpEventPrincipal const &event,
 }
 
 namespace {
-  /** Normalize the energies in the SimCluster/CaloParticle collection, from absolute SimHit energies to fraction of total simHits energies */  
+  /** Normalize the energies in the SimCluster/CaloParticle collection, from absolute SimHit energies to fraction of total simHits energies */
   template <typename SimCaloCollection>
   void normalizeCollection(SimCaloCollection &simClusters,
                            std::unordered_map<Index_t, float> const &detIdToTotalSimEnergy) {
@@ -713,7 +714,14 @@ namespace {
               << "TotalSimEnergy for hit " << hAndE.first << " is 0! The fraction for this hit cannot be computed.";
         sc.addHitFraction(fraction);
       }
-	  sc.finalizeHits();
+    }
+  }
+
+  /** "Finalize" the collection production; to be called before putting it in the event */
+  template <typename SimCaloCollection>
+  void finalizeCollection(SimCaloCollection &simClusters) {
+    for (auto &sc : simClusters) {
+      sc.finalizeHits();
     }
   }
 };  // namespace
@@ -727,19 +735,21 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
   // we have looped over all pileup events)
   // For premixing stage1 we keep the energies, they will be normalized to
   // fractions in stage2 (in PreMixingCaloParticleWorker.cc)
-
   if (premixStage1_) {
     auto totalEnergies = std::make_unique<std::vector<std::pair<unsigned int, float>>>();
     totalEnergies->reserve(m_detIdToTotalSimEnergy.size());
     std::copy(m_detIdToTotalSimEnergy.begin(), m_detIdToTotalSimEnergy.end(), std::back_inserter(*totalEnergies));
     std::sort(totalEnergies->begin(), totalEnergies->end());
     event.put(std::move(totalEnergies), "MergedCaloTruth");
-    for (auto &sc : *(output_.pSimClusters)) {
-      sc.finalizeHits();  // make sure persisted SimClusters have sorted hits and built ranges
-    }
+
+    // make sure persisted SimClusters have sorted hits and built ranges
+    applyToSimClusterConfig([this](auto &config) { finalizeCollection(config.outputClusters); });
+
   } else {
-    applyToSimClusterConfig(
-        [this](auto &config) { normalizeCollection(config.outputClusters, m_detIdToTotalSimEnergy); });
+    applyToSimClusterConfig([this](auto &config) {
+      normalizeCollection(config.outputClusters, m_detIdToTotalSimEnergy);
+      finalizeCollection(config.outputClusters);
+    });
     normalizeCollection(outputCaloParticles_, m_detIdToTotalSimEnergy);
   }
 

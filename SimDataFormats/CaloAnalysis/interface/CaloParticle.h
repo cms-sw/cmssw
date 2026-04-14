@@ -166,14 +166,18 @@ public:
   /** @brief returns the time in ns of the caloparticle */
   float simTime() const { return time_; }
 
-  /** @brief add rechit with fraction */
-  void addRecHitAndFraction(uint32_t hit, float fraction) {
+  /** @brief add rechit with energy */
+  void addRecHitAndEnergy(uint32_t hit, float energy) {
     hits_.emplace_back(hit);
-    fractions_.emplace_back(fraction);
+    energies_.emplace_back(energy);
   }
+
+  /** @brief add rechit fraction */
+  void addHitFraction(float fraction) { fractions_.emplace_back(fraction); }
 
   /** @brief Returns list of rechit IDs and fractions for this CaloParticle */
   std::vector<std::pair<uint32_t, float>> hits_and_fractions() const {
+    assert(hits_.size() == fractions_.size());
     std::vector<std::pair<uint32_t, float>> result;
     result.reserve(hits_.size());
     for (size_t i = 0; i < hits_.size(); ++i) {
@@ -182,11 +186,25 @@ public:
     return result;
   }
 
-  /** @brief clear the hits and fractions list */
-  void clearHitsAndFractions() {
-    hits_.clear();
-    fractions_.clear();
+  /** @brief Returns list of rechit IDs and energies for this CaloParticle */
+  std::vector<std::pair<uint32_t, float>> hits_and_energies() const {
+    assert(hits_.size() == energies_.size());
+    std::vector<std::pair<uint32_t, float>> result;
+    result.reserve(hits_.size());
+    for (size_t i = 0; i < hits_.size(); ++i) {
+      result.emplace_back(hits_[i], energies_[i]);
+    }
+    return result;
   }
+
+  /** @brief clear the hits and energies list */
+  void clearHitsAndEnergies() {
+    std::vector<uint32_t>().swap(hits_);
+    std::vector<float>().swap(energies_);
+  }
+
+  /** @brief clear the hits and fractions list */
+  void clearFractions() { std::vector<float>().swap(fractions_); }
 
   /** @brief returns the accumulated sim energy in the cluster */
   float simEnergy() const { return simhit_energy_; }
@@ -209,6 +227,7 @@ protected:
   float time_{std::numeric_limits<float>::lowest()};
   std::vector<uint32_t> hits_;
   std::vector<float> fractions_;
+  std::vector<float> energies_;
 
   math::XYZTLorentzVectorF theMomentum_;
 
