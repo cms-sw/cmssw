@@ -197,6 +197,10 @@ public:
     return result;
   }
 
+  /** @brief Returns view to list of rechit IDs and energies for this CaloParticle
+	  TODO: Implement views for CaloParticles as done for SimClusters. */
+  std::vector<std::pair<uint32_t, float>> hits_and_energies_view() const { return hits_and_energies(); }
+
   /** @brief clear the hits and energies list */
   void clearHitsAndEnergies() {
     std::vector<uint32_t>().swap(hits_);

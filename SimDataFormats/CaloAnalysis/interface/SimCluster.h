@@ -17,6 +17,7 @@
 #include <unordered_map>
 #include <functional>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -125,9 +126,7 @@ public:
   ~SimCluster() = default;
 
   /** Build a SimCluster from a collection of SimCluster. Hits&fractions are merged, SimTracks are all added in g4Tracks_ */
-  template <typename R>
-    requires std::ranges::input_range<R> && std::same_as<std::ranges::range_value_t<R>, SimCluster>
-  static SimCluster mergeHitsFromCollection(R const &);
+  static SimCluster mergeHitsFromCollection(const std::vector<SimCluster> &inputs);
 
   /** @brief PDG ID.
    *
@@ -323,8 +322,12 @@ public:
   // Producer-side "finalization" (to be called before putting in the event)
   // --------------------------------------------------------------------------
   void finalizeHits() {
-    // Keep your original implicit invariant:
-    assert(hits_.size() == energies_.size() && !hits_.empty());
+    if (hits_.empty()) {
+      hitsFinalized_ = true;
+      return;
+    }
+
+    assert(hits_.size() == energies_.size());
     if (!fractions_.empty())
       assert(hits_.size() == fractions_.size());
 
@@ -441,9 +444,8 @@ private:
 
   void assertFractions_() const {
     if (hits_.size() != fractions_.size()) {
-      std::cerr << "SimCluster: fractions (" + std::to_string(fractions_.size()) + ") and hits (" +
-                       std::to_string(hits_.size()) + ") must have the same size."
-                << std::endl;
+      edm::LogWarning("SimCluster") << "fractions (" + std::to_string(fractions_.size()) + ") and hits (" +
+                                           std::to_string(hits_.size()) + ") must have the same size.";
       std::abort();
     }
   }
@@ -506,37 +508,5 @@ private:
     v.swap(tmp);
   }
 };
-
-template <typename R>
-  requires std::ranges::input_range<R> && std::same_as<std::ranges::range_value_t<R>, SimCluster>
-SimCluster SimCluster::mergeHitsFromCollection(R const &inputs) {
-  assert(!std::ranges::empty(inputs));
-  SimCluster ret;
-  ret.event_ = inputs[0].event_;
-  ret.particleId_ = inputs[0].particleId_;
-
-  ret.g4Tracks_.reserve(inputs.size());
-  std::unordered_map<uint32_t, float> acc_fractions;  ///< Map DetId->(fraction)
-  for (SimCluster const &other : inputs) {
-    ret.simhit_energy_ += other.simhit_energy_;
-
-    assert(other.hits_.size() == other.fractions_.size());
-    for (std::size_t i = 0; i < other.hits_.size(); i++) {
-      acc_fractions[other.hits_[i]] += other.fractions_[i];
-    }
-
-    ret.g4Tracks_.insert(ret.g4Tracks_.end(), other.g4Tracks_.begin(), other.g4Tracks_.end());
-  }
-
-  ret.hits_.reserve(acc_fractions.size());
-  ret.fractions_.reserve(acc_fractions.size());
-  for (const auto &hit_and_fraction : acc_fractions) {
-    ret.hits_.push_back(hit_and_fraction.first);
-    ret.fractions_.push_back(hit_and_fraction.second);
-  }
-  ret.nsimhits_ = ret.hits_.size();
-
-  return ret;
-}
 
 #endif  // SimDataFormats_SimCluster_H
