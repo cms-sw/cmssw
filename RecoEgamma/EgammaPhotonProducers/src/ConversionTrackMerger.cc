@@ -10,8 +10,8 @@
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/EgammaTrackReco/interface/ConversionTrack.h"
-#include "DataFormats/EgammaTrackReco/interface/ConversionTrackFwd.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTrack.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTrackFwd.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
