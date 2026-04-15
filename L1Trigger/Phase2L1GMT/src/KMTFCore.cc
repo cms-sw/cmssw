@@ -580,7 +580,7 @@ void KMTFCore::propagate(l1t::KMTFTrack& track) {
   a[16] = 0.0;
   a[17] = 0.0;
   a[18] = 1.0;
-  a[19] = zdeltaR_dig;
+  a[19] = -zdeltaR_dig;
   a[20] = 0.0;
   a[21] = 0.0;
   a[22] = 0.0;
@@ -659,6 +659,8 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
   int z = stub->eta1();
   int kSlope = stub->eta2();
 
+  int priorThetaPattern = track.thetaDigiPattern();
+
   //Vector4 residual;
   //Vector3 residual;
   Vector2 residual;
@@ -697,8 +699,8 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
   //H(3, 3) = 0.0;
   //H(3, 4) = 1.0;
 
-  const auto r11{stub->quality() < 6 ? pointResolutionPhiBL_[track.step() - 1]
-                                     : pointResolutionPhiBH_[track.step() - 1]};
+  //const auto r11{stub->quality() < 6 ? pointResolutionPhiBL_[track.step() - 1]
+   //                                  : pointResolutionPhiBH_[track.step() - 1]};
   //const double r[]{pointResolutionPhi_,  
 	//				0.0, r11, 
 	//				0.0, 0.0, pointResolutionz_[track.step() - 1],  
@@ -734,10 +736,12 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
   if (fabs(KNew) > pow(2, BITSCURV - 1))
     return false;
 
-  int phiNew = wrapAround(trackPhi + residual(0), pow(2, BITSPHI - 1));
+  //int phiNew = wrapAround(trackPhi + residual(0), pow(2, BITSPHI - 1));
+  int phiNew = trackPhi;
   //int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1) + Gain(2, 2) * residual(2) + Gain(2, 3) * residual(3)), pow(2, BITSPHIB - 1));
   //int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1) + Gain(2, 2) * residual(2)), pow(2, BITSPHIB - 1));
-  int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1)), pow(2, BITSPHIB - 1));
+  //int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1)), pow(2, BITSPHIB - 1));
+  int phiBNew = trackPhiB;
   //int zNew = trackz + int(Gain(3, 0) * residual(0) + Gain(3, 1) * residual(1) + Gain(3, 2) * residual(2) + Gain(3, 3) * residual(3));
   //int zNew = trackz + int(Gain(3, 0) * residual(0) + Gain(3, 1) * residual(1) + Gain(3, 2) * residual(2));
   int zNew = trackz + int(Gain(3, 0) * residual(0) + Gain(3, 1) * residual(1));
@@ -799,6 +803,7 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
   track.addStub(stub);
   track.setHitPattern(hitPattern(track));
   track.setThetaDigiPattern(thetaDigiPattern(track));
+  track.setConvergenceGain(track.step(), fabs(trackK), priorThetaPattern, Gain(3, 0), Gain(3, 1), Gain(4, 0), Gain(4, 1));
 
   return true;
 }
@@ -814,14 +819,16 @@ bool KMTFCore::updateOffline1D(l1t::KMTFTrack& track, const l1t::MuonStubRef& st
   int z = stub->eta1();
   int kSlope = stub->eta2();
 
-  Vector3 residual;
-  //Vector2 residual;
+  int priorThetaPattern = track.thetaDigiPattern();
+
+  //Vector3 residual;
+  Vector2 residual;
   //residual[0] = ap_fixed<BITSPHI, BITSPHI>(phi - trackPhi);
   residual[0] = z - trackz;
   residual[1] = kSlope - trackSlope;
 
-  double ZRES_CONV=65536.0/1500.;
-  double KRES_CONV=65536.0/2.;
+  //double ZRES_CONV=65536.0/1500.;
+  //double KRES_CONV=65536.0/2.;
   //std::cout << "[STUB-1D] step=" << track.step()
     //<< ", stub(phi=" << phi << ", z=" << z/ZRES_CONV << ", kSlope=" << kSlope/KRES_CONV << ")"
     //<< " track(phi=" << trackPhi << ", z=" << trackz/ZRES_CONV << ", kSlope=" << trackSlope/KRES_CONV << ")"
@@ -873,15 +880,17 @@ bool KMTFCore::updateOffline1D(l1t::KMTFTrack& track, const l1t::MuonStubRef& st
 
   track.setKalmanGain(track.step(), fabs(trackK), Gain(0, 0), 0.0, 1, 0, Gain(2, 0), 0.0);
 
-  int KNew = wrapAround(trackK + int(Gain(0, 0) * residual(0) + Gain(0, 1) * residual(1) + Gain(0, 2) * residual(2)), pow(2, BITSCURV - 1));
-  //int KNew = wrapAround(trackK + int(Gain(0, 0) * residual(0) + Gain(0, 1) * residual(1)), pow(2, BITSCURV - 1));
-  int phiNew = wrapAround(trackPhi + residual(0), pow(2, BITSPHI - 1));
-  int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1) + Gain(2, 2) * residual(2)), pow(2, BITSPHIB - 1));
+  //int KNew = wrapAround(trackK + int(Gain(0, 0) * residual(0) + Gain(0, 1) * residual(1) + Gain(0, 2) * residual(2)), pow(2, BITSCURV - 1));
+  int KNew = wrapAround(trackK + int(Gain(0, 0) * residual(0) + Gain(0, 1) * residual(1)), pow(2, BITSCURV - 1));
+  //int phiNew = wrapAround(trackPhi + residual(0), pow(2, BITSPHI - 1));
+  int phiNew = trackPhi;
+  //int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1) + Gain(2, 2) * residual(2)), pow(2, BITSPHIB - 1));
   //int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1)), pow(2, BITSPHIB - 1));
-  int zNew = trackz + int(Gain(3, 0) * residual(0) + Gain(3, 1) * residual(1) + Gain(3, 2) * residual(2));
-  //int zNew = trackz + int(Gain(3, 0) * residual(0) + Gain(3, 1) * residual(1));
-  int kSlopeNew = trackSlope + int(Gain(4, 0) * residual(0) + Gain(4, 1) * residual(1) + Gain(4, 2) * residual(2));
-  //int kSlopeNew = trackSlope + int(Gain(4, 0) * residual(0) + Gain(4, 1) * residual(1));
+  int phiBNew = trackPhiB;
+  //int zNew = trackz + int(Gain(3, 0) * residual(0) + Gain(3, 1) * residual(1) + Gain(3, 2) * residual(2));
+  int zNew = trackz + int(Gain(3, 0) * residual(0) + Gain(3, 1) * residual(1));
+  //int kSlopeNew = trackSlope + int(Gain(4, 0) * residual(0) + Gain(4, 1) * residual(1) + Gain(4, 2) * residual(2));
+  int kSlopeNew = trackSlope + int(Gain(4, 0) * residual(0) + Gain(4, 1) * residual(1));
 
   track.setCoordinates(track.step(), KNew, phiNew, phiBNew, zNew, kSlopeNew);
   //std::cout << "[UPDATE-OFFLINE-1D] step=" << track.step()
@@ -917,6 +926,7 @@ bool KMTFCore::updateOffline1D(l1t::KMTFTrack& track, const l1t::MuonStubRef& st
   track.addStub(stub);
   track.setHitPattern(hitPattern(track));
   track.setThetaDigiPattern(thetaDigiPattern(track));
+  track.setConvergenceGain(track.step(), fabs(trackK), priorThetaPattern, Gain(3, 0), Gain(3, 1), Gain(4, 0), Gain(4, 1));
 
 
   return true;
@@ -1137,11 +1147,11 @@ int KMTFCore::customBitmask(unsigned int bit1, unsigned int bit2, unsigned int b
 bool KMTFCore::getBit(int bitmask, int pos) { return (bitmask & (1 << pos)) >> pos; }
 
 void KMTFCore::setFourVectors(l1t::KMTFTrack& track) {
-  int etaINT = track.coarseEta();
+  //int etaINT = track.coarseEta();
   //new track eta with linear fit calibrated to gen eta. abandoning the legacy approach of setting track eta from coarseEta
-  //const double m = 0.03458;
-  //const double b = 0.7446;
-  //int etaINT = int(round(m * track.kSlope() + b));
+  const double m = 0.03458;
+  const double b = 0.7446;
+  int etaINT = int(round(m * track.kSlope() + b));
   double lsbEta = M_PI / pow(2, 12);
 
   int charge = 1;

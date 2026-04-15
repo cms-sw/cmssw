@@ -169,6 +169,16 @@ namespace l1t {
       return kalmanGain0_;
     }
 
+	const std::vector<float>& convergenceGain(unsigned int step) const {
+		switch (step) {
+    		case 3: return convergenceGain3_;
+    		case 2: return convergenceGain2_;
+    		case 1: return convergenceGain1_;
+    		case 0: return convergenceGain0_;
+		}
+		return convergenceGain0_;
+	}
+
     //get covariance
     const std::vector<double>& covariance() const { return covariance_; }
 
@@ -321,6 +331,25 @@ namespace l1t {
       }
     }
 
+	void setConvergenceGain(unsigned int step, unsigned int K, int priorThetaPattern,
+                            float Gz0, float Gz1, float Gk0, float Gk1) {
+      std::vector<float>* v = nullptr;
+      switch (step) {
+        case 3: v = &convergenceGain3_; break;
+        case 2: v = &convergenceGain2_; break;
+        case 1: v = &convergenceGain1_; break;
+        case 0: v = &convergenceGain0_; break;
+        default:
+          throw cms::Exception("WrongCondition") << "Critical ERROR on setting the convergence gain\n";
+      }
+      v->push_back(static_cast<float>(K));
+      v->push_back(static_cast<float>(priorThetaPattern));
+      v->push_back(Gz0);
+      v->push_back(Gz1);
+      v->push_back(Gk0);
+      v->push_back(Gk1);
+    }
+
     //set covariance
     void setCovariance(const CovarianceMatrix5dim& c) {
       covariance_[0] = c(0, 0);
@@ -423,6 +452,11 @@ namespace l1t {
     std::vector<float> kalmanGain3_;
 
     std::vector<int> residuals_;
+
+	std::vector<float> convergenceGain0_;
+	std::vector<float> convergenceGain1_;
+	std::vector<float> convergenceGain2_;
+	std::vector<float> convergenceGain3_;
   };
 
 }  // namespace l1t
