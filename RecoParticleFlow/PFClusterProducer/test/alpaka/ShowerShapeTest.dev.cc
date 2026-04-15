@@ -2,58 +2,43 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
-
 #include <iostream>
 #include <cstdlib>
-
 #include <Eigen/Core>
 #include <Eigen/Dense>
-
 #include <alpaka/alpaka.hpp>
-
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
-#include "FWCore/Utilities/interface/stringize.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-
-#include "DataFormats/SoATemplate/interface/SoACommon.h"
-#include "DataFormats/SoATemplate/interface/SoALayout.h"
-
-#include "DataFormats/Portable/interface/PortableHostCollection.h"
-#include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
-
-#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterizerHelper.h"
-#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthShowerShape.h"
-
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterHostCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/alpaka/PFClusterDeviceCollection.h"
-
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitHostCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/alpaka/PFRecHitDeviceCollection.h"
-
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFractionHostCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/alpaka/PFRecHitFractionDeviceCollection.h"
-
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
-
-#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
-
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-
+#include "DataFormats/Portable/interface/PortableHostCollection.h"
+#include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
+#include "DataFormats/SoATemplate/interface/SoACommon.h"
+#include "DataFormats/SoATemplate/interface/SoALayout.h"
+#include "FWCore/Utilities/interface/stringize.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometryMayOwnPtr.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-
+#include "FWCore/Utilities/interface/stringize.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometryMayOwnPtr.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthClusterizerHelper.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthClusteringVarsHostCollection.h"
-
-#include "DataFormats/Math/interface/deltaPhi.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/alpaka/PFMultiDepthShowerShape.h"
 
 #ifdef SHOWER_SHAPE_COOPERATIVE
 static constexpr bool cooperative = true;
@@ -155,7 +140,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                               const reco::PFClusterDeviceCollection& pfClusters,
                               const reco::PFRecHitFractionDeviceCollection& pfRecHitFracs,
                               const reco::PFRecHitDeviceCollection& pfRecHit) const {
-    uint32_t items = 160;
+    uint32_t items = std::is_same_v<Device, alpaka::DevCpu> ? 1 : 64;
 
     auto n = static_cast<uint32_t>(pfClusters->metadata().size());
     uint32_t groups = ::cms::alpakatools::divide_up_by(n, items);
@@ -505,6 +490,7 @@ int main() {
   }
 
   const int nClusters = 145;
+
   const int maxHitsPerCluster = 67;
   const int minHitsPerCluster = 23;
 
