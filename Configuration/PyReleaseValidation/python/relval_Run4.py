@@ -55,7 +55,7 @@ numWFIB.extend([prefixDet+151.85]) #Heavy ion reconstruction
 #numWFIB.extend([prefixDet+234.21])   #prodlike PU  COMMENT: reads old format file
 #numWFIB.extend([prefixDet+234.9921]) #prodlike premix stage1+stage2  COMMENT: reads old format file
 #numWFIB.extend([prefixDet+234.114])  #PU, with 10% OT inefficiency  COMMENT: reads old format file
-numWFIB.extend([prefixDet+234.711])  #LST tracking on CPU (initialStep+HighPtTripletStep only)
+#numWFIB.extend([prefixDet+234.711])  #LST tracking on CPU (initialStep+HighPtTripletStep only) COMMENT: reads old format file
 
 # Phase-2 HLT tests
 numWFIB.extend([prefixDet+34.7501]) # HLTTrackingOnly75e33
