@@ -1,0 +1,11 @@
+#ifndef RecoParticleFlow_PFClusterProducer_interface_PFMultiDepthECLCCPrologueArgsHostCollection_h
+#define RecoParticleFlow_PFClusterProducer_interface_PFMultiDepthECLCCPrologueArgsHostCollection_h
+
+#include "RecoParticleFlow/PFClusterProducer/interface/PFMultiDepthECLCCPrologueArgsSoA.h"
+#include "DataFormats/Portable/interface/PortableHostCollection.h"
+
+namespace reco {
+  using PFMultiDepthECLCCPrologueArgsHostCollection = PortableHostCollection<PFMultiDepthECLCCPrologueArgsSoA>;
+}
+
+#endif  // RecoParticleFlow_PFClusterProducer_interface_PFMultiDepthECLCCPrologueArgsHostCollection_h
