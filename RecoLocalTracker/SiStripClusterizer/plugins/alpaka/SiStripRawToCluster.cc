@@ -202,22 +202,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         if (!(buffROMode >= READOUT_MODE_ZERO_SUPPRESSED_LITE10 &&
               buffROMode <= READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE &&
               buffROMode != READOUT_MODE_PROC_RAW)) {
-          if (edm::isDebugEnabled()) {
-            std::ostringstream ss;
-            ss << "Unsupported buffer ROmode=" << buffROMode << " fedID= " << fedId;
-            edm::LogWarning("fillFedIdFedChBuffer") << ss.str();
-          }
+          LogDebug("fillFedIdFedChBuffer") << "Unsupported buffer ROmode=" << buffROMode << " fedID= " << fedId;
           continue;  // conn loop
         }
 
         // check channel
         const uint8_t fedCh = conn->fedCh();
         if (!buffer->channelGood(fedCh, doAPVEmulatorCheck_)) {
-          if (edm::isDebugEnabled()) {
-            std::ostringstream ss;
-            ss << "Problem unpacking channel " << (int)fedCh << " on FED " << fedId;
-            edm::LogWarning("fillFedIdFedChBuffer") << ss.str();
-          }
+          LogDebug("fillFedIdFedChBuffer") << "Problem unpacking channel " << (int)fedCh << " on FED " << fedId;
           continue;  // conn loop
         }
 
@@ -227,11 +219,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
 
         auto diff = channel.data() - raw[fedId]->data();
         if (diff < 0 || diff > std::numeric_limits<uint32_t>::max()) {
-          if (edm::isDebugEnabled()) {
-            std::ostringstream ss;
-            ss << "Large diff " << diff << " for fedId " << fedId << " fedCh " << fedCh;
-            edm::LogWarning("fillFedIdFedChBuffer") << ss.str();
-          }
+          LogDebug("fillFedIdFedChBuffer") << "Large diff " << diff << " for fedId " << fedId << " fedCh " << fedCh;
           continue;
         }
         const uint32_t fedChOfs_wrt_rawFedId = static_cast<const uint32_t>(diff);
@@ -264,27 +252,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
     // Check on FEDRawData pointer
     const auto st_buffer = sistrip::preconstructCheckFEDBuffer(rawData);
     if UNLIKELY (sistrip::FEDBufferStatusCode::SUCCESS != st_buffer) {
-      if (edm::isDebugEnabled()) {
-        edm::LogWarning(sistrip::mlRawToCluster_)
-            << "[ClustersFromRawProducer::" << __func__ << "]" << st_buffer << " for FED ID " << fedId;
-      }
+      LogDebug(sistrip::mlRawToCluster_) << "[ClustersFromRawProducer::" << __func__ << "]" << st_buffer
+                                         << " for FED ID " << fedId;
       return buffer;
     }
     buffer = std::make_unique<sistrip::FEDBuffer>(rawData);
     const auto st_chan = buffer->findChannels();
     if UNLIKELY (sistrip::FEDBufferStatusCode::SUCCESS != st_chan) {
-      if (edm::isDebugEnabled()) {
-        edm::LogWarning(sistrip::mlRawToCluster_)
-            << "Exception caught when creating FEDBuffer object for FED " << fedId << ": " << st_chan;
-      }
+      LogDebug(sistrip::mlRawToCluster_) << "Exception caught when creating FEDBuffer object for FED " << fedId << ": "
+                                         << st_chan;
       buffer.reset();
       return buffer;
     }
     if UNLIKELY (!buffer->doChecks(false)) {
-      if (edm::isDebugEnabled()) {
-        edm::LogWarning(sistrip::mlRawToCluster_)
-            << "Exception caught when creating FEDBuffer object for FED " << fedId << ": FED Buffer check fails";
-      }
+      LogDebug(sistrip::mlRawToCluster_) << "Exception caught when creating FEDBuffer object for FED " << fedId
+                                         << ": FED Buffer check fails";
       buffer.reset();
       return buffer;
     }
