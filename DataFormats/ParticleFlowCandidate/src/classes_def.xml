@@ -1,7 +1,7 @@
 <lcgdict>
 
    <class name="reco::io_v1::PFCandidate" ClassVersion="3">
-    <version ClassVersion="3" checksum="3624191462"/>
+    <version ClassVersion="3" checksum="2023344531"/>
      <field name="elementsInBlocks_" transient="true"/>
      <field name="getter_" transient="true"/>
      <field name="refsCollectionCache_" transient="true"/>
@@ -48,7 +48,7 @@
   <class name="edm::Wrapper<edm::PtrVector<reco::io_v1::PFCandidate> >"/>
 
   <class name="reco::IsolatedPFCandidate"  ClassVersion="3">
-   <version ClassVersion="3" checksum="1014378071"/>
+   <version ClassVersion="3" checksum="2477942852"/>
   </class>
   <class name="std::vector<reco::IsolatedPFCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::IsolatedPFCandidate> >"/>
@@ -58,7 +58,7 @@
   <class name="reco::IsolatedPFCandidatePtr"/>
 
   <class name="reco::PileUpPFCandidate"  ClassVersion="3">
-   <version ClassVersion="3" checksum="4065313068"/>
+   <version ClassVersion="3" checksum="3974747921"/>
   </class>
   <class name="std::vector<reco::PileUpPFCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::PileUpPFCandidate> >"/>
