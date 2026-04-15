@@ -345,7 +345,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
                                                                             mode,
                                                                             packetCode);
         if (retCode != fedchannelunpacker::StatusCode::SUCCESS) {
-          printf("[%i] [fedID %hu] [fedCH %hhu] - Returned %i \n", chan, fedId, fedCh, (int)retCode);
+          // The strips belonging to this fedCh do not count for the clustering
+          // All the invalid strips are mapped to the channel zero, which gets masked out during NC seeding
+          // because these invalid strips have identical properties (stripId and chan=0)
+          // printf("[%i] [fedID %hu] [fedCH %hhu] - Returned %i \n", chan, fedId, fedCh, (int)retCode);
+
+          // This occurs very rarely - so no real gain in masking out invalidstrips and continuing in the seeding step
+          // for (uint32_t i = absoluteOffset; i < absoluteOffset + fedChan.length(); ++i) {
+          //   stripDigis.channel(i) = chan;
+          //   stripDigis.stripId(i) = invalidStrip;
+          //   // printf("[%i] [fedID %hu] [fedCH %hhu] [status %i] [%i] \n", chan, fedId, fedCh, (int)retCode, i);
+          // }
         }
       }  // data != nullptr && len > 0
     }
@@ -366,9 +376,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
         clusterDataObj.prefixSeedStripsNCMask(i) = 0;
 
         const auto ch = stripDigi.channel(i);
+        const auto stripID = stripDigi.stripId(i);
+
         const auto fedId = mapping.fedID(ch);
         const auto fedCh = mapping.fedCh(ch);
-        const auto stripID = stripDigi.stripId(i);
 
         const uint32_t idx = stripIndex(fedId, fedCh, stripID);
         const uint16_t noise_tmp = calibs->noise[idx];
@@ -746,6 +757,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip {
       return nStrips;
     }
     digis_d_ = std::make_unique<SiStripDigiDevice>(queue, nStrips);
+    digis_d_->zeroInitialise(queue);
 
     // Run the unpacking kernel
     uint32_t divider = 256u;
