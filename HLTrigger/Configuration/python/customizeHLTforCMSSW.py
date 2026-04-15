@@ -60,7 +60,6 @@ def customizeHLTfor50303(process):
         process.hltParticleFlowRecHitHBHESoA +
         process.hltParticleFlowRecHitHBHE +
         process.hltParticleFlowClusterHBHESoA +
-        process.hltParticleFlowClusterHBHE +
         process.hltPFMultiDepthClusterSoA +
         process.hltParticleFlowClusterHCAL  # This now refers to LegacyMultiDepth producer
     )
@@ -83,7 +82,6 @@ def customizeHLTfor50303(process):
         process.hltParticleFlowRecHitHBHESoASerialSync +
         process.hltParticleFlowRecHitHBHESerialSync +
         process.hltParticleFlowClusterHBHESoASerialSync +
-        process.hltParticleFlowClusterHBHESerialSync +
         process.hltPFMultiDepthClusterSoASerialSync +
         process.hltParticleFlowClusterHCALSerialSync  # This now refers to LegacyMultiDepth producer
     )
@@ -106,7 +104,15 @@ def customizeHLTfor50303(process):
     process = replaceItemsInSequence(process, itemsList, process.HLTPFHcalClustering)
     process = replaceItemsInSequence(process, serialItemsList, process.HLTPFHcalClusteringSerialSync)
 
+    # Completely remove the old HBHE cluster module definitions from the process
+    if hasattr(process, 'hltParticleFlowClusterHBHE'):
+        del process.hltParticleFlowClusterHBHE
+
+    if hasattr(process, 'hltParticleFlowClusterHBHESerialSync'):
+        del process.hltParticleFlowClusterHBHESerialSync
+
     return process
+
 
 def replace_all_pixel_seed_inputtags(process):
     import FWCore.ParameterSet.Config as cms
