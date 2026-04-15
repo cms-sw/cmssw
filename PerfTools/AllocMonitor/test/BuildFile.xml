@@ -44,6 +44,11 @@
     <test name="testIntrusiveAllocProfilerOutput" command="testIntrusiveAllocMonitor IntrusiveAllocProfiler 2>&amp;1 | ${LOCALTOP}/src/PerfTools/AllocMonitor/test/verifyIntrusiveAllocProfiler.py">
       <flags PRE_TEST="testIntrusiveAllocMonitor"/>
     </test>
-    <test name="TestPerfToolsModuleAllocProfiler" command="runModuleAllocProfiler.sh"/>
+    <test name="TestPerfToolsModuleAllocProfilerNone" command="runModuleAllocProfiler.sh none"/>
+    <test name="TestPerfToolsModuleAllocProfilerEDModule" command="runModuleAllocProfiler.sh edmodule"/>
+    <test name="TestPerfToolsModuleAllocProfilerESModule" command="runModuleAllocProfiler.sh esmodule"/>
+    <test name="TestPerfToolsModuleAllocProfilerSource" command="runModuleAllocProfiler.sh source"/>
+    <test name="TestPerfToolsModuleAllocProfilerOut" command="runModuleAllocProfiler.sh out"/>
+    <test name="TestPerfToolsModuleAllocProfilerSkipEvents" command="runModuleAllocProfiler.sh skipEvents"/>
   </ifrelease>
 </ifrelease>

@@ -34,10 +34,64 @@ process.thingProducer = cms.EDProducer("ThingProducer",
                                        nThings = cms.int32(50)
 )
 
+process.add_(cms.Service("timestudy::SleepingServer",
+    nWaitingEvents = cms.untracked.uint32(1)
+))
+process.externalWorkProducer = cms.EDProducer("timestudy::ExternalWorkSleepingProducer",
+    consumes = cms.VInputTag(),
+    ivalue = cms.int32(10),
+    eventTimes = cms.vdouble(0.01),
+    serviceInitTimes = cms.vdouble(0.,0.),
+    serviceWorkTimes = cms.vdouble(0.1,0.05),
+    serviceFinishTimes = cms.vdouble(0.,0.)
+)
+process.externalWorkAnalyzer = cms.EDAnalyzer("timestudy::OneSleepingAnalyzer",
+    consumes = cms.VInputTag("externalWorkProducer"),
+    eventTimes = cms.vdouble(0.0001)
+)
+
+
 process.get = cms.EDAnalyzer("WhatsItAnalyzer")
+
+process.emptyESSourceI = cms.ESSource("EmptyESSource",
+    recordName = cms.string("ESTestRecordI"),
+    firstValid = cms.vuint32(1),
+    iovIsRunNotTime = cms.bool(True)
+)
+process.emptyESSourceB = cms.ESSource("EmptyESSource",
+    recordName = cms.string("ESTestRecordB"),
+    firstValid = cms.vuint32(1),
+    iovIsRunNotTime = cms.bool(True)
+)
+process.acquireIntESProducer = cms.ESProducer("AcquireIntESProducer",
+    numberOfIOVsToAccumulate = cms.untracked.uint32(2),
+    secondsToWaitForWork = cms.untracked.uint32(1)
+)
+process.esTestAnalyzerB = cms.EDAnalyzer("ESTestAnalyzerB",
+    runsToGetDataFor = cms.vint32(1),
+    expectedValues = cms.untracked.vint32(11, 11, 11, 11, 11, 11, 11, 11)
+)
+
+
 process.out = cms.OutputModule("AsciiOutputModule")
 
-process.ep = cms.EndPath(process.out+process.get, cms.Task(process.WhatsItESProducer, process.DoodadESSource, process.Thing, process.OtherThing, process.thingProducer))
+process.ep = cms.EndPath(
+    process.out+
+    process.get+
+    process.externalWorkAnalyzer+
+    process.esTestAnalyzerB,
+    cms.Task(
+        process.WhatsItESProducer,
+        process.DoodadESSource,
+        process.emptyESSourceI,
+        process.emptyESSourceB,
+        process.acquireIntESProducer,
+        process.Thing,
+        process.OtherThing,
+        process.thingProducer,
+        process.externalWorkProducer
+    )
+)
 
 process.add_(cms.Service("ModuleAllocProfiler",
     moduleNames = cms.untracked.vstring(),
@@ -50,8 +104,8 @@ if args.skipEvents:
 if args.source:
     process.ModuleAllocProfiler.moduleNames.append("source")
 if args.edmodule:
-    process.ModuleAllocProfiler.moduleNames.append("thingProducer")
+    process.ModuleAllocProfiler.moduleNames.extend(["thingProducer", "externalWorkProducer"])
 if args.esmodule:
-    process.ModuleAllocProfiler.moduleNames.append("WhatsItESProducer")
+    process.ModuleAllocProfiler.moduleNames.extend(["WhatsItESProducer", "acquireIntESProducer"])
 if args.out:
     process.ModuleAllocProfiler.moduleNames.append("out")
