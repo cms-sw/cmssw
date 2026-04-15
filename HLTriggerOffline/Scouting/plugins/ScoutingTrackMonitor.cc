@@ -426,7 +426,15 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
                           0.,
                           1.,
                           ""));
-
+  vTrackProfiles_.push_back(
+      ibooker.bookProfile("p_ptResolution_vs_pt",
+                          "#delta_{p_{T}}/p_{T}^{track};p_{T}^{track};#delta_{p_{T}}/p_{T}^{track}",
+                          100,
+                          0.,
+                          100.,
+                          0.,
+                          1.,
+                          ""));
   // initialize and book the monitors;
   dxy_pt1.varname_ = "xy";
   dxy_pt1.pTcut_ = 1.f;
@@ -756,6 +764,8 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     vTrackProfiles_[ptResphiindex]->Fill(recoTrk.phi(), recoTrk.ptError() / recoTrk.pt());
     static const int ptResetaindex = this->index(vTrackProfiles_, "p_ptResolution_vs_eta");
     vTrackProfiles_[ptResetaindex]->Fill(recoTrk.eta(), recoTrk.ptError() / recoTrk.pt());
+    static const int ptResptindex = this->index(vTrackProfiles_, "p_ptResolution_vs_pt");
+    vTrackProfiles_[ptResptindex]->Fill(recoTrk.pt(), recoTrk.ptError() / recoTrk.pt());
 
     if (trk.tk_pt() < 1.)
       continue;
