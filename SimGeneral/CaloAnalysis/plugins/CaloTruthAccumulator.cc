@@ -21,7 +21,6 @@
 #include <string>
 #include <tuple>
 #include <ranges>
-#include <type_traits>
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -745,11 +744,11 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event &event, edm::EventSetup cons
     event.put(std::move(totalEnergies), "MergedCaloTruth");
 
     // make sure persisted SimClusters have sorted hits and built ranges
-    applyToSimClusterConfig([this](auto &config) { finalizeCollection(config.outputClusters); });
+    applyToSimClusterConfig([](auto &config) { finalizeCollection(config.outputClusters); });
 
   } else {
     applyToSimClusterConfig([this](auto &config) {
-      normalizeCollection(config.outputClusters, m_detIdToTotalSimEnergy);
+      normalizeCollection(config.outputClusters, this->m_detIdToTotalSimEnergy);
       finalizeCollection(config.outputClusters);
     });
     normalizeCollection(outputCaloParticles_, m_detIdToTotalSimEnergy);
