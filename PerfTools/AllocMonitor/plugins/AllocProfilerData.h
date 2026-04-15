@@ -323,18 +323,22 @@ namespace cms::perftools::allocMon::profiler {
       auto const* refTrace = !uniqueAllocTraces_.empty()     ? &uniqueAllocTraces_.front().trace_
                              : !uniqueDeallocTraces_.empty() ? &uniqueDeallocTraces_.front().trace_
                                                              : nullptr;
+      std::string commonTraceContext;
       if (commonTopEntries > 0 && refTrace != nullptr) {
         auto const skipFromBottom =
             (commonTopEntries < refTrace->size()) ? static_cast<int>(refTrace->size() - commonTopEntries) : 0;
-        log.format(" Reported stack traces are based on\n{}", formatTrace(*refTrace, skipFromBottom, 0));
+        commonTraceContext = formatTrace(*refTrace, skipFromBottom, 0);
+      }
+      if (filePattern_.empty() && !commonTraceContext.empty()) {
+        log.format(" Reported stack traces are based on\n{}", commonTraceContext);
       }
 
-      printAllocations(log, measurementName, commonTopEntries);
+      printAllocations(log, measurementName, commonTopEntries, commonTraceContext);
       if (config_.deallocationReport_) {
-        printDeallocations(log, measurementName, commonTopEntries);
+        printDeallocations(log, measurementName, commonTopEntries, commonTraceContext);
       }
       if (config_.churnReport_) {
-        printChurn(log, measurementName, commonTopEntries);
+        printChurn(log, measurementName, commonTopEntries, commonTraceContext);
       }
 
       statistics_->printStatistics(log, uniqueAllocTraces_.size(), uniqueDeallocTraces_.size());
@@ -387,7 +391,10 @@ namespace cms::perftools::allocMon::profiler {
     };
 
     template <typename T>
-    void printAllocations(T&& log, std::string_view measurementName, std::size_t commonTopEntries) const {
+    void printAllocations(T&& log,
+                          std::string_view measurementName,
+                          std::size_t commonTopEntries,
+                          std::string_view commonTraceContext) const {
       using AggregationMap = std::unordered_map<std::string, AllocationTrace::Records>;
 
       AggregationMap aggregatedAllocs;
@@ -411,7 +418,7 @@ namespace cms::perftools::allocMon::profiler {
       {
         auto timer = statistics_->timeAllocationsFormatting();
         log.format("\nAll allocations");
-        writeFileOrMessage("alloc", measurementName, log, [&](std::ostream& os) {
+        writeFileOrMessage("alloc", measurementName, commonTraceContext, log, [&](std::ostream& os) {
           for (auto const& itTrace : orderAllocs) {
             auto const& records = itTrace->second;
             std::print(os,
@@ -433,7 +440,7 @@ namespace cms::perftools::allocMon::profiler {
       {
         auto timer = statistics_->timeAllocationsAtMaxActualFormatting();
         log.format("\nAllocated memory at the max actual moment");
-        writeFileOrMessage("atMaxActual", measurementName, log, [&](std::ostream& os) {
+        writeFileOrMessage("atMaxActual", measurementName, commonTraceContext, log, [&](std::ostream& os) {
           for (auto const& itTrace : orderAllocs) {
             auto const& records = itTrace->second;
             std::print(os,
@@ -456,7 +463,7 @@ namespace cms::perftools::allocMon::profiler {
       {
         auto timer = statistics_->timeAllocationsAddedFormatting();
         log.format("\nAdded memory");
-        writeFileOrMessage("added", measurementName, log, [&](std::ostream& os) {
+        writeFileOrMessage("added", measurementName, commonTraceContext, log, [&](std::ostream& os) {
           for (auto const& itTrace : orderAllocs) {
             auto const& records = itTrace->second;
             std::print(os,
@@ -474,7 +481,10 @@ namespace cms::perftools::allocMon::profiler {
     }
 
     template <typename T>
-    void printDeallocations(T&& log, std::string_view measurementName, std::size_t commonTopEntries) const {
+    void printDeallocations(T&& log,
+                            std::string_view measurementName,
+                            std::size_t commonTopEntries,
+                            std::string_view commonTraceContext) const {
       using AggregationMap = std::unordered_map<std::string, DeallocationRecord>;
       AggregationMap aggregatedDeallocs;
 
@@ -498,7 +508,7 @@ namespace cms::perftools::allocMon::profiler {
       {
         auto timer = statistics_->timeDeallocationsFormatting();
         log.format("\nAll deallocations");
-        writeFileOrMessage("dealloc", measurementName, log, [&](std::ostream& os) {
+        writeFileOrMessage("dealloc", measurementName, commonTraceContext, log, [&](std::ostream& os) {
           for (auto const& itTrace : orderDeallocs) {
             auto const& record = itTrace->second;
             std::print(os, "count {} actual {}\n{}", record.count_, record.actual_, itTrace->first);
@@ -509,7 +519,10 @@ namespace cms::perftools::allocMon::profiler {
     }
 
     template <typename T>
-    void printChurn(T&& log, std::string_view measurementName, std::size_t commonTopEntries) const {
+    void printChurn(T&& log,
+                    std::string_view measurementName,
+                    std::size_t commonTopEntries,
+                    std::string_view commonTraceContext) const {
       using AggregationMap = std::unordered_map<std::string, AllocationRecord>;
       AggregationMap aggregatedChurn;
       AggregationMap aggregatedChurnAllocs;
@@ -585,7 +598,7 @@ namespace cms::perftools::allocMon::profiler {
       {
         auto timer = statistics_->timeChurnFormatting();
         log.format("\nMemory allocation+deallocation churn");
-        writeFileOrMessage("churn", measurementName, log, [&](std::ostream& os) {
+        writeFileOrMessage("churn", measurementName, commonTraceContext, log, [&](std::ostream& os) {
           for (auto const& it : orderChurn) {
             auto const& record = it->second;
             std::print(
@@ -594,7 +607,7 @@ namespace cms::perftools::allocMon::profiler {
           }
         });
         log.format("\nMemory allocation+deallocation churn allocations");
-        writeFileOrMessage("churnalloc", measurementName, log, [&](std::ostream& os) {
+        writeFileOrMessage("churnalloc", measurementName, commonTraceContext, log, [&](std::ostream& os) {
           for (auto const& it : orderChurnAllocs) {
             auto const& record = it->second;
             std::print(
@@ -769,6 +782,7 @@ namespace cms::perftools::allocMon::profiler {
     template <typename T, typename F>
     void writeFileOrMessage(std::string_view measurementType,
                             std::string_view measurementName,
+                            std::string_view commonTraceContext,
                             T&& log,
                             F&& format) const {
       if (not filePattern_.empty()) {
@@ -776,6 +790,22 @@ namespace cms::perftools::allocMon::profiler {
         boost::replace_all(fname, "%T", measurementType);
         std::ofstream os(fname);
         std::print(os, "# {}\n", measurementName);
+        if (not commonTraceContext.empty()) {
+          std::print(os, "# Reported stack traces are based on\n");
+          std::size_t pos = 0;
+          while (pos < commonTraceContext.size()) {
+            auto const nl = commonTraceContext.find('\n', pos);
+            auto const line =
+                commonTraceContext.substr(pos, nl == std::string_view::npos ? std::string_view::npos : nl - pos);
+            if (not line.empty()) {
+              std::print(os, "# {}\n", line);
+            }
+            if (nl == std::string_view::npos) {
+              break;
+            }
+            pos = nl + 1;
+          }
+        }
         format(os);
         os.close();
         log.format(" saved in {}", fname);
