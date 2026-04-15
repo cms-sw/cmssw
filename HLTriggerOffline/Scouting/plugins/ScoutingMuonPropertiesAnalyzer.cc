@@ -660,7 +660,7 @@ void ScoutingMuonPropertiesAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
   h_SVNoVtx_dlenXY_->setAxisTitle("Vertices", 2);
 
   h_SVNoVtx_dlenXYSig_ = ibooker.book1D("SVNoVtx_dlenXYSig", "SVNoVtx dlen_{xy} significance", 100, 0, 10);
-  h_SVNoVtx_dlenXYSig_->setAxisTitle("Transvertse Decay Length Significance", 1);
+  h_SVNoVtx_dlenXYSig_->setAxisTitle("Transverse Decay Length Significance", 1);
   h_SVNoVtx_dlenXYSig_->setAxisTitle("Vertices", 2);
 
   h_SVNoVtx_dlen_ = ibooker.book1D("SVNoVtx_dlen", "SVNoVtx dlen", 250, 0, 125);

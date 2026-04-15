@@ -919,8 +919,8 @@ void ScoutingTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("PhiMin", -std::numbers::pi);
   desc.add<double>("PhiMax", std::numbers::pi);
   desc.add<int>("EtaBin", 26);
-  desc.add<double>("EtaMin", 2.5);
-  desc.add<double>("EtaMax", -2.5);
+  desc.add<double>("EtaMin", -3.0);
+  desc.add<double>("EtaMax", 3.0);
   desc.add<int>("PtBin", 49);
   desc.add<double>("PtMin", 1.);
   desc.add<double>("PtMax", 50.);
