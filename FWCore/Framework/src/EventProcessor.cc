@@ -1178,7 +1178,7 @@ namespace edm {
         assert(streamLumiActive_ == preallocations_.numberOfStreams());
         continueLumiAsync(std::move(holder));
       } else {
-        handleNextItemAfterMergingRunEntries(std::move(runStatus), std::move(holder));
+        handleNextItemAfterMergingRunEntriesAsync(std::move(runStatus), std::move(holder));
       }
     }
     waitTask.wait();
@@ -1363,7 +1363,7 @@ namespace edm {
                             queueWhichWaitsForIOVsToFinish_.resume();
                             exceptionRunStatus_ = status;
                           }
-                          handleNextItemAfterMergingRunEntries(status, holder);
+                          handleNextItemAfterMergingRunEntriesAsync(status, holder);
                         }) | runLast(postSourceTask);
                       } catch (...) {
                         status->resetBeginResources();
@@ -2148,7 +2148,7 @@ namespace edm {
         });
   }
 
-  void EventProcessor::handleNextItemAfterMergingRunEntries(std::shared_ptr<RunProcessingStatus> iRunStatus,
+  void EventProcessor::handleNextItemAfterMergingRunEntriesAsync(std::shared_ptr<RunProcessingStatus> iRunStatus,
                                                             WaitingTaskHolder iHolder) {
     chain::first([this, iRunStatus](auto nextTask) mutable {
       if (needToCallNext()) {
