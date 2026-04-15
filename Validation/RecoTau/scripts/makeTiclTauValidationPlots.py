@@ -15,6 +15,8 @@ ROOT.gROOT.SetBatch(True)
 
 # ======= CONFIG =======
 PLOT_STEPS = [0, 1, 2, 3, 4, 5]
+PLOT_TRACK_STEPS = [0, 1, 2, 3, 4]
+PLOT_COMBI_STEPS = [0, 1, 2]
 PLOT_ETA   = True              # enable eta plots
 
 # Charged leg cap per DM (actual prongs) - only physical DMs, no DM 5
@@ -48,6 +50,20 @@ step_label_dict = {
     3: "Step 3: TICLCand→PF",
     4: "Step 4: Usage in a PFJet",
     5: "Step 5: Usage in a PFTau",
+}
+
+track_step_label_dict = {
+    0: "TrkStep 0: CP→TP",
+    1: "TrkStep 1: TP→Track",
+    2: "TrkStep 2: Track→PF",
+    3: "TrkStep 3: PF→Jet",
+    4: "TrkStep 4: Jet→Tau",
+}
+
+combi_step_label_dict = {
+    0: "CombiStep 0: Both→PF",
+    1: "CombiStep 1: Both→Jet",
+    2: "CombiStep 2: Both→Tau",
 }
 
 def define_bins(h):
@@ -177,8 +193,10 @@ def overlay_efficiency(list_objs, out):
     plt.savefig(out)
     plt.close()
 
-def overlay_efficiency_with_gen(list_eff_objs, gen_obj, out):
+def overlay_efficiency_with_gen(list_eff_objs, gen_obj, out, step_labels=None):
     """Create efficiency plot with gen distribution on secondary y-axis"""
+    if step_labels is None:
+        step_labels = step_label_dict
     fontsize = 20
     fig, ax1 = plt.subplots(figsize=(12, 10))
     hep.cms.text(' Simulation Preliminary', ax=ax1, fontsize=fontsize)
@@ -208,8 +226,11 @@ def overlay_efficiency_with_gen(list_eff_objs, gen_obj, out):
         nbins, bin_edges, bin_centers, bin_widths = define_bins(obj)
         values, errors = histo_values_errors(obj)
         hname = obj.GetName()
-        step_num = int(hname.split('_step')[1].split('_')[0])
-        label = step_label_dict.get(step_num, f"Step {step_num}")
+        # Extract step number from _combistep, _trkstep, or _step
+        import re as _re
+        m = _re.search(r'_(combistep|trkstep|step)(\d+)', hname)
+        step_num = int(m.group(2)) if m else 0
+        label = step_labels.get(step_num, f"Step {step_num}")
         ax1.errorbar(bin_centers, values, xerr=None, yerr=errors, fmt='s', 
                      label=label, color=colors_iter[i], linewidth=2, markersize=8)
         ax1.stairs(values, bin_edges, linewidth=2, baseline=None, color=colors_iter[i])
@@ -258,6 +279,92 @@ def overlay_efficiency_with_gen(list_eff_objs, gen_obj, out):
         ax1.legend(fontsize=fontsize-4, loc='upper center', 
                    title=f"{dm_label_dict[dm]}\n{leg_title}", title_fontsize=fontsize-2, 
                    frameon=True, fancybox=True, framealpha=0.9)
+    plt.tight_layout()
+    print(f'Saving plot: {out}')
+    plt.savefig(out)
+    plt.close()
+
+def overlay_calo_and_track_chain(calo_objs, track_objs, gen_obj, out):
+    """Overlay calo chain and track chain on the same plot.
+    Calo chain: filled squares + solid lines.
+    Track chain: open circles + dashed lines.
+    """
+    import re as _re
+    fontsize = 20
+    fig, ax1 = plt.subplots(figsize=(14, 10))
+    hep.cms.text(' Simulation Preliminary', ax=ax1, fontsize=fontsize)
+    hep.cms.lumitext(args.sample_label, ax=ax1, fontsize=fontsize)
+
+    ref_obj = calo_objs[0] if calo_objs else track_objs[0]
+    dm = int(ref_obj.GetTitle().split('DM ')[1].split(' ')[0])
+    leg = int(ref_obj.GetTitle().split('leg')[1].split(' ')[0])
+    var = ref_obj.GetTitle().split('vs ')[1]
+
+    leg_labels = ['Leading', 'Subleading', 'Third', 'Fourth']
+    leg_label = leg_labels[leg] if leg < len(leg_labels) else f'Leg {leg}'
+
+    c_idx = 0
+    # Calo chain: filled squares + solid lines
+    for obj in calo_objs:
+        nbins, bin_edges, bin_centers, bin_widths = define_bins(obj)
+        values, errors = histo_values_errors(obj)
+        hname = obj.GetName()
+        m = _re.search(r'_step(\d+)', hname)
+        step_num = int(m.group(1)) if m else 0
+        label = "Calo " + step_label_dict.get(step_num, f"Step {step_num}")
+        ax1.errorbar(bin_centers, values, xerr=None, yerr=errors, fmt='s',
+                     label=label, color=colors_iter[c_idx % len(colors_iter)],
+                     linewidth=2, markersize=8)
+        ax1.stairs(values, bin_edges, linewidth=2, baseline=None,
+                   color=colors_iter[c_idx % len(colors_iter)])
+        c_idx += 1
+
+    # Track chain: open circles + dashed lines
+    for obj in track_objs:
+        nbins, bin_edges, bin_centers, bin_widths = define_bins(obj)
+        values, errors = histo_values_errors(obj)
+        hname = obj.GetName()
+        m = _re.search(r'_trkstep(\d+)', hname)
+        step_num = int(m.group(1)) if m else 0
+        label = "Track " + track_step_label_dict.get(step_num, f"TrkStep {step_num}")
+        ax1.errorbar(bin_centers, values, xerr=None, yerr=errors, fmt='o',
+                     label=label, color=colors_iter[c_idx % len(colors_iter)],
+                     linewidth=2, markersize=8, markerfacecolor='none', markeredgewidth=2)
+        ax1.stairs(values, bin_edges, linewidth=2, baseline=None,
+                   color=colors_iter[c_idx % len(colors_iter)], linestyle='--')
+        c_idx += 1
+
+    ax1.set_ylabel('Efficiency', fontsize=fontsize, color='black')
+    ax1.tick_params(axis='y', labelcolor='black')
+    ax1.set_ylim([0, 1.1])
+
+    if var == 'pT':
+        ax1.set_xlabel(r'$p_{T}(\pi^{\pm})$ [GeV]', fontsize=fontsize)
+    else:
+        ax1.set_xlabel(r'$\eta(\pi^{\pm})$', fontsize=fontsize)
+
+    # Secondary axis: gen distribution
+    if gen_obj:
+        ax2 = ax1.twinx()
+        nbins_gen, bin_edges_gen, bin_centers_gen, bin_widths_gen = define_bins(gen_obj)
+        values_gen, _ = histo_values_errors(gen_obj)
+        ax2.stairs(values_gen, bin_edges_gen, linewidth=2.5, baseline=None,
+                   color='gray', alpha=0.6, label='Gen distribution')
+        ax2.bar(bin_centers_gen, values_gen, width=bin_widths_gen,
+                alpha=0.15, color='gray', edgecolor='none')
+        ax2.set_ylabel('CP Entries', fontsize=fontsize, color='gray')
+        ax2.tick_params(axis='y', labelcolor='gray')
+
+    if var == 'pT':
+        ax1.legend(fontsize=fontsize-6, loc='lower right', bbox_to_anchor=(0.98, 0.05),
+                   title=f"{dm_label_dict[dm]}\n{leg_label} hadron\nCalo chain (\u25A0) vs Track chain (\u25CB)",
+                   title_fontsize=fontsize-4, frameon=True, fancybox=True, framealpha=0.6,
+                   ncol=2)
+    else:
+        ax1.legend(fontsize=fontsize-6, loc='upper center',
+                   title=f"{dm_label_dict[dm]}\n{leg_label} hadron\nCalo chain (\u25A0) vs Track chain (\u25CB)",
+                   title_fontsize=fontsize-4, frameon=True, fancybox=True, framealpha=0.9,
+                   ncol=2)
     plt.tight_layout()
     print(f'Saving plot: {out}')
     plt.savefig(out)
@@ -478,6 +585,72 @@ if __name__ == '__main__':
                     gen_obj,
                     os.path.join(dm_dir, f"eff_pho_dm{dm}_leg{L}_{var}.png"),
                 )
+
+        # charged legs - track chain (CP→TP→Track→PF→Jet→Tau)
+        for L in range(ch_legs_by_dm[dm]):
+            for var in vars_to_plot:
+                list_eff_steps = []
+                for S in PLOT_TRACK_STEPS:
+                    nm = f"eff_ch_dm{dm}_leg{L}_trkstep{S}_{var}"
+                    obj = d_dm.Get(nm)
+                    if obj:
+                        list_eff_steps.append(obj)
+                    else:
+                        print("MISSING:", f"{dqm_dir}/{dm_subdir}/{nm}")
+                        missing.append(f"{dqm_dir}/{dm_subdir}/{nm}")
+
+                if list_eff_steps:
+                    gen_obj = d_dm.Get(f"cp_chHad_dm{dm}_{var}")
+                    overlay_efficiency_with_gen(
+                        list_eff_steps,
+                        gen_obj,
+                        os.path.join(dm_dir, f"eff_ch_dm{dm}_leg{L}_trkchain_{var}.png"),
+                        step_labels=track_step_label_dict,
+                    )
+
+        # charged legs - combi (AND) chain
+        for L in range(ch_legs_by_dm[dm]):
+            for var in vars_to_plot:
+                list_eff_steps = []
+                for S in PLOT_COMBI_STEPS:
+                    nm = f"eff_ch_dm{dm}_leg{L}_combistep{S}_{var}"
+                    obj = d_dm.Get(nm)
+                    if obj:
+                        list_eff_steps.append(obj)
+                    else:
+                        print("MISSING:", f"{dqm_dir}/{dm_subdir}/{nm}")
+                        missing.append(f"{dqm_dir}/{dm_subdir}/{nm}")
+
+                if list_eff_steps:
+                    gen_obj = d_dm.Get(f"cp_chHad_dm{dm}_{var}")
+                    overlay_efficiency_with_gen(
+                        list_eff_steps,
+                        gen_obj,
+                        os.path.join(dm_dir, f"eff_ch_dm{dm}_leg{L}_combichain_{var}.png"),
+                        step_labels=combi_step_label_dict,
+                    )
+
+        # charged legs - combined calo + track chain overlay
+        for L in range(ch_legs_by_dm[dm]):
+            for var in vars_to_plot:
+                calo_list = []
+                for S in PLOT_STEPS:
+                    nm = f"eff_ch_dm{dm}_leg{L}_step{S}_{var}"
+                    obj = d_dm.Get(nm)
+                    if obj:
+                        calo_list.append(obj)
+                track_list = []
+                for S in PLOT_TRACK_STEPS:
+                    nm = f"eff_ch_dm{dm}_leg{L}_trkstep{S}_{var}"
+                    obj = d_dm.Get(nm)
+                    if obj:
+                        track_list.append(obj)
+                if calo_list or track_list:
+                    gen_obj = d_dm.Get(f"cp_chHad_dm{dm}_{var}")
+                    overlay_calo_and_track_chain(
+                        calo_list, track_list, gen_obj,
+                        os.path.join(dm_dir, f"eff_ch_dm{dm}_leg{L}_calo_vs_track_{var}.png"),
+                    )
 
     # ======= 2) Tau-level efficiencies vs mother τ kinematics =======
     eff_all_pt_hists = []   # (label, hist)
@@ -895,7 +1068,116 @@ if __name__ == '__main__':
         overlay_resolution(objs, labels, out_overlay_em, r"$p_{T}^{reco}(\gamma)/p_{T}^{gen}(\gamma)$",
                           "Gamma CP resolution")
 
-    # ======= 8) Fake rate plots =======
+    # ======= 8) Two-fold CP-level efficiency (track-only, calo-only, track+calo) =======
+    twofold_kinds_ch = [
+        ("trackOnly",     "Track-only"),
+        ("caloOnly",      "Calo-only (TICL)"),
+        ("trackAndCalo",  "Track AND calo"),
+    ]
+    twofold_kinds_pho = [
+        ("caloOnly",      "Calo-only (TICL)"),
+    ]
+    for dm in dm_list:
+        dm_dir = os.path.join(out_dir, f"dm{dm}")
+        os.makedirs(dm_dir, exist_ok=True)
+
+        d_dm = file.Get(f"{dqm_dir}/GenDM{dm}")
+        if not d_dm:
+            continue
+
+        if dm not in ch_legs_by_dm:
+            continue
+
+        # --- charged CP two-fold overlay per DM ---
+        for var in vars_to_plot:
+            ch_twofold_objs = []
+            for kind, label in twofold_kinds_ch:
+                nm = f"eff_cp_chHad_dm{dm}_{kind}_{var}"
+                obj = d_dm.Get(nm)
+                if obj:
+                    obj.SetTitle(f"{label}")
+                    ch_twofold_objs.append(obj)
+                else:
+                    missing.append(f"{dqm_dir}/GenDM{dm}/{nm}")
+            if ch_twofold_objs:
+                overlay_efficiency(
+                    ch_twofold_objs,
+                    os.path.join(dm_dir, f"cp_chHad_dm{dm}_twofold_{var}.png"),
+                )
+
+        # --- photon CP two-fold (calo-only) ---
+        for var in vars_to_plot:
+            pho_twofold_objs = []
+            for kind, label in twofold_kinds_pho:
+                nm = f"eff_cp_gamma_dm{dm}_{kind}_{var}"
+                obj = d_dm.Get(nm)
+                if obj:
+                    obj.SetTitle(f"{label}")
+                    pho_twofold_objs.append(obj)
+                else:
+                    missing.append(f"{dqm_dir}/GenDM{dm}/{nm}")
+            if pho_twofold_objs:
+                for obj in pho_twofold_objs:
+                    draw_eff(obj, os.path.join(dm_dir, f"cp_gamma_dm{dm}_caloOnly_{var}.png"))
+
+    # Cross-DM two-fold overlay: charged track-only
+    for var in vars_to_plot:
+        dm_objs = []
+        for dm in dm_list:
+            if dm not in ch_legs_by_dm:
+                continue
+            d_dm = file.Get(f"{dqm_dir}/GenDM{dm}")
+            if not d_dm:
+                continue
+            obj = d_dm.Get(f"eff_cp_chHad_dm{dm}_trackOnly_{var}")
+            if obj:
+                obj.SetTitle(f"DM {dm}")
+                dm_objs.append(obj)
+        if dm_objs:
+            overlay_efficiency(
+                dm_objs,
+                os.path.join(out_dir, f"cp_chHad_trackOnly_dm_overlay_{var}.png"),
+            )
+
+    # Cross-DM two-fold overlay: charged calo-only
+    for var in vars_to_plot:
+        dm_objs = []
+        for dm in dm_list:
+            if dm not in ch_legs_by_dm:
+                continue
+            d_dm = file.Get(f"{dqm_dir}/GenDM{dm}")
+            if not d_dm:
+                continue
+            obj = d_dm.Get(f"eff_cp_chHad_dm{dm}_caloOnly_{var}")
+            if obj:
+                obj.SetTitle(f"DM {dm}")
+                dm_objs.append(obj)
+        if dm_objs:
+            overlay_efficiency(
+                dm_objs,
+                os.path.join(out_dir, f"cp_chHad_caloOnly_dm_overlay_{var}.png"),
+            )
+
+    # Cross-DM two-fold overlay: charged track AND calo
+    for var in vars_to_plot:
+        dm_objs = []
+        for dm in dm_list:
+            if dm not in ch_legs_by_dm:
+                continue
+            d_dm = file.Get(f"{dqm_dir}/GenDM{dm}")
+            if not d_dm:
+                continue
+            obj = d_dm.Get(f"eff_cp_chHad_dm{dm}_trackAndCalo_{var}")
+            if obj:
+                obj.SetTitle(f"DM {dm}")
+                dm_objs.append(obj)
+        if dm_objs:
+            overlay_efficiency(
+                dm_objs,
+                os.path.join(out_dir, f"cp_chHad_trackAndCalo_dm_overlay_{var}.png"),
+            )
+
+    # ======= 9) Fake rate plots =======
     fake_dir = os.path.join(out_dir, "fake_rate")
     os.makedirs(fake_dir, exist_ok=True)
 

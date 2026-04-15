@@ -1,5 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/PluginManager"/>
+<use name="FWCore/MessageLogger"/>
+<use name="classlib"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DQMServices/Core"/>
 <use name="rootgraphics"/>
@@ -8,8 +10,14 @@
 <use name="DataFormats/JetReco"/>
 <use name="DataFormats/EgammaCandidates"/>
 <use name="DataFormats/HepMCCandidate"/>
-<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/HGCalReco"/>
+<use name="DataFormats/ParticleFlowCandidate"/>
+<use name="DataFormats/Math"/>
 <use name="DataFormats/HLTReco"/>
+<use name="SimDataFormats/CaloAnalysis"/>
+<use name="SimDataFormats/Associations"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="CommonTools/UtilAlgos"/>
 <library file="*.cc" name="ValidationRecoTauPlugin">
   <flags EDM_PLUGIN="1"/>
 </library>

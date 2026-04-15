@@ -66,8 +66,12 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "SimDataFormats/CaloAnalysis/interface/SimTauCPLink.h"
+#include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 class TICLTauValidator : public DQMEDAnalyzer {
 public:
@@ -83,13 +87,21 @@ private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   
-  bool isGenuineTau(const reco::PFTau& tau,
-                    size_t barrelSize,
-                    const std::unordered_set<unsigned int>& tauCPKeys,
-                    const std::vector<TICLCandidate>& ticlCandidates,
-                    const TracksterToTracksterMap& recoToSimMap,
-                    const std::vector<ticl::Trackster>& simTracksters) const;
-  
+  struct AssocCounts {
+    int nSigCh = 0;            // Signal charged (pion) + neutral hadron (K_L) PF cands
+    int nSigPho = 0;           // Signal photon + electron PF cands
+    int nAssocAllParticles = 0; // Total associated signal PF cands (any particle type)
+  };
+
+  AssocCounts countAssociatedSignalPFCands(const reco::PFTau& tau,
+                                           size_t barrelSize,
+                                           const std::unordered_set<unsigned int>& tauCPKeys,
+                                           const std::vector<TICLCandidate>& ticlCandidates,
+                                           const TracksterToTracksterMap& recoToSimMap,
+                                           const std::vector<ticl::Trackster>& simTracksters,
+                                           const std::vector<CaloParticle>* caloParticles,
+                                           const reco::RecoToSimCollection* trackRecoToSim = nullptr) const;
+
   void fillFakeRateHists(const reco::PFTau& tau,
                          int dmSelI,
                          int nChFill,
@@ -102,6 +114,7 @@ private:
   double hgcalEtaAbsMin_;
 
   edm::EDGetTokenT<std::vector<SimTauCPLink>> simTauToken_;
+  edm::EDGetTokenT<std::vector<CaloParticle>> caloParticlesToken_;
   edm::EDGetTokenT<reco::PFTauCollection>     tauProducerToken_;
 
   edm::EDGetTokenT<reco::PFCandidateCollection> pfToken_;
@@ -113,7 +126,10 @@ private:
   edm::EDGetTokenT<reco::PFJetCollection>            pfJetsToken_;
   edm::EDGetTokenT<reco::GenParticleCollection>      genParticlesToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> genVisTausToken_;
+  edm::EDGetTokenT<TrackingParticleCollection>   trackingParticleToken_;
+  edm::EDGetTokenT<std::vector<int>>              genBarcodesToken_;
   edm::EDGetTokenT<TracksterToTracksterMap>      recoToSimAssocByLCsToken_;
+  edm::EDGetTokenT<reco::RecoToSimCollection>    trackRecoToSimToken_;
   std::vector<std::string> hltTauFilterLabels_;
   std::string hltProcessName_;
   std::vector<edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>> hltFilterTokens_;
@@ -124,6 +140,13 @@ private:
   static constexpr int   kMaxGammaLegs = 4; // photons (1 pair = 1 pi0)
   static constexpr int   kMaxPi0Legs   = kMaxGammaLegs / 2;
   static constexpr int   kNSteps       = 6; // 0..5
+  // Track chain: CP-TP(0), TP-Track(1), Track-PF(2), PF-Jet(3), Jet-Tau(4)
+  static constexpr int   kNTrackSteps  = 5; // 0..4
+  // Combined (AND) chain: calo AND track must both reach an equivalent endpoint
+  //   combiStep 0 = both reach PF   (caloStep[3] && trackStep[2])
+  //   combiStep 1 = both in a Jet    (caloStep[4] && trackStep[3])
+  //   combiStep 2 = both in a Tau    (caloStep[5] && trackStep[4])
+  static constexpr int   kNCombiSteps  = 3; // 0..2
 
   static constexpr int kNDMSel = 6;
   static constexpr int kDMSel[kNDMSel] = {0, 1, 2, 5, 10, 11};
@@ -178,9 +201,27 @@ private:
     MonitorElement* cp_gen_matched_eta[kNSteps] {nullptr};
   };
 
-  // per-DM, per-leg step histos
+  // per-DM, per-leg step histos (calo chain)
   std::array<std::array<StepHists, kMaxCHLegs>,    kNDMSel> chStepHists_{};
   std::array<std::array<StepHists, kMaxGammaLegs>, kNDMSel> gammaStepHists_{};
+
+  // per-DM, per-leg step histos (track chain, charged hadrons only)
+  struct TrackStepHists {
+    MonitorElement* cp_gen_pt[kNTrackSteps]  {nullptr};
+    MonitorElement* cp_gen_eta[kNTrackSteps] {nullptr};
+    MonitorElement* cp_gen_matched_pt[kNTrackSteps]  {nullptr};
+    MonitorElement* cp_gen_matched_eta[kNTrackSteps] {nullptr};
+  };
+  std::array<std::array<TrackStepHists, kMaxCHLegs>, kNDMSel> chTrackStepHists_{};
+
+  // per-DM, per-leg step histos (combi AND chain, charged hadrons only)
+  struct CombiStepHists {
+    MonitorElement* cp_gen_pt[kNCombiSteps]  {nullptr};
+    MonitorElement* cp_gen_eta[kNCombiSteps] {nullptr};
+    MonitorElement* cp_gen_matched_pt[kNCombiSteps]  {nullptr};
+    MonitorElement* cp_gen_matched_eta[kNCombiSteps] {nullptr};
+  };
+  std::array<std::array<CombiStepHists, kMaxCHLegs>, kNDMSel> chCombiStepHists_{};
 
   MonitorElement* dm_reco_vs_gen_jet_  = nullptr;
   MonitorElement* dm_reco_vs_gen_tau_  = nullptr;
@@ -228,6 +269,22 @@ private:
   // CP-to-PF resolution: 1D ratio histograms (PF pT / CP pT) per DM (gen-level, use kNDMGen)
   MonitorElement* cp_pf_pt_resolution_had_dm_[kNDMGen] = {};  // hadronic (charged hadrons)
   MonitorElement* cp_pf_pt_resolution_em_dm_[kNDMGen]  = {};  // electromagnetic (photons)
+
+  // ---------- Two-fold CP-level efficiency numerators (per-DM, use kNDMGen) ----------
+  // Denominator is the existing cp_chHad_pt_dm_ / cp_gamma_pt_dm_ arrays.
+  // trackOnly: CP has a reco track matched via TrackingParticle
+  MonitorElement* cp_chHad_trackOnly_pt_dm_[kNDMGen]  = {};
+  MonitorElement* cp_chHad_trackOnly_eta_dm_[kNDMGen] = {};
+  // caloOnly: CP reached merged PF via TICL chain (= stepPass[3])
+  MonitorElement* cp_chHad_caloOnly_pt_dm_[kNDMGen]  = {};
+  MonitorElement* cp_chHad_caloOnly_eta_dm_[kNDMGen] = {};
+  // trackAndCalo: both criteria satisfied
+  MonitorElement* cp_chHad_trackAndCalo_pt_dm_[kNDMGen]  = {};
+  MonitorElement* cp_chHad_trackAndCalo_eta_dm_[kNDMGen] = {};
+  // Photon equivalents (photons have no track, so trackOnly is always empty;
+  // kept for uniform structure; caloOnly = TICL-matched)
+  MonitorElement* cp_gamma_caloOnly_pt_dm_[kNDMGen]  = {};
+  MonitorElement* cp_gamma_caloOnly_eta_dm_[kNDMGen] = {};
 
   // ---------- fake rate histograms ----------
   MonitorElement* fake_den_pt_  = nullptr;
@@ -296,6 +353,12 @@ TICLTauValidator::TICLTauValidator(const edm::ParameterSet& iConfig)
     hgcalEtaAbsMin_( iConfig.getParameter<double>("hgcalEtaAbsMin") )
 {
   simTauToken_        = consumes<std::vector<SimTauCPLink>>( iConfig.getParameter<edm::InputTag>("simTaus") );
+  {
+    const auto caloParticlesTag = iConfig.getParameter<edm::InputTag>("caloParticles");
+    if (!caloParticlesTag.label().empty()) {
+      caloParticlesToken_ = mayConsume<std::vector<CaloParticle>>(caloParticlesTag);
+    }
+  }
   tauProducerToken_   = consumes<reco::PFTauCollection>(      iConfig.getParameter<edm::InputTag>("TauProducer") );
 
   pfToken_          = consumes<reco::PFCandidateCollection>(  iConfig.getParameter<edm::InputTag>("pf") );
@@ -308,8 +371,12 @@ TICLTauValidator::TICLTauValidator(const edm::ParameterSet& iConfig)
   pfJetsToken_       = consumes<reco::PFJetCollection>(        iConfig.getParameter<edm::InputTag>("jets") );
   genParticlesToken_ = consumes<reco::GenParticleCollection>(  iConfig.getParameter<edm::InputTag>("genParticles") );
   genVisTausToken_   = consumes<reco::GenParticleCollection>(    iConfig.getParameter<edm::InputTag>("genVisTaus") );
+  trackingParticleToken_ = consumes<TrackingParticleCollection>( iConfig.getParameter<edm::InputTag>("trackingParticles") );
+  genBarcodesToken_ = consumes<std::vector<int>>( iConfig.getParameter<edm::InputTag>("genBarcodes") );
   recoToSimAssocByLCsToken_ = consumes<TracksterToTracksterMap>(
     iConfig.getParameter<edm::InputTag>("recoToSimTracksterAssocByLCs") );
+  trackRecoToSimToken_ = consumes<reco::RecoToSimCollection>(
+    iConfig.getParameter<edm::InputTag>("trackRecoToSim") );
   hltTauFilterLabels_ = iConfig.getParameter<std::vector<std::string>>("hltTauFilterLabels");
   hltProcessName_ = iConfig.getParameter<std::string>("hltProcessName");
   for (const auto& label : hltTauFilterLabels_) {
@@ -462,6 +529,58 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
       }
     }
 
+    // charged legs - track chain: CP-TP(0), TP-Track(1), Track-PF(2), PF-Jet(3), Jet-Tau(4)
+    for (int li = 0; li < chCap; ++li) {
+      for (int s = 0; s < kNTrackSteps; ++s) {
+        {
+          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_trkstep" << s << "_den_pt";
+          t << "Den: charged track-chain; DM=" << dm << " leg=" << li << " trkStep=" << s << "; pT (CP) [GeV]; entries";
+          chTrackStepHists_[dmI][li].cp_gen_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
+        }
+        {
+          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_trkstep" << s << "_den_eta";
+          t << "Den: charged track-chain; DM=" << dm << " leg=" << li << " trkStep=" << s << "; eta (CP); entries";
+          chTrackStepHists_[dmI][li].cp_gen_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+        }
+        {
+          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_trkstep" << s << "_num_pt";
+          t << "Num: charged track-chain; DM=" << dm << " leg=" << li << " trkStep=" << s << "; pT (CP) [GeV]; entries";
+          chTrackStepHists_[dmI][li].cp_gen_matched_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
+        }
+        {
+          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_trkstep" << s << "_num_eta";
+          t << "Num: charged track-chain; DM=" << dm << " leg=" << li << " trkStep=" << s << "; eta (CP); entries";
+          chTrackStepHists_[dmI][li].cp_gen_matched_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+        }
+      }
+    }
+
+    // charged legs - combi (AND) chain: PF(0), Jet(1), Tau(2)
+    for (int li = 0; li < chCap; ++li) {
+      for (int s = 0; s < kNCombiSteps; ++s) {
+        {
+          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_combistep" << s << "_den_pt";
+          t << "Den: charged combi-chain; DM=" << dm << " leg=" << li << " combiStep=" << s << "; pT (CP) [GeV]; entries";
+          chCombiStepHists_[dmI][li].cp_gen_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
+        }
+        {
+          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_combistep" << s << "_den_eta";
+          t << "Den: charged combi-chain; DM=" << dm << " leg=" << li << " combiStep=" << s << "; eta (CP); entries";
+          chCombiStepHists_[dmI][li].cp_gen_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+        }
+        {
+          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_combistep" << s << "_num_pt";
+          t << "Num: charged combi-chain; DM=" << dm << " leg=" << li << " combiStep=" << s << "; pT (CP) [GeV]; entries";
+          chCombiStepHists_[dmI][li].cp_gen_matched_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
+        }
+        {
+          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_combistep" << s << "_num_eta";
+          t << "Num: charged combi-chain; DM=" << dm << " leg=" << li << " combiStep=" << s << "; eta (CP); entries";
+          chCombiStepHists_[dmI][li].cp_gen_matched_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+        }
+      }
+    }
+
     // photon legs
     for (int li = 0; li < gammaCap; ++li) {
       for (int s : stepsToKeep) {
@@ -589,6 +708,56 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
       tau_gen_matched_to_nPi0_sig_eta_[dmI][N-1] = ibook.book1D(nseta.str(), tseta.str(), 50, -3., 3.);
       tau_gen_matched_to_nPi0_iso_pt_[dmI][N-1]     = ibook.book1D(nipt.str(),  tipt.str(), 60, 0., 120.);
       tau_gen_matched_to_nPi0_iso_eta_[dmI][N-1]    = ibook.book1D(nieta.str(), tieta.str(), 50, -3., 3.);
+    }
+
+    // Two-fold CP-level efficiency numerators (track-only, calo-only, track AND calo)
+    {
+      std::ostringstream n, t;
+      n << "cp_chHad_dm" << dm << "_trackOnly_pt";
+      t << "DM " << dm << " charged CP: track-matched; CP pT [GeV]; entries";
+      cp_chHad_trackOnly_pt_dm_[dmI] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
+    }
+    {
+      std::ostringstream n, t;
+      n << "cp_chHad_dm" << dm << "_trackOnly_eta";
+      t << "DM " << dm << " charged CP: track-matched; CP eta; entries";
+      cp_chHad_trackOnly_eta_dm_[dmI] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+    }
+    {
+      std::ostringstream n, t;
+      n << "cp_chHad_dm" << dm << "_caloOnly_pt";
+      t << "DM " << dm << " charged CP: calo-matched (TICL); CP pT [GeV]; entries";
+      cp_chHad_caloOnly_pt_dm_[dmI] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
+    }
+    {
+      std::ostringstream n, t;
+      n << "cp_chHad_dm" << dm << "_caloOnly_eta";
+      t << "DM " << dm << " charged CP: calo-matched (TICL); CP eta; entries";
+      cp_chHad_caloOnly_eta_dm_[dmI] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+    }
+    {
+      std::ostringstream n, t;
+      n << "cp_chHad_dm" << dm << "_trackAndCalo_pt";
+      t << "DM " << dm << " charged CP: track AND calo matched; CP pT [GeV]; entries";
+      cp_chHad_trackAndCalo_pt_dm_[dmI] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
+    }
+    {
+      std::ostringstream n, t;
+      n << "cp_chHad_dm" << dm << "_trackAndCalo_eta";
+      t << "DM " << dm << " charged CP: track AND calo matched; CP eta; entries";
+      cp_chHad_trackAndCalo_eta_dm_[dmI] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+    }
+    {
+      std::ostringstream n, t;
+      n << "cp_gamma_dm" << dm << "_caloOnly_pt";
+      t << "DM " << dm << " photon CP: calo-matched (TICL); CP pT [GeV]; entries";
+      cp_gamma_caloOnly_pt_dm_[dmI] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
+    }
+    {
+      std::ostringstream n, t;
+      n << "cp_gamma_dm" << dm << "_caloOnly_eta";
+      t << "DM " << dm << " photon CP: calo-matched (TICL); CP eta; entries";
+      cp_gamma_caloOnly_eta_dm_[dmI] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
     }
 
   }
@@ -880,6 +1049,9 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
 
   // handles
   edm::Handle<std::vector<SimTauCPLink>> simTaus;            iEvent.getByToken(simTauToken_, simTaus);
+  edm::Handle<std::vector<CaloParticle>> caloParticles;
+  if (!caloParticlesToken_.isUninitialized())
+    iEvent.getByToken(caloParticlesToken_, caloParticles);
   edm::Handle<reco::PFTauCollection>     taus;               iEvent.getByToken(tauProducerToken_, taus);
   edm::Handle<std::vector<ticl::Trackster>> simTracksters;   iEvent.getByToken(simTrackstersToken_, simTracksters);
   edm::Handle<TracksterToTracksterMap>   simToRecoMap;       iEvent.getByToken(allTrkToSimTrkAssocByLCsToken_, simToRecoMap);
@@ -890,6 +1062,9 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
   edm::Handle<reco::PFJetCollection>      pfJets;            iEvent.getByToken(pfJetsToken_, pfJets);
   edm::Handle<reco::GenParticleCollection> genParticles;     iEvent.getByToken(genParticlesToken_, genParticles);
   edm::Handle<reco::GenParticleCollection> genVisTaus;       iEvent.getByToken(genVisTausToken_, genVisTaus);
+  edm::Handle<TrackingParticleCollection> trackingParticles;  iEvent.getByToken(trackingParticleToken_, trackingParticles);
+  edm::Handle<std::vector<int>> genBarcodes;                   iEvent.getByToken(genBarcodesToken_, genBarcodes);
+  edm::Handle<reco::RecoToSimCollection> trackRecoToSim;       iEvent.getByToken(trackRecoToSimToken_, trackRecoToSim);
 
   if (!taus.isValid())
     return;
@@ -919,6 +1094,32 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
 
   std::vector<std::string> eventChains;
   std::set<unsigned int> seenCPChargedEvent, seenCPPhotonEvent;
+  std::set<unsigned int> seenCPTwoFoldCharged, seenCPTwoFoldPhoton;  // dedup for two-fold numerators
+
+  // Build set of TrackingParticle indices that have at least one matched reco track.
+  // Used for CP-level forward track matching (CP -> TP -> reco track).
+  std::unordered_set<size_t> tpWithRecoTrack;
+  // Reverse map: TP index -> reco track keys (for track chain steps)
+  std::unordered_map<size_t, std::vector<size_t>> tpToRecoTrackKeys;
+  if (trackRecoToSim.isValid() && trackingParticles.isValid()) {
+    for (const auto& entry : *trackRecoToSim) {
+      for (const auto& tpMatch : entry.val) {
+        const size_t tpKey = tpMatch.first.key();
+        tpWithRecoTrack.insert(tpKey);
+        tpToRecoTrackKeys[tpKey].push_back(entry.key.key());
+      }
+    }
+  }
+
+  // Map: reco track key -> PF candidate indices in merged collection (for track chain)
+  std::unordered_map<size_t, std::vector<size_t>> trackKeyToPFIdx;
+  if (pfMerged.isValid()) {
+    for (size_t pfi = 0; pfi < pfMerged->size(); ++pfi) {
+      const auto& trkRef = (*pfMerged)[pfi].trackRef();
+      if (trkRef.isNonnull())
+        trackKeyToPFIdx[trkRef.key()].push_back(pfi);
+    }
+  }
 
   for (const auto& link : *simTaus) {
     const int dmPhys = link.decayMode;
@@ -937,10 +1138,16 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       int   pdgId=0; 
       bool  hasCPKinematics=false;
       bool  hasPFKinematics=false;
+      bool  trackMatched=false;  // CP -> TP -> reco Track (forward track matching)
       std::array<bool, kNSteps> stepPass{};
+      std::array<bool, kNTrackSteps> trackStepPass{};  // track chain steps
+      std::array<bool, kNCombiSteps> combiStepPass{};   // AND of calo + track at equivalent endpoints
       std::set<size_t> jets;
+      std::set<size_t> trackJets;    // jets containing track-chain PF candidates
+      std::set<size_t> trackPFKeys;  // PF keys matched via track chain
       std::unordered_map<size_t, std::vector<int>> dmByJet;
       std::unordered_map<size_t, TauRegionFlags>   tauRegion;
+      std::unordered_map<size_t, TauRegionFlags>   trackTauRegion; // tau regions for track-chain PFs
     };
 
     std::unordered_map<unsigned, PtEta> chKinTicl, phoKinTicl;
@@ -1020,6 +1227,126 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       pend.cpPt  = cp.pt();
       pend.cpEta = cp.eta();
       pend.stepPass[0] = true;
+
+      // Forward track matching: CP -> TP -> reco track
+      // For charged hadrons, check if any TrackingParticle sharing a G4 track
+      // with this CP has a matched reco track.
+      // Also compute the full track chain: CP-TP(0), TP-Track(1), Track-PF(2), PF-Jet(3), Jet-Tau(4)
+      if (isChargedHadron && trackingParticles.isValid()) {
+        // Track Step 0: CP -> TP (find any TP sharing G4 tracks with this CP)
+        std::vector<size_t> matchedTPIndices;
+        for (size_t tpIdx = 0; tpIdx < trackingParticles->size(); ++tpIdx) {
+          const auto& tp = (*trackingParticles)[tpIdx];
+          bool g4Match = false;
+          for (const auto& tpG4 : tp.g4Tracks()) {
+            for (const auto& cpG4 : cp.g4Tracks()) {
+              if (tpG4.trackId() == cpG4.trackId() &&
+                  tpG4.eventId() == cpG4.eventId()) {
+                g4Match = true;
+                break;
+              }
+            }
+            if (g4Match) break;
+          }
+          if (g4Match)
+            matchedTPIndices.push_back(tpIdx);
+        }
+        if (!matchedTPIndices.empty())
+          pend.trackStepPass[0] = true;
+
+        // Track Step 1: TP -> reco Track
+        std::unordered_set<size_t> matchedRecoTrackKeysSet;
+        for (size_t tpIdx : matchedTPIndices) {
+          auto it = tpToRecoTrackKeys.find(tpIdx);
+          if (it != tpToRecoTrackKeys.end()) {
+            for (size_t trkKey : it->second)
+              matchedRecoTrackKeysSet.insert(trkKey);
+          }
+        }
+        if (!matchedRecoTrackKeysSet.empty()) {
+          pend.trackStepPass[1] = true;
+          pend.trackMatched = true;  // backward-compat with existing two-fold efficiency
+        }
+
+        // Track Step 2: reco Track -> PF candidate
+        for (size_t trkKey : matchedRecoTrackKeysSet) {
+          auto it = trackKeyToPFIdx.find(trkKey);
+          if (it != trackKeyToPFIdx.end()) {
+            for (size_t pfIdx : it->second)
+              pend.trackPFKeys.insert(pfIdx);
+          }
+        }
+        if (!pend.trackPFKeys.empty())
+          pend.trackStepPass[2] = true;
+
+        // Track Step 3: PF -> PFJet
+        if (pfJets.isValid() && pfMerged.isValid()) {
+          for (size_t pfIdx : pend.trackPFKeys) {
+            reco::PFCandidateRef pfRef(pfMerged, pfIdx);
+            for (size_t j = 0; j < pfJets->size(); ++j) {
+              const auto& jet = (*pfJets)[j];
+              for (const auto& pfPtr : jet.getPFConstituents()) {
+                if (pfPtr.isNonnull() &&
+                    pfPtr.id() == pfRef.id() && pfPtr.key() == pfRef.key()) {
+                  pend.trackJets.insert(j);
+                  break;
+                }
+              }
+            }
+          }
+          if (!pend.trackJets.empty())
+            pend.trackStepPass[3] = true;
+
+          // Track Step 4: PFJet -> PFTau (signal region)
+          if (taus.isValid()) {
+            for (size_t t = 0; t < taus->size(); ++t) {
+              const auto& tau = (*taus)[t];
+              auto jetRef = tau.jetRef();
+              if (!jetRef)
+                continue;
+              bool jetMatch = false;
+              for (size_t j : pend.trackJets) {
+                if (jetRef.get() == &(*pfJets)[j]) {
+                  jetMatch = true;
+                  break;
+                }
+              }
+              if (!jetMatch)
+                continue;
+              // check if any track-chain PF is in signal/isolation
+              for (size_t pfIdx : pend.trackPFKeys) {
+                reco::PFCandidateRef pfRef(pfMerged, pfIdx);
+                auto& flags = pend.trackTauRegion[t];
+                if (!flags.signal) {
+                  for (const auto& p : tau.signalPFCands()) {
+                    if (p.id() == pfRef.id() && p.key() == pfRef.key()) {
+                      flags.signal = true;
+                      break;
+                    }
+                  }
+                }
+                if (!flags.isolation) {
+                  for (const auto& p : tau.isolationPFCands()) {
+                    if (p.id() == pfRef.id() && p.key() == pfRef.key()) {
+                      flags.isolation = true;
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+            bool usedInTau = false;
+            for (const auto& tr : pend.trackTauRegion) {
+              if (tr.second.signal || tr.second.isolation) {
+                usedInTau = true;
+                break;
+              }
+            }
+            if (usedInTau)
+              pend.trackStepPass[4] = true;
+          }
+        }
+      }
 
       // Step 1: SimToReco & Step 2: Reco - TICLCandidate
       std::vector<size_t> matchedRecoTkIdx;
@@ -1153,11 +1480,25 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
         }
       }
 
+      // Compute AND (combi) chain: calo AND track must both pass at equivalent endpoint
+      // combiStep 0 = both reach PF   (caloStep[3] && trackStep[2])
+      // combiStep 1 = both in a Jet   (caloStep[4] && trackStep[3])
+      // combiStep 2 = both in a Tau   (caloStep[5] && trackStep[4])
+      pend.combiStepPass[0] = pend.stepPass[3] && pend.trackStepPass[2];
+      pend.combiStepPass[1] = pend.stepPass[4] && pend.trackStepPass[3];
+      pend.combiStepPass[2] = pend.stepPass[5] && pend.trackStepPass[4];
+
       std::ostringstream ss;
       ss << "Chain: CP=" << cpRef.key() << " pdgId=" << cp.pdgId()
-          << " steps=[";
+          << " caloSteps=[";
       for (int s = 0; s < kNSteps; ++s)
         ss << (pend.stepPass[s] ? '1' : '0');
+      ss << "] trkSteps=[";
+      for (int s = 0; s < kNTrackSteps; ++s)
+        ss << (pend.trackStepPass[s] ? '1' : '0');
+      ss << "] combiSteps=[";
+      for (int s = 0; s < kNCombiSteps; ++s)
+        ss << (pend.combiStepPass[s] ? '1' : '0');
       ss << "] jets=[";
       size_t c = 0;
       for (auto j : pend.jets) {
@@ -1166,6 +1507,30 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       }
       ss << "]";
       eventChains.push_back(ss.str());
+
+      // Fill CP-level two-fold efficiency numerators (once per unique CP key per event)
+      if (dmGenIdx >= 0 && pend.hasCPKinematics) {
+        if (isChargedHadron && seenCPTwoFoldCharged.insert(cpRef.key()).second) {
+          if (pend.trackMatched) {
+            if (cp_chHad_trackOnly_pt_dm_[dmGenIdx])  cp_chHad_trackOnly_pt_dm_[dmGenIdx]->Fill(pend.cpPt);
+            if (cp_chHad_trackOnly_eta_dm_[dmGenIdx]) cp_chHad_trackOnly_eta_dm_[dmGenIdx]->Fill(pend.cpEta);
+          }
+          if (pend.stepPass[3]) {
+            if (cp_chHad_caloOnly_pt_dm_[dmGenIdx])  cp_chHad_caloOnly_pt_dm_[dmGenIdx]->Fill(pend.cpPt);
+            if (cp_chHad_caloOnly_eta_dm_[dmGenIdx]) cp_chHad_caloOnly_eta_dm_[dmGenIdx]->Fill(pend.cpEta);
+          }
+          if (pend.trackMatched && pend.stepPass[3]) {
+            if (cp_chHad_trackAndCalo_pt_dm_[dmGenIdx])  cp_chHad_trackAndCalo_pt_dm_[dmGenIdx]->Fill(pend.cpPt);
+            if (cp_chHad_trackAndCalo_eta_dm_[dmGenIdx]) cp_chHad_trackAndCalo_eta_dm_[dmGenIdx]->Fill(pend.cpEta);
+          }
+        }
+        if (isPhoton && seenCPTwoFoldPhoton.insert(cpRef.key()).second) {
+          if (pend.stepPass[3]) {
+            if (cp_gamma_caloOnly_pt_dm_[dmGenIdx])  cp_gamma_caloOnly_pt_dm_[dmGenIdx]->Fill(pend.cpPt);
+            if (cp_gamma_caloOnly_eta_dm_[dmGenIdx]) cp_gamma_caloOnly_eta_dm_[dmGenIdx]->Fill(pend.cpEta);
+          }
+        }
+      }
     } // leaves
 
     // Jets at step 4: unique jet that contains all PF legs
@@ -1399,6 +1764,36 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       }
     };
 
+    // helper to fill per-leg track chain step histos (charged hadrons only)
+    auto fillLegTrackStepsDM = [&](int dmI,
+                                   int legIdx,
+                                   float cpPt, float cpEta,
+                                   const std::array<bool, kNTrackSteps>& pass){
+      for (int s = 0; s < kNTrackSteps; ++s) {
+        if (auto* h = chTrackStepHists_[dmI][legIdx].cp_gen_pt[s])  h->Fill(cpPt);
+        if (auto* h = chTrackStepHists_[dmI][legIdx].cp_gen_eta[s]) h->Fill(cpEta);
+        if (pass[s]) {
+          if (auto* h = chTrackStepHists_[dmI][legIdx].cp_gen_matched_pt[s])  h->Fill(cpPt);
+          if (auto* h = chTrackStepHists_[dmI][legIdx].cp_gen_matched_eta[s]) h->Fill(cpEta);
+        }
+      }
+    };
+
+    // helper to fill per-leg combi (AND) chain step histos (charged hadrons only)
+    auto fillLegCombiStepsDM = [&](int dmI,
+                                   int legIdx,
+                                   float cpPt, float cpEta,
+                                   const std::array<bool, kNCombiSteps>& pass){
+      for (int s = 0; s < kNCombiSteps; ++s) {
+        if (auto* h = chCombiStepHists_[dmI][legIdx].cp_gen_pt[s])  h->Fill(cpPt);
+        if (auto* h = chCombiStepHists_[dmI][legIdx].cp_gen_eta[s]) h->Fill(cpEta);
+        if (pass[s]) {
+          if (auto* h = chCombiStepHists_[dmI][legIdx].cp_gen_matched_pt[s])  h->Fill(cpPt);
+          if (auto* h = chCombiStepHists_[dmI][legIdx].cp_gen_matched_eta[s]) h->Fill(cpEta);
+        }
+      }
+    };
+
     // pT-sorted charged legs
     {
       std::vector<std::pair<unsigned, float>> chList;
@@ -1421,6 +1816,8 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
         if (!pend.hasCPKinematics)
           continue;
         fillLegStepsDM(true, dmGenIdx, li, pend.cpPt, pend.cpEta, pend.stepPass);
+        fillLegTrackStepsDM(dmGenIdx, li, pend.cpPt, pend.cpEta, pend.trackStepPass);
+        fillLegCombiStepsDM(dmGenIdx, li, pend.cpPt, pend.cpEta, pend.combiStepPass);
         ++li;
       }
     }
@@ -1645,6 +2042,11 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
     }
   }
 
+  // Get CaloParticle pointer for barrel TP matching in countAssociatedSignalPFCands
+  const std::vector<CaloParticle>* cpPtr = nullptr;
+  if (!caloParticlesToken_.isUninitialized() && caloParticles.isValid())
+    cpPtr = &(*caloParticles);
+
     if (taus.isValid() && pfJets.isValid() && pfMerged.isValid() &&
       ticlCandidates.isValid() && recoToSimMap.isValid() && simTracksters.isValid()) {
     const size_t barrelSize = pfTmpBarrel.isValid() ? pfTmpBarrel->size() : 0;
@@ -1662,9 +2064,9 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
 
       // Compute signal PF composition
       int nChSig = 0, nPhoSig = 0;
-      for (const auto& pfPtr : tau.signalPFCands()) {
-        if (!pfPtr.isNonnull()) continue;
-        const int absPdg = std::abs(pfPtr->pdgId());
+      for (const auto& pfPtr2 : tau.signalPFCands()) {
+        if (!pfPtr2.isNonnull()) continue;
+        const int absPdg = std::abs(pfPtr2->pdgId());
         if (absPdg == 211)      ++nChSig;
         else if (absPdg == 22)  ++nPhoSig;
       }
@@ -1672,8 +2074,11 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       const int nChFill = std::min(nChSig, kMaxCHLegs);
       const int nPi0Fill = std::min(nPi0Sig, kMaxPi0Legs);
 
-      bool isGenuine = isGenuineTau(tau, barrelSize, tauCPKeys,
-                *ticlCandidates, *recoToSimMap, *simTracksters);
+      auto assocCounts = countAssociatedSignalPFCands(tau, barrelSize, tauCPKeys,
+                      *ticlCandidates, *recoToSimMap, *simTracksters,
+                      cpPtr,
+                      trackRecoToSim.isValid() ? &(*trackRecoToSim) : nullptr);
+      const bool isGenuine = (assocCounts.nAssocAllParticles > 0);
       fillFakeRateHists(tau, dmSelI, nChFill, nPi0Fill, isGenuine, false);
     }
   } else {
@@ -1704,9 +2109,9 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
 
       // Compute signal PF composition
       int nChSig = 0, nPhoSig = 0;
-      for (const auto& pfPtr : tau.signalPFCands()) {
-        if (!pfPtr.isNonnull()) continue;
-        const int absPdg = std::abs(pfPtr->pdgId());
+      for (const auto& pfPtr2 : tau.signalPFCands()) {
+        if (!pfPtr2.isNonnull()) continue;
+        const int absPdg = std::abs(pfPtr2->pdgId());
         if (absPdg == 211)      ++nChSig;
         else if (absPdg == 22)  ++nPhoSig;
       }
@@ -1714,8 +2119,11 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       const int nChFill = std::min(nChSig, kMaxCHLegs);
       const int nPi0Fill = std::min(nPi0Sig, kMaxPi0Legs);
 
-      bool isGenuine = isGenuineTau(tau, barrelSize, tauCPKeys,
-                *ticlCandidates, *recoToSimMap, *simTracksters);
+      auto assocCounts = countAssociatedSignalPFCands(tau, barrelSize, tauCPKeys,
+                      *ticlCandidates, *recoToSimMap, *simTracksters,
+                      cpPtr,
+                      trackRecoToSim.isValid() ? &(*trackRecoToSim) : nullptr);
+      const bool isGenuine = (assocCounts.nAssocAllParticles > 0);
       fillFakeRateHists(tau, dmSelI, nChFill, nPi0Fill, isGenuine, true);
     }
   }
@@ -1817,28 +2225,74 @@ void TICLTauValidator::fillFakeRateHists(const reco::PFTau& tau,
   }
 }
 
-bool TICLTauValidator::isGenuineTau(const reco::PFTau& tau,
-                                    size_t barrelSize,
-                                    const std::unordered_set<unsigned int>& tauCPKeys,
-                                    const std::vector<TICLCandidate>& ticlCandidates,
-                                    const TICLTauValidator::TracksterToTracksterMap& recoToSimMap,
-                                    const std::vector<ticl::Trackster>& simTracksters) const {
-  // Walk chain backwards:
-  //   reco PFTau → signal PF cands → TICLCandidate → reco Trackster
-  //     → (reco→sim map) → SimTrackster → CaloParticle key → check in tauCPKeys
+TICLTauValidator::AssocCounts TICLTauValidator::countAssociatedSignalPFCands(
+    const reco::PFTau& tau,
+    size_t barrelSize,
+    const std::unordered_set<unsigned int>& tauCPKeys,
+    const std::vector<TICLCandidate>& ticlCandidates,
+    const TracksterToTracksterMap& recoToSimMap,
+    const std::vector<ticl::Trackster>& simTracksters,
+    const std::vector<CaloParticle>* caloParticles,
+    const reco::RecoToSimCollection* trackRecoToSim) const {
+  AssocCounts counts;
 
   for (const auto& pfPtr : tau.signalPFCands()) {
     if (!pfPtr.isNonnull())
       continue;
-    const size_t pfKey = pfPtr.key();
-    if (pfKey < barrelSize)
-      continue;  // barrel PF candidate, not from TICL
 
+    const int absPdg = std::abs(pfPtr->pdgId());
+    const bool isCharged    = (absPdg == 211);
+    const bool isPhoton     = (absPdg == 22);
+    const bool isElectron   = (absPdg == 11);
+    const bool isNeutralHad = (absPdg == 130);
+
+    if (!isCharged && !isPhoton && !isElectron && !isNeutralHad)
+      continue;
+
+    if (isCharged || isNeutralHad)
+      ++counts.nSigCh;
+    if (isPhoton || isElectron)
+      ++counts.nSigPho;
+
+    const size_t pfKey = pfPtr.key();
+
+    // Barrel PF candidate: try matching via track -> TrackingParticle -> CaloParticle
+    if (pfKey < barrelSize) {
+      if (trackRecoToSim && caloParticles) {
+        const auto trackRef = pfPtr->trackRef();
+        if (trackRef.isNonnull()) {
+          auto found = trackRecoToSim->find(edm::RefToBase<reco::Track>(trackRef));
+          if (found != trackRecoToSim->end()) {
+            bool barrelMatched = false;
+            for (const auto& tpMatch : found->val) {
+              const auto& tpRef = tpMatch.first;
+              for (const auto& tpG4 : tpRef->g4Tracks()) {
+                for (const auto& cpKeyVal : tauCPKeys) {
+                  if (cpKeyVal >= caloParticles->size()) continue;
+                  const auto& cp = (*caloParticles)[cpKeyVal];
+                  for (const auto& cpG4 : cp.g4Tracks()) {
+                    if (tpG4.trackId() == cpG4.trackId() && tpG4.eventId() == cpG4.eventId())
+                      barrelMatched = true;
+                  }
+                }
+              }
+              if (barrelMatched) break;
+            }
+            if (barrelMatched)
+              ++counts.nAssocAllParticles;
+          }
+        }
+      }
+      continue;
+    }
+
+    // Endcap PF candidate: match via TICL chain
     const size_t ticlIdx = pfKey - barrelSize;
     if (ticlIdx >= ticlCandidates.size())
       continue;
 
     const auto& cand = ticlCandidates[ticlIdx];
+    bool matched = false;
     for (const auto& tsPtr : cand.tracksters()) {
       if (!tsPtr.isNonnull())
         continue;
@@ -1847,23 +2301,30 @@ bool TICLTauValidator::isGenuineTau(const reco::PFTau& tau,
         continue;
 
       for (const auto& m : recoToSimMap[recoTkIdx]) {
-        if (m.score() > maxAssocScore_)
-          continue;
+        const double score = m.score();
         const size_t simTkIdx = m.index();
         if (simTkIdx >= simTracksters.size())
           continue;
 
         const auto& simTk = simTracksters[simTkIdx];
         const int seedIdx = simTk.seedIndex();
-        if (seedIdx < 0)
+        if (seedIdx < 0 || !tauCPKeys.count(static_cast<unsigned int>(seedIdx)))
           continue;
-        if (!tauCPKeys.count(static_cast<unsigned int>(seedIdx)))
-          continue;
-        return true;
+
+        if (score <= maxAssocScore_) {
+          matched = true;
+          break;
+        }
       }
+      if (matched)
+        break;
     }
+
+    if (matched)
+      ++counts.nAssocAllParticles;
   }
-  return false;
+
+  return counts;
 }
 
 void TICLTauValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -1871,6 +2332,7 @@ void TICLTauValidator::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<std::string>("folder", "RecoTauV/ticlTauValidator");
 
   desc.add<edm::InputTag>("simTaus", edm::InputTag("SimTauProducer"));
+  desc.add<edm::InputTag>("caloParticles", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("TauProducer", edm::InputTag("hpsPFTauProducer"));
   desc.add<edm::InputTag>("pf", edm::InputTag("particleFlow"));
   desc.add<edm::InputTag>("pfTmpBarrel", edm::InputTag("particleFlowTmpBarrel"));
@@ -1885,6 +2347,9 @@ void TICLTauValidator::fillDescriptions(edm::ConfigurationDescriptions& descript
                                         "ticlCandidateToticlSimTrackstersfromCPs"));
   desc.add<edm::InputTag>("genParticles", edm::InputTag("genParticles"));
   desc.add<edm::InputTag>("genVisTaus", edm::InputTag("genVisTaus"));
+  desc.add<edm::InputTag>("trackingParticles", edm::InputTag("mix", "MergedTrackTruth"));
+  desc.add<edm::InputTag>("genBarcodes", edm::InputTag("genParticles"));
+  desc.add<edm::InputTag>("trackRecoToSim", edm::InputTag("tpToHltGeneralTrackAssociation"));
   desc.add<double>("maxAssocScore", 0.6);
   desc.add<double>("hgcalEtaAbsMin", 1.5);
 

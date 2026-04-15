@@ -5,6 +5,8 @@ dm_list = [0, 1, 2, 10, 11]
 effs = []
 
 steps_to_keep = [0, 1, 2, 3, 4, 5]
+track_steps = [0, 1, 2, 3, 4]
+combi_steps = [0, 1, 2]
 
 for dm in dm_list:
     for leg in range(3):
@@ -18,6 +20,30 @@ for dm in dm_list:
                 f"eff_ch_dm{dm}_leg{leg}_step{s}_eta "
                 f"'DM {dm} ch leg{leg} step{s}: efficiency vs eta' "
                 f"ch_dm{dm}_leg{leg}_step{s}_num_eta ch_dm{dm}_leg{leg}_step{s}_den_eta"
+            )
+        # track chain (charged hadrons only)
+        for s in track_steps:
+            effs.append(
+                f"eff_ch_dm{dm}_leg{leg}_trkstep{s}_pt  "
+                f"'DM {dm} ch leg{leg} trkStep{s}: efficiency vs pT'  "
+                f"ch_dm{dm}_leg{leg}_trkstep{s}_num_pt  ch_dm{dm}_leg{leg}_trkstep{s}_den_pt"
+            )
+            effs.append(
+                f"eff_ch_dm{dm}_leg{leg}_trkstep{s}_eta "
+                f"'DM {dm} ch leg{leg} trkStep{s}: efficiency vs eta' "
+                f"ch_dm{dm}_leg{leg}_trkstep{s}_num_eta ch_dm{dm}_leg{leg}_trkstep{s}_den_eta"
+            )
+        # combi (AND) chain (charged hadrons only)
+        for s in combi_steps:
+            effs.append(
+                f"eff_ch_dm{dm}_leg{leg}_combistep{s}_pt  "
+                f"'DM {dm} ch leg{leg} combiStep{s}: efficiency vs pT'  "
+                f"ch_dm{dm}_leg{leg}_combistep{s}_num_pt  ch_dm{dm}_leg{leg}_combistep{s}_den_pt"
+            )
+            effs.append(
+                f"eff_ch_dm{dm}_leg{leg}_combistep{s}_eta "
+                f"'DM {dm} ch leg{leg} combiStep{s}: efficiency vs eta' "
+                f"ch_dm{dm}_leg{leg}_combistep{s}_num_eta ch_dm{dm}_leg{leg}_combistep{s}_den_eta"
             )
     for leg in range(4):
         for s in steps_to_keep:
@@ -58,6 +84,29 @@ for dm in dm_list:
         effs.append(
             f"eff_tau_dm{dm}_all_eta 'DM {dm}: ALL expected @step5 vs eta' tau_dm{dm}_all_num_eta tau_dm{dm}_den_eta"
         )
+    # Two-fold CP-level efficiencies (charged: trackOnly, caloOnly, trackAndCalo)
+    for kind in ["trackOnly", "caloOnly", "trackAndCalo"]:
+        effs.append(
+            f"eff_cp_chHad_dm{dm}_{kind}_pt  "
+            f"'DM {dm} charged CP {kind} vs pT'  "
+            f"cp_chHad_dm{dm}_{kind}_pt  cp_chHad_dm{dm}_pt"
+        )
+        effs.append(
+            f"eff_cp_chHad_dm{dm}_{kind}_eta "
+            f"'DM {dm} charged CP {kind} vs eta' "
+            f"cp_chHad_dm{dm}_{kind}_eta cp_chHad_dm{dm}_eta"
+        )
+    # Two-fold CP-level efficiencies (photon: caloOnly)
+    effs.append(
+        f"eff_cp_gamma_dm{dm}_caloOnly_pt  "
+        f"'DM {dm} photon CP caloOnly vs pT'  "
+        f"cp_gamma_dm{dm}_caloOnly_pt  cp_gamma_dm{dm}_pt"
+    )
+    effs.append(
+        f"eff_cp_gamma_dm{dm}_caloOnly_eta "
+        f"'DM {dm} photon CP caloOnly vs eta' "
+        f"cp_gamma_dm{dm}_caloOnly_eta cp_gamma_dm{dm}_eta"
+    )
 
 # Fake rate efficiencies (num / den = fake rate)
 fake_effs = []
