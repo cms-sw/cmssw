@@ -77,6 +77,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void SiPixelRecHitExtendedAlpaka::produce(edm::StreamID streamID,
                                             device::Event& iEvent,
                                             const device::EventSetup& es) const {
+    std::cout << "Calling SiPixelRecHitExtendedAlpaka::produce for stream " << streamID.value() << '\n';
     // get both Pixel and Tracker SoA collections
     auto queue = iEvent.queue();
     const auto& pixColl = iEvent.get(pixelRecHitToken_);
@@ -119,6 +120,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto outView = output.view().trackingHits();
     auto pixView = pixColl.view().trackingHits();
     auto trkView = trkColl.view().trackingHits();
+
+    std::cout << "size of pixColl: " << pixView.metadata().size() << "Actual Size: " << nPixHits << '\n';
+    std::cout << "size of trkColl: " << trkView.metadata().size() << "Actual Size: " << nTrkHits << '\n';
 
     // layout type (same for all views)
     using ViewType = decltype(outView);
