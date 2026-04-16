@@ -69,6 +69,17 @@ for dm in dm_list:
         effs.append(
             f"eff_tau_dm{dm}_ge{N}ch_eta 'DM {dm}: >= {N} charged @step5 vs eta' tau_dm{dm}_ge{N}ch_num_eta tau_dm{dm}_den_eta"
         )
+        # tau-level two-fold: track / calo / both / either
+        for kind, tag in [("track", "track-matched"), ("calo", "calo-matched"),
+                          ("both", "track AND calo"), ("either", "track OR calo")]:
+            effs.append(
+                f"eff_tau_dm{dm}_ge{N}ch_{kind}_pt  'DM {dm}: >= {N} charged {tag} vs pT'  "
+                f"tau_dm{dm}_ge{N}ch_{kind}_num_pt  tau_dm{dm}_den_pt"
+            )
+            effs.append(
+                f"eff_tau_dm{dm}_ge{N}ch_{kind}_eta 'DM {dm}: >= {N} charged {tag} vs eta' "
+                f"tau_dm{dm}_ge{N}ch_{kind}_num_eta tau_dm{dm}_den_eta"
+            )
     cap_p0 = pi0_cap.get(dm, 0)
     for N in range(1, cap_p0 + 1):
         effs.append(
@@ -128,6 +139,41 @@ for dm in fake_dm_list:
     fake_effs.append(
         f"fake_rate_dm{dm}_eta 'DM {dm}: fake rate vs eta' fake_dm{dm}_num_eta fake_dm{dm}_den_eta"
     )
+
+# Calo-only and track-only fake rates (same structure, different prefix)
+for assoc, tag in [("calo", "calo assoc"), ("track", "track assoc")]:
+    prefix = f"fake_{assoc}"
+    fake_effs.append(
+        f"{prefix}_rate_pt  'Fake rate ({tag}) vs pT'  {prefix}_num_pt  {prefix}_den_pt"
+    )
+    fake_effs.append(
+        f"{prefix}_rate_eta 'Fake rate ({tag}) vs eta' {prefix}_num_eta {prefix}_den_eta"
+    )
+    for dm in fake_dm_list:
+        fake_effs.append(
+            f"{prefix}_rate_dm{dm}_pt  'DM {dm}: fake rate ({tag}) vs pT'  {prefix}_dm{dm}_num_pt  {prefix}_dm{dm}_den_pt"
+        )
+        fake_effs.append(
+            f"{prefix}_rate_dm{dm}_eta 'DM {dm}: fake rate ({tag}) vs eta' {prefix}_dm{dm}_num_eta {prefix}_dm{dm}_den_eta"
+        )
+
+# Charged iso path: combined, calo-only, track-only
+for assoc_prefix, assoc_tag in [("fake_chargedIsoPath", "charged iso path"),
+                                 ("fake_calo_chargedIsoPath", "calo assoc, charged iso path"),
+                                 ("fake_track_chargedIsoPath", "track assoc, charged iso path")]:
+    fake_effs.append(
+        f"{assoc_prefix}_rate_pt  'Fake rate ({assoc_tag}) vs pT'  {assoc_prefix}_num_pt  {assoc_prefix}_den_pt"
+    )
+    fake_effs.append(
+        f"{assoc_prefix}_rate_eta 'Fake rate ({assoc_tag}) vs eta' {assoc_prefix}_num_eta {assoc_prefix}_den_eta"
+    )
+    for dm in fake_dm_list:
+        fake_effs.append(
+            f"{assoc_prefix}_rate_dm{dm}_pt  'DM {dm}: fake rate ({assoc_tag}) vs pT'  {assoc_prefix}_dm{dm}_num_pt  {assoc_prefix}_dm{dm}_den_pt"
+        )
+        fake_effs.append(
+            f"{assoc_prefix}_rate_dm{dm}_eta 'DM {dm}: fake rate ({assoc_tag}) vs eta' {assoc_prefix}_dm{dm}_num_eta {assoc_prefix}_dm{dm}_den_eta"
+        )
 
 effs += fake_effs
 

@@ -5,16 +5,22 @@
 //
 /*
 
- Description: Validation for tau reconstruction within TICL
+ Description: Validation for tau reconstruction using TICL and tracks
 
  Implementation:
-   Steps (0..5):
+   Calo Steps (0..5):
      0: CaloParticle - SimTrackster (seed match)
      1: SimTrackster - RecoTrackster (association map)
      2: RecoTrackster - TICLCandidate
      3: RecoTrackster - PF candidate (merged PF)
      4: PF cand - PFJet
      5: PFJet - PFTau usage (skipped if no taus)
+
+    Tracking steps (0..4):
+     0: CP - TrackingParticle
+     1: TrackingParticle - reco Track (via tracking associator)
+     2: reco Track - PF candidate
+     3: PF cand - PFJet
 
    Confusion matrices:
      - dm_reco_vs_gen_jet : DM inferred from leg counts (in jets)
@@ -90,7 +96,9 @@ private:
   struct AssocCounts {
     int nSigCh = 0;            // Signal charged (pion) + neutral hadron (K_L) PF cands
     int nSigPho = 0;           // Signal photon + electron PF cands
-    int nAssocAllParticles = 0; // Total associated signal PF cands (any particle type)
+    int nAssocCalo = 0;         // Matched via TICL chain (endcap PF candidates)
+    int nAssocTrack = 0;        // Matched via track -> TP -> CP (any PF with trackRef)
+    int nAssocAllParticles = 0; // Either path (calo OR track)
   };
 
   AssocCounts countAssociatedSignalPFCands(const reco::PFTau& tau,
@@ -101,13 +109,6 @@ private:
                                            const std::vector<ticl::Trackster>& simTracksters,
                                            const std::vector<CaloParticle>* caloParticles,
                                            const reco::RecoToSimCollection* trackRecoToSim = nullptr) const;
-
-  void fillFakeRateHists(const reco::PFTau& tau,
-                         int dmSelI,
-                         int nChFill,
-                         int nPi0Fill,
-                         bool isGenuine,
-                         bool useFilter);
 
   std::string folder_;
   double maxAssocScore_;  // smaller = better association
@@ -127,7 +128,6 @@ private:
   edm::EDGetTokenT<reco::GenParticleCollection>      genParticlesToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> genVisTausToken_;
   edm::EDGetTokenT<TrackingParticleCollection>   trackingParticleToken_;
-  edm::EDGetTokenT<std::vector<int>>              genBarcodesToken_;
   edm::EDGetTokenT<TracksterToTracksterMap>      recoToSimAssocByLCsToken_;
   edm::EDGetTokenT<reco::RecoToSimCollection>    trackRecoToSimToken_;
   std::vector<std::string> hltTauFilterLabels_;
@@ -135,18 +135,15 @@ private:
   std::vector<edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>> hltFilterTokens_;
 
   // ---------- constants & helpers ----------
-  static constexpr int   kMaxDM        = 16;
   static constexpr int   kMaxCHLegs    = 3; // charged hadrons per tau
   static constexpr int   kMaxGammaLegs = 4; // photons (1 pair = 1 pi0)
   static constexpr int   kMaxPi0Legs   = kMaxGammaLegs / 2;
-  static constexpr int   kNSteps       = 6; // 0..5
-  // Track chain: CP-TP(0), TP-Track(1), Track-PF(2), PF-Jet(3), Jet-Tau(4)
-  static constexpr int   kNTrackSteps  = 5; // 0..4
+  // Calo chain steps: (0..5) 
+  static constexpr int   kNSteps       = 6; 
+  // Track chain: (0..4)
+  static constexpr int   kNTrackSteps  = 5;
   // Combined (AND) chain: calo AND track must both reach an equivalent endpoint
-  //   combiStep 0 = both reach PF   (caloStep[3] && trackStep[2])
-  //   combiStep 1 = both in a Jet    (caloStep[4] && trackStep[3])
-  //   combiStep 2 = both in a Tau    (caloStep[5] && trackStep[4])
-  static constexpr int   kNCombiSteps  = 3; // 0..2
+  static constexpr int   kNCombiSteps  = 3;
 
   static constexpr int kNDMSel = 6;
   static constexpr int kDMSel[kNDMSel] = {0, 1, 2, 5, 10, 11};
@@ -194,34 +191,60 @@ private:
   static inline int chCapForDM(int dm)  { return std::min(expectedChForDM(dm),  kMaxCHLegs); }
   static inline int pi0CapForDM(int dm) { return std::min(expectedPi0ForDM(dm), kMaxGammaLegs); }
 
-  struct StepHists {
-    MonitorElement* cp_gen_pt[kNSteps]  {nullptr};
-    MonitorElement* cp_gen_eta[kNSteps] {nullptr};
-    MonitorElement* cp_gen_matched_pt[kNSteps]  {nullptr};
-    MonitorElement* cp_gen_matched_eta[kNSteps] {nullptr};
+  // Any hadronic tau decay mode, excluding leptonic modes
+  static inline bool isHadronicDM(int dm) { return dm >= 0 && dm < 16; }
+
+  template<int N>
+  struct StepHistsT {
+    MonitorElement* den_pt[N]  {nullptr};
+    MonitorElement* den_eta[N] {nullptr};
+    MonitorElement* num_pt[N]  {nullptr};
+    MonitorElement* num_eta[N] {nullptr};
   };
 
-  // per-DM, per-leg step histos (calo chain)
-  std::array<std::array<StepHists, kMaxCHLegs>,    kNDMSel> chStepHists_{};
-  std::array<std::array<StepHists, kMaxGammaLegs>, kNDMSel> gammaStepHists_{};
+  // per-DM, per-leg step histos
+  using CaloStepHists  = StepHistsT<kNSteps>;
+  using TrackStepHists = StepHistsT<kNTrackSteps>;
+  using CombiStepHists = StepHistsT<kNCombiSteps>;
 
-  // per-DM, per-leg step histos (track chain, charged hadrons only)
-  struct TrackStepHists {
-    MonitorElement* cp_gen_pt[kNTrackSteps]  {nullptr};
-    MonitorElement* cp_gen_eta[kNTrackSteps] {nullptr};
-    MonitorElement* cp_gen_matched_pt[kNTrackSteps]  {nullptr};
-    MonitorElement* cp_gen_matched_eta[kNTrackSteps] {nullptr};
+  struct FakeRateHists {
+    MonitorElement* den_pt  = nullptr;
+    MonitorElement* den_eta = nullptr;
+    MonitorElement* num_pt  = nullptr;
+    MonitorElement* num_eta = nullptr;
+    MonitorElement* den_dm_pt[kNDMSel]   = {};
+    MonitorElement* den_dm_eta[kNDMSel]  = {};
+    MonitorElement* num_dm_pt[kNDMSel]   = {};
+    MonitorElement* num_dm_eta[kNDMSel]  = {};
+    MonitorElement* den_sig_nCh_pt[kMaxCHLegs]    = {};
+    MonitorElement* den_sig_nCh_eta[kMaxCHLegs]   = {};
+    MonitorElement* num_sig_nCh_pt[kMaxCHLegs]    = {};
+    MonitorElement* num_sig_nCh_eta[kMaxCHLegs]   = {};
+    MonitorElement* den_sig_nPi0_pt[kMaxPi0Legs]  = {};
+    MonitorElement* den_sig_nPi0_eta[kMaxPi0Legs] = {};
+    MonitorElement* num_sig_nPi0_pt[kMaxPi0Legs]  = {};
+    MonitorElement* num_sig_nPi0_eta[kMaxPi0Legs] = {};
+    MonitorElement* den_dm_sig_nCh_pt[kNDMSel][kMaxCHLegs]    = {{}};
+    MonitorElement* den_dm_sig_nCh_eta[kNDMSel][kMaxCHLegs]   = {{}};
+    MonitorElement* num_dm_sig_nCh_pt[kNDMSel][kMaxCHLegs]    = {{}};
+    MonitorElement* num_dm_sig_nCh_eta[kNDMSel][kMaxCHLegs]   = {{}};
+    MonitorElement* den_dm_sig_nPi0_pt[kNDMSel][kMaxPi0Legs]  = {{}};
+    MonitorElement* den_dm_sig_nPi0_eta[kNDMSel][kMaxPi0Legs] = {{}};
+    MonitorElement* num_dm_sig_nPi0_pt[kNDMSel][kMaxPi0Legs]  = {{}};
+    MonitorElement* num_dm_sig_nPi0_eta[kNDMSel][kMaxPi0Legs] = {{}};
   };
-  std::array<std::array<TrackStepHists, kMaxCHLegs>, kNDMSel> chTrackStepHists_{};
 
-  // per-DM, per-leg step histos (combi AND chain, charged hadrons only)
-  struct CombiStepHists {
-    MonitorElement* cp_gen_pt[kNCombiSteps]  {nullptr};
-    MonitorElement* cp_gen_eta[kNCombiSteps] {nullptr};
-    MonitorElement* cp_gen_matched_pt[kNCombiSteps]  {nullptr};
-    MonitorElement* cp_gen_matched_eta[kNCombiSteps] {nullptr};
-  };
-  std::array<std::array<CombiStepHists, kMaxCHLegs>, kNDMSel> chCombiStepHists_{};
+  void fillFakeRateHists(const reco::PFTau& tau,
+                         int dmSelI,
+                         int nChFill,
+                         int nPi0Fill,
+                         bool isGenuine,
+                         FakeRateHists& fr);
+
+  std::array<std::array<CaloStepHists,  kMaxCHLegs>,    kNDMGen> chStepHists_{};
+  std::array<std::array<CaloStepHists,  kMaxGammaLegs>, kNDMGen> gammaStepHists_{};
+  std::array<std::array<TrackStepHists, kMaxCHLegs>,    kNDMGen> chTrackStepHists_{};
+  std::array<std::array<CombiStepHists, kMaxCHLegs>,    kNDMGen> chCombiStepHists_{};
 
   MonitorElement* dm_reco_vs_gen_jet_  = nullptr;
   MonitorElement* dm_reco_vs_gen_tau_  = nullptr;
@@ -260,6 +283,16 @@ private:
   MonitorElement* tau_gen_matched_to_nPi0_iso_pt_[kNDMGen][kMaxGammaLegs]     = {{}};
   MonitorElement* tau_gen_matched_to_nPi0_iso_eta_[kNDMGen][kMaxGammaLegs]    = {{}};
 
+  // Tau-level two-fold: >= N charged CPs matched by track / calo / both / either
+  MonitorElement* tau_nCh_track_pt_[kNDMGen][kMaxCHLegs]  = {{}};
+  MonitorElement* tau_nCh_track_eta_[kNDMGen][kMaxCHLegs] = {{}};
+  MonitorElement* tau_nCh_calo_pt_[kNDMGen][kMaxCHLegs]   = {{}};
+  MonitorElement* tau_nCh_calo_eta_[kNDMGen][kMaxCHLegs]  = {{}};
+  MonitorElement* tau_nCh_both_pt_[kNDMGen][kMaxCHLegs]   = {{}};
+  MonitorElement* tau_nCh_both_eta_[kNDMGen][kMaxCHLegs]  = {{}};
+  MonitorElement* tau_nCh_either_pt_[kNDMGen][kMaxCHLegs]  = {{}};
+  MonitorElement* tau_nCh_either_eta_[kNDMGen][kMaxCHLegs] = {{}};
+
   MonitorElement* tau_pt_reco_over_gen_[kNDMGen] = {};
 
   // reco tau shapes per DM (gen-level, use kNDMGen)
@@ -271,11 +304,10 @@ private:
   MonitorElement* cp_pf_pt_resolution_em_dm_[kNDMGen]  = {};  // electromagnetic (photons)
 
   // ---------- Two-fold CP-level efficiency numerators (per-DM, use kNDMGen) ----------
-  // Denominator is the existing cp_chHad_pt_dm_ / cp_gamma_pt_dm_ arrays.
   // trackOnly: CP has a reco track matched via TrackingParticle
   MonitorElement* cp_chHad_trackOnly_pt_dm_[kNDMGen]  = {};
   MonitorElement* cp_chHad_trackOnly_eta_dm_[kNDMGen] = {};
-  // caloOnly: CP reached merged PF via TICL chain (= stepPass[3])
+  // caloOnly: CP reached merged PF via TICL chain
   MonitorElement* cp_chHad_caloOnly_pt_dm_[kNDMGen]  = {};
   MonitorElement* cp_chHad_caloOnly_eta_dm_[kNDMGen] = {};
   // trackAndCalo: both criteria satisfied
@@ -287,63 +319,12 @@ private:
   MonitorElement* cp_gamma_caloOnly_eta_dm_[kNDMGen] = {};
 
   // ---------- fake rate histograms ----------
-  MonitorElement* fake_den_pt_  = nullptr;
-  MonitorElement* fake_den_eta_ = nullptr;
-  MonitorElement* fake_num_pt_  = nullptr;
-  MonitorElement* fake_num_eta_ = nullptr;
-
-  MonitorElement* fake_den_dm_pt_[kNDMSel]  = {};
-  MonitorElement* fake_den_dm_eta_[kNDMSel] = {};
-  MonitorElement* fake_num_dm_pt_[kNDMSel]  = {};
-  MonitorElement* fake_num_dm_eta_[kNDMSel] = {};
-
-  // fake rate splits by signal PF candidate counts
-  MonitorElement* fake_den_sig_nCh_pt_[kMaxCHLegs]   = {};
-  MonitorElement* fake_den_sig_nCh_eta_[kMaxCHLegs]  = {};
-  MonitorElement* fake_num_sig_nCh_pt_[kMaxCHLegs]   = {};
-  MonitorElement* fake_num_sig_nCh_eta_[kMaxCHLegs]  = {};
-  MonitorElement* fake_den_sig_nPi0_pt_[kMaxPi0Legs]  = {};
-  MonitorElement* fake_den_sig_nPi0_eta_[kMaxPi0Legs] = {};
-  MonitorElement* fake_num_sig_nPi0_pt_[kMaxPi0Legs]  = {};
-  MonitorElement* fake_num_sig_nPi0_eta_[kMaxPi0Legs] = {};
-
-  MonitorElement* fake_den_dm_sig_nCh_pt_[kNDMSel][kMaxCHLegs]   = {{}};
-  MonitorElement* fake_den_dm_sig_nCh_eta_[kNDMSel][kMaxCHLegs]  = {{}};
-  MonitorElement* fake_num_dm_sig_nCh_pt_[kNDMSel][kMaxCHLegs]   = {{}};
-  MonitorElement* fake_num_dm_sig_nCh_eta_[kNDMSel][kMaxCHLegs]  = {{}};
-  MonitorElement* fake_den_dm_sig_nPi0_pt_[kNDMSel][kMaxPi0Legs]  = {{}};
-  MonitorElement* fake_den_dm_sig_nPi0_eta_[kNDMSel][kMaxPi0Legs] = {{}};
-  MonitorElement* fake_num_dm_sig_nPi0_pt_[kNDMSel][kMaxPi0Legs]  = {{}};
-  MonitorElement* fake_num_dm_sig_nPi0_eta_[kNDMSel][kMaxPi0Legs] = {{}};
-
-  // fake rate histograms based on final filter taus
-  MonitorElement* fake_filt_den_pt_  = nullptr;
-  MonitorElement* fake_filt_den_eta_ = nullptr;
-  MonitorElement* fake_filt_num_pt_  = nullptr;
-  MonitorElement* fake_filt_num_eta_ = nullptr;
-
-  MonitorElement* fake_filt_den_dm_pt_[kNDMSel]  = {};
-  MonitorElement* fake_filt_den_dm_eta_[kNDMSel] = {};
-  MonitorElement* fake_filt_num_dm_pt_[kNDMSel]  = {};
-  MonitorElement* fake_filt_num_dm_eta_[kNDMSel] = {};
-
-  MonitorElement* fake_filt_den_sig_nCh_pt_[kMaxCHLegs]   = {};
-  MonitorElement* fake_filt_den_sig_nCh_eta_[kMaxCHLegs]  = {};
-  MonitorElement* fake_filt_num_sig_nCh_pt_[kMaxCHLegs]   = {};
-  MonitorElement* fake_filt_num_sig_nCh_eta_[kMaxCHLegs]  = {};
-  MonitorElement* fake_filt_den_sig_nPi0_pt_[kMaxPi0Legs]  = {};
-  MonitorElement* fake_filt_den_sig_nPi0_eta_[kMaxPi0Legs] = {};
-  MonitorElement* fake_filt_num_sig_nPi0_pt_[kMaxPi0Legs]  = {};
-  MonitorElement* fake_filt_num_sig_nPi0_eta_[kMaxPi0Legs] = {};
-
-  MonitorElement* fake_filt_den_dm_sig_nCh_pt_[kNDMSel][kMaxCHLegs]   = {{}};
-  MonitorElement* fake_filt_den_dm_sig_nCh_eta_[kNDMSel][kMaxCHLegs]  = {{}};
-  MonitorElement* fake_filt_num_dm_sig_nCh_pt_[kNDMSel][kMaxCHLegs]   = {{}};
-  MonitorElement* fake_filt_num_dm_sig_nCh_eta_[kNDMSel][kMaxCHLegs]  = {{}};
-  MonitorElement* fake_filt_den_dm_sig_nPi0_pt_[kNDMSel][kMaxPi0Legs]  = {{}};
-  MonitorElement* fake_filt_den_dm_sig_nPi0_eta_[kNDMSel][kMaxPi0Legs] = {{}};
-  MonitorElement* fake_filt_num_dm_sig_nPi0_pt_[kNDMSel][kMaxPi0Legs]  = {{}};
-  MonitorElement* fake_filt_num_dm_sig_nPi0_eta_[kNDMSel][kMaxPi0Legs] = {{}};
+  FakeRateHists fakeRate_;
+  FakeRateHists fakeRateFilt_;
+  FakeRateHists fakeRateCalo_;
+  FakeRateHists fakeRateCaloFilt_;
+  FakeRateHists fakeRateTrack_;
+  FakeRateHists fakeRateTrackFilt_;
 
 };
 
@@ -372,7 +353,6 @@ TICLTauValidator::TICLTauValidator(const edm::ParameterSet& iConfig)
   genParticlesToken_ = consumes<reco::GenParticleCollection>(  iConfig.getParameter<edm::InputTag>("genParticles") );
   genVisTausToken_   = consumes<reco::GenParticleCollection>(    iConfig.getParameter<edm::InputTag>("genVisTaus") );
   trackingParticleToken_ = consumes<TrackingParticleCollection>( iConfig.getParameter<edm::InputTag>("trackingParticles") );
-  genBarcodesToken_ = consumes<std::vector<int>>( iConfig.getParameter<edm::InputTag>("genBarcodes") );
   recoToSimAssocByLCsToken_ = consumes<TracksterToTracksterMap>(
     iConfig.getParameter<edm::InputTag>("recoToSimTracksterAssocByLCs") );
   trackRecoToSimToken_ = consumes<reco::RecoToSimCollection>(
@@ -391,11 +371,30 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
                                       edm::EventSetup const&) {
   ibook.setCurrentFolder(folder_);
 
+  // ---- booking helpers ----
+  // Book a matched pair of (pT, eta) histograms in one call.
+  auto bookPtEta = [&](MonitorElement*& hpt, MonitorElement*& heta,
+                        const std::string& base, const std::string& title) {
+    hpt  = ibook.book1D(base + "_pt",  title + "; pT [GeV]; entries", 60, 0., 120.);
+    heta = ibook.book1D(base + "_eta", title + "; eta; entries",       50, -3., 3.);
+  };
+
+  // Book a resolution histogram (pT ratio).
+  auto bookRes = [&](MonitorElement*& h, const std::string& name, const std::string& title) {
+    h = ibook.book1D(name, title + ";pT^{reco}/pT^{gen};entries", 60, 0., 3.);
+  };
+
+  // Book den+num for one step of a StepHistsT chain.
+  auto bookStepDenNum = [&](MonitorElement*& denPt, MonitorElement*& denEta,
+                            MonitorElement*& numPt, MonitorElement*& numEta,
+                            const std::string& base, const std::string& title) {
+    bookPtEta(denPt, denEta, base + "_den", "Den: " + title);
+    bookPtEta(numPt, numEta, base + "_num", "Num: " + title);
+  };
+
   // Context CP histos
-  cp_chHad_pt_all_  = ibook.book1D("cp_chHad_pt_all",  "Charged CP; pT [GeV]; entries", 60, 0., 120.);
-  cp_chHad_eta_all_ = ibook.book1D("cp_chHad_eta_all", "Charged CP; eta; entries",       50, -3., 3.);
-  cp_gamma_pt_all_  = ibook.book1D("cp_gamma_pt_all",  "Photon CP; pT [GeV]; entries",   60, 0., 120.);
-  cp_gamma_eta_all_ = ibook.book1D("cp_gamma_eta_all", "Photon CP; eta; entries",        50, -3., 3.);
+  bookPtEta(cp_chHad_pt_all_, cp_chHad_eta_all_, "cp_chHad_all", "Charged CP");
+  bookPtEta(cp_gamma_pt_all_, cp_gamma_eta_all_, "cp_gamma_all", "Photon CP");
 
   auto labelAxes = [](MonitorElement* me){
     if (!me) return;
@@ -427,7 +426,7 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
     }
   };
 
-  // Confusion matrices: 6 reco bins (incl. DM 5), 5 gen bins (no DM 5)
+  // Confusion matrices
   dm_reco_vs_gen_jet_ = ibook.book2D(
     "dm_reco_vs_gen_jet",
     "Reco DM in jet vs gen DM;reco DM index;gen DM index",
@@ -455,7 +454,6 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
   // steps we save per-leg histos for
   const std::vector<int> stepsToKeep = {0, 1, 2, 3, 4, 5};
 
-  // Book gen-level histograms only for physical DMs (no DM 5)
   for (int dmI = 0; dmI < kNDMGen; ++dmI) {
     int dm = kDMGen[dmI];
     ibook.setCurrentFolder(folder_ + "/GenDM" + std::to_string(dm));
@@ -464,146 +462,61 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
     const int gammaCap = std::min(2 * expectedPi0ForDM(dm), kMaxGammaLegs);
 
     // per-DM CP base histos
-    {
-      std::ostringstream n, t;
-      n << "cp_chHad_dm" << dm << "_pt";
-      t << "Charged CP (DM=" << dm << "); pT [GeV]; entries";
-      cp_chHad_pt_dm_[dmI] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-    }
-    {
-      std::ostringstream n, t;
-      n << "cp_chHad_dm" << dm << "_eta";
-      t << "Charged CP (DM=" << dm << "); eta; entries";
-      cp_chHad_eta_dm_[dmI] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-    }
-    {
-      std::ostringstream n, t;
-      n << "cp_gamma_dm" << dm << "_pt";
-      t << "Photon CP (DM=" << dm << "); pT [GeV]; entries";
-      cp_gamma_pt_dm_[dmI] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-    }
-    {
-      std::ostringstream n, t;
-      n << "cp_gamma_dm" << dm << "_eta";
-      t << "Photon CP (DM=" << dm << "); eta; entries";
-      cp_gamma_eta_dm_[dmI] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-    }
+    std::string d = std::to_string(dm);
+    bookPtEta(cp_chHad_pt_dm_[dmI], cp_chHad_eta_dm_[dmI],
+              "cp_chHad_dm" + d, "Charged CP (DM=" + d + ")");
+    bookPtEta(cp_gamma_pt_dm_[dmI], cp_gamma_eta_dm_[dmI],
+              "cp_gamma_dm" + d, "Photon CP (DM=" + d + ")");
 
-    // CP-to-PF pT resolution per DM (ratio: PF pT / CP pT)
-    {
-      std::ostringstream n, t;
-      n << "cp_pf_pt_resolution_hadronic_dm" << dm;
-      t << "Charged hadron CP-to-PF pT resolution (DM=" << dm << ");pT^{reco}/pT^{gen};entries";
-      cp_pf_pt_resolution_had_dm_[dmI] = ibook.book1D(n.str(), t.str(), 60, 0., 3.);
-    }
-    {
-      std::ostringstream n, t;
-      n << "cp_pf_pt_resolution_em_dm" << dm;
-      t << "Photon CP-to-PF pT resolution (DM=" << dm << ");pT^{reco}/pT^{gen};entries";
-      cp_pf_pt_resolution_em_dm_[dmI] = ibook.book1D(n.str(), t.str(), 60, 0., 3.);
-    }
+    // CP-to-PF pT resolution per DM
+    bookRes(cp_pf_pt_resolution_had_dm_[dmI],
+            "cp_pf_pt_resolution_hadronic_dm" + d,
+            "Charged hadron CP-to-PF pT resolution (DM=" + d + ")");
+    bookRes(cp_pf_pt_resolution_em_dm_[dmI],
+            "cp_pf_pt_resolution_em_dm" + d,
+            "Photon CP-to-PF pT resolution (DM=" + d + ")");
 
-    // charged legs
+    // charged legs - calo chain
     for (int li = 0; li < chCap; ++li) {
       for (int s : stepsToKeep) {
-        {        
-          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_step" << s << "_den_pt";
-          t << "Den: charged; DM=" << dm << " leg=" << li << " step=" << s << "; pT (CP) [GeV]; entries";
-          chStepHists_[dmI][li].cp_gen_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-        }
-        {
-          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_step" << s << "_den_eta";
-          t << "Den: charged; DM=" << dm << " leg=" << li << " step=" << s << "; eta (CP); entries";
-          chStepHists_[dmI][li].cp_gen_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-        }
-        {
-          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_step" << s << "_num_pt";
-          t << "Num: charged; DM=" << dm << " leg=" << li << " step=" << s << "; pT (CP) [GeV]; entries";
-          chStepHists_[dmI][li].cp_gen_matched_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-        }
-        {
-          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_step" << s << "_num_eta";
-          t << "Num: charged; DM=" << dm << " leg=" << li << " step=" << s << "; eta (CP); entries";
-          chStepHists_[dmI][li].cp_gen_matched_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-        }
+        std::string base = "ch_dm" + d + "_leg" + std::to_string(li) + "_step" + std::to_string(s);
+        std::string tag  = "charged; DM=" + d + " leg=" + std::to_string(li) + " step=" + std::to_string(s);
+        bookStepDenNum(chStepHists_[dmI][li].den_pt[s],  chStepHists_[dmI][li].den_eta[s],
+                       chStepHists_[dmI][li].num_pt[s],  chStepHists_[dmI][li].num_eta[s],
+                       base, tag);
       }
     }
 
-    // charged legs - track chain: CP-TP(0), TP-Track(1), Track-PF(2), PF-Jet(3), Jet-Tau(4)
+    // charged legs - track chain
     for (int li = 0; li < chCap; ++li) {
       for (int s = 0; s < kNTrackSteps; ++s) {
-        {
-          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_trkstep" << s << "_den_pt";
-          t << "Den: charged track-chain; DM=" << dm << " leg=" << li << " trkStep=" << s << "; pT (CP) [GeV]; entries";
-          chTrackStepHists_[dmI][li].cp_gen_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-        }
-        {
-          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_trkstep" << s << "_den_eta";
-          t << "Den: charged track-chain; DM=" << dm << " leg=" << li << " trkStep=" << s << "; eta (CP); entries";
-          chTrackStepHists_[dmI][li].cp_gen_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-        }
-        {
-          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_trkstep" << s << "_num_pt";
-          t << "Num: charged track-chain; DM=" << dm << " leg=" << li << " trkStep=" << s << "; pT (CP) [GeV]; entries";
-          chTrackStepHists_[dmI][li].cp_gen_matched_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-        }
-        {
-          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_trkstep" << s << "_num_eta";
-          t << "Num: charged track-chain; DM=" << dm << " leg=" << li << " trkStep=" << s << "; eta (CP); entries";
-          chTrackStepHists_[dmI][li].cp_gen_matched_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-        }
+        std::string base = "ch_dm" + d + "_leg" + std::to_string(li) + "_trkstep" + std::to_string(s);
+        std::string tag  = "charged track-chain; DM=" + d + " leg=" + std::to_string(li) + " trkStep=" + std::to_string(s);
+        bookStepDenNum(chTrackStepHists_[dmI][li].den_pt[s],  chTrackStepHists_[dmI][li].den_eta[s],
+                       chTrackStepHists_[dmI][li].num_pt[s],  chTrackStepHists_[dmI][li].num_eta[s],
+                       base, tag);
       }
     }
 
-    // charged legs - combi (AND) chain: PF(0), Jet(1), Tau(2)
+    // charged legs - combi (AND) chain
     for (int li = 0; li < chCap; ++li) {
       for (int s = 0; s < kNCombiSteps; ++s) {
-        {
-          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_combistep" << s << "_den_pt";
-          t << "Den: charged combi-chain; DM=" << dm << " leg=" << li << " combiStep=" << s << "; pT (CP) [GeV]; entries";
-          chCombiStepHists_[dmI][li].cp_gen_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-        }
-        {
-          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_combistep" << s << "_den_eta";
-          t << "Den: charged combi-chain; DM=" << dm << " leg=" << li << " combiStep=" << s << "; eta (CP); entries";
-          chCombiStepHists_[dmI][li].cp_gen_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-        }
-        {
-          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_combistep" << s << "_num_pt";
-          t << "Num: charged combi-chain; DM=" << dm << " leg=" << li << " combiStep=" << s << "; pT (CP) [GeV]; entries";
-          chCombiStepHists_[dmI][li].cp_gen_matched_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-        }
-        {
-          std::ostringstream n, t; n << "ch_dm" << dm << "_leg" << li << "_combistep" << s << "_num_eta";
-          t << "Num: charged combi-chain; DM=" << dm << " leg=" << li << " combiStep=" << s << "; eta (CP); entries";
-          chCombiStepHists_[dmI][li].cp_gen_matched_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-        }
+        std::string base = "ch_dm" + d + "_leg" + std::to_string(li) + "_combistep" + std::to_string(s);
+        std::string tag  = "charged combi-chain; DM=" + d + " leg=" + std::to_string(li) + " combiStep=" + std::to_string(s);
+        bookStepDenNum(chCombiStepHists_[dmI][li].den_pt[s],  chCombiStepHists_[dmI][li].den_eta[s],
+                       chCombiStepHists_[dmI][li].num_pt[s],  chCombiStepHists_[dmI][li].num_eta[s],
+                       base, tag);
       }
     }
 
-    // photon legs
+    // photon legs - calo chain
     for (int li = 0; li < gammaCap; ++li) {
       for (int s : stepsToKeep) {
-        {
-          std::ostringstream n, t; n << "pho_dm" << dm << "_leg" << li << "_step" << s << "_den_pt";
-          t << "Den: photon; DM=" << dm << " leg=" << li << " step=" << s << "; pT (CP) [GeV]; entries";
-          gammaStepHists_[dmI][li].cp_gen_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-        }
-        {
-          std::ostringstream n, t; n << "pho_dm" << dm << "_leg" << li << "_step" << s << "_den_eta";
-          t << "Den: photon; DM=" << dm << " leg=" << li << " step=" << s << "; eta (CP); entries";
-          gammaStepHists_[dmI][li].cp_gen_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-        }
-        {
-          std::ostringstream n, t; n << "pho_dm" << dm << "_leg" << li << "_step" << s << "_num_pt";
-          t << "Num: photon; DM=" << dm << " leg=" << li << " step=" << s << "; pT (CP) [GeV]; entries";
-          gammaStepHists_[dmI][li].cp_gen_matched_pt[s] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-        }
-        {
-          std::ostringstream n, t; n << "pho_dm" << dm << "_leg" << li << "_step" << s << "_num_eta";
-          t << "Num: photon; DM=" << dm << " leg=" << li << " step=" << s << "; eta (CP); entries";
-          gammaStepHists_[dmI][li].cp_gen_matched_eta[s] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-        }
+        std::string base = "pho_dm" + d + "_leg" + std::to_string(li) + "_step" + std::to_string(s);
+        std::string tag  = "photon; DM=" + d + " leg=" + std::to_string(li) + " step=" + std::to_string(s);
+        bookStepDenNum(gammaStepHists_[dmI][li].den_pt[s],  gammaStepHists_[dmI][li].den_eta[s],
+                       gammaStepHists_[dmI][li].num_pt[s],  gammaStepHists_[dmI][li].num_eta[s],
+                       base, tag);
       }
     }
   }
@@ -615,433 +528,130 @@ void TICLTauValidator::bookHistograms(DQMStore::IBooker& ibook,
     const int pi0Cap = pi0CapForDM(dm);
     ibook.setCurrentFolder(folder_ + "/GenDM" + std::to_string(dm));
 
-    {
-      std::ostringstream n1, t1; n1 << "tau_dm" << dm << "_den_pt";
-      t1 << "DM " << dm << " gen tau; pT [GeV]; entries";
-      tau_gen_pt_[dmI] = ibook.book1D(n1.str(), t1.str(), 60, 0., 120.);
-    }
-    {
-      std::ostringstream n2, t2; n2 << "tau_dm" << dm << "_den_eta";
-      t2 << "DM " << dm << " gen tau; eta; entries";
-      tau_gen_eta_[dmI] = ibook.book1D(n2.str(), t2.str(), 50, -3., 3.);
-    }
-    {
-      std::ostringstream n1, t1; n1 << "tau_dm" << dm << "_reco_pt";
-      t1 << "DM " << dm << " reco tau; pT [GeV]; entries";
-      tau_reco_pt_[dmI] = ibook.book1D(n1.str(), t1.str(), 60, 0., 120.);
-    }
-    {
-      std::ostringstream n2, t2; n2 << "tau_dm" << dm << "_reco_eta";
-      t2 << "DM " << dm << " reco tau; eta; entries";
-      tau_reco_eta_[dmI] = ibook.book1D(n2.str(), t2.str(), 50, -3., 3.);
-    }
-    {
-      std::ostringstream n, t;
-      n << "tau_dm" << dm << "_pt_reco_over_gen";
-      t << "DM " << dm << " tau: pT_reco/pT_gen; pT_reco/pT_gen; entries";
-      tau_pt_reco_over_gen_[dmI] = ibook.book1D(n.str(), t.str(), 60, 0., 3.);
-    } 
+    std::string ds = std::to_string(dm);
+    bookPtEta(tau_gen_pt_[dmI], tau_gen_eta_[dmI],
+              "tau_dm" + ds + "_den", "DM " + ds + " gen tau");
+    bookPtEta(tau_reco_pt_[dmI], tau_reco_eta_[dmI],
+              "tau_dm" + ds + "_reco", "DM " + ds + " reco tau");
+    bookRes(tau_pt_reco_over_gen_[dmI],
+            "tau_dm" + ds + "_pt_reco_over_gen",
+            "DM " + ds + " tau: pT_reco/pT_gen");
+
     // reco (jet/tau) endpoint: combined
     for (int N = 1; N <= chCap; ++N) {
-      std::ostringstream npt, tpt, neta, teta;
-      npt << "tau_dm" << dm << "_ge" << N << "ch_num_pt";
-      tpt << "DM " << dm << " tau: >= " << N << " charged at reco; pT [GeV]; entries";
-      neta << "tau_dm" << dm << "_ge" << N << "ch_num_eta";
-      teta << "DM " << dm << " tau: >= " << N << " charged at reco; eta; entries";
-      tau_gen_matched_to_nCh_pt_[dmI][N-1]  = ibook.book1D(npt.str(),  tpt.str(), 60, 0., 120.);
-      tau_gen_matched_to_nCh_eta_[dmI][N-1] = ibook.book1D(neta.str(), teta.str(), 50, -3., 3.);
+      std::string ns = std::to_string(N);
+      bookPtEta(tau_gen_matched_to_nCh_pt_[dmI][N-1], tau_gen_matched_to_nCh_eta_[dmI][N-1],
+                "tau_dm" + ds + "_ge" + ns + "ch_num",
+                "DM " + ds + " tau: >= " + ns + " charged at reco");
     }
     for (int N = 1; N <= pi0Cap; ++N) {
-      std::ostringstream npt, tpt, neta, teta;
-      npt << "tau_dm" << dm << "_ge" << N << "pi0_num_pt";
-      tpt << "DM " << dm << " tau: >= " << N << " pi0 at reco; pT [GeV]; entries";
-      neta << "tau_dm" << dm << "_ge" << N << "pi0_num_eta";
-      teta << "DM " << dm << " tau: >= " << N << " pi0 at reco; eta; entries";
-      tau_gen_matched_to_nPi0_pt_[dmI][N-1]  = ibook.book1D(npt.str(),  tpt.str(), 60, 0., 120.);
-      tau_gen_matched_to_nPi0_eta_[dmI][N-1] = ibook.book1D(neta.str(), teta.str(), 50, -3., 3.);
+      std::string ns = std::to_string(N);
+      bookPtEta(tau_gen_matched_to_nPi0_pt_[dmI][N-1], tau_gen_matched_to_nPi0_eta_[dmI][N-1],
+                "tau_dm" + ds + "_ge" + ns + "pi0_num",
+                "DM " + ds + " tau: >= " + ns + " pi0 at reco");
     }
-    {
-      std::ostringstream npt, tpt, neta, teta;
-      npt << "tau_dm" << dm << "_all_num_pt";
-      tpt << "DM " << dm << " tau: all expected charged+pi0 at reco; pT [GeV]; entries";
-      neta << "tau_dm" << dm << "_all_num_eta";
-      teta << "DM " << dm << " tau: all expected charged+pi0 at reco; eta; entries";
-      tau_gen_matched_to_all_pt_[dmI]  = ibook.book1D(npt.str(),  tpt.str(), 60, 0., 120.);
-      tau_gen_matched_to_all_eta_[dmI] = ibook.book1D(neta.str(), teta.str(), 50, -3., 3.);
-    }
+    bookPtEta(tau_gen_matched_to_all_pt_[dmI], tau_gen_matched_to_all_eta_[dmI],
+              "tau_dm" + ds + "_all_num",
+              "DM " + ds + " tau: all expected charged+pi0 at reco");
 
     // TAU-only endpoint: signal vs iso
     for (int N = 1; N <= chCap; ++N) {
-      std::ostringstream nspt, tspt, nseta, tseta;
-      std::ostringstream nipt, tipt, nieta, tieta;
-
-      nspt << "tau_dm" << dm << "_ge" << N << "ch_num_signal_pt";
-      tspt << "DM " << dm << " tau: >= " << N << " charged in signal; pT [GeV]; entries";
-      nseta << "tau_dm" << dm << "_ge" << N << "ch_num_signal_eta";
-      tseta << "DM " << dm << " tau: >= " << N << " charged in signal; eta; entries";
-
-      nipt << "tau_dm" << dm << "_ge" << N << "ch_num_iso_pt";
-      tipt << "DM " << dm << " tau: >= " << N << " charged in isolation; pT [GeV]; entries";
-      nieta << "tau_dm" << dm << "_ge" << N << "ch_num_iso_eta";
-      tieta << "DM " << dm << " tau: >= " << N << " charged in isolation; eta; entries";
-
-      tau_gen_matched_to_nCh_sig_pt_[dmI][N-1]  = ibook.book1D(nspt.str(),  tspt.str(), 60, 0., 120.);
-      tau_gen_matched_to_nCh_sig_eta_[dmI][N-1] = ibook.book1D(nseta.str(), tseta.str(), 50, -3., 3.);
-      tau_gen_matched_to_nCh_iso_pt_[dmI][N-1]     = ibook.book1D(nipt.str(),  tipt.str(), 60, 0., 120.);
-      tau_gen_matched_to_nCh_iso_eta_[dmI][N-1]    = ibook.book1D(nieta.str(), tieta.str(), 50, -3., 3.);
+      std::string ns = std::to_string(N);
+      bookPtEta(tau_gen_matched_to_nCh_sig_pt_[dmI][N-1], tau_gen_matched_to_nCh_sig_eta_[dmI][N-1],
+                "tau_dm" + ds + "_ge" + ns + "ch_num_signal",
+                "DM " + ds + " tau: >= " + ns + " charged in signal");
+      bookPtEta(tau_gen_matched_to_nCh_iso_pt_[dmI][N-1], tau_gen_matched_to_nCh_iso_eta_[dmI][N-1],
+                "tau_dm" + ds + "_ge" + ns + "ch_num_iso",
+                "DM " + ds + " tau: >= " + ns + " charged in isolation");
     }
     for (int N = 1; N <= pi0Cap; ++N) {
-      std::ostringstream nspt, tspt, nseta, tseta;
-      std::ostringstream nipt, tipt, nieta, tieta;
-
-      nspt << "tau_dm" << dm << "_ge" << N << "pi0_num_signal_pt";
-      tspt << "DM " << dm << " tau: >= " << N << " pi0 in signal; pT [GeV]; entries";
-      nseta << "tau_dm" << dm << "_ge" << N << "pi0_num_signal_eta";
-      tseta << "DM " << dm << " tau: >= " << N << " pi0 in signal; eta; entries";
-
-      nipt << "tau_dm" << dm << "_ge" << N << "pi0_num_iso_pt";
-      tipt << "DM " << dm << " tau: >= " << N << " pi0 in isolation; pT [GeV]; entries";
-      nieta << "tau_dm" << dm << "_ge" << N << "pi0_num_iso_eta";
-      tieta << "DM " << dm << " tau: >= " << N << " pi0 in isolation; eta; entries";
-
-      tau_gen_matched_to_nPi0_sig_pt_[dmI][N-1]  = ibook.book1D(nspt.str(),  tspt.str(), 60, 0., 120.);
-      tau_gen_matched_to_nPi0_sig_eta_[dmI][N-1] = ibook.book1D(nseta.str(), tseta.str(), 50, -3., 3.);
-      tau_gen_matched_to_nPi0_iso_pt_[dmI][N-1]     = ibook.book1D(nipt.str(),  tipt.str(), 60, 0., 120.);
-      tau_gen_matched_to_nPi0_iso_eta_[dmI][N-1]    = ibook.book1D(nieta.str(), tieta.str(), 50, -3., 3.);
+      std::string ns = std::to_string(N);
+      bookPtEta(tau_gen_matched_to_nPi0_sig_pt_[dmI][N-1], tau_gen_matched_to_nPi0_sig_eta_[dmI][N-1],
+                "tau_dm" + ds + "_ge" + ns + "pi0_num_signal",
+                "DM " + ds + " tau: >= " + ns + " pi0 in signal");
+      bookPtEta(tau_gen_matched_to_nPi0_iso_pt_[dmI][N-1], tau_gen_matched_to_nPi0_iso_eta_[dmI][N-1],
+                "tau_dm" + ds + "_ge" + ns + "pi0_num_iso",
+                "DM " + ds + " tau: >= " + ns + " pi0 in isolation");
     }
 
-    // Two-fold CP-level efficiency numerators (track-only, calo-only, track AND calo)
-    {
-      std::ostringstream n, t;
-      n << "cp_chHad_dm" << dm << "_trackOnly_pt";
-      t << "DM " << dm << " charged CP: track-matched; CP pT [GeV]; entries";
-      cp_chHad_trackOnly_pt_dm_[dmI] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-    }
-    {
-      std::ostringstream n, t;
-      n << "cp_chHad_dm" << dm << "_trackOnly_eta";
-      t << "DM " << dm << " charged CP: track-matched; CP eta; entries";
-      cp_chHad_trackOnly_eta_dm_[dmI] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-    }
-    {
-      std::ostringstream n, t;
-      n << "cp_chHad_dm" << dm << "_caloOnly_pt";
-      t << "DM " << dm << " charged CP: calo-matched (TICL); CP pT [GeV]; entries";
-      cp_chHad_caloOnly_pt_dm_[dmI] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-    }
-    {
-      std::ostringstream n, t;
-      n << "cp_chHad_dm" << dm << "_caloOnly_eta";
-      t << "DM " << dm << " charged CP: calo-matched (TICL); CP eta; entries";
-      cp_chHad_caloOnly_eta_dm_[dmI] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-    }
-    {
-      std::ostringstream n, t;
-      n << "cp_chHad_dm" << dm << "_trackAndCalo_pt";
-      t << "DM " << dm << " charged CP: track AND calo matched; CP pT [GeV]; entries";
-      cp_chHad_trackAndCalo_pt_dm_[dmI] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-    }
-    {
-      std::ostringstream n, t;
-      n << "cp_chHad_dm" << dm << "_trackAndCalo_eta";
-      t << "DM " << dm << " charged CP: track AND calo matched; CP eta; entries";
-      cp_chHad_trackAndCalo_eta_dm_[dmI] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-    }
-    {
-      std::ostringstream n, t;
-      n << "cp_gamma_dm" << dm << "_caloOnly_pt";
-      t << "DM " << dm << " photon CP: calo-matched (TICL); CP pT [GeV]; entries";
-      cp_gamma_caloOnly_pt_dm_[dmI] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-    }
-    {
-      std::ostringstream n, t;
-      n << "cp_gamma_dm" << dm << "_caloOnly_eta";
-      t << "DM " << dm << " photon CP: calo-matched (TICL); CP eta; entries";
-      cp_gamma_caloOnly_eta_dm_[dmI] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+    // Tau-level two-fold: >= N charged CPs matched by track / calo / both / either
+    for (int N = 1; N <= chCap; ++N) {
+      std::string ns = std::to_string(N);
+      bookPtEta(tau_nCh_track_pt_[dmI][N-1], tau_nCh_track_eta_[dmI][N-1],
+                "tau_dm" + ds + "_ge" + ns + "ch_track_num",
+                "DM " + ds + " tau: >= " + ns + " charged track-matched");
+      bookPtEta(tau_nCh_calo_pt_[dmI][N-1], tau_nCh_calo_eta_[dmI][N-1],
+                "tau_dm" + ds + "_ge" + ns + "ch_calo_num",
+                "DM " + ds + " tau: >= " + ns + " charged calo-matched");
+      bookPtEta(tau_nCh_both_pt_[dmI][N-1], tau_nCh_both_eta_[dmI][N-1],
+                "tau_dm" + ds + "_ge" + ns + "ch_both_num",
+                "DM " + ds + " tau: >= " + ns + " charged track AND calo");
+      bookPtEta(tau_nCh_either_pt_[dmI][N-1], tau_nCh_either_eta_[dmI][N-1],
+                "tau_dm" + ds + "_ge" + ns + "ch_either_num",
+                "DM " + ds + " tau: >= " + ns + " charged track OR calo");
     }
 
+    // Two-fold CP-level efficiency numerators
+    bookPtEta(cp_chHad_trackOnly_pt_dm_[dmI], cp_chHad_trackOnly_eta_dm_[dmI],
+              "cp_chHad_dm" + ds + "_trackOnly", "DM " + ds + " charged CP: track-matched");
+    bookPtEta(cp_chHad_caloOnly_pt_dm_[dmI], cp_chHad_caloOnly_eta_dm_[dmI],
+              "cp_chHad_dm" + ds + "_caloOnly", "DM " + ds + " charged CP: calo-matched (TICL)");
+    bookPtEta(cp_chHad_trackAndCalo_pt_dm_[dmI], cp_chHad_trackAndCalo_eta_dm_[dmI],
+              "cp_chHad_dm" + ds + "_trackAndCalo", "DM " + ds + " charged CP: track AND calo matched");
+    bookPtEta(cp_gamma_caloOnly_pt_dm_[dmI], cp_gamma_caloOnly_eta_dm_[dmI],
+              "cp_gamma_dm" + ds + "_caloOnly", "DM " + ds + " photon CP: calo-matched (TICL)");
   }
 
   // ---------- Fake rate histograms ----------
-  ibook.setCurrentFolder(folder_ + "/FakeRate");
-
-  fake_den_pt_  = ibook.book1D("fake_den_pt",  "Fake rate denom; reco tau pT [GeV]; entries", 60, 0., 120.);
-  fake_den_eta_ = ibook.book1D("fake_den_eta", "Fake rate denom; reco tau eta; entries",      50, -3., 3.);
-  fake_num_pt_  = ibook.book1D("fake_num_pt",  "Fake rate numer; reco tau pT [GeV]; entries", 60, 0., 120.);
-  fake_num_eta_ = ibook.book1D("fake_num_eta", "Fake rate numer; reco tau eta; entries",      50, -3., 3.);
-
-  for (int N = 1; N <= kMaxCHLegs; ++N) {
-    std::ostringstream n, t;
-    n << "fake_ge" << N << "ch_sig_den_pt";
-    t << "Fake rate denom (>= " << N << " charged in signal); reco tau pT [GeV]; entries";
-    fake_den_sig_nCh_pt_[N-1] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-
-    n.str(""); n.clear();
-    t.str(""); t.clear();
-    n << "fake_ge" << N << "ch_sig_den_eta";
-    t << "Fake rate denom (>= " << N << " charged in signal); reco tau eta; entries";
-    fake_den_sig_nCh_eta_[N-1] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-
-    n.str(""); n.clear();
-    t.str(""); t.clear();
-    n << "fake_ge" << N << "ch_sig_num_pt";
-    t << "Fake rate numer (>= " << N << " charged in signal); reco tau pT [GeV]; entries";
-    fake_num_sig_nCh_pt_[N-1] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-
-    n.str(""); n.clear();
-    t.str(""); t.clear();
-    n << "fake_ge" << N << "ch_sig_num_eta";
-    t << "Fake rate numer (>= " << N << " charged in signal); reco tau eta; entries";
-    fake_num_sig_nCh_eta_[N-1] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-  }
-
-  for (int N = 1; N <= kMaxPi0Legs; ++N) {
-    std::ostringstream n, t;
-    n << "fake_ge" << N << "pi0_sig_den_pt";
-    t << "Fake rate denom (>= " << N << " pi0 in signal); reco tau pT [GeV]; entries";
-    fake_den_sig_nPi0_pt_[N-1] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-
-    n.str(""); n.clear();
-    t.str(""); t.clear();
-    n << "fake_ge" << N << "pi0_sig_den_eta";
-    t << "Fake rate denom (>= " << N << " pi0 in signal); reco tau eta; entries";
-    fake_den_sig_nPi0_eta_[N-1] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-
-    n.str(""); n.clear();
-    t.str(""); t.clear();
-    n << "fake_ge" << N << "pi0_sig_num_pt";
-    t << "Fake rate numer (>= " << N << " pi0 in signal); reco tau pT [GeV]; entries";
-    fake_num_sig_nPi0_pt_[N-1] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-
-    n.str(""); n.clear();
-    t.str(""); t.clear();
-    n << "fake_ge" << N << "pi0_sig_num_eta";
-    t << "Fake rate numer (>= " << N << " pi0 in signal); reco tau eta; entries";
-    fake_num_sig_nPi0_eta_[N-1] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-  }
-
-  for (int i = 0; i < kNDMSel; ++i) {
-    int dm = kDMSel[i];
-    ibook.setCurrentFolder(folder_ + "/GenDM" + std::to_string(dm) + "/FakeRate");
-    {
-      std::ostringstream n, t;
-      n << "fake_dm" << dm << "_den_pt";
-      t << "Fake rate denom (DM=" << dm << "); reco tau pT [GeV]; entries";
-      fake_den_dm_pt_[i] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-    }
-    {
-      std::ostringstream n, t;
-      n << "fake_dm" << dm << "_den_eta";
-      t << "Fake rate denom (DM=" << dm << "); reco tau eta; entries";
-      fake_den_dm_eta_[i] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-    }
-    {
-      std::ostringstream n, t;
-      n << "fake_dm" << dm << "_num_pt";
-      t << "Fake rate numer (DM=" << dm << "); reco tau pT [GeV]; entries";
-      fake_num_dm_pt_[i] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-    }
-    {
-      std::ostringstream n, t;
-      n << "fake_dm" << dm << "_num_eta";
-      t << "Fake rate numer (DM=" << dm << "); reco tau eta; entries";
-      fake_num_dm_eta_[i] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-    }
+  auto bookFakeRateSet = [&](const std::string& prefix, const std::string& tagExtra, FakeRateHists& fr) {
+    ibook.setCurrentFolder(folder_ + "/FakeRate");
+    std::string tag = tagExtra.empty() ? "Fake rate" : ("Fake rate (" + tagExtra + ")");
+    bookStepDenNum(fr.den_pt, fr.den_eta, fr.num_pt, fr.num_eta, prefix, tag);
 
     for (int N = 1; N <= kMaxCHLegs; ++N) {
-      std::ostringstream n, t;
-      n << "fake_dm" << dm << "_ge" << N << "ch_sig_den_pt";
-      t << "Fake rate denom (DM=" << dm << ", >= " << N << " charged in signal); reco tau pT [GeV]; entries";
-      fake_den_dm_sig_nCh_pt_[i][N-1] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-
-      n.str(""); n.clear();
-      t.str(""); t.clear();
-      n << "fake_dm" << dm << "_ge" << N << "ch_sig_den_eta";
-      t << "Fake rate denom (DM=" << dm << ", >= " << N << " charged in signal); reco tau eta; entries";
-      fake_den_dm_sig_nCh_eta_[i][N-1] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-
-      n.str(""); n.clear();
-      t.str(""); t.clear();
-      n << "fake_dm" << dm << "_ge" << N << "ch_sig_num_pt";
-      t << "Fake rate numer (DM=" << dm << ", >= " << N << " charged in signal); reco tau pT [GeV]; entries";
-      fake_num_dm_sig_nCh_pt_[i][N-1] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-
-      n.str(""); n.clear();
-      t.str(""); t.clear();
-      n << "fake_dm" << dm << "_ge" << N << "ch_sig_num_eta";
-      t << "Fake rate numer (DM=" << dm << ", >= " << N << " charged in signal); reco tau eta; entries";
-      fake_num_dm_sig_nCh_eta_[i][N-1] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+      std::string ns = std::to_string(N);
+      bookStepDenNum(fr.den_sig_nCh_pt[N-1], fr.den_sig_nCh_eta[N-1],
+                     fr.num_sig_nCh_pt[N-1], fr.num_sig_nCh_eta[N-1],
+                     prefix + "_ge" + ns + "ch_sig",
+                     tag + " (>= " + ns + " charged in signal)");
     }
-
     for (int N = 1; N <= kMaxPi0Legs; ++N) {
-      std::ostringstream n, t;
-      n << "fake_dm" << dm << "_ge" << N << "pi0_sig_den_pt";
-      t << "Fake rate denom (DM=" << dm << ", >= " << N << " pi0 in signal); reco tau pT [GeV]; entries";
-      fake_den_dm_sig_nPi0_pt_[i][N-1] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-
-      n.str(""); n.clear();
-      t.str(""); t.clear();
-      n << "fake_dm" << dm << "_ge" << N << "pi0_sig_den_eta";
-      t << "Fake rate denom (DM=" << dm << ", >= " << N << " pi0 in signal); reco tau eta; entries";
-      fake_den_dm_sig_nPi0_eta_[i][N-1] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-
-      n.str(""); n.clear();
-      t.str(""); t.clear();
-      n << "fake_dm" << dm << "_ge" << N << "pi0_sig_num_pt";
-      t << "Fake rate numer (DM=" << dm << ", >= " << N << " pi0 in signal); reco tau pT [GeV]; entries";
-      fake_num_dm_sig_nPi0_pt_[i][N-1] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-
-      n.str(""); n.clear();
-      t.str(""); t.clear();
-      n << "fake_dm" << dm << "_ge" << N << "pi0_sig_num_eta";
-      t << "Fake rate numer (DM=" << dm << ", >= " << N << " pi0 in signal); reco tau eta; entries";
-      fake_num_dm_sig_nPi0_eta_[i][N-1] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-    }
-  }
-
-  ibook.setCurrentFolder(folder_ + "/FakeRate");
-
-  fake_filt_den_pt_  = ibook.book1D("fake_chargedIsoPath_den_pt",
-                                   "Fake rate denom (charged iso path taus); reco tau pT [GeV]; entries",
-                                   60, 0., 120.);
-  fake_filt_den_eta_ = ibook.book1D("fake_chargedIsoPath_den_eta",
-                                   "Fake rate denom (charged iso path taus); reco tau eta; entries",
-                                   50, -3., 3.);
-  fake_filt_num_pt_  = ibook.book1D("fake_chargedIsoPath_num_pt",
-                                   "Fake rate numer (charged iso path taus); reco tau pT [GeV]; entries",
-                                   60, 0., 120.);
-  fake_filt_num_eta_ = ibook.book1D("fake_chargedIsoPath_num_eta",
-                                   "Fake rate numer (charged iso path taus); reco tau eta; entries",
-                                   50, -3., 3.);
-
-  for (int N = 1; N <= kMaxCHLegs; ++N) {
-    std::ostringstream n, t;
-    n << "fake_chargedIsoPath_ge" << N << "ch_sig_den_pt";
-    t << "Fake rate denom (charged iso path taus, >= " << N << " charged in signal); reco tau pT [GeV]; entries";
-    fake_filt_den_sig_nCh_pt_[N-1] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-
-    n.str(""); n.clear();
-    t.str(""); t.clear();
-    n << "fake_chargedIsoPath_ge" << N << "ch_sig_den_eta";
-    t << "Fake rate denom (charged iso path taus, >= " << N << " charged in signal); reco tau eta; entries";
-    fake_filt_den_sig_nCh_eta_[N-1] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-
-    n.str(""); n.clear();
-    t.str(""); t.clear();
-    n << "fake_chargedIsoPath_ge" << N << "ch_sig_num_pt";
-    t << "Fake rate numer (charged iso path taus, >= " << N << " charged in signal); reco tau pT [GeV]; entries";
-    fake_filt_num_sig_nCh_pt_[N-1] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-
-    n.str(""); n.clear();
-    t.str(""); t.clear();
-    n << "fake_chargedIsoPath_ge" << N << "ch_sig_num_eta";
-    t << "Fake rate numer (charged iso path taus, >= " << N << " charged in signal); reco tau eta; entries";
-    fake_filt_num_sig_nCh_eta_[N-1] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-  }
-
-  for (int N = 1; N <= kMaxPi0Legs; ++N) {
-    std::ostringstream n, t;
-    n << "fake_chargedIsoPath_ge" << N << "pi0_sig_den_pt";
-    t << "Fake rate denom (charged iso path taus, >= " << N << " pi0 in signal); reco tau pT [GeV]; entries";
-    fake_filt_den_sig_nPi0_pt_[N-1] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-
-    n.str(""); n.clear();
-    t.str(""); t.clear();
-    n << "fake_chargedIsoPath_ge" << N << "pi0_sig_den_eta";
-    t << "Fake rate denom (charged iso path taus, >= " << N << " pi0 in signal); reco tau eta; entries";
-    fake_filt_den_sig_nPi0_eta_[N-1] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-
-    n.str(""); n.clear();
-    t.str(""); t.clear();
-    n << "fake_chargedIsoPath_ge" << N << "pi0_sig_num_pt";
-    t << "Fake rate numer (charged iso path taus, >= " << N << " pi0 in signal); reco tau pT [GeV]; entries";
-    fake_filt_num_sig_nPi0_pt_[N-1] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-
-    n.str(""); n.clear();
-    t.str(""); t.clear();
-    n << "fake_chargedIsoPath_ge" << N << "pi0_sig_num_eta";
-    t << "Fake rate numer (charged iso path taus, >= " << N << " pi0 in signal); reco tau eta; entries";
-    fake_filt_num_sig_nPi0_eta_[N-1] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-  }
-
-  for (int i = 0; i < kNDMSel; ++i) {
-    int dm = kDMSel[i];
-    ibook.setCurrentFolder(folder_ + "/GenDM" + std::to_string(dm) + "/FakeRate");
-    {
-      std::ostringstream n, t;
-      n << "fake_chargedIsoPath_dm" << dm << "_den_pt";
-      t << "Fake rate denom (charged iso path taus, DM=" << dm << "); reco tau pT [GeV]; entries";
-      fake_filt_den_dm_pt_[i] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-    }
-    {
-      std::ostringstream n, t;
-      n << "fake_chargedIsoPath_dm" << dm << "_den_eta";
-      t << "Fake rate denom (charged iso path taus, DM=" << dm << "); reco tau eta; entries";
-      fake_filt_den_dm_eta_[i] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-    }
-    {
-      std::ostringstream n, t;
-      n << "fake_chargedIsoPath_dm" << dm << "_num_pt";
-      t << "Fake rate numer (charged iso path taus, DM=" << dm << "); reco tau pT [GeV]; entries";
-      fake_filt_num_dm_pt_[i] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-    }
-    {
-      std::ostringstream n, t;
-      n << "fake_chargedIsoPath_dm" << dm << "_num_eta";
-      t << "Fake rate numer (charged iso path taus, DM=" << dm << "); reco tau eta; entries";
-      fake_filt_num_dm_eta_[i] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+      std::string ns = std::to_string(N);
+      bookStepDenNum(fr.den_sig_nPi0_pt[N-1], fr.den_sig_nPi0_eta[N-1],
+                     fr.num_sig_nPi0_pt[N-1], fr.num_sig_nPi0_eta[N-1],
+                     prefix + "_ge" + ns + "pi0_sig",
+                     tag + " (>= " + ns + " pi0 in signal)");
     }
 
-    for (int N = 1; N <= kMaxCHLegs; ++N) {
-      std::ostringstream n, t;
-      n << "fake_chargedIsoPath_dm" << dm << "_ge" << N << "ch_sig_den_pt";
-      t << "Fake rate denom (charged iso path taus, DM=" << dm << ", >= " << N << " charged in signal); reco tau pT [GeV]; entries";
-      fake_filt_den_dm_sig_nCh_pt_[i][N-1] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-
-      n.str(""); n.clear();
-      t.str(""); t.clear();
-      n << "fake_chargedIsoPath_dm" << dm << "_ge" << N << "ch_sig_den_eta";
-      t << "Fake rate denom (charged iso path taus, DM=" << dm << ", >= " << N << " charged in signal); reco tau eta; entries";
-      fake_filt_den_dm_sig_nCh_eta_[i][N-1] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-
-      n.str(""); n.clear();
-      t.str(""); t.clear();
-      n << "fake_chargedIsoPath_dm" << dm << "_ge" << N << "ch_sig_num_pt";
-      t << "Fake rate numer (charged iso path taus, DM=" << dm << ", >= " << N << " charged in signal); reco tau pT [GeV]; entries";
-      fake_filt_num_dm_sig_nCh_pt_[i][N-1] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-
-      n.str(""); n.clear();
-      t.str(""); t.clear();
-      n << "fake_chargedIsoPath_dm" << dm << "_ge" << N << "ch_sig_num_eta";
-      t << "Fake rate numer (charged iso path taus, DM=" << dm << ", >= " << N << " charged in signal); reco tau eta; entries";
-      fake_filt_num_dm_sig_nCh_eta_[i][N-1] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
+    for (int i = 0; i < kNDMSel; ++i) {
+      int dm = kDMSel[i];
+      std::string ds = std::to_string(dm);
+      ibook.setCurrentFolder(folder_ + "/GenDM" + ds + "/FakeRate");
+      bookStepDenNum(fr.den_dm_pt[i], fr.den_dm_eta[i], fr.num_dm_pt[i], fr.num_dm_eta[i],
+                     prefix + "_dm" + ds, tag + " (DM=" + ds + ")");
+      for (int N = 1; N <= kMaxCHLegs; ++N) {
+        std::string ns = std::to_string(N);
+        bookStepDenNum(fr.den_dm_sig_nCh_pt[i][N-1], fr.den_dm_sig_nCh_eta[i][N-1],
+                       fr.num_dm_sig_nCh_pt[i][N-1], fr.num_dm_sig_nCh_eta[i][N-1],
+                       prefix + "_dm" + ds + "_ge" + ns + "ch_sig",
+                       tag + " (DM=" + ds + ", >= " + ns + " charged in signal)");
+      }
+      for (int N = 1; N <= kMaxPi0Legs; ++N) {
+        std::string ns = std::to_string(N);
+        bookStepDenNum(fr.den_dm_sig_nPi0_pt[i][N-1], fr.den_dm_sig_nPi0_eta[i][N-1],
+                       fr.num_dm_sig_nPi0_pt[i][N-1], fr.num_dm_sig_nPi0_eta[i][N-1],
+                       prefix + "_dm" + ds + "_ge" + ns + "pi0_sig",
+                       tag + " (DM=" + ds + ", >= " + ns + " pi0 in signal)");
+      }
     }
+  };
 
-    for (int N = 1; N <= kMaxPi0Legs; ++N) {
-      std::ostringstream n, t;
-      n << "fake_chargedIsoPath_dm" << dm << "_ge" << N << "pi0_sig_den_pt";
-      t << "Fake rate denom (charged iso path taus, DM=" << dm << ", >= " << N << " pi0 in signal); reco tau pT [GeV]; entries";
-      fake_filt_den_dm_sig_nPi0_pt_[i][N-1] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-
-      n.str(""); n.clear();
-      t.str(""); t.clear();
-      n << "fake_chargedIsoPath_dm" << dm << "_ge" << N << "pi0_sig_den_eta";
-      t << "Fake rate denom (charged iso path taus, DM=" << dm << ", >= " << N << " pi0 in signal); reco tau eta; entries";
-      fake_filt_den_dm_sig_nPi0_eta_[i][N-1] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-
-      n.str(""); n.clear();
-      t.str(""); t.clear();
-      n << "fake_chargedIsoPath_dm" << dm << "_ge" << N << "pi0_sig_num_pt";
-      t << "Fake rate numer (charged iso path taus, DM=" << dm << ", >= " << N << " pi0 in signal); reco tau pT [GeV]; entries";
-      fake_filt_num_dm_sig_nPi0_pt_[i][N-1] = ibook.book1D(n.str(), t.str(), 60, 0., 120.);
-
-      n.str(""); n.clear();
-      t.str(""); t.clear();
-      n << "fake_chargedIsoPath_dm" << dm << "_ge" << N << "pi0_sig_num_eta";
-      t << "Fake rate numer (charged iso path taus, DM=" << dm << ", >= " << N << " pi0 in signal); reco tau eta; entries";
-      fake_filt_num_dm_sig_nPi0_eta_[i][N-1] = ibook.book1D(n.str(), t.str(), 50, -3., 3.);
-    }
-  }
+  bookFakeRateSet("fake", "", fakeRate_);
+  bookFakeRateSet("fake_chargedIsoPath", "charged iso path taus", fakeRateFilt_);
+  bookFakeRateSet("fake_calo", "calo assoc", fakeRateCalo_);
+  bookFakeRateSet("fake_calo_chargedIsoPath", "calo assoc, charged iso path taus", fakeRateCaloFilt_);
+  bookFakeRateSet("fake_track", "track assoc", fakeRateTrack_);
+  bookFakeRateSet("fake_track_chargedIsoPath", "track assoc, charged iso path taus", fakeRateTrackFilt_);
 }
 
 void TICLTauValidator::analyze(const edm::Event& iEvent,
@@ -1063,7 +673,6 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
   edm::Handle<reco::GenParticleCollection> genParticles;     iEvent.getByToken(genParticlesToken_, genParticles);
   edm::Handle<reco::GenParticleCollection> genVisTaus;       iEvent.getByToken(genVisTausToken_, genVisTaus);
   edm::Handle<TrackingParticleCollection> trackingParticles;  iEvent.getByToken(trackingParticleToken_, trackingParticles);
-  edm::Handle<std::vector<int>> genBarcodes;                   iEvent.getByToken(genBarcodesToken_, genBarcodes);
   edm::Handle<reco::RecoToSimCollection> trackRecoToSim;       iEvent.getByToken(trackRecoToSimToken_, trackRecoToSim);
 
   if (!taus.isValid())
@@ -1121,6 +730,21 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
     }
   }
 
+  // Pre-build G4 track -> TP index map
+  // Only hard-scatter (eventId == 0) G4 tracks are relevant, so the key is just trackId.
+  std::unordered_map<unsigned int, std::vector<size_t>> g4ToTPIdx;
+  if (trackingParticles.isValid()) {
+    for (size_t tpIdx = 0; tpIdx < trackingParticles->size(); ++tpIdx) {
+      for (const auto& g4 : (*trackingParticles)[tpIdx].g4Tracks()) {
+        if (g4.eventId().event() != 0)
+          continue;
+        g4ToTPIdx[g4.trackId()].push_back(tpIdx);
+      }
+    }
+  }
+
+  const size_t barrelSize = pfTmpBarrel.isValid() ? pfTmpBarrel->size() : 0;
+
   for (const auto& link : *simTaus) {
     const int dmPhys = link.decayMode;
     const int dmSelIdx = dmToSelIndex(dmPhys);
@@ -1138,8 +762,8 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       int   pdgId=0; 
       bool  hasCPKinematics=false;
       bool  hasPFKinematics=false;
-      bool  trackMatched=false;  // CP -> TP -> reco Track (forward track matching)
-      std::array<bool, kNSteps> stepPass{};
+      bool  trackMatched=false;  
+      std::array<bool, kNSteps> stepPass{}; // calo chain steps
       std::array<bool, kNTrackSteps> trackStepPass{};  // track chain steps
       std::array<bool, kNCombiSteps> combiStepPass{};   // AND of calo + track at equivalent endpoints
       std::set<size_t> jets;
@@ -1170,7 +794,7 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
 
       const int absPdg = std::abs(cp.pdgId());
       const bool isPhoton        = (absPdg == 22);
-      const bool isChargedHadron = (absPdg == 211); // || absPdg == 321 || absPdg == 2212);
+      const bool isChargedHadron = (absPdg == 211 || absPdg == 321 || absPdg == 2212);
 
       // context CP histos (once per event per CP key) + per-DM base histos
       if (isChargedHadron) {
@@ -1228,28 +852,18 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       pend.cpEta = cp.eta();
       pend.stepPass[0] = true;
 
-      // Forward track matching: CP -> TP -> reco track
-      // For charged hadrons, check if any TrackingParticle sharing a G4 track
-      // with this CP has a matched reco track.
-      // Also compute the full track chain: CP-TP(0), TP-Track(1), Track-PF(2), PF-Jet(3), Jet-Tau(4)
+
       if (isChargedHadron && trackingParticles.isValid()) {
         // Track Step 0: CP -> TP (find any TP sharing G4 tracks with this CP)
         std::vector<size_t> matchedTPIndices;
-        for (size_t tpIdx = 0; tpIdx < trackingParticles->size(); ++tpIdx) {
-          const auto& tp = (*trackingParticles)[tpIdx];
-          bool g4Match = false;
-          for (const auto& tpG4 : tp.g4Tracks()) {
-            for (const auto& cpG4 : cp.g4Tracks()) {
-              if (tpG4.trackId() == cpG4.trackId() &&
-                  tpG4.eventId() == cpG4.eventId()) {
-                g4Match = true;
-                break;
-              }
-            }
-            if (g4Match) break;
+        for (const auto& cpG4 : cp.g4Tracks()) {
+          if (cpG4.eventId().event() != 0)
+            continue;
+          auto it = g4ToTPIdx.find(cpG4.trackId());
+          if (it != g4ToTPIdx.end()) {
+            for (size_t tpIdx : it->second)
+              matchedTPIndices.push_back(tpIdx);
           }
-          if (g4Match)
-            matchedTPIndices.push_back(tpIdx);
         }
         if (!matchedTPIndices.empty())
           pend.trackStepPass[0] = true;
@@ -1265,7 +879,7 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
         }
         if (!matchedRecoTrackKeysSet.empty()) {
           pend.trackStepPass[1] = true;
-          pend.trackMatched = true;  // backward-compat with existing two-fold efficiency
+          pend.trackMatched = true; 
         }
 
         // Track Step 2: reco Track -> PF candidate
@@ -1399,7 +1013,6 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
 
       // Step 3: TICLCandidate - PF
       if (pfMerged.isValid()) {
-        const size_t barrelSize = pfTmpBarrel.isValid() ? pfTmpBarrel->size() : 0;
         for (size_t ci : candIdxs) {
           // NOTE: we assume that TICL PF candidates are appended after the barrel part
           const size_t pfIdx = barrelSize + ci;
@@ -1480,13 +1093,11 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
         }
       }
 
-      // Compute AND (combi) chain: calo AND track must both pass at equivalent endpoint
-      // combiStep 0 = both reach PF   (caloStep[3] && trackStep[2])
-      // combiStep 1 = both in a Jet   (caloStep[4] && trackStep[3])
-      // combiStep 2 = both in a Tau   (caloStep[5] && trackStep[4])
+      // Compute AND chain: calo AND track must both pass at equivalent endpoint
+
       pend.combiStepPass[0] = pend.stepPass[3] && pend.trackStepPass[2];
       pend.combiStepPass[1] = pend.stepPass[4] && pend.trackStepPass[3];
-      pend.combiStepPass[2] = pend.stepPass[5] && pend.trackStepPass[4];
+      // combiStepPass[2] is computed after the leaf loop once stepPass[5] is known
 
       std::ostringstream ss;
       ss << "Chain: CP=" << cpRef.key() << " pdgId=" << cp.pdgId()
@@ -1639,9 +1250,27 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       for (auto& kv : pendingGamma) kv.second.stepPass[5] = false;
     }
 
+    // Now that stepPass[5] is known, compute combiStepPass[2] for all legs
+    for (auto& kv : pendingHad)
+      kv.second.combiStepPass[2] = kv.second.stepPass[5] && kv.second.trackStepPass[4];
+    for (auto& kv : pendingGamma)
+      kv.second.combiStepPass[2] = kv.second.stepPass[5] && kv.second.trackStepPass[4];
+
     const int nPi0_tau_total   = photonsUsed_tau_total   / 2;
     const int nPi0_signal_tau  = photonsUsed_signal_tau  / 2;
     const int nPi0_iso_tau     = photonsUsed_iso_tau     / 2;
+
+    // Tau-level two-fold: count charged CPs matched by track / calo / both / either
+    int nCh_track = 0, nCh_calo = 0, nCh_both = 0, nCh_either = 0;
+    for (const auto& kv : pendingHad) {
+      const auto& info = kv.second;
+      const bool trk  = info.trackMatched;
+      const bool cal  = info.stepPass[3];
+      if (trk)          ++nCh_track;
+      if (cal)          ++nCh_calo;
+      if (trk && cal)   ++nCh_both;
+      if (trk || cal)   ++nCh_either;
+    }
 
     // confusion matrix for taus - use reconstructed leg counts
     if (haveHpsTaus && dm_reco_vs_gen_tau_) {
@@ -1737,59 +1366,14 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       }
     }
 
-    // helper to fill per-leg step histos
-    auto fillLegStepsDM = [&](bool isCharged,
-                              int dmI,
-                              int legIdx,
-                              float cpPt, float cpEta,
-                              const std::array<bool, kNSteps>& pass){
-      if (isCharged) {
-        for (int s = 0; s < kNSteps; ++s) {
-          if (auto* h = chStepHists_[dmI][legIdx].cp_gen_pt[s])  h->Fill(cpPt);
-          if (auto* h = chStepHists_[dmI][legIdx].cp_gen_eta[s]) h->Fill(cpEta);
-          if (pass[s]) {
-            if (auto* h = chStepHists_[dmI][legIdx].cp_gen_matched_pt[s])  h->Fill(cpPt);
-            if (auto* h = chStepHists_[dmI][legIdx].cp_gen_matched_eta[s]) h->Fill(cpEta);
-          }
-        }
-      } else {
-        for (int s = 0; s < kNSteps; ++s) {
-          if (auto* h = gammaStepHists_[dmI][legIdx].cp_gen_pt[s])  h->Fill(cpPt);
-          if (auto* h = gammaStepHists_[dmI][legIdx].cp_gen_eta[s]) h->Fill(cpEta);
-          if (pass[s]) {
-            if (auto* h = gammaStepHists_[dmI][legIdx].cp_gen_matched_pt[s])  h->Fill(cpPt);
-            if (auto* h = gammaStepHists_[dmI][legIdx].cp_gen_matched_eta[s]) h->Fill(cpEta);
-          }
-        }
-      }
-    };
-
-    // helper to fill per-leg track chain step histos (charged hadrons only)
-    auto fillLegTrackStepsDM = [&](int dmI,
-                                   int legIdx,
-                                   float cpPt, float cpEta,
-                                   const std::array<bool, kNTrackSteps>& pass){
-      for (int s = 0; s < kNTrackSteps; ++s) {
-        if (auto* h = chTrackStepHists_[dmI][legIdx].cp_gen_pt[s])  h->Fill(cpPt);
-        if (auto* h = chTrackStepHists_[dmI][legIdx].cp_gen_eta[s]) h->Fill(cpEta);
+    // generic helper to fill per-leg step histos for any chain type
+    auto fillStepHists = [](auto& hists, int nSteps, float pt, float eta, const auto& pass) {
+      for (int s = 0; s < nSteps; ++s) {
+        if (auto* h = hists.den_pt[s])  h->Fill(pt);
+        if (auto* h = hists.den_eta[s]) h->Fill(eta);
         if (pass[s]) {
-          if (auto* h = chTrackStepHists_[dmI][legIdx].cp_gen_matched_pt[s])  h->Fill(cpPt);
-          if (auto* h = chTrackStepHists_[dmI][legIdx].cp_gen_matched_eta[s]) h->Fill(cpEta);
-        }
-      }
-    };
-
-    // helper to fill per-leg combi (AND) chain step histos (charged hadrons only)
-    auto fillLegCombiStepsDM = [&](int dmI,
-                                   int legIdx,
-                                   float cpPt, float cpEta,
-                                   const std::array<bool, kNCombiSteps>& pass){
-      for (int s = 0; s < kNCombiSteps; ++s) {
-        if (auto* h = chCombiStepHists_[dmI][legIdx].cp_gen_pt[s])  h->Fill(cpPt);
-        if (auto* h = chCombiStepHists_[dmI][legIdx].cp_gen_eta[s]) h->Fill(cpEta);
-        if (pass[s]) {
-          if (auto* h = chCombiStepHists_[dmI][legIdx].cp_gen_matched_pt[s])  h->Fill(cpPt);
-          if (auto* h = chCombiStepHists_[dmI][legIdx].cp_gen_matched_eta[s]) h->Fill(cpEta);
+          if (auto* h = hists.num_pt[s])  h->Fill(pt);
+          if (auto* h = hists.num_eta[s]) h->Fill(eta);
         }
       }
     };
@@ -1815,9 +1399,9 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
         const auto& pend = it->second;
         if (!pend.hasCPKinematics)
           continue;
-        fillLegStepsDM(true, dmGenIdx, li, pend.cpPt, pend.cpEta, pend.stepPass);
-        fillLegTrackStepsDM(dmGenIdx, li, pend.cpPt, pend.cpEta, pend.trackStepPass);
-        fillLegCombiStepsDM(dmGenIdx, li, pend.cpPt, pend.cpEta, pend.combiStepPass);
+        fillStepHists(chStepHists_[dmGenIdx][li], kNSteps, pend.cpPt, pend.cpEta, pend.stepPass);
+        fillStepHists(chTrackStepHists_[dmGenIdx][li], kNTrackSteps, pend.cpPt, pend.cpEta, pend.trackStepPass);
+        fillStepHists(chCombiStepHists_[dmGenIdx][li], kNCombiSteps, pend.cpPt, pend.cpEta, pend.combiStepPass);
         ++li;
       }
     }
@@ -1843,7 +1427,7 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
         const auto& pend = it->second;
         if (!pend.hasCPKinematics)
           continue;
-        fillLegStepsDM(false, dmGenIdx, li, pend.cpPt, pend.cpEta, pend.stepPass);
+        fillStepHists(gammaStepHists_[dmGenIdx][li], kNSteps, pend.cpPt, pend.cpEta, pend.stepPass);
         ++li;
       }
     }
@@ -1852,7 +1436,7 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
     double tauPt = 0., tauEta = 0.;
     const reco::GenParticle* bestMotherTau = nullptr;
     double bestMotherPt = -1.;
-    u_int bestMotherIdx = -1;
+    unsigned int bestMotherIdx = static_cast<unsigned int>(-1);
     if (genParticles.isValid()) {
       for (const auto& leaf : link.leaves) {
         const int genIdx = leaf.gen_particle_idx();
@@ -1896,45 +1480,32 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
           }
         }
         if (!foundVisTau) {
-          static unsigned int nNoMatch = 0;
-          if (nNoMatch < 5) {
-            edm::LogWarning("TICLTauValidator")
-              << "No genVisTau match for bestMotherIdx=" << bestMotherIdx
-              << " (dm=" << dmPhys << ", tau pt=" << tauPt
-              << ", eta=" << tauEta << ")";
-          }
-          ++nNoMatch;
-        }
-      } else {
-        static unsigned int nInvalid = 0;
-        if (nInvalid < 5) {
           edm::LogWarning("TICLTauValidator")
-            << "genVisTaus collection missing/invalid; using mother tau kinematics"
+            << "No genVisTau match for bestMotherIdx=" << bestMotherIdx
             << " (dm=" << dmPhys << ", tau pt=" << tauPt
             << ", eta=" << tauEta << ")";
         }
-        ++nInvalid;
+      } else {
+        edm::LogWarning("TICLTauValidator")
+          << "genVisTaus collection missing/invalid; using mother tau kinematics"
+          << " (dm=" << dmPhys << ", tau pt=" << tauPt
+          << ", eta=" << tauEta << ")";
       }
     }
 
     const int expCh  = expectedChForDM(dmPhys);
     const int expPi0 = expectedPi0ForDM(dmPhys);
 
-    const int nChTicl  = static_cast<int>(pendingHad.size());
-    const int nPhoTicl = static_cast<int>(pendingGamma.size());
+    const bool genInAcceptance = bestMotherTau && std::abs(tauEta) > hgcalEtaAbsMin_;
 
-    const bool tauInAcceptance =
-      (expCh  == 0 || nChTicl  >= expCh) &&
-      (expPi0 == 0 || nPhoTicl >= 2 * expPi0);
-
-    // Fill tau-level denominators only for taus with enough TICL legs
-    if (bestMotherTau && tauInAcceptance) {
+    // Fill tau-level denominators for all gen-visible taus in geometric acceptance
+    if (genInAcceptance) {
       if (tau_gen_pt_[dmGenIdx])  tau_gen_pt_[dmGenIdx]->Fill(tauPt);
       if (tau_gen_eta_[dmGenIdx]) tau_gen_eta_[dmGenIdx]->Fill(tauEta);
     }
 
     // tau-level numerators
-    if (bestMotherTau && tauInAcceptance) {
+    if (genInAcceptance) {
       const int chCap  = chCapForDM(dmPhys);
       const int p0Cap  = pi0CapForDM(dmPhys);
 
@@ -1962,6 +1533,26 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
         if (nGoodCH_endpoint >= expCh && nPi0_endpoint >= expPi0) {
           if (tau_gen_matched_to_all_pt_[dmGenIdx])  tau_gen_matched_to_all_pt_[dmGenIdx]->Fill(tauPt);
           if (tau_gen_matched_to_all_eta_[dmGenIdx]) tau_gen_matched_to_all_eta_[dmGenIdx]->Fill(tauEta);
+        }
+      }
+
+      // Tau-level two-fold: >= N charged track/calo/both/either
+      for (int N = 1; N <= chCap; ++N) {
+        if (nCh_track >= N) {
+          if (auto* h = tau_nCh_track_pt_[dmGenIdx][N-1])  h->Fill(tauPt);
+          if (auto* h = tau_nCh_track_eta_[dmGenIdx][N-1]) h->Fill(tauEta);
+        }
+        if (nCh_calo >= N) {
+          if (auto* h = tau_nCh_calo_pt_[dmGenIdx][N-1])  h->Fill(tauPt);
+          if (auto* h = tau_nCh_calo_eta_[dmGenIdx][N-1]) h->Fill(tauEta);
+        }
+        if (nCh_both >= N) {
+          if (auto* h = tau_nCh_both_pt_[dmGenIdx][N-1])  h->Fill(tauPt);
+          if (auto* h = tau_nCh_both_eta_[dmGenIdx][N-1]) h->Fill(tauEta);
+        }
+        if (nCh_either >= N) {
+          if (auto* h = tau_nCh_either_pt_[dmGenIdx][N-1])  h->Fill(tauPt);
+          if (auto* h = tau_nCh_either_eta_[dmGenIdx][N-1]) h->Fill(tauEta);
         }
       }
 
@@ -2030,7 +1621,7 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
   // Build set of CaloParticle keys belonging to any simulated hadronic tau
   std::unordered_set<unsigned int> tauCPKeys;
   for (const auto& link : *simTaus) {
-    if (dmToGenIndex(link.decayMode) < 0)
+    if (!isHadronicDM(link.decayMode))
       continue;
     for (const auto& leaf : link.leaves) {
       const int cpId = leaf.calo_particle_idx();
@@ -2047,40 +1638,45 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
   if (!caloParticlesToken_.isUninitialized() && caloParticles.isValid())
     cpPtr = &(*caloParticles);
 
-    if (taus.isValid() && pfJets.isValid() && pfMerged.isValid() &&
-      ticlCandidates.isValid() && recoToSimMap.isValid() && simTracksters.isValid()) {
-    const size_t barrelSize = pfTmpBarrel.isValid() ? pfTmpBarrel->size() : 0;
-    for (size_t t = 0; t < taus->size(); ++t) {
-      const auto& tau = (*taus)[t];
+  const auto processFakeRateTau = [&](const reco::PFTau& tau,
+                                       FakeRateHists& fr,
+                                       FakeRateHists& frCalo,
+                                       FakeRateHists& frTrack) {
+    if (std::abs(tau.eta()) < hgcalEtaAbsMin_)
+      return;
+    if (tau.signalPFCands().empty())
+      return;
 
-      // restrict to HGCAL acceptance
-      if (std::abs(tau.eta()) < hgcalEtaAbsMin_)
-        continue;
-      if (tau.signalPFCands().empty())
-        continue;
+    const int hpsDM  = tau.decayMode();
+    const int dmSelI = dmToSelIndex(hpsDM);
 
-      const int hpsDM  = tau.decayMode();
-      const int dmSelI = dmToSelIndex(hpsDM);
-
-      // Compute signal PF composition
-      int nChSig = 0, nPhoSig = 0;
-      for (const auto& pfPtr2 : tau.signalPFCands()) {
-        if (!pfPtr2.isNonnull()) continue;
-        const int absPdg = std::abs(pfPtr2->pdgId());
-        if (absPdg == 211)      ++nChSig;
-        else if (absPdg == 22)  ++nPhoSig;
-      }
-      const int nPi0Sig = nPhoSig / 2;
-      const int nChFill = std::min(nChSig, kMaxCHLegs);
-      const int nPi0Fill = std::min(nPi0Sig, kMaxPi0Legs);
-
-      auto assocCounts = countAssociatedSignalPFCands(tau, barrelSize, tauCPKeys,
-                      *ticlCandidates, *recoToSimMap, *simTracksters,
-                      cpPtr,
-                      trackRecoToSim.isValid() ? &(*trackRecoToSim) : nullptr);
-      const bool isGenuine = (assocCounts.nAssocAllParticles > 0);
-      fillFakeRateHists(tau, dmSelI, nChFill, nPi0Fill, isGenuine, false);
+    int nChSig = 0, nPhoSig = 0;
+    for (const auto& pfPtr2 : tau.signalPFCands()) {
+      if (!pfPtr2.isNonnull()) continue;
+      const int absPdg = std::abs(pfPtr2->pdgId());
+      if (absPdg == 211)      ++nChSig;
+      else if (absPdg == 22)  ++nPhoSig;
     }
+    const int nPi0Sig = nPhoSig / 2;
+    const int nChFill = std::min(nChSig, kMaxCHLegs);
+    const int nPi0Fill = std::min(nPi0Sig, kMaxPi0Legs);
+
+    auto assocCounts = countAssociatedSignalPFCands(tau, barrelSize, tauCPKeys,
+                    *ticlCandidates, *recoToSimMap, *simTracksters,
+                    cpPtr,
+                    trackRecoToSim.isValid() ? &(*trackRecoToSim) : nullptr);
+    const bool isGenuine      = (assocCounts.nAssocAllParticles > 0);
+    const bool isGenuineCalo  = (assocCounts.nAssocCalo > 0);
+    const bool isGenuineTrack = (assocCounts.nAssocTrack > 0);
+    fillFakeRateHists(tau, dmSelI, nChFill, nPi0Fill, isGenuine, fr);
+    fillFakeRateHists(tau, dmSelI, nChFill, nPi0Fill, isGenuineCalo, frCalo);
+    fillFakeRateHists(tau, dmSelI, nChFill, nPi0Fill, isGenuineTrack, frTrack);
+  };
+
+  if (taus.isValid() && pfJets.isValid() && pfMerged.isValid() &&
+      ticlCandidates.isValid() && recoToSimMap.isValid() && simTracksters.isValid()) {
+    for (size_t t = 0; t < taus->size(); ++t)
+      processFakeRateTau((*taus)[t], fakeRate_, fakeRateCalo_, fakeRateTrack_);
   } else {
     edm::LogWarning("TICLTauValidator") << "Fake rate loop skipped: "
                                         << "taus=" << (taus.isValid() ? "ok" : "invalid")
@@ -2093,38 +1689,9 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
 
   if (!finalFilterTauRefs.empty() && pfJets.isValid() && pfMerged.isValid() &&
       ticlCandidates.isValid() && recoToSimMap.isValid() && simTracksters.isValid()) {
-    const size_t barrelSize = pfTmpBarrel.isValid() ? pfTmpBarrel->size() : 0;
     for (const auto& tauRef : finalFilterTauRefs) {
-      if (!tauRef.isNonnull())
-        continue;
-      const auto& tau = *tauRef;
-
-      if (std::abs(tau.eta()) < hgcalEtaAbsMin_)
-        continue;
-      if (tau.signalPFCands().empty())
-        continue;
-
-      const int hpsDM  = tau.decayMode();
-      const int dmSelI = dmToSelIndex(hpsDM);
-
-      // Compute signal PF composition
-      int nChSig = 0, nPhoSig = 0;
-      for (const auto& pfPtr2 : tau.signalPFCands()) {
-        if (!pfPtr2.isNonnull()) continue;
-        const int absPdg = std::abs(pfPtr2->pdgId());
-        if (absPdg == 211)      ++nChSig;
-        else if (absPdg == 22)  ++nPhoSig;
-      }
-      const int nPi0Sig = nPhoSig / 2;
-      const int nChFill = std::min(nChSig, kMaxCHLegs);
-      const int nPi0Fill = std::min(nPi0Sig, kMaxPi0Legs);
-
-      auto assocCounts = countAssociatedSignalPFCands(tau, barrelSize, tauCPKeys,
-                      *ticlCandidates, *recoToSimMap, *simTracksters,
-                      cpPtr,
-                      trackRecoToSim.isValid() ? &(*trackRecoToSim) : nullptr);
-      const bool isGenuine = (assocCounts.nAssocAllParticles > 0);
-      fillFakeRateHists(tau, dmSelI, nChFill, nPi0Fill, isGenuine, true);
+      if (tauRef.isNonnull())
+        processFakeRateTau(*tauRef, fakeRateFilt_, fakeRateCaloFilt_, fakeRateTrackFilt_);
     }
   }
 
@@ -2140,88 +1707,43 @@ void TICLTauValidator::fillFakeRateHists(const reco::PFTau& tau,
                                          int nChFill,
                                          int nPi0Fill,
                                          bool isGenuine,
-                                         bool useFilter) {
-  auto* den_pt = useFilter ? fake_filt_den_pt_ : fake_den_pt_;
-  auto* den_eta = useFilter ? fake_filt_den_eta_ : fake_den_eta_;
-  auto* num_pt = useFilter ? fake_filt_num_pt_ : fake_num_pt_;
-  auto* num_eta = useFilter ? fake_filt_num_eta_ : fake_num_eta_;
+                                         FakeRateHists& fr) {
+  auto fillPtEta = [&](MonitorElement* hpt, MonitorElement* heta) {
+    if (hpt)  hpt->Fill(tau.pt());
+    if (heta) heta->Fill(tau.eta());
+  };
 
-  auto* den_dm_pt = useFilter ? fake_filt_den_dm_pt_ : fake_den_dm_pt_;
-  auto* den_dm_eta = useFilter ? fake_filt_den_dm_eta_ : fake_den_dm_eta_;
-  auto* num_dm_pt = useFilter ? fake_filt_num_dm_pt_ : fake_num_dm_pt_;
-  auto* num_dm_eta = useFilter ? fake_filt_num_dm_eta_ : fake_num_dm_eta_;
-
-  auto* den_sig_nCh_pt = useFilter ? fake_filt_den_sig_nCh_pt_ : fake_den_sig_nCh_pt_;
-  auto* den_sig_nCh_eta = useFilter ? fake_filt_den_sig_nCh_eta_ : fake_den_sig_nCh_eta_;
-  auto* num_sig_nCh_pt = useFilter ? fake_filt_num_sig_nCh_pt_ : fake_num_sig_nCh_pt_;
-  auto* num_sig_nCh_eta = useFilter ? fake_filt_num_sig_nCh_eta_ : fake_num_sig_nCh_eta_;
-
-  auto* den_sig_nPi0_pt = useFilter ? fake_filt_den_sig_nPi0_pt_ : fake_den_sig_nPi0_pt_;
-  auto* den_sig_nPi0_eta = useFilter ? fake_filt_den_sig_nPi0_eta_ : fake_den_sig_nPi0_eta_;
-  auto* num_sig_nPi0_pt = useFilter ? fake_filt_num_sig_nPi0_pt_ : fake_num_sig_nPi0_pt_;
-  auto* num_sig_nPi0_eta = useFilter ? fake_filt_num_sig_nPi0_eta_ : fake_num_sig_nPi0_eta_;
-
-  auto* den_dm_sig_nCh_pt = useFilter ? fake_filt_den_dm_sig_nCh_pt_ : fake_den_dm_sig_nCh_pt_;
-  auto* den_dm_sig_nCh_eta = useFilter ? fake_filt_den_dm_sig_nCh_eta_ : fake_den_dm_sig_nCh_eta_;
-  auto* num_dm_sig_nCh_pt = useFilter ? fake_filt_num_dm_sig_nCh_pt_ : fake_num_dm_sig_nCh_pt_;
-  auto* num_dm_sig_nCh_eta = useFilter ? fake_filt_num_dm_sig_nCh_eta_ : fake_num_dm_sig_nCh_eta_;
-
-  auto* den_dm_sig_nPi0_pt = useFilter ? fake_filt_den_dm_sig_nPi0_pt_ : fake_den_dm_sig_nPi0_pt_;
-  auto* den_dm_sig_nPi0_eta = useFilter ? fake_filt_den_dm_sig_nPi0_eta_ : fake_den_dm_sig_nPi0_eta_;
-  auto* num_dm_sig_nPi0_pt = useFilter ? fake_filt_num_dm_sig_nPi0_pt_ : fake_num_dm_sig_nPi0_pt_;
-  auto* num_dm_sig_nPi0_eta = useFilter ? fake_filt_num_dm_sig_nPi0_eta_ : fake_num_dm_sig_nPi0_eta_;
-
-  if (den_pt)  den_pt->Fill(tau.pt());
-  if (den_eta) den_eta->Fill(tau.eta());
-  if (dmSelI >= 0) {
-    if (den_dm_pt[dmSelI])  den_dm_pt[dmSelI]->Fill(tau.pt());
-    if (den_dm_eta[dmSelI]) den_dm_eta[dmSelI]->Fill(tau.eta());
-  }
+  fillPtEta(fr.den_pt, fr.den_eta);
+  if (dmSelI >= 0)
+    fillPtEta(fr.den_dm_pt[dmSelI], fr.den_dm_eta[dmSelI]);
 
   for (int N = 1; N <= nChFill; ++N) {
-    if (den_sig_nCh_pt[N-1])  den_sig_nCh_pt[N-1]->Fill(tau.pt());
-    if (den_sig_nCh_eta[N-1]) den_sig_nCh_eta[N-1]->Fill(tau.eta());
-    if (dmSelI >= 0) {
-      if (den_dm_sig_nCh_pt[dmSelI][N-1])  den_dm_sig_nCh_pt[dmSelI][N-1]->Fill(tau.pt());
-      if (den_dm_sig_nCh_eta[dmSelI][N-1]) den_dm_sig_nCh_eta[dmSelI][N-1]->Fill(tau.eta());
-    }
+    fillPtEta(fr.den_sig_nCh_pt[N-1], fr.den_sig_nCh_eta[N-1]);
+    if (dmSelI >= 0)
+      fillPtEta(fr.den_dm_sig_nCh_pt[dmSelI][N-1], fr.den_dm_sig_nCh_eta[dmSelI][N-1]);
   }
-
   for (int N = 1; N <= nPi0Fill; ++N) {
-    if (den_sig_nPi0_pt[N-1])  den_sig_nPi0_pt[N-1]->Fill(tau.pt());
-    if (den_sig_nPi0_eta[N-1]) den_sig_nPi0_eta[N-1]->Fill(tau.eta());
-    if (dmSelI >= 0) {
-      if (den_dm_sig_nPi0_pt[dmSelI][N-1])  den_dm_sig_nPi0_pt[dmSelI][N-1]->Fill(tau.pt());
-      if (den_dm_sig_nPi0_eta[dmSelI][N-1]) den_dm_sig_nPi0_eta[dmSelI][N-1]->Fill(tau.eta());
-    }
+    fillPtEta(fr.den_sig_nPi0_pt[N-1], fr.den_sig_nPi0_eta[N-1]);
+    if (dmSelI >= 0)
+      fillPtEta(fr.den_dm_sig_nPi0_pt[dmSelI][N-1], fr.den_dm_sig_nPi0_eta[dmSelI][N-1]);
   }
 
   if (isGenuine)
     return;
 
-  if (num_pt)  num_pt->Fill(tau.pt());
-  if (num_eta) num_eta->Fill(tau.eta());
-  if (dmSelI >= 0) {
-    if (num_dm_pt[dmSelI])  num_dm_pt[dmSelI]->Fill(tau.pt());
-    if (num_dm_eta[dmSelI]) num_dm_eta[dmSelI]->Fill(tau.eta());
-  }
+  fillPtEta(fr.num_pt, fr.num_eta);
+  if (dmSelI >= 0)
+    fillPtEta(fr.num_dm_pt[dmSelI], fr.num_dm_eta[dmSelI]);
 
   for (int N = 1; N <= nChFill; ++N) {
-    if (num_sig_nCh_pt[N-1])  num_sig_nCh_pt[N-1]->Fill(tau.pt());
-    if (num_sig_nCh_eta[N-1]) num_sig_nCh_eta[N-1]->Fill(tau.eta());
-    if (dmSelI >= 0) {
-      if (num_dm_sig_nCh_pt[dmSelI][N-1])  num_dm_sig_nCh_pt[dmSelI][N-1]->Fill(tau.pt());
-      if (num_dm_sig_nCh_eta[dmSelI][N-1]) num_dm_sig_nCh_eta[dmSelI][N-1]->Fill(tau.eta());
-    }
+    fillPtEta(fr.num_sig_nCh_pt[N-1], fr.num_sig_nCh_eta[N-1]);
+    if (dmSelI >= 0)
+      fillPtEta(fr.num_dm_sig_nCh_pt[dmSelI][N-1], fr.num_dm_sig_nCh_eta[dmSelI][N-1]);
   }
-
   for (int N = 1; N <= nPi0Fill; ++N) {
-    if (num_sig_nPi0_pt[N-1])  num_sig_nPi0_pt[N-1]->Fill(tau.pt());
-    if (num_sig_nPi0_eta[N-1]) num_sig_nPi0_eta[N-1]->Fill(tau.eta());
-    if (dmSelI >= 0) {
-      if (num_dm_sig_nPi0_pt[dmSelI][N-1])  num_dm_sig_nPi0_pt[dmSelI][N-1]->Fill(tau.pt());
-      if (num_dm_sig_nPi0_eta[dmSelI][N-1]) num_dm_sig_nPi0_eta[dmSelI][N-1]->Fill(tau.eta());
-    }
+    fillPtEta(fr.num_sig_nPi0_pt[N-1], fr.num_sig_nPi0_eta[N-1]);
+    if (dmSelI >= 0)
+      fillPtEta(fr.num_dm_sig_nPi0_pt[dmSelI][N-1], fr.num_dm_sig_nPi0_eta[dmSelI][N-1]);
   }
 }
 
@@ -2255,73 +1777,70 @@ TICLTauValidator::AssocCounts TICLTauValidator::countAssociatedSignalPFCands(
       ++counts.nSigPho;
 
     const size_t pfKey = pfPtr.key();
+    bool trackMatched = false;
+    bool caloMatched = false;
 
-    // Barrel PF candidate: try matching via track -> TrackingParticle -> CaloParticle
-    if (pfKey < barrelSize) {
-      if (trackRecoToSim && caloParticles) {
-        const auto trackRef = pfPtr->trackRef();
-        if (trackRef.isNonnull()) {
-          auto found = trackRecoToSim->find(edm::RefToBase<reco::Track>(trackRef));
-          if (found != trackRecoToSim->end()) {
-            bool barrelMatched = false;
-            for (const auto& tpMatch : found->val) {
-              const auto& tpRef = tpMatch.first;
-              for (const auto& tpG4 : tpRef->g4Tracks()) {
-                for (const auto& cpKeyVal : tauCPKeys) {
-                  if (cpKeyVal >= caloParticles->size()) continue;
-                  const auto& cp = (*caloParticles)[cpKeyVal];
-                  for (const auto& cpG4 : cp.g4Tracks()) {
-                    if (tpG4.trackId() == cpG4.trackId() && tpG4.eventId() == cpG4.eventId())
-                      barrelMatched = true;
-                  }
+    // Track matching: try for ANY PF candidate with a valid trackRef
+    if (trackRecoToSim && caloParticles) {
+      const auto trackRef = pfPtr->trackRef();
+      if (trackRef.isNonnull()) {
+        auto found = trackRecoToSim->find(edm::RefToBase<reco::Track>(trackRef));
+        if (found != trackRecoToSim->end()) {
+          for (const auto& tpMatch : found->val) {
+            const auto& tpRef = tpMatch.first;
+            for (const auto& tpG4 : tpRef->g4Tracks()) {
+              for (const auto& cpKeyVal : tauCPKeys) {
+                if (cpKeyVal >= caloParticles->size()) continue;
+                const auto& cp = (*caloParticles)[cpKeyVal];
+                for (const auto& cpG4 : cp.g4Tracks()) {
+                  if (tpG4.trackId() == cpG4.trackId() && tpG4.eventId().event() == 0 && cpG4.eventId().event() == 0)
+                    trackMatched = true;
                 }
               }
-              if (barrelMatched) break;
             }
-            if (barrelMatched)
-              ++counts.nAssocAllParticles;
+            if (trackMatched) break;
           }
         }
       }
-      continue;
     }
 
-    // Endcap PF candidate: match via TICL chain
-    const size_t ticlIdx = pfKey - barrelSize;
-    if (ticlIdx >= ticlCandidates.size())
-      continue;
+    // Calo (TICL) matching: endcap PF candidates only
+    if (pfKey >= barrelSize) {
+      const size_t ticlIdx = pfKey - barrelSize;
+      if (ticlIdx < ticlCandidates.size()) {
+        const auto& cand = ticlCandidates[ticlIdx];
+        for (const auto& tsPtr : cand.tracksters()) {
+          if (!tsPtr.isNonnull())
+            continue;
+          const size_t recoTkIdx = tsPtr.key();
+          if (recoTkIdx >= recoToSimMap.size())
+            continue;
 
-    const auto& cand = ticlCandidates[ticlIdx];
-    bool matched = false;
-    for (const auto& tsPtr : cand.tracksters()) {
-      if (!tsPtr.isNonnull())
-        continue;
-      const size_t recoTkIdx = tsPtr.key();
-      if (recoTkIdx >= recoToSimMap.size())
-        continue;
+          for (const auto& m : recoToSimMap[recoTkIdx]) {
+            const double score = m.score();
+            const size_t simTkIdx = m.index();
+            if (simTkIdx >= simTracksters.size())
+              continue;
 
-      for (const auto& m : recoToSimMap[recoTkIdx]) {
-        const double score = m.score();
-        const size_t simTkIdx = m.index();
-        if (simTkIdx >= simTracksters.size())
-          continue;
+            const auto& simTk = simTracksters[simTkIdx];
+            const int seedIdx = simTk.seedIndex();
+            if (seedIdx < 0 || !tauCPKeys.count(static_cast<unsigned int>(seedIdx)))
+              continue;
 
-        const auto& simTk = simTracksters[simTkIdx];
-        const int seedIdx = simTk.seedIndex();
-        if (seedIdx < 0 || !tauCPKeys.count(static_cast<unsigned int>(seedIdx)))
-          continue;
-
-        if (score <= maxAssocScore_) {
-          matched = true;
-          break;
+            if (score <= maxAssocScore_) {
+              caloMatched = true;
+              break;
+            }
+          }
+          if (caloMatched)
+            break;
         }
       }
-      if (matched)
-        break;
     }
 
-    if (matched)
-      ++counts.nAssocAllParticles;
+    if (trackMatched) ++counts.nAssocTrack;
+    if (caloMatched) ++counts.nAssocCalo;
+    if (trackMatched || caloMatched) ++counts.nAssocAllParticles;
   }
 
   return counts;
@@ -2348,7 +1867,6 @@ void TICLTauValidator::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<edm::InputTag>("genParticles", edm::InputTag("genParticles"));
   desc.add<edm::InputTag>("genVisTaus", edm::InputTag("genVisTaus"));
   desc.add<edm::InputTag>("trackingParticles", edm::InputTag("mix", "MergedTrackTruth"));
-  desc.add<edm::InputTag>("genBarcodes", edm::InputTag("genParticles"));
   desc.add<edm::InputTag>("trackRecoToSim", edm::InputTag("tpToHltGeneralTrackAssociation"));
   desc.add<double>("maxAssocScore", 0.6);
   desc.add<double>("hgcalEtaAbsMin", 1.5);

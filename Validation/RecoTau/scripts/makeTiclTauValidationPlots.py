@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
 
-import os, sys, glob
+import os, sys, re
 import argparse
 import numpy as np
-import hist
 import matplotlib.pyplot as plt
-from matplotlib.transforms import blended_transform_factory
-import array
 import ROOT
 import mplhep as hep
 hep.style.use("CMS")
@@ -38,32 +35,27 @@ dm_label_dict = {
     11: r"DM 11: $\tau^{\pm} \rightarrow \pi^{\pm} \pi^{\pm} \pi^{\pm} \pi^{0} \nu_{\tau}$",
 }
 
-var_label_dict = {
-    'pT': r'$p_{T}$ [GeV]',
-    'eta': r'$\eta$',
-}
-
 step_label_dict = {
-    0: "Step 0: CP→SimTrk",
-    1: "Step 1: SimTrk→RecoTrk",
-    2: "Step 2: RecoTrk→TICLCand",
-    3: "Step 3: TICLCand→PF",
-    4: "Step 4: Usage in a PFJet",
-    5: "Step 5: Usage in a PFTau",
+    0: "Calo step 0: CP→SimTrk",
+    1: "Calo step 1: SimTrk→RecoTrk",
+    2: "Calo step 2: RecoTrk→TICLCand",
+    3: "Calo step 3: TICLCand→PF",
+    4: "Calo step 4: Usage in a PFJet",
+    5: "Calo step 5: Usage in a PFTau",
 }
 
 track_step_label_dict = {
-    0: "TrkStep 0: CP→TP",
-    1: "TrkStep 1: TP→Track",
-    2: "TrkStep 2: Track→PF",
-    3: "TrkStep 3: PF→Jet",
-    4: "TrkStep 4: Jet→Tau",
+    0: "Track step 0: CP→TP",
+    1: "Track step 1: TP→Track",
+    2: "Track step 2: Track→PF",
+    3: "Track step 3: PF→Jet",
+    4: "Track step 4: Jet→Tau",
 }
 
 combi_step_label_dict = {
-    0: "CombiStep 0: Both→PF",
-    1: "CombiStep 1: Both→Jet",
-    2: "CombiStep 2: Both→Tau",
+    0: "Combi step 0: Both→PF",
+    1: "Combi step 1: Both→Jet",
+    2: "Combi step 2: Both→Tau",
 }
 
 def define_bins(h):
@@ -102,35 +94,6 @@ def histo_values_2D(h, error=False):
     ])
     return values
 
-def draw_eff(obj, out):
-
-    fontsize = 20
-    fig, ax = plt.subplots(figsize=(10, 10))
-    hep.cms.text(' Simulation Preliminary', ax=ax, fontsize=fontsize)
-    hep.cms.lumitext(args.sample_label, ax=ax, fontsize=fontsize)
-    
-    nbins, bin_edges, bin_centers, bin_widths = define_bins(obj)
-    values, errors = histo_values_errors(obj)
-
-    ax.errorbar(bin_centers, values, xerr=None, yerr=errors, fmt='s', color=colors_iter[0], linewidth=2, markersize=8)
-    ax.stairs(values, bin_edges, linewidth=2, baseline=None, color=colors_iter[0])
-    
-    # Extract variable from histogram name (pt or eta)
-    hname = obj.GetName()
-    if '_pt' in hname:
-        ax.set_xlabel(r'$p_{T}(\tau)$ [GeV]', fontsize=fontsize)
-    elif '_eta' in hname:
-        ax.set_xlabel(r'$\eta(\tau)$', fontsize=fontsize)
-    else:
-        ax.set_xlabel('', fontsize=fontsize)
-    
-    ax.set_ylabel('Efficiency', fontsize=fontsize)
-    ax.set_ylim([0, 1.1])
-    plt.tight_layout()
-    print(f'Saving plot: {out}')
-    plt.savefig(out)
-    plt.close()
-
 def overlay_efficiency(list_objs, out):
 
     fontsize = 20
@@ -146,12 +109,9 @@ def overlay_efficiency(list_objs, out):
         ax.errorbar(bin_centers, values, xerr=None, yerr=errors, fmt='s', label=label, color=colors_iter[i], linewidth=2, markersize=8)
         ax.stairs(values, bin_edges, linewidth=2, baseline=None, color=colors_iter[i])
     
-    # Determine legend title from the actual histogram names (they may mix _all_ and _geNch_)
-    import re
     legend_title = ""
     hnames = [obj.GetName() for obj in list_objs]
     
-    # Check what types of histograms we have (priority: _all_ first)
     has_all = any('_all_' in h for h in hnames)
     has_ge_ch = any('_ge' in h and 'ch_' in h for h in hnames)
     has_ge_pi0 = any('_ge' in h and 'pi0_' in h for h in hnames)
@@ -211,7 +171,6 @@ def overlay_efficiency_with_gen(list_eff_objs, gen_obj, out, step_labels=None):
     is_charged = 'eff_ch_' in hname
     is_photon = 'eff_pho_' in hname
     
-    # Create leg label
     leg_labels = ['Leading', 'Subleading', 'Third', 'Fourth']
     leg_label = leg_labels[leg] if leg < len(leg_labels) else f'Leg {leg}'
     if is_charged:
@@ -227,8 +186,7 @@ def overlay_efficiency_with_gen(list_eff_objs, gen_obj, out, step_labels=None):
         values, errors = histo_values_errors(obj)
         hname = obj.GetName()
         # Extract step number from _combistep, _trkstep, or _step
-        import re as _re
-        m = _re.search(r'_(combistep|trkstep|step)(\d+)', hname)
+        m = re.search(r'_(combistep|trkstep|step)(\d+)', hname)
         step_num = int(m.group(2)) if m else 0
         label = step_labels.get(step_num, f"Step {step_num}")
         ax1.errorbar(bin_centers, values, xerr=None, yerr=errors, fmt='s', 
@@ -289,7 +247,6 @@ def overlay_calo_and_track_chain(calo_objs, track_objs, gen_obj, out):
     Calo chain: filled squares + solid lines.
     Track chain: open circles + dashed lines.
     """
-    import re as _re
     fontsize = 20
     fig, ax1 = plt.subplots(figsize=(14, 10))
     hep.cms.text(' Simulation Preliminary', ax=ax1, fontsize=fontsize)
@@ -303,36 +260,35 @@ def overlay_calo_and_track_chain(calo_objs, track_objs, gen_obj, out):
     leg_labels = ['Leading', 'Subleading', 'Third', 'Fourth']
     leg_label = leg_labels[leg] if leg < len(leg_labels) else f'Leg {leg}'
 
-    c_idx = 0
-    # Calo chain: filled squares + solid lines
+    # Calo chain
     for obj in calo_objs:
         nbins, bin_edges, bin_centers, bin_widths = define_bins(obj)
         values, errors = histo_values_errors(obj)
         hname = obj.GetName()
-        m = _re.search(r'_step(\d+)', hname)
+        m = re.search(r'_step(\d+)', hname)
         step_num = int(m.group(1)) if m else 0
-        label = "Calo " + step_label_dict.get(step_num, f"Step {step_num}")
+        label = step_label_dict.get(step_num, f"Calo step {step_num}")
+        col = colors_iter[step_num % len(colors_iter)]
         ax1.errorbar(bin_centers, values, xerr=None, yerr=errors, fmt='s',
-                     label=label, color=colors_iter[c_idx % len(colors_iter)],
+                     label=label, color=col,
                      linewidth=2, markersize=8)
-        ax1.stairs(values, bin_edges, linewidth=2, baseline=None,
-                   color=colors_iter[c_idx % len(colors_iter)])
-        c_idx += 1
+        ax1.stairs(values, bin_edges, linewidth=2, baseline=None, color=col)
 
-    # Track chain: open circles + dashed lines
+    # Track chain — shift color index by +1 for steps >= 2
     for obj in track_objs:
         nbins, bin_edges, bin_centers, bin_widths = define_bins(obj)
         values, errors = histo_values_errors(obj)
         hname = obj.GetName()
-        m = _re.search(r'_trkstep(\d+)', hname)
+        m = re.search(r'_trkstep(\d+)', hname)
         step_num = int(m.group(1)) if m else 0
-        label = "Track " + track_step_label_dict.get(step_num, f"TrkStep {step_num}")
+        label = track_step_label_dict.get(step_num, f"Track step {step_num}")
+        col_idx = step_num if step_num < 2 else step_num + 1
+        col = colors_iter[col_idx % len(colors_iter)]
         ax1.errorbar(bin_centers, values, xerr=None, yerr=errors, fmt='o',
-                     label=label, color=colors_iter[c_idx % len(colors_iter)],
+                     label=label, color=col,
                      linewidth=2, markersize=8, markerfacecolor='none', markeredgewidth=2)
         ax1.stairs(values, bin_edges, linewidth=2, baseline=None,
-                   color=colors_iter[c_idx % len(colors_iter)], linestyle='--')
-        c_idx += 1
+                   color=col, linestyle='--')
 
     ax1.set_ylabel('Efficiency', fontsize=fontsize, color='black')
     ax1.tick_params(axis='y', labelcolor='black')
@@ -355,14 +311,15 @@ def overlay_calo_and_track_chain(calo_objs, track_objs, gen_obj, out):
         ax2.set_ylabel('CP Entries', fontsize=fontsize, color='gray')
         ax2.tick_params(axis='y', labelcolor='gray')
 
+    chain_title = f"{dm_label_dict[dm]}\n{leg_label} hadron\nCalo (solid) vs Track (dashed)"
     if var == 'pT':
         ax1.legend(fontsize=fontsize-6, loc='lower right', bbox_to_anchor=(0.98, 0.05),
-                   title=f"{dm_label_dict[dm]}\n{leg_label} hadron\nCalo chain (\u25A0) vs Track chain (\u25CB)",
+                   title=chain_title,
                    title_fontsize=fontsize-4, frameon=True, fancybox=True, framealpha=0.6,
                    ncol=2)
     else:
         ax1.legend(fontsize=fontsize-6, loc='upper center',
-                   title=f"{dm_label_dict[dm]}\n{leg_label} hadron\nCalo chain (\u25A0) vs Track chain (\u25CB)",
+                   title=chain_title,
                    title_fontsize=fontsize-4, frameon=True, fancybox=True, framealpha=0.9,
                    ncol=2)
     plt.tight_layout()
@@ -375,84 +332,6 @@ def draw_hist(obj, out, opt=None):
     if obj.InheritsFrom("TH2"): obj.Draw(opt or "COLZ")
     else:                        obj.Draw(opt or "HIST E1")
     c.SaveAs(out); c.Close()
-
-def clone_conf_without_gen_dm5(h2):
-    # Keep X as-is; rebuild Y without the bin whose label is "5"
-    xax = h2.GetXaxis(); yax = h2.GetYaxis()
-    x_labels = [xax.GetBinLabel(i) or str(i-1) for i in range(1, xax.GetNbins()+1)]
-    y_labels = [yax.GetBinLabel(i) or str(i-1) for i in range(1, yax.GetNbins()+1)]
-    keep_y = [(i, lab) for i, lab in enumerate(y_labels, start=1) if lab != "5"]
-    ny = len(keep_y)
-    # New hist with compact Y (no DM5)
-    hnew = ROOT.TH2F(h2.GetName()+"_genNoDM5", h2.GetTitle()+";"+xax.GetTitle()+";"+yax.GetTitle()+" (no DM 5)",
-                     len(x_labels), -0.5, len(x_labels)-0.5,
-                     ny,           -0.5, ny-0.5)
-    hnew.Sumw2()
-    # Labels
-    for ix, lab in enumerate(x_labels, start=1):
-        hnew.GetXaxis().SetBinLabel(ix, lab)
-    for jy_out, (_, lab) in enumerate(keep_y, start=1):
-        hnew.GetYaxis().SetBinLabel(jy_out, lab)
-    # Content copy (skip removed Y-bin)
-    for ix in range(1, xax.GetNbins()+1):
-        for jy_out, (jy_in, _) in enumerate(keep_y, start=1):
-            val = h2.GetBinContent(ix, jy_in)
-            err = h2.GetBinError(ix, jy_in)
-            hnew.SetBinContent(ix, jy_out, val)
-            hnew.SetBinError(ix, jy_out, err)
-    return hnew
-
-def draw_resolution(obj, out, xlabel):
-
-    fontsize = 20
-    fig, ax = plt.subplots(figsize=(10, 10))
-    hep.cms.text(' Simulation Preliminary', ax=ax, fontsize=fontsize)
-    hep.cms.lumitext(args.sample_label, ax=ax, fontsize=fontsize)
-
-    nbins, bin_edges, bin_centers, bin_widths = define_bins(obj)
-    values, errors = histo_values_errors(obj)
-
-    ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
-                fmt='s', color=colors_iter[0], linewidth=2, markersize=8)
-    ax.stairs(values, bin_edges, linewidth=2, baseline=None,
-              color=colors_iter[0])
-
-    ax.set_xlabel(xlabel, fontsize=fontsize)
-    ax.set_ylabel('Entries', fontsize=fontsize)
-    # Extract DM from histogram name for title
-    hname = obj.GetName()
-    plt.tight_layout()
-    print(f'Saving plot: {out}')
-    plt.savefig(out)
-    plt.close()
-
-def overlay_resolution(list_objs, labels, out, xlabel, title=""):
-
-    fontsize = 20
-    fig, ax = plt.subplots(figsize=(10, 10))
-    hep.cms.text(' Simulation Preliminary', ax=ax, fontsize=fontsize)
-    hep.cms.lumitext(args.sample_label, ax=ax, fontsize=fontsize)
-
-    for i, (obj, label) in enumerate(zip(list_objs, labels)):
-        nbins, bin_edges, bin_centers, bin_widths = define_bins(obj)
-        values, errors = histo_values_errors(obj)
-
-        ax.errorbar(bin_centers, values, xerr=None, yerr=errors,
-                    fmt='s', label=label, color=colors_iter[i % len(colors_iter)], linewidth=2, markersize=8)
-        ax.stairs(values, bin_edges, linewidth=2, baseline=None,
-                  color=colors_iter[i % len(colors_iter)])
-
-    ax.set_xlabel(xlabel, fontsize=fontsize)
-    ax.set_ylabel('Entries', fontsize=fontsize)
-    legend_kwargs = {'fontsize': fontsize-4, 'loc': 'best', 'frameon': True, 'fancybox': True, 'framealpha': 0.9}
-    if title:
-        legend_kwargs['title'] = title
-        legend_kwargs['title_fontsize'] = fontsize
-    ax.legend(**legend_kwargs)
-    plt.tight_layout()
-    print(f'Saving plot: {out}')
-    plt.savefig(out)
-    plt.close()
 
 def overlay_hist(list_objs, labels, out, xlabel, ylabel, title=""):
 
@@ -482,169 +361,109 @@ def overlay_hist(list_objs, labels, out, xlabel, ylabel, title=""):
     plt.savefig(out)
     plt.close()
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Make Ticl Tau validation plots.')
-    parser.add_argument('-s', '--step', type=str, default='HLT',                                   help='Validation step ("HLT" or "Offline")')
-    parser.add_argument('-f', '--file', type=str, required=True,                                   help='Paths to the DQM ROOT file.')
-    parser.add_argument('-o', '--odir', type=str, default="TauValidationPlots", required=False,    help='Path to the output directory.')
-    parser.add_argument('-l', '--sample_label', type=str, default="Tau (200 PU)", required=False,  help='Sample label for plotting.')
-    args = parser.parse_args()
+args = None
 
-    if args.step == 'HLT':
-        dqm_dir = f"DQMData/Run 1/HLT/Run summary/TICL/ticlTauValidator"
-        Step = 'HLT'
-    elif args.step == 'Offline':
-        dqm_dir = f"DQMData/Run 1/Run summary/RecoTauV/ticlTauValidator/"
-        Step = 'offline'
-    else:
-        sys.exit("### ERROR: Please chose the step among the following ['HLT', 'Offline']")
 
-    file = ROOT.TFile.Open(args.file)
-    if not file or file.IsZombie():
-        raise RuntimeError(f"Failed to open DQM file: {args.file}")
-    if not file.Get(dqm_dir):
-        raise RuntimeError(f"Directory '{dqm_dir}' not found in {args.file}")
+class PlotContext:
+    """Carries shared state across all plotting sections."""
 
-    d = file.Get(dqm_dir)
-    if not d:
-        raise RuntimeError(f"Directory not found: {dqm_dir}")
+    def __init__(self, root_file, dqm_dir, out_dir):
+        self.file = root_file
+        self.dqm_dir = dqm_dir
+        self.out_dir = out_dir
+        self.missing = []
 
-    # List DM subdir
-    dm_subdirs = []
-    directory = file.GetDirectory(dqm_dir)
-    for key in directory.GetListOfKeys():
-        obj = key.ReadObj()
-        if isinstance(obj, ROOT.TDirectory):
-            name = obj.GetName()
-            if name.startswith("GenDM"):
-                dm_subdirs.append(name)
+        # Discover GenDM subdirectories
+        directory = root_file.GetDirectory(dqm_dir)
+        self.dm_subdirs = []
+        for key in directory.GetListOfKeys():
+            obj = key.ReadObj()
+            if isinstance(obj, ROOT.TDirectory) and obj.GetName().startswith("GenDM"):
+                self.dm_subdirs.append(obj.GetName())
+        self.dm_list = [int(s.replace("GenDM", "")) for s in self.dm_subdirs]
+        self.vars = ["pt"] + (["eta"] if PLOT_ETA else [])
+        self.base_tdir = root_file.Get(dqm_dir)
 
-    print(dm_subdirs)
-    dm_list = [int(dm_subdir.replace("GenDM", "")) for dm_subdir in dm_subdirs]
+    def get_dm_tdir(self, dm):
+        return self.file.Get(f"{self.dqm_dir}/GenDM{dm}")
 
-    # ---- Output dirs ----
-    out_dir = args.odir
-    os.makedirs(out_dir, exist_ok=True)
+    def get_or_miss(self, tdir, name, parent_path=""):
+        obj = tdir.Get(name) if tdir else None
+        if not obj:
+            path = f"{parent_path}/{name}" if parent_path else name
+            self.missing.append(path)
+        return obj
 
-    missing = []
+    def dm_out_dir(self, dm):
+        d = os.path.join(self.out_dir, f"dm{dm}")
+        os.makedirs(d, exist_ok=True)
+        return d
 
-    # ======= 1) Per-leg, per-step efficiencies =======
-    vars_to_plot = ["pt"] + (["eta"] if PLOT_ETA else [])
-    for dm_subdir in dm_subdirs:
-        dm = int(dm_subdir.replace("GenDM", ""))
 
+def _plot_chain_effs(ctx, d_dm, dm, dm_dir,
+                     particle, n_legs, steps, step_prefix,
+                     gen_base, labels_dict, out_tag=""):
+    """Plot per-leg per-step efficiency overlays for one chain type.
+
+    """
+    for L in range(n_legs):
+        for var in ctx.vars:
+            objs = []
+            for S in steps:
+                nm = f"eff_{particle}_dm{dm}_leg{L}_{step_prefix}{S}_{var}"
+                obj = d_dm.Get(nm)
+                if obj:
+                    objs.append(obj)
+                else:
+                    ctx.missing.append(f"{ctx.dqm_dir}/GenDM{dm}/{nm}")
+            if not objs:
+                continue
+            gen_obj = d_dm.Get(f"{gen_base}_dm{dm}_{var}")
+            suffix = f"_{out_tag}" if out_tag else ""
+            overlay_efficiency_with_gen(
+                objs, gen_obj,
+                os.path.join(dm_dir, f"eff_{particle}_dm{dm}_leg{L}{suffix}_{var}.png"),
+                step_labels=labels_dict,
+            )
+
+
+def _collect_hists(d_dm, pattern_fn, items):
+    """Return non-None histograms: [d_dm.Get(pattern_fn(s)) for s in items if exists]."""
+    return list(filter(None, [d_dm.Get(pattern_fn(s)) for s in items]))
+
+def plot_per_leg_efficiencies(ctx):
+    for dm in ctx.dm_list:
         if dm not in ch_legs_by_dm:
-            print(f"Skipping non-physical DM {dm} (not in ch_legs_by_dm)")
+            print(f"Skipping non-physical DM {dm}")
             continue
+        d_dm = ctx.get_dm_tdir(dm)
+        dm_dir = ctx.dm_out_dir(dm)
 
-        d_dm = file.Get(dqm_dir + "/" + dm_subdir)
+        # Calo chain: charged and photon
+        _plot_chain_effs(ctx, d_dm, dm, dm_dir,
+                         "ch", ch_legs_by_dm[dm], PLOT_STEPS, "step",
+                         "cp_chHad", step_label_dict)
+        _plot_chain_effs(ctx, d_dm, dm, dm_dir,
+                         "pho", pho_legs_by_dm[dm], PLOT_STEPS, "step",
+                         "cp_gamma", step_label_dict)
 
-        dm_dir = os.path.join(out_dir, f"dm{dm}")
-        os.makedirs(dm_dir, exist_ok=True)
+        # Track chain: charged only
+        _plot_chain_effs(ctx, d_dm, dm, dm_dir,
+                         "ch", ch_legs_by_dm[dm], PLOT_TRACK_STEPS, "trkstep",
+                         "cp_chHad", track_step_label_dict, "trkchain")
 
-        # charged legs
+        # Combi (AND) chain: charged only
+        _plot_chain_effs(ctx, d_dm, dm, dm_dir,
+                         "ch", ch_legs_by_dm[dm], PLOT_COMBI_STEPS, "combistep",
+                         "cp_chHad", combi_step_label_dict, "combichain")
+
+        # Combined calo + track overlay
         for L in range(ch_legs_by_dm[dm]):
-            for var in vars_to_plot:
-                list_eff_steps = []
-                for S in PLOT_STEPS:
-                    nm = f"eff_ch_dm{dm}_leg{L}_step{S}_{var}"
-                    obj = d_dm.Get(nm)
-                    if obj:
-                        list_eff_steps.append(obj)
-                    else:
-                        print("MISSING:", f"{dqm_dir}/{dm_subdir}/{nm}")
-                        missing.append(f"{dqm_dir}/{dm_subdir}/{nm}")
-                
-                # Try to get gen CP distribution for dual-axis plot
-                gen_obj = d_dm.Get(f"cp_chHad_dm{dm}_{var}") if var == "pt" else d_dm.Get(f"cp_chHad_dm{dm}_{var}")
-                
-                overlay_efficiency_with_gen(
-                    list_eff_steps,
-                    gen_obj,
-                    os.path.join(dm_dir, f"eff_ch_dm{dm}_leg{L}_{var}.png"),
-                )
-
-        # photon legs (only if DM has pi0)
-        for L in range(pho_legs_by_dm[dm]):
-            for var in vars_to_plot:
-                list_eff_steps = []
-                for S in PLOT_STEPS:
-                    nm = f"eff_pho_dm{dm}_leg{L}_step{S}_{var}"
-                    obj = d_dm.Get(nm)
-                    if obj:
-                        list_eff_steps.append(obj)
-                    else:
-                        print("MISSING:", f"{dqm_dir}/{dm_subdir}/{nm}")
-                        missing.append(f"{dqm_dir}/{dm_subdir}/{nm}")
-                
-                # Try to get gen CP distribution for dual-axis plot
-                gen_obj = d_dm.Get(f"cp_gamma_dm{dm}_{var}")
-                
-                overlay_efficiency_with_gen(
-                    list_eff_steps,
-                    gen_obj,
-                    os.path.join(dm_dir, f"eff_pho_dm{dm}_leg{L}_{var}.png"),
-                )
-
-        # charged legs - track chain (CP→TP→Track→PF→Jet→Tau)
-        for L in range(ch_legs_by_dm[dm]):
-            for var in vars_to_plot:
-                list_eff_steps = []
-                for S in PLOT_TRACK_STEPS:
-                    nm = f"eff_ch_dm{dm}_leg{L}_trkstep{S}_{var}"
-                    obj = d_dm.Get(nm)
-                    if obj:
-                        list_eff_steps.append(obj)
-                    else:
-                        print("MISSING:", f"{dqm_dir}/{dm_subdir}/{nm}")
-                        missing.append(f"{dqm_dir}/{dm_subdir}/{nm}")
-
-                if list_eff_steps:
-                    gen_obj = d_dm.Get(f"cp_chHad_dm{dm}_{var}")
-                    overlay_efficiency_with_gen(
-                        list_eff_steps,
-                        gen_obj,
-                        os.path.join(dm_dir, f"eff_ch_dm{dm}_leg{L}_trkchain_{var}.png"),
-                        step_labels=track_step_label_dict,
-                    )
-
-        # charged legs - combi (AND) chain
-        for L in range(ch_legs_by_dm[dm]):
-            for var in vars_to_plot:
-                list_eff_steps = []
-                for S in PLOT_COMBI_STEPS:
-                    nm = f"eff_ch_dm{dm}_leg{L}_combistep{S}_{var}"
-                    obj = d_dm.Get(nm)
-                    if obj:
-                        list_eff_steps.append(obj)
-                    else:
-                        print("MISSING:", f"{dqm_dir}/{dm_subdir}/{nm}")
-                        missing.append(f"{dqm_dir}/{dm_subdir}/{nm}")
-
-                if list_eff_steps:
-                    gen_obj = d_dm.Get(f"cp_chHad_dm{dm}_{var}")
-                    overlay_efficiency_with_gen(
-                        list_eff_steps,
-                        gen_obj,
-                        os.path.join(dm_dir, f"eff_ch_dm{dm}_leg{L}_combichain_{var}.png"),
-                        step_labels=combi_step_label_dict,
-                    )
-
-        # charged legs - combined calo + track chain overlay
-        for L in range(ch_legs_by_dm[dm]):
-            for var in vars_to_plot:
-                calo_list = []
-                for S in PLOT_STEPS:
-                    nm = f"eff_ch_dm{dm}_leg{L}_step{S}_{var}"
-                    obj = d_dm.Get(nm)
-                    if obj:
-                        calo_list.append(obj)
-                track_list = []
-                for S in PLOT_TRACK_STEPS:
-                    nm = f"eff_ch_dm{dm}_leg{L}_trkstep{S}_{var}"
-                    obj = d_dm.Get(nm)
-                    if obj:
-                        track_list.append(obj)
+            for var in ctx.vars:
+                calo_list = _collect_hists(
+                    d_dm, lambda S: f"eff_ch_dm{dm}_leg{L}_step{S}_{var}", PLOT_STEPS)
+                track_list = _collect_hists(
+                    d_dm, lambda S: f"eff_ch_dm{dm}_leg{L}_trkstep{S}_{var}", PLOT_TRACK_STEPS)
                 if calo_list or track_list:
                     gen_obj = d_dm.Get(f"cp_chHad_dm{dm}_{var}")
                     overlay_calo_and_track_chain(
@@ -652,50 +471,49 @@ if __name__ == '__main__':
                         os.path.join(dm_dir, f"eff_ch_dm{dm}_leg{L}_calo_vs_track_{var}.png"),
                     )
 
-    # ======= 2) Tau-level efficiencies vs mother τ kinematics =======
-    eff_all_pt_hists = []   # (label, hist)
-    eff_all_eta_hists = []  # (label, hist)
-    special_all_map = {0: 1, 10: 3}  # DM -> N for ≥N charged to include in "all" overlay
-    eff_ge_ch_pt_hists = {}   # N -> list of hists
-    eff_ge_ch_eta_hists = {}  # N -> list of hists
-    for dm_subdir in dm_subdirs:
-        dm = int(dm_subdir.replace("GenDM", ""))
 
+def plot_tau_level_efficiencies(ctx):
+    """Section 2: Tau-level efficiencies vs mother tau kinematics."""
+    eff_all_pt, eff_all_eta = [], []
+    eff_ge_ch_pt, eff_ge_ch_eta = {}, {}
+    eff_ge_pi0_pt, eff_ge_pi0_eta = {}, {}
+    special_all_map = {0: 1, 10: 3}
+
+    for dm in ctx.dm_list:
         if dm not in ch_legs_by_dm:
-            print(f"Skipping non-physical DM {dm} (not in ch_legs_by_dm)")
             continue
+        d_dm = ctx.get_dm_tdir(dm)
+        dm_dir = ctx.dm_out_dir(dm)
+        dm_path = f"{ctx.dqm_dir}/GenDM{dm}"
 
-        d_dm = file.Get(dqm_dir + "/" + dm_subdir)
-
-        dm_dir = os.path.join(out_dir, f"dm{dm}")
-        os.makedirs(dm_dir, exist_ok=True)
-
-        # ≥N charged (N up to actual prongs)
+        # >= N charged
         for N in range(1, ch_legs_by_dm[dm] + 1):
-            for var in vars_to_plot:
+            for var in ctx.vars:
                 nm = f"eff_tau_dm{dm}_ge{N}ch_{var}"
                 obj = d_dm.Get(nm)
                 if obj:
-                    draw_eff(obj, os.path.join(dm_dir, f"{nm}.png"))
                     if var == "pt":
-                        eff_ge_ch_pt_hists.setdefault(N, []).append(obj)
+                        eff_ge_ch_pt.setdefault(N, []).append(obj)
                     elif var == "eta":
-                        eff_ge_ch_eta_hists.setdefault(N, []).append(obj)
+                        eff_ge_ch_eta.setdefault(N, []).append(obj)
                 else:
-                    missing.append(f"{dqm_dir}/{dm_subdir}/{nm}")
+                    ctx.missing.append(f"{dm_path}/{nm}")
 
-        # ≥N pi0 (N up to pi0 count per DM)
+        # >= N pi0
         for N in range(1, pi0_cap_by_dm[dm] + 1):
-            for var in vars_to_plot:
+            for var in ctx.vars:
                 nm = f"eff_tau_dm{dm}_ge{N}pi0_{var}"
                 obj = d_dm.Get(nm)
                 if obj:
-                    draw_eff(obj, os.path.join(dm_dir, f"{nm}.png"))
+                    if var == "pt":
+                        eff_ge_pi0_pt.setdefault(N, []).append(obj)
+                    elif var == "eta":
+                        eff_ge_pi0_eta.setdefault(N, []).append(obj)
                 else:
-                    missing.append(f"{dqm_dir}/{dm_subdir}/{nm}")
+                    ctx.missing.append(f"{dm_path}/{nm}")
 
-        # ALL expected (now for all DMs, including 0 and 10)
-        for var in vars_to_plot:
+        # ALL expected
+        for var in ctx.vars:
             nm = f"eff_tau_dm{dm}_all_{var}"
             obj = d_dm.Get(nm)
             overlay_obj = obj
@@ -706,549 +524,492 @@ if __name__ == '__main__':
                 if alt_obj:
                     overlay_obj = alt_obj
                 elif not obj:
-                    missing.append(f"{dqm_dir}/{dm_subdir}/{alt_nm}")
+                    ctx.missing.append(f"{dm_path}/{alt_nm}")
 
-            if obj:
-                draw_eff(obj, os.path.join(dm_dir, f"{nm}.png"))
-            elif dm not in special_all_map and not overlay_obj:
-                missing.append(f"{dqm_dir}/{dm_subdir}/{nm}")
+            if not obj and dm not in special_all_map and not overlay_obj:
+                ctx.missing.append(f"{dm_path}/{nm}")
 
             if overlay_obj:
                 if var == "pt":
-                    eff_all_pt_hists.append((f"DM {dm}", overlay_obj))
+                    eff_all_pt.append((f"DM {dm}", overlay_obj))
                 elif var == "eta":
-                    eff_all_eta_hists.append((f"DM {dm}", overlay_obj))
+                    eff_all_eta.append((f"DM {dm}", overlay_obj))
 
-        # TAU-only split efficiencies (signal / iso)
+        # Signal / iso split — overlay signal vs iso per DM
         for N in range(1, ch_legs_by_dm[dm] + 1):
-            for var in vars_to_plot:
+            for var in ctx.vars:
+                objs = []
                 for kind in ["signal", "iso"]:
                     nm = f"eff_tau_dm{dm}_ge{N}ch_{kind}_{var}"
                     obj = d_dm.Get(nm)
                     if obj:
-                        draw_eff(obj, os.path.join(dm_dir, f"{nm}.png"))
+                        obj.SetTitle(kind.capitalize())
+                        objs.append(obj)
                     else:
-                        missing.append(f"{dqm_dir}/{dm_subdir}/{nm}")
+                        ctx.missing.append(f"{dm_path}/{nm}")
+                if objs:
+                    overlay_efficiency(objs, os.path.join(dm_dir, f"eff_tau_dm{dm}_ge{N}ch_signal_iso_{var}.png"))
 
         for N in range(1, pi0_cap_by_dm[dm] + 1):
-            for var in vars_to_plot:
+            for var in ctx.vars:
+                objs = []
                 for kind in ["signal", "iso"]:
                     nm = f"eff_tau_dm{dm}_ge{N}pi0_{kind}_{var}"
                     obj = d_dm.Get(nm)
                     if obj:
-                        draw_eff(obj, os.path.join(dm_dir, f"{nm}.png"))
+                        obj.SetTitle(kind.capitalize())
+                        objs.append(obj)
                     else:
-                        missing.append(f"{dqm_dir}/{dm_subdir}/{nm}")
+                        ctx.missing.append(f"{dm_path}/{nm}")
+                if objs:
+                    overlay_efficiency(objs, os.path.join(dm_dir, f"eff_tau_dm{dm}_ge{N}pi0_signal_iso_{var}.png"))
 
-    # Overlay final efficiencies (all expected) across DMs
-    if eff_all_pt_hists:
-        _, hists = zip(*eff_all_pt_hists)
-        overlay_efficiency(
-            list(hists),
-            os.path.join(out_dir, "tau_eff_all_dm_overlay_pt.png"),
-        )
+        # Two-fold: overlay track / calo / both / either per ≥N charged
+        for N in range(1, ch_legs_by_dm[dm] + 1):
+            for var in ctx.vars:
+                objs = []
+                for kind, label in [("track", "Track"), ("calo", "Calo"),
+                                    ("both", "Track AND Calo"), ("either", "Track OR Calo")]:
+                    nm = f"eff_tau_dm{dm}_ge{N}ch_{kind}_{var}"
+                    obj = d_dm.Get(nm)
+                    if obj:
+                        obj.SetTitle(label)
+                        objs.append(obj)
+                    else:
+                        ctx.missing.append(f"{dm_path}/{nm}")
+                if objs:
+                    overlay_efficiency(objs, os.path.join(dm_dir, f"eff_tau_dm{dm}_ge{N}ch_twofold_{var}.png"))
 
-    if PLOT_ETA and eff_all_eta_hists:
-        _, hists = zip(*eff_all_eta_hists)
-        overlay_efficiency(
-            list(hists),
-            os.path.join(out_dir, "tau_eff_all_dm_overlay_eta.png"),
-        )
+    # Cross-DM overlays
+    if eff_all_pt:
+        _, hists = zip(*eff_all_pt)
+        overlay_efficiency(list(hists), os.path.join(ctx.out_dir, "tau_eff_all_dm_overlay_pt.png"))
 
-    # Overlay ≥N charged efficiencies across DMs (includes DM0 for N=1 and DM10 for N=3)
-    for N, hists in sorted(eff_ge_ch_pt_hists.items()):
-        overlay_efficiency(
-            list(hists),
-            os.path.join(out_dir, f"tau_eff_ge{N}ch_dm_overlay_pt.png"),
-        )
+    if PLOT_ETA and eff_all_eta:
+        _, hists = zip(*eff_all_eta)
+        overlay_efficiency(list(hists), os.path.join(ctx.out_dir, "tau_eff_all_dm_overlay_eta.png"))
+
+    for N, hists in sorted(eff_ge_ch_pt.items()):
+        overlay_efficiency(list(hists), os.path.join(ctx.out_dir, f"tau_eff_ge{N}ch_dm_overlay_pt.png"))
 
     if PLOT_ETA:
-        for N, hists in sorted(eff_ge_ch_eta_hists.items()):
-            overlay_efficiency(
-                list(hists),
-                os.path.join(out_dir, f"tau_eff_ge{N}ch_dm_overlay_eta.png"),
-            )
+        for N, hists in sorted(eff_ge_ch_eta.items()):
+            overlay_efficiency(list(hists), os.path.join(ctx.out_dir, f"tau_eff_ge{N}ch_dm_overlay_eta.png"))
 
-    # ======= 3) Inputs & matrices =======
-    global_inputs_to_plot = [
+    for N, hists in sorted(eff_ge_pi0_pt.items()):
+        overlay_efficiency(list(hists), os.path.join(ctx.out_dir, f"tau_eff_ge{N}pi0_dm_overlay_pt.png"))
+
+    if PLOT_ETA:
+        for N, hists in sorted(eff_ge_pi0_eta.items()):
+            overlay_efficiency(list(hists), os.path.join(ctx.out_dir, f"tau_eff_ge{N}pi0_dm_overlay_eta.png"))
+
+    # Cross-DM overlays for two-fold kinds (at the "all charged" level per DM)
+    for kind in ["track", "calo", "both", "either"]:
+        for var in ctx.vars:
+            objs = []
+            for dm in ctx.dm_list:
+                if dm not in ch_legs_by_dm:
+                    continue
+                d_dm = ctx.get_dm_tdir(dm)
+                if not d_dm:
+                    continue
+                N_all = ch_legs_by_dm[dm]
+                nm = f"eff_tau_dm{dm}_ge{N_all}ch_{kind}_{var}"
+                obj = d_dm.Get(nm)
+                if obj:
+                    obj.SetTitle(f"DM {dm}")
+                    objs.append(obj)
+            if objs:
+                overlay_efficiency(objs, os.path.join(ctx.out_dir, f"tau_eff_allCh_{kind}_dm_overlay_{var}.png"))
+
+
+def plot_inputs_and_matrices(ctx):
+    """ Global inputs and confusion matrices."""
+    d = ctx.base_tdir
+
+    reco_labels = [
+        "h^{#pm}", "h^{#pm}#pi^{0}", "h^{#pm}#pi^{0}#pi^{0}",
+        "h^{#pm}h^{#pm}", "h^{#pm}h^{#pm}h^{#pm}", "h^{#pm}h^{#pm}h^{#pm}#pi^{0}",
+    ]
+    gen_labels = [
+        "h^{#pm}", "h^{#pm}#pi^{0}", "h^{#pm}#pi^{0}#pi^{0}",
+        "h^{#pm}h^{#pm}h^{#pm}", "h^{#pm}h^{#pm}h^{#pm}#pi^{0}",
+    ]
+
+    confusion_names = {"dm_reco_vs_gen_jet", "dm_reco_vs_gen_tau", "dm_reco_vs_gen_hps"}
+    confusion_xtitles = {
+        "dm_reco_vs_gen_jet": "Reco DM in jet",
+        "dm_reco_vs_gen_tau": "Reco DM in tau",
+        "dm_reco_vs_gen_hps": "DM assigned by HPS",
+    }
+
+    global_names = [
         "cp_chHad_pt_all", "cp_chHad_eta_all",
         "cp_gamma_pt_all", "cp_gamma_eta_all",
-        "dm_reco_vs_gen_jet",
-        "dm_reco_vs_gen_tau",
-        "dm_reco_vs_gen_hps",
-    ]
+    ] + list(confusion_names)
 
-    # final‑state labels (must match ticlTauValidator.cc)
-    reco_labels = [
-        "h^{#pm}",                # reco DM 0
-        "h^{#pm}#pi^{0}",      # reco DM 1
-        "h^{#pm}#pi^{0}#pi^{0}",      # reco DM 2
-        "h^{#pm}h^{#pm}",                # reco DM 5
-        "h^{#pm}h^{#pm}h^{#pm}",                # reco DM 10
-        "h^{#pm}h^{#pm}h^{#pm}#pi^{0}",      # reco DM 11
-    ]
-    gen_labels  = [
-        "h^{#pm}",                # gen DM 0
-        "h^{#pm}#pi^{0}",      # gen DM 1
-        "h^{#pm}#pi^{0}#pi^{0}",      # gen DM 2
-        "h^{#pm}h^{#pm}h^{#pm}",                # gen DM 10
-        "h^{#pm}h^{#pm}h^{#pm}#pi^{0}",      # gen DM 11
-    ]
-
-    for name in global_inputs_to_plot:
+    for name in global_names:
         obj = d.Get(name)
         if not obj:
-            missing.append(f"{dqm_dir}/{name}")
+            ctx.missing.append(f"{ctx.dqm_dir}/{name}")
             continue
-        out = os.path.join(out_dir, f"{name}.png")
+        out = os.path.join(ctx.out_dir, f"{name}.png")
         if obj.InheritsFrom("TH2"):
-            if name in ("dm_reco_vs_gen_jet", "dm_reco_vs_gen_tau", "dm_reco_vs_gen_hps"):
-                xax = obj.GetXaxis()
-                yax = obj.GetYaxis()
+            if name in confusion_names:
+                xax, yax = obj.GetXaxis(), obj.GetYaxis()
                 for i, lab in enumerate(reco_labels, start=1):
                     if i <= xax.GetNbins():
                         xax.SetBinLabel(i, lab)
                 for j, lab in enumerate(gen_labels, start=1):
                     if j <= yax.GetNbins():
                         yax.SetBinLabel(j, lab)
-
-                if name == "dm_reco_vs_gen_jet":
-                    obj.GetXaxis().SetTitle("Reco DM in jet")
-                elif name == "dm_reco_vs_gen_tau":
-                    obj.GetXaxis().SetTitle("Reco DM in tau")
-                else:
-                    obj.GetXaxis().SetTitle("DM assigned by HPS")
-                obj.GetYaxis().SetTitle("Gen DM")
-
+                xax.SetTitle(confusion_xtitles[name])
+                yax.SetTitle("Gen DM")
             draw_hist(obj, out, "COLZ")
         else:
             draw_hist(obj, out, "HIST E1")
 
-    # ======= 4) Full tau-level histograms (raw inputs) =======
-    # collect per-DM hists for global overlays
-    gen_pt_hists = []   # list of (label, hist)
-    reco_pt_hists = []  # list of (label, hist)
-    gen_eta_hists = []  # list of (label, hist)
-    reco_eta_hists = [] # list of (label, hist)
 
-    for dm in dm_list:
-        dm_dir = os.path.join(out_dir, f"dm{dm}")
-        os.makedirs(dm_dir, exist_ok=True)
-        
-        d_dm = file.Get(f"{dqm_dir}/GenDM{dm}")
-        if not d_dm:
-            missing.append(f"{dqm_dir}/GenDM{dm}")
-            continue
+def plot_tau_raw_inputs(ctx):
+    """Full tau-level histograms (raw inputs) and DM overlays."""
+    gen_pt, reco_pt = [], []
+    gen_eta, reco_eta = [], []
 
+    for dm in ctx.dm_list:
         if dm not in ch_legs_by_dm:
-            print(f"Skipping non-physical DM {dm} (not in ch_legs_by_dm)")
+            print(f"Skipping non-physical DM {dm}")
             continue
-
-        # denominators
-        for var in ["pt"] + (["eta"] if PLOT_ETA else []):
-            nm = f"tau_dm{dm}_den_{var}"
-            obj = d_dm.Get(nm)
-            if obj:
-                draw_hist(obj, os.path.join(dm_dir, f"{nm}.png"), "HIST E1")
-            else:
-                missing.append(f"{dqm_dir}/GenDM{dm}/{nm}")
-
-        # ≥N charged numerators (N up to prongs)
-        for N in range(1, ch_legs_by_dm[dm] + 1):
-            for var in ["pt"] + (["eta"] if PLOT_ETA else []):
-                nm = f"tau_dm{dm}_ge{N}ch_num_{var}"
-                obj = d_dm.Get(nm)
-                if obj:
-                    draw_hist(obj, os.path.join(dm_dir, f"{nm}.png"), "HIST E1")
-                else:
-                    missing.append(f"{dqm_dir}/GenDM{dm}/{nm}")
-
-        # ≥N pi0 numerators (N up to pi0 count per DM)
-        for N in range(1, pi0_cap_by_dm[dm] + 1):
-            for var in ["pt"] + (["eta"] if PLOT_ETA else []):
-                nm = f"tau_dm{dm}_ge{N}pi0_num_{var}"
-                obj = d_dm.Get(nm)
-                if obj:
-                    draw_hist(obj, os.path.join(dm_dir, f"{nm}.png"), "HIST E1")
-                else:
-                    missing.append(f"{dqm_dir}/GenDM{dm}/{nm}")
-
-        # ALL expected numerators
-        for var in ["pt"] + (["eta"] if PLOT_ETA else []):
-            nm = f"tau_dm{dm}_all_num_{var}"
-            obj = d_dm.Get(nm)
-            if obj:
-                draw_hist(obj, os.path.join(dm_dir, f"{nm}.png"), "HIST E1")
-            else:
-                missing.append(f"{dqm_dir}/GenDM{dm}/{nm}")
-
-        # reco tau shapes
-        for var in ["pt"] + (["eta"] if PLOT_ETA else []):
-            nm = f"tau_dm{dm}_reco_{var}"
-            obj = d_dm.Get(nm)
-            if obj:
-                draw_hist(obj, os.path.join(dm_dir, f"{nm}.png"), "HIST E1")
-            else:
-                missing.append(f"{dqm_dir}/GenDM{dm}/{nm}")
-
-        # collect per-DM gen/reco hists for global DM overlays (pT)
-        h_gen_pt = d_dm.Get(f"tau_dm{dm}_den_pt")
-        if h_gen_pt:
-            gen_pt_hists.append((f"DM {dm}", h_gen_pt))
-        else:
-            missing.append(f"{dqm_dir}/GenDM{dm}/tau_dm{dm}_den_pt")
-
-        h_rec_pt = d_dm.Get(f"tau_dm{dm}_reco_pt")
-        if h_rec_pt:
-            reco_pt_hists.append((f"DM {dm}", h_rec_pt))
-        else:
-            missing.append(f"{dqm_dir}/GenDM{dm}/tau_dm{dm}_reco_pt")
-
-        # collect per-DM gen/reco hists for global DM overlays (eta)
-        if PLOT_ETA:
-            h_gen_eta = d_dm.Get(f"tau_dm{dm}_den_eta")
-            if h_gen_eta:
-                gen_eta_hists.append((f"DM {dm}", h_gen_eta))
-            else:
-                missing.append(f"{dqm_dir}/GenDM{dm}/tau_dm{dm}_den_eta")
-
-            h_rec_eta = d_dm.Get(f"tau_dm{dm}_reco_eta")
-            if h_rec_eta:
-                reco_eta_hists.append((f"DM {dm}", h_rec_eta))
-            else:
-                missing.append(f"{dqm_dir}/GenDM{dm}/tau_dm{dm}_reco_eta")
-
-    # overlay of different DMs: one plot for gen and one for reco (pT)
-    if gen_pt_hists:
-        gen_labels, gen_hists = zip(*gen_pt_hists)
-        overlay_hist(
-            list(gen_hists),
-            list(gen_labels),
-            os.path.join(out_dir, "tau_gen_pt_dm_overlay.png"),
-            r"$p_{T}(\tau)$ [GeV]",
-            "Entries",
-            "Gen $\\tau$ $p_{T}$"
-        )
-
-    if reco_pt_hists:
-        reco_labels, reco_hists = zip(*reco_pt_hists)
-        overlay_hist(
-            list(reco_hists),
-            list(reco_labels),
-            os.path.join(out_dir, "tau_reco_pt_dm_overlay.png"),
-            r"$p_{T}(\tau)$ [GeV]",
-            "Entries",
-            "Reco $\\tau$ $p_{T}$"
-        )
-
-    # optional: overlay of different DMs for eta (gen and reco)
-    if PLOT_ETA:
-        if gen_eta_hists:
-            gen_eta_labels, gen_eta_objs = zip(*gen_eta_hists)
-            overlay_hist(
-                list(gen_eta_objs),
-                list(gen_eta_labels),
-                os.path.join(out_dir, "tau_gen_eta_dm_overlay.png"),
-                r"$\eta(\tau)$",
-                "Entries",
-                "Gen $\\tau$ $\\eta$"
-            )
-
-        if reco_eta_hists:
-            reco_eta_labels, reco_eta_objs = zip(*reco_eta_hists)
-            overlay_hist(
-                list(reco_eta_objs),
-                list(reco_eta_labels),
-                os.path.join(out_dir, "tau_reco_eta_dm_overlay.png"),
-                r"$\eta(\tau)$",
-                "Entries",
-                "Reco $\\tau$ $\\eta$"
-            )
-
-    # ======= 5) pT resolution plots (pt_reco / pt_sim) =======
-    HIST_NAME_PATTERN = "tau_dm{dm}_pt_reco_over_gen"
-
-    res_hists = []  # (dm, hist)
-
-    for dm in dm_list:
-        dm_dir = os.path.join(out_dir, f"dm{dm}")
-        os.makedirs(dm_dir, exist_ok=True)
-
-        d_dm = file.Get(f"{dqm_dir}/GenDM{dm}")
+        d_dm = ctx.get_dm_tdir(dm)
         if not d_dm:
-            missing.append(f"{dqm_dir}/GenDM{dm}")
+            ctx.missing.append(f"{ctx.dqm_dir}/GenDM{dm}")
             continue
+        dm_dir = ctx.dm_out_dir(dm)
+        dm_path = f"{ctx.dqm_dir}/GenDM{dm}"
 
-        hname = HIST_NAME_PATTERN.format(dm=dm)
-        h = d_dm.Get(hname)
+        # Raw histogram groups: (name pattern, count range)
+        raw_groups = [
+            (lambda v: f"tau_dm{dm}_den_{v}", 1),
+            (lambda v: f"tau_dm{dm}_all_num_{v}", 1),
+            (lambda v: f"tau_dm{dm}_reco_{v}", 1),
+        ]
+        for N in range(1, ch_legs_by_dm[dm] + 1):
+            raw_groups.append((lambda v, n=N: f"tau_dm{dm}_ge{n}ch_num_{v}", 1))
+        for N in range(1, pi0_cap_by_dm[dm] + 1):
+            raw_groups.append((lambda v, n=N: f"tau_dm{dm}_ge{n}pi0_num_{v}", 1))
+
+        for name_fn, _ in raw_groups:
+            for var in ctx.vars:
+                nm = name_fn(var)
+                obj = ctx.get_or_miss(d_dm, nm, dm_path)
+                if obj:
+                    draw_hist(obj, os.path.join(dm_dir, f"{nm}.png"), "HIST E1")
+
+        # Collect for cross-DM overlays
+        h = ctx.get_or_miss(d_dm, f"tau_dm{dm}_den_pt", dm_path)
+        if h:
+            gen_pt.append((f"DM {dm}", h))
+        h = ctx.get_or_miss(d_dm, f"tau_dm{dm}_reco_pt", dm_path)
+        if h:
+            reco_pt.append((f"DM {dm}", h))
+        if PLOT_ETA:
+            h = ctx.get_or_miss(d_dm, f"tau_dm{dm}_den_eta", dm_path)
+            if h:
+                gen_eta.append((f"DM {dm}", h))
+            h = ctx.get_or_miss(d_dm, f"tau_dm{dm}_reco_eta", dm_path)
+            if h:
+                reco_eta.append((f"DM {dm}", h))
+
+    # Cross-DM overlays
+    overlay_specs = [
+        (gen_pt,   "tau_gen_pt_dm_overlay.png",   r"$p_{T}(\tau)$ [GeV]", "Gen $\\tau$ $p_{T}$",   True),
+        (reco_pt,  "tau_reco_pt_dm_overlay.png",  r"$p_{T}(\tau)$ [GeV]", "Reco $\\tau$ $p_{T}$",  True),
+        (gen_eta,  "tau_gen_eta_dm_overlay.png",   r"$\eta(\tau)$",        "Gen $\\tau$ $\\eta$",    PLOT_ETA),
+        (reco_eta, "tau_reco_eta_dm_overlay.png",  r"$\eta(\tau)$",        "Reco $\\tau$ $\\eta$",   PLOT_ETA),
+    ]
+    for hist_list, fname, xlabel, title, enabled in overlay_specs:
+        if enabled and hist_list:
+            labels, hists = zip(*hist_list)
+            overlay_hist(list(hists), list(labels),
+                         os.path.join(ctx.out_dir, fname), xlabel, "Entries", title)
+
+
+def plot_pt_resolution(ctx):
+    """ pT resolution plots (pt_reco / pt_sim)."""
+    res_hists = []
+    for dm in ctx.dm_list:
+        d_dm = ctx.get_dm_tdir(dm)
+        if not d_dm:
+            ctx.missing.append(f"{ctx.dqm_dir}/GenDM{dm}")
+            continue
+        hname = f"tau_dm{dm}_pt_reco_over_gen"
+        h = ctx.get_or_miss(d_dm, hname, f"{ctx.dqm_dir}/GenDM{dm}")
         if not h:
-            missing.append(f"{dqm_dir}/GenDM{dm}/{hname}")
             continue
-
-        # individual DM plot
-        out = os.path.join(dm_dir, f"{hname}.png")
-        draw_resolution(h, out, r"$p_{T}^{reco} / p_{T}^{gen}$")
-
         res_hists.append((dm, h))
 
-    # overlay all DMs in one plot
     if res_hists:
-        objs   = [h for dm, h in res_hists]
-        labels = [f"DM {dm}" for dm, h in res_hists]
-        out_overlay = os.path.join(out_dir, "tau_pt_reco_over_gen_overlay.png")
-        overlay_resolution(objs, labels, out_overlay,
-                           r"$p_{T}^{reco}(\tau) / p_{T}^{gen}(\tau)$",
-                           "$\\tau$ $p_{T}$ resolution")
+        objs = [h for _, h in res_hists]
+        labels = [f"DM {dm}" for dm, _ in res_hists]
+        overlay_hist(objs, labels,
+                     os.path.join(ctx.out_dir, "tau_pt_reco_over_gen_overlay.png"),
+                     r"$p_{T}^{reco}(\tau) / p_{T}^{gen}(\tau)$", "Entries",
+                     "$\\tau$ $p_{T}$ resolution")
 
-    # ======= 6) Per-DM CP base histograms =======
-    for dm in dm_list:
-        dm_dir = os.path.join(out_dir, f"dm{dm}")
-        os.makedirs(dm_dir, exist_ok=True)
 
-        d_dm = file.Get(f"{dqm_dir}/GenDM{dm}")
+def plot_cp_base_histograms(ctx):
+    """ Per-DM CP base histograms."""
+    for dm in ctx.dm_list:
+        d_dm = ctx.get_dm_tdir(dm)
         if not d_dm:
-            missing.append(f"{dqm_dir}/GenDM{dm}")
+            ctx.missing.append(f"{ctx.dqm_dir}/GenDM{dm}")
             continue
-
-        for nm in [
-            f"cp_chHad_dm{dm}_pt",
-            f"cp_chHad_dm{dm}_eta",
-            f"cp_gamma_dm{dm}_pt",
-            f"cp_gamma_dm{dm}_eta",
-        ]:
+        dm_dir = ctx.dm_out_dir(dm)
+        for nm in [f"cp_chHad_dm{dm}_pt", f"cp_chHad_dm{dm}_eta",
+                    f"cp_gamma_dm{dm}_pt", f"cp_gamma_dm{dm}_eta"]:
             obj = d_dm.Get(nm)
             if obj:
                 draw_hist(obj, os.path.join(dm_dir, f"{nm}.png"), "HIST E1")
             else:
-                missing.append(f"{dqm_dir}/GenDM{dm}/{nm}")
+                ctx.missing.append(f"{ctx.dqm_dir}/GenDM{dm}/{nm}")
 
-    # ======= 7) CP-to-PF pT resolution (1D ratio histograms, per DM) =======
-    cp_pf_had_hists = []  # (dm, hist) for overlays
-    cp_pf_em_hists = []   # (dm, hist) for overlays
 
-    for dm in dm_list:
-        dm_dir = os.path.join(out_dir, f"dm{dm}")
-        os.makedirs(dm_dir, exist_ok=True)
+def plot_cp_pf_resolution(ctx):
+    """ CP-to-PF pT resolution (1D ratio histograms, per DM)."""
+    cp_pf_had, cp_pf_em = [], []
 
-        d_dm = file.Get(f"{dqm_dir}/GenDM{dm}")
+    for dm in ctx.dm_list:
+        d_dm = ctx.get_dm_tdir(dm)
         if not d_dm:
-            missing.append(f"{dqm_dir}/GenDM{dm}")
+            ctx.missing.append(f"{ctx.dqm_dir}/GenDM{dm}")
             continue
+        dm_path = f"{ctx.dqm_dir}/GenDM{dm}"
 
-        # Hadronic (charged hadron) resolution
-        obj_had = d_dm.Get(f"cp_pf_pt_resolution_hadronic_dm{dm}")
-        if obj_had:
-            draw_resolution(obj_had, os.path.join(dm_dir, f"cp_pf_pt_resolution_hadronic_dm{dm}.png"),
-                           r"$p_{T}^{reco}/p_{T}^{gen}$")
-            cp_pf_had_hists.append((dm, obj_had))
-        else:
-            missing.append(f"{dqm_dir}/GenDM{dm}/cp_pf_pt_resolution_hadronic_dm{dm}")
+        for suffix, accum in [("hadronic", cp_pf_had), ("em", cp_pf_em)]:
+            nm = f"cp_pf_pt_resolution_{suffix}_dm{dm}"
+            obj = d_dm.Get(nm)
+            if obj:
+                accum.append((dm, obj))
+            else:
+                ctx.missing.append(f"{dm_path}/{nm}")
 
-        # Electromagnetic (photon) resolution
-        obj_em = d_dm.Get(f"cp_pf_pt_resolution_em_dm{dm}")
-        if obj_em:
-            draw_resolution(obj_em, os.path.join(dm_dir, f"cp_pf_pt_resolution_em_dm{dm}.png"),
-                           r"$p_{T}^{reco}/p_{T}^{gen}$")
-            cp_pf_em_hists.append((dm, obj_em))
-        else:
-            missing.append(f"{dqm_dir}/GenDM{dm}/cp_pf_pt_resolution_em_dm{dm}")
+    if cp_pf_had:
+        objs = [h for _, h in cp_pf_had]
+        labels = [f'DM {dm}' for dm, _ in cp_pf_had]
+        overlay_hist(objs, labels,
+                     os.path.join(ctx.out_dir, "cp_pf_pt_resolution_hadronic_overlay.png"),
+                     r"$p_{T}^{reco}(\pi^{\pm})/p_{T}^{gen}(\pi^{\pm})$", "Entries",
+                     "Hadronic CP resolution")
+    if cp_pf_em:
+        objs = [h for _, h in cp_pf_em]
+        labels = [f'DM {dm}' for dm, _ in cp_pf_em]
+        overlay_hist(objs, labels,
+                     os.path.join(ctx.out_dir, "cp_pf_pt_resolution_em_overlay.png"),
+                     r"$p_{T}^{reco}(\gamma)/p_{T}^{gen}(\gamma)$", "Entries",
+                     "Gamma CP resolution")
 
-    # Create overlay plots of CP-to-PF resolution across DMs
-    if cp_pf_had_hists:
-        objs = [h for dm, h in cp_pf_had_hists]
-        labels = [f'DM {dm}' for dm, h in cp_pf_had_hists]
-        out_overlay_had = os.path.join(out_dir, "cp_pf_pt_resolution_hadronic_overlay.png")
-        overlay_resolution(objs, labels, out_overlay_had, r"$p_{T}^{reco}(\pi^{\pm})/p_{T}^{gen}(\pi^{\pm})$",
-                          "Hadronic CP resolution")
 
-    if cp_pf_em_hists:
-        objs = [h for dm, h in cp_pf_em_hists]
-        labels = [f'DM {dm}' for dm, h in cp_pf_em_hists]
-        out_overlay_em = os.path.join(out_dir, "cp_pf_pt_resolution_em_overlay.png")
-        overlay_resolution(objs, labels, out_overlay_em, r"$p_{T}^{reco}(\gamma)/p_{T}^{gen}(\gamma)$",
-                          "Gamma CP resolution")
+def plot_fake_rates(ctx):
+    """ Fake rate plots."""
+    d_fake = ctx.file.Get(ctx.dqm_dir + "/FakeRate")
+    if not d_fake:
+        print(f"WARNING: FakeRate directory not found at {ctx.dqm_dir}/FakeRate")
+        return
 
-    # ======= 8) Two-fold CP-level efficiency (track-only, calo-only, track+calo) =======
-    twofold_kinds_ch = [
-        ("trackOnly",     "Track-only"),
-        ("caloOnly",      "Calo-only (TICL)"),
-        ("trackAndCalo",  "Track AND calo"),
-    ]
-    twofold_kinds_pho = [
-        ("caloOnly",      "Calo-only (TICL)"),
-    ]
-    for dm in dm_list:
-        dm_dir = os.path.join(out_dir, f"dm{dm}")
-        os.makedirs(dm_dir, exist_ok=True)
+    fake_dm_sel = [0, 1, 2, 5, 10, 11]
 
-        d_dm = file.Get(f"{dqm_dir}/GenDM{dm}")
-        if not d_dm:
-            continue
+    # Helper: plot one fake rate set (inclusive + per-DM + raw inputs + overlays)
+    def _plot_fake_set(prefix):
+        """Plot fake rate histos for a given prefix (e.g. 'fake', 'fake_calo', 'fake_track').
+        Inclusive histos live in FakeRate/, per-DM histos in GenDM{dm}/FakeRate/."""
 
-        if dm not in ch_legs_by_dm:
-            continue
+        # Inclusive fake rate — standalone removed; shown in assoc overlays
+        for var in ctx.vars:
+            nm = f"{prefix}_rate_{var}"
+            if not d_fake.Get(nm):
+                ctx.missing.append(f"{ctx.dqm_dir}/FakeRate/{nm}")
 
-        # --- charged CP two-fold overlay per DM ---
-        for var in vars_to_plot:
-            ch_twofold_objs = []
-            for kind, label in twofold_kinds_ch:
-                nm = f"eff_cp_chHad_dm{dm}_{kind}_{var}"
-                obj = d_dm.Get(nm)
+        # Inclusive raw inputs (from FakeRate/)
+        for var in ctx.vars:
+            for kind in ["den", "num"]:
+                nm = f"{prefix}_{kind}_{var}"
+                obj = d_fake.Get(nm)
                 if obj:
-                    obj.SetTitle(f"{label}")
-                    ch_twofold_objs.append(obj)
+                    draw_hist(obj, os.path.join(ctx.out_dir, f"{nm}.png"), "HIST E1")
                 else:
-                    missing.append(f"{dqm_dir}/GenDM{dm}/{nm}")
-            if ch_twofold_objs:
-                overlay_efficiency(
-                    ch_twofold_objs,
-                    os.path.join(dm_dir, f"cp_chHad_dm{dm}_twofold_{var}.png"),
-                )
+                    ctx.missing.append(f"{ctx.dqm_dir}/FakeRate/{nm}")
 
-        # --- photon CP two-fold (calo-only) ---
-        for var in vars_to_plot:
-            pho_twofold_objs = []
-            for kind, label in twofold_kinds_pho:
-                nm = f"eff_cp_gamma_dm{dm}_{kind}_{var}"
-                obj = d_dm.Get(nm)
+        # Per reco-DM fake rate (from GenDM{dm}/FakeRate/)
+        dm_pt_hists, dm_eta_hists = [], []
+        for dm in fake_dm_sel:
+            d_dm_fake = ctx.file.Get(f"{ctx.dqm_dir}/GenDM{dm}/FakeRate")
+            dm_out = ctx.dm_out_dir(dm)
+
+            for var in ctx.vars:
+                nm = f"{prefix}_rate_dm{dm}_{var}"
+                obj = d_dm_fake.Get(nm) if d_dm_fake else None
                 if obj:
-                    obj.SetTitle(f"{label}")
-                    pho_twofold_objs.append(obj)
+                    if var == "pt":
+                        dm_pt_hists.append(obj)
+                    elif var == "eta":
+                        dm_eta_hists.append(obj)
                 else:
-                    missing.append(f"{dqm_dir}/GenDM{dm}/{nm}")
-            if pho_twofold_objs:
-                for obj in pho_twofold_objs:
-                    draw_eff(obj, os.path.join(dm_dir, f"cp_gamma_dm{dm}_caloOnly_{var}.png"))
+                    ctx.missing.append(f"{ctx.dqm_dir}/GenDM{dm}/FakeRate/{nm}")
 
-    # Cross-DM two-fold overlay: charged track-only
-    for var in vars_to_plot:
-        dm_objs = []
-        for dm in dm_list:
-            if dm not in ch_legs_by_dm:
-                continue
-            d_dm = file.Get(f"{dqm_dir}/GenDM{dm}")
-            if not d_dm:
-                continue
-            obj = d_dm.Get(f"eff_cp_chHad_dm{dm}_trackOnly_{var}")
-            if obj:
-                obj.SetTitle(f"DM {dm}")
-                dm_objs.append(obj)
-        if dm_objs:
-            overlay_efficiency(
-                dm_objs,
-                os.path.join(out_dir, f"cp_chHad_trackOnly_dm_overlay_{var}.png"),
-            )
+            # Per-DM raw inputs
+            for var in ctx.vars:
+                for kind in ["den", "num"]:
+                    nm = f"{prefix}_dm{dm}_{kind}_{var}"
+                    obj = d_dm_fake.Get(nm) if d_dm_fake else None
+                    if obj:
+                        draw_hist(obj, os.path.join(dm_out, f"{nm}.png"), "HIST E1")
+                    else:
+                        ctx.missing.append(f"{ctx.dqm_dir}/GenDM{dm}/FakeRate/{nm}")
 
-    # Cross-DM two-fold overlay: charged calo-only
-    for var in vars_to_plot:
-        dm_objs = []
-        for dm in dm_list:
-            if dm not in ch_legs_by_dm:
-                continue
-            d_dm = file.Get(f"{dqm_dir}/GenDM{dm}")
-            if not d_dm:
-                continue
-            obj = d_dm.Get(f"eff_cp_chHad_dm{dm}_caloOnly_{var}")
-            if obj:
-                obj.SetTitle(f"DM {dm}")
-                dm_objs.append(obj)
-        if dm_objs:
-            overlay_efficiency(
-                dm_objs,
-                os.path.join(out_dir, f"cp_chHad_caloOnly_dm_overlay_{var}.png"),
-            )
+        if dm_pt_hists:
+            overlay_efficiency(dm_pt_hists, os.path.join(ctx.out_dir, f"{prefix}_rate_dm_overlay_pt.png"))
+        if PLOT_ETA and dm_eta_hists:
+            overlay_efficiency(dm_eta_hists, os.path.join(ctx.out_dir, f"{prefix}_rate_dm_overlay_eta.png"))
 
-    # Cross-DM two-fold overlay: charged track AND calo
-    for var in vars_to_plot:
-        dm_objs = []
-        for dm in dm_list:
-            if dm not in ch_legs_by_dm:
-                continue
-            d_dm = file.Get(f"{dqm_dir}/GenDM{dm}")
-            if not d_dm:
-                continue
-            obj = d_dm.Get(f"eff_cp_chHad_dm{dm}_trackAndCalo_{var}")
-            if obj:
-                obj.SetTitle(f"DM {dm}")
-                dm_objs.append(obj)
-        if dm_objs:
-            overlay_efficiency(
-                dm_objs,
-                os.path.join(out_dir, f"cp_chHad_trackAndCalo_dm_overlay_{var}.png"),
-            )
+    # Combined (calo OR track)
+    _plot_fake_set("fake")
 
-    # ======= 9) Fake rate plots =======
-    fake_dir = os.path.join(out_dir, "fake_rate")
-    os.makedirs(fake_dir, exist_ok=True)
+    # Calo-only association
+    _plot_fake_set("fake_calo")
 
-    # Fake rate histograms are in the FakeRate/ subfolder
-    d_fake = file.Get(dqm_dir + "/FakeRate")
-    if d_fake:
-        # Inclusive fake rate (harvested efficiency = num/den)
-        for var in vars_to_plot:
-            nm = f"fake_rate_{var}"
+    # Track-only association
+    _plot_fake_set("fake_track")
+
+    # Charged iso path filtered taus
+    _plot_fake_set("fake_chargedIsoPath")
+    _plot_fake_set("fake_calo_chargedIsoPath")
+    _plot_fake_set("fake_track_chargedIsoPath")
+
+    # Overlay: combined vs calo vs track (inclusive)
+    for var in ctx.vars:
+        objs = []
+        for prefix, label in [("fake", "Combined (calo OR track)"),
+                               ("fake_calo", "Calo (TICL) only"),
+                               ("fake_track", "Track only")]:
+            nm = f"{prefix}_rate_{var}"
             obj = d_fake.Get(nm)
             if obj:
-                draw_eff(obj, os.path.join(fake_dir, f"{nm}.png"))
-            else:
-                missing.append(f"{dqm_dir}/FakeRate/{nm}")
+                obj.SetTitle(label)
+                objs.append(obj)
+        if objs:
+            overlay_efficiency(objs, os.path.join(ctx.out_dir, f"fake_rate_assoc_overlay_{var}.png"))
 
-        # Per reco-DM fake rate
-        fake_dm_sel = [0, 1, 2, 5, 10, 11]
-        fake_pt_hists = []   # for overlay
-        fake_eta_hists = []  # for overlay
-        for dm in fake_dm_sel:
-            for var in vars_to_plot:
-                nm = f"fake_rate_dm{dm}_{var}"
+    # Overlay: combined vs calo vs track (per-DM)
+    for dm in fake_dm_sel:
+        d_dm_fake = ctx.file.Get(f"{ctx.dqm_dir}/GenDM{dm}/FakeRate")
+        for var in ctx.vars:
+            objs = []
+            for prefix, label in [("fake", "Combined"),
+                                   ("fake_calo", "Calo only"),
+                                   ("fake_track", "Track only")]:
+                nm = f"{prefix}_rate_dm{dm}_{var}"
+                obj = d_dm_fake.Get(nm) if d_dm_fake else None
+                if obj:
+                    obj.SetTitle(f"{label}: DM {dm}")
+                    objs.append(obj)
+            if objs:
+                overlay_efficiency(objs, os.path.join(ctx.dm_out_dir(dm), f"fake_rate_dm{dm}_assoc_overlay_{var}.png"))
+
+    # Overlay: filtered combined vs calo vs track
+    for var in ctx.vars:
+        objs = []
+        for prefix, label in [("fake_chargedIsoPath", "Combined (calo OR track)"),
+                               ("fake_calo_chargedIsoPath", "Calo (TICL) only"),
+                               ("fake_track_chargedIsoPath", "Track only")]:
+            nm = f"{prefix}_rate_{var}"
+            obj = d_fake.Get(nm)
+            if obj:
+                obj.SetTitle(label)
+                objs.append(obj)
+        if objs:
+            overlay_efficiency(objs, os.path.join(ctx.out_dir, f"fake_rate_chargedIsoPath_assoc_overlay_{var}.png"))
+
+    # Overlay: unfiltered vs HLT-filtered per association type (inclusive)
+    for assoc, tag in [("fake", "Combined"), ("fake_calo", "Calo"), ("fake_track", "Track")]:
+        filt = f"{assoc}_chargedIsoPath" if assoc == "fake" else f"{assoc}_chargedIsoPath"
+        for var in ctx.vars:
+            objs = []
+            for prefix, label in [(assoc, f"{tag} (all reco taus)"),
+                                   (filt, f"{tag} (HLT filtered)")]:
+                nm = f"{prefix}_rate_{var}"
                 obj = d_fake.Get(nm)
                 if obj:
-                    draw_eff(obj, os.path.join(fake_dir, f"{nm}.png"))
-                    if var == "pt":
-                        fake_pt_hists.append(obj)
-                    elif var == "eta":
-                        fake_eta_hists.append(obj)
-                else:
-                    missing.append(f"{dqm_dir}/FakeRate/{nm}")
+                    obj.SetTitle(label)
+                    objs.append(obj)
+            if objs:
+                overlay_efficiency(objs, os.path.join(ctx.out_dir, f"{assoc}_rate_unfilt_vs_filt_{var}.png"))
 
-        # Overlay per-DM fake rates
-        if fake_pt_hists:
-            overlay_efficiency(
-                fake_pt_hists,
-                os.path.join(fake_dir, "fake_rate_dm_overlay_pt.png"),
-            )
-        if PLOT_ETA and fake_eta_hists:
-            overlay_efficiency(
-                fake_eta_hists,
-                os.path.join(fake_dir, "fake_rate_dm_overlay_eta.png"),
-            )
-
-        # Raw inputs: den/num histograms
-        for var in vars_to_plot:
-            for kind in ["den", "num"]:
-                nm = f"fake_{kind}_{var}"
-                obj = d_fake.Get(nm)
-                if obj:
-                    draw_hist(obj, os.path.join(fake_dir, f"{nm}.png"), "HIST E1")
-                else:
-                    missing.append(f"{dqm_dir}/FakeRate/{nm}")
-
-        for dm in fake_dm_sel:
-            for var in vars_to_plot:
-                for kind in ["den", "num"]:
-                    nm = f"fake_dm{dm}_{kind}_{var}"
-                    obj = d_fake.Get(nm)
+    # Overlay: unfiltered vs HLT-filtered per association type (per-DM)
+    for dm in fake_dm_sel:
+        d_dm_fake = ctx.file.Get(f"{ctx.dqm_dir}/GenDM{dm}/FakeRate")
+        if not d_dm_fake:
+            continue
+        for assoc, tag in [("fake", "Combined"), ("fake_calo", "Calo"), ("fake_track", "Track")]:
+            filt = f"{assoc}_chargedIsoPath" if assoc == "fake" else f"{assoc}_chargedIsoPath"
+            for var in ctx.vars:
+                objs = []
+                for prefix, label in [(assoc, f"{tag} (all)"),
+                                       (filt, f"{tag} (HLT filtered)")]:
+                    nm = f"{prefix}_rate_dm{dm}_{var}"
+                    obj = d_dm_fake.Get(nm)
                     if obj:
-                        draw_hist(obj, os.path.join(fake_dir, f"{nm}.png"), "HIST E1")
-                    else:
-                        missing.append(f"{dqm_dir}/FakeRate/{nm}")
-    else:
-        print(f"WARNING: FakeRate directory not found at {dqm_dir}/FakeRate")
+                        obj.SetTitle(label)
+                        objs.append(obj)
+                if objs:
+                    overlay_efficiency(objs, os.path.join(ctx.dm_out_dir(dm),
+                                      f"{assoc}_rate_dm{dm}_unfilt_vs_filt_{var}.png"))
 
-    # Report missing without failing
-    if missing:
+def main():
+    global args
+    parser = argparse.ArgumentParser(description='Make Ticl Tau validation plots.')
+    parser.add_argument('-s', '--step', type=str, default='HLT',
+                        help='Validation step ("HLT" or "Offline")')
+    parser.add_argument('-f', '--file', type=str, required=True,
+                        help='Paths to the DQM ROOT file.')
+    parser.add_argument('-o', '--odir', type=str, default="TauValidationPlots", required=False,
+                        help='Path to the output directory.')
+    parser.add_argument('-l', '--sample_label', type=str, default="Tau (200 PU)", required=False,
+                        help='Sample label for plotting.')
+    args = parser.parse_args()
+
+    if args.step == 'HLT':
+        dqm_dir = "DQMData/Run 1/HLT/Run summary/TICL/ticlTauValidator"
+    elif args.step == 'Offline':
+        dqm_dir = "DQMData/Run 1/Run summary/RecoTauV/ticlTauValidator/"
+    else:
+        sys.exit("### ERROR: Please chose the step among the following ['HLT', 'Offline']")
+
+    root_file = ROOT.TFile.Open(args.file)
+    if not root_file or root_file.IsZombie():
+        raise RuntimeError(f"Failed to open DQM file: {args.file}")
+    if not root_file.Get(dqm_dir):
+        raise RuntimeError(f"Directory '{dqm_dir}' not found in {args.file}")
+
+    os.makedirs(args.odir, exist_ok=True)
+    ctx = PlotContext(root_file, dqm_dir, args.odir)
+    print(ctx.dm_subdirs)
+
+    plot_per_leg_efficiencies(ctx)
+    plot_tau_level_efficiencies(ctx)
+    plot_inputs_and_matrices(ctx)
+    plot_tau_raw_inputs(ctx)
+    plot_pt_resolution(ctx)
+    plot_cp_base_histograms(ctx)
+    plot_cp_pf_resolution(ctx)
+    plot_fake_rates(ctx)
+
+    if ctx.missing:
         print("Missing objects:")
-        for m in sorted(set(missing)):
+        for m in sorted(set(ctx.missing)):
             print("  -", m)
 
-    file.Close()
-    print(f"Done. Plots saved to: {out_dir}")
+    root_file.Close()
+    print(f"Done. Plots saved to: {ctx.out_dir}")
+
+
+if __name__ == '__main__':
+    main()
