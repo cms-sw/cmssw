@@ -10,6 +10,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Portable/interface/MultiView.h"
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
 #include "DataFormats/TrackSoA/interface/TracksSoA.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
@@ -26,11 +27,13 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace ::caStructures;
+  // TODO: think of redifinition of the HitsMultiView
+  using HitsMultiView = MultiView<::reco::TrackingRecHitConstView, 2>;
 
   template <typename TrackerTraits>
   class CACell {
   public:
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE void init(const HitsConstView& hh,
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void init(const HitsMultiView& hh,
                                              int layerPairId,
                                              uint8_t theInnerLayer,
                                              uint8_t theOuterLayer,
@@ -82,24 +85,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC ALPAKA_FN_INLINE bool unused() const { return 0 == (uint16_t(StatusBit::kUsed) & theStatus_); }
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void setStatusBits(StatusBit mask) { theStatus_ |= uint16_t(mask); }
 
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_x(const HitsConstView& hh) const { return hh[theInnerHitId_].xGlobal(); }
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_x(const HitsConstView& hh) const { return hh[theOuterHitId_].xGlobal(); }
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_y(const HitsConstView& hh) const { return hh[theInnerHitId_].yGlobal(); }
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_y(const HitsConstView& hh) const { return hh[theOuterHitId_].yGlobal(); }
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_z(const HitsConstView& hh) const { return theInnerZ_; }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_x(const HitsMultiView& hh) const { return hh[theInnerHitId_].xGlobal(); }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_x(const HitsMultiView& hh) const { return hh[theOuterHitId_].xGlobal(); }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_y(const HitsMultiView& hh) const { return hh[theInnerHitId_].yGlobal(); }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_y(const HitsMultiView& hh) const { return hh[theOuterHitId_].yGlobal(); }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_z(const HitsMultiView& hh) const { return theInnerZ_; }
     ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_z() const { return theInnerZ_; }
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_z(const HitsConstView& hh) const { return hh[theOuterHitId_].zGlobal(); }
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_r(const HitsConstView& hh) const { return theInnerR_; }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_z(const HitsMultiView& hh) const { return hh[theOuterHitId_].zGlobal(); }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_r(const HitsMultiView& hh) const { return theInnerR_; }
     ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_r() const { return theInnerR_; }
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_r(const HitsConstView& hh) const { return hh[theOuterHitId_].rGlobal(); }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_r(const HitsMultiView& hh) const { return hh[theOuterHitId_].rGlobal(); }
 
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE auto inner_iphi(const HitsConstView& hh) const { return hh[theInnerHitId_].iphi(); }
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE auto outer_iphi(const HitsConstView& hh) const { return hh[theOuterHitId_].iphi(); }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE auto inner_iphi(const HitsMultiView& hh) const { return hh[theInnerHitId_].iphi(); }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE auto outer_iphi(const HitsMultiView& hh) const { return hh[theOuterHitId_].iphi(); }
 
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_detIndex(const HitsConstView& hh) const {
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_detIndex(const HitsMultiView& hh) const {
       return hh[theInnerHitId_].detectorIndex();
     }
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_detIndex(const HitsConstView& hh) const {
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_detIndex(const HitsMultiView& hh) const {
       return hh[theOuterHitId_].detectorIndex();
     }
 
@@ -115,7 +118,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
              theOuterHitId_);
     }
 
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE void setFishbone(Acc2D const& acc, hindex_type id, float z, const HitsConstView& hh) {
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void setFishbone(Acc2D const& acc, hindex_type id, float z, const HitsMultiView& hh) {
       // make it deterministic: use the farther apart (in z), breaking exact ties by the hit id so
       // that concurrent updates converge to the same winner independently of their order
       auto old = theFishboneId_;
@@ -143,7 +146,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return tan_12_13_half_mul_distance_13_squared * pMin <= thetaCut * distance_13_squared * radius_diff;
     }
 
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE auto dcaCut(const HitsConstView& hh,
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE auto dcaCut(const HitsMultiView& hh,
                                                CACell const& otherCell,
                                                const float region_origin_radius_plus_tolerance,
                                                const float maxCurv) const {
@@ -169,7 +172,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC ALPAKA_FN_INLINE auto quadrupletCut(const float innerCurvature,
                                                       float& outerCurvature,
                                                       const ::reco::CALayersSoAConstView& ll,
-                                                      const HitsConstView& hh,
+                                                      const HitsMultiView& hh,
                                                       const float x1,
                                                       const float y1) const {
       // calculate curvature for the XY plane cuts
@@ -207,7 +210,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     template <int DEPTH>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void find_ntuplets(Acc1D const& acc,
-                                                      const HitsConstView& hh,
+                                                      const HitsMultiView& hh,
                                                       const ::reco::CALayersSoAConstView& ll,
                                                       CACell* __restrict__ cells,
                                                       HitContainer& foundNtuplets,

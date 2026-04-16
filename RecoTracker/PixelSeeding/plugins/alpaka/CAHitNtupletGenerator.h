@@ -3,6 +3,8 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Portable/interface/MultiView.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
 #include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
@@ -31,6 +33,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     using HitsView = ::reco::TrackingRecHitView;
     using HitsConstView = ::reco::TrackingRecHitConstView;
+    using HitsMultiView = MultiView<HitsConstView, 2>;
+    using ModulesMultiView = MultiView<::reco::HitModuleSoAConstView, 2>;
     using HitsOnDevice = reco::TrackingRecHitsSoACollection;
     using HitsOnHost = ::reco::TrackingRecHitHost;
 
@@ -56,7 +60,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // void beginJob();
     // void endJob();
 
-    TkSoADevice makeTuplesAsync(HitsOnDevice const& hits_d,
+    TkSoADevice makeTuplesAsync(std::vector<::edm::RefProd<HitsOnDevice>> const& hits_d,
                                 CAGeometryOnDevice const& params_d,
                                 float bfield,
                                 uint32_t maxDoublets,
