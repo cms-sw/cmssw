@@ -473,11 +473,7 @@ void L1TCorrelatorLayer1PatternFileWriter::writeDebugs(const l1ct::Event& event,
   // Note:  the writers have a width of 64 very much hardcoded in the sizes. Therefore, send the bits as
   //        two separate "fibers"
 
-  constexpr unsigned int MAX_BITWIDTH =
-      std::max({l1ct::TkObjEmu::BITWIDTH_BARREL,
-                l1ct::EmCaloObjEmu::BITWIDTH_BARREL,
-                l1ct::HadCaloObjEmu::BITWIDTH_BARREL,
-                l1ct::MuObjEmu::BITWIDTH});  // Should be the biggest object width (or greater)
+  constexpr unsigned int MAX_BITWIDTH = 128;
 
   if (nPFInTrack_) {
     std::vector<std::vector<ap_uint<64>>> linksLow(nPFInTrack_);   // virtual links -- bits 63:0
