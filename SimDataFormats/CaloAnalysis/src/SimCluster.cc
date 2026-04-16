@@ -44,6 +44,7 @@ SimCluster SimCluster::mergeHitsFromCollection(const std::vector<SimCluster> &in
       }
     }
 
+    assert(!other.g4Tracks_.empty());  // otherwise we could end up without any sim track
     ret.g4Tracks_.insert(ret.g4Tracks_.end(), other.g4Tracks_.begin(), other.g4Tracks_.end());
   }
 
@@ -53,10 +54,15 @@ SimCluster SimCluster::mergeHitsFromCollection(const std::vector<SimCluster> &in
   for (auto const &[detId, energy] : acc_energies) {
     ret.hits_.push_back(detId);
     ret.energies_.push_back(energy);
+
+    if (!acc_fractions.empty()) {
+      auto it = acc_fractions.find(detId);
+      if (it != acc_fractions.end())
+        ret.fractions_.push_back(it->second);
+    }
   }
-  for (auto const &[_, fraction] : acc_fractions) {
-    ret.fractions_.push_back(fraction);
-  }
+  assert(ret.fractions_.empty() || ret.fractions_.size() == ret.energies_.size());
+
   ret.nsimhits_ = ret.hits_.size();
 
   return ret;

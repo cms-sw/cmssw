@@ -133,9 +133,10 @@ public:
    * Returns the PDG ID of the first associated gen particle. If there are no
    * gen particles associated then it returns type() from the first SimTrack. */
   int pdgId() const {
-    if (genParticles_.empty())
+    if (genParticles_.empty()) {
+      assert(!g4Tracks_.empty());
       return g4Tracks_[0].type();
-    else
+    } else
       return (*genParticles_.begin())->pdgId();
   }
 
@@ -162,7 +163,10 @@ public:
   const std::vector<SimTrack> &g4Tracks() const { return g4Tracks_; }
 
   /// @brief Electric charge. Note this is taken from the first SimTrack only.
-  float charge() const { return g4Tracks_[0].charge(); }
+  float charge() const {
+    assert(!g4Tracks_.empty());
+    return g4Tracks_[0].charge();
+  }
   /// Gives charge in unit of quark charge (should be 3 times "charge()")
   int threeCharge() const { return lrintf(3.f * charge()); }
 
@@ -267,6 +271,7 @@ public:
   /** @brief Returns list of rechit IDs and fractions for this SimCluster (copying legacy API) */
   std::vector<std::pair<uint32_t, float>> hits_and_fractions() const {
     // legacy returns a copy; now deterministic because finalizeHits() sorted it
+    assertFractions_();
     std::vector<std::pair<uint32_t, float>> result;
     result.reserve(hits_.size());
     for (size_t i = 0; i < hits_.size(); ++i) {
@@ -278,7 +283,7 @@ public:
   /** @brief Returns filtered list of rechit IDs and fractions for this SimCluster based on a predicate (copying) */
   std::vector<std::pair<uint32_t, float>> filtered_hits_and_fractions(
       const std::function<bool(const DetId &)> &predicate) const {
-    assert(hits_.size() == fractions_.size());
+    assertFractions_();
     std::vector<std::pair<uint32_t, float>> result;
     for (size_t i = 0; i < hits_.size(); ++i) {
       DetId detid(hits_[i]);
@@ -290,7 +295,7 @@ public:
 
   /** @brief Returns list of rechit IDs and energies for this SimCluster (copying legacy API) */
   std::vector<std::pair<uint32_t, float>> hits_and_energies() const {
-    assert(hits_.size() == energies_.size());
+    assertEnergies_();
     std::vector<std::pair<uint32_t, float>> result;
     result.reserve(hits_.size());
     for (size_t i = 0; i < hits_.size(); ++i)
@@ -327,13 +332,13 @@ public:
       return;
     }
 
-    assert(hits_.size() == energies_.size());
-    if (!fractions_.empty())
-      assert(hits_.size() == fractions_.size());
-
     // Already finalized? keep it cheap and idempotent.
     if (hitsFinalized_)
       return;
+
+    assertEnergies_();
+    if (!fractions_.empty())
+      assertFractions_();
 
     // Sort by (det, subdet, rawid)
     std::vector<size_t> order(hits_.size());
@@ -360,7 +365,6 @@ public:
   // cost-free views (requires a call to finalizeHits())
   // --------------------------------------------------------------------------
   HitsAndFractionsView hits_and_fractions_view() const {
-    assertFinalized_();
     assertFractions_();
     return HitsAndFractionsView{{hits_, fractions_}};
   }
@@ -387,24 +391,27 @@ public:
   }
 
   HitsAndEnergiesView hits_and_energies_view() const {
-    assertFinalized_();
+    assertEnergies_();
     return HitsAndEnergiesView{{hits_, energies_}};
   }
 
   HitsAndEnergiesView hits_and_energies_view(DetId::Detector det) const {
     assertFinalized_();
+    assertEnergies_();
     auto [b, e] = detRanges_[detIndex_(det)];
     return HitsAndEnergiesView{{{hits_.data() + b, e - b}, {energies_.data() + b, e - b}}};
   }
 
   HitsAndEnergiesView hits_and_energies_view(DetId::Detector det, int subdetId) const {
     assertFinalized_();
+    assertEnergies_();
     auto [bb, ee] = subdetRange_(det, subdetId);
     return HitsAndEnergiesView{{{hits_.data() + bb, ee - bb}, {energies_.data() + bb, ee - bb}}};
   }
 
   HitsAndEnergiesView hits_and_energies_view(DetId::Detector detIdMin, DetId::Detector detIdMax) const {
     assertFinalized_();
+    assertEnergies_();
     auto [begin, end] = detMinMaxRange_(detIdMin, detIdMax);
     return HitsAndEnergiesView{{{hits_.data() + begin, end - begin}, {energies_.data() + begin, end - begin}}};
   }
@@ -440,6 +447,14 @@ private:
 
   void assertFinalized_() const {
     assert(hitsFinalized_ && "SimCluster: hits not finalized. Call finalizeHits() in the producer before persisting.");
+  }
+
+  void assertEnergies_() const {
+    if (hits_.size() != energies_.size()) {
+      edm::LogWarning("SimCluster") << "energies (" + std::to_string(energies_.size()) + ") and hits (" +
+                                           std::to_string(hits_.size()) + ") must have the same size.";
+      std::abort();
+    }
   }
 
   void assertFractions_() const {
