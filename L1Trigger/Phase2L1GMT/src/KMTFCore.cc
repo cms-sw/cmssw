@@ -177,6 +177,16 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
 		covariance(4,4) = float(pointResolutionkSlope_[seed->depthRegion() - 1]);
 	}
     track.setCovariance(covariance);
+	l1t::CovarianceMatrix2dim covNB;
+	if (seed->depthRegion() == 4) {
+  		covNB(0,0) = pow(2, 22);
+  		covNB(1,1) = pow(2, 22);
+	} else {
+  		covNB(0,0) = float(pointResolutionz_[seed->depthRegion() - 1]);
+  		covNB(1,1) = float(pointResolutionkSlope_[seed->depthRegion() - 1]);
+	}
+	covNB(0,1) = 0;
+	track.setCovarianceNB(covNB);
 
     //
     if (verbose_) {
@@ -646,6 +656,22 @@ void KMTFCore::propagate(l1t::KMTFTrack& track) {
     //<< ", zNew=" << zNew/ZRES_CONV << ", kSlopeNew=" << kSlopeNew/KRES_CONV
     //<< ", zdeltaR_dig=" << zdeltaR_dig << '\n';
 
+  ROOT::Math::SMatrix<double, 2, 2> Fnb;
+  Fnb(0,0) = 1.0;  
+  Fnb(0,1) = -zdeltaR_dig;
+  Fnb(1,0) = 0.0;  
+  Fnb(1,1) = 1.0;
+
+  const std::vector<double>& covNBLine = track.covarianceNB();
+  l1t::CovarianceMatrix2dim covNB(covNBLine.begin(), covNBLine.end());
+  covNB = ROOT::Math::Similarity(Fnb, covNB);
+
+  l1t::CovarianceMatrix2dim MSnb;
+  MSnb(0,0) = mScatteringz_[step - 1]      * K * K;
+  MSnb(1,1) = mScatteringkSlope_[step - 1] * K * K;
+  MSnb(0,1) = 0;
+  covNB = covNB + MSnb;
+  track.setCovarianceNB(covNB);
   track.setCovariance(cov);
   track.setCoordinates(step - 1, KNew, phiNew, phiBNew, zNew, kSlopeNew);
 }
@@ -663,6 +689,37 @@ bool KMTFCore::update(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub, int m
 }
 
 bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub) {
+  const double rNB[]{ pointResolutionz_[track.step() - 1],
+                      0,
+                      pointResolutionkSlope_[track.step() - 1] };
+  const CovarianceMatrix2 Rnb(rNB, 3);
+
+  const std::vector<double>& cNBline = track.covarianceNB();
+  l1t::CovarianceMatrix2dim covNB(cNBline.begin(), cNBline.end());
+
+  CovarianceMatrix2 Snb = covNB + Rnb;      // H = I, so HPH^T = P
+  if (Snb.Invert()) {
+    ROOT::Math::SMatrix<double,2,2> GainNB = covNB * Snb;   // P H^T S^-1, H^T = I
+
+    // Overwrite the saved gains with the pure-NB versions (G30, G31, G40, G41).
+    track.setKalmanGain(track.step(), fabs(track.curvature()),
+                        0, 0, 1, 0,
+                        GainNB(0,0), GainNB(0,1));          // slot G30, G31
+    track.setConvergenceGain(track.step(), fabs(track.curvature()),
+                             track.thetaDigiPattern(),
+                             GainNB(0,0), GainNB(0,1),       // Gz0, Gz1
+                             GainNB(1,0), GainNB(1,1));      // Gk0, Gk1  (<-- G40, G41)
+
+    // shrink Pnb so the NEXT step sees the post-update covariance
+    ROOT::Math::SMatrix<double,2,2> I22;
+    I22(0,0) = 1; I22(1,1) = 1; I22(0,1) = 0; I22(1,0) = 0;
+    ROOT::Math::SMatrix<double,2,2> covNBnew = (I22 - GainNB) * covNB;
+    l1t::CovarianceMatrix2dim cNB;
+    cNB(0,0) = covNBnew(0,0);
+    cNB(0,1) = covNBnew(0,1);
+    cNB(1,1) = covNBnew(1,1);
+    track.setCovarianceNB(cNB);
+  }
   int trackK = track.curvature();
   int trackPhi = track.positionAngle();
   int trackPhiB = track.bendingAngle();
@@ -740,25 +797,16 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
   //const Matrix53 Gain = cov * ROOT::Math::Transpose(H) * S;
   const Matrix52 Gain = cov * ROOT::Math::Transpose(H) * S;
 
-  track.setKalmanGain(
-      track.step(), fabs(trackK), Gain(0, 0), Gain(0, 1), 1, 0, Gain(2, 0), Gain(2, 1));
+  //track.setKalmanGain(
+      //track.step(), fabs(trackK), Gain(0, 0), Gain(0, 1), 1, 0, Gain(2, 0), Gain(2, 1));
 
-  //int KNew = (trackK + int(Gain(0, 0) * residual(0) + Gain(0, 1) * residual(1) + Gain(0, 2) * residual(2) + Gain(0, 3) * residual(3)));
-  //int KNew = (trackK + int(Gain(0, 0) * residual(0) + Gain(0, 1) * residual(1) + Gain(0, 2) * residual(2)));
   int KNew = (trackK + int(Gain(0, 0) * residual(0) + Gain(0, 1) * residual(1)));
   if (fabs(KNew) > pow(2, BITSCURV - 1))
     return false;
 
   int phiNew = wrapAround(trackPhi + int(Gain(1, 0) * residual(0) + Gain(1, 1) * residual(1)), pow(2, BITSPHI - 1));
-  //int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1) + Gain(2, 2) * residual(2) + Gain(2, 3) * residual(3)), pow(2, BITSPHIB - 1));
-  //int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1) + Gain(2, 2) * residual(2)), pow(2, BITSPHIB - 1));
   int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1)), pow(2, BITSPHIB - 1));
-  //int phiBNew = trackPhiB;
-  //int zNew = trackz + int(Gain(3, 0) * residual(0) + Gain(3, 1) * residual(1) + Gain(3, 2) * residual(2) + Gain(3, 3) * residual(3));
-  //int zNew = trackz + int(Gain(3, 0) * residual(0) + Gain(3, 1) * residual(1) + Gain(3, 2) * residual(2));
   int zNew = trackz + int(Gain(3, 0) * residual(0) + Gain(3, 1) * residual(1));
-  //int kSlopeNew = trackSlope + int(Gain(4, 0) * residual(0) + Gain(4, 1) * residual(1) + Gain(4, 2) * residual(2) + Gain(4, 3) * residual(3));
-  //int kSlopeNew = trackSlope + int(Gain(4, 0) * residual(0) + Gain(4, 1) * residual(1) + Gain(4, 2) * residual(2));
   int kSlopeNew = trackSlope + int(Gain(4, 0) * residual(0) + Gain(4, 1) * residual(1));
   //std::cout << "[UPDATE-OFFLINE] step=" << track.step()
           //<< " Gain(3,0)=" << Gain(3,0) << " Gain(3,1)=" << Gain(3,1) << " Gain(3,2)=" << Gain(3,2)
@@ -815,12 +863,44 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
   track.addStub(stub);
   track.setHitPattern(hitPattern(track));
   track.setThetaDigiPattern(thetaDigiPattern(track));
-  track.setConvergenceGain(track.step(), fabs(trackK), priorThetaPattern, Gain(3, 0), Gain(3, 1), Gain(4, 0), Gain(4, 1));
+  //track.setConvergenceGain(track.step(), fabs(trackK), priorThetaPattern, Gain(3, 0), Gain(3, 1), Gain(4, 0), Gain(4, 1));
 
   return true;
 }
 
 bool KMTFCore::updateOffline1D(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub) {
+  const double rNB[]{ pointResolutionz_[track.step() - 1],
+                      0,
+                      pointResolutionkSlope_[track.step() - 1] };
+  const CovarianceMatrix2 Rnb(rNB, 3);
+
+  const std::vector<double>& cNBline = track.covarianceNB();
+  l1t::CovarianceMatrix2dim covNB(cNBline.begin(), cNBline.end());
+
+  CovarianceMatrix2 Snb = covNB + Rnb;      // H = I, so HPH^T = P
+  if (Snb.Invert()) {
+    ROOT::Math::SMatrix<double,2,2> GainNB = covNB * Snb;   // P H^T S^-1, H^T = I
+
+    // Overwrite the saved gains with the pure-NB versions (G30, G31, G40, G41).
+    track.setKalmanGain(track.step(), fabs(track.curvature()),
+                        0, 0, 1, 0,
+                        GainNB(0,0), GainNB(0,1));          // slot G30, G31
+    track.setConvergenceGain(track.step(), fabs(track.curvature()),
+                             track.thetaDigiPattern(),
+                             GainNB(0,0), GainNB(0,1),       // Gz0, Gz1
+                             GainNB(1,0), GainNB(1,1));      // Gk0, Gk1  (<-- G40, G41)
+
+    // shrink Pnb so the NEXT step sees the post-update covariance
+    ROOT::Math::SMatrix<double,2,2> I22;
+    I22(0,0) = 1; I22(1,1) = 1; I22(0,1) = 0; I22(1,0) = 0;
+    ROOT::Math::SMatrix<double,2,2> covNBnew = (I22 - GainNB) * covNB;
+    l1t::CovarianceMatrix2dim cNB;
+    cNB(0,0) = covNBnew(0,0);
+    cNB(0,1) = covNBnew(0,1);
+    cNB(1,1) = covNBnew(1,1);
+    track.setCovarianceNB(cNB);
+  }
+
   int trackK = track.curvature();
   int trackPhi = track.positionAngle();
   int trackPhiB = track.bendingAngle();
@@ -890,7 +970,7 @@ bool KMTFCore::updateOffline1D(l1t::KMTFTrack& track, const l1t::MuonStubRef& st
   //Matrix53 Gain = cov * ROOT::Math::Transpose(H) * S;
   Matrix52 Gain = cov * ROOT::Math::Transpose(H) * S;
 
-  track.setKalmanGain(track.step(), fabs(trackK), Gain(0, 0), 0.0, 1, 0, Gain(2, 0), 0.0);
+  //track.setKalmanGain(track.step(), fabs(trackK), Gain(0, 0), 0.0, 1, 0, Gain(2, 0), 0.0);
 
   //int KNew = wrapAround(trackK + int(Gain(0, 0) * residual(0) + Gain(0, 1) * residual(1) + Gain(0, 2) * residual(2)), pow(2, BITSCURV - 1));
   int KNew = wrapAround(trackK + int(Gain(0, 0) * residual(0) + Gain(0, 1) * residual(1)), pow(2, BITSCURV - 1));
@@ -938,7 +1018,7 @@ bool KMTFCore::updateOffline1D(l1t::KMTFTrack& track, const l1t::MuonStubRef& st
   track.addStub(stub);
   track.setHitPattern(hitPattern(track));
   track.setThetaDigiPattern(thetaDigiPattern(track));
-  track.setConvergenceGain(track.step(), fabs(trackK), priorThetaPattern, Gain(3, 0), Gain(3, 1), Gain(4, 0), Gain(4, 1));
+  //track.setConvergenceGain(track.step(), fabs(trackK), priorThetaPattern, Gain(3, 0), Gain(3, 1), Gain(4, 0), Gain(4, 1));
 
 
   return true;

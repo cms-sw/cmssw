@@ -11,6 +11,7 @@ namespace l1t {
   typedef std::vector<KMTFTrack> KMTFTrackCollection;
   typedef BXVector<KMTFTrack> KMTFTrackBxCollection;
   typedef math::Error<5>::type CovarianceMatrix5dim;
+  typedef math::Error<2>::type CovarianceMatrix2dim;
 
   class KMTFTrack : public reco::LeafCandidate {
   public:
@@ -18,6 +19,7 @@ namespace l1t {
         : reco::LeafCandidate(-1, reco::LeafCandidate::PolarLorentzVector(0.1, 0.0, 0.0, 0.105)),
           unconstrainedP4_(reco::LeafCandidate::PolarLorentzVector(0.1, 0.0, 0.0, 0.105)),
           covariance_(std::vector<double>(15, 0.0)),
+		  covarianceNB_(std::vector<double>(3, 0.0)),
           curvVertex_(0),
           ptC_(0),
           phiVertex_(0),
@@ -54,6 +56,7 @@ namespace l1t {
         : reco::LeafCandidate(-1, reco::LeafCandidate::PolarLorentzVector(0.1, 0.0, 0.0, 0.105)),
           unconstrainedP4_(reco::LeafCandidate::PolarLorentzVector(0.1, 0.0, 0.0, 0.105)),
           covariance_(std::vector<double>(15, 0.0)),
+		  covarianceNB_(std::vector<double>(3, 0.0)),
           curvVertex_(0),
           ptC_(0),
           phiVertex_(0),
@@ -181,6 +184,7 @@ namespace l1t {
 
     //get covariance
     const std::vector<double>& covariance() const { return covariance_; }
+	const std::vector<double>& covarianceNB() const { return covarianceNB_; }
 
     //get residual
     int residual(uint i) const { return residuals_[i]; }
@@ -369,6 +373,12 @@ namespace l1t {
       covariance_[14] = c(4, 4);
 	
     }
+	
+	void setCovarianceNB(const CovarianceMatrix2dim& c) {
+  		covarianceNB_[0] = c(0,0);
+  		covarianceNB_[1] = c(0,1);
+  		covarianceNB_[2] = c(1,1);
+	}
 
     //set fine eta
     void setFineEta(int eta) {
@@ -384,6 +394,7 @@ namespace l1t {
 
     //Covariance matrix for studies
     std::vector<double> covariance_;
+	std::vector<double> covarianceNB_; 
     l1t::MuonStubRefVector stubs_;
 
     //vertex coordinates
