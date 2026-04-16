@@ -185,7 +185,9 @@ MPIController::~MPIController() {
   // Disconnect the per-stream communicators.
   for (auto& stream : streams_) {
     // TODO move this to end stream
-    stream->reset();
+    if (stream) {
+      stream->reset();
+    }
   }
 
   // Close the intercommunicator.
