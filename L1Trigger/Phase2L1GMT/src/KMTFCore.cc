@@ -141,11 +141,25 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
     covariance(0, 0) = DK * 4;
     covariance(0, 1) = 0;
     covariance(0, 2) = 0;
+    covariance(0, 3) = 0;
+    covariance(0, 4) = 0;
     covariance(1, 0) = 0;
     covariance(1, 1) = float(pointResolutionPhi_);
     covariance(1, 2) = 0;
+    covariance(1, 3) = 0;
+    covariance(1, 4) = 0;
     covariance(2, 0) = 0;
     covariance(2, 1) = 0;
+    covariance(2, 3) = 0;
+    covariance(2, 4) = 0;
+    covariance(3, 0) = 0;
+    covariance(3, 1) = 0;
+    covariance(3, 2) = 0;
+    covariance(3, 4) = 0;
+    covariance(4, 0) = 0;
+    covariance(4, 1) = 0;
+    covariance(4, 2) = 0;
+    covariance(4, 3) = 0;
     if (!(mask == 1 || mask == 2 || mask == 3 || mask == 4 || mask == 5 || mask == 9 || mask == 6 || mask == 10 ||
           mask == 12))
       covariance(2, 2) = float(pointResolutionPhiB_);
@@ -211,7 +225,7 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
       if (verbose_)
         edm::LogWarning("KMTFCore") << "propagated Coordinates step:" << track.step() << "phi=" << track.positionAngle()
                                  << "phiB=" << track.bendingAngle() << "K=" << track.curvature() << ", z=" << track.zPosition() << ", kSlope=" << track.kSlope();
-      if (track.step() > 0)
+      if (track.step() > 0){
         if (getBit(mask, track.step() - 1)) {
           std::pair<bool, uint> bestStub = match(seed, stubs, track.step());
           if (verbose_)
@@ -225,6 +239,7 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
                                      << " phiB=" << track.bendingAngle() << " K=" << track.curvature() << ", z=" << track.zPosition() << ", kSlope=" << track.kSlope();
           }
         }
+	  }
 
       if (track.step() == 0) {
         track.setCoordinatesAtVertex(track.curvature(), track.positionAngle(), track.bendingAngle());
@@ -714,7 +729,6 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
 					0, pointResolutionkSlope_[track.step() - 1]};
   const CovarianceMatrix2 R(r, 3);
 
-
   const std::vector<double>& covLine = track.covariance();
   const l1t::CovarianceMatrix5dim cov(covLine.begin(), covLine.end());
   //CovarianceMatrix4 S = ROOT::Math::Similarity(H, cov) + R;
@@ -726,7 +740,6 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
   //const Matrix53 Gain = cov * ROOT::Math::Transpose(H) * S;
   const Matrix52 Gain = cov * ROOT::Math::Transpose(H) * S;
 
-
   track.setKalmanGain(
       track.step(), fabs(trackK), Gain(0, 0), Gain(0, 1), 1, 0, Gain(2, 0), Gain(2, 1));
 
@@ -736,12 +749,11 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
   if (fabs(KNew) > pow(2, BITSCURV - 1))
     return false;
 
-  //int phiNew = wrapAround(trackPhi + residual(0), pow(2, BITSPHI - 1));
-  int phiNew = trackPhi;
+  int phiNew = wrapAround(trackPhi + int(Gain(1, 0) * residual(0) + Gain(1, 1) * residual(1)), pow(2, BITSPHI - 1));
   //int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1) + Gain(2, 2) * residual(2) + Gain(2, 3) * residual(3)), pow(2, BITSPHIB - 1));
   //int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1) + Gain(2, 2) * residual(2)), pow(2, BITSPHIB - 1));
-  //int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1)), pow(2, BITSPHIB - 1));
-  int phiBNew = trackPhiB;
+  int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1)), pow(2, BITSPHIB - 1));
+  //int phiBNew = trackPhiB;
   //int zNew = trackz + int(Gain(3, 0) * residual(0) + Gain(3, 1) * residual(1) + Gain(3, 2) * residual(2) + Gain(3, 3) * residual(3));
   //int zNew = trackz + int(Gain(3, 0) * residual(0) + Gain(3, 1) * residual(1) + Gain(3, 2) * residual(2));
   int zNew = trackz + int(Gain(3, 0) * residual(0) + Gain(3, 1) * residual(1));
