@@ -229,7 +229,7 @@ The Service has the following configuration parameters
 
 By default all reports are printed with MessageLogger. With `filePattern` the reports are written into files, with the file names being printed with MessageLogger at the time when each measurment ends. The `edmIntrusiveAllocProfilerFoldStacks.py` script can be used to "fold" the stack traces to a format understood e.g. flamegraph tools such as https://github.com/brendangregg/FlameGraph for one quantity at a time. An example
 ```sh
-edmIntrusiveAllocProfilerFoldStacks.py -q actual report.txt | flamegraph.pl > report_flamegraph.svg
+edmAllocProfilerFoldStacks.py -q actual report.txt | flamegraph.pl > report_flamegraph.svg
 ```
 
 ### ThresholdAbortAllocMonitor
