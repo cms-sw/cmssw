@@ -22,7 +22,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
                                   uint32_t maxNumOfDoublets,
                                   CACell<TrackerTraits>* cells,
                                   uint32_t* nCells,
-                                  HitsConstView hh,
+                                  MultiView<HitsConstView, 2> hh,
                                   ::reco::CAGraphSoAConstView cc,
                                   ::reco::CALayersSoAConstView ll,
                                   uint32_t const* __restrict__ offsets,

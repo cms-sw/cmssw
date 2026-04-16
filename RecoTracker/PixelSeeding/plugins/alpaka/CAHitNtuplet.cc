@@ -3,6 +3,7 @@
 #include <TFormula.h>
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
 
+#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/TrackSoA/interface/TracksHost.h"
 #include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
 #include "DataFormats/TrackSoA/interface/TracksDevice.h"
@@ -386,20 +387,32 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   void CAHitNtupletAlpaka<TrackerTraits>::produce(device::Event& iEvent, const device::EventSetup& es) {
+    std::cout << "Start with CAHitNtupletAlpaka::produce" << std::endl;
     auto bf = 1. / es.getData(tokenField_).inverseBzAtOriginInGeV();
 
     auto const& geometry = runCache()->get(iEvent.queue());
     const auto& pixColl = iEvent.get(pixelRecHitToken_);
     const auto& trkColl = iEvent.get(trackerRecHitToken_);
 
-    const uint32_t nHits = pixColl.nHits() + trkColl.nHits();
+    std::vector<edm::RefProd<HitsOnDevice>> hitsCollections;
+    hitsCollections.push_back(edm::RefProd<HitsOnDevice>(&pixColl));
+    hitsCollections.push_back(edm::RefProd<HitsOnDevice>(&trkColl));
+
+    uint32_t nHits = 0;
+    for (auto const& ref : hitsCollections) {
+      nHits += ref->nHits();
+    }
+
+    const int32_t offsetBPIX2 = hitsCollections[0]->offsetBPIX2();
+
+    std::cout << "Total numner of hits: " << nHits << std::endl;
 
     /// Don't bother if no hits on BPix1 and no good graph for that
     /// (so no staring pair without BPix1 as first layer).
     /// TODO: this could be extended to a more general check for
     /// no hits on any of the starting layers.
 
-    if (globalCache()->startNoBPix1_ or pixColl.offsetBPIX2() > 0) {
+    if (globalCache()->startNoBPix1_ or offsetBPIX2 > 0) {
       std::array<double, 1> nHitsV{static_cast<double>(nHits)};
       std::array<double, 1> emptyV;
 
@@ -407,10 +420,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       uint32_t const maxDoublets = maxNumberOfDoublets_.evaluate(nHitsV, emptyV);
 
       iEvent.emplace(tokenTrack_,
-                     deviceAlgo_.makeTuplesAsync(pixColl, geometry, bf, maxDoublets, maxTuples, iEvent.queue()));
+                     deviceAlgo_.makeTuplesAsync(hitsCollections, geometry, bf, maxDoublets, maxTuples, iEvent.queue()));
 
     } else {
-      edm::LogWarning("CAHitNtupletAlpaka") << "No hit on BPix1 (" << pixColl.offsetBPIX2()
+      edm::LogWarning("CAHitNtupletAlpaka") << "No hit on BPix1 (" << offsetBPIX2
                                             << ") and all the starting pairs has BPix1 as inner layer.\nIt's useless "
                                             << "to run the CA. Returning with 0 tracks!";
       auto& queue = iEvent.queue();
