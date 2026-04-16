@@ -46,3 +46,8 @@
   name="testMPIAutosplitter"
   command="testAutomaticSplitter.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/scripts/edmMpiSplitConfig ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/configutration_for_automatic_splitter.py"
 />
+
+<test
+  name="testMPITooManyStreams"
+  command="testMPICommWorld.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/controller_too_many_streams_cfg.py ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/follower_too_many_streams_cfg.py"
+/>
