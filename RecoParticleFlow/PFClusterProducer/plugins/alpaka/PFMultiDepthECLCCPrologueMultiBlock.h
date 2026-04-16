@@ -169,7 +169,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           warp_local_nlist[idx.local] = dst_vertex_idx == src_vertex_idx ? 0 : 1;
           block_local_nlist[idx.local] = 0;
 
-          if (idx.local < max_w_items) {
+          if (idx.local < w_extent) {
             subdomain_offsets[idx.local] = 0;
           }
         }
@@ -303,9 +303,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         alpaka::syncBlockThreads(acc);
 
         // Constract coarse-grained offset (offsets for each warp):
-        for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, w_extent)) {
+        for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
           const auto lane_idx = idx.local % w_extent;
-          if (lane_idx >= w_items)
+          if (lane_idx >= w_extent)
             continue;
 
           const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
