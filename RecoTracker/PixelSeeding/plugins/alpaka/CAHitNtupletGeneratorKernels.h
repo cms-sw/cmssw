@@ -26,6 +26,7 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace ::caStructures;
+  using ModulesMultiView = MultiView<::reco::HitModuleSoAConstView, 2>;
 
   namespace caHitNtupletGenerator {
 
@@ -155,12 +156,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     CellToCell const* cellToCell() const { return device_cellToNeighbors_->data(); }
     CellToTrack const* cellToTrack() const { return device_cellToTracks_->data(); }
 
-    void prepareHits(const HitsConstView& hh,
-                     const HitModulesConstView& mm,
+    void prepareHits(const HitsMultiView& hh,
+                     const ModulesMultiView& mm,
                      const ::reco::CALayersSoAConstView& ll,
                      Queue& queue);
 
-    void launchKernels(const HitsConstView& hh,
+    void launchKernels(const HitsMultiView& hh,
                        uint32_t offsetBPIX2,
                        uint16_t nLayers,
                        TkSoABlocksView& view,
@@ -168,9 +169,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                        const ::reco::CAGraphSoAConstView& cc,
                        Queue& queue);
 
-    void classifyTuples(const HitsConstView& hh, TkSoAView& track_view, Queue& queue);
+    void classifyTuples(const HitsMultiView& hh, TkSoAView& track_view, Queue& queue);
 
-    void buildDoublets(const HitsConstView& hh,
+    void buildDoublets(const HitsMultiView& hh,
                        const ::reco::CAGraphSoAConstView& cc,
                        const ::reco::CALayersSoAConstView& ll,
                        uint32_t offsetBPIX2,

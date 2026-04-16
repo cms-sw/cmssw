@@ -5,6 +5,7 @@
 
 #include <Eigen/Core>
 
+#include "DataFormats/Portable/interface/MultiView.h"
 #include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "RecoTracker/PixelTrackFitting/interface/FitResult.h"
@@ -55,6 +56,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     using HitView = ::reco::TrackingRecHitView;
     using HitConstView = ::reco::TrackingRecHitConstView;
+    using HitsMultiView = MultiView<HitConstView, 2>;
     using OutputSoAView = ::reco::TrackSoAView;
     using OutputHitSoAView = ::reco::TrackHitSoAView;
 
@@ -65,12 +67,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ~HelixFit() { deallocate(); }
 
     void setBField(double bField) { bField_ = bField; }
-    void launchRiemannKernels(const HitConstView &hv,
+    void launchRiemannKernels(const HitsMultiView &hv,
                               const ::reco::CAModulesConstView &fr,
                               uint32_t nhits,
                               uint32_t maxNumberOfTuples,
                               Queue &queue);
-    void launchBrokenLineKernels(const HitConstView &hv,
+    void launchBrokenLineKernels(const HitsMultiView &hv,
                                  const ::reco::CAModulesConstView &fr,
                                  uint32_t nhits,
                                  uint32_t maxNumberOfTuples,
