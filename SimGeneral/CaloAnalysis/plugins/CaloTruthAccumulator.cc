@@ -7,6 +7,11 @@
  *   - SimCluster "merged" : takes "boundary" SimClusters and merges them according to some algorithm (to merge SimClusters that are not separable at reconstruction level)
  *  and RefVectors to map back to CaloParticle (and map "boundary" to "merged")
  */
+
+// Switch to true to compile debug printouts and dump the graph to graphviz format
+// should be defined before including DecayGraph.h
+#define DEBUG false
+
 #include <iterator>
 #include <algorithm>
 #include <memory>

@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/EgammaTrackReco/interface/ConversionTrackFwd.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTrackFwd.h"
 
 class ConversionTrackRefFix : public edm::stream::EDProducer<> {
 public:

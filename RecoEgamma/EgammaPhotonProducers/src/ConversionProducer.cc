@@ -21,7 +21,7 @@ Implementation:
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaTrackReco/interface/ConversionTrack.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTrack.h"
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"

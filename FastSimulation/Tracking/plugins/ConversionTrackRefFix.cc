@@ -2,7 +2,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/EgammaTrackReco/interface/ConversionTrack.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTrack.h"
 
 using namespace std;
 using namespace reco;

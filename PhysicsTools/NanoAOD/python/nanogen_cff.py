@@ -125,6 +125,14 @@ def customizeNanoGEN(process):
     nanoGenCommonCustomize(process)
     return process
 
+def customizeNanoGENMinimal(process):
+    process.nanogenSequence.insert(0, process.finalGenParticles)
+    for output in ("NANOEDMAODSIMoutput", "NANOAODSIMoutput"):
+        if hasattr(process, output):
+            getattr(process, output).outputCommands.append("drop edmTriggerResults_*_*_*")
+
+    return process
+
 # Prune gen particles with tight conditions applied in usual NanoAOD
 def pruneGenParticlesNano(process):
     process.finalGenParticles.src = process.genParticleTable.src.getModuleLabel()
