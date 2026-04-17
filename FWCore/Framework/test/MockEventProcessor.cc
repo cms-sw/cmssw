@@ -44,11 +44,11 @@ namespace edm {
         reachedEndOfInput_(false),
         shouldThrow_(false) {}
 
-  InputSource::ItemType MockEventProcessor::nextTransitionType() {
+  SourceStatus MockEventProcessor::nextTransitionType() {
     token t;
     if (not(input_ >> t)) {
       reachedEndOfInput_ = true;
-      return lastTransition_ = InputSource::ItemType::IsStop;
+      return SourceStatus{InputSource::ItemType::IsStop};
     }
 
     char ch = t.id;
@@ -57,11 +57,11 @@ namespace edm {
     if (ch == 'r') {
       output_ << "    *** nextItemType: Run " << t.value << " ***\n";
       nextRun_ = static_cast<RunNumber_t>(t.value);
-      return lastTransition_ = InputSource::ItemType::IsRun;
+      return SourceStatus{InputSource::ItemType::IsRun};
     } else if (ch == 'l') {
       output_ << "    *** nextItemType: Lumi " << t.value << " ***\n";
       nextLumi_ = static_cast<LuminosityBlockNumber_t>(t.value);
-      return lastTransition_ = InputSource::ItemType::IsLumi;
+      return SourceStatus{InputSource::ItemType::IsLumi};
     } else if (ch == 'e') {
       output_ << "    *** nextItemType: Event ***\n";
       // a special value for test purposes only
@@ -71,7 +71,7 @@ namespace edm {
       } else {
         shouldWeStop_ = false;
       }
-      return lastTransition_ = InputSource::ItemType::IsEvent;
+      return SourceStatus{InputSource::ItemType::IsEvent};
     } else if (ch == 'f') {
       output_ << "    *** nextItemType: File " << t.value << " ***\n";
       // a special value for test purposes only
@@ -79,7 +79,7 @@ namespace edm {
         shouldWeCloseOutput_ = false;
       else
         shouldWeCloseOutput_ = true;
-      return lastTransition_ = InputSource::ItemType::IsFile;
+      return SourceStatus{InputSource::ItemType::IsFile};
     } else if (ch == 's') {
       output_ << "    *** nextItemType: Stop " << t.value << " ***\n";
       // a special value for test purposes only
@@ -87,23 +87,22 @@ namespace edm {
         shouldWeEndLoop_ = false;
       else
         shouldWeEndLoop_ = true;
-      return lastTransition_ = InputSource::ItemType::IsStop;
+      return SourceStatus{InputSource::ItemType::IsStop};
     } else if (ch == 'x') {
       output_ << "    *** nextItemType: Restart " << t.value << " ***\n";
       shouldWeEndLoop_ = t.value;
-      return lastTransition_ = InputSource::ItemType::IsStop;
+      return SourceStatus{InputSource::ItemType::IsStop};
     } else if (ch == 't') {
       output_ << "    *** nextItemType: Throw " << t.value << " ***\n";
       shouldThrow_ = true;
       return nextTransitionType();
     }
-    return lastTransition_ = InputSource::ItemType::IsInvalid;
+    return SourceStatus{InputSource::ItemType::IsInvalid};
   }
 
-  InputSource::ItemType MockEventProcessor::lastTransitionType() const { return lastTransition_; }
-
-  InputSource::ItemType MockEventProcessor::readAndProcessEvents() {
+  SourceStatus MockEventProcessor::readAndProcessEvents() {
     bool first = true;
+    SourceStatus nextTransition;
     do {
       if (first) {
         first = false;
@@ -112,11 +111,12 @@ namespace edm {
       }
       readAndProcessEvent();
       if (shouldWeStop()) {
-        return InputSource::ItemType::IsEvent;
+        return SourceStatus{InputSource::ItemType::IsEvent};
       }
-    } while (nextTransitionType() == InputSource::ItemType::IsEvent);
+      nextTransition = nextTransitionType();
+    } while (nextTransition.nextTransitionType() == InputSource::ItemType::IsEvent);
 
-    return lastTransitionType();
+    return nextTransition;
   }
 
   void MockEventProcessor::runToCompletion() {
@@ -137,7 +137,7 @@ namespace edm {
 
         fp.normalEnd();
 
-        if (trans != InputSource::ItemType::IsStop) {
+        if (trans.nextTransitionType() != InputSource::ItemType::IsStop) {
           //problem with the source
           doErrorStuff();
           break;
@@ -186,11 +186,12 @@ namespace edm {
   void MockEventProcessor::inputProcessBlocks() {}
   void MockEventProcessor::endProcessBlock(bool cleaningUpAfterException, bool beginProcessBlockSucceeded) {}
 
-  InputSource::ItemType MockEventProcessor::processRuns() {
+  SourceStatus MockEventProcessor::processRuns(SourceStatus const& /*oSourceStatus*/) {
     bool finished = false;
-    auto nextTransition = edm::InputSource::ItemType::IsRun;
+    SourceStatus nextTransition;
+    nextTransition.setNextTransitionType(edm::InputSource::ItemType::IsRun);
     do {
-      switch (nextTransition) {
+      switch (nextTransition.nextTransitionType()) {
         case edm::InputSource::ItemType::IsRun: {
           processRun();
           nextTransition = nextTransitionType();
@@ -222,13 +223,15 @@ namespace edm {
     }
   }
 
-  InputSource::ItemType MockEventProcessor::processLumis() {
+  SourceStatus MockEventProcessor::processLumis() {
+    SourceStatus nextTransition;
     if (lumiStatus_ and currentLumiNumber_ == nextLumi_) {
       readAndMergeLumi();
-      if (nextTransitionType() == InputSource::ItemType::IsEvent) {
-        readAndProcessEvents();
+      nextTransition = nextTransitionType();
+      if (nextTransition.nextTransitionType() == InputSource::ItemType::IsEvent) {
+        nextTransition = readAndProcessEvents();
         if (shouldWeStop()) {
-          return edm::InputSource::ItemType::IsStop;
+          return SourceStatus{InputSource::ItemType::IsStop};
         }
       }
     } else {
@@ -239,14 +242,15 @@ namespace edm {
       throwIfNeeded();
       didGlobalBeginLumiSucceed_ = true;
       //Need to do event processing here
-      if (nextTransitionType() == InputSource::ItemType::IsEvent) {
-        readAndProcessEvents();
+      nextTransition = nextTransitionType();
+      if (nextTransition.nextTransitionType() == InputSource::ItemType::IsEvent) {
+        nextTransition = readAndProcessEvents();
         if (shouldWeStop()) {
-          return edm::InputSource::ItemType::IsStop;
+          return SourceStatus{InputSource::ItemType::IsStop};
         }
       }
     }
-    return lastTransitionType();
+    return nextTransition;
   }
 
   void MockEventProcessor::beginRun(RunNumber_t run) {

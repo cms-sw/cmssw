@@ -32,6 +32,7 @@ Original Authors: W. David Dagenhart, Marc Paterno
 
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Framework/interface/SourceStatus.h"
 
 #include <exception>
 #include <ostream>
@@ -52,8 +53,7 @@ namespace edm {
 
     void runToCompletion();
 
-    InputSource::ItemType nextTransitionType();
-    InputSource::ItemType lastTransitionType() const;
+    SourceStatus nextTransitionType();
 
     void readFile();
     bool fileBlockValid() { return true; }
@@ -76,9 +76,9 @@ namespace edm {
     void inputProcessBlocks();
     void endProcessBlock(bool cleaningUpAfterException, bool beginProcessBlockSucceeded);
 
-    InputSource::ItemType processRuns();
+    SourceStatus processRuns(SourceStatus const& oSourceStatus);
     void processRun();
-    InputSource::ItemType processLumis();
+    SourceStatus processLumis();
 
     void beginRun(RunNumber_t run);
 
@@ -106,7 +106,7 @@ namespace edm {
     bool setDeferredException(std::exception_ptr);
 
   private:
-    InputSource::ItemType readAndProcessEvents();
+    SourceStatus readAndProcessEvents();
     void readAndProcessEvent();
     void throwIfNeeded();
     void endLumi();
@@ -118,7 +118,6 @@ namespace edm {
     bool lumiStatus_ = false;
     LuminosityBlockNumber_t currentLumiNumber_ = 0;
     bool didGlobalBeginLumiSucceed_ = false;
-    InputSource::ItemType lastTransition_ = InputSource::ItemType::IsInvalid;
 
     bool currentRun_ = false;
     RunNumber_t currentRunNumber_ = 0;
