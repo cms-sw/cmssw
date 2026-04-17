@@ -416,12 +416,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   template <typename TrackerTraits>
-  reco::TracksSoACollection CAHitNtupletGenerator<TrackerTraits>::makeTuplesAsync(std::vector<edm::RefProd<HitsOnDevice>> const& hits_d,
-                                                                                  CAGeometryOnDevice const& geometry_d,
-                                                                                  float bfield,
-                                                                                  uint32_t nDoublets,
-                                                                                  uint32_t nTracks,
-                                                                                  Queue& queue) const {
+  reco::TracksSoACollection CAHitNtupletGenerator<TrackerTraits>::makeTuplesAsync(
+      std::vector<edm::RefProd<HitsOnDevice>> const& hits_d,
+      CAGeometryOnDevice const& geometry_d,
+      float bfield,
+      uint32_t nDoublets,
+      uint32_t nTracks,
+      Queue& queue) const {
     using HelixFit = HelixFit<TrackerTraits>;
     using GPUKernels = CAHitNtupletGeneratorKernels<TrackerTraits>;
     using TrackHitSoA = ::reco::TrackHitSoA;
@@ -463,8 +464,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       alpaka::memset(queue, ntracks_d, 0);
       return trackCollection;
     }
-    GPUKernels kernels(
-        m_params, nHits, offsetBPIX2, nDoublets, nTracks, layers.metadata().size(), queue);
+    GPUKernels kernels(m_params, nHits, offsetBPIX2, nDoublets, nTracks, layers.metadata().size(), queue);
 
     kernels.prepareHits(trackingHits, hitModules, layers, queue);
     kernels.buildDoublets(trackingHits, graph, layers, offsetBPIX2, queue);
