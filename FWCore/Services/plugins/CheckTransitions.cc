@@ -44,7 +44,6 @@ namespace edm {
       enum class Transition { IsInvalid, IsStop, IsFile, IsRun, IsLumi, IsEvent };
 
       CheckTransitions(const ParameterSet&, ActivityRegistry&);
-      ~CheckTransitions() noexcept(false);
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -78,7 +77,6 @@ namespace edm {
       oneapi::tbb::concurrent_vector<std::tuple<Phase, edm::EventID, int>> m_seenTransitions;
       std::vector<std::pair<Transition, edm::EventID>> m_expectedTransitions;
       int m_nstreams = 0;
-      bool m_failed = false;
     };
   }  // namespace service
 }  // namespace edm
@@ -220,12 +218,6 @@ CheckTransitions::CheckTransitions(ParameterSet const& iPS, ActivityRegistry& iR
   iRegistry.watchPreEvent(this, &CheckTransitions::preEvent);
 }
 
-CheckTransitions::~CheckTransitions() noexcept(false) {
-  if (m_failed) {
-    throw edm::Exception(errors::EventProcessorFailure) << "incorrect transtions";
-  }
-}
-
 void CheckTransitions::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   ParameterSetDescription desc;
   desc.setComment("Checks that the transitions specified occur during the job.");
@@ -244,21 +236,23 @@ void CheckTransitions::postEndJob() {
 
   std::vector<std::tuple<Phase, edm::EventID, int>> orderedSeen;
   orderedSeen.reserve(m_seenTransitions.size());
+  //std::cout << "Seen transitions: " << std::endl;
   for (auto const& i : m_seenTransitions) {
-    //      std::cout <<i.first.m_run<<" "<<i.first.m_lumi<<" "<<i.first.m_event<<" "<<i.second<<std::endl;
     auto s = std::get<2>(i);
     if (std::get<1>(i).event() > 0) {
       s = -2;
     }
     orderedSeen.emplace_back(std::get<0>(i), std::get<1>(i), s);
+    //std::cout <<std::get<1>(i)<<" "<<s<<std::endl;
   }
   std::sort(orderedSeen.begin(), orderedSeen.end());
 
   auto orderedExpected = expectedV;
   std::sort(orderedExpected.begin(), orderedExpected.end());
-  /*   for(auto const& i: expectedV) {
-   std::cout <<i.first.m_run<<" "<<i.first.m_lumi<<" "<<i.first.m_event<<" "<<i.second<<std::endl;
-   } */
+  /*std::cout << "Expected transitions: " << std::endl;
+     for(auto const& i: expectedV) {
+   std::cout <<std::get<1>(i)<<" "<<std::get<2>(i)<<std::endl;
+  }*/
 
   unsigned int nSkippedStreamLumiTransitions = 0;
 
@@ -272,6 +266,7 @@ void CheckTransitions::postEndJob() {
   // transitions are skipped.
   std::set<std::tuple<Phase, edm::EventID, int>> seenGlobalBeginLumi;
   std::set<std::tuple<Phase, edm::EventID, int>> seenStreamBeginLumi;
+  bool failed = false;
 
   auto itOS = orderedSeen.begin();
   for (auto itOE = orderedExpected.begin(); itOE != orderedExpected.end(); ++itOE) {
@@ -304,25 +299,28 @@ void CheckTransitions::postEndJob() {
       auto syncOS = std::get<1>(*itOS);
       std::cout << "Different ordering " << syncOE << " " << std::get<2>(*itOE) << "\n"
                 << "                   " << syncOS << " " << std::get<2>(*itOS) << "\n";
-      m_failed = true;
+      failed = true;
     }
     ++itOS;
   }
 
   if (seenGlobalBeginLumi != seenStreamBeginLumi) {
     std::cout << "We didn't see at least one stream begin lumi for every global begin lumi" << std::endl;
-    m_failed = true;
+    failed = true;
   }
 
   if (expectedSkippedStreamEndLumi != seenSkippedStreamEndLumi) {
     std::cout << "Skipped stream begin and end lumi transitions do not match" << std::endl;
-    m_failed = true;
+    failed = true;
   }
 
   if (orderedSeen.size() + nSkippedStreamLumiTransitions != orderedExpected.size()) {
     std::cout << "Wrong number of transition " << orderedSeen.size() << " " << orderedExpected.size() << std::endl;
-    m_failed = true;
-    return;
+    failed = true;
+  }
+
+  if (failed) {
+    throw edm::Exception(errors::EventProcessorFailure) << "incorrect transitions";
   }
 }
 
