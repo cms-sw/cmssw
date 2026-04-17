@@ -189,7 +189,7 @@ namespace edm {
     // The following functions are used by the code implementing
     // transition handling.
 
-    [[nodiscard]] SourceStatus nextTransitionType();
+    [[nodiscard]] SourceStatus findNextTransitionType();
     void nextTransitionTypeAsync(std::shared_ptr<RunProcessingStatus> iRunStatus,
                                  WaitingTaskHolder nextTask,
                                  SourceStatus& oSourceStatus);

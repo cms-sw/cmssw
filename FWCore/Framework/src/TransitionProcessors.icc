@@ -101,7 +101,7 @@ public:
 
   [[nodiscard]] edm::SourceStatus processFiles(EventProcessor& iEP) {
     bool finished = false;
-    auto nextTransition = iEP.nextTransitionType();
+    auto nextTransition = iEP.findNextTransitionType();
     if (nextTransition.nextTransitionType() != edm::InputSource::ItemType::IsFile)
       return nextTransition;
     do {
@@ -110,7 +110,7 @@ public:
           processFile(iEP);
           //assert(not nextTransition.needToCallNext());
           bool needToCallNext = nextTransition.needToCallNext();
-          nextTransition = iEP.nextTransitionType();
+          nextTransition = iEP.findNextTransitionType();
           nextTransition.setNeedToCallNext(needToCallNext);
           break;
         }

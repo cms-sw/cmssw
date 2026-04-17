@@ -44,7 +44,7 @@ namespace edm {
         reachedEndOfInput_(false),
         shouldThrow_(false) {}
 
-  SourceStatus MockEventProcessor::nextTransitionType() {
+  SourceStatus MockEventProcessor::findNextTransitionType() {
     token t;
     if (not(input_ >> t)) {
       reachedEndOfInput_ = true;
@@ -95,7 +95,7 @@ namespace edm {
     } else if (ch == 't') {
       output_ << "    *** nextItemType: Throw " << t.value << " ***\n";
       shouldThrow_ = true;
-      return nextTransitionType();
+      return findNextTransitionType();
     }
     return SourceStatus{InputSource::ItemType::IsInvalid};
   }
@@ -113,7 +113,7 @@ namespace edm {
       if (shouldWeStop()) {
         return SourceStatus{InputSource::ItemType::IsEvent};
       }
-      nextTransition = nextTransitionType();
+      nextTransition = findNextTransitionType();
     } while (nextTransition.nextTransitionType() == InputSource::ItemType::IsEvent);
 
     return nextTransition;
@@ -194,7 +194,7 @@ namespace edm {
       switch (nextTransition.nextTransitionType()) {
         case edm::InputSource::ItemType::IsRun: {
           processRun();
-          nextTransition = nextTransitionType();
+          nextTransition = findNextTransitionType();
           break;
         }
         case edm::InputSource::ItemType::IsLumi: {
@@ -227,7 +227,7 @@ namespace edm {
     SourceStatus nextTransition;
     if (lumiStatus_ and currentLumiNumber_ == nextLumi_) {
       readAndMergeLumi();
-      nextTransition = nextTransitionType();
+      nextTransition = findNextTransitionType();
       if (nextTransition.nextTransitionType() == InputSource::ItemType::IsEvent) {
         nextTransition = readAndProcessEvents();
         if (shouldWeStop()) {
@@ -242,7 +242,7 @@ namespace edm {
       throwIfNeeded();
       didGlobalBeginLumiSucceed_ = true;
       //Need to do event processing here
-      nextTransition = nextTransitionType();
+      nextTransition = findNextTransitionType();
       if (nextTransition.nextTransitionType() == InputSource::ItemType::IsEvent) {
         nextTransition = readAndProcessEvents();
         if (shouldWeStop()) {

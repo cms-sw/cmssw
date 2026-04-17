@@ -877,7 +877,7 @@ namespace edm {
     };
   }  // namespace
 
-  SourceStatus EventProcessor::nextTransitionType() {
+  SourceStatus EventProcessor::findNextTransitionType() {
     SendSourceTerminationSignalIfException sentry(actReg_.get());
     SourceStatus returnValue;
     {
@@ -918,7 +918,7 @@ namespace edm {
             ServiceRegistry::Operate operate(serviceToken_);
             std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
             assert(lastTransition.needToCallNext());
-            lastTransition = nextTransitionType();
+            lastTransition = findNextTransitionType();
             if (lastTransition.nextTransitionType() == InputSource::ItemType::IsRun &&
                 runStatus->runPrincipal()->run() == lastTransition.runAuxiliary()->run() &&
                 runStatus->runPrincipal()->reducedProcessHistoryID() == lastTransition.reducedProcessHistoryID()) {
@@ -1181,7 +1181,7 @@ namespace edm {
              runStatus->runPrincipal()->reducedProcessHistoryID() == returnValue.reducedProcessHistoryID()) {
         readAndMergeRun(*runStatus);
         assert(returnValue.needToCallNext());
-        returnValue = nextTransitionType();
+        returnValue = findNextTransitionType();
       }
 
       returnValue.setNeedToCallNext(false);
@@ -1871,7 +1871,7 @@ namespace edm {
              status->lumiPrincipal()->luminosityBlock() == oSourceStatus.lumiAuxiliary()->luminosityBlock()) {
         readAndMergeLumi(*status);
         assert(not oSourceStatus.needToCallNext());
-        oSourceStatus = nextTransitionType();
+        oSourceStatus = findNextTransitionType();
         //Need to tell event processing loop that we called nextTransitionType while merging lumis so it doesn't call it again and possibly skip entries
         oSourceStatus.setNeedToCallNext(false);
       }
@@ -2139,7 +2139,7 @@ namespace edm {
             ServiceRegistry::Operate operate(serviceToken_);
 
             std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
-            oSourceStatus = nextTransitionType();
+            oSourceStatus = findNextTransitionType();
             oSourceStatus.setNeedToCallNext(false);
 
             while (oSourceStatus.nextTransitionType() == InputSource::ItemType::IsRun and
@@ -2155,7 +2155,7 @@ namespace edm {
                 return;
               }
               assert(not oSourceStatus.needToCallNext());
-              oSourceStatus = nextTransitionType();
+              oSourceStatus = findNextTransitionType();
               oSourceStatus.setNeedToCallNext(false);
             }
           } catch (...) {
@@ -2176,7 +2176,7 @@ namespace edm {
 
             std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
 
-            oSourceStatus = nextTransitionType();
+            oSourceStatus = findNextTransitionType();
             oSourceStatus.setNeedToCallNext(false);
 
             while (oSourceStatus.nextTransitionType() == InputSource::ItemType::IsLumi and
@@ -2188,7 +2188,7 @@ namespace edm {
                 return;
               }
               assert(not oSourceStatus.needToCallNext());
-              oSourceStatus = nextTransitionType();
+              oSourceStatus = findNextTransitionType();
               //Need to tell event processing loop that we called nextTransitionType while merging lumis so it doesn't call it again and possibly skip entries
               oSourceStatus.setNeedToCallNext(false);
             }
@@ -2277,7 +2277,7 @@ namespace edm {
 
     auto findTransitionType = [this](SourceStatus& oSourceStatus) -> InputSource::ItemType {
       if (oSourceStatus.needToCallNext()) {
-        oSourceStatus = nextTransitionType();
+        oSourceStatus = findNextTransitionType();
       }
       oSourceStatus.setNeedToCallNext(true);
       return oSourceStatus.nextTransitionType();

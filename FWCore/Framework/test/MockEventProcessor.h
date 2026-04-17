@@ -53,7 +53,7 @@ namespace edm {
 
     void runToCompletion();
 
-    SourceStatus nextTransitionType();
+    SourceStatus findNextTransitionType();
 
     void readFile();
     bool fileBlockValid() { return true; }
