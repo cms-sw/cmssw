@@ -1,4 +1,5 @@
 <lcgdict>
   <class name="reco::ConversionTrack"/>
+  <class name="reco::ConversionTrackCollection"/>
   <class name="edm::Wrapper<reco::ConversionTrackCollection>" persistent="false"/>
 </lcgdict>
