@@ -387,7 +387,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   template <typename TrackerTraits>
   void CAHitNtupletAlpaka<TrackerTraits>::produce(device::Event& iEvent, const device::EventSetup& es) {
-    std::cout << "Start with CAHitNtupletAlpaka::produce" << std::endl;
     auto bf = 1. / es.getData(tokenField_).inverseBzAtOriginInGeV();
 
     auto const& geometry = runCache()->get(iEvent.queue());
@@ -405,8 +404,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     const int32_t offsetBPIX2 = hitsCollections[0]->offsetBPIX2();
 
-    std::cout << "Total numner of hits: " << nHits << std::endl;
-
     /// Don't bother if no hits on BPix1 and no good graph for that
     /// (so no staring pair without BPix1 as first layer).
     /// TODO: this could be extended to a more general check for
@@ -419,8 +416,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       uint32_t const maxTuples = maxNumberOfTuples_.evaluate(nHitsV, emptyV);
       uint32_t const maxDoublets = maxNumberOfDoublets_.evaluate(nHitsV, emptyV);
 
-      iEvent.emplace(tokenTrack_,
-                     deviceAlgo_.makeTuplesAsync(hitsCollections, geometry, bf, maxDoublets, maxTuples, iEvent.queue()));
+      iEvent.emplace(
+          tokenTrack_,
+          deviceAlgo_.makeTuplesAsync(hitsCollections, geometry, bf, maxDoublets, maxTuples, iEvent.queue()));
 
     } else {
       edm::LogWarning("CAHitNtupletAlpaka") << "No hit on BPix1 (" << offsetBPIX2

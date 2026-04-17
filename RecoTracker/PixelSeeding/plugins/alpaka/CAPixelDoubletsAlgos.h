@@ -68,8 +68,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   }
 
   template <typename TrackerTraits, alpaka::concepts::Acc TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool zSizeCut(
-      const TAcc& acc, MultiView<HitsConstView, 2> hh, ::reco::CALayersSoAConstView ll, AlgoParams const& params, int i, int o) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool zSizeCut(const TAcc& acc,
+                                               MultiView<HitsConstView, 2> hh,
+                                               ::reco::CALayersSoAConstView ll,
+                                               AlgoParams const& params,
+                                               int i,
+                                               int o) {
     const uint32_t mi = hh[i].detectorIndex();
     const auto first_forward = ll.layerStarts()[4];
     const auto first_bpix2 = ll.layerStarts()[1];
@@ -119,8 +123,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
   }
 
   template <typename TrackerTraits, alpaka::concepts::Acc TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool clusterCut(
-      const TAcc& acc, MultiView<HitsConstView, 2> hh, ::reco::CALayersSoAConstView ll, AlgoParams const& params, uint32_t i) {
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool clusterCut(const TAcc& acc,
+                                                 MultiView<HitsConstView, 2> hh,
+                                                 ::reco::CALayersSoAConstView ll,
+                                                 AlgoParams const& params,
+                                                 uint32_t i) {
     const uint32_t mi = hh[i].detectorIndex();
     const auto first_bpix2 = ll.layerStarts()[1];
     const auto first_bpix3 = ll.layerStarts()[2];

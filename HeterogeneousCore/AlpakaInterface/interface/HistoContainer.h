@@ -19,11 +19,8 @@ namespace cms::alpakatools {
 
   struct countFromVector {
     template <alpaka::concepts::Acc TAcc, typename Histo, typename View>
-    ALPAKA_FN_ACC void operator()(const TAcc &acc,
-                                  Histo *__restrict__ h,
-                                  uint32_t nh,
-                                  View v,
-                                  uint32_t const *__restrict__ offsets) const {
+    ALPAKA_FN_ACC void operator()(
+        const TAcc &acc, Histo *__restrict__ h, uint32_t nh, View v, uint32_t const *__restrict__ offsets) const {
       const uint32_t nt = offsets[nh];
       for (uint32_t i : uniform_elements(acc, nt)) {
         auto off = alpaka_std::upper_bound(offsets, offsets + nh + 1, i);
@@ -38,11 +35,8 @@ namespace cms::alpakatools {
 
   struct fillFromVector {
     template <alpaka::concepts::Acc TAcc, typename Histo, typename View>
-    ALPAKA_FN_ACC void operator()(const TAcc &acc,
-                                  Histo *__restrict__ h,
-                                  uint32_t nh,
-                                  View v,
-                                  uint32_t const *__restrict__ offsets) const {
+    ALPAKA_FN_ACC void operator()(
+        const TAcc &acc, Histo *__restrict__ h, uint32_t nh, View v, uint32_t const *__restrict__ offsets) const {
       const uint32_t nt = offsets[nh];
       for (uint32_t i : uniform_elements(acc, nt)) {
         auto off = alpaka_std::upper_bound(offsets, offsets + nh + 1, i);
