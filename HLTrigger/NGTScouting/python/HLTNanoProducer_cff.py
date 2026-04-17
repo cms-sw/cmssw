@@ -2,8 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.JetMCAlgos.AK4GenJetFlavourInfos_cfi import *
 from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import *
-from PhysicsTools.JetMCAlgos.TauGenJetsDecayModeSelectorAllHadrons_cfi import *
-from PhysicsTools.JetMCAlgos.TauGenJets_cfi import *
 from PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.genparticles_cff import *
 from PhysicsTools.NanoAOD.jetMC_cff import *
@@ -49,9 +47,7 @@ NanoGenTables = cms.Sequence(
     + slimmedGenJetsFlavourInfos
     + genJetTable
     + genJetFlavourTable
-    + tauGenJets
     + tauGenJetsForNano
-    + tauGenJetsSelectorAllHadrons
     + tauGenJetsSelectorAllHadronsForNano
     + genVisTaus
     + genVisTauTable
