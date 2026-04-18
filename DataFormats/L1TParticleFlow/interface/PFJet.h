@@ -64,10 +64,16 @@ namespace l1t {
     const reco::Candidate* daughter(size_type i) const override { return constituents_[i].get(); }
     using reco::LeafCandidate::daughter;  // avoid hiding the base
     edm::Ptr<l1t::PFCandidate> daughterPtr(size_type i) const { return constituents_[i]; }
+    // more candidate interface
+    size_t numberOfSourceCandidatePtrs() const override { return constituents_.size(); }
+    reco::CandidatePtr sourceCandidatePtr(size_type i) const override { return daughterPtr(i); }
 
     // Get and set the encodedJet_ bits. The Jet is encoded in 128 bits as a 2-element array of uint64_t
     // We store encodings both for Correlator internal usage and for Global Trigger
     enum class HWEncoding { CT, GT, GTWide };
+    static const std::unordered_map<std::string, HWEncoding> encodingMapping;
+    static HWEncoding encodingFromString(const std::string& name);
+
     typedef std::array<uint64_t, 2> PackedJet;
     const PackedJet& encodedJet(const HWEncoding encoding = HWEncoding::GT) const {
       return encodedJet_[static_cast<int>(encoding)];
