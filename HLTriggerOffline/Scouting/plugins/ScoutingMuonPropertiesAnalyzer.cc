@@ -732,12 +732,14 @@ void ScoutingMuonPropertiesAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
 
   // Helper lambda for 2D occupancy histograms
   auto bookOccupancy = [&](const std::string& name, const std::string& title) {
-    return ibooker.book2I(name, title, nEtaBins, etaMin, etaMax, nPhiBins, phiMin, phiMax);
+    auto* me = ibooker.book2I(name, title, nEtaBins, etaMin, etaMax, nPhiBins, phiMin, phiMax);
+    me->setOption("colz");
+    return me;
   };
 
-  h2_MuonVtx_eta_phi = bookOccupancy("eta_vs_phi_MuonVtx", "Track occupancy (MuonVtx);#eta;#phi");
+  h2_MuonVtx_eta_phi = bookOccupancy("eta_vs_phi_MuonVtx", "Track occupancy (MuonVtx);#eta;#phi [rad]");
 
-  h2_MuonNoVtx_eta_phi = bookOccupancy("eta_vs_phi_MuonNoVtx", "Track occupancy (MuonNoVtx);#eta;#phi");
+  h2_MuonNoVtx_eta_phi = bookOccupancy("eta_vs_phi_MuonNoVtx", "Track occupancy (MuonNoVtx);#eta;#phi [rad]");
 
   // Helper lambda for 2D profile histograms
   auto bookProfile2D = [&](const std::string& name, const std::string& title, double ymin, double ymax) {
@@ -747,30 +749,42 @@ void ScoutingMuonPropertiesAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
   };
 
   // Muons with vertex
-  p2_MuonVtx_nValidPixelHits_eta_phi = bookProfile2D(
-      "MuonVtx_nValidPixelHits_vs_eta_phi_prof", "nValidPixelHits vs #eta-#phi;<nValidPixelHits>;#eta;#phi", 0., 10.);
+  p2_MuonVtx_nValidPixelHits_eta_phi =
+      bookProfile2D("MuonVtx_nValidPixelHits_vs_eta_phi_prof",
+                    "nValidPixelHits vs #eta-#phi;#eta;#phi [rad];#LTnValidPixelHits#GT",
+                    0.,
+                    10.);
 
   p2_MuonVtx_nTrackerLayersWithMeasurement_eta_phi =
       bookProfile2D("MuonVtx_nTrackerLayersWithMeasurement_vs_eta_phi_prof",
-                    "nTrackerLayersWithMeasurement vs #eta-#phi;<nTrackerLayersWithMeasurement>;#eta;#phi",
+                    "nTrackerLayersWithMeasurement vs #eta-#phi;#eta;#phi [rad];#LTnTrackerLayersWithMeasurement#GT",
                     0.,
                     20.);
 
-  p2_MuonVtx_nValidStripHits_eta_phi = bookProfile2D(
-      "MuonVtx_nValidStripHits_vs_eta_phi_prof", "nValidStripHits vs #eta-#phi;<nValidStripHits>;#eta;#phi", 0., 30.);
+  p2_MuonVtx_nValidStripHits_eta_phi =
+      bookProfile2D("MuonVtx_nValidStripHits_vs_eta_phi_prof",
+                    "nValidStripHits vs #eta-#phi;#eta;#phi [rad];#LTnValidStripHits#GT",
+                    0.,
+                    30.);
 
   // Muons without vertex
-  p2_MuonNoVtx_nValidPixelHits_eta_phi = bookProfile2D(
-      "MuonNoVtx_nValidPixelHits_vs_eta_phi_prof", "nValidPixelHits vs #eta-#phi;<nValidPixelHits>;#eta;#phi", 0., 10.);
+  p2_MuonNoVtx_nValidPixelHits_eta_phi =
+      bookProfile2D("MuonNoVtx_nValidPixelHits_vs_eta_phi_prof",
+                    "nValidPixelHits vs #eta-#phi;#eta;#phi [rad];#LTnValidPixelHits#GT",
+                    0.,
+                    10.);
 
   p2_MuonNoVtx_nTrackerLayersWithMeasurement_eta_phi =
       bookProfile2D("MuonNoVtx_nTrackerLayersWithMeasurement_vs_eta_phi_prof",
-                    "nTrackerLayersWithMeasurement vs #eta-#phi;<nTrackerLayersWithMeasurement>;#eta;#phi",
+                    "nTrackerLayersWithMeasurement vs #eta-#phi;#eta;#phi [rad];#LTnTrackerLayersWithMeasurement#GT",
                     0.,
                     20.);
 
-  p2_MuonNoVtx_nValidStripHits_eta_phi = bookProfile2D(
-      "MuonNoVtx_nValidStripHits_vs_eta_phi_prof", "nValidStripHits vs #eta-#phi;<nValidStripHits>;#eta;#phi", 0., 30.);
+  p2_MuonNoVtx_nValidStripHits_eta_phi =
+      bookProfile2D("MuonNoVtx_nValidStripHits_vs_eta_phi_prof",
+                    "nValidStripHits vs #eta-#phi;#eta;#phi [rad];#LTnValidStripHits#GT",
+                    0.,
+                    30.);
 
   triggersMapped_ = false;
 }
