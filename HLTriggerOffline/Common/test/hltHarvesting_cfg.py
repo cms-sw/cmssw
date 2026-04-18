@@ -47,7 +47,6 @@ process.source.fileNames = cms.untracked.vstring(
 '/store/relval/CMSSW_3_0_0_pre7/RelValTTbar/GEN-SIM-RECO/STARTUP_30X_v1/0002/0AB7BC40-87E9-DD11-8CCF-003048767D51.root'
 )
 
-
 process.load("HLTriggerOffline.Common.HLTValidation_cff")
 
 #extra config needed in standalone
