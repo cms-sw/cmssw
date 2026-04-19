@@ -3,7 +3,7 @@
   <use name="FWCore/Framework"/>
 </library>
 
-<library file="MockEventProcessor.cc,stubs/TestBeginEndJobAnalyzer.cc" name="FWCoreFrameworkTest">
+<library file="stubs/TestBeginEndJobAnalyzer.cc" name="FWCoreFrameworkTest">
   <use name="FWCore/Framework"/>
 </library>
 
@@ -314,13 +314,10 @@
   <use name="catch2"/>
 </bin>
 
-<bin name="TestFWCoreFrameworkStatemachine" file="statemachine_t.cc">
-  <lib name="FWCoreFrameworkTest"/>
+<bin name="TestFWCoreFrameworkStatemachine" file="MockEventProcessor.cc,statemachine_t.cc">
   <use name="FWCore/Framework"/>
-  <use name="boost_program_options"/>
+  <use name="catch2"/>
 </bin>
-
-<test name="TestFWCoreFrameworkStatemachineSH" command="run_statemachine.sh"/>
 
 <test name="TestFWCoreFrameworkInputTagFailure" command="test_InputTag_cache_failure.sh"/>
 
