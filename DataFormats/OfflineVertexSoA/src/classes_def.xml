@@ -1,0 +1,9 @@
+<lcgdict>
+  <class name="VertexHostCollection" rntupleStreamerMode="true"/>
+  <class name="VertexHostCollection::Layout"/>
+  <class name="edm::Wrapper<VertexHostCollection>" splitLevel="0"/>
+
+  <class name="TrackHostCollection" rntupleStreamerMode="true"/>
+  <class name="TrackHostCollection::Layout"/>
+  <class name="edm::Wrapper<TrackHostCollection>" splitLevel="0"/>
+</lcgdict>

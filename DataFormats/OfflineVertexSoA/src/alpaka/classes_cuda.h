@@ -1,0 +1,6 @@
+#include "DataFormats/Common/interface/DeviceProduct.h"
+#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/VertexSoA/interface/VertexSoA.h"
+#include "DataFormats/VertexSoA/interface/alpaka/VertexDeviceCollection.h"
+#include "DataFormats/VertexSoA/interface/TrackSoA.h"
+#include "DataFormats/VertexSoA/interface/alpaka/TrackDeviceCollection.h"

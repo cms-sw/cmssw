@@ -1,6 +1,29 @@
-<use name="FWCore/Framework"/>
-<use name="clhep"/>
-<use name="RecoVertex/PrimaryVertexProducer"/>
 <library file="*.cc" name="RecoVertexPrimaryVertexProducerPlugins">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="clhep"/>
+  <use name="RecoVertex/PrimaryVertexProducer"/>
+  <use name="DataFormats/OfflineVertexSoA"/>
+  <use name="DataFormats/TrackReco"/>
+  <use name="DataFormats/VertexReco"/>
+  <use name="DataFormats/Math"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+<library file="alpaka/*.cc" name="RecoVertexPrimaryVertexProducerPluginsportable">
+  <use name="alpaka"/>
+  <use name="DataFormats/OfflineVertexSoA"/>
+  <use name="DataFormats/TrackReco"/>
+  <use name="DataFormats/VertexReco"/>
+  <use name="DataFormats/BeamSpot"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaCore"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="TrackingTools/Records"/>
+  <use name="TrackingTools/TransientTrack"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
