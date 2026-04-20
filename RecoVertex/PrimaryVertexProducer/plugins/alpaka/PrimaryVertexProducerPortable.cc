@@ -27,7 +27,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     PrimaryVertexProducerPortable(edm::ParameterSet const& config) : stream::EDProducer<>(config) {
       trackToken_ = consumes(config.getParameter<edm::InputTag>("TrackLabel"));
-      beamSpotToken_  = consumes(config.getParameter<edm::InputTag>("BeamSpotLabel"));
+      beamSpotToken_ = consumes(config.getParameter<edm::InputTag>("BeamSpotLabel"));
       devicePutToken_ = produces();
       blockSize_ = config.getParameter<int32_t>("blockSize");
       blockOverlap_ = config.getParameter<double>("blockOverlap");
@@ -51,7 +51,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           .delta_lowT = config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("delta_lowT"),
           .delta_highT =
               config.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<double>("delta_highT")};
-      clusterParams_.uniquetrkminp = clusterParams_.uniquetrkminp*(1-blockOverlap_);
+      clusterParams_.uniquetrkminp = clusterParams_.uniquetrkminp * (1 - blockOverlap_);
       fitterParams_ = {
           .useBeamSpotConstraint =
               config.getParameter<edm::ParameterSet>("TkFitterParameters").getParameter<bool>("useBeamSpotConstraint"),
@@ -63,10 +63,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const BeamSpotDevice& beamSpot = iEvent.get(beamSpotToken_);
       int32_t nT = inputtracks.view().nT();
       int32_t nBlocks = nT > blockSize_ ? int32_t((nT - 1) / (blockOverlap_ * blockSize_))
-                                          : 1;  // If all fit within a block, no need to split
+                                        : 1;  // If all fit within a block, no need to split
       // Now the device collections we still need
       TrackDeviceCollection tracksInBlocks(iEvent.queue(), nBlocks * blockSize_);  // As high as needed
-      VertexDeviceCollection deviceVertex(iEvent.queue(), 1024);  // Hard capped to 1024, though we might want to restrict it for low PU cases
+      VertexDeviceCollection deviceVertex(
+          iEvent.queue(), 1024);  // Hard capped to 1024, though we might want to restrict it for low PU cases
 
       // run the algorithm
       //// First create the individual blocks
@@ -76,8 +77,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       //// Then run the clusterizer per blocks
       DAInBlocksClusterizerAlgo clusterizerKernel_{iEvent.queue(), blockSize_};
       clusterizerKernel_.clusterize(iEvent.queue(), tracksInBlocks, deviceVertex, clusterParams_, nBlocks, blockSize_);
-      clusterizerKernel_.resplit_tracks(iEvent.queue(), tracksInBlocks, deviceVertex, clusterParams_, nBlocks, blockSize_);
-      clusterizerKernel_.reject_outliers(iEvent.queue(), tracksInBlocks, deviceVertex, clusterParams_, nBlocks, blockSize_);
+      clusterizerKernel_.resplit_tracks(
+          iEvent.queue(), tracksInBlocks, deviceVertex, clusterParams_, nBlocks, blockSize_);
+      clusterizerKernel_.reject_outliers(
+          iEvent.queue(), tracksInBlocks, deviceVertex, clusterParams_, nBlocks, blockSize_);
       // Need to have all vertex before arbitrating and deciding what we keep
       clusterizerKernel_.arbitrate(iEvent.queue(), tracksInBlocks, deviceVertex, clusterParams_, nBlocks, blockSize_);
       //// And then fit
@@ -95,7 +98,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       desc.add<int32_t>("blockSize");
       edm::ParameterSetDescription parf0;
       parf0.add<bool>("useBeamSpotConstraint", true);
-      desc.add<edm::ParameterSetDescription>("TkFitterParameters",parf0);
+      desc.add<edm::ParameterSetDescription>("TkFitterParameters", parf0);
       edm::ParameterSetDescription parc0;
       parc0.add<double>("d0CutOff", 3.0);
       parc0.add<double>("Tmin", 2.0);

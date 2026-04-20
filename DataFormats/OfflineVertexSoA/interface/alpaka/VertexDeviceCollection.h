@@ -1,9 +1,9 @@
-#ifndef DataFormats_VertexSoA_interface_alpaka_VertexDeviceCollection_h
-#define DataFormats_VertexSoA_interface_alpaka_VertexDeviceCollection_h
+#ifndef DataFormats_OfflineVertexSoA_interface_alpaka_VertexDeviceCollection_h
+#define DataFormats_OfflineVertexSoA_interface_alpaka_VertexDeviceCollection_h
 
-#include "DataFormats/VertexSoA/interface/VertexHostCollection.h"
+#include "DataFormats/OfflineVertexSoA/interface/VertexHostCollection.h"
 #include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
-#include "DataFormats/VertexSoA/interface/VertexSoA.h"
+#include "DataFormats/OfflineVertexSoA/interface/VertexSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -11,6 +11,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using VertexDeviceCollection = PortableCollection<::VertexSoA>;
 
-}
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-#endif  // DataFormats_VertexSoA_interface_alpaka_VertexDeviceCollection_h
+#endif  // DataFormats_OfflineVertexSoA_interface_alpaka_VertexDeviceCollection_h

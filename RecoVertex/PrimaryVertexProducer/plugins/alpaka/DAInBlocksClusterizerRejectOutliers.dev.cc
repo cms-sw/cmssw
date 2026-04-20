@@ -28,7 +28,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       alpaka::syncBlockThreads(acc);
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_CLUSTERIZERALGO
       if (once_per_block(acc)) {
-        printf("[DAInBlocksClusterizerAlgoRejectOutliers::operator()] Start outlier rejection for block %i\n", blockIdx);
+        printf("[DAInBlocksClusterizerAlgoRejectOutliers::operator()] Start outlier rejection for block %i\n",
+               blockIdx);
         printf("[DAInBlocksClusterizerAlgoRejectOutliers::operator()] Parameter, trackBlockSize %i\n", trackBlockSize);
       }
 #endif
@@ -44,22 +45,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };  // class kernel
 
   void DAInBlocksClusterizerAlgo::reject_outliers(Queue& queue,
-                                        TrackDeviceCollection& deviceTrack,
-                                        VertexDeviceCollection& deviceVertex,
-					ClusterParameters const& cParams,
-                                        int32_t nBlocks,
-                                        int32_t blockSize) {
+                                                  TrackDeviceCollection& deviceTrack,
+                                                  VertexDeviceCollection& deviceVertex,
+                                                  ClusterParameters const& cParams,
+                                                  int32_t nBlocks,
+                                                  int32_t blockSize) {
     const int blocks = divide_up_by(nBlocks * blockSize, blockSize);  //nBlocks of size blockSize
-    alpaka::exec<Acc1D>(
-        queue,
-        make_workdiv<Acc1D>(blocks, blockSize),
-        RejectOutliersKernel{},
-        deviceTrack
-            .view(), 
-        deviceVertex.view(),
-        cParams,
-        beta_.data(),
-        osumtkwt_.data(),
-        blockSize);
+    alpaka::exec<Acc1D>(queue,
+                        make_workdiv<Acc1D>(blocks, blockSize),
+                        RejectOutliersKernel{},
+                        deviceTrack.view(),
+                        deviceVertex.view(),
+                        cParams,
+                        beta_.data(),
+                        osumtkwt_.data(),
+                        blockSize);
   }  // DAInBlocksClusterizerAlgo::reject_outliers
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

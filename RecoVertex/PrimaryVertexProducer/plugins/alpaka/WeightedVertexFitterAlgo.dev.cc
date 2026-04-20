@@ -88,24 +88,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
         float erry = errx;
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_FITTERALGO
-        printf("[WeightedVertexFitterAlgo::FitVertices()] After first iteration, before dividing, %1.9f %1.9f %1.9f %1.9f %1.9f \n",
-               x,
-               y,
-               z,
-               errx,
-               errz);
+        printf(
+            "[WeightedVertexFitterAlgo::FitVertices()] After first iteration, before dividing, %1.9f %1.9f %1.9f %1.9f "
+            "%1.9f \n",
+            x,
+            y,
+            z,
+            errx,
+            errz);
 #endif
         // Now add the BeamSpot and get first estimation, if no beamspot, this changes nothing
         x = (x + bsx * bserrx * bserrx) / (bserrx * bserrx + errx);
         y = (y + bsy * bserry * bserry) / (bserry * bserry + erry);
         z /= errz;
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_FITTERALGO
-        printf("[WeightedVertexFitterAlgo::FitVertices()] After first iteration, after dividing, %1.9f %1.9f %1.9f %1.9f %1.9f \n",
-               x,
-               y,
-               z,
-               errx,
-               errz);
+        printf(
+            "[WeightedVertexFitterAlgo::FitVertices()] After first iteration, after dividing, %1.9f %1.9f %1.9f %1.9f "
+            "%1.9f \n",
+            x,
+            y,
+            z,
+            errx,
+            errz);
 #endif
         // Weights and square weights for iteration
         float s_wx, s_wz;
@@ -120,8 +124,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         float old_z;
         while ((niter++) < maxIterations) {
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_FITTERALGO
-          printf(
-              "[WeightedVertexFitterAlgo::FitVertices()] At iteration %i, errs are %1.15f %1.15f %1.15f\n", niter, errx, erry, errz);
+          printf("[WeightedVertexFitterAlgo::FitVertices()] At iteration %i, errs are %1.15f %1.15f %1.15f\n",
+                 niter,
+                 errx,
+                 erry,
+                 errz);
 #endif
           old_x = x;
           old_y = y;
@@ -148,7 +155,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             double t = (px * (old_x - tx) + py * (old_y - ty) + pz * (old_z - tz)) / pnorm2;
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_FITTERALGO
             printf(
-                "[WeightedVertexFitterAlgo::FitVertices()] Track x: %1.9f, y: %1.9f, z:%1.9f, px: %1.9f, py: %1.9f, pz: %1.9f, "
+                "[WeightedVertexFitterAlgo::FitVertices()] Track x: %1.9f, y: %1.9f, z:%1.9f, px: %1.9f, py: %1.9f, "
+                "pz: %1.9f, "
                 "t:%1.9f\n",
                 tx,
                 ty,
@@ -189,26 +197,34 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               wz = 0.;
             }
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_FITTERALGO
-            printf("[WeightedVertexFitterAlgo::FitVertices()] Track %i weights after %1.10f, %1.10f\n", itrackInVertex, wx, wz);
+            printf("[WeightedVertexFitterAlgo::FitVertices()] Track %i weights after %1.10f, %1.10f\n",
+                   itrackInVertex,
+                   wx,
+                   wz);
 #endif
             // Here, will only change if track is within 3 sigma
             x += tx * wx;
             y += ty * wx;
             z += tz * wz;
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_FITTERALGO
-            printf("[WeightedVertexFitterAlgo::FitVertices()] Track adds x: %1.9f, y: %1.9f z: %1.9f\n", tx * wx, ty * wx, tz * wz);
+            printf("[WeightedVertexFitterAlgo::FitVertices()] Track adds x: %1.9f, y: %1.9f z: %1.9f\n",
+                   tx * wx,
+                   ty * wx,
+                   tz * wz);
 #endif
           }  // end for
 // After all tracks, add BS uncertainties, will do nothing if not used
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_FITTERALGO
-          printf("[WeightedVertexFitterAlgo::FitVertices()] Before adding BS in %i iteration %1.9f %1.9f %1.9f %1.9f %1.9f %1.9f \n",
-                 niter,
-                 x,
-                 y,
-                 z,
-                 s_wx,
-                 s_wx,
-                 s_wz);
+          printf(
+              "[WeightedVertexFitterAlgo::FitVertices()] Before adding BS in %i iteration %1.9f %1.9f %1.9f %1.9f "
+              "%1.9f %1.9f \n",
+              niter,
+              x,
+              y,
+              z,
+              s_wx,
+              s_wx,
+              s_wz);
 #endif
           x += bsx * bserrx;
           y += bsy * bserry;
@@ -219,14 +235,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           s_wx += bserrx;
           s_wy += bserry;
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_FITTERALGO
-          printf("[WeightedVertexFitterAlgo::FitVertices()] Before dividing %i iteration %1.9f %1.9f %1.9f %1.9f %1.9f %1.9f \n",
-                 niter,
-                 x,
-                 y,
-                 z,
-                 s_wx,
-                 s_wy,
-                 s_wz);
+          printf(
+              "[WeightedVertexFitterAlgo::FitVertices()] Before dividing %i iteration %1.9f %1.9f %1.9f %1.9f %1.9f "
+              "%1.9f \n",
+              niter,
+              x,
+              y,
+              z,
+              s_wx,
+              s_wy,
+              s_wz);
 #endif
           x /= s_wx;
           y /= s_wy;
@@ -235,20 +253,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           errz = 1 / s_wz;
           erry = 1 / s_wy;
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_FITTERALGO
-          printf("[WeightedVertexFitterAlgo::FitVertices()] After dividing %i iteration %1.9f %1.9f %1.9f %1.9f %1.9f \n",
-                 niter,
-                 x,
-                 y,
-                 z,
-                 errx,
-                 errz);
-          printf("[WeightedVertexFitterAlgo::FitVertices()] Compare old and new: %1.9f %1.9f, %1.9f %1.9f, %1.9f %1.9f \n",
-                 old_x,
-                 x,
-                 old_y,
-                 y,
-                 old_z,
-                 z);
+          printf(
+              "[WeightedVertexFitterAlgo::FitVertices()] After dividing %i iteration %1.9f %1.9f %1.9f %1.9f %1.9f \n",
+              niter,
+              x,
+              y,
+              z,
+              errx,
+              errz);
+          printf(
+              "[WeightedVertexFitterAlgo::FitVertices()] Compare old and new: %1.9f %1.9f, %1.9f %1.9f, %1.9f %1.9f \n",
+              old_x,
+              x,
+              old_y,
+              y,
+              old_z,
+              z);
 #endif
           if ((abs(old_x - x) < precision) && (abs(old_y - y) < precision) && (abs(old_z - z) < precision))
             break;  // If good enough, stop the iterations
@@ -283,7 +303,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         vertices[i].chi2() = chi2;
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_FITTERALGO
         printf(
-            "[WeightedVertexFitterAlgo::FitVertices()] Vertex %i, x: %1.9f, y:%1.9f, z:%1.9f, errx:%1.9f, errz:%1.9f, chi2:%1.9f, "
+            "[WeightedVertexFitterAlgo::FitVertices()] Vertex %i, x: %1.9f, y:%1.9f, z:%1.9f, errx:%1.9f, errz:%1.9f, "
+            "chi2:%1.9f, "
             "ndof:%1.9f\n",
             i,
             vertices[i].x(),
@@ -305,9 +326,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }  // WeightedVertexFitterAlgo::WeightedVertexFitterAlgo
 
   void WeightedVertexFitterAlgo::fit(Queue& queue,
-                       const TrackDeviceCollection& deviceTrack,
-                       VertexDeviceCollection& deviceVertex,
-                       const BeamSpotDevice& deviceBeamSpot) {
+                                     const TrackDeviceCollection& deviceTrack,
+                                     VertexDeviceCollection& deviceVertex,
+                                     const BeamSpotDevice& deviceBeamSpot) {
     const int nVertexToFit =
         1024;  // Right now it executes for all 1024 vertex, even if vertex collection is empty (in which case the kernel passes)
     const int threadsPerBlock = 32;

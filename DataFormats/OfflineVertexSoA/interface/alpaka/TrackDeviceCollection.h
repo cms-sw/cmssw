@@ -1,9 +1,9 @@
-#ifndef DataFormats_VertexSoA_interface_alpaka_TrackDeviceCollection_h
-#define DataFormats_VertexSoA_interface_alpaka_TrackDeviceCollection_h
+#ifndef DataFormats_OfflineVertexSoA_interface_alpaka_TrackDeviceCollection_h
+#define DataFormats_OfflineVertexSoA_interface_alpaka_TrackDeviceCollection_h
 
-#include "DataFormats/VertexSoA/interface/TrackHostCollection.h"
+#include "DataFormats/OfflineVertexSoA/interface/TrackHostCollection.h"
 #include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
-#include "DataFormats/VertexSoA/interface/TrackSoA.h"
+#include "DataFormats/OfflineVertexSoA/interface/TrackSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -11,6 +11,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using TrackDeviceCollection = PortableCollection<::TrackSoA>;
 
-}
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-#endif  // DataFormats_VertexSoA_interface_alpaka_TrackDeviceCollection_h
+#endif  // DataFormats_OfflineVertexSoA_interface_alpaka_TrackDeviceCollection_h

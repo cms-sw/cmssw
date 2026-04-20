@@ -43,22 +43,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };  // class kernel
 
   void DAInBlocksClusterizerAlgo::resplit_tracks(Queue& queue,
-                                       TrackDeviceCollection& deviceTrack,
-                                       VertexDeviceCollection& deviceVertex,
-				       ClusterParameters const& cParams,
-                                       int32_t nBlocks,
-                                       int32_t blockSize) {
+                                                 TrackDeviceCollection& deviceTrack,
+                                                 VertexDeviceCollection& deviceVertex,
+                                                 ClusterParameters const& cParams,
+                                                 int32_t nBlocks,
+                                                 int32_t blockSize) {
     const int blocks = divide_up_by(nBlocks * blockSize, blockSize);  //nBlocks of size blockSize
-    alpaka::exec<Acc1D>(
-        queue,
-        make_workdiv<Acc1D>(blocks, blockSize),
-        ReSplitTracksKernel{},
-        deviceTrack
-            .view(),  
-        deviceVertex.view(),
-        cParams,
-        beta_.data(),
-        osumtkwt_.data(),
-        blockSize);
+    alpaka::exec<Acc1D>(queue,
+                        make_workdiv<Acc1D>(blocks, blockSize),
+                        ReSplitTracksKernel{},
+                        deviceTrack.view(),
+                        deviceVertex.view(),
+                        cParams,
+                        beta_.data(),
+                        osumtkwt_.data(),
+                        blockSize);
   }  // DAInBlocksClusterizerAlgo::resplit_tracks
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

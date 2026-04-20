@@ -47,24 +47,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class PortableTrackSoAProducer : public global::EDProducer<> {
   public:
     PortableTrackSoAProducer(edm::ParameterSet const& config)
-        : global::EDProducer<>(config), theTTBToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))), trackToken_(consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("TrackLabel"))), beamSpotToken_(consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("BeamSpotLabel"))), fParams({
-          .maxSignificance =
-              config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("maxD0Significance"),
-          .maxdxyError =
-              config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("maxD0Error"),
-          .maxdzError = config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("maxDzError"),
-          .minpAtIP = config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("minPt"),
-          .maxetaAtIP = config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("maxEta"),
-          .maxchi2 =
-              config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("maxNormalizedChi2"),
-          .minpixelHits =
-              config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<int>("minPixelLayersWithHits"),
-          .mintrackerHits =
-              config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<int>("minSiliconLayersWithHits"),
-          .trackQuality = reco::TrackBase::undefQuality,
-          .vertexSize = config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("vertexSize"),
-          .d0CutOff = config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("d0CutOff")}) {
-		  
+        : global::EDProducer<>(config),
+          theTTBToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+          trackToken_(consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("TrackLabel"))),
+          beamSpotToken_(consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("BeamSpotLabel"))),
+          fParams(
+              {.maxSignificance = config.getParameter<edm::ParameterSet>("TkFilterParameters")
+                                      .getParameter<double>("maxD0Significance"),
+               .maxdxyError =
+                   config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("maxD0Error"),
+               .maxdzError =
+                   config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("maxDzError"),
+               .minpAtIP = config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("minPt"),
+               .maxetaAtIP =
+                   config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("maxEta"),
+               .maxchi2 = config.getParameter<edm::ParameterSet>("TkFilterParameters")
+                              .getParameter<double>("maxNormalizedChi2"),
+               .minpixelHits = config.getParameter<edm::ParameterSet>("TkFilterParameters")
+                                   .getParameter<int>("minPixelLayersWithHits"),
+               .mintrackerHits = config.getParameter<edm::ParameterSet>("TkFilterParameters")
+                                     .getParameter<int>("minSiliconLayersWithHits"),
+               .trackQuality = reco::TrackBase::undefQuality,
+               .vertexSize =
+                   config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("vertexSize"),
+               .d0CutOff =
+                   config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("d0CutOff")}) {
       devicePutToken_ = produces();
       std::string qualityClass =
           config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<std::string>("trackQuality");
@@ -79,8 +86,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       reco::BeamSpot beamSpot;
       if (beamSpotHandle.isValid())
         beamSpot = *beamSpotHandle;
-      else 
-	throw cms::Exception("FatalError") << "[PortableTrackSoAProducer::produce] Unable to find valid BeamSpot in event\n";
+      else
+        throw cms::Exception("FatalError")
+            << "[PortableTrackSoAProducer::produce] Unable to find valid BeamSpot in event\n";
       int32_t tsize_ = tracks.product()->size();
 
       // Host collections
@@ -110,8 +118,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                          (b.second.stateAtBeamLine().trackStateAtPCA()).position().z();
                 });
       // This will keep track of how many we actually copy to device, only those that pass filter
-      int32_t nTrueTracks =
-          0;  
+      int32_t nTrueTracks = 0;
       for (int32_t idx = 0; idx < tsize_; idx++) {
         // Fill up the the Track SoA, weight doubles up as an isGood flag, as we compute it only for good tracks
         double weight = convertTrack(tview[nTrueTracks],
@@ -121,9 +128,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                      sortedTracksPair[idx].first,
                                      nTrueTracks);
         if (weight > 0) {
-          #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ALPAKA_PORTABLETRACKSOAPRODUCER
-            printf("[PortableTrackSoAProducer::produce()] Add track at z=%1.5f \n", sortedTracksPair[idx].second.stateAtBeamLine().trackStateAtPCA().position().z());
-          #endif
+#ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ALPAKA_PORTABLETRACKSOAPRODUCER
+          printf("[PortableTrackSoAProducer::produce()] Add track at z=%1.5f \n",
+                 sortedTracksPair[idx].second.stateAtBeamLine().trackStateAtPCA().position().z());
+#endif
           nTrueTracks += 1;
           tview.nT() += 1;
           tview.totweight() += weight;
@@ -194,7 +202,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         (in.normalizedChi2() < fParams.maxchi2) &&
         (in.hitPattern().pixelLayersWithMeasurement() >= fParams.minpixelHits) &&
         (in.hitPattern().trackerLayersWithMeasurement() >= fParams.mintrackerHits) &&
-        (in.track().quality(fParams.trackQuality) || (fParams.trackQuality == reco::TrackBase::undefQuality))){
+        (in.track().quality(fParams.trackQuality) || (fParams.trackQuality == reco::TrackBase::undefQuality))) {
       weight = 1.;
       if (fParams.d0CutOff > 0) {
         // significance is measured in the transverse plane

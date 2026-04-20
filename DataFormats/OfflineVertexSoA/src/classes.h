@@ -2,7 +2,7 @@
 #include <Eigen/Dense>
 
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/VertexSoA/interface/VertexHostCollection.h"
-#include "DataFormats/VertexSoA/interface/VertexSoA.h"
-#include "DataFormats/VertexSoA/interface/TrackHostCollection.h"
-#include "DataFormats/VertexSoA/interface/TrackSoA.h"
+#include "DataFormats/OfflineVertexSoA/interface/VertexHostCollection.h"
+#include "DataFormats/OfflineVertexSoA/interface/VertexSoA.h"
+#include "DataFormats/OfflineVertexSoA/interface/TrackHostCollection.h"
+#include "DataFormats/OfflineVertexSoA/interface/TrackSoA.h"

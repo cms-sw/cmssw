@@ -1,10 +1,10 @@
-#ifndef DataFormats_VertexSoA_interface_VertexHostCollection_h
-#define DataFormats_VertexSoA_interface_VertexHostCollection_h
+#ifndef DataFormats_OfflineVertexSoA_interface_VertexHostCollection_h
+#define DataFormats_OfflineVertexSoA_interface_VertexHostCollection_h
 
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
-#include "DataFormats/VertexSoA/interface/VertexSoA.h"
+#include "DataFormats/OfflineVertexSoA/interface/VertexSoA.h"
 
 // SoA with x, y, z, id fields in host memory
 using VertexHostCollection = PortableHostCollection<VertexSoA>;
 
-#endif  // DataFormats_VertexSoA_interface_VertexHostCollection_h
+#endif  // DataFormats_OfflineVertexSoA_interface_VertexHostCollection_h

@@ -47,8 +47,7 @@ void SoAToRecoVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   const VertexHostCollection& hostVertex = iEvent.get(portableVertexToken_);
   const VertexHostCollection::ConstView& hostVertexView = hostVertex.const_view();
   // Note that we need reco::Tracks for building the track Reference vector inside the reco::Vertex
-  auto tracks =
-      iEvent.getHandle(recoTrackToken_);  
+  auto tracks = iEvent.getHandle(recoTrackToken_);
 
   auto result = std::make_unique<reco::VertexCollection>();
 
@@ -64,10 +63,10 @@ void SoAToRecoVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     err[2][2] = hostVertexView[iV].errz();
     // Then we can actually create the vertex
     vColl.emplace_back(reco::Vertex::Point(hostVertexView[iV].x(), hostVertexView[iV].y(), hostVertexView[iV].z()),
-                      err,
-                      hostVertexView[iV].chi2(),
-                      hostVertexView[iV].ndof(),
-                      hostVertexView[iV].ntracks());
+                       err,
+                       hostVertexView[iV].chi2(),
+                       hostVertexView[iV].ndof(),
+                       hostVertexView[iV].ntracks());
     auto& newV = vColl.back();
     // Finally, add references to the reco::Track used for building it
     for (int iT = 0; iT < hostVertexView[iV].ntracks(); iT++) {
