@@ -487,7 +487,10 @@ namespace h {
   HIST_ID(EMU_CSC_ANODE_HMT_ALCT_REPORTING)                     \
   HIST_ID(EMU_CSC_TMB_RUN3_DATA_FORMAT)                         \
   HIST_ID(EMU_CSC_TMB_RUN3_CCLUT_MODE)                          \
-  HIST_ID(EMU_CSC_RUN3_ALCT_FORMAT)
+  HIST_ID(EMU_CSC_RUN3_ALCT_FORMAT)                             \
+  HIST_ID(CSC_CORR_LCTXX_RUN3B_SLOPE)                           \
+  HIST_ID(CSC_CORR_LCT_RUN3B_GEM_LAYERS)                        \
+  HIST_ID(EMU_ME11_CORR_LCT_RUN3B_GEM_LAYERS)
 
 #define HIST_NAME_TABLE                                         \
   HIST_NAME("Actual_DMB_CFEB_DAV_Frequency")                    \
@@ -946,7 +949,10 @@ namespace h {
   HIST_NAME("CSC_Anode_HMT_ALCT_Reporting")                     \
   HIST_NAME("CSC_TMB_Run3_Data_Format")                         \
   HIST_NAME("CSC_TMB_Run3_CCLUT_Mode")                          \
-  HIST_NAME("CSC_ALCT_Run3_Format")
+  HIST_NAME("CSC_ALCT_Run3_Format")                             \
+  HIST_NAME("Corr_LCT%d_Run3b_Slope")                           \
+  HIST_NAME("Corr_LCT_Run3b_GEM_Layers")                        \
+  HIST_NAME("ME11_Corr_LCT_Run3b_GEM_Layers")
 
 #define HIST_ID(a) a,
   enum HistoId { HIST_ID_TABLE };

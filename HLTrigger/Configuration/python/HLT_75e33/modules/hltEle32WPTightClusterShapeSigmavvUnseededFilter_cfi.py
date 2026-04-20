@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltEle32WPTightClusterShapeSigmavvUnseededFilter = cms.EDFilter("HLTEgammaGenericFilter",
+hltEle32WPTightClusterShapeSigmavvUnseededFilter = cms.EDFilter("HLTEgammaGenericQuadraticFilter",
     absEtaLowEdges = cms.vdouble(0.0, 1.479),
     candTag = cms.InputTag("hltEle32WPTightClusterShapeUnseededFilter"),
     doRhoCorrection = cms.bool(False),

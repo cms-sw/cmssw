@@ -1297,6 +1297,27 @@
                 <Name>Event_Display_XY</Name>
 	</Histogram>
 
+	<Histogram>
+                <Prefix>EMU</Prefix>
+                <SetNdivisionsX>36</SetNdivisionsX>
+                <SetNdivisionsY>8</SetNdivisionsY>
+                <SetOption>textcolz</SetOption>
+                <SetOptStat>e</SetOptStat>
+		<SetYLabels>1='z- LCT1/GEMLy1'|2='z- LCT1/GEMLy0'|3='z- LCT0/GEMLy1'|4='z- LCT0/GEMLy0'|5='z+ LCT0/GEMLy0'|6='z+ LCT0/GEMLy1'|7='z+ LCT1/GEMLy0'|8='z+ LCT1/GEMLy1'|</SetYLabels>
+                <Title>ME11s Correlated LCTs GEM Layers</Title>
+                <Type>h2</Type>
+                <XBins>36</XBins>
+                <XMax>37</XMax>
+                <XMin>1</XMin>
+                <XTitle>ME11 chambers</XTitle>
+                <YBins>8</YBins>
+                <YMax>8</YMax>
+                <YMin>0</YMin>
+                <YTitle>LCT# / GEM Layer</YTitle>
+                <Name>ME11_Corr_LCT_Run3b_GEM_Layers</Name>
+        </Histogram>
+
+
         <!-- DDU Histograms -->
 
 	<Histogram>
@@ -3910,6 +3931,45 @@
                 <XTitle>Run3 5-bit CLCT Pattern ID</XTitle>
                 <YTitle>Number of events</YTitle>
                 <Name>Corr_LCT_Run3_PatternID</Name>
+        </Histogram>
+
+	<Histogram>
+		<Folder>TMB</Folder>
+		<Prefix>CSC</Prefix>
+		<SetLabelSizeX>0.025</SetLabelSizeX>
+		<SetMinimum>0</SetMinimum>
+		<SetNdivisionsX>64</SetNdivisionsX>
+                <SetOption>texthist</SetOption>
+		<SetOptStat>e</SetOptStat>
+		<Title>Run3b 6-bits LCT%d CLCT slope/bend distribution</Title>
+		<Type>h1</Type>
+		<XBins>64</XBins>
+		<XMax>64</XMax>
+		<XMin>0</XMin>
+                <XTitle>Run3b 6-bits LCT%d CLCT slope/bend</XTitle>
+                <YTitle>Number of events</YTitle>
+		<Name from="0" to="1">Corr_LCT%d_Run3b_Slope</Name>
+        </Histogram>
+
+
+        <Histogram>
+		<Folder>TMB</Folder>
+                <Prefix>CSC</Prefix>
+		<SetNdivisionsX>2</SetNdivisionsX>
+                <SetNdivisionsY>2</SetNdivisionsY>
+                <SetOption>textcolz</SetOption>
+		<SetOptStat>e</SetOptStat>
+		<Title>Correlated LCTs GEM Layers</Title>
+		<Type>h2</Type>
+		<XBins>2</XBins>
+		<XMax>2</XMax>
+		<XMin>0</XMin>
+		<XTitle>GEM Layer</XTitle>
+		<YBins>2</YBins>
+		<YMax>2</YMax>
+		<YMin>0</YMin>
+                <YTitle>LCT #</YTitle>
+		<Name>Corr_LCT_Run3b_GEM_Layers</Name>
         </Histogram>
 
         <Histogram>

@@ -20,8 +20,8 @@ tpToHltGeneralTrackAssociation = tpToHLTpixelTrackAssociation.clone(
 )
 
 hltTiclSimTracksters = _simTrackstersProducer.clone(
-    layerClusterCaloParticleAssociator = cms.InputTag("hltLayerClusterCaloParticleAssociationProducer"),
-    layerClusterSimClusterAssociator = cms.InputTag("hltLayerClusterSimClusterAssociationProducer"),
+    layerClusterCaloParticleAssociator = cms.InputTag("hltHGCalLayerClusterCaloParticleAssociation"),
+    layerClusterSimClusterAssociator = cms.InputTag("hltHGCalLayerClusterSimClusterAssociation"),
     filtered_mask = cms.InputTag("hltFilteredLayerClustersSimTracksters","hltTiclSimTracksters"),
     layer_clusters = cms.InputTag("hltMergeLayerClusters"),
     time_layerclusters = cms.InputTag("hltMergeLayerClusters","timeLayerCluster"),

@@ -7,6 +7,9 @@ currently running EGM and MUO monitoring modules.
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester                                
 
+### Tracks
+from HLTriggerOffline.Scouting.ScoutingTrackMonitor_cfi import *
+
 ### Muons monitoring
 from HLTriggerOffline.Scouting.ScoutingMuonTriggerAnalyzer_cfi import *
 from HLTriggerOffline.Scouting.ScoutingMuonTagProbeAnalyzer_cfi import *
@@ -34,6 +37,8 @@ from HLTriggerOffline.Scouting.HLTScoutingDileptonMonitor_cfi import *
 ### Pi0 Monitoring
 from HLTriggerOffline.Scouting.HLTScoutingPi0Monitor_cfi import *
 
+hltScoutingTrackMonitor = cms.Sequence(ScoutingTrackMonitor)
+
 hltScoutingMuonDqmOffline = cms.Sequence(scoutingMonitoringTagProbeMuonNoVtx *
                                          scoutingMonitoringTagProbeMuonVtx *
                                          scoutingMonitoringTriggerMuon_DoubleMu *
@@ -50,7 +55,8 @@ hltScoutingCollectionMonitor = cms.Sequence(scoutingCollectionMonitor)
 hltScoutingDileptonMonitor = cms.Sequence(ScoutingDileptonMonitor)
 hltScoutingPi0Monitor = cms.Sequence(ScoutingPi0Monitor)
 
-hltScoutingDqmOffline = cms.Sequence(hltScoutingMuonDqmOffline +
+hltScoutingDqmOffline = cms.Sequence(hltScoutingTrackMonitor +
+                                     hltScoutingMuonDqmOffline +
                                      hltScoutingEGammaDqmOffline +
                                      hltScoutingJetDqmOffline +
                                      run3ScoutingElectronBestTrack +

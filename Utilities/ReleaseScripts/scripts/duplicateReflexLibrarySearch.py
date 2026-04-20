@@ -24,6 +24,8 @@ typedefsDict = \
     ', '           : [','],
     }
 
+# IO versioning namespace does not impact the preferred package
+io_v = r"(io_v\d+::)?"
 
 # Equivalent names for packages - lets script know that, for example,
 # 'TrackReco' package should have objects 'reco::Track'.
@@ -37,15 +39,15 @@ equivDict = \
          {'TrajectoryState'         : ['TrajectoryStateOnSurface']},
          {'L1TrackTrigger'        : ['(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi']},
          {'L1Scouting'            : ['l1ScoutingRun3::CaloTower.*']},
-         {'L1TCalorimeterPhase2'  : ['l1tp2::CaloTower.*']},
-         {'L1TCalorimeter'        : ['l1t::CaloTower.*']},
+         {'L1TCalorimeterPhase2'  : [f'l1tp2::{io_v}CaloTower.*']},
+         {'L1TCalorimeter'        : [f'l1t::{io_v}CaloTower.*']},
          {'VertexFinder'          : ['l1tVertexFinder::Vertex']},
-         {'GsfTracking'           : ['reco::GsfTrack(Collection|).*(MomentumConstraint|VertexConstraint)', 'Trajectory.*reco::GsfTrack']},
+         {'GsfTracking'           : [f'reco::{io_v}GsfTrack(Collection|).*(MomentumConstraint|VertexConstraint)', f'Trajectory.*reco::{io_v}GsfTrack']},
          {'PatCandidates'         : ['pat::PATObject','pat::Lepton', 'reco::RecoCandidate','pat::[A-Za-z]+Ref(Vector|)', 'pat::UserHolder']},
          {'BTauReco'              : ['reco::.*SoftLeptonTagInfo', 'reco::SoftLeptonProperties','reco::SecondaryVertexTagInfo','reco::IPTagInfo','reco::TemplatedSecondaryVertexTagInfo', 'reco::CATopJetProperties','reco::HTTTopJetProperties']},
          {'CastorReco'            : ['reco::CastorJet']},
          {'JetMatching'           : ['reco::JetFlavourInfo', 'reco::JetFlavour','reco::MatchedPartons']},
-         {'RecoCandidate'         : ['reco::Candidate']},
+         {'RecoCandidate'         : [f'reco::{io_v}Candidate']},
          {'TrackingAnalysis'      : ['TrackingParticle']},
          {'Egamma'                : ['reco::ElectronID']},
          {'TopObjects'            : ['reco::CATopJetProperties']},
@@ -55,23 +57,23 @@ equivDict = \
          {'TrackCandidate'        : ['TrackCandidate']},
          {'PatternTools'          : ['MomentumConstraint','VertexConstraint','Trajectory']},
          {'TrackerRecHit2D'       : ['SiStrip(Matched|)RecHit[12]D','SiTrackerGSRecHit[12]D','SiPixelRecHit']},
-         {'MuonReco'              : ['reco::Muon(Ref|)(Vector|)']},
+         {'MuonReco'              : [f'reco::{io_v}Muon(Ref|)(Vector|)']},
          {'MuonSeed'              : ['L3MuonTrajectorySeed']},
          {'HepMCCandidate'        : ['reco::GenParticle.*']},
-         {'L1Trigger'             : ['l1extra::L1.+Particle', 'l1t::Vertex']},
+         {'L1Trigger'             : ['l1extra::L1.+Particle', f'l1t::{io_v}Vertex']},
          {'TrackInfo'             : ['reco::TrackingRecHitInfo']},
-         {'EgammaCandidates'      : ['reco::GsfElectron.*','reco::Photon.*']},
+         {'EgammaCandidates'      : ['reco::GsfElectron.*',f'reco::{io_v}Photon.*']},
          {'HcalIsolatedTrack'     : ['reco::IsolatedPixelTrackCandidate', 'reco::EcalIsolatedParticleCandidate', 'reco::HcalIsolatedTrackCandidate']},
          {'HcalRecHit'            : ['HFRecHit','HORecHit','ZDCRecHit','HBHERecHit','HcalRecHitSoA']},
          {'PFRootEvent'           : ['EventColin::']},
          {'CaloTowers'            : ['CaloTower.*']},
          {'GsfTrackReco'          : ['GsfTrack.*']},
-         {'METReco'               : ['reco::(Calo|PF|Gen|)MET','reco::PFClusterMET']},
+         {'METReco'               : [f'reco::{io_v}(Calo|PF|Gen|)MET','reco::PFClusterMET']},
          {'ParticleFlowReco'      : ['reco::RecoPFClusterRefCandidateRef.*']},
-         {'ParticleFlowCandidate' : ['reco::PFCandidateRef','reco::PFCandidateFwdRef','reco::PFCandidate']},
+         {'ParticleFlowCandidate' : ['reco::PFCandidateRef','reco::PFCandidateFwdRef',f'reco::{io_v}PFCandidate']},
          {'PhysicsToolsObjects'   : ['PhysicsTools::Calibration']},
-         {'TrackReco'             : ['reco::Track','reco::TrackRef']},
-         {'VertexReco'            : ['reco::Vertex']},
+         {'TrackReco'             : [f'reco::{io_v}Track','reco::TrackRef']},
+         {'VertexReco'            : [f'reco::{io_v}Vertex']},
          {'TauReco'               : ['reco::PFJetRef']},
          {'JetReco'               : ['reco::.*Jet','reco::.*Jet(Collection|Ref)']},
          {'HGCDigi'               : ['HGCSample']},
@@ -259,7 +261,7 @@ def searchDuplicatePlugins ():
     output = getoutput (cmd).split('\n')
     for line in output:
         if line in ignoreEdmDP: continue
-        line = line.replace("*","\*")
+        line = line.replace("*",r"\*")
         cmd = "cat %s | grep ' %s ' | awk '{print $1}' | sort | uniq " % (edmpluginFile,line)
         out1 = getoutput (cmd).split('\n')
         print(line)

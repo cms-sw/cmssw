@@ -170,8 +170,8 @@ private:
   MonitorElement* h_SVNoVtx_chi2_;
   MonitorElement* h_SVNoVtx_ndof_;
   MonitorElement* h_SVNoVtx_isvalidvtx_;
-  MonitorElement* h_SVNoVtx_dxy_;
-  MonitorElement* h_SVNoVtx_dxySig_;
+  MonitorElement* h_SVNoVtx_dlenXY_;
+  MonitorElement* h_SVNoVtx_dlenXYSig_;
   MonitorElement* h_SVNoVtx_dlen_;
   MonitorElement* h_SVNoVtx_dlenSig_;
   MonitorElement* h_SVNoVtx_mass_;
@@ -191,14 +191,27 @@ private:
   MonitorElement* h_SVVtx_chi2_;
   MonitorElement* h_SVVtx_ndof_;
   MonitorElement* h_SVVtx_isvalidvtx_;
-  MonitorElement* h_SVVtx_dxy_;
-  MonitorElement* h_SVVtx_dxySig_;
+  MonitorElement* h_SVVtx_dlenXY_;
+  MonitorElement* h_SVVtx_dlenXYSig_;
   MonitorElement* h_SVVtx_dlen_;
   MonitorElement* h_SVVtx_dlenSig_;
   MonitorElement* h_SVVtx_mass_;
   MonitorElement* h_SVVtx_mass_Z_;
   MonitorElement* h_SVVtx_mass_JPsi_;
   MonitorElement* h_SVVtx_nMuon_;
+
+  // Occupancy maps
+  MonitorElement* h2_MuonVtx_eta_phi;
+  MonitorElement* h2_MuonNoVtx_eta_phi;
+
+  // 2D eta-phi profiles
+  MonitorElement* p2_MuonVtx_nValidPixelHits_eta_phi;
+  MonitorElement* p2_MuonVtx_nTrackerLayersWithMeasurement_eta_phi;
+  MonitorElement* p2_MuonVtx_nValidStripHits_eta_phi;
+
+  MonitorElement* p2_MuonNoVtx_nValidPixelHits_eta_phi;
+  MonitorElement* p2_MuonNoVtx_nTrackerLayersWithMeasurement_eta_phi;
+  MonitorElement* p2_MuonNoVtx_nValidStripHits_eta_phi;
 };
 
 ScoutingMuonPropertiesAnalyzer::ScoutingMuonPropertiesAnalyzer(const edm::ParameterSet& iConfig)
@@ -642,19 +655,19 @@ void ScoutingMuonPropertiesAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
 
   // SVNoVtx
 
-  h_SVNoVtx_dxy_ = ibooker.book1D("SVNoVtx_dxy", "SVNoVtx dxy", 100, 0, 0.5);
-  h_SVNoVtx_dxy_->setAxisTitle("dxy [cm]", 1);
-  h_SVNoVtx_dxy_->setAxisTitle("Vertices", 2);
+  h_SVNoVtx_dlenXY_ = ibooker.book1D("SVNoVtx_dlenXY", "SVNoVtx dlen_{xy}", 100, 0, 20.);
+  h_SVNoVtx_dlenXY_->setAxisTitle("Transverse Decay Length [cm]", 1);
+  h_SVNoVtx_dlenXY_->setAxisTitle("Vertices", 2);
 
-  h_SVNoVtx_dxySig_ = ibooker.book1D("SVNoVtx_dxySig", "SVNoVtx dxy significance", 100, 0, 10);
-  h_SVNoVtx_dxySig_->setAxisTitle("dxy Significance", 1);
-  h_SVNoVtx_dxySig_->setAxisTitle("Vertices", 2);
+  h_SVNoVtx_dlenXYSig_ = ibooker.book1D("SVNoVtx_dlenXYSig", "SVNoVtx dlen_{xy} significance", 100, 0, 10);
+  h_SVNoVtx_dlenXYSig_->setAxisTitle("Transverse Decay Length Significance", 1);
+  h_SVNoVtx_dlenXYSig_->setAxisTitle("Vertices", 2);
 
-  h_SVNoVtx_dlen_ = ibooker.book1D("SVNoVtx_dlen", "SVNoVtx dlen", 100, 0, 20);
+  h_SVNoVtx_dlen_ = ibooker.book1D("SVNoVtx_dlen", "SVNoVtx dlen", 250, 0, 125);
   h_SVNoVtx_dlen_->setAxisTitle("Decay Length [cm]", 1);
   h_SVNoVtx_dlen_->setAxisTitle("Vertices", 2);
 
-  h_SVNoVtx_dlenSig_ = ibooker.book1D("SVNoVtx_dlenSig", "SVNoVtx dlen significance", 100, 0, 50);
+  h_SVNoVtx_dlenSig_ = ibooker.book1D("SVNoVtx_dlenSig", "SVNoVtx dlen significance", 100, 0, 10);
   h_SVNoVtx_dlenSig_->setAxisTitle("Decay Length Significance", 1);
   h_SVNoVtx_dlenSig_->setAxisTitle("Vertices", 2);
 
@@ -662,27 +675,27 @@ void ScoutingMuonPropertiesAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
   h_SVNoVtx_mass_->setAxisTitle("Mass [GeV]", 1);
   h_SVNoVtx_mass_->setAxisTitle("Vertices", 2);
 
-  h_SVNoVtx_mass_JPsi_ = ibooker.book1D("SVNoVtx_mass_JPsi", "SVNoVtx mass J/Psi", 50, 0, 10);
+  h_SVNoVtx_mass_JPsi_ = ibooker.book1D("SVNoVtx_mass_JPsi", "SVNoVtx mass J/Psi", 100, 0., 10.);
   h_SVNoVtx_mass_JPsi_->setAxisTitle("Mass [GeV]", 1);
   h_SVNoVtx_mass_JPsi_->setAxisTitle("Vertices", 2);
 
-  h_SVNoVtx_mass_Z_ = ibooker.book1D("SVNoVtx_mass_Z", "SVNoVtx mass Z", 50, 80, 100);
+  h_SVNoVtx_mass_Z_ = ibooker.book1D("SVNoVtx_mass_Z", "SVNoVtx mass Z", 100, 80, 100);
   h_SVNoVtx_mass_Z_->setAxisTitle("Mass [GeV]", 1);
   h_SVNoVtx_mass_Z_->setAxisTitle("Vertices", 2);
 
-  h_SVNoVtx_nMuon_ = ibooker.book1D("SVNoVtx_nMuon", "SVNoVtx nMuon", 10, 0, 10);
+  h_SVNoVtx_nMuon_ = ibooker.book1D("SVNoVtx_nMuon", "SVNoVtx nMuon", 10, -0.5, 9.5);
   h_SVNoVtx_nMuon_->setAxisTitle("Number of Muons", 1);
   h_SVNoVtx_nMuon_->setAxisTitle("Vertices", 2);
 
   // SVVtx
 
-  h_SVVtx_dxy_ = ibooker.book1D("SVVtx_dxy", "SVVtx dxy", 100, 0, 0.5);
-  h_SVVtx_dxy_->setAxisTitle("dxy [cm]", 1);
-  h_SVVtx_dxy_->setAxisTitle("Vertices", 2);
+  h_SVVtx_dlenXY_ = ibooker.book1D("SVVtx_dlenXY", "SVVtx dlen_{xy}", 100, 0, 0.5);
+  h_SVVtx_dlenXY_->setAxisTitle("Transverse Decay Length [cm]", 1);
+  h_SVVtx_dlenXY_->setAxisTitle("Vertices", 2);
 
-  h_SVVtx_dxySig_ = ibooker.book1D("SVVtx_dxySig", "SVVtx dxy significance", 100, 0, 10);
-  h_SVVtx_dxySig_->setAxisTitle("dxy Significance", 1);
-  h_SVVtx_dxySig_->setAxisTitle("Vertices", 2);
+  h_SVVtx_dlenXYSig_ = ibooker.book1D("SVVtx_dlenXYSig", "SVVtx dlen_{xy} significance", 100, 0, 10);
+  h_SVVtx_dlenXYSig_->setAxisTitle("Transverse Decay Length Significance", 1);
+  h_SVVtx_dlenXYSig_->setAxisTitle("Vertices", 2);
 
   h_SVVtx_dlen_ = ibooker.book1D("SVVtx_dlen", "SVVtx dlen", 100, 0, 20);
   h_SVVtx_dlen_->setAxisTitle("Decay Length [cm]", 1);
@@ -696,17 +709,68 @@ void ScoutingMuonPropertiesAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
   h_SVVtx_mass_->setAxisTitle("Mass [GeV]", 1);
   h_SVVtx_mass_->setAxisTitle("Vertices", 2);
 
-  h_SVVtx_mass_JPsi_ = ibooker.book1D("SVVtx_mass_JPsi", "SVVtx mass J/Psi", 50, 0, 10);
+  h_SVVtx_mass_JPsi_ = ibooker.book1D("SVVtx_mass_JPsi", "SVVtx mass J/Psi", 100, 0., 10.);
   h_SVVtx_mass_JPsi_->setAxisTitle("Mass [GeV]", 1);
   h_SVVtx_mass_JPsi_->setAxisTitle("Vertices", 2);
 
-  h_SVVtx_mass_Z_ = ibooker.book1D("SVVtx_mass_Z", "SVVtx mass Z", 50, 80, 100);
+  h_SVVtx_mass_Z_ = ibooker.book1D("SVVtx_mass_Z", "SVVtx mass Z", 100, 80, 100);
   h_SVVtx_mass_Z_->setAxisTitle("Mass [GeV]", 1);
   h_SVVtx_mass_Z_->setAxisTitle("Vertices", 2);
 
-  h_SVVtx_nMuon_ = ibooker.book1D("SVVtx_nMuon", "SVVtx nMuon", 10, 0, 10);
+  h_SVVtx_nMuon_ = ibooker.book1D("SVVtx_nMuon", "SVVtx nMuon", 10, -0.5, 9.5);
   h_SVVtx_nMuon_->setAxisTitle("Number of Muons", 1);
   h_SVVtx_nMuon_->setAxisTitle("Vertices", 2);
+
+  // Common eta-phi binning
+  constexpr int nEtaBins = 50;
+  constexpr double etaMin = -2.4;
+  constexpr double etaMax = 2.4;
+
+  constexpr int nPhiBins = 50;
+  constexpr double phiMin = -std::numbers::pi;
+  constexpr double phiMax = std::numbers::pi;
+
+  // Helper lambda for 2D occupancy histograms
+  auto bookOccupancy = [&](const std::string& name, const std::string& title) {
+    return ibooker.book2I(name, title, nEtaBins, etaMin, etaMax, nPhiBins, phiMin, phiMax);
+  };
+
+  h2_MuonVtx_eta_phi = bookOccupancy("eta_vs_phi_MuonVtx", "Track occupancy (MuonVtx);#eta;#phi");
+
+  h2_MuonNoVtx_eta_phi = bookOccupancy("eta_vs_phi_MuonNoVtx", "Track occupancy (MuonNoVtx);#eta;#phi");
+
+  // Helper lambda for 2D profile histograms
+  auto bookProfile2D = [&](const std::string& name, const std::string& title, double ymin, double ymax) {
+    auto* me = ibooker.bookProfile2D(name, title, nEtaBins, etaMin, etaMax, nPhiBins, phiMin, phiMax, ymin, ymax, "");
+    me->setOption("colz");
+    return me;
+  };
+
+  // Muons with vertex
+  p2_MuonVtx_nValidPixelHits_eta_phi = bookProfile2D(
+      "MuonVtx_nValidPixelHits_vs_eta_phi_prof", "nValidPixelHits vs #eta-#phi;<nValidPixelHits>;#eta;#phi", 0., 10.);
+
+  p2_MuonVtx_nTrackerLayersWithMeasurement_eta_phi =
+      bookProfile2D("MuonVtx_nTrackerLayersWithMeasurement_vs_eta_phi_prof",
+                    "nTrackerLayersWithMeasurement vs #eta-#phi;<nTrackerLayersWithMeasurement>;#eta;#phi",
+                    0.,
+                    20.);
+
+  p2_MuonVtx_nValidStripHits_eta_phi = bookProfile2D(
+      "MuonVtx_nValidStripHits_vs_eta_phi_prof", "nValidStripHits vs #eta-#phi;<nValidStripHits>;#eta;#phi", 0., 30.);
+
+  // Muons without vertex
+  p2_MuonNoVtx_nValidPixelHits_eta_phi = bookProfile2D(
+      "MuonNoVtx_nValidPixelHits_vs_eta_phi_prof", "nValidPixelHits vs #eta-#phi;<nValidPixelHits>;#eta;#phi", 0., 10.);
+
+  p2_MuonNoVtx_nTrackerLayersWithMeasurement_eta_phi =
+      bookProfile2D("MuonNoVtx_nTrackerLayersWithMeasurement_vs_eta_phi_prof",
+                    "nTrackerLayersWithMeasurement vs #eta-#phi;<nTrackerLayersWithMeasurement>;#eta;#phi",
+                    0.,
+                    20.);
+
+  p2_MuonNoVtx_nValidStripHits_eta_phi = bookProfile2D(
+      "MuonNoVtx_nValidStripHits_vs_eta_phi_prof", "nValidStripHits vs #eta-#phi;<nValidStripHits>;#eta;#phi", 0., 30.);
 
   triggersMapped_ = false;
 }
@@ -822,6 +886,22 @@ void ScoutingMuonPropertiesAnalyzer::analyze(const edm::Event& iEvent, const edm
         h_ScoutingMuonNoVtx_trkvz_->Fill(mu.trk_vz());
       }
 
+      const double eta = mu.eta();
+      const double phi = mu.phi();
+
+      // Extract hit information
+      const double nValidPixelHits = mu.nValidPixelHits();
+      const double nTrackerLayersWithMeasurement = mu.nTrackerLayersWithMeasurement();
+      const double nValidStripHits = mu.nValidStripHits();
+
+      // Occupancy
+      h2_MuonNoVtx_eta_phi->Fill(eta, phi);
+
+      // Profiles
+      p2_MuonNoVtx_nValidPixelHits_eta_phi->Fill(eta, phi, nValidPixelHits);
+      p2_MuonNoVtx_nTrackerLayersWithMeasurement_eta_phi->Fill(eta, phi, nTrackerLayersWithMeasurement);
+      p2_MuonNoVtx_nValidStripHits_eta_phi->Fill(eta, phi, nValidStripHits);
+
       h_ScoutingMuonNoVtx_m_->Fill(mu.m());
       h_ScoutingMuonNoVtx_vtxIndx_->Fill(mu.vtxIndx().size());
       muonNoVtx_vtxIndx.push_back(mu.vtxIndx());
@@ -891,6 +971,22 @@ void ScoutingMuonPropertiesAnalyzer::analyze(const edm::Event& iEvent, const edm
         h_ScoutingMuonVtx_trkvz_->Fill(mu.trk_vz());
       }
 
+      const double eta = mu.eta();
+      const double phi = mu.phi();
+
+      // Extract hit information
+      const double nValidPixelHits = mu.nValidPixelHits();
+      const double nTrackerLayersWithMeasurement = mu.nTrackerLayersWithMeasurement();
+      const double nValidStripHits = mu.nValidStripHits();
+
+      // Occupancy
+      h2_MuonVtx_eta_phi->Fill(eta, phi);
+
+      // Profiles
+      p2_MuonVtx_nValidPixelHits_eta_phi->Fill(eta, phi, nValidPixelHits);
+      p2_MuonVtx_nTrackerLayersWithMeasurement_eta_phi->Fill(eta, phi, nTrackerLayersWithMeasurement);
+      p2_MuonVtx_nValidStripHits_eta_phi->Fill(eta, phi, nValidStripHits);
+
       h_ScoutingMuonVtx_m_->Fill(mu.m());
       h_ScoutingMuonVtx_vtxIndx_->Fill(mu.vtxIndx().size());
       muonVtx_vtxIndx.push_back(mu.vtxIndx());
@@ -956,8 +1052,8 @@ void ScoutingMuonPropertiesAnalyzer::analyze(const edm::Event& iEvent, const edm
         reco::Vertex svCand(svPos, svErr, sv.chi2(), sv.ndof(), sv.tracksSize());
         Measurement1D dxy = vdistXY.distance(PV0, svCand);
         Measurement1D dlen = vdist.distance(PV0, svCand);
-        h_SVNoVtx_dxy_->Fill(dxy.value());
-        h_SVNoVtx_dxySig_->Fill(dxy.significance());
+        h_SVNoVtx_dlenXY_->Fill(dxy.value());
+        h_SVNoVtx_dlenXYSig_->Fill(dxy.significance());
         h_SVNoVtx_dlen_->Fill(dlen.value());
         h_SVNoVtx_dlenSig_->Fill(dlen.significance());
       }
@@ -1017,8 +1113,8 @@ void ScoutingMuonPropertiesAnalyzer::analyze(const edm::Event& iEvent, const edm
         reco::Vertex svCand(svPos, svErr, sv.chi2(), sv.ndof(), sv.tracksSize());
         Measurement1D dxy = vdistXY.distance(PV0, svCand);
         Measurement1D dlen = vdist.distance(PV0, svCand);
-        h_SVVtx_dxy_->Fill(dxy.value());
-        h_SVVtx_dxySig_->Fill(dxy.significance());
+        h_SVVtx_dlenXY_->Fill(dxy.value());
+        h_SVVtx_dlenXYSig_->Fill(dxy.significance());
         h_SVVtx_dlen_->Fill(dlen.value());
         h_SVVtx_dlenSig_->Fill(dlen.significance());
       }

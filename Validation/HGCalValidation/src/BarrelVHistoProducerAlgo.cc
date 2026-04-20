@@ -995,7 +995,7 @@ void BarrelVHistoProducerAlgo::layerClusters_to_CaloParticles(
       continue;
     histograms.h_denom_layercl_eta_perlayer.at(lcLayerId)->Fill(clusters[lcId].eta());
     histograms.h_denom_layercl_phi_perlayer.at(lcLayerId)->Fill(clusters[lcId].phi());
-    //
+
     const edm::Ref<reco::CaloClusterCollection> lcRef(clusterHandle, lcId);
     const auto& cpsIt = cpsInLayerClusterMap.find(lcRef);
     if (cpsIt == cpsInLayerClusterMap.end())

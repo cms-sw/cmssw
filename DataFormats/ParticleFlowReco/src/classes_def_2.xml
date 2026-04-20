@@ -46,10 +46,13 @@
 
   <class name="std::vector<reco::io_v1::PFRecHit>"/>
   <class name="edm::Wrapper<std::vector<reco::io_v1::PFRecHit> >"/>
+  <class name="edm::RefProd<vector<reco::io_v1::PFRecHit> >"/>
   <class name="edm::Ref< std::vector<reco::io_v1::PFRecHit>, reco::io_v1::PFRecHit, edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFRecHit>,reco::io_v1::PFRecHit>  >"/>
 
   <class name="edm::RefVector<std::vector<reco::io_v1::PFRecHit>,reco::io_v1::PFRecHit,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PFRecHit>,reco::io_v1::PFRecHit> >"/>
 
+  <class name="edm::Wrapper<std::vector<edm::RefProd<std::vector<reco::io_v1::PFRecHit> > > >"/>
+  <class name="std::vector<edm::RefProd<std::vector<reco::io_v1::PFRecHit> > >"/>
   
 
   <class name="reco::PFTrack" ClassVersion="11">

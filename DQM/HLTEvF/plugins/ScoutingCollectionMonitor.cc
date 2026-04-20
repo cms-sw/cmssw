@@ -21,6 +21,7 @@ It is based on the preexisting work of the scouting group and can be found at gi
 #include <cmath>
 #include <memory>
 #include <vector>
+#include <numbers>
 #include <TLorentzVector.h>
 
 // user include files
@@ -296,6 +297,10 @@ private:
   dqm::reco::MonitorElement* trkBestIdx_ele_hist;
   dqm::reco::MonitorElement* trkd0_ele_hist;
   dqm::reco::MonitorElement* trkdz_ele_hist;
+  dqm::reco::MonitorElement* trkd0BS_ele_hist;
+  dqm::reco::MonitorElement* trkdzBS_ele_hist;
+  dqm::reco::MonitorElement* trkd0Vtx_ele_hist;
+  dqm::reco::MonitorElement* trkdzVtx_ele_hist;
   dqm::reco::MonitorElement* trkpt_ele_hist;
   dqm::reco::MonitorElement* trketa_ele_hist;
   dqm::reco::MonitorElement* trkphi_els_hist;
@@ -734,6 +739,32 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   const auto& vmChi2 = iEvent.get(vmTrkchi2overndfToken_);
   const auto& vmCharge = iEvent.get(vmTrkchargeToken_);
 
+  // determine the beamspot position (if it exists in the event)
+  std::unique_ptr<Run3ScoutingVertex> beamspotVertex{nullptr};
+  edm::Handle<reco::BeamSpot> beamSpotH;
+  if (getValidHandle(iEvent, beamSpotToken_, beamSpotH, "beamSpot")) {
+    const auto& beamspot = *beamSpotH;
+    beamspotVertex = std::make_unique<Run3ScoutingVertex>(
+        beamspot.x0(), beamspot.y0(), beamspot.z0(), 0., 0., 0., 0., 0., true, 0., 0., 0., 0);
+  }
+
+  // lambda to find closest vertex
+  auto findClosestVtx = [&](float dz0) -> const Run3ScoutingVertex* {
+    const Run3ScoutingVertex* bestVtx = nullptr;
+    float bestDist = std::numeric_limits<float>::max();
+
+    for (const auto& vtx : *primaryVerticesH) {
+      float dist = std::abs(dz0 - vtx.z());
+
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestVtx = &vtx;
+      }
+    }
+
+    return bestVtx;
+  };
+
   // fill all the electron histograms
   for (std::size_t iEl = 0; iEl < electronsH->size(); ++iEl) {
     // Ref needed to index into the ValueMaps
@@ -779,6 +810,40 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     // best-track value whenever bestIdx >= 0.
     trkd0_ele_hist->Fill(vmD0[elRef]);
     trkdz_ele_hist->Fill(vmDz[elRef]);
+
+    // computations to get IP w.r.t. a point
+    const float pt = vmPt[elRef];
+    const float phi = vmPhi[elRef];
+    const float eta = vmEta[elRef];
+
+    const float px = pt * std::cos(phi);
+    const float py = pt * std::sin(phi);
+    const float pz = pt * std::sinh(eta);
+    const float pt2 = pt * pt;
+
+    const float dxy0 = vmD0[elRef];
+    const float dz0 = vmDz[elRef];
+
+    // lambda to compute IP wrt any (x,y,z)
+    auto computeIP = [&](float x, float y, float z) {
+      float dxy = dxy0 + (-x * py + y * px) / pt;
+      float dz = dz0 - z + (x * px + y * py) * pz / pt2;
+      return std::pair<float, float>{dxy, dz};
+    };
+
+    // compute w.r.t. beamspot
+    auto [dxy_bs, dz_bs] = computeIP(beamspotVertex->x(), beamspotVertex->y(), beamspotVertex->z());
+
+    trkd0BS_ele_hist->Fill(dxy_bs);
+    trkdzBS_ele_hist->Fill(dz_bs);
+
+    const auto* vtx = findClosestVtx(vmDz[elRef]);
+    if (vtx) {
+      auto [dxy_vtx, dz_vtx] = computeIP(vtx->x(), vtx->y(), vtx->z());
+      trkd0Vtx_ele_hist->Fill(dxy_vtx);
+      trkdzVtx_ele_hist->Fill(dz_vtx);
+    }
+
     trkpt_ele_hist->Fill(vmPt[elRef]);
     trketa_ele_hist->Fill(vmEta[elRef]);
     trkphi_els_hist->Fill(vmPhi[elRef]);
@@ -927,15 +992,6 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
   // displaced vertex histograms with MuonNoVtx (index1: NoVtx)
   for (const auto& vtx : *verticesNoVtxH)
     fillVtxHistograms(vtx, 1);
-
-  // determine the beamspot position (if it exists in the event)
-  std::unique_ptr<Run3ScoutingVertex> beamspotVertex{nullptr};
-  edm::Handle<reco::BeamSpot> beamSpotH;
-  if (getValidHandle(iEvent, beamSpotToken_, beamSpotH, "beamSpot")) {
-    const auto& beamspot = *beamSpotH;
-    beamspotVertex = std::make_unique<Run3ScoutingVertex>(
-        beamspot.x0(), beamspot.y0(), beamspot.z0(), 0., 0., 0., 0., 0., true, 0., 0., 0., 0);
-  }
 
   // fill tracks histograms
   for (const auto& tk : *tracksH) {
@@ -1134,13 +1190,13 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   nPFCands_hist = ibook.book1D("nPFCands", "Number of PF Candidates;N_{pfcand};Entries", 1001, 0, 1000);
 
   rho_hist = ibook.book1D("rho", "#rho; #rho; Entries", 100, 0.0, 60.0);
-  pfMetPhi_hist = ibook.book1D("pfMetPhi", "pf MET #phi; #phi ;Entries", 100, -3.14, 3.14);
+  pfMetPhi_hist = ibook.book1D("pfMetPhi", "pf MET #phi; #phi ;Entries", 100, -std::numbers::pi, std::numbers::pi);
   pfMetPt_hist = ibook.book1D("pfMetPt", "pf MET p_{T};p_{T} [GeV];Entries", 100, 0.0, 250.0);
 
   if (!onlyScouting_) {
-    PVvsPU_hist =
-        ibook.bookProfile("PVvsPU", "Number of primary vertices vs pile up; pile up; <N_{PV}>", 20, 20, 70, 0, 65);
-    rhovsPU_hist = ibook.bookProfile("rhovsPU", "#rho vs pile up; pile up; <#rho>", 20, 20, 70, 0, 45);
+    PVvsPU_hist = ibook.bookProfile(
+        "PVvsPU", "Number of primary vertices vs pile up; pile up; #LTN_{PV}#GT", 70, 0., 70., 0., 70., "");
+    rhovsPU_hist = ibook.bookProfile("rhovsPU", "#rho vs pile up; pile up; #LT#rho#GT", 70, 0., 70., 0., 45., "");
   }
 
   ibook.setCurrentFolder(topfoldername_ + "/PFcand");
@@ -1281,7 +1337,7 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   ibook.setCurrentFolder(topfoldername_ + "/Photon");
   pt_pho_hist = ibook.book1DD("pt_pho", "Photon p_{T}; p_{T} (GeV); Entries", 100, 0.0, 100.0);
   eta_pho_hist = ibook.book1DD("eta_pho", "photon #eta; #eta; Entries", 100, -2.7, 2.7);
-  phi_pho_hist = ibook.book1DD("phi_pho", "Photon #phi; #phi (rad); Entries", 100, -3.14, 3.14);
+  phi_pho_hist = ibook.book1DD("phi_pho", "Photon #phi; #phi (rad); Entries", 100, -std::numbers::pi, std::numbers::pi);
   rawEnergy_pho_hist = ibook.book1DD("rawEnergy_pho", "Raw Energy Photon; Energy (GeV); Entries", 100, 0.0, 250.0);
   preshowerEnergy_pho_hist =
       ibook.book1DD("preshowerEnergy_pho", "Preshower Energy Photon; Energy (GeV); Entries", 100, 0.0, 8.0);
@@ -1306,7 +1362,8 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   ibook.setCurrentFolder(topfoldername_ + "/Electron");
   pt_ele_hist = ibook.book1DD("pt_ele", "Electron p_{T}; p_{T} (GeV); Entries", 100, 0.0, 100.0);
   eta_ele_hist = ibook.book1DD("eta_ele", "Electron #eta; #eta; Entries", 100, -2.7, 2.7);
-  phi_ele_hist = ibook.book1DD("phi_ele", "Electron #phi; #phi (rad); Entries", 100, -3.14, 3.14);
+  phi_ele_hist =
+      ibook.book1DD("phi_ele", "Electron #phi; #phi (rad); Entries", 100, -std::numbers::pi, std::numbers::pi);
   rawEnergy_ele_hist = ibook.book1DD("rawEnergy_ele", "Raw Energy Electron; Energy (GeV); Entries", 100, 0.0, 250.0);
   preshowerEnergy_ele_hist =
       ibook.book1DD("preshowerEnergy_ele", "Preshower Energy Electron; Energy (GeV); Entries", 100, 0.0, 10.0);
@@ -1336,20 +1393,25 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   nTracks_ele_hist = ibook.book1D("nTracksPerElectron", "Number of tracks per electron;N_{trk};Electrons", 20, 0, 20);
 
   // --- Best-track variables (from ValueMaps) ---
-  trkBestIdx_ele_hist = ibook.book1D("trkBestIdx", "Best-track index;index;Electrons", 20, 0, 20);
-  trkd0_ele_hist = ibook.book1D("trkd0", "Best-track d_{0};d_{0} [cm];Electrons", 100, -0.5, 0.5);
-  trkdz_ele_hist = ibook.book1D("trkdz", "Best-track d_{z};d_{z} [cm];Electrons", 100, -25, 25);
-  trkpt_ele_hist = ibook.book1D("trkpt", "Best-track p_{T};p_{T} [GeV];Electrons", 100, 0, 200);
-  trketa_ele_hist = ibook.book1D("trketa", "Best-track #eta;#eta;Electrons", 60, -3, 3);
-  trkphi_els_hist = ibook.book1D("trkphi", "Best-track #phi;#phi [rad];Electrons", 64, -3.2, 3.2);
-  trkpMode_ele_hist = ibook.book1D("trkpMode", "Best-track p (mode);p_{mode} [GeV];Electrons", 100, 0, 200);
-  trketaMode_ele_hist = ibook.book1D("trketaMode", "Best-track #eta (mode);#eta_{mode};Electrons", 60, -3, 3);
-  trkphiMode_ele_hist = ibook.book1D("trkphiMode", "Best-track #phi (mode);#phi_{mode} [rad];Electrons", 64, -3.2, 3.2);
-  trkqoverpModeError_ele_hist = ibook.book1D(
+  trkBestIdx_ele_hist = ibook.book1DD("trkBestIdx", "Best-track index;index;Electrons", 20, 0, 20);
+  trkd0_ele_hist = ibook.book1DD("trkd0", "Best-track d_{0};d_{0} [cm];Electrons", 100, -0.5, 0.5);
+  trkdz_ele_hist = ibook.book1DD("trkdz", "Best-track d_{z};d_{z} [cm];Electrons", 100, -25, 25);
+  trkd0BS_ele_hist = ibook.book1DD("trkd0BS", "Best-track d_{0}(BS);d_{0}(BS) [cm];Electrons", 100, -0.5, 0.5);
+  trkdzBS_ele_hist = ibook.book1DD("trkdzBS", "Best-track d_{z}(BS);d_{z}(BS) [cm];Electrons", 100, -25, 25);
+  trkd0Vtx_ele_hist = ibook.book1DD("trkd0Vtx", "Best-track d_{0}(PV);d_{0}(PV) [cm];Electrons", 100, -0.5, 0.5);
+  trkdzVtx_ele_hist = ibook.book1DD("trkdzVtx", "Best-track d_{z}(PV);d_{z}(PV) [cm];Electrons", 100, -25, 25);
+  trkpt_ele_hist = ibook.book1DD("trkpt", "Best-track p_{T};p_{T} [GeV];Electrons", 100, 0, 200);
+  trketa_ele_hist = ibook.book1DD("trketa", "Best-track #eta;#eta;Electrons", 60, -3, 3);
+  trkphi_els_hist = ibook.book1DD("trkphi", "Best-track #phi;#phi [rad];Electrons", 64, -3.2, 3.2);
+  trkpMode_ele_hist = ibook.book1DD("trkpMode", "Best-track p (mode);p_{mode} [GeV];Electrons", 100, 0, 200);
+  trketaMode_ele_hist = ibook.book1DD("trketaMode", "Best-track #eta (mode);#eta_{mode};Electrons", 60, -3, 3);
+  trkphiMode_ele_hist =
+      ibook.book1DD("trkphiMode", "Best-track #phi (mode);#phi_{mode} [rad];Electrons", 64, -3.2, 3.2);
+  trkqoverpModeError_ele_hist = ibook.book1DD(
       "trkqoverpModeError", "Best-track #sigma(q/p) (mode);#sigma(q/p)_{mode} [GeV^{-1}];Electrons", 100, 0, 0.01);
   trkchi2overndf_ele_hist =
-      ibook.book1D("trkchi2overndf", "Best-track #chi^{2}/ndof;#chi^{2}/ndof;Electrons", 100, 0, 10);
-  trkcharge_ele_hist = ibook.book1D("trkcharge", "Best-track charge;charge;Electrons", 3, -1.5, 1.5);
+      ibook.book1DD("trkchi2overndf", "Best-track #chi^{2}/ndof;#chi^{2}/ndof;Electrons", 100, 0, 10);
+  trkcharge_ele_hist = ibook.book1DD("trkcharge", "Best-track charge;charge;Electrons", 3, -1.5, 1.5);
 
   // book the muon histograms (noVtx and Vtx collections)
   const std::array<std::string, 2> muonLabels = {{"muonsNoVtx", "muonsVtx"}};
@@ -1362,7 +1424,8 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
 
     pt_mu_hist[i] = ibook.book1DD("pt_mu" + sfx, "Muon p_{T} (" + lbl + "); p_{T} (GeV); Entries", 100, 0.0, 200.0);
     eta_mu_hist[i] = ibook.book1DD("eta_mu" + sfx, "Muon #eta (" + lbl + "); #eta; Entries", 100, -2.7, 2.7);
-    phi_mu_hist[i] = ibook.book1DD("phi_mu" + sfx, "Muon #phi (" + lbl + "); #phi (rad); Entries", 100, -3.14, 3.14);
+    phi_mu_hist[i] = ibook.book1DD(
+        "phi_mu" + sfx, "Muon #phi (" + lbl + "); #phi (rad); Entries", 100, -std::numbers::pi, std::numbers::pi);
     type_mu_hist[i] = ibook.book1DD("type_mu" + sfx, "Muon Type (" + lbl + "); Type; Entries", 10, 0, 10);
     charge_mu_hist[i] = ibook.book1DD("charge_mu" + sfx, "Muon Charge (" + lbl + "); Charge; Entries", 3, -1, 2);
     normalizedChi2_mu_hist[i] =
@@ -1436,10 +1499,13 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
         ibook.book1DD("trk_lambda_mu" + sfx, "Muon Lambda (" + lbl + "); #lambda; Entries", 100, -2, 2);
     trk_pt_mu_hist[i] =
         ibook.book1DD("trk_pt_mu" + sfx, "Muon Tracker p_{T} (" + lbl + "); p_{T} (GeV); Entries", 100, 0.0, 200.0);
-    trk_phi_mu_hist[i] =
-        ibook.book1DD("trk_phi_mu" + sfx, "Muon Tracker #phi (" + lbl + "); #phi (rad); Entries", 100, -3.14, 3.14);
+    trk_phi_mu_hist[i] = ibook.book1DD("trk_phi_mu" + sfx,
+                                       "Muon Tracker #phi (" + lbl + "); #phi (rad); Entries",
+                                       100,
+                                       -std::numbers::pi,
+                                       std::numbers::pi);
     trk_eta_mu_hist[i] =
-        ibook.book1DD("trk_eta_mu" + sfx, "Muon Tracker #eta (" + lbl + "); #eta; Entries", 100, -2.7, 2.7);
+        ibook.book1DD("trk_eta_mu" + sfx, "Muon Tracker #eta (" + lbl + "); #eta; Entries", 100, -3.0, 3.0);
     trk_dxyError_mu_hist[i] = ibook.book1DD(
         "trk_dxyError_mu" + sfx, "Muon d_{xy} Error (" + lbl + "); d_{xy} Error (cm); Entries", 100, 0.0, 0.05);
     trk_dzError_mu_hist[i] = ibook.book1DD(
@@ -1502,7 +1568,7 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   ibook.setCurrentFolder(topfoldername_ + "/PFJet");
   pt_pfj_hist = ibook.book1DD("pt_pfj", "PF Jet p_{T}; p_{T} (GeV); Entries", 100, 0.0, 150.0);
   eta_pfj_hist = ibook.book1DD("eta_pfj", "PF Jet #eta; #eta; Entries", 100, -5.0, 5.0);
-  phi_pfj_hist = ibook.book1DD("phi_pfj", "PF Jet #phi; #phi (rad); Entries", 100, -3.14, 3.14);
+  phi_pfj_hist = ibook.book1DD("phi_pfj", "PF Jet #phi; #phi (rad); Entries", 100, -std::numbers::pi, std::numbers::pi);
   m_pfj_hist = ibook.book1DD("m_pfj", "PF Jet Mass; Mass (GeV); Entries", 100, 0.0, 40.0);
   jetArea_pfj_hist = ibook.book1DD("jetArea_pfj", "PF Jet Area; Area; Entries", 100, 0.0, 0.8);
   chargedHadronEnergy_pfj_hist =
@@ -1588,9 +1654,10 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   ibook.setCurrentFolder(topfoldername_ + "/Tracking");
   tk_pt_tk_hist = ibook.book1DD("tk_pt_tk", "Track p_{T}; p_{T} (GeV); Entries", 100, 0.0, 30.0);
   tk_eta_tk_hist = ibook.book1DD("tk_eta_tk", "Track #eta; #eta; Entries", 100, -2.7, 2.7);
-  tk_phi_tk_hist = ibook.book1DD("tk_phi_tk", "Track #phi; #phi (rad); Entries", 100, -3.14, 3.14);
+  tk_phi_tk_hist =
+      ibook.book1DD("tk_phi_tk", "Track #phi; #phi (rad); Entries", 100, -std::numbers::pi, std::numbers::pi);
   tk_chi2_tk_hist = ibook.book1DD("tk_chi2_tk", "Track #chi^{2}; #chi^{2}; Entries", 100, 0.0, 50.0);
-  tk_ndof_tk_hist = ibook.book1DD("tk_ndof_tk", "Track Ndof; Ndof; Entries", 100, 0, 10);
+  tk_ndof_tk_hist = ibook.book1DD("tk_ndof_tk", "Track Ndof; Ndof; Entries", 30, 0, 30);
   tk_charge_tk_hist = ibook.book1DD("tk_charge_tk", "Track Charge; Charge; Entries", 3, -1, 2);
   tk_dxy_tk_hist = ibook.book1DD("tk_dxy_tk", "Track d_{xy}; d_{xy} (cm); Entries", 100, -0.5, 0.5);
   tk_dz_tk_hist = ibook.book1DD("tk_dz_tk", "Track d_{z}; d_{z} (cm); Entries", 100, -20.0, 20.0);
@@ -1611,13 +1678,13 @@ void ScoutingCollectionMonitor::bookHistograms(DQMStore::IBooker& ibook,
   tk_vx_tk_hist = ibook.book1DD("tk_vx_tk", "Tracker Vertex X; x (cm); Entries", 100, -0.5, 0.5);
   tk_vy_tk_hist = ibook.book1DD("tk_vy_tk", "Tracker Vertex Y; y (cm); Entries", 100, -0.5, 0.5);
   tk_vz_tk_hist = ibook.book1DD("tk_vz_tk", "Tracker Vertex Z; z (cm); Entries", 100, -20.0, 20.0);
-  tk_chi2_ndof_tk_hist = ibook.book1DD("tk_chi2_ndof_tk", "Reduced #chi^{2}; #chi^{2}/NDOF; Entries", 100, 0, 50);
+  tk_chi2_ndof_tk_hist = ibook.book1DD("tk_chi2_ndof_tk", "Reduced #chi^{2}; #chi^{2}/NDOF; Entries", 100, 0, 10);
   tk_chi2_prob_hist = ibook.book1DD("tk_chi2_prob_hist", "p(#chi^{2}, NDOF); p(#chi^{2}, NDOF); Entries", 100, 0, 1);
   tk_PV_dz_hist = ibook.book1DD("tk_PV_dz", "Track d_{z} w.r.t. PV; Track d_{z} w.r.t. PV; Entries", 100, -0.35, 0.35);
   tk_PV_dxy_hist =
       ibook.book1DD("tk_PV_dxy", "Track d_{xy} w.r.t. PV; Track d_{xy} w.r.t. PV; Entries", 100, -0.15, 0.15);
-  tk_BS_dxy_hist = ibook.book1D("tk_BS_dxy", "Track d_{xy} w.r.t. BeamSpot;dxy_{BS} (cm);Entries", 100, -0.5, 0.5);
-  tk_BS_dz_hist = ibook.book1D("tk_BS_dz", "Track d_{z} w.r.t. BeamSpot;dz_{BS} (cm);Entries", 100, -20.0, 20.0);
+  tk_BS_dxy_hist = ibook.book1DD("tk_BS_dxy", "Track d_{xy} w.r.t. BeamSpot;dxy_{BS} (cm);Entries", 100, -0.5, 0.5);
+  tk_BS_dz_hist = ibook.book1DD("tk_BS_dz", "Track d_{z} w.r.t. BeamSpot;dz_{BS} (cm);Entries", 100, -20.0, 20.0);
 
   // book the calo rechits histograms
   const std::array<std::string, 2> caloLabels = {{"Accepted", "Rejected"}};

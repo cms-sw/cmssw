@@ -269,11 +269,11 @@ namespace edm {
     if (secondaryFileSequence_ && (ItemType::IsSynchronize != state())) {
       if (itemType == ItemType::IsRun || itemType == ItemType::IsLumi || itemType == ItemType::IsEvent) {
         if (!secondaryFileSequence_->containedInCurrentFile(run, lumi, event)) {
-          return ItemType::IsSynchronize;
+          return ItemTypeInfo::isSynchronize();
         }
       }
     }
-    return runHelper_->nextItemType(state(), itemType, run, lumi, event);
+    return InputSource::ItemTypeInfo(runHelper_->nextItemType(state(), itemType, run, lumi, event));
   }
 
   std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> PoolSource::resourceSharedWithDelayedReader_() {

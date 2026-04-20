@@ -234,26 +234,26 @@ namespace edm {
                                                                      EventNumber_t& event) {
     if (noMoreFiles() || skipToStop_) {
       skipToStop_ = false;
-      return InputSource::ItemType::IsStop;
+      return InputSource::ItemTypeInfo::isStop();
     }
     if (firstFile_ || goToEventInNewFile_ || skipIntoNewFile_) {
-      return InputSource::ItemType::IsFile;
+      return InputSource::ItemTypeInfo::isFile();
     }
     if (rootFile()) {
       IndexIntoFile::EntryType entryType = rootFile()->getNextItemType(run, lumi, event);
       if (entryType == IndexIntoFile::kEvent) {
-        return InputSource::ItemType::IsEvent;
+        return InputSource::ItemTypeInfo::isEvent();
       } else if (entryType == IndexIntoFile::kLumi) {
-        return InputSource::ItemType::IsLumi;
+        return InputSource::ItemTypeInfo::isLumi();
       } else if (entryType == IndexIntoFile::kRun) {
-        return InputSource::ItemType::IsRun;
+        return InputSource::ItemTypeInfo::isRun();
       }
       assert(entryType == IndexIntoFile::kEnd);
     }
     if (atLastFile()) {
-      return InputSource::ItemType::IsStop;
+      return InputSource::ItemTypeInfo::isStop();
     }
-    return InputSource::ItemType::IsFile;
+    return InputSource::ItemTypeInfo::isFile();
   }
 
   // Rewind to before the first event that was read.
