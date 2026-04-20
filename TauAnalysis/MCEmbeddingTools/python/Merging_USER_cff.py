@@ -32,9 +32,12 @@ from Configuration.ProcessModifiers.tau_embedding_merging_cff import tau_embeddi
 # This is needed because we now have a hybrid event which contains both simulation and reconstructed data.
 PhysicsTools.PatAlgos.tools.coreTools.removeMCMatching = lambda process, names, postfix, outputModules : miniAOD_customizeMC(process)
 
+# change the trigger source to SIMembeddingHLT for the PAT related trigger producers and unpackers, which are alsoneeded for the nanoAOD production.
 from PhysicsTools.PatAlgos.slimming.unpackedPatTrigger_cfi import unpackedPatTrigger
+from PhysicsTools.PatAlgos.slimming.slimmedPatTrigger_cfi import slimmedPatTrigger
 
 unpackedPatTrigger.triggerResults = cms.InputTag("TriggerResults::SIMembeddingHLT")
+slimmedPatTrigger.triggerResults = cms.InputTag("TriggerResults::SIMembeddingHLT")
 
 # In the following replace producers that produce collections which are used as input for particle flow producers
 # by their corresponding merger producers.
