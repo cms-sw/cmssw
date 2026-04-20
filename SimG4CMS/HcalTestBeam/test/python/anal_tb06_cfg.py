@@ -28,9 +28,9 @@ process.VtxSmeared.PartID = process.common_beam_direction_parameters.PartID
 process.testbeam.MinE = process.common_beam_direction_parameters.MinE
 process.testbeam.MaxE = process.common_beam_direction_parameters.MaxE
 process.testbeam.PartID = process.common_beam_direction_parameters.PartID
-process.g4SimHits.CaloSD.BeamPosition = process.common_beam_position_parameters.BeamPosition
+process.g4SimHits.CaloSD.BeamPosition = common_beam_position_parameters.BeamPosition
 
-process.testbeam.TestBeamAnalysis.EcalFactor = cms.double(1.)
+process.testbeam.TestBeamAnalysis.EcalFactor = cms.double(0.99)
 process.testbeam.TestBeamAnalysis.HcalFactor = cms.double(100.)
 
 process.maxEvents = cms.untracked.PSet(
