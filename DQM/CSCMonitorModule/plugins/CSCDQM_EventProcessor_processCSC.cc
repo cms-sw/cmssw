@@ -871,12 +871,18 @@ namespace cscdqm {
           bool isRun3_df = false;
           bool isGEM_df = false;
           bool isTMB_hybrid_df = false;
+          bool isOTMB_ME11_Run3b = false;
           if (tmbHeader->FirmwareVersion() == 2020) {
-            // revision code major part: 0x0 - Run3 df, 0x1 - is legacy Run2 df
+            // revision code major part: 0x0 - Run3 df, 0x1 - is legacy Run2 df, 0x2 - Run3b df
             if (((tmbHeader->FirmwareRevision() >> 5) & 0xF) == 0x0)
               isRun3_df = true;
-            if (((tmbHeader->FirmwareRevision() >> 9) & 0xF) == 0x3)
+            if (((tmbHeader->FirmwareRevision() >> 9) & 0xF) == 0x3) {
               isGEM_df = true;
+              if (((tmbHeader->FirmwareRevision() >> 5) & 0xF) == 0x2) {
+                isRun3_df = true;
+                isOTMB_ME11_Run3b = true;
+              }
+            }
             if (((tmbHeader->FirmwareRevision() >> 9) & 0xF) == 0x4)
               isTMB_hybrid_df = true;
             /** Summary plot for chambers with detected (O)TMB Run3 data format */
@@ -1069,7 +1075,7 @@ namespace cscdqm {
                 mo->Fill(tmbHeader->clctHMT(), tmbHeader->alctHMT());
               }
 
-              if (getCSCHisto(h::CSC_CORR_LCT_RUN3_PATTERN_ID, crateID, dmbID, mo)) {
+              if (getCSCHisto(h::CSC_CORR_LCT_RUN3_PATTERN_ID, crateID, dmbID, mo) && !isOTMB_ME11_Run3b) {
                 mo->Fill(tmbHeader->run3_CLCT_patternID());
               }
             }
@@ -1166,7 +1172,7 @@ namespace cscdqm {
             }
 
             if (lct == 0) {
-              if (corr_lctsDatasTmp[lct].isRun3() || isTMB_hybrid_df) {
+              if (corr_lctsDatasTmp[lct].isRun3() || isTMB_hybrid_df || isOTMB_ME11_Run3b) {
                 /// Summary occupancy plot for combined HMT bits sent to MPC
                 if (getEMUHisto(h::EMU_CSC_LCT_HMT_REPORTING, mo)) {
                   if (corr_lctsDatasTmp[lct].getHMT() > 0)
@@ -1217,7 +1223,7 @@ namespace cscdqm {
 
           if (!corr_lctsDatas.empty()) {
             if (corr_lctsDatasTmp[0].isRun3()) {
-              if (getCSCHisto(h::CSC_CORR_LCT0_VS_LCT1_RUN3_PATTERN, crateID, dmbID, mo)) {
+              if (getCSCHisto(h::CSC_CORR_LCT0_VS_LCT1_RUN3_PATTERN, crateID, dmbID, mo) && !isOTMB_ME11_Run3b) {
                 int lct1_pattern = corr_lctsDatasTmp[1].getRun3Pattern();
                 if (!corr_lctsDatasTmp[1].isValid())
                   lct1_pattern = -1;
@@ -1228,7 +1234,7 @@ namespace cscdqm {
 
           for (uint32_t lct = 0; lct < corr_lctsDatas.size(); lct++) {
             /*
-                  LOG_DEBUG << "CorrelatedLCT Digis dump: "
+                  LOG_INFO << "CorrelatedLCT Digis dump: "
                             << "CorrLCT" << lct << " isRun3:" << corr_lctsDatasTmp[lct].isRun3()
                             << ", isValid: " << corr_lctsDatasTmp[lct].isValid()
                             << ", getStrip: " << corr_lctsDatasTmp[lct].getStrip()
@@ -1236,7 +1242,7 @@ namespace cscdqm {
                             << ", getQuality: " << corr_lctsDatasTmp[lct].getQuality()
                             << ", getFractionalStrip: " <<  corr_lctsDatasTmp[lct].getFractionalStrip()
                             << ", getQuartStrip: " << corr_lctsDatasTmp[lct].getQuartStripBit()
-                            << ", getEightStrip: " << corr_lctsDatasTmp[lct].getEightStripBit()
+                            << ", getEightStrip: " << corr_lctsDatasTmp[lct].getEighthStripBit()
                             << ",\n getSlope: " << corr_lctsDatasTmp[lct].getSlope() << std::dec
                             << ", getBend: " << corr_lctsDatasTmp[lct].getBend()
                             << ", getBX: " << corr_lctsDatasTmp[lct].getBX()
@@ -1245,7 +1251,7 @@ namespace cscdqm {
                             // << ", getRun3PatternID: " << std::dec << corr_lctsDatasTmp[lct].getRun3PatternID()
                             << ", getHMT: " << corr_lctsDatasTmp[lct].getHMT()
 			    << std::dec;
-*/
+			*/
             if (getCSCHisto(h::CSC_CORR_LCTXX_HITS_DISTRIBUTION, crateID, dmbID, lct, mo)) {
               mo->Fill(corr_lctsDatas[lct].getStrip(), corr_lctsDatas[lct].getKeyWG());
             }
@@ -1258,22 +1264,48 @@ namespace cscdqm {
               mo->Fill(corr_lctsDatas[lct].getStrip(2));
             }
 
-            if (corr_lctsDatas[lct].isRun3()) {
-              if (getCSCHisto(h::CSC_CORR_LCTXX_KEY_QUARTSTRIP, crateID, dmbID, lct, mo)) {
-                mo->Fill(corr_lctsDatas[lct].getStrip(4));
-              }
+            if (corr_lctsDatas[lct].isRun3() || isOTMB_ME11_Run3b) {
+              if (!isTMB_hybrid_df) {
+                if (getCSCHisto(h::CSC_CORR_LCTXX_KEY_QUARTSTRIP, crateID, dmbID, lct, mo)) {
+                  mo->Fill(corr_lctsDatas[lct].getStrip(4));
+                }
 
-              if (getCSCHisto(h::CSC_CORR_LCTXX_KEY_EIGHTSTRIP, crateID, dmbID, lct, mo)) {
-                mo->Fill(corr_lctsDatas[lct].getStrip(8));
-              }
+                if (getCSCHisto(h::CSC_CORR_LCTXX_KEY_EIGHTSTRIP, crateID, dmbID, lct, mo)) {
+                  mo->Fill(corr_lctsDatas[lct].getStrip(8));
+                }
 
-              if (getCSCHisto(h::CSC_CORR_LCTXX_RUN3_TO_RUN2_PATTERN, crateID, dmbID, lct, mo)) {
-                int bend = corr_lctsDatas[lct].getSlope() + ((corr_lctsDatas[lct].getBend() & 0x1) << 4);
-                mo->Fill(bend, corr_lctsDatas[lct].getPattern());
-              }
+                if (getCSCHisto(h::CSC_CORR_LCTXX_RUN3_TO_RUN2_PATTERN, crateID, dmbID, lct, mo)) {
+                  int bend = corr_lctsDatas[lct].getSlope() + ((corr_lctsDatas[lct].getBend() & 0x1) << 4);
+                  mo->Fill(bend, corr_lctsDatas[lct].getPattern());
+                }
 
-              if (getCSCHisto(h::CSC_CORR_LCTXX_BEND_VS_SLOPE, crateID, dmbID, lct, mo)) {
-                mo->Fill(corr_lctsDatas[lct].getSlope(), corr_lctsDatas[lct].getBend());
+                if (getCSCHisto(h::CSC_CORR_LCTXX_BEND_VS_SLOPE, crateID, dmbID, lct, mo)) {
+                  mo->Fill(corr_lctsDatas[lct].getSlope(), corr_lctsDatas[lct].getBend());
+                }
+
+                /// Fill Run3-b ME11-GEM LCT format histograms
+                if (isOTMB_ME11_Run3b) {
+                  if (getCSCHisto(h::CSC_CORR_LCTXX_RUN3B_SLOPE, crateID, dmbID, lct, mo)) {
+                    mo->Fill(corr_lctsDatasTmp[lct].getSlopeEx());
+                  }
+                  /// Check CSC-GEM match only ME11 quality
+                  if ((corr_lctsDatasTmp[lct].getQuality() == 5) || (corr_lctsDatasTmp[lct].getQuality() == 7)) {
+                    if (getCSCHisto(h::CSC_CORR_LCT_RUN3B_GEM_LAYERS, crateID, dmbID, mo)) {
+                      mo->Fill(corr_lctsDatasTmp[lct].getGemLayerUsedForSlopeComputation(), lct);
+                    }
+                    /// Fill summary histogram
+                    if (getEMUHisto(h::EMU_ME11_CORR_LCT_RUN3B_GEM_LAYERS, mo)) {
+                      if (cid.endcap() == 1) {  // z+
+                        mo->Fill(cscPosition,
+                                 4 + (lct * 2 + corr_lctsDatasTmp[lct].getGemLayerUsedForSlopeComputation()));
+                      }
+                      if (cid.endcap() == 2) {  // z-
+                        mo->Fill(cscPosition,
+                                 3 - (lct * 2 + corr_lctsDatasTmp[lct].getGemLayerUsedForSlopeComputation()));
+                      }
+                    }
+                  }
+                }
               }
 
               if (getCSCHisto(h::CSC_CORR_LCTXX_KEY_STRIP_TYPE, crateID, dmbID, lct, mo)) {
@@ -1309,7 +1341,7 @@ namespace cscdqm {
               }
 
               if (!alctsDatas.empty() && getCSCHisto(h::CSC_RUN3_HMT_COINCIDENCE_MATCH, crateID, dmbID, mo) &&
-                  corr_lctsDatasTmp[0].isRun3() && (corr_lctsDatasTmp[0].getHMT() > 0) &&
+                  (corr_lctsDatasTmp[0].isRun3() || isOTMB_ME11_Run3b) && (corr_lctsDatasTmp[0].getHMT() > 0) &&
                   (corr_lctsDatasTmp[0].getHMT() <= 0xF) && alctsDatas[0].isValid()) {
                 mo->Fill(1);  // Run3 HMT+ALCT match
               }
