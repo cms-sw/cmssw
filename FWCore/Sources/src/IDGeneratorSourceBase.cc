@@ -136,16 +136,16 @@ namespace edm {
   template <typename BASE>
   typename BASE::ItemTypeInfo IDGeneratorSourceBase<BASE>::getNextItemType() {
     if (BASE::state() == BASE::ItemType::IsInvalid) {
-      return noFiles() ? BASE::ItemType::IsStop : BASE::ItemType::IsFile;
+      return noFiles() ? BASE::ItemTypeInfo::isStop() : BASE::ItemTypeInfo::isFile();
     }
     if (BASE::newRun()) {
-      return BASE::ItemType::IsRun;
+      return BASE::ItemTypeInfo::isRun();
     }
     if (BASE::newLumi()) {
-      return BASE::ItemType::IsLumi;
+      return BASE::ItemTypeInfo::isLumi();
     }
     if (BASE::eventCached()) {
-      return BASE::ItemType::IsEvent;
+      return BASE::ItemTypeInfo::isEvent();
     }
     EventID oldEventID = eventID_;
     advanceToNext(eventID_, presentTime_);
@@ -155,7 +155,7 @@ namespace edm {
     size_t index = fileIndex();
     bool another = setRunAndEventInfo(eventID_, presentTime_, eType_);
     if (!another) {
-      return BASE::ItemType::IsStop;
+      return BASE::ItemTypeInfo::isStop();
     }
     bool newFile = (fileIndex() > index);
     BASE::setEventCached();
@@ -163,15 +163,15 @@ namespace edm {
       // New Run
       BASE::setNewRun();
       BASE::setNewLumi();
-      return newFile ? BASE::ItemType::IsFile : BASE::ItemType::IsRun;
+      return newFile ? BASE::ItemTypeInfo::isFile() : BASE::ItemTypeInfo::isRun();
     }
     // Same Run
     if (BASE::newLumi() || eventID_.luminosityBlock() != oldEventID.luminosityBlock()) {
       // New Lumi
       BASE::setNewLumi();
-      return newFile ? BASE::ItemType::IsFile : BASE::ItemType::IsLumi;
+      return newFile ? BASE::ItemTypeInfo::isFile() : BASE::ItemTypeInfo::isLumi();
     }
-    return newFile ? BASE::ItemType::IsFile : BASE::ItemType::IsEvent;
+    return newFile ? BASE::ItemTypeInfo::isFile() : BASE::ItemTypeInfo::isEvent();
   }
 
   template <typename BASE>

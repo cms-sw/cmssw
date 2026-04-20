@@ -27,6 +27,7 @@ struct CSCTMBHeader2020_TMB;
 struct CSCTMBHeader2020_CCLUT;
 struct CSCTMBHeader2020_GEM;
 struct CSCTMBHeader2020_Run2;
+struct CSCTMBHeader2020_GEM_Run3b;
 
 class CSCTMBHeader {
 public:
@@ -64,6 +65,7 @@ public:
   CSCTMBHeader2020_CCLUT tmbHeader2020_CCLUT() const;
   CSCTMBHeader2020_GEM tmbHeader2020_GEM() const;
   CSCTMBHeader2020_Run2 tmbHeader2020_Run2() const;
+  CSCTMBHeader2020_GEM tmbHeader2020_GEM_Run3b() const;
 
   uint16_t NTBins() const { return theHeaderFormat->NTBins(); }
   uint16_t NCFEBs() const { return theHeaderFormat->NCFEBs(); }
