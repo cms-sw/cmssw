@@ -10,6 +10,10 @@ unpackedPatTrigger = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",
     triggerResults              = cms.InputTag('TriggerResults::HLT'),
     unpackFilterLabels = cms.bool(True)
 )
+# Modify for the tau embedding methods merging step
+# Switch trigger source from HLT to SIMembeddingHLT of patTrigger
+from Configuration.ProcessModifiers.tau_embedding_merging_cff import tau_embedding_merging
+tau_embedding_merging.toModify(unpackedPatTrigger, triggerResults=cms.InputTag("TriggerResults::SIMembeddingHLT"))
 
 def mksel( selection, doc=None, bit=None):
     ddoc=""
