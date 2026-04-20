@@ -256,7 +256,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
 
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
         if (::cms::alpakatools::once_per_block(acc)) {
-          int i = alpaka::atomicAdd(acc, &pfClusteringCCLabels.posH() /*posH*/, -1, alpaka::hierarchy::Grids{});
+          int i = alpaka::atomicAdd(acc, &pfClusteringCCLabels.posH() /*posH*/, -1, alpaka::hierarchy::Blocks{});
           v = (i > topH) ? pfClusteringCCLabels[i].workl() : -1;
         }
 

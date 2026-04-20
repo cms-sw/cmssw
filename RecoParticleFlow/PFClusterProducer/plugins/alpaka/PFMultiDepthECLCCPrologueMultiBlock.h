@@ -253,7 +253,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
         for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
           const auto lane_idx = idx.local % w_extent;
-          if (lane_idx >= w_items)
+          if (idx.local >= w_items)
             continue;
           const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
 
@@ -305,7 +305,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // Constract coarse-grained offset (offsets for each warp):
         for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
           const auto lane_idx = idx.local % w_extent;
-          if (lane_idx >= w_extent)
+          if (idx.local >= w_extent)
             continue;
 
           const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
@@ -347,7 +347,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             // Create the full warp mask (all lanes will vote):
             const auto lane_idx = idx.local % w_extent;
 
-            if (lane_idx >= nBlocks)
+            if (idx.local >= nBlocks)
               continue;
 
             const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
