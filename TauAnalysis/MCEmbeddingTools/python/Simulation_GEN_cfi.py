@@ -91,6 +91,7 @@ generator = cms.EDFilter(
             "Init:showChangedSettings = off",
             "Init:showChangedParticleData = off",
             "ProcessLevel:all = off",
+            "PartonLevel:FSR = off", # disable final state radiation
         ),
         parameterSets=cms.vstring(
             "pythia8CommonSettings", "pythia8CUEP8M1Settings", "processParameters"
@@ -111,16 +112,6 @@ tau_embedding_mu_to_mu.toModify(
             "Final_States": cms.vstring("MuMu"),
         }
     },
-    # disable final state radiation for mu->mu embedding
-    PythiaParameters={
-        "processParameters": cms.vstring(
-            "JetMatching:merge = off",
-            "Init:showChangedSettings = off",
-            "Init:showChangedParticleData = off",
-            "ProcessLevel:all = off",
-            "PartonLevel:FSR = off",
-        )
-    },
 )
 # only one simulation needed, as the muons don't decay like taus and no wights need to be calculated.
 tau_embedding_mu_to_mu.toModify(generator, nAttempts=cms.uint32(1))
@@ -135,16 +126,6 @@ tau_embedding_mu_to_e.toModify(
             ),
             "Final_States": cms.vstring("ElEl"),
         }
-    },
-    # disable final state radiation for mu->e embedding
-    PythiaParameters={
-        "processParameters": cms.vstring(
-            "JetMatching:merge = off",
-            "Init:showChangedSettings = off",
-            "Init:showChangedParticleData = off",
-            "ProcessLevel:all = off",
-            "PartonLevel:FSR = off",
-        )
     },
 )
 # only one simulation needed, as the electrons don't decay like taus and no wights need to be calculated.
