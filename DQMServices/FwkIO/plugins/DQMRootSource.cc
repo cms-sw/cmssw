@@ -486,7 +486,7 @@ DQMRootSource::~DQMRootSource() {
 // member functions
 //
 
-edm::InputSource::ItemTypeInfo DQMRootSource::getNextItemType() { return m_nextItemType; }
+edm::InputSource::ItemTypeInfo DQMRootSource::getNextItemType() { return ItemTypeInfo(m_nextItemType); }
 
 // We will read the metadata of all files and fill m_fileMetadatas vector
 std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {

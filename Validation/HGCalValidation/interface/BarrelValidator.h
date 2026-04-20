@@ -68,7 +68,9 @@ public:
 
 protected:
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
-  edm::InputTag label_lcl;
+  edm::InputTag lclTag_;
+  edm::InputTag sclTag_;
+  edm::InputTag rechitmapTag_;
   std::vector<edm::InputTag> associator_;
   std::vector<edm::InputTag> associatorSim_;
   const bool SaveGeneralInfo_;
@@ -76,15 +78,14 @@ protected:
   const bool doCaloParticleSelection_;
   const bool doSimClustersPlots_;
   std::string label_SimClustersPlots_, label_SimClustersLevel_;
+  edm::InputTag simVerticesTag_;
   const bool doLayerClustersPlots_;
   std::string label_layerClustersPlots_, label_LCToCPLinking_;
-  std::vector<edm::InputTag> label_clustersmask;
+  std::vector<edm::InputTag> clustersmaskTags_;
 
-  std::vector<edm::EDGetTokenT<reco::CaloClusterCollection>> labelToken;
   edm::EDGetTokenT<std::vector<SimCluster>> simClusters_;
-  edm::EDGetTokenT<reco::CaloClusterCollection> layerclusters_;
-  edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_effic;
-  edm::EDGetTokenT<std::vector<CaloParticle>> label_cp_fake;
+  edm::EDGetTokenT<reco::CaloClusterCollection> layerClusters_;
+  edm::EDGetTokenT<std::vector<CaloParticle>> cpToken_;
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
   std::vector<edm::EDGetTokenT<std::vector<float>>> clustersMaskTokens_;
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> barrelHitMap_;
@@ -97,6 +98,7 @@ protected:
   std::unique_ptr<BarrelVHistoProducerAlgo> histoProducerAlgo_;
   edm::EDGetTokenT<edm::RefProdVector<reco::PFRecHitCollection>> hitsToken_;
   edm::EDGetTokenT<SimClusterToCaloParticleMap> scToCpMapToken_;
+  edm::InputTag cpTag_;
 
 private:
   CaloParticleSelector cpSelector;

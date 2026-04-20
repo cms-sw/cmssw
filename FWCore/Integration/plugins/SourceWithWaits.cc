@@ -131,7 +131,7 @@ namespace edmtest {
     // one run from this test source.
     if (currentFile_ == 0u) {
       ++currentFile_;
-      return ItemType::IsFile;
+      return ItemTypeInfo::isFile();
     }
     // First Run
     else if (currentRun_ == 0u) {
@@ -163,7 +163,7 @@ namespace edmtest {
       // The job will stop when we hit the end of the eventsPerLumi vector
       // unless maxEvents stopped it earlier.
       if ((currentLumi_ - 1) >= eventsPerLumi_.size()) {
-        return ItemType::IsStop;
+        return ItemTypeInfo::isStop();
       }
       if (currentLumi_ != multipleEntriesForLumi_) {
         if (eventsPerLumi_[currentLumi_ - 1] == 0) {
@@ -197,7 +197,7 @@ namespace edmtest {
       if (eventInCurrentLumi_ == eventsPerLumi_[currentLumi_ - 1]) {
         lastEventOfLumi_ = true;
       }
-      return ItemType::IsEvent;
+      return ItemTypeInfo::isEvent();
     }
     // Next lumi
     else if (lumiInCurrentRun_ < lumisPerRun_) {
@@ -206,7 +206,7 @@ namespace edmtest {
       // The job will stop when we hit the end of the eventsPerLumi vector
       // unless maxEvents stopped it earlier.
       if ((currentLumi_ - 1) >= eventsPerLumi_.size()) {
-        return ItemType::IsStop;
+        return ItemTypeInfo::isStop();
       }
       eventInCurrentLumi_ = 0;
       if (currentLumi_ != multipleEntriesForLumi_) {
@@ -229,12 +229,12 @@ namespace edmtest {
       // unless maxEvents stopped it earlier. Don't start the run if
       // it will end with no lumis in it.
       if (currentLumi_ >= eventsPerLumi_.size()) {
-        return ItemType::IsStop;
+        return ItemTypeInfo::isStop();
       }
       ++currentRun_;
       // Avoid infinite job if lumisPerRun_ is 0
       if (currentRun_ > 100) {
-        return ItemType::IsStop;
+        return ItemTypeInfo::isStop();
       }
       lumiInCurrentRun_ = 0;
       if (currentRun_ != multipleEntriesForRun_) {
@@ -252,7 +252,7 @@ namespace edmtest {
     // Should be impossible to get here
     assert(false);
     // return something so it will compile
-    return ItemType::IsStop;
+    return ItemTypeInfo::isStop();
   }
 
   std::shared_ptr<edm::RunAuxiliary> SourceWithWaits::readRunAuxiliary_() {

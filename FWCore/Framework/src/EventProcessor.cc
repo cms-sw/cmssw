@@ -894,7 +894,7 @@ namespace edm {
 
     if (checkForAsyncStopRequest(returnCode)) {
       actReg_->preSourceEarlyTerminationSignal_.emit(TerminationOrigin::ExternalSignal);
-      lastSourceTransition_ = InputSource::ItemType::IsStop;
+      lastSourceTransition_ = InputSource::ItemTypeInfo::isStop();
     }
 
     return lastSourceTransition_;
@@ -1616,7 +1616,7 @@ namespace edm {
       runStatus->setCleaningUpAfterException(cleaningUpAfterException);
       WaitingTaskHolder holder{taskGroup_, &waitTask};
       runStatus->setHolderOfTaskInProcessRuns(holder);
-      lastSourceTransition_ = InputSource::ItemType::IsStop;
+      lastSourceTransition_ = InputSource::ItemTypeInfo::isStop();
       endRunAsync(streamRunStatus_[0], std::move(holder));
       waitTask.wait();
     }
@@ -2205,7 +2205,7 @@ namespace edm {
 
     // Are output modules or the looper requesting we stop?
     if (shouldWeStop()) {
-      lastSourceTransition_ = InputSource::ItemType::IsStop;
+      lastSourceTransition_ = InputSource::ItemTypeInfo::isStop();
       iStatus.setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi);
       return false;
     }

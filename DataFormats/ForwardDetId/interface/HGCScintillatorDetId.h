@@ -156,7 +156,7 @@ public:
   static constexpr int kHGCalSiPMMask = 0x1;
   static constexpr int kHGCalGranularityOffset = 24;
   static constexpr int kHGCalGranularityMask = 0x1;
-  static constexpr int kHGCalGranularityMask0 = 0xFFDFFFFF;
+  static constexpr int kHGCalGranularityMask0 = 0xFEFFFFFF;
   static constexpr int kHGCalSiPMMask0 = 0xFF7FFFFF;
   static constexpr int kHGCalZsideOffset = 25;
   static constexpr int kHGCalZsideMask = 0x1;

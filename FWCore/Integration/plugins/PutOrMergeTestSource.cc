@@ -84,18 +84,18 @@ void PutOrMergeTestSource::registerProducts() {
 InputSource::ItemTypeInfo PutOrMergeTestSource::getNextItemType() {
   switch (stage_) {
     case 0: {
-      return ItemType::IsFile;
+      return ItemTypeInfo::isFile();
     }
     case 1: {
-      return ItemType::IsRun;
+      return ItemTypeInfo::isRun();
     }
     case 2: {
-      return ItemType::IsRun;
+      return ItemTypeInfo::isRun();
     }
     default:
-      return ItemType::IsStop;
+      return ItemTypeInfo::isStop();
   }
-  return ItemType::IsInvalid;
+  return ItemTypeInfo::isInvalid();
 }
 
 std::shared_ptr<RunAuxiliary> PutOrMergeTestSource::readRunAuxiliary_() {

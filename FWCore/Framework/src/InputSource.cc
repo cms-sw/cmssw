@@ -135,7 +135,7 @@ namespace edm {
     ItemTypeInfo itemTypeInfo = callWithTryCatchAndPrint<ItemTypeInfo>([this]() { return getNextItemType(); },
                                                                        "Calling InputSource::getNextItemType");
 
-    if (itemTypeInfo == ItemType::IsEvent && processingMode() != RunsLumisAndEvents) {
+    if (itemTypeInfo.itemType() == ItemType::IsEvent && processingMode() != RunsLumisAndEvents) {
       skipEvents(1);
       return nextItemType_();
     }
@@ -150,43 +150,43 @@ namespace edm {
     ItemType oldType = state_.itemType();
     if (eventLimitReached()) {
       // If the maximum event limit has been reached, stop.
-      state_ = ItemType::IsStop;
+      state_ = ItemTypeInfo::isStop();
     } else if (lumiLimitReached()) {
       // If the maximum lumi limit has been reached, stop
       // when reaching a new file, run, or lumi.
       if (oldType == ItemType::IsInvalid || oldType == ItemType::IsFile || oldType == ItemType::IsRun ||
           processingMode() != RunsLumisAndEvents) {
-        state_ = ItemType::IsStop;
+        state_ = ItemTypeInfo::isStop();
       } else {
         ItemTypeInfo newState = nextItemType_();
         if (newState == ItemType::IsEvent) {
           assert(processingMode() == RunsLumisAndEvents);
-          state_ = ItemType::IsEvent;
+          state_ = ItemTypeInfo::isEvent();
         } else {
-          state_ = ItemType::IsStop;
+          state_ = ItemTypeInfo::isStop();
         }
       }
     } else {
       ItemTypeInfo newState = nextItemType_();
-      if (newState == ItemType::IsStop) {
-        state_ = ItemType::IsStop;
-      } else if (newState == ItemType::IsSynchronize) {
-        state_ = ItemType::IsSynchronize;
-      } else if (newState == ItemType::IsFile || oldType == ItemType::IsInvalid) {
-        state_ = ItemType::IsFile;
-      } else if (newState == ItemType::IsRun || oldType == ItemType::IsFile) {
+      if (newState.itemType() == ItemType::IsStop) {
+        state_ = ItemTypeInfo::isStop();
+      } else if (newState.itemType() == ItemType::IsSynchronize) {
+        state_ = ItemTypeInfo::isSynchronize();
+      } else if (newState.itemType() == ItemType::IsFile || oldType == ItemType::IsInvalid) {
+        state_ = ItemTypeInfo::isFile();
+      } else if (newState.itemType() == ItemType::IsRun || oldType == ItemType::IsFile) {
         runAuxiliary_ = readRunAuxiliary();
-        state_ = (newState == ItemType::IsRun) ? newState : ItemTypeInfo(ItemType::IsRun);
-      } else if (newState == ItemType::IsLumi || oldType == ItemType::IsRun) {
+        state_ = (newState.itemType() == ItemType::IsRun) ? newState : ItemTypeInfo::isRun();
+      } else if (newState.itemType() == ItemType::IsLumi || oldType == ItemType::IsRun) {
         assert(processingMode() != Runs);
         lumiAuxiliary_ = readLuminosityBlockAuxiliary();
-        state_ = (newState == ItemType::IsLumi) ? newState : ItemTypeInfo(ItemType::IsLumi);
+        state_ = (newState.itemType() == ItemType::IsLumi) ? newState : ItemTypeInfo::isLumi();
       } else {
         assert(processingMode() == RunsLumisAndEvents);
-        state_ = ItemType::IsEvent;
+        state_ = ItemTypeInfo::isEvent();
       }
     }
-    if (state_ == ItemType::IsStop) {
+    if (state_.itemType() == ItemType::IsStop) {
       lumiAuxiliary_.reset();
       runAuxiliary_.reset();
     }
@@ -219,7 +219,7 @@ namespace edm {
 
   // Return a dummy file block.
   std::shared_ptr<FileBlock> InputSource::readFile() {
-    assert(state_ == ItemType::IsFile);
+    assert(state_.itemType() == ItemType::IsFile);
     assert(!limitReached());
     return callWithTryCatchAndPrint<std::shared_ptr<FileBlock> >([this]() { return readFile_(); },
                                                                  "Calling InputSource::readFile_");
@@ -298,7 +298,7 @@ namespace edm {
   }
 
   void InputSource::readEvent(EventPrincipal& ep, StreamContext& streamContext) {
-    assert(state_ == ItemType::IsEvent);
+    assert(state_.itemType() == ItemType::IsEvent);
     assert(!eventLimitReached());
     {
       // block scope, in order to issue the PostSourceEvent signal before calling postRead and issueReports

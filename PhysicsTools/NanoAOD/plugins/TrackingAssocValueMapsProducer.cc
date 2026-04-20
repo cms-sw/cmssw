@@ -120,6 +120,8 @@ TrackingAssocValueMapsProducer::TrackingAssocValueMapsProducer(const edm::Parame
 }
 
 void TrackingAssocValueMapsProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
+  const std::string metname = "PhysicsTools/NanoAOD/TrackingAssocValueMapsProducer";
+
   edm::Handle<edm::View<reco::Track>> tracksH;
   iEvent.getByToken(tracksToken_, tracksH);
 
@@ -145,19 +147,10 @@ void TrackingAssocValueMapsProducer::produce(edm::Event& iEvent, const edm::Even
 
   const size_t nTracks = tracksH->size();
 
-  if (nTracks == 0 || !inputsValid) {
-    // No tracks or invalid handles, put empty ValueMaps and return
-    iEvent.put(std::make_unique<edm::ValueMap<int>>(), "matched");
-    iEvent.put(std::make_unique<edm::ValueMap<int>>(), "duplicate");
-    iEvent.put(std::make_unique<edm::ValueMap<int>>(), "tpPdgId");
-    iEvent.put(std::make_unique<edm::ValueMap<int>>(), "tpCharge");
-    if (storeTPKinematics_) {
-      iEvent.put(std::make_unique<edm::ValueMap<float>>(), "tpPt");
-      iEvent.put(std::make_unique<edm::ValueMap<float>>(), "tpEta");
-      iEvent.put(std::make_unique<edm::ValueMap<float>>(), "tpPhi");
-    }
-    return;
-  }
+  LogDebug(metname) << "Retrieved " << nTracks << " tracks and " << tpH->size()
+                    << " tracking particles. Track handle valid: " << tracksH.isValid()
+                    << ", TP handle valid: " << tpH.isValid() << ", associator handle valid: "
+                    << (useMuonAssociators_ ? recoToSimH.isValid() && simToRecoH.isValid() : associatorH.isValid());
 
   std::vector<int> matched(nTracks, 0);
   std::vector<int> duplicate(nTracks, 0);
@@ -169,6 +162,21 @@ void TrackingAssocValueMapsProducer::produce(edm::Event& iEvent, const edm::Even
     tpPt.assign(nTracks, -1.f);
     tpEta.assign(nTracks, -10.f);
     tpPhi.assign(nTracks, -10.f);
+  }
+
+  if (nTracks == 0 || !inputsValid) {
+    LogDebug(metname) << "No tracks or invalid inputs, producing empty ValueMaps.";
+    // No tracks or invalid handles, put ValueMaps with default values and return
+    fillAndPut<int>(iEvent, tracksH, std::make_unique<edm::ValueMap<int>>(), matched, "matched");
+    fillAndPut<int>(iEvent, tracksH, std::make_unique<edm::ValueMap<int>>(), duplicate, "duplicate");
+    fillAndPut<int>(iEvent, tracksH, std::make_unique<edm::ValueMap<int>>(), tpPdgId, "tpPdgId");
+    fillAndPut<int>(iEvent, tracksH, std::make_unique<edm::ValueMap<int>>(), tpCharge, "tpCharge");
+    if (storeTPKinematics_) {
+      fillAndPut<float>(iEvent, tracksH, std::make_unique<edm::ValueMap<float>>(), tpPt, "tpPt");
+      fillAndPut<float>(iEvent, tracksH, std::make_unique<edm::ValueMap<float>>(), tpEta, "tpEta");
+      fillAndPut<float>(iEvent, tracksH, std::make_unique<edm::ValueMap<float>>(), tpPhi, "tpPhi");
+    }
+    return;
   }
 
   edm::RefToBaseVector<reco::Track> trackRefs;

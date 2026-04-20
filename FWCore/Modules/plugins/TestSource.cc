@@ -61,11 +61,11 @@ namespace edm {
 
   TestSource::ItemTypeInfo TestSource::getNextItemType() {
     if (m_nextTransition == m_transitions.end()) {
-      return ItemType::IsStop;
+      return ItemTypeInfo::isStop();
     }
     auto trans = m_nextTransition->first;
     ++m_nextTransition;
-    return trans;
+    return TestSource::ItemTypeInfo(trans);
   }
 
   std::shared_ptr<RunAuxiliary> TestSource::readRunAuxiliary_() {

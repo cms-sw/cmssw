@@ -364,7 +364,7 @@ RepeatingCachedRootSource::ItemTypeInfo RepeatingCachedRootSource::getNextItemTy
     default:
       break;
   }
-  return v;
+  return ItemTypeInfo(v);
 }
 
 void RepeatingCachedRootSource::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {

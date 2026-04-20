@@ -49,23 +49,23 @@ edm::InputSource::ItemTypeInfo DQMProtobufReader::getNextItemType() {
 
     if (edm::shutdown_flag.load()) {
       fiterator_.logFileAction("Shutdown flag was set, shutting down.");
-      return InputSource::ItemType::IsStop;
+      return InputSource::ItemTypeInfo::isStop();
     }
 
     // check for end of run file and force quit
     if (flagEndOfRunKills_ && (fiterator_.state() != State::OPEN)) {
-      return InputSource::ItemType::IsStop;
+      return InputSource::ItemTypeInfo::isStop();
     }
 
     // check for end of run and quit if everything has been processed.
     // this is the clean exit
     if ((!fiterator_.lumiReady()) && (fiterator_.state() == State::EOR)) {
-      return InputSource::ItemType::IsStop;
+      return InputSource::ItemTypeInfo::isStop();
     }
 
     // skip to the next file if we have no files openned yet
     if (fiterator_.lumiReady()) {
-      return InputSource::ItemType::IsLumi;
+      return InputSource::ItemTypeInfo::isLumi();
     }
 
     fiterator_.delay();
@@ -73,7 +73,7 @@ edm::InputSource::ItemTypeInfo DQMProtobufReader::getNextItemType() {
     // IsSynchronize state
     //
     // comment out in order to block at this level
-    // return InputSource::ItemType::IsSynchronize;
+    // return InputSource::ItemTypeInfo::isSynchronize();
   }
 
   // this is unreachable
