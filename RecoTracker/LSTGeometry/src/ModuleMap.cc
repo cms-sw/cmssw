@@ -154,7 +154,7 @@ namespace lstgeometry {
         for (auto const& ref_polygon_piece : ref_polygon)
           area += boost::geometry::area(ref_polygon_piece);
 
-        if (area <= 1e-6)
+        if (area <= 5e-3)
           continue;
 
         auto const& new_tar_detids_to_be_considered =
@@ -328,7 +328,7 @@ namespace lstgeometry {
       for (auto const& ref_polygon_piece : ref_polygon)
         area += boost::geometry::area(ref_polygon_piece);
 
-      if (area > 1e-6) {
+      if (area > 5e-3) {
         auto const& new_tar_detids_to_be_considered =
             binned_detids.at({Location::endcap, 1, thetaphibins.first, thetaphibins.second});
 
