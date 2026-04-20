@@ -1083,7 +1083,7 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "locateCellTrap:: Input " << lay << ":" << irad << ":" << iphi << ":" << zside
                                   << ":" << reco << ":" << indx.first << " First Layer " << hgpar_->firstLayer_ << ":"
-                                  << hgpar_->firstMixedLayer_;
+                                  << hgpar_->firstMixedLayer_ << " cell :" << indx.second;
 #endif
   if (indx.first >= 0) {
     int ir = std::abs(irad);
@@ -2334,6 +2334,8 @@ std::pair<int, float> HGCalDDDConstants::getIndex(int lay, bool reco) const {
   float cell(0);
   if (waferHexagon6()) {
     cell = (reco ? hgpar_->moduleCellR_[0] : hgpar_->moduleCellS_[0]);
+  } else if (tileTrapezoid()) {
+    cell = hgpar_->scintCellSize(lay);
   } else {
     if (waferHexagon8()) {
       cell = (reco ? hgpar_->moduleCellR_[0] : hgpar_->moduleCellS_[0]);

@@ -168,6 +168,7 @@ public:
   std::pair<int, int> simToReco(int cell, int layer, int mod, bool half) const;
   int tileCount(int layer, int ring) const;
   bool tileExist(int zside, int layer, int ring, int phi) const;
+  int tileGranularity(int layer) const { return ((hgpar_->scintCells(layer) > 288) ? 1 : 0); }
   HGCalParameters::tileInfo tileInfo(int zside, int layer, int ring) const;
   bool tilePhiEdge(double phi, int layer, int iphi) const;
   bool tileRingEdge(double rho, int layer, int ring) const;

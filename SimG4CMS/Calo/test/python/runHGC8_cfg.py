@@ -75,8 +75,8 @@ process.source = cms.Source("EmptySource",
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
-        PartID = cms.vint32(211),
-        MinEta = cms.double(1.50),
+        PartID = cms.vint32(13),
+        MinEta = cms.double(1.55),
         MaxEta = cms.double(2.20),
         MinPhi = cms.double(-3.1415926),
         MaxPhi = cms.double(-1.5707963),
@@ -89,7 +89,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 
 process.output = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
-    fileName = cms.untracked.string('hgcV16.root')
+    fileName = cms.untracked.string('hgcV19.root')
 )
 
 process.hgcalHitScintillator.tileFileName = "extraTiles.txt"
