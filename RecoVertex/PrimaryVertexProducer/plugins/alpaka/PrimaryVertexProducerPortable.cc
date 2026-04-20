@@ -58,7 +58,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       };
     }
 
-    void produce(device::Event& iEvent, device::EventSetup const& iSetup) {
+    void produce(device::Event& iEvent, device::EventSetup const& iSetup) override {
       const TrackDeviceCollection& inputtracks = iEvent.get(trackToken_);
       const BeamSpotDevice& beamSpot = iEvent.get(beamSpotToken_);
       int32_t nT = inputtracks.view().nT();
