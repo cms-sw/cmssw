@@ -156,6 +156,7 @@ process.l1tLayer1BarrelTDR.puAlgoParameters.nTrack = 22
 process.l1tLayer1BarrelTDR.puAlgoParameters.nIn = 27
 process.l1tLayer1BarrelTDR.puAlgoParameters.nOut = 27
 process.l1tLayer1BarrelTDR.puAlgoParameters.finalSortAlgo = "BitonicVHDL"
+process.l1tLayer1BarrelTDR.tkEgAlgoParameters.nTRACK = 22
 process.l1tLayer1BarrelTDR.tkEgAlgoParameters.nTRACK_EGIN = 22
 process.l1tLayer1BarrelTDR.tkEgAlgoParameters.nEMCALO_EGIN = 12
 process.l1tLayer1BarrelTDR.tkEgAlgoParameters.algorithm = 0

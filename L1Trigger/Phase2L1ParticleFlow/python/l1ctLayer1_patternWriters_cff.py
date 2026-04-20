@@ -7,8 +7,11 @@ _gttNumberOfPVs = 10
 #####################################################################################################################
 ## Barrel configurations: 54 regions, 6 puppi output links, only write out the layer 1 outputs for now
 
-srOrder = (5, 14, 23, 32, 41, 50, 6, 15, 24, 33, 42, 51, 7, 16, 25, 34, 43, 52, 8, 17, 26, 35, 44, 53, 0, 9, 18,
-           27, 36, 45, 1, 10, 19, 28, 37, 46, 2, 11, 20, 29, 38, 47, 3, 12, 21, 30, 39, 48, 4, 13, 22, 31, 40, 49)
+virtBoard0 = (5, 14, 23, 32, 41, 50, 6, 15, 24, 33, 42, 51, 7, 16, 25, 34, 43, 52)
+virtBoard1 = (8, 17, 26, 35, 44, 53, 0,  9, 18, 27, 36, 45, 1, 10, 19, 28, 37, 46)
+virtBoard2 = (2, 11, 20, 29, 38, 47, 3, 12, 21, 30, 39, 48, 4, 13, 22, 31, 40, 49)
+
+srOrder = virtBoard0 + virtBoard1 + virtBoard2
 
 _barrelWriterOutputOnly = cms.PSet(
     partition = cms.string("Barrel"),

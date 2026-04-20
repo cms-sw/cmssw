@@ -10,6 +10,10 @@ from L1Trigger.Phase2L1ParticleFlow.l1TkEgAlgoEmulator_cfi import tkEgAlgoParame
 from L1Trigger.Phase2L1ParticleFlow.mlAssociation_cfi import NNVtxAssociationPSet
 switchOnNNAssoc = cms.bool(False)
 
+virtBoard0 = (5, 14, 23, 32, 41, 50, 6, 15, 24, 33, 42, 51, 7, 16, 25, 34, 43, 52)
+virtBoard1 = (8, 17, 26, 35, 44, 53, 0,  9, 18, 27, 36, 45, 1, 10, 19, 28, 37, 46)
+virtBoard2 = (2, 11, 20, 29, 38, 47, 3, 12, 21, 30, 39, 48, 4, 13, 22, 31, 40, 49)
+
 l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag('l1tPFTracksFromL1Tracks'),
     muons = cms.InputTag('l1tSAMuonsGmt','prompt'),
@@ -107,7 +111,7 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
     ),
     tkEgSorterAlgo = cms.string("Barrel"),
     tkEgSorterParameters = tkEgSorterParameters.clone(
-        nObjToSort = 10
+        nObjToSort = 16
     ),
     # these are the sectors for the logical "decoded" clusters; 
     caloSectors = cms.VPSet(
@@ -133,12 +137,9 @@ l1tLayer1Barrel = cms.EDProducer("L1TCorrelatorLayer1Producer",
         ),
     ),
     boards = cms.VPSet(  # In TM18, this is "virtual" boards for egamma
-        cms.PSet(
-              regions = cms.vuint32(*[0+9*ie+i for ie in range(6) for i in range(3)])), # phi splitting
-        cms.PSet(
-              regions = cms.vuint32(*[3+9*ie+i for ie in range(6) for i in range(3)])), # phi splitting
-        cms.PSet(
-              regions = cms.vuint32(*[6+9*ie+i for ie in range(6) for i in range(3)])), # phi splitting
+        cms.PSet(regions = cms.vuint32(*virtBoard0)), # phi splitting
+        cms.PSet(regions = cms.vuint32(*virtBoard1)), # phi splitting
+        cms.PSet(regions = cms.vuint32(*virtBoard2)), # phi splitting
     ),
 )
 
