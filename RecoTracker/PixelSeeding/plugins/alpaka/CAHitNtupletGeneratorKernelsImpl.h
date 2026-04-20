@@ -330,7 +330,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
               continue;
             if ((qj < qi) || (qj == qi && score(it) < score(jt)))
               tracks_view[jt].quality() = reject;
-            else {
+            // explicitly check since they might be identical when using the same hits for fitting!
+            else if ((qj > qi) || (qj == qi && score(it) > score(jt))) { 
               tracks_view[it].quality() = reject;
               break;
             }
@@ -363,7 +364,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         // mark all other duplicates  (not yet, keep it loose)
         for (int i = 0; i < ntr; i++) {
           auto it = thisCellTracks[i];
-          if (tracks_view[it].quality() > loose && it != im)
+          if (tracks_view[it].quality() > loose && score(it) > mc)
             tracks_view[it].quality() = loose;  //no race:  simple assignment of the same constant
         }
       }
@@ -954,10 +955,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
             auto nlj = tracks_view[jt].nLayers();
             if (nlj < nli || (nlj == nli && (qj < qi || (qj == qi && score(it, nli) < score(jt, nlj)))))
               tracks_view[jt].quality() = reject;
-            else {
+            // explicitly check since we can have actual duplicated tracks with identical parameters
+            else if (nli < nlj || (nli == nlj && (qi < qj || (qi == qj && score(jt, nlj) < score(it, nli))))){
               tracks_view[it].quality() = reject;
               break;
             }
+            // if we have two tracks with the same length, parameters and quality, we keep the one with the lower index 
+            // (arbitrary but deterministic) and reject the other to avoid double counting
+            else if (it < jt)
+              tracks_view[jt].quality() = reject;
+            else
+              tracks_view[it].quality() = reject;
           }
         }
       }
