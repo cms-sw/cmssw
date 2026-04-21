@@ -1,5 +1,6 @@
 // -*- C++ -*-
 #include <cstdlib>
+#include <exception>
 #include <string>
 
 #include <mpi.h>
@@ -85,8 +86,11 @@ MPIService::MPIService(edm::ParameterSet const& config) {
 }
 
 MPIService::~MPIService() {
-  // terminate the MPI execution environment
-  MPI_Finalize();
+  // Finalize MPI execution environment if the program finished correctly
+  // Otherwise let it proceed naturally (this way original error will be printed)
+  if (std::uncaught_exceptions() == 0) {
+    MPI_Finalize();
+  }
 }
 
 void MPIService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
