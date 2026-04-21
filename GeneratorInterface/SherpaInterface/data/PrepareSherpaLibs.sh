@@ -35,6 +35,7 @@ function print_help() {
     echo "             (example file in GeneratorInterface/SherpaInterface/python/ExtendedSherpaWeights_cfi.py)" && \
 ##    echo "         -P  SRM path   (CRAB) SE path for final results" && \
 ##    echo "                         -> ( "${MYSRMPATH}" )" && \
+    echo "         -H  hepmcversion   (optional) HepMC version, default is HepMC2      ( "${vhepmc}" )" && \
     echo "         -h             display this help and exit" && echo
 }
 
@@ -48,19 +49,26 @@ function build_python_cff() {
   cfffilename=$1  # config file name
   process=$2      # process name
   checksum=$3     # MD5 checksum
-
+  hepmc_version=$4       # HepMC version (HepMC2 or HepMC3)
   if [ -e ${cfffilename} ]; then rm ${cfffilename}; fi
   touch ${cfffilename}
 
   echo "import FWCore.ParameterSet.Config as cms"                          >> ${cfffilename}
-  echo "import os"                                                         >> ${cfffilename} 
+  echo "import os"                                                         >> ${cfffilename}
   if [ ! $weightlist == "" ]; then
-    echo "from $weightlist import *"                                       >> ${cfffilename} 
+    echo "from $weightlist import *"                                       >> ${cfffilename}
   fi
   echo ""                                                                  >> ${cfffilename}
   echo "source = cms.Source(\"EmptySource\")"                              >> ${cfffilename}
   echo ""                                                                  >> ${cfffilename}
-  echo "generator = cms.EDFilter(\"SherpaGeneratorFilter\","               >> ${cfffilename}
+  if [ $hepmc_version == "HepMC3" ]; then
+      echo "generator = cms.EDFilter(\"SherpaHepMC3GeneratorFilter\","               >> ${cfffilename}
+  elif [ $hepmc_version == "HepMC2" ]; then
+      echo "generator = cms.EDFilter(\"SherpaGeneratorFilter\","               >> ${cfffilename}
+  else
+      echo "[ EXIT ]: Unsupported HepMC version: $hepmc_version. Please use HepMC3 or HepMC2."
+      exit 1
+  fi
   echo "  maxEventsToPrint = cms.int32(0),"                                >> ${cfffilename}
   echo "  filterEfficiency = cms.untracked.double(1.0),"                   >> ${cfffilename}
   echo "  crossSection = cms.untracked.double(-1),"                        >> ${cfffilename}
@@ -266,13 +274,14 @@ cflb=""                                              # custom library file name
 cfcr=""                                              # custom cross section file name
 cfgr=""                                              # custom MI grid file name
 weightfile=""                                        # sherpa weights ordering file
+vhepmc="HepMC2"                                      # hepmc format version, default is HepMC2, you can change it to HepMC3
 ##MYSRMPATH="./"                                       # SRM path for storage of results
 TDIR=TMP
 
 
 # get & evaluate options
 ##while getopts :i:p:d:m:a:D:L:C:G:P:h OPT
-while getopts :i:p:d:D:L:C:G:e:h OPT
+while getopts :i:p:d:D:L:C:G:e:H:h OPT
 do
   case $OPT in
   i) datadir=$OPTARG ;;
@@ -284,12 +293,13 @@ do
   C) cfcr=$OPTARG ;;
   G) cfgr=$OPTARG ;;
   e) weightlist=$OPTARG && parse_extended_weight;;
+  H) vhepmc=$OPTARG ;;
 ##  P) MYSRMPATH=$OPTARG ;;
   h) print_help && exit 0 ;;
   \?)
     shift `expr $OPTIND - 1`
     if [ "$1" = "--help" ]; then print_help && exit 0;
-    else 
+    else
       echo -n "PrepareSherpaLibs: error: unrecognized option "
       if [ $OPTARG != "-" ]; then echo "'-$OPTARG'. try '-h'"
       else echo "'$1'. try '-h'"
@@ -312,11 +322,12 @@ fi
 # print current options/parameters
 echo "  -> data card directory '"${datadir}"'"
 echo "  -> dataset name '"${dataset}"'"
+echo "  -> HepMC version '"${vhepmc}"'"
 ##echo "  -> operation mode: '"${imode}"'"
 ##echo "  -> CMSSW user analysis path: '"${MYANADIR}"'"
 
 
-# set up 
+# set up
 ##if [ "${imode}" = "PROD" ] || [ "${imode}" = "GRID" ]; then
   MYCMSSWTEST=${HDIR}/${TDIR}
   MYCMSSWPYTH=${HDIR}/${TDIR}
@@ -411,7 +422,7 @@ spsummd5=""
 ####
 
 ##  build_python_cff ${imode} ${shpacfffile} ${dataset} ${spsummd5}
-  build_python_cff ${shpacfffile} ${dataset} ${spsummd5}
+  build_python_cff ${shpacfffile} ${dataset} ${spsummd5} ${vhepmc}
 
   mv ${shpamstfile} $HDIR
   mv ${shpamstmd5s} $HDIR
@@ -466,4 +477,3 @@ echo "        -s GEN -n 100 --no_exec --conditions auto:mc --eventcontent RAWSIM
 echo " <I>  "
 echo " <I>  "
 echo " <I>  "
-
