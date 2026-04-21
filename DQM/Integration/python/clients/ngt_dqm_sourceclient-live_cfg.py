@@ -34,8 +34,14 @@ else:
 
 process.load("DQM.Integration.config.environment_cfi")
 
-process.dqmEnv.subSystemFolder = 'NGT'
-process.dqmSaver.tag = 'NGT'
+tag = 'NGT'
+if not unitTest:
+    if hasattr(options, 'clientTag') and options.clientTag:
+        tag = options.clientTag
+
+process.dqmEnv.subSystemFolder = tag
+process.dqmSaver.tag = tag
+
 process.dqmSaver.runNumber = options.runNumber
 # process.dqmSaverPB.tag = 'NGT'
 # process.dqmSaverPB.runNumber = options.runNumber
