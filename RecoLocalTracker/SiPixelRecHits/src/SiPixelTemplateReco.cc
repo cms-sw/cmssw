@@ -816,7 +816,7 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
         }
         rat = ssa / ss2;
         if (rat <= 0.f) {
-          LOGERROR("SiPixelTemplateReco") << "illegal chi2ymin normalization (1) = " << rat << ENDL;
+          LOGDEBUG("SiPixelTemplateReco") << "illegal chi2ymin normalization (1) = " << rat << ENDL;
           rat = 1.;
         }
         chi2ybin[j] = ss2 - 2.f * ssa / rat + sa2 / (rat * rat);
@@ -944,7 +944,7 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
     // Do goodness of fit test in y
 
     if (rnorm <= 0.) {
-      LOGERROR("SiPixelTemplateReco") << "illegal chi2y normalization (2) = " << rnorm << ENDL;
+      LOGDEBUG("SiPixelTemplateReco") << "illegal chi2y normalization (2) = " << rnorm << ENDL;
       rnorm = 1.;
     }
     chi2y = ss2 - 2. / rnorm * ssa - 2. / rnorm * rat * ssba +
@@ -1037,7 +1037,7 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
         //			 std::cout << std::endl;
         rat = ssa / ss2;
         if (rat <= 0.f) {
-          LOGERROR("SiPixelTemplateReco") << "illegal chi2xmin normalization (1) = " << rat << ENDL;
+          LOGDEBUG("SiPixelTemplateReco") << "illegal chi2xmin normalization (1) = " << rat << ENDL;
           rat = 1.;
         }
         chi2xbin[j] = ss2 - 2.f * ssa / rat + sa2 / (rat * rat);
@@ -1156,7 +1156,7 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
     // Do goodness of fit test in x
 
     if (rnorm <= 0.) {
-      LOGERROR("SiPixelTemplateReco") << "illegal chi2x normalization (2) = " << rnorm << ENDL;
+      LOGDEBUG("SiPixelTemplateReco") << "illegal chi2x normalization (2) = " << rnorm << ENDL;
       rnorm = 1.;
     }
     chi2x = ss2 - 2. / rnorm * ssa - 2. / rnorm * rat * ssba +
