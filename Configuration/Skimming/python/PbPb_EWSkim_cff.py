@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # primary vertex filter
 primaryVertexFilterForPbPbEWSkim = cms.EDFilter("VertexSelector",
-    src = cms.InputTag("offlinePrimaryVertices"),
+    src = cms.InputTag("offlineSlimmedPrimaryVertices"),
     cut = cms.string("!isFake && abs(z) <= 25 && position.Rho <= 2"), 
     filter = cms.bool(True),
 )
@@ -27,15 +27,31 @@ oneLeptonForPbPbEWSkim = cms.EDFilter("PATLeptonCountFilter",
     maxNumber = cms.uint32(1000000),
 )
 
+# photon filter
+goodPhotonsForPbPbEWSkim = cms.EDFilter("PATPhotonSelector",
+    src = cms.InputTag("slimmedPhotons"),
+    cut = cms.string("et >= 25.0")
+)
+onePhotonForPbPbEWSkim = cms.EDFilter("PATCandViewCountFilter",
+    src = cms.InputTag("goodPhotonsForPbPbEWSkim"),
+    minNumber = cms.uint32(1),
+    maxNumber = cms.uint32(1000000),
+)
+
 # skim sequence
-EWSkimSequence = cms.Sequence(
+EWSkimLeptonSequence = cms.Sequence(
     primaryVertexFilterForPbPbEWSkim *
     goodMuonsForPbPbEWSkim *
     goodElectronsForPbPbEWSkim *
     oneLeptonForPbPbEWSkim
 )
+EWSkimPhotonSequence = cms.Sequence(
+    primaryVertexFilterForPbPbEWSkim *
+    goodPhotonsForPbPbEWSkim *
+    onePhotonForPbPbEWSkim
+)
 
 # skim content
 from Configuration.EventContent.EventContent_cff import MINIAODEventContent
 EWSkimContent = MINIAODEventContent.clone()
-EWSkimContent.outputCommands.append("drop *_*_*_SKIM")
+EWSkimContent.outputCommands += ["drop *_*_*_SKIM", "drop *_dedxEstimator_*_*"]
