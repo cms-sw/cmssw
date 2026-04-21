@@ -168,6 +168,7 @@ public:
   std::pair<int, int> simToReco(int cell, int layer, int mod, bool half) const;
   int tileCount(int layer, int ring) const;
   bool tileExist(int zside, int layer, int ring, int phi) const;
+  int tileGranularity(int layer) const { return ((hgpar_->scintCells(layer) > 288) ? 1 : 0); }
   HGCalParameters::tileInfo tileInfo(int zside, int layer, int ring) const;
   bool tilePhiEdge(double phi, int layer, int iphi) const;
   bool tileRingEdge(double rho, int layer, int ring) const;
@@ -179,11 +180,15 @@ public:
             (mode_ == HGCalGeometryMode::TrapezoidFineCell));
   }
   std::pair<int, int> tileType(int layer, int ring, int phi) const;
+  bool tileTrapezoidCassette() const {
+    return ((mode_ == HGCalGeometryMode::TrapezoidCassette) || (mode_ == HGCalGeometryMode::TrapezoidFineCell));
+  }
   inline bool trapezoidFile() const {
     return ((mode_ == HGCalGeometryMode::TrapezoidFile) || (mode_ == HGCalGeometryMode::TrapezoidModule) ||
             (mode_ == HGCalGeometryMode::TrapezoidCassette) || (mode_ == HGCalGeometryMode::TrapezoidFineCell));
   }
-  inline bool trapezoidModule() const {
+  inline bool trapeoidFine() const { return (mode_ == HGCalGeometryMode::Hexagon8FineCell); }
+  bool tileTrapezoidModule() const {
     return ((mode_ == HGCalGeometryMode::TrapezoidModule) || (mode_ == HGCalGeometryMode::TrapezoidCassette) ||
             (mode_ == HGCalGeometryMode::TrapezoidFineCell));
   }

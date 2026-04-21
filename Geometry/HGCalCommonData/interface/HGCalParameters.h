@@ -77,7 +77,7 @@ public:
   std::array<int, 4> getID(unsigned int k) const;
   void scaleTrForm(double);
   int scintCells(const int layer) const { return nPhiBinBH_[scintType(layer)]; }
-  double scintCellSize(const int layer) const { return cellSize_[scintType(layer)]; }
+  double scintCellSize(const int layer) const { return ((2.0 * M_PI) / nPhiBinBH_[scintType(layer)]); }
   bool scintFine(int indx) const { return ((!tileRingFineR_.empty()) && (nPhiLayer_[indx] > 288)); }
   double scintRing(int indx, int irad) const;
   int scintType(const int layer) const { return ((layer < layerFrontBH_[1]) ? 1 : 0); }
