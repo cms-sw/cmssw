@@ -70,6 +70,18 @@ options.register('outputBaseDir',
                  VarParsing.VarParsing.varType.string,
                  "Directory where the visualization output files will appear.")
 
+# Parameter to specify which stream label to take
+options.register('streamLabel',
+                 'streamDQMHistograms',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Stream label for input data.")
+
+options.register('clientTag',
+                 'HLTpb',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Name of the tag to be used in the DQMFileSaverOnline")
 
 options.parseArguments()
 
@@ -94,7 +106,7 @@ if options.scanOnce:
 source = cms.Source("DQMProtobufReader",
     runNumber = cms.untracked.uint32(options.runNumber),
     runInputDir = cms.untracked.string(options.runInputDir),
-    streamLabel = cms.untracked.string('streamDQMHistograms'),
+    streamLabel = cms.untracked.string(options.streamLabel),
     scanOnce = cms.untracked.bool(options.scanOnce),
     datafnPosition = cms.untracked.uint32(options.datafnPosition),
     delayMillis = cms.untracked.uint32(500),
