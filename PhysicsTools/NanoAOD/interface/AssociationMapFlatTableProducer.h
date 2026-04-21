@@ -32,7 +32,12 @@ public:
   std::unique_ptr<nanoaod::FlatTable> fillTable(const edm::Event &iEvent, const edm::Handle<T> &prod) const override {
     // First unroll the Container inside the associator map.
 
-    auto table_size = prod->getMap().size();
+    // Determine the table size safely
+    size_t table_size = 0;
+    if (prod.isValid()) {
+      table_size = prod->getMap().size();
+    }
+
     auto out = std::make_unique<nanoaod::FlatTable>(table_size, this->name_, false);
 
     std::vector<const TProd *> selobjs;
@@ -104,21 +109,27 @@ public:
 
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override {
     // same as SimpleFlatTableProducer
-    edm::Handle<T> prod;
-    iEvent.getByToken(SimpleFlatTableProducerBase<T, T>::src_, prod);
+    edm::Handle<T> prod = iEvent.getHandle(SimpleFlatTableProducerBase<T, T>::src_);
 
     // First unroll the Container inside the associator map.
 
-    auto table_size = prod->getMap().size();
+    // Determine the table size safely
+    size_t table_size = 0;
+    if (prod.isValid()) {
+      table_size = prod->getMap().size();
+    }
+
     auto out = std::make_unique<nanoaod::FlatTable>(table_size, this->name_, false);
 
     // Now proceed with the variable-sized linked objects.
     unsigned int coltablesize = 0;
     std::vector<unsigned int> counts;
     counts.reserve(table_size);
-    for (auto const &links : prod->getMap()) {
-      counts.push_back(links.size());
-      coltablesize += counts.back();
+    if (prod.isValid() || !(this->skipNonExistingSrc_)) {
+      for (auto const &links : prod->getMap()) {
+        counts.push_back(links.size());
+        coltablesize += counts.back();
+      }
     }
 
     std::vector<const TProd *> selobjs;
