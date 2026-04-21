@@ -34,8 +34,14 @@ else:
 
 process.load("DQM.Integration.config.environment_cfi")
 
-process.dqmEnv.subSystemFolder = 'NGT'
-process.dqmSaver.tag = 'NGT'
+tag = 'NGT'
+if not unitTest:
+    if hasattr(options, 'clientTag') and options.clientTag:
+        tag = options.clientTag
+
+process.dqmEnv.subSystemFolder = tag
+process.dqmSaver.tag = tag
+
 process.dqmSaver.runNumber = options.runNumber
 # process.dqmSaverPB.tag = 'NGT'
 # process.dqmSaverPB.runNumber = options.runNumber
@@ -54,6 +60,9 @@ from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProduce
 process.hltOnlineBeamSpot = _onlineBeamSpotProducer.clone()
 
 ### for pp collisions
+process.load("DQM.HLTEvF.ScoutingTrackingMonitor_cff")
+process.ScoutingTrackMonitorOnline.topFolderName = 'NGT/ScoutingOnline/Tracks'
+
 process.load("DQM.HLTEvF.ScoutingCollectionMonitor_cfi")
 process.scoutingCollectionMonitor.topfoldername = "NGT/ScoutingOnline/ScoutingCollections"
 process.scoutingCollectionMonitor.onlyScouting = False
@@ -98,6 +107,7 @@ process.dqmHLTFiltersDQMonitor.lightMonitor = True
 
 process.p = cms.Path(process.dqmcommon *
                      process.hltOnlineBeamSpot *
+                     process.ScoutingTrackMonitorOnline *
                      process.run3ScoutingElectronBestTrack *
                      process.scoutingCollectionMonitor *
                      process.ScoutingRecHitsMonitoring *
