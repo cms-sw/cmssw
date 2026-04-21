@@ -18,6 +18,8 @@ process.load("SimTracker.TrackerHitAssociation.tpClusterProducer_cfi")
 process.load("SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi")
 process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
+  
+process.trackingParticleGsfTrackAssociation = process.trackingParticleRecoTrackAsssociation.clone(label_tr="electronGsfTracks")
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase1_2022_realistic")
@@ -32,7 +34,7 @@ process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
 )
 
-process.ana = cms.EDAnalyzer('PFAnalysis')
+process.pfana = cms.EDAnalyzer('PFAnalysis')
 
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string("pfntuple.root")
@@ -41,4 +43,12 @@ process.p = cms.Path(
   process.tpClusterProducer*
   process.quickTrackAssociatorByHits*
   process.trackingParticleRecoTrackAsssociation*
-  process.ana)
+  process.trackingParticleGsfTrackAssociation*
+  process.pfana)
+
+
+#Enable LogTrace in PFAnalysisNtuplizer
+## scram b -j8 USER_CXXFLAGS="-DEDM_ML_DEBUG"
+#process.MessageLogger.cerr.threshold = "DEBUG"
+#process.MessageLogger.debugModules = ["pfana"]
+
