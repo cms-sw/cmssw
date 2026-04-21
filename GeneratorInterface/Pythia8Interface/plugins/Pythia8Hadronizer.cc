@@ -153,8 +153,8 @@ private:
   std::string LHEInputFileName;
   std::shared_ptr<LHAupLesHouches> lhaUP;
 
-  enum { PP, PPbar, ElectronPositron, HeavyIons };
-  int fInitialState;  // pp, ppbar, e-e+ or HI
+  enum { PP, PPbar, ElectronPositron, HeavyIons, Angantyr };
+  int fInitialState;  // pp, ppbar, e-e+, HI or Angantyr
 
   double fBeam1PZ;
   double fBeam2PZ;
@@ -162,6 +162,17 @@ private:
   //PDFPtr for the photonFlux
   //Following main70.cc example in PYTHIA8 v3.10
   edm::ParameterSet photonFluxParams;
+
+  //Angantyr heavy-ion parameters
+  edm::ParameterSet angantyrParams;
+
+  // If true, skip the expensive Pythia8::init() call on every LS after the
+  // first one for the Angantyr path. Saves the SigFit scan cost at the cost
+  // of not picking up per-LS setting changes. Only honored when
+  // fInitialState == Angantyr. Default off (refit every LS, matches legacy).
+  bool skipAngantyrRefit_ = false;
+  // Latched true after fMasterGen->init() succeeds; guards the skip above.
+  bool masterGenInitialized_ = false;
 
   //helper class to allow multiple user hooks simultaneously
   std::shared_ptr<UserHooksVector> fUserHooksVector;
@@ -287,10 +298,23 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
     } else {
       // probably need to throw on attempt to override ?
     }
+  } else if (params.exists("AngantyrInitialState")) {
+    if (fInitialState == PP) {
+      fInitialState = Angantyr;
+      angantyrParams = params.getParameter<edm::ParameterSet>("AngantyrInitialState");
+      skipAngantyrRefit_ = angantyrParams.getUntrackedParameter<bool>("skipRefit", false);
+      edm::LogInfo("GeneratorInterface|Pythia8Interface")
+          << "Pythia8 will be initialized for ANGANTYR HEAVY ION collisions. "
+          << "This is a user-request change from the DEFAULT PROTON-PROTON initial state."
+          << (skipAngantyrRefit_ ? " skipRefit=true: fMasterGen->init() will only run on the first LS." : "");
+    } else {
+      // probably need to throw on attempt to override ?
+    }
   } else if (params.exists("ElectronProtonInitialState") || params.exists("PositronProtonInitialState")) {
     // throw on unknown initial state !
     throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
-        << " UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron \n";
+        << " UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron, HeavyIons, "
+           "Angantyr \n";
   }
 
   // avoid filling weights twice (from v8.30x)
@@ -431,6 +455,14 @@ Pythia8Hadronizer::~Pythia8Hadronizer() {}
 bool Pythia8Hadronizer::initializeForInternalPartons() {
   bool status = false, status1 = false;
 
+  // If the user opted into Angantyr skipRefit, after the very first successful
+  // fMasterGen->init() we skip only that expensive call (which re-runs the
+  // Angantyr SigFit scan) on subsequent LS transitions. The rest of this
+  // method — including fDecayer setup, which Py8InterfaceBase::readSettings
+  // recreates every LS — still runs so residualDecay() and EvtGen remain
+  // correctly initialized.
+  const bool skipMasterInit = (fInitialState == Angantyr && skipAngantyrRefit_ && masterGenInitialized_);
+
   if (lheFile_.empty()) {
     if (fInitialState == PP)  // default
     {
@@ -444,10 +476,23 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
       fMasterGen->settings.mode("Beams:idB", -11);
     } else if (fInitialState == HeavyIons) {
       // let user to set up the beam particles
+    } else if (fInitialState == Angantyr) {
+      // Initialize Angantyr model for heavy-ion collisions
+      fMasterGen->settings.mode("HeavyIon:mode", 2);
+      // Set beam particles from process parameters if provided
+      if (!angantyrParams.empty()) {
+        if (angantyrParams.exists("beamA")) {
+          fMasterGen->settings.mode("Beams:idA", angantyrParams.getParameter<int>("beamA"));
+        }
+        if (angantyrParams.exists("beamB")) {
+          fMasterGen->settings.mode("Beams:idB", angantyrParams.getParameter<int>("beamB"));
+        }
+      }
     } else {
       // throw on unknown initial state !
       throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
-          << " UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron, HeavyIons \n";
+          << " UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron, HeavyIons, "
+             "Angantyr \n";
     }
     fMasterGen->settings.parm("Beams:eCM", comEnergy);
   } else {
@@ -592,8 +637,16 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
     }
   }
 
-  edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
-  status = fMasterGen->init();
+  if (skipMasterInit) {
+    edm::LogInfo("Pythia8Interface")
+        << "Skipping fMasterGen->init() (Angantyr, skipRefit=true); reusing previously fitted state.";
+    status = true;
+  } else {
+    edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
+    status = fMasterGen->init();
+    if (status)
+      masterGenInitialized_ = true;
+  }
 
   //clean up temp file
   if (!slhafile_.empty()) {
