@@ -99,6 +99,7 @@ hltTiclCandidateExtraTable = cms.EDProducer(
     "TICLCandidateExtraTableProducer",
     src = cms.InputTag("hltTiclTrackstersMerge"),
     name = cms.string("Candidate2Tracksters"),
+    skipNonExistingSrc = cms.bool(True),
     doc = cms.string("TICLCandidates extra table with linked Tracksters"),
     collectionVariables = cms.PSet(
         tracksters = cms.PSet(
@@ -115,6 +116,7 @@ hltSimTiclCandidateExtraTable = cms.EDProducer(
     "TICLCandidateExtraTableProducer",
     src = cms.InputTag("hltTiclSimTracksters"),
     name = cms.string("SimCandidate2Tracksters"),
+    skipNonExistingSrc = cms.bool(True),
     doc = cms.string("TICLCandidates extra table with linked Tracksters"),
     collectionVariables = cms.PSet(
         tracksters = cms.PSet(

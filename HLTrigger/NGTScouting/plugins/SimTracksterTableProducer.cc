@@ -41,12 +41,10 @@ public:
 private:
   void produce(edm::StreamID id, edm::Event& event, const edm::EventSetup& setup) const override {
     const auto simTrackstersHandle = event.getHandle(simTrackstersToken_);
-    const auto& simTracksters = *simTrackstersHandle;
     const auto caloParticlesHandle = event.getHandle(caloParticlesToken_);
-    const auto& caloParticles = *caloParticlesHandle;
     const auto simClustersHandle = event.getHandle(simClustersToken_);
-    const auto& simClusters = *simClustersHandle;
-    const auto cpToSCMap = event.get(caloParticleToSimClustersMap_token_);
+    const auto cpToSCMapHandle = event.getHandle(caloParticleToSimClustersMap_token_);
+
     const size_t nSimTracksters = simTrackstersHandle.isValid() ? simTrackstersHandle->size() : 0;
 
     static constexpr float default_value = std::numeric_limits<float>::quiet_NaN();
@@ -64,29 +62,36 @@ private:
     std::vector<float> genPt(nSimTracksters, default_value);
     std::vector<float> mass(nSimTracksters, default_value);
 
-    //utility lambda for filling vectors
-    auto fillVectors = [&](const auto& obj, size_t iSim, float time) {
-      const auto& simTrack = obj.g4Tracks()[0];
-      const auto caloPt = obj.pt();
-      const auto simHitSumEnergy = obj.simEnergy();
-      const auto caloMass = obj.mass();
+    if ((simTrackstersHandle.isValid() && caloParticlesHandle.isValid() && simClustersHandle.isValid() &&
+         cpToSCMapHandle.isValid()) ||
+        !(this->skipNonExistingSrc_)) {
+      const auto& simTracksters = *simTrackstersHandle;
+      const auto& caloParticles = *caloParticlesHandle;
+      const auto& simClusters = *simClustersHandle;
+      const auto& cpToSCMap = *cpToSCMapHandle;
 
-      boundaryX[iSim] = simTrack.getPositionAtBoundary().x();
-      boundaryY[iSim] = simTrack.getPositionAtBoundary().y();
-      boundaryZ[iSim] = simTrack.getPositionAtBoundary().z();
-      boundaryEta[iSim] = simTrack.getPositionAtBoundary().eta();
-      boundaryPhi[iSim] = simTrack.getPositionAtBoundary().phi();
-      boundaryPx[iSim] = simTrack.getMomentumAtBoundary().x();
-      boundaryPy[iSim] = simTrack.getMomentumAtBoundary().y();
-      boundaryPz[iSim] = simTrack.getMomentumAtBoundary().z();
+      //utility lambda for filling vectors
+      auto fillVectors = [&](const auto& obj, size_t iSim, float time) {
+        const auto& simTrack = obj.g4Tracks()[0];
+        const auto caloPt = obj.pt();
+        const auto simHitSumEnergy = obj.simEnergy();
+        const auto caloMass = obj.mass();
 
-      simTime[iSim] = time;
-      simEnergy[iSim] = simHitSumEnergy;
-      genPt[iSim] = caloPt;
-      mass[iSim] = caloMass;
-    };
+        boundaryX[iSim] = simTrack.getPositionAtBoundary().x();
+        boundaryY[iSim] = simTrack.getPositionAtBoundary().y();
+        boundaryZ[iSim] = simTrack.getPositionAtBoundary().z();
+        boundaryEta[iSim] = simTrack.getPositionAtBoundary().eta();
+        boundaryPhi[iSim] = simTrack.getPositionAtBoundary().phi();
+        boundaryPx[iSim] = simTrack.getMomentumAtBoundary().x();
+        boundaryPy[iSim] = simTrack.getMomentumAtBoundary().y();
+        boundaryPz[iSim] = simTrack.getMomentumAtBoundary().z();
 
-    if (simTrackstersHandle.isValid() || !(this->skipNonExistingSrc_)) {
+        simTime[iSim] = time;
+        simEnergy[iSim] = simHitSumEnergy;
+        genPt[iSim] = caloPt;
+        mass[iSim] = caloMass;
+      };
+
       for (size_t iSim = 0; iSim < simTracksters.size(); ++iSim) {
         const auto& simT = simTracksters[iSim];
         float time = default_value;
@@ -108,6 +113,7 @@ private:
         }
       }
     }
+
     auto simTrackstersTable =
         std::make_unique<nanoaod::FlatTable>(nSimTracksters, tableName_, /*singleton*/ false, /*extension*/ true);
     simTrackstersTable->addColumn<float>(

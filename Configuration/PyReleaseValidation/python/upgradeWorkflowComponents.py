@@ -2185,6 +2185,15 @@ upgradeWFs['HLTPhase2WithNano'].step2 = {
     '--eventcontent':'FEVTDEBUGHLT,NANOAODSIM'
 }
 
+upgradeWFs['HLTPhase2WithNanoValid'] = deepcopy(upgradeWFs['HLTPhase2WithNano'])
+upgradeWFs['HLTPhase2WithNanoValid'].suffix = '_HLTPhase2WithNanoValid'
+upgradeWFs['HLTPhase2WithNanoValid'].offset = 0.7591
+upgradeWFs['HLTPhase2WithNanoValid'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33,VALIDATION:@hltValidation,NANO:@Phase2HLTVal',
+    '--datatier':'GEN-SIM-DIGI-RAW,NANOAODSIM',
+    '--eventcontent':'FEVTDEBUGHLT,NANOAODSIM'
+}
+
 upgradeWFs['NGTScoutingWithNano'] = deepcopy(upgradeWFs['HLTPhase2WithNano'])
 upgradeWFs['NGTScoutingWithNano'].suffix = '_NGTScoutingWithNano'
 upgradeWFs['NGTScoutingWithNano'].offset = 0.772

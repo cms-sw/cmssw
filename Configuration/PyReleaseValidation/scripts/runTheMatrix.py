@@ -170,7 +170,8 @@ if __name__ == '__main__':
                      prefixDet+34.756,   # HLT phase-2 timing menu trimmed tracking
                      prefixDet+34.757,   # HLT phase-2 timing menu mkFit fitting variant
                      prefixDet+34.758,   # HLT phase-2 timing menu ticl_barrel variant
-                     prefixDet+34.759,   # HLT phase-2 timing menu, with NANO:@Phase2HLT
+                     prefixDet+34.759,   # HLT phase-2 menu, with NANO:@Phase2HLT
+                     prefixDet+34.7591,  # HLT phase-2 menu, with NANO:@Phase2HLTVal
                      prefixDet+34.77,    # HLT phase-2 NGT Scouting menu
                      prefixDet+34.771,   # HLT phase-2 NGT Scouting menu, Alpaka, TICL-v5, TICL-Barrel
                      prefixDet+34.772,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting

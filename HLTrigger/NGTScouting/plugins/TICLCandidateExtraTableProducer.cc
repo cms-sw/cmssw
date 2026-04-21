@@ -34,6 +34,36 @@ public:
   void produce(edm::Event& iEvent, const edm::EventSetup&) override {
     const auto& prod = iEvent.getHandle(this->src_);
 
+    // Check if handle is valid
+    if (!prod.isValid() && this->skipNonExistingSrc_) {
+      // Still book and write empty FlatTables
+      auto out = std::make_unique<nanoaod::FlatTable>(0, this->name_, /*singleton*/ false, /*extension*/ false);
+
+      for (const auto& coltable : this->coltables_) {
+        std::vector<uint16_t> emptyCounts;
+        std::vector<uint16_t> emptyOffsets;
+
+        if (coltable.useCount) {
+          out->addColumn<uint16_t>("n" + coltable.name, emptyCounts, "Count for " + coltable.name);
+        }
+        if (coltable.useOffset) {
+          out->addColumn<uint16_t>("o" + coltable.name, emptyOffsets, "Offset for " + coltable.name);
+        }
+
+        auto outcoltable = std::make_unique<nanoaod::FlatTable>(0, coltable.name, false, false);
+        std::vector<uint32_t> emptyTracksterKeys;
+        outcoltable->addColumn<uint32_t>("tracksterIndex", emptyTracksterKeys, "Index of associated Trackster");
+        outcoltable->setDoc(coltable.doc);
+        iEvent.put(std::move(outcoltable), coltable.name + "Table");
+      }
+
+      if (out->nColumns() > 0) {
+        out->setDoc(this->doc_);
+        iEvent.put(std::move(out));
+      }
+      return;
+    }
+
     const auto& candidates = *prod;
     const size_t table_size = candidates.size();
 
