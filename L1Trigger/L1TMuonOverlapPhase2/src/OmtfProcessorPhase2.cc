@@ -176,7 +176,8 @@ void OmtfProcessorPhase2::convertToGmtScalesPhase2(unsigned int iProcessor,
 
   //in getFinalMuons the PtGeV is set to 0 in this case, as it is like that for the phase-1.
   //but for the phase-2 pt = 0 means empty candidate, so we set 1 GeV in this case
-  if (finalMuon->getAlgoMuon()->getPdfSumConstr() == 0 && finalMuon->getAlgoMuon()->getPtUnconstr() > 0)
+  if ((finalMuon->getAlgoMuon()->getPdfSumConstr() == 0 || finalMuon->getAlgoMuon()->getFiredLayerCntConstr() < 3) &&
+      finalMuon->getAlgoMuon()->getPtUnconstr() > 0)
     finalMuon->setPtGev(1.0);  //set to 1 GeV to be able to distinguish from pt=0, which means no candidate
 
   int maxPtHw = (1 << Phase2L1GMT::BITSPT) - 1;

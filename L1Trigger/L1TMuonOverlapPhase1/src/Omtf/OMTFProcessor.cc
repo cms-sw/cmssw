@@ -293,7 +293,7 @@ void OMTFProcessor<GoldenPatternType>::convertToGmtScalesPhase1(unsigned int iPr
                                                                 l1t::tftype mtfType,
                                                                 FinalMuonPtr& finalMuon) {
   //the charge is only for the constrained measurement. The constrained result is always defined for a valid candidate
-  if (finalMuon->getAlgoMuon()->getPdfSumConstr() > 0)
+  if (finalMuon->getAlgoMuon()->getPdfSumConstr() > 0 && finalMuon->getAlgoMuon()->getFiredLayerCntConstr() >= 3)
     finalMuon->setPtGmt(finalMuon->getAlgoMuon()->getPtConstr());
   else if (finalMuon->getAlgoMuon()->getPtUnconstr() > 0)
     //if myCand->getPdfSumConstr() == 0, the myCand->getPtConstr() might not be 0, see the end of GhostBusterPreferRefDt::select
@@ -331,8 +331,6 @@ std::vector<l1t::RegionalMuonCand> OMTFProcessor<GoldenPatternType>::getRegional
   std::vector<l1t::RegionalMuonCand> result;
 
   for (auto& finalMuon : finalMuons) {
-    convertToGmtScalesPhase1(iProcessor, mtfType, finalMuon);
-
     l1t::RegionalMuonCand candidate;
 
     candidate.setHwPt(finalMuon->getPtGmt());
@@ -908,6 +906,7 @@ FinalMuons OMTFProcessor<GoldenPatternType>::run(unsigned int iProcessor,
   FinalMuons finalMuons = getFinalMuons(iProcessor, mtfType, gbCandidates);
 
   for (auto& finalMuon : finalMuons) {
+    convertToGmtScalesPhase1(iProcessor, mtfType, finalMuon);
     finalMuon->setBx(bx);
   }
 
