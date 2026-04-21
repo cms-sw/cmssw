@@ -1613,7 +1613,7 @@ void TICLDumper::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 
   desc.add<edm::InputTag>("layerClusters", edm::InputTag("hgcalMergeLayerClusters"));
   desc.add<edm::InputTag>("layer_clustersTime", edm::InputTag("hgcalMergeLayerClusters", "timeLayerCluster"));
-  desc.add<edm::InputTag>("ticlcandidates", edm::InputTag("ticlTrackstersMerge"));
+  desc.add<edm::InputTag>("ticlcandidates", edm::InputTag("ticlCandidate"));
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("tracksTime", edm::InputTag("tofPID:t0"));
   desc.add<edm::InputTag>("tracksTimeQual", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
@@ -1628,7 +1628,7 @@ void TICLDumper::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
       ->setComment(
           "egamma supercluster collection (either from PFECALSuperClusterProducer for Mustache, or from "
           "TICL->Egamma converter in case of TICL DNN superclusters)");
-  desc.add<edm::InputTag>("recoSuperClusters_sourceTracksterCollection", edm::InputTag("ticlTrackstersMerge"))
+  desc.add<edm::InputTag>("recoSuperClusters_sourceTracksterCollection", edm::InputTag("ticlCandidate"))
       ->setComment(
           "Trackster collection used to produce the reco::SuperCluster, used to provide a mapping back to the "
           "tracksters used in superclusters");
