@@ -9,6 +9,7 @@
   <class name="edm::Wrapper<edm::Association<std::vector<reco::io_v1::GenParticle> > >" />
 
 
+  <class name="edm::refhelper::FindUsingAdvance<vector<reco::GenParticle>,reco::GenParticle>"/>
   <class name="reco::GenParticleRef" />
   <class name="reco::GenParticleRefProd" />
   <class name="reco::GenParticleRefVector" />

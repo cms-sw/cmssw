@@ -208,8 +208,8 @@ ScoutingTrackMonitor::ScoutingTrackMonitor(const edm::ParameterSet& iConfig)
 void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
   ibooker.setCurrentFolder(topFolderName_);
 
-  h_dxy = ibooker.book1D("dxy", "d_{xy};d_{xy} [#mum];Tracks", 100, -0.15 * cmToUm, 0.15 * cmToUm);
-  h_dz = ibooker.book1D("dz", "d_{z};d_{z} [#mum];Tracks", 100, -0.35 * cmToUm, 0.35 * cmToUm);
+  h_dxy = ibooker.book1DD("dxy", "d_{xy};d_{xy} [#mum];Tracks", 100, -0.15 * cmToUm, 0.15 * cmToUm);
+  h_dz = ibooker.book1DD("dz", "d_{z};d_{z} [#mum];Tracks", 100, -0.35 * cmToUm, 0.35 * cmToUm);
 
   h_vtx_idx = ibooker.book1DD("vertexIndex", "tracks Vertex Index;Vertex index;Tracks", 17, -1.5, 15.5);
 
@@ -474,19 +474,19 @@ void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
 
   // 1D variables
 
-  IP_ = iBooker.book1D(fmt::format("d{}_pt{}", varname_, pTcut_),
-                       fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_),
-                       VarBin,
-                       VarMin,
-                       VarMax);
+  IP_ = iBooker.book1DD(fmt::format("d{}_pt{}", varname_, pTcut_),
+                        fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_),
+                        VarBin,
+                        VarMin,
+                        VarMax);
 
-  IPErr_ = iBooker.book1D(fmt::format("d{}Err_pt{}", varname_, pTcut_),
-                          fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_),
-                          100,
-                          0.,
-                          (varname_.find("xy") != std::string::npos) ? 2000. : 10000.);
+  IPErr_ = iBooker.book1DD(fmt::format("d{}Err_pt{}", varname_, pTcut_),
+                           fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_),
+                           100,
+                           0.,
+                           (varname_.find("xy") != std::string::npos) ? 2000. : 10000.);
 
-  IPPull_ = iBooker.book1D(
+  IPPull_ = iBooker.book1DD(
       fmt::format("d{}Pull_pt{}", varname_, pTcut_),
       fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}}/#sigma_{{d_{{{}}}}}", pTcut_, varname_, varname_),
       100,

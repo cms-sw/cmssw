@@ -49,6 +49,7 @@
   <class name="edm::RefToBaseProd<reco::io_v1::PhotonCore>" />
   <class name="edm::reftobase::BaseVectorHolder<reco::io_v1::PhotonCore>" />
   <class name="edm::Wrapper<std::vector<reco::io_v1::PhotonCore> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PhotonCore>,reco::io_v1::PhotonCore>"/>
   <class name="edm::Ref<std::vector<reco::io_v1::PhotonCore>,reco::io_v1::PhotonCore,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PhotonCore>,reco::io_v1::PhotonCore> >"/>
   <class name="edm::RefProd<std::vector<reco::io_v1::PhotonCore> >"/>
   <class name="edm::RefVector<std::vector<reco::io_v1::PhotonCore>,reco::io_v1::PhotonCore,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PhotonCore>,reco::io_v1::PhotonCore> >"/>
@@ -105,6 +106,7 @@
   <class name="edm::RefToBaseProd<reco::io_v1::GsfElectronCore>" />
   <class name="edm::reftobase::BaseVectorHolder<reco::io_v1::GsfElectronCore>" />
   <class name="edm::Wrapper<std::vector<reco::io_v1::GsfElectronCore> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::GsfElectronCore>,reco::io_v1::GsfElectronCore>"/>
   <class name="edm::Ref<std::vector<reco::io_v1::GsfElectronCore>,reco::io_v1::GsfElectronCore,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::GsfElectronCore>,reco::io_v1::GsfElectronCore> >"/>
   <class name="edm::RefProd<std::vector<reco::io_v1::GsfElectronCore> >"/>
   <class name="edm::RefVector<std::vector<reco::io_v1::GsfElectronCore>,reco::io_v1::GsfElectronCore,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::GsfElectronCore>,reco::io_v1::GsfElectronCore> >"/>
@@ -187,11 +189,11 @@
 
   <class name="std::vector<reco::io_v1::Conversion>"/>
   <class name="edm::Wrapper<std::vector<reco::io_v1::Conversion> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::Conversion>,reco::Conversion>"/>
   <class name="edm::Ref<std::vector<reco::io_v1::Conversion>,reco::io_v1::Conversion,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Conversion>,reco::io_v1::Conversion> >"/>
   <class name="edm::RefProd<std::vector<reco::io_v1::Conversion> >"/>
   <class name="edm::RefVector<std::vector<reco::io_v1::Conversion>,reco::io_v1::Conversion,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Conversion>,reco::io_v1::Conversion> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::io_v1::Conversion>,reco::io_v1::Conversion,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Conversion>,reco::io_v1::Conversion> > >"/>
-
 
   <class name="std::vector<reco::SiStripElectron>"/>
   <class name="edm::Wrapper<std::vector<reco::SiStripElectron> >"/>

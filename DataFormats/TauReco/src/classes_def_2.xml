@@ -120,11 +120,11 @@ isolationTauChargedHadronCandidates_.reset();
   <class name="edm::AtomicPtrCache<std::vector<reco::io_v1::RecoTauPiZero> >"/>
      <class name="std::vector<std::vector<reco::io_v1::RecoTauPiZero> >"/>
   <class name="edm::Wrapper<std::vector<reco::io_v1::RecoTauPiZero> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::RecoTauPiZero>,reco::io_v1::RecoTauPiZero>"/>
   <class name="edm::Ref<std::vector<reco::io_v1::RecoTauPiZero>,reco::io_v1::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::RecoTauPiZero>,reco::io_v1::RecoTauPiZero> >"/>
   <class name="edm::RefProd<std::vector<reco::io_v1::RecoTauPiZero> >"/>
   <class name="edm::RefVector<std::vector<reco::io_v1::RecoTauPiZero>,reco::io_v1::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::RecoTauPiZero>,reco::io_v1::RecoTauPiZero> >"/>
   <class name="edm::reftobase::Holder<reco::CompositePtrCandidate, edm::Ref<std::vector<reco::io_v1::RecoTauPiZero>,reco::io_v1::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::RecoTauPiZero>,reco::io_v1::RecoTauPiZero> > >" />
-
   <class name="reco::PFRecoTauChargedHadron" ClassVersion="3">
    <version ClassVersion="3" checksum="98882705"/>
   </class>
@@ -132,6 +132,7 @@ isolationTauChargedHadronCandidates_.reset();
   <class name="edm::AtomicPtrCache<std::vector<reco::PFRecoTauChargedHadron> >"/>
      <class name="std::vector<std::vector<reco::PFRecoTauChargedHadron> >"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecoTauChargedHadron> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron>"/>
   <class name="edm::Ref<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> >"/>
   <class name="edm::RefProd<std::vector<reco::PFRecoTauChargedHadron> >"/>
   <class name="edm::RefVector<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> >"/>

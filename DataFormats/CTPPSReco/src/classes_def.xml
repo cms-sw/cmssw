@@ -178,6 +178,7 @@
   <class name="edm::Wrapper<io_v1::CTPPSLocalTrackLite>"/>
   <class name="edm::Wrapper<std::vector<io_v1::CTPPSLocalTrackLite>>"/>
   <class name="edm::RefProd<std::vector<io_v1::CTPPSLocalTrackLite> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<vector<io_v1::CTPPSLocalTrackLite>,io_v1::CTPPSLocalTrackLite>"/>
   <class name="edm::Ref<std::vector<io_v1::CTPPSLocalTrackLite>,io_v1::CTPPSLocalTrackLite,edm::refhelper::FindUsingAdvance<std::vector<io_v1::CTPPSLocalTrackLite>,io_v1::CTPPSLocalTrackLite> >"/>
   <class name="edm::RefVector<vector<io_v1::CTPPSLocalTrackLite>,io_v1::CTPPSLocalTrackLite,edm::refhelper::FindUsingAdvance<vector<io_v1::CTPPSLocalTrackLite>,io_v1::CTPPSLocalTrackLite> >"/>
 </lcgdict>

@@ -22,6 +22,7 @@
   <class name="edm::SortedCollection<io_v1::EcalRecHit,edm::StrictWeakOrdering<io_v1::EcalRecHit> >"/>
   <class name="edm::StrictWeakOrdering<io_v1::EcalRecHit>" /> <!-- Root6 -->
   <class name="edm::Wrapper<edm::SortedCollection<io_v1::EcalRecHit,edm::StrictWeakOrdering<io_v1::EcalRecHit> > >" />
+  <class name="edm::refhelper::FindUsingAdvance<edm::SortedCollection<io_v1::EcalRecHit,edm::StrictWeakOrdering<io_v1::EcalRecHit> >,io_v1::EcalRecHit>"/>
   <class name="edm::Ref<edm::SortedCollection<io_v1::EcalRecHit,edm::StrictWeakOrdering<io_v1::EcalRecHit> >,io_v1::EcalRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<io_v1::EcalRecHit,edm::StrictWeakOrdering<io_v1::EcalRecHit> >,io_v1::EcalRecHit> >"/>
   <class name="edm::RefVector<edm::SortedCollection<io_v1::EcalRecHit,edm::StrictWeakOrdering<io_v1::EcalRecHit> >,io_v1::EcalRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<io_v1::EcalRecHit,edm::StrictWeakOrdering<io_v1::EcalRecHit> >,io_v1::EcalRecHit> >"/>
   <class name="edm::RefProd<edm::SortedCollection<io_v1::EcalRecHit,edm::StrictWeakOrdering<io_v1::EcalRecHit> > >"/>

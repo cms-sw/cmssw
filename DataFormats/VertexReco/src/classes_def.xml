@@ -4,10 +4,10 @@
   </class>
   <class name="std::vector<reco::io_v1::Vertex>" />
   <class name="edm::Wrapper<std::vector<reco::io_v1::Vertex> >" />
+  <class name="edm::refhelper::FindUsingAdvance<vector<reco::io_v1::Vertex>,reco::io_v1::Vertex>"/>
   <class name="edm::Ref<std::vector<reco::io_v1::Vertex>, reco::io_v1::Vertex, edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Vertex>, reco::io_v1::Vertex> >" />
   <class name="edm::RefProd<std::vector<reco::io_v1::Vertex> >" />
   <class name="edm::RefVector<std::vector<reco::io_v1::Vertex>, reco::io_v1::Vertex, edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::Vertex>, reco::io_v1::Vertex> >" />
-
   <class name="reco::NuclearInteraction"  ClassVersion="3">
    <version ClassVersion="3" checksum="508061808"/>
   </class>

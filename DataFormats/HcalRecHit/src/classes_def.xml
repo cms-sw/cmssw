@@ -75,6 +75,8 @@
 
    <class name="edm::Wrapper<HcalSourcePositionData>"/>
 
+   <class name="edm::refhelper::FindUsingAdvance<edm::SortedCollection<io_v1::HBHERecHit,edm::StrictWeakOrdering<io_v1::HBHERecHit> >,io_v1::HBHERecHit>"/>
+
    <class name="edm::Ref<edm::SortedCollection<io_v1::HBHERecHit,edm::StrictWeakOrdering<io_v1::HBHERecHit> >, io_v1::HBHERecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<io_v1::HBHERecHit,edm::StrictWeakOrdering<io_v1::HBHERecHit> >, io_v1::HBHERecHit> >"/>
    <class name="edm::Ref<edm::SortedCollection<io_v1::HORecHit,edm::StrictWeakOrdering<io_v1::HORecHit> >, io_v1::HORecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<io_v1::HORecHit,edm::StrictWeakOrdering<io_v1::HORecHit> >, io_v1::HORecHit> >"/>
    <class name="edm::Ref<edm::SortedCollection<io_v1::HFPreRecHit,edm::StrictWeakOrdering<io_v1::HFPreRecHit> >, io_v1::HFPreRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<io_v1::HFPreRecHit,edm::StrictWeakOrdering<io_v1::HFPreRecHit> >, io_v1::HFPreRecHit> >"/>
