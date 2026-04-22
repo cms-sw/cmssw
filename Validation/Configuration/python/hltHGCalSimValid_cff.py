@@ -79,7 +79,7 @@ hltAllTrackstersToSimTrackstersAssociationsByHits = _AllTracksterToSimTracksterA
     hitToSimClusterMap = cms.InputTag("hltHitToSimClusterCaloParticleAssociator","hitToSimClusterMap"),
     hits = cms.InputTag("hltHGCalRecHitMapProducer", "RefProdVectorHGCRecHitCollection"),
     tracksterCollections = cms.VInputTag(
-        *[cms.InputTag(label) for label in _hltTiclIterLabels]
+        *[cms.InputTag(label) for label in _hltTiclIterLabelsPSet.labels]
     ),
     simTracksterCollections = cms.VInputTag(
       'hltTiclSimTracksters',
