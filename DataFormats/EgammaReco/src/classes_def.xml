@@ -30,6 +30,7 @@
   </class>
   <class name="std::vector<reco::SuperCluster>"/>
   <class name="edm::Wrapper<std::vector<reco::SuperCluster> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<vector<reco::SuperCluster>,reco::SuperCluster>"/>
   <class name="edm::Ref<std::vector<reco::SuperCluster>,reco::SuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SuperCluster>,reco::SuperCluster> >"/>
   <class name="edm::RefProd<std::vector<reco::SuperCluster> >"/>
   <class name="edm::RefVector<std::vector<reco::SuperCluster>,reco::SuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SuperCluster>,reco::SuperCluster> >"/>
@@ -105,6 +106,7 @@
   </class>
 
   <class name="std::vector<reco::ElectronSeed>"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronSeed>,reco::ElectronSeed>"/>
   <class name="edm::Ref<std::vector<reco::ElectronSeed>,reco::ElectronSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronSeed>,reco::ElectronSeed> >"/>
   <class name="edm::RefProd<std::vector<reco::ElectronSeed> >"/>
   <class name="edm::Wrapper<std::vector<reco::ElectronSeed> >"/>

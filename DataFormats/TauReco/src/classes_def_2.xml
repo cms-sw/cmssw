@@ -374,6 +374,7 @@ isolationTauChargedHadronCandidates_.reset();
   <class name="edm::AtomicPtrCache<std::vector<reco::RecoTauPiZero> >"/>
      <class name="std::vector<std::vector<reco::RecoTauPiZero> >"/>
   <class name="edm::Wrapper<std::vector<reco::RecoTauPiZero> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero>"/>
   <class name="edm::Ref<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> >"/>
   <class name="edm::RefProd<std::vector<reco::RecoTauPiZero> >"/>
   <class name="edm::RefVector<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> >"/>
@@ -391,6 +392,7 @@ isolationTauChargedHadronCandidates_.reset();
   <class name="edm::AtomicPtrCache<std::vector<reco::PFRecoTauChargedHadron> >"/>
      <class name="std::vector<std::vector<reco::PFRecoTauChargedHadron> >"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecoTauChargedHadron> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron>"/>
   <class name="edm::Ref<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> >"/>
   <class name="edm::RefProd<std::vector<reco::PFRecoTauChargedHadron> >"/>
   <class name="edm::RefVector<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> >"/>

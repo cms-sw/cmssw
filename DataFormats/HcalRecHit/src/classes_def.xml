@@ -89,6 +89,8 @@
 
    <class name="edm::Wrapper<HcalSourcePositionData>"/>
 
+   <class name="edm::refhelper::FindUsingAdvance<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >,HBHERecHit>"/>
+   
    <class name="edm::Ref<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >, HBHERecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >, HBHERecHit> >"/>
    <class name="edm::Ref<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >, HORecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >, HORecHit> >"/>
    <class name="edm::Ref<edm::SortedCollection<HFPreRecHit,edm::StrictWeakOrdering<HFPreRecHit> >, HFPreRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<HFPreRecHit,edm::StrictWeakOrdering<HFPreRecHit> >, HFPreRecHit> >"/>

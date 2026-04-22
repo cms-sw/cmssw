@@ -28,6 +28,7 @@
   <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> >"/>
   <class name="edm::ClonePolicy<CSCSegment>"/> <!-- Root6 -->
   <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> > >"/>
+  <class name="edm::refhelper::FindUsingAdvance<edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> >,CSCSegment>"/>
   <class name="CSCSegmentRef"/>
 </selection>
 

@@ -5,6 +5,7 @@
   <class name="pat::UserData"  ClassVersion="10">
    <version ClassVersion="10" checksum="85383148"/>
   </class>
+  <class name="edm::ClonePolicy<pat::UserData>"/>
   <class name="std::vector<pat::UserData *>" />
   <class name="pat::UserDataCollection"  rntupleStreamerMode="true"/>
   <!-- UserData: Standalone UserData in the event. Needed? -->

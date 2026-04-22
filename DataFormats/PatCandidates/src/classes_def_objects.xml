@@ -534,6 +534,7 @@
   <class name="edm::Wrapper<std::vector<pat::PackedGenParticle> >"/>
 
   <!-- PAT Object References -->
+  <class name="edm::refhelper::FindUsingAdvance<vector<pat::PackedCandidate>,pat::PackedCandidate>"/>
   <class name="pat::ElectronRef" />
   <class name="pat::MuonRef" />
   <class name="pat::TauRef" />

@@ -85,6 +85,7 @@
   <class name="edm::RefToBaseProd<reco::PhotonCore>" />
   <class name="edm::reftobase::BaseVectorHolder<reco::PhotonCore>" />
   <class name="edm::Wrapper<std::vector<reco::PhotonCore> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::PhotonCore>,reco::PhotonCore>"/>
   <class name="edm::Ref<std::vector<reco::PhotonCore>,reco::PhotonCore,edm::refhelper::FindUsingAdvance<std::vector<reco::PhotonCore>,reco::PhotonCore> >"/>
   <class name="edm::RefProd<std::vector<reco::PhotonCore> >"/>
   <class name="edm::RefVector<std::vector<reco::PhotonCore>,reco::PhotonCore,edm::refhelper::FindUsingAdvance<std::vector<reco::PhotonCore>,reco::PhotonCore> >"/>
@@ -145,6 +146,7 @@
   <class name="edm::RefToBaseProd<reco::GsfElectronCore>" />
   <class name="edm::reftobase::BaseVectorHolder<reco::GsfElectronCore>" />
   <class name="edm::Wrapper<std::vector<reco::GsfElectronCore> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore>"/>
   <class name="edm::Ref<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore> >"/>
   <class name="edm::RefProd<std::vector<reco::GsfElectronCore> >"/>
   <class name="edm::RefVector<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore> >"/>
@@ -277,6 +279,7 @@
 
   <class name="std::vector<reco::Conversion>"/>
   <class name="edm::Wrapper<std::vector<reco::Conversion> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::Conversion>,reco::Conversion>"/>
   <class name="edm::Ref<std::vector<reco::Conversion>,reco::Conversion,edm::refhelper::FindUsingAdvance<std::vector<reco::Conversion>,reco::Conversion> >"/>
   <class name="edm::RefProd<std::vector<reco::Conversion> >"/>
   <class name="edm::RefVector<std::vector<reco::Conversion>,reco::Conversion,edm::refhelper::FindUsingAdvance<std::vector<reco::Conversion>,reco::Conversion> >"/>
