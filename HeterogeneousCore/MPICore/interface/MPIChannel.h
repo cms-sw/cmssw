@@ -27,14 +27,9 @@ public:
   MPIChannel() = default;
   MPIChannel(MPI_Comm comm, int destination) : comm_(comm), dest_(destination), sync_(false) {}
 
-  MPIChannel(MPIChannel const& other) : comm_(other.comm_), dest_(other.dest_), sync_(false) {}
+  MPIChannel(MPIChannel const& other) = delete;
 
-  MPIChannel& operator=(MPIChannel const& other) {
-    comm_ = other.comm_;
-    dest_ = other.dest_;
-    sync_ = false;
-    return *this;
-  }
+  MPIChannel& operator=(MPIChannel const& other) = delete;
 
   MPIChannel(MPIChannel&& other) : comm_(other.comm_), dest_(other.dest_), sync_(other.sync_) { other.sync_ = false; }
 
@@ -58,7 +53,7 @@ public:
   MPIChannel duplicate() const;
 
   std::unique_ptr<MPIChannel> syncChannel() const {
-    auto channel = std::make_unique<MPIChannel>(*this);
+    auto channel = std::make_unique<MPIChannel>(comm_, dest_);
     channel->sync_ = true;
     return channel;
   }
