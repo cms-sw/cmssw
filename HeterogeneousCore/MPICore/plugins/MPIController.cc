@@ -174,7 +174,7 @@ MPIController::MPIController(edm::ParameterSet const& config)
           << "The current implementation supports only two processes: one controller and one source.";
     }
     edm::LogInfo("MPI") << "Client connected to " << size << (size == 1 ? " server" : " servers");
-    channels_ = {MPIChannel(comm_, 0)};
+    channels_.emplace_back(comm_, 0);
   } else {
     // Invalid mode.
     throw edm::Exception(edm::errors::Configuration)
