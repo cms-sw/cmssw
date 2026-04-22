@@ -3,6 +3,8 @@
  *
  *  \author Roberto Covarelli (CERN)
  *
+ *
+ *  Note: The module allows to specify a cut/selection of the form: < X || < Y/E || < Z/E2
  */
 
 #include "HLTGenericFilter.h"
