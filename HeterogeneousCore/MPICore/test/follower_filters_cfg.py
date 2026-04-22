@@ -8,6 +8,12 @@ process.options.numberOfConcurrentLuminosityBlocks = 2
 process.options.numberOfConcurrentRuns = 2
 process.options.wantSummary = False
 
+process.load("FWCore.ParameterSet.MessageLogger")
+process.MessageLogger.cerr.MPI = cms.untracked.PSet(
+    reportEvery = cms.untracked.int32( 1 ),
+    limit = cms.untracked.int32( 10000000 )
+)
+
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
 
 from HeterogeneousCore.MPICore.modules import MPISource, MPIReceiver, MPISender

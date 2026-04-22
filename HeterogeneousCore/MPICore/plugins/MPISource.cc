@@ -93,7 +93,7 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
 
   if (mode_ == kCommWorld) {
     // All processes are in MPI_COMM_WORLD.
-    edm::LogAbsolute("MPI") << "MPISource in " << ModeDescription[mode_] << " mode.";
+    edm::LogInfo("MPI") << "MPISource in " << ModeDescription[mode_] << " mode.";
 
     // Check how many processes are there in MPI_COMM_WORLD
     int size;
@@ -143,15 +143,15 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
     MPI_Comm_create_group(MPI_COMM_WORLD, comm_group, 0, &comm_);
     MPI_Group_free(&world_group);
     MPI_Group_free(&comm_group);
-    edm::LogAbsolute("MPI") << "The MPIController process and MPISource have ranks " << remote << ", " << rank
-                            << " in MPI_COMM_WORLD, mapped to ranks 0, 1 in their private communicator.";
+    edm::LogInfo("MPI") << "The MPIController process and MPISource have ranks " << remote << ", " << rank
+                        << " in MPI_COMM_WORLD, mapped to ranks 0, 1 in their private communicator.";
     // The remote process always has rank 0 in the new communicator.
     remote = 0;
     channel_ = MPIChannel(comm_, remote);
   } else if (mode_ == kIntercommunicator) {
     // Use an intercommunicator to let two groups of processes communicate with each other.
     // The current implementation supports only two processes: one controller and one source.
-    edm::LogAbsolute("MPI") << "MPISource in " << ModeDescription[mode_] << " mode.";
+    edm::LogInfo("MPI") << "MPISource in " << ModeDescription[mode_] << " mode.";
 
     // Check how many processes are there in MPI_COMM_WORLD
     int size;
@@ -173,10 +173,10 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
     MPI_Publish_name(name.c_str(), port_info, port_);
 
     // Create an intercommunicator and accept a client connection.
-    edm::LogAbsolute("MPI") << "Waiting for a connection to the MPI server at port " << port_;
+    edm::LogInfo("MPI") << "Waiting for a connection to the MPI server at port " << port_;
 
     MPI_Comm_accept(port_, MPI_INFO_NULL, 0, MPI_COMM_SELF, &comm_);
-    edm::LogAbsolute("MPI") << "Connection accepted.";
+    edm::LogInfo("MPI") << "Connection accepted.";
     channel_ = MPIChannel(comm_, 0);
   } else {
     // Invalid mode.
@@ -188,7 +188,7 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
   MPI_Status status;
   EDM_MPI_Empty_t buffer;
   MPI_Recv(&buffer, 1, EDM_MPI_Empty, MPI_ANY_SOURCE, EDM_MPI_Connect, comm_, &status);
-  edm::LogAbsolute("MPI") << "connected from " << status.MPI_SOURCE;
+  edm::LogInfo("MPI") << "connected from " << status.MPI_SOURCE;
 }
 
 MPISource::~MPISource() {
@@ -278,9 +278,11 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
         history_.clear();
         channel_.receiveProduct(0, history_);
         history_.initializeTransients();
+        /*
         if (processHistoryRegistryForUpdate().registerProcessHistory(history_)) {
-          edm::LogAbsolute("MPI") << "new ProcessHistory registered: " << history_;
+          edm::LogInfo("MPI") << "new ProcessHistory registered: " << history_;
         }
+        */
 
         // receive the next message
         break;
@@ -366,7 +368,7 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
 }
 
 void MPISource::produce(edm::Event& event) {
-  // create a new channel object reusing the same communicator that will synchronise at the end pf the event
+  // create a new channel object reusing the same communicator that will synchronise at the end of the event
   event.emplace(token_, streams_[controller_sid_]->syncChannel());
   controller_sid_ = edm::StreamID::invalidStreamID();
 }
