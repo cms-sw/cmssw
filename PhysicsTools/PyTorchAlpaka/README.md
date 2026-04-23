@@ -8,8 +8,10 @@ All Pytorch based modules should add `PyTorchService` to disable internal torchl
 
 Examples demonstrating the interoperability of PyTorch with Alpaka in the CMSSW environment can be found in the [PyTorchAlpakaTest](../PyTorchAlpakaTest) directory. The basic test pipeline includes:
 - *SimpleNet* composed with few Dense layers, that operate on SoA style portable data structures
+- *SimpleNetMiniBatch*, providing and example of inference perfomed in mini-batches
 - *MaskedNet* shows how to use multiple input data with `Eigen::Vector` and `SOA_SCALAR`
 - *TinyResNet* emulate more complex scenario with `Eigen::Matrix` and how one can implement image-like Tensor implementation
+- *TinyResNetMiniBatch* to test the inference in mini-batches in a more complex scenario 
 - *MulitHeadNet* handle networks that return more than one output tensor 
 
 ## Direct Inference on SoA 
@@ -43,8 +45,8 @@ GENERATE_SOA_LAYOUT(SoAOutputTemplate,
 ```
 - **Get Metarecords from Portable Collections:**
 ```cpp
-PortableCollection<SoA, Device> deviceCollection(batch_size, queue);
-PortableCollection<SoA_Result, Device> deviceResultCollection(batch_size, queue);
+PortableCollection<SoA, Device> deviceCollection(total_size, queue);
+PortableCollection<SoA_Result, Device> deviceResultCollection(total_size, queue);
 fill(queue, deviceCollection);
 auto records = deviceCollection.view().records();
 auto result_records = deviceResultCollection.view().records();
@@ -53,14 +55,14 @@ auto result_records = deviceResultCollection.view().records();
 
 **IMPORTANT:** continuity of memory is a strict requirement!
 ```
-TensorCollection input(batch_size);
+TensorCollection input(total_size);
 input.add<SoA>("eigen_vector", records.a(), records.b());
 input.add<SoA>("eigen_matrix", records.c());
 input.add<SoA>("column", records.x(), records.y(), records.z());
 input.add<SoA>("scalar", records.type());
 input.change_order({"column", "scalar", "eigen_matrix", "eigen_vector"});
 
-TensorCollection output(batch_size);
+TensorCollection output(total_size);
 output.add<SoA>("result", result_view.cluster());
 ```
 
@@ -71,6 +73,23 @@ In other words, if you pass only one Eigen vector, its components are treated as
 After adding all the blocks to the `TensorCollection`, the order of the blocks for inference can be adapted by calling `change_order()`. The order should match the expected input configuration of the PyTorch model.
 
 More examples about usage can be found in [PyTorchAlpakaTest](../PyTorchAlpakaTest).
+
+### Batching semantics
+
+When using batched inference, `TensorCollection` is constructed with `(total_size, total_size)` and internally manages batch offsets.
+
+**IMPORTANT:** the batchsize should be chosen carefully in order to respect the alignment (typically a multiple of 32). Otherwise, an assert will be trigged.
+
+The `batch_id` passed to `add()` selects which batch slice is exposed to the model.
+
+Runtime checks are performed to ensure:
+- valid batch indices
+- consistency between batch size and total size
+- memory contiguity between columns
+
+These checks rely on `assert`.
+
+Look at [SimpleNetMiniBatch](PhysicsTools/PyTorchAlpakaTest/plugins/alpaka/SimpleNetMiniBatch.cc) to have an example.
 
 ## Limitations
 - Current implementation supports `SerialSync` and `CudaAsync` backends only. `ROCmAsync` backend is supported via SerialSync fallback mechanism due to missing `pytorch-hip` library in CMSSW (see: https://github.com/pytorch/pytorch/blob/main/aten/CMakeLists.txt#L75), with explicit `alpaka::wait()` call to copy data to host and back to device.
