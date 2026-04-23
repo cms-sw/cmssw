@@ -1,8 +1,10 @@
 <library name="RecoMuonL3TrackFinderPlugins" file="*.cc">
+  <use name="DataFormats/Common"/>
   <use name="DataFormats/CSCRecHit"/>
   <use name="DataFormats/DTRecHit"/>
   <use name="DataFormats/GEMRecHit"/>
   <use name="DataFormats/L1TMuonPhase2"/>
+  <use name="DataFormats/L1TrackTrigger"/>
   <use name="DataFormats/Math"/>
   <use name="DataFormats/MuonReco"/>
   <use name="DataFormats/MuonSeed"/>

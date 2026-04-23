@@ -253,11 +253,33 @@ Phase2tpToL2MuonUpdAssociation = MABHhlt.clone(
     UseTracker = False,
     UseMuon = True
 )
-# L3 IO inner tracks
+# Muon pixel tracks
+Phase2tpToMuonPixelTracksAssociation = MABHhlt.clone(
+    tracksTag = 'hltPhase2L3FromL1TkMuonPixelTracks',
+    UseTracker = True,
+    UseMuon = False
+)
+from Configuration.ProcessModifiers.phase2MuonPixelTracksSelector_cff import phase2MuonPixelTracksSelector
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
+(phase2MuonPixelTracksSelector | ngtScouting).toModify(
+    Phase2tpToMuonPixelTracksAssociation,
+    tracksTag = 'hltPhase2MuonPixelTracks'
+)
+# Iter0 high-purity tracks
+Phase2tpToL3Iter0TkAssociation = MABHhlt.clone(
+    tracksTag = 'hltIter0Phase2L3FromL1TkMuonTrackSelectionHighPurity',
+    UseTracker = True,
+    UseMuon = False
+)
+# L3 IO inner tracks: the merged iter0 and iter2 high-purity tracks, or the IO tracks of the new single-iteration chains
 Phase2tpToL3IOTkAssociation = MABHhlt.clone(
     tracksTag = 'hltIter2Phase2L3FromL1TkMuonMerged',
     UseTracker = True,
     UseMuon = False
+)
+(phase2MuonPixelTracksSelector | ngtScouting).toModify(
+    Phase2tpToL3IOTkAssociation,
+    tracksTag = 'hltPhase2MuonIOTracks'
 )
 # L3 OI inner tracks
 Phase2tpToL3OITkAssociation = MABHhlt.clone(
@@ -434,7 +456,9 @@ muonAssociationReduced_seq = cms.Sequence(
 _muonAssociationHLT_seq_IO_first = cms.Sequence(
     hltPhase2L2MuonSeedTracks+Phase2tpToL2SeedAssociation
     +Phase2tpToL2MuonAssociation+Phase2tpToL2MuonUpdAssociation
-    +Phase2tpToL3IOTkAssociation+Phase2tpToL3OITkAssociation
+    +Phase2tpToMuonPixelTracksAssociation
+    +Phase2tpToL3Iter0TkAssociation+Phase2tpToL3IOTkAssociation
+    +Phase2tpToL3OITkAssociation
     +Phase2tpToL2MuonToReuseAssociation+Phase2tpToL3IOTkFilteredAssociation
     +Phase2tpToL3TkMergedAssociation+Phase2tpToL3GlbMuonMergedAssociation
     +hltPhase2L3MuonNoIdTracks+Phase2tpToL3MuonNoIdAssociation

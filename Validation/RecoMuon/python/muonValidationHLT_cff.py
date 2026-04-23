@@ -71,6 +71,7 @@ _hltMuonMultiTrackValidator = MTVhlt.clone(
         'Phase2tpToL2SeedAssociation',
         'Phase2tpToL2MuonAssociation',
         'Phase2tpToL2MuonUpdAssociation',
+        'Phase2tpToL3Iter0TkAssociation',
         'Phase2tpToL3IOTkAssociation',
         'Phase2tpToL3OITkAssociation',
         'Phase2tpToL3TkMergedAssociation',
@@ -82,6 +83,7 @@ _hltMuonMultiTrackValidator = MTVhlt.clone(
         'hltPhase2L2MuonSeedTracks',
         'hltL2MuonsFromL1TkMuon',
         'hltL2MuonsFromL1TkMuon:UpdatedAtVtx',
+        'hltIter0Phase2L3FromL1TkMuonTrackSelectionHighPurity',
         'hltIter2Phase2L3FromL1TkMuonMerged',
         'hltPhase2L3OIMuonTrackSelectionHighPurity',
         'hltPhase2L3MuonMerged',
@@ -96,27 +98,106 @@ _hltMuonMultiTrackValidator = MTVhlt.clone(
         trkMuonHistoParameters,
         trkMuonHistoParameters,
         trkMuonHistoParameters,
+        trkMuonHistoParameters,
         glbMuonHistoParameters,
         glbMuonHistoParameters,
         glbMuonHistoParameters
     )
 )
 
+def _insert_next_to_label(
+    validator,
+    target_label,
+    new_label,
+    new_associator,
+    new_histo_params,
+    insert_after=False,
+):
+    """Insert a label, its associator and its histogram parameters next to a target label"""
+    try:
+        idx = list(validator.label).index(target_label)
+        insert_idx = idx + 1 if insert_after else idx
+
+        validator.label = (
+            list(validator.label[:insert_idx])
+            + [new_label]
+            + list(validator.label[insert_idx:])
+        )
+        validator.associatormap = (
+            list(validator.associatormap[:insert_idx])
+            + [new_associator]
+            + list(validator.associatormap[insert_idx:])
+        )
+        validator.muonHistoParameters = (
+            list(validator.muonHistoParameters[:insert_idx])
+            + [new_histo_params]
+            + list(validator.muonHistoParameters[insert_idx:])
+        )
+    except ValueError:
+        raise RuntimeError(
+            f"Target label '{target_label}' not found in validator. "
+            f"Available labels: {list(validator.label)}"
+        )
+
 def _modify_for_IO_first(validator):
-    validator.associatormap += ['Phase2tpToL2MuonToReuseAssociation', 'Phase2tpToL3IOTkFilteredAssociation']
-    validator.label += ['hltPhase2L3MuonFilter:L2MuToReuse', 'hltPhase2L3MuonFilter:L3IOTracksFiltered']
-    validator.muonHistoParameters.extend([staMuonHistoParameters, trkMuonHistoParameters])
+    _insert_next_to_label(
+        validator,
+        "hltPhase2L3OIMuonTrackSelectionHighPurity",
+        "hltPhase2L3MuonFilter:L3IOTracksFiltered",
+        "Phase2tpToL3IOTkFilteredAssociation",
+        trkMuonHistoParameters,
+    )
+    _insert_next_to_label(
+        validator,
+        "hltPhase2L3MuonFilter:L3IOTracksFiltered",
+        "hltPhase2L3MuonFilter:L2MuToReuse",
+        "Phase2tpToL2MuonToReuseAssociation",
+        staMuonHistoParameters,
+        insert_after=True,
+    )
 
 def _modify_for_OI_first(validator):
-    validator.associatormap += ['Phase2tpToL3OITkFilteredAssociation']
-    validator.label += ['hltPhase2L3MuonFilter:L3OITracksFiltered']
-    validator.muonHistoParameters.extend([trkMuonHistoParameters])
+    _insert_next_to_label(
+        validator,
+        "hltPhase2L3OIMuonTrackSelectionHighPurity",
+        "hltPhase2L3MuonFilter:L3OITracksFiltered",
+        "Phase2tpToL3OITkFilteredAssociation",
+        trkMuonHistoParameters,
+        insert_after=True,
+    )
 
 # Customization for Inside-Out / Outside-In first approaches
 from Configuration.ProcessModifiers.phase2L3MuonsOIFirst_cff import phase2L3MuonsOIFirst
 (~phase2L3MuonsOIFirst).toModify(_hltMuonMultiTrackValidator, _modify_for_IO_first)
 phase2L3MuonsOIFirst.toModify(_hltMuonMultiTrackValidator, _modify_for_OI_first)
 
+def _replace_associator_label(validator, target_label, new_label, new_associator, new_histo_params):
+    # Find the index of the target track collection
+    idx = list(validator.label).index(target_label)
+
+    validator.associatormap[idx] = new_associator
+    validator.label[idx] = new_label
+    validator.muonHistoParameters[idx] = new_histo_params
+
+def _modify_for_pixelTracksSelector(validator):
+    # Replace the iter0 tracks with the muon pixel tracks before the high-purity selection
+    _replace_associator_label(validator,
+                              target_label = 'hltIter0Phase2L3FromL1TkMuonTrackSelectionHighPurity',
+                              new_label = 'hltPhase2MuonPixelTracks',
+                              new_associator = 'Phase2tpToMuonPixelTracksAssociation',
+                              new_histo_params = trkMuonHistoParameters
+    )
+
+    # Replace the L3 IO tracks with the IO tracks of the pixel-track chain
+    _replace_associator_label(validator,
+                             target_label = 'hltIter2Phase2L3FromL1TkMuonMerged',
+                             new_label = 'hltPhase2MuonIOTracks',
+                             new_associator = 'Phase2tpToL3IOTkAssociation',
+                             new_histo_params = trkMuonHistoParameters
+    )
+from Configuration.ProcessModifiers.phase2MuonPixelTracksSelector_cff import phase2MuonPixelTracksSelector
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
+(phase2MuonPixelTracksSelector | ngtScouting).toModify(_hltMuonMultiTrackValidator, _modify_for_pixelTracksSelector)
 # Check that the associators and labels are consistent
 # All MTV clones are DQMEDAnalyzers
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
