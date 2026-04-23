@@ -27,8 +27,9 @@
 #include <array>
 #include <string>
 
+#include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTPhDigiFwd.h"
+
 class L1MuDTChambPhDigi;
-class L1Phase2MuDTPhDigi;
 
 namespace nano_mu {
 
