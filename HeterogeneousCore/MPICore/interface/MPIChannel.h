@@ -2,8 +2,9 @@
 #define HeterogeneousCore_MPICore_interface_MPIChannel_h
 
 // C++ standard library headers
-#include <bitset>
-#include <iostream>
+#include <atomic>
+#include <memory>
+#include <stdexcept>
 #include <type_traits>
 #include <utility>
 
@@ -22,41 +23,54 @@
 #include "HeterogeneousCore/TrivialSerialisation/interface/ReaderBase.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/WriterBase.h"
 
-class MPIChannel {
+// Avoid false sharing by aligning the whole class to a cache line.
+class alignas(64) MPIChannel {
 public:
   MPIChannel() = default;
-  MPIChannel(MPI_Comm comm, int destination) : comm_(comm), dest_(destination), sync_(false) {}
+  MPIChannel(MPI_Comm comm, int destination) : comm_(comm), dest_(destination) {}
 
   MPIChannel(MPIChannel const& other) = delete;
 
   MPIChannel& operator=(MPIChannel const& other) = delete;
 
-  MPIChannel(MPIChannel&& other) : comm_(other.comm_), dest_(other.dest_), sync_(other.sync_) { other.sync_ = false; }
+  MPIChannel(MPIChannel&& other) : comm_(other.comm_), request_(other.request_), dest_(other.dest_) {
+    ChannelStatus status = kInvalid;
+    other.status_.exchange(status, std::memory_order::acq_rel);
+    status_.store(status, std::memory_order::acq_rel);
+    other.comm_ = MPI_COMM_NULL;
+    other.request_ = MPI_REQUEST_NULL;
+    other.dest_ = MPI_UNDEFINED;
+  }
 
   MPIChannel& operator=(MPIChannel&& other) {
+    ChannelStatus status = kInvalid;
+    other.status_.exchange(status, std::memory_order::acq_rel);
+    status_.store(status, std::memory_order::acq_rel);
     comm_ = other.comm_;
+    request_ = other.request_;
     dest_ = other.dest_;
-    sync_ = other.sync_;
-    other.sync_ = false;
+    other.comm_ = MPI_COMM_NULL;
+    other.request_ = MPI_REQUEST_NULL;
+    other.dest_ = MPI_UNDEFINED;
     return *this;
   }
 
-  ~MPIChannel() {
-    // make sure both endpoints have completed processing the event(s) that were transmitted
-    if (sync_) {
-      MPI_Barrier(comm_);
-    }
-  }
+  // mark the channel as busy
+  void acquire();
 
-  // build a new MPIChannel that uses a duplicate of the underlying communicator and the same destination
+  // make sure both processes have completed processing the event that was transmitted
+  void sync();
+
+  // Build a new MPIChannel that uses a duplicate of the underlying communicator and the same destination.
+  // The new channel will be in a "ready" state.
   // Note: this is a blocking collective operation.
-  MPIChannel duplicate() const;
+  std::unique_ptr<MPIChannel> duplicate(int slot) const;
 
-  std::unique_ptr<MPIChannel> syncChannel() const {
-    auto channel = std::make_unique<MPIChannel>(comm_, dest_);
-    channel->sync_ = true;
-    return channel;
-  }
+  // check whether this channel can be used to transmit a new event
+  bool ready();
+
+  // wait until this channel can be used to transmit a new event
+  void wait();
 
   // close the underlying communicator and reset the MPIChannel to an invalid state
   // Note: this is a blocking collective operation.
@@ -91,11 +105,11 @@ public:
   }
 
   // signal a new event, and transmit the EventAuxiliary
-  void sendEvent(edm::EventAuxiliary const& aux, unsigned int sid) { sendEventAuxiliary_(aux, sid); }
+  void sendEvent(edm::EventAuxiliary const& aux, unsigned int slot) { sendEventAuxiliary_(aux, slot); }
 
   // start processing a new event, and receive the EventAuxiliary
-  MPI_Status receiveEvent(edm::EventAuxiliary& aux, unsigned int& sid, MPI_Message& message) {
-    return receiveEventAuxiliary_(aux, sid, message);
+  MPI_Status receiveEvent(edm::EventAuxiliary& aux, unsigned int& slot, MPI_Message& message) {
+    return receiveEventAuxiliary_(aux, slot, message);
   }
 
   void sendMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta);
@@ -151,12 +165,12 @@ private:
   // serialize an EDM object to a simplified representation that can be transmitted as an MPI message
   void edmToBuffer_(EDM_MPI_RunAuxiliary_t& buffer, edm::RunAuxiliary const& aux);
   void edmToBuffer_(EDM_MPI_LuminosityBlockAuxiliary_t& buffer, edm::LuminosityBlockAuxiliary const& aux);
-  void edmToBuffer_(EDM_MPI_EventAuxiliary_t& buffer, edm::EventAuxiliary const& aux, unsigned int sid);
+  void edmToBuffer_(EDM_MPI_EventAuxiliary_t& buffer, edm::EventAuxiliary const& aux, unsigned int slot);
 
   // deserialize an EDM object from a simplified representation transmitted as an MPI message
   void edmFromBuffer_(EDM_MPI_RunAuxiliary_t const& buffer, edm::RunAuxiliary& aux);
   void edmFromBuffer_(EDM_MPI_LuminosityBlockAuxiliary_t const& buffer, edm::LuminosityBlockAuxiliary& aux);
-  void edmFromBuffer_(EDM_MPI_EventAuxiliary_t const& buffer, edm::EventAuxiliary& aux, unsigned int& sid);
+  void edmFromBuffer_(EDM_MPI_EventAuxiliary_t const& buffer, edm::EventAuxiliary& aux, unsigned int& slot);
 
   // fill and send an EDM_MPI_Empty_t buffer
   void sendEmpty_(int tag);
@@ -168,11 +182,11 @@ private:
   void sendLuminosityBlockAuxiliary_(int tag, edm::LuminosityBlockAuxiliary const& aux);
 
   // fill and send an EDM_MPI_EventAuxiliary_t buffer
-  void sendEventAuxiliary_(edm::EventAuxiliary const& aux, unsigned int sid);
+  void sendEventAuxiliary_(edm::EventAuxiliary const& aux, unsigned int slot);
 
   // receive an EDM_MPI_EventAuxiliary_t buffer and populate an edm::EventAuxiliary
-  MPI_Status receiveEventAuxiliary_(edm::EventAuxiliary& aux, unsigned int& sid, int source, int tag);
-  MPI_Status receiveEventAuxiliary_(edm::EventAuxiliary& aux, unsigned int& sid, MPI_Message& message);
+  MPI_Status receiveEventAuxiliary_(edm::EventAuxiliary& aux, unsigned int& slot, int source, int tag);
+  MPI_Status receiveEventAuxiliary_(edm::EventAuxiliary& aux, unsigned int& slot, MPI_Message& message);
 
   // this is what is used for sending when product is of raw fundamental type
   template <typename T>
@@ -194,14 +208,27 @@ private:
     MPI_Mrecv(&product, size, MPI_BYTE, &message, MPI_STATUS_IGNORE);
   }
 
+  enum ChannelStatus {
+    kInvalid = 0,
+    kReady,  // the channel is unused
+    kBusy,   // the channel has been acquired, and can be used for transmitting/receiving data
+    kSync    // the channel has been released, and is waiting for the barrier to complete
+  };
+
   // MPI communicator
   MPI_Comm comm_ = MPI_COMM_NULL;
+
+  // MPI request used to check the barrier at the end of each event
+  MPI_Request request_ = MPI_REQUEST_NULL;
 
   // MPI remote rank
   int dest_ = MPI_UNDEFINED;
 
-  // whether the MPI channel should use a barrier to synchronise both endpoints when it's being destructed
-  bool sync_;
+  int slot_ = -1;
+
+  // Note: the status_ flag is accessed atomically because it can be written to and read from by
+  // different threads.
+  std::atomic<ChannelStatus> status_ = kInvalid;
 };
 
 #endif  // HeterogeneousCore_MPICore_interface_MPIChannel_h

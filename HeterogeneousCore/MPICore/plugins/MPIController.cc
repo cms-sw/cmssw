@@ -72,8 +72,8 @@ private:
   }
 
   MPI_Comm comm_ = MPI_COMM_NULL;
-  std::vector<MPIChannel> channels_;
-  std::vector<std::optional<MPIChannel>> streams_;
+  std::vector<MPIChannel> followers_;
+  std::vector<std::vector<std::unique_ptr<MPIChannel>>> channels_;
   edm::EDPutTokenT<MPIToken> token_;
   Mode mode_;
 };
@@ -145,7 +145,8 @@ MPIController::MPIController(edm::ParameterSet const& config)
                           << " in MPI_COMM_WORLD, mapped to ranks 0, 1 in their private communicator.";
       // The follower process always has rank 1 in the new communicator.
       follower = 1;
-      channels_.emplace_back(comm, follower);
+      followers_.emplace_back(comm, follower);
+      channels_.emplace_back();
     }
   } else if (mode_ == kIntercommunicator) {
     // Use an intercommunicator to let two groups of processes communicate with each other.
@@ -174,7 +175,8 @@ MPIController::MPIController(edm::ParameterSet const& config)
           << "The current implementation supports only two processes: one controller and one source.";
     }
     edm::LogInfo("MPI") << "Client connected to " << size << (size == 1 ? " server" : " servers");
-    channels_.emplace_back(comm_, 0);
+    followers_.emplace_back(comm_, 0);
+    channels_.emplace_back();
   } else {
     // Invalid mode.
     throw edm::Exception(edm::errors::Configuration)
@@ -184,11 +186,15 @@ MPIController::MPIController(edm::ParameterSet const& config)
 
 MPIController::~MPIController() {
   // Disconnect the per-stream communicators.
-  for (auto& stream : streams_) {
-    // TODO move this to end stream
-    if (stream) {
-      stream->reset();
+  for (auto& channels : channels_) {
+    for (auto& channel : channels) {
+      channel->reset();
     }
+  }
+
+  // Disconnect the per-follower communicators.
+  for (auto& follower : followers_) {
+    follower.reset();
   }
 
   // Close the intercommunicator.
@@ -199,8 +205,8 @@ MPIController::~MPIController() {
 
 void MPIController::beginJob() {
   // signal the connection
-  for (auto& channel : channels_) {
-    channel.sendConnect();
+  for (auto& follower : followers_) {
+    follower.sendConnect();
   }
 
   /* is there a way to access all known process histories ?
@@ -214,8 +220,8 @@ void MPIController::beginJob() {
 
 void MPIController::endJob() {
   // signal the disconnection
-  for (auto& channel : channels_) {
-    channel.sendDisconnect();
+  for (auto& follower : followers_) {
+    follower.sendDisconnect();
   }
 }
 
@@ -225,9 +231,9 @@ void MPIController::beginRun(edm::Run const& run, edm::EventSetup const& setup) 
    * Ideally the ProcessHistoryID stored in the run.runAuxiliary() should be the correct one, and
    * we could simply do
 
-  for (auto& channel: channels_) {
-    channel.sendBeginRun(run.runAuxiliary());
-    channel.sendProduct(0, run.processHistory());
+  for (auto& follower: followers_) {
+    follower.sendBeginRun(run.runAuxiliary());
+    follower.sendProduct(0, run.processHistory());
   }
 
    * Instead, it looks like the ProcessHistoryID stored in the run.runAuxiliary() is that of the
@@ -237,11 +243,11 @@ void MPIController::beginRun(edm::Run const& run, edm::EventSetup const& setup) 
    */
   auto aux = run.runAuxiliary();
   aux.setProcessHistoryID(run.processHistory().id());
-  for (auto& channel : channels_) {
-    channel.sendBeginRun(aux);
+  for (auto& follower : followers_) {
+    follower.sendBeginRun(aux);
 
     // transmit the ProcessHistory
-    channel.sendProduct(0, run.processHistory());
+    follower.sendProduct(0, run.processHistory());
   }
 }
 
@@ -251,8 +257,8 @@ void MPIController::endRun(edm::Run const& run, edm::EventSetup const& setup) {
    * Ideally the ProcessHistoryID stored in the run.runAuxiliary() should be the correct one, and
    * we could simply do
 
-  for (auto& channel: channels_) {
-    channel.sendEndRun(run.runAuxiliary());
+  for (auto& follower: followers_) {
+    follower.sendEndRun(run.runAuxiliary());
   }
 
    * Instead, it looks like the ProcessHistoryID stored in the run.runAuxiliary() is that of the
@@ -262,8 +268,8 @@ void MPIController::endRun(edm::Run const& run, edm::EventSetup const& setup) {
    */
   auto aux = run.runAuxiliary();
   aux.setProcessHistoryID(run.processHistory().id());
-  for (auto& channel : channels_) {
-    channel.sendEndRun(aux);
+  for (auto& follower : followers_) {
+    follower.sendEndRun(aux);
   }
 }
 
@@ -273,8 +279,8 @@ void MPIController::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::
    * Ideally the ProcessHistoryID stored in the lumi.luminosityBlockAuxiliary() should be the
    * correct one, and we could simply do
 
-  for (auto& channel: channels_) {
-    channel.sendBeginLuminosityBlock(lumi.luminosityBlockAuxiliary());
+  for (auto& follower: followers_) {
+    follower.sendBeginLuminosityBlock(lumi.luminosityBlockAuxiliary());
   }
 
    * Instead, it looks like the ProcessHistoryID stored in the lumi.luminosityBlockAuxiliary() is
@@ -284,19 +290,28 @@ void MPIController::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::
    */
   auto aux = lumi.luminosityBlockAuxiliary();
   aux.setProcessHistoryID(lumi.processHistory().id());
-  for (auto& channel : channels_) {
-    channel.sendBeginLuminosityBlock(aux);
+  for (auto& follower : followers_) {
+    follower.sendBeginLuminosityBlock(aux);
   }
 }
 
 void MPIController::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {
+  // The MPIController is a "one" module that supports only a single luminosity block at a time.
+  // Before proceeding to the next luminosity block, make sure that all events from the current
+  // one have been processed.
+  for (auto& channels : channels_) {
+    for (auto& channel : channels) {
+      channel->wait();
+    }
+  }
+
   // signal the end of luminosity block
   /* FIXME
    * Ideally the ProcessHistoryID stored in the lumi.luminosityBlockAuxiliary() should be the
    * correct one, and we could simply do
 
-  for (auto& channel: channels_) {
-    channel.sendEndLuminosityBlock(lumi.luminosityBlockAuxiliary());
+  for (auto& follower: followers_) {
+    follower.sendEndLuminosityBlock(lumi.luminosityBlockAuxiliary());
   }
 
    * Instead, it looks like the ProcessHistoryID stored in the lumi.luminosityBlockAuxiliary() is
@@ -306,44 +321,55 @@ void MPIController::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::Ev
    */
   auto aux = lumi.luminosityBlockAuxiliary();
   aux.setProcessHistoryID(lumi.processHistory().id());
-  for (auto& channel : channels_) {
-    channel.sendEndLuminosityBlock(aux);
+  for (auto& follower : followers_) {
+    follower.sendEndLuminosityBlock(aux);
   }
 }
 
 void MPIController::produce(edm::Event& event, edm::EventSetup const& setup) {
-  {
-    edm::LogInfo log("MPI");
-    log << "processing run " << event.run() << ", lumi " << event.luminosityBlock() << ", event " << event.id().event();
-    log << "\nprocess history:    " << event.processHistory();
-    log << "\nprocess history id: " << event.processHistory().id();
-    log << "\nprocess history id: " << event.eventAuxiliary().processHistoryID() << " (from eventAuxiliary)";
-    log << "\nisRealData " << event.eventAuxiliary().isRealData();
-    log << "\nexperimentType " << event.eventAuxiliary().experimentType();
-    log << "\nbunchCrossing " << event.eventAuxiliary().bunchCrossing();
-    log << "\norbitNumber " << event.eventAuxiliary().orbitNumber();
-    log << "\nstoreNumber " << event.eventAuxiliary().storeNumber();
-    log << "\nprocessHistoryID " << event.eventAuxiliary().processHistoryID();
-    log << "\nprocessGUID " << edm::Guid(event.eventAuxiliary().processGUID(), true).toString();
-  }
+  LogDebug("MPI")  //
+      << "processing run " << event.run() << ", lumi " << event.luminosityBlock() << ", event "
+      << event.id().event()                                                                                 //
+      << "\nprocess history:    " << event.processHistory()                                                 //
+      << "\nprocess history id: " << event.processHistory().id()                                            //
+      << "\nprocess history id: " << event.eventAuxiliary().processHistoryID() << " (from eventAuxiliary)"  //
+      << "\nisRealData " << event.eventAuxiliary().isRealData()                                             //
+      << "\nexperimentType " << event.eventAuxiliary().experimentType()                                     //
+      << "\nbunchCrossing " << event.eventAuxiliary().bunchCrossing()                                       //
+      << "\norbitNumber " << event.eventAuxiliary().orbitNumber()                                           //
+      << "\nstoreNumber " << event.eventAuxiliary().storeNumber()                                           //
+      << "\nprocessHistoryID " << event.eventAuxiliary().processHistoryID()                                 //
+      << "\nprocessGUID " << edm::Guid(event.eventAuxiliary().processGUID(), true).toString();
 
-  // use the channel associated to the framework stream
+  // Choose the follower associated to the framework stream, in a round-robin fashion.
   unsigned int sid = event.streamID().value();
+  auto& follower = followers_[sid % followers_.size()];
+  auto& channels = channels_[sid % followers_.size()];
 
-  // signal a new event, and transmit the EventAuxiliary
-  auto& channel = channels_[sid % channels_.size()];
-  channel.sendEvent(event.eventAuxiliary(), event.streamID().value());
+  // Look for a channel that is ready to send a new event
+  unsigned int slot = channels.size();
+  bool found = false;
+  for (unsigned int i = 0; i < channels.size(); ++i) {
+    if (channels[i]->ready()) {
+      slot = i;
+      found = true;
+      break;
+    }
+  }
 
-  // keep a duplicate of the MPIChannel for each framework stream
-  if (sid >= streams_.size()) {
-    streams_.resize(sid + 1);
+  // Signal a new event, and transmit the EventAuxiliary and channel slot to use.
+  follower.sendEvent(event.eventAuxiliary(), slot);
+
+  // If no channels were ready, allocate a new one.
+  if (not found) {
+    // Note: this is done after sending the slot to the MPISource,
+    // so that it may call controller_.duplicate(slot) at the same time.
+    channels.emplace_back(follower.duplicate(slot));
   }
-  if (not streams_[sid]) {
-    // TODO move this to begin stream
-    streams_[sid] = channel.duplicate();
-  }
-  // create a new channel object reusing the same communicator that will synchronise at the end of the event
-  event.emplace(token_, streams_[sid]->syncChannel());
+
+  // The destructor of the last copy of the token will call channels[slot]->sync().
+  // The channel is ready to send a new event after the call is made by both local and remote processes.
+  event.emplace(token_, *channels[slot]);
 }
 
 void MPIController::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

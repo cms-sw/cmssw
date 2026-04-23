@@ -1,9 +1,8 @@
 // C++ standard library headers
-#include <array>
 #include <cassert>
 #include <cstring>
-#include <iostream>
-#include <tuple>
+#include <memory>
+#include <string>
 
 // ROOT headers
 #include <TBufferFile.h>
@@ -36,11 +35,92 @@ namespace {
 }  // namespace
 
 // build a new MPIChannel that uses a duplicate of the underlying communicator and the same destination
-MPIChannel MPIChannel::duplicate() const {
+std::unique_ptr<MPIChannel> MPIChannel::duplicate(int slot) const {
   // This is a blocking collective operation.
   MPI_Comm newcomm;
   MPI_Comm_dup(comm_, &newcomm);
-  return MPIChannel(newcomm, dest_);
+  auto channel = std::make_unique<MPIChannel>(newcomm, dest_);
+  channel->status_.store(kReady, std::memory_order_release);
+  channel->slot_ = slot;
+  LogDebug("MPI") << "channel " << slot << " transitioned to kReady";
+  return channel;
+}
+
+// mark the channel as busy
+void MPIChannel::acquire() {
+  auto status = status_.load(std::memory_order_acquire);
+  if (status != kReady) {
+    throw cms::Exception("MPI") << "MPIChannel " << slot_ << " is in an invalide state";
+  }
+  assert(request_ == MPI_REQUEST_NULL);
+  status_.store(kBusy, std::memory_order_release);
+  LogDebug("MPI") << "channel " << slot_ << " transitioned to kBusy";
+}
+
+// make sure both processes have completed processing the event that was transmitted
+// Note: this is a non-blocking collective operation.
+void MPIChannel::sync() {
+  auto status = status_.load(std::memory_order_acquire);
+  if (status != kBusy) {
+    throw cms::Exception("MPI") << "MPIChannel " << slot_ << " is in an invalide state";
+  }
+  assert(request_ == MPI_REQUEST_NULL);
+  MPI_Ibarrier(comm_, &request_);
+  assert(request_ != MPI_REQUEST_NULL);
+  status_.store(kSync, std::memory_order_release);
+  LogDebug("MPI") << "channel " << slot_ << " transitioned to kSync";
+}
+
+// check whether this channel can be used to transmit a new event
+bool MPIChannel::ready() {
+  auto status = status_.load(std::memory_order_acquire);
+  if (status == kInvalid) {
+    throw cms::Exception("MPI") << "MPIChannel " << slot_ << " is in an invalide state";
+  } else if (status == kReady) {
+    return true;
+  } else if (status == kBusy) {
+    return false;
+  } else if (status == kSync) {
+    int flag = 0;
+    assert(request_ != MPI_REQUEST_NULL);
+    // TODO check status and return value
+    MPI_Test(&request_, &flag, MPI_STATUS_IGNORE);
+    if (flag) {
+      // if the barrier was reached, MPI_Test resets the request object to MPI_REQUEST_NULL
+      assert(request_ == MPI_REQUEST_NULL);
+      status_.store(kReady, std::memory_order_release);
+      LogDebug("MPI") << "channel " << slot_ << " transitioned to kReady";
+      return true;
+    } else {
+      assert(request_ != MPI_REQUEST_NULL);
+      LogDebug("MPI") << "channel " << slot_ << " in kSync DID NOT transition to kReady";
+      return false;
+    }
+  }
+  __builtin_unreachable();
+}
+
+// wait until this channel can be used to transmit a new event
+void MPIChannel::wait() {
+  auto status = status_.load(std::memory_order_acquire);
+  if (status == kInvalid) {
+    throw cms::Exception("MPI") << "MPIChannel " << slot_ << " is in an invalide state";
+  } else if (status == kReady) {
+    return;
+  } else if (status == kBusy) {
+    throw cms::Exception("MPI") << "MPIChannel::wait() cannot resolve a kBusy status";
+    return;
+  } else if (status == kSync) {
+    assert(request_ != MPI_REQUEST_NULL);
+    // TODO check status and return value
+    MPI_Wait(&request_, MPI_STATUS_IGNORE);
+    // if the barrier was reached, MPI_Test resets the request object to MPI_REQUEST_NULL
+    assert(request_ == MPI_REQUEST_NULL);
+    status_.store(kReady, std::memory_order_release);
+    LogDebug("MPI") << "channel " << slot_ << " transitioned to kReady";
+    return;
+  }
+  __builtin_unreachable();
 }
 
 // close the underlying communicator and reset the MPIChannel to an invalid state
@@ -83,7 +163,7 @@ void MPIChannel::edmToBuffer_(EDM_MPI_LuminosityBlockAuxiliary_t& buffer, edm::L
 }
 
 // fill an edm::EventAuxiliary object from an EDM_MPI_EventAuxiliary buffer
-void MPIChannel::edmFromBuffer_(EDM_MPI_EventAuxiliary_t const& buffer, edm::EventAuxiliary& aux, unsigned int& sid) {
+void MPIChannel::edmFromBuffer_(EDM_MPI_EventAuxiliary_t const& buffer, edm::EventAuxiliary& aux, unsigned int& slot) {
   aux = edm::EventAuxiliary({buffer.run, buffer.lumi, buffer.event},
                             std::string(buffer.processGuid, std::size(buffer.processGuid)),
                             edm::Timestamp(buffer.time),
@@ -94,11 +174,11 @@ void MPIChannel::edmFromBuffer_(EDM_MPI_EventAuxiliary_t const& buffer, edm::Eve
                             buffer.orbitNumber);
   aux.setProcessHistoryID(
       edm::ProcessHistoryID(std::string(buffer.processHistoryID, std::size(buffer.processHistoryID))));
-  sid = buffer.streamId;
+  slot = buffer.slotId;
 }
 
 // fill an EDM_MPI_EventAuxiliary buffer from an edm::EventAuxiliary object
-void MPIChannel::edmToBuffer_(EDM_MPI_EventAuxiliary_t& buffer, edm::EventAuxiliary const& aux, unsigned int sid) {
+void MPIChannel::edmToBuffer_(EDM_MPI_EventAuxiliary_t& buffer, edm::EventAuxiliary const& aux, unsigned int slot) {
   copy_and_fill(buffer.processHistoryID, aux.processHistoryID().compactForm());
   copy_and_fill(buffer.processGuid, aux.processGUID());
   buffer.time = aux.time().value();
@@ -110,7 +190,7 @@ void MPIChannel::edmToBuffer_(EDM_MPI_EventAuxiliary_t& buffer, edm::EventAuxili
   buffer.run = aux.id().run();
   buffer.lumi = aux.id().luminosityBlock();
   buffer.event = aux.id().event();
-  buffer.streamId = sid;
+  buffer.slotId = slot;
 }
 
 // fill and send an EDM_MPI_Empty_t buffer
@@ -137,33 +217,33 @@ void MPIChannel::sendLuminosityBlockAuxiliary_(int tag, edm::LuminosityBlockAuxi
 }
 
 // fill and send an EDM_MPI_EventAuxiliary_t buffer
-void MPIChannel::sendEventAuxiliary_(edm::EventAuxiliary const& aux, unsigned int sid) {
+void MPIChannel::sendEventAuxiliary_(edm::EventAuxiliary const& aux, unsigned int slot) {
   EDM_MPI_EventAuxiliary_t buffer;
   buffer.messageTag = EDM_MPI_ProcessEvent;
-  edmToBuffer_(buffer, aux, sid);
+  edmToBuffer_(buffer, aux, slot);
   MPI_Send(&buffer, 1, EDM_MPI_EventAuxiliary, dest_, EDM_MPI_ProcessEvent, comm_);
 }
 
 /*
 // receive an EDM_MPI_EventAuxiliary_t buffer and populate an edm::EventAuxiliary
-MPI_Status MPIChannel::receiveEventAuxiliary_(edm::EventAuxiliary& aux, unsigned int& sid, int source, int tag) {
+MPI_Status MPIChannel::receiveEventAuxiliary_(edm::EventAuxiliary& aux, unsigned int& slot, int source, int tag) {
   MPI_Status status;
   EDM_MPI_EventAuxiliary_t buffer;
   MPI_Recv(&buffer, 1, EDM_MPI_EventAuxiliary, source, tag, comm_, &status);
-  edmFromBuffer_(buffer, aux, sid);
+  edmFromBuffer_(buffer, aux, slot);
   return status;
 }
 */
 
 // receive an EDM_MPI_EventAuxiliary_t buffer and populate an edm::EventAuxiliary
-MPI_Status MPIChannel::receiveEventAuxiliary_(edm::EventAuxiliary& aux, unsigned int& sid, MPI_Message& message) {
+MPI_Status MPIChannel::receiveEventAuxiliary_(edm::EventAuxiliary& aux, unsigned int& slot, MPI_Message& message) {
   MPI_Status status = {};
   EDM_MPI_EventAuxiliary_t buffer;
 #ifdef EDM_ML_DEBUG
   memset(&buffer, 0x00, sizeof(buffer));
 #endif
   status.MPI_ERROR = MPI_Mrecv(&buffer, 1, EDM_MPI_EventAuxiliary, &message, &status);
-  edmFromBuffer_(buffer, aux, sid);
+  edmFromBuffer_(buffer, aux, slot);
   return status;
 }
 
