@@ -1,5 +1,5 @@
 // C++ headers
-#include <optional>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -66,15 +66,15 @@ private:
 
   char port_[MPI_MAX_PORT_NAME];
   MPI_Comm comm_ = MPI_COMM_NULL;
-  MPIChannel channel_;
-  std::vector<std::optional<MPIChannel>> streams_;
+  MPIChannel controller_;
+  std::vector<std::unique_ptr<MPIChannel>> channels_;
   edm::EDPutTokenT<MPIToken> token_;
   Mode mode_;
 
   edm::ProcessHistory history_;
 
   // temporary value used to pass information from setRunAndEventInfo() to produce()
-  unsigned int controller_sid_ = edm::StreamID::invalidStreamID();
+  MPIChannel* channel_ = nullptr;
 };
 
 MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescription const& desc)
@@ -147,7 +147,7 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
                         << " in MPI_COMM_WORLD, mapped to ranks 0, 1 in their private communicator.";
     // The remote process always has rank 0 in the new communicator.
     remote = 0;
-    channel_ = MPIChannel(comm_, remote);
+    controller_ = MPIChannel(comm_, remote);
   } else if (mode_ == kIntercommunicator) {
     // Use an intercommunicator to let two groups of processes communicate with each other.
     // The current implementation supports only two processes: one controller and one source.
@@ -177,7 +177,7 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
 
     MPI_Comm_accept(port_, MPI_INFO_NULL, 0, MPI_COMM_SELF, &comm_);
     edm::LogInfo("MPI") << "Connection accepted.";
-    channel_ = MPIChannel(comm_, 0);
+    controller_ = MPIChannel(comm_, 0);
   } else {
     // Invalid mode.
     throw edm::Exception(edm::errors::Configuration)
@@ -192,13 +192,13 @@ MPISource::MPISource(edm::ParameterSet const& config, edm::InputSourceDescriptio
 }
 
 MPISource::~MPISource() {
-  // Disconnect the per-stream communicators.
-  for (auto& stream : streams_) {
-    // TODO move this to end stream
-    if (stream) {
-      stream->reset();
+  // Disconnect the communicators.
+  for (auto& channel : channels_) {
+    if (channel) {
+      channel->reset();
     }
   }
+  controller_.reset();
 
   if (mode_ == kIntercommunicator) {
     // Close the intercommunicator.
@@ -276,7 +276,7 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
 
         // receive the ProcessHistory
         history_.clear();
-        channel_.receiveProduct(0, history_);
+        controller_.receiveProduct(0, history_);
         history_.initializeTransients();
         /*
         if (processHistoryRegistryForUpdate().registerProcessHistory(history_)) {
@@ -325,24 +325,19 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
       case EDM_MPI_ProcessEvent: {
         // receive the EventAuxiliary
         edm::EventAuxiliary aux;
-        unsigned int sid;
-        status = channel_.receiveEvent(aux, sid, message);
-        if (sid == edm::StreamID::invalidStreamID()) {
-          throw cms::Exception("InvalidValue")
-              << "The MPISource has received an EDM_MPI_ProcessEvent with invalid stream id.";
+        unsigned int slot;
+        status = controller_.receiveEvent(aux, slot, message);
+
+        // use the same communicator that the MPIController will use for this event
+        if (slot >= channels_.size()) {
+          channels_.resize(slot + 1);
+        }
+        if (not channels_[slot]) {
+          channels_[slot] = controller_.duplicate(slot);
         }
 
-        // keep a duplicate of the MPIChannel for each controller's framework stream
-        if (sid >= streams_.size()) {
-          streams_.resize(sid + 1);
-        }
-        if (not streams_[sid]) {
-          // TODO move this to begin stream
-          streams_[sid] = channel_.duplicate();
-        }
-
-        // store the controller's framework stream to reuse it in produce()
-        controller_sid_ = sid;
+        // store the channel to use it in produce()
+        channel_ = channels_[slot].get();
 
         // extract the rank of the other process (currently unused)
         int source = status.MPI_SOURCE;
@@ -368,9 +363,13 @@ bool MPISource::setRunAndEventInfo(edm::EventID& event,
 }
 
 void MPISource::produce(edm::Event& event) {
-  // create a new channel object reusing the same communicator that will synchronise at the end of the event
-  event.emplace(token_, streams_[controller_sid_]->syncChannel());
-  controller_sid_ = edm::StreamID::invalidStreamID();
+  // Wait for the barrier to be cleared by the MPI software in the local process.
+  channel_->wait();
+
+  // The destructor of the last copy of the token will call channel_->sync().
+  // The channel is ready to receive a new event after the call is made by both local and remote processes.
+  event.emplace(token_, *channel_);
+  channel_ = nullptr;
 }
 
 void MPISource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
