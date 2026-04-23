@@ -1,4 +1,5 @@
 <library name="RecoMuonL3TrackFinderPlugins" file="*.cc">
+  <use name="DataFormats/Common"/>
   <use name="DataFormats/CSCRecHit"/>
   <use name="DataFormats/DTRecHit"/>
   <use name="DataFormats/GEMRecHit"/>
