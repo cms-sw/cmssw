@@ -60,7 +60,8 @@ _HLTPhase2L3MuonIsoTracksSequencePixelSelector = cms.Sequence(
 
 from Configuration.ProcessModifiers.phase2MuonPixelTracksSelector_cff import phase2MuonPixelTracksSelector
 from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
-(phase2MuonPixelTracksSelector | ngtScouting).toReplaceWith(
+from Configuration.ProcessModifiers.phase2MuonSeedsSelector_cff import phase2MuonSeedsSelector
+(phase2MuonPixelTracksSelector | ngtScouting | phase2MuonSeedsSelector).toReplaceWith(
     HLTPhase2L3MuonIsoTracksSequence,
     _HLTPhase2L3MuonIsoTracksSequencePixelSelector
 )

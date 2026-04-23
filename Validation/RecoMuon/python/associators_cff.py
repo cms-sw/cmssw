@@ -271,6 +271,12 @@ Phase2tpToL3Iter0TkAssociation = MABHhlt.clone(
     UseTracker = True,
     UseMuon = False
 )
+# L3 IO inner tracks of the LST-seeded chain, before the high-purity selection
+Phase2tpToL3IOTkNoHPAssociation = MABHhlt.clone(
+    tracksTag = 'hltPhase2MuonIOTracks',
+    UseTracker = True,
+    UseMuon = False
+)
 # L3 IO inner tracks: the merged iter0 and iter2 high-purity tracks, or the IO tracks of the new single-iteration chains
 Phase2tpToL3IOTkAssociation = MABHhlt.clone(
     tracksTag = 'hltIter2Phase2L3FromL1TkMuonMerged',
@@ -280,6 +286,11 @@ Phase2tpToL3IOTkAssociation = MABHhlt.clone(
 (phase2MuonPixelTracksSelector | ngtScouting).toModify(
     Phase2tpToL3IOTkAssociation,
     tracksTag = 'hltPhase2MuonIOTracks'
+)
+from Configuration.ProcessModifiers.phase2MuonSeedsSelector_cff import phase2MuonSeedsSelector
+phase2MuonSeedsSelector.toModify(
+    Phase2tpToL3IOTkAssociation,
+    tracksTag = 'hltPhase2MuonIOTrackSelectionHighPurityForest'
 )
 # L3 OI inner tracks
 Phase2tpToL3OITkAssociation = MABHhlt.clone(
@@ -457,7 +468,7 @@ _muonAssociationHLT_seq_IO_first = cms.Sequence(
     hltPhase2L2MuonSeedTracks+Phase2tpToL2SeedAssociation
     +Phase2tpToL2MuonAssociation+Phase2tpToL2MuonUpdAssociation
     +Phase2tpToMuonPixelTracksAssociation
-    +Phase2tpToL3Iter0TkAssociation+Phase2tpToL3IOTkAssociation
+    +Phase2tpToL3Iter0TkAssociation+Phase2tpToL3IOTkNoHPAssociation+Phase2tpToL3IOTkAssociation
     +Phase2tpToL3OITkAssociation
     +Phase2tpToL2MuonToReuseAssociation+Phase2tpToL3IOTkFilteredAssociation
     +Phase2tpToL3TkMergedAssociation+Phase2tpToL3GlbMuonMergedAssociation

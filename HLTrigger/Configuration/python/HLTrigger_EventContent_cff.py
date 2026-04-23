@@ -454,6 +454,7 @@ HLTDebugFEVT = cms.PSet(
         'keep *_hltPhase2L3MuonsNoID_*_*',
         'keep *_hltPhase2L3Muons_*_*',
         'keep *_hltPhase2L3OIMuonTrackSelectionHighPurity_*_*',
+        'keep *_hltPhase2MuonIOTrackSelectionHighPurityForest_*_*',
         'keep *_hltPhase2MuonIOTracks_*_*',
         'keep *_hltPhase2MuonPixelTracksHighPurityForest_*_*',
         'keep *_hltPhase2MuonPixelTracks_*_*',

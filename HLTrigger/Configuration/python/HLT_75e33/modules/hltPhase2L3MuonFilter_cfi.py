@@ -21,6 +21,13 @@ from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
     hltPhase2L3MuonFilter,
     l3Tracks = "hltPhase2MuonIOTracks",
 )
+
+from Configuration.ProcessModifiers.phase2MuonSeedsSelector_cff import phase2MuonSeedsSelector
+phase2MuonSeedsSelector.toModify(
+    hltPhase2L3MuonFilter,
+    l3Tracks = "hltPhase2MuonIOTrackSelectionHighPurityForest",
+)
+
 from Configuration.ProcessModifiers.phase2L3MuonsOIFirst_cff import phase2L3MuonsOIFirst
 phase2L3MuonsOIFirst.toModify(
     hltPhase2L3MuonFilter,
