@@ -21,10 +21,10 @@ from ..modules.hltPhase2L3MuonHighPtTripletStepTrackCandidates_cfi import *
 from ..modules.hltPhase2L3MuonHighPtTripletStepTracks_cfi import *
 from ..modules.hltPhase2L3MuonHighPtTripletStepTracksSelectionHighPurity_cfi import *
 from ..modules.hltPhase2L3MuonHighPtTripletStepTrackCutClassifier_cfi import *
-from ..modules.hltPhase2L3MuonGeneralTracks_cfi import *
+from ..modules.hltPhase2L3MuonIsoTracks_cfi import *
 
 
-HLTPhase2L3MuonGeneralTracksSequence = cms.Sequence(
+HLTPhase2L3MuonIsoTracksSequence = cms.Sequence(
     hltTrackerClusterCheck
     +hltPhase2L3MuonPixelTracksAndHighPtTripletTrackingRegions
     +hltPhase2L3MuonPixelTracksSeedLayers
@@ -46,5 +46,21 @@ HLTPhase2L3MuonGeneralTracksSequence = cms.Sequence(
     +hltPhase2L3MuonHighPtTripletStepTracks
     +hltPhase2L3MuonHighPtTripletStepTrackCutClassifier
     +hltPhase2L3MuonHighPtTripletStepTracksSelectionHighPurity
-    +hltPhase2L3MuonGeneralTracks
+    +hltPhase2L3MuonIsoTracks
     )
+
+from ..sequences.HLTPhase2PixelTracksAndVerticesSequence_cfi import HLTPhase2PixelTracksAndVerticesSequence
+from ..sequences.HLTPhase2PixelVertexingSequence_cfi import HLTPhase2PixelVertexingSequence
+# Pixel tracking of the menu, without the pixel vertexing. The copy follows the tracking modifiers.
+_HLTPhase2L3MuonIsoTracksSequencePixelSelector = cms.Sequence(
+    HLTPhase2PixelTracksAndVerticesSequence.copyAndExclude([HLTPhase2PixelVertexingSequence])
+    + hltPhase2L3MuonPixelTracksAndHighPtTripletTrackingRegions
+    + hltPhase2L3MuonIsoTracks
+)
+
+from Configuration.ProcessModifiers.phase2MuonPixelTracksSelector_cff import phase2MuonPixelTracksSelector
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
+(phase2MuonPixelTracksSelector | ngtScouting).toReplaceWith(
+    HLTPhase2L3MuonIsoTracksSequence,
+    _HLTPhase2L3MuonIsoTracksSequencePixelSelector
+)
