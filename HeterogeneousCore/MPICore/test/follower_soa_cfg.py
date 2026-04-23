@@ -10,7 +10,9 @@ process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
 
 from HeterogeneousCore.MPICore.modules import *
 
-process.source = MPISource()
+process.source = MPISource(mode = 'CommWorld',
+    controllerProcessName = 'MPIController'
+)
 
 process.maxEvents.input = -1
 

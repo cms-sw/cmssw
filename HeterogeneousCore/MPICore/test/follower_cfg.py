@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("MPIFollower")
+process = cms.Process("Follower")
 
 process.options.numberOfThreads = 8
 process.options.numberOfStreams = 8
@@ -14,7 +14,7 @@ from HeterogeneousCore.MPICore.modules import *
 
 process.source = MPISource(
     mode = 'CommWorld',
-    controller = 0
+    controllerProcessName = 'MPIController'
 )
 
 process.maxEvents.input = -1

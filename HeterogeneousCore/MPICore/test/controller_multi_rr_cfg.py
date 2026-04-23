@@ -30,7 +30,7 @@ process.initialcheck = cms.EDAnalyzer("edmtest::EventIDValidator",
 
 process.mpiController1 = MPIController(
     mode = 'CommWorld',
-    followers = [ 1, 2 ]
+    followerProcessName = 'Follower1'
 )
 
 process.sender1 = MPISender(
@@ -72,7 +72,7 @@ process.path1 = cms.Path(
 
 process.mpiController2 = MPIController(
     mode = 'CommWorld',
-    followers = [ 3, 4 ]
+    followerProcessName = 'Follower2'
 )
 
 process.sender2 = MPISender(
