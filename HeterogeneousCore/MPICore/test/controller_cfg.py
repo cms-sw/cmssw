@@ -21,7 +21,8 @@ process.maxEvents.input = 100
 from HeterogeneousCore.MPICore.modules import *
 
 process.mpiController = MPIController(
-    mode = 'CommWorld'
+    mode = 'CommWorld',
+    followerProcessName = 'Follower'
 )
 
 process.ids = cms.EDProducer("edmtest::EventIDProducer")

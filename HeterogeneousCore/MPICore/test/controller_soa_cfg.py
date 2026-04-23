@@ -24,7 +24,8 @@ process.load("HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi")
 from HeterogeneousCore.MPICore.modules import *
 
 process.mpiController = MPIController(
-    mode = 'CommWorld'
+    mode = 'CommWorld',
+    followerProcessName = 'MPIFollower'
 )
 
 process.producePortableObjects = cms.EDProducer("TestAlpakaProducer@alpaka",

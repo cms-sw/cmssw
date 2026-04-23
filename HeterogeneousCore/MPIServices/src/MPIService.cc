@@ -1,10 +1,12 @@
 // -*- C++ -*-
 #include <cstdlib>
 #include <exception>
+#include <mutex>
 #include <string>
 
 #include <mpi.h>
 
+#include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -110,4 +112,29 @@ Please add it to the configuration, for example via
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
 )";
   }
+}
+
+// Ensure that processes exchange their hashes only once
+void MPIService::exchangeProcessHashes_() {
+  std::call_once(init_flag_, [&]() {
+    int world_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+    all_process_hashes_.resize(world_size);
+    edm::Service<edm::service::TriggerNamesService> tns;
+    std::string const& processName = tns->getProcessName();
+    uint64_t this_process_hash = std::hash<std::string>{}(processName);
+    MPI_Allgather(&this_process_hash, 1, MPI_UINT64_T, all_process_hashes_.data(), 1, MPI_UINT64_T, MPI_COMM_WORLD);
+  });
+}
+
+std::vector<int> MPIService::getRanksByProcessName(std::string const& processName) {
+  this->exchangeProcessHashes_();
+  std::vector<int> process_indices;
+  uint64_t other_process_hash = std::hash<std::string>{}(processName);
+  for (size_t i = 0; i < all_process_hashes_.size(); i++) {
+    if (all_process_hashes_[i] == other_process_hash) {
+      process_indices.push_back(i);
+    }
+  }
+  return process_indices;
 }
