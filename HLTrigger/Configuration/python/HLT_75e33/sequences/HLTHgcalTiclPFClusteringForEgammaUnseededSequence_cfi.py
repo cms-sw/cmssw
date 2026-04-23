@@ -22,33 +22,10 @@ from ..modules.hltTiclTracksterLinks_cfi import *
 from ..modules.hltBarrelLayerClustersEB_cfi import *
 from ..modules.hltBarrelLayerClustersHB_cfi import *
 
+from ..modules.hltTiclEGammaSuperClusterProducerUnseeded_cfi import hltTiclEGammaSuperClusterProducerUnseeded
+from ..modules.hltTiclTracksterLinksSuperclusteringMustacheUnseeded_cfi import hltTiclTracksterLinksSuperclusteringMustacheUnseeded
+from ..modules.hltTiclTracksterLinksSuperclusteringDNNUnseeded_cfi import hltTiclTracksterLinksSuperclusteringDNNUnseeded
 
-
-# Use EGammaSuperClusterProducer at HLT in ticl v5
-hltTiclTracksterLinksSuperclusteringDNNUnseeded = hltTiclTracksterLinks.clone(
-    linkingPSet = cms.PSet(
-        type=cms.string("SuperClusteringDNN"),
-        algo_verbosity=cms.int32(0),
-        onnxModelPath = cms.string("RecoHGCal/TICL/data/superclustering/supercls_v3.onnx"),
-        nnWorkingPoint=cms.double(0.57247),
-    ),
-    tracksters_collections = [cms.InputTag("hltTiclTrackstersCLUE3DHigh")], # to be changed to ticlTrackstersCLUE3DEM once separate CLUE3D iterations are introduced
-)
-
-hltTiclTracksterLinksSuperclusteringMustacheUnseeded = hltTiclTracksterLinks.clone(
-    linkingPSet = cms.PSet(
-        type=cms.string("SuperClusteringMustache"),
-        algo_verbosity=cms.int32(0)
-    ),
-    tracksters_collections = [cms.InputTag("hltTiclTrackstersCLUE3DHigh")], # to be changed to ticlTrackstersCLUE3DEM once separate CLUE3D iterations are introduced
-)
-
-from RecoHGCal.TICL.ticlEGammaSuperClusterProducer_cfi import ticlEGammaSuperClusterProducer as _ticlEGammaSuperClusterProducer
-hltTiclEGammaSuperClusterProducerUnseeded = _ticlEGammaSuperClusterProducer.clone(
-    ticlSuperClusters = "hltTiclTracksterLinksSuperclusteringDNNUnseeded",
-    ticlTrackstersEM = "hltTiclTrackstersCLUE3DHigh",
-    layerClusters = "hltMergeLayerClusters"
-)
 
 
 _HgcalLocalRecoUnseededSequence = cms.Sequence(hltHgcalDigis+hltHGCalUncalibRecHit+
@@ -95,12 +72,7 @@ ticl_superclustering_mustache_ticl.toReplaceWith(_SuperclusteringUnseededSequenc
                                                               + hltTiclEGammaSuperClusterProducerUnseeded
                                                  )
 )
-ticl_superclustering_mustache_ticl.toModify(hltTiclEGammaSuperClusterProducerUnseeded, 
-                                            ticlSuperClusters=cms.InputTag("hltTiclTracksterLinksSuperclusteringMustacheUnseeded"),
-                                            ticlTrackstersEM=cms.InputTag("hltTiclTrackstersCLUE3DHigh"),
-                                            layerClusters=cms.InputTag("hltMergeLayerClusters"),
-                                            enableRegression=cms.bool(False)
-)
+
 
 _HgcalLocalRecoUnseededSequence_barrel = _HgcalLocalRecoUnseededSequence.copy()
 _HgcalLocalRecoUnseededSequence_barrel += hltBarrelLayerClustersEB
