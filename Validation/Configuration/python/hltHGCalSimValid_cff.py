@@ -86,6 +86,7 @@ hltAllTrackstersToSimTrackstersAssociationsByHits = _AllTracksterToSimTracksterA
       'hltTiclSimTracksters:fromCPs'
     ),
 )
+from SimCalorimetry.HGCalAssociatorProducers.hltLCToCPAssociation_cfi import hltHGCalLCToCPAssociatorByEnergyScoreProducer, hltHGCalLCToSCAssociatorByEnergyScoreProducer, hltHGCalLayerClusterCaloParticleAssociation, hltHGCalLayerClusterSimClusterAssociation
 
 hltHgcalAssociatorsTask = cms.Task(hltHGCalRecHitMapProducer,
                                    hltHGCalLCToCPAssociatorByEnergyScoreProducer,
