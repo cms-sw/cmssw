@@ -1,8 +1,8 @@
 #ifndef RecoVertex_PrimaryVertexProducerplugins_alpaka_TracksForDAInBlocksAlgo_h
 #define RecoVertex_PrimaryVertexProducerplugins_alpaka_TracksForDAInBlocksAlgo_h
 
-#include "DataFormats/OfflineVertexSoA/interface/alpaka/VertexDeviceCollection.h"
-#include "DataFormats/OfflineVertexSoA/interface/alpaka/TrackDeviceCollection.h"
+#include "DataFormats/VertexSoA/interface/alpaka/OfflineVertexDeviceCollection.h"
+#include "DataFormats/VertexSoA/interface/alpaka/TrackForVertexDeviceCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -11,8 +11,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     TracksForDAInBlocksAlgo();
     void createBlocks(Queue& queue,
-                      const TrackDeviceCollection& inputTrack,
-                      TrackDeviceCollection& trackInBlocks,
+                      const TrackForVertexDeviceCollection& inputTrack,
+                      TrackForVertexDeviceCollection& trackInBlocks,
                       int32_t blockSize,
                       double blockOverlap);  // The actual block creation
 

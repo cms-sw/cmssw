@@ -9,4 +9,12 @@
   <class name="reco::ZVertexTracksLayout<128, false>"/>
 
   <class name="edm::Wrapper<reco::ZVertexHost>" splitLevel="0"/>
+
+  <class name="OfflineVertexHostCollection" rntupleStreamerMode="true"/>
+  <class name="OfflineVertexHostCollection::Layout"/>
+  <class name="edm::Wrapper<OfflineVertexHostCollection>" splitLevel="0"/>
+
+  <class name="TrackForVertexHostCollection" rntupleStreamerMode="true"/>
+  <class name="TrackForVertexHostCollection::Layout"/>
+  <class name="edm::Wrapper<TrackForVertexHostCollection>" splitLevel="0"/>
 </lcgdict>

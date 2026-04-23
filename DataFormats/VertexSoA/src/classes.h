@@ -4,5 +4,9 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/VertexSoA/interface/ZVertexSoA.h"
 #include "DataFormats/VertexSoA/interface/ZVertexHost.h"
+#include "DataFormats/VertexSoA/interface/OfflineVertexHostCollection.h"
+#include "DataFormats/VertexSoA/interface/OfflineVertexSoA.h"
+#include "DataFormats/VertexSoA/interface/TrackForVertexHostCollection.h"
+#include "DataFormats/VertexSoA/interface/TrackForVertexSoA.h"
 
 #endif  // DataFormats_VertexSoA_src_classes_h

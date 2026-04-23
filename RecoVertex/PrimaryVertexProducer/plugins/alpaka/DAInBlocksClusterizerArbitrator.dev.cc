@@ -14,10 +14,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Device functions //
   //////////////////////
 
-  template <bool debug = false, typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC static void resortVerticesAndAssign(const TAcc& acc,
-                                                    TrackDeviceCollection::View tracks,
-                                                    VertexDeviceCollection::View vertices,
+                                                    TrackForVertexDeviceCollection::View tracks,
+                                                    OfflineVertexDeviceCollection::View vertices,
                                                     ClusterParameters const& cParams) {
     // Multiblock vertex arbitration
     double beta = 1. / cParams.Tstop;
@@ -185,10 +185,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::syncBlockThreads(acc);
   }  //resortVerticesAndAssign
 
-  template <bool debug = false, typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+  template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC static void finalizeVertices(const TAcc& acc,
-                                             TrackDeviceCollection::View tracks,
-                                             VertexDeviceCollection::View vertices,
+                                             TrackForVertexDeviceCollection::View tracks,
+                                             OfflineVertexDeviceCollection::View vertices,
                                              ClusterParameters const& cParams) {
     int blockSize = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
     int threadIdx = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u];
@@ -204,13 +204,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (ivtxFromTk == k) {
           bool isNew = true;
           for (int ivtrack = 0; ivtrack < vertices[ivertex].ntracks(); ivtrack++) {
-            if (tracks[itrack].tt_index() == tracks[vertices[ivertex].track_id()[ivtrack]].tt_index())
+            if (tracks[itrack].ttIndex() == tracks[vertices[ivertex].track_id()[ivtrack]].ttIndex())
               isNew = false;
           }
           if (!isNew) {
             continue;
           }
-          // Here we are saving the itrack (i.e. index in the device collection) instead tracks[itrack].tt_index(); (index of the input reco track collection) so we can use the same device collection in the fitter
+          // Here we are saving the itrack (i.e. index in the device collection) instead tracks[itrack].ttIndex(); (index of the input reco track collection) so we can use the same device collection in the fitter
           vertices[ivertex].track_id()[vertices[ivertex].ntracks()] = itrack;
           vertices[ivertex].track_weight()[vertices[ivertex].ntracks()] = 1.;
           vertices[ivertex].ntracks()++;
@@ -330,10 +330,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class ArbitrateKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                  TrackDeviceCollection::View tracks,
-                                  VertexDeviceCollection::View vertices,
+                                  TrackForVertexDeviceCollection::View tracks,
+                                  OfflineVertexDeviceCollection::View vertices,
                                   ClusterParameters const& cParams,
                                   int32_t nBlocks) const {
       // This has the core of the clusterization algorithm
@@ -360,8 +360,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };  // class kernel
 
   void DAInBlocksClusterizerAlgo::arbitrate(Queue& queue,
-                                            TrackDeviceCollection& deviceTrack,
-                                            VertexDeviceCollection& deviceVertex,
+                                            TrackForVertexDeviceCollection& deviceTrack,
+                                            OfflineVertexDeviceCollection& deviceVertex,
                                             ClusterParameters const& cParams,
                                             int32_t nBlocks,
                                             int32_t blockSize) {

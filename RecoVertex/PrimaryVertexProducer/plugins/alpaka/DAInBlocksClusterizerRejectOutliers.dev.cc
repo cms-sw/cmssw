@@ -1,4 +1,4 @@
-#include "RecoVertex/PrimaryVertexProducer/plugins/alpaka/DAInBlocksClusterizerAlgo.dev.h"
+#include "RecoVertex/PrimaryVertexProducer/plugins/alpaka/DAInBlocksClusterizerAlgo.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakatools;
@@ -8,10 +8,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class RejectOutliersKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                  TrackDeviceCollection::View tracks,
-                                  VertexDeviceCollection::View vertices,
+                                  TrackForVertexDeviceCollection::View tracks,
+                                  OfflineVertexDeviceCollection::View vertices,
                                   ClusterParameters const& cParams,
                                   double* beta_,
                                   double* osumtkwt_,
@@ -45,8 +45,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };  // class kernel
 
   void DAInBlocksClusterizerAlgo::reject_outliers(Queue& queue,
-                                                  TrackDeviceCollection& deviceTrack,
-                                                  VertexDeviceCollection& deviceVertex,
+                                                  TrackForVertexDeviceCollection& deviceTrack,
+                                                  OfflineVertexDeviceCollection& deviceVertex,
                                                   ClusterParameters const& cParams,
                                                   int32_t nBlocks,
                                                   int32_t blockSize) {

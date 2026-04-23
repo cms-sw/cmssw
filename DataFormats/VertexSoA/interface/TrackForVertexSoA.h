@@ -1,5 +1,5 @@
-#ifndef DataFormats_OfflineVertexSoA_interface_TrackSoA_h
-#define DataFormats_OfflineVertexSoA_interface_TrackSoA_h
+#ifndef DataFormats_VertexSoA_interface_TrackForVertexSoA_h
+#define DataFormats_VertexSoA_interface_TrackForVertexSoA_h
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
@@ -8,7 +8,7 @@
 
 const int maxTotalVertex = 1024;
 using TrackToVertex = Eigen::Vector<float, maxTotalVertex>;
-GENERATE_SOA_LAYOUT(TrackSoALayout,
+GENERATE_SOA_LAYOUT(TrackForVertexSoALayout,
                     // columns: one value per element
                     SOA_COLUMN(float, dxy2),
                     SOA_COLUMN(float, dxy2AtIP),
@@ -54,6 +54,6 @@ GENERATE_SOA_LAYOUT(TrackSoALayout,
                     SOA_SCALAR(int32_t, nT),
                     SOA_SCALAR(float, totweight))
 
-using TrackSoA = TrackSoALayout<>;
+using TrackForVertexSoA = TrackForVertexSoALayout<>;
 
-#endif  // DataFormats_OfflineVertexSoA_interface_TrackSoA_h
+#endif  // DataFormats_VertexSoA_interface_TrackForVertexSoA_h

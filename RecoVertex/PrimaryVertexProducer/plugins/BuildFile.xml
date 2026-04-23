@@ -4,7 +4,7 @@
   <use name="FWCore/Utilities"/>
   <use name="clhep"/>
   <use name="RecoVertex/PrimaryVertexProducer"/>
-  <use name="DataFormats/OfflineVertexSoA"/>
+  <use name="DataFormats/VertexSoA"/>
   <use name="DataFormats/TrackReco"/>
   <use name="DataFormats/VertexReco"/>
   <use name="DataFormats/Math"/>
@@ -12,7 +12,7 @@
 </library>
 <library file="alpaka/*.cc" name="RecoVertexPrimaryVertexProducerPluginsportable">
   <use name="alpaka"/>
-  <use name="DataFormats/OfflineVertexSoA"/>
+  <use name="DataFormats/VertexSoA"/>
   <use name="DataFormats/TrackReco"/>
   <use name="DataFormats/VertexReco"/>
   <use name="DataFormats/BeamSpot"/>

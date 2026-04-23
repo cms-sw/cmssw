@@ -12,10 +12,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class createBlocksKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                  const TrackDeviceCollection::ConstView inputTracks,
-                                  TrackDeviceCollection::View trackInBlocks,
+                                  const TrackForVertexDeviceCollection::ConstView inputTracks,
+                                  TrackForVertexDeviceCollection::View trackInBlocks,
                                   double blockOverlap,
                                   int32_t blockSize) const {
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCERPORTABLE_BLOCKALGO
@@ -63,7 +63,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           trackInBlocks[newIndex].pz() = inputTracks[oldIndex].pz();
           trackInBlocks[newIndex].weight() = inputTracks[oldIndex].weight();
           // Relevant to keep the index at hand, as we want to reference the original reco::track later when building the reco::vertex
-          trackInBlocks[newIndex].tt_index() = inputTracks[oldIndex].tt_index();
+          trackInBlocks[newIndex].ttIndex() = inputTracks[oldIndex].ttIndex();
           trackInBlocks[newIndex].dz2() = inputTracks[oldIndex].dz2();
           trackInBlocks[newIndex].oneoverdz2() = inputTracks[oldIndex].oneoverdz2();
           trackInBlocks[newIndex].dxy2AtIP() = inputTracks[oldIndex].dxy2AtIP();
@@ -97,8 +97,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   TracksForDAInBlocksAlgo::TracksForDAInBlocksAlgo() {}  // TracksForDAInBlocksAlgo::TracksForDAInBlocksAlgo
 
   void TracksForDAInBlocksAlgo::createBlocks(Queue& queue,
-                                             const TrackDeviceCollection& inputTracks,
-                                             TrackDeviceCollection& trackInBlocks,
+                                             const TrackForVertexDeviceCollection& inputTracks,
+                                             TrackForVertexDeviceCollection& trackInBlocks,
                                              int32_t bSize,
                                              double bOverlap) {
     const int threadsPerBlock = bSize;  // each thread will write nBlocks tracks

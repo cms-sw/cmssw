@@ -1,7 +1,7 @@
-#include "DataFormats/OfflineVertexSoA/interface/alpaka/VertexDeviceCollection.h"
-#include "DataFormats/OfflineVertexSoA/interface/alpaka/TrackDeviceCollection.h"
-#include "DataFormats/OfflineVertexSoA/interface/VertexHostCollection.h"
-#include "DataFormats/OfflineVertexSoA/interface/TrackHostCollection.h"
+#include "DataFormats/VertexSoA/interface/alpaka/OfflineVertexDeviceCollection.h"
+#include "DataFormats/VertexSoA/interface/alpaka/TrackForVertexDeviceCollection.h"
+#include "DataFormats/VertexSoA/interface/OfflineVertexHostCollection.h"
+#include "DataFormats/VertexSoA/interface/TrackForVertexHostCollection.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -26,7 +26,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   /**
    * This:
    * - consumes set of reco::Tracks and reco::BeamSpot
-   * - converts the reco::Tracks to a Alpaka-friendly dataformat TrackHostCollection
+   * - converts the reco::Tracks to a Alpaka-friendly dataformat TrackForVertexHostCollection
    * - puts the Alpaka dataformat in the device for later consumption
    */
   struct TrackFilterParametersForVertexing {
@@ -92,7 +92,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       int32_t tsize_ = tracks.product()->size();
 
       // Host collections
-      TrackHostCollection hostTracks(iEvent.queue(), tsize_);
+      TrackForVertexHostCollection hostTracks(iEvent.queue(), tsize_);
       auto& tview = hostTracks.view();
 
       // Fill Host collections with input, first initialize globals
@@ -143,7 +143,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
              nTrueTracks);
 #endif
       // Create device collections and copy into device
-      TrackDeviceCollection deviceTracks(iEvent.queue(), tsize_);
+      TrackForVertexDeviceCollection deviceTracks(iEvent.queue(), tsize_);
 
       alpaka::memcpy(iEvent.queue(), deviceTracks.buffer(), hostTracks.buffer());
 
@@ -176,8 +176,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> theTTBToken_;
     edm::EDGetTokenT<reco::TrackCollection> trackToken_;
     edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
-    device::EDPutToken<TrackDeviceCollection> devicePutToken_;
-    static double convertTrack(TrackHostCollection::View::element out,
+    device::EDPutToken<TrackForVertexDeviceCollection> devicePutToken_;
+    static double convertTrack(TrackForVertexHostCollection::View::element out,
                                const reco::TransientTrack in,
                                const reco::BeamSpot bs,
                                const TrackFilterParametersForVertexing fParams,
@@ -186,7 +186,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     TrackFilterParametersForVertexing fParams;
   };  //PortableTrackSoAProducer declaration
 
-  double PortableTrackSoAProducer::convertTrack(TrackHostCollection::View::element out,
+  double PortableTrackSoAProducer::convertTrack(TrackForVertexHostCollection::View::element out,
                                                 const reco::TransientTrack in,
                                                 const reco::BeamSpot bs,
                                                 const TrackFilterParametersForVertexing fParams,
@@ -220,7 +220,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       out.pz() = in.stateAtBeamLine().trackStateAtPCA().momentum().z();
       out.weight() = weight;
       // The original index in the reco::Track collection so we can go back to it eventually
-      out.tt_index() = idx;
+      out.ttIndex() = idx;
       out.dz2() = std::pow(in.track().dzError(), 2);
       // Modified dz2 to account correlations and vertex size for clusterizer
       // dz^2 + (bs*pt)^2*pz^2/pt^2 + vertexSize^2
