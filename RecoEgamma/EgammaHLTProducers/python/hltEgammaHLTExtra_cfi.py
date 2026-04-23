@@ -47,3 +47,15 @@ hltEgammaHLTExtra = cms.EDProducer("EgammaHLTExtraProducer",
                                    
 )
 
+# Phase2 modification
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+
+def _phase2Fix(module):
+    for pset in module.egCands:
+        if pset.label.value() == '':
+            pset.pixelSeeds = cms.InputTag("hltEgammaElectronPixelSeedsL1Seeded")
+            pset.ecalCands  = cms.InputTag("hltEgammaCandidatesL1Seeded")
+            pset.gsfTracks  = cms.InputTag("hltEgammaGsfTracksL1Seeded")
+            pset.label      = cms.string('L1Seeded')
+
+phase2_common.toModify(hltEgammaHLTExtra, _phase2Fix)
