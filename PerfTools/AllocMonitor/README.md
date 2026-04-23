@@ -232,6 +232,31 @@ By default all reports are printed with MessageLogger. With `filePattern` the re
 edmAllocProfilerFoldStacks.py -q actual report.txt | flamegraph.pl > report_flamegraph.svg
 ```
 
+### ModuleAllocProfiler (C++23)
+
+The `ModuleAllocProfiler` combines the stack-trace recording of [`IntrusiveAllocProfiler`](#intrusiveallocprofiler-c23) to the module-based monitoring of [`ModuleAllocMonitor`](#moduleallocmonitor). In contrast to `ModuleAllocMonitor`, the set of modules to be profiled must be set explicitly. This is because the profiling is substantially slower, and produces substantially more data, than the counting monitoring of `ModuleAllocMonitor`. The stack traces are reported either via MessageLogger (default), or to per-module-per-transition files.
+
+The report types and quantities are the same as in [`IntrusiveAllocProfiler`](#intrusiveallocprofiler-c23).
+
+The Service has the following configuration parameters
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `moduleNames` | - | List of modules to be profiled. Must be set to non-empty. |
+| `nEventsToSkip` | 0 | Number of initial events that must be processed before reporting happens. |
+| `filePattern` | empty | If empty, print the repots with MessageLogger. If non-empty, specifies the pattern for output text files. See the table below for the special markers in the pattern (each must be present). |
+| `statistics` | `False` | If `True`, print internal statistics to the log. |
+| `deallocationReport` | `True` | Allows to disable deallocation report (can speed up the profiling in presence of deep stack traces) |
+| `churnReport` | `True` | Allows to disable churn report (can speed up the profiling in presence of deep stack traces) |
+
+File name pattern
+| Marker | Description |
+|--------|-------------|
+| `%M`   | Module label |
+| `%S`   | Signal (transition) name |
+| `%I`   | Per-signal occurrence counter |
+| `%C`   | ESModule call ID (will be 0 for everything else) |
+| `%T`   | Measurement type |
+
 ### ThresholdAbortAllocMonitor
 
 This service registers a monitor when the service is created and will abort the job (which will normally trigger a stack trace) if a memory request falling within a certain memory range is seen for a specified number of times. The service accepts the following parameters
