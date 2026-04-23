@@ -14,6 +14,7 @@
   </class>
   <class name="std::vector<reco::io_v1::CaloJet>"/>
   <class name="edm::RefProd<std::vector<reco::io_v1::CaloJet> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<vector<reco::io_v1::CaloJet>,reco::io_v1::CaloJet>"/>
   <class name="edm::RefVector<std::vector<reco::io_v1::CaloJet>,reco::io_v1::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::CaloJet>,reco::io_v1::CaloJet> >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::io_v1::CaloJet>,reco::io_v1::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::CaloJet>,reco::io_v1::CaloJet> > >"/>
   <class name="edm::Ref<std::vector<reco::io_v1::CaloJet>,reco::io_v1::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::CaloJet>,reco::io_v1::CaloJet> >"/>
@@ -86,6 +87,7 @@
    <version ClassVersion="3" checksum="477291414"/>
   </class>
   <class name="std::vector<reco::io_v1::GenJet>"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::GenJet>,reco::io_v1::GenJet>"/>
   <class name="edm::RefVector<std::vector<reco::io_v1::GenJet>,reco::io_v1::GenJet,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::GenJet>,reco::io_v1::GenJet> >"/>
   <class name="edm::Ref<std::vector<reco::io_v1::GenJet>,reco::io_v1::GenJet,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::GenJet>,reco::io_v1::GenJet> >"/>
   <class name="edm::RefProd<std::vector<reco::io_v1::GenJet> >"/>

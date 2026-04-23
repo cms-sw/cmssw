@@ -117,6 +117,7 @@
   <class name="edm::helpers::KeyVal<reco::CandidateRefProd, reco::CandidateRefProd>" />
   <class name="edm::helpers::KeyVal<reco::CandidateBaseRefProd, reco::CandidateBaseRefProd>" />
   <class name="edm::helpers::KeyVal<reco::CandidateBaseRef, reco::CandidateBaseRef>" />
+  <class name="edm::ClonePolicy<reco::Candidate>"/>
   <class name="std::map<unsigned int,edm::helpers::KeyVal<reco::CandidateBaseRef, reco::CandidateBaseRef> >" />
   <class name="edm::AssociationMap<edm::OneToOne<edm::OwnVector<reco::io_v1::Candidate,edm::ClonePolicy<reco::io_v1::Candidate> >,edm::OwnVector<reco::io_v1::Candidate,edm::ClonePolicy<reco::io_v1::Candidate> >,unsigned int> >">
     <field name="transientMap_" transient="true" />

@@ -8,6 +8,7 @@
   <class name="std::vector<io_v1::GEMRecHit*>" splitLevel="0"/>
   <class name="std::map<GEMDetId, std::pair<unsigned int, unsigned int> >" splitLevel="0"/>
   <class name="std::map<GEMDetId, std::pair<unsigned long, unsigned long> >" splitLevel="0"/>
+  <class name="edm::ClonePolicy<io_v1::GEMRecHit>"/>
   <class name="edm::OwnVector<io_v1::GEMRecHit, edm::ClonePolicy<io_v1::GEMRecHit> >" splitLevel="0"  rntupleStreamerMode="true"/>
   <class name="edm::RangeMap<GEMDetId, edm::OwnVector<io_v1::GEMRecHit, edm::ClonePolicy<io_v1::GEMRecHit> >, edm::ClonePolicy<io_v1::GEMRecHit> >" splitLevel="0"/>
   <class name="edm::Wrapper<edm::RangeMap<GEMDetId, edm::OwnVector<io_v1::GEMRecHit, edm::ClonePolicy<io_v1::GEMRecHit> >, edm::ClonePolicy<io_v1::GEMRecHit> > >" splitLevel="0"/>
@@ -36,18 +37,22 @@
   <version ClassVersion="3" checksum="968589333"/>
   </class>
   <class name="std::vector<io_v1::GEMSegment*>" splitLevel="0"/>
+  <class name="edm::ClonePolicy<io_v1::GEMSegment>"/>
   <class name="edm::OwnVector<io_v1::GEMSegment,edm::ClonePolicy<io_v1::GEMSegment> >" splitLevel="0"  rntupleStreamerMode="true"/>
   <class name="edm::RangeMap<GEMDetId,edm::OwnVector<io_v1::GEMSegment,edm::ClonePolicy<io_v1::GEMSegment> >,edm::ClonePolicy<io_v1::GEMSegment> >" splitLevel="0"/>
   <class name="edm::Wrapper<edm::RangeMap<GEMDetId,edm::OwnVector<io_v1::GEMSegment,edm::ClonePolicy<io_v1::GEMSegment> >,edm::ClonePolicy<io_v1::GEMSegment> > >" splitLevel="0"/>
+  <class name="edm::refhelper::FindUsingAdvance<edm::RangeMap<GEMDetId,edm::OwnVector<io_v1::GEMSegment,edm::ClonePolicy<io_v1::GEMSegment> >,edm::ClonePolicy<io_v1::GEMSegment> >,io_v1::GEMSegment>"/>
   <class name="GEMSegmentRef" splitLevel="0"/>
 
   <class name="ME0Segment" ClassVersion="3">
   <version ClassVersion="3" checksum="4120417231"/>
   </class>
   <class name="std::vector<ME0Segment*>" splitLevel="0"/>
+  <class name="edm::ClonePolicy<ME0Segment>"/>
   <class name="edm::OwnVector<ME0Segment,edm::ClonePolicy<ME0Segment> >" splitLevel="0"  rntupleStreamerMode="true" />
   <class name="edm::RangeMap<ME0DetId,edm::OwnVector<ME0Segment,edm::ClonePolicy<ME0Segment> >,edm::ClonePolicy<ME0Segment> >" splitLevel="0"/>
   <class name="edm::Wrapper<edm::RangeMap<ME0DetId,edm::OwnVector<ME0Segment,edm::ClonePolicy<ME0Segment> >,edm::ClonePolicy<ME0Segment> > >" splitLevel="0"/>
+  <class name="edm::refhelper::FindUsingAdvance<edm::RangeMap<ME0DetId,edm::OwnVector<ME0Segment,edm::ClonePolicy<ME0Segment> >,edm::ClonePolicy<ME0Segment> >,ME0Segment>"/>
   <class name="ME0SegmentRef" splitLevel="0"/>
 
 </selection>

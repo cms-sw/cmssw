@@ -51,6 +51,7 @@
   <class name="edm::ClonePolicy<io_v1::DTRecSegment4D>" /> <!-- Root6 -->
   <class name="edm::RangeMap <DTChamberId, edm::OwnVector<io_v1::DTRecSegment4D,edm::ClonePolicy<io_v1::DTRecSegment4D> >,edm::ClonePolicy<io_v1::DTRecSegment4D> >"/>
   <class name="edm::Wrapper<edm::RangeMap <DTChamberId, edm::OwnVector<io_v1::DTRecSegment4D,edm::ClonePolicy<io_v1::DTRecSegment4D> >,edm::ClonePolicy<io_v1::DTRecSegment4D> > >"/>
+  <class name="edm::refhelper::FindUsingAdvance<edm::RangeMap<DTChamberId,edm::OwnVector<io_v1::DTRecSegment4D,edm::ClonePolicy<io_v1::DTRecSegment4D> >,edm::ClonePolicy<io_v1::DTRecSegment4D> >,io_v1::DTRecSegment4D>"/>
   <class name="DTRecSegment4DRef"/>
 </selection>
 <exclusion>
