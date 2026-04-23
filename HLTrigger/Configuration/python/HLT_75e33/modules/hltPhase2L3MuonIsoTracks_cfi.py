@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-hltPhase2L3MuonGeneralTracks = cms.EDProducer("TrackListMerger",
+hltPhase2L3MuonIsoTracks = cms.EDProducer("TrackListMerger",
     Epsilon = cms.double(-0.001),
     FoundHitBonus = cms.double(5.0),
     LostHitPenalty = cms.double(5.0),
@@ -23,4 +23,18 @@ hltPhase2L3MuonGeneralTracks = cms.EDProducer("TrackListMerger",
     )),
     trackAlgoPriorityOrder = cms.string('hltPhase2L3MuonTrackAlgoPriorityOrder'),
     writeOnlyTrkQuals = cms.bool(False)
+)
+
+_hltPhase2L3MuonIsoTracksPixelSelector = cms.EDProducer("TrackSelectorByRegion",
+    produceMask = cms.bool(False),
+    produceTrackCollection = cms.bool(True),
+    regions = cms.InputTag("hltPhase2L3MuonPixelTracksAndHighPtTripletTrackingRegions"),
+    tracks = cms.InputTag("hltPhase2PixelTracks")
+)
+
+from Configuration.ProcessModifiers.phase2MuonPixelTracksSelector_cff import phase2MuonPixelTracksSelector
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
+(phase2MuonPixelTracksSelector | ngtScouting).toReplaceWith(
+    hltPhase2L3MuonIsoTracks,
+    _hltPhase2L3MuonIsoTracksPixelSelector
 )

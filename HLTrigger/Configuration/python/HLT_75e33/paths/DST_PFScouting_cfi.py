@@ -32,7 +32,7 @@ from ..sequences.HLTPFTauHPS_cfi import *
 from ..sequences.HLTParticleFlowSequence_cfi import *
 from ..sequences.HLTElePixelMatchUnseededSequence_cfi import *
 from ..sequences.HLTGsfElectronUnseededSequence_cfi import *
-from ..sequences.HLTPhase2L3MuonGeneralTracksSequence_cfi import *
+from ..sequences.HLTPhase2L3MuonIsoTracksSequence_cfi import *
 from ..sequences.HLTPFClusteringForEgammaUnseededSequence_cfi import *
 from ..sequences.HLTRawToDigiSequence_cfi import *
 from ..sequences.HLTTrackingSequence_cfi import *
@@ -62,7 +62,7 @@ DST_PFScouting = cms.Path(
     + hltEgammaEleGsfTrackIsoUnseeded
     + hltEgammaHcalPFClusterIsoUnseeded
     + hltPhase2L3MuonCandidates
-    + HLTPhase2L3MuonGeneralTracksSequence
+    + HLTPhase2L3MuonIsoTracksSequence
     + HLTAK4PFJetsReconstruction
     + hltAK4PFJetsForTaus
     + HLTPFTauHPS

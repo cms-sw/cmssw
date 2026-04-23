@@ -11,7 +11,7 @@ from ..sequences.HLTTICLLocalRecoSequence_cfi import *
 from ..sequences.HLTTrackingSequence_cfi import *
 from ..sequences.HLTMuonsSequence_cfi import *
 from ..modules.hltL3fL1TkMuVBFFiltered5_cfi import *
-from ..sequences.HLTPhase2L3MuonGeneralTracksSequence_cfi import *
+from ..sequences.HLTPhase2L3MuonIsoTracksSequence_cfi import *
 from ..modules.hltPhase2L3MuonsTrkIsoRegionalNewdR0p3dRVeto0p005dz0p25dr0p20ChisqInfPtMin0p0Cut0p4_cfi import *
 from ..modules.hltL3fL1TkMuVBF5RelTrkIsoVVLFiltered0p4_cfi import *
 from ..sequences.HLTParticleFlowSequence_cfi import *
@@ -32,7 +32,7 @@ HLT_VBF_DiPFPuppiJet133_83_Mjj700_Mu5_TrkIsoVVL = cms.Path(
     + HLTTrackingSequence
     + HLTMuonsSequence
     + hltL3fL1TkMuVBFFiltered5
-    + HLTPhase2L3MuonGeneralTracksSequence
+    + HLTPhase2L3MuonIsoTracksSequence
     + hltPhase2L3MuonsTrkIsoRegionalNewdR0p3dRVeto0p005dz0p25dr0p20ChisqInfPtMin0p0Cut0p4
     + hltL3fL1TkMuVBF5RelTrkIsoVVLFiltered0p4
     + HLTParticleFlowSequence
