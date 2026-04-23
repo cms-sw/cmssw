@@ -8,15 +8,15 @@
   <class name="reco::JetFlavourInfoMatchingCollectionBase">
     <field name="transientVector_" transient="true"/>
   </class>
-  <class name="reco::JetFlavourInfoMatchingCollection" ClassVersion="3">
-   <version ClassVersion="3" checksum="4221335161"/>
+  <class name="reco::io_v1::JetFlavourInfoMatchingCollection" ClassVersion="3">
+   <version ClassVersion="3" checksum="3071743479"/>
     <!-- <field name="transientVector_" transient="true"/> -->
     <!-- <field name="fixed_" transient="true"/> -->
   </class>
   <class name="reco::JetFlavourInfoMatchingRef"/>
   <class name="reco::JetFlavourInfoMatchingRefProd"/>
   <class name="reco::JetFlavourInfoMatchingRefVector"/>
-  <class name="edm::Wrapper<reco::JetFlavourInfoMatchingCollection>"/>
+  <class name="edm::Wrapper<reco::io_v1::JetFlavourInfoMatchingCollection>"/>
 
   <class name="reco::JetFlavour" ClassVersion="10">
    <version ClassVersion="10" checksum="2885862487"/>
