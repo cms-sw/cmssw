@@ -20,3 +20,38 @@ hltPhase2MuonIOTrackCandidates = cms.EDProducer("CkfTrackCandidateMaker",
     src = cms.InputTag("hltPhase2MuonPixelSeedsFromPixelTracks"),
     useHitsSplitting = cms.bool(True)
 )
+
+_hltPhase2MuonIOTrackCandidates = cms.EDProducer('MkFitOutputConverter',
+    batchSize = cms.int32(16),
+    candMVASel = cms.bool(False),
+    candCutSel = cms.bool(True),
+    candMinNHitsCut = cms.int32(4),
+    candMinPtCut = cms.double(0.9),
+    candMinPtRelaxedCut = cms.double(0.8),
+    candMinAbsEtaForRelaxedCut = cms.double(1.4),
+    candWP = cms.double(0),
+    doErrorRescale = cms.bool(True),
+    mightGet = cms.optional.untracked.vstring,
+    mkFitEventOfHits = cms.InputTag("hltMkFitEventOfHits"),
+    mkFitPixelHits = cms.InputTag("hltMkFitSiPixelHits"),
+    mkFitSeeds = cms.InputTag("hltPhase2MuonIOTrackMkFitSeeds"),
+    mkFitStripHits = cms.InputTag("hltMkFitSiPhase2Hits"),
+    propagatorAlong = cms.ESInputTag("","PropagatorWithMaterial"),
+    propagatorOpposite = cms.ESInputTag("","PropagatorWithMaterialOpposite"),
+    qualityMaxInvPt = cms.double(100),
+    qualityMaxPosErr = cms.double(100),
+    qualityMaxR = cms.double(120),
+    qualityMaxZ = cms.double(280),
+    qualityMinTheta = cms.double(0.01),
+    qualitySignPt = cms.bool(True),
+    seeds = cms.InputTag("hltPhase2MuonIOTrackSeeds"),
+    tfDnnLabel = cms.string('trackSelectionTf'),
+    tracks = cms.InputTag("hltPhase2MuonIOTrackCandidatesMkFit"),
+    ttrhBuilder = cms.ESInputTag("","hltESPTTRHBuilderWithTrackAngle")
+)
+
+from Configuration.ProcessModifiers.phase2MuonSeedsSelector_cff import phase2MuonSeedsSelector
+phase2MuonSeedsSelector.toReplaceWith(
+    hltPhase2MuonIOTrackCandidates,
+    _hltPhase2MuonIOTrackCandidates
+)

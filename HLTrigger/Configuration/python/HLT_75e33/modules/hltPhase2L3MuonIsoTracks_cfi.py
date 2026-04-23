@@ -34,7 +34,8 @@ _hltPhase2L3MuonIsoTracksPixelSelector = cms.EDProducer("TrackSelectorByRegion",
 
 from Configuration.ProcessModifiers.phase2MuonPixelTracksSelector_cff import phase2MuonPixelTracksSelector
 from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
-(phase2MuonPixelTracksSelector | ngtScouting).toReplaceWith(
+from Configuration.ProcessModifiers.phase2MuonSeedsSelector_cff import phase2MuonSeedsSelector
+(phase2MuonPixelTracksSelector | ngtScouting | phase2MuonSeedsSelector).toReplaceWith(
     hltPhase2L3MuonIsoTracks,
     _hltPhase2L3MuonIsoTracksPixelSelector
 )

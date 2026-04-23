@@ -195,9 +195,30 @@ def _modify_for_pixelTracksSelector(validator):
                              new_associator = 'Phase2tpToL3IOTkAssociation',
                              new_histo_params = trkMuonHistoParameters
     )
+
+def _modify_for_seedsSelector(validator):
+    # Replace the iter0 tracks with the IO tracks before the high-purity selection
+    _replace_associator_label(validator,
+                              target_label = 'hltIter0Phase2L3FromL1TkMuonTrackSelectionHighPurity',
+                              new_label = 'hltPhase2MuonIOTracks',
+                              new_associator = 'Phase2tpToL3IOTkNoHPAssociation',
+                              new_histo_params = trkMuonHistoParameters
+    )
+
+    # Replace the L3 IO tracks with the IO tracks after the high-purity selection
+    _replace_associator_label(validator,
+                              target_label = 'hltIter2Phase2L3FromL1TkMuonMerged',
+                              new_label = 'hltPhase2MuonIOTrackSelectionHighPurityForest',
+                              new_associator = 'Phase2tpToL3IOTkAssociation',
+                              new_histo_params = trkMuonHistoParameters)
+
 from Configuration.ProcessModifiers.phase2MuonPixelTracksSelector_cff import phase2MuonPixelTracksSelector
 from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
 (phase2MuonPixelTracksSelector | ngtScouting).toModify(_hltMuonMultiTrackValidator, _modify_for_pixelTracksSelector)
+
+from Configuration.ProcessModifiers.phase2MuonSeedsSelector_cff import phase2MuonSeedsSelector
+phase2MuonSeedsSelector.toModify(_hltMuonMultiTrackValidator, _modify_for_seedsSelector)
+
 # Check that the associators and labels are consistent
 # All MTV clones are DQMEDAnalyzers
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
