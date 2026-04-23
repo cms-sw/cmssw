@@ -31,12 +31,12 @@
   <class name="reco::PFTauDiscriminatorRefVector"/>
   <class name="edm::Wrapper<reco::io_v1::PFTauDiscriminator>"/>
 
-  <class name="reco::SingleTauDiscriminatorContainer" ClassVersion="3">
-    <version ClassVersion="3" checksum="2968610760"/>
+  <class name="reco::io_v1::SingleTauDiscriminatorContainer" ClassVersion="3">
+    <version ClassVersion="3" checksum="4047255174"/>
   </class>
-  <class name="std::vector<reco::SingleTauDiscriminatorContainer>"/>
-  <class name="edm::ValueMap<reco::SingleTauDiscriminatorContainer>"/>
-  <class name="edm::Wrapper<edm::ValueMap<reco::SingleTauDiscriminatorContainer> >"/> 
+  <class name="std::vector<reco::io_v1::SingleTauDiscriminatorContainer>"/>
+  <class name="edm::ValueMap<reco::io_v1::SingleTauDiscriminatorContainer>"/>
+  <class name="edm::Wrapper<edm::ValueMap<reco::io_v1::SingleTauDiscriminatorContainer> >"/>
 
   <class name="reco::JetPiZeroAssociationBase">
     <field name="transientVector_" transient="true"/>
