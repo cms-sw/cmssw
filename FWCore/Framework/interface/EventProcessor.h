@@ -190,9 +190,9 @@ namespace edm {
     // transition handling.
 
     [[nodiscard]] SourceStatus findNextTransitionType();
-    void nextTransitionTypeAsync(std::shared_ptr<RunProcessingStatus> iRunStatus,
-                                 WaitingTaskHolder nextTask,
-                                 SourceStatus& oSourceStatus);
+    void nextTransitionTypeThatIsNotTheSameRunAsync(std::shared_ptr<RunProcessingStatus> iRunStatus,
+                                                    WaitingTaskHolder nextTask,
+                                                    SourceStatus& oSourceStatus);
 
     void readFile();
     bool fileBlockValid() { return fb_.get() != nullptr; }
@@ -362,7 +362,7 @@ namespace edm {
     std::atomic<bool> exceptionMessageRuns_;
     std::atomic<bool> exceptionMessageLumis_;
     bool forceLooperToEnd_;
-    bool looperBeginJobRun_;
+    std::atomic<bool> looperBeginJobRun_;
     bool forceESCacheClearOnNewRun_;
 
     PreallocationConfiguration preallocations_;

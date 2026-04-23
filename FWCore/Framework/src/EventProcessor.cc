@@ -908,9 +908,9 @@ namespace edm {
     return returnValue;
   }
 
-  void EventProcessor::nextTransitionTypeAsync(std::shared_ptr<RunProcessingStatus> iRunStatus,
-                                               WaitingTaskHolder nextTask,
-                                               SourceStatus& lastTransition) {
+  void EventProcessor::nextTransitionTypeThatIsNotTheSameRunAsync(std::shared_ptr<RunProcessingStatus> iRunStatus,
+                                                                  WaitingTaskHolder nextTask,
+                                                                  SourceStatus& lastTransition) {
     auto group = nextTask.group();
     sourceResourcesAcquirer_.serialQueueChain().push(
         *group, [this, runStatus = std::move(iRunStatus), nextHolder = std::move(nextTask), &lastTransition]() mutable {
@@ -1252,158 +1252,180 @@ namespace edm {
                 }
 
                 runStatus->setResumer(std::move(iResumer));
+                bool expectedLooperNotBegun = false;
 
-                sourceResourcesAcquirer_.serialQueueChain().push(
-                    *postRunQueueTask.group(),
-                    [this, postSourceTask = postRunQueueTask, runStatus, &oSourceStatus]() mutable {
-                      CMS_SA_ALLOW try {
-                        ServiceRegistry::Operate operate(serviceToken_);
+                chain::first([this, postSourceTask = postRunQueueTask, runStatus, &oSourceStatus](
+                                 auto nextTask) mutable {
+                  sourceResourcesAcquirer_.serialQueueChain().push(
+                      *postSourceTask.group(), [this, postSourceTask, runStatus, nextTask, &oSourceStatus]() mutable {
+                        CMS_SA_ALLOW try {
+                          ServiceRegistry::Operate operate(serviceToken_);
 
-                        if (postSourceTask.taskHasFailed()) {
-                          releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus,
-                                                                                      queueWhichWaitsForIOVsToFinish_);
-                          return;
-                        }
-
-                        {
-                          std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
-                          runStatus->setRunPrincipal(readRun());
-
-                          RunPrincipal& runPrincipal = *runStatus->runPrincipal();
-                          {
-                            SendSourceTerminationSignalIfException sentry(actReg_.get());
-                            input_->doBeginRun(runPrincipal, &processContext_);
-                            sentry.completedSuccessfully();
-                          }
-                        }
-
-                        EventSetupImpl const& es = runStatus->eventSetupImpl();
-                        if (looper_ && looperBeginJobRun_ == false) {
-                          looper_->copyInfo(ScheduleInfo(schedule_.get()));
-
-                          oneapi::tbb::task_group group;
-                          FinalWaitingTask waitTask{group};
-                          using namespace edm::waiting_task::chain;
-                          chain::first([this, &es](auto nextTask) {
-                            looper_->esPrefetchAsync(nextTask, es, Transition::BeginRun, serviceToken_);
-                          }) | then([this, &es](auto nextTask) mutable {
-                            looper_->beginOfJob(es);
-                            looperBeginJobRun_ = true;
-                            looper_->doStartingNewLoop();
-                          }) | runLast(WaitingTaskHolder(group, &waitTask));
-                          waitTask.wait();
-                        }
-
-                        using namespace edm::waiting_task::chain;
-                        chain::first([this, runStatus, &oSourceStatus](auto nextTask) mutable {
-                          CMS_SA_ALLOW try {
-                            if (oSourceStatus.nextTransitionType().itemPosition() !=
-                                InputSource::ItemPosition::LastItemToBeMerged) {
-                              readAndMergeRunEntriesAsync(runStatus, nextTask, oSourceStatus);
-                            } else {
-                              oSourceStatus.setNeedToCallNext(true);
-                            }
-                          } catch (...) {
-                            runStatus->setStopBeforeProcessingRun(true);
-                            nextTask.doneWaiting(std::current_exception());
-                          }
-                        }) | then([this, runStatus, &es](auto nextTask) {
-                          if (runStatus->stopBeforeProcessingRun()) {
+                          if (postSourceTask.taskHasFailed()) {
+                            releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(
+                                *runStatus, queueWhichWaitsForIOVsToFinish_);
                             return;
                           }
-                          RunTransitionInfo transitionInfo(*runStatus->runPrincipal(), es);
-                          using Traits = OccurrenceTraits<RunPrincipal, TransitionActionGlobalBegin>;
-                          schedule_->processOneGlobalAsync<Traits>(nextTask, transitionInfo, serviceToken_);
-                        }) |
-                            ifThen(looper_,
-                                   [this, runStatus, &es](auto nextTask) {
-                                     if (runStatus->stopBeforeProcessingRun()) {
-                                       return;
-                                     }
-                                     looper_->prefetchAsync(
-                                         nextTask, serviceToken_, Transition::BeginRun, *runStatus->runPrincipal(), es);
-                                   }) |
-                            ifThen(looper_,
-                                   [this, runStatus, &es](auto nextTask) {
-                                     if (runStatus->stopBeforeProcessingRun()) {
-                                       return;
-                                     }
-                                     ServiceRegistry::Operate operateLooper(serviceToken_);
-                                     looper_->doBeginRun(*runStatus->runPrincipal(), es, &processContext_);
-                                   }) |
-                            then([this, runStatus, &oSourceStatus](std::exception_ptr const* iException,
-                                                                   auto holder) mutable {
-                              if (iException) {
-                                WaitingTaskHolder copyHolder(holder);
-                                copyHolder.doneWaiting(*iException);
-                              } else {
-                                runStatus->globalBeginDidSucceed();
-                              }
-                              if (runStatus->stopBeforeProcessingRun()) {
-                                // We just quit now if there was a failure when merging runs
-                                releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(
-                                    *runStatus, queueWhichWaitsForIOVsToFinish_);
-                                return;
-                              }
-                              CMS_SA_ALLOW try {
-                                // Under normal circumstances, this task runs after endRun has completed for all streams
-                                // and global endLumi has completed for all lumis contained in this run
-                                auto globalEndRunTask =
-                                    edm::make_waiting_task([this, runStatus](std::exception_ptr const*) mutable {
-                                      WaitingTaskHolder taskHolder = runStatus->holderOfTaskInProcessRuns();
-                                      runStatus->holderOfTaskInProcessRuns().doneWaiting(std::exception_ptr{});
-                                      globalEndRunAsync(std::move(taskHolder), std::move(runStatus));
-                                    });
-                                runStatus->setGlobalEndRunHolder(WaitingTaskHolder{*holder.group(), globalEndRunTask});
-                              } catch (...) {
-                                releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(
-                                    *runStatus, queueWhichWaitsForIOVsToFinish_);
-                                holder.doneWaiting(std::current_exception());
-                                return;
-                              }
 
-                              // After this point we are committed to end the run via endRunAsync
+                          {
+                            std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
+                            runStatus->setRunPrincipal(readRun());
 
-                              ServiceRegistry::Operate operate(serviceToken_);
-
-                              // The only purpose of the pause is to cause stream begin run to execute before
-                              // global begin lumi in the single threaded case (maintains consistency with
-                              // the order that existed before concurrent runs were implemented).
-                              PauseQueueSentry pauseQueueSentry(streamQueuesInserter_);
-
-                              CMS_SA_ALLOW try {
-                                streamQueuesInserter_.push(*holder.group(), [this, runStatus, holder]() mutable {
-                                  for (auto i : std::views::iota(0U, preallocations_.numberOfStreams())) {
-                                    CMS_SA_ALLOW try {
-                                      streamQueues_[i].push(*holder.group(), [this, i, runStatus, holder]() mutable {
-                                        streamBeginRunAsync(i, std::move(runStatus), std::move(holder));
-                                      });
+                            RunPrincipal& runPrincipal = *runStatus->runPrincipal();
+                            {
+                              SendSourceTerminationSignalIfException sentry(actReg_.get());
+                              input_->doBeginRun(runPrincipal, &processContext_);
+                              sentry.completedSuccessfully();
+                            }
+                          }
+                        } catch (...) {
+                          nextTask.doneWaiting(std::current_exception());
+                          releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus,
+                                                                                      queueWhichWaitsForIOVsToFinish_);
+                        }
+                      });
+                }) |
+                    chain::ifThen(looper_ and looperBeginJobRun_.compare_exchange_strong(expectedLooperNotBegun, true),
+                                  [this, runStatus](auto nextTask) mutable {
+                                    try {
+                                      looper_->copyInfo(ScheduleInfo(schedule_.get()));
                                     } catch (...) {
-                                      if (runStatus->streamFinishedBeginRun()) {
-                                        WaitingTaskHolder copyHolder(holder);
-                                        copyHolder.doneWaiting(std::current_exception());
-                                        releaseBeginRunResourcesAfterFailure(*runStatus,
-                                                                             queueWhichWaitsForIOVsToFinish_);
-                                        exceptionRunStatus_ = runStatus;
-                                      }
+                                      nextTask.doneWaiting(std::current_exception());
+                                      releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(
+                                          *runStatus, queueWhichWaitsForIOVsToFinish_);
                                     }
-                                  }
-                                });
-                              } catch (...) {
-                                WaitingTaskHolder copyHolder(holder);
-                                copyHolder.doneWaiting(std::current_exception());
-                                releaseBeginRunResourcesAfterFailure(*runStatus, queueWhichWaitsForIOVsToFinish_);
-                                exceptionRunStatus_ = runStatus;
-                              }
-                              handleNextItemAfterMergingRunEntriesAsync(runStatus, holder, oSourceStatus);
-                            }) |
-                            runLast(postSourceTask);
+                                  }) |
+                    chain::ifThen(looper_ and looperBeginJobRun_.load(),
+                                  [this, runStatus](auto nextTask) mutable {
+                                    CMS_SA_ALLOW try {
+                                      EventSetupImpl const& es = runStatus->eventSetupImpl();
+                                      looper_->esPrefetchAsync(nextTask, es, Transition::BeginRun, serviceToken_);
+                                    } catch (...) {
+                                      nextTask.doneWaiting(std::current_exception());
+                                      releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(
+                                          *runStatus, queueWhichWaitsForIOVsToFinish_);
+                                    }
+                                  }) |
+                    chain::ifThen(looper_ and looperBeginJobRun_.load(),
+                                  [this, runStatus](auto nextTask) mutable {
+                                    CMS_SA_ALLOW try {
+                                      EventSetupImpl const& es = runStatus->eventSetupImpl();
+                                      looper_->beginOfJob(es);
+                                      looper_->doStartingNewLoop();
+
+                                    } catch (...) {
+                                      nextTask.doneWaiting(std::current_exception());
+                                      releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(
+                                          *runStatus, queueWhichWaitsForIOVsToFinish_);
+                                    }
+                                  }) |
+                    chain::then([this, runStatus, &oSourceStatus](auto nextTask) mutable {
+                      CMS_SA_ALLOW try {
+                        if (oSourceStatus.nextTransitionType().itemPosition() !=
+                            InputSource::ItemPosition::LastItemToBeMerged) {
+                          readAndMergeRunEntriesAsync(runStatus, nextTask, oSourceStatus);
+                        } else {
+                          oSourceStatus.setNeedToCallNext(true);
+                        }
                       } catch (...) {
-                        releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus,
-                                                                                    queueWhichWaitsForIOVsToFinish_);
-                        postSourceTask.doneWaiting(std::current_exception());
+                        runStatus->setStopBeforeProcessingRun(true);
+                        nextTask.doneWaiting(std::current_exception());
                       }
-                    });  // task in sourceResourcesAcquirer
+                    }) |
+                    chain::then([this, runStatus](auto nextTask) {
+                      if (runStatus->stopBeforeProcessingRun()) {
+                        return;
+                      }
+                      EventSetupImpl const& es = runStatus->eventSetupImpl();
+                      RunTransitionInfo transitionInfo(*runStatus->runPrincipal(), es);
+                      using Traits = OccurrenceTraits<RunPrincipal, TransitionActionGlobalBegin>;
+                      schedule_->processOneGlobalAsync<Traits>(nextTask, transitionInfo, serviceToken_);
+                    }) |
+                    chain::ifThen(looper_,
+                                  [this, runStatus](auto nextTask) {
+                                    EventSetupImpl const& es = runStatus->eventSetupImpl();
+
+                                    if (runStatus->stopBeforeProcessingRun()) {
+                                      return;
+                                    }
+                                    looper_->prefetchAsync(
+                                        nextTask, serviceToken_, Transition::BeginRun, *runStatus->runPrincipal(), es);
+                                  }) |
+                    chain::ifThen(looper_,
+                                  [this, runStatus](auto nextTask) {
+                                    EventSetupImpl const& es = runStatus->eventSetupImpl();
+                                    if (runStatus->stopBeforeProcessingRun()) {
+                                      return;
+                                    }
+                                    ServiceRegistry::Operate operateLooper(serviceToken_);
+                                    looper_->doBeginRun(*runStatus->runPrincipal(), es, &processContext_);
+                                  }) |
+                    chain::then(
+                        [this, runStatus, &oSourceStatus](std::exception_ptr const* iException, auto holder) mutable {
+                          if (iException) {
+                            WaitingTaskHolder copyHolder(holder);
+                            copyHolder.doneWaiting(*iException);
+                          } else {
+                            runStatus->globalBeginDidSucceed();
+                          }
+                          if (runStatus->stopBeforeProcessingRun()) {
+                            // We just quit now if there was a failure when merging runs
+                            releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(
+                                *runStatus, queueWhichWaitsForIOVsToFinish_);
+                            return;
+                          }
+                          CMS_SA_ALLOW try {
+                            // Under normal circumstances, this task runs after endRun has completed for all streams
+                            // and global endLumi has completed for all lumis contained in this run
+                            auto globalEndRunTask =
+                                edm::make_waiting_task([this, runStatus](std::exception_ptr const*) mutable {
+                                  WaitingTaskHolder taskHolder = runStatus->holderOfTaskInProcessRuns();
+                                  runStatus->holderOfTaskInProcessRuns().doneWaiting(std::exception_ptr{});
+                                  globalEndRunAsync(std::move(taskHolder), std::move(runStatus));
+                                });
+                            runStatus->setGlobalEndRunHolder(WaitingTaskHolder{*holder.group(), globalEndRunTask});
+                          } catch (...) {
+                            releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(
+                                *runStatus, queueWhichWaitsForIOVsToFinish_);
+                            holder.doneWaiting(std::current_exception());
+                            return;
+                          }
+
+                          // After this point we are committed to end the run via endRunAsync
+
+                          ServiceRegistry::Operate operate(serviceToken_);
+
+                          // The only purpose of the pause is to cause stream begin run to execute before
+                          // global begin lumi in the single threaded case (maintains consistency with
+                          // the order that existed before concurrent runs were implemented).
+                          PauseQueueSentry pauseQueueSentry(streamQueuesInserter_);
+
+                          CMS_SA_ALLOW try {
+                            streamQueuesInserter_.push(*holder.group(), [this, runStatus, holder]() mutable {
+                              for (auto i : std::views::iota(0U, preallocations_.numberOfStreams())) {
+                                CMS_SA_ALLOW try {
+                                  streamQueues_[i].push(*holder.group(), [this, i, runStatus, holder]() mutable {
+                                    streamBeginRunAsync(i, std::move(runStatus), std::move(holder));
+                                  });
+                                } catch (...) {
+                                  if (runStatus->streamFinishedBeginRun()) {
+                                    WaitingTaskHolder copyHolder(holder);
+                                    copyHolder.doneWaiting(std::current_exception());
+                                    releaseBeginRunResourcesAfterFailure(*runStatus, queueWhichWaitsForIOVsToFinish_);
+                                    exceptionRunStatus_ = runStatus;
+                                  }
+                                }
+                              }
+                            });
+                          } catch (...) {
+                            WaitingTaskHolder copyHolder(holder);
+                            copyHolder.doneWaiting(std::current_exception());
+                            releaseBeginRunResourcesAfterFailure(*runStatus, queueWhichWaitsForIOVsToFinish_);
+                            exceptionRunStatus_ = runStatus;
+                          }
+                          handleNextItemAfterMergingRunEntriesAsync(runStatus, holder, oSourceStatus);
+                        }) |
+                    chain::runLast(postRunQueueTask);
               } catch (...) {
                 releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus,
                                                                             queueWhichWaitsForIOVsToFinish_);
@@ -1717,139 +1739,142 @@ namespace edm {
                   return;
                 }
 
+                ServiceRegistry::Operate operate(serviceToken_);
+                Service<RandomNumberGenerator> rng;
+                using namespace edm::waiting_task::chain;
+
                 status->setResumer(std::move(iResumer));
+                chain::first([this, postLumiQueueTask, status, iRunStatus, &oSourceStatus](auto nextTask) mutable {
+                  sourceResourcesAcquirer_.serialQueueChain().push(
+                      *postLumiQueueTask.group(),
+                      [this, postSourceTask = postLumiQueueTask, nextTask, status, iRunStatus, &oSourceStatus]() mutable {
+                        CMS_SA_ALLOW try {
+                          ServiceRegistry::Operate operate(serviceToken_);
 
-                sourceResourcesAcquirer_.serialQueueChain().push(
-                    *postLumiQueueTask.group(),
-                    [this, postSourceTask = postLumiQueueTask, status, iRunStatus, &oSourceStatus]() mutable {
-                      CMS_SA_ALLOW try {
-                        ServiceRegistry::Operate operate(serviceToken_);
-
-                        if (postSourceTask.taskHasFailed()) {
-                          releaseLumiResourcesAfterFailure(*status, queueWhichWaitsForIOVsToFinish_);
-                          endRunAsync(iRunStatus, postSourceTask, oSourceStatus);
-                          return;
-                        }
-
-                        {
-                          std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
-                          status->setLumiPrincipal(readLuminosityBlock(iRunStatus->runPrincipal()));
-
-                          LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
-                          {
-                            SendSourceTerminationSignalIfException sentry(actReg_.get());
-                            input_->doBeginLumi(lumiPrincipal, &processContext_);
-                            sentry.completedSuccessfully();
+                          if (postSourceTask.taskHasFailed()) {
+                            releaseLumiResourcesAfterFailure(*status, queueWhichWaitsForIOVsToFinish_);
+                            endRunAsync(iRunStatus, postSourceTask, oSourceStatus);
+                            return;
                           }
+
+                          {
+                            std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
+                            status->setLumiPrincipal(readLuminosityBlock(iRunStatus->runPrincipal()));
+
+                            LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
+                            {
+                              SendSourceTerminationSignalIfException sentry(actReg_.get());
+                              input_->doBeginLumi(lumiPrincipal, &processContext_);
+                              sentry.completedSuccessfully();
+                            }
+                          }
+                        } catch (...) {
+                          releaseLumiResourcesAfterFailure(*status, queueWhichWaitsForIOVsToFinish_);
+                          WaitingTaskHolder copyHolder(nextTask);
+                          copyHolder.doneWaiting(std::current_exception());
+                          endRunAsync(iRunStatus, nextTask, oSourceStatus);
                         }
-                        LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
-                        Service<RandomNumberGenerator> rng;
+                      });
+                }) |
+                    chain::ifThen(rng.isAvailable() and rng->consumer() != nullptr,
+                                  [this, status](auto nextTask) {
+                                    //handle RandomNumberGenerator prefetching and preBeginLumi
+                                    assert(status->lumiPrincipal() != nullptr);
+                                    auto& lumiPrincipal = *status->lumiPrincipal();
+                                    prefetchForRandomNumberGeneratorAsync(
+                                        std::move(nextTask), lumiPrincipal, serviceToken_);
+                                  }) |
+                    ifThen(rng.isAvailable() and rng->consumer() != nullptr,
+                           [this, status](auto nextTask) {
+                             ServiceRegistry::Operate operate(serviceToken_);
+                             Service<RandomNumberGenerator> rng;
+                             auto& lumiPrincipal = *status->lumiPrincipal();
+                             LuminosityBlock lb(lumiPrincipal, ModuleDescription(), nullptr, false);
+                             lb.setConsumer(rng->consumer());
+                             rng->preBeginLumi(lb);
+                           }) |
+                    then([this, status, &oSourceStatus](auto nextTask) mutable {
+                      if (oSourceStatus.nextTransitionType().itemPosition() !=
+                          InputSource::ItemPosition::LastItemToBeMerged) {
+                        readAndMergeLumiEntriesAsync(std::move(status), std::move(nextTask), oSourceStatus);
+                      } else {
+                        oSourceStatus.setNeedToCallNext(true);
+                      }
+                    }) |
+                    then([this, status](auto nextTask) {
+                      EventSetupImpl const& es = status->eventSetupImpl();
+                      auto& lumiPrincipal = *status->lumiPrincipal();
+                      LumiTransitionInfo transitionInfo(lumiPrincipal, es);
+                      using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalBegin>;
+                      schedule_->processOneGlobalAsync<Traits>(nextTask, transitionInfo, serviceToken_);
+                    }) |
+                    ifThen(looper_,
+                           [this, status](auto nextTask) {
+                             EventSetupImpl const& es = status->eventSetupImpl();
+                             looper_->prefetchAsync(nextTask,
+                                                    serviceToken_,
+                                                    Transition::BeginLuminosityBlock,
+                                                    *(status->lumiPrincipal()),
+                                                    es);
+                           }) |
+                    ifThen(looper_,
+                           [this, status](auto nextTask) {
+                             ServiceRegistry::Operate operateLooper(serviceToken_);
+                             looper_->doBeginLuminosityBlock(
+                                 *(status->lumiPrincipal()), status->eventSetupImpl(), &processContext_);
+                           }) |
+                    then([this, status, iRunStatus, &oSourceStatus](std::exception_ptr const* iException,
+                                                                    auto holder) mutable {
+                      status->setGlobalEndRunHolder(iRunStatus->globalEndRunHolder());
+
+                      if (iException) {
+                        WaitingTaskHolder copyHolder(holder);
+                        copyHolder.doneWaiting(*iException);
+                        globalEndLumiAsync(holder, status);
+                        endRunAsync(iRunStatus, holder, oSourceStatus);
+                      } else {
+                        status->globalBeginDidSucceed();
 
                         EventSetupImpl const& es = status->eventSetupImpl();
+                        using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>;
 
-                        using namespace edm::waiting_task::chain;
-                        chain::firstIf(rng.isAvailable() and rng->consumer() != nullptr,
-                                       [this, &lumiPrincipal](auto nextTask) {
-                                         //handle RandomNumberGenerator prefetching and preBeginLumi
-                                         chain::first([this, &lumiPrincipal](auto nextTask) {
-                                           prefetchForRandomNumberGeneratorAsync(
-                                               std::move(nextTask), lumiPrincipal, serviceToken_);
-                                         }) | then([this, &lumiPrincipal](auto nextTask) {
-                                           ServiceRegistry::Operate operate(serviceToken_);
-                                           Service<RandomNumberGenerator> rng;
-                                           if (rng.isAvailable()) {
-                                             LuminosityBlock lb(lumiPrincipal, ModuleDescription(), nullptr, false);
-                                             lb.setConsumer(rng->consumer());
-                                             rng->preBeginLumi(lb);
-                                           }
-                                         }) | runLast(nextTask);
-                                       }) |
-                            then([this, status, &oSourceStatus](auto nextTask) mutable {
-                              if (oSourceStatus.nextTransitionType().itemPosition() !=
-                                  InputSource::ItemPosition::LastItemToBeMerged) {
-                                readAndMergeLumiEntriesAsync(std::move(status), std::move(nextTask), oSourceStatus);
-                              } else {
-                                oSourceStatus.setNeedToCallNext(true);
-                              }
-                            }) |
-                            then([this, status, &es, &lumiPrincipal](auto nextTask) {
-                              LumiTransitionInfo transitionInfo(lumiPrincipal, es);
-                              using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionGlobalBegin>;
-                              schedule_->processOneGlobalAsync<Traits>(nextTask, transitionInfo, serviceToken_);
-                            }) |
-                            ifThen(looper_,
-                                   [this, status, &es](auto nextTask) {
-                                     looper_->prefetchAsync(nextTask,
-                                                            serviceToken_,
-                                                            Transition::BeginLuminosityBlock,
-                                                            *(status->lumiPrincipal()),
-                                                            es);
-                                   }) |
-                            ifThen(looper_,
-                                   [this, status, &es](auto nextTask) {
-                                     ServiceRegistry::Operate operateLooper(serviceToken_);
-                                     looper_->doBeginLuminosityBlock(*(status->lumiPrincipal()), es, &processContext_);
-                                   }) |
-                            then([this, status, iRunStatus, &oSourceStatus](std::exception_ptr const* iException,
-                                                                            auto holder) mutable {
-                              status->setGlobalEndRunHolder(iRunStatus->globalEndRunHolder());
+                        streamQueuesInserter_.push(
+                            *holder.group(), [this, status, holder, &es, &oSourceStatus]() mutable {
+                              for (auto i : std::views::iota(0U, preallocations_.numberOfStreams())) {
+                                streamQueues_[i].push(
+                                    *holder.group(), [this, i, status, holder, &es, &oSourceStatus]() mutable {
+                                      if (!status->shouldStreamStartLumi()) {
+                                        return;
+                                      }
+                                      streamQueues_[i].pause();
 
-                              if (iException) {
-                                WaitingTaskHolder copyHolder(holder);
-                                copyHolder.doneWaiting(*iException);
-                                globalEndLumiAsync(holder, status);
-                                endRunAsync(iRunStatus, holder, oSourceStatus);
-                              } else {
-                                status->globalBeginDidSucceed();
-
-                                EventSetupImpl const& es = status->eventSetupImpl();
-                                using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>;
-
-                                streamQueuesInserter_.push(
-                                    *holder.group(), [this, status, holder, &es, &oSourceStatus]() mutable {
-                                      for (auto i : std::views::iota(0U, preallocations_.numberOfStreams())) {
-                                        streamQueues_[i].push(
-                                            *holder.group(), [this, i, status, holder, &es, &oSourceStatus]() mutable {
-                                              if (!status->shouldStreamStartLumi()) {
-                                                return;
-                                              }
-                                              streamQueues_[i].pause();
-
-                                              auto& event = principalCache_.eventPrincipal(i);
-                                              auto lp = status->lumiPrincipal().get();
-                                              streamLumiStatus_[i] = std::move(status);
-                                              ++streamLumiActive_;
-                                              event.setLuminosityBlockPrincipal(lp);
-                                              LumiTransitionInfo transitionInfo(*lp, es);
-                                              using namespace edm::waiting_task::chain;
-                                              chain::first([this, i, &transitionInfo](auto nextTask) {
-                                                schedule_->processOneStreamAsync<Traits>(
-                                                    std::move(nextTask), i, transitionInfo, serviceToken_);
-                                              }) |
-                                                  then([this, i, &oSourceStatus](
-                                                           std::exception_ptr const* exceptionFromBeginStreamLumi,
-                                                           auto nextTask) {
-                                                    if (exceptionFromBeginStreamLumi) {
-                                                      WaitingTaskHolder copyHolder(nextTask);
-                                                      copyHolder.doneWaiting(*exceptionFromBeginStreamLumi);
-                                                    }
-                                                    handleNextEventForStreamAsync(
-                                                        std::move(nextTask), i, oSourceStatus);
-                                                  }) |
-                                                  runLast(std::move(holder));
-                                            });
-                                      }  // end for loop over streams
+                                      auto& event = principalCache_.eventPrincipal(i);
+                                      auto lp = status->lumiPrincipal().get();
+                                      streamLumiStatus_[i] = std::move(status);
+                                      ++streamLumiActive_;
+                                      event.setLuminosityBlockPrincipal(lp);
+                                      LumiTransitionInfo transitionInfo(*lp, es);
+                                      using namespace edm::waiting_task::chain;
+                                      chain::first([this, i, &transitionInfo](auto nextTask) {
+                                        schedule_->processOneStreamAsync<Traits>(
+                                            std::move(nextTask), i, transitionInfo, serviceToken_);
+                                      }) |
+                                          then([this, i, &oSourceStatus](
+                                                   std::exception_ptr const* exceptionFromBeginStreamLumi,
+                                                   auto nextTask) {
+                                            if (exceptionFromBeginStreamLumi) {
+                                              WaitingTaskHolder copyHolder(nextTask);
+                                              copyHolder.doneWaiting(*exceptionFromBeginStreamLumi);
+                                            }
+                                            handleNextEventForStreamAsync(std::move(nextTask), i, oSourceStatus);
+                                          }) |
+                                          runLast(std::move(holder));
                                     });
-                              }
-                            }) |
-                            runLast(postSourceTask);
-                      } catch (...) {
-                        releaseLumiResourcesAfterFailure(*status, queueWhichWaitsForIOVsToFinish_);
-                        WaitingTaskHolder copyHolder(postSourceTask);
-                        copyHolder.doneWaiting(std::current_exception());
-                        endRunAsync(iRunStatus, postSourceTask, oSourceStatus);
+                              }  // end for loop over streams
+                            });
                       }
-                    });  // task in sourceResourcesAcquirer
+                    }) |
+                    runLast(postLumiQueueTask);
               } catch (...) {
                 releaseLumiResourcesAfterFailure(*status, queueWhichWaitsForIOVsToFinish_);
                 WaitingTaskHolder copyHolder(postLumiQueueTask);
@@ -2208,7 +2233,7 @@ namespace edm {
                                                                  SourceStatus& oSourceStatus) {
     chain::first([this, iRunStatus, &oSourceStatus](auto nextTask) mutable {
       if (oSourceStatus.needToCallNext()) {
-        nextTransitionTypeAsync(std::move(iRunStatus), std::move(nextTask), oSourceStatus);
+        nextTransitionTypeThatIsNotTheSameRunAsync(std::move(iRunStatus), std::move(nextTask), oSourceStatus);
       }
     }) | chain::then([this, iRunStatus, &oSourceStatus](std::exception_ptr const* iException, auto nextTask) {
       ServiceRegistry::Operate operate(serviceToken_);
