@@ -1211,6 +1211,39 @@ namespace edm {
       iStatus.resumeGlobalRunQueue();
     }
   }  // namespace
+
+  void EventProcessor::readRunAsync(std::shared_ptr<RunProcessingStatus> iRunStatus,
+                                    WaitingTaskHolder const& iCheckSharedTask,
+                                    WaitingTaskHolder iNextTask,
+                                    SourceStatus& oSourceStatus) {
+    sourceResourcesAcquirer_.serialQueueChain().push(
+        *iNextTask.group(), [this, iRunStatus, iCheckSharedTask, iNextTask, &oSourceStatus]() mutable {
+          CMS_SA_ALLOW try {
+            ServiceRegistry::Operate operate(serviceToken_);
+
+            if (iCheckSharedTask.taskHasFailed()) {
+              releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*iRunStatus, queueWhichWaitsForIOVsToFinish_);
+              return;
+            }
+
+            {
+              std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
+              iRunStatus->setRunPrincipal(readRun());
+
+              RunPrincipal& runPrincipal = *iRunStatus->runPrincipal();
+              {
+                SendSourceTerminationSignalIfException sentry(actReg_.get());
+                input_->doBeginRun(runPrincipal, &processContext_);
+                sentry.completedSuccessfully();
+              }
+            }
+          } catch (...) {
+            iNextTask.doneWaiting(std::current_exception());
+            releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*iRunStatus, queueWhichWaitsForIOVsToFinish_);
+          }
+        });
+  }
+
   void EventProcessor::beginRunAsync(IOVSyncValue const& iSync,
                                      WaitingTaskHolder iHolder,
                                      SourceStatus& oSourceStatus) {
@@ -1254,37 +1287,10 @@ namespace edm {
                 runStatus->setResumer(std::move(iResumer));
                 bool expectedLooperNotBegun = false;
 
-                chain::first([this, postSourceTask = postRunQueueTask, runStatus, &oSourceStatus](
-                                 auto nextTask) mutable {
-                  sourceResourcesAcquirer_.serialQueueChain().push(
-                      *postSourceTask.group(), [this, postSourceTask, runStatus, nextTask, &oSourceStatus]() mutable {
-                        CMS_SA_ALLOW try {
-                          ServiceRegistry::Operate operate(serviceToken_);
-
-                          if (postSourceTask.taskHasFailed()) {
-                            releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(
-                                *runStatus, queueWhichWaitsForIOVsToFinish_);
-                            return;
-                          }
-
-                          {
-                            std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
-                            runStatus->setRunPrincipal(readRun());
-
-                            RunPrincipal& runPrincipal = *runStatus->runPrincipal();
-                            {
-                              SendSourceTerminationSignalIfException sentry(actReg_.get());
-                              input_->doBeginRun(runPrincipal, &processContext_);
-                              sentry.completedSuccessfully();
-                            }
-                          }
-                        } catch (...) {
-                          nextTask.doneWaiting(std::current_exception());
-                          releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus,
-                                                                                      queueWhichWaitsForIOVsToFinish_);
-                        }
-                      });
-                }) |
+                chain::first(
+                    [this, postSourceTask = postRunQueueTask, runStatus, &oSourceStatus](auto nextTask) mutable {
+                      readRunAsync(runStatus, postSourceTask, nextTask, oSourceStatus);
+                    }) |
                     chain::ifThen(looper_ and looperBeginJobRun_.compare_exchange_strong(expectedLooperNotBegun, true),
                                   [this, runStatus](auto nextTask) mutable {
                                     try {
@@ -1705,6 +1711,40 @@ namespace edm {
 
   }  // namespace
 
+  void EventProcessor::readLumiAsync(std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus,
+                                     std::shared_ptr<RunProcessingStatus> iRunStatus,
+                                     WaitingTaskHolder iCheckSharedTask,
+                                     WaitingTaskHolder iNextTask,
+                                     SourceStatus& oSourceStatus) {
+    sourceResourcesAcquirer_.serialQueueChain().push(
+        *iNextTask.group(), [this, iLumiStatus, iRunStatus, iCheckSharedTask, iNextTask, &oSourceStatus]() mutable {
+          CMS_SA_ALLOW try {
+            ServiceRegistry::Operate operate(serviceToken_);
+
+            if (iCheckSharedTask.taskHasFailed()) {
+              releaseLumiResourcesAfterFailure(*iLumiStatus, queueWhichWaitsForIOVsToFinish_);
+              endRunAsync(iRunStatus, iNextTask, oSourceStatus);
+              return;
+            }
+
+            {
+              std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
+              iLumiStatus->setLumiPrincipal(readLuminosityBlock(iRunStatus->runPrincipal()));
+
+              LuminosityBlockPrincipal& lumiPrincipal = *iLumiStatus->lumiPrincipal();
+              {
+                SendSourceTerminationSignalIfException sentry(actReg_.get());
+                input_->doBeginLumi(lumiPrincipal, &processContext_);
+                sentry.completedSuccessfully();
+              }
+            }
+          } catch (...) {
+            releaseLumiResourcesAfterFailure(*iLumiStatus, queueWhichWaitsForIOVsToFinish_);
+            iNextTask.doneWaiting(std::current_exception());
+            endRunAsync(iRunStatus, iNextTask, oSourceStatus);
+          }
+        });
+  }
   void EventProcessor::beginLumiAsync(IOVSyncValue const& iSync,
                                       std::shared_ptr<RunProcessingStatus> iRunStatus,
                                       edm::WaitingTaskHolder iHolder,
@@ -1745,36 +1785,7 @@ namespace edm {
 
                 status->setResumer(std::move(iResumer));
                 chain::first([this, postLumiQueueTask, status, iRunStatus, &oSourceStatus](auto nextTask) mutable {
-                  sourceResourcesAcquirer_.serialQueueChain().push(
-                      *postLumiQueueTask.group(),
-                      [this, postSourceTask = postLumiQueueTask, nextTask, status, iRunStatus, &oSourceStatus]() mutable {
-                        CMS_SA_ALLOW try {
-                          ServiceRegistry::Operate operate(serviceToken_);
-
-                          if (postSourceTask.taskHasFailed()) {
-                            releaseLumiResourcesAfterFailure(*status, queueWhichWaitsForIOVsToFinish_);
-                            endRunAsync(iRunStatus, postSourceTask, oSourceStatus);
-                            return;
-                          }
-
-                          {
-                            std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
-                            status->setLumiPrincipal(readLuminosityBlock(iRunStatus->runPrincipal()));
-
-                            LuminosityBlockPrincipal& lumiPrincipal = *status->lumiPrincipal();
-                            {
-                              SendSourceTerminationSignalIfException sentry(actReg_.get());
-                              input_->doBeginLumi(lumiPrincipal, &processContext_);
-                              sentry.completedSuccessfully();
-                            }
-                          }
-                        } catch (...) {
-                          releaseLumiResourcesAfterFailure(*status, queueWhichWaitsForIOVsToFinish_);
-                          WaitingTaskHolder copyHolder(nextTask);
-                          copyHolder.doneWaiting(std::current_exception());
-                          endRunAsync(iRunStatus, nextTask, oSourceStatus);
-                        }
-                      });
+                  readLumiAsync(status, iRunStatus, postLumiQueueTask, nextTask, oSourceStatus);
                 }) |
                     chain::ifThen(rng.isAvailable() and rng->consumer() != nullptr,
                                   [this, status](auto nextTask) {
