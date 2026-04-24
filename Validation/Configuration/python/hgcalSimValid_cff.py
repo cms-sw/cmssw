@@ -35,6 +35,8 @@ hgcalTiclPFValidation = cms.Sequence(ticlPFValidation)
 from Validation.HGCalValidation.ticlTrackstersEdgesValidation_cfi import ticlTrackstersEdgesValidation
 hgcalTiclTrackstersEdgesValidationSequence = cms.Sequence(ticlTrackstersEdgesValidation)
 
+from Validation.HGCalValidation.ticlSuperclusterValidation_cff import *
+
 hgcalValidatorSequence = cms.Sequence(hgcalValidator)
 hgcalPFJetValidation = _hgcalPFJetValidation.clone(BenchmarkLabel = 'PFJetValidation/HGCAlCompWithGenJet',
     VariablePtBins=[10., 30., 80., 120., 250., 600.],
@@ -69,6 +71,7 @@ hgcalValidation = cms.Sequence(hgcalSimHitValidationEE
                                + hgcalHitValidationSequence
                                + hgcalValidatorSequence
                                + hgcalTiclPFValidation
+                               + ticlSuperclusterValidation
                                #Currently commented out until trackster edges are saved
 #                               + hgcalTiclTrackstersEdgesValidationSequence
                                + hgcalPFJetValidation)
