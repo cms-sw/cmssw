@@ -220,7 +220,7 @@ HLTObjectMonitor::HLTObjectMonitor(const edm::ParameterSet& iConfig)
   //now do what ever initialization is needed
   debugPrint = false;
 
-  topDirectoryName = "HLT/ObjectMonitor";
+  topDirectoryName = iConfig.getUntrackedParameter<string>("topFolderName");
   mainShifterFolder = topDirectoryName + "/MainShifter";
   backupFolder = topDirectoryName + "/Backup";
 
@@ -866,6 +866,7 @@ double HLTObjectMonitor::get_wall_time() {
 void HLTObjectMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("processName", "HLT");
+  desc.addUntracked<std::string>("topFolderName", "HLT/ObjectMonitor");
 
   auto addPSet = [](edm::ParameterSetDescription& desc, const std::string& name) {
     edm::ParameterSetDescription pset;
