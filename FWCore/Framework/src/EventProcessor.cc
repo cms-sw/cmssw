@@ -2277,33 +2277,48 @@ namespace edm {
     }) | chain::runLast(std::move(iHolder));
   }
 
-  bool EventProcessor::readNextEventForStream(WaitingTaskHolder const& iTask,
-                                              unsigned int iStreamIndex,
-                                              LuminosityBlockProcessingStatus& iStatus,
-                                              SourceStatus& oSourceStatus) {
+  EventProcessor::ReadNextEventForStreamResult EventProcessor::readNextEventForStream(
+      bool earlierTaskFailed,
+      unsigned int iStreamIndex,
+      LuminosityBlockProcessingStatus& iStatus,
+      SourceStatus& oSourceStatus) {
     // This function returns true if it successfully reads an event for the stream and that
     // requires both that an event is next and there are no problems or requests to stop.
 
-    if (iTask.taskHasFailed()) {
+    if (earlierTaskFailed) {
       // We want all streams to stop or all streams to pause. If we are already in the
       // middle of pausing streams, then finish pausing all of them and the lumi will be
       // ended later. Otherwise, just end it now.
       if (iStatus.eventProcessingState() == LuminosityBlockProcessingStatus::EventProcessingState::kProcessing) {
         iStatus.setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi);
       }
-      return false;
+      return {.didCallReadEvent = false,
+              .stopLumi = true,
+              .pauseForFileTransition = false,
+              .nextTransitionType = InputSource::ItemType::IsStop,
+              .mustStartNextLumiOrEndRun = false};
     }
 
     // Did another stream already stop or pause this lumi?
     if (iStatus.eventProcessingState() != LuminosityBlockProcessingStatus::EventProcessingState::kProcessing) {
-      return false;
+      return {.didCallReadEvent = false,
+              .stopLumi =
+                  iStatus.eventProcessingState() == LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi,
+              .pauseForFileTransition = iStatus.eventProcessingState() ==
+                                        LuminosityBlockProcessingStatus::EventProcessingState::kPauseForFileTransition,
+              .nextTransitionType = oSourceStatus.nextTransitionType(),
+              .mustStartNextLumiOrEndRun = false};
     }
 
     // Are output modules or the looper requesting we stop?
     if (shouldWeStop()) {
       oSourceStatus.setNextTransitionType(InputSource::ItemType::IsStop);
       iStatus.setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi);
-      return false;
+      return {.didCallReadEvent = false,
+              .stopLumi = true,
+              .pauseForFileTransition = false,
+              .nextTransitionType = InputSource::ItemType::IsStop,
+              .mustStartNextLumiOrEndRun = false};
     }
 
     ServiceRegistry::Operate operate(serviceToken_);
@@ -2345,10 +2360,20 @@ namespace edm {
       } else {
         iStatus.setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kPauseForFileTransition);
       }
-      return false;
+      return {.didCallReadEvent = false,
+              .stopLumi =
+                  iStatus.eventProcessingState() == LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi,
+              .pauseForFileTransition = iStatus.eventProcessingState() ==
+                                        LuminosityBlockProcessingStatus::EventProcessingState::kPauseForFileTransition,
+              .nextTransitionType = oSourceStatus.nextTransitionType(),
+              .mustStartNextLumiOrEndRun = false};
     }
     readEvent(iStreamIndex);
-    return true;
+    return {.didCallReadEvent = true,
+            .stopLumi = false,
+            .pauseForFileTransition = false,
+            .nextTransitionType = oSourceStatus.nextTransitionType(),
+            .mustStartNextLumiOrEndRun = false};
   }
 
   void EventProcessor::handleNextEventForStreamAsync(WaitingTaskHolder iTask,
@@ -2358,56 +2383,93 @@ namespace edm {
       streamEndLumiAsync(iTask, iStreamIndex);
       return;
     }
-    auto group = iTask.group();
-    sourceResourcesAcquirer_.serialQueueChain().push(
-        *group, [this, iTask = std::move(iTask), iStreamIndex, &oSourceStatus]() mutable {
-          CMS_SA_ALLOW try {
+    bool earlierTaskFailed = iTask.taskHasFailed();
+    auto resultFromReadNextEventForStream = std::make_unique<ReadNextEventForStreamResult>(false);
+    ReadNextEventForStreamResult* ptrToResultFromReadNextEventForStream = resultFromReadNextEventForStream.get();
+    chain::first([this, iStreamIndex, &oSourceStatus, earlierTaskFailed, ptrToResultFromReadNextEventForStream](
+                     auto nextTask) mutable {
+      auto group = nextTask.group();
+      sourceResourcesAcquirer_.serialQueueChain().push(
+          *group,
+          [this,
+           earlierTaskFailed,
+           iTask = std::move(nextTask),
+           iStreamIndex,
+           &oSourceStatus,
+           ptrToResultFromReadNextEventForStream]() mutable {
+            CMS_SA_ALLOW try {
+              auto status = streamLumiStatus_[iStreamIndex].get();
+              ServiceRegistry::Operate operate(serviceToken_);
+              *ptrToResultFromReadNextEventForStream =
+                  readNextEventForStream(earlierTaskFailed, iStreamIndex, *status, oSourceStatus);
+            } catch (...) {
+              WaitingTaskHolder copyHolder(iTask);
+              copyHolder.doneWaiting(std::current_exception());
+              return;
+            }
             auto status = streamLumiStatus_[iStreamIndex].get();
-            ServiceRegistry::Operate operate(serviceToken_);
-
-            if (readNextEventForStream(iTask, iStreamIndex, *status, oSourceStatus)) {
-              auto recursionTask = make_waiting_task(
-                  [this, iTask, iStreamIndex, &oSourceStatus](std::exception_ptr const* iEventException) mutable {
+            //only one thread can call status->noMoreEventsInLumi so call in source queue.
+            if (not ptrToResultFromReadNextEventForStream->didCallReadEvent and
+                status->eventProcessingState() == LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi and
+                not status->haveStartedNextLumiOrEndedRun()) {
+              status->noMoreEventsInLumi();
+              status->startNextLumiOrEndRun();
+              ptrToResultFromReadNextEventForStream->mustStartNextLumiOrEndRun = true;
+            }
+          });
+    }) |
+        chain::then([this,
+                     iStreamIndex,
+                     &oSourceStatus,
+                     retValue = std::move(resultFromReadNextEventForStream),
+                     possibleFailedTask = iTask](std::exception_ptr const* iEventException,
+                                                 WaitingTaskHolder iNextTask) mutable {
+          CMS_SA_ALLOW try {
+            if (iEventException) {
+              std::rethrow_exception(*iEventException);
+            }
+            if (retValue->didCallReadEvent) {
+              chain::first([this, iStreamIndex](auto nextTask) mutable { processEventAsync(nextTask, iStreamIndex); }) |
+                  chain::then([this, iStreamIndex, &oSourceStatus](std::exception_ptr const* iEventException,
+                                                                   WaitingTaskHolder iNextTask) mutable {
                     if (iEventException) {
-                      WaitingTaskHolder copyHolder(iTask);
+                      //applying to a copy keeps the original iNextTask from starting.
+                      WaitingTaskHolder copyHolder(iNextTask);
                       copyHolder.doneWaiting(*iEventException);
                       // Intentionally, we don't return here. The recursive call to
                       // handleNextEvent takes care of immediately ending the run properly
                       // using the same code it uses to end the run in other situations.
                     }
-                    handleNextEventForStreamAsync(std::move(iTask), iStreamIndex, oSourceStatus);
-                  });
-
-              processEventAsync(WaitingTaskHolder(*iTask.group(), recursionTask), iStreamIndex);
+                    handleNextEventForStreamAsync(std::move(iNextTask), iStreamIndex, oSourceStatus);
+                  }) |
+                  chain::runLast(iNextTask);
             } else {
               // the stream will stop processing this lumi now
-              if (status->eventProcessingState() == LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi) {
-                if (not status->haveStartedNextLumiOrEndedRun()) {
-                  status->noMoreEventsInLumi();
-                  status->startNextLumiOrEndRun();
-                  if (oSourceStatus.nextTransitionType() == InputSource::ItemType::IsLumi && !iTask.taskHasFailed()) {
+              if (retValue->stopLumi) {
+                if (retValue->mustStartNextLumiOrEndRun) {
+                  if (retValue->nextTransitionType == InputSource::ItemType::IsLumi &&
+                      !possibleFailedTask.taskHasFailed()) {
                     CMS_SA_ALLOW try {
                       beginLumiAsync(IOVSyncValue(EventID(oSourceStatus.lumiAuxiliary()->run(),
                                                           oSourceStatus.lumiAuxiliary()->luminosityBlock(),
                                                           0),
                                                   oSourceStatus.lumiAuxiliary()->beginTime()),
                                      streamRunStatus_[iStreamIndex],
-                                     iTask,
+                                     iNextTask,
                                      oSourceStatus);
                     } catch (...) {
-                      WaitingTaskHolder copyHolder(iTask);
+                      WaitingTaskHolder copyHolder(iNextTask);
                       copyHolder.doneWaiting(std::current_exception());
-                      endRunAsync(streamRunStatus_[iStreamIndex], iTask, oSourceStatus);
+                      endRunAsync(streamRunStatus_[iStreamIndex], iNextTask, oSourceStatus);
                     }
                   } else {
                     // If appropriate, this will also start the next run.
-                    endRunAsync(streamRunStatus_[iStreamIndex], iTask, oSourceStatus);
+                    endRunAsync(streamRunStatus_[iStreamIndex], iNextTask, oSourceStatus);
                   }
                 }
-                streamEndLumiAsync(iTask, iStreamIndex);
+                streamEndLumiAsync(iNextTask, iStreamIndex);
               } else {
-                assert(status->eventProcessingState() ==
-                       LuminosityBlockProcessingStatus::EventProcessingState::kPauseForFileTransition);
+                assert(retValue->pauseForFileTransition);
                 auto runStatus = streamRunStatus_[iStreamIndex].get();
 
                 if (runStatus->holderOfTaskInProcessRuns().hasTask()) {
@@ -2416,11 +2478,12 @@ namespace edm {
               }
             }
           } catch (...) {
-            WaitingTaskHolder copyHolder(iTask);
+            WaitingTaskHolder copyHolder(iNextTask);
             copyHolder.doneWaiting(std::current_exception());
-            handleNextEventForStreamAsync(std::move(iTask), iStreamIndex, oSourceStatus);
+            handleNextEventForStreamAsync(std::move(iNextTask), iStreamIndex, oSourceStatus);
           }
-        });
+        }) |
+        chain::runLast(iTask);
   }
 
   void EventProcessor::readEvent(unsigned int iStreamIndex) {

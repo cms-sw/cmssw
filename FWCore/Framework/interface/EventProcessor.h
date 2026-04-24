@@ -280,10 +280,17 @@ namespace edm {
                                                    WaitingTaskHolder,
                                                    SourceStatus& oStatus);
 
-    bool readNextEventForStream(WaitingTaskHolder const&,
-                                unsigned int iStreamIndex,
-                                LuminosityBlockProcessingStatus&,
-                                SourceStatus& oSourceStatus);
+    struct ReadNextEventForStreamResult {
+      bool didCallReadEvent;
+      bool stopLumi;
+      bool pauseForFileTransition;
+      InputSource::ItemType nextTransitionType;
+      bool mustStartNextLumiOrEndRun = false;
+    };
+    ReadNextEventForStreamResult readNextEventForStream(bool earlierTaskFailed,
+                                                        unsigned int iStreamIndex,
+                                                        LuminosityBlockProcessingStatus&,
+                                                        SourceStatus& oSourceStatus);
 
     void handleNextEventForStreamAsync(WaitingTaskHolder, unsigned int iStreamIndex, SourceStatus& oSourceStatus);
 
