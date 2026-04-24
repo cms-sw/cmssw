@@ -17,7 +17,7 @@
 #include "PerfTools/AllocMonitor/interface/AllocMonitorBase.h"
 #include "PerfTools/AllocMonitor/interface/AllocMonitorRegistry.h"
 
-#include "AllocProfilerData.h"
+#include "AllocProfilerCommon.h"
 #include "ThreadTracker.h"
 #include "monitor_file_utilities.h"
 

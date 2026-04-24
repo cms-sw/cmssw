@@ -2,16 +2,16 @@
 #if (__cpp_lib_stacktrace >= 202011L) && (__cpp_lib_formatters >= 202302L) && \
     (__cpp_lib_ranges_enumerate >= 202302L) && (__cpp_lib_print >= 202207L)
 
-#include "AllocProfilerData.h"
-
-#include <boost/algorithm/string.hpp>
-
 #include "FWCore/AbstractServices/interface/IntrusiveMonitorBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 #include "PerfTools/AllocMonitor/interface/AllocMonitorBase.h"
 #include "PerfTools/AllocMonitor/interface/AllocMonitorRegistry.h"
+
+#include "AllocProfilerCommon.h"
+
+#include <boost/algorithm/string.hpp>
 
 #include <stacktrace>
 
