@@ -158,14 +158,14 @@
  <class name="edm::Wrapper<edm::ValueMap<std::vector<float>> >" splitLevel="0"/>
  <class name="std::vector<edm::EventAuxiliary>"/>
  <class name="edm::Wrapper<std::vector<edm::EventAuxiliary> >"/>
- <class name="edm::ErrorSummaryEntry" ClassVersion="10">
-  <version ClassVersion="10" checksum="3974422774"/>
+ <class name="edm::io_v1::ErrorSummaryEntry" ClassVersion="3">
+  <version ClassVersion="3" checksum="1697264738"/>
  </class>
  <class name="edm::ELseverityLevel" ClassVersion="10">
   <version ClassVersion="10" checksum="2388166397"/>
  </class>
- <class name="std::vector<edm::ErrorSummaryEntry>"/>
- <class name="edm::Wrapper<std::vector<edm::ErrorSummaryEntry> >"/>
+ <class name="std::vector<edm::io_v1::ErrorSummaryEntry>"/>
+ <class name="edm::Wrapper<std::vector<edm::io_v1::ErrorSummaryEntry> >"/>
  <class name="edm::MergeableCounter" ClassVersion="10">
   <version ClassVersion="10" checksum="3792606006"/>
  </class>
