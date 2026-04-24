@@ -287,12 +287,14 @@ namespace edm {
       InputSource::ItemType nextTransitionType;
       bool mustStartNextLumiOrEndRun = false;
     };
-    ReadNextEventForStreamResult readNextEventForStream(bool earlierTaskFailed,
-                                                        unsigned int iStreamIndex,
+    ReadNextEventForStreamResult readNextEventForStream(unsigned int iStreamIndex,
                                                         LuminosityBlockProcessingStatus&,
                                                         SourceStatus& oSourceStatus);
 
-    void handleNextEventForStreamAsync(WaitingTaskHolder, unsigned int iStreamIndex, SourceStatus& oSourceStatus);
+    void handleNextEventForStreamAsync(std::exception_ptr const*,
+                                       WaitingTaskHolder,
+                                       unsigned int iStreamIndex,
+                                       SourceStatus& oSourceStatus);
 
     //read the next event using Stream iStreamIndex
     void readEvent(unsigned int iStreamIndex);

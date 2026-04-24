@@ -1873,11 +1873,8 @@ namespace edm {
                                           then([this, i, &oSourceStatus](
                                                    std::exception_ptr const* exceptionFromBeginStreamLumi,
                                                    auto nextTask) {
-                                            if (exceptionFromBeginStreamLumi) {
-                                              WaitingTaskHolder copyHolder(nextTask);
-                                              copyHolder.doneWaiting(*exceptionFromBeginStreamLumi);
-                                            }
-                                            handleNextEventForStreamAsync(std::move(nextTask), i, oSourceStatus);
+                                            handleNextEventForStreamAsync(
+                                                exceptionFromBeginStreamLumi, std::move(nextTask), i, oSourceStatus);
                                           }) |
                                           runLast(std::move(holder));
                                     });
@@ -1921,11 +1918,11 @@ namespace edm {
       oneapi::tbb::task_arena arena{oneapi::tbb::task_arena::attach()};
       for (; streamIndex < preallocations_.numberOfStreams() - 1; ++streamIndex) {
         arena.enqueue([this, streamIndex, h = nextTask, &oSourceStatus]() {
-          handleNextEventForStreamAsync(h, streamIndex, oSourceStatus);
+          handleNextEventForStreamAsync(nullptr, h, streamIndex, oSourceStatus);
         });
       }
       nextTask.group()->run([this, streamIndex, h = std::move(nextTask), &oSourceStatus]() {
-        handleNextEventForStreamAsync(h, streamIndex, oSourceStatus);
+        handleNextEventForStreamAsync(nullptr, h, streamIndex, oSourceStatus);
       });
     }) | chain::runLast(std::move(iHolder));
   }
@@ -2278,26 +2275,9 @@ namespace edm {
   }
 
   EventProcessor::ReadNextEventForStreamResult EventProcessor::readNextEventForStream(
-      bool earlierTaskFailed,
-      unsigned int iStreamIndex,
-      LuminosityBlockProcessingStatus& iStatus,
-      SourceStatus& oSourceStatus) {
+      unsigned int iStreamIndex, LuminosityBlockProcessingStatus& iStatus, SourceStatus& oSourceStatus) {
     // This function returns true if it successfully reads an event for the stream and that
     // requires both that an event is next and there are no problems or requests to stop.
-
-    if (earlierTaskFailed) {
-      // We want all streams to stop or all streams to pause. If we are already in the
-      // middle of pausing streams, then finish pausing all of them and the lumi will be
-      // ended later. Otherwise, just end it now.
-      if (iStatus.eventProcessingState() == LuminosityBlockProcessingStatus::EventProcessingState::kProcessing) {
-        iStatus.setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi);
-      }
-      return {.didCallReadEvent = false,
-              .stopLumi = true,
-              .pauseForFileTransition = false,
-              .nextTransitionType = InputSource::ItemType::IsStop,
-              .mustStartNextLumiOrEndRun = false};
-    }
 
     // Did another stream already stop or pause this lumi?
     if (iStatus.eventProcessingState() != LuminosityBlockProcessingStatus::EventProcessingState::kProcessing) {
@@ -2376,9 +2356,15 @@ namespace edm {
             .mustStartNextLumiOrEndRun = false};
   }
 
-  void EventProcessor::handleNextEventForStreamAsync(WaitingTaskHolder iTask,
+  void EventProcessor::handleNextEventForStreamAsync(std::exception_ptr const* iExceptionPtr,
+                                                     WaitingTaskHolder iTask,
                                                      unsigned int iStreamIndex,
                                                      SourceStatus& oSourceStatus) {
+    if (iExceptionPtr) {
+      WaitingTaskHolder copyHolder(iTask);
+      copyHolder.doneWaiting(*iExceptionPtr);
+      //we do not return here because we want the code in the chain to properly handle ending the lumi and run if needed, which is handled by the same code for exceptions as for normal end of lumi/run
+    }
     if (streamLumiStatus_[iStreamIndex]->haveStartedNextLumiOrEndedRun()) {
       streamEndLumiAsync(iTask, iStreamIndex);
       return;
@@ -2397,16 +2383,34 @@ namespace edm {
            iStreamIndex,
            &oSourceStatus,
            ptrToResultFromReadNextEventForStream]() mutable {
-            CMS_SA_ALLOW try {
-              auto status = streamLumiStatus_[iStreamIndex].get();
-              ServiceRegistry::Operate operate(serviceToken_);
-              *ptrToResultFromReadNextEventForStream =
-                  readNextEventForStream(earlierTaskFailed, iStreamIndex, *status, oSourceStatus);
-            } catch (...) {
-              WaitingTaskHolder copyHolder(iTask);
-              copyHolder.doneWaiting(std::current_exception());
-              return;
+            bool aFailureHappened = earlierTaskFailed;
+            if (not earlierTaskFailed) {
+              CMS_SA_ALLOW try {
+                auto status = streamLumiStatus_[iStreamIndex].get();
+                ServiceRegistry::Operate operate(serviceToken_);
+                *ptrToResultFromReadNextEventForStream = readNextEventForStream(iStreamIndex, *status, oSourceStatus);
+              } catch (...) {
+                aFailureHappened = true;
+                WaitingTaskHolder copyHolder(iTask);
+                copyHolder.doneWaiting(std::current_exception());
+              }
             }
+            if (aFailureHappened) {
+              // We want all streams to stop or all streams to pause. If we are already in the
+              // middle of pausing streams, then finish pausing all of them and the lumi will be
+              // ended later. Otherwise, just end it now.
+              auto status = streamLumiStatus_[iStreamIndex].get();
+              if (status->eventProcessingState() ==
+                  LuminosityBlockProcessingStatus::EventProcessingState::kProcessing) {
+                status->setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi);
+              }
+              *ptrToResultFromReadNextEventForStream = {.didCallReadEvent = false,
+                                                        .stopLumi = true,
+                                                        .pauseForFileTransition = false,
+                                                        .nextTransitionType = InputSource::ItemType::IsStop,
+                                                        .mustStartNextLumiOrEndRun = false};
+            }
+
             auto status = streamLumiStatus_[iStreamIndex].get();
             //only one thread can call status->noMoreEventsInLumi so call in source queue.
             if (not ptrToResultFromReadNextEventForStream->didCallReadEvent and
@@ -2426,21 +2430,15 @@ namespace edm {
                                                  WaitingTaskHolder iNextTask) mutable {
           CMS_SA_ALLOW try {
             if (iEventException) {
-              std::rethrow_exception(*iEventException);
+              WaitingTaskHolder copyHolder(iNextTask);
+              copyHolder.doneWaiting(*iEventException);
+              //NOTE: the ptrToResultFromReadNextEventForStream has already been set to deal with how the exception should be handled, so we don't need to do anything else here.
             }
             if (retValue->didCallReadEvent) {
               chain::first([this, iStreamIndex](auto nextTask) mutable { processEventAsync(nextTask, iStreamIndex); }) |
                   chain::then([this, iStreamIndex, &oSourceStatus](std::exception_ptr const* iEventException,
                                                                    WaitingTaskHolder iNextTask) mutable {
-                    if (iEventException) {
-                      //applying to a copy keeps the original iNextTask from starting.
-                      WaitingTaskHolder copyHolder(iNextTask);
-                      copyHolder.doneWaiting(*iEventException);
-                      // Intentionally, we don't return here. The recursive call to
-                      // handleNextEvent takes care of immediately ending the run properly
-                      // using the same code it uses to end the run in other situations.
-                    }
-                    handleNextEventForStreamAsync(std::move(iNextTask), iStreamIndex, oSourceStatus);
+                    handleNextEventForStreamAsync(iEventException, std::move(iNextTask), iStreamIndex, oSourceStatus);
                   }) |
                   chain::runLast(iNextTask);
             } else {
@@ -2480,7 +2478,6 @@ namespace edm {
           } catch (...) {
             WaitingTaskHolder copyHolder(iNextTask);
             copyHolder.doneWaiting(std::current_exception());
-            handleNextEventForStreamAsync(std::move(iNextTask), iStreamIndex, oSourceStatus);
           }
         }) |
         chain::runLast(iTask);
