@@ -35,8 +35,8 @@ streamPhysicsCommissioning_datasetNoBPTX_selector.hltResults = cms.InputTag('Tri
 streamPhysicsCommissioning_datasetNoBPTX_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetNoBPTX_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetNoBPTX_selector.triggerConditions = cms.vstring(
-    'HLT_CDC_L2cosmic_10_er1p0_v11',
-    'HLT_CDC_L2cosmic_5p5_er1p0_v11'
+    'HLT_CDC_L2cosmic_10_er1p0_v12',
+    'HLT_CDC_L2cosmic_5p5_er1p0_v12'
 )
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetZeroBias_selector
