@@ -113,8 +113,6 @@ BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
         consumes<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>>(itag));
   }
 
-  simTrackstersMap_ = consumes<std::map<uint, std::vector<uint>>>(pset.getParameter<edm::InputTag>("simTrackstersMap"));
-
   barrelHitMap_ = consumes<std::unordered_map<DetId, const unsigned int>>(rechitmapTag_);
 
   simClusters_ = consumes<std::vector<SimCluster>>(sclTag_);
@@ -140,6 +138,7 @@ BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
     label_tstTokens.push_back(consumes<ticl::TracksterCollection>(itag));
   }
 
+  simTrackstersMap_ = consumes<std::map<uint, std::vector<uint>>>(pset.getParameter<edm::InputTag>("simTrackstersMap"));
   simTracksters_ = consumes<ticl::TracksterCollection>(label_simTS);
   simTracksters_fromCPs_ = consumes<ticl::TracksterCollection>(label_simTSFromCP);
 
@@ -241,28 +240,27 @@ void BarrelValidator::bookHistograms(DQMStore::IBooker& ibook,
   }
 
   //Booking histograms for Tracksters
-  for (unsigned int www = 0; www < label_tst.size(); www++) {
-    ibook.cd();
-    InputTag algo = label_tst[www];
-    string dirName = dirName_;
-    if (!algo.process().empty())
-      dirName += algo.process() + "_";
-    LogDebug("BarrelValidator") << dirName << "\n";
-    if (!algo.label().empty())
-      dirName += algo.label() + "_";
-    LogDebug("BarrelValidator") << dirName << "\n";
-    if (!algo.instance().empty())
-      dirName += algo.instance() + "_";
-    LogDebug("BarrelValidator") << dirName << "\n";
+  if (doTrackstersPlots_) {
+    for (unsigned int www = 0; www < label_tst.size(); www++) {
+      ibook.cd();
+      InputTag algo = label_tst[www];
+      string dirName = dirName_;
+      if (!algo.process().empty())
+        dirName += algo.process() + "_";
+      LogDebug("BarrelValidator") << dirName << "\n";
+      if (!algo.label().empty())
+        dirName += algo.label() + "_";
+      LogDebug("BarrelValidator") << dirName << "\n";
+      if (!algo.instance().empty())
+        dirName += algo.instance() + "_";
+      LogDebug("BarrelValidator") << dirName << "\n";
 
-    if (!dirName.empty()) {
-      dirName.resize(dirName.size() - 1);
-    }
+      if (!dirName.empty()) {
+        dirName.resize(dirName.size() - 1);
+      }
 
-    ibook.setCurrentFolder(dirName);
+      ibook.setCurrentFolder(dirName);
 
-    // Booking histograms concerning tracksters
-    if (doTrackstersPlots_) {
       // Generic histos
       ibook.setCurrentFolder(dirName + "/" + label_TS_);
       histoProducerAlgo_->bookTracksterHistos(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
@@ -338,26 +336,6 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
   }
 
   std::vector<CaloParticle> const& caloParticles = *caloParticleHandle;
-
-  edm::Handle<ticl::TracksterCollection> simTracksterHandle;
-  event.getByToken(simTracksters_, simTracksterHandle);
-  if (!simTracksterHandle.isValid()) {
-    edm::LogWarning("MissingInput") << "Missing SimTrackster collection";
-    return;
-  }
-  ticl::TracksterCollection const& simTracksters = *simTracksterHandle;
-
-  edm::Handle<ticl::TracksterCollection> simTracksterFromCPHandle;
-  event.getByToken(simTracksters_fromCPs_, simTracksterFromCPHandle);
-  if (!simTracksterFromCPHandle.isValid()) {
-    edm::LogWarning("MissingInput") << "Missing SimTrackster collection from CP";
-    return;
-  }
-  ticl::TracksterCollection const& simTrackstersFromCPs = *simTracksterFromCPHandle;
-
-  edm::Handle<std::map<uint, std::vector<uint>>> simTrackstersMapHandle;
-  event.getByToken(simTrackstersMap_, simTrackstersMapHandle);
-  const std::map<uint, std::vector<uint>>& cpToSc_SimTrackstersMap = *simTrackstersMapHandle;
 
   edm::ESHandle<CaloGeometry> geom = setup.getHandle(caloGeomToken_);
   tools_->setGeometry(*geom);
@@ -448,20 +426,6 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
     return;
   }
   const reco::CaloClusterCollection& clusters = *clusterHandle;
-
-  std::vector<edm::Handle<TracksterToTracksterMap>> tracksterToTracksterMapsHandles;
-  for (const auto& token : tracksterToTracksterAssociatorsTokens_) {
-    edm::Handle<TracksterToTracksterMap> tracksterToTracksterMapHandle;
-    event.getByToken(token, tracksterToTracksterMapHandle);
-    tracksterToTracksterMapsHandles.push_back(tracksterToTracksterMapHandle);
-  }
-
-  std::vector<edm::Handle<TracksterToTracksterMap>> tracksterToTracksterByHitsMapsHandles;
-  for (const auto& token : tracksterToTracksterByHitsAssociatorsTokens_) {
-    edm::Handle<TracksterToTracksterMap> tracksterToTracksterByHitsMapHandle;
-    event.getByToken(token, tracksterToTracksterByHitsMapHandle);
-    tracksterToTracksterByHitsMapsHandles.push_back(tracksterToTracksterByHitsMapHandle);
-  }
 
   edm::Handle<SimClusterToCaloParticleMap> scToCpMapHandle;
   event.getByToken(scToCpMapToken_, scToCpMapHandle);
@@ -565,8 +529,43 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
   // ##############################################
   // Fill Trackster histograms
   // ##############################################
-  for (unsigned int wml = 0; wml < label_tstTokens.size(); wml++) {
-    if (doTrackstersPlots_) {
+
+  if (doTrackstersPlots_) {
+    edm::Handle<ticl::TracksterCollection> simTracksterHandle;
+    event.getByToken(simTracksters_, simTracksterHandle);
+    if (!simTracksterHandle.isValid()) {
+      edm::LogWarning("MissingInput") << "Missing SimTrackster collection";
+      return;
+    }
+    ticl::TracksterCollection const& simTracksters = *simTracksterHandle;
+
+    edm::Handle<ticl::TracksterCollection> simTracksterFromCPHandle;
+    event.getByToken(simTracksters_fromCPs_, simTracksterFromCPHandle);
+    if (!simTracksterFromCPHandle.isValid()) {
+      edm::LogWarning("MissingInput") << "Missing SimTrackster collection from CP";
+      return;
+    }
+    ticl::TracksterCollection const& simTrackstersFromCPs = *simTracksterFromCPHandle;
+
+    edm::Handle<std::map<uint, std::vector<uint>>> simTrackstersMapHandle;
+    event.getByToken(simTrackstersMap_, simTrackstersMapHandle);
+    const std::map<uint, std::vector<uint>>& cpToSc_SimTrackstersMap = *simTrackstersMapHandle;
+
+    std::vector<edm::Handle<TracksterToTracksterMap>> tracksterToTracksterMapsHandles;
+    for (const auto& token : tracksterToTracksterAssociatorsTokens_) {
+      edm::Handle<TracksterToTracksterMap> tracksterToTracksterMapHandle;
+      event.getByToken(token, tracksterToTracksterMapHandle);
+      tracksterToTracksterMapsHandles.push_back(tracksterToTracksterMapHandle);
+    }
+
+    std::vector<edm::Handle<TracksterToTracksterMap>> tracksterToTracksterByHitsMapsHandles;
+    for (const auto& token : tracksterToTracksterByHitsAssociatorsTokens_) {
+      edm::Handle<TracksterToTracksterMap> tracksterToTracksterByHitsMapHandle;
+      event.getByToken(token, tracksterToTracksterByHitsMapHandle);
+      tracksterToTracksterByHitsMapsHandles.push_back(tracksterToTracksterByHitsMapHandle);
+    }
+
+    for (unsigned int wml = 0; wml < label_tstTokens.size(); wml++) {
       edm::Handle<ticl::TracksterCollection> tracksterHandle;
       event.getByToken(label_tstTokens[wml], tracksterHandle);
 
@@ -624,8 +623,8 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
                                                 trackstersToSimTrackstersFromCPsByHitsMapH,
                                                 simTrackstersFromCPsToTrackstersByHitsMapH,
                                                 scToCpMap);
-    }
-  }  //end of loop over Trackster input labels
+    }  // end loop over Trackster input labels
+  }
 }
 
 void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
