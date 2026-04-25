@@ -87,19 +87,19 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamPhysicsCommissioning_datasetMuonShower_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetMuonShower_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetMuonShower_selector.throw      = cms.bool(False)
-streamPhysicsCommissioning_datasetMuonShower_selector.triggerConditions = cms.vstring('HLT_CscCluster_Cosmic_v5')
+streamPhysicsCommissioning_datasetMuonShower_selector.triggerConditions = cms.vstring('HLT_CscCluster_Cosmic_v6')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetNoBPTX_selector
 streamPhysicsCommissioning_datasetNoBPTX_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetNoBPTX_selector.l1tResults = cms.InputTag('')
 streamPhysicsCommissioning_datasetNoBPTX_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetNoBPTX_selector.triggerConditions = cms.vstring(
-    'HLT_CDC_L2cosmic_10_er1p0_v11',
-    'HLT_CDC_L2cosmic_5p5_er1p0_v11',
-    'HLT_L2Mu10_NoVertex_NoBPTX3BX_v15',
-    'HLT_L2Mu10_NoVertex_NoBPTX_v16',
-    'HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v15',
-    'HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_v14'
+    'HLT_CDC_L2cosmic_10_er1p0_v12',
+    'HLT_CDC_L2cosmic_5p5_er1p0_v12',
+    'HLT_L2Mu10_NoVertex_NoBPTX3BX_v16',
+    'HLT_L2Mu10_NoVertex_NoBPTX_v17',
+    'HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_v16',
+    'HLT_L2Mu45_NoVertex_3Sta_NoBPTX3BX_v15'
 )
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetZeroBias_selector
