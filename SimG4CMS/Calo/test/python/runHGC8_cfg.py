@@ -54,6 +54,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, GLOBAL_TAG, '')
 
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HGCalGeomT=dict()
     process.MessageLogger.HGCalSim=dict()
     process.MessageLogger.HGCSim=dict()
 

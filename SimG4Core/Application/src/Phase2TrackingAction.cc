@@ -7,6 +7,7 @@
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
+#include "SimG4Core/Notification/interface/MCTruthUtil.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -38,8 +39,16 @@ Phase2TrackingAction::Phase2TrackingAction(SimTrackManager* stm, CMSSteppingVerb
 }
 
 void Phase2TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
+  int pID = aTrack->GetParentID();
+  auto trk = const_cast<G4Track*>(aTrack);
+  if (0 == pID) {
+    MCTruthUtil::primary(trk);
+  }
+
+  trackInterface_->setCurrentTrack(aTrack);
+
   g4Track_ = aTrack;
-  currentHistory_ = new TrackWithHistory(aTrack, aTrack->GetParentID());
+  currentHistory_ = new TrackWithHistory(aTrack, pID);
   trackInterface_->setCurrentTrack(aTrack);
 
   BeginOfTrack bt(aTrack);

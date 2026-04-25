@@ -351,3 +351,18 @@ def customiseL1THLTforHIonRepackedRAWPrime(process):
     process = customiseL1TforHIonRepackedRAWPrime(process)
     process = customiseHLTforHIonRepackedRAWPrime(process, useRawDataCollector = True)
     return process
+
+
+def instrumentOpenMode(process):
+    '''
+    Applies a custom visitor to HLT paths to wrap EDFilters in cms.ignore
+    '''
+    from FWCore.ParameterSet.Utilities import ignoreAllFiltersOnPath
+
+    # Apply only to HLT Paths
+    for p_name in process.pathNames().split():
+        if p_name.startswith(("HLT_", "DST_")):
+            path_obj = getattr(process, p_name)
+            ignoreAllFiltersOnPath(path_obj)
+
+    return process

@@ -1,4 +1,5 @@
 #include "SimG4Core/Application/interface/Phase2SteppingAction.h"
+#include "SimG4Core/Application/interface/Phase2TrackFilter.h"
 #include "SimG4Core/Geometry/interface/DD4hep2DDDName.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
@@ -13,10 +14,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
-Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv,
-                                           const edm::ParameterSet& p,
-                                           bool hasW,
-                                           bool dd4hep)
+Phase2SteppingAction::Phase2SteppingAction(
+    const CMSSteppingVerbose* sv, const edm::ParameterSet& p, const edm::ParameterSet& pstack, bool hasW, bool dd4hep)
     : steppingVerbose(sv), hasWatcher(hasW), dd4hep_(dd4hep) {
   theCriticalEnergyForVacuum = (p.getParameter<double>("CriticalEnergyForVacuum") * CLHEP::MeV);
   if (0.0 < theCriticalEnergyForVacuum) {
@@ -39,6 +38,8 @@ Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv,
   btlName_ = (G4String)(p.getParameter<std::string>("BTLName"));
   cms2ZDCName_ = p.getParameter<std::string>("CMS2ZDCName");
   doFineCalo_ = (p.getParameter<bool>("DoFineCalo"));
+
+  filter = new Phase2TrackFilter(pstack, sv);
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "Phase2SteppingAction:: KillBeamPipe = " << killBeamPipe
@@ -99,15 +100,24 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
   G4Track* theTrack = aStep->GetTrack();
   TrackStatus tstat = (theTrack->GetTrackStatus() == fAlive) ? sAlive : sKilledByProcess;
 
-  if (theTrack->GetKineticEnergy() < 0.0) {
-    if (nWarnings < 2) {
-      ++nWarnings;
-      edm::LogWarning("SimG4CoreApplication")
-          << "Phase2SteppingAction::UserPhase2SteppingAction: Track #" << theTrack->GetTrackID() << " "
-          << theTrack->GetDefinition()->GetParticleName()
-          << " Ekin(MeV)= " << theTrack->GetKineticEnergy() / CLHEP::MeV;
+  // check secondaries using StackingAction
+  std::size_t nn = aStep->GetNumberOfSecondariesInCurrentStep();
+  if (0 < nn) {
+    filter->setMother(theTrack);
+    auto step = const_cast<G4Step*>(aStep);
+    auto sec = step->GetfSecondary();
+    std::size_t n0 = sec->size() - nn;
+    for (std::size_t i = n0; i < sec->size(); ++i) {
+      auto track = (*sec)[i];
+      if (nullptr != track) {
+        auto status = filter->ClassifyNewTrack(track);
+        if (status == fKill) {
+          step->AddTotalEnergyDeposit(track->GetKineticEnergy());
+          sec->erase(sec->begin() + i);
+          delete track;
+        }
+      }
     }
-    theTrack->SetKineticEnergy(0.0);
   }
 
   const G4StepPoint* preStep = aStep->GetPreStepPoint();

@@ -80,11 +80,16 @@ void MCTruthUtil::secondary(G4Track* aTrack, const G4Track* mother, int flag) {
   }
 
   aTrack->SetUserInformation(trkInfo);
-#ifdef EDM_ML_DEBUG
-  LogTrace("SimG4CoreApplication") << "MCTruthUtil called for " << aTrack->GetTrackID() << " mother "
-                                   << motherInfo->isPrimary() << " flag " << flag;
-  trkInfo->Print();
-#endif
+}
+
+void MCTruthUtil::updateSecondary(G4Track* aTrack) {
+  auto trkInfo = dynamic_cast<TrackInformation*>(aTrack->GetUserInformation());
+  if (nullptr == trkInfo) {
+    delete aTrack->GetUserInformation();
+    trkInfo = new TrackInformation();
+    aTrack->SetUserInformation(trkInfo);
+  }
+  trkInfo->setMCTruthID(aTrack->GetTrackID());
 }
 
 bool MCTruthUtil::isInBTL(const G4Track* aTrack) {
