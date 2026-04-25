@@ -37,83 +37,6 @@ def customiseForOffline(process):
 
     return process
 
-def customizeHLTfor50303(process):
-    ''' Includes customization to run alpaka MDPF clustering
-    '''
-    old_hltParticleFlowClusterHCAL = process.hltParticleFlowClusterHCAL
-    old_hltParticleFlowClusterHCALSerialSync = process.hltParticleFlowClusterHCALSerialSync
-
-    process.hltPFMultiDepthClusterSoA = cms.EDProducer('PFMultiDepthClusterSoAProducer@alpaka',
-        clustersSrc = cms.InputTag("hltParticleFlowClusterHBHESoA"),
-        rhfracSrc   = cms.InputTag('hltParticleFlowClusterHBHESoA'),
-        rechitSrc   = cms.InputTag('hltParticleFlowRecHitHBHESoA')
-    )
-
-    process.hltParticleFlowClusterHCAL = cms.EDProducer('LegacyMultiDepthPFClusterProducer',
-        pfClusterSoA   = cms.InputTag('hltPFMultiDepthClusterSoA'),
-        pfRecHitFractionSoA = cms.InputTag('hltPFMultiDepthClusterSoA'),
-        pfRecHitsSoA        = cms.InputTag('hltParticleFlowRecHitHBHESoA'),
-        recHitsSource  = cms.InputTag('hltParticleFlowRecHitHBHE'),
-    )
-
-    process.HLTPFHcalClustering = cms.Sequence(
-        process.hltParticleFlowRecHitHBHESoA +
-        process.hltParticleFlowRecHitHBHE +
-        process.hltParticleFlowClusterHBHESoA +
-        process.hltPFMultiDepthClusterSoA +
-        process.hltParticleFlowClusterHCAL  # This now refers to LegacyMultiDepth producer
-    )
-
-    # Serial sync changes
-    process.hltPFMultiDepthClusterSoASerialSync = cms.EDProducer('alpaka_serial_sync::PFMultiDepthClusterSoAProducer',
-        clustersSrc = cms.InputTag("hltParticleFlowClusterHBHESoASerialSync"),
-        rhfracSrc   = cms.InputTag('hltParticleFlowClusterHBHESoASerialSync'),
-        rechitSrc   = cms.InputTag('hltParticleFlowRecHitHBHESoASerialSync')
-    )
-
-    process.hltParticleFlowClusterHCALSerialSync = cms.EDProducer('LegacyMultiDepthPFClusterProducer',
-        pfClusterSoA   = cms.InputTag('hltPFMultiDepthClusterSoASerialSync'),
-        pfRecHitFractionSoA = cms.InputTag('hltPFMultiDepthClusterSoASerialSync'),
-        pfRecHitsSoA        = cms.InputTag('hltParticleFlowRecHitHBHESoASerialSync'),
-        recHitsSource  = cms.InputTag('hltParticleFlowRecHitHBHESerialSync'),
-    )
-
-    process.HLTPFHcalClusteringSerialSync = cms.Sequence(
-        process.hltParticleFlowRecHitHBHESoASerialSync +
-        process.hltParticleFlowRecHitHBHESerialSync +
-        process.hltParticleFlowClusterHBHESoASerialSync +
-        process.hltPFMultiDepthClusterSoASerialSync +
-        process.hltParticleFlowClusterHCALSerialSync  # This now refers to LegacyMultiDepth producer
-    )
-
-    def replaceItemsInSequence(process, itemsToReplace, replacingSequence):
-        for sequence, items in process.sequences.items():
-            containsAll = all(items.contains(item) for item in itemsToReplace)
-            if(containsAll):
-                for item in itemsToReplace:
-                    if(item != itemsToReplace[-1]):
-                        items.remove(item)
-                    else:
-                        items.replace(item, replacingSequence)
-        return process
-
-    itemsList = [ old_hltParticleFlowClusterHCAL ]
-
-    serialItemsList = [ old_hltParticleFlowClusterHCALSerialSync ]
-
-    process = replaceItemsInSequence(process, itemsList, process.HLTPFHcalClustering)
-    process = replaceItemsInSequence(process, serialItemsList, process.HLTPFHcalClusteringSerialSync)
-
-    # Completely remove the old HBHE cluster module definitions from the process
-    if hasattr(process, 'hltParticleFlowClusterHBHE'):
-        del process.hltParticleFlowClusterHBHE
-
-    if hasattr(process, 'hltParticleFlowClusterHBHESerialSync'):
-        del process.hltParticleFlowClusterHBHESerialSync
-
-    return process
-
-
 def replace_all_pixel_seed_inputtags(process):
     import FWCore.ParameterSet.Config as cms
 
@@ -276,13 +199,6 @@ def customizeHLTfor49436(process):
 
     return process
 
-def customizeHLTfor49476(process):
-
-    for prod in producers_by_type(process, "GEMRecHitProducer"):
-        if hasattr(prod,"ge21Off") : delattr(prod,"ge21Off")
-        prod.ge21Container = cms.bool( True )
-
-    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -292,7 +208,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     # process = customizeHLTfor49436(process)
-
-    process = customizeHLTfor49476(process)
 
     return process

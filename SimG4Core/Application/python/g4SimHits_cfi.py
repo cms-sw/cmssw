@@ -95,6 +95,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ThresholdForGeometryExceptions = cms.double(0.1), ## in GeV
     TraceExceptions = cms.bool(False),
     CheckGeometry = cms.untracked.bool(False),
+    AddRegions = cms.untracked.bool(False),
     OnlySDs = cms.vstring('BSCSensitiveDetector','BCM1FSensitiveDetector','BHMSensitiveDetector','CTPPSDiamondSensitiveDetector','CTPPSSensitiveDetector','CaloTrkProcessing','CastorSensitiveDetector','EcalSensitiveDetector','HcalSensitiveDetector','MuonSensitiveDetector','PLTSensitiveDetector','RomanPotSensitiveDetector','TkAccumulatingSensitiveDetector','TotemSensitiveDetector','TotemT2ScintSensitiveDetector','ZdcSensitiveDetector','FSCSensitiveDetector'),
     TrackHits = cms.vstring('BCM1FHits','BHMHits','BSCHits','CTPPSPixelHits','CTPPSTimingHits','MuonCSCHits','MuonDTHits','MuonGEMHits','MuonME0Hits','MuonRPCHits','PLTHits','TotemHitsRP','TotemHitsT1','TrackerHitsPixelEndcapLowTof','TrackerHitsPixelEndcapHighTof','TrackerHitsPixelBarrelLowTof','TrackerHitsPixelBarrelHighTof','TrackerHitsTECLowTof','TrackerHitsTECHighTof','TrackerHitsTIBLowTof','TrackerHitsTIBHighTof','TrackerHitsTIDLowTof','TrackerHitsTIDHighTof','TrackerHitsTOBLowTof','TrackerHitsTOBHighTof'),
     CaloHits = cms.vstring('CaloHitsTk','CastorBU','CastorFI','CastorPL','CastorTU','EcalHitsEB','EcalHitsEE','EcalHitsES','HcalHits','ZDCHITS','FSCHits'),
@@ -765,10 +766,11 @@ dd4hep.toModify( g4SimHits,
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(g4SimHits,
+                       AddRegions = True,
                        OnlySDs = ['BCM1FSensitiveDetector','BHMSensitiveDetector','CTPPSDiamondSensitiveDetector','CTPPSSensitiveDetector','CaloTrkProcessing','EcalSensitiveDetector','HFNoseSensitiveDetector','HGCScintillatorSensitiveDetector','HGCalSensitiveDetector','HcalSensitiveDetector','MtdSensitiveDetector','MuonSensitiveDetector','PLTSensitiveDetector','RomanPotSensitiveDetector','TkAccumulatingSensitiveDetector','ZdcSensitiveDetector','FSCSensitiveDetector'],
                        TrackHits = ['BCM1FHits','BHMHits','CTPPSPixelHits','CTPPSTimingHits','FastTimerHitsBarrel','FastTimerHitsEndcap','HFNoseHits','MuonCSCHits','MuonDTHits','MuonGEMHits','MuonME0Hits','MuonRPCHits','PLTHits','TrackerHitsPixelEndcapLowTof','TrackerHitsPixelEndcapHighTof','TrackerHitsPixelBarrelLowTof','TrackerHitsPixelBarrelHighTof','TrackerHitsTECLowTof','TrackerHitsTECHighTof','TrackerHitsTIBLowTof','TrackerHitsTIBHighTof','TrackerHitsTIDLowTof','TrackerHitsTIDHighTof','TrackerHitsTOBLowTof','TrackerHitsTOBHighTof'],
                        CaloHits = ["CalibrationHGCHitsEE",'CalibrationHGCHitsHEback',"CalibrationHGCHitsHEfront",'CaloHitsTk','EcalHitsEB','HFNoseHits',"HGCHitsEE","HGCHitsHEback","HGCHitsHEfront",'HcalHits','ZDCHITS','FSCHits'],
-                       LHCTransport = False, 
+                       LHCTransport = False,
                        MuonSD = dict( 
                        HaveDemoChambers = False ) 
 )

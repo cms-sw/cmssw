@@ -270,9 +270,8 @@ HLT_HIL1SingleMu5_SingleGEDPhoton20_v*    # CMSHLT-2906
 HLT_HIL1SingleMu7_SingleEG20Gsf_v*        # CMSHLT-2906
 HLT_HIL1SingleMu7_SingleGEDPhoton20_v*    # CMSHLT-3356
 
-HLT_HIDmesonPPOnAATrackingGlobal_Dpt30_v* # CMSHLT-2905
-HLT_HIDmesonPPOnAATrackingGlobal_Dpt45_v* # CMSHLT-2905
-HLT_HIDmesonPPOnAATrackingGlobal_Dpt60_v* # CMSHLT-2905
+HLT_HIL1SingleMu3_SinglePuAK4CaloJet40_v* # CMSHLT-3813
+HLT_HIL1SingleMu3_SinglePuAK4CaloJet60_v* # CMSHLT-3813
 
 HLT_HIEphemeralPhysics_v*  # CMSHLT-2915
 HLT_HIEphemeralZeroBias_v* # CMSHLT-2915

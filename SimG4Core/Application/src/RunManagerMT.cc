@@ -66,6 +66,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
       m_StorePhysicsTables(p.getUntrackedParameter<bool>("StorePhysicsTables", false)),
       m_RestorePhysicsTables(p.getUntrackedParameter<bool>("RestorePhysicsTables", false)),
       m_check(p.getUntrackedParameter<bool>("CheckGeometry")),
+      m_addRegions(p.getUntrackedParameter<bool>("AddRegions")),
       m_geoFromDD4hep(p.getParameter<bool>("g4GeometryDD4hepSource")),
       m_score(p.getParameter<bool>("UseCommandBaseScorer")),
       m_stepverb(p.getUntrackedParameter<int>("SteppingVerbosity", 0)),
@@ -115,6 +116,10 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
 
   m_world = std::make_unique<DDDWorld>(pDD, pDD4hep, m_catalog, verb, cuts, protonCut);
   G4VPhysicalVolume* world = m_world.get()->GetWorldVolume();
+
+  if (m_addRegions) {
+    addRegions();
+  }
 
   m_kernel->SetVerboseLevel(verb);
   edm::LogVerbatim("SimG4CoreApplication")
@@ -201,9 +206,6 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
     }
   }
 
-  if (m_check) {
-    addRegions();
-  }
   setupVoxels();
 
   m_stateManager->SetNewState(G4State_Init);
@@ -367,8 +369,27 @@ void RunManagerMT::runForPhase2() {
 // This method should be extended in order to add new regions via names of logical volume
 // and to add a new production cuts for these regions
 void RunManagerMT::addRegions() {
-  CMSG4RegionReporter rep;
-  rep.ReportRegions("g4region.txt");
+  // add HF region
+  std::vector<G4LogicalVolume*> lvnew;
+  const auto lvs = G4LogicalVolumeStore::GetInstance();
+  auto ptr1 = lvs->GetVolume("HVQF", false);
+  if (nullptr != ptr1) {
+    lvnew.push_back(ptr1);
+  }
+  auto ptr2 = lvs->GetVolume("HVQX", false);
+  if (nullptr != ptr2) {
+    lvnew.push_back(ptr2);
+  }
+  if (!lvnew.empty()) {
+    G4double cut = CLHEP::mm;
+    addG4Region(lvnew, "RegionHF", cut, cut, cut, cut);
+  }
+
+  // dump region list
+  if (m_check) {
+    CMSG4RegionReporter rep;
+    rep.ReportRegions("g4region.txt");
+  }
 }
 
 // This is a utility method to add a G4Region

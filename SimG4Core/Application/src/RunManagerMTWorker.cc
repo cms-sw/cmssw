@@ -5,11 +5,11 @@
 #include "SimG4Core/Application/interface/EventAction.h"
 #include "SimG4Core/Application/interface/Phase2EventAction.h"
 #include "SimG4Core/Application/interface/StackingAction.h"
-#include "SimG4Core/Application/interface/Phase2StackingAction.h"
 #include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Application/interface/Phase2TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
 #include "SimG4Core/Application/interface/Phase2SteppingAction.h"
+#include "SimG4Core/Application/interface/Phase2StackingAction.h"
 #include "SimG4Core/Application/interface/CMSSimEventManager.h"
 #include "SimG4Core/Application/interface/CustomUIsessionThreadPrefix.h"
 #include "SimG4Core/Application/interface/CustomUIsessionToFile.h"
@@ -470,7 +470,7 @@ void RunManagerMTWorker::initializeUserActions() {
   G4UserSteppingAction* userSteppingAction;
   bool dd4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
   if (m_isPhase2) {
-    auto ptr = new Phase2SteppingAction(m_sVerbose.get(), m_pSteppingAction, m_hasWatchers, dd4hep);
+    auto ptr = new Phase2SteppingAction(m_sVerbose.get(), m_pSteppingAction, m_pStackingAction, m_hasWatchers, dd4hep);
     Connect(ptr);
     userSteppingAction = (G4UserSteppingAction*)ptr;
   } else {
@@ -480,7 +480,7 @@ void RunManagerMTWorker::initializeUserActions() {
   }
 
   // stacking actions and event manager
-  G4UserStackingAction* userStackingAction;
+  G4UserStackingAction* userStackingAction{nullptr};
   if (m_isPhase2) {
     userStackingAction = new Phase2StackingAction(m_pStackingAction, m_sVerbose.get());
   } else {

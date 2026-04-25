@@ -27,7 +27,9 @@ TrackWithHistory::TrackWithHistory(const G4Track* g4trk, int pID) {
   auto p = g4trk->GetCreatorProcess();
   procType_ = (nullptr != p) ? p->GetProcessSubType() : 0;
   TrackInformation* trkinfo = static_cast<TrackInformation*>(g4trk->GetUserInformation());
-  storeTrack_ = trkinfo->storeTrack();
+  if (nullptr != trkinfo) {
+    storeTrack_ = trkinfo->storeTrack();
+  }
   auto vgprimary = g4trk->GetDynamicParticle()->GetPrimaryParticle();
   // GetPrimaryParticle() returns the pointer to the corresponding G4PrimaryParticle object
   // if this particle is a primary particle OR is defined as a

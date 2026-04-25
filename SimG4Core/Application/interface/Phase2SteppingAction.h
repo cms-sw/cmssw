@@ -16,10 +16,12 @@
 #include <vector>
 
 class CMSSteppingVerbose;
+class Phase2TrackFilter;
 
 class Phase2SteppingAction : public G4UserSteppingAction {
 public:
-  explicit Phase2SteppingAction(const CMSSteppingVerbose*, const edm::ParameterSet&, bool, bool);
+  explicit Phase2SteppingAction(
+      const CMSSteppingVerbose*, const edm::ParameterSet&, const edm::ParameterSet&, bool, bool);
   ~Phase2SteppingAction() override = default;
 
   void UserSteppingAction(const G4Step* aStep) final;
@@ -40,6 +42,7 @@ private:
   const G4VPhysicalVolume* calo{nullptr};
   const G4VPhysicalVolume* btl{nullptr};
   const CMSSteppingVerbose* steppingVerbose;
+  Phase2TrackFilter* filter;
   double theCriticalEnergyForVacuum;
   double theCriticalDensity;
   double maxTrackTime;

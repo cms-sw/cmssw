@@ -113,6 +113,7 @@ private:
   bool m_StorePhysicsTables;
   bool m_RestorePhysicsTables;
   bool m_check;
+  bool m_addRegions;
   bool m_geoFromDD4hep;
   bool m_score;
   bool m_isPhase2{false};
