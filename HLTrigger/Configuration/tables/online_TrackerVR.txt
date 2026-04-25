@@ -6,6 +6,9 @@ HLT_ZeroBias_HighRate_v*	# CMSHLT-3713
 HLT_Random_v*			# CMSHLT-3713
 HLT_ZeroBias_v*			# CMSHLT-3713
 
+HLT_EcalCalibration_v*          # CMSHLT-3797
+AlCa_EcalPhiSym_v*              # CMSHLT-3797
+
 Status_OnCPU # CMSHLT-3186
 Status_OnGPU # CMSHLT-3186
 
@@ -23,6 +26,9 @@ PhysicsVRRandom4Output
 PhysicsVRRandom5Output
 PhysicsVRRandom6Output
 PhysicsVRRandom7Output
+
+EcalCalibrationOutput      # CMSHLT-3797
+ALCAPHISYMOutput           # CMSHLT-3797
 
 PhysicsVRZeroBias0Output   # CMSHLT-3713
 PhysicsVRZeroBias1Output   # CMSHLT-3713
