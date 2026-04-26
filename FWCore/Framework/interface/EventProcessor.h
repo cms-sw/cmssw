@@ -281,9 +281,9 @@ namespace edm {
                                                    SourceStatus& oStatus);
 
     struct ReadNextEventForStreamResult {
+      //If didCallReadEvent and stopLumi are both false, then we are in the middle of a file transition
       bool didCallReadEvent;
       bool stopLumi;
-      bool pauseForFileTransition;
       InputSource::ItemType nextTransitionType;
       bool mustStartNextLumiOrEndRun = false;
     };

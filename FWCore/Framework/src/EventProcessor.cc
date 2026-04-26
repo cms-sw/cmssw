@@ -1854,6 +1854,7 @@ namespace edm {
                               for (auto i : std::views::iota(0U, preallocations_.numberOfStreams())) {
                                 streamQueues_[i].push(
                                     *holder.group(), [this, i, status, holder, &es, &oSourceStatus]() mutable {
+                                      //the status increments the number of streams here if successful
                                       if (!status->shouldStreamStartLumi()) {
                                         return;
                                       }
@@ -1903,7 +1904,7 @@ namespace edm {
     chain::first([this, &oSourceStatus](auto nextTask) {
       //all streams are sharing the same status at the moment
       auto status = streamLumiStatus_[0];  //read from streamLumiActive_ happened in calling routine
-      status->setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kProcessing);
+      status->thread_unsafe_setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kProcessing);
 
       while (oSourceStatus.nextTransitionType() == InputSource::ItemType::IsLumi and
              status->lumiPrincipal()->luminosityBlock() == oSourceStatus.lumiAuxiliary()->luminosityBlock()) {
@@ -2047,7 +2048,7 @@ namespace edm {
       if (streamLumiActive_ > 0) {
         FinalWaitingTask globalWaitTask{taskGroup_};
         assert(streamLumiActive_ == preallocations_.numberOfStreams());
-        streamLumiStatus_[0]->noMoreEventsInLumi();
+        streamLumiStatus_[0]->startNextLumiOrEndRun();
         streamLumiStatus_[0]->setCleaningUpAfterException(cleaningUpAfterException);
         {
           WaitingTaskHolder holder{taskGroup_, &globalWaitTask};
@@ -2280,12 +2281,11 @@ namespace edm {
     // requires both that an event is next and there are no problems or requests to stop.
 
     // Did another stream already stop or pause this lumi?
-    if (iStatus.eventProcessingState() != LuminosityBlockProcessingStatus::EventProcessingState::kProcessing) {
+    if (iStatus.thread_unsafe_eventProcessingState() !=
+        LuminosityBlockProcessingStatus::EventProcessingState::kProcessing) {
       return {.didCallReadEvent = false,
-              .stopLumi =
-                  iStatus.eventProcessingState() == LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi,
-              .pauseForFileTransition = iStatus.eventProcessingState() ==
-                                        LuminosityBlockProcessingStatus::EventProcessingState::kPauseForFileTransition,
+              .stopLumi = iStatus.thread_unsafe_eventProcessingState() ==
+                          LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi,
               .nextTransitionType = oSourceStatus.nextTransitionType(),
               .mustStartNextLumiOrEndRun = false};
     }
@@ -2293,10 +2293,9 @@ namespace edm {
     // Are output modules or the looper requesting we stop?
     if (shouldWeStop()) {
       oSourceStatus.setNextTransitionType(InputSource::ItemType::IsStop);
-      iStatus.setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi);
+      iStatus.thread_unsafe_setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi);
       return {.didCallReadEvent = false,
               .stopLumi = true,
-              .pauseForFileTransition = false,
               .nextTransitionType = InputSource::ItemType::IsStop,
               .mustStartNextLumiOrEndRun = false};
     }
@@ -2336,22 +2335,20 @@ namespace edm {
               << "but the next lumi entry has the same lumi number.\n"
               << "This is probably a bug in the InputSource. Please report to the Core group.\n";
         }
-        iStatus.setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi);
+        iStatus.thread_unsafe_setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi);
       } else {
-        iStatus.setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kPauseForFileTransition);
+        iStatus.thread_unsafe_setEventProcessingState(
+            LuminosityBlockProcessingStatus::EventProcessingState::kPauseForFileTransition);
       }
       return {.didCallReadEvent = false,
-              .stopLumi =
-                  iStatus.eventProcessingState() == LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi,
-              .pauseForFileTransition = iStatus.eventProcessingState() ==
-                                        LuminosityBlockProcessingStatus::EventProcessingState::kPauseForFileTransition,
+              .stopLumi = iStatus.thread_unsafe_eventProcessingState() ==
+                          LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi,
               .nextTransitionType = oSourceStatus.nextTransitionType(),
               .mustStartNextLumiOrEndRun = false};
     }
     readEvent(iStreamIndex);
     return {.didCallReadEvent = true,
             .stopLumi = false,
-            .pauseForFileTransition = false,
             .nextTransitionType = oSourceStatus.nextTransitionType(),
             .mustStartNextLumiOrEndRun = false};
   }
@@ -2400,24 +2397,22 @@ namespace edm {
               // middle of pausing streams, then finish pausing all of them and the lumi will be
               // ended later. Otherwise, just end it now.
               auto status = streamLumiStatus_[iStreamIndex].get();
-              if (status->eventProcessingState() ==
+              if (status->thread_unsafe_eventProcessingState() ==
                   LuminosityBlockProcessingStatus::EventProcessingState::kProcessing) {
-                status->setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi);
+                status->thread_unsafe_setEventProcessingState(
+                    LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi);
               }
               *ptrToResultFromReadNextEventForStream = {.didCallReadEvent = false,
                                                         .stopLumi = true,
-                                                        .pauseForFileTransition = false,
                                                         .nextTransitionType = InputSource::ItemType::IsStop,
                                                         .mustStartNextLumiOrEndRun = false};
             }
 
             auto status = streamLumiStatus_[iStreamIndex].get();
-            //only one thread can call status->noMoreEventsInLumi so call in source queue.
             if (not ptrToResultFromReadNextEventForStream->didCallReadEvent and
-                status->eventProcessingState() == LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi and
-                not status->haveStartedNextLumiOrEndedRun()) {
-              status->noMoreEventsInLumi();
-              status->startNextLumiOrEndRun();
+                status->thread_unsafe_eventProcessingState() ==
+                    LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi and
+                status->startNextLumiOrEndRun()) {
               ptrToResultFromReadNextEventForStream->mustStartNextLumiOrEndRun = true;
             }
           });
@@ -2467,7 +2462,8 @@ namespace edm {
                 }
                 streamEndLumiAsync(iNextTask, iStreamIndex);
               } else {
-                assert(retValue->pauseForFileTransition);
+                //if both of these conditions are false, then we must have had a file transition and we need to pause the stream until all streams are ready to continue. Note that in this case we do not call endRunAsync or beginLumiAsync here. The stream will just pause until the lumi is ended or the next lumi is started at which point it will be resumed and endRunAsync or beginLumiAsync will be called at that time if appropriate.
+                assert(not retValue->didCallReadEvent and not retValue->stopLumi);
                 auto runStatus = streamRunStatus_[iStreamIndex].get();
 
                 if (runStatus->holderOfTaskInProcessRuns().hasTask()) {
