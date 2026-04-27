@@ -201,134 +201,149 @@ namespace edm {
     CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
     if (fVerbosity > 0) {
-      LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Begin New Event Generation" << endl;
+      LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Begin New Event Generation" << std::endl;
     }
+
     fEvt = new HepMC::GenEvent();
 
     auto const& field = es.getData(m_fieldToken);
+    const double bz = field.inTesla({0.f, 0.f, 0.f}).z();
 
     int barcode = 1;
-    unsigned int numParticles = fRandomShoot ? CLHEP::RandFlat::shoot(engine, 1, fNParticles) : fNParticles;
+    const unsigned int numParticles =
+        fRandomShoot ? static_cast<unsigned int>(CLHEP::RandFlat::shoot(engine, 1, fNParticles + 1))
+                     : static_cast<unsigned int>(fNParticles);
 
     double phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
-    double fZ;
-    double fR, fEta;
-    double fT;
+    double fZ = 0.;
+    double fR = 0.;
+    double fEta = 0.;
+    double fT = 0.;
 
     if (!fControlledByREta) {
       fZ = CLHEP::RandFlat::shoot(engine, fZMin, fZMax);
 
       if (!fControlledByEta) {
         fR = CLHEP::RandFlat::shoot(engine, fRMin, fRMax);
-        fEta = asinh(fZ / fR);
+        fEta = std::asinh(fZ / fR);
       } else {
         fEta = CLHEP::RandFlat::shoot(engine, fEtaMin, fEtaMax);
-        fR = (fZ / sinh(fEta));
+        fR = fZ / std::sinh(fEta);
       }
     } else {
       fR = CLHEP::RandFlat::shoot(engine, fRMin, fRMax);
       fEta = CLHEP::RandFlat::shoot(engine, fEtaMin, fEtaMax);
-      fZ = sinh(fEta) * fR;
+      fZ = std::sinh(fEta) * fR;
     }
 
     if (fUseDeltaT) {
       fT = CLHEP::RandFlat::shoot(engine, fTMin, fTMax);
-    } else {
-      fT = 0.;
     }
 
-    double tmpPhi = phi;
-    double tmpR = fR;
+    const double tmpPhi = phi;
+    const double tmpR = fR;
 
-    // Loop over particles
     for (unsigned int ip = 0; ip < numParticles; ++ip) {
       if (fOverlapping) {
         fR = CLHEP::RandFlat::shoot(engine, tmpR - fDelta, tmpR + fDelta);
         phi = CLHEP::RandFlat::shoot(engine, tmpPhi - fDelta / fR, tmpPhi + fDelta / fR);
-      } else
+      } else {
         phi += (ip == 0 ? 0. : fDelta / fR);
+      }
 
-      double fVar;
-      if (numParticles > 1 && fMaxVarSpread)
+      double fVar = 0.;
+      if (numParticles > 1 and fMaxVarSpread) {
         fVar = fVarMin + ip * (fVarMax - fVarMin) / (numParticles - 1);
-      else if (fLogSpacedVar) {
-        double fVar_log = CLHEP::RandFlat::shoot(engine, log_fVarMin, log_fVarMax);
-        fVar = std::exp(fVar_log);
-      } else
+      } else if (fLogSpacedVar) {
+        const double fVarLog = CLHEP::RandFlat::shoot(engine, log_fVarMin, log_fVarMax);
+        fVar = std::exp(fVarLog);
+      } else {
         fVar = CLHEP::RandFlat::shoot(engine, fVarMin, fVarMax);
+      }
 
-      int partIdx = CLHEP::RandFlat::shoot(engine, 0, fPartIDs.size());
-      int PartID = fPartIDs[partIdx];
-      const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
-      double mass = PData->mass().value();
+      const auto partIdx = static_cast<std::size_t>(CLHEP::RandFlat::shoot(engine, 0, fPartIDs.size()));
+      const int partID = fPartIDs[partIdx];
 
-      double mom, px, py, pz;
-      double energy;
+      const HepPDT::ParticleData* pData = fPDGTable->particle(HepPDT::ParticleID(std::abs(partID)));
+      if (!pData) {
+        throw cms::Exception("CloseByParticleGunProducer") << " Particle ID " << partID << " not found in PDG table";
+      }
+
+      const double mass = pData->mass().value();
+
+      double mom = 0.;
+      double px = 0.;
+      double py = 0.;
+      double pz = 0.;
+      double energy = 0.;
 
       if (!fFlatPtGeneration) {
-        double mom2 = fVar * fVar - mass * mass;
-        mom = 0.;
+        const double mom2 = fVar * fVar - mass * mass;
         if (mom2 > 0.) {
-          mom = sqrt(mom2);
+          mom = std::sqrt(mom2);
         }
-        px = 0.;
-        py = 0.;
         pz = mom;
         energy = fVar;
       } else {
-        double theta = 2. * atan(exp(-fEta));
-        mom = fVar / sin(theta);
-        px = fVar * cos(phi);
-        py = fVar * sin(phi);
-        pz = mom * cos(theta);
-        double energy2 = mom * mom + mass * mass;
-        energy = sqrt(energy2);
+        const double theta = 2. * std::atan(std::exp(-fEta));
+        mom = fVar / std::sin(theta);
+        px = fVar * std::cos(phi);
+        py = fVar * std::sin(phi);
+        pz = mom * std::cos(theta);
+        energy = std::sqrt(mom * mom + mass * mass);
       }
-      // Compute Vertex Position
-      double x = fR * cos(phi);
-      double y = fR * sin(phi);
-      HepMC::FourVector p(px, py, pz, energy);
 
-      // If we are requested to be pointing to (0,0,0), correct the momentum direction
+      const double x = fR * std::cos(phi);
+      const double y = fR * std::sin(phi);
+      const double r3d = std::hypot(fR, fZ);
+      const double rhoXY = std::hypot(x, y);
+
       if (fPointing) {
         math::XYZVector direction(x, y, fZ);
         math::XYZVector momentum = direction.unit() * mom;
-        p.setX(momentum.x());
-        p.setY(momentum.y());
-        p.setZ(momentum.z());
+        px = momentum.x();
+        py = momentum.y();
+        pz = momentum.z();
       }
 
-      // compute correct path assuming uniform magnetic field in CMS
+      HepMC::FourVector p(px, py, pz, energy);
+
+      constexpr double kGeVToCmFactor = 1.e5;
+
       double pathLength = 0.;
-      const double speed = p.pz() / p.e() * c_light / CLHEP::cm;
-      if (PData->charge()) {
-        // Radius [cm] = P[GeV/c] * 10^9 / (c[mm/ns] * 10^6 * q[C] * B[T]) * 100[cm/m]
-        const double radius = std::sqrt(p.px() * p.px() + p.py() * p.py()) * std::pow(10, 5) /
-                              (c_light * field.inTesla({0.f, 0.f, 0.f}).z());  // cm
-        const double arc = 2 * asinf(std::sqrt(x * x + y * y) / (2 * radius)) * radius;
-        pathLength = std::sqrt(arc * arc + fZ * fZ);
+      const double pt = std::hypot(p.px(), p.py());
+      const double pabs = std::hypot(pt, p.pz());
+      const double speed = pabs / p.e() * c_light / CLHEP::cm;
+
+      if (pData->charge() != 0. and bz != 0. and pt > 0.) {
+        // Radius [cm] = pT[GeV/c] * 1e5 / (|q| * c[mm/ns] * |B|[T])
+        const double radius = pt * kGeVToCmFactor / (std::abs(pData->charge()) * c_light * std::abs(bz));
+        const double arg = std::clamp(rhoXY / (2. * radius), 0., 1.);
+        const double arc = 2. * std::asin(arg) * radius;
+        pathLength = std::hypot(arc, fZ);
       } else {
-        pathLength = std::sqrt(x * x + y * y + fZ * fZ);
+        pathLength = r3d;
       }
 
-      // if not pointing time doesn't mean a lot, keep the old way
-      const double pathTime = fPointing ? (pathLength / speed) : (std::sqrt(x * x + y * y + fZ * fZ) / speed);
-      double timeOffset = fOffsetFirst + (pathTime + ip * fT) * CLHEP::ns * c_light;
+      // If not pointing, the time interpretation is not very meaningful: keep the straight-line estimate.
+      const double pathTime = fPointing ? pathLength / speed : r3d / speed;
+      const double timeOffset = fOffsetFirst + (pathTime + ip * fT) * CLHEP::ns * c_light;
 
-      HepMC::GenVertex* Vtx =
+      HepMC::GenVertex* vtx =
           new HepMC::GenVertex(HepMC::FourVector(x * CLHEP::cm, y * CLHEP::cm, fZ * CLHEP::cm, timeOffset));
 
-      HepMC::GenParticle* Part = new HepMC::GenParticle(p, PartID, 1);
-      Part->suggest_barcode(barcode);
-      barcode++;
+      HepMC::GenParticle* part = new HepMC::GenParticle(p, partID, 1);
+      part->suggest_barcode(barcode);
+      ++barcode;
 
-      Vtx->add_particle_out(Part);
+      vtx->add_particle_out(part);
 
       if (fVerbosity > 0) {
-        Vtx->print();
-        Part->print();
+        vtx->print();
+        part->print();
       }
-      fEvt->add_vertex(Vtx);
+
+      fEvt->add_vertex(vtx);
     }
 
     fEvt->set_event_number(e.id().event());
