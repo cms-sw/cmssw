@@ -51,18 +51,18 @@
    <version ClassVersion="11" checksum="3351458717"/>
    <version ClassVersion="10" checksum="1112210423"/>
   </class>
-  <class name="trigger::TriggerEventWithRefs::TriggerFilterObject" ClassVersion="3">
-   <version ClassVersion="3" checksum="3279814163"/>
+  <class name="trigger::io_v1::TriggerEventWithRefs::TriggerFilterObject" ClassVersion="3">
+   <version ClassVersion="3" checksum="36786563"/>
   </class>
-  <class name="std::vector<trigger::TriggerEventWithRefs::TriggerFilterObject>"/>
-  <class name="trigger::TriggerEventWithRefs" ClassVersion="3">
-   <version ClassVersion="3" checksum="307844616"/>
+  <class name="std::vector<trigger::io_v1::TriggerEventWithRefs::TriggerFilterObject>"/>
+  <class name="trigger::io_v1::TriggerEventWithRefs" ClassVersion="3">
+   <version ClassVersion="3" checksum="2861334506"/>
   </class>
 
   <class name="edm::Wrapper<trigger::TriggerObjectCollection>" splitLevel="0"/>
   <class name="edm::Wrapper<trigger::io_v1::TriggerFilterObjectWithRefs>" splitLevel="0"/>
   <class name="edm::Wrapper<trigger::TriggerEvent>" splitLevel="0"/>
-  <class name="edm::Wrapper<trigger::TriggerEventWithRefs>" splitLevel="0"/>
+  <class name="edm::Wrapper<trigger::io_v1::TriggerEventWithRefs>" splitLevel="0"/>
 
   <class name="std::map<std::string,std::vector<unsigned int> >"/>
   <class name="trigger::HLTPrescaleTable" ClassVersion="3">
