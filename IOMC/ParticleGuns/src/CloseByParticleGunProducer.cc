@@ -76,64 +76,77 @@ namespace edm {
     ParameterSet pgun_params = pset.getParameter<ParameterSet>("PGunParameters");
     fControlledByEta = pgun_params.getParameter<bool>("ControlledByEta");
     fControlledByREta = pgun_params.getParameter<bool>("ControlledByREta");
-    if (fControlledByEta and fControlledByREta)
+    if (fControlledByEta and fControlledByREta) {
       throw cms::Exception("CloseByParticleGunProducer")
           << " Conflicting configuration, cannot have both ControlledByEta and ControlledByREta ";
+    }
 
     fVarMax = pgun_params.getParameter<double>("VarMax");
     fVarMin = pgun_params.getParameter<double>("VarMin");
     fMaxVarSpread = pgun_params.getParameter<bool>("MaxVarSpread");
     fLogSpacedVar = pgun_params.getParameter<bool>("LogSpacedVar");
     fFlatPtGeneration = pgun_params.getParameter<bool>("FlatPtGeneration");
-    if (fVarMin < 1 && !fFlatPtGeneration)
+
+    if (fVarMin < 1. and !fFlatPtGeneration) {
       throw cms::Exception("CloseByParticleGunProducer")
           << " Please choose a minimum energy greater than 1 GeV, otherwise time "
              "information may be invalid or not reliable";
-    if (fVarMin < 0 && fLogSpacedVar)
+    }
+
+    if (fVarMin <= 0. and fLogSpacedVar) {
       throw cms::Exception("CloseByParticleGunProducer") << " Minimum energy must be greater than zero for log spacing";
-    else {
+    } else {
       log_fVarMin = std::log(fVarMin);
       log_fVarMax = std::log(fVarMax);
     }
 
-    if (fControlledByEta || fControlledByREta) {
+    if (fControlledByEta or fControlledByREta) {
       fEtaMax = pgun_params.getParameter<double>("MaxEta");
       fEtaMin = pgun_params.getParameter<double>("MinEta");
-      if (fEtaMax <= fEtaMin)
+      if (fEtaMax <= fEtaMin) {
         throw cms::Exception("CloseByParticleGunProducer")
             << " Please fix MinEta and MaxEta values in the configuration";
+      }
     }
+
     if (!fControlledByEta) {
       fRMax = pgun_params.getParameter<double>("RMax");
       fRMin = pgun_params.getParameter<double>("RMin");
-      if (fRMax <= fRMin)
+      if (fRMax <= fRMin) {
         throw cms::Exception("CloseByParticleGunProducer") << " Please fix RMin and RMax values in the configuration";
+      }
     }
+
     if (!fControlledByREta) {
       fZMax = pgun_params.getParameter<double>("ZMax");
       fZMin = pgun_params.getParameter<double>("ZMin");
-      if (fZMax <= fZMin)
+      if (fZMax <= fZMin) {
         throw cms::Exception("CloseByParticleGunProducer") << " Please fix ZMin and ZMax values in the configuration";
+      }
     }
+
     fDelta = pgun_params.getParameter<double>("Delta");
     fPhiMin = pgun_params.getParameter<double>("MinPhi");
     fPhiMax = pgun_params.getParameter<double>("MaxPhi");
     fPointing = pgun_params.getParameter<bool>("Pointing");
     fOverlapping = pgun_params.getParameter<bool>("Overlapping");
-    if (fFlatPtGeneration && !fPointing)
+
+    if (fFlatPtGeneration and !fPointing) {
       throw cms::Exception("CloseByParticleGunProducer") << " Can't generate non pointing FlatPt samples; please "
                                                             "disable FlatPt generation or generate pointing sample";
+    }
+
     fRandomShoot = pgun_params.getParameter<bool>("RandomShoot");
     fNParticles = pgun_params.getParameter<int>("NParticles");
-    fPartIDs = pgun_params.getParameter<vector<int>>("PartID");
+    fPartIDs = pgun_params.getParameter<std::vector<int>>("PartID");
 
-    // set dt between particles
     fUseDeltaT = pgun_params.getParameter<bool>("UseDeltaT");
     fTMax = pgun_params.getParameter<double>("TMax");
     fTMin = pgun_params.getParameter<double>("TMin");
-    if (fTMax <= fTMin)
+    if (fTMax <= fTMin) {
       throw cms::Exception("CloseByParticleGunProducer") << " Please fix TMin and TMax values in the configuration";
-    // set a fixed time offset for the particles
+    }
+
     fOffsetFirst = pgun_params.getParameter<double>("OffsetFirst");
 
     produces<HepMCProduct>("unsmeared");
