@@ -1,40 +1,38 @@
-#include <ostream>
+#include <algorithm>
 #include <cmath>
+#include <memory>
+#include <numbers>
+#include <ostream>
+#include <vector>
 
 #include "BaseFlatGunProducer.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
 
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <CLHEP/Random/RandFlat.h>
-#include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
-#include <CLHEP/Random/RandFlat.h>
-
-using namespace edm;
-using namespace std;
+#include <CLHEP/Units/SystemOfUnits.h>
 
 namespace edm {
 
   class CloseByParticleGunProducer : public BaseFlatGunProducer {
   public:
-    CloseByParticleGunProducer(const ParameterSet&);
+    explicit CloseByParticleGunProducer(const ParameterSet&);
     ~CloseByParticleGunProducer() override;
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
