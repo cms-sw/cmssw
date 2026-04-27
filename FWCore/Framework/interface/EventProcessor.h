@@ -261,12 +261,10 @@ namespace edm {
     void init(std::shared_ptr<ProcessDesc>& processDesc, ServiceToken const& token, serviceregistry::ServiceLegacy);
 
     void readRunAsync(std::shared_ptr<RunProcessingStatus> iRunStatus,
-                      WaitingTaskHolder const& iCheckSharedTask,
                       WaitingTaskHolder iNextTask,
                       SourceStatus& oSourceStatus);
     void readLumiAsync(std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus,
                        std::shared_ptr<RunProcessingStatus> iRunStatus,
-                       WaitingTaskHolder iCheckSharedTask,
                        WaitingTaskHolder iNextTask,
                        SourceStatus& oSourceStatus);
     void readAndMergeRunEntriesAsync(std::shared_ptr<RunProcessingStatus>,
