@@ -24,7 +24,6 @@ RootPrimaryFileSequence: This is an InputSource
 namespace edm {
 
   class BranchID;
-  class FileCatalogItem;
   class InputFileCatalog;
   class ParameterSetDescription;
   namespace rntuple_temp {
@@ -55,7 +54,8 @@ namespace edm {
 
     private:
       void initFile_(bool skipBadFiles) override;
-      RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) override;
+      RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr,
+                                     std::string const& physicalFileNameFirstCatalog) override;
       bool nextFile();
       bool previousFile();
       void rewindFile();

@@ -41,7 +41,7 @@ static int copy_files(const boost::program_options::variables_map& vm) {
 
   std::string catalogIn = (vm.count("catalog") ? vm["catalog"].as<std::string>() : std::string());
   edm::InputFileCatalog catalog(in, catalogIn, true, edm::SciTagCategory::Undefined);
-  std::vector<std::string> const& filesIn = catalog.fileNames(0);
+  std::vector<std::string> filesIn = catalog.allPFNsFromFirstCatalog();
 
   for (unsigned int j = 0; j < in.size(); ++j) {
     std::filesystem::path pathOut = destdir;

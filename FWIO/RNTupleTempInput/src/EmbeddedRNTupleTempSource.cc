@@ -44,8 +44,7 @@ namespace edm::rntuple_temp {
         optimizations_(fromConfig(pset.getUntrackedParameterSet("rntupleReadOptions"))),
         productSelectorRules_(pset, "inputCommands", "InputSource"),
         runHelper_(new DefaultInputSourceRunHelper()),
-        catalog_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"),
-                 pset.getUntrackedParameter<std::string>("overrideCatalog", std::string()),
+        catalog_(pset,
                  false,
                  desc.cat_ == SciTagCategoryForEmbeddedSources::PreMixedPileup ? SciTagCategory::PreMixedPileup
                                                                                : SciTagCategory::Embedded),
@@ -95,8 +94,7 @@ namespace edm::rntuple_temp {
 
     std::vector<std::string> defaultStrings;
     desc.setComment("Reads EDM/Root files for mixing.");
-    desc.addUntracked<std::vector<std::string> >("fileNames")->setComment("Names of files to be processed.");
-    desc.addUntracked<std::string>("overrideCatalog", std::string());
+    InputFileCatalog::fillDescription(desc);
     desc.addUntracked<bool>("skipBadFiles", false)
         ->setComment(
             "True:  Ignore any missing or unopenable input file.\n"
