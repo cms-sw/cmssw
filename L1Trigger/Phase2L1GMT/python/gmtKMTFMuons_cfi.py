@@ -7,6 +7,7 @@ gmtKMTFMuons = cms.EDProducer('Phase2L1TGMTKMTFProducer',
                                  algo       = cms.PSet(
                                      verbose = cms.bool(False),
                                      lutFile = cms.string("L1Trigger/Phase2L1GMT/data/packedGainLUTs.root"),
+                                     lutThetaFile = cms.string("L1Trigger/Phase2L1GMT/data/packedThetaGainLUTs.root"),
                                      initialK = cms.vdouble(-0.4576229536749278, -0.6364802777566145, -1.0305030909883524, -1.7272067322624118),
                                      initialK2 = cms.vdouble(-6.442002637356136e-05, -9.582709649965545e-05, -0.0002741064246218815, -0.0014910074450869175),
                                      eLoss = cms.vdouble(6.77765e-05,0,0,0),
@@ -55,7 +56,7 @@ gmtKMTFMuons = cms.EDProducer('Phase2L1TGMTKMTFProducer',
                                      combos3=cms.vint32(5,6,7),
                                      combos2=cms.vint32(3),
                                      combos1=cms.vint32(), #for future possible usage
-                                     useOfflineAlgo = cms.bool(True),   
+                                     useOfflineAlgo = cms.bool(False),   
                                      ###Only for the offline algo -not in firmware --------------------
                                      mScatteringPhi = cms.vdouble(0.1169021113298598, 0.00016777763395543814, 0.0004322078772344548, 0.00024985881710722107),
                                      mScatteringPhiB = cms.vdouble(.0522762, 0.01762000062188365, 0.03508319015441297, 0.03126825551530328),

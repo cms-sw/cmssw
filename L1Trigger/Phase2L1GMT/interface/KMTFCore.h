@@ -132,6 +132,8 @@ namespace Phase2L1GMT {
     static const int BITSCURV = 16;
     static const int BITSPHI = 18;
     static const int BITSPHIB = 17;  // 12 bits *28 (+5 bits)
+	static const int BITSZ = 16;
+	static const int BITSKSLOPE = 16;
     static const int BITSPARAM = 14;
     static const int GAIN_0 = 9;
     static const int GAIN_0INT = 6;
@@ -148,6 +150,15 @@ namespace Phase2L1GMT {
     static const int GAIN2_4INT = 4;
     static const int GAIN2_5 = 12;
     static const int GAIN2_5INT = 0;
+
+    static const int GAINT_6 = 12; //new theta view gain bits.
+    static const int GAINT_6INT = 3;
+    static const int GAINT_7 = 12;
+    static const int GAINT_7INT = 3;
+    static const int GAINT_8 = 12;
+    static const int GAINT_8INT = 3;
+    static const int GAINT_9 = 12;
+    static const int GAINT_9INT = 3;
     //STUFF NOT USED IN THE FIRMWARE BUT ONLY FOR DEBUGGING
     ///////////////////////////////////////////////////////
 
