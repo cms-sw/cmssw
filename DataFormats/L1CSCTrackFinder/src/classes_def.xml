@@ -1,6 +1,6 @@
 <lcgdict>
-   <class name="csc::L1Track" ClassVersion="3">
-    <version ClassVersion="3" checksum="1488641023"/>
+   <class name="csc::io_v1::L1Track" ClassVersion="3">
+     <version ClassVersion="3" checksum="2442260821"/>
      <!-- <field name="scale" transient="true"/> -->
    </class>
 
@@ -18,20 +18,20 @@
      <field name="theEtaBinning" transient="true"/>
    </class>
 
-   <class name="std::vector<csc::L1Track>"/>
+   <class name="std::vector<csc::io_v1::L1Track>"/>
    <class name="std::vector<csc::L1TrackId>"/>
-   <class name="std::pair<csc::L1Track,MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> >"/>
+   <class name="std::pair<csc::io_v1::L1Track,MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> >"/>
    <class name="std::vector<csctf::io_v1::TrackStub>"/>
    <class name="CSCTriggerContainer<csctf::io_v1::TrackStub>"/>
 
    <class name="std::vector<io_v1::L1CSCSPStatusDigi>"/>
    <class name="std::pair<int,std::vector<io_v1::L1CSCSPStatusDigi> >"/>
 
-   <class name="std::vector<std::pair<csc::L1Track,MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> > >"/>
+   <class name="std::vector<std::pair<csc::io_v1::L1Track,MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> > >"/>
 
-   <class name="edm::Wrapper<std::vector<csc::L1Track> >"/>
+   <class name="edm::Wrapper<std::vector<csc::io_v1::L1Track> >"/>
 
-   <class name="edm::Wrapper<std::vector<std::pair<csc::L1Track,MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> > > >" splitLevel="0"/>
+   <class name="edm::Wrapper<std::vector<std::pair<csc::io_v1::L1Track,MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> > > >" splitLevel="0"/>
 
    <class name="edm::Wrapper<CSCTriggerContainer<csctf::io_v1::TrackStub> >" splitLevel="0"/>
 

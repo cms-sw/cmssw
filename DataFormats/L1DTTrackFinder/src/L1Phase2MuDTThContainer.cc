@@ -1,7 +1,13 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTThContainer.h"
 
-L1Phase2MuDTThContainer::L1Phase2MuDTThContainer() {}
+namespace io_v1 {
 
-void L1Phase2MuDTThContainer::setContainer(const Segment_Container& inputSegments) { m_segments = inputSegments; }
+  L1Phase2MuDTThContainer::L1Phase2MuDTThContainer() {}
 
-L1Phase2MuDTThContainer::Segment_Container const* L1Phase2MuDTThContainer::getContainer() const { return &m_segments; }
+  void L1Phase2MuDTThContainer::setContainer(const Segment_Container& inputSegments) { m_segments = inputSegments; }
+
+  L1Phase2MuDTThContainer::Segment_Container const* L1Phase2MuDTThContainer::getContainer() const {
+    return &m_segments;
+  }
+
+}  // namespace io_v1
