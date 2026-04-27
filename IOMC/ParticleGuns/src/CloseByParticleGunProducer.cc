@@ -154,47 +154,45 @@ namespace edm {
   }
 
   CloseByParticleGunProducer::~CloseByParticleGunProducer() {
-    // no need to cleanup GenEvent memory - done in HepMCProduct
+    // GenEvent memory is owned by HepMCProduct.
   }
 
   void CloseByParticleGunProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<bool>("AddAntiParticle", false);
-    {
-      edm::ParameterSetDescription psd0;
-      psd0.add<bool>("ControlledByEta", false);
-      psd0.add<bool>("ControlledByREta", false);
-      psd0.add<double>("Delta", 10);
-      psd0.add<double>("VarMax", 200.0);
-      psd0.add<double>("VarMin", 25.0);
-      psd0.add<bool>("MaxVarSpread", false);
-      psd0.add<bool>("LogSpacedVar", false);
-      psd0.add<bool>("FlatPtGeneration", false);
-      psd0.add<double>("MaxEta", 2.7);
-      psd0.add<double>("MaxPhi", 3.14159265359);
-      psd0.add<double>("MinEta", 1.7);
-      psd0.add<double>("MinPhi", -3.14159265359);
-      psd0.add<int>("NParticles", 2);
-      psd0.add<bool>("Overlapping", false);
-      psd0.add<std::vector<int>>("PartID",
-                                 {
-                                     22,
-                                 });
-      psd0.add<bool>("Pointing", true);
-      psd0.add<double>("RMax", 120);
-      psd0.add<double>("RMin", 60);
-      psd0.add<bool>("RandomShoot", false);
-      psd0.add<double>("ZMax", 321);
-      psd0.add<double>("ZMin", 320);
-      psd0.add<bool>("UseDeltaT", false);
-      psd0.add<double>("TMin", 0.);
-      psd0.add<double>("TMax", 0.05);
-      psd0.add<double>("OffsetFirst", 0.);
-      desc.add<edm::ParameterSetDescription>("PGunParameters", psd0);
-    }
+
+    edm::ParameterSetDescription psd0;
+    psd0.add<bool>("ControlledByEta", false);
+    psd0.add<bool>("ControlledByREta", false);
+    psd0.add<double>("Delta", 10.);
+    psd0.add<double>("VarMax", 200.);
+    psd0.add<double>("VarMin", 25.);
+    psd0.add<bool>("MaxVarSpread", false);
+    psd0.add<bool>("LogSpacedVar", false);
+    psd0.add<bool>("FlatPtGeneration", false);
+    psd0.add<double>("MaxEta", 2.7);
+    psd0.add<double>("MaxPhi", std::numbers::pi);
+    psd0.add<double>("MinEta", 1.7);
+    psd0.add<double>("MinPhi", -std::numbers::pi);
+    psd0.add<int>("NParticles", 2);
+    psd0.add<bool>("Overlapping", false);
+    psd0.add<std::vector<int>>("PartID", {22});
+    psd0.add<bool>("Pointing", true);
+    psd0.add<double>("RMax", 120.);
+    psd0.add<double>("RMin", 60.);
+    psd0.add<bool>("RandomShoot", false);
+    psd0.add<double>("ZMax", 321.);
+    psd0.add<double>("ZMin", 320.);
+    psd0.add<bool>("UseDeltaT", false);
+    psd0.add<double>("TMin", 0.);
+    psd0.add<double>("TMax", 0.05);
+    psd0.add<double>("OffsetFirst", 0.);
+
+    desc.add<edm::ParameterSetDescription>("PGunParameters", psd0);
     desc.addUntracked<int>("Verbosity", 0);
     desc.addUntracked<unsigned int>("firstRun", 1);
     desc.add<std::string>("psethack", "random particles in phi and r windows");
+
     descriptions.add("CloseByParticleGunProducer", desc);
   }
 
