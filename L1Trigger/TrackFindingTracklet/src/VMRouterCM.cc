@@ -237,14 +237,6 @@ void VMRouterCM::execute(unsigned int) {
           continue;
         if (memtype == 'B' && iphipos >= 4)
           continue;
-        if (memtype == 'E' && iphipos >= 4)
-          continue;
-        if (memtype == 'F' && iphipos < 4)
-          continue;
-        if (memtype == 'C' && iphipos >= 4)
-          continue;
-        if (memtype == 'D' && iphipos < 4)
-          continue;
 
         int absz = std::abs(stub->z().value());
         if (layerdisk_ == LayerDisk::L2 && absz < VMROUTERCUTZL2 / settings_.kz(layerdisk_))
