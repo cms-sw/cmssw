@@ -23,7 +23,6 @@ RNTupleTempSource: This is an InputSource
 
 namespace edm {
   class ConfigurationDescriptions;
-  class FileCatalogItem;
   class InputSourceRunHelperBase;
 }  // namespace edm
 namespace edm::rntuple_temp {
