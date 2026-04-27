@@ -353,17 +353,18 @@ namespace edm {
       fEvt->print();
     }
 
-    unique_ptr<HepMCProduct> BProduct(new HepMCProduct());
-    BProduct->addHepMCData(fEvt);
-    e.put(std::move(BProduct), "unsmeared");
+    auto bProduct = std::make_unique<HepMCProduct>();
+    bProduct->addHepMCData(fEvt);
+    e.put(std::move(bProduct), "unsmeared");
 
-    unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+    auto genEventInfo = std::make_unique<GenEventInfoProduct>(fEvt);
     e.put(std::move(genEventInfo));
 
     if (fVerbosity > 0) {
-      LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Event Generation Done " << endl;
+      LogDebug("CloseByParticleGunProducer") << " CloseByParticleGunProducer : Event Generation Done " << std::endl;
     }
   }
+
 }  // namespace edm
 
 #include "FWCore/Framework/interface/MakerMacros.h"
