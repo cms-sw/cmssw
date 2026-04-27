@@ -192,12 +192,13 @@ namespace {
     std::vector<std::string> fileNames;
     fileNames.push_back(filename);
     edm::InputFileCatalog catalog(fileNames, override, true, edm::SciTagCategory::Undefined);
-    if (catalog.fileNames(0)[0] == filename) {
+    std::string pfn = catalog.firstPFNFromFirstCatalog();
+    if (pfn == filename) {
       throw cms::Exception("FileNotFound", "RootFile::RootFile()")
           << "File " << filename << " was not found or could not be opened.\n";
     }
     // filename is a valid LFN.
-    std::unique_ptr<TFile> result(TFile::Open(catalog.fileNames(0)[0].c_str()));
+    std::unique_ptr<TFile> result(TFile::Open(pfn.c_str()));
     if (!result.get()) {
       throw cms::Exception("FileNotFound", "RootFile::RootFile()")
           << "File " << fileNames[0] << " was not found or could not be opened.\n";
