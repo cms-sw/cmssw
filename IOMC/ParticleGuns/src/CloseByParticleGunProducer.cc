@@ -40,13 +40,25 @@ namespace edm {
   private:
     void produce(Event& e, const EventSetup& es) override;
 
-  protected:
-    // data members
-    bool fControlledByEta, fControlledByREta;
-    double fVarMin, fVarMax, fEtaMin, fEtaMax, fRMin, fRMax, fZMin, fZMax, fDelta, fPhiMin, fPhiMax, fTMin, fTMax,
-        fOffsetFirst;
-    double log_fVarMin = 0., log_fVarMax = 0.;
-    int fNParticles;
+    bool fControlledByEta = false;
+    bool fControlledByREta = false;
+    double fVarMin = 0.;
+    double fVarMax = 0.;
+    double fEtaMin = 0.;
+    double fEtaMax = 0.;
+    double fRMin = 0.;
+    double fRMax = 0.;
+    double fZMin = 0.;
+    double fZMax = 0.;
+    double fDelta = 0.;
+    double fPhiMin = 0.;
+    double fPhiMax = 0.;
+    double fTMin = 0.;
+    double fTMax = 0.;
+    double fOffsetFirst = 0.;
+    double log_fVarMin = 0.;
+    double log_fVarMax = 0.;
+    int fNParticles = 0;
     bool fLogSpacedVar = false;
     bool fMaxVarSpread = false;
     bool fFlatPtGeneration = false;
