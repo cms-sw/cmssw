@@ -7,7 +7,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/radixSort.h"
 
-#include "DataFormats/VertexSoA/interface/alpaka/OfflineVertexDeviceCollection.h"
+#include "DataFormats/VertexSoA/interface/alpaka/VertexDeviceCollection.h"
 #include "DataFormats/VertexSoA/interface/alpaka/TrackForVertexDeviceCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
@@ -44,27 +44,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     void clusterize(Queue& queue,
                     TrackForVertexDeviceCollection& inputTracks,
-                    OfflineVertexDeviceCollection& deviceVertex,
+                    VertexDeviceCollection& deviceVertex,
                     ClusterParameters const& cParams,
                     int32_t nBlocks,
                     int32_t blockSize);  // Clusterization
 
     void resplit_tracks(Queue& queue,
                         TrackForVertexDeviceCollection& inputTracks,
-                        OfflineVertexDeviceCollection& deviceVertex,
+                        VertexDeviceCollection& deviceVertex,
                         ClusterParameters const& cParams,
                         int32_t nBlocks,
                         int32_t blockSize);  // Clusterization
 
     void reject_outliers(Queue& queue,
                          TrackForVertexDeviceCollection& inputTracks,
-                         OfflineVertexDeviceCollection& deviceVertex,
+                         VertexDeviceCollection& deviceVertex,
                          ClusterParameters const& cParams,
                          int32_t nBlocks,
                          int32_t blockSize);  // Clusterization
     void arbitrate(Queue& queue,
                    TrackForVertexDeviceCollection& inputTracks,
-                   OfflineVertexDeviceCollection& deviceVertex,
+                   VertexDeviceCollection& deviceVertex,
                    ClusterParameters const& cParams,
                    int32_t nBlocks,
                    int32_t blockSize);  // Arbitration
@@ -75,7 +75,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };
 
   template <alpaka::concepts::Acc TAcc>
-  ALPAKA_FN_ACC static void dump(const TAcc& acc, double& beta, OfflineVertexDeviceCollection::View vertices) {
+  ALPAKA_FN_ACC static void dump(const TAcc& acc, double& beta, VertexDeviceCollection::View vertices) {
     int blockIdx = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u];
     int maxVerticesPerBlock =
         (int)1024 / alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(
@@ -104,7 +104,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC static void set_vtx_range(const TAcc& acc,
                                           TrackForVertexDeviceCollection::View tracks,
-                                          OfflineVertexDeviceCollection::View vertices,
+                                          VertexDeviceCollection::View vertices,
                                           ClusterParameters const& cParams,
                                           double& osumtkwt,
                                           double& beta,
@@ -170,7 +170,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC static void update(const TAcc& acc,
                                    TrackForVertexDeviceCollection::View tracks,
-                                   OfflineVertexDeviceCollection::View vertices,
+                                   VertexDeviceCollection::View vertices,
                                    ClusterParameters const& cParams,
                                    double& osumtkwt,
                                    double& beta,
@@ -258,7 +258,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC static void merge(const TAcc& acc,
                                   TrackForVertexDeviceCollection::View tracks,
-                                  OfflineVertexDeviceCollection::View vertices,
+                                  VertexDeviceCollection::View vertices,
                                   ClusterParameters const& cParams,
                                   double& osumtkwt,
                                   double& beta,
@@ -391,7 +391,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC static void split(const TAcc& acc,
                                   TrackForVertexDeviceCollection::View tracks,
-                                  OfflineVertexDeviceCollection::View vertices,
+                                  VertexDeviceCollection::View vertices,
                                   ClusterParameters const& cParams,
                                   double& osumtkwt,
                                   double& beta,
@@ -627,7 +627,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC static void purge(const TAcc& acc,
                                   TrackForVertexDeviceCollection::View tracks,
-                                  OfflineVertexDeviceCollection::View vertices,
+                                  VertexDeviceCollection::View vertices,
                                   ClusterParameters const& cParams,
                                   double& osumtkwt,
                                   double& beta,
@@ -730,7 +730,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC static void initialize(const TAcc& acc,
                                        TrackForVertexDeviceCollection::View tracks,
-                                       OfflineVertexDeviceCollection::View vertices,
+                                       VertexDeviceCollection::View vertices,
                                        ClusterParameters const& cParams,
                                        int trackBlockSize) {
     // Initialize all vertices as empty, a single vertex in each block will be initialized with all tracks associated to it
@@ -769,7 +769,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC static void getBeta0(const TAcc& acc,
                                      TrackForVertexDeviceCollection::View tracks,
-                                     OfflineVertexDeviceCollection::View vertices,
+                                     VertexDeviceCollection::View vertices,
                                      ClusterParameters const& cParams,
                                      double& beta,
                                      int trackBlockSize) {
@@ -835,7 +835,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC static void thermalize(const TAcc& acc,
                                        TrackForVertexDeviceCollection::View tracks,
-                                       OfflineVertexDeviceCollection::View vertices,
+                                       VertexDeviceCollection::View vertices,
                                        ClusterParameters const& cParams,
                                        double& osumtkwt,
                                        double& beta,
@@ -917,7 +917,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC static void coolingWhileSplitting(const TAcc& acc,
                                                   TrackForVertexDeviceCollection::View tracks,
-                                                  OfflineVertexDeviceCollection::View vertices,
+                                                  VertexDeviceCollection::View vertices,
                                                   ClusterParameters const& cParams,
                                                   double& osumtkwt,
                                                   double& beta,
@@ -955,7 +955,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC static void reMergeTracks(const TAcc& acc,
                                           TrackForVertexDeviceCollection::View tracks,
-                                          OfflineVertexDeviceCollection::View vertices,
+                                          VertexDeviceCollection::View vertices,
                                           ClusterParameters const& cParams,
                                           double& osumtkwt,
                                           double& beta,
@@ -976,7 +976,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC static void reSplitTracks(const TAcc& acc,
                                           TrackForVertexDeviceCollection::View tracks,
-                                          OfflineVertexDeviceCollection::View vertices,
+                                          VertexDeviceCollection::View vertices,
                                           ClusterParameters const& cParams,
                                           double& osumtkwt,
                                           double& beta,
@@ -1004,7 +1004,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC static void rejectOutliers(const TAcc& acc,
                                            TrackForVertexDeviceCollection::View tracks,
-                                           OfflineVertexDeviceCollection::View vertices,
+                                           VertexDeviceCollection::View vertices,
                                            ClusterParameters const& cParams,
                                            double& osumtkwt,
                                            double& beta,

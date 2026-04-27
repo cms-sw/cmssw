@@ -1,7 +1,7 @@
 #ifndef RecoVertex_PrimaryVertexProducerplugins_alpaka_TracksForDAInBlocksAlgo_h
 #define RecoVertex_PrimaryVertexProducerplugins_alpaka_TracksForDAInBlocksAlgo_h
 
-#include "DataFormats/VertexSoA/interface/alpaka/OfflineVertexDeviceCollection.h"
+#include "DataFormats/VertexSoA/interface/alpaka/VertexDeviceCollection.h"
 #include "DataFormats/VertexSoA/interface/alpaka/TrackForVertexDeviceCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 

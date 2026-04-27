@@ -6,7 +6,10 @@
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
-const int maxTotalVertex = 1024;
+namespace {
+  constexpr int maxTotalVertex = 1024;
+}
+
 using TrackToVertex = Eigen::Vector<float, maxTotalVertex>;
 GENERATE_SOA_LAYOUT(TrackForVertexSoALayout,
                     // columns: one value per element

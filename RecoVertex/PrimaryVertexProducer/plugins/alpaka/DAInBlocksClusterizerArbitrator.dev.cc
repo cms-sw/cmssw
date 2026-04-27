@@ -17,7 +17,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC static void resortVerticesAndAssign(const TAcc& acc,
                                                     TrackForVertexDeviceCollection::View tracks,
-                                                    OfflineVertexDeviceCollection::View vertices,
+                                                    VertexDeviceCollection::View vertices,
                                                     ClusterParameters const& cParams) {
     // Multiblock vertex arbitration
     double beta = 1. / cParams.Tstop;
@@ -188,7 +188,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC static void finalizeVertices(const TAcc& acc,
                                              TrackForVertexDeviceCollection::View tracks,
-                                             OfflineVertexDeviceCollection::View vertices,
+                                             VertexDeviceCollection::View vertices,
                                              ClusterParameters const& cParams) {
     int blockSize = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
     int threadIdx = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u];
@@ -333,7 +333,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   TrackForVertexDeviceCollection::View tracks,
-                                  OfflineVertexDeviceCollection::View vertices,
+                                  VertexDeviceCollection::View vertices,
                                   ClusterParameters const& cParams,
                                   int32_t nBlocks) const {
       // This has the core of the clusterization algorithm
@@ -361,7 +361,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   void DAInBlocksClusterizerAlgo::arbitrate(Queue& queue,
                                             TrackForVertexDeviceCollection& deviceTrack,
-                                            OfflineVertexDeviceCollection& deviceVertex,
+                                            VertexDeviceCollection& deviceVertex,
                                             ClusterParameters const& cParams,
                                             int32_t nBlocks,
                                             int32_t blockSize) {

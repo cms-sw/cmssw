@@ -1,6 +1,6 @@
-#include "DataFormats/VertexSoA/interface/alpaka/OfflineVertexDeviceCollection.h"
+#include "DataFormats/VertexSoA/interface/alpaka/VertexDeviceCollection.h"
 #include "DataFormats/VertexSoA/interface/alpaka/TrackForVertexDeviceCollection.h"
-#include "DataFormats/VertexSoA/interface/OfflineVertexHostCollection.h"
+#include "DataFormats/VertexSoA/interface/VertexHostCollection.h"
 #include "DataFormats/VertexSoA/interface/TrackForVertexHostCollection.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

@@ -11,7 +11,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   TrackForVertexDeviceCollection::View tracks,
-                                  OfflineVertexDeviceCollection::View vertices,
+                                  VertexDeviceCollection::View vertices,
                                   ClusterParameters const& cParams,
                                   double* beta_,
                                   double* osumtkwt_,
@@ -44,7 +44,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   void DAInBlocksClusterizerAlgo::resplit_tracks(Queue& queue,
                                                  TrackForVertexDeviceCollection& deviceTrack,
-                                                 OfflineVertexDeviceCollection& deviceVertex,
+                                                 VertexDeviceCollection& deviceVertex,
                                                  ClusterParameters const& cParams,
                                                  int32_t nBlocks,
                                                  int32_t blockSize) {

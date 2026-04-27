@@ -1,17 +1,19 @@
-#ifndef DataFormats_VertexSoA_interface_OfflineVertexSoA_h
-#define DataFormats_VertexSoA_interface_OfflineVertexSoA_h
+#ifndef DataFormats_VertexSoA_interface_VertexSoA_h
+#define DataFormats_VertexSoA_interface_VertexSoA_h
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
-const int maxTracksPerVertex = 1024;
+namespace {
+	constexpr int maxTracksPerVertex = 1024;
+}
 using VertexToTrack = Eigen::Vector<float, maxTracksPerVertex>;
 using VertexToTrackInt = Eigen::Vector<int, maxTracksPerVertex>;
 
 GENERATE_SOA_LAYOUT(
-    OfflineVertexSoALayout,
+    VertexSoALayout,
     SOA_COLUMN(float, x),
     SOA_COLUMN(float, y),
     SOA_COLUMN(float, z),
@@ -43,6 +45,6 @@ GENERATE_SOA_LAYOUT(
     // When running in paralell, i.e. DA in blocks, the entries in the column can be used to save the number of vertex on each block during clustering
     SOA_COLUMN(int32_t, nV))
 
-using OfflineVertexSoA = OfflineVertexSoALayout<>;
+using VertexSoA = VertexSoALayout<>;
 
-#endif  // DataFormats_VertexSoA_interface_OfflineVertexSoA_h
+#endif  // DataFormats_VertexSoA_interface_VertexSoA_h

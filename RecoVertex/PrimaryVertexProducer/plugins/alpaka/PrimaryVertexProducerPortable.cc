@@ -1,4 +1,4 @@
-#include "DataFormats/VertexSoA/interface/alpaka/OfflineVertexDeviceCollection.h"
+#include "DataFormats/VertexSoA/interface/alpaka/VertexDeviceCollection.h"
 #include "DataFormats/BeamSpot/interface/alpaka/BeamSpotDevice.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -66,7 +66,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                         : 1;  // If all fit within a block, no need to split
       // Now the device collections we still need
       TrackForVertexDeviceCollection tracksInBlocks(iEvent.queue(), nBlocks * blockSize_);  // As high as needed
-      OfflineVertexDeviceCollection deviceVertex(
+      VertexDeviceCollection deviceVertex(
           iEvent.queue(), 1024);  // Hard capped to 1024, though we might want to restrict it for low PU cases
 
       // run the algorithm
@@ -121,7 +121,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   private:
     device::EDGetToken<TrackForVertexDeviceCollection> trackToken_;
     device::EDGetToken<BeamSpotDevice> beamSpotToken_;
-    device::EDPutToken<OfflineVertexDeviceCollection> devicePutToken_;
+    device::EDPutToken<VertexDeviceCollection> devicePutToken_;
     int32_t blockSize_;
     double blockOverlap_;
     FitterParameters fitterParams_;

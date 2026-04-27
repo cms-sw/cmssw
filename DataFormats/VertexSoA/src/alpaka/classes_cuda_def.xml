@@ -4,9 +4,9 @@
   <class name="edm::DeviceProduct<alpaka_cuda_async::reco::ZVertexSoACollection>" persistent="false"/>
   <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::reco::ZVertexSoACollection>>" persistent="false"/>
 
-  <class name="alpaka_cuda_async::OfflineVertexDeviceCollection" persistent="false"/>
-  <class name="edm::DeviceProduct<alpaka_cuda_async::OfflineVertexDeviceCollection>" persistent="false"/>
-  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::OfflineVertexDeviceCollection>>" persistent="false"/>
+  <class name="alpaka_cuda_async::VertexDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_cuda_async::VertexDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_cuda_async::VertexDeviceCollection>>" persistent="false"/>
 
   <class name="alpaka_cuda_async::TrackForVertexDeviceCollection" persistent="false"/>
   <class name="edm::DeviceProduct<alpaka_cuda_async::TrackForVertexDeviceCollection>" persistent="false"/>

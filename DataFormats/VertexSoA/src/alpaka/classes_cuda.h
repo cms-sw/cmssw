@@ -6,8 +6,8 @@
 #include "DataFormats/VertexSoA/interface/ZVertexSoA.h"
 #include "DataFormats/VertexSoA/interface//ZVertexDevice.h"
 #include "DataFormats/VertexSoA/interface/alpaka/ZVertexSoACollection.h"
-#include "DataFormats/VertexSoA/interface/OfflineVertexSoA.h"
-#include "DataFormats/VertexSoA/interface/alpaka/OfflineVertexDeviceCollection.h"
+#include "DataFormats/VertexSoA/interface/VertexSoA.h"
+#include "DataFormats/VertexSoA/interface/alpaka/VertexDeviceCollection.h"
 #include "DataFormats/VertexSoA/interface/TrackForVertexSoA.h"
 #include "DataFormats/VertexSoA/interface/alpaka/TrackForVertexDeviceCollection.h"
 

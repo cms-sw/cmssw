@@ -1,4 +1,4 @@
-#include "DataFormats/VertexSoA/interface/OfflineVertexHostCollection.h"
+#include "DataFormats/VertexSoA/interface/VertexHostCollection.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -37,15 +37,15 @@ public:
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  const edm::EDGetTokenT<OfflineVertexHostCollection> portableVertexToken_;
+  const edm::EDGetTokenT<VertexHostCollection> portableVertexToken_;
   const edm::EDGetTokenT<reco::TrackCollection> recoTrackToken_;
   const edm::EDPutTokenT<reco::VertexCollection> recoVertexToken_;
 };
 
 void SoAToRecoVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Book inputs and space for outputs
-  const OfflineVertexHostCollection& hostVertex = iEvent.get(portableVertexToken_);
-  const OfflineVertexHostCollection::ConstView& hostVertexView = hostVertex.const_view();
+  const VertexHostCollection& hostVertex = iEvent.get(portableVertexToken_);
+  const VertexHostCollection::ConstView& hostVertexView = hostVertex.const_view();
   // Note that we need reco::Tracks for building the track Reference vector inside the reco::Vertex
   auto tracks = iEvent.getHandle(recoTrackToken_);
 

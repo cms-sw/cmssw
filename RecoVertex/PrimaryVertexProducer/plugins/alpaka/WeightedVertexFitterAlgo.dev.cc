@@ -15,7 +15,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <alpaka::concepts::Acc TAcc>
     ALPAKA_FN_ACC void operator()(const TAcc& acc,
                                   const TrackForVertexDeviceCollection::ConstView tracks,
-                                  OfflineVertexDeviceCollection::View vertices,
+                                  VertexDeviceCollection::View vertices,
                                   BeamSpotPOD const* beamSpot,
                                   bool* useBeamSpotConstraint) const {
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_FITTERALGO
@@ -327,7 +327,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   void WeightedVertexFitterAlgo::fit(Queue& queue,
                                      const TrackForVertexDeviceCollection& deviceTrack,
-                                     OfflineVertexDeviceCollection& deviceVertex,
+                                     VertexDeviceCollection& deviceVertex,
                                      const BeamSpotDevice& deviceBeamSpot) {
     const int nVertexToFit =
         1024;  // Right now it executes for all 1024 vertex, even if vertex collection is empty (in which case the kernel passes)
