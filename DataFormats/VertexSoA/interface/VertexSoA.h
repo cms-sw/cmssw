@@ -7,7 +7,7 @@
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
 namespace {
-	constexpr int maxTracksPerVertex = 1024;
+  constexpr int maxTracksPerVertex = 1024;
 }
 using VertexToTrack = Eigen::Vector<float, maxTracksPerVertex>;
 using VertexToTrackInt = Eigen::Vector<int, maxTracksPerVertex>;
