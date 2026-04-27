@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_16_0_0/HIon --cff --data --type HIon
 
-# /dev/CMSSW_16_0_0/HIon/V59 (CMSSW_16_0_6)
+# /dev/CMSSW_16_0_0/HIon/V61 (CMSSW_16_0_6)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_16_0_0/HIon/V59")
+  tableName = cms.string("/dev/CMSSW_16_0_0/HIon/V61")
 )
 
 fragment.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -16286,7 +16286,7 @@ fragment.hltFullIter0CtfWithMaterialTracksPreSplittingPPOnAA = cms.EDProducer( "
     SimpleMagneticField = cms.string( "ParabolicMf" ),
     Fitter = cms.string( "hltESPFlexibleKFFittingSmoother" ),
     Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
-    TTRHBuilder = cms.string( "hltESPTTRHBuilderAngleAndTemplate" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     NavigationSchool = cms.string( "" ),
     MeasurementTracker = cms.string( "" )
 )
@@ -16545,7 +16545,7 @@ fragment.hltFullIter0CtfWithMaterialTracksPPOnAA = cms.EDProducer( "TrackProduce
     SimpleMagneticField = cms.string( "ParabolicMf" ),
     Fitter = cms.string( "hltESPFlexibleKFFittingSmoother" ),
     Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
-    TTRHBuilder = cms.string( "hltESPTTRHBuilderAngleAndTemplate" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     NavigationSchool = cms.string( "" ),
     MeasurementTracker = cms.string( "" )
 )
@@ -16771,7 +16771,7 @@ fragment.hltFullIter1CtfWithMaterialTracksPPOnAA = cms.EDProducer( "TrackProduce
     SimpleMagneticField = cms.string( "ParabolicMf" ),
     Fitter = cms.string( "hltESPFlexibleKFFittingSmoother" ),
     Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
-    TTRHBuilder = cms.string( "hltESPTTRHBuilderAngleAndTemplate" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     NavigationSchool = cms.string( "" ),
     MeasurementTracker = cms.string( "" )
 )
@@ -17103,7 +17103,7 @@ fragment.hltFullIter2CtfWithMaterialTracksPPOnAA = cms.EDProducer( "TrackProduce
     SimpleMagneticField = cms.string( "ParabolicMf" ),
     Fitter = cms.string( "hltESPFlexibleKFFittingSmoother" ),
     Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
-    TTRHBuilder = cms.string( "hltESPTTRHBuilderAngleAndTemplate" ),
+    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     NavigationSchool = cms.string( "" ),
     MeasurementTracker = cms.string( "" )
 )
