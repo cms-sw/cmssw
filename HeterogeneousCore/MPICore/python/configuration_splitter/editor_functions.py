@@ -39,6 +39,9 @@ def create_remote_process(local_process, modules_to_run, remote_process_name, lo
         setattr(remote_process, module, getattr(local_process, module).clone())
     for module in local_process.es_producers.keys():
         setattr(remote_process, module, getattr(local_process, module).clone())
+    
+    if hasattr(local_process, "MessageLogger"):
+        remote_process.MessageLogger = local_process.MessageLogger.clone()
 
     remote_process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
     remote_process.MPIService.pmix_server_uri = "file:server.uri"
