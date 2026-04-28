@@ -60,7 +60,7 @@ void EDM_MPI_build_types_() {
                    run,                       // edm::RunNumber_t
                    lumi,                      // edm::LuminosityBlockNumber_t
                    event,                     // edm::EventNumber_t
-                   streamId);                 // edm::StreamID
+                   slotId);                   // MPIChannel index
 
   EDM_MPI_MessageType[EDM_MPI_Connect] = EDM_MPI_Empty;                                  //
   EDM_MPI_MessageType[EDM_MPI_Disconnect] = EDM_MPI_Empty;                               //

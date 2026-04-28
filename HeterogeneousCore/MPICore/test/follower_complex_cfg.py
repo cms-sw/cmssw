@@ -6,6 +6,12 @@ process.options.numberOfThreads = 4
 process.options.numberOfStreams = 4
 process.options.wantSummary = False
 
+process.load("FWCore.ParameterSet.MessageLogger")
+process.MessageLogger.cerr.MPI = cms.untracked.PSet(
+    reportEvery = cms.untracked.int32( 1 ),
+    limit = cms.untracked.int32( 10000000 )
+)
+
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
 
 from HeterogeneousCore.MPICore.modules import *
