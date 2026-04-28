@@ -112,14 +112,14 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubNoEta(const L1Phase2MuDT
   return stub;
 }
 
-l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubwithZandK(const L1Phase2MuDTExtPhiThetaPair& pairs) {
+l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubwithZandkSlope(const L1Phase2MuDTExtPhiThetaPair& pairs) {
    
   const auto& phiS = pairs.phiDigi();
 
   static constexpr double ZCenterPhysPositive[] = {268.4783935546875, 533.9012145996094}; 
   static constexpr double ZCenterPhysNegative[] = {-267.72308349609375, -533.0657958984375}; 
   static constexpr double ZCenterPhysZero[] = {0.5035400390625}; 
-  static constexpr int RadiusStationPhys[] = {445, 526, 634, 720}; 
+  static constexpr int RadiusStationPhys[] = {445, 526, 635, 730}; 
   int wheel = phiS.whNum();
   int abswheel = fabs(phiS.whNum());
   int sector = phiS.scNum();
@@ -171,13 +171,8 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubwithZandK(const L1Phase2
 	stub.setEta(z, k, 3);
 	stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), zPhys, kPhys);
   } else {
-		if (abswheel == 0) {
-			stub.setEta(z_centerDigi,k_centerDigi,0);
-			stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), z_centerPhys, k_centerPhys);
-		} else {
-			stub.setEta(z_centerDigi, k_centerDigi, 0);
-			stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), z_centerPhys, k_centerPhys);
-		}
+	stub.setEta(z_centerDigi,k_centerDigi,0);
+	stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), z_centerPhys, k_centerPhys);
   }
   return stub;
 }
@@ -210,7 +205,7 @@ l1t::MuonStubCollection L1TPhase2GMTBarrelStubProcessor::makeStubs(const L1Phase
               os << std::setw(0) << std::dec << phiDigi.scNum() << " " << phiDigi.whNum() << " " << phiDigi.stNum() << " ";
               os << std::uppercase << std::setfill('0') << std::setw(16) << std::hex << uint64_t(sN) << " ";
             }
-            out.push_back(buildStubwithZandK(pair));
+            out.push_back(buildStubwithZandkSlope(pair));
             }
     if (verbose_ == 2)
       edm::LogInfo("BarrelStub") << os.str() << std::endl;
