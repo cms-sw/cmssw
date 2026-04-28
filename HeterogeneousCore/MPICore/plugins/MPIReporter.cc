@@ -28,7 +28,7 @@ MPIReporter::MPIReporter(edm::ParameterSet const& config) : token_(consumes<MPIT
 
 void MPIReporter::analyze(edm::Event const& event, edm::EventSetup const& setup) {
   {
-    edm::LogAbsolute log("MPI");
+    edm::LogInfo log("MPI");
     log << "stream " << event.streamID() << ": processing run " << event.run() << ", lumi " << event.luminosityBlock()
         << ", event " << event.id().event();
     log << "\nprocess history:    " << event.processHistory();
@@ -45,7 +45,7 @@ void MPIReporter::analyze(edm::Event const& event, edm::EventSetup const& setup)
 
   auto const& token = event.get(token_);
   {
-    edm::LogAbsolute log("MPI");
+    edm::LogInfo log("MPI");
     log << "got the MPIToken opaque wrapper around the MPIChannel at " << &token;
   }
 }

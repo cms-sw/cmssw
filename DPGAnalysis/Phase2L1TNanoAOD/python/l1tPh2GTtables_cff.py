@@ -88,6 +88,7 @@ gtTkEleTable = gtTkPhoTable.clone(
 gtTkEleTable.variables.z0 = Var("vz",float)
 gtTkEleTable.variables.charge = Var("charge", int, doc="charge id")
 gtTkEleTable.variables.hwZ0 = Var("hwZ0_toInt()",int)
+gtTkEleTable.variables.hwQualityScore = Var("hwQualityScore_toInt()",int)
 
 ## GT gmtTkMuons
 gtTkMuTable = gtTkEleTable.clone(

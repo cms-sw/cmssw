@@ -12,6 +12,12 @@ process.options.wantSummary = False
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
+process.load("FWCore.ParameterSet.MessageLogger")
+process.MessageLogger.cerr.MPI = cms.untracked.PSet(
+    reportEvery = cms.untracked.int32( 1 ),
+    limit = cms.untracked.int32( 10000000 )
+)
+
 process.load("HeterogeneousCore.MPIServices.MPIService_cfi")
 
 from eventlist_cff import eventlist
