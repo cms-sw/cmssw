@@ -2,6 +2,8 @@
 Kalman Filter L1 Muon algorithm
 Tyler Lam (UCLA)
 Sep. 2021
+Delano Campos (UCLA)
+Feb. 2026
 */
 #ifndef L1Trigger_Phase2L1GMT_KMTFCore_h
 #define L1Trigger_Phase2L1GMT_KMTFCore_h
