@@ -514,11 +514,16 @@ void KMTFCore::propagate(l1t::KMTFTrack& track) {
   int kSlopeNew = kSlope;
   int zNew;
   zNew = ap_fixed<BITSZ + 7, BITSZ + 7>(ap_fixed<BITSZ, BITSZ>(z) - ap_ufixed<ZDELTAR_BITS, ZDELTAR_BITSINT>(zdeltaR_dig) * ap_fixed<BITSKSLOPE, BITSKSLOPE>(kSlope));
-  if ((zNew > (pow(2, BITSZ - 1) - 1)) || (zNew < -(pow(2, BITSZ - 1)))) {
-    if (verbose_)
-      edm::LogWarning("KMTFCore") << "z saturated during propagation, step=" << step;
+
+  if (zNew > (1 << (BITSZ - 1)) - 1) {
+      if (verbose_)
+        edm::LogWarning("KMTFCore") << "z saturated high during propagation, step=" << step;
+      zNew = (1 << (BITSZ - 1) - 1);
+  } else if (zNew < -(1 << (BITSZ - 1))) {
+      if (verbose_)
+        edm::LogWarning("KMTFCore") << "z saturated low during propagation, step=" << step;
+      zNew = -(1 << (BITSZ - 1));
   }
-  zNew = wrapAround(zNew, pow(2, BITSZ - 1));
 
   //Only for the propagation to vertex we use second order;
   if (step == 1) {
@@ -696,8 +701,19 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
     return false;
   int phiNew = wrapAround(trackPhi + residual(0), pow(2, BITSPHI - 1));
   int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0) + Gain(2, 1) * residual(1)), pow(2, BITSPHIB - 1));
-  int zNew = wrapAround(trackz + int(Gain(3, 2) * residual(2) + Gain(3, 3) * residual(3)), pow(2, BITSZ - 1));
-  int kSlopeNew = wrapAround(trackSlope + int(Gain(4, 2) * residual(2) + Gain(4, 3) * residual(3)), pow(2, BITSKSLOPE - 1));
+  int zNew = trackz + int(Gain(3, 2) * residual(2) + Gain(3, 3) * residual(3));
+  int kSlopeNew = trackSlope + int(Gain(4, 2) * residual(2) + Gain(4, 3) * residual(3));
+
+  if ((zNew > (pow(2, BITSZ - 1) - 1)) || (zNew < -(pow(2, BITSZ - 1)))) {
+      if (verbose_)
+          edm::LogWarning("KMTFCore") << "z saturated in updateOffline";
+      return false;
+  }
+  if ((kSlopeNew > (pow(2, BITSKSLOPE - 1) - 1)) || (kSlopeNew < -(pow(2, BITSKSLOPE - 1)))) {
+      if (verbose_)
+          edm::LogWarning("KMTFCore") << "kSlope saturated in updateOffline";
+      return false;
+  }
 
   track.setResidual(stub->depthRegion() - 1,  fabs(phi - phiNew) + fabs(phiB - phiBNew) + fabs(z - zNew) + fabs(kSlope - kSlopeNew));
 
@@ -795,8 +811,19 @@ bool KMTFCore::updateOffline1D(l1t::KMTFTrack& track, const l1t::MuonStubRef& st
   int KNew = wrapAround(trackK + int(Gain(0, 0) * residual(0)), pow(2, BITSCURV - 1));
   int phiNew = wrapAround(trackPhi + residual(0), pow(2, BITSPHI - 1));
   int phiBNew = wrapAround(trackPhiB + int(Gain(2, 0) * residual(0)), pow(2, BITSPHIB - 1));
-  int zNew = wrapAround(trackz + int(Gain(3, 1) * residual(1) + Gain(3, 2) * residual(2)), pow(2, BITSZ - 1));
-  int kSlopeNew = wrapAround(trackSlope + int(Gain(4, 1) * residual(1) + Gain(4, 2) * residual(2)), pow(2, BITSKSLOPE - 1));
+  int zNew = trackz + int(Gain(3, 1) * residual(1) + Gain(3, 2) * residual(2));
+  int kSlopeNew = trackSlope + int(Gain(4, 1) * residual(1) + Gain(4, 2) * residual(2));
+
+  if ((zNew > (pow(2, BITSZ - 1) - 1)) || (zNew < -(pow(2, BITSZ - 1)))) {
+      if (verbose_)
+          edm::LogWarning("KMTFCore") << "z saturated in updateOffline1D";
+      return false;
+  }
+  if ((kSlopeNew > (pow(2, BITSKSLOPE - 1) - 1)) || (kSlopeNew < -(pow(2, BITSKSLOPE - 1)))) {
+      if (verbose_)
+          edm::LogWarning("KMTFCore") << "kSlope saturated in updateOffline1D";
+      return false;
+  }
 
   track.setCoordinates(track.step(), KNew, phiNew, phiBNew, zNew, kSlopeNew);
 
@@ -946,9 +973,6 @@ bool KMTFCore::updateLUT(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub, in
       edm::LogWarning("KMTFCore") << "kSlope has saturated";
     return false;
   }
-
-  zNew = wrapAround(zNew, pow(2, BITSZ - 1));
-  kSlopeNew = wrapAround(kSlopeNew, pow(2, BITSKSLOPE - 1));
 
   track.setCoordinates(track.step(), KNew, phiNew, phiBNew, zNew, kSlopeNew);
   track.addStub(stub);

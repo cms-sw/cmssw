@@ -14,7 +14,7 @@ gmtKMTFMuons = cms.EDProducer('Phase2L1TGMTKMTFProducer',
                                      
                                      aPhi = cms.vdouble(5.6533349391874275, 0.03477876333443834, 0.032506522838098864, 0.024752809174909053),
                                      aPhiB = cms.vdouble(-2.02, -0.2994087741381382, -0.4033668521165302, -0.3592231728688621),
-                                     zdeltaR = cms.vdouble(445.0, 526.0-445.0, 635.0-526.0, 744.0-635.0),
+                                     zdeltaR = cms.vdouble(445.0, 526.0-445.0, 635.0-526.0, 730.0-635.0),
                                      aPhiBNLO = cms.vdouble(9.04133e-05,0,0,0),
 
                                      bPhi = cms.vdouble(-1,.18245,.20898,.17286),
@@ -56,7 +56,7 @@ gmtKMTFMuons = cms.EDProducer('Phase2L1TGMTKMTFProducer',
                                      combos3=cms.vint32(5,6,7),
                                      combos2=cms.vint32(3),
                                      combos1=cms.vint32(), #for future possible usage
-                                     useOfflineAlgo = cms.bool(False),   
+                                     useOfflineAlgo = cms.bool(True),   
                                      ###Only for the offline algo -not in firmware --------------------
                                      mScatteringPhi = cms.vdouble(0.1169021113298598, 0.00016777763395543814, 0.0004322078772344548, 0.00024985881710722107),
                                      mScatteringPhiB = cms.vdouble(.0522762, 0.01762000062188365, 0.03508319015441297, 0.03126825551530328),
