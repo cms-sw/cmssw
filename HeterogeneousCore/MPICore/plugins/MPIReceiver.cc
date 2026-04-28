@@ -64,6 +64,8 @@ public:
 
       products_.emplace_back(std::move(entry));
     }
+
+    received_wrappers_.resize(products_.size());
   }
 
   void acquire(edm::Event const& event, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder holder) final {
@@ -75,17 +77,87 @@ public:
     edm::Service<edm::Async> as;
     as->runAsync(
         std::move(holder),
-        [this, token]() { token.channel()->receiveMetadata(instance_, received_meta_); },
+        [this, token]() {
+          token.channel()->receiveMetadata(instance_, received_meta_);
+#ifdef EDM_ML_DEBUG
+          // dump the summary of metadata
+          received_meta_->debugPrintMetadataSummary();
+#endif
+
+          // if filter was false before the sender, receive nothing
+          if (received_meta_->productCount() == -1) {
+            return;
+          }
+
+          std::unique_ptr<TBufferFile> serialized_buffer;
+          if (received_meta_->hasSerialized()) {
+            serialized_buffer =
+                token.channel()->receiveSerializedBuffer(instance_, received_meta_->serializedBufferSize());
+#ifdef EDM_ML_DEBUG
+            {
+              edm::LogSystem msg("MPIReceiver");
+              msg << "Received serialised product:\n";
+              for (int i = 0; i < received_meta_->serializedBufferSize(); ++i) {
+                msg << "0x" << std::hex << std::setw(2) << std::setfill('0')
+                    << (unsigned int)(unsigned char)serialized_buffer->Buffer()[i] << (i % 16 == 15 ? '\n' : ' ');
+              }
+            }
+#endif
+          }
+
+          for (size_t i = 0; i < products_.size(); ++i) {
+            auto product_meta = received_meta_->getNext();
+            if (product_meta.kind == ProductMetadata::Kind::Missing) {
+              continue;
+            }
+
+            auto const& entry = products_[i];
+
+            if (product_meta.kind == ProductMetadata::Kind::Serialized) {
+              std::unique_ptr<edm::WrapperBase> wrapper(
+                  reinterpret_cast<edm::WrapperBase*>(entry.wrappedType.getClass()->New()));
+              assert(static_cast<int32_t>(serialized_buffer->Length() + product_meta.sizeMeta) <=
+                         received_meta_->serializedBufferSize() &&
+                     "serialized data buffer is shorter than expected");
+              entry.wrappedType.getClass()->Streamer(wrapper.get(), *serialized_buffer);
+              received_wrappers_[i] = std::move(wrapper);
+            }
+
+            else if (product_meta.kind == ProductMetadata::Kind::TrivialCopy) {
+              if (not enableTrivialSerialisation_) {
+                edm::LogError("MPIReceiver")
+                    << "Received a trivially-serialised product, but enableTrivialSerialisation is set to false in "
+                       "this MPIReceiver. Please check that the MPISender and MPIReceiver have consistent settings.";
+                MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
+              }
+              std::unique_ptr<ngt::SerialiserBase> serialiser =
+                  ngt::SerialiserFactory::get()->tryToCreate(entry.type.typeInfo().name());
+              if (not serialiser) {
+                throw cms::Exception("SerializerError")
+                    << "Receiver could not retrieve its serializer when it was expected";
+              }
+              auto writer = serialiser->writer();
+              ngt::AnyBuffer buffer = writer->uninitialized_parameters();  // constructs buffer with typeid
+              assert(buffer.size_bytes() == product_meta.sizeMeta);
+              std::memcpy(buffer.data(), product_meta.trivialCopyOffset, product_meta.sizeMeta);
+              writer->initialize(buffer);
+              token.channel()->receiveInitializedTrivialCopy(instance_, *writer);
+              writer->finalize();
+              received_wrappers_[i] = writer->get();
+            }
+          }
+
+          if (received_meta_->hasSerialized()) {
+            assert(serialized_buffer->Length() == received_meta_->serializedBufferSize() &&
+                   "serialized data buffer is not equal to the expected length");
+          }
+        },
         []() { return "Calling MPIReceiver::acquire()"; });
   }
 
   void produce(edm::Event& event, edm::EventSetup const&) final {
     // read the MPIToken used to establish the communication channel
     MPIToken token = event.get(upstream_);
-#ifdef EDM_ML_DEBUG
-    // dump the summary of metadata
-    received_meta_->debugPrintMetadataSummary();
-#endif
 
     // if filter was false before the sender, receive nothing
     if (received_meta_->productCount() == -1) {
@@ -96,66 +168,12 @@ public:
       event.emplace(pathStateToken_);
     }
 
-    std::unique_ptr<TBufferFile> serialized_buffer;
-    if (received_meta_->hasSerialized()) {
-      serialized_buffer = token.channel()->receiveSerializedBuffer(instance_, received_meta_->serializedBufferSize());
-#ifdef EDM_ML_DEBUG
-      {
-        edm::LogSystem msg("MPISender");
-        msg << "Received serialised product:\n";
-        for (int i = 0; i < received_meta_->serializedBufferSize(); ++i) {
-          msg << "0x" << std::hex << std::setw(2) << std::setfill('0')
-              << (unsigned int)(unsigned char)serialized_buffer->Buffer()[i] << (i % 16 == 15 ? '\n' : ' ');
-        }
+    for (size_t i = 0; i < products_.size(); ++i) {
+      if (received_wrappers_[i]) {
+        event.put(products_[i].token, std::move(received_wrappers_[i]));
+      } else {
+        edm::LogWarning("MPIReceiver") << "Product " << products_[i].type.name() << " was not received.";
       }
-#endif
-    }
-
-    for (auto const& entry : products_) {
-      auto product_meta = received_meta_->getNext();
-      if (product_meta.kind == ProductMetadata::Kind::Missing) {
-        edm::LogWarning("MPIReceiver") << "Product " << entry.type.name() << " was not received.";
-        continue;  // Skip products that weren't sent
-      }
-
-      else if (product_meta.kind == ProductMetadata::Kind::Serialized) {
-        std::unique_ptr<edm::WrapperBase> wrapper(
-            reinterpret_cast<edm::WrapperBase*>(entry.wrappedType.getClass()->New()));
-        assert(static_cast<int32_t>(serialized_buffer->Length() + product_meta.sizeMeta) <=
-                   received_meta_->serializedBufferSize() &&
-               "serialized data buffer is shorter than expected");
-        entry.wrappedType.getClass()->Streamer(wrapper.get(), *serialized_buffer);
-        // put the data into the Event
-        event.put(entry.token, std::move(wrapper));
-      }
-
-      else if (product_meta.kind == ProductMetadata::Kind::TrivialCopy) {
-        if (not enableTrivialSerialisation_) {
-          edm::LogError("MPIReceiver")
-              << "Received a trivially-serialised product, but enableTrivialSerialisation is set to false in this "
-                 "MPIReceiver. Please check that the MPISender and MPIReceiver have consistent settings.";
-          MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
-        }
-        std::unique_ptr<ngt::SerialiserBase> serialiser =
-            ngt::SerialiserFactory::get()->tryToCreate(entry.type.typeInfo().name());
-        if (not serialiser) {
-          throw cms::Exception("SerializerError") << "Receiver could not retrieve its serializer when it was expected";
-        }
-        auto writer = serialiser->writer();
-        ngt::AnyBuffer buffer = writer->uninitialized_parameters();  // constructs buffer with typeid
-        assert(buffer.size_bytes() == product_meta.sizeMeta);
-        std::memcpy(buffer.data(), product_meta.trivialCopyOffset, product_meta.sizeMeta);
-        writer->initialize(buffer);
-        token.channel()->receiveInitializedTrivialCopy(instance_, *writer);
-        writer->finalize();
-        // put the data into the Event
-        event.put(entry.token, writer->get());
-      }
-    }
-
-    if (received_meta_->hasSerialized()) {
-      assert(serialized_buffer->Length() == received_meta_->serializedBufferSize() &&
-             "serialized data buffer is not equal to the expected length");
     }
 
     // write a shallow copy of the channel to the output, so other modules can consume it
@@ -207,6 +225,7 @@ private:
   bool activity_;                           // indicator whether the PathStateToken will be received by the module
   edm::EDPutTokenT<edm::PathStateToken> pathStateToken_;
   std::shared_ptr<ProductMetadataBuilder> received_meta_;
+  std::vector<std::unique_ptr<edm::WrapperBase>> received_wrappers_;
   bool enableTrivialSerialisation_ = true;
 };
 

@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Follower2")
+process = cms.Process("MPIFollower")
 
-process.options.numberOfThreads = 8
-process.options.numberOfStreams = 8
+process.options.numberOfThreads = 4
+process.options.numberOfStreams = 40
 process.options.numberOfConcurrentLuminosityBlocks = 2
 process.options.numberOfConcurrentRuns = 2
 process.options.wantSummary = False
@@ -25,7 +25,16 @@ process.maxEvents.input = -1
 
 process.receiver = MPIReceiver(
     upstream = "source",
-    instance = 21,
+    instance = 42,
+    products = [ dict(
+        type = "edm::EventID",
+        label = ""
+    )]
+)
+
+process.otherreceiver = MPIReceiver(
+    upstream = "source",
+    instance = 19,
     products = [ dict(
         type = "edm::EventID",
         label = ""
@@ -33,13 +42,13 @@ process.receiver = MPIReceiver(
 )
 
 process.sender = MPISender(
-    upstream = "receiver", # guarantees that this module will only run after receiver has run
-    instance = 22,
-    products = [ "edmEventID_receiver__*" ]
+    upstream = "otherreceiver", # guarantees that this module will only run after otherreceiver has run
+    instance = 99,
+    products = [ "edmEventID_otherreceiver__*" ]
 )
 
 process.analyzer = cms.EDAnalyzer("edmtest::EventIDValidator",
     source = cms.untracked.InputTag("receiver")
 )
 
-process.path = cms.Path(process.receiver + process.analyzer + process.sender)
+process.path = cms.Path(process.receiver + process.analyzer + process.otherreceiver + process.sender)

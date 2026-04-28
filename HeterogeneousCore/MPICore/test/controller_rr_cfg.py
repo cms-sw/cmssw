@@ -22,7 +22,7 @@ from HeterogeneousCore.MPICore.modules import *
 
 process.mpiController = MPIController(
     mode = 'CommWorld',
-    followers = [ 1, 2 ]
+    followerProcessName = 'Follower'
 )
 
 process.ids = cms.EDProducer("edmtest::EventIDProducer")

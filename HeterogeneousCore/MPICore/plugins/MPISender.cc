@@ -112,6 +112,13 @@ public:
     const MPIToken& token = event.get(upstream_);
     // pass the number of products to estimate the right size for the metadata buffer
     auto meta = std::make_shared<ProductMetadataBuilder>(products_.size());
+
+    // We use std::shared_ptr, instead of std::unique_ptr, so that readers can
+    // be captured by move by runAsync's lamnda. This is ultimately because this
+    // lambda is used to construct an std::function, which requires its callable
+    // to be copy-constructible.
+    std::vector<std::shared_ptr<const ngt::ReaderBase>> readers;
+    readers.reserve(products_.size());
     size_t index = 0;
     buffer_->Reset();
     has_serialized_ = false;
@@ -145,6 +152,7 @@ public:
             auto reader = serialiser->reader(*wrapper);
             ngt::AnyBuffer buffer = reader->parameters();
             meta->addTrivialCopy(buffer.data(), buffer.size_bytes());
+            readers.push_back(std::move(reader));
           } else {
             LogDebug("MPISender") << "No serializer for type \"" << entry.type.name() << "\" ("
                                   << entry.type.typeInfo().name() << "), using ROOT serialization";
@@ -169,50 +177,32 @@ public:
     edm::Service<edm::Async> as;
     as->runAsync(
         std::move(holder),
-        [this, token, meta = std::move(meta)]() { token.channel()->sendMetadata(instance_, meta); },
+        [this, token, meta = std::move(meta), readers = std::move(readers)]() {
+          token.channel()->sendMetadata(instance_, meta);
+          if (has_serialized_) {
+#ifdef EDM_ML_DEBUG
+            {
+              edm::LogSystem msg("MPISender");
+              msg << "Sending serialised product:\n";
+              for (int i = 0; i < buffer_->Length(); ++i) {
+                msg << "0x" << std::hex << std::setw(2) << std::setfill('0')
+                    << (unsigned int)(unsigned char)buffer_->Buffer()[i] << (i % 16 == 15 ? '\n' : ' ');
+              }
+            }
+#endif
+            token.channel()->sendBuffer(buffer_->Buffer(), buffer_->Length(), instance_, EDM_MPI_SendSerializedProduct);
+          }
+          for (auto const& reader : readers) {
+            token.channel()->sendTrivialCopyProduct(instance_, *reader);
+          }
+        },
         []() { return "Calling MPISender::acquire()"; });
   }
 
   void produce(edm::Event& event, edm::EventSetup const&) final {
-    MPIToken token = event.get(upstream_);
-
-    if (!is_active_) {
-      event.emplace(token_, token);
-      return;
-    }
-
-    if (has_serialized_) {
-#ifdef EDM_ML_DEBUG
-      {
-        edm::LogSystem msg("MPISender");
-        msg << "Sending serialised product:\n";
-        for (int i = 0; i < buffer_->Length(); ++i) {
-          msg << "0x" << std::hex << std::setw(2) << std::setfill('0')
-              << (unsigned int)(unsigned char)buffer_->Buffer()[i] << (i % 16 == 15 ? '\n' : ' ');
-        }
-      }
-#endif
-      token.channel()->sendBuffer(buffer_->Buffer(), buffer_->Length(), instance_, EDM_MPI_SendSerializedProduct);
-    }
-
-    for (auto const& entry : products_) {
-      edm::Handle<edm::WrapperBase> handle(entry.type.typeInfo());
-      event.getByToken(entry.token, handle);
-      edm::WrapperBase const* wrapper = handle.product();
-      // we don't send missing products
-      if (handle.isValid()) {
-        std::unique_ptr<ngt::SerialiserBase> serialiser;
-        if (enableTrivialSerialisation_) {
-          serialiser = ngt::SerialiserFactory::get()->tryToCreate(entry.type.typeInfo().name());
-        }
-        if (serialiser) {
-          auto reader = serialiser->reader(*wrapper);
-          token.channel()->sendTrivialCopyProduct(instance_, *reader);
-        }
-      }
-    }
     // write a shallow copy of the channel to the output, so other modules can consume it
     // to indicate that they should run after this
+    MPIToken token = event.get(upstream_);
     event.emplace(token_, token);
   }
 
