@@ -22,7 +22,7 @@ public:
   l1t::MuonStubCollection makeStubs(const L1Phase2MuDTExtPhiThetaPairContainer*);
 
 private:
-  l1t::MuonStub buildStubwithZandK(const L1Phase2MuDTExtPhiThetaPair&);
+  l1t::MuonStub buildStubwithZandkSlope(const L1Phase2MuDTExtPhiThetaPair&);
   l1t::MuonStub buildStub(const L1Phase2MuDTPhDigi&, const L1MuDTChambThDigi*);
   l1t::MuonStub buildStubNoEta(const L1Phase2MuDTPhDigi&);
 

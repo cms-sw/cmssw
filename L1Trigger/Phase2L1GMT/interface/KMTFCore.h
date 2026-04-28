@@ -2,6 +2,8 @@
 Kalman Filter L1 Muon algorithm
 Tyler Lam (UCLA)
 Sep. 2021
+Delano Campos (UCLA)
+Feb. 2026
 */
 #ifndef L1Trigger_Phase2L1GMT_KMTFCore_h
 #define L1Trigger_Phase2L1GMT_KMTFCore_h
@@ -129,6 +131,8 @@ namespace Phase2L1GMT {
     //bits for fixed point precision
     static const int PHIBSCALE = 16;
     static const int PHIBSCALE_INT = 5;
+	static const int ZDELTAR_BITS = 15;
+	static const int ZDELTAR_BITSINT = 1;
     static const int BITSCURV = 16;
     static const int BITSPHI = 18;
     static const int BITSPHIB = 17;  // 12 bits *28 (+5 bits)
