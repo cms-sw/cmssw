@@ -372,7 +372,8 @@ namespace edm {
     bool beginJobCalled_;
     bool beginJobStartedModules_ = false;
     bool beginJobSucceeded_ = false;
-    bool shouldWeStop_;
+    //set by looper during event processing, but read by multiple threads, so needs to be atomic
+    std::atomic<bool> shouldWeStop_;
     bool fileModeNoMerge_;
     std::string exceptionMessageFiles_;
     std::atomic<bool> exceptionMessageRuns_;
