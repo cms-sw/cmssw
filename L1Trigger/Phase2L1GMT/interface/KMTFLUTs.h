@@ -65,14 +65,23 @@ namespace Phase2L1GMT {
       lut2LL_[1 * 64 + 2] = (TH1 *)lutFile_->Get("gain2_2_1_LL");
 
       coarseEta_ = (TH1 *)lutFile_->Get("coarseETALUT");
-	  lutTheta_[1 * 64 + 0] = (TH1 *)lutThetaFile_->Get("gain_0_1");
-	  lutTheta_[1 * 64 + 2] = (TH1 *)lutThetaFile_->Get("gain_2_1");
-	  lutTheta_[1 * 64 + 4] = (TH1 *)lutThetaFile_->Get("gain_4_1");
-	  lutTheta_[1 * 64 + 6] = (TH1 *)lutThetaFile_->Get("gain_6_1");
-	  lutTheta_[2 * 64 + 0] = (TH1 *)lutThetaFile_->Get("gain_0_2");
-	  lutTheta_[2 * 64 + 4] = (TH1 *)lutThetaFile_->Get("gain_4_2");
-	  lutTheta_[3 * 64 + 0] = (TH1 *)lutThetaFile_->Get("gain_0_3");
-
+		
+	  lutTheta1D_[1 * 64 + 0] = (TH1 *)lutThetaFile_->Get("gain1D_0_1");
+	  lutTheta1D_[1 * 64 + 2] = (TH1 *)lutThetaFile_->Get("gain1D_2_1");
+	  lutTheta1D_[1 * 64 + 4] = (TH1 *)lutThetaFile_->Get("gain1D_4_1");
+	  lutTheta1D_[1 * 64 + 6] = (TH1 *)lutThetaFile_->Get("gain1D_6_1");
+	  lutTheta1D_[2 * 64 + 4] = (TH1 *)lutThetaFile_->Get("gain1D_4_2");
+	  lutTheta1D_[3 * 64 + 0] = (TH1 *)lutThetaFile_->Get("gain1D_0_3");
+	  lutTheta2D_[1 * 64 + 0] = (TH1 *)lutThetaFile_->Get("gain2D_0_1");
+	  lutTheta2D_[1 * 64 + 2] = (TH1 *)lutThetaFile_->Get("gain2D_2_1");
+	  lutTheta2D_[1 * 64 + 4] = (TH1 *)lutThetaFile_->Get("gain2D_4_1");
+	  lutTheta2D_[1 * 64 + 6] = (TH1 *)lutThetaFile_->Get("gain2D_6_1");
+	  lutTheta2D_[2 * 64 + 0] = (TH1 *)lutThetaFile_->Get("gain2D_0_2");
+	  lutTheta2D_[2 * 64 + 4] = (TH1 *)lutThetaFile_->Get("gain2D_4_2");
+	  lutTheta2D_[3 * 64 + 0] = (TH1 *)lutThetaFile_->Get("gain2D_0_3");
+	  lutTheta1D11_[2 * 64 + 0] = (TH1 *)lutThetaFile_->Get("gain1D_0_2_phi1100");
+	  lutTheta1D01_[2 * 64 + 0]= (TH1 *)lutThetaFile_->Get("gain1D_0_2_phi0100");
+	  lutTheta1D10_[2 * 64 + 0] = (TH1 *)lutThetaFile_->Get("gain1D_0_2_phi1000");
     }
 
     ~KMTFLUTs() {
@@ -87,8 +96,8 @@ namespace Phase2L1GMT {
     }
 
     std::vector<float> trackGain(uint step, uint bitmask, uint K) {
-      std::vector<float> gain(4, 0.0);
-      const TH1 *h = lut_[64 * step + bitmask];
+		std::vector<float> gain(4, 0.0);
+		const TH1 *h = lut_[64 * step + bitmask];
       gain[0] = h->GetBinContent(K + 1);
       gain[2] = h->GetBinContent(1024 + K + 1);
       return gain;
@@ -125,10 +134,15 @@ namespace Phase2L1GMT {
       return uint((1 << 12) * coarseEta_->GetBinContent(coarseEta_->GetXaxis()->FindBin(mask)) / M_PI);
     }
 
-   std::vector<float> trackGainTheta(uint step, uint bitmask, uint K) {
+	std::vector<float> trackGainTheta(uint step, uint bitmask, uint K, bool is2D) {
       std::vector<float> gain(4, 0.0);
       const TH1 *h;
-      h = lutTheta_[64 * step + bitmask];
+	  if (is2D){
+      	h = lutTheta2D_[64 * step + bitmask];
+		}
+	  else {
+      	h = lutTheta1D_[64 * step + bitmask];
+		}
       gain[0] = h->GetBinContent(K + 1);
       gain[1] = h->GetBinContent(512 + K + 1);
       gain[2] = h->GetBinContent(2 * 512 + K + 1);
@@ -136,6 +150,24 @@ namespace Phase2L1GMT {
       return gain;
     }
 
+    std::vector<float> trackGainTheta2(uint step, uint bitmask, uint phiBitmask, uint K) {
+      std::vector<float> gain(4, 0.0);
+      const TH1 *h;
+	  if (phiBitmask == 0b1100){
+      	h = lutTheta1D11_[64 * step + bitmask];
+		}
+	  else if (phiBitmask == 0b1000){
+      	h = lutTheta1D10_[64 * step + bitmask];
+		}
+	  else {
+      	h = lutTheta1D01_[64 * step + bitmask];
+		}
+      gain[0] = h->GetBinContent(K + 1);
+      gain[1] = h->GetBinContent(512 + K + 1);
+      gain[2] = h->GetBinContent(2 * 512 + K + 1);
+      gain[3] = h->GetBinContent(3 * 512 + K + 1);
+      return gain;
+    }
 
     TFile *lutFile_;
     TFile *lutThetaFile_;
@@ -144,7 +176,12 @@ namespace Phase2L1GMT {
     std::map<uint, const TH1 *> lut2LH_;
     std::map<uint, const TH1 *> lut2HL_;
     std::map<uint, const TH1 *> lut2LL_;
-    std::map<uint, const TH1 *> lutTheta_;
+
+    std::map<uint, const TH1 *> lutTheta1D_;
+    std::map<uint, const TH1 *> lutTheta2D_;
+    std::map<uint, const TH1 *> lutTheta1D11_;
+    std::map<uint, const TH1 *> lutTheta1D10_;
+    std::map<uint, const TH1 *> lutTheta1D01_;
     const TH1 *coarseEta_;
   };
 

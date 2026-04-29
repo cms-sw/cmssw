@@ -172,15 +172,26 @@ namespace l1t {
       return kalmanGain0_;
     }
 
-	const std::vector<float>& convergenceGain(unsigned int step) const {
+	const std::vector<float>& ThetaGain1D(unsigned int step) const {
 		switch (step) {
-    		case 3: return convergenceGain3_;
-    		case 2: return convergenceGain2_;
-    		case 1: return convergenceGain1_;
-    		case 0: return convergenceGain0_;
+    		case 3: return ThetaGain1D3_;
+    		case 2: return ThetaGain1D2_;
+    		case 1: return ThetaGain1D1_;
+    		case 0: return ThetaGain1D0_;
 		}
-		return convergenceGain0_;
+		return ThetaGain1D0_;
 	}
+
+    const std::vector<float>& ThetaGain(unsigned int step) const {
+        switch (step) {
+            case 3: return ThetaGain3_;
+            case 2: return ThetaGain2_;
+            case 1: return ThetaGain1_;
+            case 0: return ThetaGain0_;
+        }
+        return ThetaGain0_;
+    }
+
 
     //get covariance
     const std::vector<double>& covariance() const { return covariance_; }
@@ -335,23 +346,44 @@ namespace l1t {
       }
     }
 
-	void setConvergenceGain(unsigned int step, unsigned int K, int priorThetaPattern,
-                            float Gz0, float Gz1, float Gk0, float Gk1) {
-      std::vector<float>* v = nullptr;
+	void setThetaGain1D(unsigned int step, unsigned int K, int priorThetaPattern, int seedStation, int priorPhiPattern, float G31, float G32, float G41, float G42) {
+      std::vector<float>* v1 = nullptr;
       switch (step) {
-        case 3: v = &convergenceGain3_; break;
-        case 2: v = &convergenceGain2_; break;
-        case 1: v = &convergenceGain1_; break;
-        case 0: v = &convergenceGain0_; break;
+        case 3: v1 = &ThetaGain1D3_; break;
+        case 2: v1 = &ThetaGain1D2_; break;
+        case 1: v1 = &ThetaGain1D1_; break;
+        case 0: v1 = &ThetaGain1D0_; break;
         default:
-          throw cms::Exception("WrongCondition") << "Critical ERROR on setting the convergence gain\n";
+          throw cms::Exception("WrongCondition") << "1D: Critical ERROR on setting the Theta gain\n";
       }
-      v->push_back(static_cast<float>(K));
-      v->push_back(static_cast<float>(priorThetaPattern));
-      v->push_back(Gz0);
-      v->push_back(Gz1);
-      v->push_back(Gk0);
-      v->push_back(Gk1);
+      v1->push_back(static_cast<float>(K));
+      v1->push_back(static_cast<float>(priorThetaPattern));
+      v1->push_back(static_cast<float>(seedStation));
+      v1->push_back(static_cast<float>(priorPhiPattern));
+      v1->push_back(G31);
+      v1->push_back(G32);
+      v1->push_back(G41);
+      v1->push_back(G42);
+    }
+
+    void setThetaGain(unsigned int step, unsigned int K, int priorThetaPattern, int seedStation, int priorPhiPattern, float G32, float G33, float G42, float G43) {
+      std::vector<float>* v2 = nullptr;
+      switch (step) {
+        case 3: v2 = &ThetaGain3_; break;
+        case 2: v2 = &ThetaGain2_; break;
+        case 1: v2 = &ThetaGain1_; break;
+        case 0: v2 = &ThetaGain0_; break;
+        default:
+          throw cms::Exception("WrongCondition") << "Critical ERROR on setting the Theta gain\n";
+      }
+      v2->push_back(static_cast<float>(K));
+      v2->push_back(static_cast<float>(priorThetaPattern));
+      v2->push_back(static_cast<float>(seedStation));
+      v2->push_back(static_cast<float>(priorPhiPattern));
+      v2->push_back(G32);
+      v2->push_back(G33);
+      v2->push_back(G42);
+      v2->push_back(G43);
     }
 
     //set covariance
@@ -464,10 +496,15 @@ namespace l1t {
 
     std::vector<int> residuals_;
 
-	std::vector<float> convergenceGain0_;
-	std::vector<float> convergenceGain1_;
-	std::vector<float> convergenceGain2_;
-	std::vector<float> convergenceGain3_;
+	std::vector<float> ThetaGain1D0_;
+	std::vector<float> ThetaGain1D1_;
+	std::vector<float> ThetaGain1D2_;
+	std::vector<float> ThetaGain1D3_;
+
+	std::vector<float> ThetaGain0_;
+	std::vector<float> ThetaGain1_;
+	std::vector<float> ThetaGain2_;
+	std::vector<float> ThetaGain3_;
   };
 
 }  // namespace l1t
