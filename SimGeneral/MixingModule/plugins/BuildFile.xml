@@ -1,4 +1,5 @@
 <use name="DataFormats/Common"/>
+<use name="DataFormats/HepMCCandidate"/>
 <use name="DataFormats/Provenance"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
@@ -13,6 +14,8 @@
 <use name="SimDataFormats/TrackingHit"/>
 <use name="SimDataFormats/Vertex"/>
 <use name="SimDataFormats/GeneratorProducts"/>
+<use name="PhysicsTools/HepMCCandAlgos"/>
+<use name="SimGeneral/HepPDTRecord"/>
 <use name="SimGeneral/MixingModule"/>
 <use name="clhep"/>
 <use name="CondFormats/RunInfo"/>
