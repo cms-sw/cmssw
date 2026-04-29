@@ -115,11 +115,10 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubNoEta(const L1Phase2MuDT
 l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubwithZandkSlope(const L1Phase2MuDTExtPhiThetaPair& pairs) {
    
   const auto& phiS = pairs.phiDigi();
-
-  static constexpr double ZCenterPhysPositive[] = {268.4783935546875, 533.9012145996094}; 
-  static constexpr double ZCenterPhysNegative[] = {-267.72308349609375, -533.0657958984375}; 
-  static constexpr double ZCenterPhysZero[] = {0.5035400390625}; 
-  static constexpr int RadiusStationPhys[] = {445, 526, 635, 730}; 
+  static constexpr int ZCenterDigitizedPositive[] = {11730, 23327}; 
+  static constexpr int ZCenterDigitizedNegative[] = {-11697, -23290}; 
+  static constexpr int ZCenterDigitizedZero[] = {22}; 
+  static constexpr float RadiusStationPhys[] = {445., 526., 635., 730.}; 
   int wheel = phiS.whNum();
   int abswheel = fabs(phiS.whNum());
   int sector = phiS.scNum();
@@ -142,31 +141,29 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubwithZandkSlope(const L1P
   l1t::MuonStub stub(wheel, sector, station, tfLayer, phi, phiS.phiBend(), tag, bx, quality, 0, 0, 0, 1);
 
   //defining z, k, zPhys, kPhys for case where theta digi exists
-  //defining k_centerPhys, z_centerPhys, k_centerDigi, z_centerDigi for case where theta digi does not exist
-  constexpr float ZRES_CONV = 65536.0 / 1500.0 ;
-  constexpr float KRES_CONV = 65536.0 / 2.0 ;
   int z = pairs.thetaDigi().z();
   int k = pairs.thetaDigi().k();
-  double zPhys = z / ZRES_CONV;
-  double kPhys = k / KRES_CONV;
+  float zPhys = z * (1500. / (1 << 16));
+  float kPhys = k * (2. / (1 << 16));
 
   //slight asymmetry in wheels w.r.t. the origin calls for different z_center values for case where no theta digi was matched
-  double z_centerPhys;
+  //defining z_center adn k_center for when theta digi does NOT exist!!
+  int z_centerDigi;
   if (wheel > 0){
-	z_centerPhys= ZCenterPhysPositive[abswheel - 1];
+	z_centerDigi= ZCenterDigitizedPositive[abswheel - 1];
   } else if (wheel < 0) {
-	z_centerPhys= ZCenterPhysNegative[abswheel - 1];
+	z_centerDigi= ZCenterDigitizedNegative[abswheel - 1];
   } else {
-	z_centerPhys= ZCenterPhysZero[0];
+	z_centerDigi= ZCenterDigitizedZero[0];
   }
-
-  double R_centerPhys = RadiusStationPhys[station - 1];
-  double k_centerPhys = z_centerPhys / R_centerPhys;	
-  int k_centerDigi = (int)(KRES_CONV * k_centerPhys);
-  int z_centerDigi = (int)(ZRES_CONV * z_centerPhys);
+  float z_centerPhys = z_centerDigi * (1500. / (1 << 16));
+  float R_centerPhys = RadiusStationPhys[station - 1];
+  float k_centerPhys = z_centerPhys / R_centerPhys;	
+  int k_centerDigi = k_centerPhys * ((1 << 16) / 2.);
 
   // check if theta digi exists with non-default constructor quality --> use z, k with etaQuality=3 from theta digi.
   // if theta digi has no real data, use z_center and slope which points to origin with etaQuality=0..
+  // stub set to etaQuality==3 if theta digi exists, 0 if not.
   if (pairs.thetaDigi().quality() >= 0) {
 	stub.setEta(z, k, 3);
 	stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), zPhys, kPhys);

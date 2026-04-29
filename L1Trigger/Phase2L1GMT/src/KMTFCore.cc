@@ -156,7 +156,7 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
       else
         covariance(2, 2) = float(pointResolutionPhiBH_[seed->depthRegion() - 1]);
     }
-	if (seed->depthRegion() == 4) {
+	if (seed->etaQuality() <= 0) {
   		covariance(3,3) = pow(2, 22);
 		covariance(4,4) = pow(2, 22);
 	} else {
@@ -649,6 +649,8 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
   int z = stub->eta1();
   int kSlope = stub->eta2();
   int priorThetaPattern = track.thetaDigiPattern();
+  int priorPhiPattern = track.hitPattern();
+  int seedStation = track.stubs().empty() ? 0 : track.stubs()[0]->depthRegion();
 
   Vector4 residual;
   residual[0] = ap_fixed<BITSPHI, BITSPHI>(phi - trackPhi);
@@ -719,23 +721,23 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
   track.setResidual(stub->depthRegion() - 1,  fabs(phi - phiNew) + fabs(phiB - phiBNew) + fabs(z - zNew) + fabs(kSlope - kSlopeNew));
 
   if (verbose_) {
-    edm::LogWarning("KMTFCore") << "residual(0): " << phi << "-" << trackPhi << " = " << residual(0);
-    edm::LogWarning("KMTFCore") << "residual(1): " << phiB << "-" << trackPhiB << " = " << residual(1);
-    edm::LogWarning("KMTFCore") << "residual(2): " << z << "-" << trackz << " = " << residual(2);
-    edm::LogWarning("KMTFCore") << "residual(3): " << kSlope << "-" << trackSlope << " = " << residual(3);
-    edm::LogWarning("KMTFCore") << "Gain(0,0): " << Gain(0, 0);
-    edm::LogWarning("KMTFCore") << "Gain(0,1): " << Gain(0, 1);
-    edm::LogWarning("KMTFCore") << "Gain(2,0): " << Gain(2, 0);
-    edm::LogWarning("KMTFCore") << "Gain(2,1): " << Gain(2, 1);
-    edm::LogWarning("KMTFCore") << "Gain(3,2): " << Gain(3, 2);
-    edm::LogWarning("KMTFCore") << "Gain(3,3): " << Gain(3, 3);
-    edm::LogWarning("KMTFCore") << "Gain(4,2): " << Gain(4, 2);
-    edm::LogWarning("KMTFCore") << "Gain(4,3): " << Gain(4, 3);
-    edm::LogWarning("KMTFCore") << " KNew = " << trackK << "+" << Gain(0, 0) << "*" << residual(0) << "+" << Gain(0, 1) << "*" << residual(1) << " = " << KNew ;
-    edm::LogWarning("KMTFCore") << " phiNew = " << trackPhi << "+" << residual(0) << " = " << phiNew;
-    edm::LogWarning("KMTFCore") << " phiBNew = " << trackPhiB << "+" << Gain(2, 0) << "*" << residual(0) << "+" << Gain(2, 1) << "*" << residual(1) << " = " << phiBNew;
-    edm::LogWarning("KMTFCore") << " zNew = " << trackz << "+" << Gain(3, 2) << "*" << residual(2) << "+" << Gain(3, 3) << "*" << residual(3) << " = " << zNew;
-    edm::LogWarning("KMTFCore") << " kSlopeNew = " << trackSlope << "+" << Gain(4, 2) << "*" << residual(2) << "+" << Gain(4, 3) << "*" << residual(3) << " = " << kSlopeNew;
+    std::cout << "residual(0): " << phi << "-" << trackPhi << " = " << residual(0) << "\n";
+    std::cout << "residual(1): " << phiB << "-" << trackPhiB << " = " << residual(1) << "\n";
+    std::cout << "residual(2): " << z << "-" << trackz << " = " << residual(2) << "\n";
+    std::cout << "residual(3): " << kSlope << "-" << trackSlope << " = " << residual(3) << "\n";
+    std::cout << "Gain(0,0): " << Gain(0, 0) << "\n";
+    std::cout << "Gain(0,1): " << Gain(0, 1) << "\n";
+    std::cout << "Gain(2,0): " << Gain(2, 0) << "\n";
+    std::cout << "Gain(2,1): " << Gain(2, 1) << "\n";
+    std::cout << "Gain(3,2): " << Gain(3, 2) << "\n";
+    std::cout << "Gain(3,3): " << Gain(3, 3) << "\n";
+    std::cout << "Gain(4,2): " << Gain(4, 2) << "\n";
+    std::cout << "Gain(4,3): " << Gain(4, 3) << "\n";
+    std::cout << " KNew = " << trackK << "+" << Gain(0, 0) << "*" << residual(0) << "+" << Gain(0, 1) << "*" << residual(1) << " = " << KNew  << "\n";
+    std::cout << " phiNew = " << trackPhi << "+" << residual(0) << " = " << phiNew << "\n";
+    std::cout << " phiBNew = " << trackPhiB << "+" << Gain(2, 0) << "*" << residual(0) << "+" << Gain(2, 1) << "*" << residual(1) << " = " << phiBNew << "\n";
+    std::cout << " zNew = " << trackz << "+" << Gain(3, 2) << "*" << residual(2) << "+" << Gain(3, 3) << "*" << residual(3) << " = " << zNew << "\n";
+    std::cout << " kSlopeNew = " << trackSlope << "+" << Gain(4, 2) << "*" << residual(2) << "+" << Gain(4, 3) << "*" << residual(3) << " = " << kSlopeNew << "\n";
   }
 
   track.setCoordinates(track.step(), KNew, phiNew, phiBNew, zNew, kSlopeNew);
@@ -750,7 +752,19 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
   track.addStub(stub);
   track.setHitPattern(hitPattern(track));
   track.setThetaDigiPattern(thetaDigiPattern(track));
-  track.setConvergenceGain(track.step(), fabs(trackK), priorThetaPattern, Gain(3, 2), Gain(3, 3), Gain(4, 2), Gain(4, 3));
+  track.setThetaGain(track.step(), fabs(trackK), priorThetaPattern, seedStation, priorPhiPattern, Gain(3, 2), Gain(3, 3), Gain(4, 2), Gain(4, 3));
+ 
+  if (verbose_){
+	std::cout << "step: " << track.step() << "\n";
+    std::cout << "|K|: " << fabs(trackK) << "\n";
+    std::cout << "priorThetaPattern: " << priorThetaPattern << "\n";
+    std::cout << "priorPhiPattern: " << priorPhiPattern << "\n";
+    std::cout << "seed Station: " << seedStation << "\n";
+    std::cout << "Gain32: " << Gain(3, 2) << "\n";
+    std::cout << "Gain33: " << Gain(3, 3) << "\n";
+    std::cout << "Gain42: " << Gain(4, 2) << "\n";
+    std::cout << "Gain43: " << Gain(4, 3) << "\n";
+	}
 
   return true;
 }
@@ -765,6 +779,8 @@ bool KMTFCore::updateOffline1D(l1t::KMTFTrack& track, const l1t::MuonStubRef& st
   int z = stub->eta1();
   int kSlope = stub->eta2();
   int priorThetaPattern = track.thetaDigiPattern();
+  int priorPhiPattern = track.hitPattern();
+  int seedStation = track.stubs().empty() ? 0 : track.stubs()[0]->depthRegion();
 
   Vector3 residual;
   residual[0] = ap_fixed<BITSPHI, BITSPHI>(phi - trackPhi);
@@ -847,7 +863,7 @@ bool KMTFCore::updateOffline1D(l1t::KMTFTrack& track, const l1t::MuonStubRef& st
   track.addStub(stub);
   track.setHitPattern(hitPattern(track));
   track.setThetaDigiPattern(thetaDigiPattern(track));
-  track.setConvergenceGain(track.step(), fabs(trackK), priorThetaPattern, Gain(3, 1), Gain(3, 2), Gain(4, 1), Gain(4, 2));
+  track.setThetaGain1D(track.step(), fabs(trackK), priorThetaPattern, seedStation, priorPhiPattern, Gain(3, 1), Gain(3, 2), Gain(4, 1), Gain(4, 2));
 
   return true;
 }
@@ -894,7 +910,12 @@ bool KMTFCore::updateLUT(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub, in
     GAIN = lutService_->trackGain2(track.step(), track.hitPattern(), absK / 32, seedQual, stub->quality());
   }
 
-  GAIN_THETA = lutService_->trackGainTheta(track.step(), track.thetaDigiPattern(), absK / 32);
+  const bool is2D = (mask == 3 || mask == 5 || mask == 9 || mask == 6 || mask == 10 || mask == 12);
+  if (!(is2D) && (track.step() == 2) && (track.thetaDigiPattern() == 0)) {
+  	GAIN_THETA = lutService_->trackGainTheta2(track.step(), track.thetaDigiPattern(), track.hitPattern(), absK / 32);
+  } else {
+  	GAIN_THETA = lutService_->trackGainTheta(track.step(), track.thetaDigiPattern(), absK / 32, is2D);
+	}
 
   if (verbose_) {
     edm::LogWarning("KMTFCore") << "Gains (fp): " << GAIN[0] << " " << GAIN[1] << " " << GAIN[2] << " " << GAIN[3];
@@ -962,7 +983,7 @@ bool KMTFCore::updateLUT(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub, in
   int zNew;
   int kSlopeNew;
   zNew = ap_fixed<BITSZ + 7, BITSZ + 7>(ap_fixed<BITSZ, BITSZ>(trackz) + ap_ufixed<GAINT_6, GAINT_6INT>(GAIN_THETA[0]) * residualz - ap_ufixed<GAINT_7, GAINT_7INT>(GAIN_THETA[1]) * residualSlope);
-
+  kSlopeNew = ap_fixed<BITSKSLOPE + 7, BITSKSLOPE + 7>(ap_fixed<BITSKSLOPE, BITSKSLOPE>(trackSlope) - ap_ufixed<GAINT_8, GAINT_8INT>(GAIN_THETA[2]) * residualz + ap_ufixed<GAINT_9, GAINT_9INT>(GAIN_THETA[3]) * residualSlope);
 
   if ((zNew > (1 << (BITSZ - 1)) - 1) || (zNew < -(pow(2, BITSZ - 1)))) {
     if (verbose_)
