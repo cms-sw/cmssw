@@ -33,3 +33,9 @@ cscSegments = cms.EDProducer("CSCSegmentProducer",
 )
 
 
+##
+## Modify for the tau embedding methods cleaning step
+##
+from Configuration.ProcessModifiers.tau_embedding_cleaning_cff import tau_embedding_cleaning
+from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import tau_embedding_cscSegments_cleaner
+tau_embedding_cleaning.toReplaceWith(cscSegments, tau_embedding_cscSegments_cleaner)

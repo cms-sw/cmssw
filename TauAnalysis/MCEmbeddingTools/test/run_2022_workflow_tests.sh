@@ -10,7 +10,7 @@ function die {
 }
 
 ## This is a dataset from the CMSSW integration file catalog (IBEos) from the release validation tests (runTheMatrix.py)
-dataset="root://eoscms.cern.ch//store/user/cmsbuild/store/data/Run2018C/DoubleMuon/RAW/v1/000/319/450/00000/0EA52A03-F783-E811-B448-FA163E621846.root"
+dataset="root://eoscms.cern.ch//store/user/cmsbuild/store/data/Run2022C/DoubleMuon/RAW/v1/000/356/381/00000/0b55fb47-4e17-49f2-a753-e625a741e44c.root"
 
 echo "################ Selection ################"
 cmsDriver.py \
@@ -18,11 +18,10 @@ cmsDriver.py \
     --processName SELECT \
     --data \
     --scenario pp \
-    --conditions auto:run2_data \
-    --era Run2_2018 \
+    --conditions auto:run3_data \
+    --era Run3 \
     --eventcontent TauEmbeddingSelection \
     --datatier RAWRECO \
-    --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018 \
     --filein $dataset \
     --fileout file:selection.root \
     -n 100 \
@@ -34,8 +33,8 @@ cmsDriver.py \
     --processName LHEembeddingCLEAN \
     --data \
     --scenario pp \
-    --conditions auto:run2_data \
-    --era Run2_2018 \
+    --conditions auto:run3_data \
+    --era Run3 \
     --eventcontent TauEmbeddingCleaning \
     --datatier RAWRECO \
     --procModifiers tau_embedding_cleaning,tau_embedding_mutauh \
@@ -50,10 +49,10 @@ cmsDriver.py TauAnalysis/MCEmbeddingTools/python/Simulation_GEN_cfi.py \
     --step GEN,SIM,DIGI,L1,DIGI2RAW \
     --processName SIMembeddingpreHLT \
     --mc \
-    --beamspot Realistic25ns13TeVEarly2018Collision \
+    --beamspot Realistic25ns13p6TeVEarly2022Collision \
     --geometry DB:Extended \
-    --era Run2_2018 \
-    --conditions auto:phase1_2018_realistic \
+    --era Run3 \
+    --conditions auto:phase1_2022_realistic_postEE \
     --eventcontent TauEmbeddingSimGen \
     --datatier RAWSIM \
     --procModifiers tau_embedding_sim,tau_embedding_mutauh \
@@ -68,10 +67,10 @@ cmsDriver.py \
     --step HLT:Fake2+TauAnalysis/MCEmbeddingTools/Simulation_HLT_customiser_cff.embeddingHLTCustomiser \
     --processName SIMembeddingHLT \
     --mc \
-    --beamspot Realistic25ns13TeVEarly2018Collision \
+    --beamspot Realistic25ns13p6TeVEarly2022Collision \
     --geometry DB:Extended \
-    --era Run2_2018 \
-    --conditions auto:phase1_2018_realistic \
+    --era Run3 \
+    --conditions auto:phase1_2022_realistic_postEE \
     --eventcontent TauEmbeddingSimHLT \
     --datatier RAWSIM \
     --filein file:simulated_and_cleaned_prehlt.root \
@@ -85,10 +84,10 @@ cmsDriver.py \
     --step RAW2DIGI,L1Reco,RECO,RECOSIM \
     --processName SIMembedding \
     --mc \
-    --beamspot Realistic25ns13TeVEarly2018Collision \
+    --beamspot Realistic25ns13p6TeVEarly2022Collision \
     --geometry DB:Extended \
-    --era Run2_2018 \
-    --conditions auto:phase1_2018_realistic \
+    --era Run3 \
+    --conditions auto:phase1_2022_realistic_postEE \
     --eventcontent TauEmbeddingSimReco \
     --datatier RAW-RECO-SIM \
     --procModifiers tau_embedding_sim \
@@ -101,11 +100,10 @@ cmsDriver.py \
 echo "################ Merging ################"
 cmsDriver.py \
     --step USER:TauAnalysis/MCEmbeddingTools/Merging_USER_cff.merge_step,PAT \
-    --processName MERGE \
     --data \
     --scenario pp \
-    --conditions auto:run2_data \
-    --era Run2_2018 \
+    --conditions auto:run3_data \
+    --era Run3 \
     --eventcontent TauEmbeddingMergeMINIAOD \
     --datatier USER \
     --procModifiers tau_embedding_merging \
@@ -120,8 +118,8 @@ echo "################ NanoAOD Production ################"
 cmsDriver.py \
     --step NANO:@TauEmbedding \
     --data \
-    --conditions auto:run2_data \
-    --era Run2_2018 \
+    --conditions auto:run3_data \
+    --era Run3 \
     --eventcontent TauEmbeddingNANOAOD \
     --datatier NANOAODSIM \
     --filein file:merged.root \

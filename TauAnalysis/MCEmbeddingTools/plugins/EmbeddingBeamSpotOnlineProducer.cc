@@ -1,5 +1,5 @@
 
-#include "TauAnalysis/MCEmbeddingTools/plugins/EmbeddingBeamSpotOnlineProducer.h"
+#include "TauAnalysis/MCEmbeddingTools/interface/EmbeddingBeamSpotOnlineProducer.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"

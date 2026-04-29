@@ -64,3 +64,9 @@ ecalRecHitGPU = cms.EDProducer("EcalRecHitProducerGPU",
     recoverEEFE = cms.bool(True),
 )
 
+##
+## Modify for the tau embedding methods cleaning step
+##
+from Configuration.ProcessModifiers.tau_embedding_cleaning_cff import tau_embedding_cleaning
+from TauAnalysis.MCEmbeddingTools.Cleaning_RECO_cff import tau_embedding_ecalRecHit_cleaner
+tau_embedding_cleaning.toReplaceWith(ecalRecHitGPU, tau_embedding_ecalRecHit_cleaner)
