@@ -223,12 +223,16 @@ namespace cms::perftools::allocMon::profiler {
       writeFileOrMessage("atMaxActual", measurementName, commonTraceContext, log, [&](std::ostream& os) {
         for (auto const& itTrace : orderAllocs) {
           auto const& records = itTrace->second;
-          std::print(os,
-                     "count {} requested {} actual {}\n{}",
-                     records.atMaxActual_.count_,
-                     records.atMaxActual_.requested_,
-                     records.atMaxActual_.actual_,
-                     itTrace->first);
+          // Stack traces of allocations done after the "max actual"
+          // moment can show zero values, filter them out.
+          if (records.atMaxActual_.count_ != 0) {
+            std::print(os,
+                       "count {} requested {} actual {}\n{}",
+                       records.atMaxActual_.count_,
+                       records.atMaxActual_.requested_,
+                       records.atMaxActual_.actual_,
+                       itTrace->first);
+          }
         }
       });
     }
