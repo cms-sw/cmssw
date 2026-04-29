@@ -962,7 +962,7 @@ bool KMTFCore::updateLUT(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub, in
   int zNew;
   int kSlopeNew;
   zNew = ap_fixed<BITSZ + 7, BITSZ + 7>(ap_fixed<BITSZ, BITSZ>(trackz) + ap_ufixed<GAINT_6, GAINT_6INT>(GAIN_THETA[0]) * residualz - ap_ufixed<GAINT_7, GAINT_7INT>(GAIN_THETA[1]) * residualSlope);
-
+  kSlopeNew = ap_fixed<BITSKSLOPE + 7, BITSKSLOPE + 7>(ap_fixed<BITSKSLOPE, BITSKSLOPE>(trackSlope) - ap_ufixed<GAINT_8, GAINT_8INT>(GAIN_THETA[2]) * residualz + ap_ufixed<GAINT_9, GAINT_9INT>(GAIN_THETA[3]) * residualSlope);
 
   if ((zNew > (1 << (BITSZ - 1)) - 1) || (zNew < -(pow(2, BITSZ - 1)))) {
     if (verbose_)
