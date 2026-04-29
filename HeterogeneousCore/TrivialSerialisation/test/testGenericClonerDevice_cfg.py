@@ -24,25 +24,25 @@ process.producePortableObjects = cms.EDProducer("TestAlpakaProducer@alpaka",
     )
 )
 
-process.clonePortableObjects = cms.EDProducer("ngt::GenericClonerDevice@alpaka",
+process.clonePortableObjectsOnHost = cms.EDProducer("ngt::GenericClonerHost@alpaka",
     eventProducts = cms.VPSet(
         cms.PSet(
-            type = cms.string("portabletest::TestDeviceObject"),
+            type = cms.string("portabletest::TestHostObject"),
             label = cms.string("producePortableObjects"),
             instance = cms.string("")
         ),
         cms.PSet(
-            type = cms.string("portabletest::TestDeviceCollection"),
+            type = cms.string("portabletest::TestHostCollection"),
             label = cms.string("producePortableObjects"),
             instance = cms.string("")
         ),
         cms.PSet(
-            type = cms.string("portabletest::TestDeviceCollection2"),
+            type = cms.string("portabletest::TestHostCollection2"),
             label = cms.string("producePortableObjects"),
             instance = cms.string("")
         ),
         cms.PSet(
-            type = cms.string("portabletest::TestDeviceCollection3"),
+            type = cms.string("portabletest::TestHostCollection3"),
             label = cms.string("producePortableObjects"),
             instance = cms.string("")
         ),
@@ -53,20 +53,47 @@ process.clonePortableObjects = cms.EDProducer("ngt::GenericClonerDevice@alpaka",
     )
 )
 
+process.clonePortableObjectsOnDevice = cms.EDProducer("ngt::GenericClonerDevice@alpaka",
+    eventProducts = cms.VPSet(
+        cms.PSet(
+            type = cms.string("portabletest::TestDeviceObject"),
+            label = cms.string("clonePortableObjectsOnHost"),
+            instance = cms.string("")
+        ),
+        cms.PSet(
+            type = cms.string("portabletest::TestDeviceCollection"),
+            label = cms.string("clonePortableObjectsOnHost"),
+            instance = cms.string("")
+        ),
+        cms.PSet(
+            type = cms.string("portabletest::TestDeviceCollection2"),
+            label = cms.string("clonePortableObjectsOnHost"),
+            instance = cms.string("")
+        ),
+        cms.PSet(
+            type = cms.string("portabletest::TestDeviceCollection3"),
+            label = cms.string("clonePortableObjectsOnHost"),
+            instance = cms.string("")
+        ),
+    ),
+    verbose = cms.untracked.bool(True),
+    alpaka = cms.untracked.PSet(
+        backend = cms.untracked.string("")
+    )
+)
+
 process.validatePortableCollections = cms.EDAnalyzer("TestAlpakaAnalyzer",
-    source = cms.InputTag("clonePortableObjects")
+    source = cms.InputTag("clonePortableObjectsOnDevice")
 )
 
 process.validatePortableObject = cms.EDAnalyzer("TestAlpakaObjectAnalyzer",
-    source = cms.InputTag("clonePortableObjects")
+    source = cms.InputTag("clonePortableObjectsOnDevice")
 )
 
-
-# TODO: Automatic Device <-> Host conversions are currently not supported when
-# the types are not known at compile-time.
 process.pathSoA = cms.Path(
     process.producePortableObjects +
-    process.clonePortableObjects
-    # process.validatePortableCollections +
-    # process.validatePortableObject
+    process.clonePortableObjectsOnHost +
+    process.clonePortableObjectsOnDevice +
+    process.validatePortableCollections +
+    process.validatePortableObject
 )

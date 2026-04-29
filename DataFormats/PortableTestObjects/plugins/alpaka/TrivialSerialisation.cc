@@ -8,13 +8,16 @@
 #include "DataFormats/PortableTestObjects/interface/alpaka/TestDeviceObject.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/alpaka/SerialiserFactoryDevice.h"
 
-DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::ImageDeviceCollection);
-DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::LogitsDeviceCollection);
-DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::MaskDeviceCollection);
-DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::MultiHeadNetDeviceCollection);
-DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::ParticleDeviceCollection);
-DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::SimpleNetDeviceCollection);
-DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::TestDeviceCollection);
-DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::TestDeviceCollection2);
-DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::TestDeviceCollection3);
-DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(portabletest::TestDeviceObject);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_HOST_DEVICE(portabletest::ImageHostCollection, portabletest::ImageDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_HOST_DEVICE(portabletest::LogitsHostCollection, portabletest::LogitsDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_HOST_DEVICE(portabletest::MaskHostCollection, portabletest::MaskDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_HOST_DEVICE(portabletest::MultiHeadNetHostCollection,
+                                             portabletest::MultiHeadNetDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_HOST_DEVICE(portabletest::ParticleHostCollection,
+                                             portabletest::ParticleDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_HOST_DEVICE(portabletest::SimpleNetHostCollection,
+                                             portabletest::SimpleNetDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_HOST_DEVICE(portabletest::TestHostCollection, portabletest::TestDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_HOST_DEVICE(portabletest::TestHostCollection2, portabletest::TestDeviceCollection2);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_HOST_DEVICE(portabletest::TestHostCollection3, portabletest::TestDeviceCollection3);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_HOST_DEVICE(portabletest::TestHostObject, portabletest::TestDeviceObject);

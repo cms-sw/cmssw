@@ -17,7 +17,6 @@
 #include <vector>
 
 // CMSSW include files
-#include "DataFormats/AlpakaCommon/interface/alpaka/EDMetadata.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/WrapperBaseHandle.h"
 #include "FWCore/Framework/interface/WrapperBaseOrphanHandle.h"
@@ -55,6 +54,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ngt {
       edm::TypeID typeID;    // product type as registered in the framework
       edm::EDGetToken getToken;
       edm::EDPutToken putToken;
+      std::unique_ptr<ngt::SerialiserBase> serialiser;
     };
 
     std::vector<Entry> eventProducts_;
@@ -71,8 +71,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ngt {
       auto const& label = product.getParameter<std::string>("label");
       auto const& instance = product.getParameter<std::string>("instance");
 
-      // Get a device serialiser from the human-readable type that we got from
-      // the python config.
+      // Get a device serialiser from the human-readable type "type" that we got
+      // from the python config.
       std::unique_ptr<ngt::SerialiserBase> serialiser{ngt::SerialiserFactoryDevice::get()->tryToCreate(type)};
       if (!serialiser) {
         throw edm::Exception(edm::errors::Configuration)
@@ -86,9 +86,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ngt {
       // Get the edm::TypeID from the serialiser. For asynchronous backends, this is the product type
       // wrapped in edm::DeviceProduct; for serial_sync, this is the product type directly.
       entry.typeID = edm::TypeID{serialiser->productTypeID()};
-
       entry.getToken = this->consumes(edm::TypeToGet{entry.typeID, edm::PRODUCT_TYPE}, edm::InputTag{label, instance});
-      entry.putToken = this->producesCollector().produces(entry.typeID, instance);
+
+      if (serialiser->hasCopyToHost()) {
+        // Register the device-to-host transformer. This allows to copy to host
+        // the device products produced by this module, when required by
+        // downstream modules.
+        entry.putToken = this->produces(instance).deviceProduces(edm::TypeID{serialiser->productTypeID()},
+                                                                 edm::TypeID{serialiser->hostProductTypeID()},
+                                                                 serialiser->getQueue(),
+                                                                 serialiser->preTransformDtoH(),
+                                                                 serialiser->transformDtoH());
+      } else {
+        entry.putToken = this->producesCollector().template produces<edm::Transition::Event>(entry.typeID, instance);
+      }
+
+      // Cache the serialiser so it does not need to be re-created
+      // event-by-event in produce
+      entry.serialiser = std::move(serialiser);
 
       if (verbose_) {
         edm::LogInfo("GenericClonerDevice") << "will clone device product of type '" << type << "', label '" << label
@@ -102,20 +117,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::ngt {
   void GenericClonerDevice::produce(edm::Event& event, edm::EventSetup const& /*unused*/) {
     // The EDMetadata needs to be handled manually, as would normally be done in
     // SynchronizingEDProducer.h
-    detail::EDMetadataSentry sentry(event.streamID(), this->synchronize());
+    ::ALPAKA_ACCELERATOR_NAMESPACE::detail::EDMetadataSentry sentry(event.streamID(), this->synchronize());
 
-    for (size_t i = 0; i < eventProducts_.size(); ++i) {
-      auto const& entry = eventProducts_[i];
-
+    for (auto& entry : eventProducts_) {
       // Get the product from the Event, as a WrapperBase pointer.
       edm::Handle<edm::WrapperBase> handle(entry.typeID.typeInfo());
       event.getByToken(entry.getToken, handle);
       edm::WrapperBase const* wrapper = handle.product();
+      if (wrapper == nullptr) {
+        throw edm::Exception(edm::errors::ProductNotFound)
+            << "Device product of type '" << entry.typeName << "' not found in event.";
+      }
 
-      // Get a device serialiser and initialise the corresponding Reader and Writer.
-      std::unique_ptr<ngt::SerialiserBase> serialiser{ngt::SerialiserFactoryDevice::get()->tryToCreate(entry.typeName)};
-      auto reader = serialiser->reader(*wrapper, *sentry.metadata());
-      auto writer = serialiser->writer();
+      auto reader = entry.serialiser->reader(*wrapper, *sentry.metadata());
+      auto writer = entry.serialiser->writer();
 
       // Initialise the clone with the queue and the parameters from the source.
       writer->initialize(sentry.metadata()->queue(), reader->parameters());

@@ -2,5 +2,5 @@
 #include "DataFormats/EcalDigi/interface/alpaka/EcalDigiPhase2DeviceCollection.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/alpaka/SerialiserFactoryDevice.h"
 
-DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(EcalDigiDeviceCollection);
-DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(EcalDigiPhase2DeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_HOST_DEVICE(EcalDigiHostCollection, EcalDigiDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_HOST_DEVICE(EcalDigiPhase2HostCollection, EcalDigiPhase2DeviceCollection);

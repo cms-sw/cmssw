@@ -9,14 +9,20 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/Transition.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadataAcquireSentry.h"
 #include "HeterogeneousCore/AlpakaCore/interface/modulePrevalidate.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/Backend.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
 
+#include <any>
+#include <cassert>
+#include <functional>
 #include <memory>
+#include <string>
 #include <tuple>
+#include <utility>
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename Producer, edm::Transition Tr>
@@ -120,6 +126,41 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     }
 
+    template <edm::Transition Tr>
+    edm::EDPutToken produces(
+        edm::TypeID deviceProductType,
+        edm::TypeID hostProductType,
+        std::string instanceName,
+        std::function<std::any(Queue&, edm::WrapperBase const&)> copyAsync,
+        std::function<std::unique_ptr<edm::WrapperBase>(std::any const&, std::shared_ptr<EDMetadata>)> transform) {
+      edm::EDPutToken token = this->producesCollector().template produces<Tr>(hostProductType, instanceName);
+
+      if constexpr (not detail::useProductDirectly) {
+        assert(copyAsync);
+        assert(transform);
+
+        using TplType = std::tuple<std::any, std::shared_ptr<EDMetadata>>;
+
+        this->registerTransformAsync(
+            token,
+            [copyAsync = std::move(copyAsync), synchronize = this->synchronize()](
+                edm::StreamID streamID, edm::WrapperBase const& wb, edm::WaitingTaskWithArenaHolder holder) -> std::any {
+              detail::EDMetadataAcquireSentry sentry(streamID, std::move(holder), synchronize);
+              auto productOnHost = copyAsync(sentry.metadata()->queue(), wb);
+              return std::make_shared<TplType>(std::move(productOnHost), sentry.finish());
+            },
+            [transform = std::move(transform)](edm::StreamID, std::any cache) -> std::unique_ptr<edm::WrapperBase> {
+              auto tplPtr = std::any_cast<std::shared_ptr<TplType>>(cache);
+              auto& productOnHost = std::get<0>(*tplPtr);
+              return transform(productOnHost, std::move(std::get<1>(*tplPtr)));
+            },
+            deviceProductType,
+            std::move(instanceName));
+      }
+
+      return token;
+    }
+
     // Device products
     //
     // intentionally not returning BranchAliasSetter
@@ -159,6 +200,44 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         return token;
       }
     }
+
+    template <edm::Transition Tr>
+    edm::EDPutToken deviceProduces(edm::TypeID deviceProductType,
+                                   edm::TypeID hostProductType,
+                                   std::string instanceName,
+                                   std::function<std::shared_ptr<Queue>(edm::WrapperBase const&)> getQueue,
+                                   std::function<std::any(Queue&, EDMetadata&, edm::WrapperBase const&)> copyAsync,
+                                   std::function<std::unique_ptr<edm::WrapperBase>(std::any const&)> transform) {
+      edm::EDPutToken token = this->producesCollector().template produces<Tr>(deviceProductType, instanceName);
+
+      if constexpr (not detail::useProductDirectly) {
+        assert(getQueue);
+        assert(copyAsync);
+        assert(transform);
+
+        using TplType = std::tuple<std::any, std::shared_ptr<EDMetadata>>;
+
+        this->registerTransformAsync(
+            token,
+            [getQueue = std::move(getQueue), copyAsync = std::move(copyAsync)](
+                edm::StreamID, edm::WrapperBase const& wb, edm::WaitingTaskWithArenaHolder holder) -> std::any {
+              auto queue = getQueue(wb);
+              detail::EDMetadataAcquireSentry sentry(queue, std::move(holder));
+              auto metadataPtr = sentry.metadata();
+              auto productOnHost = copyAsync(*queue, *metadataPtr, wb);
+              return std::make_shared<TplType>(std::move(productOnHost), sentry.finish());
+            },
+            [transform = std::move(transform)](edm::StreamID, std::any cache) -> std::unique_ptr<edm::WrapperBase> {
+              auto tplPtr = std::any_cast<std::shared_ptr<TplType>>(cache);
+              auto productOnHost = std::get<0>(*tplPtr);
+              return transform(productOnHost);
+            },
+            hostProductType,
+            std::move(instanceName));
+      }
+
+      return token;
+    }
   };
 
   // Adaptor class to make the type-deducing produces() calls to work
@@ -171,10 +250,35 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return producer_.template produces<Type, Tr>(label_);
     }
 
+    // for runtime-typed host-only products
+    edm::EDPutToken produces(
+        edm::TypeID deviceProductType,
+        edm::TypeID hostProductType,
+        std::function<std::any(Queue&, edm::WrapperBase const&)> copyAsync,
+        std::function<std::unique_ptr<edm::WrapperBase>(std::any const&, std::shared_ptr<EDMetadata>)> transform) {
+      return producer_.template produces<Tr>(
+          deviceProductType, hostProductType, label_, std::move(copyAsync), std::move(transform));
+    }
+
     // for device products
     template <typename TProduct, typename TToken>
     edm::EDPutTokenT<TToken> deviceProduces() {
       return producer_.template deviceProduces<TProduct, TToken, Tr>(label_);
+    }
+
+    // for runtime-typed device products
+    template <typename TGetQueue, typename TCopyAsync, typename TTransform>
+    edm::EDPutToken deviceProduces(edm::TypeID deviceProductType,
+                                   edm::TypeID hostProductType,
+                                   TGetQueue&& getQueue,
+                                   TCopyAsync&& copyAsync,
+                                   TTransform&& transform) {
+      return producer_.template deviceProduces<Tr>(deviceProductType,
+                                                   hostProductType,
+                                                   label_,
+                                                   std::forward<TGetQueue>(getQueue),
+                                                   std::forward<TCopyAsync>(copyAsync),
+                                                   std::forward<TTransform>(transform));
     }
 
   private:

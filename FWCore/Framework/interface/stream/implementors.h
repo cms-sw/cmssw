@@ -22,6 +22,7 @@
 #include <cstddef>
 #include <functional>
 #include <memory>
+#include <string>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -367,6 +368,18 @@ namespace edm {
                 auto cache = std::any_cast<CacheTypeT>(iCache);
                 return std::make_unique<edm::Wrapper<ReturnTypeT>>(WrapperBase::Emplace{}, f(id, cache));
               });
+        }
+
+        // Non-templated overload for the registration at runtime of products
+        // whose type is not known at compile-time
+        void registerTransformAsync(
+            edm::EDPutToken iToken,
+            std::function<std::any(edm::StreamID, edm::WrapperBase const&, edm::WaitingTaskWithArenaHolder)> iPre,
+            std::function<std::unique_ptr<edm::WrapperBase>(edm::StreamID, std::any)> iF,
+            edm::TypeID returnType,
+            std::string productInstance) {
+          TransformerBase::registerTransformAsyncImp(
+              *this, iToken, returnType, std::move(productInstance), std::move(iPre), std::move(iF));
         }
 
       private:

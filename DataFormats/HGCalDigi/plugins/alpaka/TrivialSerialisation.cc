@@ -3,6 +3,7 @@
 #include "DataFormats/HGCalDigi/interface/alpaka/HGCalFEDPacketInfoDevice.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/alpaka/SerialiserFactoryDevice.h"
 
-DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(hgcaldigi::HGCalDigiDevice);
-DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(hgcaldigi::HGCalECONDPacketInfoDevice);
-DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(hgcaldigi::HGCalFEDPacketInfoDevice);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_HOST_DEVICE(hgcaldigi::HGCalDigiHost, hgcaldigi::HGCalDigiDevice);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_HOST_DEVICE(hgcaldigi::HGCalECONDPacketInfoHost,
+                                             hgcaldigi::HGCalECONDPacketInfoDevice);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_HOST_DEVICE(hgcaldigi::HGCalFEDPacketInfoHost, hgcaldigi::HGCalFEDPacketInfoDevice);
