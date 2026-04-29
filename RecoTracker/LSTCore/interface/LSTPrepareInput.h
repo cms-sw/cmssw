@@ -169,8 +169,9 @@ namespace lst {
           trkX.push_back(r3LH.x());
           trkY.push_back(see_dxy[iSeed]);
           trkZ.push_back(see_dz[iSeed]);
-          hitId.push_back(hTypes[3] == intPixel ? kPixelModuleId : ph2_detId[hIdxs[3]]);
-          hitClustSize.push_back(hTypes[3] == intPixel ? 1 : ph2_clustSize[hIdxs[3]]);
+          auto iLH = see_hitIdx[iSeed].size() - 1;
+          hitId.push_back(hTypes[iLH] == intPixel ? kPixelModuleId : ph2_detId[hIdxs[iLH]]);
+          hitClustSize.push_back(hTypes[iLH] == intPixel ? 1 : ph2_clustSize[hIdxs[iLH]]);
         }
         px_vec.push_back(px);
         py_vec.push_back(py);
@@ -193,7 +194,7 @@ namespace lst {
         char isQuad = false;
         if (see_hitIdx[iSeed].size() > 3) {
           isQuad = true;
-          hitIdxs.push_back(see_hitIdx[iSeed][3]);
+          hitIdxs.push_back(see_hitIdx[iSeed].back());
         }
         float neta = 25.;
         float nphi = 72.;

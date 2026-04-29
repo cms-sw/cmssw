@@ -886,12 +886,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     const float dzDrtScaleHi = z_InUp * rtRelDiff < 0.f ? 1.f : dzDrtScale;
     const float dzDrtScaleLo = z_InUp * rtRelDiff > 0.f ? 1.f : dzDrtScale;
     const float zpitch_InLo = 0.05f;
-    bool sameLayerOutLo =
-        alpaka::math::abs(acc, rt_OutLo - rt_InOut) < 1.f && alpaka::math::abs(acc, z_InUp - z_OutLo) < 1.f;
+    bool isPLSinOT = pixelSeeds.pLSHitsIdxs()[pixelSegmentArrayIndex][3] & (1 << 31);
     bool isPS_OutLo = (modules.moduleType()[segmentInnerModuleIndex] == PS);
     bool isTilted_OutLo = (modules.sides()[segmentInnerModuleIndex] != Center);
     // same layer pLS is P-size, 50 um otherwise
-    const float zpitch_InOut = sameLayerOutLo ? kPixelPSZpitch : 0.05f;
+    const float zpitch_InOut = isPLSinOT ? kPixelPSZpitch : 0.05f;
     const float zpitch_OutLo = (isPS_OutLo ? kPixelPSZpitch : kStrip2SZpitch);  // could reduce using dzdrt for tilted
     const float zGeom = zpitch_InLo + zpitch_OutLo;
     const float rGeom = zpitch_InOut + zpitch_OutLo;  // could reduce using dzdrt for tilted
