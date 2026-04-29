@@ -1,4 +1,4 @@
-#include "TauAnalysis/MCEmbeddingTools/plugins/CaloCleaner.h"
+#include "TauAnalysis/MCEmbeddingTools/interface/CaloCleaner.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
