@@ -134,6 +134,11 @@ def miniAOD_customizeCommon(process):
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
     switchOnTriggerStandAlone( process, outputModule = '' )
     process.patTrigger.packTriggerPathNames = cms.bool(True)
+
+    # Modify for the tau embedding methods merging step
+    # Switch trigger source from HLT to SIMembeddingHLT of patTrigger
+    from Configuration.ProcessModifiers.tau_embedding_merging_cff import tau_embedding_merging
+    tau_embedding_merging.toModify(process.patTrigger, processName = cms.string("SIMembeddingHLT"))
     #
     # apply type I + other PFMEt corrections to pat::MET object
     # and estimate systematic uncertainties on MET
