@@ -89,6 +89,9 @@ namespace cms::perftools::allocMon::profiler {
     virtual ScopedTimer recordAllocation() = 0;
     virtual ScopedTimer recordDeallocation() = 0;
 
+    // Common stack trace context computation
+    virtual ScopedTimer timeCommonStackTracePart() = 0;
+
     // Allocation printing measurements
     virtual void recordAllocationsUniqueAggregated(std::size_t value) = 0;
     virtual ScopedTimer timeAllocationsAggregation() = 0;
@@ -124,6 +127,8 @@ namespace cms::perftools::allocMon::profiler {
     ScopedTimer recordAllocation() override { return ScopedTimer(nullptr); }
     ScopedTimer recordDeallocation() override { return ScopedTimer(nullptr); }
 
+    ScopedTimer timeCommonStackTracePart() override { return ScopedTimer(nullptr); }
+
     void recordAllocationsUniqueAggregated(std::size_t) override {}
     ScopedTimer timeAllocationsAggregation() override { return ScopedTimer(nullptr); }
     ScopedTimer timeAllocationsSorting() override { return ScopedTimer(nullptr); }
@@ -158,6 +163,8 @@ namespace cms::perftools::allocMon::profiler {
       ++numDeallocations_;
       return ScopedTimer(&deallocationsTime_);
     }
+
+    ScopedTimer timeCommonStackTracePart() override { return ScopedTimer(&t_commonStackTrace_); }
 
     void recordAllocationsUniqueAggregated(std::size_t value) override { allocStats_.uniqueAggregated = value; }
     ScopedTimer timeAllocationsAggregation() override { return ScopedTimer(&allocStats_.t_aggregation); }
@@ -214,6 +221,7 @@ namespace cms::perftools::allocMon::profiler {
 
     std::chrono::duration<double, std::milli> allocationsTime_{};
     std::chrono::duration<double, std::milli> deallocationsTime_{};
+    std::chrono::duration<double, std::milli> t_commonStackTrace_{};
     std::size_t numAllocations_ = 0;
     std::size_t numDeallocations_ = 0;
     AllocPrintStats allocStats_;

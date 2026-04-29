@@ -10,11 +10,14 @@ namespace cms::perftools::allocMon::profiler {
   void CollectingStatisticsStrategy::printStatistics(edm::LogSystem& log,
                                                      std::size_t numAllocTraces,
                                                      std::size_t numDeallocTraces) const {
-    log.format("\nStatistics:\nAllocations recorded {} in {}\nDeallocations recorded {} in {}\n",
-               numAllocations_,
-               allocationsTime_,
-               numDeallocations_,
-               deallocationsTime_);
+    log.format(
+        "\nStatistics:\nAllocations recorded {} in {}\nDeallocations recorded {} in {}\nCommon stack trace context "
+        "{}\n",
+        numAllocations_,
+        allocationsTime_,
+        numDeallocations_,
+        deallocationsTime_,
+        t_commonStackTrace_);
     log.format("Allocation traces total {} aggregated {}; aggregation {} sorting {} formatting {}\n",
                numAllocTraces,
                allocStats_.uniqueAggregated,
@@ -75,23 +78,27 @@ namespace cms::perftools::allocMon::profiler {
   void StackNodeData::print(edm::LogSystem& log, std::string_view measurementName) const {
     // Compute longest list of common trace entries fron the top across al recorded traces (both alloc and dealloc) so
     // that a single consistent measurement context is stripped from every section of the report.
-    auto allAllocTraces =
-        uniqueAllocTraces_ | std::views::transform([](auto const& at) -> std::stacktrace const& { return at.trace_; });
-    auto allDeallocTraces = uniqueDeallocTraces_ |
-                            std::views::transform([](auto const& dt) -> std::stacktrace const& { return dt.trace_; });
-    std::size_t const commonTopEntries = computeCommonTopEntries(allAllocTraces, allDeallocTraces);
-
-    // Print the dynamically computed common context so the user knows what call chain all reported traces are
-    // relative to.  Pick the first available trace as the representative; the common suffix frames are identical
-    // across all traces by definition.
-    auto const* refTrace = !uniqueAllocTraces_.empty()     ? &uniqueAllocTraces_.front().trace_
-                           : !uniqueDeallocTraces_.empty() ? &uniqueDeallocTraces_.front().trace_
-                                                           : nullptr;
+    std::size_t commonTopEntries = 0;
     std::string commonTraceContext;
-    if (commonTopEntries > 0 && refTrace != nullptr) {
-      auto const skipFromBottom =
-          (commonTopEntries < refTrace->size()) ? static_cast<int>(refTrace->size() - commonTopEntries) : 0;
-      commonTraceContext = formatTrace(*refTrace, skipFromBottom, 0);
+    {
+      auto timer = statistics_->timeCommonStackTracePart();
+      auto allAllocTraces = uniqueAllocTraces_ |
+                            std::views::transform([](auto const& at) -> std::stacktrace const& { return at.trace_; });
+      auto allDeallocTraces = uniqueDeallocTraces_ |
+                              std::views::transform([](auto const& dt) -> std::stacktrace const& { return dt.trace_; });
+      commonTopEntries = computeCommonTopEntries(allAllocTraces, allDeallocTraces);
+
+      // Print the dynamically computed common context so the user knows what call chain all reported traces are
+      // relative to.  Pick the first available trace as the representative; the common suffix frames are identical
+      // across all traces by definition.
+      auto const* refTrace = !uniqueAllocTraces_.empty()     ? &uniqueAllocTraces_.front().trace_
+                             : !uniqueDeallocTraces_.empty() ? &uniqueDeallocTraces_.front().trace_
+                                                             : nullptr;
+      if (commonTopEntries > 0 && refTrace != nullptr) {
+        auto const skipFromBottom =
+            (commonTopEntries < refTrace->size()) ? static_cast<int>(refTrace->size() - commonTopEntries) : 0;
+        commonTraceContext = formatTrace(*refTrace, skipFromBottom, 0);
+      }
     }
     if (filePattern_.empty() && !commonTraceContext.empty()) {
       log.format(" Reported stack traces are based on\n{}", commonTraceContext);
