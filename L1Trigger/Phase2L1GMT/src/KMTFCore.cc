@@ -516,9 +516,10 @@ void KMTFCore::propagate(l1t::KMTFTrack& track) {
   zNew = ap_fixed<BITSZ + 7, BITSZ + 7>(ap_fixed<BITSZ, BITSZ>(z) - ap_ufixed<ZDELTAR_BITS, ZDELTAR_BITSINT>(zdeltaR_dig) * ap_fixed<BITSKSLOPE, BITSKSLOPE>(kSlope));
 
   if (zNew > (1 << (BITSZ - 1)) - 1) {
-      if (verbose_)
+      if (verbose_){
         edm::LogWarning("KMTFCore") << "z saturated high during propagation, step=" << step;
-      zNew = (1 << (BITSZ - 1) - 1);
+	   }
+	zNew = (1 << (BITSZ - 1)) - 1;
   } else if (zNew < -(1 << (BITSZ - 1))) {
       if (verbose_)
         edm::LogWarning("KMTFCore") << "z saturated low during propagation, step=" << step;
@@ -704,7 +705,7 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
   int zNew = trackz + int(Gain(3, 2) * residual(2) + Gain(3, 3) * residual(3));
   int kSlopeNew = trackSlope + int(Gain(4, 2) * residual(2) + Gain(4, 3) * residual(3));
 
-  if ((zNew > (pow(2, BITSZ - 1) - 1)) || (zNew < -(pow(2, BITSZ - 1)))) {
+  if ((zNew > (1 << (BITSZ - 1)) - 1) || (zNew < -(pow(2, BITSZ - 1)))) {
       if (verbose_)
           edm::LogWarning("KMTFCore") << "z saturated in updateOffline";
       return false;
@@ -814,7 +815,7 @@ bool KMTFCore::updateOffline1D(l1t::KMTFTrack& track, const l1t::MuonStubRef& st
   int zNew = trackz + int(Gain(3, 1) * residual(1) + Gain(3, 2) * residual(2));
   int kSlopeNew = trackSlope + int(Gain(4, 1) * residual(1) + Gain(4, 2) * residual(2));
 
-  if ((zNew > (pow(2, BITSZ - 1) - 1)) || (zNew < -(pow(2, BITSZ - 1)))) {
+  if ((zNew > (1 << (BITSZ - 1)) - 1) || (zNew < -(pow(2, BITSZ - 1)))) {
       if (verbose_)
           edm::LogWarning("KMTFCore") << "z saturated in updateOffline1D";
       return false;
@@ -961,9 +962,9 @@ bool KMTFCore::updateLUT(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub, in
   int zNew;
   int kSlopeNew;
   zNew = ap_fixed<BITSZ + 7, BITSZ + 7>(ap_fixed<BITSZ, BITSZ>(trackz) + ap_ufixed<GAINT_6, GAINT_6INT>(GAIN_THETA[0]) * residualz - ap_ufixed<GAINT_7, GAINT_7INT>(GAIN_THETA[1]) * residualSlope);
-  kSlopeNew = ap_fixed<BITSKSLOPE + 7, BITSKSLOPE + 7>(ap_fixed<BITSKSLOPE, BITSKSLOPE>(trackSlope) - ap_ufixed<GAINT_8, GAINT_8INT>(GAIN_THETA[2]) * residualz + ap_ufixed<GAINT_9, GAINT_9INT>(GAIN_THETA[3]) * residualSlope);
 
-  if ((zNew > (pow(2, BITSZ - 1) - 1)) || (zNew < -(pow(2, BITSZ - 1)))) {
+
+  if ((zNew > (1 << (BITSZ - 1)) - 1) || (zNew < -(pow(2, BITSZ - 1)))) {
     if (verbose_)
        edm::LogWarning("KMTFCore") << "z has saturated";
     return false;
@@ -995,74 +996,89 @@ void KMTFCore::vertexConstraint(l1t::KMTFTrack& track) {
     vertexConstraintLUT(track);
 }
 
-void KMTFCore::vertexConstraintOffline(l1t::KMTFTrack& track){}
-void KMTFCore::vertexConstraintLUT(l1t::KMTFTrack& track){}
 
-//void KMTFCore::vertexConstraintOffline(l1t::KMTFTrack& track) {
-//  double residual = -track.dxy();
- // Matrix13 H;
-  //H(0, 0) = 0;
-  //H(0, 1) = 0;
-  //H(0, 2) = 1;
+void KMTFCore::vertexConstraintOffline(l1t::KMTFTrack& track) {
+  double residual = -track.dxy();
+  Matrix15 H;
+  H(0, 0) = 0;
+  H(0, 1) = 0;
+  H(0, 2) = 1;
+  H(0, 3) = 0;
+  H(0, 4) = 0;
 
-  //const std::vector<double>& covLine = track.covariance();
-  //l1t::KMTFTrack::CovarianceMatrix cov(covLine.begin(), covLine.end());
+  const std::vector<double>& covLine = track.covariance();
+  l1t::CovarianceMatrix5dim cov(covLine.begin(), covLine.end());
 
-  //double S = (ROOT::Math::Similarity(H, cov))(0, 0) + pointResolutionVertex_;
-  //S = 1.0 / S;
-  //Matrix31 Gain = cov * (ROOT::Math::Transpose(H)) * S;
-  //track.setKalmanGain(track.step(), fabs(track.curvature()), Gain(0, 0), Gain(1, 0), Gain(2, 0));
+  double S = (ROOT::Math::Similarity(H, cov))(0, 0) + pointResolutionVertex_;
+  S = 1.0 / S;
+  Matrix51 Gain = cov * (ROOT::Math::Transpose(H)) * S;
+  track.setKalmanGain(track.step(), fabs(track.curvature()), Gain(0, 0), Gain(1, 0), Gain(2, 0));
 
-  //if (verbose_) {
-  //  edm::LogWarning("KMTFCore") << "sigma3=" << cov(0, 3) << " sigma6=" << cov(3, 3);
-  //  edm::LogWarning("KMTFCore") << " K = " << track.curvature() << " + " << Gain(0, 0) << " * " << residual;
-  //}
+  if (verbose_) {
+    edm::LogWarning("KMTFCore") << "sigma3=" << cov(0, 3) << " sigma6=" << cov(3, 3);
+    edm::LogWarning("KMTFCore") << " K = " << track.curvature() << " + " << Gain(0, 0) << " * " << residual;
+  }
 
-  //int KNew = wrapAround(int(track.curvature() + Gain(0, 0) * residual), pow(2, BITSCURV - 1));
-  //int phiNew = wrapAround(int(track.positionAngle() + Gain(1, 0) * residual), pow(2, BITSPHI));
-  //int dxyNew = wrapAround(int(track.dxy() + Gain(2, 0) * residual), pow(2, BITSPHIB));
-  //if (verbose_)
-    //edm::LogWarning("KMTFCore") << "Post fit impact parameter=" << dxyNew;
-  //track.setCoordinatesAtVertex(KNew, phiNew, -residual);
-  //Matrix33 covNew = cov - Gain * (H * cov);
-  //l1t::KMTFTrack::CovarianceMatrix c;
-  //c(0, 0) = covNew(0, 0);
-  //c(0, 1) = covNew(0, 1);
-  //c(0, 2) = covNew(0, 2);
-  //c(1, 0) = covNew(1, 0);
-  //c(1, 1) = covNew(1, 1);
-  //c(1, 2) = covNew(1, 2);
-  //c(2, 0) = covNew(2, 0);
-  //c(2, 1) = covNew(2, 1);
-  //c(2, 2) = covNew(2, 2);
-  //track.setCovariance(c);
-    //track.covariance = track.covariance - Gain*H*track.covariance;
-//}
+  int KNew = wrapAround(int(track.curvature() + Gain(0, 0) * residual), pow(2, BITSCURV - 1));
+  int phiNew = wrapAround(int(track.positionAngle() + Gain(1, 0) * residual), pow(2, BITSPHI));
+  int dxyNew = wrapAround(int(track.dxy() + Gain(2, 0) * residual), pow(2, BITSPHIB));
+  if (verbose_)
+    edm::LogWarning("KMTFCore") << "Post fit impact parameter=" << dxyNew;
+  track.setCoordinatesAtVertex(KNew, phiNew, -residual);
+  Matrix55 covNew = cov - Gain * (H * cov);
+  l1t::CovarianceMatrix5dim c;
+  c(0, 0) = covNew(0, 0);
+  c(0, 1) = covNew(0, 1);
+  c(0, 2) = covNew(0, 2);
+  c(0, 3) = covNew(0, 3);
+  c(0, 4) = covNew(0, 4);
+  c(1, 0) = covNew(1, 0);
+  c(1, 1) = covNew(1, 1);
+  c(1, 2) = covNew(1, 2);
+  c(1, 3) = covNew(1, 3);
+  c(1, 4) = covNew(1, 4);
+  c(2, 0) = covNew(2, 0);
+  c(2, 1) = covNew(2, 1);
+  c(2, 2) = covNew(2, 2);
+  c(2, 3) = covNew(2, 3);
+  c(2, 4) = covNew(2, 4);
+  c(3, 0) = covNew(3, 0);
+  c(3, 1) = covNew(3, 1);
+  c(3, 2) = covNew(3, 2);
+  c(3, 3) = covNew(3, 3);
+  c(3, 4) = covNew(3, 4);
+  c(4, 0) = covNew(4, 0);
+  c(4, 1) = covNew(4, 1);
+  c(4, 2) = covNew(4, 2);
+  c(4, 3) = covNew(4, 3);
+  c(4, 4) = covNew(4, 4);
+  track.setCovariance(c);
+}
 
-//void KMTFCore::vertexConstraintLUT(l1t::KMTFTrack& track) {
-  //double residual = -track.dxy();
-  //uint absK = fabs(track.curvature());
-  //if (absK > pow(2, BITSCURV - 4) - 1)
-    //absK = pow(2, BITSCURV - 4) - 1;
+void KMTFCore::vertexConstraintLUT(l1t::KMTFTrack& track) {
+  double residual = -track.dxy();
+  uint absK = fabs(track.curvature());
+  if (absK > pow(2, BITSCURV - 4) - 1)
+    absK = pow(2, BITSCURV - 4) - 1;
 
-  //std::pair<float, float> GAIN = lutService_->vertexGain(track.hitPattern(), absK / 4);
-  //track.setKalmanGain(track.step(), fabs(track.curvature()), GAIN.first, GAIN.second, -1);
+  std::pair<float, float> GAIN = lutService_->vertexGain(track.hitPattern(), absK / 4);
+  track.setKalmanGain(track.step(), fabs(track.curvature()), GAIN.first, GAIN.second, -1);
 
-  //ap_fixed<BITSCURV, BITSCURV> k_0 =
-   //   -(ap_ufixed<GAIN_V0, GAIN_V0INT>(fabs(GAIN.first))) * ap_fixed<BITSPHIB, BITSPHIB>(residual);
-  //int KNew = ap_fixed<BITSCURV, BITSCURV>(k_0 + ap_fixed<BITSCURV, BITSCURV>(track.curvature()));
+  ap_fixed<BITSCURV, BITSCURV> k_0 =
+      -(ap_ufixed<GAIN_V0, GAIN_V0INT>(fabs(GAIN.first))) * ap_fixed<BITSPHIB, BITSPHIB>(residual);
+  int KNew = ap_fixed<BITSCURV, BITSCURV>(k_0 + ap_fixed<BITSCURV, BITSCURV>(track.curvature()));
 
-  //if (verbose_) {
-  //  edm::LogWarning("KMTFCore") << "VERTEX GAIN(" << absK / 4 << ")= -"
-   //                          << ap_ufixed<GAIN_V0, GAIN_V0INT>(fabs(GAIN.first)).to_float() << " * "
-   //                          << ap_fixed<BITSPHIB, BITSPHIB>(residual).to_int() << " = " << k_0.to_int();
-  //}
+  if (verbose_) {
+    edm::LogWarning("KMTFCore") << "VERTEX GAIN(" << absK / 4 << ")= -"
+                             << ap_ufixed<GAIN_V0, GAIN_V0INT>(fabs(GAIN.first)).to_float() << " * "
+                             << ap_fixed<BITSPHIB, BITSPHIB>(residual).to_int() << " = " << k_0.to_int();
+  }
 
   //int p_0 = fp_product(GAIN.second, int(residual), 7);
-  //int p_0 = GAIN.second * int(residual);
-  //int phiNew = wrapAround(track.positionAngle() + p_0, pow(2, BITSPHI - 1));
-  //track.setCoordinatesAtVertex(KNew, phiNew, -residual);
-//}
+  int p_0 = GAIN.second * int(residual);
+  int phiNew = wrapAround(track.positionAngle() + p_0, pow(2, BITSPHI - 1));
+  track.setCoordinatesAtVertex(KNew, phiNew, -residual);
+}
 
 int KMTFCore::hitPattern(const l1t::KMTFTrack& track) {
   unsigned int mask = 0;
