@@ -9,7 +9,7 @@
 # DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root - for local visualization of histograms
 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: step4 --conditions auto:phase2_realistic_T21 -s HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM --scenario pp --filetype DQM --geometry ExtendedRun4D98 --era Phase2C11M9 --mc -n -1 --no_exec
+# with command line options: step4 --conditions auto:phase2_realistic_T21 -s HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM --scenario pp --filetype DQM --geometry ExtendedRun4D110 --era Phase2C11M9 --mc -n -1 --no_exec
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
@@ -27,6 +27,7 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.DQMSaverAtRunEnd_cff')
 process.load('Configuration.StandardSequences.Harvesting_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+#process.load('Validation.SiTrackerPhase2V.Phase2OTEffClient_cff')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(8000),
@@ -88,5 +89,5 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T35', ''
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
 # Schedule definition
-#process.schedule = cms.Schedule(process.trackerphase2ValidationHarvesting_step,process.dqmsave_step)
+#process.schedule = cms.Schedule(process.trackerphase2ValidationHarvesting_step, process.dqmsave_step)
 process.schedule = cms.Schedule(process.dqmsave_step)
