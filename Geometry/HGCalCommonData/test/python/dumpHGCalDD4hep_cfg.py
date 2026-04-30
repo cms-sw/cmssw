@@ -41,21 +41,24 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
-    )
+)
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
 if hasattr(process,'MessageLogger'):
+    process.MessageLogger.G4cerr=dict()
+    process.MessageLogger.G4cout=dict()
     process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.TGeoMgrFromDdd=dict()
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath(geomFile),
                                             appendToDataLabel = cms.string('DDHGCal')
-                                            )
+)
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
                                   outputFileName = cms.untracked.string(outFile),
                                   DDDetector = cms.ESInputTag('','DDHGCal')
-                                  )
+)
 
 
 process.p = cms.Path(process.testDump)

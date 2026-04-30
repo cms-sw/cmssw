@@ -86,14 +86,16 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
         }
       }
     } else if (topology.tileTrapezoid()) {
+      auto rings = topology.dddConstants().tileRings(layer);
       int indx = topology.dddConstants().layerIndex(layer, true);
-      int ring = topology.dddConstants().getParameter()->iradMinBH_[indx];
+      int ring = rings.first + 1;
       int nphi = topology.dddConstants().getParameter()->scintCells(layer);
       int type = topology.dddConstants().getParameter()->scintType(layer);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "Trap::Layer " << layer << ":" << indx << " Ring " << ring << ":"
-                                    << topology.dddConstants().getParameter()->iradMaxBH_[indx] << " Phi " << nphi
-                                    << " Type " << type;
+      edm::LogVerbatim("HGCalGeom") << "Trap::Layer " << layer << ":" << indx << " Ring " << ring << ":" << rings.second
+                                    << " Phi " << nphi << " Type " << type << " Modules "
+                                    << topology.dddConstants().getParameter()->firstModule_[indx] << ":"
+                                    << topology.dddConstants().getParameter()->lastModule_[indx];
 #endif
       for (int md = topology.dddConstants().getParameter()->firstModule_[indx];
            md <= topology.dddConstants().getParameter()->lastModule_[indx];

@@ -324,6 +324,10 @@ struct HGCalMixRotatedFineCassette {
 
     forFireworks_ = args.value<int>("ForFireWorks");
     int testCassette = args.value<int>("TestCassetteShift");
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedFineCassette: forFireworks " << forFireworks_ << " testCassette "
+                                  << testCassette;
+#endif
     if (testCassette != 0)
       testCassetteShift();
 
