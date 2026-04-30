@@ -521,7 +521,7 @@ void CSCMotherboard::constructLCTs(
   thisLCT.setBX(bx);
   thisLCT.setQuality(qualityAssignment_->findQuality(aLCT, cLCT));
   if (runCCLUT_) {
-    thisLCT.setRun3(true);
+    thisLCT.setVersion(CSCCorrelatedLCTDigi::Version::Run3);
     // 4-bit slope value derived with the CCLUT algorithm
     thisLCT.setSlope(cLCT.getSlope());
     thisLCT.setQuartStripBit(cLCT.getQuartStripBit());
