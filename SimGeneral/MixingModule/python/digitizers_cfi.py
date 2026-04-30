@@ -54,7 +54,6 @@ def _rmCaloTruthIfPresent(pset):
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 (fastSim & premix_stage2).toModify(theDigitizers, tracks = None)
-(fastSim & premix_stage2).toModify(theDigitizers, _rmCaloTruthIfPresent)
 
 
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer, HGCAL_noise_fC, HGCAL_noise_heback, HFNose_noise_fC, HGCAL_chargeCollectionEfficiencies, HGCAL_ileakParam_toUse, HGCAL_cceParams_toUse, HGCAL_noises
@@ -76,7 +75,6 @@ phase2_hfnose.toModify( theDigitizers,
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 # fastsim does not model castor
 (run3_common | fastSim).toModify(theDigitizers, castor = None)
-(run3_common | fastSim).toModify(theDigitizers, _rmCaloTruthIfPresent)
 
 from SimGeneral.MixingModule.ecalTimeDigitizer_cfi import ecalTimeDigitizer
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
@@ -120,7 +118,6 @@ premix_stage2.toModify(theDigitizers, _rmCaloTruthIfPresent)
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 (phase2_tracker | fastSim).toModify(theDigitizers, strip = None)
-(phase2_tracker | fastSim).toModify(theDigitizers, _rmCaloTruthIfPresent)
     
 theDigitizersValid = cms.PSet(theDigitizers)
 theDigitizers.mergedtruth.select.signalOnlyTP = True

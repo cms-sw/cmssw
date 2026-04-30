@@ -451,17 +451,17 @@ private:
 
   void assertEnergies_() const {
     if (hits_.size() != energies_.size()) {
-      edm::LogWarning("SimCluster") << "energies (" + std::to_string(energies_.size()) + ") and hits (" +
-                                           std::to_string(hits_.size()) + ") must have the same size.";
-      std::abort();
+      throw edm::Exception(edm::errors::StdException) << "energies (" + std::to_string(energies_.size()) +
+                                                             ") and hits (" + std::to_string(hits_.size()) +
+                                                             ") must have the same size.";
     }
   }
 
   void assertFractions_() const {
     if (hits_.size() != fractions_.size()) {
-      edm::LogWarning("SimCluster") << "fractions (" + std::to_string(fractions_.size()) + ") and hits (" +
-                                           std::to_string(hits_.size()) + ") must have the same size.";
-      std::abort();
+      throw edm::Exception(edm::errors::StdException) << "fractions (" + std::to_string(fractions_.size()) +
+                                                             ") and hits (" + std::to_string(hits_.size()) +
+                                                             ") must have the same size.";
     }
   }
 
@@ -505,7 +505,8 @@ private:
     size_t i = 0;
     while (i < hits_.size()) {
       DetId id(hits_[i]);
-      const auto idx = detIndex_(static_cast<DetId::Detector>(id.det()));
+      // const auto idx = detIndex_(static_cast<DetId::Detector>(id.det()));
+      const auto idx = detIndex_(id.det());
       const size_t begin = i;
       do {
         ++i;

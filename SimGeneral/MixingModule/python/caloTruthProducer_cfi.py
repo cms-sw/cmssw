@@ -56,7 +56,8 @@ caloParticles = cms.PSet(
 
 # Phase-2 configuration (HGCAL only) # [FIXME: with the isBarrel check in associators it could contain all hits]
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-phase2_common.toModify(caloParticles, 
+phase2_common.toModify(
+    caloParticles, 
     doHGCAL=True,
     simHitCollections = cms.PSet(
         hgc = cms.VInputTag(*ph2_simHits["HGCAL"]),
@@ -76,7 +77,7 @@ phase2_hfnose.toModify(
 
 from Configuration.ProcessModifiers.run3_ecalclustering_cff import run3_ecalclustering
 run3_ecalclustering.toModify(
-        caloParticles,
+    caloParticles,
 	simHitCollections = cms.PSet(
             ecal = cms.VInputTag(
                 cms.InputTag('g4SimHits','EcalHitsEE'),
@@ -88,7 +89,8 @@ run3_ecalclustering.toModify(
 
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 ticl_barrel.toModify(
-    caloParticles, 
+    caloParticles,
+    doHGCAL=True,
     simHitCollections = cms.PSet(
         hgc = cms.VInputTag(*ph2_simHits["HGCAL"]),
         hcal = cms.VInputTag(*ph2_simHits["HCAL"]),
