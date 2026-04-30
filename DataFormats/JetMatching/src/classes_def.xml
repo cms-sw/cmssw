@@ -18,11 +18,11 @@
   <class name="reco::JetFlavourInfoMatchingRefVector"/>
   <class name="edm::Wrapper<reco::io_v1::JetFlavourInfoMatchingCollection>"/>
 
-  <class name="reco::JetFlavour" ClassVersion="10">
-   <version ClassVersion="10" checksum="2885862487"/>
+  <class name="reco::JetFlavour" ClassVersion="3">
+   <version ClassVersion="3" checksum="2885862487"/>
   </class>
-  <class name="reco::JetFlavour::Leptons" ClassVersion="10">
-   <version ClassVersion="10" checksum="1787336562"/>
+  <class name="reco::JetFlavour::Leptons" ClassVersion="3">
+   <version ClassVersion="3" checksum="1787336562"/>
   </class>
   <class name="std::vector<reco::JetFlavour>"/>
   <class name="std::pair<edm::RefToBase<reco::io_v1::Jet>, reco::JetFlavour>"/>
