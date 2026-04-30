@@ -1,24 +1,21 @@
 <lcgdict>
-  <class name="CLHEP::Hep3Vector" ClassVersion="11">
-   <version ClassVersion="11" checksum="3438801427"/>
-   <version ClassVersion="10" checksum="3040806103"/>
+  <class name="CLHEP::Hep3Vector" ClassVersion="3">
+   <version ClassVersion="3" checksum="3438801427"/>
   </class>
-  <class name="CLHEP::HepEulerAngles" ClassVersion="10">
-   <version ClassVersion="10" checksum="2060568599"/>
+  <class name="CLHEP::HepEulerAngles" ClassVersion="3">
+   <version ClassVersion="3" checksum="2060568599"/>
   </class>
-  <class name="CLHEP::HepGenMatrix" ClassVersion="10">
-   <version ClassVersion="10" checksum="1734210912"/>
+  <class name="CLHEP::HepGenMatrix" ClassVersion="3">
+   <version ClassVersion="3" checksum="1734210912"/>
   </class>
-  <class name="CLHEP::HepLorentzVector" ClassVersion="10">
-   <version ClassVersion="10" checksum="2698081358"/>
+  <class name="CLHEP::HepLorentzVector" ClassVersion="3">
+   <version ClassVersion="3" checksum="2698081358"/>
   </class>
-  <class name="CLHEP::HepMatrix" ClassVersion="12">
-   <version ClassVersion="12" checksum="1552769590"/>
-   <version ClassVersion="11" checksum="2283727874"/>
+  <class name="CLHEP::HepMatrix" ClassVersion="3">
+   <version ClassVersion="3" checksum="1552769590"/>
   </class>
-  <class name="CLHEP::HepSymMatrix" ClassVersion="12">
-   <version ClassVersion="12" checksum="4023811106"/>
-   <version ClassVersion="11" checksum="3670575592"/>
+  <class name="CLHEP::HepSymMatrix" ClassVersion="3">
+   <version ClassVersion="3" checksum="4023811106"/>
   </class>
   <class name="std::vector<CLHEP::HepLorentzVector>"/>
 </lcgdict>
