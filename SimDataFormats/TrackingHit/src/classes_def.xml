@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="PSimHit" ClassVersion="10">
+  <class name="PSimHit" ClassVersion="11">
+   <version ClassVersion="11" checksum="1181355938"/>
    <version ClassVersion="10" checksum="1181355938"/>
   </class>
   <class name="std::vector<PSimHit>"/>

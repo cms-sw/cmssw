@@ -526,7 +526,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
             (*itp.first).second;  // the range of itp.first, itp.second should be always 1
         for (unsigned int i = 0; i < simClustersRefs.size(); i++) {
           const auto& simClusterRef = simClustersRefs[i];
-          unsigned int idOffset = (*simClusterRef).trackIdOffset();
+          unsigned int idOffset = (*simClusterRef).hitProdType();
 
           meCluTrackIdOffset_[idet]->Fill(float(idOffset));
 

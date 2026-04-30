@@ -116,9 +116,9 @@ public:
     ++nsimhits_;
   }
 
-  void setTrackIdOffset(unsigned int offset) { idOffset_ = offset; }
+  void setHitProdType(unsigned int offset) { idOffset_ = offset; }
 
-  unsigned int trackIdOffset() const { return idOffset_; }
+  unsigned int hitProdType() const { return idOffset_; }
 
 protected:
   std::vector<uint64_t> mtdHits_;
