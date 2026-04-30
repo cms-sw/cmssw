@@ -42,8 +42,8 @@ def split_remote(local_process, args, cpp_names_of_the_products):
     controller_name = add_controller_to_local(local_process, args.remote_process_name)
     remote_process = create_remote_process(local_process, modules_to_offload, args.remote_process_name, local_process.name_())
 
-    mpi_path_modules_local = [controller_name]
-    mpi_path_modules_remote = []
+    mpi_path_modules_local = [[controller_name] for _ in range(len(groups))]
+    mpi_path_modules_remote = [[] for _ in range(len(groups))]
 
     instance = 1
 
@@ -65,7 +65,6 @@ def split_remote(local_process, args, cpp_names_of_the_products):
 
     # send the data needed by offloaded modules from local to remote
     remote_filters_by_group = [[] for _ in range(len(groups))]
-    local_sender_by_group = [[] for _ in range(len(groups))]
     for local_dependency, group_indices in producer_to_groups.items():
         first_dependency_in_a_group = [groups[i][0] for i in group_indices]
         capture_name = f"activityCaptureBefore{local_dependency.title()}"
@@ -89,15 +88,13 @@ def split_remote(local_process, args, cpp_names_of_the_products):
         # create filter for the path state
         filter_name = f"activityFilterAfter{local_dependency.title()}"
         add_activity_filter(remote_process, local_dependency, filter_name)
+        setattr(remote_process, local_dependency, receiver)
         for group_idx in group_indices:
             remote_filters_by_group[group_idx].append(filter_name)
-            local_sender_by_group[group_idx].append(sender_name)
-        
-        setattr(remote_process, local_dependency, receiver)
+            mpi_path_modules_local[group_idx].append(sender_name)
+            mpi_path_modules_remote[group_idx].append(local_dependency)
 
         instance += 1
-        mpi_path_modules_local.append(sender_name)
-        mpi_path_modules_remote.append(local_dependency)
 
         # Handle the case when onle local product is needed by multiple remote groups
         # For sending from local process - if data is needed by multiple paths, insert additional path state capture and additional sender per group
@@ -130,11 +127,10 @@ def split_remote(local_process, args, cpp_names_of_the_products):
                 filter_name = f"activityFilterBefore{args.remote_process_name.title()}Group{group_idx}"
                 add_activity_filter(remote_process, receiver_name, filter_name)
                 remote_filters_by_group[group_idx].append(filter_name)
-                local_sender_by_group[group_idx].append(sender_name)
 
                 instance += 1
-                mpi_path_modules_local.append(sender_name)
-                mpi_path_modules_remote.append(receiver_name)
+                mpi_path_modules_local[group_idx].append(sender_name)
+                mpi_path_modules_remote[group_idx].append(receiver_name)
     
 
     per_group_remote_captures = [[] for _ in range(len(groups))]
@@ -148,18 +144,23 @@ def split_remote(local_process, args, cpp_names_of_the_products):
         setattr(remote_process, remote_capture_name, cms.EDProducer("PathStateCapture"))
         per_group_remote_captures[group_idx].append(remote_capture_name)
         
+        if len(mpi_path_modules_remote[group_idx]) != 0:
+            sender_upstream = mpi_path_modules_remote[group_idx][-1]
+        else:
+            sender_upstream = "source"
+        
         sender = create_group_sender(
             group=group,
             all_products=cpp_names_of_the_products,
             instance=instance,
-            upstream_module=mpi_path_modules_remote[0],
+            upstream_module=sender_upstream,
             path_state_capture=remote_capture_name,
         )
         sender_name = f"mpiSender{args.remote_process_name.title()}Group{group_idx}"
         setattr(remote_process, sender_name, sender)
         
-        if len(local_sender_by_group[group_idx]) != 0:
-            receiver_upstream = local_sender_by_group[group_idx][-1]
+        if len(mpi_path_modules_local[group_idx]) != 0:
+            receiver_upstream = mpi_path_modules_local[group_idx][-1]
         else:
             receiver_upstream = controller_name
         
@@ -180,8 +181,8 @@ def split_remote(local_process, args, cpp_names_of_the_products):
         add_activity_filter(local_process, receiver_name, filter_name)
         insert_modules_before(local_process, getattr(local_process, group[0]), getattr(local_process, filter_name))
         
-        mpi_path_modules_remote.append(sender_name)
-        mpi_path_modules_local.append(receiver_name)
+        mpi_path_modules_remote[group_idx].append(sender_name)
+        mpi_path_modules_local[group_idx].append(receiver_name)
         
         
         for i, offloaded_module in enumerate(group):
@@ -198,9 +199,9 @@ def split_remote(local_process, args, cpp_names_of_the_products):
         delattr(local_process, product)        
  
     # add all needed paths to the process and schedule them
-    make_new_path(local_process, f"Offload{args.remote_process_name.title()}", mpi_path_modules_local)
-    make_new_path(remote_process, "MPIPath", mpi_path_modules_remote)
     for i, group in enumerate(groups):
+        make_new_path(local_process, f"Offload{args.remote_process_name.title()}Group{i}", mpi_path_modules_local[i])
+        make_new_path(remote_process, f"MPIPathGroup{i}", mpi_path_modules_remote[i])
         make_new_path(remote_process, args.remote_process_name.title()+"RemoteOffloadedSequence"+str(i), remote_filters_by_group[i]+group+per_group_remote_captures[i])
     
     if args.verbose:

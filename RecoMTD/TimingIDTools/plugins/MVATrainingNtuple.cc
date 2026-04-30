@@ -709,9 +709,9 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
               });
               // Check if TP has direct or other sim cluster for BTL
               for (const auto& simClusterRef : simClustersRefs) {
-                if (simClusterRef->trackIdOffset() == 0) {
+                if (simClusterRef->hitProdType() == 0) {
                   isTPmtdDirectETL = true;
-                } else if (simClusterRef->trackIdOffset() != 0) {
+                } else if (simClusterRef->hitProdType() != 0) {
                   isTPmtdOtherETL = true;
                 }
               }
@@ -724,9 +724,9 @@ void MVATrainingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup&
               });
               // Check if TP has direct or other sim cluster for BTL
               for (const auto& simClusterRef : simClustersRefs) {
-                if (simClusterRef->trackIdOffset() == 0) {
+                if (simClusterRef->hitProdType() == 0) {
                   isTPmtdDirectBTL = true;
-                } else if (simClusterRef->trackIdOffset() != 0) {
+                } else if (simClusterRef->hitProdType() != 0) {
                   isTPmtdOtherBTL = true;
                 }
               }
