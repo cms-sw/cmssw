@@ -1,12 +1,11 @@
 
 <lcgdict>
 
- <class name="L1MuDTChambPhDigi" ClassVersion="11">
-  <version ClassVersion="11" checksum="165624804"/>
-  <version ClassVersion="10" checksum="4002141935"/>
+ <class name="L1MuDTChambPhDigi" ClassVersion="3">
+  <version ClassVersion="3" checksum="165624804"/>
  </class>
- <class name="L1MuDTChambThDigi" ClassVersion="10">
-  <version ClassVersion="10" checksum="2095116117"/>
+ <class name="L1MuDTChambThDigi" ClassVersion="3">
+  <version ClassVersion="3" checksum="2095116117"/>
  </class>
  <class name="L1MuDTTrackCand" ClassVersion="3">
   <version ClassVersion="3" checksum="3593607678"/>
