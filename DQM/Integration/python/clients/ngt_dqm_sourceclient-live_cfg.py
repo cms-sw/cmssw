@@ -105,6 +105,13 @@ process.dqmHLTFiltersDQMonitor.triggerResults = 'TriggerResults::HLT'
 process.dqmHLTFiltersDQMonitor.folderName = "NGT/Filters"
 process.dqmHLTFiltersDQMonitor.lightMonitor = True
 
+# Object Monitoring
+process.load("DQM.HLTEvF.FourVectorHLT_cfi")
+process.hltResults.topFolderName = cms.untracked.string("NGT/FourVectorHLT")
+
+process.load("DQM.HLTEvF.HLTObjectMonitor_cfi")
+process.hltObjectMonitor.topFolderName = cms.untracked.string("NGT/ObjectMonitor")
+
 process.p = cms.Path(process.dqmcommon *
                      process.hltOnlineBeamSpot *
                      process.ScoutingTrackMonitorOnline *
@@ -114,6 +121,8 @@ process.p = cms.Path(process.dqmcommon *
                      process.ScoutingDileptonMonitorOnline *
                      process.ScoutingMuonPropertiesMonitorOnline *
                      process.ScoutingPi0MonitorOnline *
+                     process.hltResults *
+                     process.hltObjectMonitor *
                      process.dqmHLTFiltersDQMonitor)
 
 ### process customizations included here
