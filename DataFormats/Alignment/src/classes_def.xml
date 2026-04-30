@@ -4,15 +4,14 @@
    <version ClassVersion="3" checksum="1878671762"/>
   </class>
   <class name="std::vector<SiStripLaserRecHit2D>"/>
-  <class name="TkLasBeam" ClassVersion="10">
-   <version ClassVersion="10" checksum="1460656577"/>
+  <class name="TkLasBeam" ClassVersion="3">
+   <version ClassVersion="3" checksum="1460656577"/>
   </class>
   <class name="TkLasBeamCollection"/>
   <class name="edm::Wrapper<TkLasBeamCollection>"/>
 
-  <class name="TkFittedLasBeam" ClassVersion="11">
-   <version ClassVersion="11" checksum="4076174061"/>
-   <version ClassVersion="10" checksum="903692518"/>
+  <class name="TkFittedLasBeam" ClassVersion="3">
+   <version ClassVersion="3" checksum="4076174061"/>
   </class>
   <class name="TkFittedLasBeamCollection"/>
   <class name="edm::Wrapper<TkFittedLasBeamCollection>"/>
@@ -21,8 +20,8 @@
   <class name="AliClusterValueMap"/>
   <class name="edm::ValueMap<AlignmentClusterFlag >"/>
   <class name="edm::Wrapper< edm::ValueMap<AlignmentClusterFlag >  >"/>
-  <class name="AlignmentClusterFlag" ClassVersion="10">
-   <version ClassVersion="10" checksum="3955968420"/>
+  <class name="AlignmentClusterFlag" ClassVersion="3">
+   <version ClassVersion="3" checksum="3955968420"/>
   </class>
   <class name="std::vector<AlignmentClusterFlag>"/>
 
