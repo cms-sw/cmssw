@@ -277,6 +277,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         MinPhiCut = cms.double(-3.14159265359), ## (radians)
         MaxPhiCut = cms.double(3.14159265359),  ## according to CMS conventions
         ApplyLumiMonitorCuts = cms.bool(False), ## primary for lumi monitors
+        IsSlepton = cms.bool(False),
         Verbosity = cms.untracked.int32(0),
         PDGselection = cms.PSet(
             PDGfilterSel = cms.bool(False), ## filter out unwanted particles
@@ -714,4 +715,12 @@ phase2_common.toModify(g4SimHits,
 from Configuration.Eras.Modifier_hgcaltb_cff import hgcaltb
 hgcaltb.toModify(g4SimHits,
                  OnlySDs = ['AHcalSensitiveDetector', 'HGCSensitiveDetector', 'HGCalTB1601SensitiveDetector', 'HcalTB06BeamDetector']
+)
+
+##
+## Fix for long-lived slepton simulation
+##
+from Configuration.ProcessModifiers.fixLongLivedSleptonSim_cff import fixLongLivedSleptonSim
+fixLongLivedSleptonSim.toModify( g4SimHits,
+                                 Generator = dict(IsSlepton = True)
 )
