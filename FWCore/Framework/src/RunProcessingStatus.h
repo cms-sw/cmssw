@@ -23,6 +23,7 @@
 
 #include <atomic>
 #include <memory>
+#include <optional>
 
 namespace edm {
 
@@ -36,8 +37,9 @@ namespace edm {
     RunProcessingStatus(RunProcessingStatus const&) = delete;
     RunProcessingStatus const& operator=(RunProcessingStatus const&) = delete;
 
-    WaitingTaskHolder& holderOfTaskInProcessRuns() { return holderOfTaskInProcessRuns_; }
-    void setHolderOfTaskInProcessRuns(WaitingTaskHolder const& holder) { holderOfTaskInProcessRuns_ = holder; }
+    std::optional<WaitingTaskHolder> releaseHolderOfTaskInProcessRuns();
+    void setHolderOfTaskInProcessRuns(WaitingTaskHolder const& holder);
+    void setHolderOfTaskInProcessRunsDoneWaiting();
 
     void setResumer(LimitedTaskQueue::Resumer iResumer) { globalRunQueueResumer_ = std::move(iResumer); }
     void resumeGlobalRunQueue() {
@@ -93,7 +95,7 @@ namespace edm {
     void setEndingEventSetupSucceeded(bool val) { endingEventSetupSucceeded_ = val; }
 
   private:
-    WaitingTaskHolder holderOfTaskInProcessRuns_;
+    std::optional<WaitingTaskHolder> holderOfTaskInProcessRuns_;
     LimitedTaskQueue::Resumer globalRunQueueResumer_;
     std::shared_ptr<RunPrincipal> runPrincipal_;
     std::shared_ptr<const EventSetupImpl> eventSetupImpl_;
@@ -109,6 +111,7 @@ namespace edm {
     bool cleaningUpAfterException_{false};
     bool stopBeforeProcessingRun_{false};
     bool endingEventSetupSucceeded_{true};
+    std::atomic<bool> holderOfTaskInProcessRunsIsDone_{false};
   };
 }  // namespace edm
 

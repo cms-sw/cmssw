@@ -245,6 +245,12 @@
   <use name="catch2"/>
 </bin>
 
+<bin name="TestFWCoreFrameworkSourceCoordinator" file="test_catch2_main.cc,sourcecoordinator_t.catch2.cc">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="catch2"/>
+</bin>
+
 <bin name="TestFWCoreFrameworkeventprincipal" file="eventprincipal_t.catch2.cc,sharedresourcesregistry_t.catch2.cc">
   <use name="DataFormats/Common"/>
   <use name="DataFormats/Provenance"/>

@@ -82,8 +82,12 @@ namespace edm {
 
     //these should only be called while in the source's task queue
     enum class EventProcessingState { kProcessing, kPauseForFileTransition, kStopLumi };
-    EventProcessingState thread_unsafe_eventProcessingState() const { return eventProcessingState_; }
-    void thread_unsafe_setEventProcessingState(EventProcessingState val) { eventProcessingState_ = val; }
+    EventProcessingState eventProcessingState() const { return eventProcessingState_.load(); }
+    bool setEventProcessingState(EventProcessingState val) {
+      EventProcessingState expected = EventProcessingState::kProcessing;
+      return eventProcessingState_.compare_exchange_strong(expected, val);
+    }
+    void resetEventProcessingStateToProcessing() { eventProcessingState_.store(EventProcessingState::kProcessing); }
 
     bool haveStartedNextLumiOrEndedRun() const { return startedNextLumiOrEndedRun_.load(); }
     //returns true if this is the first time it is called and false otherwise
@@ -104,7 +108,7 @@ namespace edm {
     edm::WaitingTaskHolder globalEndRunHolder_;
     edm::Timestamp endTime_{};
     std::atomic<unsigned int> nStreamsProcessingLumi_{0};
-    EventProcessingState eventProcessingState_{EventProcessingState::kProcessing};
+    std::atomic<EventProcessingState> eventProcessingState_{EventProcessingState::kProcessing};
     std::atomic<char> endTimeSetStatus_{0};
     std::atomic<bool> startedNextLumiOrEndedRun_{false};
     bool globalBeginSucceeded_{false};
