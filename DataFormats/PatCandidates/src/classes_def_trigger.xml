@@ -40,8 +40,8 @@
   <class name="edm::reftobase::RefHolder&lt;pat::TriggerObjectStandAloneRef&gt;" />
   <class name="edm::Wrapper&lt;edm::Association&lt;std::vector&lt;pat::io_v1::TriggerObjectStandAlone&gt; &gt; &gt;" />
 
-  <class name="pat::TriggerFilter"  ClassVersion="10">
-   <version ClassVersion="10" checksum="2906762000"/>
+  <class name="pat::TriggerFilter"  ClassVersion="3">
+   <version ClassVersion="3" checksum="2906762000"/>
   </class>
   <class name="std::vector&lt;pat::TriggerFilter&gt;" />
   <class name="std::vector&lt;pat::TriggerFilter&gt;::const_iterator" />
@@ -52,9 +52,8 @@
   <class name="pat::TriggerFilterRefVector" />
   <class name="pat::TriggerFilterRefVectorIterator" />
 
-  <class name="pat::TriggerPath"  ClassVersion="11">
-   <version ClassVersion="11" checksum="565824196"/>
-   <version ClassVersion="10" checksum="2458567651"/>
+  <class name="pat::TriggerPath"  ClassVersion="3">
+   <version ClassVersion="3" checksum="565824196"/>
   </class>
   <class name="std::vector&lt;pat::TriggerPath&gt;" />
   <class name="std::vector&lt;pat::TriggerPath&gt;::const_iterator" />
@@ -68,9 +67,8 @@
   <class name="std::vector&lt;pat::L1Seed&gt;" />
   <class name="std::vector&lt;pat::L1Seed&gt;::const_iterator" />
 
-  <class name="pat::TriggerCondition"  ClassVersion="11">
-   <version ClassVersion="11" checksum="296420442"/>
-   <version ClassVersion="10" checksum="4134787846"/>
+  <class name="pat::TriggerCondition"  ClassVersion="3">
+   <version ClassVersion="3" checksum="296420442"/>
   </class>
   <class name="std::vector&lt;pat::TriggerCondition&gt;" />
   <class name="std::vector&lt;pat::TriggerCondition&gt;::const_iterator" />
@@ -81,8 +79,8 @@
   <class name="pat::TriggerConditionRefVector" />
   <class name="pat::TriggerConditionRefVectorIterator" />
 
-  <class name="pat::TriggerAlgorithm"  ClassVersion="10">
-   <version ClassVersion="10" checksum="1625162602"/>
+  <class name="pat::TriggerAlgorithm"  ClassVersion="3">
+   <version ClassVersion="3" checksum="1625162602"/>
   </class>
   <class name="std::vector&lt;pat::TriggerAlgorithm&gt;" />
   <class name="std::vector&lt;pat::TriggerAlgorithm&gt;::const_iterator" />
@@ -93,8 +91,8 @@
   <class name="pat::TriggerAlgorithmRefVector" />
   <class name="pat::TriggerAlgorithmRefVectorIterator" />
 
-  <class name="pat::TriggerEvent"  ClassVersion="10">
-   <version ClassVersion="10" checksum="174329539"/>
+  <class name="pat::TriggerEvent"  ClassVersion="3">
+   <version ClassVersion="3" checksum="174329539"/>
   </class>
   <class name="edm::Wrapper&lt;pat::TriggerEvent&gt;" />
 
