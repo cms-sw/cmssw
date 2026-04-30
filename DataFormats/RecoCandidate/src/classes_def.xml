@@ -19,9 +19,8 @@
    <version ClassVersion="3" checksum="1842643264"/>
   </class>
 
-  <class name="reco::FitQuality"  ClassVersion="11">
-   <version ClassVersion="11" checksum="2062631270"/>
-   <version ClassVersion="10" checksum="1584619238"/>
+  <class name="reco::FitQuality"  ClassVersion="3">
+   <version ClassVersion="3" checksum="2062631270"/>
   </class>
   <class name="std::vector<reco::FitQuality>" />
   <class name="reco::FitResultCollection">
@@ -116,11 +115,11 @@
   <class name="std::vector<reco::io_v1::IsoDeposit>"/>
   <class name="std::vector<reco::io_v1::IsoDeposit>::const_iterator"/>
 
-  <class name="reco::io_v1::IsoDeposit::Direction" ClassVersion="10">
-   <version ClassVersion="10" checksum="2412209684"/>
+  <class name="reco::io_v1::IsoDeposit::Direction" ClassVersion="3">
+   <version ClassVersion="3" checksum="2412209684"/>
   </class>
-  <class name="reco::io_v1::IsoDeposit::Direction::Distance" ClassVersion="10">
-   <version ClassVersion="10" checksum="2603689691"/>
+  <class name="reco::io_v1::IsoDeposit::Direction::Distance" ClassVersion="3">
+   <version ClassVersion="3" checksum="2603689691"/>
   </class>
   <class name="reco::io_v1::IsoDeposit::Veto" ClassVersion="3">
    <version ClassVersion="3" checksum="4179939266"/>

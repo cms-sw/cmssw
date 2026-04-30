@@ -4,8 +4,8 @@
   </class>
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<reco::CaloJetCollection, reco::L2TauIsolationInfo, unsigned int > > >" />
   <class name="std::map<unsigned int,reco::L2TauIsolationInfo>"/>
-  <class name="reco::L2TauIsolationInfo" ClassVersion="10">
-   <version ClassVersion="10" checksum="3469208847"/>
+  <class name="reco::L2TauIsolationInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="3469208847"/>
   </class>
 
 

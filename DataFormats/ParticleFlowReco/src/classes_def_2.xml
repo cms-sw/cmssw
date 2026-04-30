@@ -20,8 +20,8 @@
   <class name="reco::io_v1::PFCluster::EEtoPSAssociation"/>
   <class name="edm::Wrapper<reco::io_v1::PFCluster::EEtoPSAssociation>"/>
 
-  <class name="PFLayer" ClassVersion="10">
-   <version ClassVersion="10" checksum="85611"/>
+  <class name="PFLayer" ClassVersion="3">
+   <version ClassVersion="3" checksum="85611"/>
   </class>
   <enum name="PFLayer::Layer"/> 
   <class name="reco::PFRecHitFraction" ClassVersion="3">
@@ -55,21 +55,12 @@
   <class name="std::vector<edm::RefProd<std::vector<reco::io_v1::PFRecHit> > >"/>
   
 
-  <class name="reco::PFTrack" ClassVersion="11">
-   <version ClassVersion="11" checksum="1666908047"/>
-   <version ClassVersion="10" checksum="496926148"/>
+  <class name="reco::PFTrack" ClassVersion="3">
+   <version ClassVersion="3" checksum="1666908047"/>
   </class>
-<!--    <class name="edm::RefToBase<reco::Track>"/>
-  <class name="edm::RefToBase::BaseHolder<reco::Track>"/>
-  <class name="edm::RefToBase::Holder<reco::GsfTrack>"/>
-  <class name="edm::Holder<reco::TrackTransientTrack>"/>
-  <class name="edm::Holder<reco::GsfTransientTrack>"/> 
-  <class name="edm::Ref< std::vector<reco::Track>, reco::Track, edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >"/>
--->  
 
-  <class name="reco::PFTrajectoryPoint" ClassVersion="12">
-   <version ClassVersion="12" checksum="2337677018"/>
-   <version ClassVersion="11" checksum="2337677018"/>
+  <class name="reco::PFTrajectoryPoint" ClassVersion="3">
+   <version ClassVersion="3" checksum="2337677018"/>
 <!-- Removed by Patrick: avoid many useless PFTrack copies (memory+CPU) and costless for RECO/AOD
     <field name="posrep_" transient="true"/>
 -->
@@ -96,20 +87,14 @@
   <class name="std::vector<reco::PFBrem>"/>
 
 
-  <class name="reco::PFSimParticle" ClassVersion="12">
-   <version ClassVersion="12" checksum="3693440976"/>
-   <version ClassVersion="11" checksum="3190131965"/>
-   <version ClassVersion="10" checksum="545237333"/>
+  <class name="reco::PFSimParticle" ClassVersion="3">
+   <version ClassVersion="3" checksum="3693440976"/>
   </class>
   <class name="std::vector<reco::PFSimParticle>"/>
   <class name="edm::Wrapper<std::vector<reco::PFSimParticle> >"/>
 
-  <class name="reco::PFBlockElement" ClassVersion="15">
-   <version ClassVersion="15" checksum="684943224"/>
-   <version ClassVersion="14" checksum="3982859549"/>
-   <version ClassVersion="13" checksum="4257111441"/>
-   <version ClassVersion="12" checksum="3101496393"/>
-   <version ClassVersion="11" checksum="3944635097"/>
+  <class name="reco::PFBlockElement" ClassVersion="3">
+   <version ClassVersion="3" checksum="684943224"/>
    <field name="multilinks_" transient="true"/>
    <field name="nullTrack_" transient="true"/>
    <field name="nullPFRecTrack_" transient="true"/>
@@ -174,9 +159,8 @@
   <class name="edm::RefProd<std::vector<reco::io_v1::PFCluster>>"/>
 
 
-  <class name="pftools::ParticleFiltrationDecision" ClassVersion="11">
-   <version ClassVersion="11" checksum="1016852148"/>
-   <version ClassVersion="10" checksum="2525480962"/>
+  <class name="pftools::ParticleFiltrationDecision" ClassVersion="3">
+   <version ClassVersion="3" checksum="1016852148"/>
   </class>
   <class name="std::vector<pftools::ParticleFiltrationDecision>"/>
   <class name="edm::Wrapper<std::vector<pftools::ParticleFiltrationDecision> >"/>
@@ -184,8 +168,8 @@
 
 
   <class name="std::map<unsigned int,reco::PFDisplacedVertexCandidate::VertexLink>"/>
-  <class name="reco::PFDisplacedVertexCandidate::VertexLink" ClassVersion="10">
-   <version ClassVersion="10" checksum="1506624066"/>
+  <class name="reco::PFDisplacedVertexCandidate::VertexLink" ClassVersion="3">
+   <version ClassVersion="3" checksum="1506624066"/>
   </class>
   <class name="reco::PFDisplacedVertexCandidate::DistMap"/>
   <class name="reco::PFDisplacedVertexCandidate" ClassVersion="3">

@@ -9,8 +9,8 @@
    <version ClassVersion="3" checksum="2233339069"/>
   </class>	 
 
-  <class name="OmniClusterRef"  ClassVersion="10">
-   <version ClassVersion="10" checksum="735211426"/>
+  <class name="OmniClusterRef"  ClassVersion="3">
+   <version ClassVersion="3" checksum="735211426"/>
   </class>
 
   <class name="SiStripRecHit1D"  ClassVersion="3">

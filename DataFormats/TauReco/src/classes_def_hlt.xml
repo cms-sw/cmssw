@@ -1,8 +1,8 @@
 <lcgdict>
 
 //Needed only for HLT-Open
-<class name="reco::HLTTau" ClassVersion="10">
- <version ClassVersion="10" checksum="2579739479"/>
+<class name="reco::HLTTau" ClassVersion="3">
+ <version ClassVersion="3" checksum="2579739479"/>
 </class>
   <class name="std::vector<reco::HLTTau>"/>
   <class name="edm::Wrapper<std::vector<reco::HLTTau> >"/>

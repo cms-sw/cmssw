@@ -138,7 +138,7 @@ namespace reco {
     const Track* selectedTrack(size_t i) const { return reco::btag::toTrack(m_selected[i]); }
 
     // Used by ROOT storage
-    CMS_CLASS_VERSION(11)
+    CMS_CLASS_VERSION(3)
 
   private:
     std::vector<btag::TrackIPData> m_data;

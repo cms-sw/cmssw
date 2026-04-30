@@ -1,7 +1,6 @@
 <lcgdict>
-  <class name="EcalUncalibratedRecHit" ClassVersion="12">
-   <version ClassVersion="12" checksum="343844348"/>
-   <version ClassVersion="11" checksum="4183938955"/>
+  <class name="EcalUncalibratedRecHit" ClassVersion="3">
+   <version ClassVersion="3" checksum="343844348"/>
   </class>
   <class name="std::vector<EcalUncalibratedRecHit>"/>
   <class name="edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >"/>

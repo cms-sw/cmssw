@@ -1,24 +1,21 @@
 <lcgdict>
 
-  <class name="CommonMETData" ClassVersion="12">
-   <version ClassVersion="10" checksum="2091468611"/>
-   <version ClassVersion="11" checksum="2315500095"/>
-   <version ClassVersion="12" checksum="2091468611"/>
+  <class name="CommonMETData" ClassVersion="3">
+   <version ClassVersion="3" checksum="2091468611"/>
   </class>
   <class name="edm::Wrapper<CommonMETData>"/> 
   <class name="std::vector<CommonMETData>"/> 
   <class name="edm::Wrapper<std::vector<CommonMETData> >"/> 
 
-  <class name="CorrMETData" ClassVersion="11">
-   <version ClassVersion="10" checksum="1727583300"/>
-   <version ClassVersion="11" checksum="1460799916"/>
+  <class name="CorrMETData" ClassVersion="3">
+   <version ClassVersion="3" checksum="1460799916"/>
   </class>
   <class name="edm::Wrapper<CorrMETData>"/> 
   <class name="std::vector<CorrMETData>"/> 
   <class name="edm::Wrapper<std::vector<CorrMETData> >"/> 
 
-  <class name="metsig::SigInputObj" ClassVersion="10">
-   <version ClassVersion="10" checksum="802320509"/>
+  <class name="metsig::SigInputObj" ClassVersion="3">
+   <version ClassVersion="3" checksum="802320509"/>
   </class>
   <class name="edm::Wrapper<metsig::SigInputObj>"/> 
   <class name="std::vector<metsig::SigInputObj>"/> 
@@ -30,20 +27,17 @@
   <class name="reco::PUSubMETCandInfoCollection" />
   <class name="edm::Wrapper<reco::PUSubMETCandInfoCollection>" />
  
-  <class name="SpecificCaloMETData" ClassVersion="11">
-   <version ClassVersion="10" checksum="3022746385"/>
-   <version ClassVersion="11" checksum="747083523"/>
+  <class name="SpecificCaloMETData" ClassVersion="3">
+   <version ClassVersion="3" checksum="747083523"/>
   </class>
   <class name="std::vector<SpecificCaloMETData>"/>
 
-  <class name="SpecificPFMETData" ClassVersion="11">
-   <version ClassVersion="10" checksum="219431109"/>
-   <version ClassVersion="11" checksum="1851051058"/>
+  <class name="SpecificPFMETData" ClassVersion="3">
+   <version ClassVersion="3" checksum="1851051058"/>
   </class>
   <class name="std::vector<SpecificPFMETData>"/>
-  <class name="SpecificGenMETData" ClassVersion="11">
-   <version ClassVersion="10" checksum="2173201550"/>
-   <version ClassVersion="11" checksum="2260055190"/>
+  <class name="SpecificGenMETData" ClassVersion="3">
+   <version ClassVersion="3" checksum="2260055190"/>
   </class>
 
   <class name="reco::io_v1::MET" ClassVersion="3">
@@ -110,8 +104,8 @@
   <class name="reco::HcalNoiseHPDCollection"/>
   <class name="edm::Wrapper<reco::HcalNoiseHPDCollection>"/>
 
-  <class name="reco::HcalNoiseRBX" ClassVersion="10">
-   <version ClassVersion="10" checksum="697859706"/>
+  <class name="reco::HcalNoiseRBX" ClassVersion="3">
+   <version ClassVersion="3" checksum="697859706"/>
   </class>
   <class name="std::vector<reco::HcalNoiseHPD>"/>
   <class name="std::vector<reco::HcalNoiseHPD>::const_iterator"/>
@@ -139,8 +133,8 @@
   <class name="edm::reftobase::RefHolder<reco::PFClusterMETRef>" />
   <class name="edm::reftobase::RefHolder<reco::GenMETRef>" />
 
-  <class name="reco::PhiWedge" ClassVersion="10">
-   <version ClassVersion="10" checksum="2763792428"/>
+  <class name="reco::PhiWedge" ClassVersion="3">
+   <version ClassVersion="3" checksum="2763792428"/>
   </class>
   <class name="edm::Wrapper<reco::PhiWedge>"/>
   <class name="std::vector<reco::PhiWedge>"/>

@@ -32,7 +32,7 @@ namespace reco {
     /// reference
     reference ref() const { return ref_; }
 
-    CMS_CLASS_VERSION(13)
+    CMS_CLASS_VERSION(3)
 
   private:
     /// check overlap with another candidate
