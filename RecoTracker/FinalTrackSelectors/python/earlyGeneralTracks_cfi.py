@@ -81,35 +81,49 @@ def _extend_displacedGeneral(x):
      x.inputClassifiers += ['displacedGeneralStep'] 
 (trackingPhase1 & displacedTracking).toModify(earlyGeneralTracks, _extend_displacedGeneral)
 
+from Configuration.ProcessModifiers.trackingIters01_cff import trackingIters01
+(trackingPhase1 & trackingIters01).toModify(earlyGeneralTracks,
+                                            trackProducers = ['initialStepTracks', 'highPtTripletStepTracks'],
+                                            inputClassifiers = cms.vstring('initialStep','highPtTripletStep')
+)
+
 # For Phase2PU140
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 from RecoTracker.FinalTrackSelectors.trackListMerger_cfi import trackListMerger as _trackListMerger
 trackingPhase2PU140.toReplaceWith(earlyGeneralTracks, _trackListMerger.clone(
     TrackProducers =['initialStepTracks',
                      'highPtTripletStepTracks',
-                     'jetCoreRegionalStepTracks',
                      'lowPtQuadStepTracks',
                      'lowPtTripletStepTracks',
                      'detachedQuadStepTracks',
                      'pixelPairStepTracks',
                     ],
-    hasSelector = [1,1,1,1,1,1,1],
-    indivShareFrac = [1.0,0.16,1.0,0.095,0.09,0.09,0.09],
+    hasSelector = [1,1,1,1,1,1],
+    indivShareFrac = [1.0,0.16,0.095,0.09,0.09,0.09],
     selectedTrackQuals = ['initialStepSelector:initialStep',
                           'highPtTripletStepSelector:highPtTripletStep',
-                          'jetCoreRegionalStepSelector:jetCoreRegionalStep',
                           'lowPtQuadStepSelector:lowPtQuadStep',
                           'lowPtTripletStepSelector:lowPtTripletStep',
                           'detachedQuadStep',
                           'pixelPairStepSelector:pixelPairStep',
                           ],
-    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6), pQual=cms.bool(True) )
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5), pQual=cms.bool(True) )
 	),
     copyExtras = True,
     makeReKeyedSeeds = cms.untracked.bool(False)
     )
 )
-from Configuration.ProcessModifiers.trackingIters01_cff import trackingIters01
+
+from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
+def _remove_initial(x):
+     _idx = x.TrackProducers.index('initialStepTracks')
+     del x.TrackProducers[_idx]
+     del x.hasSelector[_idx]
+     del x.indivShareFrac[_idx]
+     del x.selectedTrackQuals[_idx]
+     del x.setsToMerge[0].tLists[_idx]
+(trackingPhase2PU140 & trackingLST).toModify(earlyGeneralTracks, _remove_initial)
+
 (trackingPhase2PU140 & trackingIters01).toModify(earlyGeneralTracks,
                                                  TrackProducers = ['initialStepTracks', 'highPtTripletStepTracks'],
                                                  hasSelector = [1,1],
@@ -118,29 +132,33 @@ from Configuration.ProcessModifiers.trackingIters01_cff import trackingIters01
                                                                        'highPtTripletStepSelector:highPtTripletStep'
                                                                        ],
                                                  setsToMerge = {0: dict(tLists = [0,1])}
-                                                 )
+)
 
-(~trackingPhase2PU140 & trackingIters01).toModify(earlyGeneralTracks,
-                                                  trackProducers = ['initialStepTracks', 'highPtTripletStepTracks'],
-                                                  inputClassifiers = cms.vstring('initialStep','highPtTripletStep')
-                                                  )
+(trackingPhase2PU140 & trackingIters01 & trackingLST).toModify(earlyGeneralTracks,
+                                                               TrackProducers = ['highPtTripletStepTracks'],
+                                                               hasSelector = [1],
+                                                               indivShareFrac = [0.1],
+                                                               selectedTrackQuals = ['highPtTripletStepSelector:highPtTripletStep'],
+                                                               setsToMerge = {0: dict(tLists = [0])}
+)
+
+from Configuration.ProcessModifiers.jetCoreInPhase2_cff import jetCoreInPhase2
+def _extend_jetCore(x):
+     _length = len(x.TrackProducers)
+     x.TrackProducers += ['jetCoreRegionalStepTracks']
+     x.hasSelector += [1]
+     x.indivShareFrac += [1.0]
+     x.selectedTrackQuals += ['jetCoreRegionalStepSelector:jetCoreRegionalStep']
+     x.setsToMerge[0].tLists += [_length]
+(trackingPhase2PU140 & jetCoreInPhase2).toModify(earlyGeneralTracks, _extend_jetCore)
 
 from Configuration.ProcessModifiers.vectorHits_cff import vectorHits
 def _extend_pixelLess(x):
-    x.TrackProducers += ['pixelLessStepTracks']
-    x.hasSelector += [1]
-    x.indivShareFrac += [0.095]
-    x.selectedTrackQuals += ['pixelLessStepSelector:pixelLessStep']
-    x.setsToMerge[0].tLists += [6]
+     _length = len(x.TrackProducers)
+     x.TrackProducers += ['pixelLessStepTracks']
+     x.hasSelector += [1]
+     x.indivShareFrac += [0.095]
+     x.selectedTrackQuals += ['pixelLessStepSelector:pixelLessStep']
+     x.setsToMerge[0].tLists += [_length]
 (trackingPhase2PU140 & vectorHits).toModify(earlyGeneralTracks, _extend_pixelLess)
 
-from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
-(trackingPhase2PU140 & trackingLST).toModify(earlyGeneralTracks,
-                         TrackProducers = ['highPtTripletStepLSTpTracks', 'highPtTripletStepLSTT4T5Tracks'],
-                         hasSelector = [1,0],
-                         indivShareFrac = [0.1,0.1],
-                         selectedTrackQuals = ['highPtTripletStepSelector:highPtTripletStep',
-                                               'highPtTripletStepSelectorLSTT4T5:highPtTripletStepLSTT4T5'
-                         ],
-                         setsToMerge = {0: dict(tLists = [0,1])}
-)
