@@ -213,13 +213,10 @@ l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
         emulateCorrections = cms.bool(False), # NOTE: should switch this on for FW bit-wise agreement!
         emInterpScenario = cms.string("allKeepHad"), # for all clusters, use EM intepretation to redefine the EM part of the energy
     ),
-    regionizerAlgo = cms.string("Multififo"),
+    regionizerAlgo = cms.string("BufferedFoldedMultififo"),
     regionizerAlgoParameters = cms.PSet(
         useAlsoVtxCoords = cms.bool(True),
-        nEndcaps = cms.uint32(2),
-        nClocks = cms.uint32(54),
-        nTkLinks = cms.uint32(2),
-        nCaloLinks = cms.uint32(3),
+        nClocks = cms.uint32(162),
         nTrack = cms.uint32(30),
         nCalo = cms.uint32(20),
         nEmCalo = cms.uint32(10),
@@ -319,6 +316,13 @@ l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
 
 l1tLayer1HGCalExtended = l1tLayer1HGCal.clone(tracks = ('l1tPFTracksFromL1TracksExtended'))
 
+
+l1tLayer1BarrelElliptic = l1tLayer1Barrel.clone(
+    tkEgAlgoParameters = l1tLayer1Barrel.tkEgAlgoParameters.clone(
+        algorithm = 0,
+        trkQualityPtMin = 10.)
+)
+
 l1tLayer1HGCalElliptic = l1tLayer1HGCal.clone(
     tkEgAlgoParameters = l1tLayer1HGCal.tkEgAlgoParameters.clone(
         algorithm = 0,
@@ -365,13 +369,10 @@ l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
         emulateCorrections = cms.bool(False), # NOTE: should switch this on for FW bit-wise agreement!
         emInterpScenario = cms.string("allKeepHad"), # for all clusters, use EM intepretation to redefine the EM part of the energy
     ),
-    regionizerAlgo = cms.string("Multififo"),
+    regionizerAlgo = cms.string("BufferedFoldedMultififo"),
     regionizerAlgoParameters = cms.PSet(
         useAlsoVtxCoords = cms.bool(True),
-        nEndcaps = cms.uint32(2),
-        nClocks = cms.uint32(54),
-        nTkLinks = cms.uint32(0),
-        nCaloLinks = cms.uint32(3),
+        nClocks = cms.uint32(162),
         nTrack = cms.uint32(0),
         nCalo = cms.uint32(12),
         nEmCalo = cms.uint32(12),
@@ -590,7 +591,7 @@ l1tLayer1EGElliptic = cms.EDProducer(
         cms.PSet(
             instance = cms.string("L1TkEleEB"),
             pfProducers = cms.VInputTag(
-                cms.InputTag("l1tLayer1Barrel", 'L1TkEle')
+                cms.InputTag("l1tLayer1BarrelElliptic", 'L1TkEle')
             )
         )
     ),
@@ -605,7 +606,7 @@ l1tLayer1EGElliptic = cms.EDProducer(
         cms.PSet(
             instance = cms.string("L1TkEmEB"),
             pfProducers = cms.VInputTag(
-                cms.InputTag("l1tLayer1Barrel", 'L1TkEm')
+                cms.InputTag("l1tLayer1BarrelElliptic", 'L1TkEm')
             )
         )
     ),
@@ -639,6 +640,7 @@ L1TLayer1Task = cms.Task(
      l1tLayer1HF,
      l1tLayer1,
      l1tLayer1Extended,
+     l1tLayer1BarrelElliptic,
      l1tLayer1HGCalElliptic,
      l1tLayer1EG,
      l1tLayer1EGElliptic
