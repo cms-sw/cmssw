@@ -1557,9 +1557,11 @@ bool HGCalDDDConstants::tileExist(int zside, int layer, int ring, int phi) const
   const auto& index = getIndex(layer, true);
   bool fine = hgpar_->scintFine(index.first);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeomT") << "TileExist: Layer : " << layer << ":" << index.first << " Fine " << fine;
+  edm::LogVerbatim("HGCalGeomT") << "TileExist: Layer : " << layer << ":" << index.first << " Fine " << fine
+                                 << " index " << index.first << " :" << index.second;
 #endif
-  bool ok = ((ring >= hgpar_->iradMinBH_[index.first]) && (ring <= hgpar_->iradMaxBH_[index.first]));
+  bool ok = (fine) ? ((ring >= hgpar_->iradMinBHFine_[index.first]) && (ring <= hgpar_->iradMaxBHFine_[index.first]))
+                   : ((ring >= hgpar_->iradMinBH_[index.first]) && (ring <= hgpar_->iradMaxBH_[index.first]));
   if (ok) {
     if (fine) {
       int indx = HGCalTileIndex::tileIndex(layer, ring, 1);
@@ -1601,9 +1603,13 @@ bool HGCalDDDConstants::tileExist(int zside, int layer, int ring, int phi) const
     }
 #ifdef EDM_ML_DEBUG
   } else {
+    std::ostringstream st1;
+    if (fine)
+      st1 << hgpar_->iradMinBHFine_[index.first] << ":" << hgpar_->iradMaxBHFine_[index.first];
+    else
+      st1 << hgpar_->iradMinBH_[index.first] << ":" << hgpar_->iradMaxBH_[index.first];
     edm::LogWarning("HGCalGeomT") << "TileExist:input " << zside << ":" << layer << ":" << ring << ":" << phi
-                                  << " Index " << index.first << " Ring limits " << hgpar_->iradMinBH_[index.first]
-                                  << ":" << hgpar_->iradMaxBH_[index.first] << " ok " << ok;
+                                  << " Index " << index.first << " Ring limits " << st1.str() << " ok " << ok;
 #endif
   }
   return ok;

@@ -2571,7 +2571,8 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
     double rmin = php.radiusLayer_[kk][std::max((irmin - 1), 0)];
     double rmax = php.radiusLayer_[kk][std::min(irmax, irm)];
     edm::LogVerbatim("HGCalGeom") << "Layer " << php.firstLayer_ + k << ":" << kk << " Radius range " << irmin << ":"
-                                  << irmax << ":" << rmin << ":" << rmax << " Size " << php.radiusLayer_[kk].size();
+                                  << irmax << ":" << rmin << ":" << rmax << " Size " << php.radiusLayer_[kk].size()
+                                  << " nphi " << php.nPhiLayer_[k];
 #endif
     mytr.lay = php.firstLayer_ + k;
     for (int irad = irmin; irad <= irmax; ++irad) {

@@ -6,8 +6,8 @@ from DQM.EcalMonitorClient.IntegrityClient_cfi import ecalIntegrityClient
 minChannelEntries = 6
 expectedMean = 200.0
 toleranceLow = 25.0
-toleranceHigh = 60.0
-toleranceHighFwd = 100.0
+toleranceHigh = 80.0
+toleranceHighFwd = 120.0
 toleranceRMS = 6.0
 toleranceRMSFwd = 6.0
 
