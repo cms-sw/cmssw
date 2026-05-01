@@ -44,6 +44,10 @@ void AlignmentMonitorBase::beginOfJob(AlignableTracker *pTracker,
     mp_navigator = new AlignableNavigator(pTracker, pMuon);
 }
 
+void AlignmentMonitorBase::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
+  runBegin(iRun, iSetup);
+}
+
 void AlignmentMonitorBase::startingNewLoop() {
   m_iteration++;
 

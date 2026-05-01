@@ -57,7 +57,8 @@ if envNtuple is not None:
 
 from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process("ALIGN", Run3)
-process.source = cms.Source("EmptySource")
+runnumber = int(os.environ.get("ALIGNMENT_RUNNUMBER", "1"))
+process.source = cms.Source("EmptySource", firstRun=cms.untracked.uint32(runnumber))
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 process.load("Configuration.StandardSequences.Reconstruction_cff")
@@ -104,6 +105,8 @@ process.looper.applyDbAlignment = True
 process.MuonAlignmentFromReferenceInputDB.connect = cms.string("sqlite_file:%s" % inputdb)
 process.MuonAlignmentFromReferenceInputDB.toGet = cms.VPSet(cms.PSet(record = cms.string("DTAlignmentRcd"), tag = cms.string("DTAlignmentRcd")),
                                                             cms.PSet(record = cms.string("CSCAlignmentRcd"), tag = cms.string("CSCAlignmentRcd")))
+process.es_prefer_MuonAlignmentFromReferenceInputDB = cms.ESPrefer(
+    "PoolDBESSource", "MuonAlignmentFromReferenceInputDB")
 
 from CondCore.CondDB.CondDB_cfi import *
 CondDBSetup = CondDB.clone()

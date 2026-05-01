@@ -38,6 +38,8 @@ public:
 
   void book() override;
 
+  void runBegin(const edm::Run &iRun, const edm::EventSetup &iSetup) override;
+
   void event(const edm::Event &iEvent,
              const edm::EventSetup &iSetup,
              const ConstTrajTrackPairCollection &iTrajTracks) override;
@@ -47,6 +49,7 @@ private:
   // es token
   const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> m_esTokenGBTGeom;
   const edm::ESGetToken<DetIdAssociator, DetIdAssociatorRecord> m_esTokenDetId;
+  const DetIdAssociator* m_muonDetIdAssociator = nullptr;
   const edm::ESGetToken<Propagator, TrackingComponentsRecord> m_esTokenProp;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_esTokenMF;
   const MuonResidualsFromTrack::BuilderToken m_esTokenBuilder;
@@ -89,7 +92,7 @@ AlignmentMonitorMuonVsCurvature::AlignmentMonitorMuonVsCurvature(const edm::Para
                                                                  edm::ConsumesCollector iC)
     : AlignmentMonitorBase(cfg, iC, "AlignmentMonitorMuonVsCurvature"),
       m_esTokenGBTGeom(iC.esConsumes()),
-      m_esTokenDetId(iC.esConsumes(edm::ESInputTag("", "MuonDetIdAssociator"))),
+      m_esTokenDetId(iC.esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "MuonDetIdAssociator"))),
       m_esTokenProp(iC.esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))),
       m_esTokenMF(iC.esConsumes()),
       m_esTokenBuilder(iC.esConsumes(MuonResidualsFromTrack::builderESInputTag())),
@@ -110,6 +113,10 @@ AlignmentMonitorMuonVsCurvature::AlignmentMonitorMuonVsCurvature(const edm::Para
       m_doCSC(cfg.getParameter<bool>("doCSC")),
       bsToken_(iC.consumes<reco::BeamSpot>(m_beamSpotTag)),
       muonToken_(iC.consumes<reco::MuonCollection>(m_muonCollectionTag)) {}
+
+void AlignmentMonitorMuonVsCurvature::runBegin(const edm::Run &iRun, const edm::EventSetup &iSetup) {
+  m_muonDetIdAssociator = &iSetup.getData(m_esTokenDetId);
+}
 
 void AlignmentMonitorMuonVsCurvature::book() {
   // DT
@@ -204,7 +211,7 @@ void AlignmentMonitorMuonVsCurvature::event(const edm::Event &iEvent,
   const edm::Handle<reco::BeamSpot> &beamSpot = iEvent.getHandle(bsToken_);
 
   const GlobalTrackingGeometry *globalGeometry = &iSetup.getData(m_esTokenGBTGeom);
-  const DetIdAssociator *muonDetIdAssociator_ = &iSetup.getData(m_esTokenDetId);
+  const DetIdAssociator *muonDetIdAssociator_ = m_muonDetIdAssociator;
   const Propagator *prop = &iSetup.getData(m_esTokenProp);
   const MagneticField *magneticField = &iSetup.getData(m_esTokenMF);
   auto builder = iSetup.getHandle(m_esTokenBuilder);
