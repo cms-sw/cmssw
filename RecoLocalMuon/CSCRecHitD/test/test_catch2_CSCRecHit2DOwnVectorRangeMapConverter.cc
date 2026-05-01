@@ -3,7 +3,7 @@
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "catch.hpp"
+#include "catch2/catch_all.hpp"
 
 static constexpr auto s_tag = "[CSCRecHit2DOwnVectorRangeMapConverter]";
 

@@ -21,9 +21,6 @@
    <version ClassVersion="3" checksum="4000743947"/>
   </class>
   <class name="std::vector<RPCDetId>"/>
-  <class name="RPCDetId" ClassVersion="3">
-   <version ClassVersion="3" checksum="2362875019"/>
-  </class>
   <class name="RPCCompDetId" ClassVersion="3">
    <version ClassVersion="3" checksum="2407084845"/>
   </class>
