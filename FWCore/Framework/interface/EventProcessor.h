@@ -59,7 +59,6 @@ namespace edm {
   class LuminosityBlockPrincipal;
   class LuminosityBlockProcessingStatus;
   class RunProcessingStatus;
-  class IOVSyncValue;
   class ModuleTypeResolverMaker;
 
   namespace eventsetup {
@@ -214,19 +213,18 @@ namespace edm {
     void endProcessBlock(bool cleaningUpAfterException, bool beginProcessBlockSucceeded);
 
     SourceStatus processRuns(SourceStatus const& iStatus);
-    void beginRunAsync(IOVSyncValue const&, WaitingTaskHolder, SourceStatus& oStatus);
+    void beginRunAsync(RunAuxiliary const&, WaitingTaskHolder);
     void streamBeginRunAsync(unsigned int iStream, std::shared_ptr<RunProcessingStatus>, WaitingTaskHolder) noexcept;
     void releaseBeginRunResources(unsigned int iStream);
-    void endRunAsync(std::shared_ptr<RunProcessingStatus>, WaitingTaskHolder, SourceStatus& oStatus) noexcept;
+    void endRunAsync(std::shared_ptr<RunProcessingStatus>,
+                     std::optional<RunAuxiliary> const&,
+                     WaitingTaskHolder) noexcept;
     void handleEndRunExceptions(std::exception_ptr, WaitingTaskHolder const&);
     void globalEndRunAsync(WaitingTaskHolder, std::shared_ptr<RunProcessingStatus>);
     void streamEndRunAsync(WaitingTaskHolder, unsigned int iStreamIndex);
-    SourceStatus endUnfinishedRun(bool cleaningUpAfterException);
-    void beginLumiAsync(IOVSyncValue const&,
-                        std::shared_ptr<RunProcessingStatus>,
-                        WaitingTaskHolder,
-                        SourceStatus& oStatus);
-    void continueLumiAsync(WaitingTaskHolder, SourceStatus& oSourceStatus);
+    void endUnfinishedRun(bool cleaningUpAfterException);
+    void beginLumiAsync(std::shared_ptr<RunProcessingStatus>, LuminosityBlockAuxiliary const&, WaitingTaskHolder);
+    void continueLumiAsync(WaitingTaskHolder, SourceStatus const& oSourceStatus);
     void handleEndLumiExceptions(std::exception_ptr, WaitingTaskHolder const&);
     void globalEndLumiAsync(WaitingTaskHolder, std::shared_ptr<LuminosityBlockProcessingStatus>);
     void streamEndLumiAsync(WaitingTaskHolder, unsigned int iStreamIndex);
@@ -254,21 +252,19 @@ namespace edm {
     void init(std::shared_ptr<ProcessDesc>& processDesc, ServiceToken const& token, serviceregistry::ServiceLegacy);
 
     void readRunAsync(std::shared_ptr<RunProcessingStatus> iRunStatus,
+                      RunAuxiliary const& iRunAux,
                       WaitingTaskHolder iNextTask,
-                      SourceStatus& oSourceStatus);
+                      SourceStatus& oNextStatus);
     void readLumiAsync(std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus,
                        std::shared_ptr<RunProcessingStatus> iRunStatus,
-                       WaitingTaskHolder iNextTask,
-                       SourceStatus& oSourceStatus);
+                       LuminosityBlockAuxiliary const& iLumiAux,
+                       WaitingTaskHolder iNextTask);
 
     void handleNextItemAfterMergingRunEntriesAsync(std::shared_ptr<RunProcessingStatus>,
                                                    WaitingTaskHolder,
-                                                   SourceStatus& oStatus);
+                                                   SourceStatus const& oStatus);
 
-    void handleNextEventForStreamAsync(std::exception_ptr const*,
-                                       WaitingTaskHolder,
-                                       unsigned int iStreamIndex,
-                                       SourceStatus& oSourceStatus);
+    void handleNextEventForStreamAsync(std::exception_ptr const*, unsigned int iStreamIndex, WaitingTaskHolder);
 
     //process the already read event using Stream iStreamIndex
     void processEventAsync(WaitingTaskHolder iHolder, unsigned int iStreamIndex);

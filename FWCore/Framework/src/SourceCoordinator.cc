@@ -22,7 +22,6 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
 #include <cassert>
-#include <iostream>  //CDJ DEBUGGING
 namespace {
   struct SourceNextGuard {
     SourceNextGuard(edm::ActivityRegistry::PreSourceNextTransition* iPre,
@@ -58,7 +57,7 @@ namespace edm {
     assert(sourceStatus_.nextTransitionType().itemType() == InputSource::ItemType::IsFile);
     auto oldCacheID = input_->productRegistry().cacheIdentifier();
     auto fb = input_->readFile();
-    sourceStatus_.setNeedToCallNext(true);
+    sourceStatus_.setNeedToAskSourceForNext(true);
     //incase the input's registry changed
     ProductRegistry const* preg = nullptr;
     if (input_->productRegistry().cacheIdentifier() != oldCacheID) {
@@ -76,18 +75,18 @@ namespace edm {
   ProcessingController::ForwardState SourceCoordinator::forwardState() { return input_->forwardState(); }
   ProcessingController::ReverseState SourceCoordinator::reverseState() { return input_->reverseState(); }
   void SourceCoordinator::skipEvents(int n) {
-    sourceStatus_.setNeedToCallNext(true);
+    sourceStatus_.setNeedToAskSourceForNext(true);
     input_->skipEvents(n);
   }
   bool SourceCoordinator::goToEvent(EventID const& transition) {
-    sourceStatus_.setNeedToCallNext(true);
+    sourceStatus_.setNeedToAskSourceForNext(true);
     return input_->goToEvent(transition);
   }
 
   void SourceCoordinator::rewind() {
     input_->repeat();
     input_->rewind();
-    sourceStatus_.setNeedToCallNext(true);
+    sourceStatus_.setNeedToAskSourceForNext(true);
   }
 
   void SourceCoordinator::fillProcessBlockHelper() { input_->fillProcessBlockHelper(); }
@@ -116,7 +115,7 @@ namespace edm {
   }  // namespace
 
   SourceStatus SourceCoordinator::thread_unsafe_peekNextTransitionType() {
-    if (sourceStatus_.needToCallNext()) {
+    if (sourceStatus_.needToAskSourceForNext()) {
       TerminationGuard sentry(earlyTerminationSignal_);
       {
         SourceNextGuard guard(preSourceNextTransitionSignal_, postSourceNextTransitionSignal_);
@@ -126,7 +125,7 @@ namespace edm {
           itemTypeInfo = input_->nextItemType();
         } while (itemTypeInfo == InputSource::ItemType::IsSynchronize);
         sourceStatus_.setNextTransitionType(itemTypeInfo);
-        sourceStatus_.setNeedToCallNext(false);
+        sourceStatus_.setNeedToAskSourceForNext(false);
         if (sourceStatus_.nextTransitionType().itemType() == InputSource::ItemType::IsRun) {
           sourceStatus_.setRunAuxiliary(*input_->runAuxiliary());
           sourceStatus_.setReducedProcessHistoryID(input_->reducedProcessHistoryID());
@@ -170,11 +169,10 @@ namespace edm {
   }
 
   void SourceCoordinator::readRun(RunPrincipal& iRunPrincipal, HistoryAppender& historyAppender) {
-    iRunPrincipal.setAux(*input_->runAuxiliary());
     {
       TerminationGuard sentry(earlyTerminationSignal_);
       input_->readRun(iRunPrincipal, historyAppender);
-      sourceStatus_.setNeedToCallNext(true);
+      sourceStatus_.setNeedToAskSourceForNext(true);
       sentry.completedSuccessfully();
     }
     assert(input_->reducedProcessHistoryID() == iRunPrincipal.reducedProcessHistoryID());
@@ -184,7 +182,7 @@ namespace edm {
     {
       TerminationGuard sentry(earlyTerminationSignal_);
       input_->readAndMergeRun(runPrincipal);
-      sourceStatus_.setNeedToCallNext(true);
+      sourceStatus_.setNeedToAskSourceForNext(true);
       sentry.completedSuccessfully();
     }
   }
@@ -202,7 +200,7 @@ namespace edm {
             {
               std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
               readRun(*iRunStatus->runPrincipal(), historyAppender);
-              sourceStatus_.setNeedToCallNext(true);
+              sourceStatus_.setNeedToAskSourceForNext(true);
 
               RunPrincipal& runPrincipal = *iRunStatus->runPrincipal();
               {
@@ -222,7 +220,7 @@ namespace edm {
                    iRunStatus->runPrincipal()->run() == lastTransition.runAuxiliary()->run() and
                    iRunStatus->runPrincipal()->reducedProcessHistoryID() == lastTransition.reducedProcessHistoryID()) {
               readAndMergeRun(*iRunStatus->runPrincipal());
-              sourceStatus_.setNeedToCallNext(true);
+              sourceStatus_.setNeedToAskSourceForNext(true);
               lastTransition = sourceStatus_;
               if (lastTransition.nextTransitionType().itemPosition() == InputSource::ItemPosition::LastItemToBeMerged) {
                 return;
@@ -241,7 +239,7 @@ namespace edm {
     {
       TerminationGuard sentry(earlyTerminationSignal_);
       input_->readLuminosityBlock(iLumiPrincipal, historyAppender);
-      sourceStatus_.setNeedToCallNext(true);
+      sourceStatus_.setNeedToAskSourceForNext(true);
       sentry.completedSuccessfully();
     }
   }
@@ -255,7 +253,7 @@ namespace edm {
     {
       TerminationGuard sentry(earlyTerminationSignal_);
       input_->readAndMergeLumi(lumiPrincipal);
-      sourceStatus_.setNeedToCallNext(true);
+      sourceStatus_.setNeedToAskSourceForNext(true);
       sentry.completedSuccessfully();
     }
   }
@@ -263,11 +261,9 @@ namespace edm {
   void SourceCoordinator::readNewLuminosityBlockAsync(std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus,
                                                       ProcessContext const& processContext,
                                                       HistoryAppender& historyAppender,
-                                                      SourceStatus& lastTransition,
                                                       WaitingTaskHolder iNextTask) {
     sourceResourcesAcquirer_.serialQueueChain().push(
-        *iNextTask.group(),
-        [this, iLumiStatus, &processContext, &historyAppender, &lastTransition, iNextTask]() mutable {
+        *iNextTask.group(), [this, iLumiStatus, &processContext, &historyAppender, iNextTask]() mutable {
           CMS_SA_ALLOW try {
             ServiceRegistry::Operate operate(serviceToken_);
 
@@ -283,15 +279,13 @@ namespace edm {
               }
               // useful for online processing where can be a long break between Run and Lumi transitions being returned by the InputSource
               if (sourceStatus_.nextTransitionType().itemPosition() == InputSource::ItemPosition::LastItemToBeMerged) {
-                lastTransition = sourceStatus_;
                 return;
               }
-              lastTransition = thread_unsafe_peekNextTransitionType();
+              auto lastTransition = thread_unsafe_peekNextTransitionType();
               while (lastTransition.nextTransitionType() == InputSource::ItemType::IsLumi and
                      iLumiStatus->lumiPrincipal()->luminosityBlock() ==
                          lastTransition.lumiAuxiliary()->luminosityBlock()) {
                 readAndMergeLuminosityBlock(*iLumiStatus->lumiPrincipal());
-                lastTransition = sourceStatus_;
                 if (lastTransition.nextTransitionType().itemPosition() ==
                     InputSource::ItemPosition::LastItemToBeMerged) {
                   return;
@@ -314,8 +308,6 @@ namespace edm {
            iRunPrincipal.reducedProcessHistoryID() == lastTransition.reducedProcessHistoryID()) {
       returnValue = true;
       readAndMergeRun(iRunPrincipal);
-      sourceStatus_.setNeedToCallNext(true);
-      lastTransition = sourceStatus_;
       if (lastTransition.nextTransitionType().itemPosition() == InputSource::ItemPosition::LastItemToBeMerged) {
         return true;
       }
@@ -346,7 +338,7 @@ namespace edm {
 
     TerminationGuard sentry(earlyTerminationSignal_);
     input_->readEvent(event, streamContext);
-    sourceStatus_.setNeedToCallNext(true);
+    sourceStatus_.setNeedToAskSourceForNext(true);
 
     runStatus.updateLastTimestamp(input_->timestamp());
     lumiStatus.updateLastTimestamp(input_->timestamp());
@@ -438,7 +430,7 @@ namespace edm {
             } else if (needToStop) {
               //we need to do this change in the source queue to synchronize sourceStatus_
               sourceStatus_.setNextTransitionType(InputSource::ItemType::IsStop);
-              sourceStatus_.setNeedToCallNext(false);
+              sourceStatus_.setNeedToAskSourceForNext(false);
               iLumiStatus.setEventProcessingState(LuminosityBlockProcessingStatus::EventProcessingState::kStopLumi);
               oResult = {.didCallReadEvent = false,
                          .stopLumi = true,

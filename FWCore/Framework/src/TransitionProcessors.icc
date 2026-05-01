@@ -108,10 +108,7 @@ public:
       switch (nextTransition.nextTransitionType()) {
         case edm::InputSource::ItemType::IsFile: {
           processFile(iEP);
-          //assert(not nextTransition.needToCallNext());
-          bool needToCallNext = nextTransition.needToCallNext();
           nextTransition = iEP.thread_unsafe_peekNextTransitionType();
-          nextTransition.setNeedToCallNext(needToCallNext);
           break;
         }
         case edm::InputSource::ItemType::IsRun: {

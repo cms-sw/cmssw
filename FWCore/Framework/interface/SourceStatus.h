@@ -27,8 +27,8 @@ namespace edm {
       nextTransitionType_ = InputSource::ItemTypeInfo{iType};
     }
 
-    bool needToCallNext() const noexcept { return needToCallNext_; }
-    void setNeedToCallNext(bool val) noexcept { needToCallNext_ = val; }
+    bool needToAskSourceForNext() const noexcept { return needToCallNext_; }
+    void setNeedToAskSourceForNext(bool val) noexcept { needToCallNext_ = val; }
 
     edm::RunAuxiliary const* runAuxiliary() const noexcept {
       if (auto p = std::get_if<RunAuxiliary>(&currentRunOrLumiAux_)) {

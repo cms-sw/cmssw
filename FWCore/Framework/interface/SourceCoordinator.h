@@ -73,7 +73,6 @@ namespace edm {
     void readNewLuminosityBlockAsync(std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus,
                                      ProcessContext const& processContext,
                                      HistoryAppender& historyAppender,
-                                     SourceStatus& lastTransition,
                                      WaitingTaskHolder iHolder);
     struct ReadNextEventForStreamResult {
       //If didCallReadEvent and stopLumi are both false, then we are in the middle of a file transition
