@@ -1189,7 +1189,6 @@ namespace edm {
                 }
 
                 runStatus->setResumer(std::move(iResumer));
-                bool expectedLooperNotBegun = false;
 
                 std::unique_ptr<SourceStatus> newSourceStatus = std::make_unique<SourceStatus>();
                 auto pNewStatus = newSourceStatus.get();
@@ -1204,39 +1203,30 @@ namespace edm {
                                                                                 queueWhichWaitsForIOVsToFinish_);
                   }
                 }) |
-                    chain::ifThen(looper_ and looperBeginJobRun_.compare_exchange_strong(expectedLooperNotBegun, true),
+                    chain::ifThen(looper_ and not looperBeginJobRun_.exchange(true),
                                   [this, runStatus](const std::exception_ptr* iException, auto nextTask) mutable {
-                                    try {
-                                      looper_->copyInfo(ScheduleInfo(schedule_.get()));
-                                    } catch (...) {
-                                      nextTask.doneWaiting(std::current_exception());
-                                      releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(
-                                          *runStatus, queueWhichWaitsForIOVsToFinish_);
-                                    }
-                                  }) |
-                    chain::ifThen(looper_ and looperBeginJobRun_.load(),
-                                  [this, runStatus](auto nextTask) mutable {
-                                    CMS_SA_ALLOW try {
-                                      EventSetupImpl const& es = runStatus->eventSetupImpl();
-                                      looper_->esPrefetchAsync(nextTask, es, Transition::BeginRun, serviceToken_);
-                                    } catch (...) {
-                                      nextTask.doneWaiting(std::current_exception());
-                                      releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(
-                                          *runStatus, queueWhichWaitsForIOVsToFinish_);
-                                    }
-                                  }) |
-                    chain::ifThen(looper_ and looperBeginJobRun_.load(),
-                                  [this, runStatus](auto nextTask) mutable {
-                                    CMS_SA_ALLOW try {
-                                      EventSetupImpl const& es = runStatus->eventSetupImpl();
-                                      looper_->beginOfJob(es);
-                                      looper_->doStartingNewLoop();
+                                    chain::first([this, runStatus](auto nextTask) mutable {
+                                      CMS_SA_ALLOW try {
+                                        looper_->copyInfo(ScheduleInfo(schedule_.get()));
+                                        EventSetupImpl const& es = runStatus->eventSetupImpl();
+                                        looper_->esPrefetchAsync(nextTask, es, Transition::BeginRun, serviceToken_);
+                                      } catch (...) {
+                                        nextTask.doneWaiting(std::current_exception());
+                                        releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(
+                                            *runStatus, queueWhichWaitsForIOVsToFinish_);
+                                      }
+                                    }) | chain::then([this, runStatus](auto nextTask) mutable {
+                                      CMS_SA_ALLOW try {
+                                        EventSetupImpl const& es = runStatus->eventSetupImpl();
+                                        looper_->beginOfJob(es);
+                                        looper_->doStartingNewLoop();
 
-                                    } catch (...) {
-                                      nextTask.doneWaiting(std::current_exception());
-                                      releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(
-                                          *runStatus, queueWhichWaitsForIOVsToFinish_);
-                                    }
+                                      } catch (...) {
+                                        nextTask.doneWaiting(std::current_exception());
+                                        releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(
+                                            *runStatus, queueWhichWaitsForIOVsToFinish_);
+                                      }
+                                    }) | chain::runLast(nextTask);
                                   }) |
                     chain::then([this, runStatus](auto nextTask) {
                       if (runStatus->stopBeforeProcessingRun()) {
