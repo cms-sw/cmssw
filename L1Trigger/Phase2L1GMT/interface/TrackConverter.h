@@ -19,9 +19,15 @@ namespace Phase2L1GMT {
     int verbose_;
     typedef ap_uint<96> wordtype;
 
-    uint generateQuality(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> >& track) { return 1; }
+    uint generateQuality(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_> >& track) const {
+      uint chi2Cut = 0xf;
+      if ((track->getChi2RZBits() <= chi2Cut) && (track->getChi2RPhiBits() <= chi2Cut))
+        return 1;
+      else
+        return 0;
+    }
 
-    uint ptLookup(uint absCurv) {
+    uint ptLookup(const uint absCurv) const {
       for (auto i : ptShifts) {
         if (absCurv >= uint(i[0]) && absCurv < uint(i[1])) {
           if (i[2] < 0)
@@ -33,7 +39,7 @@ namespace Phase2L1GMT {
       return 0;
     }
 
-    uint etaLookup(uint absTanL) {
+    uint etaLookup(const uint absTanL) const {
       for (auto i : etaShifts) {
         if (absTanL >= uint(i[0]) && absTanL < uint(i[1])) {
           if (i[2] < 0)
