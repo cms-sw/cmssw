@@ -108,7 +108,9 @@ void HGCalGeometry::newCell(
     DetId idc = m_topology.encode(id);
     if (m_topology.valid(idc)) {
       HGCScintillatorDetId hid(idc);
+#ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "buildGeom: Layer" << hid.layer() << " Ring " << hid.ring();
+#endif
       std::pair<int, int> typm = m_topology.dddConstants().tileType(hid.layer(), hid.ring(), 0);
       if (typm.first >= 0) {
         hid.setType(typm.first);

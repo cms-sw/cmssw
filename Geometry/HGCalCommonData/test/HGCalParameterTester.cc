@@ -268,6 +268,8 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     if (phgp->waferMaskMode_ > 1) {
       myPrint("tileRingR", phgp->tileRingR_, 4);
       myPrint("tileRingRange", phgp->tileRingRange_, 8);
+      myPrint("tileRingFineR", phgp->tileRingFineR_, 4);
+      myPrint("tileRingFineRange", phgp->tileRingFineRange_, 8);
       edm::LogVerbatim("HGCalGeom") << "TileInfo with " << phgp->tileInfoMap_.size() << " elements";
       unsigned int kk(0);
       std::unordered_map<int32_t, HGCalParameters::tileInfo>::const_iterator itr = phgp->tileInfoMap_.begin();

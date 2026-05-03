@@ -173,7 +173,10 @@ public:
   bool tilePhiEdge(double phi, int layer, int iphi) const;
   bool tileRingEdge(double rho, int layer, int ring) const;
   std::pair<int, int> tileRings(int layer) const;
-  inline int tileSiPM(int sipm) const { return ((sipm > 0) ? HGCalTypes::SiPMSmall : HGCalTypes::SiPMLarge); }
+  std::pair<double, double> tileRingsR(int layer, int ring) const {
+    int type = hgpar_->scintType(layer);
+    return std::pair<double, double>(hgpar_->radiusLayer_[type][ring - 1], hgpar_->radiusLayer_[type][ring]);
+  }
   bool tileTrapezoid() const {
     return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile) ||
             (mode_ == HGCalGeometryMode::TrapezoidModule) || (mode_ == HGCalGeometryMode::TrapezoidCassette) ||
