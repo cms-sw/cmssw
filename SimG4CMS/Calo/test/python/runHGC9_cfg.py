@@ -1,12 +1,49 @@
+###############################################################################
+# Way to use this:
+#   cmsRun runHGC9_cfg.py type=V19
+#   Options for type: V17, V18, V19
+# 
+###############################################################################
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-from Configuration.Eras.Modifier_phase2_hgcalOnly_cff import phase2_hgcalOnly
-from Configuration.Eras.Modifier_phase2_hgcalV18_cff import phase2_hgcalV18
+import os, sys, importlib, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("PROD",Phase2C17I13M9,phase2_hgcalOnly,phase2_hgcalV18)
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('type',
+                 "V18",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: V17, V18, V19")
+
+### get and parse the command line arguments
+ 
+options.parseArguments()
+print(options)
+
+####################################################################
+from Configuration.Eras.Modifier_phase2_hgcalOnly_cff import phase2_hgcalOnly
+geomName =  options.type
+
+if (geomName == "V17"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process("PROD",Phase2C17I13M9,phase2_hgcalOnly)
+elif (geomName == "V19"):
+    from Configuration.Eras.Era_Phase2C26I13M9_cff import Phase2C26I13M9
+    from Configuration.Eras.Modifier_phase2_hgcalV19_cff import phase2_hgcalV19
+    process = cms.Process("PROD",Phase2C26I13M9,phase2_hgcalOnly,phase2_hgcalV19)
+else:
+    from Configuration.Eras.Era_Phase2C22I13M9_cff import Phase2C22I13M9
+    from Configuration.Eras.Modifier_phase2_hgcalV18_cff import phase2_hgcalV18
+    process = cms.Process("PROD",Phase2C22I13M9,phase2_hgcalOnly,phase2_hgcalV18)
+    
+geomFile = "Geometry.HGCalCommonData.testHGCal" + options.type + "Reco_cff"
+print("Geometry file: ", geomFile)
+
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load("Geometry.HGCalCommonData.testHGCalV18OReco_cff")
+process.load(geomFile)
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load('Configuration.StandardSequences.Generator_cff')
