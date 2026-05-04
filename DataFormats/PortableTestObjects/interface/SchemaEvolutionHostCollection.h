@@ -10,6 +10,7 @@ namespace portabletest {
   using HostCollectionEvolutionTwo = PortableHostCollection<SoAEvolutionTwo>;
   using HostCollectionEvolutionThree = PortableHostCollection<SoAEvolutionThree>;
   using HostCollectionEvolutionFour = PortableHostCollection<SoAEvolutionFour>;
+  using HostCollectionEvolutionFive = PortableHostCollection<SoAEvolutionFive>;
 }  // namespace portabletest
 
 #endif  // DataFormats_PortableTestObjects_interface_SchemaEvolutionHostCollection_h

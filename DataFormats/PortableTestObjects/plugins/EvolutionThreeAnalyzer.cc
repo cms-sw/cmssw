@@ -40,6 +40,11 @@ public:
       expectedEigen << 10 * i + 1.1f, -10 * i - 1.2f, 10 * i + 2.3f, -10 * i - 2.4f, 10 * i + 3.5f, -10 * i - 3.6f,
           10 * i + 4.7f, -10 * i - 4.8f;
       assert((element.eEigenObject() - expectedEigen).cwiseAbs().maxCoeff() < EPS_F);
+
+      for (std::size_t j = 0; j < element.cArray().size(); j++) {
+        int expectedArrayValue = i * static_cast<int>(element.cArray().size()) + static_cast<int>(j);
+        assert(element.cArray()[j] == expectedArrayValue);
+      }
     }
 
     // Check Scalars

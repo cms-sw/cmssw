@@ -31,3 +31,8 @@ echo
 cmsRun ${LOCALTOP}/src/DataFormats/PortableTestObjects/test/SchemaEvolutionFourReader.py || exit $?
 echo
 echo "--------------------------------------------------------------------------------"
+echo "$ cmsRun ${LOCALTOP}/src/DataFormats/PortableTestObjects/test/SchemaEvolutionFiveReader.py"
+echo
+cmsRun ${LOCALTOP}/src/DataFormats/PortableTestObjects/test/SchemaEvolutionFiveReader.py || exit $?
+echo
+echo "--------------------------------------------------------------------------------"
