@@ -63,7 +63,15 @@ def _product_graph(modules):
 def validate(cfg):
     """Validate ``cfg``; raise :class:`PyTICLError` on any problem, else return the
     assembled result."""
-    assembled = cfg.assemble()
+    return validate_assembled(cfg.assemble())
+
+
+def validate_assembled(assembled):
+    """Run the type-aware plumbing checks on an (already assembled) result.
+
+    Callers may augment ``assembled.modules`` first (e.g. attach the HGCAL
+    local-reco producers) so the local-reco -> TICL boundary is type-checked."""
+    cfg = assembled.config
     modules = assembled.modules
     produced = _product_graph(modules)
     errors = []

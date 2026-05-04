@@ -75,6 +75,7 @@ a signal that the menu should be regenerated.
 | `exporter.py` | `to_cff(path)` -- a self-contained, loadable cff fragment |
 | `validation.py` | single-source-of-truth derivation of the iteration labels, associator instances, the (auto-created & scheduled) trackster<->simTrackster associators, the `ticlDumper` and the `hgcalValidator` |
 | `backend.py` | CPU/GPU (alpaka) selection: drive a portable `@alpaka` module to `serial_sync`/`cuda_async` and wire up `ProcessAcceleratorAlpaka`; GPU on a CPU-only module is rejected |
+| `localreco.py` | orchestrate the existing HGCAL local-reco task upstream of TICL and type-check the local-reco -> TICL boundary (`hgcalMergeLayerClusters` feeds TICL's layer clusters) |
 | `compare.py` | per-module comparison of an assembled config vs a baseline `Task` |
 
 From one list of labels, `cfg.build_validation()` derives the whole validation
