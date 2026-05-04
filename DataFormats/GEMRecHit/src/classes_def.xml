@@ -58,6 +58,7 @@
   <version ClassVersion="3" checksum="4120417231"/>
   </class>
   <class name="std::vector<ME0Segment*>" splitLevel="0"/>
+  <class name="std::vector<ME0Segment>"/>
   <class name="edm::ClonePolicy<ME0Segment>"/>
   <class name="edm::OwnVector<ME0Segment,edm::ClonePolicy<ME0Segment> >" splitLevel="0"  rntupleStreamerMode="true" />
   <class name="edm::RangeMap<ME0DetId,edm::OwnVector<ME0Segment,edm::ClonePolicy<ME0Segment> >,edm::ClonePolicy<ME0Segment> >" splitLevel="0"/>
