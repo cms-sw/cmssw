@@ -921,7 +921,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   }
 
-  struct CountMiniDoubletConnections {
+  template <bool ReduceMem>
+  struct CountMiniDoubletConnectionsT {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   MiniDoublets mds,
@@ -962,7 +963,38 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             const unsigned int outerMDIndex = mdRanges[outerLowerModuleIndex][0] + outerMDArrayIdx;
 
             // Increment the connected max if the LS passes the delta phi cuts.
-            if (passLooseSegmentCuts(acc, innerMod, outerMod, mds, innerMDIndex, outerMDIndex, ptCut)) {
+            bool pass;
+            if constexpr (ReduceMem) {
+              float dPhi, dPhiMin, dPhiMax, dPhiChange, dPhiChangeMin, dPhiChangeMax;
+#ifdef CUT_VALUE_DEBUG
+              float dAlphaInner, dAlphaOuter, dAlphaIO, zLo, zHi, rtLo, rtHi;
+#endif
+              pass = runSegmentDefaultAlgo(acc,
+                                           innerMod,
+                                           outerMod,
+                                           mds,
+                                           innerMDIndex,
+                                           outerMDIndex,
+                                           dPhi,
+                                           dPhiMin,
+                                           dPhiMax,
+                                           dPhiChange,
+                                           dPhiChangeMin,
+                                           dPhiChangeMax,
+#ifdef CUT_VALUE_DEBUG
+                                           dAlphaInner,
+                                           dAlphaOuter,
+                                           dAlphaIO,
+                                           zLo,
+                                           zHi,
+                                           rtLo,
+                                           rtHi,
+#endif
+                                           ptCut);
+            } else {
+              pass = passLooseSegmentCuts(acc, innerMod, outerMod, mds, innerMDIndex, outerMDIndex, ptCut);
+            }
+            if (pass) {
               alpaka::atomicAdd(acc, &mds.connectedMax()[innerMDIndex], 1u, alpaka::hierarchy::Threads{});
             }
           }
@@ -970,6 +1002,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       }
     }
   };
+
+  using CountMiniDoubletConnections = CountMiniDoubletConnectionsT<false>;
+  using CountMiniDoubletConnectionsReduceMem = CountMiniDoubletConnectionsT<true>;
 
   struct CreateSegmentArrayRanges {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
