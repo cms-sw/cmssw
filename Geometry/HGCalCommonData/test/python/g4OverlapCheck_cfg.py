@@ -2,8 +2,8 @@
 # Way to use this:
 #   cmsRun g4OverlapCheck_cfg.py type=V17 tol=0.01 resol=10000
 #
-#   Options for type  V16, V17, V17n, V17ng, V18, V18n, V18ng, V18ngr, V18O,
-#                     V19, V19n, V19ng, V19ngr, V19X, Wafer, WaferFR, WaferPR,
+#   Options for type  V17, V17n, V17ng, V18, V18n, V18ng, V18ngr, V18O, v19,
+#                     V19n, V19ng, V19ngr, V19X, Wafer, WaferFR, WaferPR,
 #                     V17Only
 #               tol   1.0, 0.1, 0.01, 0.0
 #               resol 10000, 100000, 1000000
@@ -20,7 +20,7 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, V17n, V7ng, V17Only, V18, V18n, V18ng, V18ngr, V18O, V19, V19n, V19ng, V19ngr, V19X, Wafer, WaferFR, WaferPR")
+                  "type of operations: V17, V17n, V7ng, V17Only, V18, V18n, V18ng, V18ngr, V18O, V19, V19n, V19ng, V19ngr, V19X, Wafer, WaferFR, WaferPR")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
