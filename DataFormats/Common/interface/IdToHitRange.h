@@ -161,7 +161,7 @@ namespace edm {
       std::vector<unsigned int> offsets;
       offsets.reserve(ids_.size());
 
-      for (auto id : ids_) {
+      for (const auto& id : ids_) {
         offsets.push_back(sortedCollection.size());
         auto range = get(id);
         sortedCollection.insert(sortedCollection.end(), range.first, range.second);
