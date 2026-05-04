@@ -1,6 +1,7 @@
 <ifrelease name="UBSAN">
   <flags REM_CXXFLAGS="-fno-omit-frame-pointer -fsanitize=undefined"/>
 </ifrelease>
+<use name="rootcling"/>
 <use name="boost_serialization"/>
 <use name="CondFormats/Serialization"/>
 <use name="DataFormats/Portable"/>

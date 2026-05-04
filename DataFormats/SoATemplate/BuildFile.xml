@@ -1,4 +1,5 @@
 <use name="boost_header"/>
+<use name="rootcling"/>
 <use name="FWCore/Reflection" source_only="1"/>
 <use name="FWCore/Utilities" source_only="1"/>
 <export>

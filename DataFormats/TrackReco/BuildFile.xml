@@ -18,9 +18,7 @@
 <use name="DataFormats/TrajectoryState"/>
 <use name="FWCore/Utilities"/>
 <use name="clhepheader"/>
-<use name="rootmath"/>
+<use name="rootmathcore"/>
 <export>
   <lib name="1"/>
 </export>
-
-

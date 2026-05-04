@@ -1,5 +1,6 @@
 <use name="DataFormats/Common"/>
 <use name="SimDataFormats/EncodedEventId"/>
+<use name="rootcling"/>
 <use name="boost"/>
 <use name="DataFormats/GeometryVector"/>
 <export>

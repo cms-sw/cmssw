@@ -9,6 +9,7 @@
 <use name="DataFormats/GeometryVector"/>
 <use name="DataFormats/Math"/>
 <use name="clhep"/>
+<use name="rootcling"/>
 <export>
   <lib name="1"/>
 </export>

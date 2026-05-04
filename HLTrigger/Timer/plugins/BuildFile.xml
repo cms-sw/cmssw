@@ -5,7 +5,7 @@
   <use name="rootminuit"/>
   <use name="tbb"/>
   <use name="DQMServices/Core"/>
-  <use name="DataFormats/Provenance"/>
+  <use name="DataFormats/Provenance" source_only="1"/>
   <use name="DataFormats/Scalers"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>

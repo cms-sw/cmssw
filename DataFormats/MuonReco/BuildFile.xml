@@ -9,7 +9,7 @@
 <use name="DataFormats/HcalDetId"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/MuonDetId"/>
-<use name="rootmath"/>
+<use name="rootmathcore"/>
 <export>
   <lib name="1"/>
 </export>

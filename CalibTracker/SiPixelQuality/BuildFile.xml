@@ -2,7 +2,7 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/FEDRawData"/>
-<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Provenance" source_only="1"/>
 <use name="DataFormats/SiPixelCluster"/>
 <use name="DataFormats/SiPixelDetId"/>
 <use name="DataFormats/SiPixelDigi"/>
@@ -16,8 +16,6 @@
 <use name="Geometry/CommonTopologies"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="rootcling"/>
-<use name="rootrflx"/>
 <export>
   <lib name="1"/>
 </export>
-

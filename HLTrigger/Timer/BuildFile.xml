@@ -1,5 +1,5 @@
 <use name="boost_chrono"/>
-<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Provenance" source_only="1"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>

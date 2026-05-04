@@ -1,6 +1,7 @@
+<use name="rootcling"/>
 <use name="tbb"/>
 <use name="DataFormats/Common"/>
-<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Provenance" source_only="1"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <export>

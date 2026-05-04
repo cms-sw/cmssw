@@ -13,7 +13,6 @@
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include <memory>
-#include "boost/type_traits.hpp"
 
 namespace helper {
 

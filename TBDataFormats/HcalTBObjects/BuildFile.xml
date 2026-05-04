@@ -1,5 +1,6 @@
 <flags CXXFLAGS="-Wno-error=array-bounds" />
 <use name="DataFormats/Common"/>
+<use name="rootcling"/>
 <use name="boost"/>
 <export>
   <lib name="1"/>

@@ -1,4 +1,5 @@
 <use name="ofast-flag"/>
+<use name="rootcling"/>
 <use name="boost"/>
 <use name="CLHEP"/>
 <export>
