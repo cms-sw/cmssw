@@ -753,6 +753,18 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
   track.setHitPattern(hitPattern(track));
   track.setThetaDigiPattern(thetaDigiPattern(track));
   track.setThetaGain(track.step(), fabs(trackK), priorThetaPattern, seedStation, priorPhiPattern, Gain(3, 2), Gain(3, 3), Gain(4, 2), Gain(4, 3));
+ 
+  if (verbose_){
+	std::cout << "step: " << track.step() << "\n";
+    std::cout << "|K|: " << fabs(trackK) << "\n";
+    std::cout << "priorThetaPattern: " << priorThetaPattern << "\n";
+    std::cout << "priorPhiPattern: " << priorPhiPattern << "\n";
+    std::cout << "seed Station: " << seedStation << "\n";
+    std::cout << "Gain32: " << Gain(3, 2) << "\n";
+    std::cout << "Gain33: " << Gain(3, 3) << "\n";
+    std::cout << "Gain42: " << Gain(4, 2) << "\n";
+    std::cout << "Gain43: " << Gain(4, 3) << "\n";
+	}
 
   return true;
 }
@@ -898,7 +910,12 @@ bool KMTFCore::updateLUT(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub, in
     GAIN = lutService_->trackGain2(track.step(), track.hitPattern(), absK / 32, seedQual, stub->quality());
   }
 
-  GAIN_THETA = lutService_->trackGainTheta(track.step(), track.thetaDigiPattern(), absK / 32);
+  const bool is2D = (mask == 3 || mask == 5 || mask == 9 || mask == 6 || mask == 10 || mask == 12);
+  if (!(is2D) && (track.step() == 2) && (track.thetaDigiPattern() == 0)) {
+  	GAIN_THETA = lutService_->trackGainTheta2(track.step(), track.thetaDigiPattern(), track.hitPattern(), absK / 32);
+  } else {
+  	GAIN_THETA = lutService_->trackGainTheta(track.step(), track.thetaDigiPattern(), absK / 32, is2D);
+	}
 
   if (verbose_) {
     edm::LogWarning("KMTFCore") << "Gains (fp): " << GAIN[0] << " " << GAIN[1] << " " << GAIN[2] << " " << GAIN[3];
