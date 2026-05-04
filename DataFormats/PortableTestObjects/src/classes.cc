@@ -29,3 +29,4 @@ SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::HostCollectionEvolutionOne);
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::HostCollectionEvolutionTwo);
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::HostCollectionEvolutionThree);
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::HostCollectionEvolutionFour);
+SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::HostCollectionEvolutionFive);

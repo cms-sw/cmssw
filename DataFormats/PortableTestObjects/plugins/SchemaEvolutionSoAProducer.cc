@@ -46,6 +46,10 @@ void SchemaEvolutionSoAProducer::produce(edm::StreamID iID, edm::Event& event, c
                                                           {10 * i + 2.3f, -10 * i - 2.4f},
                                                           {10 * i + 3.5f, -10 * i - 3.6f},
                                                           {10 * i + 4.7f, -10 * i - 4.8f}});
+
+    for (std::size_t j = 0; j < element.cArray().size(); j++) {
+      element.cArray()[j] = i * static_cast<int>(element.cArray().size()) + static_cast<int>(j);
+    }
   }
 
   view.sInt() = std::numeric_limits<int>::max() - 7;

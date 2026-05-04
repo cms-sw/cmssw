@@ -37,9 +37,13 @@ public:
       float expectedInt = static_cast<float>(i);
       assert(std::abs(element.cInt() - expectedInt) < EPS_F);
 
-      // Check that double has been casted to int
-      int expectedDouble = static_cast<int>(std::sin(static_cast<double>(i)) * 1e3);
-      assert(element.cDouble() == expectedDouble);
+      // Check that double has been casted to int8_t and iorule has been applied
+      const double originalDoubleValue = std::sin(static_cast<double>(i)) * 1e3;
+      if (originalDoubleValue >= INT8_MIN && originalDoubleValue <= INT8_MAX) {
+        assert(element.cDouble() == static_cast<signed char>(originalDoubleValue));
+      } else {
+        assert(element.cDouble() == static_cast<signed char>(0));
+      }
 
       // Check that enum has been casted to the new enum type
       assert(element.cEnum() == portabletest::SEEnumTypeTwo::s2);
@@ -53,10 +57,15 @@ public:
           assert(std::abs(element.eEigenObject()(r, c) - expectedEigen(r, c)) < EPS_F);
         }
       }
+
+      for (std::size_t j = 0; j < element.cArray().size(); j++) {
+        int expectedArrayValue = i * static_cast<int>(element.cArray().size()) + static_cast<int>(j);
+        assert(element.cArray()[j] == expectedArrayValue);
+      }
     }
 
     // Check Scalars
-    assert(std::abs(view.sInt() - static_cast<double>(std::numeric_limits<int>::max() - 7)) < EPS_F);
+    assert(view.sInt() == static_cast<int64_t>(std::numeric_limits<int>::max() - 7));
     assert(view.sFloat() == static_cast<int8_t>(1.0f / 3.0f));
     assert(std::abs(view.sDouble() - (1.0f / 10.0f)) < EPS_F);
     assert(view.sEnum() == portabletest::SEEnumTypeTwo::s1);
