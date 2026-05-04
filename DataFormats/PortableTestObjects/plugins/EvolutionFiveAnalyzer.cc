@@ -11,11 +11,11 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-using CollectionVersion = portabletest::HostCollectionEvolutionTwo;
+using CollectionVersion = portabletest::HostCollectionEvolutionFive;
 
-class EvolutionTwoAnalyzer : public edm::global::EDAnalyzer<> {
+class EvolutionFiveAnalyzer : public edm::global::EDAnalyzer<> {
 public:
-  EvolutionTwoAnalyzer(edm::ParameterSet const& config)
+  EvolutionFiveAnalyzer(edm::ParameterSet const& config)
       : source_{config.getParameter<edm::InputTag>("source")}, soaToken_{consumes(source_)} {}
 
   void analyze(edm::StreamID sid, edm::Event const& event, edm::EventSetup const&) const override {
@@ -30,42 +30,37 @@ public:
     for (int i = 0; i < view.metadata().size(); i++) {
       auto element = view[i];
 
-      // Check that float is still correctly read
-      double expectedFloat = static_cast<double>(i) + 0.1f;
+      // Check floats
+      float expectedFloat = static_cast<float>(i) + 0.1f;
       assert(std::abs(element.cFloat() - expectedFloat) < EPS_F);
 
-      // Check that new column is zero initialized when reading old data
-      assert(element.newColumn() == static_cast<int>(0));
+      // Check ints
+      int expectedInt = i;
+      assert(element.cInt() == expectedInt);
 
-      // Check that enum is still correct
+      // Check doubles
+      double expectedDouble = std::sin(static_cast<double>(i)) * 1e3;
+      assert(std::abs(element.cDouble() - expectedDouble) < EPS_D);
+
+      // Check enum
       assert(element.cEnum() == portabletest::SEEnumType::s2);
 
-      // Check that Eigen matrix is still correct
+      // Check Eigen matrix
       portabletest::SEEigenObject expectedEigen;
-      expectedEigen << 10 * i + 1.1, -10 * i - 1.2, 10 * i + 2.3, -10 * i - 2.4, 10 * i + 3.5, -10 * i - 3.6,
-          10 * i + 4.7, -10 * i - 4.8;
-      for (int r = 0; r < element.eEigenObject().rows(); ++r) {
-        for (int c = 0; c < element.eEigenObject().cols(); ++c) {
-          assert(std::abs(element.eEigenObject()(r, c) - expectedEigen(r, c)) < EPS_F);
-        }
-      }
-
-      // Check that new Eigen matrix is zero initialized when reading old data
-      for (int r = 0; r < element.newEigenObject().rows(); ++r) {
-        for (int c = 0; c < element.newEigenObject().cols(); ++c) {
-          assert(std::abs(element.newEigenObject()(r, c) - static_cast<double>(0)) < EPS_D);
-        }
-      }
+      expectedEigen << 10 * i + 1.1f, -10 * i - 1.2f, 10 * i + 2.3f, -10 * i - 2.4f, 10 * i + 3.5f, -10 * i - 3.6f,
+          10 * i + 4.7f, -10 * i - 4.8f;
+      assert((element.eEigenObject() - expectedEigen).cwiseAbs().maxCoeff() < EPS_F);
 
       for (std::size_t j = 0; j < element.cArray().size(); j++) {
-        int expectedArrayValue = i * static_cast<int>(element.cArray().size()) + static_cast<int>(j);
-        assert(element.cArray()[j] == expectedArrayValue);
+        double expectedArrayValue = i * static_cast<double>(6) + static_cast<double>(j);
+        assert(std::abs(element.cArray()[j] - expectedArrayValue) < EPS_D);
       }
     }
 
     // Check Scalars
-    assert(std::abs(view.sFloatNewName() - static_cast<float>(0.0f)) < EPS_F);
-    assert(view.newScalar() == static_cast<int8_t>(0));
+    assert(view.sInt() == std::numeric_limits<int>::max() - 7);
+    assert(std::abs(view.sFloat() - (1.0f / 3.0f)) < EPS_F);
+    assert(std::abs(view.sDouble() - (1.0 / 10.0)) < EPS_D);
     assert(view.sEnum() == portabletest::SEEnumType::s1);
   }
 
@@ -80,4 +75,4 @@ private:
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(EvolutionTwoAnalyzer);
+DEFINE_FWK_MODULE(EvolutionFiveAnalyzer);
