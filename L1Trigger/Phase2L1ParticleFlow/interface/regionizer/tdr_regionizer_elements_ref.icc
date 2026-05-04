@@ -351,13 +351,15 @@ inline std::vector<std::vector<size_t>> l1ct::tdr_regionizer::Regionizer<T>::cal
 }
 
 template <>
-inline std::vector<std::vector<size_t>> l1ct::tdr_regionizer::Regionizer<l1ct::HadCaloObjEmu>::linksForSR(size_t sr) const {
+inline std::vector<std::vector<size_t>> l1ct::tdr_regionizer::Regionizer<l1ct::HadCaloObjEmu>::linksForSR(
+    size_t sr) const {
   const std::pair logic_sr = get_small_region(sr);
   return caloLinksHelper(logic_sr.second);
 }
 
 template <>
-inline std::vector<std::vector<size_t>> l1ct::tdr_regionizer::Regionizer<l1ct::EmCaloObjEmu>::linksForSR(size_t sr) const {
+inline std::vector<std::vector<size_t>> l1ct::tdr_regionizer::Regionizer<l1ct::EmCaloObjEmu>::linksForSR(
+    size_t sr) const {
   const std::pair logic_sr = get_small_region(sr);
   return caloLinksHelper(logic_sr.second);
 }
@@ -387,15 +389,16 @@ std::pair<size_t, size_t> l1ct::tdr_regionizer::Regionizer<T>::get_small_region(
 // Note that this also updates the index so that if if's not empty, you can directly access value
 // One needs to check that the next index is not bundle.size()
 template <typename T>
-void l1ct::tdr_regionizer::Regionizer<T>::getNextIndex(size_t sr, const std::vector<size_t>& bundle, size_t& nextIdx) const {
-  for (;nextIdx < bundle.size(); nextIdx++) {
+void l1ct::tdr_regionizer::Regionizer<T>::getNextIndex(size_t sr,
+                                                       const std::vector<size_t>& bundle,
+                                                       size_t& nextIdx) const {
+  for (; nextIdx < bundle.size(); nextIdx++) {
     auto& buffer = buffers_[bundle[nextIdx]];
     if (!buffer.empty(sr)) {
       return;
     }
   }
 }
-
 
 template <typename T>
 void l1ct::tdr_regionizer::Regionizer<T>::run() {
@@ -404,8 +407,8 @@ void l1ct::tdr_regionizer::Regionizer<T>::run() {
 
   for (size_t sr = 0; sr < regionmap_.size(); sr++) {
     // iterate over the (logical) SRs
-    auto links = linksForSR(sr);  // these are the physical links, in bundles
-    std::vector<size_t> nextIndex(links.size(), 0); // this is per bundle
+    auto links = linksForSR(sr);                     // these are the physical links, in bundles
+    std::vector<size_t> nextIndex(links.size(), 0);  // this is per bundle
     auto physSR = regionmap_[sr];
     bool allEmpty;
     do {
@@ -463,8 +466,8 @@ void l1ct::tdr_regionizer::Regionizer<T>::printDebug(int count) const {
     for (unsigned int j = 0; j < smallRegionObjects_[physRegIdx].size(); j++) {
       dbgCout() << "\t" << region << " (" << etaC << ", " << phiC << ")\t\t" << physRegIdx << "\t" << j << "\t"
                 << smallRegionObjects_[physRegIdx][j].intPt() << "\t" << smallRegionObjects_[physRegIdx][j].intEta()
-                << "\t" << smallRegionObjects_[physRegIdx][j].intPhi()
-                << "\t" << smallRegionObjects_[physRegIdx][j].pack().to_string(16) << std::endl;
+                << "\t" << smallRegionObjects_[physRegIdx][j].intPhi() << "\t"
+                << smallRegionObjects_[physRegIdx][j].pack().to_string(16) << std::endl;
     }
     dbgCout() << "-------------------------------" << std::endl;
   }

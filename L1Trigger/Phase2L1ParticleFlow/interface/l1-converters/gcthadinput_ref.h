@@ -19,12 +19,12 @@ namespace l1ct {
     GctHadClusterDecoderEmulator() {};
     GctHadClusterDecoderEmulator(const edm::ParameterSet &iConfig);
     GctHadClusterDecoderEmulator(const std::string &corrFile,
-                                l1tpf::ParametricResolution::Kind kind,
-                                std::vector<float> etas,
-                                std::vector<float> offsets,
-                                std::vector<float> scales,
-                                std::vector<float> ptMins,
-                                std::vector<float> ptMaxs)
+                                 l1tpf::ParametricResolution::Kind kind,
+                                 std::vector<float> etas,
+                                 std::vector<float> offsets,
+                                 std::vector<float> scales,
+                                 std::vector<float> ptMins,
+                                 std::vector<float> ptMaxs)
         : corrector_(corrFile), resol_(kind, etas, offsets, scales, ptMins, ptMaxs) {}
 
     ~GctHadClusterDecoderEmulator() = default;
@@ -32,6 +32,7 @@ namespace l1ct {
     static edm::ParameterSetDescription getParameterSetDescription();
 
     l1ct::HadCaloObjEmu decode(const l1ct::PFRegionEmu &sector, const ap_uint<64> &in) const;
+
   private:
     // tools for GCT clusters
     l1tpf::corrector corrector_;

@@ -57,8 +57,8 @@ l1ct::EmCaloObjEmu l1ct::GctEmClusterDecoderEmulator::decode(const l1ct::PFRegio
   calo.hwEmID = inclus.wp();
 
   // Copying the bits directly.
-  calo.hwRelIso(rel_iso_t::width-1, 0) = inclus.iso()(rel_iso_t::width-1, 0);
-  calo.hwShowerShape(shower_shape_t::width-1, 0) = inclus.shape()(shower_shape_t::width-1, 0);
+  calo.hwRelIso(rel_iso_t::width - 1, 0) = inclus.iso()(rel_iso_t::width - 1, 0);
+  calo.hwShowerShape(shower_shape_t::width - 1, 0) = inclus.shape()(shower_shape_t::width - 1, 0);
 
   // convert eta to local
   if (sector.hwEtaCenter < 0) {

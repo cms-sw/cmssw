@@ -652,7 +652,6 @@ void L1TCorrelatorLayer1PatternFileWriter::writeDebugs(const l1ct::Event& event,
       out.add(l1t::demo::LinkId{"egout_photon", 2 * i + 1}, linksLow[i]);
     }
   }
-
 }
 
 void L1TCorrelatorLayer1PatternFileWriter::writePuppi(const l1ct::Event& event, l1t::demo::EventData& out) {
