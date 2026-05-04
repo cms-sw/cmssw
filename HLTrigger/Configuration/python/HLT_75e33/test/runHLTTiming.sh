@@ -196,12 +196,6 @@ run_benchmark() {
 
         local PID=$!
 
-        # Live output
-        tail -f "$TMP_LOG_FILE" &
-        local TAIL_PID=$!
-
-        trap "kill $PID $TAIL_PID 2>/dev/null" EXIT
-
         while ps -p $PID > /dev/null; do
 
             # Memory
@@ -231,7 +225,7 @@ run_benchmark() {
             sleep $MONITOR_INTERVAL
         done
 
-        kill $TAIL_PID 2>/dev/null
+        cat "$TMP_LOG_FILE"
         mv "$TMP_LOG_FILE" "${logdir}/output.log"
 
         # Compute mean
