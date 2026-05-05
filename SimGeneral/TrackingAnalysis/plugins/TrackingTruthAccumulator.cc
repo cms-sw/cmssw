@@ -596,7 +596,7 @@ void TrackingTruthAccumulator::fillSimHits(std::vector<const PSimHit *> &returnV
     // TODO - implement removing the dead modules
     if (!hSimHits.isValid())
       continue;
-      // TODO - implement removing the dead modules
+    // TODO - implement removing the dead modules
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("TrackingTruthAccumulator")
         << "fillSimHits " << collectionTag << " SimHit Size " << hSimHits->size();
