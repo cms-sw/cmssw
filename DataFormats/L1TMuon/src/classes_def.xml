@@ -88,16 +88,16 @@
   <class name="L1MuKBMTrack"/>
 
 
-  <class name="L1MuBMSecProcId" ClassVersion="10">
-    <version ClassVersion="10" checksum="3768381571"/>
+  <class name="L1MuBMSecProcId" ClassVersion="3">
+    <version ClassVersion="3" checksum="3768381571"/>
   </class>
 
-  <class name="L1MuBMAddressArray" ClassVersion="10">
-    <version ClassVersion="10" checksum="1391538870"/>
+  <class name="L1MuBMAddressArray" ClassVersion="3">
+    <version ClassVersion="3" checksum="1391538870"/>
   </class>
 
-  <class name="L1MuBMTrackSegLoc" ClassVersion="10">
-    <version ClassVersion="10" checksum="1894920440"/>
+  <class name="L1MuBMTrackSegLoc" ClassVersion="3">
+    <version ClassVersion="3" checksum="1894920440"/>
   </class>
 
   <class name="L1MuBMTrackCollection"/>
