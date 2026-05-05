@@ -17,7 +17,6 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/NNVtxAssoc.h"
 #endif
 
-
 using namespace l1ct;
 using namespace linpuppi;
 
@@ -275,7 +274,6 @@ void l1ct::LinPuppiEmulator::linpuppi_chs_ref(const PFRegionEmu &region,
   const unsigned int nTrack = std::min<unsigned int>(nTrack_, pfch.size());
   outallch.resize(nTrack);
   for (unsigned int i = 0; i < nTrack; ++i) {
-
     bool accept = pfch[i].hwPt != 0;
     if (!fakePuppi_)
       accept = accept && region.isFiducial(pfch[i]) && (association[i].hwAssociation == 1 || pfch[i].hwId.isMuon());

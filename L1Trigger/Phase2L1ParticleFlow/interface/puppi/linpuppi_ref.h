@@ -236,11 +236,11 @@ namespace l1ct {
     bool useMLAssociation_;
     float associationThreshold_ = 0;
 
-    #ifdef CMSSW_GIT_HASH  // NNVtx Association:
-      std::unique_ptr<NNVtxAssoc> nnVtxAssoc_;
-      std::shared_ptr<hls4mlEmulator::Model> model;
-      hls4mlEmulator::ModelLoader loader;
-    #endif
+#ifdef CMSSW_GIT_HASH  // NNVtx Association:
+    std::unique_ptr<NNVtxAssoc> nnVtxAssoc_;
+    std::shared_ptr<hls4mlEmulator::Model> model;
+    hls4mlEmulator::ModelLoader loader;
+#endif
 
     unsigned int nFinalSort_;  // output after a full sort of charged + neutral
     SortAlgo finalSortAlgo_;
