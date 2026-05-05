@@ -152,7 +152,6 @@ mixSimVertices = cms.PSet(
 # fastsim customs
 fastSim.toModify(mixSimTracks, input = ["fastSimProducer"])
 fastSim.toModify(mixSimVertices, input = ["fastSimProducer"])
-
 fastSimPU.toModify(mixSimTracks, input = mixSimTracks.input + ["fastSimProducer"])
 fastSimPU.toModify(mixSimVertices, input = mixSimVertices.input + ["fastSimProducer"])
     

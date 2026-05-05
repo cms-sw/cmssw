@@ -161,12 +161,6 @@ run2_common.toModify(SiStripSimBlock,
                      APVShapeDecoFile =cms.FileInPath("SimTracker/SiStripDigitizer/data/APVShapeDeco_320.txt")
                      )
 
-##
-## Disable all noise for the tau embedding methods simulation step
-##
-from Configuration.ProcessModifiers.tau_embedding_sim_cff import tau_embedding_sim
-tau_embedding_sim.toModify(SiStripSimBlock, Noise = False)
-
 # when FastSim events as PileUP events during mixing
 from Configuration.ProcessModifiers.fastSimPU_cff import fastSimPU
 fastSimPU.toModify(SiStripSimBlock,
@@ -175,3 +169,10 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(SiStripSimBlock,
                    ROUList = cms.vstring('TrackerHits'),
                    ROUListPU = cms.vstring('TrackerHits'))
+
+##
+## Disable all noise for the tau embedding methods simulation step
+##
+from Configuration.ProcessModifiers.tau_embedding_sim_cff import tau_embedding_sim
+tau_embedding_sim.toModify(SiStripSimBlock, Noise = False)
+
