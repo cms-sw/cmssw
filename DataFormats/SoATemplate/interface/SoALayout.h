@@ -797,16 +797,16 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
                  template RestrictQualifier<restrictQualify>::ParamReturnType                                        \
-  NAME(size_type _soa_impl_index) const {                                                                            \
+  NAME(cms::soa::detail::SourceIndex _soa_impl_index) const {                                                        \
     if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-      if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                       \
+      if (_soa_impl_index.value_ >= elements_ or _soa_impl_index.value_ < 0)                                         \
         SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #NAME "(size_type index)",                           \
           _soa_impl_index, elements_)                                                                                \
     }                                                                                                                \
     return typename cms::soa::SoAAccessors<typename BOOST_PP_CAT(Metadata::TypeOf_, NAME)>::                         \
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
-                template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_))(_soa_impl_index);       \
+                template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_))(_soa_impl_index.value_);\
   }                                                                                                                  \
   ,                                                                                                                  \
   /* Column */                                                                                                       \
@@ -826,9 +826,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
                  template RestrictQualifier<restrictQualify>::ParamReturnType                                        \
-  NAME(size_type _soa_impl_index) const {                                                                            \
+  NAME(cms::soa::detail::SourceIndex _soa_impl_index) const {                                                        \
     if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-      if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                       \
+      if (_soa_impl_index.value_ >= elements_ or _soa_impl_index.value_ < 0)                                         \
         SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #NAME "(size_type index)",                           \
           _soa_impl_index, elements_)                                                                                \
     }                                                                                                                \
@@ -836,7 +836,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
                 template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_),                         \
-                    elements_)(_soa_impl_index);                                                                     \
+                    elements_)(_soa_impl_index.value_);                                                              \
   }                                                                                                                  \
   ,                                                                                                                  \
   /* Eigen column */                                                                                                 \
@@ -859,9 +859,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::constAccess>::template Alignment<conditionalAlignment>::                        \
                  template RestrictQualifier<restrictQualify>::ParamReturnType                                        \
-  NAME(size_type _soa_impl_index) const {                                                                            \
+  NAME(cms::soa::detail::SourceIndex _soa_impl_index) const {                                                        \
     if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-      if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                       \
+      if (_soa_impl_index.value_ >= elements_ or _soa_impl_index.value_ < 0)                                         \
         SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #NAME "(size_type index)",                           \
           _soa_impl_index, elements_)                                                                                \
     }                                                                                                                \
@@ -871,7 +871,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                 template RestrictQualifier<restrictQualify>(BOOST_PP_CAT(NAME, Parameters_),                         \
                         cms::soa::alignSize(elements_ * sizeof(CPP_TYPE::Scalar), alignment) /                       \
                             sizeof(CPP_TYPE::Scalar) * CPP_TYPE::RowsAtCompileTime *                                 \
-                                CPP_TYPE::ColsAtCompileTime)(_soa_impl_index);                                       \
+                                CPP_TYPE::ColsAtCompileTime)(_soa_impl_index.value_);                                \
   }                                                                                                                  \
 )
 // clang-format on
@@ -1154,9 +1154,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
                  template RestrictQualifier<restrictQualify>::ParamReturnType                                        \
-  NAME(size_type _soa_impl_index) {                                                                                  \
+  NAME(cms::soa::detail::SourceIndex _soa_impl_index) {                                                              \
     if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-      if (_soa_impl_index >= base_type::elements_ or _soa_impl_index < 0)                                            \
+      if (_soa_impl_index.value_ >= base_type::elements_ or _soa_impl_index.value_ < 0)                              \
         SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #NAME "(size_type index)",                           \
           _soa_impl_index, base_type::elements_)                                                                     \
     }                                                                                                                \
@@ -1164,7 +1164,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
                 template RestrictQualifier<restrictQualify>(cms::soa::const_cast_SoAParametersImpl(                  \
-                    base_type:: BOOST_PP_CAT(NAME, Parameters_)))(_soa_impl_index);                                  \
+                    base_type:: BOOST_PP_CAT(NAME, Parameters_)))(_soa_impl_index.value_);                           \
   }                                                                                                                  \
   ,                                                                                                                  \
   /* Column */                                                                                                       \
@@ -1185,9 +1185,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
                  template RestrictQualifier<restrictQualify>::ParamReturnType                                        \
-  NAME(size_type _soa_impl_index) {                                                                                  \
+  NAME(cms::soa::detail::SourceIndex _soa_impl_index) {                                                              \
     if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-      if (_soa_impl_index >= base_type::elements_ or _soa_impl_index < 0)                                            \
+      if (_soa_impl_index.value_ >= base_type::elements_ or _soa_impl_index.value_ < 0)                              \
         SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #NAME "(size_type index)",                           \
           _soa_impl_index, base_type::elements_)                                                                     \
     }                                                                                                                \
@@ -1195,7 +1195,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
                 template RestrictQualifier<restrictQualify>(cms::soa::const_cast_SoAParametersImpl(                  \
-                    base_type:: BOOST_PP_CAT(NAME, Parameters_)), base_type::elements_)(_soa_impl_index);            \
+                    base_type:: BOOST_PP_CAT(NAME, Parameters_)), base_type::elements_)(_soa_impl_index.value_);     \
   }                                                                                                                  \
   ,                                                                                                                  \
   /* Eigen column */                                                                                                 \
@@ -1219,9 +1219,9 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
         template ColumnType<BOOST_PP_CAT(Metadata::ColumnTypeOf_, NAME)>::template AccessType<                       \
             cms::soa::SoAAccessType::mutableAccess>::template Alignment<conditionalAlignment>::                      \
                  template RestrictQualifier<restrictQualify>::ParamReturnType                                        \
-  NAME(size_type _soa_impl_index) {                                                                                  \
+  NAME(cms::soa::detail::SourceIndex _soa_impl_index) {                                                              \
     if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                               \
-      if (_soa_impl_index >= base_type::elements_ or _soa_impl_index < 0)                                            \
+      if (_soa_impl_index.value_ >= base_type::elements_ or _soa_impl_index.value_ < 0)                              \
         SOA_THROW_OUT_OF_RANGE("Out of range index in mutable " #NAME "(size_type index)",                           \
           _soa_impl_index, base_type::elements_)                                                                     \
     }                                                                                                                \
@@ -1232,7 +1232,7 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                     base_type:: BOOST_PP_CAT(NAME, Parameters_)),                                                    \
                         cms::soa::alignSize(base_type::elements_ * sizeof(CPP_TYPE::Scalar), alignment) /            \
                             sizeof(CPP_TYPE::Scalar) * CPP_TYPE::RowsAtCompileTime *                                 \
-                                CPP_TYPE::ColsAtCompileTime)(_soa_impl_index);                                       \
+                                CPP_TYPE::ColsAtCompileTime)(_soa_impl_index.value_);                                \
   }                                                                                                                  \
 )
 // clang-format on
@@ -1489,14 +1489,14 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       };                                                                                                               \
                                                                                                                        \
         SOA_HOST_DEVICE SOA_INLINE                                                                                     \
-        const_element operator[](size_type _soa_impl_index) const {                                                    \
+        const_element operator[](cms::soa::detail::SourceIndex _soa_impl_index) const {                                \
           if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                           \
-            if (_soa_impl_index >= elements_ or _soa_impl_index < 0)                                                   \
+            if (_soa_impl_index.value_ >= elements_ or _soa_impl_index.value_ < 0)                                     \
               SOA_THROW_OUT_OF_RANGE("Out of range index in ConstViewTemplateFreeParams " #CLASS "::operator[]",       \
                 _soa_impl_index, elements_)                                                                            \
           }                                                                                                            \
           return const_element{                                                                                        \
-            _soa_impl_index, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__)            \
+            _soa_impl_index.value_, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONST_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__)     \
           };                                                                                                           \
         }                                                                                                              \
                                                                                                                        \
@@ -1676,13 +1676,15 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
       };                                                                                                               \
                                                                                                                        \
       SOA_HOST_DEVICE SOA_INLINE                                                                                       \
-      element operator[](size_type _soa_impl_index) {                                                                  \
+      element operator[](cms::soa::detail::SourceIndex _soa_impl_index) {                                              \
         if constexpr (rangeChecking == cms::soa::RangeChecking::enabled) {                                             \
-          if (_soa_impl_index >= base_type::elements_ or _soa_impl_index < 0)                                          \
+          if (_soa_impl_index.value_ >= base_type::elements_ or _soa_impl_index.value_ < 0)                            \
             SOA_THROW_OUT_OF_RANGE("Out of range index in ViewTemplateFreeParams" #CLASS "::operator[]",               \
               _soa_impl_index, base_type::elements_)                                                                   \
         }                                                                                                              \
-        return element{_soa_impl_index, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__)};     \
+        return element{                                                                                                \
+          _soa_impl_index.value_, _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEMENT_CONSTR_CALL, ~, __VA_ARGS__)             \
+        };                                                                                                             \
       }                                                                                                                \
                                                                                                                        \
       /* inherit const accessors from ConstView */                                                                     \
