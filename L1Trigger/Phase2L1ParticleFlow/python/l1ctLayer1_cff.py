@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-
 import math
 
 from L1Trigger.Phase2L1ParticleFlow.l1tPFTracksFromL1Tracks_cfi import l1tPFTracksFromL1Tracks, l1tPFTracksFromL1TracksExtended
