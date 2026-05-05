@@ -1,21 +1,14 @@
 
 <lcgdict>
- <class name="edm::StreamedProduct" ClassVersion="13">
-  <version ClassVersion="13" checksum="87489871"/>
-  <version ClassVersion="12" checksum="855998814"/>
-  <version ClassVersion="10" checksum="512531612"/>
-  <version ClassVersion="11" checksum="1146084488"/>
+ <class name="edm::StreamedProduct" ClassVersion="3">
+  <version ClassVersion="3" checksum="87489871"/>
  </class>
  <class name="std::vector<edm::StreamedProduct>"/>
- <class name="edm::SendEvent" ClassVersion="12">
-  <version ClassVersion="12" checksum="2903161478"/>
-  <version ClassVersion="11" checksum="3216100975"/>
-  <version ClassVersion="10" checksum="747121728"/>
+ <class name="edm::SendEvent" ClassVersion="3">
+  <version ClassVersion="3" checksum="2903161478"/>
  </class>
- <class name="edm::SendJobHeader" ClassVersion="12">
-  <version ClassVersion="12" checksum="3199648792"/>
-  <version ClassVersion="11" checksum="79372782"/>
-  <version ClassVersion="10" checksum="1238072397"/>
+ <class name="edm::SendJobHeader" ClassVersion="3">
+  <version ClassVersion="3" checksum="3199648792"/>
  </class>
  <class name="std::vector<edm::BranchDescription>"/>
 </lcgdict>
