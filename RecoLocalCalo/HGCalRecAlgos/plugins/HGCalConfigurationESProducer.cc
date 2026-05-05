@@ -126,6 +126,12 @@ public:
         const auto modkey = hgcal::search_modkey(typecode, mod_config_data, modjsonurl);  // search matching key
         hgcal::check_keys(
             mod_config_data, modkey, modkeys, modjsonurl);  // check required keys are in the JSON, warn otherwise
+
+        if (mod_config_data[modkey].count("MultiPlex") == 0) {
+          edm::LogWarning("HGCalConfigurationESProducer") << "Missing MultiPlex key for module " << typecode << " in "
+                                                          << modjsonurl << ". Setting muxMode = -1 for all ROCs.";
+        }
+
         if (imod >= fed.econds.size())
           fed.econds.resize(imod + 1);
 
@@ -157,6 +163,10 @@ public:
           ntot_rocs++;
           HGCalROCConfig roc;
           roc.charMode = getint(mod_config_data[modkey]["CalibrationSC"][iroc], charMode_);
+          roc.muxMode = -1;
+          if (mod_config_data[modkey].count("MultiPlex") > 0 && iroc < mod_config_data[modkey]["MultiPlex"].size()) {
+            roc.muxMode = getint(mod_config_data[modkey]["MultiPlex"][iroc], -1);
+          }
           mod.rocs[iroc] = roc;  // add to ECON-D's vector<HGCalROCConfig> of eRx half-ROCs
         }
         fed.econds[imod] = mod;  // add to FED's vector<HGCalECONDConfig> of ECON-D modules
