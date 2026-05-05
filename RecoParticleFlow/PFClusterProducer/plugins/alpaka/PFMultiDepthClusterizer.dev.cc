@@ -67,9 +67,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
     const unsigned int wExtend = alpaka::getPreferredWarpSize(alpaka::getDev(queue));
 
     // for ROCm/CUDA backend should be a multiple of the warp size which can be 32 or 64
+    // for CPU backend must be 1
     const unsigned int threadsPerBlock =
         std::is_same_v<Device, alpaka::DevCpu>
-            ? nClusters
+            ? 1
             : (nClusters > 768 ? 256 : ::cms::alpakatools::round_up_by(nClusters, wExtend));
 
     const unsigned int blocks = ::cms::alpakatools::divide_up_by(nClusters, threadsPerBlock);

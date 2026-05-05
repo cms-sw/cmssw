@@ -141,7 +141,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const unsigned int w_extent = alpaka::warp::getSize(acc);
 
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {  //loop over thread blocks
-
+                                                                    // Note that these variables are thread-private.
+        // On GPU backends, each thread processes one cluster element.
+        // On the CPU backend, each thread element  processes one cluster element.
         reduce_t accum_etaSum_div_en{0.};
         reduce_t accum_phiSum_div_en{0.};
 
