@@ -2,8 +2,8 @@
  <selection>
 
   <!-- UserData: Core -->
-  <class name="pat::UserData"  ClassVersion="10">
-   <version ClassVersion="10" checksum="85383148"/>
+  <class name="pat::UserData"  ClassVersion="3">
+   <version ClassVersion="3" checksum="85383148"/>
   </class>
   <class name="edm::ClonePolicy<pat::UserData>"/>
   <class name="std::vector<pat::UserData *>" />

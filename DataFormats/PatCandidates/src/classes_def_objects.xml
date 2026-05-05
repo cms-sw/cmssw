@@ -140,8 +140,8 @@
   <class name="pat::Hemisphere"  ClassVersion="3">
    <version ClassVersion="3" checksum="3728411613"/>
   </class>
-  <class name="pat::Conversion"  ClassVersion="11">
-   <version ClassVersion="11" checksum="1239840459"/>
+  <class name="pat::Conversion"  ClassVersion="3">
+   <version ClassVersion="3" checksum="1239840459"/>
   </class>
   <class name="pat::io_v1::PackedCandidate::PackedCovariance" ClassVersion="3">
    <version ClassVersion="3" checksum="4230301381"/>
