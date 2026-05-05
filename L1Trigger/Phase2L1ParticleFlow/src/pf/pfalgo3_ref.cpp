@@ -581,7 +581,7 @@ void l1ct::PFAlgo3Emulator::run(const PFInputRegion& in, OutputRegion& out) cons
 
 void l1ct::PFAlgo3Emulator::mergeNeutrals(OutputRegion& out) const {
   // To better match the firmware, the pfphotons are first padded to their maximum size.
-  // This matches the fixed port assignemtns in the firmware design.
+  // This matches the fixed port assignments in the firmware design.
   out.pfphoton.resize(nPHOTON_);
   out.pfphoton.reserve(out.pfphoton.size() + out.pfneutral.size());
   out.pfphoton.insert(out.pfphoton.end(), out.pfneutral.begin(), out.pfneutral.end());

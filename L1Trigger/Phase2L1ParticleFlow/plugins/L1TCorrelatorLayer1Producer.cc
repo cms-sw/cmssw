@@ -1039,7 +1039,7 @@ void L1TCorrelatorLayer1Producer::addGCTCaloRaw(const l1tp2::GCTDigiClusterLink 
                                                 unsigned int linkidx,
                                                 unsigned int entidx) {
   if (auto p = std::get_if<l1tp2::GCTEmDigiCluster>(&link[entidx])) {
-    // (For EM don't currently suport ideal, so it is always Emulated)
+    // (For EM don't currently support ideal, so it is always Emulated)
     event_.raw.gctcluster[linkidx].obj.push_back(p->data());
     if (p->pt() > 0) {
       auto decidx = emDecodedIndex(linkidx, entidx);

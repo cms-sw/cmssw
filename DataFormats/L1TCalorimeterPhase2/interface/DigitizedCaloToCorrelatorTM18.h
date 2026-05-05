@@ -2,6 +2,7 @@
 #define DataFormats_L1TCalorimeterPhase2_DigitizedCaloToCorrelatorTM18_h
 
 #include <ap_int.h>
+#include <variant>
 #include <vector>
 #include "DataFormats/L1TCalorimeterPhase2/interface/GCTEmDigiCluster.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/GCTHadDigiCluster.h"

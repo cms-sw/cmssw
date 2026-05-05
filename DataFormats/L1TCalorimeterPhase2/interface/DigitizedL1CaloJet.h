@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <algorithm>
+#include <cmath>
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

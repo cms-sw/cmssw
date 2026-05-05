@@ -41,6 +41,5 @@
 //
 // class declaration
 //
-using std::vector;
 
 #endif

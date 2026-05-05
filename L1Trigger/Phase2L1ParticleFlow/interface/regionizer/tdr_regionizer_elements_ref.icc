@@ -278,6 +278,10 @@ void l1ct::tdr_regionizer::Regionizer<T>::addToSmallRegion(size_t sr, BufferEntr
               << ", loc eta = " << rawObj.intEta() << ", loc phi = " << rawObj.intPhi() << std::endl;
   }
 
+  if (smallRegionObjects_[sr].size() >= maxobjects_) {
+    return;
+  }
+
   smallRegionObjects_[sr].push_back(rawObj);
 }
 
