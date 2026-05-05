@@ -5,20 +5,14 @@
    <class name="io_v1::HORecHit" ClassVersion="3">
     <version ClassVersion="3" checksum="4144812238"/>
    </class>
-   <class name="HFQIE10Info" ClassVersion="4">
-    <version ClassVersion="4" checksum="3261445918"/>
-    <version ClassVersion="3" checksum="1025085409"/>
+   <class name="HFQIE10Info" ClassVersion="3">
+    <version ClassVersion="3" checksum="3261445918"/>
    </class>
    <class name="io_v1::HFPreRecHit" ClassVersion="3">
     <version ClassVersion="3" checksum="3460954156"/>
    </class>
-   <class name="HBHEChannelInfo" ClassVersion="8">
-    <version ClassVersion="8" checksum="158975327"/>
-    <version ClassVersion="7" checksum="530224705"/>
-    <version ClassVersion="3" checksum="184305963"/>
-    <version ClassVersion="4" checksum="1052948187"/>
-    <version ClassVersion="5" checksum="2422402317"/>
-    <version ClassVersion="6" checksum="1871847034"/>
+   <class name="HBHEChannelInfo" ClassVersion="3">
+    <version ClassVersion="3" checksum="158975327"/>
    </class>
    <class name="io_v1::HFRecHit" ClassVersion="3">
     <version ClassVersion="3" checksum="3154947017"/>
@@ -26,15 +20,14 @@
    <class name="io_v1::ZDCRecHit" ClassVersion="3">
     <version ClassVersion="3" checksum="2673560079"/>
    </class>
-   <class name="CastorRecHit" ClassVersion="11">
-    <version ClassVersion="11" checksum="1799969235"/>
-    <version ClassVersion="10" checksum="1837446209"/>
+   <class name="CastorRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="1799969235"/>
    </class>
-   <class name="HcalCalibRecHit" ClassVersion="10">
-    <version ClassVersion="10" checksum="1085028533"/>
+   <class name="HcalCalibRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="1085028533"/>
    </class>
-   <class name="HcalSourcePositionData" ClassVersion="12">
-    <version ClassVersion="12" checksum="2888252873"/>
+   <class name="HcalSourcePositionData" ClassVersion="3">
+    <version ClassVersion="3" checksum="2888252873"/>
    </class>
 
    <class name="std::vector<io_v1::HBHERecHit>"/>

@@ -10,8 +10,8 @@
   <class name="edm::ValueMap<reco::io_v1::JetID>" />
   <class name="edm::Wrapper< edm::ValueMap<reco::io_v1::JetID> >" />
   
-  <class name="reco::CastorJetID"  ClassVersion="10">
-   <version ClassVersion="10" checksum="3017993717"/>
+  <class name="reco::CastorJetID"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3017993717"/>
   </class>
   <class name="std::vector<reco::CastorJetID>" />
   <class name="edm::RefVector<std::vector<reco::CastorJetID>,reco::CastorJetID,edm::refhelper::FindUsingAdvance<std::vector<reco::CastorJetID>,reco::CastorJetID> >"/>

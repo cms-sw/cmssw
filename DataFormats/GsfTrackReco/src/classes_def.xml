@@ -1,12 +1,11 @@
 <lcgdict>
-  <class name="reco::GsfComponent5D" ClassVersion="10">
-   <version ClassVersion="10" checksum="3284228167"/>
+  <class name="reco::GsfComponent5D" ClassVersion="3">
+   <version ClassVersion="3" checksum="3284228167"/>
   </class>
   <class name="std::vector<reco::GsfComponent5D>"/>
 
-  <class name="reco::GsfTangent" ClassVersion="11">
-   <version ClassVersion="11" checksum="1153524498"/>
-   <version ClassVersion="10" checksum="3902664602"/>
+  <class name="reco::GsfTangent" ClassVersion="3">
+   <version ClassVersion="3" checksum="1153524498"/>
      <field name="position_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
      <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" />
      <field name="deltaP_" iotype="Double32_t" />

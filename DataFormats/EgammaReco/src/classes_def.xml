@@ -36,9 +36,8 @@
    <field name="m_data" transient="true"/>
   </class>
 
-  <class name="reco::ClusterShape" ClassVersion="11">
-   <version ClassVersion="11" checksum="3739311734"/>
-   <version ClassVersion="10" checksum="2977556974"/>
+  <class name="reco::ClusterShape" ClassVersion="3">
+   <version ClassVersion="3" checksum="3739311734"/>
     <field name="covEtaEta_" iotype="Double32_t"/>
     <field name="covEtaPhi_" iotype="Double32_t"/>
     <field name="covPhiPhi_" iotype="Double32_t"/>

@@ -1,6 +1,6 @@
 <lcgdict>
-  <class name="HGCUncalibratedRecHit" ClassVersion="12">
-   <version ClassVersion="12" checksum="1059956450"/>
+  <class name="HGCUncalibratedRecHit" ClassVersion="3">
+   <version ClassVersion="3" checksum="1059956450"/>
   </class>
   <class name="std::vector<HGCUncalibratedRecHit>"/>
   <class name="edm::SortedCollection<HGCUncalibratedRecHit,edm::StrictWeakOrdering<HGCUncalibratedRecHit> >"/>

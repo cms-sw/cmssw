@@ -30,8 +30,8 @@ initial version number of a class which has never been stored before.
   <class name="edm::RefVector<std::vector<reco::io_v1::MuonTrackLinks>,reco::io_v1::MuonTrackLinks,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::MuonTrackLinks>,reco::io_v1::MuonTrackLinks> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::io_v1::MuonTrackLinks>,reco::io_v1::MuonTrackLinks,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::MuonTrackLinks>,reco::io_v1::MuonTrackLinks> > >"/>
   
-  <class name="reco::MuonTime" ClassVersion="10">
-   <version ClassVersion="10" checksum="799301851"/>
+  <class name="reco::MuonTime" ClassVersion="3">
+   <version ClassVersion="3" checksum="799301851"/>
   </class>
   <class name="reco::io_v1::MuonTimeExtra" ClassVersion="3">
    <version ClassVersion="3" checksum="287562408"/>
@@ -41,26 +41,21 @@ initial version number of a class which has never been stored before.
   <class name="edm::Wrapper<std::vector<reco::io_v1::MuonTimeExtra> >"/>
   <class name="edm::Wrapper<reco::MuonTimeExtraMap>"/>
 
-  <class name="reco::MuonEnergy" ClassVersion="11">
-   <version ClassVersion="11" checksum="1884744911"/>
-   <version ClassVersion="10" checksum="1493325087"/>
+  <class name="reco::MuonEnergy" ClassVersion="3">
+   <version ClassVersion="3" checksum="1884744911"/>
   </class>
   <class name="reco::HcalMuonRecHit" ClassVersion="3">
    <version ClassVersion="3" checksum="2031556424"/>
   </class>
   <class name="std::vector<reco::HcalMuonRecHit>"/>
-  <class name="reco::MuonChamberMatch" ClassVersion="14">
-   <version ClassVersion="14" checksum="3579435038"/>
-   <version ClassVersion="13" checksum="2674954213"/>
-   <version ClassVersion="12" checksum="2575855272"/>
-   <version ClassVersion="11" checksum="541727491"/>
-   <version ClassVersion="10" checksum="4050071853"/>
+  <class name="reco::MuonChamberMatch" ClassVersion="3">
+   <version ClassVersion="3" checksum="3579435038"/>
   </class>
   <class name="reco::MuonSegmentMatch" ClassVersion="3">
     <version ClassVersion="3" checksum="1805710742"/>
   </class>
-  <class name="reco::MuonRPCHitMatch" ClassVersion="10">
-   <version ClassVersion="10" checksum="4193465224"/>
+  <class name="reco::MuonRPCHitMatch" ClassVersion="3">
+   <version ClassVersion="3" checksum="4193465224"/>
   </class>
   <class name="std::vector<reco::MuonChamberMatch>"/>
   <class name="std::vector<reco::MuonSegmentMatch>"/>
@@ -71,13 +66,11 @@ initial version number of a class which has never been stored before.
   <class name="std::vector<reco::MuonGEMHitMatch>"/>
 
   
-  <class name="reco::MuonIsolation" ClassVersion="10">
-   <version ClassVersion="10" checksum="2078425999"/>
+  <class name="reco::MuonIsolation" ClassVersion="3">
+   <version ClassVersion="3" checksum="2078425999"/>
   </class>
-  <class name="reco::MuonPFIsolation" ClassVersion="15">
-   <version ClassVersion="13" checksum="893633899"/>
-   <version ClassVersion="14" checksum="3941472816"/>
-   <version ClassVersion="15" checksum="838139830"/>
+  <class name="reco::MuonPFIsolation" ClassVersion="3">
+   <version ClassVersion="3" checksum="838139830"/>
   </class>
 
   <class name="reco::io_v1::Muon::MuonTrackRefMap"/>
@@ -118,8 +111,8 @@ initial version number of a class which has never been stored before.
   <class name="edm::Association<reco::MuonCollection>" />
   <class name="edm::Wrapper<edm::Association<reco::MuonCollection>>" />
 
-  <class name="reco::MuonQuality" ClassVersion="10">
-   <version ClassVersion="10" checksum="3056161366"/>
+  <class name="reco::MuonQuality" ClassVersion="3">
+   <version ClassVersion="3" checksum="3056161366"/>
   </class>
   <class name="std::vector<reco::MuonQuality>"/>
   <class name="std::vector<reco::MuonQuality>::const_iterator"/>
@@ -176,8 +169,8 @@ initial version number of a class which has never been stored before.
   </class>
   <class name="edm::Wrapper<edm::ValueMap<reco::MuonRef> >"/>
 
-  <class name="reco::DYTInfo" ClassVersion="10">
-   <version ClassVersion="10" checksum="910544468"/>
+  <class name="reco::DYTInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="910544468"/>
   </class>
     <class name="std::vector<reco::DYTInfo>"/>
   <class name="std::vector<reco::DYTInfo>::const_iterator"/>

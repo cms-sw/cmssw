@@ -1,7 +1,7 @@
 <lcgdict>
   
-  <class name="reco::CastorCell" ClassVersion="10">
-   <version ClassVersion="10" checksum="925395310"/>
+  <class name="reco::CastorCell" ClassVersion="3">
+   <version ClassVersion="3" checksum="925395310"/>
   </class>
   <class name="std::vector<reco::CastorCell>"/>
   <class name="edm::Wrapper<std::vector<reco::CastorCell> >"/>
@@ -24,8 +24,8 @@
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::CastorTower>,reco::CastorTower,edm::refhelper::FindUsingAdvance<std::vector<reco::CastorTower>,reco::CastorTower> > >"/>
   <!--<class name="edm::RefVectorIterator<std::vector<reco::CastorTower>,reco::CastorTower,edm::refhelper::FindUsingAdvance<std::vector<reco::CastorTower>,reco::CastorTower> >"/>-->
 
-  <class name="reco::CastorCluster" ClassVersion="10">
-   <version ClassVersion="10" checksum="2861195490"/>
+  <class name="reco::CastorCluster" ClassVersion="3">
+   <version ClassVersion="3" checksum="2861195490"/>
   </class>
   <class name="std::vector<reco::CastorCluster>"/>
   <class name="edm::Wrapper<std::vector<reco::CastorCluster> >"/>
@@ -34,9 +34,8 @@
   <class name="edm::RefVector<std::vector<reco::CastorCluster>,reco::CastorCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::CastorCluster>,reco::CastorCluster> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::CastorCluster>,reco::CastorCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::CastorCluster>,reco::CastorCluster> > >"/>
 
-  <class name="reco::CastorEgamma" ClassVersion="11">
-   <version ClassVersion="11" checksum="1535216887"/>
-   <version ClassVersion="10" checksum="3872613361"/>
+  <class name="reco::CastorEgamma" ClassVersion="3">
+   <version ClassVersion="3" checksum="1535216887"/>
   </class>
   <class name="std::vector<reco::CastorEgamma>"/>
   <class name="edm::Wrapper<std::vector<reco::CastorEgamma> >"/>
@@ -45,9 +44,8 @@
   <class name="edm::RefVector<std::vector<reco::CastorEgamma>,reco::CastorEgamma,edm::refhelper::FindUsingAdvance<std::vector<reco::CastorEgamma>,reco::CastorEgamma> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::CastorEgamma>,reco::CastorEgamma,edm::refhelper::FindUsingAdvance<std::vector<reco::CastorEgamma>,reco::CastorEgamma> > >"/>
 
- <class name="reco::CastorJet" ClassVersion="11">
-  <version ClassVersion="11" checksum="4125786936"/>
-  <version ClassVersion="10" checksum="1872825180"/>
+ <class name="reco::CastorJet" ClassVersion="3">
+  <version ClassVersion="3" checksum="4125786936"/>
  </class>
   <class name="std::vector<reco::CastorJet>"/>
   <class name="edm::Wrapper<std::vector<reco::CastorJet> >"/>
