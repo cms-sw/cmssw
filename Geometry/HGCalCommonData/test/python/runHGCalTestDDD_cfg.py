@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun runHGCalTestDDD_cfg.py type=V17
 #
-#   Options for type V16, V17, V17n, V17ng, V18, V18n, V18ng, V19, V19n, V19ng
+#   Options for type V17, V17n, V17ng, V18, V18n, V18ng, V19, V19n, V19ng
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, V17n, V17ng, V18, V18n, V18ng, V19, V19n, V19ng")
+                  "type of operations: V17, V17n, V17ng, V18, V18n, V18ng, V19, V19n, V19ng")
 
 ### get and parse the command line arguments
 options.parseArguments()
