@@ -188,21 +188,35 @@ void LSTEvent::addPixelSegmentToEventFinalize() {
 
 void LSTEvent::createMiniDoublets() {
   if (!miniDoubletsDC_) {
-    // Create a view for the element nLowerModules_ inside rangesOccupancy->miniDoubletModuleOccupancy
     auto rangesOccupancy = rangesDC_->view();
-    auto dst_view_miniDoubletModuleOccupancy =
-        cms::alpakatools::make_device_view(queue_, rangesOccupancy.miniDoubletModuleOccupancy()[nLowerModules_]);
 
-    // Create a host buffer for a value to be passed to the device
+    // Zero the occupancy array so CountMiniDoublets's atomicAdd starts from 0.
+    auto miniDoubletModuleOccupancy_view =
+        cms::alpakatools::make_device_view(queue_, rangesOccupancy.miniDoubletModuleOccupancy());
+    alpaka::memset(queue_, miniDoubletModuleOccupancy_view, 0u);
+
+    // Set the pixel slot to 2 * pixelSize_. pixelModuleIndex_ == nLowerModules_ by construction
+    // (ModuleMethods.h sets the pixel detId's index to nLowerModules), so a single memcpy is enough.
     auto pixelMaxMDs_buf_h = cms::alpakatools::make_host_buffer<int>(queue_);
     *pixelMaxMDs_buf_h.data() = 2 * pixelSize_;
-
-    alpaka::memcpy(queue_, dst_view_miniDoubletModuleOccupancy, pixelMaxMDs_buf_h);
-
     auto dst_view_miniDoubletModuleOccupancyPix =
         cms::alpakatools::make_device_view(queue_, rangesOccupancy.miniDoubletModuleOccupancy()[pixelModuleIndex_]);
-
     alpaka::memcpy(queue_, dst_view_miniDoubletModuleOccupancyPix, pixelMaxMDs_buf_h);
+
+    constexpr int threadsPerBlockY = 16;
+    auto const countMiniDoublets_workDiv =
+        cms::alpakatools::make_workdiv<Acc2D>({nLowerModules_ / threadsPerBlockY, 1}, {threadsPerBlockY, 32});
+
+    alpaka::exec<Acc2D>(queue_,
+                        countMiniDoublets_workDiv,
+                        CountMiniDoublets{},
+                        modules_.const_view().modules(),
+                        lstInputDC_->const_view().hits(),
+                        hitsDC_->const_view().extended(),
+                        hitsDC_->const_view().ranges(),
+                        rangesDC_->view(),
+                        ptCut_,
+                        clustSizeCut_);
 
     auto const createMDArrayRangesGPU_workDiv = cms::alpakatools::make_workdiv<Acc1D>(1, 1024);
 
@@ -210,9 +224,7 @@ void LSTEvent::createMiniDoublets() {
                         createMDArrayRangesGPU_workDiv,
                         CreateMDArrayRangesGPU{},
                         modules_.const_view().modules(),
-                        hitsDC_->const_view().ranges(),
-                        rangesDC_->view(),
-                        ptCut_);
+                        rangesDC_->view());
 
     auto nTotalMDs_buf_h = cms::alpakatools::make_host_buffer<unsigned int>(queue_);
     auto nTotalMDs_buf_d = cms::alpakatools::make_device_view(queue_, rangesOccupancy.nTotalMDs());

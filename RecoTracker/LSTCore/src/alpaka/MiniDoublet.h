@@ -670,6 +670,47 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   }
 
+  // Hoist module-constant data once per module to avoid redundant SoA loads per hit pair.
+  template <alpaka::concepts::Acc TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE ModuleMDData
+  loadModuleMDData(TAcc const& acc, ModulesConst modules, uint16_t lowerModuleIndex, const float ptCut) {
+    ModuleMDData mod;
+    mod.lowerModuleIndex = lowerModuleIndex;
+    mod.subdet = modules.subdets()[lowerModuleIndex];
+    mod.side = modules.sides()[lowerModuleIndex];
+    mod.moduleType = modules.moduleType()[lowerModuleIndex];
+    mod.moduleLayerType = modules.moduleLayerType()[lowerModuleIndex];
+    mod.iL = modules.layers()[lowerModuleIndex] - 1;
+    mod.isTilted = (mod.subdet == Barrel && mod.side != Center);
+    mod.isEndcapTwoS = (mod.subdet == Endcap && mod.moduleType == TwoS);
+    mod.isGloballyInner = modules.isGloballyInner()[lowerModuleIndex];
+    mod.slope = modules.dxdys()[lowerModuleIndex];
+    mod.drdz = modules.drdzs()[lowerModuleIndex];
+    mod.moduleSep = moduleGapSize(modules, lowerModuleIndex);
+
+    // Pre-compute dPhiThreshold module-constant parts
+    float rLayNominal = (mod.subdet == Barrel) ? kMiniRminMeanBarrel[mod.iL] : kMiniRminMeanEndcap[mod.iL];
+    mod.miniPVoff = 0.1f / rLayNominal;
+    mod.miniMuls = (mod.subdet == Barrel) ? kMiniMulsPtScaleBarrel[mod.iL] * 3.f / ptCut
+                                          : kMiniMulsPtScaleEndcap[mod.iL] * 3.f / ptCut;
+    mod.miniMulsAndPVoff = mod.miniMuls * mod.miniMuls + mod.miniPVoff * mod.miniPVoff;
+    mod.sqrtMiniMulsAndPVoff = alpaka::math::sqrt(acc, mod.miniMulsAndPVoff);
+
+    if (mod.isTilted) {
+      float drdzThresh;
+      if (mod.moduleType == PS and mod.moduleLayerType == Strip) {
+        drdzThresh = modules.drdzs()[lowerModuleIndex];
+      } else {
+        drdzThresh = modules.drdzs()[modules.partnerModuleIndices()[lowerModuleIndex]];
+      }
+      mod.miniTilt2 = 0.25f * (kPixelPSZpitch * kPixelPSZpitch) * (drdzThresh * drdzThresh) /
+                      (1.f + drdzThresh * drdzThresh) / mod.moduleSep;
+    } else {
+      mod.miniTilt2 = 0.f;
+    }
+    return mod;
+  }
+
   struct CreateMiniDoublets {
     ALPAKA_FN_ACC void operator()(Acc2D const& acc,
                                   ModulesConst modules,
@@ -690,41 +731,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         unsigned int loHitArrayIndex = hitsRanges.hitRangesLower()[lowerModuleIndex];
         int limit = nUpperHits * nLowerHits;
 
-        // Hoist module-constant data once per module to avoid redundant SoA loads per hit pair.
-        ModuleMDData mod;
-        mod.lowerModuleIndex = lowerModuleIndex;
-        mod.subdet = modules.subdets()[lowerModuleIndex];
-        mod.side = modules.sides()[lowerModuleIndex];
-        mod.moduleType = modules.moduleType()[lowerModuleIndex];
-        mod.moduleLayerType = modules.moduleLayerType()[lowerModuleIndex];
-        mod.iL = modules.layers()[lowerModuleIndex] - 1;
-        mod.isTilted = (mod.subdet == Barrel && mod.side != Center);
-        mod.isEndcapTwoS = (mod.subdet == Endcap && mod.moduleType == TwoS);
-        mod.isGloballyInner = modules.isGloballyInner()[lowerModuleIndex];
-        mod.slope = modules.dxdys()[lowerModuleIndex];
-        mod.drdz = modules.drdzs()[lowerModuleIndex];
-        mod.moduleSep = moduleGapSize(modules, lowerModuleIndex);
-
-        // Pre-compute dPhiThreshold module-constant parts
-        float rLayNominal = (mod.subdet == Barrel) ? kMiniRminMeanBarrel[mod.iL] : kMiniRminMeanEndcap[mod.iL];
-        mod.miniPVoff = 0.1f / rLayNominal;
-        mod.miniMuls = (mod.subdet == Barrel) ? kMiniMulsPtScaleBarrel[mod.iL] * 3.f / ptCut
-                                              : kMiniMulsPtScaleEndcap[mod.iL] * 3.f / ptCut;
-        mod.miniMulsAndPVoff = mod.miniMuls * mod.miniMuls + mod.miniPVoff * mod.miniPVoff;
-        mod.sqrtMiniMulsAndPVoff = alpaka::math::sqrt(acc, mod.miniMulsAndPVoff);
-
-        if (mod.isTilted) {
-          float drdzThresh;
-          if (mod.moduleType == PS and mod.moduleLayerType == Strip) {
-            drdzThresh = modules.drdzs()[lowerModuleIndex];
-          } else {
-            drdzThresh = modules.drdzs()[modules.partnerModuleIndices()[lowerModuleIndex]];
-          }
-          mod.miniTilt2 = 0.25f * (kPixelPSZpitch * kPixelPSZpitch) * (drdzThresh * drdzThresh) /
-                          (1.f + drdzThresh * drdzThresh) / mod.moduleSep;
-        } else {
-          mod.miniTilt2 = 0.f;
-        }
+        ModuleMDData mod = loadModuleMDData(acc, modules, lowerModuleIndex, ptCut);
 
         for (int hitIndex : cms::alpakatools::uniform_elements_x(acc, limit)) {
           int lowerHitIndex = hitIndex / nUpperHits;
@@ -805,41 +812,80 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   };
 
-  // Helper function to determine eta bin for occupancies
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE int getEtaBin(const float module_eta) {
-    if (module_eta < 0.75f)
-      return 0;
-    else if (module_eta < 1.5f)
-      return 1;
-    else if (module_eta < 2.25f)
-      return 2;
-    else if (module_eta < 3.0f)
-      return 3;
-    return -1;
-  }
-
-  // Helper function to determine category number for occupancies
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE int getCategoryNumber(const short module_layers,
-                                                       const short module_subdets,
-                                                       const short module_rings) {
-    if (module_subdets == Barrel) {
-      return (module_layers <= 3) ? 0 : 1;
-    } else if (module_subdets == Endcap) {
-      if (module_layers <= 2) {
-        return (module_rings >= 11) ? 2 : 3;
-      } else {
-        return (module_rings >= 8) ? 2 : 3;
-      }
-    }
-    return -1;
-  }
-
-  struct CreateMDArrayRangesGPU {
-    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+  struct CountMiniDoublets {
+    ALPAKA_FN_ACC void operator()(Acc2D const& acc,
                                   ModulesConst modules,
+                                  HitsBaseConst hitsBase,
+                                  HitsExtendedConst hitsExtended,
                                   HitsRangesConst hitsRanges,
                                   ObjectRanges ranges,
-                                  const float ptCut) const {
+                                  const float ptCut,
+                                  const uint16_t clustSizeCut) const {
+      for (uint16_t lowerModuleIndex : cms::alpakatools::uniform_elements_y(acc, modules.nLowerModules())) {
+        int nLowerHits = hitsRanges.hitRangesnLower()[lowerModuleIndex];
+        int nUpperHits = hitsRanges.hitRangesnUpper()[lowerModuleIndex];
+        if (hitsRanges.hitRangesLower()[lowerModuleIndex] == -1)
+          continue;
+        unsigned int upHitArrayIndex = hitsRanges.hitRangesUpper()[lowerModuleIndex];
+        unsigned int loHitArrayIndex = hitsRanges.hitRangesLower()[lowerModuleIndex];
+        int limit = nUpperHits * nLowerHits;
+
+        ModuleMDData mod = loadModuleMDData(acc, modules, lowerModuleIndex, ptCut);
+
+        for (int hitIndex : cms::alpakatools::uniform_elements_x(acc, limit)) {
+          int lowerHitIndex = hitIndex / nUpperHits;
+          int upperHitIndex = hitIndex % nUpperHits;
+          if (upperHitIndex >= nUpperHits)
+            continue;
+          if (lowerHitIndex >= nLowerHits)
+            continue;
+          unsigned int lowerHitArrayIndex = loHitArrayIndex + lowerHitIndex;
+          float xLower = hitsBase.xs()[lowerHitArrayIndex];
+          float yLower = hitsBase.ys()[lowerHitArrayIndex];
+          float zLower = hitsBase.zs()[lowerHitArrayIndex];
+          float rtLower = hitsExtended.rts()[lowerHitArrayIndex];
+          unsigned int upperHitArrayIndex = upHitArrayIndex + upperHitIndex;
+          float xUpper = hitsBase.xs()[upperHitArrayIndex];
+          float yUpper = hitsBase.ys()[upperHitArrayIndex];
+          float zUpper = hitsBase.zs()[upperHitArrayIndex];
+          float rtUpper = hitsExtended.rts()[upperHitArrayIndex];
+          uint16_t clustSizeLower = hitsBase.clustsize()[lowerHitArrayIndex];
+          uint16_t clustSizeUpper = hitsBase.clustsize()[upperHitArrayIndex];
+
+          float dz, dphi, dphichange, shiftedX, shiftedY, shiftedZ, noShiftedDphi, noShiftedDphiChange;
+          bool success = runMiniDoubletDefaultAlgo(acc,
+                                                   mod,
+                                                   dz,
+                                                   dphi,
+                                                   dphichange,
+                                                   shiftedX,
+                                                   shiftedY,
+                                                   shiftedZ,
+                                                   noShiftedDphi,
+                                                   noShiftedDphiChange,
+                                                   xLower,
+                                                   yLower,
+                                                   zLower,
+                                                   rtLower,
+                                                   xUpper,
+                                                   yUpper,
+                                                   zUpper,
+                                                   rtUpper,
+                                                   ptCut,
+                                                   clustSizeLower,
+                                                   clustSizeUpper,
+                                                   clustSizeCut);
+          if (success) {
+            alpaka::atomicAdd(
+                acc, &ranges.miniDoubletModuleOccupancy()[lowerModuleIndex], 1, alpaka::hierarchy::Threads{});
+          }
+        }
+      }
+    }
+  };
+
+  struct CreateMDArrayRangesGPU {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc, ModulesConst modules, ObjectRanges ranges) const {
       // implementation is 1D with a single block
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
 
@@ -850,52 +896,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       }
       alpaka::syncBlockThreads(acc);
 
-      // Occupancy matrix for 0.8 GeV pT Cut
-      constexpr int p08_occupancy_matrix[4][4] = {
-          {49, 42, 37, 41},  // category 0
-          {100, 100, 0, 0},  // category 1
-          {0, 16, 19, 0},    // category 2
-          {0, 14, 20, 25}    // category 3
-      };
-
-      // Occupancy matrix for 0.6 GeV pT Cut, 99.99%
-      constexpr int p06_occupancy_matrix[4][4] = {
-          {60, 57, 54, 48},  // category 0
-          {259, 195, 0, 0},  // category 1
-          {0, 23, 28, 0},    // category 2
-          {0, 25, 25, 33}    // category 3
-      };
-
-      // Select the appropriate occupancy matrix based on ptCut
-      const auto& occupancy_matrix = (ptCut < 0.8f) ? p06_occupancy_matrix : p08_occupancy_matrix;
-
       for (uint16_t i : cms::alpakatools::uniform_elements(acc, modules.nLowerModules())) {
-        const int nLower = hitsRanges.hitRangesnLower()[i];
-        const int nUpper = hitsRanges.hitRangesnUpper()[i];
-        const int dynamicMDs = nLower * nUpper;
-
-        // Matrix-based cap
-        short module_layers = modules.layers()[i];
-        short module_subdets = modules.subdets()[i];
-        short module_rings = modules.rings()[i];
-        float module_eta = alpaka::math::abs(acc, modules.eta()[i]);
-
-        int category_number = getCategoryNumber(module_layers, module_subdets, module_rings);
-        int eta_number = getEtaBin(module_eta);
-
-#ifdef WARNINGS
-        if (category_number == -1 || eta_number == -1) {
-          printf("Unhandled case in createMDArrayRangesGPU! Module index = %i\n", i);
-        }
-#endif
-
-        int occupancy = (category_number != -1 && eta_number != -1)
-                            ? alpaka::math::min(acc, dynamicMDs, occupancy_matrix[category_number][eta_number])
-                            : 0;
-        unsigned int nTotMDs = alpaka::atomicAdd(acc, &nTotalMDs, occupancy, alpaka::hierarchy::Threads{});
-
+        const int occupancy = ranges.miniDoubletModuleOccupancy()[i];
+        const unsigned int nTotMDs = alpaka::atomicAdd(acc, &nTotalMDs, occupancy, alpaka::hierarchy::Threads{});
         ranges.miniDoubletModuleIndices()[i] = nTotMDs;
-        ranges.miniDoubletModuleOccupancy()[i] = occupancy;
       }
 
       // Wait for all threads to finish before reporting final values
