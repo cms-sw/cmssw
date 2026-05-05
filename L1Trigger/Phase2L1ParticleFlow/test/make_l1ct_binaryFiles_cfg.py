@@ -61,6 +61,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '141X_mcRun4_realistic_v3', '')
 process.load('L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_cff')
 process.load('L1Trigger.Phase2L1ParticleFlow.l1ctLayer2EG_cff')
 process.load('L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff')
+process.load('L1Trigger.Phase2L1ParticleFlow.mlAssociation_cfi')
 process.load('L1Trigger.L1TTrackMatch.l1tGTTInputProducer_cfi')
 process.load('L1Trigger.L1TTrackMatch.l1tTrackSelectionProducer_cfi')
 process.l1tTrackSelectionProducer.processSimulatedTracks = False # these would need stubs, and are not used anyway
@@ -177,6 +178,11 @@ process.l1tLayer1BarrelSerenityElliptic = process.l1tLayer1BarrelSerenity.clone(
         trkQualityPtMin = 10.)
 )
 
+process.l1tLayer1HGCalNNAssoc = process.l1tLayer1HGCal.clone()
+associationPSset = process.NNVtxAssociationPSet.clone()
+associationPSset.associationThreshold = cms.double(-1.0)
+process.l1tLayer1HGCalNNAssoc.puAlgoParameters.useMLAssociation = True
+process.l1tLayer1HGCalNNAssoc.puAlgoParameters.NNVtxAssociation = associationPSset
 
 
 if args.serenity:
@@ -200,6 +206,7 @@ if not args.patternFilesOFF:
     process.l1tLayer1HGCalElliptic.patternWriters = cms.untracked.VPSet(*hgcalTM18WriterConfigs)
     process.l1tLayer1HGCalNoTK.patternWriters = cms.untracked.VPSet(hgcalNoTKOutputTM18WriterConfig)
     process.l1tLayer1HF.patternWriters = cms.untracked.VPSet(*hfWriterConfigs)
+    process.l1tLayer1HGCalNNAssoc.patternWriters = cms.untracked.VPSet(*hgcalTM18WriterConfigs)
 
 process.l1tSC4NGJetProducer.jets = cms.InputTag("l1tSC4PFL1PuppiEmulator")
 process.l1tSC4NGJetProducer.doJEC = cms.bool(True)
@@ -259,7 +266,7 @@ if not args.patternFilesOFF:
     process.runPF.insert(process.runPF.index(process.l1tLayer2SeedConeJetWriter)+1, process.l1tLayer2SeedConeNGJetWriter)
     process.l1tLayer2SeedConeNGJetWriter.maxLinesPerFile = _eventsPerFile*54
 if not args.dumpFilesOFF:
-    for det in "Barrel", "BarrelTDR", "BarrelSerenity", "BarrelSerenityElliptic", "HGCal", "HGCalElliptic", "HGCalNoTK", "HF":
+    for det in "Barrel", "BarrelTDR", "BarrelSerenity", "BarrelSerenityElliptic", "HGCal", "HGCalElliptic", "HGCalNoTK", "HF","HGCalNNAssoc":
         l1pf = getattr(process, 'l1tLayer1'+det)
         l1pf.dumpFileName = cms.untracked.string("TTbar_PU200_"+det+".dump")
     for det in "Barrel", "HGCal":
@@ -281,6 +288,10 @@ if args.split18 and not args.patternFilesOFF:
             hgcalWriterVU9PTM18WriterConfig.clone(inputFileName = f"l1HGCalTM18-inputs-vu9p-ts{tmSlice}"),
             hgcalWriterVU13PTM18WriterConfig.clone(inputFileName = f"l1HGCalTM18-inputs-vu13p-ts{tmSlice}")
         )
+        getattr(process, f'l1tLayer1HGCalTM18NNAssocTS{tmSlice}').patternWriters = cms.untracked.VPSet(
+                hgcalWriterOutputTM18WriterConfig.clone(outputFileName = f"l1HGCalTM18NN-outputs-ts{tmSlice}"),
+                hgcalWriterVU13PTM18WriterConfig.clone(inputFileName = f"l1HGCalTM18NN-inputs-vu13p-ts{tmSlice}")
+            )
         getattr(process, f'l1tLayer1HGCalNoTKTS{tmSlice}').patternWriters = cms.untracked.VPSet(
             hgcalNoTKOutputTM18WriterConfig.clone(outputFileName = f"l1HGCalTM18-outputs-ts{tmSlice}"),
         )

@@ -126,6 +126,10 @@ namespace l1ct {
     const l1t::PFTrack *srcTrack = nullptr;
     const l1t::SAMuon *srcMu = nullptr;
     const l1t::PFCandidate *srcCand = nullptr;
+
+    float AssociationScore;
+    int Association;
+
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -134,6 +138,8 @@ namespace l1ct {
       srcTrack = nullptr;
       srcMu = nullptr;
       srcCand = nullptr;
+      AssociationScore = 0;
+      Association = 0;
     }
     inline void fill(const PFRegionEmu &region, const PFChargedObjEmu &src) {
       PuppiObj::fill(region, src);
