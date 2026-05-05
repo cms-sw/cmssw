@@ -179,11 +179,7 @@ void GEMEffByGEMCSCSegmentSource::analyze(const edm::Event& event, const edm::Ev
     findMatchedME11Segments(muon_collection);
   }
 
-  for (edm::OwnVector<GEMCSCSegment>::const_iterator iter = gemcsc_segment_collection->begin();
-       iter != gemcsc_segment_collection->end();
-       iter++) {
-    const GEMCSCSegment& gemcsc_segment = *iter;
-
+  for (const GEMCSCSegment& gemcsc_segment : *gemcsc_segment_collection) {
     const CSCDetId csc_id = gemcsc_segment.cscDetId();
     if (csc_id.isME11()) {
       analyzeGE11ME11Segment(gemcsc_segment, oh_status_collection, vfat_status_collection);
