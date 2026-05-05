@@ -196,13 +196,14 @@ run_benchmark() {
 
         local PID=$!
 
+        # Ensure cleanup on failure
+        trap 'kill $PID 2>/dev/null || true' EXIT
+        
         # Live output
-        tail -f "$TMP_LOG_FILE" &
+        tail -f --pid=$PID "$TMP_LOG_FILE" &
         local TAIL_PID=$!
 
-        trap "kill $PID $TAIL_PID 2>/dev/null" EXIT
-
-        while ps -p $PID > /dev/null; do
+        while kill -0 $PID 2>/dev/null; do
 
             # Memory
             mem=$(get_current_total_gpu_mem)
@@ -231,7 +232,11 @@ run_benchmark() {
             sleep $MONITOR_INTERVAL
         done
 
-        kill $TAIL_PID 2>/dev/null
+        wait $PID
+
+        #tail should already exit due to --pid=$PID
+        wait $TAIL_PID 2>/dev/null || true
+
         mv "$TMP_LOG_FILE" "${logdir}/output.log"
 
         # Compute mean
