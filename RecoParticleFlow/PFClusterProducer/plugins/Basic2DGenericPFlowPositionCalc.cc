@@ -59,6 +59,7 @@ public:
       logWeightDenom.push_back(conf.getParameter<double>("logWeightDenominator"));
     }
 
+    logWeightDenomInv.reserve(depths.size());
     for (unsigned int i = 0; i < depths.size(); ++i) {
       logWeightDenomInv.push_back(1. / logWeightDenom[i]);
     }
