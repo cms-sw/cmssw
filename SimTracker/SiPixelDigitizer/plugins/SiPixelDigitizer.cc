@@ -258,9 +258,8 @@ namespace cms {
       if (!simHits.isValid())
         continue;
 #ifdef EDM_ML_DEBUG
-    edm:;
-      LogVerbatim("SiPixelDigitizer") << "accumulate "
-                                      << " Accumulating SimHits for PUs with InputTag " << tag;
+      edm::LogVerbatim("SiPixelDigitizer") << "accumulate "
+                                           << " Accumulating SimHits for PUs with InputTag " << tag;
 #endif
 
       unsigned int tofBin = PixelDigiSimLink::LowTof;
@@ -299,7 +298,6 @@ namespace cms {
       }
       iEvent.put(std::move(PixelFEDChannelCollection_));
     }
-    int totalDigis = 0;
     for (const auto& iu : pDD->detUnits()) {
       if (iu->type().isTrackerPixel()) {
         //
@@ -397,7 +395,6 @@ namespace cms {
         }
 
         if (!collector.data.empty()) {
-          totalDigis += collector.data.size();
           theDigiVector.push_back(std::move(collector));
         }
         if (!linkcollector.data.empty()) {

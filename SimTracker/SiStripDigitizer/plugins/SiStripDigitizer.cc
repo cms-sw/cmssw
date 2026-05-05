@@ -289,7 +289,6 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
   // Step B: LOOP on StripGeomDetUnit
   theDigiVector.reserve(10000);
   theDigiVector.clear();
-  int totalDigis = 0;
   for (const auto& iu : pDD->detUnits()) {
     if (useConfFromDB) {
       //apply the cable map _before_ digitization: consider only the detis that are connected
@@ -335,7 +334,6 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
       if (zeroSuppression) {
         if (!collectorZS.data.empty()) {
           theDigiVector.push_back(collectorZS);
-          totalDigis += collectorZS.data.size();
           if (!collectorLink.data.empty())
             pOutputDigiSimLink->insert(collectorLink);
         }
