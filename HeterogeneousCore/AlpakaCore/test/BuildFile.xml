@@ -2,6 +2,14 @@
   <flags ALPAKA_BACKENDS="1"/>
 </test>
 
+<test name="testProcessAcceleratorAlpaka" command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/AlpakaCore/test/testProcessAcceleratorAlpaka.py">
+  <flags ALPAKA_BACKENDS="1"/>
+</test>
+
+<test name="testProcessAcceleratorAlpakaDump" command="edmConfigDump ${LOCALTOP}/src/HeterogeneousCore/AlpakaCore/test/testProcessAcceleratorAlpaka.py > dump.py &amp;&amp; cmsRun dump.py">
+  <flags ALPAKA_BACKENDS="1"/>
+</test>
+
 <bin name="testAlpakaFriendlyClassNames" file="alpaka/testFriendlyClassNames.cc">
   <use name="alpaka"/>
   <use name="catch2"/>
