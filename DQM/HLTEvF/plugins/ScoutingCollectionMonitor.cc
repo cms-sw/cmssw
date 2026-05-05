@@ -832,10 +832,11 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     };
 
     // compute w.r.t. beamspot
-    auto [dxy_bs, dz_bs] = computeIP(beamspotVertex->x(), beamspotVertex->y(), beamspotVertex->z());
-
-    trkd0BS_ele_hist->Fill(dxy_bs);
-    trkdzBS_ele_hist->Fill(dz_bs);
+    if (beamspotVertex) {
+      auto [dxy_bs, dz_bs] = computeIP(beamspotVertex->x(), beamspotVertex->y(), beamspotVertex->z());
+      trkd0BS_ele_hist->Fill(dxy_bs);
+      trkdzBS_ele_hist->Fill(dz_bs);
+    }
 
     const auto* vtx = findClosestVtx(vmDz[elRef]);
     if (vtx) {
