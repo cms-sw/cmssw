@@ -1,6 +1,6 @@
 <lcgdict>
-  <class name="EncodedEventId" ClassVersion="10">
-   <version ClassVersion="10" checksum="541119857"/>
+  <class name="EncodedEventId" ClassVersion="3">
+   <version ClassVersion="3" checksum="541119857"/>
   </class>
   <class name="std::vector<EncodedEventId>"/>
 </lcgdict>
