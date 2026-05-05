@@ -1327,6 +1327,7 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF
       ret->back().setHwTkQuality(p.hwTkQuality);
       ret->back().setCaloEta(reg.floatGlbEtaOf(p));
       ret->back().setCaloPhi(reg.floatGlbPhiOf(p));
+      ret->back().setHwAssociationScore(-1);
 
       // encode the PF candidate with the 64b encoding used for PUPPI
       l1ct::PuppiObj encodedPF;
@@ -1391,9 +1392,11 @@ void L1TCorrelatorLayer1Producer::putPuppi(edm::Event &iEvent) const {
         coll->back().setHwZ0(p.hwZ0());
         coll->back().setHwDxy(p.hwDxy());
         coll->back().setHwTkQuality(p.hwTkQuality());
+        coll->back().setHwAssociationScore(p.AssociationScore);
       } else {
         coll->back().setHwPuppiWeight(p.hwPuppiW());
         coll->back().setHwEmID(p.hwEmID());
+        coll->back().setHwAssociationScore(-1);
       }
       coll->back().setEncodedPuppi64(p.pack().to_uint64());
       setRefs_(coll->back(), p);

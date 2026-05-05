@@ -22,6 +22,7 @@ namespace l1ct {
   typedef ap_int<10> z0_t;         // 40cm / 0.1
   typedef ap_uint<8> dxy_t;        // sqrt(32)cm / 0.004 packed into 8 bit for l1ct
   typedef ap_uint<3> tkquality_t;  // tbd
+  typedef ap_fixed<16, 6> nn_assoc_t;
   typedef ap_ufixed<9, 1, AP_RND_CONV, AP_WRAP> puppiWgt_t;
   typedef ap_uint<6> emid_t;
   typedef ap_uint<14> tk2em_dr_t;
