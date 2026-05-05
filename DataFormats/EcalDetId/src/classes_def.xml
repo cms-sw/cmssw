@@ -20,8 +20,8 @@
   <class name="io_v1::EcalElectronicsId" ClassVersion="3">
    <version ClassVersion="3" checksum="928902351"/>
   </class>
-  <class name="EcalTriggerElectronicsId" ClassVersion="10">
-   <version ClassVersion="10" checksum="3310361981"/>
+  <class name="EcalTriggerElectronicsId" ClassVersion="3">
+   <version ClassVersion="3" checksum="3310361981"/>
   </class>
   <class name="std::vector<io_v1::EBDetId>"/>
   <class name="std::vector<io_v1::EEDetId>"/>

@@ -1,27 +1,27 @@
 <lcgdict>
-   <class name="EcalMGPASample" ClassVersion="10">
-    <version ClassVersion="10" checksum="2111905010"/>
+   <class name="EcalMGPASample" ClassVersion="3">
+    <version ClassVersion="3" checksum="2111905010"/>
    </class>
-   <class name="EcalFEMSample" ClassVersion="10">
-    <version ClassVersion="10" checksum="3890213705"/>
+   <class name="EcalFEMSample" ClassVersion="3">
+    <version ClassVersion="3" checksum="3890213705"/>
    </class>
-   <class name="ESSample" ClassVersion="10">
-    <version ClassVersion="10" checksum="2475091057"/>
+   <class name="ESSample" ClassVersion="3">
+    <version ClassVersion="3" checksum="2475091057"/>
    </class>
-   <class name="EcalDataFrame" ClassVersion="10">
-    <version ClassVersion="10" checksum="259364627"/>
+   <class name="EcalDataFrame" ClassVersion="3">
+    <version ClassVersion="3" checksum="259364627"/>
    </class>
    <class name="EcalDataFrame_Ph2" ClassVersion="3">
     <version ClassVersion="3" checksum="4122679522"/>
    </class>
-   <class name="ESDataFrame" ClassVersion="10">
-    <version ClassVersion="10" checksum="2345603108"/>
+   <class name="ESDataFrame" ClassVersion="3">
+    <version ClassVersion="3" checksum="2345603108"/>
    </class>
-   <class name="EcalTriggerPrimitiveSample" ClassVersion="10">
-    <version ClassVersion="10" checksum="251958438"/>
+   <class name="EcalTriggerPrimitiveSample" ClassVersion="3">
+    <version ClassVersion="3" checksum="251958438"/>
    </class>
-   <class name="EcalEBTriggerPrimitiveSample" ClassVersion="13">
-    <version ClassVersion="13" checksum="4171161153"/>
+   <class name="EcalEBTriggerPrimitiveSample" ClassVersion="3">
+    <version ClassVersion="3" checksum="4171161153"/>
    </class>
    <class name="EcalEBPhase2TriggerPrimitiveSample" ClassVersion="3">
     <version ClassVersion="3" checksum="362263034"/>
@@ -36,15 +36,15 @@
     <version ClassVersion="3" checksum="553470717"/>
    </class>
 
-   <class name="EcalPseudoStripInputSample" ClassVersion="10">
-    <version ClassVersion="10" checksum="2913557465"/>
+   <class name="EcalPseudoStripInputSample" ClassVersion="3">
+    <version ClassVersion="3" checksum="2913557465"/>
    </class>
 
    <class name="io_v1::EcalPseudoStripInputDigi" ClassVersion="3">
     <version ClassVersion="3" checksum="2865220035"/>
    </class>
-   <class name="EcalSrFlag" ClassVersion="10">
-    <version ClassVersion="10" checksum="1550304158"/>
+   <class name="EcalSrFlag" ClassVersion="3">
+    <version ClassVersion="3" checksum="1550304158"/>
    </class>
    <class name="io_v1::EBSrFlag" ClassVersion="3">
     <version ClassVersion="3" checksum="3558205392"/>
@@ -55,11 +55,8 @@
    <class name="io_v1::EcalPnDiodeDigi" ClassVersion="3">
     <version ClassVersion="3" checksum="2853098779"/>
    </class>
-   <class name="EcalMatacqDigi" ClassVersion="13">
-    <version ClassVersion="13" checksum="700444767"/>
-    <version ClassVersion="12" checksum="1211538371"/>
-    <version ClassVersion="11" checksum="515819338"/>
-    <version ClassVersion="10" checksum="804498184"/>
+   <class name="EcalMatacqDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="700444767"/>
    </class>
    <class name="io_v1::EcalTimeDigi" ClassVersion="3">
      <version ClassVersion="3" checksum="3233062429"/>
@@ -89,9 +86,8 @@
      <version ClassVersion="3" checksum="2118114201"/>
    </class>
 
-   <class name="EcalDigiCollection" ClassVersion="11">
-    <version ClassVersion="11" checksum="3935588643"/>
-    <version ClassVersion="10" checksum="1942146754"/>
+   <class name="EcalDigiCollection" ClassVersion="3">
+    <version ClassVersion="3" checksum="3935588643"/>
    </class>
    <class name="io_v1::EBDigiCollection" ClassVersion="3">
     <version ClassVersion="3" checksum="1234364583"/>

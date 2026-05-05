@@ -1,6 +1,5 @@
 <lcgdict>
-  <class name="SiStripDetId" ClassVersion="11">
-   <version ClassVersion="11" checksum="1093375304"/>
-   <version ClassVersion="10" checksum="1454613786"/>
+  <class name="SiStripDetId" ClassVersion="3">
+   <version ClassVersion="3" checksum="1093375304"/>
   </class>
 </lcgdict>
