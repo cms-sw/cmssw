@@ -84,7 +84,7 @@ bool EmbeddingHepMCFilter::filter(const HepMC::GenEvent *evt) {
 
     if (!isHardProc) {
       continue;
-    } else if (pdg_id == tauonPDGID_) {
+    } else if (pdg_id == tauonPDGID_ && (*particle)->status() != 746) {
       reco::Candidate::LorentzVector p4Vis;
       decay_and_sump4Vis((*particle), p4Vis);  // recursive access to final states.
       p4VisPair_.push_back(p4Vis);
@@ -119,6 +119,8 @@ bool EmbeddingHepMCFilter::filter(const HepMC::GenEvent *evt) {
 
 void EmbeddingHepMCFilter::decay_and_sump4Vis(HepMC::GenParticle *particle, reco::Candidate::LorentzVector &p4Vis) {
   bool decaymode_known = false;
+  
+  if (particle->end_vertex() !=0 ) {
   for (HepMC::GenVertex::particle_iterator daughter = particle->end_vertex()->particles_begin(HepMC::children);
        daughter != particle->end_vertex()->particles_end(HepMC::children);
        ++daughter) {
@@ -149,6 +151,7 @@ void EmbeddingHepMCFilter::decay_and_sump4Vis(HepMC::GenParticle *particle, reco
       p4Vis += (reco::Candidate::LorentzVector)(*daughter)->momentum();
     else if (!neutrino)
       decay_and_sump4Vis((*daughter), p4Vis);
+   }
   }
 }
 
