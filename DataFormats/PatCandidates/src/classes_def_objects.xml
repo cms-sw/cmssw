@@ -24,11 +24,11 @@
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
   <class name="pat::io_v1::Muon"  ClassVersion="3">
-   <version ClassVersion="3" checksum="3912957737"/>
+   <version ClassVersion="3" checksum="2866733603"/>
   </class>
 
   <class name="pat::io_v1::Tau"  ClassVersion="3">
-   <version ClassVersion="3" checksum="3191587699"/>
+   <version ClassVersion="3" checksum="13491307"/>
    <field name="isolationTracksTransientRefVector_" transient="true"/>
    <field name="signalTracksTransientRefVector_" transient="true"/>
    <field name="signalPFCandsTransientPtrs_" transient="true"/>
@@ -79,13 +79,13 @@
   <ioread sourceClass="pat::io_v1::Tau" targetClass="pat::io_v1::Tau" version="[1-]" source="" target="isolationPFGammaCandsTransientPtrs_">
   <![CDATA[isolationPFGammaCandsTransientPtrs_.reset();]]>
   </ioread>
-  <class name="pat::tau::TauPFSpecific"  ClassVersion="3">
-   <version ClassVersion="3" checksum="4003299421"/>
+  <class name="pat::tau::io_v1::TauPFSpecific"  ClassVersion="3">
+   <version ClassVersion="3" checksum="3288745861"/>
   </class>
   <class name="std::vector<pat::tau::TauPFSpecific>" />
 
-  <class name="pat::tau::TauPFEssential" ClassVersion="3">
-    <version ClassVersion="3" checksum="904488891" /> 
+  <class name="pat::tau::io_v1::TauPFEssential" ClassVersion="3">
+    <version ClassVersion="3" checksum="833004921"/>
   </class>
 
   <class name="std::vector<pat::tau::TauPFEssential>" />
@@ -98,7 +98,7 @@
   </ioread>
 
   <class name="pat::io_v1::Jet"  ClassVersion="3">
-   <version ClassVersion="3" checksum="2400232157"/>
+   <version ClassVersion="3" checksum="2304093505"/>
    <field name="daughtersTemp_" transient="true"/>
    <field name="caloTowersTemp_" transient="true"/>
    <field name="pfCandidatesTemp_" transient="true"/>
@@ -138,7 +138,7 @@
    <version ClassVersion="3" checksum="3105008866"/>
   </class>
   <class name="pat::Hemisphere"  ClassVersion="3">
-   <version ClassVersion="3" checksum="3728411613"/>
+   <version ClassVersion="3" checksum="2205145303"/>
   </class>
   <class name="pat::Conversion"  ClassVersion="3">
    <version ClassVersion="3" checksum="1239840459"/>

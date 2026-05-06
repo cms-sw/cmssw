@@ -28,8 +28,8 @@
   <class name="edm::RefProd<std::vector<reco::PFTauTagInfo> >"/>
   <class name="edm::RefVector<std::vector<reco::PFTauTagInfo>,reco::PFTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::PFTauTagInfo>,reco::PFTauTagInfo> >"/>
   
-  <class name="reco::BaseTau" ClassVersion="3">
-   <version ClassVersion="3" checksum="2297856736"/>
+  <class name="reco::io_v1::BaseTau" ClassVersion="3">
+   <version ClassVersion="3" checksum="2253510714"/>
   </class>
   <class name="std::vector<reco::BaseTau>"/>
   <class name="edm::Wrapper<std::vector<reco::BaseTau> >"/>

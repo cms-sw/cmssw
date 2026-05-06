@@ -2,7 +2,7 @@
 <selection>
 
   <class name="reco::io_v1::PFCluster" ClassVersion="3">
-   <version ClassVersion="3" checksum="3548902471"/>
+   <version ClassVersion="3" checksum="1417779317"/>
     <field name="posrep_" transient="true"/>
     <field name="layer_" transient="true"/> 
   </class>
@@ -10,7 +10,7 @@
   <class name="edm::Wrapper<std::vector<reco::io_v1::PFCluster> >"/>
 
   <class name="reco::io_v1::HGCalMultiCluster" ClassVersion="3">
-    <version ClassVersion="3" checksum="121905775"/>
+    <version ClassVersion="3" checksum="3088110733"/>
   </class>
   <class name="std::vector<reco::io_v1::HGCalMultiCluster>"/>
   <class name="edm::RefProd<vector<reco::io_v1::HGCalMultiCluster> >" />
@@ -24,13 +24,13 @@
    <version ClassVersion="3" checksum="85611"/>
   </class>
   <enum name="PFLayer::Layer"/> 
-  <class name="reco::PFRecHitFraction" ClassVersion="3">
-   <version ClassVersion="3" checksum="1054932742"/>
+  <class name="reco::io_v1::PFRecHitFraction" ClassVersion="3">
+   <version ClassVersion="3" checksum="4008159088"/>
   </class>
   <class name="std::vector<reco::PFRecHitFraction>"/>
 
   <class name="reco::RecoPFClusterRefCandidate"  ClassVersion="3">
-   <version ClassVersion="3" checksum="3961848295"/>
+   <version ClassVersion="3" checksum="2445767687"/>
   </class>
 
 
@@ -93,8 +93,8 @@
   <class name="std::vector<reco::PFSimParticle>"/>
   <class name="edm::Wrapper<std::vector<reco::PFSimParticle> >"/>
 
-  <class name="reco::PFBlockElement" ClassVersion="3">
-   <version ClassVersion="3" checksum="684943224"/>
+  <class name="reco::io_v1::PFBlockElement" ClassVersion="3">
+   <version ClassVersion="3" checksum="311100232"/>
    <field name="multilinks_" transient="true"/>
    <field name="nullTrack_" transient="true"/>
    <field name="nullPFRecTrack_" transient="true"/>
@@ -104,17 +104,17 @@
    <field name="nullMuon_" transient="true"/>
    <field name="nullVertex_" transient="true"/>
   </class>
-  <class name="std::map<reco::PFBlockElement::Type,reco::PFMultiLinksTC>" />
+  <class name="std::map<reco::io_v1::PFBlockElement::Type,reco::PFMultiLinksTC>" />
   <class name="std::vector<reco::PFBlockElement *>" />
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >" rntupleStreamerMode="true"/>
   <class name="edm::Wrapper<edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> > >" />
 
   <class name="reco::PFBlockElementTrack" ClassVersion="3">
-   <version ClassVersion="3" checksum="972442600"/>
+   <version ClassVersion="3" checksum="803168084"/>
   </class>
 
   <class name="reco::PFBlockElementGsfTrack" ClassVersion="3">
-   <version ClassVersion="3" checksum="874706272"/>
+   <version ClassVersion="3" checksum="3790540192"/>
 <!-- removed by Florian. It useful to have this Ref (especially for a reprocessing)
    Florian
     <field name="GsftrackRefPF_" transient="true"/> // Daniele
@@ -122,7 +122,7 @@
   </class>
 
   <class name="reco::PFBlockElementBrem" ClassVersion="3">
-   <version ClassVersion="3" checksum="4159933843"/>
+   <version ClassVersion="3" checksum="2375295821"/>
 <!-- removed by Florian. It useful to have this Ref (especially for a reprocessing)
    Florian
     <field name="BremtrackRefPF_" transient="true"/> // Daniele
@@ -131,7 +131,7 @@
 
 
   <class name="reco::PFBlockElementCluster" ClassVersion="3">
-   <version ClassVersion="3" checksum="1113199285"/>
+   <version ClassVersion="3" checksum="920628063"/>
   </class>
 
   <class name="std::map<unsigned int,reco::io_v1::PFBlock::Link>"/>
@@ -139,7 +139,7 @@
    <version ClassVersion="3" checksum="3388044151"/>
   </class>
   <class name="reco::io_v1::PFBlock" ClassVersion="3">
-   <version ClassVersion="3" checksum="2904310273"/>
+   <version ClassVersion="3" checksum="4019864691"/>
   </class>
 
   <class name="std::vector<reco::io_v1::PFBlock>"/>
@@ -205,7 +205,7 @@
   <class name="edm::Ref<std::vector<reco::io_v1::PreId>,reco::io_v1::PreId,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::PreId>,reco::io_v1::PreId> >" />
 
   <class name="reco::PFBlockElementSuperCluster" ClassVersion="3">
-   <version ClassVersion="3" checksum="322190993"/>
+   <version ClassVersion="3" checksum="67957541"/>
   </class>
   <class name="std::vector<reco::PFBlockElementSuperCluster>"/>
   <class name="edm::Wrapper<std::vector<reco::PFBlockElementSuperCluster> >"/>
@@ -231,7 +231,7 @@
 
 </selection>
 <exclusion>
-  <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >">
+  <class name="edm::OwnVector<reco::io_v1::PFBlockElement, edm::ClonePolicy<reco::io_v1::PFBlockElement> >">
     <method name="sort"/>
   </class>
 </exclusion>

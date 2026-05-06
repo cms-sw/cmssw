@@ -9,7 +9,7 @@ initial version number of a class which has never been stored before.
 -->
 <lcgdict>
   <class name="reco::io_v1::Muon" ClassVersion="3">
-   <version ClassVersion="3" checksum="1255314174"/>
+   <version ClassVersion="3" checksum="2806403532"/>
   </class>
   <class name="std::vector<reco::io_v1::Muon>"/>
   <class name="edm::Wrapper<std::vector<reco::io_v1::Muon> >"/>
@@ -48,11 +48,11 @@ initial version number of a class which has never been stored before.
    <version ClassVersion="3" checksum="2031556424"/>
   </class>
   <class name="std::vector<reco::HcalMuonRecHit>"/>
-  <class name="reco::MuonChamberMatch" ClassVersion="3">
-   <version ClassVersion="3" checksum="3579435038"/>
+  <class name="reco::io_v1::MuonChamberMatch" ClassVersion="3">
+   <version ClassVersion="3" checksum="2011871712"/>
   </class>
-  <class name="reco::MuonSegmentMatch" ClassVersion="3">
-    <version ClassVersion="3" checksum="351152846"/>
+  <class name="reco::io_v1::MuonSegmentMatch" ClassVersion="3">
+    <version ClassVersion="3" checksum="2116957468"/>
   </class>
   <class name="reco::MuonRPCHitMatch" ClassVersion="3">
    <version ClassVersion="3" checksum="4193465224"/>

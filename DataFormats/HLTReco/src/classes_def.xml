@@ -35,11 +35,11 @@
   </class>
 
   <class name="trigger::TriggerObjectCollection"/>
-  <class name="trigger::TriggerRefsCollections" ClassVersion="3">
-   <version ClassVersion="3" checksum="1210037489"/>
+  <class name="trigger::io_v1::TriggerRefsCollections" ClassVersion="3">
+   <version ClassVersion="3" checksum="2276235489"/>
   </class>
   <class name="trigger::io_v1::TriggerFilterObjectWithRefs" ClassVersion="3">
-   <version ClassVersion="3" checksum="1456673002"/>
+   <version ClassVersion="3" checksum="2242334848"/>
   </class>
 
   <class name="trigger::TriggerEvent::TriggerFilterObject" ClassVersion="10">
@@ -56,7 +56,7 @@
   </class>
   <class name="std::vector<trigger::io_v1::TriggerEventWithRefs::TriggerFilterObject>"/>
   <class name="trigger::io_v1::TriggerEventWithRefs" ClassVersion="3">
-   <version ClassVersion="3" checksum="2861334506"/>
+   <version ClassVersion="3" checksum="2719392386"/>
   </class>
 
   <class name="edm::Wrapper<trigger::TriggerObjectCollection>" splitLevel="0"/>

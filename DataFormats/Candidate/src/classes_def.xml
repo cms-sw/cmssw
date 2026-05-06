@@ -31,12 +31,12 @@
   <class name="std::vector<std::pair<reco::io_v1::CompositeCandidate, std::vector<int> > >" />
   <class name="edm::Wrapper<std::vector<std::pair<reco::io_v1::CompositeCandidate, std::vector<int> > > >" />
 
-  <class name="reco::LeafRefCandidateT" ClassVersion="3">
-    <version ClassVersion="3" checksum="2164853592"/>
+  <class name="reco::io_v1::LeafRefCandidateT" ClassVersion="3">
+    <version ClassVersion="3" checksum="580483222"/>
    </class>
 
   <class name="reco::io_v1::VertexCompositePtrCandidate" ClassVersion="3">
-   <version ClassVersion="3" checksum="2009437832"/>
+   <version ClassVersion="3" checksum="3506942202"/>
   </class>  
 
   <class name="reco::io_v1::VertexCompositeCandidate" ClassVersion="3">
@@ -45,8 +45,8 @@
   <class name="reco::CompositeRefCandidate"  ClassVersion="3">
    <version ClassVersion="3" checksum="134608244"/>
   </class>
-  <class name="reco::CompositePtrCandidate"  ClassVersion="3">
-   <version ClassVersion="3" checksum="3593770037"/>
+  <class name="reco::io_v1::CompositePtrCandidate"  ClassVersion="3">
+   <version ClassVersion="3" checksum="357090655"/>
   </class>
   <class name="reco::CompositeRefBaseCandidate"  ClassVersion="3">
    <version ClassVersion="3" checksum="2593606352"/>

@@ -62,7 +62,7 @@
   </class>
 
   <class name="reco::PFJetChargedHadronAssociation" ClassVersion="3">
-   <version ClassVersion="3" checksum="2811520304"/>
+   <version ClassVersion="3" checksum="3666343972"/>
     <field name="transientVector_" transient="true"/>
   </class>
   <class name="reco::PFJetChargedHadronAssociationRef"/>

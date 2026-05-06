@@ -1,6 +1,6 @@
 <lcgdict>
   <class name="reco::io_v1::TrackJet" ClassVersion="3">
-   <version ClassVersion="3" checksum="87636228"/>
+   <version ClassVersion="3" checksum="2313715948"/>
   </class>
   <class name="std::vector<reco::io_v1::TrackJet>"/>
   <class name="edm::RefVector<std::vector<reco::io_v1::TrackJet>,reco::io_v1::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::TrackJet>,reco::io_v1::TrackJet> >"/>
@@ -18,7 +18,7 @@
   <class name="edm::Wrapper<reco::TrackJetFwdPtrVector>"/>
 
   <class name="reco::PFClusterJet" ClassVersion="3">
-   <version ClassVersion="3" checksum="2428041643"/>
+   <version ClassVersion="3" checksum="2254725011"/>
   </class>
   <class name="std::vector<reco::PFClusterJet>"/>
   <class name="edm::RefVector<std::vector<reco::PFClusterJet>,reco::PFClusterJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFClusterJet>,reco::PFClusterJet> >"/>
