@@ -27,7 +27,16 @@ hltTauPostProcessor = DQMEDHarvester("DQMGenericClient",
         "Split_vs_mass 'Split Rate vs mass' genTauMultiMatched_mass genTau_mass",
     ),
     resolution = cms.vstring(),
-    resolutionProfile = cms.untracked.vstring(),
+    resolutionProfile = cms.untracked.vstring(
+        "ResponsePt_RecoOverGen_vs_pt 'Response RecoOverGen vs p_{T}^{gen}' responsePt_pt rms",
+        "ResponsePt_RecoOverGen_vs_eta 'Response RecoOverGen vs #eta^{gen}' responsePt_eta rms",
+        "ResponsePt_RecoOverGen_vs_phi 'Response RecoOverGen vs #phi^{gen}' responsePt_phi rms",
+        "ResponsePt_RecoOverGen_vs_mass 'Response RecoOverGen vs mass^{gen}' responsePt_mass rms",
+        "ResponseMass_RecoOverGen_vs_pt 'Response RecoOverGen vs p_{T}^{gen}' responseMass_pt rms",
+        "ResponseMass_RecoOverGen_vs_eta 'Response RecoOverGen vs #eta^{gen}' responseMass_eta rms",
+        "ResponseMass_RecoOverGen_vs_phi 'Response RecoOverGen vs #phi^{gen}' responseMass_phi rms",
+        "ResponseMass_RecoOverGen_vs_mass 'Response RecoOverGen vs mass^{gen}' responseMass_mass rms",
+    ),
     verbose = cms.untracked.uint32(2), 
     outputFileName = cms.untracked.string("")
 )
