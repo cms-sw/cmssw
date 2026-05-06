@@ -143,7 +143,7 @@ process.l1tLayer1BarrelSerenity.regionizerAlgoParameters = cms.PSet(
         nCalo = cms.uint32(15),
         nEmCalo = cms.uint32(12),
         nMu = cms.uint32(2),
-        tmux6GCTinput = cms.bool(False),
+        tmux6GCTinput = cms.bool(True),
 )
 process.l1tLayer1BarrelSerenity.pfAlgoParameters.nTrack = 22
 process.l1tLayer1BarrelSerenity.pfAlgoParameters.nSelCalo = 15
