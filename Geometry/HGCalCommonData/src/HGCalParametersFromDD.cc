@@ -8,7 +8,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
 bool HGCalParametersFromDD::build(const DDCompactView* cpv,
@@ -57,6 +57,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
     php.phiOffset_ = 0;         // default value of phi offset for cassette
     php.calibCellRHD_ = 0;      // default value of R of HD calibration cells
     php.calibCellRLD_ = 0;      // default value of R of LD calibration cells
+    php.coldBoxMode_ = 0;       // default vakue for cold box mode
     std::unique_ptr<HGCalGeomParameters> geom = std::make_unique<HGCalGeomParameters>();
     if ((php.mode_ == HGCalGeometryMode::Hexagon) || (php.mode_ == HGCalGeometryMode::HexagonFull)) {
       attribute = "OnlyForHGCalNumbering";
@@ -96,6 +97,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
           (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell) || (php.mode_ == HGCalGeometryMode::Hexagon8FineCell)) {
         php.useSimWt_ = static_cast<int>(getDDDValue("UseSimWt", sv));
         php.layerRotation_ = getDDDValue("LayerRotation", sv);
+      }
+      if ((php.mode_ == HGCalGeometryMode::Hexagon8CalibCell) || (php.mode_ == HGCalGeometryMode::Hexagon8FineCell)) {
       }
       if ((php.waferMaskMode_ == HGCalGeomParameters::siliconCassetteEE) ||
           (php.waferMaskMode_ == HGCalGeomParameters::siliconCassetteHE))
@@ -302,6 +305,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
     php.phiOffset_ = 0;         // default value of phi offset for cassette
     php.calibCellRHD_ = 0;      // default value of R of HD calibration cells
     php.calibCellRLD_ = 0;      // default value of R of LD calibration cells
+    php.coldBoxMode_ = 0;       // default vakue for cold box mode
     std::unique_ptr<HGCalGeomParameters> geom = std::make_unique<HGCalGeomParameters>();
     if ((php.mode_ == HGCalGeometryMode::Hexagon) || (php.mode_ == HGCalGeometryMode::HexagonFull)) {
       tempS = fv.get<std::vector<std::string> >(namet, "WaferMode");
