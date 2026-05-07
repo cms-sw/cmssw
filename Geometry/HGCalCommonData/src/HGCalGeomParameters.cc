@@ -1217,7 +1217,7 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
     DDsvalues_type sv(fv2.mergedSpecifics());
     php.cellSize_ = getDDDArray("CellSize", sv, 0);
   }
-  
+
   loadSpecParsHexagon(php);
 }
 
