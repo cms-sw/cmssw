@@ -725,20 +725,6 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     rechitZeroSuppression_pho_hist->Fill(pho.rechitZeroSuppression() ? -1. : 1.);
   }
 
-  // --- ValueMaps ---
-  const auto& vmBestIdx = iEvent.get(vmBestTrackIndexToken_);
-  const auto& vmD0 = iEvent.get(vmTrkd0Token_);
-  const auto& vmDz = iEvent.get(vmTrkdzToken_);
-  const auto& vmPt = iEvent.get(vmTrkptToken_);
-  const auto& vmEta = iEvent.get(vmTrketaToken_);
-  const auto& vmPhi = iEvent.get(vmTrkphiToken_);
-  const auto& vmPMode = iEvent.get(vmTrkpModeToken_);
-  const auto& vmEtaMode = iEvent.get(vmTrketaModeToken_);
-  const auto& vmPhiMode = iEvent.get(vmTrkphiModeToken_);
-  const auto& vmQoverpModeErr = iEvent.get(vmTrkqoverpModeErrorToken_);
-  const auto& vmChi2 = iEvent.get(vmTrkchi2overndfToken_);
-  const auto& vmCharge = iEvent.get(vmTrkchargeToken_);
-
   // determine the beamspot position (if it exists in the event)
   std::unique_ptr<Run3ScoutingVertex> beamspotVertex{nullptr};
   edm::Handle<reco::BeamSpot> beamSpotH;
@@ -764,6 +750,48 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
 
     return bestVtx;
   };
+
+  // --- best electron ValueMaps ---
+  edm::Handle<edm::ValueMap<int>> vmBestIdxH;
+  edm::Handle<edm::ValueMap<float>> vmD0H;
+  edm::Handle<edm::ValueMap<float>> vmDzH;
+  edm::Handle<edm::ValueMap<float>> vmPtH;
+  edm::Handle<edm::ValueMap<float>> vmEtaH;
+  edm::Handle<edm::ValueMap<float>> vmPhiH;
+  edm::Handle<edm::ValueMap<float>> vmPModeH;
+  edm::Handle<edm::ValueMap<float>> vmEtaModeH;
+  edm::Handle<edm::ValueMap<float>> vmPhiModeH;
+  edm::Handle<edm::ValueMap<float>> vmQoverpModeErrH;
+  edm::Handle<edm::ValueMap<float>> vmChi2H;
+  edm::Handle<edm::ValueMap<int>> vmChargeH;
+
+  if (!getValidHandle(iEvent, vmBestTrackIndexToken_, vmBestIdxH, "vmBestTrackIndex") ||
+      !getValidHandle(iEvent, vmTrkd0Token_, vmD0H, "vmTrkd0") ||
+      !getValidHandle(iEvent, vmTrkdzToken_, vmDzH, "vmTrkdz") ||
+      !getValidHandle(iEvent, vmTrkptToken_, vmPtH, "vmTrkpt") ||
+      !getValidHandle(iEvent, vmTrketaToken_, vmEtaH, "vmTrketa") ||
+      !getValidHandle(iEvent, vmTrkphiToken_, vmPhiH, "vmTrkphi") ||
+      !getValidHandle(iEvent, vmTrkpModeToken_, vmPModeH, "vmTrkpMode") ||
+      !getValidHandle(iEvent, vmTrketaModeToken_, vmEtaModeH, "vmTrketaMode") ||
+      !getValidHandle(iEvent, vmTrkphiModeToken_, vmPhiModeH, "vmTrkphiMode") ||
+      !getValidHandle(iEvent, vmTrkqoverpModeErrorToken_, vmQoverpModeErrH, "vmTrkqoverpModeError") ||
+      !getValidHandle(iEvent, vmTrkchi2overndfToken_, vmChi2H, "vmTrkchi2overndf") ||
+      !getValidHandle(iEvent, vmTrkchargeToken_, vmChargeH, "vmTrkcharge")) {
+    return;
+  }
+
+  const auto& vmBestIdx = *vmBestIdxH;
+  const auto& vmD0 = *vmD0H;
+  const auto& vmDz = *vmDzH;
+  const auto& vmPt = *vmPtH;
+  const auto& vmEta = *vmEtaH;
+  const auto& vmPhi = *vmPhiH;
+  const auto& vmPMode = *vmPModeH;
+  const auto& vmEtaMode = *vmEtaModeH;
+  const auto& vmPhiMode = *vmPhiModeH;
+  const auto& vmQoverpModeErr = *vmQoverpModeErrH;
+  const auto& vmChi2 = *vmChi2H;
+  const auto& vmCharge = *vmChargeH;
 
   // fill all the electron histograms
   for (std::size_t iEl = 0; iEl < electronsH->size(); ++iEl) {
@@ -832,6 +860,7 @@ void ScoutingCollectionMonitor::analyze(const edm::Event& iEvent, const edm::Eve
     };
 
     // compute w.r.t. beamspot
+    // skip beamspot-based plots if not valid
     if (beamspotVertex) {
       auto [dxy_bs, dz_bs] = computeIP(beamspotVertex->x(), beamspotVertex->y(), beamspotVertex->z());
       trkd0BS_ele_hist->Fill(dxy_bs);
