@@ -142,8 +142,7 @@ process.l1tLayer1BarrelSerenity.regionizerAlgoParameters = cms.PSet(
         nTrack = cms.uint32(22),
         nCalo = cms.uint32(15),
         nEmCalo = cms.uint32(12),
-        nMu = cms.uint32(2),
-        tmux6GCTinput = cms.bool(True),
+        nMu = cms.uint32(2)
 )
 process.l1tLayer1BarrelSerenity.pfAlgoParameters.nTrack = 22
 process.l1tLayer1BarrelSerenity.pfAlgoParameters.nSelCalo = 15
@@ -153,13 +152,7 @@ process.l1tLayer1BarrelSerenity.puAlgoParameters.nTrack = 22
 process.l1tLayer1BarrelSerenity.puAlgoParameters.nIn = 27
 process.l1tLayer1BarrelSerenity.puAlgoParameters.nOut = 27
 process.l1tLayer1BarrelSerenity.puAlgoParameters.finalSortAlgo = "FoldedHybrid"
-process.l1tLayer1BarrelSerenity.caloSectors = cms.VPSet(
-        cms.PSet(
-            etaBoundaries = cms.vdouble(-1.5, 0, 1.5),
-            phiSlices     = cms.uint32(3),
-            phiZero       = cms.double(math.pi/18)
-        ),
-)
+
 process.l1tLayer1BarrelSerenity.boards = cms.VPSet(*[cms.PSet(regions = cms.vuint32(*range(18*i,18*i+18))) for i in range(3)])
 process.l1tLayer1BarrelSerenityElliptic = process.l1tLayer1BarrelSerenity.clone(
     tkEgAlgoParameters = process.l1tLayer1BarrelSerenity.tkEgAlgoParameters.clone(
