@@ -261,7 +261,7 @@ class DQMPlotter:
                 capsize=2,
                 linewidth=1.5,
             ) 
-            
+
         return ratio[(ratio > 0) & np.isfinite(ratio)]
 
     def _wrap_legend_labels(self, labels, width=25):
@@ -323,8 +323,9 @@ class DQMPlotter:
             wrapped.append(wrapped_label)
         return wrapped
 
-    def _configure_legend(self, ax, labels, legend_title, logy=False, place_outside=False):
+    def _configure_legend(self, ax, labels, legend_title, place_outside=False):
         """Configure legend; wrap long entries and move outside if needed."""
+
         if not labels:
             return
 
@@ -476,7 +477,12 @@ class DQMPlotter:
         if y_lim[0] is not None and y_lim[1] is not None:
             ax_main.set_ylim(y_lim)
 
-        self._configure_legend(ax_main, labels, "", logy)
+        if logy:
+            ax_main.set_yscale("log")
+        if logx:
+            ax_main.set_xscale("log")
+
+        self._configure_legend(ax_main, labels, "")
 
         ax_main.grid(True, alpha=0.75, linestyle="dashdot", linewidth=0.75)
 
@@ -504,9 +510,9 @@ class DQMPlotter:
                 )
                 ax_ratio.tick_params(axis="x", which="minor", bottom=False)
             else:
-                ax_ratio.set_xlabel(xlabel)
+                ax_ratio.set_xlabel(xlabel, fontsize=20)
 
-            ax_ratio.set_ylabel("Ratio")
+            ax_ratio.set_ylabel("Ratio", fontsize=20)
             ax_ratio.axhline(y=1, color="black", linestyle="--", alpha=0.7)
 
             ax_ratio.grid(True, alpha=0.75, linestyle="dashdot", linewidth=0.75)
