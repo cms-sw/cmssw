@@ -6,13 +6,21 @@
 
 #include "DataFormats/HGCalReco/interface/Common.h"
 #include "DataFormats/Math/interface/normalizedPhi.h"
+#include "DataFormats/HGCalReco/interface/throwOutOfBoundsException.h"
+#include <utility>
 
 template <typename T>
 class TICLLayerTileT {
 public:
   typedef T type;
 
-  void fill(float eta, float phi, unsigned int layerClusterId) { tile_[globalBin(eta, phi)].push_back(layerClusterId); }
+  void fill(float eta, float phi, unsigned int layerClusterId) noexcept(false) {
+    auto bin = globalBin(eta, phi);
+    if (bin < 0 or not std::cmp_less(bin, tile_.size())) [[unlikely]] {
+      ticllayer::throwOutOfBoundsException(eta, phi, bin, tile_.size());
+    }
+    tile_[bin].push_back(layerClusterId);
+  }
 
   int etaBin(float eta) const {
     constexpr float etaRange = T::maxEta - T::minEta;
