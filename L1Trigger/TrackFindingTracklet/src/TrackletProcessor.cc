@@ -296,7 +296,7 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
       } else if (iSeed_ == Seed::D1D2 || iSeed_ == Seed::D3D4) {
         accept = diskSeeding(innerFPGAStub, innerStub, outerFPGAStub, outerStub);
       } else {
-        accept = overlapSeeding(outerFPGAStub, outerStub, innerFPGAStub, innerStub);
+        accept = overlapSeeding(innerFPGAStub, innerStub, outerFPGAStub, outerStub);
       }
 
       if (accept)

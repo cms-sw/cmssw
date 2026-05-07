@@ -199,11 +199,7 @@ std::string Tracklet::trackletparstr() {
     return oss;
   } else {
     std::string str = "";
-    if (seedIndex() == Seed::L1D1 || seedIndex() == Seed::L2D1) {
-      str += outerFPGAStub_->phiregionstr() + "|";
-    } else {
-      str += innerFPGAStub_->phiregionstr() + "|";
-    }
+    str += innerFPGAStub_->phiregionstr() + "|";
     str += innerFPGAStub_->stubindex().str() + "|";
     if (middleFPGAStub_) {
       str += middleFPGAStub_->stubindex().str() + "|";
@@ -743,13 +739,8 @@ std::string Tracklet::trackfitstr() const {
 
     oss += "1|";  // valid bit
     oss += tmp.str() + "|";
-    if (seedIndex() == Seed::L1D1 || seedIndex() == Seed::L2D1) {
-      oss += outerFPGAStub()->phiregionstr() + "|";
-      oss += innerFPGAStub()->phiregionstr() + "|";
-    } else {
-      oss += innerFPGAStub()->phiregionstr() + "|";
-      oss += outerFPGAStub()->phiregionstr() + "|";
-    }
+    oss += innerFPGAStub()->phiregionstr() + "|";
+    oss += outerFPGAStub()->phiregionstr() + "|";
     oss += innerFPGAStub()->stubindex().str() + "|";
     oss += outerFPGAStub()->stubindex().str() + "|";
     oss += fpgapars_.rinv().str() + "|";

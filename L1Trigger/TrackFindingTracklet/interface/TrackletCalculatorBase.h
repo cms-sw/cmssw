@@ -33,55 +33,7 @@ namespace trklet {
                        double& rinv,
                        double& phi0,
                        double& t,
-                       double& z0,
-                       double phiproj[N_LAYER - 2],  //=4
-                       double zproj[N_LAYER - 2],
-                       double phider[N_LAYER - 2],
-                       double zder[N_LAYER - 2],
-                       double phiprojdisk[N_DISK],  //=5
-                       double rprojdisk[N_DISK],
-                       double phiderdisk[N_DISK],
-                       double rderdisk[N_DISK]);
-
-    void exacttrackletdisk(double r1,
-                           double z1,
-                           double phi1,
-                           double r2,
-                           double z2,
-                           double phi2,
-                           double,
-                           double& rinv,
-                           double& phi0,
-                           double& t,
-                           double& z0,
-                           double phiprojLayer[N_PSLAYER],  //=3
-                           double zprojLayer[N_PSLAYER],
-                           double phiderLayer[N_PSLAYER],
-                           double zderLayer[N_PSLAYER],
-                           double phiproj[N_DISK - 2],  //=3
-                           double rproj[N_DISK - 2],
-                           double phider[N_DISK - 2],
-                           double rder[N_DISK - 2]);
-
-    void exacttrackletOverlap(double r1,
-                              double z1,
-                              double phi1,
-                              double r2,
-                              double z2,
-                              double phi2,
-                              double,
-                              double& rinv,
-                              double& phi0,
-                              double& t,
-                              double& z0,
-                              double phiprojLayer[N_PSLAYER],  //=3
-                              double zprojLayer[N_PSLAYER],
-                              double phiderLayer[N_PSLAYER],
-                              double zderLayer[N_PSLAYER],
-                              double phiproj[N_DISK - 2],  //=3
-                              double rproj[N_DISK - 2],
-                              double phider[N_DISK - 2],
-                              double rder[N_DISK - 2]);
+                       double& z0);
 
     void calcPars(unsigned int idr,
                   int iphi1,
