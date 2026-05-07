@@ -10,3 +10,4 @@
   <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
 </library>
+
