@@ -771,6 +771,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
     }  //
 
+    // Function to zero-initialize the clusters
+    template <typename TrackerTraits>
+    void SiPixelRawToClusterKernel<TrackerTraits>::zeroInitializePhase2Clusters(Queue &queue) {
+      constexpr int numberOfModules = pixelTopology::Phase2::numberOfModules;
+      clusters_d = SiPixelClustersSoACollection(queue, numberOfModules);
+      clusters_d->zeroInitialise(queue);
+    }
+
     template class SiPixelRawToClusterKernel<pixelTopology::Phase1>;
     template class SiPixelRawToClusterKernel<pixelTopology::Phase2>;
     template class SiPixelRawToClusterKernel<pixelTopology::HIonPhase1>;
