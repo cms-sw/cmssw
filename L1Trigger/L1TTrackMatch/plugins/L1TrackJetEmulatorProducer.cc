@@ -81,7 +81,7 @@ private:
   const float d0CutNStubs4_;
   const float d0CutNStubs5_;
   const int nDisplacedTracks_;
-  const bool export_binmap_;
+  bool export_binmap_;
 
   float zStep_;
   glbeta_intern etaStep_;
@@ -215,6 +215,8 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
                                           highpTJetThreshold_,
                                           minTrkJetTrackMultiplicity_,
                                           minTrkJetpT_);
+
+    export_binmap_ = false; //Setting to false so that geometry file is written once
   }
 
   //Begin Firmware-style clustering

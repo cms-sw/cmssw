@@ -141,6 +141,7 @@ process.l1tTrackerEmuHTMiss.debug = (options.debug > 0)
 
 #Disable internal track selection
 process.l1tTrackJetsEmulation.trk_zMax = cms.double(20.46912512)    # maximum track z from TrackWord
+process.l1tTrackJetsEmulation.export_binmap = cms.bool(True)    # creates Jet Finding firmware geometry file
 
 if options.debug:
     process.MessageLogger.cerr.INFO.limit = cms.untracked.int32(1000000000)
