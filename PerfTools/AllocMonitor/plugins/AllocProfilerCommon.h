@@ -260,6 +260,8 @@ namespace cms::perftools::allocMon::profiler {
 
     void print(edm::LogSystem& log, std::string_view measurementName) const;
 
+    friend struct AllocProfilerCommonTestAccess;
+
   private:
     // If we get more than 2^32 different stack traces, we'll have other problems
     using UniqueTraceIndex = unsigned int;
@@ -376,7 +378,7 @@ namespace cms::perftools::allocMon::profiler {
       }
 
       // Use the first available trace as reference.
-      std::stacktrace const* refPtr = nullptr;
+      std::remove_cvref_t<decltype(*it1)> const* refPtr = nullptr;
       if (it1 != end1) {
         refPtr = &(*it1);
         ++it1;
@@ -384,7 +386,7 @@ namespace cms::perftools::allocMon::profiler {
         refPtr = &(*it2);
         ++it2;
       }
-      std::stacktrace const& ref = *refPtr;
+      auto const& ref = *refPtr;
       std::size_t commonLen = ref.size();
       if (commonLen == 0) {
         return 0;
@@ -408,10 +410,29 @@ namespace cms::perftools::allocMon::profiler {
     }
 
     // Helper: shrink commonLen to the length of the common suffix between ref and tr.
-    static std::size_t intersectCommonTopEntries(std::stacktrace const& ref,
+    static std::size_t intersectCommonTopEntries(auto const& ref,
                                                  std::vector<std::string>& refDescriptionCache,
                                                  std::size_t commonLen,
-                                                 std::stacktrace const& tr);
+                                                 auto const& tr) {
+      std::size_t k = 0;
+      while (k < commonLen && k < tr.size()) {
+        auto const refIdx = ref.size() - 1 - k;
+        auto const trIdx = tr.size() - 1 - k;
+
+        if (ref[refIdx] != tr[trIdx]) {
+          // Frames don't match - check if descriptions match (e.g. due to inlining).
+          auto& cachedDesc = refDescriptionCache[refIdx];
+          if (cachedDesc.empty()) {
+            cachedDesc = ref[refIdx].description();
+          }
+          if (cachedDesc != tr[trIdx].description()) {
+            break;  // Neither operator== nor descriptions match
+          }
+        }
+        ++k;  // Single increment: either frames matched, or descriptions matched
+      }
+      return k;
+    }
 
     template <typename F>
     void writeFileOrMessage(std::string_view measurementType,

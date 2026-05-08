@@ -406,29 +406,5 @@ namespace cms::perftools::allocMon::profiler {
     }
   }
 
-  std::size_t StackNodeData::intersectCommonTopEntries(std::stacktrace const& ref,
-                                                       std::vector<std::string>& refDescriptionCache,
-                                                       std::size_t commonLen,
-                                                       std::stacktrace const& tr) {
-    std::size_t k = 0;
-    while (k < commonLen && k < tr.size()) {
-      auto const refIdx = ref.size() - 1 - k;
-      auto const trIdx = tr.size() - 1 - k;
-
-      if (ref[refIdx] != tr[trIdx]) {
-        // Frames don't match - check if descriptions match (e.g. due to inlining).
-        auto& cachedDesc = refDescriptionCache[refIdx];
-        if (cachedDesc.empty()) {
-          cachedDesc = ref[refIdx].description();
-        }
-        if (cachedDesc != tr[trIdx].description()) {
-          break;  // Neither operator== nor descriptions match
-        }
-      }
-      ++k;  // Single increment: either frames matched, or descriptions matched
-    }
-    return k;
-  }
-
 }  // namespace cms::perftools::allocMon::profiler
 #endif
