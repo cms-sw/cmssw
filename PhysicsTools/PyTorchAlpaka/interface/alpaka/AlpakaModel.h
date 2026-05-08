@@ -26,10 +26,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torch {
     // The string-only constructor with to() method is preferred way to keep async.
     // Loads model to alpaka accelerator specified memory space.
     // Note that this is done in default stream, i.e. synchronously.
-    explicit AlpakaModel(const std::string &model_path, const Device &dev)
-        : cms::torch::Model(model_path, cms::torch::alpakatools::getDevice(dev)) {}
-    explicit AlpakaModel(const std::string &model_path, const Queue &queue)
-        : cms::torch::Model(model_path, cms::torch::alpakatools::getDevice(queue)) {}
+    explicit AlpakaModel(const std::string &model_path, const Device &dev, bool auto_freeze = true)
+        : cms::torch::Model(model_path, cms::torch::alpakatools::getDevice(dev), auto_freeze) {}
+    explicit AlpakaModel(const std::string &model_path, const Queue &queue, bool auto_freeze = true)
+        : cms::torch::Model(model_path, cms::torch::alpakatools::getDevice(queue), auto_freeze) {}
 
     // Forward pass (inference) of model with SoA metadata input/output.
     // Allows to run inference directly using SoA portable objects/collections without excessive copies and conversions.
