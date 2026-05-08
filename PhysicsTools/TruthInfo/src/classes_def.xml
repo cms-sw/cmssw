@@ -3,4 +3,13 @@
   <class name="TruthGraph::NodeRef"/>
   <class name="std::vector<TruthGraph::NodeRef>"/>
   <class name="edm::Wrapper<TruthGraph>"/>
+
+  <class name="truth::Graph"/>
+  <class name="truth::Checkpoint"/>
+  <class name="truth::ParticleData"/>
+  <class name="truth::VertexData"/>
+  <class name="std::vector<truth::Checkpoint>"/>
+  <class name="std::vector<truth::ParticleData>"/>
+  <class name="std::vector<truth::VertexData>"/>
+  <class name="edm::Wrapper<truth::Graph>"/>
 </lcgdict>
