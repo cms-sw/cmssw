@@ -12,6 +12,15 @@ Examples demonstrating the interoperability of PyTorch with Alpaka in the CMSSW 
 - *TinyResNet* emulate more complex scenario with `Eigen::Matrix` and how one can implement image-like Tensor implementation
 - *MulitHeadNet* handle networks that return more than one output tensor 
 
+## Model behavior
+
+The `Model` wrapper automatically sets the loaded TorchScript module to evaluation mode (`eval()`).
+
+By default, the model is automatically frozen using the `torch::jit::freeze()` function at construction time, either when a device is specified or when the model is first moved.
+You can skip this optimization step by setting `auto_freeze=false` when calling the model constructor.
+**Important:** Once a model is frozen, it cannot be moved to another device. Attempting to do so will trigger a runtime assertion.
+
+
 ## Direct Inference on SoA 
 The interface provides a converter to dynamically wrap SoA data into one or more `torch::tensors` without the need to copy data (or minimal copy overhead).
 
