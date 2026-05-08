@@ -216,7 +216,7 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
                                           minTrkJetTrackMultiplicity_,
                                           minTrkJetpT_);
 
-    export_binmap_ = false; //Setting to false so that geometry file is written once
+    export_binmap_ = false;  //Setting to false so that geometry file is written once
   }
 
   //Begin Firmware-style clustering
