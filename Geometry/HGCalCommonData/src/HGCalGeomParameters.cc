@@ -1192,6 +1192,14 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
   else
     php.layerOffset_ = 0;
 
+  // Cold Box
+  const auto& dummy3 = dbl_to_int(getDDDArray("ColdBoxMode", sv, 0));
+  if (!dummy3.empty())
+    php.coldBoxMode_ = dummy3[0];
+  else
+    php.coldBoxMode_ = 0;
+  php.coldBoxRots_ = getDDDArray("ColdBoxRots", sv, 0);
+
   // Wafer size
   std::string attribute = "Volume";
   DDSpecificsMatchesValueFilter filter1{DDValue(attribute, sdTag1, 0.0)};
@@ -1241,10 +1249,18 @@ void HGCalGeomParameters::loadSpecParsHexagon(const cms::DDFilteredView& fv,
   php.cellSize_ = fv.get<std::vector<double> >(sdTag3, "CellSize");
   rescale(php.cellSize_, HGCalParameters::k_ScaleFromDD4hepToG4);
 
+  // Cold Box
+  const auto& dummy2 = fv.get<std::vector<double> >(sdTag4, "ColdBoxMode");
+  if (!dummy2.empty())
+    php.coldBoxMode_ = dummy2[0];
+  else
+    php.coldBoxMode_ = 0;
+  php.coldBoxRots_ = fv.get<std::vector<double> >(sdTag4, "coldBoxRots");
+
   // Layer Offset
-  const auto& dummy2 = fv.get<std::vector<double> >(sdTag1, "LayerOffset");
-  if (!dummy2.empty()) {
-    php.layerOffset_ = dummy2[0];
+  const auto& dummy3 = fv.get<std::vector<double> >(sdTag1, "LayerOffset");
+  if (!dummy3.empty()) {
+    php.layerOffset_ = dummy3[0];
   } else {
     php.layerOffset_ = 0;
   }

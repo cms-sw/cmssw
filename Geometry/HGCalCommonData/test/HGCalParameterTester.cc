@@ -237,6 +237,9 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     printTrform(phgp);
     myPrint("levelTop", phgp->levelT_, 10);
     printWaferType(phgp);
+    edm::LogVerbatim("HGCalGeom") << "ColdBoxmode " << phgp->coldBoxMode_;
+    myPrint("ColdBoxRots", phgp->coldBoxRots_, 10);
+
   } else {
     // Tpaezoid (scintillator) type
     edm::LogVerbatim("HGCalGeom") << "DetectorType: " << phgp->detectorType_;
