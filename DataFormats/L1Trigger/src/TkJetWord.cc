@@ -5,7 +5,7 @@
 
 namespace l1t {
   TkJetWord::TkJetWord(tkjetvalid_t valid,
-		       pt_t pt,
+                       pt_t pt,
                        glbeta_t eta,
                        glbphi_t phi,
                        z0_t z0,
@@ -17,7 +17,7 @@ namespace l1t {
   }
 
   void TkJetWord::setTkJetWord(tkjetvalid_t valid,
-			       pt_t pt,
+                               pt_t pt,
                                glbeta_t eta,
                                glbphi_t phi,
                                z0_t z0,

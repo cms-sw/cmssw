@@ -192,28 +192,29 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
   }
 
   // Extract geometry information for firmware if flag in python config file set to True
-  if (export_binmap_){
-
+  if (export_binmap_) {
     // Fill vectors with bin centers
     std::vector<glbeta_intern> eta_bin_centers;
     std::vector<glbphi_intern> phi_bin_centers;
-    for (int i = 0; i < phiBins_; ++i){
+    phi_bin_centers.reserve(phiBins_);
+    for (int i = 0; i < phiBins_; ++i) {
       phi_bin_centers.push_back(epbins_default[i][0].phi);
     }
-    for (int i = 0; i < etaBins_; ++i){
+    eta_bin_centers.reserve(etaBins_);
+    for (int i = 0; i < etaBins_; ++i) {
       eta_bin_centers.push_back(epbins_default[0][i].eta);
     }
 
     // Call writeout function defined in L1TrackJetClustering.h
     l1ttrackjet::FirmwareGeometryWriteOut(eta_bin_centers,
-					  phi_bin_centers,
-					  etaBins_,
-					  lowpTJetMinTrackMultiplicity_,
-					  lowpTJetThreshold_,
-					  highpTJetMinTrackMultiplicity_,
-					  highpTJetThreshold_,
-					  minTrkJetTrackMultiplicity_,
-					  minTrkJetpT_);
+                                          phi_bin_centers,
+                                          etaBins_,
+                                          lowpTJetMinTrackMultiplicity_,
+                                          lowpTJetThreshold_,
+                                          highpTJetMinTrackMultiplicity_,
+                                          highpTJetThreshold_,
+                                          minTrkJetTrackMultiplicity_,
+                                          minTrkJetpT_);
   }
 
   //Begin Firmware-style clustering
@@ -260,7 +261,7 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
       //This prevents eta or phi from going outside of scope The eta index, j, cannot be less than zero
       //or greater than 23 (the number of eta bins minus one). The phi index, i, cannot be less than
       //zero or greater than 26 (the number of phi bins minus one).
-      
+
       if ((j < 0) || (j > (etaBins_ - 1)) || (i < 0) || (i > (phiBins_ - 1)))
         continue;
 
@@ -317,9 +318,9 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
   for (unsigned int j = 0; j < mzb.clusters.size(); ++j) {
     l1t::TkJetWord::tkjetvalid_t valid = 1;
     l1t::TkJetWord::glbeta_t jetEta =
-      DoubleToBit(double(mzb.clusters[j].eta),
-		  TkJetWord::TkJetBitWidths::kGlbEtaSize,
-		  2 * TkJetWord::MAX_ETA / (1 << TkJetWord::TkJetBitWidths::kGlbEtaSize));
+        DoubleToBit(double(mzb.clusters[j].eta),
+                    TkJetWord::TkJetBitWidths::kGlbEtaSize,
+                    2 * TkJetWord::MAX_ETA / (1 << TkJetWord::TkJetBitWidths::kGlbEtaSize));
     // TkJetWord::MAX_ETA / (1 << TkJetWord::TkJetBitWidths::kGlbEtaSize));
     l1t::TkJetWord::glbphi_t jetPhi = DoubleToBit(
         BitToDouble(mzb.clusters[j].phi, TTTrack_TrackWord::TrackBitWidths::kPhiSize + 4, TTTrack_TrackWord::stepPhi0),
@@ -339,16 +340,19 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
       L1TrackAssocJet.push_back(L1TrkPtrs_[mzb.clusters[j].trackidx[itrk]]);
 
     l1t::TkJetWord trkJet(valid, jetPt, jetEta, jetPhi, jetZ0, total_ntracks, total_disptracks, dispflag, unassigned);
-    
-    if ((jetPt > minTrkJetpT_) && (total_ntracks >= minTrkJetTrackMultiplicity_))
-      {
-	L1TrackJetContainer->push_back(trkJet);
-      }
+
+    if ((jetPt > minTrkJetpT_) && (total_ntracks >= minTrkJetTrackMultiplicity_)) {
+      L1TrackJetContainer->push_back(trkJet);
+    }
   }
 
   // Sort by eta because this is how its done in FW
-  std::sort(L1TrackJetContainer->begin(), L1TrackJetContainer->end(), [](auto &a, auto &b) { return a.glbphi() < b.glbphi(); });
-  std::sort(L1TrackJetContainer->begin(), L1TrackJetContainer->end(), [](auto &a, auto &b) { return a.glbeta() < b.glbeta(); });
+  std::sort(L1TrackJetContainer->begin(), L1TrackJetContainer->end(), [](auto &a, auto &b) {
+    return a.glbphi() < b.glbphi();
+  });
+  std::sort(L1TrackJetContainer->begin(), L1TrackJetContainer->end(), [](auto &a, auto &b) {
+    return a.glbeta() < b.glbeta();
+  });
 
   if (displaced_)
     iEvent.put(std::move(L1TrackJetContainer), "L1TrackJetsExtended");
