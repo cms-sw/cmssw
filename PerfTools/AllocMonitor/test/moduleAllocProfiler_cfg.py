@@ -10,6 +10,7 @@ parser.add_argument("--source", action="store_true", help="show source")
 parser.add_argument("--out", action="store_true", help="show OutputModule")
 parser.add_argument("--edmodule", action="store_true", help="show a specific ed module")
 parser.add_argument("--esmodule", action="store_true", help="show a specific es module")
+parser.add_argument("--clearEvent", action="store_true", help="test ClearEvent signal")
 args = parser.parse_args()
 
 
@@ -109,3 +110,5 @@ if args.esmodule:
     process.ModuleAllocProfiler.moduleNames.extend(["WhatsItESProducer", "acquireIntESProducer"])
 if args.out:
     process.ModuleAllocProfiler.moduleNames.append("out")
+if args.clearEvent:
+    process.ModuleAllocProfiler.moduleNames.append("@ClearEvent")

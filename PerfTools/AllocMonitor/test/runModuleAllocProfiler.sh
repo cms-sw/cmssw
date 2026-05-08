@@ -185,6 +185,18 @@ function test_skipEvents {
   require_profiler_files "${COMMON}EndJob_0_0" all-empty
 }
 
+function test_clearEvent {
+  LD_PRELOAD="libPerfToolsAllocMonitorPreload.so" cmsRun ${LOCAL_TEST_DIR}/moduleAllocProfiler_cfg.py --clearEvent  > moduleAllocProfiler_clearEvent.log 2>&1 || die 'Failure running moduleAllocProfiler_cfg.py --clearEvent' $?
+  [ $(grep -c "Ending tracing" moduleAllocProfiler_clearEvent.log) -eq 3 ] || die 'Expected 3 instances of "Ending tracing" in moduleAllocProfiler_clearEvent.log' 1
+
+  PREFIX="moduleAllocProfiler_clearEvent_"
+  LD_PRELOAD="libPerfToolsAllocMonitorPreload.so" cmsRun ${LOCAL_TEST_DIR}/moduleAllocProfiler_cfg.py --clearEvent  --output "${PREFIX}%M_%S_%C_%I_%T.log" > moduleAllocProfiler_clearEvent_file.log 2>&1 || die 'Failure running moduleAllocProfiler_cfg.py --clearEvent with file output' $?
+  COMMON="${PREFIX}ClearEvent_clearEvent"
+  require_profiler_files "${COMMON}_0_0" "added"
+  require_profiler_files "${COMMON}_0_1" "added"
+  require_profiler_files "${COMMON}_0_2" "added"
+}
+
 case "$1" in
   none)       test_none ;;
   edmodule)   test_edmodule ;;
@@ -192,5 +204,6 @@ case "$1" in
   source)     test_source ;;
   out)        test_out ;;
   skipEvents) test_skipEvents ;;
-  *) die "Unknown test '$1': valid options are none, edmodule, esmodule, source, out, skipEvents" 1 ;;
+  clearEvent) test_clearEvent ;;
+  *) die "Unknown test '$1': valid options are none, edmodule, esmodule, source, out, skipEvents, clearEvent" 1 ;;
 esac

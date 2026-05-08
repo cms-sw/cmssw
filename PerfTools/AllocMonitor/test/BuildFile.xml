@@ -50,6 +50,7 @@
     <test name="TestPerfToolsModuleAllocProfilerSource" command="runModuleAllocProfiler.sh source"/>
     <test name="TestPerfToolsModuleAllocProfilerOut" command="runModuleAllocProfiler.sh out"/>
     <test name="TestPerfToolsModuleAllocProfilerSkipEvents" command="runModuleAllocProfiler.sh skipEvents"/>
+    <test name="TestPerfToolsModuleAllocProfilerClearEvent" command="runModuleAllocProfiler.sh clearEvent"/>
 
     <bin file="test_AllocProfilerCommon.cc" name="testAllocProfilerCommon">
       <use name="PerfTools/AllocMonitor"/>

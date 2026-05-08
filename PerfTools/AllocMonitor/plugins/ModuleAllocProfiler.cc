@@ -138,6 +138,14 @@ namespace {
       }
     }
 
+    // for ClearEvemt
+    void stopOnThread() const {
+      if (not globalKeep_.load()) {
+        return;
+      }
+      MonitorAdaptor::stopOnThread();
+    }
+
     void setGlobalKeep(bool iShouldKeep) { globalKeep_.store(iShouldKeep); }
 
     bool keepModuleInfo(int moduleID) const {
@@ -244,7 +252,7 @@ namespace {
   // ---------------------------------------------------------------------------
   // setupProfilerFile
   // ---------------------------------------------------------------------------
-  void setupProfilerFile(edm::ActivityRegistry& iAR, ProfilerFilter& filter) {
+  void setupProfilerFile(edm::ActivityRegistry& iAR, ProfilerFilter& filter, const bool profileClearEvent) {
     // Stop lambdas
     // Generic ED stop (used by all StreamContext/GlobalContext + ModuleCallingContext signals):
     auto edStop = [&filter](auto const&, edm::ModuleCallingContext const& mcc) {
@@ -412,12 +420,14 @@ namespace {
       filter.startOnThread("source", "sourceNextTransition", count++);
     });
     iAR.watchPostSourceNextTransition([&filter]() { filter.stopOnThread(kSourceModuleID); });
-    // TODO: I'm not sure what to do with ClearEvent here
-    // On one hand it would be useful in some cases, but I'm not sure if it should be always enabled, or if it should be
-    // optional, and if so how to configure it (since it doesn't have a module description or calling context). In any
-    // case it should not be tied to source.
-    //iAR.watchPreClearEvent(sourceStart);
-    //iAR.watchPostClearEvent(sourceStop);
+
+    if (profileClearEvent) {
+      iAR.watchPreClearEvent([&filter](edm::StreamContext const& sc) {
+        auto count = filter.event_.slots[sc.streamID().value()];
+        filter.startOnThread("ClearEvent", "clearEvent", count);
+      });
+      iAR.watchPostClearEvent([&filter](auto const&) { filter.stopOnThread(); });
+    }
 
     // --- ED Module begin/end job ---
     iAR.watchPreModuleBeginJob(makeEdOncePerModule("moduleBeginJob"));
@@ -538,6 +548,9 @@ public:
       moduleIDs_.push_back(kSourceModuleID);
     }
 
+    const bool profileClearEvent =
+        std::find(moduleNames_.begin(), moduleNames_.end(), "@ClearEvent") != moduleNames_.end();
+
     iAR.watchPreModuleConstruction([this](edm::ModuleDescription const& description) {
       auto found = std::find(moduleNames_.begin(), moduleNames_.end(), description.moduleLabel());
       if (found != moduleNames_.end()) {
@@ -579,7 +592,7 @@ public:
 
     (void)cms::perftools::AllocMonitorRegistry::instance().createAndRegisterMonitor<MonitorAdaptor>();
 
-    setupProfilerFile(iAR, profilerFilter_);
+    setupProfilerFile(iAR, profilerFilter_, profileClearEvent);
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& iDesc) {
@@ -587,7 +600,9 @@ public:
     ps.addUntracked<std::vector<std::string>>("moduleNames", std::vector<std::string>())
         ->setComment(
             "List of ED/ES module labels to profile. Must be non-empty: the intent is to profile individual modules, "
-            "and profiling all modules at once would be too costly.");
+            "and profiling all modules at once would be too costly. The ClearEvent signal is not tied to any module, "
+            "but can be profiled including '@ClearEvent' in this list. The Source module can be profiled including "
+            "'source' in this list.");
     ps.addUntracked<unsigned int>("nEventsToSkip", 0);
     ps.addUntracked<std::string>("filePattern", "")
         ->setComment(
