@@ -18,7 +18,7 @@ l1tTrackJetsEmulation = cms.EDProducer('L1TrackJetEmulatorProducer',
         highpTJetThreshold=cms.double(100.),
 	displaced=cms.bool(False), #Flag for displaced tracks
 	nDisplacedTracks=cms.int32(2), #Number of displaced tracks required per jet
-        export_binmap=cms.bool(True) #Flag to create geometry file containing bin centers and jet cuts to FW
+        export_binmap=cms.bool(False) #Flag to create geometry file containing bin centers and jet cuts to FW
 )
 
 l1tTrackJetsExtendedEmulation = l1tTrackJetsEmulation.clone(
