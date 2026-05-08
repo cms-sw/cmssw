@@ -32,7 +32,7 @@ process.options.wantSummary = args.wantSummary
 process.path = cms.Path()
 # data provider
 process.DataSource = torchtest_DataSource_alpaka(
-    batchSize = cms.uint32(args.batchSize if args.batchSize > 1 else 1),
+    totalSize = cms.uint32(args.totalSize if args.totalSize >= 0 else 0),
     alpaka = cms.untracked.PSet(
         backend = cms.untracked.string(args.backend)
     ),
@@ -41,7 +41,7 @@ process.DataSource = torchtest_DataSource_alpaka(
 process.path += process.DataSource
 # --only SimpleNet
 if "SimpleNet" in args.only:
-    from PhysicsTools.PyTorchAlpakaTest.modules import torchtest_SimpleNet_alpaka
+    from PhysicsTools.PyTorchAlpakaTest.modules import torchtest_SimpleNet_alpaka, torchtest_SimpleNetMiniBatch_alpaka
     process.SimpleNet = torchtest_SimpleNet_alpaka(
         model = cms.FileInPath(args.simpleNet),
         particles = 'DataSource',
@@ -51,6 +51,17 @@ if "SimpleNet" in args.only:
         environment = cms.untracked.int32(args.environment)
     )
     process.path += process.SimpleNet
+if "SimpleNetMiniBatch" in args.only:
+    process.SimpleNetMiniBatch = torchtest_SimpleNetMiniBatch_alpaka(
+        model = cms.FileInPath(args.simpleNet),
+        batchSize = cms.int32(args.batchSize),
+        particles = 'DataSource',
+        alpaka = cms.untracked.PSet(
+            backend = cms.untracked.string("serial_sync")
+        ),
+        environment = cms.untracked.int32(args.environment)
+    )
+    process.path += process.SimpleNetMiniBatch
 # --only MultiHeadNet
 if "MultiHeadNet" in args.only:
     from PhysicsTools.PyTorchAlpakaTest.modules import torchtest_MultiHeadNet_alpaka
@@ -77,7 +88,7 @@ if "MaskedNet" in args.only:
     process.path += process.MaskedNet
 # --only TinyResNet
 if "TinyResNet" in args.only:
-    from PhysicsTools.PyTorchAlpakaTest.modules import torchtest_TinyResNet_alpaka
+    from PhysicsTools.PyTorchAlpakaTest.modules import torchtest_TinyResNet_alpaka, torchtest_TinyResNetMiniBatch_alpaka
     process.TinyResNet = torchtest_TinyResNet_alpaka(
         model = cms.FileInPath(args.tinyResNet),
         images = 'DataSource',
@@ -87,14 +98,28 @@ if "TinyResNet" in args.only:
         environment = cms.untracked.int32(args.environment)
     )
     process.path += process.TinyResNet
+if "TinyResNetMiniBatch" in args.only:
+    process.TinyResNetMiniBatch = torchtest_TinyResNetMiniBatch_alpaka(
+        model = cms.FileInPath(args.tinyResNet),
+        batchSize = cms.int32(args.batchSize),
+        images = 'DataSource',
+        alpaka = cms.untracked.PSet(
+            backend = cms.untracked.string(args.backend)
+        ),
+        environment = cms.untracked.int32(args.environment)
+    )
+    process.path += process.TinyResNetMiniBatch
+
 # debug (if --environment < 1 only assertions are checked)
 process.InspectionSink = torchtest_InspectionSink(
     particles = 'DataSource',
     simple_net = 'SimpleNet',
+    simple_net_minibatch = 'SimpleNetMiniBatch',
     masked_net = 'MaskedNet',
     multi_head_net = 'MultiHeadNet',
     images = 'DataSource',
     resnet18 = 'TinyResNet',
+    resnet18_minibatch = 'TinyResNetMiniBatch',
     environment = cms.untracked.int32(args.environment)
 )
 process.path += process.InspectionSink
