@@ -4,6 +4,7 @@
 // Rewritting/Improvements:      George Karathanasis,
 //                          georgios.karathanasis@cern.ch, CU Boulder
 //                          Claire Savard (claire.savard@colorado.edu)
+//                          Connor Houghton (cch109@physics.rutgers.edu)
 //
 //         Created:  Wed, 01 Aug 2018 14:01:41 GMT
 //         Latest update: Nov 2023 (by CS)
@@ -75,10 +76,12 @@ private:
   const int etaBins_;
   const int phiBins_;
   const double minTrkJetpT_;
+  const int minTrkJetTrackMultiplicity_;
   const bool displaced_;
   const float d0CutNStubs4_;
   const float d0CutNStubs5_;
   const int nDisplacedTracks_;
+  const bool export_binmap_;
 
   float zStep_;
   glbeta_intern etaStep_;
@@ -102,10 +105,12 @@ L1TrackJetEmulatorProducer::L1TrackJetEmulatorProducer(const ParameterSet &iConf
       etaBins_(iConfig.getParameter<int>("etaBins")),
       phiBins_(iConfig.getParameter<int>("phiBins")),
       minTrkJetpT_(iConfig.getParameter<double>("minTrkJetpT")),
+      minTrkJetTrackMultiplicity_(iConfig.getParameter<int>("minTrkJetTrackMultiplicity")),
       displaced_(iConfig.getParameter<bool>("displaced")),
       d0CutNStubs4_(iConfig.getParameter<double>("d0_cutNStubs4")),
       d0CutNStubs5_(iConfig.getParameter<double>("d0_cutNStubs5")),
       nDisplacedTracks_(iConfig.getParameter<int>("nDisplacedTracks")),
+      export_binmap_(iConfig.getParameter<bool>("export_binmap")),
       trackToken_(consumes<L1TTTrackRefCollectionType>(iConfig.getParameter<InputTag>("L1TrackInputTag"))) {
   zStep_ = 2.0 * trkZMax_ / (zBins_ + 1);                 // added +1 in denom
   etaStep_ = glbeta_intern(2.0 * trkEtaMax_ / etaBins_);  //etaStep is the width of an etabin
@@ -186,6 +191,31 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
     }
   }
 
+  // Extract geometry information for firmware if flag in python config file set to True
+  if (export_binmap_){
+
+    // Fill vectors with bin centers
+    std::vector<glbeta_intern> eta_bin_centers;
+    std::vector<glbphi_intern> phi_bin_centers;
+    for (int i = 0; i < phiBins_; ++i){
+      phi_bin_centers.push_back(epbins_default[i][0].phi);
+    }
+    for (int i = 0; i < etaBins_; ++i){
+      eta_bin_centers.push_back(epbins_default[0][i].eta);
+    }
+
+    // Call writeout function defined in L1TrackJetClustering.h
+    l1ttrackjet::FirmwareGeometryWriteOut(eta_bin_centers,
+					  phi_bin_centers,
+					  etaBins_,
+					  lowpTJetMinTrackMultiplicity_,
+					  lowpTJetThreshold_,
+					  highpTJetMinTrackMultiplicity_,
+					  highpTJetThreshold_,
+					  minTrkJetTrackMultiplicity_,
+					  minTrkJetpT_);
+  }
+
   //Begin Firmware-style clustering
   // logic: loop over z bins find tracks in this bin and arrange them in a 2D eta-phi matrix
   for (unsigned int zbin = 0; zbin < zmins.size(); ++zbin) {
@@ -227,10 +257,10 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
       // Eta bin
       int j = eta_bin_firmwareStyle(L1TrkPtrs_[k]->getTanlWord());  //Function defined in L1TrackJetClustering.h
 
-      //This is a quick fix to eta going outside of scope - also including protection against phi going outside
-      //of scope as well. The eta index, j, cannot be less than zero or greater than 23 (the number of eta bins
-      //minus one). The phi index, i, cannot be less than zero or greater than 26 (the number of phi bins
-      //minus one).
+      //This prevents eta or phi from going outside of scope The eta index, j, cannot be less than zero
+      //or greater than 23 (the number of eta bins minus one). The phi index, i, cannot be less than
+      //zero or greater than 26 (the number of phi bins minus one).
+      
       if ((j < 0) || (j > (etaBins_ - 1)) || (i < 0) || (i > (phiBins_ - 1)))
         continue;
 
@@ -285,9 +315,12 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
 
   vector<edm::Ptr<L1TTTrackType>> L1TrackAssocJet;
   for (unsigned int j = 0; j < mzb.clusters.size(); ++j) {
-    l1t::TkJetWord::glbeta_t jetEta = DoubleToBit(double(mzb.clusters[j].eta),
-                                                  TkJetWord::TkJetBitWidths::kGlbEtaSize,
-                                                  TkJetWord::MAX_ETA / (1 << TkJetWord::TkJetBitWidths::kGlbEtaSize));
+    l1t::TkJetWord::tkjetvalid_t valid = 1;
+    l1t::TkJetWord::glbeta_t jetEta =
+      DoubleToBit(double(mzb.clusters[j].eta),
+		  TkJetWord::TkJetBitWidths::kGlbEtaSize,
+		  2 * TkJetWord::MAX_ETA / (1 << TkJetWord::TkJetBitWidths::kGlbEtaSize));
+    // TkJetWord::MAX_ETA / (1 << TkJetWord::TkJetBitWidths::kGlbEtaSize));
     l1t::TkJetWord::glbphi_t jetPhi = DoubleToBit(
         BitToDouble(mzb.clusters[j].phi, TTTrack_TrackWord::TrackBitWidths::kPhiSize + 4, TTTrack_TrackWord::stepPhi0),
         TkJetWord::TkJetBitWidths::kGlbPhiSize,
@@ -305,12 +338,18 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
     for (unsigned int itrk = 0; itrk < mzb.clusters[j].trackidx.size(); itrk++)
       L1TrackAssocJet.push_back(L1TrkPtrs_[mzb.clusters[j].trackidx[itrk]]);
 
-    l1t::TkJetWord trkJet(jetPt, jetEta, jetPhi, jetZ0, total_ntracks, total_disptracks, dispflag, unassigned);
-
-    L1TrackJetContainer->push_back(trkJet);
+    l1t::TkJetWord trkJet(valid, jetPt, jetEta, jetPhi, jetZ0, total_ntracks, total_disptracks, dispflag, unassigned);
+    
+    if ((jetPt > minTrkJetpT_) && (total_ntracks >= minTrkJetTrackMultiplicity_))
+      {
+	L1TrackJetContainer->push_back(trkJet);
+      }
   }
 
-  std::sort(L1TrackJetContainer->begin(), L1TrackJetContainer->end(), [](auto &a, auto &b) { return a.pt() > b.pt(); });
+  // Sort by eta because this is how its done in FW
+  std::sort(L1TrackJetContainer->begin(), L1TrackJetContainer->end(), [](auto &a, auto &b) { return a.glbphi() < b.glbphi(); });
+  std::sort(L1TrackJetContainer->begin(), L1TrackJetContainer->end(), [](auto &a, auto &b) { return a.glbeta() < b.glbeta(); });
+
   if (displaced_)
     iEvent.put(std::move(L1TrackJetContainer), "L1TrackJetsExtended");
   else
@@ -326,6 +365,7 @@ void L1TrackJetEmulatorProducer::fillDescriptions(ConfigurationDescriptions &des
   desc.add<double>("trk_ptMax", 200.0);
   desc.add<double>("trk_etaMax", 2.4);
   desc.add<double>("minTrkJetpT", -1.0);
+  desc.add<int>("minTrkJetTrackMultiplicity", 1);
   desc.add<int>("etaBins", 24);
   desc.add<int>("phiBins", 27);
   desc.add<int>("zBins", 1);
@@ -337,6 +377,7 @@ void L1TrackJetEmulatorProducer::fillDescriptions(ConfigurationDescriptions &des
   desc.add<double>("highpTJetThreshold", 100.0);
   desc.add<bool>("displaced", false);
   desc.add<int>("nDisplacedTracks", 2);
+  desc.add<bool>("export_binmap", false);
   descriptions.add("l1tTrackJetsEmulator", desc);
 }
 
