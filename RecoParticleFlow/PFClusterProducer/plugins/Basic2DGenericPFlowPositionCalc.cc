@@ -180,14 +180,14 @@ void Basic2DGenericPFlowPositionCalc::calculateAndSetPositionActual(reco::PFClus
       res2 = isBarrel(cell_layer) ? 1. / _timeResolutionCalcBarrel->timeResolution2(rh_rawenergy)
                                   : 1. / _timeResolutionCalcEndcap->timeResolution2(rh_rawenergy);
       if (refhit.time() != -999) {
-	cl_time += rh_fraction * refhit.time() * res2;
-	cl_timeweight += rh_fraction * res2;
+        cl_time += rh_fraction * refhit.time() * res2;
+        cl_timeweight += rh_fraction * res2;
       }
     } else {  // assume resolution = 1/E**2
       const double rh_rawenergy2 = rh_rawenergy * rh_rawenergy;
       if (refhit.time() != -999) {
-	cl_timeweight += rh_rawenergy2 * rh_fraction;
-	cl_time += rh_rawenergy2 * rh_fraction * refhit.time();
+        cl_timeweight += rh_rawenergy2 * rh_fraction;
+        cl_time += rh_rawenergy2 * rh_fraction * refhit.time();
       }
     }
 
@@ -198,8 +198,10 @@ void Basic2DGenericPFlowPositionCalc::calculateAndSetPositionActual(reco::PFClus
   }
 
   cluster.setEnergy(cl_energy);
-  if (cl_timeweight == 0) cluster.setTime(-999); // means no cells with valid timing in the cluster -- thus, report default time
-  else cluster.setTime(cl_time / cl_timeweight);
+  if (cl_timeweight == 0)
+    cluster.setTime(-999);  // means no cells with valid timing in the cluster -- thus, report default time
+  else
+    cluster.setTime(cl_time / cl_timeweight);
   if (resGiven) {
     cluster.setTimeError(std::sqrt(1.0f / float(cl_timeweight)));
   }
