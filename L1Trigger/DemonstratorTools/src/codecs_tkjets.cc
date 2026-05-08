@@ -29,9 +29,9 @@ namespace l1t::demo::codecs {
     std::vector<l1t::TkJetWord> tkJets;
 
     for (size_t f = 0; f < frames.size(); f += 2) {
-
       TkJetWord j(
-	  TkJetWord::tkjetvalid_t(frames[f](TkJetWord::TkJetBitLocations::kValidMSB, TkJetWord::TkJetBitLocations::kValidLSB)),
+          TkJetWord::tkjetvalid_t(
+              frames[f](TkJetWord::TkJetBitLocations::kValidMSB, TkJetWord::TkJetBitLocations::kValidLSB)),
           TkJetWord::pt_t(frames[f](TkJetWord::TkJetBitLocations::kPtMSB, TkJetWord::TkJetBitLocations::kPtLSB)),
           TkJetWord::glbphi_t(
               frames[f](TkJetWord::TkJetBitLocations::kGlbPhiMSB, TkJetWord::TkJetBitLocations::kGlbPhiLSB)),
@@ -48,7 +48,7 @@ namespace l1t::demo::codecs {
       // There is no valid bit in the definition right now.
       // Uncomment the next two lines when this is available.
       if (not j.valid())
-	break;
+        break;
 
       tkJets.push_back(j);
     }

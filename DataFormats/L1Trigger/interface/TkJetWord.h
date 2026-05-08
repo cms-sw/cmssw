@@ -33,8 +33,8 @@ namespace l1t {
       kXtSize = 4,
       kDispFlagSize = 1,
       kUnassignedSize = 64,
-      kTkJetWordSize =
-          kValidSize + kPtSize + kGlbEtaSize + kGlbPhiSize + kZ0Size + kNtSize + kXtSize + kDispFlagSize + kUnassignedSize,
+      kTkJetWordSize = kValidSize + kPtSize + kGlbEtaSize + kGlbPhiSize + kZ0Size + kNtSize + kXtSize + kDispFlagSize +
+                       kUnassignedSize,
     };
 
     enum TkJetBitLocations {
@@ -74,7 +74,7 @@ namespace l1t {
     // ----------Constructors --------------------------
     TkJetWord() {}
     TkJetWord(tkjetvalid_t valid,
-	      pt_t pt,
+              pt_t pt,
               glbeta_t eta,
               glbphi_t phi,
               z0_t z0,
@@ -176,7 +176,7 @@ namespace l1t {
 
     // ----------member functions (setters) ------------
     void setTkJetWord(tkjetvalid_t valid,
-		      pt_t pt,
+                      pt_t pt,
                       glbeta_t eta,
                       glbphi_t phi,
                       z0_t z0,
