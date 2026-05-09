@@ -57,49 +57,60 @@
 // ---------------------------------------------------------------------------
 namespace {
   inline math::PtEtaPhiMLorentzVector muonP4(const Run3ScoutingMuon& mu) {
-    return math::PtEtaPhiMLorentzVector(
-        mu.pt(), mu.eta(), mu.phi(), scoutingDQMUtils::MUON_MASS);
+    return math::PtEtaPhiMLorentzVector(mu.pt(), mu.eta(), mu.phi(), scoutingDQMUtils::MUON_MASS);
   }
 
   // Vertex position uncertainty in 2D (xy) using diagonal errors only.
   // If the newer covariance accessors are available (xyCov etc.) they should
   // be used instead; we fall back to quadratic sum of xError/yError here for
   // maximum compatibility.
-  inline double vtxDistXY(float svX, float svY,
-                           float pvX, float pvY,
-                           float svXErr, float svYErr,
-                           float pvXErr, float pvYErr,
-                           double& dist, double& distErr) {
+  inline double vtxDistXY(float svX,
+                          float svY,
+                          float pvX,
+                          float pvY,
+                          float svXErr,
+                          float svYErr,
+                          float pvXErr,
+                          float pvYErr,
+                          double& dist,
+                          double& distErr) {
     const double dx = svX - pvX;
     const double dy = svY - pvY;
     dist = std::sqrt(dx * dx + dy * dy);
     // Propagated uncertainty (ignoring off-diagonal covariance)
     if (dist > 0.) {
-      distErr = std::sqrt(
-          (dx * dx * (svXErr * svXErr + pvXErr * pvXErr) +
-           dy * dy * (svYErr * svYErr + pvYErr * pvYErr)) /
-          (dist * dist));
+      distErr =
+          std::sqrt((dx * dx * (svXErr * svXErr + pvXErr * pvXErr) + dy * dy * (svYErr * svYErr + pvYErr * pvYErr)) /
+                    (dist * dist));
     } else {
       distErr = 0.;
     }
     return dist;
   }
 
-  inline double vtxDist3D(float svX, float svY, float svZ,
-                           float pvX, float pvY, float pvZ,
-                           float svXErr, float svYErr, float svZErr,
-                           float pvXErr, float pvYErr, float pvZErr,
-                           double& dist, double& distErr) {
+  inline double vtxDist3D(float svX,
+                          float svY,
+                          float svZ,
+                          float pvX,
+                          float pvY,
+                          float pvZ,
+                          float svXErr,
+                          float svYErr,
+                          float svZErr,
+                          float pvXErr,
+                          float pvYErr,
+                          float pvZErr,
+                          double& dist,
+                          double& distErr) {
     const double dx = svX - pvX;
     const double dy = svY - pvY;
     const double dz = svZ - pvZ;
     dist = std::sqrt(dx * dx + dy * dy + dz * dz);
     if (dist > 0.) {
-      distErr = std::sqrt(
-          (dx * dx * (svXErr * svXErr + pvXErr * pvXErr) +
-           dy * dy * (svYErr * svYErr + pvYErr * pvYErr) +
-           dz * dz * (svZErr * svZErr + pvZErr * pvZErr)) /
-          (dist * dist));
+      distErr =
+          std::sqrt((dx * dx * (svXErr * svXErr + pvXErr * pvXErr) + dy * dy * (svYErr * svYErr + pvYErr * pvYErr) +
+                     dz * dz * (svZErr * svZErr + pvZErr * pvZErr)) /
+                    (dist * dist));
     } else {
       distErr = 0.;
     }
@@ -141,9 +152,9 @@ private:
   const double maxSVdistXY_;  // μm, cut on PV–SV xy distance
 
   // Input tags / tokens
-  const edm::EDGetTokenT<Run3ScoutingMuonCollection>      muonToken_;
-  const edm::EDGetTokenT<Run3ScoutingVertexCollection>    pvToken_;
-  const edm::EDGetTokenT<Run3ScoutingVertexCollection>    svToken_;   // di-muon displaced vtx
+  const edm::EDGetTokenT<Run3ScoutingMuonCollection> muonToken_;
+  const edm::EDGetTokenT<Run3ScoutingVertexCollection> pvToken_;
+  const edm::EDGetTokenT<Run3ScoutingVertexCollection> svToken_;  // di-muon displaced vtx
 
   // ---- histograms ----------------------------------------------------------
 
@@ -193,12 +204,9 @@ ScoutingDiMuonVertexMonitor::ScoutingDiMuonVertexMonitor(const edm::ParameterSet
       maxEta_(iConfig.getParameter<double>("maxMuonEta")),
       minVtxProb_(iConfig.getParameter<double>("minVtxProb")),
       maxSVdistXY_(iConfig.getParameter<double>("maxSVdistXY")),
-      muonToken_(consumes<Run3ScoutingMuonCollection>(
-          iConfig.getParameter<edm::InputTag>("muons"))),
-      pvToken_(consumes<Run3ScoutingVertexCollection>(
-          iConfig.getParameter<edm::InputTag>("primaryVertices"))),
-      svToken_(consumes<Run3ScoutingVertexCollection>(
-          iConfig.getParameter<edm::InputTag>("secondaryVertices"))) {
+      muonToken_(consumes<Run3ScoutingMuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
+      pvToken_(consumes<Run3ScoutingVertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertices"))),
+      svToken_(consumes<Run3ScoutingVertexCollection>(iConfig.getParameter<edm::InputTag>("secondaryVertices"))) {
   // Determine mass window from decay mother name
   if (decayMotherName_.find('Z') != std::string::npos) {
     massLimits_ = {50., 120.};
@@ -210,8 +218,7 @@ ScoutingDiMuonVertexMonitor::ScoutingDiMuonVertexMonitor(const edm::ParameterSet
     massLimits_ = {8.9, 9.9};
   } else {
     edm::LogWarning("ScoutingDiMuonVertexMonitor")
-        << "Unrecognised decay mother '" << decayMotherName_
-        << "'. Defaulting to Z window [50, 120] GeV.";
+        << "Unrecognised decay mother '" << decayMotherName_ << "'. Defaulting to Z window [50, 120] GeV.";
     massLimits_ = {50., 120.};
   }
 }
@@ -219,9 +226,7 @@ ScoutingDiMuonVertexMonitor::ScoutingDiMuonVertexMonitor(const edm::ParameterSet
 // ---------------------------------------------------------------------------
 // bookHistograms
 // ---------------------------------------------------------------------------
-void ScoutingDiMuonVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker,
-                                                 edm::Run const&,
-                                                 edm::EventSetup const&) {
+void ScoutingDiMuonVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const&) {
   iBooker.setCurrentFolder(folderName_ + "/ScoutingDiMuonVertexMonitor");
 
   const std::string motName = decayMotherName_;
@@ -229,121 +234,67 @@ void ScoutingDiMuonVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker,
   const std::string histTit = motName + " #rightarrow #mu^{+}#mu^{-}";
 
   // ---- vertex quality ----
-  hSVProb_ = iBooker.book1D(
-      "VtxProb",
-      ";" + motName + " vertex probability;" + ps,
-      100, 0., 1.);
+  hSVProb_ = iBooker.book1D("VtxProb", ";" + motName + " vertex probability;" + ps, 100, 0., 1.);
 
   hSVChi2_ = iBooker.book1D(
-      "VtxChi2",
-      ";#chi^{2} of the " + motName + " vertex;#chi^{2} of the " + motName + " vertex;" + ps,
-      200, 0., 200.);
+      "VtxChi2", ";#chi^{2} of the " + motName + " vertex;#chi^{2} of the " + motName + " vertex;" + ps, 200, 0., 200.);
 
-  hSVNormChi2_ = iBooker.book1D(
-      "VtxNormChi2",
-      ";#chi^{2}/ndof of the " + motName + " vertex;" + ps,
-      100, 0., 20.);
+  hSVNormChi2_ = iBooker.book1D("VtxNormChi2", ";#chi^{2}/ndof of the " + motName + " vertex;" + ps, 100, 0., 20.);
 
   // ---- PV–SV distance xy ----
-  hSVDistXY_ = iBooker.book1D(
-      "VtxDistXY",
-      histTit + ";PV-" + motName + "V xy distance [#mum];" + ps,
-      100, 0., 300.);
+  hSVDistXY_ = iBooker.book1D("VtxDistXY", histTit + ";PV-" + motName + "V xy distance [#mum];" + ps, 100, 0., 300.);
 
-  hSVDistXYErr_ = iBooker.book1D(
-      "VtxDistXYErr",
-      histTit + ";PV-" + motName + "V xy distance error [#mum];" + ps,
-      100, 0., 1000.);
+  hSVDistXYErr_ =
+      iBooker.book1D("VtxDistXYErr", histTit + ";PV-" + motName + "V xy distance error [#mum];" + ps, 100, 0., 1000.);
 
-  hSVDistXYSig_ = iBooker.book1D(
-      "VtxDistXYSig",
-      histTit + ";PV-" + motName + "V xy distance significance;" + ps,
-      100, 0., 10.);
+  hSVDistXYSig_ =
+      iBooker.book1D("VtxDistXYSig", histTit + ";PV-" + motName + "V xy distance significance;" + ps, 100, 0., 10.);
 
   // ---- PV–SV distance 3D ----
-  hSVDist3D_ = iBooker.book1D(
-      "VtxDist3D",
-      histTit + ";PV-" + motName + "V 3D distance [#mum];" + ps,
-      100, 0., 300.);
+  hSVDist3D_ = iBooker.book1D("VtxDist3D", histTit + ";PV-" + motName + "V 3D distance [#mum];" + ps, 100, 0., 300.);
 
-  hSVDist3DErr_ = iBooker.book1D(
-      "VtxDist3DErr",
-      histTit + ";PV-" + motName + "V 3D distance error [#mum];" + ps,
-      100, 0., 1000.);
+  hSVDist3DErr_ =
+      iBooker.book1D("VtxDist3DErr", histTit + ";PV-" + motName + "V 3D distance error [#mum];" + ps, 100, 0., 1000.);
 
-  hSVDist3DSig_ = iBooker.book1D(
-      "VtxDist3DSig",
-      histTit + ";PV-" + motName + "V 3D distance significance;" + ps,
-      100, 0., 10.);
+  hSVDist3DSig_ =
+      iBooker.book1D("VtxDist3DSig", histTit + ";PV-" + motName + "V 3D distance significance;" + ps, 100, 0., 10.);
 
   // ---- pointing angle ----
-  hCosPhi_ = iBooker.book1D(
-      "CosPhi",
-      histTit + ";cos(#phi_{xy});" + ps,
-      50, -1., 1.);
+  hCosPhi_ = iBooker.book1D("CosPhi", histTit + ";cos(#phi_{xy});" + ps, 50, -1., 1.);
 
-  hCosPhi3D_ = iBooker.book1D(
-      "CosPhi3D",
-      histTit + ";cos(#phi_{3D});" + ps,
-      50, -1., 1.);
+  hCosPhi3D_ = iBooker.book1D("CosPhi3D", histTit + ";cos(#phi_{3D});" + ps, 50, -1., 1.);
 
-  hCosPhiInv_ = iBooker.book1D(
-      "CosPhiInv",
-      histTit + ";inverted cos(#phi_{xy});" + ps,
-      50, -1., 1.);
+  hCosPhiInv_ = iBooker.book1D("CosPhiInv", histTit + ";inverted cos(#phi_{xy});" + ps, 50, -1., 1.);
 
-  hCosPhiInv3D_ = iBooker.book1D(
-      "CosPhiInv3D",
-      histTit + ";inverted cos(#phi_{3D});" + ps,
-      50, -1., 1.);
+  hCosPhiInv3D_ = iBooker.book1D("CosPhiInv3D", histTit + ";inverted cos(#phi_{3D});" + ps, 50, -1., 1.);
 
-  hCosPhiUnbalance_ = iBooker.book1D(
-      "CosPhiUnbalance",
-      histTit + ";cos(#phi_{xy}) unbalance;#Delta" + ps,
-      50, -1., 1.);
+  hCosPhiUnbalance_ = iBooker.book1D("CosPhiUnbalance", histTit + ";cos(#phi_{xy}) unbalance;#Delta" + ps, 50, -1., 1.);
 
-  hCosPhi3DUnbalance_ = iBooker.book1D(
-      "CosPhi3DUnbalance",
-      histTit + ";cos(#phi_{3D}) unbalance;#Delta" + ps,
-      50, -1., 1.);
+  hCosPhi3DUnbalance_ =
+      iBooker.book1D("CosPhi3DUnbalance", histTit + ";cos(#phi_{3D}) unbalance;#Delta" + ps, 50, -1., 1.);
 
   // ---- invariant mass ----
-  hInvMass_ = iBooker.book1D(
-      "InvMass",
-      histTit + ";M(#mu^{+}#mu^{-}) [GeV];" + ps,
-      70, massLimits_.first, massLimits_.second);
+  hInvMass_ =
+      iBooker.book1D("InvMass", histTit + ";M(#mu^{+}#mu^{-}) [GeV];" + ps, 70, massLimits_.first, massLimits_.second);
 
   // ---- track impact parameters ----
-  hTrkDxy_ = iBooker.book1D(
-      "TrkDxy",
-      histTit + ";muon track d_{xy}(PV) [#mum];muon tracks",
-      150, -300., 300.);
+  hTrkDxy_ = iBooker.book1D("TrkDxy", histTit + ";muon track d_{xy}(PV) [#mum];muon tracks", 150, -300., 300.);
 
-  hTrkDz_ = iBooker.book1D(
-      "TrkDz",
-      histTit + ";muon track d_{z}(PV) [#mum];muon tracks",
-      150, -300., 300.);
+  hTrkDz_ = iBooker.book1D("TrkDz", histTit + ";muon track d_{z}(PV) [#mum];muon tracks", 150, -300., 300.);
 
-  hTrkDxyErr_ = iBooker.book1D(
-      "TrkDxyErr",
-      histTit + ";muon track err_{dxy} [#mum];muon tracks",
-      250, 0., 500.);
+  hTrkDxyErr_ = iBooker.book1D("TrkDxyErr", histTit + ";muon track err_{dxy} [#mum];muon tracks", 250, 0., 500.);
 
-  hTrkDzErr_ = iBooker.book1D(
-      "TrkDzErr",
-      histTit + ";muon track err_{dz} [#mum];muon tracks",
-      250, 0., 500.);
+  hTrkDzErr_ = iBooker.book1D("TrkDzErr", histTit + ";muon track err_{dz} [#mum];muon tracks", 250, 0., 500.);
 
   // ---- diagnostics ----
   hNMuons_ = iBooker.book1D("NMuons", ";Number of selected muons;Events", 20, 0., 20.);
-  hNSV_    = iBooker.book1D("NSV",    ";Number of di-muon secondary vertices;Events", 20, 0., 20.);
+  hNSV_ = iBooker.book1D("NSV", ";Number of di-muon secondary vertices;Events", 20, 0., 20.);
 }
 
 // ---------------------------------------------------------------------------
 // analyze
 // ---------------------------------------------------------------------------
-void ScoutingDiMuonVertexMonitor::analyze(edm::Event const& iEvent,
-                                          edm::EventSetup const&) {
+void ScoutingDiMuonVertexMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const&) {
   // ---- Muon collection ----
   edm::Handle<Run3ScoutingMuonCollection> muonHandle;
   iEvent.getByToken(muonToken_, muonHandle);
@@ -428,10 +379,10 @@ void ScoutingDiMuonVertexMonitor::analyze(edm::Event const& iEvent,
       // Run3ScoutingMuon stores trk_dxy and trk_dz computed w.r.t. the
       // beamspot / PV at HLT.  We use them directly.
       for (const auto* muPtr : {&mu_i, &mu_j}) {
-        hTrkDxy_->Fill(muPtr->trk_dxy()    * cmToUm);
-        hTrkDz_->Fill(muPtr->trk_dz()     * cmToUm);
+        hTrkDxy_->Fill(muPtr->trk_dxy() * cmToUm);
+        hTrkDz_->Fill(muPtr->trk_dz() * cmToUm);
         hTrkDxyErr_->Fill(muPtr->trk_dxyError() * cmToUm);
-        hTrkDzErr_->Fill(muPtr->trk_dzError()   * cmToUm);
+        hTrkDzErr_->Fill(muPtr->trk_dzError() * cmToUm);
       }
 
       // ---- Find best matching secondary vertex ----
@@ -447,7 +398,7 @@ void ScoutingDiMuonVertexMonitor::analyze(edm::Event const& iEvent,
         const double dx = sv.x() - pv.x();
         const double dy = sv.y() - pv.y();
         const double dz = sv.z() - pv.z();
-        const double d  = std::sqrt(dx * dx + dy * dy + dz * dz);
+        const double d = std::sqrt(dx * dx + dy * dy + dz * dz);
         if (d < minSVdist) {
           minSVdist = d;
           bestSV = &sv;
@@ -459,7 +410,7 @@ void ScoutingDiMuonVertexMonitor::analyze(edm::Event const& iEvent,
 
       // ---- Vertex probability and χ² ----
       const double chi2 = bestSV->chi2();
-      const int    ndof = bestSV->ndof();
+      const int ndof = bestSV->ndof();
       const double prob = (ndof > 0) ? TMath::Prob(chi2, ndof) : 0.;
 
       hSVProb_->Fill(prob);
@@ -475,18 +426,32 @@ void ScoutingDiMuonVertexMonitor::analyze(edm::Event const& iEvent,
       // Run3ScoutingVertex with covariance is available, subclasses can
       // override with more precise error propagation.
       double distXY, distXYErr;
-      vtxDistXY(bestSV->x(), bestSV->y(),
-                pv.x(),      pv.y(),
-                bestSV->xError(), bestSV->yError(),
-                pv.xError(),      pv.yError(),
-                distXY, distXYErr);
+      vtxDistXY(bestSV->x(),
+                bestSV->y(),
+                pv.x(),
+                pv.y(),
+                bestSV->xError(),
+                bestSV->yError(),
+                pv.xError(),
+                pv.yError(),
+                distXY,
+                distXYErr);
 
       double dist3D, dist3DErr;
-      vtxDist3D(bestSV->x(), bestSV->y(), bestSV->z(),
-                pv.x(),      pv.y(),      pv.z(),
-                bestSV->xError(), bestSV->yError(), bestSV->zError(),
-                pv.xError(),      pv.yError(),      pv.zError(),
-                dist3D, dist3DErr);
+      vtxDist3D(bestSV->x(),
+                bestSV->y(),
+                bestSV->z(),
+                pv.x(),
+                pv.y(),
+                pv.z(),
+                bestSV->xError(),
+                bestSV->yError(),
+                bestSV->zError(),
+                pv.xError(),
+                pv.yError(),
+                pv.zError(),
+                dist3D,
+                dist3DErr);
 
       hSVDistXY_->Fill(distXY * cmToUm);
       hSVDistXYErr_->Fill(distXYErr * cmToUm);
@@ -505,26 +470,24 @@ void ScoutingDiMuonVertexMonitor::analyze(edm::Event const& iEvent,
       const double dVtxZ = bestSV->z() - pv.z();
 
       // cos φ in xy plane
-      const double magPtDimu  = std::sqrt(pxDimu * pxDimu + pyDimu * pyDimu);
-      const double magDVtxXY  = std::sqrt(dVtxX * dVtxX   + dVtxY * dVtxY);
-      const double magPDimu   = std::sqrt(pxDimu * pxDimu + pyDimu * pyDimu + pzDimu * pzDimu);
-      const double magDVtx3D  = std::sqrt(dVtxX * dVtxX   + dVtxY * dVtxY  + dVtxZ * dVtxZ);
+      const double magPtDimu = std::sqrt(pxDimu * pxDimu + pyDimu * pyDimu);
+      const double magDVtxXY = std::sqrt(dVtxX * dVtxX + dVtxY * dVtxY);
+      const double magPDimu = std::sqrt(pxDimu * pxDimu + pyDimu * pyDimu + pzDimu * pzDimu);
+      const double magDVtx3D = std::sqrt(dVtxX * dVtxX + dVtxY * dVtxY + dVtxZ * dVtxZ);
 
       if (magPtDimu > 0. && magDVtxXY > 0.) {
-        const double cosphi = (pxDimu * dVtxX + pyDimu * dVtxY) /
-                              (magPtDimu * magDVtxXY);
+        const double cosphi = (pxDimu * dVtxX + pyDimu * dVtxY) / (magPtDimu * magDVtxXY);
         hCosPhi_->Fill(cosphi);
         hCosPhiInv_->Fill(-cosphi);
-        hCosPhiUnbalance_->Fill( cosphi,  1.);
+        hCosPhiUnbalance_->Fill(cosphi, 1.);
         hCosPhiUnbalance_->Fill(-cosphi, -1.);
       }
 
       if (magPDimu > 0. && magDVtx3D > 0.) {
-        const double cosphi3D = (pxDimu * dVtxX + pyDimu * dVtxY + pzDimu * dVtxZ) /
-                                (magPDimu * magDVtx3D);
+        const double cosphi3D = (pxDimu * dVtxX + pyDimu * dVtxY + pzDimu * dVtxZ) / (magPDimu * magDVtx3D);
         hCosPhi3D_->Fill(cosphi3D);
         hCosPhiInv3D_->Fill(-cosphi3D);
-        hCosPhi3DUnbalance_->Fill( cosphi3D,  1.);
+        hCosPhi3DUnbalance_->Fill(cosphi3D, 1.);
         hCosPhi3DUnbalance_->Fill(-cosphi3D, -1.);
       }
 
@@ -546,17 +509,14 @@ void ScoutingDiMuonVertexMonitor::fillDescriptions(edm::ConfigurationDescription
   desc.add<std::string>("FolderName", "HLT/ScoutingOffline/DiMuon");
   desc.add<std::string>("decayMotherName", "Z");
 
-  desc.add<edm::InputTag>("muons",
-      edm::InputTag("hltScoutingMuonPackerVtx"));
-  desc.add<edm::InputTag>("primaryVertices",
-      edm::InputTag("hltScoutingPrimaryVertexPacker", "primaryVtx"));
-  desc.add<edm::InputTag>("secondaryVertices",
-      edm::InputTag("hltScoutingMuonPackerVtx", "displacedVtx"));
+  desc.add<edm::InputTag>("muons", edm::InputTag("hltScoutingMuonPackerVtx"));
+  desc.add<edm::InputTag>("primaryVertices", edm::InputTag("hltScoutingPrimaryVertexPacker", "primaryVtx"));
+  desc.add<edm::InputTag>("secondaryVertices", edm::InputTag("hltScoutingMuonPackerVtx", "displacedVtx"));
 
   desc.add<bool>("applyMuonID", true);
-  desc.add<double>("minMuonPt",  3.0);
+  desc.add<double>("minMuonPt", 3.0);
   desc.add<double>("maxMuonEta", 2.4);
-  desc.add<double>("minVtxProb",  0.005);
+  desc.add<double>("minVtxProb", 0.005);
   desc.add<double>("maxSVdistXY", 50.0);  // μm
 
   descriptions.addWithDefaultLabel(desc);
