@@ -50,6 +50,7 @@
   <use name="SimDataFormats/Associations"/>
   <use name="SimDataFormats/TrackingAnalysis"/>
   <use name="SimTracker/Common"/>
+  <use name="DataFormats/RPCRecHit"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 <library file="rntuple/*.cc" name="PhysicsToolsNanoAODRNuplePlugins">
