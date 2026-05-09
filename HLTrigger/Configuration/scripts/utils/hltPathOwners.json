@@ -3041,6 +3041,18 @@
       "HIN"
     ]
   },
+  "HLT_HIL1SingleMu3_SinglePuAK4CaloJet40_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIL1SingleMu3_SinglePuAK4CaloJet60_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HIL1SingleMu5_SingleEG20Gsf_v": {
     "online?": true,
     "owners": [
