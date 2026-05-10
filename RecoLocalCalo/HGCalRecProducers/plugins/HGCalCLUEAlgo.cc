@@ -1,4 +1,5 @@
 #include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalCLUEAlgo.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // Geometry
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -12,6 +13,7 @@
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb.h"
 #include <limits>
+#include <cmath>
 #include "DataFormats/DetId/interface/DetId.h"
 
 using namespace hgcal_clustering;
@@ -221,6 +223,11 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
       } else {
         x = cellsOnLayer.dim1[maxEnergyCellIndex];
         y = cellsOnLayer.dim2[maxEnergyCellIndex];
+      }
+
+      if (std::isnan(x) or std::isnan(y)) {
+        throw cms::Exception("HGCalClusterNan") << "while calculating the position of cluster seeded by " << seedDetId
+                                                << " we got x = " << x << " y = " << y << " z = " << z;
       }
       math::XYZPoint position = math::XYZPoint(x, y, z);
 
