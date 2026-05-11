@@ -14,7 +14,6 @@
 #include <cstdint>
 #include <queue>
 #include <unordered_map>
-#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -88,6 +87,10 @@ namespace {
 
   struct GenVertexPayload {
     math::XYZTLorentzVectorD position;
+  };
+
+  struct GraphPostProcessingConfig {
+    bool collapseIntermediateGenParticles = true;
   };
 
   bool isParticleKind(TruthGraph::NodeKind kind) {
@@ -269,9 +272,7 @@ namespace {
 
     return keep;
   }
-  struct GraphPostProcessingConfig {
-    bool collapseIntermediateGenParticles = true;
-  };
+
   bool directCollapsibleGenParticleChain(truth::Graph const& graph,
                                          uint32_t particleId,
                                          uint32_t& childId,
@@ -498,6 +499,7 @@ namespace {
 
     return input;
   }
+
 }  // namespace
 
 class TruthLogicalGraphProducer : public edm::stream::EDProducer<> {
@@ -510,7 +512,6 @@ public:
         hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
         motherPdgId_(cfg.getParameter<int32_t>("motherPdgId")) {
     postProcessing_.collapseIntermediateGenParticles = cfg.getParameter<bool>("collapseIntermediateGenParticles");
-
     produces<truth::Graph>();
   }
 
@@ -731,10 +732,19 @@ public:
           if (validHandle(hSimTracks)) {
             const auto trackId = static_cast<uint32_t>(ref.key);
             auto it = simTrackIdToIndex.find(trackId);
+
             if (it != simTrackIdToIndex.end()) {
               auto const& t = (*hSimTracks)[it->second];
-              p.momentum =
-                  math::XYZTLorentzVectorD(t.momentum().px(), t.momentum().py(), t.momentum().pz(), t.momentum().e());
+
+              const math::XYZTLorentzVectorD simMomentum(
+                  t.momentum().px(), t.momentum().py(), t.momentum().pz(), t.momentum().e());
+
+              // For merged GEN+SIM particles, keep the GEN four-momentum as the nominal
+              // physics momentum. The SIM momentum is a simulation-state quantity.
+              // For SIM-only particles, use the SimTrack momentum.
+              if (!p.hasGen()) {
+                p.momentum = simMomentum;
+              }
 
               if (t.crossedBoundary()) {
                 truth::Checkpoint cp;
@@ -843,7 +853,9 @@ public:
              vertexToIncomingParticlePairs,
              out->vertexToIncomingParticleOffsets,
              out->vertexToIncomingParticles);
+
     *out = postProcessGraph(std::move(*out), postProcessing_);
+
     if (!out->isConsistent()) {
       throw cms::Exception("TruthLogicalGraphProducer") << "Produced truth::Graph is not consistent";
     }
@@ -857,9 +869,9 @@ private:
   edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken_;
   edm::EDGetTokenT<edm::HepMC3Product> hepmc3Token_;
   edm::EDGetTokenT<edm::HepMCProduct> hepmc2Token_;
+
   int32_t motherPdgId_;
   GraphPostProcessingConfig postProcessing_;
-  bool collapseIntermediateGenParticles_ = true;
 };
 
 DEFINE_FWK_MODULE(TruthLogicalGraphProducer);

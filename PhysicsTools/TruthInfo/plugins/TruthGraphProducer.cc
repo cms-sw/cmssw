@@ -438,6 +438,21 @@ public:
           const int barcode = gb.particleBarcodeByIndex[static_cast<uint32_t>(ig)];
           auto it = genParBarcodeToNode.find(barcode);
           if (it != genParBarcodeToNode.end()) {
+            const int simPdgId = simTracks[i].type();
+            const int genPdgId = out->nodePdgId(it->second);
+
+            // SimTrack::genpartIndex() is only meaningful for primary G4 tracks.
+            // Protect the GEN-SIM association against ordering mismatches by requiring
+            // PDG id consistency whenever GEN PDG information is available.
+            if (genPdgId != 0 && genPdgId != simPdgId) {
+              edm::LogPrint("TruthGraphProducer")
+                  << "Rejecting SimTrack->GenParticle association with mismatched PDG id: "
+                  << "simTrack index=" << i << " trackId=" << simTracks[i].trackId() << " genpartIndex=" << ig
+                  << " simPdgId=" << simPdgId << " genNode=" << it->second << " genBarcode=" << barcode
+                  << " genPdgId=" << genPdgId;
+              continue;
+            }
+
             out->simTrackToGen[nodeId] = static_cast<int32_t>(it->second);
           }
         }

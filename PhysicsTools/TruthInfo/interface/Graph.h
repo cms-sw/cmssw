@@ -37,8 +37,9 @@ namespace truth {
     int32_t genEvent = -1;
 
     // Standalone payload.
-    // Convention: "best available" momentum.
-    // Prefer SIM if present, otherwise GEN, otherwise default-constructed.
+    // Nominal physics four-momentum.
+    // For GEN+SIM particles, this is the GEN four-momentum.
+    // For SIM-only particles, this is the SimTrack four-momentum.
     math::XYZTLorentzVectorD momentum;
 
     // Optional trajectory checkpoints.
