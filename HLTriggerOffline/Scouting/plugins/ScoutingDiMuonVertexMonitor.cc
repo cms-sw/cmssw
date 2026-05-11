@@ -227,7 +227,7 @@ ScoutingDiMuonVertexMonitor::ScoutingDiMuonVertexMonitor(const edm::ParameterSet
 // bookHistograms
 // ---------------------------------------------------------------------------
 void ScoutingDiMuonVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const&) {
-  iBooker.setCurrentFolder(folderName_ + "/ScoutingDiMuonVertexMonitor");
+  iBooker.setCurrentFolder(folderName_ + "/DiMuonVertexMonitor");
 
   const std::string motName = decayMotherName_;
   const std::string ps = "N(#mu#mu pairs)";
