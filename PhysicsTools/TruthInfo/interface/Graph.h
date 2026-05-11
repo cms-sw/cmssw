@@ -109,9 +109,7 @@ namespace truth {
     [[nodiscard]] std::optional<Particle> firstAncestorWithPdgId(int pdgId) const;
     [[nodiscard]] std::optional<Particle> firstCommonAncestor(Particle other) const;
 
-    [[nodiscard]] bool operator==(Particle const& other) const {
-      return graph_ == other.graph_ && id_ == other.id_;
-    }
+    [[nodiscard]] bool operator==(Particle const& other) const { return graph_ == other.graph_ && id_ == other.id_; }
     [[nodiscard]] bool operator!=(Particle const& other) const { return !(*this == other); }
 
   private:
@@ -141,9 +139,7 @@ namespace truth {
     [[nodiscard]] std::vector<Particle> incomingParticles() const;
     [[nodiscard]] std::vector<Particle> outgoingParticles() const;
 
-    [[nodiscard]] bool operator==(Vertex const& other) const {
-      return graph_ == other.graph_ && id_ == other.id_;
-    }
+    [[nodiscard]] bool operator==(Vertex const& other) const { return graph_ == other.graph_ && id_ == other.id_; }
     [[nodiscard]] bool operator!=(Vertex const& other) const { return !(*this == other); }
 
   private:

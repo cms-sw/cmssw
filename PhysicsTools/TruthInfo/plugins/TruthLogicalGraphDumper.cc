@@ -220,19 +220,19 @@ public:
       if (d.genEvent >= 0)
         os << "      <TR><TD>genEvent: " << d.genEvent << "</TD></TR>\n";
 
-      os << "      <TR><TD>hasGen: " << (d.hasGen() ? "yes" : "no")
-         << "  hasSim: " << (d.hasSim() ? "yes" : "no") << "</TD></TR>\n";
+      os << "      <TR><TD>hasGen: " << (d.hasGen() ? "yes" : "no") << "  hasSim: " << (d.hasSim() ? "yes" : "no")
+         << "</TD></TR>\n";
 
-      os << "      <TR><TD>isRoot: " << (p.isRoot() ? "yes" : "no")
-         << "  isLeaf: " << (p.isLeaf() ? "yes" : "no") << "</TD></TR>\n";
+      os << "      <TR><TD>isRoot: " << (p.isRoot() ? "yes" : "no") << "  isLeaf: " << (p.isLeaf() ? "yes" : "no")
+         << "</TD></TR>\n";
 
       os << "      <TR><TD>p4: " << fmtP4(d.momentum) << "</TD></TR>\n";
 
-      os << "      <TR><TD>nProdVtx: " << p.productionVertices().size()
-         << "  nDecayVtx: " << p.decayVertices().size() << "</TD></TR>\n";
+      os << "      <TR><TD>nProdVtx: " << p.productionVertices().size() << "  nDecayVtx: " << p.decayVertices().size()
+         << "</TD></TR>\n";
 
-      os << "      <TR><TD>nParents: " << p.parents().size()
-         << "  nChildren: " << p.children().size() << "</TD></TR>\n";
+      os << "      <TR><TD>nParents: " << p.parents().size() << "  nChildren: " << p.children().size()
+         << "</TD></TR>\n";
 
       os << "      <TR><TD>nCheckpoints: " << d.checkpoints.size() << "</TD></TR>\n";
 
@@ -279,16 +279,16 @@ public:
       if (d.genEvent >= 0)
         os << "      <TR><TD>genEvent: " << d.genEvent << "</TD></TR>\n";
 
-      os << "      <TR><TD>hasGen: " << (d.hasGen() ? "yes" : "no")
-         << "  hasSim: " << (d.hasSim() ? "yes" : "no") << "</TD></TR>\n";
+      os << "      <TR><TD>hasGen: " << (d.hasGen() ? "yes" : "no") << "  hasSim: " << (d.hasSim() ? "yes" : "no")
+         << "</TD></TR>\n";
 
-      os << "      <TR><TD>isSource: " << (v.isSource() ? "yes" : "no")
-         << "  isSink: " << (v.isSink() ? "yes" : "no") << "</TD></TR>\n";
+      os << "      <TR><TD>isSource: " << (v.isSource() ? "yes" : "no") << "  isSink: " << (v.isSink() ? "yes" : "no")
+         << "</TD></TR>\n";
 
       os << "      <TR><TD>x4: " << fmtP4(d.position) << "</TD></TR>\n";
 
-      os << "      <TR><TD>nIn: " << v.incomingParticles().size()
-         << "  nOut: " << v.outgoingParticles().size() << "</TD></TR>\n";
+      os << "      <TR><TD>nIn: " << v.incomingParticles().size() << "  nOut: " << v.outgoingParticles().size()
+         << "</TD></TR>\n";
 
       if (raw != nullptr) {
         os << "      <TR><TD>raw GEN: " << rawNodeSummary(raw, d.genNode) << "</TD></TR>\n";

@@ -29,45 +29,27 @@ namespace {
   }
 }  // namespace
 
-const truth::ParticleData& truth::Particle::data() const {
-  return graph_->particles.at(id_);
-}
+const truth::ParticleData& truth::Particle::data() const { return graph_->particles.at(id_); }
 
-bool truth::Particle::hasGen() const {
-  return data().hasGen();
-}
+bool truth::Particle::hasGen() const { return data().hasGen(); }
 
-bool truth::Particle::hasSim() const {
-  return data().hasSim();
-}
+bool truth::Particle::hasSim() const { return data().hasSim(); }
 
-int32_t truth::Particle::pdgId() const {
-  return data().pdgId;
-}
+int32_t truth::Particle::pdgId() const { return data().pdgId; }
 
-int16_t truth::Particle::status() const {
-  return data().status;
-}
+int16_t truth::Particle::status() const { return data().status; }
 
-uint64_t truth::Particle::eventId() const {
-  return data().eventId;
-}
+uint64_t truth::Particle::eventId() const { return data().eventId; }
 
-int32_t truth::Particle::genEvent() const {
-  return data().genEvent;
-}
+int32_t truth::Particle::genEvent() const { return data().genEvent; }
 
-const math::XYZTLorentzVectorD& truth::Particle::momentum() const {
-  return data().momentum;
-}
+const math::XYZTLorentzVectorD& truth::Particle::momentum() const { return data().momentum; }
 
 std::span<const truth::Checkpoint> truth::Particle::checkpoints() const {
   return std::span<const truth::Checkpoint>(data().checkpoints.data(), data().checkpoints.size());
 }
 
-bool truth::Particle::hasCheckpoints() const {
-  return !data().checkpoints.empty();
-}
+bool truth::Particle::hasCheckpoints() const { return !data().checkpoints.empty(); }
 
 std::optional<truth::Checkpoint> truth::Particle::checkpoint(uint32_t checkpointId) const {
   for (auto const& cp : data().checkpoints) {
@@ -77,13 +59,9 @@ std::optional<truth::Checkpoint> truth::Particle::checkpoint(uint32_t checkpoint
   return std::nullopt;
 }
 
-bool truth::Particle::isRoot() const {
-  return valid() && graph_->productionVertices(id_).empty();
-}
+bool truth::Particle::isRoot() const { return valid() && graph_->productionVertices(id_).empty(); }
 
-bool truth::Particle::isLeaf() const {
-  return valid() && graph_->decayVertices(id_).empty();
-}
+bool truth::Particle::isLeaf() const { return valid() && graph_->decayVertices(id_).empty(); }
 
 std::vector<truth::Vertex> truth::Particle::productionVertices() const {
   return valid() ? graph_->productionVerticesOf(id_) : std::vector<truth::Vertex>{};
@@ -109,9 +87,7 @@ std::vector<truth::Particle> truth::Particle::descendants() const {
   return valid() ? graph_->descendantsOf(id_) : std::vector<truth::Particle>{};
 }
 
-bool truth::Particle::hasAncestorPdgId(int pdgId) const {
-  return firstAncestorWithPdgId(pdgId).has_value();
-}
+bool truth::Particle::hasAncestorPdgId(int pdgId) const { return firstAncestorWithPdgId(pdgId).has_value(); }
 
 std::optional<truth::Particle> truth::Particle::firstAncestorWithPdgId(int pdgId) const {
   return valid() ? graph_->firstAncestorWithPdgIdOf(id_, pdgId) : std::nullopt;
@@ -123,37 +99,21 @@ std::optional<truth::Particle> truth::Particle::firstCommonAncestor(Particle oth
   return graph_->firstCommonAncestorOf(id_, other.id_);
 }
 
-const truth::VertexData& truth::Vertex::data() const {
-  return graph_->vertices.at(id_);
-}
+const truth::VertexData& truth::Vertex::data() const { return graph_->vertices.at(id_); }
 
-bool truth::Vertex::hasGen() const {
-  return data().hasGen();
-}
+bool truth::Vertex::hasGen() const { return data().hasGen(); }
 
-bool truth::Vertex::hasSim() const {
-  return data().hasSim();
-}
+bool truth::Vertex::hasSim() const { return data().hasSim(); }
 
-uint64_t truth::Vertex::eventId() const {
-  return data().eventId;
-}
+uint64_t truth::Vertex::eventId() const { return data().eventId; }
 
-int32_t truth::Vertex::genEvent() const {
-  return data().genEvent;
-}
+int32_t truth::Vertex::genEvent() const { return data().genEvent; }
 
-const math::XYZTLorentzVectorD& truth::Vertex::position() const {
-  return data().position;
-}
+const math::XYZTLorentzVectorD& truth::Vertex::position() const { return data().position; }
 
-bool truth::Vertex::isSource() const {
-  return valid() && graph_->incomingParticles(id_).empty();
-}
+bool truth::Vertex::isSource() const { return valid() && graph_->incomingParticles(id_).empty(); }
 
-bool truth::Vertex::isSink() const {
-  return valid() && graph_->outgoingParticles(id_).empty();
-}
+bool truth::Vertex::isSink() const { return valid() && graph_->outgoingParticles(id_).empty(); }
 
 std::vector<truth::Particle> truth::Vertex::incomingParticles() const {
   return valid() ? graph_->incomingParticlesOf(id_) : std::vector<truth::Particle>{};
@@ -167,9 +127,7 @@ truth::Particle truth::Graph::particle(size_type id) const {
   return id < nParticles() ? Particle(this, id) : Particle{};
 }
 
-truth::Vertex truth::Graph::vertex(size_type id) const {
-  return id < nVertices() ? Vertex(this, id) : Vertex{};
-}
+truth::Vertex truth::Graph::vertex(size_type id) const { return id < nVertices() ? Vertex(this, id) : Vertex{}; }
 
 std::vector<truth::Particle> truth::Graph::particleViews() const {
   std::vector<truth::Particle> out;
