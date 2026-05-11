@@ -171,8 +171,8 @@ namespace {
       GenParticlePayload payload;
       payload.pdgId = pptr->pid();
       payload.status = static_cast<int16_t>(pptr->status());
-      payload.momentum =
-          math::XYZTLorentzVectorD(pptr->momentum().px(), pptr->momentum().py(), pptr->momentum().pz(), pptr->momentum().e());
+      payload.momentum = math::XYZTLorentzVectorD(
+          pptr->momentum().px(), pptr->momentum().py(), pptr->momentum().pz(), pptr->momentum().e());
       particlePayload.emplace(bc, payload);
     }
 
@@ -181,8 +181,8 @@ namespace {
         continue;
       const int bc = vptr->id();
       GenVertexPayload payload;
-      payload.position =
-          math::XYZTLorentzVectorD(vptr->position().x(), vptr->position().y(), vptr->position().z(), vptr->position().t());
+      payload.position = math::XYZTLorentzVectorD(
+          vptr->position().x(), vptr->position().y(), vptr->position().z(), vptr->position().t());
       vertexPayload.emplace(bc, payload);
     }
   }
@@ -469,10 +469,8 @@ public:
       }
     }
 
-    buildCSR(out->nParticles(),
-             particleToDecayVertexPairs,
-             out->particleToDecayVertexOffsets,
-             out->particleToDecayVertices);
+    buildCSR(
+        out->nParticles(), particleToDecayVertexPairs, out->particleToDecayVertexOffsets, out->particleToDecayVertices);
 
     buildCSR(out->nParticles(),
              particleToProductionVertexPairs,
