@@ -97,6 +97,5 @@ void FlatEvtVtxGenerator::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("MinPhi", -3.14159265359)->setComment("in radians");
   desc.add<double>("MaxPhi", 3.14159265359)->setComment("in radians");
   desc.add<edm::InputTag>("src");
-  desc.add<bool>("readDB");
   descriptions.add("FlatEvtVtxGenerator", desc);
 }
