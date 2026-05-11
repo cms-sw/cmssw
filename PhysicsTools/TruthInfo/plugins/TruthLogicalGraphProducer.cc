@@ -269,7 +269,9 @@ namespace {
 
     return keep;
   }
-
+  struct GraphPostProcessingConfig {
+    bool collapseIntermediateGenParticles = true;
+  };
   bool directCollapsibleGenParticleChain(truth::Graph const& graph,
                                          uint32_t particleId,
                                          uint32_t& childId,
@@ -331,6 +333,10 @@ namespace {
     return true;
   }
 
+  // Post-processing pass:
+  // Collapse GEN-only chains P -> V -> C when P has status != 1,
+  // C is the only daughter, and P and C have the same PDG id.
+  // The kept particle is the last representative in the collapsed chain.
   truth::Graph collapseIntermediateGenParticleChains(truth::Graph const& input) {
     if (input.empty())
       return input;
@@ -484,6 +490,14 @@ namespace {
 
     return output;
   }
+
+  truth::Graph postProcessGraph(truth::Graph input, GraphPostProcessingConfig const& config) {
+    if (config.collapseIntermediateGenParticles) {
+      input = collapseIntermediateGenParticleChains(input);
+    }
+
+    return input;
+  }
 }  // namespace
 
 class TruthLogicalGraphProducer : public edm::stream::EDProducer<> {
@@ -494,8 +508,9 @@ public:
         simVertexToken_(mayConsume<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
         hepmc3Token_(mayConsume<edm::HepMC3Product>(cfg.getParameter<edm::InputTag>("genEventHepMC3"))),
         hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
-        motherPdgId_(cfg.getParameter<int32_t>("motherPdgId")),
-        collapseIntermediateGenParticles_(cfg.getParameter<bool>("collapseIntermediateGenParticles")) {
+        motherPdgId_(cfg.getParameter<int32_t>("motherPdgId")) {
+    postProcessing_.collapseIntermediateGenParticles = cfg.getParameter<bool>("collapseIntermediateGenParticles");
+
     produces<truth::Graph>();
   }
 
@@ -828,9 +843,7 @@ public:
              vertexToIncomingParticlePairs,
              out->vertexToIncomingParticleOffsets,
              out->vertexToIncomingParticles);
-    if (collapseIntermediateGenParticles_) {
-      *out = collapseIntermediateGenParticleChains(*out);
-    }
+    *out = postProcessGraph(std::move(*out), postProcessing_);
     if (!out->isConsistent()) {
       throw cms::Exception("TruthLogicalGraphProducer") << "Produced truth::Graph is not consistent";
     }
@@ -845,6 +858,7 @@ private:
   edm::EDGetTokenT<edm::HepMC3Product> hepmc3Token_;
   edm::EDGetTokenT<edm::HepMCProduct> hepmc2Token_;
   int32_t motherPdgId_;
+  GraphPostProcessingConfig postProcessing_;
   bool collapseIntermediateGenParticles_ = true;
 };
 
