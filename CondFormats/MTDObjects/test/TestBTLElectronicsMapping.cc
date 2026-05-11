@@ -64,6 +64,10 @@ private:
   edm::ESGetToken<DDSpecParRegistry, DDSpecParRegistryRcd> dspecToken_;
 };
 
+using DD3Vector = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
+using angle_units::operators::convertRadToDeg;
+using cms_rounding::roundIfNear0;
+
 TestBTLElectronicsMapping::TestBTLElectronicsMapping(const edm::ParameterSet& iConfig)
     : tag_(iConfig.getParameter<edm::ESInputTag>("DDDetector")),
       ddTopNodeName_(iConfig.getUntrackedParameter<std::string>("ddTopNodeName", "BarrelTimingLayer")),
@@ -141,14 +145,38 @@ void TestBTLElectronicsMapping::analyze(const edm::Event& iEvent, const edm::Eve
       sunitt << theId.rawId();
       snum << theId;
 
+      // Compute the crystal ends positions
+      dd4hep::Box mySens(fv.solid());
+      DD3Vector x, y, z;
+      fv.rotation().GetComponents(x, y, z);
+      DD3Vector zeroLocal(0., 0., 0.);
+      DD3Vector plusLocal(mySens.x(), 0., 0.);
+      DD3Vector plusGlobal = (fv.rotation())(plusLocal) + fv.translation();
+      DD3Vector minusLocal(-mySens.x(), 0., 0.);
+      DD3Vector minusGlobal = (fv.rotation())(minusLocal) + fv.translation();
+
       if (static_cast<int>(btlCrysLayout) >= static_cast<int>(BTLDetId::CrysLayout::v4)) {
+        auto fround = [&](double in) {
+          std::stringstream ss;
+          ss << std::fixed << std::setw(14) << roundIfNear0(in);
+          return ss.str();
+        };
+
+        snum << "\n";
+        snum << "- location = " << fround(minusGlobal.X() / dd4hep::mm) << fround(minusGlobal.Y() / dd4hep::mm)
+             << fround(minusGlobal.Z() / dd4hep::mm) << " r = " << fround(minusGlobal.Rho() / dd4hep::mm)
+             << " phi = " << fround(convertRadToDeg(minusGlobal.Phi())) << "\n";
+        snum << "+ location = " << fround(plusGlobal.X() / dd4hep::mm) << fround(plusGlobal.Y() / dd4hep::mm)
+             << fround(plusGlobal.Z() / dd4hep::mm) << " r = " << fround(plusGlobal.Rho() / dd4hep::mm)
+             << " phi = " << fround(convertRadToDeg(plusGlobal.Phi())) << "\n";
+
         BTLElectronicsMapping btlElMap = BTLElectronicsMapping(btlCrysLayout);
         snum << "\n";
         snum << "----------------------------------------------------------------------------" << std::endl;
         snum << " CCBoard: " << btlElMap.CCBoard(theId) << " FEBoard: " << btlElMap.FEBoard(theId)
              << " TOFHIRASIC: " << btlElMap.TOFHIRASIC(theId) << "\n SiPMCh   minus: " << btlElMap.SiPMCh(theId, 0)
-             << " plus: " << btlElMap.SiPMCh(theId, 1) << "\n TOFHIRCh minus: " << btlElMap.TOFHIRCh(theId, 0)
-             << " plus: " << btlElMap.TOFHIRCh(theId, 1) << "\n";
+             << " minus: " << btlElMap.SiPMCh(theId, 1) << "\n TOFHIRCh minus: " << btlElMap.TOFHIRCh(theId, 0)
+             << " minus: " << btlElMap.TOFHIRCh(theId, 1) << "\n";
         snum << "\n";
         snum << " DM, SM, chipId    : " << theId.dmodule() << ", " << theId.smodule() << ", "
              << btlElMap.TOFHIRASIC(theId) << "  e-link: " << btlElMap.elink(theId) << "\n"

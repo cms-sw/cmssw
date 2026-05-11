@@ -236,17 +236,6 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
           BTLDetId theId(btlNS_.getUnitID(thisN_));
           sunitt << theId.rawId();
           snum << theId;
-
-          if (static_cast<int>(btlCrysLayout) >= static_cast<int>(BTLDetId::CrysLayout::v4)) {
-            BTLElectronicsMapping btlEM = BTLElectronicsMapping(btlCrysLayout);
-            snum << "\n";
-            snum << "----------------------------------------------------------------------------" << std::endl;
-            snum << " CCBoard: " << btlEM.CCBoard(theId) << " FEBoard: " << btlEM.FEBoard(theId)
-                 << " TOFHIRASIC: " << btlEM.TOFHIRASIC(theId) << "\n SiPMCh   minus: " << btlEM.SiPMCh(theId, 0)
-                 << " plus: " << btlEM.SiPMCh(theId, 1) << "\n TOFHIRCh minus: " << btlEM.TOFHIRCh(theId, 0)
-                 << " plus: " << btlEM.TOFHIRCh(theId, 1) << "\n";
-            snum << "----------------------------------------------------------------------------" << std::endl;
-          }
         } else {
           ETLDetId theId(etlNS_.getUnitID(thisN_));
           sunitt << theId.rawId();
