@@ -32,7 +32,10 @@
 #include "HepMC3/GenParticle.h"
 #include "HepMC3/GenVertex.h"
 
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 #include "PhysicsTools/TruthInfo/interface/TruthGraph.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace {
 
@@ -188,6 +191,7 @@ public:
         hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
         simTrackToken_(consumes<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simTracks"))),
         simVertexToken_(consumes<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
+        genParticlesToken_(mayConsume<reco::GenParticleCollection>(cfg.getParameter<edm::InputTag>("genParticles"))),
         addGenToSimEdges_(cfg.getParameter<bool>("addGenToSimEdges")) {
     produces<TruthGraph>();
   }
@@ -204,7 +208,8 @@ public:
         ->setComment("SimTrackContainer label (typically g4SimHits)");
     desc.add<edm::InputTag>("simVertices", edm::InputTag("g4SimHits"))
         ->setComment("SimVertexContainer label (typically g4SimHits)");
-
+    desc.add<edm::InputTag>("genParticles", edm::InputTag("genParticles"))
+        ->setComment("reco::GenParticleCollection used to retrieve packed statusFlags");
     desc.add<bool>("addGenToSimEdges", true)
         ->setComment("If true, add cross edges GenParticle -> SimTrack using SimTrack::genpartIndex()");
 
@@ -221,7 +226,8 @@ public:
     // --- Fetch GEN (HepMC3 preferred, fallback to HepMC2)
     GenBuild gb;
     bool haveGen = false;
-
+    edm::Handle<reco::GenParticleCollection> hGenParticles;
+    evt.getByToken(genParticlesToken_, hGenParticles);
     {
       edm::Handle<edm::HepMC3Product> h3;
       evt.getByToken(hepmc3Token_, h3);
@@ -315,7 +321,7 @@ public:
     out->pdgId.assign(nNodes, 0);
     out->status.assign(nNodes, 0);
     out->eventId.assign(nNodes, 0);
-
+    out->statusFlags.assign(nNodes, 0);
     out->genEventOfNode.assign(nNodes, -1);
 
     out->simTrackToGen.assign(nNodes, -1);
@@ -352,15 +358,37 @@ public:
         out->genEventOfNode[nodeId] = compOfTemp[tidx];
       }
 
+      std::unordered_map<int, uint32_t> genParticleBarcodeToIndex;
+      genParticleBarcodeToIndex.reserve(gb.particleBarcodeByIndex.size() * 2);
+
+      for (uint32_t i = 0; i < gb.particleBarcodeByIndex.size(); ++i) {
+        genParticleBarcodeToIndex.emplace(gb.particleBarcodeByIndex[i], i);
+      }
+
       for (uint32_t i = 0; i < nGenPar; ++i) {
         const int pbc = gb.partBarcodes[i];
         const uint32_t nodeId = baseGenPar + i;
+
         genParBarcodeToNode.emplace(pbc, nodeId);
+
         out->nodes[nodeId] = TruthGraph::NodeRef{TruthGraph::NodeKind::GenParticle, static_cast<int64_t>(pbc)};
         out->eventId[nodeId] = 0;
 
         const int tidx = tempIndex.at(genKeyParticle(pbc));
         out->genEventOfNode[nodeId] = compOfTemp[tidx];
+
+        auto itIndex = genParticleBarcodeToIndex.find(pbc);
+        if (hGenParticles.isValid() && itIndex != genParticleBarcodeToIndex.end()) {
+          const uint32_t genParticleIndex = itIndex->second;
+
+          if (genParticleIndex < hGenParticles->size()) {
+            auto const& gp = (*hGenParticles)[genParticleIndex];
+
+            out->pdgId[nodeId] = gp.pdgId();
+            out->status[nodeId] = static_cast<int16_t>(gp.status());
+            out->statusFlags[nodeId] = static_cast<uint16_t>(gp.statusFlags().flags_.to_ulong());
+          }
+        }
       }
     }
 
@@ -580,7 +608,37 @@ public:
         out->edgeKind[pos] = edgeKinds[i];
       }
     }
+    unsigned nGenEvent = 0;
+    unsigned nGenVertex = 0;
+    unsigned nGenParticle = 0;
+    unsigned nSimVertex = 0;
+    unsigned nSimTrack = 0;
 
+    for (uint32_t i = 0; i < out->nNodes(); ++i) {
+      switch (out->nodeRef(i).kind) {
+        case TruthGraph::NodeKind::GenEvent:
+          ++nGenEvent;
+          break;
+        case TruthGraph::NodeKind::GenVertex:
+          ++nGenVertex;
+          break;
+        case TruthGraph::NodeKind::GenParticle:
+          ++nGenParticle;
+          break;
+        case TruthGraph::NodeKind::SimVertex:
+          ++nSimVertex;
+          break;
+        case TruthGraph::NodeKind::SimTrack:
+          ++nSimTrack;
+          break;
+      }
+    }
+
+    edm::LogPrint("TruthGraphProducer") << "TruthGraph nodes: "
+                                        << "GenEvent=" << nGenEvent << " GenVertex=" << nGenVertex
+                                        << " GenParticle=" << nGenParticle << " SimVertex=" << nSimVertex
+                                        << " SimTrack=" << nSimTrack << " total=" << out->nNodes()
+                                        << " edges=" << out->nEdges();
     evt.put(std::move(out));
   }
 
@@ -589,6 +647,7 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> hepmc2Token_;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
   edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken_;
+  edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
   bool addGenToSimEdges_;
 };
 

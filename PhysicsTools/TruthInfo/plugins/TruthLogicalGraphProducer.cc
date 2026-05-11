@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <queue>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -269,6 +270,220 @@ namespace {
     return keep;
   }
 
+  bool directCollapsibleGenParticleChain(truth::Graph const& graph,
+                                         uint32_t particleId,
+                                         uint32_t& childId,
+                                         uint32_t& decayVertexId) {
+    if (particleId >= graph.nParticles())
+      return false;
+
+    auto const& particle = graph.particles[particleId];
+
+    if (!particle.hasGen())
+      return false;
+
+    if (particle.status == 1)
+      return false;
+
+    if (particle.pdgId == 0)
+      return false;
+
+    const auto decayVertices = graph.decayVertices(particleId);
+    if (decayVertices.size() != 1)
+      return false;
+
+    const uint32_t vertexId = decayVertices.front();
+    if (vertexId >= graph.nVertices())
+      return false;
+
+    auto const& vertex = graph.vertices[vertexId];
+
+    // Keep this pass GEN-only. SIM vertices are left untouched.
+    if (!vertex.hasGen() || vertex.hasSim())
+      return false;
+
+    const auto incoming = graph.incomingParticles(vertexId);
+    const auto outgoing = graph.outgoingParticles(vertexId);
+
+    if (incoming.size() != 1 || incoming.front() != particleId)
+      return false;
+
+    if (outgoing.size() != 1)
+      return false;
+
+    const uint32_t candidateChild = outgoing.front();
+    if (candidateChild >= graph.nParticles())
+      return false;
+
+    if (candidateChild == particleId)
+      return false;
+
+    auto const& child = graph.particles[candidateChild];
+
+    if (!child.hasGen())
+      return false;
+
+    if (child.pdgId != particle.pdgId)
+      return false;
+
+    childId = candidateChild;
+    decayVertexId = vertexId;
+    return true;
+  }
+
+  truth::Graph collapseIntermediateGenParticleChains(truth::Graph const& input) {
+    if (input.empty())
+      return input;
+
+    const uint32_t nParticles = input.nParticles();
+    const uint32_t nVertices = input.nVertices();
+
+    std::vector<int32_t> directChild(nParticles, -1);
+    std::vector<uint8_t> skipVertex(nVertices, 0);
+
+    for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+      uint32_t childId = 0;
+      uint32_t decayVertexId = 0;
+
+      if (!directCollapsibleGenParticleChain(input, particleId, childId, decayVertexId))
+        continue;
+
+      directChild[particleId] = static_cast<int32_t>(childId);
+      skipVertex[decayVertexId] = 1;
+    }
+
+    std::vector<uint32_t> particleRepresentative(nParticles, 0);
+
+    for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+      uint32_t current = particleId;
+
+      // Protect against unexpected cycles.
+      for (uint32_t step = 0; step < nParticles; ++step) {
+        const int32_t next = directChild[current];
+        if (next < 0)
+          break;
+
+        current = static_cast<uint32_t>(next);
+      }
+
+      particleRepresentative[particleId] = current;
+    }
+
+    truth::Graph output;
+
+    std::unordered_map<uint32_t, uint32_t> representativeToNewParticle;
+    representativeToNewParticle.reserve(nParticles);
+
+    std::vector<int32_t> oldParticleToNew(nParticles, -1);
+
+    for (uint32_t oldParticle = 0; oldParticle < nParticles; ++oldParticle) {
+      const uint32_t representative = particleRepresentative[oldParticle];
+
+      auto inserted =
+          representativeToNewParticle.emplace(representative, static_cast<uint32_t>(output.particles.size()));
+      const uint32_t newParticle = inserted.first->second;
+
+      if (inserted.second) {
+        output.particles.push_back(input.particles[representative]);
+      }
+
+      oldParticleToNew[oldParticle] = static_cast<int32_t>(newParticle);
+    }
+
+    std::vector<uint8_t> keepVertex(nVertices, 0);
+
+    for (uint32_t oldVertex = 0; oldVertex < nVertices; ++oldVertex) {
+      if (skipVertex[oldVertex])
+        continue;
+
+      for (uint32_t oldParticle : input.incomingParticles(oldVertex)) {
+        if (oldParticle < oldParticleToNew.size() && oldParticleToNew[oldParticle] >= 0) {
+          keepVertex[oldVertex] = 1;
+          break;
+        }
+      }
+
+      if (keepVertex[oldVertex])
+        continue;
+
+      for (uint32_t oldParticle : input.outgoingParticles(oldVertex)) {
+        if (oldParticle < oldParticleToNew.size() && oldParticleToNew[oldParticle] >= 0) {
+          keepVertex[oldVertex] = 1;
+          break;
+        }
+      }
+    }
+
+    std::vector<int32_t> oldVertexToNew(nVertices, -1);
+
+    for (uint32_t oldVertex = 0; oldVertex < nVertices; ++oldVertex) {
+      if (!keepVertex[oldVertex])
+        continue;
+
+      oldVertexToNew[oldVertex] = static_cast<int32_t>(output.vertices.size());
+      output.vertices.push_back(input.vertices[oldVertex]);
+    }
+
+    std::vector<std::pair<uint32_t, uint32_t>> particleToDecayVertexPairs;
+    std::vector<std::pair<uint32_t, uint32_t>> particleToProductionVertexPairs;
+    std::vector<std::pair<uint32_t, uint32_t>> vertexToOutgoingParticlePairs;
+    std::vector<std::pair<uint32_t, uint32_t>> vertexToIncomingParticlePairs;
+
+    for (uint32_t oldVertex = 0; oldVertex < nVertices; ++oldVertex) {
+      const int32_t newVertex = oldVertexToNew[oldVertex];
+      if (newVertex < 0)
+        continue;
+
+      for (uint32_t oldParticle : input.incomingParticles(oldVertex)) {
+        if (oldParticle >= oldParticleToNew.size())
+          continue;
+
+        const int32_t newParticle = oldParticleToNew[oldParticle];
+        if (newParticle < 0)
+          continue;
+
+        particleToDecayVertexPairs.emplace_back(static_cast<uint32_t>(newParticle), static_cast<uint32_t>(newVertex));
+        vertexToIncomingParticlePairs.emplace_back(static_cast<uint32_t>(newVertex),
+                                                   static_cast<uint32_t>(newParticle));
+      }
+
+      for (uint32_t oldParticle : input.outgoingParticles(oldVertex)) {
+        if (oldParticle >= oldParticleToNew.size())
+          continue;
+
+        const int32_t newParticle = oldParticleToNew[oldParticle];
+        if (newParticle < 0)
+          continue;
+
+        vertexToOutgoingParticlePairs.emplace_back(static_cast<uint32_t>(newVertex),
+                                                   static_cast<uint32_t>(newParticle));
+        particleToProductionVertexPairs.emplace_back(static_cast<uint32_t>(newParticle),
+                                                     static_cast<uint32_t>(newVertex));
+      }
+    }
+
+    buildCSR(output.nParticles(),
+             particleToDecayVertexPairs,
+             output.particleToDecayVertexOffsets,
+             output.particleToDecayVertices);
+
+    buildCSR(output.nParticles(),
+             particleToProductionVertexPairs,
+             output.particleToProductionVertexOffsets,
+             output.particleToProductionVertices);
+
+    buildCSR(output.nVertices(),
+             vertexToOutgoingParticlePairs,
+             output.vertexToOutgoingParticleOffsets,
+             output.vertexToOutgoingParticles);
+
+    buildCSR(output.nVertices(),
+             vertexToIncomingParticlePairs,
+             output.vertexToIncomingParticleOffsets,
+             output.vertexToIncomingParticles);
+
+    return output;
+  }
 }  // namespace
 
 class TruthLogicalGraphProducer : public edm::stream::EDProducer<> {
@@ -279,7 +494,8 @@ public:
         simVertexToken_(mayConsume<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
         hepmc3Token_(mayConsume<edm::HepMC3Product>(cfg.getParameter<edm::InputTag>("genEventHepMC3"))),
         hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
-        motherPdgId_(cfg.getParameter<int32_t>("motherPdgId")) {
+        motherPdgId_(cfg.getParameter<int32_t>("motherPdgId")),
+        collapseIntermediateGenParticles_(cfg.getParameter<bool>("collapseIntermediateGenParticles")) {
     produces<truth::Graph>();
   }
 
@@ -292,6 +508,10 @@ public:
     desc.add<edm::InputTag>("genEventHepMC", edm::InputTag("generatorSmeared"));
     desc.add<int32_t>("motherPdgId", 0)
         ->setComment("If non-zero, keep only GEN particles with this exact PDG id and all their descendants.");
+    desc.add<bool>("collapseIntermediateGenParticles", true)
+        ->setComment(
+            "If true, collapse GEN chains P -> V -> C where P has status != 1, C is the only daughter, "
+            "and P and C have the same PDG id.");
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -467,6 +687,8 @@ public:
             p.pdgId = raw.nodePdgId(nodeId);
           if (p.status == 0)
             p.status = raw.nodeStatus(nodeId);
+          if (p.statusFlags == 0)
+            p.statusFlags = raw.nodeStatusFlags(nodeId);
 
           if (haveGenPayload) {
             const int barcode = static_cast<int>(ref.key);
@@ -606,7 +828,9 @@ public:
              vertexToIncomingParticlePairs,
              out->vertexToIncomingParticleOffsets,
              out->vertexToIncomingParticles);
-
+    if (collapseIntermediateGenParticles_) {
+      *out = collapseIntermediateGenParticleChains(*out);
+    }
     if (!out->isConsistent()) {
       throw cms::Exception("TruthLogicalGraphProducer") << "Produced truth::Graph is not consistent";
     }
@@ -621,6 +845,7 @@ private:
   edm::EDGetTokenT<edm::HepMC3Product> hepmc3Token_;
   edm::EDGetTokenT<edm::HepMCProduct> hepmc2Token_;
   int32_t motherPdgId_;
+  bool collapseIntermediateGenParticles_ = true;
 };
 
 DEFINE_FWK_MODULE(TruthLogicalGraphProducer);
