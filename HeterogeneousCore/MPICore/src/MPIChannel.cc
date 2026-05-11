@@ -155,6 +155,11 @@ void MPIChannel::wait() {
 
 // close the underlying communicator and reset the MPIChannel to an invalid state
 void MPIChannel::reset() {
+  // Complete any pending MPI_Request
+  if (request_ != MPI_REQUEST_NULL) {
+    MPI_Wait(&request_, MPI_STATUS_IGNORE);
+    assert(request_ == MPI_REQUEST_NULL);
+  }
   // This is a blocking collective operation.
   MPI_Comm_disconnect(&comm_);
   dest_ = MPI_UNDEFINED;
