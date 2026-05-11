@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <queue>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -138,22 +139,28 @@ namespace {
     for (auto p = ev.particles_begin(); p != ev.particles_end(); ++p) {
       if (*p == nullptr)
         continue;
+
       const int bc = (*p)->barcode();
+
       GenParticlePayload payload;
       payload.pdgId = (*p)->pdg_id();
       payload.status = static_cast<int16_t>((*p)->status());
       payload.momentum = math::XYZTLorentzVectorD(
           (*p)->momentum().px(), (*p)->momentum().py(), (*p)->momentum().pz(), (*p)->momentum().e());
+
       particlePayload.emplace(bc, payload);
     }
 
     for (auto v = ev.vertices_begin(); v != ev.vertices_end(); ++v) {
       if (*v == nullptr)
         continue;
+
       const int bc = (*v)->barcode();
+
       GenVertexPayload payload;
       payload.position = math::XYZTLorentzVectorD(
           (*v)->position().x(), (*v)->position().y(), (*v)->position().z(), (*v)->position().t());
+
       vertexPayload.emplace(bc, payload);
     }
   }
@@ -167,24 +174,99 @@ namespace {
     for (auto const& pptr : ev.particles()) {
       if (!pptr)
         continue;
+
       const int bc = pptr->id();
+
       GenParticlePayload payload;
       payload.pdgId = pptr->pid();
       payload.status = static_cast<int16_t>(pptr->status());
       payload.momentum = math::XYZTLorentzVectorD(
           pptr->momentum().px(), pptr->momentum().py(), pptr->momentum().pz(), pptr->momentum().e());
+
       particlePayload.emplace(bc, payload);
     }
 
     for (auto const& vptr : ev.vertices()) {
       if (!vptr)
         continue;
+
       const int bc = vptr->id();
+
       GenVertexPayload payload;
       payload.position = math::XYZTLorentzVectorD(
           vptr->position().x(), vptr->position().y(), vptr->position().z(), vptr->position().t());
+
       vertexPayload.emplace(bc, payload);
     }
+  }
+
+  int32_t genParticlePdgId(TruthGraph const& raw,
+                           uint32_t nodeId,
+                           std::unordered_map<int, GenParticlePayload> const& genParticlePayload) {
+    auto const& ref = raw.nodeRef(nodeId);
+
+    if (ref.kind != TruthGraph::NodeKind::GenParticle)
+      return 0;
+
+    const auto rawPdgId = raw.nodePdgId(nodeId);
+    if (rawPdgId != 0)
+      return rawPdgId;
+
+    const int barcode = static_cast<int>(ref.key);
+    auto it = genParticlePayload.find(barcode);
+    if (it != genParticlePayload.end())
+      return it->second.pdgId;
+
+    return 0;
+  }
+
+  std::vector<uint8_t> buildKeepMaskForMotherPdgId(TruthGraph const& raw,
+                                                   std::unordered_map<int, GenParticlePayload> const& genParticlePayload,
+                                                   int32_t motherPdgId) {
+    const uint32_t nRawNodes = raw.nNodes();
+
+    std::vector<uint8_t> keep(nRawNodes, 1);
+
+    if (motherPdgId == 0)
+      return keep;
+
+    keep.assign(nRawNodes, 0);
+
+    std::queue<uint32_t> queue;
+
+    for (uint32_t nodeId = 0; nodeId < nRawNodes; ++nodeId) {
+      auto const& ref = raw.nodeRef(nodeId);
+
+      if (ref.kind != TruthGraph::NodeKind::GenParticle)
+        continue;
+
+      if (genParticlePdgId(raw, nodeId, genParticlePayload) != motherPdgId)
+        continue;
+
+      // Start from the selected mother itself.
+      // This keeps the mother, its decay vertices, daughters, and all descendants.
+      if (!keep[nodeId]) {
+        keep[nodeId] = 1;
+        queue.push(nodeId);
+      }
+    }
+
+    while (!queue.empty()) {
+      const uint32_t src = queue.front();
+      queue.pop();
+
+      for (uint32_t dst : raw.children(src)) {
+        if (dst >= nRawNodes)
+          continue;
+
+        if (!keep[dst]) {
+          keep[dst] = 1;
+          queue.push(dst);
+        }
+      }
+    }
+
+    return keep;
   }
 
 }  // namespace
@@ -196,7 +278,8 @@ public:
         simTrackToken_(mayConsume<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simTracks"))),
         simVertexToken_(mayConsume<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
         hepmc3Token_(mayConsume<edm::HepMC3Product>(cfg.getParameter<edm::InputTag>("genEventHepMC3"))),
-        hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))) {
+        hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
+        motherPdgId_(cfg.getParameter<int32_t>("motherPdgId")) {
     produces<truth::Graph>();
   }
 
@@ -207,6 +290,8 @@ public:
     desc.add<edm::InputTag>("simVertices", edm::InputTag("g4SimHits"));
     desc.add<edm::InputTag>("genEventHepMC3", edm::InputTag("generatorSmeared"));
     desc.add<edm::InputTag>("genEventHepMC", edm::InputTag("generatorSmeared"));
+    desc.add<int32_t>("motherPdgId", 0)
+        ->setComment("If non-zero, keep only GEN particles with this exact PDG id and all their descendants.");
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -261,6 +346,8 @@ public:
       }
     }
 
+    const auto keepRawNode = buildKeepMaskForMotherPdgId(raw, genParticlePayload, motherPdgId_);
+
     // ------------------------------------------------------------------
     // 1. Temporary ids
     // ------------------------------------------------------------------
@@ -271,6 +358,9 @@ public:
     int nVertexLogical = 0;
 
     for (uint32_t nodeId = 0; nodeId < nRawNodes; ++nodeId) {
+      if (!keepRawNode[nodeId])
+        continue;
+
       const auto kind = raw.nodeRef(nodeId).kind;
       if (isParticleKind(kind)) {
         rawToParticleTmp[nodeId] = nParticleTmp++;
@@ -285,7 +375,10 @@ public:
     // 2. Merge only particles across GEN <-> SIM
     // ------------------------------------------------------------------
     for (uint32_t nodeId = 0; nodeId < nRawNodes; ++nodeId) {
-      const auto& ref = raw.nodeRef(nodeId);
+      if (!keepRawNode[nodeId])
+        continue;
+
+      auto const& ref = raw.nodeRef(nodeId);
       if (ref.kind != TruthGraph::NodeKind::SimTrack)
         continue;
 
@@ -294,24 +387,39 @@ public:
         continue;
       if (static_cast<uint32_t>(genNode) >= nRawNodes)
         continue;
+      if (!keepRawNode[static_cast<uint32_t>(genNode)])
+        continue;
       if (raw.nodeRef(static_cast<uint32_t>(genNode)).kind != TruthGraph::NodeKind::GenParticle)
+        continue;
+
+      if (rawToParticleTmp[nodeId] < 0 || rawToParticleTmp[static_cast<uint32_t>(genNode)] < 0)
         continue;
 
       particleDSU.unite(rawToParticleTmp[nodeId], rawToParticleTmp[static_cast<uint32_t>(genNode)]);
     }
 
     for (uint32_t src = 0; src < nRawNodes; ++src) {
+      if (!keepRawNode[src])
+        continue;
+
       const auto dsts = raw.children(src);
       const auto ekinds = raw.childrenEdgeKinds(src);
 
       for (std::size_t i = 0; i < dsts.size(); ++i) {
         const uint32_t dst = dsts[i];
+
+        if (dst >= nRawNodes || !keepRawNode[dst])
+          continue;
+
         const auto ek = static_cast<TruthGraph::EdgeKind>(ekinds[i]);
 
         if (ek != TruthGraph::EdgeKind::GenToSim && ek != TruthGraph::EdgeKind::SimToGen)
           continue;
 
         if (isGenParticleToSimTrack(raw, src, dst)) {
+          if (rawToParticleTmp[src] < 0 || rawToParticleTmp[dst] < 0)
+            continue;
+
           particleDSU.unite(rawToParticleTmp[src], rawToParticleTmp[dst]);
         }
       }
@@ -324,6 +432,9 @@ public:
     std::vector<int32_t> rawToParticle(nRawNodes, -1);
 
     for (uint32_t nodeId = 0; nodeId < nRawNodes; ++nodeId) {
+      if (!keepRawNode[nodeId])
+        continue;
+
       if (rawToParticleTmp[nodeId] >= 0) {
         const int rep = particleDSU.find(rawToParticleTmp[nodeId]);
         auto result = particleRepToLogical.emplace(rep, static_cast<uint32_t>(particleRepToLogical.size()));
@@ -338,7 +449,10 @@ public:
     // 4. Fill payload
     // ------------------------------------------------------------------
     for (uint32_t nodeId = 0; nodeId < nRawNodes; ++nodeId) {
-      const auto& ref = raw.nodeRef(nodeId);
+      if (!keepRawNode[nodeId])
+        continue;
+
+      auto const& ref = raw.nodeRef(nodeId);
 
       if (rawToParticle[nodeId] >= 0) {
         auto& p = out->particles[static_cast<uint32_t>(rawToParticle[nodeId])];
@@ -445,11 +559,17 @@ public:
     std::vector<std::pair<uint32_t, uint32_t>> vertexToIncomingParticlePairs;
 
     for (uint32_t src = 0; src < nRawNodes; ++src) {
-      const auto& srcRef = raw.nodeRef(src);
+      if (!keepRawNode[src])
+        continue;
+
+      auto const& srcRef = raw.nodeRef(src);
       const auto dsts = raw.children(src);
 
       for (uint32_t dst : dsts) {
-        const auto& dstRef = raw.nodeRef(dst);
+        if (dst >= nRawNodes || !keepRawNode[dst])
+          continue;
+
+        auto const& dstRef = raw.nodeRef(dst);
 
         if (isVertexKind(srcRef.kind) && isParticleKind(dstRef.kind)) {
           const int32_t lv = rawToVertex[src];
@@ -500,6 +620,7 @@ private:
   edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken_;
   edm::EDGetTokenT<edm::HepMC3Product> hepmc3Token_;
   edm::EDGetTokenT<edm::HepMCProduct> hepmc2Token_;
+  int32_t motherPdgId_;
 };
 
 DEFINE_FWK_MODULE(TruthLogicalGraphProducer);
