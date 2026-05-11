@@ -185,6 +185,49 @@ namespace {
     return "";
   }
 
+  std::string statusFlagsLabel(uint16_t flags) {
+    struct FlagInfo {
+      uint16_t bit;
+      const char* name;
+    };
+
+    static constexpr FlagInfo flagInfos[] = {
+        {1u << 0, "isPrompt"},
+        {1u << 1, "isDecayedLeptonHadron"},
+        {1u << 2, "isTauDecayProduct"},
+        {1u << 3, "isPromptTauDecayProduct"},
+        {1u << 4, "isDirectTauDecayProduct"},
+        {1u << 5, "isDirectPromptTauDecayProduct"},
+        {1u << 6, "isDirectHadronDecayProduct"},
+        {1u << 7, "isHardProcess"},
+        {1u << 8, "fromHardProcess"},
+        {1u << 9, "isHardProcessTauDecayProduct"},
+        {1u << 10, "isDirectHardProcessTauDecayProduct"},
+        {1u << 11, "fromHardProcessBeforeFSR"},
+        {1u << 12, "isFirstCopy"},
+        {1u << 13, "isLastCopy"},
+        {1u << 14, "isLastCopyBeforeFSR"},
+    };
+
+    std::ostringstream ss;
+    bool first = true;
+
+    for (auto const& flag : flagInfos) {
+      if ((flags & flag.bit) == 0)
+        continue;
+
+      if (!first)
+        ss << ", ";
+      ss << flag.name;
+      first = false;
+    }
+
+    if (first)
+      return "none";
+
+    return ss.str();
+  }
+
 }  // anonymous namespace
 
 class TruthGraphDumper : public edm::one::EDAnalyzer<> {
