@@ -228,6 +228,32 @@ namespace {
     return ss.str();
   }
 
+  std::string dotQuote(std::string const& input) {
+    std::string out;
+    out.reserve(input.size() + 2);
+
+    out.push_back('"');
+    for (char c : input) {
+      switch (c) {
+        case '\\':
+          out += "\\\\";
+          break;
+        case '"':
+          out += "\\\"";
+          break;
+        case '\n':
+          out += "\\n";
+          break;
+        default:
+          out.push_back(c);
+          break;
+      }
+    }
+    out.push_back('"');
+
+    return out;
+  }
+
 }  // anonymous namespace
 
 class TruthGraphDumper : public edm::one::EDAnalyzer<> {
@@ -360,7 +386,7 @@ public:
       }
 
       // Node style
-      os << "  n" << i << " [shape=" << shapeFor(r.kind) << ", type=" << kindName(r.kind) << ", ";
+      os << "  n" << i << " [shape=" << shapeFor(r.kind) << ", type=" << dotQuote(kindName(r.kind)) << ", ";
       os << "crossedBoundary=" << crossedBoundary << ",";
       if (crossedBoundary)
         os << "color=\"red\", penwidth=2, ";
@@ -381,8 +407,8 @@ public:
             auto const* p = it->second;
             const int prod = p->production_vertex() ? p->production_vertex()->barcode() : 0;
             const int endv = p->end_vertex() ? p->end_vertex()->barcode() : 0;
-            os << "pid=" << p->pdg_id() << ",status=" << p->status() << ", p4=\"" << fmtP4(p->momentum())
-               << "\", m=" << std::fixed << std::setprecision(3) << p->generated_mass() << ", prodVtx=" << prod
+            os << "pid=" << p->pdg_id() << ", status=" << p->status() << ", p4=" << dotQuote(fmtP4(p->momentum()))
+               << ", m=" << std::fixed << std::setprecision(3) << p->generated_mass() << ", prodVtx=" << prod
                << ", endVtx=" << endv << ",";
           }
         } else if (have3) {
@@ -391,8 +417,8 @@ public:
             auto const& p = it->second;
             const int prod = p->production_vertex() ? p->production_vertex()->id() : 0;
             const int endv = p->end_vertex() ? p->end_vertex()->id() : 0;
-            os << "pid=" << p->pdg_id() << ",status=" << p->status() << ", p4=\"" << fmtP4(p->momentum())
-               << "\", prodVtx=" << prod << ", endVtx=" << endv << ",";
+            os << "pid=" << p->pid() << ", status=" << p->status() << ", p4=" << dotQuote(fmtP4(p->momentum()))
+               << ", prodVtx=" << prod << ", endVtx=" << endv << ",";
           }
         }
       } else if (r.kind == TruthGraph::NodeKind::GenVertex) {
@@ -401,23 +427,22 @@ public:
           auto it = bc2v.find(bc);
           if (it != bc2v.end()) {
             auto const* v = it->second;
-            os << "barcode=" << v->barcode() << ", x4=<" << fmtX4(v->position()) << ">, nIn=" << v->particles_in_size()
-               << ", nOut=" << v->particles_out_size() << ",";
+            os << "barcode=" << v->barcode() << ", x4=" << dotQuote(fmtX4(v->position()))
+               << ", nIn=" << v->particles_in_size() << ", nOut=" << v->particles_out_size() << ",";
           }
         } else if (have3) {
           auto it = id3v.find(bc);
           if (it != id3v.end() && it->second) {
             auto const& v = it->second;
-            os << "status=" << v->status() << ", x4=<" << fmtX4(v->position()) << ">, nIn=" << v->particles_in_size()
-               << ", nOut=" << v->particles_out_size() << ",";
+            os << "status=" << v->status() << ", x4=" << dotQuote(fmtX4(v->position()))
+               << ", nIn=" << v->particles_in().size() << ", nOut=" << v->particles_out().size() << ",";
           }
         }
       }
 
       // --- SIM enrichment
       if (r.kind == TruthGraph::NodeKind::SimTrack && haveSim) {
-        os << "x4=" << fmtX4(simt->momentum()) << ",";
-
+        os << "p4=" << dotQuote(fmtP4(simt->momentum())) << ",";
         const int32_t gn = g.nodeSimTrackToGen(i);
         os << "GenParticle_nodeId=" << gn << ",";
 
@@ -425,9 +450,9 @@ public:
         os << "SimVertex_nodeId=" << vn << ",";
 
         if (crossedBoundary) {
-          os << "idAtBoundary=" << simt->getIDAtBoundary() << "," << "x4boundary=\""
-             << fmtX4(simt->getPositionAtBoundary()) << "\", p4boundary=\"" << fmtP4(simt->getMomentumAtBoundary())
-             << "\",";
+          os << "idAtBoundary=" << simt->getIDAtBoundary()
+             << ", x4boundary=" << dotQuote(fmtX4(simt->getPositionAtBoundary()))
+             << ", p4boundary=" << dotQuote(fmtP4(simt->getMomentumAtBoundary())) << ",";
         }
       }
 
