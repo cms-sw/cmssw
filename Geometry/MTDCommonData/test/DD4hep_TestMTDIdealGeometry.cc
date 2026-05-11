@@ -157,8 +157,8 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
       edm::LogInfo("DD4hep_TestMTDIdealGeometry") << "isBarrel = " << isBarrel;
       if (static_cast<int>(btlCrysLayout) < static_cast<int>(BTLDetId::CrysLayout::v4)) {
         edm::LogInfo("DD4hep_TestMTDIdealGeometry")
-	  << "BTL electronics mapping not available for BTL crystal layout " << static_cast<int>(btlCrysLayout)
-	  << ", use layout 7 (v4) or later!" << std::endl;
+            << "BTL electronics mapping not available for BTL crystal layout " << static_cast<int>(btlCrysLayout)
+            << ", use layout 7 (v4) or later!" << std::endl;
       }
     } else if (dd4hep::dd::noNamespace(fv.name()) == "EndcapTimingLayer") {
       isBarrel = false;
@@ -237,7 +237,7 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
           sunitt << theId.rawId();
           snum << theId;
 
-	  if (static_cast<int>(btlCrysLayout) >= static_cast<int>(BTLDetId::CrysLayout::v4)) {
+          if (static_cast<int>(btlCrysLayout) >= static_cast<int>(BTLDetId::CrysLayout::v4)) {
             BTLElectronicsMapping btlEM = BTLElectronicsMapping(btlCrysLayout);
             snum << "\n";
             snum << "----------------------------------------------------------------------------" << std::endl;
@@ -246,8 +246,8 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
                  << " plus: " << btlEM.SiPMCh(theId, 1) << "\n TOFHIRCh minus: " << btlEM.TOFHIRCh(theId, 0)
                  << " plus: " << btlEM.TOFHIRCh(theId, 1) << "\n";
             snum << "----------------------------------------------------------------------------" << std::endl;
-	  }
-	} else {
+          }
+        } else {
           ETLDetId theId(etlNS_.getUnitID(thisN_));
           sunitt << theId.rawId();
           snum << theId;

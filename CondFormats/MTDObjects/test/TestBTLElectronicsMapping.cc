@@ -64,19 +64,17 @@ private:
   edm::ESGetToken<DDSpecParRegistry, DDSpecParRegistryRcd> dspecToken_;
 };
 
-
 TestBTLElectronicsMapping::TestBTLElectronicsMapping(const edm::ParameterSet& iConfig)
-  : tag_(iConfig.getParameter<edm::ESInputTag>("DDDetector")),
-    ddTopNodeName_(iConfig.getUntrackedParameter<std::string>("ddTopNodeName", "BarrelTimingLayer")),
-    thisN_(),
-    btlNS_(){
+    : tag_(iConfig.getParameter<edm::ESInputTag>("DDDetector")),
+      ddTopNodeName_(iConfig.getUntrackedParameter<std::string>("ddTopNodeName", "BarrelTimingLayer")),
+      thisN_(),
+      btlNS_() {
   mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
   dddetToken_ = esConsumes<DDDetector, IdealGeometryRecord>(tag_);
   dspecToken_ = esConsumes<DDSpecParRegistry, DDSpecParRegistryRcd>(tag_);
 }
 
 void TestBTLElectronicsMapping::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
- 
   auto pDD = iSetup.getTransientHandle(dddetToken_);
 
   auto pSP = iSetup.getTransientHandle(dspecToken_);
@@ -89,7 +87,7 @@ void TestBTLElectronicsMapping::analyze(const edm::Event& iEvent, const edm::Eve
     edm::LogWarning("TestBTLElectronicsMapping") << ddTopNodeName_ << "Not valid top BarrelTimingLayer volume";
     return;
   }
-    
+
   DDFilteredView fv(pDD.product(), pDD.product()->description()->worldVolume());
   fv.next(0);
   edm::LogInfo("TestBTLElectronicsMapping") << fv.name();
@@ -99,69 +97,74 @@ void TestBTLElectronicsMapping::analyze(const edm::Event& iEvent, const edm::Eve
 
   bool insideBTL = false;
   uint32_t startLevel = 0;
-  
-  do {
 
-    if (dd4hep::dd::noNamespace(fv.name()) == "BarrelTimingLayer") {                                                                                        
+  do {
+    if (dd4hep::dd::noNamespace(fv.name()) == "BarrelTimingLayer") {
       insideBTL = true;
       startLevel = fv.navPos().size();
       edm::LogInfo("TestBTLElectronicsMapping") << "insideBTL = " << insideBTL;
       if (static_cast<int>(btlCrysLayout) < static_cast<int>(BTLDetId::CrysLayout::v4)) {
         edm::LogInfo("DD4hep_TestMTDIdealGeometry")
-	  << "BTL electronics mapping not available for BTL crystal layout " << static_cast<int>(btlCrysLayout)
-	  << ", use layout 7 (v4) or later!" << std::endl;
+            << "BTL electronics mapping not available for BTL crystal layout " << static_cast<int>(btlCrysLayout)
+            << ", use layout 7 (v4) or later!" << std::endl;
       }
       continue;
     }
-    
+
     if (insideBTL && fv.navPos().size() < startLevel) {
-      break; // exited BTL --> break loop
+      break;  // exited BTL --> break loop
     }
 
-    if (!insideBTL) continue;
+    if (!insideBTL)
+      continue;
 
     std::stringstream ss;
 
     theBaseNumber(fv);
-    
+
     bool isSens = false;
-    
+
     for (auto const& t : specs) {
       for (auto const& it : t.second->paths) {
-	if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(fv.name()), dd4hep::dd::realTopName(it))) {
-	  isSens = true;
-	  break;
-	}
+        if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(fv.name()), dd4hep::dd::realTopName(it))) {
+          isSens = true;
+          break;
+        }
       }
-    }                                                                                                                                                       
-    
+    }
+
     if (isSens) {
-      
       std::stringstream sunitt;
       std::stringstream snum;
-      
+
       BTLDetId theId(btlNS_.getUnitID(thisN_));
       sunitt << theId.rawId();
       snum << theId;
-      
+
       if (static_cast<int>(btlCrysLayout) >= static_cast<int>(BTLDetId::CrysLayout::v4)) {
-	BTLElectronicsMapping btlElMap = BTLElectronicsMapping(btlCrysLayout);
-	snum << "\n";
-	snum << "----------------------------------------------------------------------------" << std::endl;
-	snum << " CCBoard: " << btlElMap.CCBoard(theId) << " FEBoard: " << btlElMap.FEBoard(theId)
-	     << " TOFHIRASIC: " << btlElMap.TOFHIRASIC(theId) << "\n SiPMCh   minus: " << btlElMap.SiPMCh(theId, 0)
-	     << " plus: " << btlElMap.SiPMCh(theId, 1) << "\n TOFHIRCh minus: " << btlElMap.TOFHIRCh(theId, 0)
-	     << " plus: " << btlElMap.TOFHIRCh(theId, 1) << "\n";
-	snum << "\n";
-	snum << " DM, SM, chipId    : " << theId.dmodule() << ", " << theId.smodule() << ", " << btlElMap.TOFHIRASIC(theId) << "  e-link: " << btlElMap.elink(theId) << "\n"
-	     << " DM, SM from e-link: " << btlElMap.elinkToSM(btlElMap.elink(theId)).first << ", " << btlElMap.elinkToSM(btlElMap.elink(theId)).second << "\n";  
-	snum << "\n";  
-	snum << " Tray: " << theId.mtdRR() << "  RU: " << theId.runit()<< "  hs-link : " << btlElMap.hslink(theId) << "\n"
-	     << " RU from hs-link: " << btlElMap.hslinkToRU( btlElMap.hslink(theId) ) << "\n"; 
-	snum << "\n";
-	snum << " Tray, side                     : " << theId.mtdRR() << ", " << theId.mtdSide() << "   S-link : " << btlElMap.Slink(theId) << "\n"
-	     << " Tray, side from S-link, HS-link: " << btlElMap.getTrayFromLinks(btlElMap.Slink(theId),btlElMap.hslink(theId)).first << ", " << btlElMap.getTrayFromLinks(btlElMap.Slink(theId),btlElMap.hslink(theId)).second << "\n";
-	snum << "----------------------------------------------------------------------------" << std::endl;
+        BTLElectronicsMapping btlElMap = BTLElectronicsMapping(btlCrysLayout);
+        snum << "\n";
+        snum << "----------------------------------------------------------------------------" << std::endl;
+        snum << " CCBoard: " << btlElMap.CCBoard(theId) << " FEBoard: " << btlElMap.FEBoard(theId)
+             << " TOFHIRASIC: " << btlElMap.TOFHIRASIC(theId) << "\n SiPMCh   minus: " << btlElMap.SiPMCh(theId, 0)
+             << " plus: " << btlElMap.SiPMCh(theId, 1) << "\n TOFHIRCh minus: " << btlElMap.TOFHIRCh(theId, 0)
+             << " plus: " << btlElMap.TOFHIRCh(theId, 1) << "\n";
+        snum << "\n";
+        snum << " DM, SM, chipId    : " << theId.dmodule() << ", " << theId.smodule() << ", "
+             << btlElMap.TOFHIRASIC(theId) << "  e-link: " << btlElMap.elink(theId) << "\n"
+             << " DM, SM from e-link: " << btlElMap.elinkToSM(btlElMap.elink(theId)).first << ", "
+             << btlElMap.elinkToSM(btlElMap.elink(theId)).second << "\n";
+        snum << "\n";
+        snum << " Tray: " << theId.mtdRR() << "  RU: " << theId.runit() << "  hs-link : " << btlElMap.hslink(theId)
+             << "\n"
+             << " RU from hs-link: " << btlElMap.hslinkToRU(btlElMap.hslink(theId)) << "\n";
+        snum << "\n";
+        snum << " Tray, side                     : " << theId.mtdRR() << ", " << theId.mtdSide()
+             << "   S-link : " << btlElMap.Slink(theId) << "\n"
+             << " Tray, side from S-link, HS-link: "
+             << btlElMap.getTrayFromLinks(btlElMap.Slink(theId), btlElMap.hslink(theId)).first << ", "
+             << btlElMap.getTrayFromLinks(btlElMap.Slink(theId), btlElMap.hslink(theId)).second << "\n";
+        snum << "----------------------------------------------------------------------------" << std::endl;
       }
       edm::LogInfo("TestBTLElectronicsMapping") << snum.str();
     }

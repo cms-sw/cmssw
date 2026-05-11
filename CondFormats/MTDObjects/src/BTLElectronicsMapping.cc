@@ -17,7 +17,7 @@ BTLElectronicsMapping::BTLElectronicsMapping(const BTLDetId::CrysLayout lay) {
 
 // Get SiPM Channel from crystal ID
 
-int BTLElectronicsMapping::SiPMCh(uint32_t smodCopy, uint32_t crystal, uint32_t SiPMSide) const{
+int BTLElectronicsMapping::SiPMCh(uint32_t smodCopy, uint32_t crystal, uint32_t SiPMSide) const {
   if (0 > int(crystal) || crystal > BTLDetId::kCrystalsPerModuleV2) {
     edm::LogWarning("MTDGeom") << "BTLNumberingScheme::BTLElectronicsMapping(): "
                                << "****************** Bad crystal number = " << int(crystal);
@@ -218,35 +218,30 @@ int BTLElectronicsMapping::CCBoard(uint32_t rawID) const {
   return BTLElectronicsMapping::CCBoard(theId);
 }
 
-
-
 /** TOFHIR/SM <-> e-link mapping **/
 int BTLElectronicsMapping::elinkFromSM(uint32_t dmodule, uint32_t smodCopy, int lpgbt_id) const {
-
-  if (int(dmodule) <  0 || dmodule > BTLDetId::kDModulesPerRU){
+  if (int(dmodule) < 0 || dmodule > BTLDetId::kDModulesPerRU) {
     edm::LogWarning("MTDGeom") << "BTLNumberingScheme::elinkFromSM: "
-                               << "****************** dmodule = " << dmodule
-                               << "  not valid!";
-    return -1;
-  }
-  
-  if (int(smodCopy) < 0 || smodCopy > BTLDetId::kSModulesPerDM){
-    edm::LogWarning("MTDGeom") << "BTLNumberingScheme::elinkFromSM: "
-                               << "****************** smodCopy = " << smodCopy
-                               << "  not valid!";
+                               << "****************** dmodule = " << dmodule << "  not valid!";
     return -1;
   }
 
-  if (lpgbt_id < 0 || lpgbt_id > 1){
+  if (int(smodCopy) < 0 || smodCopy > BTLDetId::kSModulesPerDM) {
+    edm::LogWarning("MTDGeom") << "BTLNumberingScheme::elinkFromSM: "
+                               << "****************** smodCopy = " << smodCopy << "  not valid!";
+    return -1;
+  }
+
+  if (lpgbt_id < 0 || lpgbt_id > 1) {
     edm::LogWarning("MTDGeom") << "BTLNumberingScheme::hslinkFromRU: "
-                               << "****************** lpgbt_id = " << lpgbt_id
-                               << "  not valid!";
+                               << "****************** lpgbt_id = " << lpgbt_id << "  not valid!";
     return -1;
   }
 
   // from DM and chipId of the SM --> get elink
-  int chipId = TOFHIRASIC(dmodule, smodCopy); 
-  return (lpgbt_id == 0) ? BTLElectronicsMapping::FE_to_ELINK_mapping_L0[dmodule][chipId] : BTLElectronicsMapping::FE_to_ELINK_mapping_L1[dmodule][chipId];
+  int chipId = TOFHIRASIC(dmodule, smodCopy);
+  return (lpgbt_id == 0) ? BTLElectronicsMapping::FE_to_ELINK_mapping_L0[dmodule][chipId]
+                         : BTLElectronicsMapping::FE_to_ELINK_mapping_L1[dmodule][chipId];
 }
 
 int BTLElectronicsMapping::elink(BTLDetId det, int lpgbt_id) const {
@@ -261,62 +256,52 @@ int BTLElectronicsMapping::elink(uint32_t rawID, int lpgbt_id) const {
 }
 
 std::pair<int, int> BTLElectronicsMapping::elinkToSM(int elink, int lpgbt_id) const {
-  
-  if (elink < 0 || elink > int(BTLDetId::kModulesPerRUV2)){
+  if (elink < 0 || elink > int(BTLDetId::kModulesPerRUV2)) {
     edm::LogWarning("MTDGeom") << "BTLNumberingScheme::elinkToSM: "
-                               << "****************** elink = " << elink
-                               << "  not valid!";
-    return std::make_pair(-1,-1);
+                               << "****************** elink = " << elink << "  not valid!";
+    return std::make_pair(-1, -1);
   }
 
-  if (lpgbt_id < 0 || lpgbt_id > 1){
+  if (lpgbt_id < 0 || lpgbt_id > 1) {
     edm::LogWarning("MTDGeom") << "BTLNumberingScheme::elinkToSM: "
-                               << "****************** lpgbt_id = " << lpgbt_id
-                               << "  not valid!";
-    return std::make_pair(-1,-1);
+                               << "****************** lpgbt_id = " << lpgbt_id << "  not valid!";
+    return std::make_pair(-1, -1);
   }
 
-  const auto& mapping = (lpgbt_id == 0) ? BTLElectronicsMapping::ELINK_to_FE_mapping_L0 : BTLElectronicsMapping::ELINK_to_FE_mapping_L1;
-  int dm     = mapping[elink].first;
+  const auto& mapping =
+      (lpgbt_id == 0) ? BTLElectronicsMapping::ELINK_to_FE_mapping_L0 : BTLElectronicsMapping::ELINK_to_FE_mapping_L1;
+  int dm = mapping[elink].first;
   int chipId = mapping[elink].second;
   int smCopy = chipId;
-  if (dm % BTLDetId::kSModulesInDM != 0){
+  if (dm % BTLDetId::kSModulesInDM != 0) {
     smCopy = BTLDetId::kSModulesInDM - chipId - 1;
   }
-  return ( std::make_pair(dm, smCopy));
+  return (std::make_pair(dm, smCopy));
 }
 
-
-
-int BTLElectronicsMapping::hslinkToRU(int hslink) const {
-  return ( OptTx_map[hslink]/2 );  
-}
+int BTLElectronicsMapping::hslinkToRU(int hslink) const { return (OptTx_map[hslink] / 2); }
 
 int BTLElectronicsMapping::hslinkFromRU(uint32_t runit, uint32_t tray, int lpgbt_id) const {
-
-  if (int (runit) < 0 || runit > BTLDetId::kRUPerRod){
+  if (int(runit) < 0 || runit > BTLDetId::kRUPerRod) {
     edm::LogWarning("MTDGeom") << "BTLNumberingScheme::hslinkFromRU "
-                               << "****************** runit = " << runit
-                               << "  not valid!";
+                               << "****************** runit = " << runit << "  not valid!";
     return -1;
   }
 
-  if (lpgbt_id < 0 || lpgbt_id > 1){
+  if (lpgbt_id < 0 || lpgbt_id > 1) {
     edm::LogWarning("MTDGeom") << "BTLNumberingScheme::hslinkFromRU: "
-                               << "****************** lpgbt_id = " << lpgbt_id
-                               << "  not valid!";
+                               << "****************** lpgbt_id = " << lpgbt_id << "  not valid!";
     return -1;
   }
-  
-  const int optTxCh = 2 * runit + lpgbt_id; 
+
+  const int optTxCh = 2 * runit + lpgbt_id;
   // TEMPORARY MAPPING: within a group of 6 trays ( = supertray): tray 0 --> first block of 12 links, tray 1--> second block of 12 links, etc.
   // For the first block (N5), channel ids of the optical tx are reversed.
   // pos is the position in the tx array
-  const int pos = (tray%6 == 0) ? tx_inv_n5[optTxCh] : tx_inv_common[optTxCh];
+  const int pos = (tray % 6 == 0) ? tx_inv_n5[optTxCh] : tx_inv_common[optTxCh];
 
-  return ( kOffsetHSLinks + 12 * (tray % 6) + pos );
+  return (kOffsetHSLinks + 12 * (tray % 6) + pos);
 }
-
 
 int BTLElectronicsMapping::hslink(BTLDetId det, int lpgbt_id) const {
   uint32_t ru = det.runit();
@@ -330,25 +315,22 @@ int BTLElectronicsMapping::hslink(uint32_t rawID, int lpgbt_id) const {
 }
 
 int BTLElectronicsMapping::SlinkFromTray(uint32_t tray, uint32_t zside) const {
-  
-  if ( int(tray) < 0 || tray >= BTLDetId::HALF_ROD){
+  if (int(tray) < 0 || tray >= BTLDetId::HALF_ROD) {
     edm::LogWarning("MTDGeom") << "BTLNumberingScheme::SlinkFromTray: "
-                               << "****************** tray = " << tray
-                               << "  not valid!";
+                               << "****************** tray = " << tray << "  not valid!";
     return -1;
   }
 
-  if (int(zside) < 0 || zside > 1){
+  if (int(zside) < 0 || zside > 1) {
     edm::LogWarning("MTDGeom") << "BTLNumberingScheme::SlinkFromTray "
-                               << "****************** zside = " << zside
-                               << "  not valid (should be 0 or 1)!";
+                               << "****************** zside = " << zside << "  not valid (should be 0 or 1)!";
     return -1;
   }
-  
+
   // TEMPORARY MAPPING:
   // trays [0-35], Z- --> Slinks [0,5]
   // trays [0-35], Z+ --> Slinks [6,11]
-  return (MIN_SLINK_ID + tray/6 + 6 * zside); 
+  return (MIN_SLINK_ID + tray / 6 + 6 * zside);
 }
 
 int BTLElectronicsMapping::Slink(BTLDetId det) const {
@@ -362,16 +344,14 @@ int BTLElectronicsMapping::Slink(uint32_t rawID) const {
   return BTLElectronicsMapping::Slink(theId);
 }
 
-
-std::pair<uint32_t, uint32_t> BTLElectronicsMapping::getTrayFromLinks(int slink, int hslink) const{
-
+std::pair<uint32_t, uint32_t> BTLElectronicsMapping::getTrayFromLinks(int slink, int hslink) const {
   int superTray = slink - MIN_SLINK_ID;
 
-  uint32_t zside = (superTray < 6 ) ? 0 : 1;
-  
-  int hslinkBlock = int(hslink - kOffsetHSLinks)/12;
-  
+  uint32_t zside = (superTray < 6) ? 0 : 1;
+
+  int hslinkBlock = int(hslink - kOffsetHSLinks) / 12;
+
   uint32_t tray = (superTray - 6 * zside) * 6 + hslinkBlock;
 
-  return( std::make_pair(tray, zside));
+  return (std::make_pair(tray, zside));
 }
