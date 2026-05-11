@@ -1,0 +1,15 @@
+<library name="TestBTLElectronicsMapping" file="TestBTLElectronicsMapping.cc">
+  <use name="DataFormats/ForwardDetId"/>
+  <use name="DataFormats/Math"/>
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+  <use name="Geometry/MTDCommonData"/>
+  <use name="Geometry/MTDGeometryBuilder"/>
+  <use name="Geometry/Records"/>
+  <use name="CondFormats/MTDObjects"/>
+  <use name="rootcling"/>
+  <use name="dd4hep"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
