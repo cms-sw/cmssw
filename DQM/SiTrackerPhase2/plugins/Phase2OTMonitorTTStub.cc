@@ -46,6 +46,8 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
 
 class Phase2OTMonitorTTStub : public DQMEDAnalyzer {
 public:
@@ -69,8 +71,8 @@ public:
   MonitorElement *Stub_Endcap_Disc_Fw = nullptr;                                           // TTStub per disc
   MonitorElement *Stub_Endcap_Disc_Bw = nullptr;                                           // TTStub per disc
   MonitorElement *Stub_Endcap_Ring = nullptr;                                              // TTStubs per ring
-  MonitorElement *Stub_Endcap_Ring_Fw[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};  // TTStubs per EC ring
-  MonitorElement *Stub_Endcap_Ring_Bw[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};  // TTStub per EC ring
+  MonitorElement *Stub_Endcap_Ring_Fw[trklet::N_DISK] = {};  // TTStubs per EC ring
+  MonitorElement *Stub_Endcap_Ring_Bw[trklet::N_DISK] = {};  // TTStub per EC ring
 
   // Stub distribution
   MonitorElement *Stub_Eta = nullptr;     // TTstub eta distribution
@@ -87,12 +89,10 @@ public:
   MonitorElement *Stub_Endcap_Disc_O = nullptr;  // TTStub Offset (disc)
   MonitorElement *Stub_Endcap_Ring_W = nullptr;  // TTstub Pos-Corr Displacement (EC ring)
   MonitorElement *Stub_Endcap_Ring_O = nullptr;  // TTStub Offset (EC ring)
-  MonitorElement *Stub_Endcap_Ring_W_Fw[5] = {
-      nullptr, nullptr, nullptr, nullptr, nullptr};  // TTstub Pos-Corr Displacement (EC ring)
-  MonitorElement *Stub_Endcap_Ring_O_Fw[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};  // TTStub Offset (EC ring)
-  MonitorElement *Stub_Endcap_Ring_W_Bw[5] = {
-      nullptr, nullptr, nullptr, nullptr, nullptr};  // TTstub Pos-Corr Displacement (EC ring)
-  MonitorElement *Stub_Endcap_Ring_O_Bw[5] = {nullptr, nullptr, nullptr, nullptr, nullptr};  // TTStub Offset (EC ring)
+  MonitorElement *Stub_Endcap_Ring_W_Fw[trklet::N_DISK] = {};  // TTstub Pos-Corr Displacement (EC ring)
+  MonitorElement *Stub_Endcap_Ring_O_Fw[trklet::N_DISK] = {};  // TTStub Offset (EC ring)
+  MonitorElement *Stub_Endcap_Ring_W_Bw[trklet::N_DISK] = {};  // TTstub Pos-Corr Displacement (EC ring)
+  MonitorElement *Stub_Endcap_Ring_O_Bw[trklet::N_DISK] = {};  // TTStub Offset (EC ring)
 
 private:
   edm::ParameterSet conf_;
@@ -207,64 +207,14 @@ void Phase2OTMonitorTTStub::analyze(const edm::Event &iEvent, const edm::EventSe
   }
 }  // end of method
 
-// ------------ method called when starting to processes a run  ------------
 void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &run, edm::EventSetup const &es) {
-  std::string HistoName;
-  const int numDiscs = 5;
+  using namespace phase2tkutil;
+
   iBooker.setCurrentFolder(topFolderName_ + "/Stubs/Position");
-
-  edm::ParameterSet psTTStub_Barrel_XY = conf_.getParameter<edm::ParameterSet>("TH2TTStub_Position");
-  HistoName = "Stub_Barrel_XY";
-  Stub_Barrel_XY = iBooker.book2D(HistoName,
-                                  HistoName,
-                                  psTTStub_Barrel_XY.getParameter<int32_t>("Nbinsx"),
-                                  psTTStub_Barrel_XY.getParameter<double>("xmin"),
-                                  psTTStub_Barrel_XY.getParameter<double>("xmax"),
-                                  psTTStub_Barrel_XY.getParameter<int32_t>("Nbinsy"),
-                                  psTTStub_Barrel_XY.getParameter<double>("ymin"),
-                                  psTTStub_Barrel_XY.getParameter<double>("ymax"));
-  Stub_Barrel_XY->setAxisTitle("L1 Stub Barrel position x [cm]", 1);
-  Stub_Barrel_XY->setAxisTitle("L1 Stub Barrel position y [cm]", 2);
-
-  edm::ParameterSet psTTStub_Endcap_Fw_XY = conf_.getParameter<edm::ParameterSet>("TH2TTStub_Position");
-  HistoName = "Stub_Endcap_Fw_XY";
-  Stub_Endcap_Fw_XY = iBooker.book2D(HistoName,
-                                     HistoName,
-                                     psTTStub_Endcap_Fw_XY.getParameter<int32_t>("Nbinsx"),
-                                     psTTStub_Endcap_Fw_XY.getParameter<double>("xmin"),
-                                     psTTStub_Endcap_Fw_XY.getParameter<double>("xmax"),
-                                     psTTStub_Endcap_Fw_XY.getParameter<int32_t>("Nbinsy"),
-                                     psTTStub_Endcap_Fw_XY.getParameter<double>("ymin"),
-                                     psTTStub_Endcap_Fw_XY.getParameter<double>("ymax"));
-  Stub_Endcap_Fw_XY->setAxisTitle("L1 Stub Endcap position x [cm]", 1);
-  Stub_Endcap_Fw_XY->setAxisTitle("L1 Stub Endcap position y [cm]", 2);
-
-  edm::ParameterSet psTTStub_Endcap_Bw_XY = conf_.getParameter<edm::ParameterSet>("TH2TTStub_Position");
-  HistoName = "Stub_Endcap_Bw_XY";
-  Stub_Endcap_Bw_XY = iBooker.book2D(HistoName,
-                                     HistoName,
-                                     psTTStub_Endcap_Bw_XY.getParameter<int32_t>("Nbinsx"),
-                                     psTTStub_Endcap_Bw_XY.getParameter<double>("xmin"),
-                                     psTTStub_Endcap_Bw_XY.getParameter<double>("xmax"),
-                                     psTTStub_Endcap_Bw_XY.getParameter<int32_t>("Nbinsy"),
-                                     psTTStub_Endcap_Bw_XY.getParameter<double>("ymin"),
-                                     psTTStub_Endcap_Bw_XY.getParameter<double>("ymax"));
-  Stub_Endcap_Bw_XY->setAxisTitle("L1 Stub Endcap position x [cm]", 1);
-  Stub_Endcap_Bw_XY->setAxisTitle("L1 Stub Endcap position y [cm]", 2);
-
-  // TTStub #rho vs. z
-  edm::ParameterSet psTTStub_RZ = conf_.getParameter<edm::ParameterSet>("TH2TTStub_RZ");
-  HistoName = "Stub_RZ";
-  Stub_RZ = iBooker.book2D(HistoName,
-                           HistoName,
-                           psTTStub_RZ.getParameter<int32_t>("Nbinsx"),
-                           psTTStub_RZ.getParameter<double>("xmin"),
-                           psTTStub_RZ.getParameter<double>("xmax"),
-                           psTTStub_RZ.getParameter<int32_t>("Nbinsy"),
-                           psTTStub_RZ.getParameter<double>("ymin"),
-                           psTTStub_RZ.getParameter<double>("ymax"));
-  Stub_RZ->setAxisTitle("L1 Stub position z [cm]", 1);
-  Stub_RZ->setAxisTitle("L1 Stub position #rho [cm]", 2);
+  Stub_Barrel_XY    = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Barrel_XY"),    iBooker);
+  Stub_Endcap_Fw_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Endcap_Fw_XY"), iBooker);
+  Stub_Endcap_Bw_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Endcap_Bw_XY"), iBooker);
+  Stub_RZ           = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_RZ"),            iBooker);
 
   // CRACK ONLY: module vs layer
   edm::ParameterSet Parameters = conf_.getParameter<edm::ParameterSet>("CrackOverview");
@@ -294,306 +244,82 @@ void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run 
     CrackOverview = nullptr;
 
   iBooker.setCurrentFolder(topFolderName_ + "/Stubs");
-  // TTStub eta
-  edm::ParameterSet psTTStub_Eta = conf_.getParameter<edm::ParameterSet>("TH1TTStub_Eta");
-  HistoName = "Stub_Eta";
-  Stub_Eta = iBooker.book1D(HistoName,
-                            HistoName,
-                            psTTStub_Eta.getParameter<int32_t>("Nbinsx"),
-                            psTTStub_Eta.getParameter<double>("xmin"),
-                            psTTStub_Eta.getParameter<double>("xmax"));
-  Stub_Eta->setAxisTitle("#eta", 1);
-  Stub_Eta->setAxisTitle("# L1 Stubs ", 2);
-
-  // TTStub phi
-  edm::ParameterSet psTTStub_Phi = conf_.getParameter<edm::ParameterSet>("TH1TTStub_Phi");
-  HistoName = "Stub_Phi";
-  Stub_Phi = iBooker.book1D(HistoName,
-                            HistoName,
-                            psTTStub_Phi.getParameter<int32_t>("Nbinsx"),
-                            psTTStub_Phi.getParameter<double>("xmin"),
-                            psTTStub_Phi.getParameter<double>("xmax"));
-  Stub_Phi->setAxisTitle("#phi", 1);
-  Stub_Phi->setAxisTitle("# L1 Stubs ", 2);
-
-  // TTStub R
-  edm::ParameterSet psTTStub_R = conf_.getParameter<edm::ParameterSet>("TH1TTStub_R");
-  HistoName = "Stub_R";
-  Stub_R = iBooker.book1D(HistoName,
-                          HistoName,
-                          psTTStub_R.getParameter<int32_t>("Nbinsx"),
-                          psTTStub_R.getParameter<double>("xmin"),
-                          psTTStub_R.getParameter<double>("xmax"));
-  Stub_R->setAxisTitle("R", 1);
-  Stub_R->setAxisTitle("# L1 Stubs ", 2);
-
-  // TTStub trigger bend
-  edm::ParameterSet psTTStub_bend = conf_.getParameter<edm::ParameterSet>("TH1TTStub_bend");
-  HistoName = "Stub_bendFE";
-  Stub_bendFE = iBooker.book1D(HistoName,
-                               HistoName,
-                               psTTStub_bend.getParameter<int32_t>("Nbinsx"),
-                               psTTStub_bend.getParameter<double>("xmin"),
-                               psTTStub_bend.getParameter<double>("xmax"));
-  Stub_bendFE->setAxisTitle("Trigger bend", 1);
-  Stub_bendFE->setAxisTitle("# L1 Stubs ", 2);
-
-  // TTStub hardware bend
-  HistoName = "Stub_bendBE";
-  Stub_bendBE = iBooker.book1D(HistoName,
-                               HistoName,
-                               psTTStub_bend.getParameter<int32_t>("Nbinsx"),
-                               psTTStub_bend.getParameter<double>("xmin"),
-                               psTTStub_bend.getParameter<double>("xmax"));
-  Stub_bendBE->setAxisTitle("Hardware bend", 1);
-  Stub_bendBE->setAxisTitle("# L1 Stubs ", 2);
-
-  // TTStub, is PS?
-  edm::ParameterSet psTTStub_isPS = conf_.getParameter<edm::ParameterSet>("TH1TTStub_isPS");
-  HistoName = "Stub_isPS";
-  Stub_isPS = iBooker.book1D(HistoName,
-                             HistoName,
-                             psTTStub_isPS.getParameter<int32_t>("Nbinsx"),
-                             psTTStub_isPS.getParameter<double>("xmin"),
-                             psTTStub_isPS.getParameter<double>("xmax"));
-  Stub_isPS->setAxisTitle("Is PS?", 1);
-  Stub_isPS->setAxisTitle("# L1 Stubs ", 2);
+  Stub_Eta    = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Eta"),    iBooker);
+  Stub_Phi    = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Phi"),    iBooker);
+  Stub_R      = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_R"),      iBooker);
+  Stub_bendFE = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_bendFE"), iBooker);
+  Stub_bendBE = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_bendBE"), iBooker);
+  Stub_isPS   = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_isPS"),   iBooker);
 
   iBooker.setCurrentFolder(topFolderName_ + "/Stubs/NStubs");
-  // TTStub barrel stack
-  edm::ParameterSet psTTStub_Barrel = conf_.getParameter<edm::ParameterSet>("TH1TTStub_Layers");
-  HistoName = "NStubs_Barrel";
-  Stub_Barrel = iBooker.book1D(HistoName,
-                               HistoName,
-                               psTTStub_Barrel.getParameter<int32_t>("Nbinsx"),
-                               psTTStub_Barrel.getParameter<double>("xmin"),
-                               psTTStub_Barrel.getParameter<double>("xmax"));
-  Stub_Barrel->setAxisTitle("Barrel Layer", 1);
-  Stub_Barrel->setAxisTitle("# L1 Stubs ", 2);
+  Stub_Barrel         = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("NStubs_Barrel"),         iBooker);
+  Stub_Endcap_Disc    = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("NStubs_Endcap_Disc"),    iBooker);
+  Stub_Endcap_Disc_Fw = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("NStubs_Endcap_Disc_Fw"), iBooker);
+  Stub_Endcap_Disc_Bw = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("NStubs_Endcap_Disc_Bw"), iBooker);
+  Stub_Endcap_Ring    = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("NStubs_Endcap_Ring"),    iBooker);
 
-  // TTStub Endcap stack
-  edm::ParameterSet psTTStub_ECDisc = conf_.getParameter<edm::ParameterSet>("TH1TTStub_Discs");
-  HistoName = "NStubs_Endcap_Disc";
-  Stub_Endcap_Disc = iBooker.book1D(HistoName,
-                                    HistoName,
-                                    psTTStub_ECDisc.getParameter<int32_t>("Nbinsx"),
-                                    psTTStub_ECDisc.getParameter<double>("xmin"),
-                                    psTTStub_ECDisc.getParameter<double>("xmax"));
-  Stub_Endcap_Disc->setAxisTitle("Endcap Disc", 1);
-  Stub_Endcap_Disc->setAxisTitle("# L1 Stubs ", 2);
-
-  // TTStub Endcap stack
-  HistoName = "NStubs_Endcap_Disc_Fw";
-  Stub_Endcap_Disc_Fw = iBooker.book1D(HistoName,
-                                       HistoName,
-                                       psTTStub_ECDisc.getParameter<int32_t>("Nbinsx"),
-                                       psTTStub_ECDisc.getParameter<double>("xmin"),
-                                       psTTStub_ECDisc.getParameter<double>("xmax"));
-  Stub_Endcap_Disc_Fw->setAxisTitle("Forward Endcap Disc", 1);
-  Stub_Endcap_Disc_Fw->setAxisTitle("# L1 Stubs ", 2);
-
-  // TTStub Endcap stack
-  HistoName = "NStubs_Endcap_Disc_Bw";
-  Stub_Endcap_Disc_Bw = iBooker.book1D(HistoName,
-                                       HistoName,
-                                       psTTStub_ECDisc.getParameter<int32_t>("Nbinsx"),
-                                       psTTStub_ECDisc.getParameter<double>("xmin"),
-                                       psTTStub_ECDisc.getParameter<double>("xmax"));
-  Stub_Endcap_Disc_Bw->setAxisTitle("Backward Endcap Disc", 1);
-  Stub_Endcap_Disc_Bw->setAxisTitle("# L1 Stubs ", 2);
-
-  edm::ParameterSet psTTStub_ECRing = conf_.getParameter<edm::ParameterSet>("TH1TTStub_Rings");
-  HistoName = "NStubs_Endcap_Ring";
-  Stub_Endcap_Ring = iBooker.book1D(HistoName,
-                                    HistoName,
-                                    psTTStub_ECRing.getParameter<int32_t>("Nbinsx"),
-                                    psTTStub_ECRing.getParameter<double>("xmin"),
-                                    psTTStub_ECRing.getParameter<double>("xmax"));
-  Stub_Endcap_Ring->setAxisTitle("Endcap Ring", 1);
-  Stub_Endcap_Ring->setAxisTitle("# L1 Stubs ", 2);
-
-  for (int i = 0; i < numDiscs; i++) {
-    HistoName = "NStubs_Disc+" + std::to_string(i + 1);
-    // TTStub Endcap stack
-    Stub_Endcap_Ring_Fw[i] = iBooker.book1D(HistoName,
-                                            HistoName,
-                                            psTTStub_ECRing.getParameter<int32_t>("Nbinsx"),
-                                            psTTStub_ECRing.getParameter<double>("xmin"),
-                                            psTTStub_ECRing.getParameter<double>("xmax"));
-    Stub_Endcap_Ring_Fw[i]->setAxisTitle("Endcap Ring", 1);
-    Stub_Endcap_Ring_Fw[i]->setAxisTitle("# L1 Stubs ", 2);
+  for (int i = 0; i < static_cast<int>(trklet::N_DISK); i++) {
+    Stub_Endcap_Ring_Fw[i] = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("NStubs_Disc_Fw_" + std::to_string(i + 1)), iBooker);
+    Stub_Endcap_Ring_Bw[i] = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("NStubs_Disc_Bw_" + std::to_string(i + 1)), iBooker);
   }
-
-  for (int i = 0; i < numDiscs; i++) {
-    HistoName = "NStubs_Disc-" + std::to_string(i + 1);
-    // TTStub Endcap stack
-    Stub_Endcap_Ring_Bw[i] = iBooker.book1D(HistoName,
-                                            HistoName,
-                                            psTTStub_ECRing.getParameter<int32_t>("Nbinsx"),
-                                            psTTStub_ECRing.getParameter<double>("xmin"),
-                                            psTTStub_ECRing.getParameter<double>("xmax"));
-    Stub_Endcap_Ring_Bw[i]->setAxisTitle("Endcap Ring", 1);
-    Stub_Endcap_Ring_Bw[i]->setAxisTitle("# L1 Stubs ", 2);
-  }
-
-  // TTStub displ/offset
-  edm::ParameterSet psTTStub_Barrel_2D = conf_.getParameter<edm::ParameterSet>("TH2TTStub_DisOf_Layer");
-  edm::ParameterSet psTTStub_ECDisc_2D = conf_.getParameter<edm::ParameterSet>("TH2TTStub_DisOf_Disc");
-  edm::ParameterSet psTTStub_ECRing_2D = conf_.getParameter<edm::ParameterSet>("TH2TTStub_DisOf_Ring");
 
   iBooker.setCurrentFolder(topFolderName_ + "/Stubs/Width");
-  HistoName = "Stub_Width_Barrel";
-  Stub_Barrel_W = iBooker.book2D(HistoName,
-                                 HistoName,
-                                 psTTStub_Barrel_2D.getParameter<int32_t>("Nbinsx"),
-                                 psTTStub_Barrel_2D.getParameter<double>("xmin"),
-                                 psTTStub_Barrel_2D.getParameter<double>("xmax"),
-                                 psTTStub_Barrel_2D.getParameter<int32_t>("Nbinsy"),
-                                 psTTStub_Barrel_2D.getParameter<double>("ymin"),
-                                 psTTStub_Barrel_2D.getParameter<double>("ymax"));
-  Stub_Barrel_W->setAxisTitle("Barrel Layer", 1);
-  Stub_Barrel_W->setAxisTitle("Displacement - Offset", 2);
-
-  HistoName = "Stub_Width_Endcap_Disc";
-  Stub_Endcap_Disc_W = iBooker.book2D(HistoName,
-                                      HistoName,
-                                      psTTStub_ECDisc_2D.getParameter<int32_t>("Nbinsx"),
-                                      psTTStub_ECDisc_2D.getParameter<double>("xmin"),
-                                      psTTStub_ECDisc_2D.getParameter<double>("xmax"),
-                                      psTTStub_ECDisc_2D.getParameter<int32_t>("Nbinsy"),
-                                      psTTStub_ECDisc_2D.getParameter<double>("ymin"),
-                                      psTTStub_ECDisc_2D.getParameter<double>("ymax"));
-  Stub_Endcap_Disc_W->setAxisTitle("Endcap Disc", 1);
-  Stub_Endcap_Disc_W->setAxisTitle("Displacement - Offset", 2);
-
-  HistoName = "Stub_Width_Endcap_Ring";
-  Stub_Endcap_Ring_W = iBooker.book2D(HistoName,
-                                      HistoName,
-                                      psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
-                                      psTTStub_ECRing_2D.getParameter<double>("xmin"),
-                                      psTTStub_ECRing_2D.getParameter<double>("xmax"),
-                                      psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsy"),
-                                      psTTStub_ECRing_2D.getParameter<double>("ymin"),
-                                      psTTStub_ECRing_2D.getParameter<double>("ymax"));
-  Stub_Endcap_Ring_W->setAxisTitle("Endcap Ring", 1);
-  Stub_Endcap_Ring_W->setAxisTitle("Trigger Offset", 2);
-
-  for (int i = 0; i < numDiscs; i++) {
-    HistoName = "Stub_Width_Disc+" + std::to_string(i + 1);
-    Stub_Endcap_Ring_W_Fw[i] = iBooker.book2D(HistoName,
-                                              HistoName,
-                                              psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
-                                              psTTStub_ECRing_2D.getParameter<double>("xmin"),
-                                              psTTStub_ECRing_2D.getParameter<double>("xmax"),
-                                              psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsy"),
-                                              psTTStub_ECRing_2D.getParameter<double>("ymin"),
-                                              psTTStub_ECRing_2D.getParameter<double>("ymax"));
-    Stub_Endcap_Ring_W_Fw[i]->setAxisTitle("Endcap Ring", 1);
-    Stub_Endcap_Ring_W_Fw[i]->setAxisTitle("Displacement - Offset", 2);
-  }
-
-  for (int i = 0; i < numDiscs; i++) {
-    HistoName = "Stub_Width_Disc-" + std::to_string(i + 1);
-    Stub_Endcap_Ring_W_Bw[i] = iBooker.book2D(HistoName,
-                                              HistoName,
-                                              psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
-                                              psTTStub_ECRing_2D.getParameter<double>("xmin"),
-                                              psTTStub_ECRing_2D.getParameter<double>("xmax"),
-                                              psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsy"),
-                                              psTTStub_ECRing_2D.getParameter<double>("ymin"),
-                                              psTTStub_ECRing_2D.getParameter<double>("ymax"));
-    Stub_Endcap_Ring_W_Bw[i]->setAxisTitle("Endcap Ring", 1);
-    Stub_Endcap_Ring_W_Bw[i]->setAxisTitle("Displacement - Offset", 2);
+  Stub_Barrel_W      = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Width_Barrel"),      iBooker);
+  Stub_Endcap_Disc_W = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Width_Endcap_Disc"), iBooker);
+  Stub_Endcap_Ring_W = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Width_Endcap_Ring"), iBooker);
+  for (int i = 0; i < static_cast<int>(trklet::N_DISK); i++) {
+    Stub_Endcap_Ring_W_Fw[i] = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Width_Disc_Fw_"  + std::to_string(i + 1)), iBooker);
+    Stub_Endcap_Ring_W_Bw[i] = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Width_Disc_Bw_"  + std::to_string(i + 1)), iBooker);
   }
 
   iBooker.setCurrentFolder(topFolderName_ + "/Stubs/Offset");
-  HistoName = "Stub_Offset_Barrel";
-  Stub_Barrel_O = iBooker.book2D(HistoName,
-                                 HistoName,
-                                 psTTStub_Barrel_2D.getParameter<int32_t>("Nbinsx"),
-                                 psTTStub_Barrel_2D.getParameter<double>("xmin"),
-                                 psTTStub_Barrel_2D.getParameter<double>("xmax"),
-                                 psTTStub_Barrel_2D.getParameter<int32_t>("Nbinsy"),
-                                 psTTStub_Barrel_2D.getParameter<double>("ymin"),
-                                 psTTStub_Barrel_2D.getParameter<double>("ymax"));
-  Stub_Barrel_O->setAxisTitle("Barrel Layer", 1);
-  Stub_Barrel_O->setAxisTitle("Trigger Offset", 2);
-
-  HistoName = "Stub_Offset_Endcap_Disc";
-  Stub_Endcap_Disc_O = iBooker.book2D(HistoName,
-                                      HistoName,
-                                      psTTStub_ECDisc_2D.getParameter<int32_t>("Nbinsx"),
-                                      psTTStub_ECDisc_2D.getParameter<double>("xmin"),
-                                      psTTStub_ECDisc_2D.getParameter<double>("xmax"),
-                                      psTTStub_ECDisc_2D.getParameter<int32_t>("Nbinsy"),
-                                      psTTStub_ECDisc_2D.getParameter<double>("ymin"),
-                                      psTTStub_ECDisc_2D.getParameter<double>("ymax"));
-  Stub_Endcap_Disc_O->setAxisTitle("Endcap Disc", 1);
-  Stub_Endcap_Disc_O->setAxisTitle("Trigger Offset", 2);
-
-  HistoName = "Stub_Offset_Endcap_Ring";
-  Stub_Endcap_Ring_O = iBooker.book2D(HistoName,
-                                      HistoName,
-                                      psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
-                                      psTTStub_ECRing_2D.getParameter<double>("xmin"),
-                                      psTTStub_ECRing_2D.getParameter<double>("xmax"),
-                                      psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsy"),
-                                      psTTStub_ECRing_2D.getParameter<double>("ymin"),
-                                      psTTStub_ECRing_2D.getParameter<double>("ymax"));
-  Stub_Endcap_Ring_O->setAxisTitle("Endcap Ring", 1);
-  Stub_Endcap_Ring_O->setAxisTitle("Trigger Offset", 2);
-
-  for (int i = 0; i < numDiscs; i++) {
-    HistoName = "Stub_Offset_Disc+" + std::to_string(i + 1);
-    Stub_Endcap_Ring_O_Fw[i] = iBooker.book2D(HistoName,
-                                              HistoName,
-                                              psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
-                                              psTTStub_ECRing_2D.getParameter<double>("xmin"),
-                                              psTTStub_ECRing_2D.getParameter<double>("xmax"),
-                                              psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsy"),
-                                              psTTStub_ECRing_2D.getParameter<double>("ymin"),
-                                              psTTStub_ECRing_2D.getParameter<double>("ymax"));
-    Stub_Endcap_Ring_O_Fw[i]->setAxisTitle("Endcap Ring", 1);
-    Stub_Endcap_Ring_O_Fw[i]->setAxisTitle("Trigger Offset", 2);
-  }
-
-  for (int i = 0; i < numDiscs; i++) {
-    HistoName = "Stub_Offset_Disc-" + std::to_string(i + 1);
-    Stub_Endcap_Ring_O_Bw[i] = iBooker.book2D(HistoName,
-                                              HistoName,
-                                              psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
-                                              psTTStub_ECRing_2D.getParameter<double>("xmin"),
-                                              psTTStub_ECRing_2D.getParameter<double>("xmax"),
-                                              psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsy"),
-                                              psTTStub_ECRing_2D.getParameter<double>("ymin"),
-                                              psTTStub_ECRing_2D.getParameter<double>("ymax"));
-    Stub_Endcap_Ring_O_Bw[i]->setAxisTitle("Endcap Ring", 1);
-    Stub_Endcap_Ring_O_Bw[i]->setAxisTitle("Trigger Offset", 2);
+  Stub_Barrel_O      = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Offset_Barrel"),      iBooker);
+  Stub_Endcap_Disc_O = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Offset_Endcap_Disc"), iBooker);
+  Stub_Endcap_Ring_O = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Offset_Endcap_Ring"), iBooker);
+  for (int i = 0; i < static_cast<int>(trklet::N_DISK); i++) {
+    Stub_Endcap_Ring_O_Fw[i] = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Offset_Disc_Fw_" + std::to_string(i + 1)), iBooker);
+    Stub_Endcap_Ring_O_Bw[i] = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Offset_Disc_Bw_" + std::to_string(i + 1)), iBooker);
   }
 }
+
 void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-  // Phase2OTMonitorTTStub
   edm::ParameterSetDescription desc;
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 960);
-    psd0.add<double>("xmax", 120);
-    psd0.add<double>("xmin", -120);
-    psd0.add<int>("Nbinsy", 960);
-    psd0.add<double>("ymax", 120);
-    psd0.add<double>("ymin", -120);
-    desc.add<edm::ParameterSetDescription>("TH2TTStub_Position", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 900);
-    psd0.add<double>("xmax", 300);
-    psd0.add<double>("xmin", -300);
-    psd0.add<int>("Nbinsy", 900);
-    psd0.add<double>("ymax", 120);
-    psd0.add<double>("ymin", 0);
-    desc.add<edm::ParameterSetDescription>("TH2TTStub_RZ", psd0);
-  }
+
+  auto add1D = [&](const std::string& psetKey, const std::string& histName,
+                   const std::string& xlabel, const std::string& ylabel,
+                   int nbins, double xmin, double xmax) {
+    edm::ParameterSetDescription ps;
+    ps.add<bool>("switch", true);
+    ps.add<std::string>("name", histName);
+    ps.add<std::string>("title", histName + ";" + xlabel + ";" + ylabel);
+    ps.add<int>("NxBins", nbins);
+    ps.add<double>("xmin", xmin);
+    ps.add<double>("xmax", xmax);
+    desc.add<edm::ParameterSetDescription>(psetKey, ps);
+  };
+
+  auto add2D = [&](const std::string& psetKey, const std::string& histName,
+                   const std::string& xlabel, const std::string& ylabel,
+                   int nbx, double xmin, double xmax, int nby, double ymin, double ymax) {
+    edm::ParameterSetDescription ps;
+    ps.add<bool>("switch", true);
+    ps.add<std::string>("name", histName);
+    ps.add<std::string>("title", histName + ";" + xlabel + ";" + ylabel);
+    ps.add<int>("NxBins", nbx);
+    ps.add<double>("xmin", xmin);
+    ps.add<double>("xmax", xmax);
+    ps.add<int>("NyBins", nby);
+    ps.add<double>("ymin", ymin);
+    ps.add<double>("ymax", ymax);
+    desc.add<edm::ParameterSetDescription>(psetKey, ps);
+  };
+
+  // Position (psetKey == histId for all fixed histograms)
+  add2D("Stub_Barrel_XY",    "Stub_Barrel_XY",    "L1 Stub Barrel position x [cm]", "L1 Stub Barrel position y [cm]", 960, -120, 120, 960, -120, 120);
+  add2D("Stub_Endcap_Fw_XY", "Stub_Endcap_Fw_XY", "L1 Stub Endcap position x [cm]", "L1 Stub Endcap position y [cm]", 960, -120, 120, 960, -120, 120);
+  add2D("Stub_Endcap_Bw_XY", "Stub_Endcap_Bw_XY", "L1 Stub Endcap position x [cm]", "L1 Stub Endcap position y [cm]", 960, -120, 120, 960, -120, 120);
+  add2D("Stub_RZ",            "Stub_RZ",            "L1 Stub position z [cm]",        "L1 Stub position #rho [cm]",    900, -300, 300, 900, 0, 120);
+
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Crack_Overview_Stubs");
@@ -605,96 +331,46 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
     psd0.add<double>("ymax", 7.5);
     desc.add<edm::ParameterSetDescription>("CrackOverview", psd0);
   }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 45);
-    psd0.add<double>("xmin", -5);
-    psd0.add<double>("xmax", 5);
-    desc.add<edm::ParameterSetDescription>("TH1TTStub_Eta", psd0);
+
+  // Stub distributions
+  add1D("Stub_Eta",    "Stub_Eta",    "#eta",          "# L1 Stubs", 45, -5,     5);
+  add1D("Stub_Phi",    "Stub_Phi",    "#phi",          "# L1 Stubs", 60, -3.5,   3.5);
+  add1D("Stub_R",      "Stub_R",      "R",             "# L1 Stubs", 45,  0,     120);
+  add1D("Stub_bendFE", "Stub_bendFE", "Trigger bend",  "# L1 Stubs", 69, -8.625, 8.625);
+  add1D("Stub_bendBE", "Stub_bendBE", "Hardware bend", "# L1 Stubs", 69, -8.625, 8.625);
+  add1D("Stub_isPS",   "Stub_isPS",   "Is PS?",        "# L1 Stubs",  2,  0,     2);
+
+  // NStubs
+  add1D("NStubs_Barrel",         "NStubs_Barrel",         "Barrel Layer",         "# L1 Stubs",  7, 0.5, 7.5);
+  add1D("NStubs_Endcap_Disc",    "NStubs_Endcap_Disc",    "Endcap Disc",          "# L1 Stubs",  6, 0.5, 6.5);
+  add1D("NStubs_Endcap_Disc_Fw", "NStubs_Endcap_Disc_Fw", "Forward Endcap Disc",  "# L1 Stubs",  6, 0.5, 6.5);
+  add1D("NStubs_Endcap_Disc_Bw", "NStubs_Endcap_Disc_Bw", "Backward Endcap Disc", "# L1 Stubs",  6, 0.5, 6.5);
+  add1D("NStubs_Endcap_Ring",    "NStubs_Endcap_Ring",    "Endcap Ring",          "# L1 Stubs", 16, 0.5, 16.5);
+
+  // Width
+  add2D("Stub_Width_Barrel",      "Stub_Width_Barrel",      "Barrel Layer", "Displacement - Offset",  6, 0.5,  6.5, 43, -10.75, 10.75);
+  add2D("Stub_Width_Endcap_Disc", "Stub_Width_Endcap_Disc", "Endcap Disc",  "Displacement - Offset",  5, 0.5,  5.5, 43, -10.75, 10.75);
+  add2D("Stub_Width_Endcap_Ring", "Stub_Width_Endcap_Ring", "Endcap Ring",  "Displacement - Offset", 16, 0.5, 16.5, 43, -10.75, 10.75);
+
+  // Offset
+  add2D("Stub_Offset_Barrel",      "Stub_Offset_Barrel",      "Barrel Layer", "Trigger Offset",  6, 0.5,  6.5, 43, -10.75, 10.75);
+  add2D("Stub_Offset_Endcap_Disc", "Stub_Offset_Endcap_Disc", "Endcap Disc",  "Trigger Offset",  5, 0.5,  5.5, 43, -10.75, 10.75);
+  add2D("Stub_Offset_Endcap_Ring", "Stub_Offset_Endcap_Ring", "Endcap Ring",  "Trigger Offset", 16, 0.5, 16.5, 43, -10.75, 10.75);
+
+  // Disc-specific ring histograms: pset key uses _Fw_/_Bw_ (Python-safe), histId preserves +/-
+  for (int i = 1; i <= static_cast<int>(trklet::N_DISK); i++) {
+    const std::string si = std::to_string(i);
+    add1D("NStubs_Disc_Fw_" + si, "NStubs_Disc+" + si, "Endcap Ring", "# L1 Stubs", 16, 0.5, 16.5);
+    add1D("NStubs_Disc_Bw_" + si, "NStubs_Disc-" + si, "Endcap Ring", "# L1 Stubs", 16, 0.5, 16.5);
+    add2D("Stub_Width_Disc_Fw_"  + si, "Stub_Width_Disc+"  + si, "Endcap Ring", "Displacement - Offset", 16, 0.5, 16.5, 43, -10.75, 10.75);
+    add2D("Stub_Width_Disc_Bw_"  + si, "Stub_Width_Disc-"  + si, "Endcap Ring", "Displacement - Offset", 16, 0.5, 16.5, 43, -10.75, 10.75);
+    add2D("Stub_Offset_Disc_Fw_" + si, "Stub_Offset_Disc+" + si, "Endcap Ring", "Trigger Offset", 16, 0.5, 16.5, 43, -10.75, 10.75);
+    add2D("Stub_Offset_Disc_Bw_" + si, "Stub_Offset_Disc-" + si, "Endcap Ring", "Trigger Offset", 16, 0.5, 16.5, 43, -10.75, 10.75);
   }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 60);
-    psd0.add<double>("xmin", -3.5);
-    psd0.add<double>("xmax", 3.5);
-    desc.add<edm::ParameterSetDescription>("TH1TTStub_Phi", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 45);
-    psd0.add<double>("xmin", 0);
-    psd0.add<double>("xmax", 120);
-    desc.add<edm::ParameterSetDescription>("TH1TTStub_R", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 69);
-    psd0.add<double>("xmin", -8.625);
-    psd0.add<double>("xmax", 8.625);
-    desc.add<edm::ParameterSetDescription>("TH1TTStub_bend", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 2);
-    psd0.add<double>("xmin", 0.0);
-    psd0.add<double>("xmax", 2.0);
-    desc.add<edm::ParameterSetDescription>("TH1TTStub_isPS", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 7);
-    psd0.add<double>("xmin", 0.5);
-    psd0.add<double>("xmax", 7.5);
-    desc.add<edm::ParameterSetDescription>("TH1TTStub_Layers", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 6);
-    psd0.add<double>("xmin", 0.5);
-    psd0.add<double>("xmax", 6.5);
-    desc.add<edm::ParameterSetDescription>("TH1TTStub_Discs", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 16);
-    psd0.add<double>("xmin", 0.5);
-    psd0.add<double>("xmax", 16.5);
-    desc.add<edm::ParameterSetDescription>("TH1TTStub_Rings", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 6);
-    psd0.add<double>("xmax", 6.5);
-    psd0.add<double>("xmin", 0.5);
-    psd0.add<int>("Nbinsy", 43);
-    psd0.add<double>("ymax", 10.75);
-    psd0.add<double>("ymin", -10.75);
-    desc.add<edm::ParameterSetDescription>("TH2TTStub_DisOf_Layer", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 5);
-    psd0.add<double>("xmax", 5.5);
-    psd0.add<double>("xmin", 0.5);
-    psd0.add<int>("Nbinsy", 43);
-    psd0.add<double>("ymax", 10.75);
-    psd0.add<double>("ymin", -10.75);
-    desc.add<edm::ParameterSetDescription>("TH2TTStub_DisOf_Disc", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 16);
-    psd0.add<double>("xmax", 16.5);
-    psd0.add<double>("xmin", 0.5);
-    psd0.add<int>("Nbinsy", 43);
-    psd0.add<double>("ymax", 10.75);
-    psd0.add<double>("ymin", -10.75);
-    desc.add<edm::ParameterSetDescription>("TH2TTStub_DisOf_Ring", psd0);
-  }
+
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTStub");
   desc.add<edm::InputTag>("TTStubs", edm::InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"));
   descriptions.add("Phase2OTMonitorTTStub", desc);
-  // or use the following to generate the label from the module's C++ type
   //descriptions.addWithDefaultLabel(desc);
 }
 
