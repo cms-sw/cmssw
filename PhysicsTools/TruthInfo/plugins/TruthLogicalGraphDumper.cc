@@ -237,7 +237,7 @@ public:
       auto p = g.particle(i);
       auto const& d = p.data();
 
-      os << "  p" << i << " [shape=ellipse";
+      os << "  p" << i << " [shape=ellipse, hasCheckpoints=" << p.hasCheckpoints() << ", hasGen=" << p.hasGen() << ", hasSim=" << d.hasSim();
 
       if (p.hasCheckpoints()) {
         os << ", color=\"red\", penwidth=2";
@@ -247,6 +247,15 @@ public:
         os << ", color=\"blue\"";
       } else if (d.hasSim()) {
         os << ", color=\"darkgreen\"";
+      }
+
+      os << ", pid=" << d.pdgId << ", status=" << d.status << ", statusFlags=" << d.statusFlags << ", flags=<" << statusFlagsLabel(d.statusFlags) << ">" 
+        << ", eid=" <<  d.eventId << ", genEvent=" <<  d.genEvent << ", isRoot=" << p.isRoot() << ", isLeaf=" << p.isLeaf() 
+        << ", p4=\"" << fmtP4(d.momentum) << "\", nProdVtx=" <<  p.productionVertices().size() << ", DecayVtx=" << p.decayVertices().size() 
+        << ", nParents=" << p.parents().size() << ", nChildren=" << p.children().size() << ", nCheckpoints=" << d.checkpoints.size();
+      
+      if (raw != nullptr) {
+        os << ", raw_GEN=<" << rawNodeSummary(raw, d.genNode) << ">, raw_SIM=<" << rawNodeSummary(raw, d.simNode) << ">";
       }
 
       os << ", label=<\n";
