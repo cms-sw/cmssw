@@ -47,9 +47,9 @@ public:
   std::vector<NodeRef> nodes;
 
   // Cached payload (optional)
-  std::vector<int32_t> pdgId;   // 0 if not applicable
-  std::vector<int16_t> status;  // 0 if not applicable
-
+  std::vector<int32_t> pdgId;         // 0 if not applicable
+  std::vector<int16_t> status;        // 0 if not applicable
+  std::vector<uint16_t> statusFlags;  // packed reco::GenStatusFlags, 0 if not available
   // Packed EncodedEventId for SIM nodes; 0 for GEN nodes
   std::vector<uint64_t> eventId;
 
@@ -83,7 +83,7 @@ public:
   int32_t nodePdgId(uint32_t nodeId) const { return (nodeId < pdgId.size()) ? pdgId[nodeId] : 0; }
 
   int16_t nodeStatus(uint32_t nodeId) const { return (nodeId < status.size()) ? status[nodeId] : 0; }
-
+  uint16_t nodeStatusFlags(uint32_t nodeId) const { return (nodeId < statusFlags.size()) ? statusFlags[nodeId] : 0; }
   uint64_t nodeEventId(uint32_t nodeId) const { return (nodeId < eventId.size()) ? eventId[nodeId] : 0ull; }
 
   int32_t nodeSimTrackToGen(uint32_t nodeId) const {

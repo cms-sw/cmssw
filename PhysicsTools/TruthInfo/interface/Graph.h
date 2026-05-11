@@ -26,6 +26,10 @@ namespace truth {
     int32_t pdgId = 0;
     int16_t status = 0;
 
+    // Packed reco::GenStatusFlags bitfield, when available.
+    // 0 means "not available" or "no flags set".
+    uint16_t statusFlags = 0;
+
     // SIM event id when available, 0 otherwise.
     uint64_t eventId = 0;
 
@@ -85,6 +89,7 @@ namespace truth {
     [[nodiscard]] bool hasSim() const;
     [[nodiscard]] int32_t pdgId() const;
     [[nodiscard]] int16_t status() const;
+    [[nodiscard]] uint16_t statusFlags() const;
     [[nodiscard]] uint64_t eventId() const;
     [[nodiscard]] int32_t genEvent() const;
     [[nodiscard]] const math::XYZTLorentzVectorD& momentum() const;
