@@ -338,7 +338,7 @@ int BTLElectronicsMapping::SlinkFromTray(uint32_t tray, uint32_t zside) const {
     return -1;
   }
 
-  if (int(zside) < 0 || zside >= 1){
+  if (int(zside) < 0 || zside > 1){
     edm::LogWarning("MTDGeom") << "BTLNumberingScheme::SlinkFromTray "
                                << "****************** zside = " << zside
                                << "  not valid (should be 0 or 1)!";
@@ -371,7 +371,7 @@ std::pair<uint32_t, uint32_t> BTLElectronicsMapping::getTrayFromLinks(int slink,
   
   int hslinkBlock = int(hslink - kOffsetHSLinks)/12;
   
-  uint32_t tray = (superTray - 6 * zside) + 6 * hslinkBlock;
+  uint32_t tray = (superTray - 6 * zside) * 6 + hslinkBlock;
 
   return( std::make_pair(tray, zside));
 }
