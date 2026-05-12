@@ -1,6 +1,6 @@
-# hltGetConfiguration /dev/CMSSW_16_0_0/PRef --full --data --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
+# hltGetConfiguration /dev/CMSSW_16_1_0/PRef --full --data --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_16_0_0/PRef/V62 (CMSSW_16_0_6)
+# /dev/CMSSW_16_1_0/PRef/V11 (CMSSW_16_1_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ process = cms.Process( "HLTPRef" )
 process.load("Configuration.StandardSequences.Accelerators_cff")
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_16_0_0/PRef/V62")
+  tableName = cms.string("/dev/CMSSW_16_1_0/PRef/V11")
 )
 
 process.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -8942,6 +8942,8 @@ process.hltIter0PFlowCkfTrackCandidates = cms.EDProducer( "MkFitOutputConverter"
     candCutSel = cms.bool( False ),
     candMinPtCut = cms.double( 0.0 ),
     candMinNHitsCut = cms.int32( 0 ),
+    candMinPtRelaxedCut = cms.double( 0.0 ),
+    candMinAbsEtaForRelaxedCut = cms.double( 0.0 ),
     candMVASel = cms.bool( False ),
     candWP = cms.double( 0.0 ),
     batchSize = cms.int32( 16 )
@@ -9153,6 +9155,8 @@ process.hltDoubletRecoveryPFlowCkfTrackCandidates = cms.EDProducer( "MkFitOutput
     candCutSel = cms.bool( False ),
     candMinPtCut = cms.double( 0.0 ),
     candMinNHitsCut = cms.int32( 0 ),
+    candMinPtRelaxedCut = cms.double( 0.0 ),
+    candMinAbsEtaForRelaxedCut = cms.double( 0.0 ),
     candMVASel = cms.bool( False ),
     candWP = cms.double( 0.0 ),
     batchSize = cms.int32( 16 )
