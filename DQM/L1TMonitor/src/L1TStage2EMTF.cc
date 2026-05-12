@@ -1098,6 +1098,22 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
       }
     }
 
+    int numHitsInTrackBX0 = 0;
+    int numHitsRPC = 0;
+    if (numHits == 3 || numHits == 4) {
+      for (const auto& jTrkHit : Track->Hits()) {
+        if (jTrkHit.BX() == 0)
+          numHitsInTrackBX0++;
+      }
+      if (numHitsInTrackBX0 >= numHits - 1) {
+        for (const auto& iTrkHit : Track->Hits()) {
+          if (iTrkHit.Is_RPC()) {
+            numHitsRPC++;
+          }
+        }
+      }
+    }
+
     ////////////////////////////////////////////////////
     ///  Begin block for CSC LCT and RPC hit timing  ///
     ////////////////////////////////////////////////////
@@ -1158,18 +1174,24 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
           if (endcap > 0)
             hist_index = 19 - hist_index;
           if (neighbor == false) {
-            cscLCTTiming[histIndexBX.at(trackHitBX)]->Fill(chamber_bin(station, ring, chamber), hist_index, evt_wgt);
-            cscTimingTot->Fill(chamber_bin(station, ring, chamber), hist_index, evt_wgt);
+            if (numHitsRPC < 2) {
+              cscLCTTiming[histIndexBX.at(trackHitBX)]->Fill(chamber_bin(station, ring, chamber), hist_index, evt_wgt);
+              cscTimingTot->Fill(chamber_bin(station, ring, chamber), hist_index, evt_wgt);
+            }
             if (station > 1 && (ring % 2) == 1) {
-              cscLCTTiming[histIndexBX.at(trackHitBX)]->Fill(
-                  chamber_bin(station, ring, chamber) - 1, hist_index, evt_wgt);
-              cscTimingTot->Fill(chamber_bin(station, ring, chamber) - 1, hist_index, evt_wgt);
+              if (numHitsRPC < 2) {
+                cscLCTTiming[histIndexBX.at(trackHitBX)]->Fill(
+                    chamber_bin(station, ring, chamber) - 1, hist_index, evt_wgt);
+                cscTimingTot->Fill(chamber_bin(station, ring, chamber) - 1, hist_index, evt_wgt);
+              }
             }
           } else {
             // Map neighbor chambers to "fake" CSC IDs: 1/3 --> 1, 1/6 --> 2, 1/9 --> 3, 2/3 --> 4, 2/9 --> 5, etc.
             //int cscid_n = (station == 1 ? (cscid / 3) : (station * 2) + ((cscid - 3) / 6) );
-            cscLCTTiming[histIndexBX.at(trackHitBX)]->Fill((sector % 6 + 1) * 7 - 4, hist_index, evt_wgt);
-            cscTimingTot->Fill((sector % 6 + 1) * 7 - 4, hist_index, evt_wgt);
+            if (numHitsRPC < 2) {
+              cscLCTTiming[histIndexBX.at(trackHitBX)]->Fill((sector % 6 + 1) * 7 - 4, hist_index, evt_wgt);
+              cscTimingTot->Fill((sector % 6 + 1) * 7 - 4, hist_index, evt_wgt);
+            }
           }
 
           // Fill RPC timing with matched CSC LCTs
