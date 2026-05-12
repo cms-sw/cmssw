@@ -6,8 +6,11 @@
 // Standalone payload (momentum/position/checkpoints) is materialized from optional
 // HepMC2 / HepMC3 / SimTrack / SimVertex inputs.
 //
-// For debugging purposes, GenVertex and SimVertex are intentionally NOT merged.
-// Each raw vertex node becomes its own logical truth::Vertex.
+// GenParticle and SimTrack nodes are merged when a robust association exists.
+// The corresponding production GenVertex and SimVertex nodes are also merged,
+// but only for locally one-to-one GenVertex <-> SimVertex associations induced
+// by the same GenParticle <-> SimTrack match. This avoids creating artificial
+// high-degree merged vertices from transitive many-to-one vertex matches.
 
 #include <algorithm>
 #include <cstddef>
@@ -247,8 +250,6 @@ namespace {
       if (genParticlePdgId(raw, nodeId, genParticlePayload) != motherPdgId)
         continue;
 
-      // Start from the selected mother itself.
-      // This keeps the mother, its decay vertices, daughters, and all descendants.
       if (!keep[nodeId]) {
         keep[nodeId] = 1;
         queue.push(nodeId);
@@ -271,6 +272,79 @@ namespace {
     }
 
     return keep;
+  }
+
+  std::vector<int32_t> buildGenParticleToProductionGenVertexMap(TruthGraph const& raw,
+                                                                std::vector<uint8_t> const& keepRawNode) {
+    const uint32_t nRawNodes = raw.nNodes();
+    std::vector<int32_t> genParticleToProductionGenVertex(nRawNodes, -1);
+
+    for (uint32_t src = 0; src < nRawNodes; ++src) {
+      if (!keepRawNode[src])
+        continue;
+
+      if (raw.nodeRef(src).kind != TruthGraph::NodeKind::GenVertex)
+        continue;
+
+      const auto dsts = raw.children(src);
+      const auto edgeKinds = raw.childrenEdgeKinds(src);
+
+      for (std::size_t i = 0; i < dsts.size(); ++i) {
+        const uint32_t dst = dsts[i];
+
+        if (dst >= nRawNodes || !keepRawNode[dst])
+          continue;
+
+        if (raw.nodeRef(dst).kind != TruthGraph::NodeKind::GenParticle)
+          continue;
+
+        if (static_cast<TruthGraph::EdgeKind>(edgeKinds[i]) != TruthGraph::EdgeKind::Gen)
+          continue;
+
+        if (genParticleToProductionGenVertex[dst] < 0) {
+          genParticleToProductionGenVertex[dst] = static_cast<int32_t>(src);
+        }
+      }
+    }
+
+    return genParticleToProductionGenVertex;
+  }
+
+  void buildRawSimVertexDegrees(TruthGraph const& raw,
+                                std::vector<uint8_t> const& keepRawNode,
+                                std::vector<uint32_t>& simVertexIncomingSimTracks,
+                                std::vector<uint32_t>& simVertexOutgoingSimTracks) {
+    const uint32_t nRawNodes = raw.nNodes();
+
+    simVertexIncomingSimTracks.assign(nRawNodes, 0);
+    simVertexOutgoingSimTracks.assign(nRawNodes, 0);
+
+    for (uint32_t src = 0; src < nRawNodes; ++src) {
+      if (!keepRawNode[src])
+        continue;
+
+      const auto dsts = raw.children(src);
+      const auto edgeKinds = raw.childrenEdgeKinds(src);
+
+      for (std::size_t i = 0; i < dsts.size(); ++i) {
+        const uint32_t dst = dsts[i];
+
+        if (dst >= nRawNodes || !keepRawNode[dst])
+          continue;
+
+        if (static_cast<TruthGraph::EdgeKind>(edgeKinds[i]) != TruthGraph::EdgeKind::Sim)
+          continue;
+
+        const auto srcKind = raw.nodeRef(src).kind;
+        const auto dstKind = raw.nodeRef(dst).kind;
+
+        if (srcKind == TruthGraph::NodeKind::SimTrack && dstKind == TruthGraph::NodeKind::SimVertex) {
+          ++simVertexIncomingSimTracks[dst];
+        } else if (srcKind == TruthGraph::NodeKind::SimVertex && dstKind == TruthGraph::NodeKind::SimTrack) {
+          ++simVertexOutgoingSimTracks[src];
+        }
+      }
+    }
   }
 
   bool directCollapsibleGenParticleChain(truth::Graph const& graph,
@@ -301,7 +375,6 @@ namespace {
 
     auto const& vertex = graph.vertices[vertexId];
 
-    // Keep this pass GEN-only. SIM vertices are left untouched.
     if (!vertex.hasGen() || vertex.hasSim())
       return false;
 
@@ -334,10 +407,6 @@ namespace {
     return true;
   }
 
-  // Post-processing pass:
-  // Collapse GEN-only chains P -> V -> C when P has status != 1,
-  // C is the only daughter, and P and C have the same PDG id.
-  // The kept particle is the last representative in the collapsed chain.
   truth::Graph collapseIntermediateGenParticleChains(truth::Graph const& input) {
     if (input.empty())
       return input;
@@ -364,7 +433,6 @@ namespace {
     for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
       uint32_t current = particleId;
 
-      // Protect against unexpected cycles.
       for (uint32_t step = 0; step < nParticles; ++step) {
         const int32_t next = directChild[current];
         if (next < 0)
@@ -510,7 +578,8 @@ public:
         simVertexToken_(mayConsume<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
         hepmc3Token_(mayConsume<edm::HepMC3Product>(cfg.getParameter<edm::InputTag>("genEventHepMC3"))),
         hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
-        motherPdgId_(cfg.getParameter<int32_t>("motherPdgId")) {
+        motherPdgId_(cfg.getParameter<int32_t>("motherPdgId")),
+        mergeGenSimVertices_(cfg.getParameter<bool>("mergeGenSimVertices")) {
     postProcessing_.collapseIntermediateGenParticles = cfg.getParameter<bool>("collapseIntermediateGenParticles");
     produces<truth::Graph>();
   }
@@ -524,6 +593,10 @@ public:
     desc.add<edm::InputTag>("genEventHepMC", edm::InputTag("generatorSmeared"));
     desc.add<int32_t>("motherPdgId", 0)
         ->setComment("If non-zero, keep only GEN particles with this exact PDG id and all their descendants.");
+    desc.add<bool>("mergeGenSimVertices", true)
+        ->setComment(
+            "If true, merge production GenVertex and SimVertex only for locally one-to-one matches induced by "
+            "GenParticle <-> SimTrack associations.");
     desc.add<bool>("collapseIntermediateGenParticles", true)
         ->setComment(
             "If true, collapse GEN chains P -> V -> C where P has status != 1, C is the only daughter, "
@@ -583,15 +656,20 @@ public:
     }
 
     const auto keepRawNode = buildKeepMaskForMotherPdgId(raw, genParticlePayload, motherPdgId_);
+    const auto genParticleToProductionGenVertex = buildGenParticleToProductionGenVertexMap(raw, keepRawNode);
+
+    std::vector<uint32_t> rawSimVertexIncomingSimTracks;
+    std::vector<uint32_t> rawSimVertexOutgoingSimTracks;
+    buildRawSimVertexDegrees(raw, keepRawNode, rawSimVertexIncomingSimTracks, rawSimVertexOutgoingSimTracks);
 
     // ------------------------------------------------------------------
     // 1. Temporary ids
     // ------------------------------------------------------------------
     std::vector<int32_t> rawToParticleTmp(nRawNodes, -1);
-    std::vector<int32_t> rawToVertex(nRawNodes, -1);
+    std::vector<int32_t> rawToVertexTmp(nRawNodes, -1);
 
     int nParticleTmp = 0;
-    int nVertexLogical = 0;
+    int nVertexTmp = 0;
 
     for (uint32_t nodeId = 0; nodeId < nRawNodes; ++nodeId) {
       if (!keepRawNode[nodeId])
@@ -601,14 +679,53 @@ public:
       if (isParticleKind(kind)) {
         rawToParticleTmp[nodeId] = nParticleTmp++;
       } else if (isVertexKind(kind)) {
-        rawToVertex[nodeId] = nVertexLogical++;
+        rawToVertexTmp[nodeId] = nVertexTmp++;
       }
     }
 
     DSU particleDSU(nParticleTmp);
+    DSU vertexDSU(nVertexTmp);
+
+    std::vector<std::pair<uint32_t, uint32_t>> productionVertexMergeCandidates;
+
+    auto addProductionVertexMergeCandidate = [&](uint32_t simTrackNode, uint32_t genParticleNode) {
+      if (!mergeGenSimVertices_)
+        return;
+
+      const int32_t simVertexNode = raw.nodeSimTrackToVtx(simTrackNode);
+      if (simVertexNode < 0)
+        return;
+
+      if (genParticleNode >= genParticleToProductionGenVertex.size())
+        return;
+
+      const int32_t genVertexNode = genParticleToProductionGenVertex[genParticleNode];
+      if (genVertexNode < 0)
+        return;
+
+      const uint32_t gv = static_cast<uint32_t>(genVertexNode);
+      const uint32_t sv = static_cast<uint32_t>(simVertexNode);
+
+      if (gv >= nRawNodes || sv >= nRawNodes)
+        return;
+
+      if (!keepRawNode[gv] || !keepRawNode[sv])
+        return;
+
+      if (rawToVertexTmp[gv] < 0 || rawToVertexTmp[sv] < 0)
+        return;
+
+      if (raw.nodeRef(gv).kind != TruthGraph::NodeKind::GenVertex)
+        return;
+
+      if (raw.nodeRef(sv).kind != TruthGraph::NodeKind::SimVertex)
+        return;
+
+      productionVertexMergeCandidates.emplace_back(gv, sv);
+    };
 
     // ------------------------------------------------------------------
-    // 2. Merge only particles across GEN <-> SIM
+    // 2. Merge particles across GEN <-> SIM and collect vertex merge candidates
     // ------------------------------------------------------------------
     for (uint32_t nodeId = 0; nodeId < nRawNodes; ++nodeId) {
       if (!keepRawNode[nodeId])
@@ -621,17 +738,22 @@ public:
       const int32_t genNode = raw.nodeSimTrackToGen(nodeId);
       if (genNode < 0)
         continue;
-      if (static_cast<uint32_t>(genNode) >= nRawNodes)
-        continue;
-      if (!keepRawNode[static_cast<uint32_t>(genNode)])
-        continue;
-      if (raw.nodeRef(static_cast<uint32_t>(genNode)).kind != TruthGraph::NodeKind::GenParticle)
+
+      const uint32_t genNodeU32 = static_cast<uint32_t>(genNode);
+      if (genNodeU32 >= nRawNodes)
         continue;
 
-      if (rawToParticleTmp[nodeId] < 0 || rawToParticleTmp[static_cast<uint32_t>(genNode)] < 0)
+      if (!keepRawNode[genNodeU32])
         continue;
 
-      particleDSU.unite(rawToParticleTmp[nodeId], rawToParticleTmp[static_cast<uint32_t>(genNode)]);
+      if (raw.nodeRef(genNodeU32).kind != TruthGraph::NodeKind::GenParticle)
+        continue;
+
+      if (rawToParticleTmp[nodeId] < 0 || rawToParticleTmp[genNodeU32] < 0)
+        continue;
+
+      particleDSU.unite(rawToParticleTmp[nodeId], rawToParticleTmp[genNodeU32]);
+      addProductionVertexMergeCandidate(nodeId, genNodeU32);
     }
 
     for (uint32_t src = 0; src < nRawNodes; ++src) {
@@ -652,17 +774,54 @@ public:
         if (ek != TruthGraph::EdgeKind::GenToSim && ek != TruthGraph::EdgeKind::SimToGen)
           continue;
 
-        if (isGenParticleToSimTrack(raw, src, dst)) {
-          if (rawToParticleTmp[src] < 0 || rawToParticleTmp[dst] < 0)
-            continue;
+        if (!isGenParticleToSimTrack(raw, src, dst))
+          continue;
 
-          particleDSU.unite(rawToParticleTmp[src], rawToParticleTmp[dst]);
-        }
+        if (rawToParticleTmp[src] < 0 || rawToParticleTmp[dst] < 0)
+          continue;
+
+        particleDSU.unite(rawToParticleTmp[src], rawToParticleTmp[dst]);
+        addProductionVertexMergeCandidate(dst, src);
+      }
+    }
+
+    if (mergeGenSimVertices_) {
+      std::sort(productionVertexMergeCandidates.begin(), productionVertexMergeCandidates.end());
+      productionVertexMergeCandidates.erase(
+          std::unique(productionVertexMergeCandidates.begin(), productionVertexMergeCandidates.end()),
+          productionVertexMergeCandidates.end());
+
+      std::vector<uint16_t> genVertexCandidateMultiplicity(nRawNodes, 0);
+      std::vector<uint16_t> simVertexCandidateMultiplicity(nRawNodes, 0);
+
+      for (auto const& candidate : productionVertexMergeCandidates) {
+        if (genVertexCandidateMultiplicity[candidate.first] < UINT16_MAX)
+          ++genVertexCandidateMultiplicity[candidate.first];
+        if (simVertexCandidateMultiplicity[candidate.second] < UINT16_MAX)
+          ++simVertexCandidateMultiplicity[candidate.second];
+      }
+
+      for (auto const& candidate : productionVertexMergeCandidates) {
+        const uint32_t gv = candidate.first;
+        const uint32_t sv = candidate.second;
+
+        // Only accept locally one-to-one GenVertex <-> SimVertex matches.
+        // The extra SIM topology requirement rejects shared Geant4 injection/source vertices.
+        if (genVertexCandidateMultiplicity[gv] != 1 || simVertexCandidateMultiplicity[sv] != 1)
+          continue;
+
+        if (rawSimVertexIncomingSimTracks[sv] > 1)
+          continue;
+
+        if (rawSimVertexOutgoingSimTracks[sv] != 1)
+          continue;
+
+        vertexDSU.unite(rawToVertexTmp[gv], rawToVertexTmp[sv]);
       }
     }
 
     // ------------------------------------------------------------------
-    // 3. Compress particle representatives
+    // 3. Compress particle and vertex representatives
     // ------------------------------------------------------------------
     std::unordered_map<int, uint32_t> particleRepToLogical;
     std::vector<int32_t> rawToParticle(nRawNodes, -1);
@@ -678,8 +837,22 @@ public:
       }
     }
 
+    std::unordered_map<int, uint32_t> vertexRepToLogical;
+    std::vector<int32_t> rawToVertex(nRawNodes, -1);
+
+    for (uint32_t nodeId = 0; nodeId < nRawNodes; ++nodeId) {
+      if (!keepRawNode[nodeId])
+        continue;
+
+      if (rawToVertexTmp[nodeId] >= 0) {
+        const int rep = vertexDSU.find(rawToVertexTmp[nodeId]);
+        auto result = vertexRepToLogical.emplace(rep, static_cast<uint32_t>(vertexRepToLogical.size()));
+        rawToVertex[nodeId] = static_cast<int32_t>(result.first->second);
+      }
+    }
+
     out->particles.resize(particleRepToLogical.size());
-    out->vertices.resize(nVertexLogical);
+    out->vertices.resize(vertexRepToLogical.size());
 
     // ------------------------------------------------------------------
     // 4. Fill payload
@@ -714,8 +887,9 @@ public:
                 p.pdgId = it->second.pdgId;
               if (p.status == 0)
                 p.status = it->second.status;
-              if (!p.hasSim())
-                p.momentum = it->second.momentum;
+
+              // Keep the GEN four-momentum as nominal for GEN and GEN+SIM logical particles.
+              p.momentum = it->second.momentum;
             }
           }
 
@@ -739,9 +913,8 @@ public:
               const math::XYZTLorentzVectorD simMomentum(
                   t.momentum().px(), t.momentum().py(), t.momentum().pz(), t.momentum().e());
 
-              // For merged GEN+SIM particles, keep the GEN four-momentum as the nominal
-              // physics momentum. The SIM momentum is a simulation-state quantity.
-              // For SIM-only particles, use the SimTrack momentum.
+              // For SIM-only logical particles, use the SimTrack momentum.
+              // For GEN+SIM logical particles, the GEN momentum remains the nominal one.
               if (!p.hasGen()) {
                 p.momentum = simMomentum;
               }
@@ -775,8 +948,10 @@ public:
           if (haveGenPayload) {
             const int barcode = static_cast<int>(ref.key);
             auto it = genVertexPayload.find(barcode);
-            if (it != genVertexPayload.end())
+            if (it != genVertexPayload.end()) {
+              // Keep the GEN position as nominal for GEN and GEN+SIM logical vertices.
               v.position = it->second.position;
+            }
           }
 
         } else if (ref.kind == TruthGraph::NodeKind::SimVertex) {
@@ -790,7 +965,12 @@ public:
             if (simIndex < hSimVertices->size()) {
               auto const& sv = (*hSimVertices)[simIndex];
               const auto& pos = sv.position();
-              v.position = math::XYZTLorentzVectorD(pos.x(), pos.y(), pos.z(), pos.t());
+
+              // For SIM-only logical vertices, use the SimVertex position.
+              // For GEN+SIM logical vertices, the GEN position remains the nominal one.
+              if (!v.hasGen()) {
+                v.position = math::XYZTLorentzVectorD(pos.x(), pos.y(), pos.z(), pos.t());
+              }
             }
           }
         }
@@ -871,6 +1051,7 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> hepmc2Token_;
 
   int32_t motherPdgId_;
+  bool mergeGenSimVertices_;
   GraphPostProcessingConfig postProcessing_;
 };
 
