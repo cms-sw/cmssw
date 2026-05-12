@@ -191,6 +191,27 @@ namespace {
 
     return ss.str();
   }
+
+  std::string appendEventIdToFilename(std::string const& filename, edm::EventID const& id) {
+    const auto dotPos = filename.rfind('.');
+
+    std::ostringstream ss;
+    if (dotPos == std::string::npos) {
+      ss << filename;
+      ss << "_run" << id.run();
+      ss << "_lumi" << id.luminosityBlock();
+      ss << "_event" << id.event();
+      return ss.str();
+    }
+
+    ss << filename.substr(0, dotPos);
+    ss << "_run" << id.run();
+    ss << "_lumi" << id.luminosityBlock();
+    ss << "_event" << id.event();
+    ss << filename.substr(dotPos);
+
+    return ss.str();
+  }
 }  // namespace
 
 class TruthLogicalGraphDumper : public edm::one::EDAnalyzer<> {
@@ -222,7 +243,8 @@ public:
     evt.getByToken(rawToken_, hRaw);
     TruthGraph const* raw = hRaw.isValid() ? &(*hRaw) : nullptr;
 
-    std::ofstream os(dotFile_);
+    const std::string eventDotFile = appendEventIdToFilename(dotFile_, evt.id());
+    std::ofstream os(eventDotFile);
     os << "digraph TruthLogicalGraph {\n";
     os << "  rankdir=LR;\n";
     os << "  node [fontsize=10];\n";
