@@ -67,6 +67,7 @@ namespace {
     void unite(int a, int b) {
       a = find(a);
       b = find(b);
+
       if (a == b)
         return;
 
@@ -88,8 +89,9 @@ namespace {
     std::vector<int> vtxBarcodes;
     std::vector<int> partBarcodes;
 
-    // index -> barcode in HepMC iteration order. Kept for diagnostics only.
-    // Do not use it to interpret SimTrack::genpartIndex().
+    // index -> barcode in HepMC iteration order. Kept only for diagnostics.
+    // SimTrack::genpartIndex() is not an index into this vector: for primary
+    // SimTracks it is a HepMC barcode.
     std::vector<int> particleBarcodeByIndex;
 
     std::vector<std::pair<int, int>> vtxToPart;
@@ -460,27 +462,32 @@ public:
       }
 
       // SimTrack::genpartIndex() must be used only for primary G4 tracks.
-      // For non-primary tracks, SimTrack::getPrimaryOrLastStoredID() can still
-      // contain a generator barcode, but that is only ancestry information for
-      // orphan/backscattered tracks and must not be interpreted as a direct
-      // SimTrack -> GenParticle association.
-      if (haveGen && simTrack.isPrimary() && !simTrack.noGenpart()) {
+      // For non-primary tracks, getPrimaryOrLastStoredID() can still contain
+      // a generator barcode, but that is ancestry information for orphan or
+      // backscattered tracks, not a direct SimTrack -> GenParticle association.
+      if (addGenToSimEdges_ && haveGen && simTrack.isPrimary()) {
         const int barcode = simTrack.genpartIndex();
 
-        auto it = genParBarcodeToNode.find(barcode);
-        if (it != genParBarcodeToNode.end()) {
-          const int simPdgId = simTrack.type();
-          const int genPdgId = out->nodePdgId(it->second);
+        if (barcode != -1) {
+          auto it = genParBarcodeToNode.find(barcode);
 
-          if (genPdgId != 0 && genPdgId != simPdgId) {
+          if (it != genParBarcodeToNode.end()) {
+            const int simPdgId = simTrack.type();
+            const int genPdgId = out->nodePdgId(it->second);
+
+            if (genPdgId == 0 || genPdgId == simPdgId) {
+              out->simTrackToGen[nodeId] = static_cast<int32_t>(it->second);
+            } else {
+              edm::LogPrint("TruthGraphProducer")
+                  << "Rejecting primary SimTrack->GenParticle association with mismatched PDG id: "
+                  << "simTrack index=" << i << " trackId=" << simTrack.trackId() << " genBarcode=" << barcode
+                  << " simPdgId=" << simPdgId << " genNode=" << it->second << " genPdgId=" << genPdgId;
+            }
+          } else {
             edm::LogPrint("TruthGraphProducer")
-                << "Rejecting primary SimTrack->GenParticle association with mismatched PDG id: "
-                << "simTrack index=" << i << " trackId=" << simTrack.trackId() << " genpartBarcode=" << barcode
-                << " simPdgId=" << simPdgId << " genNode=" << it->second << " genPdgId=" << genPdgId;
-            continue;
+                << "Rejecting primary SimTrack->GenParticle association with missing GEN barcode: "
+                << "simTrack index=" << i << " trackId=" << simTrack.trackId() << " genBarcode=" << barcode;
           }
-
-          out->simTrackToGen[nodeId] = static_cast<int32_t>(it->second);
         }
       }
     }
@@ -560,10 +567,11 @@ public:
     }
 
     for (uint32_t i = 0; i < nSimTrk; ++i) {
-      auto const& t = simTracks[i];
+      auto const& simTrack = simTracks[i];
+
       const uint32_t childNode = baseSimTrk + i;
 
-      const int vtxIdx = t.vertIndex();
+      const int vtxIdx = simTrack.vertIndex();
       if (vtxIdx < 0 || static_cast<uint32_t>(vtxIdx) >= nSimVtx)
         continue;
 
