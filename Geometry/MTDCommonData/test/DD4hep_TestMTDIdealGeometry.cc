@@ -26,7 +26,6 @@
 #include "Geometry/MTDCommonData/interface/MTDBaseNumber.h"
 #include "Geometry/MTDCommonData/interface/BTLNumberingScheme.h"
 #include "Geometry/MTDCommonData/interface/ETLNumberingScheme.h"
-//#include "Geometry/MTDCommonData/interface/BTLElectronicsMapping.h"
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
 #include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
@@ -34,8 +33,6 @@
 
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
-
-#include "CondFormats/MTDObjects/interface/BTLElectronicsMapping.h"
 
 #include "DataFormats/Math/interface/angle_units.h"
 #include "DataFormats/Math/interface/Rounding.h"
@@ -87,9 +84,8 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
 
   auto pSP = iSetup.getTransientHandle(dspecToken_);
 
-  auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
-  const MTDTopology* topology = topologyHandle.product();
-  auto btlCrysLayout = MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode());
+  //auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
+  //const MTDTopology* topology = topologyHandle.product();
 
   if (ddTopNodeName_ != "BarrelTimingLayer" && ddTopNodeName_ != "EndcapTimingLayer") {
     edm::LogWarning("DD4hep_TestMTDIdealGeometry") << ddTopNodeName_ << "Not valid top MTD volume";
@@ -155,11 +151,6 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
     if (dd4hep::dd::noNamespace(fv.name()) == "BarrelTimingLayer") {
       isBarrel = true;
       edm::LogInfo("DD4hep_TestMTDIdealGeometry") << "isBarrel = " << isBarrel;
-      if (static_cast<int>(btlCrysLayout) < static_cast<int>(BTLDetId::CrysLayout::v4)) {
-        edm::LogInfo("DD4hep_TestMTDIdealGeometry")
-            << "BTL electronics mapping not available for BTL crystal layout " << static_cast<int>(btlCrysLayout)
-            << ", use layout 7 (v4) or later!" << std::endl;
-      }
     } else if (dd4hep::dd::noNamespace(fv.name()) == "EndcapTimingLayer") {
       isBarrel = false;
       edm::LogInfo("DD4hep_TestMTDIdealGeometry") << "isBarrel = " << isBarrel;

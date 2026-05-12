@@ -25,7 +25,6 @@
 
 #include "Geometry/MTDCommonData/interface/MTDBaseNumber.h"
 #include "Geometry/MTDCommonData/interface/BTLNumberingScheme.h"
-//#include "Geometry/MTDCommonData/interface/BTLElectronicsMapping.h"
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
 #include "Geometry/MTDGeometryBuilder/interface/MTDTopology.h"
@@ -175,8 +174,8 @@ void TestBTLElectronicsMapping::analyze(const edm::Event& iEvent, const edm::Eve
         snum << "----------------------------------------------------------------------------" << std::endl;
         snum << " CCBoard: " << btlElMap.CCBoard(theId) << " FEBoard: " << btlElMap.FEBoard(theId)
              << " TOFHIRASIC: " << btlElMap.TOFHIRASIC(theId) << "\n SiPMCh   minus: " << btlElMap.SiPMCh(theId, 0)
-             << " minus: " << btlElMap.SiPMCh(theId, 1) << "\n TOFHIRCh minus: " << btlElMap.TOFHIRCh(theId, 0)
-             << " minus: " << btlElMap.TOFHIRCh(theId, 1) << "\n";
+             << " plus: " << btlElMap.SiPMCh(theId, 1) << "\n TOFHIRCh minus: " << btlElMap.TOFHIRCh(theId, 0)
+             << " plus: " << btlElMap.TOFHIRCh(theId, 1) << "\n";
         snum << "\n";
         snum << " DM, SM, chipId    : " << theId.dmodule() << ", " << theId.smodule() << ", "
              << btlElMap.TOFHIRASIC(theId) << "  e-link: " << btlElMap.elink(theId) << "\n"
