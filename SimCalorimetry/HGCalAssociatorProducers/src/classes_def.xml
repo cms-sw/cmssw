@@ -1,0 +1,4 @@
+<lcgdict>
+  <class name="std::unordered_map<unsigned int,unsigned int,std::hash<unsigned int>,std::equal_to<unsigned int> >"/>
+  <class name="edm::Wrapper<std::unordered_map<unsigned int,unsigned int,std::hash<unsigned int>,std::equal_to<unsigned int> > >"/>
+</lcgdict>
