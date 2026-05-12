@@ -10,6 +10,20 @@
 <use name="hepmc"/>
 <use name="hepmc3"/>
 
+<use name="clhep"/>
+<use name="dd4hep"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/ForwardDetId"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/CaloTopology"/>
+<use name="Geometry/HGCalCommonData"/>
+<use name="Geometry/HGCalGeometry"/>
+<use name="Geometry/HcalCommonData"/>
+<use name="Geometry/HcalTowerAlgo"/>
+<use name="Geometry/Records"/>
+<use name="SimDataFormats/CaloHit"/>
+<use name="SimDataFormats/CaloTest"/>
+
 <library file="TruthGraphProducer.cc" name="TruthGraphProducerPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
@@ -23,5 +37,9 @@
 </library>
 
 <library file="TruthLogicalGraphDumper.cc" name="TruthLogicalGraphDumpPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="LogicalGraphHitIndexProducer.cc" name="LogicalGraphHitIndexProducerPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
