@@ -234,7 +234,7 @@ public:
 
   static constexpr uint32_t kNumHSLinks = 72;     // number of HS links: in each Serenity 6 trays x 12 links
   static constexpr uint32_t kOffsetHSLinks = 4;   // offset (HS link Ids start from 4 (0-3 reserved)
-  static constexpr uint32_t MIN_SLINK_ID = 1000;  // arbitrary for now
+  static constexpr uint32_t MIN_SLINK_ID = 0;  // arbitrary for now
 
   // Define an array of 12 elements, each element is the optical Tx channel Id (this depends on the FF). Then each channel will map to a CC/RU
   static constexpr std::array<int, 2 * BTLDetId::kRUPerRod> optTxCh_n5 = {
