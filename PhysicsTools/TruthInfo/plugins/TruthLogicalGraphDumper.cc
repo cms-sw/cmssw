@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <fstream>
 #include <iomanip>
+#include <span>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -10,10 +11,14 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
 #include "PhysicsTools/TruthInfo/interface/Graph.h"
 #include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndex.h"
@@ -197,19 +202,40 @@ namespace {
     return ss.str();
   }
 
-  float sumHitEnergy(std::span<const truth::LogicalGraphHitIndex::Hit> hits) {
-    float sum = 0.f;
-    for (auto const& hit : hits) {
-      sum += hit.energy;
-    }
-    return sum;
-  }
-
   std::string fmtEnergy(float energy) {
     std::ostringstream ss;
     ss.setf(std::ios::fixed);
     ss << std::setprecision(6) << energy;
     return ss.str();
+  }
+
+  struct HitSummary {
+    uint32_t nSimHits = 0;
+    uint32_t nMatchedRecHits = 0;
+    uint32_t nMissingRecHits = 0;
+    float simHitEnergy = 0.f;
+    float recHitEnergy = 0.f;
+  };
+
+  HitSummary summarizeHits(std::span<const truth::LogicalGraphHitIndex::Hit> hits,
+                           std::vector<float> const& recHitEnergies) {
+    HitSummary summary;
+    summary.nSimHits = static_cast<uint32_t>(hits.size());
+
+    for (auto const& hit : hits) {
+      summary.simHitEnergy += hit.energy;
+
+      if (hit.recHitIndex == truth::LogicalGraphHitIndex::Hit::invalidRecHitIndex ||
+          hit.recHitIndex >= recHitEnergies.size()) {
+        ++summary.nMissingRecHits;
+        continue;
+      }
+
+      ++summary.nMatchedRecHits;
+      summary.recHitEnergy += recHitEnergies[hit.recHitIndex];
+    }
+
+    return summary;
   }
 
   std::string appendEventIdToFilename(std::string const& filename, edm::EventID const& id) {
@@ -249,7 +275,25 @@ public:
         maxVertices_(cfg.getParameter<unsigned>("maxVertices")),
         maxEdgesPerNode_(cfg.getParameter<unsigned>("maxEdgesPerNode")),
         hideLargeSimSourceVertices_(cfg.getParameter<bool>("hideLargeSimSourceVertices")),
-        largeSimSourceVertexMinOutgoing_(cfg.getParameter<unsigned>("largeSimSourceVertexMinOutgoing")) {}
+        largeSimSourceVertexMinOutgoing_(cfg.getParameter<unsigned>("largeSimSourceVertexMinOutgoing")) {
+    const auto hgcalRecHitTags = cfg.getParameter<std::vector<edm::InputTag>>("hgcalRecHits");
+    hgcalRecHitTags_.reserve(hgcalRecHitTags.size());
+    hgcalRecHitTokens_.reserve(hgcalRecHitTags.size());
+
+    for (auto const& tag : hgcalRecHitTags) {
+      hgcalRecHitTags_.push_back(tag);
+      hgcalRecHitTokens_.push_back(mayConsume<HGCRecHitCollection>(tag));
+    }
+
+    const auto pfRecHitTags = cfg.getParameter<std::vector<edm::InputTag>>("pfRecHits");
+    pfRecHitTags_.reserve(pfRecHitTags.size());
+    pfRecHitTokens_.reserve(pfRecHitTags.size());
+
+    for (auto const& tag : pfRecHitTags) {
+      pfRecHitTags_.push_back(tag);
+      pfRecHitTokens_.push_back(mayConsume<reco::PFRecHitCollection>(tag));
+    }
+  }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -257,8 +301,22 @@ public:
     desc.add<edm::InputTag>("src", edm::InputTag("truthLogicalGraphProducer"));
     desc.add<edm::InputTag>("rawSrc", edm::InputTag("truthGraphProducer"))
         ->setComment("Optional raw TruthGraph used only to enrich labels");
+
     desc.add<edm::InputTag>("hitIndex", edm::InputTag(""))
-        ->setComment("Optional LogicalGraphHitIndex used to annotate particles with direct/subgraph SimHit summaries");
+        ->setComment("Optional LogicalGraphHitIndex used to annotate particles with SimHit and RecHit summaries");
+
+    desc.add<std::vector<edm::InputTag>>("hgcalRecHits",
+                                         {edm::InputTag("HGCalRecHit", "HGCEERecHits", "RECO"),
+                                          edm::InputTag("HGCalRecHit", "HGCHEFRecHits", "RECO"),
+                                          edm::InputTag("HGCalRecHit", "HGCHEBRecHits", "RECO")})
+        ->setComment("HGCRecHit collections, in the same order used by SimHitToRecHitMapProducer");
+
+    desc.add<std::vector<edm::InputTag>>("pfRecHits",
+                                         {edm::InputTag("particleFlowRecHitECAL", "Cleaned", "RECO"),
+                                          edm::InputTag("particleFlowRecHitHBHE", "Cleaned", "RECO"),
+                                          edm::InputTag("particleFlowRecHitHF", "Cleaned", "RECO"),
+                                          edm::InputTag("particleFlowRecHitHO", "Cleaned", "RECO")})
+        ->setComment("PFRecHit collections, in the same order used by SimHitToRecHitMapProducer");
 
     desc.add<std::string>("dotFile", "truthlogicalgraph.dot");
 
@@ -287,6 +345,8 @@ public:
       evt.getByToken(hitIndexToken_, hHitIndex);
     }
     truth::LogicalGraphHitIndex const* hitIndex = hHitIndex.isValid() ? &(*hHitIndex) : nullptr;
+
+    const std::vector<float> recHitEnergies = collectRecHitEnergies(evt);
 
     const std::string eventDotFile = appendEventIdToFilename(dotFile_, evt.id());
 
@@ -323,12 +383,14 @@ public:
       auto const& d = p.data();
 
       const bool hasHitInfo = hitIndex != nullptr && i < hitIndex->nParticles();
+
       const auto directHits =
           hasHitInfo ? hitIndex->directHits(i) : std::span<const truth::LogicalGraphHitIndex::Hit>();
       const auto subgraphHits =
           hasHitInfo ? hitIndex->subgraphHits(i) : std::span<const truth::LogicalGraphHitIndex::Hit>();
-      const float directHitEnergy = hasHitInfo ? sumHitEnergy(directHits) : 0.f;
-      const float subgraphHitEnergy = hasHitInfo ? sumHitEnergy(subgraphHits) : 0.f;
+
+      const HitSummary directSummary = hasHitInfo ? summarizeHits(directHits, recHitEnergies) : HitSummary();
+      const HitSummary subgraphSummary = hasHitInfo ? summarizeHits(subgraphHits, recHitEnergies) : HitSummary();
 
       os << "  p" << i << " [shape=ellipse, hasCheckpoints=" << p.hasCheckpoints() << ", hasGen=" << p.hasGen()
          << ", hasSim=" << d.hasSim();
@@ -352,8 +414,13 @@ public:
          << ", nCheckpoints=" << d.checkpoints.size();
 
       if (hasHitInfo) {
-        os << ", nDirectHits=" << directHits.size() << ", directHitEnergy=" << fmtEnergy(directHitEnergy)
-           << ", nSubgraphHits=" << subgraphHits.size() << ", subgraphHitEnergy=" << fmtEnergy(subgraphHitEnergy);
+        os << ", nDirectSimHits=" << directSummary.nSimHits << ", nDirectRecHits=" << directSummary.nMatchedRecHits
+           << ", directSimHitEnergy=" << fmtEnergy(directSummary.simHitEnergy)
+           << ", directRecHitEnergy=" << fmtEnergy(directSummary.recHitEnergy)
+           << ", nSubgraphSimHits=" << subgraphSummary.nSimHits
+           << ", nSubgraphRecHits=" << subgraphSummary.nMatchedRecHits
+           << ", subgraphSimHitEnergy=" << fmtEnergy(subgraphSummary.simHitEnergy)
+           << ", subgraphRecHitEnergy=" << fmtEnergy(subgraphSummary.recHitEnergy);
       }
 
       if (raw != nullptr) {
@@ -399,9 +466,16 @@ public:
       os << "      <TR><TD>nCheckpoints: " << d.checkpoints.size() << "</TD></TR>\n";
 
       if (hasHitInfo) {
-        os << "      <TR><TD>direct hits: " << directHits.size() << "  E=" << fmtEnergy(directHitEnergy)
+        os << "      <TR><TD><B>direct simHits:</B> " << directSummary.nSimHits
+           << "  simE=" << fmtEnergy(directSummary.simHitEnergy) << "</TD></TR>\n";
+        os << "      <TR><TD><B>direct recHits:</B> " << directSummary.nMatchedRecHits
+           << "  missing=" << directSummary.nMissingRecHits << "  recoE=" << fmtEnergy(directSummary.recHitEnergy)
            << "</TD></TR>\n";
-        os << "      <TR><TD>subgraph hits: " << subgraphHits.size() << "  E=" << fmtEnergy(subgraphHitEnergy)
+
+        os << "      <TR><TD><B>subgraph simHits:</B> " << subgraphSummary.nSimHits
+           << "  simE=" << fmtEnergy(subgraphSummary.simHitEnergy) << "</TD></TR>\n";
+        os << "      <TR><TD><B>subgraph recHits:</B> " << subgraphSummary.nMatchedRecHits
+           << "  missing=" << subgraphSummary.nMissingRecHits << "  recoE=" << fmtEnergy(subgraphSummary.recHitEnergy)
            << "</TD></TR>\n";
       }
 
@@ -513,11 +587,58 @@ public:
   }
 
 private:
+  std::vector<float> collectRecHitEnergies(const edm::Event& evt) const {
+    std::vector<float> energies;
+
+    // This must match the global recHit indexing order used by SimHitToRecHitMapProducer:
+    // first all HGCRecHit collections, then all PFRecHit collections.
+    for (uint32_t i = 0; i < hgcalRecHitTokens_.size(); ++i) {
+      edm::Handle<HGCRecHitCollection> handle;
+      evt.getByToken(hgcalRecHitTokens_[i], handle);
+
+      if (!handle.isValid()) {
+        edm::LogWarning("TruthLogicalGraphDumper") << "Missing HGCRecHit collection " << hgcalRecHitTags_[i].encode()
+                                                   << ". Skipping it while rebuilding recHit energies.";
+        continue;
+      }
+
+      energies.reserve(energies.size() + handle->size());
+      for (auto const& hit : *handle) {
+        energies.push_back(hit.energy());
+      }
+    }
+
+    for (uint32_t i = 0; i < pfRecHitTokens_.size(); ++i) {
+      edm::Handle<reco::PFRecHitCollection> handle;
+      evt.getByToken(pfRecHitTokens_[i], handle);
+
+      if (!handle.isValid()) {
+        edm::LogWarning("TruthLogicalGraphDumper") << "Missing reco::PFRecHitCollection " << pfRecHitTags_[i].encode()
+                                                   << ". Skipping it while rebuilding recHit energies.";
+        continue;
+      }
+
+      energies.reserve(energies.size() + handle->size());
+      for (auto const& hit : *handle) {
+        energies.push_back(hit.energy());
+      }
+    }
+
+    return energies;
+  }
+
   edm::EDGetTokenT<truth::Graph> token_;
   edm::EDGetTokenT<TruthGraph> rawToken_;
+
   edm::InputTag hitIndexTag_;
   edm::EDGetTokenT<truth::LogicalGraphHitIndex> hitIndexToken_;
   bool useHitIndex_;
+
+  std::vector<edm::InputTag> hgcalRecHitTags_;
+  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hgcalRecHitTokens_;
+
+  std::vector<edm::InputTag> pfRecHitTags_;
+  std::vector<edm::EDGetTokenT<reco::PFRecHitCollection>> pfRecHitTokens_;
 
   std::string dotFile_;
   unsigned maxParticles_;
