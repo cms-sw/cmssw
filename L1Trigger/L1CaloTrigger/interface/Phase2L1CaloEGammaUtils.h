@@ -1278,7 +1278,7 @@ namespace p2eg {
         abseta = globalClusteriEta() - n_towers_cardEta * CRYSTALS_IN_TOWER_ETA;  // 0 to 84
         spare = 4;
       } else {
-        abseta = n_towers_cardEta * CRYSTALS_IN_TOWER_ETA + 1 - globalClusteriEta();  // 84 to 0
+        abseta = n_towers_cardEta * CRYSTALS_IN_TOWER_ETA - globalClusteriEta() - 1;  // 84 to 0
         spare = 0;
       }
 
