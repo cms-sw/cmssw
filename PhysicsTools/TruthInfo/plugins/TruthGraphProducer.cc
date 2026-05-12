@@ -1,16 +1,19 @@
 // Author: Felice Pantaleo - CERN
 // Date: 03/2026
+
 #include <cstdint>
 #include <cstring>
+#include <memory>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -20,26 +23,23 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
-// Legacy HepMC (HepMC2)
+// Legacy HepMC, HepMC2.
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "HepMC/GenEvent.h"
-#include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
+#include "HepMC/GenVertex.h"
 
-// HepMC3
+// HepMC3.
 #include "SimDataFormats/GeneratorProducts/interface/HepMC3Product.h"
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/GenParticle.h"
 #include "HepMC3/GenVertex.h"
 
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
 #include "PhysicsTools/TruthInfo/interface/TruthGraph.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace {
 
-  // Pack EncodedEventId into 64-bit without relying on a particular API
+  // Pack EncodedEventId into 64 bit without relying on a particular public API.
   uint64_t packEventId(EncodedEventId const& id) {
     uint64_t out = 0;
     static_assert(sizeof(EncodedEventId) <= sizeof(uint64_t), "EncodedEventId larger than 64 bits, adjust packing");
@@ -47,13 +47,15 @@ namespace {
     return out;
   }
 
-  // Disjoint-set union
   struct DSU {
-    std::vector<int> p, r;
+    std::vector<int> p;
+    std::vector<int> r;
+
     explicit DSU(int n) : p(n), r(n, 0) {
       for (int i = 0; i < n; ++i)
         p[i] = i;
     }
+
     int find(int x) {
       while (p[x] != x) {
         p[x] = p[p[x]];
@@ -61,117 +63,159 @@ namespace {
       }
       return x;
     }
+
     void unite(int a, int b) {
       a = find(a);
       b = find(b);
       if (a == b)
         return;
+
       if (r[a] < r[b])
         std::swap(a, b);
+
       p[b] = a;
+
       if (r[a] == r[b])
         ++r[a];
     }
   };
 
-  // Unique key to index GEN nodes in maps (vertex vs particle + barcode)
   inline int64_t genKeyVertex(int barcode) { return (int64_t(barcode) << 1) | 1LL; }
+
   inline int64_t genKeyParticle(int barcode) { return (int64_t(barcode) << 1); }
 
   struct GenBuild {
-    // lists of unique barcodes (order of appearance)
     std::vector<int> vtxBarcodes;
     std::vector<int> partBarcodes;
 
-    // index -> barcode for particles in the iteration order (for SimTrack::genpartIndex mapping)
+    // index -> barcode in HepMC iteration order. Kept for diagnostics only.
+    // Do not use it to interpret SimTrack::genpartIndex().
     std::vector<int> particleBarcodeByIndex;
 
-    // bipartite edges in barcode space
-    // vtx -> part (outgoing)
     std::vector<std::pair<int, int>> vtxToPart;
-    // part -> vtx (end vertex)
     std::vector<std::pair<int, int>> partToVtx;
+
+    std::unordered_map<int, int32_t> particlePdgIdByBarcode;
+    std::unordered_map<int, int16_t> particleStatusByBarcode;
   };
 
-  // Build GEN info from HepMC2
   GenBuild buildFromHepMC2(HepMC::GenEvent const& ev) {
     GenBuild gb;
 
     std::unordered_set<int> seenV;
     std::unordered_set<int> seenP;
 
-    // vertices
+    gb.particlePdgIdByBarcode.reserve(ev.particles_size() * 2);
+    gb.particleStatusByBarcode.reserve(ev.particles_size() * 2);
+    gb.particleBarcodeByIndex.reserve(ev.particles_size());
+
     for (auto v = ev.vertices_begin(); v != ev.vertices_end(); ++v) {
+      if (*v == nullptr)
+        continue;
+
       const int vbc = (*v)->barcode();
+
       if (seenV.insert(vbc).second)
         gb.vtxBarcodes.push_back(vbc);
 
-      // outgoing particles
       for (auto po = (*v)->particles_out_const_begin(); po != (*v)->particles_out_const_end(); ++po) {
+        if (*po == nullptr)
+          continue;
+
         const int pbc = (*po)->barcode();
+
         if (seenP.insert(pbc).second)
           gb.partBarcodes.push_back(pbc);
+
         gb.vtxToPart.emplace_back(vbc, pbc);
       }
 
-      // incoming particles (orphans are possible; we still model the edge)
       for (auto pi = (*v)->particles_in_const_begin(); pi != (*v)->particles_in_const_end(); ++pi) {
+        if (*pi == nullptr)
+          continue;
+
         const int pbc = (*pi)->barcode();
+
         if (seenP.insert(pbc).second)
           gb.partBarcodes.push_back(pbc);
+
         gb.partToVtx.emplace_back(pbc, vbc);
       }
     }
 
-    // particle iteration order -> barcode (for genpartIndex)
     for (auto p = ev.particles_begin(); p != ev.particles_end(); ++p) {
-      gb.particleBarcodeByIndex.push_back((*p)->barcode());
+      if (*p == nullptr)
+        continue;
+
+      const int pbc = (*p)->barcode();
+
+      gb.particleBarcodeByIndex.push_back(pbc);
+      gb.particlePdgIdByBarcode.emplace(pbc, (*p)->pdg_id());
+      gb.particleStatusByBarcode.emplace(pbc, static_cast<int16_t>((*p)->status()));
+
+      if (seenP.insert(pbc).second)
+        gb.partBarcodes.push_back(pbc);
     }
 
     return gb;
   }
 
-  // Build GEN info from HepMC3
   GenBuild buildFromHepMC3(HepMC3::GenEvent const& ev) {
     GenBuild gb;
 
     std::unordered_set<int> seenV;
     std::unordered_set<int> seenP;
 
-    // vertices
+    gb.particlePdgIdByBarcode.reserve(ev.particles().size() * 2);
+    gb.particleStatusByBarcode.reserve(ev.particles().size() * 2);
+    gb.particleBarcodeByIndex.reserve(ev.particles().size());
+
     for (auto const& vptr : ev.vertices()) {
       if (!vptr)
         continue;
-      const int vbc = vptr->id();  // HepMC3 vertex id acts like barcode; in CMSSW it is typically negative
+
+      const int vbc = vptr->id();
+
       if (seenV.insert(vbc).second)
         gb.vtxBarcodes.push_back(vbc);
 
-      // outgoing
       for (auto const& po : vptr->particles_out()) {
         if (!po)
           continue;
-        const int pbc = po->id();  // particle id (barcode)
+
+        const int pbc = po->id();
+
         if (seenP.insert(pbc).second)
           gb.partBarcodes.push_back(pbc);
+
         gb.vtxToPart.emplace_back(vbc, pbc);
       }
-      // incoming
+
       for (auto const& pi : vptr->particles_in()) {
         if (!pi)
           continue;
+
         const int pbc = pi->id();
+
         if (seenP.insert(pbc).second)
           gb.partBarcodes.push_back(pbc);
+
         gb.partToVtx.emplace_back(pbc, vbc);
       }
     }
 
-    // particle iteration order -> barcode (for genpartIndex)
-    gb.particleBarcodeByIndex.reserve(ev.particles().size());
     for (auto const& pptr : ev.particles()) {
       if (!pptr)
         continue;
-      gb.particleBarcodeByIndex.push_back(pptr->id());
+
+      const int pbc = pptr->id();
+
+      gb.particleBarcodeByIndex.push_back(pbc);
+      gb.particlePdgIdByBarcode.emplace(pbc, pptr->pid());
+      gb.particleStatusByBarcode.emplace(pbc, static_cast<int16_t>(pptr->status()));
+
+      if (seenP.insert(pbc).second)
+        gb.partBarcodes.push_back(pbc);
     }
 
     return gb;
@@ -191,7 +235,6 @@ public:
         hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
         simTrackToken_(consumes<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simTracks"))),
         simVertexToken_(consumes<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
-        genParticlesToken_(mayConsume<reco::GenParticleCollection>(cfg.getParameter<edm::InputTag>("genParticles"))),
         addGenToSimEdges_(cfg.getParameter<bool>("addGenToSimEdges")) {
     produces<TruthGraph>();
   }
@@ -200,18 +243,19 @@ public:
     edm::ParameterSetDescription desc;
 
     desc.add<edm::InputTag>("genEventHepMC3", edm::InputTag("generatorSmeared"))
-        ->setComment("edm::HepMC3Product label (preferred when available)");
+        ->setComment("edm::HepMC3Product label, preferred when available");
     desc.add<edm::InputTag>("genEventHepMC", edm::InputTag("generatorSmeared"))
-        ->setComment("edm::HepMCProduct label (legacy fallback)");
+        ->setComment("edm::HepMCProduct label, legacy fallback");
 
     desc.add<edm::InputTag>("simTracks", edm::InputTag("g4SimHits"))
-        ->setComment("SimTrackContainer label (typically g4SimHits)");
+        ->setComment("SimTrackContainer label, typically g4SimHits");
     desc.add<edm::InputTag>("simVertices", edm::InputTag("g4SimHits"))
-        ->setComment("SimVertexContainer label (typically g4SimHits)");
-    desc.add<edm::InputTag>("genParticles", edm::InputTag("genParticles"))
-        ->setComment("reco::GenParticleCollection used to retrieve packed statusFlags");
+        ->setComment("SimVertexContainer label, typically g4SimHits");
+
     desc.add<bool>("addGenToSimEdges", true)
-        ->setComment("If true, add cross edges GenParticle -> SimTrack using SimTrack::genpartIndex()");
+        ->setComment(
+            "If true, add GenParticle -> SimTrack cross edges. The association is built only for primary "
+            "SimTracks, interpreting SimTrack::genpartIndex() as a HepMC barcode.");
 
     descriptions.addWithDefaultLabel(desc);
   }
@@ -219,22 +263,22 @@ public:
   void produce(edm::Event& evt, const edm::EventSetup&) override {
     auto out = std::make_unique<TruthGraph>();
 
-    // --- Fetch SIM
     const auto& simTracks = evt.get(simTrackToken_);
     const auto& simVertices = evt.get(simVertexToken_);
 
-    // --- Fetch GEN (HepMC3 preferred, fallback to HepMC2)
     GenBuild gb;
     bool haveGen = false;
-    edm::Handle<reco::GenParticleCollection> hGenParticles;
-    evt.getByToken(genParticlesToken_, hGenParticles);
+
     {
       edm::Handle<edm::HepMC3Product> h3;
       evt.getByToken(hepmc3Token_, h3);
+
       if (validHandle(h3) && h3->GetEvent() != nullptr) {
         const HepMC3::GenEventData* data = h3->GetEvent();
+
         HepMC3::GenEvent ev3;
         ev3.read_data(*data);
+
         gb = buildFromHepMC3(ev3);
         haveGen = true;
       }
@@ -243,9 +287,9 @@ public:
     if (!haveGen) {
       edm::Handle<edm::HepMCProduct> h2;
       evt.getByToken(hepmc2Token_, h2);
+
       if (validHandle(h2) && h2->GetEvent() != nullptr) {
-        const HepMC::GenEvent* ev2 = h2->GetEvent();
-        gb = buildFromHepMC2(*ev2);
+        gb = buildFromHepMC2(*h2->GetEvent());
         haveGen = true;
       }
     }
@@ -253,18 +297,16 @@ public:
     const uint32_t nSimVtx = static_cast<uint32_t>(simVertices.size());
     const uint32_t nSimTrk = static_cast<uint32_t>(simTracks.size());
 
-    // ----------------------------
-    // GEN components -> "GenEvent"
-    // ----------------------------
     int nGenEvents = 0;
 
-    std::unordered_map<int64_t, int> tempIndex;  // genKey -> temp idx
-    std::vector<int64_t> tempKeys;               // idx -> genKey
+    std::unordered_map<int64_t, int> tempIndex;
+    std::vector<int64_t> tempKeys;
 
     auto getTemp = [&](int64_t k) -> int {
       auto it = tempIndex.find(k);
       if (it != tempIndex.end())
         return it->second;
+
       const int idx = static_cast<int>(tempKeys.size());
       tempIndex.emplace(k, idx);
       tempKeys.push_back(k);
@@ -277,6 +319,7 @@ public:
     if (haveGen) {
       for (int vbc : gb.vtxBarcodes)
         (void)getTemp(genKeyVertex(vbc));
+
       for (int pbc : gb.partBarcodes)
         (void)getTemp(genKeyParticle(pbc));
 
@@ -285,13 +328,16 @@ public:
       for (auto const& e : gb.vtxToPart) {
         dsu.unite(getTemp(genKeyVertex(e.first)), getTemp(genKeyParticle(e.second)));
       }
+
       for (auto const& e : gb.partToVtx) {
         dsu.unite(getTemp(genKeyParticle(e.first)), getTemp(genKeyVertex(e.second)));
       }
 
       compOfTemp.resize(tempKeys.size(), -1);
+
       for (int i = 0; i < static_cast<int>(tempKeys.size()); ++i) {
         const int rep = dsu.find(i);
+
         auto it = repToComp.find(rep);
         if (it == repToComp.end()) {
           const int cid = nGenEvents++;
@@ -318,6 +364,7 @@ public:
     const uint32_t nNodes = baseSimTrk + nSimTrk;
 
     out->nodes.resize(nNodes);
+
     out->pdgId.assign(nNodes, 0);
     out->status.assign(nNodes, 0);
     out->eventId.assign(nNodes, 0);
@@ -327,19 +374,14 @@ public:
     out->simTrackToGen.assign(nNodes, -1);
     out->simTrackToVtx.assign(nNodes, -1);
 
-    // ----------------------------
-    // Create GenEvent nodes (roots)
-    // ----------------------------
     for (int cid = 0; cid < nGenEvents; ++cid) {
       const uint32_t nodeId = baseGenEvent + static_cast<uint32_t>(cid);
+
       out->nodes[nodeId] = TruthGraph::NodeRef{TruthGraph::NodeKind::GenEvent, static_cast<int64_t>(cid)};
       out->eventId[nodeId] = 0;
       out->genEventOfNode[nodeId] = cid;
     }
 
-    // ----------------------------
-    // Create GenVertex / GenParticle nodes
-    // ----------------------------
     std::unordered_map<int, uint32_t> genVtxBarcodeToNode;
     std::unordered_map<int, uint32_t> genParBarcodeToNode;
 
@@ -350,19 +392,14 @@ public:
       for (uint32_t i = 0; i < nGenVtx; ++i) {
         const int vbc = gb.vtxBarcodes[i];
         const uint32_t nodeId = baseGenVtx + i;
+
         genVtxBarcodeToNode.emplace(vbc, nodeId);
+
         out->nodes[nodeId] = TruthGraph::NodeRef{TruthGraph::NodeKind::GenVertex, static_cast<int64_t>(vbc)};
         out->eventId[nodeId] = 0;
 
         const int tidx = tempIndex.at(genKeyVertex(vbc));
         out->genEventOfNode[nodeId] = compOfTemp[tidx];
-      }
-
-      std::unordered_map<int, uint32_t> genParticleBarcodeToIndex;
-      genParticleBarcodeToIndex.reserve(gb.particleBarcodeByIndex.size() * 2);
-
-      for (uint32_t i = 0; i < gb.particleBarcodeByIndex.size(); ++i) {
-        genParticleBarcodeToIndex.emplace(gb.particleBarcodeByIndex[i], i);
       }
 
       for (uint32_t i = 0; i < nGenPar; ++i) {
@@ -377,94 +414,81 @@ public:
         const int tidx = tempIndex.at(genKeyParticle(pbc));
         out->genEventOfNode[nodeId] = compOfTemp[tidx];
 
-        auto itIndex = genParticleBarcodeToIndex.find(pbc);
-        if (hGenParticles.isValid() && itIndex != genParticleBarcodeToIndex.end()) {
-          const uint32_t genParticleIndex = itIndex->second;
+        auto itPdg = gb.particlePdgIdByBarcode.find(pbc);
+        if (itPdg != gb.particlePdgIdByBarcode.end())
+          out->pdgId[nodeId] = itPdg->second;
 
-          if (genParticleIndex < hGenParticles->size()) {
-            auto const& gp = (*hGenParticles)[genParticleIndex];
+        auto itStatus = gb.particleStatusByBarcode.find(pbc);
+        if (itStatus != gb.particleStatusByBarcode.end())
+          out->status[nodeId] = itStatus->second;
 
-            out->pdgId[nodeId] = gp.pdgId();
-            out->status[nodeId] = static_cast<int16_t>(gp.status());
-            out->statusFlags[nodeId] = static_cast<uint16_t>(gp.statusFlags().flags_.to_ulong());
-          }
-        }
+        // Do not fill statusFlags from reco::GenParticle unless we have a validated
+        // barcode-to-reco::GenParticle association.
+        out->statusFlags[nodeId] = 0;
       }
     }
 
-    // GenParticle barcode -> production GenVertex barcode (from vtx -> part)
-    std::unordered_map<int, int> genParToProdVtx;
-    if (haveGen) {
-      genParToProdVtx.reserve(gb.partBarcodes.size() * 2);
-      for (auto const& vp : gb.vtxToPart) {
-        genParToProdVtx.emplace(vp.second, vp.first);
-      }
-    }
-
-    // ----------------------------
-    // Create SimVertex nodes
-    // ----------------------------
     std::vector<uint32_t> simVtxIndexToNode(nSimVtx, 0);
+
     for (uint32_t i = 0; i < nSimVtx; ++i) {
       const uint32_t nodeId = baseSimVtx + i;
+
       simVtxIndexToNode[i] = nodeId;
+
       out->nodes[nodeId] = TruthGraph::NodeRef{TruthGraph::NodeKind::SimVertex, static_cast<int64_t>(i)};
       out->eventId[nodeId] = packEventId(simVertices[i].eventId());
     }
 
-    // ----------------------------
-    // Create SimTrack nodes
-    // ----------------------------
     std::unordered_map<uint32_t, uint32_t> simTrackIdToNode;
     simTrackIdToNode.reserve(nSimTrk * 2);
 
     for (uint32_t i = 0; i < nSimTrk; ++i) {
+      auto const& simTrack = simTracks[i];
+
       const uint32_t nodeId = baseSimTrk + i;
-      const uint32_t tid = simTracks[i].trackId();
+      const uint32_t tid = simTrack.trackId();
+
       simTrackIdToNode.emplace(tid, nodeId);
 
       out->nodes[nodeId] = TruthGraph::NodeRef{TruthGraph::NodeKind::SimTrack, static_cast<int64_t>(tid)};
-      out->pdgId[nodeId] = simTracks[i].type();
-      out->eventId[nodeId] = packEventId(simTracks[i].eventId());
+      out->pdgId[nodeId] = simTrack.type();
+      out->eventId[nodeId] = packEventId(simTrack.eventId());
 
-      const int vtxIdx = simTracks[i].vertIndex();
+      const int vtxIdx = simTrack.vertIndex();
       if (vtxIdx >= 0 && static_cast<uint32_t>(vtxIdx) < nSimVtx) {
         out->simTrackToVtx[nodeId] = static_cast<int32_t>(simVtxIndexToNode[static_cast<uint32_t>(vtxIdx)]);
       }
 
-      if (haveGen && !simTracks[i].noGenpart()) {
-        const int ig = simTracks[i].genpartIndex();
-        if (ig >= 0 && static_cast<uint32_t>(ig) < gb.particleBarcodeByIndex.size()) {
-          const int barcode = gb.particleBarcodeByIndex[static_cast<uint32_t>(ig)];
-          auto it = genParBarcodeToNode.find(barcode);
-          if (it != genParBarcodeToNode.end()) {
-            const int simPdgId = simTracks[i].type();
-            const int genPdgId = out->nodePdgId(it->second);
+      // SimTrack::genpartIndex() must be used only for primary G4 tracks.
+      // For non-primary tracks, SimTrack::getPrimaryOrLastStoredID() can still
+      // contain a generator barcode, but that is only ancestry information for
+      // orphan/backscattered tracks and must not be interpreted as a direct
+      // SimTrack -> GenParticle association.
+      if (haveGen && simTrack.isPrimary() && !simTrack.noGenpart()) {
+        const int barcode = simTrack.genpartIndex();
 
-            // SimTrack::genpartIndex() is only meaningful for primary G4 tracks.
-            // Protect the GEN-SIM association against ordering mismatches by requiring
-            // PDG id consistency whenever GEN PDG information is available.
-            if (genPdgId != 0 && genPdgId != simPdgId) {
-              edm::LogPrint("TruthGraphProducer")
-                  << "Rejecting SimTrack->GenParticle association with mismatched PDG id: "
-                  << "simTrack index=" << i << " trackId=" << simTracks[i].trackId() << " genpartIndex=" << ig
-                  << " simPdgId=" << simPdgId << " genNode=" << it->second << " genBarcode=" << barcode
-                  << " genPdgId=" << genPdgId;
-              continue;
-            }
+        auto it = genParBarcodeToNode.find(barcode);
+        if (it != genParBarcodeToNode.end()) {
+          const int simPdgId = simTrack.type();
+          const int genPdgId = out->nodePdgId(it->second);
 
-            out->simTrackToGen[nodeId] = static_cast<int32_t>(it->second);
+          if (genPdgId != 0 && genPdgId != simPdgId) {
+            edm::LogPrint("TruthGraphProducer")
+                << "Rejecting primary SimTrack->GenParticle association with mismatched PDG id: "
+                << "simTrack index=" << i << " trackId=" << simTrack.trackId() << " genpartBarcode=" << barcode
+                << " simPdgId=" << simPdgId << " genNode=" << it->second << " genPdgId=" << genPdgId;
+            continue;
           }
+
+          out->simTrackToGen[nodeId] = static_cast<int32_t>(it->second);
         }
       }
     }
 
-    // ----------------------------
-    // Build edges (+ kinds) and compress to CSR
-    // ----------------------------
     std::vector<std::pair<uint32_t, uint32_t>> edgePairs;
     std::vector<uint8_t> edgeKinds;
-    edgePairs.reserve(12 * (nGenVtx + nGenPar + nSimTrk));
+
+    edgePairs.reserve(8 * (nGenVtx + nGenPar + nSimTrk));
     edgeKinds.reserve(edgePairs.capacity());
 
     auto push_edge = [&](uint32_t src, uint32_t dst, TruthGraph::EdgeKind k) {
@@ -472,21 +496,17 @@ public:
       edgeKinds.emplace_back(static_cast<uint8_t>(k));
     };
 
-    // Dedup GenVtx->SimVtx cross edges
-    std::unordered_set<uint64_t> genVtxToSimVtxSeen;
-    genVtxToSimVtxSeen.reserve(2 * nSimTrk);
-    auto packPair = [](uint32_t a, uint32_t b) -> uint64_t { return (uint64_t(a) << 32) | uint64_t(b); };
-
-    // GEN edges: connect GenEvent(component) -> GenVertex roots (or all vertices if no roots found)
     if (haveGen) {
       std::unordered_map<int, int> vtxIncoming;
       vtxIncoming.reserve(nGenVtx * 2);
+
       for (int vbc : gb.vtxBarcodes)
         vtxIncoming.emplace(vbc, 0);
+
       for (auto const& e : gb.partToVtx) {
         auto it = vtxIncoming.find(e.second);
         if (it != vtxIncoming.end())
-          it->second++;
+          ++it->second;
       }
 
       std::vector<std::vector<int>> rootsByComp(nGenEvents);
@@ -495,18 +515,23 @@ public:
       for (int vbc : gb.vtxBarcodes) {
         const int tidx = tempIndex.at(genKeyVertex(vbc));
         const int cid = compOfTemp[tidx];
+
         if (cid < 0 || cid >= nGenEvents)
           continue;
+
         allVtxByComp[cid].push_back(vbc);
+
         if (vtxIncoming[vbc] == 0)
           rootsByComp[cid].push_back(vbc);
       }
 
       for (int cid = 0; cid < nGenEvents; ++cid) {
         const uint32_t genEventNode = baseGenEvent + static_cast<uint32_t>(cid);
+
         auto roots = rootsByComp[cid];
         if (roots.empty())
           roots = allVtxByComp[cid];
+
         for (int vbc : roots) {
           auto itV = genVtxBarcodeToNode.find(vbc);
           if (itV != genVtxBarcodeToNode.end()) {
@@ -518,32 +543,36 @@ public:
       for (auto const& e : gb.vtxToPart) {
         auto itV = genVtxBarcodeToNode.find(e.first);
         auto itP = genParBarcodeToNode.find(e.second);
+
         if (itV != genVtxBarcodeToNode.end() && itP != genParBarcodeToNode.end()) {
           push_edge(itV->second, itP->second, TruthGraph::EdgeKind::Gen);
         }
       }
+
       for (auto const& e : gb.partToVtx) {
         auto itP = genParBarcodeToNode.find(e.first);
         auto itV = genVtxBarcodeToNode.find(e.second);
+
         if (itP != genParBarcodeToNode.end() && itV != genVtxBarcodeToNode.end()) {
           push_edge(itP->second, itV->second, TruthGraph::EdgeKind::Gen);
         }
       }
     }
 
-    // SIM edges:
     for (uint32_t i = 0; i < nSimTrk; ++i) {
-      const auto& t = simTracks[i];
+      auto const& t = simTracks[i];
       const uint32_t childNode = baseSimTrk + i;
 
       const int vtxIdx = t.vertIndex();
       if (vtxIdx < 0 || static_cast<uint32_t>(vtxIdx) >= nSimVtx)
         continue;
+
       const uint32_t vtxNode = simVtxIndexToNode[static_cast<uint32_t>(vtxIdx)];
 
       push_edge(vtxNode, childNode, TruthGraph::EdgeKind::Sim);
 
-      const int parentTid = simVertices[static_cast<uint32_t>(vtxIdx)].parentIndex();  // trackId (not index)
+      const int parentTid = simVertices[static_cast<uint32_t>(vtxIdx)].parentIndex();
+
       if (parentTid > 0) {
         auto itParent = simTrackIdToNode.find(static_cast<uint32_t>(parentTid));
         if (itParent != simTrackIdToNode.end()) {
@@ -552,108 +581,86 @@ public:
       }
     }
 
-    // CROSS GEN->SIM: GenParticle -> SimTrack
+    // Cross-domain particle associations only. These edges are created only for
+    // primary SimTracks that carry a validated HepMC barcode.
+    //
+    // GenVertex -> SimVertex edges are intentionally not created here because
+    // shared Geant4 source or injection vertices can create artificial many-to-one topology.
     if (addGenToSimEdges_ && haveGen) {
       for (uint32_t i = 0; i < nSimTrk; ++i) {
         const uint32_t simNode = baseSimTrk + i;
         const int32_t genNode = out->simTrackToGen[simNode];
+
         if (genNode >= 0) {
           push_edge(static_cast<uint32_t>(genNode), simNode, TruthGraph::EdgeKind::GenToSim);
         }
       }
     }
 
-    // CROSS GEN->SIM: GenVertex(prod of GenParticle) -> SimVertex(prod of SimTrack)
-    if (haveGen) {
-      for (uint32_t i = 0; i < nSimTrk; ++i) {
-        const uint32_t simTrackNode = baseSimTrk + i;
-
-        const int32_t genParNode = out->simTrackToGen[simTrackNode];
-        if (genParNode < 0)
-          continue;
-
-        const int32_t simVtxNode_i32 = out->simTrackToVtx[simTrackNode];
-        if (simVtxNode_i32 < 0)
-          continue;
-        const uint32_t simVtxNode = static_cast<uint32_t>(simVtxNode_i32);
-
-        auto const& genParRef = out->nodes[static_cast<uint32_t>(genParNode)];
-        if (genParRef.kind != TruthGraph::NodeKind::GenParticle)
-          continue;
-        const int pbc = static_cast<int>(genParRef.key);
-
-        auto itProd = genParToProdVtx.find(pbc);
-        if (itProd == genParToProdVtx.end())
-          continue;
-
-        auto itV = genVtxBarcodeToNode.find(itProd->second);
-        if (itV == genVtxBarcodeToNode.end())
-          continue;
-
-        const uint32_t genVtxNode = itV->second;
-
-        const uint64_t packed = packPair(genVtxNode, simVtxNode);
-        if (!genVtxToSimVtxSeen.insert(packed).second)
-          continue;
-
-        push_edge(genVtxNode, simVtxNode, TruthGraph::EdgeKind::GenToSim);
-      }
-    }
-
-    // CSR compress
     out->offsets.assign(nNodes + 1, 0);
+
     for (auto const& e : edgePairs) {
       if (e.first < nNodes)
-        out->offsets[e.first + 1] += 1;
+        ++out->offsets[e.first + 1];
     }
+
     for (uint32_t i = 1; i <= nNodes; ++i)
       out->offsets[i] += out->offsets[i - 1];
 
     const uint32_t nEdges = out->offsets.back();
+
     out->edges.assign(nEdges, 0);
     out->edgeKind.assign(nEdges, static_cast<uint8_t>(TruthGraph::EdgeKind::Gen));
 
     std::vector<uint32_t> cursor = out->offsets;
-    for (size_t i = 0; i < edgePairs.size(); ++i) {
+
+    for (std::size_t i = 0; i < edgePairs.size(); ++i) {
       const uint32_t src = edgePairs[i].first;
       const uint32_t dst = edgePairs[i].second;
+
       if (src < nNodes && dst < nNodes) {
         const uint32_t pos = cursor[src]++;
         out->edges[pos] = dst;
         out->edgeKind[pos] = edgeKinds[i];
       }
     }
-    unsigned nGenEvent = 0;
-    unsigned nGenVertex = 0;
-    unsigned nGenParticle = 0;
-    unsigned nSimVertex = 0;
-    unsigned nSimTrack = 0;
+
+    unsigned nGenEventOut = 0;
+    unsigned nGenVertexOut = 0;
+    unsigned nGenParticleOut = 0;
+    unsigned nSimVertexOut = 0;
+    unsigned nSimTrackOut = 0;
+    unsigned nGenToSimParticleLinks = 0;
 
     for (uint32_t i = 0; i < out->nNodes(); ++i) {
       switch (out->nodeRef(i).kind) {
         case TruthGraph::NodeKind::GenEvent:
-          ++nGenEvent;
+          ++nGenEventOut;
           break;
         case TruthGraph::NodeKind::GenVertex:
-          ++nGenVertex;
+          ++nGenVertexOut;
           break;
         case TruthGraph::NodeKind::GenParticle:
-          ++nGenParticle;
+          ++nGenParticleOut;
           break;
         case TruthGraph::NodeKind::SimVertex:
-          ++nSimVertex;
+          ++nSimVertexOut;
           break;
         case TruthGraph::NodeKind::SimTrack:
-          ++nSimTrack;
+          ++nSimTrackOut;
+          if (out->simTrackToGen[i] >= 0)
+            ++nGenToSimParticleLinks;
           break;
       }
     }
 
     edm::LogPrint("TruthGraphProducer") << "TruthGraph nodes: "
-                                        << "GenEvent=" << nGenEvent << " GenVertex=" << nGenVertex
-                                        << " GenParticle=" << nGenParticle << " SimVertex=" << nSimVertex
-                                        << " SimTrack=" << nSimTrack << " total=" << out->nNodes()
-                                        << " edges=" << out->nEdges();
+                                        << "GenEvent=" << nGenEventOut << " GenVertex=" << nGenVertexOut
+                                        << " GenParticle=" << nGenParticleOut << " SimVertex=" << nSimVertexOut
+                                        << " SimTrack=" << nSimTrackOut << " total=" << out->nNodes()
+                                        << " edges=" << out->nEdges()
+                                        << " primaryGenToSimParticleLinks=" << nGenToSimParticleLinks;
+
     evt.put(std::move(out));
   }
 
@@ -662,7 +669,7 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> hepmc2Token_;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
   edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken_;
-  edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
+
   bool addGenToSimEdges_;
 };
 
