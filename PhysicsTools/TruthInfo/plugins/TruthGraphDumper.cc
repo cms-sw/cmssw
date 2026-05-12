@@ -170,19 +170,24 @@ namespace {
     return "box";
   }
 
-  const char* edgeAttrs(uint8_t ek) {
-    using EK = TruthGraph::EdgeKind;
-    switch (static_cast<EK>(ek)) {
-      case EK::Gen:
-        return "";
-      case EK::Sim:
-        return " [style=solid]";
-      case EK::GenToSim:
-        return " [dir=both, style=dashed]";
-      case EK::SimToGen:
-        return " [dir=both, style=dotted]";
+  std::string edgeAttrs(TruthGraph::EdgeKind kind) {
+    using EdgeKind = TruthGraph::EdgeKind;
+
+    switch (kind) {
+      case EdgeKind::Gen:
+        return " [style=solid, edgeType=\"Gen\"]";
+
+      case EdgeKind::Sim:
+        return " [style=solid, edgeType=\"Sim\"]";
+
+      case EdgeKind::GenToSim:
+        return " [dir=both, style=dashed, label=\"GenToSim\", edgeType=\"GenToSim\"]";
+
+      case EdgeKind::SimToGen:
+        return " [dir=both, style=dashed, label=\"SimToGen\", edgeType=\"SimToGen\"]";
     }
-    return "";
+
+    return " [style=solid, edgeType=\"Unknown\"]";
   }
 
   std::string statusFlagsLabel(uint16_t flags) {
@@ -582,7 +587,7 @@ public:
         const uint32_t dst = g.edges[pos];
         if (dst >= n)
           continue;
-        os << "  n" << src << " -> n" << dst << edgeAttrs(g.edgeKind[pos]) << ";\n";
+        os << "  n" << src << " -> n" << dst << edgeAttrs(static_cast<TruthGraph::EdgeKind>(g.edgeKind[pos])) << ";\n";
         if (++kept >= maxEdgesPerNode_)
           break;
       }
