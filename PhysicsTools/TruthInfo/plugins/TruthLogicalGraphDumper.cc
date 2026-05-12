@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <fstream>
+#include <iomanip>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -15,6 +16,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "PhysicsTools/TruthInfo/interface/Graph.h"
+#include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndex.h"
 #include "PhysicsTools/TruthInfo/interface/TruthGraph.h"
 
 namespace {
@@ -195,6 +197,21 @@ namespace {
     return ss.str();
   }
 
+  float sumHitEnergy(std::span<const truth::LogicalGraphHitIndex::Hit> hits) {
+    float sum = 0.f;
+    for (auto const& hit : hits) {
+      sum += hit.energy;
+    }
+    return sum;
+  }
+
+  std::string fmtEnergy(float energy) {
+    std::ostringstream ss;
+    ss.setf(std::ios::fixed);
+    ss << std::setprecision(6) << energy;
+    return ss.str();
+  }
+
   std::string appendEventIdToFilename(std::string const& filename, edm::EventID const& id) {
     const auto dotPos = filename.rfind('.');
 
@@ -224,6 +241,9 @@ public:
   explicit TruthLogicalGraphDumper(const edm::ParameterSet& cfg)
       : token_(consumes<truth::Graph>(cfg.getParameter<edm::InputTag>("src"))),
         rawToken_(mayConsume<TruthGraph>(cfg.getParameter<edm::InputTag>("rawSrc"))),
+        hitIndexTag_(cfg.getParameter<edm::InputTag>("hitIndex")),
+        hitIndexToken_(mayConsume<truth::LogicalGraphHitIndex>(hitIndexTag_)),
+        useHitIndex_(!hitIndexTag_.label().empty()),
         dotFile_(cfg.getParameter<std::string>("dotFile")),
         maxParticles_(cfg.getParameter<unsigned>("maxParticles")),
         maxVertices_(cfg.getParameter<unsigned>("maxVertices")),
@@ -237,6 +257,8 @@ public:
     desc.add<edm::InputTag>("src", edm::InputTag("truthLogicalGraphProducer"));
     desc.add<edm::InputTag>("rawSrc", edm::InputTag("truthGraphProducer"))
         ->setComment("Optional raw TruthGraph used only to enrich labels");
+    desc.add<edm::InputTag>("hitIndex", edm::InputTag(""))
+        ->setComment("Optional LogicalGraphHitIndex used to annotate particles with direct/subgraph SimHit summaries");
 
     desc.add<std::string>("dotFile", "truthlogicalgraph.dot");
 
@@ -259,6 +281,12 @@ public:
     edm::Handle<TruthGraph> hRaw;
     evt.getByToken(rawToken_, hRaw);
     TruthGraph const* raw = hRaw.isValid() ? &(*hRaw) : nullptr;
+
+    edm::Handle<truth::LogicalGraphHitIndex> hHitIndex;
+    if (useHitIndex_) {
+      evt.getByToken(hitIndexToken_, hHitIndex);
+    }
+    truth::LogicalGraphHitIndex const* hitIndex = hHitIndex.isValid() ? &(*hHitIndex) : nullptr;
 
     const std::string eventDotFile = appendEventIdToFilename(dotFile_, evt.id());
 
@@ -294,6 +322,14 @@ public:
       auto p = g.particle(i);
       auto const& d = p.data();
 
+      const bool hasHitInfo = hitIndex != nullptr && i < hitIndex->nParticles();
+      const auto directHits =
+          hasHitInfo ? hitIndex->directHits(i) : std::span<const truth::LogicalGraphHitIndex::Hit>();
+      const auto subgraphHits =
+          hasHitInfo ? hitIndex->subgraphHits(i) : std::span<const truth::LogicalGraphHitIndex::Hit>();
+      const float directHitEnergy = hasHitInfo ? sumHitEnergy(directHits) : 0.f;
+      const float subgraphHitEnergy = hasHitInfo ? sumHitEnergy(subgraphHits) : 0.f;
+
       os << "  p" << i << " [shape=ellipse, hasCheckpoints=" << p.hasCheckpoints() << ", hasGen=" << p.hasGen()
          << ", hasSim=" << d.hasSim();
 
@@ -314,6 +350,11 @@ public:
          << "\", nProdVtx=" << p.productionVertices().size() << ", nDecayVtx=" << p.decayVertices().size()
          << ", nParents=" << p.parents().size() << ", nChildren=" << p.children().size()
          << ", nCheckpoints=" << d.checkpoints.size();
+
+      if (hasHitInfo) {
+        os << ", nDirectHits=" << directHits.size() << ", directHitEnergy=" << fmtEnergy(directHitEnergy)
+           << ", nSubgraphHits=" << subgraphHits.size() << ", subgraphHitEnergy=" << fmtEnergy(subgraphHitEnergy);
+      }
 
       if (raw != nullptr) {
         os << ", raw_GEN=<" << rawNodeSummary(raw, d.genNode) << ">, raw_SIM=<" << rawNodeSummary(raw, d.simNode)
@@ -356,6 +397,13 @@ public:
          << "</TD></TR>\n";
 
       os << "      <TR><TD>nCheckpoints: " << d.checkpoints.size() << "</TD></TR>\n";
+
+      if (hasHitInfo) {
+        os << "      <TR><TD>direct hits: " << directHits.size() << "  E=" << fmtEnergy(directHitEnergy)
+           << "</TD></TR>\n";
+        os << "      <TR><TD>subgraph hits: " << subgraphHits.size() << "  E=" << fmtEnergy(subgraphHitEnergy)
+           << "</TD></TR>\n";
+      }
 
       for (auto const& cp : d.checkpoints) {
         os << "      <TR><TD><FONT COLOR=\"red\">checkpointId: " << cp.checkpointId << "</FONT></TD></TR>\n";
@@ -467,6 +515,9 @@ public:
 private:
   edm::EDGetTokenT<truth::Graph> token_;
   edm::EDGetTokenT<TruthGraph> rawToken_;
+  edm::InputTag hitIndexTag_;
+  edm::EDGetTokenT<truth::LogicalGraphHitIndex> hitIndexToken_;
+  bool useHitIndex_;
 
   std::string dotFile_;
   unsigned maxParticles_;

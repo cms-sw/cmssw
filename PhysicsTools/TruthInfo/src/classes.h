@@ -4,6 +4,7 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "PhysicsTools/TruthInfo/interface/Graph.h"
 #include "PhysicsTools/TruthInfo/interface/TruthGraph.h"
+#include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndex.h"
 
 namespace {
   struct dictionary {
@@ -24,6 +25,10 @@ namespace {
 
     truth::VertexData logicalTruthVertexData;
     std::vector<truth::VertexData> logicalTruthVertexDataVec;
+
+    truth::LogicalGraphHitIndex logicalGraphHitIndex;
+    truth::LogicalGraphHitIndex::Hit logicalGraphHitIndexHit;
+    std::vector<truth::LogicalGraphHitIndex::Hit> logicalGraphHitIndexHitVector;
   };
 }  // namespace
 

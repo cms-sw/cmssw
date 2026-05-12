@@ -12,4 +12,10 @@
   <class name="std::vector<truth::ParticleData>"/>
   <class name="std::vector<truth::VertexData>"/>
   <class name="edm::Wrapper<truth::Graph>"/>
+
+  <class name="truth::LogicalGraphHitIndex"/>
+  <class name="truth::LogicalGraphHitIndex::Hit"/>
+  <class name="std::vector<truth::LogicalGraphHitIndex::Hit>"/>
+  <class name="edm::Wrapper<truth::LogicalGraphHitIndex>"/>  
+
 </lcgdict>
