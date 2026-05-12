@@ -285,40 +285,11 @@ void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run 
 void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
 
-  auto add1D = [&](const std::string& psetKey, const std::string& histName,
-                   const std::string& xlabel, const std::string& ylabel,
-                   int nbins, double xmin, double xmax) {
-    edm::ParameterSetDescription ps;
-    ps.add<bool>("switch", true);
-    ps.add<std::string>("name", histName);
-    ps.add<std::string>("title", histName + ";" + xlabel + ";" + ylabel);
-    ps.add<int>("NxBins", nbins);
-    ps.add<double>("xmin", xmin);
-    ps.add<double>("xmax", xmax);
-    desc.add<edm::ParameterSetDescription>(psetKey, ps);
-  };
-
-  auto add2D = [&](const std::string& psetKey, const std::string& histName,
-                   const std::string& xlabel, const std::string& ylabel,
-                   int nbx, double xmin, double xmax, int nby, double ymin, double ymax) {
-    edm::ParameterSetDescription ps;
-    ps.add<bool>("switch", true);
-    ps.add<std::string>("name", histName);
-    ps.add<std::string>("title", histName + ";" + xlabel + ";" + ylabel);
-    ps.add<int>("NxBins", nbx);
-    ps.add<double>("xmin", xmin);
-    ps.add<double>("xmax", xmax);
-    ps.add<int>("NyBins", nby);
-    ps.add<double>("ymin", ymin);
-    ps.add<double>("ymax", ymax);
-    desc.add<edm::ParameterSetDescription>(psetKey, ps);
-  };
-
-  // Position (psetKey == histId for all fixed histograms)
-  add2D("Stub_Barrel_XY",    "Stub_Barrel_XY",    "L1 Stub Barrel position x [cm]", "L1 Stub Barrel position y [cm]", 960, -120, 120, 960, -120, 120);
-  add2D("Stub_Endcap_Fw_XY", "Stub_Endcap_Fw_XY", "L1 Stub Endcap position x [cm]", "L1 Stub Endcap position y [cm]", 960, -120, 120, 960, -120, 120);
-  add2D("Stub_Endcap_Bw_XY", "Stub_Endcap_Bw_XY", "L1 Stub Endcap position x [cm]", "L1 Stub Endcap position y [cm]", 960, -120, 120, 960, -120, 120);
-  add2D("Stub_RZ",            "Stub_RZ",            "L1 Stub position z [cm]",        "L1 Stub position #rho [cm]",    900, -300, 300, 900, 0, 120);
+  // Position
+  phase2tkutil::add2DDesc(desc, "Stub_Barrel_XY",    "Stub_Barrel_XY",    "L1 Stub Barrel position x [cm]", "L1 Stub Barrel position y [cm]", 960, -120, 120, 960, -120, 120);
+  phase2tkutil::add2DDesc(desc, "Stub_Endcap_Fw_XY", "Stub_Endcap_Fw_XY", "L1 Stub Endcap position x [cm]", "L1 Stub Endcap position y [cm]", 960, -120, 120, 960, -120, 120);
+  phase2tkutil::add2DDesc(desc, "Stub_Endcap_Bw_XY", "Stub_Endcap_Bw_XY", "L1 Stub Endcap position x [cm]", "L1 Stub Endcap position y [cm]", 960, -120, 120, 960, -120, 120);
+  phase2tkutil::add2DDesc(desc, "Stub_RZ",            "Stub_RZ",            "L1 Stub position z [cm]",        "L1 Stub position #rho [cm]",    900, -300, 300, 900, 0, 120);
 
   {
     edm::ParameterSetDescription psd0;
@@ -333,45 +304,44 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
   }
 
   // Stub distributions
-  add1D("Stub_Eta",    "Stub_Eta",    "#eta",          "# L1 Stubs", 45, -5,     5);
-  add1D("Stub_Phi",    "Stub_Phi",    "#phi",          "# L1 Stubs", 60, -3.5,   3.5);
-  add1D("Stub_R",      "Stub_R",      "R",             "# L1 Stubs", 45,  0,     120);
-  add1D("Stub_bendFE", "Stub_bendFE", "Trigger bend",  "# L1 Stubs", 69, -8.625, 8.625);
-  add1D("Stub_bendBE", "Stub_bendBE", "Hardware bend", "# L1 Stubs", 69, -8.625, 8.625);
-  add1D("Stub_isPS",   "Stub_isPS",   "Is PS?",        "# L1 Stubs",  2,  0,     2);
+  phase2tkutil::add1DDesc(desc, "Stub_Eta",    "Stub_Eta",    "#eta",          "# L1 Stubs", 45, -5,     5);
+  phase2tkutil::add1DDesc(desc, "Stub_Phi",    "Stub_Phi",    "#phi",          "# L1 Stubs", 60, -3.5,   3.5);
+  phase2tkutil::add1DDesc(desc, "Stub_R",      "Stub_R",      "R",             "# L1 Stubs", 45,  0,     120);
+  phase2tkutil::add1DDesc(desc, "Stub_bendFE", "Stub_bendFE", "Trigger bend",  "# L1 Stubs", 69, -8.625, 8.625);
+  phase2tkutil::add1DDesc(desc, "Stub_bendBE", "Stub_bendBE", "Hardware bend", "# L1 Stubs", 69, -8.625, 8.625);
+  phase2tkutil::add1DDesc(desc, "Stub_isPS",   "Stub_isPS",   "Is PS?",        "# L1 Stubs",  2,  0,     2);
 
   // NStubs
-  add1D("NStubs_Barrel",         "NStubs_Barrel",         "Barrel Layer",         "# L1 Stubs",  7, 0.5, 7.5);
-  add1D("NStubs_Endcap_Disc",    "NStubs_Endcap_Disc",    "Endcap Disc",          "# L1 Stubs",  6, 0.5, 6.5);
-  add1D("NStubs_Endcap_Disc_Fw", "NStubs_Endcap_Disc_Fw", "Forward Endcap Disc",  "# L1 Stubs",  6, 0.5, 6.5);
-  add1D("NStubs_Endcap_Disc_Bw", "NStubs_Endcap_Disc_Bw", "Backward Endcap Disc", "# L1 Stubs",  6, 0.5, 6.5);
-  add1D("NStubs_Endcap_Ring",    "NStubs_Endcap_Ring",    "Endcap Ring",          "# L1 Stubs", 16, 0.5, 16.5);
+  phase2tkutil::add1DDesc(desc, "NStubs_Barrel",         "NStubs_Barrel",         "Barrel Layer",         "# L1 Stubs",  7, 0.5, 7.5);
+  phase2tkutil::add1DDesc(desc, "NStubs_Endcap_Disc",    "NStubs_Endcap_Disc",    "Endcap Disc",          "# L1 Stubs",  6, 0.5, 6.5);
+  phase2tkutil::add1DDesc(desc, "NStubs_Endcap_Disc_Fw", "NStubs_Endcap_Disc_Fw", "Forward Endcap Disc",  "# L1 Stubs",  6, 0.5, 6.5);
+  phase2tkutil::add1DDesc(desc, "NStubs_Endcap_Disc_Bw", "NStubs_Endcap_Disc_Bw", "Backward Endcap Disc", "# L1 Stubs",  6, 0.5, 6.5);
+  phase2tkutil::add1DDesc(desc, "NStubs_Endcap_Ring",    "NStubs_Endcap_Ring",    "Endcap Ring",          "# L1 Stubs", 16, 0.5, 16.5);
 
   // Width
-  add2D("Stub_Width_Barrel",      "Stub_Width_Barrel",      "Barrel Layer", "Displacement - Offset",  6, 0.5,  6.5, 43, -10.75, 10.75);
-  add2D("Stub_Width_Endcap_Disc", "Stub_Width_Endcap_Disc", "Endcap Disc",  "Displacement - Offset",  5, 0.5,  5.5, 43, -10.75, 10.75);
-  add2D("Stub_Width_Endcap_Ring", "Stub_Width_Endcap_Ring", "Endcap Ring",  "Displacement - Offset", 16, 0.5, 16.5, 43, -10.75, 10.75);
+  phase2tkutil::add2DDesc(desc, "Stub_Width_Barrel",      "Stub_Width_Barrel",      "Barrel Layer", "Displacement - Offset",  6, 0.5,  6.5, 43, -10.75, 10.75);
+  phase2tkutil::add2DDesc(desc, "Stub_Width_Endcap_Disc", "Stub_Width_Endcap_Disc", "Endcap Disc",  "Displacement - Offset",  5, 0.5,  5.5, 43, -10.75, 10.75);
+  phase2tkutil::add2DDesc(desc, "Stub_Width_Endcap_Ring", "Stub_Width_Endcap_Ring", "Endcap Ring",  "Displacement - Offset", 16, 0.5, 16.5, 43, -10.75, 10.75);
 
   // Offset
-  add2D("Stub_Offset_Barrel",      "Stub_Offset_Barrel",      "Barrel Layer", "Trigger Offset",  6, 0.5,  6.5, 43, -10.75, 10.75);
-  add2D("Stub_Offset_Endcap_Disc", "Stub_Offset_Endcap_Disc", "Endcap Disc",  "Trigger Offset",  5, 0.5,  5.5, 43, -10.75, 10.75);
-  add2D("Stub_Offset_Endcap_Ring", "Stub_Offset_Endcap_Ring", "Endcap Ring",  "Trigger Offset", 16, 0.5, 16.5, 43, -10.75, 10.75);
+  phase2tkutil::add2DDesc(desc, "Stub_Offset_Barrel",      "Stub_Offset_Barrel",      "Barrel Layer", "Trigger Offset",  6, 0.5,  6.5, 43, -10.75, 10.75);
+  phase2tkutil::add2DDesc(desc, "Stub_Offset_Endcap_Disc", "Stub_Offset_Endcap_Disc", "Endcap Disc",  "Trigger Offset",  5, 0.5,  5.5, 43, -10.75, 10.75);
+  phase2tkutil::add2DDesc(desc, "Stub_Offset_Endcap_Ring", "Stub_Offset_Endcap_Ring", "Endcap Ring",  "Trigger Offset", 16, 0.5, 16.5, 43, -10.75, 10.75);
 
-  // Disc-specific ring histograms: pset key uses _Fw_/_Bw_ (Python-safe), histId preserves +/-
+  // Disc-specific ring histograms
   for (int i = 1; i <= static_cast<int>(trklet::N_DISK); i++) {
     const std::string si = std::to_string(i);
-    add1D("NStubs_Disc_Fw_" + si, "NStubs_Disc+" + si, "Endcap Ring", "# L1 Stubs", 16, 0.5, 16.5);
-    add1D("NStubs_Disc_Bw_" + si, "NStubs_Disc-" + si, "Endcap Ring", "# L1 Stubs", 16, 0.5, 16.5);
-    add2D("Stub_Width_Disc_Fw_"  + si, "Stub_Width_Disc+"  + si, "Endcap Ring", "Displacement - Offset", 16, 0.5, 16.5, 43, -10.75, 10.75);
-    add2D("Stub_Width_Disc_Bw_"  + si, "Stub_Width_Disc-"  + si, "Endcap Ring", "Displacement - Offset", 16, 0.5, 16.5, 43, -10.75, 10.75);
-    add2D("Stub_Offset_Disc_Fw_" + si, "Stub_Offset_Disc+" + si, "Endcap Ring", "Trigger Offset", 16, 0.5, 16.5, 43, -10.75, 10.75);
-    add2D("Stub_Offset_Disc_Bw_" + si, "Stub_Offset_Disc-" + si, "Endcap Ring", "Trigger Offset", 16, 0.5, 16.5, 43, -10.75, 10.75);
+    phase2tkutil::add1DDesc(desc, "NStubs_Disc_Fw_" + si, "NStubs_Disc+" + si, "Endcap Ring", "# L1 Stubs", 16, 0.5, 16.5);
+    phase2tkutil::add1DDesc(desc, "NStubs_Disc_Bw_" + si, "NStubs_Disc-" + si, "Endcap Ring", "# L1 Stubs", 16, 0.5, 16.5);
+    phase2tkutil::add2DDesc(desc, "Stub_Width_Disc_Fw_"  + si, "Stub_Width_Disc+"  + si, "Endcap Ring", "Displacement - Offset", 16, 0.5, 16.5, 43, -10.75, 10.75);
+    phase2tkutil::add2DDesc(desc, "Stub_Width_Disc_Bw_"  + si, "Stub_Width_Disc-"  + si, "Endcap Ring", "Displacement - Offset", 16, 0.5, 16.5, 43, -10.75, 10.75);
+    phase2tkutil::add2DDesc(desc, "Stub_Offset_Disc_Fw_" + si, "Stub_Offset_Disc+" + si, "Endcap Ring", "Trigger Offset", 16, 0.5, 16.5, 43, -10.75, 10.75);
+    phase2tkutil::add2DDesc(desc, "Stub_Offset_Disc_Bw_" + si, "Stub_Offset_Disc-" + si, "Endcap Ring", "Trigger Offset", 16, 0.5, 16.5, 43, -10.75, 10.75);
   }
 
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTStub");
   desc.add<edm::InputTag>("TTStubs", edm::InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"));
   descriptions.add("Phase2OTMonitorTTStub", desc);
-  //descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(Phase2OTMonitorTTStub);
