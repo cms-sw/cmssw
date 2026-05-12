@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -22,67 +23,67 @@ namespace {
     const int ap = std::abs(pdgId);
 
     if (pdgId == 11)
-      return "e⁻";
+      return "e-";
     if (pdgId == -11)
-      return "e⁺";
+      return "e+";
     if (pdgId == 13)
-      return "μ⁻";
+      return "mu-";
     if (pdgId == -13)
-      return "μ⁺";
+      return "mu+";
     if (pdgId == 15)
-      return "τ⁻";
+      return "tau-";
     if (pdgId == -15)
-      return "τ⁺";
+      return "tau+";
 
     if (pdgId == 12)
-      return "νₑ";
+      return "nu_e";
     if (pdgId == -12)
-      return "ν̄ₑ";
+      return "anti-nu_e";
     if (pdgId == 14)
-      return "ν_μ";
+      return "nu_mu";
     if (pdgId == -14)
-      return "ν̄_μ";
+      return "anti-nu_mu";
     if (pdgId == 16)
-      return "ν_τ";
+      return "nu_tau";
     if (pdgId == -16)
-      return "ν̄_τ";
+      return "anti-nu_tau";
 
     if (pdgId == 22)
-      return "γ";
+      return "gamma";
     if (pdgId == 21)
       return "g";
     if (pdgId == 23)
-      return "Z⁰";
+      return "Z0";
     if (pdgId == 24)
-      return "W⁺";
+      return "W+";
     if (pdgId == -24)
-      return "W⁻";
+      return "W-";
     if (pdgId == 25)
       return "H";
 
     if (pdgId == 2212)
       return "p";
     if (pdgId == -2212)
-      return "p̄";
+      return "anti-p";
     if (pdgId == 2112)
       return "n";
     if (pdgId == -2112)
-      return "n̄";
+      return "anti-n";
 
     if (pdgId == 111)
-      return "π⁰";
+      return "pi0";
     if (pdgId == 211)
-      return "π⁺";
+      return "pi+";
     if (pdgId == -211)
-      return "π⁻";
+      return "pi-";
     if (pdgId == 321)
-      return "K⁺";
+      return "K+";
     if (pdgId == -321)
-      return "K⁻";
+      return "K-";
     if (pdgId == 130)
-      return "K⁰_L";
+      return "K0_L";
     if (pdgId == 310)
-      return "K⁰_S";
+      return "K0_S";
 
     if (ap >= 1 && ap <= 6) {
       static const char* qname[7] = {"", "d", "u", "s", "c", "b", "t"};
@@ -124,7 +125,9 @@ namespace {
   std::string rawNodeSummary(TruthGraph const* raw, int32_t nodeId) {
     if (raw == nullptr || nodeId < 0 || static_cast<uint32_t>(nodeId) >= raw->nNodes())
       return "n/a";
+
     auto const& r = raw->nodeRef(static_cast<uint32_t>(nodeId));
+
     std::ostringstream ss;
     ss << rawKindName(r.kind) << " #" << nodeId << " key=" << r.key;
     return ss.str();
@@ -196,6 +199,7 @@ namespace {
     const auto dotPos = filename.rfind('.');
 
     std::ostringstream ss;
+
     if (dotPos == std::string::npos) {
       ss << filename;
       ss << "_run" << id.run();
@@ -212,6 +216,7 @@ namespace {
 
     return ss.str();
   }
+
 }  // namespace
 
 class TruthLogicalGraphDumper : public edm::one::EDAnalyzer<> {
@@ -222,17 +227,29 @@ public:
         dotFile_(cfg.getParameter<std::string>("dotFile")),
         maxParticles_(cfg.getParameter<unsigned>("maxParticles")),
         maxVertices_(cfg.getParameter<unsigned>("maxVertices")),
-        maxEdgesPerNode_(cfg.getParameter<unsigned>("maxEdgesPerNode")) {}
+        maxEdgesPerNode_(cfg.getParameter<unsigned>("maxEdgesPerNode")),
+        hideLargeSimSourceVertices_(cfg.getParameter<bool>("hideLargeSimSourceVertices")),
+        largeSimSourceVertexMinOutgoing_(cfg.getParameter<unsigned>("largeSimSourceVertexMinOutgoing")) {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
+
     desc.add<edm::InputTag>("src", edm::InputTag("truthLogicalGraphProducer"));
     desc.add<edm::InputTag>("rawSrc", edm::InputTag("truthGraphProducer"))
         ->setComment("Optional raw TruthGraph used only to enrich labels");
+
     desc.add<std::string>("dotFile", "truthlogicalgraph.dot");
+
     desc.add<unsigned>("maxParticles", 5000)->setComment("Truncate logical particle nodes");
     desc.add<unsigned>("maxVertices", 5000)->setComment("Truncate logical vertex nodes");
     desc.add<unsigned>("maxEdgesPerNode", 200)->setComment("Truncate fanout per node");
+
+    desc.add<bool>("hideLargeSimSourceVertices", true)
+        ->setComment("If true, do not print large SIM-only source vertices in the DOT output");
+
+    desc.add<unsigned>("largeSimSourceVertexMinOutgoing", 50)
+        ->setComment("Minimum outgoing multiplicity for hiding a SIM-only source vertex");
+
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -244,13 +261,31 @@ public:
     TruthGraph const* raw = hRaw.isValid() ? &(*hRaw) : nullptr;
 
     const std::string eventDotFile = appendEventIdToFilename(dotFile_, evt.id());
+
     std::ofstream os(eventDotFile);
+
     os << "digraph TruthLogicalGraph {\n";
     os << "  rankdir=LR;\n";
     os << "  node [fontsize=10];\n";
 
     const uint32_t nParticles = std::min<uint32_t>(g.nParticles(), maxParticles_);
     const uint32_t nVertices = std::min<uint32_t>(g.nVertices(), maxVertices_);
+
+    std::vector<uint8_t> hideVertex(nVertices, 0);
+
+    if (hideLargeSimSourceVertices_) {
+      for (uint32_t i = 0; i < nVertices; ++i) {
+        auto v = g.vertex(i);
+        auto const& d = v.data();
+
+        const auto incoming = v.incomingParticles();
+        const auto outgoing = v.outgoingParticles();
+
+        if (!d.hasGen() && d.hasSim() && incoming.empty() && outgoing.size() >= largeSimSourceVertexMinOutgoing_) {
+          hideVertex[i] = 1;
+        }
+      }
+    }
 
     // ------------------------------------------------------------------
     // Particle nodes
@@ -276,7 +311,7 @@ public:
          << statusFlagsLabel(d.statusFlags) << ">"
          << ", eid=" << d.eventId << ", genEvent=" << d.genEvent << ", isRoot=" << p.isRoot()
          << ", isLeaf=" << p.isLeaf() << ", p4=\"" << fmtP4(d.momentum)
-         << "\", nProdVtx=" << p.productionVertices().size() << ", DecayVtx=" << p.decayVertices().size()
+         << "\", nProdVtx=" << p.productionVertices().size() << ", nDecayVtx=" << p.decayVertices().size()
          << ", nParents=" << p.parents().size() << ", nChildren=" << p.children().size()
          << ", nCheckpoints=" << d.checkpoints.size();
 
@@ -291,14 +326,18 @@ public:
 
       if (d.pdgId != 0)
         os << "      <TR><TD>pid: " << pdgLabel(d.pdgId) << "</TD></TR>\n";
+
       if (d.status != 0)
         os << "      <TR><TD>status: " << d.status << "</TD></TR>\n";
+
       if (d.statusFlags != 0) {
         os << "      <TR><TD>statusFlags: " << d.statusFlags << "</TD></TR>\n";
         os << "      <TR><TD>flags: " << statusFlagsLabel(d.statusFlags) << "</TD></TR>\n";
       }
+
       if (d.eventId != 0)
         os << "      <TR><TD>eid: " << d.eventId << "</TD></TR>\n";
+
       if (d.genEvent >= 0)
         os << "      <TR><TD>genEvent: " << d.genEvent << "</TD></TR>\n";
 
@@ -337,6 +376,9 @@ public:
     // Vertex nodes
     // ------------------------------------------------------------------
     for (uint32_t i = 0; i < nVertices; ++i) {
+      if (hideVertex[i])
+        continue;
+
       auto v = g.vertex(i);
       auto const& d = v.data();
 
@@ -358,6 +400,7 @@ public:
 
       if (d.eventId != 0)
         os << "      <TR><TD>eid: " << d.eventId << "</TD></TR>\n";
+
       if (d.genEvent >= 0)
         os << "      <TR><TD>genEvent: " << d.genEvent << "</TD></TR>\n";
 
@@ -386,28 +429,39 @@ public:
     // ------------------------------------------------------------------
     for (uint32_t i = 0; i < nParticles; ++i) {
       unsigned kept = 0;
+
       for (uint32_t v : g.decayVertices(i)) {
         if (v >= nVertices)
           continue;
+
+        if (hideVertex[v])
+          continue;
+
         os << "  p" << i << " -> v" << v << ";\n";
+
         if (++kept >= maxEdgesPerNode_)
           break;
       }
     }
 
     for (uint32_t i = 0; i < nVertices; ++i) {
+      if (hideVertex[i])
+        continue;
+
       unsigned kept = 0;
+
       for (uint32_t p : g.outgoingParticles(i)) {
         if (p >= nParticles)
           continue;
+
         os << "  v" << i << " -> p" << p << ";\n";
+
         if (++kept >= maxEdgesPerNode_)
           break;
       }
     }
 
     os << "}\n";
-    os.close();
   }
 
 private:
@@ -418,6 +472,8 @@ private:
   unsigned maxParticles_;
   unsigned maxVertices_;
   unsigned maxEdgesPerNode_;
+  bool hideLargeSimSourceVertices_;
+  unsigned largeSimSourceVertexMinOutgoing_;
 };
 
 DEFINE_FWK_MODULE(TruthLogicalGraphDumper);
