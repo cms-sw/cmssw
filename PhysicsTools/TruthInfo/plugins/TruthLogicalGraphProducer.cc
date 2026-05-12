@@ -797,6 +797,7 @@ public:
       for (auto const& candidate : productionVertexMergeCandidates) {
         if (genVertexCandidateMultiplicity[candidate.first] < UINT16_MAX)
           ++genVertexCandidateMultiplicity[candidate.first];
+
         if (simVertexCandidateMultiplicity[candidate.second] < UINT16_MAX)
           ++simVertexCandidateMultiplicity[candidate.second];
       }
@@ -806,14 +807,16 @@ public:
         const uint32_t sv = candidate.second;
 
         // Only accept locally one-to-one GenVertex <-> SimVertex matches.
-        // The extra SIM topology requirement rejects shared Geant4 injection/source vertices.
+        // This prevents one busy SimVertex from absorbing many unrelated GenVertices.
         if (genVertexCandidateMultiplicity[gv] != 1 || simVertexCandidateMultiplicity[sv] != 1)
           continue;
 
-        if (rawSimVertexIncomingSimTracks[sv] > 1)
+        // Do not merge secondary SIM vertices produced by an existing SimTrack.
+        // Primary/injection SIM vertices can legitimately have multiple outgoing primary tracks.
+        if (rawSimVertexIncomingSimTracks[sv] != 0)
           continue;
 
-        if (rawSimVertexOutgoingSimTracks[sv] != 1)
+        if (rawSimVertexOutgoingSimTracks[sv] == 0)
           continue;
 
         vertexDSU.unite(rawToVertexTmp[gv], rawToVertexTmp[sv]);
@@ -1001,13 +1004,16 @@ public:
         if (isVertexKind(srcRef.kind) && isParticleKind(dstRef.kind)) {
           const int32_t lv = rawToVertex[src];
           const int32_t lp = rawToParticle[dst];
+
           if (lv >= 0 && lp >= 0) {
             vertexToOutgoingParticlePairs.emplace_back(static_cast<uint32_t>(lv), static_cast<uint32_t>(lp));
             particleToProductionVertexPairs.emplace_back(static_cast<uint32_t>(lp), static_cast<uint32_t>(lv));
           }
+
         } else if (isParticleKind(srcRef.kind) && isVertexKind(dstRef.kind)) {
           const int32_t lp = rawToParticle[src];
           const int32_t lv = rawToVertex[dst];
+
           if (lp >= 0 && lv >= 0) {
             particleToDecayVertexPairs.emplace_back(static_cast<uint32_t>(lp), static_cast<uint32_t>(lv));
             vertexToIncomingParticlePairs.emplace_back(static_cast<uint32_t>(lv), static_cast<uint32_t>(lp));
