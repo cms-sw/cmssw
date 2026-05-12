@@ -1,6 +1,6 @@
-# hltGetConfiguration /dev/CMSSW_16_0_0/PIon --cff --data --type PIon
+# hltGetConfiguration /dev/CMSSW_16_1_0/PIon --cff --data --type PIon
 
-# /dev/CMSSW_16_0_0/PIon/V62 (CMSSW_16_0_6)
+# /dev/CMSSW_16_1_0/PIon/V11 (CMSSW_16_1_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.load("Configuration.StandardSequences.Accelerators_cff")
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string("/dev/CMSSW_16_0_0/PIon/V62")
+  tableName = cms.string("/dev/CMSSW_16_1_0/PIon/V11")
 )
 
 fragment.HLTGroupedCkfTrajectoryBuilderP5 = cms.PSet( 
@@ -7896,6 +7896,8 @@ fragment.hltIter0PFlowCkfTrackCandidates = cms.EDProducer( "MkFitOutputConverter
     candCutSel = cms.bool( False ),
     candMinPtCut = cms.double( 0.0 ),
     candMinNHitsCut = cms.int32( 0 ),
+    candMinPtRelaxedCut = cms.double( 0.0 ),
+    candMinAbsEtaForRelaxedCut = cms.double( 0.0 ),
     candMVASel = cms.bool( False ),
     candWP = cms.double( 0.0 ),
     batchSize = cms.int32( 16 )
@@ -8107,6 +8109,8 @@ fragment.hltDoubletRecoveryPFlowCkfTrackCandidates = cms.EDProducer( "MkFitOutpu
     candCutSel = cms.bool( False ),
     candMinPtCut = cms.double( 0.0 ),
     candMinNHitsCut = cms.int32( 0 ),
+    candMinPtRelaxedCut = cms.double( 0.0 ),
+    candMinAbsEtaForRelaxedCut = cms.double( 0.0 ),
     candMVASel = cms.bool( False ),
     candWP = cms.double( 0.0 ),
     batchSize = cms.int32( 16 )
