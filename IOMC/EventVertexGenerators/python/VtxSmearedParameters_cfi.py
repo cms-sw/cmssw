@@ -85,6 +85,7 @@ Run3FlatOpticsGaussVtxSigmaZ5p3cmSmearingParameters = cms.PSet(
 # Can restore correlation via MinT += (MinZ - MaxZ)/2 and MaxT += (MaxZ - MinZ)/2
 # in [ns] units (recall c_light = 29.98cm/ns)
 FlatVtxSmearingParameters = cms.PSet(
+    FixedR = cms.bool(False),
     MaxZ = cms.double(5.3),
     MaxX = cms.double(0.0015),
     MaxY = cms.double(0.0015),
@@ -94,6 +95,17 @@ FlatVtxSmearingParameters = cms.PSet(
     MaxT = cms.double(0.177),
     MinT = cms.double(-0.177)
 )
+
+FlatVtxDisplacedParameters = cms.PSet(
+    FixedR = cms.bool(True),
+    MaxR = cms.double(10.1),
+    MinR = cms.double(10.0),
+    MaxZ = cms.double(0.001),
+    MinZ = cms.double(0.000),
+    MaxT = cms.double(0.001),
+    MinT = cms.double(0.000),
+)
+
 #############################################
 # Beta functions smearing (pp 7+7 TeV)
 #
