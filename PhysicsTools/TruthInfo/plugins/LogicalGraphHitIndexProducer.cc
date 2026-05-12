@@ -1,41 +1,38 @@
+#include <array>
 #include <cstdint>
 #include <limits>
 #include <memory>
-#include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <vector>
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "PhysicsTools/TruthInfo/interface/Graph.h"
 #include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndex.h"
 #include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndexBuilder.h"
 #include "PhysicsTools/TruthInfo/interface/TruthGraph.h"
+
+#include "SimCalorimetry/HGCalAssociatorProducers/interface/DetIdRecHitMap.h"
 
 namespace {
 
@@ -70,254 +67,300 @@ namespace {
 
   uint32_t checkedTrackId(int64_t key) {
     if (key < 0 || key > static_cast<int64_t>(std::numeric_limits<uint32_t>::max()))
-      throw std::runtime_error("Invalid SimTrack key in logical graph");
+      return 0;
 
     return static_cast<uint32_t>(key);
   }
+
+  bool inputTagLooksLikeHGCal(edm::InputTag const& tag) {
+    const std::string instance = tag.instance();
+    return instance.find("HGCHits") != std::string::npos || instance.find("HGCEE") != std::string::npos ||
+           instance.find("HGCHE") != std::string::npos;
+  }
+
+  bool inputTagLooksLikeHcal(edm::InputTag const& tag) {
+    const std::string instance = tag.instance();
+    return instance.find("HcalHits") != std::string::npos || instance.find("Hcal") != std::string::npos;
+  }
+
+  struct RelabelContext {
+    int geometryType = -1;
+
+    std::array<HGCalTopology const*, 3> hgTopologies = {nullptr, nullptr, nullptr};
+    std::array<HGCalDDDConstants const*, 3> hgConstants = {nullptr, nullptr, nullptr};
+
+    HcalDDDRecConstants const* hcalConstants = nullptr;
+  };
 
 }  // namespace
 
 class TruthLogicalGraphHitIndexProducer : public edm::global::EDProducer<> {
 public:
-  explicit TruthLogicalGraphHitIndexProducer(edm::ParameterSet const& cfg)
-      : graphToken_(consumes<truth::Graph>(cfg.getParameter<edm::InputTag>("src"))),
-        rawGraphToken_(consumes<TruthGraph>(cfg.getParameter<edm::InputTag>("rawSrc"))),
+  explicit TruthLogicalGraphHitIndexProducer(edm::ParameterSet const& cfg);
+  ~TruthLogicalGraphHitIndexProducer() override = default;
 
-        simTracksToken_(consumes<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simTracks"))),
-        simHitCollections_(cfg.getParameter<std::vector<edm::InputTag>>("simHitCollections")),
-        doHGCal_(cfg.getParameter<bool>("doHGCal")),
-        doHGCalRelabelling_(cfg.getParameter<bool>("doHGCalRelabelling")),
-        geomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
-    for (auto const& tag : simHitCollections_) {
-      simHitTokens_.push_back(consumes<std::vector<PCaloHit>>(tag));
-    }
-
-    produces<truth::LogicalGraphHitIndex>();
-  }
-
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-    edm::ParameterSetDescription desc;
-
-    desc.add<edm::InputTag>("src", edm::InputTag("truthLogicalGraphProducer"));
-    desc.add<edm::InputTag>("rawSrc", edm::InputTag("truthGraphProducer"));
-
-    desc.add<edm::InputTag>("simTracks", edm::InputTag("g4SimHits"));
-
-    desc.add<std::vector<edm::InputTag>>("simHitCollections",
-                                         {
-                                             edm::InputTag("g4SimHits", "HGCHitsEE"),
-                                             edm::InputTag("g4SimHits", "HGCHitsHEfront"),
-                                             edm::InputTag("g4SimHits", "HGCHitsHEback"),
-                                         });
-
-    desc.add<bool>("doHGCal", true);
-    desc.add<bool>("doHGCalRelabelling", true);
-
-    descriptions.addWithDefaultLabel(desc);
-  }
-
-  void produce(edm::StreamID, edm::Event& event, edm::EventSetup const& setup) const override {
-    auto const& graph = event.get(graphToken_);
-    auto const& rawGraph = event.get(rawGraphToken_);
-
-    LogicalGraphView graphView(graph);
-
-    truth::LogicalGraphHitIndexBuilder builder(graphView.nParticles());
-
-    fillTrackToParticleMap(graphView, rawGraph, builder);
-    fillSimHits(event, setup, builder);
-
-    auto output = std::make_unique<truth::LogicalGraphHitIndex>(builder.finish());
-    event.put(std::move(output));
-  }
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+
   void fillTrackToParticleMap(LogicalGraphView const& graph,
                               TruthGraph const& rawGraph,
-                              truth::LogicalGraphHitIndexBuilder& builder) const {
-    for (uint32_t particleId = 0; particleId < graph.nParticles(); ++particleId) {
-      if (!graph.particleHasSim(particleId))
-        continue;
+                              truth::LogicalGraphHitIndexBuilder& builder) const;
 
-      const int32_t simNode = graph.particleSimNode(particleId);
-      if (simNode < 0)
-        continue;
-
-      const uint32_t simNodeU32 = static_cast<uint32_t>(simNode);
-      if (simNodeU32 >= rawGraph.nNodes())
-        continue;
-
-      auto const& ref = rawGraph.nodeRef(simNodeU32);
-      if (ref.kind != TruthGraph::NodeKind::SimTrack)
-        continue;
-
-      builder.setSimTrackForParticle(particleId, checkedTrackId(ref.key));
-    }
-
-    for (uint32_t parentId = 0; parentId < graph.nParticles(); ++parentId) {
-      graph.forEachParticleChild(parentId, [&](uint32_t childId) { builder.addParticleChild(parentId, childId); });
-    }
-  }
-
-  void fillSimHits(edm::Event const& event,
+  void fillSimHits(edm::Event& event,
                    edm::EventSetup const& setup,
-                   truth::LogicalGraphHitIndexBuilder& builder) const {
-    GeometryCache geometry;
-    if (doHGCalRelabelling_)
-      geometry = makeGeometryCache(setup);
+                   truth::LogicalGraphHitIndexBuilder& builder,
+                   hgcal::DetIdRecHitMap const* recHitMap) const;
 
-    for (std::size_t i = 0; i < simHitTokens_.size(); ++i) {
-      edm::Handle<std::vector<PCaloHit>> hits;
-      event.getByToken(simHitTokens_[i], hits);
+  RelabelContext makeRelabelContext(edm::EventSetup const& setup) const;
 
-      if (!hits.isValid())
-        continue;
-
-      const auto& tag = simHitCollections_[i];
-      const bool isHcal = tag.instance().find("HcalHits") != std::string::npos;
-      const bool isHGCal = tag.instance().find("HGCHits") != std::string::npos;
-
-      for (auto const& hit : *hits) {
-        if (hit.geantTrackId() == 0)
-          continue;
-
-        const DetId detId = makeRecoDetId(hit, isHGCal, isHcal, geometry);
-        if (detId == DetId(0))
-          continue;
-
-        builder.addHitForTrack(hit.geantTrackId(), detId.rawId(), hit.energy());
-      }
-    }
-  }
-
-  struct GeometryCache {
-    int geometryType = -1;
-
-    HGCalTopology const* hgtopo[3] = {nullptr, nullptr, nullptr};
-    HGCalDDDConstants const* hgddd[3] = {nullptr, nullptr, nullptr};
-
-    HcalDDDRecConstants const* hcddd = nullptr;
-  };
-
-  GeometryCache makeGeometryCache(edm::EventSetup const& setup) const {
-    GeometryCache cache;
-
-    auto const& geom = setup.getData(geomToken_);
-
-    auto const* hcalGeom = static_cast<HcalGeometry const*>(geom.getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
-    if (hcalGeom)
-      cache.hcddd = hcalGeom->topology().dddConstants();
-
-    if (!doHGCal_)
-      return cache;
-
-    auto const* eeGeom = static_cast<HGCalGeometry const*>(
-        geom.getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
-
-    if (eeGeom) {
-      cache.geometryType = 1;
-
-      auto const* fhGeom = static_cast<HGCalGeometry const*>(
-          geom.getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty));
-      auto const* bhGeom = static_cast<HGCalGeometry const*>(
-          geom.getSubdetectorGeometry(DetId::HGCalHSc, ForwardSubdetector::ForwardEmpty));
-
-      cache.hgtopo[0] = &eeGeom->topology();
-      if (fhGeom)
-        cache.hgtopo[1] = &fhGeom->topology();
-      if (bhGeom)
-        cache.hgtopo[2] = &bhGeom->topology();
-    } else {
-      cache.geometryType = 0;
-
-      eeGeom = static_cast<HGCalGeometry const*>(geom.getSubdetectorGeometry(DetId::Forward, HGCEE));
-      auto const* fhGeom = static_cast<HGCalGeometry const*>(geom.getSubdetectorGeometry(DetId::Forward, HGCHEF));
-
-      if (eeGeom)
-        cache.hgtopo[0] = &eeGeom->topology();
-      if (fhGeom)
-        cache.hgtopo[1] = &fhGeom->topology();
-    }
-
-    for (unsigned i = 0; i < 3; ++i) {
-      if (cache.hgtopo[i])
-        cache.hgddd[i] = &cache.hgtopo[i]->dddConstants();
-    }
-
-    return cache;
-  }
-
-  DetId makeRecoDetId(PCaloHit const& hit, bool isHGCal, bool isHcal, GeometryCache const& geometry) const {
-    if (!doHGCalRelabelling_) {
-      return DetId(hit.id());
-    }
-
-    if (isHGCal) {
-      const uint32_t simId = hit.id();
-
-      if (geometry.geometryType == 1) {
-        return DetId(simId);
-      }
-
-      if (isHcal) {
-        if (!geometry.hcddd)
-          return DetId(0);
-
-        HcalDetId hid = HcalHitRelabeller::relabel(simId, geometry.hcddd);
-        if (hid.subdet() == HcalEndcap)
-          return hid;
-
-        return DetId(0);
-      }
-
-      int subdet = 0;
-      int layer = 0;
-      int cell = 0;
-      int sec = 0;
-      int subsec = 0;
-      int zp = 0;
-
-      HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell);
-
-      if (subdet < 3 || subdet > 5)
-        return DetId(0);
-
-      const unsigned idx = static_cast<unsigned>(subdet - 3);
-      if (!geometry.hgddd[idx] || !geometry.hgtopo[idx])
-        return DetId(0);
-
-      auto const recoLayerCell = geometry.hgddd[idx]->simToReco(cell, layer, sec, geometry.hgtopo[idx]->detectorType());
-      cell = recoLayerCell.first;
-      layer = recoLayerCell.second;
-
-      if (layer == -1)
-        return DetId(0);
-
-      return HGCalDetId(static_cast<ForwardSubdetector>(subdet), zp, layer, subsec, sec, cell);
-    }
-
-    if (isHcal) {
-      if (!geometry.hcddd)
-        return DetId(0);
-
-      return HcalHitRelabeller::relabel(hit.id(), geometry.hcddd);
-    }
-
-    return DetId(hit.id());
-  }
+  uint32_t recoDetIdForSimHit(PCaloHit const& simHit,
+                              bool isHGCalCollection,
+                              bool isHcalCollection,
+                              RelabelContext const& context) const;
 
   edm::EDGetTokenT<truth::Graph> graphToken_;
   edm::EDGetTokenT<TruthGraph> rawGraphToken_;
+  edm::EDGetTokenT<hgcal::DetIdRecHitMap> recHitMapToken_;
 
-  edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
-
-  std::vector<edm::InputTag> simHitCollections_;
+  std::vector<edm::InputTag> simHitTags_;
   std::vector<edm::EDGetTokenT<std::vector<PCaloHit>>> simHitTokens_;
 
-  bool doHGCal_;
-  bool doHGCalRelabelling_;
-
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
+
+  bool doHGCalRelabelling_ = true;
 };
+
+TruthLogicalGraphHitIndexProducer::TruthLogicalGraphHitIndexProducer(edm::ParameterSet const& cfg)
+    : graphToken_(consumes<truth::Graph>(cfg.getParameter<edm::InputTag>("src"))),
+      rawGraphToken_(consumes<TruthGraph>(cfg.getParameter<edm::InputTag>("rawSrc"))),
+      recHitMapToken_(consumes<hgcal::DetIdRecHitMap>(cfg.getParameter<edm::InputTag>("recHitMap"))),
+      simHitTags_(cfg.getParameter<std::vector<edm::InputTag>>("simHitCollections")),
+      geomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      doHGCalRelabelling_(cfg.getParameter<bool>("doHGCalRelabelling")) {
+  simHitTokens_.reserve(simHitTags_.size());
+  for (auto const& tag : simHitTags_) {
+    simHitTokens_.push_back(consumes<std::vector<PCaloHit>>(tag));
+  }
+
+  produces<truth::LogicalGraphHitIndex>();
+}
+
+void TruthLogicalGraphHitIndexProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("src", edm::InputTag("truthLogicalGraphProducer"));
+  desc.add<edm::InputTag>("rawSrc", edm::InputTag("truthGraphProducer"));
+  desc.add<edm::InputTag>("recHitMap", edm::InputTag("simHitToRecHitMapProducer"));
+
+  desc.add<std::vector<edm::InputTag>>("simHitCollections",
+                                       {edm::InputTag("g4SimHits", "HGCHitsEE"),
+                                        edm::InputTag("g4SimHits", "HGCHitsHEfront"),
+                                        edm::InputTag("g4SimHits", "HGCHitsHEback")});
+
+  desc.add<bool>("doHGCalRelabelling", true)
+      ->setComment("Convert old HGCAL simulation DetIds to reco DetIds before looking up recHits");
+
+  descriptions.addWithDefaultLabel(desc);
+}
+
+void TruthLogicalGraphHitIndexProducer::produce(edm::StreamID, edm::Event& event, edm::EventSetup const& setup) const {
+  auto const& graph = event.get(graphToken_);
+  auto const& rawGraph = event.get(rawGraphToken_);
+
+  edm::Handle<hgcal::DetIdRecHitMap> hRecHitMap;
+  event.getByToken(recHitMapToken_, hRecHitMap);
+  auto const* recHitMap = hRecHitMap.isValid() ? &(*hRecHitMap) : nullptr;
+
+  LogicalGraphView graphView(graph);
+
+  truth::LogicalGraphHitIndexBuilder builder(graphView.nParticles());
+
+  fillTrackToParticleMap(graphView, rawGraph, builder);
+  fillSimHits(event, setup, builder, recHitMap);
+
+  auto output = std::make_unique<truth::LogicalGraphHitIndex>(builder.finish());
+  event.put(std::move(output));
+}
+
+void TruthLogicalGraphHitIndexProducer::fillTrackToParticleMap(LogicalGraphView const& graph,
+                                                               TruthGraph const& rawGraph,
+                                                               truth::LogicalGraphHitIndexBuilder& builder) const {
+  for (uint32_t particleId = 0; particleId < graph.nParticles(); ++particleId) {
+    if (!graph.particleHasSim(particleId))
+      continue;
+
+    const int32_t simNode = graph.particleSimNode(particleId);
+    if (simNode < 0)
+      continue;
+
+    const uint32_t simNodeU32 = static_cast<uint32_t>(simNode);
+    if (simNodeU32 >= rawGraph.nNodes())
+      continue;
+
+    auto const& ref = rawGraph.nodeRef(simNodeU32);
+    if (ref.kind != TruthGraph::NodeKind::SimTrack)
+      continue;
+
+    const uint32_t trackId = checkedTrackId(ref.key);
+    if (trackId == 0)
+      continue;
+
+    builder.setSimTrackForParticle(particleId, trackId);
+  }
+
+  for (uint32_t parentId = 0; parentId < graph.nParticles(); ++parentId) {
+    graph.forEachParticleChild(parentId, [&](uint32_t childId) { builder.addParticleChild(parentId, childId); });
+  }
+}
+
+RelabelContext TruthLogicalGraphHitIndexProducer::makeRelabelContext(edm::EventSetup const& setup) const {
+  RelabelContext context;
+
+  if (!doHGCalRelabelling_)
+    return context;
+
+  auto const& geom = setup.getData(geomToken_);
+
+  auto const* hcalGeometry = static_cast<HcalGeometry const*>(geom.getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
+  if (hcalGeometry != nullptr) {
+    context.hcalConstants = hcalGeometry->topology().dddConstants();
+  }
+
+  auto const* eeGeometry =
+      static_cast<HGCalGeometry const*>(geom.getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
+
+  if (eeGeometry != nullptr) {
+    context.geometryType = 1;
+
+    auto const* fhGeometry = static_cast<HGCalGeometry const*>(
+        geom.getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty));
+    auto const* bhGeometry = static_cast<HGCalGeometry const*>(
+        geom.getSubdetectorGeometry(DetId::HGCalHSc, ForwardSubdetector::ForwardEmpty));
+
+    context.hgTopologies[0] = &eeGeometry->topology();
+    context.hgTopologies[1] = fhGeometry != nullptr ? &fhGeometry->topology() : nullptr;
+    context.hgTopologies[2] = bhGeometry != nullptr ? &bhGeometry->topology() : nullptr;
+
+    for (unsigned i = 0; i < context.hgTopologies.size(); ++i) {
+      if (context.hgTopologies[i] != nullptr)
+        context.hgConstants[i] = &context.hgTopologies[i]->dddConstants();
+    }
+
+    return context;
+  }
+
+  context.geometryType = 0;
+
+  eeGeometry = static_cast<HGCalGeometry const*>(geom.getSubdetectorGeometry(DetId::Forward, HGCEE));
+  auto const* fhGeometry = static_cast<HGCalGeometry const*>(geom.getSubdetectorGeometry(DetId::Forward, HGCHEF));
+
+  context.hgTopologies[0] = eeGeometry != nullptr ? &eeGeometry->topology() : nullptr;
+  context.hgTopologies[1] = fhGeometry != nullptr ? &fhGeometry->topology() : nullptr;
+
+  for (unsigned i = 0; i < context.hgTopologies.size(); ++i) {
+    if (context.hgTopologies[i] != nullptr)
+      context.hgConstants[i] = &context.hgTopologies[i]->dddConstants();
+  }
+
+  return context;
+}
+
+uint32_t TruthLogicalGraphHitIndexProducer::recoDetIdForSimHit(PCaloHit const& simHit,
+                                                               bool isHGCalCollection,
+                                                               bool isHcalCollection,
+                                                               RelabelContext const& context) const {
+  const uint32_t simId = simHit.id();
+
+  if (!doHGCalRelabelling_) {
+    return simId;
+  }
+
+  if (isHGCalCollection) {
+    if (context.geometryType == 1) {
+      return simId;
+    }
+
+    int subdet = 0;
+    int layer = 0;
+    int cell = 0;
+    int sec = 0;
+    int subsec = 0;
+    int zp = 0;
+
+    HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell);
+
+    const int hgcalIndex = subdet - 3;
+    if (hgcalIndex < 0 || hgcalIndex >= static_cast<int>(context.hgConstants.size()))
+      return 0;
+
+    auto const* constants = context.hgConstants[hgcalIndex];
+    auto const* topology = context.hgTopologies[hgcalIndex];
+
+    if (constants == nullptr || topology == nullptr)
+      return 0;
+
+    const auto recoLayerCell = constants->simToReco(cell, layer, sec, topology->detectorType());
+    cell = recoLayerCell.first;
+    layer = recoLayerCell.second;
+
+    if (layer < 0)
+      return 0;
+
+    return HGCalDetId(static_cast<ForwardSubdetector>(subdet), zp, layer, subsec, sec, cell).rawId();
+  }
+
+  if (isHcalCollection && context.hcalConstants != nullptr) {
+    return HcalHitRelabeller::relabel(simId, context.hcalConstants).rawId();
+  }
+
+  return simId;
+}
+
+void TruthLogicalGraphHitIndexProducer::fillSimHits(edm::Event& event,
+                                                    edm::EventSetup const& setup,
+                                                    truth::LogicalGraphHitIndexBuilder& builder,
+                                                    hgcal::DetIdRecHitMap const* recHitMap) const {
+  const RelabelContext relabelContext = makeRelabelContext(setup);
+
+  for (uint32_t tokenIndex = 0; tokenIndex < simHitTokens_.size(); ++tokenIndex) {
+    auto const& token = simHitTokens_[tokenIndex];
+    auto const& tag = simHitTags_[tokenIndex];
+
+    edm::Handle<std::vector<PCaloHit>> hSimHits;
+    event.getByToken(token, hSimHits);
+
+    if (!hSimHits.isValid()) {
+      edm::LogWarning("TruthLogicalGraphHitIndexProducer")
+          << "Missing PCaloHit collection " << tag.encode() << ". Skipping it.";
+      continue;
+    }
+
+    const bool isHGCalCollection = inputTagLooksLikeHGCal(tag);
+    const bool isHcalCollection = inputTagLooksLikeHcal(tag);
+
+    for (auto const& simHit : *hSimHits) {
+      const int geantTrackId = simHit.geantTrackId();
+      if (geantTrackId <= 0)
+        continue;
+
+      const uint32_t detId = recoDetIdForSimHit(simHit, isHGCalCollection, isHcalCollection, relabelContext);
+      if (detId == 0)
+        continue;
+
+      uint32_t recHitIndex = truth::LogicalGraphHitIndex::Hit::invalidRecHitIndex;
+
+      if (recHitMap != nullptr) {
+        const auto it = recHitMap->find(detId);
+        if (it != recHitMap->end()) {
+          recHitIndex = it->second;
+        }
+      }
+
+      builder.addHitForTrack(static_cast<uint32_t>(geantTrackId), detId, recHitIndex, simHit.energy());
+    }
+  }
+}
 
 DEFINE_FWK_MODULE(TruthLogicalGraphHitIndexProducer);
