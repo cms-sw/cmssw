@@ -184,7 +184,7 @@ namespace {
         return " [dir=both, style=dashed, label=\"GenToSim\", edgeType=\"GenToSim\"]";
 
       case EdgeKind::SimToGen:
-        return " [dir=both, style=dashed, label=\"SimToGen\", edgeType=\"SimToGen\"]";
+        return " [dir=both, style=dotted, label=\"SimToGen\", edgeType=\"SimToGen\"]";
     }
 
     return " [style=solid, edgeType=\"Unknown\"]";
