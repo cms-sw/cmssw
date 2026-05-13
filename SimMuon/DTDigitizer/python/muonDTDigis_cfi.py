@@ -22,6 +22,7 @@ simMuonDTDigis = cms.EDProducer("DTDigitizer",
     #Name of Collection used for create the XF 
     mixLabel = cms.string('mix'),                                
     InputCollection = cms.string('g4SimHitsMuonDTHits'),
+    InputCollectionPU = cms.string('g4SimHitsMuonDTHits'),                                
     debug = cms.untracked.bool(False),
     # Its parameters
     pset = cms.PSet(
@@ -41,7 +42,13 @@ simMuonDTDigis = cms.EDProducer("DTDigitizer",
 
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(simMuonDTDigis, InputCollection = 'MuonSimHitsMuonDTHits')
+fastSim.toModify(simMuonDTDigis,
+                 InputCollection   = cms.string('MuonSimHitsMuonDTHits'),
+                 InputCollectionPU = cms.string('MuonSimHitsMuonDTHits'))
     
+from Configuration.ProcessModifiers.fastSimPU_cff import fastSimPU
+fastSimPU.toModify(simMuonDTDigis,
+                   InputCollectionPU = cms.string('MuonSimHitsMuonDTHits'))
+
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(simMuonDTDigis, mixLabel = "mixData")
