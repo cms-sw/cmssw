@@ -30,7 +30,7 @@ private:
   void swapParameters(HGCalParameters*, PHGCalParameters*);
 
   std::string name_, name2_, namew_, namec_, namet_;
-  bool fromDD4hep_;
+  bool fromDD4hep_, coldBoxMode_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> dd4HepCompactViewToken_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> compactViewToken_;
 };
@@ -42,12 +42,13 @@ PHGCalParametersDBBuilder::PHGCalParametersDBBuilder(const edm::ParameterSet& iC
   namec_ = iC.getParameter<std::string>("nameC");
   namet_ = iC.getParameter<std::string>("nameT");
   fromDD4hep_ = iC.getParameter<bool>("fromDD4hep");
+  coldBoxMode_ = iC.getParameter<bool>("coldBoxMode");
   dd4HepCompactViewToken_ = esConsumes<edm::Transition::BeginRun>();
   compactViewToken_ = esConsumes<edm::Transition::BeginRun>();
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":" << name2_ << ":" << namew_ << ":"
-                                << namec_ << ":" << namet_ << " and fromDD4hep flag " << fromDD4hep_;
+                                << namec_ << ":" << namet_ << ", fromDD4hep flag " << fromDD4hep_<< " with ColdBoxMode " << coldBoxMode_;
 #endif
 }
 
@@ -59,6 +60,7 @@ void PHGCalParametersDBBuilder::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<std::string>("nameC", "HGCalEECell");
   desc.add<std::string>("nameT", "HGCal");
   desc.add<bool>("fromDD4hep", false);
+  desc.add<bool>("coldBoxMode", false);
   descriptions.add("HGCalEEParametersWriter", desc);
 }
 
@@ -71,7 +73,7 @@ void PHGCalParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const&
   }
 
   HGCalParameters* ptp = new HGCalParameters(name_);
-  HGCalParametersFromDD builder;
+  HGCalParametersFromDD builder(coldBoxMode_);
   if (fromDD4hep_) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "PHGCalParametersDBBuilder::Try to access cm::DDCompactView";

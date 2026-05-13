@@ -8,6 +8,7 @@ hgcalEEParametersInitialize = cms.ESProducer('HGCalParametersESModule',
   nameT = cms.string('HGCal'),
   nameX = cms.string('HGCalEESensitive'),
   fromDD4hep = cms.bool(False),
+  coldBoxMode = cms.bool(False),
   appendToDataLabel = cms.string('')
 )
 
@@ -16,3 +17,9 @@ from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 dd4hep.toModify(hgcalEEParametersInitialize,
                 fromDD4hep = True
 )
+
+# from Configuration.ProcessModifiers.hgcalColdBox_cff.py import hgcalColdBox
+# 
+# hgcalColdBox.toModify(hgcalEEParametersInitialize,
+#                       coldBoxMode = True
+# )

@@ -58,7 +58,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
     php.calibCellRHD_ = 0;      // default value of R of HD calibration cells
     php.calibCellRLD_ = 0;      // default value of R of LD calibration cells
     php.coldBoxMode_ = 0;       // default vakue for cold box mode
-    std::unique_ptr<HGCalGeomParameters> geom = std::make_unique<HGCalGeomParameters>();
+    std::unique_ptr<HGCalGeomParameters> geom = std::make_unique<HGCalGeomParameters>(coldBoxMode_);
     if ((php.mode_ == HGCalGeometryMode::Hexagon) || (php.mode_ == HGCalGeometryMode::HexagonFull)) {
       attribute = "OnlyForHGCalNumbering";
       value = namet;
@@ -306,7 +306,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
     php.calibCellRHD_ = 0;      // default value of R of HD calibration cells
     php.calibCellRLD_ = 0;      // default value of R of LD calibration cells
     php.coldBoxMode_ = 0;       // default vakue for cold box mode
-    std::unique_ptr<HGCalGeomParameters> geom = std::make_unique<HGCalGeomParameters>();
+    std::unique_ptr<HGCalGeomParameters> geom = std::make_unique<HGCalGeomParameters>(coldBoxMode_);
     if ((php.mode_ == HGCalGeometryMode::Hexagon) || (php.mode_ == HGCalGeometryMode::HexagonFull)) {
       tempS = fv.get<std::vector<std::string> >(namet, "WaferMode");
       std::string sv2 = (!tempS.empty()) ? tempS[0] : "HGCalGeometryMode::Polyhedra";

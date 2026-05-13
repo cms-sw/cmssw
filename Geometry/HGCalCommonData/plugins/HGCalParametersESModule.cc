@@ -11,7 +11,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParametersFromDD.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 class HGCalParametersESModule : public edm::ESProducer {
 public:
@@ -25,7 +25,7 @@ public:
 
 private:
   std::string name_, name2_, namew_, namec_, namet_, namex_;
-  bool fromDD4hep_;
+  bool fromDD4hep_, coldBoxMode_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> cpvTokenDDD_;
   edm::ESGetToken<cms::DDCompactView, IdealGeometryRecord> cpvTokenDD4hep_;
 };
@@ -38,9 +38,10 @@ HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
   namet_ = iC.getParameter<std::string>("nameT");
   namex_ = iC.getParameter<std::string>("nameX");
   fromDD4hep_ = iC.getParameter<bool>("fromDD4hep");
+  coldBoxMode_ = iC.getParameter<bool>("coldBoxMode");
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":" << name2_ << ":" << namew_ << ":"
-                                << namec_ << ":" << namet_ << ":" << namex_ << " and fromDD4hep flag " << fromDD4hep_;
+                                << namec_ << ":" << namet_ << ":" << namex_ << ", fromDD4hep flag " << fromDD4hep_<< " with ColdBoxMode " << coldBoxMode_;
 #endif
   auto cc = setWhatProduced(this, namex_);
   if (fromDD4hep_)
@@ -58,6 +59,7 @@ void HGCalParametersESModule::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<std::string>("nameT", "HGCal");
   desc.add<std::string>("nameX", "HGCalEESensitive");
   desc.add<bool>("fromDD4hep", false);
+  desc.add<bool>("coldBoxMode", false);
   descriptions.add("hgcalEEParametersInitialize", desc);
 }
 
@@ -66,7 +68,7 @@ HGCalParametersESModule::ReturnType HGCalParametersESModule::produce(const Ideal
   edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule::produce(const IdealGeometryRecord& iRecord)";
 #endif
   auto ptp = std::make_unique<HGCalParameters>(name_);
-  HGCalParametersFromDD builder;
+  HGCalParametersFromDD builder(coldBoxMode_);
   if (fromDD4hep_) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule::Try to access cms::DDCompactView";

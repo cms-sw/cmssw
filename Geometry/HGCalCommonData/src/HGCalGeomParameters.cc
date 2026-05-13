@@ -23,13 +23,13 @@
 #include <sstream>
 #include <unordered_set>
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
 const double tolerance = 0.001;
 const double tolmin = 1.e-20;
 
-HGCalGeomParameters::HGCalGeomParameters() : sqrt3_(std::sqrt(3.0)) {
+HGCalGeomParameters::HGCalGeomParameters(bool coldBoxMode) : coldBoxMode_(coldBoxMode), sqrt3_(std::sqrt(3.0)) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters::HGCalGeomParameters "
                                 << "constructor";
@@ -1194,10 +1194,12 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
 
   // Cold Box
   const auto& dummy3 = dbl_to_int(getDDDArray("ColdBoxMode", sv, 0));
-  if (!dummy3.empty())
+  if (coldBoxMode_ && (!dummy3.empty()))
     php.coldBoxMode_ = dummy3[0];
   else
     php.coldBoxMode_ = 0;
+  if (php.coldBoxMode_ == 0)
+    coldBoxMode_ = false;
   php.coldBoxRots_ = getDDDArray("ColdBoxRots", sv, 0);
 
   // Wafer size
@@ -1251,10 +1253,12 @@ void HGCalGeomParameters::loadSpecParsHexagon(const cms::DDFilteredView& fv,
 
   // Cold Box
   const auto& dummy2 = fv.get<std::vector<double> >(sdTag4, "ColdBoxMode");
-  if (!dummy2.empty())
+  if (coldBoxMode_ && (!dummy2.empty()))
     php.coldBoxMode_ = dummy2[0];
   else
     php.coldBoxMode_ = 0;
+  if (php.coldBoxMode_ == 0)
+    coldBoxMode_ = false;
   php.coldBoxRots_ = fv.get<std::vector<double> >(sdTag4, "coldBoxRots");
 
   // Layer Offset
@@ -1593,15 +1597,26 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
     php.layerType_.emplace_back(HGCalTypes::layerType(layerType[k]));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << layerType[k] << ":" << php.layerType_.back();
+    if (coldBoxMode_) {
+      edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << layerType[k] << ":" << php.layerType_.back() << " "<< php.coldBoxRots_[k];
+    }
 #endif
   }
   for (unsigned int k = 0; k < php.layerType_.size(); ++k) {
     double cth = (php.layerType_[k] == HGCalTypes::WaferCenterR) ? cos(php.layerRotation_) : 1.0;
     double sth = (php.layerType_[k] == HGCalTypes::WaferCenterR) ? sin(php.layerRotation_) : 0.0;
+    if (coldBoxMode_ ) {
+      cth = cos(php.coldBoxRots_[k]);
+      sth = sin(php.coldBoxRots_[k]);
+    }
     php.layerRotV_.emplace_back(std::make_pair(cth, sth));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << php.layerType_[k] << " cos|sin(Theta) "
                                   << php.layerRotV_.back().first << ":" << php.layerRotV_.back().second;
+    if (coldBoxMode_) {
+      edm::LogVerbatim("HGCalGeom") << "Rot Layer[" << k << "] Type " << php.layerType_[k] << " cos|sin(Theta) "
+				    << php.layerRotV_[k].first << ":" << php.layerRotV_[k].second<<" "<< php.layerRotV_.size();
+    }
 #endif
   }
   for (unsigned int k = 0; k < waferIndex.size(); ++k) {
