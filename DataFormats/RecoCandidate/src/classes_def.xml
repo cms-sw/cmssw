@@ -7,7 +7,7 @@
    <version ClassVersion="3" checksum="2583659187"/>
   </class>
   <class name="reco::io_v1::RecoChargedRefCandidate"  ClassVersion="3">
-   <version ClassVersion="3" checksum="2706310913"/>
+   <version ClassVersion="3" checksum="1069615397"/>
   </class>
   <class name="reco::io_v1::RecoEcalCandidate"  ClassVersion="3">
    <version ClassVersion="3" checksum="2351437140"/>

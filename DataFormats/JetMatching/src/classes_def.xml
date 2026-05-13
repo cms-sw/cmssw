@@ -1,6 +1,6 @@
 <lcgdict>
-  <class name="reco::JetFlavourInfo" ClassVersion="3">
-   <version ClassVersion="3" checksum="2786652764"/>
+  <class name="reco::io_v1::JetFlavourInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="2503167498"/>
   </class>
   <class name="std::vector<reco::JetFlavourInfo>"/>
   <class name="std::pair<edm::RefToBase<reco::io_v1::Jet>, reco::JetFlavourInfo>"/>
@@ -9,7 +9,7 @@
     <field name="transientVector_" transient="true"/>
   </class>
   <class name="reco::io_v1::JetFlavourInfoMatchingCollection" ClassVersion="3">
-   <version ClassVersion="3" checksum="3071743479"/>
+   <version ClassVersion="3" checksum="3573636419"/>
     <!-- <field name="transientVector_" transient="true"/> -->
     <!-- <field name="fixed_" transient="true"/> -->
   </class>

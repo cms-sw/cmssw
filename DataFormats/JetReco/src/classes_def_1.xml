@@ -1,13 +1,13 @@
 <lcgdict>
   <class name="reco::io_v1::Jet" ClassVersion="3">
-   <version ClassVersion="3" checksum="718784871"/>
+   <version ClassVersion="3" checksum="545468239"/>
   </class>
   <class name="reco::io_v1::Jet::EtaPhiMoments" ClassVersion="3">
    <version ClassVersion="3" checksum="3852241398"/>
   </class>
 
   <class name="reco::io_v1::CaloJet" ClassVersion="3">
-   <version ClassVersion="3" checksum="1484483325"/>
+   <version ClassVersion="3" checksum="3607481829"/>
   </class>
   <class name="reco::io_v1::CaloJet::Specific" ClassVersion="3">
    <version ClassVersion="3" checksum="1704847273"/>
@@ -37,7 +37,7 @@
   <class name="edm::Wrapper<std::vector<reco::CaloJetRefVector> >"/>
 
   <class name="reco::io_v1::JPTJet" ClassVersion="3">
-   <version ClassVersion="3" checksum="2313687382"/>
+   <version ClassVersion="3" checksum="3981231870"/>
   </class>
   <class name="reco::io_v1::JPTJet::Specific" ClassVersion="3">
    <version ClassVersion="3" checksum="1084724008"/>
@@ -56,7 +56,7 @@
   <class name="edm::helpers::KeyVal<edm::RefProd<reco::JPTJetCollection>,edm::RefProd<std::vector<reco::Track> > >"/>
 
   <class name="reco::io_v1::PFJet" ClassVersion="3">
-   <version ClassVersion="3" checksum="988205209"/>
+   <version ClassVersion="3" checksum="2655749697"/>
   </class>
   <class name="reco::io_v1::PFJet::Specific" ClassVersion="3">
    <version ClassVersion="3" checksum="1839745193"/>
@@ -81,7 +81,7 @@
   <class name="edm::reftobase::RefVectorHolder<reco::PFJetRefVector>"/>
 
   <class name="reco::io_v1::GenJet" ClassVersion="3">
-   <version ClassVersion="3" checksum="2544745155"/>
+   <version ClassVersion="3" checksum="3252411323"/>
   </class>
   <class name="reco::io_v1::GenJet::Specific" ClassVersion="3">
    <version ClassVersion="3" checksum="477291414"/>
@@ -103,7 +103,7 @@
   <class name="edm::Wrapper<reco::GenJetFwdPtrVector>"/>
 
   <class name="reco::io_v1::BasicJet" ClassVersion="3">
-   <version ClassVersion="3" checksum="526930831"/>
+   <version ClassVersion="3" checksum="353614199"/>
   </class>
   <class name="std::vector<reco::io_v1::BasicJet>"/>
   <class name="edm::RefVector<std::vector<reco::io_v1::BasicJet>,reco::io_v1::BasicJet,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::BasicJet>,reco::io_v1::BasicJet> >"/>

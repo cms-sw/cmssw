@@ -9,7 +9,10 @@
 #include <vector>
 
 namespace reco {
-  class PFRecoTauChargedHadron;
+  namespace io_v1 {
+    class PFRecoTauChargedHadron;
+  }
+  using PFRecoTauChargedHadron = io_v1::PFRecoTauChargedHadron;
   /// collection of PFRecoTauChargedHadron objects
   typedef std::vector<PFRecoTauChargedHadron> PFRecoTauChargedHadronCollection;
   /// presistent reference to a PFRecoTauChargedHadron

@@ -1,7 +1,7 @@
 <lcgdict>
   
   <class name="reco::io_v1::PFTau" ClassVersion="3">
-   <version ClassVersion="3" checksum="3700826437"/>
+   <version ClassVersion="3" checksum="4187542055"/>
      <field name="leadPFChargedHadrCand_" transient="true"/>
      <field name="leadPFNeutralCand_" transient="true"/>
      <field name="leadPFCand_" transient="true"/>
@@ -114,7 +114,7 @@ isolationTauChargedHadronCandidates_.reset();
   <class name="edm::Wrapper<edm::Association<std::vector<reco::io_v1::PFTau> > >"/>
 
   <class name="reco::io_v1::RecoTauPiZero" ClassVersion="3">
-   <version ClassVersion="3" checksum="444545959"/>
+   <version ClassVersion="3" checksum="113324653"/>
   </class>
   <class name="std::vector<reco::io_v1::RecoTauPiZero>"/>
   <class name="edm::AtomicPtrCache<std::vector<reco::io_v1::RecoTauPiZero> >"/>
@@ -124,9 +124,9 @@ isolationTauChargedHadronCandidates_.reset();
   <class name="edm::Ref<std::vector<reco::io_v1::RecoTauPiZero>,reco::io_v1::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::RecoTauPiZero>,reco::io_v1::RecoTauPiZero> >"/>
   <class name="edm::RefProd<std::vector<reco::io_v1::RecoTauPiZero> >"/>
   <class name="edm::RefVector<std::vector<reco::io_v1::RecoTauPiZero>,reco::io_v1::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::RecoTauPiZero>,reco::io_v1::RecoTauPiZero> >"/>
-  <class name="edm::reftobase::Holder<reco::CompositePtrCandidate, edm::Ref<std::vector<reco::io_v1::RecoTauPiZero>,reco::io_v1::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::RecoTauPiZero>,reco::io_v1::RecoTauPiZero> > >" />
-  <class name="reco::PFRecoTauChargedHadron" ClassVersion="3">
-   <version ClassVersion="3" checksum="98882705"/>
+  <class name="edm::reftobase::Holder<reco::io_v1::CompositePtrCandidate, edm::Ref<std::vector<reco::io_v1::RecoTauPiZero>,reco::io_v1::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::RecoTauPiZero>,reco::io_v1::RecoTauPiZero> > >" />
+  <class name="reco::io_v1::PFRecoTauChargedHadron" ClassVersion="3">
+   <version ClassVersion="3" checksum="3337236259"/>
   </class>
   <class name="std::vector<reco::PFRecoTauChargedHadron>"/>
   <class name="edm::AtomicPtrCache<std::vector<reco::PFRecoTauChargedHadron> >"/>
@@ -136,7 +136,7 @@ isolationTauChargedHadronCandidates_.reset();
   <class name="edm::Ref<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> >"/>
   <class name="edm::RefProd<std::vector<reco::PFRecoTauChargedHadron> >"/>
   <class name="edm::RefVector<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> >"/>
-  <class name="edm::reftobase::Holder<reco::CompositePtrCandidate, edm::Ref<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> > >" />
+  <class name="edm::reftobase::Holder<reco::io_v1::CompositePtrCandidate, edm::Ref<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> > >" />
 
 
 

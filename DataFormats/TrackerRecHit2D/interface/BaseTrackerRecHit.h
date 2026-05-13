@@ -10,7 +10,7 @@
 //#define DO_INTERNAL_CHECKS_BTR
 //#define VI_DEBUG
 
-class OmniClusterRef;
+#include "DataFormats/TrackerRecHit2D/interface/OmniClusterRefFwd.h"
 
 namespace io_v1 {
   class BaseTrackerRecHit : public TrackingRecHit {

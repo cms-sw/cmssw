@@ -6,37 +6,37 @@
      <field name="err_" transient="true" />	 
    </class>	 
   <class name="io_v1::TrackerSingleRecHit" ClassVersion="3">
-   <version ClassVersion="3" checksum="2233339069"/>
+   <version ClassVersion="3" checksum="2049188155"/>
   </class>	 
 
-  <class name="OmniClusterRef"  ClassVersion="3">
-   <version ClassVersion="3" checksum="735211426"/>
+  <class name="io_v1::OmniClusterRef"  ClassVersion="3">
+   <version ClassVersion="3" checksum="2409258018"/>
   </class>
 
   <class name="SiStripRecHit1D"  ClassVersion="3">
-   <version ClassVersion="3" checksum="457821070"/>
+   <version ClassVersion="3" checksum="273670156"/>
     <field name="sigmaPitch_" transient="true"/>
   </class> 
 
   <class name="SiStripRecHit2D"  ClassVersion="3">
-   <version ClassVersion="3" checksum="2254457535"/>
+   <version ClassVersion="3" checksum="2070306621"/>
     <field name="sigmaPitch_" transient="true"/>
   </class>
 
 
   <class name="ProjectedSiStripRecHit2D" ClassVersion="3">
-   <version ClassVersion="3" checksum="2774452855"/>
+   <version ClassVersion="3" checksum="2590301941"/>
    <field name="theOriginalDet" transient="true" />
   </class>
   <class name="SiStripMatchedRecHit2D" ClassVersion="3">
-   <version ClassVersion="3" checksum="3009556865"/>
+   <version ClassVersion="3" checksum="335746927"/>
   </class>
   <class name="SiTrackerMultiRecHit" ClassVersion="3">
    <version ClassVersion="3" checksum="1899254770"/>
   </class>
 
   <class name="SiPixelRecHit" ClassVersion="3">
-   <version ClassVersion="3" checksum="3719400935"/>
+   <version ClassVersion="3" checksum="3535250021"/>
   </class>
 
   <class name="std::vector<std::unique_ptr<io_v1::BaseTrackerRecHit>>" persistent="false"/>
@@ -105,7 +105,7 @@
   // phase2 containers
 
   <class name="Phase2TrackerRecHit1D" ClassVersion="3">
-      <version ClassVersion="3" checksum="2054321903"/>
+      <version ClassVersion="3" checksum="1870170989"/>
   </class>
   <class name="std::vector< Phase2TrackerRecHit1D >"/>
   <class name="std::vector< edmNew::DetSet< Phase2TrackerRecHit1D > >"/>
@@ -117,14 +117,14 @@
   <class name="edm::Wrapper< Phase2TrackerRecHit1DCollectionNew >"/>
 
   <class name="io_v1::MTDTrackingRecHit" ClassVersion="3">
-    <version ClassVersion="3" checksum="3389713887"/>
+    <version ClassVersion="3" checksum="3205562973"/>
   </class>
 
   <class name="std::vector<io_v1::MTDTrackingRecHit>"/>
   <class name="MTDTrackingDetSetVector"/>
   <class name="edm::Wrapper< MTDTrackingDetSetVector >"/>
   <class name="VectorHit" ClassVersion="3">
-   <version ClassVersion="3" checksum="3550784686"/>
+   <version ClassVersion="3" checksum="1962500276"/>
   </class>
   <class name="VectorHit2D" ClassVersion="3">
    <version ClassVersion="3" checksum="86550371"/>

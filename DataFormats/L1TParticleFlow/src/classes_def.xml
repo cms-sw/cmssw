@@ -30,7 +30,7 @@
   <class name="edm::Wrapper<l1t::RegionalOutput<l1t::PFCandidateCollection>>" />
 
   <class name="l1t::io_v1::PFJet"  ClassVersion="3">
-        <version ClassVersion="3" checksum="3811042396"/>
+        <version ClassVersion="3" checksum="1164493406"/>
   </class>
   <class name="l1t::PFJetCollection" />
   <class name="edm::Wrapper<l1t::PFJetCollection>" />
