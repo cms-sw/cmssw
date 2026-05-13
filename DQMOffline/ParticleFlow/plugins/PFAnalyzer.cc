@@ -83,7 +83,17 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   m_funcMap["RawHCal_E"] = getRawHcalEnergy;
   m_funcMap["HO_E"] = getHOEnergy;
   m_funcMap["RawHO_E"] = getRawHOEnergy;
+
+  m_funcMap["RelECal_E"] = getRelEcalEnergy;
+  m_funcMap["RelRawECal_E"] = getRelRawEcalEnergy;
+  m_funcMap["RelHCal_E"] = getRelHcalEnergy;
+  m_funcMap["RelRawHCal_E"] = getRelRawHcalEnergy;
+  m_funcMap["RelHO_E"] = getRelHOEnergy;
+  m_funcMap["RelRawHO_E"] = getRelRawHOEnergy;
+
+
   m_funcMap["PFHad_calibration"] = getHadCalibration;
+  m_funcMap["CellsInBlock"] = getCellsInBlock;
 
   m_funcMap["MVAIsolated"] = getMVAIsolated;
   m_funcMap["MVAEPi"] = getMVAEPi;
@@ -99,7 +109,6 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   m_funcMap["DNNEBkgTauIsolated"] = getDNNEBkgTauIsolated;
   m_funcMap["DNNEBkgPhotonIsolated"] = getDNNEBkgPhotonIsolated;
 
-  m_funcMap["hcalE"] = getHCalEnergy;
   m_funcMap["eOverP"] = getEoverP;
   m_funcMap["nTrkInBlock"] = getNTracksInBlock;
 
@@ -129,17 +138,17 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   if (std::find(m_pfNames.begin(), m_pfNames.end(), "chargedHadPFC") != m_pfNames.end())
     m_particleTypeName[reco::PFCandidate::ParticleType::h] = "chargedHadPFC";
   if (std::find(m_pfNames.begin(), m_pfNames.end(), "neutralHadPFC") != m_pfNames.end())
-    m_particleTypeName[reco::PFCandidate::ParticleType::h] = "neutralHadPFC";
+    m_particleTypeName[reco::PFCandidate::ParticleType::h0] = "neutralHadPFC";
   if (std::find(m_pfNames.begin(), m_pfNames.end(), "electronPFC") != m_pfNames.end())
-    m_particleTypeName[reco::PFCandidate::ParticleType::h] = "electronPFC";
+    m_particleTypeName[reco::PFCandidate::ParticleType::e] = "electronPFC";
   if (std::find(m_pfNames.begin(), m_pfNames.end(), "muonPFC") != m_pfNames.end())
-    m_particleTypeName[reco::PFCandidate::ParticleType::h] = "muonPFC";
+    m_particleTypeName[reco::PFCandidate::ParticleType::mu] = "muonPFC";
   if (std::find(m_pfNames.begin(), m_pfNames.end(), "gammaPFC") != m_pfNames.end())
-    m_particleTypeName[reco::PFCandidate::ParticleType::h] = "gammaPFC";
+    m_particleTypeName[reco::PFCandidate::ParticleType::gamma] = "gammaPFC";
   if (std::find(m_pfNames.begin(), m_pfNames.end(), "hadHFPFC") != m_pfNames.end())
-    m_particleTypeName[reco::PFCandidate::ParticleType::h] = "hadHFPFC";
+    m_particleTypeName[reco::PFCandidate::ParticleType::h_HF] = "hadHFPFC";
   if (std::find(m_pfNames.begin(), m_pfNames.end(), "emHFPFC") != m_pfNames.end())
-    m_particleTypeName[reco::PFCandidate::ParticleType::h] = "emHFPFC";
+    m_particleTypeName[reco::PFCandidate::ParticleType::egamma_HF] = "emHFPFC";
 
   // Convert the cutList strings into real cuts that can be applied
   // The format should be three comma separated values
@@ -701,7 +710,6 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if (m_runNumber != 0 && iEvent.run() != m_runNumber) {
     return;
   }
-  //std::cout << iEvent.run() << std::endl;
 
   if (!vertexHandle.isValid()) {
     LogDebug("") << "PFAnalyzer: Could not find vertex collection" << std::endl;
@@ -939,7 +947,9 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                                         npvString.c_str());
             map_of_MEs[m_directory + "/PFCinJet/allPFC_jetMatched_" + histName]->Fill(
                 m_funcMap[m_observableNames[i]](recoPF, packedCand, cand, partType, puppiWeight), eventWeight);
+              //std::cout << recoPF.get()->particleId() << "\t" << pfConstits[iConstit]->particleId() << std::endl;;
             if (partType == 0 && m_particleTypeName.find(recoPF.get()->particleId()) != m_particleTypeName.end()) {
+              //std::cout << recoPF.get()->particleId() << "\t" <<  m_particleTypeName[recoPF.get()->particleId()] << std::endl;
               map_of_MEs[m_directory + "/PFCinJet/" + m_particleTypeName[recoPF.get()->particleId()] + "_jetMatched_" +
                          histName]
                   ->Fill(m_funcMap[m_observableNames[i]](recoPF, packedCand, cand, partType, puppiWeight), eventWeight);
