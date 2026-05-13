@@ -238,6 +238,67 @@ namespace {
     return summary;
   }
 
+  template <typename F>
+  void forEachDescendantParticle(truth::Graph const& g, uint32_t particleId, F&& f) {
+    if (particleId >= g.nParticles())
+      return;
+
+    for (const uint32_t vertexId : g.decayVertices(particleId)) {
+      if (vertexId >= g.nVertices())
+        continue;
+
+      for (const uint32_t childId : g.outgoingParticles(vertexId)) {
+        if (childId >= g.nParticles())
+          continue;
+
+        f(childId);
+        forEachDescendantParticle(g, childId, f);
+      }
+    }
+  }
+
+  bool hasVisibleIncomingParticle(truth::Graph const& g, uint32_t vertexId, std::vector<uint8_t> const& hideParticle) {
+    for (const uint32_t p : g.incomingParticles(vertexId)) {
+      if (p < hideParticle.size() && !hideParticle[p])
+        return true;
+    }
+
+    return false;
+  }
+
+  bool hasVisibleOutgoingParticle(truth::Graph const& g, uint32_t vertexId, std::vector<uint8_t> const& hideParticle) {
+    for (const uint32_t p : g.outgoingParticles(vertexId)) {
+      if (p < hideParticle.size() && !hideParticle[p])
+        return true;
+    }
+
+    return false;
+  }
+
+  bool shouldHideVertexAfterParticleFiltering(truth::Graph const& g,
+                                              uint32_t vertexId,
+                                              std::vector<uint8_t> const& hideParticle) {
+    const bool hasIncoming = !g.incomingParticles(vertexId).empty();
+    const bool hasOutgoing = !g.outgoingParticles(vertexId).empty();
+
+    const bool hasVisibleIncoming = hasVisibleIncomingParticle(g, vertexId, hideParticle);
+    const bool hasVisibleOutgoing = hasVisibleOutgoingParticle(g, vertexId, hideParticle);
+
+    // Hide vertices fully disconnected by the particle filter.
+    if (!hasVisibleIncoming && !hasVisibleOutgoing)
+      return true;
+
+    // Hide decay vertices that no longer have visible daughters.
+    if (hasOutgoing && !hasVisibleOutgoing)
+      return true;
+
+    // Hide production/source vertices that no longer have visible outgoing particles.
+    if (!hasIncoming && hasOutgoing && !hasVisibleOutgoing)
+      return true;
+
+    return false;
+  }
+
   std::string appendEventIdToFilename(std::string const& filename, edm::EventID const& id) {
     const auto dotPos = filename.rfind('.');
 
@@ -275,7 +336,8 @@ public:
         maxVertices_(cfg.getParameter<unsigned>("maxVertices")),
         maxEdgesPerNode_(cfg.getParameter<unsigned>("maxEdgesPerNode")),
         hideLargeSimSourceVertices_(cfg.getParameter<bool>("hideLargeSimSourceVertices")),
-        largeSimSourceVertexMinOutgoing_(cfg.getParameter<unsigned>("largeSimSourceVertexMinOutgoing")) {
+        largeSimSourceVertexMinOutgoing_(cfg.getParameter<unsigned>("largeSimSourceVertexMinOutgoing")),
+        hideZeroSimHitSubgraphs_(cfg.getParameter<bool>("hideZeroSimHitSubgraphs")) {
     const auto hgcalRecHitTags = cfg.getParameter<std::vector<edm::InputTag>>("hgcalRecHits");
     hgcalRecHitTags_.reserve(hgcalRecHitTags.size());
     hgcalRecHitTokens_.reserve(hgcalRecHitTags.size());
@@ -330,6 +392,11 @@ public:
     desc.add<unsigned>("largeSimSourceVertexMinOutgoing", 50)
         ->setComment("Minimum outgoing multiplicity for hiding a SIM-only source vertex");
 
+    desc.add<bool>("hideZeroSimHitSubgraphs", false)
+        ->setComment(
+            "If true, hide every SIM-backed particle whose subgraph has zero SimHits, together with its descendant "
+            "subgraph. Requires hitIndex to be configured.");
+
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -375,10 +442,52 @@ public:
       }
     }
 
+    std::vector<uint8_t> hideParticle(nParticles, 0);
+
+    if (hideZeroSimHitSubgraphs_) {
+      if (hitIndex == nullptr) {
+        edm::LogWarning("TruthLogicalGraphDumper")
+            << "hideZeroSimHitSubgraphs is enabled, but no valid LogicalGraphHitIndex was provided. "
+            << "No zero-hit subgraphs will be hidden.";
+      } else {
+        for (uint32_t i = 0; i < nParticles; ++i) {
+          auto const& d = g.particle(i).data();
+
+          if (!d.hasSim())
+            continue;
+
+          if (i >= hitIndex->nParticles())
+            continue;
+
+          if (!hitIndex->subgraphHits(i).empty())
+            continue;
+
+          hideParticle[i] = 1;
+
+          forEachDescendantParticle(g, i, [&](uint32_t childId) {
+            if (childId < hideParticle.size())
+              hideParticle[childId] = 1;
+          });
+        }
+      }
+    }
+
+    for (uint32_t i = 0; i < nVertices; ++i) {
+      if (hideVertex[i])
+        continue;
+
+      if (shouldHideVertexAfterParticleFiltering(g, i, hideParticle)) {
+        hideVertex[i] = 1;
+      }
+    }
+
     // ------------------------------------------------------------------
     // Particle nodes
     // ------------------------------------------------------------------
     for (uint32_t i = 0; i < nParticles; ++i) {
+      if (hideParticle[i])
+        continue;
+
       auto p = g.particle(i);
       auto const& d = p.data();
 
@@ -550,6 +659,9 @@ public:
     // Edges: physics-forward only
     // ------------------------------------------------------------------
     for (uint32_t i = 0; i < nParticles; ++i) {
+      if (hideParticle[i])
+        continue;
+
       unsigned kept = 0;
 
       for (uint32_t v : g.decayVertices(i)) {
@@ -574,6 +686,9 @@ public:
 
       for (uint32_t p : g.outgoingParticles(i)) {
         if (p >= nParticles)
+          continue;
+
+        if (hideParticle[p])
           continue;
 
         os << "  v" << i << " -> p" << p << ";\n";
@@ -646,6 +761,7 @@ private:
   unsigned maxEdgesPerNode_;
   bool hideLargeSimSourceVertices_;
   unsigned largeSimSourceVertexMinOutgoing_;
+  bool hideZeroSimHitSubgraphs_;
 };
 
 DEFINE_FWK_MODULE(TruthLogicalGraphDumper);
