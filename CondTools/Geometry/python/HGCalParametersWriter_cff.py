@@ -8,7 +8,7 @@ dd4hep.toModify(HGCalEEParametersWriter,
                 fromDD4hep = cms.bool(True)
 )
 
-from Configuration.ProcessModifiers.hgcalColdBox_cff.py import hgcalColdBox
+from Configuration.ProcessModifiers.hgcalColdBox_cff import hgcalColdBox
 
 hgcalColdBox.toModify(HGCalEEParametersWriter,
                       coldBoxMode = True

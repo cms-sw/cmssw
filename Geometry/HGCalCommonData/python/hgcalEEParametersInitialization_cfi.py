@@ -18,8 +18,8 @@ dd4hep.toModify(hgcalEEParametersInitialize,
                 fromDD4hep = True
 )
 
-# from Configuration.ProcessModifiers.hgcalColdBox_cff.py import hgcalColdBox
-# 
-# hgcalColdBox.toModify(hgcalEEParametersInitialize,
-#                       coldBoxMode = True
-# )
+from Configuration.ProcessModifiers.hgcalColdBox_cff import hgcalColdBox
+
+hgcalColdBox.toModify(hgcalEEParametersInitialize,
+                      coldBoxMode = True
+)
