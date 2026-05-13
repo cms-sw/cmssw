@@ -5237,6 +5237,14 @@ for step in upgradeStepDict.keys():
                         #    else: #For FastSim to recycle GEN
                         #        steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN'%(baseDataSetReleaseBetter[s],),location='STD')}
                         # end COMMENT: reads old format file
+                        # this condition is checked here to avoid skipping the creation of default steps for other fragments
+                        if 'HybridPU' in step:
+                            # minbias fastsim for PU mixing
+                            if not 'MinBias_14TeV' in frag:
+                                continue
+                            stepKey = 'HYBRID_'+key+'_'+step
+                            howMuch = Kby(100,100)
+                            steps[stepKey]=merge([ {'--evt_type':frag},howMuch,upgradeStepDict[step][key]])
     else:
         for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
             k=step+'_'+key

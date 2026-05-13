@@ -96,12 +96,11 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
       ignoreTime_(ps.getParameter<bool>("ignoreGeantTime")),
       injectTestHits_(ps.getParameter<bool>("injectTestHits")),
       hitsProducer_(ps.getParameter<std::string>("hitsProducer")),
+      hitsProducerPU_(ps.getParameter<std::string>("hitsProducerPU")),
       theHOSiPMCode(ps.getParameter<edm::ParameterSet>("ho").getParameter<int>("siPMCode")),
       deliveredLumi(0.),
       agingFlagHB(ps.getParameter<bool>("HBDarkening")),
       agingFlagHE(ps.getParameter<bool>("HEDarkening")),
-      zdcToken_(iC.consumes(edm::InputTag(hitsProducer_, "ZDCHITS"))),
-      hcalToken_(iC.consumes(edm::InputTag(hitsProducer_, "HcalHits"))),
       m_HBDarkening(nullptr),
       m_HEDarkening(nullptr),
       m_HFRecalibration(nullptr),
@@ -118,6 +117,9 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
     mcParamsToken_ = iC.esConsumes();
   }
 
+  // Get the tokens for signal
+  zdcToken_ = iC.consumes<std::vector<PCaloHit>>(edm::InputTag(hitsProducer_, "ZDCHITS"));
+  hcalToken_ = iC.consumes<std::vector<PCaloHit>>(edm::InputTag(hitsProducer_, "HcalHits"));
   bool doNoise = ps.getParameter<bool>("doNoise");
 
   bool PreMix1 = ps.getParameter<bool>("HcalPreMixStage1");  // special threshold/pedestal treatment
@@ -216,10 +218,12 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
   edm::LogVerbatim("HcalDigitizer") << "iszDC: " << isZDC << " theZDCDigitizer: " << theZDCDigitizer;
 
   testNumbering_ = ps.getParameter<bool>("TestNumbering");
+  testNumberingPU_ = ps.getParameter<bool>("TestNumberingPU");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalSim") << "Flag to see if Hit Relabeller to be initiated " << testNumbering_;
+  edm::LogVerbatim("HcalSim") << "Flag to see if Hit Relabeller to be initiated " << testNumbering_ << ":"
+                              << testNumberingPU_;
 #endif
-  if (testNumbering_)
+  if (testNumbering_ || testNumberingPU_)
     theRelabeller = std::make_unique<HcalHitRelabeller>(ps.getParameter<bool>("doNeutralDensityFilter"));
 
   if (ps.getParameter<bool>("doIonFeedback") && theHBHEResponse) {
@@ -359,7 +363,8 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const 
                                        int bunchCrossing,
                                        CLHEP::HepRandomEngine *engine,
                                        const HcalTopology *htopoP,
-                                       const ZdcTopology *ztopoP) {
+                                       const ZdcTopology *ztopoP,
+                                       bool signal) {
   // Step A: pass in inputs, and accumulate digis
   if (isHCAL) {
     std::vector<PCaloHit> hcalHitsOrig = *hcalHandle.product();
@@ -369,12 +374,12 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const 
     hcalHits.reserve(hcalHitsOrig.size());
 
     // evaluate darkening before relabeling
-    if (testNumbering_) {
+    if ((signal && testNumbering_) || ((!signal) && testNumberingPU_)) {
       if (m_HBDarkening || m_HEDarkening || m_HFRecalibration) {
         darkening(hcalHitsOrig);
       }
       // Relabel PCaloHits if necessary
-      edm::LogVerbatim("HcalDigitizer") << "Calling Relabeller";
+      edm::LogVerbatim("HcalDigitizer") << "Calling Relabeller for signal " << signal;
       theRelabeller->process(hcalHitsOrig);
     }
 
@@ -468,19 +473,22 @@ void HcalDigitizer::accumulate(edm::Event const &e, edm::EventSetup const &event
   const HcalTopology *htopoP = &eventSetup.getData(topoToken_);
   const ZdcTopology *ztopoP = &eventSetup.getData(topoZToken_);
 
-  accumulateCaloHits(hcalHandle, zdcHandle, 0, engine, htopoP, ztopoP);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalDigitizer") << "Accumulate Signal Hits with Tag " << hitsProducer_;
+#endif
+  accumulateCaloHits(hcalHandle, zdcHandle, 0, engine, htopoP, ztopoP, true);
 }
 
 void HcalDigitizer::accumulate(PileUpEventPrincipal const &e,
                                edm::EventSetup const &eventSetup,
                                CLHEP::HepRandomEngine *engine) {
   // Step A: Get Inputs
-  edm::InputTag zdcTag(hitsProducer_, "ZDCHITS");
+  edm::InputTag zdcTag(hitsProducerPU_, "ZDCHITS");
   edm::Handle<std::vector<PCaloHit>> zdcHandle;
   e.getByLabel(zdcTag, zdcHandle);
   isZDC = zdcHandle.isValid();
 
-  edm::InputTag hcalTag(hitsProducer_, "HcalHits");
+  edm::InputTag hcalTag(hitsProducerPU_, "HcalHits");
   edm::Handle<std::vector<PCaloHit>> hcalHandle;
   e.getByLabel(hcalTag, hcalHandle);
   isHCAL = hcalHandle.isValid();
@@ -488,23 +496,24 @@ void HcalDigitizer::accumulate(PileUpEventPrincipal const &e,
   const HcalTopology *htopoP = &eventSetup.getData(topoToken_);
   const ZdcTopology *ztopoP = &eventSetup.getData(topoZToken_);
 
-  accumulateCaloHits(hcalHandle, zdcHandle, e.bunchCrossing(), engine, htopoP, ztopoP);
+  accumulateCaloHits(hcalHandle, zdcHandle, e.bunchCrossing(), engine, htopoP, ztopoP, false);
 }
 
 void HcalDigitizer::finalizeEvent(edm::Event &e, const edm::EventSetup &eventSetup, CLHEP::HepRandomEngine *engine) {
   // Step B: Create empty output
-  std::unique_ptr<HBHEDigiCollection> hbheResult(new HBHEDigiCollection());
-  std::unique_ptr<HODigiCollection> hoResult(new HODigiCollection());
-  std::unique_ptr<HFDigiCollection> hfResult(new HFDigiCollection());
-  std::unique_ptr<ZDCDigiCollection> zdcResult(new ZDCDigiCollection());
-  std::unique_ptr<QIE10DigiCollection> hfQIE10Result(new QIE10DigiCollection(
+  auto hbheResult = std::make_unique<HBHEDigiCollection>();
+  auto hoResult = std::make_unique<HODigiCollection>();
+  auto hfResult = std::make_unique<HFDigiCollection>();
+  auto zdcResult = std::make_unique<ZDCDigiCollection>();
+
+  auto hfQIE10Result = std::make_unique<QIE10DigiCollection>(
       !theHFQIE10DetIds.empty() ? theHFQIE10Response.get()->getReadoutFrameSize(theHFQIE10DetIds[0])
-                                : QIE10DigiCollection::MAXSAMPLES));
-  std::unique_ptr<QIE11DigiCollection> hbheQIE11Result(new QIE11DigiCollection(
+                                : QIE10DigiCollection::MAXSAMPLES);
+  auto hbheQIE11Result = std::make_unique<QIE11DigiCollection>(
       !theHBHEQIE11DetIds.empty() ? theHBHESiPMResponse.get()->getReadoutFrameSize(theHBHEQIE11DetIds[0]) :
                                   //      theParameterMap->simParameters(theHBHEQIE11DetIds[0]).readoutFrameSize()
           //      :
-          QIE11DigiCollection::MAXSAMPLES));
+          QIE11DigiCollection::MAXSAMPLES);
 
   // Step C: Invoke the algorithm, getting back outputs.
   if (isHCAL && hbhegeo) {
@@ -545,7 +554,7 @@ void HcalDigitizer::finalizeEvent(edm::Event &e, const edm::EventSetup &eventSet
   e.put(std::move(hbheQIE11Result), "HBHEQIE11DigiCollection");
 
   if (debugCS_) {
-    std::unique_ptr<CaloSamplesCollection> csResult(new CaloSamplesCollection());
+    auto csResult = std::make_unique<CaloSamplesCollection>();
     // smush together all the results
     if (theHBHEDigitizer)
       csResult->insert(
@@ -573,7 +582,7 @@ void HcalDigitizer::finalizeEvent(edm::Event &e, const edm::EventSetup &eventSet
   }
 
   if (injectTestHits_) {
-    std::unique_ptr<edm::PCaloHitContainer> pcResult(new edm::PCaloHitContainer());
+    auto pcResult = std::make_unique<edm::PCaloHitContainer>();
     pcResult->insert(pcResult->end(), injectedHits_.begin(), injectedHits_.end());
     e.put(std::move(pcResult), "HcalHits");
   }

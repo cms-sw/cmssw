@@ -41,6 +41,7 @@ void SeedGeneratorFromProtoTracksEDProducer::fillDescriptions(edm::Configuration
   desc.add<double>("originHalfLength", 1E9);
   desc.add<double>("originRadius", 1E9);
   desc.add<bool>("useProtoTrackKinematics", false);
+  desc.add<bool>("sortAndFilterProtoTracks", false);
   desc.add<bool>("useEventsWithNoVertex", true);
   desc.add<std::string>("TTRHBuilder", "TTRHBuilderWithoutAngle4PixelTriplets");
   desc.add<bool>("usePV", false);
@@ -66,6 +67,7 @@ SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(c
     : originHalfLength(cfg.getParameter<double>("originHalfLength")),
       originRadius(cfg.getParameter<double>("originRadius")),
       useProtoTrackKinematics(cfg.getParameter<bool>("useProtoTrackKinematics")),
+      sortAndFilterProtoTracks_(cfg.getParameter<bool>("sortAndFilterProtoTracks")),
       useEventsWithNoVertex(cfg.getParameter<bool>("useEventsWithNoVertex")),
       usePV_(cfg.getParameter<bool>("usePV")),
       removeOTRechits_(cfg.getParameter<bool>("removeOTRechits")),
@@ -131,9 +133,47 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
       continue;
 
     if (useProtoTrackKinematics) {
-      SeedFromProtoTrack seedFromProtoTrack(config_, proto, es);
-      if (seedFromProtoTrack.isValid())
-        (*result).push_back(seedFromProtoTrack.trajectorySeed());
+      if (removeOTRechits_) {
+        std::vector<Hit> hits;
+        for (unsigned int iHit = 0, nHits = proto.recHitsSize(); iHit < nHits; ++iHit) {
+          TrackingRecHitRef refHit = proto.recHit(iHit);
+          if (refHit->isValid())
+            hits.push_back((Hit) & (*refHit));
+        }
+        sort(hits.begin(), hits.end(), HitLessByRadius());
+        hits.erase(std::remove_if(hits.begin(),
+                                  hits.end(),
+                                  [](const Hit& hit) {
+                                    unsigned int subdetId = hit->geographicalId().subdetId();
+                                    return subdetId != PixelSubdetector::PixelBarrel &&
+                                           subdetId != PixelSubdetector::PixelEndcap;
+                                  }),
+                   hits.end());
+        if (hits.size() > 2) {
+          SeedFromProtoTrack seedFromProtoTrack(config_, proto, SeedingHitSet(hits), es);
+          if (seedFromProtoTrack.isValid())
+            (*result).push_back(seedFromProtoTrack.trajectorySeed());
+        }
+      } else {
+        if (sortAndFilterProtoTracks_) {
+          std::vector<Hit> hits;
+          for (unsigned int iHit = 0, nHits = proto.recHitsSize(); iHit < nHits; ++iHit) {
+            TrackingRecHitRef refHit = proto.recHit(iHit);
+            if (refHit->isValid())
+              hits.push_back((Hit) & (*refHit));
+          }
+          sort(hits.begin(), hits.end(), HitLessByRadius());
+          if (hits.size() > 2) {
+            SeedFromProtoTrack seedFromProtoTrack(config_, proto, SeedingHitSet(hits), es);
+            if (seedFromProtoTrack.isValid())
+              (*result).push_back(seedFromProtoTrack.trajectorySeed());
+          }
+        } else {
+          SeedFromProtoTrack seedFromProtoTrack(config_, proto, es);
+          if (seedFromProtoTrack.isValid())
+            (*result).push_back(seedFromProtoTrack.trajectorySeed());
+        }
+      }
     } else {
       std::vector<Hit> hits;
       for (unsigned int iHit = 0, nHits = proto.recHitsSize(); iHit < nHits; ++iHit) {
