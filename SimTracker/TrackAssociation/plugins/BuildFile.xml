@@ -2,10 +2,13 @@
 <use name="FWCore/ParameterSet"/>
 <use name="SimTracker/TrackAssociation"/>
 <use name="DataFormats/TrackReco"/>
+<use name="DataFormats/NanoAOD"/>
+<use name="SimDataFormats/Associations"/>
 <use name="SimDataFormats/TrackerDigiSimLink"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
 <use name="TrackingTools/Records"/>
 <use name="TrackingTools/TransientTrack"/>
+<use name="PhysicsTools/NanoAOD"/>
 <use name="PhysicsTools/HepMCCandAlgos"/>
 <library name="SimTrackerTrackAssociation_plugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
