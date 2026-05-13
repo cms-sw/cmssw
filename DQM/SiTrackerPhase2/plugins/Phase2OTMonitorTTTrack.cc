@@ -36,6 +36,7 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
 
 class Phase2OTMonitorTTTrack : public DQMEDAnalyzer {
 public:
@@ -234,574 +235,105 @@ void Phase2OTMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::EventS
 void Phase2OTMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
                                             edm::Run const &run,
                                             edm::EventSetup const &es) {
-  std::string HistoName;
+  using namespace phase2tkutil;
 
-  /// Low-quality tracks (All tracks, including HQ tracks)
   iBooker.setCurrentFolder(topFolderName_ + "/Tracks/All");
-  // Nb of L1Tracks
-  HistoName = "Track_All_N";
-  edm::ParameterSet psTrack_N = conf_.getParameter<edm::ParameterSet>("TH1_NTracks");
-  Track_All_N = iBooker.book1D(HistoName,
-                               HistoName,
-                               psTrack_N.getParameter<int32_t>("Nbinsx"),
-                               psTrack_N.getParameter<double>("xmin"),
-                               psTrack_N.getParameter<double>("xmax"));
-  Track_All_N->setAxisTitle("# L1 Tracks", 1);
-  Track_All_N->setAxisTitle("# Events", 2);
+  Track_All_N                = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_N"),                iBooker);
+  Track_All_NStubs           = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_NStubs"),           iBooker);
+  Track_All_NLayersMissed    = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_NLayersMissed"),    iBooker);
+  Track_All_Eta_NStubs       = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Eta_NStubs"),       iBooker);
+  Track_All_Pt               = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Pt"),               iBooker);
+  Track_All_Phi              = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Phi"),              iBooker);
+  Track_All_D0               = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_D0"),               iBooker);
+  Track_All_Eta              = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Eta"),              iBooker);
+  Track_All_VtxZ             = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_VtxZ"),             iBooker);
+  Track_All_Chi2             = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2"),             iBooker);
+  Track_All_Chi2RZ           = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2RZ"),           iBooker);
+  Track_All_Chi2RPhi         = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2RPhi"),         iBooker);
+  Track_All_BendChi2         = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_BendChi2"),         iBooker);
+  Track_All_Chi2Red          = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2Red"),          iBooker);
+  Track_All_Chi2_Probability = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2_Probability"), iBooker);
+  Track_All_MVA1             = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_MVA1"),             iBooker);
+  Track_All_Chi2Red_NStubs   = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2Red_NStubs"),   iBooker);
+  Track_All_Chi2Red_Eta      = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2Red_Eta"),      iBooker);
+  Track_All_Eta_BarrelStubs  = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Eta_BarrelStubs"),  iBooker);
+  Track_All_Eta_ECStubs      = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Eta_ECStubs"),      iBooker);
 
-  // Number of stubs
-  edm::ParameterSet psTrack_NStubs = conf_.getParameter<edm::ParameterSet>("TH1_NStubs");
-  HistoName = "Track_All_NStubs";
-  Track_All_NStubs = iBooker.book1D(HistoName,
-                                    HistoName,
-                                    psTrack_NStubs.getParameter<int32_t>("Nbinsx"),
-                                    psTrack_NStubs.getParameter<double>("xmin"),
-                                    psTrack_NStubs.getParameter<double>("xmax"));
-  Track_All_NStubs->setAxisTitle("# L1 Stubs per L1 Track", 1);
-  Track_All_NStubs->setAxisTitle("# L1 Tracks", 2);
-
-  // Number of layers missed
-  HistoName = "Track_All_NLayersMissed";
-  Track_All_NLayersMissed = iBooker.book1D(HistoName,
-                                           HistoName,
-                                           psTrack_NStubs.getParameter<int32_t>("Nbinsx"),
-                                           psTrack_NStubs.getParameter<double>("xmin"),
-                                           psTrack_NStubs.getParameter<double>("xmax"));
-  Track_All_NLayersMissed->setAxisTitle("# Layers missed", 1);
-  Track_All_NLayersMissed->setAxisTitle("# L1 Tracks", 2);
-
-  edm::ParameterSet psTrack_Eta_NStubs = conf_.getParameter<edm::ParameterSet>("TH2_Track_Eta_NStubs");
-  HistoName = "Track_All_Eta_NStubs";
-  Track_All_Eta_NStubs = iBooker.book2D(HistoName,
-                                        HistoName,
-                                        psTrack_Eta_NStubs.getParameter<int32_t>("Nbinsx"),
-                                        psTrack_Eta_NStubs.getParameter<double>("xmin"),
-                                        psTrack_Eta_NStubs.getParameter<double>("xmax"),
-                                        psTrack_Eta_NStubs.getParameter<int32_t>("Nbinsy"),
-                                        psTrack_Eta_NStubs.getParameter<double>("ymin"),
-                                        psTrack_Eta_NStubs.getParameter<double>("ymax"));
-  Track_All_Eta_NStubs->setAxisTitle("#eta", 1);
-  Track_All_Eta_NStubs->setAxisTitle("# L1 Stubs", 2);
-
-  // Pt of the tracks
-  edm::ParameterSet psTrack_Pt = conf_.getParameter<edm::ParameterSet>("TH1_Track_Pt");
-  HistoName = "Track_All_Pt";
-  Track_All_Pt = iBooker.book1D(HistoName,
-                                HistoName,
-                                psTrack_Pt.getParameter<int32_t>("Nbinsx"),
-                                psTrack_Pt.getParameter<double>("xmin"),
-                                psTrack_Pt.getParameter<double>("xmax"));
-  Track_All_Pt->setAxisTitle("p_{T} [GeV]", 1);
-  Track_All_Pt->setAxisTitle("# L1 Tracks", 2);
-
-  // Phi
-  edm::ParameterSet psTrack_Phi = conf_.getParameter<edm::ParameterSet>("TH1_Track_Phi");
-  HistoName = "Track_All_Phi";
-  Track_All_Phi = iBooker.book1D(HistoName,
-                                 HistoName,
-                                 psTrack_Phi.getParameter<int32_t>("Nbinsx"),
-                                 psTrack_Phi.getParameter<double>("xmin"),
-                                 psTrack_Phi.getParameter<double>("xmax"));
-  Track_All_Phi->setAxisTitle("#phi", 1);
-  Track_All_Phi->setAxisTitle("# L1 Tracks", 2);
-
-  // D0
-  edm::ParameterSet psTrack_D0 = conf_.getParameter<edm::ParameterSet>("TH1_Track_D0");
-  HistoName = "Track_All_D0";
-  Track_All_D0 = iBooker.book1D(HistoName,
-                                HistoName,
-                                psTrack_D0.getParameter<int32_t>("Nbinsx"),
-                                psTrack_D0.getParameter<double>("xmin"),
-                                psTrack_D0.getParameter<double>("xmax"));
-  Track_All_D0->setAxisTitle("Track D0", 1);
-  Track_All_D0->setAxisTitle("# L1 Tracks", 2);
-
-  // Eta
-  edm::ParameterSet psTrack_Eta = conf_.getParameter<edm::ParameterSet>("TH1_Track_Eta");
-  HistoName = "Track_All_Eta";
-  Track_All_Eta = iBooker.book1D(HistoName,
-                                 HistoName,
-                                 psTrack_Eta.getParameter<int32_t>("Nbinsx"),
-                                 psTrack_Eta.getParameter<double>("xmin"),
-                                 psTrack_Eta.getParameter<double>("xmax"));
-  Track_All_Eta->setAxisTitle("#eta", 1);
-  Track_All_Eta->setAxisTitle("# L1 Tracks", 2);
-
-  // VtxZ
-  edm::ParameterSet psTrack_VtxZ = conf_.getParameter<edm::ParameterSet>("TH1_Track_VtxZ");
-  HistoName = "Track_All_VtxZ";
-  Track_All_VtxZ = iBooker.book1D(HistoName,
-                                  HistoName,
-                                  psTrack_VtxZ.getParameter<int32_t>("Nbinsx"),
-                                  psTrack_VtxZ.getParameter<double>("xmin"),
-                                  psTrack_VtxZ.getParameter<double>("xmax"));
-  Track_All_VtxZ->setAxisTitle("L1 Track vertex position z [cm]", 1);
-  Track_All_VtxZ->setAxisTitle("# L1 Tracks", 2);
-
-  // chi2
-  edm::ParameterSet psTrack_Chi2 = conf_.getParameter<edm::ParameterSet>("TH1_Track_Chi2");
-  HistoName = "Track_All_Chi2";
-  Track_All_Chi2 = iBooker.book1D(HistoName,
-                                  HistoName,
-                                  psTrack_Chi2.getParameter<int32_t>("Nbinsx"),
-                                  psTrack_Chi2.getParameter<double>("xmin"),
-                                  psTrack_Chi2.getParameter<double>("xmax"));
-  Track_All_Chi2->setAxisTitle("L1 Track #chi^{2}", 1);
-  Track_All_Chi2->setAxisTitle("# L1 Tracks", 2);
-
-  // chi2 r-z
-  HistoName = "Track_All_Chi2RZ";
-  Track_All_Chi2RZ = iBooker.book1D(HistoName,
-                                    HistoName,
-                                    psTrack_Chi2.getParameter<int32_t>("Nbinsx"),
-                                    psTrack_Chi2.getParameter<double>("xmin"),
-                                    psTrack_Chi2.getParameter<double>("xmax"));
-  Track_All_Chi2RZ->setAxisTitle("L1 Track #chi^{2} r-z", 1);
-  Track_All_Chi2RZ->setAxisTitle("# L1 Tracks", 2);
-
-  // chi2 r-phi
-  HistoName = "Track_All_Chi2RPhi";
-  Track_All_Chi2RPhi = iBooker.book1D(HistoName,
-                                      HistoName,
-                                      psTrack_Chi2.getParameter<int32_t>("Nbinsx"),
-                                      psTrack_Chi2.getParameter<double>("xmin"),
-                                      psTrack_Chi2.getParameter<double>("xmax"));
-  Track_All_Chi2RPhi->setAxisTitle("L1 Track #chi^{2}", 1);
-  Track_All_Chi2RPhi->setAxisTitle("# L1 Tracks", 2);
-
-  // Bendchi2
-  edm::ParameterSet psTrack_Chi2R = conf_.getParameter<edm::ParameterSet>("TH1_Track_Chi2R");
-  HistoName = "Track_All_BendChi2";
-  Track_All_BendChi2 = iBooker.book1D(HistoName,
-                                      HistoName,
-                                      psTrack_Chi2R.getParameter<int32_t>("Nbinsx"),
-                                      psTrack_Chi2R.getParameter<double>("xmin"),
-                                      psTrack_Chi2R.getParameter<double>("xmax"));
-  Track_All_BendChi2->setAxisTitle("L1 Track Bend #chi^{2}", 1);
-  Track_All_BendChi2->setAxisTitle("# L1 Tracks", 2);
-
-  // chi2Red
-  edm::ParameterSet psTrack_Chi2Red = conf_.getParameter<edm::ParameterSet>("TH1_Track_Chi2R");
-  HistoName = "Track_All_Chi2Red";
-  Track_All_Chi2Red = iBooker.book1D(HistoName,
-                                     HistoName,
-                                     psTrack_Chi2R.getParameter<int32_t>("Nbinsx"),
-                                     psTrack_Chi2R.getParameter<double>("xmin"),
-                                     psTrack_Chi2R.getParameter<double>("xmax"));
-  Track_All_Chi2Red->setAxisTitle("L1 Track #chi^{2}/ndf", 1);
-  Track_All_Chi2Red->setAxisTitle("# L1 Tracks", 2);
-
-  // Chi2 prob
-  edm::ParameterSet psTrack_Chi2_Probability = conf_.getParameter<edm::ParameterSet>("TH1_Track_Chi2_Probability");
-  HistoName = "Track_All_Chi2_Probability";
-  Track_All_Chi2_Probability = iBooker.book1D(HistoName,
-                                              HistoName,
-                                              psTrack_Chi2_Probability.getParameter<int32_t>("Nbinsx"),
-                                              psTrack_Chi2_Probability.getParameter<double>("xmin"),
-                                              psTrack_Chi2_Probability.getParameter<double>("xmax"));
-  Track_All_Chi2_Probability->setAxisTitle("#chi^{2} probability", 1);
-  Track_All_Chi2_Probability->setAxisTitle("# L1 Tracks", 2);
-
-  // MVA1 (prompt quality)
-  edm::ParameterSet psTrack_MVA1 = conf_.getParameter<edm::ParameterSet>("TH1_Track_MVA1");
-  HistoName = "Track_All_MVA1";
-  Track_All_MVA1 = iBooker.book1D(HistoName,
-                                  HistoName,
-                                  psTrack_MVA1.getParameter<int32_t>("Nbinsx"),
-                                  psTrack_MVA1.getParameter<double>("xmin"),
-                                  psTrack_MVA1.getParameter<double>("xmax"));
-  Track_All_MVA1->setAxisTitle("MVA1", 1);
-  Track_All_MVA1->setAxisTitle("# L1 Tracks", 2);
-
-  // Reduced chi2 vs #stubs
-  edm::ParameterSet psTrack_Chi2R_NStubs = conf_.getParameter<edm::ParameterSet>("TH2_Track_Chi2R_NStubs");
-  HistoName = "Track_All_Chi2Red_NStubs";
-  Track_All_Chi2Red_NStubs = iBooker.book2D(HistoName,
-                                            HistoName,
-                                            psTrack_Chi2R_NStubs.getParameter<int32_t>("Nbinsx"),
-                                            psTrack_Chi2R_NStubs.getParameter<double>("xmin"),
-                                            psTrack_Chi2R_NStubs.getParameter<double>("xmax"),
-                                            psTrack_Chi2R_NStubs.getParameter<int32_t>("Nbinsy"),
-                                            psTrack_Chi2R_NStubs.getParameter<double>("ymin"),
-                                            psTrack_Chi2R_NStubs.getParameter<double>("ymax"));
-  Track_All_Chi2Red_NStubs->setAxisTitle("# L1 Stubs", 1);
-  Track_All_Chi2Red_NStubs->setAxisTitle("L1 Track #chi^{2}/ndf", 2);
-
-  // chi2/dof vs eta
-  edm::ParameterSet psTrack_Chi2R_Eta = conf_.getParameter<edm::ParameterSet>("TH2_Track_Chi2R_Eta");
-  HistoName = "Track_All_Chi2Red_Eta";
-  Track_All_Chi2Red_Eta = iBooker.book2D(HistoName,
-                                         HistoName,
-                                         psTrack_Chi2R_Eta.getParameter<int32_t>("Nbinsx"),
-                                         psTrack_Chi2R_Eta.getParameter<double>("xmin"),
-                                         psTrack_Chi2R_Eta.getParameter<double>("xmax"),
-                                         psTrack_Chi2R_Eta.getParameter<int32_t>("Nbinsy"),
-                                         psTrack_Chi2R_Eta.getParameter<double>("ymin"),
-                                         psTrack_Chi2R_Eta.getParameter<double>("ymax"));
-  Track_All_Chi2Red_Eta->setAxisTitle("#eta", 1);
-  Track_All_Chi2Red_Eta->setAxisTitle("L1 Track #chi^{2}/ndf", 2);
-
-  // Eta vs #stubs in barrel
-  HistoName = "Track_All_Eta_BarrelStubs";
-  Track_All_Eta_BarrelStubs = iBooker.book2D(HistoName,
-                                             HistoName,
-                                             psTrack_Eta_NStubs.getParameter<int32_t>("Nbinsx"),
-                                             psTrack_Eta_NStubs.getParameter<double>("xmin"),
-                                             psTrack_Eta_NStubs.getParameter<double>("xmax"),
-                                             psTrack_Eta_NStubs.getParameter<int32_t>("Nbinsy"),
-                                             psTrack_Eta_NStubs.getParameter<double>("ymin"),
-                                             psTrack_Eta_NStubs.getParameter<double>("ymax"));
-  Track_All_Eta_BarrelStubs->setAxisTitle("#eta", 1);
-  Track_All_Eta_BarrelStubs->setAxisTitle("# L1 Barrel Stubs", 2);
-
-  // Eta vs #stubs in EC
-  HistoName = "Track_LQ_Eta_ECStubs";
-  Track_All_Eta_ECStubs = iBooker.book2D(HistoName,
-                                         HistoName,
-                                         psTrack_Eta_NStubs.getParameter<int32_t>("Nbinsx"),
-                                         psTrack_Eta_NStubs.getParameter<double>("xmin"),
-                                         psTrack_Eta_NStubs.getParameter<double>("xmax"),
-                                         psTrack_Eta_NStubs.getParameter<int32_t>("Nbinsy"),
-                                         psTrack_Eta_NStubs.getParameter<double>("ymin"),
-                                         psTrack_Eta_NStubs.getParameter<double>("ymax"));
-  Track_All_Eta_ECStubs->setAxisTitle("#eta", 1);
-  Track_All_Eta_ECStubs->setAxisTitle("# L1 EC Stubs", 2);
-
-  /// High-quality tracks (Bendchi2 < 2.2 and chi2/dof < 10)
   iBooker.setCurrentFolder(topFolderName_ + "/Tracks/HQ");
-  // Nb of L1Tracks
-  HistoName = "Track_HQ_N";
-  Track_HQ_N = iBooker.book1D(HistoName,
-                              HistoName,
-                              psTrack_N.getParameter<int32_t>("Nbinsx"),
-                              psTrack_N.getParameter<double>("xmin"),
-                              psTrack_N.getParameter<double>("xmax"));
-  Track_HQ_N->setAxisTitle("# L1 Tracks", 1);
-  Track_HQ_N->setAxisTitle("# Events", 2);
-
-  // Number of stubs
-  HistoName = "Track_HQ_NStubs";
-  Track_HQ_NStubs = iBooker.book1D(HistoName,
-                                   HistoName,
-                                   psTrack_NStubs.getParameter<int32_t>("Nbinsx"),
-                                   psTrack_NStubs.getParameter<double>("xmin"),
-                                   psTrack_NStubs.getParameter<double>("xmax"));
-  Track_HQ_NStubs->setAxisTitle("# L1 Stubs per L1 Track", 1);
-  Track_HQ_NStubs->setAxisTitle("# L1 Tracks", 2);
-
-  // Number of layers missed
-  HistoName = "Track_HQ_NLayersMissed";
-  Track_HQ_NLayersMissed = iBooker.book1D(HistoName,
-                                          HistoName,
-                                          psTrack_NStubs.getParameter<int32_t>("Nbinsx"),
-                                          psTrack_NStubs.getParameter<double>("xmin"),
-                                          psTrack_NStubs.getParameter<double>("xmax"));
-  Track_HQ_NLayersMissed->setAxisTitle("# Layers missed", 1);
-  Track_HQ_NLayersMissed->setAxisTitle("# L1 Tracks", 2);
-
-  // Track eta vs #stubs
-  HistoName = "Track_HQ_Eta_NStubs";
-  Track_HQ_Eta_NStubs = iBooker.book2D(HistoName,
-                                       HistoName,
-                                       psTrack_Eta_NStubs.getParameter<int32_t>("Nbinsx"),
-                                       psTrack_Eta_NStubs.getParameter<double>("xmin"),
-                                       psTrack_Eta_NStubs.getParameter<double>("xmax"),
-                                       psTrack_Eta_NStubs.getParameter<int32_t>("Nbinsy"),
-                                       psTrack_Eta_NStubs.getParameter<double>("ymin"),
-                                       psTrack_Eta_NStubs.getParameter<double>("ymax"));
-  Track_HQ_Eta_NStubs->setAxisTitle("#eta", 1);
-  Track_HQ_Eta_NStubs->setAxisTitle("# L1 Stubs", 2);
-
-  // Pt of the tracks
-  HistoName = "Track_HQ_Pt";
-  Track_HQ_Pt = iBooker.book1D(HistoName,
-                               HistoName,
-                               psTrack_Pt.getParameter<int32_t>("Nbinsx"),
-                               psTrack_Pt.getParameter<double>("xmin"),
-                               psTrack_Pt.getParameter<double>("xmax"));
-  Track_HQ_Pt->setAxisTitle("p_{T} [GeV]", 1);
-  Track_HQ_Pt->setAxisTitle("# L1 Tracks", 2);
-
-  // Phi
-  HistoName = "Track_HQ_Phi";
-  Track_HQ_Phi = iBooker.book1D(HistoName,
-                                HistoName,
-                                psTrack_Phi.getParameter<int32_t>("Nbinsx"),
-                                psTrack_Phi.getParameter<double>("xmin"),
-                                psTrack_Phi.getParameter<double>("xmax"));
-  Track_HQ_Phi->setAxisTitle("#phi", 1);
-  Track_HQ_Phi->setAxisTitle("# L1 Tracks", 2);
-
-  // D0
-  HistoName = "Track_HQ_D0";
-  Track_HQ_D0 = iBooker.book1D(HistoName,
-                               HistoName,
-                               psTrack_D0.getParameter<int32_t>("Nbinsx"),
-                               psTrack_D0.getParameter<double>("xmin"),
-                               psTrack_D0.getParameter<double>("xmax"));
-  Track_HQ_D0->setAxisTitle("Track D0", 1);
-  Track_HQ_D0->setAxisTitle("# L1 Tracks", 2);
-
-  // Eta
-  HistoName = "Track_HQ_Eta";
-  Track_HQ_Eta = iBooker.book1D(HistoName,
-                                HistoName,
-                                psTrack_Eta.getParameter<int32_t>("Nbinsx"),
-                                psTrack_Eta.getParameter<double>("xmin"),
-                                psTrack_Eta.getParameter<double>("xmax"));
-  Track_HQ_Eta->setAxisTitle("#eta", 1);
-  Track_HQ_Eta->setAxisTitle("# L1 Tracks", 2);
-
-  // VtxZ
-  HistoName = "Track_HQ_VtxZ";
-  Track_HQ_VtxZ = iBooker.book1D(HistoName,
-                                 HistoName,
-                                 psTrack_VtxZ.getParameter<int32_t>("Nbinsx"),
-                                 psTrack_VtxZ.getParameter<double>("xmin"),
-                                 psTrack_VtxZ.getParameter<double>("xmax"));
-  Track_HQ_VtxZ->setAxisTitle("L1 Track vertex position z [cm]", 1);
-  Track_HQ_VtxZ->setAxisTitle("# L1 Tracks", 2);
-
-  // chi2
-  HistoName = "Track_HQ_Chi2";
-  Track_HQ_Chi2 = iBooker.book1D(HistoName,
-                                 HistoName,
-                                 psTrack_Chi2.getParameter<int32_t>("Nbinsx"),
-                                 psTrack_Chi2.getParameter<double>("xmin"),
-                                 psTrack_Chi2.getParameter<double>("xmax"));
-  Track_HQ_Chi2->setAxisTitle("L1 Track #chi^{2}", 1);
-  Track_HQ_Chi2->setAxisTitle("# L1 Tracks", 2);
-
-  // Bendchi2
-  HistoName = "Track_HQ_BendChi2";
-  Track_HQ_BendChi2 = iBooker.book1D(HistoName,
-                                     HistoName,
-                                     psTrack_Chi2R.getParameter<int32_t>("Nbinsx"),
-                                     psTrack_Chi2R.getParameter<double>("xmin"),
-                                     psTrack_Chi2R.getParameter<double>("xmax"));
-  Track_HQ_BendChi2->setAxisTitle("L1 Track Bend #chi^{2}", 1);
-  Track_HQ_BendChi2->setAxisTitle("# L1 Tracks", 2);
-
-  // chi2 r-z
-  HistoName = "Track_HQ_Chi2RZ";
-  Track_HQ_Chi2RZ = iBooker.book1D(HistoName,
-                                   HistoName,
-                                   psTrack_Chi2.getParameter<int32_t>("Nbinsx"),
-                                   psTrack_Chi2.getParameter<double>("xmin"),
-                                   psTrack_Chi2.getParameter<double>("xmax"));
-  Track_HQ_Chi2RZ->setAxisTitle("L1 Track #chi^{2} r-z", 1);
-  Track_HQ_Chi2RZ->setAxisTitle("# L1 Tracks", 2);
-
-  HistoName = "Track_HQ_Chi2RPhi";
-  Track_HQ_Chi2RPhi = iBooker.book1D(HistoName,
-                                     HistoName,
-                                     psTrack_Chi2.getParameter<int32_t>("Nbinsx"),
-                                     psTrack_Chi2.getParameter<double>("xmin"),
-                                     psTrack_Chi2.getParameter<double>("xmax"));
-  Track_HQ_Chi2RPhi->setAxisTitle("L1 Track #chi^{2} r-phi", 1);
-  Track_HQ_Chi2RPhi->setAxisTitle("# L1 Tracks", 2);
-
-  // chi2Red
-  HistoName = "Track_HQ_Chi2Red";
-  Track_HQ_Chi2Red = iBooker.book1D(HistoName,
-                                    HistoName,
-                                    psTrack_Chi2R.getParameter<int32_t>("Nbinsx"),
-                                    psTrack_Chi2R.getParameter<double>("xmin"),
-                                    psTrack_Chi2R.getParameter<double>("xmax"));
-  Track_HQ_Chi2Red->setAxisTitle("L1 Track #chi^{2}/ndf", 1);
-  Track_HQ_Chi2Red->setAxisTitle("# L1 Tracks", 2);
-
-  // Chi2 prob
-  HistoName = "Track_HQ_Chi2_Probability";
-  Track_HQ_Chi2_Probability = iBooker.book1D(HistoName,
-                                             HistoName,
-                                             psTrack_Chi2_Probability.getParameter<int32_t>("Nbinsx"),
-                                             psTrack_Chi2_Probability.getParameter<double>("xmin"),
-                                             psTrack_Chi2_Probability.getParameter<double>("xmax"));
-  Track_HQ_Chi2_Probability->setAxisTitle("#chi^{2} probability", 1);
-  Track_HQ_Chi2_Probability->setAxisTitle("# L1 Tracks", 2);
-
-  // MVA1 (prompt quality)
-  HistoName = "Track_HQ_MVA1";
-  Track_HQ_MVA1 = iBooker.book1D(HistoName,
-                                 HistoName,
-                                 psTrack_MVA1.getParameter<int32_t>("Nbinsx"),
-                                 psTrack_MVA1.getParameter<double>("xmin"),
-                                 psTrack_MVA1.getParameter<double>("xmax"));
-  Track_HQ_MVA1->setAxisTitle("MVA1", 1);
-  Track_HQ_MVA1->setAxisTitle("# L1 Tracks", 2);
-
-  // Reduced chi2 vs #stubs
-  HistoName = "Track_HQ_Chi2Red_NStubs";
-  Track_HQ_Chi2Red_NStubs = iBooker.book2D(HistoName,
-                                           HistoName,
-                                           psTrack_Chi2R_NStubs.getParameter<int32_t>("Nbinsx"),
-                                           psTrack_Chi2R_NStubs.getParameter<double>("xmin"),
-                                           psTrack_Chi2R_NStubs.getParameter<double>("xmax"),
-                                           psTrack_Chi2R_NStubs.getParameter<int32_t>("Nbinsy"),
-                                           psTrack_Chi2R_NStubs.getParameter<double>("ymin"),
-                                           psTrack_Chi2R_NStubs.getParameter<double>("ymax"));
-  Track_HQ_Chi2Red_NStubs->setAxisTitle("# L1 Stubs", 1);
-  Track_HQ_Chi2Red_NStubs->setAxisTitle("L1 Track #chi^{2}/ndf", 2);
-
-  // chi2/dof vs eta
-  HistoName = "Track_HQ_Chi2Red_Eta";
-  Track_HQ_Chi2Red_Eta = iBooker.book2D(HistoName,
-                                        HistoName,
-                                        psTrack_Chi2R_Eta.getParameter<int32_t>("Nbinsx"),
-                                        psTrack_Chi2R_Eta.getParameter<double>("xmin"),
-                                        psTrack_Chi2R_Eta.getParameter<double>("xmax"),
-                                        psTrack_Chi2R_Eta.getParameter<int32_t>("Nbinsy"),
-                                        psTrack_Chi2R_Eta.getParameter<double>("ymin"),
-                                        psTrack_Chi2R_Eta.getParameter<double>("ymax"));
-  Track_HQ_Chi2Red_Eta->setAxisTitle("#eta", 1);
-  Track_HQ_Chi2Red_Eta->setAxisTitle("L1 Track #chi^{2}/ndf", 2);
-
-  // eta vs #stubs in barrel
-  HistoName = "Track_HQ_Eta_BarrelStubs";
-  Track_HQ_Eta_BarrelStubs = iBooker.book2D(HistoName,
-                                            HistoName,
-                                            psTrack_Eta_NStubs.getParameter<int32_t>("Nbinsx"),
-                                            psTrack_Eta_NStubs.getParameter<double>("xmin"),
-                                            psTrack_Eta_NStubs.getParameter<double>("xmax"),
-                                            psTrack_Eta_NStubs.getParameter<int32_t>("Nbinsy"),
-                                            psTrack_Eta_NStubs.getParameter<double>("ymin"),
-                                            psTrack_Eta_NStubs.getParameter<double>("ymax"));
-  Track_HQ_Eta_BarrelStubs->setAxisTitle("#eta", 1);
-  Track_HQ_Eta_BarrelStubs->setAxisTitle("# L1 Barrel Stubs", 2);
-
-  // eta vs #stubs in EC
-  HistoName = "Track_HQ_Eta_ECStubs";
-  Track_HQ_Eta_ECStubs = iBooker.book2D(HistoName,
-                                        HistoName,
-                                        psTrack_Eta_NStubs.getParameter<int32_t>("Nbinsx"),
-                                        psTrack_Eta_NStubs.getParameter<double>("xmin"),
-                                        psTrack_Eta_NStubs.getParameter<double>("xmax"),
-                                        psTrack_Eta_NStubs.getParameter<int32_t>("Nbinsy"),
-                                        psTrack_Eta_NStubs.getParameter<double>("ymin"),
-                                        psTrack_Eta_NStubs.getParameter<double>("ymax"));
-  Track_HQ_Eta_ECStubs->setAxisTitle("#eta", 1);
-  Track_HQ_Eta_ECStubs->setAxisTitle("# L1 EC Stubs", 2);
-
-}  // end of method
+  Track_HQ_N                = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_N"),                iBooker);
+  Track_HQ_NStubs           = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_NStubs"),           iBooker);
+  Track_HQ_NLayersMissed    = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_NLayersMissed"),    iBooker);
+  Track_HQ_Eta_NStubs       = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Eta_NStubs"),       iBooker);
+  Track_HQ_Pt               = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Pt"),               iBooker);
+  Track_HQ_Phi              = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Phi"),              iBooker);
+  Track_HQ_D0               = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_D0"),               iBooker);
+  Track_HQ_Eta              = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Eta"),              iBooker);
+  Track_HQ_VtxZ             = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_VtxZ"),             iBooker);
+  Track_HQ_Chi2             = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2"),             iBooker);
+  Track_HQ_BendChi2         = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_BendChi2"),         iBooker);
+  Track_HQ_Chi2RZ           = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2RZ"),           iBooker);
+  Track_HQ_Chi2RPhi         = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2RPhi"),         iBooker);
+  Track_HQ_Chi2Red          = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2Red"),          iBooker);
+  Track_HQ_Chi2_Probability = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2_Probability"), iBooker);
+  Track_HQ_MVA1             = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_MVA1"),             iBooker);
+  Track_HQ_Chi2Red_NStubs   = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2Red_NStubs"),   iBooker);
+  Track_HQ_Chi2Red_Eta      = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2Red_Eta"),      iBooker);
+  Track_HQ_Eta_BarrelStubs  = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Eta_BarrelStubs"),  iBooker);
+  Track_HQ_Eta_ECStubs      = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Eta_ECStubs"),      iBooker);
+}
 
 void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-  // Phase2OTMonitorTTTrack
   edm::ParameterSetDescription desc;
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 8);
-    psd0.add<double>("xmax", 8);
-    psd0.add<double>("xmin", 0);
-    desc.add<edm::ParameterSetDescription>("TH1_NStubs", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 100);
-    psd0.add<double>("xmax", 399);
-    psd0.add<double>("xmin", 0);
-    desc.add<edm::ParameterSetDescription>("TH1_NTracks", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 50);
-    psd0.add<double>("xmax", 100);
-    psd0.add<double>("xmin", 0);
-    desc.add<edm::ParameterSetDescription>("TH1_Track_Pt", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 60);
-    psd0.add<double>("xmax", 3.5);
-    psd0.add<double>("xmin", -3.5);
-    desc.add<edm::ParameterSetDescription>("TH1_Track_Phi", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 50);
-    psd0.add<double>("xmax", 5.0);
-    psd0.add<double>("xmin", -5.0);
-    desc.add<edm::ParameterSetDescription>("TH1_Track_D0", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 45);
-    psd0.add<double>("xmax", 3.0);
-    psd0.add<double>("xmin", -3.0);
-    desc.add<edm::ParameterSetDescription>("TH1_Track_Eta", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 41);
-    psd0.add<double>("xmax", 20);
-    psd0.add<double>("xmin", -20);
-    desc.add<edm::ParameterSetDescription>("TH1_Track_VtxZ", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 100);
-    psd0.add<double>("xmax", 50);
-    psd0.add<double>("xmin", 0);
-    desc.add<edm::ParameterSetDescription>("TH1_Track_Chi2", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 100);
-    psd0.add<double>("xmax", 10);
-    psd0.add<double>("xmin", 0);
-    desc.add<edm::ParameterSetDescription>("TH1_Track_Chi2R", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 100);
-    psd0.add<double>("xmax", 1);
-    psd0.add<double>("xmin", 0);
-    desc.add<edm::ParameterSetDescription>("TH1_Track_Chi2_Probability", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 100);
-    psd0.add<double>("xmax", 1);
-    psd0.add<double>("xmin", 0);
-    desc.add<edm::ParameterSetDescription>("TH1_Track_MVA1", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 5);
-    psd0.add<double>("xmax", 8);
-    psd0.add<double>("xmin", 3);
-    psd0.add<int>("Nbinsy", 15);
-    psd0.add<double>("ymax", 10);
-    psd0.add<double>("ymin", 0);
-    desc.add<edm::ParameterSetDescription>("TH2_Track_Chi2R_NStubs", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 15);
-    psd0.add<double>("xmax", 3.0);
-    psd0.add<double>("xmin", -3.0);
-    psd0.add<int>("Nbinsy", 15);
-    psd0.add<double>("ymax", 10);
-    psd0.add<double>("ymin", 0);
-    desc.add<edm::ParameterSetDescription>("TH2_Track_Chi2R_Eta", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<int>("Nbinsx", 15);
-    psd0.add<double>("xmax", 3.0);
-    psd0.add<double>("xmin", -3.0);
-    psd0.add<int>("Nbinsy", 5);
-    psd0.add<double>("ymax", 8);
-    psd0.add<double>("ymin", 3);
-    desc.add<edm::ParameterSetDescription>("TH2_Track_Eta_NStubs", psd0);
-  }
+
+  // All tracks
+  phase2tkutil::add1DDesc(desc, "Track_All_N",                "Track_All_N",                "# L1 Tracks",                    "# Events",            100,   0,   399);
+  phase2tkutil::add1DDesc(desc, "Track_All_NStubs",           "Track_All_NStubs",           "# L1 Stubs per L1 Track",        "# L1 Tracks",           8,   0,     8);
+  phase2tkutil::add1DDesc(desc, "Track_All_NLayersMissed",    "Track_All_NLayersMissed",    "# Layers missed",                "# L1 Tracks",           8,   0,     8);
+  phase2tkutil::add2DDesc(desc, "Track_All_Eta_NStubs",       "Track_All_Eta_NStubs",       "#eta",                           "# L1 Stubs",           15,  -3.0,  3.0,  5,  3,   8);
+  phase2tkutil::add1DDesc(desc, "Track_All_Pt",               "Track_All_Pt",               "p_{T} [GeV]",                    "# L1 Tracks",          50,   0,   100);
+  phase2tkutil::add1DDesc(desc, "Track_All_Phi",              "Track_All_Phi",              "#phi",                           "# L1 Tracks",          60,  -3.5,  3.5);
+  phase2tkutil::add1DDesc(desc, "Track_All_D0",               "Track_All_D0",               "Track D0",                       "# L1 Tracks",         101,  -0.15, 0.15);
+  phase2tkutil::add1DDesc(desc, "Track_All_Eta",              "Track_All_Eta",              "#eta",                           "# L1 Tracks",          45,  -3.0,  3.0);
+  phase2tkutil::add1DDesc(desc, "Track_All_VtxZ",             "Track_All_VtxZ",             "L1 Track vertex position z [cm]","# L1 Tracks",          41, -20,    20);
+  phase2tkutil::add1DDesc(desc, "Track_All_Chi2",             "Track_All_Chi2",             "L1 Track #chi^{2}",              "# L1 Tracks",         100,   0,    50);
+  phase2tkutil::add1DDesc(desc, "Track_All_Chi2RZ",           "Track_All_Chi2RZ",           "L1 Track #chi^{2} r-z",          "# L1 Tracks",         100,   0,    50);
+  phase2tkutil::add1DDesc(desc, "Track_All_Chi2RPhi",         "Track_All_Chi2RPhi",         "L1 Track #chi^{2}",              "# L1 Tracks",         100,   0,    50);
+  phase2tkutil::add1DDesc(desc, "Track_All_BendChi2",         "Track_All_BendChi2",         "L1 Track Bend #chi^{2}",         "# L1 Tracks",         100,   0,    10);
+  phase2tkutil::add1DDesc(desc, "Track_All_Chi2Red",          "Track_All_Chi2Red",          "L1 Track #chi^{2}/ndf",          "# L1 Tracks",         100,   0,    10);
+  phase2tkutil::add1DDesc(desc, "Track_All_Chi2_Probability", "Track_All_Chi2_Probability", "#chi^{2} probability",           "# L1 Tracks",         100,   0,     1);
+  phase2tkutil::add1DDesc(desc, "Track_All_MVA1",             "Track_All_MVA1",             "MVA1",                           "# L1 Tracks",         100,   0,     1);
+  phase2tkutil::add2DDesc(desc, "Track_All_Chi2Red_NStubs",   "Track_All_Chi2Red_NStubs",   "# L1 Stubs",                     "L1 Track #chi^{2}/ndf",  5,  3,    8,  15,  0,  10);
+  phase2tkutil::add2DDesc(desc, "Track_All_Chi2Red_Eta",      "Track_All_Chi2Red_Eta",      "#eta",                           "L1 Track #chi^{2}/ndf", 15, -3.0,  3.0, 15,  0,  10);
+  phase2tkutil::add2DDesc(desc, "Track_All_Eta_BarrelStubs",  "Track_All_Eta_BarrelStubs",  "#eta",                           "# L1 Barrel Stubs",    15,  -3.0,  3.0,  5,  3,   8);
+  phase2tkutil::add2DDesc(desc, "Track_All_Eta_ECStubs",      "Track_All_Eta_ECStubs",       "#eta",                           "# L1 EC Stubs",        15,  -3.0,  3.0,  5,  3,   8);
+
+  // HQ tracks
+  phase2tkutil::add1DDesc(desc, "Track_HQ_N",                "Track_HQ_N",                "# L1 Tracks",                    "# Events",            100,   0,   399);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_NStubs",           "Track_HQ_NStubs",           "# L1 Stubs per L1 Track",        "# L1 Tracks",           8,   0,     8);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_NLayersMissed",    "Track_HQ_NLayersMissed",    "# Layers missed",                "# L1 Tracks",           8,   0,     8);
+  phase2tkutil::add2DDesc(desc, "Track_HQ_Eta_NStubs",       "Track_HQ_Eta_NStubs",       "#eta",                           "# L1 Stubs",           15,  -3.0,  3.0,  5,  3,   8);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_Pt",               "Track_HQ_Pt",               "p_{T} [GeV]",                    "# L1 Tracks",          50,   0,   100);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_Phi",              "Track_HQ_Phi",              "#phi",                           "# L1 Tracks",          60,  -3.5,  3.5);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_D0",               "Track_HQ_D0",               "Track D0",                       "# L1 Tracks",         101,  -0.15, 0.15);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_Eta",              "Track_HQ_Eta",              "#eta",                           "# L1 Tracks",          45,  -3.0,  3.0);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_VtxZ",             "Track_HQ_VtxZ",             "L1 Track vertex position z [cm]","# L1 Tracks",          41, -20,    20);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_Chi2",             "Track_HQ_Chi2",             "L1 Track #chi^{2}",              "# L1 Tracks",         100,   0,    50);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_BendChi2",         "Track_HQ_BendChi2",         "L1 Track Bend #chi^{2}",         "# L1 Tracks",         100,   0,    10);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_Chi2RZ",           "Track_HQ_Chi2RZ",           "L1 Track #chi^{2} r-z",          "# L1 Tracks",         100,   0,    50);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_Chi2RPhi",         "Track_HQ_Chi2RPhi",         "L1 Track #chi^{2} r-phi",        "# L1 Tracks",         100,   0,    50);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_Chi2Red",          "Track_HQ_Chi2Red",          "L1 Track #chi^{2}/ndf",          "# L1 Tracks",         100,   0,    10);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_Chi2_Probability", "Track_HQ_Chi2_Probability", "#chi^{2} probability",           "# L1 Tracks",         100,   0,     1);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_MVA1",             "Track_HQ_MVA1",             "MVA1",                           "# L1 Tracks",         100,   0,     1);
+  phase2tkutil::add2DDesc(desc, "Track_HQ_Chi2Red_NStubs",   "Track_HQ_Chi2Red_NStubs",   "# L1 Stubs",                     "L1 Track #chi^{2}/ndf",  5,  3,    8,  15,  0,  10);
+  phase2tkutil::add2DDesc(desc, "Track_HQ_Chi2Red_Eta",      "Track_HQ_Chi2Red_Eta",      "#eta",                           "L1 Track #chi^{2}/ndf", 15, -3.0,  3.0, 15,  0,  10);
+  phase2tkutil::add2DDesc(desc, "Track_HQ_Eta_BarrelStubs",  "Track_HQ_Eta_BarrelStubs",  "#eta",                           "# L1 Barrel Stubs",    15,  -3.0,  3.0,  5,  3,   8);
+  phase2tkutil::add2DDesc(desc, "Track_HQ_Eta_ECStubs",      "Track_HQ_Eta_ECStubs",      "#eta",                           "# L1 EC Stubs",        15,  -3.0,  3.0,  5,  3,   8);
+
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTL1Track");
   desc.add<edm::InputTag>("TTTracksTag", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));
   desc.add<int>("HQNStubs", 4);
   desc.add<double>("HQChi2dof", 10.0);
   desc.add<double>("HQBendChi2", 2.2);
   descriptions.add("Phase2OTMonitorTTTrack", desc);
-  // or use the following to generate the label from the module's C++ type
-  //descriptions.addWithDefaultLabel(desc);
 }
 DEFINE_FWK_MODULE(Phase2OTMonitorTTTrack);
