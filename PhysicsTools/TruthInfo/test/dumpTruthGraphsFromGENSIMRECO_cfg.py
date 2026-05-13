@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 import os
 from argparse import ArgumentParser
 parser = ArgumentParser()
-parser.add_argument("inputFile",        default="file:step3.root",
+parser.add_argument("inputFile",        nargs='?', default="step3.root",
                     metavar='FILE', help="Input file, default=%(default)r" )
 parser.add_argument('-o', "--outdir",   default='',
                     help="output directory, default=%(default)r" )
@@ -15,7 +15,7 @@ parser.add_argument('-m', "--merge",    dest='mergeGenSim', action='store_true',
 parser.add_argument('-c', "--collapse", action='store_true', help="collapse GenParticle copies" )
 parser.add_argument('-t', "--tag",      default='', help="tag for out put file" )
 args = parser.parse_args()
-if '/' not in args.inputFile:
+if '/' not in args.inputFile and ':' not in args.inputFile:
     args.inputFile = 'file:'+args.inputFile
 if args.outdir and not os.path.exists(args.outdir):
     os.makedirs(args.outdir, exist_ok=True)
