@@ -1,5 +1,25 @@
 import FWCore.ParameterSet.Config as cms
 
+# user options
+import os
+from argparse import ArgumentParser
+parser = ArgumentParser()
+parser.add_argument("inputFile",        default="file:step3.root",
+                    metavar='FILE', help="Input file, default=%(default)r" )
+parser.add_argument('-o', "--outdir",   default='',
+                    help="output directory, default=%(default)r" )
+parser.add_argument('-n', "--maxevts",  type=int, default=-1,
+                    help="maximum number of events to process, default=%(default)s" )
+parser.add_argument('-m', "--merge",    dest='mergeGenSim', action='store_true',
+                    help="merge GEN-SIM nodes of duplicates" )
+parser.add_argument('-c', "--collapse", action='store_true', help="collapse GenParticle copies" )
+parser.add_argument('-t', "--tag",      default='', help="tag for out put file" )
+args = parser.parse_args()
+if '/' not in args.inputFile:
+    args.inputFile = 'file:'+args.inputFile
+if args.outdir and not os.path.exists(args.outdir):
+    os.makedirs(args.outdir, exist_ok=True)
+
 process = cms.Process("TRUTHGRAPH")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -9,13 +29,13 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.Geometry.GeometryExtendedRun4D120Reco_cff")
 
 process.maxEvents = cms.untracked.PSet(
-    input=cms.untracked.int32(-1)
+    input=cms.untracked.int32(args.maxevts)
 )
 
 process.source = cms.Source(
     "PoolSource",
     fileNames=cms.untracked.vstring(
-        "file:step3.root"
+        args.inputFile #"file:step3.root"
     )
 )
 
@@ -35,7 +55,7 @@ process.truthGraphProducer = cms.EDProducer(
 process.truthGraphDumper = cms.EDAnalyzer(
     "TruthGraphDumper",
     src=cms.InputTag("truthGraphProducer"),
-    dotFile=cms.string("truthgraph.dot"),
+    dotFile=cms.string(os.path.join(args.outdir,f"truthgraph{args.tag}.dot")), # output file
     maxNodes=cms.uint32(20000),
     maxEdgesPerNode=cms.uint32(50),
     simTracks=cms.InputTag("g4SimHits"),
@@ -52,8 +72,8 @@ process.truthLogicalGraphProducer = cms.EDProducer(
     genEventHepMC3=cms.InputTag("generatorSmeared"),
     genEventHepMC=cms.InputTag("generatorSmeared"),
     motherPdgId=cms.int32(0),
-    mergeGenSimVertices=cms.bool(True),
-    collapseIntermediateGenParticles=cms.bool(True),
+    mergeGenSimVertices=cms.bool(args.mergeGenSim),
+    collapseIntermediateGenParticles=cms.bool(args.collapse),
 )
 
 process.simHitToRecHitMapProducer = cms.EDProducer(
@@ -110,7 +130,7 @@ process.truthLogicalGraphDumper = cms.EDAnalyzer(
         cms.InputTag("particleFlowRecHitHO", "Cleaned", "RECO"),
     ),
 
-    dotFile=cms.string("truthlogicalgraph.dot"),
+    dotFile=cms.string(os.path.join(args.outdir,f"truthlogicalgraph{args.tag}.dot")), # output file
 
     maxParticles=cms.uint32(20000),
     maxVertices=cms.uint32(20000),
