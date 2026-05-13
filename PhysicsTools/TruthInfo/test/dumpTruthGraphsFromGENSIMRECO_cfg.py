@@ -71,11 +71,30 @@ process.truthLogicalGraphProducer = cms.EDProducer(
     simVertices=cms.InputTag("g4SimHits"),
     genEventHepMC3=cms.InputTag("generatorSmeared"),
     genEventHepMC=cms.InputTag("generatorSmeared"),
-    motherPdgId=cms.int32(0),
-    mergeGenSimVertices=cms.bool(args.mergeGenSim),
-    collapseIntermediateGenParticles=cms.bool(args.collapse),
-)
 
+    mergeGenSimVertices=cms.bool(True),
+
+    postProcessing=cms.PSet(
+        collapseIntermediateGenParticles=cms.bool(True),
+
+        # Empty means: keep the full logical graph.
+        # Example: cms.vint32(22) keeps photons as seeds,
+        # keeps seedParentDepth parent generations above each seed,
+        # then keeps everything downstream.
+        seedPdgIds=cms.vint32(23,15,-15,25,4,5,6),
+
+        seedParentDepth=cms.uint32(1),
+
+        # Remove particles by PDG id.
+        # Example: cms.vint32(22) removes all photons from the final logical graph.
+        ignoredPdgIds=cms.vint32(),
+
+        # Remove particles by logical particle id.
+        # These ids refer to the graph after the previous postprocessing steps
+        # and before ignored-particle collapsing.
+        ignoredParticleIds=cms.vuint32(),
+    ),
+)
 process.simHitToRecHitMapProducer = cms.EDProducer(
     "SimHitToRecHitMapProducer",
 
