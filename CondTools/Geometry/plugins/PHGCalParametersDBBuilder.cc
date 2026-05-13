@@ -48,7 +48,8 @@ PHGCalParametersDBBuilder::PHGCalParametersDBBuilder(const edm::ParameterSet& iC
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":" << name2_ << ":" << namew_ << ":"
-                                << namec_ << ":" << namet_ << ", fromDD4hep flag " << fromDD4hep_<< " with ColdBoxMode " << coldBoxMode_;
+                                << namec_ << ":" << namet_ << ", fromDD4hep flag " << fromDD4hep_
+                                << " with ColdBoxMode " << coldBoxMode_;
 #endif
 }
 

@@ -23,7 +23,7 @@
 #include <sstream>
 #include <unordered_set>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
 const double tolerance = 0.001;
@@ -1598,14 +1598,15 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << layerType[k] << ":" << php.layerType_.back();
     if (coldBoxMode_) {
-      edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << layerType[k] << ":" << php.layerType_.back() << " "<< php.coldBoxRots_[k];
+      edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << layerType[k] << ":" << php.layerType_.back() << " "
+                                    << php.coldBoxRots_[k];
     }
 #endif
   }
   for (unsigned int k = 0; k < php.layerType_.size(); ++k) {
     double cth = (php.layerType_[k] == HGCalTypes::WaferCenterR) ? cos(php.layerRotation_) : 1.0;
     double sth = (php.layerType_[k] == HGCalTypes::WaferCenterR) ? sin(php.layerRotation_) : 0.0;
-    if (coldBoxMode_ ) {
+    if (coldBoxMode_) {
       cth = cos(php.coldBoxRots_[k]);
       sth = sin(php.coldBoxRots_[k]);
     }
@@ -1615,7 +1616,8 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
                                   << php.layerRotV_.back().first << ":" << php.layerRotV_.back().second;
     if (coldBoxMode_) {
       edm::LogVerbatim("HGCalGeom") << "Rot Layer[" << k << "] Type " << php.layerType_[k] << " cos|sin(Theta) "
-				    << php.layerRotV_[k].first << ":" << php.layerRotV_[k].second<<" "<< php.layerRotV_.size();
+                                    << php.layerRotV_[k].first << ":" << php.layerRotV_[k].second << " "
+                                    << php.layerRotV_.size();
     }
 #endif
   }

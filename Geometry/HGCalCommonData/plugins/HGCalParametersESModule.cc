@@ -11,7 +11,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParametersFromDD.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 class HGCalParametersESModule : public edm::ESProducer {
 public:
@@ -41,7 +41,8 @@ HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
   coldBoxMode_ = iC.getParameter<bool>("coldBoxMode");
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":" << name2_ << ":" << namew_ << ":"
-                                << namec_ << ":" << namet_ << ":" << namex_ << ", fromDD4hep flag " << fromDD4hep_<< " with ColdBoxMode " << coldBoxMode_;
+                                << namec_ << ":" << namet_ << ":" << namex_ << ", fromDD4hep flag " << fromDD4hep_
+                                << " with ColdBoxMode " << coldBoxMode_;
 #endif
   auto cc = setWhatProduced(this, namex_);
   if (fromDD4hep_)

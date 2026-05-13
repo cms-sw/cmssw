@@ -661,14 +661,16 @@ std::pair<double, double> HGCalDDDConstants::getXY(int layer, double x, double y
         x1 = x0 * hgpar_->layerRotV_[ll].first - y0 * hgpar_->layerRotV_[ll].second;
         y1 = y0 * hgpar_->layerRotV_[ll].first + x0 * hgpar_->layerRotV_[ll].second;
       } else {
-	x1 = x0 * hgpar_->layerRotV_[ll].first + y0 * hgpar_->layerRotV_[ll].second;
+        x1 = x0 * hgpar_->layerRotV_[ll].first + y0 * hgpar_->layerRotV_[ll].second;
         y1 = y0 * hgpar_->layerRotV_[ll].first - x0 * hgpar_->layerRotV_[ll].second;
       }
-      x0 = x1; y0 = y1;
+      x0 = x1;
+      y0 = y1;
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") <<"CBox HGCalDDDConstants: Layer " << layer << ":" << ll << ":" << layer << " mode " << forwd << " x " << x
-				  << ":" << x0 << ":" << x1 << " y " << y << ":" << y0 << ":" << y1 << " " << hgpar_->layerRotV_[ll].first <<" " << hgpar_->layerRotV_[ll].second;
+    edm::LogVerbatim("HGCalGeom") << "CBox HGCalDDDConstants: Layer " << layer << ":" << ll << ":" << layer << " mode "
+                                  << forwd << " x " << x << ":" << x0 << ":" << x1 << " y " << y << ":" << y0 << ":"
+                                  << y1 << " " << hgpar_->layerRotV_[ll].first << " " << hgpar_->layerRotV_[ll].second;
 #endif
   }
 
@@ -2030,7 +2032,7 @@ std::pair<double, double> HGCalDDDConstants::waferPosition(
   int ll = lay - hgpar_->firstLayer_;
   bool rotx = ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[ll] == HGCalTypes::WaferCenterR));
   if (coldBoxMode())
-    rotx = (!hgpar_->layerType_.empty());  //to check 
+    rotx = (!hgpar_->layerType_.empty());  //to check
 #ifdef EDM_ML_DEBUG
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "Layer " << lay << ":" << ll << " Rotation " << rotx << " U:V " << waferU << ":"
@@ -2056,7 +2058,7 @@ std::pair<double, double> HGCalDDDConstants::waferPositionWithCshift(
   int ll = lay - hgpar_->firstLayer_;
   bool rotx = (norot) ? false : ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[ll] == HGCalTypes::WaferCenterR));
   if (coldBoxMode())
-    rotx = (!hgpar_->layerType_.empty());  //to check   
+    rotx = (!hgpar_->layerType_.empty());  //to check
   if (waferHexagon8File()) {
     if (cassetteMode()) {
       ktr = hgpar_->waferInfoMap_.find(indx);
