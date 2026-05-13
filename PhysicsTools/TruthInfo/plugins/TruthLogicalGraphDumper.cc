@@ -336,6 +336,7 @@ public:
         maxVertices_(cfg.getParameter<unsigned>("maxVertices")),
         maxEdgesPerNode_(cfg.getParameter<unsigned>("maxEdgesPerNode")),
         hideLargeSimSourceVertices_(cfg.getParameter<bool>("hideLargeSimSourceVertices")),
+        dumpSimHits_(cfg.getParameter<bool>("dumpSimHits")),
         largeSimSourceVertexMinOutgoing_(cfg.getParameter<unsigned>("largeSimSourceVertexMinOutgoing")),
         hideZeroSimHitSubgraphs_(cfg.getParameter<bool>("hideZeroSimHitSubgraphs")) {
     const auto hgcalRecHitTags = cfg.getParameter<std::vector<edm::InputTag>>("hgcalRecHits");
@@ -388,6 +389,7 @@ public:
 
     desc.add<bool>("hideLargeSimSourceVertices", true)
         ->setComment("If true, do not print large SIM-only source vertices in the DOT output");
+    desc.add<bool>("dumpSimHits", true)->setComment("If true, dump all simhits");
 
     desc.add<unsigned>("largeSimSourceVertexMinOutgoing", 50)
         ->setComment("Minimum outgoing multiplicity for hiding a SIM-only source vertex");
@@ -530,6 +532,18 @@ public:
            << ", nSubgraphRecHits=" << subgraphSummary.nMatchedRecHits
            << ", subgraphSimHitEnergy=" << fmtEnergy(subgraphSummary.simHitEnergy)
            << ", subgraphRecHitEnergy=" << fmtEnergy(subgraphSummary.recHitEnergy);
+        if (dumpSimHits_) {
+          os << ", directHitsDetIds=\"";
+          for (auto h : directHits) {
+            os << h.detId << ",";
+          }
+          os << "\"";
+          os << ", directHitsEnergies=\"";
+          for (auto h : directHits) {
+            os << h.energy << ",";
+          }
+          os << "\"";
+        }
       }
 
       if (raw != nullptr) {
@@ -760,6 +774,7 @@ private:
   unsigned maxVertices_;
   unsigned maxEdgesPerNode_;
   bool hideLargeSimSourceVertices_;
+  bool dumpSimHits_;
   unsigned largeSimSourceVertexMinOutgoing_;
   bool hideZeroSimHitSubgraphs_;
 };

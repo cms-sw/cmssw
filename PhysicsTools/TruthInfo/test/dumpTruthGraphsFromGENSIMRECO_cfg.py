@@ -161,6 +161,28 @@ process.truthLogicalGraphDumper = cms.EDAnalyzer(
     hideZeroSimHitSubgraphs=cms.bool(True),
 )
 
+
+process.load("PhysicsTools.TruthInfo.recHitTable_cff")
+# process.load('Configuration.EventContent.EventContent_cff')
+process.NANOAODSIMoutput = cms.OutputModule("NanoAODOutputModule",
+    compressionAlgorithm = cms.untracked.string('ZLIB'),
+    compressionLevel = cms.untracked.int32(9),
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string('NANOAODSIM'),
+        filterName = cms.untracked.string('')
+    ),
+    fileName = cms.untracked.string(os.path.join(args.outdir,f"rechits_nano{args.tag}.root")),
+    outputCommands = cms.untracked.vstring(
+    'drop *',
+    'keep nanoaodFlatTable_*Table_*_*',
+    # 'keep edmTriggerResults_*_*_*',
+    'keep String_*_genModel_*',
+    'keep nanoaodMergeableCounterTable_*Table_*_*',
+    'keep nanoaodUniqueString_nanoMetadata_*_*',
+    'keep nanoaodFlatTable_*Table*_*_*'
+)
+)
+
 process.MessageLogger.cerr.threshold = "INFO"
 process.MessageLogger.cerr.default = cms.untracked.PSet(
     limit=cms.untracked.int32(0)
@@ -185,4 +207,7 @@ process.truthGraph_step = cms.Path(
     + process.simHitToRecHitMapProducer
     + process.truthLogicalGraphHitIndexProducer
     + process.truthLogicalGraphDumper
+    + process.recHitTable
 )
+
+process.nano_step = cms.EndPath(process.NANOAODSIMoutput)
