@@ -1,5 +1,4 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "Geometry/MTDCommonData/interface/BTLElectronicsMapping.h"
 #include "CondFormats/MTDObjects/interface/BTLElectronicsMapping.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <Geometry/MTDCommonData/interface/MTDTopologyMode.h>
