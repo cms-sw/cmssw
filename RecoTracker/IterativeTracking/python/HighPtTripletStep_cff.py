@@ -399,11 +399,10 @@ trackingPhase2PU140.toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_
 
 _HighPtTripletStepTask_LST = HighPtTripletStepTask.copy()
 from RecoLocalTracker.Phase2TrackerRecHits.Phase2TrackerRecHits_cfi import siPhase2RecHits
-from RecoTracker.LST.lstSeedTracks_cff import lstInitialStepSeedTracks,lstHighPtTripletStepSeedTracks
 from RecoTracker.LST.lstInputProducer_cfi import lstInputProducer
 from RecoTracker.LST.lstProducerTask_cff import *
 
-_HighPtTripletStepTask_LST.add(siPhase2RecHits, lstInitialStepSeedTracks, lstHighPtTripletStepSeedTracks, lstInputProducer, lstProducerTask)
+_HighPtTripletStepTask_LST.add(siPhase2RecHits, lstInputProducer, lstProducerTask)
 (trackingPhase2PU140 & trackingLST).toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_LST)
 
 from Configuration.ProcessModifiers.alpakaValidationLST_cff import alpakaValidationLST
@@ -422,8 +421,9 @@ highPtTripletStepTracksSerialSync = highPtTripletStepTracks.clone()
 highPtTripletStepSelectorSerialSync = highPtTripletStepSelector.clone()
 (trackingPhase2PU140 & alpakaValidationLST & trackingLST).toModify(highPtTripletStepSelectorSerialSync, src = "highPtTripletStepTracksSerialSync" )
 _HighPtTripletStepTask_LSTSerialSync = HighPtTripletStepTask.copy()
-_HighPtTripletStepTask_LSTSerialSync.add(siPhase2RecHits, lstInitialStepSeedTracks, lstHighPtTripletStepSeedTracks, lstInputProducerSerialSync, lstProducerSerialSync,
-                                         highPtTripletStepTrackCandidatesSerialSync, highPtTripletStepTracksSerialSync, highPtTripletStepSelectorSerialSync
+_HighPtTripletStepTask_LSTSerialSync.add(siPhase2RecHits, lstInputProducerSerialSync,
+                                         lstProducerSerialSync, highPtTripletStepTrackCandidatesSerialSync,
+                                         highPtTripletStepTracksSerialSync, highPtTripletStepSelectorSerialSync
 )
 HighPtTripletStepTaskSerialSync = cms.Task()
 (trackingPhase2PU140 & alpakaValidationLST & trackingLST).toReplaceWith(HighPtTripletStepTaskSerialSync, _HighPtTripletStepTask_LSTSerialSync)
