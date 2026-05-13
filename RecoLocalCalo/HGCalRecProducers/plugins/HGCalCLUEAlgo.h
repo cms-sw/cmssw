@@ -91,7 +91,7 @@ public:
   void computeThreshold();
 
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-    iDesc.add<std::vector<double>>("thresholdW0", {2.9, 2.9, 2.9});
+    iDesc.add<std::vector<double>>("thresholdW0", {2.9, 2.9, 2.9, 2.9});
     iDesc.add<double>("positionDeltaRho2", 1.69);
     iDesc.add<std::vector<double>>("deltac",
                                    {
