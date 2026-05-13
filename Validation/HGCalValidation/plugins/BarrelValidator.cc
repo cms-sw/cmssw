@@ -591,7 +591,7 @@ void BarrelValidator::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<edm::InputTag>("cpTag_", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("sclTag", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("simVertices", edm::InputTag("g4SimHits"));
-  desc.add<int>("totallayers_to_monitor", 5);
+  desc.add<int>("totallayers_to_monitor", 6);  // 4 depths for HCAL Barrel + 2 layers for the HCAL Outer Barrel
   desc.add<std::string>("dirName", "BarrelCalorimeters/BarrelValidator/");
   descriptions.add("barrelValidator", desc);
 }
