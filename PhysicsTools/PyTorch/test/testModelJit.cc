@@ -78,13 +78,21 @@ namespace torchtest {
 
     auto m_path = edm::FileInPath(modelPath).fullPath();
     forEachCudaDevice([&](auto dev) {
-      auto m = cms::torch::Model(m_path);
+      auto m = cms::torch::Model(m_path, false);
       m.to(dev);
 
       CPPUNIT_ASSERT_EQUAL(dev, m.device());
 
       m.to(::torch::kCPU);
       CPPUNIT_ASSERT_EQUAL(::torch::kCPU, m.device().type());
+    });
+
+    forEachCudaDevice([&](auto dev) {
+      auto m = cms::torch::Model(m_path);
+      m.to(dev);
+
+      CPPUNIT_ASSERT_EQUAL(dev, m.device());
+      CPPUNIT_ASSERT_THROW(m.to(::torch::kCPU), c10::Error);
     });
   }
 

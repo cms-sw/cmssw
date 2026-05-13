@@ -28,7 +28,7 @@ namespace cms::torch {
       if (dev == device_)
         return;
 
-      assert(!is_frozen_ && "Model is frozen, cannot be moved to another device!");
+      TORCH_CHECK(!is_frozen_ && "Model is frozen, cannot be moved to another device!");
       model_.to(dev, non_blocking);
       device_ = dev;
       if (auto_freeze_) {
