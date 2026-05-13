@@ -1,23 +1,19 @@
 #include <memory>
-
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
-#include "FWCore/ParameterSet/interface/allowedValues.h"
-#include "Utilities/General/interface/ClassName.h"
+#include <vector>
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
-
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/NanoAOD/interface/FlatTable.h"
-#include "PhysicsTools/NanoAOD/interface/SimpleFlatTableProducer.h"
-
-#include "DataFormats/L1Scouting/interface/OrbitCollection.h"
 #include "DataFormats/NanoAOD/interface/OrbitFlatTable.h"
+#include "DataFormats/L1Scouting/interface/OrbitCollection.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "PhysicsTools/NanoAOD/interface/SimpleFlatTableProducer.h"
+#include "Utilities/General/interface/ClassName.h"
 
 template <typename T>
 class SimpleOrbitFlatTableProducer : public edm::stream::EDProducer<> {

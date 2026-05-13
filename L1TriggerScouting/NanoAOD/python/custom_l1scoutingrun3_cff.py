@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from PhysicsTools.NanoAOD.l1scoutingrun3_cff import *
-from PhysicsTools.NanoAOD.L1SCOUTNanoAODEDMEventContent_cff import L1SCOUTNanoAODEDMEventContent, L1SCOUTNANOAODEventContent
+from L1TriggerScouting.NanoAOD.l1scoutingrun3_cff import *
+from L1TriggerScouting.NanoAOD.L1SCOUTNanoAODEDMEventContent_cff import L1SCOUTNanoAODEDMEventContent, L1SCOUTNANOAODEventContent
 
 from Configuration.Eras.Modifier_run3_l1scouting_2026_cff import run3_l1scouting_2026
 

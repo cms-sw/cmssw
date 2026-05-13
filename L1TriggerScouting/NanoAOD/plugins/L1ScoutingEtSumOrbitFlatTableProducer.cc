@@ -1,13 +1,12 @@
 #include <memory>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "DataFormats/L1Scouting/interface/OrbitCollection.h"
 #include "DataFormats/NanoAOD/interface/OrbitFlatTable.h"
 #include "DataFormats/L1Scouting/interface/L1ScoutingCalo.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "L1TriggerScouting/Utilities/interface/conversion.h"
 
 class L1ScoutingEtSumOrbitFlatTableProducer : public edm::stream::EDProducer<> {
@@ -415,4 +414,5 @@ std::unique_ptr<l1ScoutingRun3::OrbitFlatTable> L1ScoutingEtSumOrbitFlatTablePro
   return out;
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(L1ScoutingEtSumOrbitFlatTableProducer);
