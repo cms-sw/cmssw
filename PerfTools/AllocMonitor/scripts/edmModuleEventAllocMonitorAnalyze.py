@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import json
+import sys
+
 class ModuleInfo(object):
     def __init__(self, label, type_):
         self._label = label
@@ -7,6 +10,10 @@ class ModuleInfo(object):
         self._eventInfo = list()
     def __repr__(self):
         return self._label+" "+self._type+" "+str(self._eventInfo)
+    def toSimpleDict(self, showEvents):
+        if showEvents:
+            return {'label': self._label, 'type': self._type, 'eventInfo': [{'streamID': e._streamID, 'temp': e._temp, 'nTemp': e._nTemp, 'unmatched': e._unmatched, 'nUnmatched': e._nUnmatched, 'dataProdAlloc': e._dataProdAlloc, 'nDataProdAlloc': e._nDataProdAlloc, 'new': e._new, 'nNew': e._nNew} for e in self._eventInfo]}
+        return {'label': self._label, 'type': self._type}
 class ModuleCall(object):
     def __init__(self, data):
         self._temp = data[0]
@@ -34,7 +41,8 @@ class FileParser(object):
         self.modules = dict()
         self.acquires = dict()
         self.nStreams = 0
-        pass
+    def toSimpleDict(self, showEvents):
+        return {'nStreams': self.nStreams, 'modules': [m.toSimpleDict(showEvents) for m in self.modules.values()]}
     def parse(self,file):
         for l in file:
             self._parseLine(l[:-1])
@@ -232,22 +240,32 @@ if __name__=="__main__":
     parser.add_argument('--eventData', help='for each report, show the per event data associated to the report', action='store_true')
     parser.add_argument('--maxColumn', type=int, help='maximum column width for report, 0 for no constraint', default=0)
     parser.add_argument('--csv', help='output chosen information all modules in a comma separated value format', action='store_true')
+    parser.add_argument('--json', action='store_true', help='output data in JSON format')
     args = parser.parse_args()
     
     inputfile = args.filename
 
     fileParser = FileParser()
     fileParser.parse(inputfile)
-    if args.csv:
-        args.maxColumn = -1
-    if args.grew:
-        printReport(reportModulesWithMemoryGrowth(fileParser, args.eventData), args.eventData, "total memory growth", "growth each event", args.maxColumn)
-    if args.retained:
-        printReport(reportModuleRetainingMemory(fileParser, args.eventData, args.csv), args.eventData, "average retained", "retained each event", args.maxColumn)
-    if args.product:
-        printReport(reportModuleDataProductMemory(fileParser, args.eventData, args.csv), args.eventData, "average data products size", "data products size each event", args.maxColumn)
-    if args.tempSize:
-        printReport(reportModuleTemporary(fileParser, args.eventData, args.csv), args.eventData, "average temporary allocation size", "temporary allocation size each event", args.maxColumn)
-    if args.nTemp:
-        printReport(reportModuleNTemporary(fileParser, args.eventData, args.csv), args.eventData, "average # of temporary allocation", "# of temporary allocations each event", args.maxColumn)
-    #print(fileParser.modules)
+ 
+    if args.json:
+        reportModulesWithMemoryGrowth(fileParser, args.eventData)
+        reportModuleRetainingMemory(fileParser, args.eventData, args.csv)
+        reportModuleDataProductMemory(fileParser, args.eventData, args.csv)
+        reportModuleTemporary(fileParser, args.eventData, args.csv)
+        reportModuleNTemporary(fileParser, args.eventData, args.csv)
+        json.dump(fileParser.toSimpleDict(args.eventData), sys.stdout, indent=2)
+    else:
+        if args.csv:
+            args.maxColumn = -1
+        if args.grew:
+            printReport(reportModulesWithMemoryGrowth(fileParser, args.eventData), args.eventData, "total memory growth", "growth each event", args.maxColumn)
+        if args.retained:
+            printReport(reportModuleRetainingMemory(fileParser, args.eventData, args.csv), args.eventData, "average retained", "retained each event", args.maxColumn)
+        if args.product:
+            printReport(reportModuleDataProductMemory(fileParser, args.eventData, args.csv), args.eventData, "average data products size", "data products size each event", args.maxColumn)
+        if args.tempSize:
+            printReport(reportModuleTemporary(fileParser, args.eventData, args.csv), args.eventData, "average temporary allocation size", "temporary allocation size each event", args.maxColumn)
+        if args.nTemp:
+            printReport(reportModuleNTemporary(fileParser, args.eventData, args.csv), args.eventData, "average # of temporary allocation", "# of temporary allocations each event", args.maxColumn)
+   
