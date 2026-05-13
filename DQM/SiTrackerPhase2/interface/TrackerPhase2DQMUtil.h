@@ -23,14 +23,24 @@ namespace phase2tkutil {
   MonitorElement* bookProfile1DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker);
 
   void add1DDesc(edm::ParameterSetDescription& desc,
-                 const std::string& psetKey, const std::string& histName,
-                 const std::string& xlabel, const std::string& ylabel,
-                 int nbins, double xmin, double xmax);
+                 const std::string& psetKey,
+                 const std::string& histName,
+                 const std::string& xlabel,
+                 const std::string& ylabel,
+                 int nbins,
+                 double xmin,
+                 double xmax);
 
   void add2DDesc(edm::ParameterSetDescription& desc,
-                 const std::string& psetKey, const std::string& histName,
-                 const std::string& xlabel, const std::string& ylabel,
-                 int nbx, double xmin, double xmax,
-                 int nby, double ymin, double ymax);
+                 const std::string& psetKey,
+                 const std::string& histName,
+                 const std::string& xlabel,
+                 const std::string& ylabel,
+                 int nbx,
+                 double xmin,
+                 double xmax,
+                 int nby,
+                 double ymin,
+                 double ymax);
 }  // namespace phase2tkutil
 #endif

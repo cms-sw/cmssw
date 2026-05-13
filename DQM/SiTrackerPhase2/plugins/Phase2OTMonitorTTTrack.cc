@@ -238,96 +238,158 @@ void Phase2OTMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
   using namespace phase2tkutil;
 
   iBooker.setCurrentFolder(topFolderName_ + "/Tracks/All");
-  Track_All_N                = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_N"),                iBooker);
-  Track_All_NStubs           = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_NStubs"),           iBooker);
-  Track_All_NLayersMissed    = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_NLayersMissed"),    iBooker);
-  Track_All_Eta_NStubs       = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Eta_NStubs"),       iBooker);
-  Track_All_Pt               = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Pt"),               iBooker);
-  Track_All_Phi              = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Phi"),              iBooker);
-  Track_All_D0               = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_D0"),               iBooker);
-  Track_All_Eta              = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Eta"),              iBooker);
-  Track_All_VtxZ             = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_VtxZ"),             iBooker);
-  Track_All_Chi2             = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2"),             iBooker);
-  Track_All_Chi2RZ           = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2RZ"),           iBooker);
-  Track_All_Chi2RPhi         = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2RPhi"),         iBooker);
-  Track_All_BendChi2         = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_BendChi2"),         iBooker);
-  Track_All_Chi2Red          = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2Red"),          iBooker);
-  Track_All_Chi2_Probability = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2_Probability"), iBooker);
-  Track_All_MVA1             = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_MVA1"),             iBooker);
-  Track_All_Chi2Red_NStubs   = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2Red_NStubs"),   iBooker);
-  Track_All_Chi2Red_Eta      = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2Red_Eta"),      iBooker);
-  Track_All_Eta_BarrelStubs  = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Eta_BarrelStubs"),  iBooker);
-  Track_All_Eta_ECStubs      = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Eta_ECStubs"),      iBooker);
+  Track_All_N = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_N"), iBooker);
+  Track_All_NStubs = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_NStubs"), iBooker);
+  Track_All_NLayersMissed = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_NLayersMissed"), iBooker);
+  Track_All_Eta_NStubs = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Eta_NStubs"), iBooker);
+  Track_All_Pt = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Pt"), iBooker);
+  Track_All_Phi = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Phi"), iBooker);
+  Track_All_D0 = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_D0"), iBooker);
+  Track_All_Eta = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Eta"), iBooker);
+  Track_All_VtxZ = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_VtxZ"), iBooker);
+  Track_All_Chi2 = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2"), iBooker);
+  Track_All_Chi2RZ = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2RZ"), iBooker);
+  Track_All_Chi2RPhi = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2RPhi"), iBooker);
+  Track_All_BendChi2 = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_BendChi2"), iBooker);
+  Track_All_Chi2Red = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2Red"), iBooker);
+  Track_All_Chi2_Probability =
+      book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2_Probability"), iBooker);
+  Track_All_MVA1 = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_MVA1"), iBooker);
+  Track_All_Chi2Red_NStubs = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2Red_NStubs"), iBooker);
+  Track_All_Chi2Red_Eta = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Chi2Red_Eta"), iBooker);
+  Track_All_Eta_BarrelStubs =
+      book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Eta_BarrelStubs"), iBooker);
+  Track_All_Eta_ECStubs = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_All_Eta_ECStubs"), iBooker);
 
   iBooker.setCurrentFolder(topFolderName_ + "/Tracks/HQ");
-  Track_HQ_N                = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_N"),                iBooker);
-  Track_HQ_NStubs           = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_NStubs"),           iBooker);
-  Track_HQ_NLayersMissed    = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_NLayersMissed"),    iBooker);
-  Track_HQ_Eta_NStubs       = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Eta_NStubs"),       iBooker);
-  Track_HQ_Pt               = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Pt"),               iBooker);
-  Track_HQ_Phi              = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Phi"),              iBooker);
-  Track_HQ_D0               = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_D0"),               iBooker);
-  Track_HQ_Eta              = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Eta"),              iBooker);
-  Track_HQ_VtxZ             = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_VtxZ"),             iBooker);
-  Track_HQ_Chi2             = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2"),             iBooker);
-  Track_HQ_BendChi2         = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_BendChi2"),         iBooker);
-  Track_HQ_Chi2RZ           = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2RZ"),           iBooker);
-  Track_HQ_Chi2RPhi         = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2RPhi"),         iBooker);
-  Track_HQ_Chi2Red          = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2Red"),          iBooker);
-  Track_HQ_Chi2_Probability = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2_Probability"), iBooker);
-  Track_HQ_MVA1             = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_MVA1"),             iBooker);
-  Track_HQ_Chi2Red_NStubs   = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2Red_NStubs"),   iBooker);
-  Track_HQ_Chi2Red_Eta      = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2Red_Eta"),      iBooker);
-  Track_HQ_Eta_BarrelStubs  = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Eta_BarrelStubs"),  iBooker);
-  Track_HQ_Eta_ECStubs      = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Eta_ECStubs"),      iBooker);
+  Track_HQ_N = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_N"), iBooker);
+  Track_HQ_NStubs = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_NStubs"), iBooker);
+  Track_HQ_NLayersMissed = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_NLayersMissed"), iBooker);
+  Track_HQ_Eta_NStubs = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Eta_NStubs"), iBooker);
+  Track_HQ_Pt = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Pt"), iBooker);
+  Track_HQ_Phi = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Phi"), iBooker);
+  Track_HQ_D0 = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_D0"), iBooker);
+  Track_HQ_Eta = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Eta"), iBooker);
+  Track_HQ_VtxZ = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_VtxZ"), iBooker);
+  Track_HQ_Chi2 = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2"), iBooker);
+  Track_HQ_BendChi2 = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_BendChi2"), iBooker);
+  Track_HQ_Chi2RZ = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2RZ"), iBooker);
+  Track_HQ_Chi2RPhi = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2RPhi"), iBooker);
+  Track_HQ_Chi2Red = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2Red"), iBooker);
+  Track_HQ_Chi2_Probability =
+      book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2_Probability"), iBooker);
+  Track_HQ_MVA1 = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_MVA1"), iBooker);
+  Track_HQ_Chi2Red_NStubs = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2Red_NStubs"), iBooker);
+  Track_HQ_Chi2Red_Eta = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Chi2Red_Eta"), iBooker);
+  Track_HQ_Eta_BarrelStubs = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Eta_BarrelStubs"), iBooker);
+  Track_HQ_Eta_ECStubs = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Track_HQ_Eta_ECStubs"), iBooker);
 }
 
 void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
 
   // All tracks
-  phase2tkutil::add1DDesc(desc, "Track_All_N",                "Track_All_N",                "# L1 Tracks",                    "# Events",            100,   0,   399);
-  phase2tkutil::add1DDesc(desc, "Track_All_NStubs",           "Track_All_NStubs",           "# L1 Stubs per L1 Track",        "# L1 Tracks",           8,   0,     8);
-  phase2tkutil::add1DDesc(desc, "Track_All_NLayersMissed",    "Track_All_NLayersMissed",    "# Layers missed",                "# L1 Tracks",           8,   0,     8);
-  phase2tkutil::add2DDesc(desc, "Track_All_Eta_NStubs",       "Track_All_Eta_NStubs",       "#eta",                           "# L1 Stubs",           15,  -3.0,  3.0,  5,  3,   8);
-  phase2tkutil::add1DDesc(desc, "Track_All_Pt",               "Track_All_Pt",               "p_{T} [GeV]",                    "# L1 Tracks",          50,   0,   100);
-  phase2tkutil::add1DDesc(desc, "Track_All_Phi",              "Track_All_Phi",              "#phi",                           "# L1 Tracks",          60,  -3.5,  3.5);
-  phase2tkutil::add1DDesc(desc, "Track_All_D0",               "Track_All_D0",               "Track D0",                       "# L1 Tracks",         101,  -0.15, 0.15);
-  phase2tkutil::add1DDesc(desc, "Track_All_Eta",              "Track_All_Eta",              "#eta",                           "# L1 Tracks",          45,  -3.0,  3.0);
-  phase2tkutil::add1DDesc(desc, "Track_All_VtxZ",             "Track_All_VtxZ",             "L1 Track vertex position z [cm]","# L1 Tracks",          41, -20,    20);
-  phase2tkutil::add1DDesc(desc, "Track_All_Chi2",             "Track_All_Chi2",             "L1 Track #chi^{2}",              "# L1 Tracks",         100,   0,    50);
-  phase2tkutil::add1DDesc(desc, "Track_All_Chi2RZ",           "Track_All_Chi2RZ",           "L1 Track #chi^{2} r-z",          "# L1 Tracks",         100,   0,    50);
-  phase2tkutil::add1DDesc(desc, "Track_All_Chi2RPhi",         "Track_All_Chi2RPhi",         "L1 Track #chi^{2}",              "# L1 Tracks",         100,   0,    50);
-  phase2tkutil::add1DDesc(desc, "Track_All_BendChi2",         "Track_All_BendChi2",         "L1 Track Bend #chi^{2}",         "# L1 Tracks",         100,   0,    10);
-  phase2tkutil::add1DDesc(desc, "Track_All_Chi2Red",          "Track_All_Chi2Red",          "L1 Track #chi^{2}/ndf",          "# L1 Tracks",         100,   0,    10);
-  phase2tkutil::add1DDesc(desc, "Track_All_Chi2_Probability", "Track_All_Chi2_Probability", "#chi^{2} probability",           "# L1 Tracks",         100,   0,     1);
-  phase2tkutil::add1DDesc(desc, "Track_All_MVA1",             "Track_All_MVA1",             "MVA1",                           "# L1 Tracks",         100,   0,     1);
-  phase2tkutil::add2DDesc(desc, "Track_All_Chi2Red_NStubs",   "Track_All_Chi2Red_NStubs",   "# L1 Stubs",                     "L1 Track #chi^{2}/ndf",  5,  3,    8,  15,  0,  10);
-  phase2tkutil::add2DDesc(desc, "Track_All_Chi2Red_Eta",      "Track_All_Chi2Red_Eta",      "#eta",                           "L1 Track #chi^{2}/ndf", 15, -3.0,  3.0, 15,  0,  10);
-  phase2tkutil::add2DDesc(desc, "Track_All_Eta_BarrelStubs",  "Track_All_Eta_BarrelStubs",  "#eta",                           "# L1 Barrel Stubs",    15,  -3.0,  3.0,  5,  3,   8);
-  phase2tkutil::add2DDesc(desc, "Track_All_Eta_ECStubs",      "Track_All_Eta_ECStubs",       "#eta",                           "# L1 EC Stubs",        15,  -3.0,  3.0,  5,  3,   8);
+  phase2tkutil::add1DDesc(desc, "Track_All_N", "Track_All_N", "# L1 Tracks", "# Events", 100, 0, 399);
+  phase2tkutil::add1DDesc(
+      desc, "Track_All_NStubs", "Track_All_NStubs", "# L1 Stubs per L1 Track", "# L1 Tracks", 8, 0, 8);
+  phase2tkutil::add1DDesc(
+      desc, "Track_All_NLayersMissed", "Track_All_NLayersMissed", "# Layers missed", "# L1 Tracks", 8, 0, 8);
+  phase2tkutil::add2DDesc(
+      desc, "Track_All_Eta_NStubs", "Track_All_Eta_NStubs", "#eta", "# L1 Stubs", 15, -3.0, 3.0, 5, 3, 8);
+  phase2tkutil::add1DDesc(desc, "Track_All_Pt", "Track_All_Pt", "p_{T} [GeV]", "# L1 Tracks", 50, 0, 100);
+  phase2tkutil::add1DDesc(desc, "Track_All_Phi", "Track_All_Phi", "#phi", "# L1 Tracks", 60, -3.5, 3.5);
+  phase2tkutil::add1DDesc(desc, "Track_All_D0", "Track_All_D0", "Track D0", "# L1 Tracks", 101, -0.15, 0.15);
+  phase2tkutil::add1DDesc(desc, "Track_All_Eta", "Track_All_Eta", "#eta", "# L1 Tracks", 45, -3.0, 3.0);
+  phase2tkutil::add1DDesc(
+      desc, "Track_All_VtxZ", "Track_All_VtxZ", "L1 Track vertex position z [cm]", "# L1 Tracks", 41, -20, 20);
+  phase2tkutil::add1DDesc(desc, "Track_All_Chi2", "Track_All_Chi2", "L1 Track #chi^{2}", "# L1 Tracks", 100, 0, 50);
+  phase2tkutil::add1DDesc(
+      desc, "Track_All_Chi2RZ", "Track_All_Chi2RZ", "L1 Track #chi^{2} r-z", "# L1 Tracks", 100, 0, 50);
+  phase2tkutil::add1DDesc(
+      desc, "Track_All_Chi2RPhi", "Track_All_Chi2RPhi", "L1 Track #chi^{2}", "# L1 Tracks", 100, 0, 50);
+  phase2tkutil::add1DDesc(
+      desc, "Track_All_BendChi2", "Track_All_BendChi2", "L1 Track Bend #chi^{2}", "# L1 Tracks", 100, 0, 10);
+  phase2tkutil::add1DDesc(
+      desc, "Track_All_Chi2Red", "Track_All_Chi2Red", "L1 Track #chi^{2}/ndf", "# L1 Tracks", 100, 0, 10);
+  phase2tkutil::add1DDesc(desc,
+                          "Track_All_Chi2_Probability",
+                          "Track_All_Chi2_Probability",
+                          "#chi^{2} probability",
+                          "# L1 Tracks",
+                          100,
+                          0,
+                          1);
+  phase2tkutil::add1DDesc(desc, "Track_All_MVA1", "Track_All_MVA1", "MVA1", "# L1 Tracks", 100, 0, 1);
+  phase2tkutil::add2DDesc(desc,
+                          "Track_All_Chi2Red_NStubs",
+                          "Track_All_Chi2Red_NStubs",
+                          "# L1 Stubs",
+                          "L1 Track #chi^{2}/ndf",
+                          5,
+                          3,
+                          8,
+                          15,
+                          0,
+                          10);
+  phase2tkutil::add2DDesc(
+      desc, "Track_All_Chi2Red_Eta", "Track_All_Chi2Red_Eta", "#eta", "L1 Track #chi^{2}/ndf", 15, -3.0, 3.0, 15, 0, 10);
+  phase2tkutil::add2DDesc(desc,
+                          "Track_All_Eta_BarrelStubs",
+                          "Track_All_Eta_BarrelStubs",
+                          "#eta",
+                          "# L1 Barrel Stubs",
+                          15,
+                          -3.0,
+                          3.0,
+                          5,
+                          3,
+                          8);
+  phase2tkutil::add2DDesc(
+      desc, "Track_All_Eta_ECStubs", "Track_All_Eta_ECStubs", "#eta", "# L1 EC Stubs", 15, -3.0, 3.0, 5, 3, 8);
 
   // HQ tracks
-  phase2tkutil::add1DDesc(desc, "Track_HQ_N",                "Track_HQ_N",                "# L1 Tracks",                    "# Events",            100,   0,   399);
-  phase2tkutil::add1DDesc(desc, "Track_HQ_NStubs",           "Track_HQ_NStubs",           "# L1 Stubs per L1 Track",        "# L1 Tracks",           8,   0,     8);
-  phase2tkutil::add1DDesc(desc, "Track_HQ_NLayersMissed",    "Track_HQ_NLayersMissed",    "# Layers missed",                "# L1 Tracks",           8,   0,     8);
-  phase2tkutil::add2DDesc(desc, "Track_HQ_Eta_NStubs",       "Track_HQ_Eta_NStubs",       "#eta",                           "# L1 Stubs",           15,  -3.0,  3.0,  5,  3,   8);
-  phase2tkutil::add1DDesc(desc, "Track_HQ_Pt",               "Track_HQ_Pt",               "p_{T} [GeV]",                    "# L1 Tracks",          50,   0,   100);
-  phase2tkutil::add1DDesc(desc, "Track_HQ_Phi",              "Track_HQ_Phi",              "#phi",                           "# L1 Tracks",          60,  -3.5,  3.5);
-  phase2tkutil::add1DDesc(desc, "Track_HQ_D0",               "Track_HQ_D0",               "Track D0",                       "# L1 Tracks",         101,  -0.15, 0.15);
-  phase2tkutil::add1DDesc(desc, "Track_HQ_Eta",              "Track_HQ_Eta",              "#eta",                           "# L1 Tracks",          45,  -3.0,  3.0);
-  phase2tkutil::add1DDesc(desc, "Track_HQ_VtxZ",             "Track_HQ_VtxZ",             "L1 Track vertex position z [cm]","# L1 Tracks",          41, -20,    20);
-  phase2tkutil::add1DDesc(desc, "Track_HQ_Chi2",             "Track_HQ_Chi2",             "L1 Track #chi^{2}",              "# L1 Tracks",         100,   0,    50);
-  phase2tkutil::add1DDesc(desc, "Track_HQ_BendChi2",         "Track_HQ_BendChi2",         "L1 Track Bend #chi^{2}",         "# L1 Tracks",         100,   0,    10);
-  phase2tkutil::add1DDesc(desc, "Track_HQ_Chi2RZ",           "Track_HQ_Chi2RZ",           "L1 Track #chi^{2} r-z",          "# L1 Tracks",         100,   0,    50);
-  phase2tkutil::add1DDesc(desc, "Track_HQ_Chi2RPhi",         "Track_HQ_Chi2RPhi",         "L1 Track #chi^{2} r-phi",        "# L1 Tracks",         100,   0,    50);
-  phase2tkutil::add1DDesc(desc, "Track_HQ_Chi2Red",          "Track_HQ_Chi2Red",          "L1 Track #chi^{2}/ndf",          "# L1 Tracks",         100,   0,    10);
-  phase2tkutil::add1DDesc(desc, "Track_HQ_Chi2_Probability", "Track_HQ_Chi2_Probability", "#chi^{2} probability",           "# L1 Tracks",         100,   0,     1);
-  phase2tkutil::add1DDesc(desc, "Track_HQ_MVA1",             "Track_HQ_MVA1",             "MVA1",                           "# L1 Tracks",         100,   0,     1);
-  phase2tkutil::add2DDesc(desc, "Track_HQ_Chi2Red_NStubs",   "Track_HQ_Chi2Red_NStubs",   "# L1 Stubs",                     "L1 Track #chi^{2}/ndf",  5,  3,    8,  15,  0,  10);
-  phase2tkutil::add2DDesc(desc, "Track_HQ_Chi2Red_Eta",      "Track_HQ_Chi2Red_Eta",      "#eta",                           "L1 Track #chi^{2}/ndf", 15, -3.0,  3.0, 15,  0,  10);
-  phase2tkutil::add2DDesc(desc, "Track_HQ_Eta_BarrelStubs",  "Track_HQ_Eta_BarrelStubs",  "#eta",                           "# L1 Barrel Stubs",    15,  -3.0,  3.0,  5,  3,   8);
-  phase2tkutil::add2DDesc(desc, "Track_HQ_Eta_ECStubs",      "Track_HQ_Eta_ECStubs",      "#eta",                           "# L1 EC Stubs",        15,  -3.0,  3.0,  5,  3,   8);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_N", "Track_HQ_N", "# L1 Tracks", "# Events", 100, 0, 399);
+  phase2tkutil::add1DDesc(
+      desc, "Track_HQ_NStubs", "Track_HQ_NStubs", "# L1 Stubs per L1 Track", "# L1 Tracks", 8, 0, 8);
+  phase2tkutil::add1DDesc(
+      desc, "Track_HQ_NLayersMissed", "Track_HQ_NLayersMissed", "# Layers missed", "# L1 Tracks", 8, 0, 8);
+  phase2tkutil::add2DDesc(
+      desc, "Track_HQ_Eta_NStubs", "Track_HQ_Eta_NStubs", "#eta", "# L1 Stubs", 15, -3.0, 3.0, 5, 3, 8);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_Pt", "Track_HQ_Pt", "p_{T} [GeV]", "# L1 Tracks", 50, 0, 100);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_Phi", "Track_HQ_Phi", "#phi", "# L1 Tracks", 60, -3.5, 3.5);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_D0", "Track_HQ_D0", "Track D0", "# L1 Tracks", 101, -0.15, 0.15);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_Eta", "Track_HQ_Eta", "#eta", "# L1 Tracks", 45, -3.0, 3.0);
+  phase2tkutil::add1DDesc(
+      desc, "Track_HQ_VtxZ", "Track_HQ_VtxZ", "L1 Track vertex position z [cm]", "# L1 Tracks", 41, -20, 20);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_Chi2", "Track_HQ_Chi2", "L1 Track #chi^{2}", "# L1 Tracks", 100, 0, 50);
+  phase2tkutil::add1DDesc(
+      desc, "Track_HQ_BendChi2", "Track_HQ_BendChi2", "L1 Track Bend #chi^{2}", "# L1 Tracks", 100, 0, 10);
+  phase2tkutil::add1DDesc(
+      desc, "Track_HQ_Chi2RZ", "Track_HQ_Chi2RZ", "L1 Track #chi^{2} r-z", "# L1 Tracks", 100, 0, 50);
+  phase2tkutil::add1DDesc(
+      desc, "Track_HQ_Chi2RPhi", "Track_HQ_Chi2RPhi", "L1 Track #chi^{2} r-phi", "# L1 Tracks", 100, 0, 50);
+  phase2tkutil::add1DDesc(
+      desc, "Track_HQ_Chi2Red", "Track_HQ_Chi2Red", "L1 Track #chi^{2}/ndf", "# L1 Tracks", 100, 0, 10);
+  phase2tkutil::add1DDesc(
+      desc, "Track_HQ_Chi2_Probability", "Track_HQ_Chi2_Probability", "#chi^{2} probability", "# L1 Tracks", 100, 0, 1);
+  phase2tkutil::add1DDesc(desc, "Track_HQ_MVA1", "Track_HQ_MVA1", "MVA1", "# L1 Tracks", 100, 0, 1);
+  phase2tkutil::add2DDesc(desc,
+                          "Track_HQ_Chi2Red_NStubs",
+                          "Track_HQ_Chi2Red_NStubs",
+                          "# L1 Stubs",
+                          "L1 Track #chi^{2}/ndf",
+                          5,
+                          3,
+                          8,
+                          15,
+                          0,
+                          10);
+  phase2tkutil::add2DDesc(
+      desc, "Track_HQ_Chi2Red_Eta", "Track_HQ_Chi2Red_Eta", "#eta", "L1 Track #chi^{2}/ndf", 15, -3.0, 3.0, 15, 0, 10);
+  phase2tkutil::add2DDesc(
+      desc, "Track_HQ_Eta_BarrelStubs", "Track_HQ_Eta_BarrelStubs", "#eta", "# L1 Barrel Stubs", 15, -3.0, 3.0, 5, 3, 8);
+  phase2tkutil::add2DDesc(
+      desc, "Track_HQ_Eta_ECStubs", "Track_HQ_Eta_ECStubs", "#eta", "# L1 EC Stubs", 15, -3.0, 3.0, 5, 3, 8);
 
   desc.add<std::string>("TopFolderName", "TrackerPhase2OTL1Track");
   desc.add<edm::InputTag>("TTTracksTag", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));
