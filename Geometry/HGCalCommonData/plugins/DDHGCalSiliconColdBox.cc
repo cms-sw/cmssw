@@ -112,10 +112,10 @@ DDHGCalSiliconColdBox::DDHGCalSiliconColdBox() {
 }
 
 void DDHGCalSiliconColdBox::initialize(const DDNumericArguments& nArgs,
-                                               const DDVectorArguments& vArgs,
-                                               const DDMapArguments&,
-                                               const DDStringArguments& sArgs,
-                                               const DDStringVectorArguments& vsArgs) {
+                                       const DDVectorArguments& vArgs,
+                                       const DDMapArguments&,
+                                       const DDStringArguments& sArgs,
+                                       const DDStringVectorArguments& vsArgs) {
   waferTypes_ = static_cast<int>(nArgs["WaferTypes"]);
   passiveTypes_ = static_cast<int>(nArgs["PassiveTypes"]);
   facingTypes_ = static_cast<int>(nArgs["FacingTypes"]);
@@ -159,8 +159,8 @@ void DDHGCalSiliconColdBox::initialize(const DDNumericArguments& nArgs,
   waferFull_ = vsArgs["WaferNamesFull"];
   waferPart_ = vsArgs["WaferNamesPartial"];
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << waferFull_.size() << " full and "
-                                << waferPart_.size() << " partial modules";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << waferFull_.size() << " full and " << waferPart_.size()
+                                << " partial modules";
   unsigned int i1max = static_cast<unsigned int>(waferFull_.size());
   for (unsigned int i1 = 0; i1 < i1max; i1 += 2) {
     std::ostringstream st1;
@@ -312,8 +312,7 @@ void DDHGCalSiliconColdBox::execute(DDCompactView& cpv) {
 #endif
   constructLayers(parent(), cpv);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << copies_.size()
-                                << " different wafer copy numbers";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << copies_.size() << " different wafer copy numbers";
   int k(0);
   for (std::unordered_set<int>::const_iterator itr = copies_.begin(); itr != copies_.end(); ++itr, ++k) {
     edm::LogVerbatim("HGCalGeom") << "Copy [" << k << "] : " << (*itr);
@@ -327,8 +326,7 @@ void DDHGCalSiliconColdBox::constructLayers(const DDLogicalPart& module, DDCompa
   double zi(zMinBlock_);
   int laymin(0);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: Enters constructLayers with " << layers_.size()
-                                << " layers";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: Enters constructLayers with " << layers_.size() << " layers";
 #endif
   for (unsigned int i = 0; i < layers_.size(); i++) {
     double zo = zi + layerThick_[i];
@@ -337,8 +335,8 @@ void DDHGCalSiliconColdBox::constructLayers(const DDLogicalPart& module, DDCompa
     double zz = zi;
     double thickTot(0);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: Section " << i << " Layers " << laymin << ":"
-                                  << laymax << " zi " << zi;
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: Section " << i << " Layers " << laymin << ":" << laymax
+                                  << " zi " << zi;
 #endif
     for (int ly = laymin; ly < laymax; ++ly) {
       int ii = layerType_[ly];
@@ -350,8 +348,8 @@ void DDHGCalSiliconColdBox::constructLayers(const DDLogicalPart& module, DDCompa
 
       std::string name = names_[ii] + std::to_string(copy);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: Layer " << ly << ":" << ii << " Front " << zi
-                                    << ", " << routF << " Back " << zo << ", " << rinB << " superlayer thickness "
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: Layer " << ly << ":" << ii << " Front " << zi << ", "
+                                    << routF << " Back " << zo << ", " << rinB << " superlayer thickness "
                                     << layerThick_[i];
 #endif
       DDName matName(DDSplit(materials_[ii]).first, DDSplit(materials_[ii]).second);
@@ -383,8 +381,8 @@ void DDHGCalSiliconColdBox::constructLayers(const DDLogicalPart& module, DDCompa
             DDSolidFactory::polyhedra(DDName(name, nameSpace_), sectors_, -alpha_, 2._pi, pgonZ, pgonRin, pgonRout);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << solid.name() << " polyhedra of "
-                                      << sectors_ << " sectors covering " << convertRadToDeg(-alpha_) << ":"
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << solid.name() << " polyhedra of " << sectors_
+                                      << " sectors covering " << convertRadToDeg(-alpha_) << ":"
                                       << convertRadToDeg(-alpha_ + 2._pi) << " with " << pgonZ.size()
                                       << " sections and filled with " << matName;
         for (unsigned int k = 0; k < pgonZ.size(); ++k)
@@ -397,10 +395,10 @@ void DDHGCalSiliconColdBox::constructLayers(const DDLogicalPart& module, DDCompa
         DDSolid solid = DDSolidFactory::tubs(DDName(name, nameSpace_), hthick, rins, routs, 0.0, 2._pi);
         glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << solid.name() << " Tubs made of "
-                                      << matName << " of dimensions " << rinB << ":" << rins << ", " << routF << ":"
-                                      << routs << ", " << hthick << ", 0.0, 360.0 and position " << glog.name()
-                                      << " number " << copy << ":" << layerOrient_[copy - firstLayer_] << " Z " << zz;
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << solid.name() << " Tubs made of " << matName
+                                      << " of dimensions " << rinB << ":" << rins << ", " << routF << ":" << routs
+                                      << ", " << hthick << ", 0.0, 360.0 and position " << glog.name() << " number "
+                                      << copy << ":" << layerOrient_[copy - firstLayer_] << " Z " << zz;
         edm::LogVerbatim("HGCalGeom") << "POSITION: " << layerSense_[ly] << " PassiveMode " << passiveMode_;
 #endif
         if (layerSense_[ly] > 0) {
@@ -427,14 +425,16 @@ void DDHGCalSiliconColdBox::constructLayers(const DDLogicalPart& module, DDCompa
 
       unsigned int imatr = copy - firstLayer_;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "HGRotCass Layer "<<ly<<" orient " << layerOrient_[copy - firstLayer_] << "copy " << copy - firstLayer_ << " imatr " << imatr << " sense " << layerSense_[ly];
+      edm::LogVerbatim("HGCalGeom") << "HGRotCass Layer " << ly << " orient " << layerOrient_[copy - firstLayer_]
+                                    << "copy " << copy - firstLayer_ << " imatr " << imatr << " sense "
+                                    << layerSense_[ly];
 #endif
       if ((layerSense_[ly] > 0) && imatr < rotmats_.size()) {
 #ifdef EDM_ML_DEBUG
-	rotName = rotmats_[imatr];
-	edm::LogVerbatim("HGCalGeom") <<"Rotm "<<DDSplit(rotmats_[imatr]).first;
+        rotName = rotmats_[imatr];
+        edm::LogVerbatim("HGCalGeom") << "Rotm " << DDSplit(rotmats_[imatr]).first;
 #endif
-	rot = DDRotation(DDName(DDSplit(rotmats_[imatr]).first, DDSplit(rotmats_[imatr]).second));
+        rot = DDRotation(DDName(DDSplit(rotmats_[imatr]).first, DDSplit(rotmats_[imatr]).second));
       }
 
       cpv.position(glog, module, copy, r1, rot);
@@ -442,7 +442,8 @@ void DDHGCalSiliconColdBox::constructLayers(const DDLogicalPart& module, DDCompa
       copyNumber_[ii] = copy + inc;
 
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "ConstrL: " << glog.name() << " number " << copy << " positioned in " << module.name() << " at " << r1 << " with " << rotName  << " rotation";
+      edm::LogVerbatim("HGCalGeom") << "ConstrL: " << glog.name() << " number " << copy << " positioned in "
+                                    << module.name() << " at " << r1 << " with " << rotName << " rotation";
       edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << glog.name() << " number " << copy
                                     << " positioned in " << module.name() << " at " << r1 << " with " << rotName
                                     << " rotation";
@@ -479,8 +480,8 @@ void DDHGCalSiliconColdBox::positionSensitive(const DDLogicalPart& glog, int lay
 #ifdef EDM_ML_DEBUG
   int ium(0), ivm(0), kount(0);
   std::vector<int> ntype(3, 0);
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: PositionSensitive layer " << layer << "  r " << delx
-                                << " R " << dely << " dy " << dy << " Shift " << xyoff.first << ":" << xyoff.second
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: PositionSensitive layer " << layer << "  r " << delx << " R "
+                                << dely << " dy " << dy << " Shift " << xyoff.first << ":" << xyoff.second
                                 << " WaferSize " << (waferSize_ + waferSepar_) << " index " << firstWafer << ":"
                                 << (lastWafer - 1) << " Layer Center " << layercenter << ":" << layertype;
   edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << glog.ddname() << "  r " << delx << " R " << dely
@@ -509,11 +510,11 @@ void DDHGCalSiliconColdBox::positionSensitive(const DDLogicalPart& glog, int lay
     double xorig = xyoff.first + nc * delx;
     double yorig = xyoff.second + nr * dy;
     double angle = std::atan2(yorig, xorig);
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox::Wafer: layer " << layer + 1 << " cassette "
-                                  << cassette << " Shift " << cshift.first << ":" << cshift.second << " Original "
-                                  << xorig << ":" << yorig << ":" << convertRadToDeg(angle) << " Final " << xpos << ":"
-                                  << ypos << " u|v " << u << ":" << v << " type|part|orient|place " << type << ":"
-                                  << part << ":" << orien << ":" << place;
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox::Wafer: layer " << layer + 1 << " cassette " << cassette
+                                  << " Shift " << cshift.first << ":" << cshift.second << " Original " << xorig << ":"
+                                  << yorig << ":" << convertRadToDeg(angle) << " Final " << xpos << ":" << ypos
+                                  << " u|v " << u << ":" << v << " type|part|orient|place " << type << ":" << part
+                                  << ":" << orien << ":" << place;
 #endif
     std::string wafer;
     int i(999);
@@ -542,11 +543,10 @@ void DDHGCalSiliconColdBox::positionSensitive(const DDLogicalPart& glog, int lay
     }
     int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconColdBox: Layer "
-                                  << HGCalWaferIndex::waferLayer(waferIndex_[k]) << " Wafer " << wafer << " number "
-                                  << copy << " type:part:orien:place:ind " << type << ":" << part << ":" << orien << ":"
-                                  << place << ":" << i << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":"
-                                  << v << " pos " << xpos << ":" << ypos;
+    edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconColdBox: Layer " << HGCalWaferIndex::waferLayer(waferIndex_[k])
+                                  << " Wafer " << wafer << " number " << copy << " type:part:orien:place:ind " << type
+                                  << ":" << part << ":" << orien << ":" << place << ":" << i << " layer:u:v:indx "
+                                  << (layer + firstLayer_) << ":" << u << ":" << v << " pos " << xpos << ":" << ypos;
     if (iu > ium)
       ium = iu;
     if (iv > ivm)
@@ -561,23 +561,20 @@ void DDHGCalSiliconColdBox::positionSensitive(const DDLogicalPart& glog, int lay
     cpv.position(name, glog.ddname(), copy, tran, rotation);
 #ifdef EDM_ML_DEBUG
     ++ntype[type];
-    edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconColdBox: " << name << " number " << copy << " type "
-                                  << layertype << ":" << type << " positioned in " << glog.ddname() << " at " << tran
+    edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconColdBox: " << name << " number " << copy << " type " << layertype
+                                  << ":" << type << " positioned in " << glog.ddname() << " at " << tran
                                   << " with no rotation";
 #endif
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: Maximum # of u " << ium << " # of v " << ivm
-                                << " and " << kount << " passives (" << ntype[0] << ":" << ntype[1] << ":" << ntype[2]
-                                << ") for " << glog.ddname();
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: Maximum # of u " << ium << " # of v " << ivm << " and "
+                                << kount << " passives (" << ntype[0] << ":" << ntype[1] << ":" << ntype[2] << ") for "
+                                << glog.ddname();
 #endif
 }
 
 // Position the passive modules (mode == 0)
-void DDHGCalSiliconColdBox::positionPassive(const DDLogicalPart& glog,
-                                                    int layer,
-                                                    int absType,
-                                                    DDCompactView& cpv) {
+void DDHGCalSiliconColdBox::positionPassive(const DDLogicalPart& glog, int layer, int absType, DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: positionPassiveAbsorber is called";
 #endif
@@ -623,11 +620,11 @@ void DDHGCalSiliconColdBox::positionPassive(const DDLogicalPart& glog,
     double yorig = xyoff.second + nr * dy;
     double angle = std::atan2(yorig, xorig);
     int type = HGCalProperty::waferThick(waferProperty_[k]);
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox::Passive: layer " << layer + 1 << " cassette "
-                                  << cassette << " Shift " << cshift.first << ":" << cshift.second << " Original "
-                                  << xorig << ":" << yorig << ":" << convertRadToDeg(angle) << " Final " << xpos << ":"
-                                  << ypos << " u|v " << u << ":" << v << " type|part|orient" << type << ":" << part
-                                  << ":" << orien;
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox::Passive: layer " << layer + 1 << " cassette " << cassette
+                                  << " Shift " << cshift.first << ":" << cshift.second << " Original " << xorig << ":"
+                                  << yorig << ":" << convertRadToDeg(angle) << " Final " << xpos << ":" << ypos
+                                  << " u|v " << u << ":" << v << " type|part|orient" << type << ":" << part << ":"
+                                  << orien;
 #endif
     std::string passive;
     int i(999);
@@ -656,11 +653,11 @@ void DDHGCalSiliconColdBox::positionPassive(const DDLogicalPart& glog,
     }
     int copy = HGCalTypes::packTypeUV(absType, u, v);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconColdBox: Layer "
-                                  << HGCalWaferIndex::waferLayer(waferIndex_[k]) << " Passive " << passive << " number "
-                                  << copy << " type:part:orien:place:ind " << type << ":" << part << ":" << orien << ":"
-                                  << place << ":" << i << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":"
-                                  << v << " pos " << xpos << ":" << ypos;
+    edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconColdBox: Layer " << HGCalWaferIndex::waferLayer(waferIndex_[k])
+                                  << " Passive " << passive << " number " << copy << " type:part:orien:place:ind "
+                                  << type << ":" << part << ":" << orien << ":" << place << ":" << i
+                                  << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":" << v << " pos "
+                                  << xpos << ":" << ypos;
     if (iu > ium)
       ium = iu;
     if (iv > ivm)
@@ -672,22 +669,19 @@ void DDHGCalSiliconColdBox::positionPassive(const DDLogicalPart& glog,
     DDName name = DDName(DDSplit(passive).first, DDSplit(passive).second);
     cpv.position(name, glog.ddname(), copy, tran, rotation);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconColdBox: " << name << " number " << copy << " type "
-                                  << layertype << ":" << type << " positioned in " << glog.ddname() << " at " << tran
+    edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconColdBox: " << name << " number " << copy << " type " << layertype
+                                  << ":" << type << " positioned in " << glog.ddname() << " at " << tran
                                   << " with no rotation";
 #endif
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: Maximum # of u " << ium << " # of v " << ivm
-                                << " and " << kount << " passives for " << glog.ddname();
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: Maximum # of u " << ium << " # of v " << ivm << " and "
+                                << kount << " passives for " << glog.ddname();
 #endif
 }
 
 // Position the passive modules (mode > 0)
-void DDHGCalSiliconColdBox::positionPassiveNew(const DDLogicalPart& glog,
-                                                       int layer,
-                                                       int absType,
-                                                       DDCompactView& cpv) {
+void DDHGCalSiliconColdBox::positionPassiveNew(const DDLogicalPart& glog, int layer, int absType, DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: positionPassiveNew is called";
   int kount(0);
@@ -710,8 +704,8 @@ void DDHGCalSiliconColdBox::positionPassiveNew(const DDLogicalPart& glog,
 #endif
       std::string passive = (type) ? passiveAbsorb_[i2] : passiveCool_[i2];
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconColdBox: Passive2 " << passive << " number " << i2
-                                    << " pos " << xpos << ":" << ypos << ":" << zpos;
+      edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconColdBox: Passive2 " << passive << " number " << i2 << " pos "
+                                    << xpos << ":" << ypos << ":" << zpos;
       kount++;
 #endif
       DDTranslation tran(xpos, ypos, zpos);
@@ -719,14 +713,14 @@ void DDHGCalSiliconColdBox::positionPassiveNew(const DDLogicalPart& glog,
       DDName name = DDName(DDSplit(passive).first, DDSplit(passive).second);
       cpv.position(name, glog.ddname(), i2, tran, rotation);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconColdBox: " << name << " number " << i2
-                                    << " positioned in " << glog.ddname() << " at " << tran << " with no rotation";
+      edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconColdBox: " << name << " number " << i2 << " positioned in "
+                                    << glog.ddname() << " at " << tran << " with no rotation";
 #endif
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << kount << " passives of type " << absType
-                                << " for " << glog.ddname();
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << kount << " passives of type " << absType << " for "
+                                << glog.ddname();
 #endif
 }
 

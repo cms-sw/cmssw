@@ -29,9 +29,7 @@
 using namespace angle_units::operators;
 
 struct HGCalSiliconColdBox {
-  HGCalSiliconColdBox() {
-    throw cms::Exception("HGCalGeom") << "Wrong initialization to HGCalSiliconColdBox";
-  }
+  HGCalSiliconColdBox() { throw cms::Exception("HGCalGeom") << "Wrong initialization to HGCalSiliconColdBox"; }
   HGCalSiliconColdBox(cms::DDParsingContext& ctxt, xml_h e) {
     cms::DDNamespace ns(ctxt, e, true);
     cms::DDAlgoArguments args(ctxt, e);
@@ -74,11 +72,10 @@ struct HGCalSiliconColdBox {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "HGRotCass zStart " << zMinBlock_ << " wa\
 fer width " << waferSize_ << " separations "
-                                << waferSepar_ << " sectors " << sectors_ << "\
+                                  << waferSepar_ << " sectors " << sectors_ << "\
 :" << convertRadToDeg(alpha_) << ":"
-                                << cosAlpha_ << " rotation matrix " << rotstr_\
- << " with " << cassettes_
-                                << " cassettes";
+                                  << cosAlpha_ << " rotation matrix " << rotstr_ << " with " << cassettes_
+                                  << " cassettes";
     edm::LogVerbatim("HGCalGeom") << "zStart " << cms::convert2mm(zMinBlock_) << " wafer width "
                                   << cms::convert2mm(waferSize_) << " separations " << cms::convert2mm(waferSepar_)
                                   << " sectors " << sectors_ << ":" << convertRadToDeg(alpha_) << ":" << cosAlpha_
@@ -87,8 +84,8 @@ fer width " << waferSize_ << " separations "
     waferFull_ = args.value<std::vector<std::string>>("WaferNamesFull");
     waferPart_ = args.value<std::vector<std::string>>("WaferNamesPartial");
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << waferFull_.size() << " full and "
-                                  << waferPart_.size() << " partial modules";
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << waferFull_.size() << " full and " << waferPart_.size()
+                                  << " partial modules";
     unsigned int i1max = static_cast<unsigned int>(waferFull_.size());
     for (unsigned int i1 = 0; i1 < i1max; i1 += 2) {
       std::ostringstream st1;
@@ -244,8 +241,8 @@ fer width " << waferSize_ << " separations "
       double zz = zi;
       double thickTot(0);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: Section " << i << " Layers " << laymin << ":"
-                                    << laymax << " zi " << cms::convert2mm(zi);
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: Section " << i << " Layers " << laymin << ":" << laymax
+                                    << " zi " << cms::convert2mm(zi);
 #endif
       for (int ly = laymin; ly < laymax; ++ly) {
         int ii = layerType_[ly];
@@ -291,8 +288,8 @@ fer width " << waferSize_ << " separations "
           glog = dd4hep::Volume(solid.name(), solid, matter);
           ns.addVolumeNS(glog);
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << solid.name() << " polyhedra of "
-                                        << sectors_ << " sectors covering " << convertRadToDeg(-alpha_) << ":"
+          edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << solid.name() << " polyhedra of " << sectors_
+                                        << " sectors covering " << convertRadToDeg(-alpha_) << ":"
                                         << convertRadToDeg(-alpha_ + 2._pi) << " with " << pgonZ.size()
                                         << " sections and filled with " << matter.name();
           for (unsigned int k = 0; k < pgonZ.size(); ++k)
@@ -338,27 +335,28 @@ fer width " << waferSize_ << " separations "
 #endif
         }
 
-	unsigned int imatr = copy - firstLayer_;
+        unsigned int imatr = copy - firstLayer_;
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HGCalGeom") << "HGRotCass Layer " << ly << " orient " << (layerOrient_[copy - firstLayer_]) << "copy " << (copy - firstLayer_) << " imatr " << imatr << " sense " << layerSense_[ly];
+        edm::LogVerbatim("HGCalGeom") << "HGRotCass Layer " << ly << " orient " << (layerOrient_[copy - firstLayer_])
+                                      << "copy " << (copy - firstLayer_) << " imatr " << imatr << " sense "
+                                      << layerSense_[ly];
 
 #endif
         if ((layerSense_[ly] > 0) && imatr < rotmats_.size()) {
           rot = ns.rotation(rotmats_[imatr]);
 #ifdef EDM_ML_DEBUG
-          rotName = rotmats_[imatr];                                           
+          rotName = rotmats_[imatr];
           edm::LogVerbatim("HGCalGeom") << "Rotm " << rotName;
 #endif
-	}
+        }
 
         mother.placeVolume(glog, copy, dd4hep::Transform3D(rot, r1));
         int inc = ((layerSense_[ly] > 0) && (facingTypes_ > 1)) ? 2 : 1;
         copyNumber_[ii] = copy + inc;
 
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "ConstrL: " << glog.name() << " number " << copy                                                                   
-				      << " positioned in " << mother.name() << " at " << r1 << " with " << rotName
-				      << " rotation";
+        edm::LogVerbatim("HGCalGeom") << "ConstrL: " << glog.name() << " number " << copy << " positioned in "
+                                      << mother.name() << " at " << r1 << " with " << rotName << " rotation";
         edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << glog.name() << " number " << copy
                                       << " positioned in " << mother.name() << " at (0,0," << cms::convert2mm(zz)
                                       << ") with " << rotName << " rotation";
@@ -383,8 +381,7 @@ fer width " << waferSize_ << " separations "
     }  // End of loop over blocks
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << copies_.size()
-                                  << " different wafer copy numbers";
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << copies_.size() << " different wafer copy numbers";
     int k(0);
     for (std::unordered_set<int>::const_iterator itr = copies_.begin(); itr != copies_.end(); ++itr, ++k) {
       edm::LogVerbatim("HGCalGeom") << "Copy [" << k << "] : " << (*itr);
@@ -409,11 +406,10 @@ fer width " << waferSize_ << " separations "
 #ifdef EDM_ML_DEBUG
     int ium(0), ivm(0), kount(0);
     std::vector<int> ntype(3, 0);
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: PositionSensitive layer " << layer << "  r "
-                                  << delx << " R " << dely << " dy " << dy << " Shift " << xyoff.first << ":"
-                                  << xyoff.second << " WaferSize " << (waferSize_ + waferSepar_) << " index "
-                                  << firstWafer << ":" << (lastWafer - 1) << " Layer Center " << layercenter << ":"
-                                  << layertype;
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: PositionSensitive layer " << layer << "  r " << delx
+                                  << " R " << dely << " dy " << dy << " Shift " << xyoff.first << ":" << xyoff.second
+                                  << " WaferSize " << (waferSize_ + waferSepar_) << " index " << firstWafer << ":"
+                                  << (lastWafer - 1) << " Layer Center " << layercenter << ":" << layertype;
     edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: PositionSensitive layer " << glog.name() << "  r "
                                   << cms::convert2mm(delx) << " R " << cms::convert2mm(dely) << " dy "
                                   << cms::convert2mm(dy) << " Shift " << cms::convert2mm(xyoff.first) << ":"
@@ -442,8 +438,8 @@ fer width " << waferSize_ << " separations "
       double xorig = xyoff.first + nc * delx;
       double yorig = xyoff.second + nr * dy;
       double angle = std::atan2(yorig, xorig);
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox::Wafer: layer " << layer + 1 << " cassette "
-                                    << cassette << " Shift " << cms::convert2mm(cshift.first) << ":"
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox::Wafer: layer " << layer + 1 << " cassette " << cassette
+                                    << " Shift " << cms::convert2mm(cshift.first) << ":"
                                     << cms::convert2mm(cshift.second) << " Original " << cms::convert2mm(xorig) << ":"
                                     << cms::convert2mm(yorig) << ":" << convertRadToDeg(angle) << " Final "
                                     << cms::convert2mm(xpos) << ":" << cms::convert2mm(ypos) << " u|v " << u << ":" << v
@@ -478,12 +474,11 @@ fer width " << waferSize_ << " separations "
       }
       int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconColdBox: Layer "
-                                    << HGCalWaferIndex::waferLayer(waferIndex_[k]) << " Wafer " << wafer << " number "
-                                    << copy << " type:part:orien:place:ind " << type << ":" << part << ":" << orien
-                                    << ":" << place << ":" << i << " layer:u:v:indx " << (layer + firstLayer_) << ":"
-                                    << u << ":" << v << " pos " << cms::convert2mm(xpos) << ":"
-                                    << cms::convert2mm(ypos);
+      edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconColdBox: Layer " << HGCalWaferIndex::waferLayer(waferIndex_[k])
+                                    << " Wafer " << wafer << " number " << copy << " type:part:orien:place:ind " << type
+                                    << ":" << part << ":" << orien << ":" << place << ":" << i << " layer:u:v:indx "
+                                    << (layer + firstLayer_) << ":" << u << ":" << v << " pos " << cms::convert2mm(xpos)
+                                    << ":" << cms::convert2mm(ypos);
       if (iu > ium)
         ium = iu;
       if (iv > ivm)
@@ -502,8 +497,8 @@ fer width " << waferSize_ << " separations "
 #endif
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: Maximum # of u " << ium << " # of v " << ivm
-                                  << " and " << kount << " passives (" << ntype[0] << ":" << ntype[1] << ":" << ntype[2]
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: Maximum # of u " << ium << " # of v " << ivm << " and "
+                                  << kount << " passives (" << ntype[0] << ":" << ntype[1] << ":" << ntype[2]
                                   << ") for " << glog.name();
 #endif
   }
@@ -550,8 +545,8 @@ fer width " << waferSize_ << " separations "
       double yorig = xyoff.second + nr * dy;
       double angle = std::atan2(yorig, xorig);
       int type = HGCalProperty::waferThick(waferProperty_[k]);
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox::Passive: layer " << layer + 1 << " cassette "
-                                    << cassette << " Shift " << cms::convert2mm(cshift.first) << ":"
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox::Passive: layer " << layer + 1 << " cassette " << cassette
+                                    << " Shift " << cms::convert2mm(cshift.first) << ":"
                                     << cms::convert2mm(cshift.second) << " Original " << cms::convert2mm(xorig) << ":"
                                     << cms::convert2mm(yorig) << ":" << convertRadToDeg(angle) << " Final "
                                     << cms::convert2mm(xpos) << ":" << cms::convert2mm(ypos) << " u|v " << u << ":" << v
@@ -584,12 +579,11 @@ fer width " << waferSize_ << " separations "
       }
       int copy = HGCalTypes::packTypeUV(absType, u, v);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconColdBox: Layer "
-                                    << HGCalWaferIndex::waferLayer(waferIndex_[k]) << " Passive " << passive
-                                    << " number " << copy << " type:part:orien:place:ind " << type << ":" << part << ":"
-                                    << orien << ":" << place << ":" << i << " layer:u:v:indx " << (layer + firstLayer_)
-                                    << ":" << u << ":" << v << " pos " << cms::convert2mm(xpos) << ":"
-                                    << cms::convert2mm(ypos);
+      edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconColdBox: Layer " << HGCalWaferIndex::waferLayer(waferIndex_[k])
+                                    << " Passive " << passive << " number " << copy << " type:part:orien:place:ind "
+                                    << type << ":" << part << ":" << orien << ":" << place << ":" << i
+                                    << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":" << v << " pos "
+                                    << cms::convert2mm(xpos) << ":" << cms::convert2mm(ypos);
       if (iu > ium)
         ium = iu;
       if (iv > ivm)
@@ -605,8 +599,8 @@ fer width " << waferSize_ << " separations "
 #endif
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: Maximum # of u " << ium << " # of v " << ivm
-                                  << " and " << kount << " passives for " << glog.name();
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: Maximum # of u " << ium << " # of v " << ivm << " and "
+                                  << kount << " passives for " << glog.name();
 #endif
   }
 
@@ -637,23 +631,23 @@ fer width " << waferSize_ << " separations "
 #endif
         std::string passive = (type) ? passiveAbsorb_[i2] : passiveCool_[i2];
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox::Passive2 " << passive << " number " << i2
-                                      << " pos " << cms::convert2mm(xpos) << ":" << cms::convert2mm(ypos) << ":"
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox::Passive2 " << passive << " number " << i2 << " pos "
+                                      << cms::convert2mm(xpos) << ":" << cms::convert2mm(ypos) << ":"
                                       << cms::convert2mm(zpos);
         kount++;
 #endif
         dd4hep::Position tran(xpos, ypos, zpos);
         glog.placeVolume(ns.volume(passive), i2, tran);
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconColdBox: " << passive << " number " << i2
-                                      << " positioned in " << glog.name() << " at (" << cms::convert2mm(xpos) << ","
-                                      << cms::convert2mm(ypos) << "," << cms::convert2mm(zpos) << ") with no rotation";
+        edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconColdBox: " << passive << " number " << i2 << " positioned in "
+                                      << glog.name() << " at (" << cms::convert2mm(xpos) << "," << cms::convert2mm(ypos)
+                                      << "," << cms::convert2mm(zpos) << ") with no rotation";
 #endif
       }
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << kount << " passives of type " << absType
-                                  << " for " << glog.name();
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconColdBox: " << kount << " passives of type " << absType << " for "
+                                  << glog.name();
 #endif
   }
 
