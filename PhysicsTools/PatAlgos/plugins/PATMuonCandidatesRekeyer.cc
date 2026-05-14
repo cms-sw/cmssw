@@ -11,6 +11,34 @@
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
+#include <algorithm>
+#include <cmath>
+
+namespace {
+  bool sameFloat(float lhs, float rhs, float relTol, float absTol = 1.e-7f) {
+    return std::abs(lhs - rhs) <= std::max(absTol, relTol * std::max(std::abs(lhs), std::abs(rhs)));
+  }
+
+  bool isConsistentPackedCandidate(const reco::CandidatePtr &candPtr,
+                                   const pat::PackedCandidateCollection &packedCands,
+                                   unsigned int key) {
+    if (candPtr.isNull() || !candPtr.isAvailable() || key >= packedCands.size()) {
+      return false;
+    }
+
+    const auto *oldPacked = dynamic_cast<const pat::PackedCandidate *>(candPtr.get());
+    if (oldPacked == nullptr) {
+      return false;
+    }
+
+    const auto &newPacked = packedCands[key];
+    return oldPacked->charge() == newPacked.charge() && oldPacked->pdgId() == newPacked.pdgId() &&
+           sameFloat(oldPacked->pt(), newPacked.pt(), 1.e-5f) && sameFloat(oldPacked->eta(), newPacked.eta(), 1.e-6f) &&
+           sameFloat(oldPacked->phi(), newPacked.phi(), 1.e-6f) &&
+           sameFloat(oldPacked->mass(), newPacked.mass(), 1.e-5f);
+  }
+}  // namespace
+
 namespace pat {
   class PATMuonCandidatesRekeyer : public edm::stream::EDProducer<> {
   public:
@@ -57,16 +85,21 @@ void PATMuonCandidatesRekeyer::produce(edm::Event &iEvent, edm::EventSetup const
     // copy original pat object and append to vector
     outPtrP->emplace_back(obj);
 
-    //
-    std::vector<unsigned int> keys;
-    for (size_t ic = 0; ic < outPtrP->back().numberOfSourceCandidatePtrs(); ++ic) {
-      const reco::CandidatePtr &candPtr = outPtrP->back().sourceCandidatePtr(ic);
-      if (candPtr.isNonnull()) {
-        keys.push_back(candPtr.key());
-      }
+    auto &muon = outPtrP->back();
+    const reco::CandidatePtr *sourcePtr = nullptr;
+
+    if (muon.refToOrig_.isNonnull()) {
+      sourcePtr = &muon.refToOrig_;
+    } else if (muon.numberOfSourceCandidatePtrs() == 1) {
+      const reco::CandidatePtr &candPtr = muon.sourceCandidatePtr(0);
+      sourcePtr = candPtr.isNonnull() ? &candPtr : nullptr;
     }
-    if (keys.size() == 1) {
-      outPtrP->back().refToOrig_ = reco::CandidatePtr(pcNewCandViewHandle, keys[0]);
+
+    if (sourcePtr != nullptr) {
+      const unsigned int key = sourcePtr->key();
+      if (isConsistentPackedCandidate(*sourcePtr, *pcNewHandle, key)) {
+        muon.refToOrig_ = reco::CandidatePtr(pcNewCandViewHandle, key);
+      }
     }
   }
 
