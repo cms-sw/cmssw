@@ -3,6 +3,8 @@
 
 #include "DataFormats/Provenance/interface/EventID.h"
 
+#include <cstddef>
+
 // forward declarations
 namespace edm {
   class SecondaryEventIDAndFileInfo {
