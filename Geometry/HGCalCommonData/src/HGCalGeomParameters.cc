@@ -1604,11 +1604,13 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
 #endif
   }
   for (unsigned int k = 0; k < php.layerType_.size(); ++k) {
-    double cth = (php.layerType_[k] == HGCalTypes::WaferCenterR) ? cos(php.layerRotation_) : 1.0;
-    double sth = (php.layerType_[k] == HGCalTypes::WaferCenterR) ? sin(php.layerRotation_) : 0.0;
+    double cth(1.0), sth(0.0);
     if (coldBoxMode_) {
       cth = cos(php.coldBoxRots_[k]);
       sth = sin(php.coldBoxRots_[k]);
+    } else if (php.layerType_[k] == HGCalTypes::WaferCenterR) {
+      cth = cos(php.layerRotation_);
+      sth = sin(php.layerRotation_);
     }
     php.layerRotV_.emplace_back(std::make_pair(cth, sth));
 #ifdef EDM_ML_DEBUG
