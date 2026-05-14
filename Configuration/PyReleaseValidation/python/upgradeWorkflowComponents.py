@@ -133,27 +133,28 @@ for year in upgradeKeys:
 # every special workflow gets its own derived class, which must then be added to the global dict upgradeWFs
 preventReuseKeyword = 'NOREUSE'
 class UpgradeWorkflow(object):
-    def __init__(self,steps,PU,suffix,offset):
+    def __init__(self, steps, PU, suffix, offset):
         self.steps = steps
         self.PU = PU
         self.allowReuse = True
 
         # ensure all PU steps are in normal step list
-        for step in self.PU:
-            if not step in self.steps:
-                self.steps.append(step)
+        self.steps.extend(step for step in self.PU if step not in self.steps)
 
         self.suffix = suffix
-        if len(self.suffix)>0 and self.suffix[0]!='_': self.suffix = '_'+self.suffix
+        if len(self.suffix)>0 and self.suffix[0]!='_':
+            self.suffix = '_'+self.suffix
+            
         self.offset = offset
         if self.offset < 0.0 or self.offset > 1.0:
-            raise ValueError("Special workflow offset must be between 0.0 and 1.0")
+            raise ValueError("Special workflow offset must be between 0.0 and 1.0.")
+        
     def getStepName(self, step, extra=""):
-        stepName = step + self.suffix + extra
-        return stepName
+        return step + self.suffix + extra
+    
     def getStepNamePU(self, step, extra=""):
-        stepNamePU = step + 'PU' + self.suffix + extra
-        return stepNamePU
+        return step + 'PU' + self.suffix + extra
+    
     def init(self, stepDict):
         for step in self.steps:
             stepDict[self.getStepName(step)] = {}
@@ -161,34 +162,43 @@ class UpgradeWorkflow(object):
         for step in self.PU:
             stepDict[self.getStepNamePU(step)] = {}
             if not self.allowReuse: stepDict[self.getStepNamePU(step,preventReuseKeyword)] = {}
+            
     def setup(self, stepDict, k, properties):
         for step in self.steps:
             self.setup_(step, self.getStepName(step), stepDict, k, properties)
             if not self.allowReuse: self.preventReuse(self.getStepName(step,preventReuseKeyword), stepDict, k)
+            
     def setupPU(self, stepDict, k, properties):
         for step in self.PU:
             self.setupPU_(step, self.getStepNamePU(step), stepDict, k, properties)
             if not self.allowReuse: self.preventReuse(self.getStepNamePU(step,preventReuseKeyword), stepDict, k)
+            
     def setup_(self, step, stepName, stepDict, k, properties):
         pass
+    
     def setupPU_(self, step, stepName, stepDict, k, properties):
         pass
+    
     def workflow(self, workflows, num, fragment, stepList, key, hasHarvest):
         if self.condition(fragment, stepList, key, hasHarvest):
             self.workflow_(workflows, num, fragment, stepList, key)
+            
     def workflow_(self, workflows, num, fragment, stepList, key):
         fragmentTmp = [fragment, key]
         if len(self.suffix)>0: fragmentTmp.append(self.suffix)
         # avoid spurious workflows (no steps modified)
         if self.offset==0 or workflows[num][1]!=stepList:
             workflows[num+self.offset] = [ fragmentTmp, stepList ]
+            
     def condition(self, fragment, stepList, key, hasHarvest):
         return False
+    
     def preventReuse(self, stepName, stepDict, k):
         if "Sim" in stepName and stepName != "Sim":
             stepDict[stepName][k] = None
         if "Gen" in stepName:
             stepDict[stepName][k] = None
+
 upgradeWFs = OrderedDict()
 
 class UpgradeWorkflow_baseline(UpgradeWorkflow):
@@ -202,8 +212,10 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
         if era is not None:
             stepDict[stepName][k]['--era']=era
         if modifier is not None: stepDict[stepName][k]['--procModifier']=modifier
+        
     def condition(self, fragment, stepList, key, hasHarvest):
         return True
+
 upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
     steps =  [
         'Gen',
@@ -1222,8 +1234,9 @@ class UpgradeWorkflow_photonDRN(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step:
             stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+
     def condition(self, fragment, stepList, key, hasHarvest):
-        return '2018' in key and "SingleGamma" in fragment
+        return '2018' in key and 'SingleGamma' in fragment
 
 upgradeWFs['photonDRN'] = UpgradeWorkflow_photonDRN(
     steps = [
@@ -1241,6 +1254,27 @@ upgradeWFs['photonDRN'].step3 = {
     '--procModifiers': 'enableSonicTriton,photonDRN'
 }
 
+# workflows with a displaced vertex
+class UpgradeWorkflow_displacedVertex(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Gen' in step:
+            stepDict[stepName][k] = merge([{'--beamspot': 'Displaced'}, stepDict[step][k]])
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return any(x in fragment for x in ('SingleElectron', 'SingleGamma'))
+
+upgradeWFs['displacedVertex'] = UpgradeWorkflow_displacedVertex(
+    steps = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+    ],
+    PU = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+    ],
+    suffix = '_displacedVertex',
+    offset = 0.82
+)
 
 # Patatrack workflows (NoPU and PU):
 #   - TTbar_14, ZMM_14", ZEE_14, ZTT_14, NuGun, SingleMu, QCD_Pt15To7000_Flat for
