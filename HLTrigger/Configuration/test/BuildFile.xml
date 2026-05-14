@@ -1,5 +1,5 @@
 <!-- test access to EDM files used in HLT-AddOnTests and HLT-Validation tests -->
-<test name="testAccessToEDMInputsOfHLTTests" command="testAccessToEDMInputsOfHLTTests.sh"/>
+<!-- <test name="testAccessToEDMInputsOfHLTTests" command="testAccessToEDMInputsOfHLTTests.sh"/> COMMENT: reads old format files -->
 
 <!-- test script hltPrintMenuVersions
      enabled only for the x86-64 architecture, because the python module cx_Oracle

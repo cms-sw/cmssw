@@ -1,1 +1,1 @@
-<test name="runtestTqafTopSkimming" command="runtests.sh"/>
+<!-- <test name="runtestTqafTopSkimming" command="runtests.sh"/> COMMENT: reads old format files -->
