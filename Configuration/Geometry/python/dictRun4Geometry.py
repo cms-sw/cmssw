@@ -329,7 +329,7 @@ caloDict = {
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
             'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
             'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
@@ -402,7 +402,7 @@ caloDict = {
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
             'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
             'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
@@ -485,7 +485,7 @@ caloDict = {
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *',
             'from Geometry.CaloEventSetup.HFNoseTopology_cfi import *',
             'from Geometry.ForwardGeometry.HFNoseGeometryESProducer_cfi import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
@@ -563,7 +563,7 @@ caloDict = {
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
             'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
             'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
@@ -637,7 +637,7 @@ caloDict = {
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
             'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
             'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
@@ -712,7 +712,7 @@ caloDict = {
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
             'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
             'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
@@ -786,7 +786,7 @@ caloDict = {
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
             'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
             'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
@@ -860,7 +860,7 @@ caloDict = {
         ],
         "reco" : [
             'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
+            'from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
             'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
             'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
