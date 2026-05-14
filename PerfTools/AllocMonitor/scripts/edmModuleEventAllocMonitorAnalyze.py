@@ -260,8 +260,6 @@ if __name__=="__main__":
 
     if args.json:
         combinedData = fileParser.toSimpleDict(args.eventData)
-        for module in combinedData["modules"]:
-            print(module.get("label"), module.get("type"))
         combinedData["memoryReports"] = {}
  
         def mergeReport(reportList, reportNamePrefix, reportName, eventData):
