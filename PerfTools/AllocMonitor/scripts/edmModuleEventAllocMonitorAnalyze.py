@@ -112,7 +112,7 @@ def reportModulesWithMemoryGrowth(fileParser, showEvents, jsonOutput):
                 else:
                     ret.append((m._label, m._type, mem))
     if jsonOutput:
-        return [dict(zip(['label', 'type', 'totalMemoryGrowth', 'growthEachEvent'] if showEvents else ['label', 'type', 'totalMemoryGrowth'], v)) for v in ret]       
+        return [dict(zip(['label', 'type', 'TotalMemoryGrowth', 'MemoryGrowthEachEvent'] if showEvents else ['label', 'type', 'TotalMemoryGrowth'], v)) for v in ret]
     return ret
 
 def reportModuleDataProductMemory(fileParser, showEvents, defaultRetain, jsonOutput):
@@ -132,7 +132,7 @@ def reportModuleDataProductMemory(fileParser, showEvents, defaultRetain, jsonOut
             else:
                 ret.append((m._label, m._type, float(sum)/max(1,len(l))))
     if jsonOutput:
-        return [dict(zip(['label', 'type', 'avgDataProductSize', 'dataProductsEachEvent'] if showEvents else ['label', 'type', 'avgDataProductSize'], v)) for v in ret]
+        return [dict(zip(['label', 'type', 'AvgDataProductSize', 'DataProductSizeEachEvent'] if showEvents else ['label', 'type', 'AvgDataProductSize'], v)) for v in ret]
     return ret
                 
 def reportModuleRetainingMemory(fileParser, showEvents, defaultRetain, jsonOutput):
@@ -152,7 +152,7 @@ def reportModuleRetainingMemory(fileParser, showEvents, defaultRetain, jsonOutpu
             else:
                 ret.append((m._label, m._type, float(sum)/max(len(l),1)))
     if jsonOutput:
-        return [dict(zip(['label', 'type', 'avgRetained', 'retainedEachEvent'] if showEvents else ['label', 'type', 'avgRetained'], v)) for v in ret]  
+        return [dict(zip(['label', 'type', 'AvgRetained', 'RetainedEachEvent'] if showEvents else ['label', 'type', 'AvgRetained'], v)) for v in ret]
     return ret
 
 def reportModuleTemporary(fileParser, showEvents, defaultRetain, jsonOutput):
@@ -172,7 +172,7 @@ def reportModuleTemporary(fileParser, showEvents, defaultRetain, jsonOutput):
             else:
                 ret.append((m._label, m._type, float(sum)/max(1,len(l))))
     if jsonOutput:
-        return [dict(zip(['label', 'type', 'avgTempSize', 'tempSizeEachEvent'] if showEvents else ['label', 'type', 'avgTempSize'], v)) for v in ret]
+        return [dict(zip(['label', 'type', 'AvgTempSize', 'TempSizeEachEvent'] if showEvents else ['label', 'type', 'AvgTempSize'], v)) for v in ret]
     return ret
 
 def reportModuleNTemporary(fileParser, showEvents, defaultRetain, jsonOutput):
@@ -192,7 +192,7 @@ def reportModuleNTemporary(fileParser, showEvents, defaultRetain, jsonOutput):
             else:
                 ret.append((m._label, m._type, float(sum)/max(1,len(l))))
     if jsonOutput:
-        return [dict(zip(['label', 'type', 'avgNTemp', 'nTempEachEvent'] if showEvents else ['label', 'type', 'avgNTemp'], v)) for v in ret]
+        return [dict(zip(['label', 'type', 'AvgNTemp', 'NTempEachEvent'] if showEvents else ['label', 'type', 'AvgNTemp'], v)) for v in ret]
     return ret
 
 
@@ -257,19 +257,31 @@ if __name__=="__main__":
 
     fileParser = FileParser()
     fileParser.parse(inputfile)
- 
+
     if args.json:
-        memoryGrowthList=reportModulesWithMemoryGrowth(fileParser, args.eventData, True)
-        json.dump(memoryGrowthList, sys.stdout, indent=2)
-        retainingMemoryList=reportModuleRetainingMemory(fileParser, args.eventData, args.csv, True)
-        json.dump(retainingMemoryList, sys.stdout, indent=2)
-        dataProductMemoryList=reportModuleDataProductMemory(fileParser, args.eventData, args.csv, True)
-        json.dump(dataProductMemoryList, sys.stdout, indent=2)
-        temporaryMemoryList=reportModuleTemporary(fileParser, args.eventData, args.csv, True)
-        json.dump(temporaryMemoryList, sys.stdout, indent=2)
-        nTemporaryMemoryList=reportModuleNTemporary(fileParser, args.eventData, args.csv, True)
-        json.dump(nTemporaryMemoryList, sys.stdout, indent=2)
-        json.dump(fileParser.toSimpleDict(args.eventData), sys.stdout, indent=2)
+        combinedData = fileParser.toSimpleDict(args.eventData)
+        for module in combinedData["modules"]:
+            print(module.get("label"), module.get("type"))
+        combinedData["memoryReports"] = {}
+ 
+        def mergeReport(reportList, reportNamePrefix, reportName, eventData):
+            if not reportList:
+                return
+            for item in reportList:
+                label = item.get('label')
+                if label not in combinedData['memoryReports']:
+                    combinedData['memoryReports'][label] = {'label': label, 'type': item.get('type', '')}
+                if eventData:
+                    combinedData['memoryReports'][label][reportName + 'EachEvent'] = item.get(reportName + 'EachEvent', [])
+                combinedData['memoryReports'][label][reportNamePrefix+reportName] = item.get(reportNamePrefix+reportName, 0)
+
+        mergeReport(reportModulesWithMemoryGrowth(fileParser, args.eventData, True), 'Total', 'MemoryGrowth', args.eventData)
+        mergeReport(reportModuleRetainingMemory(fileParser, args.eventData, args.csv, True), 'Avg', 'Retained', args.eventData)
+        mergeReport(reportModuleDataProductMemory(fileParser, args.eventData, args.csv, True), 'Avg', 'DataProductSize', args.eventData)
+        mergeReport(reportModuleTemporary(fileParser, args.eventData, args.csv, True), 'Avg', 'TempSize', args.eventData)
+        mergeReport(reportModuleNTemporary(fileParser, args.eventData, args.csv, True), 'Avg', 'NTemp', args.eventData)
+
+        json.dump(combinedData, sys.stdout, indent=2)
     else:
         if args.csv:
             args.maxColumn = -1
