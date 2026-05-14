@@ -1,5 +1,3 @@
-
-
 #include "IOMC/EventVertexGenerators/interface/FlatEvtVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -12,14 +10,23 @@
 
 using CLHEP::cm;
 using CLHEP::ns;
+using CLHEP::radian;
 
 FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVtxGenerator(p) {
-  fMinX = p.getParameter<double>("MinX") * cm;
-  fMinY = p.getParameter<double>("MinY") * cm;
-  fMinZ = p.getParameter<double>("MinZ") * cm;
-  fMaxX = p.getParameter<double>("MaxX") * cm;
-  fMaxY = p.getParameter<double>("MaxY") * cm;
+  fFixedR = p.getParameter<bool>("FixedR");
+  if (fFixedR) {
+    fMaxR = p.getParameter<double>("MaxR") * cm;
+    fMinR = p.getParameter<double>("MinR") * cm;
+    fMaxPhi = p.getParameter<double>("MaxPhi") * radian;
+    fMinPhi = p.getParameter<double>("MinPhi") * radian;
+  } else {
+    fMinX = p.getParameter<double>("MinX") * cm;
+    fMaxX = p.getParameter<double>("MaxX") * cm;
+    fMinY = p.getParameter<double>("MinY") * cm;
+    fMaxY = p.getParameter<double>("MaxY") * cm;
+  }
   fMaxZ = p.getParameter<double>("MaxZ") * cm;
+  fMinZ = p.getParameter<double>("MinZ") * cm;
   fMinT = p.getParameter<double>("MinT") * ns * c_light;
   fMaxT = p.getParameter<double>("MaxT") * ns * c_light;
 
@@ -39,6 +46,14 @@ FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVt
     throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
                                           << "MinT is greater than MaxT";
   }
+  if (fMinR > fMaxR) {
+    throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
+                                          << "MinR is greater than MaxR";
+  }
+  if (fMinPhi > fMaxPhi) {
+    throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
+                                          << "MinPhi is greater than MaxPhi";
+  }
   edm::LogVerbatim("FlatEvtVtx") << "FlatEvtVtxGenerator Initialized with x[" << fMinX << ":" << fMaxX << "] cm; y["
                                  << fMinY << ":" << fMaxY << "] cm; z[" << fMinZ << ":" << fMaxZ << "] cm; t[" << fMinT
                                  << ":" << fMaxT << "]";
@@ -48,8 +63,15 @@ FlatEvtVtxGenerator::~FlatEvtVtxGenerator() {}
 
 ROOT::Math::XYZTVector FlatEvtVtxGenerator::vertexShift(CLHEP::HepRandomEngine* engine) const {
   double aX, aY, aZ, aT;
-  aX = CLHEP::RandFlat::shoot(engine, fMinX, fMaxX);
-  aY = CLHEP::RandFlat::shoot(engine, fMinY, fMaxY);
+  if (fFixedR) {
+    double aR = CLHEP::RandFlat::shoot(engine, fMinR, fMaxR);
+    double aPhi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
+    aX = aR * std::cos(aPhi);
+    aY = aR * std::sin(aPhi);
+  } else {
+    aX = CLHEP::RandFlat::shoot(engine, fMinX, fMaxX);
+    aY = CLHEP::RandFlat::shoot(engine, fMinY, fMaxY);
+  }
   aZ = CLHEP::RandFlat::shoot(engine, fMinZ, fMaxZ);
   aT = CLHEP::RandFlat::shoot(engine, fMinT, fMaxT);
 
@@ -59,14 +81,21 @@ ROOT::Math::XYZTVector FlatEvtVtxGenerator::vertexShift(CLHEP::HepRandomEngine* 
   return ROOT::Math::XYZTVector(aX, aY, aZ, aT);
 }
 
-void FlatEvtVtxGenerator::minX(double min) { fMinX = min; }
-
-void FlatEvtVtxGenerator::minY(double min) { fMinY = min; }
-
-void FlatEvtVtxGenerator::minZ(double min) { fMinZ = min; }
-
-void FlatEvtVtxGenerator::maxX(double max) { fMaxX = max; }
-
-void FlatEvtVtxGenerator::maxY(double max) { fMaxY = max; }
-
-void FlatEvtVtxGenerator::maxZ(double max) { fMaxZ = max; }
+void FlatEvtVtxGenerator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<double>("MinX", 0.0)->setComment("in cm");
+  desc.add<double>("MaxX", 0.001)->setComment("in cm");
+  desc.add<double>("MinY", 0.0)->setComment("in cm");
+  desc.add<double>("MaxY", 0.001)->setComment("in cm");
+  desc.add<double>("MinZ", 0.0)->setComment("in cm");
+  desc.add<double>("MaxZ", 0.001)->setComment("in cm");
+  desc.add<double>("MinT", 0.0)->setComment("in ns");
+  desc.add<double>("MaxT", 0.001)->setComment("in ns");
+  desc.add<bool>("FixedR", false);
+  desc.add<double>("MinR", 0.0)->setComment("in cm");
+  desc.add<double>("MaxR", 0.001)->setComment("in cm");
+  desc.add<double>("MinPhi", -3.14159265359)->setComment("in radians");
+  desc.add<double>("MaxPhi", 3.14159265359)->setComment("in radians");
+  desc.add<edm::InputTag>("src");
+  descriptions.add("FlatEvtVtxGenerator", desc);
+}
