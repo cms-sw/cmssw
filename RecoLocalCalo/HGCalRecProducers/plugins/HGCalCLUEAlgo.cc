@@ -195,7 +195,6 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
 
       if constexpr (std::is_same_v<STRATEGY, HGCalSiliconStrategy>) {
         auto thick = rhtools_.getSiThickIndex(maxEnergyDetId);
-        assert(std::cmp_less(thick, thresholdW0_.size()));
         for (auto cellIdx : cl) {
           assert(cellIdx >= 0);
           assert(std::cmp_less(cellIdx, cellsOnLayer.dim1.size()));
@@ -204,6 +203,11 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
           const float d1 = cellsOnLayer.dim1[cellIdx] - cellsOnLayer.dim1[maxEnergyCellIndex];
           const float d2 = cellsOnLayer.dim2[cellIdx] - cellsOnLayer.dim2[maxEnergyCellIndex];
           if ((d1 * d1 + d2 * d2) < positionDeltaRho2_) {
+            if (thick < 0 or (not std::cmp_less(thick, thresholdW0_.size()))) {
+              throw cms::Exception("HGCalClusterOutOfBounds")
+                  << "the thickness " << thick << " for DetId " << maxEnergyDetId.rawId() << " is not within the size "
+                  << thresholdW0_.size();
+            }
             float Wi = std::max(thresholdW0_[thick] + std::log(cellsOnLayer.weight[cellIdx] / energy), 0.);
             if (std::isnan(Wi)) {
               throw cms::Exception("HGCalClusterNan")
