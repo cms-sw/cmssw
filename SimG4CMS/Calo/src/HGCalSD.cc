@@ -96,8 +96,8 @@ HGCalSD::HGCalSD(const std::string& name,
                              << "\n"
                              << "**************************************************";
 #endif
-  edm::LogVerbatim("HGCSim") << "HGCalSD: Threshold for storing hits: " << eminHit_ << " for " << nameX_
-                             << " detector " << mydet_ << " with " << nHC_ << " hit collections";
+  edm::LogVerbatim("HGCSim") << "HGCalSD: Threshold for storing hits: " << eminHit_ << " for " << nameX_ << " detector "
+                             << mydet_ << " with " << nHC_ << " hit collections";
   edm::LogVerbatim("HGCSim") << "Flag for storing individual Geant4 Hits " << storeAllG4Hits_;
   edm::LogVerbatim("HGCSim") << "Fiducial volume cut with cut from eta/phi "
                              << "boundary " << fiducialCut_ << " at " << distanceFromEdge_;
@@ -170,17 +170,17 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
                                << touch->GetVolume(moduleLev)->GetName() << " " << module << " Layer " << layer << ":"
                                << cell;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "HGCalSD: DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_ << ":"
-                             << useSimWt_ << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell "
+  edm::LogVerbatim("HGCSim") << "HGCalSD: DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_
+                             << ":" << useSimWt_ << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell "
                              << layer << ":" << moduleLev << ":" << module << ":" << cell;
   printDetectorLevels(touch);
   G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
-  edm::LogVerbatim("HGCSim") << "HGCalSD: Depths: " << touch->GetHistoryDepth() << " name " << touch->GetVolume(0)->GetName()
-                             << ":" << touch->GetReplicaNumber(0) << "   " << touch->GetVolume(1)->GetName() << ":"
-                             << touch->GetReplicaNumber(1) << "   " << touch->GetVolume(2)->GetName() << ":"
-                             << touch->GetReplicaNumber(2) << "   " << touch->GetVolume(3)->GetName() << ":"
-                             << touch->GetReplicaNumber(3) << "   " << touch->GetVolume(4)->GetName() << ":"
-                             << touch->GetReplicaNumber(4) << "   "
+  edm::LogVerbatim("HGCSim") << "HGCalSD: Depths: " << touch->GetHistoryDepth() << " name "
+                             << touch->GetVolume(0)->GetName() << ":" << touch->GetReplicaNumber(0) << "   "
+                             << touch->GetVolume(1)->GetName() << ":" << touch->GetReplicaNumber(1) << "   "
+                             << touch->GetVolume(2)->GetName() << ":" << touch->GetReplicaNumber(2) << "   "
+                             << touch->GetVolume(3)->GetName() << ":" << touch->GetReplicaNumber(3) << "   "
+                             << touch->GetVolume(4)->GetName() << ":" << touch->GetReplicaNumber(4) << "   "
                              << " layer:module:cell " << layer << ":" << module << ":" << cell << " Material "
                              << mat->GetName() << ":" << mat->GetRadlen();
 #endif
@@ -190,8 +190,8 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
 
   uint32_t id = setDetUnitId(layer, module, cell, iz, hitPoint);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "HGCalSD: ID Layer " << layer << " Module " << module << " Cell " << cell << " " << std::hex
-                             << id << std::dec << " " << HGCSiliconDetId(id);
+  edm::LogVerbatim("HGCSim") << "HGCalSD: ID Layer " << layer << " Module " << module << " Cell " << cell << " "
+                             << std::hex << id << std::dec << " " << HGCSiliconDetId(id);
 #endif
   if ((rejectMB_ || fiducialCut_) && id != 0) {
     auto uv = HGCSiliconDetId(id).waferUV();
@@ -213,8 +213,8 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
       bool reject = ((guardRing_->exclude(local, iz, frontBack, layer, uv.first, uv.second)) ||
                      (guardRing_->excludePartial(local, iz, frontBack, layer, uv.first, uv.second)));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCSim") << "HGCalSD: Zside:Layer:WaferU:WaferV " << iz << ":" << layer << ":" << uv.first << ":"
-                                 << uv.second << " LayerType " << layertype << " FrontBack " << frontBack
+      edm::LogVerbatim("HGCSim") << "HGCalSD: Zside:Layer:WaferU:WaferV " << iz << ":" << layer << ":" << uv.first
+                                 << ":" << uv.second << " LayerType " << layertype << " FrontBack " << frontBack
                                  << " PartialType " << hgcons_->partialWaferType(layer, uv.first, uv.second) << ":"
                                  << HGCalTypes::WaferFull << " Reject "
                                  << guardRing_->exclude(local, iz, frontBack, layer, uv.first, uv.second) << ":"
@@ -253,8 +253,8 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
       pid = "HGCalError";
     auto partn = hgcons_->waferTypeRotation(hid1.layer(), hid1.waferU(), hid1.waferV(), false, false);
     int indx = HGCalWaferIndex::waferIndex(layer, hid1.waferU(), hid1.waferV());
-    edm::LogVerbatim(pid) << "HGCalSD: CheckID " << HGCSiliconDetId(id) << " Layer:Module:Cell:ModuleLev " << layer << ":"
-                          << module << ":" << cell << ":" << moduleLev << " SimWt:history " << useSimWt_ << ":"
+    edm::LogVerbatim(pid) << "HGCalSD: CheckID " << HGCSiliconDetId(id) << " Layer:Module:Cell:ModuleLev " << layer
+                          << ":" << module << ":" << cell << ":" << moduleLev << " SimWt:history " << useSimWt_ << ":"
                           << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_ << " input position: ("
                           << hitPoint.x() / CLHEP::cm << ", " << hitPoint.y() / CLHEP::cm << ":"
                           << convertRadToDeg(std::atan2(hitPoint.y(), hitPoint.x())) << "); position from ID (" << xx
@@ -373,7 +373,8 @@ void HGCalSD::processSecondHit(const G4Step* aStep, const G4Track* theTrack) {
 uint32_t HGCalSD::setDetUnitId(int layer, int module, int cell, int iz, G4ThreeVector& pos) {
   uint32_t id = numberingScheme_ ? numberingScheme_->getUnitID(layer, module, cell, iz, pos, weight_) : 0;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "HGCalSD::setDetUnitId " << layer << " " << module << " " << cell << " " << iz << " ID " << std::hex << id << std::dec;
+  edm::LogVerbatim("HGCSim") << "HGCalSD::setDetUnitId " << layer << " " << module << " " << cell << " " << iz << " ID "
+                             << std::hex << id << std::dec;
 #endif
   if (cornerMinMask_ > 2) {
     if (hgcons_->maskCell(DetId(id), cornerMinMask_)) {

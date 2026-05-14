@@ -891,8 +891,8 @@ int CaloSD::getTrackID(const G4Track* aTrack) {
   if (nullptr != trkInfo) {
     primaryID = trkInfo->getIDonCaloSurface();
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("CaloSim") << "CaloSD: Track ID: " << trkInfo->getIDonCaloSurface() << ":" << aTrack->GetTrackID() << ":"
-                                << primaryID;
+    edm::LogVerbatim("CaloSim") << "CaloSD: Track ID: " << trkInfo->getIDonCaloSurface() << ":" << aTrack->GetTrackID()
+                                << ":" << primaryID;
 #endif
   } else {
     primaryID = aTrack->GetTrackID();
