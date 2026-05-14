@@ -113,8 +113,7 @@ namespace edm {
     // constructors and destructor
     //
     edm::service::MessageLogger::MessageLogger(ParameterSet const& iPS, ActivityRegistry& iRegistry)
-        : debugEnabled_(false),
-          messageServicePSetHasBeenValidated_(false),
+        : messageServicePSetHasBeenValidated_(false),
           messageServicePSetValidatationResults_(),
           nonModule_debugEnabled(false),
           nonModule_infoEnabled(true),
