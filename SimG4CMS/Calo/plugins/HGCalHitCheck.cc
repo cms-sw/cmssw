@@ -156,6 +156,13 @@ void HGcalHitCheck::analyze(const edm::Event& e, const edm::EventSetup& iS) {
     hits.insert(hits.end(), hitsCalo->begin(), hitsCalo->end());
     if (!hits.empty()) {
       for (auto hit : hits) {
+	if ((verbosity_ > 0) && ((nameSense_ == "HGCalEESensitive") || (nameSense_ == "HGCalHESiliconSensitive"))) {
+	  edm::LogVerbatim("HitStudy")<<"HGcalHitCheck::analyze id, pos "<<hit.id();
+	  DetId did(hit.id());
+	  edm::LogVerbatim("HitStudy") << geom->getPosition(did);
+	  HGCSiliconDetId hgcid(hit.id());
+	  edm::LogVerbatim("HitStudy") << hgcid;
+        }
         if (histos_) {
           if ((nameSense_ == "HGCalEESensitive") || (nameSense_ == "HGCalHESiliconSensitive")) {
             ++wafer;
