@@ -9,7 +9,7 @@ from Geometry.HcalCommonData.caloSimulationParameters_cff import *
 
 # calo
 from Geometry.CaloEventSetup.HGCalTopology_cfi import *
-from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *
+from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *
 CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
     SelectedCalos = cms.vstring("HCAL",
                                 "ZDC",

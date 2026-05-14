@@ -36,7 +36,7 @@ process.load(geomFile)
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 process.load("Geometry.CaloEventSetup.HGCalTopology_cfi")
-process.load("Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi")
+process.load("Geometry.HGCalGeometry.hgcalGeometryESProducer_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):

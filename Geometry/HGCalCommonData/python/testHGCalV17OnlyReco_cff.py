@@ -9,7 +9,7 @@ from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *
 
 # calo
 from Geometry.CaloEventSetup.HGCalTopology_cfi import *
-from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *
+from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
 CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
