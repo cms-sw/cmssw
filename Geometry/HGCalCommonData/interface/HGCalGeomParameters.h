@@ -28,7 +28,7 @@
 
 class HGCalGeomParameters {
 public:
-  HGCalGeomParameters();
+  HGCalGeomParameters(bool coldBoxMode);
   ~HGCalGeomParameters() = default;
 
   void loadGeometryHexagon(const DDFilteredView& _fv,
@@ -158,6 +158,7 @@ private:
 
   constexpr static double tan30deg_ = 0.5773502693;
   HGCalGeomTools geomTools_;
+  bool coldBoxMode_;
   const double sqrt3_;
   double waferSize_;
 };
