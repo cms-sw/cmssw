@@ -34,6 +34,8 @@ private:
   void endStream() override;
   l1t::MuonStub convertToHybrid(const l1t::MuonStub& stub);
   edm::EDGetTokenT<MuonDigiCollection<CSCDetId, CSCCorrelatedLCTDigi>> srcCSC_;
+  edm::EDGetTokenT<L1Phase2MuDTPhContainer> srcDT_;
+  edm::EDGetTokenT<L1MuDTChambThContainer> srcDTTheta_;
   edm::EDGetTokenT<L1Phase2MuDTExtPhiThetaPairContainer> srcDTPairs_;
   edm::EDGetTokenT<RPCDigiCollection> srcRPC_;
 
@@ -46,6 +48,8 @@ private:
 Phase2L1TGMTStubProducer::Phase2L1TGMTStubProducer(const edm::ParameterSet& iConfig)
     : srcCSC_(
           consumes<MuonDigiCollection<CSCDetId, CSCCorrelatedLCTDigi>>(iConfig.getParameter<edm::InputTag>("srcCSC"))),
+	  srcDT_(consumes<L1Phase2MuDTPhContainer>(iConfig.getParameter<edm::InputTag>("srcDT"))),
+      srcDTTheta_(consumes<L1MuDTChambThContainer>(iConfig.getParameter<edm::InputTag>("srcDTTheta"))),
       srcDTPairs_(consumes<L1Phase2MuDTExtPhiThetaPairContainer>(iConfig.getParameter<edm::InputTag>("srcDTPairs"))),
       srcRPC_(consumes<RPCDigiCollection>(iConfig.getParameter<edm::InputTag>("srcRPC"))),
       procEndcap_(new L1TPhase2GMTEndcapStubProcessor(iConfig.getParameter<edm::ParameterSet>("Endcap"))),
@@ -101,6 +105,12 @@ void Phase2L1TGMTStubProducer::produce(edm::Event& iEvent, const edm::EventSetup
   Handle<RPCDigiCollection> rpcDigis;
   iEvent.getByToken(srcRPC_, rpcDigis);
 
+  Handle<L1Phase2MuDTPhContainer> dtDigis;
+  iEvent.getByToken(srcDT_, dtDigis);
+
+  Handle<L1MuDTChambThContainer> dtThetaDigis;
+  iEvent.getByToken(srcDTTheta_, dtThetaDigis);
+
   Handle<L1Phase2MuDTExtPhiThetaPairContainer> dtPairs;
   iEvent.getByToken(srcDTPairs_, dtPairs);
 
@@ -134,6 +144,8 @@ void Phase2L1TGMTStubProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   edm::ParameterSetDescription desc;
   desc.add<int>("verbose", 0);
   desc.add<edm::InputTag>("srcCSC", edm::InputTag("simCscTriggerPrimitiveDigis"));
+  desc.add<edm::InputTag>("srcDT", edm::InputTag("dtTriggerPhase2PrimitiveDigis"));
+  desc.add<edm::InputTag>("srcDTTheta", edm::InputTag("simDtTriggerPrimitiveDigis"));
   desc.add<edm::InputTag>("srcDTPairs", edm::InputTag("dtTriggerPhase2PrimitivePairDigis"));
   desc.add<edm::InputTag>("srcRPC", edm::InputTag("simMuonRPCDigis"));
   {
