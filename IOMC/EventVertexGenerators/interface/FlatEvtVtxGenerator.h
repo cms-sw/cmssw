@@ -13,6 +13,7 @@
  *
  */
 
+#include <optional>
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
@@ -65,10 +66,10 @@ private:
   double fMinT, fMaxT;
 
   // parameters conditionally configured
-  double fMaxX, fMaxY;
-  double fMinX, fMinY;
-  double fMinR, fMaxR;
-  double fMinPhi, fMaxPhi;
+  std::optional<double> fMaxX, fMaxY;
+  std::optional<double> fMinX, fMinY;
+  std::optional<double> fMinR, fMaxR;
+  std::optional<double> fMinPhi, fMaxPhi;
 };
 
 #endif

@@ -26,11 +26,19 @@ FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p)
     fMinR = p.getParameter<double>("MinR") * cm;
     fMaxPhi = p.getParameter<double>("MaxPhi") * radian;
     fMinPhi = p.getParameter<double>("MinPhi") * radian;
+    fMinX = std::nullopt;
+    fMaxX = std::nullopt;
+    fMinY = std::nullopt;
+    fMaxY = std::nullopt;
   } else {
     fMinX = p.getParameter<double>("MinX") * cm;
     fMaxX = p.getParameter<double>("MaxX") * cm;
     fMinY = p.getParameter<double>("MinY") * cm;
     fMaxY = p.getParameter<double>("MaxY") * cm;
+    fMaxR = std::nullopt;
+    fMinR = std::nullopt;
+    fMaxPhi = std::nullopt;
+    fMinPhi = std::nullopt;
   }
 
   if (fMinZ > fMaxZ) {
@@ -44,44 +52,44 @@ FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p)
 
   // configuration dependent checks
   if (fUseCylindricalCoords) {
-    if (fMinR > fMaxR) {
+    if (fMinR.value() > fMaxR.value()) {
       throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
                                             << "MinR is greater than MaxR";
     }
-    if (fMinPhi > fMaxPhi) {
+    if (fMinPhi.value() > fMaxPhi.value()) {
       throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
                                             << "MinPhi is greater than MaxPhi";
     }
 
-    edm::LogVerbatim("FlatEvtVtx") << "FlatEvtVtxGenerator Initialized with r[" << fMinR << ":" << fMaxR << "] cm; phi["
-                                   << fMinPhi << ":" << fMaxPhi << "] rad; z[" << fMinZ << ":" << fMaxZ << "] cm; t["
-                                   << fMinT << ":" << fMaxT << "] ns" << std::endl;
+    edm::LogVerbatim("FlatEvtVtx") << "FlatEvtVtxGenerator Initialized with r[" << *fMinR << ":" << *fMaxR
+                                   << "] cm; phi[" << *fMinPhi << ":" << *fMaxPhi << "] rad; z[" << fMinZ << ":"
+                                   << fMaxZ << "] cm; t[" << fMinT << ":" << fMaxT << "] mm";
   } else {
-    if (fMinX > fMaxX) {
+    if (fMinX.value() > fMaxX.value()) {
       throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
                                             << "MinX is greater than MaxX";
     }
-    if (fMinY > fMaxY) {
+    if (fMinY.value() > fMaxY.value()) {
       throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
                                             << "MinY is greater than MaxY";
     }
 
-    edm::LogVerbatim("FlatEvtVtx") << "FlatEvtVtxGenerator Initialized with x[" << fMinX << ":" << fMaxX << "] cm; y["
-                                   << fMinY << ":" << fMaxY << "] cm; z[" << fMinZ << ":" << fMaxZ << "] cm; t["
-                                   << fMinT << ":" << fMaxT << "] ns" << std::endl;
+    edm::LogVerbatim("FlatEvtVtx") << "FlatEvtVtxGenerator Initialized with x[" << *fMinX << ":" << *fMaxX << "] cm; y["
+                                   << *fMinY << ":" << *fMaxY << "] cm; z[" << fMinZ << ":" << fMaxZ << "] cm; t["
+                                   << fMinT << ":" << fMaxT << "] mm" << std::endl;
   }
 }
 
 ROOT::Math::XYZTVector FlatEvtVtxGenerator::vertexShift(CLHEP::HepRandomEngine* engine) const {
   double aX, aY, aZ, aT;
   if (fUseCylindricalCoords) {
-    double aR = CLHEP::RandFlat::shoot(engine, fMinR, fMaxR);
-    double aPhi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
+    double aR = CLHEP::RandFlat::shoot(engine, *fMinR, *fMaxR);
+    double aPhi = CLHEP::RandFlat::shoot(engine, *fMinPhi, *fMaxPhi);
     aX = aR * std::cos(aPhi);
     aY = aR * std::sin(aPhi);
   } else {
-    aX = CLHEP::RandFlat::shoot(engine, fMinX, fMaxX);
-    aY = CLHEP::RandFlat::shoot(engine, fMinY, fMaxY);
+    aX = CLHEP::RandFlat::shoot(engine, *fMinX, *fMaxX);
+    aY = CLHEP::RandFlat::shoot(engine, *fMinY, *fMaxY);
   }
   aZ = CLHEP::RandFlat::shoot(engine, fMinZ, fMaxZ);
   aT = CLHEP::RandFlat::shoot(engine, fMinT, fMaxT);
@@ -106,7 +114,7 @@ void FlatEvtVtxGenerator::fillDescriptions(edm::ConfigurationDescriptions& descr
                           edm::ParameterDescription<double>("MaxX", 0.001, true) and
                           edm::ParameterDescription<double>("MinY", 0.0, true) and
                           edm::ParameterDescription<double>("MaxY", 0.001, true))) or
-                   // Polar (UseCylindricalCoords = true) branch
+                   // Cylindrical (UseCylindricalCoords = true) branch
                    (true >> (edm::ParameterDescription<double>("MinR", 0.0, true) and
                              edm::ParameterDescription<double>("MaxR", 0.001, true) and
                              edm::ParameterDescription<double>("MinPhi", -std::numbers::pi, true) and
