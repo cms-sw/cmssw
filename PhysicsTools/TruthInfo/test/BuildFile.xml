@@ -1,0 +1,4 @@
+<bin name="TruthLogicalGraphPostProcessor_t" file="TruthLogicalGraphPostProcessor_t.cpp">
+  <use name="PhysicsTools/TruthInfo"/>
+  <use name="cppunit"/>
+</bin>
