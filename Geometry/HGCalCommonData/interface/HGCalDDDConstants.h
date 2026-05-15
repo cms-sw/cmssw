@@ -72,7 +72,7 @@ public:
   std::vector<double> cellThickness() const;
   double cellThickness(int layer, int waferU, int waferV) const;
   int32_t cellType(int type, int waferU, int waferV, int iz, int fwdBack, int orient) const;
-  inline int coldBoxMode() const { return hgpar_->coldBoxMode_; }
+  inline bool coldBoxMode() const { return (hgpar_->coldBoxMode_ > 0); }
   inline double coldBoxRots(unsigned int k) const {
     return ((k < hgpar_->coldBoxRots_.size()) ? hgpar_->coldBoxRots_[k] : 0);
   }

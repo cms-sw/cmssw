@@ -212,6 +212,15 @@ namespace timestudy {
       serverThread_ = std::make_unique<std::thread>([this]() { threadWork(); });
     }
 
+    ~SleepingServer() noexcept {
+      // might not have been stopped yet e.g. if exception occurs such that EndJob does not get signaled
+      if (not stopProcessing_) {
+        stopProcessing_ = true;
+        condition_.notify_one();
+        serverThread_->join();
+      }
+    }
+
     void asyncWork(
         edm::StreamID id, edm::WaitingTaskWithArenaHolder iTask, long initTime, long workTime, long finishTime) {
       waitTimesPerStream_[id.value()] = {{initTime, workTime, finishTime}};
