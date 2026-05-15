@@ -99,19 +99,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // This will hold where each layer starts in the hit soa
     device_layerStarts_ = cms::alpakatools::make_device_buffer<hindex_type[]>(queue, nLayers + 1);
 
-    // Cell -> (Neighbor Cells, Curvature)
-    // It takes 2*Ndoublets keys as for each doublet two container bins are stored:
-    //   1. neighboring doublets (non-layer-skipping ones) at index = 2*iDoublet
-    //   2. neighboring doublets (layer-skipping ones) at index = 2*iDoublet+1
+    // Cell -> Neighbor Cells
+    // One bin per cell (maxDoublets+1 offsets). The skipping-vs-non-skipping
+    // distinction is encoded in bit 31 of each stored neighbor index:
+    //   bit 31 = 0 -> non-layer-skipping neighbor
+    //   bit 31 = 1 -> layer-skipping neighbor
+    // This packing is possible since maxNumberOfDoublets should be well below 2^31.
     device_cellToNeighbors_ = cms::alpakatools::make_device_buffer<GenericContainer>(queue);
     device_cellToNeighborsStorage_ =
         cms::alpakatools::make_device_buffer<GenericContainerStorage[]>(queue, nCellsToCells);
     device_cellToNeighborsOffsets_ =
-        cms::alpakatools::make_device_buffer<GenericContainerOffsets[]>(queue, 2 * maxDoublets + 1);
+        cms::alpakatools::make_device_buffer<GenericContainerOffsets[]>(queue, maxDoublets + 1);
     device_cellToNeighborsView_ = {device_cellToNeighbors_->data(),
                                    device_cellToNeighborsOffsets_->data(),
                                    device_cellToNeighborsStorage_->data(),
-                                   2 * maxDoublets + 1,
+                                   maxDoublets + 1u,
                                    nCellsToCells};
 
     CellToCell::template launchZero<Acc1D>(device_cellToNeighborsView_, queue);

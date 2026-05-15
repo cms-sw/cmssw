@@ -62,6 +62,12 @@ namespace caStructures {
   using tindex_type = uint32_t;
   using cindex_type = uint32_t;
 
+  // cellNeighbors storage encoding: bit 31 of each stored neighbor cell index
+  // distinguishes layer-skipping (1) from non-layer-skipping (0) neighbors,
+  // so the histogram needs a single bin per cell instead of two.
+  inline constexpr uint32_t kSkipsLayerFlag = 0x80000000u;
+  inline constexpr uint32_t kCellIndexMask = 0x7FFFFFFFu;
+
   using GenericContainer = cms::alpakatools::
       OneToManyAssocRandomAccess<hindex_type, cms::alpakatools::kDynamicSize, cms::alpakatools::kDynamicSize>;
   using GenericContainerStorage = typename GenericContainer::value_type;
