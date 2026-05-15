@@ -5,6 +5,3 @@ VtxSmeared = cms.EDProducer("FlatEvtVtxGenerator",
     FlatVtxDisplacedParameters,
     src = cms.InputTag("generator", "unsmeared"),
 )
-
-
-

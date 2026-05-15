@@ -60,7 +60,7 @@ public:
 
 private:
   // parameters always configured
-  const bool fFixedR;
+  const bool fUseCylindricalCoords;
   double fMinZ, fMaxZ;
   double fMinT, fMaxT;
 
