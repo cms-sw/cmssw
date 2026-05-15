@@ -66,6 +66,7 @@ namespace Phase2L1GMT {
     bool estimateChiSquare(l1t::KMTFTrack& track, bool vertex);
     void setRank(l1t::KMTFTrack& track, bool vertex);
     int wrapAround(int value, int maximum);
+	int satKSlope(int k);  
     int encode(bool ownwheel, int sector, int tag);
     std::pair<bool, uint> getByCode(const std::vector<l1t::KMTFTrack>& tracks, int mask);
     uint twosCompToBits(int q);
@@ -131,7 +132,7 @@ namespace Phase2L1GMT {
     //bits for fixed point precision
     static const int PHIBSCALE = 16;
     static const int PHIBSCALE_INT = 5;
-	static const int ZDELTAR_BITS = 15;
+	static const int ZDELTAR_BITS = 14;
 	static const int ZDELTAR_BITSINT = 1;
     static const int BITSCURV = 16;
     static const int BITSPHI = 18;

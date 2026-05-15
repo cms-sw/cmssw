@@ -24,10 +24,14 @@ namespace l1t {
           ptC_(0),
           phiVertex_(0),
           dxy_(0),
+          zVertex_(0),
+          kSlopeVertex_(0),
           curvMuon_(0),
           ptU_(0),
           phiMuon_(0),
           phiBMuon_(0),
+          zMuon_(0),
+          kSlopeMuon_(0),
           curv_(0),
           phi_(0),
           phiB_(0),
@@ -61,10 +65,14 @@ namespace l1t {
           ptC_(0),
           phiVertex_(0),
           dxy_(0),
+          zVertex_(0),
+          kSlopeVertex_(0),
           curvMuon_(0),
           ptU_(0),
           phiMuon_(0),
           phiBMuon_(0),
+          zMuon_(0),
+          kSlopeMuon_(0),
           curv_(0),
           phi_(phi),
           phiB_(phiB),
@@ -103,6 +111,10 @@ namespace l1t {
     int phiAtMuon() const { return phiMuon_; }
     //unconstrained phiB at station 1
     int phiBAtMuon() const { return phiBMuon_; }
+    //unconstrained z at station 1
+    int zAtMuon() const { return zMuon_; }
+    //unconstrained kSLope at station 1
+    int kSlopeAtMuon() const { return kSlopeMuon_; }
 
     //constrained pt
     int ptPrompt() const { return ptC_; }
@@ -110,6 +122,10 @@ namespace l1t {
     int curvatureAtVertex() const { return curvVertex_; }
     //constrained phi at the vertex
     int phiAtVertex() const { return phiVertex_; }
+    //constrained z at the vertex
+    int zAtVertex() const { return zVertex_; }
+    //constrained kSlope at the vertex
+    int kSlopeAtVertex() const { return kSlopeVertex_; }
     //Impact parameter as calculated from the muon track
     int dxy() const { return dxy_; }
     //Unconstrained curvature at the Muon systen
@@ -235,16 +251,20 @@ namespace l1t {
 	  kSlope_ = kSlope;
     }
 
-    void setCoordinatesAtVertex(int curv, int phi, int dxy) {
+    void setCoordinatesAtVertex(int curv, int phi, int dxy, int z, int kSlope) {
       curvVertex_ = curv;
       phiVertex_ = phi;
       dxy_ = dxy;
+	  zVertex_ = z;
+      kSlopeVertex_ = kSlope;
     }
 
-    void setCoordinatesAtMuon(int curv, int phi, int phiB) {
+    void setCoordinatesAtMuon(int curv, int phi, int phiB, int z, int kSlope) {
       curvMuon_ = curv;
       phiMuon_ = phi;
       phiBMuon_ = phiB;
+	  zMuon_ = z;
+      kSlopeMuon_ = kSlope;
     }
 
     void setPt(int ptC, int ptU) {
@@ -434,12 +454,16 @@ namespace l1t {
     int ptC_;
     int phiVertex_;
     int dxy_;
+    int zVertex_;
+    int kSlopeVertex_;
 
     //muon coordinates
     int curvMuon_;
     int ptU_;
     int phiMuon_;
     int phiBMuon_;
+    int zMuon_;
+    int kSlopeMuon_;
 
     //generic coordinates
     int curv_;
