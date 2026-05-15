@@ -26,17 +26,14 @@ namespace spf {
   }
 
   int SherpackFetcher::Fetch() {
-    std::string option = "-c";
-    std::string constr = "`cmsGetFnConnect frontier://smallfiles`";
-    std::string sherpack = SherpackLocation + "/sherpa_" + SherpaProcess + "_MASTER.tgz";
-    std::string sherpackunzip = "sherpa_" + SherpaProcess + "_MASTER.tar";
-    std::string path = SherpackLocation + "/" + sherpack;
+    // Extract filename from SherpackLocation (which is a full path)
+    std::string sherpackPath = SherpackLocation;
+    size_t lastSlash = sherpackPath.find_last_of("/\\");
+    std::string sherpack = (lastSlash == std::string::npos) ? sherpackPath : sherpackPath.substr(lastSlash + 1);
 
     if (FetchSherpack == true) {
-      std::cout << "SherpackFetcher: Trying to fetch the Sherpack " << sherpack << std::endl;
-      int res = -1;
-
-      res = CopyFile(path);
+      std::cout << "SherpackFetcher: Trying to fetch the Sherpack from " << sherpackPath << std::endl;
+      int res = CopyFile(sherpackPath);
 
       if (res != 1) {
         throw cms::Exception("SherpaInterface")
@@ -48,7 +45,7 @@ namespace spf {
 
     std::ifstream my_file(sherpack.c_str());
     if (!my_file.good()) {
-      throw cms::Exception("SherpaInterface") << "SherpackFetcher: No Sherpack found: " << sherpack << std::endl;
+      throw cms::Exception("SherpaInterface") << "SherpackFetcher: No Sherpack found at " << sherpack << std::endl;
       return -2;
     }
     my_file.close();
@@ -70,24 +67,37 @@ namespace spf {
       std::cout << "SherpackFetcher: Ignoring Checksum" << std::endl;
     }
 
-    std::cout << "SherpackFetcher: Trying to unzip the Sherpack" << std::endl;
-    int res = spu::Unzip(sherpack, sherpackunzip);
+    const char *envCMSSWVersion = std::getenv("CMSSW_VERSION");
+    const char *envSCRAMArch = std::getenv("SCRAM_ARCH");
+    std::string cmsswVersion = envCMSSWVersion ? envCMSSWVersion : "";
+    std::string scramArch = envSCRAMArch ? envSCRAMArch : "";
+    if (!cmsswVersion.empty() && !scramArch.empty()) {
+      bool versionMatch = (sherpack.find(cmsswVersion) != std::string::npos);
+      bool archMatch = (sherpack.find(scramArch) != std::string::npos);
+      if (versionMatch && archMatch) {
+        std::cout << "SherpackFetcher: CMSSW_VERSION (" << cmsswVersion << ") and SCRAM_ARCH (" << scramArch
+                  << ") match the Sherpack" << std::endl;
+      } else {
+        if (!versionMatch)
+          std::cout << "SherpackFetcher: WARNING - CMSSW_VERSION mismatch: environment has " << cmsswVersion
+                    << " but not found in Sherpack " << sherpack << std::endl;
+        if (!archMatch)
+          std::cout << "SherpackFetcher: WARNING - SCRAM_ARCH mismatch: environment has " << scramArch
+                    << " but not found in Sherpack " << sherpack << std::endl;
+      }
+    } else {
+      std::cout << "SherpackFetcher: CMSSW_VERSION or SCRAM_ARCH not set in environment, skipping compatibility check"
+                << std::endl;
+    }
+
+    std::cout << "SherpackFetcher: Trying to decompress the Sherpack (tar.xz): " << sherpack << std::endl;
+    std::string tarCmd = "tar -xJf " + sherpack;
+    int res = system(tarCmd.c_str());
     if (res != 0) {
       throw cms::Exception("SherpaInterface") << "SherpackFetcher: Decompressing failed " << std::endl;
       return -4;
     }
     std::cout << "SherpackFetcher: Decompressing successful " << std::endl;
-
-    FILE *file = fopen(const_cast<char *>(sherpackunzip.c_str()), "r");
-    if (file) {
-      std::cout << "SherpackFetcher: Decompressed Sherpack exists with name " << sherpackunzip
-                << " starting to untar it" << std::endl;
-      spu::Untar(file, SherpaPath.c_str());
-    } else {
-      throw cms::Exception("SherpaInterface") << "SherpackFetcher: Could not open decompressed Sherpack" << std::endl;
-      return -5;
-    }
-    fclose(file);
     return 0;
   }
 

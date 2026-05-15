@@ -49,7 +49,9 @@ function build_python_cff() {
   cfffilename=$1  # config file name
   process=$2      # process name
   checksum=$3     # MD5 checksum
-  hepmc_version=$4       # HepMC version (HepMC2 or HepMC3)
+  sherpackfile=$4 # sherpack tar.xz filename
+  hepmc_version=$5       # HepMC version (HepMC2 or HepMC3)
+
   if [ -e ${cfffilename} ]; then rm ${cfffilename}; fi
   touch ${cfffilename}
 
@@ -73,7 +75,7 @@ function build_python_cff() {
   echo "  filterEfficiency = cms.untracked.double(1.0),"                   >> ${cfffilename}
   echo "  crossSection = cms.untracked.double(-1),"                        >> ${cfffilename}
   echo "  SherpaProcess = cms.string('"${process}"'),"                     >> ${cfffilename}
-  echo "  SherpackLocation = cms.string('./'),"                            >> ${cfffilename}
+  echo "  SherpackLocation = cms.string('"${sherpackfile}"'),"              >> ${cfffilename}
   echo "  SherpackChecksum = cms.string('"${checksum}"'),"                 >> ${cfffilename}
   echo "  FetchSherpack = cms.bool(False),"                                >> ${cfffilename}
 ##  if [ "${imode}" = "PROD" ]; then
@@ -247,7 +249,7 @@ HDIR=`pwd`
 # 'guess' SHERPA dataset name
 ip=1
 cproc="XXX"
-for file in `ls sherpa_*_libs.tgz`; do
+for file in `ls sherpa_*_libs_${SCRAM_ARCH}_${CMSSW_VERSION}.tgz`; do
   if [ $ip -eq 1 ]; then
     cproc=`echo $file | awk -F"sherpa_" '{print $2}' | awk -F"_libs" '{print $1}'`
   fi
@@ -350,10 +352,10 @@ echo "  -> HepMC version '"${vhepmc}"'"
 
 
 # set SHERPA data file names
-cardfile=sherpa_${dataset}_crdE.tgz
-libsfile=sherpa_${dataset}_libs.tgz
-crssfile=sherpa_${dataset}_crss.tgz
-gridfile=sherpa_${dataset}_migr.tgz
+cardfile=sherpa_${dataset}_crdE_${SCRAM_ARCH}_${CMSSW_VERSION}.tgz
+libsfile=sherpa_${dataset}_libs_${SCRAM_ARCH}_${CMSSW_VERSION}.tgz
+crssfile=sherpa_${dataset}_crss_${SCRAM_ARCH}_${CMSSW_VERSION}.tgz
+gridfile=sherpa_${dataset}_migr_${SCRAM_ARCH}_${CMSSW_VERSION}.tgz
 if [ ! "${cfdc}" = "" ]; then cardfile=${cfdc}; fi
 if [ ! "${cflb}" = "" ]; then libsfile=${cflb}; fi
 if [ ! "${cfcr}" = "" ]; then crssfile=${cfcr}; fi
@@ -409,23 +411,20 @@ if [ ! "${cfgr}" = "" ]; then gridfile=${cfgr}; fi
 spsummd5=""
 
 ##if [ "${imode}" = "PROD" ] || [ "${imode}" = "LOCAL" ]; then
-  shpamstfile="sherpa_"${dataset}"_MASTER.tgz"
-  shpamstmd5s="sherpa_"${dataset}"_MASTER.md5"
+  shpaxzfile="sherpa_"${dataset}"_MASTER_${SCRAM_ARCH}_${CMSSW_VERSION}.tar.xz"
   shpacfffile="sherpa_"${dataset}"_MASTER_cff.py"
 
   cd ${MYCMSSWSHPA}
 
-  tar -czf ${shpamstfile} *
+  tar -cJpf ${shpaxzfile} *
 ####
-  md5sum ${shpamstfile} > ${shpamstmd5s}
-  spsummd5=`md5sum ${shpamstfile} | cut -f1 -d" "`
+  spsummd5=`md5sum ${shpaxzfile} | cut -f1 -d" "`
 ####
 
 ##  build_python_cff ${imode} ${shpacfffile} ${dataset} ${spsummd5}
-  build_python_cff ${shpacfffile} ${dataset} ${spsummd5} ${vhepmc}
+  build_python_cff ${shpacfffile} ${dataset} ${spsummd5} ${shpaxzfile} ${vhepmc}
 
-  mv ${shpamstfile} $HDIR
-  mv ${shpamstmd5s} $HDIR
+  mv ${shpaxzfile} $HDIR
   mv ${shpacfffile} $HDIR
 
   cd $HDIR
@@ -439,11 +438,10 @@ echo " <I>  "
 echo " <I>  "
 echo " <I>  "
 echo " <I>  generated sherpack:"
-echo " <I>    "${shpamstfile}
+echo " <I>    "${shpaxzfile}
 echo " <I>  generated python fragment:"
 echo " <I>    "${shpacfffile}
-echo " <I>  MD5 checksum file:"
-echo " <I>    "${shpamstmd5s}
+echo " <I>  (MD5 checksum stored inside sherpa_<process>_MASTER_cff.py in associated with the production of sherpack, could also be derived with 'md5sum sherpack' command)"
 echo " <I>  "
 echo " <I>  "
 echo " <I>  "
@@ -463,7 +461,7 @@ echo " <I>    FetchSherpack = cms.bool(true)"
 echo " <I>  "
 echo " <I>  "
 echo " <I>  for a production with CRAB add the sherpack to the list of additional files"
-echo " <I>    additional_input_files = [name of the ..._MASTER.tgz sherpack]"
+echo " <I>    additional_input_files = [name of the ..._MASTER_<SCRAM_ARCH>_<CMSSW_VERSION>.tgz sherpack]"
 echo " <I>  make sure that the sherpack location is"
 echo " <I>    SherpackLocation = cms.string('./')"
 echo " <I>  and make sure that the SherpaInterface does not try to fetch the sherpack"
