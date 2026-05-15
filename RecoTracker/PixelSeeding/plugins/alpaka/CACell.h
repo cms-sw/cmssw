@@ -235,59 +235,70 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         tmpNtuplet.push_back_unsafe(doubletId);  // if we move this to be safe we could parallelize further below?
         ALPAKA_ASSERT_ACC(tmpNtuplet.size() <= int(TrackerTraits::maxLayersPerTrack - 1));
 
-        // bin with neighbors (non-layer-skipping and skipping are consecutive in memory!)
-        auto const* __restrict__ neighborCells = cellNeighborsHisto->begin(2 * doubletId);
-        auto nNonSkippingNeighbors = cellNeighborsHisto->size(2 * doubletId);
-        auto nSkippingNeighbors = cellNeighborsHisto->size(2 * doubletId + 1);
+        // Single bin per cell. Each stored entry encodes the neighbor cell index
+        // in its low 31 bits and the layer-skipping flag in bit 31. Walk the
+        // bin in two passes so that non-skipping neighbors are tried first and
+        // skipping ones are only explored when no good non-skipping neighbor
+        // was found at triplet-or-more depth.
+        auto const* __restrict__ neighborCells = cellNeighborsHisto->begin(doubletId);
+        auto const nNeighbors = cellNeighborsHisto->size(doubletId);
 
         bool tripletOrMore = ((unsigned int)(tmpNtuplet.size()) > 1);
         bool foundNeighbor = false;
-        for (auto idx = 0u; idx < (nNonSkippingNeighbors + nSkippingNeighbors); idx++) {
-          // only explore the skipping neighbors if no good non-skipping ones were found
-          if ((idx == nNonSkippingNeighbors) && foundNeighbor && tripletOrMore)
+
+        // The two passes are identical but for the check on bit 31 (layer skipping):
+        // pass==0 keeps entries with bit 31 clear, pass==1 keeps entries with
+        // bit 31 set. Bail out of pass 1 if a non-skipping neighbor already
+        // produced a triplet-or-more.
+        for (int pass = 0; pass < 2; ++pass) {
+          if (pass == 1 && foundNeighbor && tripletOrMore)
             break;
+          const uint32_t wantSkip = (pass == 0) ? 0u : caStructures::kSkipsLayerFlag;
+          for (auto idx = 0u; idx < nNeighbors; idx++) {
+            auto encoded = neighborCells[idx];
+            if ((encoded & caStructures::kSkipsLayerFlag) != wantSkip)
+              continue;
+            auto otherCell = encoded & caStructures::kCellIndexMask;
+            if (cells[otherCell].isKilled())
+              continue;
 
-          // FIXME implement alpaka::ldg and use it here? or is it const* __restrict__ enough?
-          auto otherCell = neighborCells[idx];
-          if (cells[otherCell].isKilled())
-            continue;
-
-          // check compatiblity of triplets and calculate this triplets curvature
-          float thisCurvature{kUninitializeCurvature};
-          if (cells[otherCell].quadrupletCut(preCurvature, thisCurvature, ll, hh, inner_x(hh), inner_y(hh)))
-            continue;
+            // check compatiblity of triplets and calculate this triplets curvature
+            float thisCurvature{kUninitializeCurvature};
+            if (cells[otherCell].quadrupletCut(preCurvature, thisCurvature, ll, hh, inner_x(hh), inner_y(hh)))
+              continue;
 #ifdef CA_DEBUG
-          printf("Doublet no. %d %d doubletId: %ld -> %d (isKilled %d) (%d,%d) -> (%d,%d) %d %d\n",
-                 tmpNtuplet.size(),
-                 idx,
-                 doubletId,
-                 otherCell,
-                 cells[otherCell].isKilled(),
-                 this->inner_hit_id(),
-                 this->outer_hit_id(),
-                 cells[otherCell].inner_hit_id(),
-                 cells[otherCell].outer_hit_id(),
-                 idx,
-                 (nNonSkippingNeighbors + nSkippingNeighbors));
+            printf("Doublet no. %d %d doubletId: %ld -> %d (isKilled %d) (%d,%d) -> (%d,%d) %d %d\n",
+                   tmpNtuplet.size(),
+                   idx,
+                   doubletId,
+                   otherCell,
+                   cells[otherCell].isKilled(),
+                   this->inner_hit_id(),
+                   this->outer_hit_id(),
+                   cells[otherCell].inner_hit_id(),
+                   cells[otherCell].outer_hit_id(),
+                   idx,
+                   nNeighbors);
 #endif
 
-          foundNeighbor = true;
-          cells[otherCell].template find_ntuplets<DEPTH - 1>(acc,
-                                                             hh,
-                                                             ll,
-                                                             cells,
-                                                             foundNtuplets,
-                                                             cellNeighborsHisto,
-                                                             cellTracksHisto,
-                                                             nCellTracks,
-                                                             ct,
-                                                             apc,
-                                                             quality,
-                                                             nLayers,
-                                                             pt,
-                                                             tmpNtuplet,
-                                                             minHitsPerNtuplet,
-                                                             thisCurvature);
+            foundNeighbor = true;
+            cells[otherCell].template find_ntuplets<DEPTH - 1>(acc,
+                                                               hh,
+                                                               ll,
+                                                               cells,
+                                                               foundNtuplets,
+                                                               cellNeighborsHisto,
+                                                               cellTracksHisto,
+                                                               nCellTracks,
+                                                               ct,
+                                                               apc,
+                                                               quality,
+                                                               nLayers,
+                                                               pt,
+                                                               tmpNtuplet,
+                                                               minHitsPerNtuplet,
+                                                               thisCurvature);
+          }
         }
 
         // if no more doublets were found, save N-tuplet if long enough
@@ -336,8 +347,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
                 // set number of layers in the TrackSoA (if not done here, one would need to recalculate it from the hits later)
                 nLayers[it] = int8_t(nl);
-                quality[it] = bad;      // initialize to bad
-                pt[it] = preCurvature;  // fill the curvature as an early (pre-fit) reference for pt comparisons in duplicate removers
+                quality[it] = bad;  // initialize to bad
+                pt[it] =
+                    preCurvature;  // fill the curvature as an early (pre-fit) reference for pt comparisons in duplicate removers
               }
             }
           }
