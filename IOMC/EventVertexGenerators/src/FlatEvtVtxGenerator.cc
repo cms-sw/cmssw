@@ -30,14 +30,6 @@ FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVt
   fMinT = p.getParameter<double>("MinT") * ns * c_light;
   fMaxT = p.getParameter<double>("MaxT") * ns * c_light;
 
-  if (fMinX > fMaxX) {
-    throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
-                                          << "MinX is greater than MaxX";
-  }
-  if (fMinY > fMaxY) {
-    throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
-                                          << "MinY is greater than MaxY";
-  }
   if (fMinZ > fMaxZ) {
     throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
                                           << "MinZ is greater than MaxZ";
@@ -46,17 +38,35 @@ FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVt
     throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
                                           << "MinT is greater than MaxT";
   }
-  if (fMinR > fMaxR) {
-    throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
-                                          << "MinR is greater than MaxR";
+
+  // configuration dependent checks
+  if (fFixedR) {
+    if (fMinR > fMaxR) {
+      throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
+                                            << "MinR is greater than MaxR";
+    }
+    if (fMinPhi > fMaxPhi) {
+      throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
+                                            << "MinPhi is greater than MaxPhi";
+    }
+
+    edm::LogVerbatim("FlatEvtVtx") << "FlatEvtVtxGenerator Initialized with r[" << fMinR << ":" << fMaxR << "] cm; phi["
+                                   << fMinPhi << ":" << fMaxPhi << "] rad; z[" << fMinZ << ":" << fMaxZ << "] cm; t["
+                                   << fMinT << ":" << fMaxT << "]";
+  } else {
+    if (fMinX > fMaxX) {
+      throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
+                                            << "MinX is greater than MaxX";
+    }
+    if (fMinY > fMaxY) {
+      throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
+                                            << "MinY is greater than MaxY";
+    }
+
+    edm::LogVerbatim("FlatEvtVtx") << "FlatEvtVtxGenerator Initialized with x[" << fMinX << ":" << fMaxX << "] cm; y["
+                                   << fMinY << ":" << fMaxY << "] cm; z[" << fMinZ << ":" << fMaxZ << "] cm; t["
+                                   << fMinT << ":" << fMaxT << "]";
   }
-  if (fMinPhi > fMaxPhi) {
-    throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
-                                          << "MinPhi is greater than MaxPhi";
-  }
-  edm::LogVerbatim("FlatEvtVtx") << "FlatEvtVtxGenerator Initialized with x[" << fMinX << ":" << fMaxX << "] cm; y["
-                                 << fMinY << ":" << fMaxY << "] cm; z[" << fMinZ << ":" << fMaxZ << "] cm; t[" << fMinT
-                                 << ":" << fMaxT << "]";
 }
 
 FlatEvtVtxGenerator::~FlatEvtVtxGenerator() {}
@@ -94,8 +104,8 @@ void FlatEvtVtxGenerator::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<bool>("FixedR", false);
   desc.add<double>("MinR", 0.0)->setComment("in cm");
   desc.add<double>("MaxR", 0.001)->setComment("in cm");
-  desc.add<double>("MinPhi", -3.14159265359)->setComment("in radians");
-  desc.add<double>("MaxPhi", 3.14159265359)->setComment("in radians");
+  desc.add<double>("MinPhi", -M_PI)->setComment("in radians");
+  desc.add<double>("MaxPhi", M_PI)->setComment("in radians");
   desc.add<edm::InputTag>("src");
   descriptions.add("FlatEvtVtxGenerator", desc);
 }
