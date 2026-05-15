@@ -6,7 +6,10 @@
 #include "DataFormats/Common/interface/RefProd.h"
 
 namespace reco {
-  class PFCluster;
+  namespace io_v1 {
+    class PFCluster;
+  }
+  using PFCluster = io_v1::PFCluster;
 
   /// collection of PFCluster objects
   typedef std::vector<PFCluster> PFClusterCollection;

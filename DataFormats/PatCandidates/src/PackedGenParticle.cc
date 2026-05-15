@@ -39,7 +39,7 @@ void pat::PackedGenParticle::unpack() const {
   }
 }
 
-pat::PackedGenParticle::~PackedGenParticle() {
+pat::io_v1::PackedGenParticle::~PackedGenParticle() {
   delete p4_.load();
   delete p4c_.load();
 }

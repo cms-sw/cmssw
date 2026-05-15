@@ -16,46 +16,51 @@
 #include <iosfwd>
 #include <vector>
 
-class GEMPadDigiCluster {
-public:
-  enum InValid { GE11InValid = 255, GE21InValid = 511 };
-  // Newer GE2/1 geometries will have 16 eta partitions
-  // instead of the usual 8.
-  enum NumberPartitions { ME0 = 8, GE11 = 8, GE21 = 8, GE21SplitStrip = 16 };
+namespace io_v1 {
 
-  explicit GEMPadDigiCluster(std::vector<uint16_t> pads,
-                             int16_t bx,
-                             enum GEMSubDetId::Station station = GEMSubDetId::Station::GE11,
-                             unsigned nPart = NumberPartitions::GE11);
-  GEMPadDigiCluster();
+  class GEMPadDigiCluster {
+  public:
+    enum InValid { GE11InValid = 255, GE21InValid = 511 };
+    // Newer GE2/1 geometries will have 16 eta partitions
+    // instead of the usual 8.
+    enum NumberPartitions { ME0 = 8, GE11 = 8, GE21 = 8, GE21SplitStrip = 16 };
 
-  bool operator==(const GEMPadDigiCluster& digi) const;
-  bool operator!=(const GEMPadDigiCluster& digi) const;
-  bool operator<(const GEMPadDigiCluster& digi) const;
-  // only depends on the "InValid" enum so it also
-  // works on unpacked data
-  bool isValid() const;
+    explicit GEMPadDigiCluster(std::vector<uint16_t> pads,
+                               int16_t bx,
+                               enum GEMSubDetId::Station station = GEMSubDetId::Station::GE11,
+                               unsigned nPart = NumberPartitions::GE11);
+    GEMPadDigiCluster();
 
-  const std::vector<uint16_t>& pads() const { return v_; }
-  int bx() const { return bx_; }
+    bool operator==(const GEMPadDigiCluster& digi) const;
+    bool operator!=(const GEMPadDigiCluster& digi) const;
+    bool operator<(const GEMPadDigiCluster& digi) const;
+    // only depends on the "InValid" enum so it also
+    // works on unpacked data
+    bool isValid() const;
 
-  GEMSubDetId::Station station() const { return station_; }
+    const std::vector<uint16_t>& pads() const { return v_; }
+    int bx() const { return bx_; }
 
-  unsigned nPartitions() const { return part_; }
-  void print() const;
+    GEMSubDetId::Station station() const { return station_; }
 
-  int alctMatchTime() const { return alctMatchTime_; }
-  void setAlctMatchTime(int matchWin) { alctMatchTime_ = matchWin; }
+    unsigned nPartitions() const { return part_; }
+    void print() const;
 
-private:
-  std::vector<uint16_t> v_;
-  int32_t bx_;
-  int alctMatchTime_ = -1;
-  GEMSubDetId::Station station_;
-  // number of eta partitions
-  unsigned part_;
-};
+    int alctMatchTime() const { return alctMatchTime_; }
+    void setAlctMatchTime(int matchWin) { alctMatchTime_ = matchWin; }
 
-std::ostream& operator<<(std::ostream& o, const GEMPadDigiCluster& digi);
+  private:
+    std::vector<uint16_t> v_;
+    int32_t bx_;
+    int alctMatchTime_ = -1;
+    GEMSubDetId::Station station_;
+    // number of eta partitions
+    unsigned part_;
+  };
+
+  std::ostream& operator<<(std::ostream& o, const GEMPadDigiCluster& digi);
+
+}  // namespace io_v1
+using GEMPadDigiCluster = io_v1::GEMPadDigiCluster;
 
 #endif

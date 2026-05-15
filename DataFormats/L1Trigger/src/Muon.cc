@@ -99,7 +99,7 @@ l1t::Muon::Muon(const PolarLorentzVector& p4,
       ptUnconstrained_(ptUnconstrained),
       hwDXY_(dXY) {}
 
-l1t::Muon::~Muon() {}
+l1t::io_v1::Muon::~Muon() {}
 
 bool l1t::Muon::operator==(const l1t::Muon& rhs) const {
   return l1t::L1Candidate::operator==(static_cast<const l1t::L1Candidate&>(rhs)) && hwCharge_ == rhs.hwCharge() &&

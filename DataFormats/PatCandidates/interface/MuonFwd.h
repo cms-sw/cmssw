@@ -2,6 +2,9 @@
 #define DataFormats_PatCandidates_MuonFwd_h
 
 namespace pat {
-  class Muon;
-}
+  namespace io_v1 {
+    class Muon;
+  }
+  using Muon = io_v1::Muon;
+}  // namespace pat
 #endif

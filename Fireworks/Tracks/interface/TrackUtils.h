@@ -9,6 +9,7 @@
 // system include files
 #include "TEveVSDStructs.h"
 #include <set>
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "DataFormats/DetId/interface/DetIdFwd.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelClusterFwd.h"

@@ -7,7 +7,10 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
-  class ElectronSeed;
+  namespace io_v1 {
+    class ElectronSeed;
+  }
+  using ElectronSeed = io_v1::ElectronSeed;
   /// collection of ElectronSeed objects
   typedef std::vector<ElectronSeed> ElectronSeedCollection;
   /// reference to an object in a collection of ElectronSeed objects

@@ -2,10 +2,6 @@
 #define Candidate_CandidateFwd_h
 #include "DataFormats/Common/interface/OwnVector.h"
 
-namespace reco {
-  class Candidate;
-}
-
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/PtrVector.h"
@@ -15,6 +11,8 @@ namespace reco {
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/RefToBaseProd.h"
 #include "DataFormats/Common/interface/View.h"
+
+#include "DataFormats/Candidate/interface/CandidateOnlyFwd.h"
 
 namespace reco {
   /// collection of Candidate objects
