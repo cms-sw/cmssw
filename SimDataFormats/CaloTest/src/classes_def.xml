@@ -1,23 +1,23 @@
 <lcgdict>
-  <class name="HcalTestHistoClass" ClassVersion="10">
-   <version ClassVersion="10" checksum="4077122487"/>
+  <class name="HcalTestHistoClass" ClassVersion="3">
+   <version ClassVersion="3" checksum="4077122487"/>
   </class>
-  <class name="HcalTestHistoClass::Layer" ClassVersion="10">
-   <version ClassVersion="10" checksum="2361923361"/>
+  <class name="HcalTestHistoClass::Layer" ClassVersion="3">
+   <version ClassVersion="3" checksum="2361923361"/>
   </class>
-  <class name="HcalTestHistoClass::Hit" ClassVersion="10">
-   <version ClassVersion="10" checksum="161472878"/>
+  <class name="HcalTestHistoClass::Hit" ClassVersion="3">
+   <version ClassVersion="3" checksum="161472878"/>
   </class>
-  <class name="HcalTestHistoClass::QIE" ClassVersion="10">
-   <version ClassVersion="10" checksum="4053248214"/>
+  <class name="HcalTestHistoClass::QIE" ClassVersion="3">
+   <version ClassVersion="3" checksum="4053248214"/>
   </class>
   <class name="std::vector<HcalTestHistoClass::Layer>"/>
   <class name="std::vector<HcalTestHistoClass::Hit>"/>
   <class name="std::vector<HcalTestHistoClass::QIE>"/>
   <class name="edm::Wrapper<HcalTestHistoClass>"/>
 
-  <class name="ParticleFlux" ClassVersion="13">
-   <version ClassVersion="13" checksum="2329907515"/>
+  <class name="ParticleFlux" ClassVersion="3">
+   <version ClassVersion="3" checksum="2329907515"/>
   </class>
   <class name="edm::Wrapper<ParticleFlux>"/>
   <class name="ParticleFlux::flux"/>

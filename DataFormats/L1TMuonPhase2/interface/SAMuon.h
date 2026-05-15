@@ -11,81 +11,80 @@
 #include "DataFormats/L1TMuonPhase2/interface/MuonStub.h"
 
 namespace l1t {
+  namespace io_v1 {
+    class SAMuon : public L1Candidate {
+    public:
+      SAMuon();
 
-  class SAMuon;
+      SAMuon(const l1t::Muon& mu, bool charge, uint pt, int eta, int phi, int z0, int d0, uint quality);
 
+      ~SAMuon() override;
+
+      const bool hwCharge() const { return hwCharge_; }
+      const int hwZ0() const { return hwZ0_; }
+      const int hwD0() const { return hwD0_; }
+      const uint hwBeta() const { return hwBeta_; }
+      void setBeta(uint beta) { hwBeta_ = beta; }
+      void setTF(tftype tf) { tf_ = tf; }
+      unsigned int trackID() const { return trackID_; }
+
+      void setTrackID(unsigned int ID) { trackID_ = ID; }
+
+      const tftype tfType() const { return tf_; }
+      // For GT, returning ap_ type
+      const Phase2L1GMT::valid_sa_t apValid() const { return Phase2L1GMT::valid_sa_t(hwPt() > 0); };
+      const Phase2L1GMT::pt_sa_t apPt() const { return Phase2L1GMT::pt_sa_t(hwPt()); };
+      const Phase2L1GMT::phi_sa_t apPhi() const { return Phase2L1GMT::phi_sa_t(hwPhi()); };
+      const Phase2L1GMT::eta_sa_t apEta() const { return Phase2L1GMT::eta_sa_t(hwEta()); };
+      const Phase2L1GMT::z0_sa_t apZ0() const { return Phase2L1GMT::z0_sa_t(hwZ0()); };
+      const Phase2L1GMT::d0_sa_t apD0() const { return Phase2L1GMT::d0_sa_t(hwD0()); };
+      const Phase2L1GMT::q_sa_t apCharge() const { return Phase2L1GMT::q_sa_t(hwCharge()); };
+      const Phase2L1GMT::qual_sa_t apQualFlags() const { return Phase2L1GMT::qual_sa_t(hwQual()); };
+
+      // For HLT
+      const double phZ0() const { return Phase2L1GMT::LSBSAz0 * hwZ0(); }
+      const double phD0() const { return Phase2L1GMT::LSBSAd0 * hwD0(); }
+      const double phPt() const { return Phase2L1GMT::LSBpt * hwPt(); }
+      const double phEta() const { return Phase2L1GMT::LSBeta * hwEta(); }
+      const double phPhi() const { return Phase2L1GMT::LSBphi * hwPhi(); }
+      const int phCharge() const { return pow(-1, hwCharge()); }
+
+      const uint64_t word() const { return word_; }
+      void setWord(uint64_t word) { word_ = word; }
+      void print() const;
+
+      bool operator<(const SAMuon& other) const {
+        if (hwPt() == other.hwPt())
+          return (hwEta() < other.hwEta());
+        else
+          return (hwPt() < other.hwPt());
+      }
+      bool operator>(const SAMuon& other) const {
+        if (hwPt() == other.hwPt())
+          return (hwEta() > other.hwEta());
+        else
+          return (hwPt() > other.hwPt());
+      }
+
+      void addStub(const MuonStubRef& stub) { stubs_.push_back(stub); }
+      void setStubs(const MuonStubRefVector& stubs) { stubs_ = stubs; }
+      const MuonStubRefVector stubs() const { return stubs_; }
+
+    private:
+      bool hwCharge_;
+      int hwZ0_;
+      int hwD0_;
+      uint hwBeta_;
+      uint64_t word_;
+      MuonStubRefVector stubs_;
+      unsigned int trackID_;
+      tftype tf_;
+    };
+  }  // namespace io_v1
+  using SAMuon = io_v1::SAMuon;
   typedef std::vector<SAMuon> SAMuonCollection;
   typedef edm::Ref<SAMuonCollection> SAMuonRef;
   typedef std::vector<edm::Ref<SAMuonCollection> > SAMuonRefVector;
-
-  class SAMuon : public L1Candidate {
-  public:
-    SAMuon();
-
-    SAMuon(const l1t::Muon& mu, bool charge, uint pt, int eta, int phi, int z0, int d0, uint quality);
-
-    ~SAMuon() override;
-
-    const bool hwCharge() const { return hwCharge_; }
-    const int hwZ0() const { return hwZ0_; }
-    const int hwD0() const { return hwD0_; }
-    const uint hwBeta() const { return hwBeta_; }
-    void setBeta(uint beta) { hwBeta_ = beta; }
-    void setTF(tftype tf) { tf_ = tf; }
-    unsigned int trackID() const { return trackID_; }
-
-    void setTrackID(unsigned int ID) { trackID_ = ID; }
-
-    const tftype tfType() const { return tf_; }
-    // For GT, returning ap_ type
-    const Phase2L1GMT::valid_sa_t apValid() const { return Phase2L1GMT::valid_sa_t(hwPt() > 0); };
-    const Phase2L1GMT::pt_sa_t apPt() const { return Phase2L1GMT::pt_sa_t(hwPt()); };
-    const Phase2L1GMT::phi_sa_t apPhi() const { return Phase2L1GMT::phi_sa_t(hwPhi()); };
-    const Phase2L1GMT::eta_sa_t apEta() const { return Phase2L1GMT::eta_sa_t(hwEta()); };
-    const Phase2L1GMT::z0_sa_t apZ0() const { return Phase2L1GMT::z0_sa_t(hwZ0()); };
-    const Phase2L1GMT::d0_sa_t apD0() const { return Phase2L1GMT::d0_sa_t(hwD0()); };
-    const Phase2L1GMT::q_sa_t apCharge() const { return Phase2L1GMT::q_sa_t(hwCharge()); };
-    const Phase2L1GMT::qual_sa_t apQualFlags() const { return Phase2L1GMT::qual_sa_t(hwQual()); };
-
-    // For HLT
-    const double phZ0() const { return Phase2L1GMT::LSBSAz0 * hwZ0(); }
-    const double phD0() const { return Phase2L1GMT::LSBSAd0 * hwD0(); }
-    const double phPt() const { return Phase2L1GMT::LSBpt * hwPt(); }
-    const double phEta() const { return Phase2L1GMT::LSBeta * hwEta(); }
-    const double phPhi() const { return Phase2L1GMT::LSBphi * hwPhi(); }
-    const int phCharge() const { return pow(-1, hwCharge()); }
-
-    const uint64_t word() const { return word_; }
-    void setWord(uint64_t word) { word_ = word; }
-    void print() const;
-
-    bool operator<(const SAMuon& other) const {
-      if (hwPt() == other.hwPt())
-        return (hwEta() < other.hwEta());
-      else
-        return (hwPt() < other.hwPt());
-    }
-    bool operator>(const SAMuon& other) const {
-      if (hwPt() == other.hwPt())
-        return (hwEta() > other.hwEta());
-      else
-        return (hwPt() > other.hwPt());
-    }
-
-    void addStub(const MuonStubRef& stub) { stubs_.push_back(stub); }
-    void setStubs(const MuonStubRefVector& stubs) { stubs_ = stubs; }
-    const MuonStubRefVector stubs() const { return stubs_; }
-
-  private:
-    bool hwCharge_;
-    int hwZ0_;
-    int hwD0_;
-    uint hwBeta_;
-    uint64_t word_;
-    MuonStubRefVector stubs_;
-    unsigned int trackID_;
-    tftype tf_;
-  };
 }  // namespace l1t
 
 #endif

@@ -22,80 +22,83 @@
 class DTLayer;
 class GeomDet;
 
-class DTRecHit1D : public RecHit1D {
-public:
-  /// Constructor from wireId and digi time only.
-  DTRecHit1D(const DTWireId& wireId, DTEnums::DTCellSide lr, float digiTime);
+namespace io_v1 {
+  class DTRecHit1D : public RecHit1D {
+  public:
+    /// Constructor from wireId and digi time only.
+    DTRecHit1D(const DTWireId& wireId, DTEnums::DTCellSide lr, float digiTime);
 
-  /// Default constructor
-  DTRecHit1D();
+    /// Default constructor
+    DTRecHit1D();
 
-  /// Constructor from a local position, wireId and digi time.
-  /// The 3-dimensional local error is defined as
-  /// resolution (the cell resolution) for the coordinate being measured
-  /// and 0 for the two other coordinates
-  DTRecHit1D(const DTWireId& wireId, DTEnums::DTCellSide lr, float digiTime, const LocalPoint& pos);
+    /// Constructor from a local position, wireId and digi time.
+    /// The 3-dimensional local error is defined as
+    /// resolution (the cell resolution) for the coordinate being measured
+    /// and 0 for the two other coordinates
+    DTRecHit1D(const DTWireId& wireId, DTEnums::DTCellSide lr, float digiTime, const LocalPoint& pos);
 
-  /// Constructor from a local position and error, wireId and digi time.
-  DTRecHit1D(
-      const DTWireId& wireId, DTEnums::DTCellSide lr, float digiTime, const LocalPoint& pos, const LocalError& err);
+    /// Constructor from a local position and error, wireId and digi time.
+    DTRecHit1D(
+        const DTWireId& wireId, DTEnums::DTCellSide lr, float digiTime, const LocalPoint& pos, const LocalError& err);
 
-  /// Destructor
-  ~DTRecHit1D() override;
+    /// Destructor
+    ~DTRecHit1D() override;
 
-  /// Return the 3-dimensional local position
-  LocalPoint localPosition() const override { return theLocalPosition; }
+    /// Return the 3-dimensional local position
+    LocalPoint localPosition() const override { return theLocalPosition; }
 
-  /// Return the 3-dimensional error on the local position
-  LocalError localPositionError() const override { return theLocalError; }
+    /// Return the 3-dimensional error on the local position
+    LocalError localPositionError() const override { return theLocalError; }
 
-  DTRecHit1D* clone() const override;
+    DTRecHit1D* clone() const override;
 
-  /// No components rechits: it returns a null vector
-  std::vector<const TrackingRecHit*> recHits() const override;
+    /// No components rechits: it returns a null vector
+    std::vector<const TrackingRecHit*> recHits() const override;
 
-  /// No components rechits: it returns a null vector
-  std::vector<TrackingRecHit*> recHits() override;
+    /// No components rechits: it returns a null vector
+    std::vector<TrackingRecHit*> recHits() override;
 
-  /// The side of the cell
-  DTEnums::DTCellSide lrSide() const { return theLRSide; }
+    /// The side of the cell
+    DTEnums::DTCellSide lrSide() const { return theLRSide; }
 
-  /// Set local position
-  void setPosition(LocalPoint pos) { theLocalPosition = pos; }
+    /// Set local position
+    void setPosition(LocalPoint pos) { theLocalPosition = pos; }
 
-  /// Set local position error
-  void setError(LocalError err) { theLocalError = err; }
+    /// Set local position error
+    void setError(LocalError err) { theLocalError = err; }
 
-  /// Set the local position and its error
-  void setPositionAndError(LocalPoint pos, LocalError err) {
-    theLocalPosition = pos;
-    theLocalError = err;
-  }
+    /// Set the local position and its error
+    void setPositionAndError(LocalPoint pos, LocalError err) {
+      theLocalPosition = pos;
+      theLocalError = err;
+    }
 
-  /// Return the wireId
-  DTWireId wireId() const { return theWireId; }
+    /// Return the wireId
+    DTWireId wireId() const { return theWireId; }
 
-  /// Return the time (ns) of the digi used to build the rechit
-  float digiTime() const { return theDigiTime; }
+    /// Return the time (ns) of the digi used to build the rechit
+    float digiTime() const { return theDigiTime; }
 
-  /// Comparison operator, based on the wireId and the digi time
-  bool operator==(const DTRecHit1D& hit) const;
+    /// Comparison operator, based on the wireId and the digi time
+    bool operator==(const DTRecHit1D& hit) const;
 
-private:
-  // The wire id
-  DTWireId theWireId;
+  private:
+    // The wire id
+    DTWireId theWireId;
 
-  // Left/Right side code
-  DTEnums::DTCellSide theLRSide;
+    // Left/Right side code
+    DTEnums::DTCellSide theLRSide;
 
-  // The digi time used to reconstruct the hit
-  float theDigiTime;
+    // The digi time used to reconstruct the hit
+    float theDigiTime;
 
-  // Position and error in the Local Ref. Frame of the DTLayer
-  LocalPoint theLocalPosition;
-  LocalError theLocalError;
-};
+    // Position and error in the Local Ref. Frame of the DTLayer
+    LocalPoint theLocalPosition;
+    LocalError theLocalError;
+  };
+
+  /// The ostream operator
+  std::ostream& operator<<(std::ostream& os, const DTRecHit1D& hit);
+}  // namespace io_v1
+using DTRecHit1D = io_v1::DTRecHit1D;
 #endif
-
-/// The ostream operator
-std::ostream& operator<<(std::ostream& os, const DTRecHit1D& hit);

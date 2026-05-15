@@ -6,7 +6,10 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
-  class Vertex;
+  namespace io_v1 {
+    class Vertex;
+  }
+  using Vertex = io_v1::Vertex;
   /// collection of Vertex objects
   typedef std::vector<Vertex> VertexCollection;
   /// persistent reference to a Vertex

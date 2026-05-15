@@ -14,30 +14,20 @@
 #include "DataFormats/L1Trigger/interface/L1TObjComparison.h"
 
 namespace l1t {
+  namespace io_v1 {
+    class MuonShower : public L1Candidate {
+    public:
+      MuonShower(bool oneNominalInTime = false,
+                 bool oneNominalOutOfTime = false,
+                 bool twoLooseInTime = false,
+                 bool twoLooseOutOfTime = false,
+                 bool oneTightInTime = false,
+                 bool oneTightOutOfTime = false,
+                 bool twoLooseDiffSectorsIntime = false);
 
-  class MuonShower;
-  typedef BXVector<MuonShower> MuonShowerBxCollection;
-  typedef edm::Ref<MuonShowerBxCollection> MuonShowerRef;
-  typedef edm::RefVector<MuonShowerBxCollection> MuonShowerRefVector;
-  typedef std::vector<MuonShowerRef> MuonShowerVectorRef;
+      ~MuonShower() override;
 
-  typedef ObjectRefBxCollection<MuonShower> MuonShowerRefBxCollection;
-  typedef ObjectRefPair<MuonShower> MuonShowerRefPair;
-  typedef ObjectRefPairBxCollection<MuonShower> MuonShowerRefPairBxCollection;
-
-  class MuonShower : public L1Candidate {
-  public:
-    MuonShower(bool oneNominalInTime = false,
-               bool oneNominalOutOfTime = false,
-               bool twoLooseInTime = false,
-               bool twoLooseOutOfTime = false,
-               bool oneTightInTime = false,
-               bool oneTightOutOfTime = false,
-               bool twoLooseDiffSectorsIntime = false);
-
-    ~MuonShower() override;
-
-    /*
+      /*
      * We currently have three valid cases:
      * - 1 nominal shower (baseline trigger for physics at Run-3)
      * - 1 tight shower (backup trigger)
@@ -57,42 +47,52 @@ namespace l1t {
      * - 2 loose showers in differnt sectors -> mus2
      */
 
-    void setOneNominalInTime(const bool bit) { oneNominalInTime_ = bit; }
-    void setOneTightInTime(const bool bit) { oneTightInTime_ = bit; }
-    void setTwoLooseDiffSectorsInTime(const bool bit) { twoLooseDiffSectorsInTime_ = bit; }
-    void setMusOutOfTime0(const bool bit) { musOutOfTime0_ = bit; }
-    void setMusOutOfTime1(const bool bit) { musOutOfTime1_ = bit; }
+      void setOneNominalInTime(const bool bit) { oneNominalInTime_ = bit; }
+      void setOneTightInTime(const bool bit) { oneTightInTime_ = bit; }
+      void setTwoLooseDiffSectorsInTime(const bool bit) { twoLooseDiffSectorsInTime_ = bit; }
+      void setMusOutOfTime0(const bool bit) { musOutOfTime0_ = bit; }
+      void setMusOutOfTime1(const bool bit) { musOutOfTime1_ = bit; }
 
-    bool isOneNominalInTime() const { return oneNominalInTime_; }
-    bool isOneTightInTime() const { return oneTightInTime_; }
-    bool isTwoLooseDiffSectorsInTime() const { return twoLooseDiffSectorsInTime_; }
-    bool musOutOfTime0() const { return musOutOfTime0_; }
-    bool musOutOfTime1() const { return musOutOfTime1_; }
+      bool isOneNominalInTime() const { return oneNominalInTime_; }
+      bool isOneTightInTime() const { return oneTightInTime_; }
+      bool isTwoLooseDiffSectorsInTime() const { return twoLooseDiffSectorsInTime_; }
+      bool musOutOfTime0() const { return musOutOfTime0_; }
+      bool musOutOfTime1() const { return musOutOfTime1_; }
 
-    // at least one bit must be valid
-    bool isValid() const;
+      // at least one bit must be valid
+      bool isValid() const;
 
-    // to be developed during Run-3
-    bool isTwoLooseInTime() const { return false; }
-    // these options require more study
-    bool isOneNominalOutOfTime() const { return false; }
-    bool isTwoLooseOutOfTime() const { return false; }
-    bool isOneTightOutOfTime() const { return false; }
+      // to be developed during Run-3
+      bool isTwoLooseInTime() const { return false; }
+      // these options require more study
+      bool isOneNominalOutOfTime() const { return false; }
+      bool isTwoLooseOutOfTime() const { return false; }
+      bool isOneTightOutOfTime() const { return false; }
 
-    bool operator==(const l1t::MuonShower& rhs) const;
-    inline bool operator!=(const l1t::MuonShower& rhs) const { return !(operator==(rhs)); };
+      bool operator==(const l1t::io_v1::MuonShower& rhs) const;
+      inline bool operator!=(const l1t::io_v1::MuonShower& rhs) const { return !(operator==(rhs)); };
 
-  private:
-    using L1Candidate::operator==;
-    using L1Candidate::operator!=;
-    // Run-3 definitions as provided in DN-20-033
-    // in time and out-of-time qualities. only 2 bits each.
-    bool oneNominalInTime_;
-    bool oneTightInTime_;
-    bool twoLooseDiffSectorsInTime_;
-    bool musOutOfTime0_;
-    bool musOutOfTime1_;
-  };
+    private:
+      using L1Candidate::operator==;
+      using L1Candidate::operator!=;
+      // Run-3 definitions as provided in DN-20-033
+      // in time and out-of-time qualities. only 2 bits each.
+      bool oneNominalInTime_;
+      bool oneTightInTime_;
+      bool twoLooseDiffSectorsInTime_;
+      bool musOutOfTime0_;
+      bool musOutOfTime1_;
+    };
+  }  // namespace io_v1
+  using MuonShower = io_v1::MuonShower;
+  typedef BXVector<MuonShower> MuonShowerBxCollection;
+  typedef edm::Ref<MuonShowerBxCollection> MuonShowerRef;
+  typedef edm::RefVector<MuonShowerBxCollection> MuonShowerRefVector;
+  typedef std::vector<MuonShowerRef> MuonShowerVectorRef;
+
+  typedef ObjectRefBxCollection<MuonShower> MuonShowerRefBxCollection;
+  typedef ObjectRefPair<MuonShower> MuonShowerRefPair;
+  typedef ObjectRefPairBxCollection<MuonShower> MuonShowerRefPairBxCollection;
 
 }  // namespace l1t
 

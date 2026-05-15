@@ -9,8 +9,10 @@
 #include "DataFormats/Common/interface/FwdPtr.h"
 
 namespace reco {
-  class PFCandidate;
-
+  namespace io_v1 {
+    class PFCandidate;
+  }
+  using PFCandidate = io_v1::PFCandidate;
   /// collection of PFCandidates
   typedef std::vector<reco::PFCandidate> PFCandidateCollection;
 

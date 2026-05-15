@@ -84,18 +84,20 @@ void TotemRPLocalTrack::setCovarianceMatrix(const TMatrixD &par_covariance_matri
 
 //----------------------------------------------------------------------------------------------------
 
-bool operator<(const TotemRPLocalTrack &l, const TotemRPLocalTrack &r) {
-  if (l.z0_ < r.z0_)
-    return true;
-  if (l.z0_ > r.z0_)
-    return true;
+namespace io_v1 {
+  bool operator<(const TotemRPLocalTrack &l, const TotemRPLocalTrack &r) {
+    if (l.z0_ < r.z0_)
+      return true;
+    if (l.z0_ > r.z0_)
+      return true;
 
-  for (int i = 0; i < TotemRPLocalTrack::dimension; ++i) {
-    if (l.track_params_vector_[i] < r.track_params_vector_[i])
-      return true;
-    if (l.track_params_vector_[i] > r.track_params_vector_[i])
-      return true;
+    for (int i = 0; i < TotemRPLocalTrack::dimension; ++i) {
+      if (l.track_params_vector_[i] < r.track_params_vector_[i])
+        return true;
+      if (l.track_params_vector_[i] > r.track_params_vector_[i])
+        return true;
+    }
+
+    return false;
   }
-
-  return false;
-}
+}  // namespace io_v1

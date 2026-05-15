@@ -9,27 +9,33 @@
  *
  */
 
-class GenLumiInfoHeader {
-public:
-  GenLumiInfoHeader() : randomConfigIndex_(-1) {}
+namespace io_v1 {
 
-  int randomConfigIndex() const { return randomConfigIndex_; }
-  void setRandomConfigIndex(int idx) { randomConfigIndex_ = idx; }
+  class GenLumiInfoHeader {
+  public:
+    GenLumiInfoHeader() : randomConfigIndex_(-1) {}
 
-  const std::string &configDescription() const { return configDescription_; }
-  void setConfigDescription(const std::string &str) { configDescription_ = str; }
+    int randomConfigIndex() const { return randomConfigIndex_; }
+    void setRandomConfigIndex(int idx) { randomConfigIndex_ = idx; }
 
-  const std::vector<std::pair<std::string, std::string> > &lheHeaders() const { return lheHeaders_; }
-  std::vector<std::pair<std::string, std::string> > &lheHeaders() { return lheHeaders_; }
+    const std::string &configDescription() const { return configDescription_; }
+    void setConfigDescription(const std::string &str) { configDescription_ = str; }
 
-  const std::vector<std::string> &weightNames() const { return weightNames_; }
-  std::vector<std::string> &weightNames() { return weightNames_; }
+    const std::vector<std::pair<std::string, std::string> > &lheHeaders() const { return lheHeaders_; }
+    std::vector<std::pair<std::string, std::string> > &lheHeaders() { return lheHeaders_; }
 
-private:
-  int randomConfigIndex_;
-  std::string configDescription_;
-  std::vector<std::pair<std::string, std::string> > lheHeaders_;  //header name, header content
-  std::vector<std::string> weightNames_;
-};
+    const std::vector<std::string> &weightNames() const { return weightNames_; }
+    std::vector<std::string> &weightNames() { return weightNames_; }
+
+  private:
+    int randomConfigIndex_;
+    std::string configDescription_;
+    std::vector<std::pair<std::string, std::string> > lheHeaders_;  //header name, header content
+    std::vector<std::string> weightNames_;
+  };
+
+}  // namespace io_v1
+
+using GenLumiInfoHeader = io_v1::GenLumiInfoHeader;
 
 #endif  // SimDataFormats_GeneratorProducts_GenLumiInfoHeader_h

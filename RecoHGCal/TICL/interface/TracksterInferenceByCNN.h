@@ -1,15 +1,12 @@
 #ifndef RecoHGCal_TICL_interface_TracksterInferenceByCNN_h
 #define RecoHGCal_TICL_interface_TracksterInferenceByCNN_h
 
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "RecoHGCal/TICL/interface/TICLONNXGlobalCache.h"
 #include "RecoHGCal/TICL/interface/TracksterInferenceAlgoBase.h"
 
 #include <string>
 #include <vector>
-
-namespace reco {
-  class CaloCluster;
-}
 
 namespace hgcal {
   class RecHitTools;

@@ -6,7 +6,10 @@
 #include "DataFormats/Common/interface/RefProd.h"
 
 namespace reco {
-  class MET;
+  namespace io_v1 {
+    class MET;
+  }
+  using MET = io_v1::MET;
   /// collection of MET objects
   typedef std::vector<MET> METCollection;
   /// edm references

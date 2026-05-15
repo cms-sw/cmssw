@@ -1,6 +1,7 @@
 #include "DataFormats/TauReco/interface/BaseTau.h"
 
 using namespace reco;
+using namespace reco::io_v1;
 
 BaseTau::BaseTau() {
   alternatLorentzVect_.SetPx(NAN);

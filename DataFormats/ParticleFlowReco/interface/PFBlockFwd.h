@@ -7,7 +7,10 @@
 /* #include "DataFormats/Common/interface/RefProd.h" */
 
 namespace reco {
-  class PFBlock;
+  namespace io_v1 {
+    class PFBlock;
+  }
+  using PFBlock = io_v1::PFBlock;
 
   /// collection of PFBlock objects
   typedef std::vector<PFBlock> PFBlockCollection;

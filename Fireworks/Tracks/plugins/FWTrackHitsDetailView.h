@@ -7,13 +7,11 @@
 #include "TVector3.h"
 #include "Fireworks/Core/interface/FWDetailViewGL.h"
 #include "Fireworks/Core/interface/CSGActionSupervisor.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 class TGLEmbeddedViewer;
 class FWIntValueListener;
 class TGSlider;
-namespace reco {
-  class Track;
-}
 
 class FWTrackHitsDetailView : public FWDetailViewGL<reco::Track>, public CSGActionSupervisor {
 public:

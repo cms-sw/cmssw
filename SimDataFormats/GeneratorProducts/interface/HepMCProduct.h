@@ -18,41 +18,44 @@ namespace HepMC {
 }  // namespace HepMC
 
 namespace edm {
-  class HepMCProduct {
-  public:
-    HepMCProduct() : evt_(nullptr), isVtxGenApplied_(false), isVtxBoostApplied_(false), isPBoostApplied_(false) {}
+  namespace io_v1 {
+    class HepMCProduct {
+    public:
+      HepMCProduct() : evt_(nullptr), isVtxGenApplied_(false), isVtxBoostApplied_(false), isPBoostApplied_(false) {}
 
-    explicit HepMCProduct(HepMC::GenEvent *evt);
-    virtual ~HepMCProduct();
+      explicit HepMCProduct(HepMC::GenEvent *evt);
+      virtual ~HepMCProduct();
 
-    void addHepMCData(HepMC::GenEvent *evt);
+      void addHepMCData(HepMC::GenEvent *evt);
 
-    void applyVtxGen(HepMC::FourVector const *vtxShift) { applyVtxGen(*vtxShift); }
-    void applyVtxGen(HepMC::FourVector const &vtxShift);
+      void applyVtxGen(HepMC::FourVector const *vtxShift) { applyVtxGen(*vtxShift); }
+      void applyVtxGen(HepMC::FourVector const &vtxShift);
 
-    void boostToLab(TMatrixD const *lorentz, std::string const &type);
+      void boostToLab(TMatrixD const *lorentz, std::string const &type);
 
-    const HepMC::GenEvent &getHepMCData() const;
+      const HepMC::GenEvent &getHepMCData() const;
 
-    const HepMC::GenEvent *GetEvent() const { return evt_; }
+      const HepMC::GenEvent *GetEvent() const { return evt_; }
 
-    bool isVtxGenApplied() const { return isVtxGenApplied_; }
-    bool isVtxBoostApplied() const { return isVtxBoostApplied_; }
-    bool isPBoostApplied() const { return isPBoostApplied_; }
+      bool isVtxGenApplied() const { return isVtxGenApplied_; }
+      bool isVtxBoostApplied() const { return isVtxBoostApplied_; }
+      bool isPBoostApplied() const { return isPBoostApplied_; }
 
-    HepMCProduct(HepMCProduct const &orig);
-    HepMCProduct &operator=(HepMCProduct const &other);
-    HepMCProduct(HepMCProduct &&orig);
-    HepMCProduct &operator=(HepMCProduct &&other);
-    void swap(HepMCProduct &other);
+      HepMCProduct(HepMCProduct const &orig);
+      HepMCProduct &operator=(HepMCProduct const &other);
+      HepMCProduct(HepMCProduct &&orig);
+      HepMCProduct &operator=(HepMCProduct &&other);
+      void swap(HepMCProduct &other);
 
-  private:
-    HepMC::GenEvent *evt_;
+    private:
+      HepMC::GenEvent *evt_;
 
-    bool isVtxGenApplied_;
-    bool isVtxBoostApplied_;
-    bool isPBoostApplied_;
-  };
+      bool isVtxGenApplied_;
+      bool isVtxBoostApplied_;
+      bool isPBoostApplied_;
+    };
+  }  // namespace io_v1
+  using HepMCProduct = io_v1::HepMCProduct;
 
   // This allows edm::Refs to work with HepMCProduct
   namespace refhelper {

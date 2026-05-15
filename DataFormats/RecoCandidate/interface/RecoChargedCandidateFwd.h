@@ -6,7 +6,10 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
-  class RecoChargedCandidate;
+  namespace io_v1 {
+    class RecoChargedCandidate;
+  }
+  using RecoChargedCandidate = io_v1::RecoChargedCandidate;
 
   /// collectin of RecoChargedCandidate objects
   typedef std::vector<RecoChargedCandidate> RecoChargedCandidateCollection;

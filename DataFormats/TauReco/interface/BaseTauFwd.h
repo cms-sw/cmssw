@@ -6,7 +6,10 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
-  class BaseTau;
+  namespace io_v1 {
+    class BaseTau;
+  }
+  using BaseTau = io_v1::BaseTau;
   /// collection of BaseTau objects
   typedef std::vector<BaseTau> BaseTauCollection;
   /// presistent reference to a BaseTau
