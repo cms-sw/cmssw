@@ -1314,12 +1314,10 @@ namespace p2eg {
           (standaloneWP() * std::pow(2, 0)) + (looseL1TkMatchWP() * std::pow(2, 1)) + (photonWP() * std::pow(2, 2));
 
       // normalize relIso to 0x3F
-      int relIso_int = 0;
-      if (et > iso && et > 0) {
-        relIso_int = (int)(iso * 63 / et);
-      } else {
-        relIso_int = 63;
-      }
+      float reliso_f = isoFloat() * 4.0f / etFloat() ; // LSB = 16/64 to compress the useful range (0-16) in 6 bits
+      // implement saturation
+      if (reliso_f < 0.0f) reliso_f = 0.0f;
+      if (reliso_f > 63.0f) reliso_f = 63.0f;
 
       // normalize hoe to 0x3F
       int hoe_int = (int)(hoe * 63 / 15);
@@ -1329,7 +1327,7 @@ namespace p2eg {
           abseta,
           phivscenter,
           ap_uint<6>(hoe_int & 0x3F),
-          ap_uint<6>(relIso_int & 0x3F),
+          ap_uint<6>(reliso_f + 0.5f), // rounding
           ap_uint<6>(shape),
           ap_uint<3>(quality),
           ap_uint<5>(timing),
