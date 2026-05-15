@@ -190,7 +190,7 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
     while (track.step() > 0) {
       // muon station 1
       if (track.step() == 1) {
-        track.setCoordinatesAtMuon(track.curvature(), track.positionAngle(), track.bendingAngle());
+        track.setCoordinatesAtMuon(track.curvature(), track.positionAngle(), track.bendingAngle(), track.zPosition(), track.kSlope());
         passedU = estimateChiSquare(track, false);
         setRank(track, false);
 
@@ -228,7 +228,7 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
 	  }
 
       if (track.step() == 0) {
-        track.setCoordinatesAtVertex(track.curvature(), track.positionAngle(), track.bendingAngle());
+        track.setCoordinatesAtVertex(track.curvature(), track.positionAngle(), track.bendingAngle(), track.zPosition(), track.kSlope());
         if (verbose_)
           edm::LogWarning("KMTFCore") << " Coordinates before vertex constraint step:" << track.step()
                                    << " phi=" << track.phiAtVertex() << " dxy=" << track.dxy()
@@ -1045,7 +1045,7 @@ void KMTFCore::vertexConstraintOffline(l1t::KMTFTrack& track) {
   int dxyNew = wrapAround(int(track.dxy() + Gain(2, 0) * residual), pow(2, BITSPHIB));
   if (verbose_)
     edm::LogWarning("KMTFCore") << "Post fit impact parameter=" << dxyNew;
-  track.setCoordinatesAtVertex(KNew, phiNew, -residual);
+  track.setCoordinatesAtVertex(KNew, phiNew, -residual, track.zPosition(), track.kSlope());
   Matrix55 covNew = cov - Gain * (H * cov);
   l1t::CovarianceMatrix5dim c;
   c(0, 0) = covNew(0, 0);
@@ -1098,7 +1098,7 @@ void KMTFCore::vertexConstraintLUT(l1t::KMTFTrack& track) {
   //int p_0 = fp_product(GAIN.second, int(residual), 7);
   int p_0 = GAIN.second * int(residual);
   int phiNew = wrapAround(track.positionAngle() + p_0, pow(2, BITSPHI - 1));
-  track.setCoordinatesAtVertex(KNew, phiNew, -residual);
+  track.setCoordinatesAtVertex(KNew, phiNew, -residual, track.zPosition(), track.kSlope());
 }
 
 int KMTFCore::hitPattern(const l1t::KMTFTrack& track) {
@@ -1129,10 +1129,9 @@ bool KMTFCore::getBit(int bitmask, int pos) { return (bitmask & (1 << pos)) >> p
 
 void KMTFCore::setFourVectors(l1t::KMTFTrack& track) {
   //int etaINT = track.coarseEta();
-  //new track eta with linear fit calibrated to gen eta. abandoning the legacy approach of setting track eta from coarseEta
-  const double m = 0.03602;
-  const double b = 0.66840;
-  int etaINT = int(round(m * track.kSlope() + b));
+  ap_ufixed<18, 0> m = 0.03602;
+  ap_ufixed<18, 0> b = 0.66840;
+  int etaINT = int(round(double(m * track.kSlope() + b)));
   double lsbEta = M_PI / pow(2, 12);
 
   int charge = 1;
@@ -1146,12 +1145,12 @@ void KMTFCore::setFourVectors(l1t::KMTFTrack& track) {
   //Also set PT =0 and dxy=0
   if (track.stubs().size() == 1) {
     ptC = 0;
-    track.setCoordinatesAtMuon(track.curvatureAtMuon(), track.stubs()[0]->coord1(), track.phiBAtMuon());
-    track.setCoordinatesAtVertex(track.curvatureAtVertex(), track.phiAtVertex(), 0);
+    track.setCoordinatesAtMuon(track.curvatureAtMuon(), track.stubs()[0]->coord1(), track.phiBAtMuon(), track.zPosition(), track.kSlope());
+    track.setCoordinatesAtVertex(track.curvatureAtVertex(), track.phiAtVertex(), 0, track.zPosition(), track.kSlope());
   }
   track.setPt(ptC, ptU);
   //shift the dxy by 10 bits
-  track.setCoordinatesAtVertex(track.curvatureAtVertex(), track.phiAtVertex(), track.dxy() / 1024);
+  track.setCoordinatesAtVertex(track.curvatureAtVertex(), track.phiAtVertex(), track.dxy() / 1024, track.zPosition(), track.kSlope());
 
   //vertex
   double pt = ptC * 0.03125;
