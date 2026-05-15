@@ -73,13 +73,13 @@ namespace {
   }
 
   bool inputTagLooksLikeHGCal(edm::InputTag const& tag) {
-    const std::string instance = tag.instance();
+    const std::string& instance = tag.instance();
     return instance.find("HGCHits") != std::string::npos || instance.find("HGCEE") != std::string::npos ||
            instance.find("HGCHE") != std::string::npos;
   }
 
   bool inputTagLooksLikeHcal(edm::InputTag const& tag) {
-    const std::string instance = tag.instance();
+    const std::string& instance = tag.instance();
     return instance.find("HcalHits") != std::string::npos || instance.find("Hcal") != std::string::npos;
   }
 
