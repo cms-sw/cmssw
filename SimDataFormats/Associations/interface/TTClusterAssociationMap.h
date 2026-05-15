@@ -59,7 +59,7 @@ public:
   /// Get all TPs associated to a cluster
   const std::vector<TrackingParticlePtr>& findTrackingParticlePtrs(TTClusterRefT<T> aCluster) const;
 
-  /// Get main TP associated to a cluster. (Non-NULL if isGenuine() below is true).
+  /// Get main TP associated to a cluster. (Non-NULL only if isGenuine() below is true).
   const TrackingParticlePtr& findTrackingParticlePtr(TTClusterRefT<T> aCluster) const;
 
   // Get all clusters associated to TP.
@@ -139,10 +139,50 @@ const std::vector<TrackingParticlePtr>& TTClusterAssociationMap<T>::findTracking
   }
 }
 
+/// Get main TP associated to a cluster. (Non-NULL only if TP is GENUINE).
+
 template <typename T>
 const TrackingParticlePtr& TTClusterAssociationMap<T>::findTrackingParticlePtr(TTClusterRefT<T> aCluster) const {
-  if (this->isGenuine(aCluster)) {
-    return this->findTrackingParticlePtrs(aCluster).at(0);
+  ///-- The selection here is identical to that used by isGenuine().
+
+  /// Get the TrackingParticles
+  const std::vector<TrackingParticlePtr>& theseTPs = this->findTrackingParticlePtrs(aCluster);
+
+  /// If the vector is empty, then the cluster is UNKNOWN, so no main TP associated.
+  if (theseTPs.empty())
+    return nullTrackingParticlePtr_;
+
+  float tp_tot = 0;
+  for (const auto& curTP : theseTPs) {
+    if (curTP.isNonnull()) {
+      tp_tot += curTP->pt();
+    }
+  }
+  if (tp_tot == 0)
+    return nullTrackingParticlePtr_;
+
+  /// If we are here, it means there are some non-null TrackingParticles
+
+  bool oneTPfound = false;
+  const TrackingParticlePtr* mainTP = nullptr;
+
+  for (const auto& curTP : theseTPs) {
+    if (curTP.isNonnull()) {
+      if (curTP->pt() > 0.01 * tp_tot) {
+        if (mainTP == nullptr) {
+          // First good TP, so store it.
+          mainTP = &curTP;
+          oneTPfound = true;
+        } else if (curTP != *mainTP) {
+          // Additional good TP, so cluster is combinatorial, not genuine.
+          oneTPfound = false;
+        }
+      }
+    }
+  }
+
+  if (oneTPfound) {
+    return *mainTP;
   } else {
     return nullTrackingParticlePtr_;
   }
@@ -165,142 +205,46 @@ const TrackingParticlePtr& TTClusterAssociationMap<T>::findTrackingParticlePtr(T
 
 /// NEW DEFINITION SV 060617
 ///
-/// N / D--> | 0 | 1 | >1 (with 1 TP getting >99% of the total pT) | >1
-/// -------------------------------------------------------------------
-/// 0        | U | G | G                                           | C
-/// -------------------------------------------------------------------
-/// >0       | U | G | G                                           | C
+/// N / D--> | 0 | 1 | >1 (with only 1 TP with >1% of total pT) | >1
+/// ----------------------------------------------------------------
+/// 0        | U | G | G                                        | C
+/// ----------------------------------------------------------------
+/// >0       | U | G | G                                        | C
 ///
 
 template <typename T>
 bool TTClusterAssociationMap<T>::isGenuine(TTClusterRefT<T> aCluster) const {
-  /// Get the TrackingParticles
-  const std::vector<TrackingParticlePtr>& theseTrackingParticles = this->findTrackingParticlePtrs(aCluster);
-
-  /// If the vector is empty, then the cluster is UNKNOWN
-  if (theseTrackingParticles.empty())
-    return false;
-
-  /// If we are here, it means there are some TrackingParticles
-  unsigned int goodDifferentTPs = 0;
-  std::vector<const TrackingParticle*> tpAddressVector;
-
-  std::vector<float> tp_mom;
-
-  float tp_tot = 0;
-
-  /// Loop over the TrackingParticles
-  for (const auto& tp : theseTrackingParticles) {
-    /// Get the TrackingParticle
-    const TrackingParticlePtr& curTP = tp;
-
-    /// Count the NULL TrackingParticles
-    if (curTP.isNull()) {
-      tp_mom.push_back(0);
-    } else {
-      tp_mom.push_back(curTP.get()->p4().pt());
-      tp_tot += curTP.get()->p4().pt();
-    }
-  }
-
-  if (tp_tot == 0)
-    return false;
-
-  for (unsigned int itp = 0; itp < theseTrackingParticles.size(); itp++) {
-    /// Get the TrackingParticle
-    TrackingParticlePtr curTP = theseTrackingParticles.at(itp);
-
-    /// Count the NULL TrackingParticles
-    if (tp_mom.at(itp) > 0.01 * tp_tot) {
-      /// Store the pointers (addresses) of the TrackingParticle
-      /// to be able to count how many different there are
-      tpAddressVector.push_back(curTP.get());
-    }
-  }
-
-  /// Count how many different TrackingParticle there are
-  std::sort(tpAddressVector.begin(), tpAddressVector.end());
-  tpAddressVector.erase(std::unique(tpAddressVector.begin(), tpAddressVector.end()), tpAddressVector.end());
-  goodDifferentTPs = tpAddressVector.size();
-
-  return (goodDifferentTPs == 1);
+  const TrackingParticlePtr& mainTP = this->findTrackingParticlePtr(aCluster);
+  return mainTP.isNonnull();
 }
 
 template <typename T>
 bool TTClusterAssociationMap<T>::isUnknown(TTClusterRefT<T> aCluster) const {
   /// Get the TrackingParticles
-  const std::vector<TrackingParticlePtr>& theseTrackingParticles = this->findTrackingParticlePtrs(aCluster);
+  const std::vector<TrackingParticlePtr>& theseTPs = this->findTrackingParticlePtrs(aCluster);
 
   /// If the vector is empty, then the cluster is UNKNOWN
-  if (theseTrackingParticles.empty())
+  if (theseTPs.empty())
     return true;
 
-  /// If we are here, it means there are some TrackingParticles
-  unsigned int goodDifferentTPs = 0;
-  std::vector<const TrackingParticle*> tpAddressVector;
-
-  /// Loop over the TrackingParticles
-  for (unsigned int itp = 0; itp < theseTrackingParticles.size(); itp++) {
-    /// Get the TrackingParticle
-    TrackingParticlePtr curTP = theseTrackingParticles.at(itp);
-
-    /// Count the non-NULL TrackingParticles
-    if (!curTP.isNull()) {
-      /// Store the pointers (addresses) of the TrackingParticle
-      /// to be able to count how many different there are
-      tpAddressVector.push_back(curTP.get());
-    }
+  // If vector not empty, check if any non-null TP is inside it.
+  bool allTPnull = true;
+  for (const auto& curTP : theseTPs) {
+    if (curTP.isNonnull())
+      allTPnull = false;
   }
 
-  /// Count how many different TrackingParticle there are
-  std::sort(tpAddressVector.begin(), tpAddressVector.end());
-  tpAddressVector.erase(std::unique(tpAddressVector.begin(), tpAddressVector.end()), tpAddressVector.end());
-  goodDifferentTPs = tpAddressVector.size();
-
-  /// UNKNOWN means no good TP is found
-  return (goodDifferentTPs == 0);
+  /// UNKNOWN if no non-null TP is found
+  return allTPnull;
 }
 
 template <typename T>
 bool TTClusterAssociationMap<T>::isCombinatoric(TTClusterRefT<T> aCluster) const {
-  /// Get the TrackingParticles
-  const std::vector<TrackingParticlePtr>& theseTrackingParticles = this->findTrackingParticlePtrs(aCluster);
-
-  /// If the vector is empty, then the cluster is UNKNOWN
-  if (theseTrackingParticles.empty())
-    return false;
-
   bool genuineClu = this->isGenuine(aCluster);
   bool unknownClu = this->isUnknown(aCluster);
+  bool combinClu = not(genuineClu || unknownClu);
 
-  if (genuineClu || unknownClu)
-    return false;
-
-  return true;
-
-  /// If we are here, it means there are some TrackingParticles
-  unsigned int goodDifferentTPs = 0;
-  std::vector<const TrackingParticle*> tpAddressVector;
-
-  /// Loop over the TrackingParticles
-  for (unsigned int itp = 0; itp < theseTrackingParticles.size(); itp++) {
-    /// Get the TrackingParticle
-    TrackingParticlePtr curTP = theseTrackingParticles.at(itp);
-
-    /// Count the NULL TrackingParticles
-    if (!curTP.isNull()) {
-      /// Store the pointers (addresses) of the TrackingParticle
-      /// to be able to count how many different there are
-      tpAddressVector.push_back(curTP.get());
-    }
-  }
-
-  /// Count how many different TrackingParticle there are
-  std::sort(tpAddressVector.begin(), tpAddressVector.end());
-  tpAddressVector.erase(std::unique(tpAddressVector.begin(), tpAddressVector.end()), tpAddressVector.end());
-  goodDifferentTPs = tpAddressVector.size();
-
-  return (goodDifferentTPs > 1);
+  return combinClu;
 }
 
 #endif
