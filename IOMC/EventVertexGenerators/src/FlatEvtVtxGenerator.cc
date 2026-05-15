@@ -1,19 +1,26 @@
-#include "IOMC/EventVertexGenerators/interface/FlatEvtVtxGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
+// system includes
+#include <numbers>
+#include <CLHEP/Random/RandFlat.h>
+#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include <CLHEP/Units/SystemOfUnits.h>
 
+// user includes
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include <CLHEP/Random/RandFlat.h>
-#include <CLHEP/Units/SystemOfUnits.h>
-#include <CLHEP/Units/GlobalPhysicalConstants.h>
+#include "FWCore/Utilities/interface/Exception.h"
+#include "IOMC/EventVertexGenerators/interface/FlatEvtVtxGenerator.h"
 
 using CLHEP::cm;
 using CLHEP::ns;
 using CLHEP::radian;
 
-FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVtxGenerator(p) {
-  fFixedR = p.getParameter<bool>("FixedR");
+FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p)
+    : BaseEvtVtxGenerator(p),
+      fFixedR(p.getParameter<bool>("FixedR")),
+      fMinZ(p.getParameter<double>("MinZ") * cm),
+      fMaxZ(p.getParameter<double>("MaxZ") * cm),
+      fMinT(p.getParameter<double>("MinT") * ns * c_light),
+      fMaxT(p.getParameter<double>("MaxT") * ns * c_light) {
   if (fFixedR) {
     fMaxR = p.getParameter<double>("MaxR") * cm;
     fMinR = p.getParameter<double>("MinR") * cm;
@@ -25,10 +32,6 @@ FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVt
     fMinY = p.getParameter<double>("MinY") * cm;
     fMaxY = p.getParameter<double>("MaxY") * cm;
   }
-  fMaxZ = p.getParameter<double>("MaxZ") * cm;
-  fMinZ = p.getParameter<double>("MinZ") * cm;
-  fMinT = p.getParameter<double>("MinT") * ns * c_light;
-  fMaxT = p.getParameter<double>("MaxT") * ns * c_light;
 
   if (fMinZ > fMaxZ) {
     throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
@@ -52,7 +55,7 @@ FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVt
 
     edm::LogVerbatim("FlatEvtVtx") << "FlatEvtVtxGenerator Initialized with r[" << fMinR << ":" << fMaxR << "] cm; phi["
                                    << fMinPhi << ":" << fMaxPhi << "] rad; z[" << fMinZ << ":" << fMaxZ << "] cm; t["
-                                   << fMinT << ":" << fMaxT << "]";
+                                   << fMinT << ":" << fMaxT << "] ns" << std::endl;
   } else {
     if (fMinX > fMaxX) {
       throw cms::Exception("Configuration") << "Error in FlatEvtVtxGenerator: "
@@ -65,11 +68,9 @@ FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p) : BaseEvtVt
 
     edm::LogVerbatim("FlatEvtVtx") << "FlatEvtVtxGenerator Initialized with x[" << fMinX << ":" << fMaxX << "] cm; y["
                                    << fMinY << ":" << fMaxY << "] cm; z[" << fMinZ << ":" << fMaxZ << "] cm; t["
-                                   << fMinT << ":" << fMaxT << "]";
+                                   << fMinT << ":" << fMaxT << "] ns" << std::endl;
   }
 }
-
-FlatEvtVtxGenerator::~FlatEvtVtxGenerator() {}
 
 ROOT::Math::XYZTVector FlatEvtVtxGenerator::vertexShift(CLHEP::HepRandomEngine* engine) const {
   double aX, aY, aZ, aT;
@@ -93,19 +94,23 @@ ROOT::Math::XYZTVector FlatEvtVtxGenerator::vertexShift(CLHEP::HepRandomEngine* 
 
 void FlatEvtVtxGenerator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<double>("MinX", 0.0)->setComment("in cm");
-  desc.add<double>("MaxX", 0.001)->setComment("in cm");
-  desc.add<double>("MinY", 0.0)->setComment("in cm");
-  desc.add<double>("MaxY", 0.001)->setComment("in cm");
   desc.add<double>("MinZ", 0.0)->setComment("in cm");
   desc.add<double>("MaxZ", 0.001)->setComment("in cm");
   desc.add<double>("MinT", 0.0)->setComment("in ns");
   desc.add<double>("MaxT", 0.001)->setComment("in ns");
-  desc.add<bool>("FixedR", false);
-  desc.add<double>("MinR", 0.0)->setComment("in cm");
-  desc.add<double>("MaxR", 0.001)->setComment("in cm");
-  desc.add<double>("MinPhi", -M_PI)->setComment("in radians");
-  desc.add<double>("MaxPhi", M_PI)->setComment("in radians");
   desc.add<edm::InputTag>("src");
-  descriptions.add("FlatEvtVtxGenerator", desc);
+
+  desc.ifValue(edm::ParameterDescription<bool>("FixedR", false, true),
+               // Cartesian (FixedR = false) branch
+               (false >> (edm::ParameterDescription<double>("MinX", 0.0, true) and
+                          edm::ParameterDescription<double>("MaxX", 0.001, true) and
+                          edm::ParameterDescription<double>("MinY", 0.0, true) and
+                          edm::ParameterDescription<double>("MaxY", 0.001, true))) or
+                   // Polar (FixedR = true) branch
+                   (true >> (edm::ParameterDescription<double>("MinR", 0.0, true) and
+                             edm::ParameterDescription<double>("MaxR", 0.001, true) and
+                             edm::ParameterDescription<double>("MinPhi", -std::numbers::pi, true) and
+                             edm::ParameterDescription<double>("MaxPhi", std::numbers::pi, true))));
+
+  descriptions.addWithDefaultLabel(desc);
 }
