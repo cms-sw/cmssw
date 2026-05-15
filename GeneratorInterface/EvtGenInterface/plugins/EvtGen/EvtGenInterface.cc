@@ -36,6 +36,7 @@
 #include "EvtGenBase/EvtDecayBase.hh"
 #include "EvtGenBase/EvtId.hh"
 #include "EvtGenBase/EvtDecayTable.hh"
+#include "EvtGenBase/EvtPDL.hh"
 #include "EvtGenBase/EvtParticle.hh"
 #include "EvtGenBase/EvtParticleFactory.hh"
 #include "EvtGenBase/EvtHepMCEvent.hh"
@@ -49,8 +50,6 @@
 
 using namespace gen;
 using namespace edm;
-
-CLHEP::HepRandomEngine* EvtGenInterface::fRandomEngine;
 
 EvtGenInterface::EvtGenInterface(const ParameterSet& pset) {
   fPSet = new ParameterSet(pset);
@@ -496,8 +495,8 @@ HepMC::GenEvent* EvtGenInterface::decay(HepMC::GenEvent* evt) {
         }
         EvtId idEvt = EvtPDL::evtIdFromStdHep(idHep);
         int ipart = idEvt.getId();
-        EvtDecayTable* evtDecayTable = EvtDecayTable::getInstance();
-        if (!isforced && isDefaultEvtGen && ipart != -1 && evtDecayTable->getNMode(ipart) != 0) {
+        EvtDecayTable& evtDecayTable = EvtDecayTable::getInstance();
+        if (!isforced && isDefaultEvtGen && ipart != -1 && evtDecayTable.getNMode(ipart) != 0) {
           addToHepMC(*p, idEvt, evt, true);  // generate decay and remove daugther if they are forced
         }
       }
@@ -616,17 +615,10 @@ void EvtGenInterface::update_particles(HepMC::GenParticle* partHep, HepMC::GenEv
 
 void EvtGenInterface::setRandomEngine(CLHEP::HepRandomEngine* v) {
   the_engine->setRandomEngine(v);
-  fRandomEngine = v;
 }
 
 double EvtGenInterface::flat() {
-  if (!fRandomEngine) {
-    throw cms::Exception("LogicError")
-        << "EvtGenInterface::flat: Attempt to generate random number when engine pointer is null\n"
-        << "This might mean that the code was modified to generate a random number outside the\n"
-        << "event and beginLuminosityBlock methods, which is not allowed.\n";
-  }
-  return fRandomEngine->flat();
+  return the_engine->random();
 }
 
 bool EvtGenInterface::findLastinChain(HepMC::GenParticle*& p) {

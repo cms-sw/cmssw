@@ -6,7 +6,7 @@
 
 // EvtGen plugin
 //
-#include "Pythia8Plugins/EvtGen.h"
+#include "GeneratorInterface/Pythia8Interface/interface/Pythia8EvtGenPatched.h"
 
 using namespace Pythia8;
 

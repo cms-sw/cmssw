@@ -43,7 +43,7 @@ namespace gen {
     const std::vector<int>& operatesOnParticles() override { return m_PDGs; }
     HepMC::GenEvent* decay(HepMC::GenEvent*) override;
     void setRandomEngine(CLHEP::HepRandomEngine* v) override;
-    static double flat();
+    double flat();
 
   private:
     bool addToHepMC(HepMC::GenParticle* partHep, const EvtId& idEvt, HepMC::GenEvent* theEvent, bool del_daug);
@@ -67,7 +67,6 @@ namespace gen {
     int BmixingOption = 1;
     edm::ParameterSet* fPSet;
 
-    static CLHEP::HepRandomEngine* fRandomEngine;
     myEvtRandomEngine* the_engine;
   };
 }  // namespace gen
