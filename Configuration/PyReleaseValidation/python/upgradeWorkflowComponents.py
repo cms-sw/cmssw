@@ -1006,6 +1006,33 @@ upgradeWFs['ticlv5_TrackLinkingGNN'].step2 = {'--procModifiers': 'ticlv5_TrackLi
 upgradeWFs['ticlv5_TrackLinkingGNN'].step3 = {'--procModifiers': 'ticlv5_TrackLinkingGNN'}
 upgradeWFs['ticlv5_TrackLinkingGNN'].step4 = {'--procModifiers': 'ticlv5_TrackLinkingGNN'}
 
+
+
+class UpgradeWorkflow_enableTruth(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = deepcopy(stepDict[step][k])
+
+            if '--procModifiers' in stepDict[stepName][k]:
+                stepDict[stepName][k]['--procModifiers'] += ',enableTruth'
+            else:
+                stepDict[stepName][k]['--procModifiers'] = 'enableTruth'
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return 'Run4' in key
+
+
+upgradeWFs['enableTruth'] = UpgradeWorkflow_enableTruth(
+    steps = [
+        'RecoGlobal',
+    ],
+    PU = [
+        'RecoGlobal',
+    ],
+    suffix = '_enableTruth',
+    offset = 0.88,
+)
+
 # L3 Tracker Muon Outside-In reconstruction first
 class UpgradeWorkflow_phase2L3MuonsOIFirst(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
