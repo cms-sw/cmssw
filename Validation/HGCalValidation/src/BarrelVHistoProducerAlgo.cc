@@ -708,7 +708,7 @@ void BarrelVHistoProducerAlgo::fill_caloparticle_histos(
       simHits += barrel_hf.size();
       for (auto const& h_and_f : barrel_hf) {
         const auto hitDetId = h_and_f.first;
-        const int layerId = recHitTools_->getLayerWithOffset(hitDetId);
+        auto layerId = recHitTools_->getLayerWithOffset(hitDetId);
         // set to 0 if matched RecHit not found
         int layerId_matched_min = 999;
         int layerId_matched_max = 0;
@@ -746,8 +746,8 @@ void BarrelVHistoProducerAlgo::fill_caloparticle_histos(
           LogDebug("BarrelValidator") << "   matched to RecHit NOT found !" << std::endl;
         }
 
-        minLayerId = std::min(minLayerId, layerId);
-        maxLayerId = std::max(maxLayerId, layerId);
+        minLayerId = std::min(minLayerId, static_cast<int>(layerId));
+        maxLayerId = std::max(maxLayerId, static_cast<int>(layerId));
         minLayerId_matched = std::min(minLayerId_matched, layerId_matched_min);
         maxLayerId_matched = std::max(maxLayerId_matched, layerId_matched_max);
       }
@@ -805,7 +805,8 @@ void BarrelVHistoProducerAlgo::BarrelVHistoProducerAlgo::fill_simCluster_histos(
       const DetId sh_detid = hAndF.first;
 
       //The layer the cluster belongs to
-      int layerid = recHitTools_->getLayerWithOffset(sh_detid);
+      auto layerid = recHitTools_->getLayerWithOffset(sh_detid);
+      assert(layerid < layers);
       if (occurenceSCinlayer[layerid] == 0) {
         tnscpl[layerid]++;
       }
@@ -926,7 +927,7 @@ void BarrelVHistoProducerAlgo::layerClusters_to_CaloParticles(
     // >=0 --> index of the linked CaloParticle
     std::vector<int> hitsToCaloParticleId(numberOfHitsInLC);
     const auto firstHitDetId = hits_and_fractions[0].first;
-    int lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId);
+    auto lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId);
     bool isBarrel = recHitTools_->isBarrel(firstHitDetId);
     if (!isBarrel)
       continue;
@@ -990,7 +991,7 @@ void BarrelVHistoProducerAlgo::layerClusters_to_CaloParticles(
   for (unsigned int lcId = 0; lcId < nLayerClusters; ++lcId) {
     const auto firstHitDetId = (clusters[lcId].hitsAndFractions())[0].first;
     bool isBarrel = recHitTools_->isBarrel(firstHitDetId);
-    int lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId);
+    auto lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId);
     if (!isBarrel)
       continue;
     histograms.h_denom_layercl_eta_perlayer.at(lcLayerId)->Fill(clusters[lcId].eta());
@@ -1278,7 +1279,7 @@ void BarrelVHistoProducerAlgo::layerClusters_to_SimClusters(
         bool isBarrel = recHitTools_->isBarrel(firstHitDetId);
         if (!isBarrel)
           return 9999u;
-        unsigned int lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId);
+        auto lcLayerId = recHitTools_->getLayerWithOffset(firstHitDetId);
         return lcLayerId;
       };
 
@@ -1367,7 +1368,7 @@ void BarrelVHistoProducerAlgo::fill_generic_cluster_histos(
       continue;
     }
     const float lc_en = lcId.energy();
-    int layerid = recHitTools_->getLayerWithOffset(seedid);
+    auto layerid = recHitTools_->getLayerWithOffset(seedid);
     //Energy clustered per layer
     tecpl[layerid] += lc_en;
     tnlcpl[layerid] += 1;
