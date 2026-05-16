@@ -1,7 +1,16 @@
-// Local patched copy of Pythia8Plugins/EvtGen.h adapted to EvtGen 03.x API.
+// EvtGen.h is a part of the PYTHIA event generator.
+// Copyright (C) 2026 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+// Author: Philip Ilten.
+
+// Local patched copy of Pythia8Plugins/EvtGen.h adapted to EvtGen 03.x.x API.
 // Diverges from the upstream pythia8 header only in:
 //   - EvtGenRandom now overrides setSeed(unsigned long)/lastSeed() pure virtuals
 //   - EvtDecayTable::getInstance() returns EvtDecayTable& (not pointer)
+// EvtGen.h is a part of the PYTHIA event generator.
+
+// This file contains an EvtGen interface. HepMC and EvtGen must be enabled.
 
 #ifndef CMSSW_Pythia8_EvtGen_Patched_H
 #define CMSSW_Pythia8_EvtGen_Patched_H
@@ -33,7 +42,7 @@ public:
   // Return a random number.
   double random() override {if (rndmPtr) return rndmPtr->flat(); else return -1.0;}
 
-  // EvtGen 03 pure virtuals. Record-only: Pythia owns the actual RNG state.
+  // EvtGen 03.x.x pure virtuals. Record-only: Pythia owns the actual RNG state.
   void setSeed(unsigned long int seed) override {lastSeedVal = seed;}
   unsigned long int lastSeed() const override {return lastSeedVal;}
 

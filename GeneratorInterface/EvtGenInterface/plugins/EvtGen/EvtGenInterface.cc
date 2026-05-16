@@ -37,6 +37,7 @@
 #include "EvtGenBase/EvtId.hh"
 #include "EvtGenBase/EvtDecayTable.hh"
 #include "EvtGenBase/EvtPDL.hh"
+#include "EvtGenBase/EvtRandom.hh"
 #include "EvtGenBase/EvtParticle.hh"
 #include "EvtGenBase/EvtParticleFactory.hh"
 #include "EvtGenBase/EvtHepMCEvent.hh"
@@ -48,12 +49,15 @@
 #include <cstdlib>
 #include <cstdio>
 
+thread_local std::unique_ptr<EvtGen> gen::EvtGenInterface::m_EvtGen{};
+
 using namespace gen;
 using namespace edm;
 
+
 EvtGenInterface::EvtGenInterface(const ParameterSet& pset) {
-  fPSet = new ParameterSet(pset);
-  the_engine = new myEvtRandomEngine(nullptr);
+  fPSet = std::make_unique<ParameterSet>(pset);
+  the_engine = std::make_unique<myEvtRandomEngine>(nullptr);
 }
 
 void EvtGenInterface::SetDefault_m_PDGs() {
@@ -283,12 +287,14 @@ void EvtGenInterface::SetDefault_m_PDGs() {
   }
 }
 
+// Destructor is a no-op: m_EvtGen is a thread_local std::unique_ptr that cleans up at
+// thread exit.
 EvtGenInterface::~EvtGenInterface() {}
 
-void EvtGenInterface::init() {
-  // flags for pythia8
-  fSpecialSettings.push_back("Pythia8:ParticleDecays:mixB = off");
-  //
+void EvtGenInterface::ensureEvtGenOnThread() {
+  // This thread already has its EvtGen
+  if (m_EvtGen)
+    return;
 
   edm::FileInPath decay_table(fPSet->getParameter<std::string>("decay_table"));
   edm::FileInPath pdt(fPSet->getParameter<edm::FileInPath>("particle_property_file"));
@@ -304,8 +310,8 @@ void EvtGenInterface::init() {
       std::getenv("PYTHIA8DATA");  // Specify the pythia xml data directory to use the default PYTHIA8DATA location
 
   if (tmp == nullptr) {
-    edm::LogError("EvtGenInterface::~EvtGenInterface")
-        << "EvtGenInterface::init() PYTHIA8DATA not defined. Terminating program ";
+    edm::LogError("EvtGenInterface::ensureEvtGenOnThread")
+        << "PYTHIA8DATA not defined. Terminating program ";
     exit(0);
   }
 
@@ -338,21 +344,12 @@ void EvtGenInterface::init() {
     std::list<EvtDecayBase*>::iterator it = userModels.begin();
     std::advance(it, i);
     TString name = (*it)->getName();
-    edm::LogInfo("EvtGenInterface::~EvtGenInterface") << "Adding user model: " << name;
+    edm::LogInfo("EvtGenInterface::ensureEvtGenOnThread") << "Adding user model: " << name;
     myExtraModels.push_back(*it);
   }
 
-  // Set up the incoherent (1) or coherent (0) B mixing option
-  BmixingOption = fPSet->getUntrackedParameter<int>("B_Mixing", 1);
-  if (BmixingOption != 0 && BmixingOption != 1) {
-    throw cms::Exception("Configuration") << "EvtGenProducer requires B_Mixing to be 0 (coherent) or 1 (incoherent) \n"
-                                             "Please fix this in your configuration.";
-  }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Create the EvtGen generator object, passing the external generators
-  m_EvtGen = new EvtGen(
-      decay_table.fullPath().c_str(), pdt.fullPath().c_str(), the_engine, radCorrEngine, &myExtraModels, BmixingOption);
+  m_EvtGen = std::make_unique<EvtGen>(
+      decay_table.fullPath().c_str(), pdt.fullPath().c_str(), the_engine.get(), radCorrEngine, &myExtraModels, BmixingOption);
 
   // Add additional user information
   if (fPSet->exists("user_decay_file")) {
@@ -369,9 +366,8 @@ void EvtGenInterface::init() {
     int tmp_creation = mkstemp(user_decay_tmp);
     FILE* tmpf = std::fopen(user_decay_tmp, "w");
     if (!tmpf || (tmp_creation == -1)) {
-      edm::LogError("EvtGenInterface::~EvtGenInterface")
-          << "EvtGenInterface::init() fails when trying to open a temporary file for embedded user.dec. Terminating "
-             "program ";
+      edm::LogError("EvtGenInterface::ensureEvtGenOnThread")
+          << "fails when trying to open a temporary file for embedded user.dec. Terminating program ";
       exit(0);
     }
     for (unsigned int i = 0; i < user_decay_lines.size(); i++) {
@@ -381,6 +377,23 @@ void EvtGenInterface::init() {
     std::fclose(tmpf);
     m_EvtGen->readUDecay(user_decay_tmp);
   }
+}
+
+void EvtGenInterface::init() {
+  // flags for pythia8
+  fSpecialSettings.push_back("Pythia8:ParticleDecays:mixB = off");
+
+  // Set up the incoherent (1) or coherent (0) B mixing option. Must be set before
+  // ensureEvtGenOnThread() because the EvtGen ctor consumes it.
+  BmixingOption = fPSet->getUntrackedParameter<int>("B_Mixing", 1);
+  if (BmixingOption != 0 && BmixingOption != 1) {
+    throw cms::Exception("Configuration") << "EvtGenProducer requires B_Mixing to be 0 (coherent) or 1 (incoherent) \n"
+                                             "Please fix this in your configuration.";
+  }
+
+  // Construct the EvtGen instance for this thread (no-op if already constructed). Streams
+  // running decay() later on a different thread will lazy-construct on that thread instead.
+  ensureEvtGenOnThread();
 
   // setup pdgid which the generator/hadronizer should not decay
   if (fPSet->exists("operates_on_particles")) {
@@ -451,6 +464,10 @@ void EvtGenInterface::init() {
 }
 
 HepMC::GenEvent* EvtGenInterface::decay(HepMC::GenEvent* evt) {
+  // If the framework scheduled this stream onto a thread that has not yet built an EvtGen,
+  // construct one now. No-op on threads that already initialised in init().
+  ensureEvtGenOnThread();
+
   if (the_engine->engine() == nullptr) {
     throw edm::Exception(edm::errors::LogicError)
         << "The EvtGen code attempted to use a random number engine while\n"
@@ -615,6 +632,7 @@ void EvtGenInterface::update_particles(HepMC::GenParticle* partHep, HepMC::GenEv
 
 void EvtGenInterface::setRandomEngine(CLHEP::HepRandomEngine* v) {
   the_engine->setRandomEngine(v);
+  EvtRandom::setRandomEngine(the_engine.get());
 }
 
 double EvtGenInterface::flat() {

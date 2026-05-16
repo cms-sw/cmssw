@@ -52,8 +52,10 @@ namespace gen {
     bool findLastinChain(HepMC::GenParticle*& p);
     bool hasnoDaughter(HepMC::GenParticle* p);
     void go_through_daughters(EvtParticle* part);
+    void ensureEvtGenOnThread();
 
-    EvtGen* m_EvtGen;  // EvtGen main  object
+    // One EvtGen per thread
+    static thread_local std::unique_ptr<EvtGen> m_EvtGen;
 
     std::vector<EvtId> forced_id;    // EvtGen Id's of particles  which are to be forced by EvtGen
     std::vector<int> forced_pdgids;  // PDG Id's of particles which are to be forced by EvtGen
@@ -65,9 +67,9 @@ namespace gen {
     std::vector<double> polarize_pol;
     std::map<int, float> polarizations;
     int BmixingOption = 1;
-    edm::ParameterSet* fPSet;
+    std::unique_ptr<edm::ParameterSet> fPSet;
 
-    myEvtRandomEngine* the_engine;
+    std::unique_ptr<myEvtRandomEngine> the_engine;
   };
 }  // namespace gen
 #endif
