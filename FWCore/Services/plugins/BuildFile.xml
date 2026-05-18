@@ -3,7 +3,7 @@
 <use name="gcc-atomic"/>
 <use name="tbb"/>
 <use name="DataFormats/Common"/>
-<use name="DataFormats/Provenance" source_only="1"/>
+<use name="DataFormats/Provenance"/>
 <use name="FWCore/Concurrency"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/PluginManager"/>

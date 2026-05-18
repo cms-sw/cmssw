@@ -2,6 +2,7 @@
 <use name="FWCore/Utilities"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/FWLite"/>
+<use name="DataFormats/Provenance"/>
 <use name="PhysicsTools/CondLiteIO"/>
 <library file="*.cc" name="PhysicsToolsCondLiteIOPlugins">
   <flags EDM_PLUGIN="1"/>

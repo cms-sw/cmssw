@@ -22,7 +22,7 @@
 <use name="DataFormats/Math"/>
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
-<use name="DataFormats/Provenance" source_only="1"/>
+<use name="DataFormats/Provenance"/>
 <use name="DataFormats/RecoCandidate"/>
 <use name="DataFormats/Scouting"/>
 <use name="DataFormats/SiPixelDetId"/>

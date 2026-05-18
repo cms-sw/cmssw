@@ -1,5 +1,6 @@
 <use name="CondFormats/Serialization"/>
 <use name="CondFormats/Common"/>
+<use name="DataFormats/Provenance"/>
 <use name="FWCore/Framework"/>
 <use name="Utilities/OpenSSL"/>
 <use name="boost"/>

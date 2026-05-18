@@ -1,4 +1,4 @@
-<use name="DataFormats/Provenance" source_only="1"/>
+<use name="DataFormats/Provenance"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="py3-pybind11"/>

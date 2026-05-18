@@ -1,6 +1,6 @@
 <library file="*.cc" name="HeterogeneousCoreTrivialSerialisationPlugins">
   <use name="DataFormats/Portable"/>
-  <use name="DataFormats/Provenance" source_only="1"/>
+  <use name="DataFormats/Provenance"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/PluginManager"/>

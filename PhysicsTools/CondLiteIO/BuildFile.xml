@@ -1,4 +1,4 @@
-<use name="DataFormats/Provenance" source_only="1"/>
+<use name="DataFormats/Provenance"/>
 <use name="DataFormats/FWLite"/>
 <use name="rootcore"/>
 <export>

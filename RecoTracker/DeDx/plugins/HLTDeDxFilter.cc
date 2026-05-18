@@ -95,8 +95,6 @@ bool HLTDeDxFilter::hltFilter(edm::Event& iEvent,
 
   auto chargedCandidates = std::make_unique<std::vector<RecoChargedCandidate>>();
 
-  ModuleDescription moduleDesc_;
-
   if (saveTags()) {
     filterproduct.addCollectionTag(thisModuleTag_);
     filterproduct.addCollectionTag(inputTracksTag_);
