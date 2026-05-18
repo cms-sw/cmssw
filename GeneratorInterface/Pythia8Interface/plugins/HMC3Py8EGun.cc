@@ -8,7 +8,7 @@
 
 // EvtGen plugin
 //
-#include "GeneratorInterface/Pythia8Interface/interface/Pythia8EvtGenPatched.h"
+#include "Pythia8Plugins/EvtGen.h"
 
 namespace gen {
 

@@ -47,7 +47,7 @@ using namespace Pythia8;
 
 // EvtGen plugin
 //
-#include "GeneratorInterface/Pythia8Interface/interface/Pythia8EvtGenPatched.h"
+#include "Pythia8Plugins/EvtGen.h"
 
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
