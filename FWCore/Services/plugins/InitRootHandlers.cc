@@ -871,8 +871,7 @@ namespace edm {
       if (imt && not ROOT::IsImplicitMTEnabled()) {
         //cmsRun uses global_control to set the number of allowed threads to use
         // we need to tell ROOT the same value in order to avoid unnecessary warnings
-        ROOT::EnableImplicitMT(
-            oneapi::tbb::global_control::active_value(oneapi::tbb::global_control::max_allowed_parallelism));
+        ROOT::EnableImplicitMT(ROOT::EIMTConfig::kExistingTBBArena);
       }
     }
 
