@@ -112,14 +112,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::sistrip::fedchannelunpacker {
         if ((num_bits > BITS_PER_BYTE) || (bOffset > BITS_PER_BYTE)) {
           bOffset -= BITS_PER_BYTE;
           out.adc(*idx) = ::sistrip::fedchannelunpacker::detail::getADC_B2<mask>(channel_data, wOffset, bOffset);
-          (*idx)++;
           ++wOffset;
         } else {
           out.adc(*idx) = ::sistrip::fedchannelunpacker::detail::getADC_B1<mask>(channel_data, wOffset, bOffset);
-          (*idx)++;
         }
         out.channel(*idx) = chan;
         out.stripId(*idx) = stripStart + firstStrip + inCluster;
+        (*idx)++;
         ++inCluster;
         if (bOffset == BITS_PER_BYTE) {
           bOffset = 0;
