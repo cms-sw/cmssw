@@ -113,7 +113,8 @@ void RecHitTools::setGeometry(const CaloGeometry& geom) {
     bhFirstLayer_ = bhOffset_ + (geomBH->topology().dddConstants()).firstLayer();
     bhLastLayer_ = bhOffset_ + (geomBH->topology().dddConstants()).lastLayer(true);
     bhMaxIphi_ = geomBH->topology().dddConstants().maxCells(true);
-  } else {
+  } else if (static_cast<const HGCalGeometry*>(
+                 geom_->getSubdetectorGeometry(DetId::Forward, ForwardSubdetector::HGCEE))) {
     geometryType_ = 0;
     geomEE =
         static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward, ForwardSubdetector::HGCEE));
@@ -526,11 +527,13 @@ bool RecHitTools::isScintillatorFine(const DetId& id) const {
     return false;
   }
 }
+
 bool RecHitTools::isBarrel(const DetId& id) const {
   return (id.det() == DetId::Ecal && id.subdetId() == EcalBarrel) ||
          (id.det() == DetId::Hcal && id.subdetId() == HcalBarrel) ||
          (id.det() == DetId::Hcal && id.subdetId() == HcalOuter);
 }
+
 bool RecHitTools::isOnlySilicon(const unsigned int layer) const {
   // HFnose TODO
   bool isonlysilicon = (layer % bhLastLayer_) < bhOffset_;

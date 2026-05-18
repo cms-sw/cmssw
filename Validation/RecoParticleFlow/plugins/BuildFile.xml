@@ -12,6 +12,9 @@
   <use name="RecoParticleFlow/Benchmark"/>
   <use name="RecoParticleFlow/PFProducer"/>
   <use name="CommonTools/UtilAlgos"/>
+  <use name="Geometry/HcalTowerAlgo"/>
+  <use name="MagneticField/Records"/>
+  <use name="SimDataFormats/CaloAnalysis"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 

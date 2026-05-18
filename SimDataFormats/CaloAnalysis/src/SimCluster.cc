@@ -21,6 +21,53 @@ SimCluster::SimCluster(EncodedEventId eventID, uint32_t particleID) {
   particleId_ = particleID;
 }
 
+SimCluster SimCluster::mergeHitsFromCollection(const std::vector<SimCluster> &inputs) {
+  assert(!inputs.empty());
+  SimCluster ret;
+  ret.event_ = inputs[0].event_;
+  ret.particleId_ = inputs[0].particleId_;
+
+  ret.g4Tracks_.reserve(inputs.size());
+  std::unordered_map<uint32_t, float> acc_energies, acc_fractions;
+  for (SimCluster const &other : inputs) {
+    ret.simhit_energy_ += other.simhit_energy_;
+
+    assert(other.hits_.size() == other.energies_.size());
+    for (std::size_t i = 0; i < other.hits_.size(); i++) {
+      acc_energies[other.hits_[i]] += other.energies_[i];
+    }
+
+    if (!other.fractions_.empty()) {
+      assert(other.hits_.size() == other.fractions_.size());
+      for (std::size_t i = 0; i < other.hits_.size(); i++) {
+        acc_fractions[other.hits_[i]] += other.fractions_[i];
+      }
+    }
+
+    assert(!other.g4Tracks_.empty());  // otherwise we could end up without any sim track
+    ret.g4Tracks_.insert(ret.g4Tracks_.end(), other.g4Tracks_.begin(), other.g4Tracks_.end());
+  }
+
+  ret.hits_.reserve(acc_energies.size());
+  ret.energies_.reserve(acc_energies.size());
+  ret.fractions_.reserve(acc_fractions.size());
+  for (auto const &[detId, energy] : acc_energies) {
+    ret.hits_.push_back(detId);
+    ret.energies_.push_back(energy);
+
+    if (!acc_fractions.empty()) {
+      auto it = acc_fractions.find(detId);
+      if (it != acc_fractions.end())
+        ret.fractions_.push_back(it->second);
+    }
+  }
+  assert(ret.fractions_.empty() || ret.fractions_.size() == ret.energies_.size());
+
+  ret.nsimhits_ = ret.hits_.size();
+
+  return ret;
+}
+
 std::ostream &operator<<(std::ostream &s, SimCluster const &tp) {
   s << "CP momentum, q, ID, & Event #: " << tp.p4() << " " << tp.charge() << " " << tp.pdgId() << " "
     << tp.eventId().bunchCrossing() << "." << tp.eventId().event() << std::endl;

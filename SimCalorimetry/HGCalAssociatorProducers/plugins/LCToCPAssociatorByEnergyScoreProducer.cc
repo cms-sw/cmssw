@@ -75,7 +75,7 @@ void LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::fillDescriptions(edm:
     desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
     desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "RefProdVectorHGCRecHitCollection"));
   } else {
-    desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "barrelRecHitMap"));
+    desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "pfRecHitMap"));
     desc.add<edm::InputTag>("hits", edm::InputTag("recHitMapProducer", "RefProdVectorPFRecHitCollection"));
   }
   cfg.addWithDefaultLabel(desc);

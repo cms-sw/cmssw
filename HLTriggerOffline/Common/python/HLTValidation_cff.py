@@ -21,6 +21,8 @@ from Validation.SiTrackerPhase2V.HLTPhase2TrackerValidationFirstStep_cff import 
 # Gen-level Validation
 from Validation.HLTrigger.HLTGenValidation_cff import *
 from Validation.Configuration.globalValidation_cff import *
+# PF
+from Validation.RecoParticleFlow.hltPFValidation_cfi import *
 
 # HGCAL Rechit Calibration
 from Validation.HGCalValidation.hgcalHitCalibrationDefault_cfi import hgcalHitCalibrationDefault as _hgcalHitCalibrationDefault
@@ -31,7 +33,12 @@ hgcalHitCalibrationHLT = _hgcalHitCalibrationDefault.clone(
     recHitsBH = ("hltHGCalRecHit", "HGCHEBRecHits", "HLT"),
     hgcalMultiClusters = "None",
     electrons = "None",
-    photons = "None"
+    photons = "None",
+    caloParticles = cms.InputTag("mix", "MergedCaloTruth")
+)
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(hgcalHitCalibrationHLT,
+    caloParticles = cms.InputTag("mixData", "MergedCaloTruth")
 )
 
 # HGCAL validation
@@ -56,6 +63,7 @@ hltassociation = cms.Sequence(
     +ExoticaValidationProdSeq
     +hltMultiTrackValidationGsfTracks
     +hltJetPreValidSeq
+    +hltRecHitMapProducer
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
@@ -98,6 +106,7 @@ hltvalidationWithMC = cms.Sequence(
     +SMPValidationSequence
     +hltbtagValidationSequence #too noisy for now
     +hltHCALdigisAnalyzer+hltHCALRecoAnalyzer+hltHCALNoiseRates # HCAL
+    +PFValSeq
 )
 
 # Exclude everything except Muon and JetMET for now. Add HGCAL Hit Calibration
@@ -105,7 +114,7 @@ _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
   HLTTauVal,
   egammaValidationSequence,
   heavyFlavorValidationSequence,
-  #HLTJetMETValSeq,
+  HLTJetMETValSeq,
   HLTSusyExoValSeq,
   HiggsValidationSequence,
   ExoticaValidationSequence,
@@ -116,8 +125,9 @@ _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
   hltHCALRecoAnalyzer,
   hltHCALNoiseRates])
 _hltvalidationWithMC_Phase2.insert(-1, hgcalHitCalibrationHLT)
-_hltvalidationWithMC_Phase2.insert(-1, hltHgcalValidator)
-_hltvalidationWithMC_Phase2.insert(-1, hltGENValidation)
+_hltvalidationWithMC_Phase2.insert(-1, hltHgcalValSeq)
+_hltvalidationWithMC_Phase2.insert(-1, hltGENValidation) # must go before HLTJetMETValSeq
+_hltvalidationWithMC_Phase2.insert(-1, HLTJetMETValSeq)
 phase2_common.toReplaceWith(hltvalidationWithMC, _hltvalidationWithMC_Phase2)
 
 hltvalidationWithData = cms.Sequence(

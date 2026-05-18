@@ -10,13 +10,17 @@ namespace ticl {
 
   template <typename CLUSTER>
   RecoToSimCollectionWithSimClustersT<CLUSTER> LayerClusterToSimClusterAssociatorBaseImplT<CLUSTER>::associateRecoToSim(
-      const edm::Handle<CLUSTER> &cCCH, const edm::Handle<SimClusterCollection> &sCCH) const {
+      const edm::Handle<CLUSTER> &cCCH,
+      const edm::Handle<SimClusterCollection> &sCCH,
+      const std::vector<DetId::Detector> &detIds) const {
     return RecoToSimCollectionWithSimClustersT<CLUSTER>();
   }
 
   template <typename CLUSTER>
   SimToRecoCollectionWithSimClustersT<CLUSTER> LayerClusterToSimClusterAssociatorBaseImplT<CLUSTER>::associateSimToReco(
-      const edm::Handle<CLUSTER> &cCCH, const edm::Handle<SimClusterCollection> &sCCH) const {
+      const edm::Handle<CLUSTER> &cCCH,
+      const edm::Handle<SimClusterCollection> &sCCH,
+      const std::vector<DetId::Detector> &detIds) const {
     return SimToRecoCollectionWithSimClustersT<CLUSTER>();
   }
 

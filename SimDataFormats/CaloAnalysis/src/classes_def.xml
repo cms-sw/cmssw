@@ -1,7 +1,8 @@
 <lcgdict>
-   <class name="CaloParticle"  ClassVersion="5">
+  <class name="CaloParticle"  ClassVersion="6">
+	<version ClassVersion="6" checksum="1309721976"/>
     <version ClassVersion="5" checksum="2074797506"/>
-   <version ClassVersion="4" checksum="1423471036"/>
+	<version ClassVersion="4" checksum="1423471036"/>
   </class>
   <class name="CaloParticleCollection"/>
   <class name="edm::Wrapper<CaloParticleCollection>"/>
@@ -11,7 +12,8 @@
   <class name="CaloParticleRefProd"/>
   <class name="CaloParticleContainer"/>
 
-  <class name="MtdCaloParticle" ClassVersion="3">
+  <class name="MtdCaloParticle" ClassVersion="4">
+	<version ClassVersion="4" checksum="820552701"/>
     <version ClassVersion="3" checksum="3222440347"/>
   </class>
   <class name="MtdCaloParticleCollection"/>
@@ -21,7 +23,8 @@
   <class name="MtdCaloParticleRefProd"/>
   <class name="MtdCaloParticleContainer"/>
 
-  <class name="SimCluster"  ClassVersion="7">
+  <class name="SimCluster"  ClassVersion="8">
+   <version ClassVersion="8" checksum="1280302228"/>
    <version ClassVersion="7" checksum="3868743425"/>
    <version ClassVersion="6" checksum="1198608638"/>
    <version ClassVersion="5" checksum="3963576369"/>
@@ -35,10 +38,12 @@
   <class name="edm::Wrapper<SimClusterRefVector>"/>
   <class name="SimClusterRefProd"/>
   <class name="SimClusterContainer"/>
-
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<SimCluster>,SimCluster>"/>
+  
   <class name="std::pair<edm::RefProd<std::vector<SimCluster> >, edm::RefProd<std::vector<CaloParticle> > >"/>
 
-  <class name="MtdSimCluster" ClassVersion="6">
+  <class name="MtdSimCluster" ClassVersion="7">
+    <version ClassVersion="7" checksum="2381109749"/>
     <version ClassVersion="6" checksum="3803328692"/>
     <version ClassVersion="5" checksum="3108339619"/>
     <version ClassVersion="4" checksum="3803328692"/>
@@ -51,8 +56,8 @@
   <class name="MtdSimClusterRefProd"/>
   <class name="MtdSimClusterContainer"/>
 
-
-  <class name="MtdSimLayerCluster" ClassVersion="3">
+  <class name="MtdSimLayerCluster" ClassVersion="4">
+    <version ClassVersion="4" checksum="532784653"/>
     <version ClassVersion="3" checksum="2285442532"/>
   </class>
   <class name="MtdSimLayerClusterCollection"/>
@@ -62,7 +67,8 @@
   <class name="MtdSimLayerClusterRefProd"/>
   <class name="MtdSimLayerClusterContainer"/>
 
-  <class name="MtdSimTrackster" ClassVersion="3">
+  <class name="MtdSimTrackster" ClassVersion="4">
+    <version ClassVersion="4" checksum="870893041"/>
     <version ClassVersion="3" checksum="1833899382"/>
   </class>
   <class name="MtdSimTracksterCollection"/>

@@ -18,11 +18,13 @@ from HLTriggerOffline.Egamma.HLTpostProcessorGsfTracker_cfi import *
 from Validation.HGCalValidation.HLTHGCalPostProcessor_cff import *
 from Validation.HLTrigger.HLTGenValidationHarvesting_cff import *
 from Validation.HGCalValidation.BarrelPostProcessor_cff import *
+from Validation.RecoParticleFlow.hltPFPostProcessor_cfi import hltPFClusterPostProcessor
 
 hltpostvalidation = cms.Sequence( 
     postProcessorHLTtrackingSequence
     +postProcessorHLTvertexing
     +postProcessorHLTvertexingReconstructableSim
+    +hltPFClusterPostProcessor
     +HLTMuonPostVal
     +HLTTauPostVal
     +EgammaPostVal

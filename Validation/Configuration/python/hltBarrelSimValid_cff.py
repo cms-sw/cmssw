@@ -4,7 +4,8 @@ from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cff import recHitMapProdu
 barrel_hits = ["hltParticleFlowRecHitECALUnseeded", "hltParticleFlowRecHitHBHE"]
 hltBarrelRecHitMapProducer = _recHitMapProducer.clone(
     hits = barrel_hits,
-    hgcalOnly = False,
+    doHgcalHits = False,
+    doPFHits = True,
 )
 
 from SimCalorimetry.HGCalAssociatorProducers.hltLCToCPAssociation_cfi import (hltBarrelLCToCPAssociatorByEnergyScoreProducer,
