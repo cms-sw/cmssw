@@ -87,3 +87,45 @@ MonitorElement* phase2tkutil::bookProfile1DFromPSet(const edm::ParameterSet& hpa
   }
   return temp;
 }
+
+void phase2tkutil::add1DDesc(edm::ParameterSetDescription& desc,
+                             const std::string& psetKey,
+                             const std::string& histName,
+                             const std::string& xlabel,
+                             const std::string& ylabel,
+                             int nbins,
+                             double xmin,
+                             double xmax) {
+  edm::ParameterSetDescription ps;
+  ps.add<bool>("switch", true);
+  ps.add<std::string>("name", histName);
+  ps.add<std::string>("title", histName + ";" + xlabel + ";" + ylabel);
+  ps.add<int>("NxBins", nbins);
+  ps.add<double>("xmin", xmin);
+  ps.add<double>("xmax", xmax);
+  desc.add<edm::ParameterSetDescription>(psetKey, ps);
+}
+
+void phase2tkutil::add2DDesc(edm::ParameterSetDescription& desc,
+                             const std::string& psetKey,
+                             const std::string& histName,
+                             const std::string& xlabel,
+                             const std::string& ylabel,
+                             int nbx,
+                             double xmin,
+                             double xmax,
+                             int nby,
+                             double ymin,
+                             double ymax) {
+  edm::ParameterSetDescription ps;
+  ps.add<bool>("switch", true);
+  ps.add<std::string>("name", histName);
+  ps.add<std::string>("title", histName + ";" + xlabel + ";" + ylabel);
+  ps.add<int>("NxBins", nbx);
+  ps.add<double>("xmin", xmin);
+  ps.add<double>("xmax", xmax);
+  ps.add<int>("NyBins", nby);
+  ps.add<double>("ymin", ymin);
+  ps.add<double>("ymax", ymax);
+  desc.add<edm::ParameterSetDescription>(psetKey, ps);
+}
