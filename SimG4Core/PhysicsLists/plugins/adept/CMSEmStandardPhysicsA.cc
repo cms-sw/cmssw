@@ -76,6 +76,7 @@ CMSEmStandardPhysicsA::CMSEmStandardPhysicsA(G4int ver, const edm::ParameterSet&
   if (msc == "Minimal") {
     fStepLimitType = fMinimal;
   }
+  fDeadRegionNames = p.getParameter<std::vector<std::string>>("DeadRegions");
   double tcut = p.getParameter<double>("G4TrackingCut") * CLHEP::MeV;
   param->SetLowestElectronEnergy(tcut);
   param->SetLowestMuHadEnergy(tcut);
@@ -114,9 +115,10 @@ void CMSEmStandardPhysicsA::ConstructProcess() {
   // number of worker threads must be passed to AdePT
   fAdePTConfiguration->SetNumThreads(CurrentG4Track::numberOfWorkers());
 
-  // Specify dead regions in CMS
-  fAdePTConfiguration->AddDeadRegionName("QuadRegion");
-  fAdePTConfiguration->AddDeadRegionName("InterimRegion");
+  // Write dead regions to AdePT configuration
+  for (const auto& deadRegionName : fDeadRegionNames) {
+    fAdePTConfiguration->AddDeadRegionName(deadRegionName);
+  }
 
   // Construct the AdePT tracking manager
   auto* hepEmTM = new AdePTTrackingManager(fAdePTConfiguration, verboseLevel);
