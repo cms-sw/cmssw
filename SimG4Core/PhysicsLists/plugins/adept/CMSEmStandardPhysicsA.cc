@@ -45,8 +45,8 @@
 #include "G4RegionStore.hh"
 #include "G4Region.hh"
 
-#include <AdePT/core/AdePTConfiguration.hh>
-#include <AdePT/integration/AdePTTrackingManager.hh>
+#include <AdePT/g4integration/AdePTConfiguration.hh>
+#include <AdePT/g4integration/AdePTTrackingManager.hh>
 
 #include "G4HepEmConfig.hh"
 
@@ -113,6 +113,10 @@ void CMSEmStandardPhysicsA::ConstructProcess() {
 
   // number of worker threads must be passed to AdePT
   fAdePTConfiguration->SetNumThreads(CurrentG4Track::numberOfWorkers());
+
+  // Specify dead regions in CMS
+  fAdePTConfiguration->AddDeadRegionName("QuadRegion");
+  fAdePTConfiguration->AddDeadRegionName("InterimRegion");
 
   // Construct the AdePT tracking manager
   auto* hepEmTM = new AdePTTrackingManager(fAdePTConfiguration, verboseLevel);
