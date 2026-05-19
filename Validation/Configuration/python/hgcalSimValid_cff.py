@@ -55,7 +55,6 @@ hgcalAssociators = cms.Task(lcAssocByEnergyScoreProducer, layerClusterCaloPartic
                             SimClusterToCaloParticleAssociation, 
                             )
 
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_pf_cff import ticl_superclustering_mustache_pf
 
 

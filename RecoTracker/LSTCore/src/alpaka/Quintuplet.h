@@ -1682,7 +1682,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return true;
   }
 
-  struct CreateQuintuplets {
+  template <bool ReduceMem>
+  struct CreateQuintupletsT {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   MiniDoubletsConst mds,
@@ -1754,7 +1755,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               continue;
 
             // If densely connected, do not attempt parallel processing to avoid truncation
-            if (nInnerTriplets >= kNTripletThreshold || nOuterTriplets >= kNTripletThreshold) {
+            if (ReduceMem || nInnerTriplets >= kNTripletThreshold || nOuterTriplets >= kNTripletThreshold) {
               uint16_t lowerModule2 = triplets.lowerModuleIndices()[innerTripletIndex][1];
               uint16_t lowerModule4 = triplets.lowerModuleIndices()[outerTripletIndex][1];
               uint16_t lowerModule5 = triplets.lowerModuleIndices()[outerTripletIndex][2];
@@ -1882,6 +1883,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           }
         }
 
+        if constexpr (ReduceMem)
+          continue;
+
         alpaka::syncBlockThreads(acc);
         if (matchCount == 0) {
           continue;
@@ -1998,6 +2002,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   };
 
+  using CreateQuintuplets = CreateQuintupletsT<false>;
+  using CreateQuintupletsReduceMem = CreateQuintupletsT<true>;
+
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool isValidQuintRegion(ModulesConst modules, uint16_t lowerModule) {
     const short layer = modules.layers()[lowerModule];
     const short subdet = modules.subdets()[lowerModule];
@@ -2005,7 +2012,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return (subdet == Barrel && layer < 3) || (subdet == Endcap && layer <= 1);
   }
 
-  struct CountTripletConnections {
+  template <bool ReduceMem>
+  struct CountTripletConnectionsT {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   MiniDoubletsConst mds,
@@ -2048,7 +2056,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
             if (secondMDOuter == thirdMDInner) {
               // Will only perform runQuintupletDefaultAlgorithm() checks if densely connected
-              if (nInnerTriplets < kNTripletThreshold && nOuterTriplets < kNTripletThreshold) {
+              if (!ReduceMem && nInnerTriplets < kNTripletThreshold && nOuterTriplets < kNTripletThreshold) {
                 alpaka::atomicAdd(acc, &triplets.connectedMax()[innerTripletIndex], 1u, alpaka::hierarchy::Threads{});
               } else {
                 const uint16_t lowerModule2 = lmIdx[innerTripletIndex][1];
@@ -2098,6 +2106,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       }
     }
   };
+
+  using CountTripletConnections = CountTripletConnectionsT<false>;
+  using CountTripletConnectionsReduceMem = CountTripletConnectionsT<true>;
 
   struct CreateEligibleModulesListForQuintuplets {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,

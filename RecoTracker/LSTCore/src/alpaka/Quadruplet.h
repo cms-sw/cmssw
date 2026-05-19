@@ -513,7 +513,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return true;
   };
 
-  struct CreateQuadruplets {
+  template <bool ReduceMem>
+  struct CreateQuadrupletsT {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   MiniDoubletsConst mds,
@@ -603,7 +604,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
               continue;
 
             // If densely connected, do not attempt parallel processing to avoid truncation
-            if (nInnerTriplets >= kNTripletThreshold || nOuterTriplets >= kNTripletThreshold) {
+            if (ReduceMem || nInnerTriplets >= kNTripletThreshold || nOuterTriplets >= kNTripletThreshold) {
               const uint16_t lowerModule3 = lmIdx[outerTripletIndex][1];
               const uint16_t lowerModule4 = lmIdx[outerTripletIndex][2];
 
@@ -717,6 +718,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           }
         }
 
+        if constexpr (ReduceMem)
+          continue;
+
         alpaka::syncBlockThreads(acc);
         if (matchCount == 0) {
           continue;
@@ -820,6 +824,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     }
   };
 
+  using CreateQuadruplets = CreateQuadrupletsT<false>;
+  using CreateQuadrupletsReduceMem = CreateQuadrupletsT<true>;
+
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool isValidQuadRegion(ModulesConst modules, uint16_t lowerModule) {
     const short layer = modules.layers()[lowerModule];
     const short subdet = modules.subdets()[lowerModule];
@@ -827,7 +834,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return (subdet == Barrel && layer > 2) || (subdet == Endcap);
   }
 
-  struct CountTripletLSConnections {
+  template <bool ReduceMem>
+  struct CountTripletLSConnectionsT {
     ALPAKA_FN_ACC void operator()(Acc3D const& acc,
                                   ModulesConst modules,
                                   MiniDoubletsConst mds,
@@ -872,7 +880,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
             if ((secondMDInner == thirdMDInner) && (secondMDOuter == thirdMDOuter)) {
               // Will only perform runQuadrupletDefaultAlgorithm() checks if densely connected
-              if (nInnerTriplets < kNTripletThreshold && nOuterTriplets < kNTripletThreshold) {
+              if (!ReduceMem && nInnerTriplets < kNTripletThreshold && nOuterTriplets < kNTripletThreshold) {
                 alpaka::atomicAdd(acc, &triplets.connectedLSMax()[innerTripletIndex], 1u, alpaka::hierarchy::Threads{});
               } else {
                 const uint16_t lowerModule3 = lmIdx[outerTripletIndex][1];
@@ -915,6 +923,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       }
     }
   };
+
+  using CountTripletLSConnections = CountTripletLSConnectionsT<false>;
+  using CountTripletLSConnectionsReduceMem = CountTripletLSConnectionsT<true>;
 
   struct CreateEligibleModulesListForQuadruplets {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
