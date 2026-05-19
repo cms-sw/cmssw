@@ -1,42 +1,48 @@
 #ifndef RecoHGCal_TICL_TracksterInferenceByDNN_H__
 #define RecoHGCal_TICL_TracksterInferenceByDNN_H__
 
+#include <string>
+#include <vector>
+
 #include "RecoHGCal/TICL/interface/TracksterInferenceAlgoBase.h"
+#include "RecoHGCal/TICL/interface/TICLONNXGlobalCache.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
+#include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
+
+// TracksterInferenceByDNN.h
 
 namespace ticl {
 
-  class TracksterInferenceByDNN : public TracksterInferenceAlgoBase {
+  class TracksterInferenceByDNN final : public TracksterInferenceAlgoBase {
   public:
-    explicit TracksterInferenceByDNN(const edm::ParameterSet& conf);
-    void inputData(const std::vector<reco::CaloCluster>& layerClusters,
-                   std::vector<Trackster>& tracksters,
-                   const hgcal::RecHitTools& rhtools) override;
-    void runInference(std::vector<Trackster>& tracksters) override;
+    explicit TracksterInferenceByDNN(const edm::ParameterSet& conf, TICLONNXGlobalCache const* cache);
+
+    void runInference(const std::vector<reco::CaloCluster>& layerClusters,
+                      std::vector<Trackster>& tracksters,
+                      const hgcal::RecHitTools& rhtools) const override;
 
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
   private:
-    const std::unique_ptr<cms::Ort::ONNXRuntime> onnxPIDRuntimeInstance_;
-    const std::unique_ptr<cms::Ort::ONNXRuntime> onnxEnergyRuntimeInstance_;
-    const cms::Ort::ONNXRuntime* onnxPIDSession_;
-    const cms::Ort::ONNXRuntime* onnxEnergySession_;
+    // Sessions are owned by the GlobalCache.
+    cms::Ort::ONNXRuntime const* onnxPIDSession_ = nullptr;
+    cms::Ort::ONNXRuntime const* onnxEnergySession_ = nullptr;
 
     const std::vector<std::string> inputNames_;
     const std::vector<std::string> output_en_;
     const std::vector<std::string> output_id_;
+
     const float eidMinClusterEnergy_;
     const int eidNLayers_;
     const int eidNClusters_;
     static constexpr int eidNFeatures_ = 3;
-    int doPID_;
-    int doRegression_;
 
-    std::vector<std::vector<int64_t>> input_shapes_;
-    std::vector<int> tracksterIndices_;
-    std::vector<std::vector<float>> input_Data_;
-    int batchSize_;
+    const int doPID_;
+    const int doRegression_;
+    const int miniBatchSize_;
+    bool enabled_ = false;
   };
+
 }  // namespace ticl
 
 #endif  // RecoHGCal_TICL_TracksterInferenceByDNN_H__

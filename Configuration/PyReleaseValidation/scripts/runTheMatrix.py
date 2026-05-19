@@ -163,7 +163,6 @@ if __name__ == '__main__':
                      prefixDet+34.7502,  # HLT phase-2 tracking menu with tracking ntuple
                      prefixDet+34.7503,  # HLT phase-2 menu, CPU vs. GPU validation
                      prefixDet+34.751,   # HLT phase-2 timing menu Alpaka variant
-                     prefixDet+34.752,   # HLT phase-2 timing menu ticl_v5 variant
                      prefixDet+34.7521,  # HLT phase-2 timing menu ticlv5TrackLinkGNN variant   
                      prefixDet+34.753,   # HLT phase-2 timing menu legacy tracking
                      prefixDet+34.754,   # HLT phase-2 timing menu legacy tracking with Patatrack quads
@@ -174,7 +173,7 @@ if __name__ == '__main__':
                      prefixDet+34.759,   # HLT phase-2 menu, with NANO:@Phase2HLT
                      prefixDet+34.7591,  # HLT phase-2 menu, with NANO:@Phase2HLTVal
                      prefixDet+34.77,    # HLT phase-2 NGT Scouting menu
-                     prefixDet+34.771,   # HLT phase-2 NGT Scouting menu, Alpaka, TICL-v5, TICL-Barrel
+                     prefixDet+34.771,   # HLT phase-2 NGT Scouting menu, Alpaka, TICL-Barrel
                      prefixDet+34.772,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
                      prefixDet+34.773,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
                      prefixDet+34.775],  # HLT phase-2 NGT Scouting menu, Phase2CAExtension&LSTT5 as GeneralTracks
