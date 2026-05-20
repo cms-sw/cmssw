@@ -131,7 +131,7 @@ namespace Phase2L1GMT {
     //bits for fixed point precision
     static const int PHIBSCALE = 16;
     static const int PHIBSCALE_INT = 5;
-	static const int ZDELTAR_BITS = 15;
+	static const int ZDELTAR_BITS = 14;
 	static const int ZDELTAR_BITSINT = 1;
     static const int BITSCURV = 16;
     static const int BITSPHI = 18;

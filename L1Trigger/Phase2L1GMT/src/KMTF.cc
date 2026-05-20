@@ -178,7 +178,7 @@ std::pair<std::vector<l1t::KMTFTrack>, std::vector<l1t::KMTFTrack> > KMTF::proce
         if (tracks.second.id() & 0x2)
 		  edm::LogInfo("KMTF") << "1 " << (tracks.second.curvatureAtVertex() < 0 ? 1 : 0) << " "
                      << tracks.second.ptDisplaced() << " " << tracks.second.phiAtMuon() / (1 << 5) << " "
-                     << int(round(tracks.first.eta() / (M_PI / (1 << 12)))) << " " << int(tracks.second.dxy() * ap_ufixed<8, 1>(1.606))
+                     << int(round(tracks.second.eta() / (M_PI / (1 << 12)))) << " " << int(tracks.second.dxy() * ap_ufixed<8, 1>(1.606))
                      << " " << tracks.second.rankDisp() << " "
                      << tracks.second.zPosition() << " " << tracks.second.kSlope() << " "
                      << " " << std::flush;
@@ -215,7 +215,7 @@ std::pair<std::vector<l1t::KMTFTrack>, std::vector<l1t::KMTFTrack> > KMTF::proce
         if (tracks.second.id() & 0x2)
 		  edm::LogInfo("KMTF") << "1 " << (tracks.second.curvatureAtVertex() < 0 ? 1 : 0) << " "
                      << tracks.second.ptDisplaced() << " " << tracks.second.phiAtMuon() / (1 << 5) << " "
-                     << int(round(tracks.first.eta() / (M_PI / (1 << 12)))) << " " << int(tracks.second.dxy() * ap_ufixed<8, 1>(1.606))
+                     << int(round(tracks.second.eta() / (M_PI / (1 << 12)))) << " " << int(tracks.second.dxy() * ap_ufixed<8, 1>(1.606))
                      << " " << tracks.second.rankDisp() << " "
                      << tracks.second.zPosition() << " " << tracks.second.kSlope() << " "
                      << " " << std::flush;	
@@ -247,11 +247,11 @@ std::pair<std::vector<l1t::KMTFTrack>, std::vector<l1t::KMTFTrack> > KMTF::proce
                      << " " << std::flush;
 
         else
-          edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 0 " << std::flush;
+          edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 0 0" << std::flush;
         if (tracks.second.id() & 0x2)
 		  edm::LogInfo("KMTF") << "1 " << (tracks.second.curvatureAtVertex() < 0 ? 1 : 0) << " "
                      << tracks.second.ptDisplaced() << " " << tracks.second.phiAtMuon() / (1 << 5) << " "
-                     << int(round(tracks.first.eta() / (M_PI / (1 << 12)))) << " " << int(tracks.second.dxy() * ap_ufixed<8, 1>(1.606))
+                     << int(round(tracks.second.eta() / (M_PI / (1 << 12)))) << " " << int(tracks.second.dxy() * ap_ufixed<8, 1>(1.606))
                      << " " << tracks.second.rankDisp() << " "
                      << tracks.second.zPosition() << " " << tracks.second.kSlope() << " ";
         else
