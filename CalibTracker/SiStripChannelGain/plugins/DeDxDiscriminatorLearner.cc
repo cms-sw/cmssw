@@ -124,10 +124,9 @@ void DeDxDiscriminatorLearner::algoAnalyze(const edm::Event& iEvent, const edm::
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByToken(m_tracksTag, trackCollectionHandle);
 
-  unsigned track_index = 0;
   for (TrajTrackAssociationCollection::const_iterator it = trajTrackAssociationHandle->begin();
        it != trajTrackAssociationHandle->end();
-       ++it, track_index++) {
+       ++it) {
     const Track& track = *it->val;
     const Trajectory& traj = *it->key;
 
