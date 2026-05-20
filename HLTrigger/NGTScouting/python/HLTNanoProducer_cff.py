@@ -132,6 +132,9 @@ hltPixelOnlyNanoFlavour = cms.Sequence(
     + NanoPixelTables
 )
 
+from Configuration.ProcessModifiers.nano_l1_hlt_cff import nano_l1_hlt
+nano_l1_hlt.toReplaceWith(dstValidationNanoFlavour, dstValidationNanoFlavour.copyAndExclude([dstTriggerAcceptFilter]))
+
 ######################################
 # Customization
 ######################################
@@ -149,6 +152,12 @@ def hltNanoCustomize(process):
             SelectEvents = cms.vstring(
                 [p for p in process.paths if p.startswith('HLT_') or p.startswith('MC_') or p.startswith('DST_')]
             )
+        )
+
+        # disable SelectEvents for nano_l1_hlt
+        nano_l1_hlt.toModify(
+            process.NANOAODSIMoutput,
+            SelectEvents = cms.untracked.PSet()
         )
 
     return process
