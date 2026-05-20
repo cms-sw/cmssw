@@ -61,7 +61,7 @@ Tracklet::Tracklet(Settings const& settings,
   trackparsapprox_.init(rinvapprox, phi0approx, d0approx, tapprox, z0approx);
 
   fpgapars_.rinv().set(irinv, settings_.nbitsrinv(), false, __LINE__, __FILE__);
-  fpgapars_.phi0().set(iphi0, settings_.nbitsphi0(), false, __LINE__, __FILE__);
+  fpgapars_.phi0().set(iphi0, settings_.nbitsphi0(), true, __LINE__, __FILE__);
   fpgapars_.d0().set(id0, settings_.nbitsd0(), false, __LINE__, __FILE__);
   fpgapars_.z0().set(iz0, settings_.nbitsz0(), false, __LINE__, __FILE__);
   fpgapars_.t().set(it, settings_.nbitst(), false, __LINE__, __FILE__);

@@ -218,35 +218,36 @@ void TrackletCalculatorBase::calcPars(unsigned int idr,
                                       int& iphi0_new,
                                       int& iz0_new,
                                       int& it_new) {
-  int idz = iz2 - iz1;
+  long int idz = iz2 - iz1;
 
   assert(idr < LUT_idrinv_.size());
-  int invdr = LUT_idrinv_[idr];
+  long int invdr = LUT_idrinv_[idr];
 
-  int idelta0 = ((iphi2 - iphi1) * invdr) >> n_delta0_;
-  int ideltaz = (idz * invdr) >> n_deltaz_;
+  long int idelta0 = ((iphi2 - iphi1) * invdr) >> n_delta0_;
+  long int ideltaz = (idz * invdr) >> n_deltaz_;
 
-  int idelta1 = (ir1 * idelta0) >> n_delta1_;
-  int idelta2 = (ir2 * idelta0) >> n_delta2_;
+  long int idelta1 = (ir1 * idelta0) >> n_delta1_;
+  long int idelta2 = (ir2 * idelta0) >> n_delta2_;
 
-  int idelta12 = (idelta1 * idelta2) >> n_delta12_;
+  long int idelta12 = (idelta1 * idelta2) >> n_delta12_;
 
-  int iHG = phiHG_ * phiHG_ * (1 << n_HG_);
+  long int iHG = phiHG_ * phiHG_ * (1 << n_HG_);
 
-  int ia = ((1 << n_a_) - ((idelta12 * iHG) >> (2 * n_Deltar_ + 2 * n_phi_ + n_HG_ - 2 * n_delta0_ - n_delta1_ -
-                                                n_delta2_ - n_delta12_ + 1 - n_a_)));
+  long int ia = ((1 << n_a_) - ((idelta12 * iHG) >> (2 * n_Deltar_ + 2 * n_phi_ + n_HG_ - 2 * n_delta0_ - n_delta1_ -
+                                                     n_delta2_ - n_delta12_ + 1 - n_a_)));
 
-  int ifact = (1 << n_r6_) * phiHG_ * phiHG_ / 6.0;
+  long int ifact = (1 << n_r6_) * phiHG_ * phiHG_ / 6.0;
 
-  int ir6 = (ir1 + ir2) * ifact;
+  long int ir6 = (ir1 + ir2) * ifact;
 
-  int idelta02 = (idelta0 * idelta2) >> n_delta02_;
+  long int idelta02 = (idelta0 * idelta2) >> n_delta02_;
 
-  int ix6 = (-(1 << n_x6_) + ((ir6 * idelta02) >>
-                              (n_r6_ + 2 * n_Deltar_ + 2 * n_phi_ - n_x6_ - n_delta2_ - n_delta02_ - 2 * n_delta0_)));
+  long int ix6 =
+      (-(1 << n_x6_) +
+       ((ir6 * idelta02) >> (n_r6_ + 2 * n_Deltar_ + 2 * n_phi_ - n_x6_ - n_delta2_ - n_delta02_ - 2 * n_delta0_)));
 
   //Temporary hack here
-  int it1 = (ir1 * ideltaz) >> (n_Deltar_ - n_deltaz_ - 3);
+  long int it1 = (ir1 * ideltaz) >> (n_Deltar_ - n_deltaz_ - 3);
 
   //std::cout << "ifact it1 ix6: " << ifact << " " << it1 << " " << ix6 << std::endl;
 
@@ -255,7 +256,7 @@ void TrackletCalculatorBase::calcPars(unsigned int idr,
   iphi0_new = (iphi1 >> (n_phi_ - n_phi0_)) +
               ((idelta1 * ix6) >> (n_Deltar_ + n_x6_ + n_phi_ - n_delta0_ - n_delta1_ - n_phi0_));
 
-  int shift_tmp = n_Deltar_ + n_a_ + n_z_ - n_t_ - n_deltaz_ - n_r_;
+  long int shift_tmp = n_Deltar_ + n_a_ + n_z_ - n_t_ - n_deltaz_ - n_r_;
   it_new = (((ideltaz * ia) >> (shift_tmp - 1)) + 1) >> 1;
 
   iz0_new = iz1 + ((((it1 * ix6) >> (n_x6_ + 3 - 1)) + 1) >> 1);
@@ -287,8 +288,9 @@ bool TrackletCalculatorBase::inSector(int iphi0, int irinv, double phi0approx, d
   int iphicritmincut = settings_.phicritminmc() / settings_.kphi0pars();
   int iphicritmaxcut = settings_.phicritmaxmc() / settings_.kphi0pars();
 
-  bool keepapprox = (phicritapprox > settings_.phicritminmc()) && (phicritapprox < settings_.phicritmaxmc()),
-       keep = (iphicrit > iphicritmincut) && (iphicrit < iphicritmaxcut);
+  bool keepapprox = (phi0approx >= 0) && (phicritapprox > settings_.phicritminmc()) &&
+                    (phicritapprox < settings_.phicritmaxmc()),
+       keep = (iphi0 >= 0) && (iphicrit > iphicritmincut) && (iphicrit < iphicritmaxcut);
   if (settings_.debugTracklet())
     if (keepapprox && !keep)
       edm::LogVerbatim("Tracklet") << getName()

@@ -52,21 +52,21 @@ ProjectionCalculator::ProjectionCalculator(string name, Settings const& settings
 
 // Project to layer (taken from TrackletCalculatorBase.cc)
 void ProjectionCalculator::projLayer(int ir, int irinv, int iphi0, int it, int iz0, int& iz, int& iphi) {
-  int irtilde = ir * phiHG_ / sqrt(6.0) + 0.5;
-  int is = (irtilde * irinv) >> n_s_;
-  int is6 = (1 << n_s6_) + ((is * is) >> (2 + 2 * n_r_ + 2 * n_rinv_ - 2 * n_s_ - n_s6_));
-  int iu = (ir * irinv) >> (n_r_ + n_rinv_ + 1 - n_phi_);
+  long int irtilde = ir * phiHG_ / sqrt(6.0) + 0.5;
+  long int is = (irtilde * irinv) >> n_s_;
+  long int is6 = (1 << n_s6_) + ((is * is) >> (2 + 2 * n_r_ + 2 * n_rinv_ - 2 * n_s_ - n_s6_));
+  long int iu = (ir * irinv) >> (n_r_ + n_rinv_ + 1 - n_phi_);
   iphi = (iphi0 << (n_phi_ - n_phi0_)) - ((iu * is6) >> n_s6_);
-  int iv = (it * ir) >> (n_r_ + n_t_ - n_z_);
+  long int iv = (it * ir) >> (n_r_ + n_t_ - n_z_);
   iz = iz0 + ((iv * is6) >> n_s6_);
 }
 // Project to disk (taken from TrackletCalculatorBase.cc)
 void ProjectionCalculator::projDisk(
     int iz, int irinv, int iphi0, int it, int iz0, int& ir, int& iphi, int& iderphi, int& iderr) {
-  int iz0_sign = (it > 0) ? iz0 : -iz0;
+  long int iz0_sign = (it > 0) ? iz0 : -iz0;
 
   assert(abs(it) < static_cast<int>(LUT_itinv_.size()));
-  int itinv = LUT_itinv_[abs(it)];
+  long int itinv = LUT_itinv_[abs(it)];
 
   iderphi = (-irinv * itinv) >> 17;
   iderr = itinv >> 5;
@@ -76,17 +76,17 @@ void ProjectionCalculator::projDisk(
     iderr = -iderr;
   }
 
-  int iw = (((iz << (n_r_ - n_z_)) - (iz0_sign << (n_r_ - n_z_))) * itinv) >> n_tinv_;
+  long int iw = (((iz << (n_r_ - n_z_)) - (iz0_sign << (n_r_ - n_z_))) * itinv) >> n_tinv_;
 
   iphi = (iphi0 >> (n_phi0_ - n_phidisk_)) - ((iw * irinv) >> (1 + n_r_ + n_rinv_ - n_phidisk_));
 
-  int ifact = (1 << n_y_) * phiHG_ / sqrt(6.0);
+  long int ifact = (1 << n_y_) * phiHG_ / sqrt(6.0);
 
-  int iy = (ifact * irinv) >> n_y_;
+  long int iy = (ifact * irinv) >> n_y_;
 
-  int ix = (iw * iy) >> n_x_;
+  long int ix = (iw * iy) >> n_x_;
 
-  int ix6 = (1 << n_xx6_) - ((ix * ix) >> (2 + 2 * n_r_ + 2 * n_rinv_ - 2 * n_x_ - n_xx6_));
+  long int ix6 = (1 << n_xx6_) - ((ix * ix) >> (2 + 2 * n_r_ + 2 * n_rinv_ - 2 * n_x_ - n_xx6_));
 
   ir = (iw * ix6) >> (n_r_ - n_rdisk_ + n_xx6_);
 }
