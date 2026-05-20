@@ -45,8 +45,8 @@
 #include "G4RegionStore.hh"
 #include "G4Region.hh"
 
-#include <AdePT/core/AdePTConfiguration.hh>
-#include <AdePT/integration/AdePTTrackingManager.hh>
+#include <AdePT/g4integration/AdePTConfiguration.hh>
+#include <AdePT/g4integration/AdePTTrackingManager.hh>
 
 #include "G4HepEmConfig.hh"
 
@@ -76,6 +76,7 @@ CMSEmStandardPhysicsA::CMSEmStandardPhysicsA(G4int ver, const edm::ParameterSet&
   if (msc == "Minimal") {
     fStepLimitType = fMinimal;
   }
+  fDeadRegionNames = p.getParameter<std::vector<std::string>>("DeadRegions");
   double tcut = p.getParameter<double>("G4TrackingCut") * CLHEP::MeV;
   param->SetLowestElectronEnergy(tcut);
   param->SetLowestMuHadEnergy(tcut);
@@ -113,6 +114,11 @@ void CMSEmStandardPhysicsA::ConstructProcess() {
 
   // number of worker threads must be passed to AdePT
   fAdePTConfiguration->SetNumThreads(CurrentG4Track::numberOfWorkers());
+
+  // Write dead regions to AdePT configuration
+  for (const auto& deadRegionName : fDeadRegionNames) {
+    fAdePTConfiguration->AddDeadRegionName(deadRegionName);
+  }
 
   // Construct the AdePT tracking manager
   auto* hepEmTM = new AdePTTrackingManager(fAdePTConfiguration, verboseLevel);
