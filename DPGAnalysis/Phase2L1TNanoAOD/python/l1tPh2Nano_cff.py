@@ -16,7 +16,7 @@ def addPh2L1Objects(process):
     process.l1tPh2NanoTask.add(p2L1TablesTask)
 
     # This modifier excludes the hpsTauTable, which is based on the l1tHPSPFTauProducerPuppi collection, no longer available in the L1 menu.
-    # This allows to run the NANOAOD production from L1 and HLT steps, whitout assuming old inputs from the Spring24 datasets.
+    # This allows to run the NANOAOD production from L1 and HLT steps, whitout requiring old inputs from the Spring24 datasets.
     from Configuration.ProcessModifiers.nano_l1_hlt_cff import nano_l1_hlt
     nano_l1_hlt.toReplaceWith(p2L1TablesTask, p2L1TablesTask.copyAndExclude([hpsTauTable]))
 
@@ -73,7 +73,7 @@ def addGenObjects(process):
     process.l1tPh2NanoTask.add(process.genNanoTask)
  
     # This modifier excludes all GEN sequences that depend on PAT collections.
-    # This allows to run the NANOAOD production from L1 and HLT steps, whitout assuming the PAT inputs.
+    # This allows to run the NANOAOD production from L1 and HLT steps, whitout requiring PAT inputs.
     from Configuration.ProcessModifiers.nano_l1_hlt_cff import nano_l1_hlt
     nano_l1_hlt.toReplaceWith(process.genNanoTask, 
         process.genNanoTask.copyAndExclude(
