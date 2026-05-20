@@ -1124,7 +1124,10 @@ namespace l1tVertexFinder {
         << "NNVtxEmulation TrackWeight:"
         << " itrk=" << counter
         << " w8=0x" << std::hex << w8.to_uint() << std::dec
-        << " w=" << trk_output[0].to_double();
+        << " w=" << trk_output[0].to_double()
+        << " pt=" << std::hex << ap_uint<22>(trk_input[0].range(21,0)).to_uint()
+	<< " MVA=" << std::hex << ap_uint<22>(trk_input[1].range(21,0)).to_uint()
+	<< " abs(eta)=" << std::hex << ap_uint<22>(trk_input[2].range(21,0)).to_uint() << std::dec;
 
       ++counter;
     }
@@ -1194,49 +1197,51 @@ namespace l1tVertexFinder {
 
     for (int i = 0; i < settings_->vx_histogram_numbins(); ++i) {
       ap_uint<10> pat10_i = vx_output[i].range(9, 0);
-      ap_uint<8> pat8_i = (pat10_i[9] == 1) ? ap_uint<8>(0x00)
-                        : (pat10_i[8] == 1) ? ap_uint<8>(0xFF)
-                                        : ap_uint<8>(pat10_i.range(7, 0));
 
       edm::LogVerbatim("VertexFinder")
         << "NNVtxEmulation PatOutput:"
         << " zbin=" << i
         << " pat10=0x" << std::hex << pat10_i.to_uint()
-        << " pat8_hw=0x" << pat8_i.to_uint()
         << std::dec
         << " pat=" << vx_output[i].to_double();
     } 
-    // Threshold needed due to rounding differences in internal CNN layer emulation versus firmware
-    const float histogrammingThreshold_ = 0.0;
-    for (int i(0); i < settings_->vx_histogram_numbins(); ++i) {
-      if (vx_output[i] >= histogrammingThreshold_) {
-        nnOutput[i] = vx_output[i];
+    // Threshold needed due to rounding differences in internal CNN layer emulation versus firmware.
+    // Store a dense per-bin array so the neighbor-score tie-break matches the hardware cleanly.
+    const float histogrammingThreshold_ = 0.0f;
+    for (int i = 0; i < settings_->vx_histogram_numbins(); ++i) {
+      nnOutput[i] = (vx_output[i] >= histogrammingThreshold_) ? vx_output[i].to_float() : 0.0f;
+    }
+
+    // Use following tiebreaking procedure:
+    // 1) larger bin weight wins
+    // 2) if weights tie, choose the bin closest to 128
+    // 3) if still tied, choose the smaller bin index (z0=0 is at 127.5, so this ensures algo always chooses bin closest to 127.5)
+    auto centralDistance128 = [](int i) -> int {
+      return std::abs(i - 128);
+    };
+
+    int PV_index = 0;
+    float best_weight = nnOutput[0];
+    int best_dist = centralDistance128(0);
+
+    for (int i = 1; i < settings_->vx_histogram_numbins(); ++i) {
+      const float weight = nnOutput[i];
+      const int dist = centralDistance128(i);
+
+      if (weight > best_weight) {
+        PV_index = i;
+        best_weight = weight;
+        best_dist = dist;
+      } else if (weight == best_weight) {
+        if (dist < best_dist) {
+          PV_index = i;
+          best_dist = dist;
+        } else if (dist == best_dist && i < PV_index) {
+          PV_index = i;
+        }
       }
     }
 
-    //Find max then find all occurances of it in histogram and average their position -> python argmax layer
-    //Performance is not optimised for multiple peaks in histogram or spread peaks these are edge cases, need to revisit
-    int max_index = 0;
-    int num_maxes = 0;
-    float max_element = 0.0;
-    for (int i(0); i < settings_->vx_histogram_numbins(); ++i) {
-      if (nnOutput[i] > max_element) {
-        max_element = nnOutput[i];
-      }
-    }
-
-    for (int i(0); i < settings_->vx_histogram_numbins(); ++i) {
-      if (nnOutput[i] == max_element) {
-        num_maxes++;
-        max_index += i;
-      }
-    }
-    int PV_index = ceil((float)max_index / (float)num_maxes);
-
-    //edm::LogVerbatim("VertexFinder") << " NNVtxEmulation Chosen PV: prob: " << nnOutput[PV_index]
-    //                                 << " bin = " << PV_index << " z0 = " << vertices.at(PV_index).z0() << '\n';
-
-    //verticesEmulation_.emplace_back(1, vertices.at(PV_index).z0(), 0, vertices.at(PV_index).pt(), 0, 0, 0);
   const double zmin = settings_->vx_histogram_min();
   const double bw   = settings_->vx_histogram_binwidth();
   const double z0_center = (static_cast<double>(PV_index) + 0.5) * bw + zmin;
@@ -1246,13 +1251,9 @@ namespace l1tVertexFinder {
   // Hardware-like pattern output encoding
   ap_uint<10> pat10 = vx_output[PV_index].range(9, 0);
 
-  ap_uint<8> pat8_hw = (pat10[9] == 1) ? ap_uint<8>(0x00)
-                     : (pat10[8] == 1) ? ap_uint<8>(0xFF)
-                                     : ap_uint<8>(pat10.range(7, 0));
-
   // Pack weight bits directly into the 12-bit sumPt field
   ap_uint<12> sumpt_bits = 0;
-  sumpt_bits.range(7, 0) = pat8_hw;
+  sumpt_bits.range(9, 0) = pat10;
 
   l1t::VertexWord::vtxsumpt_t pt_word;
   pt_word.V = sumpt_bits;
@@ -1263,7 +1264,6 @@ namespace l1tVertexFinder {
     << " bin=" << PV_index
     << " z0_center=" << z0_center
     << " pat10=0x" << std::hex << pat10.to_uint()
-    << " pat8_hw=0x" << pat8_hw.to_uint()
     << " sumpt_bits=0x" << sumpt_bits.to_uint()
     << std::dec;
 
