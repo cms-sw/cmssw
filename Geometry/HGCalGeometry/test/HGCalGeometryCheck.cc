@@ -103,8 +103,7 @@ void HGCalGeometryCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup
     sprintf(name, "RZ_%s", nameDetectors_[ih].c_str());
     sprintf(title, "R vs Z for %s", nameDetectors_[ih].c_str());
     h_RZ_.emplace_back(fs->make<TH2D>(name, title, nbinZ_, zmin_, zmax_, nbinR_, rmin_, rmax_));
-    unsigned int k(0);
-    for (int lay = layerF; lay <= layerL; ++lay, ++k) {
+    for (int lay = layerF; lay <= layerL; ++lay) {
       sprintf(name, "Mod_%s_L%d", nameDetectors_[ih].c_str(), lay);
       sprintf(title, "Modules in layer %d in %s", lay, nameDetectors_[ih].c_str());
       h_Mod_.emplace_back(fs->make<TH1D>(name, title, 200, -50, 50));

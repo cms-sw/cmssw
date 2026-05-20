@@ -126,9 +126,8 @@ void HGCalCellUVTester::beginRun(edm::Run const &iRun, edm::EventSetup const &iS
   edm::LogVerbatim("HGCalGeom") << "\nHGCalCellUVTester:: nCells " << nCells << " and placement index between "
                                 << indexMin << " and " << indexMax << "\n\n";
   auto start_t = std::chrono::high_resolution_clock::now();
-  unsigned int kk(0);
   std::unordered_map<int32_t, HGCalParameters::waferInfo>::const_iterator itr = hgpar_->waferInfoMap_.begin();
-  for (; itr != hgpar_->waferInfoMap_.end(); ++itr, ++kk) {
+  for (; itr != hgpar_->waferInfoMap_.end(); ++itr) {
     //for (auto itr = hgpar_->waferInfoMap_.begin(); itr != hgpar_->waferInfoMap_.end(); ++itr){
     if ((itr->second).part != HGCalTypes::WaferFull) {
       int indx = itr->first;
