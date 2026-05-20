@@ -1,8 +1,7 @@
-# File: Configuration/Generator/python/DisplacedHGCalParticleGun_Photon_cfi.py
 import FWCore.ParameterSet.Config as cms
 
 generator = cms.EDProducer(
-    "DisplacedHGCalParticleGunProducer",
+    "DisplacedParticleGunProducer",
     PGunParameters = cms.PSet(
         # particle direction
         MinPt  = cms.double(5.0),
