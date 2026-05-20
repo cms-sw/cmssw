@@ -1,4 +1,4 @@
-#include "L1TriggerScouting/Utilities/plugins/OrbitTableOutputBranches.h"
+#include "OrbitTableOutputBranches.h"
 
 #include <limits>
 

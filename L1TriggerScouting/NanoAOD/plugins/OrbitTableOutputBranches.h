@@ -1,17 +1,18 @@
-#ifndef L1TriggerScouting_Utilities_OrbitTableOutputBranches_h
-#define L1TriggerScouting_Utilities_OrbitTableOutputBranches_h
+#ifndef L1TriggerScouting_NanoAOD_OrbitTableOutputBranches_h
+#define L1TriggerScouting_NanoAOD_OrbitTableOutputBranches_h
 
 #include <string>
 #include <vector>
 #include <TTree.h>
-#include "FWCore/Framework/interface/OccurrenceForOutput.h"
+
 #include "DataFormats/NanoAOD/interface/OrbitFlatTable.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
+#include "FWCore/Framework/interface/OccurrenceForOutput.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 class OrbitTableOutputBranches {
 public:
-  OrbitTableOutputBranches(const edm::BranchDescription *desc, const edm::EDGetToken &token)
+  OrbitTableOutputBranches(const edm::ProductDescription *desc, const edm::EDGetToken &token)
       : m_token(token), m_extension(DontKnowYetIfMainOrExtension), m_branchesBooked(false) {
     if (desc->className() != "l1ScoutingRun3::OrbitFlatTable")
       throw cms::Exception("Configuration",

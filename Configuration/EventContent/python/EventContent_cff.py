@@ -118,11 +118,16 @@ HLTDebugFEVT.outputCommands.extend(HLTScoutingExtra.outputCommands)
 from DQMOffline.Configuration.DQMOffline_EventContent_cff import *
 #
 #
-# NANOAOD (incl. the NANO(EDM)AOD event contents for Run-3 L1-Scouting data)
+# NANOAOD
 #
 #
 from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
-from PhysicsTools.NanoAOD.L1SCOUTNanoAODEDMEventContent_cff import *
+#
+#
+# NANOAOD for Run-3 L1-Scouting data
+#
+#
+from L1TriggerScouting.NanoAOD.L1SCOUTNanoAODEDMEventContent_cff import *
 #
 #
 # FastSim

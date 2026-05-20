@@ -1,25 +1,17 @@
-// system include files
 #include <memory>
 #include <sstream>
 
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "CommonTools/Utils/interface/TypedStringObjectMethodCaller.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/L1Scouting/interface/OrbitCollection.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/allowedValues.h"
-
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/L1Scouting/interface/OrbitCollection.h"
 #include "L1TriggerScouting/Utilities/interface/conversion.h"
 
-#include "CommonTools/Utils/interface/TypedStringObjectMethodCaller.h"
-
-/*
- * Base class
- */
 template <typename T>
 class L1ScoutingPhysicalValueMapProducer : public edm::stream::EDProducer<> {
 public:
@@ -143,6 +135,7 @@ using L1ScoutingJetPhysicalValueMapProducer = L1ScoutingPhysicalValueMapProducer
 using L1ScoutingEGammaPhysicalValueMapProducer = L1ScoutingPhysicalValueMapProducer<l1ScoutingRun3::EGamma>;
 using L1ScoutingTauPhysicalValueMapProducer = L1ScoutingPhysicalValueMapProducer<l1ScoutingRun3::Tau>;
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(L1ScoutingMuonPhysicalValueMapProducer);
 DEFINE_FWK_MODULE(L1ScoutingJetPhysicalValueMapProducer);
 DEFINE_FWK_MODULE(L1ScoutingEGammaPhysicalValueMapProducer);
