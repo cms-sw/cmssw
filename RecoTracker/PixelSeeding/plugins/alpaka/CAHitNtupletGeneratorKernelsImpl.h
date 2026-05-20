@@ -232,31 +232,35 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         auto const *__restrict__ tracksOfCell = cellTracksHisto->begin(idx);
         int ntr = cellTracksHisto->size(idx);
 
-        // loop over tracks i
-        for (int i = 0; i < ntr - 1; i++) {
+        // find the longest track in this cell
+        int8_t maxNl = 0;
+        for (int i = 0; i < ntr; ++i) {
+          auto nl = tracks_view[tracksOfCell[i]].nLayers();
+          maxNl = (nl > maxNl) ? nl : maxNl;
+        }
+
+        // mark every shorter track that has at least one
+        // longer companion with compatible curvature. Tracks
+        // already at maxNl cannot be rejected here, so they are skipped
+        // immediately. The inner loop bails on the first match,
+        // reducing combinatorial complexity
+        for (int i = 0; i < ntr; ++i) {
           auto it = tracksOfCell[i];
           auto nli = tracks_view[it].nLayers();
+          if (nli >= maxNl)
+            continue;
+
           auto curvi = tracks_view[it].pt();
-
-          // function that compares the track curvatures of tracks it and jt
-          auto incompatibleTrackParams = [=](int jt) -> bool {
-            // comparing curvatures
-            const auto dcurv = curvi - tracks_view[jt].pt();
-            return (dcurv*dcurv > 0.000001);
-          };
-
-          // loop over remaining tracks j and compare
-          for (int j = i + 1; j < ntr; ++j) {
+          for (int j = 0; j < ntr; ++j) {
             auto jt = tracksOfCell[j];
-
-            if (incompatibleTrackParams(jt))
-              continue;
-
-            auto nlj = tracks_view[jt].nLayers();
-            if (nlj < nli)
-              tracks_view[jt].quality() = reject;  // no race: simple assignment of the same constant
-            else if (nlj > nli) 
+            if (tracks_view[jt].nLayers() <= nli) {
+              continue;  // need a strictly longer companion
+            }
+            const auto dcurv = curvi - tracks_view[jt].pt();
+            if (dcurv * dcurv <= 0.000001f) {
               tracks_view[it].quality() = reject;  // no race: simple assignment of the same constant
+              break;
+            }
           }
         }
       }
