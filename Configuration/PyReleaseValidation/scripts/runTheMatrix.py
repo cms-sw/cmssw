@@ -868,7 +868,7 @@ if __name__ == '__main__':
                 for wfl in self.matrices_[args[0]].workFlows:
                     if re.match(pattern_dataset, wfl.nameId):
                         for step, command in enumerate(wfl.cmds):
-                            if re.match(pattern_command, command):
+                            if command is not None and re.match(pattern_command, str(command)):
                                 if wfl.numId not in cached:
                                     cached.append(wfl.numId)
                                     cached_steps[wfl.nameId] = {
