@@ -195,9 +195,7 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC,
       seedToSeedsMap = std::make_unique<L2SeedAssoc>(seedsHandle, seedsHandle);
     }
 
-    int seedcnt(0);
-
-    for (map<int, vector<int> >::iterator itmap = seedmap.begin(); itmap != seedmap.end(); ++itmap, ++seedcnt) {
+    for (map<int, vector<int> >::iterator itmap = seedmap.begin(); itmap != seedmap.end(); ++itmap) {
       edm::RefToBase<TrajectorySeed> tmpSeedRef1 = trajC[(*itmap).first]->seedRef();
       edm::Ref<L2MuonTrajectorySeedCollection> tmpL2SeedRef1 =
           tmpSeedRef1.castTo<edm::Ref<L2MuonTrajectorySeedCollection> >();
