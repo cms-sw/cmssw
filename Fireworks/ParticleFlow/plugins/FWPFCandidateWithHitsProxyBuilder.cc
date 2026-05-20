@@ -75,10 +75,9 @@ void FWPFCandidateWithHitsProxyBuilder::build(const FWEventItem* iItem,
   if (candidates == nullptr)
     return;
 
-  Int_t idx = 0;
   initPFRecHitsCollections();
   for (reco::PFCandidateCollection::const_iterator it = candidates->begin(), itEnd = candidates->end(); it != itEnd;
-       ++it, ++idx) {
+       ++it) {
     TEveCompound* comp = createCompound();
     setupAddElement(comp, product);
     // printf("products size %d/%d \n", (int)iItem->size(), product->NumChildren());
