@@ -137,10 +137,9 @@ void CmsShowCommon::permuteColors() {
 void CmsShowCommon::randomizeColors() {
   //   printf("Doing random_shuffle on existing colors ...\n");
 
-  int vi = 0;
   for (FWEventItemsManager::const_iterator i = m_context->eventItemsManager()->begin();
        i != m_context->eventItemsManager()->end();
-       ++i, ++vi) {
+       ++i) {
     FWDisplayProperties prop = (*i)->defaultDisplayProperties();
 
     int col = rand() % 17;  // randomize in first row of palette
