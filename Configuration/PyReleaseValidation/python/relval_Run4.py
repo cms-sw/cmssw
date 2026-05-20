@@ -76,6 +76,7 @@ numWFIB.extend([prefixDet+34.77])   # NGTScouting
 numWFIB.extend([prefixDet+34.771])  # NGTScouting + alpaka + TICL-v5 + TICL-Barrel
 numWFIB.extend([prefixDet+34.772])  # NGTScouting + NANO
 numWFIB.extend([prefixDet+34.773])  # NGTScouting + NANO (including validation)
+numWFIB.extend([prefixDet+34.774])  # NGTScouting + NANO containing both L1 and HLT objects (including validation)
 numWFIB.extend([prefixDet+34.775])  # NGTScouting + Phase2CAExtension&LSTT5 as GeneralTracks
 
 for numWF in numWFIB:
