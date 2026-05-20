@@ -135,7 +135,7 @@ void L1TMuonLegacyConverter::produce(edm::Event& iEvent, const edm::EventSetup& 
 
       vector<L1MuGMTExtendedCand>::const_iterator muItr = simMuCands.begin();
       vector<L1MuGMTExtendedCand>::const_iterator muEnd = simMuCands.end();
-      for (int i = 0; muItr != muEnd; ++muItr, ++i) {
+      for (; muItr != muEnd; ++muItr) {
         if (!muItr->empty()) {
           // keep x and y components non-zero and protect against roundoff.
           double pt = muPtScale->getPtScale()->getLowEdge(muItr->ptIndex()) + 1.e-6;
