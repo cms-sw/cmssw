@@ -51,8 +51,7 @@ void CalibrationScanAlgorithm::extract(const std::vector<TH1*>& histos) {
 
   // Extract histograms
   std::vector<TH1*>::const_iterator ihis = histos.begin();
-  unsigned int cnt = 0;
-  for (; ihis != histos.end(); ihis++, cnt++) {
+  for (; ihis != histos.end(); ihis++) {
     // Check for NULL pointer
     if (!(*ihis)) {
       continue;
