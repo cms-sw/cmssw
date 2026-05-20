@@ -132,6 +132,7 @@ private:
   // tokens
   const edm::EDGetTokenT<std::vector<Run3ScoutingTrack>> tracksToken_;
   const edm::EDGetTokenT<std::vector<Run3ScoutingVertex>> verticesToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
 
   const std::string topFolderName_;  // top folder name where to book histograms
 
@@ -148,6 +149,8 @@ private:
   MonitorElement* p_dz_eta;
   MonitorElement* p_dz_phi;
   MonitorElement* p2_dz_eta_phi;
+
+  MonitorElement *bsX, *bsY, *bsZ, *bsSigmaZ, *bsDxdz, *bsDydz, *bsBeamWidthX, *bsBeamWidthY, *bsType;
 
   // hit profiles configuration
   std::vector<ProfileConfig> hitProfiles_;
@@ -195,11 +198,20 @@ ScoutingTrackMonitor::ScoutingTrackMonitor(const edm::ParameterSet& iConfig)
     : conf_(iConfig),
       tracksToken_{consumes<std::vector<Run3ScoutingTrack>>(iConfig.getParameter<edm::InputTag>("tracks"))},
       verticesToken_{consumes<std::vector<Run3ScoutingVertex>>(iConfig.getParameter<edm::InputTag>("vertices"))},
-      topFolderName_{iConfig.getParameter<std::string>("topFolderName")} {
+      beamSpotToken_{consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotLabel"))},
+      topFolderName_{iConfig.getParameter<std::string>("topFolderName")},
+      bsX(nullptr),
+      bsY(nullptr),
+      bsZ(nullptr),
+      bsSigmaZ(nullptr),
+      bsDxdz(nullptr),
+      bsDydz(nullptr),
+      bsBeamWidthX(nullptr),
+      bsBeamWidthY(nullptr),
+      bsType(nullptr) {
   hitProfiles_ = {{"nValidPixelHits", "nValidPixelHits", 0., 10.},
                   {"nTrackerLayersWithMeasurement", "nTrackerLayersWithMeasurement", 0., 20.},
                   {"nValidStripHits", "nValidStripHits", 0., 30.}};
-
   impactParameterProfiles_ = {{"dxy", "d_{xy}", -0.15 * cmToUm, 0.15 * cmToUm},
                               {"dz", "d_{z}", -0.35 * cmToUm, 0.35 * cmToUm}};
 }
@@ -435,6 +447,7 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
                           0.,
                           1.,
                           ""));
+
   // initialize and book the monitors;
   dxy_pt1.varname_ = "xy";
   dxy_pt1.pTcut_ = 1.f;
@@ -451,6 +464,25 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
   dz_pt10.varname_ = "z";
   dz_pt10.pTcut_ = 10.f;
   dz_pt10.bookIPMonitor(ibooker, conf_);
+
+  // BeamSpot
+
+  auto vposx = conf_.getParameter<double>("Xpos");
+  auto vposy = conf_.getParameter<double>("Ypos");
+
+  bsX = ibooker.book1D("bsX", "BeamSpot x0", 100, vposx - 0.1, vposx + 0.1);
+  bsY = ibooker.book1D("bsY", "BeamSpot y0", 100, vposy - 0.1, vposy + 0.1);
+  bsZ = ibooker.book1D("bsZ", "BeamSpot z0", 100, -2., 2.);
+  bsSigmaZ = ibooker.book1D("bsSigmaZ", "BeamSpot sigmaZ", 100, 0., 10.);
+  bsDxdz = ibooker.book1D("bsDxdz", "BeamSpot dxdz", 100, -0.0003, 0.0003);
+  bsDydz = ibooker.book1D("bsDydz", "BeamSpot dydz", 100, -0.0003, 0.0003);
+  bsBeamWidthX = ibooker.book1D("bsBeamWidthX", "BeamSpot BeamWidthX", 500, 0., 15.);
+  bsBeamWidthY = ibooker.book1D("bsBeamWidthY", "BeamSpot BeamWidthY", 500, 0., 15.);
+  bsType = ibooker.book1D("bsType", "BeamSpot type", 4, -1.5, 2.5);
+  bsType->setBinLabel(1, "Unknown");
+  bsType->setBinLabel(2, "Fake");
+  bsType->setBinLabel(3, "LHC");
+  bsType->setBinLabel(4, "Tracker");
 }
 
 void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooker, const edm::ParameterSet& config) {
@@ -634,11 +666,15 @@ bool ScoutingTrackMonitor::getValidHandle(const edm::Event& iEvent,
 void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   edm::Handle<std::vector<Run3ScoutingVertex>> primaryVerticesH;
   edm::Handle<std::vector<Run3ScoutingTrack>> tracksH;
+  edm::Handle<reco::BeamSpot> beamSpotHandle;
 
   if (!getValidHandle(iEvent, verticesToken_, primaryVerticesH, "primary vertices") ||
-      !getValidHandle(iEvent, tracksToken_, tracksH, "tracks")) {
+      !getValidHandle(iEvent, tracksToken_, tracksH, "tracks") ||
+      !getValidHandle(iEvent, beamSpotToken_, beamSpotHandle, "beamspot")) {
     return;
   }
+
+  iEvent.getByToken(beamSpotToken_, beamSpotHandle);
 
   // derefernce handles when it's safe to do so.
   auto const& tracks = *tracksH;
@@ -829,6 +865,19 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     dz_pt10.IPErrVsPt_->Fill(pt, dzErr);
     dz_pt10.IPErrVsEtaVsPhi_->Fill(eta, phi, dzErr);
   }
+
+  // BeamSpot
+  reco::BeamSpot beamSpot = *beamSpotHandle;
+
+  bsX->Fill(beamSpot.x0());
+  bsY->Fill(beamSpot.y0());
+  bsZ->Fill(beamSpot.z0());
+  bsSigmaZ->Fill(beamSpot.sigmaZ());
+  bsDxdz->Fill(beamSpot.dxdz());
+  bsDydz->Fill(beamSpot.dydz());
+  bsBeamWidthX->Fill(beamSpot.BeamWidthX() * cmToUm);
+  bsBeamWidthY->Fill(beamSpot.BeamWidthY() * cmToUm);
+  bsType->Fill(beamSpot.type());
 }
 
 // helper: build reco::Track
@@ -908,7 +957,10 @@ void ScoutingTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("tracks", edm::InputTag("hltScoutingTrackPacker"));
   desc.add<edm::InputTag>("vertices", edm::InputTag("hltScoutingPrimaryVertexPacker", "primaryVtx"));
+  desc.add<edm::InputTag>("beamSpotLabel", edm::InputTag("hltOnlineBeamSpot"));
   desc.add<std::string>("topFolderName", "HLT/ScoutingOffline/Tracks");
+  desc.add<double>("Xpos", 0.1);
+  desc.add<double>("Ypos", 0.0);
   desc.add<int>("DxyBin", 100);
   desc.add<double>("DxyMin", -5000.0);
   desc.add<double>("DxyMax", 5000.0);
