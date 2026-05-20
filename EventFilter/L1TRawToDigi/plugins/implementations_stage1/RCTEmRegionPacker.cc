@@ -28,9 +28,8 @@ namespace l1t {
       std::vector<uint32_t> load[36];
 
       for (int i = 0; i <= 0; ++i) {
-        int n = 0;
         PhysicsToBitConverter converter[18];
-        for (auto j = caloregion->begin(); j != caloregion->end(); ++j, ++n) {
+        for (auto j = caloregion->begin(); j != caloregion->end(); ++j) {
           int et = (int)j->et();
           int overFlow = (int)j->overFlow();
           int fineGrain = (int)j->fineGrain();
@@ -58,8 +57,7 @@ namespace l1t {
           }
         }  //end calo region
 
-        int m = 0;
-        for (auto j = caloemcand->begin(); j != caloemcand->end(); ++j, ++m) {
+        for (auto j = caloemcand->begin(); j != caloemcand->end(); ++j) {
           int rank = (int)j->rank();
           int index = (int)j->index();
           int rctCrate = (int)j->rctCrate();
