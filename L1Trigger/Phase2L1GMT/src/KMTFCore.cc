@@ -514,7 +514,6 @@ void KMTFCore::propagate(l1t::KMTFTrack& track) {
   int kSlopeNew = kSlope;
   int zNew;
   zNew = ap_fixed<BITSZ + 7, BITSZ + 7>(ap_fixed<BITSZ, BITSZ>(z) - ap_ufixed<ZDELTAR_BITS, ZDELTAR_BITSINT>(zdeltaR_dig) * ap_fixed<BITSKSLOPE, BITSKSLOPE>(kSlope));
-
   if (zNew > (1 << (BITSZ - 1)) - 1) {
       if (verbose_){
         edm::LogWarning("KMTFCore") << "z saturated high during propagation, step=" << step;
@@ -1132,6 +1131,7 @@ void KMTFCore::setFourVectors(l1t::KMTFTrack& track) {
   ap_ufixed<18, 0> m = 0.03602;
   ap_ufixed<18, 0> b = 0.66840;
   int etaINT = int(round(double(m * track.kSlope() + b)));
+  int etaINTDisp = int(round(double(m * track.kSlopeAtMuon() + b)));
   double lsbEta = M_PI / pow(2, 12);
 
   int charge = 1;
@@ -1156,10 +1156,11 @@ void KMTFCore::setFourVectors(l1t::KMTFTrack& track) {
   double pt = ptC * 0.03125;
   double phi = (track.phiAtMuon() / 32) * M_PI / pow(2, 12);
   double eta = etaINT * lsbEta;
+  double etaDisp = etaINTDisp * lsbEta;
   track.setPtEtaPhi(pt, eta, phi);
   track.setCharge(charge);
   pt = double(ptLUT(track.curvatureAtMuon())) * 0.03125;
-  track.setPtEtaPhiDisplaced(pt, eta, phi);
+  track.setPtEtaPhiDisplaced(pt, etaDisp, phi);
 }
 
 bool KMTFCore::estimateChiSquare(l1t::KMTFTrack& track, bool vertex) {
