@@ -194,7 +194,7 @@ run_benchmark() {
 	local TMP_LOG_FILE="${logdir}/benchmark.tmp.log"
 
 	echo "elapsed_seconds,memory_mib" > "$CSV_FILE"
-	echo "elapsed_seconds,cpu_memory_mib" >"$CSV_CPU_FILE"
+	echo "elapsed_seconds,memory_mib" >"$CSV_CPU_FILE"
 	echo "elapsed_seconds,gpu_usage" > "$CSV_GPU_FILE"
 
 	# gpu counters
@@ -295,11 +295,12 @@ run_benchmark() {
 	{
 	    echo ""
 	    echo "----- HARDWARE USAGE SUMMARY -----"
+	    echo "Peak CPU memory: ${max_mem_cpu} MiB"
+	    echo "Mean CPU memory: ${mean_mem_cpu} MiB"
+	    echo ""
 	    echo "Peak GPU memory: ${max_mem} MiB"
 	    echo "Mean GPU memory: ${mean_mem} MiB"
 	    echo ""
-	    echo "Peak CPU memory: ${max_mem_cpu} MiB"
-	    echo "Mean CPU memory: ${mean_mem_cpu} MiB"
 	    echo "Per-GPU usage:"
 	    for i in "${!totals[@]}"; do
 		avg=$((totals[$i] / count))
