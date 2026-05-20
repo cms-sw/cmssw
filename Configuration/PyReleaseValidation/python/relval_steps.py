@@ -4789,6 +4789,9 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
     upgradeStepDict['GenSimCloseBy'][k] = deepcopy(upgradeStepDict['GenSim'][k])
     upgradeStepDict['GenSimCloseBy'][k]['--beamspot'] = 'CloseBy'
+
+    upgradeStepDict['GenSimDisplaced'][k] = deepcopy(upgradeStepDict['GenSim'][k])
+    upgradeStepDict['GenSimDisplaced'][k]['--beamspot'] = 'CloseBy'
     
     upgradeStepDict['GenSimHLBeamSpot'][k] = {'-s' : 'GEN,SIM',
                                               '-n' : 10,
@@ -4802,7 +4805,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     upgradeStepDict['GenSimHLBeamSpot14'][k] = deepcopy(upgradeStepDict['GenSimHLBeamSpot'][k])
     upgradeStepDict['GenSimHLBeamSpot14'][k]['--conditions'] = gt
 
-    upgradeStepDict['GenSimHLBeamSpotCloseBy'][k] = upgradeStepDict['GenSimCloseBy'][k]
+    upgradeStepDict['GenSimHLBeamSpotCloseBy'][k] = deepcopy(upgradeStepDict['GenSimCloseBy'][k])
     
     upgradeStepDict['Sim'][k] = {'-s' : 'SIM',
                                  '-n' : 10,
@@ -5040,7 +5043,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
             # in case special WF has PU-specific changes: apply *after* basic PU step is created
             specialWF.setupPU(upgradeStepDict, k, upgradeProperties[year][k])
-
+    
 for step in upgradeStepDict.keys():
     # we need to do this for each fragment
     if ('Sim' in step and ('Fast' not in step and step != 'Sim')) or ('Premix' in step) or ('Sim' not in step and 'Gen' in step):

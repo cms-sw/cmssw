@@ -224,6 +224,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'Sim',
         'GenSim',
         'GenSimCloseBy',
+        'GenSimDisplaced',
         'GenSimHLBeamSpot',
         'GenSimHLBeamSpot14',
         'GenSimHLBeamSpotCloseBy',
@@ -3978,4 +3979,5 @@ upgradeFragments = OrderedDict([
     ('Hydjet_Quenched_MinBias_5519GeV_cfi', UpgradeFragment(U2000by1,'HydjetQMinBias_5519GeV')),
     ('SingleMuPt15Eta0_0p4_cfi', UpgradeFragment(Kby(9,100),'SingleMuPt15Eta0p_0p4')),
     ('CloseByPGun_Barrel_Front_cfi', UpgradeFragment(Kby(9,100),'CloseByPGun_Barrel_Front')),
+    ('DisplacedParticleGun_cfi', UpgradeFragment(Kby(9,100),'DisplacedPGun')),
 ])
