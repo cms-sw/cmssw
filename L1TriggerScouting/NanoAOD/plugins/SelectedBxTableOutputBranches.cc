@@ -1,4 +1,4 @@
-#include "L1TriggerScouting/Utilities/plugins/SelectedBxTableOutputBranches.h"
+#include "SelectedBxTableOutputBranches.h"
 
 void SelectedBxTableOutputBranches::beginFill(const edm::OccurrenceForOutput &iWhatever, TTree &tree) {
   if (m_branch == nullptr) {

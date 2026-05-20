@@ -1,18 +1,19 @@
-#ifndef L1TriggerScouting_Utilities_SelectedBxTableOutputBranches_h
-#define L1TriggerScouting_Utilities_SelectedBxTableOutputBranches_h
+#ifndef L1TriggerScouting_NanoAOD_SelectedBxTableOutputBranches_h
+#define L1TriggerScouting_NanoAOD_SelectedBxTableOutputBranches_h
 
 #include <string>
 #include <vector>
 #include <bitset>
 #include <TTree.h>
-#include "FWCore/Framework/interface/OccurrenceForOutput.h"
+
 #include "DataFormats/NanoAOD/interface/OrbitFlatTable.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductDescription.h"
+#include "FWCore/Framework/interface/OccurrenceForOutput.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 class SelectedBxTableOutputBranches {
 public:
-  SelectedBxTableOutputBranches(const edm::BranchDescription *desc, const edm::EDGetToken &token)
+  SelectedBxTableOutputBranches(const edm::ProductDescription *desc, const edm::EDGetToken &token)
       : m_token(token), m_name("SelBx_" + desc->moduleLabel()), m_value(false), m_branch(nullptr) {
     if (desc->className() != "std::vector<unsigned int>")
       throw cms::Exception("Configuration", "SelectedBxTableOutputBranches can only write out vector<unsigned int>");

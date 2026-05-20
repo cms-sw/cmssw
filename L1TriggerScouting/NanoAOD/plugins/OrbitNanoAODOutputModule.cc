@@ -38,8 +38,9 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
-#include "L1TriggerScouting/Utilities/plugins/OrbitTableOutputBranches.h"
-#include "L1TriggerScouting/Utilities/plugins/SelectedBxTableOutputBranches.h"
+
+#include "OrbitTableOutputBranches.h"
+#include "SelectedBxTableOutputBranches.h"
 
 #include "oneapi/tbb/task_arena.h"
 
