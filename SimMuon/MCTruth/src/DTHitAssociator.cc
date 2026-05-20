@@ -157,10 +157,9 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup 
     if (mapOfSimHit.end() != mapOfSimHit.begin()) {
       LogTrace("DTHitAssociator") << "\n *** Dump DT PSimHit's ***";
 
-      int jwire = 0;
       int ihit = 0;
 
-      for (SimHitMap::const_iterator mapIT = mapOfSimHit.begin(); mapIT != mapOfSimHit.end(); ++mapIT, jwire++) {
+      for (SimHitMap::const_iterator mapIT = mapOfSimHit.begin(); mapIT != mapOfSimHit.end(); ++mapIT) {
         DTWireId wireid = (*mapIT).first;
         for (vector<PSimHit_withFlag>::const_iterator hitIT = mapOfSimHit[wireid].begin();
              hitIT != mapOfSimHit[wireid].end();
@@ -177,10 +176,9 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup 
     }
 
     if (mapOfDigi.end() != mapOfDigi.begin()) {
-      int jwire = 0;
       int ihit = 0;
 
-      for (DigiMap::const_iterator mapIT = mapOfDigi.begin(); mapIT != mapOfDigi.end(); ++mapIT, jwire++) {
+      for (DigiMap::const_iterator mapIT = mapOfDigi.begin(); mapIT != mapOfDigi.end(); ++mapIT) {
         LogTrace("DTHitAssociator") << "\n *** Dump DT digis ***";
 
         DTWireId wireid = (*mapIT).first;

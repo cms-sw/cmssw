@@ -200,7 +200,10 @@ void XtalDedxAnalysis::analyzeHits(std::vector<PCaloHit> &hits,
   }
 
   // Type of the secondary (coming directly from a generator level track)
-  int nvtx = 0, k1 = 0;
+  int nvtx = 0;
+#ifdef EDM_ML_DEBUG
+  int k1 = 0;
+#endif
   edm::SimVertexContainer::const_iterator simVtxItr;
   for (simVtxItr = SimVtx->begin(); simVtxItr != SimVtx->end(); simVtxItr++)
     nvtx++;
@@ -210,8 +213,9 @@ void XtalDedxAnalysis::analyzeHits(std::vector<PCaloHit> &hits,
     ntrk++;
   edm::LogVerbatim("CherenkovAnalysis") << "XtalDedxAnalysis: " << ntrk << " tracks and " << nvtx << " vertices";
 #endif
-  for (simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++, ++k1) {
+  for (simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
 #ifdef EDM_ML_DEBUG
+    k1++;
     edm::LogVerbatim("CherenkovAnalysis") << "Track " << k1 << " PDGId " << simTrkItr->type() << " Vertex ID "
                                           << simTrkItr->vertIndex() << " Generator " << simTrkItr->noGenpart();
 #endif
@@ -221,9 +225,13 @@ void XtalDedxAnalysis::analyzeHits(std::vector<PCaloHit> &hits,
         simVtxItr = SimVtx->begin();
         for (int iv = 0; iv < vertIndex; iv++)
           simVtxItr++;
-        int parent = simVtxItr->parentIndex(), k2 = 0;
-        for (edm::SimTrackContainer::const_iterator trkItr = SimTk->begin(); trkItr != SimTk->end(); trkItr++, ++k2) {
+        int parent = simVtxItr->parentIndex();
 #ifdef EDM_ML_DEBUG
+        int k2 = 0;
+#endif
+        for (edm::SimTrackContainer::const_iterator trkItr = SimTk->begin(); trkItr != SimTk->end(); trkItr++) {
+#ifdef EDM_ML_DEBUG
+          k2++;
           edm::LogVerbatim("CherenkovAnalysis") << "XtalDedxAnalysis::Track " << k2 << " ID " << trkItr->trackId()
                                                 << " (" << parent << ")  Generator " << trkItr->noGenpart();
 #endif
