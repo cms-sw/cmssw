@@ -61,9 +61,8 @@ void HLTL1MuonSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::Ev
   LogTrace(metname) << "Number of muons " << muColl->size() << endl;
 
   L1MuonParticleCollection::const_iterator it;
-  L1MuonParticleRef::key_type l1ParticleIndex = 0;
 
-  for (it = muColl->begin(); it != muColl->end(); ++it, ++l1ParticleIndex) {
+  for (it = muColl->begin(); it != muColl->end(); ++it) {
     const L1MuGMTExtendedCand muonCand = (*it).gmtMuonCand();
     unsigned int quality = 0;
     bool valid_charge = false;
