@@ -361,7 +361,6 @@ std::vector<l1t::KMTFTrack> KMTFCore::clean(const std::vector<l1t::KMTFTrack>& t
   auto search = infoTrack.find(selected);
   if (search != infoTrack.end())
     out.push_back(search->second);
-
   return out;
 }
 
@@ -706,12 +705,12 @@ bool KMTFCore::updateOffline(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub
   int zNew = trackz + int(Gain(3, 2) * residual(2) + Gain(3, 3) * residual(3));
   int kSlopeNew = trackSlope + int(Gain(4, 2) * residual(2) + Gain(4, 3) * residual(3));
 
-  if ((zNew > (1 << (BITSZ - 1)) - 1) || (zNew < -(pow(2, BITSZ - 1)))) {
+  if ((zNew > ((1 << (BITSZ - 1)) - 1)) || (zNew < (-(1 << (BITSZ - 1))))) {
       if (verbose_)
           edm::LogWarning("KMTFCore") << "z saturated in updateOffline";
       return false;
   }
-  if ((kSlopeNew > (pow(2, BITSKSLOPE - 1) - 1)) || (kSlopeNew < -(pow(2, BITSKSLOPE - 1)))) {
+  if ((kSlopeNew > ((1 << (BITSKSLOPE - 1)) - 1)) || (kSlopeNew < (-(1 << (BITSKSLOPE - 1))))) {
       if (verbose_)
           edm::LogWarning("KMTFCore") << "kSlope saturated in updateOffline";
       return false;

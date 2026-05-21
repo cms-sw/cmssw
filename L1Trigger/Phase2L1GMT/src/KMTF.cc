@@ -176,7 +176,7 @@ std::pair<std::vector<l1t::KMTFTrack>, std::vector<l1t::KMTFTrack> > KMTF::proce
         else
           edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 0 0 " << std::flush;
         if (tracks.second.id() & 0x2)
-		  edm::LogInfo("KMTF") << "1 " << (tracks.second.curvatureAtVertex() < 0 ? 1 : 0) << " "
+		  edm::LogInfo("KMTF") << "1 " << (tracks.second.curvatureAtMuon() < 0 ? 1 : 0) << " "
                      << tracks.second.ptDisplaced() << " " << tracks.second.phiAtMuon() / (1 << 5) << " "
                      << int(round(tracks.second.eta() / (M_PI / (1 << 12)))) << " " << int(tracks.second.dxy() * ap_ufixed<8, 1>(1.606))
                      << " " << tracks.second.rankDisp() << " "
@@ -213,7 +213,7 @@ std::pair<std::vector<l1t::KMTFTrack>, std::vector<l1t::KMTFTrack> > KMTF::proce
         else
           edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 0 0 " << std::flush;
         if (tracks.second.id() & 0x2)
-		  edm::LogInfo("KMTF") << "1 " << (tracks.second.curvatureAtVertex() < 0 ? 1 : 0) << " "
+		  edm::LogInfo("KMTF") << "1 " << (tracks.second.curvatureAtMuon() < 0 ? 1 : 0) << " "
                      << tracks.second.ptDisplaced() << " " << tracks.second.phiAtMuon() / (1 << 5) << " "
                      << int(round(tracks.second.eta() / (M_PI / (1 << 12)))) << " " << int(tracks.second.dxy() * ap_ufixed<8, 1>(1.606))
                      << " " << tracks.second.rankDisp() << " "
@@ -249,7 +249,7 @@ std::pair<std::vector<l1t::KMTFTrack>, std::vector<l1t::KMTFTrack> > KMTF::proce
         else
           edm::LogInfo("KMTF") << "0 0 0 0 0 0 0 0 0" << std::flush;
         if (tracks.second.id() & 0x2)
-		  edm::LogInfo("KMTF") << "1 " << (tracks.second.curvatureAtVertex() < 0 ? 1 : 0) << " "
+		  edm::LogInfo("KMTF") << "1 " << (tracks.second.curvatureAtMuon() < 0 ? 1 : 0) << " "
                      << tracks.second.ptDisplaced() << " " << tracks.second.phiAtMuon() / (1 << 5) << " "
                      << int(round(tracks.second.eta() / (M_PI / (1 << 12)))) << " " << int(tracks.second.dxy() * ap_ufixed<8, 1>(1.606))
                      << " " << tracks.second.rankDisp() << " "
