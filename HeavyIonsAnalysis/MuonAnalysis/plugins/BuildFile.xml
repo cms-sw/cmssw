@@ -1,0 +1,7 @@
+<use   name="TrackingTools/IPTools"/>
+<use   name="MuonAnalysis/MuonAssociators"/>
+<use   name="PhysicsTools/XGBoost"/>
+<use   name="fastjet"/>
+<use   name="fastjet-contrib"/>
+<use   name="correctionlib"/>
+<flags EDM_PLUGIN="1"/>
