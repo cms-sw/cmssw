@@ -663,7 +663,7 @@ phase2_tracker.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
         ),
         # TEDD5/TID5
         cms.PSet(
-            z = cms.untracked.double(265.0000),
+            z = cms.untracked.double(265.0001),
             #limits = cms.untracked.vdouble(33.18, 37.0, 40.0, 41.0, 46.0, 109.5),
             #thickness = cms.untracked.vdouble(0.125, 0.030, 0.050, 0.070, 0.050),
 
