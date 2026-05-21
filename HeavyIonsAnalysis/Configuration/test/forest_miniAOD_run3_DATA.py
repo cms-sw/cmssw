@@ -3,14 +3,14 @@
 # Type: data
 
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Run3_pp_on_PbPb_2025_cff import Run3_pp_on_PbPb_2025
-process = cms.Process('HiForest',Run3_pp_on_PbPb_2025)
+from Configuration.Eras.Era_Run3_pp_on_PbPb_2026_cff import Run3_pp_on_PbPb_2026
+process = cms.Process('HiForest',Run3_pp_on_PbPb_2026)
 
 ###############################################################################
 
 # HiForest info
 process.load("HeavyIonsAnalysis.EventAnalysis.HiForestInfo_cfi")
-process.HiForestInfo.info = cms.vstring("HiForest, miniAOD, 151X, data")
+process.HiForestInfo.info = cms.vstring("HiForest, miniAOD, 161X, data")
 
 # import subprocess, os
 # version = subprocess.check_output(
@@ -25,7 +25,8 @@ process.HiForestInfo.info = cms.vstring("HiForest, miniAOD, 151X, data")
 process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
     fileNames = cms.untracked.vstring(
-         '/store/hidata/HIRun2025A/HIPhysicsRawPrime14/MINIAOD/PromptReco-v1/000/399/584/00000/36bccf34-1cb6-4f4a-99b8-c9fee4ee1fe7.root'
+        'file:recoPbPbraw2mini_RAW2DIGI_L1Reco_RECO_PAT.root' 
+        #'/store/hidata/HIRun2026A/HIPhysicsRawPrime14/MINIAOD/PromptReco-v1/000/399/584/00000/36bccf34-1cb6-4f4a-99b8-c9fee4ee1fe7.root'
         #'/store/group/phys_heavyions/wangj/RECO2024/miniaod_PhysicsHIPhysicsRawPrime0_388056_ZB.root'
     ), 
 )
@@ -46,7 +47,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '151X_dataRun3_Prompt_v1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '161X_dataRun3_Prompt_v1', '')
 process.HiForestInfo.GlobalTagLabel = process.GlobalTag.globaltag
 
 ## --> only use this starting from 388000
@@ -101,8 +102,8 @@ process.load('HeavyIonsAnalysis.EventAnalysis.l1object_cfi')
 #process.hiEvtAnalyzer.doCentrality = cms.bool(False)
 #process.hiEvtAnalyzer.doHFfilters = cms.bool(False)
 
-from HeavyIonsAnalysis.EventAnalysis.hltobject_cfi import trigger_list_data_2025
-process.hltobject.triggerNames = trigger_list_data_2025
+#from HeavyIonsAnalysis.EventAnalysis.hltobject_cfi import trigger_list_data_2026
+#process.hltobject.triggerNames = trigger_list_data_2026
 
 process.load('HeavyIonsAnalysis.EventAnalysis.particleFlowAnalyser_cfi')
 ################################
@@ -143,7 +144,7 @@ process.forest = cms.Path(
     process.trackSequencePbPb +
     process.particleFlowAnalyser +
     process.ggHiNtuplizer +
-    process.zdcSequencePbPb +
+    #process.zdcSequencePbPb +
     process.fscSequence +
     process.unpackedMuons +
     process.muonAnalyzer +
@@ -217,8 +218,8 @@ for jetLabel in [flowR + "Flow" for flowR in jetLabelsFlowCS]:
     getattr(process, "rhoModulationAkCs"+jetLabel+"PFJets").lastFittedVn = lastFittedVn
     getattr(process, "rhoModulationAkCs"+jetLabel+"PFJets").pfCandidateMinPtCut = minPfCandidatePt
     getattr(process, "rhoModulationAkCs"+jetLabel+"PFJets").pfCandidateMaxPtCut = maxPfCandidatePt
-    getattr(process, "akCs"+jetLabel+"PFJets").minFlowChi2Prob = minFitQuality
-    getattr(process, "akCs"+jetLabel+"PFJets").maxFlowChi2Prob = maxFitQuality
+    getattr(process, "akCs"+jetLabel+"PFJets").minFlowChi2Prob = cms.double(minFitQuality)
+    getattr(process, "akCs"+jetLabel+"PFJets").maxFlowChi2Prob = cms.double(maxFitQuality)
 
     if iterativeFlow:
         getattr(process, "rhoModulationIterAkCs"+jetLabel+"PFJets").pfCandidateEtaCut = pfCandidateEtaCut
