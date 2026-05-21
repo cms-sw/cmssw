@@ -653,9 +653,8 @@ void IsolatedGenParticles::analyze(const edm::Event &iEvent, const edm::EventSet
       }
     }
 
-    unsigned int indx;
     HepMC::GenEvent::particle_const_iterator p;
-    for (p = myGenEvent->particles_begin(), indx = 0; p != myGenEvent->particles_end(); ++p, ++indx) {
+    for (p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p) {
       int pdgId = ((*p)->pdg_id());
       int ix = particleCode(pdgId);
       if (ix >= 0) {
@@ -770,9 +769,8 @@ void IsolatedGenParticles::analyze(const edm::Event &iEvent, const edm::EventSet
       }
     }  // loop over gen particles
 
-    unsigned int indx;
     reco::GenParticleCollection::const_iterator p;
-    for (p = genParticles->begin(), indx = 0; p != genParticles->end(); ++p, ++indx) {
+    for (p = genParticles->begin(); p != genParticles->end(); ++p) {
       int pdgId = (p->pdgId());
       int ix = particleCode(pdgId);
       if (ix >= 0) {

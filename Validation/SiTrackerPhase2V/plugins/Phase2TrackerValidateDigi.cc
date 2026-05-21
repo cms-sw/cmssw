@@ -907,9 +907,8 @@ unsigned int Phase2TrackerValidateDigi::getSimTrackId(const edm::DetSetVector<Pi
 
   edm::DetSet<PixelDigiSimLink> link_detset = (*simLinks)[detId];
   // Loop over DigiSimLink in this det unit
-  int iSimLink = 0;
   for (edm::DetSet<PixelDigiSimLink>::const_iterator it = link_detset.data.begin(); it != link_detset.data.end();
-       it++, iSimLink++) {
+       it++) {
     if (channel == it->channel()) {
       simTrkId = it->SimTrackId();
       break;

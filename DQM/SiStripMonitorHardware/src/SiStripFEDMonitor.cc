@@ -424,10 +424,8 @@ void SiStripFEDMonitorPlugin::getMajority(const std::vector<std::pair<unsigned i
   unsigned int lCounter = 0;
 
   //std::cout << " --- First element: addr = " << lMajAddr << " counter = " << lCounter << std::endl;
-  unsigned int iele = 0;
   //bool foundMaj = false;
-  for (; lIter != aFeMajVec.end(); ++lIter, ++iele) {
-    //std::cout << " ---- Ele " << iele << " " << (*lIter).first << " " << (*lIter).second << " ref " << lMajAddr << std::endl;
+  for (; lIter != aFeMajVec.end(); ++lIter) {
     if ((*lIter).second == lMajAddr) {
       ++lCounter;
       //std::cout << " ----- =ref: Counter = " << lCounter << std::endl;
@@ -444,7 +442,6 @@ void SiStripFEDMonitorPlugin::getMajority(const std::vector<std::pair<unsigned i
       lCounter = 0;
       lMajAddr = (*lIter).second;
       --lIter;
-      --iele;
     }
   }
   // AV Bug here? The check has to be done regardless foundMaj == false or true
