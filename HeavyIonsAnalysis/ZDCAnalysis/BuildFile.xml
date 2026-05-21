@@ -1,0 +1,16 @@
+<use name="root"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/CaloTowers"/>
+<use name="DataFormats/HcalDigi"/>
+<use name="DataFormats/CTPPSDetId"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="CommonTools/CandUtils"/>
+<use name="TrackingTools/TransientTrack"/>
+<use name="MagneticField/Records"/>
+<use name="CalibFormats/HcalObjects"/>
+<use name="DQMServices/Core"/>
+<flags EDM_PLUGIN="1"/>
