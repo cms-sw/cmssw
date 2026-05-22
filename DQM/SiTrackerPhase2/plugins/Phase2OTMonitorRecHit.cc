@@ -249,7 +249,7 @@ void Phase2OTMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NRecHitsLayer_P"), ibooker);
 
       local_histos.clusterSize_P =
-          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize_P"), ibooker);
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitSize_P"), ibooker);
 
       local_histos.globalPosXY_P =
           phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_perlayer_P"), ibooker);
@@ -263,7 +263,7 @@ void Phase2OTMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned
     local_histos.numberRecHits_S =
         phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NRecHitsLayer_P"), ibooker);
     local_histos.clusterSize_S =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize_S"), ibooker);
+        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitSize_S"), ibooker);
     local_histos.localPosXY_S =
         phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY_S"), ibooker);
 
@@ -344,7 +344,7 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "NumberOfRecHitsLayerP");
-    psd0.add<std::string>("title", ";Number of clusters per event(macro pixel sensor);");
+    psd0.add<std::string>("title", "Number of RecHits per event in macro pixel sensors;");
     psd0.add<double>("xmin", 0.0);
     psd0.add<double>("xmax", 28000.0);
     psd0.add<int>("NxBins", 150);
@@ -355,7 +355,7 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "NumberOfRecHitsLayerS");
-    psd0.add<std::string>("title", ";Number of clusters per event(strip sensor);");
+    psd0.add<std::string>("title", "Number of RecHits per event in strip sensors;");
     psd0.add<double>("xmin", 0.0);
     psd0.add<double>("xmax", 28000.0);
     psd0.add<int>("NxBins", 150);
@@ -365,28 +365,28 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
 
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "ClusterSize_P");
-    psd0.add<std::string>("title", ";cluster size(macro pixel sensor);");
+    psd0.add<std::string>("name", "RecHit_Size_P");
+    psd0.add<std::string>("title", "RecHit size in macro pixel sensors;RecHit size(macro pixel);");
     psd0.add<double>("xmin", -0.5);
     psd0.add<double>("xmax", 30.5);
     psd0.add<int>("NxBins", 31);
     psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("ClusterSize_P", psd0);
+    desc.add<edm::ParameterSetDescription>("RecHitSize_P", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "ClusterSize_S");
-    psd0.add<std::string>("title", ";cluster size(strip sensor);");
+    psd0.add<std::string>("name", "RecHit_Size_S");
+    psd0.add<std::string>("title", "RecHit size in strip sensors;RecHit size(strips);");
     psd0.add<double>("xmin", -0.5);
     psd0.add<double>("xmax", 30.5);
     psd0.add<int>("NxBins", 31);
     psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("ClusterSize_S", psd0);
+    desc.add<edm::ParameterSetDescription>("RecHitSize_S", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "GlobalPositionXY_perlayer_P");
-    psd0.add<std::string>("title", "GlobalRecHitPositionXY_perlayer_P;x[mm];y[mm];");
+    psd0.add<std::string>("name", "RecHit_GlobalPositionXY_perlayer_P");
+    psd0.add<std::string>("title", "RecHit_GlobalRecHitPositionXY_perlayer_P;x[mm];y[mm];");
     psd0.add<int>("NxBins", 1250);
     psd0.add<double>("xmin", -1250.0);
     psd0.add<double>("xmax", 1250.0);
@@ -398,8 +398,8 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "GlobalPositionXY_perlayer_S");
-    psd0.add<std::string>("title", "GlobalRecHitPositionXY_perlayer_S;x[mm];y[mm];");
+    psd0.add<std::string>("name", "RecHit_GlobalPositionXY_perlayer_S");
+    psd0.add<std::string>("title", "RecHit_GlobalRecHitPositionXY_perlayer_S;x[mm];y[mm];");
     psd0.add<int>("NxBins", 1250);
     psd0.add<double>("xmin", -1250.0);
     psd0.add<double>("xmax", 1250.0);
@@ -411,8 +411,8 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "LocalPositionXY_P");
-    psd0.add<std::string>("title", "LocalPositionXY_P;x ;y ;");
+    psd0.add<std::string>("name", "RecHit_LocalPositionXY_P");
+    psd0.add<std::string>("title", "RecHit_LocalPositionXY_P;x ;y ;");
     psd0.add<int>("NxBins", 50);
     psd0.add<double>("xmin", -10.0);
     psd0.add<double>("xmax", 10.0);
@@ -424,8 +424,8 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "LocalPositionXY_S");
-    psd0.add<std::string>("title", "LocalPositionXY_S;x ;y ;");
+    psd0.add<std::string>("name", "RecHit_LocalPositionXY_S");
+    psd0.add<std::string>("title", "RecHit_LocalPositionXY_S;x ;y ;");
     psd0.add<int>("NxBins", 50);
     psd0.add<double>("xmin", -10.0);
     psd0.add<double>("xmax", 10.0);
@@ -435,7 +435,7 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
     psd0.add<bool>("switch", true);
     desc.add<edm::ParameterSetDescription>("LocalPositionXY_S", psd0);
   }
-  desc.add<std::string>("TopFolderName", "TrackerPhase2OTRecHit");
+  desc.add<std::string>("TopFolderName", "OuterTrackerP2");
   desc.add<bool>("Verbosity", false);
   desc.add<edm::InputTag>("rechitsSrc", edm::InputTag("siPhase2RecHits"));
   descriptions.add("Phase2OTMonitorRecHit", desc);
