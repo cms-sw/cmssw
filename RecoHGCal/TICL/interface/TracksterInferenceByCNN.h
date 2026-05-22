@@ -3,13 +3,10 @@
 
 #include "RecoHGCal/TICL/interface/TICLONNXGlobalCache.h"
 #include "RecoHGCal/TICL/interface/TracksterInferenceAlgoBase.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 
 #include <string>
 #include <vector>
-
-namespace reco {
-  class CaloCluster;
-}
 
 namespace hgcal {
   class RecHitTools;
