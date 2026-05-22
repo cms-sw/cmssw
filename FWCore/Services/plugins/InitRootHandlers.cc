@@ -173,7 +173,7 @@ namespace {
        "Announced number of args different from the real number of argument passed",  // Always printed if gDebug>0 - regardless of whether warning message is real.
        "nbins is <=0 - set to nbins = 1",
        "nbinsy is <=0 - set to nbinsy = 1",
-       "oneapi::tbb::global_control is limiting",
+       "tbb::global_control is limiting",
        "ufirst < fXmin, fXmin is used",
        "ulast > fXmax, fXmax is used",
        "Inspection for auto_ptr"}};

@@ -33,6 +33,7 @@ namespace torchtest {
           particles_token_{consumes(params.getParameter<edm::InputTag>("particles"))},
           simple_net_token_{consumes(params.getParameter<edm::InputTag>("simple_net"))},
           simple_net_minibatch_token_{consumes(params.getParameter<edm::InputTag>("simple_net_minibatch"))},
+          simple_net_runtimeFP16_token_{consumes(params.getParameter<edm::InputTag>("simple_net_runtimeFP16"))},
           masked_net_token_{consumes(params.getParameter<edm::InputTag>("masked_net"))},
           multi_head_net_token_{consumes(params.getParameter<edm::InputTag>("multi_head_net"))},
           images_token_{consumes(params.getParameter<edm::InputTag>("images"))},
@@ -55,6 +56,7 @@ namespace torchtest {
       desc.add<edm::InputTag>("particles");
       desc.add<edm::InputTag>("simple_net");
       desc.add<edm::InputTag>("simple_net_minibatch");
+      desc.add<edm::InputTag>("simple_net_runtimeFP16");
       desc.add<edm::InputTag>("masked_net");
       desc.add<edm::InputTag>("multi_head_net");
       desc.add<edm::InputTag>("images");
@@ -77,6 +79,7 @@ namespace torchtest {
       auto particles_handle = event.getHandle(particles_token_);
       auto simple_net_handle = event.getHandle(simple_net_token_);
       auto simple_net_minibatch_handle = event.getHandle(simple_net_minibatch_token_);
+      auto simple_net_runtimeFP16_handle = event.getHandle(simple_net_runtimeFP16_token_);
       auto masked_net_handle = event.getHandle(masked_net_token_);
       auto multi_head_net_handle = event.getHandle(multi_head_net_token_);
       auto images_handle = event.getHandle(images_token_);
@@ -109,6 +112,22 @@ namespace torchtest {
             auto const simple_net_minibatch_backend =
                 static_cast<cms::alpakatools::Backend>(event.get(simple_net_minibatch_backend_));
             print(simple_net_minibatch.const_view(), cms::alpakatools::toString(simple_net_minibatch_backend));
+          }
+          if (simple_net_runtimeFP16_handle.isValid()) {
+            auto const& simple_net_runtimeFP16 = *simple_net_runtimeFP16_handle;
+            print(simple_net_runtimeFP16.const_view(), "runtimeFP16", "SimpleNetCollection");
+          }
+          // assert the FP16 precision si producing compatible results
+          if (simple_net_handle.isValid() && simple_net_runtimeFP16_handle.isValid()) {
+            auto const& ref = *simple_net_handle;
+            auto const& FP16 = *simple_net_runtimeFP16_handle;
+
+            assert(ref.const_view().metadata().size() == FP16.const_view().metadata().size());
+            for (auto i = 0; i < ref.const_view().metadata().size(); i++) {
+              auto diff = std::abs(ref.const_view()[i].reco_pt() - FP16.const_view()[i].reco_pt()) /
+                          ref.const_view()[i].reco_pt();
+              assert(diff < 1e-2 && "Results from simple_net and simple_net_runtimeFP16 do not match!");
+            }
           }
           // masked_net
           if (masked_net_handle.isValid()) {
@@ -192,6 +211,7 @@ namespace torchtest {
     const edm::EDGetTokenT<portabletest::ParticleHostCollection> particles_token_;
     const edm::EDGetTokenT<portabletest::SimpleNetHostCollection> simple_net_token_;
     const edm::EDGetTokenT<portabletest::SimpleNetHostCollection> simple_net_minibatch_token_;
+    const edm::EDGetTokenT<portabletest::SimpleNetHostCollection> simple_net_runtimeFP16_token_;
     const edm::EDGetTokenT<portabletest::SimpleNetHostCollection> masked_net_token_;
     const edm::EDGetTokenT<portabletest::MultiHeadNetHostCollection> multi_head_net_token_;
     const edm::EDGetTokenT<portabletest::ImageHostCollection> images_token_;
@@ -318,9 +338,8 @@ namespace torchtest {
       fmt::print("{}\n", fmt::to_string(buffer));
     }
 
-    void print(const portabletest::SimpleNetHostCollection::ConstView& simple_net,
-               const std::string_view simple_net_backend,
-               const std::string& label = "SimpleNetCollection") {
+    template <typename ViewT>
+    void print_view(const ViewT& simple_net) {
       constexpr auto line = "+-------+---------+\n";
       const auto size = simple_net.metadata().size();
       if (size == 0) {
@@ -329,26 +348,38 @@ namespace torchtest {
       }
       fmt::memory_buffer buffer;
 
-      // Header message
-      fmt::format_to(std::back_inserter(buffer), "[DEBUG] {}[{}] ({}):\n", label, size, simple_net_backend);
-      fmt::format_to(std::back_inserter(buffer), "{}", line);
-      fmt::format_to(std::back_inserter(buffer), "| {:>5} | {:>7} |\n", "index", "reco_pt");
-      fmt::format_to(std::back_inserter(buffer), "{}", line);
-
-      // Table rows (preview)
       int32_t range = (environment_ >= Environment::kTest) ? size : std::min<int32_t>(kMaxView, size);
+
       for (int32_t i = 0; i < range; ++i) {
-        fmt::format_to(
-            std::back_inserter(buffer), "| {:5d} | {:7.2f} |\n", static_cast<int>(i), simple_net[i].reco_pt());
+        fmt::format_to(std::back_inserter(buffer),
+                       "| {:5d} | {:7.2f} |\n",
+                       static_cast<int>(i),
+                       static_cast<float>(simple_net[i].reco_pt()));
       }
 
-      // Ellipsis row if truncated
       if (range < kMaxView) {
         fmt::format_to(std::back_inserter(buffer), "| {:>5} | {:>7} |\n", "...", "...");
       }
 
       fmt::format_to(std::back_inserter(buffer), "{}", line);
       fmt::print("{}\n", fmt::to_string(buffer));
+    }
+
+    template <typename ViewT>
+    void print(const ViewT& simple_net, std::string_view backend, const std::string& label = "SimpleNetCollection") {
+      constexpr auto line = "+-------+---------+\n";
+      const auto size = simple_net.metadata().size();
+      fmt::memory_buffer buffer;
+
+      fmt::format_to(std::back_inserter(buffer), "[DEBUG] {}[{}] ({}):\n", label, size, backend);
+
+      fmt::format_to(std::back_inserter(buffer), "{}", line);
+      fmt::format_to(std::back_inserter(buffer), "| {:>5} | {:>7} |\n", "index", "reco_pt");
+      fmt::format_to(std::back_inserter(buffer), "{}", line);
+
+      fmt::print("{}\n", fmt::to_string(buffer));
+
+      print_view(simple_net);
     }
 
     void print(const portabletest::ParticleHostCollection::ConstView& particles,
