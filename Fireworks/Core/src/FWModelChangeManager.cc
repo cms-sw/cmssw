@@ -85,9 +85,8 @@ void FWModelChangeManager::endChanges() {
   //makes sure that 'changeSignalsAreDone is called if changeSignalsAreComing_ is sent
   bool guard(false);
   if (0 == --m_depth) {
-    unsigned int index = 0;
     for (std::set<const FWEventItem*>::iterator itChanges = m_itemChanges.begin(); itChanges != m_itemChanges.end();
-         ++itChanges, ++index) {
+         ++itChanges) {
       if (!guard) {
         // std::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
         guard = true;
@@ -109,7 +108,7 @@ void FWModelChangeManager::endChanges() {
     }
     m_itemChanges.clear();
 
-    for (size_t ci = 0, ce = m_changes.size(), si = 0; ci != ce; ++ci, ++si) {
+    for (size_t ci = 0, ce = m_changes.size(); ci != ce; ++ci) {
       FWModelIds& changes = m_changes[ci];
       if (not changes.empty()) {
         if (!guard) {
