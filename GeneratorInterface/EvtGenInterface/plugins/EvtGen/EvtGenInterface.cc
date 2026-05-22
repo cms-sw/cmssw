@@ -301,7 +301,15 @@ void EvtGenInterface::ensureEvtGenOnThread() {
 
   bool usePythia = fPSet->getUntrackedParameter<bool>("use_internal_pythia", true);
   bool useTauola = fPSet->getUntrackedParameter<bool>("use_internal_tauola", true);
-  bool usePhotos = fPSet->getUntrackedParameter<bool>("use_internal_photos", true);
+
+  if (fPSet->existsAs<bool>("use_internal_fsr", false)) {
+    edm::LogWarning("EvtGenInterface::ensureEvtGenOnThread")
+        << "The 'use_internal_fsr' parameter is deprecated and has no effect. "
+           "Please use 'fsr_model' instead (set to 'none' to disable FSR, or "
+           "'photos', 'sherpa', or 'vincia' to select the FSR model).";
+  }
+
+  std::string fsrModel = fPSet->getParameter<std::string>("fsr_model");
 
   //Setup evtGen following instructions on http://evtgen.warwick.ac.uk/docs/external/
   bool convertPythiaCodes = fPSet->getUntrackedParameter<bool>(
@@ -322,8 +330,19 @@ void EvtGenInterface::ensureEvtGenOnThread() {
   // Set up the default external generator list: Photos, Pythia and/or Tauola
   EvtExternalGenList genList(convertPythiaCodes, pythiaDir, photonType, useEvtGenRandom);
   EvtAbsRadCorr* radCorrEngine = nullptr;
-  if (usePhotos)
-    radCorrEngine = genList.getPhotosModel();                        // Get interface to radiative correction engine
+  if (fsrModel == "none") {
+    // FSR disabled
+  } else if (fsrModel == "photos") {
+    radCorrEngine = genList.getPhotosModel();
+  } else if (fsrModel == "sherpa") {
+    radCorrEngine = genList.getSherpaPhotonsModel(1e-7, 1, 0);
+  } else if (fsrModel == "vincia") {
+    radCorrEngine = genList.getVinciaQEDModel(1.0e-7);
+  } else {
+    throw cms::Exception("Configuration")
+        << "EvtGenInterface: unknown fsr_model '" << fsrModel
+        << "'. Allowed values are 'none', 'photos', 'sherpa', or 'vincia'.";
+  }
   std::list<EvtDecayBase*> extraModels = genList.getListOfModels();  // get interface to Pythia and Tauola
   std::list<EvtDecayBase*> myExtraModels;
   for (unsigned int i = 0; i < extraModels.size(); i++) {
