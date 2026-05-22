@@ -158,7 +158,7 @@ namespace l1tVertexFinder {
     unsigned int vx_dbscan_mintracks_;
     unsigned int vx_kmeans_iterations_;
     unsigned int vx_kmeans_nclusters_;
-    std::string vx_wtnn_;  //For NNVtx (Track)
+    std::string vx_wtnn_;   //For NNVtx (Track)
     std::string vx_patnn_;  //For NNVtx (Pattern)
 
     // Debug printout
