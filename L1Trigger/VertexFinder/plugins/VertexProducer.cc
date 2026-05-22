@@ -143,7 +143,7 @@ void VertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
       vf.Kmeans();
       break;
     case Algorithm::NNEmulation:
-      vf.NNVtxEmulation(wt_model,pat_model);
+      vf.NNVtxEmulation(wt_model, pat_model);
       break;
   }
 

@@ -1078,14 +1078,15 @@ namespace l1tVertexFinder {
     pv_index_ = 0;
   }  // end of fastHistoEmulation
 
-  void VertexFinder::NNVtxEmulation(std::shared_ptr<hls4mlEmulator::Model> wt_model, std::shared_ptr<hls4mlEmulator::Model> pat_model){
+  void VertexFinder::NNVtxEmulation(std::shared_ptr<hls4mlEmulator::Model> wt_model,
+                                    std::shared_ptr<hls4mlEmulator::Model> pat_model) {
     // #### Weight Tracks: ####
     // Loop over tracks -> weight the network -> set track weights
     uint counter = 0;
-    ap_ufixed<22,9> trk_input[3];
+    ap_ufixed<22, 9> trk_input[3];
 
     // read_result expects result_t* (pointer), so give it an array buffer
-    ap_ufixed<8,1,AP_RND_CONV,AP_SAT,0> trk_output[1];
+    ap_ufixed<8, 1, AP_RND_CONV, AP_SAT, 0> trk_output[1];
     std::vector<ap_uint<8>> trk_w8;
     trk_w8.reserve(fitTracks_.size());
 
@@ -1097,7 +1098,6 @@ namespace l1tVertexFinder {
       ap_fixed<16, 3, AP_TRN, AP_SAT> etaEmulation;
       etaEmulation.V = (etaEmulationBits.range());
 
-
       ap_uint<14> ptEmulationBits = gttTrack.getTTTrackPtr()->getTrackWord()(
           TTTrack_TrackWord::TrackBitLocations::kRinvMSB - 1, TTTrack_TrackWord::TrackBitLocations::kRinvLSB);
       ap_ufixed<14, 9> ptEmulation;
@@ -1108,38 +1108,34 @@ namespace l1tVertexFinder {
 
       trk_input[0] = ptEmulation;
       trk_input[1] = MVAEmulation;
-      trk_input[2] = (etaEmulation < 0)
-             ? ap_fixed<16,3,AP_TRN,AP_SAT>(-etaEmulation)
-             : ap_fixed<16,3,AP_TRN,AP_SAT>( etaEmulation);
+      trk_input[2] = (etaEmulation < 0) ? ap_fixed<16, 3, AP_TRN, AP_SAT>(-etaEmulation)
+                                        : ap_fixed<16, 3, AP_TRN, AP_SAT>(etaEmulation);
 
       // CNN output: track weight
-      wt_model->prepare_input(static_cast<ap_ufixed<22,9>*>(trk_input));
+      wt_model->prepare_input(static_cast<ap_ufixed<22, 9>*>(trk_input));
       wt_model->predict();
-      wt_model->read_result(static_cast<ap_ufixed<8,1,AP_RND_CONV,AP_SAT,0>*>(trk_output));
+      wt_model->read_result(static_cast<ap_ufixed<8, 1, AP_RND_CONV, AP_SAT, 0>*>(trk_output));
       track.setWeight(trk_output[0]);
 
       ap_uint<8> w8 = trk_output[0].range(7, 0);
       trk_w8.push_back(w8);
-      edm::LogVerbatim("VertexFinder")
-        << "NNVtxEmulation TrackWeight:"
-        << " itrk=" << counter
-        << " w8=0x" << std::hex << w8.to_uint() << std::dec
-        << " w=" << trk_output[0].to_double()
-        << " pt=" << std::hex << ap_uint<22>(trk_input[0].range(21,0)).to_uint()
-	<< " MVA=" << std::hex << ap_uint<22>(trk_input[1].range(21,0)).to_uint()
-	<< " abs(eta)=" << std::hex << ap_uint<22>(trk_input[2].range(21,0)).to_uint() << std::dec;
+      edm::LogVerbatim("VertexFinder") << "NNVtxEmulation TrackWeight:"
+                                       << " itrk=" << counter << " w8=0x" << std::hex << w8.to_uint() << std::dec
+                                       << " w=" << trk_output[0].to_double() << " pt=" << std::hex
+                                       << ap_uint<22>(trk_input[0].range(21, 0)).to_uint() << " MVA=" << std::hex
+                                       << ap_uint<22>(trk_input[1].range(21, 0)).to_uint() << " abs(eta)=" << std::hex
+                                       << ap_uint<22>(trk_input[2].range(21, 0)).to_uint() << std::dec;
 
       ++counter;
     }
-
 
     // #### Find Vertices: ####
     RecoVertexCollection vertices(settings_->vx_histogram_numbins());
     std::map<int, float> histogram;
     std::map<int, float> nnOutput;
 
-    ap_ufixed<16,5> vx_input[256]; //using vx_histogram_numbins throws conversion error
-    ap_fixed<10,1> vx_output[256];
+    ap_ufixed<16, 5> vx_input[256];  //using vx_histogram_numbins throws conversion error
+    ap_fixed<10, 1> vx_output[256];
 
     float binWidth = settings_->vx_histogram_binwidth();
 
@@ -1156,55 +1152,45 @@ namespace l1tVertexFinder {
         track_z = std::floor((temp_z0 + settings_->vx_histogram_max()) / binWidth);
 
         if (track_z >= z && track_z < (z + 1)) {
-        vertices.at(z).insert(&track);
+          vertices.at(z).insert(&track);
 
-        ap_uint<8> w8 = trk_w8.at(counter);
-        sumW_q17 += w8;
+          const ap_uint<8>& w8 = trk_w8.at(counter);
+          sumW_q17 += w8;
 
-        edm::LogVerbatim("VertexFinder")
-          << "NNVtxEmulation BinAddTrack:"
-          << " zbin=" << z
-          << " itrk=" << counter
-          << " w8=0x" << std::hex << w8.to_uint()
-          << " sumW_q17_now=0x" << sumW_q17.to_uint()
-          << std::dec;
-      }
-	++counter;
+          edm::LogVerbatim("VertexFinder") << "NNVtxEmulation BinAddTrack:"
+                                           << " zbin=" << z << " itrk=" << counter << " w8=0x" << std::hex
+                                           << w8.to_uint() << " sumW_q17_now=0x" << sumW_q17.to_uint() << std::dec;
         }
+        ++counter;
+      }
 
       // Keep the original z0 assignment for the bin center
       vertices.at(z).setZ0(((z + 0.5) * binWidth) - settings_->vx_histogram_max());
       ap_uint<16> vxin_bits = (sumW_q17 << 4);
-      ap_ufixed<16,5> vxin;
+      ap_ufixed<16, 5> vxin;
       vxin.V = vxin_bits;
 
       vx_input[z] = vxin;
       histogram[z] = vxin.to_double();
-      edm::LogVerbatim("VertexFinder")
-        << "NNVtxEmulation BinInput:"
-        << " zbin=" << z
-        << " sumW_q17=0x" << std::hex << sumW_q17.to_uint()
-        << " vxin_bits=0x" << vxin_bits.to_uint()
-        << std::dec
-        << " vxin=" << vxin.to_double();
+      edm::LogVerbatim("VertexFinder") << "NNVtxEmulation BinInput:"
+                                       << " zbin=" << z << " sumW_q17=0x" << std::hex << sumW_q17.to_uint()
+                                       << " vxin_bits=0x" << vxin_bits.to_uint() << std::dec
+                                       << " vxin=" << vxin.to_double();
     }
 
     // Run PV Network:
 
-    pat_model->prepare_input(static_cast<ap_ufixed<16,5>*>(vx_input));
+    pat_model->prepare_input(static_cast<ap_ufixed<16, 5>*>(vx_input));
     pat_model->predict();
-    pat_model->read_result(static_cast<ap_fixed<10,1>*>(vx_output));
+    pat_model->read_result(static_cast<ap_fixed<10, 1>*>(vx_output));
 
     for (int i = 0; i < settings_->vx_histogram_numbins(); ++i) {
       ap_uint<10> pat10_i = vx_output[i].range(9, 0);
 
-      edm::LogVerbatim("VertexFinder")
-        << "NNVtxEmulation PatOutput:"
-        << " zbin=" << i
-        << " pat10=0x" << std::hex << pat10_i.to_uint()
-        << std::dec
-        << " pat=" << vx_output[i].to_double();
-    } 
+      edm::LogVerbatim("VertexFinder") << "NNVtxEmulation PatOutput:"
+                                       << " zbin=" << i << " pat10=0x" << std::hex << pat10_i.to_uint() << std::dec
+                                       << " pat=" << vx_output[i].to_double();
+    }
     // Threshold needed due to rounding differences in internal CNN layer emulation versus firmware.
     const float histogrammingThreshold_ = 0.0f;
     for (int i = 0; i < settings_->vx_histogram_numbins(); ++i) {
@@ -1216,9 +1202,7 @@ namespace l1tVertexFinder {
     // 1) larger bin weight wins
     // 2) if weights tie, choose the bin closest to 128
     // 3) if still tied, choose the smaller bin index (z0=0 is at 127.5, so this ensures algo always chooses bin closest to 127.5)
-    auto centralDistance128 = [](int i) -> int {
-      return std::abs(i - 128);
-    };
+    auto centralDistance128 = [](int i) -> int { return std::abs(i - 128); };
 
     int PV_index = 0;
     float best_weight = nnOutput[0];
@@ -1242,50 +1226,42 @@ namespace l1tVertexFinder {
       }
     }
 
-  const double zmin = settings_->vx_histogram_min();
-  const double bw   = settings_->vx_histogram_binwidth();
-  const double z0_center = (static_cast<double>(PV_index) + 0.5) * bw + zmin;
+    const double zmin = settings_->vx_histogram_min();
+    const double bw = settings_->vx_histogram_binwidth();
+    const double z0_center = (static_cast<double>(PV_index) + 0.5) * bw + zmin;
 
-  l1t::VertexWord::vtxz0_t z0_word = z0_center;
+    l1t::VertexWord::vtxz0_t z0_word = z0_center;
 
-  // Hardware-like pattern output encoding
-  ap_uint<10> pat10 = vx_output[PV_index].range(9, 0);
+    // Hardware-like pattern output encoding
+    ap_uint<10> pat10 = vx_output[PV_index].range(9, 0);
 
-  // Pack weight bits directly into the 12-bit sumPt field
-  ap_uint<12> sumpt_bits = 0;
-  sumpt_bits.range(9, 0) = pat10;
+    // Pack weight bits directly into the 12-bit sumPt field
+    ap_uint<12> sumpt_bits = 0;
+    sumpt_bits.range(9, 0) = pat10;
 
-  l1t::VertexWord::vtxsumpt_t pt_word;
-  pt_word.V = sumpt_bits;
+    l1t::VertexWord::vtxsumpt_t pt_word;
+    pt_word.V = sumpt_bits;
 
-  edm::LogVerbatim("VertexFinder")
-    << " NNVtxEmulation Chosen PV:"
-    << " prob=" << vx_output[PV_index].to_double()
-    << " bin=" << PV_index
-    << " z0_center=" << z0_center
-    << " pat10=0x" << std::hex << pat10.to_uint()
-    << " sumpt_bits=0x" << sumpt_bits.to_uint()
-    << std::dec;
+    edm::LogVerbatim("VertexFinder") << " NNVtxEmulation Chosen PV:"
+                                     << " prob=" << vx_output[PV_index].to_double() << " bin=" << PV_index
+                                     << " z0_center=" << z0_center << " pat10=0x" << std::hex << pat10.to_uint()
+                                     << " sumpt_bits=0x" << sumpt_bits.to_uint() << std::dec;
 
-  l1t::VertexWord out;
-  out.setVertexWord(l1t::VertexWord::vtxvalid_t(1),
-                    z0_word,
-                    l1t::VertexWord::vtxmultiplicity_t(0),
-                    pt_word,
-                    l1t::VertexWord::vtxquality_t(0),
-                    l1t::VertexWord::vtxinversemult_t(0),
-                    l1t::VertexWord::vtxunassigned_t(0));
+    l1t::VertexWord out;
+    out.setVertexWord(l1t::VertexWord::vtxvalid_t(1),
+                      z0_word,
+                      l1t::VertexWord::vtxmultiplicity_t(0),
+                      pt_word,
+                      l1t::VertexWord::vtxquality_t(0),
+                      l1t::VertexWord::vtxinversemult_t(0),
+                      l1t::VertexWord::vtxunassigned_t(0));
 
-  edm::LogVerbatim("VertexFinder")
-    << " NNVtxEmulation Packed VertexWord:"
-    << " z0Bits=0x" << std::hex << out.z0Bits()
-    << " ptBits=0x" << out.ptBits()
-    << std::dec
-    << " z0=" << out.z0()
-    << " pt=" << out.pt();
+    edm::LogVerbatim("VertexFinder") << " NNVtxEmulation Packed VertexWord:"
+                                     << " z0Bits=0x" << std::hex << out.z0Bits() << " ptBits=0x" << out.ptBits()
+                                     << std::dec << " z0=" << out.z0() << " pt=" << out.pt();
 
-  verticesEmulation_.push_back(out);
-  
+    verticesEmulation_.push_back(out);
+
   }  // end of NNVtx Algorithm
 
 }  // namespace l1tVertexFinder

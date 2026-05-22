@@ -12,7 +12,6 @@
 #include "ap_fixed.h"
 #include "hls4ml/emulator.h"
 
-
 #include <algorithm>
 #include <cmath>
 #include <iterator>
@@ -104,7 +103,8 @@ namespace l1tVertexFinder {
     /// Histogramming algorithm (emulation)
     void fastHistoEmulation();
     /// NNVtx algorithm
-    void NNVtxEmulation(std::shared_ptr<hls4mlEmulator::Model> wt_model, std::shared_ptr<hls4mlEmulator::Model> pat_model);
+    void NNVtxEmulation(std::shared_ptr<hls4mlEmulator::Model> wt_model,
+                        std::shared_ptr<hls4mlEmulator::Model> pat_model);
 
     /// Sort vertices in pT
     void sortVerticesInPt();
@@ -152,8 +152,6 @@ namespace l1tVertexFinder {
     FitTrackCollection fitTracks_;
     unsigned int pv_index_;
     unsigned int iterations_;
-
-
   };
 
 }  // end namespace l1tVertexFinder

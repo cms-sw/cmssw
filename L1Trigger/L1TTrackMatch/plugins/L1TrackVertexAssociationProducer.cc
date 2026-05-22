@@ -155,7 +155,7 @@ private:
 
   struct NNTrackWordSelector {
     NNTrackWordSelector(std::shared_ptr<hls4mlEmulator::Model> AssociationModel,
-		        const double AssociationThreshold,
+                        const double AssociationThreshold,
                         const std::vector<double>& AssociationNetworkZ0binning,
                         const std::vector<double>& AssociationNetworkEtaBounds,
                         const std::vector<double>& AssociationNetworkZ0ResBins)
@@ -166,9 +166,8 @@ private:
           res_bins_(AssociationNetworkZ0ResBins) {}
 
     bool operator()(const TTTrackType& t, const l1t::VertexWord& v) const {
-
-      ap_ufixed<22,9> assoc_input[4];
-      ap_fixed<22,9> assoc_output;
+      ap_ufixed<22, 9> assoc_input[4];
+      ap_fixed<22, 9> assoc_output;
 
       TTTrack_TrackWord::tanl_t etaEmulationBits = t.getTanlWord();
       ap_fixed<16, 3> etaEmulation;
@@ -332,8 +331,6 @@ L1TrackVertexAssociationProducer::L1TrackVertexAssociationProducer(const edm::Pa
     associationModelPath_ = iConfig.getParameter<std::string>("associationModel");
     associationLoader_ = std::make_unique<hls4mlEmulator::ModelLoader>(associationModelPath_);
     associationModel_ = associationLoader_->load_model();
-
-
   }
   // Confirm the the configuration makes sense
   if (!processSimulatedTracks_ && !processEmulatedTracks_) {
