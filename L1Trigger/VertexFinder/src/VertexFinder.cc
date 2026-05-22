@@ -1206,10 +1206,10 @@ namespace l1tVertexFinder {
         << " pat=" << vx_output[i].to_double();
     } 
     // Threshold needed due to rounding differences in internal CNN layer emulation versus firmware.
-    // Store a dense per-bin array so the neighbor-score tie-break matches the hardware cleanly.
     const float histogrammingThreshold_ = 0.0f;
     for (int i = 0; i < settings_->vx_histogram_numbins(); ++i) {
-      nnOutput[i] = (vx_output[i] >= histogrammingThreshold_) ? vx_output[i].to_float() : 0.0f;
+      const float output = vx_output[i].to_float();
+      nnOutput[i] = (output >= histogrammingThreshold_) ? output : 0.0f;
     }
 
     // Use following tiebreaking procedure:
