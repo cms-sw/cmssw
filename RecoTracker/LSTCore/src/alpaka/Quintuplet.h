@@ -63,6 +63,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     quintuplets.phi()[quintupletIndex] = __F2H(phi);
     quintuplets.score_rphisum()[quintupletIndex] = __F2H(scores);
     quintuplets.isDup()[quintupletIndex] = 0;
+    quintuplets.nLayers()[quintupletIndex] = Params_T5::kBaseLayers;
     quintuplets.tightCutFlag()[quintupletIndex] = tightCutFlag;
     quintuplets.regressionRadius()[quintupletIndex] = regressionRadius;
     quintuplets.regressionCenterX()[quintupletIndex] = regressionCenterX;
@@ -96,6 +97,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     CMS_UNROLL_LOOP
     for (unsigned int i = 0; i < Params_T5::kEmbed; ++i) {
       quintuplets.t5Embed()[quintupletIndex][i] = t5Embed[i];
+    }
+
+    // Initialize extended layer slots with sentinel values
+    for (int i = Params_T5::kBaseLayers; i < Params_T5::kLayers; ++i) {
+      quintuplets.logicalLayers()[quintupletIndex][i] = 0;
+      quintuplets.lowerModuleIndices()[quintupletIndex][i] = lst::kTCEmptyLowerModule;
+      quintuplets.hitIndices()[quintupletIndex][2 * i] = lst::kTCEmptyHitIdx;
+      quintuplets.hitIndices()[quintupletIndex][2 * i + 1] = lst::kTCEmptyHitIdx;
     }
   }
 
@@ -1633,7 +1642,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     computeSigmasForRegression(acc, modules, lowerModuleIndices, delta1, delta2, slopes, isFlat);
     regressionRadius = computeRadiusUsingRegression(acc,
-                                                    Params_T5::kLayers,
+                                                    Params_T5::kBaseLayers,
                                                     xVec,
                                                     yVec,
                                                     delta1,
@@ -1647,7 +1656,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     //compute the other chisquared
     //non anchor is always shifted for tilted and endcap!
-    float nonAnchorDelta1[Params_T5::kLayers], nonAnchorDelta2[Params_T5::kLayers], nonAnchorSlopes[Params_T5::kLayers];
+    float nonAnchorDelta1[Params_T5::kBaseLayers], nonAnchorDelta2[Params_T5::kBaseLayers],
+        nonAnchorSlopes[Params_T5::kBaseLayers];
     float nonAnchorxs[] = {mds.outerX()[firstMDIndex],
                            mds.outerX()[secondMDIndex],
                            mds.outerX()[thirdMDIndex],
@@ -1666,10 +1676,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                nonAnchorDelta2,
                                nonAnchorSlopes,
                                isFlat,
-                               Params_T5::kLayers,
+                               Params_T5::kBaseLayers,
                                false);
     nonAnchorChiSquared = computeChiSquared(acc,
-                                            Params_T5::kLayers,
+                                            Params_T5::kBaseLayers,
                                             nonAnchorxs,
                                             nonAnchorys,
                                             nonAnchorDelta1,

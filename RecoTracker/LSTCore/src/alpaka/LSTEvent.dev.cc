@@ -750,29 +750,7 @@ void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets)
                       tc_pls_triplets,
                       nTotal);
 
-  // Get number of TCs to configure grid
-  auto nTrackCandidates_buf_h = cms::alpakatools::make_host_buffer<unsigned int>(queue_);
-  auto nTrackCandidates_buf_d =
-      cms::alpakatools::make_device_view(queue_, (*trackCandidatesBaseDC_)->nTrackCandidates());
-  alpaka::memcpy(queue_, nTrackCandidates_buf_h, nTrackCandidates_buf_d);
-  alpaka::wait(queue_);
-  unsigned int nTC = *nTrackCandidates_buf_h.data();
-
-  if (nTC == 0)
-    return;
-  auto const wd = cms::alpakatools::make_workdiv<Acc1D>(nTC, 128);
-
-  alpaka::exec<Acc1D>(queue_,
-                      wd,
-                      ExtendTrackCandidatesFromDupT5{},
-                      modules_.const_view().modules(),
-                      rangesDC_->const_view(),
-                      quintupletsDC_->const_view().quintuplets(),
-                      quintupletsDC_->const_view().quintupletsOccupancy(),
-                      trackCandidatesBaseDC_->view(),
-                      trackCandidatesExtendedDC_->view());
-
-  // Check if TC buffer was possibly truncated
+  // Check if either n_max_pixel_track_candidates or n_max_nonpixel_track_candidates was reached
   auto nTrackCanTotalHost_buf = cms::alpakatools::make_host_buffer<unsigned int>(queue_);
   alpaka::memcpy(queue_,
                  nTrackCanTotalHost_buf,
@@ -971,6 +949,8 @@ void LSTEvent::createQuintuplets() {
     auto quintuplets = quintupletsDC_->view().quintuplets();
     auto isDup_view = cms::alpakatools::make_device_view(queue_, quintuplets.isDup());
     alpaka::memset(queue_, isDup_view, 0u);
+    auto nLayers_view = cms::alpakatools::make_device_view(queue_, quintuplets.nLayers());
+    alpaka::memset(queue_, nLayers_view, 0u);
     auto tightCutFlag_view = cms::alpakatools::make_device_view(queue_, quintuplets.tightCutFlag());
     alpaka::memset(queue_, tightCutFlag_view, 0u);
     auto partOfPT5_view = cms::alpakatools::make_device_view(queue_, quintuplets.partOfPT5());
@@ -993,6 +973,18 @@ void LSTEvent::createQuintuplets() {
                       rangesDC_->const_view(),
                       nEligibleT5Modules,
                       ptCut_);
+
+  if (nTotalQuintuplets > 0) {
+    auto const extendT5_workDiv = cms::alpakatools::make_workdiv<Acc1D>(nTotalQuintuplets, 128);
+
+    alpaka::exec<Acc1D>(queue_,
+                        extendT5_workDiv,
+                        ExtendT5FromDupT5{},
+                        modules_.const_view().modules(),
+                        rangesDC_->const_view(),
+                        quintupletsDC_->view().quintuplets(),
+                        quintupletsDC_->const_view().quintupletsOccupancy());
+  }
 
   auto const removeDupQuintupletsAfterBuild_workDiv =
       cms::alpakatools::make_workdiv<Acc3D>({max_blocks, 1, 1}, {1, 16, 16});
