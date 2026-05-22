@@ -30,6 +30,7 @@ if [ "$OSVERSION" -eq 7 ]; then
 fi
 DEVICE=auto
 THREADCONTROL=""
+GLOBALCONNECT=
 
 get_sandbox(){
 	if [ -z "$SANDBOX" ]; then
@@ -51,6 +52,7 @@ usage() {
 	$ECHO "-E [path]   \t include extra path(s) for executables (default: ${EXTRAPATH})"
 	$ECHO "-f          \t force reuse of (possibly) existing container instance"
 	$ECHO "-g [device] \t device choice: auto (try to detect GPU), CPU, GPU (default: ${DEVICE})"
+	$ECHO "-G          \t accept connections globally (default: only accept connections from localhost)"
 	$ECHO "-i [name]   \t server image name (default: ${IMAGE})"
 	$ECHO "-I [num]    \t number of model instances (default: ${INSTANCES} -> means no local editing of config files)"
 	$ECHO "-M [dir]    \t model repository (can be given more than once)"
@@ -91,6 +93,8 @@ while getopts "cC:Dd:fg:i:I:M:m:n:P:p:r:s:t:vw:h" opt; do
 		f) FORCE=true
 		;;
 		g) DEVICE="$OPTARG"
+		;;
+		G) GLOBALCONNECT=true
 		;;
 		i) IMAGE="$OPTARG"
 		;;
@@ -251,6 +255,12 @@ start_docker(){
 		REPOARGS="$REPOARGS --model-repository=${REPO}"
 	done
 
+	# restrict connections to localhost
+	ADDARGS="-p ${HTTPPORT}:${HTTPPORT} -p ${GRPCPORT}:${GRPCPORT} -p ${METRPORT}:${METRPORT}"
+	if [ -z "$GLOBALCONNECT" ]; then
+		ADDARGS="-p 127.0.0.1:${HTTPPORT}:${HTTPPORT} -p 127.0.0.1:${GRPCPORT}:${GRPCPORT} -p 127.0.0.1:${METRPORT}:${METRPORT}"
+	fi
+
 	# compatibility driver environment
 	if [ -n "$COMPAT" ]; then
 		MOUNTARGS="$MOUNTARGS -v$COMPAT"
@@ -258,7 +268,7 @@ start_docker(){
 
 	$DRYRUN $DOCKER run -d --name ${SERVER} \
 		--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 --ipc="host" --cap-add=IPC_OWNER \
-		-p${HTTPPORT}:${HTTPPORT} -p${GRPCPORT}:${GRPCPORT} -p${METRPORT}:${METRPORT} $EXTRA $MOUNTARGS \
+		$ADDARGS $EXTRA $MOUNTARGS \
 		${IMAGE} tritonserver $PORTARGS $REPOARGS $VERBOSE
 }
 
@@ -271,6 +281,12 @@ start_podman(){
 		REPOARGS="$REPOARGS --model-repository=${REPO}"
 	done
 
+	# restrict connections to localhost
+	ADDARGS="-p ${HTTPPORT}:${HTTPPORT} -p ${GRPCPORT}:${GRPCPORT} -p ${METRPORT}:${METRPORT}"
+	if [ -z "$GLOBALCONNECT" ]; then
+		ADDARGS="-p 127.0.0.1:${HTTPPORT}:${HTTPPORT} -p 127.0.0.1:${GRPCPORT}:${GRPCPORT} -p 127.0.0.1:${METRPORT}:${METRPORT}"
+	fi
+
 	# compatibility driver environment
 	if [ -n "$COMPAT" ]; then
 		MOUNTARGS="$MOUNTARGS --volume $COMPAT"
@@ -278,7 +294,7 @@ start_podman(){
 
 	$DRYRUN $PODMAN run -d --name ${SERVER} \
 		--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 \
-		-p${HTTPPORT}:${HTTPPORT} -p${GRPCPORT}:${GRPCPORT} -p${METRPORT}:${METRPORT} $EXTRA $MOUNTARGS \
+		$ADDARGS $EXTRA $MOUNTARGS \
 		${IMAGE} tritonserver $PORTARGS $REPOARGS $VERBOSE
 }
 
@@ -290,6 +306,12 @@ start_apptainer(){
 		MOUNTARGS="$MOUNTARGS -B $REPO"
 		REPOARGS="$REPOARGS --model-repository=${REPO}"
 	done
+
+	# restrict connections to localhost
+	ADDRARGS=""
+	if [ -z "$GLOBALCONNECT" ]; then
+		ADDRARGS="--http-address=127.0.01 --grpc-address=127.0.0.1 --metrics-address=127.0.0.1"
+	fi
 
 	# compatibility driver environment
 	if [ -n "$COMPAT" ]; then
@@ -314,7 +336,7 @@ start_apptainer(){
 		REDIR=/dev/stdout
 	fi
 	$DRYRUN $APPTAINER run instance://${SERVER} \
-		tritonserver $PORTARGS $REPOARGS $VERBOSE >& ${REDIR} &
+		tritonserver $PORTARGS $ADDRARGS $REPOARGS $VERBOSE >& ${REDIR} &
 	[ -z "$DRYRUN" ] || wait
 }
 

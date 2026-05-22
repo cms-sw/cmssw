@@ -135,6 +135,7 @@ The script has three operations (`start`, `stop`, `check`) and the following opt
 * `-d [exe]`: container choice: apptainer, docker, podman, podman-hpc (default: apptainer)
 * `-E [path]`: include extra path(s) for executables (default: /cvmfs/oasis.opensciencegrid.org/mis/apptainer/current/bin)
 * `-f`: force reuse of (possibly) existing container instance
+* `-G`: accept connections globally (default: only accept connections from localhost)
 * `-g [device]`: device choice: auto (try to detect GPU), CPU, GPU (default: auto)
 * `-i [name]`: server image name (default: fastml/triton-torchgeo:26.04-py3-geometric)
 * `-I [num]`: number of model instances (default: 0 -> means no local editing of config files)
