@@ -269,7 +269,7 @@ start_docker(){
 	$DRYRUN $DOCKER run -d --name ${SERVER} \
 		--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 --ipc="host" --cap-add=IPC_OWNER \
 		$ADDARGS $EXTRA $MOUNTARGS \
-		${IMAGE} tritonserver $PORTARGS $REPOARGS $VERBOSE
+		${IMAGE} tritonserver --allow-client-shm=true $PORTARGS $REPOARGS $VERBOSE
 }
 
 start_podman(){
@@ -293,9 +293,9 @@ start_podman(){
 	fi
 
 	$DRYRUN $PODMAN run -d --name ${SERVER} \
-		--shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 \
+		--ulimit memlock=-1 --ulimit stack=67108864 --ipc="host" \
 		$ADDARGS $EXTRA $MOUNTARGS \
-		${IMAGE} tritonserver $PORTARGS $REPOARGS $VERBOSE
+		${IMAGE} tritonserver --allow-client-shm=true $PORTARGS $REPOARGS $VERBOSE
 }
 
 start_apptainer(){
@@ -336,7 +336,7 @@ start_apptainer(){
 		REDIR=/dev/stdout
 	fi
 	$DRYRUN $APPTAINER run instance://${SERVER} \
-		tritonserver $PORTARGS $ADDRARGS $REPOARGS $VERBOSE >& ${REDIR} &
+		tritonserver --allow-client-shm=true $PORTARGS $ADDRARGS $REPOARGS $VERBOSE >& ${REDIR} &
 	[ -z "$DRYRUN" ] || wait
 }
 
