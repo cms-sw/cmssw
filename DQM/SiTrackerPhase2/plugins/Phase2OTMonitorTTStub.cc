@@ -210,10 +210,9 @@ void Phase2OTMonitorTTStub::analyze(const edm::Event &iEvent, const edm::EventSe
 void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &run, edm::EventSetup const &es) {
   using namespace phase2tkutil;
 
-  iBooker.setCurrentFolder(topFolderName_ + "/Stubs/Position");
-  Stub_Barrel_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Barrel_XY"), iBooker);
-  Stub_Endcap_Fw_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Endcap_Fw_XY"), iBooker);
-  Stub_Endcap_Bw_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Endcap_Bw_XY"), iBooker);
+  // Whole OT Summaries
+  iBooker.setCurrentFolder(topFolderName_);
+  // Positions
   Stub_RZ = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_RZ"), iBooker);
 
   // CRACK ONLY: module vs layer
@@ -243,7 +242,7 @@ void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run 
   } else
     CrackOverview = nullptr;
 
-  iBooker.setCurrentFolder(topFolderName_ + "/Stubs");
+  // Distributions
   Stub_Eta = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Eta"), iBooker);
   Stub_Phi = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Phi"), iBooker);
   Stub_R = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_R"), iBooker);
@@ -251,40 +250,46 @@ void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run 
   Stub_bendBE = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_bendBE"), iBooker);
   Stub_isPS = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_isPS"), iBooker);
 
-  iBooker.setCurrentFolder(topFolderName_ + "/Stubs/NStubs");
-  Stub_Barrel = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("NStubs_Barrel"), iBooker);
+  // Endcap Summaries
+  iBooker.setCurrentFolder(topFolderName_ + "/EndCaps");
   Stub_Endcap_Disc = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("NStubs_Endcap_Disc"), iBooker);
-  Stub_Endcap_Disc_Fw = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("NStubs_Endcap_Disc_Fw"), iBooker);
-  Stub_Endcap_Disc_Bw = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("NStubs_Endcap_Disc_Bw"), iBooker);
   Stub_Endcap_Ring = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("NStubs_Endcap_Ring"), iBooker);
+  Stub_Endcap_Disc_W = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Width_Endcap_Disc"), iBooker);
+  Stub_Endcap_Ring_W = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Width_Endcap_Ring"), iBooker);
+  Stub_Endcap_Disc_O = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Offset_Endcap_Disc"), iBooker);
+  Stub_Endcap_Ring_O = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Offset_Endcap_Ring"), iBooker);
 
+  // Barrel Summaries
+  iBooker.setCurrentFolder(topFolderName_ + "/Barrel");
+  Stub_Barrel_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Barrel_XY"), iBooker);
+  Stub_Barrel = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("NStubs_Barrel"), iBooker);
+  Stub_Barrel_W = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Width_Barrel"), iBooker);
+  Stub_Barrel_O = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Offset_Barrel"), iBooker);
+
+  // BW Endcap Summaries
+  iBooker.setCurrentFolder(topFolderName_ + "/EndCaps/MINUS");
+  Stub_Endcap_Bw_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Endcap_Bw_XY"), iBooker);
+  Stub_Endcap_Disc_Bw = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("NStubs_Endcap_Disc_Bw"), iBooker);
+  for (int i = 0; i < static_cast<int>(trklet::N_DISK); i++) {
+    Stub_Endcap_Ring_Bw[i] =
+        book1DFromPSet(conf_.getParameter<edm::ParameterSet>("NStubs_Disc_Bw_" + std::to_string(i + 1)), iBooker);
+    Stub_Endcap_Ring_W_Bw[i] =
+        book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Width_Disc_Bw_" + std::to_string(i + 1)), iBooker);
+    Stub_Endcap_Ring_O_Bw[i] =
+        book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Offset_Disc_Bw_" + std::to_string(i + 1)), iBooker);
+  }
+
+  // FW Endcap Summaries
+  iBooker.setCurrentFolder(topFolderName_ + "/EndCaps/PLUS");
+  Stub_Endcap_Fw_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Endcap_Fw_XY"), iBooker);
+  Stub_Endcap_Disc_Fw = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("NStubs_Endcap_Disc_Fw"), iBooker);
   for (int i = 0; i < static_cast<int>(trklet::N_DISK); i++) {
     Stub_Endcap_Ring_Fw[i] =
         book1DFromPSet(conf_.getParameter<edm::ParameterSet>("NStubs_Disc_Fw_" + std::to_string(i + 1)), iBooker);
-    Stub_Endcap_Ring_Bw[i] =
-        book1DFromPSet(conf_.getParameter<edm::ParameterSet>("NStubs_Disc_Bw_" + std::to_string(i + 1)), iBooker);
-  }
-
-  iBooker.setCurrentFolder(topFolderName_ + "/Stubs/Width");
-  Stub_Barrel_W = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Width_Barrel"), iBooker);
-  Stub_Endcap_Disc_W = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Width_Endcap_Disc"), iBooker);
-  Stub_Endcap_Ring_W = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Width_Endcap_Ring"), iBooker);
-  for (int i = 0; i < static_cast<int>(trklet::N_DISK); i++) {
     Stub_Endcap_Ring_W_Fw[i] =
         book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Width_Disc_Fw_" + std::to_string(i + 1)), iBooker);
-    Stub_Endcap_Ring_W_Bw[i] =
-        book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Width_Disc_Bw_" + std::to_string(i + 1)), iBooker);
-  }
-
-  iBooker.setCurrentFolder(topFolderName_ + "/Stubs/Offset");
-  Stub_Barrel_O = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Offset_Barrel"), iBooker);
-  Stub_Endcap_Disc_O = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Offset_Endcap_Disc"), iBooker);
-  Stub_Endcap_Ring_O = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Offset_Endcap_Ring"), iBooker);
-  for (int i = 0; i < static_cast<int>(trklet::N_DISK); i++) {
     Stub_Endcap_Ring_O_Fw[i] =
         book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Offset_Disc_Fw_" + std::to_string(i + 1)), iBooker);
-    Stub_Endcap_Ring_O_Bw[i] =
-        book2DFromPSet(conf_.getParameter<edm::ParameterSet>("Stub_Offset_Disc_Bw_" + std::to_string(i + 1)), iBooker);
   }
 }
 
@@ -471,7 +476,7 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
                             10.75);
   }
 
-  desc.add<std::string>("TopFolderName", "TrackerPhase2OTStub");
+  desc.add<std::string>("TopFolderName", "OuterTrackerP2");
   desc.add<edm::InputTag>("TTStubs", edm::InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"));
   descriptions.add("Phase2OTMonitorTTStub", desc);
 }
