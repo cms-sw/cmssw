@@ -425,8 +425,7 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
   }
   ibooker.cd();
   std::stringstream folder_name;
-  folder_name << top_folder << "/"
-              << "DigiMonitor";
+  folder_name << top_folder + "/";
   ibooker.setCurrentFolder(folder_name.str());
 
   edm::ParameterSet Parameters = config_.getParameter<edm::ParameterSet>("XYPositionMapH");
@@ -548,7 +547,7 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
         (pixelFlag_ || (layer < 4 || (layer > 6 && (isPStypeModForTEDD_1 || isPStypeModForTEDD_2)))) ? true : false;
 
     ibooker.cd();
-    ibooker.setCurrentFolder(top_folder + "/DigiMonitor/" + key);
+    ibooker.setCurrentFolder(top_folder + "/" + key);
     LogDebug("Phase2TrackerMonitorDigi") << " Booking Histograms in : " << key;
 
     std::ostringstream HistoName;
