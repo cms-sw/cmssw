@@ -23,7 +23,7 @@ std::string phase2tkutil::getITHistoId(uint32_t det_id, const TrackerTopology* t
 }
 
 std::string phase2tkutil::getOTHistoId(uint32_t det_id, const TrackerTopology* tTopo) {
-  std::string Disc;
+  std::string Disc, Side;
   std::ostringstream fname1;
   int layer = tTopo->getOTLayerNumber(det_id);
 
@@ -34,8 +34,10 @@ std::string phase2tkutil::getOTHistoId(uint32_t det_id, const TrackerTopology* t
     fname1 << "Layer" << layer;
     fname1 << "";
   } else {
+    fname1 << "EndCaps/";
     int side = tTopo->tidSide(det_id);
-    fname1 << "EndCap_Side" << side << "/";
+    Side = (side == 1) ? "MINUS" : "PLUS";
+    fname1 << Side << "/";
     int disc = tTopo->tidWheel(det_id);
     Disc = (disc < 3) ? "TEDD_1" : "TEDD_2";
     fname1 << Disc << "/";
