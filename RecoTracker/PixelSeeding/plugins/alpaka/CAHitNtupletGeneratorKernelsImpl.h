@@ -210,10 +210,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
   // remove shorter tracks if sharing a cell
   // It does not seem to affect efficiency in any way!
+  // Work division: Acc2D with Y indexing cells and X indexing warp lanes
+  // (warpSize threads per cell). All lanes of a warp cooperate on a single cell
   template <typename TrackerTraits>
   class Kernel_earlyDuplicateRemover {
   public:
-    ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+    ALPAKA_FN_ACC void operator()(Acc2D const &acc,
                                   CACell<TrackerTraits> const *cells,
                                   uint32_t const *__restrict__ nCells,
                                   CellToTrack const *__restrict__ cellTracksHisto,
@@ -222,44 +224,68 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
       // quality to mark rejected
       constexpr auto reject = Quality::edup;  /// cannot be loose
       ALPAKA_ASSERT_ACC(nCells);
-      for (auto idx : cms::alpakatools::uniform_elements(acc, *nCells)) {
+
+      const int32_t warpSize = alpaka::warp::getSize(acc);
+      const int32_t laneId = static_cast<int32_t>(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[1u]);
+
+      for (uint32_t idx : cms::alpakatools::uniform_elements_y(acc, *nCells)) {
 #ifdef CA_SIZES
-        printf("cellTracksSizes;%d;%d;%d\n", idx, cT.size(), cT.capacity());
+        if (laneId == 0)
+          printf("cellTracksSizes;%d;%d;%d\n", idx, cT.size(), cT.capacity());
 #endif
-        if (cellTracksHisto->size(idx) < 2)
+        const int ntr = static_cast<int>(cellTracksHisto->size(idx));
+        if (ntr < 2)
           continue;
 
         auto const *__restrict__ tracksOfCell = cellTracksHisto->begin(idx);
-        int ntr = cellTracksHisto->size(idx);
 
-        // find the longest track in this cell
-        int8_t maxNl = 0;
-        for (int i = 0; i < ntr; ++i) {
-          auto nl = tracks_view[tracksOfCell[i]].nLayers();
-          maxNl = (nl > maxNl) ? nl : maxNl;
+        // Warp-reduce maxNl over the cell's tracks.
+        // Lanes scan a strided subset of the cell's tracks and hold a local maxNl in register
+        int32_t localMax = 0;
+        for (int k = laneId; k < ntr; k += warpSize) {
+          const int32_t nl = tracks_view[tracksOfCell[k]].nLayers();
+          if (nl > localMax)
+            localMax = nl;
         }
+        // Warp-reduce to find the maxNl across all lanes. The result is uniform across the warp.
+        // Idle lanes start with 0 and do not influence the result.
+        // All lanes must be active for the shuffle to work: no branching or return early here.
+        for (int32_t off = 1; off < warpSize; off <<= 1) {
+          const int32_t y = alpaka::warp::shfl_xor(acc, localMax, off);
+          if (y > localMax)
+            localMax = y;
+        }
+        const int32_t maxNl = localMax;
 
-        // mark every shorter track that has at least one
-        // longer companion with compatible curvature. Tracks
-        // already at maxNl cannot be rejected here, so they are skipped
-        // immediately. The inner loop bails on the first match,
-        // reducing combinatorial complexity
+        // Process tracks sequentially using warps
         for (int i = 0; i < ntr; ++i) {
-          auto it = tracksOfCell[i];
-          auto nli = tracks_view[it].nLayers();
-          if (nli >= maxNl)
+          const auto it = tracksOfCell[i];
+          const int32_t nli = tracks_view[it].nLayers();
+          // Same nli and maxNl across lanes, so uniform check and no early return here to keep all lanes active.
+          if (nli >= maxNl) {
             continue;
+          }
 
-          auto curvi = tracks_view[it].pt();
-          for (int j = 0; j < ntr; ++j) {
-            auto jt = tracksOfCell[j];
-            if (tracks_view[jt].nLayers() <= nli) {
+          // Look for compatible tracks in the same cell with fewer layers and similar curvature
+          // Mark as duplicate if both conditions are met
+          const float curvi = tracks_view[it].pt();
+          bool foundCompatible = false;
+          // Parallelize inner loop across lanes
+          for (int j = laneId; j < ntr; j += warpSize) {
+            const auto jt = tracksOfCell[j];
+            if (tracks_view[jt].nLayers() <= nli)
               continue;  // need a strictly longer companion
-            }
-            const auto dcurv = curvi - tracks_view[jt].pt();
+            const float dcurv = curvi - tracks_view[jt].pt();
             if (dcurv * dcurv <= 0.000001f) {
-              tracks_view[it].quality() = reject;  // no race: simple assignment of the same constant
+              foundCompatible = true;
               break;
+            }
+          }
+          // All lanes converge here to check if any foundCompatible is true, and if so, mark track as duplicate.
+          if (alpaka::warp::any(acc, static_cast<int32_t>(foundCompatible))) {
+            // One thread assigns warp-wide decision
+            if (laneId == 0) {
+              tracks_view[it].quality() = reject;
             }
           }
         }
