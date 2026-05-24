@@ -1,17 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import lcAssocByEnergyScoreProducer as _lcAssocByEnergyScoreProducer
-from SimCalorimetry.HGCalSimProducers.hgcHitAssociation_cfi import scAssocByEnergyScoreProducer as _scAssocByEnergyScoreProducer
-from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cfi import layerClusterSimClusterAssociation as _layerClusterSimClusterAssociationProducer
-from SimCalorimetry.HGCalAssociatorProducers.LCToCPAssociation_cfi import layerClusterCaloParticleAssociation as _layerClusterCaloParticleAssociationProducer
-
 from SimCalorimetry.HGCalAssociatorProducers.SimClusterToCaloParticleAssociation_cfi import SimClusterToCaloParticleAssociation
 from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociation_cfi import  allTrackstersToSimTrackstersAssociationsByLCs as _allTrackstersToSimTrackstersAssociationsByLCs
-from SimCalorimetry.HGCalAssociatorProducers.hitToSimClusterCaloParticleAssociator_cfi import hitToSimClusterCaloParticleAssociator as _hitToSimClusterCaloParticleAssociator
 
 from Validation.HGCalValidation.HLT_TICLIterLabels_cff import hltTiclIterLabelsPSet as _hltTiclIterLabelsPSet
-
-from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cff import recHitMapProducer as _recHitMapProducer
 
 from Validation.Configuration.hltBarrelSimValid_cff import hltBarrelRecHitMapProducer as _hltBarrelRecHitMapProducer
 from Validation.Configuration.hltBarrelSimValid_cff import barrel_hits
@@ -31,13 +23,12 @@ from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
                                        )
 
 from SimCalorimetry.HGCalAssociatorProducers.AllLayerClusterToTracksterAssociatorsProducer_cfi import AllLayerClusterToTracksterAssociatorsProducer as _AllLayerClusterToTracksterAssociatorsProducer
-
 hltAllLayerClusterToTracksterAssociations = _AllLayerClusterToTracksterAssociatorsProducer.clone(
     layer_clusters = cms.InputTag("hltMergeLayerClusters"),
     tracksterCollections = cms.VInputTag(
         *[cms.InputTag(label) for label in _hltTiclIterLabelsPSet.labels],
-        cms.InputTag("hltTiclSimTracksters"),
-        cms.InputTag("hltTiclSimTracksters", "fromCPs"),
+        cms.InputTag("hltTiclSimTracksters", "fromBoundarySimCluster"),
+        cms.InputTag("hltTiclSimTracksters", "fromCaloParticle"),
     )
 )
 
@@ -48,49 +39,58 @@ hltAllTrackstersToSimTrackstersAssociationsByLCs = _allTrackstersToSimTracksters
         *[cms.InputTag(label) for label in _hltTiclIterLabelsPSet.labels]
     ),
     simTracksterCollections = cms.VInputTag(
-      cms.InputTag('hltTiclSimTracksters'),
-      cms.InputTag('hltTiclSimTracksters','fromCPs')
+        cms.InputTag("hltTiclSimTracksters", "fromBoundarySimCluster"),
+        cms.InputTag("hltTiclSimTracksters", "fromCaloParticle"),
     ),
 )
 
-from SimCalorimetry.HGCalAssociatorProducers.AllTracksterToSimTracksterAssociatorsByHitsProducer_cfi import AllTracksterToSimTracksterAssociatorsByHitsProducer as _AllTracksterToSimTracksterAssociatorsByHitsProducer
-
+from SimCalorimetry.HGCalAssociatorProducers.hitToSimClusterCaloParticleAssociator_cfi import hitToSimClusterCaloParticleAssociator as _hitToSimClusterCaloParticleAssociator
 hltHitToSimClusterCaloParticleAssociator = _hitToSimClusterCaloParticleAssociator.clone(
+    simClusters = cms.InputTag("mix", "MergedCaloTruthCaloParticle"), # CaloParticle but in SimCluster dataformat
+    hitMap = 'hltHGCalRecHitMapProducer:hgcalRecHitMap',
+    hits = 'hltHGCalRecHitMapProducer:RefProdVectorHGCRecHitCollection'
+)
+hltHitToBoundarySimClusterAssociator = _hitToSimClusterCaloParticleAssociator.clone(
+    simClusters = cms.InputTag("mix", "MergedCaloTruthBoundaryTrackSimCluster"),
     hitMap = 'hltHGCalRecHitMapProducer:hgcalRecHitMap',
     hits = 'hltHGCalRecHitMapProducer:RefProdVectorHGCRecHitCollection'
 )
 
-from SimCalorimetry.HGCalAssociatorProducers.AllHitToTracksterAssociatorsProducer_cfi import AllHitToTracksterAssociatorsProducer as _AllHitToTracksterAssociatorsProducer
 
+
+from SimCalorimetry.HGCalAssociatorProducers.AllHitToTracksterAssociatorsProducer_cfi import AllHitToTracksterAssociatorsProducer as _AllHitToTracksterAssociatorsProducer
 hltAllHitToTracksterAssociations =  _AllHitToTracksterAssociatorsProducer.clone(
     hitMapTag = cms.InputTag("hltHGCalRecHitMapProducer","hgcalRecHitMap"),
     hits = cms.InputTag("hltHGCalRecHitMapProducer", "RefProdVectorHGCRecHitCollection"),
     layerClusters = cms.InputTag("hltMergeLayerClusters"),
     tracksterCollections = cms.VInputTag(
         *[cms.InputTag(label) for label in _hltTiclIterLabelsPSet.labels],
-        cms.InputTag("hltTiclSimTracksters"),
-        cms.InputTag("hltTiclSimTracksters", "fromCPs"),
+        cms.InputTag("hltTiclSimTracksters", "fromBoundarySimCluster"),
+        cms.InputTag("hltTiclSimTracksters", "fromCaloParticle"),
     )
 )
 
+from SimCalorimetry.HGCalAssociatorProducers.AllTracksterToSimTracksterAssociatorsByHitsProducer_cfi import AllTracksterToSimTracksterAssociatorsByHitsProducer as _AllTracksterToSimTracksterAssociatorsByHitsProducer
 hltAllTrackstersToSimTrackstersAssociationsByHits = _AllTracksterToSimTracksterAssociatorsByHitsProducer.clone(
     allHitToTSAccoc = cms.string("hltAllHitToTracksterAssociations"),
-    hitToCaloParticleMap = cms.InputTag("hltHitToSimClusterCaloParticleAssociator","hitToCaloParticleMap"),
-    hitToSimClusterMap = cms.InputTag("hltHitToSimClusterCaloParticleAssociator","hitToSimClusterMap"),
     hits = cms.InputTag("hltHGCalRecHitMapProducer", "RefProdVectorHGCRecHitCollection"),
     tracksterCollections = cms.VInputTag(
         *[cms.InputTag(label) for label in _hltTiclIterLabelsPSet.labels]
     ),
-    simTracksterCollections = cms.VInputTag(
-      'hltTiclSimTracksters',
-      'hltTiclSimTracksters:fromCPs'
-    ),
+    simTracksters = cms.VPSet(
+        cms.PSet(
+            simTracksterCollection=cms.InputTag("hltTiclSimTracksters", "fromBoundarySimCluster"),
+            hitToSimClusterMap=cms.InputTag("hltHitToBoundarySimClusterAssociator")
+        ),
+        cms.PSet(
+            simTracksterCollection=cms.InputTag("hltTiclSimTracksters", "fromCaloParticle"),
+            hitToSimClusterMap=cms.InputTag("hltHitToSimClusterCaloParticleAssociator")
+        ),
+    )
 )
-from SimCalorimetry.HGCalAssociatorProducers.hltLCToCPAssociation_cfi import hltHGCalLCToCPAssociatorByEnergyScoreProducer, hltHGCalLayerClusterCaloParticleAssociation
-from SimCalorimetry.HGCalAssociatorProducers.hltLCToSCAssociation_cfi import hltHGCalLCToSCAssociatorByEnergyScoreProducer, hltHGCalLayerClusterSimClusterAssociation
+from SimCalorimetry.HGCalAssociatorProducers.hltLCToSCAssociation_cfi import hltHGCalLCToSCAssociatorByEnergyScoreProducer, hltHGCalLayerClusterSimClusterAssociation, hltHGCalLayerClusterCaloParticleAssociation
 
 hltHgcalAssociatorsTask = cms.Task(hltHGCalRecHitMapProducer,
-                                   hltHGCalLCToCPAssociatorByEnergyScoreProducer,
                                    hltHGCalLCToSCAssociatorByEnergyScoreProducer,
                                    SimClusterToCaloParticleAssociation,
                                    hltHGCalLayerClusterCaloParticleAssociation,
@@ -98,12 +98,11 @@ hltHgcalAssociatorsTask = cms.Task(hltHGCalRecHitMapProducer,
                                    hltAllLayerClusterToTracksterAssociations,
                                    hltAllTrackstersToSimTrackstersAssociationsByLCs,
                                    hltAllHitToTracksterAssociations,
-                                   hltHitToSimClusterCaloParticleAssociator,
+                                   hltHitToBoundarySimClusterAssociator, hltHitToSimClusterCaloParticleAssociator,
                                    hltAllTrackstersToSimTrackstersAssociationsByHits
                                    )
 
 hltHgcalPrevalidation = cms.Sequence(
-    hltHGCalLCToCPAssociatorByEnergyScoreProducer *
     hltHGCalLCToSCAssociatorByEnergyScoreProducer *
     hltHGCalLayerClusterCaloParticleAssociation *
     hltHGCalLayerClusterSimClusterAssociation

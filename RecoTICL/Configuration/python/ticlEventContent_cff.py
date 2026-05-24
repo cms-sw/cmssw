@@ -36,9 +36,10 @@ _hfnose = [
 _simAssoc = [
     'keep CaloParticles_mix_*_*',
     'keep SimClusters_mix_*_*',
+    'keep SimClustersRefs_mix_*_*',
     'keep *_SimClusterToCaloParticleAssociation*_*_*',
     'keep *_layerClusterSimClusterAssociationProducer_*_*',
-    'keep *_layerClusterCaloParticleAssociationProducer_*_*',
+    'keep *_layerClusterCaloParticleSimClusterAssociationProducer_*_*',
     'keep *_layerClusterSimTracksterAssociationProducer_*_*',
     'keep *_allTrackstersToSimTrackstersAssociations*_*_*',
 ]
