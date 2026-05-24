@@ -1760,8 +1760,8 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(
     std::vector<size_t> const& cPSelectedIndices,
     std::unordered_map<DetId, const unsigned int> const& hitMap,
     unsigned int layers,
-    const ticl::RecoToSimCollectionT<reco::CaloClusterCollection>& cpsInLayerClusterMap,
-    const ticl::SimToRecoCollectionT<reco::CaloClusterCollection>& cPOnLayerMap,
+    const ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>& cpsInLayerClusterMap,
+    const ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>& cPOnLayerMap,
     edm::MultiSpan<HGCRecHit> const& hits) const {
   const auto nLayerClusters = clusters.size();
 
@@ -1939,8 +1939,8 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(
   // gen-level, namely efficiency and duplicate. In this loop should restrict
   // only to the selected caloParaticles.
   for (const auto& cpId : cPSelectedIndices) {
-    const edm::Ref<CaloParticleCollection> cpRef(caloParticleHandle, cpId);
-    const auto& lcsIt = cPOnLayerMap.find(cpRef);
+    // We assume cPOnLayerMap refers to a SimCluster collection in 1-1 mapping with caloParticles
+    const auto& lcsIt = cPOnLayerMap.find(edm::Ref<SimClusterCollection>(cPOnLayerMap.refProd().key, cpId));
 
     std::map<unsigned int, float> cPEnergyOnLayer;
     for (unsigned int layerId = 0; layerId < layers * 2; ++layerId)
@@ -2221,8 +2221,8 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(
     std::map<double, double> cummatbudg,
     unsigned int layers,
     std::vector<int> thicknesses,
-    const ticl::RecoToSimCollectionT<reco::CaloClusterCollection>& cpsInLayerClusterMap,
-    const ticl::SimToRecoCollectionT<reco::CaloClusterCollection>& cPOnLayerMap,
+    const ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>& cpsInLayerClusterMap,
+    const ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>& cPOnLayerMap,
     edm::MultiSpan<HGCRecHit> const& hits) const {
   //Each event to be treated as two events: an event in +ve endcap,
   //plus another event in -ve endcap. In this spirit there will be
@@ -2535,7 +2535,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
                                                           const TracksterToTracksterMap& trackstersToSimTrackstersMap,
                                                           const TracksterToTracksterMap& simTrackstersToTrackstersMap,
                                                           const validationType valType,
-                                                          const SimClusterToCaloParticleMap& scToCpMap,
+                                                          const SimClusterRefVector& scToCpMap,
                                                           const std::vector<size_t>& cPIndices,
                                                           const std::vector<size_t>& cPSelectedIndices,
                                                           const edm::ProductID& cPHandle_id) const {
@@ -2543,15 +2543,21 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
   const auto nSimTracksters = simTrackstersToTrackstersMap.getMap().size();
   std::vector<int> tracksters_FakeMerge(nTracksters, 0);
   std::vector<int> tracksters_PurityDuplicate(nSimTracksters, 0);
-  auto getCPId = [](const ticl::Trackster& simTS,
-                    const edm::ProductID& cPHandle_id,
-                    const SimClusterToCaloParticleMap& scToCpMap) {
-    const auto productID = simTS.seedID();
-    if (productID == cPHandle_id) {
+  auto getCPId = [&scToCpMap](const ticl::Trackster& simTS) {
+    /* 2 cases:
+      - the simTS is built from "CaloParticle" SimCluster collection, in which case simTS.seedID points to the  "CaloParticle" SimCluster which is identically keyed to the CaloParticle collection
+         thus we can juste use as index into CaloParticle collection simTS.seedIndex()
+      - the simTs is built from "legacy" (or "boundary") SimCluster collection. Then:
+          first map from SimTs to SimCluster (imTS.seedIndex()), then map from SimCluster to "CaloParticle" SimCluster (which is same index as CaloParticle)
+    There is no check that the collections actually match (would need matching of ProductID between "CaloParticle" SimCluster collection & CaloParticle collection, until the usage of CaloParticle is fully replaced by SimCluster in HGCalValidation)
+    */
+    if (simTS.ticlIteration() == ticl::Trackster::SIM_CP)
       return simTS.seedIndex();
-    } else {
+    else if (simTS.ticlIteration() == ticl::Trackster::SIM)
       return int(scToCpMap.at(simTS.seedIndex()).index());
-    }
+    else
+      throw cms::Exception("WrongMapping")
+          << "A SimTrackster object has no valid Trackster iterationIndex (need SIM or SIM_CP)";
   };
 
   auto ScoreCutSTStoTSPurDup = ScoreCutSTStoTSPurDup_[0];
@@ -2614,7 +2620,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
   // only to the selected caloParaticles.
   for (unsigned int simTracksterIndex = 0; simTracksterIndex < nSimTracksters; ++simTracksterIndex) {
     const auto& simTrackster = *(simTrackstersToTrackstersMap.getRefFirst(simTracksterIndex));
-    const auto cpId = getCPId(simTrackster, cPHandle_id, scToCpMap);
+    const auto cpId = getCPId(simTrackster);
     if (std::find(cPSelectedIndices.begin(), cPSelectedIndices.end(), cpId) == cPSelectedIndices.end())
       continue;
     const auto sts_eta = simTrackster.barycenter().eta();
@@ -2701,7 +2707,6 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
     const reco::CaloClusterCollection& layerClusters,
     const ticl::TracksterCollection& simTSs,
     const ticl::TracksterCollection& simTSs_fromCP,
-    const std::map<unsigned int, std::vector<unsigned int>>& cpToSc_SimTrackstersMap,
     std::vector<SimCluster> const& sC,
     const edm::ProductID& cPHandle_id,
     std::vector<CaloParticle> const& cP,
@@ -2719,7 +2724,7 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
     const edm::Handle<TracksterToTracksterMap>& simTrackstersToTrackstersByHitsMapH,
     const edm::Handle<TracksterToTracksterMap>& trackstersToSimTrackstersFromCPsByHitsMapH,
     const edm::Handle<TracksterToTracksterMap>& simTrackstersFromCPsToTrackstersByHitsMapH,
-    const SimClusterToCaloParticleMap& scToCpMap) const {
+    const SimClusterRefVector& scToCpMap) const {
   //Each event to be treated as two events:
   //an event in +ve endcap, plus another event in -ve endcap.
 

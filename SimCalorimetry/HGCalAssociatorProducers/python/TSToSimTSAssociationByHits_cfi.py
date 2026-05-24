@@ -1,35 +1,47 @@
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HGCalAssociatorProducers.HitToTracksterAssociation_cfi import *
-from SimCalorimetry.HGCalAssociatorProducers.AllTracksterToSimTracksterAssociatorsByHitsProducer_cfi import AllTracksterToSimTracksterAssociatorsByHitsProducer
+from SimCalorimetry.HGCalAssociatorProducers.AllTracksterToSimTracksterAssociatorsByHitsProducer_cfi import AllTracksterToSimTracksterAssociatorsByHitsProducer as _AllTracksterToSimTracksterAssociatorsByHitsProducer
 from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsPSet
 
-allTrackstersToSimTrackstersAssociationsByHits = AllTracksterToSimTracksterAssociatorsByHitsProducer.clone(    
+allTrackstersToSimTrackstersAssociationsByHits = _AllTracksterToSimTracksterAssociatorsByHitsProducer.clone(    
     tracksterCollections = cms.VInputTag(
         *[cms.InputTag(label) for label in ticlIterLabelsPSet.labels]
     ),
-    simTracksterCollections = cms.VInputTag(
-      'ticlSimTracksters',
-      'ticlSimTracksters:fromCPs'
-    ),
+    simTracksters = cms.VPSet(
+        cms.PSet(
+            simTracksterCollection=cms.InputTag("ticlSimTracksters", "fromLegacySimCluster"),
+            hitToSimClusterMap=cms.InputTag("hitToLegacySimClusterAssociator")
+        ),
+        cms.PSet(
+            simTracksterCollection=cms.InputTag("ticlSimTracksters", "fromBoundarySimCluster"),
+            hitToSimClusterMap=cms.InputTag("hitToBoundarySimClusterAssociator")
+        ),
+        cms.PSet(
+            simTracksterCollection=cms.InputTag("ticlSimTracksters", "fromMergedSimCluster"),
+            hitToSimClusterMap=cms.InputTag("hitToMergedSimClusterAssociator")
+        ),
+        cms.PSet(
+            simTracksterCollection=cms.InputTag("ticlSimTracksters", "fromCaloParticle"),
+            hitToSimClusterMap=cms.InputTag("hitToCPSimClusterAssociator")
+        ),
+    )
 )
 
-
-from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
-
-premix_stage2.toModify(allTrackstersToSimTrackstersAssociationsByHits,
-    caloParticles = "mixData:MergedCaloTruth",
-)
 
 ## Barrel
 from SimCalorimetry.HGCalAssociatorProducers.AllBarrelTracksterToSimTracksterAssociatorsByHitsProducer_cfi import AllBarrelTracksterToSimTracksterAssociatorsByHitsProducer
 
 allBarrelTrackstersToSimTrackstersAssociationsByHits = AllBarrelTracksterToSimTracksterAssociatorsByHitsProducer.clone(
     allHitToTSAccoc = cms.string('allHitToBarrelTracksterAssociations'),
-    hitToCaloParticleMap = cms.InputTag("barrelHitToSimClusterCaloParticleAssociator", "hitToCaloParticleMap"),
-    hitToSimClusterMap = cms.InputTag("barrelHitToSimClusterCaloParticleAssociator", "hitToSimClusterMap"),
     tracksterCollections = cms.VInputTag('ticlTrackstersCLUE3DBarrel'),
-    simTracksterCollections = cms.VInputTag(
-        'ticlSimTrackstersBarrel',
-        'ticlSimTrackstersBarrel:fromCPs'
+    simTracksters = cms.VPSet(
+        cms.PSet(
+            simTracksterCollection=cms.InputTag("ticlSimTrackstersBarrel", "fromBoundarySimCluster"),
+            hitToSimClusterMap=cms.InputTag("barrelHitToBoundarySimClusterAssociator")
+        ),
+        cms.PSet(
+            simTracksterCollection=cms.InputTag("ticlSimTrackstersBarrel", "fromCaloParticle"),
+            hitToSimClusterMap=cms.InputTag("barrelHitToCPSimClusterAssociator")
+        ),
     )
 )

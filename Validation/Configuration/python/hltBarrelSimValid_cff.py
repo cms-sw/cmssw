@@ -7,13 +7,9 @@ hltBarrelRecHitMapProducer = _recHitMapProducer.clone(
     hgcalOnly = False,
 )
 
-from SimCalorimetry.HGCalAssociatorProducers.hltLCToCPAssociation_cfi import (hltBarrelLCToCPAssociatorByEnergyScoreProducer,
-                                                                              hltBarrelLayerClusterCaloParticleAssociation)
-from SimCalorimetry.HGCalAssociatorProducers.hltLCToSCAssociation_cfi import (hltBarrelLCToSCAssociatorByEnergyScoreProducer,
-                                                                              hltBarrelLayerClusterSimClusterAssociation)
+from SimCalorimetry.HGCalAssociatorProducers.hltLCToSCAssociation_cfi import hltBarrelLCToSCAssociatorByEnergyScoreProducer, hltBarrelLayerClusterSimClusterAssociation, hltBarrelLayerClusterCaloParticleAssociation
 
 hltBarrelPrevalidation = cms.Sequence(
-    hltBarrelLCToCPAssociatorByEnergyScoreProducer *
     hltBarrelLCToSCAssociatorByEnergyScoreProducer *
     hltBarrelLayerClusterCaloParticleAssociation *
     hltBarrelLayerClusterSimClusterAssociation

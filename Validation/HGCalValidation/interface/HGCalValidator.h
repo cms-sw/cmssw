@@ -14,8 +14,6 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
@@ -27,10 +25,7 @@
 #include "Validation/HGCalValidation/interface/TICLCandidateValidator.h"
 #include "Validation/HGCalValidation/interface/HGVHistoProducerAlgo.h"
 #include "Validation/HGCalValidation/interface/CaloParticleSelector.h"
-#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 
-#include "SimDataFormats/Associations/interface/LayerClusterToCaloParticleAssociator.h"
-#include "SimDataFormats/Associations/interface/LayerClusterToSimClusterAssociator.h"
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
@@ -50,8 +45,6 @@ public:
   using Histograms = HGCalValidatorHistograms;
   using TracksterToTracksterMap =
       ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore, std::vector<ticl::Trackster>, std::vector<ticl::Trackster>>;
-  using SimClusterToCaloParticleMap =
-      ticl::AssociationMap<ticl::oneToOneMapWithFraction, std::vector<SimCluster>, std::vector<CaloParticle>>;
 
   /// Constructor
   HGCalValidator(const edm::ParameterSet& pset);
@@ -109,8 +102,10 @@ protected:
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
   std::vector<edm::EDGetTokenT<std::vector<float>>> clustersMaskTokens_;
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMap_;
-  edm::EDGetTokenT<ticl::RecoToSimCollectionT<reco::CaloClusterCollection>> associatorMapRtS;
-  edm::EDGetTokenT<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>> associatorMapStR;
+  /// Maps CaloParticle (as SimCluster dataformat) to layer cluster
+  edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>> associatorMapRtS;
+  edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>> associatorMapStR;
+  /// Maps SimCluster to layer cluster
   edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>> associatorMapSimtR;
   edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>> associatorMapRtSim;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
@@ -118,7 +113,7 @@ protected:
   std::unique_ptr<TICLCandidateValidator> candidateVal_;
   std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterAssociatorsTokens_;
   std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterByHitsAssociatorsTokens_;
-  edm::EDGetTokenT<SimClusterToCaloParticleMap> scToCpMapToken_;
+  edm::EDGetTokenT<SimClusterRefVector> scToCpMapToken_;
   const StringCutObjectSelector<reco::Track> cutTk_;
 
 private:

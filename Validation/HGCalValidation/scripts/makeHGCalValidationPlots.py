@@ -8,7 +8,7 @@ from Validation.RecoTrack.plotting.validation import SeparateValidation, SimpleV
 from Validation.HGCalValidation.HGCalValidator_cff import hgcalValidator
 import Validation.RecoTrack.plotting.plotting as plotting
 
-simClustersIters = [hgcalValidator.label_SimClustersLevel.value(), "ticlSimTracksters"]
+simClustersIters = [hgcalValidator.label_SimClustersLevel.value(), "ticlSimTracksters_fromBoundarySimCluster"]
 
 hitCalLabel = 'hitCalibration'
 hitValLabel = 'hitValidation'
