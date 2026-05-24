@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-CMS-style GPU memory comparison plotter.
+CMS-style hardware memory comparison plotter.
 
 Features
 --------
@@ -14,10 +14,11 @@ Features
 - Automatic PDF + PNG output
 - Metadata box
 - Optional interactive display
+- Option to display CPU or GPU
 
 Example
 -------
-python3 compareGPUMemoryProfiles.py \
+python3 compareMemoryProfiles.py \
     gpu_memory_HLTTimingNewBaseline_16j_16t_16s.csv \
     gpu_memory_HLTTimingCurrent_16j_16t_16s.csv \
     --label1 NewBaseline \
@@ -26,7 +27,7 @@ python3 compareGPUMemoryProfiles.py \
 
 Typical CMSSW integration usage
 -------------------------------
-python3 compareGPUMemoryProfiles.py \
+python3 compareMemoryProfiles.py \
     baseline.csv current.csv \
     --output gpu_memory_PR_comparison \
     --no-show
@@ -91,11 +92,13 @@ def annotate_peak(ax, stats, color):
     )
 
 
-def save_outputs(fig, output_base):
+def save_outputs(fig, output_base, isGPU):
     """Save figure in multiple formats."""
-    png_name = f"{output_base}.png"
-    pdf_name = f"{output_base}.pdf"
 
+    prefix = "gpu" if isGPU else "cpu"
+    png_name = f"{prefix}_{output_base}.png"
+    pdf_name = f"{prefix}_{output_base}.pdf"
+    
     fig.savefig(
         png_name,
         dpi=220,
@@ -122,7 +125,7 @@ def main(args):
     # Convert MiB -> GiB
     df1["memory_gib"] = df1["memory_mib"] / 1024.0
     df2["memory_gib"] = df2["memory_mib"] / 1024.0
-
+        
     # Labels
     label1 = args.label1 or default_label(args.file1)
     label2 = args.label2 or default_label(args.file2)
@@ -170,10 +173,10 @@ def main(args):
     )
 
     ax.set_ylabel(
-        "GPU memory usage [GiB]",
+        f"{'GPU' if args.gpu else 'CPU'} memory usage [GiB]",
         fontsize=15,
     )
-
+    
     # Dynamic y-axis scaling
     ymax = max(
         stats1["peak"],
@@ -272,7 +275,7 @@ def main(args):
     plt.tight_layout()
 
     # Save outputs
-    save_outputs(fig, args.output)
+    save_outputs(fig, args.output, args.gpu)
 
     # Interactive display
     if not args.no_show:
@@ -281,7 +284,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="CMS-style GPU memory comparison plotter"
+        description="CMS-style hardware memory comparison plotter"
     )
 
     parser.add_argument(
@@ -320,6 +323,12 @@ if __name__ == "__main__":
         ),
     )
 
+    parser.add_argument(
+        "--gpu",
+        action="store_true",
+        help="Make CPU or GPU memory profile",
+    )
+    
     parser.add_argument(
         "--cms-label",
         default="cmssw integration testing",
