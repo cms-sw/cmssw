@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from ..psets.hgcal_reco_constants_cfi import HGCAL_reco_constants as HGCAL_reco_constants
+from HeterogeneousCore.AlpakaCore.functions import makeSerialClone
 
 hltHgcalSoARecHitsProducer = cms.EDProducer("HGCalSoARecHitsProducer@alpaka",
     alpaka = cms.untracked.PSet(
@@ -16,3 +17,4 @@ hltHgcalSoARecHitsProducer = cms.EDProducer("HGCalSoARecHitsProducer@alpaka",
     thicknessCorrection = HGCAL_reco_constants.thicknessCorrection,
 )
 
+hltHgcalSoARecHitsProducerSerialSync = makeSerialClone(hltHgcalSoARecHitsProducer)

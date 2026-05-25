@@ -137,6 +137,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_JME_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_TRK_cfi")
 
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/DQM_TRKHeterogeneousValidation_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/DQM_HGCALHeterogeneousValidation_cfi")
 
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/ClusterShapeTrajectoryFilter_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/HGCAL_chargeCollectionEfficiencies_cfi")
@@ -322,7 +323,8 @@ fragment.schedule = cms.Schedule(*[
     
     # Paths for CPU vs. GPU validation
     fragment.DQM_TRKHeterogeneousValidation,
-
+    fragment.DQM_HGCALHeterogeneousValidation,
+    
     fragment.HLTriggerFinalPath,
     fragment.HLTAnalyzerEndpath,
 ])

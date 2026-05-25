@@ -18,6 +18,11 @@ hltMergeLayerClusters = cms.EDProducer("MergeClusterProducer",
     time_layerclusters = cms.VInputTag("hltHgcalLayerClustersEE:timeLayerCluster", *ceh_time_layerClusters),
 )
 
+hltMergeLayerClustersSerialSync = cms.EDProducer("MergeClusterProducer",
+    layerClusters = cms.VInputTag("hltHgCalLayerClustersFromSoAProducerSerialSync", *ceh_layerClusters),
+    time_layerclusters = cms.VInputTag("hltHgCalLayerClustersFromSoAProducerSerialSync:timeLayerCluster", *ceh_time_layerClusters),
+)
+
 # Process modifiers: ticl_barrel and alpaka
 from Configuration.ProcessModifiers.alpaka_cff import alpaka
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
