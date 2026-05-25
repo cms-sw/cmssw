@@ -133,6 +133,7 @@ HLT_HIUPC_SingleMuCosmic_NotMBHF2AND_v*                                    # CMS
 HLT_HIUPC_SingleMuCosmic_NotMBHF2OR_MaxPixelCluster1000_v*                 # CMSHLT-2926
 HLT_HIUPC_SingleMuCosmic_NotMBHF2OR_v*                                     # CMSHLT-2471
 HLT_HIUPC_SingleMuOpen_BptxAND_MaxPixelCluster1000_v*                      # CMSHLT-2926
+HLT_HIUPC_SingleMuOpen_BptxAND_MaxPixelCluster10000_v*                     # CMSHLT-3854
 HLT_HIUPC_SingleMuOpen_NotMBHF2AND_MaxPixelCluster1000_v*                  # CMSHLT-2926
 HLT_HIUPC_SingleMuOpen_NotMBHF2AND_v*                                      # CMSHLT-2471
 HLT_HIUPC_SingleMuOpen_NotMBHF2OR_MaxPixelCluster1000_v*                   # CMSHLT-2926
@@ -318,6 +319,8 @@ HLT_HIUPC_HFafterglowCombined_v*           # CMSHLT-3335
 HLT_HIBeamBackgroundMonitoring_NotBptxOR_v*  # CMSHLT-3827
 HLT_HIBeamBackgroundMonitoring_BptxAND_v*    # CMSHLT-3827
 
+HLT_HITestDataScouting_v* # CMSHLT-3853
+
 HLTriggerFinalPath
 
 ## EndPaths ##
@@ -333,12 +336,10 @@ CalibrationOutput
 EcalCalibrationOutput
 HIExpressOutput
 HIExpressAlignmentOutput
+HIHLTMonitorOutput         # CMSHLT-3855
 HIExpressRawPrimeOutput    # CMSHLT-2882
 PhysicsHIHLTPhysicsOutput  # CMSHLT-2915
 PhysicsHIZeroBiasOutput    # CMSHLT-2915
-PhysicsHIZeroBiasRAW0Output  # CMSHLT-2963
-PhysicsHIZeroBiasRAW1Output  # CMSHLT-2963
-PhysicsHIZeroBiasRAW2Output  # CMSHLT-2963
 PhysicsHICommissioningOutput
 PhysicsHIForward0Output          # CMSHLT-2882, CMSHLT-2913
 PhysicsHIForward1Output          # CMSHLT-2882, CMSHLT-2913
@@ -360,10 +361,16 @@ PhysicsHIForward16Output         # CMSHLT-2936
 PhysicsHIForward17Output         # CMSHLT-2936
 PhysicsHIForward18Output         # CMSHLT-2936
 PhysicsHIForward19Output         # CMSHLT-2936
-PhysicsHIMinimumBias0Output      # CMSHLT-2882, CMSHLT-2913
-PhysicsHIMinimumBias1Output      # CMSHLT-2882, CMSHLT-2913
-PhysicsHIMinimumBias2Output      # CMSHLT-2882, CMSHLT-2913
-PhysicsHIMinimumBias3Output      # CMSHLT-2882, CMSHLT-2913
+PhysicsHIForward20Output         # CMSHLT-3859
+PhysicsHIForward21Output         # CMSHLT-3859
+PhysicsHIForward22Output         # CMSHLT-3859
+PhysicsHIForward23Output         # CMSHLT-3859
+PhysicsHIForward24Output         # CMSHLT-3859
+PhysicsHIForward25Output         # CMSHLT-3859
+PhysicsHIForward26Output         # CMSHLT-3859
+PhysicsHIForward27Output         # CMSHLT-3859
+PhysicsHIForward28Output         # CMSHLT-3859
+PhysicsHIForward29Output         # CMSHLT-3859
 PhysicsHIPhysicsRawPrime0Output  # CMSHLT-2882, CMSHLT-2913
 PhysicsHIPhysicsRawPrime1Output  # CMSHLT-2882, CMSHLT-2913
 PhysicsHIPhysicsRawPrime2Output  # CMSHLT-2882, CMSHLT-2913
@@ -429,6 +436,7 @@ PhysicsHITrackerNZSOutput
 NanoDSTOutput
 RPCMONOutput
 LocalTestDataRawOutput # CMSHLT-3841
+DQMTestDataScoutingOutput # CMSHLT-3853
 
 ######## paths that are different between PRef and online_pref ################################
 
