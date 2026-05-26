@@ -20,7 +20,6 @@ RootSecondaryFileSequence: This is an InputSource
 namespace edm {
 
   class BranchID;
-  class FileCatalogItem;
   class InputFileCatalog;
   class RNTupleTempSource;
   class RootFile;
@@ -42,7 +41,8 @@ namespace edm::rntuple_temp {
   private:
     void closeFile_() override;
     void initFile_(bool skipBadFiles) override;
-    RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) override;
+    RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr,
+                                   std::string const& physicalFileNameFirstCatalog) override;
 
     RNTupleTempSource& input_;
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;

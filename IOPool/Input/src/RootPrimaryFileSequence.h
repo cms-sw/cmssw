@@ -25,7 +25,6 @@ namespace edm {
 
   class BranchID;
   class DuplicateChecker;
-  class FileCatalogItem;
   class InputFileCatalog;
   class ParameterSetDescription;
   class PoolSource;
@@ -52,7 +51,8 @@ namespace edm {
 
   private:
     void initFile_(bool skipBadFiles) override;
-    RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) override;
+    RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr,
+                                   std::string const& physicalFileNameFirstCatalog) override;
     bool nextFile();
     bool previousFile();
     void rewindFile();
