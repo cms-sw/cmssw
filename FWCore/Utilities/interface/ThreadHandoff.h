@@ -1,5 +1,5 @@
-#ifndef SimG4Core_Application_ThreadHandoff_h
-#define SimG4Core_Application_ThreadHandoff_h
+#ifndef FWCore_Utilities_ThreadHandoff_h
+#define FWCore_Utilities_ThreadHandoff_h
 // -*- C++ -*-
 //
 // Package:     SimG4Core/Application
@@ -29,7 +29,7 @@
 
 // forward declarations
 
-namespace omt {
+namespace edm {
   class ThreadHandoff {
   public:
     explicit ThreadHandoff(int stackSize);
@@ -94,5 +94,5 @@ namespace omt {
     bool m_loopReady{false};
     bool m_stopThread{false};
   };
-}  // namespace omt
+}  // namespace edm
 #endif
