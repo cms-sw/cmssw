@@ -63,15 +63,23 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
   bool use_match_dist_penalty = true;
 
   int nr_of_stations_crossed = 0;
-  std::vector<int> stations_w_track(8);
-  std::vector<int> station_has_segmentmatch(8);
-  std::vector<int> station_was_crossed(8);
-  std::vector<float> stations_w_track_at_boundary(8);
-  std::vector<float> station_weight(8);
+  // 4 DT + 1 ME0 + 4CSC
+  std::vector<int> stations_w_track(9);
+  std::vector<int> station_has_segmentmatch(9);
+  std::vector<int> station_was_crossed(9);
+  std::vector<float> stations_w_track_at_boundary(9);
+  std::vector<float> station_weight(9);
   int position_in_stations = 0;
   float full_weight = 0.;
-
-  for (int i = 1; i <= 8; ++i) {
+  int ME0_nHits = -1;
+  bool hasME0 = false;
+  for (const auto& chamberMatch : muon.matches()) {
+      if (chamberMatch.detector() == MuonSubdetId::GEM && chamberMatch.station() == 0) {
+          hasME0 = true;
+          break;
+      }
+  }
+  for (int i = 1; i <= 9; ++i) {
     // ********************************************************;
     // *** fill local info for this muon (do some counting) ***;
     // ************** begin ***********************************;
@@ -89,8 +97,29 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
       if (muon.segmentX(i, 1, arbitrationType) < 999999) {
         station_has_segmentmatch[i - 1] = 1;
       }
-    } else {  // this is the section for the CSCs
-      float thisTrackDist = muon.trackDist(i - 4, 2, arbitrationType);
+    } 
+    else if (i == 5 && hasME0) {  // this is the section for ME0 only considered in Phase-2
+      std::cout << "\n[ME0 DEBUG - CROSSING] -----------------------------" << std::endl;
+      float thisTrackDist = muon.trackDist(i - 5, 4, reco::Muon::GEMSegmentAndTrackArbitration);
+      if (thisTrackDist < 999999) {  //current "raw" info that a track is close to a chamber
+        ++nr_of_stations_crossed;
+        station_was_crossed[i - 1] = 1;
+        if (thisTrackDist > -10.){
+          stations_w_track_at_boundary[i - 1] = thisTrackDist;}
+        else{
+          stations_w_track_at_boundary[i - 1] = 0.;}
+      }
+      //current "raw" info that a segment is matched to the current track
+      if (muon.segmentX(i - 5, 4, reco::Muon::GEMSegmentAndTrackArbitration) < 999999) {
+        station_has_segmentmatch[i - 1] = 1;
+      }
+    }
+    else if (i == 5 && !hasME0) {
+      station_was_crossed[i - 1] = 0;
+      station_has_segmentmatch[i - 1] = 0;
+    }
+    else {  // this is the section for the CSCs
+      float thisTrackDist = muon.trackDist(i - 5, 2, arbitrationType);
       if (thisTrackDist < 999999) {  //current "raw" info that a track is close to a chamber
         ++nr_of_stations_crossed;
         station_was_crossed[i - 1] = 1;
@@ -100,7 +129,7 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
           stations_w_track_at_boundary[i - 1] = 0.;
       }
       //current "raw" info that a segment is matched to the current track
-      if (muon.segmentX(i - 4, 2, arbitrationType) < 999999) {
+      if (muon.segmentX(i - 5, 2, arbitrationType) < 999999) {
         station_has_segmentmatch[i - 1] = 1;
       }
     }
@@ -122,7 +151,7 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
   // if attenuate_weight_regain < 1., additional punishment if track is close to boundary and no segment
   const float attenuate_weight_regain = 0.5;
 
-  for (int i = 1; i <= 8; ++i) {  // loop over all possible stations
+  for (int i = 1; i <= 9; ++i) {  // loop over all possible stations
 
     // first set all weights if a station has been crossed
     // later penalize if a station did not have a matching segment
@@ -164,6 +193,24 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
           else
             station_weight[i - 1] = 0.40f;
           break;
+        // this condition is necessary for Phase-2 conditions
+        // since for eta > 2., the muon can cross up to 5 stations (1 ME0 + 4 CSC)
+        // does not influence DTs and CSC up to eta<~2.
+        case 5:
+        if (hasME0) {
+          if (position_in_stations == 1)
+            station_weight[i - 1] = 0.10f;
+          else if (position_in_stations == 2)
+            station_weight[i - 1] = 0.10f;
+          else if (position_in_stations == 3)
+            station_weight[i - 1] = 0.20f;
+          else if (position_in_stations == 4)
+            station_weight[i - 1] = 0.25f;
+          else
+            station_weight[i - 1] = 0.35f;
+          break;
+        }
+        else [[fallthrough]];
 
         default:
           // 	LogTrace("MuonIdentification")<<"            // Message: A muon candidate track has more than 4 stations with matching segments.";
@@ -171,6 +218,7 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
           // for all other cases
           station_weight[i - 1] = 1.f / nr_of_stations_crossed;
       }
+
 
       if (use_weight_regain_at_chamber_boundary) {  // reconstitute some weight if there is no match but the segment is close to a boundary:
         if (station_has_segmentmatch[i - 1] <= 0 && stations_w_track_at_boundary[i - 1] != 0.) {
@@ -240,14 +288,14 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
               }
             }
           }
-        } else {  // We are in the CSCs
+        } else if (i > 5 && i <= 9) {  // We are in the CSCs
           const float pullTot2 =
-              std::pow(muon.pullX(i - 4, 2, arbitrationType), 2.) + std::pow(muon.pullY(i - 4, 2, arbitrationType), 2.);
+              std::pow(muon.pullX(i - 5, 2, arbitrationType), 2.) + std::pow(muon.pullY(i - 5, 2, arbitrationType), 2.);
           if (pullTot2 > 1.f) {
             // reduce weight
             if (use_match_dist_penalty) {
               const float dxy2 =
-                  std::pow(muon.dX(i - 4, 2, arbitrationType), 2.) + std::pow(muon.dY(i - 4, 2, arbitrationType), 2.);
+                  std::pow(muon.dX(i - 5, 2, arbitrationType), 2.) + std::pow(muon.dY(i - 5, 2, arbitrationType), 2.);
               // only use pull if 3 sigma is not smaller than 3 cm
               if (dxy2 < 9.f && pullTot2 > 9.f) {
                 if (dxy2 > 1.f)
@@ -257,7 +305,37 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
               }
             }
           }
-        }
+        } else {  // We are in the ME0
+          const float pullTot2 =
+              std::pow(muon.pullX(i - 5, 4,  reco::Muon::GEMSegmentAndTrackArbitration), 2.)+std::pow((muon.dDxDz(i - 5, 4, reco::Muon::GEMSegmentAndTrackArbitration))/0.0001, 2.); // no Y info because it's rough for ME0, a future implementation could be adding dXdZ
+          if (pullTot2 > 1.f) {              // reduce weight
+              if (use_match_dist_penalty) {
+                  station_weight[i - 1] *= 1.f / std::pow(fabs(pullTot2), .125);
+              }
+            }
+          // add a penalization based on the number of hits along the ME0 station:
+          for (const auto& chamberMatch : muon.matches()) {
+              if (chamberMatch.detector() == MuonSubdetId::GEM && chamberMatch.station() == 0) {
+                  for (const auto& segment_match : chamberMatch.gemMatches) {
+                      if (segment_match.gemSegmentRef.isNonnull()) {
+                          ME0_nHits = segment_match.gemSegmentRef->recHits().size();
+                          break; // take the first valid
+                      }
+                  }
+              }
+          }
+          switch (ME0_nHits) {
+            case 4:
+              station_weight[i - 1] *= 0.77f;
+              break;
+            case 5:
+              station_weight[i - 1] *= 0.85f;
+              break;
+            default:
+              station_weight[i - 1] *= 1.0f;
+              break;
+          }
+      }
       }
 
       // Thoughts:
@@ -287,10 +365,15 @@ float muon::segmentCompatibility(const reco::Muon& muon, reco::Muon::Arbitration
   return full_weight;
 }
 
+bool muon::isGoodMuon(const reco::Muon& muon, SelectionType type, reco::Muon::ArbitrationType arbitrationType) {
+   return isGoodMuon(muon, type, arbitrationType, false);
+}
+
 bool muon::isGoodMuon(const reco::Muon& muon,
                       AlgorithmType type,
                       double minCompatibility,
-                      reco::Muon::ArbitrationType arbitrationType) {
+                      reco::Muon::ArbitrationType arbitrationType,
+                      bool isPhase2) {
   if (!muon.isMatchesValid())
     return false;
   bool goodMuon = false;
@@ -298,10 +381,19 @@ bool muon::isGoodMuon(const reco::Muon& muon,
   switch (type) {
     case TM2DCompatibility:
       // Simplistic first cut in the 2D segment- vs calo-compatibility plane. Will have to be refined!
+      if (isPhase2 && std::abs(muon.eta()) >= 1.52) {
+        //only rely on segmentCompatibility since caloCompatibility is not correct in the HGCAL coverage
+         if ((2 * segmentCompatibility(muon, arbitrationType)) > minCompatibility)
+            goodMuon = true;
+         else
+            goodMuon = false;
+      }
+       else{
       if (((0.8 * caloCompatibility(muon)) + (1.2 * segmentCompatibility(muon, arbitrationType))) > minCompatibility)
         goodMuon = true;
       else
         goodMuon = false;
+       }
       return goodMuon;
       break;
     default:
@@ -643,7 +735,7 @@ bool muon::isGoodMuon(const reco::Muon& muon,
   return goodMuon;
 }
 
-bool muon::isGoodMuon(const reco::Muon& muon, SelectionType type, reco::Muon::ArbitrationType arbitrationType) {
+bool muon::isGoodMuon(const reco::Muon& muon, SelectionType type, reco::Muon::ArbitrationType arbitrationType, bool isPhase2) {
   switch (type) {
     case muon::All:
       return true;
@@ -711,11 +803,11 @@ bool muon::isGoodMuon(const reco::Muon& muon, SelectionType type, reco::Muon::Ar
       break;
       //compatibility loose
     case muon::TM2DCompatibilityLoose:
-      return muon.isTrackerMuon() && isGoodMuon(muon, TM2DCompatibility, 0.7, arbitrationType);
+      return muon.isTrackerMuon() && isGoodMuon(muon, TM2DCompatibility, 0.7, arbitrationType, isPhase2);
       break;
       //compatibility tight
     case muon::TM2DCompatibilityTight:
-      return muon.isTrackerMuon() && isGoodMuon(muon, TM2DCompatibility, 1.0, arbitrationType);
+      return muon.isTrackerMuon() && isGoodMuon(muon, TM2DCompatibility, 1.0, arbitrationType, isPhase2);
       break;
     case muon::GMTkChiCompatibility:
       return muon.isGlobalMuon() && muon.isQualityValid() &&

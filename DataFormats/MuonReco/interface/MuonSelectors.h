@@ -145,10 +145,14 @@ namespace muon {
 
   reco::Muon::Selector selectorFromString(const std::string& label);
 
-  /// main GoodMuon wrapper call
   bool isGoodMuon(const reco::Muon& muon,
-                  SelectionType type,
-                  reco::Muon::ArbitrationType arbitrationType = reco::Muon::SegmentAndTrackArbitration);
+                    SelectionType type,
+                    reco::Muon::ArbitrationType arbitrationType = reco::Muon::SegmentAndTrackArbitration);
+
+  bool isGoodMuon(const reco::Muon& muon,
+                    SelectionType type,
+                    reco::Muon::ArbitrationType arbitrationType,
+                    bool isPhase2);
 
   // ===========================================================================
   //                               Support functions
@@ -156,10 +160,16 @@ namespace muon {
   enum AlgorithmType { TMLastStation, TM2DCompatibility, TMOneStation, RPCMu, ME0Mu, GEMMu };
 
   // specialized GoodMuon functions called from main wrapper
+  //bool isGoodMuon(const reco::Muon& muon,
+  //                AlgorithmType type,
+  //                double minCompatibility,
+  //                reco::Muon::ArbitrationType arbitrationType);
+
   bool isGoodMuon(const reco::Muon& muon,
-                  AlgorithmType type,
-                  double minCompatibility,
-                  reco::Muon::ArbitrationType arbitrationType);
+                        AlgorithmType type,
+                        double minCompatibility,
+                        reco::Muon::ArbitrationType arbitrationType,
+                        bool isPhase2 = false);
 
   bool isGoodMuon(const reco::Muon& muon,
                   AlgorithmType type,
