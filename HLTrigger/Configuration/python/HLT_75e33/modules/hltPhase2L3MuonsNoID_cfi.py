@@ -113,7 +113,8 @@ hltPhase2L3MuonsNoID = cms.EDProducer("MuonIdProducer",
         PionTemplateFileName = cms.FileInPath('RecoMuon/MuonIdentification/data/MuID_templates_pions_lowPt_3_1_norm.root'),
         allSiPMHO = cms.bool(False),
         delta_eta = cms.double(0.02),
-        delta_phi = cms.double(0.02)
+        delta_phi = cms.double(0.02),
+        isPhase2 = cms.bool(False)
     ),
     TimingFillerParameters = cms.PSet(
         CSCTimingParameters = cms.PSet(
