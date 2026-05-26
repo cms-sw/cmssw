@@ -137,6 +137,7 @@ void MuonCaloCompatibility::configure(const edm::ParameterSet& iConfig) {
   use_corrected_hcal = true;
   use_em_special = true;
   isConfigured_ = true;
+  isPhase2_    = iConfig.getParameter<bool>("isPhase2");
 }
 
 bool MuonCaloCompatibility::accessing_overflow(const TH2D& histo, double x, double y) {
@@ -152,6 +153,9 @@ bool MuonCaloCompatibility::accessing_overflow(const TH2D& histo, double x, doub
 }
 
 double MuonCaloCompatibility::evaluate(const reco::Muon& amuon) {
+   // Muon calo compatibility not yet updated for Phase2
+  if (isPhase2_)
+    return 0.5; // return "unknown" for Phase2 until we have updated templates for Phase2
   if (!isConfigured_) {
     edm::LogWarning("MuonIdentification") << "MuonCaloCompatibility is not configured! Nothing is calculated.";
     return -9999;
