@@ -178,8 +178,7 @@ void CSCTFAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &c) {
     edm::Handle<L1CSCTrackCollection> tracks;
     e.getByToken(L1CST_Tok, tracks);
     if (tracks.isValid()) {
-      int nTrk = 0;
-      for (L1CSCTrackCollection::const_iterator trk = tracks->begin(); trk < tracks->end(); trk++, nTrk++) {
+      for (L1CSCTrackCollection::const_iterator trk = tracks->begin(); trk < tracks->end(); trk++) {
         int sector = 6 * (trk->first.endcap() - 1) + trk->first.sector() - 1;
         int tbin = trk->first.BX();
         edm::LogInfo("CSCTFAnalyzer") << "   Track sector: " << (sector + 1) << "  tbin: " << tbin << " "
