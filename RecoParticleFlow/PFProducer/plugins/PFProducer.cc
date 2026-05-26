@@ -367,7 +367,7 @@ void PFProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 
   // For PFMuonAlgo
   edm::ParameterSetDescription psd_PFMuonAlgo;
-  PFMuonAlgo::fillPSetDescription(psd_PFMuonAlgo);
+  psd_PFMuonAlgo.setAllowAnything();
   desc.add<edm::ParameterSetDescription>("PFMuonAlgoParameters", psd_PFMuonAlgo);
 
   // Input displaced vertices

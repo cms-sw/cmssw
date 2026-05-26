@@ -18,7 +18,6 @@ public:
   /// constructor
   PFMuonAlgo(edm::ParameterSet const&, bool postMuonCleaning);
 
-  static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
   ////STATIC MUON ID METHODS
   static bool isMuon(const reco::PFBlockElement& elt);
@@ -146,11 +145,13 @@ private:
   const double punchThroughFactor_;
   const double punchThroughMETFactor_;
   const double cosmicRejDistance_;
+  static bool hasME0_;
 
   double sumetPU_;
   double sumet_;
   double METX_;
   double METY_;
+
 
   ///////COMPARATORS
 

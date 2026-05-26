@@ -24,6 +24,12 @@ from RecoParticleFlow.PFProducer.chargedHadronPFTrackIsolation_cfi import *
 from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import *
 fixedGridRhoFastjetAllTmp = fixedGridRhoFastjetAll.clone(pfCandidatesTag = "particleFlowTmp")
 
+from RecoParticleFlow.PFProducer.pfMuon_cfi import pfMuonAlgoParameters
+particleFlowTmp.PFMuonAlgoParameters = pfMuonAlgoParameters
+
+from Configuration.Eras.Modifier_phase2_GE0_cff import phase2_GE0
+phase2_GE0.toModify(particleFlowTmp.PFMuonAlgoParameters, hasME0 = True)
+
 particleFlowTmpTask = cms.Task(particleFlowTmp)
 particleFlowTmpSeq = cms.Sequence(particleFlowTmpTask)
 
@@ -52,6 +58,8 @@ _phase2_hgcal_particleFlowTmp = cms.EDProducer(
 
 )
 
+
+
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toReplaceWith( particleFlowTmp, _phase2_hgcal_particleFlowTmp )
 phase2_hgcal.toModify(
@@ -60,6 +68,7 @@ phase2_hgcal.toModify(
     # If true, PF(Muon)Algo will ignore muon candidates incorporated via pfTICL
     # in addMissingMuons. This will prevent potential double-counting.
 )
+
 
 #
 # for simPF

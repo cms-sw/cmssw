@@ -14,6 +14,8 @@ using namespace std;
 using namespace reco;
 using namespace boost;
 
+bool PFMuonAlgo::hasME0_ = false;
+
 PFMuonAlgo::PFMuonAlgo(const edm::ParameterSet& iConfig, bool postMuonCleaning)
 
     : pfCosmicsMuonCleanedCandidates_(std::make_unique<reco::PFCandidateCollection>()),
@@ -43,7 +45,10 @@ PFMuonAlgo::PFMuonAlgo(const edm::ParameterSet& iConfig, bool postMuonCleaning)
       minPunchThroughEnergy_(iConfig.getParameter<double>("minEnergyForPunchThrough")),
       punchThroughFactor_(iConfig.getParameter<double>("punchThroughFactor")),
       punchThroughMETFactor_(iConfig.getParameter<double>("punchThroughMETFactor")),
-      cosmicRejDistance_(iConfig.getParameter<double>("cosmicRejectionDistance")) {}
+      cosmicRejDistance_(iConfig.getParameter<double>("cosmicRejectionDistance"))
+      {
+        hasME0_ = iConfig.getParameter<bool>("hasME0");
+      }
 
 bool PFMuonAlgo::isMuon(const reco::PFBlockElement& elt) {
   const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
@@ -177,15 +182,19 @@ bool PFMuonAlgo::isTrackerTightMuon(const reco::MuonRef& muonRef) {
 
   unsigned nTrackerHits = track.hitPattern().numberOfValidTrackerHits();
 
-  if (nTrackerHits <= 12)
+  if (hasME0_ && std::abs(muonRef->eta()) > 2.3) {
+    return nTrackerHits > 8;
+  } else if (nTrackerHits <= 12) {
     return false;
+  }
 
   bool isAllArbitrated = muon::isGoodMuon(*muonRef, muon::AllArbitrated);
 
-  bool isTM2DCompatibilityTight = muon::isGoodMuon(*muonRef, muon::TM2DCompatibilityTight);
+  bool isTM2DCompatibilityTight = muon::isGoodMuon(*muonRef, muon::TM2DCompatibilityTight, reco::Muon::SegmentAndTrackArbitration, hasME0_);
 
-  if (!isAllArbitrated || !isTM2DCompatibilityTight)
+  if (!isAllArbitrated || !isTM2DCompatibilityTight) {
     return false;
+  }
 
   if ((trackerMu->ptError() / trackerMu->pt() > 0.10)) {
     //std::cout<<" PT ERROR > 10 % "<< trackerMu->pt() <<std::endl;
@@ -1038,28 +1047,4 @@ void PFMuonAlgo::removeDeadCandidates(reco::PFCandidateCollection* obj, const st
     obj->at(indices.at(i)) = obj->at(collSize - i - 1);
 
   obj->resize(collSize - indices.size());
-}
-
-void PFMuonAlgo::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
-  // Muon ID and post cleaning parameters
-  iDesc.add<double>("maxDPtOPt", 1.0);
-  iDesc.add<std::string>("trackQuality", "highPurity");
-  iDesc.add<double>("ptErrorScale", 8.0);
-
-  iDesc.add<double>("eventFractionForCleaning", 0.5);
-  iDesc.add<double>("minPtForPostCleaning", 20.0);
-  iDesc.add<double>("eventFactorForCosmics", 10.0);
-  iDesc.add<double>("metSignificanceForCleaning", 3.0);
-  iDesc.add<double>("metSignificanceForRejection", 4.0);
-  iDesc.add<double>("metFactorForCleaning", 4.0);
-  iDesc.add<double>("eventFractionForRejection", 0.8);
-  iDesc.add<double>("metFactorForRejection", 4.0);
-  iDesc.add<double>("metFactorForHighEta", 25.0);
-  iDesc.add<double>("ptFactorForHighEta", 2.0);
-  iDesc.add<double>("metFactorForFakes", 4.0);
-  iDesc.add<double>("minMomentumForPunchThrough", 100.0);
-  iDesc.add<double>("minEnergyForPunchThrough", 100.0);
-  iDesc.add<double>("punchThroughFactor", 3.0);
-  iDesc.add<double>("punchThroughMETFactor", 4.0);
-  iDesc.add<double>("cosmicRejectionDistance", 1.0);
 }
