@@ -385,7 +385,8 @@ id_score_t l1ct::TkEgCID_EB_v1::compute_score(const CompositeCandidate &cand,
 
   // FIXME: this is a workaround as the training was erronously done with this variable
   ap_ufixed<16, 0> calo_invPt = l1ct::invert_with_shift<pt_t, ap_ufixed<16, 0>, 1024>(calo.hwPt);
-  float reliso_hack = calo.floatRelIso() * calo_invPt.to_float();
+  float reliso_hack = calo.hwPt == 1 ? calo.floatRelIso() : calo.floatRelIso() * calo_invPt.to_float();
+  
   l1ct::rel_iso_t hw_reliso_hack = l1ct::Scales::makeRelIso(reliso_hack);
   float cl_relIso = hw_reliso_hack.to_float(); 
   float cl_staWP = calo.hwEmID & 0x1;
