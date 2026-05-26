@@ -736,6 +736,9 @@ phase2_common.toModify(FEVTDEBUGHLTEventContent,
                            'keep *_hltMergeLayerClusters_*_*',
                            'keep *_hltParticleFlowRecHit*_*_*',
                            'keep *_hltEgammaGsfTracksL1Seeded_*_*',
+                           'keep *_hltPFMET_*_*',
+                           'keep *_hltPFPuppiMET_*_*',
+                           'keep *_hltPFPuppiMETTypeOne_*_*',
                        ])
 
 phase2_muon.toModify(FEVTDEBUGHLTEventContent, 
