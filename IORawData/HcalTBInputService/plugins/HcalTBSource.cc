@@ -18,7 +18,7 @@ HcalTBSource::HcalTBSource(const edm::ParameterSet& pset, edm::InputSourceDescri
       m_quiet(pset.getUntrackedParameter<bool>("quiet", true)),
       m_onlyRemapped(pset.getUntrackedParameter<bool>("onlyRemapped", false)),
       m_skip(pset.getUntrackedParameter<uint32_t>("skipEvents", 0)),
-      m_fromFiles(pset) {
+      m_inputFileCatalog(pset) {
   m_tree = nullptr;
   m_fileCounter = -1;
   m_file = nullptr;
@@ -123,9 +123,10 @@ bool HcalTBSource::setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::Event
       m_file = nullptr;
       m_tree = nullptr;
     }
-    if (m_fileCounter >= int(m_fromFiles.fileNames(0).size()))
+    std::vector<std::string> physicalFileNames = m_inputFileCatalog.allPFNsFromFirstCatalog();
+    if (m_fileCounter >= int(physicalFileNames.size()))
       return false;  // nothing good
-    openFile(m_fromFiles.fileNames(0)[m_fileCounter]);
+    openFile(physicalFileNames[m_fileCounter]);
     is_new = true;
   }
 

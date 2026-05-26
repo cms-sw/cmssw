@@ -12,6 +12,7 @@
 #include "FWStorage/StorageFactory/interface/StorageFactory.h"
 #include "FWStorage/StorageFactory/interface/StatisticsSenderService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 
 #include "TSystem.h"
 
@@ -23,20 +24,16 @@ namespace edm {
 
   RootInputFileSequence::RootInputFileSequence(ParameterSet const& pset, InputFileCatalog const& catalog)
       : catalog_(catalog),
-        lfn_("unknown"),
-        lfnHash_(0U),
+        cfn_("unknown"),
+        cfnHash_(0U),
         usedFallback_(false),
         findFileForSpecifiedID_(nullptr),
-        fileIterBegin_(fileCatalogItems().begin()),
-        fileIterEnd_(fileCatalogItems().end()),
+        fileIterBegin_(configuredFileNames().begin()),
+        fileIterEnd_(configuredFileNames().end()),
         fileIter_(fileIterEnd_),
         fileIterLastOpened_(fileIterEnd_),
         rootFile_(),
-        indexesIntoFiles_(fileCatalogItems().size()) {}
-
-  std::vector<FileCatalogItem> const& RootInputFileSequence::fileCatalogItems() const {
-    return catalog_.fileCatalogItems();
-  }
+        indexesIntoFiles_(configuredFileNames().size()) {}
 
   std::shared_ptr<ProductRegistry const> RootInputFileSequence::fileProductRegistry() const {
     assert(rootFile());
@@ -125,7 +122,12 @@ namespace edm {
           std::make_unique<std::unordered_multimap<size_t, size_t>>();  // propagate_const<T> has no reset() function
       auto hasher = std::hash<std::string>();
       for (auto fileIter = fileIterBegin_; fileIter != fileIterEnd_; ++fileIter) {
-        findFileForSpecifiedID_->insert(std::make_pair(hasher(fileIter->logicalFileName()), fileIter - fileIterBegin_));
+        // This is a bug, but I'm keeping it here to maintain the previous behavior.
+        // Likely we will fix this in a future PR soon.
+        // We probably should be hashing the configuredFileName,
+        // not setting it to empty when there is a ":".
+        std::string const& lfn = catalog_.logicalFileName(*fileIter);
+        findFileForSpecifiedID_->insert(std::make_pair(hasher(lfn), fileIter - fileIterBegin_));
       }
     }
     // Look up the logical file name in the table
@@ -177,7 +179,7 @@ namespace edm {
       for (auto it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
         if (*it && (*it)->containsItem(run, lumi, event)) {
           // We found it. Close the currently open file, and open the correct one.
-          std::vector<FileCatalogItem>::const_iterator currentIter = fileIter_;
+          std::vector<std::string>::const_iterator currentIter = fileIter_;
           setAtFileSequenceNumber(it - indexesIntoFiles_.begin());
           if (fileIter_ != currentIter) {
             initFile(false);
@@ -217,10 +219,17 @@ namespace edm {
       return;
     }
 
+    std::vector<std::string> pfns = physicalFileNames();
+    if (pfns.empty()) {
+      // It should be impossible for this to happen.
+      // Just a sanity check.
+      throw cms::Exception("LogicalError") << "Catalog returned empty PFN vector";
+    }
+
     // Check if the logical file name was found.
-    if (fileNames()[0].empty()) {
+    if (pfns[0].empty()) {
       // LFN not found in catalog.
-      InputFile::reportSkippedFile(fileNames()[0], logicalFileName());
+      InputFile::reportSkippedFile(pfns[0], logicalFileName());
       if (!skipBadFiles) {
         throw cms::Exception("LogicalFileNameNotFound", "RootFileSequenceBase::initTheFile()\n")
             << "Logical file name '" << logicalFileName() << "' was not found in the file catalog.\n"
@@ -232,42 +241,42 @@ namespace edm {
       return;
     }
 
-    lfn_ = logicalFileName().empty() ? fileNames()[0] : logicalFileName();
-    lfnHash_ = std::hash<std::string>()(lfn_);
+    cfn_ = *fileIter_;
+    cfnHash_ = std::hash<std::string>()(cfn_);
     usedFallback_ = false;
 
     std::shared_ptr<InputFile> filePtr;
     std::list<std::string> originalInfo;
-
-    std::vector<std::string> const& fNames = fileNames();
 
     //this tries to open the file using multiple PFNs corresponding to different data catalogs
     {
       std::list<std::string> exInfo;
       std::list<std::string> additionalMessage;
       std::unique_ptr<InputSource::FileOpenSentry> sentry(
-          input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_) : nullptr);
+          input ? std::make_unique<InputSource::FileOpenSentry>(*input, cfn_) : nullptr);
       edm::Service<edm::storage::StatisticsSenderService> service;
       if (service.isAvailable()) {
-        service->openingFile(lfn(), inputType, -1);
+        service->openingFile(cfn(), inputType, -1);
       }
-      for (std::vector<std::string>::const_iterator it = fNames.begin(); it != fNames.end(); ++it) {
+
+      for (std::vector<std::string>::const_iterator it = pfns.begin(); it != pfns.end(); ++it) {
+        std::string const& pfn = *it;
         try {
-          usedFallback_ = (it != fNames.begin());
-          std::unique_ptr<char[]> name(gSystem->ExpandPathName(it->c_str()));
+          usedFallback_ = (it != pfns.begin());
+          std::unique_ptr<char[]> name(gSystem->ExpandPathName(pfn.c_str()));
           filePtr = std::make_shared<InputFile>(name.get(), "  Initiating request to open file ", inputType);
           break;
-        } catch (cms::Exception const& e) {
-          if (!skipBadFiles && std::next(it) == fNames.end()) {
-            InputFile::reportSkippedFile((*it), logicalFileName());
+        } catch (cms::Exception const& fileOpenException) {
+          if (!skipBadFiles && std::next(it) == pfns.end()) {
+            InputFile::reportSkippedFile(pfn, logicalFileName());
             errors::ErrorCodes errorCode = usedFallback_ ? errors::FallbackFileOpenError : errors::FileOpenError;
-            Exception ex(errorCode, "", e);
+            Exception ex(errorCode, "", fileOpenException);
             ex.addContext("Calling RootInputFileSequence::initTheFile()");
-            ex.addAdditionalInfo(std::format("Failed to open the file with physical name {}.", (*it)));
+            ex.addAdditionalInfo(std::format("Failed to open the file with physical name {}.", pfn));
             //report previous exceptions when use other names to open file
             for (auto const& s : exInfo)
               ex.addAdditionalInfo(s);
-            ex.addAdditionalInfo(std::format("Attempted to open logical file {}.", lfn()));
+            ex.addAdditionalInfo(std::format("Attempted to open logical file {}.", cfn()));
             //report more information of the earlier file open failures in a log message
             if (not additionalMessage.empty()) {
               edm::LogWarning l("RootInputFileSequence");
@@ -278,20 +287,21 @@ namespace edm {
             throw ex;
           } else {
             //NOTE: additional info of an exception is written in reverse order in the `what` message.
-            if (e.category() != "FileOpenError") {
+            if (fileOpenException.category() != "FileOpenError") {
               exInfo.push_front(std::format(
                   "Failed to open file with physical name {}. Will attempt fallback. The error was\nError type {}\n{}",
-                  (*it),
-                  e.category(),
-                  e.additionalInfo().empty() ? std::string() : e.additionalInfo().front()));
+                  pfn,
+                  fileOpenException.category(),
+                  fileOpenException.additionalInfo().empty() ? std::string()
+                                                             : fileOpenException.additionalInfo().front()));
             } else {
               exInfo.push_front(
-                  std::format("Failed to open the file with physical name {}. Will attempt fallback.", (*it)));
+                  std::format("Failed to open the file with physical name {}. Will attempt fallback.", pfn));
             }
             additionalMessage.push_back(std::format(
-                "Input file {} could not be opened, and fallback was attempted.\nAdditional information:", *it));
+                "Input file {} could not be opened, and fallback was attempted.\nAdditional information:", pfn));
             char c = 'a';
-            for (auto const& ai : e.additionalInfo()) {
+            for (auto const& ai : fileOpenException.additionalInfo()) {
               additionalMessage.push_back(std::format("  [{}] {}", c, ai));
               ++c;
             }
@@ -301,7 +311,7 @@ namespace edm {
     }
     if (filePtr) {
       size_t currentIndexIntoFile = fileIter_ - fileIterBegin_;
-      rootFile_ = makeRootFile(filePtr);
+      rootFile_ = makeRootFile(filePtr, pfns[0]);
       assert(rootFile_);
       if (input) {
         rootFile_->setSignals(&(input->preEventReadFromSourceSignal_), &(input->postEventReadFromSourceSignal_));
@@ -310,23 +320,33 @@ namespace edm {
       setIndexIntoFile(currentIndexIntoFile);
       rootFile_->reportOpened(inputTypeName);
     } else {
-      std::string fName = !fNames.empty() ? fNames[0] : "";
-      InputFile::reportSkippedFile(fName, logicalFileName());  //0 cause exception?
+      std::string const& pfn = pfns[0];
+      InputFile::reportSkippedFile(pfn, logicalFileName());  //0 cause exception?
       if (!skipBadFiles) {
-        throw Exception(errors::FileOpenError) << "RootFileSequenceBase::initTheFile(): Input file " << fName
-                                               << " was not found or could not be opened.\n";
+        throw Exception(errors::FileOpenError)
+            << "RootFileSequenceBase::initTheFile(): Input file " << pfn << " was not found or could not be opened.\n";
       }
       LogWarning("RootInputFileSequence")
-          << "Input file: " << fName << " was not found or could not be opened, and will be skipped.\n";
+          << "Input file: " << pfn << " was not found or could not be opened, and will be skipped.\n";
     }
   }
 
   void RootInputFileSequence::closeFile() {
     edm::Service<edm::storage::StatisticsSenderService> service;
     if (rootFile() and service.isAvailable()) {
-      service->closedFile(lfn(), usedFallback());
+      service->closedFile(cfn(), usedFallback());
     }
     closeFile_();
+  }
+
+  std::vector<std::string> RootInputFileSequence::physicalFileNames() const {
+    return catalog_.physicalFileNames(*fileIter_);
+  }
+
+  std::string const& RootInputFileSequence::logicalFileName() const { return catalog_.logicalFileName(*fileIter_); }
+
+  std::vector<std::string> const& RootInputFileSequence::configuredFileNames() const {
+    return catalog_.configuredFileNames();
   }
 
   void RootInputFileSequence::setIndexIntoFile(size_t index) {
