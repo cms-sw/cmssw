@@ -50,7 +50,7 @@ PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
       srcTrackTimeError_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeErrorMap"))),
       srcTrackTimeQuality_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeQualityMap"))),
       muons_(consumes<reco::MuonCollection>(conf.getParameter<edm::InputTag>("muonSrc"))),
-      pfmu_(std::make_unique<PFMuonAlgo>(conf.getParameterSet("pfMuonAlgoParameters"),
+      pfmu_(std::make_unique<PFMuonAlgo>(conf.getParameterSet("PFMuonAlgoParameters"),
                                          false)) {  // postMuonCleaning = false
   produces<reco::PFCandidateCollection>();
 }
@@ -68,8 +68,8 @@ void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   // For PFMuonAlgo
   desc.add<edm::InputTag>("muonSrc", edm::InputTag("muons1stStep"));
   edm::ParameterSetDescription psd_PFMuonAlgo;
-  PFMuonAlgo::fillPSetDescription(psd_PFMuonAlgo);
-  desc.add<edm::ParameterSetDescription>("pfMuonAlgoParameters", psd_PFMuonAlgo);
+  psd_PFMuonAlgo.setAllowAnything();
+  desc.add<edm::ParameterSetDescription>("PFMuonAlgoParameters", psd_PFMuonAlgo);
   //
   descriptions.add("pfTICLProducer", desc);
 }

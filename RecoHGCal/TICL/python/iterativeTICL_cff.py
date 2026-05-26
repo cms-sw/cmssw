@@ -21,6 +21,9 @@ ticlTrackstersMerge = _trackstersMergeProducer.clone()
 ticlTrackstersMergeV3 = _trackstersMergeProducerV3.clone()
 
 pfTICL = _pfTICLProducer.clone()
+from RecoParticleFlow.PFProducer.pfMuon_cfi import pfMuonAlgoParameters
+pfTICL.PFMuonAlgoParameters = pfMuonAlgoParameters
+
 ticlPFTask = cms.Task(pfTICL)
 
 ticlIterationsTask = cms.Task(
