@@ -240,7 +240,7 @@ void Phase2GCTBarrelToCorrelatorLayer1::produce(edm::Event& iEvent, const edm::E
 
     // Repeat for PF Clusters
     for (size_t iCluster = 0; iCluster < inputPFClusters->size(); ++iCluster) {
-      l1tp2::CaloPFCluster pfIn = inputPFClusters->at(iCluster);
+      const l1tp2::CaloPFCluster & pfIn = inputPFClusters->at(iCluster);
 
       // Skip zero-energy clusters
       if (pfIn.clusterEt() == 0)
@@ -251,7 +251,7 @@ void Phase2GCTBarrelToCorrelatorLayer1::produce(edm::Event& iEvent, const edm::E
       float phiDifference = p2eg::deltaPhiInDegrees(clusterRealPhiAsDegree, regionCentersInDegrees[iRegion]);
       if (std::abs(phiDifference) < (p2eg::PHI_RANGE_PER_SLR_DEGREES / 4)) {  // only unique region
         // For PFClusters, the method clusterEta returns a float, so we need to digitize this
-        float eta_LSB = p2eg::ECAL_eta_range / (p2eg::N_GCTTOWERS_FIBER * p2eg::CRYSTALS_IN_TOWER_ETA);
+        static const float eta_LSB = p2eg::ECAL_eta_range / (p2eg::N_GCTTOWERS_FIBER * p2eg::CRYSTALS_IN_TOWER_ETA);
         int temp_iEta_signed = std::floor(pfIn.clusterEta() / eta_LSB);
         // Default value (for positive eta)
         int iEta = temp_iEta_signed;
@@ -266,8 +266,20 @@ void Phase2GCTBarrelToCorrelatorLayer1::produce(edm::Event& iEvent, const edm::E
         if (iEta > maxEta) {
           continue;
         }
-
-        ap_uint<7> pf_eta = (ap_uint<7>)((abs(pfIn.clusterEta()) - (eta_LSB / 2)) / eta_LSB);
+        ap_uint<7> pf_eta = (ap_uint<7>)((std::abs(pfIn.clusterEta())/ eta_LSB));
+        // std::cout << "[GCT] PF Cluster: eta in =" << pfIn.clusterEta() 
+        //           << " abs: " << std::abs(pfIn.clusterEta())
+        //           << " ratio: " << std::abs(pfIn.clusterEta())/ eta_LSB
+        //           << " floor: " << std::floor(std::abs(pfIn.clusterEta())/ eta_LSB)
+        //           << " rounded: " << std::floor(( std::abs(pfIn.clusterEta())/ eta_LSB) + 0.5)
+        //           << ", eta out=" << pf_eta.to_int() 
+        //           << " float: " << pf_eta * eta_LSB 
+        //           << " ieta: " << iEta 
+        //           << " (f) " << iEta * eta_LSB 
+        //           << " LSB: " << eta_LSB 
+        //           << " diff: " << std::abs(std::abs(pfIn.clusterEta()) - (pf_eta * eta_LSB))/ eta_LSB 
+        //           << std::endl;
+        
         ap_int<7> pf_phi = 0x7F & int(std::floor(phiDifference));  // greatest integer <= x
 
         // Initialize the new cluster

@@ -170,13 +170,8 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
       int gctphi = tempPfclusters.GCTpfclusters[i].phi;
       float towereta = realEta[gcteta][gctphi];
       float towerphi = realPhi[gcteta][gctphi];
-      l1tp2::CaloPFCluster l1CaloPFCluster;
-      l1CaloPFCluster.setClusterEt(tempPfclusters.GCTpfclusters[i].et);
-      l1CaloPFCluster.setEcalEt(tempPfclusters.GCTpfclusters[i].ecal);
-      l1CaloPFCluster.setClusterIEta(gcteta);
-      l1CaloPFCluster.setClusterIPhi(gctphi);
-      l1CaloPFCluster.setClusterEta(towereta);
-      l1CaloPFCluster.setClusterPhi(towerphi);
+      reco::Particle::PolarLorentzVector clusterP4(tempPfclusters.GCTpfclusters[i].et, towereta, towerphi, 0);
+      l1tp2::CaloPFCluster l1CaloPFCluster(clusterP4, tempPfclusters.GCTpfclusters[i].et, tempPfclusters.GCTpfclusters[i].ecal, gcteta, gctphi, towereta, towerphi);
       pfclusterCands->push_back(l1CaloPFCluster);
     }
   }
