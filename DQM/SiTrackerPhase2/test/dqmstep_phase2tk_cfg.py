@@ -29,7 +29,7 @@ process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
 process.load('Configuration.StandardSequences.RecoSim_cff')
-#process.load('Configuration.StandardSequences.Validation_cff')
+process.load('Configuration.StandardSequences.Validation_cff')
 process.load('DQMServices.Core.DQMStoreNonLegacy_cff')
 process.load('DQMOffline.Configuration.DQMOffline_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -114,23 +114,21 @@ process.load('RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi')
 process.rechits_step = cms.Path(process.siPhase2RecHits * process.siPixelRecHits)
 #DQM modules
 process.load('DQM.SiTrackerPhase2.Phase2TrackerDQMFirstStep_cff')
-process.load('DQM.SiTrackerPhase2.Phase2OTMonitorRecHit_cfi')
 
-process.otdqm_seq = cms.Sequence(process.trackerphase2DQMSource.copy()*process.Phase2OTMonitorRecHit)
+process.otdqm_seq = cms.Sequence(process.trackerphase2DQMSource.copy())
 
-#process.load('Validation.SiTrackerPhase2V.Phase2TrackerValidationFirstStep_cff')
-#process.load('Validation.SiTrackerPhase2V.Phase2OTValidateRecHit_cfi')
+process.load('Validation.SiTrackerPhase2V.Phase2TrackerValidationFirstStep_cff')
 
-#process.otvalid_seq = cms.Sequence(process.trackerphase2ValidationSource.copy()*process.Phase2OTValidateRecHit)
+process.otvalid_seq = cms.Sequence(process.trackerphase2ValidationSource.copy())
 
 process.dqm_step=cms.Path(process.otdqm_seq)
-#process.validation_step=cms.Path(process.otvalid_seq)
+process.validation_step=cms.Path(process.otvalid_seq)
 
 
 # Schedule definition
 process.schedule = cms.Schedule(process.rechits_step,
                                 process.dqm_step,
-                                #process.validation_step,
+                                process.validation_step,
                                 process.DQMoutput_step
 )
 # customisation of the process.
