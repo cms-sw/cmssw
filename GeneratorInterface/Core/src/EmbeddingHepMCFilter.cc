@@ -84,7 +84,7 @@ bool EmbeddingHepMCFilter::filter(const HepMC::GenEvent *evt) {
 
     if (!isHardProc) {
       continue;
-    } else if (pdg_id == tauonPDGID_) {
+    } else if (pdg_id == tauonPDGID_ && (*particle)->status() != 746) {
       reco::Candidate::LorentzVector p4Vis;
       decay_and_sump4Vis((*particle), p4Vis);  // recursive access to final states.
       p4VisPair_.push_back(p4Vis);
@@ -119,36 +119,39 @@ bool EmbeddingHepMCFilter::filter(const HepMC::GenEvent *evt) {
 
 void EmbeddingHepMCFilter::decay_and_sump4Vis(HepMC::GenParticle *particle, reco::Candidate::LorentzVector &p4Vis) {
   bool decaymode_known = false;
-  for (HepMC::GenVertex::particle_iterator daughter = particle->end_vertex()->particles_begin(HepMC::children);
-       daughter != particle->end_vertex()->particles_end(HepMC::children);
-       ++daughter) {
-    bool neutrino = (std::abs((*daughter)->pdg_id()) == tauon_neutrino_PDGID_) ||
-                    (std::abs((*daughter)->pdg_id()) == muon_neutrino_PDGID_) ||
-                    (std::abs((*daughter)->pdg_id()) == electron_neutrino_PDGID_);
 
-    // Determining DecayMode, if particle is tau lepton.
-    // Asuming, that there are only the two tauons from the Z-boson.
-    // This is the case for the simulated Z->tautau event constructed by EmbeddingLHEProducer.
-    if (std::abs(particle->pdg_id()) == tauonPDGID_ && !decaymode_known) {
-      // use these bools to protect againt taus that aren't the last copy (which "decay" to a tau and a gamma)
-      bool isGamma = std::abs((*daughter)->pdg_id()) == 22;
-      bool isTau = std::abs((*daughter)->pdg_id()) == 15;
-      if (std::abs((*daughter)->pdg_id()) == muonPDGID_) {
-        DecayChannel_.fill(TauDecayMode::Muon);
-        decaymode_known = true;
-      } else if (std::abs((*daughter)->pdg_id()) == electronPDGID_) {
-        DecayChannel_.fill(TauDecayMode::Electron);
-        decaymode_known = true;
-      } else if (!neutrino && !isGamma && !isTau) {
-        DecayChannel_.fill(TauDecayMode::Hadronic);
-        decaymode_known = true;
+  if (particle->end_vertex() != nullptr) {
+    for (HepMC::GenVertex::particle_iterator daughter = particle->end_vertex()->particles_begin(HepMC::children);
+         daughter != particle->end_vertex()->particles_end(HepMC::children);
+         ++daughter) {
+      bool neutrino = (std::abs((*daughter)->pdg_id()) == tauon_neutrino_PDGID_) ||
+                      (std::abs((*daughter)->pdg_id()) == muon_neutrino_PDGID_) ||
+                      (std::abs((*daughter)->pdg_id()) == electron_neutrino_PDGID_);
+
+      // Determining DecayMode, if particle is tau lepton.
+      // Asuming, that there are only the two tauons from the Z-boson.
+      // This is the case for the simulated Z->tautau event constructed by EmbeddingLHEProducer.
+      if (std::abs(particle->pdg_id()) == tauonPDGID_ && !decaymode_known) {
+        // use these bools to protect againt taus that aren't the last copy (which "decay" to a tau and a gamma)
+        bool isGamma = std::abs((*daughter)->pdg_id()) == 22;
+        bool isTau = std::abs((*daughter)->pdg_id()) == 15;
+        if (std::abs((*daughter)->pdg_id()) == muonPDGID_) {
+          DecayChannel_.fill(TauDecayMode::Muon);
+          decaymode_known = true;
+        } else if (std::abs((*daughter)->pdg_id()) == electronPDGID_) {
+          DecayChannel_.fill(TauDecayMode::Electron);
+          decaymode_known = true;
+        } else if (!neutrino && !isGamma && !isTau) {
+          DecayChannel_.fill(TauDecayMode::Hadronic);
+          decaymode_known = true;
+        }
       }
+      // Adding up all visible momentum in recursive way.
+      if ((*daughter)->status() == 1 && !neutrino)
+        p4Vis += (reco::Candidate::LorentzVector)(*daughter)->momentum();
+      else if (!neutrino)
+        decay_and_sump4Vis((*daughter), p4Vis);
     }
-    // Adding up all visible momentum in recursive way.
-    if ((*daughter)->status() == 1 && !neutrino)
-      p4Vis += (reco::Candidate::LorentzVector)(*daughter)->momentum();
-    else if (!neutrino)
-      decay_and_sump4Vis((*daughter), p4Vis);
   }
 }
 
