@@ -27,6 +27,11 @@ ALCARECOTkAlHLTTracks = Alignment.CommonAlignmentProducer.AlignmentTrackSelector
 ALCARECOTkAlHLTTracks.src = cms.InputTag("hltMergedTracks") # run on hltMergedTracks instead of generalTracks
 ALCARECOTkAlHLTTracks.filter = True ##do not store empty events	
 
+## modify input tracks for HLT Aligmment PCL during Heavy Ions
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(ALCARECOTkAlHLTTracks,
+                         src = "hltMergedTracksPPOnAA")
+
 ALCARECOTkAlHLTTracks.applyBasicCuts = True
 ALCARECOTkAlHLTTracks.ptMin = 0.65 ##GeV
 ALCARECOTkAlHLTTracks.pMin = 1.5 ##GeV
