@@ -65,7 +65,7 @@ namespace edm {
           } else {
             assert(it.first.type() ==
                    productResolverContainer_->dataKeys_[perRecordInfo.indexToDataKeys_ + index].type());
-            auto lengthDataLabel = std::strlen(it.first.name().value());
+            [[maybe_unused]] auto lengthDataLabel = std::strlen(it.first.name().value());
             assert(std::strncmp(
                        it.first.name().value(),
                        productResolverContainer_->dataKeys_[perRecordInfo.indexToDataKeys_ + index].name().value(),

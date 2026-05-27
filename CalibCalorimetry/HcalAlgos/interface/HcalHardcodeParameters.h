@@ -26,7 +26,8 @@ public:
                          const std::vector<double>& darkCurrent,
                          const std::vector<double>& noiseCorrelation,
                          double noiseThreshold,
-                         double seedThreshold);
+                         double seedThreshold,
+                         double pulseDelay);
 
   //construct from pset
   HcalHardcodeParameters(const edm::ParameterSet& p);
@@ -51,6 +52,7 @@ public:
   double noiseCorrelation(unsigned index) const;
   inline double noiseThreshold() const { return noiseThreshold_; }
   inline double seedThreshold() const { return seedThreshold_; }
+  inline double pulseDelay() const { return pulseDelay_; }
 
 private:
   //member variables
@@ -66,6 +68,7 @@ private:
   bool doSipmRadiationDamage_;
   HcalSiPMRadiationDamage sipmRadiationDamage_;
   double noiseThreshold_, seedThreshold_;
+  double pulseDelay_;
 };
 
 #endif

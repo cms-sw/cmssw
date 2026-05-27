@@ -113,8 +113,7 @@ namespace edm {
     // constructors and destructor
     //
     edm::service::MessageLogger::MessageLogger(ParameterSet const& iPS, ActivityRegistry& iRegistry)
-        : debugEnabled_(false),
-          messageServicePSetHasBeenValidated_(false),
+        : messageServicePSetHasBeenValidated_(false),
           messageServicePSetValidatationResults_(),
           nonModule_debugEnabled(false),
           nonModule_infoEnabled(true),
@@ -526,8 +525,11 @@ namespace edm {
       } else {
         messageDrop->debugEnabled = debugEnabledModules_.count(state);  // change log 8
       }
-      std::map<const std::string, ELseverityLevel>::const_iterator it =
-          suppression_levels_.find(state);  // change log 8
+      // Note: std::map keys are implicitly const; writing 'const std::string'
+      // as the key type creates a distinct map type with an incompatible
+      // iterator (libc++ is strict about this, libstdc++ silently allows the
+      // conversion).  Use auto to avoid the mismatch entirely.
+      auto it = suppression_levels_.find(state);  // change log 8
       if (it != suppression_levels_.end()) {
         messageDrop->debugEnabled = messageDrop->debugEnabled && (it->second < ELseverityLevel::ELsev_success);
         messageDrop->infoEnabled = (it->second < ELseverityLevel::ELsev_info);
