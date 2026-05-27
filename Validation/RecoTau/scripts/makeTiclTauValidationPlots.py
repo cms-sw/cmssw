@@ -94,7 +94,7 @@ def histo_values_2D(h, error=False):
     ])
     return values
 
-def overlay_efficiency(list_objs, out):
+def overlay_efficiency(list_objs, out, legend_title_override=None):
 
     fontsize = 20
     fig, ax = plt.subplots(figsize=(10, 10))
@@ -116,26 +116,57 @@ def overlay_efficiency(list_objs, out):
     has_ge_ch = any('_ge' in h and 'ch_' in h for h in hnames)
     has_ge_pi0 = any('_ge' in h and 'pi0_' in h for h in hnames)
     
-    if has_all:
-        legend_title = "Full tau efficiency"
-    elif has_ge_ch:
-        # Extract N from first _geNch histogram
-        for h in hnames:
-            if '_ge' in h and 'ch_' in h:
-                match = re.search(r'_ge(\d+)ch', h)
-                if match:
-                    N = match.group(1)
-                    legend_title = f"≥{N} charged hadron efficiency"
-                    break
-    elif has_ge_pi0:
-        # Extract N from first _geNpi0 histogram
-        for h in hnames:
-            if '_ge' in h and 'pi0_' in h:
-                match = re.search(r'_ge(\d+)pi0', h)
-                if match:
-                    N = match.group(1)
-                    legend_title = f"≥{N} π⁰ efficiency"
-                    break
+    def _charged_or_pi0_mode(names):
+        """Infer charged/pi0 selection flavor from histogram names."""
+        if any("_track_" in h for h in names):
+            return "track"
+        if any("_calo_" in h for h in names):
+            return "calo"
+        if any("_both_" in h for h in names):
+            return "both"
+        if any("_either_" in h for h in names):
+            return "either"
+        if any("_signal_" in h for h in names):
+            return "signal"
+        if any("_iso_" in h for h in names):
+            return "iso"
+        return "endpoint"
+
+    mode_label = {
+        "track": " (track-matched)",
+        "calo": " (TICL-matched)",
+        "both": " (track AND TICL)",
+        "either": " (track OR TICL)",
+        "signal": " (signal region)",
+        "iso": " (isolation region)",
+        "endpoint": " (tau endpoint)",
+    }
+
+    if legend_title_override is None:
+        if has_all:
+            legend_title = "Full tau efficiency"
+        elif has_ge_ch:
+            # Extract N from first _geNch histogram
+            for h in hnames:
+                if '_ge' in h and 'ch_' in h:
+                    match = re.search(r'_ge(\d+)ch', h)
+                    if match:
+                        N = match.group(1)
+                        mode = _charged_or_pi0_mode(hnames)
+                        legend_title = f"≥{N} charged hadron efficiency{mode_label.get(mode, '')}"
+                        break
+        elif has_ge_pi0:
+            # Extract N from first _geNpi0 histogram
+            for h in hnames:
+                if '_ge' in h and 'pi0_' in h:
+                    match = re.search(r'_ge(\d+)pi0', h)
+                    if match:
+                        N = match.group(1)
+                        mode = _charged_or_pi0_mode(hnames)
+                        legend_title = f"≥{N} π⁰ efficiency{mode_label.get(mode, '')}"
+                        break
+    else:
+        legend_title = legend_title_override
                             
     # Extract variable from histogram name (pt or eta)
     hname = list_objs[0].GetName()
@@ -603,24 +634,50 @@ def plot_tau_level_efficiencies(ctx):
         for N, hists in sorted(eff_ge_pi0_eta.items()):
             overlay_efficiency(list(hists), os.path.join(ctx.out_dir, f"tau_eff_ge{N}pi0_dm_overlay_eta.png"))
 
-    # Cross-DM overlays for two-fold kinds (at the "all charged" level per DM)
+    # Cross-DM overlays for two-fold kinds:
+    # - ge1ch: common >=1 charged threshold across DMs
+    # - allCh: DM-dependent all-expected charged threshold (DM0/1/2: >=1, DM10/11: >=3)
+    mode_label = {
+        "track": " (track-matched)",
+        "calo": " (TICL-matched)",
+        "both": " (track AND TICL)",
+        "either": " (track OR TICL)",
+    }
     for kind in ["track", "calo", "both", "either"]:
         for var in ctx.vars:
-            objs = []
+            objs_ge1 = []
+            objs_all = []
             for dm in ctx.dm_list:
                 if dm not in ch_legs_by_dm:
                     continue
                 d_dm = ctx.get_dm_tdir(dm)
                 if not d_dm:
                     continue
-                N_all = ch_legs_by_dm[dm]
-                nm = f"eff_tau_dm{dm}_ge{N_all}ch_{kind}_{var}"
-                obj = d_dm.Get(nm)
-                if obj:
-                    obj.SetTitle(f"DM {dm}")
-                    objs.append(obj)
-            if objs:
-                overlay_efficiency(objs, os.path.join(ctx.out_dir, f"tau_eff_allCh_{kind}_dm_overlay_{var}.png"))
+                nm_ge1 = f"eff_tau_dm{dm}_ge1ch_{kind}_{var}"
+                obj_ge1 = d_dm.Get(nm_ge1)
+                if obj_ge1:
+                    obj_ge1.SetTitle(f"DM {dm}")
+                    objs_ge1.append(obj_ge1)
+
+                n_all = ch_legs_by_dm[dm]
+                nm_all = f"eff_tau_dm{dm}_ge{n_all}ch_{kind}_{var}"
+                obj_all = d_dm.Get(nm_all)
+                if obj_all:
+                    obj_all.SetTitle(f"DM {dm}")
+                    objs_all.append(obj_all)
+
+            if objs_ge1:
+                overlay_efficiency(
+                    objs_ge1,
+                    os.path.join(ctx.out_dir, f"tau_eff_ge1ch_{kind}_dm_overlay_{var}.png"),
+                    legend_title_override=f"≥1 charged hadron efficiency{mode_label[kind]}",
+                )
+            if objs_all:
+                overlay_efficiency(
+                    objs_all,
+                    os.path.join(ctx.out_dir, f"tau_eff_allCh_{kind}_dm_overlay_{var}.png"),
+                    legend_title_override=f"All charged hadron efficiency{mode_label[kind]}",
+                )
 
 
 def plot_inputs_and_matrices(ctx):

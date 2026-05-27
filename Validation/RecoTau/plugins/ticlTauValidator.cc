@@ -89,12 +89,13 @@ private:
   using TracksterToTracksterMap = ticl::AssociationMap<ticl::mapWithSharedEnergyAndScore,
                                                        std::vector<ticl::Trackster>,
                                                        std::vector<ticl::Trackster>>;
+  using CPToCandidateIdxMap = std::unordered_map<unsigned int, std::vector<size_t>>;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   
   struct AssocCounts {
-    int nSigCh = 0;            // Signal charged (pion) + neutral hadron (K_L) PF cands
+    int nSigCh = 0;            // Signal charged PF cands
     int nSigPho = 0;           // Signal photon + electron PF cands
     int nAssocCalo = 0;         // Matched via TICL chain (endcap PF candidates)
     int nAssocTrack = 0;        // Matched via track -> TP -> CP (any PF with trackRef)
@@ -105,8 +106,10 @@ private:
                                            size_t barrelSize,
                                            const std::unordered_set<unsigned int>& tauCPKeys,
                                            const std::vector<TICLCandidate>& ticlCandidates,
+                                           const std::vector<TICLCandidate>& simTICLCandidates,
+                                           const CPToCandidateIdxMap& simTICLCandidateIdxsByCPKey,
+                                           const std::unordered_map<size_t, std::unordered_set<unsigned int>>& simTracksterToCPKeys,
                                            const TracksterToTracksterMap& recoToSimMap,
-                                           const std::vector<ticl::Trackster>& simTracksters,
                                            const std::vector<CaloParticle>* caloParticles,
                                            const reco::RecoToSimCollection* trackRecoToSim = nullptr) const;
 
@@ -122,7 +125,7 @@ private:
   edm::EDGetTokenT<reco::PFCandidateCollection> pfTmpBarrelToken_;
 
   edm::EDGetTokenT<std::vector<TICLCandidate>>       ticlCandidatesToken_;
-  edm::EDGetTokenT<std::vector<ticl::Trackster>>     simTrackstersToken_;
+  edm::EDGetTokenT<std::vector<TICLCandidate>>       simTICLCandidatesToken_;
   edm::EDGetTokenT<TracksterToTracksterMap>          allTrkToSimTrkAssocByLCsToken_;
   edm::EDGetTokenT<reco::PFJetCollection>            pfJetsToken_;
   edm::EDGetTokenT<reco::GenParticleCollection>      genParticlesToken_;
@@ -193,6 +196,21 @@ private:
 
   // Any hadronic tau decay mode, excluding leptonic modes
   static inline bool isHadronicDM(int dm) { return dm >= 0 && dm < 16; }
+
+  static void collectTrackKeys(const TICLCandidate& cand, std::unordered_set<size_t>& trackKeys);
+  static void collectTracksterKeys(const TICLCandidate& cand, std::vector<size_t>& tracksterKeys);
+  static bool collectSimCandidateTracksterKeys(unsigned int cpKey,
+                                               const std::vector<TICLCandidate>& simTICLCandidates,
+                                               const CPToCandidateIdxMap& simTICLCandidateIdxsByCPKey,
+                                               std::vector<size_t>& tracksterKeys);
+  static void collectSimCandidateTrackKeys(unsigned int cpKey,
+                                           const std::vector<TICLCandidate>& simTICLCandidates,
+                                           const CPToCandidateIdxMap& simTICLCandidateIdxsByCPKey,
+                                           std::unordered_set<size_t>& trackKeys);
+  static bool candidateSharesTrackWithSimCandidates(const TICLCandidate& cand,
+                                                    const std::unordered_set<unsigned int>& cpKeys,
+                                                    const CPToCandidateIdxMap& simTICLCandidateIdxsByCPKey,
+                                                    const std::vector<TICLCandidate>& simTICLCandidates);
 
   template<int N>
   struct StepHistsT {
@@ -314,7 +332,6 @@ private:
   MonitorElement* cp_chHad_trackAndCalo_pt_dm_[kNDMGen]  = {};
   MonitorElement* cp_chHad_trackAndCalo_eta_dm_[kNDMGen] = {};
   // Photon equivalents (photons have no track, so trackOnly is always empty;
-  // kept for uniform structure; caloOnly = TICL-matched)
   MonitorElement* cp_gamma_caloOnly_pt_dm_[kNDMGen]  = {};
   MonitorElement* cp_gamma_caloOnly_eta_dm_[kNDMGen] = {};
 
@@ -346,7 +363,7 @@ TICLTauValidator::TICLTauValidator(const edm::ParameterSet& iConfig)
   pfTmpBarrelToken_ = consumes<reco::PFCandidateCollection>(  iConfig.getParameter<edm::InputTag>("pfTmpBarrel") );
 
   ticlCandidatesToken_ = consumes<std::vector<TICLCandidate>>(   iConfig.getParameter<edm::InputTag>("ticlCandidates") );
-  simTrackstersToken_  = consumes<std::vector<ticl::Trackster>>( iConfig.getParameter<edm::InputTag>("simTracksters") );
+  simTICLCandidatesToken_ = consumes<std::vector<TICLCandidate>>(iConfig.getParameter<edm::InputTag>("simTICLCandidates") );
   allTrkToSimTrkAssocByLCsToken_ = consumes<TracksterToTracksterMap>(
     iConfig.getParameter<edm::InputTag>("simToRecoTracksterAssocByLCs") );
   pfJetsToken_       = consumes<reco::PFJetCollection>(        iConfig.getParameter<edm::InputTag>("jets") );
@@ -663,10 +680,10 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
   if (!caloParticlesToken_.isUninitialized())
     iEvent.getByToken(caloParticlesToken_, caloParticles);
   edm::Handle<reco::PFTauCollection>     taus;               iEvent.getByToken(tauProducerToken_, taus);
-  edm::Handle<std::vector<ticl::Trackster>> simTracksters;   iEvent.getByToken(simTrackstersToken_, simTracksters);
   edm::Handle<TracksterToTracksterMap>   simToRecoMap;       iEvent.getByToken(allTrkToSimTrkAssocByLCsToken_, simToRecoMap);
   edm::Handle<TracksterToTracksterMap>   recoToSimMap;       iEvent.getByToken(recoToSimAssocByLCsToken_, recoToSimMap);
   edm::Handle<std::vector<TICLCandidate>> ticlCandidates;    iEvent.getByToken(ticlCandidatesToken_, ticlCandidates);
+  edm::Handle<std::vector<TICLCandidate>> simTICLCandidates; iEvent.getByToken(simTICLCandidatesToken_, simTICLCandidates);
   edm::Handle<reco::PFCandidateCollection> pfMerged;         iEvent.getByToken(pfToken_, pfMerged);
   edm::Handle<reco::PFCandidateCollection> pfTmpBarrel;      iEvent.getByToken(pfTmpBarrelToken_, pfTmpBarrel);
   edm::Handle<reco::PFJetCollection>      pfJets;            iEvent.getByToken(pfJetsToken_, pfJets);
@@ -700,21 +717,67 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
     edm::LogWarning("TICLTauValidator") << "simTaus invalid, skipping event " << iEvent.id();
     return;
   }
+  if (!simTICLCandidates.isValid()) {
+    edm::LogWarning("TICLTauValidator") << "sim TICL candidate collection missing in event " << iEvent.id();
+  } else if (!caloParticles.isValid()) {
+    edm::LogWarning("TICLTauValidator")
+        << "caloParticles collection missing; cannot map sim TICL candidates back to CaloParticle keys in event "
+        << iEvent.id();
+  }
 
   std::vector<std::string> eventChains;
   std::set<unsigned int> seenCPChargedEvent, seenCPPhotonEvent;
   std::set<unsigned int> seenCPTwoFoldCharged, seenCPTwoFoldPhoton;  // dedup for two-fold numerators
 
-  // Build set of TrackingParticle indices that have at least one matched reco track.
-  // Used for CP-level forward track matching (CP -> TP -> reco track).
-  std::unordered_set<size_t> tpWithRecoTrack;
+  CPToCandidateIdxMap simTICLCandidateIdxsByCPKey;
+  std::unordered_map<size_t, std::unordered_set<unsigned int>> simTracksterToCPKeys;
+  if (simTICLCandidates.isValid() && caloParticles.isValid()) {
+    std::unordered_map<unsigned int, unsigned int> simClusterToCPKey;
+    for (size_t cpKey = 0; cpKey < caloParticles->size(); ++cpKey) {
+      for (const auto& simClusterRef : (*caloParticles)[cpKey].simClusters()) {
+        if (simClusterRef.isNonnull())
+          simClusterToCPKey[simClusterRef.key()] = static_cast<unsigned int>(cpKey);
+      }
+    }
+
+    for (size_t candIdx = 0; candIdx < simTICLCandidates->size(); ++candIdx) {
+      std::unordered_set<unsigned int> candidateCPKeys;
+      const auto& cand = (*simTICLCandidates)[candIdx];
+      for (const auto& tracksterPtr : cand.tracksters()) {
+        if (!tracksterPtr.isNonnull())
+          continue;
+        const auto& trackster = *tracksterPtr;
+        const int seedIndex = trackster.seedIndex();
+        if (seedIndex < 0)
+          continue;
+
+        if (trackster.seedID() == caloParticles.id()) {
+          const auto cpKey = static_cast<unsigned int>(seedIndex);
+          if (cpKey < caloParticles->size())
+            candidateCPKeys.insert(cpKey);
+        } else {
+          auto simClusterIt = simClusterToCPKey.find(static_cast<unsigned int>(seedIndex));
+          if (simClusterIt != simClusterToCPKey.end())
+            candidateCPKeys.insert(simClusterIt->second);
+        }
+      }
+
+      std::vector<size_t> simTracksterKeys;
+      collectTracksterKeys(cand, simTracksterKeys);
+      for (const auto cpKey : candidateCPKeys) {
+        simTICLCandidateIdxsByCPKey[cpKey].push_back(candIdx);
+        for (const auto simTracksterKey : simTracksterKeys)
+          simTracksterToCPKeys[simTracksterKey].insert(cpKey);
+      }
+    }
+  }
+
   // Reverse map: TP index -> reco track keys (for track chain steps)
   std::unordered_map<size_t, std::vector<size_t>> tpToRecoTrackKeys;
   if (trackRecoToSim.isValid() && trackingParticles.isValid()) {
     for (const auto& entry : *trackRecoToSim) {
       for (const auto& tpMatch : entry.val) {
         const size_t tpKey = tpMatch.first.key();
-        tpWithRecoTrack.insert(tpKey);
         tpToRecoTrackKeys[tpKey].push_back(entry.key.key());
       }
     }
@@ -778,6 +841,178 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
     std::unordered_map<unsigned, PendingInfo> pendingHad;
     std::unordered_map<unsigned, PendingInfo> pendingGamma;
 
+    auto fillTrackChainForLeg = [&](const CaloParticle& cp, unsigned int cpKey, PendingInfo& pend) {
+      std::unordered_set<size_t> matchedRecoTrackKeys;
+
+      if (simTICLCandidates.isValid()) {
+        collectSimCandidateTrackKeys(cpKey, *simTICLCandidates, simTICLCandidateIdxsByCPKey, matchedRecoTrackKeys);
+        if (!matchedRecoTrackKeys.empty()) {
+          pend.trackStepPass[0] = true;
+          pend.trackStepPass[1] = true;
+          pend.trackMatched = true;
+        }
+      }
+
+      // Track Step 0: CP -> TP (find any TP sharing G4 tracks with this CP)
+      std::vector<size_t> matchedTPIndices;
+      if (trackingParticles.isValid()) {
+        for (const auto& cpG4 : cp.g4Tracks()) {
+          if (cpG4.eventId().event() != 0)
+            continue;
+          auto it = g4ToTPIdx.find(cpG4.trackId());
+          if (it != g4ToTPIdx.end()) {
+            for (size_t tpIdx : it->second)
+              matchedTPIndices.push_back(tpIdx);
+          }
+        }
+      }
+      if (!matchedTPIndices.empty())
+        pend.trackStepPass[0] = true;
+
+      // Track Step 1: TP -> reco Track
+      for (size_t tpIdx : matchedTPIndices) {
+        auto it = tpToRecoTrackKeys.find(tpIdx);
+        if (it != tpToRecoTrackKeys.end()) {
+          for (size_t trackKey : it->second)
+            matchedRecoTrackKeys.insert(trackKey);
+        }
+      }
+      if (!matchedRecoTrackKeys.empty()) {
+        pend.trackStepPass[1] = true;
+        pend.trackMatched = true;
+      }
+
+      // Track Step 2: reco Track -> PF candidate
+      for (size_t trackKey : matchedRecoTrackKeys) {
+        auto it = trackKeyToPFIdx.find(trackKey);
+        if (it != trackKeyToPFIdx.end()) {
+          for (size_t pfIdx : it->second)
+            pend.trackPFKeys.insert(pfIdx);
+        }
+      }
+      if (!pend.trackPFKeys.empty())
+        pend.trackStepPass[2] = true;
+
+      // Track Step 3: PF -> PFJet
+      if (pfJets.isValid() && pfMerged.isValid()) {
+        for (size_t pfIdx : pend.trackPFKeys) {
+          reco::PFCandidateRef pfRef(pfMerged, pfIdx);
+          for (size_t j = 0; j < pfJets->size(); ++j) {
+            const auto& jet = (*pfJets)[j];
+            for (const auto& pfPtr : jet.getPFConstituents()) {
+              if (pfPtr.isNonnull() && pfPtr.id() == pfRef.id() && pfPtr.key() == pfRef.key()) {
+                pend.trackJets.insert(j);
+                break;
+              }
+            }
+          }
+        }
+        if (!pend.trackJets.empty())
+          pend.trackStepPass[3] = true;
+
+        // Track Step 4: PFJet -> PFTau (signal region)
+        if (taus.isValid()) {
+          for (size_t t = 0; t < taus->size(); ++t) {
+            const auto& tau = (*taus)[t];
+            auto jetRef = tau.jetRef();
+            if (!jetRef)
+              continue;
+            bool jetMatch = false;
+            for (size_t j : pend.trackJets) {
+              if (jetRef.get() == &(*pfJets)[j]) {
+                jetMatch = true;
+                break;
+              }
+            }
+            if (!jetMatch)
+              continue;
+            for (size_t pfIdx : pend.trackPFKeys) {
+              reco::PFCandidateRef pfRef(pfMerged, pfIdx);
+              auto& flags = pend.trackTauRegion[t];
+              if (!flags.signal) {
+                for (const auto& p : tau.signalPFCands()) {
+                  if (p.id() == pfRef.id() && p.key() == pfRef.key()) {
+                    flags.signal = true;
+                    break;
+                  }
+                }
+              }
+              if (!flags.isolation) {
+                for (const auto& p : tau.isolationPFCands()) {
+                  if (p.id() == pfRef.id() && p.key() == pfRef.key()) {
+                    flags.isolation = true;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+          bool usedInTau = false;
+          for (const auto& tr : pend.trackTauRegion) {
+            if (tr.second.signal || tr.second.isolation) {
+              usedInTau = true;
+              break;
+            }
+          }
+          if (usedInTau)
+            pend.trackStepPass[4] = true;
+        }
+      }
+    };
+
+    auto findTICLCandidateIdxsForSimTracksters = [&](const std::vector<size_t>& simTracksterKeys,
+                                                     PendingInfo& pend) {
+      std::vector<size_t> matchedRecoTracksterKeys;
+
+      if (!simToRecoMap.isValid()) {
+        edm::LogWarning("TICLTauValidator")
+            << "Trackster association map is missing.";
+      } else if (simToRecoMap->size() == 0) {
+        edm::LogWarning("TICLTauValidator")
+            << "Trackster association map is empty.";
+      } else {
+        for (size_t simTracksterKey : simTracksterKeys) {
+          if (simTracksterKey >= simToRecoMap->size())
+            continue;
+          auto const& assocs = (*simToRecoMap)[simTracksterKey];
+          for (const auto& match : assocs) {
+            if (match.score() <= maxAssocScore_)  // smaller is better
+              matchedRecoTracksterKeys.push_back(match.index());
+          }
+        }
+      }
+
+      if (!matchedRecoTracksterKeys.empty())
+        pend.stepPass[1] = true;
+
+      std::vector<size_t> candIdxs;
+      if (ticlCandidates.isValid()) {
+        for (size_t ci = 0; ci < ticlCandidates->size(); ++ci) {
+          const auto& cand = (*ticlCandidates)[ci];
+          bool uses = false;
+          for (const auto& tracksterPtr : cand.tracksters()) {
+            if (!tracksterPtr.isNonnull())
+              continue;
+            const size_t tracksterKey = tracksterPtr.key();
+            if (std::find(matchedRecoTracksterKeys.begin(), matchedRecoTracksterKeys.end(), tracksterKey)
+                != matchedRecoTracksterKeys.end()) {
+              uses = true;
+              break;
+            }
+          }
+          if (uses)
+            candIdxs.push_back(ci);
+        }
+      } else {
+        edm::LogWarning("TICLTauValidator")
+          << "TICLCandidate collection missing";
+      }
+      if (!candIdxs.empty())
+        pend.stepPass[2] = true;
+
+      return candIdxs;
+    };
+
     // --- loop leaves ---
     for (const auto& leaf : link.leaves) {
       const int cp_id = leaf.calo_particle_idx();
@@ -824,22 +1059,11 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       if (isPhoton)        phoKinTicl[cpRef.key()] = {cp.pt(), cp.eta()};
 
       // Step 0: CP - SimTrackster
-      size_t matchedSimTkIdx = (size_t)-1;
-      if (simTracksters.isValid()) {
-        for (size_t si = 0; si < simTracksters->size(); ++si) {
-          const auto& simTk = (*simTracksters)[si];
-          const int seedIdx = simTk.seedIndex();
-          if (simTk.seedID() == cpRef.id() && seedIdx >= 0 &&
-              static_cast<unsigned>(seedIdx) == cpRef.key()) {
-            matchedSimTkIdx = si;
-            break;
-          }
-        }
-      } else {
-        edm::LogWarning("TICLTauValidator")
-          << "simTracksters collection missing ";
-      }
-      if (matchedSimTkIdx == (size_t)-1)
+      std::vector<size_t> matchedSimTracksterKeys;
+      if (simTICLCandidates.isValid())
+        collectSimCandidateTracksterKeys(
+            cpRef.key(), *simTICLCandidates, simTICLCandidateIdxsByCPKey, matchedSimTracksterKeys);
+      if (matchedSimTracksterKeys.empty())
         continue;
 
       if (!isChargedHadron && !isPhoton)
@@ -853,163 +1077,10 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
       pend.stepPass[0] = true;
 
 
-      if (isChargedHadron && trackingParticles.isValid()) {
-        // Track Step 0: CP -> TP (find any TP sharing G4 tracks with this CP)
-        std::vector<size_t> matchedTPIndices;
-        for (const auto& cpG4 : cp.g4Tracks()) {
-          if (cpG4.eventId().event() != 0)
-            continue;
-          auto it = g4ToTPIdx.find(cpG4.trackId());
-          if (it != g4ToTPIdx.end()) {
-            for (size_t tpIdx : it->second)
-              matchedTPIndices.push_back(tpIdx);
-          }
-        }
-        if (!matchedTPIndices.empty())
-          pend.trackStepPass[0] = true;
+      if (isChargedHadron)
+        fillTrackChainForLeg(cp, cpRef.key(), pend);
 
-        // Track Step 1: TP -> reco Track
-        std::unordered_set<size_t> matchedRecoTrackKeysSet;
-        for (size_t tpIdx : matchedTPIndices) {
-          auto it = tpToRecoTrackKeys.find(tpIdx);
-          if (it != tpToRecoTrackKeys.end()) {
-            for (size_t trkKey : it->second)
-              matchedRecoTrackKeysSet.insert(trkKey);
-          }
-        }
-        if (!matchedRecoTrackKeysSet.empty()) {
-          pend.trackStepPass[1] = true;
-          pend.trackMatched = true; 
-        }
-
-        // Track Step 2: reco Track -> PF candidate
-        for (size_t trkKey : matchedRecoTrackKeysSet) {
-          auto it = trackKeyToPFIdx.find(trkKey);
-          if (it != trackKeyToPFIdx.end()) {
-            for (size_t pfIdx : it->second)
-              pend.trackPFKeys.insert(pfIdx);
-          }
-        }
-        if (!pend.trackPFKeys.empty())
-          pend.trackStepPass[2] = true;
-
-        // Track Step 3: PF -> PFJet
-        if (pfJets.isValid() && pfMerged.isValid()) {
-          for (size_t pfIdx : pend.trackPFKeys) {
-            reco::PFCandidateRef pfRef(pfMerged, pfIdx);
-            for (size_t j = 0; j < pfJets->size(); ++j) {
-              const auto& jet = (*pfJets)[j];
-              for (const auto& pfPtr : jet.getPFConstituents()) {
-                if (pfPtr.isNonnull() &&
-                    pfPtr.id() == pfRef.id() && pfPtr.key() == pfRef.key()) {
-                  pend.trackJets.insert(j);
-                  break;
-                }
-              }
-            }
-          }
-          if (!pend.trackJets.empty())
-            pend.trackStepPass[3] = true;
-
-          // Track Step 4: PFJet -> PFTau (signal region)
-          if (taus.isValid()) {
-            for (size_t t = 0; t < taus->size(); ++t) {
-              const auto& tau = (*taus)[t];
-              auto jetRef = tau.jetRef();
-              if (!jetRef)
-                continue;
-              bool jetMatch = false;
-              for (size_t j : pend.trackJets) {
-                if (jetRef.get() == &(*pfJets)[j]) {
-                  jetMatch = true;
-                  break;
-                }
-              }
-              if (!jetMatch)
-                continue;
-              // check if any track-chain PF is in signal/isolation
-              for (size_t pfIdx : pend.trackPFKeys) {
-                reco::PFCandidateRef pfRef(pfMerged, pfIdx);
-                auto& flags = pend.trackTauRegion[t];
-                if (!flags.signal) {
-                  for (const auto& p : tau.signalPFCands()) {
-                    if (p.id() == pfRef.id() && p.key() == pfRef.key()) {
-                      flags.signal = true;
-                      break;
-                    }
-                  }
-                }
-                if (!flags.isolation) {
-                  for (const auto& p : tau.isolationPFCands()) {
-                    if (p.id() == pfRef.id() && p.key() == pfRef.key()) {
-                      flags.isolation = true;
-                      break;
-                    }
-                  }
-                }
-              }
-            }
-            bool usedInTau = false;
-            for (const auto& tr : pend.trackTauRegion) {
-              if (tr.second.signal || tr.second.isolation) {
-                usedInTau = true;
-                break;
-              }
-            }
-            if (usedInTau)
-              pend.trackStepPass[4] = true;
-          }
-        }
-      }
-
-      // Step 1: SimToReco & Step 2: Reco - TICLCandidate
-      std::vector<size_t> matchedRecoTkIdx;
-
-      if (!simToRecoMap.isValid()) {
-        // Product not there at all
-        edm::LogWarning("TICLTauValidator")
-            << "Trackster association map is missing.";
-      } else if (simToRecoMap->size() == 0 ||
-                 matchedSimTkIdx >= simToRecoMap->size()) {
-        edm::LogWarning("TICLTauValidator")
-            << "Trackster association map is empty "
-               "or does not contain entry for sim trackster index "
-            << matchedSimTkIdx << ".";
-      } else {
-        auto const& assocs = (*simToRecoMap)[matchedSimTkIdx];
-        for (const auto& m : assocs) {
-          if (m.score() <= maxAssocScore_)  // smaller is better
-            matchedRecoTkIdx.push_back(m.index());
-        }
-      }
-
-      if (!matchedRecoTkIdx.empty())
-        pend.stepPass[1] = true;
-
-      std::vector<size_t> candIdxs;
-      if (ticlCandidates.isValid()) {
-        for (size_t ci = 0; ci < ticlCandidates->size(); ++ci) {
-          const auto& cand = (*ticlCandidates)[ci];
-          bool uses = false;
-          for (const auto& tsPtr : cand.tracksters()) {
-            if (!tsPtr.isNonnull())
-              continue;
-            const size_t tkKey = tsPtr.key();
-            if (std::find(matchedRecoTkIdx.begin(), matchedRecoTkIdx.end(), tkKey)
-                != matchedRecoTkIdx.end()) {
-              uses = true;
-              break;
-            }
-          }
-          if (uses)
-            candIdxs.push_back(ci);
-        }
-      } else {
-        edm::LogWarning("TICLTauValidator")
-          << "TICLCandidate collection missing";
-      }
-      if (!candIdxs.empty())
-        pend.stepPass[2] = true;
+      const auto candIdxs = findTICLCandidateIdxsForSimTracksters(matchedSimTracksterKeys, pend);
 
       // Step 3: TICLCandidate - PF
       if (pfMerged.isValid()) {
@@ -1617,7 +1688,7 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
 
 } // links
 
-  // === FAKE RATE: loop reco taus, reverse the TICL association chain ===
+  // === FAKE RATE: loop reco taus, reverse the association chain ===
   // Build set of CaloParticle keys belonging to any simulated hadronic tau
   std::unordered_set<unsigned int> tauCPKeys;
   for (const auto& link : *simTaus) {
@@ -1662,7 +1733,8 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
     const int nPi0Fill = std::min(nPi0Sig, kMaxPi0Legs);
 
     auto assocCounts = countAssociatedSignalPFCands(tau, barrelSize, tauCPKeys,
-                    *ticlCandidates, *recoToSimMap, *simTracksters,
+                    *ticlCandidates, *simTICLCandidates, simTICLCandidateIdxsByCPKey, simTracksterToCPKeys,
+                    *recoToSimMap,
                     cpPtr,
                     trackRecoToSim.isValid() ? &(*trackRecoToSim) : nullptr);
     const bool isGenuine      = (assocCounts.nAssocAllParticles > 0);
@@ -1674,7 +1746,7 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
   };
 
   if (taus.isValid() && pfJets.isValid() && pfMerged.isValid() &&
-      ticlCandidates.isValid() && recoToSimMap.isValid() && simTracksters.isValid()) {
+      ticlCandidates.isValid() && simTICLCandidates.isValid() && recoToSimMap.isValid()) {
     for (size_t t = 0; t < taus->size(); ++t)
       processFakeRateTau((*taus)[t], fakeRate_, fakeRateCalo_, fakeRateTrack_);
   } else {
@@ -1683,12 +1755,12 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
                                         << " pfJets=" << (pfJets.isValid() ? "ok" : "invalid")
                                         << " pfMerged=" << (pfMerged.isValid() ? "ok" : "invalid")
                                         << " ticlCandidates=" << (ticlCandidates.isValid() ? "ok" : "invalid")
-                                        << " recoToSimMap=" << (recoToSimMap.isValid() ? "ok" : "invalid")
-                                        << " simTracksters=" << (simTracksters.isValid() ? "ok" : "invalid");
+                                        << " simTICLCandidates=" << (simTICLCandidates.isValid() ? "ok" : "invalid")
+                                        << " recoToSimMap=" << (recoToSimMap.isValid() ? "ok" : "invalid");
   }
 
   if (!finalFilterTauRefs.empty() && pfJets.isValid() && pfMerged.isValid() &&
-      ticlCandidates.isValid() && recoToSimMap.isValid() && simTracksters.isValid()) {
+    ticlCandidates.isValid() && simTICLCandidates.isValid() && recoToSimMap.isValid()) {
     for (const auto& tauRef : finalFilterTauRefs) {
       if (tauRef.isNonnull())
         processFakeRateTau(*tauRef, fakeRateFilt_, fakeRateCaloFilt_, fakeRateTrackFilt_);
@@ -1747,13 +1819,86 @@ void TICLTauValidator::fillFakeRateHists(const reco::PFTau& tau,
   }
 }
 
+void TICLTauValidator::collectTrackKeys(const TICLCandidate& cand, std::unordered_set<size_t>& trackKeys) {
+  const auto& trackPtrs = cand.trackPtrs();
+  for (const auto& trackPtr : trackPtrs) {
+    if (trackPtr.isNonnull())
+      trackKeys.insert(trackPtr.key());
+  }
+  const auto trackPtr = cand.trackPtr();
+  if (trackPtr.isNonnull())
+    trackKeys.insert(trackPtr.key());
+}
+
+void TICLTauValidator::collectTracksterKeys(const TICLCandidate& cand, std::vector<size_t>& tracksterKeys) {
+  for (const auto& tracksterPtr : cand.tracksters()) {
+    if (tracksterPtr.isNonnull())
+      tracksterKeys.push_back(tracksterPtr.key());
+  }
+}
+
+bool TICLTauValidator::collectSimCandidateTracksterKeys(
+    unsigned int cpKey,
+    const std::vector<TICLCandidate>& simTICLCandidates,
+    const CPToCandidateIdxMap& simTICLCandidateIdxsByCPKey,
+    std::vector<size_t>& tracksterKeys) {
+  auto candIt = simTICLCandidateIdxsByCPKey.find(cpKey);
+  if (candIt == simTICLCandidateIdxsByCPKey.end())
+    return false;
+
+  for (const auto candIdx : candIt->second) {
+    if (candIdx < simTICLCandidates.size())
+      collectTracksterKeys(simTICLCandidates[candIdx], tracksterKeys);
+  }
+  return !tracksterKeys.empty();
+}
+
+void TICLTauValidator::collectSimCandidateTrackKeys(
+    unsigned int cpKey,
+    const std::vector<TICLCandidate>& simTICLCandidates,
+    const CPToCandidateIdxMap& simTICLCandidateIdxsByCPKey,
+    std::unordered_set<size_t>& trackKeys) {
+  auto candIt = simTICLCandidateIdxsByCPKey.find(cpKey);
+  if (candIt == simTICLCandidateIdxsByCPKey.end())
+    return;
+
+  for (const auto candIdx : candIt->second) {
+    if (candIdx < simTICLCandidates.size())
+      collectTrackKeys(simTICLCandidates[candIdx], trackKeys);
+  }
+}
+
+bool TICLTauValidator::candidateSharesTrackWithSimCandidates(
+    const TICLCandidate& cand,
+    const std::unordered_set<unsigned int>& cpKeys,
+    const CPToCandidateIdxMap& simTICLCandidateIdxsByCPKey,
+    const std::vector<TICLCandidate>& simTICLCandidates) {
+  std::unordered_set<size_t> recoTrackKeys;
+  collectTrackKeys(cand, recoTrackKeys);
+  if (recoTrackKeys.empty())
+    return false;
+
+  for (const auto cpKey : cpKeys) {
+    std::unordered_set<size_t> simTrackKeys;
+    collectSimCandidateTrackKeys(cpKey, simTICLCandidates, simTICLCandidateIdxsByCPKey, simTrackKeys);
+    for (const auto trackKey : simTrackKeys) {
+      if (recoTrackKeys.count(trackKey))
+        return true;
+    }
+  }
+
+  return false;
+}
+
 TICLTauValidator::AssocCounts TICLTauValidator::countAssociatedSignalPFCands(
     const reco::PFTau& tau,
     size_t barrelSize,
     const std::unordered_set<unsigned int>& tauCPKeys,
     const std::vector<TICLCandidate>& ticlCandidates,
+    const std::vector<TICLCandidate>& simTICLCandidates,
+    const CPToCandidateIdxMap& simTICLCandidateIdxsByCPKey,
+    const std::unordered_map<size_t, std::unordered_set<unsigned int>>& simTracksterToCPKeys,
     const TracksterToTracksterMap& recoToSimMap,
-    const std::vector<ticl::Trackster>& simTracksters,
     const std::vector<CaloParticle>* caloParticles,
     const reco::RecoToSimCollection* trackRecoToSim) const {
   AssocCounts counts;
@@ -1781,6 +1926,14 @@ TICLTauValidator::AssocCounts TICLTauValidator::countAssociatedSignalPFCands(
     bool caloMatched = false;
 
     // Track matching: try for ANY PF candidate with a valid trackRef
+    if (pfKey >= barrelSize) {
+      const size_t ticlIdx = pfKey - barrelSize;
+      if (ticlIdx < ticlCandidates.size() &&
+          candidateSharesTrackWithSimCandidates(
+            ticlCandidates[ticlIdx], tauCPKeys, simTICLCandidateIdxsByCPKey, simTICLCandidates))
+        trackMatched = true;
+    }
+
     if (trackRecoToSim && caloParticles) {
       const auto trackRef = pfPtr->trackRef();
       if (trackRef.isNonnull()) {
@@ -1819,18 +1972,21 @@ TICLTauValidator::AssocCounts TICLTauValidator::countAssociatedSignalPFCands(
           for (const auto& m : recoToSimMap[recoTkIdx]) {
             const double score = m.score();
             const size_t simTkIdx = m.index();
-            if (simTkIdx >= simTracksters.size())
+            if (score > maxAssocScore_)
               continue;
 
-            const auto& simTk = simTracksters[simTkIdx];
-            const int seedIdx = simTk.seedIndex();
-            if (seedIdx < 0 || !tauCPKeys.count(static_cast<unsigned int>(seedIdx)))
+            auto cpIt = simTracksterToCPKeys.find(simTkIdx);
+            if (cpIt == simTracksterToCPKeys.end())
               continue;
 
-            if (score <= maxAssocScore_) {
+            for (const auto cpKey : cpIt->second) {
+              if (!tauCPKeys.count(cpKey))
+                continue;
               caloMatched = true;
               break;
             }
+            if (caloMatched)
+              break;
           }
           if (caloMatched)
             break;
@@ -1857,13 +2013,13 @@ void TICLTauValidator::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<edm::InputTag>("pfTmpBarrel", edm::InputTag("particleFlowTmpBarrel"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJets"));
   desc.add<edm::InputTag>("ticlCandidates", edm::InputTag("ticlCandidate"));
-  desc.add<edm::InputTag>("simTracksters", edm::InputTag("ticlSimTracksters", "fromCPs"));
+  desc.add<edm::InputTag>("simTICLCandidates", edm::InputTag("ticlSimTracksters"));
   desc.add<edm::InputTag>("simToRecoTracksterAssocByLCs",
                           edm::InputTag("allTrackstersToSimTrackstersAssociationsByLCs",
-                                        "ticlSimTrackstersfromCPsToticlCandidate"));
+                                        "ticlSimTrackstersToticlCandidate"));
   desc.add<edm::InputTag>("recoToSimTracksterAssocByLCs",
                           edm::InputTag("allTrackstersToSimTrackstersAssociationsByLCs",
-                                        "ticlCandidateToticlSimTrackstersfromCPs"));
+                                        "ticlCandidateToticlSimTracksters"));
   desc.add<edm::InputTag>("genParticles", edm::InputTag("genParticles"));
   desc.add<edm::InputTag>("genVisTaus", edm::InputTag("genVisTaus"));
   desc.add<edm::InputTag>("trackingParticles", edm::InputTag("mix", "MergedTrackTruth"));

@@ -15,13 +15,13 @@ hltTiclTauValidator = _ticlTauValidator.clone(
     pfTmpBarrel = cms.InputTag("hltParticleFlowTmpBarrel"),
     jets        = cms.InputTag("hltAK4PFJets"),
     ticlCandidates = cms.InputTag("hltTiclTrackstersMerge"),
-    simTracksters  = cms.InputTag("hltTiclSimTracksters","fromCPs"),
+    simTICLCandidates = cms.InputTag("hltTiclSimTracksters"),
     simToRecoTracksterAssocByLCs =
         cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs",
-                        "hltTiclSimTrackstersfromCPsTohltTiclTrackstersMerge"),
+                        "hltTiclSimTrackstersTohltTiclTrackstersMerge"),
     recoToSimTracksterAssocByLCs =
         cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs",
-                        "hltTiclTrackstersMergeTohltTiclSimTrackstersfromCPs"),
+                        "hltTiclTrackstersMergeTohltTiclSimTracksters"),
     genVisTaus = cms.InputTag("genVisTaus"),
     genParticles = cms.InputTag("genParticles"),
     maxAssocScore = 0.6,
@@ -32,8 +32,8 @@ ticl_v5.toModify(hltTiclTauValidator,
     ticlCandidates = cms.InputTag("hltTiclCandidate"),
     simToRecoTracksterAssocByLCs =
         cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs",
-                        "hltTiclSimTrackstersfromCPsTohltTiclCandidate"),
+                        "hltTiclSimTrackstersTohltTiclCandidate"),
     recoToSimTracksterAssocByLCs =
         cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs",
-                        "hltTiclCandidateTohltTiclSimTrackstersfromCPs"),
+                        "hltTiclCandidateTohltTiclSimTracksters"),
 )
