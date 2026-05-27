@@ -61,6 +61,7 @@ ticlTrackstersHFNoseTrkEM = ticlTrackstersTrkEM.clone(
     filtered_mask = "filteredLayerClustersHFNoseTrkEM:TrkEMn",
     seeding_regions = "ticlSeedingTrkHFNose",
     time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
+    patternRecognitionBy = cms.string('CA'),
     itername = "TrkEMn",
     pluginPatternRecognitionByCA = dict(
         filter_on_categories = [0, 1],
