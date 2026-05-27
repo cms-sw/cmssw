@@ -199,6 +199,11 @@ GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(DDFilteredView& fv, GEMDe
   bool ge0Station = detId.station() == GEMDetId::minStationId0;
   std::vector<double> dpar = ge0Station ? solid.parameters() : solid.solidA().parameters();
 
+  if (dpar.empty()) {
+    const DDBooleanSolid bs(fv.logicalPart().solid());
+    dpar = bs.solidA().parameters();
+  }
+
   double dy = convertMmToCm(dpar[0]);   //length is along local Y
   double dz = convertMmToCm(dpar[3]);   // thickness is long local Z
   double dx1 = convertMmToCm(dpar[4]);  // bottom width is along local X
@@ -232,6 +237,11 @@ GEMChamber* GEMGeometryBuilder::buildChamber(DDFilteredView& fv, GEMDetId detId)
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
   bool ge0Station = detId.station() == GEMDetId::minStationId0;
   std::vector<double> dpar = ge0Station ? solid.parameters() : solid.solidA().parameters();
+
+  if (dpar.empty()) {
+    const DDBooleanSolid bs(fv.logicalPart().solid());
+    dpar = bs.solidA().parameters();
+  }
 
   double dy = convertMmToCm(dpar[0]);   //length is along local Y
   double dz = convertMmToCm(dpar[3]);   // thickness is long local Z
@@ -280,6 +290,11 @@ GEMEtaPartition* GEMGeometryBuilder::buildEtaPartition(DDFilteredView& fv, GEMDe
 #endif
   // EtaPartition specific parameter (size)
   std::vector<double> dpar = fv.logicalPart().solid().parameters();
+
+  if (dpar.empty()) {
+    const DDBooleanSolid bs(fv.logicalPart().solid());
+    dpar = bs.solidA().parameters();
+  }
 
   double be = convertMmToCm(dpar[4]);  // half bottom edge
   double te = convertMmToCm(dpar[8]);  // half top edge
