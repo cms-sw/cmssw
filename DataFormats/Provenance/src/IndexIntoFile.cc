@@ -1358,7 +1358,7 @@ namespace edm {
 
   void IndexIntoFile::IndexIntoFileItrImpl::initializeLumi() {
     initializeLumi_();
-    auto oldLumi = lumi();
+    [[maybe_unused]] auto oldLumi = lumi();
     // Then go forward to the first valid one (or if there are not any valid ones
     // to the last one, only possible in the entryOrder case)
     while (not lumiIterationStartingIndex(indexToLumi_)) {

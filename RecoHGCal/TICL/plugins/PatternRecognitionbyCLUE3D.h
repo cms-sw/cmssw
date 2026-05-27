@@ -4,6 +4,7 @@
 #ifndef __RecoHGCal_TICL_PRbyCLUE3D_H__
 #define __RecoHGCal_TICL_PRbyCLUE3D_H__
 #include <memory>  // unique_ptr
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
@@ -23,11 +24,8 @@ namespace ticl {
                 const typename PatternRecognitionAlgoBaseT<TILES>::Inputs& input,
                 std::unordered_map<int, std::vector<int>>& seedToTracksterAssociation) override;
 
-    void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters,
-                               const tensorflow::Session*,
-                               std::vector<Trackster>& result);
-
     static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
+    void setGeometry(hgcal::RecHitTools const& rhtools) override;
 
   private:
     struct ClustersOnLayer {
@@ -116,10 +114,9 @@ namespace ticl {
     void dumpTiles(const TILES&) const;
 
     std::vector<ClustersOnLayer> clusters_;
-    std::vector<float> layersPosZ_;
+    std::vector<float> layersPosZ_;  // cached once per run/IOV
     std::vector<int> tracksterSeedAlgoId_;
 
-    edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
     const std::vector<double> criticalDensity_;
     const std::vector<double> criticalSelfDensity_;
     const std::vector<int> densitySiblingLayers_;
@@ -141,8 +138,6 @@ namespace ticl {
     const std::vector<int> filter_on_categories_;
     const bool computeLocalTime_;
     const bool usePCACleaning_;
-
-    hgcal::RecHitTools rhtools_;
   };
 
 }  // namespace ticl

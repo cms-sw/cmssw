@@ -44,6 +44,7 @@ if "SimpleNet" in args.only:
     from PhysicsTools.PyTorchAlpakaTest.modules import torchtest_SimpleNet_alpaka, torchtest_SimpleNetMiniBatch_alpaka
     process.SimpleNet = torchtest_SimpleNet_alpaka(
         model = cms.FileInPath(args.simpleNet),
+        convertToFP16 = cms.bool(False),
         particles = 'DataSource',
         alpaka = cms.untracked.PSet(
             backend = cms.untracked.string("serial_sync")  # force serial backend to emulate heterogeneous pipeline
@@ -51,17 +52,30 @@ if "SimpleNet" in args.only:
         environment = cms.untracked.int32(args.environment)
     )
     process.path += process.SimpleNet
-if "SimpleNetMiniBatch" in args.only:
-    process.SimpleNetMiniBatch = torchtest_SimpleNetMiniBatch_alpaka(
+
+    process.SimpleNetRuntineFP16 = torchtest_SimpleNet_alpaka(
         model = cms.FileInPath(args.simpleNet),
-        batchSize = cms.int32(args.batchSize),
+        convertToFP16 = cms.bool(True),
         particles = 'DataSource',
         alpaka = cms.untracked.PSet(
-            backend = cms.untracked.string("serial_sync")
+            backend = cms.untracked.string("serial_sync")  # force serial backend to emulate heterogeneous pipeline
         ),
         environment = cms.untracked.int32(args.environment)
     )
-    process.path += process.SimpleNetMiniBatch
+    process.path += process.SimpleNetRuntineFP16
+    
+    if "SimpleNetMiniBatch" in args.only:
+        process.SimpleNetMiniBatch = torchtest_SimpleNetMiniBatch_alpaka(
+            model = cms.FileInPath(args.simpleNet),
+            batchSize = cms.int32(args.batchSize),
+            particles = 'DataSource',
+            alpaka = cms.untracked.PSet(
+                backend = cms.untracked.string("serial_sync")
+            ),
+            environment = cms.untracked.int32(args.environment)
+        )
+        process.path += process.SimpleNetMiniBatch
+
 # --only MultiHeadNet
 if "MultiHeadNet" in args.only:
     from PhysicsTools.PyTorchAlpakaTest.modules import torchtest_MultiHeadNet_alpaka
@@ -115,6 +129,7 @@ process.InspectionSink = torchtest_InspectionSink(
     particles = 'DataSource',
     simple_net = 'SimpleNet',
     simple_net_minibatch = 'SimpleNetMiniBatch',
+    simple_net_runtimeFP16 = 'SimpleNetRuntineFP16',
     masked_net = 'MaskedNet',
     multi_head_net = 'MultiHeadNet',
     images = 'DataSource',

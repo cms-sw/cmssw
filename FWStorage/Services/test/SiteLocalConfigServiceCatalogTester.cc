@@ -30,12 +30,12 @@ namespace edmtest {
       auto const& expectResult = filePSet.getUntrackedParameter<std::string>("expectResult");
 
       edm::InputFileCatalog catalog{std::vector{fileName}, overrideCatalog};
-      edm::FileCatalogItem const& item = catalog.fileCatalogItems()[0];
-      if (catalogIndex >= item.fileNames().size()) {
+      auto pfns = catalog.physicalFileNames(catalog.configuredFileNames()[0]);
+      if (catalogIndex >= pfns.size()) {
         throw cms::Exception("Assert") << "Asked catalog " << catalogIndex << " from InputFileCatalog that had only "
-                                       << item.fileNames().size() << " entries";
+                                       << pfns.size() << " entries";
       }
-      auto const& result = item.fileName(catalogIndex);
+      auto const& result = pfns[catalogIndex];
 
       if (result != expectResult) {
         throw cms::Exception("Assert") << "InputFileCatalog gave '" << result << "' for catalog " << catalogIndex

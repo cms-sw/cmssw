@@ -59,6 +59,9 @@ HcalTextCalibrations::HcalTextCalibrations(const edm::ParameterSet& iConfig)
     } else if (objectName == "PFCuts") {
       mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::producePFCuts).consumes();
       findingRecord<HcalPFCutsRcd>();
+    } else if (objectName == "PulseDelays") {
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::producePulseDelays).consumes();
+      findingRecord<HcalPulseDelaysRcd>();
     } else if (objectName == "QIEData") {
       mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceQIEData).consumes();
       findingRecord<HcalQIEDataRcd>();
@@ -136,7 +139,8 @@ HcalTextCalibrations::HcalTextCalibrations(const edm::ParameterSet& iConfig)
       findingRecord<HcalTPParametersRcd>();
     } else {
       std::cerr << "HcalTextCalibrations-> Unknown object name '" << objectName << "', known names are: "
-                << "Pedestals PedestalWidths Gains GainWidths PFCuts QIEData QIETypes ChannelQuality ElectronicsMap "
+                << "Pedestals PedestalWidths Gains GainWidths PFCuts PulseDelays QIEData QIETypes ChannelQuality "
+                   "ElectronicsMap "
                 << "FrontEndMap ZSThresholds RespCorrs LUTCorrs PFCorrs TimeCorrs L1TriggerObjects "
                 << "ValidationCorrs LutMetadata DcsValues DcsMap "
                 << "RecoParams LongRecoParams ZDCLowGainFraction FlagHFDigiTimeParams MCParams "
@@ -220,6 +224,11 @@ std::unique_ptr<HcalGainWidths> HcalTextCalibrations::produceGainWidths(const Hc
 std::unique_ptr<HcalPFCuts> HcalTextCalibrations::producePFCuts(const HcalPFCutsRcd& rcd) {
   std::string const n = "PFCuts";
   return get_impl_topo<HcalPFCuts>(mInputs[n], &rcd.get(mTokens[n]));
+}
+
+std::unique_ptr<HcalPulseDelays> HcalTextCalibrations::producePulseDelays(const HcalPulseDelaysRcd& rcd) {
+  std::string const n = "PulseDelays";
+  return get_impl_topo<HcalPulseDelays>(mInputs[n], &rcd.get(mTokens[n]));
 }
 
 std::unique_ptr<HcalQIEData> HcalTextCalibrations::produceQIEData(const HcalQIEDataRcd& rcd) {

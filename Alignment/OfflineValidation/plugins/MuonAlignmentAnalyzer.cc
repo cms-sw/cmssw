@@ -2015,11 +2015,9 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event &event, const edm::EventSet
 
     // Get the 4D DTSegments
     const edm::Handle<DTRecSegment4DCollection> &all4DSegmentsDT = event.getHandle(allDTSegmentToken_);
-    DTRecSegment4DCollection::const_iterator segmentDT;
 
     // Get the 4D CSCSegments
     const edm::Handle<CSCSegmentCollection> &all4DSegmentsCSC = event.getHandle(allCSCSegmentToken_);
-    CSCSegmentCollection::const_iterator segmentCSC;
 
     //Vectors used to perform the matching between Segments and hits from Track
     intDVector indexCollectionDT;
@@ -2027,13 +2025,13 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event &event, const edm::EventSet
 
     /*    std::cout << "<MuonAlignmentAnalyzer> List of DTSegments found in Local Reconstruction" << std::endl;
       std::cout << "Number: " << all4DSegmentsDT->size() << std::endl;
-      for (segmentDT = all4DSegmentsDT->begin(); segmentDT != all4DSegmentsDT->end(); ++segmentDT){
+      for (auto segmentDT = all4DSegmentsDT->begin(); segmentDT != all4DSegmentsDT->end(); ++segmentDT){
       const GeomDet* geomDet = theTrackingGeometry->idToDet((*segmentDT).geographicalId());
       std::cout << "<MuonAlignmentAnalyzer> " << geomDet->toGlobal((*segmentDT).localPosition()) << std::endl;
       std::cout << "<MuonAlignmentAnalyzer> Local " << (*segmentDT).localPosition() << std::endl;
       }
       std::cout << "<MuonAlignmentAnalyzer> List of CSCSegments found in Local Reconstruction" << std::endl;
-      for (segmentCSC = all4DSegmentsCSC->begin(); segmentCSC != all4DSegmentsCSC->end(); ++segmentCSC){
+      for (auto segmentCSC = all4DSegmentsCSC->begin(); segmentCSC != all4DSegmentsCSC->end(); ++segmentCSC){
       const GeomDet* geomDet = theTrackingGeometry->idToDet((*segmentCSC).geographicalId());
       std::cout << "<MuonAlignmentAnalyzer>" << geomDet->toGlobal((*segmentCSC).localPosition()) << std::endl;
       }

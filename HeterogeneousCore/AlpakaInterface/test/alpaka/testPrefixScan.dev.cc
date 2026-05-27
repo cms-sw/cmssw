@@ -223,6 +223,39 @@ int main() {
 
       alpaka::wait(queue);  // input_d and output1_d end of scope
     }  // ksize
+
+    // ITERATIVE PREFIXSCAN (TWO-KERNEL)
+    // with ksize=6 num_items = 2e8 above reasonable limits for physics and intermediate objects.
+    std::cout << "iterative two-kernel prefix scan" << std::endl;
+    num_items = 200;
+    for (int ksize = 1; ksize < 7; ++ksize) {
+      num_items *= 10;
+
+      auto input_d = make_device_buffer<uint32_t[]>(queue, num_items);
+      auto output_d = make_device_buffer<uint32_t[]>(queue, num_items);
+
+      const auto nThreads = 1024;
+      const auto nBlocks = divide_up_by(num_items, nThreads);
+      const auto workDiv = make_workdiv<Acc1D>(nBlocks, nThreads);
+
+      alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, init(), input_d.data(), 1, num_items));
+
+      // Build the level plan
+      auto plan = makePrefixScanLevelPlan(num_items);
+      std::cout << "Iterative prefix scan plan for " << num_items << " items with " << iterativePrefixScanThreads
+                << " threads per block. Problem divided into " << plan.nLevels << " levels:" << std::endl;
+      for (uint32_t l = 0; l < plan.nLevels; ++l) {
+        std::cout << "  Level " << l << ": size = " << plan.levelSize[l] << ", blocks = " << plan.levelBlocks[l]
+                  << std::endl;
+      }
+
+      iterativePrefixScan<Acc1D>(input_d.data(), output_d.data(), num_items, queue);
+      alpaka::wait(queue);
+
+      alpaka::enqueue(queue, alpaka::createTaskKernel<Acc1D>(workDiv, verify(), output_d.data(), num_items));
+
+      alpaka::wait(queue);  // input_d and output_d end of scope
+    }
   }
 
   return 0;

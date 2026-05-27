@@ -9,8 +9,6 @@
 #include "PatternRecognitionbyCA.h"
 
 #include "TrackstersPCA.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 using namespace ticl;
@@ -18,7 +16,6 @@ using namespace ticl;
 template <typename TILES>
 PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
     : PatternRecognitionAlgoBaseT<TILES>(conf, iC),
-      caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
       theGraph_(std::make_unique<HGCGraphT<TILES>>()),
       oneTracksterPerTrackSeed_(conf.getParameter<bool>("oneTracksterPerTrackSeed")),
       promoteEmptyRegionToTrackster_(conf.getParameter<bool>("promoteEmptyRegionToTrackster")),
@@ -47,6 +44,11 @@ template <typename TILES>
 PatternRecognitionbyCA<TILES>::~PatternRecognitionbyCA(){};
 
 template <typename TILES>
+void PatternRecognitionbyCA<TILES>::setGeometry(hgcal::RecHitTools const &rhtools) {
+  this->rhtools_ = &rhtools;
+  this->geometryReady_ = true;
+}
+template <typename TILES>
 void PatternRecognitionbyCA<TILES>::makeTracksters(
     const typename PatternRecognitionAlgoBaseT<TILES>::Inputs &input,
     std::vector<Trackster> &result,
@@ -55,9 +57,12 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   if (input.regions.empty())
     return;
 
-  edm::EventSetup const &es = input.es;
-  const CaloGeometry &geom = es.getData(caloGeomToken_);
-  rhtools_.setGeometry(geom);
+  if (UNLIKELY(!this->geometryReady_ || this->rhtools_ == nullptr)) {
+    throw cms::Exception("LogicError")
+        << "PatternRecognitionbyCA::setGeometry() must be called in beginRun() before makeTracksters().";
+  }
+
+  auto const *rhtools = this->rhtools_;
 
   theGraph_->setVerbosity(PatternRecognitionAlgoBaseT<TILES>::algo_verbosity_);
   theGraph_->clear();
@@ -86,10 +91,10 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
                                     root_doublet_max_distance_from_seed_squared_,
                                     etaLimitIncreaseWindow_,
                                     skip_layers_,
-                                    rhtools_.lastLayer(isHFnose),
+                                    rhtools->lastLayer(isHFnose),
                                     max_delta_time_,
-                                    rhtools_.lastLayerEE(isHFnose),
-                                    rhtools_.lastLayerFH(),
+                                    rhtools->lastLayerEE(isHFnose),
+                                    rhtools->lastLayerFH(),
                                     siblings_maxRSquared_);
 
   theGraph_->findNtuplets(foundNtuplets, seedIndices, min_clusters_per_ntuplet_, out_in_dfs_, max_out_in_hops_);
@@ -129,7 +134,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
     lcIdAndLayer.reserve(effective_cluster_idx.size());
     for (auto const i : effective_cluster_idx) {
       auto const &haf = input.layerClusters[i].hitsAndFractions();
-      auto layerId = rhtools_.getLayerWithOffset(haf[0].first);
+      auto layerId = rhtools->getLayerWithOffset(haf[0].first);
       showerMinLayerId = std::min(layerId, showerMinLayerId);
       uniqueLayerIds.push_back(layerId);
       lcIdAndLayer.emplace_back(i, layerId);
@@ -175,8 +180,8 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
   ticl::assignPCAtoTracksters(result,
                               input.layerClusters,
                               input.layerClustersTime,
-                              rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z(),
-                              rhtools_,
+                              rhtools->getPositionLayer(rhtools->lastLayerEE(isHFnose), isHFnose).z(),
+                              *rhtools,
                               computeLocalTime_);
 
   theGraph_->clear();
@@ -294,7 +299,7 @@ void PatternRecognitionbyCA<TILES>::fillPSetDescription(edm::ParameterSetDescrip
       ->setComment("make default such that no filtering is applied");
   iDesc.add<double>("max_longitudinal_sigmaPCA", 9999);
   iDesc.add<double>("max_delta_time", 3.)->setComment("nsigma");
-  iDesc.add<bool>("computeLocalTime", false);
+  iDesc.add<bool>("computeLocalTime", true);
   iDesc.add<std::vector<double>>("siblings_maxRSquared", {6e-4, 6e-4, 6e-4});
 }
 

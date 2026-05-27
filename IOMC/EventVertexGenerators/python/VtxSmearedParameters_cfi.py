@@ -85,7 +85,7 @@ Run3FlatOpticsGaussVtxSigmaZ5p3cmSmearingParameters = cms.PSet(
 # Can restore correlation via MinT += (MinZ - MaxZ)/2 and MaxT += (MaxZ - MinZ)/2
 # in [ns] units (recall c_light = 29.98cm/ns)
 FlatVtxSmearingParameters = cms.PSet(
-    FixedR = cms.bool(False),
+    UseCylindricalCoords = cms.bool(False),
     MaxZ = cms.double(5.3),
     MaxX = cms.double(0.0015),
     MaxY = cms.double(0.0015),
@@ -97,7 +97,7 @@ FlatVtxSmearingParameters = cms.PSet(
 )
 
 FlatVtxDisplacedParameters = cms.PSet(
-    FixedR = cms.bool(True),
+    UseCylindricalCoords = cms.bool(True),
     MaxR = cms.double(10.1),
     MinR = cms.double(10.0),
     MaxZ = cms.double(0.001),

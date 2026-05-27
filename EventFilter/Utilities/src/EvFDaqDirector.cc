@@ -255,7 +255,7 @@ namespace evf {
           } catch (...) {
           }
 
-          std::string optfiles[3] = {"hltinfo", "blacklist", "whitelist"};
+          std::string optfiles[5] = {"hltinfo", "blacklist", "whitelist", "HltConfig_local.py", "HltConfig_remote.py"};
           for (auto& optfile : optfiles) {
             try {
               std::filesystem::copy_file(hltSourceDirectory_ + "/" + optfile, tmphltdir + "/" + optfile);
