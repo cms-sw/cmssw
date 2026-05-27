@@ -19,26 +19,26 @@ public:
 
   ///Set data
   void setValue(uint32_t data) { theSample_ = data; }
-  // The sample is a 18 bit word defined as:
+  // The sample is a 16 bit word defined as:
   //
-  //     o o o o o    o     o o o o o o o o o o o o
-  //     |________|        |_______________________|
+  //     o o o o o    o     o o o o o o o o o o
+  //     |________|        |___________________|
   //      ~60ps res  spike         Et
   //      time info  flag
   //
 
   /// get the raw word
-  uint32_t raw() const { return theSample_ & 0x3ffff; }
+  uint32_t raw() const { return theSample_ & 0xffff; }
 
-  /// get the encoded Et (12 bits)
-  int encodedEt() const { return (theSample_ & 0x3ffff) & 0xFFF; }
+  /// get the encoded Et (10 bits)
+  int encodedEt() const { return (theSample_ & 0xffff) & 0x3FF; }
 
-  bool l1aSpike() const { return (theSample_ & 0x3ffff & 0x1000) != 0; }
+  bool l1aSpike() const { return (theSample_ & 0xffff & 0x400) != 0; }
 
-  int time() const { return (theSample_ & 0x3ffff) >> 13; }
+  int time() const { return (theSample_ & 0xffff) >> 11; }
 
   /// for streaming
-  uint32_t operator()() { return theSample_ & 0x3ffff; }
+  uint32_t operator()() { return theSample_ & 0xffff; }
 
 private:
   uint32_t theSample_;

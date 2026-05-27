@@ -44,10 +44,14 @@ void EcalEBPhase2TimeReconstructor::process(std::vector<int> &addout,
 
   //Taking in the results of the amplitude reconstruction
   //Bit shifting them for use as index of invAmpAr_ lookup table
-  // move input amplitude (13 bits) to 9 bits to use as array index
+  // move input amplitude (13 bits) to 12 bits then truncate to 10 then bit shift to 9 to use as array index
 
-  ampIn_[0] = ampRecoOutput[0] >> 4;
-  ampIn_[1] = ampRecoOutput[1] >> 4;
+  ampIn_[0] = ampRecoOutput[0] >> 1;
+  ampIn_[1] = ampRecoOutput[1] >> 1;
+  if (ampIn_[0] > 0x3FF) ampIn_[0] = 0x3FF;
+  ampIn_[0] = ampIn_[0] >> 1;
+  if (ampIn_[1] > 0x3FF) ampIn_[1] = 0x3FF;
+  ampIn_[1] = ampIn_[1] >> 1;
 
   for (unsigned int i = 0; i < addout.size(); i++) {
     setInput(addout[i]);
@@ -113,7 +117,7 @@ void EcalEBPhase2TimeReconstructor::process() {
   if (debug_)
     LogDebug("") << " output*tmpInvAmpAr " << tmpOutput << std::endl;
 
-  output = tmpOutput >> 20;
+  output = tmpOutput >> 18; //originally 20, moved to 18 to account for truncating amplitude 
   if (debug_)
     LogDebug("") << " output after bit shift " << output << std::endl;
 
