@@ -13,8 +13,8 @@
 // system include files
 
 // user include files
-#include "SimG4Core/Application/interface/ThreadHandoff.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/ThreadHandoff.h"
 #include <array>
 
 //
@@ -36,7 +36,7 @@ namespace {
 //
 // constructors and destructor
 //
-using namespace omt;
+using namespace edm;
 
 ThreadHandoff::ThreadHandoff(int stackSize) {
   pthread_attr_t attr;
