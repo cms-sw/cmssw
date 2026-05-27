@@ -37,6 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
   constexpr uint32_t tkNotFound = std::numeric_limits<uint32_t>::max();
   constexpr float maxScore = std::numeric_limits<float>::max();
+  constexpr float nSigma2Phase1 = 25.f;
   constexpr float nSigma2 = 5.f;
   constexpr int nTrackParameters = 5;
   // map: index of a track parameter -> index of its covariance
@@ -293,6 +294,54 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     }
   };
 
+  // Specialization for Phase-1 to keep the same behavior as before.
+  // remove shorter tracks if sharing a cell
+  // It does not seem to affect efficiency in any way!
+  class Kernel_earlyDuplicateRemoverPhase1 {
+  public:
+    ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                  CACell<pixelTopology::Phase1> const *cells,
+                                  uint32_t const *__restrict__ nCells,
+                                  CellToTrack const *__restrict__ cellTracksHisto,
+                                  TkSoAView tracks_view,
+                                  bool dupPassThrough) const {
+      // quality to mark rejected
+      constexpr auto reject = Quality::edup;  /// cannot be loose
+      ALPAKA_ASSERT_ACC(nCells);
+      for (auto idx : cms::alpakatools::uniform_elements(acc, *nCells)) {
+#ifdef CA_SIZES
+        printf("cellTracksSizes;%d;%d;%d\n", idx, cT.size(), cT.capacity());
+#endif
+        if (cellTracksHisto->size(idx) < 2)
+          continue;
+
+        int8_t maxNl = 0;
+        auto const *__restrict__ tracksOfCell = cellTracksHisto->begin(idx);
+
+        // find maxNl
+        for (auto i = 0u; i < cellTracksHisto->size(idx); i++) {
+          if (int(tracksOfCell[i]) > tracks_view.metadata().size())
+            printf(">WARNING: %d %d %d %d\n", idx, i, int(tracksOfCell[i]), tracks_view.metadata().size());
+          auto nl = tracks_view[tracksOfCell[i]].nLayers();
+          maxNl = std::max(nl, maxNl);
+        }
+
+        // if (maxNl<4) continue;
+        // quad pass through (leave it here for tests)
+        //  maxNl = std::min(4, maxNl);
+
+        for (auto i = 0u; i < cellTracksHisto->size(idx); i++) {
+          auto it = tracksOfCell[i];
+
+          if (int(it) > tracks_view.metadata().size())
+            printf(">WARNING: %d %d %d\n", i, it, tracks_view.metadata().size());
+          if (tracks_view[it].nLayers() < maxNl)
+            tracks_view[it].quality() = reject;  // no race: simple assignment of the same constant
+        }
+      }
+    }
+  };
+
   // assume the above (so, short tracks already removed)
   template <typename TrackerTraits>
   class Kernel_fastDuplicateRemover {
@@ -361,7 +410,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
             if ((qj < qi) || (qj == qi && score(it) < score(jt)))
               tracks_view[jt].quality() = reject;
             // explicitly check since they might be identical when using the same hits for fitting!
-            else if ((qj > qi) || (qj == qi && score(it) > score(jt))) { 
+            else if ((qj > qi) || (qj == qi && score(it) > score(jt))) {
               tracks_view[it].quality() = reject;
               break;
             }
@@ -395,6 +444,100 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         for (int i = 0; i < ntr; i++) {
           auto it = thisCellTracks[i];
           if (tracks_view[it].quality() > loose && score(it) > mc)
+            tracks_view[it].quality() = loose;  //no race:  simple assignment of the same constant
+        }
+      }
+    }
+  };
+
+  // specialization for Phase-1 to keep the same behavior as before.
+  // assume the above (so, short tracks already removed)
+  template <>
+  class Kernel_fastDuplicateRemover<pixelTopology::Phase1> {
+  public:
+    ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                  CACell<pixelTopology::Phase1> const *__restrict__ cells,
+                                  uint32_t const *__restrict__ nCells,
+                                  CellToTrack const *__restrict__ cellTracksHisto,
+                                  TkSoAView tracks_view,
+                                  bool dupPassThrough) const {
+      // quality to mark rejected
+      auto const reject = dupPassThrough ? Quality::loose : Quality::dup;
+      constexpr auto loose = Quality::loose;
+
+      ALPAKA_ASSERT_ACC(nCells);
+      const auto ntNCells = (*nCells);
+
+      for (auto idx : cms::alpakatools::uniform_elements(acc, ntNCells)) {
+        if (cellTracksHisto->size(idx) < 2)
+          continue;
+
+        float mc = maxScore;
+        uint32_t im = tkNotFound;
+
+        auto score = [&](auto it) { return std::abs(reco::tip(tracks_view, it)); };
+
+        // full crazy combinatorics
+        auto const *__restrict__ thisCellTracks = cellTracksHisto->begin(idx);
+        int ntr = cellTracksHisto->size(idx);
+        for (int i = 0; i < ntr - 1; i++) {
+          auto it = thisCellTracks[i];
+          auto qi = tracks_view[it].quality();
+          if (qi <= reject)
+            continue;
+          auto opi = tracks_view[it].state()(2);
+          auto e2opi = tracks_view[it].covariance()(9);
+          auto cti = tracks_view[it].state()(3);
+          auto e2cti = tracks_view[it].covariance()(12);
+          for (int j = i + 1; j < ntr; ++j) {
+            auto jt = thisCellTracks[j];
+            auto qj = tracks_view[jt].quality();
+            if (qj <= reject)
+              continue;
+            auto opj = tracks_view[jt].state()(2);
+            auto ctj = tracks_view[jt].state()(3);
+            auto dct = nSigma2Phase1 * (tracks_view[jt].covariance()(12) + e2cti);
+            if ((cti - ctj) * (cti - ctj) > dct)
+              continue;
+            auto dop = nSigma2Phase1 * (tracks_view[jt].covariance()(9) + e2opi);
+            if ((opi - opj) * (opi - opj) > dop)
+              continue;
+            if ((qj < qi) || (qj == qi && score(it) < score(jt)))
+              tracks_view[jt].quality() = reject;
+            else {
+              tracks_view[it].quality() = reject;
+              break;
+            }
+          }
+        }
+
+        // find maxQual
+        auto maxQual = reject;  // no duplicate!
+        for (int i = 0; i < ntr; i++) {
+          auto it = thisCellTracks[i];
+          if (tracks_view[it].quality() > maxQual)
+            maxQual = tracks_view[it].quality();
+        }
+
+        if (maxQual <= loose)
+          continue;
+
+        // find min score
+        for (int i = 0; i < ntr; i++) {
+          auto it = thisCellTracks[i];
+          if (tracks_view[it].quality() == maxQual && score(it) < mc) {
+            mc = score(it);
+            im = it;
+          }
+        }
+
+        if (tkNotFound == im)
+          continue;
+
+        // mark all other duplicates  (not yet, keep it loose)
+        for (int i = 0; i < ntr; i++) {
+          auto it = thisCellTracks[i];
+          if (tracks_view[it].quality() > loose && it != im)
             tracks_view[it].quality() = loose;  //no race:  simple assignment of the same constant
         }
       }
@@ -487,12 +630,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                 break;
               }
 
-            // One bin per cell (otherCell). The non-layer-skipping vs
-            // layer-skipping distinction is encoded in bit 31 of the stored
-            // outer-cell index:
-            //   bit 31 = 0 -> non-layer-skipping neighbor
-            //   bit 31 = 1 -> layer-skipping neighbor
-            cellNeighborsHisto->count(acc, otherCell);
+              // One bin per cell (otherCell). The non-layer-skipping vs
+              // layer-skipping distinction is encoded in bit 31 of the stored
+              // outer-cell index:
+              //   bit 31 = 0 -> non-layer-skipping neighbor
+              //   bit 31 = 1 -> layer-skipping neighbor
+              cellNeighborsHisto->count(acc, otherCell);
 
               cn[t_ind].inner() = otherCell;
               cn[t_ind].outer() = cellIndex | (skips ? caStructures::kSkipsLayerFlag : 0u);
@@ -983,16 +1126,73 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
             if (nlj < nli || (nlj == nli && (qj < qi || (qj == qi && score(it, nli) < score(jt, nlj)))))
               tracks_view[jt].quality() = reject;
             // explicitly check since we can have actual duplicated tracks with identical parameters
-            else if (nli < nlj || (nli == nlj && (qi < qj || (qi == qj && score(jt, nlj) < score(it, nli))))){
+            else if (nli < nlj || (nli == nlj && (qi < qj || (qi == qj && score(jt, nlj) < score(it, nli))))) {
               tracks_view[it].quality() = reject;
               break;
             }
-            // if we have two tracks with the same length, parameters and quality, we keep the one with the lower index 
+            // if we have two tracks with the same length, parameters and quality, we keep the one with the lower index
             // (arbitrary but deterministic) and reject the other to avoid double counting
             else if (it < jt)
               tracks_view[jt].quality() = reject;
             else
               tracks_view[it].quality() = reject;
+          }
+        }
+      }
+    }
+  };
+
+  // Specialization for Phase-1 to keep the same behavior as before.
+  // mostly for very forward triplets.....
+  template <>
+  class Kernel_rejectDuplicate<pixelTopology::Phase1> {
+  public:
+    ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                  TkSoAView tracks_view,
+                                  bool dupPassThrough,
+                                  HitToTuple const *__restrict__ phitToTuple) const {
+      // quality to mark rejected
+      auto const reject = dupPassThrough ? Quality::loose : Quality::dup;
+
+      auto &hitToTuple = *phitToTuple;
+
+      for (auto idx : cms::alpakatools::uniform_elements(acc, hitToTuple.nOnes())) {
+        if (hitToTuple.size(idx) < 2)
+          continue;
+
+        auto score = [&](auto it, auto nl) { return std::abs(reco::tip(tracks_view, it)); };
+
+        // full combinatorics
+        for (auto ip = hitToTuple.begin(idx); ip < hitToTuple.end(idx) - 1; ++ip) {
+          auto const it = *ip;
+          auto qi = tracks_view[it].quality();
+          if (qi <= reject)
+            continue;
+          auto opi = tracks_view[it].state()(2);
+          auto e2opi = tracks_view[it].covariance()(9);
+          auto cti = tracks_view[it].state()(3);
+          auto e2cti = tracks_view[it].covariance()(12);
+          auto nli = tracks_view[it].nLayers();
+          for (auto jp = ip + 1; jp < hitToTuple.end(idx); ++jp) {
+            auto const jt = *jp;
+            auto qj = tracks_view[jt].quality();
+            if (qj <= reject)
+              continue;
+            auto opj = tracks_view[jt].state()(2);
+            auto ctj = tracks_view[jt].state()(3);
+            auto dct = nSigma2Phase1 * (tracks_view[jt].covariance()(12) + e2cti);
+            if ((cti - ctj) * (cti - ctj) > dct)
+              continue;
+            auto dop = nSigma2Phase1 * (tracks_view[jt].covariance()(9) + e2opi);
+            if ((opi - opj) * (opi - opj) > dop)
+              continue;
+            auto nlj = tracks_view[jt].nLayers();
+            if (nlj < nli || (nlj == nli && (qj < qi || (qj == qi && score(it, nli) < score(jt, nlj)))))
+              tracks_view[jt].quality() = reject;
+            else {
+              tracks_view[it].quality() = reject;
+              break;
+            }
           }
         }
       }
