@@ -48,6 +48,7 @@ ticlTrackstersHFNoseMIP = ticlTrackstersMIP.clone(
     filtered_mask = "filteredLayerClustersHFNoseMIP:MIPn",
     seeding_regions = "ticlSeedingGlobalHFNose",
     time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
+    patternRecognitionBy = cms.string('CA'),
     pluginPatternRecognitionByCA = dict(min_layers_per_trackster = 6)
 )
 
