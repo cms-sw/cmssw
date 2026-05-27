@@ -396,6 +396,10 @@ ALCARECOTkAlHLTTracksTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
     SumChargeMax = 50.5
 )
 
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(ALCARECOTkAlHLTTracksTkAlDQM,
+                         ReferenceTrackProducer= "hltMergedTracksPPOnAA")
+
 ALCARECOTkAlHLTTracksDQM = cms.Sequence( ALCARECOTkAlHLTTracksTrackingDQM  + ALCARECOTkAlHLTTracksTkAlDQM )
 
 ########################################################
@@ -432,11 +436,18 @@ ALCARECOTkAlHLTTracksZMuMuTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
     SumChargeMax = 50.5
 )
 
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(ALCARECOTkAlHLTTracksZMuMuTkAlDQM,
+                         ReferenceTrackProducer= "hltMergedTracksPPOnAA")
+
 ALCARECOTkAlHLTTracksZMuMuVtxDQM = ALCARECOTkAlDiMuonAndVertexVtxDQM.clone(
     muonTracks = 'ALCARECO'+__selectionName,
     vertices = 'hltPixelVertices',
     FolderName = "AlCaReco/"+__selectionName,
 )
+
+pp_on_PbPb_run3.toModify(ALCARECOTkAlHLTTracksZMuMuVtxDQM,
+                         vertices = 'hltPixelVerticesPPOnAA')
 
 ALCARECOTkAlHLTTracksZMuMuMassBiasDQM = ALCARECOTkAlDiMuonMassBiasDQM.clone(
     muonTracks = 'ALCARECO'+__selectionName,
