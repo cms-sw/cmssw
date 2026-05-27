@@ -405,28 +405,44 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
 
     if (this->m_params.algoParams_.doEarlyDuplicateRemover_) {
-      // remove duplicates (tracks that share a doublet).
-      // Warp-cooperative work division: one cell per Y-thread, one warp per cell.
-      const uint32_t stride = alpaka::getPreferredWarpSize(alpaka::getDev(queue));
-      const uint32_t cellsPerBlock = 8;  // 8 cells * 32 threads = 256 threads/block
-      // gridDim.y is capped at 65535 by CUDA. If maxDoublets needs more, uniform_elements_y
-      // strides each Y-thread across the remaining cells.
-      auto earlyDupRemoverNumBlocks = cms::alpakatools::divide_up_by(3 * maxDoublets / 4, cellsPerBlock);
-      // Cap at Y-dim limit
-      earlyDupRemoverNumBlocks = std::min<uint32_t>(earlyDupRemoverNumBlocks, 65535u);
-      const Vec2D earlyDupRemoverBlocks{earlyDupRemoverNumBlocks, 1u};
-      const Vec2D earlyDupRemoverThreads{cellsPerBlock, stride};
-      const auto earlyDupRemoverWorkDiv =
-          cms::alpakatools::make_workdiv<Acc2D>(earlyDupRemoverBlocks, earlyDupRemoverThreads);
+      if constexpr (std::is_same_v<pixelTopology::Phase1, TrackerTraits>) {
+        // for Phase-1, the workdivision is simpler and therefore needs a separate call here
+        // remove duplicates (tracks that share a doublet)
+        numberOfBlocks = cms::alpakatools::divide_up_by(3 * maxDoublets / 4, blockSize);
+        workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
 
-      alpaka::exec<Acc2D>(queue,
-                          earlyDupRemoverWorkDiv,
-                          Kernel_earlyDuplicateRemover<TrackerTraits>{},
-                          this->device_simpleCells_->data(),
-                          this->device_nCells_->data(),
-                          this->device_cellToTracks_->data(),
-                          tracks_view,
-                          this->m_params.algoParams_.dupPassThrough_);
+        alpaka::exec<Acc1D>(queue,
+                            workDiv1D,
+                            Kernel_earlyDuplicateRemoverPhase1{},
+                            this->device_simpleCells_->data(),
+                            this->device_nCells_->data(),
+                            this->device_cellToTracks_->data(),
+                            tracks_view,
+                            this->m_params.algoParams_.dupPassThrough_);
+      } else {
+        // remove duplicates (tracks that share a doublet).
+        // Warp-cooperative work division: one cell per Y-thread, one warp per cell.
+        const uint32_t stride = alpaka::getPreferredWarpSize(alpaka::getDev(queue));
+        const uint32_t cellsPerBlock = 8;  // 8 cells * 32 threads = 256 threads/block
+        // gridDim.y is capped at 65535 by CUDA. If maxDoublets needs more, uniform_elements_y
+        // strides each Y-thread across the remaining cells.
+        auto earlyDupRemoverNumBlocks = cms::alpakatools::divide_up_by(3 * maxDoublets / 4, cellsPerBlock);
+        // Cap at Y-dim limit
+        earlyDupRemoverNumBlocks = std::min<uint32_t>(earlyDupRemoverNumBlocks, 65535u);
+        const Vec2D earlyDupRemoverBlocks{earlyDupRemoverNumBlocks, 1u};
+        const Vec2D earlyDupRemoverThreads{cellsPerBlock, stride};
+        const auto earlyDupRemoverWorkDiv =
+            cms::alpakatools::make_workdiv<Acc2D>(earlyDupRemoverBlocks, earlyDupRemoverThreads);
+
+        alpaka::exec<Acc2D>(queue,
+                            earlyDupRemoverWorkDiv,
+                            Kernel_earlyDuplicateRemover<TrackerTraits>{},
+                            this->device_simpleCells_->data(),
+                            this->device_nCells_->data(),
+                            this->device_cellToTracks_->data(),
+                            tracks_view,
+                            this->m_params.algoParams_.dupPassThrough_);
+      }
 #ifdef GPU_DEBUG
       alpaka::wait(queue);
       std::cout << "Kernel_earlyDuplicateRemover   -> done!" << std::endl;
