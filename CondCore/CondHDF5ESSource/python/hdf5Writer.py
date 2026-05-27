@@ -105,6 +105,7 @@ def writeH5File(fileName, globalTags, excludeRecords, includeRecords, tagReader,
                 if includeRecords and (not rcd in includeRecords):
                     continue
                 recordDataSize = 0
+                compressedSize = 0
                 
                 payloadToRefs = { None: null_dataset.ref}
                 
@@ -120,23 +121,33 @@ def writeH5File(fileName, globalTags, excludeRecords, includeRecords, tagReader,
                     payloadsGroup = dataProductGroup.create_group("Payloads")
                     print(" product: %s"%dataProduct.name())
                     for p_index, payload in enumerate(dataProduct.payloads()):
-                        print("  %i payload: %s size: %i"%(p_index,payload.name(),len(payload.data())))
-                        recordDataSize +=len(payload.data())
+                        print("  %i payload: %s size: %i"%(p_index,payload.name(),len(payload.data())), end="")
+                        recordDataSize += len(payload.data())
                         if default_compressor:
                             b = default_compressor.compress(payload.data())
-                            if len(b) >= len(payload.data()):
+                            if len(b) < len(payload.data()):
+                                print(", compressed size: %i"%(len(b)))
+                            else:
                                 #compressing isn't helping
                                 b = payload.data()
+                                print(", uncompressed")
                         else:
                             b = payload.data()
+                            print(", uncompressed")
+                        compressedSize += len(b)
                         pl = payloadsGroup.create_dataset(payload.name(), data=np.frombuffer(b,dtype='b'))
                         pl.attrs["memsize"] = len(payload.data())
                         pl.attrs["type"] = payload.actualType()
                         payloadToRefs[payload.name()] = pl.ref
                         
                 tagGroupRefs.append(writeTag(tagsGroup, tag.time_type(), tag.iovsNPayloadNames(), payloadToRefs, tag.originalTagNames(), rcd, productNames))
-                print(" total size:",recordDataSize)
+                print(" total size:", recordDataSize, end="")
+                if (recordDataSize == compressedSize):
+                    print(", uncompressed")
+                else:
+                    print(", compressed size:", compressedSize)
                 recordDataSize = 0
+                compressedSize = 0
 
             globalTagGroup = globalTagsGroup.create_group(name)
             globalTagGroup.create_dataset("Tags", data=tagGroupRefs, dtype=h5py.ref_dtype)
