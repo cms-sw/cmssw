@@ -64,9 +64,9 @@ function build_python_cff() {
   echo "source = cms.Source(\"EmptySource\")"                              >> ${cfffilename}
   echo ""                                                                  >> ${cfffilename}
   if [ $hepmc_version == "HepMC3" ]; then
-      echo "generator = cms.EDFilter(\"SherpaHepMC3GeneratorFilter\","               >> ${cfffilename}
+      echo "generator = cms.EDFilter(\"SherpaHepMC3GeneratorFilter\","     >> ${cfffilename}
   elif [ $hepmc_version == "HepMC2" ]; then
-      echo "generator = cms.EDFilter(\"SherpaGeneratorFilter\","               >> ${cfffilename}
+      echo "generator = cms.EDFilter(\"SherpaGeneratorFilter\","           >> ${cfffilename}
   else
       echo "[ EXIT ]: Unsupported HepMC version: $hepmc_version. Please use HepMC3 or HepMC2."
       exit 1
@@ -75,7 +75,8 @@ function build_python_cff() {
   echo "  filterEfficiency = cms.untracked.double(1.0),"                   >> ${cfffilename}
   echo "  crossSection = cms.untracked.double(-1),"                        >> ${cfffilename}
   echo "  SherpaProcess = cms.string('"${process}"'),"                     >> ${cfffilename}
-  echo "  SherpackLocation = cms.string('"${sherpackfile}"'),"              >> ${cfffilename}
+  echo "  NewSherpackFormat = cms.bool(True),"                             >> ${cfffilename}
+  echo "  SherpackLocation = cms.string('"${sherpackfile}"'),"             >> ${cfffilename}
   echo "  SherpackChecksum = cms.string('"${checksum}"'),"                 >> ${cfffilename}
   echo "  FetchSherpack = cms.bool(False),"                                >> ${cfffilename}
 ##  if [ "${imode}" = "PROD" ]; then
