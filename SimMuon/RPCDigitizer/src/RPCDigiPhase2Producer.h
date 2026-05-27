@@ -44,7 +44,7 @@ private:
   std::string collection_for_XF;
 
   //Token for accessing data
-  edm::EDGetTokenT<CrossingFrame<PSimHit>> crossingFrameToken;
+  std::vector<edm::EDGetTokenT<CrossingFrame<PSimHit>>> crossingFrameTokens;
   const RPCGeometry* _pGeom;
 
   //EventSetup Tokens
