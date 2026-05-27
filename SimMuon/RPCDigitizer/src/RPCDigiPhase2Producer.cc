@@ -48,7 +48,7 @@ RPCDigiPhase2Producer::RPCDigiPhase2Producer(const edm::ParameterSet& ps) {
 #endif
     crossingFrameTokens.push_back(consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix, cname)));
   }
-  
+
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable()) {
     throw cms::Exception("Configuration")
@@ -97,7 +97,7 @@ void RPCDigiPhase2Producer::produce(edm::Event& e, const edm::EventSetup& eventS
   LogDebug("RPCDigiPhase2Producer") << "[RPCDigiPhase2Producer::produce] to activate the test go in "
                                        "RPCDigiPhase2Producer.cc and uncomment the line below";
 
-  //New code, based on tokens   
+  //New code, based on tokens
   std::vector<const CrossingFrame<PSimHit>*> cf_list;
   for (const auto& token : crossingFrameTokens) {
     const auto& handle = e.getHandle(token);
