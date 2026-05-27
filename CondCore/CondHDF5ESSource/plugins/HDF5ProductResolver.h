@@ -69,6 +69,7 @@ private:
 
   std::vector<char> decompress_zlib(std::vector<char>, std::size_t iMemSize) const;
   std::vector<char> decompress_lzma(std::vector<char>, std::size_t iMemSize) const;
+  std::vector<char> decompress_zstd(std::vector<char>, std::size_t iMemSize) const;
   // ---------- member data --------------------------------
   edm::SerialTaskQueue* queue_;
   cond::serialization::unique_void_ptr data_;

@@ -1,6 +1,11 @@
+import sys
 import h5py
 import zlib
 import lzma
+if sys.version_info >= (3, 14):
+    from compression import zstd
+else:
+    from backports import zstd
 import numpy as np
 
 #The file structure
@@ -79,6 +84,8 @@ def writeH5File(fileName, globalTags, excludeRecords, includeRecords, tagReader,
         default_compressor = zlib
     elif default_compressor_name == "lzma":
         default_compressor = lzma
+    elif default_compressor_name == "zstd":
+        default_compressor = zstd
     with h5py.File(fileName, 'w') as h5file:
         h5file.attrs["file_format"] = 1
         h5file.attrs["default_payload_compressor"] = default_compressor_name.encode("ascii")
