@@ -65,8 +65,7 @@ namespace edm {
         state_(),
         runAuxiliary_(),
         lumiAuxiliary_(),
-        statusFileName_(),
-        numberOfEventsBeforeBigSkip_(0) {
+        statusFileName_() {
     if (pset.getUntrackedParameter<bool>("writeStatusFile", false)) {
       std::ostringstream statusfilename;
       statusfilename << "source_" << getpid();

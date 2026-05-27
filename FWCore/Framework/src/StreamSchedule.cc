@@ -637,7 +637,7 @@ namespace edm {
         if (iPtr) {
           // free previous value of pathErrorPtr, if any;
           // prioritize this error over one that happens in EndPath or Accumulate
-          auto currentPtr = pathErrorPtr->exchange(new std::exception_ptr(*iPtr));
+          [[maybe_unused]] auto currentPtr = pathErrorPtr->exchange(new std::exception_ptr(*iPtr));
           assert(currentPtr == nullptr);
         }
         finishedPaths(*pathErrorPtr, std::move(allPathsHolder), transitionInfo);

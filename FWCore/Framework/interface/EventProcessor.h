@@ -357,8 +357,6 @@ namespace edm {
 
     PreallocationConfiguration preallocations_;
 
-    bool firstEventInBlock_ = true;
-
     bool printDependencies_ = false;
     bool deleteNonConsumedUnscheduledModules_ = true;
     bool needToCallNext_ = true;
