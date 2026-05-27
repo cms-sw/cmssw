@@ -108,7 +108,7 @@ namespace spf {
       // Old format: SherpackLocation is a directory containing sherpa_<process>_MASTER.tgz
       std::string sherpack = SherpackLocation + "/sherpa_" + SherpaProcess + "_MASTER.tgz";
       std::string sherpackunzip = "sherpa_" + SherpaProcess + "_MASTER.tar";
-      std::string path = sherpack;
+      const std::string &path = sherpack;
 
       if (FetchSherpack == true) {
         std::cout << "SherpackFetcher: Trying to fetch the Sherpack " << sherpack << std::endl;
