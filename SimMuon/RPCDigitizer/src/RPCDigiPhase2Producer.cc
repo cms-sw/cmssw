@@ -39,9 +39,16 @@ RPCDigiPhase2Producer::RPCDigiPhase2Producer(const edm::ParameterSet& ps) {
   produces<RPCDigitizerPhase2SimLinks>("RPCDigiPhase2SimLink");
 
   //Name of Collection used for create the XF
-  mix_ = ps.getParameter<std::string>("mixLabel");
-  collection_for_XF = ps.getParameter<std::string>("InputCollection");
-
+  const std::string& mix = ps.getParameter<std::string>("mixLabel");
+  const std::set<std::string> collections_for_XF{ps.getParameter<std::string>("InputCollection"),
+                                                 ps.getParameter<std::string>("InputCollectionPU")};
+  for (const auto& cname : collections_for_XF) {
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("RPCDigiProducer") << "Creating CrossingFrame Consumers for InputTag " << mix << ":" << cname;
+#endif
+    crossingFrameTokens.push_back(consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix, cname)));
+  }
+  
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable()) {
     throw cms::Exception("Configuration")
@@ -52,7 +59,6 @@ RPCDigiPhase2Producer::RPCDigiPhase2Producer(const edm::ParameterSet& ps) {
 
   theRPCSimSetUpRPC = new RPCSimSetUp(ps);
   theRPCDigitizerPhase2 = new RPCDigitizerPhase2(ps);
-  crossingFrameToken = consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix_, collection_for_XF));
   geomToken = esConsumes<RPCGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
   noiseToken = esConsumes<RPCStripNoises, RPCStripNoisesRcd, edm::Transition::BeginRun>();
   clsToken = esConsumes<RPCClusterSize, RPCClusterSizeRcd, edm::Transition::BeginRun>();
@@ -91,10 +97,15 @@ void RPCDigiPhase2Producer::produce(edm::Event& e, const edm::EventSetup& eventS
   LogDebug("RPCDigiPhase2Producer") << "[RPCDigiPhase2Producer::produce] to activate the test go in "
                                        "RPCDigiPhase2Producer.cc and uncomment the line below";
 
-  edm::Handle<CrossingFrame<PSimHit>> cf;
-  e.getByToken(crossingFrameToken, cf);
-
-  std::unique_ptr<MixCollection<PSimHit>> hits(new MixCollection<PSimHit>(cf.product()));
+  //New code, based on tokens   
+  std::vector<const CrossingFrame<PSimHit>*> cf_list;
+  for (const auto& token : crossingFrameTokens) {
+    const auto& handle = e.getHandle(token);
+    if (handle.isValid()) {
+      cf_list.emplace_back(handle.product());
+    }
+  }
+  auto hits = std::make_unique<MixCollection<PSimHit>>(cf_list);
 
   // Create empty output
   std::unique_ptr<RPCDigiPhase2Collection> pDigis(new RPCDigiPhase2Collection());
