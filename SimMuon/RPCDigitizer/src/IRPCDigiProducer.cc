@@ -41,15 +41,14 @@ IRPCDigiProducer::IRPCDigiProducer(const edm::ParameterSet& ps) {
   //Name of Collection used for create the XF
   const std::string& mix = ps.getParameter<std::string>("mixLabel");
   const std::set<std::string> collections_for_XF{ps.getParameter<std::string>("InputCollection"),
-						 ps.getParameter<std::string>("InputCollectionPU")};
+                                                 ps.getParameter<std::string>("InputCollectionPU")};
   for (const auto& cname : collections_for_XF) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("RPCDigiProducer") << "Creating CrossingFrame Consumers for InputTag " << mix << ":" << cname;
 #endif
     crossingFrameTokens.push_back(consumes<CrossingFrame<PSimHit>>(edm::InputTag(mix, cname)));
   }
-  
-  
+
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable()) {
     throw cms::Exception("Configuration")
@@ -109,7 +108,7 @@ void IRPCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
     }
   }
   auto hits = std::make_unique<MixCollection<PSimHit>>(cf_list);
-  
+
   // Create empty output
   std::unique_ptr<IRPCDigiCollection> pDigis(new IRPCDigiCollection());
   std::unique_ptr<IRPCDigitizerSimLinks> IRPCDigitSimLink(new IRPCDigitizerSimLinks());
