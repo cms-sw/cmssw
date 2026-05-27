@@ -568,7 +568,7 @@ def main():
     parser.add_argument('--exclude', '-e', nargs='*', help = 'list of records to exclude from the file (can not be used with --include)')
     parser.add_argument('--include', '-i', nargs='*', help = 'lost of the only records that should be included in the file (can not be used with --exclude')
     parser.add_argument('--output', '-o', default='test.h5cond', help='name of hdf5 output file to write')
-    parser.add_argument('--compressor', '-c', default='zlib', choices =['zlib','lzma','none'], help="compress data using 'zlib', 'lzma' or 'none'")    
+    parser.add_argument('--compressor', '-c', default='zlib', choices=['zlib', 'lzma', 'zstd', 'none'], help="compress data using 'zlib', 'lzma', 'zstd', or 'none'")
     args = parser.parse_args()
 
     if args.exclude and args.include:
