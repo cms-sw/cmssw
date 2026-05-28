@@ -76,7 +76,10 @@ void VMRouterCM::addOutput(MemoryBase* memory, string output) {
   if (output == "allinnerstubout") {
     AllInnerStubsMemory* tmp = dynamic_cast<AllInnerStubsMemory*>(memory);
     assert(tmp != nullptr);
-    char memtype = memory->getName().back();
+    //The memory name is on the format
+    //AS_L1PHIC_BA_TPL1L2D
+    //so the type, e.g. "A" or "B" is in the 11th slot
+    char memtype = memory->getName()[11];
     allinnerstubs_.emplace_back(memtype, tmp);
     return;
   }

@@ -622,8 +622,9 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
 
   }  // end of istep
 
-  if (settings_.writeMonitorData("MC")) {
-    globals_->ofstream("matchcalculator.txt") << getName() << " " << countall << " " << countsel << endl;
+  if (settings_.writeMonitorData("MP")) {
+    globals_->ofstream("matchprocessor.txt")
+        << getName() << " " << countall << " " << countsel << " " << countme << " " << countinputproj << endl;
   }
 }
 
