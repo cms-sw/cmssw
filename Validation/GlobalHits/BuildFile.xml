@@ -7,7 +7,7 @@
 <use name="DataFormats/HcalDetId"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/Common"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonTopologies"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="DataFormats/MuonDetId"/>
 <use name="Geometry/HcalTowerAlgo"/>

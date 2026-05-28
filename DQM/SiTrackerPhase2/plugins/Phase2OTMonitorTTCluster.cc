@@ -37,7 +37,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"

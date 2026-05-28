@@ -11,7 +11,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 #include <string>
 #include "TLorentzVector.h"

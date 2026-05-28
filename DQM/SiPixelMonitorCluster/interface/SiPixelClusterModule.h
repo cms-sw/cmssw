@@ -24,7 +24,7 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include <cstdint>
 

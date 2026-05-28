@@ -32,7 +32,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"

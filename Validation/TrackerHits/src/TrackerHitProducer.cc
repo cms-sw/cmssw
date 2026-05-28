@@ -13,8 +13,8 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 // tracker info
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 // data in edm::event

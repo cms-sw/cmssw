@@ -49,7 +49,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
 // class MuonIdVal : public edm::EDAnalyzer {
