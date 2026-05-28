@@ -146,8 +146,8 @@ namespace edm {
     //   (with R in [RminFrontSurfaceHGCAL, RmaxFrontSurfaceHGCAL]) and vertex rho
     // If false: sample theta uniformly in [MinTheta, MaxTheta]
     bool fPointingToHGCAL = true;
-    std::optional<double> fRminFrontSurfaceHGCAL = kHGCalRMin;
-    std::optional<double> fRmaxFrontSurfaceHGCAL = kHGCalRMax;
+    double fRminFrontSurfaceHGCAL = kHGCalRMin;
+    double fRmaxFrontSurfaceHGCAL = kHGCalRMax;
     std::optional<double> fThetaMin = 0.;
     std::optional<double> fThetaMax = 0.;
 
@@ -190,19 +190,9 @@ namespace edm {
       if (*fThetaMax <= *fThetaMin) {
         throw cms::Exception("DisplacedParticleGunProducer") << "Please ensure MinTheta <= MaxTheta.";
       }
-      fRminFrontSurfaceHGCAL = std::nullopt;
-      fRmaxFrontSurfaceHGCAL = std::nullopt;
     } else {
       fRminFrontSurfaceHGCAL = pgun.getParameter<double>("RminFrontSurfaceHGCAL");
       fRmaxFrontSurfaceHGCAL = pgun.getParameter<double>("RmaxFrontSurfaceHGCAL");
-      if (*fRmaxFrontSurfaceHGCAL <= *fRminFrontSurfaceHGCAL) {
-        throw cms::Exception("DisplacedParticleGunProducer")
-            << "Please ensure RmaxFrontSurfaceHGCAL > RminFrontSurfaceHGCAL.";
-      }
-      if (*fRmaxFrontSurfaceHGCAL > kHGCalRMax || *fRminFrontSurfaceHGCAL < kHGCalRMin) {
-        throw cms::Exception("DisplacedParticleGunProducer")
-            << "Please ensure RmaxFrontSurfaceHGCAL <= kHGCalRMax and RminFrontSurfaceHGCAL >= kHGCalRMin.";
-      }
       fThetaMin = std::nullopt;
       fThetaMax = std::nullopt;
     }
@@ -225,7 +215,15 @@ namespace edm {
     if (fMaxTries == 0) {
       throw cms::Exception("DisplacedParticleGunProducer") << "MaxTries must be > 0";
     }
-
+	if (fRmaxFrontSurfaceHGCAL <= fRminFrontSurfaceHGCAL) {
+	  throw cms::Exception("DisplacedParticleGunProducer")
+		<< "Please ensure RmaxFrontSurfaceHGCAL > RminFrontSurfaceHGCAL.";
+	}
+	if (fRmaxFrontSurfaceHGCAL > kHGCalRMax || fRminFrontSurfaceHGCAL < kHGCalRMin) {
+	  throw cms::Exception("DisplacedParticleGunProducer")
+		<< "Please ensure RmaxFrontSurfaceHGCAL <= kHGCalRMax and RminFrontSurfaceHGCAL >= kHGCalRMin.";
+	}
+	  
     produces<HepMCProduct>("unsmeared");
     produces<GenEventInfoProduct>();
   }
@@ -301,8 +299,8 @@ namespace edm {
     fEvt = new HepMC::GenEvent();
 
     const double zFront = kHGCalZ;
-    const double rMinFace = fRminFrontSurfaceHGCAL.value();
-    const double rMaxFace = fRmaxFrontSurfaceHGCAL.value();
+    const double rMinFace = fRminFrontSurfaceHGCAL;
+    const double rMaxFace = fRmaxFrontSurfaceHGCAL;
 
     if (fPointingToHGCAL) {
       if (!(rMaxFace > rMinFace) || zFront <= fZVtx) {
@@ -358,7 +356,7 @@ namespace edm {
           }
 
           if (hitsZPlaneWithinR(
-                  xVtx, yVtx, zVtx, px, py, pz, zFront, *fRminFrontSurfaceHGCAL, *fRmaxFrontSurfaceHGCAL)) {
+                  xVtx, yVtx, zVtx, px, py, pz, zFront, fRminFrontSurfaceHGCAL, fRmaxFrontSurfaceHGCAL)) {
             accepted = true;
             break;
           }
@@ -367,7 +365,7 @@ namespace edm {
           throw cms::Exception("DisplacedParticleGunProducer")
               << "Failed to generate a particle intersecting HGCAL front surface after MaxTries=" << fMaxTries
               << ". Vertex: (R=" << RVtx << "cm, phiVtx=" << phiVtx << ", z=" << zVtx << "cm). HGCAL band: ["
-              << *fRminFrontSurfaceHGCAL << "," << *fRmaxFrontSurfaceHGCAL << "]cm at z=" << zFront << "cm.";
+              << fRminFrontSurfaceHGCAL << "," << fRmaxFrontSurfaceHGCAL << "]cm at z=" << zFront << "cm.";
         }
       } else {  // if (fPointingToHGCAL)
         theta = CLHEP::RandFlat::shoot(engine, fThetaMin.value(), fThetaMax.value());

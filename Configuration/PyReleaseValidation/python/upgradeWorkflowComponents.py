@@ -2166,7 +2166,7 @@ upgradeWFs['HLTwDIGI75e33'] = UpgradeWorkflow_HLTwDIGI75e33(
 class UpgradeWorkflow_NGTScouting(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         # skip RECO, ALCA and HARVEST
-        if ('ALCA' in step) or ('Reco' in step) or ('HLT' in step):
+        if any(x in step for x in ('ALCA', 'Reco', 'HLT')):
             stepDict[stepName][k] = None
         elif 'DigiTrigger' in step:
             # Add the aging customization
@@ -2180,8 +2180,10 @@ class UpgradeWorkflow_NGTScouting(UpgradeWorkflow):
             stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         else:
             stepDict[stepName][k] = merge([stepDict[step][k]])
+
     def condition(self, fragment, stepList, key, hasHarvest):
-        return (fragment=="TTbar_14TeV" or fragment=="SingleMuPt15Eta0p_0p4") and 'Run4' in key
+        return (fragment=='TTbar_14TeV' or fragment=='SingleMuPt15Eta0p_0p4' or 'Displaced' in fragment) and 'Run4' in key
+    
 upgradeWFs['NGTScouting'] = UpgradeWorkflow_NGTScouting(
     steps = [
         'Reco',
