@@ -53,7 +53,7 @@ for year in upgradeKeys:
                         if '14TeV' in frag:
                             step = 'GenHLBeamSpot14'
                     stepMaker = makeStepNameSim
-                
+
                 if 'HARVEST' in step: hasHarvest = True
                 for specialType,specialWF in upgradeWFs.items():
                     if notForGenOnly(key,specialType): ## we don't need all the flavors for the GEN
