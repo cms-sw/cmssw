@@ -64,7 +64,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 // To access kinks and bows
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
 #include "CLHEP/Matrix/SymMatrix.h"

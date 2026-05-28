@@ -17,7 +17,7 @@
 
 #include "Alignment/CommonAlignment/interface/AlignableBeamSpot.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 class BeamSpotGeomDet : public GeomDet {
 public:
