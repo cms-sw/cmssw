@@ -55,7 +55,9 @@ namespace lst {
     std::vector<uint16_t> hitClustSize;
     std::vector<unsigned int> hitId;
     std::vector<unsigned int> hitIdxs;
-    std::vector<Params_pLS::ArrayUxHits> hitIndices_vec;
+    std::vector<unsigned int> firstHit_vec;
+    std::vector<uint8_t> nHits_vec;
+    std::vector<uint8_t> hitDetBits_vec;
     std::vector<float> deltaPhi_vec;
     std::vector<float> ptIn_vec;
     std::vector<float> ptErr_vec;
@@ -78,7 +80,9 @@ namespace lst {
     px_vec.reserve(n_see);
     py_vec.reserve(n_see);
     pz_vec.reserve(n_see);
-    hitIndices_vec.reserve(n_see);
+    firstHit_vec.reserve(n_see);
+    nHits_vec.reserve(n_see);
+    hitDetBits_vec.reserve(n_see);
     ptIn_vec.reserve(n_see);
     ptErr_vec.reserve(n_see);
     etaErr_vec.reserve(n_see);
@@ -96,6 +100,7 @@ namespace lst {
     hitIdxs.resize(hit_size);
 
     std::iota(hitIdxs.begin(), hitIdxs.end(), 0);
+    int nHitsOT = ph2_x.size();
 
     for (size_t iSeed = 0; iSeed < n_see; iSeed++) {
       // Only needed for standalone
@@ -133,20 +138,31 @@ namespace lst {
         } else
           continue;
 
-        unsigned int hitIdx0 = hit_size + count;
-        count++;
-        unsigned int hitIdx1 = hit_size + count;
-        count++;
-        unsigned int hitIdx2 = hit_size + count;
-        count++;
-        unsigned int hitIdx3;
-        if (see_hitIdx[iSeed].size() <= 3)
-          hitIdx3 = hitIdx2;
-        else {
-          hitIdx3 = hit_size + count;
-          count++;
-        }
+        firstHit_vec.push_back(hit_size + count);
+        nHits_vec.push_back(see_hitIdx[iSeed].size());
 
+        const unsigned int nHitsToSoA =
+            std::min(static_cast<unsigned int>(see_hitIdx[iSeed].size()), kMaxPLSHitsInHitsSoA);
+        assert(nHitsToSoA >= 3);  // need to rework the logic for less than 3 hits
+        count += nHitsToSoA;
+
+        auto const& hTypes = see_hitType[iSeed];
+        auto constexpr intPixel = static_cast<int>(HitType::Pixel);
+        auto const& hIdxs = see_hitIdx[iSeed];
+        for (unsigned int iSH = 0; iSH < nHitsToSoA; iSH++) {
+          auto iH = iSH + 1 == nHitsToSoA ? see_hitIdx[iSeed].size() - 1 : iSH;  // include the last
+          hitId.push_back(hTypes[iH] == intPixel ? kPixelModuleId : ph2_detId[hIdxs[iH]]);
+          hitClustSize.push_back(hTypes[iH] == intPixel ? 1 : ph2_clustSize[hIdxs[iH]]);
+        }
+        uint8_t hitDetBits = 0;
+        uint8_t nToBits = std::min(kMaxPLSHitBitsInHitsSoA, static_cast<unsigned int>(see_hitIdx[iSeed].size()));
+        for (int iSH = 0; iSH < nToBits; iSH++) {
+          auto iH = iSH + 1 == nToBits ? see_hitIdx[iSeed].size() - 1 : iSH;  // include the last
+          hitDetBits |= (hTypes[iH] != intPixel) << iSH;
+        }
+        hitDetBits_vec.push_back(hitDetBits);
+
+        // eventually these trk[XYZ] should be moved to the PixelSeeds SoA
         trkX.push_back(r3PCA.x());
         trkY.push_back(r3PCA.y());
         trkZ.push_back(r3PCA.z());
@@ -158,26 +174,17 @@ namespace lst {
         trkX.push_back(r3LH.x());
         trkY.push_back(r3LH.y());
         trkZ.push_back(r3LH.z());
-        auto const& hTypes = see_hitType[iSeed];
-        auto constexpr intPixel = static_cast<int>(HitType::Pixel);
-        auto const& hIdxs = see_hitIdx[iSeed];
-        for (int iSH = 0; iSH < 3; iSH++) {
-          hitId.push_back(hTypes[iSH] == intPixel ? kPixelModuleId : ph2_detId[hIdxs[iSH]]);
-          hitClustSize.push_back(hTypes[iSH] == intPixel ? 1 : ph2_clustSize[hIdxs[iSH]]);
-        }
-        if (see_hitIdx[iSeed].size() > 3) {
+        for (unsigned int iH = 3; iH < nHitsToSoA; iH++) {
           trkX.push_back(r3LH.x());
           trkY.push_back(see_dxy[iSeed]);
           trkZ.push_back(see_dz[iSeed]);
-          auto iLH = see_hitIdx[iSeed].size() - 1;
-          hitId.push_back(hTypes[iLH] == intPixel ? kPixelModuleId : ph2_detId[hIdxs[iLH]]);
-          hitClustSize.push_back(hTypes[iLH] == intPixel ? 1 : ph2_clustSize[hIdxs[iLH]]);
         }
+        assert(trkX.size() == count);
+
         px_vec.push_back(px);
         py_vec.push_back(py);
         pz_vec.push_back(pz);
 
-        hitIndices_vec.push_back({{hitIdx0, hitIdx1, hitIdx2, hitIdx3}});
         ptIn_vec.push_back(ptIn);
         ptErr_vec.push_back(ptErr);
         etaErr_vec.push_back(etaErr);
@@ -210,7 +217,6 @@ namespace lst {
     }
 
     // Build the SoAs
-    int nHitsOT = ph2_x.size();
     int nHitsIT = trkX.size();
     int nPixelSeeds = ptIn_vec.size();
     if (static_cast<unsigned int>(nPixelSeeds) > n_max_pixel_segments_per_module) {
@@ -242,7 +248,9 @@ namespace lst {
     std::copy_n(hitIdxs.data(), nHitsIT + nHitsOT, hits.idxs().data());
 
     auto pixelSeeds = lstInputHC.view().pixelSeeds();
-    std::copy_n(hitIndices_vec.data(), nPixelSeeds, pixelSeeds.hitIndices().data());
+    std::copy_n(firstHit_vec.data(), nPixelSeeds, pixelSeeds.firstHit().data());
+    std::copy_n(nHits_vec.data(), nPixelSeeds, pixelSeeds.nHits().data());
+    std::copy_n(hitDetBits_vec.data(), nPixelSeeds, pixelSeeds.hitDetBits().data());
     std::copy_n(deltaPhi_vec.data(), nPixelSeeds, pixelSeeds.deltaPhi().data());
     std::copy_n(ptIn_vec.data(), nPixelSeeds, pixelSeeds.ptIn().data());
     std::copy_n(ptErr_vec.data(), nPixelSeeds, pixelSeeds.ptErr().data());

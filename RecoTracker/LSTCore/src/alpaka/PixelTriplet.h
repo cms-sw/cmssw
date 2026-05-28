@@ -25,6 +25,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float x_InUp, y_InUp, z_InUp, rt_InUp;  // pixel outer MD (pLSMD1)
     float alpha_InLo;                       // pixel segment dPhiChange
     int charge;
+    uint8_t nHits;
+    uint8_t hitDetBits;
   };
 
   ALPAKA_FN_ACC ALPAKA_FN_INLINE PixelSeedData loadPixelSeedData(PixelSeedsConst pixelSeeds,
@@ -45,6 +47,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     pixelData.eta = pixelSeeds.eta()[pixelSeedIndex];
     pixelData.phi = pixelSeeds.phi()[pixelSeedIndex];
     pixelData.charge = pixelSeeds.charge()[pixelSeedIndex];
+    pixelData.nHits = pixelSeeds.nHits()[pixelSeedIndex];
+    pixelData.hitDetBits = pixelSeeds.hitDetBits()[pixelSeedIndex];
     pixelData.circleCenterX = pixelSegments.circleCenterX()[pixelSeedIndex];
     pixelData.circleCenterY = pixelSegments.circleCenterY()[pixelSeedIndex];
     pixelData.circleRadius = pixelSegments.circleRadius()[pixelSeedIndex];
@@ -886,7 +890,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     const float dzDrtScaleHi = z_InUp * rtRelDiff < 0.f ? 1.f : dzDrtScale;
     const float dzDrtScaleLo = z_InUp * rtRelDiff > 0.f ? 1.f : dzDrtScale;
     const float zpitch_InLo = 0.05f;
-    bool isPLSinOT = pixelSeeds.pLSHitsIdxs()[pixelSegmentArrayIndex][3] & (1 << 31);
+    bool isPLSinOT =
+        pixelData.hitDetBits &
+        (1 << (alpaka::math::min(acc, static_cast<unsigned int>(pixelData.nHits), kMaxPLSHitBitsInHitsSoA) - 1));
     bool isPS_OutLo = (modules.moduleType()[segmentInnerModuleIndex] == PS);
     bool isTilted_OutLo = (modules.sides()[segmentInnerModuleIndex] != Center);
     // same layer pLS is P-size, 50 um otherwise
