@@ -9,11 +9,6 @@ import RecoLocalCalo.HcalRecProducers.HBHEStatusBitSetter_cfi as hbheStatusFlag
 hbheprereco = cms.EDProducer(
     "HBHEPhase1Reconstructor",
 
-    # Label for the HcalPulseShapeLookup object and flag
-    # indicating whether we are using it
-    channelShapesLabel = cms.string("HcalDataShapes"),
-    useChannelShapes = cms.bool(False),
-
     # Label for the input HBHEDigiCollection, and flag indicating
     # whether we should process this collection
     digiLabelQIE8 = cms.InputTag("hcalDigis"),
@@ -83,10 +78,7 @@ hbheprereco = cms.EDProducer(
         useMahi = cms.bool(True),
 
         # Apply legacy HB- energy correction?
-        applyLegacyHBMCorrection = cms.bool(True),
-
-        # If channel-by-channel pulse shapes are enabled, use them for MC?
-        useChannelPulseShapesForMC = cms.bool(False)
+        applyLegacyHBMCorrection = cms.bool(True)
     ),
 
     # Reconstruction algorithm configuration data to fetch from DB, if any
@@ -99,6 +91,7 @@ hbheprereco = cms.EDProducer(
     setNoiseFlagsQIE11 = cms.bool(False),
     setPulseShapeFlagsQIE8 = cms.bool(True),
     setPulseShapeFlagsQIE11 = cms.bool(False),
+    setHBHERun3Flags = cms.bool(True),
     setLegacyFlagsQIE8 = cms.bool(True),
     setLegacyFlagsQIE11 = cms.bool(False),
 

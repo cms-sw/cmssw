@@ -14,7 +14,10 @@ hbheRecHitTable = cms.EDProducer("HBHERecHitFlatTableProducer",
                     time   = Var('time', 'float', precision=14, doc='hit time'),
                     ieta   = Var('id().ieta()', 'int', precision=-1, doc='ieta'),
                     iphi   = Var('id().iphi()', 'int', precision=-1, doc='iphi'),
-                    depth  = Var('id().depth()', 'int', precision=-1, doc='depth')
+                    depth  = Var('id().depth()', 'int', precision=-1, doc='depth'),
+                    auxHBHE   = Var('auxHBHE()', 'uint', doc='HBHE aux (bits 0-3=severity 0-15)'),
+                    auxPhase1 = Var('auxPhase1()', 'uint', doc='HBHE aux Phase1'),
+                    flag = Var('flags()', 'uint', doc='HBHE flags')
                 )
 )
 
@@ -54,12 +57,12 @@ hoRecHitTable = cms.EDProducer("HORecHitFlatTableProducer",
 
 hcalRecHitTableSeq = cms.Sequence(
     hbheRecHitTable
-    + hfRecHitTable
-    + hoRecHitTable
+    # + hfRecHitTable
+    # + hoRecHitTable
 )
 
 hcalRecHitTableTask = cms.Task(
     hbheRecHitTable,
-    hfRecHitTable,
-    hoRecHitTable,
+    # hfRecHitTable,
+    # hoRecHitTable,
 )
