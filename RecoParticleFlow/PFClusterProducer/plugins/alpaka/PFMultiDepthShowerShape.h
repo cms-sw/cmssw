@@ -132,18 +132,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   const reco::PFClusterDeviceCollection::ConstView pfClusters,
                                   const reco::PFRecHitFractionDeviceCollection::ConstView pfRecHitFracs,
                                   const reco::PFRecHitDeviceCollection::ConstView pfRecHit,
-                                  const float rms2_threshold = 0.1) const {
+                                  const float rms2_threshold = 0.1f) const {
+      constexpr unsigned int w_extent = get_warp_size<Acc1D>();
+
       const unsigned int nClusters = pfClusters.nSeeds();
 
       if (::cms::alpakatools::once_per_grid(acc)) {
         mdpfClusteringVars.size() = nClusters;
+        if constexpr (is_cooperative) {
+          const unsigned int blockDim = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
+          ALPAKA_ASSERT_ACC(blockDim % w_extent == 0u);
+        }
       }
 
-      const unsigned int w_extent = alpaka::warp::getSize(acc);
-
       for (auto idx : ::cms::alpakatools::uniform_elements(acc, nClusters)) {
-        const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
-
         accum_t accum_etaSum_div_en{0.};
         accum_t accum_phiSum_div_en{0.};
         {
@@ -215,8 +217,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               bool update_params = true;
 
               bool cache_vals = false;
-              // Ensure masks and per-lane state updates from previous iteration are visible before scheduling.
-              warp::syncWarpThreads_mask(acc, active_lanes_mask);
 
               while (update_params) {
                 const warp::warp_mask_t iter_lane_mask = get_lane_mask(iter_lane_idx);
@@ -393,8 +393,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             accum_phiSum_div_en = static_cast<accum_t>(iter_accum_phiSum / pfc_energy);
           }
         }
-        warp::syncWarpThreads_mask(acc, active_lanes_mask);
-
         const double etaRMS2_ = alpaka::math::max(acc, accum_etaSum_div_en, rms2_threshold);
         const double phiRMS2_ = alpaka::math::max(acc, accum_phiSum_div_en, rms2_threshold);
 
