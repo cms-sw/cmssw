@@ -133,27 +133,28 @@ for year in upgradeKeys:
 # every special workflow gets its own derived class, which must then be added to the global dict upgradeWFs
 preventReuseKeyword = 'NOREUSE'
 class UpgradeWorkflow(object):
-    def __init__(self,steps,PU,suffix,offset):
+    def __init__(self, steps, PU, suffix, offset):
         self.steps = steps
         self.PU = PU
         self.allowReuse = True
 
         # ensure all PU steps are in normal step list
-        for step in self.PU:
-            if not step in self.steps:
-                self.steps.append(step)
+        self.steps.extend(step for step in self.PU if step not in self.steps)
 
         self.suffix = suffix
-        if len(self.suffix)>0 and self.suffix[0]!='_': self.suffix = '_'+self.suffix
+        if len(self.suffix)>0 and self.suffix[0]!='_':
+            self.suffix = '_'+self.suffix
+            
         self.offset = offset
         if self.offset < 0.0 or self.offset > 1.0:
-            raise ValueError("Special workflow offset must be between 0.0 and 1.0")
+            raise ValueError("Special workflow offset must be between 0.0 and 1.0.")
+        
     def getStepName(self, step, extra=""):
-        stepName = step + self.suffix + extra
-        return stepName
+        return step + self.suffix + extra
+    
     def getStepNamePU(self, step, extra=""):
-        stepNamePU = step + 'PU' + self.suffix + extra
-        return stepNamePU
+        return step + 'PU' + self.suffix + extra
+    
     def init(self, stepDict):
         for step in self.steps:
             stepDict[self.getStepName(step)] = {}
@@ -161,34 +162,43 @@ class UpgradeWorkflow(object):
         for step in self.PU:
             stepDict[self.getStepNamePU(step)] = {}
             if not self.allowReuse: stepDict[self.getStepNamePU(step,preventReuseKeyword)] = {}
+            
     def setup(self, stepDict, k, properties):
         for step in self.steps:
             self.setup_(step, self.getStepName(step), stepDict, k, properties)
             if not self.allowReuse: self.preventReuse(self.getStepName(step,preventReuseKeyword), stepDict, k)
+            
     def setupPU(self, stepDict, k, properties):
         for step in self.PU:
             self.setupPU_(step, self.getStepNamePU(step), stepDict, k, properties)
             if not self.allowReuse: self.preventReuse(self.getStepNamePU(step,preventReuseKeyword), stepDict, k)
+            
     def setup_(self, step, stepName, stepDict, k, properties):
         pass
+    
     def setupPU_(self, step, stepName, stepDict, k, properties):
         pass
+    
     def workflow(self, workflows, num, fragment, stepList, key, hasHarvest):
         if self.condition(fragment, stepList, key, hasHarvest):
             self.workflow_(workflows, num, fragment, stepList, key)
+            
     def workflow_(self, workflows, num, fragment, stepList, key):
         fragmentTmp = [fragment, key]
         if len(self.suffix)>0: fragmentTmp.append(self.suffix)
         # avoid spurious workflows (no steps modified)
         if self.offset==0 or workflows[num][1]!=stepList:
             workflows[num+self.offset] = [ fragmentTmp, stepList ]
+            
     def condition(self, fragment, stepList, key, hasHarvest):
         return False
+    
     def preventReuse(self, stepName, stepDict, k):
         if "Sim" in stepName and stepName != "Sim":
             stepDict[stepName][k] = None
         if "Gen" in stepName:
             stepDict[stepName][k] = None
+
 upgradeWFs = OrderedDict()
 
 class UpgradeWorkflow_baseline(UpgradeWorkflow):
@@ -202,8 +212,10 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
         if era is not None:
             stepDict[stepName][k]['--era']=era
         if modifier is not None: stepDict[stepName][k]['--procModifier']=modifier
+        
     def condition(self, fragment, stepList, key, hasHarvest):
         return True
+
 upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
     steps =  [
         'Gen',
@@ -798,88 +810,8 @@ upgradeWFs['weightedVertexTrackingOnly'].step4 = {
     '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
 }
 
-# Special TICL Pattern recognition Workflows
-class UpgradeWorkflow_ticl_clue3D(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if 'RecoGlobal' in step:
-            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
-        if 'HARVESTGlobal' in step:
-            stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
-    def condition(self, fragment, stepList, key, hasHarvest):
-        return (fragment=="TTbar_14TeV" or 'CloseByPGun_CE' in fragment) and 'Run4' in key
-upgradeWFs['ticl_clue3D'] = UpgradeWorkflow_ticl_clue3D(
-    steps = [
-        'RecoGlobal',
-        'RecoGlobalFakeHLT',
-        'HARVESTGlobal'
-    ],
-    PU = [
-        'RecoGlobal',
-        'RecoGlobalFakeHLT',
-        'HARVESTGlobal'
-    ],
-    suffix = '_ticl_clue3D',
-    offset = 0.201,
-)
-upgradeWFs['ticl_clue3D'].step3 = {'--procModifiers': 'clue3D'}
-upgradeWFs['ticl_clue3D'].step4 = {'--procModifiers': 'clue3D'}
 
-class UpgradeWorkflow_ticl_FastJet(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if 'RecoGlobal' in step:
-            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
-        if 'HARVESTGlobal' in step:
-            stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
-    def condition(self, fragment, stepList, key, hasHarvest):
-        return (fragment=="TTbar_14TeV" or 'CloseByPGun_CE' in fragment) and 'Run4' in key
-upgradeWFs['ticl_FastJet'] = UpgradeWorkflow_ticl_FastJet(
-    steps = [
-        'RecoGlobal',
-        'RecoGlobalFakeHLT',
-        'HARVESTGlobal'
-    ],
-    PU = [
-        'RecoGlobal',
-        'RecoGlobalFakeHLT',
-        'HARVESTGlobal'
-    ],
-    suffix = '_ticl_FastJet',
-    offset = 0.202,
-)
-upgradeWFs['ticl_FastJet'].step3 = {'--procModifiers': 'fastJetTICL'}
-upgradeWFs['ticl_FastJet'].step4 = {'--procModifiers': 'fastJetTICL'}
 
-class UpgradeWorkflow_ticl_v5(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if ('Digi' in step and 'NoHLT' not in step) or ('HLTOnly' in step):
-            stepDict[stepName][k] = merge([self.step2, stepDict[step][k]])
-        if 'RecoGlobal' in step:
-            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
-        if 'HARVESTGlobal' in step:
-            stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
-    def condition(self, fragment, stepList, key, hasHarvest):
-        selected_fragments = ["TTbar_14TeV", "CloseByP", "Eta1p7_2p7", "ZEE_14"]
-        return any(sf in fragment for sf in selected_fragments) and 'Run4' in key
-
-upgradeWFs['ticl_v5'] = UpgradeWorkflow_ticl_v5(
-    steps = [
-        'HLTOnly',
-        'DigiTrigger',
-        'RecoGlobal',
-        'HARVESTGlobal'
-    ],
-    PU = [
-        'HLTOnly',
-        'DigiTrigger',
-        'RecoGlobal',
-        'HARVESTGlobal'
-    ],
-    suffix = '_ticl_v5',
-    offset = 0.203,
-)
-upgradeWFs['ticl_v5'].step2 = {'--procModifiers': 'ticl_v5'}
-upgradeWFs['ticl_v5'].step3 = {'--procModifiers': 'ticl_v5'}
-upgradeWFs['ticl_v5'].step4 = {'--procModifiers': 'ticl_v5'}
 
 class UpgradeWorkflow_ticl_v5_superclustering(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
@@ -907,9 +839,9 @@ upgradeWFs['ticl_v5_superclustering_mustache_ticl'] = UpgradeWorkflow_ticl_v5_su
     suffix = '_ticl_v5_mustache',
     offset = 0.204,
 )
-upgradeWFs['ticl_v5_superclustering_mustache_ticl'].step2 = {'--procModifiers': 'ticl_v5,ticl_superclustering_mustache_ticl'}
-upgradeWFs['ticl_v5_superclustering_mustache_ticl'].step3 = {'--procModifiers': 'ticl_v5,ticl_superclustering_mustache_ticl'}
-upgradeWFs['ticl_v5_superclustering_mustache_ticl'].step4 = {'--procModifiers': 'ticl_v5,ticl_superclustering_mustache_ticl'}
+upgradeWFs['ticl_v5_superclustering_mustache_ticl'].step2 = {'--procModifiers': 'ticl_superclustering_mustache_ticl'}
+upgradeWFs['ticl_v5_superclustering_mustache_ticl'].step3 = {'--procModifiers': 'ticl_superclustering_mustache_ticl'}
+upgradeWFs['ticl_v5_superclustering_mustache_ticl'].step4 = {'--procModifiers': 'ticl_superclustering_mustache_ticl'}
 
 upgradeWFs['ticl_v5_superclustering_mustache_pf'] = UpgradeWorkflow_ticl_v5_superclustering(
     steps = [
@@ -925,8 +857,8 @@ upgradeWFs['ticl_v5_superclustering_mustache_pf'] = UpgradeWorkflow_ticl_v5_supe
     suffix = '_ticl_v5_mustache_pf',
     offset = 0.205,
 )
-upgradeWFs['ticl_v5_superclustering_mustache_pf'].step3 = {'--procModifiers': 'ticl_v5,ticl_superclustering_mustache_pf'}
-upgradeWFs['ticl_v5_superclustering_mustache_pf'].step4 = {'--procModifiers': 'ticl_v5,ticl_superclustering_mustache_pf'}
+upgradeWFs['ticl_v5_superclustering_mustache_pf'].step3 = {'--procModifiers': 'ticl_superclustering_mustache_pf'}
+upgradeWFs['ticl_v5_superclustering_mustache_pf'].step4 = {'--procModifiers': 'ticl_superclustering_mustache_pf'}
 
 class UpgradeWorkflow_TICLdumper(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
@@ -947,26 +879,6 @@ upgradeWFs['enableTICLdumper'] = UpgradeWorkflow_TICLdumper(
 )
 upgradeWFs['enableTICLdumper'].step3 = {'--customise': 'RecoHGCal/TICL/customiseTICLFromReco.customiseTICLForDumper'}
 
-upgradeWFs['ticl_v5_withDumper'] = UpgradeWorkflow_ticl_v5(
-    steps = [
-        'HLTOnly',
-        'DigiTrigger',
-        'RecoGlobal',
-        'HARVESTGlobal'
-    ],
-    PU = [
-        'HLTOnly',
-        'DigiTrigger',
-        'RecoGlobal',
-        'HARVESTGlobal'
-    ],
-    suffix = '_ticl_v5_withDumper',
-    offset = 0.207,
-)
-upgradeWFs['ticl_v5_withDumper'].step2 = {'--procModifiers': 'ticl_v5'}
-upgradeWFs['ticl_v5_withDumper'].step3 = {'--procModifiers': 'ticl_v5',
-                                          '--customise': 'RecoHGCal/TICL/customiseTICLFromReco.customiseTICLForDumper'}
-upgradeWFs['ticl_v5_withDumper'].step4 = {'--procModifiers': 'ticl_v5'}
 
 class UpgradeWorkflow_CPfromPU(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
@@ -996,9 +908,9 @@ upgradeWFs['CPfromPU'] = UpgradeWorkflow_CPfromPU(
     offset = 0.208,
 )
 
-upgradeWFs['CPfromPU'].step2 = {'--procModifiers': 'enableCPfromPU'}
-upgradeWFs['CPfromPU'].step3 = {'--procModifiers': 'enableCPfromPU'}
-upgradeWFs['CPfromPU'].step4 = {'--procModifiers': 'enableCPfromPU'}
+upgradeWFs['CPfromPU'].step2 = {'--procModifiers': 'simTrackstersFromPU'}
+upgradeWFs['CPfromPU'].step3 = {'--procModifiers': 'simTrackstersFromPU'}
+upgradeWFs['CPfromPU'].step4 = {'--procModifiers': 'simTrackstersFromPU'}
 
 class UpgradeWorkflow_ticl_barrel(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
@@ -1058,9 +970,9 @@ upgradeWFs['ticl_barrel_CPfromPU'] = UpgradeWorkflow_ticl_barrel_CPfromPU(
     suffix = '_ticl_barrel_CPfromPU',
     offset = 0.2091,
 )
-upgradeWFs['ticl_barrel_CPfromPU'].step2 = {'--procModifiers': 'ticl_barrel,enableCPfromPU'}
-upgradeWFs['ticl_barrel_CPfromPU'].step3 = {'--procModifiers': 'ticl_barrel,enableCPfromPU'}
-upgradeWFs['ticl_barrel_CPfromPU'].step4 = {'--procModifiers': 'ticl_barrel,enableCPfromPU'}
+upgradeWFs['ticl_barrel_CPfromPU'].step2 = {'--procModifiers': 'ticl_barrel,simTrackstersFromPU'}
+upgradeWFs['ticl_barrel_CPfromPU'].step3 = {'--procModifiers': 'ticl_barrel,simTrackstersFromPU'}
+upgradeWFs['ticl_barrel_CPfromPU'].step4 = {'--procModifiers': 'ticl_barrel,simTrackstersFromPU'}
 
 class UpgradeWorkflow_ticlv5_TrackLinkingGNN(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
@@ -1222,8 +1134,9 @@ class UpgradeWorkflow_photonDRN(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step:
             stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+
     def condition(self, fragment, stepList, key, hasHarvest):
-        return '2018' in key and "SingleGamma" in fragment
+        return '2018' in key and 'SingleGamma' in fragment
 
 upgradeWFs['photonDRN'] = UpgradeWorkflow_photonDRN(
     steps = [
@@ -1241,6 +1154,27 @@ upgradeWFs['photonDRN'].step3 = {
     '--procModifiers': 'enableSonicTriton,photonDRN'
 }
 
+# workflows with a displaced vertex
+class UpgradeWorkflow_displacedVertex(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Gen' in step:
+            stepDict[stepName][k] = merge([{'--beamspot': 'Displaced'}, stepDict[step][k]])
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return any(x in fragment for x in ('SingleElectron', 'SingleGamma'))
+
+upgradeWFs['displacedVertex'] = UpgradeWorkflow_displacedVertex(
+    steps = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+    ],
+    PU = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+    ],
+    suffix = '_displacedVertex',
+    offset = 0.82
+)
 
 # Patatrack workflows (NoPU and PU):
 #   - TTbar_14, ZMM_14", ZEE_14, ZTT_14, NuGun, SingleMu, QCD_Pt15To7000_Flat for
@@ -2031,19 +1965,6 @@ upgradeWFs['HLTTiming75e33Alpaka'].step3 = {
     '-s':'HARVESTING:@hltValidation'
 }
 
-upgradeWFs['HLTTiming75e33TiclV5'] = deepcopy(upgradeWFs['HLTTiming75e33'])
-upgradeWFs['HLTTiming75e33TiclV5'].suffix = '_HLT75e33TimingTiclV5'
-upgradeWFs['HLTTiming75e33TiclV5'].offset = 0.752
-upgradeWFs['HLTTiming75e33TiclV5'].step2 = {
-    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
-    '--procModifiers': 'ticl_v5',
-    '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
-    '--eventcontent':'FEVTDEBUGHLT,DQMIO'
-}
-upgradeWFs['HLTTiming75e33TiclV5'].step3 = {
-    '-s':'HARVESTING:@hltValidation'
-}
-
 upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].suffix = '_HLT75e33TimingTiclV5TrackLinkGNN'
 upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].offset = 0.7521
@@ -2288,12 +2209,12 @@ upgradeWFs['NGTScoutingAll'].suffix = '_NGTScoutingAll'
 upgradeWFs['NGTScoutingAll'].offset = 0.771
 upgradeWFs['NGTScoutingAll'].step2 = {
     '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting,VALIDATION:@hltValidation',
-    '--procModifiers': 'ngtScouting,alpaka,ticl_v5,ticl_barrel',
+    '--procModifiers': 'ngtScouting,alpaka,ticl_barrel',
     '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
     '--eventcontent':'FEVTDEBUGHLT,DQMIO'
 }
 upgradeWFs['NGTScoutingAll'].step3 = {
-    '--procModifiers': 'ngtScouting,alpaka,ticl_v5,ticl_barrel',
+    '--procModifiers': 'ngtScouting,alpaka,ticl_barrel',
    '-s':'HARVESTING:@hltValidation'
 }
 
@@ -3169,6 +3090,82 @@ upgradeWFs['PMXS1S2ProdLike'] = UpgradeWorkflowPremixProdLike(
     ],
     suffix = '_PMXS1S2ProdLike',
     offset = 0.9921,
+)
+
+class UpgradeWorkflowHybridPU(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        # just copy steps
+        stepDict[stepName][k] = merge([stepDict[step][k]])
+    def setupPU_(self, step, stepName, stepDict, k, properties):
+        # make new step for S1
+        # this gets inserted in relval_upgrade.py
+        if "GenSim" in stepName:
+            # go back to non-PU step version
+            d = merge([stepDict[self.getStepName(step)][k]])
+            stepNameS1 = stepName.replace('GenSim','GenSimFS')
+            if not stepNameS1 in stepDict: stepDict[stepNameS1] = {}
+            stepDict[stepNameS1][k] = merge([{
+                '--fast': '',
+                '--era': stepDict[stepName][k]['--era']+'_FastSim',
+                '--eventcontent': 'FASTPU',
+                '--processName': 'FASTSIM',
+            }, d])
+        else:
+            # include modifier in all subsequent steps in case any of them use PU replay
+            if "--procModifiers" in stepDict[stepName][k]:
+                stepDict[stepName][k]["--procModifiers"] += ",fastSimPU"
+            else:
+                stepDict[stepName][k]["--procModifiers"] = "fastSimPU"
+
+            if "Digi" in stepName:
+                stepDict[stepName][k] = merge([digiPremixLocalPileup, stepDict[stepName][k]])
+            elif 'S1S2' in self.suffix:
+                # increment inputs for subsequent steps in combined case
+                # also reset pileup input
+                digiPremixLocalPileupTmp = deepcopy(digiPremixLocalPileup)
+                filein = stepDict[stepName][k].get("--filein","")
+                m = re.search("step(?P<ind>\\d+)", filein)
+                if m:
+                    digiPremixLocalPileupTmp['--filein'] = filein.replace(m.group(), "step%d"%(int(m.group("ind"))+1))
+                else:
+                    digiPremixLocalPileupTmp.pop('--filein')
+                stepDict[stepName][k] = merge([digiPremixLocalPileupTmp, stepDict[stepName][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return (fragment=='TTbar_14TeV' and 'PU' in key and key.startswith('202') and not 'FS' in key)
+# stage1 is just FastSim MinBias, no separate workflow needed
+# HybridPU stage2
+upgradeWFs['HybridPUS2'] = UpgradeWorkflowHybridPU(
+    steps = [],
+    PU = [
+        'Digi',
+        'DigiTrigger',
+    ],
+    suffix = '_HybridPUS2',
+    offset = 0.95,
+)
+# HybridPU combined stage1+stage2
+upgradeWFs['HybridPUS1S2'] = UpgradeWorkflowHybridPU(
+    steps = [],
+    PU = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'Digi',
+        'DigiTrigger',
+        'RecoLocal',
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+        'RecoGlobalFakeHLT',
+        'RecoNano',
+        'RecoNanoFakeHLT',
+        'Nano',
+        'HARVESTNano',
+        'HARVESTNanoFakeHLT',
+        'ALCA',
+    ],
+    suffix = '_HybridPUS1S2',
+    offset = 0.96,
 )
 
 class UpgradeWorkflow_Run3FStrackingOnly(UpgradeWorkflow):

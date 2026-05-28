@@ -19,6 +19,7 @@
 #include "CondFormats/HcalObjects/interface/HcalLUTCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalPFCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalPFCuts.h"
+#include "CondFormats/HcalObjects/interface/HcalPulseDelays.h"
 #include "CondFormats/HcalObjects/interface/HcalValidationCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalLutMetadata.h"
 #include "CondFormats/HcalObjects/interface/HcalDcsValues.h"

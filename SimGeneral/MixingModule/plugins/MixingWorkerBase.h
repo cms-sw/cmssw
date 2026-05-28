@@ -43,6 +43,7 @@ namespace edm {
     virtual void setTof() = 0;
     virtual void put(edm::Event &e) = 0;
     virtual void reload(int minBunch, int maxBunch, int bunchSpace) {}
+    virtual InputTag getInputTag() const = 0;
   };
 }  // namespace edm
 

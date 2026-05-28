@@ -228,9 +228,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (last) {  // if long enough save...
           if ((unsigned int)(tmpNtuplet.size()) >= minHitsPerNtuplet - 1) {
             {
-              hindex_type hits[TrackerTraits::maxDepth + 2];
+              constexpr int maxFB = 2;  // for the time being let's limit this - fishbone extra hits limit
+              // maxDepth is the number of CACells. So +maxFB for the fishbone and +1 to properly count the number of hits
+              hindex_type hits
+                  [TrackerTraits::maxDepth + maxFB +
+                   1];  // maxDepth is the number of CACells. So +maxFB for the fishbone and +1 to properly count the number of hits
+
               auto nh = 0U;
-              constexpr int maxFB = 2;  // for the time being let's limit this
               int nfb = 0;
               for (auto c : tmpNtuplet) {
                 hits[nh++] = cells[c].theInnerHitId_;

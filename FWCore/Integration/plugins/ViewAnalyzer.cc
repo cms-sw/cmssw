@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <cassert>
 #include <deque>
 #include <list>
 #include <set>
@@ -21,6 +20,8 @@
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "Require.h"
 
 using namespace edm;
 
@@ -131,13 +132,13 @@ namespace edmtest {
       edm::InputTag tag("intvec", "");
       edm::Handle<edm::View<int>> hInt;
       e.getByLabel(tag, hInt);
-      assert(hInt.isValid());
+      REQUIRE(hInt.isValid());
     }
     {
       edm::InputTag tag("intvec", "", "TEST");
       edm::Handle<edm::View<int>> hInt;
       e.getByLabel(tag, hInt);
-      assert(hInt.isValid());
+      REQUIRE(hInt.isValid());
     }
   }
 
@@ -149,16 +150,16 @@ namespace edmtest {
 
     Handle<sequence_t> hproduct;
     e.getByLabel(moduleLabel, hproduct);
-    assert(hproduct.isValid());
+    REQUIRE(hproduct.isValid());
 
     Handle<view_t> hview;
     e.getByLabel(moduleLabel, hview);
-    assert(hview.isValid());
+    REQUIRE(hview.isValid());
 
-    assert(hproduct.id() == hview.id());
-    assert(*hproduct.provenance() == *hview.provenance());
+    REQUIRE(hproduct.id() == hview.id());
+    REQUIRE(*hproduct.provenance() == *hview.provenance());
 
-    assert(hproduct->size() == hview->size());
+    REQUIRE(hproduct->size() == hview->size());
 
     typename sequence_t::const_iterator i_product = hproduct->begin();
     typename sequence_t::const_iterator e_product = hproduct->end();
@@ -168,14 +169,14 @@ namespace edmtest {
     while (i_product != e_product && i_view != e_view) {
       value_t const& product_item = *i_product;
       value_t const& view_item = *i_view;
-      assert(product_item == view_item);
+      REQUIRE(product_item == view_item);
 
       edm::Ref<sequence_t> ref3(hproduct, slot);
-      assert(*ref3 == product_item);
+      REQUIRE(*ref3 == product_item);
 
       edm::RefProd<sequence_t> refProd4(hproduct);
       edm::Ref<sequence_t> ref4(refProd4, slot);
-      assert(*ref4 == product_item);
+      REQUIRE(*ref4 == product_item);
 
       ++i_product;
       ++i_view;
@@ -186,7 +187,7 @@ namespace edmtest {
     size_t numElements = hview->size();
     for (size_t i = 0; i < numElements; ++i) {
       RefToBase<value_t> ref = hview->refAt(i);
-      assert(ref.isNonnull());
+      REQUIRE(ref.isNonnull());
     }
   }
 
@@ -197,16 +198,16 @@ namespace edmtest {
 
     Handle<sequence_t> hprod;
     e.getByLabel(moduleLabel, hprod);
-    assert(hprod.isValid());
+    REQUIRE(hprod.isValid());
 
     Handle<view_t> hview;
     e.getByLabel(moduleLabel, hview);
-    assert(hview.isValid());
+    REQUIRE(hview.isValid());
 
-    assert(hprod.id() == hview.id());
-    assert(*hprod.provenance() == *hview.provenance());
+    REQUIRE(hprod.id() == hview.id());
+    REQUIRE(*hprod.provenance() == *hview.provenance());
 
-    assert(hprod->size() == hview->size());
+    REQUIRE(hprod->size() == hview->size());
 
     sequence_t::const_iterator i_prod = hprod->begin();
     sequence_t::const_iterator e_prod = hprod->end();
@@ -216,8 +217,8 @@ namespace edmtest {
     while (i_prod != e_prod && i_view != e_view) {
       value_t const& prod = *i_prod;
       value_t const& view = *i_view;
-      assert(prod.detId() == view.detId());
-      assert(prod.data == view.data);
+      REQUIRE(prod.detId() == view.detId());
+      REQUIRE(prod.data == view.data);
 
       ++i_prod;
       ++i_view;
@@ -231,16 +232,16 @@ namespace edmtest {
 
     Handle<sequence_t> hprod;
     e.getByLabel(moduleLabel, hprod);
-    assert(hprod.isValid());
+    REQUIRE(hprod.isValid());
 
     Handle<view_t> hview;
     e.getByLabel(moduleLabel, hview);
-    assert(hview.isValid());
+    REQUIRE(hview.isValid());
 
-    assert(hprod.id() == hview.id());
-    assert(*hprod.provenance() == *hview.provenance());
+    REQUIRE(hprod.id() == hview.id());
+    REQUIRE(*hprod.provenance() == *hview.provenance());
 
-    assert(hprod->size() == hview->size());
+    REQUIRE(hprod->size() == hview->size());
 
     sequence_t::const_iterator i_prod = hprod->begin();
     sequence_t::const_iterator e_prod = hprod->end();
@@ -250,12 +251,12 @@ namespace edmtest {
     while (i_prod != e_prod && i_view != e_view) {
       value_t const& prod = *i_prod;
       value_t const& view = *i_view;
-      assert(prod == view);
-      assert((*hprod)[prod.first] == prod.second);
+      REQUIRE(prod == view);
+      REQUIRE((*hprod)[prod.first] == prod.second);
       edm::Ptr<sequence_t::key_type> ptr(prod.first.id(), prod.first.key(), &e.productGetter());
-      assert((*hprod)[ptr] == prod.second);
+      REQUIRE((*hprod)[ptr] == prod.second);
       edm::RefToBase<sequence_t::key_type> refToBase(prod.first);
-      assert((*hprod)[refToBase] == prod.second);
+      REQUIRE((*hprod)[refToBase] == prod.second);
       ++i_prod;
       ++i_view;
     }
@@ -272,16 +273,16 @@ namespace edmtest {
 
     Handle<sequence_t> hprod;
     e.getByLabel(moduleLabel, "derived", hprod);
-    assert(hprod.isValid());
+    REQUIRE(hprod.isValid());
 
     Handle<view_t> hview;
     e.getByLabel(moduleLabel, "derived", hview);
-    assert(hview.isValid());
+    REQUIRE(hview.isValid());
 
-    assert(hprod.id() == hview.id());
-    assert(*hprod.provenance() == *hview.provenance());
+    REQUIRE(hprod.id() == hview.id());
+    REQUIRE(*hprod.provenance() == *hview.provenance());
 
-    assert(hprod->size() == hview->size());
+    REQUIRE(hprod->size() == hview->size());
 
     unsigned slot = 0;
 
@@ -293,7 +294,7 @@ namespace edmtest {
     while (i_prod != e_prod && i_view != e_view) {
       SimpleDerived const& prod = *i_prod;
       Simple const& view = *i_view;
-      assert(prod == view);
+      REQUIRE(prod == view);
 
       // Tack on a test of RefToBase::castTo here
 
@@ -302,11 +303,11 @@ namespace edmtest {
 
       edm::Ptr<SimpleDerived> ptr = refToBase.castTo<edm::Ptr<SimpleDerived>>();
       SimpleDerived const& valueFromPtr = *ptr;
-      assert(valueFromPtr == view);
+      REQUIRE(valueFromPtr == view);
 
       edm::Ref<edm::OwnVector<SimpleDerived>> ref = refToBase.castTo<edm::Ref<edm::OwnVector<SimpleDerived>>>();
       SimpleDerived const& valueFromRef = *ref;
-      assert(valueFromRef == view);
+      REQUIRE(valueFromRef == view);
 
       ++i_prod;
       ++i_view;
@@ -321,16 +322,16 @@ namespace edmtest {
 
     Handle<sequence_t> hproduct;
     e.getByLabel(moduleLabel, hproduct);
-    assert(hproduct.isValid());
+    REQUIRE(hproduct.isValid());
 
     Handle<view_t> hview;
     e.getByLabel(moduleLabel, hview);
-    assert(hview.isValid());
+    REQUIRE(hview.isValid());
 
-    assert(hproduct.id() == hview.id());
-    assert(*hproduct.provenance() == *hview.provenance());
+    REQUIRE(hproduct.id() == hview.id());
+    REQUIRE(*hproduct.provenance() == *hview.provenance());
 
-    assert(hproduct->size() == hview->size());
+    REQUIRE(hproduct->size() == hview->size());
 
     sequence_t::const_iterator i_product = hproduct->begin();
     sequence_t::const_iterator e_product = hproduct->end();
@@ -340,7 +341,7 @@ namespace edmtest {
     while (i_product != e_product && i_view != e_view) {
       value_t const& product_item = **i_product;
       value_t const& view_item = *i_view;
-      assert(product_item == view_item);
+      REQUIRE(product_item == view_item);
 
       // Tack on a test of RefToBase::castTo here
       edm::RefToBaseProd<int> refToBaseProd(hview);
@@ -348,14 +349,14 @@ namespace edmtest {
 
       edm::Ptr<int> ref = refToBase.castTo<edm::Ptr<int>>();
       int item_other = *ref;
-      assert(item_other == product_item);
+      REQUIRE(item_other == product_item);
 
       edm::Ref<std::vector<int>> ref2 = refToBase.castTo<edm::Ref<std::vector<int>>>();
       int item_other2 = *ref2;
-      assert(item_other2 == product_item);
+      REQUIRE(item_other2 == product_item);
 
       edm::Ref<sequence_t> ref3(hproduct, slot);
-      assert(*ref3 == product_item);
+      REQUIRE(*ref3 == product_item);
 
       ++i_product;
       ++i_view;
@@ -370,16 +371,16 @@ namespace edmtest {
 
     Handle<sequence_t> hproduct;
     e.getByLabel(moduleLabel, hproduct);
-    assert(hproduct.isValid());
+    REQUIRE(hproduct.isValid());
 
     Handle<view_t> hview;
     e.getByLabel(moduleLabel, hview);
-    assert(hview.isValid());
+    REQUIRE(hview.isValid());
 
-    assert(hproduct.id() == hview.id());
-    assert(*hproduct.provenance() == *hview.provenance());
+    REQUIRE(hproduct.id() == hview.id());
+    REQUIRE(*hproduct.provenance() == *hview.provenance());
 
-    assert(hproduct->size() == hview->size());
+    REQUIRE(hproduct->size() == hview->size());
 
     sequence_t::const_iterator i_product = hproduct->begin();
     sequence_t::const_iterator e_product = hproduct->end();
@@ -388,7 +389,7 @@ namespace edmtest {
     while (i_product != e_product && i_view != e_view) {
       value_t const& product_item = **i_product;
       value_t const& view_item = *i_view;
-      assert(product_item == view_item);
+      REQUIRE(product_item == view_item);
       ++i_product;
       ++i_view;
     }
@@ -401,25 +402,25 @@ namespace edmtest {
 
     Handle<sequence_t> hproduct;
     e.getByLabel(moduleLabel, hproduct);
-    assert(hproduct.isValid());
+    REQUIRE(hproduct.isValid());
 
     Handle<view_t> hview;
 
     InputTag tag(moduleLabel + "doesNotExist");
     e.getByLabel(tag, hview);
-    assert(!hview.isValid());
+    REQUIRE(!hview.isValid());
 
     e.getByLabel(moduleLabel + "doesNotExist", hview);
-    assert(!hview.isValid());
+    REQUIRE(!hview.isValid());
 
     InputTag tag2(moduleLabel);
     e.getByLabel(tag2, hview);
-    assert(hview.isValid());
+    REQUIRE(hview.isValid());
 
-    assert(hproduct.id() == hview.id());
-    assert(*hproduct.provenance() == *hview.provenance());
+    REQUIRE(hproduct.id() == hview.id());
+    REQUIRE(*hproduct.provenance() == *hview.provenance());
 
-    assert(hproduct->size() == hview->size());
+    REQUIRE(hproduct->size() == hview->size());
 
     sequence_t::const_iterator i_product = hproduct->begin();
     sequence_t::const_iterator e_product = hproduct->end();
@@ -428,7 +429,7 @@ namespace edmtest {
     while (i_product != e_product && i_view != e_view) {
       value_t const& product_item = **i_product;
       value_t const& view_item = *i_view;
-      assert(product_item == view_item);
+      REQUIRE(product_item == view_item);
       ++i_product;
       ++i_view;
     }
@@ -454,18 +455,18 @@ namespace {
 
     Handle<sequence_t> hproduct;
     e.getByLabel(moduleLabel, hproduct);
-    assert(hproduct.isValid());
+    REQUIRE(hproduct.isValid());
 
     Handle<view_t> hview;
 
     InputTag tag(moduleLabel);
     e.getByLabel(tag, hview);
-    assert(hview.isValid());
+    REQUIRE(hview.isValid());
 
-    assert(hproduct.id() == hview.id());
-    assert(*hproduct.provenance() == *hview.provenance());
+    REQUIRE(hproduct.id() == hview.id());
+    REQUIRE(*hproduct.provenance() == *hview.provenance());
 
-    assert(hproduct->size() == hview->size());
+    REQUIRE(hproduct->size() == hview->size());
 
     typename sequence_t::const_iterator i_product = hproduct->begin();
     typename sequence_t::const_iterator e_product = hproduct->end();
@@ -475,10 +476,10 @@ namespace {
     while (i_product != e_product && i_view != e_view) {
       value_t const& product_item = **i_product;
       value_t const& view_item = *i_view;
-      assert(product_item == view_item);
+      REQUIRE(product_item == view_item);
 
       edm::Ref<sequence_t> ref3(hproduct, slot);
-      assert(**ref3 == product_item);
+      REQUIRE(**ref3 == product_item);
 
       ++i_product;
       ++i_view;

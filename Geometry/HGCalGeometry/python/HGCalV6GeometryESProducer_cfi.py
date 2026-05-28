@@ -5,11 +5,11 @@ import FWCore.ParameterSet.Config as cms
 #
 
 HGCalEEGeometryESProducer = cms.ESProducer("HGCalGeometryESProducer",
-                                           Name = cms.untracked.string("HGCalEESensitive")
+                                           name = cms.untracked.string("HGCalEESensitive")
                                            )
 
 
 HGCalHESilGeometryESProducer = cms.ESProducer("HGCalGeometryESProducer",
-                                              Name = cms.untracked.string("HGCalHESiliconSensitive")
+                                              name = cms.untracked.string("HGCalHESiliconSensitive")
                                               )
 

@@ -123,7 +123,7 @@ public:
         SimpleFlatTableProducerBase<TICLCandidate, std::vector<TICLCandidate>>::baseDescriptions();
 
     edm::ParameterSetDescription coltable;
-    coltable.add<std::string>("name", "hltTiclTrackstersMerge");
+    coltable.add<std::string>("name", "hltTiclCandidate");
     coltable.add<std::string>("doc", "TICL Candidates");
     coltable.add<bool>("useCount", true);
     coltable.add<bool>("useOffset", false);

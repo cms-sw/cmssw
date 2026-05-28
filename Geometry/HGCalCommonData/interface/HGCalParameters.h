@@ -235,6 +235,8 @@ public:
   std::vector<int> calibCellPartLD_;
   int tileUVMax_ = 0;
   int tileUVMaxFine_ = 0;
+  int coldBoxMode_ = 0;              // non-zero for ColdBox geometry
+  std::vector<double> coldBoxRots_;  // layer rotation angles (phi)
 
   COND_SERIALIZABLE;
 

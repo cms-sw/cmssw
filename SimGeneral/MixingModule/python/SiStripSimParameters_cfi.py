@@ -87,6 +87,10 @@ SiStripSimBlock = cms.PSet(
                           "TrackerHitsTIDLowTof","TrackerHitsTIDHighTof",
                           "TrackerHitsTOBLowTof","TrackerHitsTOBHighTof",
                           "TrackerHitsTECLowTof","TrackerHitsTECHighTof"),
+    ROUListPU = cms.vstring("TrackerHitsTIBLowTof","TrackerHitsTIBHighTof",
+                          "TrackerHitsTIDLowTof","TrackerHitsTIDHighTof",
+                          "TrackerHitsTOBLowTof","TrackerHitsTOBHighTof",
+                          "TrackerHitsTECLowTof","TrackerHitsTECHighTof"),
     GeometryType               = cms.string('idealForDigi'),
     TrackerConfigurationFromDB = cms.bool(False),
     ZeroSuppression            = cms.bool(True),
@@ -157,8 +161,18 @@ run2_common.toModify(SiStripSimBlock,
                      APVShapeDecoFile =cms.FileInPath("SimTracker/SiStripDigitizer/data/APVShapeDeco_320.txt")
                      )
 
+# when FastSim events as PileUP events during mixing
+from Configuration.ProcessModifiers.fastSimPU_cff import fastSimPU
+fastSimPU.toModify(SiStripSimBlock,
+                   ROUListPU = cms.vstring('TrackerHits'))
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(SiStripSimBlock,
+                   ROUList = cms.vstring('TrackerHits'),
+                   ROUListPU = cms.vstring('TrackerHits'))
+
 ##
 ## Disable all noise for the tau embedding methods simulation step
 ##
 from Configuration.ProcessModifiers.tau_embedding_sim_cff import tau_embedding_sim
 tau_embedding_sim.toModify(SiStripSimBlock, Noise = False)
+

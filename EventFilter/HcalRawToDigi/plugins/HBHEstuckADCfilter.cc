@@ -48,8 +48,8 @@ bool HBHEstuckADCfilter::filter(edm::Event& ev, const edm::EventSetup& set) {
 
   bool result = true;
   for (QIE11DigiCollection::const_iterator itr = theDigis->begin(); itr != theDigis->end(); itr++) {
-    int tsize = (*itr).size();
     const QIE11DataFrame frame = *itr;
+    int tsize = frame.samples();
 
     bool flag = true;
     int adc0 = (frame[0]).adc();

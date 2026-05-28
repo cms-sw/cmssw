@@ -1,4 +1,5 @@
 #include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalCLUEAlgo.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // Geometry
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -12,6 +13,8 @@
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb.h"
 #include <limits>
+#include <cmath>
+#include <utility>
 #include "DataFormats/DetId/interface/DetId.h"
 
 using namespace hgcal_clustering;
@@ -169,7 +172,7 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
       int maxEnergyCellIndex = -1;
       DetId maxEnergyDetId;
       float energy = 0.f;
-      int seedDetId = -1;
+      std::optional<DetId> seedDetId;
       float x = 0.f;
       float y = 0.f;
       float z = cellsOnLayer.layerDim3;
@@ -186,17 +189,31 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
           seedDetId = cellsOnLayer.detid[cellIdx];
         }
       }
-
+      assert(seedDetId);
       float total_weight_log = 0.f;
       float total_weight = energy;
 
       if constexpr (std::is_same_v<STRATEGY, HGCalSiliconStrategy>) {
         auto thick = rhtools_.getSiThickIndex(maxEnergyDetId);
         for (auto cellIdx : cl) {
+          assert(cellIdx >= 0);
+          assert(std::cmp_less(cellIdx, cellsOnLayer.dim1.size()));
+          assert(std::cmp_less(cellIdx, cellsOnLayer.dim2.size()));
+          assert(std::cmp_less(cellIdx, cellsOnLayer.weight.size()));
           const float d1 = cellsOnLayer.dim1[cellIdx] - cellsOnLayer.dim1[maxEnergyCellIndex];
           const float d2 = cellsOnLayer.dim2[cellIdx] - cellsOnLayer.dim2[maxEnergyCellIndex];
           if ((d1 * d1 + d2 * d2) < positionDeltaRho2_) {
+            if (thick < 0 or (not std::cmp_less(thick, thresholdW0_.size()))) {
+              throw cms::Exception("HGCalClusterOutOfBounds")
+                  << "the thickness " << thick << " for DetId " << maxEnergyDetId.rawId() << " is not within the size "
+                  << thresholdW0_.size();
+            }
             float Wi = std::max(thresholdW0_[thick] + std::log(cellsOnLayer.weight[cellIdx] / energy), 0.);
+            if (std::isnan(Wi)) {
+              throw cms::Exception("HGCalClusterNan")
+                  << "The weight for cell " << cellIdx << " is a nan. The values in the calculation are weight "
+                  << cellsOnLayer.weight[cellIdx] << " energy " << energy;
+            }
             x += cellsOnLayer.dim1[cellIdx] * Wi;
             y += cellsOnLayer.dim2[cellIdx] * Wi;
             total_weight_log += Wi;
@@ -222,13 +239,19 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
         x = cellsOnLayer.dim1[maxEnergyCellIndex];
         y = cellsOnLayer.dim2[maxEnergyCellIndex];
       }
+
+      if (std::isnan(x) or std::isnan(y)) {
+        throw cms::Exception("HGCalClusterNan")
+            << "while calculating the position of cluster seeded by " << seedDetId->rawId() << " we got x = " << x
+            << " y = " << y << " z = " << z;
+      }
       math::XYZPoint position = math::XYZPoint(x, y, z);
 
       auto globalClusterIndex = cellsOnLayer.clusterIndex[cl[0]] + firstClusterIdx;
 
       clusters_v_[globalClusterIndex] =
           reco::BasicCluster(energy, position, reco::CaloID::DET_HGCAL_ENDCAP, thisCluster, algoId_);
-      clusters_v_[globalClusterIndex].setSeed(seedDetId);
+      clusters_v_[globalClusterIndex].setSeed(*seedDetId);
       thisCluster.clear();
     }
 

@@ -52,5 +52,5 @@ mix = cms.EDProducer("MixingModule",
     mixObjects = cms.PSet(theMixObjects)
 )
 
-
-
+from Configuration.ProcessModifiers.fastSimPU_cff import fastSimPU
+fastSimPU.toModify(mix, skipProductCheck = cms.bool(True))

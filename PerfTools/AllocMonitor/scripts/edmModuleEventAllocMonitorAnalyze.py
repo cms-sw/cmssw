@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import json
+import sys
+
 class ModuleInfo(object):
     def __init__(self, label, type_):
         self._label = label
@@ -7,6 +10,10 @@ class ModuleInfo(object):
         self._eventInfo = list()
     def __repr__(self):
         return self._label+" "+self._type+" "+str(self._eventInfo)
+    def toSimpleDict(self, showEvents):
+        if showEvents:
+            return {'label': self._label, 'type': self._type, 'eventInfo': [{'streamID': e._streamID, 'temp': e._temp, 'nTemp': e._nTemp, 'unmatched': e._unmatched, 'nUnmatched': e._nUnmatched, 'dataProdAlloc': e._dataProdAlloc, 'nDataProdAlloc': e._nDataProdAlloc, 'new': e._new, 'nNew': e._nNew} for e in self._eventInfo]}
+        return {'label': self._label, 'type': self._type}
 class ModuleCall(object):
     def __init__(self, data):
         self._temp = data[0]
@@ -34,7 +41,8 @@ class FileParser(object):
         self.modules = dict()
         self.acquires = dict()
         self.nStreams = 0
-        pass
+    def toSimpleDict(self, showEvents):
+        return {'nStreams': self.nStreams, 'modules': [m.toSimpleDict(showEvents) for m in self.modules.values()]}
     def parse(self,file):
         for l in file:
             self._parseLine(l[:-1])
@@ -81,7 +89,7 @@ class FileParser(object):
         del self.modules[moduleName]._streamInfo[streamID]
         self.modules[moduleName]._eventInfo.append(ModuleEventInfo(streamInfo,d[2:],streamID))
 
-def reportModulesWithMemoryGrowth(fileParser, showEvents):
+def reportModulesWithMemoryGrowth(fileParser, showEvents, jsonOutput):
     ret = []
     for m in fileParser.modules.values():
         mem = 0
@@ -103,9 +111,11 @@ def reportModulesWithMemoryGrowth(fileParser, showEvents):
                     ret.append((m._label,m._type, mem,increment))
                 else:
                     ret.append((m._label, m._type, mem))
+    if jsonOutput:
+        return [dict(zip(['label', 'type', 'TotalMemoryGrowth', 'MemoryGrowthEachEvent'] if showEvents else ['label', 'type', 'TotalMemoryGrowth'], v)) for v in ret]
     return ret
 
-def reportModuleDataProductMemory(fileParser, showEvents, defaultRetain):
+def reportModuleDataProductMemory(fileParser, showEvents, defaultRetain, jsonOutput):
     ret = []
     for m in fileParser.modules.values():
         l = list()
@@ -121,9 +131,11 @@ def reportModuleDataProductMemory(fileParser, showEvents, defaultRetain):
                 ret.append((m._label, m._type, float(sum)/max(1,len(l)), l))
             else:
                 ret.append((m._label, m._type, float(sum)/max(1,len(l))))
+    if jsonOutput:
+        return [dict(zip(['label', 'type', 'AvgDataProductSize', 'DataProductSizeEachEvent'] if showEvents else ['label', 'type', 'AvgDataProductSize'], v)) for v in ret]
     return ret
                 
-def reportModuleRetainingMemory(fileParser, showEvents, defaultRetain):
+def reportModuleRetainingMemory(fileParser, showEvents, defaultRetain, jsonOutput):
     ret =[]
     for m in fileParser.modules.values():
         l = list()
@@ -139,9 +151,11 @@ def reportModuleRetainingMemory(fileParser, showEvents, defaultRetain):
                 ret.append((m._label, m._type, float(sum)/max(len(l),1), l))
             else:
                 ret.append((m._label, m._type, float(sum)/max(len(l),1)))
+    if jsonOutput:
+        return [dict(zip(['label', 'type', 'AvgRetained', 'RetainedEachEvent'] if showEvents else ['label', 'type', 'AvgRetained'], v)) for v in ret]
     return ret
 
-def reportModuleTemporary(fileParser, showEvents, defaultRetain):
+def reportModuleTemporary(fileParser, showEvents, defaultRetain, jsonOutput):
     ret = []
     for m in fileParser.modules.values():
         l = list()
@@ -157,9 +171,11 @@ def reportModuleTemporary(fileParser, showEvents, defaultRetain):
                 ret.append((m._label, m._type, float(sum)/max(1,len(l)), l))
             else:
                 ret.append((m._label, m._type, float(sum)/max(1,len(l))))
+    if jsonOutput:
+        return [dict(zip(['label', 'type', 'AvgTempSize', 'TempSizeEachEvent'] if showEvents else ['label', 'type', 'AvgTempSize'], v)) for v in ret]
     return ret
 
-def reportModuleNTemporary(fileParser, showEvents, defaultRetain):
+def reportModuleNTemporary(fileParser, showEvents, defaultRetain, jsonOutput):
     ret = []
     for m in fileParser.modules.values():
         l = list()
@@ -175,6 +191,8 @@ def reportModuleNTemporary(fileParser, showEvents, defaultRetain):
                 ret.append((m._label, m._type, float(sum)/max(1,len(l)), l))
             else:
                 ret.append((m._label, m._type, float(sum)/max(1,len(l))))
+    if jsonOutput:
+        return [dict(zip(['label', 'type', 'AvgNTemp', 'NTempEachEvent'] if showEvents else ['label', 'type', 'AvgNTemp'], v)) for v in ret]
     return ret
 
 
@@ -232,22 +250,47 @@ if __name__=="__main__":
     parser.add_argument('--eventData', help='for each report, show the per event data associated to the report', action='store_true')
     parser.add_argument('--maxColumn', type=int, help='maximum column width for report, 0 for no constraint', default=0)
     parser.add_argument('--csv', help='output chosen information all modules in a comma separated value format', action='store_true')
+    parser.add_argument('--json', action='store_true', help='output data in JSON format')
     args = parser.parse_args()
     
     inputfile = args.filename
 
     fileParser = FileParser()
     fileParser.parse(inputfile)
-    if args.csv:
-        args.maxColumn = -1
-    if args.grew:
-        printReport(reportModulesWithMemoryGrowth(fileParser, args.eventData), args.eventData, "total memory growth", "growth each event", args.maxColumn)
-    if args.retained:
-        printReport(reportModuleRetainingMemory(fileParser, args.eventData, args.csv), args.eventData, "average retained", "retained each event", args.maxColumn)
-    if args.product:
-        printReport(reportModuleDataProductMemory(fileParser, args.eventData, args.csv), args.eventData, "average data products size", "data products size each event", args.maxColumn)
-    if args.tempSize:
-        printReport(reportModuleTemporary(fileParser, args.eventData, args.csv), args.eventData, "average temporary allocation size", "temporary allocation size each event", args.maxColumn)
-    if args.nTemp:
-        printReport(reportModuleNTemporary(fileParser, args.eventData, args.csv), args.eventData, "average # of temporary allocation", "# of temporary allocations each event", args.maxColumn)
-    #print(fileParser.modules)
+
+    if args.json:
+        combinedData = fileParser.toSimpleDict(args.eventData)
+        combinedData["memoryReports"] = {}
+ 
+        def mergeReport(reportList, reportNamePrefix, reportName, eventData):
+            if not reportList:
+                return
+            for item in reportList:
+                label = item.get('label')
+                if label not in combinedData['memoryReports']:
+                    combinedData['memoryReports'][label] = {'label': label, 'type': item.get('type', '')}
+                if eventData:
+                    combinedData['memoryReports'][label][reportName + 'EachEvent'] = item.get(reportName + 'EachEvent', [])
+                combinedData['memoryReports'][label][reportNamePrefix+reportName] = item.get(reportNamePrefix+reportName, 0)
+
+        mergeReport(reportModulesWithMemoryGrowth(fileParser, args.eventData, True), 'Total', 'MemoryGrowth', args.eventData)
+        mergeReport(reportModuleRetainingMemory(fileParser, args.eventData, args.csv, True), 'Avg', 'Retained', args.eventData)
+        mergeReport(reportModuleDataProductMemory(fileParser, args.eventData, args.csv, True), 'Avg', 'DataProductSize', args.eventData)
+        mergeReport(reportModuleTemporary(fileParser, args.eventData, args.csv, True), 'Avg', 'TempSize', args.eventData)
+        mergeReport(reportModuleNTemporary(fileParser, args.eventData, args.csv, True), 'Avg', 'NTemp', args.eventData)
+
+        json.dump(combinedData, sys.stdout, indent=2)
+    else:
+        if args.csv:
+            args.maxColumn = -1
+        if args.grew:
+            printReport(reportModulesWithMemoryGrowth(fileParser, args.eventData, False), args.eventData, "total memory growth", "growth each event", args.maxColumn)
+        if args.retained:
+            printReport(reportModuleRetainingMemory(fileParser, args.eventData, args.csv, False), args.eventData, "average retained", "retained each event", args.maxColumn)
+        if args.product:
+            printReport(reportModuleDataProductMemory(fileParser, args.eventData, args.csv, False), args.eventData, "average data products size", "data products size each event", args.maxColumn)
+        if args.tempSize:
+            printReport(reportModuleTemporary(fileParser, args.eventData, args.csv, False), args.eventData, "average temporary allocation size", "temporary allocation size each event", args.maxColumn)
+        if args.nTemp:
+            printReport(reportModuleNTemporary(fileParser, args.eventData, args.csv, False), args.eventData, "average # of temporary allocation", "# of temporary allocations each event", args.maxColumn)
+   

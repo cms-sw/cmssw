@@ -113,6 +113,8 @@ namespace pat {
 
     int fromPV() const { return fromPV_; }
 
+    int trackQuality() const { return trackQuality_; }
+
     bool isHighPurityTrack() const {
       return (trackQuality_ & (1 << reco::TrackBase::highPurity)) >> reco::TrackBase::highPurity;
     }

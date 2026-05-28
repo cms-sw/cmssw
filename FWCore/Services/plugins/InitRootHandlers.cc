@@ -173,7 +173,7 @@ namespace {
        "Announced number of args different from the real number of argument passed",  // Always printed if gDebug>0 - regardless of whether warning message is real.
        "nbins is <=0 - set to nbins = 1",
        "nbinsy is <=0 - set to nbinsy = 1",
-       "oneapi::tbb::global_control is limiting",
+       "tbb::global_control is limiting",
        "ufirst < fXmin, fXmin is used",
        "ulast > fXmax, fXmax is used",
        "Inspection for auto_ptr"}};
@@ -877,8 +877,7 @@ namespace edm {
       if (imt && not ROOT::IsImplicitMTEnabled()) {
         //cmsRun uses global_control to set the number of allowed threads to use
         // we need to tell ROOT the same value in order to avoid unnecessary warnings
-        ROOT::EnableImplicitMT(
-            oneapi::tbb::global_control::active_value(oneapi::tbb::global_control::max_allowed_parallelism));
+        ROOT::EnableImplicitMT(ROOT::EIMTConfig::kExistingTBBArena);
       }
     }
 

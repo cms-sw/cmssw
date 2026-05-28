@@ -24,6 +24,11 @@ ALCARECOTkAlMinBiasHLTTracks = ALCARECOTkAlMinBias.clone(
     src = cms.InputTag("hltMergedTracks")
 )
 
+## modify input tracks for HLT Aligmment PCL during Heavy Ions
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(ALCARECOTkAlMinBiasHLTTracks,
+                         src = "hltMergedTracksPPOnAA")
+
 # Ingredient: AlignmentTrackSelector
 # track selector for HighPurity tracks
 #-- AlignmentTrackSelector

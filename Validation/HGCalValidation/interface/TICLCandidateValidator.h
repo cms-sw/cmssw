@@ -145,8 +145,7 @@ public:
                          edm::EDGetTokenT<std::vector<reco::Track>> recoTracksToken,
                          edm::EDGetTokenT<std::vector<ticl::Trackster>> trackstersToken,
                          edm::EDGetTokenT<ticl::TracksterToTracksterMap> associatorMapRtSToken,
-                         edm::EDGetTokenT<ticl::TracksterToTracksterMap> associatorMapStRToken,
-                         bool isTICLv5);
+                         edm::EDGetTokenT<ticl::TracksterToTracksterMap> associatorMapStRToken);
   ~TICLCandidateValidator();
 
   using Histograms = TICLCandidateValidatorHistograms;
@@ -165,7 +164,6 @@ private:
   edm::EDGetTokenT<std::vector<ticl::Trackster>> trackstersToken_;
   edm::EDGetTokenT<ticl::TracksterToTracksterMap> associatorMapRtSToken_;
   edm::EDGetTokenT<ticl::TracksterToTracksterMap> associatorMapStRToken_;
-  bool isTICLv5_ = false;
 };
 
 #endif
