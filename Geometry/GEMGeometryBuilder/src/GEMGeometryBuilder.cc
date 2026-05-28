@@ -208,7 +208,7 @@ GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(DDFilteredView& fv, GEMDe
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << " Name " << fv.logicalPart().solid().name() << " Size " << dpar.size();
-#endif    
+#endif
   double dy = convertMmToCm(dpar[0]);   //length is along local Y
   double dz = convertMmToCm(dpar[3]);   // thickness is long local Z
   double dx1 = convertMmToCm(dpar[4]);  // bottom width is along local X
@@ -252,7 +252,7 @@ GEMChamber* GEMGeometryBuilder::buildChamber(DDFilteredView& fv, GEMDetId detId)
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << " Name " << fv.logicalPart().solid().name() << " Size " << dpar.size();
-#endif    
+#endif
 
   double dy = convertMmToCm(dpar[0]);   //length is along local Y
   double dz = convertMmToCm(dpar[3]);   // thickness is long local Z
