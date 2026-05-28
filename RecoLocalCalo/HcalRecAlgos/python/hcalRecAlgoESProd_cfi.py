@@ -32,7 +32,11 @@ run2_HCAL_2017.toModify(hcalRecAlgos,
     phase = 1,
     SeverityLevels = {
         2 : dict( RecHitFlags = ['HBHEIsolatedNoise',
-                                 'HFAnomalousHit']
+                                 'HFAnomalousHit',
+                                 'HBHERun3StuckADC',
+                                 'HBHERun3repeatedADCblock',
+                                 'HBHERun3BadCapId',
+                                 'HBHERun3NonrotatingCapId']
             ),
         3 : dict( RecHitFlags = ['HBHEHpdHitMultiplicity',  
                                  'HBHEFlatNoise', 
@@ -44,10 +48,6 @@ run2_HCAL_2017.toModify(hcalRecAlgos,
         4 : dict( RecHitFlags = ['HFLongShort', 
                                  'HFS8S1Ratio',  
                                  'HFPET', 
-                                 'HBHERun3StuckADC',
-                                 'HBHERun3repeatedADCblock',
-                                 'HBHERun3BadCapId',
-                                 'HBHERun3NonrotatingCapId',
                                  'HFSignalAsymmetry']
             ),
     },
