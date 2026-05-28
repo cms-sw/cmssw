@@ -7,7 +7,7 @@
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
