@@ -39,7 +39,7 @@
 
 using namespace geant_units::operators;
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 GEMGeometryBuilder::GEMGeometryBuilder() {}
 
@@ -198,12 +198,17 @@ GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(DDFilteredView& fv, GEMDe
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
   bool ge0Station = detId.station() == GEMDetId::minStationId0;
   std::vector<double> dpar = ge0Station ? solid.parameters() : solid.solidA().parameters();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "ge0Station " << ge0Station << " dpar " << dpar.empty();
+#endif
 
   if (dpar.empty()) {
     const DDBooleanSolid bs(fv.logicalPart().solid());
     dpar = bs.solidA().parameters();
   }
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << " Name " << fv.logicalPart().solid().name() << " Size " << dpar.size();
+#endif    
   double dy = convertMmToCm(dpar[0]);   //length is along local Y
   double dz = convertMmToCm(dpar[3]);   // thickness is long local Z
   double dx1 = convertMmToCm(dpar[4]);  // bottom width is along local X
@@ -237,11 +242,17 @@ GEMChamber* GEMGeometryBuilder::buildChamber(DDFilteredView& fv, GEMDetId detId)
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
   bool ge0Station = detId.station() == GEMDetId::minStationId0;
   std::vector<double> dpar = ge0Station ? solid.parameters() : solid.solidA().parameters();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "ge0Station " << ge0Station << " dpar " << dpar.empty();
+#endif
 
   if (dpar.empty()) {
     const DDBooleanSolid bs(fv.logicalPart().solid());
     dpar = bs.solidA().parameters();
   }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << " Name " << fv.logicalPart().solid().name() << " Size " << dpar.size();
+#endif    
 
   double dy = convertMmToCm(dpar[0]);   //length is along local Y
   double dz = convertMmToCm(dpar[3]);   // thickness is long local Z
@@ -290,11 +301,17 @@ GEMEtaPartition* GEMGeometryBuilder::buildEtaPartition(DDFilteredView& fv, GEMDe
 #endif
   // EtaPartition specific parameter (size)
   std::vector<double> dpar = fv.logicalPart().solid().parameters();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "Strips:: dpar " << dpar.empty() << " Name " << fv.logicalPart().solid().name();
+#endif
 
   if (dpar.empty()) {
     const DDBooleanSolid bs(fv.logicalPart().solid());
     dpar = bs.solidA().parameters();
   }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "Strips:: dpar Size " << dpar.size();
+#endif
 
   double be = convertMmToCm(dpar[4]);  // half bottom edge
   double te = convertMmToCm(dpar[8]);  // half top edge
@@ -461,6 +478,9 @@ GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(cms::DDFilteredView& fv, 
   cms::DDSolid solid(fv.solid());
   auto solidA = solid.solidA();
   std::vector<double> dpar = solidA.dimensions();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "SolidA:: dpar Size" << dpar.size() << " name " << solidA.name();
+#endif
 
   double dy = k_ScaleFromDD4hep * dpar[3];   //length is along local Y
   double dz = k_ScaleFromDD4hep * dpar[2];   // thickness is long local Z
@@ -487,6 +507,9 @@ GEMChamber* GEMGeometryBuilder::buildChamber(cms::DDFilteredView& fv, GEMDetId d
   cms::DDSolid solid(fv.solid());
   auto solidA = solid.solidA();
   std::vector<double> dpar = solidA.dimensions();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("Geometry") << "SolidA:: dpar Size" << dpar.size() << " name " << solidA.name();
+#endif
 
   double dy = k_ScaleFromDD4hep * dpar[3];   //length is along local Y
   double dz = k_ScaleFromDD4hep * dpar[2];   // thickness is long local Z
