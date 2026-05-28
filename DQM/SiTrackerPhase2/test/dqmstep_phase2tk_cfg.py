@@ -23,7 +23,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D121Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -41,7 +41,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_15_0_0/RelValTTbar_14TeV/GEN-SIM-RECO/PU_141X_mcRun4_realistic_v3_STD_Run4D110_PU-v3/2580000/01972f5c-64f5-4fea-890d-ffa3bb070b77.root'),
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_16_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-RECO/PU_150X_mcRun4_realistic_v1_STD_Run4D121_PU-v1/2580000/004acd75-4703-41db-8054-630b7469731a.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -122,13 +122,13 @@ process.load('Validation.SiTrackerPhase2V.Phase2TrackerValidationFirstStep_cff')
 process.otvalid_seq = cms.Sequence(process.trackerphase2ValidationSource.copy())
 
 process.dqm_step=cms.Path(process.otdqm_seq)
-process.validation_step=cms.Path(process.otvalid_seq)
+#process.validation_step=cms.Path(process.otvalid_seq)
 
 
 # Schedule definition
 process.schedule = cms.Schedule(process.rechits_step,
                                 process.dqm_step,
-                                process.validation_step,
+                                #process.validation_step,
                                 process.DQMoutput_step
 )
 # customisation of the process.
