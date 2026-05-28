@@ -16,9 +16,6 @@
 #include <cmath>
 #include <vector>
 
-#include <filesystem>  ///////////////
-#include <iostream>    //////////////
-
 #include <string>
 #include "ap_fixed.h"
 #include "hls4ml/emulator.h"
@@ -100,8 +97,7 @@ void TOoLLiPProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jets", edm::InputTag("scPFL1Puppi"));
   desc.add<bool>("useRawPt", true);
-  std::string path = std::getenv("TOOLLIP_PATH") ? std::getenv("TOOLLIP_PATH") : "";
-  desc.add<std::string>("TOoLLiPVersion", std::string(path));
+  desc.add<std::string>("TOoLLiPVersion", std::string("TOoLLiP_v3"));
 
   desc.add<std::string>("NNInput", "input:0");
   desc.add<std::string>("NNOutput", "sequential/dense_2/Sigmoid");
