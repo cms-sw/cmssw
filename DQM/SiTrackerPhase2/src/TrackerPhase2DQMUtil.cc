@@ -47,6 +47,30 @@ std::string phase2tkutil::getOTHistoId(uint32_t det_id, const TrackerTopology* t
   return fname1.str();
 }
 
+std::string phase2tkutil::getOTHistoWheelId(uint32_t det_id, const TrackerTopology* tTopo) {
+  std::string Disc, Side;
+  std::ostringstream fname1;
+  int layer = tTopo->getOTLayerNumber(det_id);
+
+  if (layer < 0)
+    return "";
+  if (layer < 100) {
+    fname1 << "Barrel/";
+    fname1 << "Layer" << layer;
+    fname1 << "";
+  } else {
+    fname1 << "EndCaps/";
+    int side = tTopo->tidSide(det_id);
+    Side = (side == 1) ? "MINUS" : "PLUS";
+    fname1 << Side << "/";
+    int disc = tTopo->tidWheel(det_id);
+    Disc = (disc < 3) ? "TEDD_1" : "TEDD_2";
+    fname1 << Disc << "/";
+    fname1 << "Wheel_" << disc;
+  }
+  return fname1.str();
+}
+
 typedef dqm::reco::MonitorElement MonitorElement;
 typedef dqm::reco::DQMStore DQMStore;
 MonitorElement* phase2tkutil::book1DFromPSet(const edm::ParameterSet& hpars, DQMStore::IBooker& ibooker) {

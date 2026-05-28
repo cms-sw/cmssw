@@ -12,6 +12,7 @@ namespace phase2tkutil {
 
   std::string getITHistoId(uint32_t det_id, const TrackerTopology* tTopo);
   std::string getOTHistoId(uint32_t det_id, const TrackerTopology* tTopo);
+  std::string getOTHistoWheelId(uint32_t det_id, const TrackerTopology* tTopo);
 
   typedef dqm::reco::MonitorElement MonitorElement;
   typedef dqm::reco::DQMStore DQMStore;
