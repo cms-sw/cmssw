@@ -1,7 +1,7 @@
 #ifndef DetLayers_RodPlaneBuilderFromDet_H
 #define DetLayers_RodPlaneBuilderFromDet_H
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 
 #include <utility>

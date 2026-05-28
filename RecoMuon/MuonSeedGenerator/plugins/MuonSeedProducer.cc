@@ -11,7 +11,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 // Geometry
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
 // Framework

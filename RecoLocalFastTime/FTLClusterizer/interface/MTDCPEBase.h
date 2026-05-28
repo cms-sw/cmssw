@@ -16,7 +16,7 @@
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeomDetUnit.h"
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

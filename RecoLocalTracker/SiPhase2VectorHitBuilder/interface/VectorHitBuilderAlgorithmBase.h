@@ -9,10 +9,10 @@
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/StackGeomDet.h"
+#include "Geometry/CommonTopologies/interface/StackGeomDet.h"
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 #include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 
 class VectorHitBuilderAlgorithmBase {

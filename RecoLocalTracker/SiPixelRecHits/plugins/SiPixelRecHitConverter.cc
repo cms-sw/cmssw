@@ -64,7 +64,7 @@
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 
 // Data Formats
 #include "DataFormats/DetId/interface/DetId.h"

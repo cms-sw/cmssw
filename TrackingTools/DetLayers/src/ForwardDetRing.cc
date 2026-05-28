@@ -1,7 +1,7 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetRing.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#include "TrackingTools/DetLayers/interface/ForwardRingDiskBuilderFromDet.h"
-//#include "Geometry/CommonDetUnit/interface/ModifiedSurfaceGenerator.h"
+//#include "Geometry/CommonTopologies/interface/ModifiedSurfaceGenerator.h"
 
 #include <algorithm>
 #include <cmath>

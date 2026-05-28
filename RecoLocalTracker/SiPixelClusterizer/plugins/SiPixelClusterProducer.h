@@ -30,7 +30,7 @@
 
 #include "PixelClusterizerBase.h"
 
-//#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+//#include "Geometry/CommonTopologies/interface/TrackingGeometry.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
