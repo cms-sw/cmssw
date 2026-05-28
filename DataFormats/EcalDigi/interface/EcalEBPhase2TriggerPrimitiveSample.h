@@ -31,7 +31,7 @@ public:
   uint32_t raw() const { return theSample_ & 0xffff; }
 
   /// get the encoded Et (10 bits)
-  int encodedEt() const { return (raw() ) & 0x3FF; }
+  int encodedEt() const { return (raw()) & 0x3FF; }
 
   bool l1aSpike() const { return (raw() & 0x400) != 0; }
 
