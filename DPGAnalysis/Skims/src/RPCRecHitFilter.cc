@@ -19,7 +19,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
