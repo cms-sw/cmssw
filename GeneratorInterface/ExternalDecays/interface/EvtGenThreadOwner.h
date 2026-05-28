@@ -2,9 +2,8 @@
 #define gen_EvtGenThreadOwner_h
 
 // Pins one dedicated pthread per stream and marshals every EvtGen call onto it.
-// Mirrors SimG4Core's OscarMTProducer + omt::ThreadHandoff pattern
 
-#include "SimG4Core/Application/interface/ThreadHandoff.h"
+#include "FWCore/Utilities/interface/ThreadHandoff.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
 namespace gen {
@@ -26,7 +25,7 @@ namespace gen {
     }
 
   private:
-    omt::ThreadHandoff m_handoff;
+    edm::ThreadHandoff m_handoff;
   };
 
 } 
