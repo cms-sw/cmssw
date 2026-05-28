@@ -4,7 +4,7 @@
 //DataFormats
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 //FAMOS Headers
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
