@@ -257,10 +257,36 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         // FIXME if this happens frequently (and not only in simulation with low threshold) one will need to implement something cleverer.
         if (cms::alpakatools::once_per_block(acc)) {
           if (lastPixel - firstPixel > TrackerTraits::maxPixInModule) {
-            printf("Too many pixels in module %u: %u > %u\n",
-                   thisModuleId,
-                   lastPixel - firstPixel,
-                   TrackerTraits::maxPixInModule);
+		uint32_t nValid = 0;
+             uint32_t nInvalid = 0;
+             for (uint32_t i = firstPixel; i < lastPixel; ++i) {
+               if (digi_view[i].moduleId() == ::pixelClustering::invalidModuleId)
+                 ++nInvalid;
+               else
+                 ++nValid;
+             }
+            // [FIX] The pixels past the clamp point are never clustered, so they still carry
+            // clus == their digi index (set by CountModules) together with a valid moduleId.
+            // Drop them explicitly: otherwise that out-of-range clus indexes the per-module
+            // charge[]/aclusters[maxNumClustersPerModules] arrays out of bounds downstream
+            // (ClusterChargeCut device-side, SoA->legacy converter host-side). lastPixel still
+            // holds the true module end here (the clamp below has not happened yet).
+            uint32_t nValidStranded = 0;
+            for (uint32_t i = TrackerTraits::maxPixInModule + firstPixel; i < lastPixel; ++i) {
+              if (digi_view[i].moduleId() != ::pixelClustering::invalidModuleId)
+                ++nValidStranded;
+              //digi_view[i].moduleId() = ::pixelClustering::invalidModuleId;
+              //digi_view[i].clus() = ::pixelClustering::invalidClusterId;
+            }
+            printf(
+                "Too many pixels in module %u (%u): range=%u valid=%u invalid=%u limit=%u stranded_valid=%u (dropped)\n",
+                thisModuleId,
+                rawModuleId,
+                lastPixel - firstPixel,
+                nValid,
+                nInvalid,
+                TrackerTraits::maxPixInModule,
+                nValidStranded);
             lastPixel = TrackerTraits::maxPixInModule + firstPixel;
           }
         }
@@ -787,6 +813,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         if (cms::alpakatools::once_per_block(acc)) {
           clus_view[thisModuleId].clusInModule() = foundClusters;
           clus_view[module].moduleId() = thisModuleId;
+          // [VALIDATION] this is the value ClusterChargeCut compares against maxNumClustersPerModules.
+          // If foundClusters <= the limit, the "remove excess clusters" branch (which, as a side
+          // effect, neutralizes stale truncated pixels with clus >= limit) is SKIPPED.
+          if (applyDigiMorphing && foundClusters > 256)
+            printf("[VALIDATION] FindClus module %u (%u): foundClusters=%u (maxNumClustersPerModules=%d)\n",
+                   thisModuleId,
+                   rawModuleId,
+                   foundClusters,
+                   TrackerTraits::maxNumClustersPerModules);
 #ifdef GPU_DEBUG
           if (foundClusters > gMaxHit) {
             gMaxHit = foundClusters;
