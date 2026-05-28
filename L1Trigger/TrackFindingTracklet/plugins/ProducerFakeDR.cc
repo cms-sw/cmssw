@@ -130,7 +130,11 @@ namespace trklet {
       for (const TTStubRef& ttStubRef : ttTrackRef->getStubRefs()) {
         // layer encoding
         const int layerId = setup->layerId(ttStubRef);
-        const int iLayer = std::distance(le.begin(), std::find(le.begin(), le.end(), layerId));
+        const auto it = std::find(le.begin(), le.end(), layerId);
+        const int iLayer = static_cast<int>(std::distance(le.begin(), it));
+        // kill stub if not encodable
+        if (iLayer == setup->numLayers())
+          continue;
         if (hitPattern.test(iLayer))
           continue;
         // stub parameter
