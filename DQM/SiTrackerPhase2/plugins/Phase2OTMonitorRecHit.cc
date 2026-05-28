@@ -141,58 +141,69 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
       continue;
     // determine the detector we are in
     TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(detId);
-    std::string key = phase2tkutil::getOTHistoId(detId.rawId(), tTopo_);
-    nTotrechitsinevt += DSViter->size();
-    if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
-      if (nrechitLayerMapP.find(key) == nrechitLayerMapP.end()) {
-        nrechitLayerMapP.insert(std::make_pair(key, DSViter->size()));
-      } else {
-        nrechitLayerMapP[key] += DSViter->size();
-      }
-    } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
-      if (nrechitLayerMapS.find(key) == nrechitLayerMapS.end()) {
-        nrechitLayerMapS.insert(std::make_pair(key, DSViter->size()));
-      } else {
-        nrechitLayerMapS[key] += DSViter->size();
-      }
-    }
-    edmNew::DetSet<Phase2TrackerRecHit1D>::const_iterator rechitIt;
-    //loop over rechits for a single detId
-    for (rechitIt = DSViter->begin(); rechitIt != DSViter->end(); ++rechitIt) {
-      LocalPoint lp = rechitIt->localPosition();
-      Global3DPoint globalPos = geomDetunit->surface().toGlobal(lp);
-      //in mm
-      double gx = globalPos.x() * 10.;
-      double gy = globalPos.y() * 10.;
-      double gz = globalPos.z() * 10.;
-      double gr = globalPos.perp() * 10.;
-      //Fill positions
-      if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
-        globalXY_P_->Fill(gx, gy);
-        globalRZ_P_->Fill(gz, gr);
-        //layer wise histo
-        layerMEs_[key].clusterSize_P->Fill(rechitIt->cluster()->size());
-        //layerMEs_[key].globalPosXY_P->Fill(gx, gy);
-        layerMEs_[key].localPosXY_P->Fill(lp.x(), lp.y());
-      } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
-        globalXY_S_->Fill(gx, gy);
-        globalRZ_S_->Fill(gz, gr);
-        //layer wise histo
-        layerMEs_[key].clusterSize_S->Fill(rechitIt->cluster()->size());
-        //layerMEs_[key].globalPosXY_S->Fill(gx, gy);
-        layerMEs_[key].localPosXY_S->Fill(lp.x(), lp.y());
-      }
-    }  //end loop over rechits of a detId
-  }  //End loop over DetSetVector
+    // Workaround for booking same histogram for Ring<> and Wheel<>
+    bool isEndcap = (detId.subdetId() != SiStripSubdetector::TOB);
+    for (int booking = 1; booking < 2 + isEndcap; booking++) {
+      // Will loop twice if the module is an EndCap module
+      // By default, the "key" divides endcaps into TEDDs and Rings
+      // During first loop, the default key is used (wheel = false)
+      // In the second loop, the Wheel key is used
+      // all layer-wise histograms will be booked in Wheels as well as Rings
+      std::string key = (booking == 2 ? phase2tkutil::getOTHistoWheelId(detId, tTopo_)
+                                      : phase2tkutil::getOTHistoId(detId, tTopo_));
 
-  //fill nRecHits per event
-  numberRecHits_->Fill(nTotrechitsinevt);
-  //fill nRecHit counter per layer
-  for (auto& lme : nrechitLayerMapP) {
-    layerMEs_[lme.first].numberRecHits_P->Fill(lme.second);
-  }
-  for (auto& lme : nrechitLayerMapS) {
-    layerMEs_[lme.first].numberRecHits_S->Fill(lme.second);
+      nTotrechitsinevt += DSViter->size();
+      if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
+        if (nrechitLayerMapP.find(key) == nrechitLayerMapP.end()) {
+          nrechitLayerMapP.insert(std::make_pair(key, DSViter->size()));
+        } else {
+          nrechitLayerMapP[key] += DSViter->size();
+        }
+      } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
+        if (nrechitLayerMapS.find(key) == nrechitLayerMapS.end()) {
+          nrechitLayerMapS.insert(std::make_pair(key, DSViter->size()));
+        } else {
+          nrechitLayerMapS[key] += DSViter->size();
+        }
+      }
+      edmNew::DetSet<Phase2TrackerRecHit1D>::const_iterator rechitIt;
+      //loop over rechits for a single detId
+      for (rechitIt = DSViter->begin(); rechitIt != DSViter->end(); ++rechitIt) {
+        LocalPoint lp = rechitIt->localPosition();
+        Global3DPoint globalPos = geomDetunit->surface().toGlobal(lp);
+        //in mm
+        double gx = globalPos.x() * 10.;
+        double gy = globalPos.y() * 10.;
+        double gz = globalPos.z() * 10.;
+        double gr = globalPos.perp() * 10.;
+        //Fill positions
+        if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
+          globalXY_P_->Fill(gx, gy);
+          globalRZ_P_->Fill(gz, gr);
+          //layer wise histo
+          layerMEs_[key].clusterSize_P->Fill(rechitIt->cluster()->size());
+          //layerMEs_[key].globalPosXY_P->Fill(gx, gy);
+          layerMEs_[key].localPosXY_P->Fill(lp.x(), lp.y());
+        } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
+          globalXY_S_->Fill(gx, gy);
+          globalRZ_S_->Fill(gz, gr);
+          //layer wise histo
+          layerMEs_[key].clusterSize_S->Fill(rechitIt->cluster()->size());
+          //layerMEs_[key].globalPosXY_S->Fill(gx, gy);
+          layerMEs_[key].localPosXY_S->Fill(lp.x(), lp.y());
+        }
+      }  //end loop over rechits of a detId
+    }  //End loop over DetSetVector
+
+    //fill nRecHits per event
+    numberRecHits_->Fill(nTotrechitsinevt);
+    //fill nRecHit counter per layer
+    for (auto& lme : nrechitLayerMapP) {
+      layerMEs_[lme.first].numberRecHits_P->Fill(lme.second);
+    }
+    for (auto& lme : nrechitLayerMapS) {
+      layerMEs_[lme.first].numberRecHits_S->Fill(lme.second);
+    }
   }
 }
 //
@@ -237,37 +248,53 @@ void Phase2OTMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
 // -- Book Layer Histograms
 //
 void Phase2OTMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned int det_id, std::string& subdir) {
-  std::string key = phase2tkutil::getOTHistoId(det_id, tTopo_);
-  if (layerMEs_.find(key) == layerMEs_.end()) {
-    ibooker.cd();
-    RecHitME local_histos;
-    ibooker.setCurrentFolder(subdir + "/" + key);
-    edm::LogInfo("Phase2OTMonitorRecHit") << " Booking Histograms in : " << key;
+  // Workaround for booking same histogram for Ring<> and Wheel<>
+  bool isEndcap = (DetId(det_id).subdetId() != SiStripSubdetector::TOB);
+  for (int booking = 1; booking < 2 + isEndcap; booking++) {
+    // Will loop twice if the module is an EndCap module
+    // By default, the "key" divides endcaps into TEDDs and Rings
+    // During first loop, the default key is used (wheel = false)
+    // In the second loop, the Wheel key is used
+    // all layer-wise histograms will be booked in Wheels as well as Rings
+    std::string key = (booking == 2 ? phase2tkutil::getOTHistoWheelId(det_id, tTopo_)
+                                    : phase2tkutil::getOTHistoId(det_id, tTopo_));
 
-    if (tkGeom_->getDetectorType(det_id) == TrackerGeometry::ModuleType::Ph2PSP) {
-      local_histos.numberRecHits_P =
+    if (layerMEs_.find(key) == layerMEs_.end()) {
+      ibooker.cd();
+      ibooker.setCurrentFolder(subdir + "/" + key);
+
+      RecHitME local_histos;
+      edm::LogInfo("Phase2OTMonitorRecHit") << " Booking Histograms in : " << key;
+
+      if (tkGeom_->getDetectorType(det_id) == TrackerGeometry::ModuleType::Ph2PSP) {
+        local_histos.numberRecHits_P =
+            phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NRecHitsLayer_P"), ibooker);
+
+        local_histos.clusterSize_P =
+            phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitSize_P"), ibooker);
+
+        local_histos.globalPosXY_P = phase2tkutil::book2DFromPSet(
+            config_.getParameter<edm::ParameterSet>("GlobalPositionXY_perlayer_P"), ibooker);
+
+        local_histos.localPosXY_P =
+            phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY_P"), ibooker);
+
+      }  //if block for P
+
+      local_histos.numberRecHits_S =
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NRecHitsLayer_P"), ibooker);
+      local_histos.clusterSize_S =
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitSize_S"), ibooker);
+      local_histos.localPosXY_S =
+          phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY_S"), ibooker);
 
-      local_histos.clusterSize_P =
-          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitSize_P"), ibooker);
-
-      local_histos.globalPosXY_P =
-          phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_perlayer_P"), ibooker);
-
-      local_histos.localPosXY_P =
-          phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY_P"), ibooker);
-
-    }  //if block for P
-
-    ibooker.setCurrentFolder(subdir + "/" + key);
-    local_histos.numberRecHits_S =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NRecHitsLayer_P"), ibooker);
-    local_histos.clusterSize_S =
-        phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitSize_S"), ibooker);
-    local_histos.localPosXY_S =
-        phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY_S"), ibooker);
-
-    layerMEs_.insert(std::make_pair(key, local_histos));
+      layerMEs_.insert(std::make_pair(key, local_histos));
+      int side = tTopo_->tidSide(det_id);
+      std::string Side = (side == 1) ? "MINUS/" : "PLUS/";
+      int disc = tTopo_->tidWheel(det_id);
+      std::string Disc = (disc < 3) ? "TEDD_1/" : "TEDD_2/";
+      key = "EndCaps/" + Side + Disc + "Wheel" + disc;
+    }
   }
 }
 
