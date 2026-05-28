@@ -261,12 +261,15 @@ bool MuonResiduals6DOFrphiFitter::fit(Alignable *ali) {
   double lows[11] = {0., 0., 0., 0., 0., 0., 0., 0., -1., 0., 0.};
   double highs[11] = {0., 0., 0., 0., 0., 0., 10., 0.1, 1., 0., 0.};
   // adjust the default initial values with possible custom ones:
-  for (std::map<int, double>::iterator it = m_parNum2InitValue.begin(); it != m_parNum2InitValue.end(); ++it)
-  {
+  for (std::map<int, double>::iterator it = m_parNum2InitValue.begin(); it != m_parNum2InitValue.end(); ++it) {
     int parNum = it->first;
     int idx = -1;
-    for (int i=0; i<11; ++i) if (nums[i]==parNum) {idx=i; break;}
-    assert(idx>=0);
+    for (int i = 0; i < 11; ++i)
+      if (nums[i] == parNum) {
+        idx = i;
+        break;
+      }
+    assert(idx >= 0);
     starts[idx] = it->second;
   }
 

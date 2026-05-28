@@ -49,7 +49,7 @@ private:
   // es token
   const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> m_esTokenGBTGeom;
   const edm::ESGetToken<DetIdAssociator, DetIdAssociatorRecord> m_esTokenDetId;
-  const DetIdAssociator* m_muonDetIdAssociator = nullptr;
+  const DetIdAssociator *m_muonDetIdAssociator = nullptr;
   const edm::ESGetToken<Propagator, TrackingComponentsRecord> m_esTokenProp;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_esTokenMF;
   const MuonResidualsFromTrack::BuilderToken m_esTokenBuilder;

@@ -117,10 +117,10 @@ private:
             double maxResidual,
             bool fillLayerPlotDT,
             bool fillLayerPlotCSC,
-            struct DTLayerData* layerData_DT,
-            TTree* layerTree_DT,
-            struct CSCLayerData* layerData_CSC,
-            TTree* layerTree_CSC);
+            struct DTLayerData *layerData_DT,
+            TTree *layerTree_DT,
+            struct CSCLayerData *layerData_CSC,
+            TTree *layerTree_CSC);
 
   TrajectoryStateCombiner m_tsoscomb;
 
