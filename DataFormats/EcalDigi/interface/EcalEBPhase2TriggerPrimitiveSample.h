@@ -31,14 +31,14 @@ public:
   uint32_t raw() const { return theSample_ & 0xffff; }
 
   /// get the encoded Et (10 bits)
-  int encodedEt() const { return (theSample_ & 0xffff) & 0x3FF; }
+  int encodedEt() const { return (raw() ) & 0x3FF; }
 
-  bool l1aSpike() const { return (theSample_ & 0xffff & 0x400) != 0; }
+  bool l1aSpike() const { return (raw() & 0x400) != 0; }
 
-  int time() const { return (theSample_ & 0xffff) >> 11; }
+  int time() const { return raw() >> 11; }
 
   /// for streaming
-  uint32_t operator()() { return theSample_ & 0xffff; }
+  uint32_t operator()() { return raw(); }
 
 private:
   uint32_t theSample_;

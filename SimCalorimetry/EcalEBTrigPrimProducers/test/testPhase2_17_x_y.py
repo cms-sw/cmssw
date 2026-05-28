@@ -1,4 +1,3 @@
-
 # Auto generated configuration file
 # using: 
 # Revision: 1.19 
@@ -32,7 +31,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(100),
+        input = cms.untracked.int32(5),
         output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
@@ -102,7 +101,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T38', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T35', '')
 
 process.GlobalTag.toGet = cms.VPSet(
   cms.PSet(record = cms.string("EcalSimPulseShapeRcd"),
