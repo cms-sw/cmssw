@@ -256,6 +256,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::pixelClustering {
         // FIXME if this happens frequently (and not only in simulation with low threshold) one will need to implement something cleverer.
         if (cms::alpakatools::once_per_block(acc)) {
           if (lastPixel - firstPixel > TrackerTraits::maxPixInModule) {
+            // The pixels past the clamp point are never clustered, so they still carry
+            // clus == their digi index (set by CountModules) together with a valid moduleId.
+            // Drop them explicitly
+            for (uint32_t i = TrackerTraits::maxPixInModule + firstPixel; i < lastPixel; ++i) {
+              digi_view[i].moduleId() = ::pixelClustering::invalidModuleId;
+              digi_view[i].clus() = ::pixelClustering::invalidClusterId;
+            }
             printf("Too many pixels in module %u: %u > %u\n",
                    thisModuleId,
                    lastPixel - firstPixel,
