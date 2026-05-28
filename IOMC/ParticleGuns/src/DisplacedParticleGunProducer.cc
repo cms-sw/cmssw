@@ -154,7 +154,7 @@ namespace edm {
     ESHandle<HepPDT::ParticleDataTable> fPDGTable;
     const ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> fPDGTableToken;
     HepMC::GenEvent* fEvt;
-    int fVerbosity;
+    int fVerbosity = 0;
   };
 
   DisplacedParticleGunProducer::DisplacedParticleGunProducer(const ParameterSet& pset)
@@ -303,11 +303,10 @@ namespace edm {
     const double rMaxFace = fRmaxFrontSurfaceHGCAL;
 
     if (fPointingToHGCAL) {
-      if (!(rMaxFace > rMinFace) || zFront <= fZVtx) {
+      if (zFront <= fZVtx) {
         throw cms::Exception("DisplacedParticleGunProducer")
             << "Invalid hard-coded HGCAL surface envelope: "
-            << "zFront =" << zFront << "cm, rMin =" << rMinFace << "cm, rMax=" << rMaxFace << "cm"
-            << " (check ZVtx).";
+            << "zFront = " << zFront << "cm, fZVtx = " << fZVtx << " (check ZVtx).";
       }
     }
 
