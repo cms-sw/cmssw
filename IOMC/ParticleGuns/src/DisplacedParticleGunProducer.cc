@@ -24,6 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -337,7 +338,7 @@ namespace edm {
             << "The logic that points particles to HGCAL's front face assumes that particles move in straight lines.";
       }
 
-      double theta = 0., phi = phiVtx, px = 0., py = 0., pz = 0.;
+      double theta = 0., phi = 0., px = 0., py = 0., pz = 0.;
       const double pt = CLHEP::RandFlat::shoot(engine, fPtMin, fPtMax);
       if (fPointingToHGCAL) {
         const double RVtx0 = std::hypot(xVtx, yVtx);
@@ -352,7 +353,7 @@ namespace edm {
           theta = CLHEP::RandFlat::shoot(engine, thetaMin, thetaMax);
           phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
           std::tie(px, py, pz) = computeMomentum(pt, theta, phi);
-          if (std::isnan(pz) || std::isinf(pz) || pz <= 0.0) {
+          if (edm::isNotFinite(pz) || pz <= 0.0) {
             continue;  // must go towards +z plane
           }
 

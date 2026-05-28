@@ -922,7 +922,7 @@ class UpgradeWorkflow_ticl_barrel(UpgradeWorkflow):
         if 'HARVESTGlobal' in step:
             stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return ('CloseByPGun_Barrel') in fragment and ('Run4' in key)
+        return 'CloseByPGun_Barrel' in fragment and 'Run4' in key
 
 upgradeWFs['ticl_barrel'] = UpgradeWorkflow_ticl_barrel(
     steps = [
@@ -953,7 +953,7 @@ class UpgradeWorkflow_ticl_barrel_CPfromPU(UpgradeWorkflow):
         if 'HARVESTGlobal' in step:
             stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return ('CloseByPGun_Barrel') in fragment and ('Run4' in key) and ('PU' in key)
+        return 'CloseByPGun_Barrel' in fragment and 'Run4' in key and 'PU' in key
 
 upgradeWFs['ticl_barrel_CPfromPU'] = UpgradeWorkflow_ticl_barrel_CPfromPU(
     steps = [
