@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"

@@ -12,7 +12,7 @@
  */
 
 #include <DataFormats/DetId/interface/DetId.h>
-#include <Geometry/CommonDetUnit/interface/TrackingGeometry.h>
+#include <Geometry/CommonTopologies/interface/TrackingGeometry.h>
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"

@@ -27,15 +27,15 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetType.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "DataFormats/Math/interface/angle_units.h"
 #include "DataFormats/Math/interface/Rounding.h"

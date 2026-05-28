@@ -31,7 +31,7 @@ Implementation:
 #include <memory>
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <Geometry/CommonTopologies/interface/GeomDet.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
 #include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
