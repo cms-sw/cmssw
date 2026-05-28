@@ -1,5 +1,8 @@
 #ifndef Alignment_MuonAlignmentAlgorithms_DTTTree_H
 #define Alignment_MuonAlignmentAlgorithms_DTTTree_H
+
+#include <string>
+#include <RtypesCore.h>
 #define BADVAL -999.0
 
 typedef struct DTLayerData {
