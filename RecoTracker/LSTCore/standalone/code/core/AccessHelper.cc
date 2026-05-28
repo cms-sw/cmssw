@@ -353,7 +353,7 @@ std::vector<unsigned int> getHitsFrompT3(LSTEvent* event, unsigned int pT3) {
   std::vector<unsigned int> hits;
   hits.reserve(allHits.size());
   for (auto const hit : allHits)
-    if (hits.empty() || hits.back() != hit)  // should eventually check all and type
+    if (hit != lst::kTCEmptyHitIdx && (hits.empty() || hits.back() != hit))
       hits.emplace_back(hit);
   return hits;
 }
@@ -446,7 +446,7 @@ std::vector<unsigned int> getHitsFrompT5(LSTEvent* event, unsigned int pT5) {
   std::vector<unsigned int> hits;
   hits.reserve(allHits.size());
   for (auto const hit : allHits)
-    if (hits.empty() || hits.back() != hit)  // should eventually check all and type
+    if (hit != lst::kTCEmptyHitIdx && (hits.empty() || hits.back() != hit))
       hits.emplace_back(hit);
   return hits;
 }

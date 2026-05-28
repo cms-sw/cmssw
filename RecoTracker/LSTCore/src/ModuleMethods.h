@@ -169,6 +169,7 @@ namespace lst {
                                    float m_y,
                                    float m_z,
                                    float& eta,
+                                   float& phi,
                                    float& r) {
     subdet = (detId & (7 << 25)) >> 25;
     side = (subdet == Endcap) ? (detId & (3 << 23)) >> 23 : (detId & (3 << 18)) >> 18;
@@ -179,6 +180,7 @@ namespace lst {
 
     r = std::sqrt(m_x * m_x + m_y * m_y + m_z * m_z);
     eta = ((m_z > 0) - (m_z < 0)) * std::acosh(r / std::sqrt(m_x * m_x + m_y * m_y));
+    phi = std::atan2(m_y, m_x);
   }
 
   inline void loadCentroidsFromFile(const char* filePath, ModuleMetaData& mmd, uint16_t& nModules) {
@@ -252,6 +254,7 @@ namespace lst {
     std::span<short> host_subdets = modules_view.subdets();
     std::span<short> host_sides = modules_view.sides();
     std::span<float> host_eta = modules_view.eta();
+    std::span<float> host_phi = modules_view.phi();
     std::span<float> host_r = modules_view.r();
     std::span<float> host_z = modules_view.z();
     std::span<bool> host_isInverted = modules_view.isInverted();
@@ -279,7 +282,7 @@ namespace lst {
       float m_z = mmd.module_z[detId];
       unsigned int m_t = mmd.module_type[detId];
 
-      float eta, r;
+      float eta, phi, r;
 
       uint16_t index;
       unsigned short layer, ring, rod, module, subdet, side;
@@ -294,9 +297,10 @@ namespace lst {
         isInverted = false;
         isLower = false;
         eta = 0;
+        phi = 0;
         r = 0;
       } else {
-        setDerivedQuantities(detId, layer, ring, rod, module, subdet, side, m_x, m_y, m_z, eta, r);
+        setDerivedQuantities(detId, layer, ring, rod, module, subdet, side, m_x, m_y, m_z, eta, phi, r);
         isInverted = parseIsInverted(subdet, side, module, layer);
         isLower = parseIsLower(isInverted, detId);
       }
@@ -319,6 +323,7 @@ namespace lst {
       host_subdets[index] = subdet;
       host_sides[index] = side;
       host_eta[index] = eta;
+      host_phi[index] = phi;
       host_r[index] = r;
       host_z[index] = m_z;
       host_isInverted[index] = isInverted;
