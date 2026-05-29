@@ -41,6 +41,7 @@ namespace edm {
 
 	// Hard-coded HGCAL CE-E back surface of layer 25/26
 	// or, equivalently, of front face of CE-E backplate absorber 1
+	// values in centimeters
     constexpr double kCeeBackZ = 362.18;
     constexpr double kCeeBackRMin = 31.36;
     constexpr double kCeeBackRMax = 164.67;
@@ -67,15 +68,16 @@ namespace edm {
                            double rMin,
                            double rMax) {
       // Must move towards the plane: require (zPlane - z0) / pz > 0
-      const double dz = zPlane - z0;
       if (pz < 1e-6) {
         return false;
       }
-      const double t = dz / pz;
+
+      const double t = (zPlane - z0) / pz;
       if (t <= 0.0) {
         return false;
       }
 
+	  // project (x, y) into the plane assuming straight trajectories
       const double xHit = x0 + t * px;
       const double yHit = y0 + t * py;
       const double rHit = std::hypot(xHit, yHit);
@@ -84,12 +86,14 @@ namespace edm {
     }
 
     // Compute the theta range (in radians) that intersects a plane at z=kCeeBackZ,
-    // within radial bounds [rMin, rMax], from a vertex at transverse radius R0 and z0.
+    // within radial bounds [rMin, rMax], from a vertex at transverse radius R and z.
     std::pair<double, double> thetaRangeToPointToHGCALSurface(
         double R, double z, double zHGCAL, double rminHGCAL, double rmaxHGCAL) {
       const double dz = zHGCAL - z;
       if (dz <= 0. or rminHGCAL > rmaxHGCAL) {
-        return {0., 0.};
+        throw cms::Exception("DisplacedParticleGunProducer")
+		  << "[thetaRangeToPointToHGCALSurface] Your coordinates are wrong: "
+		  << "zHGCAL=" << zHGCAL << "cm, z=" << z << "cm, rminHGCAL=" << rminHGCAL << "cm, rmaxHGCAL=" << rmaxHGCAL << ".";
       }
 
       double thetaMin = std::atan((rminHGCAL - R) / dz);
@@ -101,7 +105,11 @@ namespace edm {
       thetaMax = std::clamp(thetaMax, 1e-6, 0.5 * std::numbers::pi - 1e-6);
 
       if (thetaMax <= thetaMin) {
-        return {0., 0.};
+        throw cms::Exception("DisplacedParticleGunProducer")
+		  << "[thetaRangeToPointToHGCALSurface] Your theta limits are wrong: "
+		  << "thetaMax=" << thetaMax << ", thetaMin=" << thetaMin << ", "
+		  << "with rminHGCAL=" << rminHGCAL << "cm, rmaxHGCAL=" << rminHGCAL << "cm, R="
+		  << R << "cm, zHGCAL=" << zHGCAL << "cm, z=" << z << "cm." << std::endl;
       }
       return {thetaMin, thetaMax};
     }
@@ -110,8 +118,9 @@ namespace edm {
       double px = pt * std::cos(phi);
       double py = pt * std::sin(phi);
       double pz = 0.;
+	  std::cout << theta << std::endl;
       if (theta < 1e-6) {
-        throw cms::Exception("DisplacedParticleGunProducer") << "Theta is too small. Unstable pz.";
+        throw cms::Exception("DisplacedParticleGunProducer") << "Theta is too small: " << theta << ". Unstable pz.";
       } else {
         pz = pt / std::tan(theta);
       }
@@ -144,7 +153,7 @@ namespace edm {
     double fPhiVtxMax = 0.;
     double fZVtx = 0.;
     int fNParticles = 1;
-    std::vector<int> fPartIDs;
+    int fPartID;
     bool fUniformDensityInR = false;
     unsigned int fMaxTries = 1000;
 
@@ -159,12 +168,11 @@ namespace edm {
 
     ESHandle<HepPDT::ParticleDataTable> fPDGTable;
     const ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> fPDGTableToken;
-    HepMC::GenEvent* fEvt;
     int fVerbosity = 0;
   };
 
   DisplacedParticleGunProducer::DisplacedParticleGunProducer(const ParameterSet& pset)
-      : fPDGTableToken(esConsumes<Transition::BeginRun>()), fEvt(nullptr) {
+      : fPDGTableToken(esConsumes<Transition::BeginRun>()) {
     Service<RandomNumberGenerator> rng;
     if (!rng.isAvailable()) {
       throw cms::Exception("Configuration")
@@ -185,7 +193,7 @@ namespace edm {
     fRMax = pgun.getParameter<double>("RMax");
     fZVtx = pgun.getParameter<double>("ZVtx");
     fNParticles = pgun.getParameter<int>("NParticles");
-    fPartIDs = pgun.getParameter<std::vector<int>>("PartID");
+    fPartID = pgun.getParameter<int>("PartID");
     fUniformDensityInR = pgun.getParameter<bool>("UniformDensityInR");
     fMaxTries = pgun.getParameter<unsigned int>("MaxTries");
     fPointingToHGCAL = pgun.getParameter<bool>("PointingToHGCAL");
@@ -214,9 +222,6 @@ namespace edm {
     }
     if (fRMax <= fRMin) {
       throw cms::Exception("DisplacedParticleGunProducer") << "Please fix RMin/RMax";
-    }
-    if (fPartIDs.empty()) {
-      throw cms::Exception("DisplacedParticleGunProducer") << "PartID must be non-empty";
     }
     if (fMaxTries == 0) {
       throw cms::Exception("DisplacedParticleGunProducer") << "MaxTries must be > 0";
@@ -263,7 +268,7 @@ namespace edm {
     pgun.add<double>("ZVtx", 0.);
 
     pgun.add<int>("NParticles", 1);
-    pgun.add<std::vector<int>>("PartID", {22});
+    pgun.add<int>("PartID", 22);
 
     pgun.add<bool>("UniformDensityInR", false);
 
@@ -302,7 +307,7 @@ namespace edm {
           << " DisplacedParticleGunProducer : Begin New Event Generation" << std::endl;
     }
 
-    fEvt = new HepMC::GenEvent();
+    std::unique_ptr<HepMC::GenEvent> fEvt = std::make_unique<HepMC::GenEvent>();
 
     if (fPointingToHGCAL) {
       if (kCeeBackZ <= fZVtx) {
@@ -321,14 +326,10 @@ namespace edm {
       const double phiVtx = CLHEP::RandFlat::shoot(engine, fPhiVtxMin, fPhiVtxMax);
       const double xVtx = RVtx * std::cos(phiVtx);
       const double yVtx = RVtx * std::sin(phiVtx);
-      const double zVtx = fZVtx;
 
-      const auto idx = static_cast<std::size_t>(CLHEP::RandFlat::shoot(engine, 0, fPartIDs.size()));
-      const int partID = fPartIDs[idx];
-
-      const HepPDT::ParticleData* pData = fPDGTable->particle(HepPDT::ParticleID(std::abs(partID)));
+      const HepPDT::ParticleData* pData = fPDGTable->particle(HepPDT::ParticleID(std::abs(fPartID)));
       if (!pData) {
-        throw cms::Exception("DisplacedParticleGunProducer") << "Particle ID " << partID << " not found in PDG table";
+        throw cms::Exception("DisplacedParticleGunProducer") << "Particle ID " << fPartID << " not found in PDG table";
       }
       const double mass = pData->mass().value();
 
@@ -340,7 +341,7 @@ namespace edm {
       double theta = 0., phi = 0., px = 0., py = 0., pz = 0.;
       const double pt = CLHEP::RandFlat::shoot(engine, fPtMin, fPtMax);
       if (fPointingToHGCAL) {
-        auto [thetaMin, thetaMax] = thetaRangeToPointToHGCALSurface(RVtx, zVtx,
+        auto [thetaMin, thetaMax] = thetaRangeToPointToHGCALSurface(RVtx, fZVtx,
 																	kCeeBackZ, fRminBackSurfaceHGCAL, fRmaxBackSurfaceHGCAL);
         if (!(thetaMax >= thetaMin)) {
           throw cms::Exception("DisplacedParticleGunProducer")
@@ -357,7 +358,7 @@ namespace edm {
           }
 
           if (hitsZPlaneWithinR(
-                  xVtx, yVtx, zVtx, px, py, pz, kCeeBackZ, fRminBackSurfaceHGCAL, fRmaxBackSurfaceHGCAL)) {
+                  xVtx, yVtx, fZVtx, px, py, pz, kCeeBackZ, fRminBackSurfaceHGCAL, fRmaxBackSurfaceHGCAL)) {
             accepted = true;
             break;
           }
@@ -365,10 +366,10 @@ namespace edm {
         if (!accepted) {
           throw cms::Exception("DisplacedParticleGunProducer")
               << "Failed to generate a particle intersecting HGCAL CE-E back surface after MaxTries=" << fMaxTries
-              << ". Vertex: (R=" << RVtx << "cm, phiVtx=" << phiVtx << ", z=" << zVtx << "cm). HGCAL band: ["
+              << ". Vertex: (R=" << RVtx << "cm, phiVtx=" << phiVtx << ", z=" << fZVtx << "cm). HGCAL band: ["
               << fRminBackSurfaceHGCAL << "," << fRmaxBackSurfaceHGCAL << "]cm at z=" << kCeeBackZ << "cm.";
         }
-      } else {  // if (fPointingToHGCAL)
+      } else {  // if (!fPointingToHGCAL)
         theta = CLHEP::RandFlat::shoot(engine, fThetaMin.value(), fThetaMax.value());
         phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
         std::tie(px, py, pz) = computeMomentum(pt, theta, phi);
@@ -380,9 +381,9 @@ namespace edm {
       HepMC::FourVector p(px, py, pz, energy);
 
       HepMC::GenVertex* vtx =
-          new HepMC::GenVertex(HepMC::FourVector(xVtx * CLHEP::cm, yVtx * CLHEP::cm, zVtx * CLHEP::cm, 0.0));
+          new HepMC::GenVertex(HepMC::FourVector(xVtx * CLHEP::cm, yVtx * CLHEP::cm, fZVtx * CLHEP::cm, 0.0));
 
-      HepMC::GenParticle* part = new HepMC::GenParticle(p, partID, 1);
+      HepMC::GenParticle* part = new HepMC::GenParticle(p, fPartID, 1);
       part->suggest_barcode(barcode++);
 
       vtx->add_particle_out(part);
@@ -401,12 +402,12 @@ namespace edm {
       fEvt->print();
     }
 
-    auto bProduct = std::make_unique<HepMCProduct>();
-    bProduct->addHepMCData(fEvt);
-    e.put(std::move(bProduct), "unsmeared");
-
-    auto genEventInfo = std::make_unique<GenEventInfoProduct>(fEvt);
+	auto genEventInfo = std::make_unique<GenEventInfoProduct>(fEvt.get()); // does not transfer pointer ownership to GenEventInfoProduct
     e.put(std::move(genEventInfo));
+
+    auto bProduct = std::make_unique<HepMCProduct>();
+    bProduct->addHepMCData(fEvt.release()); // transfer pointer ownership to HepMCProduct
+    e.put(std::move(bProduct), "unsmeared");
 
     if (fVerbosity > 0) {
       LogDebug("DisplacedParticleGunProducer") << " DisplacedParticleGunProducer : Event Generation Done " << std::endl;
