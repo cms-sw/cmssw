@@ -85,40 +85,10 @@ namespace edm {
       return (rHit >= rMin && rHit <= rMax);
     }
 
-    // Compute the theta range (in radians) that intersects a plane at z=kCeeBackZ,
-    // within radial bounds [rMin, rMax], from a vertex at transverse radius R and z.
-    std::pair<double, double> thetaRangeToPointToHGCALSurface(
-        double R, double z, double zHGCAL, double rminHGCAL, double rmaxHGCAL) {
-      const double dz = zHGCAL - z;
-      if (dz <= 0. or rminHGCAL > rmaxHGCAL) {
-        throw cms::Exception("DisplacedParticleGunProducer")
-		  << "[thetaRangeToPointToHGCALSurface] Your coordinates are wrong: "
-		  << "zHGCAL=" << zHGCAL << "cm, z=" << z << "cm, rminHGCAL=" << rminHGCAL << "cm, rmaxHGCAL=" << rmaxHGCAL << ".";
-      }
-
-      double thetaMin = std::atan((rminHGCAL - R) / dz);
-      double thetaMax = std::atan((rmaxHGCAL - R) / dz);
-
-      // For +z endcap, theta should be in (0, pi/2)
-      // clamping removes instabilities for pz
-      thetaMin = std::clamp(thetaMin, 1e-6, 0.5 * std::numbers::pi - 1e-6);
-      thetaMax = std::clamp(thetaMax, 1e-6, 0.5 * std::numbers::pi - 1e-6);
-
-      if (thetaMax <= thetaMin) {
-        throw cms::Exception("DisplacedParticleGunProducer")
-		  << "[thetaRangeToPointToHGCALSurface] Your theta limits are wrong: "
-		  << "thetaMax=" << thetaMax << ", thetaMin=" << thetaMin << ", "
-		  << "with rminHGCAL=" << rminHGCAL << "cm, rmaxHGCAL=" << rminHGCAL << "cm, R="
-		  << R << "cm, zHGCAL=" << zHGCAL << "cm, z=" << z << "cm." << std::endl;
-      }
-      return {thetaMin, thetaMax};
-    }
-
     std::tuple<double, double, double> computeMomentum(double pt, double theta, double phi) {
       double px = pt * std::cos(phi);
       double py = pt * std::sin(phi);
       double pz = 0.;
-	  std::cout << theta << std::endl;
       if (theta < 1e-6) {
         throw cms::Exception("DisplacedParticleGunProducer") << "Theta is too small: " << theta << ". Unstable pz.";
       } else {
@@ -163,8 +133,8 @@ namespace edm {
     bool fPointingToHGCAL = true;
     double fRminBackSurfaceHGCAL = kCeeBackRMin;
     double fRmaxBackSurfaceHGCAL = kCeeBackRMax;
-    std::optional<double> fThetaMin = 0.;
-    std::optional<double> fThetaMax = 0.;
+    double fThetaMin = 0.;
+    double fThetaMax = 0.;
 
     ESHandle<HepPDT::ParticleDataTable> fPDGTable;
     const ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> fPDGTableToken;
@@ -187,6 +157,8 @@ namespace edm {
     fPtMax = pgun.getParameter<double>("MaxPt");
     fPhiMin = pgun.getParameter<double>("MinPhi");
     fPhiMax = pgun.getParameter<double>("MaxPhi");
+	fThetaMin = pgun.getParameter<double>("MinTheta");
+	fThetaMax = pgun.getParameter<double>("MaxTheta");
     fPhiVtxMin = pgun.getParameter<double>("MinVtxPhi");
     fPhiVtxMax = pgun.getParameter<double>("MaxVtxPhi");
     fRMin = pgun.getParameter<double>("RMin");
@@ -198,17 +170,9 @@ namespace edm {
     fMaxTries = pgun.getParameter<unsigned int>("MaxTries");
     fPointingToHGCAL = pgun.getParameter<bool>("PointingToHGCAL");
 
-    if (!fPointingToHGCAL) {
-      fThetaMin = pgun.getParameter<double>("MinTheta");
-      fThetaMax = pgun.getParameter<double>("MaxTheta");
-      if (*fThetaMax <= *fThetaMin) {
-        throw cms::Exception("DisplacedParticleGunProducer") << "Please ensure MinTheta <= MaxTheta.";
-      }
-    } else {
+    if (fPointingToHGCAL) {
       fRminBackSurfaceHGCAL = pgun.getParameter<double>("RminBackSurfaceHGCAL");
       fRmaxBackSurfaceHGCAL = pgun.getParameter<double>("RmaxBackSurfaceHGCAL");
-      fThetaMin = std::nullopt;
-      fThetaMax = std::nullopt;
     }
 
     if (fPtMax <= fPtMin) {
@@ -217,6 +181,9 @@ namespace edm {
     if (fPhiMax <= fPhiMin) {
       throw cms::Exception("DisplacedParticleGunProducer") << "Please fix MinPhi/MaxPhi";
     }
+	if (fThetaMax <= fThetaMin) {
+	  throw cms::Exception("DisplacedParticleGunProducer") << "Please ensure MinTheta <= MaxTheta.";
+	}
     if (fPhiVtxMax <= fPhiVtxMin) {
       throw cms::Exception("DisplacedParticleGunProducer") << "Please fix MinVtxPhi/MaxVtxPhi";
     }
@@ -340,17 +307,10 @@ namespace edm {
 
       double theta = 0., phi = 0., px = 0., py = 0., pz = 0.;
       const double pt = CLHEP::RandFlat::shoot(engine, fPtMin, fPtMax);
-      if (fPointingToHGCAL) {
-        auto [thetaMin, thetaMax] = thetaRangeToPointToHGCALSurface(RVtx, fZVtx,
-																	kCeeBackZ, fRminBackSurfaceHGCAL, fRmaxBackSurfaceHGCAL);
-        if (!(thetaMax >= thetaMin)) {
-          throw cms::Exception("DisplacedParticleGunProducer")
-              << "No valid theta window for this vertex at RVtx=" << RVtx << "cm within HGCAL's CE-E back surface.";
-        }
-
+      if (fPointingToHGCAL) {				  
         bool accepted = false;
         for (unsigned int itry = 0; itry < fMaxTries; ++itry) {
-          theta = CLHEP::RandFlat::shoot(engine, thetaMin, thetaMax);
+          theta = CLHEP::RandFlat::shoot(engine, fThetaMin, fThetaMax);
           phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
           std::tie(px, py, pz) = computeMomentum(pt, theta, phi);
           if (edm::isNotFinite(pz) || pz <= 0.0) {
@@ -370,7 +330,7 @@ namespace edm {
               << fRminBackSurfaceHGCAL << "," << fRmaxBackSurfaceHGCAL << "]cm at z=" << kCeeBackZ << "cm.";
         }
       } else {  // if (!fPointingToHGCAL)
-        theta = CLHEP::RandFlat::shoot(engine, fThetaMin.value(), fThetaMax.value());
+        theta = CLHEP::RandFlat::shoot(engine, fThetaMin, fThetaMax);
         phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
         std::tie(px, py, pz) = computeMomentum(pt, theta, phi);
       }
