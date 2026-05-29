@@ -31,21 +31,22 @@ using namespace reco;
 using namespace std;
 
 class TauValidator : public DQMEDAnalyzer {
-
 public:
-  TauValidator(const edm::ParameterSet &);
+  TauValidator(const edm::ParameterSet&);
   ~TauValidator() override;
 
-  void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   std::string convertId(double cut);
-  bool passIdCut(const std::vector<double> idValuesForTau, const std::vector<std::vector<bool>> wpValuesForTau,
-                const std::vector<double>& validCutIDs_raw, const std::vector<int>& validCutIDs_wp,
-                bool use_raw, bool use_wp);
+  bool passIdCut(const std::vector<double> idValuesForTau,
+                 const std::vector<std::vector<bool>> wpValuesForTau,
+                 const std::vector<double>& validCutIDs_raw,
+                 const std::vector<int>& validCutIDs_wp,
+                 bool use_raw,
+                 bool use_wp);
 
 private:
-
   edm::EDGetTokenT<reco::GenJetCollection> genTauToken_;
   edm::EDGetTokenT<reco::PFTauCollection> recoTauToken_;
   edm::EDGetTokenT<pat::TauCollection> patTauToken_;
@@ -54,18 +55,18 @@ private:
   edm::InputTag recoTauCollection;
 
   const std::unordered_map<std::string, std::tuple<unsigned, float, float>> histoVars = {
-    {"pt", std::make_tuple(200, 0., 1000.)},
-    {"eta", std::make_tuple(60, -4.0, 4.0)},
-    {"phi", std::make_tuple(50, -3.5, 3.5)},
-    {"mass", std::make_tuple(200, 0, 10.)},
+      {"pt", std::make_tuple(200, 0., 1000.)},
+      {"eta", std::make_tuple(60, -4.0, 4.0)},
+      {"phi", std::make_tuple(50, -3.5, 3.5)},
+      {"mass", std::make_tuple(200, 0, 10.)},
   };
 
   const std::unordered_map<std::string, std::tuple<unsigned, float, float, unsigned, float, float>> histoVars2D = {
-    {"pt_eta", std::make_tuple(200, 0., 1000., 60, -4.0, 4.0)},
-    {"pt_phi", std::make_tuple(200, 0., 1000., 50, -3.5, 3.5)},
-    {"pt_mass", std::make_tuple(200, 0., 1000., 200, 0., 10.)},
-    {"mass_eta", std::make_tuple(200, 0., 10., 60, -4.0, 4.0)},
-    {"mass_phi", std::make_tuple(200, 0., 10., 50, -3.5, 3.5)},
+      {"pt_eta", std::make_tuple(200, 0., 1000., 60, -4.0, 4.0)},
+      {"pt_phi", std::make_tuple(200, 0., 1000., 50, -3.5, 3.5)},
+      {"pt_mass", std::make_tuple(200, 0., 1000., 200, 0., 10.)},
+      {"mass_eta", std::make_tuple(200, 0., 10., 60, -4.0, 4.0)},
+      {"mass_phi", std::make_tuple(200, 0., 10., 50, -3.5, 3.5)},
   };
 
   using UMap = std::unordered_map<std::string, MonitorElement*>;
@@ -88,13 +89,12 @@ private:
 
   std::vector<int> cutIDs_wp;  // Working-point indices (WP mode)
   bool use_wp;
-  std::vector<double> cutIDs_raw;    // Raw discriminator value cuts (raw mode)
+  std::vector<double> cutIDs_raw;  // Raw discriminator value cuts (raw mode)
   bool use_raw;
 
   bool isPatTaus;
   float matchingDeltaR;
   std::string outFolder;
-
 };
 
 std::string TauValidator::convertId(double cut) {
@@ -111,11 +111,11 @@ std::string TauValidator::convertId(double cut) {
 }
 
 bool TauValidator::passIdCut(const std::vector<double> idValuesForTau,
-                              const std::vector<std::vector<bool>> wpValuesForTau,
-                              const std::vector<double>& validCutIDs_raw,
-                              const std::vector<int>& validCutIDs_wp,
-                              bool use_raw,
-                              bool use_wp) {
+                             const std::vector<std::vector<bool>> wpValuesForTau,
+                             const std::vector<double>& validCutIDs_raw,
+                             const std::vector<int>& validCutIDs_wp,
+                             bool use_raw,
+                             bool use_wp) {
   if (use_raw) {
     for (size_t i = 0; i < idValuesForTau.size(); ++i) {
       if (validCutIDs_raw[i] > 0.0) {
@@ -167,8 +167,9 @@ TauValidator::TauValidator(const edm::ParameterSet& iConfig) {
   cutIDs_wp = iConfig.getParameter<std::vector<int>>("cutIDs_wp");
   cutIDs_raw = iConfig.getParameter<std::vector<double>>("cutIDs_raw");
 
+  constexpr double EPS = 1e-12;
   use_wp = std::any_of(cutIDs_wp.begin(), cutIDs_wp.end(), [](int x) { return x >= 0; });
-  use_raw = std::any_of(cutIDs_raw.begin(), cutIDs_raw.end(), [](double x) { return x != 0.0; });
+  use_raw = std::any_of(cutIDs_raw.begin(), cutIDs_raw.end(), [](double x) { return std::abs(x) > EPS; });
 
   if (use_wp && use_raw) {
     throw cms::Exception("Configuration") << "Specify either cutIDs_wp OR cutIDs_raw, not both";
@@ -178,12 +179,12 @@ TauValidator::TauValidator(const edm::ParameterSet& iConfig) {
     if (cutIDs_wp.size() != recoTauIDLabels_.size()) {
       cutIDs_wp.resize(recoTauIDLabels_.size(), -1);
       LogDebug("TauValidator") << "Warning: cutIDs_wp size (" << cutIDs_wp.size()
-                                     << ") adjusted to match idLabels size (" << recoTauIDLabels_.size() << ")";
+                               << ") adjusted to match idLabels size (" << recoTauIDLabels_.size() << ")";
     }
     if (cutIDs_raw.size() != recoTauIDLabels_.size()) {
       cutIDs_raw.resize(recoTauIDLabels_.size(), 0.0);
       LogDebug("TauValidator") << "Warning: cutIDs_raw size (" << cutIDs_raw.size()
-                                     << ") adjusted to match idLabels size (" << recoTauIDLabels_.size() << ")";
+                               << ") adjusted to match idLabels size (" << recoTauIDLabels_.size() << ")";
     }
   }
 }
@@ -330,8 +331,7 @@ TauValidator::~TauValidator() = default;
 void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup) {
   // --------------------------------- Gen Taus --------------------------------
 
-  edm::Handle<reco::GenJetCollection> genTaus;
-  mEvent.getByToken(genTauToken_, genTaus);
+  auto genTaus = mEvent.getHandle(genTauToken_);
   if (!genTaus.isValid()) {
     LogDebug("TauValidator") << " Gen Tau collection not found while running TauValidator.cc ";
     return;
@@ -346,11 +346,10 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
   std::vector<double> validCutIDs_raw;
   std::vector<int> validCutIDs_wp;
   for (size_t i = 0; i < recoTauIDTokens_.size(); ++i) {
-    edm::Handle<reco::TauDiscriminatorContainer> recoTauID;
-    mEvent.getByToken(recoTauIDTokens_[i], recoTauID);
+    auto recoTauID = mEvent.getHandle(recoTauIDTokens_[i]);
     if (!recoTauID.isValid()) {
       LogDebug("TauValidator") << "Reco Tau Identifier " << recoTauIDLabels_[i]
-                                     << " collection not found while running TauValidator.cc ";
+                               << " collection not found while running TauValidator.cc ";
       continue;
     }
     validRecoTauIDs.push_back(recoTauID.product());
@@ -359,7 +358,7 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
     validCutIDs_wp.push_back(cutIDs_wp[i]);
   }
 
-  bool plotId = validRecoTauIDs.size() > 0;
+  bool plotId = !validRecoTauIDs.empty();
   bool applyIdCuts = plotId && (use_wp || use_raw);
 
   // --------------------------------- Reco Taus --------------------------------
@@ -369,8 +368,7 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
   std::vector<std::vector<std::vector<bool>>> recoTauWPValues;
 
   if (!isPatTaus) {
-    edm::Handle<reco::PFTauCollection> recoTausTmp;
-    mEvent.getByToken(recoTauToken_, recoTausTmp);
+    auto recoTausTmp = mEvent.getHandle(recoTauToken_);
     if (!recoTausTmp.isValid()) {
       LogDebug("TauValidator") << " Reco Tau collection not found while running TauValidator.cc ";
       return;
@@ -380,7 +378,6 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
       std::vector<std::vector<bool>> wpValuesForTau;
       for (size_t i = 0; i < validRecoTauIDs.size(); ++i) {
         reco::PFTauRef tauRef = reco::PFTauRef(recoTausTmp, itau);
-        edm::Handle<reco::TauDiscriminatorContainer> recoTauID;
         const auto& disc = (*validRecoTauIDs[i])[tauRef];
         idValuesForTau.push_back(disc.rawValues.empty() ? -1.0 : disc.rawValues[0]);
         wpValuesForTau.push_back(disc.workingPoints.empty() ? std::vector<bool>(1, false) : disc.workingPoints);
@@ -393,8 +390,7 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
       recoTaus.push_back(recoTausTmp->at(itau));
     }
   } else {
-    edm::Handle<pat::TauCollection> patTaus;
-    mEvent.getByToken(patTauToken_, patTaus);
+    auto patTaus = mEvent.getHandle(patTauToken_);
     if (!patTaus.isValid()) {
       LogDebug("TauValidator") << " PAT Tau collection not found while running TauValidator.cc ";
       return;
@@ -406,7 +402,6 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
       std::vector<std::vector<bool>> wpValuesForTau;
       for (size_t i = 0; i < validRecoTauIDs.size(); ++i) {
         pat::TauRef tauRef = pat::TauRef(patTaus, itau);
-        edm::Handle<reco::TauDiscriminatorContainer> recoTauID;
         const auto& disc = (*validRecoTauIDs[i])[tauRef];
         idValuesForTau.push_back(disc.rawValues.empty() ? -1.0 : disc.rawValues[0]);
         wpValuesForTau.push_back(disc.workingPoints.empty() ? std::vector<bool>(1, false) : disc.workingPoints);
@@ -425,7 +420,7 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
   // --------------------------------- Compute Metrics --------------------------------
 
   // Loop for efficiency
-  for (uint itau = 0; itau < genTaus->size(); ++itau) {
+  for (unsigned itau = 0; itau < genTaus->size(); ++itau) {
     h_genTau_["pt"]->Fill(genTaus->at(itau).pt());
     h_genTau_["eta"]->Fill(genTaus->at(itau).eta());
     h_genTau_["phi"]->Fill(genTaus->at(itau).phi());
@@ -441,7 +436,7 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
     float bestDeltaR = 999.;
     float ResponsePt_bestDeltaR = 0.;
     float ResponseMass_bestDeltaR = 0.;
-    for (uint jtau = 0; jtau < recoTaus.size(); ++jtau) {
+    for (unsigned jtau = 0; jtau < recoTaus.size(); ++jtau) {
       float deltaRValue = deltaR(genTaus->at(itau), recoTaus.at(jtau));
       if (deltaRValue < matchingDeltaR) {
         nRecoMatchedToOneGen++;
@@ -491,7 +486,7 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
   }
 
   // Loop for fake rate
-  for (uint itau = 0; itau < recoTaus.size(); ++itau) {
+  for (unsigned itau = 0; itau < recoTaus.size(); ++itau) {
     h_recoTau_["pt"]->Fill(recoTaus.at(itau).pt());
     h_recoTau_["eta"]->Fill(recoTaus.at(itau).eta());
     h_recoTau_["phi"]->Fill(recoTaus.at(itau).phi());
@@ -516,7 +511,7 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
 
     // Count how many gen taus are matched to the reco tau
     int nGenMatchedToOneReco = 0;
-    for (uint jtau = 0; jtau < genTaus->size(); ++jtau) {
+    for (unsigned jtau = 0; jtau < genTaus->size(); ++jtau) {
       if (deltaR(genTaus->at(jtau), recoTaus.at(itau)) < matchingDeltaR) {
         nGenMatchedToOneReco++;
       }

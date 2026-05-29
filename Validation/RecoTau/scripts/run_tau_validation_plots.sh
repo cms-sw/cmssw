@@ -212,7 +212,7 @@ make_hlt_vs_reco_plot() {
         --labels "HLT,RECO"
         --xlabel "$xlabel"
         --ylabel "$ylabel"
-        --leg-title "Tau Performance"
+        --leg-title "${LABEL_TEXT}"
         --energy-text "$ENERGY_TEXT"
         --odir "$OUTDIR_COMPARISON"
         --name "$name"

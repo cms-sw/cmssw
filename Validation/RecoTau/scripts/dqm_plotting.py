@@ -578,7 +578,7 @@ class DQMPlotter:
         else:
             ax_ratio.set_xlabel(xlabel, fontsize=20)
 
-        ax_ratio.set_ylabel("Ratio", fontsize=20)
+        ax_ratio.set_ylabel(f"Ratio wrt {labels[0]}", fontsize=20)
         ax_ratio.axhline(y=1, color="black", linestyle="--", alpha=0.7)
         ax_ratio.grid(True, alpha=0.75, linestyle="dashdot", linewidth=0.75)
 
