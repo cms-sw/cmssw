@@ -1244,9 +1244,6 @@ namespace p2eg {
       params["trkMatchWP_isolation"] = is_looseTkiso;
       caloCrystalCluster.setExperimentalParams(params);
 
-      std::cout << "[CaloCrystalCluster] pt: " << caloCrystalCluster.pt() << ", eta: " << caloCrystalCluster.eta() << ", phi: " << caloCrystalCluster.phi()
-      << " isolation: " << caloCrystalCluster.isolation() << " relIso: " << relIsoFloat() << " iso/pt: " << caloCrystalCluster.isolation()/caloCrystalCluster.pt() << std::endl;
-      std::cout << "is_iso: " <<  is_iso << " is_looseTkiso: " << is_looseTkiso << " is_ss: " << is_ss << " is_looseTkss: " << is_looseTkss << std::endl;
       return caloCrystalCluster;
     }
 
