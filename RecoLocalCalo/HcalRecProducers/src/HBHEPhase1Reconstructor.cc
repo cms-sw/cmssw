@@ -367,8 +367,8 @@ private:
                            const HBHEChannelInfo& info,
                            const HcalCalibrations& calib,
                            int soi,
-                           const bool,
-                           const uint32_t,
+                           const bool isRealData,
+                           const uint32_t bunchCrossing,
                            HBHERecHit* rh);
   void setAsicSpecificBits(const QIE11DataFrame& frame,
                            const HcalCoder& coder,
