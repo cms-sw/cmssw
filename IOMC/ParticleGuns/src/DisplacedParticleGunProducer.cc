@@ -34,10 +34,16 @@ namespace edm {
 
   namespace {
 
-    // --- Hard-coded HGCAL front surface ---
-    constexpr double kHGCalZ = 296.50;
-    constexpr double kHGCalRMin = 26.00;
-    constexpr double kHGCalRMax = 124.37;
+    // Hard-coded HGCAL front surface
+    // constexpr double kHGCalZ = 296.50;
+    // constexpr double kHGCalRMin = 26.00;
+    // constexpr double kHGCalRMax = 124.37;
+
+	// Hard-coded HGCAL CE-E back surface of layer 25/26
+	// or, equivalently, of front face of CE-E backplate absorber 1
+    constexpr double kCeeBackZ = 362.18;
+    constexpr double kCeeBackRMin = 31.36;
+    constexpr double kCeeBackRMax = 164.67;
 
     // Sample r uniformly in area between [rmin, rmax] (uniform point density)
     double shootUniformDensity(CLHEP::HepRandomEngine* eng, double rmin, double rmax) {
@@ -50,7 +56,7 @@ namespace edm {
       return CLHEP::RandFlat::shoot(eng, rmin, rmax);
     }
 
-    // Ensure the particle hits HGCAL's front surface within [rMin; rMax]
+    // Ensure the particle hits HGCAL's CE-E back surface within [rMin; rMax]
     bool hitsZPlaneWithinR(double x0,
                            double y0,
                            double z0,  // vertex coordinates
@@ -59,7 +65,7 @@ namespace edm {
                            double pz,  // particle momentum
                            double zPlane,
                            double rMin,
-                           double rMax) {  // hard-coded HGCAL geometry
+                           double rMax) {
       // Must move towards the plane: require (zPlane - z0) / pz > 0
       const double dz = zPlane - z0;
       if (pz < 1e-6) {
@@ -77,7 +83,7 @@ namespace edm {
       return (rHit >= rMin && rHit <= rMax);
     }
 
-    // Compute the theta range (in radians) that intersects a plane at z=zFront,
+    // Compute the theta range (in radians) that intersects a plane at z=kCeeBackZ,
     // within radial bounds [rMin, rMax], from a vertex at transverse radius R0 and z0.
     std::pair<double, double> thetaRangeToPointToHGCALSurface(
         double R, double z, double zHGCAL, double rminHGCAL, double rmaxHGCAL) {
@@ -142,12 +148,12 @@ namespace edm {
     bool fUniformDensityInR = false;
     unsigned int fMaxTries = 1000;
 
-    // If true: derive theta range from hard-coded HGCAL front surface envelope
-    //   (with R in [RminFrontSurfaceHGCAL, RmaxFrontSurfaceHGCAL]) and vertex rho
+    // If true: derive theta range from hard-coded HGCAL CE-E back surface envelope
+    //   (with R in [RminBackSurfaceHGCAL, RmaxBackSurfaceHGCAL]) and vertex rho
     // If false: sample theta uniformly in [MinTheta, MaxTheta]
     bool fPointingToHGCAL = true;
-    double fRminFrontSurfaceHGCAL = kHGCalRMin;
-    double fRmaxFrontSurfaceHGCAL = kHGCalRMax;
+    double fRminBackSurfaceHGCAL = kCeeBackRMin;
+    double fRmaxBackSurfaceHGCAL = kCeeBackRMax;
     std::optional<double> fThetaMin = 0.;
     std::optional<double> fThetaMax = 0.;
 
@@ -191,8 +197,8 @@ namespace edm {
         throw cms::Exception("DisplacedParticleGunProducer") << "Please ensure MinTheta <= MaxTheta.";
       }
     } else {
-      fRminFrontSurfaceHGCAL = pgun.getParameter<double>("RminFrontSurfaceHGCAL");
-      fRmaxFrontSurfaceHGCAL = pgun.getParameter<double>("RmaxFrontSurfaceHGCAL");
+      fRminBackSurfaceHGCAL = pgun.getParameter<double>("RminBackSurfaceHGCAL");
+      fRmaxBackSurfaceHGCAL = pgun.getParameter<double>("RmaxBackSurfaceHGCAL");
       fThetaMin = std::nullopt;
       fThetaMax = std::nullopt;
     }
@@ -215,13 +221,13 @@ namespace edm {
     if (fMaxTries == 0) {
       throw cms::Exception("DisplacedParticleGunProducer") << "MaxTries must be > 0";
     }
-	if (fRmaxFrontSurfaceHGCAL <= fRminFrontSurfaceHGCAL) {
+	if (fRmaxBackSurfaceHGCAL <= fRminBackSurfaceHGCAL) {
 	  throw cms::Exception("DisplacedParticleGunProducer")
-		<< "Please ensure RmaxFrontSurfaceHGCAL > RminFrontSurfaceHGCAL.";
+		<< "Please ensure RmaxBackSurfaceHGCAL > RminBackSurfaceHGCAL.";
 	}
-	if (fRmaxFrontSurfaceHGCAL > kHGCalRMax || fRminFrontSurfaceHGCAL < kHGCalRMin) {
+	if (fRmaxBackSurfaceHGCAL > kCeeBackRMax || fRminBackSurfaceHGCAL < kCeeBackRMin) {
 	  throw cms::Exception("DisplacedParticleGunProducer")
-		<< "Please ensure RmaxFrontSurfaceHGCAL <= kHGCalRMax and RminFrontSurfaceHGCAL >= kHGCalRMin.";
+		<< "Please ensure RmaxBackSurfaceHGCAL <= kCeeBackRMax and RminBackSurfaceHGCAL >= kCeeBackRMin.";
 	}
 	  
     produces<HepMCProduct>("unsmeared");
@@ -264,7 +270,7 @@ namespace edm {
     pgun.add<unsigned int>("MaxTries", 1000u);
 
     // A particle shot at the extremities of the HGCAL surface will not traverse a substantial fraction of the detector.
-    // We use RminFrontSurfaceHGCAL and RmaxFrontSurfaceHGCAL to expose only a given region of the HGCAL surface
+    // We use RminBackSurfaceHGCAL and RmaxBackSurfaceHGCAL to expose only a given region of the HGCAL surface
     // THe default arguments correspond to the inner third of HGCAL's surface (R in ~[58.79, 91.58]cm).
     // At (R=200,z=0)cm, an uncharged particle pointing to R=58.79cm at the HGCAL surface (the most extreme case) exits the calorimeter at the
     //  back face of the CE-E, crossing all its layers.
@@ -272,8 +278,8 @@ namespace edm {
     // For z>0cm the angles will become more extreme, so a tighter R range might be needed.
     // The above reasoning breaks for charged particles, since the bending under the magnetic filed can enormously extend the particle's reach.
     pgun.add<bool>("PointingToHGCAL", true);
-    pgun.addOptionalNode(edm::ParameterDescription<double>("RminFrontSurfaceHGCAL", 58.79, true), true);
-    pgun.addOptionalNode(edm::ParameterDescription<double>("RmaxFrontSurfaceHGCAL", 91.58, true), true);
+    pgun.addOptionalNode(edm::ParameterDescription<double>("RminBackSurfaceHGCAL", 58.79, true), true);
+    pgun.addOptionalNode(edm::ParameterDescription<double>("RmaxBackSurfaceHGCAL", 91.58, true), true);
     pgun.addOptionalNode(edm::ParameterDescription<double>("MinTheta", 0.2, true), true);
     pgun.addOptionalNode(edm::ParameterDescription<double>("MaxTheta", 1.2, true), true);
 
@@ -282,7 +288,7 @@ namespace edm {
     desc.addUntracked<int>("Verbosity", 0);
     desc.addUntracked<unsigned int>("firstRun", 1);
     desc.add<std::string>("psethack",
-                          "displaced gun with theta, optionally pointing to hard-coded HGCAL front surface");
+                          "displaced gun with theta, optionally pointing to hard-coded HGCAL CE-E back surface");
 
     descriptions.add("DisplacedParticleGunProducer", desc);
   }
@@ -298,15 +304,11 @@ namespace edm {
 
     fEvt = new HepMC::GenEvent();
 
-    const double zFront = kHGCalZ;
-    const double rMinFace = fRminFrontSurfaceHGCAL;
-    const double rMaxFace = fRmaxFrontSurfaceHGCAL;
-
     if (fPointingToHGCAL) {
-      if (zFront <= fZVtx) {
+      if (kCeeBackZ <= fZVtx) {
         throw cms::Exception("DisplacedParticleGunProducer")
             << "Invalid hard-coded HGCAL surface envelope: "
-            << "zFront = " << zFront << "cm, fZVtx = " << fZVtx << " (check ZVtx).";
+            << "kCeeBackZ = " << kCeeBackZ << "cm, fZVtx = " << fZVtx << " (check ZVtx).";
       }
     }
 
@@ -332,17 +334,17 @@ namespace edm {
 
       if (pData->charge() != 0 && fPointingToHGCAL) {
         throw cms::Exception("DisplacedParticleGunProducer")
-            << "The logic that points particles to HGCAL's front face assumes that particles move in straight lines.";
+            << "The logic that points particles to HGCAL's CE-E back face assumes that particles move in straight lines.";
       }
 
       double theta = 0., phi = 0., px = 0., py = 0., pz = 0.;
       const double pt = CLHEP::RandFlat::shoot(engine, fPtMin, fPtMax);
       if (fPointingToHGCAL) {
-        const double RVtx0 = std::hypot(xVtx, yVtx);
-        auto [thetaMin, thetaMax] = thetaRangeToPointToHGCALSurface(RVtx0, zVtx, zFront, rMinFace, rMaxFace);
+        auto [thetaMin, thetaMax] = thetaRangeToPointToHGCALSurface(RVtx, zVtx,
+																	kCeeBackZ, fRminBackSurfaceHGCAL, fRmaxBackSurfaceHGCAL);
         if (!(thetaMax >= thetaMin)) {
           throw cms::Exception("DisplacedParticleGunProducer")
-              << "No valid theta window for this vertex at RVtx=" << RVtx0 << "cm within HGCAL's front surface.";
+              << "No valid theta window for this vertex at RVtx=" << RVtx << "cm within HGCAL's CE-E back surface.";
         }
 
         bool accepted = false;
@@ -355,16 +357,16 @@ namespace edm {
           }
 
           if (hitsZPlaneWithinR(
-                  xVtx, yVtx, zVtx, px, py, pz, zFront, fRminFrontSurfaceHGCAL, fRmaxFrontSurfaceHGCAL)) {
+                  xVtx, yVtx, zVtx, px, py, pz, kCeeBackZ, fRminBackSurfaceHGCAL, fRmaxBackSurfaceHGCAL)) {
             accepted = true;
             break;
           }
         }
         if (!accepted) {
           throw cms::Exception("DisplacedParticleGunProducer")
-              << "Failed to generate a particle intersecting HGCAL front surface after MaxTries=" << fMaxTries
+              << "Failed to generate a particle intersecting HGCAL CE-E back surface after MaxTries=" << fMaxTries
               << ". Vertex: (R=" << RVtx << "cm, phiVtx=" << phiVtx << ", z=" << zVtx << "cm). HGCAL band: ["
-              << fRminFrontSurfaceHGCAL << "," << fRmaxFrontSurfaceHGCAL << "]cm at z=" << zFront << "cm.";
+              << fRminBackSurfaceHGCAL << "," << fRmaxBackSurfaceHGCAL << "]cm at z=" << kCeeBackZ << "cm.";
         }
       } else {  // if (fPointingToHGCAL)
         theta = CLHEP::RandFlat::shoot(engine, fThetaMin.value(), fThetaMax.value());
