@@ -66,6 +66,7 @@ namespace Phase2L1GMT {
     bool estimateChiSquare(l1t::KMTFTrack& track, bool vertex);
     void setRank(l1t::KMTFTrack& track, bool vertex);
     int wrapAround(int value, int maximum);
+	int satKSlope(int k);  
     int encode(bool ownwheel, int sector, int tag);
     std::pair<bool, uint> getByCode(const std::vector<l1t::KMTFTrack>& tracks, int mask);
     uint twosCompToBits(int q);
