@@ -46,8 +46,8 @@ namespace reco {
     CAGeometryParams(edm::ParameterSet const& iConfig)
         : caThetaCuts_(iConfig.getParameter<std::vector<double>>("caThetaCuts")),
           caDCACuts_(iConfig.getParameter<std::vector<double>>("caDCACuts")),
-          caDCurvCuts_(iConfig.getParameter<std::vector<double>>("caDCurvCuts")),
-          caDCurv0_(iConfig.getParameter<std::vector<double>>("caDCurv0")),
+          maxDCurv_(iConfig.getParameter<std::vector<double>>("maxDCurv")),
+          floorDCurv_(iConfig.getParameter<std::vector<double>>("floorDCurv")),
           startMaxInnerR_(iConfig.getParameter<std::vector<double>>("startMaxInnerR")),
           fishboneCuts_(iConfig.getParameter<std::vector<double>>("fishboneCuts")),
           pairGraph_(iConfig.getParameter<std::vector<unsigned int>>("pairGraph")),
@@ -74,8 +74,8 @@ namespace reco {
     // Layers params
     const std::vector<double> caThetaCuts_;
     const std::vector<double> caDCACuts_;
-    const std::vector<double> caDCurvCuts_;
-    const std::vector<double> caDCurv0_;
+    const std::vector<double> maxDCurv_;
+    const std::vector<double> floorDCurv_;
     const std::vector<double> startMaxInnerR_;
     const std::vector<double> fishboneCuts_;
     const std::vector<int> isBarrel_;
@@ -147,8 +147,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       assert(iCache->maxDR_.size() == iCache->ptCuts_.size());
       assert(iCache->maxDR_.size() == iCache->skipsLayers_.size());
 
-      assert(iCache->caThetaCuts_.size() == iCache->caDCurvCuts_.size());
-      assert(iCache->caThetaCuts_.size() == iCache->caDCurv0_.size());
+      assert(iCache->caThetaCuts_.size() == iCache->maxDCurv_.size());
+      assert(iCache->caThetaCuts_.size() == iCache->floorDCurv_.size());
       assert(iCache->caThetaCuts_.size() == iCache->caDCACuts_.size());
       assert(iCache->caThetaCuts_.size() == iCache->startMaxInnerR_.size());
       assert(iCache->caThetaCuts_.size() == iCache->fishboneCuts_.size());
@@ -309,8 +309,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         layerSoA.startMaxInnerR()[i] = iCache->startMaxInnerR_[i];
         layerSoA.caThetaCut()[i] = iCache->caThetaCuts_[i];
         layerSoA.caDCACut()[i] = iCache->caDCACuts_[i];
-        layerSoA.caDCurvCut()[i] = iCache->caDCurvCuts_[i];
-        layerSoA.caDCurv0()[i] = iCache->caDCurv0_[i];
+        layerSoA.maxDCurv()[i] = iCache->maxDCurv_[i];
+        layerSoA.floorDCurv()[i] = iCache->floorDCurv_[i];
         layerSoA.fishboneCut()[i] = iCache->fishboneCuts_[i];
         layerSoA.isBarrel()[i] = layerIsBarrel[i];
       }

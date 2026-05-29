@@ -83,11 +83,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               "ntuplet building.");
       /*
       Cut on quadruplets (two triplets sharing a doublet) using the curvatures Ci, Co of the triplets:
-      |Co - Ci| < (|Co| + |Ci|)/2 * caDCurvCut + caDCurv0
+      |Co - Ci| < (|Co| + |Ci|)/2 * maxDCurv + floorDCurv
       */
-      geometryParams.add<std::vector<double>>("caDCurvCuts", std::vector<double>(TrackerTraits::numberOfLayers, 99.))
+      geometryParams.add<std::vector<double>>("maxDCurv", std::vector<double>(TrackerTraits::numberOfLayers, 99.))
           ->setComment("Cut on curvature difference between two consecutive triplets.");
-      geometryParams.add<std::vector<double>>("caDCurv0", std::vector<double>(TrackerTraits::numberOfLayers, 99.))
+      geometryParams.add<std::vector<double>>("floorDCurv", std::vector<double>(TrackerTraits::numberOfLayers, 99.))
           ->setComment("Offset for the cut on curvature difference between two consecutive triplets.");
       geometryParams
           .add<std::vector<double>>("fishboneCuts", std::vector<double>(TrackerTraits::numberOfLayers, 0.99999f))
