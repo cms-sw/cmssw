@@ -17,5 +17,5 @@ if [ $STATUS -eq 0 ]; then
     (${SCRIPT} --file ./${DQMFILE} --odir ./${OUTDIR} --jet hltAK4PFPuppiJets) || die 'failed running ${SCRIPT} ${DQMFILE}' $?
     rm -fr ./${DQMFILE}
 else 
-	die "SKIPPING test, file ${DQMFILE} not found" 0
+	die "SKIPPING test, file ${DQMFILE} not found" $STATUS
 fi
