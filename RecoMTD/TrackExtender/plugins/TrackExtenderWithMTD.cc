@@ -691,7 +691,8 @@ void TrackExtenderWithMTDT<TrackCollection>::fillDescriptions(edm::Configuration
                                         "KFSmootherForRefitInsideOut",
                                         "PropagatorWithMaterialForMTD",
                                         "alongMomentum",
-                                        true,
+                                        true,  // refitRPCHits
+                                        true,  // refitMuonHits
                                         "WithTrackAngle",
                                         "MuonRecHitBuilder",
                                         "MTDRecHitBuilder");
