@@ -44,6 +44,8 @@
 
 #include "HepPID/ParticleIDTranslations.hh"
 
+#include "ATOOLS/Org/My_MPI.H"
+
 #include "TString.h"
 #include <string>
 #include <cstdlib>
@@ -54,6 +56,14 @@ thread_local std::unique_ptr<EvtGen> gen::EvtGenInterface::m_EvtGen{};
 using namespace gen;
 using namespace edm;
 
+// Sherpa is built with MPI and aborts unless MPI is initialized.
+// We only need a dummy init, and it must happen exactly once per process not per thread.
+void initDummyMPIOnce() {
+    [[maybe_unused]] static const bool init = [] {
+    MPI_Init(0, nullptr);
+    return true;
+    }();
+}
 
 EvtGenInterface::EvtGenInterface(const ParameterSet& pset) {
   fPSet = std::make_unique<ParameterSet>(pset);
@@ -287,8 +297,7 @@ void EvtGenInterface::SetDefault_m_PDGs() {
   }
 }
 
-// Destructor is a no-op: m_EvtGen is a thread_local std::unique_ptr that cleans up at
-// thread exit.
+// Destructor is a no-op: m_EvtGen is a thread_local std::unique_ptr that cleans up at thread exit.
 EvtGenInterface::~EvtGenInterface() {}
 
 void EvtGenInterface::ensureEvtGenOnThread() {
@@ -335,6 +344,7 @@ void EvtGenInterface::ensureEvtGenOnThread() {
   } else if (fsrModel == "photos") {
     radCorrEngine = genList.getPhotosModel();
   } else if (fsrModel == "sherpa") {
+    initDummyMPIOnce();  // Sherpa is built with MPI and complains if not initialized; do this once per process.
     radCorrEngine = genList.getSherpaPhotonsModel(1e-7, 1, 0);
   } else if (fsrModel == "vincia") {
     radCorrEngine = genList.getVinciaQEDModel(1.0e-7);
