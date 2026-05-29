@@ -183,8 +183,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       if (innerCurvature == kUninitializeCurvature)
         return false;
 
-      auto maxDCurv = ll[theOuterLayer_].caDCurvCut();
-      auto dCurv0 = ll[theOuterLayer_].caDCurv0();
+      auto maxDCurv = ll[theOuterLayer_].maxDCurv();
+      auto dCurv0 = ll[theOuterLayer_].floorDCurv();
 
 #ifdef CA_DEBUG
       printf("quadCut: layer=%d, dCurv=%f, curv0=%f, Co=%f, Ci=%f",
