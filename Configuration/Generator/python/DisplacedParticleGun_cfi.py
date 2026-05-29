@@ -27,9 +27,9 @@ generator = cms.EDProducer(
         PointingToHGCAL = cms.bool(True),
 
         # only used if PointingToHGCAL == True (cm),
-        # corresponds to the central third of HGCAL's front surface
-        RminFrontSurfaceHGCAL = cms.double(58.79),
-        RmaxFrontSurfaceHGCAL = cms.double(91.58),
+        # corresponds to the central third of HGCAL's CE-E back surface
+        RminBackSurfaceHGCAL = cms.double(75.80),
+        RmaxBackSurfaceHGCAL = cms.double(120.23),
 
         # only used if PointingToHGCAL == False (radians)
         MinTheta = cms.double(0.),
