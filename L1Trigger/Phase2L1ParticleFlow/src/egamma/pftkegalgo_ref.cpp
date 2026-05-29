@@ -375,7 +375,7 @@ id_score_t l1ct::TkEgCID_EB_v1::compute_score(const CompositeCandidate &cand,
   // Prepare the input features
   // NOTE: this could be computed once per cluster and passed directly to the function
   ap_ufixed<16, 0> tk_invPt = l1ct::invert_with_shift<pt_t, ap_ufixed<16, 0>, 1024>(tk.hwPt);
-  
+
   constexpr std::array<float, 1 << l1ct::redChi2Bin_t::width> chi2RPhiBins = {
       {0.0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 10.0, 15.0, 20.0, 35.0, 60.0, 200.0}};
 
@@ -386,9 +386,9 @@ id_score_t l1ct::TkEgCID_EB_v1::compute_score(const CompositeCandidate &cand,
   // FIXME: this is a workaround as the training was erronously done with this variable
   ap_ufixed<16, 0> calo_invPt = l1ct::invert_with_shift<pt_t, ap_ufixed<16, 0>, 1024>(calo.hwPt);
   float reliso_hack = calo.hwPt == 1 ? calo.floatRelIso() : calo.floatRelIso() * calo_invPt.to_float();
-  
+
   l1ct::rel_iso_t hw_reliso_hack = l1ct::Scales::makeRelIso(reliso_hack);
-  float cl_relIso = hw_reliso_hack.to_float(); 
+  float cl_relIso = hw_reliso_hack.to_float();
   float cl_staWP = calo.hwEmID & 0x1;
   float cl_looseTkWP = (calo.hwEmID & 0x2) == 0x2;
   float tk_chi2RPhi = chi2RPhiBins[tk.hwRedChi2RPhi.to_int()];

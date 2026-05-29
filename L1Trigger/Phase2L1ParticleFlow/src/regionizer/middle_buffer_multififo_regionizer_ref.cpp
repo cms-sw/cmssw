@@ -501,14 +501,15 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::fillSharedCaloLinks(
     unsigned int rel_pos = (iclock) % 81;
     if ((rel_pos - 1) < 2 * NEM_WORDS) {  // EM clusters
       unsigned int islr = ((rel_pos - 1) < NEM_WORDS) ? 0 : 1;
-      if (iclock > 81) islr += 2;
+      if (iclock > 81)
+        islr += 2;
       unsigned int insec = slr_order_per_link[islr] + is * 2;
       unsigned int itmux18 = gct_slr_tmux18sector_mapping[insec];
       const auto& sec = em_in[insec];
       unsigned int rel_em = (rel_pos - 1) % (NEM_WORDS);
       if (rel_em < sec.size()) {
         auto cl = sec[rel_em];
-        if(!gct_tmux18_emcalo_[itmux18].region.containsHw(sec.region.hwGlbEtaOf(cl), sec.region.hwGlbPhiOf(cl))) {
+        if (!gct_tmux18_emcalo_[itmux18].region.containsHw(sec.region.hwGlbEtaOf(cl), sec.region.hwGlbPhiOf(cl))) {
           assert(false && "EM calo cluster out of TMUX18 sector bounds!");
         }
 
@@ -522,7 +523,8 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::fillSharedCaloLinks(
       }
     } else if ((rel_pos - 1) >= 2 * NEM_WORDS && (rel_pos - 1) < (2 * NEM_WORDS + 2 * NHAD_WORDS)) {  // Had clusters
       unsigned int islr = ((rel_pos - 1 - 2 * NEM_WORDS) < NHAD_WORDS) ? 0 : 1;
-      if (iclock > 81) islr += 2;
+      if (iclock > 81)
+        islr += 2;
       unsigned int insec = slr_order_per_link[islr] + is * 2;
       unsigned int itmux18 = gct_slr_tmux18sector_mapping[insec];
       const auto& sec = had_in[insec];
@@ -530,7 +532,7 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::fillSharedCaloLinks(
       if (rel_had < sec.size()) {
         auto cl = sec[rel_had];
         // convert to TMUX18 sector coordinates
-        if(!gct_tmux18_hadcalo_[itmux18].region.containsHw(sec.region.hwGlbEtaOf(cl), sec.region.hwGlbPhiOf(cl))) {
+        if (!gct_tmux18_hadcalo_[itmux18].region.containsHw(sec.region.hwGlbEtaOf(cl), sec.region.hwGlbPhiOf(cl))) {
           assert(false && "Had calo cluster out of TMUX18 sector bounds!");
         }
         cl.hwEta = l1ct::Scales::makeEta(gct_tmux18_hadcalo_[itmux18].region.localEta(sec.region.floatGlbEtaOf(cl)));
