@@ -239,7 +239,7 @@ make_comparison_plot "Dup_vs_mass" "Dup_vs_mass_${PREFIX}_comparison" '$\tau$ $m
 make_comparison_plot "Dup_vs_eta" "Dup_vs_eta_${PREFIX}_comparison" '$\tau$ $\eta$' "Duplicate rate" "-2.5,2.5" "0,0.1" "0,2" "$ETA_REBIN"
 make_comparison_plot "Dup_vs_phi" "Dup_vs_phi_${PREFIX}_comparison" '$\tau$ $\phi$' "Duplicate rate" "" "0,0.1" "0,2" "$PHI_REBIN"
 
-make_comparison_plot "Split_vs_pt" "Split_vs_pt_${PREFIX}_comparison" 'Simulated $\tau$ $p_T$ [GeV]' "Split rate"
+make_comparison_plot "Split_vs_pt" "Split_vs_pt_${PREFIX}_comparison" 'Simulated $\tau$ $p_T$ [GeV]' "Split rate" "0,300" "0,1" "0,2" "$PT_REBIN"
 make_comparison_plot "Split_vs_mass" "Split_vs_mass_${PREFIX}_comparison" 'Simulated $\tau$ $mass$ [GeV]' "Split rate" "0,2" "0,1" "0,2" "2"
 make_comparison_plot "Split_vs_eta" "Split_vs_eta_${PREFIX}_comparison" 'Simulated $\tau$ $\eta$' "Split rate" "-2.5,2.5" "0,1" "0,2" "$ETA_REBIN"
 make_comparison_plot "Split_vs_phi" "Split_vs_phi_${PREFIX}_comparison" 'Simulated $\tau$ $\phi$' "Split rate" "" "0,1" "0,2" "$PHI_REBIN"

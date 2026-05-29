@@ -167,22 +167,22 @@ for step in "${STEPS[@]}"; do
     make_summary_plot "pt" "genTau_pt" "genTauMatched_pt" "Eff_vs_pt" "Efficiency_pt" 'Simulated $\tau$ $p_T$ [GeV]' "${STEP} Tau Efficiency" "0,400" "0,1.2" "2" "Efficiency" "Gen $\tau$'s" "Gen $\tau$'s matched to reco $\tau$'s"
     make_summary_plot "eta" "genTau_eta" "genTauMatched_eta" "Eff_vs_eta" "Efficiency_eta" 'Simulated $\tau$ $\eta$' "${STEP} Tau Efficiency" "-2.5,2.5" "0,1.2" "2" "Efficiency" "Gen $\tau$'s" "Gen $\tau$'s matched to reco $\tau$'s"
     make_summary_plot "phi" "genTau_phi" "genTauMatched_phi" "Eff_vs_phi" "Efficiency_phi" 'Simulated $\tau$ $\phi$' "${STEP} Tau Efficiency" "" "0,1.2" "2" "Efficiency" "Gen $\tau$'s" "Gen $\tau$'s matched to reco $\tau$'s"
-    make_summary_plot "mass" "genTau_mass" "genTauMatched_mass" "Eff_vs_mass" "Efficiency_mass" 'Simulated $\tau$ $mass$' "${STEP} Tau Efficiency" "0,2" "0,1.2" "" "Efficiency" "Gen $\tau$'s" "Gen $\tau$'s matched to reco $\tau$'s"
+    make_summary_plot "mass" "genTau_mass" "genTauMatched_mass" "Eff_vs_mass" "Efficiency_mass" 'Simulated $\tau$ $mass$ [GeV]' "${STEP} Tau Efficiency" "0,2" "0,1.2" "" "Efficiency" "Gen $\tau$'s" "Gen $\tau$'s matched to reco $\tau$'s"
 
     make_summary_plot "pt" "recoTau_pt" "recoTauMatched_pt" "Fake_vs_pt" "FakeRate_pt" '$\tau$ $p_T$ [GeV]' "${STEP} Tau Fake Rate" "0,400" "0,1.2" "2" "Fake rate" "Reco $\tau$'s" "Reco $\tau$'s matched to gen $\tau$'s" "--inverted"
     make_summary_plot "eta" "recoTau_eta" "recoTauMatched_eta" "Fake_vs_eta" "FakeRate_eta" '$\tau$ $\eta$' "${STEP} Tau Fake Rate" "-2.5,2.5" "0,1.2" "2" "Fake rate" "Reco $\tau$'s" "Reco $\tau$'s matched to gen $\tau$'s" "--inverted"
     make_summary_plot "phi" "recoTau_phi" "recoTauMatched_phi" "Fake_vs_phi" "FakeRate_phi" '$\tau$ $\phi$' "${STEP} Tau Fake Rate" "" "0,1.2" "2" "Fake rate" "Reco $\tau$'s" "Reco $\tau$'s matched to gen $\tau$'s" "--inverted"
-    make_summary_plot "mass" "recoTau_mass" "recoTauMatched_mass" "Fake_vs_mass" "FakeRate_mass" '$\tau$ $mass$' "${STEP} Tau Fake Rate" "0,2" "0,1.2" "2" "Fake rate" "Reco $\tau$'s" "Reco $\tau$'s matched to gen $\tau$'s" "--inverted"
+    make_summary_plot "mass" "recoTau_mass" "recoTauMatched_mass" "Fake_vs_mass" "FakeRate_mass" '$\tau$ $mass$ [GeV]' "${STEP} Tau Fake Rate" "0,2" "0,1.2" "2" "Fake rate" "Reco $\tau$'s" "Reco $\tau$'s matched to gen $\tau$'s" "--inverted"
 
     make_summary_plot "pt" "genTau_pt" "genTauMultiMatched_pt" "Split_vs_pt" "SplitRate_pt" 'Simulated $\tau$ $p_T$ [GeV]' "${STEP} Tau Split Rate" "0,400" "0,1.2" "2" "Split rate" "Gen $\tau$'s" "Gen $\tau$'s matched to multiple reco $\tau$'s"
     make_summary_plot "eta" "genTau_eta" "genTauMultiMatched_eta" "Split_vs_eta" "SplitRate_eta" 'Simulated $\tau$ $\eta$' "${STEP} Tau Split Rate" "-2.5,2.5" "0,1.2" "2" "Split rate" "Gen $\tau$'s" "Gen $\tau$'s matched to multiple reco $\tau$'s"
     make_summary_plot "phi" "genTau_phi" "genTauMultiMatched_phi" "Split_vs_phi" "SplitRate_phi" 'Simulated $\tau$ $\phi$' "${STEP} Tau Split Rate" "" "0,1.2" "2" "Split rate" "Gen $\tau$'s" "Gen $\tau$'s matched to multiple reco $\tau$'s"
-    make_summary_plot "mass" "genTau_mass" "genTauMultiMatched_mass" "Split_vs_mass" "SplitRate_mass" 'Simulated $\tau$ $mass$' "${STEP} Tau Split Rate" "0,2" "0,1.2" "2" "Split rate" "Gen $\tau$'s" "Gen $\tau$'s matched to multiple reco $\tau$'s"
+    make_summary_plot "mass" "genTau_mass" "genTauMultiMatched_mass" "Split_vs_mass" "SplitRate_mass" 'Simulated $\tau$ $mass$ [GeV]' "${STEP} Tau Split Rate" "0,2" "0,1.2" "2" "Split rate" "Gen $\tau$'s" "Gen $\tau$'s matched to multiple reco $\tau$'s"
 
     make_summary_plot "pt" "recoTau_pt" "recoTauMultiMatched_pt" "Dup_vs_pt" "DupRate_pt" '$\tau$ $p_T$ [GeV]' "${STEP} Tau Duplicate Rate" "0,400" "0,1.2" "2" "Duplicate rate" "Reco $\tau$'s" "Reco $\tau$'s matched to multiple gen $\tau$'s"
     make_summary_plot "eta" "recoTau_eta" "recoTauMultiMatched_eta" "Dup_vs_eta" "DupRate_eta" '$\tau$ $\eta$' "${STEP} Tau Duplicate Rate" "-2.5,2.5" "0,1.2" "2" "Duplicate rate" "Reco $\tau$'s" "Reco $\tau$'s matched to multiple gen $\tau$'s"
     make_summary_plot "phi" "recoTau_phi" "recoTauMultiMatched_phi" "Dup_vs_phi" "DupRate_phi" '$\tau$ $\phi$' "${STEP} Tau Duplicate Rate" "" "0,1.2" "2" "Duplicate rate" "Reco $\tau$'s" "Reco $\tau$'s matched to multiple gen $\tau$'s"
-    make_summary_plot "mass" "recoTau_mass" "recoTauMultiMatched_mass" "Dup_vs_mass" "DupRate_mass" '$\tau$ $mass$' "${STEP} Tau Duplicate Rate" "0,2" "0,1.2" "2" "Duplicate rate" "Reco $\tau$'s" "Reco $\tau$'s matched to multiple gen $\tau$'s"
+    make_summary_plot "mass" "recoTau_mass" "recoTauMultiMatched_mass" "Dup_vs_mass" "DupRate_mass" '$\tau$ $mass$ [GeV]' "${STEP} Tau Duplicate Rate" "0,2" "0,1.2" "2" "Duplicate rate" "Reco $\tau$'s" "Reco $\tau$'s matched to multiple gen $\tau$'s"
 
     echo
     echo "Done with ${step_upper}"
@@ -192,19 +192,15 @@ echo
 echo "All steps complete."
 
 make_hlt_vs_reco_plot() {
-    local variable="$1"
-    local hist="$2"
-    local name="$3"
-    local xlabel="$4"
-    local ylabel="$5"
-    local xlim="${6}"
-    local ylim="${7}"
-    local ylim_ratio="${8}"
-    local rebin="${9}"
-    local inverted="${10:-0}"
-
-    local hlt="${SELECTED_DIR}/${hist}"
-    local reco="${SELECTED_DIR}/${hist}"
+    local hist="$1"
+    local name="$2"
+    local xlabel="$3"
+    local ylabel="$4"
+    local xlim="${5}"
+    local ylim="${6}"
+    local ylim_ratio="${7}"
+    local rebin="${8}"
+    local inverted="${9:-0}"
 
     HIST_HLT="DQMData/Run 1/HLT/Run summary/Tau/TauValidation/${SUB_DIR}/${hist}"
     HIST_RECO="DQMData/Run 1/Tau/Run summary/TauValidation/${SUB_DIR}/${hist}"
@@ -245,6 +241,62 @@ make_hlt_vs_reco_plot() {
     run_cmd "${cmd[@]}"
 }
 
+make_hlt_vs_reco_resolution_comparison() {
+    local base="$1"
+    local name="$2"
+    local xlabel="$3"
+    local ylabel="$4"
+    local xlim="$5"
+    local ylim="$6"
+    local ylim_ratio="$7"
+    local rebin="$8"
+
+    local files=()
+    local mean_hists=()
+    local sigma_hists=()
+    local labels=()
+
+    HIST_HLT_MEAN="DQMData/Run 1/HLT/Run summary/Tau/TauValidation/${SUB_DIR}/${base}_Mean"
+    HIST_HLT_SIGMA="DQMData/Run 1/HLT/Run summary/Tau/TauValidation/${SUB_DIR}/${base}_Sigma"
+    HIST_RECO_MEAN="DQMData/Run 1/Tau/Run summary/TauValidation/${SUB_DIR}/${base}_Mean"
+    HIST_RECO_SIGMA="DQMData/Run 1/Tau/Run summary/TauValidation/${SUB_DIR}/${base}_Sigma"
+
+    local cmd=(
+        python3 "$MAKE_TAU_VALIDATION"
+        --mode response
+        --files "${DQM_FILE},${DQM_FILE}"
+        --mean-hists "${HIST_HLT_MEAN},${HIST_RECO_MEAN}"
+        --sigma-hists "${HIST_HLT_SIGMA},${HIST_RECO_SIGMA}"
+        --labels "HLT,RECO"
+        --xlabel "$xlabel"
+        --ylabel "$ylabel"
+        --energy-text "$ENERGY_TEXT"
+        --odir "$OUTDIR_COMPARISON"
+        --name "$name"
+        --title "$name"
+        --leg-title "Tau Performance"
+    )
+
+    if [ -n "$xlim" ]; then
+        cmd+=("--xlim=${xlim}")
+    fi
+
+    if [ -n "$ylim" ]; then
+        cmd+=("--ylim=${ylim}")
+    fi
+
+    if [ -n "$ylim_ratio" ]; then
+        cmd+=("--ylim-ratio=${ylim_ratio}")
+    fi
+
+    if [ -n "$rebin" ]; then
+        cmd+=("--rebin=${rebin}")
+    fi
+
+    run_cmd "${cmd[@]}"
+}
+
+
 # If the user selected both steps, make comparison plots
 if [[ " ${STEPS[*]} " == *" HLT "* ]] && [[ " ${STEPS[*]} " == *" RECO "* ]]; then
     echo
@@ -252,25 +304,45 @@ if [[ " ${STEPS[*]} " == *" HLT "* ]] && [[ " ${STEPS[*]} " == *" RECO "* ]]; th
 
     mkdir -p "$OUTDIR_COMPARISON"
 
-    make_hlt_vs_reco_plot "pt" "Eff_vs_pt" "Eff_vs_pt_HLT_vs_RECO_comparison" 'Simulated $\tau$ $p_T$ [GeV]' "Efficiency" "0,400" "0,1.3" "0,2" "$PT_REBIN"
-    make_hlt_vs_reco_plot "eta" "Eff_vs_eta" "Eff_vs_eta_HLT_vs_RECO_comparison" 'Simulated $\tau$ $\eta$' "Efficiency" "-2.5,2.5" "0,1.3" "0,2" "$ETA_REBIN"
-    make_hlt_vs_reco_plot "phi" "Eff_vs_phi" "Eff_vs_phi_HLT_vs_RECO_comparison" 'Simulated $\tau$ $\phi$' "Efficiency" "" "0,1.3" "0,2" "$PHI_REBIN"
-    make_hlt_vs_reco_plot "mass" "Eff_vs_mass" "Eff_vs_mass_HLT_vs_RECO_comparison" 'Simulated $\tau$ $mass$' "Efficiency" "0,2" "0,1.3" "0,2" "2"
+    make_hlt_vs_reco_plot "Eff_vs_pt" "Eff_vs_pt_HLT_vs_RECO_comparison" 'Simulated $\tau$ $p_T$ [GeV]' "Efficiency" "0,400" "0,1.3" "0,2" "$PT_REBIN"
+    make_hlt_vs_reco_plot "Eff_vs_eta" "Eff_vs_eta_HLT_vs_RECO_comparison" 'Simulated $\tau$ $\eta$' "Efficiency" "-2.5,2.5" "0,1.3" "0,2" "$ETA_REBIN"
+    make_hlt_vs_reco_plot "Eff_vs_phi" "Eff_vs_phi_HLT_vs_RECO_comparison" 'Simulated $\tau$ $\phi$' "Efficiency" "" "0,1.3" "0,2" "$PHI_REBIN"
+    make_hlt_vs_reco_plot "Eff_vs_mass" "Eff_vs_mass_HLT_vs_RECO_comparison" 'Simulated $\tau$ $mass$ [GeV]' "Efficiency" "0,2" "0,1.3" "0,2" "2"
 
-    make_hlt_vs_reco_plot "pt" "Fake_vs_pt" "Fake_vs_pt_HLT_vs_RECO_comparison" '$\tau$ $p_T$ [GeV]' "Fake rate" "0,400" "0,1.3" "0,2" "$PT_REBIN" "1"
-    make_hlt_vs_reco_plot "eta" "Fake_vs_eta" "Fake_vs_eta_HLT_vs_RECO_comparison" '$\tau$ $\eta$' "Fake rate" "-2.5,2.5" "0,1.3" "0,2" "$ETA_REBIN" "1"
-    make_hlt_vs_reco_plot "phi" "Fake_vs_phi" "Fake_vs_phi_HLT_vs_RECO_comparison" '$\tau$ $\phi$' "Fake rate" "" "0,1.3" "0,2" "$PHI_REBIN" "1"
-    make_hlt_vs_reco_plot "mass" "Fake_vs_mass" "Fake_vs_mass_HLT_vs_RECO_comparison" '$\tau$ $mass$' "Fake rate" "0,2" "0,1.3" "0,2" "2" "1"
+    make_hlt_vs_reco_plot "Fake_vs_pt" "Fake_vs_pt_HLT_vs_RECO_comparison" '$\tau$ $p_T$ [GeV]' "Fake rate" "0,400" "0,1.3" "0,2" "$PT_REBIN" "1"
+    make_hlt_vs_reco_plot "Fake_vs_eta" "Fake_vs_eta_HLT_vs_RECO_comparison" '$\tau$ $\eta$' "Fake rate" "-2.5,2.5" "0,1.3" "0,2" "$ETA_REBIN" "1"
+    make_hlt_vs_reco_plot "Fake_vs_phi" "Fake_vs_phi_HLT_vs_RECO_comparison" '$\tau$ $\phi$' "Fake rate" "" "0,1.3" "0,2" "$PHI_REBIN" "1"
+    make_hlt_vs_reco_plot "Fake_vs_mass" "Fake_vs_mass_HLT_vs_RECO_comparison" '$\tau$ $mass$ [GeV]' "Fake rate" "0,2" "0,1.3" "0,2" "2" "1"
 
-    make_hlt_vs_reco_plot "pt" "Split_vs_pt" "Split_vs_pt_HLT_vs_RECO_comparison" 'Simulated $\tau$ $p_T$ [GeV]' "Split rate" "0,400" "0,1.3" "0,2" "$PT_REBIN"
-    make_hlt_vs_reco_plot "eta" "Split_vs_eta" "Split_vs_eta_HLT_vs_RECO_comparison" 'Simulated $\tau$ $\eta$' "Split rate" "-2.5,2.5" "0,1.3" "0,2" "$ETA_REBIN"
-    make_hlt_vs_reco_plot "phi" "Split_vs_phi" "Split_vs_phi_HLT_vs_RECO_comparison" 'Simulated $\tau$ $\phi$' "Split rate" "" "0,1.3" "0,2" "$PHI_REBIN"
-    make_hlt_vs_reco_plot "mass" "Split_vs_mass" "Split_vs_mass_HLT_vs_RECO_comparison" 'Simulated $\tau$ $mass$' "Split rate" "0,2" "0,1.3" "0,2" "2"
+    make_hlt_vs_reco_plot "Split_vs_pt" "Split_vs_pt_HLT_vs_RECO_comparison" 'Simulated $\tau$ $p_T$ [GeV]' "Split rate" "0,400" "0,1.3" "0,2" "$PT_REBIN"
+    make_hlt_vs_reco_plot "Split_vs_eta" "Split_vs_eta_HLT_vs_RECO_comparison" 'Simulated $\tau$ $\eta$' "Split rate" "-2.5,2.5" "0,1.3" "0,2" "$ETA_REBIN"
+    make_hlt_vs_reco_plot "Split_vs_phi" "Split_vs_phi_HLT_vs_RECO_comparison" 'Simulated $\tau$ $\phi$' "Split rate" "" "0,1.3" "0,2" "$PHI_REBIN"
+    make_hlt_vs_reco_plot "Split_vs_mass" "Split_vs_mass_HLT_vs_RECO_comparison" 'Simulated $\tau$ $mass$ [GeV]' "Split rate" "0,2" "0,1.3" "0,2" "2"
 
-    make_hlt_vs_reco_plot "pt" "Dup_vs_pt" "Dup_vs_pt_HLT_vs_RECO_comparison" '$\tau$ $p_T$ [GeV]' "Duplicate rate" "0,400" "0,1.3" "0,2" "$PT_REBIN"
-    make_hlt_vs_reco_plot "eta" "Dup_vs_eta" "Dup_vs_eta_HLT_vs_RECO_comparison" '$\tau$ $\eta$' "Duplicate rate" "-2.5,2.5" "0,1.3" "0,2" "$ETA_REBIN"
-    make_hlt_vs_reco_plot "phi" "Dup_vs_phi" "Dup_vs_phi_HLT_vs_RECO_comparison" '$\tau$ $\phi$' "Duplicate rate" "" "0,1.3" "0,2" "$PHI_REBIN"
-    make_hlt_vs_reco_plot "mass" "Dup_vs_mass" "Dup_vs_mass_HLT_vs_RECO_comparison" '$\tau$ $mass$' "Duplicate rate" "0,2" "0,1.3" "0,2" "2"
+    make_hlt_vs_reco_plot "Dup_vs_pt" "Dup_vs_pt_HLT_vs_RECO_comparison" '$\tau$ $p_T$ [GeV]' "Duplicate rate" "0,400" "0,1.3" "0,2" "$PT_REBIN"
+    make_hlt_vs_reco_plot "Dup_vs_eta" "Dup_vs_eta_HLT_vs_RECO_comparison" '$\tau$ $\eta$' "Duplicate rate" "-2.5,2.5" "0,1.3" "0,2" "$ETA_REBIN"
+    make_hlt_vs_reco_plot "Dup_vs_phi" "Dup_vs_phi_HLT_vs_RECO_comparison" '$\tau$ $\phi$' "Duplicate rate" "" "0,1.3" "0,2" "$PHI_REBIN"
+    make_hlt_vs_reco_plot "Dup_vs_mass" "Dup_vs_mass_HLT_vs_RECO_comparison" '$\tau$ $mass$ [GeV]' "Duplicate rate" "0,2" "0,1.3" "0,2" "2"
+
+    make_hlt_vs_reco_plot "ResponsePt_RecoOverGen_vs_pt_Mean" "ScalePt_vs_pt_HLT_vs_RECO_comparison" 'Simulated $\tau$ $p_T$ [GeV]' "$\langle p_T^{reco}/p_T^{gen} \rangle$" "0,400" "0,2" "0,2" "$PT_REBIN"
+    make_hlt_vs_reco_plot "ResponsePt_RecoOverGen_vs_eta_Mean" "ScalePt_vs_eta_HLT_vs_RECO_comparison" 'Simulated $\tau$ $\eta$' "$\langle p_T^{reco}/p_T^{gen} \rangle$" "-2.5,2.5" "0,2" "0,2" "$ETA_REBIN"
+    make_hlt_vs_reco_plot "ResponsePt_RecoOverGen_vs_phi_Mean" "ScalePt_vs_phi_HLT_vs_RECO_comparison" 'Simulated $\tau$ $\phi$' "$\langle p_T^{reco}/p_T^{gen} \rangle$" "" "0,2" "0,2" "$PHI_REBIN"
+    make_hlt_vs_reco_plot "ResponsePt_RecoOverGen_vs_mass_Mean" "ScalePt_vs_mass_HLT_vs_RECO_comparison" 'Simulated $\tau$ $mass$ [GeV]' "$\langle p_T^{reco}/p_T^{gen} \rangle$" "0,2" "0,2" "0,2" "2"
+
+    make_hlt_vs_reco_plot "ResponseMass_RecoOverGen_vs_pt_Mean" "ScaleMass_vs_pt_HLT_vs_RECO_comparison" 'Simulated $\tau$ $p_T$ [GeV]' "$\langle m^{reco}/m^{gen} \rangle$" "0,400" "0,2" "0,2" "$PT_REBIN"
+    make_hlt_vs_reco_plot "ResponseMass_RecoOverGen_vs_eta_Mean" "ScaleMass_vs_eta_HLT_vs_RECO_comparison" 'Simulated $\tau$ $\eta$' "$\langle m^{reco}/m^{gen} \rangle$" "-2.5,2.5" "0,2" "0,2" "$ETA_REBIN"
+    make_hlt_vs_reco_plot "ResponseMass_RecoOverGen_vs_phi_Mean" "ScaleMass_vs_phi_HLT_vs_RECO_comparison" 'Simulated $\tau$ $\phi$' "$\langle m^{reco}/m^{gen} \rangle$" "" "0,2" "0,2" "$PHI_REBIN"
+    make_hlt_vs_reco_plot "ResponseMass_RecoOverGen_vs_mass_Mean" "ScaleMass_vs_mass_HLT_vs_RECO_comparison" 'Simulated $\tau$ $mass$ [GeV]' "$\langle m^{reco}/m^{gen} \rangle$" "0,2" "0,2" "0,2" "2"
+
+    make_hlt_vs_reco_resolution_comparison "ResponsePt_RecoOverGen_vs_pt" "ResolutionPt_vs_pt_HLT_vs_RECO_comparison" 'Simulated $\tau$ $p_T$ [GeV]' '$\sigma(p_T^{reco}/p_T^{gen}) / \langle p_T^{reco}/p_T^{gen} \rangle$' "0,400" "0,0.7" "0.5,1.5" "$PT_REBIN"
+    make_hlt_vs_reco_resolution_comparison "ResponsePt_RecoOverGen_vs_eta" "ResolutionPt_vs_eta_HLT_vs_RECO_comparison" 'Simulated $\tau$ $\eta$' '$\sigma(p_T^{reco}/p_T^{gen}) / \langle p_T^{reco}/p_T^{gen} \rangle$' "-2.5,2.5" "0,0.7" "0.5,1.5" "$ETA_REBIN"
+    make_hlt_vs_reco_resolution_comparison "ResponsePt_RecoOverGen_vs_phi" "ResolutionPt_vs_phi_HLT_vs_RECO_comparison" 'Simulated $\tau$ $\phi$' '$\sigma(p_T^{reco}/p_T^{gen}) / \langle p_T^{reco}/p_T^{gen} \rangle$' "" "0,0.7" "0.5,1.5" "$PHI_REBIN"
+    make_hlt_vs_reco_resolution_comparison "ResponsePt_RecoOverGen_vs_mass" "ResolutionPt_vs_mass_HLT_vs_RECO_comparison" 'Simulated $\tau$ $mass$ [GeV]' '$\sigma(p_T^{reco}/p_T^{gen}) / \langle p_T^{reco}/p_T^{gen} \rangle$' "0,2" "0,0.7" "0.5,1.5" "2"
+
+    make_hlt_vs_reco_resolution_comparison "ResponseMass_RecoOverGen_vs_pt" "ResolutionMass_vs_pt_HLT_vs_RECO_comparison" 'Simulated $\tau$ $p_T$ [GeV]' '$\sigma(m^{reco}/m^{gen}) / \langle m^{reco}/m^{gen} \rangle$' "0,400" "0,0.7" "0.5,1.5" "$PT_REBIN"
+    make_hlt_vs_reco_resolution_comparison "ResponseMass_RecoOverGen_vs_eta" "ResolutionMass_vs_eta_HLT_vs_RECO_comparison" 'Simulated $\tau$ $\eta$' '$\sigma(m^{reco}/m^{gen}) / \langle m^{reco}/m^{gen} \rangle$' "-2.5,2.5" "0,0.7" "0.5,1.5" "$ETA_REBIN"
+    make_hlt_vs_reco_resolution_comparison "ResponseMass_RecoOverGen_vs_phi" "ResolutionMass_vs_phi_HLT_vs_RECO_comparison" 'Simulated $\tau$ $\phi$' '$\sigma(m^{reco}/m^{gen}) / \langle m^{reco}/m^{gen} \rangle$' "" "0,0.7" "0.5,1.5" "$PHI_REBIN"
+    make_hlt_vs_reco_resolution_comparison "ResponseMass_RecoOverGen_vs_mass" "ResolutionMass_vs_mass_HLT_vs_RECO_comparison" 'Simulated $\tau$ $mass$ [GeV]' '$\sigma(m^{reco}/m^{gen}) / \langle m^{reco}/m^{gen} \rangle$' "0,2" "0,0.7" "0.5,1.5" "2"
 
     echo
     echo "Comparison plots complete"
