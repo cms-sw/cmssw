@@ -35,8 +35,8 @@ namespace reco {
                       SOA_COLUMN(float, startMaxInnerR),
                       SOA_COLUMN(float, caThetaCut),
                       SOA_COLUMN(float, caDCACut),
-                      SOA_COLUMN(float, caDCurvCut),
-                      SOA_COLUMN(float, caDCurv0),
+                      SOA_COLUMN(float, maxDCurv),
+                      SOA_COLUMN(float, floorDCurv),
                       SOA_COLUMN(float, fishboneCut),
                       SOA_COLUMN(bool, isBarrel))
 
