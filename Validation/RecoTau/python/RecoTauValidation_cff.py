@@ -91,7 +91,7 @@ recoTauValidationSequence = cms.Sequence(
     # ID scanning
     + recoTauValidation_id
     # DeltaR scanning
-    + recoTauValidation_deltaR
+    # + recoTauValidation_deltaR
 )
 
 # Old Run-3 validation, not maintained for Phase-2

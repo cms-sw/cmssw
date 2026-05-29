@@ -79,5 +79,5 @@ hltTauValidationSequence = cms.Sequence(
     # ID scanning
     + hltTauValidation_id
     # DeltaR scanning
-    + hltTauValidation_deltaR
+    # + hltTauValidation_deltaR
 )
