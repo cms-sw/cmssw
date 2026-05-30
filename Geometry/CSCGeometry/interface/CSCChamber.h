@@ -13,8 +13,8 @@
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/GeometrySurface/interface/BoundPlane.h>
-#include <Geometry/CommonDetUnit/interface/GeomDetType.h>
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <Geometry/CommonTopologies/interface/GeomDetType.h>
+#include <Geometry/CommonTopologies/interface/GeomDet.h>
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
 
 class CSCLayer;

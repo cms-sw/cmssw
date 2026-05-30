@@ -13,7 +13,7 @@
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "Geometry/CommonDetUnit/interface/StackGeomDet.h"
+#include "Geometry/CommonTopologies/interface/StackGeomDet.h"
 #include <cmath>
 
 AlignableStackDet::AlignableStackDet(const StackGeomDet* stackedDet)

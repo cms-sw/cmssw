@@ -24,7 +24,7 @@
  *
  */
 
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 
 #include <cmath>
 #include <string>

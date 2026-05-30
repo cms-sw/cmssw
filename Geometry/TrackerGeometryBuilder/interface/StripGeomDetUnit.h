@@ -1,7 +1,7 @@
 #ifndef Geometry_TrackerGeometryBuilder_StripGeomDetUnit_H
 #define Geometry_TrackerGeometryBuilder_StripGeomDetUnit_H
 
-#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
+#include "Geometry/CommonTopologies/interface/TrackerGeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/TrackerGeometryBuilder/interface/ProxyStripTopology.h"
 

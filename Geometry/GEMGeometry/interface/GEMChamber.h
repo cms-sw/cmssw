@@ -11,7 +11,7 @@
  *  \author S. Dildick
  */
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 
 class GEMEtaPartition;

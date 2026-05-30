@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibTracker/Records/interface/SiStripRegionCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"

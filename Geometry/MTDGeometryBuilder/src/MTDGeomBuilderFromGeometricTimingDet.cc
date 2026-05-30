@@ -1,6 +1,6 @@
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeomBuilderFromGeometricTimingDet.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeomDetType.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeomDetUnit.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDPixelTopologyBuilder.h"

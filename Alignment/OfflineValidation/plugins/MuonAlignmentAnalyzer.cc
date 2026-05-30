@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"

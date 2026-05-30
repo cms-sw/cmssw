@@ -30,8 +30,8 @@
 #include "Alignment/CommonAlignment/interface/AlignableExtras.h"
 // GF doubts the need of these includes from include checker campaign:
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
-#include <Geometry/CommonDetUnit/interface/GeomDetType.h>
+#include <Geometry/CommonTopologies/interface/GeomDet.h>
+#include <Geometry/CommonTopologies/interface/GeomDetType.h>
 #include <DataFormats/GeometrySurface/interface/LocalError.h>
 #include <Geometry/DTGeometry/interface/DTLayer.h>
 // end of doubt
