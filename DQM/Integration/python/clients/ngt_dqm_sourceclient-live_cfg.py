@@ -72,6 +72,9 @@ process.scoutingCollectionMonitor.rho = ["hltScoutingPFPacker", "rho"]
 process.load("DQM.HLTEvF.ScoutingDileptonMonitor_cfi")
 process.ScoutingDileptonMonitorOnline.OutputInternalPath = "NGT/ScoutingOnline/DiLepton"
 
+process.load("DQM.HLTEvF.ScoutingDiMuonVertexMonitor_cfi")
+process.ScoutingDiMuonVertexMonitorOnline.FolderName = "NGT/ScoutingOnline/DiMuon"
+
 process.load("DQM.HLTEvF.ScoutingPi0Monitor_cfi")
 process.ScoutingPi0MonitorOnline.OutputInternalPath = "NGT/ScoutingOnline/PiZero"
 process.ScoutingPi0MonitorOnline.maxEta = 2.5
@@ -119,6 +122,7 @@ process.p = cms.Path(process.dqmcommon *
                      process.scoutingCollectionMonitor *
                      process.ScoutingRecHitsMonitoring *
                      process.ScoutingDileptonMonitorOnline *
+                     process.ScoutingDiMuonVertexMonitorOnline *
                      process.ScoutingMuonPropertiesMonitorOnline *
                      process.ScoutingPi0MonitorOnline *
                      process.hltResults *
