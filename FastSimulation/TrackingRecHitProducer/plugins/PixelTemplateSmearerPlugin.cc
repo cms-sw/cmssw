@@ -6,8 +6,8 @@
 #include "FastSimulation/TrackingRecHitProducer/interface/PixelResolutionHistograms.h"
 
 // Geometry
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-/// If we ever need to port back to 9X: #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
+/// If we ever need to port back to 9X: #include "Geometry/CommonTopologies/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"

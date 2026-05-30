@@ -19,8 +19,8 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
 
 // Geometry
-/// #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"  // Keep... needed if we backport to CMSSW_9
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+/// #include "Geometry/CommonTopologies/interface/GeomDetUnit.h"  // Keep... needed if we backport to CMSSW_9
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
