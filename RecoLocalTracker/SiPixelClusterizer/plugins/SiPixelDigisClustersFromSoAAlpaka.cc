@@ -92,15 +92,27 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
   edm::DetSet<PixelDigi>* detDigis = nullptr;
   uint32_t detId = 0;
 
+  // Get the first valid detId (same conditions below)
   for (uint32_t i = 0; i < nDigis; i++) {
     // check for uninitialized digis
-    // this is set in RawToDigi_kernel in SiPixelRawToClusterGPUKernel.cu
     if (digisView[i].rawIdArr() == 0)
       continue;
-
     // check for noisy/dead pixels (electrons set to 0)
     if (digisView[i].adc() == 0)
       continue;
+    // from clusters killed by charge cut
+    if (digisView[i].moduleId() == pixelClustering::invalidModuleId)
+      continue;
+    // not in cluster; TODO add an assert for the size
+    if (digisView[i].clus() == pixelClustering::invalidClusterId) {
+      continue;
+    }
+    // unexpected invalid value
+    if (digisView[i].clus() < 0) {
+      edm::LogError("SiPixelDigisClustersFromSoAAlpaka")
+          << "Skipping pixel digi with unexpected invalid cluster id " << digisView[i].clus();
+      continue;
+    }
 
     detId = digisView[i].rawIdArr();
     if (storeDigis_) {
@@ -167,19 +179,19 @@ void SiPixelDigisClustersFromSoAAlpaka<TrackerTraits>::produce(edm::StreamID,
     // check for noisy/dead pixels (electrons set to 0)
     if (digisView[i].adc() == 0)
       continue;
+    // from clusters killed by charge cut
+    if (digisView[i].moduleId() == pixelClustering::invalidModuleId)
+      continue;
     // not in cluster; TODO add an assert for the size
     if (digisView[i].clus() == pixelClustering::invalidClusterId) {
       continue;
     }
     // unexpected invalid value
-    if (digisView[i].clus() < pixelClustering::invalidClusterId) {
+    if (digisView[i].clus() < 0) {
       edm::LogError("SiPixelDigisClustersFromSoAAlpaka")
           << "Skipping pixel digi with unexpected invalid cluster id " << digisView[i].clus();
       continue;
     }
-    // from clusters killed by charge cut
-    if (digisView[i].clus() == pixelClustering::invalidModuleId)
-      continue;
 
 #ifdef EDM_ML_DEBUG
     assert(digisView[i].rawIdArr() > 109999);
