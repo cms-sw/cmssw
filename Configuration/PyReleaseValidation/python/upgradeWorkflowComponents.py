@@ -2102,8 +2102,8 @@ upgradeWFs['HLTPhase2WithNano'] = UpgradeWorkflow_HLTPhase2_WithNano(
 )
 upgradeWFs['HLTPhase2WithNano'].step2 = {
     '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33,NANO:@Phase2HLT',
-    '--datatier':'GEN-SIM-DIGI-RAW,NANOAODSIM',
-    '--eventcontent':'FEVTDEBUGHLT,NANOAODSIM'
+    '--datatier':'NANOAODSIM',
+    '--eventcontent':'NANOAODSIM'
 }
 
 upgradeWFs['HLTPhase2WithNanoValid'] = deepcopy(upgradeWFs['HLTPhase2WithNano'])
@@ -2111,8 +2111,8 @@ upgradeWFs['HLTPhase2WithNanoValid'].suffix = '_HLTPhase2WithNanoValid'
 upgradeWFs['HLTPhase2WithNanoValid'].offset = 0.7591
 upgradeWFs['HLTPhase2WithNanoValid'].step2 = {
     '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33,VALIDATION:@hltValidation,NANO:@Phase2HLTVal',
-    '--datatier':'GEN-SIM-DIGI-RAW,NANOAODSIM',
-    '--eventcontent':'FEVTDEBUGHLT,NANOAODSIM'
+    '--datatier':'NANOAODSIM',
+    '--eventcontent':'NANOAODSIM'
 }
 
 upgradeWFs['NGTScoutingWithNano'] = deepcopy(upgradeWFs['HLTPhase2WithNano'])
@@ -2120,9 +2120,9 @@ upgradeWFs['NGTScoutingWithNano'].suffix = '_NGTScoutingWithNano'
 upgradeWFs['NGTScoutingWithNano'].offset = 0.772
 upgradeWFs['NGTScoutingWithNano'].step2 = {
     '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting,NANO:@NGTScouting',
-    '--datatier':'GEN-SIM-DIGI-RAW,NANOAODSIM',
+    '--datatier':'NANOAODSIM',
     '--procModifiers': 'ngtScouting',
-    '--eventcontent':'FEVTDEBUGHLT,NANOAODSIM'
+    '--eventcontent':'NANOAODSIM'
 }
 
 upgradeWFs['NGTScoutingWithNanoValid'] = deepcopy(upgradeWFs['HLTPhase2WithNano'])
@@ -2130,9 +2130,9 @@ upgradeWFs['NGTScoutingWithNanoValid'].suffix = '_NGTScoutingWithNanoVal'
 upgradeWFs['NGTScoutingWithNanoValid'].offset = 0.773
 upgradeWFs['NGTScoutingWithNanoValid'].step2 = {
     '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting,VALIDATION:@hltValidation,NANO:@NGTScoutingVal',
-    '--datatier':'GEN-SIM-DIGI-RAW,NANOAODSIM',
+    '--datatier':'NANOAODSIM',
     '--procModifiers': 'ngtScouting',
-    '--eventcontent':'FEVTDEBUGHLT,NANOAODSIM'
+    '--eventcontent':'NANOAODSIM'
 }
 
 class UpgradeWorkflow_HLTwDIGI75e33(UpgradeWorkflow):
