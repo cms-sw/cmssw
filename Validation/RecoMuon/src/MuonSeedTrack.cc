@@ -16,7 +16,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"

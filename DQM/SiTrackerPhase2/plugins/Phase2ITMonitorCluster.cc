@@ -28,7 +28,7 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"

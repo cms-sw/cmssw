@@ -39,7 +39,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 // DQM Histograming
