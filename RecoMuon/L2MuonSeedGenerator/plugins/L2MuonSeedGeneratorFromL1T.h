@@ -37,7 +37,7 @@
 
 #include "CLHEP/Vector/ThreeVector.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+#include "Geometry/CommonTopologies/interface/GeomDetEnumerators.h"
 
 class MuonServiceProxy;
 class MeasurementEstimator;
