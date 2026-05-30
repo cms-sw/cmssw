@@ -735,7 +735,7 @@ from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2
 phase2_common.toModify(FEVTDEBUGHLTEventContent,
                        outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
                            'keep *_hltHGCalRecHit_*_*',
-                           'keep *_hltMergeLayerClusters_*_*',
+                           'keep *_hltMergeLayerClusters*_*_*',
                            'keep *_hltParticleFlowRecHit*_*_*',
                            'keep *_hltEgammaGsfTracksL1Seeded_*_*',
                        ])
