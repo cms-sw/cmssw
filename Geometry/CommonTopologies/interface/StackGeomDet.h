@@ -9,7 +9,7 @@ public:
   StackGeomDet(BoundPlane* sp, const GeomDetUnit* lowerDet, const GeomDetUnit* upperDet, const DetId stackDetId)
       : DoubleSensGeomDet(sp, lowerDet, upperDet, stackDetId) {}
 
-  ~StackGeomDet() override = default;
+  ~StackGeomDet() override;
 
   const GeomDetUnit* lowerDet() const { return firstDet(); };
   const GeomDetUnit* upperDet() const { return secondDet(); };
