@@ -13,7 +13,7 @@
  *  \author S. Lacaprara, N. Amapane
  */
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"

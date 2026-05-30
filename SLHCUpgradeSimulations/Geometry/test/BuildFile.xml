@@ -16,7 +16,7 @@
     <use name="Geometry/Records"/>
     <use name="Geometry/TrackerGeometryBuilder"/>
     <use name="Geometry/TrackerNumberingBuilder"/>
-    <use name="Geometry/CommonDetUnit"/>
+    <use name="Geometry/CommonTopologies"/>
   </library>
 
   <library file="Phase2PixelNtuple.cc" name="Phase2PixelNtuple">

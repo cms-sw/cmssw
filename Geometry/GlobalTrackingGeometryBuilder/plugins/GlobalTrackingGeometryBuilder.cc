@@ -4,7 +4,7 @@
  */
 
 #include "Geometry/GlobalTrackingGeometryBuilder/plugins/GlobalTrackingGeometryBuilder.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"

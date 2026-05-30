@@ -1,9 +1,9 @@
 #ifndef Geometry_MTDGeometryBuilder_MTDGeometry_H
 #define Geometry_MTDGeometryBuilder_MTDGeometry_H
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
-#include "Geometry/CommonDetUnit/interface/MTDGeomDet.h"
+#include "Geometry/CommonTopologies/interface/TrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GeomDetEnumerators.h"
+#include "Geometry/CommonTopologies/interface/MTDGeomDet.h"
 
 class GeometricTimingDet;
 

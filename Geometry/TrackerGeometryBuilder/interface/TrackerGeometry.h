@@ -3,9 +3,9 @@
 
 #include <cassert>
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
-#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
+#include "Geometry/CommonTopologies/interface/TrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GeomDetEnumerators.h"
+#include "Geometry/CommonTopologies/interface/TrackerGeomDet.h"
 
 class GeometricDet;
 

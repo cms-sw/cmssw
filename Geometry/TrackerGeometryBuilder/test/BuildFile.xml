@@ -1,6 +1,6 @@
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="Geometry/TrackerNumberingBuilder"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonTopologies"/>
 <use name="FWCore/Framework"/>
 <library file="TrackerDigiGeometryAnalyzer.cc" name="TrackerDigiGeometryAnalyzer">
   <use name="Geometry/Records"/>

@@ -10,7 +10,7 @@
  */
 
 /* Base Class Headers */
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 
 class DTLayerType : public GeomDetType {
 public:
