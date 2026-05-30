@@ -9,7 +9,7 @@ public:
   GluedGeomDet(BoundPlane* sp, const GeomDetUnit* monoDet, const GeomDetUnit* stereoDet, DetId gluedDetId)
       : DoubleSensGeomDet(sp, monoDet, stereoDet, gluedDetId) {}
 
-  ~GluedGeomDet() override = default;
+  ~GluedGeomDet() override;
 
   const GeomDetUnit* monoDet() const { return firstDet(); }
   const GeomDetUnit* stereoDet() const { return secondDet(); }
