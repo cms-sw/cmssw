@@ -6,6 +6,7 @@ namespace hcaldqm {
 
   DQHarvester::DQHarvester(edm::ParameterSet const &ps)
       : DQModule(ps),
+        _totalLS(0),
         hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()),
         runInfoToken_(esConsumes<RunInfo, RunInfoRcd, edm::Transition::BeginRun>()),
         hcalChannelQualityToken_(
