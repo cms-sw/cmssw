@@ -5,7 +5,7 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "RecoTracker/SiTrackerMRHTools/interface/SiTrackerMultiRecHitUpdator.h"
-#include <Geometry/CommonDetUnit/interface/GeomDetType.h>
+#include <Geometry/CommonTopologies/interface/GeomDetType.h>
 #include <vector>
 #include <memory>
 

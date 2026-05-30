@@ -1,7 +1,7 @@
 #ifndef DetLayers_DetGroup_h
 #define DetLayers_DetGroup_h
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include <vector>
 #include <utility>

@@ -5,7 +5,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 // To convert detId to subdet/layer number.
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"

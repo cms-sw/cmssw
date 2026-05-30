@@ -8,7 +8,7 @@
  *  \author N. Amapane - INFN Torino
  */
 
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <Geometry/CommonTopologies/interface/GeomDet.h>
 
 #include <DataFormats/GeometrySurface/interface/BoundingBox.h>
 #include <DataFormats/GeometrySurface/interface/GeometricSorting.h>

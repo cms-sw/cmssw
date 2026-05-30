@@ -3,10 +3,10 @@
 #include <RecoMuon/DetLayers/interface/MuRingForwardDoubleLayer.h>
 #include <RecoMuon/DetLayers/interface/MuDetRing.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <Geometry/CommonTopologies/interface/GeomDet.h>
 
 #include <Utilities/General/interface/precomputed_value_sort.h>
-#include <Geometry/CommonDetUnit/interface/DetSorting.h>
+#include <Geometry/CommonTopologies/interface/DetSorting.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 

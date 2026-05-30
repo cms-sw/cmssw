@@ -12,7 +12,7 @@
 #include "RecoHGCal/TICL/interface/TracksterLinkingAlgoBase.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "MagneticField/Engine/interface/MagneticField.h"

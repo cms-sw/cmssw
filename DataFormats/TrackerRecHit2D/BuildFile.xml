@@ -5,7 +5,7 @@
 <use name="DataFormats/TrajectorySeed"/>
 <use name="DataFormats/Phase2TrackerCluster"/>
 <use name="FWCore/MessageLogger"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonTopologies"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/GeometryCommonDetAlgo"/>
 <use name="DataFormats/GeometrySurface"/>
