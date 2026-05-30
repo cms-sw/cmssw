@@ -276,7 +276,7 @@ void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker& iboo
   TrackerGeometry const& trackerGeometry = iSetup.getData(trackerGeometryToken_);
 
   // Values are not ordered randomly, but the order is taken from
-  // http://cmslxr.fnal.gov/dxr/CMSSW/source/Geometry/CommonDetUnit/interface/GeomDetEnumerators.h#15
+  // http://cmslxr.fnal.gov/dxr/CMSSW/source/Geometry/CommonTopologies/interface/GeomDetEnumerators.h#15
   const char* dets[] = {"None", "PXB", "PXF", "TIB", "TID", "TOB", "TEC"};
 
   // Also in this case, ordering is not random but extracted from

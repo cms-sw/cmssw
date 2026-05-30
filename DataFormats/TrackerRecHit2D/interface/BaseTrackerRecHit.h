@@ -4,7 +4,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/trackerHitRTTI.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitGlobalState.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
-#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
+#include "Geometry/CommonTopologies/interface/TrackerGeomDet.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 
 //#define DO_INTERNAL_CHECKS_BTR

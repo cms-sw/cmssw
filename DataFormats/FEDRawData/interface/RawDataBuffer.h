@@ -8,7 +8,9 @@
  *  as in the FEDRawDataCollection.  Legacy mode is added to use it for
  *  Phase-1 data.
  *  IMPORTANT: this is not a final format version for Phase-2 and only intended
- *  for detector development. It will not be frozen until the end of LS3.
+ *  for detector development. It will not be fully frozen until the end of LS3.
+ *  Reasonable attempts will be made to keep the subset of the API backwards compatible
+ *  (in particular APi functions not directly  referencing internal map and data object)
  *  \author S. Morovic
  */
 

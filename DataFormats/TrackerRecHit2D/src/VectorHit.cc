@@ -1,5 +1,5 @@
 #include "DataFormats/TrackerRecHit2D/interface/VectorHit.h"
-#include "Geometry/CommonDetUnit/interface/StackGeomDet.h"
+#include "Geometry/CommonTopologies/interface/StackGeomDet.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
 VectorHit::VectorHit(const GeomDet& idet,

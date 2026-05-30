@@ -21,7 +21,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="Geometry/CaloGeometry"/>
-<use name="Geometry/CommonDetUnit" source_only="1"/>
+<use name="Geometry/CommonTopologies" source_only="1"/>
 <use name="Geometry/CSCGeometry"/>
 <use name="Geometry/DTGeometry"/>
 <use name="Geometry/GEMGeometry"/>

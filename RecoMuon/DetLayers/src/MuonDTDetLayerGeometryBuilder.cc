@@ -1,12 +1,12 @@
 #include <RecoMuon/DetLayers/src/MuonDTDetLayerGeometryBuilder.h>
 
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+#include <Geometry/CommonTopologies/interface/GeomDet.h>
 #include <RecoMuon/DetLayers/interface/MuRodBarrelLayer.h>
 #include <RecoMuon/DetLayers/interface/MuDetRod.h>
 
 #include <Utilities/General/interface/precomputed_value_sort.h>
-#include <Geometry/CommonDetUnit/interface/DetSorting.h>
+#include <Geometry/CommonTopologies/interface/DetSorting.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
