@@ -23,7 +23,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
-#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
+#include "Geometry/CommonTopologies/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 

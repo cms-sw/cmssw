@@ -42,7 +42,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"

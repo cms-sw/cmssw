@@ -19,7 +19,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Transition.h"
 // Pixel geometry and cabling map
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 // Condition Format
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"

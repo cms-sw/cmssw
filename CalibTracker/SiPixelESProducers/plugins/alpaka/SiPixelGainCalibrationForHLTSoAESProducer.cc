@@ -10,7 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ModuleFactory.h"

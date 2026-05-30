@@ -7,7 +7,7 @@
 #include "DataFormats/Math/interface/Error.h"
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayParameters.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 

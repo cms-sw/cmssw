@@ -26,7 +26,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"

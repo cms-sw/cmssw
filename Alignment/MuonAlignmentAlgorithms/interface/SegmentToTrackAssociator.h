@@ -23,7 +23,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 
 namespace edm {
   class EventSetup;
