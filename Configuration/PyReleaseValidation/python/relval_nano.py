@@ -723,7 +723,8 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 from Configuration.PyReleaseValidation.relval_Run4 import prefixDet
 
 # Phase-2 HLT NANO workflows
-workflows[prefixDet+34.759]  = _upgrade_workflows[prefixDet+34.759] # HLT75e33 + NANO
-workflows[prefixDet+34.7591] = _upgrade_workflows[prefixDet+34.7591] # HLT75e33 + NANO (including validation)
-workflows[prefixDet+34.772]  = _upgrade_workflows[prefixDet+34.772] # NGTScouting + NANO
-workflows[prefixDet+34.773]  = _upgrade_workflows[prefixDet+34.773] # NGTScouting + NANO (including validation)
+_wfn = WFN(3000)
+workflows[_wfn()]  = _upgrade_workflows[prefixDet+34.759]  # HLT75e33 + NANO
+workflows[_wfn()]  = _upgrade_workflows[prefixDet+34.7591] # HLT75e33 + NANO (including validation)
+workflows[_wfn()]  = _upgrade_workflows[prefixDet+34.772]  # NGTScouting + NANO
+workflows[_wfn()]  = _upgrade_workflows[prefixDet+34.773]  # NGTScouting + NANO (including validation)
