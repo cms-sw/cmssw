@@ -126,6 +126,7 @@ simMuonRPCDigisPhase2 = cms.EDProducer("RPCDigiPhase2Producer",
     Signal = cms.bool(True),
     mixLabel = cms.string('mix'),
     InputCollection = cms.string('g4SimHitsMuonRPCHits'),
+    InputCollectionPU = cms.string('g4SimHitsMuonRPCHits'),
     digiModel = cms.string('RPCSimModelTimingPhase2')
 )
 
@@ -158,6 +159,7 @@ simMuonIRPCDigis = cms.EDProducer("IRPCDigiProducer",
     Signal = cms.bool(True),
     mixLabel = cms.string('mix'),
     InputCollection = cms.string('g4SimHitsMuonRPCHits'),
+    InputCollectionPU = cms.string('g4SimHitsMuonRPCHits'),
     digiIRPCModel = cms.string('IRPCSimModelTiming')
 )
 
