@@ -373,7 +373,7 @@ run_ngt_scouting() {
 	"L1P2GT,HLT:NGTScouting" \
 	"NLTX" \
 	"NGTScouting_L1P2GT_HLT.py" \
-	"--procModifiers ngtScouting"
+	"--procModifiers alpaka,ngtScouting"
 
     run_benchmark \
 	"NGTScouting_L1P2GT_HLT.py" \
