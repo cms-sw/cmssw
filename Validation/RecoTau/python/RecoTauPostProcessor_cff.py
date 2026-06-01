@@ -1,13 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-hltTauPostProcessor = DQMEDHarvester("DQMGenericClient",
-    subDirs=cms.untracked.vstring("HLT/Tau/TauValidation/", 
-                                  "HLT/Tau/TauValidation/Cut*",
-                                  "HLT/Tau/TauValidation_DeltaR/DeltaR*",
-                                  "HLT/Tau/TauValidation_DeltaR/DeltaR*/Cut*", ),
-    efficiency = cms.vstring( # [TOD] add 2D efficiency
-    ),
+RecoTauPostProcessor = DQMEDHarvester("DQMGenericClient",
+    subDirs=cms.untracked.vstring("Tau/TauValidation/", "Tau/TauValidation_DeltaR/*"),
+    efficiency = cms.vstring(),
     efficiencyProfile = cms.untracked.vstring( # for smoother rebinning
         # Efficiency
         "Eff_vs_eta 'Efficiency vs #eta' genTauMatched_eta genTau_eta",
