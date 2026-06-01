@@ -24,8 +24,6 @@
 #include <sstream>
 #include <fstream>
 
-using namespace std;
-
 class FlatOccupancy {
 public:
   FlatOccupancy();
@@ -50,9 +48,9 @@ inline void FlatOccupancy::LoadWeigths(TString FileName) {
       for (int nW = -2; nW <= 2; nW++) {
         for (int nSt = 1; nSt <= 4; nSt++) {
           for (int nSe = 1; nSe <= 14; nSe++) {
-            string wheel = std::to_string(nW);
-            string stat = std::to_string(nSt);
-            string sect = std::to_string(nSe);
+            std::string wheel = std::to_string(nW);
+            std::string stat = std::to_string(nSt);
+            std::string sect = std::to_string(nSe);
             if (nSt < 4 && (nSe == 13 || nSe == 14))
               continue;
             TString name = "Occupancy_XYweight_" + wheel + "_" + stat + "_" + sect;
