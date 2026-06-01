@@ -66,7 +66,7 @@ namespace Phase2L1GMT {
     bool estimateChiSquare(l1t::KMTFTrack& track, bool vertex);
     void setRank(l1t::KMTFTrack& track, bool vertex);
     int wrapAround(int value, int maximum);
-	int satKSlope(int k);  
+    int satKSlope(int k);
     int encode(bool ownwheel, int sector, int tag);
     std::pair<bool, uint> getByCode(const std::vector<l1t::KMTFTrack>& tracks, int mask);
     uint twosCompToBits(int q);
@@ -132,13 +132,13 @@ namespace Phase2L1GMT {
     //bits for fixed point precision
     static const int PHIBSCALE = 16;
     static const int PHIBSCALE_INT = 5;
-	static const int ZDELTAR_BITS = 14;
-	static const int ZDELTAR_BITSINT = 1;
+    static const int ZDELTAR_BITS = 14;
+    static const int ZDELTAR_BITSINT = 1;
     static const int BITSCURV = 16;
     static const int BITSPHI = 18;
     static const int BITSPHIB = 17;  // 12 bits *28 (+5 bits)
-	static const int BITSZ = 16;
-	static const int BITSKSLOPE = 16;
+    static const int BITSZ = 16;
+    static const int BITSKSLOPE = 16;
     static const int BITSPARAM = 14;
     static const int GAIN_0 = 9;
     static const int GAIN_0INT = 6;
@@ -156,7 +156,7 @@ namespace Phase2L1GMT {
     static const int GAIN2_5 = 12;
     static const int GAIN2_5INT = 0;
 
-    static const int GAINT_6 = 12; //new theta view gain bits.
+    static const int GAINT_6 = 12;  //new theta view gain bits.
     static const int GAINT_6INT = 3;
     static const int GAINT_7 = 12;
     static const int GAINT_7INT = 3;
@@ -168,9 +168,9 @@ namespace Phase2L1GMT {
     ///////////////////////////////////////////////////////
 
     bool useOfflineAlgo_;
-	//used for z propagation
+    //used for z propagation
     std::vector<double> zdeltaR_;
-	//multiple scattering constants used in multiple scattering matrix to build RMS values
+    //multiple scattering constants used in multiple scattering matrix to build RMS values
     std::vector<double> mScatteringPhi_;
     std::vector<double> mScatteringPhiB_;
     std::vector<double> mScatteringz_;
@@ -184,9 +184,9 @@ namespace Phase2L1GMT {
     //double pointResolutionPhiB_;
     //point resolution for vertex
     double pointResolutionVertex_;
-	// point resolution for z 
+    // point resolution for z
     std::vector<double> pointResolutionz_;
-	// point resolution for kSlope 
+    // point resolution for kSlope
     std::vector<double> pointResolutionkSlope_;
     std::vector<double> curvResolution1_;
     std::vector<double> curvResolution2_;

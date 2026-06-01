@@ -115,12 +115,11 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubNoEta(const L1Phase2MuDT
 }
 
 l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubwithZandkSlope(const L1Phase2MuDTExtPhiThetaPair& pairs) {
-   
   const auto& phiS = pairs.phiDigi();
-  static constexpr int ZCenterDigitizedPositive[] = {11730, 23327}; 
-  static constexpr int ZCenterDigitizedNegative[] = {-11697, -23290}; 
-  static constexpr int ZCenterDigitizedZero[] = {22}; 
-  static constexpr float RadiusStationPhys[] = {445., 526., 635., 730.}; 
+  static constexpr int ZCenterDigitizedPositive[] = {11730, 23327};
+  static constexpr int ZCenterDigitizedNegative[] = {-11697, -23290};
+  static constexpr int ZCenterDigitizedZero[] = {22};
+  static constexpr float RadiusStationPhys[] = {445., 526., 635., 730.};
   int wheel = phiS.whNum();
   int abswheel = fabs(phiS.whNum());
   int sector = phiS.scNum();
@@ -151,61 +150,62 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubwithZandkSlope(const L1P
   //slight asymmetry in wheels w.r.t. the origin calls for different z_center values for case where no theta digi was matched
   //defining z_center adn k_center for when theta digi does NOT exist!!
   int z_centerDigi;
-  if (wheel > 0){
-	z_centerDigi= ZCenterDigitizedPositive[abswheel - 1];
+  if (wheel > 0) {
+    z_centerDigi = ZCenterDigitizedPositive[abswheel - 1];
   } else if (wheel < 0) {
-	z_centerDigi= ZCenterDigitizedNegative[abswheel - 1];
+    z_centerDigi = ZCenterDigitizedNegative[abswheel - 1];
   } else {
-	z_centerDigi= ZCenterDigitizedZero[0];
+    z_centerDigi = ZCenterDigitizedZero[0];
   }
   float z_centerPhys = z_centerDigi * (1500. / (1 << 16));
   float R_centerPhys = RadiusStationPhys[station - 1];
-  float k_centerPhys = z_centerPhys / R_centerPhys;	
+  float k_centerPhys = z_centerPhys / R_centerPhys;
   int k_centerDigi = k_centerPhys * ((1 << 16) / 2.);
 
   // check if theta digi exists with non-default constructor quality --> use z, k with etaQuality=3 from theta digi.
   // if theta digi has no real data, use z_center and slope which points to origin with etaQuality=0..
   // stub set to etaQuality==3 if theta digi exists, 0 if not.
   if (pairs.thetaDigi().quality() >= 0) {
-	stub.setEta(z, k, 3);
-	stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), zPhys, kPhys);
+    stub.setEta(z, k, 3);
+    stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), zPhys, kPhys);
   } else {
-	stub.setEta(z_centerDigi,k_centerDigi,0);
-	stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), z_centerPhys, k_centerPhys);
+    stub.setEta(z_centerDigi, k_centerDigi, 0);
+    stub.setOfflineQuantities(globalPhi, float(phiS.phiBend() * 0.49e-3), z_centerPhys, k_centerPhys);
   }
   return stub;
 }
 
-l1t::MuonStubCollection L1TPhase2GMTBarrelStubProcessor::makeStubs(const L1Phase2MuDTExtPhiThetaPairContainer* pairContainer) { 
+l1t::MuonStubCollection L1TPhase2GMTBarrelStubProcessor::makeStubs(
+    const L1Phase2MuDTExtPhiThetaPairContainer* pairContainer) {
   l1t::MuonStubCollection out;
   for (int bx = minBX_; bx <= maxBX_; bx++) {
     ostringstream os;
     if (verbose_ == 2)
       os << "PATTERN ";
-	for (const auto& pair : pairContainer->getContainer()){
-		const auto& phiDigi = pair.phiDigi();
-            if ((phiDigi.bxNum() - 20) != bx)
-              continue;
-            if (phiDigi.quality() < minPhiQuality_)
-              continue;
+    for (const auto& pair : pairContainer->getContainer()) {
+      const auto& phiDigi = pair.phiDigi();
+      if ((phiDigi.bxNum() - 20) != bx)
+        continue;
+      if (phiDigi.quality() < minPhiQuality_)
+        continue;
 
-            if (verbose_ == 2) {
-              ap_uint<64> wphi = ap_uint<17>(phiDigi.phi());
-              ap_uint<64> wphib = ap_uint<13>(phiDigi.phiBend());
-              ap_uint<64> wr1 = ap_uint<21>(0);
-              ap_uint<64> wq = ap_uint<4>(phiDigi.quality());
-              ap_uint<64> wr2 = ap_uint<9>(0);
-              ap_uint<64> sN = 0;
-              sN = sN | wphi;
-              sN = sN | (wphib << 17);
-              sN = sN | (wr1 << 30);
-              sN = sN | (wq << 51);
-              sN = sN | (wr2 << 55);
-              os << std::setw(0) << std::dec << phiDigi.scNum() << " " << phiDigi.whNum() << " " << phiDigi.stNum() << " ";
-              os << std::uppercase << std::setfill('0') << std::setw(16) << std::hex << uint64_t(sN) << " ";
-            }
-            out.push_back(buildStubwithZandkSlope(pair));
-            }
+      if (verbose_ == 2) {
+        ap_uint<64> wphi = ap_uint<17>(phiDigi.phi());
+        ap_uint<64> wphib = ap_uint<13>(phiDigi.phiBend());
+        ap_uint<64> wr1 = ap_uint<21>(0);
+        ap_uint<64> wq = ap_uint<4>(phiDigi.quality());
+        ap_uint<64> wr2 = ap_uint<9>(0);
+        ap_uint<64> sN = 0;
+        sN = sN | wphi;
+        sN = sN | (wphib << 17);
+        sN = sN | (wr1 << 30);
+        sN = sN | (wq << 51);
+        sN = sN | (wr2 << 55);
+        os << std::setw(0) << std::dec << phiDigi.scNum() << " " << phiDigi.whNum() << " " << phiDigi.stNum() << " ";
+        os << std::uppercase << std::setfill('0') << std::setw(16) << std::hex << uint64_t(sN) << " ";
+      }
+      out.push_back(buildStubwithZandkSlope(pair));
+    }
     if (verbose_ == 2)
       edm::LogInfo("BarrelStub") << os.str() << std::endl;
   }
@@ -247,4 +247,3 @@ int L1TPhase2GMTBarrelStubProcessor::calculateEta(uint i, int wheel, uint sector
 
   return eta;
 }
-
