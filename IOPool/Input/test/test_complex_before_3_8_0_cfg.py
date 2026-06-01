@@ -15,7 +15,7 @@ process.output = PoolOutputModule(fileName = 'ReadMerge_out.root')
 from IOPool.Input.modules import PoolSource
 process.source = PoolSource(fileNames = [f"file:{sys.argv[1]}"])
 
-from FWCore.Framework.modules import RunLumiEventAnalyzer
+from FWCore.TestModules.modules import RunLumiEventAnalyzer
 process.test = RunLumiEventAnalyzer(
     verbose = True,
     expectedRunLumiEvents = [

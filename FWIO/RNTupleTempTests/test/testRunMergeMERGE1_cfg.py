@@ -42,7 +42,7 @@ process.thingWithMergeProducer = ThingWithMergeProducer()
 from FWIO.RNTupleTempOutput.modules import RNTupleTempOutputModule
 process.out = RNTupleTempOutputModule(fileName = 'testRunMerge_a.root')
 
-from FWCore.Framework.modules import RunLumiEventAnalyzer
+from FWCore.TestModules.modules import RunLumiEventAnalyzer
 process.test = RunLumiEventAnalyzer(
     verbose = True,
     expectedRunLumiEvents = [

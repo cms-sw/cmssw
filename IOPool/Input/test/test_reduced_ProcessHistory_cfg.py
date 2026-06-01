@@ -141,7 +141,7 @@ process.source = PoolSource(
     duplicateCheckMode = "noDuplicateCheck"
 )
 
-from FWCore.Framework.modules import RunLumiEventAnalyzer
+from FWCore.TestModules.modules import RunLumiEventAnalyzer
 process.test = RunLumiEventAnalyzer(
     verbose = True,
     expectedRunLumiEvents = [

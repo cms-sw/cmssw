@@ -20,7 +20,7 @@ process.maxEvents.input = 10
 from IOPool.Input.modules import PoolSource
 process.source = PoolSource(fileNames = ['file:testRunMerge4.root', 'file:testRunMerge6.root'])
 
-from FWCore.Framework.modules import TestMergeResults, RunLumiEventAnalyzer
+from FWCore.Framework.modules import TestMergeResults
 process.test = TestMergeResults(
     #   Check to see that the value we read matches what we know
     #   was written. Expected values listed below come in sets of three
@@ -57,6 +57,7 @@ process.test = TestMergeResults(
     verbose = False
 )
 
+from FWCore.TestModules.modules import RunLumiEventAnalyzer
 process.test2 = RunLumiEventAnalyzer(
     verbose = True,
     expectedRunLumiEvents = [

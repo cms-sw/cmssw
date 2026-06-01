@@ -24,7 +24,7 @@ process.source = RNTupleTempSource(
 from FWIO.RNTupleTempOutput.modules import RNTupleTempOutputModule
 process.out = RNTupleTempOutputModule(fileName = 'testRunMergeRecombined4.root')
 
-from FWCore.Framework.modules import TestMergeResults, RunLumiEventAnalyzer
+from FWCore.Framework.modules import TestMergeResults
 process.test = TestMergeResults(
     #   Check to see that the value we read matches what we know
     #   was written. Expected values listed below come in sets of three
@@ -73,6 +73,7 @@ process.test = TestMergeResults(
     verbose = True
 )
 
+from FWCore.TestModules.modules import RunLumiEventAnalyzer
 process.test2 = RunLumiEventAnalyzer(
     verbose = True,
     expectedRunLumiEvents = [
