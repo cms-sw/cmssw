@@ -62,6 +62,9 @@ process.hltOnlineBeamSpot = _onlineBeamSpotProducer.clone()
 ### for pp collisions
 process.load("DQM.HLTEvF.ScoutingTrackingMonitor_cff")
 process.ScoutingTrackMonitorOnline.topFolderName = 'NGT/ScoutingOnline/Tracks'
+process.ScoutingRecoTrackMonitorOnline.FolderName = 'NGT/ScoutingOnline/Tracks'
+process.ScoutingRecoTrackMonitorOnline.BSFolderName = 'NGT/ScoutingOnline/Tracks'
+process.ScoutingRecoTrackMonitorOnline.PVFolderName = 'NGT/ScoutingOnline/Tracks'
 
 process.load("DQM.HLTEvF.ScoutingCollectionMonitor_cfi")
 process.scoutingCollectionMonitor.topfoldername = "NGT/ScoutingOnline/ScoutingCollections"
@@ -117,7 +120,7 @@ process.hltObjectMonitor.topFolderName = cms.untracked.string("NGT/ObjectMonitor
 
 process.p = cms.Path(process.dqmcommon *
                      process.hltOnlineBeamSpot *
-                     process.ScoutingTrackMonitorOnline *
+                     process.ScoutingTracksMonitoring *
                      process.run3ScoutingElectronBestTrack *
                      process.scoutingCollectionMonitor *
                      process.ScoutingRecHitsMonitoring *
