@@ -1,8 +1,8 @@
 #include "FastSimulation/CaloGeometryTools/interface/CaloDirectionOperations.h"
 
+#include <cassert>
+
 CaloDirection CaloDirectionOperations::add2d(const CaloDirection& dir1, const CaloDirection& dir2) {
-  //  unsigned d1=Side(dir1);
-  //  unsigned d2=Side(dir2);
   constexpr CaloDirection tab[4][4] = {{NORTH, NORTHEAST, NONE, NORTHWEST},
                                        {NORTHEAST, EAST, SOUTHEAST, NONE},
                                        {NONE, SOUTHEAST, SOUTH, SOUTHWEST},
@@ -11,8 +11,8 @@ CaloDirection CaloDirectionOperations::add2d(const CaloDirection& dir1, const Ca
 }
 
 CaloDirection CaloDirectionOperations::Side(unsigned i) {
-  constexpr CaloDirection sides[6] = {NORTH, EAST, SOUTH, WEST, UP, DOWN};
-  //  if(i<0||i>5) return DOWN;
+  constexpr CaloDirection sides[4] = {NORTH, EAST, SOUTH, WEST};
+  assert(i<4);
   return sides[i];
 }
 
@@ -44,6 +44,7 @@ unsigned CaloDirectionOperations::neighbourDirection(const CaloDirection& side) 
       result = 7;
       break;
     default:
+      assert(false);
       result = 999;
   }
   return result;
@@ -52,7 +53,6 @@ unsigned CaloDirectionOperations::neighbourDirection(const CaloDirection& side) 
 // It should be merged with the previous one. But I am afraid to break something
 CaloDirection CaloDirectionOperations::neighbourDirection(unsigned i) {
   constexpr CaloDirection sides[8] = {NORTH, EAST, SOUTH, WEST, NORTHEAST, SOUTHEAST, SOUTHWEST, NORTHWEST};
-  //  if(i<0||i>7) return SOUTH;
   return sides[i];
 }
 
@@ -71,13 +71,8 @@ unsigned CaloDirectionOperations::Side(const CaloDirection& side) {
     case WEST:
       result = 3;
       break;
-    case UP:
-      result = 4;
-      break;
-    case DOWN:
-      result = 5;
-      break;
     default:
+      assert(false);
       result = 999;
   }
   return result;
@@ -126,6 +121,4 @@ CaloDirection CaloDirectionOperations::oppositeSide(const CaloDirection& side) {
 unsigned CaloDirectionOperations::oppositeDirection(unsigned iside) {
   constexpr unsigned od[8] = {2, 3, 0, 1, 6, 7, 4, 5};
   return od[iside];
-  //  if(iside>=0&&iside<8) return od[iside];
-  //  return 999;
 }
