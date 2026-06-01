@@ -60,10 +60,6 @@ hltAK4PFCHSJetCorrector_ForValidation = hltAK4PFCHSJetCorrector.clone(
 )
 
 hltJetCorrectionTask = cms.Task(
-    hltAK4PFPuppiJetCorrectorL1_ForValidation,
-    hltAK4PFPuppiJetCorrectorL2_ForValidation,
-    hltAK4PFPuppiJetCorrectorL3_ForValidation,
-    hltAK4PFPuppiJetCorrector_ForValidation,
     hltAK4PFJetCorrectorL1_ForValidation,
     hltAK4PFJetCorrectorL2_ForValidation,
     hltAK4PFJetCorrectorL3_ForValidation,
@@ -72,4 +68,27 @@ hltJetCorrectionTask = cms.Task(
     hltAK4PFCHSJetCorrectorL2_ForValidation,
     hltAK4PFCHSJetCorrectorL3_ForValidation,
     hltAK4PFCHSJetCorrector_ForValidation,
+)
+
+hltJetCorrectionTask_Puppi = cms.Task(
+    hltAK4PFPuppiJetCorrectorL1_ForValidation,
+    hltAK4PFPuppiJetCorrectorL2_ForValidation,
+    hltAK4PFPuppiJetCorrectorL3_ForValidation,
+    hltAK4PFPuppiJetCorrector_ForValidation,
+)
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toReplaceWith(hltJetCorrectionTask, 
+    cms.Task(
+        hltJetCorrectionTask.copy(),
+        hltJetCorrectionTask_Puppi # not safe for Run-1/Run-2 worflows
+    )
+)
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith(hltJetCorrectionTask, 
+    cms.Task(
+        hltJetCorrectionTask.copy(),
+        hltJetCorrectionTask_Puppi # not safe for Run-1/Run-2 worflows
+    )
 )
