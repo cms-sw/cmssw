@@ -17,8 +17,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,7 +25,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
@@ -34,14 +32,9 @@ namespace edm {
 
   namespace {
 
-    // Hard-coded HGCAL front surface
-    // constexpr double kHGCalZ = 296.50;
-    // constexpr double kHGCalRMin = 26.00;
-    // constexpr double kHGCalRMax = 124.37;
-
-	// Hard-coded HGCAL CE-E back surface of layer 25/26
-	// or, equivalently, of front face of CE-E backplate absorber 1
-	// values in centimeters
+    // Hard-coded HGCAL CE-E back surface of layer 25/26
+    // or, equivalently, of front face of CE-E backplate absorber 1
+    // values in centimeters
     constexpr double kCeeBackZ = 362.18;
     constexpr double kCeeBackRMin = 31.36;
     constexpr double kCeeBackRMax = 164.67;
@@ -66,52 +59,68 @@ namespace edm {
                            double pz,  // particle momentum
                            double zPlane,
                            double rMin,
-                           double rMax) {
-      // Must move towards the plane: require (zPlane - z0) / pz > 0
-      if (pz < 1e-6) {
-        return false;
-      }
-
+                           double rMax,
+                           int verbose) {
       const double t = (zPlane - z0) / pz;
       if (t <= 0.0) {
         return false;
       }
 
-	  // project (x, y) into the plane assuming straight trajectories
+      // project (x, y) into the plane assuming straight trajectories
       const double xHit = x0 + t * px;
       const double yHit = y0 + t * py;
       const double rHit = std::hypot(xHit, yHit);
 
+      if (verbose > 0) {
+        std::cout << "hitsZPlaneWithin " << " | return=" << static_cast<int>(rHit >= rMin && rHit <= rMax)
+                  << " | rHit=" << rHit << ", rMin=" << rMin << ", rMax=" << rMax << ", t=" << t
+                  << ", zPlane=" << zPlane << ", z0=" << z0 << ", pz=" << pz << std::endl;
+      }
+
       return (rHit >= rMin && rHit <= rMax);
+    }
+
+    // ensures theta is never too close to zero, which makes the computation of pz unstable
+    double pickSensibleTheta(CLHEP::HepRandomEngine* eng, double amin, double amax) {
+      double theta = 0.;
+      while (std::abs(theta) < 1e-6) {
+        theta = CLHEP::RandFlat::shoot(eng, amin, amax);
+      }
+      return theta;
     }
 
     std::tuple<double, double, double> computeMomentum(double pt, double theta, double phi) {
       double px = pt * std::cos(phi);
       double py = pt * std::sin(phi);
       double pz = 0.;
-      if (theta < 1e-6) {
-        throw cms::Exception("DisplacedParticleGunProducer") << "Theta is too small: " << theta << ". Unstable pz.";
-      } else {
-        pz = pt / std::tan(theta);
+      if (std::abs(theta) < 1e-6) {
+        throw cms::Exception("DisplacedParticleGunProducer")
+            << "Theta is too close to zero: " << theta << ". Unstable pz.";
       }
+
+      pz = pt / std::abs(std::tan(theta));
+
+      // shoot the particle along the same plane but in the negative theta direction
+      // reminder: theta is measured from the x axis in counter-clockwise fashion
+      if (theta < 0.) {
+        px = -px;
+        py = -py;
+      }
+
       return {px, py, pz};
     }
 
   }  // namespace
 
-  class DisplacedParticleGunProducer : public one::EDProducer<one::WatchRuns, EndRunProducer> {
+  class DisplacedParticleGunProducer : public edm::global::EDProducer<> {
   public:
     explicit DisplacedParticleGunProducer(const ParameterSet&);
     ~DisplacedParticleGunProducer() override = default;
 
-    void beginRun(const edm::Run& r, const edm::EventSetup&) override;
-    void endRun(edm::Run const& r, const edm::EventSetup&) override;
-    void endRunProduce(edm::Run& r, const edm::EventSetup&) override;
-
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    void produce(Event& e, const EventSetup& es) override;
+    void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& es) const override;
 
     double fPtMin = 0.;
     double fPtMax = 0.;
@@ -128,21 +137,23 @@ namespace edm {
     unsigned int fMaxTries = 1000;
 
     // If true: derive theta range from hard-coded HGCAL CE-E back surface envelope
-    //   (with R in [RminBackSurfaceHGCAL, RmaxBackSurfaceHGCAL]) and vertex rho
+    //   (with R in [RMinBackSurfaceHGCAL, RMaxBackSurfaceHGCAL]) and vertex rho
     // If false: sample theta uniformly in [MinTheta, MaxTheta]
     bool fPointingToHGCAL = true;
-    double fRminBackSurfaceHGCAL = kCeeBackRMin;
-    double fRmaxBackSurfaceHGCAL = kCeeBackRMax;
+    bool fRestrictRInZPlaneAtZero = true;
+    double fRMinBackSurfaceHGCAL = kCeeBackRMin;
+    double fRMaxBackSurfaceHGCAL = kCeeBackRMax;
     double fThetaMin = 0.;
     double fThetaMax = 0.;
+    std::optional<double> fRMinAtZero = std::nullopt;
+    std::optional<double> fRMaxAtZero = std::nullopt;
 
-    ESHandle<HepPDT::ParticleDataTable> fPDGTable;
     const ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> fPDGTableToken;
     int fVerbosity = 0;
   };
 
   DisplacedParticleGunProducer::DisplacedParticleGunProducer(const ParameterSet& pset)
-      : fPDGTableToken(esConsumes<Transition::BeginRun>()) {
+      : fPDGTableToken(esConsumes<>()) {
     Service<RandomNumberGenerator> rng;
     if (!rng.isAvailable()) {
       throw cms::Exception("Configuration")
@@ -157,8 +168,8 @@ namespace edm {
     fPtMax = pgun.getParameter<double>("MaxPt");
     fPhiMin = pgun.getParameter<double>("MinPhi");
     fPhiMax = pgun.getParameter<double>("MaxPhi");
-	fThetaMin = pgun.getParameter<double>("MinTheta");
-	fThetaMax = pgun.getParameter<double>("MaxTheta");
+    fThetaMin = pgun.getParameter<double>("MinTheta");
+    fThetaMax = pgun.getParameter<double>("MaxTheta");
     fPhiVtxMin = pgun.getParameter<double>("MinVtxPhi");
     fPhiVtxMax = pgun.getParameter<double>("MaxVtxPhi");
     fRMin = pgun.getParameter<double>("RMin");
@@ -168,11 +179,29 @@ namespace edm {
     fPartID = pgun.getParameter<int>("PartID");
     fUniformDensityInR = pgun.getParameter<bool>("UniformDensityInR");
     fMaxTries = pgun.getParameter<unsigned int>("MaxTries");
+    fVerbosity = pset.getUntrackedParameter<int>("Verbosity");
     fPointingToHGCAL = pgun.getParameter<bool>("PointingToHGCAL");
+    fRestrictRInZPlaneAtZero = pgun.getParameter<bool>("RestrictRInZPlaneAtZero");
+
+    if (fRestrictRInZPlaneAtZero && !fPointingToHGCAL) {
+      throw cms::Exception("DisplacedParticleGunProducer")
+          << "Currently RestrictRInZPlaneAtZero only works if PointingToHGCAL is active.";
+    }
 
     if (fPointingToHGCAL) {
-      fRminBackSurfaceHGCAL = pgun.getParameter<double>("RminBackSurfaceHGCAL");
-      fRmaxBackSurfaceHGCAL = pgun.getParameter<double>("RmaxBackSurfaceHGCAL");
+      fRMinBackSurfaceHGCAL = pgun.getParameter<double>("RMinBackSurfaceHGCAL");
+      fRMaxBackSurfaceHGCAL = pgun.getParameter<double>("RMaxBackSurfaceHGCAL");
+    }
+
+    if (fRestrictRInZPlaneAtZero) {
+      fRMinAtZero = pgun.getParameter<double>("RMinAtZero");
+      fRMaxAtZero = pgun.getParameter<double>("RMaxAtZero");
+      if (fRMaxAtZero <= fRMinAtZero) {
+        throw cms::Exception("DisplacedParticleGunProducer") << "Please fix RMaxAtZero/RMinAtZero";
+      }
+      if (fRMinAtZero < 0.) {
+        throw cms::Exception("DisplacedParticleGunProducer") << "RMinAtZero must be positive.";
+      }
     }
 
     if (fPtMax <= fPtMin) {
@@ -181,39 +210,38 @@ namespace edm {
     if (fPhiMax <= fPhiMin) {
       throw cms::Exception("DisplacedParticleGunProducer") << "Please fix MinPhi/MaxPhi";
     }
-	if (fThetaMax <= fThetaMin) {
-	  throw cms::Exception("DisplacedParticleGunProducer") << "Please ensure MinTheta <= MaxTheta.";
-	}
+    if (fThetaMax <= fThetaMin) {
+      throw cms::Exception("DisplacedParticleGunProducer") << "Please ensure MinTheta <= MaxTheta.";
+    }
     if (fPhiVtxMax <= fPhiVtxMin) {
       throw cms::Exception("DisplacedParticleGunProducer") << "Please fix MinVtxPhi/MaxVtxPhi";
     }
     if (fRMax <= fRMin) {
       throw cms::Exception("DisplacedParticleGunProducer") << "Please fix RMin/RMax";
     }
+    if (fRestrictRInZPlaneAtZero && fPointingToHGCAL && fRMax > fRMaxAtZero && fRMax > fRMaxBackSurfaceHGCAL) {
+      throw cms::Exception("DisplacedParticleGunProducer")
+          << "There are values of R at z=" << fZVtx << "cm for which an intersection for R in [" << *fRMinAtZero << "; "
+          << *fRMaxAtZero << "]cm at z=0cm is impossible. Please update your configuration.";
+    }
+    if (fRMin < 0) {
+      throw cms::Exception("DisplacedParticleGunProducer") << "RMin must be positive.";
+    }
     if (fMaxTries == 0) {
       throw cms::Exception("DisplacedParticleGunProducer") << "MaxTries must be > 0";
     }
-	if (fRmaxBackSurfaceHGCAL <= fRminBackSurfaceHGCAL) {
-	  throw cms::Exception("DisplacedParticleGunProducer")
-		<< "Please ensure RmaxBackSurfaceHGCAL > RminBackSurfaceHGCAL.";
-	}
-	if (fRmaxBackSurfaceHGCAL > kCeeBackRMax || fRminBackSurfaceHGCAL < kCeeBackRMin) {
-	  throw cms::Exception("DisplacedParticleGunProducer")
-		<< "Please ensure RmaxBackSurfaceHGCAL <= kCeeBackRMax and RminBackSurfaceHGCAL >= kCeeBackRMin.";
-	}
-	  
+    if (fRMaxBackSurfaceHGCAL <= fRMinBackSurfaceHGCAL) {
+      throw cms::Exception("DisplacedParticleGunProducer")
+          << "Please ensure RMaxBackSurfaceHGCAL > RMinBackSurfaceHGCAL.";
+    }
+    if (fRMaxBackSurfaceHGCAL > kCeeBackRMax || fRMinBackSurfaceHGCAL < kCeeBackRMin) {
+      throw cms::Exception("DisplacedParticleGunProducer")
+          << "Please ensure RMaxBackSurfaceHGCAL <= kCeeBackRMax and RMinBackSurfaceHGCAL >= kCeeBackRMin.";
+    }
+
     produces<HepMCProduct>("unsmeared");
     produces<GenEventInfoProduct>();
   }
-
-  void DisplacedParticleGunProducer::beginRun(const edm::Run& r, const EventSetup& es) {
-    fPDGTable = es.getHandle(fPDGTableToken);
-    return;
-  }
-
-  void DisplacedParticleGunProducer::endRun(const Run& run, const EventSetup& es) {}
-
-  void DisplacedParticleGunProducer::endRunProduce(Run& run, const EventSetup& es) {}
 
   void DisplacedParticleGunProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -242,30 +270,32 @@ namespace edm {
     pgun.add<unsigned int>("MaxTries", 1000u);
 
     // A particle shot at the extremities of the HGCAL surface will not traverse a substantial fraction of the detector.
-    // We use RminBackSurfaceHGCAL and RmaxBackSurfaceHGCAL to expose only a given region of the HGCAL surface
-    // THe default arguments correspond to the inner third of HGCAL's surface (R in ~[58.79, 91.58]cm).
+    // We use RMinBackSurfaceHGCAL and RMaxBackSurfaceHGCAL to expose only a given region of the HGCAL surface
+    // The default arguments correspond to the inner third of HGCAL's surface (R in ~[58.79, 91.58]cm).
     // At (R=200,z=0)cm, an uncharged particle pointing to R=58.79cm at the HGCAL surface (the most extreme case) exits the calorimeter at the
     //  back face of the CE-E, crossing all its layers.
     // For R>200cm there is no guarantee all CE-E layers will be crossed, so a tighter R range might be needed.
     // For z>0cm the angles will become more extreme, so a tighter R range might be needed.
     // The above reasoning breaks for charged particles, since the bending under the magnetic filed can enormously extend the particle's reach.
     pgun.add<bool>("PointingToHGCAL", true);
-    pgun.addOptionalNode(edm::ParameterDescription<double>("RminBackSurfaceHGCAL", 58.79, true), true);
-    pgun.addOptionalNode(edm::ParameterDescription<double>("RmaxBackSurfaceHGCAL", 91.58, true), true);
-    pgun.addOptionalNode(edm::ParameterDescription<double>("MinTheta", 0.2, true), true);
-    pgun.addOptionalNode(edm::ParameterDescription<double>("MaxTheta", 1.2, true), true);
+    pgun.add<double>("RMinBackSurfaceHGCAL", 58.79);
+    pgun.add<double>("RMaxBackSurfaceHGCAL", 91.58);
+    pgun.add<double>("MinTheta", -std::numbers::pi / 2 + 1e-6);
+    pgun.add<double>("MaxTheta", std::numbers::pi / 2 - 1e-6);
+
+    pgun.add<bool>("RestrictRInZPlaneAtZero", true);
+    pgun.addOptionalNode(edm::ParameterDescription<double>("RMinAtZero", 0., true), true);
+    pgun.addOptionalNode(edm::ParameterDescription<double>("RMaxAtZero", 150., true), true);
 
     desc.add<edm::ParameterSetDescription>("PGunParameters", pgun);
 
     desc.addUntracked<int>("Verbosity", 0);
     desc.addUntracked<unsigned int>("firstRun", 1);
-    desc.add<std::string>("psethack",
-                          "displaced gun with theta, optionally pointing to hard-coded HGCAL CE-E back surface");
 
     descriptions.add("DisplacedParticleGunProducer", desc);
   }
 
-  void DisplacedParticleGunProducer::produce(Event& e, const EventSetup& /*es*/) {
+  void DisplacedParticleGunProducer::produce(edm::StreamID, edm::Event& e, const edm::EventSetup& es) const {
     edm::Service<edm::RandomNumberGenerator> rng;
     CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
@@ -274,7 +304,7 @@ namespace edm {
           << " DisplacedParticleGunProducer : Begin New Event Generation" << std::endl;
     }
 
-    std::unique_ptr<HepMC::GenEvent> fEvt = std::make_unique<HepMC::GenEvent>();
+    HepMC::GenEvent* fEvt = new HepMC::GenEvent();
 
     if (fPointingToHGCAL) {
       if (kCeeBackZ <= fZVtx) {
@@ -294,31 +324,42 @@ namespace edm {
       const double xVtx = RVtx * std::cos(phiVtx);
       const double yVtx = RVtx * std::sin(phiVtx);
 
-      const HepPDT::ParticleData* pData = fPDGTable->particle(HepPDT::ParticleID(std::abs(fPartID)));
+      auto const& pdgTable = es.getData(fPDGTableToken);
+      const HepPDT::ParticleData* pData = pdgTable.particle(HepPDT::ParticleID(std::abs(fPartID)));
       if (!pData) {
         throw cms::Exception("DisplacedParticleGunProducer") << "Particle ID " << fPartID << " not found in PDG table";
       }
       const double mass = pData->mass().value();
 
       if (pData->charge() != 0 && fPointingToHGCAL) {
-        throw cms::Exception("DisplacedParticleGunProducer")
-            << "The logic that points particles to HGCAL's CE-E back face assumes that particles move in straight lines.";
+        throw cms::Exception("DisplacedParticleGunProducer") << "The logic that points particles to HGCAL's CE-E back "
+                                                                "face assumes that particles move in straight lines.";
       }
 
-      double theta = 0., phi = 0., px = 0., py = 0., pz = 0.;
+      double theta = 0., px = 0., py = 0., pz = 0.;
+      double phi = phiVtx; /* the particle's direction has the same phi as its vertex, ie.,
+							  it moves on a 2D plane parallel to the z axis */
       const double pt = CLHEP::RandFlat::shoot(engine, fPtMin, fPtMax);
-      if (fPointingToHGCAL) {				  
+      if (fPointingToHGCAL) {
         bool accepted = false;
         for (unsigned int itry = 0; itry < fMaxTries; ++itry) {
-          theta = CLHEP::RandFlat::shoot(engine, fThetaMin, fThetaMax);
-          phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
+          theta = pickSensibleTheta(engine, fThetaMin, fThetaMax);
           std::tie(px, py, pz) = computeMomentum(pt, theta, phi);
           if (edm::isNotFinite(pz) || pz <= 0.0) {
             continue;  // must go towards +z plane
           }
+          if (fVerbosity > 0) {
+            std::cout << "phiVtx=" << phiVtx << ", RVtx=" << RVtx << ", pT=" << pt << ", theta=" << theta
+                      << ", phi=" << phi << std::endl;
+          }
 
-          if (hitsZPlaneWithinR(
-                  xVtx, yVtx, fZVtx, px, py, pz, kCeeBackZ, fRminBackSurfaceHGCAL, fRmaxBackSurfaceHGCAL)) {
+          bool checkBackSurface = hitsZPlaneWithinR(
+              xVtx, yVtx, fZVtx, px, py, pz, kCeeBackZ, fRMinBackSurfaceHGCAL, fRMaxBackSurfaceHGCAL, fVerbosity);
+          bool checkZero =
+              fRestrictRInZPlaneAtZero &&
+              hitsZPlaneWithinR(
+                  xVtx, yVtx, fZVtx, -px, -py, -pz, 0., fRMinAtZero.value(), fRMaxAtZero.value(), fVerbosity);
+          if (checkBackSurface && checkZero) {
             accepted = true;
             break;
           }
@@ -326,11 +367,12 @@ namespace edm {
         if (!accepted) {
           throw cms::Exception("DisplacedParticleGunProducer")
               << "Failed to generate a particle intersecting HGCAL CE-E back surface after MaxTries=" << fMaxTries
-              << ". Vertex: (R=" << RVtx << "cm, phiVtx=" << phiVtx << ", z=" << fZVtx << "cm). HGCAL band: ["
-              << fRminBackSurfaceHGCAL << "," << fRmaxBackSurfaceHGCAL << "]cm at z=" << kCeeBackZ << "cm.";
+              << ". Vertex located at: (R=" << RVtx << "cm, phiVtx=" << phiVtx << ", z=" << fZVtx
+              << "cm). HGCAL band located at R in [" << fRMinBackSurfaceHGCAL << "; " << fRMaxBackSurfaceHGCAL
+              << "]cm at z=" << kCeeBackZ << "cm.";
         }
       } else {  // if (!fPointingToHGCAL)
-        theta = CLHEP::RandFlat::shoot(engine, fThetaMin, fThetaMax);
+        theta = pickSensibleTheta(engine, fThetaMin, fThetaMax);
         phi = CLHEP::RandFlat::shoot(engine, fPhiMin, fPhiMax);
         std::tie(px, py, pz) = computeMomentum(pt, theta, phi);
       }
@@ -362,15 +404,15 @@ namespace edm {
       fEvt->print();
     }
 
-	auto genEventInfo = std::make_unique<GenEventInfoProduct>(fEvt.get()); // does not transfer pointer ownership to GenEventInfoProduct
-    e.put(std::move(genEventInfo));
-
     auto bProduct = std::make_unique<HepMCProduct>();
-    bProduct->addHepMCData(fEvt.release()); // transfer pointer ownership to HepMCProduct
+    bProduct->addHepMCData(fEvt);
     e.put(std::move(bProduct), "unsmeared");
 
+    auto genEventInfo = std::make_unique<GenEventInfoProduct>(fEvt);
+    e.put(std::move(genEventInfo));
+
     if (fVerbosity > 0) {
-      LogDebug("DisplacedParticleGunProducer") << " DisplacedParticleGunProducer : Event Generation Done " << std::endl;
+      std::cout << " DisplacedParticleGunProducer : Event Generation Done. " << std::endl;
     }
   }
 
