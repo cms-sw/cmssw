@@ -3888,7 +3888,7 @@ steps['ALCAReAlCaHLTHGComb'] = {'-s': 'ALCA:PromptCalibProdSiPixelAliHLTHGC',
                                 '\\"TriggerResults::ReAlCa\\"; '
                                 'extend_file_name = lambda n,e: \\".\\".join(n.split(\\".\\")[:-1])+e+\\".\\"+n.split(\\".\\")[-1]; '
                                 'process.ALCARECOStreamPromptCalibProdSiPixelAliHLTHGC.fileName = '
-                                'extend_file_name(process.ALCARECOStreamPromptCalibProdSiPixelAliHLTHGC.fileName.value(), \\"_0\\"\"\)',
+                                'extend_file_name(process.ALCARECOStreamPromptCalibProdSiPixelAliHLTHGC.fileName.value(), \\"_0\\"\"\\)',
                                 '--triggerResultsProcess': 'ReAlCa'
                                 }
 
@@ -3909,7 +3909,7 @@ steps['ALCAReAlCaHLTHGCombZMUMU'] = {'-s': 'ALCA:PromptCalibProdSiPixelAliHLTHGC
                                      '\\"TriggerResults::ReAlCa\\"; '
                                      'extend_file_name = lambda n,e: \\".\\".join(n.split(\\".\\")[:-1])+e+\\".\\"+n.split(\\".\\")[-1]; '
                                      'process.ALCARECOStreamPromptCalibProdSiPixelAliHLTHGC.fileName = '
-                                     'extend_file_name(process.ALCARECOStreamPromptCalibProdSiPixelAliHLTHGC.fileName.value(), \\"_1\\"\"\)',
+                                     'extend_file_name(process.ALCARECOStreamPromptCalibProdSiPixelAliHLTHGC.fileName.value(), \\"_1\\"\"\\)',
                                      '--triggerResultsProcess': 'ReAlCa'
                                      }
 

@@ -57,6 +57,7 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #        (Nu Gun)
 #   2025 (TTbar, TTbar PU, TTbar PU prod-like)
 #        (TTbar FastSim, TTbar FastSim PU, MinBiasFS for mixing)
+#        (TTbar hybrid PU)
 #   2026 (TTbar, TTbar PU, TTbar PU prod-like)
 
 numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009.0,10059.0,10071.0,
@@ -113,6 +114,7 @@ numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009
            # 2025
            16834.0, #17034.0, 17034.21,  COMMENT: reads old format file
            18034.0, #18234.0, 18040.303,  COMMENT: reads old format file
+           17034.96,
            # 2026
            18434.0, #18634.0, 18634.21,  COMMENT: reads old format file
 ]
