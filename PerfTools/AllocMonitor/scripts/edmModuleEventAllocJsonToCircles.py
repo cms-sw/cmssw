@@ -124,8 +124,6 @@ def format_to_circles(doc):
         module_label = module.get("label", "")
         module_type = module.get("type", "")
         memory_report = memory_reports.get('%s-%s' % (module_label, module_type),{})
-        print(f'{memory_report}')
-        print()
         values = dict()
         for metric in METRICS:
             values[metric] = 0.0
