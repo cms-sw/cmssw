@@ -2596,6 +2596,18 @@
       "TSG"
     ]
   },
+  "HLT_HIBeamBackgroundMonitoring_BptxAND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIBeamBackgroundMonitoring_NotBptxOR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
   "HLT_HICentrality30100_FirstCollisionAfterAbortGap_v": {
     "online?": true,
     "owners": [
@@ -3500,6 +3512,12 @@
       "HIN"
     ]
   },
+  "HLT_HITestDataScouting_v": {
+    "online?": true,
+    "owners": [
+      "TSG"
+    ]
+  },
   "HLT_HIUPC_DoubleEG2_BptxAND_SinglePixelTrack_MaxPixelTrack_v": {
     "online?": true,
     "owners": [
@@ -3542,24 +3560,6 @@
       "HIN"
     ]
   },
-  "HLT_HIUPC_DoubleEG3_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v": {
-    "online?": true,
-    "owners": [
-      "HIN"
-    ]
-  },
-  "HLT_HIUPC_DoubleEG3_NotMBHF2AND_v": {
-    "online?": true,
-    "owners": [
-      "HIN"
-    ]
-  },
-  "HLT_HIUPC_DoubleEG3_DeltaPhi2p0_NotMBHF2AND_v": {
-    "online?": true,
-    "owners": [
-      "HIN"
-    ]
-  },
   "HLT_HIUPC_DoubleEG3_DeltaPhi2p0_NotMBHF2AND_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
@@ -3572,7 +3572,7 @@
       "HIN"
     ]
   },
-  "HLT_HIUPC_DoubleEG3_DeltaPhi2p5_NotMBHF2AND_v": {
+  "HLT_HIUPC_DoubleEG3_DeltaPhi2p0_NotMBHF2AND_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3585,6 +3585,24 @@
     ]
   },
   "HLT_HIUPC_DoubleEG3_DeltaPhi2p5_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleEG3_DeltaPhi2p5_NotMBHF2AND_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleEG3_NotMBHF2AND_SinglePixelTrack_MaxPixelTrack_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_DoubleEG3_NotMBHF2AND_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -3824,25 +3842,25 @@
       "HIN"
     ]
   },
-  "HLT_HIUPC_MinPixelThrust0p8_MaxPixelCluster10000_v": {
-    "online?": true,
-    "owners": [
-      "HIN"
-    ]
-  },
   "HLT_HIUPC_MinPixelThrust0p85_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
     ]
   },
-  "HLT_HIUPC_MinPixelThrust0p8_MinNSatPixel2_MaxPixelCluster10000_v": {
+  "HLT_HIUPC_MinPixelThrust0p85_MinNSatPixel2_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
     ]
   },
-  "HLT_HIUPC_MinPixelThrust0p85_MinNSatPixel2_MaxPixelCluster10000_v": {
+  "HLT_HIUPC_MinPixelThrust0p8_MaxPixelCluster10000_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_MinPixelThrust0p8_MinNSatPixel2_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -4263,6 +4281,12 @@
     ]
   },
   "HLT_HIUPC_SingleMuCosmic_NotMBHF2OR_v": {
+    "online?": true,
+    "owners": [
+      "HIN"
+    ]
+  },
+  "HLT_HIUPC_SingleMuOpen_BptxAND_MaxPixelCluster10000_v": {
     "online?": true,
     "owners": [
       "HIN"
@@ -9550,18 +9574,6 @@
     ]
   },
   "HLT_ZDCCommissioning_v": {
-    "online?": true,
-    "owners": [
-      "HIN"
-    ]
-  },
-  "HLT_HIBeamBackgroundMonitoring_NotBptxOR_v": {
-    "online?": true,
-    "owners": [
-      "HIN"
-    ]
-  },
-  "HLT_HIBeamBackgroundMonitoring_BptxAND_v": {
     "online?": true,
     "owners": [
       "HIN"
