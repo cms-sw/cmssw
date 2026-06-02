@@ -14,6 +14,7 @@
 #include "FastSimulation/CalorimeterProperties/interface/HCALProperties.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/CaloGeometryTools/interface/Transform3DPJ.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
 #include <cmath>
@@ -275,7 +276,7 @@ void EcalHitMaker::cellLine(std::vector<CaloPoint>& cp) {
     vertex = (myTrack_->vfcalEntrance().vertex()).Vect();
     dir = myTrack_->vfcalEntrance().Vect().Unit();
   } else {
-    std::cout << " Problem with the grid " << std::endl;
+    edm::LogError("EcalHitMaker") << " Problem with the grid ";
   }
 
   // Move the vertex for distance comparison (5cm)
@@ -305,7 +306,6 @@ void EcalHitMaker::preshowerCellLine(std::vector<CaloPoint>& cp) const {
     }
   }
 
-  //  std::cout << " On layer 2 " << myTrack.onLayer2() << std::endl;
   if (myTrack_->onLayer2()) {
     XYZPoint point1 = (myTrack_->layer2Entrance().vertex()).Vect();
     double phys_eta = myTrack_->layer2Entrance().eta();
@@ -453,8 +453,7 @@ void EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp) {
         X0PS1_ += preshsegment.X0length();
         L0PS1_ += preshsegment.L0length();
       } else {
-        std::cout << " Strange segment between Preshower1 and " << cp[2 * is + 1].whichDetector();
-        std::cout << std::endl;
+        edm::LogError("EcalHitMaker") << " Strange segment between Preshower1 and " << cp[2 * is + 1].whichDetector();
       }
       ++is;
       continue;
@@ -486,8 +485,7 @@ void EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp) {
           L0PS2EE_ += gapsef.L0length();
         }
       } else {
-        std::cout << " Strange segment between Preshower2 and " << cp[2 * is + 1].whichDetector();
-        std::cout << std::endl;
+        edm::LogError("EcalHitMaker") << " Strange segment between Preshower2 and " << cp[2 * is + 1].whichDetector();
       }
       ++is;
       continue;
@@ -517,7 +515,7 @@ void EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp) {
 #endif
           ++is;
         } else {
-          std::cout << " One more bug in the segment " << std::endl;
+          edm::LogError("EcalHitMaker") << " One more bug in the segment ";
           ++is;
         }
         // Now check if a gap or crack should be added
@@ -553,8 +551,8 @@ void EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp) {
         }
         continue;
       } else {
-        std::cout << " Strange segment between " << cp[2 * is].whichDetector();
-        std::cout << " and " << cp[2 * is + 1].whichDetector() << std::endl;
+        edm::LogError("EcalHitMaker") << " Strange segment between " << cp[2 * is].whichDetector() << " and "
+                                      << cp[2 * is + 1].whichDetector();
         ++is;
         continue;
       }
@@ -659,19 +657,21 @@ bool EcalHitMaker::getPads(double depth, bool inCm) {
       segiterator = find_if(segments_.begin(), segments_.end(), CaloSegment::inL0Segment(currentdepth_));
   }
   if (segiterator == segments_.end()) {
-    std::cout << " FamosGrid: Could not go at such depth " << depth << std::endl;
-    std::cout << " EMSHOWER " << EMSHOWER << std::endl;
-    std::cout << " Track " << *myTrack_ << std::endl;
-    std::cout << " Segments " << segments_.size() << std::endl;
-    for (unsigned ii = 0; ii < segments_.size(); ++ii) {
-      std::cout << segments_[ii] << std::endl;
-    }
+    edm::LogError("EcalHitMaker").log([&](auto& le) {
+      le << " FamosGrid: Could not go at such depth " << depth << "\n"
+         << " EMSHOWER " << EMSHOWER << "\n"
+         << " Track " << *myTrack_ << "\n"
+         << " Segments " << segments_.size() << "\n";
+      for (unsigned ii = 0; ii < segments_.size(); ++ii) {
+        le << segments_[ii] << "\n";
+      }
+    });
 
     return false;
   }
 
   if (segiterator->whichDetector() != DetId::Ecal) {
-    std::cout << " In  " << segiterator->whichDetector() << std::endl;
+    edm::LogError("EcalHitMaker") << " In  " << segiterator->whichDetector();
     return false;
   }
 
