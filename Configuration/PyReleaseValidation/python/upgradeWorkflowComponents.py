@@ -2126,13 +2126,23 @@ upgradeWFs['NGTScoutingWithNano'].step2 = {
 }
 
 upgradeWFs['NGTScoutingWithNanoValid'] = deepcopy(upgradeWFs['HLTPhase2WithNano'])
-upgradeWFs['NGTScoutingWithNanoValid'].suffix = '_NGTScoutingWithNanoVal'
+upgradeWFs['NGTScoutingWithNanoValid'].suffix = '_NGTScoutingWithNanoValid'
 upgradeWFs['NGTScoutingWithNanoValid'].offset = 0.773
 upgradeWFs['NGTScoutingWithNanoValid'].step2 = {
     '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting,VALIDATION:@hltValidation,NANO:@NGTScoutingVal',
     '--datatier':'NANOAODSIM',
     '--procModifiers': 'ngtScouting',
     '--eventcontent':'NANOAODSIM'
+}
+
+upgradeWFs['L1NGTScoutingWithNano'] = deepcopy(upgradeWFs['HLTPhase2WithNano'])
+upgradeWFs['L1NGTScoutingWithNano'].suffix = '_L1NGTScoutingWithNanoValid'
+upgradeWFs['L1NGTScoutingWithNano'].offset = 0.774
+upgradeWFs['L1NGTScoutingWithNano'].step2 = {
+    '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting,VALIDATION:@hltValidation,NANO:@NGTScoutingVal+@Phase2L1DPGwithGen',
+    '--datatier':'GEN-SIM-DIGI-RAW,NANOAODSIM',
+    '--procModifiers': 'ngtScouting,nano_l1_hlt',
+    '--eventcontent':'FEVTDEBUGHLT,NANOAODSIM'
 }
 
 class UpgradeWorkflow_HLTwDIGI75e33(UpgradeWorkflow):
