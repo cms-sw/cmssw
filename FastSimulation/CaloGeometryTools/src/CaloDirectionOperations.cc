@@ -1,7 +1,5 @@
 #include "FastSimulation/CaloGeometryTools/interface/CaloDirectionOperations.h"
 
-#include <cassert>
-
 CaloDirection CaloDirectionOperations::add2d(const CaloDirection& dir1, const CaloDirection& dir2) {
   constexpr CaloDirection tab[4][4] = {{NORTH, NORTHEAST, NONE, NORTHWEST},
                                        {NORTHEAST, EAST, SOUTHEAST, NONE},
@@ -12,7 +10,6 @@ CaloDirection CaloDirectionOperations::add2d(const CaloDirection& dir1, const Ca
 
 CaloDirection CaloDirectionOperations::Side(unsigned i) {
   constexpr CaloDirection sides[4] = {NORTH, EAST, SOUTH, WEST};
-  assert(i<4);
   return sides[i];
 }
 
@@ -44,7 +41,6 @@ unsigned CaloDirectionOperations::neighbourDirection(const CaloDirection& side) 
       result = 7;
       break;
     default:
-      assert(false);
       result = 999;
   }
   return result;
@@ -72,7 +68,6 @@ unsigned CaloDirectionOperations::Side(const CaloDirection& side) {
       result = 3;
       break;
     default:
-      assert(false);
       result = 999;
   }
   return result;
