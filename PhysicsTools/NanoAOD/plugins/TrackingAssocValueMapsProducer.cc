@@ -143,6 +143,10 @@ void TrackingAssocValueMapsProducer::produce(edm::Event& iEvent, const edm::Even
       iEvent.getByToken(trackAssociatorToken_, associatorH);
       inputsValid = inputsValid && associatorH.isValid();
     }
+  } else {
+    LogDebug(metname) << "Invalid handles: Track handle valid: " << tracksH.isValid()
+                      << ", TP handle valid: " << tpH.isValid();
+    return;
   }
 
   const size_t nTracks = tracksH->size();

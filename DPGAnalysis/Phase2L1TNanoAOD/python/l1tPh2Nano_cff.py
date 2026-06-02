@@ -14,6 +14,12 @@ def addPh2GTObjects(process):
 from DPGAnalysis.Phase2L1TNanoAOD.l1tPh2Nanotables_cff import *
 def addPh2L1Objects(process):
     process.l1tPh2NanoTask.add(p2L1TablesTask)
+
+    # This modifier excludes the hpsTauTable, which is based on the l1tHPSPFTauProducerPuppi collection, no longer available in the L1 menu.
+    # This allows to run the NANOAOD production from L1 and HLT steps, whitout requiring old inputs from the Spring24 datasets.
+    from Configuration.ProcessModifiers.nano_l1_hlt_cff import nano_l1_hlt
+    nano_l1_hlt.toReplaceWith(p2L1TablesTask, p2L1TablesTask.copyAndExclude([hpsTauTable]))
+
     return process
 
 #### GENERATOR INFO
@@ -24,6 +30,8 @@ from PhysicsTools.NanoAOD.met_cff import metMCTable ## for GenMET
 from PhysicsTools.NanoAOD.globals_cff import puTable ## for PU
 from PhysicsTools.NanoAOD.taus_cff import * ## for Gen taus
 def addGenObjects(process):
+
+    process.genNanoTask = cms.Task()
 
     ## add more GenVariables
     # from L1Ntuple Gen: https://github.com/artlbv/cmssw/blob/94a5ec13b8ce76afb8ea4f157bb92fb547fadee2/L1Trigger/L1TNtuples/plugins/L1GenTreeProducer.cc#L203
@@ -45,22 +53,35 @@ def addGenObjects(process):
         process.prunedGenParticleTable = genParticleTable.clone()
         process.prunedGenParticleTable.src = "prunedGenParticles"
         process.prunedGenParticleTable.name = "prunedGenPart"
-        process.l1tPh2NanoTask.add(process.prunedGenParticleTable)
+        process.genNanoTask.add(process.prunedGenParticleTable)
 
     # lower genVisTau pt threshold
     process.genVisTauTable.cut = "pt > 1"
     # lower AK8 gen jet threshold
     process.genJetAK8Table.cut = "pt > 10"
 
-    process.l1tPh2NanoTask.add(
+    process.genNanoTask.add(
                 puTable, metMCTable,
                 genParticleTask, genParticleTablesTask,
                 genTauTask,
     )
     
     # add all GenJets: AK4 and AK8
-    process.l1tPh2NanoTask.add(genJetTable,patJetPartonsNano,genJetFlavourTable)
-    process.l1tPh2NanoTask.add(genJetAK8Table,genJetAK8FlavourAssociation,genJetAK8FlavourTable)
+    process.genNanoTask.add(genJetTable,patJetPartonsNano,genJetFlavourTable)
+    process.genNanoTask.add(genJetAK8Table,genJetAK8FlavourAssociation,genJetAK8FlavourTable)
+
+    process.l1tPh2NanoTask.add(process.genNanoTask)
+ 
+    # This modifier excludes all GEN sequences that depend on PAT collections.
+    # This allows to run the NANOAOD production from L1 and HLT steps, whitout requiring PAT inputs.
+    from Configuration.ProcessModifiers.nano_l1_hlt_cff import nano_l1_hlt
+    nano_l1_hlt.toReplaceWith(process.genNanoTask, 
+        process.genNanoTask.copyAndExclude(
+            [puTable,
+             metMCTable,
+             genJetAK8Table, 
+             genJetAK8FlavourAssociation, 
+             genJetAK8FlavourTable]))
 
     return process
 
