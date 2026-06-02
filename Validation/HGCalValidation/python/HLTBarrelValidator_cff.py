@@ -10,6 +10,7 @@ hltBarrelValidator = _barrelValidator.clone(
     rechitmapTag = 'hltRecHitMapProducer:barrelRecHitMap',
     associator = ['hltBarrelLayerClusterCaloParticleAssociation',],
     associatorSim = ['hltBarrelLayerClusterSimClusterAssociation',],
+    doTrackstersPlots = False,
     dirName = 'HLT/BarrelCalorimeters/BarrelValidator/'
 )
 
