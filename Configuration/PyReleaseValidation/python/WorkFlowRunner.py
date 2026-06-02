@@ -68,7 +68,7 @@ class WorkFlowRunner(Thread):
 
         # Inner patterns to match individual file entries
         # For stepN naming need to know the N
-        file_pattern_step = re.compile('file:step([1-9]+)(_[a-zA-Z]+)?\.[a-z]+')
+        file_pattern_step = re.compile(r'file:step([1-9]+)(_[a-zA-Z]+)?\.[a-z]+')
         # Some ALCA steps use special file names without stepN, those
         # are assumed to use the default extension
         file_pattern_gen = re.compile(r'file:([a-zA-Z0-9_]+)\.[a-z]+')
