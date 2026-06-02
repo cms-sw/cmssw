@@ -28,27 +28,19 @@ namespace edmtest {
     void endJob();
 
   private:
-    std::vector<unsigned long long> const expectedRunLumisEvents0_;
-    std::vector<unsigned long long> const expectedRunLumisEvents1_;
-    std::vector<unsigned long long> const* const expectedRunLumisEvents_;
+    std::vector<unsigned long long> const expectedRunLumisEvents_;
     bool const verbose_;
     bool const dumpTriggerResults_;
-    int const expectedEndingIndex0_;
-    int const expectedEndingIndex1_;
     int const expectedEndingIndex_;
     edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
     int index_ = 0;
   };
 
   RunLumiEventAnalyzer::RunLumiEventAnalyzer(edm::ParameterSet const& pset)
-      : expectedRunLumisEvents0_(pset.getUntrackedParameter<std::vector<unsigned long long>>("expectedRunLumiEvents")),
-        expectedRunLumisEvents1_(pset.getUntrackedParameter<std::vector<unsigned long long>>("expectedRunLumiEvents1")),
-        expectedRunLumisEvents_(&expectedRunLumisEvents0_),
+      : expectedRunLumisEvents_(pset.getUntrackedParameter<std::vector<unsigned long long>>("expectedRunLumiEvents")),
         verbose_(pset.getUntrackedParameter<bool>("verbose")),
         dumpTriggerResults_(pset.getUntrackedParameter<bool>("dumpTriggerResults")),
-        expectedEndingIndex0_(pset.getUntrackedParameter<int>("expectedEndingIndex")),
-        expectedEndingIndex1_(pset.getUntrackedParameter<int>("expectedEndingIndex1")),
-        expectedEndingIndex_(expectedEndingIndex0_) {
+        expectedEndingIndex_(pset.getUntrackedParameter<int>("expectedEndingIndex")) {
     if (dumpTriggerResults_) {
       triggerResultsToken_ = consumes(edm::InputTag("TriggerResults"));
     }
@@ -59,9 +51,7 @@ namespace edmtest {
     desc.addUntracked<bool>("verbose", false);
     desc.addUntracked<bool>("dumpTriggerResults", false);
     desc.addUntracked<int>("expectedEndingIndex", -1);
-    desc.addUntracked<int>("expectedEndingIndex1", -1);
     desc.addUntracked<std::vector<unsigned long long>>("expectedRunLumiEvents", {});
-    desc.addUntracked<std::vector<unsigned long long>>("expectedRunLumiEvents1", {});
 
     descriptions.addDefault(desc);
   }
@@ -81,12 +71,12 @@ namespace edmtest {
       }
     }
 
-    if ((index_ + 2U) < expectedRunLumisEvents_->size()) {
-      assert(expectedRunLumisEvents_->at(index_) == event.run());
+    if ((index_ + 2U) < expectedRunLumisEvents_.size()) {
+      assert(expectedRunLumisEvents_.at(index_) == event.run());
       ++index_;
-      assert(expectedRunLumisEvents_->at(index_) == event.luminosityBlock());
+      assert(expectedRunLumisEvents_.at(index_) == event.luminosityBlock());
       ++index_;
-      assert(expectedRunLumisEvents_->at(index_) == event.id().event());
+      assert(expectedRunLumisEvents_.at(index_) == event.id().event());
       ++index_;
     }
   }
@@ -96,12 +86,12 @@ namespace edmtest {
       edm::LogAbsolute("RunLumiEvent") << "RUN_LUMI_EVENT " << run.run() << ", " << 0 << ", " << 0;
     }
 
-    if ((index_ + 2U) < expectedRunLumisEvents_->size()) {
-      assert(expectedRunLumisEvents_->at(index_) == run.run());
+    if ((index_ + 2U) < expectedRunLumisEvents_.size()) {
+      assert(expectedRunLumisEvents_.at(index_) == run.run());
       ++index_;
-      assert(expectedRunLumisEvents_->at(index_) == 0);
+      assert(expectedRunLumisEvents_.at(index_) == 0);
       ++index_;
-      assert(expectedRunLumisEvents_->at(index_) == 0);
+      assert(expectedRunLumisEvents_.at(index_) == 0);
       ++index_;
     }
   }
@@ -111,23 +101,23 @@ namespace edmtest {
       edm::LogAbsolute("RunLumiEvent") << "RUN_LUMI_EVENT " << run.run() << ", " << 0 << ", " << 0;
     }
 
-    if ((index_ + 2U) < expectedRunLumisEvents_->size()) {
-      if (!(expectedRunLumisEvents_->at(index_) == run.run())) {
+    if ((index_ + 2U) < expectedRunLumisEvents_.size()) {
+      if (!(expectedRunLumisEvents_.at(index_) == run.run())) {
         throw cms::Exception("UnexpectedRun") << "RunLumiEventAnalyzer::endRun unexpected run\n"
                                                  "  expected "
-                                              << expectedRunLumisEvents_->at(index_) << "  found    " << run.run();
+                                              << expectedRunLumisEvents_.at(index_) << "  found    " << run.run();
       }
       ++index_;
-      if (!(expectedRunLumisEvents_->at(index_) == 0)) {
+      if (!(expectedRunLumisEvents_.at(index_) == 0)) {
         throw cms::Exception("UnexpectedLumi") << "RunLumiEventAnalyzer::endRun unexpected lumi\n"
                                                   "  expected "
-                                               << expectedRunLumisEvents_->at(index_) << "  found    0";
+                                               << expectedRunLumisEvents_.at(index_) << "  found    0";
       }
       ++index_;
-      if (!(expectedRunLumisEvents_->at(index_) == 0)) {
+      if (!(expectedRunLumisEvents_.at(index_) == 0)) {
         throw cms::Exception("UnexpectedEvent") << "RunLumiEventAnalyzer::endRun unexpected event\n"
                                                    "  expected "
-                                                << expectedRunLumisEvents_->at(index_) << "  found    0";
+                                                << expectedRunLumisEvents_.at(index_) << "  found    0";
       }
       ++index_;
     }
@@ -139,12 +129,12 @@ namespace edmtest {
                                        << 0;
     }
 
-    if ((index_ + 2U) < expectedRunLumisEvents_->size()) {
-      assert(expectedRunLumisEvents_->at(index_) == lumi.run());
+    if ((index_ + 2U) < expectedRunLumisEvents_.size()) {
+      assert(expectedRunLumisEvents_.at(index_) == lumi.run());
       ++index_;
-      assert(expectedRunLumisEvents_->at(index_) == lumi.luminosityBlock());
+      assert(expectedRunLumisEvents_.at(index_) == lumi.luminosityBlock());
       ++index_;
-      assert(expectedRunLumisEvents_->at(index_) == 0);
+      assert(expectedRunLumisEvents_.at(index_) == 0);
       ++index_;
     }
   }
@@ -155,24 +145,24 @@ namespace edmtest {
                                        << 0;
     }
 
-    if ((index_ + 2U) < expectedRunLumisEvents_->size()) {
-      if (!(expectedRunLumisEvents_->at(index_) == lumi.run())) {
+    if ((index_ + 2U) < expectedRunLumisEvents_.size()) {
+      if (!(expectedRunLumisEvents_.at(index_) == lumi.run())) {
         throw cms::Exception("UnexpectedRun") << "RunLumiEventAnalyzer::endLuminosityBlock unexpected run\n"
                                                  "  expected "
-                                              << expectedRunLumisEvents_->at(index_) << "  found    " << lumi.run();
+                                              << expectedRunLumisEvents_.at(index_) << "  found    " << lumi.run();
       }
       ++index_;
-      if (!(expectedRunLumisEvents_->at(index_) == lumi.luminosityBlock())) {
+      if (!(expectedRunLumisEvents_.at(index_) == lumi.luminosityBlock())) {
         throw cms::Exception("UnexpectedLumi")
             << "RunLumiEventAnalyzer::endLuminosityBlock unexpected lumi"
                "  expected "
-            << expectedRunLumisEvents_->at(index_) << "  found    " << lumi.luminosityBlock();
+            << expectedRunLumisEvents_.at(index_) << "  found    " << lumi.luminosityBlock();
       }
       ++index_;
-      if (!(expectedRunLumisEvents_->at(index_) == 0)) {
+      if (!(expectedRunLumisEvents_.at(index_) == 0)) {
         throw cms::Exception("UnexpectedEvent") << "RunLumiEventAnalyzer::endLuminosityBlock unexpected event"
                                                    "  expected "
-                                                << expectedRunLumisEvents_->at(index_) << "  found    0";
+                                                << expectedRunLumisEvents_.at(index_) << "  found    0";
       }
       ++index_;
     }
