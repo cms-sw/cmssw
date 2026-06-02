@@ -20,25 +20,14 @@ public:
   typedef math::XYZVector XYZPoint;
   typedef ROOT::Math::Plane3D Plane3D;
 
-  // side numbering
-  //  enum CrystalSide{EAST=0,NORTH=1,WEST=2,SOUTH=3,FRONT=4,BACK=5};
   /// Empty constructor
   BaseCrystal() = default;
   /// constructor from DetId
   BaseCrystal(const DetId& cell);
 
-  /// Copy constructor
-  //    BaseCrystal (const BaseCrystal& bc):corners_(bc.getCorners()),cellid_(bc.getDetId())
-  //    {
-  //      std::cout << " Copy constructor " ;
-  //      computeBasicProperties();
-  //      std::cout << " done " << std::endl;
-  //    }
   ~BaseCrystal() = default;
-  ///
-  void setCorners(const CaloCellGeometry::CornersVec& vec, const GlobalPoint& pos);
 
-  // inline const std::vector<XYZPoint>& getCorners() const {return corners_;}
+  void setCorners(const CaloCellGeometry::CornersVec& vec, const GlobalPoint& pos);
 
   /// get the i-th corner
   inline const XYZPoint& getCorner(unsigned i) const { return corners_[i]; };
