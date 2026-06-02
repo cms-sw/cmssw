@@ -22,18 +22,13 @@ BYTE_METRICS = [
     "AvgTempSize",
 ]
 
-# Metrics which should total not average
-TOTAL_METRICS = [
-    "TotalMemoryGrowth"
-]
-
 # Mapping from memoryReports average fields to Circles metric names.
 REPORT_TO_METRIC = {
-    "AvgTempSize": "Average temp size",
-    "AvgNTemp": "Average N temp",
-    "AvgDataProductSize": "Avgerage data product size",
-    "AvgRetained": "Avgerage retained",
-    "TotalMemoryGrowth": "Total memory growth"
+    "AvgTempSize": "Average temporary allocated memory",
+    "AvgNTemp": "Average number of temporary allocations",
+    "AvgDataProductSize": "Average allocated memoory for data products",
+    "AvgRetained": "Average allocationed memory retained between events",
+    "TotalMemoryGrowth": "Total allocated memory retained through the job"
 }
 
 
