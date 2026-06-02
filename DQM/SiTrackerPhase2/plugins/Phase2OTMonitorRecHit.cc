@@ -149,8 +149,8 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
       // During first loop, the default key is used (wheel = false)
       // In the second loop, the Wheel key is used
       // all layer-wise histograms will be booked in Wheels as well as Rings
-      std::string key = (booking == 2 ? phase2tkutil::getOTHistoWheelId(detId, tTopo_)
-                                      : phase2tkutil::getOTHistoId(detId, tTopo_));
+      std::string key =
+          (booking == 2 ? phase2tkutil::getOTHistoWheelId(detId, tTopo_) : phase2tkutil::getOTHistoId(detId, tTopo_));
 
       nTotrechitsinevt += DSViter->size();
       if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
@@ -256,8 +256,8 @@ void Phase2OTMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned
     // During first loop, the default key is used (wheel = false)
     // In the second loop, the Wheel key is used
     // all layer-wise histograms will be booked in Wheels as well as Rings
-    std::string key = (booking == 2 ? phase2tkutil::getOTHistoWheelId(det_id, tTopo_)
-                                    : phase2tkutil::getOTHistoId(det_id, tTopo_));
+    std::string key =
+        (booking == 2 ? phase2tkutil::getOTHistoWheelId(det_id, tTopo_) : phase2tkutil::getOTHistoId(det_id, tTopo_));
 
     if (layerMEs_.find(key) == layerMEs_.end()) {
       ibooker.cd();
