@@ -46,6 +46,7 @@ from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
 
 # online dqm:
 from DQMOffline.Trigger.HLTMonTau_cfi import *
+from PhysicsTools.JetMCAlgos.TauGenJetsDecayModeSelectorAllHadrons_cfi import *
 
 # additional producer sequence prior to hltvalidation
 # to evacuate producers/filters from the EndPath
@@ -56,6 +57,7 @@ hltassociation = cms.Sequence(
     +ExoticaValidationProdSeq
     +hltMultiTrackValidationGsfTracks
     +hltJetPreValidSeq
+    +tauGenJetsSelectorAllHadrons
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
@@ -102,7 +104,7 @@ hltvalidationWithMC = cms.Sequence(
 
 # Exclude everything except Muon and JetMET for now. Add HGCAL Hit Calibration
 _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
-  HLTTauVal,
+  #HLTTauVal,
   egammaValidationSequence,
   heavyFlavorValidationSequence,
   #HLTJetMETValSeq,
@@ -117,7 +119,7 @@ _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
   hltHCALNoiseRates])
 _hltvalidationWithMC_Phase2.insert(-1, hgcalHitCalibrationHLT)
 _hltvalidationWithMC_Phase2.insert(-1, hltHgcalValidator)
-_hltvalidationWithMC_Phase2.insert(-1, hltGENValidation)
+_hltvalidationWithMC_Phase2.insert(0, hltGENValidation)
 phase2_common.toReplaceWith(hltvalidationWithMC, _hltvalidationWithMC_Phase2)
 
 hltvalidationWithData = cms.Sequence(
