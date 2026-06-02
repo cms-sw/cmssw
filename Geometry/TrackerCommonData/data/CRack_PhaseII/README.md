@@ -1,5 +1,12 @@
-# CRACK for PhaseII:
+# CRACK for Phase-II:
 
+To use the most up-to-date CRACK software, you should use `CMSSW_17_0_0_pre2`.
+```
+cmsrel CMSSW_17_0_0_pre2
+cd CMSSW_17_0_0_pre2/src
+cmsenv
+
+```
 ## Geometry generation
 
 This section provides complete instructions for creating the CRACK geometry.
@@ -9,7 +16,8 @@ This setup does not use TKLayout. It is a manual setup to create a custom standa
 If you want to run a standard GEN-SIM workflow instead, please refer to the official instructions:
 [here](https://github.com/cms-sw/cmssw/tree/master/Configuration/Geometry) and [here](https://github.com/cms-sw/cmssw/tree/master/Configuration/PyReleaseValidation).
 
-The CRACK geometry is defined through a set of XML files registered under the name TCRACK in dictCRACKIIGeometry.py.
++ The CRACK geometry is defined through a set of XML files registered under the name `TCRACK` in `dictCRACKIIGeometry.py`.
++ If you wish to modify the current CRACK geometry, you can find instructions in [DPG-presentation1](https://indico.cern.ch/event/1567987/contributions/6670173/attachments/3125573/5543509/CRACK_DPG_29082025.pdf) and [DPG-presentation2](https://indico.cern.ch/event/1628558/contributions/6877385/attachments/3202037/5700480/Phase2DPG-Meeting_16012026.pdf) 
 
 To create a new detector version with the standalone CRACK geometry, run the following commands:
 
@@ -43,16 +51,19 @@ Alternatively, use a ROOT macro to visualize the geometry. This method works on 
 ```
  root Geometry_plotter.C
 ```
-
+# Run the CRACK workflow 
 ## Gen-Sim step 
+
+The CRACK (D500) geometry is integrated in CMSSW and can be called and used as any other CMS detector geometry in the header of your python configuration file.  
 
 To run the cosmic-ray generation and simulation for the CRACK geometry, execute:
 ```
 cmsRun step1_cosmics_for_crack.py
 ```
 
-This will create a step1.root file. To analyse the hits in the root file, you can use the [SimHitAnalyzer](https://github.com/hayfasfar/SimHitAnalyzer/tree/master/SimHitAnalyzer).
+This creates a `step1.root` file. To analyze the hits in the ROOT file, you can use the [SimHitAnalyzer](https://github.com/hayfasfar/SimHitAnalyzer/tree/master/SimHitAnalyzer).
 
+## DIGI step: digitization, clusters, stubs and cluster1D objects 
 
 To perform the digitization, clustering, stub formation, and 1D cluster object creation, run:
 ```
@@ -60,25 +71,13 @@ To perform the digitization, clustering, stub formation, and 1D cluster object c
 cmsRun step2_digi_ttclusters_ttstubs_cluster1Dobj.py
 
 ```
+## Packer and Unpacker: 
+
+Instructions for running the packer/unpacker can be found in the CRACK-unpacker repository [CRACK-unpacker](https://github.com/P2-Tracker-BES-SW/cmssw/tree/unpackers_16_0_0_pre1/EventFilter/Phase2TrackerRawToDigi/doc). you have then to switch to the specific CRACK branch `rebase_unpackers_to_16_0_0_crack`. If you cannot find this branch, its name may have changed; in that case, look for another branch containing `CRACK` in its name.
 
 
-## Run the workflow (Coming soon)
-500 is the new detector version for the standelone CRACK. The following step creates available workflows for D500 sush as a simple the GEN-SIM step
+## DQM 
 
-The new Geometry is integrated in the full matrix, and several new workflow made available. a workflow is a set of GEN-SIM-RECO etc steps with different configurations. For further details on this step please refer to this presentation [here](https://indico.cern.ch/event/1296370/contributions/5449497/attachments/2664526/4616810/TkGeom_handover_AdeWit.pdf)
-
-To check the available workflows for D500 
-
-```
- runTheMatrix.py --what upgrade --showMatrix | grep D500 > log
-```
-
-To run a simple GEN-SIM step on the standelone version using cosmics you can use the workflow 32854.0 
-
-```
-runTheMatrix.py -l 32854.0 -t 4 --what upgrade --command="-n 1"
-
-```
-This will simply run a cmsDriver command for the GEN-SIM step with cosmic muons. 
+DQM instructions can be found in this repository [CRACK-DQM](https://github.com/cms-sw/cmssw/blob/master/DQM/SiTrackerPhase2/test/README.md#phase2-c-rack-dqm)
 
 
