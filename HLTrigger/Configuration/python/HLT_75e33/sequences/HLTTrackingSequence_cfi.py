@@ -6,6 +6,7 @@ from ..sequences.HLTHighPtTripletStepSequence_cfi import *
 from ..sequences.HLTInitialStepSequence_cfi import *
 from ..sequences.HLTItLocalRecoSequence_cfi import *
 from ..sequences.HLTOtLocalRecoSequence_cfi import *
+from ..sequences.HLTMtdLocalRecoSequence_cfi import *
 from ..sequences.HLTPhase2PixelTracksAndVerticesSequence_cfi import *
 
 _HLTTrackingSequenceLegacy = cms.Sequence(
@@ -16,6 +17,7 @@ _HLTTrackingSequenceLegacy = cms.Sequence(
     +HLTInitialStepSequence
     +HLTHighPtTripletStepSequence
     +hltGeneralTracks
+    +HLTMtdLocalRecoSequence
 )
 
 HLTTrackingSequence = _HLTTrackingSequenceLegacy.copyAndExclude([HLTHighPtTripletStepSequence])
