@@ -10,7 +10,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <cassert>
+#include <string_view>
 #include <vector>
 
 namespace edmtest {
@@ -28,6 +28,11 @@ namespace edmtest {
     void endJob();
 
   private:
+    void checkRunLumiEvent(std::string_view transition,
+                           edm::RunNumber_t run,
+                           edm::LuminosityBlockNumber_t lumi,
+                           edm::EventNumber_t event);
+
     std::vector<unsigned long long> const expectedRunLumisEvents_;
     bool const verbose_;
     bool const dumpTriggerResults_;
@@ -56,6 +61,38 @@ namespace edmtest {
     descriptions.addDefault(desc);
   }
 
+  void RunLumiEventAnalyzer::checkRunLumiEvent(std::string_view transition,
+                                               edm::RunNumber_t run,
+                                               edm::LuminosityBlockNumber_t lumi,
+                                               edm::EventNumber_t event) {
+    if ((index_ + 2U) < expectedRunLumisEvents_.size()) {
+      if (expectedRunLumisEvents_.at(index_) != run) {
+        throw cms::Exception("Assert").format("{} unexpected Run: expected {} found {} (index {})",
+                                              transition,
+                                              expectedRunLumisEvents_.at(index_),
+                                              run,
+                                              index_);
+      }
+      ++index_;
+      if (expectedRunLumisEvents_.at(index_) != lumi) {
+        throw cms::Exception("Assert").format("{} unexpected LuminosityBlock: expected {} found {} (index {})",
+                                              transition,
+                                              expectedRunLumisEvents_.at(index_),
+                                              lumi,
+                                              index_);
+      }
+      ++index_;
+      if (expectedRunLumisEvents_.at(index_) != event) {
+        throw cms::Exception("Assert").format("{} unexpected Event: expected {} found {} (index {})",
+                                              transition,
+                                              expectedRunLumisEvents_.at(index_),
+                                              event,
+                                              index_);
+      }
+      ++index_;
+    }
+  }
+
   void RunLumiEventAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&) {
     if (verbose_) {
       edm::LogAbsolute("RunLumiEvent") << "RUN_LUMI_EVENT " << event.run() << ", " << event.luminosityBlock() << ", "
@@ -71,14 +108,7 @@ namespace edmtest {
       }
     }
 
-    if ((index_ + 2U) < expectedRunLumisEvents_.size()) {
-      assert(expectedRunLumisEvents_.at(index_) == event.run());
-      ++index_;
-      assert(expectedRunLumisEvents_.at(index_) == event.luminosityBlock());
-      ++index_;
-      assert(expectedRunLumisEvents_.at(index_) == event.id().event());
-      ++index_;
-    }
+    checkRunLumiEvent("analyze", event.run(), event.luminosityBlock(), event.id().event());
   }
 
   void RunLumiEventAnalyzer::beginRun(edm::Run const& run, edm::EventSetup const&) {
@@ -86,14 +116,7 @@ namespace edmtest {
       edm::LogAbsolute("RunLumiEvent") << "RUN_LUMI_EVENT " << run.run() << ", " << 0 << ", " << 0;
     }
 
-    if ((index_ + 2U) < expectedRunLumisEvents_.size()) {
-      assert(expectedRunLumisEvents_.at(index_) == run.run());
-      ++index_;
-      assert(expectedRunLumisEvents_.at(index_) == 0);
-      ++index_;
-      assert(expectedRunLumisEvents_.at(index_) == 0);
-      ++index_;
-    }
+    checkRunLumiEvent("beginRun", run.run(), 0, 0);
   }
 
   void RunLumiEventAnalyzer::endRun(edm::Run const& run, edm::EventSetup const&) {
@@ -101,26 +124,7 @@ namespace edmtest {
       edm::LogAbsolute("RunLumiEvent") << "RUN_LUMI_EVENT " << run.run() << ", " << 0 << ", " << 0;
     }
 
-    if ((index_ + 2U) < expectedRunLumisEvents_.size()) {
-      if (!(expectedRunLumisEvents_.at(index_) == run.run())) {
-        throw cms::Exception("UnexpectedRun") << "RunLumiEventAnalyzer::endRun unexpected run\n"
-                                                 "  expected "
-                                              << expectedRunLumisEvents_.at(index_) << "  found    " << run.run();
-      }
-      ++index_;
-      if (!(expectedRunLumisEvents_.at(index_) == 0)) {
-        throw cms::Exception("UnexpectedLumi") << "RunLumiEventAnalyzer::endRun unexpected lumi\n"
-                                                  "  expected "
-                                               << expectedRunLumisEvents_.at(index_) << "  found    0";
-      }
-      ++index_;
-      if (!(expectedRunLumisEvents_.at(index_) == 0)) {
-        throw cms::Exception("UnexpectedEvent") << "RunLumiEventAnalyzer::endRun unexpected event\n"
-                                                   "  expected "
-                                                << expectedRunLumisEvents_.at(index_) << "  found    0";
-      }
-      ++index_;
-    }
+    checkRunLumiEvent("endRun", run.run(), 0, 0);
   }
 
   void RunLumiEventAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
@@ -129,14 +133,7 @@ namespace edmtest {
                                        << 0;
     }
 
-    if ((index_ + 2U) < expectedRunLumisEvents_.size()) {
-      assert(expectedRunLumisEvents_.at(index_) == lumi.run());
-      ++index_;
-      assert(expectedRunLumisEvents_.at(index_) == lumi.luminosityBlock());
-      ++index_;
-      assert(expectedRunLumisEvents_.at(index_) == 0);
-      ++index_;
-    }
+    checkRunLumiEvent("beginLuminosityBlock", lumi.run(), lumi.luminosityBlock(), 0);
   }
 
   void RunLumiEventAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
@@ -145,27 +142,7 @@ namespace edmtest {
                                        << 0;
     }
 
-    if ((index_ + 2U) < expectedRunLumisEvents_.size()) {
-      if (!(expectedRunLumisEvents_.at(index_) == lumi.run())) {
-        throw cms::Exception("UnexpectedRun") << "RunLumiEventAnalyzer::endLuminosityBlock unexpected run\n"
-                                                 "  expected "
-                                              << expectedRunLumisEvents_.at(index_) << "  found    " << lumi.run();
-      }
-      ++index_;
-      if (!(expectedRunLumisEvents_.at(index_) == lumi.luminosityBlock())) {
-        throw cms::Exception("UnexpectedLumi")
-            << "RunLumiEventAnalyzer::endLuminosityBlock unexpected lumi"
-               "  expected "
-            << expectedRunLumisEvents_.at(index_) << "  found    " << lumi.luminosityBlock();
-      }
-      ++index_;
-      if (!(expectedRunLumisEvents_.at(index_) == 0)) {
-        throw cms::Exception("UnexpectedEvent") << "RunLumiEventAnalyzer::endLuminosityBlock unexpected event"
-                                                   "  expected "
-                                                << expectedRunLumisEvents_.at(index_) << "  found    0";
-      }
-      ++index_;
-    }
+    checkRunLumiEvent("endLuminosityBlock", lumi.run(), lumi.luminosityBlock(), 0);
   }
 
   void RunLumiEventAnalyzer::endJob() {

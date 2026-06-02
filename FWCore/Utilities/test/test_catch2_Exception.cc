@@ -48,7 +48,7 @@ namespace {
       "char*:  a nonconst pointer\n"
       "char[]: a c-style array\n";
 
-    constexpr char expected_func5[] =
+  constexpr char expected_func5[] =
       "An exception of category 'Format' occurred.\n"
       "Exception Message:\n"
       "chaining of format calls 0\n"
