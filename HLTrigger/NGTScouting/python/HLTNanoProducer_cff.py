@@ -3,8 +3,9 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.JetMCAlgos.AK4GenJetFlavourInfos_cfi import *
 from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import *
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.jetMC_cff import *
 from PhysicsTools.NanoAOD.genparticles_cff import *
+from PhysicsTools.NanoAOD.jetMC_cff import *
+from PhysicsTools.NanoAOD.taus_cff import *
 from PhysicsTools.PatAlgos.slimming.genParticles_cff import *
 from PhysicsTools.PatAlgos.slimming.packedGenParticles_cfi import *
 from PhysicsTools.PatAlgos.slimming.prunedGenParticles_cfi import *
@@ -46,11 +47,16 @@ NanoGenTables = cms.Sequence(
     + slimmedGenJetsFlavourInfos
     + genJetTable
     + genJetFlavourTable
+    + tauGenJetsForNano
+    + tauGenJetsSelectorAllHadronsForNano
+    + genVisTaus
+    + genVisTauTable
 )
 
 # Store hlt objects for NGT scouting
 NanoHltTables = cms.Sequence(
     hltVertexTable
+    + hltSecondaryVertexTable
     + hltPixelVertexTable
     + hltGeneralTrackTable
     + hltGeneralTrackExtTable
