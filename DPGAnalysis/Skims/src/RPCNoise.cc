@@ -35,7 +35,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>  //
+#include <Geometry/CommonTopologies/interface/GeomDet.h>  //
 #include <FWCore/ServiceRegistry/interface/Service.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <DataFormats/RPCRecHit/interface/RPCRecHit.h>
