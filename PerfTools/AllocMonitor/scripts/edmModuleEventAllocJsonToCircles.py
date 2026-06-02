@@ -26,8 +26,8 @@ BYTE_METRICS = [
 REPORT_TO_METRIC = {
     "AvgTempSize": "Average temporary allocated memory",
     "AvgNTemp": "Average number of temporary allocations",
-    "AvgDataProductSize": "Average allocated memoory for data products",
-    "AvgRetained": "Average allocationed memory retained between events",
+    "AvgDataProductSize": "Average allocated memory for data products",
+    "AvgRetained": "Average allocated memory retained between events",
     "TotalMemoryGrowth": "Total allocated memory retained through the job"
 }
 
