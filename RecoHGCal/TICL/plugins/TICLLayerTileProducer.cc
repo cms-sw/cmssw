@@ -29,6 +29,7 @@ private:
   hgcal::RecHitTools rhtools_;
   std::string detector_;
   bool doNose_;
+  bool doBarrel_;
 };
 
 TICLLayerTileProducer::TICLLayerTileProducer(const edm::ParameterSet &ps)
@@ -36,15 +37,18 @@ TICLLayerTileProducer::TICLLayerTileProducer(const edm::ParameterSet &ps)
   geometry_token_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
 
   doNose_ = (detector_ == "HFNose");
+  doBarrel_ = (detector_ == "Barrel");
 
   if (doNose_) {
     clusters_HFNose_token_ =
         consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_HFNose_clusters"));
     produces<TICLLayerTilesHFNose>();
   } else {
+    if (doBarrel_) {
+      produces<TICLLayerTilesBarrel>("ticlLayerTilesBarrel");
+    }
     clusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"));
     produces<TICLLayerTiles>();
-    produces<TICLLayerTilesBarrel>("ticlLayerTilesBarrel");
   }
 }
 
@@ -60,7 +64,8 @@ void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
   if (doNose_) {
     resultHFNose = std::make_unique<TICLLayerTilesHFNose>();
   } else {
-    resultBarrel = std::make_unique<TICLLayerTilesBarrel>();
+    if (doBarrel_)
+      resultBarrel = std::make_unique<TICLLayerTilesBarrel>();
     result = std::make_unique<TICLLayerTiles>();
   }
 
@@ -83,9 +88,9 @@ void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
 
     if (doNose_) {
       resultHFNose->fill(layer, lc.eta(), lc.phi(), lcId);
-    } else if (isBarrelLC) {
+    } else if (doBarrel_ && isBarrelLC) {
       resultBarrel->fill(layer, lc.eta(), lc.phi(), lcId);
-    } else {
+    } else if (!isBarrelLC) {
       result->fill(layer, lc.eta(), lc.phi(), lcId);
     }
     LogDebug("TICLLayerTileProducer") << "Adding layerClusterId: " << lcId << " into bin [eta,phi]: [ "
@@ -93,11 +98,14 @@ void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
                                       << "] for layer: " << layer << std::endl;
     lcId++;
   }
+
   if (doNose_)
     evt.put(std::move(resultHFNose));
   else {
-    evt.put(std::move(resultBarrel), "ticlLayerTilesBarrel");
-    evt.put(std::move(result));
+    if (doBarrel_)
+      evt.put(std::move(resultBarrel), "ticlLayerTilesBarrel");
+    else
+      evt.put(std::move(result));
   }
 }
 

@@ -2,7 +2,11 @@ from SimCalorimetry.HGCalAssociatorProducers.LCToCPAssociation_cfi import barrel
 from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cfi import barrelLayerClusterSimClusterAssociation
 from SimCalorimetry.HGCalAssociatorProducers.barrelLCToSCAssociatorByEnergyScoreProducer_cfi import *
 from SimCalorimetry.HGCalAssociatorProducers.barrelLCToCPAssociatorByEnergyScoreProducer_cfi import *
-
+from SimCalorimetry.HGCalAssociatorProducers.HitToTracksterAssociation_cfi import allHitToBarrelTracksterAssociations
+from SimCalorimetry.HGCalAssociatorProducers.LCToTSAssociator_cfi import allBarrelLayerClusterToTracksterAssociations
+from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociationByHits_cfi import allBarrelTrackstersToSimTrackstersAssociationsByHits
+from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociation_cfi import allBarrelTrackstersToSimTrackstersAssociationsByLCs
+from SimCalorimetry.HGCalAssociatorProducers.barrelHitToSimClusterCaloParticleAssociator_cfi import barrelHitToSimClusterCaloParticleAssociator
 from Validation.HGCalValidation.BarrelValidator_cff import barrelValidator
 
 barrelValidatorSequence = cms.Sequence(barrelValidator)
@@ -11,7 +15,12 @@ barrelAssociators = cms.Task(
     barrelLCToCPAssociatorByEnergyScoreProducer,
     barrelLCToSCAssociatorByEnergyScoreProducer,
     barrelLayerClusterCaloParticleAssociation,
-    barrelLayerClusterSimClusterAssociation
+    barrelLayerClusterSimClusterAssociation,
+    barrelHitToSimClusterCaloParticleAssociator,
+    allHitToBarrelTracksterAssociations,
+    allBarrelLayerClusterToTracksterAssociations,
+    allBarrelTrackstersToSimTrackstersAssociationsByHits,
+    allBarrelTrackstersToSimTrackstersAssociationsByLCs
 )
 
 barrelValidation = cms.Sequence(barrelValidatorSequence)

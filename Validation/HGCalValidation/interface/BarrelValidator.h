@@ -71,6 +71,10 @@ protected:
   edm::InputTag lclTag_;
   edm::InputTag sclTag_;
   edm::InputTag rechitmapTag_;
+  std::vector<edm::InputTag> label_tst;
+  std::vector<edm::InputTag> allTracksterTracksterAssociatorsLabels_;
+  std::vector<edm::InputTag> allTracksterTracksterByHitsAssociatorsLabels_;
+  edm::InputTag label_simTS, label_simTSFromCP;
   std::vector<edm::InputTag> associator_;
   std::vector<edm::InputTag> associatorSim_;
   const bool SaveGeneralInfo_;
@@ -82,10 +86,16 @@ protected:
   const bool doLayerClustersPlots_;
   std::string label_layerClustersPlots_, label_LCToCPLinking_;
   std::vector<edm::InputTag> clustersmaskTags_;
+  const bool doTrackstersPlots_;
+  std::string label_TS_, label_TSbyHitsCP_, label_TSbyHits_, label_TSbyLCsCP_, label_TSbyLCs_;
 
   edm::EDGetTokenT<std::vector<SimCluster>> simClusters_;
   edm::EDGetTokenT<reco::CaloClusterCollection> layerClusters_;
   edm::EDGetTokenT<std::vector<CaloParticle>> cpToken_;
+  std::vector<edm::EDGetTokenT<ticl::TracksterCollection>> label_tstTokens;
+  edm::EDGetTokenT<ticl::TracksterCollection> simTracksters_;
+  edm::EDGetTokenT<ticl::TracksterCollection> simTracksters_fromCPs_;
+  edm::EDGetTokenT<std::map<uint, std::vector<uint>>> simTrackstersMap_;
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
   std::vector<edm::EDGetTokenT<std::vector<float>>> clustersMaskTokens_;
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> barrelHitMap_;
@@ -97,6 +107,8 @@ protected:
       associatorMapRtSim;
   std::unique_ptr<BarrelVHistoProducerAlgo> histoProducerAlgo_;
   edm::EDGetTokenT<edm::RefProdVector<reco::PFRecHitCollection>> hitsToken_;
+  std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterAssociatorsTokens_;
+  std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterByHitsAssociatorsTokens_;
   edm::EDGetTokenT<SimClusterToCaloParticleMap> scToCpMapToken_;
   edm::InputTag cpTag_;
 

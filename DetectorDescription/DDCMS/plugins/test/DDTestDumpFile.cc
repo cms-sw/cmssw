@@ -45,7 +45,7 @@ void DDTestDumpFile::analyze(const Event&, const EventSetup& iEventSetup) {
   LogVerbatim("Geometry") << "DDTestDumpFile::analyze: " << m_label;
   ESTransientHandle<DDDetector> det = iEventSetup.getTransientHandle(m_token);
 
-  TGeoManager& geom = det->manager();
+  const TGeoManager& geom = det->manager();
 
   int level = 1 + geom.GetTopVolume()->CountNodes(100, 3);
 
