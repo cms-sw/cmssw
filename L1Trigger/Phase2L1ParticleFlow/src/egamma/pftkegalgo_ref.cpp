@@ -382,13 +382,7 @@ id_score_t l1ct::TkEgCID_EB_v1::compute_score(const CompositeCandidate &cand,
   float cl_pt = calo.floatPt();
   //This two ratios will be computed in the calotrigger and passed to the CTL1 in 6 bits
   float cl_ss = calo.hwShowerShape.to_float();
-
-  // FIXME: this is a workaround as the training was erronously done with this variable
-  ap_ufixed<16, 0> calo_invPt = l1ct::invert_with_shift<pt_t, ap_ufixed<16, 0>, 1024>(calo.hwPt);
-  float reliso_hack = calo.hwPt == 1 ? calo.floatRelIso() : calo.floatRelIso() * calo_invPt.to_float();
-
-  l1ct::rel_iso_t hw_reliso_hack = l1ct::Scales::makeRelIso(reliso_hack);
-  float cl_relIso = hw_reliso_hack.to_float();
+  float cl_relIso = calo.hwRelIso.to_float();
   float cl_staWP = calo.hwEmID & 0x1;
   float cl_looseTkWP = (calo.hwEmID & 0x2) == 0x2;
   float tk_chi2RPhi = chi2RPhiBins[tk.hwRedChi2RPhi.to_int()];

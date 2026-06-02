@@ -62,14 +62,14 @@ CompositeParametersTkEleVec = cms.VPSet(
     ),
     #Algorithm 4: compositeEB_v1
     cms.PSet(
-        model=cms.string("L1Trigger/Phase2L1ParticleFlow/data/egamma/compositeID_EB_v1.json"),
+        model=cms.string("L1Trigger/Phase2L1ParticleFlow/data/egamma/compositeID_EB_v1.1.json"),
         loose_wp=cms.PSet(
             bins=cms.vdouble(0),
             values=cms.vdouble(-1)
             ),
         tight_wp=cms.PSet(
-            bins=cms.vdouble(0, 5, 10, 30),
-            values=cms.vdouble(0.17, 0.018, -0.08, -0.11),
+            bins=cms.vdouble(0, 6, 8, 10, 18, 25, 30),
+            values=cms.vdouble(0.0766603755105294, 0.06933593749954339, 0.012695312500194183, -0.03613282237932949, -0.0508455714180935, -0.11718749997898464, -0.1699629435703133),
         ),
         dPhi_max = cms.double(0.3),
         dEta_max = cms.double(0.03),
