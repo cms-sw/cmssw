@@ -25,7 +25,7 @@ namespace edmtest {
     void endRun(edm::Run const& run, edm::EventSetup const& es) final;
     void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) final;
     void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) final;
-    void endJob();
+    void endJob() final;
 
   private:
     void checkRunLumiEvent(std::string_view transition,
