@@ -48,6 +48,13 @@ namespace {
       "char*:  a nonconst pointer\n"
       "char[]: a c-style array\n";
 
+    constexpr char expected_func5[] =
+      "An exception of category 'Format' occurred.\n"
+      "Exception Message:\n"
+      "chaining of format calls 0\n"
+      "vformat 3.14\n"
+      "last foo\n";
+
   void func3() {
     double d = 1.11111;
     float f = 2.22222;
@@ -97,7 +104,6 @@ namespace {
     char c2[] = "a c-style array";
     Thing thing(4);
 
-    //  throw cms::Exception("DataCorrupt")
     cms::Exception e("DataCorrupt");
     e.format(
         "This is just a test: \n"
@@ -117,11 +123,19 @@ namespace {
     throw e;
   }
 
+  void func5() {
+    auto f = 3.14f;
+    throw cms::Exception("Format")
+        .format("chaining of format calls {}\n", 0)
+        .vformat("vformat {}\n", std::make_format_args(f))
+        .format("last {}\n", "foo");
+  }
 }  // namespace
 
 TEST_CASE("Test cms::Exception", "[cms::Exception]") {
   SECTION("throw") { REQUIRE_THROWS_WITH(func1(), expected); }
   SECTION("throw with format") { REQUIRE_THROWS_WITH(func4(), expected_func4); }
+  SECTION("throw temporary with format") { REQUIRE_THROWS_WITH(func5(), expected_func5); }
   SECTION("returnCode") {
     cms::Exception e1("ABC");
     REQUIRE(e1.returnCode() == 8001);

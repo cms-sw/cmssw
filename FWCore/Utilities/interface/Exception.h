@@ -124,8 +124,8 @@ namespace cms {
     friend decltype(auto) operator<<(E&& e, std::ios_base& (*f)(std::ios_base&));
 
     template <typename... Args>
-    inline void format(std::format_string<Args...> format, Args&&... args);
-    inline void vformat(std::string_view fmt, std::format_args args);
+    inline Exception& format(std::format_string<Args...> format, Args&&... args);
+    inline Exception& vformat(std::string_view fmt, std::format_args args);
 
     // This function is deprecated and we are in the process of removing
     // all code that uses it from CMSSW.  It will then be deleted.
@@ -154,11 +154,15 @@ namespace cms {
   // -------- implementation ---------
 
   template <typename... Args>
-  inline void Exception::format(std::format_string<Args...> format, Args&&... args) {
+  inline Exception& Exception::format(std::format_string<Args...> format, Args&&... args) {
     ost_ << std::format(std::move(format), std::forward<Args>(args)...);
+    return *this;
   }
 
-  inline void Exception::vformat(std::string_view format, std::format_args args) { ost_ << std::vformat(format, args); }
+  inline Exception& Exception::vformat(std::string_view format, std::format_args args) {
+    ost_ << std::vformat(format, args);
+    return *this;
+  }
 
   template <typename E, typename T>
     requires std::derived_from<std::remove_reference_t<E>, Exception>
