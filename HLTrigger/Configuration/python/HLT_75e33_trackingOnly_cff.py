@@ -9,8 +9,6 @@ for p in dir(fragment):
         delattr(fragment, p)
     del att
 
-fragment.load("HLTrigger/Configuration/HLT_75e33/services/PyTorchService_cfi")
-
 fragment.schedule = cms.Schedule(*[
     fragment.MC_TRK,
     fragment.HLTriggerFinalPath,
