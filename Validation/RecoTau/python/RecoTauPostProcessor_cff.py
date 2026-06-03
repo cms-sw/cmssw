@@ -4,8 +4,9 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 RecoTauPostProcessor = DQMEDHarvester("DQMGenericClient",
     subDirs=cms.untracked.vstring("Tau/TauValidation/", 
                                   "Tau/TauValidation/Cut*",
-                                  "Tau/TauValidation_DeltaR/DeltaR*",
-                                  "Tau/TauValidation_DeltaR/DeltaR*/Cut*", ),
+                                #   "Tau/TauValidation_DeltaR/DeltaR*",
+                                #   "Tau/TauValidation_DeltaR/DeltaR*/Cut*", 
+    ),
     efficiency = cms.vstring(
         # Efficiency
         "Eff_vs_pt_eta 'Efficiency vs p_{T},#eta' genTauMatched_pt_eta genTau_pt_eta",
