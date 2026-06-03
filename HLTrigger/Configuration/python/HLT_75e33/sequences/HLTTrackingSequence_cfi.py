@@ -18,12 +18,25 @@ _HLTTrackingSequenceLegacy = cms.Sequence(
     +HLTInitialStepSequence
     +HLTHighPtTripletStepSequence
     +hltGeneralTracks
-    +HLTMtdLocalRecoSequence
-    +HLTFastTimingGlobalRecoSequence 
+)
+
+from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
+mtd_at_hlt.toReplaceWith(
+    _HLTTrackingSequenceLegacy,
+    cms.Sequence(
+        HLTItLocalRecoSequence
+        + HLTOtLocalRecoSequence
+        + hltTrackerClusterCheck
+        + HLTPhase2PixelTracksAndVerticesSequence
+        + HLTInitialStepSequence
+        + HLTHighPtTripletStepSequence
+        + hltGeneralTracks
+        + HLTMtdLocalRecoSequence
+        + HLTFastTimingGlobalRecoSequence
+    )
 )
 
 HLTTrackingSequence = _HLTTrackingSequenceLegacy.copyAndExclude([HLTHighPtTripletStepSequence])
-
 
 # Empty sequence as a placeholder to be filled when alpakaValidationHLT is active
 HLTTrackingSequenceSerialSync = cms.Sequence()
