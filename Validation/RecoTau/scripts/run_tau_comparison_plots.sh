@@ -117,7 +117,7 @@ case "$step_upper" in
 esac
 
 # Change label according to the input file used
-ENERGY_TEXT="Ten Tau (150 PU) | 14 TeV"
+ENERGY_TEXT="Ten Tau (200 PU) | 14 TeV"
 
 DQM_FILE="DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root"
 SCRIPT_DIR="${CMSSW_BASE}/src/Validation/RecoTau/scripts"
@@ -224,10 +224,10 @@ echo "$DQM_FILE"
 echo
 echo "Making comparison plots"
 
-make_comparison_plot "Eff_vs_pt" "Eff_vs_pt_${PREFIX}_comparison" 'Simulated $\tau$ $p_T$ [GeV]' "Efficiency" "0,300" "0,1.4" "0,2" "$PT_REBIN"
-make_comparison_plot "Eff_vs_mass" "Eff_vs_mass_${PREFIX}_comparison" 'Simulated $\tau$ mass [GeV]' "Efficiency" "0,2" "0,1.4" "0,2" "2"
-make_comparison_plot "Eff_vs_eta" "Eff_vs_eta_${PREFIX}_comparison" 'Simulated $\tau$ $\eta$' "Efficiency" "-2.5,2.5" "0,1.4" "0.5,1.5" "$ETA_REBIN"
-make_comparison_plot "Eff_vs_phi" "Eff_vs_phi_${PREFIX}_comparison" 'Simulated $\tau$ $\phi$' "Efficiency" "" "0,1.4" "0.5,1.5" "$PHI_REBIN"
+make_comparison_plot "Eff_vs_pt" "Eff_vs_pt_${PREFIX}_comparison" 'GenVis $\tau$ $p_T$ [GeV]' "Efficiency" "0,300" "0,1.4" "0,2" "$PT_REBIN"
+make_comparison_plot "Eff_vs_mass" "Eff_vs_mass_${PREFIX}_comparison" 'GenVis $\tau$ mass [GeV]' "Efficiency" "0,2" "0,1.4" "0,2" "2"
+make_comparison_plot "Eff_vs_eta" "Eff_vs_eta_${PREFIX}_comparison" 'GenVis $\tau$ $\eta$' "Efficiency" "-2.5,2.5" "0,1.4" "0.5,1.5" "$ETA_REBIN"
+make_comparison_plot "Eff_vs_phi" "Eff_vs_phi_${PREFIX}_comparison" 'GenVis $\tau$ $\phi$' "Efficiency" "" "0,1.4" "0.5,1.5" "$PHI_REBIN"
 
 make_comparison_plot "Fake_vs_pt" "Fake_vs_pt_${PREFIX}_comparison" '$\tau$ $p_T$ [GeV]' "Fake rate" "0,300" "0,1.4" "0.5,1.5" "$PT_REBIN" 1
 make_comparison_plot "Fake_vs_mass" "Fake_vs_mass_${PREFIX}_comparison" '$\tau$ mass [GeV]' "Fake rate" "0,2" "0,1.4" "0.5,1.5" "2" 1
@@ -239,20 +239,20 @@ make_comparison_plot "Dup_vs_mass" "Dup_vs_mass_${PREFIX}_comparison" '$\tau$ $m
 make_comparison_plot "Dup_vs_eta" "Dup_vs_eta_${PREFIX}_comparison" '$\tau$ $\eta$' "Duplicate rate" "-2.5,2.5" "0,0.1" "0,2" "$ETA_REBIN"
 make_comparison_plot "Dup_vs_phi" "Dup_vs_phi_${PREFIX}_comparison" '$\tau$ $\phi$' "Duplicate rate" "" "0,0.1" "0,2" "$PHI_REBIN"
 
-make_comparison_plot "Split_vs_pt" "Split_vs_pt_${PREFIX}_comparison" 'Simulated $\tau$ $p_T$ [GeV]' "Split rate" "0,300" "0,1" "0,2" "$PT_REBIN"
-make_comparison_plot "Split_vs_mass" "Split_vs_mass_${PREFIX}_comparison" 'Simulated $\tau$ $mass$ [GeV]' "Split rate" "0,2" "0,1" "0,2" "2"
-make_comparison_plot "Split_vs_eta" "Split_vs_eta_${PREFIX}_comparison" 'Simulated $\tau$ $\eta$' "Split rate" "-2.5,2.5" "0,1" "0,2" "$ETA_REBIN"
-make_comparison_plot "Split_vs_phi" "Split_vs_phi_${PREFIX}_comparison" 'Simulated $\tau$ $\phi$' "Split rate" "" "0,1" "0,2" "$PHI_REBIN"
+make_comparison_plot "Split_vs_pt" "Split_vs_pt_${PREFIX}_comparison" 'GenVis $\tau$ $p_T$ [GeV]' "Split rate" "0,300" "0,1" "0,2" "$PT_REBIN"
+make_comparison_plot "Split_vs_mass" "Split_vs_mass_${PREFIX}_comparison" 'GenVis $\tau$ $mass$ [GeV]' "Split rate" "0,2" "0,1" "0,2" "2"
+make_comparison_plot "Split_vs_eta" "Split_vs_eta_${PREFIX}_comparison" 'GenVis $\tau$ $\eta$' "Split rate" "-2.5,2.5" "0,1" "0,2" "$ETA_REBIN"
+make_comparison_plot "Split_vs_phi" "Split_vs_phi_${PREFIX}_comparison" 'GenVis $\tau$ $\phi$' "Split rate" "" "0,1" "0,2" "$PHI_REBIN"
 
-make_comparison_plot "ResponsePt_RecoOverGen_vs_pt_Mean" "ScalePt_vs_pt_${PREFIX}_comparison" 'Simulated $\tau$ $p_T$ [GeV]' "$\langle p_T^{reco}/p_T^{gen} \rangle$" "0,300" "0,2" "0,2" "$PT_REBIN"
-make_comparison_plot "ResponsePt_RecoOverGen_vs_mass_Mean" "ScalePt_vs_mass_${PREFIX}_comparison" 'Simulated $\tau$ $mass$ [GeV]' "$\langle p_T^{reco}/p_T^{gen} \rangle$" "0,2" "0,2" "0,2" "2"
-make_comparison_plot "ResponsePt_RecoOverGen_vs_eta_Mean" "ScalePt_vs_eta_${PREFIX}_comparison" 'Simulated $\tau$ $\eta$' "$\langle p_T^{reco}/p_T^{gen} \rangle$" "-2.5,2.5" "0,2" "0,2" "$ETA_REBIN"
-make_comparison_plot "ResponsePt_RecoOverGen_vs_phi_Mean" "ScalePt_vs_phi_${PREFIX}_comparison" 'Simulated $\tau$ $\phi$' "$\langle p_T^{reco}/p_T^{gen} \rangle$" "" "0,2" "0,2" "$PHI_REBIN"
+make_comparison_plot "ResponsePt_RecoOverGen_vs_pt_Mean" "ScalePt_vs_pt_${PREFIX}_comparison" 'GenVis $\tau$ $p_T$ [GeV]' "$\langle p_T^{reco}/p_T^{gen} \rangle$" "0,300" "0,2" "0,2" "$PT_REBIN"
+make_comparison_plot "ResponsePt_RecoOverGen_vs_mass_Mean" "ScalePt_vs_mass_${PREFIX}_comparison" 'GenVis $\tau$ $mass$ [GeV]' "$\langle p_T^{reco}/p_T^{gen} \rangle$" "0,2" "0,2" "0,2" "2"
+make_comparison_plot "ResponsePt_RecoOverGen_vs_eta_Mean" "ScalePt_vs_eta_${PREFIX}_comparison" 'GenVis $\tau$ $\eta$' "$\langle p_T^{reco}/p_T^{gen} \rangle$" "-2.5,2.5" "0,2" "0,2" "$ETA_REBIN"
+make_comparison_plot "ResponsePt_RecoOverGen_vs_phi_Mean" "ScalePt_vs_phi_${PREFIX}_comparison" 'GenVis $\tau$ $\phi$' "$\langle p_T^{reco}/p_T^{gen} \rangle$" "" "0,2" "0,2" "$PHI_REBIN"
 
-make_comparison_plot "ResponseMass_RecoOverGen_vs_pt_Mean" "ScaleMass_vs_pt_${PREFIX}_comparison" 'Simulated $\tau$ $p_T$ [GeV]' "$\langle m^{reco}/m^{gen} \rangle$" "0,300" "0,2" "0,2" "$PT_REBIN"
-make_comparison_plot "ResponseMass_RecoOverGen_vs_mass_Mean" "ScaleMass_vs_mass_${PREFIX}_comparison" 'Simulated $\tau$ $mass$ [GeV]' "$\langle m^{reco}/m^{gen} \rangle$" "0,2" "0,2" "0,2" "2"
-make_comparison_plot "ResponseMass_RecoOverGen_vs_eta_Mean" "ScaleMass_vs_eta_${PREFIX}_comparison" 'Simulated $\tau$ $\eta$' "$\langle m^{reco}/m^{gen} \rangle$" "-2.5,2.5" "0,2" "0,2" "$ETA_REBIN"
-make_comparison_plot "ResponseMass_RecoOverGen_vs_phi_Mean" "ScaleMass_vs_phi_${PREFIX}_comparison" 'Simulated $\tau$ $\phi$' "$\langle m^{reco}/m^{gen} \rangle$" "" "0,2" "0,2" "$PHI_REBIN"
+make_comparison_plot "ResponseMass_RecoOverGen_vs_pt_Mean" "ScaleMass_vs_pt_${PREFIX}_comparison" 'GenVis $\tau$ $p_T$ [GeV]' "$\langle m^{reco}/m^{gen} \rangle$" "0,300" "0,2" "0,2" "$PT_REBIN"
+make_comparison_plot "ResponseMass_RecoOverGen_vs_mass_Mean" "ScaleMass_vs_mass_${PREFIX}_comparison" 'GenVis $\tau$ $mass$ [GeV]' "$\langle m^{reco}/m^{gen} \rangle$" "0,2" "0,2" "0,2" "2"
+make_comparison_plot "ResponseMass_RecoOverGen_vs_eta_Mean" "ScaleMass_vs_eta_${PREFIX}_comparison" 'GenVis $\tau$ $\eta$' "$\langle m^{reco}/m^{gen} \rangle$" "-2.5,2.5" "0,2" "0,2" "$ETA_REBIN"
+make_comparison_plot "ResponseMass_RecoOverGen_vs_phi_Mean" "ScaleMass_vs_phi_${PREFIX}_comparison" 'GenVis $\tau$ $\phi$' "$\langle m^{reco}/m^{gen} \rangle$" "" "0,2" "0,2" "$PHI_REBIN"
 
 make_resolution_comparison() {
     local base="$1"
@@ -325,15 +325,15 @@ make_resolution_comparison() {
     run_cmd "${cmd[@]}"
 }
 
-make_resolution_comparison "ResponsePt_RecoOverGen_vs_pt" "ResolutionPt_vs_pt_${PREFIX}_comparison" 'Simulated $\tau$ $p_T$ [GeV]' '$\sigma(p_T^{reco}/p_T^{gen}) / \langle p_T^{reco}/p_T^{gen} \rangle$' "0,300" "0,0.7" "0.5,1.5" "$PT_REBIN"
-make_resolution_comparison "ResponsePt_RecoOverGen_vs_mass" "ResolutionPt_vs_mass_${PREFIX}_comparison" 'Simulated $\tau$ $mass$ [GeV]' '$\sigma(p_T^{reco}/p_T^{gen}) / \langle p_T^{reco}/p_T^{gen} \rangle$' "0,2" "0,0.7" "0.5,1.5" "2"
-make_resolution_comparison "ResponsePt_RecoOverGen_vs_eta" "ResolutionPt_vs_eta_${PREFIX}_comparison" 'Simulated $\tau$ $\eta$' '$\sigma(p_T^{reco}/p_T^{gen}) / \langle p_T^{reco}/p_T^{gen} \rangle$' "-2.5,2.5" "0,0.7" "0.5,1.5" "$ETA_REBIN"
-make_resolution_comparison "ResponsePt_RecoOverGen_vs_phi" "ResolutionPt_vs_phi_${PREFIX}_comparison" 'Simulated $\tau$ $\phi$' '$\sigma(p_T^{reco}/p_T^{gen}) / \langle p_T^{reco}/p_T^{gen} \rangle$' "" "0,0.7" "0.5,1.5" "$PHI_REBIN"
+make_resolution_comparison "ResponsePt_RecoOverGen_vs_pt" "ResolutionPt_vs_pt_${PREFIX}_comparison" 'GenVis $\tau$ $p_T$ [GeV]' '$\sigma(p_T^{reco}/p_T^{gen}) / \langle p_T^{reco}/p_T^{gen} \rangle$' "0,300" "0,0.7" "0.5,1.5" "$PT_REBIN"
+make_resolution_comparison "ResponsePt_RecoOverGen_vs_mass" "ResolutionPt_vs_mass_${PREFIX}_comparison" 'GenVis $\tau$ $mass$ [GeV]' '$\sigma(p_T^{reco}/p_T^{gen}) / \langle p_T^{reco}/p_T^{gen} \rangle$' "0,2" "0,0.7" "0.5,1.5" "2"
+make_resolution_comparison "ResponsePt_RecoOverGen_vs_eta" "ResolutionPt_vs_eta_${PREFIX}_comparison" 'GenVis $\tau$ $\eta$' '$\sigma(p_T^{reco}/p_T^{gen}) / \langle p_T^{reco}/p_T^{gen} \rangle$' "-2.5,2.5" "0,0.7" "0.5,1.5" "$ETA_REBIN"
+make_resolution_comparison "ResponsePt_RecoOverGen_vs_phi" "ResolutionPt_vs_phi_${PREFIX}_comparison" 'GenVis $\tau$ $\phi$' '$\sigma(p_T^{reco}/p_T^{gen}) / \langle p_T^{reco}/p_T^{gen} \rangle$' "" "0,0.7" "0.5,1.5" "$PHI_REBIN"
 
-make_resolution_comparison "ResponseMass_RecoOverGen_vs_pt" "ResolutionMass_vs_pt_${PREFIX}_comparison" 'Simulated $\tau$ $p_T$ [GeV]' '$\sigma(m^{reco}/m^{gen}) / \langle m^{reco}/m^{gen} \rangle$' "0,300" "0,0.7" "0.5,1.5" "$PT_REBIN"
-make_resolution_comparison "ResponseMass_RecoOverGen_vs_mass" "ResolutionMass_vs_mass_${PREFIX}_comparison" 'Simulated $\tau$ $mass$ [GeV]' '$\sigma(m^{reco}/m^{gen}) / \langle m^{reco}/m^{gen} \rangle$' "0,2" "0,0.7" "0.5,1.5" "2"
-make_resolution_comparison "ResponseMass_RecoOverGen_vs_eta" "ResolutionMass_vs_eta_${PREFIX}_comparison" 'Simulated $\tau$ $\eta$' '$\sigma(m^{reco}/m^{gen}) / \langle m^{reco}/m^{gen} \rangle$' "-2.5,2.5" "0,0.7" "0.5,1.5" "$ETA_REBIN"
-make_resolution_comparison "ResponseMass_RecoOverGen_vs_phi" "ResolutionMass_vs_phi_${PREFIX}_comparison" 'Simulated $\tau$ $\phi$' '$\sigma(m^{reco}/m^{gen}) / \langle m^{reco}/m^{gen} \rangle$' "" "0,0.7" "0.5,1.5" "$PHI_REBIN"
+make_resolution_comparison "ResponseMass_RecoOverGen_vs_pt" "ResolutionMass_vs_pt_${PREFIX}_comparison" 'GenVis $\tau$ $p_T$ [GeV]' '$\sigma(m^{reco}/m^{gen}) / \langle m^{reco}/m^{gen} \rangle$' "0,300" "0,0.7" "0.5,1.5" "$PT_REBIN"
+make_resolution_comparison "ResponseMass_RecoOverGen_vs_mass" "ResolutionMass_vs_mass_${PREFIX}_comparison" 'GenVis $\tau$ $mass$ [GeV]' '$\sigma(m^{reco}/m^{gen}) / \langle m^{reco}/m^{gen} \rangle$' "0,2" "0,0.7" "0.5,1.5" "2"
+make_resolution_comparison "ResponseMass_RecoOverGen_vs_eta" "ResolutionMass_vs_eta_${PREFIX}_comparison" 'GenVis $\tau$ $\eta$' '$\sigma(m^{reco}/m^{gen}) / \langle m^{reco}/m^{gen} \rangle$' "-2.5,2.5" "0,0.7" "0.5,1.5" "$ETA_REBIN"
+make_resolution_comparison "ResponseMass_RecoOverGen_vs_phi" "ResolutionMass_vs_phi_${PREFIX}_comparison" 'GenVis $\tau$ $\phi$' '$\sigma(m^{reco}/m^{gen}) / \langle m^{reco}/m^{gen} \rangle$' "" "0,0.7" "0.5,1.5" "$PHI_REBIN"
 
 echo
 echo "Done."
