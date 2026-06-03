@@ -39,7 +39,7 @@
 
 using namespace geant_units::operators;
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 GEMGeometryBuilder::GEMGeometryBuilder() {}
 
@@ -205,6 +205,9 @@ GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(DDFilteredView& fv, GEMDe
   if (dpar.empty()) {
     const DDBooleanSolid bs(fv.logicalPart().solid());
     dpar = bs.solidA().parameters();
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("Geometry") << "Name " << bs.solidA().name();
+#endif
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << " Name " << fv.logicalPart().solid().name() << " Size " << dpar.size();
@@ -219,6 +222,9 @@ GEMSuperChamber* GEMGeometryBuilder::buildSuperChamber(DDFilteredView& fv, GEMDe
     const double chgap = 2.105;
 
     dpar = solid.solidB().parameters();
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("Geometry") << "NameSolidB " << solid.solidB().name() << " Size " << dpar.size();
+#endif
 
     dz += convertMmToCm(dpar[3]);  // chamber thickness
     dz *= nch;                     // 2 chambers in superchamber
@@ -249,6 +255,9 @@ GEMChamber* GEMGeometryBuilder::buildChamber(DDFilteredView& fv, GEMDetId detId)
   if (dpar.empty()) {
     const DDBooleanSolid bs(fv.logicalPart().solid());
     dpar = bs.solidA().parameters();
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("Geometry") << "Name " << bs.solidA().name();
+#endif
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << " Name " << fv.logicalPart().solid().name() << " Size " << dpar.size();
@@ -261,6 +270,9 @@ GEMChamber* GEMGeometryBuilder::buildChamber(DDFilteredView& fv, GEMDetId detId)
 
   if (!ge0Station) {
     dpar = solid.solidB().parameters();
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("Geometry") << "NameSolidB " << solid.solidB().name() << " Size " << dpar.size();
+#endif
     dz += convertMmToCm(dpar[3]);  // chamber thickness
   }
 
@@ -308,6 +320,9 @@ GEMEtaPartition* GEMGeometryBuilder::buildEtaPartition(DDFilteredView& fv, GEMDe
   if (dpar.empty()) {
     const DDBooleanSolid bs(fv.logicalPart().solid());
     dpar = bs.solidA().parameters();
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("Geometry") << "Strips:: Name " << bs.solidA().name();
+#endif
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("Geometry") << "Strips:: dpar Size " << dpar.size();
