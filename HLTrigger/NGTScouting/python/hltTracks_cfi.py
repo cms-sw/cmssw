@@ -138,6 +138,7 @@ hltTrackingParticleRecoTrackAssociationTable = trackingParticleRecoTrackAssociat
     linksName = "hltTPAssocLinks",
     doc       = "TrackingParticle -> hltGeneralTracks associations (dense per TP)",
     linksDoc  = "Flattened TP -> hltGeneralTracks links: target hltGeneralTrack index and association score",
+    skipNonExistingSrc = cms.bool(True),
 )
 
 hltRecoTrackTrackingParticleAssociationTable = recoTrackTrackingParticleAssociationTable.clone(
@@ -148,6 +149,7 @@ hltRecoTrackTrackingParticleAssociationTable = recoTrackTrackingParticleAssociat
     linksName = "hltTrackAssocLinks",
     doc       = "hltGeneralTrack -> TrackingParticle associations (dense per HLT general track)",
     linksDoc  = "Flattened hltGeneralTrack -> TP links: target TP index and association score",
+    skipNonExistingSrc = cms.bool(True),
 )
 
 hltGeneralTrackTable = cms.EDProducer(
