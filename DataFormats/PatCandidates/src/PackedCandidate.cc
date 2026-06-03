@@ -87,9 +87,9 @@ void pat::PackedCandidate::packCovariance(const reco::TrackBase::CovarianceMatri
   packedCovariance_.detadeta = packCovarianceElement(m, 1, 1);
   packedCovariance_.dphidphi = packCovarianceElement(m, 2, 2);
   packedCovariance_.dxydxy = packCovarianceElement(m, 3, 3);
-  packedCovariance_.dzdz = packCovarianceElement(m, 4, 4);
-  packedCovariance_.dxydz = packCovarianceElement(m, 3, 4);
-  packedCovariance_.dlambdadz = packCovarianceElement(m, 1, 4);
+  packedCovariance_.dszdsz = packCovarianceElement(m, 4, 4);
+  packedCovariance_.dxydsz = packCovarianceElement(m, 3, 4);
+  packedCovariance_.dlambdadsz = packCovarianceElement(m, 1, 4);
   packedCovariance_.dphidxy = packCovarianceElement(m, 2, 3);
   // unpack afterwards
   if (unpackAfterwards)
@@ -108,9 +108,9 @@ void pat::PackedCandidate::unpackCovariance() const {
     unpackCovarianceElement(*m, packedCovariance_.detadeta, 1, 1);
     unpackCovarianceElement(*m, packedCovariance_.dphidphi, 2, 2);
     unpackCovarianceElement(*m, packedCovariance_.dxydxy, 3, 3);
-    unpackCovarianceElement(*m, packedCovariance_.dzdz, 4, 4);
-    unpackCovarianceElement(*m, packedCovariance_.dxydz, 3, 4);
-    unpackCovarianceElement(*m, packedCovariance_.dlambdadz, 1, 4);
+    unpackCovarianceElement(*m, packedCovariance_.dszdsz, 4, 4);
+    unpackCovarianceElement(*m, packedCovariance_.dxydsz, 3, 4);
+    unpackCovarianceElement(*m, packedCovariance_.dlambdadsz, 1, 4);
     unpackCovarianceElement(*m, packedCovariance_.dphidxy, 2, 3);
 
     reco::TrackBase::CovarianceMatrix *expected = nullptr;
