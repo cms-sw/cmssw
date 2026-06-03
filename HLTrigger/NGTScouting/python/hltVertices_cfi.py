@@ -21,7 +21,7 @@ hltPixelVertexTable = cms.EDProducer("HLTVertexTableProducer",
                                      pvName = cms.string("hltPixelVertex"))
 
 hltSecondaryVertexTable = cms.EDProducer("SimpleSecondaryVertexFlatTableProducer",
-                                         skipNonExistingSrc = cms.bool(False),
+                                         skipNonExistingSrc = cms.bool(True),
                                          src = cms.InputTag("hltDeepInclusiveMergedVerticesPF"),
                                          name = cms.string("hltSecondaryVertex"),
                                          extension = cms.bool(False),
