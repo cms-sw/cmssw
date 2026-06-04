@@ -10,5 +10,7 @@
 #include "SimDataFormats/CaloAnalysis/interface/MtdSimLayerClusterFwd.h"
 #include "SimDataFormats/CaloAnalysis/interface/MtdSimTrackster.h"
 #include "SimDataFormats/CaloAnalysis/interface/MtdSimTracksterFwd.h"
+#include "SimDataFormats/CaloAnalysis/interface/MtdSimMergedCluster.h"
+#include "SimDataFormats/CaloAnalysis/interface/MtdSimMergedClusterFwd.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimTauCPLink.h"
 #include "DataFormats/Common/interface/Wrapper.h"

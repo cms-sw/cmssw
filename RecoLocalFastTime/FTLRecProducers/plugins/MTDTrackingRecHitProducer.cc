@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/FTLRecHit/interface/FTLClusterCollections.h"
+#include "DataFormats/FTLRecHit/interface/FTLMergedClusterCollections.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
@@ -31,16 +31,16 @@ public:
   void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const override;
 
 private:
-  const edm::EDGetTokenT<FTLClusterCollection> ftlbClusters_;  // collection of barrel digis
-  const edm::EDGetTokenT<FTLClusterCollection> ftleClusters_;  // collection of endcap digis
+  const edm::EDGetTokenT<FTLMergedClusterCollection> ftlbClusters_;  // collection of barrel digis
+  const edm::EDGetTokenT<FTLMergedClusterCollection> ftleClusters_;  // collection of endcap digis
 
   const edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
   const edm::ESGetToken<MTDClusterParameterEstimator, MTDCPERecord> cpeToken_;
 };
 
 MTDTrackingRecHitProducer::MTDTrackingRecHitProducer(const edm::ParameterSet& ps)
-    : ftlbClusters_(consumes<FTLClusterCollection>(ps.getParameter<edm::InputTag>("barrelClusters"))),
-      ftleClusters_(consumes<FTLClusterCollection>(ps.getParameter<edm::InputTag>("endcapClusters"))),
+    : ftlbClusters_(consumes<FTLMergedClusterCollection>(ps.getParameter<edm::InputTag>("barrelClusters"))),
+      ftleClusters_(consumes<FTLMergedClusterCollection>(ps.getParameter<edm::InputTag>("endcapClusters"))),
       mtdgeoToken_(esConsumes<MTDGeometry, MTDDigiGeometryRecord>()),
       cpeToken_(esConsumes<MTDClusterParameterEstimator, MTDCPERecord>(edm::ESInputTag("", "MTDCPEBase"))) {
   produces<MTDTrackingDetSetVector>();
@@ -49,8 +49,8 @@ MTDTrackingRecHitProducer::MTDTrackingRecHitProducer(const edm::ParameterSet& ps
 // Configuration descriptions
 void MTDTrackingRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("barrelClusters", edm::InputTag("mtdClusters:FTLBarrel"));
-  desc.add<edm::InputTag>("endcapClusters", edm::InputTag("mtdClusters:FTLEndcap"));
+  desc.add<edm::InputTag>("barrelClusters", edm::InputTag("mtdMergedClusters:FTLBarrel"));
+  desc.add<edm::InputTag>("endcapClusters", edm::InputTag("mtdMergedClusters:FTLEndcap"));
   descriptions.add("mtdTrackingRecHitProducer", desc);
 }
 
@@ -59,13 +59,13 @@ void MTDTrackingRecHitProducer::produce(edm::StreamID, edm::Event& evt, const ed
 
   auto const& cpe = es.getData(cpeToken_);
 
-  edm::Handle<FTLClusterCollection> inputBarrel;
+  edm::Handle<FTLMergedClusterCollection> inputBarrel;
   evt.getByToken(ftlbClusters_, inputBarrel);
 
-  edm::Handle<FTLClusterCollection> inputEndcap;
+  edm::Handle<FTLMergedClusterCollection> inputEndcap;
   evt.getByToken(ftleClusters_, inputEndcap);
 
-  std::array<edm::Handle<FTLClusterCollection>, 2> inputHandle{{inputBarrel, inputEndcap}};
+  std::array<edm::Handle<FTLMergedClusterCollection>, 2> inputHandle{{inputBarrel, inputEndcap}};
 
   auto outputhits = std::make_unique<MTDTrackingDetSetVector>();
   auto& theoutputhits = *outputhits;
@@ -80,7 +80,7 @@ void MTDTrackingRecHitProducer::produce(edm::StreamID, edm::Event& evt, const ed
       edm::LogWarning("MTDTrackingRecHitProducer") << "MTDTrackingRecHitProducer: Invalid collection";
       continue;
     }
-    const edmNew::DetSetVector<FTLCluster>& input = *theInput;
+    const edmNew::DetSetVector<FTLMergedCluster>& input = *theInput;
 
     LogDebug("MTDTrackingRecHitProducer") << "inputCollection " << input.size();
     for (const auto& DSVit : input) {
@@ -107,14 +107,16 @@ void MTDTrackingRecHitProducer::produce(edm::StreamID, edm::Event& evt, const ed
 #endif
 
       for (const auto& clustIt : DSVit) {
-        LogDebug("MTDTrackingRecHitProducer") << "Cluster: size " << clustIt.size() << " " << clustIt.x() << ","
-                                              << clustIt.y() << " " << clustIt.energy() << " " << clustIt.time();
+        LogDebug("MTDTrackingRecHitProducer")
+            << "MergedCluster: size (# of FTLClusters) " << clustIt.nClusters() << " " << clustIt.x() << ","
+            << clustIt.y() << " " << clustIt.energy() << " " << clustIt.time();
         MTDClusterParameterEstimator::ReturnType tuple = cpe.getParameters(clustIt, *genericDet);
         LocalPoint lp(std::get<0>(tuple));
         LocalError le(std::get<1>(tuple));
 
         // Create a persistent edm::Ref to the cluster
-        edm::Ref<edmNew::DetSetVector<FTLCluster>, FTLCluster> cluster = edmNew::makeRefTo(theInput, &clustIt);
+        edm::Ref<edmNew::DetSetVector<FTLMergedCluster>, FTLMergedCluster> cluster =
+            edmNew::makeRefTo(theInput, &clustIt);
         // Make a RecHit and add it to the DetSet
         MTDTrackingRecHit hit(lp, le, *genericDet, cluster);
         LogDebug("MTDTrackingRecHitProducer")

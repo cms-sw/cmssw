@@ -70,6 +70,14 @@
   <class name="std::vector<io_v1::SimTauCPLink>"/>
   <class name="edm::Wrapper<std::vector<io_v1::SimTauCPLink> >" />
 
+  <class name="MtdSimMergedCluster"/>
+  <class name="MtdSimMergedClusterCollection"/>
+  <class name="edm::Wrapper<MtdSimMergedClusterCollection>"/>
+  <class name="MtdSimMergedClusterRef"/>
+  <class name="MtdSimMergedClusterRefVector"/>
+  <class name="MtdSimMergedClusterRefProd"/>
+  <class name="MtdSimMergedClusterContainer"/>
+
   <class name="std::pair<uint64_t,float>"/>
   <class name="std::vector<std::pair<uint64_t,float>>"/>
   <class name="edm::Wrapper<std::vector<std::pair<uint64_t,float>> >"/>

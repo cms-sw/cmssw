@@ -30,4 +30,6 @@
 <use name="gsl"/>
 <use name="fastjet"/>
 <use name="SimFastTiming/FastTimingCommon"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/ForwardDetId"/>
 <flags EDM_PLUGIN="1"/>
