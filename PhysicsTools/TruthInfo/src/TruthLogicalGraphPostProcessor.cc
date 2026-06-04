@@ -94,16 +94,14 @@ namespace {
     if (!genSimPair)
       return false;
     bool areCompatible = compatibleVertexPositions(a, b, tolerance);
-    if (!areCompatible){
+    if (!areCompatible) {
       std::cout << "vertices not merged: (" << a.position.px() << " , " << a.position.py() << " , " << a.position.pz()
                 << ") too far from " << "(" << b.position.px() << " , " << b.position.py() << " , " << b.position.pz()
                 << ")" << std::endl;
-    }
-    else
-    {
-        std::cout << "vertices successfully merged: (" << a.position.px() << " , " << a.position.py() << " , " << a.position.pz()
-                << ") too far from " << "(" << b.position.px() << " , " << b.position.py() << " , " << b.position.pz()
-                << ")" << std::endl;
+    } else {
+      std::cout << "vertices successfully merged: (" << a.position.px() << " , " << a.position.py() << " , "
+                << a.position.pz() << ") too far from " << "(" << b.position.px() << " , " << b.position.py() << " , "
+                << b.position.pz() << ")" << std::endl;
     }
     return areCompatible;
   }
