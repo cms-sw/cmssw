@@ -492,8 +492,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       DetId detIdObject(cluId);
       const auto& genericDet = geom->idToDetUnit(detIdObject);
       if (genericDet == nullptr) {
-        throw cms::Exception("BtlLocalRecoValidation")
-            << "GeographicalID: " << std::hex << cluId << " is invalid!" << std::dec << std::endl;
+        continue;
       }
       n_clus_btl++;
       LogTrace("BtlLocalRecoValidation") << "Cluster DetId " << cluId.rawId() << " size = " << cluster.size()
@@ -586,16 +585,57 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       }
 
       // Find the MTDTrackingRecHit corresponding to the cluster
-      const MTDTrackingRecHit* comp(nullptr);
+      MTDTrackingRecHit* comp(nullptr);
       bool matchClu = false;
-      const auto& trkHits = (*mtdTrkHitHandle)[detIdObject];
-      for (const auto& trkHit : trkHits) {
-        if (isSameCluster(trkHit.mtdCluster(), cluster)) {
-          comp = trkHit.clone();
-          matchClu = true;
-          break;
+
+      const auto& trkHits = mtdTrkHitHandle->find(detIdObject);
+      if (trkHits != mtdTrkHitHandle->end()) {
+        for (const auto& trkHit : *trkHits) {
+          auto mergedCluster = trkHit.mtdMergedCluster();
+          const auto& mergedClusterRefs = mergedCluster.clusterRefs();
+          for (const auto& ref : mergedClusterRefs) {
+            if (isSameCluster(cluster, *ref)) {
+              comp = trkHit.clone();
+              matchClu = true;
+              break;
+            }
+          }
+          if (matchClu)
+            break;
         }
       }
+      if (!matchClu) {  //didn't find the cluster in the same detId, probably has been merged, look for clusters in adjacent detIds (in eta direction)
+        std::pair<uint32_t, uint32_t> indices = topology->btlIndex(detIdObject.rawId());
+        uint32_t iphi = indices.first;
+        uint32_t ieta = indices.second;
+        std::vector<int> etaOffsets = {1, -1};
+        for (int etaOffset : etaOffsets) {
+          uint32_t adjDetIdRaw = topology->btlidFromIndex(iphi, ieta + etaOffset);
+          if (adjDetIdRaw == 0) {
+            continue;  //skip if the adjacent detId is invalid
+          }
+          BTLDetId cluId_nearby(adjDetIdRaw);
+          DetId detIdObject_nearby(cluId_nearby);
+
+          const auto& trkHits_nearby = mtdTrkHitHandle->find(detIdObject_nearby);
+          if (trkHits_nearby != mtdTrkHitHandle->end()) {
+            for (const auto& trkHit : *trkHits_nearby) {
+              auto mergedCluster = trkHit.mtdMergedCluster();
+              const auto& mergedClusterRefs = mergedCluster.clusterRefs();
+              for (const auto& ref : mergedClusterRefs) {
+                if (isSameCluster(cluster, *ref)) {
+                  comp = trkHit.clone();
+                  matchClu = true;
+                  break;
+                }
+              }
+              if (matchClu)
+                break;
+            }
+          }
+        }
+      }
+
       if (!matchClu) {
         edm::LogWarning("BtlLocalRecoValidation")
             << "No valid TrackingRecHit corresponding to cluster, detId = " << detIdObject.rawId();

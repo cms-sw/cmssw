@@ -4,6 +4,8 @@
 <use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/FTLRecHit"/>
 <use name="DataFormats/FTLRecHitSoA"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/TrackerRecHit2D"/>
 <library file="MTDRecoDump.cc" name="MTDRecoDump">
   <flags EDM_PLUGIN="1"/>
 </library>
