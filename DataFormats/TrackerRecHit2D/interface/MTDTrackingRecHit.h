@@ -6,6 +6,8 @@
 #include <cassert>
 #include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
 #include "DataFormats/FTLRecHit/interface/FTLRecHitCollections.h"
+#include "DataFormats/FTLRecHit/interface/FTLMergedClusterCollections.h"
+#include "DataFormats/Common/interface/Ref.h"
 
 namespace io_v1 {
   class MTDTrackingRecHit : public TrackerSingleRecHit {
@@ -21,12 +23,17 @@ namespace io_v1 {
     bool isPhase2() const final { return true; }
     void getKfComponents(KfComponentsHolder& holder) const final;
 
+    // constructor accepting a merged-cluster Ref
+    using FTLMergedClusterRef = edm::Ref<FTLMergedClusterCollection, FTLMergedCluster>;
+    MTDTrackingRecHit(const LocalPoint& p, const LocalError& e, const GeomDet& idet, const FTLMergedClusterRef& objref)
+        : TrackerSingleRecHit(p, e, idet, trackerHitRTTI::mipTiming, objref) {}
+
     int dimension() const final { return 2; }
 
     //specific timing stuff
-    float energy() const { return omniCluster().mtdCluster().energy(); }
-    float time() const { return omniCluster().mtdCluster().time(); }
-    float timeError() const { return omniCluster().mtdCluster().timeError(); }
+    float energy() const { return omniCluster().mtdMergedCluster().energy(); }
+    float time() const { return omniCluster().mtdMergedCluster().time(); }
+    float timeError() const { return omniCluster().mtdMergedCluster().timeError(); }
   };
 }  // namespace io_v1
 using MTDTrackingRecHit = io_v1::MTDTrackingRecHit;

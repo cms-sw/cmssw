@@ -2,12 +2,12 @@
 #define TrackerRecHit2D_OmniClusterRef_H
 
 #include "DataFormats/Common/interface/RefCoreWithIndex.h"
-
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/FTLRecHit/interface/FTLClusterCollections.h"
+#include "DataFormats/FTLRecHit/interface/FTLMergedClusterCollections.h"
 
 namespace io_v1 {
 
@@ -23,22 +23,21 @@ namespace io_v1 {
     static const unsigned int subClusMask = 0xF000000;
     static const unsigned int subClusShift = 24;
 
-  public:
+public:
     typedef edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> ClusterPixelRef;
     typedef edm::Ref<edmNew::DetSetVector<SiStripCluster>, SiStripCluster> ClusterStripRef;
     typedef edm::Ref<edmNew::DetSetVector<Phase2TrackerCluster1D>, Phase2TrackerCluster1D> Phase2Cluster1DRef;
-    typedef edm::Ref<FTLClusterCollection, FTLCluster> ClusterMTDRef;
+    typedef edm::Ref<FTLMergedClusterCollection, FTLMergedCluster> MergedClusterRef;
 
     OmniClusterRef() : me(edm::RefCore(), kInvalid) {}
-    OmniClusterRef(edm::ProductID const& id, SiStripCluster const* clu, unsigned int key)
-        : me(id, clu, key | kIsStrip) {}
+    OmniClusterRef(edm::ProductID const& id, SiStripCluster const* clu, unsigned int key) : me(id, clu, key | kIsStrip) {}
     explicit OmniClusterRef(ClusterPixelRef const& ref, unsigned int subClus = 0)
         : me(ref.refCore(), (ref.isNonnull() ? ref.key() | (subClus << subClusShift) : kInvalid)) {}
     explicit OmniClusterRef(ClusterStripRef const& ref, unsigned int subClus = 0)
         : me(ref.refCore(), (ref.isNonnull() ? (ref.key() | kIsStrip) | (subClus << subClusShift) : kInvalid)) {}
     explicit OmniClusterRef(Phase2Cluster1DRef const& ref, unsigned int subClus = 0)
         : me(ref.refCore(), (ref.isNonnull() ? (ref.key() | kIsPhase2) | (subClus << subClusShift) : kInvalid)) {}
-    explicit OmniClusterRef(ClusterMTDRef const& ref)
+    explicit OmniClusterRef(MergedClusterRef const& ref)
         : me(ref.refCore(), (ref.isNonnull() ? (ref.key() | kIsTiming) : kInvalid)) {}
 
     ClusterPixelRef cluster_pixel() const {
@@ -53,12 +52,14 @@ namespace io_v1 {
       return isPhase2() ? Phase2Cluster1DRef(me.toRefCore(), index()) : Phase2Cluster1DRef();
     }
 
-    ClusterMTDRef cluster_mtd() const { return isTiming() ? ClusterMTDRef(me.toRefCore(), index()) : ClusterMTDRef(); }
+    MergedClusterRef cluster_merged_mtd() const {
+      return isTiming() ? MergedClusterRef(me.toRefCore(), index()) : MergedClusterRef();
+    }
 
     SiPixelCluster const& pixelCluster() const { return *ClusterPixelRef(me.toRefCore(), index()); }
     SiStripCluster const& stripCluster() const { return *ClusterStripRef(me.toRefCore(), index()); }
     Phase2TrackerCluster1D const& phase2OTCluster() const { return *Phase2Cluster1DRef(me.toRefCore(), index()); }
-    FTLCluster const& mtdCluster() const { return *ClusterMTDRef(me.toRefCore(), index()); }
+    FTLMergedCluster const& mtdMergedCluster() const { return *MergedClusterRef(me.toRefCore(), index()); }
 
     bool operator==(OmniClusterRef const& lh) const {
       return rawIndex() == lh.rawIndex();  // in principle this is enough!

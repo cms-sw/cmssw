@@ -20,6 +20,7 @@
   <class name="edm::RefProd<FTLRecHitCollection>"/>
 
   <class name="io_v1::FTLCluster" ClassVersion="3">
+   <version ClassVersion="4" checksum="291411646"/>
     <version ClassVersion="3" checksum="2743481150"/>
   </class>
   <class name="std::vector<io_v1::FTLCluster>"/>
@@ -28,6 +29,17 @@
   <class name="edm::Ref<FTLClusterCollection,io_v1::FTLCluster>"/>
   <class name="edm::RefVector<FTLClusterCollection>"/>
   <class name="edm::RefProd<FTLClusterCollection>"/>
+
+  <class name="FTLMergedCluster"/>
+  <class name="std::vector<FTLMergedCluster>"/>
+  <class name="edmNew::DetSetVector<FTLMergedCluster>"/>
+  <class name="edm::Wrapper<std::vector<FTLMergedCluster> >"/>
+  <class name="edm::Wrapper<edmNew::DetSetVector<FTLMergedCluster> >"/>
+  <class name="FTLMergedClusterCollection"/>
+  <class name="edm::Wrapper<FTLMergedClusterCollection>" />
+  <class name="edm::Ref<FTLMergedClusterCollection,FTLMergedCluster>"/>
+  <class name="edm::RefVector<FTLMergedClusterCollection>"/>
+  <class name="edm::RefProd<FTLMergedClusterCollection>"/>
  
   <class name="edm::DetSet<io_v1::FTLRecHit>"/>
   <class name="edm::DetSetVector<io_v1::FTLRecHit>"/>
@@ -53,4 +65,5 @@
   <class name="edm::Wrapper<FTLTrackingRecHitCollection>"/>
 
   <enum name="FTLSeverityLevel::SeverityLevel"/> 
+
 </lcgdict>

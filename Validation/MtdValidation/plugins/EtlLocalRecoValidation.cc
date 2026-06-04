@@ -491,11 +491,17 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       bool matchClu = false;
       const auto& trkHits = (*mtdTrkHitHandle)[detIdObject];
       for (const auto& trkHit : trkHits) {
-        if (isSameCluster(trkHit.mtdCluster(), cluster)) {
-          comp = trkHit.clone();
-          matchClu = true;
-          break;
+        auto mergedCluster = trkHit.mtdMergedCluster();
+        const auto& mergedClusterRefs = mergedCluster.clusterRefs();
+        for (const auto& ref : mergedClusterRefs) {
+          if (isSameCluster(cluster, *ref)) {
+            comp = trkHit.clone();
+            matchClu = true;
+            break;
+          }
         }
+        if (matchClu)
+          break;
       }
       if (!matchClu) {
         edm::LogWarning("EtlLocalRecoValidation")
