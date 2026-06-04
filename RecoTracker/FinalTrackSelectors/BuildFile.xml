@@ -13,8 +13,8 @@
 <use name="HeterogeneousCore/AlpakaInterface"/>
 <use name="roottmva"/>
 <use name="lwtnn"/>
-<use name="clhep"/>
-<flags ALPAKA_BACKENDS="1"/>
+<!-- src/alpaka models the behavior of data formats -->
+<flags ALPAKA_BACKENDS="!serial"/>
 <export>
   <lib name="1"/>
 </export>
