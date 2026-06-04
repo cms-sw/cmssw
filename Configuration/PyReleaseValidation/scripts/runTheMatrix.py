@@ -155,7 +155,8 @@ if __name__ == '__main__':
                      prefixDet+34.7502,  # HLT phase-2 tracking menu with tracking ntuple
                      prefixDet+34.7503,  # HLT phase-2 menu, CPU vs. GPU validation
                      prefixDet+34.751,   # HLT phase-2 timing menu Alpaka variant
-                     prefixDet+34.7521,  # HLT phase-2 timing menu ticlv5TrackLinkGNN variant   
+                     prefixDet+34.7521,  # HLT phase-2 timing menu ticlv5TrackLinkGNN variant
+                     prefixDet+34.7522,  # HLT phase-2 timing menu mtd_at_hlt variant
                      prefixDet+34.753,   # HLT phase-2 timing menu legacy tracking
                      prefixDet+34.754,   # HLT phase-2 timing menu legacy tracking with Patatrack quads
                      prefixDet+34.755,   # HLT phase-2 timing menu LST building variant
