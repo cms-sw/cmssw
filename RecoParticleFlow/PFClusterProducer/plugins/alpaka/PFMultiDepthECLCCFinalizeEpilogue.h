@@ -78,6 +78,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       unsigned int& nComponents = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);
       unsigned int& blockRHFShift = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);
 
+      // Warning: This algorithm relies on thread-private variables (vertex_idx, rep_idx)
+      // For correctness on non-GPU architectures, the launch parameters
+      // must guarantee that these variables remain private to each thread.
+
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
         if (::cms::alpakatools::once_per_block(acc)) {
           nComponents = outPFCluster.nSeeds();
