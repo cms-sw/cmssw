@@ -489,8 +489,8 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::fillSharedCaloLinks(
   const unsigned int NEM_WORDS = 16;
   const unsigned int NHAD_WORDS = 24;
 
-  const std::vector<unsigned int> gct_slr_tmux18sector_mapping = {0, 0, 1, 1, 2, 2, 0, 0, 1, 1, 2, 2};
-  const std::vector<unsigned int> slr_order_per_link = {7, 1, 6, 0};
+  static constexpr unsigned int gct_slr_tmux18sector_mapping[12] = {0, 0, 1, 1, 2, 2, 0, 0, 1, 1, 2, 2};
+  static constexpr unsigned int slr_order_per_link[4] = {7, 1, 6, 0};
 
   for (unsigned int is = 0; is < NCALO_SECTORS; ++is) {
     links[is].clear();
