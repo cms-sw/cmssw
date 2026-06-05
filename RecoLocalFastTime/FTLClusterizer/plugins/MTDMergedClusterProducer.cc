@@ -94,7 +94,8 @@ FTLMergedCluster MTDMergedClusterProducer::mergeClusters(const std::vector<const
   double weightedGlobalX = 0;
   double weightedGlobalY = 0;
   double weightedGlobalZ = 0;
-
+  
+                                                    
   std::vector<DetId> clusterIds;
   std::vector<FTLClusterRef> clusterRefs;
 
@@ -246,7 +247,10 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
   auto const& geom = es.getData(mtdgeoToken_);
   auto topologyHandle = es.getTransientHandle(mtdtopoToken_);
   const MTDTopology* topology = topologyHandle.product();
-
+  
+  static constexpr uint32_t halfTrayBTL_SMidx = MTDTopology::BTLLayout::nBTLeta_/2;
+  static constexpr uint32_t fullTrayBTL_SMidx = MTDTopology::BTLLayout::nBTLeta_;
+  
   edm::Handle<FTLClusterCollection> btlClustersHandle;
   edm::Handle<FTLClusterCollection> etlClustersHandle;
   e.getByToken(btlClustersToken_, btlClustersHandle);
@@ -311,9 +315,9 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
       uint32_t iphi = indices.first;
       uint32_t ieta = indices.second;
 
-      if ((ieta == 48) ||
+      if ((ieta == halfTrayBTL_SMidx) ||
           (ieta ==
-           96)) {  // Don't merge clusters in eta=0 due to gap in detectors, merging would be unphysical, just keep FTLClusters as they are. Also don't merge at the end of the trays, there is nothing to merge with
+           fullTrayBTL_SMidx)) {  // Don't merge clusters in eta=0 due to gap in detectors, merging would be unphysical, just keep FTLClusters as they are. Also don't merge at the end of the trays, there is nothing to merge with
         FTLMergedCluster mergedCluster = mergeClusters(mergedClusterClusters, cluId, geom, btlClustersHandle);
         mergedByDet[mergedCluster.id().rawId()].push_back(std::move(mergedCluster));
         continue;
@@ -334,9 +338,9 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
       }
 
       bool hasEdgeHitCurrent = false;
-      if ((((ieta < 48) && edgeHitIn0)) || ((ieta > 48) && edgeHitIn15)) {
+      if ((((ieta < halfTrayBTL_SMidx) && edgeHitIn0)) || ((ieta > halfTrayBTL_SMidx) && edgeHitIn15)) {
         hasEdgeHitCurrent =
-            true;  // only consider edge hit in 0 direction for clusters with ieta<48, to avoid merging across the gap between modules
+            true;  // only consider edge hit in 0 direction for clusters with ieta<48 (half of the full tray), to avoid merging across the gap between modules
       }
 
       // ETA DIRECTION MERGING
@@ -361,7 +365,7 @@ void MTDMergedClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
               for (int j = 0; j < adjCluster->size(); ++j) {
                 auto hit = adjCluster->hit(j);
                 int hit_col = hit.y();
-                if ((edgeHitIn0 && hit_col == 15 && ieta < 48) || (edgeHitIn15 && hit_col == 0 && ieta > 48)) {
+                if ((edgeHitIn0 && hit_col == 15 && ieta < halfTrayBTL_SMidx) || (edgeHitIn15 && hit_col == 0 && ieta > halfTrayBTL_SMidx)) {
                   hasOppositeEdgeHit = true;
                   break;
                 }

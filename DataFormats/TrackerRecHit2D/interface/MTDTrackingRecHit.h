@@ -30,6 +30,11 @@ namespace io_v1 {
 
     int dimension() const final { return 2; }
 
+    // constructor accepting a merged-cluster Ref
+    using FTLMergedClusterRef = edm::Ref<FTLMergedClusterCollection, FTLMergedCluster>;
+    MTDTrackingRecHit(const LocalPoint& p, const LocalError& e, const GeomDet& idet, const FTLMergedClusterRef& objref)
+        : TrackerSingleRecHit(p, e, idet, trackerHitRTTI::mipTiming, objref) {}
+
     //specific timing stuff
     float energy() const { return omniCluster().mtdMergedCluster().energy(); }
     float time() const { return omniCluster().mtdMergedCluster().time(); }

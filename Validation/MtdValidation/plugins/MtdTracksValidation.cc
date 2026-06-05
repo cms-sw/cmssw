@@ -100,7 +100,7 @@ private:
   const bool trkRecSel(const reco::TrackBase&);
   const bool trkRecSelLowPt(const reco::TrackBase&);
   const edm::Ref<std::vector<TrackingParticle>>* getMatchedTP(const reco::TrackBaseRef&);
-  float earliestSimHitTimeInSimCluster(const edm::Ref<std::vector<MtdSimLayerCluster>>&);
+  float earliestSimHitTimeInSimCluster(const MtdSimMergedCluster&);
 
   const unsigned long int uniqueId(const uint32_t x, const EncodedEventId& y) {
     const uint64_t a = static_cast<uint64_t>(x);
@@ -157,20 +157,15 @@ private:
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollectionToken_;
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimAssociationToken_;
-  edm::EDGetTokenT<reco::TPToSimCollectionMtd> tp2SimAssociationMapToken_;
-  edm::EDGetTokenT<reco::SimToTPCollectionMtd> Sim2tpAssociationMapToken_;
+  edm::EDGetTokenT<reco::MergedSimToTPCollectionMtd> Sim2tpAssociationMapToken_;
   edm::EDGetTokenT<MtdRecoClusterToSimLayerClusterAssociationMap> r2sAssociationMapToken_;
   edm::EDGetTokenT<MtdRecoMergedClusterToSimMergedClusterAssociationMap> r2sAssociationMapMergedToken_;
   edm::EDGetTokenT<reco::TPToMergedSimCollectionMtd> tp2SimMergedAssociationMapToken_;
-  bool useMergedClusters_;
 
   edm::EDGetTokenT<FTLRecHitCollection> btlRecHitsToken_;
   edm::EDGetTokenT<FTLRecHitCollection> etlRecHitsToken_;
-  edm::EDGetTokenT<FTLClusterCollection> btlRecCluToken_;
-  edm::EDGetTokenT<FTLClusterCollection> etlRecCluToken_;
-
-  edm::EDGetTokenT<FTLMergedClusterCollection> btlRecMergedCluToken_;
-  edm::EDGetTokenT<FTLMergedClusterCollection> etlRecMergedCluToken_;
+  edm::EDGetTokenT<FTLMergedClusterCollection> btlRecCluToken_;
+  edm::EDGetTokenT<FTLMergedClusterCollection> etlRecCluToken_;
 
   edm::EDGetTokenT<edm::ValueMap<int>> trackAssocToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> pathLengthToken_;
@@ -538,35 +533,17 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
       consumes<reco::SimToRecoCollection>(iConfig.getParameter<edm::InputTag>("TPtoRecoTrackAssoc"));
   recoToSimAssociationToken_ =
       consumes<reco::RecoToSimCollection>(iConfig.getParameter<edm::InputTag>("TPtoRecoTrackAssoc"));
+  r2sAssociationMapMergedToken_ = consumes<MtdRecoMergedClusterToSimMergedClusterAssociationMap>(
+      iConfig.getParameter<edm::InputTag>("r2sAssociationMapTag"));
+  tp2SimMergedAssociationMapToken_ =
+      consumes<reco::TPToMergedSimCollectionMtd>(iConfig.getParameter<edm::InputTag>("tp2SimAssociationMapTag"));
 
-  //tp2SimAssociationMapToken_ =
-  //    consumes<reco::TPToSimCollectionMtd>(iConfig.getParameter<edm::InputTag>("tp2SimAssociationMapTag"));
-  //r2sAssociationMapToken_ = consumes<MtdRecoClusterToSimLayerClusterAssociationMap>(
-  //iConfig.getParameter<edm::InputTag>("r2sAssociationMapTag"));
-
-  useMergedClusters_ = iConfig.getUntrackedParameter<bool>("useMergedClusters", true);
-
-  if (useMergedClusters_) {
-    r2sAssociationMapMergedToken_ = consumes<MtdRecoMergedClusterToSimMergedClusterAssociationMap>(
-        iConfig.getParameter<edm::InputTag>("r2sAssociationMapTag"));
-    tp2SimMergedAssociationMapToken_ =
-        consumes<reco::TPToMergedSimCollectionMtd>(iConfig.getParameter<edm::InputTag>("tp2SimAssociationMapTag"));
-    btlRecMergedCluToken_ = consumes<FTLMergedClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTagBTL"));
-    etlRecMergedCluToken_ = consumes<FTLMergedClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTagETL"));
-  } else {
-    r2sAssociationMapToken_ = consumes<MtdRecoClusterToSimLayerClusterAssociationMap>(
-        iConfig.getParameter<edm::InputTag>("r2sAssociationMapTag"));
-    tp2SimAssociationMapToken_ =
-        consumes<reco::TPToSimCollectionMtd>(iConfig.getParameter<edm::InputTag>("tp2SimAssociationMapTag"));
-    Sim2tpAssociationMapToken_ =
-        consumes<reco::SimToTPCollectionMtd>(iConfig.getParameter<edm::InputTag>("Sim2tpAssociationMapTag"));
-
-    btlRecCluToken_ = consumes<FTLClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTagBTL"));
-    etlRecCluToken_ = consumes<FTLClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTagETL"));
-  }
-
+  Sim2tpAssociationMapToken_ =
+      consumes<reco::MergedSimToTPCollectionMtd>(iConfig.getParameter<edm::InputTag>("Sim2tpAssociationMapTag"));
   btlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("btlRecHits"));
   etlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("etlRecHits"));
+  btlRecCluToken_ = consumes<FTLMergedClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTagBTL"));
+  etlRecCluToken_ = consumes<FTLMergedClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTagETL"));
   trackAssocToken_ = consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("trackAssocSrc"));
   pathLengthToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("pathLengthSrc"));
   btlMatchTimeChi2Token_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("btlMatchTimeChi2"));
@@ -613,40 +590,9 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           << "Attempted to fill a input collection edm::Handle with an invalid product";
   }
 
-  edm::Handle<FTLClusterCollection> btlRecCluHandle;
-  edm::Handle<FTLClusterCollection> etlRecCluHandle;
-  edm::Handle<FTLMergedClusterCollection> btlRecMergedCluHandle;
-  edm::Handle<FTLMergedClusterCollection> etlRecMergedCluHandle;
-
-  // Get the appropriate collection based on mode
-  if (useMergedClusters_) {
-    btlRecMergedCluHandle = iEvent.getHandle(btlRecMergedCluToken_);
-    etlRecMergedCluHandle = iEvent.getHandle(etlRecMergedCluToken_);
-  } else {
-    btlRecCluHandle = iEvent.getHandle(btlRecCluToken_);
-    etlRecCluHandle = iEvent.getHandle(etlRecCluToken_);
-  }
-
-  std::unordered_map<uint32_t, MTDHit> m_btlHits;
-  std::unordered_map<uint32_t, MTDHit> m_etlHits;
-  std::unordered_map<uint32_t, std::set<unsigned long int>> m_btlTrkPerCell;
-  std::unordered_map<uint32_t, std::set<unsigned long int>> m_etlTrkPerCell;
-  //const auto& tp2SimAssociationMap = iEvent.get(tp2SimAssociationMapToken_);
-  //const auto& r2sAssociationMap = iEvent.get(r2sAssociationMapToken_);
-
-  MtdRecoClusterToSimLayerClusterAssociationMap r2sAssociationMap;
-  MtdRecoMergedClusterToSimMergedClusterAssociationMap r2sAssociationMapMerged;
-  reco::TPToSimCollectionMtd tp2SimAssociationMap;
-  reco::TPToMergedSimCollectionMtd tp2SimMergedAssociationMap;
-  reco::SimToTPCollectionMtd Sim2tpAssociationMap;
-  if (useMergedClusters_) {
-    r2sAssociationMapMerged = iEvent.get(r2sAssociationMapMergedToken_);
-    tp2SimMergedAssociationMap = iEvent.get(tp2SimMergedAssociationMapToken_);
-  } else {
-    r2sAssociationMap = iEvent.get(r2sAssociationMapToken_);
-    tp2SimAssociationMap = iEvent.get(tp2SimAssociationMapToken_);
-    Sim2tpAssociationMap = iEvent.get(Sim2tpAssociationMapToken_);
-  }
+  const auto& r2sAssociationMapMerged = iEvent.get(r2sAssociationMapMergedToken_);
+  const auto& tp2SimMergedAssociationMap = iEvent.get(tp2SimMergedAssociationMapToken_);
+  const auto& Sim2tpAssociationMap = iEvent.get(Sim2tpAssociationMapToken_);
 
   const auto& tMtdHandle = iEvent.getHandle(tmtdToken_);
   const auto& SigmatMtdHandle = iEvent.getHandle(SigmatmtdToken_);
@@ -775,8 +721,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
       bool MTDEtlZnegD2 = false;
       bool MTDEtlZposD1 = false;
       bool MTDEtlZposD2 = false;
-      std::vector<edm::Ref<edmNew::DetSetVector<FTLCluster>, FTLCluster>> recoClustersRefs;
-      std::vector<edm::Ref<edmNew::DetSetVector<FTLMergedCluster>, FTLMergedCluster>> recoMergedClustersRefs;
+      std::vector<edm::Ref<edmNew::DetSetVector<FTLMergedCluster>, FTLMergedCluster>> recoClustersRefs;
 
       if (std::abs(trackGen.eta()) < trackMaxBtlEta_) {
         // --- all BTL tracks (with and without hit in MTD) ---
@@ -794,18 +739,9 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
             MTDBtl = true;
             numMTDBtlvalidhits++;
             const auto* mtdhit = static_cast<const MTDTrackingRecHit*>(hit);
-            if (useMergedClusters_) {  // hitCluster points to an FTLMergedCluster when useMergedClusters is true
-              const auto& mergedHitCluster = mtdhit->omniCluster().mtdMergedCluster();
-              auto recoClusterRef = edmNew::makeRefTo(btlRecMergedCluHandle, &mergedHitCluster);
-              //auto recoClusterRef = mtdhit->omniCluster().cluster_merged_mtd();
-              recoMergedClustersRefs.push_back(recoClusterRef);
-            } else {
-              const auto& hitCluster = mtdhit->mtdCluster();
-              if (hitCluster.size() != 0) {
-                auto recoClusterRef = edmNew::makeRefTo(btlRecCluHandle, &hitCluster);
-                recoClustersRefs.push_back(recoClusterRef);
-              }
-            }
+            const auto& hitCluster = mtdhit->omniCluster().mtdMergedCluster();
+            auto recoClusterRef = edmNew::makeRefTo(btlRecCluHandle, &hitCluster);
+            recoClustersRefs.push_back(recoClusterRef);
           }
         }
         meTrackNumHits_->Fill(numMTDBtlvalidhits);
@@ -839,20 +775,9 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
             ETLDetId ETLHit = hit->geographicalId();
 
             const auto* mtdhit = static_cast<const MTDTrackingRecHit*>(hit);
-            if (useMergedClusters_) {
-              const auto& mergedHitCluster = mtdhit->omniCluster().mtdMergedCluster();
-              // hitCluster points to an FTLMergedCluster when useMergedClusters is true
-              //auto recoClusterRef = mtdhit->omniCluster().cluster_merged_mtd();
-              auto recoClusterRef = edmNew::makeRefTo(etlRecMergedCluHandle, &mergedHitCluster);
-
-              recoMergedClustersRefs.push_back(recoClusterRef);
-            } else {
-              const auto& hitCluster = mtdhit->mtdCluster();
-              if (hitCluster.size() != 0) {
-                auto recoClusterRef = edmNew::makeRefTo(etlRecCluHandle, &hitCluster);
-                recoClustersRefs.push_back(recoClusterRef);
-              }
-            }
+            const auto& hitCluster = mtdhit->omniCluster().mtdMergedCluster();
+            auto recoClusterRef = edmNew::makeRefTo(etlRecCluHandle, &hitCluster);
+            recoClustersRefs.push_back(recoClusterRef);
 
             if ((ETLHit.zside() == -1) && (ETLHit.nDisc() == 1)) {
               MTDEtlZnegD1 = true;
@@ -1011,142 +936,26 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         bool isTPmtdDirectBTL = false, isTPmtdOtherBTL = false, isTPmtdDirectCorrectBTL = false,
              isTPmtdOtherCorrectBTL = false, isTPmtdETLD1 = false, isTPmtdETLD2 = false, isTPmtdCorrectETLD1 = false,
              isTPmtdCorrectETLD2 = false, isFromSameTP = false;
-        bool withMTD;
-        if (useMergedClusters_) {
-          auto simMergedClustersRefsIt = tp2SimMergedAssociationMap.find(*tp_info);
-          withMTD = (simMergedClustersRefsIt != tp2SimMergedAssociationMap.end());
-        } else {
-          auto simClustersRefsIt = tp2SimAssociationMap.find(*tp_info);
-          withMTD = (simClustersRefsIt != tp2SimAssociationMap.end());
-        }
-        // If there is a mtdSimMergedCluster from the tracking particle
+
+        auto simMergedClustersRefsIt = tp2SimMergedAssociationMap.find(*tp_info);
+        const bool withMTD = (simMergedClustersRefsIt != tp2SimMergedAssociationMap.end());
+
+        // If there is a MtdSimMergedCluster from the tracking particle
         if (withMTD) {
-          if (useMergedClusters_) {
-            auto simMergedClustersRefsIt = tp2SimMergedAssociationMap.find(*tp_info);
+          // -- Get the refs to MtdSimMergedClusters associated to the TP
+          auto simMergedClustersRefsIt = tp2SimMergedAssociationMap.find(*tp_info);
+          std::vector<edm::Ref<MtdSimLayerClusterCollection>> simClustersRefs;
 
-            // Get the refs to MtdSimMergedClusters associated to the TP
-            std::vector<edm::Ref<MtdSimMergedClusterCollection>> simMergedClustersRefs;
-            edm::Ref<MtdSimMergedClusterCollection> directSimMergedClusRef;
+          // Get the refs to MtdSimMergedClusters associated to the TP
+          std::vector<edm::Ref<MtdSimMergedClusterCollection>> simMergedClustersRefs;
+          edm::Ref<MtdSimMergedClusterCollection> directSimMergedClusRef;
 
-            for (const auto& ref : simMergedClustersRefsIt->val) {
-              simMergedClustersRefs.push_back(ref);
-
-              // Check subdetector based on component SimLayerClusters
-              for (const auto& simLayerClus : ref->clusters()) {
-                MTDDetId mtddetid = simLayerClus->detIds_and_rows().front().first;
-
-                if (mtddetid.mtdSubDetector() == 1) {
-                  // BTL - identify direct vs other hits
-                  if (simLayerClus->hitProdType() == 0) {
-                    isTPmtdDirectBTL = true;
-                    if (!directSimMergedClusRef.isNonnull()) {
-                      directSimMergedClusRef = ref;
-                    }
-                  } else {
-                    isTPmtdOtherBTL = true;
-                  }
-                } else if (mtddetid.mtdSubDetector() == 2) {
-                  // ETL
-                  ETLDetId detid(mtddetid.rawId());
-                  if (detid.nDisc() == 1)
-                    isTPmtdETLD1 = true;
-                  if (detid.nDisc() == 2)
-                    isTPmtdETLD2 = true;
-                }
-              }
-            }
-
-            // ==  Check if the track-cluster association is correct: Track->RecoClus->SimClus == Track->TP->SimClus
-            recoClusSize = recoMergedClustersRefs.size();
-
-            // now check track-cluster matching with reco - sim map
-            for (const auto& recoMergedClusterRef : recoMergedClustersRefs) {
-              if (recoMergedClusterRef.isNonnull()) {
-                auto itp = r2sAssociationMapMerged.equal_range(recoMergedClusterRef);
-
-                for (auto it = itp.first; it != itp.second; ++it) {
-                  const auto& simMergedClusterRefs_RecoMatch = it->second;
-                  //new code
-                  BTLDetId RecoDetId((*recoMergedClusterRef).id());
-                  simClusSize = simMergedClusterRefs_RecoMatch.size();
-
-                  for (const auto& simMergedClusterRef_Match : simMergedClusterRefs_RecoMatch) {
-                    // does this sim match any of the TP's SimMergedClusters
-                    auto simMergedClusterIt = std::find(
-                        simMergedClustersRefs.begin(), simMergedClustersRefs.end(), simMergedClusterRef_Match);
-
-                    /*simClusterRef_RecoMatch_trackIdOff = simClusterRef_RecoMatch->hitProdType();
-                    simClusterRef_RecoMatch_DeltaZ = simClusRecoMatchGlobalPos.z() - simClusGlobalPos.z();
-                    simClusterRef_RecoMatch_DeltaPhi = simClusRecoMatchGlobalPos.phi() - simClusGlobalPos.phi();
-                    simClusterRef_RecoMatch_DeltaT = simClusterRef_RecoMatch->simLCTime() - directSimClus->simLCTime();*/
-                    bool found = (simMergedClusterIt != simMergedClustersRefs.end());
-
-                    if (optionalPlots_ && isTPmtdDirectBTL) {
-                      // simCluster matched to TP
-                      // NB we are taking the position and id of the first hit in the cluster.
-                      const auto& directSimClus = *directSimMergedClusRef;
-                      MTDDetId mtddetid = (*directSimClus.clusters().begin())->detIds_and_rows().front().first;
-                      BTLDetId detid(mtddetid.rawId());
-                      LocalPoint simClusLocalPos =
-                          (*directSimClus.clusters().begin())->hits_and_positions().front().second;
-                      GlobalPoint simClusGlobalPos = geomUtil.globalPosition(detid, simClusLocalPos);
-
-                      // simClusterRef_RecoMatch infos
-                      MTDDetId mtddetidRecoMatch = simMergedClusterRef_Match->simDetId();
-                      BTLDetId detidRecoMatch(mtddetidRecoMatch.rawId());
-                      LocalPoint simClusRecoMatchLocalPos = simMergedClusterRef_Match->simPos();
-                      GlobalPoint simClusRecoMatchGlobalPos =
-                          geomUtil.globalPosition(detidRecoMatch, simClusRecoMatchLocalPos);
-                      //need to understand hitProdType for merged clusters: for now we take the one of the first SimLayerCluster in the SimMergedCluster, could add a function to the merged cluster
-                      simClusterRef_RecoMatch_trackIdOff =
-                          (*simMergedClusterRef_Match->clusters().begin())->hitProdType();
-                      simClusterRef_RecoMatch_DeltaZ = simClusRecoMatchGlobalPos.z() - simClusGlobalPos.z();
-                      simClusterRef_RecoMatch_DeltaPhi = simClusRecoMatchGlobalPos.phi() - simClusGlobalPos.phi();
-                      simClusterRef_RecoMatch_DeltaT = simMergedClusterRef_Match->simTime() - directSimClus.simTime();
-                    }
-                    if (found) {
-                      isFromSameTP = true;
-                      // found a match...
-                      for (const auto& simLayerClus : simMergedClusterRef_Match->clusters()) {
-                        MTDDetId mtddetid = simLayerClus->detIds_and_rows().front().first;
-
-                        if (mtddetid.mtdSubDetector() == 1) {
-                          // BTL - check if this matched SimMergedCluster contains a direct hit
-
-                          if (simLayerClus->hitProdType() == 0) {
-                            isTPmtdDirectCorrectBTL = true;
-                            simClusterEarliestTime_correctAssoc =
-                                earliestSimHitTimeInSimCluster((*simMergedClusterRef_Match->clusters().begin()));
-                          } else {
-                            isTPmtdOtherCorrectBTL = true;
-                          }
-                        } else if (mtddetid.mtdSubDetector() == 2) {
-                          // ETL
-                          ETLDetId detid(mtddetid.rawId());
-
-                          if (detid.nDisc() == 1) {
-                            isTPmtdCorrectETLD1 = true;
-                            simClusterEarliestTime_correctAssoc =
-                                earliestSimHitTimeInSimCluster((*simMergedClusterRef_Match->clusters().begin()));
-                          }
-                          if (detid.nDisc() == 2)
-                            isTPmtdCorrectETLD2 = true;
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }  /// end loop over reco clusters associated to this track.
-          }  //end if useMergedClusters, now do the same for non merged clusters
-          else {
-            auto simClustersRefsIt = tp2SimAssociationMap.find(*tp_info);
-
-            // -- Get the refs to MtdSimLayerClusters associated to the TP
-            std::vector<edm::Ref<MtdSimLayerClusterCollection>> simClustersRefs;
-            for (const auto& ref : simClustersRefsIt->val) {
-              simClustersRefs.push_back(ref);
-              MTDDetId mtddetid = ref->detIds_and_rows().front().first;
+          for (const auto& ref : simMergedClustersRefsIt->val) {
+            simMergedClustersRefs.push_back(ref);
+            // Check subdetector based on component SimLayerClusters
+            for (const auto& simLayerClusRef : ref->clusters()) {
+              simClustersRefs.push_back(simLayerClusRef);
+              MTDDetId mtddetid = simLayerClusRef->detIds_and_rows().front().first;
               if (mtddetid.mtdSubDetector() == 2) {
                 ETLDetId detid(mtddetid.rawId());
                 if (detid.nDisc() == 1)
@@ -1155,99 +964,105 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                   isTPmtdETLD2 = true;
               }
             }
-            // === BTL
-            // -- Sort BTL sim clusters by time
-            std::vector<edm::Ref<MtdSimLayerClusterCollection>>::iterator directSimClusIt;
-            if (std::abs(trackGen.eta()) < trackMaxBtlEta_ && !simClustersRefs.empty()) {
-              std::sort(simClustersRefs.begin(), simClustersRefs.end(), [](const auto& a, const auto& b) {
-                return a->simLCTime() < b->simLCTime();
-              });
-              // Find the first direct hit in time
-              directSimClusIt =
-                  std::find_if(simClustersRefs.begin(), simClustersRefs.end(), [](const auto& simCluster) {
-                    MTDDetId mtddetid = simCluster->detIds_and_rows().front().first;
-                    return (mtddetid.mtdSubDetector() == 1 && simCluster->hitProdType() == 0);
-                  });
-              // Check if TP has direct or other sim cluster for BTL
-              for (const auto& simClusterRef : simClustersRefs) {
-                if (directSimClusIt != simClustersRefs.end() && simClusterRef == *directSimClusIt) {
-                  isTPmtdDirectBTL = true;
-                } else if (simClusterRef->hitProdType() != 0) {
-                  isTPmtdOtherBTL = true;
-                }
+          }
+
+          // === BTL
+          // -- Sort BTL sim clusters by time
+          std::vector<edm::Ref<MtdSimLayerClusterCollection>>::iterator directSimClusIt;
+          if (std::abs(trackGen.eta()) < trackMaxBtlEta_ && !simClustersRefs.empty()) {
+            std::sort(simClustersRefs.begin(), simClustersRefs.end(), [](const auto& a, const auto& b) {
+              return a->simLCTime() < b->simLCTime();
+            });
+            // Find the first direct hit in time
+            directSimClusIt = std::find_if(simClustersRefs.begin(), simClustersRefs.end(), [](const auto& simCluster) {
+              MTDDetId mtddetid = simCluster->detIds_and_rows().front().first;
+              return (mtddetid.mtdSubDetector() == 1 && simCluster->hitProdType() == 0);
+            });
+            // Check if TP has direct or other sim cluster for BTL
+            for (const auto& simClusterRef : simClustersRefs) {
+              if (directSimClusIt != simClustersRefs.end() && simClusterRef == *directSimClusIt) {
+                isTPmtdDirectBTL = true;
+              } else if (simClusterRef->hitProdType() != 0) {
+                isTPmtdOtherBTL = true;
               }
             }
+          }
 
-            // ==  Check if the track-cluster association is correct: Track->RecoClus->SimClus == Track->TP->SimClus
-            recoClusSize = recoClustersRefs.size();
-            for (const auto& recClusterRef : recoClustersRefs) {
-              if (recClusterRef.isNonnull()) {
-                auto itp = r2sAssociationMap.equal_range(recClusterRef);
-                simClusSize = 0;
-                if (itp.first != itp.second) {
-                  auto& simClustersRefs_RecoMatch = (*itp.first).second;
+          // ==  Check if the track-cluster association is correct: Track->RecoMergedClus->SimMergedClus == Track->TP->SimMergedClus
+          recoClusSize = recoClustersRefs.size();
+          for (const auto& recoMergedClusterRef : recoClustersRefs) {
+            if (recoMergedClusterRef.isNonnull()) {
+              auto itp = r2sAssociationMapMerged.equal_range(recoMergedClusterRef);
+              simClusSize = 0;
+              for (auto it = itp.first; it != itp.second; ++it) {
+                const auto& simMergedClusterRefs_RecoMatch = it->second;
+                //new code
+                BTLDetId RecoDetId((*recoMergedClusterRef).id());
+                simClusSize = simMergedClusterRefs_RecoMatch.size();
 
-                  BTLDetId RecoDetId((*recClusterRef).id());
-                  simClusSize = simClustersRefs_RecoMatch.size();
+                for (const auto& simMergedClusterRef_Match : simMergedClusterRefs_RecoMatch) {
+                  // does this sim match any of the TP's SimMergedClusters
+                  auto simMergedClusterIt =
+                      std::find(simMergedClustersRefs.begin(), simMergedClustersRefs.end(), simMergedClusterRef_Match);
+                  bool found = (simMergedClusterIt != simMergedClustersRefs.end());
+                  if (optionalPlots_ && isTPmtdDirectBTL) {
+                    // simCluster matched to TP
+                    // NB we are taking the position and id of the first hit in the cluster.
+                    const auto& directSimClus = *directSimClusIt;
+                    MTDDetId mtddetid = directSimClus->detIds_and_rows().front().first;
+                    BTLDetId detid(mtddetid.rawId());
+                    LocalPoint simClusLocalPos = directSimClus->hits_and_positions().front().second;
+                    GlobalPoint simClusGlobalPos = geomUtil.globalPosition(detid, simClusLocalPos);
 
-                  for (const auto& simClusterRef_RecoMatch : simClustersRefs_RecoMatch) {
-                    // Check if simClusterRef_RecoMatch  exists in SimClusters
-                    auto simClusterIt =
-                        std::find(simClustersRefs.begin(), simClustersRefs.end(), simClusterRef_RecoMatch);
-                    if (optionalPlots_ && isTPmtdDirectBTL) {
-                      // simCluster matched to TP
-                      // NB we are taking the position and id of the first hit in the cluster.
-                      const auto& directSimClus = *directSimClusIt;
-                      MTDDetId mtddetid = directSimClus->detIds_and_rows().front().first;
-                      BTLDetId detid(mtddetid.rawId());
-                      LocalPoint simClusLocalPos = directSimClus->hits_and_positions().front().second;
-                      GlobalPoint simClusGlobalPos = geomUtil.globalPosition(detid, simClusLocalPos);
+                    // simClusterRef_RecoMatch infos
+                    MTDDetId mtddetidRecoMatch =
+                        (*simMergedClusterRef_Match->clusters().begin())->detIds_and_rows().front().first;
+                    BTLDetId detidRecoMatch(mtddetidRecoMatch.rawId());
+                    LocalPoint simClusRecoMatchLocalPos =
+                        (*simMergedClusterRef_Match->clusters().begin())->hits_and_positions().front().second;
+                    GlobalPoint simClusRecoMatchGlobalPos =
+                        geomUtil.globalPosition(detidRecoMatch, simClusRecoMatchLocalPos);
 
-                      // simClusterRef_RecoMatch infos
-                      MTDDetId mtddetidRecoMatch = simClusterRef_RecoMatch->detIds_and_rows().front().first;
-                      BTLDetId detidRecoMatch(mtddetidRecoMatch.rawId());
-                      LocalPoint simClusRecoMatchLocalPos =
-                          simClusterRef_RecoMatch->hits_and_positions().front().second;
-                      GlobalPoint simClusRecoMatchGlobalPos =
-                          geomUtil.globalPosition(detidRecoMatch, simClusRecoMatchLocalPos);
-
-                      simClusterRef_RecoMatch_trackIdOff = simClusterRef_RecoMatch->hitProdType();
-                      simClusterRef_RecoMatch_DeltaZ = simClusRecoMatchGlobalPos.z() - simClusGlobalPos.z();
-                      simClusterRef_RecoMatch_DeltaPhi = simClusRecoMatchGlobalPos.phi() - simClusGlobalPos.phi();
-                      simClusterRef_RecoMatch_DeltaT =
-                          simClusterRef_RecoMatch->simLCTime() - directSimClus->simLCTime();
-                    }
-
-                    // SimCluster found in SimClusters
-                    if (simClusterIt != simClustersRefs.end()) {
-                      isFromSameTP = true;
-                      if (isBTL) {
-                        if (directSimClusIt != simClustersRefs.end() && simClusterRef_RecoMatch == *directSimClusIt) {
+                    simClusterRef_RecoMatch_trackIdOff =
+                        (*simMergedClusterRef_Match->clusters().begin())->hitProdType();
+                    simClusterRef_RecoMatch_DeltaZ = simClusRecoMatchGlobalPos.z() - simClusGlobalPos.z();
+                    simClusterRef_RecoMatch_DeltaPhi = simClusRecoMatchGlobalPos.phi() - simClusGlobalPos.phi();
+                    simClusterRef_RecoMatch_DeltaT = simMergedClusterRef_Match->simTime() - directSimClus->simLCTime();
+                  }
+                  if (found) {
+                    isFromSameTP = true;
+                    if (isBTL) {
+                      for (const auto& simLCRef_RecoMatch : simMergedClusterRef_Match->clusters()) {
+                        if (directSimClusIt != simClustersRefs.end() && simLCRef_RecoMatch == *directSimClusIt) {
                           isTPmtdDirectCorrectBTL = true;
-                          simClusterEarliestTime_correctAssoc = earliestSimHitTimeInSimCluster((*simClusterIt));
 
-                        } else if (simClusterRef_RecoMatch->hitProdType() != 0) {
+                        } else if (simLCRef_RecoMatch->hitProdType() != 0) {
                           isTPmtdOtherCorrectBTL = true;
                         }
                       }
-                      if (isETL) {
-                        MTDDetId mtddetid = (*simClusterIt)->detIds_and_rows().front().first;
-                        ETLDetId detid(mtddetid.rawId());
-                        if (detid.nDisc() == 1) {
-                          isTPmtdCorrectETLD1 = true;
-                          simClusterEarliestTime_correctAssoc = earliestSimHitTimeInSimCluster((*simClusterIt));
-                        }
-
-                        if (detid.nDisc() == 2)
-                          isTPmtdCorrectETLD2 = true;
+                      if (isTPmtdDirectCorrectBTL) {
+                        simClusterEarliestTime_correctAssoc =
+                            earliestSimHitTimeInSimCluster((*simMergedClusterRef_Match));
                       }
+                    }
+                    if (isETL) {
+                      MTDDetId mtddetid =
+                          (*simMergedClusterRef_Match->clusters().begin())->detIds_and_rows().front().first;
+                      ETLDetId detid(mtddetid.rawId());
+                      if (detid.nDisc() == 1) {
+                        isTPmtdCorrectETLD1 = true;
+                        simClusterEarliestTime_correctAssoc =
+                            earliestSimHitTimeInSimCluster((*simMergedClusterRef_Match));
+                      }
+
+                      if (detid.nDisc() == 2)
+                        isTPmtdCorrectETLD2 = true;
                     }
                   }
                 }
               }
-            }  /// end loop over reco clusters associated to this track.
-
-          }  //end different part between merged and not merged clusters
+            }
+          }  /// end loop over reco clusters associated to this track.
 
           // define function to compute path length residual
           auto computePLres = [&](float recoPL, float simSCTime) -> float {
@@ -1624,11 +1439,11 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
               if (optionalPlots_) {
                 for (const auto& recClusterRef : recoClustersRefs) {  // having a look at these recos
                   if (recClusterRef.isNonnull()) {
-                    auto itp = r2sAssociationMap.equal_range(recClusterRef);
-                    if (itp.first != itp.second) {
-                      auto& simClustersRefs_RecoMatch = (*itp.first).second;
-                      simClusSize = simClustersRefs_RecoMatch.size();
-                      for (const auto& sc : simClustersRefs_RecoMatch) {
+                    auto itp = r2sAssociationMapMerged.equal_range(recClusterRef);
+                    for (auto it = itp.first; it != itp.second; ++it) {
+                      const auto& simMergedClusterRefs_RecoMatch = it->second;
+                      simClusSize = simMergedClusterRefs_RecoMatch.size();
+                      for (const auto& sc : simMergedClusterRefs_RecoMatch) {
                         auto mytps = Sim2tpAssociationMap.find(sc);
                         if (mytps != Sim2tpAssociationMap.end()) {
                           for (const auto& mytp : mytps->val) {
@@ -1638,7 +1453,8 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                               meBTLTrackMatchedTPnomtdAssocTrackID_->Fill(1);
                           }
                         }
-                        meBTLTrackMatchedTPnomtdAssocTrackIdOff_->Fill(sc->hitProdType());
+                        //here using only the first MtdSimLayerCluster in the MtdSimMergedCluster
+                        meBTLTrackMatchedTPnomtdAssocTrackIdOff_->Fill((*sc->clusters().begin())->hitProdType());
                       }
                     }
                   }
@@ -1802,6 +1618,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   }  // RECO tracks loop
 }
+
 const std::pair<bool, bool> MtdTracksValidation::checkAcceptance(const reco::Track& track,
                                                                  const edm::Event& iEvent,
                                                                  edm::EventSetup const& iSetup,
@@ -2938,7 +2755,7 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
         "BTLTrackMatchedTPnomtdAssocTrackNdf", "Ndf of tracks matched to TP w/o sim hit in MTD; Ndof", 80, 0., 220);
     meBTLTrackMatchedTPnomtdAssocTrackIdOff_ =
         ibook.book1D("BTLTrackMatchedTPnomtdAssocTrackIdOff",
-                     "TrackIdOff of simCluster matched to the reco cluster associated to the track,  TP w/o sim hit in "
+                     "TrackIdOff of the simClusters of the MtdSimMergedCluster matched to the reco cluster associated to the track,  TP w/o sim hit in "
                      "MTD; Track Id Off",
                      6,
                      -1.,
@@ -3557,9 +3374,8 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("SimTag", edm::InputTag("mix", "MergedTrackTruth"));
   desc.add<edm::InputTag>("TPtoRecoTrackAssoc", edm::InputTag("trackingParticleRecoTrackAsssociation"));
   desc.add<edm::InputTag>("tp2SimAssociationMapTag", edm::InputTag("mtdSimMergedClusterToTPAssociation"));
-  desc.add<edm::InputTag>("Sim2tpAssociationMapTag", edm::InputTag("mtdSimLayerClusterToTPAssociation"));
+  desc.add<edm::InputTag>("Sim2tpAssociationMapTag", edm::InputTag("mtdSimMergedClusterToTPAssociation"));
   desc.add<edm::InputTag>("r2sAssociationMapTag", edm::InputTag("mtdRecoMergedClusterToSimMergedClusterAssociation"));
-  desc.addUntracked<bool>("useMergedClusters", true);
   desc.add<edm::InputTag>("btlRecHits", edm::InputTag("mtdRecHits", "FTLBarrel"));
   desc.add<edm::InputTag>("etlRecHits", edm::InputTag("mtdRecHits", "FTLEndcap"));
   desc.add<edm::InputTag>("recCluTagBTL", edm::InputTag("mtdMergedClusters", "FTLBarrel"));
@@ -3660,11 +3476,13 @@ void MtdTracksValidation::fillTrackClusterMatchingHistograms(MonitorElement* me1
   }
 }
 
-float MtdTracksValidation::earliestSimHitTimeInSimCluster(const edm::Ref<std::vector<MtdSimLayerCluster>>& simCluster) {
+float MtdTracksValidation::earliestSimHitTimeInSimCluster(const MtdSimMergedCluster& simMergedCluster) {
   float earliestTime = std::numeric_limits<float>::max();
-  auto hits_and_times = simCluster->hits_and_times();
-  for (uint32_t icounter = 0; icounter < hits_and_times.size(); icounter++) {
-    earliestTime = std::min(earliestTime, hits_and_times[icounter].second);
+  for (const auto& simCluster : simMergedCluster.clusters()) {
+    auto hits_and_times = simCluster->hits_and_times();
+    for (uint32_t icounter = 0; icounter < hits_and_times.size(); icounter++) {
+      earliestTime = std::min(earliestTime, hits_and_times[icounter].second);
+    }
   }
   return earliestTime;
 }

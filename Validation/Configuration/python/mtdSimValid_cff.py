@@ -36,7 +36,8 @@ from Validation.MtdValidation.etlSimHitsValid_cfi import etlSimHitsValid
 from Validation.MtdValidation.etlDigiHitsValid_cfi import etlDigiHitsValid
 from Validation.MtdValidation.mtdTracksValid_cfi import mtdTracksValid
 from Validation.MtdValidation.vertices4DValid_cff import vertices4DValid
+from Validation.MtdValidation.mergedClusterValid_cfi import mergedClusterValid
 
 mtdSimValid  = cms.Sequence(btlSimHitsValid  + etlSimHitsValid )
 mtdDigiValid = cms.Sequence(btlDigiHitsValid + etlDigiHitsValid)
-mtdRecoValid = cms.Sequence(mtdAssociationProducers + btlLocalRecoValid  + etlLocalRecoValid + mtdTracksValid + vertices4DValid)
+mtdRecoValid = cms.Sequence(mtdAssociationProducers + btlLocalRecoValid  + etlLocalRecoValid + mtdTracksValid + vertices4DValid + mergedClusterValid)

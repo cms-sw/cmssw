@@ -31,7 +31,7 @@ public:
   float simTime() const;
 
   /// Position of the earliest cluster
-  LocalPoint simPos() const;
+  LocalPoint simPos() const { return simMC_pos_; }
 
   /// Set position of the merged cluster
   void setSimPos(const LocalPoint& pos) { simMC_pos_ = pos; }

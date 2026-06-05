@@ -30,15 +30,7 @@ void MtdSimMergedCluster::addCluster(const MtdSimLayerClusterRef& clusterRef, co
 }
 
 float MtdSimMergedCluster::simTime() const {
-  // FIRST IMPLEMENTATION: take position of earliest hit across all clusters
-  // auto hitTimesAndPositions = getHitTimesAndPositions();
-  // if (hitTimesAndPositions.empty()) {
-  //   return -999;
-  // } else {
-  //   return hitTimesAndPositions.front().first;
-  // }
-
-  // Instead use energy-weighted average of cluster times:
+  // use energy-weighted average of cluster times:
   float time = 0;
   float totalEnergy = 0;
   for (const auto& clu : clusters_) {
@@ -52,23 +44,6 @@ float MtdSimMergedCluster::simTime() const {
   }
 }
 
-LocalPoint MtdSimMergedCluster::simPos() const {
-  if (clusters_.empty()) {
-    return LocalPoint(-999, -999, -999);
-  } else {
-    // // FIRST IMPLEMENTATION: take position of earliest cluster
-    // // (TO BE CHANGED: take energy-weighted position?)
-    return (*clusters_.begin())->simLCPos();
-  }
-
-  // ALT IMPLEMENTATION: take position of earliest hit across all clusters
-  /*auto hitTimesAndPositions = getHitTimesAndPositions();
-    if(hitTimesAndPositions.empty()) {
-        return LocalPoint(-999, -999, -999);
-    } else {
-        return hitTimesAndPositions.front().second;
-    }*/
-}
 
 float MtdSimMergedCluster::simEnergy() const {
   float totalEnergy = 0;

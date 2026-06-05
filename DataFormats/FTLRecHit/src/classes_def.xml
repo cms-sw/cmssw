@@ -40,7 +40,7 @@
   <class name="edm::Ref<FTLMergedClusterCollection,FTLMergedCluster>"/>
   <class name="edm::RefVector<FTLMergedClusterCollection>"/>
   <class name="edm::RefProd<FTLMergedClusterCollection>"/>
- 
+
   <class name="edm::DetSet<io_v1::FTLRecHit>"/>
   <class name="edm::DetSetVector<io_v1::FTLRecHit>"/>
   <class name="std::vector<edm::DetSet<io_v1::FTLRecHit> >"/>
