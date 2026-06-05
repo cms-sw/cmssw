@@ -115,7 +115,7 @@ void NNVtxAssoc::NNVtxAssocDebug() {
 
 #else
 
-#include "L1TNNVtx_Assoc_Model/L1TNNVtx_Assoc_Model_v0/NN/L1TNNVtx_Assoc_Model_v0.h"
+#include "NNVtx/L1TNNVtx_Assoc_Model_v0/NN/L1TNNVtx_Assoc_Model_v0.h"
 
 void EmuNetworkSelector(const l1ct::TkObj& t, const l1ct::PVObjEmu& v, l1ct::nn_assoc_t& output_score) {
   int resbin = 0;
