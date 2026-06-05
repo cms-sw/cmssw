@@ -103,6 +103,9 @@
    <class name="std::pair<CSCDetId,std::vector<CSCALCTStatusDigi> >"/>
    <class name="std::pair<CSCDetId,std::vector<CSCCLCTPreTrigger> >"/>
 
+   <class name="std::__pair_base<CSCDetId,std::vector<CSCWireDigi> >"/> <!-- this was visible in header parsing -->
+   <class name="std::__pair_base<CSCDetId,std::vector<CSCStripDigi> >"/> <!-- this was visible in header parsing -->
+   <class name="std::__pair_base<CSCDetId,std::vector<CSCComparatorDigi> >"/> <!-- this was visible in header parsing -->
 
    <class name="MuonDigiCollection<CSCDetId,CSCWireDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCRPCDigi>"/>
