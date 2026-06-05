@@ -160,8 +160,9 @@ l1ct::LinPuppiEmulator::LinPuppiEmulator(const edm::ParameterSet &iConfig)
                      nnVtxAssocPSet_.getParameter<std::vector<double>>("associationNetworkZ0ResBins"),
                      debug_));
     } catch (std::runtime_error &e) {
-      throw cms::Exception("ModelError") << " ERROR: failed to load L1TNNVtxAssoc model version \""
-                                         << "\". Model version not found in cms-hls4ml externals.";
+      throw cms::Exception("ModelError") << "Failed to load L1TNNVtxAssoc model from \""
+                                         << nnVtxAssocPSet_.getParameter<std::string>("associationNetworkPath")
+                                         << "\": " << e.what();
     }
   }
   const std::string &sortAlgo = iConfig.getParameter<std::string>("finalSortAlgo");
