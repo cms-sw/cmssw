@@ -1061,7 +1061,7 @@ namespace p2eg {
 
     inline int standaloneWP() const { return (is_iso && is_ss); }
     inline int looseL1TkMatchWP() const { return (is_looseTkiso && is_looseTkss); }
-    inline int photonWP() const { return 1; }  // NOTE: NO PHOTON WP
+    inline int photonWP() const { return (is_looseTkiso && is_looseTkss); }  // NOTE: NO PHOTON WP
 
     inline int passesShowerShape() const { return is_ss; }
 
