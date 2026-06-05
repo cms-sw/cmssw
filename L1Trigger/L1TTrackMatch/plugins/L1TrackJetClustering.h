@@ -215,43 +215,50 @@ namespace l1ttrackjet {
 
     //This loop converts eta bin centers of type glbeta_intern into unsigned ints that can be read
     //out as bit words to the geometry file
-    for (int i = 0; i < etaBins_; i++) {
-      unsigned int EtaBitInt = DoubleToBit(
-          eta_bin_centers[i], l1t::TkJetWord::TkJetBitWidths::kGlbEtaSize, l1t::TkJetWord::MAX_ETA * pow(2, -13));
-      std::bitset<l1t::TkJetWord::TkJetBitWidths::kGlbEtaSize> EtaBitWord(EtaBitInt);
-      FirmwareGeometryFile << "parameter eta_bin_" << i << " = 14'b" << EtaBitWord << ";" << std::endl;
+    if (FirmwareGeometryFile.is_open()) {
+      for (int i = 0; i < etaBins_; i++) {
+        unsigned int EtaBitInt =
+            DoubleToBit(eta_bin_centers[i],
+                        l1t::TkJetWord::TkJetBitWidths::kGlbEtaSize,
+                        (2 * l1t::TkJetWord::MAX_ETA) / (1 << l1t::TkJetWord::TkJetBitWidths::kGlbEtaSize));
+        std::bitset<l1t::TkJetWord::TkJetBitWidths::kGlbEtaSize> EtaBitWord(EtaBitInt);
+        FirmwareGeometryFile << "parameter eta_bin_" << i << " = 14'b" << EtaBitWord << ";" << std::endl;
+      }
+
+      //This code converts the int type track multiplicity values into bitset type to read out
+      std::bitset<4> lowpTJetMinTrackMultiplicity_bit(lowpTJetMinTrackMultiplicity_);
+      std::bitset<4> highpTJetMinTrackMultiplicity_bit(highpTJetMinTrackMultiplicity_);
+      std::bitset<4> minTrkJetTrackMultiplicity_bit(minTrkJetTrackMultiplicity_);
+
+      //Here we convert the float type pT cuts into pt_intern type for conversion into bitset type
+      pt_intern lowpTJetThreshold_converted(lowpTJetThreshold_);
+      pt_intern highpTJetThreshold_converted(highpTJetThreshold_);
+      pt_intern minTrkJetpT_converted(minTrkJetpT_);
+
+      //Here we turn the converted pT cut values into bitset type
+      std::bitset<l1t::TkJetWord::TkJetBitWidths::kPtSize> lowpTJetThreshold_bit(
+          lowpTJetThreshold_converted.range().to_uint());
+      std::bitset<l1t::TkJetWord::TkJetBitWidths::kPtSize> highpTJetThreshold_bit(
+          highpTJetThreshold_converted.range().to_uint());
+      std::bitset<l1t::TkJetWord::TkJetBitWidths::kPtSize> minTrkJetpT_bit(minTrkJetpT_converted.range().to_uint());
+
+      //Export the bit words to the geometry file
+      FirmwareGeometryFile << "parameter LowJetTracks_FakeReduction = 4'b" << lowpTJetMinTrackMultiplicity_bit << ";"
+                           << std::endl;
+      FirmwareGeometryFile << "parameter LowJetpT_FakeReduction = 16'b" << lowpTJetThreshold_bit << ";" << std::endl;
+
+      FirmwareGeometryFile << "parameter HighJetTracks_FakeReduction = 4'b" << highpTJetMinTrackMultiplicity_bit << ";"
+                           << std::endl;
+      FirmwareGeometryFile << "parameter HighJetpT_FakeReduction = 16'b" << highpTJetThreshold_bit << ";" << std::endl;
+
+      FirmwareGeometryFile << "parameter MinJetTracks = 4'b" << minTrkJetTrackMultiplicity_bit << ";" << std::endl;
+      FirmwareGeometryFile << "parameter MinJetpT = 16'b" << minTrkJetpT_bit << ";" << std::endl;
+
+      FirmwareGeometryFile.close();
+
+    } else {
+      std::cout << "Failed to open firmware geometry export file" << std::endl;
     }
-
-    //This code converts the int type track multiplicity values into bitset type to read out
-    std::bitset<4> lowpTJetMinTrackMultiplicity_bit(lowpTJetMinTrackMultiplicity_);
-    std::bitset<4> highpTJetMinTrackMultiplicity_bit(highpTJetMinTrackMultiplicity_);
-    std::bitset<4> minTrkJetTrackMultiplicity_bit(minTrkJetTrackMultiplicity_);
-
-    //Here we convert the float type pT cuts into pt_intern type for conversion into bitset type
-    pt_intern lowpTJetThreshold_converted(lowpTJetThreshold_);
-    pt_intern highpTJetThreshold_converted(highpTJetThreshold_);
-    pt_intern minTrkJetpT_converted(minTrkJetpT_);
-
-    //Here we turn the converted pT cut values into bitset type
-    std::bitset<l1t::TkJetWord::TkJetBitWidths::kPtSize> lowpTJetThreshold_bit(
-        lowpTJetThreshold_converted.range().to_uint());
-    std::bitset<l1t::TkJetWord::TkJetBitWidths::kPtSize> highpTJetThreshold_bit(
-        highpTJetThreshold_converted.range().to_uint());
-    std::bitset<l1t::TkJetWord::TkJetBitWidths::kPtSize> minTrkJetpT_bit(minTrkJetpT_converted.range().to_uint());
-
-    //Export the bit words to the geometry file
-    FirmwareGeometryFile << "parameter LowJetTracks_FakeReduction = 4'b" << lowpTJetMinTrackMultiplicity_bit << ";"
-                         << std::endl;
-    FirmwareGeometryFile << "parameter LowJetpT_FakeReduction = 16'b" << lowpTJetThreshold_bit << ";" << std::endl;
-
-    FirmwareGeometryFile << "parameter HighJetTracks_FakeReduction = 4'b" << highpTJetMinTrackMultiplicity_bit << ";"
-                         << std::endl;
-    FirmwareGeometryFile << "parameter HighJetpT_FakeReduction = 16'b" << highpTJetThreshold_bit << ";" << std::endl;
-
-    FirmwareGeometryFile << "parameter MinJetTracks = 4'b" << minTrkJetTrackMultiplicity_bit << ";" << std::endl;
-    FirmwareGeometryFile << "parameter MinJetpT = 16'b" << minTrkJetpT_bit << ";" << std::endl;
-
-    FirmwareGeometryFile.close();
   }
 
   // L1 clustering (in eta)
