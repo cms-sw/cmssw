@@ -42,11 +42,18 @@ void NNVtxAssoc::TTTrackNetworkSelector(const l1ct::PFRegionEmu& region,
   classtype classresult;
 
   int resbin = 0;
-  for (int ibin = 0; ibin <= 126; ++ibin) {
-    if ((t.hwEta > associationNetworkEtaBounds[ibin]) & (t.hwEta <= associationNetworkEtaBounds[ibin + 1])) {
+  int Nresbins = std::size(associationNetworkEtaBounds);
+
+  l1ct::eta_t temp_hwEta = t.hwEta;
+  if (temp_hwEta < 0)
+    temp_hwEta = -temp_hwEta;
+  for (int ibin = 0; ibin < Nresbins; ++ibin) {
+    if (temp_hwEta > l1ct::Scales::makeEta(associationNetworkEtaBounds[ibin]) &&
+        temp_hwEta <= l1ct::Scales::makeEta(associationNetworkEtaBounds[ibin + 1])) {
       resbin = ibin;
+      break;
     }
-  };
+  }
 
   // The following constants <22, 9> are defined by the quantisation of the Neural Network
   fPt_ = t.hwPt;
@@ -112,17 +119,17 @@ void NNVtxAssoc::NNVtxAssocDebug() {
 
 void EmuNetworkSelector(const l1ct::TkObj& t, const l1ct::PVObjEmu& v, l1ct::nn_assoc_t& output_score) {
   int resbin = 0;
-  l1ct::eta_t temp_hwEta;
-  if (t.hwEta < 0) {
-    temp_hwEta = -1 * t.hwEta;
-  }
-  for (int ibin = 0; ibin <= 126; ++ibin) {
-    if (temp_hwEta > l1ct::Scales::makeEta(associationNetworkEtaBounds[ibin]) &
+  int Nresbins = std::size(associationNetworkEtaBounds);
+  l1ct::eta_t temp_hwEta = t.hwEta;
+  if (temp_hwEta < 0)
+    temp_hwEta = -temp_hwEta;
+  for (int ibin = 0; ibin < Nresbins; ++ibin) {
+    if (temp_hwEta > l1ct::Scales::makeEta(associationNetworkEtaBounds[ibin]) &&
         temp_hwEta <= l1ct::Scales::makeEta(associationNetworkEtaBounds[ibin + 1])) {
       resbin = ibin;
       break;
     }
-  };
+  }
   // The following constants <22, 9> are defined by the quantisation of the Neural Network
   nn_inputtype fPt_ = t.hwPt;
   nn_inputtype fResBin_ = associationNetworkZ0ResBins[resbin];
