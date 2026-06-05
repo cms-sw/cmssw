@@ -82,8 +82,6 @@ namespace l1t {
     uint16_t hwTkQuality_, hwPuppiWeight_, hwEmID_;
     uint64_t encodedPuppi64_;
 
-    int hwAssociation_;
-
     void setPdgIdFromParticleType(int charge, ParticleType kind);
   };
 
