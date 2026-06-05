@@ -2,6 +2,7 @@
 
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/tdr_regionizer_elements_ref.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // BUFFER ENTRY AND BUFFER
 template <typename T>
