@@ -6,7 +6,10 @@
 #include "DataFormats/Common/interface/RefProd.h"
 
 namespace reco {
-  class PFRecHit;
+  namespace io_v1 {
+    class PFRecHit;
+  }
+  using PFRecHit = io_v1::PFRecHit;
 
   /// collection of PFRecHit objects
   typedef std::vector<PFRecHit> PFRecHitCollection;

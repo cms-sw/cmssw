@@ -24,10 +24,9 @@
 #include "L1Trigger/GlobalTrigger/interface/L1GtConditionEvaluation.h"
 
 // forward declarations
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCandFwd.h"
 class L1GtCondition;
 class L1GtCaloTemplate;
-
-class L1GctCand;
 
 class L1GlobalTriggerPSB;
 

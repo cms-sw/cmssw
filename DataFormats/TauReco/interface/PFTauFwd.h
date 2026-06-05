@@ -6,7 +6,10 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
-  class PFTau;
+  namespace io_v1 {
+    class PFTau;
+  }
+  using PFTau = io_v1::PFTau;
   /// collection of PFTau objects
   typedef std::vector<PFTau> PFTauCollection;
   /// presistent reference to a PFTau

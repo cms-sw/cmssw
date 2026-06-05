@@ -6,7 +6,10 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
-  class Conversion;
+  namespace io_v1 {
+    class Conversion;
+  }
+  using Conversion = io_v1::Conversion;
 
   /// collectin of Conversion objects
   typedef std::vector<Conversion> ConversionCollection;

@@ -89,7 +89,7 @@ namespace edm {
     void swap(RefToBaseProd<T>&);
 
     //Needed for ROOT storage
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(3)
   private:
     //NOTE: Access to RefCore should be private since we modify the use of productPtr
     RefCore const& refCore() const { return product_; }

@@ -87,7 +87,7 @@ namespace edm {
     using base::id_offset_vector;
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(3)
 
   private:
     refprod_type ref_;

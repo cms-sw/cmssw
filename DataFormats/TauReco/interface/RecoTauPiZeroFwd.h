@@ -6,7 +6,10 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
-  class RecoTauPiZero;
+  namespace io_v1 {
+    class RecoTauPiZero;
+  }
+  using RecoTauPiZero = io_v1::RecoTauPiZero;
   /// collection of RecoTauPiZero objects
   typedef std::vector<RecoTauPiZero> RecoTauPiZeroCollection;
   /// presistent reference to a RecoTauPiZero

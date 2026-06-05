@@ -12,16 +12,21 @@ namespace reco {
   typedef edm::AssociationVector<edm::RefToBaseProd<reco::Jet>, std::vector<reco::JetFlavourInfo> >
       JetFlavourInfoMatchingCollectionBase;
 
-  class JetFlavourInfoMatchingCollection : public JetFlavourInfoMatchingCollectionBase {
-  public:
-    JetFlavourInfoMatchingCollection() : JetFlavourInfoMatchingCollectionBase() {}
+  namespace io_v1 {
 
-    JetFlavourInfoMatchingCollection(const reco::CaloJetRefProd &ref)
-        : JetFlavourInfoMatchingCollectionBase(edm::RefToBaseProd<reco::Jet>(ref)) {}
+    class JetFlavourInfoMatchingCollection : public reco::JetFlavourInfoMatchingCollectionBase {
+    public:
+      JetFlavourInfoMatchingCollection() : reco::JetFlavourInfoMatchingCollectionBase() {}
 
-    JetFlavourInfoMatchingCollection(const JetFlavourInfoMatchingCollectionBase &v)
-        : JetFlavourInfoMatchingCollectionBase(v) {}
-  };
+      JetFlavourInfoMatchingCollection(const reco::CaloJetRefProd &ref)
+          : reco::JetFlavourInfoMatchingCollectionBase(edm::RefToBaseProd<reco::Jet>(ref)) {}
+
+      JetFlavourInfoMatchingCollection(const reco::JetFlavourInfoMatchingCollectionBase &v)
+          : reco::JetFlavourInfoMatchingCollectionBase(v) {}
+    };
+
+  }  // namespace io_v1
+  using JetFlavourInfoMatchingCollection = io_v1::JetFlavourInfoMatchingCollection;
 
   typedef JetFlavourInfoMatchingCollection::value_type JetFlavourInfoMatching;
 

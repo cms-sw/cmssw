@@ -1,35 +1,35 @@
 <lcgdict>
-   <class name="EcalDCCHeaderBlock" ClassVersion="10">
-    <version ClassVersion="10" checksum="903320896"/>
+   <class name="io_v1::EcalDCCHeaderBlock" ClassVersion="3">
+    <version ClassVersion="3" checksum="1060246878"/>
    </class>
-   <class name="EcalDCCHeaderBlock::EcalDCCEventSettings" ClassVersion="10">
-    <version ClassVersion="10" checksum="2079821800"/>
+   <class name="io_v1::EcalDCCHeaderBlock::EcalDCCEventSettings" ClassVersion="3">
+    <version ClassVersion="3" checksum="3905829224"/>
    </class>
-   <class name="std::vector<EcalDCCHeaderBlock>"/>
-   <class name="edm::SortedCollection<EcalDCCHeaderBlock,edm::StrictWeakOrdering<EcalDCCHeaderBlock> >"/>
-   <class name="edm::StrictWeakOrdering<EcalDCCHeaderBlock>" /> <!-- Root6 -->
-   <class name="edm::Wrapper<edm::SortedCollection<EcalDCCHeaderBlock,edm::StrictWeakOrdering<EcalDCCHeaderBlock> > >" id="679B9EAA-1B71-051A-FFD7-79D324E1AAC3"/>
-   <class name="EcalListOfFEDS" ClassVersion="10">
-    <version ClassVersion="10" checksum="1070537451"/>
+   <class name="std::vector<io_v1::EcalDCCHeaderBlock>"/>
+   <class name="edm::SortedCollection<io_v1::EcalDCCHeaderBlock,edm::StrictWeakOrdering<io_v1::EcalDCCHeaderBlock> >"/>
+   <class name="edm::StrictWeakOrdering<io_v1::EcalDCCHeaderBlock>" /> <!-- Root6 -->
+   <class name="edm::Wrapper<edm::SortedCollection<io_v1::EcalDCCHeaderBlock,edm::StrictWeakOrdering<io_v1::EcalDCCHeaderBlock> > >" id="679B9EAA-1B71-051A-FFD7-79D324E1AAC3"/>
+   <class name="EcalListOfFEDS" ClassVersion="3">
+    <version ClassVersion="3" checksum="1070537451"/>
    </class>
    <class name="edm::Wrapper<EcalListOfFEDS>"/>
    <class name="std::vector<EcalListOfFEDS>"/>
    <class name="edm::Wrapper<std::vector<EcalListOfFEDS> >"/>
-   <class name="ESListOfFEDS" ClassVersion="10">
-    <version ClassVersion="10" checksum="3474459870"/>
+   <class name="ESListOfFEDS" ClassVersion="3">
+    <version ClassVersion="3" checksum="3474459870"/>
    </class>
    <class name="edm::Wrapper<ESListOfFEDS>"/>
    <class name="std::vector<ESListOfFEDS>"/>
    <class name="edm::Wrapper<std::vector<ESListOfFEDS> >"/>
-   <class name="ESDCCHeaderBlock" ClassVersion="10">
-    <version ClassVersion="10" checksum="3157693247"/>
+   <class name="ESDCCHeaderBlock" ClassVersion="3">
+    <version ClassVersion="3" checksum="3157693247"/>
    </class>
    <class name="std::vector<ESDCCHeaderBlock>"/>
    <class name="edm::SortedCollection<ESDCCHeaderBlock,edm::StrictWeakOrdering<ESDCCHeaderBlock> >"/>
    <class name="edm::StrictWeakOrdering<ESDCCHeaderBlock>" /> <!-- Root6 -->
    <class name="edm::Wrapper<edm::SortedCollection<ESDCCHeaderBlock,edm::StrictWeakOrdering<ESDCCHeaderBlock> > >" />
-   <class name="ESKCHIPBlock" ClassVersion="10">
-    <version ClassVersion="10" checksum="3879602689"/>
+   <class name="ESKCHIPBlock" ClassVersion="3">
+    <version ClassVersion="3" checksum="3879602689"/>
    </class>
    <class name="std::vector<ESKCHIPBlock>"/>
    <class name="edm::SortedCollection<ESKCHIPBlock,edm::StrictWeakOrdering<ESKCHIPBlock> >"/>
