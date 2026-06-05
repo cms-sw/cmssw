@@ -50,7 +50,7 @@ namespace l1ct {
       Buffer() {}
 
       void addEntry(const T& obj,
-                    std::vector<size_t> srs,  // LOGICAL SRs
+                    std::vector<size_t> srs,  // physical SRs
                     int glbeta,
                     int glbphi);
 
