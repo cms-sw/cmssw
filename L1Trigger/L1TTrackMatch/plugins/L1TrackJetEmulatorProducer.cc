@@ -323,7 +323,6 @@ void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup
         DoubleToBit(double(mzb.clusters[j].eta),
                     TkJetWord::TkJetBitWidths::kGlbEtaSize,
                     2 * TkJetWord::MAX_ETA / (1 << TkJetWord::TkJetBitWidths::kGlbEtaSize));
-    // TkJetWord::MAX_ETA / (1 << TkJetWord::TkJetBitWidths::kGlbEtaSize));
     l1t::TkJetWord::glbphi_t jetPhi = DoubleToBit(
         BitToDouble(mzb.clusters[j].phi, TTTrack_TrackWord::TrackBitWidths::kPhiSize + 4, TTTrack_TrackWord::stepPhi0),
         TkJetWord::TkJetBitWidths::kGlbPhiSize,
