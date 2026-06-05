@@ -2,24 +2,19 @@
 
 // system include files
 #include <ap_int.h>
-#include <array>
-#include <cmath>
-#include <typeinfo>
-#include <iostream>
-#include <fstream>
+
 #include <memory>
-#include <vector>
+#include <utility>
 
 // user include files
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "L1Trigger/L1CaloTrigger/interface/Phase2L1CaloToCorrelatorTM18.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/L1TCalorimeterPhase2/interface/GCTEmDigiCluster.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/GCTHadDigiCluster.h"
