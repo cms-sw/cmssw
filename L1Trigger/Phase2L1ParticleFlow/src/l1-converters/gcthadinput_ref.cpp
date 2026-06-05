@@ -37,8 +37,8 @@ l1ct::HadCaloObjEmu l1ct::GctHadClusterDecoderEmulator::decode(const l1ct::PFReg
   calo.hwPhi = l1ct::Scales::makePhi(inclus.phi() * PHI_LSB + (PHI_LSB / 2));    // This is already in the local frame
 
   if (corrector_.valid()) {
-    float newpt =
-        corrector_.correctedPt(calo.floatPt(), calo.floatPt(), calo.floatEta());  // NOTE: this is still abs(globalEta)
+    float newpt = corrector_.correctedPt(
+        calo.floatPt(), calo.floatEmPt(), calo.floatEta());  // NOTE: this is still abs(globalEta)
     calo.hwPt = l1ct::Scales::makePtFromFloat(newpt);
   }
 
