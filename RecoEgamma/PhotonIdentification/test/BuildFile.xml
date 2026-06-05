@@ -5,4 +5,4 @@
   <use name="RecoEgamma/PhotonIdentification"/>
 </bin>
 
-<test name="runtestRecoEgammaPhotonIdentification" command="runtests.sh"/>
+<!-- <test name="runtestRecoEgammaPhotonIdentification" command="runtests.sh"/> COMMENT: reads old format file -->

@@ -1,1 +1,1 @@
-<test name="testDiMuonVertexMonitor" command="testDiMuonVertexMonitor.sh"/>
+<!-- <test name="testDiMuonVertexMonitor" command="testDiMuonVertexMonitor.sh"/> COMMENT: reads old format files -->

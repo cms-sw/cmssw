@@ -1,1 +1,1 @@
-<test name="testSiStripHitEfficiency" command="test_SiStripHitEfficiency.sh"/>
+<!-- <test name="testSiStripHitEfficiency" command="test_SiStripHitEfficiency.sh"/> COMMENT: reads old format file -->

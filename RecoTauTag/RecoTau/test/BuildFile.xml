@@ -29,4 +29,4 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<test name="runtestRecoTauTagRecoTau" command="runtests.sh"/>
+<!-- <test name="runtestRecoTauTagRecoTau" command="runtests.sh"/> COMMENT: reads old format file -->
