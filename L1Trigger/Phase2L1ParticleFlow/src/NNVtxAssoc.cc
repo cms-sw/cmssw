@@ -137,14 +137,14 @@ void EmuNetworkSelector(const l1ct::TkObj& t, const l1ct::PVObjEmu& v, l1ct::nn_
   nn_inputtype fDz_ = t.hwZ0 - v.hwZ0;
 
   nn_inputtype association_input[N_NN_ASSOC_FEATURES];
-  L1TNNVtx_Assoc_Model_v0::result_t nn_output_score[N_NN_ASSOC_OUTPUTS];
+  hls4ml_L1TNNVtx_Assoc_Model_v0::result_t nn_output_score[N_NN_ASSOC_OUTPUTS];
 
   association_input[0] = fPt_;           // Obj pT
   association_input[1] = fMVA_;          // Obj track quality
   association_input[2] = fResBin_ / 16;  // Obj z0 resolution bin (rescaled)
   association_input[3] = fDz_;           // Obj delta z from the PV
 
-  L1TNNVtx_Assoc_Model_v0::NNvtx_assoc(association_input, nn_output_score);
+  hls4ml_L1TNNVtx_Assoc_Model_v0::L1TNNVtx_Assoc_Model_v0(association_input, nn_output_score);
 
   output_score = (l1ct::nn_assoc_t)nn_output_score[0];
 }
