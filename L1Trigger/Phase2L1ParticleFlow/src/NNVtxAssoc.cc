@@ -119,7 +119,7 @@ void NNVtxAssoc::NNVtxAssocDebug() {
 
 void EmuNetworkSelector(const l1ct::TkObj& t, const l1ct::PVObjEmu& v, l1ct::nn_assoc_t& output_score) {
   int resbin = 0;
-  int Nresbins = std::size(associationNetworkEtaBounds);
+  int Nresbins = sizeof(associationNetworkEtaBounds) / sizeof(associationNetworkEtaBounds[0]);
   l1ct::eta_t temp_hwEta = t.hwEta;
   if (temp_hwEta < 0)
     temp_hwEta = -temp_hwEta;
