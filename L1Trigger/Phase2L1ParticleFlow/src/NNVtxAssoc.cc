@@ -136,7 +136,7 @@ void EmuNetworkSelector(const l1ct::TkObj& t, const l1ct::PVObjEmu& v, l1ct::nn_
   nn_inputtype fMVA_ = t.hwQuality;
   nn_inputtype fDz_ = t.hwZ0 - v.hwZ0;
 
-  nn_inputtype association_input[N_NN_ASSOC_FEATURES];
+  hls4ml_L1TNNVtx_Assoc_Model_v0::input_t association_input[N_NN_ASSOC_FEATURES];
   hls4ml_L1TNNVtx_Assoc_Model_v0::result_t nn_output_score[N_NN_ASSOC_OUTPUTS];
 
   association_input[0] = fPt_;           // Obj pT
