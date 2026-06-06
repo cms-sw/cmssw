@@ -263,7 +263,7 @@ highPtTripletStepTrackCandidatesMkFit = mkFitProducer_cfi.mkFitProducer.clone(
     clustersToSkip = cms.InputTag("")
 )
 (trackingPhase2PU140 & trackingMkFitHighPtTripletStep & seedingLST & trackingLST).toModify(highPtTripletStepTrackCandidatesMkFitConfig,
-    config = cms.FileInPath('RecoTracker/MkFit/data/mkfit-phase2-lstStep.json'),
+    config = cms.FileInPath('RecoTracker/MkFit/data/mkfit-phase2-lstStep-offline.json'),
     minPt = cms.double(0)                                                    
 )
 
@@ -399,6 +399,8 @@ vectorHits.toModify(highPtTripletStepSelector.trackSelectors[2], minNumberLayers
 
 (trackingPhase2PU140 & seedingLST).toModify(highPtTripletStepSelector, passThroughForAll = True)
 
+(trackingPhase2PU140 & seedingLST & trackingMkFitHighPtTripletStep).toModify(highPtTripletStepSelector, passThroughForAll = False)
+
 # Final sequence
 HighPtTripletStepTask = cms.Task(highPtTripletStepClusters,
                                  highPtTripletStepSeedLayers,
@@ -430,6 +432,9 @@ _HighPtTripletStepTask_LST.add(siPhase2RecHits, lstGeometryESProducer, lstInputP
 (trackingPhase2PU140 & trackingLST).toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_LST)
 
 _HighPtTripletStepTask_LST_mkFit = _HighPtTripletStepTask_LST.copy()
+(trackingPhase2PU140 & seedingLST & trackingLST & trackingMkFitHighPtTripletStep).toModify(lstInputProducer,
+    ptCut = cms.double(0.1)
+)
 _HighPtTripletStepTask_LST_mkFit.add(highPtTripletStepTrajectorySeedsLST,highPtTripletStepTrackCandidatesMkFitSeeds, highPtTripletStepTrackCandidatesMkFit, highPtTripletStepTrackCandidatesMkFitConfig)
 (trackingPhase2PU140 & trackingMkFitHighPtTripletStep & seedingLST & trackingLST).toReplaceWith(HighPtTripletStepTask,_HighPtTripletStepTask_LST_mkFit)
 
