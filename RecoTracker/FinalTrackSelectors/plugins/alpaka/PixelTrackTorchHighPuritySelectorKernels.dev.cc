@@ -76,7 +76,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       const auto trackLimit = alpaka::math::min(acc, maxNumberOfTracks, tracks.nTracks());
 #ifdef KERNELS_DEBUG
-      if (cms::alpakatools::once_per_block(acc)) {
+      if (cms::alpakatools::once_per_grid(acc)) {
         printf("nTracks=%d\n", tracks.nTracks());
         if (tracks.nTracks() >= maxNumberOfTracks)
           printf("PixelTrackTorchHighPuritySelectorKernels Warning: nTracks (%d) >= maxNumberOfTracks (%d)\n",
@@ -221,7 +221,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         */
 
       const auto nTracks = alpaka::math::min(acc, *nSelectedTracks, maxPreselectedTracks);
-      if (cms::alpakatools::once_per_block(acc))
+      if (cms::alpakatools::once_per_grid(acc))
         tracks_out.nTracks() = nTracks;
 
       for (auto i : cms::alpakatools::uniform_elements(acc, nTracks)) {
@@ -310,7 +310,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             */
 
       // ---- Compute output size once ----
-      if (cms::alpakatools::once_per_block(acc)) {
+      if (cms::alpakatools::once_per_grid(acc)) {
         if (old_size > 0) {
           *new_size = static_cast<Size>(offsets[old_size - 1]);
         } else {
