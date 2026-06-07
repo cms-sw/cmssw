@@ -59,6 +59,15 @@ private:
 
   float rhoValue_;
   edm::EDGetTokenT<double> rhoToken_;
+  std::vector<edm::Handle<std::vector<double>>> rhoMaps_;
+  std::vector<edm::EDGetTokenT<std::vector<double>>> rhoMapTokens_;
+  double getRho(double eta) const {
+    const auto& etaMap = *rhoMaps_[0];
+    const auto& rhoMap = *rhoMaps_[1];
+    assert(etaMap.size() == rhoMap.size() + 1);
+    const size_t n = std::upper_bound(etaMap.begin(), etaMap.end(), eta) - etaMap.begin();
+    return (n > 0 && n <= rhoMap.size()) ? rhoMap[n - 1] : 0.;
+  };
 
   bool useClosestToCentreSeedCrysDef_;
   bool useBuggedHOverE_;  //this allows us to use the regression corrected H/E which is incorrect wrong
@@ -87,11 +96,22 @@ EGRegressionModifierV3::EGRegressionModifierV3(const edm::ParameterSet& conf, ed
   if (useClosestToCentreSeedCrysDef_) {
     caloGeomToken_ = cc.esConsumes();
   }
+  if (conf.exists("rhoMaps")) {
+    for (const auto& tag : conf.getParameter<std::vector<edm::InputTag>>("rhoMaps"))
+      rhoMapTokens_.emplace_back(cc.consumes<std::vector<double>>(tag));
+    rhoMaps_.resize(rhoMapTokens_.size());
+    if (not rhoMaps_.empty() && rhoMaps_.size() != 2)
+      throw cms::Exception("InvalidConfiguration") << "EGRegressionModifierV3 expects only 2 tags in rhoMaps!";
+  }
 }
 
 EGRegressionModifierV3::~EGRegressionModifierV3() {}
 
-void EGRegressionModifierV3::setEvent(const edm::Event& evt) { rhoValue_ = evt.get(rhoToken_); }
+void EGRegressionModifierV3::setEvent(const edm::Event& evt) {
+  rhoValue_ = evt.get(rhoToken_);
+  for (size_t i = 0; i < rhoMapTokens_.size(); i++)
+    rhoMaps_[i] = evt.getHandle(rhoMapTokens_[i]);
+}
 
 void EGRegressionModifierV3::setEventContent(const edm::EventSetup& iSetup) {
   if (eleRegs_)
@@ -223,7 +243,7 @@ std::array<float, 32> EGRegressionModifierV3::getRegData(const reco::GsfElectron
   data[4] = ssFull5x5.e5x5 / rawEnergy;
   //the full5x5 is not regression corrected and thus is the correct one to use
   data[5] = useBuggedHOverE_ ? ele.hcalOverEcalBc() : ele.full5x5_hcalOverEcalBc();
-  data[6] = rhoValue_;
+  data[6] = rhoMaps_.empty() ? rhoValue_ : getRho(superClus->eta());
   data[7] = seedClus->eta() - superClus->position().Eta();
   data[8] = reco::deltaPhi(seedClus->phi(), superClus->position().Phi());
   data[9] = ssFull5x5.r9;
@@ -289,7 +309,7 @@ std::array<float, 32> EGRegressionModifierV3::getRegData(const reco::Photon& pho
   //interestingly enough this differs from electrons where it uses cone based
   //naively Sam would have thought using cone based is even worse than tower based
   data[5] = pho.hadronicOverEm();
-  data[6] = rhoValue_;
+  data[6] = rhoMaps_.empty() ? rhoValue_ : getRho(superClus->eta());
   data[7] = seedClus->eta() - superClus->position().Eta();
   data[8] = reco::deltaPhi(seedClus->phi(), superClus->position().Phi());
   data[9] = pho.full5x5_r9();
