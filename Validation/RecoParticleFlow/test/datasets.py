@@ -22,6 +22,15 @@ import optparse
 import shlex
 import os
 
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--phase",
+    choices=["phase1", "phase2"],
+    default="phase1"
+)
+
+args = parser.parse_args()
+
 LOG_MODULE_NAME = logging.getLogger(__name__)
 
 class Dataset:
@@ -123,19 +132,21 @@ class Dataset:
 
 if __name__ == "__main__":
 
+    json_file = {
+        "phase1": "datasets.json",
+        "phase2": "datasets_phase2.json"
+    }[args.phase]
+
+    with open(json_file) as f:
+        dataset_configs = json.load(f)
+
     #prefix = ""
     prefix = "root://cmsxrootd.fnal.gov//"
     #prefix = "root://xrootd-cms.infn.it//"
     tmpdir = "tmp"
     datasets = [
-        Dataset("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_13_3_0_pre3-132X_mcRun3_2023_realistic_v4-v1/GEN-SIM-DIGI-RAW", "QCD_noPU", prefix, None, False, tmpdir),
-        Dataset("/RelValQCD_FlatPt_15_3000HS_14/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "QCD_PU", prefix, None, False, tmpdir),
-        Dataset("/RelValZEE_14/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "ZEE_PU", prefix, None, False, tmpdir),
-        Dataset("/RelValZMM_14/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "ZMM_PU", prefix, None, False, tmpdir),
-        Dataset("/RelValTenTau_15_500/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "TenTau_PU", prefix, None, False, tmpdir),
-        Dataset("/RelValNuGun/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-DIGI-RAW", "NuGun_PU", prefix, None, False, tmpdir)]
+    Dataset(d["path"], d["name"], prefix, None, False, tmpdir)
+    for d in dataset_configs
+    ]
     for ds in datasets:
         ds.cache_das_filenames()
-
-
-

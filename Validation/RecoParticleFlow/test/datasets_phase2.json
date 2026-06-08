@@ -1,26 +1,26 @@
 [
   {
-    "path": "/RelValQCD_FlatPt_15_3000HS_14/CMSSW_16_1_0_pre4-150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU_20260420_140846-v1/GEN-SIM-DIGI-RAW",
+    "path": "/RelValQCD_FlatPt_15_3000HS_14/CMSSW_17_0_0_pre1-150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/GEN-SIM-DIGI-RAW",
     "name": "QCD_noPU"
   },
   {
-    "path": "/RelValQCD_FlatPt_15_3000HS_14/CMSSW_16_1_0_pre4-PU_150X_mcRun4_realistic_v1_STD_D121_RegeneratedGS_PU_20260505_140840-v1/GEN-SIM-DIGI-RAW",
+    "path": "/RelValQCD_FlatPt_15_3000HS_14/CMSSW_17_0_0_pre1-PU_150X_mcRun4_realistic_v1_STD_D121_RegeneratedGS_PU-v1/GEN-SIM-DIGI-RAW",
     "name": "QCD_PU"
   },
   {
-    "path": "/RelValZEE_14/CMSSW_16_1_0_pre4-PU_150X_mcRun4_realistic_v1_STD_D121_RegeneratedGS_PU_20260505_140840-v1/GEN-SIM-DIGI-RAW",
+    "path": "/RelValZEE_14/CMSSW_17_0_0_pre1-PU_150X_mcRun4_realistic_v1_STD_D121_RegeneratedGS_PU-v1/GEN-SIM-DIGI-RAW",
     "name": "ZEE_PU"
   },
   {
-    "path": "/RelValZMM_14/CMSSW_16_1_0_pre4-PU_150X_mcRun4_realistic_v1_STD_D121_RegeneratedGS_PU_20260505_140840-v1/GEN-SIM-DIGI-RAW",
+    "path": "/RelValZMM_14/CMSSW_17_0_0_pre1-PU_150X_mcRun4_realistic_v1_STD_D121_RegeneratedGS_PU-v1/GEN-SIM-DIGI-RAW",
     "name": "ZMM_PU"
   },
   {
-    "path": "/RelValNuGun/CMSSW_16_1_0_pre4-PU_150X_mcRun4_realistic_v1_STD_D121_RegeneratedGS_PU_20260505_140840-v1/GEN-SIM-DIGI-RAW",
+    "path": "/RelValTenTau_15_500/CMSSW_17_0_0_pre1-PU_150X_mcRun4_realistic_v1_STD_D121_RegeneratedGS_PU-v1/GEN-SIM-DIGI-RAW",
     "name": "TenTau_PU"
   },
   {
-    "path": "/RelValNuGun/CMSSW_16_1_0_pre4-PU_150X_mcRun4_realistic_v1_STD_D121_RegeneratedGS_PU_20260420_140840-v2/GEN-SIM-DIGI-RAW",
+    "path": "/RelValNuGun/CMSSW_17_0_0_pre1-PU_150X_mcRun4_realistic_v1_STD_D121_RegeneratedGS_PU-v1/GEN-SIM-DIGI-RAW",
     "name": "NuGun_PU"
   }
 ]
