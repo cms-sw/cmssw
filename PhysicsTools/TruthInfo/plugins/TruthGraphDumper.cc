@@ -393,6 +393,8 @@ public:
       const auto pdg = g.nodePdgId(i);
       const auto st = g.nodeStatus(i);
       const auto eid = g.nodeEventId(i);
+      const auto flags = g.nodeStatusFlags(i);
+      const std::string flagsLabel = statusFlagsLabel(flags);
 
       // SimTrack enrichment
       bool crossedBoundary = false;
@@ -417,8 +419,8 @@ public:
       if (crossedBoundary)
         os << "color=\"red\", penwidth=2, ";
 
-      os << "pdg=" << pdg << ", status=" << st << ", eid=" << eid << ",";
-      // --- GEN enrichment
+      os << "pdg=" << pdg << ", status=" << st << ", statusFlags=" << flags
+         << ", statusFlagsLabel=" << dotQuote(flagsLabel) << ", eid=" << eid << ",";  // --- GEN enrichment
       if (r.kind == TruthGraph::NodeKind::GenEvent) {
         if (ev2) {
           os << "HepMCversion=2, event=" << ev2->event_number() << ", spid=" << ev2->signal_process_id() << ",";
@@ -491,6 +493,10 @@ public:
         os << "      <TR><TD>pid: " << pdgLabel(pdg) << "</TD></TR>\n";
       if (st != 0)
         os << "      <TR><TD>status: " << st << "</TD></TR>\n";
+      if (flags != 0) {
+        os << "      <TR><TD>statusFlags: " << flags << "</TD></TR>\n";
+        os << "      <TR><TD>flags: " << flagsLabel << "</TD></TR>\n";
+      }
       if (eid != 0)
         os << "      <TR><TD>eid: " << eid << "</TD></TR>\n";
 
