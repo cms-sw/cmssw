@@ -101,7 +101,6 @@ namespace hgcal {
       {
         numberOfLayers = std::max(numberOfLayers, theFirstLayersOfComp_[i] + theNumberOfLayersOfComp_[i] - 1);
       }
-      std::cout << " RecHitTools::getNumberOfLayers() " << numberOfLayers << std::endl;
       return numberOfLayers;
     }
 

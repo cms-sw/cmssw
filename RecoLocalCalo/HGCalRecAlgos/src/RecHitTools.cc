@@ -93,13 +93,6 @@ namespace {
 }  // namespace
 
 void RecHitTools::setGeometry(const CaloGeometry& geom) {
-  std::cout << " setGeometry::Start::RecHitsTools number of layers " << theFirstLayersOfComp_.size() << " "
-            << theNumberOfLayersOfComp_.size() << std::endl;
-
-
-  std::cout << " Angles " << atan(85. / 23.) << " " << atan(-74. / 48.) << " " << atan(79. / 40.) << " "
-            << atan(87. / 8.) << std::endl;
-
   geom_ = &geom;
   unsigned int wmaxEE(0), wmaxFH(0);
 
@@ -149,9 +142,6 @@ void RecHitTools::setGeometry(const CaloGeometry& geom) {
       bhMaxIphi_ = 0;
       theFirstLayersOfComp_.push_back(bhFirstLayer_);
       theNumberOfLayersOfComp_.push_back(0);
-    }
-    for (unsigned int k = 0; k < theFirstLayersOfComp_.size(); k++) {
-      std::cout << " theFirstLayersOfComp_ " << theFirstLayersOfComp_[k] << " " << theNumberOfLayersOfComp_[k] << std::endl;
     }
   } else {
     geometryType_ = 0;
