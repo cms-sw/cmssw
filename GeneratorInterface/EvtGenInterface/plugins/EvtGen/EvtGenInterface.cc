@@ -59,10 +59,10 @@ using namespace edm;
 // Sherpa is built with MPI and aborts unless MPI is initialized.
 // We only need a dummy init, and it must happen exactly once per process not per thread.
 void initDummyMPIOnce() {
-    [[maybe_unused]] static const bool init = [] {
-    MPI_Init(0, nullptr);
+  [[maybe_unused]] static const bool init = [] {
+    MPI_Init(nullptr, nullptr);
     return true;
-    }();
+  }();
 }
 
 EvtGenInterface::EvtGenInterface(const ParameterSet& pset) {
@@ -327,8 +327,7 @@ void EvtGenInterface::ensureEvtGenOnThread() {
       std::getenv("PYTHIA8DATA");  // Specify the pythia xml data directory to use the default PYTHIA8DATA location
 
   if (tmp == nullptr) {
-    edm::LogError("EvtGenInterface::ensureEvtGenOnThread")
-        << "PYTHIA8DATA not defined. Terminating program ";
+    edm::LogError("EvtGenInterface::ensureEvtGenOnThread") << "PYTHIA8DATA not defined. Terminating program ";
     exit(0);
   }
 
@@ -349,9 +348,8 @@ void EvtGenInterface::ensureEvtGenOnThread() {
   } else if (fsrModel == "vincia") {
     radCorrEngine = genList.getVinciaQEDModel(1.0e-7);
   } else {
-    throw cms::Exception("Configuration")
-        << "EvtGenInterface: unknown fsr_model '" << fsrModel
-        << "'. Allowed values are 'none', 'photos', 'sherpa', or 'vincia'.";
+    throw cms::Exception("Configuration") << "EvtGenInterface: unknown fsr_model '" << fsrModel
+	                                  << "'. Allowed values are 'none', 'photos', 'sherpa', or 'vincia'.";
   }
   std::list<EvtDecayBase*> extraModels = genList.getListOfModels();  // get interface to Pythia and Tauola
   std::list<EvtDecayBase*> myExtraModels;
@@ -377,15 +375,19 @@ void EvtGenInterface::ensureEvtGenOnThread() {
     myExtraModels.push_back(*it);
   }
 
-  m_EvtGen = std::make_unique<EvtGen>(
-      decay_table.fullPath().c_str(), pdt.fullPath().c_str(), the_engine.get(), radCorrEngine, &myExtraModels, BmixingOption);
+  m_EvtGen = std::make_unique<EvtGen>(decay_table.fullPath().c_str(),
+                                      pdt.fullPath().c_str(),
+                                      the_engine.get(),
+                                      radCorrEngine,
+                                      &myExtraModels,
+                                      BmixingOption);
 
   // Add additional user information
   if (fPSet->exists("user_decay_file")) {
     std::vector<std::string> user_decays = fPSet->getParameter<std::vector<std::string> >("user_decay_file");
     for (unsigned int i = 0; i < user_decays.size(); i++) {
       edm::FileInPath user_decay(user_decays.at(i));
-      m_EvtGen->readUDecay(user_decay.fullPath().c_str());
+      m_EvtGen->readUDecay(user_decay.fullPath());
     }
   }
 
@@ -664,9 +666,7 @@ void EvtGenInterface::setRandomEngine(CLHEP::HepRandomEngine* v) {
   EvtRandom::setRandomEngine(the_engine.get());
 }
 
-double EvtGenInterface::flat() {
-  return the_engine->random();
-}
+double EvtGenInterface::flat() { return the_engine->random(); }
 
 bool EvtGenInterface::findLastinChain(HepMC::GenParticle*& p) {
   if (p->end_vertex()) {

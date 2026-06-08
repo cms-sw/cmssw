@@ -28,6 +28,6 @@ namespace gen {
     edm::ThreadHandoff m_handoff;
   };
 
-} 
+}  // namespace gen
 
 #endif
