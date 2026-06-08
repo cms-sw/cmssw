@@ -18,6 +18,8 @@
 
 // system include files
 #include <cmath>
+#include <cstdint>
+#include <memory>
 #include <vector>
 #include <utility>
 #include <algorithm>
@@ -60,6 +62,7 @@
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapeLookup.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalPulseShapeLookupRcd.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HBHERun3Flags.h"
 
 // Parser for Phase 1 HB/HE reco algorithms
 #include "RecoLocalCalo/HcalRecAlgos/interface/parseHBHEPhase1AlgoDescription.h"
@@ -320,6 +323,7 @@ private:
   bool setNoiseFlagsQIE11_;
   bool setPulseShapeFlagsQIE8_;
   bool setPulseShapeFlagsQIE11_;
+  bool setHBHERun3Flags_;
 
   // Other members
   edm::EDGetTokenT<HBHEDigiCollection> tok_qie8_;
@@ -334,6 +338,7 @@ private:
   std::unique_ptr<HBHEStatusBitSetter> hbheFlagSetterQIE11_;
   std::unique_ptr<HBHEPulseShapeFlagSetter> hbhePulseShapeFlagSetterQIE8_;
   std::unique_ptr<HBHEPulseShapeFlagSetter> hbhePulseShapeFlagSetterQIE11_;
+  std::unique_ptr<HBHERun3Flags> hbheRun3Flags_;
 
   // ES tokens
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
@@ -351,6 +356,7 @@ private:
                    const HcalDbService& cond,
                    const HcalChannelPropertiesVec& prop,
                    const bool isRealData,
+                   const uint32_t bunchCrossing,
                    HBHEChannelInfo* info,
                    HBHEChannelInfoCollection* infoColl,
                    HBHERecHitCollection* rechits);
@@ -361,16 +367,21 @@ private:
                            const HBHEChannelInfo& info,
                            const HcalCalibrations& calib,
                            int soi,
+                           const bool isRealData,
+                           const uint32_t bunchCrossing,
                            HBHERecHit* rh);
   void setAsicSpecificBits(const QIE11DataFrame& frame,
                            const HcalCoder& coder,
                            const HBHEChannelInfo& info,
                            const HcalCalibrations& calib,
                            int soi,
+                           const bool isRealData,
+                           const uint32_t bunchCrossing,
                            HBHERecHit* rh);
   void setCommonStatusBits(const HBHEChannelInfo& info, const HcalCalibrations& calib, HBHERecHit* rh);
 
   void runHBHENegativeEFilter(const HBHEChannelInfo& info, HBHERecHit* rh);
+  void runHBHERun3FlagSetters(const QIE11DataFrame& frame, const int soi, const uint32_t bunchCrossing, HBHERecHit* rh);
 };
 
 //
@@ -398,6 +409,7 @@ HBHEPhase1Reconstructor::HBHEPhase1Reconstructor(const edm::ParameterSet& conf)
       setNoiseFlagsQIE11_(conf.getParameter<bool>("setNoiseFlagsQIE11")),
       setPulseShapeFlagsQIE8_(conf.getParameter<bool>("setPulseShapeFlagsQIE8")),
       setPulseShapeFlagsQIE11_(conf.getParameter<bool>("setPulseShapeFlagsQIE11")),
+      setHBHERun3Flags_(conf.getParameter<bool>("setHBHERun3Flags")),
       reco_(parseHBHEPhase1AlgoDescription(conf.getParameter<edm::ParameterSet>("algorithm"), consumesCollector())),
       negEFilter_(nullptr) {
   // Check that the reco algorithm has been successfully configured
@@ -469,6 +481,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
                                           const HcalDbService& cond,
                                           const HcalChannelPropertiesVec& prop,
                                           const bool isRealData,
+                                          const uint32_t bunchCrossing,
                                           HBHEChannelInfo* channelInfo,
                                           HBHEChannelInfoCollection* infos,
                                           HBHERecHitCollection* rechits) {
@@ -616,7 +629,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
         pptr = properties.paramTs;
       HBHERecHit rh = reco_->reconstruct(*channelInfo, pptr, *properties.calib, isRealData);
       if (rh.id().rawId()) {
-        setAsicSpecificBits(frame, coder, *channelInfo, *properties.calib, soi, &rh);
+        setAsicSpecificBits(frame, coder, *channelInfo, *properties.calib, soi, isRealData, bunchCrossing, &rh);
         setCommonStatusBits(*channelInfo, *properties.calib, &rh);
         rechits->push_back(rh);
       }
@@ -633,6 +646,8 @@ void HBHEPhase1Reconstructor::setAsicSpecificBits(const HBHEDataFrame& frame,
                                                   const HBHEChannelInfo& info,
                                                   const HcalCalibrations& calib,
                                                   int /* soi */,
+                                                  const bool /*isRealData*/,
+                                                  const uint32_t /*bunchcrossing*/,
                                                   HBHERecHit* rh) {
   if (setNoiseFlagsQIE8_)
     hbheFlagSetterQIE8_->rememberHit(*rh);
@@ -651,6 +666,8 @@ void HBHEPhase1Reconstructor::setAsicSpecificBits(const QIE11DataFrame& frame,
                                                   const HBHEChannelInfo& info,
                                                   const HcalCalibrations& calib,
                                                   const int soi,
+                                                  const bool isRealData,
+                                                  const uint32_t bunchCrossing,
                                                   HBHERecHit* rh) {
   if (setNoiseFlagsQIE11_)
     hbheFlagSetterQIE11_->rememberHit(*rh);
@@ -661,7 +678,24 @@ void HBHEPhase1Reconstructor::setAsicSpecificBits(const QIE11DataFrame& frame,
   if (setNegativeFlagsQIE11_)
     runHBHENegativeEFilter(info, rh);
 
+  if (isRealData && setHBHERun3Flags_)
+    runHBHERun3FlagSetters(frame, soi, bunchCrossing, rh);
+
   rh->setAuxTDC(packTDCData(frame, soi));
+}
+
+void HBHEPhase1Reconstructor::runHBHERun3FlagSetters(const QIE11DataFrame& frame,
+                                                     const int soi,
+                                                     const uint32_t bunchCrossing,
+                                                     HBHERecHit* rh) {
+  if (hbheRun3Flags_->isStuckADC(frame))
+    rh->setFlagField(1U, HcalPhase1FlagLabels::HBHERun3StuckADC);
+  if (hbheRun3Flags_->repeatedADCblock(frame, soi))
+    rh->setFlagField(1U, HcalPhase1FlagLabels::HBHERun3repeatedADCblock);
+  if (hbheRun3Flags_->isBadCapId(frame, soi, bunchCrossing))
+    rh->setFlagField(1U, HcalPhase1FlagLabels::HBHERun3BadCapId);
+  else if (hbheRun3Flags_->nonRotatingCapId(frame))
+    rh->setFlagField(1U, HcalPhase1FlagLabels::HBHERun3NonrotatingCapId);
 }
 
 void HBHEPhase1Reconstructor::runHBHENegativeEFilter(const HBHEChannelInfo& info, HBHERecHit* rh) {
@@ -719,12 +753,14 @@ void HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& even
 
   // Process the input collections, filling the output ones
   const bool isData = e.isRealData();
+  const uint32_t bunchCrossing = e.bunchCrossing();
   if (processQIE8_) {
     if (setNoiseFlagsQIE8_)
       hbheFlagSetterQIE8_->Clear();
 
     HBHEChannelInfo channelInfo(false, false);
-    processData<HBHEDataFrame>(*hbDigis, *htopo, *conditions, *prop, isData, &channelInfo, infos.get(), out.get());
+    processData<HBHEDataFrame>(
+        *hbDigis, *htopo, *conditions, *prop, isData, bunchCrossing, &channelInfo, infos.get(), out.get());
     if (setNoiseFlagsQIE8_)
       hbheFlagSetterQIE8_->SetFlagsFromRecHits(*out);
   }
@@ -734,7 +770,8 @@ void HBHEPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& even
       hbheFlagSetterQIE11_->Clear();
 
     HBHEChannelInfo channelInfo(true, saveEffectivePedestal_);
-    processData<QIE11DataFrame>(*heDigis, *htopo, *conditions, *prop, isData, &channelInfo, infos.get(), out.get());
+    processData<QIE11DataFrame>(
+        *heDigis, *htopo, *conditions, *prop, isData, bunchCrossing, &channelInfo, infos.get(), out.get());
     if (setNoiseFlagsQIE11_)
       hbheFlagSetterQIE11_->SetFlagsFromRecHits(*out);
   }
@@ -874,6 +911,7 @@ void HBHEPhase1Reconstructor::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<bool>("setPulseShapeFlagsQIE11", false);
   desc.add<bool>("setLegacyFlagsQIE8", true);
   desc.add<bool>("setLegacyFlagsQIE11", false);
+  desc.add<bool>("setHBHERun3Flags", true);
   {
     edm::ParameterSetDescription psd0;
     psd0.add<double>("nominalPedestal", 3.0);
