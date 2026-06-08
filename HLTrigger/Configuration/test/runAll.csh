@@ -20,8 +20,8 @@ echo "Running selected cfg files from:"
 pwd
 
 rm -f                           ./runOne.log 
-time ./runOne.csh DATA    $1 >& ./runOne.log &
-time ./runOne.csh MC      $1
+time ./runOne.csh DATA    $1   # >& ./runOne.log
+# & time ./runOne.csh MC  $1   # do not run MC based test in CMSSW_20_0_X
 
   set N = 0
   cp -f ./runOne.log ./runOne.tmp  
