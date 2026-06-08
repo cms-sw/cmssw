@@ -36,14 +36,14 @@ l1ct::HadCaloObjEmu l1ct::GctHadClusterDecoderEmulator::decode(const l1ct::PFReg
   calo.hwEta = l1ct::Scales::makeGlbEta(inclus.eta() * ETA_LSB + ETA_LSB / 2.);  // at this point eta is abs(globalEta)
   calo.hwPhi = l1ct::Scales::makePhi(inclus.phi() * PHI_LSB + (PHI_LSB / 2));    // This is already in the local frame
 
+  calo.hwEmPt = inclus.ecal() * inclus.ptLSB();
+
+
   if (corrector_.valid()) {
     float newpt = corrector_.correctedPt(
         calo.floatPt(), calo.floatEmPt(), calo.floatEta());  // NOTE: this is still abs(globalEta)
     calo.hwPt = l1ct::Scales::makePtFromFloat(newpt);
   }
-
-  // need to add EmPt when it becomes available
-  calo.hwEmPt = inclus.ecal() * inclus.ptLSB();
 
   // need to add emid, default to zero for had/PF clusters from GCT
   calo.hwEmID = inclus.fb();
