@@ -37,7 +37,7 @@ public:
 
   inline Item& operator[](uint32_t rawId) {
     checkAndResize();
-    static Item dummy;
+    thread_local Item dummy{};
     DetId id(rawId);
     if (!isValidId(id))
       return dummy;
