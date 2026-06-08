@@ -101,6 +101,7 @@ hbheprereco = cms.EDProducer(
     setPulseShapeFlagsQIE11 = cms.bool(False),
     setLegacyFlagsQIE8 = cms.bool(True),
     setLegacyFlagsQIE11 = cms.bool(False),
+    setHBHERun3Flags = cms.bool(True),
 
     # Parameter sets configuring rechit status bit setters
     flagParametersQIE8 = cms.PSet(

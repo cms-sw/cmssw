@@ -135,15 +135,17 @@ void HcalRecAlgoESProducer::fillDescriptions(edm::ConfigurationDescriptions& des
     {
       edm::ParameterSet temp2;
       temp2.addParameter<std::vector<std::string>>("RecHitFlags",
-                                                   {
-                                                       "HSCP_R1R2",
-                                                       "HSCP_FracLeader",
-                                                       "HSCP_OuterEnergy",
-                                                       "HSCP_ExpFit",
-                                                       "ADCSaturationBit",
-                                                       "HBHEIsolatedNoise",
-                                                       "AddedSimHcalNoise",
-                                                   });
+                                                   {"HSCP_R1R2",
+                                                    "HSCP_FracLeader",
+                                                    "HSCP_OuterEnergy",
+                                                    "HSCP_ExpFit",
+                                                    "ADCSaturationBit",
+                                                    "HBHEIsolatedNoise",
+                                                    "AddedSimHcalNoise",
+                                                    "HBHERun3StuckADC",
+                                                    "HBHERun3repeatedADCblock",
+                                                    "HBHERun3BadCapId",
+                                                    "HBHERun3NonrotatingCapId"});
       temp2.addParameter<std::vector<std::string>>("ChannelStatus",
                                                    {
                                                        "HcalCellExcludeFromHBHENoiseSummary",
