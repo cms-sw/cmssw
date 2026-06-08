@@ -1,0 +1,26 @@
+[
+  {
+    "path": "/RelValQCD_FlatPt_15_3000HS_14/CMSSW_16_1_0_pre4-160X_mcRun3_2026_realistic_v6_STD_RegeneratedGS_2026_noPU_20260420_140837-v3/GEN-SIM-DIGI-RAW",
+    "name": "QCD_noPU"
+  },
+  {
+    "path": "/RelValQCD_FlatPt_15_3000HS_14/CMSSW_16_1_0_pre4-PU_160X_mcRun3_2026_realistic_v6_STD_2026_RegeneratedGS_PU_20260321_092751-v2/GEN-SIM-DIGI-RAW",
+    "name": "QCD_PU"
+  },
+  {
+    "path": "/RelValZEE_14/CMSSW_16_1_0_pre4-PU_160X_mcRun3_2026_realistic_v6_STD_2026_RegeneratedGS_PU_20260321_092751-v2/GEN-SIM-DIGI-RAW",
+    "name": "ZEE_PU"
+  },
+  {
+    "path": "/RelValZMM_14/CMSSW_16_1_0_pre4-PU_160X_mcRun3_2026_realistic_v6_STD_2026_RegeneratedGS_PU_20260321_092751-v2/GEN-SIM-DIGI-RAW",
+    "name": "ZMM_PU"
+  },
+  {
+    "path": "/RelValTenTau_15_500/CMSSW_16_1_0_pre4-PU_160X_mcRun3_2026_realistic_v6_STD_2026_RegeneratedGS_PU_20260321_092751-v2/GEN-SIM-DIGI-RAW",
+    "name": "TenTau_PU"
+  },
+  {
+    "path": "/RelValNuGun/CMSSW_16_1_0_pre4-PU_160X_mcRun3_2026_realistic_v6_STD_2026_RegeneratedGS_PU_20260321_092751-v2/GEN-SIM-DIGI-RAW",
+    "name": "NuGun_PU"
+  }
+]
