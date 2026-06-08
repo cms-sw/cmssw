@@ -134,7 +134,7 @@ void RecHitTools::setGeometry(const CaloGeometry& geom) {
       bhLastLayer_ = bhOffset_ + (geomBH->topology().dddConstants()).lastLayer(true);
       bhMaxIphi_ = geomBH->topology().dddConstants().maxCells(true);
       theFirstLayersOfComp_.push_back(bhFirstLayer_);
-      theNumberOfLayersOfComp_.push_back(bhLastLayer_ - bhFirstLayer_ +1);
+      theNumberOfLayersOfComp_.push_back(bhLastLayer_ - bhFirstLayer_ + 1);
     } else {
       bhOffset_ = eeLastLayer_;
       bhFirstLayer_ = eeLastLayer_;
@@ -174,7 +174,6 @@ void RecHitTools::setGeometry(const CaloGeometry& geom) {
     maxNumberOfWafersNose_ = 0;
     noseLastLayer_ = 0;
   }
-
 }
 
 const CaloSubdetectorGeometry* RecHitTools::getSubdetectorGeometry(const DetId& id) const {

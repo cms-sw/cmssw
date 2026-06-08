@@ -97,8 +97,7 @@ namespace hgcal {
     unsigned int lastLayer(bool nose = false) const { return (nose ? noseLastLayer_ : getNumberOfLayers()); }
     unsigned int getNumberOfLayers() const {
       unsigned int numberOfLayers = 0;
-      for (unsigned int i = 0; i < theFirstLayersOfComp_.size(); ++i)
-      {
+      for (unsigned int i = 0; i < theFirstLayersOfComp_.size(); ++i) {
         numberOfLayers = std::max(numberOfLayers, theFirstLayersOfComp_[i] + theNumberOfLayersOfComp_[i] - 1);
       }
       return numberOfLayers;
@@ -123,14 +122,14 @@ namespace hgcal {
   private:
     const CaloGeometry* geom_;
     void checkGeometry() const;
-    unsigned int eeLastLayer_, eeOffset_, fhOffset_, bhFirstLayer_, bhLastLayer_, bhOffset_, fhLastLayer_, noseLastLayer_;
+    unsigned int eeLastLayer_, eeOffset_, fhOffset_, bhFirstLayer_, bhLastLayer_, bhOffset_, fhLastLayer_,
+        noseLastLayer_;
     unsigned int hcalBarrelFirstLayer_, hcalBarrelLastLayer_, ecalBarrelFirstLayer_, ecalBarrelLastLayer_;
     unsigned int maxNumberOfWafersPerLayer_, maxNumberOfWafersNose_;
     int geometryType_;
     int bhMaxIphi_;
     std::vector<unsigned int> theFirstLayersOfComp_ = {};
     std::vector<unsigned int> theNumberOfLayersOfComp_ = {};
-
   };
 }  // namespace hgcal
 
