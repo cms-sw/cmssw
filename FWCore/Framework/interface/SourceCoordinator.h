@@ -8,10 +8,10 @@
 
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
-#include "FWCore/Utilities/interface/propagate_const.h"
-#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Framework/interface/SourceStatus.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include <memory>
 #include <mutex>
 #include <tuple>

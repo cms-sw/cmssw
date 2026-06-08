@@ -192,8 +192,10 @@ namespace edm {
                                           HistoryAppender& historyAppender,
                                           SourceStatus& lastTransition,
                                           WaitingTaskHolder iHolder) {
+    auto group = iHolder.group();
     sourceResourcesAcquirer_.serialQueueChain().push(
-        *iHolder.group(), [this, iRunStatus, &historyAppender, &processContext, &lastTransition, iHolder]() mutable {
+        *group,
+        [this, iRunStatus, &historyAppender, &processContext, &lastTransition, iHolder = std::move(iHolder)]() mutable {
           CMS_SA_ALLOW try {
             ServiceRegistry::Operate operate(serviceToken_);
 
@@ -262,11 +264,11 @@ namespace edm {
                                                       ProcessContext const& processContext,
                                                       HistoryAppender& historyAppender,
                                                       WaitingTaskHolder iNextTask) {
+    auto group = iNextTask.group();
     sourceResourcesAcquirer_.serialQueueChain().push(
-        *iNextTask.group(), [this, iLumiStatus, &processContext, &historyAppender, iNextTask]() mutable {
+        *group, [this, iLumiStatus, &processContext, &historyAppender, iNextTask = std::move(iNextTask)]() mutable {
           CMS_SA_ALLOW try {
             ServiceRegistry::Operate operate(serviceToken_);
-
             {
               std::lock_guard<std::recursive_mutex> guard(*(sourceMutex_.get()));
               assert(iLumiStatus);
