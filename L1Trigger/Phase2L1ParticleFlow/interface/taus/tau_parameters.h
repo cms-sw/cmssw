@@ -30,11 +30,11 @@
 // hls-fpga-machine-learning insert layer-config
 namespace hls4ml_nnpuppitau_v0 {
   // Dense_1
-  struct config2 : nnet::dense_config {
+  struct config2 : hls4ml_nnpuppitau_v0::nnet::dense_config {
     static const unsigned n_in = 80;
     static const unsigned n_out = 25;
-    static const unsigned io_type = nnet::io_parallel;
-    static const unsigned strategy = nnet::latency;
+    static const unsigned io_type = hls4ml_nnpuppitau_v0::nnet::io_parallel;
+    static const unsigned strategy = hls4ml_nnpuppitau_v0::nnet::latency;
     static const unsigned reuse_factor = 1;
     static const unsigned n_zeros = 1205;
     static const unsigned n_nonzeros = 795;
@@ -45,24 +45,24 @@ namespace hls4ml_nnpuppitau_v0 {
     typedef weight2_t weight_t;
     typedef layer2_index index_t;
     template <class x_T, class y_T>
-    using product = nnet::product::mult<x_T, y_T>;
+    using product = hls4ml_nnpuppitau_v0::nnet::product::mult<x_T, y_T>;
   };
 
   // relu_1
-  struct relu_config4 : nnet::activ_config {
+  struct relu_config4 : hls4ml_nnpuppitau_v0::nnet::activ_config {
     static const unsigned n_in = 25;
     static const unsigned table_size = 1024;
-    static const unsigned io_type = nnet::io_parallel;
+    static const unsigned io_type = hls4ml_nnpuppitau_v0::nnet::io_parallel;
     static const unsigned reuse_factor = 1;
     typedef relu_1_table_t table_t;
   };
 
   // Dense_2
-  struct config5 : nnet::dense_config {
+  struct config5 : hls4ml_nnpuppitau_v0::nnet::dense_config {
     static const unsigned n_in = 25;
     static const unsigned n_out = 25;
-    static const unsigned io_type = nnet::io_parallel;
-    static const unsigned strategy = nnet::latency;
+    static const unsigned io_type = hls4ml_nnpuppitau_v0::nnet::io_parallel;
+    static const unsigned strategy = hls4ml_nnpuppitau_v0::nnet::latency;
     static const unsigned reuse_factor = 1;
     static const unsigned n_zeros = 375;
     static const unsigned n_nonzeros = 250;
@@ -73,24 +73,24 @@ namespace hls4ml_nnpuppitau_v0 {
     typedef weight5_t weight_t;
     typedef layer5_index index_t;
     template <class x_T, class y_T>
-    using product = nnet::product::mult<x_T, y_T>;
+    using product = hls4ml_nnpuppitau_v0::nnet::product::mult<x_T, y_T>;
   };
 
   // relu_2
-  struct relu_config7 : nnet::activ_config {
+  struct relu_config7 : hls4ml_nnpuppitau_v0::nnet::activ_config {
     static const unsigned n_in = 25;
     static const unsigned table_size = 1024;
-    static const unsigned io_type = nnet::io_parallel;
+    static const unsigned io_type = hls4ml_nnpuppitau_v0::nnet::io_parallel;
     static const unsigned reuse_factor = 1;
     typedef relu_2_table_t table_t;
   };
 
   // Dense_3
-  struct config8 : nnet::dense_config {
+  struct config8 : hls4ml_nnpuppitau_v0::nnet::dense_config {
     static const unsigned n_in = 25;
     static const unsigned n_out = 15;
-    static const unsigned io_type = nnet::io_parallel;
-    static const unsigned strategy = nnet::latency;
+    static const unsigned io_type = hls4ml_nnpuppitau_v0::nnet::io_parallel;
+    static const unsigned strategy = hls4ml_nnpuppitau_v0::nnet::latency;
     static const unsigned reuse_factor = 1;
     static const unsigned n_zeros = 225;
     static const unsigned n_nonzeros = 150;
@@ -101,24 +101,24 @@ namespace hls4ml_nnpuppitau_v0 {
     typedef weight8_t weight_t;
     typedef layer8_index index_t;
     template <class x_T, class y_T>
-    using product = nnet::product::mult<x_T, y_T>;
+    using product = hls4ml_nnpuppitau_v0::nnet::product::mult<x_T, y_T>;
   };
 
   // relu_3
-  struct relu_config10 : nnet::activ_config {
+  struct relu_config10 : hls4ml_nnpuppitau_v0::nnet::activ_config {
     static const unsigned n_in = 15;
     static const unsigned table_size = 1024;
-    static const unsigned io_type = nnet::io_parallel;
+    static const unsigned io_type = hls4ml_nnpuppitau_v0::nnet::io_parallel;
     static const unsigned reuse_factor = 1;
     typedef relu_3_table_t table_t;
   };
 
   // Dense_4
-  struct config11 : nnet::dense_config {
+  struct config11 : hls4ml_nnpuppitau_v0::nnet::dense_config {
     static const unsigned n_in = 15;
     static const unsigned n_out = 15;
-    static const unsigned io_type = nnet::io_parallel;
-    static const unsigned strategy = nnet::latency;
+    static const unsigned io_type = hls4ml_nnpuppitau_v0::nnet::io_parallel;
+    static const unsigned strategy = hls4ml_nnpuppitau_v0::nnet::latency;
     static const unsigned reuse_factor = 1;
     static const unsigned n_zeros = 135;
     static const unsigned n_nonzeros = 90;
@@ -129,24 +129,24 @@ namespace hls4ml_nnpuppitau_v0 {
     typedef weight11_t weight_t;
     typedef layer11_index index_t;
     template <class x_T, class y_T>
-    using product = nnet::product::mult<x_T, y_T>;
+    using product = hls4ml_nnpuppitau_v0::nnet::product::mult<x_T, y_T>;
   };
 
   // relu_4
-  struct relu_config13 : nnet::activ_config {
+  struct relu_config13 : hls4ml_nnpuppitau_v0::nnet::activ_config {
     static const unsigned n_in = 15;
     static const unsigned table_size = 1024;
-    static const unsigned io_type = nnet::io_parallel;
+    static const unsigned io_type = hls4ml_nnpuppitau_v0::nnet::io_parallel;
     static const unsigned reuse_factor = 1;
     typedef relu_4_table_t table_t;
   };
 
   // Dense_5
-  struct config14 : nnet::dense_config {
+  struct config14 : hls4ml_nnpuppitau_v0::nnet::dense_config {
     static const unsigned n_in = 15;
     static const unsigned n_out = 10;
-    static const unsigned io_type = nnet::io_parallel;
-    static const unsigned strategy = nnet::latency;
+    static const unsigned io_type = hls4ml_nnpuppitau_v0::nnet::io_parallel;
+    static const unsigned strategy = hls4ml_nnpuppitau_v0::nnet::latency;
     static const unsigned reuse_factor = 1;
     static const unsigned n_zeros = 90;
     static const unsigned n_nonzeros = 60;
@@ -157,24 +157,24 @@ namespace hls4ml_nnpuppitau_v0 {
     typedef weight14_t weight_t;
     typedef layer14_index index_t;
     template <class x_T, class y_T>
-    using product = nnet::product::mult<x_T, y_T>;
+    using product = hls4ml_nnpuppitau_v0::nnet::product::mult<x_T, y_T>;
   };
 
   // relu_5
-  struct relu_config16 : nnet::activ_config {
+  struct relu_config16 : hls4ml_nnpuppitau_v0::nnet::activ_config {
     static const unsigned n_in = 10;
     static const unsigned table_size = 1024;
-    static const unsigned io_type = nnet::io_parallel;
+    static const unsigned io_type = hls4ml_nnpuppitau_v0::nnet::io_parallel;
     static const unsigned reuse_factor = 1;
     typedef relu_5_table_t table_t;
   };
 
   // Dense_6
-  struct config17 : nnet::dense_config {
+  struct config17 : hls4ml_nnpuppitau_v0::nnet::dense_config {
     static const unsigned n_in = 10;
     static const unsigned n_out = 1;
-    static const unsigned io_type = nnet::io_parallel;
-    static const unsigned strategy = nnet::latency;
+    static const unsigned io_type = hls4ml_nnpuppitau_v0::nnet::io_parallel;
+    static const unsigned strategy = hls4ml_nnpuppitau_v0::nnet::latency;
     static const unsigned reuse_factor = 1;
     static const unsigned n_zeros = 6;
     static const unsigned n_nonzeros = 4;
@@ -185,24 +185,24 @@ namespace hls4ml_nnpuppitau_v0 {
     typedef weight17_t weight_t;
     typedef layer17_index index_t;
     template <class x_T, class y_T>
-    using product = nnet::product::mult<x_T, y_T>;
+    using product = hls4ml_nnpuppitau_v0::nnet::product::mult<x_T, y_T>;
   };
 
   // jetID_output
-  struct sigmoid_config19 : nnet::activ_config {
+  struct sigmoid_config19 : hls4ml_nnpuppitau_v0::nnet::activ_config {
     static const unsigned n_in = 1;
     static const unsigned table_size = 1024;
-    static const unsigned io_type = nnet::io_parallel;
+    static const unsigned io_type = hls4ml_nnpuppitau_v0::nnet::io_parallel;
     static const unsigned reuse_factor = 1;
     typedef jetID_output_table_t table_t;
   };
 
   // pT_output
-  struct config20 : nnet::dense_config {
+  struct config20 : hls4ml_nnpuppitau_v0::nnet::dense_config {
     static const unsigned n_in = 10;
     static const unsigned n_out = 1;
-    static const unsigned io_type = nnet::io_parallel;
-    static const unsigned strategy = nnet::latency;
+    static const unsigned io_type = hls4ml_nnpuppitau_v0::nnet::io_parallel;
+    static const unsigned strategy = hls4ml_nnpuppitau_v0::nnet::latency;
     static const unsigned reuse_factor = 1;
     static const unsigned n_zeros = 6;
     static const unsigned n_nonzeros = 4;
@@ -213,7 +213,7 @@ namespace hls4ml_nnpuppitau_v0 {
     typedef weight20_t weight_t;
     typedef layer20_index index_t;
     template <class x_T, class y_T>
-    using product = nnet::product::mult<x_T, y_T>;
+    using product = hls4ml_nnpuppitau_v0::nnet::product::mult<x_T, y_T>;
   };
 
 }  // namespace hls4ml_nnpuppitau_v0
