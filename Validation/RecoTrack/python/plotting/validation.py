@@ -1187,37 +1187,51 @@ def _findDuplicates(lst):
 
 def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
     plottingProcess = self._nProc
-    if plottingProcess<=0: plottingProcess = os.cpu_count()
+    if plottingProcess <= 0: plottingProcess = os.cpu_count()
+
+    single_threaded = (plottingProcess == 1)
+
     plotterInstance = plotter.readDirs(*self._openFiles)
-    manager = multiprocessing.Manager()
-    return_dict = manager.dict()
+
+    if not single_threaded:
+        manager = multiprocessing.Manager()
+        return_dict = manager.dict()
+
     proc = []
-    iProc = 0
     active_proc = []
+    iProc = 0
 
     for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
         if sample is not None and not _processPlotsForSample(plotterFolder, sample):
             continue
-        newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
+        newsubdir = self._subdirprefix + plotterFolder.getSelectionName(dqmSubFolder)
         newdir = os.path.join(self._newdir, newsubdir)
-        if not os.path.exists(newdir):
-            os.makedirs(newdir, exist_ok=True)
-
+        os.makedirs(newdir, exist_ok=True)
         plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
-        while len(active_proc)>=plottingProcess:
-          time.sleep(0.1)
-          active_proc = [p for p in active_proc if p.is_alive()]
-        p = multiprocessing.Process(target=self._doPlots, args=(plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict))
-        proc.append((plotterFolder, dqmSubFolder, p))
-        active_proc.append(p)
-        p.start()
+
+        if single_threaded: # Run directly in the main process for easier debugging
+            result = {}
+            self._doPlots(plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, result)
+            proc.append((plotterFolder, dqmSubFolder, None))
+            if len(result) > 0:
+                self._htmlReport.addPlots(plotterFolder, dqmSubFolder, result)
+        else:
+            while len(active_proc) >= plottingProcess:
+                time.sleep(0.1)
+                active_proc = [p for p in active_proc if p.is_alive()]
+            p = multiprocessing.Process(target=self._doPlots, args=(plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict))
+            proc.append((plotterFolder, dqmSubFolder, p))
+            active_proc.append(p)
+            p.start()
+
         iProc += 1
 
-    for i in range(iProc):
-        proc[i][2].join()
-        if len(return_dict[i]) > 0:
-            self._htmlReport.addPlots(proc[i][0], proc[i][1], return_dict[i])
-
+    if not single_threaded:
+        for i in range(iProc):
+            proc[i][2].join()
+            if len(return_dict[i]) > 0:
+                self._htmlReport.addPlots(proc[i][0], proc[i][1], return_dict[i])
+                
 class SimpleSample:
     def __init__(self, label, name, fileLegends, pileup=True, customPileupLabel=""):
         self._label = label
@@ -1325,7 +1339,7 @@ class SimpleValidation:
                 if f[:ridx] not in linkList and str(f[:ridx]) != str(newdir):
                     linkList.append(f[:ridx])
                                
-            for link in linkList :
+            for link in linkList:
                 os.makedirs(f'{link}/res', exist_ok=True)
                 for d in downloadables:
                     if not os.path.exists(f'{link}/{d}'):
