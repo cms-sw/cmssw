@@ -12,7 +12,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/FixedQueueEDProducer.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
@@ -21,10 +21,10 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  class TrackFeatureExtractor : public stream::FixedQueueEDProducer<> {
+  class TrackFeatureExtractor : public stream::EDProducer<> {
   public:
     TrackFeatureExtractor(const edm::ParameterSet& iConfig)
-        : FixedQueueEDProducer<>(iConfig),
+        : EDProducer<>(iConfig),
           tracksInput_token_(consumes(iConfig.getParameter<edm::InputTag>("src"))),
           beamspot_token_(consumes(iConfig.getParameter<edm::InputTag>("beamSpot"))),
           featuresPut_token_{produces()} {}
