@@ -22,7 +22,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 // Uncomment to enable verbose AXO debugging
-#define AXO_DEBUG
+// #define AXO_DEBUG
 #ifdef AXO_DEBUG
 #include <sstream>
 #endif
