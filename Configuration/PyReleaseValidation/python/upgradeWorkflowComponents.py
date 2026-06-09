@@ -2121,7 +2121,7 @@ upgradeWFs['NGTScoutingWithNano'].offset = 0.772
 upgradeWFs['NGTScoutingWithNano'].step2 = {
     '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting,NANO:@NGTScouting',
     '--datatier':'NANOAODSIM',
-    '--procModifiers': 'ngtScouting',
+    '--procModifiers': 'alpaka,ngtScouting',
     '--eventcontent':'NANOAODSIM'
 }
 
@@ -2131,7 +2131,7 @@ upgradeWFs['NGTScoutingWithNanoValid'].offset = 0.773
 upgradeWFs['NGTScoutingWithNanoValid'].step2 = {
     '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting,VALIDATION:@hltValidation,NANO:@NGTScoutingVal',
     '--datatier':'NANOAODSIM',
-    '--procModifiers': 'ngtScouting',
+    '--procModifiers': 'alpaka,ngtScouting',
     '--eventcontent':'NANOAODSIM'
 }
 
@@ -2205,12 +2205,12 @@ upgradeWFs['NGTScouting'] = UpgradeWorkflow_NGTScouting(
 )
 upgradeWFs['NGTScouting'].step2 = {
     '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:NGTScouting,VALIDATION:@hltValidation',
-    '--procModifiers': 'ngtScouting',
+    '--procModifiers': 'alpaka,ngtScouting',
     '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
     '--eventcontent':'FEVTDEBUGHLT,DQMIO'
 }
 upgradeWFs['NGTScouting'].step3 = {
-    '--procModifiers': 'ngtScouting',
+    '--procModifiers': 'alpaka,ngtScouting',
     '-s':'HARVESTING:@hltValidation'
 }
 
@@ -2233,7 +2233,7 @@ upgradeWFs['NGTScoutingCAExtensionMergeT5'].suffix = '_NGTScoutingCAExtensionMer
 upgradeWFs['NGTScoutingCAExtensionMergeT5'].offset = 0.775
 upgradeWFs['NGTScoutingCAExtensionMergeT5'].step2 = {
     '-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,L1P2GT,DIGI2RAW,HLT:75e33_timing,VALIDATION:@hltValidation',
-    '--procModifiers': 'ngtScouting,trackingLST',
+    '--procModifiers': 'alpaka,ngtScouting,trackingLST',
     '--datatier':'GEN-SIM-DIGI-RAW,DQMIO',
     '--eventcontent':'FEVTDEBUGHLT,DQMIO'
 }
