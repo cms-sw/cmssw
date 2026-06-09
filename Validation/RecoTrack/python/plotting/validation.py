@@ -1184,53 +1184,6 @@ def _findDuplicates(lst):
         else:
             found.add(x)
     return list(found2)
-
-def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
-    plottingProcess = self._nProc
-    if plottingProcess <= 0: plottingProcess = os.cpu_count()
-
-    single_threaded = (plottingProcess == 1)
-
-    plotterInstance = plotter.readDirs(*self._openFiles)
-
-    if not single_threaded:
-        manager = multiprocessing.Manager()
-        return_dict = manager.dict()
-
-    proc = []
-    active_proc = []
-    iProc = 0
-
-    for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
-        if sample is not None and not _processPlotsForSample(plotterFolder, sample):
-            continue
-        newsubdir = self._subdirprefix + plotterFolder.getSelectionName(dqmSubFolder)
-        newdir = os.path.join(self._newdir, newsubdir)
-        os.makedirs(newdir, exist_ok=True)
-        plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
-
-        if single_threaded: # Run directly in the main process for easier debugging
-            result = {}
-            self._doPlots(plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, result)
-            proc.append((plotterFolder, dqmSubFolder, None))
-            if len(result) > 0:
-                self._htmlReport.addPlots(plotterFolder, dqmSubFolder, result)
-        else:
-            while len(active_proc) >= plottingProcess:
-                time.sleep(0.1)
-                active_proc = [p for p in active_proc if p.is_alive()]
-            p = multiprocessing.Process(target=self._doPlots, args=(plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict))
-            proc.append((plotterFolder, dqmSubFolder, p))
-            active_proc.append(p)
-            p.start()
-
-        iProc += 1
-
-    if not single_threaded:
-        for i in range(iProc):
-            proc[i][2].join()
-            if len(return_dict[i]) > 0:
-                self._htmlReport.addPlots(proc[i][0], proc[i][1], return_dict[i])
                 
 class SimpleSample:
     def __init__(self, label, name, fileLegends, pileup=True, customPileupLabel=""):
@@ -1309,13 +1262,60 @@ class SimpleValidation:
                     self._openFiles.append(None)
 
             for plotter in plotters:
-                _doPlotsForPlotter(self, plotter, sample, **kwargs) # which in turn launches _doPlots()
+                self._doPlotsForPlotter(plotter, sample, **kwargs) # which in turn launches _doPlots()
 
             for tf in self._openFiles:
                 if tf is not None:
                     tf.Close()
             self._openFiles = []
 
+    def _doPlotsForPlotter(self, plotter, sample, limitSubFoldersOnlyTo=None):
+        plottingProcess = self._nProc
+        if plottingProcess <= 0: plottingProcess = os.cpu_count()
+     
+        single_threaded = (plottingProcess == 1)
+     
+        plotterInstance = plotter.readDirs(*self._openFiles)
+     
+        if not single_threaded:
+            manager = multiprocessing.Manager()
+            return_dict = manager.dict()
+     
+        proc = []
+        active_proc = []
+        iProc = 0
+     
+        for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
+            if sample is not None and not _processPlotsForSample(plotterFolder, sample):
+                continue
+            newsubdir = self._subdirprefix + plotterFolder.getSelectionName(dqmSubFolder)
+            newdir = os.path.join(self._newdir, newsubdir)
+            os.makedirs(newdir, exist_ok=True)
+            plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
+     
+            if single_threaded: # Run directly in the main process for easier debugging
+                result = {}
+                self._doPlots(plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, result)
+                proc.append((plotterFolder, dqmSubFolder, None))
+                if len(result) > 0:
+                    self._htmlReport.addPlots(plotterFolder, dqmSubFolder, result)
+            else:
+                while len(active_proc) >= plottingProcess:
+                    time.sleep(0.1)
+                    active_proc = [p for p in active_proc if p.is_alive()]
+                p = multiprocessing.Process(target=self._doPlots, args=(plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict))
+                proc.append((plotterFolder, dqmSubFolder, p))
+                active_proc.append(p)
+                p.start()
+     
+            iProc += 1
+     
+        if not single_threaded:
+            for i in range(iProc):
+                proc[i][2].join()
+                if len(return_dict[i]) > 0:
+                    self._htmlReport.addPlots(proc[i][0], proc[i][1], return_dict[i])
+        
     def _doPlots(self, plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict):
         fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
 
