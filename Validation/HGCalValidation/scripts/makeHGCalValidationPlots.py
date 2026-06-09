@@ -5,7 +5,7 @@ import argparse
 import datetime
 import ROOT
 
-from Validation.RecoTrack.plotting.validation import SeparateValidation, SimpleValidation, SimpleSample
+from Validation.RecoTrack.plotting.validation import SimpleValidation, SimpleSample
 from Validation.HGCalValidation.HGCalValidator_cff import hgcalValidator
 import Validation.RecoTrack.plotting.plotting as plotting
 
@@ -133,11 +133,8 @@ def main(opts):
             hgcalPlots.hgcVal_dqm = dqm_base
 
         sample = SimpleSample(prefix, opts.html_sample, filenames)
-
-        val = SimpleValidation([sample], out_dir, nProc=opts.jobs)
-        if opts.separate:
-            val = SeparateValidation([sample], out_dir)
-
+        val = SimpleValidation([sample], out_dir, nProc=opts.jobs, separate=opts.separate)
+        
         htmlReport = val.createHtmlReport(
             validationName=f"{opts.html_validation_name[0]} ({prefix})"
         )

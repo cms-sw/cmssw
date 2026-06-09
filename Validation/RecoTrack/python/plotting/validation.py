@@ -1262,10 +1262,11 @@ class SimpleSample:
         return True
 
 class SimpleValidation:
-    def __init__(self, samples, newdir, nProc=0):
+    def __init__(self, samples, newdir, nProc=0, separate=False):
         self._samples = samples
         self._newdir = newdir
         self._nProc = nProc
+        self._separate = separate
         if not os.path.exists(newdir):
             os.makedirs(newdir)
 
@@ -1294,7 +1295,7 @@ class SimpleValidation:
                     self._openFiles.append(None)
 
             for plotter in plotters:
-                _doPlotsForPlotter(self, plotter, sample, **kwargs)
+                _doPlotsForPlotter(self, plotter, sample, **kwargs) # which in turn launches _doPlots()
 
             for tf in self._openFiles:
                 if tf is not None:
@@ -1316,89 +1317,28 @@ class SimpleValidation:
             print("Typically this is a naming problem in the plotter configuration")
             sys.exit(1)
 
-        if self._plotterDrawArgs.get("separate", False):
-            if not os.path.exists("%s/res"%newdir):
-              os.makedirs("%s/res"%newdir)
-            downloadables = ["index.php", "res/jquery-ui.js", "res/jquery.js", "res/style.css", "res/style.js", "res/theme.css"]
+        downloadables = ['index.php', 'res/jquery-ui.js', 'res/jquery.js', 'res/style.css', 'res/style.js', 'res/theme.css']        
+        if self._separate:
+            linkList = []
+            for f in fileList:
+                ridx = f.rfind("/")
+                if f[:ridx] not in linkList and str(f[:ridx]) != str(newdir):
+                    linkList.append(f[:ridx])
+                               
+            for link in linkList :
+                os.makedirs(f'{link}/res', exist_ok=True)
+                for d in downloadables:
+                    if not os.path.exists(f'{link}/{d}'):
+                        urllib.request.urlretrieve(f'https://raw.githubusercontent.com/rovere/php-plots/master/{d}', f'{link}/{d}')
+            
+            return_dict[iProc] = list(map(lambda n: n.replace(newdir, newsubdir), linkList))
+
+        else:
+            os.makedirs(f'{newdir}/res', exist_ok=True)
             for d in downloadables:
-                if not os.path.exists("%s/%s" % (newdir,d)):
-                    urllib.request.urlretrieve("https://raw.githubusercontent.com/musella/php-plots/master/%s"%d, "%s/%s"%(newdir,d))
+                if not os.path.exists(f'{newdir}/{d}'):
+                    urllib.request.urlretrieve(f'https://raw.githubusercontent.com/musella/php-plots/master/{d}', f'{newdir}/{d}')
 
-        print("Created plots in %s" % newdir)
-        return_dict[iProc] = list(map(lambda n: n.replace(newdir, newsubdir), fileList))
+            return_dict[iProc] = list(map(lambda n: n.replace(newdir, newsubdir), fileList))
 
-class SeparateValidation:
-    #Similar to the SimpleValidation
-    #To be used only if `--separate` option is on
-    def __init__(self, samples, newdir, nProc=0):
-        self._samples = samples
-        self._newdir = newdir
-        self._nProc = nProc
-        if not os.path.exists(newdir):
-            os.makedirs(newdir)
-
-        self._htmlReport = html.HtmlReportDummy()
-
-    def createHtmlReport(self, validationName=""):
-        if hasattr(self._htmlReport, "write"):
-            raise Exception("HTML report object already created. There is probably some logic error in the calling code.")
-        self._htmlReport = html.HtmlReport(validationName, self._newdir)
-        return self._htmlReport
-
-    def doPlots(self, plotters, plotterDrawArgs={}, **kwargs):
-        self._plotterDrawArgs = plotterDrawArgs
-
-        for sample in self._samples:
-            self._subdirprefix = sample.label()
-            self._labels = sample.legendLabels()
-            self._htmlReport.beginSample(sample)
-
-            self._openFiles = []
-            for f in sample.files():
-                if os.path.exists(f):
-                    self._openFiles.append(ROOT.TFile.Open(f))
-                else:
-                    print("File %s not found (from sample %s), ignoring it" % (f, sample.name()))
-                    self._openFiles.append(None)
-
-            for plotter in plotters:
-                _doPlotsForPlotter(self, plotter, sample, **kwargs)
-
-            for tf in self._openFiles:
-                if tf is not None:
-                    tf.Close()
-            self._openFiles = []
-
-    def _doPlots(self, plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict):
-        fileList = plotterFolder.draw(directory=newdir, **self._plotterDrawArgs)
-
-        # check if plots are produced
-        if len(fileList) == 0:
-            print("No object found in %s" % plotterFolder.getName())
-
-        # check if there are duplicated plot
-        dups = _findDuplicates(fileList)
-        if len(dups) > 0:
-            print("Plotter produced multiple files with names", ", ".join(dups))
-            print("Typically this is a naming problem in the plotter configuration")
-            sys.exit(1)
-
-        linkList = []
-        for f in fileList:
-            if f[:f.rfind("/")] not in linkList :
-                if str(f[:f.rfind("/")]) != str(newdir) :
-                    linkList.append(f[:f.rfind("/")])
-
-        for tableCreator in plotterFolder.getTableCreators():
-            self._htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
-
-        for link in linkList :
-            if not os.path.exists("%s/res"%link):
-              os.makedirs("%s/res"%link)
-            downloadables = ["index.php", "res/jquery-ui.js", "res/jquery.js", "res/style.css", "res/style.js", "res/theme.css"]
-            for d in downloadables:
-                if not os.path.exists("%s/%s" % (link,d)):
-                    urllib.request.urlretrieve("https://raw.githubusercontent.com/rovere/php-plots/master/%s"%d, "%s/%s"%(link,d))
-
-        print("Created separated plots in %s" % newdir)
-        return_dict[iProc] = list(map(lambda n: n.replace(newdir, newsubdir), linkList))
+        print('Created ' + ('separate' if self._separate else '') + f' plots in {newdir}.')
