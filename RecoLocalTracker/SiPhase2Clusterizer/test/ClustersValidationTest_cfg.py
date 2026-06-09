@@ -8,8 +8,8 @@ process = cms.Process('cluTest')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 #process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D17Reco_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -42,7 +42,8 @@ process.TFileService = cms.Service('TFileService',
 
 # Analyzer
 process.analysis = cms.EDAnalyzer('Phase2TrackerClusterizerValidation',
-    src = cms.InputTag("siPhase2Clusters"),
+    #src = cms.InputTag("siPhase2Clusters"),
+    src = cms.InputTag("hltSiPhase2Clusters"),
     links = cms.InputTag("simSiPixelDigis", "Tracker"),
     simhitsbarrel = cms.InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"),
     simhitsendcap = cms.InputTag("g4SimHits", "TrackerHitsPixelEndcapLowTof"),
