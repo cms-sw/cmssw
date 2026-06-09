@@ -8,7 +8,7 @@ void AddFourMomenta::set(Candidate &c) const {
   Candidate::Charge charge = 0;
   size_t n = c.numberOfDaughters();
   for (size_t i = 0; i < n; ++i) {
-    const Candidate *d = (const_cast<const Candidate &>(c)).daughter(i);
+    const Candidate *d = c.daughter(i);
     p4 += d->p4();
     charge += d->charge();
   }
