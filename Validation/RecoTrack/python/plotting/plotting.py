@@ -2397,12 +2397,12 @@ class PlotGroup(object):
         lx2def = 0.95
         ly1def = 0.85
         ly2def = 0.95
-
+        
         ret = []
         for plot in self._plots:
             if plot.isEmpty():
                 continue
-            
+
             canvas = _createCanvas(self._name+'Single', width, height)
             canvasRatio = _createCanvas(self._name+'SingleRatio', width, int(height*self._ratioFactor))
 

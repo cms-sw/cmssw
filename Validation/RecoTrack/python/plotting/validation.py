@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import urllib.request
 import multiprocessing
+import shutil
 
 import ROOT
 ROOT.gROOT.SetBatch(True)
@@ -1240,6 +1241,7 @@ class SimpleValidation:
         self._htmlReport = html.HtmlReportDummy()
 
     def createHtmlReport(self, validationName=""):
+        assert not self._separate
         if hasattr(self._htmlReport, "write"):
             raise Exception("HTML report object already created. There is probably some logic error in the calling code.")
         self._htmlReport = html.HtmlReport(validationName, self._newdir)
@@ -1251,7 +1253,8 @@ class SimpleValidation:
         for sample in self._samples:
             self._subdirprefix = sample.label()
             self._labels = sample.legendLabels()
-            self._htmlReport.beginSample(sample)
+            if not self._separate:
+                self._htmlReport.beginSample(sample)
 
             self._openFiles = []
             for f in sample.files():
@@ -1297,7 +1300,7 @@ class SimpleValidation:
                 result = {}
                 self._doPlots(plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, result)
                 proc.append((plotterFolder, dqmSubFolder, None))
-                if len(result) > 0:
+                if len(result) > 0 and not self._separate:
                     self._htmlReport.addPlots(plotterFolder, dqmSubFolder, result)
             else:
                 while len(active_proc) >= plottingProcess:
@@ -1313,7 +1316,7 @@ class SimpleValidation:
         if not single_threaded:
             for i in range(iProc):
                 proc[i][2].join()
-                if len(return_dict[i]) > 0:
+                if len(return_dict[i]) > 0 and not self._separate:
                     self._htmlReport.addPlots(proc[i][0], proc[i][1], return_dict[i])
         
     def _doPlots(self, plotterFolder, dqmSubFolder, newsubdir, newdir, iProc, return_dict):
@@ -1322,8 +1325,9 @@ class SimpleValidation:
         if len(fileList) == 0:
             print("No object found in %s" % plotterFolder.getName())
 
-        for tableCreator in plotterFolder.getTableCreators():
-            self._htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
+        if not self._separate:
+            for tableCreator in plotterFolder.getTableCreators():
+                self._htmlReport.addTable(tableCreator.create(self._openFiles, self._labels, dqmSubFolder))
 
         dups = _findDuplicates(fileList)
         if len(dups) > 0:
@@ -1331,23 +1335,32 @@ class SimpleValidation:
             print("Typically this is a naming problem in the plotter configuration")
             sys.exit(1)
 
-        downloadables = ['index.php', 'res/jquery-ui.js', 'res/jquery.js', 'res/style.css', 'res/style.js', 'res/theme.css']        
         if self._separate:
+            downloadables = ['index.php',]
+            newdir_parent = newdir[:newdir.rfind("/")]
             linkList = []
             for f in fileList:
                 ridx = f.rfind("/")
-                if f[:ridx] not in linkList and str(f[:ridx]) != str(newdir):
-                    linkList.append(f[:ridx])
-                               
-            for link in linkList:
-                os.makedirs(f'{link}/res', exist_ok=True)
-                for d in downloadables:
-                    if not os.path.exists(f'{link}/{d}'):
-                        urllib.request.urlretrieve(f'https://raw.githubusercontent.com/rovere/php-plots/master/{d}', f'{link}/{d}')
-            
+                subdir = f[:ridx]
+                while subdir != newdir_parent and subdir not in linkList:
+                    linkList.append(subdir)
+                    subdir = subdir[:subdir.rfind("/")]
+             
+            for d in downloadables:
+                downloaded_path = None
+                for link in linkList:
+                    dest = f'{link}/{d}'
+                    if not os.path.exists(dest):
+                        if downloaded_path is None:
+                            downloaded_path = dest
+                            urllib.request.urlretrieve(f'https://gitlab.cern.ch/cms-analysis/general/php-plots/-/raw/master/{d}', downloaded_path)
+                        else:
+                            shutil.copy2(downloaded_path, dest)
+                            
             return_dict[iProc] = list(map(lambda n: n.replace(newdir, newsubdir), linkList))
 
         else:
+            downloadables = ['index.php', 'res/jquery-ui.js', 'res/jquery.js', 'res/style.css', 'res/style.js', 'res/theme.css']        
             os.makedirs(f'{newdir}/res', exist_ok=True)
             for d in downloadables:
                 if not os.path.exists(f'{newdir}/{d}'):

@@ -134,10 +134,11 @@ def main(opts):
 
         sample = SimpleSample(prefix, opts.html_sample, filenames)
         val = SimpleValidation([sample], out_dir, nProc=opts.jobs, separate=opts.separate)
-        
-        htmlReport = val.createHtmlReport(
-            validationName=f"{opts.html_validation_name[0]} ({prefix})"
-        )
+
+        if not opts.no_html and not opts.separate:
+            htmlReport = val.createHtmlReport(
+                validationName=f"{opts.html_validation_name[0]} ({prefix})"
+            )
 
         # Discover which collections exist under this base in the DQM file
         discovered_subdirs = _discover_subdirs(opts.files[0], dqm_base)
@@ -264,7 +265,7 @@ def main(opts):
                 for task in plotDict[label]:
                     task()
 
-        if opts.no_html:
+        if opts.no_html or opts.separate:
             print("Plots created into directory '%s'." % out_dir)
         else:
             htmlReport.write()
