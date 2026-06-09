@@ -43,7 +43,7 @@ namespace edmtest {
     // 0 and 3 of the Collection. Values are meaningless, we just
     // verify what we read matches what we wrote. For purposes of
     // this test that is enough.
-    
+
     unsigned int minSLinkID_;
     unsigned int maxSLinkID_;
     edm::EDGetTokenT<RawDataBuffer> rawDataBufferToken_;
@@ -54,44 +54,42 @@ namespace edmtest {
         maxSLinkID_(iPSet.getParameter<unsigned int>("maxSLinkID")),
         rawDataBufferToken_(consumes(iPSet.getParameter<edm::InputTag>("rawDataBufferTag"))) {}
 
-void DumpRawDataBuffer::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
-  auto const& rawDataBuffer = iEvent.get(rawDataBufferToken_);
+  void DumpRawDataBuffer::analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
+    auto const& rawDataBuffer = iEvent.get(rawDataBufferToken_);
 
-  edm::LogSystem out("DumpRawDataBuffer");
+    edm::LogSystem out("DumpRawDataBuffer");
 
     auto hdrsize = sizeof(SLinkRocketHeader_v3);
     auto trsize = sizeof(SLinkRocketTrailer_v3);
-    out<<"\n      S-Link CMS Header & Trailer size (bytes) = "<<hdrsize<<" "<<trsize<<"\n";
-  
-  for (unsigned int idSource = minSLinkID_; idSource < maxSLinkID_; idSource++) {
-    
-    auto const& fragData = rawDataBuffer.fragmentData(idSource);
-    if (fragData.size() == 0) continue;
+    out << "\n      S-Link CMS Header & Trailer size (bytes) = " << hdrsize << " " << trsize << "\n";
 
-    out<<std::dec<<"\n\n";
-    out<<"=== Found SOURCE ID = "<<idSource<<" with size = "<<fragData.size()<<"\n";
+    for (unsigned int idSource = minSLinkID_; idSource < maxSLinkID_; idSource++) {
+      auto const& fragData = rawDataBuffer.fragmentData(idSource);
+      if (fragData.size() == 0)
+        continue;
 
-    //auto srcdata = fragData.payload(hdrsize, trsize);
-    auto srcdata = fragData.payload(0, 0); // Dump entire payload including header & trailer.
-    const int bytesPerWord = 16;
-    const int nWords = std::ceil(float(srcdata.size())/float(bytesPerWord));
-    
-    // Print 128b S-Link word as 16 bytes, with LSB at right of each word.
-    for (int word = 0; word < nWords;word++) {
-      out<<"\n"<<" Word "<<std::dec<<std::setw(6)<<word<<" : ";
-      for (int j = bytesPerWord - 1; j >=0; j--) {
-        unsigned int addr = static_cast<unsigned int>(word * bytesPerWord + j);
-        if (addr < srcdata.size()) {
+      out << std::dec << "\n\n";
+      out << "=== Found SOURCE ID = " << idSource << " with size = " << fragData.size() << "\n";
+
+      //auto srcdata = fragData.payload(hdrsize, trsize);
+      auto srcdata = fragData.payload(0, 0);  // Dump entire payload including header & trailer.
+      const int bytesPerWord = 16;
+      if (srcdata.size() % bytesPerWord != 0)
+        throwWithMessage("Data length not a multiple of 16 bytes");
+      const int nWords = srcdata.size() / bytesPerWord;
+
+      // Print 128b S-Link word as 16 bytes, with LSB at right of each word.
+      for (int word = 0; word < nWords; word++) {
+        out << "\n" << " Word " << std::dec << std::setw(6) << word << " : ";
+        for (int j = bytesPerWord - 1; j >= 0; j--) {
+          unsigned int addr = static_cast<unsigned int>(word * bytesPerWord + j);
           unsigned int byte = static_cast<unsigned int>(srcdata[addr]);
-          out<<std::hex<<std::setw(2)<<byte<<"  ";
-        } else {
-          out<<"    ";
+          out << std::hex << std::setw(2) << byte << "  ";
         }
       }
     }
+    out << "\n";
   }
-  out<<"\n";
-}
 
   void DumpRawDataBuffer::throwWithMessage(const char* msg) const {
     throw cms::Exception("TestFailure") << "DumpRawDataBuffer::analyze, " << msg;
@@ -101,7 +99,7 @@ void DumpRawDataBuffer::analyze(edm::StreamID, edm::Event const& iEvent, edm::Ev
     edm::ParameterSetDescription desc;
     desc.add<unsigned int>("minSLinkID", 0);
     desc.add<unsigned int>("maxSLinkID", 99999);
-    desc.add<edm::InputTag>("rawDataBufferTag");    
+    desc.add<edm::InputTag>("rawDataBufferTag");
     descriptions.addDefault(desc);
   }
 }  // namespace edmtest
