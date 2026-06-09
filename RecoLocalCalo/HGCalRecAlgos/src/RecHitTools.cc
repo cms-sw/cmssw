@@ -95,24 +95,54 @@ namespace {
 void RecHitTools::setGeometry(const CaloGeometry& geom) {
   geom_ = &geom;
   unsigned int wmaxEE(0), wmaxFH(0);
+
   auto geomEE = static_cast<const HGCalGeometry*>(
       geom_->getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty));
-  //check if it's the new geometry
+
   if (geomEE) {
-    geometryType_ = 1;
-    eeOffset_ = (geomEE->topology().dddConstants()).getLayerOffset();
-    wmaxEE = (geomEE->topology().dddConstants()).waferCount(0);
     auto geomFH = static_cast<const HGCalGeometry*>(
         geom_->getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty));
-    fhOffset_ = (geomFH->topology().dddConstants()).getLayerOffset();
-    wmaxFH = (geomFH->topology().dddConstants()).waferCount(0);
-    fhLastLayer_ = fhOffset_ + (geomFH->topology().dddConstants()).lastLayer(true);
     auto geomBH = static_cast<const HGCalGeometry*>(
         geom_->getSubdetectorGeometry(DetId::HGCalHSc, ForwardSubdetector::ForwardEmpty));
-    bhOffset_ = (geomBH->topology().dddConstants()).getLayerOffset();
-    bhFirstLayer_ = bhOffset_ + (geomBH->topology().dddConstants()).firstLayer();
-    bhLastLayer_ = bhOffset_ + (geomBH->topology().dddConstants()).lastLayer(true);
-    bhMaxIphi_ = geomBH->topology().dddConstants().maxCells(true);
+
+    geometryType_ = 1;
+    eeOffset_ = (geomEE->topology().dddConstants()).getLayerOffset();
+    int eeFirstLayer_ = eeOffset_ + (geomEE->topology().dddConstants()).firstLayer();
+    eeLastLayer_ = eeOffset_ + (geomEE->topology().dddConstants()).lastLayer(true);
+    wmaxEE = (geomEE->topology().dddConstants()).waferCount(0);
+    theFirstLayersOfComp_.push_back(eeFirstLayer_);
+    theNumberOfLayersOfComp_.push_back(eeLastLayer_ - eeFirstLayer_ + 1);
+
+    if (geomFH) {
+      fhOffset_ = (geomFH->topology().dddConstants()).getLayerOffset();
+      wmaxFH = (geomFH->topology().dddConstants()).waferCount(0);
+      int fhFirstLayer_ = fhOffset_ + (geomFH->topology().dddConstants()).firstLayer();
+      fhLastLayer_ = fhOffset_ + (geomFH->topology().dddConstants()).lastLayer(true);
+      theFirstLayersOfComp_.push_back(fhFirstLayer_);
+      theNumberOfLayersOfComp_.push_back(fhLastLayer_ - fhFirstLayer_ + 1);
+    } else {
+      fhOffset_ = eeLastLayer_;
+      wmaxFH = 0;
+      int fhFirstLayer_ = eeLastLayer_;
+      fhLastLayer_ = eeLastLayer_;
+      theFirstLayersOfComp_.push_back(fhFirstLayer_);
+      theNumberOfLayersOfComp_.push_back(0);
+    }
+    if (geomBH) {
+      bhOffset_ = (geomBH->topology().dddConstants()).getLayerOffset();
+      bhFirstLayer_ = bhOffset_ + (geomBH->topology().dddConstants()).firstLayer();
+      bhLastLayer_ = bhOffset_ + (geomBH->topology().dddConstants()).lastLayer(true);
+      bhMaxIphi_ = geomBH->topology().dddConstants().maxCells(true);
+      theFirstLayersOfComp_.push_back(bhFirstLayer_);
+      theNumberOfLayersOfComp_.push_back(bhLastLayer_ - bhFirstLayer_ + 1);
+    } else {
+      bhOffset_ = eeLastLayer_;
+      bhFirstLayer_ = eeLastLayer_;
+      bhLastLayer_ = eeLastLayer_;
+      bhMaxIphi_ = 0;
+      theFirstLayersOfComp_.push_back(bhFirstLayer_);
+      theNumberOfLayersOfComp_.push_back(0);
+    }
   } else {
     geometryType_ = 0;
     geomEE =
@@ -129,11 +159,14 @@ void RecHitTools::setGeometry(const CaloGeometry& geom) {
     auto geomBH =
         static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal, HcalSubdetector::HcalEndcap));
     bhLastLayer_ = bhOffset_ + (geomBH->topology().dddConstants())->getMaxDepth(1);
+    theNumberOfLayersOfComp_.push_back(0);
+    theFirstLayersOfComp_.push_back(1);
   }
   maxNumberOfWafersPerLayer_ = std::max(wmaxEE, wmaxFH);
   // For nose geometry
   auto geomNose =
       static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward, ForwardSubdetector::HFNose));
+
   if (geomNose) {
     maxNumberOfWafersNose_ = (geomNose->topology().dddConstants()).waferCount(0);
     noseLastLayer_ = (geomNose->topology().dddConstants()).layers(true);
