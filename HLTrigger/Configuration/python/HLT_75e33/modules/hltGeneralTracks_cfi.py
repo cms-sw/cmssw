@@ -40,7 +40,26 @@ hltPhase2LegacyTracking.toReplaceWith(hltGeneralTracks, _hltGeneralTracksLegacy)
 
 from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
 from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
-from ..modules.hltPhase2PixelTracks_cfi import *
+
+_hltGeneralTracksNGTScouting = cms.EDProducer("RecoTrackSelector",
+                                              src = cms.InputTag('hltPhase2PixelTracks'),
+                                              copyExtras = cms.untracked.bool(True),
+                                              minHit = cms.int32(0),
+                                              minLayer = cms.int32(0),
+                                              min3DLayer = cms.int32(0),
+                                              minPixelHit = cms.int32(0),
+                                              ptMin = cms.double(0.0),
+                                              maxChi2 = cms.double(10000.0),
+                                              tip = cms.double(1e9),
+                                              lip = cms.double(1e9),
+                                              minRapidity = cms.double(-9.9),
+                                              maxRapidity = cms.double(9.9),
+                                              minPhi = cms.double(-3.2),
+                                              maxPhi = cms.double(3.2),
+                                              quality = cms.vstring(),
+                                              algorithm = cms.vstring(),
+                                              )
+
 _hltGeneralTracksNGTScoutingLST = hltGeneralTracks.clone(
     MinPT = cms.double(0.9),
     TrackProducers = ["hltPhase2PixelTracks", "hltInitialStepTracksT4T5TCLST"],
@@ -50,6 +69,5 @@ _hltGeneralTracksNGTScoutingLST = hltGeneralTracks.clone(
     setsToMerge = {0: dict(pQual=True, tLists=[0,1])}
 )
 
-(ngtScouting & ~trackingLST).toReplaceWith(hltGeneralTracks, hltPhase2PixelTracks)
-
+(ngtScouting & ~trackingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksNGTScouting)
 (ngtScouting & trackingLST).toReplaceWith(hltGeneralTracks, _hltGeneralTracksNGTScoutingLST)
