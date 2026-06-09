@@ -1,0 +1,8 @@
+<lcgdict>
+  <class name="BTLElectronicsId"/>
+  <class name="BTLElectronicsIdPair"/>
+  <class name="BTLReadoutMap" class_version="0">
+    <field name="detToElec_" mapping="blob" />
+  </class>
+  <class name="std::unordered_map<uint32_t, BTLElectronicsIdPair>"/>
+</lcgdict>
