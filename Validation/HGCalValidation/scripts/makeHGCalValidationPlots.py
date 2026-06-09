@@ -3,6 +3,7 @@
 import os
 import argparse
 import datetime
+import ROOT
 
 from Validation.RecoTrack.plotting.validation import SeparateValidation, SimpleValidation, SimpleSample
 from Validation.HGCalValidation.HGCalValidator_cff import hgcalValidator
@@ -49,6 +50,19 @@ def _write_top_index(output_dir, entries):
     with open(index_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
 
+from Validation.RecoTrack.plotting import html
+
+from dataclasses import dataclass
+@dataclass
+class ValidLabels:    
+    hitCalLabel: str = 'hitCalibration'
+    hitValLabel: str = 'hitValidation'
+    layerClustersLabel: str = 'layerClusters'
+    trackstersLabel: str = 'tracksters'
+    trackstersWithEdgesLabel: str = 'trackstersWithEdges'
+    candidatesLabel: str = 'candidates'
+    simLabel: str = 'simulation'
+    allLabel: str = 'all'
 
 def main(opts):
 
@@ -64,13 +78,6 @@ def main(opts):
         extendedFlag = True
     if opts.verbose:
         plotting.verbose = True
-
-    collections = [c.strip() for c in opts.collection.split(",")]
-    for coll in collections:
-        if coll not in collection_choices:
-            raise ValueError(f"Unknown collection '{coll}'. Valid options: {collection_choices}.")
-
-    import ROOT
 
     def _discover_subdirs(dqm_file, dqm_base):
         """Return direct subdirectory names under dqm_base in the DQM ROOT file."""
@@ -240,17 +247,17 @@ def main(opts):
             val.doPlots(ticlcand, plotterDrawArgs=drawArgs)
 
         plotDict = {
-            hitCalLabel: [plot_hitCal],
-            hitValLabel: [plot_hitVal],
-            layerClustersLabel: [plot_LC],
-            trackstersLabel: [plot_Tst],
-            trackstersWithEdgesLabel: [plot_TstEdges],
-            simLabel: [plot_SC, plot_CP],
-            candidatesLabel: [plotCand],
+            ValidLabels.hitCalLabel: [plot_hitCal],
+            ValidLabels.hitValLabel: [plot_hitVal],
+            ValidLabels.layerClustersLabel: [plot_LC],
+            ValidLabels.trackstersLabel: [plot_Tst],
+            ValidLabels.trackstersWithEdgesLabel: [plot_TstEdges],
+            ValidLabels.simLabel: [plot_SC, plot_CP],
+            ValidLabels.candidatesLabel: [plotCand],
         }
 
-        if allLabel not in collections:
-            for coll in collections:
+        if allLabel not in opts.collections:
+            for coll in opts.collections:
                 for task in plotDict[coll]:
                     task()
         else:
@@ -273,6 +280,10 @@ def main(opts):
 
 
 if __name__ == "__main__":
+    collection_choices = [ValidLabels.allLabel, ValidLabels.hitCalLabel, ValidLabels.hitValLabel, ValidLabels.layerClustersLabel,
+                          ValidLabels.trackstersLabel, ValidLabels.trackstersWithEdgesLabel, ValidLabels.candidatesLabel,
+                          ValidLabels.simLabel]
+    
     parser = argparse.ArgumentParser(description="Create set of HGCal validation plots from one or more DQM files.")
     parser.add_argument("files", metavar="file", type=str, nargs="+",
                         default="DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root",
@@ -293,7 +304,7 @@ if __name__ == "__main__":
                         help="Sample name for HTML page generation (default: CMSSW version)")
     parser.add_argument("--html-validation-name", type=str, default=["TICL Validation", ""], nargs="+",
                         help="Validation name for HTML page generation (enters to <title> element) (default 'TICL Validation')")
-    parser.add_argument("--collection", default=trackstersLabel, type=str,
+    parser.add_argument("--collections", default=trackstersLabel, nargs='+', type=str,
                         help="Choose output plots collections among possible choices: {collection_choices}")
     parser.add_argument("--extended", action="store_true", default=False,
                         help="Include extended set of plots (e.g. bunch of distributions; default off)")
@@ -311,5 +322,9 @@ if __name__ == "__main__":
             parser.error("DQM file %s does not exist" % f)
     if len(opts.files) == 0:
         parser.error("No DQM files specified")
-    else:
-        main(opts)
+
+    for coll in opts.collections:
+        if coll not in collection_choices:
+            raise ValueError(f"Unknown collection '{coll}'. Valid options: {collection_choices}.")
+        
+    main(opts)
