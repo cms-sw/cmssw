@@ -2,6 +2,7 @@
 <use name="tbb"/>
 <use name="DQMServices/Core"/>
 <use name="DataFormats/Histograms"/>
+<use name="DataFormats/Provenance"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>

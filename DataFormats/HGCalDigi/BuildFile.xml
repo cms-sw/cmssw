@@ -1,4 +1,3 @@
-<use name="rootcore"/>
 <use name="DataFormats/Portable"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/ForwardDetId"/>
@@ -6,6 +5,7 @@
 <use name="DataFormats/SoATemplate"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
 <use name="eigen"/>
+<use name="rootcling"/>
 <flags ALPAKA_BACKENDS="!serial"/>
 <export>
   <lib name="1"/>

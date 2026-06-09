@@ -9,6 +9,7 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <use name="hls"/>
+<use name="rootcling"/>
 <export>
   <lib name="1"/>
 </export>

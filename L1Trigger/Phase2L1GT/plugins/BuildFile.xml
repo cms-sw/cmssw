@@ -5,6 +5,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/L1Trigger"/>
+<use name="DataFormats/Provenance"/>
 <use name="L1Trigger/DemonstratorTools"/>
 <use name="L1Trigger/Phase2L1GT"/>
 <use name="DataFormats/L1TMuonPhase2"/>
