@@ -124,6 +124,15 @@ const bool l1t::AXOL1TLCondition::evaluateCondition(const int bxEval) const {
   const BXVector<const l1t::L1Candidate*>* candEGVec = m_gtGTB->getCandL1EG();
   const BXVector<const l1t::EtSum*>* candEtSumVec = m_gtGTB->getCandL1EtSum();
 
+  m_lastInputs_.fill(0.f);
+
+  if (useBx < candMuVec->getFirstBX() || useBx > candMuVec->getLastBX() || useBx < candJetVec->getFirstBX() ||
+      useBx > candJetVec->getLastBX() || useBx < candEGVec->getFirstBX() || useBx > candEGVec->getLastBX() ||
+      useBx < candEtSumVec->getFirstBX() || useBx > candEtSumVec->getLastBX()) {
+    setScore(-1.f);
+    return false;
+  }
+
   const int NMuons = 4;
   const int NJets = 10;
   const int NEgammas = 4;

@@ -21,6 +21,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+// Uncomment to enable verbose AXO debugging
+#define AXO_DEBUG
+#ifdef AXO_DEBUG
+#include <sstream>
+#endif
+
 //
 // class declaration
 //
@@ -55,11 +61,6 @@ L1AXOTreeProducer::L1AXOTreeProducer(edm::ParameterSet const &config)
       tree_(nullptr),
       scoreToken_(consumes<AXOL1TLScoreBxCollection>(config.getUntrackedParameter<edm::InputTag>("axoscoreToken"))) {
   usesResource(TFileService::kSharedResource);
-  // set up the TTree and its branches
-  tree_ = fs_->make<TTree>("L1AXOTree", "L1AXOTree");
-  tree_->Branch("axo_score", &anomaly_score, "axo_score/F");
-
-  tree_->Branch("axo_inputs", anomaly_inputs, fmt::sprintf("axo_inputs[%d]/F", AXOL1TLScore::kNInputs).c_str());
 }
 
 //
@@ -68,37 +69,79 @@ L1AXOTreeProducer::L1AXOTreeProducer(edm::ParameterSet const &config)
 
 // ------------ method called to for each event  ------------
 void L1AXOTreeProducer::analyze(edm::Event const &event, edm::EventSetup const &setup) {
-  //save axo score
+  // save axo score
   edm::Handle<AXOL1TLScoreBxCollection> axo;
   event.getByToken(scoreToken_, axo);
 
-  if (axo.isValid()) {
-    // Take bx = 0, index = 0 as before
+  if (axo.isValid() && axo->getFirstBX() <= 0 && axo->getLastBX() >= 0 && axo->size(0) > 0) {
     const AXOL1TLScore &scoreObj = axo->at(0, 0);
-
-    // score
     anomaly_score = scoreObj.getAXOScore();
 
-    // inputs
     const auto &inputs = scoreObj.getInputs();
     for (unsigned int i = 0; i < AXOL1TLScore::kNInputs; ++i) {
       anomaly_inputs[i] = inputs[i];
     }
 
-  } else {
-    edm::LogWarning("MissingProduct") << "AXOL1TLScoreBxCollection not found. Branches will not be filled";
+#ifdef AXO_DEBUG
+    static unsigned int nDebugEvents = 0;
 
+    if (nDebugEvents < 20) {
+      std::ostringstream msg;
+
+      msg << "event=" << event.id().event()
+          << " run=" << event.id().run()
+          << " lumi=" << event.luminosityBlock()
+          << " score=" << anomaly_score
+          << " nonzero inputs:";
+
+      bool any = false;
+      for (unsigned int i = 0; i < AXOL1TLScore::kNInputs; ++i) {
+        if (anomaly_inputs[i] != 0.f) {
+          msg << " [" << i << "]=" << anomaly_inputs[i];
+          any = true;
+        }
+      }
+
+      if (!any) {
+        msg << " <none>";
+      }
+
+      edm::LogPrint("AXODebug") << msg.str();
+      ++nDebugEvents;
+    }
+#endif
+
+  } else {
     anomaly_score = 0.f;
+
     for (unsigned int i = 0; i < AXOL1TLScore::kNInputs; ++i) {
       anomaly_inputs[i] = 0.f;
     }
+
+#ifdef AXO_DEBUG
+    edm::LogPrint("AXODebug")
+      << "event=" << event.id().event()
+      << " run=" << event.id().run()
+      << " lumi=" << event.luminosityBlock()
+      << " AXOL1TLScoreBxCollection missing or empty at BX 0";
+#endif
+
+    edm::LogWarning("MissingProduct")
+      << "AXOL1TLScoreBxCollection missing or empty at BX 0";
   }
 
   tree_->Fill();
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void L1AXOTreeProducer::beginJob(void) {}
+void L1AXOTreeProducer::beginJob() {
+  tree_ = fs_->make<TTree>("L1AXOTree", "L1AXOTree");
+  tree_->Branch("axo_score", &anomaly_score, "axo_score/F");
+  tree_->Branch(
+      "axo_inputs",
+      anomaly_inputs,
+      fmt::sprintf("axo_inputs[%d]/F", AXOL1TLScore::kNInputs).c_str());
+}
 
 // ------------ method called once each job just after ending the event loop  ------------
 void L1AXOTreeProducer::endJob() {}

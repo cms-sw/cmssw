@@ -522,6 +522,7 @@ void l1t::GlobalBoard::fillAXOScore(int iBxInEvent, std::unique_ptr<AXOL1TLScore
   float scorevalue = 0.0;
   if (iBxInEvent == 0) {
     scorevalue = m_storedAXOScore;
+    m_uGtAXOScore.setInputs(m_storedAXOInputs);
   }
 
   //set dataformat value
@@ -906,12 +907,12 @@ void l1t::GlobalBoard::runGTL(const edm::Event&,
     for (auto& cond : condMap) {
       cond.second->evaluateConditionStoreResult(iBxInEvent);
 
-      // for optional software-only saving of axol1tl score
-      // m_storedAXOScore < 0.0 ensures this gets set only once per condition if score not default of -999
-      if (m_saveAXOScore and m_storedAXOScore < 0 and cond.first == m_axoScoreConditionName and
+      // for optional software-only saving of axol1tl score and inputs
+      if (m_saveAXOScore and iBxInEvent == 0 and m_storedAXOScore < 0 and cond.first == m_axoScoreConditionName and
           not m_axoScoreConditionName.empty()) {
         auto const* theCondition = dynamic_cast<AXOL1TLCondition*>(cond.second.get());
         m_storedAXOScore = theCondition->getScore();
+        m_storedAXOInputs = theCondition->getLastInputs();
       }
     }
   }
@@ -1160,6 +1161,7 @@ void l1t::GlobalBoard::reset() {
 
   //reset AXO score
   m_storedAXOScore = -999.f;
+  m_storedAXOInputs.fill(0.f);
   m_uGtAXOScore.reset();
   //  m_axoScoreConditionName = "";
 

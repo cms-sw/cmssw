@@ -10,6 +10,7 @@
  */
 
 // system include files
+#include <array>
 #include <bitset>
 #include <cassert>
 #include <vector>
@@ -241,6 +242,7 @@ namespace l1t {
     //for optional software-only saving of axol1tl score
     AXOL1TLScore m_uGtAXOScore;       //score dataformat
     float m_storedAXOScore = -999.f;  //score from cond class
+    std::array<float, AXOL1TLScore::kNInputs> m_storedAXOInputs{};
     bool m_saveAXOScore = false;
     std::string m_axoScoreConditionName;
 
