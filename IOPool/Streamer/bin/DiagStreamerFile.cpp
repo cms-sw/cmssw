@@ -55,7 +55,7 @@ namespace {
   std::optional<unsigned int> test_uncompress(EventMsgView const* eview, std::vector<unsigned char>& dest);
   std::unique_ptr<edm::SendEvent> getSendEvent(std::vector<unsigned char>& uncompressed, unsigned int uncompressedSize);
   bool test_ProcessHistoryID(edm::ProcessHistoryID const& id1, edm::SendEvent const& sendEvent2);
-  void readfile(std::string filename, std::string outfile);
+  int readfile(std::string filename, std::string outfile);
   void help();
 }  // namespace
 //==========================================================================
@@ -72,10 +72,10 @@ int main(int argc, char* argv[]) {
     outfile = argv[2];
   }
 
-  readfile(streamfile, outfile);
+  auto const ret = readfile(streamfile, outfile);
   std::cout << "\n\nDiagStreamerFile TEST DONE\n" << std::endl;
 
-  return 0;
+  return ret;
 }
 
 namespace {
@@ -85,7 +85,7 @@ namespace {
               << " [output_file_name]" << std::endl;
   }
   //==========================================================================
-  void readfile(std::string filename, std::string outfile) {
+  int readfile(std::string filename, std::string outfile) {
     uint32 num_metadata(0);
     uint32 num_events(0);
     uint32 num_badevents(0);
@@ -247,7 +247,9 @@ namespace {
                 << "and " << num_badchksum << " events with bad check sum" << std::endl
                 << "and " << num_baduncompress << " events with bad uncompress" << std::endl
                 << "and " << num_duplevents << " duplicated event Id" << std::endl;
+      return EXIT_FAILURE;
     }
+    return EXIT_SUCCESS;
   }
 
   //==========================================================================
