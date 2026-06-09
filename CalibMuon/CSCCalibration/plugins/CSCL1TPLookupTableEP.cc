@@ -33,6 +33,7 @@ protected:
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
                       const edm::IOVSyncValue&,
                       edm::ValidityInterval&) override;
+  bool isConcurrentFinder() const override { return true; }
 
 private:
   std::vector<unsigned> load(std::string fileName) const;
