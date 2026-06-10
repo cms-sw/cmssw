@@ -181,22 +181,32 @@ struct HGVHistoProducerAlgoHistograms {
   std::vector<dqm::reco::MonitorElement*> h_denom_trackster_phi[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_denom_trackster_en[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_denom_trackster_pt[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_R[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_denom_trackster_alpha[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_eta[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_phi[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_en[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_pt[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_R[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_numEff_caloparticle_alpha[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_eta[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_phi[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_en[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_pt[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_R[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_num_caloparticle_alpha[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_eta[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_phi[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_en[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_pt[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_R[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_alpha[numberOfValidationTypes_];  
   std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_eta[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_phi[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_en[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_pt[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_R[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_alpha[numberOfValidationTypes_];
   // Generic histograms
   std::vector<dqm::reco::MonitorElement*> h_tracksternum;
   std::vector<dqm::reco::MonitorElement*> h_conttracksternum;
@@ -219,6 +229,8 @@ struct HGVHistoProducerAlgoHistograms {
   std::vector<dqm::reco::MonitorElement*> h_trackster_x;
   std::vector<dqm::reco::MonitorElement*> h_trackster_y;
   std::vector<dqm::reco::MonitorElement*> h_trackster_z;
+  std::vector<dqm::reco::MonitorElement*> h_trackster_R;
+  std::vector<dqm::reco::MonitorElement*> h_trackster_alpha;
   std::vector<dqm::reco::MonitorElement*> h_trackster_firstlayer;
   std::vector<dqm::reco::MonitorElement*> h_trackster_lastlayer;
   std::vector<dqm::reco::MonitorElement*> h_trackster_layersnum;
@@ -304,6 +316,7 @@ public:
                                       const TracksterToTracksterMap& simTrackstersToTrackstersMap,
                                       const validationType valType,
                                       const SimClusterToCaloParticleMap& scToCpMap,
+									  const std::vector<CaloParticle>& cP,									  
                                       const std::vector<size_t>& cPIndices,
                                       const std::vector<size_t>& cPSelectedIndices,
                                       const edm::ProductID& cPHandle_id) const;
@@ -406,7 +419,10 @@ public:
 
 private:
   double getEta(double eta) const;
-
+  std::pair<double, double> displacedQuantities(const SimTrack& st) const;
+  const SimTrack* simTrackFromCaloParticle(int cpIdx, const std::vector<CaloParticle>& caloParticles) const;
+  int getCPId(const ticl::Trackster& simTS, const edm::ProductID& cPHandle_id, const SimClusterToCaloParticleMap& scToCpMap) const;
+	
   std::shared_ptr<hgcal::RecHitTools> recHitTools_;
   constexpr static int numberOfValidationTypes_ = 4;
   std::array<std::string, numberOfValidationTypes_> ref_ = {
@@ -428,6 +444,10 @@ private:
   int nintPt_;
   double minPhi_, maxPhi_;
   int nintPhi_;
+  double minR_, maxR_;
+  int nintR_;
+  double minAlpha_, maxAlpha_;
+  int nintAlpha_;
   double minMixedHitsSimCluster_, maxMixedHitsSimCluster_;
   int nintMixedHitsSimCluster_;
   double minMixedHitsCluster_, maxMixedHitsCluster_;
