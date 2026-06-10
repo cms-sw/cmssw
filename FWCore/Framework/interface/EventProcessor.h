@@ -30,6 +30,8 @@ configured in the user's main() function, and is set running.
 #include "FWCore/Framework/interface/PrincipalCache.h"
 #include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
+#include "FWCore/Framework/interface/SourceStatus.h"
+#include "FWCore/Framework/interface/SourceCoordinator.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -57,7 +59,6 @@ namespace edm {
   class LuminosityBlockPrincipal;
   class LuminosityBlockProcessingStatus;
   class RunProcessingStatus;
-  class IOVSyncValue;
   class ModuleTypeResolverMaker;
 
   namespace eventsetup {
@@ -188,9 +189,7 @@ namespace edm {
     // The following functions are used by the code implementing
     // transition handling.
 
-    InputSource::ItemTypeInfo nextTransitionType();
-    InputSource::ItemTypeInfo lastTransitionType() const { return lastSourceTransition_; }
-    void nextTransitionTypeAsync(std::shared_ptr<RunProcessingStatus> iRunStatus, WaitingTaskHolder nextTask);
+    [[nodiscard]] SourceStatus thread_unsafe_peekNextTransitionType();
 
     void readFile();
     bool fileBlockValid() { return fb_.get() != nullptr; }
@@ -207,32 +206,29 @@ namespace edm {
     void prepareForNextLoop();
     bool shouldWeCloseOutput() const;
 
-    void doErrorStuff();
+    void doErrorStuff(InputSource::ItemType iType);
 
     void beginProcessBlock(bool& beginProcessBlockSucceeded);
     void inputProcessBlocks();
     void endProcessBlock(bool cleaningUpAfterException, bool beginProcessBlockSucceeded);
 
-    InputSource::ItemType processRuns();
-    void beginRunAsync(IOVSyncValue const&, WaitingTaskHolder);
+    SourceStatus processRuns(SourceStatus const& iStatus);
+    void beginRunAsync(RunAuxiliary const&, WaitingTaskHolder);
     void streamBeginRunAsync(unsigned int iStream, std::shared_ptr<RunProcessingStatus>, WaitingTaskHolder) noexcept;
     void releaseBeginRunResources(unsigned int iStream);
-    void endRunAsync(std::shared_ptr<RunProcessingStatus>, WaitingTaskHolder);
+    void endRunAsync(std::shared_ptr<RunProcessingStatus>,
+                     std::optional<RunAuxiliary> const&,
+                     WaitingTaskHolder) noexcept;
     void handleEndRunExceptions(std::exception_ptr, WaitingTaskHolder const&);
     void globalEndRunAsync(WaitingTaskHolder, std::shared_ptr<RunProcessingStatus>);
     void streamEndRunAsync(WaitingTaskHolder, unsigned int iStreamIndex);
     void endUnfinishedRun(bool cleaningUpAfterException);
-    void beginLumiAsync(IOVSyncValue const&, std::shared_ptr<RunProcessingStatus>, WaitingTaskHolder);
-    void continueLumiAsync(WaitingTaskHolder);
+    void beginLumiAsync(std::shared_ptr<RunProcessingStatus>, LuminosityBlockAuxiliary const&, WaitingTaskHolder);
+    void continueLumiAsync(WaitingTaskHolder, SourceStatus const& oSourceStatus);
     void handleEndLumiExceptions(std::exception_ptr, WaitingTaskHolder const&);
     void globalEndLumiAsync(WaitingTaskHolder, std::shared_ptr<LuminosityBlockProcessingStatus>);
     void streamEndLumiAsync(WaitingTaskHolder, unsigned int iStreamIndex);
     void endUnfinishedLumi(bool cleaningUpAfterException);
-    void readProcessBlock(ProcessBlockPrincipal&);
-    std::shared_ptr<RunPrincipal> readRun();
-    void readAndMergeRun(RunProcessingStatus&);
-    std::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock(std::shared_ptr<RunPrincipal> rp);
-    void readAndMergeLumi(LuminosityBlockProcessingStatus&);
     using ProcessBlockType = PrincipalCache::ProcessBlockType;
     void writeProcessBlockAsync(WaitingTaskHolder, ProcessBlockType);
     void writeRunAsync(WaitingTaskHolder, RunPrincipal const&, MergeableRunProductMetadata const*);
@@ -255,17 +251,20 @@ namespace edm {
     // init() is used by only by constructors
     void init(std::shared_ptr<ProcessDesc>& processDesc, ServiceToken const& token, serviceregistry::ServiceLegacy);
 
-    void readAndMergeRunEntriesAsync(std::shared_ptr<RunProcessingStatus>, WaitingTaskHolder);
-    void readAndMergeLumiEntriesAsync(std::shared_ptr<LuminosityBlockProcessingStatus>, WaitingTaskHolder);
+    void readRunAsync(std::shared_ptr<RunProcessingStatus> iRunStatus,
+                      RunAuxiliary const& iRunAux,
+                      WaitingTaskHolder iNextTask,
+                      SourceStatus& oNextStatus);
+    void readLumiAsync(std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus,
+                       std::shared_ptr<RunProcessingStatus> iRunStatus,
+                       LuminosityBlockAuxiliary const& iLumiAux,
+                       WaitingTaskHolder iNextTask);
 
-    void handleNextItemAfterMergingRunEntries(std::shared_ptr<RunProcessingStatus>, WaitingTaskHolder);
+    void handleNextItemAfterMergingRunEntriesAsync(std::shared_ptr<RunProcessingStatus>,
+                                                   WaitingTaskHolder,
+                                                   SourceStatus const& oStatus);
 
-    bool readNextEventForStream(WaitingTaskHolder const&, unsigned int iStreamIndex, LuminosityBlockProcessingStatus&);
-
-    void handleNextEventForStreamAsync(WaitingTaskHolder, unsigned int iStreamIndex);
-
-    //read the next event using Stream iStreamIndex
-    void readEvent(unsigned int iStreamIndex);
+    void handleNextEventForStreamAsync(std::exception_ptr const*, unsigned int iStreamIndex, WaitingTaskHolder);
 
     //process the already read event using Stream iStreamIndex
     void processEventAsync(WaitingTaskHolder iHolder, unsigned int iStreamIndex);
@@ -288,9 +287,6 @@ namespace edm {
     void throwAboutModulesRequiringLuminosityBlockSynchronization() const;
     void warnAboutModulesRequiringRunSynchronization() const;
 
-    bool needToCallNext() const { return needToCallNext_; }
-    void setNeedToCallNext(bool val) { needToCallNext_ = val; }
-
     //------------------------------------------------------------------
     //
     // Data members below.
@@ -306,8 +302,6 @@ namespace edm {
     edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
     edm::propagate_const<std::shared_ptr<ProcessBlockHelper>> processBlockHelper_;
     ServiceToken serviceToken_;
-    edm::propagate_const<std::unique_ptr<InputSource>> input_;
-    InputSource::ItemTypeInfo lastSourceTransition_;
     edm::propagate_const<std::unique_ptr<ModuleTypeResolverMaker const>> moduleTypeResolverMaker_;
     edm::propagate_const<std::unique_ptr<eventsetup::EventSetupsController>> espController_;
     edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
@@ -340,26 +334,26 @@ namespace edm {
     std::atomic<bool> deferredExceptionPtrIsSet_;
     std::exception_ptr deferredExceptionPtr_;
 
-    SharedResourcesAcquirer sourceResourcesAcquirer_;
-    std::shared_ptr<std::recursive_mutex> sourceMutex_;
+    SourceCoordinator sourceCoordinator_;
+
     PrincipalCache principalCache_;
     bool beginJobCalled_;
     bool beginJobStartedModules_ = false;
     bool beginJobSucceeded_ = false;
-    bool shouldWeStop_;
+    //set by looper during event processing, but read by multiple threads, so needs to be atomic
+    std::atomic<bool> shouldWeStop_;
     bool fileModeNoMerge_;
     std::string exceptionMessageFiles_;
     std::atomic<bool> exceptionMessageRuns_;
     std::atomic<bool> exceptionMessageLumis_;
     bool forceLooperToEnd_;
-    bool looperBeginJobRun_;
+    std::atomic<bool> looperBeginJobRun_;
     bool forceESCacheClearOnNewRun_;
 
     PreallocationConfiguration preallocations_;
 
     bool printDependencies_ = false;
     bool deleteNonConsumedUnscheduledModules_ = true;
-    bool needToCallNext_ = true;
   };  // class EventProcessor
 
   //--------------------------------------------------------------------
