@@ -64,6 +64,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
+  bool isConcurrentFinder() const override { return true; }
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
                       const edm::IOVSyncValue&,
                       edm::ValidityInterval&) override;
