@@ -88,11 +88,8 @@ void L1AXOTreeProducer::analyze(edm::Event const &event, edm::EventSetup const &
     if (nDebugEvents < 20) {
       std::ostringstream msg;
 
-      msg << "event=" << event.id().event()
-          << " run=" << event.id().run()
-          << " lumi=" << event.luminosityBlock()
-          << " score=" << anomaly_score
-          << " nonzero inputs:";
+      msg << "event=" << event.id().event() << " run=" << event.id().run() << " lumi=" << event.luminosityBlock()
+          << " score=" << anomaly_score << " nonzero inputs:";
 
       bool any = false;
       for (unsigned int i = 0; i < AXOL1TLScore::kNInputs; ++i) {
@@ -119,15 +116,12 @@ void L1AXOTreeProducer::analyze(edm::Event const &event, edm::EventSetup const &
     }
 
 #ifdef AXO_DEBUG
-    edm::LogPrint("AXODebug")
-      << "event=" << event.id().event()
-      << " run=" << event.id().run()
-      << " lumi=" << event.luminosityBlock()
-      << " AXOL1TLScoreBxCollection missing or empty at BX 0";
+    edm::LogPrint("AXODebug") << "event=" << event.id().event() << " run=" << event.id().run()
+                              << " lumi=" << event.luminosityBlock()
+                              << " AXOL1TLScoreBxCollection missing or empty at BX 0";
 #endif
 
-    edm::LogWarning("MissingProduct")
-      << "AXOL1TLScoreBxCollection missing or empty at BX 0";
+    edm::LogWarning("MissingProduct") << "AXOL1TLScoreBxCollection missing or empty at BX 0";
   }
 
   tree_->Fill();
@@ -137,10 +131,7 @@ void L1AXOTreeProducer::analyze(edm::Event const &event, edm::EventSetup const &
 void L1AXOTreeProducer::beginJob() {
   tree_ = fs_->make<TTree>("L1AXOTree", "L1AXOTree");
   tree_->Branch("axo_score", &anomaly_score, "axo_score/F");
-  tree_->Branch(
-      "axo_inputs",
-      anomaly_inputs,
-      fmt::sprintf("axo_inputs[%d]/F", AXOL1TLScore::kNInputs).c_str());
+  tree_->Branch("axo_inputs", anomaly_inputs, fmt::sprintf("axo_inputs[%d]/F", AXOL1TLScore::kNInputs).c_str());
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
