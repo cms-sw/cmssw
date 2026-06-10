@@ -259,25 +259,30 @@ if __name__=="__main__":
     fileParser.parse(inputfile)
 
     if args.json:
-        combinedData = fileParser.toSimpleDict(args.eventData)
-        combinedData["memoryReports"] = {}
+        combinedData=dict()
+        combinedData["eventData"] = fileParser.toSimpleDict(True)
+        combinedData["memoryReports"] = dict()
  
         def mergeReport(reportList, reportNamePrefix, reportName, eventData):
             if not reportList:
                 return
             for item in reportList:
-                label = item.get('label')
-                if label not in combinedData['memoryReports']:
-                    combinedData['memoryReports'][label] = {'label': label, 'type': item.get('type', '')}
-                if eventData:
-                    combinedData['memoryReports'][label][reportName + 'EachEvent'] = item.get(reportName + 'EachEvent', [])
-                combinedData['memoryReports'][label][reportNamePrefix+reportName] = item.get(reportNamePrefix+reportName, 0)
+                mlabel = item.get('label', '')
+                mtype = item.get('type', '')
+                mkey = '%s-%s' % (mlabel, mtype)
+                if mkey not in combinedData['memoryReports']:
+                    combinedData['memoryReports'][mkey] = {'label': mlabel, 'type': mtype}
+                if mkey not in combinedData['eventData']:
+                    combinedData['eventData'][mkey] = {'label': mlabel, 'type': mtype}
+                combinedData['eventData'][mkey][reportName + 'EachEvent'] = item.get(reportName + 'EachEvent', [])
+                combinedData['memoryReports'][mkey][reportName + 'EachEvent'] = item.get(reportName + 'EachEvent', [])
+                combinedData['memoryReports'][mkey][reportNamePrefix+reportName] = item.get(reportNamePrefix+reportName, 0)
 
-        mergeReport(reportModulesWithMemoryGrowth(fileParser, args.eventData, True), 'Total', 'MemoryGrowth', args.eventData)
-        mergeReport(reportModuleRetainingMemory(fileParser, args.eventData, args.csv, True), 'Avg', 'Retained', args.eventData)
-        mergeReport(reportModuleDataProductMemory(fileParser, args.eventData, args.csv, True), 'Avg', 'DataProductSize', args.eventData)
-        mergeReport(reportModuleTemporary(fileParser, args.eventData, args.csv, True), 'Avg', 'TempSize', args.eventData)
-        mergeReport(reportModuleNTemporary(fileParser, args.eventData, args.csv, True), 'Avg', 'NTemp', args.eventData)
+        mergeReport(reportModulesWithMemoryGrowth(fileParser, True, True), 'Total', 'MemoryGrowth', True)
+        mergeReport(reportModuleRetainingMemory(fileParser, True, args.csv, True), 'Avg', 'Retained', True)
+        mergeReport(reportModuleDataProductMemory(fileParser, True, args.csv, True), 'Avg', 'DataProductSize', True)
+        mergeReport(reportModuleTemporary(fileParser, True, args.csv, True), 'Avg', 'TempSize', True)
+        mergeReport(reportModuleNTemporary(fileParser, True, args.csv, True), 'Avg', 'NTemp', True)
 
         json.dump(combinedData, sys.stdout, indent=2)
     else:
