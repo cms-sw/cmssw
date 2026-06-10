@@ -45,6 +45,7 @@ public:
                       edm::ValidityInterval &) override;
 
 private:
+  bool isConcurrentFinder() const override { return true; }
   edm::FileInPath pdtFileName;
 };
 #endif
