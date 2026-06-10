@@ -7,7 +7,7 @@ void AddFourMomenta::set(Candidate &c) const {
   Candidate::LorentzVector p4(0, 0, 0, 0);
   Candidate::Charge charge = 0;
   size_t n = c.numberOfDaughters();
-  const Candidate& constC = c;
+  const Candidate &constC = c;
   for (size_t i = 0; i < n; ++i) {
     const Candidate *d = constC.daughter(i);
     p4 += d->p4();
