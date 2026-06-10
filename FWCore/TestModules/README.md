@@ -39,6 +39,11 @@ to validate that an object produced in a given event is being read back in the
 same event.
 
 
+## `RunLumiEventAnalyzer`
+
+This module can be used to enforce the order of Runs, LuminosityBlocks, and Events the module sees. Note that this module is not useful in a job that uses multiple streams, because the exact order of Runs/LuminosityBlocks/Events the module sees in such jobs is not deterministic.
+
+
 ## `SecondaryProducer`
 
 This module can be used to test `cms.SecSource`.

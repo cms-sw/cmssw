@@ -19,7 +19,7 @@ process.a1 = cms.EDAnalyzer("StreamThingAnalyzer",
     inChecksum = cms.untracked.string('out')
 )
 
-from FWCore.Framework.modules import RunLumiEventAnalyzer
+from FWCore.TestModules.modules import RunLumiEventAnalyzer
 process.test = RunLumiEventAnalyzer(
     verbose = False,
     expectedRunLumiEvents = [

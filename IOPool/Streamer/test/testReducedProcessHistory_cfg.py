@@ -23,7 +23,7 @@ process.out = PoolOutputModule(
     fileName = args.output
 )
 
-from FWCore.Framework.modules import RunLumiEventAnalyzer
+from FWCore.TestModules.modules import RunLumiEventAnalyzer
 process.test = RunLumiEventAnalyzer(
     expectedRunLumiEvents = [
         1, 0, 0, # beginRun

@@ -24,7 +24,7 @@ process.testThrow = cms.EDAnalyzer("TestFailuresAnalyzer",
     eventToThrow = cms.untracked.uint64(2)
 )
 
-from FWCore.Framework.modules import RunLumiEventAnalyzer, IntProducer, IntConsumingAnalyzer
+from FWCore.TestModule.modules import RunLumiEventAnalyzer
 # In the path before the module throwing an exception all 3 events should run
 process.beforeException = RunLumiEventAnalyzer(
     verbose = True,
@@ -72,6 +72,7 @@ process.onEndPath = RunLumiEventAnalyzer(
 from FWCore.Integration.modules import ThingWithMergeProducer
 process.thingWithMergeProducer = ThingWithMergeProducer()
 
+from FWCore.Framework.modules import IntProducer, IntConsumingAnalyzer
 process.p1Done = IntProducer(ivalue = 1)
 process.waitTillP1Done = IntConsumingAnalyzer(getFromModule = "p1Done")
 

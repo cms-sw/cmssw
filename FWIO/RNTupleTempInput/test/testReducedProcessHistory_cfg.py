@@ -17,7 +17,7 @@ process.source = RNTupleTempSource(
     bypassVersionCheck = args.bypassVersionCheck,
 )
 
-from FWCore.Framework.modules import TestMergeResults, RunLumiEventAnalyzer
+from FWCore.Framework.modules import TestMergeResults
 process.testmerge = TestMergeResults(
     expectedBeginRunProd = [10001, 20004, 10003],
     expectedEndRunProd = [100001, 200004, 100003],
@@ -43,6 +43,7 @@ if args.expectNewLumi or args.expectNewRun:
     setWithMergeAndCopyEntry(process.testmerge.expectedBeginLumiProd, 102)
     setWithMergeAndCopyEntry(process.testmerge.expectedEndLumiProd, 1002)
 
+from FWCore.TestModules.modules import RunLumiEventAnalyzer
 process.test = RunLumiEventAnalyzer(
     expectedRunLumiEvents = [
         1, 0, 0, # beginRun
