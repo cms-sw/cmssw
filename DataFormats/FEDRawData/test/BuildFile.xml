@@ -10,7 +10,7 @@
 <test name="TestFEDRawDataCollectionFormat" command="TestFEDRawDataCollectionFormat.sh"/>
 
 
-<library name="testRawDataBuffer" file="TestReadRawDataBuffer.cc,TestWriteRawDataBuffer.cc">
+<library name="testRawDataBuffer" file="TestReadRawDataBuffer.cc,TestWriteRawDataBuffer.cc, DumpRawDataBuffer.cc">
   <flags EDM_PLUGIN="1"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>

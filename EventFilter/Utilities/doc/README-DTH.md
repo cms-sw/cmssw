@@ -2,7 +2,7 @@
 # DTH orbit/event unpacker for DAQSource
 
 <br>
-This patch implements unpacking of the the DTH data format by `DAQSource` into `FedRawDataCollection`.
+This code implements unpacking of the the DTH data format by `DAQSource` into `RawDataBuffer`.
 It both generates and consumes files with DTH format.
 
 #Run the unit test
@@ -34,10 +34,26 @@ FU cmsRun configuration used in above tests:
 <br>
 [test/unittest_FU_daqsource.py](../test/unittest_FU_daqsource.py)
 
-## Running on custom input files
-`unittest_FU_daqsource.py` script can be used as a starting point to create a custom runner with inputs such as DTH dumps (not generated as in the unit test). DAQSource should be set to `dataMode = cms.untracked.string("DTH")` to process DTH format. Change `fileListMode` to `True` and fill in `fileList` parameter with file paths to run with custom files, however they should be named similarly and could also be placed in similar directory structure, `ramdisk/runXX`, to provide initial run and lumisection to the source. Run number is also passed to the source via the command line as well as the working directory (see `testDTH.sh` script).
+## Generating test DTH RAW binary payloads
 
-Note on the file format: apart of parsing single DTH orbit dump, input source plugin is capable also of building events from multiple DTH orbit blocks, but for the same orbit they must come sequentially in the file. Source scans the file and will find all blocks with orbit headers from the same orbit number, until a different orbit number is found or EOF, then it proceeds to build events from them by starting from last DTH event fragment trailer in each of the orbits found. This is then iterated for the next set of orbit blocks with the same orbit number in the file until file is processed. This is also valid at the level of individual files for the striped mode.
+Binary files corresponding to test raw DTH output data can be generated
+with the `startBU.py' script, which uses the DTHFakeReader. e.g.
+```
+cmsRun startBU.py fffBaseDir=myDTHdataDir maxLS=1 fedMeanSize=128 eventsPerFile=256 frdFileVersion=0 dataType=DTH
+```
+N.B. Output directory myDTHdataDir/ must not exist prior to running this, as it won't overwrite it.
+
+Optionally inspect output .raw files with linux "hexdump -C" command.
+
+## Running on custom input files and creating raw data EDProduct
+
+`unittest_FU_daqsource.py` script can be used as a starting point to create a custom runner with inputs such as DTH dumps from hardware (not generated as in the unit test) or test DTH payloads (generated above). The DAQ Source should be set to `daqSourceMode = cms.untracked.string("DTH")` to process DTH format. Set buBaseDir to the location of the input DTH files, and edit the input 'fileNames'. However they should be named similarly and could also be placed in similar directory structure, `ramdisk/runXX`, to provide initial run and lumisection to the source. Run number is also passed to the source via the command line as well as the working directory (see `testDTH.sh` script). e.g. Run this to create a dataset dth_output.root containing RawDataBuffer EDProduct corresponding to the input DTH data:
+```
+cmsRun unittest_FU_daqsource.py daqSourceMode=DTH buBaseDir=myDTHdataDir/ramdisk/ numFwkStreams=1
+```
+N.B. Output directory data/ must not exist prior to running this, as it won't overwrite it. You can optionally inspect the RawDataBuffer EDProduct in the output dataset using DataFormats/FEDRawData/test/DumpRawDataBuffer_cfg.py .
+
+Note on the input file format: apart of parsing single DTH orbit dump, input source plugin is capable also of building events from multiple DTH orbit blocks, but for the same orbit they must come sequentially in the file. Source scans the file and will find all blocks with orbit headers from the same orbit number, until a different orbit number is found or EOF, then it proceeds to build events from them by starting from last DTH event fragment trailer in each of the orbits found. This is then iterated for the next set of orbit blocks with the same orbit number in the file until file is processed. This is also valid at the level of individual files for the striped mode.
 
 Striped mode is now supported for DTH, see `startFU_ds_multi.py` script. Multiple input directories can be specified, and number of sources for each can be provided in NumStreams (sources) vector. 1 is assumed if not specified. if num streams is specified, streamIDs (sourceIDs) numbers need to be provided in corresponding vector. Finally, sourceIdenfier (if specified) specifies prefix before the source number.
 Example file name for this mode is `run123456_ls000_index000000_source01234.raw` with corresponding zfilled spaces zeroed.
@@ -51,7 +67,7 @@ Documentation:
 https://twiki.cern.ch/twiki/bin/view/CMS/FFFMetafileFormats
 
 
-# DAQSOurce DataMode Class Interface Reference
+# DAQSource DataMode Class Interface Reference
 
 ## Overview
 
