@@ -385,6 +385,24 @@ run_ngt_scouting() {
 ############################
 
 main() {
+    # create fake input files
+    touch Phase2Timing_resources.json
+    touch Phase2Timing_resources_NGT.json
+    touch Phase2Timing_resources_OnCPU.json
+
+    mkdir -p logs.Phase2_L1P2GT_HLT
+    mkdir -p logs.Phase2_L1P2GT_HLT_OnCPU
+    mkdir -p logs.NGTScouting_L1P2GT_HLT
+
+    touch logs.Phase2_L1P2GT_HLT/cpu_memory.csv
+    touch logs.Phase2_L1P2GT_HLT/gpu_memory.csv
+    touch logs.Phase2_L1P2GT_HLT/gpu_usage.csv
+    touch logs.Phase2_L1P2GT_HLT_OnCPU/cpu_memory.csv
+    touch logs.NGTScouting_L1P2GT_HLT/cpu_memory.csv
+    touch logs.NGTScouting_L1P2GT_HLT/gpu_memory.csv
+    touch logs.NGTScouting_L1P2GT_HLT/gpu_usage.csv
+
+    exit 0 # temporarily until we have samples in CMSSW_20_0_X
 
     fetch_files
     build_input_file_string
