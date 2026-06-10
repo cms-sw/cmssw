@@ -1,4 +1,101 @@
 import FWCore.ParameterSet.Config as cms
+
+from Validation.RecoTau.TauValidator import TauValidator as _TauValidator
+
+# recoTauValidation = _TauValidator(
+#     recoTauCollection = "hpsPFTauProducer",
+#     genTauCollection = "tauGenJetsSelectorAllHadrons", # only GenTaus decaying hadronically
+#     recoTauIDCollections = [], # reco discriminators not available at RECO level (only at MINI)
+#     cutIDs_wp = [], # WP discriminator (disabled if < 0)
+#     cutIDs_raw = [], # raw discriminator value cuts (disabled if 0.0)
+#     minDeltaR = 0.3,
+#     outFolder = "Tau/TauValidation",
+#     isPatTaus = False
+# )
+
+recoTauValidation = _TauValidator(
+    recoTauCollection = "slimmedTausNoDeepIDs",
+    genTauCollection = "tauGenJetsSelectorAllHadrons", # only GenTaus decaying hadronically
+    recoTauIDCollections = ["deepTau2026v2p5ForMini:VSjet", "deepTau2026v2p5ForMini:VSe", "deepTau2026v2p5ForMini:VSmu"],
+    cutIDs_wp = [-1, -1, -1], # WP discriminator (disabled if < 0)
+    cutIDs_raw = [0.0, 0.0, 0.0], # raw discriminator value cuts (disabled if 0.0)
+    minDeltaR = 0.3,
+    outFolder = "Tau/TauValidation",
+    isPatTaus = True
+)
+
+recoTauValidation_cutWPVsJet_0 = recoTauValidation.clone(cutIDs_wp = [0, -1, -1])
+recoTauValidation_cutWPVsJet_1 = recoTauValidation.clone(cutIDs_wp = [1, -1, -1])
+recoTauValidation_cutWPVsJet_2 = recoTauValidation.clone(cutIDs_wp = [2, -1, -1])
+recoTauValidation_cutWPVsJet_3 = recoTauValidation.clone(cutIDs_wp = [3, -1, -1])
+
+recoTauValidation_cutIdVsJet_0p5 = recoTauValidation.clone(cutIDs_raw = [0.5, -1, -1])
+recoTauValidation_cutIdVsJet_0p7 = recoTauValidation.clone(cutIDs_raw = [0.7, -1, -1])
+recoTauValidation_cutIdVsJet_0p9 = recoTauValidation.clone(cutIDs_raw = [0.9, -1, -1])
+recoTauValidation_cutIdVsJet_0p95 = recoTauValidation.clone(cutIDs_raw = [0.95, -1, -1])
+recoTauValidation_cutIdVsJet_0p99 = recoTauValidation.clone(cutIDs_raw = [0.99, -1, -1])
+
+recoTauValidation_deltaR0p3 = recoTauValidation.clone(
+    minDeltaR = 0.3,
+    outFolder = "Tau/TauValidation_DeltaR/DeltaR0p3",
+)
+
+recoTauValidation_deltaR0p25 = recoTauValidation.clone(
+    minDeltaR = 0.25,
+    outFolder = "Tau/TauValidation_DeltaR/DeltaR0p25",
+)
+
+recoTauValidation_deltaR0p2 = recoTauValidation.clone(
+    minDeltaR = 0.2,
+    outFolder = "Tau/TauValidation_DeltaR/DeltaR0p2",
+)
+
+recoTauValidation_deltaR0p15 = recoTauValidation.clone(
+    minDeltaR = 0.15,
+    outFolder = "Tau/TauValidation_DeltaR/DeltaR0p15",
+)
+
+recoTauValidation_deltaR0p1 = recoTauValidation.clone(
+    minDeltaR = 0.1,
+    outFolder = "Tau/TauValidation_DeltaR/DeltaR0p1",
+)
+
+recoTauValidation_deltaR = cms.Sequence(
+    recoTauValidation_deltaR0p3 +
+    recoTauValidation_deltaR0p25 +
+    recoTauValidation_deltaR0p2 +
+    recoTauValidation_deltaR0p15 +
+    recoTauValidation_deltaR0p1
+)
+
+recoTauValidation_wp = cms.Sequence(
+    recoTauValidation_cutWPVsJet_0
+    + recoTauValidation_cutWPVsJet_1
+    + recoTauValidation_cutWPVsJet_2
+    + recoTauValidation_cutWPVsJet_3
+)
+
+recoTauValidation_id = cms.Sequence(
+    recoTauValidation_cutIdVsJet_0p5
+    + recoTauValidation_cutIdVsJet_0p7
+    + recoTauValidation_cutIdVsJet_0p9
+    + recoTauValidation_cutIdVsJet_0p95
+    + recoTauValidation_cutIdVsJet_0p99
+)
+
+
+recoTauValidationSequence = cms.Sequence(
+    recoTauValidation
+    # WP scanning
+    + recoTauValidation_wp
+    # ID scanning
+    + recoTauValidation_id
+    # DeltaR scanning
+    # + recoTauValidation_deltaR
+)
+
+# Old Run-3 validation, not maintained for Phase-2
+
 from Validation.RecoTau.dataTypes.ValidateTausOnRealData_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnRealElectronsData_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnRealMuonsData_cff import *

@@ -38,6 +38,7 @@ from Validation.RPCRecHits.rpcRecHitValidation_cfi import *
 from Validation.DTRecHits.DTRecHitQuality_cfi import *
 from Validation.CSCRecHits.cscRecHitValidation_cfi import *
 from Validation.RecoTau.DQMMCValidation_cfi import *
+from Validation.RecoTau.RecoTauValidation_cff import *
 from Validation.L1T.L1Validator_cfi import *
 from Validation.SiPixelPhase1ConfigV.SiPixelPhase1OfflineDQM_sourceV_cff import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
@@ -150,6 +151,15 @@ globalValidationJetMETonly = cms.Sequence(
 globalPrevalidationJetMETOnly = cms.Sequence(
       jetPreValidSeq
     + metPreValidSeq
+)
+
+globalPrevalidationTaus = cms.Sequence(
+    # produceDenoms
+)
+
+globalValidationTaus = cms.Sequence(
+    # pfTauRunDQMValidation
+    recoTauValidationSequence
 )
 
 # ECAL local reconstruction

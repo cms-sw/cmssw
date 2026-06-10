@@ -43,7 +43,7 @@ from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
 # Temporary Phase-2 configuration
 # Exclude everything except JetMET for now
-_phase2_hltpostvalidation =  hltpostvalidation.copyAndExclude([HLTTauPostVal,
+_phase2_hltpostvalidation =  hltpostvalidation.copyAndExclude([#HLTTauPostVal,
                                                                EgammaPostVal,
                                                                heavyFlavorValidationHarvestingSequence,
                                                                #HLTJetMETPostVal,
