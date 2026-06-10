@@ -55,6 +55,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
+  bool isConcurrentFinder() const override { return true; }
   std::map<unsigned short, unsigned short> clusterizeBadChannels(
       const std::vector<Phase2TrackerDigi::PackedDigiType>& maskedChannels);
 
