@@ -46,39 +46,42 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       const unsigned int nVertices = pfClusteringCCLabels.size();
 
-      for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
-        for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
-          const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
+      if (::cms::alpakatools::once_per_grid(acc)) {
+        const unsigned int blockDim = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u];
+        ALPAKA_ASSERT_ACC(blockDim % w_extent == 0u);
+      }
 
-          const unsigned int vertex_idx = idx.global;
-          const unsigned int rep_idx = pfClusteringCCLabels[vertex_idx].mdpf_topoId();
+      for (auto idx : ::cms::alpakatools::uniform_elements(acc, nVertices)) {
+        const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
 
-          // Load rhfrac sizes (to compute offsets for rechit fractions):
-          const unsigned int rhf_size = pfCluster[vertex_idx].rhfracSize();
+        const unsigned int vertex_idx = idx;
+        const unsigned int rep_idx = pfClusteringCCLabels[vertex_idx].mdpf_topoId();
 
-          const unsigned int lane_idx = idx.local % w_extent;
+        // Load rhfrac sizes (to compute offsets for rechit fractions):
+        const unsigned int rhf_size = pfCluster[vertex_idx].rhfracSize();
 
-          const warp::warp_mask_t subcomp_mask = warp::match_any_mask(acc, active_lanes_mask, rep_idx);
+        const unsigned int lane_idx = idx % w_extent;
 
-          const unsigned int subcomp_rep_idx = get_ls1b_idx(acc, subcomp_mask);
+        const warp::warp_mask_t subcomp_mask = warp::match_any_mask(acc, active_lanes_mask, rep_idx);
 
-          unsigned int subcomp_rhf_offset = warp_sparse_exclusive_sum(acc, subcomp_mask, rhf_size, lane_idx);
+        const unsigned int subcomp_rep_idx = get_ls1b_idx(acc, subcomp_mask);
 
-          unsigned int relative_rhf_offset_stub = 0;
+        unsigned int subcomp_rhf_offset = warp_sparse_exclusive_sum(acc, subcomp_mask, rhf_size, lane_idx);
 
-          if (lane_idx == subcomp_rep_idx) {
-            // Remark: exclusive sum returns total number of elements
-            // (i.e., subcomponent rhf size) for the lowest lane idx in the mask.
-            relative_rhf_offset_stub =
-                alpaka::atomicAdd(acc, &args[rep_idx].ccRHFSize(), subcomp_rhf_offset, alpaka::hierarchy::Blocks{});
-            subcomp_rhf_offset = 0;  // we need to reset local offset for local rep lane.
-          }
+        unsigned int relative_rhf_offset_stub = 0;
 
-          const unsigned int relative_rhf_offset =
-              warp::shfl_mask(acc, subcomp_mask, relative_rhf_offset_stub, subcomp_rep_idx, w_extent);
-          //connected comp rhf offsets for all vertices:
-          args[vertex_idx].ccRHFOffset() = relative_rhf_offset + subcomp_rhf_offset;  // store relative offsets
+        if (lane_idx == subcomp_rep_idx) {
+          // Remark: exclusive sum returns total number of elements
+          // (i.e., subcomponent rhf size) for the lowest lane idx in the mask.
+          relative_rhf_offset_stub =
+              alpaka::atomicAdd(acc, &args[rep_idx].ccRHFSize(), subcomp_rhf_offset, alpaka::hierarchy::Blocks{});
+          subcomp_rhf_offset = 0;  // we need to reset local offset for local rep lane.
         }
+
+        const unsigned int relative_rhf_offset =
+            warp::shfl_mask(acc, subcomp_mask, relative_rhf_offset_stub, subcomp_rep_idx, w_extent);
+        //connected comp rhf offsets for all vertices:
+        args[vertex_idx].ccRHFOffset() = relative_rhf_offset + subcomp_rhf_offset;  // store relative offsets
       }
     }
   };
@@ -131,6 +134,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       unsigned int& localNComponents = alpaka::declareSharedVar<unsigned int, __COUNTER__>(acc);
       unsigned int& isLastBlockDone = alpaka::declareSharedVar<unsigned int, __COUNTER__>(acc);
       unsigned int& topo_block_offset = alpaka::declareSharedVar<unsigned int, __COUNTER__>(acc);
+
+      // Warning: This algorithm relies on thread-private variables (vertex_idx, rep_idx)
+      // For correctness on non-GPU architectures, the launch parameters
+      // must guarantee that these variables remain private to each thread.
 
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
         if (::cms::alpakatools::once_per_block(acc)) {
