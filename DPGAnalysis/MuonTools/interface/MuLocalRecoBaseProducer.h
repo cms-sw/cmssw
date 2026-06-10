@@ -22,7 +22,7 @@
 
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
 #include <algorithm>
