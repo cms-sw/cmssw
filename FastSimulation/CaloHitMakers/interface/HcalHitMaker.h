@@ -5,11 +5,7 @@
 #include "FastSimulation/CaloHitMakers/interface/CaloHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-
-//#include "Math/GenVector/Transform3D.h"
-#include "FastSimulation/CaloGeometryTools/interface/Transform3DPJ.h"
-
-//#include <boost/cstdint.hpp>
+#include "Math/Transform3D.h"
 
 class CaloGeometryHelper;
 
@@ -17,7 +13,7 @@ class HcalHitMaker : public CaloHitMaker {
 public:
   typedef math::XYZVector XYZVector;
   typedef math::XYZVector XYZPoint;
-  typedef ROOT::Math::Transform3DPJ Transform3D;
+  typedef ROOT::Math::Transform3D Transform3D;
 
   HcalHitMaker(EcalHitMaker&, unsigned);
   ~HcalHitMaker() override { ; }
@@ -52,9 +48,6 @@ private:
 
 public:
   static int getSubHcalDet(const FSimTrack* t) {
-    //	std::cout << " getSubHcalDet " << std::endl;
-    // According to  DataFormats/ HcalDetId/ interface/ HcalSubdetector.h
-    //	std::cout << " onHcal " << t->onHcal() << " onVFcal " << t->onVFcal() << std::endl;
     if (t->onHcal() == 1)
       return HcalBarrel;
     if (t->onHcal() == 2)

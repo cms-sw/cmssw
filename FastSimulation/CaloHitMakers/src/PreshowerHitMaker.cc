@@ -11,7 +11,7 @@
 #include <cmath>
 
 typedef ROOT::Math::Plane3D Plane3D;
-typedef ROOT::Math::Transform3DPJ::Point Point;
+typedef ROOT::Math::Transform3D::Point Point;
 
 // LandauFluctuationGenerator PreshowerHitMaker::theGenerator=LandauFluctuationGenerator();
 

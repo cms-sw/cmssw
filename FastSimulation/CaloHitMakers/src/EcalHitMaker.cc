@@ -13,15 +13,15 @@
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer2Properties.h"
 #include "FastSimulation/CalorimeterProperties/interface/HCALProperties.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
-#include "FastSimulation/CaloGeometryTools/interface/Transform3DPJ.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Math/Transform3D.h"
 
 #include <algorithm>
 #include <cmath>
 
 typedef ROOT::Math::Plane3D::Vector Vector;
 typedef ROOT::Math::Plane3D::Point Point;
-typedef ROOT::Math::Transform3DPJ Transform3DR;
+typedef ROOT::Math::Transform3D Transform3D;
 
 EcalHitMaker::EcalHitMaker(const CaloGeometryHelper* theCalo,
                            const XYZPoint& ecalentrance,
@@ -692,12 +692,12 @@ bool EcalHitMaker::getPads(double depth, bool inCm) {
 
   unsigned nquads = 0;
   double sign = (central_) ? -1. : 1.;
-  Transform3DR trans((Point)origin,
-                     (Point)(origin + normal_),
-                     (Point)(origin + newaxis),
-                     Point(0, 0, 0),
-                     Point(0., 0., sign),
-                     Point(0., 1., 0.));
+  Transform3D trans((Point)origin,
+                    (Point)(origin + normal_),
+                    (Point)(origin + newaxis),
+                    Point(0, 0, 0),
+                    Point(0., 0., sign),
+                    Point(0., 1., 0.));
   for (unsigned ic = 0; ic < ncrystals_; ++ic) {
     XYZPoint a, b;
     double dummyt;
