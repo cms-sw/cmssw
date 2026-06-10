@@ -511,7 +511,9 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     int32_t cand_idx = -1;
     float shared_energy = 0.;
     // take the SimTrackster used to build SimTICLCandidate ("base" ie CaloParticle one) and find simToReco-associated reco "ticlCandidate" tracksters (assume 1-1 mapping SimTICLCandidate-SimTrackster)
-    assert(i < (int)mergeTsSimToRecoMap.size());
+    if (i >= (int)mergeTsSimToRecoMap.size())
+      throw cms::Exception("LogicError") << "Mismatch between SimTICLCandidate index and SimTrackster index. Most "
+                                            "likely mismatched collections were given as inputs.";
     const auto& ts_vec = mergeTsSimToRecoMap[i];
     if (!ts_vec.empty()) {
       auto min_elem =

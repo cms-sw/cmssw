@@ -2218,9 +2218,9 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(
     std::vector<size_t> const& cPIndices,
     std::vector<size_t> const& cPSelectedIndices,
     std::unordered_map<DetId, const unsigned int> const& hitMap,
-    std::map<double, double> cummatbudg,
+    std::map<double, double> const& cummatbudg,
     unsigned int layers,
-    std::vector<int> thicknesses,
+    std::vector<int> const& thicknesses,
     const ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>& cpsInLayerClusterMap,
     const ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>& cPOnLayerMap,
     edm::MultiSpan<HGCRecHit> const& hits) const {
@@ -2239,7 +2239,7 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(
   std::map<std::string, int> tnlcpthminus;
   tnlcpthminus.clear();
   //At the beginning of the event all layers should be initialized to zero total clusters per thickness
-  for (std::vector<int>::iterator it = thicknesses.begin(); it != thicknesses.end(); ++it) {
+  for (std::vector<int>::const_iterator it = thicknesses.begin(); it != thicknesses.end(); ++it) {
     tnlcpthplus.insert(std::pair<std::string, int>(std::to_string(*it), 0));
     tnlcpthminus.insert(std::pair<std::string, int>(std::to_string(*it), 0));
   }
@@ -2465,7 +2465,8 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(
 
     //Energy clustered per layer
     tecpl[layerid] = tecpl[layerid] + lc_en;
-    ldbar[layerid] = ldbar[layerid] + lc_en * cummatbudg[(double)lay];
+    ldbar[layerid] =
+        ldbar[layerid] + lc_en * (cummatbudg.find((double)lay) != cummatbudg.end() ? cummatbudg.at((double)lay) : 0.);
 
   }  //end of loop through clusters of the event
 
@@ -2507,7 +2508,7 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(
   }  //end of loop over layers
 
   //Per thickness
-  for (std::vector<int>::iterator it = thicknesses.begin(); it != thicknesses.end(); ++it) {
+  for (std::vector<int>::const_iterator it = thicknesses.begin(); it != thicknesses.end(); ++it) {
     if (histograms.h_clusternum_perthick.count(*it)) {
       histograms.h_clusternum_perthick.at(*it)->Fill(tnlcpthplus[std::to_string(*it)]);
       histograms.h_clusternum_perthick.at(*it)->Fill(tnlcpthminus[std::to_string(*it)]);

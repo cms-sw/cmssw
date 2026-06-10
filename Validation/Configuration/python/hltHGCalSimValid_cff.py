@@ -1,13 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimCalorimetry.HGCalAssociatorProducers.LCToSCAssociation_cff import scAssocByEnergyScoreProducer as _scAssocByEnergyScoreProducer, layerClusterSimClusterAssociationProducer as _layerClusterSimClusterAssociationProducer, layerClusterBoundaryTrackSimClusterAssociationProducer as _layerClusterBoundaryTrackSimClusterAssociationProducer, layerClusterCaloParticleSimClusterAssociationProducer as _layerClusterCaloParticleSimClusterAssociationProducer
-
 from SimCalorimetry.HGCalAssociatorProducers.SimClusterToCaloParticleAssociation_cfi import SimClusterToCaloParticleAssociation
 from SimCalorimetry.HGCalAssociatorProducers.TSToSimTSAssociation_cfi import  allTrackstersToSimTrackstersAssociationsByLCs as _allTrackstersToSimTrackstersAssociationsByLCs
 
 from Validation.HGCalValidation.HLT_TICLIterLabels_cff import hltTiclIterLabelsPSet as _hltTiclIterLabelsPSet
-
-from RecoLocalCalo.HGCalRecProducers.recHitMapProducer_cff import recHitMapProducer as _recHitMapProducer
 
 from Validation.Configuration.hltBarrelSimValid_cff import hltBarrelRecHitMapProducer as _hltBarrelRecHitMapProducer
 from Validation.Configuration.hltBarrelSimValid_cff import barrel_hits
@@ -32,7 +28,6 @@ hltAllLayerClusterToTracksterAssociations = _AllLayerClusterToTracksterAssociato
     layer_clusters = cms.InputTag("hltMergeLayerClusters"),
     tracksterCollections = cms.VInputTag(
         *[cms.InputTag(label) for label in _hltTiclIterLabelsPSet.labels],
-        # cms.InputTag("hltTiclSimTracksters", "fromLegacySimCluster"),
         cms.InputTag("hltTiclSimTracksters", "fromBoundarySimCluster"),
         cms.InputTag("hltTiclSimTracksters", "fromCaloParticle"),
     )
@@ -45,7 +40,6 @@ hltAllTrackstersToSimTrackstersAssociationsByLCs = _allTrackstersToSimTracksters
         *[cms.InputTag(label) for label in _hltTiclIterLabelsPSet.labels]
     ),
     simTracksterCollections = cms.VInputTag(
-        # cms.InputTag("hltTiclSimTracksters", "fromLegacySimCluster"),
         cms.InputTag("hltTiclSimTracksters", "fromBoundarySimCluster"),
         cms.InputTag("hltTiclSimTracksters", "fromCaloParticle"),
     ),
@@ -58,11 +52,6 @@ hltHitToSimClusterCaloParticleAssociator = _hitToSimClusterCaloParticleAssociato
     hitMap = 'hltHGCalRecHitMapProducer:hgcalRecHitMap',
     hits = 'hltHGCalRecHitMapProducer:RefProdVectorHGCRecHitCollection'
 )
-# hltHitToLegacySimClusterAssociator = _hitToSimClusterCaloParticleAssociator.clone(
-#     simClusters = cms.InputTag("mix", "MergedCaloTruth"),
-#     hitMap = 'hltHGCalRecHitMapProducer:hgcalRecHitMap',
-#     hits = 'hltHGCalRecHitMapProducer:RefProdVectorHGCRecHitCollection'
-# )
 hltHitToBoundarySimClusterAssociator = _hitToSimClusterCaloParticleAssociator.clone(
     simClusters = cms.InputTag("mix", "MergedCaloTruthBoundaryTrackSimCluster"),
     hitMap = 'hltHGCalRecHitMapProducer:hgcalRecHitMap',

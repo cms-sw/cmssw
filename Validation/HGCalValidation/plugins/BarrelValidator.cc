@@ -546,10 +546,6 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
     }
     ticl::TracksterCollection const& simTrackstersFromCPs = *simTracksterFromCPHandle;
 
-    // edm::Handle<std::map<uint, std::vector<uint>>> simTrackstersMapHandle;
-    // event.getByToken(simTrackstersMap_, simTrackstersMapHandle);
-    // const std::map<uint, std::vector<uint>>& cpToSc_SimTrackstersMap = *simTrackstersMapHandle;
-
     std::vector<edm::Handle<TracksterToTracksterMap>> tracksterToTracksterMapsHandles;
     for (const auto& token : tracksterToTracksterAssociatorsTokens_) {
       edm::Handle<TracksterToTracksterMap> tracksterToTracksterMapHandle;

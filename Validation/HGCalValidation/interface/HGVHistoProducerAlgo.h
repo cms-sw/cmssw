@@ -324,9 +324,9 @@ public:
       std::vector<size_t> const& cPIndices,
       std::vector<size_t> const& cPSelectedIndices,
       std::unordered_map<DetId, const unsigned int> const& hitMap,
-      std::map<double, double> cummatbudg,
+      std::map<double, double> const& cummatbudg,
       unsigned int layers,
-      std::vector<int> thicknesses,
+      std::vector<int> const& thicknesses,
       // reco-sim collection to CaloParticles (as SimCluster dataformat)
       const ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>& recSimColl,
       const ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>& simRecColl,
