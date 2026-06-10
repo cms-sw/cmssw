@@ -97,17 +97,16 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
           (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell) || (php.mode_ == HGCalGeometryMode::Hexagon8FineCell)) {
         php.useSimWt_ = static_cast<int>(getDDDValue("UseSimWt", sv));
         php.layerRotation_ = getDDDValue("LayerRotation", sv);
-        php.coldBoxMode_= static_cast<int>(getDDDValue("ColdBoxMode", sv));
-        if (php.coldBoxMode_ > 0) {                    // Cold Box
-          for (unsigned int k = 0; k < 20; k++) {  
-	    std::string sLRot = "LayerRotation"+std::to_string(k+1);
-	    php.coldBoxRots_.push_back(getDDDValue(sLRot.c_str(), sv));
+        php.coldBoxMode_ = static_cast<int>(getDDDValue("ColdBoxMode", sv));
+        if (php.coldBoxMode_ > 0) {  // Cold Box
+          for (unsigned int k = 0; k < 20; k++) {
+            std::string sLRot = "LayerRotation" + std::to_string(k + 1);
+            php.coldBoxRots_.push_back(getDDDValue(sLRot.c_str(), sv));
 #ifdef EDM_ML_DEBUG
-	    edm::LogVerbatim("HGCalGeom") << "HGParameterFromDD rots[" << k << "] " << php.coldBoxRots_[k];
+            edm::LogVerbatim("HGCalGeom") << "HGParameterFromDD rots[" << k << "] " << php.coldBoxRots_[k];
 #endif
           }
         }
-
       }
       if ((php.mode_ == HGCalGeometryMode::Hexagon8CalibCell) || (php.mode_ == HGCalGeometryMode::Hexagon8FineCell)) {
       }
