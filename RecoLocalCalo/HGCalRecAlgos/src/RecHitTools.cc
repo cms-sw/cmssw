@@ -109,8 +109,8 @@ void RecHitTools::setGeometry(const CaloGeometry& geom) {
       wmaxFH = (geomFH->topology().dddConstants()).waferCount(0);
       fhLastLayer_ = fhOffset_ + (geomFH->topology().dddConstants()).lastLayer(true);
     } else {
-      fhOffset_=0;
-      fhLastLayer_ =0;
+      fhOffset_ = 0;
+      fhLastLayer_ = 0;
     }
     auto geomBH = static_cast<const HGCalGeometry*>(
         geom_->getSubdetectorGeometry(DetId::HGCalHSc, ForwardSubdetector::ForwardEmpty));
@@ -137,8 +137,8 @@ void RecHitTools::setGeometry(const CaloGeometry& geom) {
       fhOffset_ = (geomFH->topology().dddConstants()).getLayerOffset();
       fhLastLayer_ = fhOffset_ + (geomFH->topology().dddConstants()).layers(true);
     } else {
-      fhOffset_=0;
-      fhLastLayer_ =0;
+      fhOffset_ = 0;
+      fhLastLayer_ = 0;
     }
     bhOffset_ = fhLastLayer_;
     bhFirstLayer_ = bhOffset_ + 1;
