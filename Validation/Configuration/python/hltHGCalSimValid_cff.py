@@ -23,7 +23,6 @@ from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
                                        )
 
 from SimCalorimetry.HGCalAssociatorProducers.AllLayerClusterToTracksterAssociatorsProducer_cfi import AllLayerClusterToTracksterAssociatorsProducer as _AllLayerClusterToTracksterAssociatorsProducer
-
 hltAllLayerClusterToTracksterAssociations = _AllLayerClusterToTracksterAssociatorsProducer.clone(
     layer_clusters = cms.InputTag("hltMergeLayerClusters"),
     tracksterCollections = cms.VInputTag(
@@ -45,7 +44,6 @@ hltAllTrackstersToSimTrackstersAssociationsByLCs = _allTrackstersToSimTracksters
     ),
 )
 
-# from SimCalorimetry.HGCalAssociatorProducers.AllTracksterToSimTracksterAssociatorsByHitsProducer_cfi import AllTracksterToSimTracksterAssociatorsByHitsProducer as _AllTracksterToSimTracksterAssociatorsByHitsProducer
 from SimCalorimetry.HGCalAssociatorProducers.hitToSimClusterCaloParticleAssociator_cfi import hitToSimClusterCaloParticleAssociator as _hitToSimClusterCaloParticleAssociator
 hltHitToSimClusterCaloParticleAssociator = _hitToSimClusterCaloParticleAssociator.clone(
     simClusters = cms.InputTag("mix", "MergedCaloTruthCaloParticle"), # CaloParticle but in SimCluster dataformat
@@ -61,7 +59,6 @@ hltHitToBoundarySimClusterAssociator = _hitToSimClusterCaloParticleAssociator.cl
 
 
 from SimCalorimetry.HGCalAssociatorProducers.AllHitToTracksterAssociatorsProducer_cfi import AllHitToTracksterAssociatorsProducer as _AllHitToTracksterAssociatorsProducer
-
 hltAllHitToTracksterAssociations =  _AllHitToTracksterAssociatorsProducer.clone(
     hitMapTag = cms.InputTag("hltHGCalRecHitMapProducer","hgcalRecHitMap"),
     hits = cms.InputTag("hltHGCalRecHitMapProducer", "RefProdVectorHGCRecHitCollection"),
