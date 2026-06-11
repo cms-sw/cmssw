@@ -52,7 +52,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
  * @param pfRecHit            Input PF rec hit device collection.
  */
 
-  template <unsigned int max_w_items = 32, bool is_cooperative = false>
+  template <unsigned int max_w_items = 32, bool is_cooperative = true>
   class ECLCCFinalizeEpilogueKernel {
   public:
     ALPAKA_FN_ACC void operator()(
