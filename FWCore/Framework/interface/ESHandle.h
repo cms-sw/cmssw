@@ -64,7 +64,7 @@ namespace edm {
       }
       return data_;
     }
-    static void throwIfDataNotAvailable();
+    [[noreturn]] static void throwIfDataNotAvailable();
 
   private:
     // ---------- member data --------------------------------
