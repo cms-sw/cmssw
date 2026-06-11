@@ -70,9 +70,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       auto& viewSCs = hostProductSCs.view();
       auto& viewSeeds = hostProductSeeds.view();
 
-      std::cout << " -----> Collection sizes SCs: " << superClusterCollectionSize << " & Seeds " << seedCollectionSize
-                << std::endl;
-
       int32_t i = 0;
       for (auto& superClusRef : superClusterRefVec) {
         viewSCs[i].id() = i;
