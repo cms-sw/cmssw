@@ -6,6 +6,7 @@
 #define RecoEgamma_EgammaElectronAlgos_interface_helixArbitraryPlaneCrossing2Order_h
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/Plane.h"
+#include "RecoEgamma/EgammaElectronAlgos/interface/helixBarrelPlaneCrossingByCircle.h"
 #include <cmath>
 #include <cfloat>
 
