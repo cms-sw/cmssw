@@ -136,15 +136,16 @@ The script also handles the common and forward elements of the geometry:
 * F9: same as F8 after removing overlap in rotated shield
 
 Several detector combinations have been generated:
-* D104 = T35+C22+M14+I16+O9+F8
+* D104 = T35+C22+M14+I17+O9+F8
 * D110 = T35+C18+M14+I17+O9+F8
-* D111 = T36+C24+M14+I17+O9+F8
-* D112 = T37+C24+M14+I17+O9+F8
-* D113 = T38+C24+M14+I17+O9+F8
-* D114 = T39+C19+M14+I17+O9+F8
-* D120 = T35+C26+M16+I20+O10+F9
+* D111 = T36+C25+M15+I17+O10+F9
+* D112 = T37+C25+M15+I17+O10+F9
+* D113 = T38+C25+M15+I17+O10+F9
+* D114 = T39+C25+M15+I17+O10+F9
+* D115 = T35+C20+M14+I17+O9+F8
+* D120 = T35+C26+M16+I20+O11+F9
 * D121 = T35+C25+M16+I18+O10+F9  (Current Phase-2 baseline from CMSSW_15_1_0_pre4)
-* D122 = T35+C27+M16+I18+O10+F9
-* D123 = T35+C28+M16+I18+O10+F9
+* D122 = T35+C27+M16+I18+O11+F9
+* D123 = T35+C28+M16+I18+O11+F9
 * D124 = T35+C25+M16+I21+O10+F9
 * D125 = T35+C25+M16+I22+O10+F9
