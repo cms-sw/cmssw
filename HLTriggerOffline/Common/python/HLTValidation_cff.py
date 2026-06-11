@@ -46,7 +46,6 @@ from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
 
 # online dqm:
 from DQMOffline.Trigger.HLTMonTau_cfi import *
-from PhysicsTools.JetMCAlgos.TauGenJetsDecayModeSelectorAllHadrons_cfi import *
 
 # additional producer sequence prior to hltvalidation
 # to evacuate producers/filters from the EndPath
@@ -57,7 +56,6 @@ hltassociation = cms.Sequence(
     +ExoticaValidationProdSeq
     +hltMultiTrackValidationGsfTracks
     +hltJetPreValidSeq
-    +tauGenJetsSelectorAllHadrons
     )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
@@ -76,6 +74,9 @@ _phase2_hltassociation += hltTrackerphase2ValidationSource
 
 # Add HGCal SimTracksters
 _phase2_hltassociation += hltTiclSimTrackstersSeq
+
+# Add gentau reference for validation
+_phase2_hltassociation += tauPreValidSeq
 
 # Apply the modification
 phase2_common.toReplaceWith(hltassociation, _phase2_hltassociation)
