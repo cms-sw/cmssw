@@ -56,12 +56,14 @@
  <class name="edm::ProductRegistry::Transients" ClassVersion="0"/>
  <class name="std::map<edm::BranchKey,edm::BranchDescription>"/>
  <class name="std::pair<edm::BranchKey,edm::BranchDescription>"/>
+ <class name="std::__pair_base<edm::BranchKey,edm::BranchDescription>"/> <!-- this was visible in header parsing -->
  <class name="edm::BranchKey" ClassVersion="10">
   <version ClassVersion="10" checksum="3014148246"/>
  </class>
  <class name="std::set<edm::BranchID>"/>
  <class name="std::map<edm::BranchID, std::set<edm::BranchID> >"/>
  <class name="std::pair<edm::BranchID, std::set<edm::BranchID> >"/>
+ <class name="std::__pair_base<edm::BranchID, std::set<edm::BranchID> >"/> <!-- this was visible in header parsing -->
  <class name="std::vector<edm::BranchID>"/>
  <class name="std::vector<edm::ProductID>"/>
  <class name="edm::VecArray<edm::ProductID, 2>"/>
@@ -156,6 +158,7 @@
  <class name="std::vector<std::vector<edm::ParameterSetID > >"/>
  <class name="std::map<edm::ParameterSetID,edm::ParameterSetBlob>"/>
  <class name="std::pair<edm::ParameterSetID,edm::ParameterSetBlob>"/>
+ <class name="std::__pair_base<edm::ParameterSetID,edm::ParameterSetBlob>"/> <!-- this was visible in header parsing -->
  <class name="edm::ProcessConfigurationID"/>
  <class name="std::vector<edm::ProcessConfigurationID>"/>
  <class name="edm::ParentageID"/>

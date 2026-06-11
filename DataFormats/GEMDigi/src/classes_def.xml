@@ -5,6 +5,7 @@
  <version ClassVersion="11" checksum="1310457745"/>
 </class>
 <class name="std::vector<GEMDigi>"/>
+<class name="std::pair<GEMDetId,std::vector<GEMDigi> >"/>
 <class name="std::map<GEMDetId,std::vector<GEMDigi> >"/>
 <class name="MuonDigiCollection<GEMDetId,GEMDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMDigi> >" splitLevel="0"/> 
@@ -14,6 +15,7 @@
  <version ClassVersion="12" checksum="3838591655"/>
 </class>
 <class name="std::vector<GEMPadDigi>"/>
+<class name="std::pair<GEMDetId,std::vector<GEMPadDigi> >"/>
 <class name="std::map<GEMDetId,std::vector<GEMPadDigi> >"/>
 <class name="MuonDigiCollection<GEMDetId,GEMPadDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMPadDigi> >" splitLevel="0"/> 
@@ -22,6 +24,7 @@
  <version ClassVersion="10" checksum="2569340006"/>
 </class>
 <class name="std::vector<GEMPadDigiCluster>"/>
+<class name="std::pair<GEMDetId,std::vector<GEMPadDigiCluster> >"/>
 <class name="std::map<GEMDetId,std::vector<GEMPadDigiCluster> >"/>
 <class name="MuonDigiCollection<GEMDetId,GEMPadDigiCluster>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMPadDigiCluster> >" splitLevel="0"/> 
