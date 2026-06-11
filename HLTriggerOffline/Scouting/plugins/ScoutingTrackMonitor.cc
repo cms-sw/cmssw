@@ -5,6 +5,9 @@
 #include <fmt/format.h>
 #include <boost/range/adaptor/indexed.hpp>
 
+// ROOT includes
+#include "TMath.h"
+
 // user includes
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -150,7 +153,15 @@ private:
   MonitorElement* p_dz_phi;
   MonitorElement* p2_dz_eta_phi;
 
-  MonitorElement *bsX, *bsY, *bsZ, *bsSigmaZ, *bsDxdz, *bsDydz, *bsBeamWidthX, *bsBeamWidthY, *bsType;
+  MonitorElement* h_vr;  // production radius for all tracks
+  MonitorElement* h_vz;  // productio  z for all tracks
+
+  // beamspot histograms
+  MonitorElement *h_bsX, *h_bsY, *h_bsZ, *h_bsSigmaZ, *h_bsDxdz, *h_bsDydz, *h_bsBeamWidthX, *h_bsBeamWidthY, *h_bsType;
+
+  // vertex histograms
+  MonitorElement *h_vtx_chi2ndf, *h_vtx_prob;
+  MonitorElement *h_vtx_sumPt2, *h_vtx_nTracks;
 
   // hit profiles configuration
   std::vector<ProfileConfig> hitProfiles_;
@@ -200,15 +211,15 @@ ScoutingTrackMonitor::ScoutingTrackMonitor(const edm::ParameterSet& iConfig)
       verticesToken_{consumes<std::vector<Run3ScoutingVertex>>(iConfig.getParameter<edm::InputTag>("vertices"))},
       beamSpotToken_{consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotLabel"))},
       topFolderName_{iConfig.getParameter<std::string>("topFolderName")},
-      bsX(nullptr),
-      bsY(nullptr),
-      bsZ(nullptr),
-      bsSigmaZ(nullptr),
-      bsDxdz(nullptr),
-      bsDydz(nullptr),
-      bsBeamWidthX(nullptr),
-      bsBeamWidthY(nullptr),
-      bsType(nullptr) {
+      h_bsX(nullptr),
+      h_bsY(nullptr),
+      h_bsZ(nullptr),
+      h_bsSigmaZ(nullptr),
+      h_bsDxdz(nullptr),
+      h_bsDydz(nullptr),
+      h_bsBeamWidthX(nullptr),
+      h_bsBeamWidthY(nullptr),
+      h_bsType(nullptr) {
   hitProfiles_ = {{"nValidPixelHits", "nValidPixelHits", 0., 10.},
                   {"nTrackerLayersWithMeasurement", "nTrackerLayersWithMeasurement", 0., 20.},
                   {"nValidStripHits", "nValidStripHits", 0., 30.}};
@@ -225,10 +236,21 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
 
   h_vtx_idx = ibooker.book1DD("vertexIndex", "tracks Vertex Index;Vertex index;Tracks", 17, -1.5, 15.5);
 
+  h_vtx_sumPt2 =
+      ibooker.book1DD("vtxSumPt2", "Vertex #Sigma p_{T}^{2};#Sigma p_{T}^{2} [GeV^{2}];Vertices", 100, 0., 10000.);
+
+  h_vtx_nTracks = ibooker.book1DD("vtxNTracks", "Tracks per vertex;N_{tracks};Vertices", 50, -0.5, 49.5);
+
   // 2D eta-phi occupancy histograms
   h2_eta_phi = ibooker.book2I(
       "eta_vs_phi", "Track occupancy;#eta;#phi [rad]", 50, -3.0, 3.0, 50, -std::numbers::pi, std::numbers::pi);
   h2_eta_phi->setOption("colz");
+
+  h_vtx_chi2ndf = ibooker.book1DD("vtxChi2ndf", "PV #chi^{2}/ndof", 100, 0., 20.);
+  h_vtx_prob = ibooker.book1DD("vtxChi2prob", "PV #chi^{2} probability", 100, 0., 1.);
+
+  h_vr = ibooker.book1DD("vr", "radius at DCA;r_{DCA} (cm);Tracks", 100, 0., 1.);
+  h_vz = ibooker.book1DD("vz", "z at DCA;z_{DCA} (cm);Tracks", 100, -30., 30.);
 
   // Profiles
   constexpr int nEtaBins = 50;
@@ -466,23 +488,22 @@ void ScoutingTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run c
   dz_pt10.bookIPMonitor(ibooker, conf_);
 
   // BeamSpot
-
   auto vposx = conf_.getParameter<double>("Xpos");
   auto vposy = conf_.getParameter<double>("Ypos");
 
-  bsX = ibooker.book1D("bsX", "BeamSpot x0", 100, vposx - 0.1, vposx + 0.1);
-  bsY = ibooker.book1D("bsY", "BeamSpot y0", 100, vposy - 0.1, vposy + 0.1);
-  bsZ = ibooker.book1D("bsZ", "BeamSpot z0", 100, -2., 2.);
-  bsSigmaZ = ibooker.book1D("bsSigmaZ", "BeamSpot sigmaZ", 100, 0., 10.);
-  bsDxdz = ibooker.book1D("bsDxdz", "BeamSpot dxdz", 100, -0.0003, 0.0003);
-  bsDydz = ibooker.book1D("bsDydz", "BeamSpot dydz", 100, -0.0003, 0.0003);
-  bsBeamWidthX = ibooker.book1D("bsBeamWidthX", "BeamSpot BeamWidthX", 500, 0., 15.);
-  bsBeamWidthY = ibooker.book1D("bsBeamWidthY", "BeamSpot BeamWidthY", 500, 0., 15.);
-  bsType = ibooker.book1D("bsType", "BeamSpot type", 4, -1.5, 2.5);
-  bsType->setBinLabel(1, "Unknown");
-  bsType->setBinLabel(2, "Fake");
-  bsType->setBinLabel(3, "LHC");
-  bsType->setBinLabel(4, "Tracker");
+  h_bsX = ibooker.book1D("bsX", "BeamSpot x0", 100, vposx - 0.1, vposx + 0.1);
+  h_bsY = ibooker.book1D("bsY", "BeamSpot y0", 100, vposy - 0.1, vposy + 0.1);
+  h_bsZ = ibooker.book1D("bsZ", "BeamSpot z0", 100, -2., 2.);
+  h_bsSigmaZ = ibooker.book1D("bsSigmaZ", "BeamSpot sigmaZ", 100, 0., 10.);
+  h_bsDxdz = ibooker.book1D("bsDxdz", "BeamSpot dxdz", 100, -0.0003, 0.0003);
+  h_bsDydz = ibooker.book1D("bsDydz", "BeamSpot dydz", 100, -0.0003, 0.0003);
+  h_bsBeamWidthX = ibooker.book1D("bsBeamWidthX", "BeamSpot BeamWidthX", 500, 0., 15.);
+  h_bsBeamWidthY = ibooker.book1D("bsBeamWidthY", "BeamSpot BeamWidthY", 500, 0., 15.);
+  h_bsType = ibooker.book1D("bsType", "BeamSpot type", 4, -1.5, 2.5);
+  h_bsType->setBinLabel(1, "Unknown");
+  h_bsType->setBinLabel(2, "Fake");
+  h_bsType->setBinLabel(3, "LHC");
+  h_bsType->setBinLabel(4, "Tracker");
 }
 
 void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooker, const edm::ParameterSet& config) {
@@ -505,7 +526,6 @@ void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
   PtMax_ = config.getParameter<double>("PtMax") * pTcut_;
 
   // 1D variables
-
   IP_ = iBooker.book1DD(fmt::format("d{}_pt{}", varname_, pTcut_),
                         fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_),
                         VarBin,
@@ -526,7 +546,6 @@ void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
       5.);
 
   // IP profiles
-
   IPVsPhi_ = iBooker.bookProfile(fmt::format("d{}VsPhi_pt{}", varname_, pTcut_),
                                  fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} VS track #phi", pTcut_, varname_),
                                  PhiBin_,
@@ -567,7 +586,6 @@ void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
   IPVsPt_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} (#mum)", pTcut_, varname_), 2);
 
   // IP error profiles
-
   IPErrVsPhi_ =
       iBooker.bookProfile(fmt::format("d{}ErrVsPhi_pt{}", varname_, pTcut_),
                           fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} error VS track #phi", pTcut_, varname_),
@@ -610,7 +628,6 @@ void ScoutingTrackMonitor::IPMonitoring::bookIPMonitor(DQMStore::IBooker& iBooke
   IPErrVsPt_->setAxisTitle(fmt::format("PV tracks (p_{{T}} > {} GeV) d_{{{}}} error (#mum)", pTcut_, varname_), 2);
 
   // 2D profiles
-
   IPVsEtaVsPhi_ = iBooker.bookProfile2D(
       fmt::format("d{}VsEtaVsPhi_pt{}", varname_, pTcut_),
       fmt::format("PV tracks (p_{{T}} > {}) d_{{{}}} VS track #eta VS track #phi", pTcut_, varname_),
@@ -666,15 +683,11 @@ bool ScoutingTrackMonitor::getValidHandle(const edm::Event& iEvent,
 void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   edm::Handle<std::vector<Run3ScoutingVertex>> primaryVerticesH;
   edm::Handle<std::vector<Run3ScoutingTrack>> tracksH;
-  edm::Handle<reco::BeamSpot> beamSpotHandle;
 
   if (!getValidHandle(iEvent, verticesToken_, primaryVerticesH, "primary vertices") ||
-      !getValidHandle(iEvent, tracksToken_, tracksH, "tracks") ||
-      !getValidHandle(iEvent, beamSpotToken_, beamSpotHandle, "beamspot")) {
+      !getValidHandle(iEvent, tracksToken_, tracksH, "tracks")) {
     return;
   }
-
-  iEvent.getByToken(beamSpotToken_, beamSpotHandle);
 
   // derefernce handles when it's safe to do so.
   auto const& tracks = *tracksH;
@@ -683,18 +696,31 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
   if (vertices.empty())
     return;
 
+  for (const auto& vtx : vertices) {
+    h_vtx_chi2ndf->Fill(vtx.chi2() / vtx.ndof());
+    h_vtx_prob->Fill(TMath::Prob(vtx.chi2(), vtx.ndof()));
+    const int scoutingTracksSize = static_cast<int>(vtx.tracksSize());
+    h_vtx_nTracks->Fill(scoutingTracksSize);
+  }
+
+  // --- Per-vertex accumulators (indexed by vertex index) ---
+  const unsigned int nVtx = vertices.size();
+  std::vector<double> vtxSumPt2(nVtx, 0.);
+  std::vector<unsigned int> vtxNTracks(nVtx, 0);
+
   for (const auto& trk : tracks) {
     // --- build reco track ---
     reco::Track recoTrk = makeRecoTrack(trk);
-    auto [vtxIndex, closestVtx] = findClosestScoutingVertex(&recoTrk, vertices);
-    if (!closestVtx)
-      continue;
 
-    // // initialize the impact parameters to large values
+    //auto [vtxIndex, closestVtx] = findClosestScoutingVertex(&recoTrk, vertices);
+    //if (!closestVtx)
+    //  continue;
+
+    // initialize the impact parameters to large values
     // std::pair<float, float> best_offset{9999.f, 99999.f};
 
     // // loop on all the vertices and find the closest one
-    // unsigned int vtxIndex = 999;
+    // unsigned int vtxIndex = 9999;
     // unsigned int idx = 0;
     // for (const auto& vtx : vertices) {
     //   const auto offset = trk_vtx_offSet(trk, vtx);
@@ -705,7 +731,19 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     //   idx++;
     // }
 
+    const unsigned int vtxIndex = static_cast<unsigned int>(trk.tk_vtxInd());
+    if (vtxIndex >= vertices.size())
+      continue;
+
+    const Run3ScoutingVertex* closestVtx = &vertices[vtxIndex];
     h_vtx_idx->Fill(vtxIndex);
+
+    // accumulate per-vertex quantities before filling per-track histos
+    if (vtxIndex < nVtx) {
+      const float pt = trk.tk_pt();
+      vtxSumPt2[vtxIndex] += pt * pt;
+      vtxNTracks[vtxIndex]++;
+    }
 
     const float eta = trk.tk_eta();
     const float phi = trk.tk_phi();
@@ -735,11 +773,29 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     // --- impact parameters (standard CMSSW definitions) ---
     float dxy = recoTrk.dxy(recoVtx.position()) * cmToUm;
     float dz = recoTrk.dz(recoVtx.position()) * cmToUm;
-    float dxyErr = recoTrk.dxyError() * cmToUm;
-    float dzErr = recoTrk.dzError() * cmToUm;
 
+    float dzErr = std::sqrt(recoTrk.dzError() * recoTrk.dzError() + recoVtx.zError() * recoVtx.zError()) * cmToUm;
+    float dxyErr = std::sqrt(recoTrk.dxyError() * recoTrk.dxyError() + recoVtx.xError() * recoVtx.xError() +
+                             recoVtx.yError() * recoVtx.yError()) *
+                   cmToUm;
+
+    // production radius from stored reference point
+    float vr = std::sqrt(trk.tk_vx() * trk.tk_vx() + trk.tk_vy() * trk.tk_vy());
+    h_vr->Fill(vr);
+    h_vz->Fill(trk.tk_vz());
+
+    // ---- impact parameters using offsets
     //float dxy = best_offset.first;
     //float dz = best_offset.second;
+
+    // --- impact parameters (directly from scouting) ---
+    //float dxy = trk.tk_dxy() * cmToUm;
+    //float dz = trk.tk_dz() * cmToUm;
+    //float dxyErr = trk.tk_dxy_Error() * cmToUm;
+    //float dzErr = trk.tk_dz_Error() * cmToUm;
+
+    //float dxyErr = recoTrk.dxyError() * cmToUm;
+    //float dzErr = recoTrk.dzError() * cmToUm;
 
     // --- fill histograms ---
     h_dxy->Fill(dxy);
@@ -806,6 +862,7 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     if (trk.tk_pt() < 1.)
       continue;
 
+    // dxy pT>1
     dxy_pt1.IP_->Fill(dxy);
     dxy_pt1.IPVsPhi_->Fill(phi, dxy);
     dxy_pt1.IPVsEta_->Fill(eta, dxy);
@@ -820,7 +877,6 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     dxy_pt1.IPErrVsEtaVsPhi_->Fill(eta, phi, dxyErr);
 
     // dz pT>1
-
     dz_pt1.IP_->Fill(dz);
     dz_pt1.IPVsPhi_->Fill(phi, dz);
     dz_pt1.IPVsEta_->Fill(eta, dz);
@@ -851,7 +907,7 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     dxy_pt10.IPErrVsPt_->Fill(pt, dxyErr);
     dxy_pt10.IPErrVsEtaVsPhi_->Fill(eta, phi, dxyErr);
 
-    // dxz pT>10
+    // dz pT>10
     dz_pt10.IP_->Fill(dz);
     dz_pt10.IPVsPhi_->Fill(phi, dz);
     dz_pt10.IPVsEta_->Fill(eta, dz);
@@ -866,18 +922,33 @@ void ScoutingTrackMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     dz_pt10.IPErrVsEtaVsPhi_->Fill(eta, phi, dzErr);
   }
 
-  // BeamSpot
-  reco::BeamSpot beamSpot = *beamSpotHandle;
+  // --- Per-vertex histograms ---
+  for (unsigned int i = 0; i < nVtx; ++i) {
+    if (vtxNTracks[i] == 0)
+      continue;
+    h_vtx_sumPt2->Fill(vtxSumPt2[i]);
+  }
 
-  bsX->Fill(beamSpot.x0());
-  bsY->Fill(beamSpot.y0());
-  bsZ->Fill(beamSpot.z0());
-  bsSigmaZ->Fill(beamSpot.sigmaZ());
-  bsDxdz->Fill(beamSpot.dxdz());
-  bsDydz->Fill(beamSpot.dydz());
-  bsBeamWidthX->Fill(beamSpot.BeamWidthX() * cmToUm);
-  bsBeamWidthY->Fill(beamSpot.BeamWidthY() * cmToUm);
-  bsType->Fill(beamSpot.type());
+  // BeamSpot
+  edm::Handle<reco::BeamSpot> beamSpotH;
+  std::unique_ptr<Run3ScoutingVertex> beamspotVertex{nullptr};
+  if (!getValidHandle(iEvent, beamSpotToken_, beamSpotH, "beamSpot")) {
+    return;
+  }
+
+  const auto& beamSpot = *beamSpotH;
+  beamspotVertex = std::make_unique<Run3ScoutingVertex>(
+      beamSpot.x0(), beamSpot.y0(), beamSpot.z0(), 0., 0., 0., 0., 0., true, 0., 0., 0., 0);
+
+  h_bsX->Fill(beamSpot.x0());
+  h_bsY->Fill(beamSpot.y0());
+  h_bsZ->Fill(beamSpot.z0());
+  h_bsSigmaZ->Fill(beamSpot.sigmaZ());
+  h_bsDxdz->Fill(beamSpot.dxdz());
+  h_bsDydz->Fill(beamSpot.dydz());
+  h_bsBeamWidthX->Fill(beamSpot.BeamWidthX() * cmToUm);
+  h_bsBeamWidthY->Fill(beamSpot.BeamWidthY() * cmToUm);
+  h_bsType->Fill(beamSpot.type());
 }
 
 // helper: build reco::Track
@@ -960,7 +1031,7 @@ void ScoutingTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("beamSpotLabel", edm::InputTag("hltOnlineBeamSpot"));
   desc.add<std::string>("topFolderName", "HLT/ScoutingOffline/Tracks");
   desc.add<double>("Xpos", 0.1);
-  desc.add<double>("Ypos", 0.0);
+  desc.add<double>("Ypos", -0.2);
   desc.add<int>("DxyBin", 100);
   desc.add<double>("DxyMin", -5000.0);
   desc.add<double>("DxyMax", 5000.0);
