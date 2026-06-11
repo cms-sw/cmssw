@@ -33,7 +33,6 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
 
   puppiWeightToken_ = consumes<edm::ValueMap<float>>(pSet.getParameter<edm::InputTag>("puppiWeight"));
 
-  //m_pfNames = {"allPFC", "neutralHadPFC", "chargedHadPFC", "electronPFC", "muonPFC", "gammaPFC", "hadHFPFC", "emHFPFC"};
   vertexTag_ = pSet.getParameter<edm::InputTag>("PVCollection");
   vertexToken_ = consumes<std::vector<reco::Vertex>>(edm::InputTag(vertexTag_));
 
@@ -59,11 +58,15 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   // Many of these are quite trivial, but this enables a simple way to include a
   // variety of observables on-the-fly.
   m_funcMap["pt"] = &getPt;
+  m_funcMap["logPt"] = &getLogPt;
   m_funcMap["energy"] = getEnergy;
   m_funcMap["eta"] = getEta;
   m_funcMap["abseta"] = getAbsEta;
   m_funcMap["phi"] = getPhi;
   m_funcMap["puppi"] = getPuppiWeight;
+  m_funcMap["puppiPt"] = getPuppiPt;
+  m_funcMap["logPuppiPt"] = getLogPuppiPt;
+  m_funcMap["puppiEta"] = getPuppiEta;
 
   m_funcMap["HCalE_depth1"] = getHcalEnergy_depth1;
   m_funcMap["HCalE_depth2"] = getHcalEnergy_depth2;
@@ -90,7 +93,6 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   m_funcMap["RelRawHCal_E"] = getRelRawHcalEnergy;
   m_funcMap["RelHO_E"] = getRelHOEnergy;
   m_funcMap["RelRawHO_E"] = getRelRawHOEnergy;
-
 
   m_funcMap["PFHad_calibration"] = getHadCalibration;
   m_funcMap["CellsInBlock"] = getCellsInBlock;
@@ -743,8 +745,6 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
 
-  //edm::Handle<reco::PFCandidateCollection> recoPfCollection;
-  //edm::Handle<std::vector<edm::FwdPtr<reco::PFCandidate>>> recoPfCollection;
   edm::Handle<CandView> recoPfCollection;
 
   edm::Handle<pat::PackedCandidateCollection> patPfCollection;
@@ -763,13 +763,8 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       return;
     }
     for (unsigned int i = 0; i < recoPfCollection->size(); i++) {
-      //pfCollection.push_back(recoPfCollection->at(i));
-      //reco::PFCandidate* cand =  (reco::PFCandidate*) (recoPfCollection->ptrAt(i).get());
-      //reco::PFCandidatePtr cand =  (reco::PFCandidate*) (recoPfCollection->ptrAt(i));
       reco::PFCandidatePtr cand = (reco::PFCandidatePtr)(recoPfCollection->ptrAt(i));
-      //pfCollection.push_back( recoPfCollection->ptrAt(i) );
       pfCollection.push_back(cand);
-      //pfCollection.push_back(*((*recoPfCollection)[i].ptr()));
     }
     numPFCands = recoPfCollection->size();
 
@@ -947,9 +942,7 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                                         npvString.c_str());
             map_of_MEs[m_directory + "/PFCinJet/allPFC_jetMatched_" + histName]->Fill(
                 m_funcMap[m_observableNames[i]](recoPF, packedCand, cand, partType, puppiWeight), eventWeight);
-              //std::cout << recoPF.get()->particleId() << "\t" << pfConstits[iConstit]->particleId() << std::endl;;
             if (partType == 0 && m_particleTypeName.find(recoPF.get()->particleId()) != m_particleTypeName.end()) {
-              //std::cout << recoPF.get()->particleId() << "\t" <<  m_particleTypeName[recoPF.get()->particleId()] << std::endl;
               map_of_MEs[m_directory + "/PFCinJet/" + m_particleTypeName[recoPF.get()->particleId()] + "_jetMatched_" +
                          histName]
                   ->Fill(m_funcMap[m_observableNames[i]](recoPF, packedCand, cand, partType, puppiWeight), eventWeight);
