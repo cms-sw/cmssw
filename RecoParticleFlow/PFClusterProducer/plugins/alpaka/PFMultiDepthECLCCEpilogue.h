@@ -130,7 +130,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
   };
 
-  template <unsigned int max_w_items = 32, bool is_cooperative = false>
+  template <unsigned int max_w_items = 32, bool is_cooperative = true>
   class ECLCCEpilogueKernel {
   public:
     ALPAKA_FN_ACC void operator()(

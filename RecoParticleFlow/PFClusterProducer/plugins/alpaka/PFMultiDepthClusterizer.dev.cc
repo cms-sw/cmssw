@@ -64,6 +64,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
     constexpr bool enable_multiblock_prologue = !std::is_same_v<Device, alpaka::DevCpu>;
     constexpr bool enable_multiblock_epilogue = !std::is_same_v<Device, alpaka::DevCpu>;
 
+#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
+    constexpr bool is_cooperative = std::is_same_v<Device, alpaka::DevCudaRt>;
+#else
+    constexpr bool is_cooperative = false;
+#endif
+
     const unsigned int wExtend = alpaka::getPreferredWarpSize(alpaka::getDev(queue));
 
     // For ROCm/CUDA backends, this should be a multiple of warp extent,
@@ -255,7 +261,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
 
         alpaka::exec<Acc1D>(queue,
                             ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
-                            ECLCCFinalizeEpilogueKernel<max_w_items>{},
+                            ECLCCFinalizeEpilogueKernel<max_w_items, is_cooperative>{},
                             outPFCluster.view(),
                             outPFRecHitFracs.view(),
                             epilogueArgs.view(),
@@ -276,7 +282,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
 
         alpaka::exec<Acc1D>(queue,
                             ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
-                            ECLCCFinalizeEpilogueKernel<max_w_items>{},
+                            ECLCCFinalizeEpilogueKernel<max_w_items, is_cooperative>{},
                             outPFCluster.view(),
                             outPFRecHitFracs.view(),
                             epilogueArgs.view(),
@@ -296,7 +302,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
 
         alpaka::exec<Acc1D>(queue,
                             ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
-                            ECLCCFinalizeEpilogueKernel<max_w_items>{},
+                            ECLCCFinalizeEpilogueKernel<max_w_items, is_cooperative>{},
                             outPFCluster.view(),
                             outPFRecHitFracs.view(),
                             epilogueArgs.view(),
@@ -324,13 +330,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
                             pfRecHitFracs.view(),
                             pfRecHit.view());
       } else {
-        constexpr bool cooperative_work = true;
         // ECL-CC epilogue:
         if (threadsPerBlock <= 256) {
           constexpr unsigned int max_w_items = 8;
           alpaka::exec<Acc1D>(queue,
                               ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
-                              ECLCCEpilogueKernel<max_w_items, cooperative_work>{},
+                              ECLCCEpilogueKernel<max_w_items, is_cooperative>{},
                               outPFCluster.view(),
                               outPFRecHitFracs.view(),
                               mdpfCCLabels.view(),
@@ -342,7 +347,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
           constexpr unsigned int max_w_items = 16;
           alpaka::exec<Acc1D>(queue,
                               ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
-                              ECLCCEpilogueKernel<max_w_items, cooperative_work>{},
+                              ECLCCEpilogueKernel<max_w_items, is_cooperative>{},
                               outPFCluster.view(),
                               outPFRecHitFracs.view(),
                               mdpfCCLabels.view(),
@@ -353,7 +358,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
           constexpr unsigned int max_w_items = 32;
           alpaka::exec<Acc1D>(queue,
                               ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),
-                              ECLCCEpilogueKernel<max_w_items, cooperative_work>{},
+                              ECLCCEpilogueKernel<max_w_items, is_cooperative>{},
                               outPFCluster.view(),
                               outPFRecHitFracs.view(),
                               mdpfCCLabels.view(),
