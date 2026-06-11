@@ -20,6 +20,22 @@ OutALCARECOTkAlHLTTracks_noDrop = cms.PSet(
     )
 )
 
+# PbPb customization
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+
+_pp_on_PbPb_run3_outputCommands = OutALCARECOTkAlHLTTracks_noDrop.outputCommands.copy()
+_pp_on_PbPb_run3_outputCommands.remove('keep *_hltPixelVertices_*_*')
+_pp_on_PbPb_run3_outputCommands.remove('keep *_hltVerticesPFFilter_*_*')
+_pp_on_PbPb_run3_outputCommands.extend([
+    'keep *_hltPixelVerticesPPOnAA_*_*',
+    'keep *_hltVerticesPFFilterPPOnAA_*_*',
+])
+
+pp_on_PbPb_run3.toModify(
+    OutALCARECOTkAlHLTTracks_noDrop,
+    outputCommands=_pp_on_PbPb_run3_outputCommands
+)
+
 # in Phase2, remove the SiStrip clusters and keep the OT ones instead
 _phase2_common_removedCommands = OutALCARECOTkAlHLTTracks_noDrop.outputCommands.copy()
 _phase2_common_removedCommands.remove('keep SiStripClusteredmNewDetSetVector_ALCARECOTkAlHLTTracks_*_*')
