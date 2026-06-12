@@ -1,5 +1,5 @@
-#include <tuple>
 #include <cmath>
+#include <tuple>
 
 #include "RecoTracker/LSTGeometry/interface/Common.h"
 #include "RecoTracker/LSTGeometry/interface/Slope.h"
@@ -7,7 +7,7 @@
 namespace lstgeometry {
 
   Slope::Slope(float dx, float dy, float dz) {
-    float dr = sqrt(dx * dx + dy * dy);
+    const float dr = std::sqrt(dx * dx + dy * dy);
     drdz = dz != 0 ? dr / dz : kDefaultSlope;
     dxdy = dy != 0 ? -dx / dy : kDefaultSlope;
   }

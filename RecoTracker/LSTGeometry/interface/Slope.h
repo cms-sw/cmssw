@@ -1,6 +1,7 @@
 #ifndef RecoTracker_LSTGeometry_interface_Slope_h
 #define RecoTracker_LSTGeometry_interface_Slope_h
 
+#include <tuple>
 #include <unordered_map>
 
 #include "RecoTracker/LSTGeometry/interface/Sensor.h"

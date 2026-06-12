@@ -58,9 +58,9 @@ process.dump = cms.EDAnalyzer(
     outputAsBinary = cms.untracked.bool(options.binaryOutput),
 )
 
-process.lstGeometryESProducer = _lstGeom.clone(ptCut = cms.double(options.ptCut))
+process.lstGeometryESProducer = _lstGeom.clone(ptCut=options.ptCut)
 process.dTask = cms.Task(process.lstGeometryESProducer)
-process.dSeq = cms.Sequence(process.dump,process.dTask)
+process.dSeq = cms.Sequence(process.dump, process.dTask)
 process.p = cms.Path(process.dSeq)
 
 print(f"Requesting LST geometry dump into directory: {options.outputDirectory}\n")

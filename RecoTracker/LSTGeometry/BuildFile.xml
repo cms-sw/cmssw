@@ -1,4 +1,3 @@
-<use name="boost_header"/>
 <use name="eigen"/>
 <use name="DataFormats/Common"/>
 <use name="Geometry/TrackerGeometryBuilder"/>

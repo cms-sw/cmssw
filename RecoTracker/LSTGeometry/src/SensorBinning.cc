@@ -43,8 +43,8 @@ namespace lstgeometry {
     float maxr = sensor.extra->maxR;
     float minz = sensor.extra->minZ;
     float maxz = sensor.extra->maxZ;
-    float mineta = -std::log(std::tan(std::atan2(minz > 0 ? maxr : minr, minz - zmin_bound) / 2.));
-    float maxeta = -std::log(std::tan(std::atan2(maxz > 0 ? minr : maxr, maxz - zmax_bound) / 2.));
+    float mineta = std::asinh((minz - zmin_bound) / (minz > 0 ? maxr : minr));
+    float maxeta = std::asinh((maxz - zmax_bound) / (maxz > 0 ? minr : maxr));
 
     if (maxeta < mineta)
       std::swap(maxeta, mineta);
@@ -70,26 +70,22 @@ namespace lstgeometry {
   BinnedDetIds binDetIds(Sensors const& sensors) {
     BinnedDetIds binned_detids;
 
-    // Initialize all vectors
-    for (unsigned int thetabin = 0; thetabin < kNThetaBins; thetabin++) {
-      for (unsigned int phibin = 0; phibin < kNPhiBins; phibin++) {
-        for (unsigned int layer = 1; layer <= kBarrelLayers; layer++) {
-          binned_detids[{Location::barrel, layer, thetabin, phibin}] = {};
-        }
-        for (unsigned int layer = 1; layer <= kEndcapLayers; layer++) {
-          binned_detids[{Location::endcap, layer, thetabin, phibin}] = {};
-        }
-      }
-    }
-
     for (auto const& [detid, sensor] : sensors) {
       if (!sensor.extra->lower)
         continue;
-      // We need to loop over all bins instead of using getThetaPhiBins because of the overlapping bins
-      for (unsigned int thetabin = 0; thetabin < kNThetaBins; thetabin++) {
-        for (unsigned int phibin = 0; phibin < kNPhiBins; phibin++) {
+      // Only the central bin and its direct neighbors can be touched by the overlapping bin windows.
+      auto [centerThetaBin, centerPhiBin] = getThetaPhiBins(sensor.extra->centerTheta, sensor.centerPhi);
+      for (int thetaOffset = -1; thetaOffset <= 1; ++thetaOffset) {
+        int thetaBin = static_cast<int>(centerThetaBin) + thetaOffset;
+        if (thetaBin < 0 || thetaBin >= static_cast<int>(kNThetaBins))
+          continue;
+        for (int phiOffset = -1; phiOffset <= 1; ++phiOffset) {
+          unsigned int phibin = static_cast<unsigned int>(
+              (static_cast<int>(centerPhiBin) + static_cast<int>(kNPhiBins) + phiOffset) % static_cast<int>(kNPhiBins));
+          unsigned int thetabin = static_cast<unsigned int>(thetaBin);
           if (isInThetaPhiBin(sensor.extra->centerTheta, sensor.centerPhi, thetabin, phibin)) {
-            binned_detids[{sensor.extra->location, sensor.extra->layer, thetabin, phibin}].push_back(detid);
+            binnedDetIdsAt(binned_detids, sensor.extra->location, sensor.extra->layer, thetabin, phibin)
+                .push_back(detid);
           }
         }
       }

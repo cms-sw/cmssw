@@ -43,20 +43,15 @@ namespace lstgeometry {
     SubDetector subdet;
     Location location;
     Side side;
-    unsigned int moduleId;
     unsigned int layer;
     unsigned int ring;
-    bool inverted;
     // Sensor-level properties
-    float centerRho;
-    float centerPhi;
     bool lower;
     bool strip;
 #ifndef LST_STANDALONE  // Extra data is not used in standalone, so it doesn't matter that there is a struct mismatch
     MatrixF4x3 corners;
 #endif
     // Redundant, but convenient to avoid repeated computations
-    float centerEta;
     float centerTheta;
     float minR;
     float maxR;

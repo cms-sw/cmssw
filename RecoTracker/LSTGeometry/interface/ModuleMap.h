@@ -1,8 +1,9 @@
-#ifndef RecoTracker_LSTGeometry_interface_ModuleMapMethods_h
-#define RecoTracker_LSTGeometry_interface_ModuleMapMethods_h
+#ifndef RecoTracker_LSTGeometry_interface_ModuleMap_h
+#define RecoTracker_LSTGeometry_interface_ModuleMap_h
 
-#include <vector>
+#include <array>
 #include <unordered_map>
+#include <vector>
 
 #include "RecoTracker/LSTGeometry/interface/Sensor.h"
 #include "RecoTracker/LSTGeometry/interface/SensorBinning.h"
@@ -13,8 +14,8 @@ namespace lstgeometry {
 
   ModuleMap buildModuleMap(Sensors const& sensors,
                            BinnedDetIds const& binned_detids,
-                           std::array<float, kBarrelLayers> const& average_r_barrel,
-                           std::array<float, kEndcapLayers> const& average_z_endcap,
+                           std::array<float, kBarrelLayers> const& averageRBarrel,
+                           std::array<float, kEndcapLayers> const& averageZEndcap,
                            float pt_cut);
 
 }  // namespace lstgeometry
