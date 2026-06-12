@@ -43,7 +43,9 @@ private:
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<l1t::MuonStubCollection> stubToken_;
-  edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> omtfTrackToken_;
+  edm::EDGetTokenT<l1t::SAMuonCollection> omtfconstrSAMsToken_;
+  edm::EDGetTokenT<l1t::SAMuonCollection> omtfunconstrSAMsToken_;
+
   edm::EDGetTokenT<l1t::phase2::EMTFTrackCollection> emtfTrackToken_;
 };
 //
@@ -59,7 +61,8 @@ private:
 //
 Phase2L1TGMTFwdMuonTranslator::Phase2L1TGMTFwdMuonTranslator(const edm::ParameterSet& iConfig)
     : stubToken_(consumes<l1t::MuonStubCollection>(iConfig.getParameter<edm::InputTag>("stubs"))),
-      omtfTrackToken_(consumes<l1t::RegionalMuonCandBxCollection>(iConfig.getParameter<edm::InputTag>("omtfTracks"))),
+      omtfconstrSAMsToken_(consumes<l1t::SAMuonCollection>(iConfig.getParameter<edm::InputTag>("omtfConstrSAMs"))),
+      omtfunconstrSAMsToken_(consumes<l1t::SAMuonCollection>(iConfig.getParameter<edm::InputTag>("omtfUnconstrSAMs"))),
       emtfTrackToken_(consumes<l1t::phase2::EMTFTrackCollection>(iConfig.getParameter<edm::InputTag>("emtfTracks"))) {
   produces<std::vector<l1t::SAMuon> >("prompt").setBranchAlias("prompt");
   produces<std::vector<l1t::SAMuon> >("displaced").setBranchAlias("displaced");
@@ -75,8 +78,11 @@ void Phase2L1TGMTFwdMuonTranslator::produce(edm::Event& iEvent, const edm::Event
   edm::Handle<l1t::phase2::EMTFTrackCollection> emtf_tracks;
   iEvent.getByToken(emtfTrackToken_, emtf_tracks);
 
-  edm::Handle<l1t::RegionalMuonCandBxCollection> omtf_tracks;
-  iEvent.getByToken(omtfTrackToken_, omtf_tracks);
+  edm::Handle<l1t::SAMuonCollection> omtf_constr_sams;
+  iEvent.getByToken(omtfconstrSAMsToken_, omtf_constr_sams);
+
+  edm::Handle<l1t::SAMuonCollection> omtf_unconstr_sams;
+  iEvent.getByToken(omtfunconstrSAMsToken_, omtf_unconstr_sams);
 
   // Process Stubs
   l1t::MuonStubRefVector stubs;
@@ -94,24 +100,17 @@ void Phase2L1TGMTFwdMuonTranslator::produce(edm::Event& iEvent, const edm::Event
   //  TODO: Will receive hybrid stubs from OMTF/EMTF
   std::vector<SAMuon> displaced;
 
-  // Convert OMTF Muons to SAMuons
-  for (unsigned int i = 0; i < omtf_tracks->size(0); ++i) {
-    const l1t::RegionalMuonCand& mu = omtf_tracks->at(0, i);
-    // Since OMTF is using Phase-1 LSB, will convert to SAMuon locally
-    // We should move to passing words in future
-    l1t::SAMuon samuon;
-    if (mu.hwPt() > 0) {
-      samuon = Convertl1tMuon(mu, 0);
-      //now associate the stubs
-      associateStubs(samuon, stubs);
-      prompt.push_back(samuon);
-    }
-    if (mu.hwPtUnconstrained() > 0) {
-      samuon = Convertl1tMuon(mu, 0, true);
-      //now associate the stubs
-      associateStubs(samuon, stubs);
-      displaced.push_back(samuon);
-    }
+  // Add stubs to OMTF SAMuons, as it is not yet implemented on the OMTF side
+  for (const auto& mu : *omtf_constr_sams) {
+    l1t::SAMuon samuon = mu;
+    associateStubs(samuon, stubs);
+    prompt.push_back(samuon);
+  }
+
+  for (const auto& mu : *omtf_unconstr_sams) {
+    l1t::SAMuon samuon = mu;
+    associateStubs(samuon, stubs);
+    displaced.push_back(samuon);
   }
 
   // Convert EMTF++ Tracks to SAMuons
@@ -302,7 +301,8 @@ void Phase2L1TGMTFwdMuonTranslator::fillDescriptions(edm::ConfigurationDescripti
   // Input Collections
   desc.add<edm::InputTag>("stubs", edm::InputTag("gmtStubs"));
   desc.add<edm::InputTag>("emtfTracks", edm::InputTag("simEmtfDigisPhase2"));
-  desc.add<edm::InputTag>("omtfTracks", edm::InputTag("simOmtfPhase2Digis"));
+  desc.add<edm::InputTag>("omtfConstrSAMs", edm::InputTag("simOmtfPhase2Digis", "constrSAMs"));
+  desc.add<edm::InputTag>("omtfUnconstrSAMs", edm::InputTag("simOmtfPhase2Digis", "unconstrSAMs"));
 
   // Register
   descriptions.add("Phase2L1TGMTFwdMuonTranslator", desc);

@@ -2,7 +2,6 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
-#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
@@ -37,7 +36,6 @@ L1TMuonOverlapPhase2TrackProducer::L1TMuonOverlapPhase2TrackProducer(const edm::
       propagatorEsToken(esConsumes<Propagator, TrackingComponentsRecord, edm::Transition::BeginRun>(
           edm::ESInputTag("", "SteppingHelixPropagatorAlong"))),
       omtfEmulation(edmParameterSet, muStubsInputTokens, muStubsPhase2InputTokens) {
-  produces<l1t::RegionalMuonCandBxCollection>("OMTF");  //phase-1 collection
   produces<l1t::SAMuonCollection>("OMTFconstr");
   produces<l1t::SAMuonCollection>("OMTFunconstr");
 
@@ -68,7 +66,6 @@ void L1TMuonOverlapPhase2TrackProducer::produce(edm::Event& iEvent, const edm::E
 
   auto outptuCollections = omtfEmulation.run(iEvent, evSetup);
 
-  iEvent.put(std::move(outptuCollections.regionalCandidates), "OMTF");
   iEvent.put(std::move(outptuCollections.constrSaMuons), "OMTFconstr");
   iEvent.put(std::move(outptuCollections.unConstrSaMuons), "OMTFunconstr");
 }

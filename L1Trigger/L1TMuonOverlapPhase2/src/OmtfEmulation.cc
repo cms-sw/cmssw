@@ -57,8 +57,6 @@ OmtfEmulation::OmtfOutptutCollections OmtfEmulation::run(const edm::Event& iEven
   OmtfOutptutCollections outptuCollections;
   outptuCollections.constrSaMuons = std::make_unique<l1t::SAMuonCollection>();
   outptuCollections.unConstrSaMuons = std::make_unique<l1t::SAMuonCollection>();
-  outptuCollections.regionalCandidates = std::make_unique<l1t::RegionalMuonCandBxCollection>();
-  outptuCollections.regionalCandidates->setBXRange(bxMin, bxMax);
 
   FinalMuons allFinalMuons;
 
@@ -77,19 +75,6 @@ OmtfEmulation::OmtfOutptutCollections OmtfEmulation::run(const edm::Event& iEven
         l1t::SAMuonCollection unconstrSAMuons = omtfProcPhase2.getSAMuons(iProcessor, mtfType, finalMuons, false);
         for (auto& saMuon : unconstrSAMuons) {
           outptuCollections.unConstrSaMuons->push_back(saMuon);
-        }
-
-        //getRegionalMuonCands calls convertToGmtScalesPhase1, it sets value ptGmt, phiGmt, etaGmt in finalMuons
-        //so that regionalCandidates have values in phase-1 scales
-        //but it will affect the finalMuons stored in allFinalMuons as they are shared pointers,
-        //Therefore convertToGmtScalesPhase2 is called again.
-        std::vector<l1t::RegionalMuonCand> candMuons = omtfProc->getRegionalMuonCands(iProcessor, mtfType, finalMuons);
-        for (auto& candMuon : candMuons) {
-          outptuCollections.regionalCandidates->push_back(bx, candMuon);
-        }
-        //TODO remove it when RegionalCandidates are not needed anymore
-        for (auto& finalMuon : finalMuons) {
-          omtfProcPhase2.convertToGmtScalesPhase2(iProcessor, mtfType, finalMuon);
         }
 
         allFinalMuons.insert(allFinalMuons.end(), finalMuons.begin(), finalMuons.end());
