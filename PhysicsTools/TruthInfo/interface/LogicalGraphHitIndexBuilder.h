@@ -18,6 +18,9 @@ namespace truth {
 
     void addHitForTrack(uint32_t trackId, uint32_t detId, uint32_t recHitIndex, float energy);
 
+    // Tracker simhits: separate channel, no recHit association.
+    void addTrackerHitForTrack(uint32_t trackId, uint32_t detId, float energy);
+
     [[nodiscard]] LogicalGraphHitIndex finish();
 
   private:
@@ -34,7 +37,13 @@ namespace truth {
     static void addHit(HitMap& hits, Hit const& hit);
     static std::vector<Hit> sortedHits(HitMap const& hits);
 
-    void fillSubgraphHits(uint32_t particleId, std::vector<uint8_t>& state);
+    // Aggregate direct hits of a particle and all its descendants into subgraph.
+    void fillSubgraphHits(uint32_t particleId,
+                          std::vector<HitMap> const& direct,
+                          std::vector<HitMap>& subgraph,
+                          std::vector<uint8_t>& state);
+
+    static void buildHitCSR(std::vector<HitMap> const& maps, std::vector<uint32_t>& offsets, std::vector<Hit>& storage);
 
     uint32_t nParticles_ = 0;
 
@@ -43,6 +52,9 @@ namespace truth {
 
     std::vector<HitMap> directHits_;
     std::vector<HitMap> subgraphHits_;
+
+    std::vector<HitMap> trackerDirectHits_;
+    std::vector<HitMap> trackerSubgraphHits_;
   };
 
 }  // namespace truth

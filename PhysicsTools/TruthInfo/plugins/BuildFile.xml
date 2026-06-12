@@ -26,6 +26,10 @@
 
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
 <use name="DataFormats/NanoAOD"/>
+<use name="DataFormats/ParticleFlowReco"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="Geometry/CommonDetUnit"/>
 
 <library file="TruthGraphProducer.cc" name="TruthGraphProducerPlugins">
   <flags EDM_PLUGIN="1"/>
@@ -48,5 +52,13 @@
 </library>
 
 <library file="RecHitFlatTableProducer.cc" name="RecHitFlatTableProducerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="PFRecHitFlatTableProducer.cc" name="PFRecHitFlatTableProducerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="TrackerSimHitFlatTableProducer.cc" name="TrackerSimHitFlatTableProducerPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
