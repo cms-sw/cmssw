@@ -155,6 +155,7 @@ globalPrevalidationJetMETOnly = cms.Sequence(
 
 globalPrevalidationTaus = cms.Sequence(
     # produceDenoms
+    tauPreValidSeq
 )
 
 globalValidationTaus = cms.Sequence(
