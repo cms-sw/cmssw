@@ -375,6 +375,7 @@ public:
 
     out->simTrackToGen.assign(nNodes, -1);
     out->simTrackToVtx.assign(nNodes, -1);
+    out->simVtxToGen.assign(nNodes, -1);
 
     for (int cid = 0; cid < nGenEvents; ++cid) {
       const uint32_t nodeId = baseGenEvent + static_cast<uint32_t>(cid);
@@ -430,6 +431,16 @@ public:
       }
     }
 
+    // Map each GEN particle barcode to its production GenVertex barcode.
+    // gb.vtxToPart holds (vertex barcode -> outgoing particle barcode), i.e. the
+    // production vertex of each outgoing particle.
+    std::unordered_map<int, int> genPartToProdVtxBarcode;
+    if (haveGen) {
+      genPartToProdVtxBarcode.reserve(gb.vtxToPart.size() * 2);
+      for (auto const& e : gb.vtxToPart)
+        genPartToProdVtxBarcode.emplace(e.second, e.first);
+    }
+
     std::vector<uint32_t> simVtxIndexToNode(nSimVtx, 0);
 
     for (uint32_t i = 0; i < nSimVtx; ++i) {
@@ -477,6 +488,27 @@ public:
 
             if (genPdgId == 0 || genPdgId == simPdgId) {
               out->simTrackToGen[nodeId] = static_cast<int32_t>(it->second);
+
+              // Provenance SimVertex -> GenVertex association: the SimTrack's production
+              // SimVertex corresponds to the production GenVertex of its GenParticle.
+              const int32_t simVtxNode = out->simTrackToVtx[nodeId];
+              if (simVtxNode >= 0) {
+                auto itProd = genPartToProdVtxBarcode.find(barcode);
+                if (itProd != genPartToProdVtxBarcode.end()) {
+                  auto itGV = genVtxBarcodeToNode.find(itProd->second);
+                  if (itGV != genVtxBarcodeToNode.end()) {
+                    const int32_t gvNode = static_cast<int32_t>(itGV->second);
+                    int32_t& slot = out->simVtxToGen[simVtxNode];
+                    if (slot < 0) {
+                      slot = gvNode;
+                    } else if (slot != gvNode) {
+                      edm::LogPrint("TruthGraphProducer")
+                          << "SimVertex node " << simVtxNode << " associated to multiple GenVertex nodes (" << slot
+                          << " and " << gvNode << "); keeping the first";
+                    }
+                  }
+                }
+              }
             } else {
               edm::LogPrint("TruthGraphProducer")
                   << "Rejecting primary SimTrack->GenParticle association with mismatched PDG id: "
@@ -603,6 +635,18 @@ public:
           push_edge(static_cast<uint32_t>(genNode), simNode, TruthGraph::EdgeKind::GenToSim);
         }
       }
+
+      // SimVertex -> GenVertex provenance edges. Unlike the GenVertex -> SimVertex
+      // direction warned about above, these are derived from per-track primary
+      // associations and stored as a single edge per SimVertex (simVtxToGen).
+      for (uint32_t i = 0; i < nSimVtx; ++i) {
+        const uint32_t simVtxNode = baseSimVtx + i;
+        const int32_t genVtxNode = out->simVtxToGen[simVtxNode];
+
+        if (genVtxNode >= 0) {
+          push_edge(simVtxNode, static_cast<uint32_t>(genVtxNode), TruthGraph::EdgeKind::SimToGen);
+        }
+      }
     }
 
     out->offsets.assign(nNodes + 1, 0);
@@ -639,6 +683,7 @@ public:
     unsigned nSimVertexOut = 0;
     unsigned nSimTrackOut = 0;
     unsigned nGenToSimParticleLinks = 0;
+    unsigned nSimVtxToGenLinks = 0;
 
     for (uint32_t i = 0; i < out->nNodes(); ++i) {
       switch (out->nodeRef(i).kind) {
@@ -653,6 +698,8 @@ public:
           break;
         case TruthGraph::NodeKind::SimVertex:
           ++nSimVertexOut;
+          if (out->simVtxToGen[i] >= 0)
+            ++nSimVtxToGenLinks;
           break;
         case TruthGraph::NodeKind::SimTrack:
           ++nSimTrackOut;
@@ -667,7 +714,8 @@ public:
                                         << " GenParticle=" << nGenParticleOut << " SimVertex=" << nSimVertexOut
                                         << " SimTrack=" << nSimTrackOut << " total=" << out->nNodes()
                                         << " edges=" << out->nEdges()
-                                        << " primaryGenToSimParticleLinks=" << nGenToSimParticleLinks;
+                                        << " primaryGenToSimParticleLinks=" << nGenToSimParticleLinks
+                                        << " simVtxToGenVertexLinks=" << nSimVtxToGenLinks;
 
     evt.put(std::move(out));
   }

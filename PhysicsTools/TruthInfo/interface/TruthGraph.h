@@ -60,6 +60,12 @@ public:
   std::vector<int32_t> simTrackToGen;  // SimTrack nodeId -> GenParticle nodeId
   std::vector<int32_t> simTrackToVtx;  // SimTrack nodeId -> SimVertex nodeId
 
+  // SimVertex nodeId -> GenVertex nodeId provenance association, -1 if none.
+  // Derived from primary SimTracks: a SimTrack's production SimVertex corresponds
+  // to the production GenVertex of its associated GenParticle. Only meaningful for
+  // SimVertex nodes.
+  std::vector<int32_t> simVtxToGen;
+
   uint32_t nNodes() const { return static_cast<uint32_t>(nodes.size()); }
   uint32_t nEdges() const { return static_cast<uint32_t>(edges.size()); }
 
@@ -93,6 +99,8 @@ public:
   int32_t nodeSimTrackToVtx(uint32_t nodeId) const {
     return (nodeId < simTrackToVtx.size()) ? simTrackToVtx[nodeId] : -1;
   }
+
+  int32_t nodeSimVtxToGen(uint32_t nodeId) const { return (nodeId < simVtxToGen.size()) ? simVtxToGen[nodeId] : -1; }
 
   bool isConsistent() const;
 };

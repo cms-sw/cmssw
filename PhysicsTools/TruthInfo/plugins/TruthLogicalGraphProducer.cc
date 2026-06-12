@@ -150,6 +150,8 @@ namespace {
                                 std::unordered_map<int, GenVertexPayload>& vertexPayload) {
     particlePayload.reserve(ev.particles_size() * 2);
     vertexPayload.reserve(ev.vertices_size() * 2);
+    constexpr double mmTocm = 0.1;
+    constexpr double mmOverCToNs = 1.0 / 299.792458;  // HepMC vertex time is c*t in mm -> ns
 
     for (auto p = ev.particles_begin(); p != ev.particles_end(); ++p) {
       if (*p == nullptr)
@@ -171,10 +173,11 @@ namespace {
         continue;
 
       const int barcode = (*v)->barcode();
-
       GenVertexPayload payload;
-      payload.position = math::XYZTLorentzVectorD(
-          (*v)->position().x(), (*v)->position().y(), (*v)->position().z(), (*v)->position().t());
+      payload.position = math::XYZTLorentzVectorD((*v)->position().x() * mmTocm,
+                                                  (*v)->position().y() * mmTocm,
+                                                  (*v)->position().z() * mmTocm,
+                                                  (*v)->position().t() * mmOverCToNs);
 
       vertexPayload.emplace(barcode, payload);
     }
@@ -185,7 +188,8 @@ namespace {
                                 std::unordered_map<int, GenVertexPayload>& vertexPayload) {
     particlePayload.reserve(ev.particles().size() * 2);
     vertexPayload.reserve(ev.vertices().size() * 2);
-
+    constexpr double mmTocm = 0.1;
+    constexpr double mmOverCToNs = 1.0 / 299.792458;  // HepMC vertex time is c*t in mm -> ns
     for (auto const& pptr : ev.particles()) {
       if (!pptr)
         continue;
@@ -208,8 +212,10 @@ namespace {
       const int id = vptr->id();
 
       GenVertexPayload payload;
-      payload.position = math::XYZTLorentzVectorD(
-          vptr->position().x(), vptr->position().y(), vptr->position().z(), vptr->position().t());
+      payload.position = math::XYZTLorentzVectorD(vptr->position().x() * mmTocm,
+                                                  vptr->position().y() * mmTocm,
+                                                  vptr->position().z() * mmTocm,
+                                                  vptr->position().t() * mmOverCToNs);
 
       vertexPayload.emplace(id, payload);
     }
@@ -710,11 +716,14 @@ public:
             if (simIndex < hSimVertices->size()) {
               auto const& sv = (*hSimVertices)[simIndex];
               const auto& pos = sv.position();
+              constexpr double sToNs = 1e9;  // SimVertex time is stored in seconds -> ns
 
               // For SIM-only logical vertices, use the SimVertex position.
+              // Position is in cm; SimVertex time is converted from seconds to ns so it
+              // shares the (cm, ns) convention used for GEN vertices.
               // For GEN+SIM logical vertices, the GEN position remains the nominal one.
               if (!v.hasGen()) {
-                v.position = math::XYZTLorentzVectorD(pos.x(), pos.y(), pos.z(), pos.t());
+                v.position = math::XYZTLorentzVectorD(pos.x(), pos.y(), pos.z(), pos.t() * sToNs);
               }
             }
           }
