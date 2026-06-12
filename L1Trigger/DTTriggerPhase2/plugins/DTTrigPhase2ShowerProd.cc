@@ -200,8 +200,7 @@ void DTTrigPhase2ShowerProd::produce(edm::Event& iEvent, const edm::EventSetup& 
   }
 
   if (debug_)
-    LogDebug("DTTrigPhase2ShowerProd")
-        << "    Hits preprocessed: " << digiMap.size() << " DT chambers to analyze";
+    LogDebug("DTTrigPhase2ShowerProd") << "    Hits preprocessed: " << digiMap.size() << " DT chambers to analyze";
 
   // 2. Look for showers in each chamber
   if (debug_)
@@ -227,8 +226,7 @@ void DTTrigPhase2ShowerProd::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   // 3. Check shower candidates and store them if flagged
   if (debug_)
-    LogDebug("DTTrigPhase2ShowerProd")
-        << "    Selecting shower candidates (to check: " << showersMap.size() << " )";
+    LogDebug("DTTrigPhase2ShowerProd") << "    Selecting shower candidates (to check: " << showersMap.size() << " )";
 
   std::vector<L1Phase2MuDTShower> outShower;
   for (auto& sl_showerCandIt : showersMap) {
