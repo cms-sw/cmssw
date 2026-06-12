@@ -142,38 +142,6 @@ namespace showerb {
     contents += "]";
     return contents;
   }
-
-  // Stream-like debug logger class
-  class DebugLogger {
-  public:
-    DebugLogger(const std::string& category) : category_(category) {}
-
-    // Template to accept any type with << operator
-    template <typename T>
-    DebugLogger& operator<<(const T& value) {
-      stream_ << value;
-      return *this;
-    }
-
-    // Handle std::endl and other manipulators
-    DebugLogger& operator<<(std::ostream& (*manip)(std::ostream&)) {
-      stream_ << manip;
-      return *this;
-    }
-
-    // Destructor - actually performs the logging
-    ~DebugLogger() {
-      LogDebug(category_) << stream_.str();
-      std::cout << stream_.str() << std::endl;
-    }
-
-  private:
-    std::string category_;
-    std::ostringstream stream_;
-  };
-
-  // Helper function to create the logger
-  inline DebugLogger log_debug(const std::string& category) { return DebugLogger(category); }
 }  // namespace showerb
 
 // ===============================================================================
@@ -228,8 +196,8 @@ private:
   const bool debug_;
   const bool dump_digis_;
   const int scenario_;
-  int bx_shift_back_;
-  int time_shift_back_;
+  const int bx_shift_back_;
+  const int time_shift_back_;
 
   // auxiliary variables
   DTPrimitives all_hits;

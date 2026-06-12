@@ -141,14 +141,14 @@ DTTrigPhase2ShowerProd::DTTrigPhase2ShowerProd(const ParameterSet& pset)
   dtGeomH = esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 
   if (debug_) {
-    showerb::log_debug("DTTrigPhase2ShowerProd") << "DTTrigPhase2ShowerProd: constructor";
+    LogDebug("DTTrigPhase2ShowerProd") << "DTTrigPhase2ShowerProd: constructor";
 
     if (showerTaggingAlgo_ == 0)
-      showerb::log_debug("DTTrigPhase2ShowerProd") << "Using standalone mode";
+      LogDebug("DTTrigPhase2ShowerProd") << "Using standalone mode";
     else if (showerTaggingAlgo_ == 1)
-      showerb::log_debug("DTTrigPhase2ShowerProd") << "Using firmware emulation mode";
+      LogDebug("DTTrigPhase2ShowerProd") << "Using firmware emulation mode";
     else
-      showerb::log_debug("DTTrigPhase2ShowerProd") << "Unrecognized shower tagging algorithm";
+      LogDebug("DTTrigPhase2ShowerProd") << "Unrecognized shower tagging algorithm";
   }
 }
 
@@ -164,12 +164,12 @@ DTTrigPhase2ShowerProd::~DTTrigPhase2ShowerProd() {
   }
 
   if (debug_)
-    showerb::log_debug("DTTrigPhase2ShowerProd") << "DTTrigPhase2ShowerProd: destructor";
+    LogDebug("DTTrigPhase2ShowerProd") << "DTTrigPhase2ShowerProd: destructor";
 }
 
 void DTTrigPhase2ShowerProd::beginRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) {
   if (debug_)
-    showerb::log_debug("DTTrigPhase2ShowerProd") << "DTTrigPhase2ShowerProd: beginRun started";
+    LogDebug("DTTrigPhase2ShowerProd") << "DTTrigPhase2ShowerProd: beginRun started";
 
   if (auto geom = iEventSetup.getHandle(dtGeomH)) {
     dtGeo_ = &(*geom);
@@ -180,7 +180,7 @@ void DTTrigPhase2ShowerProd::produce(edm::Event& iEvent, const edm::EventSetup& 
   showerBuilder->initialise(iEventSetup);
 
   if (debug_)
-    showerb::log_debug("DTTrigPhase2ShowerProd") << "DTTrigPhase2ShowerProd: produce Processing event";
+    LogDebug("DTTrigPhase2ShowerProd") << "DTTrigPhase2ShowerProd: produce Processing event";
 
   // Fetch the handle for hits
   edm::Handle<DTDigiCollection> dtdigis;
@@ -190,7 +190,7 @@ void DTTrigPhase2ShowerProd::produce(edm::Event& iEvent, const edm::EventSetup& 
   DTDigiMap digiMap;
   DTDigiCollection::DigiRangeIterator detUnitIt;
   if (debug_)
-    showerb::log_debug("DTTrigPhase2ShowerProd") << "    Preprocessing hits for event " << iEvent.id().event();
+    LogDebug("DTTrigPhase2ShowerProd") << "    Preprocessing hits for event " << iEvent.id().event();
 
   for (const auto& detUnitIt : *dtdigis) {
     const DTLayerId& layId = detUnitIt.first;
@@ -200,12 +200,12 @@ void DTTrigPhase2ShowerProd::produce(edm::Event& iEvent, const edm::EventSetup& 
   }
 
   if (debug_)
-    showerb::log_debug("DTTrigPhase2ShowerProd")
+    LogDebug("DTTrigPhase2ShowerProd")
         << "    Hits preprocessed: " << digiMap.size() << " DT chambers to analyze";
 
   // 2. Look for showers in each chamber
   if (debug_)
-    showerb::log_debug("DTTrigPhase2ShowerProd") << "    Building shower candidates for:";
+    LogDebug("DTTrigPhase2ShowerProd") << "    Building shower candidates for:";
 
   ShowerCandidatesMap showersMap;
   for (const auto& ich : dtGeo_->chambers()) {
@@ -217,7 +217,7 @@ void DTTrigPhase2ShowerProd::produce(edm::Event& iEvent, const edm::EventSetup& 
       continue;
 
     if (debug_)
-      showerb::log_debug("DTTrigPhase2ShowerProd") << "      " << chid;
+      LogDebug("DTTrigPhase2ShowerProd") << "      " << chid;
 
     showerBuilder->run(iEvent, iEventSetup, (*dmit).second, showersMap, chamb);
   }
@@ -227,7 +227,7 @@ void DTTrigPhase2ShowerProd::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   // 3. Check shower candidates and store them if flagged
   if (debug_)
-    showerb::log_debug("DTTrigPhase2ShowerProd")
+    LogDebug("DTTrigPhase2ShowerProd")
         << "    Selecting shower candidates (to check: " << showersMap.size() << " )";
 
   std::vector<L1Phase2MuDTShower> outShower;
@@ -238,7 +238,7 @@ void DTTrigPhase2ShowerProd::produce(edm::Event& iEvent, const edm::EventSetup& 
         DTSuperLayerId slId(sl_showerCandIt.first.rawId());
 
         if (debug_)
-          showerb::log_debug("DTTrigPhase2ShowerProd")
+          LogDebug("DTTrigPhase2ShowerProd")
               << "      Shower candidate tagged in chamber" << slId.chamberId() << ", SL" << slId.superlayer();
 
         // 4. Storing results
@@ -262,7 +262,7 @@ void DTTrigPhase2ShowerProd::produce(edm::Event& iEvent, const edm::EventSetup& 
     }
   }
   if (debug_)
-    showerb::log_debug("DTTrigPhase2ShowerProd") << "    Storing results...";
+    LogDebug("DTTrigPhase2ShowerProd") << "    Storing results...";
 
   // 4.1 Storing results
   std::unique_ptr<L1Phase2MuDTShowerContainer> resultShower(new L1Phase2MuDTShowerContainer);
@@ -272,7 +272,7 @@ void DTTrigPhase2ShowerProd::produce(edm::Event& iEvent, const edm::EventSetup& 
 
 void DTTrigPhase2ShowerProd::endRun(edm::Run const& iRun, const edm::EventSetup& iEventSetup) {
   if (debug_)
-    showerb::log_debug("DTTrigPhase2ShowerProd") << "DTTrigPhase2ShowerProd: endRun";
+    LogDebug("DTTrigPhase2ShowerProd") << "DTTrigPhase2ShowerProd: endRun";
 }
 
 void DTTrigPhase2ShowerProd::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
