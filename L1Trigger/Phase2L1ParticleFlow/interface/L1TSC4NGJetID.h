@@ -14,6 +14,8 @@
 
 namespace L1TSC4NGJet {
 
+  typedef ap_fixed<64, 32,AP_RND,AP_SAT,0> inputtype;
+
   template <class t>
   t candidate_mass(l1ct::PuppiObj puppicand) {
     // Define lookup table
@@ -43,39 +45,49 @@ namespace L1TSC4NGJet {
 class L1TSC4NGJetID {
 public:
   L1TSC4NGJetID(const std::shared_ptr<hls4mlEmulator::Model> model, int iNParticles, bool debug);
-
-  typedef ap_fixed<24, 12, AP_RND, AP_SAT, 0> inputtype;
-  typedef std::array<ap_ufixed<24, 12, AP_RND, AP_SAT, 0>, 8> classtype;
-  typedef std::array<ap_fixed<16, 6>, 1> regressiontype;
-  typedef std::pair<regressiontype, classtype> pairtype;
+  
+  static const int N_candidates = 16; 
+  static const int N_candidate_features = 21; 
+  static const int N_candidate_inputs = N_candidates * N_candidate_features;
+  static const int N_jet_inputs = 2; 
+  static const int N_class_outputs = 8;
+  static const int N_regression_outputs = 1;
 
   // Intermediate output type to allow full precision multiplication of jet pt by the ratio
   typedef ap_ufixed<22, 12, AP_TRN, AP_SAT> output_regression_type;
   // Intermediate output type for classification score to be loaded into jet word
-  typedef std::array<l1ct::jet_tag_score_t, 8> output_class_type;
-  typedef std::pair<regressiontype, output_class_type> outputpairtype;
-  void setNNVectorVar();
+  typedef std::array<l1ct::jet_tag_score_t, N_class_outputs> output_class_type;
+  typedef std::pair<std::array<output_regression_type,N_regression_outputs>, output_class_type> outputpairtype;
+
+  void setVectors();
   outputpairtype EvaluateNNFixed();
   outputpairtype computeFixed(const l1t::PFJet &iJet);
 
 private:
-  std::vector<inputtype> NNvectorVar_;
-  int fNParticles_;
-  std::unique_ptr<inputtype[]> fPt_;
-  std::unique_ptr<inputtype[]> fPt_rel_;
-  std::unique_ptr<inputtype[]> fDEta_;
-  std::unique_ptr<inputtype[]> fDPhi_;
-  std::unique_ptr<inputtype[]> fPt_log_;
-  std::unique_ptr<inputtype[]> fMass_;
-  std::unique_ptr<inputtype[]> fZ0_;
-  std::unique_ptr<inputtype[]> fDxy_;
-  std::unique_ptr<inputtype[]> fIs_filled_;
-  std::unique_ptr<inputtype[]> fPuppi_weight_;
-  std::unique_ptr<inputtype[]> fEmID_;
-  std::unique_ptr<inputtype[]> fQuality_;
+  std::vector<L1TSC4NGJet::inputtype> candidate_vector_;
+  std::vector<L1TSC4NGJet::inputtype> jet_vector_;
 
-  std::unique_ptr<inputtype[]> fCharge_;
-  std::unique_ptr<inputtype[]> fId_;
+  int fNParticles_;
+  std::unique_ptr<L1TSC4NGJet::inputtype[]> fPt_;
+  std::unique_ptr<L1TSC4NGJet::inputtype[]> fPt_rel_;
+  std::unique_ptr<L1TSC4NGJet::inputtype[]> fDEta_;
+  std::unique_ptr<L1TSC4NGJet::inputtype[]> fDPhi_;
+  std::unique_ptr<L1TSC4NGJet::inputtype[]> fPt_log_;
+  std::unique_ptr<L1TSC4NGJet::inputtype[]> fMass_;
+  std::unique_ptr<L1TSC4NGJet::inputtype[]> fZ0_;
+  std::unique_ptr<L1TSC4NGJet::inputtype[]> fDxy_;
+  std::unique_ptr<L1TSC4NGJet::inputtype[]> fIs_filled_;
+  std::unique_ptr<L1TSC4NGJet::inputtype[]> fPuppi_weight_;
+  std::unique_ptr<L1TSC4NGJet::inputtype[]> fEmID_;
+  std::unique_ptr<L1TSC4NGJet::inputtype[]> fQuality_;
+  std::unique_ptr<L1TSC4NGJet::inputtype[]> fEta_;
+
+  std::unique_ptr<L1TSC4NGJet::inputtype[]> fCharge_;
+  std::unique_ptr<L1TSC4NGJet::inputtype[]> fId_;
+  
+  L1TSC4NGJet::inputtype fJetPt_;
+  L1TSC4NGJet::inputtype fJetEta_;
+
   std::shared_ptr<hls4mlEmulator::Model> modelRef_;
 
   bool isDebugEnabled_;
