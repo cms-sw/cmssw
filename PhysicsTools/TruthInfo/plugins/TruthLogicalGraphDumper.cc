@@ -510,6 +510,19 @@ public:
       const HitSummary directSummary = hasHitInfo ? summarizeHits(directHits, recHitEnergies) : HitSummary();
       const HitSummary subgraphSummary = hasHitInfo ? summarizeHits(subgraphHits, recHitEnergies) : HitSummary();
 
+      // Tracker simhits (separate channel, no recHit association). Reusing
+      // summarizeHits is fine: tracker hits have an invalid recHitIndex, so only
+      // nSimHits and simHitEnergy (energy loss) carry meaning.
+      const bool hasTrackerInfo = hasHitInfo && hitIndex->hasTrackerHits();
+      const auto trackerDirectHits =
+          hasTrackerInfo ? hitIndex->trackerDirectHits(i) : std::span<const truth::LogicalGraphHitIndex::Hit>();
+      const auto trackerSubgraphHits =
+          hasTrackerInfo ? hitIndex->trackerSubgraphHits(i) : std::span<const truth::LogicalGraphHitIndex::Hit>();
+      const HitSummary trackerDirectSummary =
+          hasTrackerInfo ? summarizeHits(trackerDirectHits, recHitEnergies) : HitSummary();
+      const HitSummary trackerSubgraphSummary =
+          hasTrackerInfo ? summarizeHits(trackerSubgraphHits, recHitEnergies) : HitSummary();
+
       os << "  p" << i << " [shape=ellipse, hasCheckpoints=" << p.hasCheckpoints() << ", hasGen=" << p.hasGen()
          << ", hasSim=" << d.hasSim();
 
@@ -539,6 +552,12 @@ public:
            << ", nSubgraphRecHits=" << subgraphSummary.nMatchedRecHits
            << ", subgraphSimHitEnergy=" << fmtEnergy(subgraphSummary.simHitEnergy)
            << ", subgraphRecHitEnergy=" << fmtEnergy(subgraphSummary.recHitEnergy);
+        if (hasTrackerInfo) {
+          os << ", nDirectTrackerSimHits=" << trackerDirectSummary.nSimHits
+             << ", directTrackerSimHitEnergy=" << fmtEnergy(trackerDirectSummary.simHitEnergy)
+             << ", nSubgraphTrackerSimHits=" << trackerSubgraphSummary.nSimHits
+             << ", subgraphTrackerSimHitEnergy=" << fmtEnergy(trackerSubgraphSummary.simHitEnergy);
+        }
         if (dumpSimHits_) {
           os << ", directHitsDetIds=\"";
           for (auto h : directHits) {
@@ -607,6 +626,13 @@ public:
         os << "      <TR><TD><B>subgraph recHits:</B> " << subgraphSummary.nMatchedRecHits
            << "  missing=" << subgraphSummary.nMissingRecHits << "  recoE=" << fmtEnergy(subgraphSummary.recHitEnergy)
            << "</TD></TR>\n";
+      }
+
+      if (hasTrackerInfo) {
+        os << "      <TR><TD><B>direct tracker simHits:</B> " << trackerDirectSummary.nSimHits
+           << "  dE=" << fmtEnergy(trackerDirectSummary.simHitEnergy) << "</TD></TR>\n";
+        os << "      <TR><TD><B>subgraph tracker simHits:</B> " << trackerSubgraphSummary.nSimHits
+           << "  dE=" << fmtEnergy(trackerSubgraphSummary.simHitEnergy) << "</TD></TR>\n";
       }
 
       for (auto const& cp : d.checkpoints) {
