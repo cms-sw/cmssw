@@ -50,7 +50,7 @@ namespace edm {
       recordProvider_->setNewInterval(newInterval);
     }
 
-    void EventSetupRecordIOVQueue::checkForNewIOVs(WaitingTaskHolder const& taskToStartAfterIOVInit,
+    void EventSetupRecordIOVQueue::checkForNewIOVsAndStartIfNeededAsync(WaitingTaskHolder const& taskToStartAfterIOVInit,
                                                    WaitingTaskList& endIOVWaitingTasks,
                                                    bool newEventSetupImpl) {
       if (recordProvider_->newInterval()) {

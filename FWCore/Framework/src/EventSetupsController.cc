@@ -127,7 +127,7 @@ namespace edm {
       eventSetupImpl = provider_->eventSetupForInstance(syncValue, newEventSetupImpl);
 
       for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
-        eventSetupRecordIOVQueue->checkForNewIOVs(taskToStartAfterIOVInit, endIOVWaitingTasks, newEventSetupImpl);
+        eventSetupRecordIOVQueue->checkForNewIOVsAndStartIfNeededAsync(taskToStartAfterIOVInit, endIOVWaitingTasks, newEventSetupImpl);
       }
     }
 

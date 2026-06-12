@@ -50,7 +50,7 @@ namespace edm {
 
       void setNewInterval();
 
-      void checkForNewIOVs(WaitingTaskHolder const& taskToStartAfterIOVInit,
+      void checkForNewIOVsAndStartIfNeededAsync(WaitingTaskHolder const& taskToStartAfterIOVInit,
                            WaitingTaskList& endIOVWaitingTasks,
                            bool newEventSetupImpl);
 
