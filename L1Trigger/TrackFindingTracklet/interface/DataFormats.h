@@ -10,8 +10,7 @@ and in undigitized format in an std::tuple. (This saves CPU)
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/data_default_record_trait.h"
-#include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
 #include "DataFormats/L1TrackTrigger/interface/TTBV.h"
 
 #include <vector>
@@ -24,30 +23,30 @@ and in undigitized format in an std::tuple. (This saves CPU)
 namespace trklet {
 
   // hybrid processes
-  enum class Process { begin, tm = begin, dr, kf, tq, tfp, end, x };
+  enum class Process { begin, dr = begin, kf, tq, tfp, end, x };
   // hybrid variables
   enum class Variable {
     begin,
-    stubId = begin,
-    r,
+    r = begin,
     phi,
     z,
     dPhi,
     dZ,
+    layerId,
+    seedType,
     inv2R,
-    phiT,
+    phi0,
     cot,
-    zT,
+    z0,
     chi20,
     chi21,
     mva,
-    reversedHitPattern,
+    hitPattern,
     end,
     x
   };
   // hybrid process order
-  constexpr std::initializer_list<Process> Processes = {
-      Process::tm, Process::dr, Process::kf, Process::tq, Process::tfp};
+  constexpr std::initializer_list<Process> Processes = {Process::dr, Process::kf, Process::tq, Process::tfp};
   // conversion: Process to int
   inline constexpr int operator+(Process p) { return static_cast<int>(p); }
   // conversion: Variable to int
@@ -161,56 +160,53 @@ namespace trklet {
 
   // function template for DataFormat generation
   template <Variable v, Process p>
-  DataFormat makeDataFormat(const ChannelAssignment* ca);
+  DataFormat makeDataFormat(const Setup* setup);
 
   template <>
-  DataFormat makeDataFormat<Variable::inv2R, Process::tfp>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::inv2R, Process::tfp>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::phiT, Process::tfp>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::phi0, Process::tfp>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::cot, Process::tfp>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::cot, Process::tfp>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::zT, Process::tfp>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::z0, Process::tfp>(const Setup* setup);
 
   template <>
-  DataFormat makeDataFormat<Variable::inv2R, Process::tm>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::r, Process::dr>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::phiT, Process::tm>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::phi, Process::dr>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::zT, Process::tm>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::z, Process::dr>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::cot, Process::tm>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::dPhi, Process::dr>(const Setup* setup);
+  template <>
+  DataFormat makeDataFormat<Variable::dZ, Process::dr>(const Setup* setup);
+  template <>
+  DataFormat makeDataFormat<Variable::seedType, Process::dr>(const Setup* setup);
 
   template <>
-  DataFormat makeDataFormat<Variable::stubId, Process::tm>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::inv2R, Process::kf>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::r, Process::tm>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::phi0, Process::kf>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::phi, Process::tm>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::cot, Process::kf>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::z, Process::tm>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::z0, Process::kf>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::dPhi, Process::tm>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::phi, Process::dr>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::dZ, Process::tm>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::z, Process::dr>(const Setup* setup);
+  template <>
+  DataFormat makeDataFormat<Variable::layerId, Process::kf>(const Setup* setup);
 
   template <>
-  DataFormat makeDataFormat<Variable::inv2R, Process::kf>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::chi20, Process::tq>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::phiT, Process::kf>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::chi21, Process::tq>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::cot, Process::kf>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::mva, Process::tq>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::zT, Process::kf>(const ChannelAssignment* ca);
-
-  template <>
-  DataFormat makeDataFormat<Variable::chi20, Process::tq>(const ChannelAssignment* ca);
-  template <>
-  DataFormat makeDataFormat<Variable::chi21, Process::tq>(const ChannelAssignment* ca);
-  template <>
-  DataFormat makeDataFormat<Variable::mva, Process::tq>(const ChannelAssignment* ca);
-  template <>
-  DataFormat makeDataFormat<Variable::reversedHitPattern, Process::tq>(const ChannelAssignment* ca);
+  DataFormat makeDataFormat<Variable::hitPattern, Process::tq>(const Setup* setup);
 
   /*! \class  trklet::DataFormats
    *  \brief  Class to calculate and provide dataformats used by Hybrid emulator
@@ -221,42 +217,41 @@ namespace trklet {
   private:
     // variable flavour mapping, Each row below declares which processing steps use the variable named in the comment at the end of the row
     static constexpr std::array<std::array<Process, +Process::end>, +Variable::end> config_ = {{
-        //  Process::tm Process::dr Process::kf Process::tq Process::tfp
-        {{Process::tm, Process::x, Process::x, Process::x, Process::x}},       // Variable::stubId
-        {{Process::tm, Process::tm, Process::tm, Process::x, Process::x}},     // Variable::r
-        {{Process::tm, Process::tm, Process::tm, Process::tm, Process::x}},    // Variable::phi
-        {{Process::tm, Process::tm, Process::tm, Process::tm, Process::x}},    // Variable::z
-        {{Process::tm, Process::tm, Process::tm, Process::tm, Process::x}},    // Variable::dPhi
-        {{Process::tm, Process::tm, Process::tm, Process::tm, Process::x}},    // Variable::dZ
-        {{Process::tm, Process::tm, Process::kf, Process::kf, Process::tfp}},  // Variable::inv2R
-        {{Process::tm, Process::tm, Process::kf, Process::kf, Process::tfp}},  // Variable::phiT
-        {{Process::tm, Process::tm, Process::kf, Process::kf, Process::tfp}},  // Variable::cot
-        {{Process::tm, Process::tm, Process::kf, Process::kf, Process::tfp}},  // Variable::zT
-        {{Process::x, Process::x, Process::x, Process::tq, Process::x}},       // Variable::chi20
-        {{Process::x, Process::x, Process::x, Process::tq, Process::x}},       // Variable::chi21
-        {{Process::x, Process::x, Process::x, Process::tq, Process::x}},       // Variable::mva
-        {{Process::x, Process::x, Process::x, Process::tq, Process::x}}        // Variable::reversedHitPattern
+        // Process::dr Process::kf Process::tq Process::tfp
+        {{Process::dr, Process::dr, Process::dr, Process::x}},   // Variable::r
+        {{Process::dr, Process::kf, Process::kf, Process::x}},   // Variable::phi
+        {{Process::dr, Process::kf, Process::kf, Process::x}},   // Variable::z
+        {{Process::dr, Process::dr, Process::dr, Process::x}},   // Variable::dPhi
+        {{Process::dr, Process::dr, Process::dr, Process::x}},   // Variable::dZ
+        {{Process::x, Process::kf, Process::x, Process::x}},     // Variable::layerId
+        {{Process::dr, Process::x, Process::x, Process::x}},     // Variable::seedType
+        {{Process::x, Process::kf, Process::kf, Process::tfp}},  // Variable::inv2R
+        {{Process::x, Process::kf, Process::kf, Process::tfp}},  // Variable::phi0
+        {{Process::x, Process::kf, Process::kf, Process::tfp}},  // Variable::cot
+        {{Process::x, Process::kf, Process::kf, Process::tfp}},  // Variable::z0
+        {{Process::x, Process::x, Process::tq, Process::x}},     // Variable::chi20
+        {{Process::x, Process::x, Process::tq, Process::x}},     // Variable::chi21
+        {{Process::x, Process::x, Process::tq, Process::x}},     // Variable::mva
+        {{Process::x, Process::x, Process::tq, Process::x}}      // Variable::hitPattern
     }};
     // stub word assembly, shows which stub variables are used by each process
     static constexpr std::array<std::initializer_list<Variable>, +Process::end> stubs_ = {{
-        {Variable::stubId, Variable::r, Variable::phi, Variable::z},              // Process::tm
-        {Variable::r, Variable::phi, Variable::z, Variable::dPhi, Variable::dZ},  // Process::dr
-        {Variable::r, Variable::phi, Variable::z, Variable::dPhi, Variable::dZ},  // Process::kf
-        {},                                                                       // Process::tq
-        {}                                                                        // Process::tfp
+        {Variable::r, Variable::phi, Variable::z, Variable::dPhi, Variable::dZ},                     // Process::dr
+        {Variable::layerId, Variable::r, Variable::phi, Variable::z, Variable::dPhi, Variable::dZ},  // Process::kf
+        {},                                                                                          // Process::tq
+        {}                                                                                           // Process::tfp
     }};
     // track word assembly, shows which track variables are used by each process
     static constexpr std::array<std::initializer_list<Variable>, +Process::end> tracks_ = {{
-        {Variable::inv2R, Variable::phiT, Variable::zT},                                  // Process::tm
-        {Variable::inv2R, Variable::phiT, Variable::zT},                                  // Process::dr
-        {Variable::inv2R, Variable::phiT, Variable::cot, Variable::zT},                   // Process::kf
-        {Variable::reversedHitPattern, Variable::mva, Variable::chi20, Variable::chi21},  // Process::tq
-        {}                                                                                // Process::tfp
+        {Variable::seedType},                                                     // Process::dr
+        {Variable::inv2R, Variable::phi0, Variable::cot, Variable::z0},           // Process::kf
+        {Variable::hitPattern, Variable::mva, Variable::chi20, Variable::chi21},  // Process::tq
+        {}                                                                        // Process::tfp
     }};
 
   public:
     DataFormats();
-    DataFormats(const ChannelAssignment* ca);
+    DataFormats(const Setup* setup);
     ~DataFormats() = default;
     // converts bits to ntuple of variables
     template <typename... Ts>
@@ -285,9 +280,7 @@ namespace trklet {
       bv = ttBV.bs();
     }
     // access to run-time constants
-    const tt::Setup* setup() const { return channelAssignment_->setup(); }
-    // access to run-time constants
-    const ChannelAssignment* channelAssignment() const { return channelAssignment_; }
+    const Setup* setup() const { return setup_; }
     // number of bits being used for specific variable flavour
     int width(Variable v, Process p) const { return formats_[+v][+p]->width(); }
     // precision being used for specific variable flavour
@@ -342,7 +335,7 @@ namespace trklet {
         attachTrack<it + 1>(p, data, ttBV);
     }
     // stored run-time constants
-    const ChannelAssignment* channelAssignment_;
+    const Setup* setup_;
     // collection of unique formats
     std::vector<DataFormat> dataFormats_;
     // variable flavour mapping
@@ -355,25 +348,25 @@ namespace trklet {
 
   // base class to represent stubs
   template <typename... Ts>
-  class Stub {
+  class BaseStub {
   public:
     // construct Stub from Frame
-    Stub(const tt::FrameStub& fs, const DataFormats* df, Process p) : dataFormats_(df), p_(p), frame_(fs) {
+    BaseStub(const tt::FrameStub& fs, const DataFormats* df, Process p) : dataFormats_(df), p_(p), frame_(fs) {
       dataFormats_->convertStub(p_, frame_.second, data_);
     }
     template <typename... Others>
     // construct Stub from other Stub
-    Stub(const Stub<Others...>& stub, Ts... data)
+    BaseStub(const BaseStub<Others...>& stub, Ts... data)
         : dataFormats_(stub.dataFormats()), p_(++stub.p()), frame_(stub.frame()), data_(data...) {
       dataFormats_->convertStub(p_, data_, frame_.second);
     }
     // construct Stub from TTStubRef
-    Stub(const TTStubRef& ttStubRef, const DataFormats* df, Process p, Ts... data)
+    BaseStub(const TTStubRef& ttStubRef, const DataFormats* df, Process p, Ts... data)
         : dataFormats_(df), p_(p), frame_(ttStubRef, tt::Frame()), data_(data...) {
       dataFormats_->convertStub(p_, data_, frame_.second);
     }
-    Stub() {}
-    virtual ~Stub() = default;
+    BaseStub() {}
+    virtual ~BaseStub() = default;
     // true if frame valid, false if gap in data stream
     explicit operator bool() const { return frame_.first.isNonnull(); }
     // access to DataFormats
@@ -394,36 +387,14 @@ namespace trklet {
     std::tuple<Ts...> data_;
   };
 
-  // class to represent stubs generated by process TrackMulitplexer
-  class StubTM : public Stub<int, double, double, double> {
-  public:
-    // construct StubTM from Frame
-    StubTM(const tt::FrameStub& fs, const DataFormats* df) : Stub(fs, df, Process::tm) {}
-    // construct StubTM from TTStubRef
-    StubTM(const TTStubRef& ttStubRef, const DataFormats* df, int stubId, double r, double phi, double z)
-        : Stub(ttStubRef, df, Process::tm, stubId, r, phi, z) {}
-    ~StubTM() override = default;
-    // stub Id
-    int stubId() const { return std::get<0>(data_); }
-    // stub radius in cm wrt chosenRofPhi
-    double r() const { return std::get<1>(data_); }
-    // stub phi residual in rad
-    double phi() const { return std::get<2>(data_); }
-    // stub z residual in cm
-    double z() const { return std::get<3>(data_); }
-  };
-
   // class to represent stubs generated by process DuplicateRemoval
-  class StubDR : public Stub<double, double, double, double, double> {
+  class StubDR : public BaseStub<double, double, double, double, double> {
   public:
     // construct StubDR from Frame
-    StubDR(const tt::FrameStub& fs, const DataFormats* df) : Stub(fs, df, Process::dr) {}
-    // construct StubDR from StubTM
-    StubDR(const StubTM& stub, double r, double phi, double z, double dPhi, double dZ)
-        : Stub(stub, r, phi, z, dPhi, dZ) {}
+    StubDR(const tt::FrameStub& fs, const DataFormats* df) : BaseStub(fs, df, Process::dr) {}
     // construct StubTM from TTStubRef
     StubDR(const TTStubRef& ttStubRef, const DataFormats* df, double r, double phi, double z, double dPhi, double dZ)
-        : Stub(ttStubRef, df, Process::dr, r, phi, z, dPhi, dZ) {}
+        : BaseStub(ttStubRef, df, Process::dr, r, phi, z, dPhi, dZ) {}
     ~StubDR() override = default;
     // stub radius in cm wrt chosenRofPhi
     double r() const { return std::get<0>(data_); }
@@ -438,47 +409,49 @@ namespace trklet {
   };
 
   // class to represent stubs generated by process KalmanFilter
-  class StubKF : public Stub<double, double, double, double, double> {
+  class StubKF : public BaseStub<int, double, double, double, double, double> {
   public:
     // construct StubKF from Frame
-    StubKF(const tt::FrameStub& fs, const DataFormats* df) : Stub(fs, df, Process::kf) {}
+    StubKF(const tt::FrameStub& fs, const DataFormats* df) : BaseStub(fs, df, Process::kf) {}
     // construct StubKF from StubDR
-    StubKF(const StubDR& stub, double r, double phi, double z, double dPhi, double dZ)
-        : Stub(stub, r, phi, z, dPhi, dZ) {}
+    StubKF(const StubDR& stub, int layerId, double r, double phi, double z, double dPhi, double dZ)
+        : BaseStub(stub, layerId, r, phi, z, dPhi, dZ) {}
     ~StubKF() override = default;
+    // reduced 7 bit layer id [0 = {1}, 1 = {2}, 2 = {11 or 6}, 3 = {12 or 5}, 4 = {13 or 4}, 5 = {14}, 6 = {15 or 3}]
+    int layerId() const { return std::get<0>(data_); };
     // stub radius in cm wrt chosenRofPhi
-    double r() const { return std::get<0>(data_); };
+    double r() const { return std::get<1>(data_); };
     // stub phi residual in rad
-    double phi() const { return std::get<1>(data_); };
+    double phi() const { return std::get<2>(data_); };
     // stub z residual in cm
-    double z() const { return std::get<2>(data_); };
+    double z() const { return std::get<3>(data_); };
     // stub phi uncertainty in rad
-    double dPhi() const { return std::get<3>(data_); }
+    double dPhi() const { return std::get<4>(data_); }
     // stub z uncertainty in cm
-    double dZ() const { return std::get<4>(data_); }
+    double dZ() const { return std::get<5>(data_); }
   };
 
   // base class to represent tracks
   template <typename... Ts>
-  class Track {
+  class BaseTrack {
   public:
     // construct Track from Frame
-    Track(const tt::FrameTrack& ft, const DataFormats* df, Process p) : dataFormats_(df), p_(p), frame_(ft) {
+    BaseTrack(const tt::FrameTrack& ft, const DataFormats* df, Process p) : dataFormats_(df), p_(p), frame_(ft) {
       dataFormats_->convertTrack(p_, frame_.second, data_);
     }
     // construct Track from TTTrackRef
-    Track(const TTTrackRef& ttTrackRef, const DataFormats* df, Process p, Ts... data)
+    BaseTrack(const TTTrackRef& ttTrackRef, const DataFormats* df, Process p, Ts... data)
         : dataFormats_(df), p_(p), frame_(ttTrackRef, tt::Frame()), data_(data...) {
       dataFormats_->convertTrack(p_, data_, frame_.second);
     }
     // construct Track from other Track
     template <typename... Others>
-    Track(const Track<Others...>& track, Ts... data)
+    BaseTrack(const BaseTrack<Others...>& track, Ts... data)
         : dataFormats_(track.dataFormats()), p_(++track.p()), frame_(track.frame()), data_(data...) {
       dataFormats_->convertTrack(p_, data_, frame_.second);
     }
-    Track() {}
-    virtual ~Track() = default;
+    BaseTrack() {}
+    virtual ~BaseTrack() = default;
     // true if frame valid, false if gap in data stream
     explicit operator bool() const { return frame_.first.isNonnull(); }
     // access to DataFormats
@@ -499,74 +472,52 @@ namespace trklet {
     std::tuple<Ts...> data_;
   };
 
-  // class to represent tracks generated by process TrackMultiplexer
-  class TrackTM : public Track<double, double, double> {
-  public:
-    // construct TrackTM from Frame
-    TrackTM(const tt::FrameTrack& ft, const DataFormats* df) : Track(ft, df, Process::tm) {}
-    // construct TrackTM from TTTrack
-    TrackTM(const TTTrackRef& tTTrackRef, const DataFormats* df, double inv2R, double phiT, double zT)
-        : Track(tTTrackRef, df, Process::tm, inv2R, phiT, zT) {}
-    ~TrackTM() override = default;
-    // track inv2R in 1/cm
-    double inv2R() const { return std::get<0>(data_); }
-    // track phi at radius chosenRofPhi wrt pprocessing centre in rad
-    double phiT() const { return std::get<1>(data_); }
-    // track z at radius chosenRofZ in cm
-    double zT() const { return std::get<2>(data_); }
-  };
-
   // class to represent tracks generated by process DuplicateRemoval
-  class TrackDR : public Track<double, double, double> {
+  class TrackDR : public BaseTrack<int> {
   public:
-    // construct TrackDR from Frame
-    TrackDR(const tt::FrameTrack& ft, const DataFormats* df) : Track(ft, df, Process::dr) {}
-    // construct TrackDR from TrackTM
-    TrackDR(const TrackTM& track) : Track(track, track.inv2R(), track.phiT(), track.zT()) {}
-    // construct TrackTM from TTTrack
-    TrackDR(const TTTrackRef& tTTrackRef, const DataFormats* df, double inv2R, double phiT, double zT)
-        : Track(tTTrackRef, df, Process::dr, inv2R, phiT, zT) {}
+    // construct TrackKF from Frame
+    TrackDR(const tt::FrameTrack& ft, const DataFormats* df) : BaseTrack(ft, df, Process::dr) {}
+    // construct TrackKF from TTTrackRef
+    TrackDR(const TTTrackRef& ttTrackRef, const DataFormats* df, int seedType)
+        : BaseTrack(ttTrackRef, df, Process::dr, seedType) {}
+    TrackDR() {}
     ~TrackDR() override = default;
-    // track inv2R in 1/cm
-    double inv2R() const { return std::get<0>(data_); }
-    // track phi at radius chosenRofPhi wrt pprocessing centre in rad
-    double phiT() const { return std::get<1>(data_); }
-    // track z at radius chosenRofZ in cm
-    double zT() const { return std::get<2>(data_); }
+    // seed type
+    int seedType() const { return std::get<0>(data_); }
   };
 
   // class to represent tracks generated by process KalmanFilter
-  class TrackKF : public Track<double, double, double, double> {
+  class TrackKF : public BaseTrack<double, double, double, double> {
   public:
     // construct TrackKF from Frame
-    TrackKF(const tt::FrameTrack& ft, const DataFormats* df) : Track(ft, df, Process::kf) {}
+    TrackKF(const tt::FrameTrack& ft, const DataFormats* df) : BaseTrack(ft, df, Process::kf) {}
     // construct TrackKF from TrackDR
     TrackKF(const TrackDR& track, double inv2R, double phiT, double cot, double zT)
-        : Track(track, inv2R, phiT, cot, zT) {}
+        : BaseTrack(track, inv2R, phiT, cot, zT) {}
     TrackKF() {}
     ~TrackKF() override = default;
     // track inv2R in 1/cm
     double inv2R() const { return std::get<0>(data_); }
-    // track phi at radius chosenRofPhi wrt pprocessing centre in rad
-    double phiT() const { return std::get<1>(data_); }
+    // track phi wrt pprocessing centre in rad
+    double phi0() const { return std::get<1>(data_); }
     // track cotThea
     double cot() const { return std::get<2>(data_); }
-    // track z at radius chosenRofZ in cm
-    double zT() const { return std::get<3>(data_); }
+    // track z in cm
+    double z0() const { return std::get<3>(data_); }
   };
 
   // class to represent tracks generated by process TrackQuality
-  class TrackTQ : public Track<TTBV, int, double, double> {
+  class TrackTQ : public BaseTrack<TTBV, int, double, double> {
   public:
     // construct TrackTQ from Frame
-    TrackTQ(const tt::FrameTrack& ft, const DataFormats* df) : Track(ft, df, Process::tq) {}
+    TrackTQ(const tt::FrameTrack& ft, const DataFormats* df) : BaseTrack(ft, df, Process::tq) {}
     // construct TrackTQ from TrackKF
-    TrackTQ(const TrackKF& track, const TTBV& reversedHitPattern, int mva, double chi20, double chi21)
-        : Track(track, reversedHitPattern, mva, chi20, chi21) {}
+    TrackTQ(const TrackKF& track, const TTBV& hitPattern, int mva, double chi20, double chi21)
+        : BaseTrack(track, hitPattern, mva, chi20, chi21) {}
     TrackTQ() {}
     ~TrackTQ() override = default;
     // mva
-    const TTBV& reversedHitPattern() const { return std::get<0>(data_); }
+    const TTBV& hitPattern() const { return std::get<0>(data_); }
     // mva
     int mva() const { return std::get<1>(data_); }
     // track r-phi chi2
@@ -577,6 +528,6 @@ namespace trklet {
 
 }  // namespace trklet
 
-EVENTSETUP_DATA_DEFAULT_RECORD(trklet::DataFormats, trklet::ChannelAssignmentRcd);
+EVENTSETUP_DATA_DEFAULT_RECORD(trklet::DataFormats, trackerDTC::SetupRcd);
 
 #endif

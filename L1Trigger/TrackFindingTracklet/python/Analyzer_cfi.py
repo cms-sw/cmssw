@@ -2,7 +2,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.TrackTrigger.Setup_cfi import TrackTrigger_params
+from L1Trigger.TrackerDTC.Setup_cfi import TrackerDTCSetup_params
 
 TrackFindingTrackletAnalyzer_params = cms.PSet (
 
@@ -10,8 +10,7 @@ TrackFindingTrackletAnalyzer_params = cms.PSet (
   InputTag   = cms.InputTag( "", "" ), # to be costumized
   Process    = cms.string  (     "" ), # to be costumized
   NumChannel = cms.int32   (      1 ), # to be costumized
-  NumRegions = TrackTrigger_params.DTC.NumRegions,
-  NumLayers  = TrackTrigger_params.TrackFinding.NumLayers,
+  NumRegions = TrackerDTCSetup_params.System.NumRegion,
 
   LabelMC    = cms.string( "StubAssociator" ),
 

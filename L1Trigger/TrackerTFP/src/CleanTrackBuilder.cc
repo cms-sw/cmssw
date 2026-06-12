@@ -9,7 +9,7 @@
 
 namespace trackerTFP {
 
-  CleanTrackBuilder::CleanTrackBuilder(const tt::Setup* setup,
+  CleanTrackBuilder::CleanTrackBuilder(const Setup* setup,
                                        const DataFormats* dataFormats,
                                        const LayerEncoding* layerEncoding,
                                        std::vector<StubCTB>& stubs,
@@ -28,7 +28,7 @@ namespace trackerTFP {
     tracks_.reserve(tracks.capacity());
     numChannelOut_ = dataFormats_->numChannel(Process::ctb);
     numChannel_ = dataFormats_->numChannel(Process::ht) / numChannelOut_;
-    numLayers_ = setup_->numLayers();
+    numLayers_ = setup_->sysNumLayer();
     wlayer_ = dataFormats_->width(Variable::layer, Process::ctb);
     numBinsInv2R_ = setup_->ctbNumBinsInv2R();
     numBinsPhiT_ = setup_->ctbNumBinsPhiT();
@@ -143,22 +143,22 @@ namespace trackerTFP {
       const bool barrel = stub->layer()[5];
       const bool ps = stub->layer()[4];
       const bool tilt = stub->layer()[3];
-      const double pitchRow = ps ? setup_->pitchRowPS() : setup_->pitchRow2S();
-      const double pitchCol = ps ? setup_->pitchColPS() : setup_->pitchCol2S();
-      const double pitchColR = barrel ? (tilt ? setup_->tiltUncertaintyR() : 0.0) : pitchCol;
-      const double r = stub->r() + setup_->chosenRofPhi();
-      const double dPhi = pitchRow / r + (setup_->scattering() + pitchColR) * std::abs(inv2R);
+      const double pitchRow = ps ? setup_->mpaPitch() : setup_->cbcPitch();
+      const double pitchCol = ps ? setup_->mpaLength() : setup_->cbcLength();
+      const double pitchColR = barrel ? (tilt ? setup_->smTiltUncertaintyR() : 0.0) : pitchCol;
+      const double r = stub->r() + setup_->regChosenRofPhi();
+      const double dPhi = pitchRow / r + (setup_->smScattering() + pitchColR) * std::abs(inv2R);
       return phi_.digi(dPhi / 2.);
     };
     auto toDZ = [this](StubHT* stub) {
-      const double m = setup_->tiltApproxSlope();
-      const double c = setup_->tiltApproxIntercept();
+      const double m = setup_->smTiltApproxSlope();
+      const double c = setup_->smTiltApproxIntercept();
       const bool barrel = stub->layer()[5];
       const bool ps = stub->layer()[4];
       const bool tilt = stub->layer()[3];
-      const double pitchCol = ps ? setup_->pitchColPS() : setup_->pitchCol2S();
+      const double pitchCol = ps ? setup_->mpaLength() : setup_->cbcLength();
       const double zT = zT_.floating(stub->zT());
-      const double cot = std::abs(zT) / setup_->chosenRofZ();
+      const double cot = std::abs(zT) / setup_->regChosenRofZ();
       const double dZ = (barrel ? (tilt ? m * cot + c : 1.) : cot) * pitchCol;
       return z_.digi(dZ / 2.);
     };
@@ -195,7 +195,7 @@ namespace trackerTFP {
       }
       // r - z HT
       auto zT = [this, stub](double cot, double dZ) {
-        const double r = r_.digi(stub->r() + r_.digi(setup_->chosenRofPhi() - setup_->chosenRofZ()));
+        const double r = r_.digi(stub->r() + r_.digi(setup_->regChosenRofPhi() - setup_->regChosenRofZ()));
         return cot * r + stub->z() + dZ;
       };
       TTBV hitsZ(0, numBinsCot_ * numBinsZT_);
@@ -242,14 +242,14 @@ namespace trackerTFP {
   }
 
   // construct Track from Stubs
-  CleanTrackBuilder::Track::Track(const tt::Setup* setup,
+  CleanTrackBuilder::Track::Track(const Setup* setup,
                                   int trackId,
                                   const TTBV& hitsPhi,
                                   const TTBV& hitsZ,
                                   const std::vector<Stub*>& stubs,
                                   double inv2R)
       : valid_(true), stubs_(stubs), trackId_(trackId), hitsPhi_(hitsPhi), hitsZ_(hitsZ), inv2R_(inv2R) {
-    std::vector<int> stubIds(setup->numLayers(), 0);
+    std::vector<int> stubIds(setup->sysNumLayer(), 0);
     for (Stub* stub : stubs_)
       stub->update(hitsPhi_, hitsZ_, stubIds, setup->ctbMaxStubs());
     const int nLayer =
@@ -337,11 +337,11 @@ namespace trackerTFP {
   void CleanTrackBuilder::sort(std::deque<Track*>& tracks, std::vector<std::deque<Stub*>>& stubs) const {
     // aplly truncation
     if (setup_->enableTruncation()) {
-      if (static_cast<int>(tracks.size()) > setup_->numFramesHigh())
-        tracks.resize(setup_->numFramesHigh());
+      if (static_cast<int>(tracks.size()) > setup_->numFrames())
+        tracks.resize(setup_->numFrames());
       for (std::deque<Stub*>& stream : stubs)
-        if (static_cast<int>(stream.size()) > setup_->numFramesHigh())
-          stream.resize(setup_->numFramesHigh());
+        if (static_cast<int>(stream.size()) > setup_->numFrames())
+          stream.resize(setup_->numFrames());
     }
     // cycle event, remove all gaps
     tracks.erase(std::remove(tracks.begin(), tracks.end(), nullptr), tracks.end());
@@ -405,8 +405,8 @@ namespace trackerTFP {
       }
       const double inv2R = track->inv2R_;
       StubHT* s = nullptr;
-      TTBV hitPattern(0, setup_->numLayers());
-      for (int layer = 0; layer < setup_->numLayers(); layer++) {
+      TTBV hitPattern(0, setup_->sysNumLayer());
+      for (int layer = 0; layer < setup_->sysNumLayer(); layer++) {
         Stub* stub = iStubs[layer][iFrame];
         if (!stub)
           continue;
@@ -423,7 +423,7 @@ namespace trackerTFP {
         int nHits(0);
         int nGaps(0);
         bool doubleGap = false;
-        for (int layer = 0; layer < setup_->numLayers(); layer++) {
+        for (int layer = 0; layer < setup_->sysNumLayer(); layer++) {
           if (pattern.test(layer)) {
             doubleGap = false;
             if (++nHits == setup_->ctbMinLayers())
@@ -443,7 +443,7 @@ namespace trackerTFP {
         iFrame += track->size_;
         continue;
       }
-      for (int layer = 0; layer < setup_->numLayers(); layer++) {
+      for (int layer = 0; layer < setup_->sysNumLayer(); layer++) {
         for (int n = 0; n < track->size_; n++) {
           Stub* stub = iStubs[layer][iFrame + n];
           if (!stub) {
@@ -484,9 +484,9 @@ namespace trackerTFP {
                               tt::TTTracks& ttTracks) const {
     const double dPhi = dataFormats_->format(Variable::phiT, Process::ctb).range();
     const double invR = -track->inv2R() * 2.;
-    const double phi0 = tt::deltaPhi(track->phiT() - track->inv2R() * setup_->chosenRofPhi() + region * dPhi);
+    const double phi0 = tt::deltaPhi(track->phiT() - track->inv2R() * setup_->regChosenRofPhi() + region * dPhi);
     const double zT = track->zT();
-    const double cot = zT / setup_->chosenRofZ();
+    const double cot = zT / setup_->regChosenRofZ();
     TTBV hits(0, numLayers_);
     double chi2phi(0.);
     double chi2z(0.);
@@ -509,7 +509,7 @@ namespace trackerTFP {
     static constexpr double trkMVA2 = 0.;
     static constexpr double trkMVA3 = 0.;
     const int hitPattern = hits.val();
-    const double bField = setup_->bField();
+    const double bField = setup_->sysBField();
     TTTrack<Ref_Phase2TrackerDigi_> ttTrack(
         invR, phi0, cot, z0, d0, chi2phi, chi2z, trkMVA1, trkMVA2, trkMVA3, hitPattern, nPar, bField, region);
     ttTrack.setStubRefs(ttStubRefs);

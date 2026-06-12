@@ -8,47 +8,34 @@ def fwConfig(process):
   process.l1tTTTracksFromTrackletEmulation.RemovalType = ""
   process.l1tTTTracksFromTrackletEmulation.DoMultipleMatches = False
   process.l1tTTTracksFromTrackletEmulation.StoreTrackBuilderOutput = True
-  process.TrackTriggerSetup.KalmanFilter.UseTTStubResiduals = False
-  process.TrackTriggerSetup.KalmanFilter.UseTTStubParameters = False
+  process.TrackFindingTrackletSetup.DR.UseDTCStubs = False
+  process.TrackFindingTrackletSetup.DR.UseTTStubs = False
 
 # configures track finding s/w to behave as a subchain of processing steps
 def reducedConfig(process):
   #fwConfig(process) disabled for now as new KF not working with reduced config
-  process.TrackTriggerSetup.Firmware.FreqBEHigh = 240 # Frequency of DTC & KF (determines truncation)
-  process.TrackTriggerSetup.KalmanFilter.NumWorker = 1
-  process.ChannelAssignment.SeedTypes = cms.vstring( "L5L6" )
-  process.ChannelAssignment.SeedTypesSeedLayers = cms.PSet( L5L6 = cms.vint32( 5,  6 ) )
-  process.ChannelAssignment.SeedTypesProjectionLayers = cms.PSet( L5L6 = cms.vint32(  1,  2,  3,  4 ) )
+  process.TrackFindingTrackletSetup.Firmware.FreqBEHigh = 240 # Frequency of DTC & KF (determines truncation)
+  process.TrackFindingTrackletSetup.KF.NumWorker = 1
+  process.TrackFindingTrackletSetup.SeedTypes = cms.vstring( "L5L6" )
+  process.TrackFindingTrackletSetup.SeedTypesSeedLayers = cms.PSet( L5L6 = cms.vint32( 5,  6 ) )
+  process.TrackFindingTrackletSetup.SeedTypesProjectionLayers = cms.PSet( L5L6 = cms.vint32(  1,  2,  3,  4 ) )
   # this are tt::Setup::dtcId in order as in process.l1tTTTracksFromTrackletEmulation.processingModulesFile translated by 
   # reverssing naming logic described in L1FPGATrackProducer
   # TO DO: Eliminate cfg param IRChannelsIn by taking this info from Tracklet wiring map.
-  process.ChannelAssignment.IRChannelsIn = cms.vint32( 0, 1, 25, 2, 26, 4, 5, 29, 6, 30, 7, 31, 8, 9, 33 )
+  process.TrackFindingTrackletSetup.IRChannelsIn = cms.vint32( 0, 1, 25, 2, 26, 4, 5, 29, 6, 30, 7, 31, 8, 9, 33 )
   process.l1tTTTracksFromTrackletEmulation.Reduced = True
   process.l1tTTTracksFromTrackletEmulation.DoMultipleMatches = False
   process.l1tTTTracksFromTrackletEmulation.memoryModulesFile = 'L1Trigger/TrackFindingTracklet/data/memorymodules_reduced.dat'
   process.l1tTTTracksFromTrackletEmulation.processingModulesFile = 'L1Trigger/TrackFindingTracklet/data/processingmodules_reduced.dat'
   process.l1tTTTracksFromTrackletEmulation.wiresFile = 'L1Trigger/TrackFindingTracklet/data/wires_reduced.dat'
 
-# configures displaced tracking using duplicate removal sim followed by 5 param fit sim
-def displacedNewKFMergeConfig(process):
-  process.TrackTriggerSetup.KalmanFilter.Use5ParameterFit = True
-  process.TrackTriggerSetup.Firmware.EnableTruncation = False
+# configures displaced track finding followed by Track Processing sim 
+def simConfig(process):
   process.l1tTTTracksFromExtendedTrackletEmulation.Fakefit = True
+  process.l1tTTTracksFromExtendedTrackletEmulation.RemovalType = ""
   process.l1tTTTracksFromExtendedTrackletEmulation.DoMultipleMatches = False
-  process.l1tTTTracksFromTrackletEmulation.RemovalType = "merge"
-  process.AnalyzerDR.OutputLabelDR = "ProducerFakeDR"
-  process.ProducerKF.InputLabelKF = "ProducerFakeDR"
-
-# configures displaced tracking using duplicate removal emulation followed by 5 param fit sim
-def displacedNewKFKillConfig(process):
-  process.TrackTriggerSetup.KalmanFilter.Use5ParameterFit = True
-  process.TrackTriggerSetup.Firmware.EnableTruncation = False
-  process.l1tTTTracksFromExtendedTrackletEmulation.Fakefit = True
-  process.l1tTTTracksFromExtendedTrackletEmulation.DoMultipleMatches = False
-  process.ChannelAssignment.DR.NumComparisonModules = cms.int32(9999) # number of comparison modules used in each DR node
-  process.ChannelAssignment.SeedTypes = ( "L1L2", "L2L3", "L3L4", "L5L6", "D1D2", "D3D4", "L1D1", "L2D1", "L2L3L4", "L4L5L6", "L2L3D1", "D1D2L2" )
-  process.ChannelAssignment.TM.MuxOrder = ( "L1L2", "L3L4", "D3D4", "D1D2", "L2L3", "L2D1", "L5L6", "L1D1", "L2L3L4",  "L4L5L6", "D1D2L2" , "L2L3D1" ) # This order has not been optimized for NEWKF yet
-  process.ChannelAssignment.SeedTypesSeedLayers = cms.PSet (
+  process.TrackFindingTrackletSetup.TB.SeedTypes = ( "L1L2", "L2L3", "L3L4", "L5L6", "D1D2", "D3D4", "L1D1", "L2D1", "L2L3L4", "L4L5L6", "L2L3D1", "D1D2L2" )
+  process.TrackFindingTrackletSetup.TB.SeedTypesSeedLayers = cms.PSet (
       L1L2   = cms.vint32(  1,  2     ),
       L2L3   = cms.vint32(  2,  3     ),
       L3L4   = cms.vint32(  3,  4     ),
@@ -62,7 +49,7 @@ def displacedNewKFKillConfig(process):
       L2L3D1 = cms.vint32(  2,  3, 11 ),
       D1D2L2 = cms.vint32( 11, 12,  2 )
   )
-  process.ChannelAssignment.SeedTypesProjectionLayers = cms.PSet (
+  process.TrackFindingTrackletSetup.TB.SeedTypesProjectionLayers = cms.PSet (
       L1L2   = cms.vint32(  3,  4,  5,  6, 11, 12, 13, 14 ),
       L2L3   = cms.vint32(  1,  4,  5,  6, 11, 12, 13, 14 ),
       L3L4   = cms.vint32(  1,  2,  5,  6, 11, 12 ),
@@ -76,16 +63,15 @@ def displacedNewKFKillConfig(process):
       L2L3D1 = cms.vint32(  1, 12, 13, 14 ),
       D1D2L2 = cms.vint32(  1, 13, 14 )
   )
-  process.l1tTTTracksFromTrackletEmulation.RemovalType = ""
-  process.AnalyzerTM.OutputLabelTM = "ProducerFakeTM"
-  process.ProducerDR.InputLabelDR = "ProducerFakeTM"
+  process.TrackFindingTrackletSetup.TM.MuxOrder = ( "L1L2", "L2L3", "L1D1", "D1D2", "D3D4", "L2D1", "L2L3D1", "D1D2L2", "L3L4", "L2L3L4", "L5L6", "L4L5L6" )
 
 # configures pure tracklet algorithm (as opposed to Hybrid algorithm)
 def trackletConfig(process):
   process.l1tTTTracksFromTrackletEmulation.fitPatternFile = cms.FileInPath('L1Trigger/TrackFindingTracklet/data/fitpattern.txt') 
 
-# configures KF simulation in emulation chain
+# configures old KF simulation in new KF emulation chain
 def oldKFConfig(process):
+  process.TrackFindingTrackletSetup.KF.UseSimulation = True
   #===== Use HYBRID TRACKING (Tracklet pattern reco + TMTT KF -- requires tracklet C++ too) =====
   process.ProducerKF.Hybrid                                   = True
   # Emulate dead/inefficient modules using the StubKiller code, with stubs killed according to the scenarios of the Stress Test group. 

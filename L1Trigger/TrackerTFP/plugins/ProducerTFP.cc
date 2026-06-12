@@ -12,9 +12,8 @@
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
-#include "L1Trigger/TrackerTFP/interface/TrackQuality.h"
 #include "L1Trigger/TrackerTFP/interface/TrackFindingProcessor.h"
 
 #include <string>
@@ -43,17 +42,9 @@ namespace trackerTFP {
     edm::EDPutTokenT<tt::TTTracks> edPutTokenTTTracks_;
     edm::EDPutTokenT<tt::StreamsTrack> edPutTokenTracks_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
-    // TrackQuality token
-    edm::ESGetToken<TrackQuality, DataFormatsRcd> esGetTokenTrackQuality_;
-    // helper class to store configurations
-    const tt::Setup* setup_ = nullptr;
-    // helper class to extract structured data from tt::Frames
-    const DataFormats* dataFormats_ = nullptr;
-    // helper class to determine track quality
-    const TrackQuality* trackQuality_ = nullptr;
+    edm::ESGetToken<DataFormats, trackerDTC::SetupRcd> esGetTokenDataFormats_;
   };
 
   ProducerTFP::ProducerTFP(const edm::ParameterSet& iConfig) {
@@ -70,24 +61,21 @@ namespace trackerTFP {
     // book ES products
     esGetTokenSetup_ = esConsumes();
     esGetTokenDataFormats_ = esConsumes();
-    esGetTokenTrackQuality_ = esConsumes();
   }
 
   void ProducerTFP::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
-    // helper class to determine track quality
-    const TrackQuality* trackQuality = &iSetup.getData(esGetTokenTrackQuality_);
     // empty TFP products
     tt::TTTracks ttTracks;
-    tt::StreamsTrack streamsTrack(setup->numRegions() * setup->tfpNumChannel());
+    tt::StreamsTrack streamsTrack(setup->sysNumRegion() * setup->tfpNumChannel());
     // read in TQ Products
     const tt::StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
     const tt::StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
     // produce TTTracks
-    TrackFindingProcessor tfp(setup, dataFormats, trackQuality);
+    TrackFindingProcessor tfp(setup, dataFormats);
     tfp.produce(tracks, stubs, ttTracks, streamsTrack);
     // put TTTRacks and produce TTTRackRefs
     const int nTrks = ttTracks.size();

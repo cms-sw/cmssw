@@ -11,7 +11,7 @@
 
 namespace trackerTFP {
 
-  KalmanFilter::KalmanFilter(const tt::Setup* setup,
+  KalmanFilter::KalmanFilter(const Setup* setup,
                              const DataFormats* dataFormats,
                              const LayerEncoding* layerEncoding,
                              KalmanFilterFormats* kalmanFilterFormats,
@@ -43,14 +43,14 @@ namespace trackerTFP {
       // calulcate seed parameter
       calcSeeds(stream);
       // Propagate state to each layer in turn, updating it with all viable stub combinations there, using KF maths
-      for (layer_ = setup_->kfNumSeedStubs(); layer_ < setup_->numLayers(); layer_++)
+      for (layer_ = setup_->kfNumSeedStubs(); layer_ < setup_->sysNumLayer(); layer_++)
         addLayer(stream);
       // count total number of final states
       const int nStates =
           accumulate(stream.begin(), stream.end(), 0, [](int sum, State* state) { return sum + (state ? 1 : 0); });
       // apply truncation
-      if (setup_->enableTruncation() && static_cast<int>(stream.size()) > setup_->numFramesHigh())
-        stream.resize(setup_->numFramesHigh());
+      if (setup_->enableTruncation() && static_cast<int>(stream.size()) > setup_->numFrames())
+        stream.resize(setup_->numFrames());
       // cycle event, remove gaps
       stream.erase(std::remove(stream.begin(), stream.end(), nullptr), stream.end());
       // store number of states which got taken into account
@@ -80,7 +80,7 @@ namespace trackerTFP {
                                        const std::vector<std::vector<Stub*>>& stubsIn,
                                        int channel,
                                        std::deque<State*>& stream) {
-    const int numLayers = setup_->numLayers();
+    const int numLayers = setup_->sysNumLayer();
     const int offsetL = channel * numLayers;
     const std::vector<TrackCTB*>& tracksChannel = tracksIn[channel];
     int trackId(0);
@@ -206,9 +206,9 @@ namespace trackerTFP {
       int numConsistentPS(0);
       TTBV hitPattern = state->hitPattern();
       TTBV ttBV = state->hitPattern();
-      std::vector<StubCTB*> stubs(setup_->numLayers(), nullptr);
-      std::vector<double> phis(setup_->numLayers());
-      std::vector<double> zs(setup_->numLayers());
+      std::vector<StubCTB*> stubs(setup_->sysNumLayer(), nullptr);
+      std::vector<double> phis(setup_->sysNumLayer());
+      std::vector<double> zs(setup_->sysNumLayer());
       // stub residual cut
       State* s = state;
       while ((s = s->parent())) {
@@ -227,7 +227,8 @@ namespace trackerTFP {
           zs[layer] = z;
           if (std::abs(phi) <= s->dPhi() && std::abs(z) <= s->dZ()) {
             numConsistent++;
-            if (setup_->psModule(stub.frame().first))
+            const trackerDTC::SensorModule* sm = setup_->sensorModule(stub.frame().first);
+            if (sm->psModule())
               numConsistentPS++;
           }
         } else

@@ -14,7 +14,7 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "SimDataFormats/Associations/interface/TTTypes.h"
 #include "SimDataFormats/Associations/interface/StubAssociation.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerDTC/interface/Setup.h"
 
 #include <TProfile.h>
 #include <TH1F.h>
@@ -59,7 +59,7 @@ namespace tt {
     // ED input token of StubAssociation with selected TPs
     edm::EDGetTokenT<StubAssociation> edGetTokenEff_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<trackerDTC::Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // Histograms
     TProfile* prof_;
     // printout
@@ -113,7 +113,7 @@ namespace tt {
 
   void AnalyzerMC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const trackerDTC::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // count stubs & matched stubs
     const TTStubDetSetVec& ttStubDetSetVec = iEvent.get(edGetTokenTTStubs_);
     const TTClusterAssMap& ttClusterAssMap = iEvent.get(edGetTokenTTClusterAssMap_);
@@ -134,11 +134,11 @@ namespace tt {
     // get number of TPs
     const StubAssociation& forFake = iEvent.get(edGetTokenFake_);
     const StubAssociation& forEff = iEvent.get(edGetTokenEff_);
-    const double numRegions = setup->numRegions();
+    const double numRegions = setup->sysNumRegion();
     // stub uncertainties
     for (const auto& p : forEff.getTrackingParticleToTTStubsMap()) {
       const TPPtr& tpPtr = p.first;
-      const double inv2R = -tpPtr->charge() / tpPtr->pt() * setup->invPtToDphi();
+      const double inv2R = -tpPtr->charge() / tpPtr->pt() * setup->sysInvPtToDphi();
       const double phi0 = tpPtr->phi();
       const double cot = tpPtr->tanl();
       const double z0 = tpPtr->z0();
@@ -149,7 +149,7 @@ namespace tt {
       if (d0 < 0)
         index++;
       for (const TTStubRef& ttStubRef : p.second) {
-        const GlobalPoint gp = setup->stubPos(ttStubRef);
+        const GlobalPoint gp = setup->stubPosTT(ttStubRef);
         const double r = gp.perp();
         const double phi = phi0 + std::asin((r * r + R0 * R0 - R * R) / 2. / r / R0);
         const double z = z0 + std::abs(R) * cot * std::acos((R * R + R0 * R0 - r * r) / 2. / R / R0);

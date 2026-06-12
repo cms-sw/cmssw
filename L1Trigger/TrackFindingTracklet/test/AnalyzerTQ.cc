@@ -54,13 +54,11 @@ namespace trklet {
     // ED output token for stub association for tracking efficiency
     edm::EDGetTokenT<tt::StubAssociation> edGetTokenEff_;
     // Associator token
-    edm::ESGetToken<tt::Associator, tt::SetupRcd> esGetTokenAssociator_;
+    edm::ESGetToken<tt::Associator, trackerDTC::SetupRcd> esGetTokenAssociator_;
+    // Setup token
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    edm::ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
-    // number of detector regions
-    int numRegions_ = 9;
-    // number of stub channel per track
-    int numLayers_ = 8;
+    edm::ESGetToken<DataFormats, trackerDTC::SetupRcd> esGetTokenDataFormats_;
     //
     int numMVA_ = 8;
     //
@@ -90,6 +88,7 @@ namespace trklet {
     edGetTokenEff_ = consumes(edm::InputTag(labelMC, branchEff));
     // book ES products
     esGetTokenAssociator_ = esConsumes();
+    esGetTokenSetup_ = esConsumes();
     esGetTokenDataFormats_ = esConsumes();
     // log config
     log_.setf(std::ios::fixed, std::ios::floatfield);
@@ -115,6 +114,7 @@ namespace trklet {
     // read in tracks and stubs products
     const tt::StreamsStub& streamsStub = iEvent.get(edGetTokenStubs_);
     const tt::StreamsTrack& streamsTrack = iEvent.get(edGetTokenTracks_);
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
     const DataFormats* df = &iSetup.getData(esGetTokenDataFormats_);
     // read in MCTruth
     tt::Associator forFake = iSetup.getData(esGetTokenAssociator_);
@@ -128,7 +128,7 @@ namespace trklet {
       std::set<TPPtr> tpPtrsPerfect;
       int nTracks(0);
       int nMatched(0);
-      for (int region = 0; region < numRegions_; region++) {
+      for (int region = 0; region < setup->sysNumRegion(); region++) {
         const tt::StreamTrack& streamTrack = streamsTrack[region * 2 + 1];
         const int numFrames = streamTrack.size();
         for (int frame = 0; frame < numFrames; frame++) {
@@ -138,10 +138,10 @@ namespace trklet {
           if (trackTQ.mva() < mva)
             continue;
           nTracks++;
-          const int offset = region * numLayers_;
+          const int offset = region * setup->kfNumLayers();
           std::vector<TTStubRef> ttStubRefs;
-          ttStubRefs.reserve(numLayers_);
-          for (int layer = 0; layer < numLayers_; layer++) {
+          ttStubRefs.reserve(setup->kfNumLayers());
+          for (int layer = 0; layer < setup->kfNumLayers(); layer++) {
             const TTStubRef& ttStubRef = streamsStub[offset + layer][frame].first;
             if (ttStubRef.isNonnull())
               ttStubRefs.push_back(ttStubRef);

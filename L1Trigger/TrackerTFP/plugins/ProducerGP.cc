@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 #include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
 #include "L1Trigger/TrackerTFP/interface/GeometricProcessor.h"
@@ -42,11 +42,11 @@ namespace trackerTFP {
     // ED output token for accepted objects
     edm::EDPutTokenT<tt::StreamsStub> edPutToken_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, trackerDTC::SetupRcd> esGetTokenDataFormats_;
     // LayerEncoding token
-    edm::ESGetToken<LayerEncoding, DataFormatsRcd> esGetTokenLayerEncoding_;
+    edm::ESGetToken<LayerEncoding, trackerDTC::SetupRcd> esGetTokenLayerEncoding_;
   };
 
   ProducerGP::ProducerGP(const edm::ParameterSet& iConfig) {
@@ -63,13 +63,13 @@ namespace trackerTFP {
 
   void ProducerGP::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper classe to store configurations
-    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
     // helper class to encode layer
     const LayerEncoding* layerEncoding = &iSetup.getData(esGetTokenLayerEncoding_);
     // empty GP products
-    tt::StreamsStub accepted(setup->numRegions() * dataFormats->numChannel(Process::gp));
+    tt::StreamsStub accepted(setup->sysNumRegion() * dataFormats->numChannel(Process::gp));
     // read in DTC Product and produce TFP product
     const tt::StreamsStub& streamsStub = iEvent.get(edGetToken_);
     // helper
@@ -81,7 +81,7 @@ namespace trackerTFP {
     };
     auto toFrame = [](StubGP* object) { return object ? object->frame() : tt::FrameStub(); };
     // produce GP product per region
-    for (int region = 0; region < setup->numRegions(); region++) {
+    for (int region = 0; region < setup->sysNumRegion(); region++) {
       const int offsetIn = region * dataFormats->numChannel(Process::pp);
       const int offsetOut = region * dataFormats->numChannel(Process::gp);
       // count input objects

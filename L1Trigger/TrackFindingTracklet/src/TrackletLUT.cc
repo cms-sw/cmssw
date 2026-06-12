@@ -2,7 +2,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletConfigBuilder.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
 
 #include <filesystem>
 
@@ -12,7 +12,7 @@ using namespace trklet;
 TrackletLUT::TrackletLUT(const Settings& settings)
     : settings_(settings), setup_(settings.setup()), nbits_(0), positive_(true) {}
 
-std::vector<const tt::SensorModule*> TrackletLUT::getSensorModules(
+std::vector<const trackerDTC::SensorModule*> TrackletLUT::getSensorModules(
     unsigned int layerdisk, bool isPS, std::array<double, 2> tan_range, unsigned int nzbins, unsigned int zbin) {
   //Returns a vector of SensorModules using T. Schuh's Setup and SensorModule classes.
   //Can be used 3 ways:
@@ -27,7 +27,7 @@ std::vector<const tt::SensorModule*> TrackletLUT::getSensorModules(
 
   int layerId = barrel ? layerdisk + 1 : layerdisk + N_LAYER - 1;
 
-  std::vector<const tt::SensorModule*> sensorModules;
+  std::vector<const trackerDTC::SensorModule*> sensorModules;
 
   double z0 = settings_.z0cut();
 
@@ -63,7 +63,7 @@ std::vector<const tt::SensorModule*> TrackletLUT::getSensorModules(
         else if (!useFlat and !isFlat)
           sensorModules.push_back(&sm);
       } else if (nzbins == 13) {
-        if (sm.ringId(setup_) == zbin)
+        if (ringId(sm.detId()) == zbin)
           sensorModules.push_back(&sm);
       } else {
         throw cms::Exception("Unspecified number of z bins");
@@ -75,9 +75,13 @@ std::vector<const tt::SensorModule*> TrackletLUT::getSensorModules(
 
   //Remove Duplicate Modules
   static constexpr double delta = 1.e-3;
-  auto smallerR = [](const tt::SensorModule* lhs, const tt::SensorModule* rhs) { return lhs->r() < rhs->r(); };
-  auto smallerZ = [](const tt::SensorModule* lhs, const tt::SensorModule* rhs) { return lhs->z() < rhs->z(); };
-  auto equalRZ = [](const tt::SensorModule* lhs, const tt::SensorModule* rhs) {
+  auto smallerR = [](const trackerDTC::SensorModule* lhs, const trackerDTC::SensorModule* rhs) {
+    return lhs->r() < rhs->r();
+  };
+  auto smallerZ = [](const trackerDTC::SensorModule* lhs, const trackerDTC::SensorModule* rhs) {
+    return lhs->z() < rhs->z();
+  };
+  auto equalRZ = [](const trackerDTC::SensorModule* lhs, const trackerDTC::SensorModule* rhs) {
     return abs(lhs->r() - rhs->r()) < delta && abs(lhs->z() - rhs->z()) < delta;
   };
   stable_sort(sensorModules.begin(), sensorModules.end(), smallerR);
@@ -87,7 +91,7 @@ std::vector<const tt::SensorModule*> TrackletLUT::getSensorModules(
   return sensorModules;
 }
 
-std::array<double, 2> TrackletLUT::getTanRange(const std::vector<const tt::SensorModule*>& sensorModules) {
+std::array<double, 2> TrackletLUT::getTanRange(const std::vector<const trackerDTC::SensorModule*>& sensorModules) {
   //Given a set of modules returns a range in tan(theta), the angle is measured in the r-z(+/-z0) plane from the r-axis
 
   std::array<double, 2> tan_range = {{2147483647, 0}};  //(tan_min, tan_max)
@@ -113,10 +117,11 @@ std::array<double, 2> TrackletLUT::getTanRange(const std::vector<const tt::Senso
   return tan_range;
 }
 
-std::vector<std::array<double, 2>> TrackletLUT::getBendCut(unsigned int layerdisk,
-                                                           const std::vector<const tt::SensorModule*>& sensorModules,
-                                                           bool isPS,
-                                                           double FEbendcut) {
+std::vector<std::array<double, 2>> TrackletLUT::getBendCut(
+    unsigned int layerdisk,
+    const std::vector<const trackerDTC::SensorModule*>& sensorModules,
+    bool isPS,
+    double FEbendcut) {
   //Finds range of bendstrip for given SensorModules as a function of the encoded bend. Returns in format (mid, half_range).
   //This uses the stub windows provided by T. Schuh's SensorModule class to determine the bend encoding. TODO test changes in stub windows
   //Any other change to the bend encoding requires changes here, perhaps a function that given (FEbend, isPS, stub window) and outputs an encoded bend
@@ -136,16 +141,13 @@ std::vector<std::array<double, 2>> TrackletLUT::getBendCut(unsigned int layerdis
   //Loop over modules
   for (auto sm : sensorModules) {
     int window = sm->windowSize();  //Half-strip units
-    const vector<double>& encodingBend = setup_->encodingBend(window, isPS);
 
     //Loop over FEbends
     for (int ibend = 0; ibend <= 2 * window; ibend++) {
-      int FEbend = ibend - window;                                                 //Half-strip units
-      double BEbend = setup_->stubAlgorithm()->degradeBend(isPS, window, FEbend);  //Full strip units
+      int FEbend = ibend - window;              //Half-strip units
+      double BEbend = sm->degradeBend(FEbend);  //Full strip units
 
-      const auto pos = std::find(encodingBend.begin(), encodingBend.end(), std::abs(BEbend));
-      int bend = std::signbit(BEbend) ? (1 << bendbits) - distance(encodingBend.begin(), pos)
-                                      : distance(encodingBend.begin(), pos);  //Encoded bend
+      int bend = sm->decodeBend(BEbend) + (BEbend < 0 ? (1 << bendbits) : 0);  //Encoded bend
 
       double bendmin = FEbend / 2.0 - FEbendcut;  //Full Strip units
       double bendmax = FEbend / 2.0 + FEbendcut;
@@ -351,8 +353,8 @@ void TrackletLUT::initTPlut(bool fillInner,
       std::vector<std::array<double, 2>> bend_cuts_outer;
 
       if (settings_.useCalcBendCuts) {
-        std::vector<const tt::SensorModule*> sminner;
-        std::vector<const tt::SensorModule*> smouter;
+        std::vector<const trackerDTC::SensorModule*> sminner;
+        std::vector<const trackerDTC::SensorModule*> smouter;
 
         if (iSeed == Seed::L1L2 || iSeed == Seed::L2L3 || iSeed == Seed::L3L4 || iSeed == Seed::L5L6) {
           double outer_tan_max = tan_theta(settings_.rmean(layerdisk2), settings_.zlength(), z0, true);
@@ -624,8 +626,8 @@ void TrackletLUT::initteptlut(bool fillInner,
     std::vector<std::array<double, 2>> bend_cuts_outer;
 
     if (settings_.useCalcBendCuts) {
-      std::vector<const tt::SensorModule*> sminner;
-      std::vector<const tt::SensorModule*> smouter;
+      std::vector<const trackerDTC::SensorModule*> sminner;
+      std::vector<const trackerDTC::SensorModule*> smouter;
 
       if (iSeed == Seed::L1L2 || iSeed == Seed::L2L3 || iSeed == Seed::L3L4 || iSeed == Seed::L5L6) {
         double outer_tan_max = tan_theta(settings_.rmean(layerdisk2), settings_.zlength(), z0, true);
@@ -913,7 +915,7 @@ void TrackletLUT::initBendMatch(unsigned int layerdisk) {
 
     if (settings_.useCalcBendCuts) {
       double bendcutFE = settings_.bendcutME(layerdisk, isPSmodule);
-      std::vector<const tt::SensorModule*> sm = getSensorModules(layerdisk, isPSmodule);
+      std::vector<const trackerDTC::SensorModule*> sm = getSensorModules(layerdisk, isPSmodule);
       bend_cuts = getBendCut(layerdisk, sm, isPSmodule, bendcutFE);
 
     } else {
@@ -943,11 +945,11 @@ void TrackletLUT::initBendMatch(unsigned int layerdisk) {
 
     if (settings_.useCalcBendCuts) {
       double bendcutFE2S = settings_.bendcutME(layerdisk, false);
-      std::vector<const tt::SensorModule*> sm2S = getSensorModules(layerdisk, false);
+      std::vector<const trackerDTC::SensorModule*> sm2S = getSensorModules(layerdisk, false);
       bend_cuts_2S = getBendCut(layerdisk, sm2S, false, bendcutFE2S);
 
       double bendcutFEPS = settings_.bendcutME(layerdisk, true);
-      std::vector<const tt::SensorModule*> smPS = getSensorModules(layerdisk, true);
+      std::vector<const trackerDTC::SensorModule*> smPS = getSensorModules(layerdisk, true);
       bend_cuts_PS = getBendCut(layerdisk, smPS, true, bendcutFEPS);
 
     } else {
@@ -1363,7 +1365,7 @@ void TrackletLUT::initPhiCorrTable(unsigned int layerdisk, unsigned int rbits) {
   std::vector<std::array<double, 2>> bend_vals;
 
   if (settings_.useCalcBendCuts) {
-    std::vector<const tt::SensorModule*> sm = getSensorModules(layerdisk, psmodule);
+    std::vector<const trackerDTC::SensorModule*> sm = getSensorModules(layerdisk, psmodule);
     bend_vals = getBendCut(layerdisk, sm, psmodule);
 
   } else {
@@ -1470,4 +1472,30 @@ int TrackletLUT::lookup(unsigned int index) const {
   }
   assert(index < table_.size());
   return table_[index];
+}
+
+unsigned int TrackletLUT::ringId(const DetId& detId) const {
+  // In barrel PS: Tilted module ring no. (Increasing 1 to 12 as |z| increases)
+  // In barrel 2S: 0
+  // In disk: Endcap module ring number (1-15) in endcap disks
+
+  // See  https://github.com/cms-sw/cmssw/tree/master/Geometry/TrackerNumberingBuilder
+  const bool barrel = detId.subdetId() == StripSubdetector::TOB;
+  const TrackerTopology* trackerTopology = setup_->trackerTopology();
+  enum TypeBarrel { nonBarrel = 0, tiltedMinus = 1, tiltedPlus = 2, flat = 3 };
+  const TypeBarrel type = static_cast<TypeBarrel>(trackerTopology->tobSide(detId));
+  bool tiltedBarrel = barrel && (type == tiltedMinus || type == tiltedPlus);
+  unsigned int ringId = 0;
+  // Tilted module ring no. (Increasing 1 to 12 as |z| increases).
+  if (tiltedBarrel) {
+    ringId = trackerTopology->tobRod(detId);
+    if (type == tiltedMinus) {
+      unsigned int layp1 = trackerTopology->layer(detId);
+      unsigned int nTilted = setup_->numTiltedLayerRing(layp1);
+      ringId = 1 + nTilted - ringId;
+    }
+  } else {
+    ringId = barrel ? 0 : trackerTopology->tidRing(detId);
+  }
+  return ringId;
 }

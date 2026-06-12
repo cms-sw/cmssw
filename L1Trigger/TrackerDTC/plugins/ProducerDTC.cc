@@ -12,17 +12,17 @@
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
-#include "L1Trigger/TrackTrigger/interface/SensorModule.h"
-#include "L1Trigger/TrackerDTC/interface/LayerEncoding.h"
-#include "L1Trigger/TrackerDTC/interface/DTC.h"
-#include "L1Trigger/TrackerTFP/interface/DataFormats.h"
+#include "L1Trigger/TrackerDTC/interface/Setup.h"
+#include "L1Trigger/TrackerDTC/interface/SensorModule.h"
+#include "L1Trigger/TrackerDTC/interface/StubFE.h"
+#include "L1Trigger/TrackerDTC/interface/StubDTC.h"
 
-#include <numeric>
+#include <iterator>
 #include <algorithm>
+#include <cmath>
 #include <vector>
 #include <string>
-#include <memory>
+#include <utility>
 
 namespace trackerDTC {
 
@@ -38,71 +38,135 @@ namespace trackerDTC {
 
   private:
     void produce(edm::Event&, const edm::EventSetup&) override;
+    // apply cabling map, reorganise stub collections
+    void consume(const edm::Handle<TTStubDetSetVec>&, std::vector<std::vector<std::vector<TTStubRef>>>&) const;
+    // board level transforming and routing of stubs
+    void produce(const std::vector<std::vector<TTStubRef>>&, TTDTC&) const;
     // ED input token of TTStubs
     edm::EDGetTokenT<TTStubDetSetVec> edGetToken_;
     // ED output token for accepted stubs
-    edm::EDPutTokenT<TTDTC> edPutTokenAccepted_;
-    // ED output token for lost stubs
-    edm::EDPutTokenT<TTDTC> edPutTokenLost_;
+    edm::EDPutTokenT<TTDTC> edPutToken;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
-    // DataFormats token
-    edm::ESGetToken<trackerTFP::DataFormats, trackerTFP::DataFormatsRcd> esGetTokenDataFormats_;
-    // LayerEncoding token
-    edm::ESGetToken<LayerEncoding, tt::SetupRcd> esGetTokenLayerEncoding_;
+    edm::ESGetToken<Setup, SetupRcd> esGetToken_;
+    // helper class to store configurations
+    const Setup* setup_ = nullptr;
+    // this dtc
+    int dtcId_;
   };
 
   ProducerDTC::ProducerDTC(const edm::ParameterSet& iConfig) {
     // book in- and output ED products
-    const auto& inputTag = iConfig.getParameter<edm::InputTag>("InputTagTTStubs");
-    const auto& branchAccepted = iConfig.getParameter<std::string>("BranchAccepted");
-    const auto& branchLost = iConfig.getParameter<std::string>("BranchLost");
+    const edm::InputTag& inputTag = iConfig.getParameter<edm::InputTag>("InputTag");
+    const std::string& branch = iConfig.getParameter<std::string>("Branch");
     edGetToken_ = consumes(inputTag);
-    edPutTokenAccepted_ = produces(branchAccepted);
-    edPutTokenLost_ = produces(branchLost);
+    edPutToken = produces(branch);
     // book ES products
-    esGetTokenSetup_ = esConsumes();
-    esGetTokenDataFormats_ = esConsumes();
-    esGetTokenLayerEncoding_ = esConsumes();
+    esGetToken_ = esConsumes();
   }
 
   void ProducerDTC::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
-    // helper class to extract structured data from tt::Frames
-    const trackerTFP::DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
-    // class to encode layer ids used between DTC and TFP in Hybrid
-    const LayerEncoding* layerEncoding = &iSetup.getData(esGetTokenLayerEncoding_);
+    setup_ = &iSetup.getData(esGetToken_);
     // empty DTC products
-    TTDTC productAccepted = setup->ttDTC();
-    TTDTC productLost = setup->ttDTC();
+    TTDTC ttDCT(setup_->sysNumRegion(), setup_->sysNumOverlap(), setup_->regNumDTC());
     // read in stub collection
     edm::Handle<TTStubDetSetVec> handle;
     iEvent.getByToken(edGetToken_, handle);
     // apply cabling map, reorganise stub collections
-    std::vector<std::vector<std::vector<TTStubRef>>> stubsDTCs(
-        setup->numDTCs(), std::vector<std::vector<TTStubRef>>(setup->numModulesPerDTC()));
-    for (auto module = handle->begin(); module != handle->end(); module++) {
-      // DetSetVec->detId + 1 = tk layout det id
-      const DetId detId = module->detId() + setup->offsetDetIdDSV();
-      // corresponding sensor module
-      tt::SensorModule* sm = setup->sensorModule(detId);
-      // empty stub collection
-      std::vector<TTStubRef>& stubsModule = stubsDTCs[sm->dtcId()][sm->modId()];
-      stubsModule.reserve(module->size());
-      for (TTStubDetSet::const_iterator ttStub = module->begin(); ttStub != module->end(); ttStub++)
-        stubsModule.emplace_back(makeRefTo(handle, ttStub));
-    }
+    std::vector<std::vector<std::vector<TTStubRef>>> stubs(setup_->sysNumDTC(),
+                                                           std::vector<std::vector<TTStubRef>>(setup_->dtcNumModule()));
+    consume(handle, stubs);
     // board level processing
-    for (int dtcId = 0; dtcId < setup->numDTCs(); dtcId++) {
-      // create single outer tracker DTC board
-      DTC dtc(setup, dataFormats, layerEncoding, dtcId, stubsDTCs.at(dtcId));
-      // route stubs and fill products
-      dtc.produce(productAccepted, productLost);
-    }
+    for (dtcId_ = 0; dtcId_ < setup_->sysNumDTC(); dtcId_++)
+      produce(stubs[dtcId_], ttDCT);
     // store ED products
-    iEvent.emplace(edPutTokenAccepted_, std::move(productAccepted));
-    iEvent.emplace(edPutTokenLost_, std::move(productLost));
+    iEvent.emplace(edPutToken, std::move(ttDCT));
+  }
+
+  // apply cabling map, reorganise stub collections
+  void ProducerDTC::consume(const edm::Handle<TTStubDetSetVec>& handle,
+                            std::vector<std::vector<std::vector<TTStubRef>>>& stubs) const {
+    for (auto ttModule = handle->begin(); ttModule != handle->end(); ttModule++) {
+      // get det id for this module
+      const DetId detId = ttModule->detId() + 1;
+      // corresponding sensor module
+      const SensorModule* sm = setup_->sensorModule(detId);
+      // empty stub collection
+      std::vector<TTStubRef>& ttStubRefs = stubs[sm->dtcId()][sm->modId()];
+      ttStubRefs.reserve(ttModule->size());
+      for (auto ttStub = ttModule->begin(); ttStub != ttModule->end(); ttStub++)
+        ttStubRefs.emplace_back(makeRefTo(handle, ttStub));
+    }
+  }
+
+  // board level transforming and routing of stubs
+  void ProducerDTC::produce(const std::vector<std::vector<TTStubRef>>& dtc, TTDTC& ttDTC) const {
+    const std::vector<const SensorModule*>& sms = setup_->dtcModules(dtcId_);
+    const bool gig10 = (dtcId_ % setup_->sysNumATCASlot()) < setup_->sysSlotLimitPS();
+    const int max = (gig10 ? setup_->cicNumStub10g() : setup_->cicNumStub5g()) * setup_->smNumCIC();
+    // count number of stubs on this dtc
+    auto acc = [](int sum, const std::vector<TTStubRef>& ttStubRefs) { return sum + ttStubRefs.size(); };
+    const int nStubs = std::accumulate(dtc.begin(), dtc.end(), 0, acc);
+    std::vector<StubFE> stubsFE;
+    stubsFE.reserve(nStubs);
+    // helper to sort stubs
+    auto byBend = [](const StubFE& lhs, const StubFE& rhs) { return std::abs(lhs.bend()) < std::abs(rhs.bend()); };
+    // convert TTStubs to front end stubs
+    for (int modId = 0; modId < setup_->dtcNumModule(); modId++) {
+      const std::vector<TTStubRef>& ttStubRefs = dtc[modId];
+      if (ttStubRefs.empty())
+        continue;
+      // Module which produced this ttStubRefs
+      const SensorModule* sm = sms[modId];
+      // store stubs
+      const auto begin = stubsFE.end();
+      for (const TTStubRef& ttStubRef : ttStubRefs)
+        stubsFE.emplace_back(setup_, sm, ttStubRef);
+      // sort stubs by bend
+      std::sort(begin, stubsFE.end(), byBend);
+      // truncate if desired
+      if (setup_->enableTruncation()) {
+        const int size = std::distance(begin, stubsFE.end());
+        if (size > max)
+          stubsFE.erase(std::next(begin, max), stubsFE.end());
+      }
+    }
+    // convert front end stubs to gloabl stubs
+    std::vector<StubGL> stubsGL;
+    stubsGL.reserve(nStubs);
+    for (const StubFE& stubFE : stubsFE)
+      stubsGL.emplace_back(stubFE);
+    // convert global stubs to output stubs
+    std::vector<std::vector<StubDTC>> stubsDTC(setup_->sysNumOverlap());
+    for (std::vector<StubDTC>& stubs : stubsDTC)
+      stubs.reserve(nStubs);
+    for (int overlap = 0; overlap < setup_->sysNumOverlap(); overlap++) {
+      std::vector<StubDTC>& stubs = stubsDTC[overlap];
+      for (const StubGL& stubGL : stubsGL) {
+        if (!stubGL.valid() || !stubGL.overlap().test(overlap))
+          continue;
+        stubs.emplace_back(stubGL, overlap);
+        if (!stubs.back().valid())
+          stubs.pop_back();
+      }
+    }
+    // truncate if desired
+    if (setup_->enableTruncation()) {
+      for (std::vector<StubDTC>& stubs : stubsDTC)
+        if (static_cast<int>(stubs.size()) > setup_->sysNumFrames())
+          stubs.erase(std::next(stubs.begin(), setup_->sysNumFrames()), stubs.end());
+    }
+    // fill product
+    const int region = dtcId_ / setup_->regNumDTC();
+    const int board = dtcId_ % setup_->regNumDTC();
+    for (int overlap = 0; overlap < setup_->sysNumOverlap(); overlap++) {
+      const std::vector<StubDTC>& stubs = stubsDTC[overlap];
+      tt::StreamStub stream;
+      stream.reserve(stubs.size());
+      for (const StubDTC& stub : stubs)
+        stream.push_back(stub.frame());
+      ttDTC.setStream(region, board, overlap, stream);
+    }
   }
 
 }  // namespace trackerDTC

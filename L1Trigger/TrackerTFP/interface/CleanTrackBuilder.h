@@ -2,10 +2,10 @@
 #define L1Trigger_TrackerTFP_CleanTrackBuilder_h
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "DataFormats/L1TrackTrigger/interface/TTBV.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 #include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 #include <vector>
 #include <deque>
@@ -15,7 +15,7 @@ namespace trackerTFP {
   // Class to clean and transform stream of stubs into a stream of tracks with one stub stream per kf layer
   class CleanTrackBuilder {
   public:
-    CleanTrackBuilder(const tt::Setup* setup,
+    CleanTrackBuilder(const Setup* setup,
                       const DataFormats* dataFormats,
                       const LayerEncoding* layerEncoding,
                       std::vector<StubCTB>& stubs,
@@ -64,7 +64,7 @@ namespace trackerTFP {
     // struct to represent internal tracks
     struct Track {
       // construct Track from Stubs
-      Track(const tt::Setup* setup,
+      Track(const Setup* setup,
             int trackId,
             const TTBV& hitsPhi,
             const TTBV& hitsZ,
@@ -112,7 +112,7 @@ namespace trackerTFP {
     template <class T>
     T* pop_front(std::deque<T*>& ts) const;
     // provides run-time constants
-    const tt::Setup* setup_;
+    const Setup* setup_;
     // provides dataformats
     const DataFormats* dataFormats_;
     //

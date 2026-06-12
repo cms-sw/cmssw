@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 #include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
 #include "L1Trigger/TrackerTFP/interface/HoughTransform.h"
@@ -42,11 +42,11 @@ namespace trackerTFP {
     // ED output token for accepted stubs
     edm::EDPutTokenT<tt::StreamsStub> edPutToken_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, trackerDTC::SetupRcd> esGetTokenDataFormats_;
     // LayerEncoding token
-    edm::ESGetToken<LayerEncoding, DataFormatsRcd> esGetTokenLayerEncoding_;
+    edm::ESGetToken<LayerEncoding, trackerDTC::SetupRcd> esGetTokenLayerEncoding_;
   };
 
   ProducerHT::ProducerHT(const edm::ParameterSet& iConfig) {
@@ -62,18 +62,18 @@ namespace trackerTFP {
   }
 
   void ProducerHT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
     const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
     const LayerEncoding* layerEncoding = &iSetup.getData(esGetTokenLayerEncoding_);
     // empty HT products
-    tt::StreamsStub accepted(setup->numRegions() * dataFormats->numChannel(Process::ht));
+    tt::StreamsStub accepted(setup->sysNumRegion() * dataFormats->numChannel(Process::ht));
     // read in DTC Product and produce TFP product
     const tt::StreamsStub& streamsStub = iEvent.get(edGetToken_);
     // helper
     auto validFrame = [](int sum, const tt::FrameStub& frame) { return sum + (frame.first.isNonnull() ? 1 : 0); };
     auto toFrame = [](StubHT* object) { return object ? object->frame() : tt::FrameStub(); };
     // produce HT output per region
-    for (int region = 0; region < setup->numRegions(); region++) {
+    for (int region = 0; region < setup->sysNumRegion(); region++) {
       const int offsetIn = region * dataFormats->numChannel(Process::gp);
       const int offsetOut = region * dataFormats->numChannel(Process::ht);
       // count input objects

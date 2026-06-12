@@ -12,7 +12,7 @@
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
 #include "L1Trigger/TrackFindingTracklet/interface/DataFormats.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackFindingProcessor.h"
 
@@ -42,9 +42,9 @@ namespace trklet {
     edm::EDPutTokenT<tt::TTTracks> edPutTokenTTTracks_;
     edm::EDPutTokenT<tt::StreamsTrack> edPutTokenTracks_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    edm::ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, trackerDTC::SetupRcd> esGetTokenDataFormats_;
   };
 
   ProducerTFP::ProducerTFP(const edm::ParameterSet& iConfig) {
@@ -65,12 +65,12 @@ namespace trklet {
 
   void ProducerTFP::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
     // empty TFP products
     tt::TTTracks ttTracks;
-    tt::StreamsTrack streamsTrack(setup->numRegions() * setup->tfpNumChannel());
+    tt::StreamsTrack streamsTrack(setup->sysNumRegion() * setup->tfpNumChannel());
     // read in TQ Products
     const tt::StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
     const tt::StreamsStub& stubs = iEvent.get(edGetTokenStubs_);

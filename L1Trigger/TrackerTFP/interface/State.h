@@ -1,11 +1,14 @@
 #ifndef L1Trigger_TrackerTFP_State_h
 #define L1Trigger_TrackerTFP_State_h
 
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/L1TrackTrigger/interface/TTBV.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 #include "L1Trigger/TrackerTFP/interface/KalmanFilterFormats.h"
 
 #include <vector>
-#include <numeric>
+#include <deque>
 
 namespace trackerTFP {
 
@@ -127,7 +130,7 @@ namespace trackerTFP {
     // provides data fomats
     KalmanFilterFormats* formats_;
     // provides run-time constants
-    const tt::Setup* setup_;
+    const Setup* setup_;
     // input track
     TrackCTB* track_;
     // input track stubs

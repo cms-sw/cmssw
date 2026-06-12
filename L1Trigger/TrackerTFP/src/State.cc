@@ -5,8 +5,8 @@ namespace trackerTFP {
   //
   State::Stub::Stub(KalmanFilterFormats* formats, const tt::FrameStub& frame)
       : stubCTB_(frame, formats->dataFormats()) {
-    const tt::Setup* setup = formats->setup();
-    H12_ = formats->format(VariableKF::H12).digi(stubCTB_.r() + setup->chosenRofPhi() - setup->chosenRofZ());
+    const Setup* setup = formats->setup();
+    H12_ = formats->format(VariableKF::H12).digi(stubCTB_.r() + setup->regChosenRofPhi() - setup->regChosenRofZ());
     v0_ = formats->format(VariableKF::v0).digi(std::pow(2. * stubCTB_.dPhi(), 2));
     v1_ = formats->format(VariableKF::v1).digi(std::pow(2. * stubCTB_.dZ(), 2));
   }
@@ -23,8 +23,8 @@ namespace trackerTFP {
         stubs_(stubs),
         maybePattern_(maybePattern),
         trackId_(trackId),
-        hitPattern_(0, setup_->numLayers()),
-        trackPattern_(0, setup_->numLayers()) {
+        hitPattern_(0, setup_->sysNumLayer()),
+        trackPattern_(0, setup_->sysNumLayer()) {
     for (const std::vector<Stub*>& stubs : stubs_) {
       if (!stubs.empty())
         trackPattern_.set(layer_);
@@ -68,12 +68,12 @@ namespace trackerTFP {
     C23_ = C23;
     // pick next stub (first stub in next layer with stub)
     stub_ = nullptr;
-    layer_ = trackPattern_.plEncode(layer_ + 1, setup_->numLayers());
+    layer_ = trackPattern_.plEncode(layer_ + 1, setup_->sysNumLayer());
     if (hitPattern_.count() >= setup_->kfMinLayers() || hitPattern_.count() == setup_->kfMaxLayers()) {
       layer_ = 0;
       return;
     }
-    if (layer_ == setup_->numLayers())
+    if (layer_ == setup_->sysNumLayer())
       return;
     stub_ = stubs_[layer_].front();
     hitPattern_.set(layer_);
@@ -110,7 +110,7 @@ namespace trackerTFP {
     parent_ = parent;
     stub_ = stub;
     layer_ = layer;
-    hitPattern_ = parent ? parent->hitPattern() : TTBV(0, setup_->numLayers());
+    hitPattern_ = parent ? parent->hitPattern() : TTBV(0, setup_->sysNumLayer());
     hitPattern_.set(layer_);
   }
 
@@ -118,7 +118,7 @@ namespace trackerTFP {
   State* State::update(std::deque<State>& states, int layer) {
     if (!hitPattern_.test(layer) || hitPattern_.count() > setup_->kfNumSeedStubs())
       return this;
-    layer_ = trackPattern_.plEncode(layer_ + 1, setup_->numLayers());
+    layer_ = trackPattern_.plEncode(layer_ + 1, setup_->sysNumLayer());
     states.emplace_back(this, this, stubs_[layer_].front(), layer_);
     return &states.back();
   }
@@ -137,7 +137,7 @@ namespace trackerTFP {
     }
     // skip this layer
     if (gapCheck(layer)) {
-      const int nextLayer = trackPattern_.plEncode(layer + 1, setup_->numLayers());
+      const int nextLayer = trackPattern_.plEncode(layer + 1, setup_->sysNumLayer());
       states.emplace_back(this, parent_, stubs_[nextLayer].front(), nextLayer);
       return &states.back();
     }
@@ -166,7 +166,7 @@ namespace trackerTFP {
     }
     // handle skip
     if (gapCheck(layer)) {
-      const int nextLayer = trackPattern_.plEncode(layer + 1, setup_->numLayers());
+      const int nextLayer = trackPattern_.plEncode(layer + 1, setup_->sysNumLayer());
       states.emplace_back(this, parent_, stubs_[nextLayer].front(), nextLayer);
       return &states.back();
     }
@@ -175,12 +175,12 @@ namespace trackerTFP {
 
   //
   bool State::gapCheck(int layer) const {
-    if (layer >= setup_->numLayers())
+    if (layer >= setup_->sysNumLayer())
       return false;
     bool gap(false);
     int hits(0);
     int gaps(0);
-    for (int k = 0; k < setup_->numLayers(); k++) {
+    for (int k = 0; k < setup_->sysNumLayer(); k++) {
       if (k == setup_->kfMaxSeedingLayer())
         if (hits < setup_->kfNumSeedStubs())
           return false;

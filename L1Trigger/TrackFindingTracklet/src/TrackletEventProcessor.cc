@@ -24,7 +24,7 @@ TrackletEventProcessor::~TrackletEventProcessor() {
   }
 }
 
-void TrackletEventProcessor::init(Settings const& theSettings, const tt::Setup* setup) {
+void TrackletEventProcessor::init(Settings const& theSettings, const Setup* setup) {
   settings_ = &theSettings;
   globals_ = make_unique<Globals>(*settings_);
 

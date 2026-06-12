@@ -14,7 +14,7 @@
 
 #include "SimDataFormats/Associations/interface/StubAssociation.h"
 #include "L1Trigger/TrackTrigger/interface/Associator.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 
 #include <TProfile.h>
@@ -66,13 +66,13 @@ namespace trackerTFP {
     // ED input token of TTStubRef to recontructable TPPtr association
     edm::EDGetTokenT<tt::StubAssociation> edGetTokenReconstructable_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // Associator token
-    edm::ESGetToken<tt::Associator, tt::SetupRcd> esGetTokenAssociator_;
+    edm::ESGetToken<tt::Associator, trackerDTC::SetupRcd> esGetTokenAssociator_;
     // DataFormats token
-    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, trackerDTC::SetupRcd> esGetTokenDataFormats_;
     // stores, calculates and provides run-time constants
-    const tt::Setup* setup_ = nullptr;
+    const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats_ = nullptr;
     // enables analyze of TPs
@@ -164,7 +164,7 @@ namespace trackerTFP {
     std::set<TPPtr> tpPtrsMax;
     int allMatched(0);
     int allTracks(0);
-    for (int region = 0; region < setup_->numRegions(); region++) {
+    for (int region = 0; region < setup_->sysNumRegion(); region++) {
       std::vector<std::vector<TTStubRef>> tracks;
       formTracks(acceptedTracks, acceptedStubs, tracks, region);
       hisTracks_->Fill(tracks.size());
@@ -239,7 +239,7 @@ namespace trackerTFP {
                               const tt::StreamsStub& streamsStubs,
                               std::vector<std::vector<TTStubRef>>& tracks,
                               int region) const {
-    const int offset = region * setup_->numLayers();
+    const int offset = region * setup_->sysNumLayer();
     const tt::StreamTrack& streamTrack = streamsTrack[region];
     const int numTracks =
         std::accumulate(streamTrack.begin(), streamTrack.end(), 0, [](int sum, const tt::FrameTrack& frame) {
@@ -251,7 +251,7 @@ namespace trackerTFP {
       if (frameTrack.first.isNull())
         continue;
       std::deque<TTStubRef> stubs;
-      for (int layer = 0; layer < setup_->numLayers(); layer++) {
+      for (int layer = 0; layer < setup_->sysNumLayer(); layer++) {
         const tt::FrameStub& stub = streamsStubs[offset + layer][frame];
         if (stub.first.isNonnull())
           stubs.push_back(stub.first);

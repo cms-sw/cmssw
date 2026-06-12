@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 #include "L1Trigger/TrackerTFP/interface/DuplicateRemoval.h"
 
@@ -39,9 +39,9 @@ namespace trackerTFP {
     edm::EDPutTokenT<tt::StreamsStub> edPutTokenStubs_;
     edm::EDPutTokenT<tt::StreamsTrack> edPutTokenTracks_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, trackerDTC::SetupRcd> esGetTokenDataFormats_;
   };
 
   ProducerDR::ProducerDR(const edm::ParameterSet& iConfig) {
@@ -60,12 +60,12 @@ namespace trackerTFP {
 
   void ProducerDR::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
     // empty DR products
-    tt::StreamsStub acceptedStubs(setup->numRegions() * dataFormats->numChannel(Process::dr) * setup->numLayers());
-    tt::StreamsTrack acceptedTracks(setup->numRegions() * dataFormats->numChannel(Process::dr));
+    tt::StreamsStub acceptedStubs(setup->sysNumRegion() * dataFormats->numChannel(Process::dr) * setup->sysNumLayer());
+    tt::StreamsTrack acceptedTracks(setup->sysNumRegion() * dataFormats->numChannel(Process::dr));
     // read in KF Product and produce DR product
     const tt::StreamsStub& allStubs = iEvent.get(edGetTokenStubs_);
     const tt::StreamsTrack& allTracks = iEvent.get(edGetTokenTracks_);
@@ -82,7 +82,7 @@ namespace trackerTFP {
       stream.reserve(objects.size());
       std::transform(objects.begin(), objects.end(), std::back_inserter(stream), toFrame);
     };
-    for (int region = 0; region < setup->numRegions(); region++) {
+    for (int region = 0; region < setup->sysNumRegion(); region++) {
       const int offsetIn = region * dataFormats->numChannel(Process::kf);
       const int offsetOut = region * dataFormats->numChannel(Process::dr);
       // count input objects
@@ -90,10 +90,10 @@ namespace trackerTFP {
       int nStubs(0);
       for (int channelIn = 0; channelIn < dataFormats->numChannel(Process::kf); channelIn++) {
         const int index = offsetIn + channelIn;
-        const int offset = index * setup->numLayers();
+        const int offset = index * setup->sysNumLayer();
         const tt::StreamTrack& tracks = allTracks[index];
         nTracks += std::accumulate(tracks.begin(), tracks.end(), 0, validFrameT);
-        for (int layer = 0; layer < setup->numLayers(); layer++) {
+        for (int layer = 0; layer < setup->sysNumLayer(); layer++) {
           const tt::StreamStub& stubs = allStubs[offset + layer];
           nStubs += std::accumulate(stubs.begin(), stubs.end(), 0, validFrameS);
         }
@@ -105,12 +105,12 @@ namespace trackerTFP {
       stubsKF.reserve(nStubs);
       // h/w liked organized pointer to input data
       std::vector<std::vector<TrackKF*>> regionTracks(dataFormats->numChannel(Process::kf));
-      std::vector<std::vector<StubKF*>> regionStubs(dataFormats->numChannel(Process::kf) * setup->numLayers());
+      std::vector<std::vector<StubKF*>> regionStubs(dataFormats->numChannel(Process::kf) * setup->sysNumLayer());
       // read input data
       for (int channelIn = 0; channelIn < dataFormats->numChannel(Process::kf); channelIn++) {
         const int index = offsetIn + channelIn;
-        const int offsetAll = index * setup->numLayers();
-        const int offsetRegion = channelIn * setup->numLayers();
+        const int offsetAll = index * setup->sysNumLayer();
+        const int offsetRegion = channelIn * setup->sysNumLayer();
         const tt::StreamTrack& streamTrack = allTracks[index];
         std::vector<TrackKF*>& tracks = regionTracks[channelIn];
         tracks.reserve(streamTrack.size());
@@ -122,7 +122,7 @@ namespace trackerTFP {
           }
           tracks.push_back(track);
         }
-        for (int layer = 0; layer < setup->numLayers(); layer++) {
+        for (int layer = 0; layer < setup->sysNumLayer(); layer++) {
           for (const tt::FrameStub& frame : allStubs[offsetAll + layer]) {
             StubKF* stub = nullptr;
             if (frame.first.isNonnull()) {
@@ -142,16 +142,16 @@ namespace trackerTFP {
       DuplicateRemoval dr(setup, dataFormats, tracksDR, stubsDR);
       // empty h/w liked organized pointer to output data
       std::vector<std::vector<TrackDR*>> streamsTrack(dataFormats->numChannel(Process::dr));
-      std::vector<std::vector<StubDR*>> streamsStub(dataFormats->numChannel(Process::dr) * setup->numLayers());
+      std::vector<std::vector<StubDR*>> streamsStub(dataFormats->numChannel(Process::dr) * setup->sysNumLayer());
       // fill output data
       dr.produce(regionTracks, regionStubs, streamsTrack, streamsStub);
       // convert data to ed products
       for (int channelOut = 0; channelOut < dataFormats->numChannel(Process::dr); channelOut++) {
         const int index = offsetOut + channelOut;
-        const int offsetRegion = channelOut * setup->numLayers();
-        const int offsetAll = index * setup->numLayers();
+        const int offsetRegion = channelOut * setup->sysNumLayer();
+        const int offsetAll = index * setup->sysNumLayer();
         putT(streamsTrack[channelOut], acceptedTracks[index]);
-        for (int layer = 0; layer < setup->numLayers(); layer++)
+        for (int layer = 0; layer < setup->sysNumLayer(); layer++)
           putS(streamsStub[offsetRegion + layer], acceptedStubs[offsetAll + layer]);
       }
     }

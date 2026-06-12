@@ -13,15 +13,11 @@
 
 namespace hph {
 
-  Setup::Setup(const Config& iConfig,
-               const tt::Setup& setupTT,
-               const trackerTFP::DataFormats& dataFormats,
-               const trackerTFP::LayerEncoding& layerEncoding)
+  Setup::Setup(const Config& iConfig, const trklet::Setup& setupTT, const trklet::DataFormats& dataFormats)
       : setupTT_(&setupTT),
-        layerEncoding_(&layerEncoding),
         hphDebug_(iConfig.hphDebug_),
         useNewKF_(iConfig.useNewKF_),
-        chosenRofZNewKF_(setupTT_->chosenRofZ()),
+        chosenRofZNewKF_(setupTT_->regChosenRofZ()),
         layermap_(),
         nEtaRegions_(tmtt::KFbase::nEta_ / 2),
         nKalmanLayers_(tmtt::KFbase::nKFlayer_) {
@@ -56,8 +52,8 @@ namespace hph {
         etaRegions_(setup_->etaRegions()),
         layermap_(setup_->layermap()),
         nKalmanLayers_(setup_->nKalmanLayers()),
-        zT_(z0 + cot * setup_->chosenRofZ()),
-        layerEncoding_(setup->layerEncoding(zT_)),
+        zT_(z0 + cot * setup_->regChosenRofZ()),
+        layerEncoding_({1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15}),
         numExpLayer_(layerEncoding_.size()),
         hitpattern_(hitpattern),
         etaSector_(setup_->etaRegion(z0, cot, useNewKF_)),  // Only works for old KF

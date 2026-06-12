@@ -14,7 +14,7 @@
 
 #include "SimDataFormats/Associations/interface/StubAssociation.h"
 #include "L1Trigger/TrackTrigger/interface/Associator.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 
 #include <TProfile.h>
@@ -61,13 +61,13 @@ namespace trackerTFP {
     // ED input token of TTStubRef to recontructable TPPtr association
     edm::EDGetTokenT<tt::StubAssociation> edGetTokenReconstructable_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // Associator token
-    edm::ESGetToken<tt::Associator, tt::SetupRcd> esGetTokenAssociator_;
+    edm::ESGetToken<tt::Associator, trackerDTC::SetupRcd> esGetTokenAssociator_;
     // DataFormats token
-    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, trackerDTC::SetupRcd> esGetTokenDataFormats_;
     // stores, calculates and provides run-time constants
-    const tt::Setup* setup_ = nullptr;
+    const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats_ = nullptr;
     // enables analyze of TPs
@@ -174,7 +174,7 @@ namespace trackerTFP {
       const double tpCot = sinh(tpPtr->eta());
       const math::XYZPointD& v = tpPtr->vertex();
       const double tpZ0 = v.z() - tpCot * (v.x() * cos(tpPhi0) + v.y() * sin(tpPhi0));
-      const double tpZT = tpZ0 + tpCot * setup_->chosenRofZ();
+      const double tpZT = tpZ0 + tpCot * setup_->regChosenRofZ();
       hisEta->Fill(tpPtr->eta());
       hisZT->Fill(tpZT);
       hisInv2R->Fill(tpPtr->charge() / tpPtr->pt() * setup_->invPtToDphi());
@@ -197,7 +197,7 @@ namespace trackerTFP {
     std::set<TPPtr> tpPtrsSelection;
     int allMatched(0);
     int allTracks(0);
-    for (int region = 0; region < setup_->numRegions(); region++) {
+    for (int region = 0; region < setup_->sysNumRegion(); region++) {
       int nStubs(0);
       int nTracks(0);
       for (int channel = 0; channel < dataFormats_->numChannel(Process::ht); channel++) {
@@ -292,10 +292,11 @@ namespace trackerTFP {
       ttStubRefs.reserve(std::distance(start, it));
       std::transform(start, it, std::back_inserter(ttStubRefs), [](const StubHT& stub) { return stub.frame().first; });
       tracks.push_back(ttStubRefs);
-      TTBV hitPattern(0, setup_->numLayers());
+      TTBV hitPattern(0, setup_->sysNumLayer());
       for (auto iter = start; iter != it; iter++)
         hitPattern.set(iter->layer().val(layer.width()));
-      const double cot = dataFormats_->format(Variable::zT, Process::ht).floating(start->zT()) / setup_->chosenRofZ();
+      const double cot =
+          dataFormats_->format(Variable::zT, Process::ht).floating(start->zT()) / setup_->regChosenRofZ();
       hisNumLayers_->Fill(hitPattern.count());
       profNumLayers_->Fill(abs(sinh(cot)), hitPattern.count());
       for (int layer : hitPattern.ids())

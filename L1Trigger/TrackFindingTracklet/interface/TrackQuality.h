@@ -2,7 +2,7 @@
 #define L1Trigger_TrackFindingTracklet_TrackQuality_h
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
 #include "L1Trigger/TrackFindingTracklet/interface/DataFormats.h"
 
 #include <vector>
@@ -31,12 +31,7 @@ namespace trklet {
       DataFormat invV1_;
     };
     TrackQuality(const DataFormats* df, const InternalFormats& internal, int region, const EmulatorBDT* bdt)
-        : setup_(df->setup()),
-          channelAssignment_(df->channelAssignment()),
-          dataFormats_(df),
-          internalFormats_(&internal),
-          region_(region),
-          bdt_(bdt) {}
+        : setup_(df->setup()), dataFormats_(df), internalFormats_(&internal), region_(region), bdt_(bdt) {}
     ~TrackQuality() = default;
     // read in and organize input tracks and stubs
     void consume(const tt::StreamsTrack&, const tt::StreamsStub&);
@@ -52,9 +47,7 @@ namespace trklet {
       std::vector<StubKF*> stubs_;
     };
     // helper class to store configurations
-    const tt::Setup* setup_;
-    // helper class to store configurations
-    const ChannelAssignment* channelAssignment_;
+    const Setup* setup_;
     // provides dataformats
     const DataFormats* dataFormats_;
     // collection of internal formats

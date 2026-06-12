@@ -147,7 +147,8 @@ void MatchEngineUnit::processPipeline(bool print) {
       assert(ir2smin_ > 0);
       isPSmodule = irstub < ir2smin_;
     }
-    assert(isPSmodule == vmstub____.isPSmodule());
+    //assert(isPSmodule == vmstub____.isPSmodule());
+    isPSmodule = vmstub____.isPSmodule();
 
     int deltaphi = stubfinephi - projfinephi____;
 

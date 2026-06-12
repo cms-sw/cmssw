@@ -47,8 +47,7 @@ namespace trklet {
     x1,
     x2,
     x3,
-    H00,
-    H12,
+    H,
     m0,
     m1,
     v0,
@@ -183,7 +182,7 @@ namespace trklet {
     KalmanFilterFormats();
     ~KalmanFilterFormats() = default;
     DataFormatKF& format(VariableKF v) { return formats_[+v]; }
-    const tt::Setup* setup() const { return dataFormats_->setup(); }
+    const Setup* setup() const { return dataFormats_->setup(); }
     const DataFormats* dataFormats() const { return dataFormats_; }
     void consume(const DataFormats* dataFormats, const ConfigKF& iConfig);
     void endJob(std::stringstream& ss);
@@ -209,9 +208,7 @@ namespace trklet {
   template <>
   DataFormatKF makeDataFormat<VariableKF::x3>(const DataFormats* dataFormats, const ConfigKF& iConfig);
   template <>
-  DataFormatKF makeDataFormat<VariableKF::H00>(const DataFormats* dataFormats, const ConfigKF& iConfig);
-  template <>
-  DataFormatKF makeDataFormat<VariableKF::H12>(const DataFormats* dataFormats, const ConfigKF& iConfig);
+  DataFormatKF makeDataFormat<VariableKF::H>(const DataFormats* dataFormats, const ConfigKF& iConfig);
   template <>
   DataFormatKF makeDataFormat<VariableKF::m0>(const DataFormats* dataFormats, const ConfigKF& iConfig);
   template <>

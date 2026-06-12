@@ -2,7 +2,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerDTC/interface/Setup.h"
 #include "L1Trigger/TrackTrigger/interface/Associator.h"
 
 #include <memory>
@@ -18,11 +18,11 @@ namespace tt {
   public:
     ProducerAssociator(const edm::ParameterSet& iConfig);
     ~ProducerAssociator() override = default;
-    std::unique_ptr<Associator> produce(const SetupRcd& rcd);
+    std::unique_ptr<Associator> produce(const trackerDTC::SetupRcd& rcd);
 
   private:
     Associator::Config config_;
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetToken_;
+    edm::ESGetToken<trackerDTC::Setup, trackerDTC::SetupRcd> esGetToken_;
   };
 
   ProducerAssociator::ProducerAssociator(const edm::ParameterSet& iConfig) {
@@ -36,8 +36,8 @@ namespace tt {
     config_.maxLayersBadPS_ = iConfig.getParameter<int>("MaxLayersBadPS");
   }
 
-  std::unique_ptr<Associator> ProducerAssociator::produce(const SetupRcd& rcd) {
-    const tt::Setup* setup = &rcd.get(esGetToken_);
+  std::unique_ptr<Associator> ProducerAssociator::produce(const trackerDTC::SetupRcd& rcd) {
+    const trackerDTC::Setup* setup = &rcd.get(esGetToken_);
     return std::make_unique<Associator>(config_, setup);
   }
 

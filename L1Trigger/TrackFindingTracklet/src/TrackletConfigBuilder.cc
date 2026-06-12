@@ -13,14 +13,14 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
 #ifdef CMSSW_GIT_HASH
 #include "L1Trigger/TrackFindingTracklet/interface/Util.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
 #endif
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace trklet;
 
-TrackletConfigBuilder::TrackletConfigBuilder(const Settings& settings, const tt::Setup* setup) : settings_(settings) {
+TrackletConfigBuilder::TrackletConfigBuilder(const Settings& settings, const Setup* setup) : settings_(settings) {
   NSector_ = N_SECTOR;
   rcrit_ = settings.rcrit();
 
@@ -76,11 +76,11 @@ TrackletConfigBuilder::TrackletConfigBuilder(const Settings& settings, const tt:
 
 #ifdef CMSSW_GIT_HASH
 
-void TrackletConfigBuilder::setDTCphirange(const tt::Setup* setup) {
+void TrackletConfigBuilder::setDTCphirange(const Setup* setup) {
   list<DTCinfo> vecDTCinfo_unsorted;
 
   // Loop over DTCs in this tracker nonant.
-  unsigned int numDTCsPerSector = setup->numDTCsPerRegion();
+  unsigned int numDTCsPerSector = setup->regNumDTC();
   for (unsigned int dtcId = 0; dtcId < numDTCsPerSector; dtcId++) {
     typedef std::pair<float, float> PhiRange;
     std::map<int, PhiRange> dtcPhiRange;
@@ -88,8 +88,10 @@ void TrackletConfigBuilder::setDTCphirange(const tt::Setup* setup) {
     // Loop over all tracker nonants, taking worst case not all identical.
     for (unsigned int iSector = 0; iSector < N_SECTOR; iSector++) {
       unsigned int dtcId_regI = iSector * numDTCsPerSector + dtcId;
-      const std::vector<tt::SensorModule*>& dtcModules = setup->dtcModules(dtcId_regI);
-      for (const tt::SensorModule* sm : dtcModules) {
+      const std::vector<const trackerDTC::SensorModule*>& dtcModules = setup->dtcModules(dtcId_regI);
+      for (const trackerDTC::SensorModule* sm : dtcModules) {
+        if (!sm)
+          continue;
         // Convert layer number to Hybrid convention.
         int layer = sm->layerId();  // Barrel = 1-6, Endcap = 11-15;
         if (sm->barrel()) {
@@ -116,7 +118,7 @@ void TrackletConfigBuilder::setDTCphirange(const tt::Setup* setup) {
       }
     }
     for (const auto& p : dtcPhiRange) {
-      const unsigned int numSlots = setup->numATCASlots();
+      const unsigned int numSlots = setup->sysNumATCASlot();
       std::string dtcName = settings_.slotToDTCname(dtcId % numSlots);
       if (dtcId >= numSlots)
         dtcName = "neg" + dtcName;
@@ -168,7 +170,7 @@ void TrackletConfigBuilder::writeDTCphirange() const {
 
 //--- Set DTC phi ranges from .txt file (stand-alone operation only)
 
-void TrackletConfigBuilder::setDTCphirange(const tt::Setup* setup) {
+void TrackletConfigBuilder::setDTCphirange(const Setup* setup) {
   // This file previously written by writeDTCphirange().
   const string fname = "../data/dtcphirange.txt";
   if (vecDTCinfo_.empty()) {  // Only run once per thread.

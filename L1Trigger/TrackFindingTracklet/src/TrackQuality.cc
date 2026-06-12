@@ -13,14 +13,14 @@ namespace trklet {
     streams_ = tracks;
     auto validT = [](int sum, const tt::FrameTrack& f) { return sum + (f.first.isNull() ? 0 : 1); };
     auto validS = [](int sum, const tt::FrameStub& f) { return sum + (f.first.isNull() ? 0 : 1); };
-    const int offset = region_ * setup_->numLayers();
+    const int offset = region_ * setup_->kfNumLayers();
     const tt::StreamTrack& input = tracks[region_];
     // count tracks
     const int nTracks = std::accumulate(input.begin(), input.end(), 0, validT);
     tracks_.reserve(nTracks);
     // count stubs
     int nStubs(0);
-    for (int iLayer = 0; iLayer < setup_->numLayers(); iLayer++) {
+    for (int iLayer = 0; iLayer < setup_->kfNumLayers(); iLayer++) {
       const tt::StreamStub& layer = stubs[offset + iLayer];
       nStubs += std::accumulate(layer.begin(), layer.end(), 0, validS);
     }
@@ -34,8 +34,8 @@ namespace trklet {
         continue;
       }
       tracks_.emplace_back(frameTrack, dataFormats_);
-      input_.emplace_back(&tracks_.back(), setup_->numLayers());
-      for (int iLayer = 0; iLayer < setup_->numLayers(); iLayer++) {
+      input_.emplace_back(&tracks_.back(), setup_->kfNumLayers());
+      for (int iLayer = 0; iLayer < setup_->kfNumLayers(); iLayer++) {
         const tt::FrameStub& frameStub = stubs[offset + iLayer][iFrame];
         if (frameStub.first.isNull())
           continue;
@@ -52,7 +52,7 @@ namespace trklet {
     tt::StreamTrack& output = outputs[offset + 1];
     const DataFormat& dfChi20 = dataFormats_->format(Variable::chi20, Process::tq);
     const DataFormat& dfChi21 = dataFormats_->format(Variable::chi21, Process::tq);
-    const DataFormat& dfZT = dataFormats_->format(Variable::zT, Process::tq);
+    const DataFormat& dfZT = dataFormats_->format(Variable::z0, Process::tq);
     const DataFormat& dfCot = dataFormats_->format(Variable::cot, Process::tq);
     output.reserve(input_.size());
     for (const Frame& frame : input_) {
@@ -63,16 +63,16 @@ namespace trklet {
       // analyze track and stubs
       double chi20F(0.);
       double chi21F(0.);
-      TTBV hitPattern(0, setup_->numLayers());
-      for (int layer = 0; layer < setup_->numLayers(); layer++) {
+      TTBV hitPattern(0, setup_->kfNumLayers());
+      for (int layer = 0; layer < setup_->kfNumLayers(); layer++) {
         StubKF* stub = frame.stubs_[layer];
         if (!stub)
           continue;
-        hitPattern.set(layer);
+        hitPattern.set(stub->layerId());
         const double m02 = internalFormats_->m02_.digi(std::pow(stub->phi(), 2));
         const double m12 = internalFormats_->m12_.digi(std::pow(stub->z(), 2));
-        const double invV0 = internalFormats_->invV0_.digi(1. / std::pow(2. * stub->dPhi(), 2));
-        const double invV1 = internalFormats_->invV1_.digi(1. / std::pow(2. * stub->dZ(), 2));
+        const double invV0 = internalFormats_->invV0_.digi(3. / std::pow(stub->dPhi(), 2));
+        const double invV1 = internalFormats_->invV1_.digi(3. / std::pow(stub->dZ(), 2));
         chi20F += dfChi20.limit(dfChi20.digi(m02 * invV0));
         chi21F += dfChi21.limit(dfChi21.digi(m12 * invV1));
       }
@@ -82,7 +82,7 @@ namespace trklet {
       const int nStubs = hitPattern.count();
       const int nGaps = hitPattern.count(hitPattern.plEncode(), hitPattern.pmEncode(), false);
       // get integer values
-      const int zT = dfZT.integer(frame.track_->zT());
+      const int zT = dfZT.integer(frame.track_->z0());
       const int cot = dfCot.integer(frame.track_->cot());
       const int chi20 = dfChi20.integer(chi20F);
       const int chi21 = dfChi21.integer(chi21F);
@@ -93,15 +93,13 @@ namespace trklet {
       const AP_FIXED_BDT mvaFixed = bdt_->decision_function(features).at(0);
       const AP_INT_BDT mvaInt = mvaFixed.range(mvaFixed.width - 1, 0);
       // bin mva
-      const std::vector<int>& binEdges = channelAssignment_->tqBinEdges();
+      const std::vector<int>& binEdges = setup_->tqBinEdges();
       int mva(0);
       for (; mva < static_cast<int>(binEdges.size()) - 2; mva++)
         if (mvaInt <= binEdges[mva + 1])
           break;
       // build output Track
-      std::string reversedHitPattern = hitPattern.str();
-      std::reverse(reversedHitPattern.begin(), reversedHitPattern.end());
-      TrackTQ trackTQ(*frame.track_, reversedHitPattern, mva, chi20F, chi21F);
+      TrackTQ trackTQ(*frame.track_, hitPattern, mva, chi20F, chi21F);
       // store result
       output.push_back(trackTQ.frame());
     }

@@ -8,122 +8,121 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 #include "L1Trigger/TrackerTFP/interface/TrackQuality.h"
 
 #include <string>
-#include <numeric>
 
 namespace trackerTFP {
 
   /*! \class  trackerTFP::ProducerTQ
    *  \brief  Bit accurate emulation of the track quality BDT
    *  \author Thomas Schuh
-   *  \date   2024, Aug
+   *  \date   2025, Aug
    */
   class ProducerTQ : public edm::stream::EDProducer<> {
   public:
     explicit ProducerTQ(const edm::ParameterSet&);
     ~ProducerTQ() override = default;
+    void beginRun(const edm::Run&, const edm::EventSetup&) override;
     void produce(edm::Event&, const edm::EventSetup&) override;
 
   private:
-    typedef TrackQuality::Track Track;
     // ED input token of kf stubs
     edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubs_;
     // ED input token of kf tracks
     edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracks_;
-    // ED output token for tracks
-    edm::EDPutTokenT<tt::StreamsTrack> edPutTokenTracks_;
-    // ED output token for additional track variables
-    edm::EDPutTokenT<tt::Streams> edPutTokenTracksAdd_;
-    // ED output token for stubs
-    edm::EDPutTokenT<tt::StreamsStub> edPutTokenStubs_;
+    // ED output token for additional track variables created by TQ
+    edm::EDPutTokenT<tt::StreamsTrack> edPutToken_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
-    // TrackQuality token
-    edm::ESGetToken<TrackQuality, DataFormatsRcd> esGetTokenTrackQuality_;
+    edm::ESGetToken<DataFormats, trackerDTC::SetupRcd> esGetTokenDataFormats_;
+    // helper class to store configurations
+    const Setup* setup_ = nullptr;
+    // helper class to extract structured data from tt::Frames
+    const DataFormats* dataFormats_ = nullptr;
+    // Internal data formats
+    TrackQuality::InternalFormats internalFormats_;
+    // BDT modell
+    const EmulatorBDT bdt_;
   };
 
-  ProducerTQ::ProducerTQ(const edm::ParameterSet& iConfig) {
+  ProducerTQ::ProducerTQ(const edm::ParameterSet& iConfig)
+      : bdt_(iConfig.getParameter<edm::FileInPath>("BDT").fullPath()) {
     const std::string& label = iConfig.getParameter<std::string>("InputLabelTQ");
     const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
     const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
     // book in- and output ED products
     edGetTokenStubs_ = consumes(edm::InputTag(label, branchStubs));
     edGetTokenTracks_ = consumes(edm::InputTag(label, branchTracks));
-    edPutTokenTracks_ = produces(branchTracks);
-    edPutTokenTracksAdd_ = produces(branchTracks);
-    edPutTokenStubs_ = produces(branchStubs);
+    edPutToken_ = produces(branchTracks);
     // book ES products
-    esGetTokenSetup_ = esConsumes();
-    esGetTokenTrackQuality_ = esConsumes();
+    esGetTokenSetup_ = esConsumes<edm::Transition::BeginRun>();
+    esGetTokenDataFormats_ = esConsumes<edm::Transition::BeginRun>();
+  }
+
+  void ProducerTQ::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+    // helper class to store configurations
+    setup_ = &iSetup.getData(esGetTokenSetup_);
+    // helper class to extract structured data from tt::Frames
+    dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
+    int width;
+    int shift;
+    double base;
+    double range;
+    // m02 (phi residual squared)
+    const DataFormat& phi = dataFormats_->format(Variable::phi, Process::dr);
+    width = 2 * phi.width();
+    base = std::pow(phi.base(), 2);
+    range = std::pow(phi.range(), 2) / 4.;
+    internalFormats_.m02_ = DataFormat(false, width, base, range);
+    // m12 (z residual squared)
+    const DataFormat& z = dataFormats_->format(Variable::z, Process::dr);
+    width = 2 * z.width();
+    base = std::pow(z.base(), 2);
+    range = std::pow(z.range(), 2) / 4.;
+    internalFormats_.m12_ = DataFormat(false, width, base, range);
+    // invV0 (inverse phi uncertainty squared)
+    const DataFormat& dPhi = dataFormats_->format(Variable::dPhi, Process::dr);
+    width = setup_->tqWidthInvV0();
+    base = std::pow(dPhi.base(), -2);
+    range = base * std::pow(2, width) / (std::pow(2, width) - 1);
+    shift = tt::ilog2(range / base) - width;
+    base *= std::pow(2, shift);
+    internalFormats_.invV0_ = DataFormat(false, width, base, range);
+    // invV1 (inverse z uncertainty squared)
+    const DataFormat& dZ = dataFormats_->format(Variable::dZ, Process::dr);
+    width = setup_->tqWidthInvV1();
+    base = std::pow(dZ.base(), -2);
+    range = base * std::pow(2, width) / (std::pow(2, width) - 1);
+    shift = tt::ilog2(range / base) - width;
+    base *= std::pow(2, shift);
+    internalFormats_.invV1_ = DataFormat(false, width, base, range);
   }
 
   void ProducerTQ::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    // helper class to store configurations
-    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
-    // helper class to determine Track Quality
-    const TrackQuality* trackQuality = &iSetup.getData(esGetTokenTrackQuality_);
-    auto valid = [](int sum, const tt::FrameTrack& frame) { return sum + (frame.first.isNull() ? 0 : 1); };
-    // empty TQ product
-    tt::StreamsTrack outputTracks(setup->numRegions());
-    tt::Streams outputTracksAdd(setup->numRegions());
-    tt::StreamsStub outputStubs(setup->numRegions() * setup->numLayers());
-    // read in KF Product and produce TQ product
-    const tt::StreamsStub& streamsStubs = iEvent.get(edGetTokenStubs_);
+    // read in KF Product
     const tt::StreamsTrack& streamsTracks = iEvent.get(edGetTokenTracks_);
-    for (int region = 0; region < setup->numRegions(); region++) {
-      // calculate track quality
-      const int offsetLayer = region * setup->numLayers();
-      const tt::StreamTrack& streamTrack = streamsTracks[region];
-      const int nTracks = std::accumulate(streamTrack.begin(), streamTrack.end(), 0, valid);
-      std::vector<Track> tracks;
-      tracks.reserve(nTracks);
-      std::vector<Track*> stream;
-      stream.reserve(streamTrack.size());
-      for (int frame = 0; frame < static_cast<int>(streamTrack.size()); frame++) {
-        const tt::FrameTrack& frameTrack = streamTrack[frame];
-        if (frameTrack.first.isNull()) {
-          stream.push_back(nullptr);
-          continue;
-        }
-        tt::StreamStub streamStub;
-        streamStub.reserve(setup->numLayers());
-        for (int layer = 0; layer < setup->numLayers(); layer++)
-          streamStub.push_back(streamsStubs[offsetLayer + layer][frame]);
-        tracks.emplace_back(frameTrack, streamStub, trackQuality);
-        stream.push_back(&tracks.back());
-      }
-      // fill TQ product
-      outputTracks[region].reserve(stream.size());
-      outputTracksAdd[region].reserve(stream.size());
-      for (int layer = 0; layer < setup->numLayers(); layer++)
-        outputStubs[offsetLayer + layer].reserve(stream.size());
-      for (Track* track : stream) {
-        if (!track) {
-          outputTracks[region].emplace_back(tt::FrameTrack());
-          outputTracksAdd[region].emplace_back(tt::Frame());
-          for (int layer = 0; layer < setup->numLayers(); layer++)
-            outputStubs[offsetLayer + layer].emplace_back(tt::FrameStub());
-          continue;
-        }
-        outputTracks[region].emplace_back(track->frameTrack_);
-        outputTracksAdd[region].emplace_back(track->frame_);
-        for (int layer = 0; layer < setup->numLayers(); layer++)
-          outputStubs[offsetLayer + layer].emplace_back(track->streamStub_[layer]);
-      }
+    const tt::StreamsStub& streamsStubs = iEvent.get(edGetTokenStubs_);
+    // empty TQ product
+    tt::StreamsTrack output(setup_->sysNumRegion() * setup_->tqNumChannel());
+    //produce TQ product
+    for (int region = 0; region < setup_->sysNumRegion(); region++) {
+      // object emulating tq algorithm
+      TrackQuality tq(dataFormats_, internalFormats_, region, &bdt_);
+      // read in and organize input tracks and stubs
+      tq.consume(streamsTracks, streamsStubs);
+      // fills output products
+      tq.produce(output);
     }
     // store TQ product
-    iEvent.emplace(edPutTokenTracks_, std::move(outputTracks));
-    iEvent.emplace(edPutTokenTracksAdd_, std::move(outputTracksAdd));
-    iEvent.emplace(edPutTokenStubs_, streamsStubs);
+    iEvent.emplace(edPutToken_, std::move(output));
   }
+
 }  // namespace trackerTFP
 
 DEFINE_FWK_MODULE(trackerTFP::ProducerTQ);

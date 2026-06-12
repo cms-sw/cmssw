@@ -14,6 +14,7 @@
 #include "SimDataFormats/Associations/interface/TTTypes.h"
 #include "L1Trigger/TrackTrigger/interface/Associator.h"
 #include "SimDataFormats/Associations/interface/StubAssociation.h"
+#include "SimTracker/Common/interface/TrackingParticleSelector.h"
 
 #include <vector>
 #include <deque>
@@ -51,10 +52,8 @@ namespace tt {
     edm::EDPutTokenT<StubAssociation> putTokenDup_;
     // ED output token for stub association for tracking efficiency
     edm::EDPutTokenT<StubAssociation> putTokenEff_;
-    // Setup token
-    edm::ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     // Associator token
-    edm::ESGetToken<Associator, SetupRcd> esGetTokenAssociator_;
+    edm::ESGetToken<Associator, trackerDTC::SetupRcd> esGetTokenAssociator_;
     // pt cut in GeV
     double minPt_;
     // half lumi region size in cm

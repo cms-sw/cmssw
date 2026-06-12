@@ -1,11 +1,9 @@
 # configuration for ProducerDTC
-
 import FWCore.ParameterSet.Config as cms
 
-TrackerDTC_params = cms.PSet (
+ProducerDTC_params = cms.PSet (
 
-  InputTagTTStubs = cms.InputTag( "TTStubsFromPhase2TrackerDigis", "StubAccepted" ), # original TTStub selection
-  BranchAccepted  = cms.string  ( "StubAccepted" ),                                  # label for prodcut with passed stubs
-  BranchLost      = cms.string  ( "StubLost"     ),                                  # label for prodcut with lost stubs
+  InputTag = cms.InputTag( "TTStubsFromPhase2TrackerDigis", "StubAccepted" ), # original TTStub selection
+  Branch   = cms.string  ( "StubAccepted" ),                                  # label for prodcut with passed stubs
 
 )

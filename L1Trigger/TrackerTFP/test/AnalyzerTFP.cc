@@ -14,7 +14,7 @@
 
 #include "SimDataFormats/Associations/interface/StubAssociation.h"
 #include "L1Trigger/TrackTrigger/interface/Associator.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 
 #include <TProfile.h>
 #include <TH1F.h>
@@ -58,11 +58,11 @@ namespace trackerTFP {
     // ED input token of TTStubRef to recontructable TPPtr association
     edm::EDGetTokenT<tt::StubAssociation> edGetTokenReconstructable_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // Associator token
-    edm::ESGetToken<tt::Associator, tt::SetupRcd> esGetTokenAssociator_;
+    edm::ESGetToken<tt::Associator, trackerDTC::SetupRcd> esGetTokenAssociator_;
     // stores, calculates and provides run-time constants
-    const tt::Setup* setup_ = nullptr;
+    const Setup* setup_ = nullptr;
     // enables analyze of TPs
     bool useMCTruth_;
     //
@@ -123,7 +123,7 @@ namespace trackerTFP {
     prof_->GetXaxis()->SetBinLabel(10, "Perfectly Found selected TPs");
     // channel occupancy
     constexpr int maxOcc = 180;
-    const int numChannels = setup_->numRegions();
+    const int numChannels = setup_->sysNumRegion();
     hisChannel_ = dir.make<TH1F>("His Channel Occupancy", ";", maxOcc, -.5, maxOcc - .5);
     profChannel_ = dir.make<TProfile>("Prof Channel Occupancy", ";", numChannels, -.5, numChannels - .5);
     // Efficiencies
@@ -149,16 +149,16 @@ namespace trackerTFP {
         fill(p.first, hisEffTotal_);
     }
     //
-    std::vector<std::vector<TTTrackRef>> ttTrackRefsRegions(setup_->numRegions());
-    std::vector<int> nTTTracksRegions(setup_->numRegions(), 0);
+    std::vector<std::vector<TTTrackRef>> ttTrackRefsRegions(setup_->sysNumRegion());
+    std::vector<int> nTTTracksRegions(setup_->sysNumRegion(), 0);
     for (const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack : ttTracks)
       nTTTracksRegions[ttTrack.phiSector()]++;
-    for (int region = 0; region < setup_->numRegions(); region++)
+    for (int region = 0; region < setup_->sysNumRegion(); region++)
       ttTrackRefsRegions[region].reserve(nTTTracksRegions[region]);
     int i(0);
     for (const TTTrack<Ref_Phase2TrackerDigi_>& ttTrack : ttTracks)
       ttTrackRefsRegions[ttTrack.phiSector()].emplace_back(TTTrackRef(handle, i++));
-    for (int region = 0; region < setup_->numRegions(); region++) {
+    for (int region = 0; region < setup_->sysNumRegion(); region++) {
       const std::vector<TTTrackRef>& ttTrackRefs = ttTrackRefsRegions[region];
       const int nStubs =
           std::accumulate(ttTrackRefs.begin(), ttTrackRefs.end(), 0, [](int sum, const TTTrackRef& ttTrackRef) {

@@ -3,7 +3,6 @@
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "SimDataFormats/Associations/interface/TTTypes.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
 
 #include <vector>
 #include <deque>

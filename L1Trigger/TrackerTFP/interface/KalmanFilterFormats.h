@@ -7,15 +7,11 @@ enabling tuning of bit widths
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 
 #include <vector>
-#include <cmath>
-#include <initializer_list>
-#include <tuple>
-#include <utility>
-#include <array>
-#include <string>
+#include <sstream>
 
 namespace trackerTFP {
 
@@ -145,7 +141,7 @@ namespace trackerTFP {
   public:
     DataFormatKF(const VariableKF& v, bool twos, bool enableIntegerEmulation, int width, double base, double range);
     ~DataFormatKF() = default;
-    double digi(double val) const { return enableIntegerEmulation_ ? (tt::floor(val / base_) + .5) * base_ : val; }
+    double digi(double val) const { return enableIntegerEmulation_ ? tt::digi(val, base_) : val; }
     bool twos() const { return twos_; }
     int width() const { return width_; }
     double base() const { return base_; }
@@ -175,7 +171,7 @@ namespace trackerTFP {
     KalmanFilterFormats();
     ~KalmanFilterFormats() = default;
     void beginRun(const DataFormats* dataFormats, const ConfigKF& iConfig);
-    const tt::Setup* setup() const { return dataFormats_->setup(); }
+    const Setup* setup() const { return dataFormats_->setup(); }
     const DataFormats* dataFormats() const { return dataFormats_; }
     DataFormatKF& format(VariableKF v) { return formats_[+v]; }
     void endJob(std::stringstream& ss);

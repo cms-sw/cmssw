@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 #include "L1Trigger/TrackerTFP/interface/KalmanFilterFormats.h"
 #include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
@@ -55,11 +55,11 @@ namespace trackerTFP {
     // ED output token for chi2s in r-phi and r-z plane
     edm::EDPutTokenT<std::vector<std::pair<double, double>>> edPutTokenChi2s_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, trackerDTC::SetupRcd> esGetTokenDataFormats_;
     // LayerEncoding token
-    edm::ESGetToken<LayerEncoding, DataFormatsRcd> esGetTokenLayerEncoding_;
+    edm::ESGetToken<LayerEncoding, trackerDTC::SetupRcd> esGetTokenLayerEncoding_;
     // helper class to tune internal kf variables
     KalmanFilterFormats kalmanFilterFormats_;
     // KalmanFilterFormats configuraation
@@ -151,12 +151,12 @@ namespace trackerTFP {
 
   void ProducerKF::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // helper class to encode layer
     const LayerEncoding* layerEncoding = &iSetup.getData(esGetTokenLayerEncoding_);
     // empty KF products
-    tt::StreamsStub acceptedStubs(setup->numRegions() * dataFormats_->numChannel(Process::kf) * setup->numLayers());
-    tt::StreamsTrack acceptedTracks(setup->numRegions() * dataFormats_->numChannel(Process::kf));
+    tt::StreamsStub acceptedStubs(setup->sysNumRegion() * dataFormats_->numChannel(Process::kf) * setup->sysNumLayer());
+    tt::StreamsTrack acceptedTracks(setup->sysNumRegion() * dataFormats_->numChannel(Process::kf));
     int numStatesAccepted(0);
     int numStatesTruncated(0);
     std::deque<std::pair<double, double>> chi2s;
@@ -176,17 +176,17 @@ namespace trackerTFP {
       stream.reserve(objects.size());
       std::transform(objects.begin(), objects.end(), std::back_inserter(stream), toFrame);
     };
-    for (int region = 0; region < setup->numRegions(); region++) {
+    for (int region = 0; region < setup->sysNumRegion(); region++) {
       const int offset = region * dataFormats_->numChannel(Process::kf);
       // count input objects
       int nTracks(0);
       int nStubs(0);
       for (int channel = 0; channel < dataFormats_->numChannel(Process::kf); channel++) {
         const int index = offset + channel;
-        const int offsetStubs = index * setup->numLayers();
+        const int offsetStubs = index * setup->sysNumLayer();
         const tt::StreamTrack& tracks = allTracks[index];
         nTracks += std::accumulate(tracks.begin(), tracks.end(), 0, validFrameT);
-        for (int layer = 0; layer < setup->numLayers(); layer++) {
+        for (int layer = 0; layer < setup->sysNumLayer(); layer++) {
           const tt::StreamStub& stubs = allStubs[offsetStubs + layer];
           nStubs += std::accumulate(stubs.begin(), stubs.end(), 0, validFrameS);
         }
@@ -198,12 +198,12 @@ namespace trackerTFP {
       stubs.reserve(nStubs);
       // h/w liked organized pointer to input data
       std::vector<std::vector<TrackCTB*>> regionTracks(dataFormats_->numChannel(Process::kf));
-      std::vector<std::vector<Stub*>> regionStubs(dataFormats_->numChannel(Process::kf) * setup->numLayers());
+      std::vector<std::vector<Stub*>> regionStubs(dataFormats_->numChannel(Process::kf) * setup->sysNumLayer());
       // read input data
       for (int channel = 0; channel < dataFormats_->numChannel(Process::kf); channel++) {
         const int index = offset + channel;
-        const int offsetAll = index * setup->numLayers();
-        const int offsetRegion = channel * setup->numLayers();
+        const int offsetAll = index * setup->sysNumLayer();
+        const int offsetRegion = channel * setup->sysNumLayer();
         const tt::StreamTrack& streamTrack = allTracks[index];
         std::vector<TrackCTB*>& tracks = regionTracks[channel];
         tracks.reserve(streamTrack.size());
@@ -215,7 +215,7 @@ namespace trackerTFP {
           }
           tracks.push_back(track);
         }
-        for (int layer = 0; layer < setup->numLayers(); layer++) {
+        for (int layer = 0; layer < setup->sysNumLayer(); layer++) {
           for (const tt::FrameStub& frame : allStubs[offsetAll + layer]) {
             Stub* stub = nullptr;
             if (frame.first.isNonnull()) {
@@ -235,16 +235,16 @@ namespace trackerTFP {
       KalmanFilter kf(setup, dataFormats_, layerEncoding, &kalmanFilterFormats_, tracksKF, stubsKF);
       // empty h/w liked organized pointer to output data
       std::vector<std::vector<TrackKF*>> streamsTrack(dataFormats_->numChannel(Process::kf));
-      std::vector<std::vector<std::vector<StubKF*>>> streamsStub(dataFormats_->numChannel(Process::kf),
-                                                                 std::vector<std::vector<StubKF*>>(setup->numLayers()));
+      std::vector<std::vector<std::vector<StubKF*>>> streamsStub(
+          dataFormats_->numChannel(Process::kf), std::vector<std::vector<StubKF*>>(setup->sysNumLayer()));
       // fill output products
       kf.produce(regionTracks, regionStubs, streamsTrack, streamsStub, numStatesAccepted, numStatesTruncated, chi2s);
       // convert data to ed products
       for (int channel = 0; channel < dataFormats_->numChannel(Process::kf); channel++) {
         const int index = offset + channel;
-        const int offsetStubs = index * setup->numLayers();
+        const int offsetStubs = index * setup->sysNumLayer();
         putT(streamsTrack[channel], acceptedTracks[index]);
-        for (int layer = 0; layer < setup->numLayers(); layer++)
+        for (int layer = 0; layer < setup->sysNumLayer(); layer++)
           putS(streamsStub[channel][layer], acceptedStubs[offsetStubs + layer]);
       }
     }

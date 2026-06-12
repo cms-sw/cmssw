@@ -48,9 +48,9 @@ namespace tt {
   private:
     // plot helper
     std::vector<std::string> resolutions_ = {"Inv2R", "PT", "PhiT", "Phi0", "Cot", "ZT", "Z0", "D0"};
-    std::vector<std::string> efficiencies_ = {"Inv2R", "PT", "Eta", "Z0", "D0"};
+    std::vector<std::string> efficiencies_ = {"Inv2R", "PT", "PhiT", "Eta", "Z0", "D0"};
     std::vector<double> limitsR_ = {.001, 100., .01, .01, .2, 5., 5., 2.};
-    std::vector<double> limitsE_ = {.001, 100., 2.4, 15., 10.};
+    std::vector<double> limitsE_ = {.001, 100., 2. * M_PI, 2.4, 15., 10.};
     // ED input token of tracks
     edm::EDGetTokenT<std::vector<L1Track>> edGetTokenTracks_;
     // ED output token for stub association for fake rate
@@ -60,9 +60,9 @@ namespace tt {
     // ED output token for stub association for tracking efficiency
     edm::EDGetTokenT<StubAssociation> edGetTokenEff_;
     // Setup token
-    edm::ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<trackerDTC::Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // Associator token
-    edm::ESGetToken<Associator, SetupRcd> esGetTokenAssociator_;
+    edm::ESGetToken<Associator, trackerDTC::SetupRcd> esGetTokenAssociator_;
     // enables analyze of TPs
     bool useMCTruth_;
     // input tag of TTTrack collection to be analyzed
@@ -83,6 +83,7 @@ namespace tt {
     std::vector<TH1F*> hisEffTotal_;
     std::vector<TEfficiency*> eff_;
     std::vector<TH1F*> hisChi2s_;
+    std::vector<TH1F*> hisChi2sF_;
     // printout
     std::stringstream log_;
   };
@@ -97,7 +98,8 @@ namespace tt {
         hisEffPassed_(efficiencies_.size()),
         hisEffTotal_(efficiencies_.size()),
         eff_(efficiencies_.size()),
-        hisChi2s_(2) {
+        hisChi2s_(2),
+        hisChi2sF_(2) {
     usesResource("TFileService");
     // book in- and output ED products
     edGetTokenTracks_ = consumes(inputTag_);
@@ -136,8 +138,10 @@ namespace tt {
     hisLayer_ = dir.make<TH1F>("Layer Occupancy", ";", 8, -0.5, 7.5);
     hisStubs_ = dir.make<TH1F>("Stubs per Track", ";", 8, .5, 8.5);
     // chi2s
-    hisChi2s_[0] = dir.make<TH1F>("His Chi20", ";", 16, -.5, 15.5);
-    hisChi2s_[1] = dir.make<TH1F>("His Chi21", ";", 16, -.5, 15.5);
+    hisChi2s_[0] = dir.make<TH1F>("His Chi20 bin", ";", 16, -.5, 15.5);
+    hisChi2s_[1] = dir.make<TH1F>("His Chi21 bin", ";", 16, -.5, 15.5);
+    hisChi2sF_[0] = dir.make<TH1F>("His Chi20", ";", 64, 0., 4.);
+    hisChi2sF_[1] = dir.make<TH1F>("His Chi21", ";", 64, 0., 4.);
     // resoultions
     dir = fs->mkdir(name_ + "/Res");
     for (int i = 0; i < static_cast<int>(resolutions_.size()); i++) {
@@ -154,13 +158,16 @@ namespace tt {
   }
 
   void AnalyzerTTTrack::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    const Setup& setup = iSetup.getData(esGetTokenSetup_);
+    const trackerDTC::Setup& setup = iSetup.getData(esGetTokenSetup_);
     auto fillEff = [&setup](const TPPtr& tpPtr, std::vector<TH1F*>& his) {
-      his[0]->Fill(tpPtr->charge() / tpPtr->pt() * setup.invPtToDphi());
+      const double inv2R = tpPtr->charge() / tpPtr->pt() * setup.sysInvPtToDphi();
+      const double phiT = tpPtr->phi() + setup.regChosenRofPhi() * inv2R;
+      his[0]->Fill(inv2R);
       his[1]->Fill(tpPtr->pt());
-      his[2]->Fill(tpPtr->eta());
-      his[3]->Fill(tpPtr->z0());
-      his[4]->Fill(tpPtr->d0());
+      his[2]->Fill(phiT);
+      his[3]->Fill(tpPtr->eta());
+      his[4]->Fill(tpPtr->z0());
+      his[5]->Fill(tpPtr->d0());
     };
     // read in tracks
     const std::vector<L1Track>& ttTracks = iEvent.get(edGetTokenTracks_);
@@ -183,19 +190,18 @@ namespace tt {
     const int allTracks = ttTracks.size();
     int allMatched(0);
     int allDuplicates(0);
-    std::vector<int> regionStubs(setup.numRegions(), 0);
-    std::vector<int> regionTracks(setup.numRegions(), 0);
+    std::vector<int> regionStubs(setup.sysNumRegion(), 0);
+    std::vector<int> regionTracks(setup.sysNumRegion(), 0);
     for (const L1Track& ttTrack : ttTracks) {
       const int region = ttTrack.phiSector();
       const std::vector<TTStubRef>& ttStubRefs = ttTrack.getStubRefs();
       regionTracks[region]++;
       regionStubs[region] += ttStubRefs.size();
-      const TTBV hitPattern((int)ttTrack.hitPattern(), setup.numLayers());
-      for (int layer : hitPattern.ids())
-        hisLayer_->Fill(layer);
-      hisStubs_->Fill(hitPattern.count());
+      hisStubs_->Fill(ttStubRefs.size());
       hisChi2s_[0]->Fill(ttTrack.getChi2RPhiBits());
       hisChi2s_[1]->Fill(ttTrack.getChi2RZBits());
+      hisChi2sF_[0]->Fill(ttTrack.chi2XYRed());
+      hisChi2sF_[1]->Fill(ttTrack.chi2ZRed());
       const std::vector<TPPtr>& any =
           looseMatching_ ? forFake.associate(ttStubRefs) : forFake.associateFinal(ttStubRefs);
       if (any.empty())
@@ -213,22 +219,22 @@ namespace tt {
       tpPtrsPerfect.insert(perfect.begin(), perfect.end());
       // calc resolutions
       const double tt_inv2R = -.5 * ttTrack.rInv();
-      const double tt_pt = -setup.invPtToDphi() / tt_inv2R;
+      const double tt_pt = -setup.sysInvPtToDphi() / tt_inv2R;
       const double tt_phi0 = ttTrack.phi();
-      const double tt_phiT = tt::deltaPhi(tt_phi0 + setup.chosenRofPhi() * tt_inv2R);
+      const double tt_phiT = tt::deltaPhi(tt_phi0 + setup.regChosenRofPhi() * tt_inv2R);
       const double tt_cot = ttTrack.tanL();
       const double tt_z0 = ttTrack.z0();
-      const double tt_zT = tt_z0 + setup.chosenRofZ() * tt_cot;
+      const double tt_zT = tt_z0 + setup.regChosenRofZ() * tt_cot;
       const double tt_d0 = ttTrack.d0();
       for (const TPPtr& tpPtr : perfect) {
         const double eta = std::abs(tpPtr->eta());
-        const double tp_inv2R = -tpPtr->charge() / tpPtr->pt() * setup.invPtToDphi();
+        const double tp_inv2R = -tpPtr->charge() / tpPtr->pt() * setup.sysInvPtToDphi();
         const double tp_pt = tpPtr->pt();
         const double tp_phi0 = tpPtr->phi();
-        const double tp_phiT = tt::deltaPhi(tp_phi0 + setup.chosenRofPhi() * tp_inv2R);
+        const double tp_phiT = tt::deltaPhi(tp_phi0 + setup.regChosenRofPhi() * tp_inv2R);
         const double tp_cot = tpPtr->tanl();
         const double tp_z0 = tpPtr->z0();
-        const double tp_zT = tp_z0 + setup.chosenRofZ() * tp_cot;
+        const double tp_zT = tp_z0 + setup.regChosenRofZ() * tp_cot;
         const double tp_d0 = tpPtr->d0();
         const double inv2R = tp_inv2R - tt_inv2R;
         const double pt = tp_pt - tt_pt;
@@ -239,7 +245,7 @@ namespace tt {
         const double zT = tp_zT - tt_zT;
         const double d0 = tp_d0 - tt_d0;
         int i(0);
-        for (double d : {inv2R, pt, phiT, phi0, cot, z0, zT, d0}) {
+        for (double d : {inv2R, pt, phiT, phi0, cot, zT, z0, d0}) {
           hisRes_[i]->Fill(d);
           profRes_[i++]->Fill(eta, std::abs(d));
         }

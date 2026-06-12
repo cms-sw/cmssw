@@ -4,7 +4,7 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "SimDataFormats/Associations/interface/TTTypes.h"
 #include "SimDataFormats/Associations/interface/StubAssociation.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerDTC/interface/Setup.h"
 
 #include <vector>
 #include <map>
@@ -38,7 +38,7 @@ namespace tt {
     // default constructor
     Associator() {}
     // proper constructor
-    Associator(const Config& config, const Setup* setup) : config_(config), setup_(setup) {}
+    Associator(const Config& config, const trackerDTC::Setup* setup) : config_(config), setup_(setup) {}
     // destructor
     ~Associator() = default;
     // stores Association maps
@@ -74,7 +74,7 @@ namespace tt {
     // configuration
     Config config_;
     // stores, calculates and provides run-time constants
-    const Setup* setup_ = nullptr;
+    const trackerDTC::Setup* setup_ = nullptr;
     // stores association maps
     const StubAssociation* sa_ = nullptr;
   };

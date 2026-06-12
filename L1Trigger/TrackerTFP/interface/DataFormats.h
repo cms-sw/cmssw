@@ -10,23 +10,42 @@ and in undigitized format in an std::tuple. (This saves CPU)
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/data_default_record_trait.h"
-#include "L1Trigger/TrackerTFP/interface/DataFormatsRcd.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTBV.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 
 #include <vector>
+#include <array>
+#include <iterator>
 #include <cmath>
 #include <initializer_list>
 #include <tuple>
-#include <iostream>
-#include <string>
 
 namespace trackerTFP {
 
   // track trigger processes
-  enum class Process { begin, dtc = begin, pp, gp, ht, ctb, kf, dr, tfp, end, x };
+  enum class Process { begin, dtc = begin, pp, gp, ht, ctb, kf, dr, tq, tfp, end, x };
   // track trigger variables
-  enum class Variable { begin, r = begin, phi, z, dPhi, dZ, inv2R, phiT, cot, zT, layer, match, end, x };
+  enum class Variable {
+    begin,
+    r = begin,
+    phi,
+    z,
+    dPhi,
+    dZ,
+    inv2R,
+    phiT,
+    cot,
+    zT,
+    layer,
+    match,
+    chi20,
+    chi21,
+    mva,
+    hitPattern,
+    end,
+    x
+  };
   // track trigger process order
   constexpr std::initializer_list<Process> Processes = {
       Process::dtc, Process::pp, Process::gp, Process::ht, Process::ctb, Process::kf, Process::dr, Process::tfp};
@@ -66,9 +85,9 @@ namespace trackerTFP {
     // converts int to double
     double floating(int i) const { return (i + .5) * base_; }
     // converts double to int
-    int integer(double d) const { return std::floor(d / base_ + 1.e-12); }
+    int integer(double d) const { return tt::floor(d / base_); }
     // converts double to int and back to double
-    double digi(double d) const { return floating(integer(d)); }
+    double digi(double d) const { return tt::digi(d, base_); }
     // converts binary integer value to twos complement integer value
     int toSigned(int i) const { return i - std::pow(2, width_) / 2; }
     // converts twos complement integer value to binary integer value
@@ -76,7 +95,6 @@ namespace trackerTFP {
     // converts floating point value to binary integer value
     int toUnsigned(double d) const { return this->integer(d) + std::pow(2, width_) / 2; }
     // biggest representable floating point value
-    //double limit() const { return (range_ - base_) / (twos_ ? 2. : 1.); }
     // returns false if data format would oferflow for this double value
     bool inRange(double d, bool digi = true) const {
       const double range = digi ? base_ * pow(2, width_) : range_;
@@ -84,6 +102,17 @@ namespace trackerTFP {
     }
     // returns false if data format would oferflow for this int value
     bool inRange(int i) const { return inRange(floating(i)); }
+    // limit to biggest representable floating point value
+    double limit(double d) const {
+      if (this->inRange(d))
+        return d;
+      if (twos_) {
+        if (d < 0.)
+          return (base_ - range_) / 2.;
+        return (range_ - base_) / 2.;
+      }
+      return range_ - base_ / 2.;
+    }
     // true if twos'complement or false if binary representation is chosen
     bool twos() const { return twos_; }
     // number of used bits
@@ -106,72 +135,81 @@ namespace trackerTFP {
 
   // function template for DataFormat generation
   template <Variable v, Process p>
-  DataFormat makeDataFormat(const tt::Setup* setup);
+  DataFormat makeDataFormat(const Setup* setup);
 
   // specializations
 
   template <>
-  DataFormat makeDataFormat<Variable::inv2R, Process::tfp>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::inv2R, Process::tfp>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::phiT, Process::tfp>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::phiT, Process::tfp>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::cot, Process::tfp>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::cot, Process::tfp>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::zT, Process::tfp>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::zT, Process::tfp>(const Setup* setup);
 
   template <>
-  DataFormat makeDataFormat<Variable::r, Process::dtc>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::r, Process::dtc>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::phi, Process::dtc>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::phi, Process::dtc>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::z, Process::dtc>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::z, Process::dtc>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::layer, Process::dtc>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::layer, Process::dtc>(const Setup* setup);
 
   template <>
-  DataFormat makeDataFormat<Variable::phi, Process::gp>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::phi, Process::gp>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::z, Process::gp>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::z, Process::gp>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::phiT, Process::gp>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::phiT, Process::gp>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::zT, Process::gp>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::zT, Process::gp>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::cot, Process::gp>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::cot, Process::gp>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::layer, Process::gp>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::layer, Process::gp>(const Setup* setup);
 
   template <>
-  DataFormat makeDataFormat<Variable::phi, Process::ht>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::phi, Process::ht>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::inv2R, Process::ht>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::inv2R, Process::ht>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::phiT, Process::ht>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::phiT, Process::ht>(const Setup* setup);
 
   template <>
-  DataFormat makeDataFormat<Variable::dPhi, Process::ctb>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::dPhi, Process::ctb>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::dZ, Process::ctb>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::dZ, Process::ctb>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::layer, Process::ctb>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::layer, Process::ctb>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::cot, Process::ctb>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::cot, Process::ctb>(const Setup* setup);
 
   template <>
-  DataFormat makeDataFormat<Variable::inv2R, Process::kf>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::inv2R, Process::kf>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::phiT, Process::kf>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::phiT, Process::kf>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::cot, Process::kf>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::cot, Process::kf>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::zT, Process::kf>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::zT, Process::kf>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::phi, Process::kf>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::phi, Process::kf>(const Setup* setup);
   template <>
-  DataFormat makeDataFormat<Variable::match, Process::kf>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::match, Process::kf>(const Setup* setup);
 
   template <>
-  DataFormat makeDataFormat<Variable::cot, Process::dr>(const tt::Setup* setup);
+  DataFormat makeDataFormat<Variable::cot, Process::dr>(const Setup* setup);
+
+  template <>
+  DataFormat makeDataFormat<Variable::chi20, Process::tq>(const Setup* setup);
+  template <>
+  DataFormat makeDataFormat<Variable::chi21, Process::tq>(const Setup* setup);
+  template <>
+  DataFormat makeDataFormat<Variable::mva, Process::tq>(const Setup* setup);
+  template <>
+  DataFormat makeDataFormat<Variable::hitPattern, Process::tq>(const Setup* setup);
 
   /*! \class  trackerTFP::DataFormats
    *  \brief  Class to calculate and provide dataformats used by Track Trigger emulator
@@ -182,7 +220,7 @@ namespace trackerTFP {
   private:
     // variable flavour mapping, Each row below declares which processing steps use the variable named in the comment at the end of the row
     static constexpr std::array<std::array<Process, +Process::end>, +Variable::end> config_ = {{
-        //  Process::dtc  Process::pp   Process::gp   Process::ht   Process::ctb  Process::kf   Process::dr,  Process::tfp
+        //Process::dtc  Process::pp   Process::gp   Process::ht   Process::ctb  Process::kf   Process::dr   Process::tq   Process::tfp
         {{Process::dtc,
           Process::dtc,
           Process::dtc,
@@ -190,6 +228,7 @@ namespace trackerTFP {
           Process::dtc,
           Process::dtc,
           Process::dtc,
+          Process::x,
           Process::x}},  // Variable::r
         {{Process::dtc,
           Process::dtc,
@@ -198,6 +237,7 @@ namespace trackerTFP {
           Process::ht,
           Process::kf,
           Process::kf,
+          Process::x,
           Process::x}},  // Variable::phi
         {{Process::dtc,
           Process::dtc,
@@ -206,6 +246,7 @@ namespace trackerTFP {
           Process::gp,
           Process::gp,
           Process::gp,
+          Process::x,
           Process::x}},  // Variable::z
         {{Process::x,
           Process::x,
@@ -214,6 +255,7 @@ namespace trackerTFP {
           Process::ctb,
           Process::ctb,
           Process::ctb,
+          Process::x,
           Process::x}},  // Variable::dPhi
         {{Process::x,
           Process::x,
@@ -222,12 +264,14 @@ namespace trackerTFP {
           Process::ctb,
           Process::ctb,
           Process::ctb,
+          Process::x,
           Process::x}},  // Variable::dZ
         {{Process::ht,
           Process::ht,
           Process::ht,
           Process::ht,
           Process::ht,
+          Process::kf,
           Process::kf,
           Process::kf,
           Process::tfp}},  // Variable::inv2R
@@ -238,6 +282,7 @@ namespace trackerTFP {
           Process::ht,
           Process::kf,
           Process::kf,
+          Process::kf,
           Process::tfp}},  // Variable::phiT
         {{Process::x,
           Process::x,
@@ -246,12 +291,14 @@ namespace trackerTFP {
           Process::ctb,
           Process::kf,
           Process::dr,
+          Process::kf,
           Process::tfp}},  // Variable::cot
         {{Process::gp,
           Process::gp,
           Process::gp,
           Process::gp,
           Process::gp,
+          Process::kf,
           Process::kf,
           Process::kf,
           Process::tfp}},  // Variable::zT
@@ -262,8 +309,53 @@ namespace trackerTFP {
           Process::ctb,
           Process::x,
           Process::x,
+          Process::x,
           Process::x}},  // Variable::layer
-        {{Process::x, Process::x, Process::x, Process::x, Process::x, Process::kf, Process::x, Process::x}}  // Variable::match
+        {{Process::x,
+          Process::x,
+          Process::x,
+          Process::x,
+          Process::x,
+          Process::kf,
+          Process::x,
+          Process::x,
+          Process::x}},  // Variable::match
+        {{Process::x,
+          Process::x,
+          Process::x,
+          Process::x,
+          Process::x,
+          Process::x,
+          Process::x,
+          Process::tq,
+          Process::x}},  // Variable::chi20
+        {{Process::x,
+          Process::x,
+          Process::x,
+          Process::x,
+          Process::x,
+          Process::x,
+          Process::x,
+          Process::tq,
+          Process::x}},  // Variable::chi21
+        {{Process::x,
+          Process::x,
+          Process::x,
+          Process::x,
+          Process::x,
+          Process::x,
+          Process::x,
+          Process::tq,
+          Process::x}},  // Variable::mva
+        {{Process::x,
+          Process::x,
+          Process::x,
+          Process::x,
+          Process::x,
+          Process::x,
+          Process::x,
+          Process::tq,
+          Process::x}}  // Variable::hitPattern
     }};
     // stub word assembly, shows which stub variables are used by each process
     static constexpr std::array<std::initializer_list<Variable>, +Process::end> stubs_ = {{
@@ -292,6 +384,7 @@ namespace trackerTFP {
         {Variable::r, Variable::phi, Variable::z, Variable::dPhi, Variable::dZ},                       // Process::ctb
         {Variable::r, Variable::phi, Variable::z, Variable::dPhi, Variable::dZ},                       // Process::kf
         {Variable::r, Variable::phi, Variable::z, Variable::dPhi, Variable::dZ},                       // Process::dr
+        {},                                                                                            // Process::tq
         {}                                                                                             // Process::tfp
     }};
     // track word assembly, shows which track variables are used by each process
@@ -303,12 +396,13 @@ namespace trackerTFP {
         {Variable::inv2R, Variable::phiT, Variable::zT},                                  // Process::ctb
         {Variable::inv2R, Variable::phiT, Variable::cot, Variable::zT, Variable::match},  // Process::kf
         {Variable::inv2R, Variable::phiT, Variable::cot, Variable::zT},                   // Process::dr
+        {Variable::hitPattern, Variable::mva, Variable::chi20, Variable::chi21},          // Process::tq
         {}                                                                                // Process::tfp
     }};
 
   public:
     DataFormats();
-    DataFormats(const tt::Setup* setup);
+    DataFormats(const Setup* setup);
     ~DataFormats() = default;
     // converts bits to ntuple of variables
     template <typename... Ts>
@@ -337,7 +431,7 @@ namespace trackerTFP {
       bv = ttBV.bs();
     }
     // access to run-time constants
-    const tt::Setup* setup() const { return setup_; }
+    const Setup* setup() const { return setup_; }
     // number of bits being used for specific variable flavour
     int width(Variable v, Process p) const { return formats_[+v][+p]->width(); }
     // precision being used for specific variable flavour
@@ -402,7 +496,7 @@ namespace trackerTFP {
         attachTrack<it + 1>(p, data, ttBV);
     }
     // stored run-time constants
-    const tt::Setup* setup_;
+    const Setup* setup_;
     // collection of unique formats
     std::vector<DataFormat> dataFormats_;
     // variable flavour mapping
@@ -734,8 +828,28 @@ namespace trackerTFP {
     double zT() const { return std::get<3>(data_); }
   };
 
+  // class to represent tracks generated by process TrackQuality
+  class TrackTQ : public Track<TTBV, int, double, double> {
+  public:
+    // construct TrackTQ from Frame
+    TrackTQ(const tt::FrameTrack& ft, const DataFormats* df) : Track(ft, df, Process::tq) {}
+    // construct TrackTQ from TrackKF
+    TrackTQ(const TrackKF& track, const TTBV& hitPattern, int mva, double chi20, double chi21)
+        : Track(track, hitPattern, mva, chi20, chi21) {}
+    //TrackTQ() {}
+    ~TrackTQ() override = default;
+    // mva
+    const TTBV& hitPattern() const { return std::get<0>(data_); }
+    // mva
+    int mva() const { return std::get<1>(data_); }
+    // track r-phi chi2
+    double chi20() const { return std::get<2>(data_); }
+    // track r-z chi2
+    double chi21() const { return std::get<3>(data_); }
+  };
+
 }  // namespace trackerTFP
 
-EVENTSETUP_DATA_DEFAULT_RECORD(trackerTFP::DataFormats, trackerTFP::DataFormatsRcd);
+EVENTSETUP_DATA_DEFAULT_RECORD(trackerTFP::DataFormats, trackerDTC::SetupRcd);
 
 #endif

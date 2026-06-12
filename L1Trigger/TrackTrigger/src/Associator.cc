@@ -26,9 +26,10 @@ namespace tt {
     std::set<int> hitPattern;
     std::set<int> hitPatternPS;
     for (const TTStubRef& ttStubRef : ttStubRefs) {
-      const int layerId = setup_->layerId(ttStubRef);
+      const trackerDTC::SensorModule* sm = setup_->sensorModule(ttStubRef);
+      const int layerId = sm->layerId();
       hitPattern.insert(layerId);
-      if (setup_->psModule(ttStubRef))
+      if (sm->psModule())
         hitPatternPS.insert(layerId);
     }
     if (static_cast<int>(hitPattern.size()) < config_.minLayers_)
@@ -51,10 +52,11 @@ namespace tt {
     // count associated layer for each TP
     std::map<TPPtr, std::pair<std::set<int>, std::set<int>>> m;
     for (const TTStubRef& ttStubRef : ttStubRefs) {
+      const trackerDTC::SensorModule* sm = setup_->sensorModule(ttStubRef);
       for (const TPPtr& tpPtr : sa_->findTrackingParticlePtrs(ttStubRef)) {
-        const int layerId = setup_->layerId(ttStubRef);
+        const int layerId = sm->layerId();
         m[tpPtr].first.insert(layerId);
-        if (setup_->psModule(ttStubRef))
+        if (sm->psModule())
           m[tpPtr].second.insert(layerId);
       }
     }
@@ -78,9 +80,10 @@ namespace tt {
       int bad2S(0);
       int badPS(0);
       for (const TTStubRef& ttStubRef : ttStubRefs) {
+        const trackerDTC::SensorModule* sm = setup_->sensorModule(ttStubRef);
         const std::vector<TPPtr>& tpPtrs = sa_->findTrackingParticlePtrs(ttStubRef);
         if (std::find(tpPtrs.begin(), tpPtrs.end(), tpPtr) == tpPtrs.end())
-          setup_->psModule(ttStubRef) ? badPS++ : bad2S++;
+          sm->psModule() ? badPS++ : bad2S++;
       }
       return (badPS > config_.maxLayersBadPS_ || badPS + bad2S > config_.maxLayersBad_);
     };

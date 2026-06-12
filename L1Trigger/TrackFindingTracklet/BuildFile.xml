@@ -8,7 +8,7 @@
 <use name="FWCore/Utilities"/>
 <use name="L1Trigger/TrackTrigger"/>
 <use name="L1Trigger/TrackFindingTMTT"/>
-<use name="L1Trigger/TrackerTFP"/>
+<use name="L1Trigger/TrackerDTC"/>
 <flags CXXFLAGS="-DUSEHYBRID"/>
 
 <export>

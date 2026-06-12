@@ -1,7 +1,7 @@
 #ifndef L1Trigger_TrackFindingTracklet_State_h
 #define L1Trigger_TrackFindingTracklet_State_h
 
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
 #include "L1Trigger/TrackFindingTracklet/interface/DataFormats.h"
 #include "L1Trigger/TrackFindingTracklet/interface/KalmanFilterFormats.h"
 
@@ -15,36 +15,42 @@ namespace trklet {
   public:
     //
     struct Stub {
-      Stub(KalmanFilterFormats* kff, const tt::FrameStub& frame);
+      Stub(KalmanFilterFormats*, const tt::FrameStub&);
+      // stub radius in cm
+      double H() const { return stubDR_.r(); }
+      // stub phi coordinate in rad
+      double m0() const { return stubDR_.phi(); }
+      // stub z coordinate in cm
+      double m1() const { return stubDR_.z(); }
+      // stub projected phi uncertainty in rad
+      double d0() const { return stubDR_.dPhi(); }
+      // stub projected z uncertainty in cm
+      double d1() const { return stubDR_.dZ(); }
+      // squared stub projected phi uncertainty instead of wheight (wrong but simpler)
+      double v0() const { return v0_; }
+      // squared stub projected z uncertainty instead of wheight (wrong but simpler)
+      double v1() const { return v1_; }
       StubDR stubDR_;
-      double H12_;
-      double H04_;
       double v0_;
       double v1_;
     };
     // copy constructor
-    State(State* state);
+    State(State*);
     // proto state constructor
-    State(KalmanFilterFormats* kff, TrackDR* track, const std::vector<Stub*>& stubs);
+    State(KalmanFilterFormats*, TrackDR*, int, const std::vector<Stub*>&, const std::vector<Stub*>&);
     // updated state constructor
-    State(State* state, const std::vector<double>& doubles);
-    // combinatoric and seed building state constructor
-    State(State* state, State* parent, int layer);
+    State(State*, const std::vector<double>&);
+    // combinatoric state constructor
+    State(State*, State*, int);
     ~State() = default;
     //
-    void setTrackId(int trackId) { trackId_ = trackId; }
+    State* comb(std::deque<State>&, int);
     //
-    State* comb(std::deque<State>& states, int layer);
-    //
-    State* combSeed(std::deque<State>& states, int layer);
-    //
-    State* update(std::deque<State>& states, int layer);
+    State* final(std::deque<State>&, int);
     // input track
-    TrackDR* track() const { return track_; }
+    TrackDR* trackDR() const { return trackDR_; }
     // parent state (nullpointer if no parent available)
     State* parent() const { return parent_; }
-    // stub to add to state
-    Stub* stub() const { return stub_; }
     // hitPattern of so far added stubs
     const TTBV& hitPattern() const { return hitPattern_; }
     // shows which layer the found track has stubs on
@@ -76,47 +82,29 @@ namespace trklet {
     double C44() const { return C44_; }
     double C40() const { return C40_; }
     double C41() const { return C41_; }
-    // Derivative of predicted stub coords wrt helix params: stub radius minus chosenRofPhi
-    double H00() const { return stub_->stubDR_.r(); }
-    // Derivative of predicted stub coords wrt helix params: stub radius minus chosenRofZ
-    double H12() const { return stub_->H12_; }
-    //
-    double H04() const { return stub_->H04_; }
-    // stub phi residual wrt input helix
-    double m0() const { return stub_->stubDR_.phi(); }
-    // stub z residual wrt input helix
-    double m1() const { return stub_->stubDR_.z(); }
-    // stub projected phi uncertainty
-    double d0() const { return stub_->stubDR_.dPhi(); }
-    // stub projected z uncertainty
-    double d1() const { return stub_->stubDR_.dZ(); }
-    // squared stub projected phi uncertainty instead of wheight (wrong but simpler)
-    double v0() const { return stub_->v0_; }
-    // squared stub projected z uncertainty instead of wheight (wrong but simpler)
-    double v1() const { return stub_->v1_; }
-    // layer of current to add stub
-    int layer() const { return std::distance(stubs_.begin(), std::find(stubs_.begin(), stubs_.end(), stub_)); }
-    //
-    std::vector<Stub*> stubs() const { return stubs_; }
+    // proj Stub for given kf layer [0-7]
+    Stub* proj(int layer) const { return proj_[layer]; }
+    // seed Stub for given seeding layer [0-1]
+    Stub* seed(int layer) const { return seed_[layer]; }
 
   private:
     // provides data fomats
     KalmanFilterFormats* kff_;
     // provides run-time constants
-    const tt::Setup* setup_;
+    const Setup* setup_;
     // input track
-    TrackDR* track_;
-    // input track stubs
-    std::vector<Stub*> stubs_;
+    TrackDR* trackDR_;
+    // input track seed stubs
+    std::vector<Stub*> seed_;
+    // input track projection stubs
+    std::vector<Stub*> proj_;
     // track id
-    int trackId_ = -1;
+    int trackId_;
     // previous state, nullptr for first states
     State* parent_;
-    // stub to add
-    Stub* stub_;
-    // shows which layer has been added so far
+    // shows which proj layer has been added so far
     TTBV hitPattern_;
-    // shows which layer the found track has stubs on
+    // shows which proj layer the found track has stubs on
     TTBV trackPattern_;
     // helix inv2R wrt input helix
     double x0_;

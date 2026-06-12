@@ -1,12 +1,11 @@
 #ifndef L1Trigger_TrackerTFP_KalmanFilter_h
 #define L1Trigger_TrackerTFP_KalmanFilter_h
 
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 #include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
 #include "L1Trigger/TrackerTFP/interface/KalmanFilterFormats.h"
 #include "L1Trigger/TrackerTFP/interface/State.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 #include <vector>
 #include <deque>
@@ -18,7 +17,7 @@ namespace trackerTFP {
   class KalmanFilter {
   public:
     typedef State::Stub Stub;
-    KalmanFilter(const tt::Setup* setup,
+    KalmanFilter(const Setup* setup,
                  const DataFormats* dataFormats,
                  const LayerEncoding* layerEncoding,
                  KalmanFilterFormats* kalmanFilterFormats,
@@ -126,7 +125,7 @@ namespace trackerTFP {
     void update(State*& state);
 
     // provides run-time constants
-    const tt::Setup* setup_;
+    const Setup* setup_;
     // provides dataformats
     const DataFormats* dataFormats_;
     // provides layer Encoding

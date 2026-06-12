@@ -2,8 +2,8 @@
 #define L1Trigger_TrackerTFP_LayerEncoding_h
 
 #include "FWCore/Framework/interface/data_default_record_trait.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
-#include "L1Trigger/TrackTrigger/interface/SensorModule.h"
 
 #include <vector>
 
@@ -32,19 +32,10 @@ namespace trackerTFP {
     int maybePS(int zT) const;
     // encoded layer id which may be PS or 2S for given zT in cm
     int maybePS(double zT) const;
-    // fills binZT (unsigned), numPS, num2S, numMissingPS and numMissingPS for given TTTrack hitPattern and trajectory
-    void analyze(int hitpattern,
-                 double cot,
-                 double z0,
-                 int& binZT,
-                 int& numPS,
-                 int& num2S,
-                 int& numMissingPS,
-                 int& numMissing2S) const;
 
   private:
     // helper class providing run-time constants
-    const tt::Setup* setup_;
+    const Setup* setup_;
     // helper class providing dataformats
     const DataFormats* dataFormats_;
     // data foramt of variable zT
@@ -61,6 +52,6 @@ namespace trackerTFP {
 
 }  // namespace trackerTFP
 
-EVENTSETUP_DATA_DEFAULT_RECORD(trackerTFP::LayerEncoding, trackerTFP::DataFormatsRcd);
+EVENTSETUP_DATA_DEFAULT_RECORD(trackerTFP::LayerEncoding, trackerDTC::SetupRcd);
 
 #endif

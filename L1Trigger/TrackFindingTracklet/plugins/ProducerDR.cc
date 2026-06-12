@@ -10,12 +10,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
-#include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
 #include "L1Trigger/TrackFindingTracklet/interface/DataFormats.h"
-#include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
 #include "L1Trigger/TrackFindingTracklet/interface/DuplicateRemoval.h"
-#include "SimDataFormats/Associations/interface/TTTypes.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/L1TrackTrigger/interface/TTDTC.h"
 
 #include <string>
 #include <vector>
@@ -43,54 +42,49 @@ namespace trklet {
     edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracks_;
     // ED input token of Stubs
     edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubs_;
+    // ED input token of TTDTC
+    edm::EDGetTokenT<TTDTC> edGetTokenDTC_;
     // ED output token for stubs
     edm::EDPutTokenT<tt::StreamsStub> edPutTokenStubs_;
     // ED output token for tracks
     edm::EDPutTokenT<tt::StreamsTrack> edPutTokenTracks_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
-    // LayerEncoding token
-    edm::ESGetToken<trackerTFP::LayerEncoding, trackerTFP::DataFormatsRcd> esGetTokenLayerEncoding_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    edm::ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
-    // ChannelAssignment token
-    edm::ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
+    edm::ESGetToken<DataFormats, trackerDTC::SetupRcd> esGetTokenDataFormats_;
   };
 
   ProducerDR::ProducerDR(const edm::ParameterSet& iConfig) {
     const std::string& label = iConfig.getParameter<std::string>("InputLabelDR");
     const std::string& branchStubs = iConfig.getParameter<std::string>("BranchStubs");
     const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTracks");
+    const edm::InputTag& inputTagDTC = iConfig.getParameter<edm::InputTag>("InputTagTTDTC");
     // book in- and output ED products
     edGetTokenTracks_ = consumes(edm::InputTag(label, branchTracks));
     edGetTokenStubs_ = consumes(edm::InputTag(label, branchStubs));
+    edGetTokenDTC_ = consumes(inputTagDTC);
     edPutTokenTracks_ = produces(branchTracks);
     edPutTokenStubs_ = produces(branchStubs);
     // book ES products
     esGetTokenSetup_ = esConsumes();
-    esGetTokenLayerEncoding_ = esConsumes();
     esGetTokenDataFormats_ = esConsumes();
-    esGetTokenChannelAssignment_ = esConsumes();
   }
 
   void ProducerDR::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // helper class to store configurations
-    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
-    // helper class to encode layer
-    const trackerTFP::LayerEncoding* layerEncoding = &iSetup.getData(esGetTokenLayerEncoding_);
+    const Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats = &iSetup.getData(esGetTokenDataFormats_);
-    // helper class to assign tracks to channel
-    const ChannelAssignment* channelAssignment = &iSetup.getData(esGetTokenChannelAssignment_);
     // empty DR products
-    tt::StreamsStub streamsStub(setup->numRegions() * setup->numLayers());
-    tt::StreamsTrack streamsTrack(setup->numRegions());
+    tt::StreamsStub streamsStub(setup->sysNumRegion() * setup->drNumLayers());
+    tt::StreamsTrack streamsTrack(setup->sysNumRegion());
     // read in TBout Product and produce KFin product
     const tt::StreamsStub& stubs = iEvent.get(edGetTokenStubs_);
     const tt::StreamsTrack& tracks = iEvent.get(edGetTokenTracks_);
-    for (int region = 0; region < setup->numRegions(); region++) {
+    const TTDTC& ttDTC = iEvent.get(edGetTokenDTC_);
+    for (int region = 0; region < setup->sysNumRegion(); region++) {
       // object to remove duplicated tracks in a processing region
-      DuplicateRemoval dr(setup, layerEncoding, dataFormats, channelAssignment, region);
+      DuplicateRemoval dr(setup, dataFormats, region, ttDTC);
       // read in and organize input tracks and stubs
       dr.consume(tracks, stubs);
       // fill output products

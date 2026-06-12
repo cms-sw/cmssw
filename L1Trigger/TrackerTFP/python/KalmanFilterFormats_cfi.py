@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-TrackTriggerKalmanFilterFormats_params = cms.PSet (
+TrackerTFPKalmanFilterFormats_params = cms.PSet (
 
   EnableIntegerEmulation = cms.bool( True ), # enables emulation of integer calculations
 

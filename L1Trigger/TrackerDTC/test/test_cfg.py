@@ -24,22 +24,20 @@ process.load( 'L1Trigger.TrackerDTC.DTC_cff' )
 process.load( 'L1Trigger.TrackerDTC.Analyzer_cff' )
 # load code that associates stubs with mctruth
 process.load( 'SimTracker.TrackTriggerAssociation.StubAssociator_cff' )
-# cosutmize TT algorithm
-from L1Trigger.TrackerDTC.Customize_cff import *
-#producerUseTMTT(process)
-#analyzerUseTMTT(process)
+# load code that analyzes mc truth
+process.load( 'L1Trigger.TrackTrigger.AnalyzerMC_cff' )
 
 # build schedule (not essential to rerun producer)
-process.mc       = cms.Path( process.StubAssociator )
-process.produce  = cms.Path( process.ProducerDTC )
-process.analyze  = cms.Path( process.AnalyzerDTC )
-process.schedule = cms.Schedule( process.produce, process.mc, process.analyze )
+process.path = cms.Path( process.StubAssociator + process.AnalyzerMC + process.ProducerDTC + process.AnalyzerDTC )
+process.schedule = cms.Schedule( process.path )
 
 # create options
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing( 'analysis' )
 # specify input MC
-Samples = ["/store/mc/Phase2Spring24DIGIRECOMiniAOD/TT_TuneCP5_14TeV-powheg-pythia8/GEN-SIM-DIGI-RAW-MINIAOD/PU200_Trk1GeV_140X_mcRun4_realistic_v4-v2/130000/00c7f40e-b44e-4eea-a86b-def8f7d82b0e.root"]
+Samples = [
+  '/store/relval/CMSSW_15_1_0_pre5/RelValDoubleMuFlatPt1To100/GEN-SIM-DIGI-RAW/150X_mcRun4_realistic_v1_RV269_Run4D110_noPU-v1/2590000/076c038a-eb20-4be9-8bff-04af5917c436.root'
+]
 options.register( 'inputMC', Samples, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed" )
 # specify number of events to process.
 options.register( 'Events',100,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Number of Events to analyze" )
@@ -50,7 +48,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.Even
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring( options.inputMC ),
-  #skipEvents = cms.untracked.uint32( 47 ),
+  #skipEvents = cms.untracked.uint32( 1 ),
   secondaryFileNames = cms.untracked.vstring(),
   duplicateCheckMode = cms.untracked.string( 'noDuplicateCheck' )
 )

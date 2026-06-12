@@ -1,13 +1,11 @@
 #ifndef L1Trigger_TrackFindingTracklet_KalmanFilter_h
 #define L1Trigger_TrackFindingTracklet_KalmanFilter_h
 
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
 #include "L1Trigger/TrackFindingTracklet/interface/DataFormats.h"
 #include "L1Trigger/TrackFindingTracklet/interface/KalmanFilterFormats.h"
 #include "L1Trigger/TrackFindingTracklet/interface/State.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "L1Trigger/TrackFindingTMTT/interface/Settings.h"
-#include "L1Trigger/TrackFindingTMTT/interface/KFParamsComb.h"
 
 #include <vector>
 #include <deque>
@@ -40,20 +38,14 @@ namespace trklet {
    *          without seeding stage or old KF. To run 5 parameter simulation set
    *          TrackTriggerSetup.KalmanFilter.Use5ParameterFit = True
    *          to run olfKF set
-   *          TrackTriggerSetup.KalmanFilter.UseSimmulation = True
+   *          TrackTriggerSetup.KalmanFilter.UseSimulation = True
    *  \author Thomas Schuh
    *  \date   2024, Sep
    */
   class KalmanFilter {
   public:
     typedef State::Stub Stub;
-    KalmanFilter(const tt::Setup*,
-                 const DataFormats*,
-                 KalmanFilterFormats*,
-                 tmtt::Settings*,
-                 tmtt::KFParamsComb*,
-                 int,
-                 tt::TTTracks&);
+    KalmanFilter(const Setup*, const DataFormats*, KalmanFilterFormats*, int);
     ~KalmanFilter() = default;
     // read in and organize input tracks and stubs
     void consume(const tt::StreamsTrack&, const tt::StreamsStub&);
@@ -68,26 +60,21 @@ namespace trklet {
             int numConsistent,
             int numConsistentPS,
             double d0,
-            const TTBV& hitPattern,
             const TrackKF& trackKF,
             const std::vector<StubKF>& stubsKF)
           : trackId_(trackId),
             numConsistent_(numConsistent),
             numConsistentPS_(numConsistentPS),
             d0_(d0),
-            hitPattern_(hitPattern),
             trackKF_(trackKF),
             stubsKF_(stubsKF) {}
       int trackId_;
       int numConsistent_;
       int numConsistentPS_;
       double d0_;
-      TTBV hitPattern_;
       TrackKF trackKF_;
       std::vector<StubKF> stubsKF_;
     };
-    // call old KF
-    void simulate(tt::StreamsStub& streamsStub, tt::StreamsTrack& streamsTrack);
     // constraints double precision
     double digi(VariableKF var, double val) { return kalmanFilterFormats_->format(var).digi(val); }
     //
@@ -107,31 +94,23 @@ namespace trklet {
     void calcSeeds();
     // Transform States into output products
     void conv(tt::StreamsStub& streamsStub, tt::StreamsTrack& streamsTrack);
-    // adds a layer to states, bool indicating if in seeding process
-    void addLayer(bool seed = false);
+    // adds a layer to states
+    void addLayer(std::deque<State*>& stream);
     // apply final cuts
     void finalize();
     // best state selection
     void accumulator();
     // updates state using 4 paramter fit
-    void update4(State*& state);
-    // updates state using 5 parameter fit
-    void update5(State*& state);
+    void update(State*& state);
 
     // provides run-time constants
-    const tt::Setup* setup_;
+    const Setup* setup_;
     // provides dataformats
     const DataFormats* dataFormats_;
     // provides dataformats of Kalman filter internals
     KalmanFilterFormats* kalmanFilterFormats_;
-    //
-    tmtt::Settings* settings_;
-    //
-    tmtt::KFParamsComb* tmtt_;
     // processing region
     int region_;
-    //
-    tt::TTTracks& ttTracks_;
     // container of tracks
     std::vector<TrackDR> tracks_;
     // container of stubs
@@ -144,8 +123,6 @@ namespace trklet {
     std::vector<Track> finals_;
     // current layer used during state propagation
     int layer_;
-    //
-    std::vector<double> zTs_;
   };
 
 }  // namespace trklet

@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "L1Trigger/TrackerTFP/interface/Demonstrator.h"
-#include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
 
 #include <sstream>
 #include <utility>
@@ -39,8 +39,7 @@ namespace trklet {
     void convert(const edm::Event& iEvent,
                  const edm::EDGetTokenT<tt::StreamsTrack>& tokenTracks,
                  const edm::EDGetTokenT<tt::StreamsStub>& tokenStubs,
-                 std::vector<std::vector<tt::Frame>>& bits,
-                 bool TB = false) const;
+                 std::vector<std::vector<tt::Frame>>& bits) const;
     //
     template <typename T>
     void convert(const T& collection, std::vector<std::vector<tt::Frame>>& bits) const;
@@ -51,22 +50,15 @@ namespace trklet {
     edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracksIn_;
     edm::EDGetTokenT<tt::StreamsTrack> edGetTokenTracksOut_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
-    // ChannelAssignment token
-    edm::ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // Demonstrator token
-    edm::ESGetToken<trackerTFP::Demonstrator, tt::SetupRcd> esGetTokenDemonstrator_;
+    edm::ESGetToken<trackerTFP::Demonstrator, trackerDTC::SetupRcd> esGetTokenDemonstrator_;
     //
-    const tt::Setup* setup_ = nullptr;
-    //
-    const ChannelAssignment* channelAssignment_ = nullptr;
+    const Setup* setup_ = nullptr;
     //
     const trackerTFP::Demonstrator* demonstrator_ = nullptr;
     //
     int nEvents_ = 0;
-    //
-    bool TBin_;
-    bool TBout_;
   };
 
   Demonstrator::Demonstrator(const edm::ParameterSet& iConfig) {
@@ -85,18 +77,12 @@ namespace trklet {
       edGetTokenTracksOut_ = consumes<tt::StreamsTrack>(edm::InputTag(labelOut, branchTracks));
     // book ES products
     esGetTokenSetup_ = esConsumes<edm::Transition::BeginRun>();
-    esGetTokenChannelAssignment_ = esConsumes<edm::Transition::BeginRun>();
     esGetTokenDemonstrator_ = esConsumes<edm::Transition::BeginRun>();
-    //
-    TBin_ = labelIn == "l1tTTTracksFromTrackletEmulation";
-    TBout_ = labelOut == "l1tTTTracksFromTrackletEmulation";
   }
 
   void Demonstrator::beginRun(const edm::Run& iEvent, const edm::EventSetup& iSetup) {
     //
     setup_ = &iSetup.getData(esGetTokenSetup_);
-    //
-    channelAssignment_ = &iSetup.getData(esGetTokenChannelAssignment_);
     //
     demonstrator_ = &iSetup.getData(esGetTokenDemonstrator_);
   }
@@ -105,8 +91,8 @@ namespace trklet {
     nEvents_++;
     std::vector<std::vector<tt::Frame>> input;
     std::vector<std::vector<tt::Frame>> output;
-    convert(iEvent, edGetTokenTracksIn_, edGetTokenStubsIn_, input, TBin_);
-    convert(iEvent, edGetTokenTracksOut_, edGetTokenStubsOut_, output, TBout_);
+    convert(iEvent, edGetTokenTracksIn_, edGetTokenStubsIn_, input);
+    convert(iEvent, edGetTokenTracksOut_, edGetTokenStubsOut_, output);
     if (!demonstrator_->analyze(input, output))
       throw cms::Exception("BitError.");
   }
@@ -115,8 +101,7 @@ namespace trklet {
   void Demonstrator::convert(const edm::Event& iEvent,
                              const edm::EDGetTokenT<tt::StreamsTrack>& tokenTracks,
                              const edm::EDGetTokenT<tt::StreamsStub>& tokenStubs,
-                             std::vector<std::vector<tt::Frame>>& bits,
-                             bool TB) const {
+                             std::vector<std::vector<tt::Frame>>& bits) const {
     const bool tracks = !tokenTracks.isUninitialized();
     const bool stubs = !tokenStubs.isUninitialized();
     edm::Handle<tt::StreamsStub> handleStubs;
@@ -131,21 +116,14 @@ namespace trklet {
       iEvent.getByToken<tt::StreamsTrack>(tokenTracks, handleTracks);
       numChannelTracks = handleTracks->size();
     }
-    numChannelTracks /= setup_->numRegions();
-    numChannelStubs /= (setup_->numRegions() * (tracks ? numChannelTracks : 1));
-    if (TB)
-      numChannelStubs = channelAssignment_->numChannelsStub();
+    numChannelTracks /= setup_->sysNumRegion();
+    numChannelStubs /= (setup_->sysNumRegion() * (tracks ? numChannelTracks : 1));
     bits.reserve(numChannelTracks + numChannelStubs);
-    for (int region = 0; region < setup_->numRegions(); region++) {
+    for (int region = 0; region < setup_->sysNumRegion(); region++) {
       if (tracks) {
         const int offsetTracks = region * numChannelTracks;
         for (int channelTracks = 0; channelTracks < numChannelTracks; channelTracks++) {
           int offsetStubs = (region * numChannelTracks + channelTracks) * numChannelStubs;
-          if (TB) {
-            numChannelStubs =
-                channelAssignment_->numProjectionLayers(channelTracks) + channelAssignment_->numSeedingLayers();
-            offsetStubs = channelAssignment_->offsetStub(offsetTracks + channelTracks);
-          }
           if (tracks)
             convert(handleTracks->at(offsetTracks + channelTracks), bits);
           if (stubs) {

@@ -1,13 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.TrackFindingTracklet.Producer_cfi import TrackFindingTrackletProducer_params
-from L1Trigger.TrackFindingTracklet.ChannelAssignment_cff import ChannelAssignment
-from L1Trigger.TrackerTFP.LayerEncoding_cff import TrackTriggerLayerEncoding
+from L1Trigger.TrackFindingTracklet.Setup_cff import TrackFindingTrackletSetup
 
 l1tTTTracksFromTrackletEmulation = cms.EDProducer("L1FPGATrackProducer",
                                                TrackFindingTrackletProducer_params,
                                                TTStubSource = cms.InputTag("TTStubsFromPhase2TrackerDigis","StubAccepted"),
-                                               InputTagTTDTC = cms.InputTag("ProducerDTC", "StubAccepted"),
                                                readMoreMcTruth = cms.bool(False),
                                                MCTruthClusterInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
                                                MCTruthStubInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),

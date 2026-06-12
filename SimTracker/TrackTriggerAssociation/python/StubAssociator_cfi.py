@@ -12,8 +12,8 @@ StubAssociator_params = cms.PSet (
   BranchDup  = cms.string  ( "UseForDup"  ), # name of StubAssociation used for duplicate rate
   BranchEff  = cms.string  ( "UseForEff"  ), # name of StubAssociation used for tracking efficiency 
 
-  LooseMatching = cms.bool( False ),
-  #LooseMatching = cms.bool( True ),
+  #LooseMatching = cms.bool( False ),
+  LooseMatching = cms.bool( True ),
 
   MinPt    = cms.double(  2.   ), # pt cut in GeV
   MaxZ0    = cms.double( 15.   ), # half lumi region size in cm

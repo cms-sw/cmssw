@@ -10,8 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
-#include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
 #include "L1Trigger/TrackFindingTracklet/interface/DataFormats.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackQuality.h"
 
@@ -39,15 +38,13 @@ namespace trklet {
     // ED output token for additional track variables created by TQ
     edm::EDPutTokenT<tt::StreamsTrack> edPutToken_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
-    // channelAssignment_ token
-    edm::ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenchannelAssignment_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // DataFormats token
-    edm::ESGetToken<DataFormats, ChannelAssignmentRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, trackerDTC::SetupRcd> esGetTokenDataFormats_;
+    // helper class to store configurations
+    const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats_ = nullptr;
-    // config parameter
-    const ChannelAssignment* channelAssignment_ = nullptr;
     // Internal data formats
     TrackQuality::InternalFormats internalFormats_;
     // BDT modell
@@ -64,15 +61,15 @@ namespace trklet {
     edGetTokenTracks_ = consumes(edm::InputTag(label, branchTracks));
     edPutToken_ = produces(branchTracks);
     // book ES products
-    esGetTokenSetup_ = esConsumes();
-    esGetTokenchannelAssignment_ = esConsumes<edm::Transition::BeginRun>();
+    esGetTokenSetup_ = esConsumes<edm::Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<edm::Transition::BeginRun>();
   }
 
   void ProducerTQ::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+    // helper class to store configurations
+    setup_ = &iSetup.getData(esGetTokenSetup_);
     // helper class to extract structured data from tt::Frames
     dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
-    channelAssignment_ = &iSetup.getData(esGetTokenchannelAssignment_);
     int width;
     int shift;
     double base;
@@ -91,32 +88,30 @@ namespace trklet {
     internalFormats_.m12_ = DataFormat(false, width, base, range);
     // invV0 (inverse phi uncertainty squared)
     const DataFormat& dPhi = dataFormats_->format(Variable::dPhi, Process::kf);
-    width = channelAssignment_->tqWidthInvV0();
+    width = setup_->tqWidthInvV0();
     base = std::pow(dPhi.base(), -2);
     range = base * std::pow(2, width) / (std::pow(2, width) - 1);
-    shift = std::ceil(std::log2(range / base)) - width;
+    shift = tt::ilog2(range / base) - width;
     base *= std::pow(2, shift);
     internalFormats_.invV0_ = DataFormat(false, width, base, range);
     // invV1 (inverse z uncertainty squared)
     const DataFormat& dZ = dataFormats_->format(Variable::dZ, Process::kf);
-    width = channelAssignment_->tqWidthInvV1();
+    width = setup_->tqWidthInvV1();
     base = std::pow(dZ.base(), -2);
     range = base * std::pow(2, width) / (std::pow(2, width) - 1);
-    shift = std::ceil(std::log2(range / base)) - width;
+    shift = tt::ilog2(range / base) - width;
     base *= std::pow(2, shift);
     internalFormats_.invV1_ = DataFormat(false, width, base, range);
   }
 
   void ProducerTQ::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    // helper class to store configurations
-    const tt::Setup* setup = &iSetup.getData(esGetTokenSetup_);
     // read in KF Product
     const tt::StreamsTrack& streamsTracks = iEvent.get(edGetTokenTracks_);
     const tt::StreamsStub& streamsStubs = iEvent.get(edGetTokenStubs_);
     // empty TQ product
-    tt::StreamsTrack output(setup->numRegions() * channelAssignment_->tqNumLinks());
+    tt::StreamsTrack output(setup_->sysNumRegion() * setup_->tqNumChannel());
     //produce TQ product
-    for (int region = 0; region < setup->numRegions(); region++) {
+    for (int region = 0; region < setup_->sysNumRegion(); region++) {
       // object emulating tq algorithm
       TrackQuality tq(dataFormats_, internalFormats_, region, &bdt_);
       // read in and organize input tracks and stubs

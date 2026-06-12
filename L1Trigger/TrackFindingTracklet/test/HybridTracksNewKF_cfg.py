@@ -37,8 +37,6 @@ process.load( 'L1Trigger.TrackFindingTracklet.Analyzer_cff' )
 process.load( 'L1Trigger.TrackFindingTracklet.Producer_cff' )
 from L1Trigger.TrackFindingTracklet.Customize_cff import *
 fwConfig( process )
-oldKFConfig( process )
-process.l1tTTTracksFromTrackletEmulation.readMoreMcTruth = False
 
 # build schedule
 process.mc       = cms.Sequence( process.StubAssociator  + process.AnalyzerMC       )
@@ -49,7 +47,7 @@ process.dr       = cms.Sequence( process.ProducerDR      + process.AnalyzerDR   
 process.kf       = cms.Sequence( process.ProducerKF      + process.AnalyzerKF       )
 process.tq       = cms.Sequence( process.ProducerTQ      + process.AnalyzerTQ       )
 process.tfp      = cms.Sequence( process.ProducerTFP     + process.AnalyzerTFP      )
-process.tt       = cms.Path( process.mc + process.dtc + process.tracklet + process.AnalyzerTB + process.tm + process.dr + process.kf + process.tq + process.tfp )
+process.tt       = cms.Path( process.mc + process.dtc + process.tracklet + process.tm + process.dr + process.AnalyzerTB + process.kf + process.tq + process.tfp )
 process.schedule = cms.Schedule( process.tt )
 
 # create options
@@ -61,7 +59,7 @@ options = VarParsing.VarParsing( 'analysis' )
 #from MCsamples.RelVal_1260_D88.PU200_TTbar_14TeV_cfi import *
 #inputMC = getCMSdataFromCards()
 Samples = [
-  '/store/relval/CMSSW_15_1_0_pre5/RelValDoubleMuFlatPt1To100/GEN-SIM-DIGI-RAW/150X_mcRun4_realistic_v1_RV269_Run4D110_noPU-v1/2590000/076c038a-eb20-4be9-8bff-04af5917c436.root'
+  "/store/relval/CMSSW_15_1_0_pre5/RelValTTbar_14TeV_TuneCP5/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_RV269_Run4D110_PU-v2/2590000/0f0bcfd3-dafe-4dda-8d39-9765f6eae68e.root",
 ]
 #Samples = ["/store/trimmed.root"]
 options.register( 'inputMC', Samples, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed" )
@@ -86,9 +84,16 @@ process.TFileService = cms.Service( "TFileService", fileName = cms.string( "Hist
 if ( False ):
   process.out = cms.OutputModule (
     "PoolOutputModule",
-    fileName = cms.untracked.string("L1Tracks.root"),
+    fileName = cms.untracked.string("TrackletTracks.root"),
     fastCloning = cms.untracked.bool( False ),
-    outputCommands = cms.untracked.vstring('drop *', 'keep *_TTTrack*_*_*', 'keep *_TTStub*_*_*' )
+    outputCommands = process.RAWSIMEventContent.outputCommands,
   )
+  process.out.outputCommands.append('drop  *')
+  process.out.outputCommands.append('keep  *_TTStubsFromPhase2TrackerDigis_ClusterAccepted_*')
+  process.out.outputCommands.append('keep  *_TTStubsFromPhase2TrackerDigis_StubAccepted_*')
+  process.out.outputCommands.append('keep  *_Cleaner_*_*')
+  process.out.outputCommands.append('keep  *_StubAssociator_*_*')
+  process.out.outputCommands.append('keep  *_ProducerDTC_*_*')
+  process.out.outputCommands.append('keep  *_l1tTTTracksFromTrackletEmulation_*_*')
   process.FEVToutput_step = cms.EndPath( process.out )
   process.schedule.append( process.FEVToutput_step )

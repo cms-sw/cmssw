@@ -15,11 +15,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-namespace tt {
-  class Setup;
-}
-
 namespace trklet {
+
+  class Setup;
 
   constexpr unsigned int N_SECTOR = 9;  // # of phi sectors for L1TK processing
 
@@ -60,8 +58,8 @@ namespace trklet {
   public:
     Settings() {};
     ~Settings() = default;
-    void passSetup(const tt::Setup* setup) { setup_ = setup; }
-    const tt::Setup* setup() const { return setup_; }
+    void passSetup(const Setup* setup) { setup_ = setup; }
+    const Setup* setup() const { return setup_; }
 
     // processing & memory modules, wiring, etc.
     std::string const& fitPatternFile() const { return fitPatternFile_; }
@@ -495,7 +493,7 @@ namespace trklet {
     std::array<std::array<unsigned int, N_DISK>, N_SEED> projdisks() const { return projdisks_; }
 
   private:
-    const tt::Setup* setup_;
+    const Setup* setup_;
 
     std::string fitPatternFile_;
     std::string processingModulesFile_;

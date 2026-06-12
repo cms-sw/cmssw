@@ -55,7 +55,7 @@ namespace tt {
     // ED output token for stub association for tracking efficiency
     edm::EDGetTokenT<StubAssociation> edGetTokenEff_;
     // Associator token
-    edm::ESGetToken<Associator, SetupRcd> esGetTokenAssociator_;
+    edm::ESGetToken<Associator, trackerDTC::SetupRcd> esGetTokenAssociator_;
     // enables analyze of TPs
     bool useMCTruth_;
     // stream name to be analyzed
@@ -84,7 +84,6 @@ namespace tt {
         name_(iConfig.getParameter<std::string>("Process")),
         numRegions_(iConfig.getParameter<int>("NumRegions")),
         numChannel_(iConfig.getParameter<int>("NumChannel")),
-        numLayers_(iConfig.getParameter<int>("NumLayers")),
         looseMatching_(iConfig.getParameter<bool>("LooseMatching")) {
     usesResource("TFileService");
     // book in- and output ED products
@@ -135,6 +134,7 @@ namespace tt {
     // read in tracks and stubs products
     const StreamsStub& streamsStub = iEvent.get(edGetTokenStubs_);
     const StreamsTrack& streamsTrack = iEvent.get(edGetTokenTracks_);
+    numLayers_ = streamsStub.size() / streamsTrack.size();
     // read in MCTruth
     Associator forFake = iSetup.getData(esGetTokenAssociator_);
     Associator forDup = iSetup.getData(esGetTokenAssociator_);

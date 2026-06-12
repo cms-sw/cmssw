@@ -26,7 +26,7 @@ namespace trklet {
   class TrackletConfigBuilder {
   public:
     //Builds the configuration for the tracklet based track finding
-    TrackletConfigBuilder(const Settings& settings, const tt::Setup* setup = nullptr);
+    TrackletConfigBuilder(const Settings& settings, const Setup* setup = nullptr);
 
     //This method writes out the configuration as files
     void writeAll(std::ostream& wires, std::ostream& memories, std::ostream& modules);
@@ -101,13 +101,13 @@ namespace trklet {
 
 #ifdef CMSSW_GIT_HASH
     // Calculate phi range of modules read by each DTC.
-    void setDTCphirange(const tt::Setup* setup);
+    void setDTCphirange(const Setup* setup);
 
     // Write DTC phi ranges to dtcphirange.txt for stand-alone emulation.
     void writeDTCphirange() const;
 #else
     // Set phi ranges after reading them from dtcphirange.txt (stand-alone emulation)
-    void setDTCphirange(const tt::Setup* setup = nullptr);
+    void setDTCphirange(const Setup* setup = nullptr);
 #endif
 
     //

@@ -14,7 +14,7 @@
 
 #include "SimDataFormats/Associations/interface/StubAssociation.h"
 #include "L1Trigger/TrackTrigger/interface/Associator.h"
-#include "L1Trigger/TrackTrigger/interface/Setup.h"
+#include "L1Trigger/TrackerTFP/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 
 #include <TProfile.h>
@@ -65,13 +65,13 @@ namespace trackerTFP {
     // ED input token of TTStubRef to recontructable TPPtr association
     edm::EDGetTokenT<tt::StubAssociation> edGetTokenReconstructable_;
     // Setup token
-    edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetTokenSetup_;
+    edm::ESGetToken<Setup, trackerDTC::SetupRcd> esGetTokenSetup_;
     // Associator token
-    edm::ESGetToken<tt::Associator, tt::SetupRcd> esGetTokenAssociator_;
+    edm::ESGetToken<tt::Associator, trackerDTC::SetupRcd> esGetTokenAssociator_;
     // DataFormats token
-    edm::ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
+    edm::ESGetToken<DataFormats, trackerDTC::SetupRcd> esGetTokenDataFormats_;
     // stores, calculates and provides run-time constants
-    const tt::Setup* setup_ = nullptr;
+    const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats_ = nullptr;
     // enables analyze of TPs
@@ -145,7 +145,7 @@ namespace trackerTFP {
     // channel occupancy
     constexpr int maxOcc = 180;
     const int numChannelsTracks = dataFormats_->numChannel(Process::ctb);
-    const int numChannelsStubs = numChannelsTracks * setup_->numLayers();
+    const int numChannelsStubs = numChannelsTracks * setup_->sysNumLayer();
     hisChan_ = dir.make<TH1F>("His Channel Occupancy", ";", maxOcc, -.5, maxOcc - .5);
     profChan_ = dir.make<TProfile>("Prof Channel Occupancy", ";", numChannelsTracks, -.5, numChannelsTracks - .5);
     // stub occupancy
@@ -177,7 +177,7 @@ namespace trackerTFP {
       const double tpCot = sinh(tpPtr->eta());
       const math::XYZPointD& v = tpPtr->vertex();
       const double tpZ0 = v.z() - tpCot * (v.x() * cos(tpPhi0) + v.y() * sin(tpPhi0));
-      const double tpZT = tpZ0 + tpCot * setup_->chosenRofZ();
+      const double tpZT = tpZ0 + tpCot * setup_->regChosenRofZ();
       const double tpInv2R = tpPtr->charge() / tpPtr->pt() * setup_->invPtToDphi();
       hisZT->Fill(tpZT);
       hisInv2R->Fill(tpInv2R);
@@ -204,7 +204,7 @@ namespace trackerTFP {
     std::set<TPPtr> tpPtrsSelection;
     int allMatched(0);
     int allTracks(0);
-    for (int region = 0; region < setup_->numRegions(); region++) {
+    for (int region = 0; region < setup_->sysNumRegion(); region++) {
       const int offsetTrack = region * dataFormats_->numChannel(Process::ctb);
       int nStubs(0);
       int nTracks(0);
@@ -213,14 +213,14 @@ namespace trackerTFP {
         const int size = acceptedTracks[indexTrack].size();
         hisChan_->Fill(size);
         profChan_->Fill(channel, size);
-        const int offsetStub = indexTrack * setup_->numLayers();
-        for (int layer = 0; layer < setup_->numLayers(); layer++) {
+        const int offsetStub = indexTrack * setup_->sysNumLayer();
+        for (int layer = 0; layer < setup_->sysNumLayer(); layer++) {
           const tt::StreamStub& stream = acceptedStubs[offsetStub + layer];
           const int nStubs = std::accumulate(stream.begin(), stream.end(), 0, [](int sum, const tt::FrameStub& frame) {
             return sum + (frame.first.isNonnull() ? 1 : 0);
           });
           hisStubs_->Fill(nStubs);
-          profStubs_->Fill(channel * setup_->numLayers() + layer, nStubs);
+          profStubs_->Fill(channel * setup_->sysNumLayer() + layer, nStubs);
         }
         std::vector<std::vector<TTStubRef>> tracks;
         formTracks(acceptedTracks, acceptedStubs, tracks, indexTrack);
@@ -293,7 +293,7 @@ namespace trackerTFP {
                                const tt::StreamsStub& streamsStubs,
                                std::vector<std::vector<TTStubRef>>& tracks,
                                int channel) const {
-    const int offset = channel * setup_->numLayers();
+    const int offset = channel * setup_->sysNumLayer();
     const tt::StreamTrack& streamTrack = streamsTrack[channel];
     const int numTracks =
         std::accumulate(streamTrack.begin(), streamTrack.end(), 0, [](int sum, const tt::FrameTrack& frame) {
@@ -309,7 +309,7 @@ namespace trackerTFP {
                                     [](const tt::FrameTrack& frame) { return frame.first.isNonnull(); });
       const int size = std::distance(std::next(streamTrack.begin(), frame), end);
       int numStubs(0);
-      for (int layer = 0; layer < setup_->numLayers(); layer++) {
+      for (int layer = 0; layer < setup_->sysNumLayer(); layer++) {
         const tt::StreamStub& stream = streamsStubs[offset + layer];
         numStubs += std::accumulate(
             stream.begin() + frame, stream.begin() + frame + size, 0, [](int sum, const tt::FrameStub& frame) {
@@ -319,7 +319,7 @@ namespace trackerTFP {
       std::vector<TTStubRef> stubs;
       stubs.reserve(numStubs);
       int numLayers(0);
-      for (int layer = 0; layer < setup_->numLayers(); layer++) {
+      for (int layer = 0; layer < setup_->sysNumLayer(); layer++) {
         bool any(false);
         for (int f = frame; f < frame + size; f++) {
           const tt::FrameStub& stub = streamsStubs[offset + layer][f];
@@ -333,7 +333,7 @@ namespace trackerTFP {
           numLayers++;
         }
       }
-      const double cot = TrackCTB(frameTrack, dataFormats_).zT() / setup_->chosenRofZ();
+      const double cot = TrackCTB(frameTrack, dataFormats_).zT() / setup_->regChosenRofZ();
       hisNumLayers_->Fill(numLayers);
       profNumLayers_->Fill(abs(sinh(cot)), numLayers);
       tracks.push_back(stubs);
