@@ -236,9 +236,9 @@ void VMRouterCM::execute(unsigned int) {
           continue;
         if (memtype == 'L' && iphipos >= phicutmin)
           continue;
-        if (memtype == 'A' && iphipos < 4)
+        if ((memtype == 'A' || memtype == 'C' || memtype == 'E') && iphipos < 4)
           continue;
-        if (memtype == 'B' && iphipos >= 4)
+        if ((memtype == 'B' || memtype == 'D' || memtype == 'F') && iphipos >= 4)
           continue;
 
         int absz = std::abs(stub->z().value());

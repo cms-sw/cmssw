@@ -1011,7 +1011,7 @@ void TrackletConfigBuilder::writeASMemories(std::ostream& os, std::ostream& memo
   // The AllStubInner memories have names on the form {L/D}PHI{A-H}_XY_ZZZZ
   // ZZZZ is arbitrary, but XY is defined in the VMRouterCM module and select a subset of
   // the stubs in the phi reagion (PHI{A-H}) such that the stub processing load is distributed accross
-  // different TPs
+  // different TPs.
   //
   // The goal of these configurations is to make sure we have full coverage - i.e. that each stub in the
   // inner layer can be matched with all possible stubs that can form L1 tracks in the outer layer. This
@@ -1024,16 +1024,16 @@ void TrackletConfigBuilder::writeASMemories(std::ostream& os, std::ostream& memo
   std::vector<std::pair<std::string, std::pair<std::string, std::vector<std::string> > > > TPs = {
       {"L1L2A", {"L2PHIA", {"L1PHIA_BB_L1L2A", "L1PHIB_BA_L1L2A"}}},
       {"L1L2B", {"L2PHIA", {"L1PHIB_BB_L1L2B", "L1PHIC_BB_L1L2B"}}},
-      {"L1L2C", {"L2PHIB", {"L1PHIB_BA_L1L2C", "L1PHIC_BA_L1L2C"}}},
-      {"L1L2D", {"L2PHIB", {"L1PHIC_BB_L1L2D"}}},
+      {"L1L2C", {"L2PHIB", {"L1PHIB_BC_L1L2C", "L1PHIC_BA_L1L2C"}}},
+      {"L1L2D", {"L2PHIB", {"L1PHIC_BD_L1L2D"}}},
       {"L1L2E", {"L2PHIB", {"L1PHID_BA_L1L2E"}}},
       {"L1L2F", {"L2PHIB", {"L1PHID_BB_L1L2F", "L1PHIE_BB_L1L2F"}}},
-      {"L1L2G", {"L2PHIC", {"L1PHID_BA_L1L2G", "L1PHIE_BA_L1L2G"}}},
-      {"L1L2H", {"L2PHIC", {"L1PHIE_BB_L1L2H"}}},
+      {"L1L2G", {"L2PHIC", {"L1PHID_BC_L1L2G", "L1PHIE_BA_L1L2G"}}},
+      {"L1L2H", {"L2PHIC", {"L1PHIE_BD_L1L2H"}}},
       {"L1L2I", {"L2PHIC", {"L1PHIF_BA_L1L2I"}}},
       {"L1L2J", {"L2PHIC", {"L1PHIF_BB_L1L2J", "L1PHIG_BB_L1L2J"}}},
-      {"L1L2K", {"L2PHID", {"L1PHIF_BA_L1L2K", "L1PHIG_BA_L1L2K"}}},
-      {"L1L2L", {"L2PHID", {"L1PHIG_BB_L1L2L", "L1PHIH_BA_L1L2L"}}},
+      {"L1L2K", {"L2PHID", {"L1PHIF_BC_L1L2K", "L1PHIG_BA_L1L2K"}}},
+      {"L1L2L", {"L2PHID", {"L1PHIG_BD_L1L2L", "L1PHIH_BA_L1L2L"}}},
 
       {"L2L3A", {"L3PHIA", {"L2PHIA_BM", "L2PHIB_BL"}}},
       {"L2L3B", {"L3PHIB", {"L2PHIA_BR", "L2PHIB_BM", "L2PHIC_BL"}}},
