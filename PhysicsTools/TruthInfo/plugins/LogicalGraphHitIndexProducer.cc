@@ -26,6 +26,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include "PhysicsTools/TruthInfo/interface/Graph.h"
 #include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndex.h"
@@ -113,6 +114,8 @@ private:
                    truth::LogicalGraphHitIndexBuilder& builder,
                    hgcal::DetIdRecHitMap const* recHitMap) const;
 
+  void fillTrackerSimHits(edm::Event& event, truth::LogicalGraphHitIndexBuilder& builder) const;
+
   RelabelContext makeRelabelContext(edm::EventSetup const& setup) const;
 
   uint32_t recoDetIdForSimHit(PCaloHit const& simHit,
@@ -127,6 +130,9 @@ private:
   std::vector<edm::InputTag> simHitTags_;
   std::vector<edm::EDGetTokenT<std::vector<PCaloHit>>> simHitTokens_;
 
+  std::vector<edm::InputTag> trackerSimHitTags_;
+  std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> trackerSimHitTokens_;
+
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
 
   bool doHGCalRelabelling_ = true;
@@ -137,11 +143,17 @@ TruthLogicalGraphHitIndexProducer::TruthLogicalGraphHitIndexProducer(edm::Parame
       rawGraphToken_(consumes<TruthGraph>(cfg.getParameter<edm::InputTag>("rawSrc"))),
       recHitMapToken_(consumes<hgcal::DetIdRecHitMap>(cfg.getParameter<edm::InputTag>("recHitMap"))),
       simHitTags_(cfg.getParameter<std::vector<edm::InputTag>>("simHitCollections")),
+      trackerSimHitTags_(cfg.getParameter<std::vector<edm::InputTag>>("trackerSimHitCollections")),
       geomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       doHGCalRelabelling_(cfg.getParameter<bool>("doHGCalRelabelling")) {
   simHitTokens_.reserve(simHitTags_.size());
   for (auto const& tag : simHitTags_) {
     simHitTokens_.push_back(consumes<std::vector<PCaloHit>>(tag));
+  }
+
+  trackerSimHitTokens_.reserve(trackerSimHitTags_.size());
+  for (auto const& tag : trackerSimHitTags_) {
+    trackerSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
   }
 
   produces<truth::LogicalGraphHitIndex>();
@@ -158,6 +170,21 @@ void TruthLogicalGraphHitIndexProducer::fillDescriptions(edm::ConfigurationDescr
                                        {edm::InputTag("g4SimHits", "HGCHitsEE"),
                                         edm::InputTag("g4SimHits", "HGCHitsHEfront"),
                                         edm::InputTag("g4SimHits", "HGCHitsHEback")});
+
+  desc.add<std::vector<edm::InputTag>>("trackerSimHitCollections",
+                                       {edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"),
+                                        edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelHighTof"),
+                                        edm::InputTag("g4SimHits", "TrackerHitsPixelEndcapLowTof"),
+                                        edm::InputTag("g4SimHits", "TrackerHitsPixelEndcapHighTof"),
+                                        edm::InputTag("g4SimHits", "TrackerHitsTIBLowTof"),
+                                        edm::InputTag("g4SimHits", "TrackerHitsTIBHighTof"),
+                                        edm::InputTag("g4SimHits", "TrackerHitsTIDLowTof"),
+                                        edm::InputTag("g4SimHits", "TrackerHitsTIDHighTof"),
+                                        edm::InputTag("g4SimHits", "TrackerHitsTOBLowTof"),
+                                        edm::InputTag("g4SimHits", "TrackerHitsTOBHighTof"),
+                                        edm::InputTag("g4SimHits", "TrackerHitsTECLowTof"),
+                                        edm::InputTag("g4SimHits", "TrackerHitsTECHighTof")})
+      ->setComment("Tracker PSimHit collections matched to particles via PSimHit::trackId()");
 
   desc.add<bool>("doHGCalRelabelling", true)
       ->setComment("Convert old HGCAL simulation DetIds to reco DetIds before looking up recHits");
@@ -179,6 +206,7 @@ void TruthLogicalGraphHitIndexProducer::produce(edm::StreamID, edm::Event& event
 
   fillTrackToParticleMap(graphView, rawGraph, builder);
   fillSimHits(event, setup, builder, recHitMap);
+  fillTrackerSimHits(event, builder);
 
   auto output = std::make_unique<truth::LogicalGraphHitIndex>(builder.finish());
   event.put(std::move(output));
@@ -359,6 +387,26 @@ void TruthLogicalGraphHitIndexProducer::fillSimHits(edm::Event& event,
       }
 
       builder.addHitForTrack(static_cast<uint32_t>(geantTrackId), detId, recHitIndex, simHit.energy());
+    }
+  }
+}
+
+void TruthLogicalGraphHitIndexProducer::fillTrackerSimHits(edm::Event& event,
+                                                           truth::LogicalGraphHitIndexBuilder& builder) const {
+  for (uint32_t tokenIndex = 0; tokenIndex < trackerSimHitTokens_.size(); ++tokenIndex) {
+    edm::Handle<edm::PSimHitContainer> hSimHits;
+    event.getByToken(trackerSimHitTokens_[tokenIndex], hSimHits);
+
+    if (!hSimHits.isValid()) {
+      edm::LogWarning("TruthLogicalGraphHitIndexProducer")
+          << "Missing tracker PSimHit collection " << trackerSimHitTags_[tokenIndex].encode() << ". Skipping it.";
+      continue;
+    }
+
+    for (auto const& simHit : *hSimHits) {
+      // PSimHit::trackId() is the G4 trackId of the SimTrack that made the hit,
+      // the same id space used to associate calorimeter simhits to particles.
+      builder.addTrackerHitForTrack(simHit.trackId(), simHit.detUnitId(), simHit.energyLoss());
     }
   }
 }

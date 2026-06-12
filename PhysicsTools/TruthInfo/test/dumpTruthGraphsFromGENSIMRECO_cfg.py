@@ -28,6 +28,10 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 # Keep this consistent with the geometry used to produce step3.root.
 process.load("Configuration.Geometry.GeometryExtendedRun4D120Reco_cff")
 
+# Use the ideal tracker geometry so the tracker simhit table needs no alignment
+# conditions (GlobalPositionRcd) when running standalone without a GlobalTag.
+process.trackerGeometry.applyAlignment = cms.bool(False)
+
 process.maxEvents = cms.untracked.PSet(
     input=cms.untracked.int32(args.maxevts)
 )
@@ -163,6 +167,41 @@ process.truthLogicalGraphDumper = cms.EDAnalyzer(
 
 
 process.load("PhysicsTools.TruthInfo.recHitTable_cff")
+
+# Barrel/forward calorimeter PFRecHits as a separate NanoAOD collection.
+# HGCal rechits stay in recHitTable above. NOTE: the offline (RECO) PFRecHit
+# collections are empty in this sample, so the HLT-tier PFRecHits (which contain
+# the hits) are used here.
+process.pfRecHitTable = cms.EDProducer(
+    "PFRecHitFlatTableProducer",
+    objName=cms.string("pfrechits"),
+    label_rechits=cms.VInputTag(
+        cms.InputTag("hltParticleFlowRecHitECALUnseeded", "", "HLT"),
+        cms.InputTag("hltParticleFlowRecHitHBHE", "", "HLT"),
+        cms.InputTag("hltParticleFlowRecHitHF", "", "HLT"),
+        cms.InputTag("hltParticleFlowRecHitHO", "", "HLT"),
+    ),
+)
+
+# Tracker PSimHits as a separate NanoAOD collection.
+process.trackerSimHitTable = cms.EDProducer(
+    "TrackerSimHitFlatTableProducer",
+    objName=cms.string("trackersimhits"),
+    label_simhits=cms.VInputTag(
+        cms.InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"),
+        cms.InputTag("g4SimHits", "TrackerHitsPixelBarrelHighTof"),
+        cms.InputTag("g4SimHits", "TrackerHitsPixelEndcapLowTof"),
+        cms.InputTag("g4SimHits", "TrackerHitsPixelEndcapHighTof"),
+        cms.InputTag("g4SimHits", "TrackerHitsTIBLowTof"),
+        cms.InputTag("g4SimHits", "TrackerHitsTIBHighTof"),
+        cms.InputTag("g4SimHits", "TrackerHitsTIDLowTof"),
+        cms.InputTag("g4SimHits", "TrackerHitsTIDHighTof"),
+        cms.InputTag("g4SimHits", "TrackerHitsTOBLowTof"),
+        cms.InputTag("g4SimHits", "TrackerHitsTOBHighTof"),
+        cms.InputTag("g4SimHits", "TrackerHitsTECLowTof"),
+        cms.InputTag("g4SimHits", "TrackerHitsTECHighTof"),
+    ),
+)
 # process.load('Configuration.EventContent.EventContent_cff')
 process.NANOAODSIMoutput = cms.OutputModule("NanoAODOutputModule",
     compressionAlgorithm = cms.untracked.string('ZLIB'),
@@ -208,6 +247,8 @@ process.truthGraph_step = cms.Path(
     + process.truthLogicalGraphHitIndexProducer
     + process.truthLogicalGraphDumper
     + process.recHitTable
+    + process.pfRecHitTable
+    + process.trackerSimHitTable
 )
 
 process.nano_step = cms.EndPath(process.NANOAODSIMoutput)
