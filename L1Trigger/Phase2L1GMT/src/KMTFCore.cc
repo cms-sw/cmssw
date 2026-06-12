@@ -84,10 +84,10 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
     default:
       throw cms::Exception("KMTFCore") << "Something really bad happend\n";
   }
-
   l1t::KMTFTrack nullTrack(seed, seed->coord1(), correctedPhiB(seed), seed->eta1(), satKSlope(seed->eta2()));
   seedQual = seed->quality();
   for (const auto& mask : combinatorics) {
+	
     l1t::KMTFTrack track(seed, seed->coord1(), correctedPhiB(seed), seed->eta1(), satKSlope(seed->eta2()));
     int phiB = correctedPhiB(seed);
     int charge;
@@ -116,8 +116,7 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
       track.setCoordinates(seed->depthRegion(), initialK, seed->coord1(), 0, seed->eta1(), satKSlope(seed->eta2()));
     }
     if (verbose_) {
-      edm::LogInfo("KMTFCore") << "Initial state: phiB=" << phiB << " addr=" << address << " K=" << initialK
-                               << " z=" << seed->eta1() << " kSlope=" << satKSlope(seed->eta2());
+         edm::LogInfo("KMTFCore") << "Initial state: phiB=" << phiB << " addr=" << address << " K=" << initialK << " z=" << seed->eta1() << " kSlope=" << satKSlope(seed->eta2());
     }
     track.setHitPattern(hitPattern(track));
     track.setThetaDigiPattern(thetaDigiPattern(track));
@@ -1003,7 +1002,7 @@ bool KMTFCore::updateLUT(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub, in
 
   if (verbose_)
     edm::LogInfo("KMTFCore") << "residual " << phi << " - " << trackPhi << " = " << residualPhi.to_int() << " " << phiB
-                             << " - " << trackPhiB << " = " << residualPhiB.to_int();
+                                                       << " - " << trackPhiB << " = " << residualPhiB.to_int();
 
   uint absK = fabs(trackK);
   if (absK > pow(2, BITSCURV - 2) - 1)
@@ -1044,8 +1043,6 @@ bool KMTFCore::updateLUT(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub, in
                                << ap_ufixed<GAIN2_4, GAIN2_4INT>(GAIN[2]).to_float() << " "
                                << ap_ufixed<GAIN2_5, GAIN2_5INT>(GAIN[3]).to_float();
   }
-
-  //track.setKalmanGain(track.step(), fabs(trackK), GAIN[0], GAIN[1], 1, 0, GAIN[2], GAIN[3]);
 
   int KNew;
   if (!(mask == 3 || mask == 5 || mask == 9 || mask == 6 || mask == 10 || mask == 12)) {
@@ -1246,6 +1243,10 @@ bool KMTFCore::getBit(int bitmask, int pos) { return (bitmask & (1 << pos)) >> p
 
 void KMTFCore::setFourVectors(l1t::KMTFTrack& track) {
   //int etaINT = track.coarseEta();
+  //legacy version of KMTF used coarse Eta to set the eta in SAMuons based on wheel-based LUT
+  //new approach uses kSlope to build eta for SAMuons
+  //matched KMTF output to gen muons and performed linear fit of gen eta vs kSlope of KMTF output
+  //eta=m*kslope+b where m and b come from fit
   ap_ufixed<18, 0> m = 0.03602;
   ap_ufixed<18, 0> b = 0.66840;
   int etaINT = int(round(double(m * track.kSlope() + b)));
@@ -1464,7 +1465,6 @@ int KMTFCore::encode(bool ownwheel, int sector, int tag) {
 
 std::pair<bool, uint> KMTFCore::getByCode(const std::vector<l1t::KMTFTrack>& tracks, int mask) {
   for (uint i = 0; i < tracks.size(); ++i) {
-    //edm::LogInfo("KMTFCore") << "Code=" << tracks[i].hitPattern() << ", track=" << mask;
     if (tracks[i].hitPattern() == mask)
       return std::make_pair(true, i);
   }
