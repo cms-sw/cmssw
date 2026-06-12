@@ -20,7 +20,9 @@ ShowerBuilder::ShowerBuilder(const edm::ParameterSet &pset, edm::ConsumesCollect
       debug_(pset.getUntrackedParameter<bool>("debug")),
       dump_digis_(pset.getUntrackedParameter<bool>("dump_digis")),
       scenario_(pset.getParameter<int>("scenario")),
-      bx_shift_back_(scenario_ == MC || scenario_ == SLICE_TEST ? 400 : 0), // standard value used for MC and slice test, 0 for data
+      bx_shift_back_(scenario_ == MC || scenario_ == SLICE_TEST
+                         ? 400
+                         : 0),  // standard value used for MC and slice test, 0 for data
       time_shift_back_(bx_shift_back_ * 25),
       m_tree(tree) {
   if (dump_digis_) {
@@ -70,8 +72,8 @@ void ShowerBuilder::run(edm::Event &iEvent,
     if (debug_) {
       LogDebug("ShowerBuilder") << "        - Going to study " << nHits << " hits";
       for (auto &cand : showerCands) {
-        LogDebug("ShowerBuilder")
-            << "        - Candidate vector for SL" << cand.first << " initialized with size " << cand.second.size();
+        LogDebug("ShowerBuilder") << "        - Candidate vector for SL" << cand.first << " initialized with size "
+                                  << cand.second.size();
       }
     }
     if (showerTaggingAlgo_ == 0) {
@@ -155,8 +157,8 @@ void ShowerBuilder::processHits_standAlone() {
   for (int sl : {1, 2, 3}) {
     if (triggerShower(*bmtl1_buffers[sl])) {
       if (debug_)
-        LogDebug("ShowerBuilder")
-            << "        o Shower found in SL" << sl << " with " << bmtl1_buffers[sl]->size() << " hits";
+        LogDebug("ShowerBuilder") << "        o Shower found in SL" << sl << " with " << bmtl1_buffers[sl]->size()
+                                  << " hits";
       candidates[sl]->flag();
       set_shower_properties(candidates[sl], *bmtl1_buffers[sl]);
     }
@@ -190,8 +192,7 @@ void ShowerBuilder::processHitsFirmwareEmulation() {
   int max_bx = all_hits_perBx.rbegin()->first;
 
   if (debug_)
-    LogDebug("ShowerBuilder") << "        - bx range: " << min_bx << " - " << max_bx
-                                        << ", size: " << (max_bx - min_bx);
+    LogDebug("ShowerBuilder") << "        - bx range: " << min_bx << " - " << max_bx << ", size: " << (max_bx - min_bx);
 
   for (int bx = min_bx; bx <= max_bx + 17; bx++) {
     // Clear old hits from buffers
@@ -202,9 +203,9 @@ void ShowerBuilder::processHitsFirmwareEmulation() {
     if (debug_) {
       for (int sl : {1, 2}) {
         LogDebug("ShowerBuilder") << "          ^ OBDT buffer for SL" << sl << " at BX " << bx << ": "
-                                            << showerb::buffer_to_string(*obdt_buffers[sl].first);
+                                  << showerb::buffer_to_string(*obdt_buffers[sl].first);
         LogDebug("ShowerBuilder") << "          ^ Hot wires buffer for SL" << sl << " at BX " << bx << ": "
-                                            << showerb::buffer_to_string(*obdt_buffers[sl].second);
+                                  << showerb::buffer_to_string(*obdt_buffers[sl].second);
       }
     }
     fill_bmtl1_buffers(bx);
@@ -215,15 +216,14 @@ void ShowerBuilder::processHitsFirmwareEmulation() {
 
       if (debug_)
         LogDebug("ShowerBuilder") << "          ^ bmtl1 buffer for SL" << sl << " at BX " << bx << ": "
-                                            << showerb::buffer_to_string(*bmtl1_buffers[sl]);
+                                  << showerb::buffer_to_string(*bmtl1_buffers[sl]);
 
       // Operate on last candidate in vector
       ShowerCandidatePtr &cand = showerCands[sl].back();
       // Trigger shower and flag
       if (triggerShower(*bmtl1_buffers[sl]) && !cand->isFlagged()) {
         if (debug_)
-          LogDebug("ShowerBuilder")
-              << "        o Shower found in SL" << sl << " with " << nHits[sl] << " hits";
+          LogDebug("ShowerBuilder") << "        o Shower found in SL" << sl << " with " << nHits[sl] << " hits";
         cand->flag();
       }
       // Set shower properties if needed
@@ -280,7 +280,7 @@ void ShowerBuilder::set_shower_properties(ShowerCandidatePtr &showerCand,
 
   if (debug_) {
     LogDebug("ShowerBuilder") << "        o Setting shower properties with buffer: "
-                                        << showerb::buffer_to_string(buffer);
+                              << showerb::buffer_to_string(buffer);
     LogDebug("ShowerBuilder") << "          - Setting BX: " << buffer.front().first;
     LogDebug("ShowerBuilder") << "          - Setting nhits: " << nhits;
     LogDebug("ShowerBuilder") << "          - Setting min_wire: " << min_wire;
@@ -313,8 +313,8 @@ void ShowerBuilder::fill_obdt(const int bx) {
     auto &obdt_buffer = *obdt_buffers[sl].first;
     auto &hot_wires_buffer = *obdt_buffers[sl].second;
     if (debug_)
-      LogDebug("ShowerBuilder") << "          ^ Trying to add hit with wire " << hit.layerId() << ":"
-                                          << hit.channelId() << " in OBDT sl:" << sl << " at BX " << bx;
+      LogDebug("ShowerBuilder") << "          ^ Trying to add hit with wire " << hit.layerId() << ":" << hit.channelId()
+                                << " in OBDT sl:" << sl << " at BX " << bx;
 
     if (!showerb::buffer_contains(hot_wires_buffer, hit)) {
       if (debug_)
