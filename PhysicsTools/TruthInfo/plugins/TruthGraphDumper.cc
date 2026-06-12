@@ -138,6 +138,16 @@ namespace {
     return ss.str();
   }
 
+  // SimVertex position is in cm but stores time in seconds; display as (cm, ns).
+  std::string fmtSimVertexX4(SimVertex const& sv) {
+    auto const& p = sv.position();
+    constexpr double sToNs = 1e9;
+    std::ostringstream ss;
+    ss.setf(std::ios::fixed);
+    ss << std::setprecision(3) << "(" << p.x() << ", " << p.y() << ", " << p.z() << ", " << p.t() * sToNs << ")";
+    return ss.str();
+  }
+
   const char* kindName(TruthGraph::NodeKind k) {
     switch (k) {
       case TruthGraph::NodeKind::GenEvent:
@@ -321,6 +331,10 @@ public:
     edm::Handle<edm::SimTrackContainer> hSimTracks;
     evt.getByToken(simTracksToken_, hSimTracks);
 
+    // SimVertexContainer was already consumed; fetch it to enrich SimVertex nodes.
+    edm::Handle<edm::SimVertexContainer> hSimVertices;
+    evt.getByToken(simVerticesToken_, hSimVertices);
+
     std::unordered_map<uint32_t, uint32_t> tidToIndex;
     if (hSimTracks.isValid()) {
       tidToIndex.reserve(hSimTracks->size() * 2);
@@ -466,6 +480,16 @@ public:
                << ", nIn=" << v->particles_in().size() << ", nOut=" << v->particles_out().size() << ",";
           }
         }
+      } else if (r.kind == TruthGraph::NodeKind::SimVertex && hSimVertices.isValid()) {
+        // SimVertex node key == index into the SimVertexContainer (see TruthGraphProducer).
+        const int64_t idx = r.key;
+        if (idx >= 0 && static_cast<uint32_t>(idx) < hSimVertices->size()) {
+          auto const& sv = (*hSimVertices)[static_cast<uint32_t>(idx)];
+          os << "x4=" << dotQuote(fmtSimVertexX4(sv)) << ", vertexId=" << sv.vertexId()
+             << ", processType=" << sv.processType() << ", parentTrackId=" << sv.parentIndex()
+             << ", noParent=" << sv.noParent() << ", bx=" << sv.eventId().bunchCrossing()
+             << ", evtInBx=" << sv.eventId().event() << ", GenVertex_nodeId=" << g.nodeSimVtxToGen(i) << ",";
+        }
       }
 
       // --- SIM enrichment
@@ -554,6 +578,20 @@ public:
             os << "      <TR><TD>nIn: " << v->particles_in().size() << " nOut: " << v->particles_out().size()
                << "</TD></TR>\n";
           }
+        }
+      } else if (r.kind == TruthGraph::NodeKind::SimVertex && hSimVertices.isValid()) {
+        const int64_t idx = r.key;
+        if (idx >= 0 && static_cast<uint32_t>(idx) < hSimVertices->size()) {
+          auto const& sv = (*hSimVertices)[static_cast<uint32_t>(idx)];
+          os << "      <TR><TD>x4 (cm,ns): " << fmtSimVertexX4(sv) << "</TD></TR>\n";
+          os << "      <TR><TD>vertexId: " << sv.vertexId() << "  processType: " << sv.processType() << "</TD></TR>\n";
+          os << "      <TR><TD>parent trackId: " << sv.parentIndex() << "  noParent: " << (sv.noParent() ? "yes" : "no")
+             << "</TD></TR>\n";
+          os << "      <TR><TD>bx: " << sv.eventId().bunchCrossing() << "  evtInBx: " << sv.eventId().event()
+             << "</TD></TR>\n";
+          const int32_t gv = g.nodeSimVtxToGen(i);
+          if (gv >= 0)
+            os << "      <TR><TD>GenVertex nodeId: " << gv << "</TD></TR>\n";
         }
       }
 

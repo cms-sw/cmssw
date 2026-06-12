@@ -82,10 +82,10 @@ namespace {
   bool isSimOnlyVertex(truth::VertexData const& vertex) { return !vertex.hasGen() && vertex.hasSim(); }
 
   bool compatibleVertexPositions(truth::VertexData const& a, truth::VertexData const& b, double tolerance) {
-    return std::abs(a.position.px() - b.position.px()) <= tolerance &&
-           std::abs(a.position.py() - b.position.py()) <= tolerance &&
-           std::abs(a.position.pz() - b.position.pz()) <= tolerance &&
-           std::abs(a.position.e() - b.position.e()) <= tolerance;
+    return std::abs(a.position.x() - b.position.x()) <= tolerance &&
+           std::abs(a.position.y() - b.position.y()) <= tolerance &&
+           std::abs(a.position.z() - b.position.z()) <= tolerance &&
+           std::abs(a.position.t() - b.position.t()) <= tolerance;
   }
 
   bool canMergeGenSimVerticesByPosition(truth::VertexData const& a, truth::VertexData const& b, double tolerance) {
@@ -95,13 +95,13 @@ namespace {
       return false;
     bool areCompatible = compatibleVertexPositions(a, b, tolerance);
     if (!areCompatible) {
-      std::cout << "vertices not merged: (" << a.position.px() << " , " << a.position.py() << " , " << a.position.pz()
-                << ") too far from " << "(" << b.position.px() << " , " << b.position.py() << " , " << b.position.pz()
-                << ")" << std::endl;
+      std::cout << "vertices not merged: (" << a.position.x() << " , " << a.position.y() << " , " << a.position.z()
+                << " , " << a.position.t() << ") too far from " << "(" << b.position.x() << " , " << b.position.y()
+                << " , " << b.position.z() << " , " << b.position.t() << ")" << std::endl;
     } else {
-      std::cout << "vertices successfully merged: (" << a.position.px() << " , " << a.position.py() << " , "
-                << a.position.pz() << ") too far from " << "(" << b.position.px() << " , " << b.position.py() << " , "
-                << b.position.pz() << ")" << std::endl;
+      std::cout << "vertices successfully merged: (" << a.position.x() << " , " << a.position.y() << " , "
+                << a.position.z() << " , " << a.position.t() << ") compatible with " << "(" << b.position.x() << " , "
+                << b.position.y() << " , " << b.position.z() << " , " << b.position.t() << ")" << std::endl;
     }
     return areCompatible;
   }
@@ -1052,7 +1052,7 @@ namespace truth {
             "If true, merge GEN-only and SIM-only logical vertices connected to the same particle when their "
             "positions are compatible within genSimVertexPositionTolerance.");
 
-    desc.add<double>("genSimVertexPositionTolerance", 1e-6)
+    desc.add<double>("genSimVertexPositionTolerance", 5e-3)
         ->setComment("Absolute tolerance applied independently to x, y, z, and t when merging GEN and SIM vertices.");
 
     return desc;
