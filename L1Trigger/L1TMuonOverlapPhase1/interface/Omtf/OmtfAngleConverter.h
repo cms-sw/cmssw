@@ -13,6 +13,13 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiFwd.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 
@@ -22,16 +29,6 @@ class RPCGeometry;
 class CSCGeometry;
 class CSCLayer;
 class DTGeometry;
-
-class L1MuDTChambPhDigi;
-class L1MuDTChambThDigi;
-class L1MuDTChambThContainer;
-class CSCCorrelatedLCTDigi;
-class RPCDigi;
-
-class DTChamberId;
-class CSCDetId;
-class RPCDetId;
 
 struct MuonGeometryTokens {
   edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeometryEsToken;
