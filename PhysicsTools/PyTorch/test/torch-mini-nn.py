@@ -4,10 +4,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-print("device:", device)
-if (device == "cpu") and (len(sys.argv) > 1) and (sys.argv[1] != "cpu"):
-  pritn("Unable to find accelerator",sys.argv[1])
+from torch_utils import check_torch_gpu
+gpu, device, gpu_name = check_torch_gpu(torch, sys.argv[1])
+if not gpu:
   exit(1)
 
 # simple fully connected network
@@ -31,4 +30,3 @@ for i in range(5):
     loss.backward()
     opt.step()
     print("step:", i, "loss:", loss.item())
-

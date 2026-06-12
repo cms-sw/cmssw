@@ -1,23 +1,49 @@
 <test name="pytorch-create_simple_dnn" command="create_simple_dnn.py ."/>
-<test name="pytorch-test_simple_dnn"   command="test_simple_dnn.py .">
+<test name="test-torch-control-flow"   command="torch-control-flow.py"/>
+
+<test name="test-torch-cpu"          command="torch-test.py cpu"/>
+<test name="test-torch-cpu-gpu"      command="torch-cpu-gpu.py cpu"/>
+<test name="test-torch-mini-nn-cpu"  command="torch-mini-nn.py cpu"/>
+<test name="test-torch-tensor-cpu"   command="torch-tensor.py cpu"/>
+<test name="pytorch-test_simple_dnn-cpu"   command="test_simple_dnn.py cpu .">
   <flags PRE_TEST="pytorch-create_simple_dnn"/>
 </test>
-<test name="test-torch-tensor-cpu"     command="torch-tensor.py cpu"/>
-<test name="test-torch-tensor"         command="torch-tensor.py"/>
-<test name="test-torch-control-flow"   command="torch-control-flow.py"/>
- <test name="test-torch-mini-nn-cpu"   command="torch-mini-nn.py cpu"/>
-<iftool name="cuda-gcc-support">
-  <test name="test-torch-cuda"         command="torch-cuda.py">
+
+<iftool name="pytorch-cuda">
+  <test name="test-torch-cuda"         command="torch-test.py cuda">
     <use name="cuda"/>
   </test>
-  <test name="test-torch-cpu-cuda"     command="torch-cpu-cuda.py">
+  <test name="test-torch-cpu-cuda"     command="torch-cpu-gpu.py cuda">
     <use name="cuda"/>
   </test>
-  <test name="test-torch-mini-nn-gpu"  command="torch-mini-nn.py gpu">
+  <test name="test-torch-mini-nn-cuda"  command="torch-mini-nn.py cuda">
     <use name="cuda"/>
   </test>
-  <test name="test-torch-tensor-gpu"   command="torch-tensor.py cuda">
+  <test name="test-torch-tensor-cuda"   command="torch-tensor.py cuda">
     <use name="cuda"/>
+  </test>
+  <test name="pytorch-test_simple_dnn-cuda"   command="test_simple_dnn.py cuda .">
+    <flags PRE_TEST="pytorch-create_simple_dnn"/>
+    <use name="cuda"/>
+  </test>
+</iftool>
+
+<iftool name="pytorch-rocm">
+  <test name="test-torch-rocm"         command="torch-test.py rocm">
+    <use name="rocm"/>
+  </test>
+  <test name="test-torch-cpu-rocm"     command="torch-cpu-gpu.py rocm">
+    <use name="rocm"/>
+  </test>
+  <test name="test-torch-mini-nn-rocm"  command="torch-mini-nn.py rocm">
+    <use name="rocm"/>
+  </test>
+  <test name="test-torch-tensor-rocm"   command="torch-tensor.py rocm">
+    <use name="rocm"/>
+  </test>
+  <test name="pytorch-test_simple_dnn-rocm"   command="test_simple_dnn.py rocm .">
+    <flags PRE_TEST="pytorch-create_simple_dnn"/>
+    <use name="rocm"/>
   </test>
 </iftool>
 
