@@ -40,6 +40,7 @@ public:
   void clear();
 
 private:
+  int const WIRES_PROFILE_SIZE = 96;  // Expected buffer size for this variable in firmware
   //------------------------------------------------------------------
   //---  ShowerCandidate's data
   //------------------------------------------------------------------

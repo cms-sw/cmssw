@@ -42,10 +42,10 @@ namespace io_v1 {
                        int max_wire,                                     // Maximum wire
                        float avg_pos,                                    // Averaged position of the shower
                        float avg_time,                                   // Averaged time of the shower
-                       const std::vector<int> wires_profile,             // Wires profile
-                       const std::vector<int> wires_constituents,        // Wires constituents
-                       const std::vector<int> wires_layer_constituents,  // Wires layer constituents
-                       const std::vector<int> wires_tdc_constituents     // Wires tdc constituents
+                       const std::vector<int>& wires_profile,             // Wires profile
+                       const std::vector<int>& wires_constituents,        // Wires constituents
+                       const std::vector<int>& wires_layer_constituents,  // Wires layer constituents
+                       const std::vector<int>& wires_tdc_constituents     // Wires tdc constituents
     );
 
     // Operations

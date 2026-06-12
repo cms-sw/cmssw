@@ -32,12 +32,7 @@ namespace io_v1 {
         m_min_wire(0),
         m_max_wire(0),
         m_avg_pos(0),
-        m_avg_time(0) {
-    m_wires_profile.resize(96, 0);
-    m_wires_constituents.resize(50, 0);
-    m_wires_layer_constituents.resize(50, 0);
-    m_wires_tdc_constituents.resize(50, 0);
-  }
+        m_avg_time(0) {}
 
   L1Phase2MuDTShower::L1Phase2MuDTShower(int wh,
                                          int sc,
@@ -49,10 +44,10 @@ namespace io_v1 {
                                          int max_wire,
                                          float avg_pos,
                                          float avg_time,
-                                         const std::vector<int> wires_profile,
-                                         const std::vector<int> wires_constituents,
-                                         const std::vector<int> wires_layer_constituents,
-                                         const std::vector<int> wires_tdc_constituents)
+                                         const std::vector<int>& wires_profile,
+                                         const std::vector<int>& wires_constituents,
+                                         const std::vector<int>& wires_layer_constituents,
+                                         const std::vector<int>& wires_tdc_constituents)
       : m_wheel(wh),
         m_sector(sc),
         m_station(st),
