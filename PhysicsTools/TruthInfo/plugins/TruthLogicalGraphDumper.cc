@@ -140,6 +140,15 @@ namespace {
     return ss.str();
   }
 
+  template <typename X4>
+  std::string fmtX4(X4 const& x4) {
+    std::ostringstream ss;
+    ss.setf(std::ios::fixed);
+    ss.precision(3);
+    ss << "(" << x4.x() << ", " << x4.y() << ", " << x4.z() << ", " << x4.t() << ")";
+    return ss.str();
+  }
+
   template <typename P4>
   std::string fmtP4(P4 const& p4) {
     std::ostringstream ss;
@@ -389,7 +398,7 @@ public:
 
     desc.add<bool>("hideLargeSimSourceVertices", true)
         ->setComment("If true, do not print large SIM-only source vertices in the DOT output");
-    desc.add<bool>("dumpSimHits", true)->setComment("If true, dump all simhits");
+    desc.add<bool>("dumpSimHits", false)->setComment("If true, dump all simhits");
 
     desc.add<unsigned>("largeSimSourceVertexMinOutgoing", 50)
         ->setComment("Minimum outgoing multiplicity for hiding a SIM-only source vertex");
@@ -453,9 +462,7 @@ public:
             << "No zero-hit subgraphs will be hidden.";
       } else {
         for (uint32_t i = 0; i < nParticles; ++i) {
-          auto const& d = g.particle(i).data();
-
-          if (!d.hasSim())
+          if (!g.particle(i).data().hasSim())
             continue;
 
           if (i >= hitIndex->nParticles())
@@ -627,14 +634,26 @@ public:
       auto v = g.vertex(i);
       auto const& d = v.data();
 
-      os << "  v" << i << " [shape=diamond";
+      const auto& incoming = v.incomingParticles();
+      const auto& outgoing = v.outgoingParticles();
 
+      os << "  v" << i << " [shape=diamond, domain=<" << logicalVertexDomain(d) << ">, hasGen=" << d.hasGen()
+         << ", hasSim=" << d.hasSim() << ", eid=" << d.eventId << ", genEvent=" << d.genEvent
+         << ", isSource=" << v.isSource() << ", isSink=" << v.isSink();
       if (d.hasGen() && d.hasSim()) {
         os << ", color=\"purple\", penwidth=2";
       } else if (d.hasGen()) {
         os << ", color=\"blue\"";
       } else if (d.hasSim()) {
         os << ", color=\"darkgreen\"";
+      }
+      os << ", x=" << std::fixed << std::setprecision(6) << d.position.x() << ", y=" << d.position.y()
+         << ", z=" << d.position.z() << ", t=" << d.position.t() << ", x4=\"" << fmtX4(d.position) << "\""
+         << ", nIn=" << incoming.size() << ", nOut=" << outgoing.size();
+
+      if (raw != nullptr) {
+        os << ", raw_GEN=<" << rawNodeSummary(raw, d.genNode) << ">, raw_SIM=<" << rawNodeSummary(raw, d.simNode)
+           << ">";
       }
 
       os << ", label=<\n";
@@ -655,7 +674,7 @@ public:
       os << "      <TR><TD>isSource: " << (v.isSource() ? "yes" : "no") << "  isSink: " << (v.isSink() ? "yes" : "no")
          << "</TD></TR>\n";
 
-      os << "      <TR><TD>x4: " << fmtP4(d.position) << "</TD></TR>\n";
+      os << "      <TR><TD>x4: " << fmtX4(d.position) << "</TD></TR>\n";
 
       os << "      <TR><TD>nIn: " << v.incomingParticles().size() << "  nOut: " << v.outgoingParticles().size()
          << "</TD></TR>\n";
