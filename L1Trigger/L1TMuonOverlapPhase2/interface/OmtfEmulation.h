@@ -34,8 +34,8 @@ public:
                 const edm::ESGetToken<Propagator, TrackingComponentsRecord>& propagatorEsToken) override;
 
   struct OmtfOutptutCollections {
-    std::unique_ptr<l1t::SAMuonCollection> constrSaMuons;                   //ip constrained candidates
-    std::unique_ptr<l1t::SAMuonCollection> unConstrSaMuons;                 //ip unconstrained candidates
+    std::unique_ptr<l1t::SAMuonCollection> constrSaMuons;    //ip constrained candidates
+    std::unique_ptr<l1t::SAMuonCollection> unConstrSaMuons;  //ip unconstrained candidates
   };
 
   OmtfOutptutCollections run(const edm::Event& iEvent, const edm::EventSetup& evSetup);
