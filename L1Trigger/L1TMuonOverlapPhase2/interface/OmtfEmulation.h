@@ -36,7 +36,6 @@ public:
   struct OmtfOutptutCollections {
     std::unique_ptr<l1t::SAMuonCollection> constrSaMuons;                   //ip constrained candidates
     std::unique_ptr<l1t::SAMuonCollection> unConstrSaMuons;                 //ip unconstrained candidates
-    std::unique_ptr<l1t::RegionalMuonCandBxCollection> regionalCandidates;  //for backward compatibility of analyzers etc.
   };
 
   OmtfOutptutCollections run(const edm::Event& iEvent, const edm::EventSetup& evSetup);

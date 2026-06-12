@@ -547,9 +547,7 @@ int OMTFConfiguration::getProcScalePhi(unsigned int iProcessor, double phiRad) c
 int OMTFConfiguration::procPhiOmtfToGlobalPhiOmtf(unsigned int iProcessor, int procHwPhi) const {
   //24 is 360 deg / 15 deg, 15 deg is the offset of the processor internal scale versus CMS phi = 0 rad
   int globalPhi = iProcessor * nPhiBins() / nProcessors() + procHwPhi + nPhiBins() / 24;
-  // Handle wrap-around with %. Add nPhiBins to make sure the number is positive
-  globalPhi = (globalPhi + nPhiBins()) % nPhiBins();
-
+  globalPhi = foldPhi(globalPhi);
   return globalPhi;
 }
 
