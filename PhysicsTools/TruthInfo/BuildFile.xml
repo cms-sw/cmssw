@@ -4,6 +4,8 @@
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Math"/>
 <use name="FWCore/ParameterSet"/>
+<use name="SimDataFormats/EncodedEventId"/>
+<use name="heppdt"/>
 
 <export>
   <lib name="1"/>
