@@ -32,6 +32,21 @@ namespace {
     return b.finish();
   }
 
+  // Same topology populated on the *tracker* channel (cells 20,21,22), plus one
+  // calo cell (10) that the tracker associator must ignore.
+  truth::LogicalGraphHitIndex buildTrackerIndex() {
+    truth::LogicalGraphHitIndexBuilder b(2);
+    b.setSimTrackForParticle(0, 100);
+    b.setSimTrackForParticle(1, 101);
+    b.addParticleChild(0, 1);
+    b.addHitForTrack(100, 10, 0, 1.0f);  // calo channel
+    b.addTrackerHitForTrack(100, 20, 1.0f);
+    b.addTrackerHitForTrack(100, 21, 1.0f);
+    b.addTrackerHitForTrack(101, 21, 1.0f);
+    b.addTrackerHitForTrack(101, 22, 2.0f);
+    return b.finish();
+  }
+
 }  // namespace
 
 class TestBranchHitAssociator : public CppUnit::TestFixture {
@@ -39,12 +54,14 @@ class TestBranchHitAssociator : public CppUnit::TestFixture {
   CPPUNIT_TEST(testSharedEnergyBestBranch);
   CPPUNIT_TEST(testSharedHitsMetric);
   CPPUNIT_TEST(testGenericRecoObjectInterface);
+  CPPUNIT_TEST(testTrackerChannel);
   CPPUNIT_TEST_SUITE_END();
 
 public:
   void testSharedEnergyBestBranch();
   void testSharedHitsMetric();
   void testGenericRecoObjectInterface();
+  void testTrackerChannel();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranchHitAssociator);
@@ -101,4 +118,23 @@ void TestBranchHitAssociator::testGenericRecoObjectInterface() {
   CPPUNIT_ASSERT_EQUAL(uint32_t(0), matches.front().rootParticleId);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, matches.front().score, 1e-6);
   CPPUNIT_ASSERT(matches.size() >= 2);  // both root 0 and root 1 are candidates
+}
+
+void TestBranchHitAssociator::testTrackerChannel() {
+  auto index = buildTrackerIndex();
+  truth::BranchHitAssociator assoc(index, {}, truth::BranchHitAssociator::Metric::SharedHits, /*useTracker=*/true);
+
+  // Tracker cells 20,21,22 are fully covered by root 0's tracker subgraph.
+  std::vector<truth::RecoHit> reco{{20, 1.0f, 1.0f}, {21, 1.0f, 1.0f}, {22, 1.0f, 1.0f}};
+  auto matches = assoc.bestBranches(reco, /*maxResults=*/1);
+  CPPUNIT_ASSERT_EQUAL(std::size_t(1), matches.size());
+  CPPUNIT_ASSERT_EQUAL(uint32_t(0), matches.front().rootParticleId);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, matches.front().sharedEnergy, 1e-6);
+
+  // Channel separation: the tracker associator ignores the calo-only cell (10)...
+  std::vector<truth::RecoHit> caloReco{{10, 1.0f, 1.0f}};
+  CPPUNIT_ASSERT(assoc.bestBranches(caloReco).empty());
+  // ...and a calo associator ignores the tracker cells.
+  truth::BranchHitAssociator caloAssoc(index, {}, truth::BranchHitAssociator::Metric::SharedHits, /*useTracker=*/false);
+  CPPUNIT_ASSERT(caloAssoc.bestBranches(reco).empty());
 }
