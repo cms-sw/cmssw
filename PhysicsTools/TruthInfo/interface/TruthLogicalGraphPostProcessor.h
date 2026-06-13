@@ -15,11 +15,28 @@ namespace truth {
     bool collapseIntermediateGenParticles = true;
 
     // If empty, no seed-based graph cut is applied.
+    // The most upstream particle of each matching chain becomes a root of the
+    // selected graph. The special value 0 disables the selection and keeps the
+    // full graph (debugging escape hatch).
     std::vector<int32_t> seedPdgIds;
 
-    // For each selected seed particle, keep this many generations of parents
-    // above the seed before keeping the full downstream graph.
+    // For each selected root, keep this many generations of ancestors above it
+    // as context only: the ancestors and connecting vertices are kept, but not
+    // their other descendants.
     uint32_t seedParentDepth = 0;
+
+    // Decay patterns of interest. Each group is an unordered, charge-sensitive
+    // multiset of PDG ids; groups are OR-ed.
+    //
+    // Without seedPdgIds: a vertex whose outgoing PDG ids contain a group as a
+    // sub-multiset is selected, and the matched particles plus their downstream
+    // subgraphs are kept.
+    //
+    // With seedPdgIds: only seed roots whose effective decay products (after
+    // following same-PDG radiating copy chains) contain a group are kept. If
+    // the event contains no particle with a seed PDG id at all, the direct
+    // vertex search is used as a fallback.
+    std::vector<std::vector<int32_t>> decayPdgIdGroups;
 
     // Particles with these exact PDG ids are removed from the final logical graph.
     // If such a particle is internal, its production and decay vertices are merged
@@ -40,8 +57,9 @@ namespace truth {
     bool mergeGenSimVerticesByPosition = true;
 
     // Absolute tolerance used for each x, y, z, t component when matching
-    // GEN-only and SIM-only vertices by position.
-    double genSimVertexPositionTolerance = 1e-6;
+    // GEN-only and SIM-only vertices by position. Keep in sync with the
+    // default in psetDescription().
+    double genSimVertexPositionTolerance = 5e-3;
   };
 
   class TruthLogicalGraphPostProcessor {

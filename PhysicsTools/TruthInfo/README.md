@@ -385,17 +385,41 @@ collapseIntermediateGenParticles = cms.bool(True)
 
 This helps reduce visual clutter from intermediate generator copies while preserving the physically relevant branching structure.
 
-### Filtering by mother PDG id
+### Selecting the interesting physics subgraph
 
-The logical graph can optionally be restricted to a selected particle species and its descendants:
+The logical graph can optionally be restricted to a physics selection configured in the `postProcessing` PSet:
 
 ```python
-motherPdgId = cms.int32(0)
+postProcessing = cms.PSet(
+    seedPdgIds = cms.vint32(23),
+    seedParentDepth = cms.uint32(1),
+    decayPdgIdGroups = cms.VPSet(
+        cms.PSet(pdgIds = cms.vint32(13, -13)),
+    ),
+)
 ```
 
-The default value `0` keeps the full graph.
+Selection by seed PDG id (`seedPdgIds`):
 
-A non-zero value keeps particles matching the requested PDG id and the corresponding descendant subgraphs.
+* the most upstream particle of each matching chain becomes a root of the selected graph (for a `Z0 -> Z0 -> Z0` chain, the earliest copy);
+* the full downstream subgraph of each root is kept;
+* `seedParentDepth` generations of ancestors are kept above each root as context only, without their other descendants;
+* stable status-1 GEN particles outside the selection are always kept, attached to one artificial source vertex, unless explicitly ignored;
+* kept particles whose production vertices all fall outside the selection are attached to the same artificial source vertex, which conceptually represents ISR or other uninteresting upstream activity;
+* the special value `0` disables the selection and keeps the full graph (debugging escape hatch);
+* an empty list applies no seed-based cut.
+
+Selection by decay pattern (`decayPdgIdGroups`):
+
+* each group is an unordered, charge-sensitive multiset of PDG ids (`[13, -13]` differs from `[13, 13]`); groups are OR-ed;
+* matching is local to one decay vertex after following same-PDG radiating copy chains (`Z -> Z gamma`), with extra products such as FSR photons allowed; unrelated particles from different branches can never be combined, and `Z -> tau tau -> mu nu nu mu nu nu` does not match `[13, -13]`.
+
+Combination semantics:
+
+* only `seedPdgIds`: keep all decays of the selected roots;
+* only `decayPdgIdGroups`: select vertices whose outgoing PDG ids contain a group, keep the matched particles, their downstream subgraphs, and the matched vertex as common production context;
+* both: keep only roots whose effective decay products match a group (`Z -> mu mu` but not `Z -> e e`); if the event contains no particle with a seed PDG id at all, fall back to the direct vertex search (for generators that do not write the resonance explicitly);
+* if a selection is configured but nothing matches, the output contains only the stable GEN particles attached to the artificial source vertex, and a warning is logged.
 
 ## Trajectory checkpoints
 

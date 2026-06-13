@@ -3,10 +3,13 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <numeric>
 #include <queue>
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace {
 
@@ -93,16 +96,11 @@ namespace {
 
     if (!genSimPair)
       return false;
-    bool areCompatible = compatibleVertexPositions(a, b, tolerance);
-    if (!areCompatible) {
-      std::cout << "vertices not merged: (" << a.position.x() << " , " << a.position.y() << " , " << a.position.z()
-                << " , " << a.position.t() << ") too far from " << "(" << b.position.x() << " , " << b.position.y()
-                << " , " << b.position.z() << " , " << b.position.t() << ")" << std::endl;
-    } else {
-      std::cout << "vertices successfully merged: (" << a.position.x() << " , " << a.position.y() << " , "
-                << a.position.z() << " , " << a.position.t() << ") compatible with " << "(" << b.position.x() << " , "
-                << b.position.y() << " , " << b.position.z() << " , " << b.position.t() << ")" << std::endl;
-    }
+    const bool areCompatible = compatibleVertexPositions(a, b, tolerance);
+    LogDebug("TruthLogicalGraphPostProcessor")
+        << "GEN/SIM vertex pair (" << a.position.x() << ", " << a.position.y() << ", " << a.position.z() << ", "
+        << a.position.t() << ") vs (" << b.position.x() << ", " << b.position.y() << ", " << b.position.z() << ", "
+        << b.position.t() << "): " << (areCompatible ? "merged" : "not merged");
     return areCompatible;
   }
 
@@ -133,6 +131,83 @@ namespace {
     for (auto const& edge : pairs) {
       flat[cursor[edge.first]++] = edge.second;
     }
+  }
+
+  // Rebuild the four CSR adjacency arrays of `output` from the edges of
+  // `input`, remapping particle and vertex ids and dropping edges with an
+  // unmapped endpoint. `extraProductionEdges` are additional
+  // (newVertex, newParticle) production-side edges, e.g. those attaching
+  // particles to the artificial source vertex. buildCSR sorts and deduplicates,
+  // so the collection order here does not affect the result.
+  void rebuildAdjacency(truth::Graph const& input,
+                        std::vector<int32_t> const& oldParticleToNew,
+                        std::vector<int32_t> const& oldVertexToNew,
+                        std::vector<std::pair<uint32_t, uint32_t>> const& extraProductionEdges,
+                        truth::Graph& output) {
+    const uint32_t nParticles = input.nParticles();
+
+    std::vector<std::pair<uint32_t, uint32_t>> particleToDecayVertexPairs;
+    std::vector<std::pair<uint32_t, uint32_t>> particleToProductionVertexPairs;
+    std::vector<std::pair<uint32_t, uint32_t>> vertexToOutgoingParticlePairs;
+    std::vector<std::pair<uint32_t, uint32_t>> vertexToIncomingParticlePairs;
+
+    for (uint32_t oldVertex = 0; oldVertex < input.nVertices(); ++oldVertex) {
+      const int32_t newVertex = oldVertexToNew[oldVertex];
+      if (newVertex < 0)
+        continue;
+
+      for (const uint32_t oldParticle : input.incomingParticles(oldVertex)) {
+        if (oldParticle >= nParticles)
+          continue;
+
+        const int32_t newParticle = oldParticleToNew[oldParticle];
+        if (newParticle < 0)
+          continue;
+
+        particleToDecayVertexPairs.emplace_back(static_cast<uint32_t>(newParticle), static_cast<uint32_t>(newVertex));
+        vertexToIncomingParticlePairs.emplace_back(static_cast<uint32_t>(newVertex),
+                                                   static_cast<uint32_t>(newParticle));
+      }
+
+      for (const uint32_t oldParticle : input.outgoingParticles(oldVertex)) {
+        if (oldParticle >= nParticles)
+          continue;
+
+        const int32_t newParticle = oldParticleToNew[oldParticle];
+        if (newParticle < 0)
+          continue;
+
+        vertexToOutgoingParticlePairs.emplace_back(static_cast<uint32_t>(newVertex),
+                                                   static_cast<uint32_t>(newParticle));
+        particleToProductionVertexPairs.emplace_back(static_cast<uint32_t>(newParticle),
+                                                     static_cast<uint32_t>(newVertex));
+      }
+    }
+
+    for (auto const& [newVertex, newParticle] : extraProductionEdges) {
+      vertexToOutgoingParticlePairs.emplace_back(newVertex, newParticle);
+      particleToProductionVertexPairs.emplace_back(newParticle, newVertex);
+    }
+
+    buildCSR(output.nParticles(),
+             particleToDecayVertexPairs,
+             output.particleToDecayVertexOffsets,
+             output.particleToDecayVertices);
+
+    buildCSR(output.nParticles(),
+             particleToProductionVertexPairs,
+             output.particleToProductionVertexOffsets,
+             output.particleToProductionVertices);
+
+    buildCSR(output.nVertices(),
+             vertexToOutgoingParticlePairs,
+             output.vertexToOutgoingParticleOffsets,
+             output.vertexToOutgoingParticles);
+
+    buildCSR(output.nVertices(),
+             vertexToIncomingParticlePairs,
+             output.vertexToIncomingParticleOffsets,
+             output.vertexToIncomingParticles);
   }
 
   bool directCollapsibleGenParticleChain(truth::Graph const& graph,
@@ -290,63 +365,7 @@ namespace {
       output.vertices.push_back(input.vertices[oldVertex]);
     }
 
-    std::vector<std::pair<uint32_t, uint32_t>> particleToDecayVertexPairs;
-    std::vector<std::pair<uint32_t, uint32_t>> particleToProductionVertexPairs;
-    std::vector<std::pair<uint32_t, uint32_t>> vertexToOutgoingParticlePairs;
-    std::vector<std::pair<uint32_t, uint32_t>> vertexToIncomingParticlePairs;
-
-    for (uint32_t oldVertex = 0; oldVertex < nVertices; ++oldVertex) {
-      const int32_t newVertex = oldVertexToNew[oldVertex];
-      if (newVertex < 0)
-        continue;
-
-      for (uint32_t oldParticle : input.incomingParticles(oldVertex)) {
-        if (oldParticle >= oldParticleToNew.size())
-          continue;
-
-        const int32_t newParticle = oldParticleToNew[oldParticle];
-        if (newParticle < 0)
-          continue;
-
-        particleToDecayVertexPairs.emplace_back(static_cast<uint32_t>(newParticle), static_cast<uint32_t>(newVertex));
-        vertexToIncomingParticlePairs.emplace_back(static_cast<uint32_t>(newVertex),
-                                                   static_cast<uint32_t>(newParticle));
-      }
-
-      for (uint32_t oldParticle : input.outgoingParticles(oldVertex)) {
-        if (oldParticle >= oldParticleToNew.size())
-          continue;
-
-        const int32_t newParticle = oldParticleToNew[oldParticle];
-        if (newParticle < 0)
-          continue;
-
-        vertexToOutgoingParticlePairs.emplace_back(static_cast<uint32_t>(newVertex),
-                                                   static_cast<uint32_t>(newParticle));
-        particleToProductionVertexPairs.emplace_back(static_cast<uint32_t>(newParticle),
-                                                     static_cast<uint32_t>(newVertex));
-      }
-    }
-
-    buildCSR(output.nParticles(),
-             particleToDecayVertexPairs,
-             output.particleToDecayVertexOffsets,
-             output.particleToDecayVertices);
-
-    buildCSR(output.nParticles(),
-             particleToProductionVertexPairs,
-             output.particleToProductionVertexOffsets,
-             output.particleToProductionVertices);
-
-    buildCSR(output.nVertices(),
-             vertexToOutgoingParticlePairs,
-             output.vertexToOutgoingParticleOffsets,
-             output.vertexToOutgoingParticles);
-
-    buildCSR(output.nVertices(),
-             vertexToIncomingParticlePairs,
-             output.vertexToIncomingParticleOffsets,
-             output.vertexToIncomingParticles);
+    rebuildAdjacency(input, oldParticleToNew, oldVertexToNew, {}, output);
 
     return output;
   }
@@ -388,59 +407,27 @@ namespace {
     }
   }
 
-  void markUpstreamToParticle(truth::Graph const& graph,
-                              uint32_t particleId,
-                              std::vector<uint8_t>& keepParticle,
-                              std::vector<uint8_t>& keepVertex) {
-    if (particleId >= graph.nParticles())
+  // Keep up to parentDepth generations of ancestors above each root as context
+  // only: the ancestor particles and the connecting vertices are kept, but
+  // their other descendants and their own deeper ancestry are not.
+  void markAncestorContext(truth::Graph const& graph,
+                           std::vector<uint32_t> const& roots,
+                           uint32_t parentDepth,
+                           std::vector<uint8_t>& keepParticle,
+                           std::vector<uint8_t>& keepVertex) {
+    if (parentDepth == 0)
       return;
-
-    std::queue<uint32_t> queue;
-
-    if (!keepParticle[particleId]) {
-      keepParticle[particleId] = 1;
-    }
-
-    queue.push(particleId);
-
-    while (!queue.empty()) {
-      const uint32_t currentParticle = queue.front();
-      queue.pop();
-
-      for (uint32_t vertexId : graph.productionVertices(currentParticle)) {
-        if (vertexId >= graph.nVertices())
-          continue;
-
-        keepVertex[vertexId] = 1;
-
-        for (uint32_t parentId : graph.incomingParticles(vertexId)) {
-          if (parentId >= graph.nParticles())
-            continue;
-
-          if (!keepParticle[parentId]) {
-            keepParticle[parentId] = 1;
-            queue.push(parentId);
-          }
-        }
-      }
-    }
-  }
-
-  std::vector<uint32_t> expandSeedsWithParents(truth::Graph const& graph,
-                                               std::vector<uint32_t> const& seedParticles,
-                                               uint32_t parentDepth) {
-    std::vector<uint32_t> startParticles = seedParticles;
 
     std::vector<uint8_t> seen(graph.nParticles(), 0);
     std::queue<std::pair<uint32_t, uint32_t>> queue;
 
-    for (const uint32_t seed : seedParticles) {
-      if (seed >= graph.nParticles())
+    for (const uint32_t root : roots) {
+      if (root >= graph.nParticles())
         continue;
 
-      if (!seen[seed]) {
-        seen[seed] = 1;
-        queue.emplace(seed, 0);
+      if (!seen[root]) {
+        seen[root] = 1;
+        queue.emplace(root, 0);
       }
     }
 
@@ -455,49 +442,180 @@ namespace {
         if (vertexId >= graph.nVertices())
           continue;
 
+        keepVertex[vertexId] = 1;
+
         for (const uint32_t parentId : graph.incomingParticles(vertexId)) {
           if (parentId >= graph.nParticles())
             continue;
 
+          keepParticle[parentId] = 1;
+
           if (!seen[parentId]) {
             seen[parentId] = 1;
-            startParticles.push_back(parentId);
             queue.emplace(parentId, depth + 1);
           }
         }
       }
     }
-
-    std::sort(startParticles.begin(), startParticles.end());
-    startParticles.erase(std::unique(startParticles.begin(), startParticles.end()), startParticles.end());
-
-    return startParticles;
   }
 
-  void closeKeptVerticesWithAllParents(truth::Graph const& graph,
-                                       std::vector<uint8_t>& keepParticle,
-                                       std::vector<uint8_t>& keepVertex) {
-    bool changed = true;
+  // Restrict matches to the most upstream ones: a match that is a strict
+  // descendant of another match is covered by that match's subgraph and is not
+  // an independent root. Single multi-source downstream BFS, O(V + E).
+  std::vector<uint32_t> mostUpstreamOf(truth::Graph const& graph, std::vector<uint32_t> const& matches) {
+    const uint32_t nParticles = graph.nParticles();
 
-    while (changed) {
-      changed = false;
+    std::vector<uint8_t> strictDescendant(nParticles, 0);
+    std::vector<uint8_t> visited(nParticles, 0);
+    std::queue<uint32_t> queue;
 
-      for (uint32_t vertexId = 0; vertexId < graph.nVertices(); ++vertexId) {
-        if (!keepVertex[vertexId])
+    for (const uint32_t match : matches) {
+      if (match < nParticles && !visited[match]) {
+        visited[match] = 1;
+        queue.push(match);
+      }
+    }
+
+    while (!queue.empty()) {
+      const uint32_t particleId = queue.front();
+      queue.pop();
+
+      for (const uint32_t vertexId : graph.decayVertices(particleId)) {
+        if (vertexId >= graph.nVertices())
           continue;
 
-        for (uint32_t parentId : graph.incomingParticles(vertexId)) {
-          if (parentId >= graph.nParticles())
+        for (const uint32_t childId : graph.outgoingParticles(vertexId)) {
+          if (childId >= nParticles)
             continue;
 
-          if (keepParticle[parentId])
-            continue;
+          strictDescendant[childId] = 1;
 
-          markUpstreamToParticle(graph, parentId, keepParticle, keepVertex);
-          changed = true;
+          if (!visited[childId]) {
+            visited[childId] = 1;
+            queue.push(childId);
+          }
         }
       }
     }
+
+    std::vector<uint32_t> roots;
+    roots.reserve(matches.size());
+
+    for (const uint32_t match : matches) {
+      if (match < nParticles && !strictDescendant[match])
+        roots.push_back(match);
+    }
+
+    return roots;
+  }
+
+  // Follow the radiating-copy chain of a particle: while the current copy has
+  // exactly one decay vertex with exactly one same-PDG daughter, advance to it.
+  // Pure 1 -> 1 copy chains are already gone if collapseIntermediateGenParticles
+  // ran before; this handles surviving chains like Z -> Z gamma. Any ambiguity
+  // (several decay vertices, several same-PDG daughters) stops the walk.
+  uint32_t lastCopyOf(truth::Graph const& graph, uint32_t rootId) {
+    const int32_t pdgId = graph.particles[rootId].pdgId;
+    uint32_t current = rootId;
+
+    for (uint32_t guard = 0; guard < graph.nParticles(); ++guard) {
+      if (graph.particles[current].status == 1)
+        break;
+
+      const auto decayVertices = graph.decayVertices(current);
+      if (decayVertices.size() != 1)
+        break;
+
+      uint32_t sameIdChild = 0;
+      uint32_t nSameId = 0;
+
+      for (const uint32_t childId : graph.outgoingParticles(decayVertices.front())) {
+        if (childId < graph.nParticles() && childId != current && graph.particles[childId].pdgId == pdgId) {
+          sameIdChild = childId;
+          ++nSameId;
+        }
+      }
+
+      if (nSameId != 1)
+        break;
+
+      current = sameIdChild;
+    }
+
+    return current;
+  }
+
+  // Sorted PDG ids of the effective decay products of a root: the outgoing
+  // particles of the decay vertices of its last radiating copy.
+  std::vector<int32_t> effectiveDecayProductPdgIds(truth::Graph const& graph, uint32_t rootId) {
+    const uint32_t lastCopy = lastCopyOf(graph, rootId);
+
+    std::vector<int32_t> pdgIds;
+
+    for (const uint32_t vertexId : graph.decayVertices(lastCopy)) {
+      if (vertexId >= graph.nVertices())
+        continue;
+
+      for (const uint32_t childId : graph.outgoingParticles(vertexId)) {
+        if (childId < graph.nParticles())
+          pdgIds.push_back(graph.particles[childId].pdgId);
+      }
+    }
+
+    std::sort(pdgIds.begin(), pdgIds.end());
+
+    return pdgIds;
+  }
+
+  // Multiset containment on sorted ranges: extras in `have` are allowed.
+  bool multisetContains(std::vector<int32_t> const& sortedHave, std::vector<int32_t> const& sortedNeed) {
+    return std::includes(sortedHave.begin(), sortedHave.end(), sortedNeed.begin(), sortedNeed.end());
+  }
+
+  // Direct decay-pattern search: a vertex whose outgoing PDG id multiset
+  // contains a group selects that vertex (as common production context) and the
+  // matched outgoing particles as roots. Matching is local to one vertex, so
+  // unrelated particles from different branches can never be combined.
+  void findDecayPatternMatches(truth::Graph const& graph,
+                               std::vector<std::vector<int32_t>> const& sortedGroups,
+                               std::vector<uint32_t>& roots,
+                               std::vector<uint32_t>& matchedVertices) {
+    std::vector<int32_t> outgoingPdgIds;
+
+    for (uint32_t vertexId = 0; vertexId < graph.nVertices(); ++vertexId) {
+      const auto outgoing = graph.outgoingParticles(vertexId);
+      if (outgoing.empty())
+        continue;
+
+      outgoingPdgIds.clear();
+
+      for (const uint32_t childId : outgoing) {
+        if (childId < graph.nParticles())
+          outgoingPdgIds.push_back(graph.particles[childId].pdgId);
+      }
+
+      std::sort(outgoingPdgIds.begin(), outgoingPdgIds.end());
+
+      bool vertexMatched = false;
+
+      for (auto const& group : sortedGroups) {
+        if (!multisetContains(outgoingPdgIds, group))
+          continue;
+
+        vertexMatched = true;
+
+        for (const uint32_t childId : outgoing) {
+          if (childId < graph.nParticles() && containsPdgId(group, graph.particles[childId].pdgId))
+            roots.push_back(childId);
+        }
+      }
+
+      if (vertexMatched)
+        matchedVertices.push_back(vertexId);
+    }
+
+    std::sort(roots.begin(), roots.end());
+    roots.erase(std::unique(roots.begin(), roots.end()), roots.end());
   }
 
   void dropVerticesWithoutVisibleParticles(truth::Graph const& graph,
@@ -532,13 +650,13 @@ namespace {
   truth::Graph rebuildFilteredGraph(truth::Graph const& input,
                                     std::vector<uint8_t> const& keepParticle,
                                     std::vector<uint8_t> const& keepVertex,
-                                    std::vector<uint8_t> const& connectToCollapsedStableVertex) {
+                                    std::vector<uint8_t> const& connectToArtificialSourceVertex) {
     const uint32_t nParticles = input.nParticles();
     const uint32_t nVertices = input.nVertices();
 
-    const bool needCollapsedStableVertex = std::any_of(connectToCollapsedStableVertex.begin(),
-                                                       connectToCollapsedStableVertex.end(),
-                                                       [](uint8_t value) { return value != 0; });
+    const bool needArtificialSourceVertex = std::any_of(connectToArtificialSourceVertex.begin(),
+                                                        connectToArtificialSourceVertex.end(),
+                                                        [](uint8_t value) { return value != 0; });
 
     truth::Graph output;
 
@@ -546,7 +664,7 @@ namespace {
     std::vector<int32_t> oldVertexToNew(nVertices, -1);
 
     output.particles.reserve(nParticles);
-    output.vertices.reserve(nVertices + (needCollapsedStableVertex ? 1 : 0));
+    output.vertices.reserve(nVertices + (needArtificialSourceVertex ? 1 : 0));
 
     for (uint32_t oldParticle = 0; oldParticle < nParticles; ++oldParticle) {
       if (!keepParticle[oldParticle])
@@ -564,10 +682,10 @@ namespace {
       output.vertices.push_back(input.vertices[oldVertex]);
     }
 
-    int32_t collapsedStableVertex = -1;
+    int32_t artificialSourceVertex = -1;
 
-    if (needCollapsedStableVertex) {
-      collapsedStableVertex = static_cast<int32_t>(output.vertices.size());
+    if (needArtificialSourceVertex) {
+      artificialSourceVertex = static_cast<int32_t>(output.vertices.size());
 
       truth::VertexData vertex;
       vertex.genNode = -1;
@@ -578,122 +696,115 @@ namespace {
       output.vertices.push_back(vertex);
     }
 
-    std::vector<std::pair<uint32_t, uint32_t>> particleToDecayVertexPairs;
-    std::vector<std::pair<uint32_t, uint32_t>> particleToProductionVertexPairs;
-    std::vector<std::pair<uint32_t, uint32_t>> vertexToOutgoingParticlePairs;
-    std::vector<std::pair<uint32_t, uint32_t>> vertexToIncomingParticlePairs;
+    std::vector<std::pair<uint32_t, uint32_t>> artificialEdges;
 
-    for (uint32_t oldVertex = 0; oldVertex < nVertices; ++oldVertex) {
-      const int32_t newVertex = oldVertexToNew[oldVertex];
-      if (newVertex < 0)
-        continue;
-
-      for (uint32_t oldParticle : input.incomingParticles(oldVertex)) {
-        if (oldParticle >= nParticles)
-          continue;
-
-        const int32_t newParticle = oldParticleToNew[oldParticle];
-        if (newParticle < 0)
-          continue;
-
-        particleToDecayVertexPairs.emplace_back(static_cast<uint32_t>(newParticle), static_cast<uint32_t>(newVertex));
-        vertexToIncomingParticlePairs.emplace_back(static_cast<uint32_t>(newVertex),
-                                                   static_cast<uint32_t>(newParticle));
-      }
-
-      for (uint32_t oldParticle : input.outgoingParticles(oldVertex)) {
-        if (oldParticle >= nParticles)
-          continue;
-
-        const int32_t newParticle = oldParticleToNew[oldParticle];
-        if (newParticle < 0)
-          continue;
-
-        vertexToOutgoingParticlePairs.emplace_back(static_cast<uint32_t>(newVertex),
-                                                   static_cast<uint32_t>(newParticle));
-        particleToProductionVertexPairs.emplace_back(static_cast<uint32_t>(newParticle),
-                                                     static_cast<uint32_t>(newVertex));
-      }
-    }
-
-    if (collapsedStableVertex >= 0) {
-      const uint32_t newVertex = static_cast<uint32_t>(collapsedStableVertex);
+    if (artificialSourceVertex >= 0) {
+      const uint32_t newVertex = static_cast<uint32_t>(artificialSourceVertex);
 
       for (uint32_t oldParticle = 0; oldParticle < nParticles; ++oldParticle) {
-        if (!connectToCollapsedStableVertex[oldParticle])
+        if (!connectToArtificialSourceVertex[oldParticle])
           continue;
 
         const int32_t newParticle = oldParticleToNew[oldParticle];
         if (newParticle < 0)
           continue;
 
-        vertexToOutgoingParticlePairs.emplace_back(newVertex, static_cast<uint32_t>(newParticle));
-        particleToProductionVertexPairs.emplace_back(static_cast<uint32_t>(newParticle), newVertex);
+        artificialEdges.emplace_back(newVertex, static_cast<uint32_t>(newParticle));
       }
     }
 
-    buildCSR(output.nParticles(),
-             particleToDecayVertexPairs,
-             output.particleToDecayVertexOffsets,
-             output.particleToDecayVertices);
-
-    buildCSR(output.nParticles(),
-             particleToProductionVertexPairs,
-             output.particleToProductionVertexOffsets,
-             output.particleToProductionVertices);
-
-    buildCSR(output.nVertices(),
-             vertexToOutgoingParticlePairs,
-             output.vertexToOutgoingParticleOffsets,
-             output.vertexToOutgoingParticles);
-
-    buildCSR(output.nVertices(),
-             vertexToIncomingParticlePairs,
-             output.vertexToIncomingParticleOffsets,
-             output.vertexToIncomingParticles);
+    rebuildAdjacency(input, oldParticleToNew, oldVertexToNew, artificialEdges, output);
 
     return output;
   }
 
-  truth::Graph filterGraphBySeedPdgIds(truth::Graph const& input,
-                                       truth::LogicalGraphPostProcessingConfig const& config) {
+  truth::Graph filterGraphBySelection(truth::Graph const& input,
+                                      truth::LogicalGraphPostProcessingConfig const& config) {
     if (input.empty())
       return input;
 
-    if (config.seedPdgIds.empty())
+    // Skip empty groups: they would match every vertex.
+    std::vector<std::vector<int32_t>> sortedGroups;
+    sortedGroups.reserve(config.decayPdgIdGroups.size());
+
+    for (auto const& group : config.decayPdgIdGroups) {
+      if (!group.empty()) {
+        sortedGroups.push_back(group);
+        std::sort(sortedGroups.back().begin(), sortedGroups.back().end());
+      }
+    }
+
+    const bool haveSeeds = !config.seedPdgIds.empty();
+    const bool haveGroups = !sortedGroups.empty();
+
+    if (!haveSeeds && !haveGroups)
+      return input;
+
+    // Debug escape hatch: no real particle has PDG id 0, so seedPdgIds = {0}
+    // explicitly requests the full, unfiltered graph.
+    if (containsPdgId(config.seedPdgIds, 0))
       return input;
 
     const uint32_t nParticles = input.nParticles();
     const uint32_t nVertices = input.nVertices();
 
-    std::vector<uint32_t> seedParticles;
+    std::vector<uint32_t> roots;
+    std::vector<uint32_t> patternVertices;
 
-    for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
-      if (containsPdgId(config.seedPdgIds, input.particles[particleId].pdgId))
-        seedParticles.push_back(particleId);
+    if (haveSeeds) {
+      std::vector<uint32_t> matches;
+
+      for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+        if (containsPdgId(config.seedPdgIds, input.particles[particleId].pdgId))
+          matches.push_back(particleId);
+      }
+
+      if (!matches.empty()) {
+        roots = mostUpstreamOf(input, matches);
+
+        if (haveGroups) {
+          // Keep only seed roots whose effective decay matches a group, e.g.
+          // Z -> mu+ mu- but not Z -> e+ e-.
+          std::erase_if(roots, [&](uint32_t root) {
+            const auto products = effectiveDecayProductPdgIds(input, root);
+            return std::none_of(sortedGroups.begin(), sortedGroups.end(), [&](auto const& group) {
+              return multisetContains(products, group);
+            });
+          });
+        }
+      } else if (haveGroups) {
+        // The generator did not write the requested resonance explicitly:
+        // fall back to the direct decay-pattern search.
+        findDecayPatternMatches(input, sortedGroups, roots, patternVertices);
+      }
+    } else {
+      findDecayPatternMatches(input, sortedGroups, roots, patternVertices);
     }
 
-    if (seedParticles.empty())
-      return input;
-
-    const auto startParticles = expandSeedsWithParents(input, seedParticles, config.seedParentDepth);
+    if (roots.empty()) {
+      edm::LogWarning("TruthLogicalGraphPostProcessor")
+          << "Configured truth graph selection (seedPdgIds and/or decayPdgIdGroups) matched nothing in this event; "
+             "keeping only stable GEN particles attached to the artificial source vertex.";
+    }
 
     std::vector<uint8_t> keepParticle(nParticles, 0);
     std::vector<uint8_t> keepVertex(nVertices, 0);
 
-    for (const uint32_t particleId : startParticles) {
-      markDownstreamFromParticle(input, particleId, keepParticle, keepVertex);
+    for (const uint32_t root : roots) {
+      markDownstreamFromParticle(input, root, keepParticle, keepVertex);
     }
 
-    // The graph is a DAG, not a tree. If a kept downstream vertex has parents
-    // that are not in the selected subgraph, keep those parents and their full
-    // upstream history to avoid creating misleading partial vertices.
-    closeKeptVerticesWithAllParents(input, keepParticle, keepVertex);
+    // Pattern-matched vertices are kept as the common production context of
+    // their matched outgoing particles.
+    for (const uint32_t vertexId : patternVertices) {
+      keepVertex[vertexId] = 1;
+    }
+
+    markAncestorContext(input, roots, config.seedParentDepth, keepParticle, keepVertex);
 
     // Keep every final-state GEN particle unless the user explicitly asked to
-    // ignore/collapse it. Stable particles outside the interesting subgraph are
-    // attached to one artificial source vertex.
-    std::vector<uint8_t> connectToCollapsedStableVertex(nParticles, 0);
+    // ignore/collapse it.
+    std::vector<uint8_t> stableSpectator(nParticles, 0);
 
     for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
       if (!isStableGenParticle(input, particleId))
@@ -706,12 +817,36 @@ namespace {
         continue;
 
       keepParticle[particleId] = 1;
-      connectToCollapsedStableVertex[particleId] = 1;
+      stableSpectator[particleId] = 1;
     }
 
     dropVerticesWithoutVisibleParticles(input, keepParticle, keepVertex);
 
-    return rebuildFilteredGraph(input, keepParticle, keepVertex, connectToCollapsedStableVertex);
+    // Attach to the artificial source vertex every kept particle whose real
+    // production vertices were all dropped: stable spectators and particles at
+    // the truncated upstream boundary (conceptually ISR or other uninteresting
+    // upstream activity). True sources of the input graph stay sources.
+    std::vector<uint8_t> connectToArtificialSourceVertex(nParticles, 0);
+
+    for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+      if (!keepParticle[particleId])
+        continue;
+
+      const auto productionVertices = input.productionVertices(particleId);
+
+      if (productionVertices.empty() && !stableSpectator[particleId])
+        continue;
+
+      const bool hasKeptProduction =
+          std::any_of(productionVertices.begin(), productionVertices.end(), [&](uint32_t vertexId) {
+            return vertexId < nVertices && keepVertex[vertexId];
+          });
+
+      if (!hasKeptProduction)
+        connectToArtificialSourceVertex[particleId] = 1;
+    }
+
+    return rebuildFilteredGraph(input, keepParticle, keepVertex, connectToArtificialSourceVertex);
   }
 
   void mergeVertexPayload(truth::VertexData& output, truth::VertexData const& input) {
@@ -805,52 +940,11 @@ namespace {
       mergeVertexPayload(output.vertices[newVertex], input.vertices[oldVertex]);
     }
 
-    std::vector<std::pair<uint32_t, uint32_t>> particleToDecayVertexPairs;
-    std::vector<std::pair<uint32_t, uint32_t>> particleToProductionVertexPairs;
-    std::vector<std::pair<uint32_t, uint32_t>> vertexToOutgoingParticlePairs;
-    std::vector<std::pair<uint32_t, uint32_t>> vertexToIncomingParticlePairs;
+    // Particles are untouched by vertex merging: identity map.
+    std::vector<int32_t> oldParticleToNew(nParticles);
+    std::iota(oldParticleToNew.begin(), oldParticleToNew.end(), 0);
 
-    for (uint32_t oldVertex = 0; oldVertex < nVertices; ++oldVertex) {
-      const int32_t newVertex = oldVertexToNew[oldVertex];
-      if (newVertex < 0)
-        continue;
-
-      for (uint32_t particleId : input.incomingParticles(oldVertex)) {
-        if (particleId >= nParticles)
-          continue;
-
-        particleToDecayVertexPairs.emplace_back(particleId, static_cast<uint32_t>(newVertex));
-        vertexToIncomingParticlePairs.emplace_back(static_cast<uint32_t>(newVertex), particleId);
-      }
-
-      for (uint32_t particleId : input.outgoingParticles(oldVertex)) {
-        if (particleId >= nParticles)
-          continue;
-
-        vertexToOutgoingParticlePairs.emplace_back(static_cast<uint32_t>(newVertex), particleId);
-        particleToProductionVertexPairs.emplace_back(particleId, static_cast<uint32_t>(newVertex));
-      }
-    }
-
-    buildCSR(output.nParticles(),
-             particleToDecayVertexPairs,
-             output.particleToDecayVertexOffsets,
-             output.particleToDecayVertices);
-
-    buildCSR(output.nParticles(),
-             particleToProductionVertexPairs,
-             output.particleToProductionVertexOffsets,
-             output.particleToProductionVertices);
-
-    buildCSR(output.nVertices(),
-             vertexToOutgoingParticlePairs,
-             output.vertexToOutgoingParticleOffsets,
-             output.vertexToOutgoingParticles);
-
-    buildCSR(output.nVertices(),
-             vertexToIncomingParticlePairs,
-             output.vertexToIncomingParticleOffsets,
-             output.vertexToIncomingParticles);
+    rebuildAdjacency(input, oldParticleToNew, oldVertexToNew, {}, output);
 
     return output;
   }
@@ -922,9 +1016,17 @@ namespace {
 
     std::vector<int32_t> oldVertexToNew(nVertices, -1);
 
-    auto getNewVertex = [&](uint32_t oldVertex) -> uint32_t {
-      if (oldVertexToNew[oldVertex] >= 0)
-        return static_cast<uint32_t>(oldVertexToNew[oldVertex]);
+    // Vertices in one DSU group share the id of the first visible member;
+    // vertices with no visible particle at all stay unmapped and disappear.
+    for (uint32_t oldVertex = 0; oldVertex < nVertices; ++oldVertex) {
+      const auto hasVisible = [&](auto const& particles) {
+        return std::any_of(particles.begin(), particles.end(), [&](uint32_t oldParticle) {
+          return oldParticle < nParticles && oldParticleToNew[oldParticle] >= 0;
+        });
+      };
+
+      if (!hasVisible(input.incomingParticles(oldVertex)) && !hasVisible(input.outgoingParticles(oldVertex)))
+        continue;
 
       const int rep = vertexDSU.find(static_cast<int>(oldVertex));
       auto inserted = vertexRepToNew.emplace(rep, static_cast<uint32_t>(output.vertices.size()));
@@ -934,81 +1036,9 @@ namespace {
       }
 
       oldVertexToNew[oldVertex] = static_cast<int32_t>(inserted.first->second);
-      return inserted.first->second;
-    };
-
-    std::vector<std::pair<uint32_t, uint32_t>> particleToDecayVertexPairs;
-    std::vector<std::pair<uint32_t, uint32_t>> particleToProductionVertexPairs;
-    std::vector<std::pair<uint32_t, uint32_t>> vertexToOutgoingParticlePairs;
-    std::vector<std::pair<uint32_t, uint32_t>> vertexToIncomingParticlePairs;
-
-    for (uint32_t oldVertex = 0; oldVertex < nVertices; ++oldVertex) {
-      bool hasVisibleIncoming = false;
-      bool hasVisibleOutgoing = false;
-
-      for (uint32_t oldParticle : input.incomingParticles(oldVertex)) {
-        if (oldParticle < nParticles && oldParticleToNew[oldParticle] >= 0) {
-          hasVisibleIncoming = true;
-          break;
-        }
-      }
-
-      for (uint32_t oldParticle : input.outgoingParticles(oldVertex)) {
-        if (oldParticle < nParticles && oldParticleToNew[oldParticle] >= 0) {
-          hasVisibleOutgoing = true;
-          break;
-        }
-      }
-
-      if (!hasVisibleIncoming && !hasVisibleOutgoing)
-        continue;
-
-      const uint32_t newVertex = getNewVertex(oldVertex);
-
-      for (uint32_t oldParticle : input.incomingParticles(oldVertex)) {
-        if (oldParticle >= nParticles)
-          continue;
-
-        const int32_t newParticle = oldParticleToNew[oldParticle];
-        if (newParticle < 0)
-          continue;
-
-        particleToDecayVertexPairs.emplace_back(static_cast<uint32_t>(newParticle), newVertex);
-        vertexToIncomingParticlePairs.emplace_back(newVertex, static_cast<uint32_t>(newParticle));
-      }
-
-      for (uint32_t oldParticle : input.outgoingParticles(oldVertex)) {
-        if (oldParticle >= nParticles)
-          continue;
-
-        const int32_t newParticle = oldParticleToNew[oldParticle];
-        if (newParticle < 0)
-          continue;
-
-        vertexToOutgoingParticlePairs.emplace_back(newVertex, static_cast<uint32_t>(newParticle));
-        particleToProductionVertexPairs.emplace_back(static_cast<uint32_t>(newParticle), newVertex);
-      }
     }
 
-    buildCSR(output.nParticles(),
-             particleToDecayVertexPairs,
-             output.particleToDecayVertexOffsets,
-             output.particleToDecayVertices);
-
-    buildCSR(output.nParticles(),
-             particleToProductionVertexPairs,
-             output.particleToProductionVertexOffsets,
-             output.particleToProductionVertices);
-
-    buildCSR(output.nVertices(),
-             vertexToOutgoingParticlePairs,
-             output.vertexToOutgoingParticleOffsets,
-             output.vertexToOutgoingParticles);
-
-    buildCSR(output.nVertices(),
-             vertexToIncomingParticlePairs,
-             output.vertexToIncomingParticleOffsets,
-             output.vertexToIncomingParticles);
+    rebuildAdjacency(input, oldParticleToNew, oldVertexToNew, {}, output);
 
     return output;
   }
@@ -1030,12 +1060,30 @@ namespace truth {
 
     desc.add<std::vector<int32_t>>("seedPdgIds", {})
         ->setComment(
-            "If non-empty, keep particles with these exact PDG ids, keep seedParentDepth generations above them, "
-            "then keep the full downstream subgraph. Stable GEN particles outside the selected subgraph are kept "
-            "and attached to one artificial collapsed vertex.");
+            "If non-empty, particles with these exact PDG ids seed the selection: the most upstream particle of "
+            "each matching chain becomes a root and its full downstream subgraph is kept. The special value 0 "
+            "disables the selection and keeps the full graph (debugging). Stable GEN particles outside the "
+            "selection are kept and attached to one artificial source vertex.");
 
     desc.add<uint32_t>("seedParentDepth", 0)
-        ->setComment("Number of parent generations to keep above each seed particle before keeping downstream.");
+        ->setComment(
+            "Number of ancestor generations kept above each selected root as context only: the ancestors and "
+            "connecting vertices are kept, but not their other descendants. Kept particles whose production "
+            "vertices all fall outside the selection are attached to the artificial source vertex.");
+
+    {
+      edm::ParameterSetDescription groupDesc;
+      groupDesc.add<std::vector<int32_t>>("pdgIds", {})
+          ->setComment("Unordered, charge-sensitive multiset of required PDG ids, e.g. (13, -13).");
+
+      desc.addVPSet("decayPdgIdGroups", groupDesc, {})
+          ->setComment(
+              "Decay patterns of interest; groups are OR-ed. Without seedPdgIds: a vertex whose outgoing PDG ids "
+              "contain a group as a sub-multiset is selected and the matched particles plus their downstream "
+              "subgraphs are kept. With seedPdgIds: only seed roots whose effective decay products (after following "
+              "same-PDG radiating copy chains) contain a group are kept; if the event has no particle with a seed "
+              "PDG id at all, the direct vertex search is used as a fallback.");
+    }
 
     desc.add<std::vector<int32_t>>("ignoredPdgIds", {})
         ->setComment(
@@ -1064,6 +1112,10 @@ namespace truth {
     config.collapseIntermediateGenParticles = pset.getParameter<bool>("collapseIntermediateGenParticles");
     config.seedPdgIds = pset.getParameter<std::vector<int32_t>>("seedPdgIds");
     config.seedParentDepth = pset.getParameter<uint32_t>("seedParentDepth");
+
+    for (auto const& groupPSet : pset.getParameter<std::vector<edm::ParameterSet>>("decayPdgIdGroups")) {
+      config.decayPdgIdGroups.push_back(groupPSet.getParameter<std::vector<int32_t>>("pdgIds"));
+    }
     config.ignoredPdgIds = pset.getParameter<std::vector<int32_t>>("ignoredPdgIds");
     config.ignoredParticleIds = pset.getParameter<std::vector<uint32_t>>("ignoredParticleIds");
     config.mergeGenSimVerticesByPosition = pset.getParameter<bool>("mergeGenSimVerticesByPosition");
@@ -1077,7 +1129,7 @@ namespace truth {
       input = collapseIntermediateGenParticleChains(input);
     }
 
-    input = filterGraphBySeedPdgIds(input, config_);
+    input = filterGraphBySelection(input, config_);
 
     if (config_.mergeGenSimVerticesByPosition) {
       input = mergeGenSimVerticesByPosition(input, config_.genSimVertexPositionTolerance);
