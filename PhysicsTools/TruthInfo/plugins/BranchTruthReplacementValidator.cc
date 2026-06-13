@@ -1,3 +1,7 @@
+// Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
+// Part of the MC-truth-graph prototype - under heavy development, not yet open
+// to external contributions (see PhysicsTools/TruthInfo/README.md).
+
 // Validates that a truth::Branch can stand in for the legacy calo truth objects
 // (CaloParticle, SimCluster): for each legacy object it maps the object to its
 // logical particle (via the SimTrack trackId), compares the Branch's subgraph
