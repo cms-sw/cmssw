@@ -242,20 +242,32 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testStatusOneGenParticlesAreNeverCollapsed);
   CPPUNIT_TEST(testStableGenSimParticlesSurviveIntermediateCollapse);
   CPPUNIT_TEST(testSeedCutKeepsUnrelatedStableGenSimParticlesThroughArtificialVertex);
-  CPPUNIT_TEST(testDagClosureKeepsAllParentsOfKeptVertices);
+  CPPUNIT_TEST(testSeedCutHidesUnselectedParentsOfKeptVertices);
   CPPUNIT_TEST(testIgnoredParticlesAreCollapsedAway);
   CPPUNIT_TEST(testSeedCutWithIgnoredParticles);
   CPPUNIT_TEST(testIgnoredParticleIdsAreCollapsedAway);
+  CPPUNIT_TEST(testSeedRootIsMostUpstreamThroughRadiatingCopyChain);
+  CPPUNIT_TEST(testSeedParentDepthKeepsAncestorContextOnly);
+  CPPUNIT_TEST(testSeedWithDecayGroupKeepsOnlyMatchingDecays);
+  CPPUNIT_TEST(testZToTauTauDoesNotMatchMuonDecayGroup);
+  CPPUNIT_TEST(testDecayGroupFallbackWhenSeedAbsent);
+  CPPUNIT_TEST(testSeedPdgIdZeroKeepsFullGraphForDebugging);
   CPPUNIT_TEST_SUITE_END();
 
 public:
   void testStatusOneGenParticlesAreNeverCollapsed();
   void testStableGenSimParticlesSurviveIntermediateCollapse();
   void testSeedCutKeepsUnrelatedStableGenSimParticlesThroughArtificialVertex();
-  void testDagClosureKeepsAllParentsOfKeptVertices();
+  void testSeedCutHidesUnselectedParentsOfKeptVertices();
   void testIgnoredParticlesAreCollapsedAway();
   void testSeedCutWithIgnoredParticles();
   void testIgnoredParticleIdsAreCollapsedAway();
+  void testSeedRootIsMostUpstreamThroughRadiatingCopyChain();
+  void testSeedParentDepthKeepsAncestorContextOnly();
+  void testSeedWithDecayGroupKeepsOnlyMatchingDecays();
+  void testZToTauTauDoesNotMatchMuonDecayGroup();
+  void testDecayGroupFallbackWhenSeedAbsent();
+  void testSeedPdgIdZeroKeepsFullGraphForDebugging();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestTruthLogicalGraphPostProcessor);
@@ -392,7 +404,7 @@ void TestTruthLogicalGraphPostProcessor::testSeedCutKeepsUnrelatedStableGenSimPa
   }
 }
 
-void TestTruthLogicalGraphPostProcessor::testDagClosureKeepsAllParentsOfKeptVertices() {
+void TestTruthLogicalGraphPostProcessor::testSeedCutHidesUnselectedParentsOfKeptVertices() {
   try {
     GraphBuilder builder(5, 3);
 
@@ -403,9 +415,9 @@ void TestTruthLogicalGraphPostProcessor::testDagClosureKeepsAllParentsOfKeptVert
     //   pi0 -> v1 -> gamma
     //   e- stable, unrelated
     //
-    // The seed is H. Keeping downstream from H keeps v0. Since v0 also has Z as
-    // an incoming parent, the postprocessor must include Z and the upstream path
-    // to Z instead of showing v0 as if it had only H as parent.
+    // The seed is H. Keeping downstream from H keeps v0. The unselected Z parent
+    // of v0 is not part of the selection and seedParentDepth is 0, so it must be
+    // hidden: v0 appears with H as its only incoming particle.
     builder.setGenParticle(0, 25, 2, 100);
     builder.setGenParticle(1, 23, 2, 101);
     builder.setGenParticle(2, 111, 2, 102);
@@ -436,7 +448,7 @@ void TestTruthLogicalGraphPostProcessor::testDagClosureKeepsAllParentsOfKeptVert
     CPPUNIT_ASSERT(output.isConsistent());
 
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 25));
-    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 23));
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 111));
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 22));
 
@@ -451,19 +463,14 @@ void TestTruthLogicalGraphPostProcessor::testDagClosureKeepsAllParentsOfKeptVert
 
     const auto incoming = output.incomingParticles(pi0ProductionVertices.front());
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), incoming.size());
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), incoming.size());
+    CPPUNIT_ASSERT_EQUAL(int32_t(25), output.particles[incoming.front()].pdgId);
 
-    std::vector<int32_t> incomingPdgIds;
-    incomingPdgIds.reserve(incoming.size());
+    const uint32_t electron = findParticleWithPdgId(output, 11);
+    const auto electronProductionVertices = output.productionVertices(electron);
 
-    for (uint32_t parent : incoming) {
-      incomingPdgIds.push_back(output.particles[parent].pdgId);
-    }
-
-    std::sort(incomingPdgIds.begin(), incomingPdgIds.end());
-
-    CPPUNIT_ASSERT_EQUAL(int32_t(23), incomingPdgIds[0]);
-    CPPUNIT_ASSERT_EQUAL(int32_t(25), incomingPdgIds[1]);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), electronProductionVertices.size());
+    CPPUNIT_ASSERT_EQUAL(artificialVertexId(output), electronProductionVertices.front());
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);
@@ -518,6 +525,409 @@ void TestTruthLogicalGraphPostProcessor::testIgnoredParticlesAreCollapsedAway() 
   }
 }
 
+void TestTruthLogicalGraphPostProcessor::testSeedRootIsMostUpstreamThroughRadiatingCopyChain() {
+  try {
+    GraphBuilder builder(6, 3);
+
+    // q -> vq -> Z0
+    // Z0 -> v0 -> { Z1, gamma }   (radiating copy chain, survives chain collapse)
+    // Z1 -> v1 -> { mu+, mu- }
+    //
+    // With seedPdgIds = {23} only Z0 is a root: Z1 is a strict descendant of
+    // another match. The q parent is outside the selection (depth 0), so Z0 is
+    // attached to the artificial source vertex while Z1 keeps its real
+    // production vertex.
+    builder.setGenParticle(0, 1, 2, 100);
+    builder.setGenParticle(1, 23, 2, 101);
+    builder.setGenParticle(2, 23, 2, 102);
+    builder.setGenSimParticle(3, 22, 1, 103, 1003);
+    builder.setGenSimParticle(4, -13, 1, 104, 1004);
+    builder.setGenSimParticle(5, 13, 1, 105, 1005);
+
+    builder.setGenVertex(0, 200);
+    builder.setGenVertex(1, 201);
+    builder.setGenSimVertex(2, 202, 2002);
+
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+
+    builder.addDecay(1, 1);
+    builder.addProduction(1, 2);
+    builder.addProduction(1, 3);
+
+    builder.addDecay(2, 2);
+    builder.addProduction(2, 4);
+    builder.addProduction(2, 5);
+
+    auto graph = builder.finish();
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {23};
+    config.seedParentDepth = 0;
+
+    auto output = runPostProcessing(std::move(graph), config);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+
+    CPPUNIT_ASSERT_EQUAL(uint32_t(2), countParticlesWithPdgId(output, 23));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 1));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 22));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, -13));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 13));
+    CPPUNIT_ASSERT(hasArtificialVertex(output));
+
+    // Exactly one Z (the most upstream root, with its q parent dropped) hangs
+    // off the artificial source vertex; the downstream copy keeps its real one.
+    const uint32_t artificial = artificialVertexId(output);
+    uint32_t nZAttachedToArtificial = 0;
+
+    for (uint32_t particleId = 0; particleId < output.nParticles(); ++particleId) {
+      if (output.particles[particleId].pdgId != 23)
+        continue;
+
+      const auto productionVertices = output.productionVertices(particleId);
+
+      if (productionVertices.size() == 1 && productionVertices.front() == artificial)
+        ++nZAttachedToArtificial;
+    }
+
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), nZAttachedToArtificial);
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testSeedParentDepthKeepsAncestorContextOnly() {
+  try {
+    GraphBuilder builder(7, 3);
+
+    // g g -> vp -> { Z, q }
+    // Z -> vz -> { mu+, mu- }
+    // q -> vq -> { pi+ (stable) }
+    //
+    // With seedParentDepth = 1 the gluons and vp are kept as context, but the
+    // sibling q and its decay chain are not: ancestors no longer pull in their
+    // own downstream. The stable pion survives through the artificial vertex.
+    builder.setGenParticle(0, 21, 2, 100);
+    builder.setGenParticle(1, 21, 2, 101);
+    builder.setGenParticle(2, 23, 2, 102);
+    builder.setGenParticle(3, 1, 2, 103);
+    builder.setGenSimParticle(4, 211, 1, 104, 1004);
+    builder.setGenSimParticle(5, -13, 1, 105, 1005);
+    builder.setGenSimParticle(6, 13, 1, 106, 1006);
+
+    builder.setGenVertex(0, 200);
+    builder.setGenVertex(1, 201);
+    builder.setGenSimVertex(2, 202, 2002);
+
+    builder.addDecay(0, 0);
+    builder.addDecay(1, 0);
+    builder.addProduction(0, 2);
+    builder.addProduction(0, 3);
+
+    builder.addDecay(3, 1);
+    builder.addProduction(1, 4);
+
+    builder.addDecay(2, 2);
+    builder.addProduction(2, 5);
+    builder.addProduction(2, 6);
+
+    auto graph = builder.finish();
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {23};
+    config.seedParentDepth = 1;
+
+    auto output = runPostProcessing(std::move(graph), config);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(2), countParticlesWithPdgId(output, 21));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 1));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 211));
+    CPPUNIT_ASSERT(hasArtificialVertex(output));
+
+    const uint32_t z = findParticleWithPdgId(output, 23);
+    const auto zProductionVertices = output.productionVertices(z);
+
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), zProductionVertices.size());
+
+    // Both gluons are visible as context above the Z, and the hidden sibling
+    // quark leaves the production vertex with the Z as its only outgoing.
+    CPPUNIT_ASSERT_EQUAL(std::size_t(2), output.incomingParticles(zProductionVertices.front()).size());
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), output.outgoingParticles(zProductionVertices.front()).size());
+
+    const uint32_t pion = findParticleWithPdgId(output, 211);
+    const auto pionProductionVertices = output.productionVertices(pion);
+
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), pionProductionVertices.size());
+    CPPUNIT_ASSERT_EQUAL(artificialVertexId(output), pionProductionVertices.front());
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testSeedWithDecayGroupKeepsOnlyMatchingDecays() {
+  try {
+    GraphBuilder builder(7, 3);
+
+    // Za -> v0 -> { Za', gamma }   (radiating copy)
+    // Za' -> v1 -> { mu+, mu- }
+    // Zb -> v2 -> { e- }
+    //
+    // seedPdgIds = {23}, decayPdgIdGroups = {{13, -13}}: the decay match is
+    // evaluated at the most upstream root after following the copy chain, so
+    // Za (-> mu mu) is kept and Zb (-> e e) is dropped. The stable electrons
+    // survive only as spectators on the artificial vertex.
+    builder.setGenParticle(0, 23, 2, 100);
+    builder.setGenParticle(1, 23, 2, 101);
+    builder.setGenParticle(2, 23, 2, 102);
+    builder.setGenSimParticle(3, 22, 1, 103, 1003);
+    builder.setGenSimParticle(4, -13, 1, 104, 1004);
+    builder.setGenSimParticle(5, 13, 1, 105, 1005);
+    builder.setGenSimParticle(6, 11, 1, 106, 1006);
+
+    builder.setGenVertex(0, 200);
+    builder.setGenSimVertex(1, 201, 2001);
+    builder.setGenSimVertex(2, 202, 2002);
+
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+    builder.addProduction(0, 3);
+
+    builder.addDecay(1, 1);
+    builder.addProduction(1, 4);
+    builder.addProduction(1, 5);
+
+    builder.addDecay(2, 2);
+    builder.addProduction(2, 6);
+
+    auto graph = builder.finish();
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {23};
+    config.decayPdgIdGroups = {{13, -13}};
+    config.seedParentDepth = 0;
+
+    auto output = runPostProcessing(std::move(graph), config);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+
+    // Both copies of the matching Z chain are kept; the Z -> e e one is gone.
+    CPPUNIT_ASSERT_EQUAL(uint32_t(2), countParticlesWithPdgId(output, 23));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, -13));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 13));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 11));
+    CPPUNIT_ASSERT(hasArtificialVertex(output));
+
+    const uint32_t muon = findParticleWithPdgId(output, 13);
+    const auto muonProductionVertices = output.productionVertices(muon);
+
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), muonProductionVertices.size());
+    CPPUNIT_ASSERT(muonProductionVertices.front() != artificialVertexId(output));
+
+    const uint32_t electron = findParticleWithPdgId(output, 11);
+    const auto electronProductionVertices = output.productionVertices(electron);
+
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), electronProductionVertices.size());
+    CPPUNIT_ASSERT_EQUAL(artificialVertexId(output), electronProductionVertices.front());
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testZToTauTauDoesNotMatchMuonDecayGroup() {
+  try {
+    GraphBuilder builder(7, 3);
+
+    // Z -> v0 -> { tau+, tau- }
+    // tau+ -> v1 -> { mu+, anti-nu }
+    // tau- -> v2 -> { mu-, nu }
+    //
+    // The decay match is local to the (copy-collapsed) decay vertex of the
+    // root: the muons from the tau decays must NOT make Z -> tau tau match
+    // {13, -13}. Nothing matches, so only stable particles survive, attached
+    // to the artificial vertex.
+    builder.setGenParticle(0, 23, 2, 100);
+    builder.setGenParticle(1, -15, 2, 101);
+    builder.setGenParticle(2, 15, 2, 102);
+    builder.setGenSimParticle(3, -13, 1, 103, 1003);
+    builder.setGenSimParticle(4, 13, 1, 104, 1004);
+    builder.setGenParticle(5, -16, 1, 105);
+    builder.setGenParticle(6, 16, 1, 106);
+
+    builder.setGenVertex(0, 200);
+    builder.setGenSimVertex(1, 201, 2001);
+    builder.setGenSimVertex(2, 202, 2002);
+
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+    builder.addProduction(0, 2);
+
+    builder.addDecay(1, 1);
+    builder.addProduction(1, 3);
+    builder.addProduction(1, 5);
+
+    builder.addDecay(2, 2);
+    builder.addProduction(2, 4);
+    builder.addProduction(2, 6);
+
+    auto graph = builder.finish();
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {23};
+    config.decayPdgIdGroups = {{13, -13}};
+
+    auto output = runPostProcessing(std::move(graph), config);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 23));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 15));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, -15));
+
+    // Stable muons and neutrinos survive as spectators only.
+    CPPUNIT_ASSERT_EQUAL(uint32_t(4), output.nParticles());
+    CPPUNIT_ASSERT(hasArtificialVertex(output));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), output.nVertices());
+
+    const uint32_t muon = findParticleWithPdgId(output, 13);
+    const auto muonProductionVertices = output.productionVertices(muon);
+
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), muonProductionVertices.size());
+    CPPUNIT_ASSERT_EQUAL(artificialVertexId(output), muonProductionVertices.front());
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testDecayGroupFallbackWhenSeedAbsent() {
+  try {
+    GraphBuilder builder(5, 2);
+
+    // The generator wrote no explicit Z: vp -> { mu+, mu-, gamma }.
+    // Unrelated branch: X -> vx -> { pi+ (stable) }.
+    //
+    // seedPdgIds = {23} finds nothing, so the decay-pattern fallback selects
+    // the mu+ mu- vertex (extra photon allowed). The matched vertex is kept as
+    // the common production context; the pion survives via the artificial
+    // vertex and X is dropped.
+    builder.setGenSimParticle(0, -13, 1, 100, 1000);
+    builder.setGenSimParticle(1, 13, 1, 101, 1001);
+    builder.setGenSimParticle(2, 22, 1, 102, 1002);
+    builder.setGenParticle(3, 999, 2, 103);
+    builder.setGenSimParticle(4, 211, 1, 104, 1004);
+
+    builder.setGenVertex(0, 200);
+    builder.setGenVertex(1, 201);
+
+    builder.addProduction(0, 0);
+    builder.addProduction(0, 1);
+    builder.addProduction(0, 2);
+
+    builder.addDecay(3, 1);
+    builder.addProduction(1, 4);
+
+    auto graph = builder.finish();
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {23};
+    config.decayPdgIdGroups = {{13, -13}};
+
+    auto output = runPostProcessing(std::move(graph), config);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 999));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, -13));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 13));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 22));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 211));
+    CPPUNIT_ASSERT(hasArtificialVertex(output));
+
+    const uint32_t artificial = artificialVertexId(output);
+
+    // The muons hang off their real, kept production vertex, not the
+    // artificial one; the stable photon at the same vertex stays there too.
+    const uint32_t muon = findParticleWithPdgId(output, 13);
+    const auto muonProductionVertices = output.productionVertices(muon);
+
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), muonProductionVertices.size());
+    CPPUNIT_ASSERT(muonProductionVertices.front() != artificial);
+
+    const uint32_t gamma = findParticleWithPdgId(output, 22);
+    const auto gammaProductionVertices = output.productionVertices(gamma);
+
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), gammaProductionVertices.size());
+    CPPUNIT_ASSERT_EQUAL(muonProductionVertices.front(), gammaProductionVertices.front());
+
+    const uint32_t pion = findParticleWithPdgId(output, 211);
+    const auto pionProductionVertices = output.productionVertices(pion);
+
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), pionProductionVertices.size());
+    CPPUNIT_ASSERT_EQUAL(artificial, pionProductionVertices.front());
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testSeedPdgIdZeroKeepsFullGraphForDebugging() {
+  try {
+    GraphBuilder builder(7, 3);
+
+    // Same topology as the Z -> tau tau test, where the selection would match
+    // nothing. The PDG id 0 wildcard must bypass the selection entirely and
+    // keep the full graph.
+    builder.setGenParticle(0, 23, 2, 100);
+    builder.setGenParticle(1, -15, 2, 101);
+    builder.setGenParticle(2, 15, 2, 102);
+    builder.setGenSimParticle(3, -13, 1, 103, 1003);
+    builder.setGenSimParticle(4, 13, 1, 104, 1004);
+    builder.setGenParticle(5, -16, 1, 105);
+    builder.setGenParticle(6, 16, 1, 106);
+
+    builder.setGenVertex(0, 200);
+    builder.setGenSimVertex(1, 201, 2001);
+    builder.setGenSimVertex(2, 202, 2002);
+
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+    builder.addProduction(0, 2);
+
+    builder.addDecay(1, 1);
+    builder.addProduction(1, 3);
+    builder.addProduction(1, 5);
+
+    builder.addDecay(2, 2);
+    builder.addProduction(2, 4);
+    builder.addProduction(2, 6);
+
+    auto graph = builder.finish();
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {0};
+    config.decayPdgIdGroups = {{13, -13}};
+
+    auto output = runPostProcessing(std::move(graph), config);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+
+    CPPUNIT_ASSERT_EQUAL(uint32_t(7), output.nParticles());
+    CPPUNIT_ASSERT_EQUAL(uint32_t(3), output.nVertices());
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));
+    CPPUNIT_ASSERT(!hasArtificialVertex(output));
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
 void TestTruthLogicalGraphPostProcessor::testSeedCutWithIgnoredParticles() {
   try {
     GraphBuilder builder(6, 4);
@@ -526,11 +936,11 @@ void TestTruthLogicalGraphPostProcessor::testSeedCutWithIgnoredParticles() {
     //   H -> pi0 -> gamma(status 1, GEN+SIM)
     //
     // Extra parent on the kept pi0 production vertex:
-    //   Z --------^
+    //   Z --------^   (unselected, hidden by the seed cut)
     //
     // Unrelated stable final-state e- is kept through the artificial vertex.
     //
-    // Then ignoredPdgIds removes pi0, merging H/Z directly to gamma.
+    // Then ignoredPdgIds removes pi0, merging H directly to gamma.
     builder.setGenParticle(0, 25, 2, 100);
     builder.setGenParticle(1, 23, 2, 101);
     builder.setGenParticle(2, 111, 2, 102);
@@ -567,7 +977,7 @@ void TestTruthLogicalGraphPostProcessor::testSeedCutWithIgnoredParticles() {
     CPPUNIT_ASSERT(output.isConsistent());
 
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 25));
-    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 23));
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 111));
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 22));
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 11));
@@ -583,18 +993,8 @@ void TestTruthLogicalGraphPostProcessor::testSeedCutWithIgnoredParticles() {
 
     const auto incoming = output.incomingParticles(gammaProductionVertices.front());
 
-    std::vector<int32_t> incomingPdgIds;
-    incomingPdgIds.reserve(incoming.size());
-
-    for (uint32_t parent : incoming) {
-      incomingPdgIds.push_back(output.particles[parent].pdgId);
-    }
-
-    std::sort(incomingPdgIds.begin(), incomingPdgIds.end());
-
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), incomingPdgIds.size());
-    CPPUNIT_ASSERT_EQUAL(int32_t(23), incomingPdgIds[0]);
-    CPPUNIT_ASSERT_EQUAL(int32_t(25), incomingPdgIds[1]);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), incoming.size());
+    CPPUNIT_ASSERT_EQUAL(int32_t(25), output.particles[incoming.front()].pdgId);
 
     const uint32_t electron = findParticleWithPdgId(output, 11);
     const auto electronProductionVertices = output.productionVertices(electron);
