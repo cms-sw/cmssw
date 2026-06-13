@@ -19,6 +19,7 @@ truthLogicalGraphProducer = cms.EDProducer(
         collapseIntermediateGenParticles = cms.bool(True),
         seedPdgIds = cms.vint32(),
         seedParentDepth = cms.uint32(0),
+        decayPdgIdGroups = cms.VPSet(),
         ignoredPdgIds = cms.vint32(),
         ignoredParticleIds = cms.vuint32(),
 

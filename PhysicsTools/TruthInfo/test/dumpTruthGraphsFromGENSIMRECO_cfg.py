@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # user options
 import os
-from argparse import ArgumentParser
+from argparse import ArgumentParser, BooleanOptionalAction
 parser = ArgumentParser()
 parser.add_argument("inputFile",        nargs='?', default="step3.root",
                     metavar='FILE', help="Input file, default=%(default)r" )
@@ -10,11 +10,30 @@ parser.add_argument('-o', "--outdir",   default='',
                     help="output directory, default=%(default)r" )
 parser.add_argument('-n', "--maxevts",  type=int, default=-1,
                     help="maximum number of events to process, default=%(default)s" )
-parser.add_argument('-m', "--merge",    dest='mergeGenSim', action='store_true',
-                    help="merge GEN-SIM nodes of duplicates" )
-parser.add_argument('-c', "--collapse", action='store_true', help="collapse GenParticle copies" )
+parser.add_argument('-m', "--merge",    dest='mergeGenSim', action=BooleanOptionalAction, default=True,
+                    help="merge GEN and SIM vertices (producer-level and by position)" )
+parser.add_argument('-c', "--collapse", action=BooleanOptionalAction, default=True,
+                    help="collapse intermediate GenParticle copies" )
 parser.add_argument('-t', "--tag",      default='', help="tag for out put file" )
+parser.add_argument('-s', "--seeds",    default=None,
+                    help="comma-separated seed PDG ids, e.g. '15,-15'; '0' keeps the full graph; "
+                         "default=%(default)s uses the hardcoded list" )
+parser.add_argument('-g', "--groups",   default=None,
+                    help="semicolon-separated decay PDG id groups, e.g. '13,-14,16;-13,14,-16'" )
+parser.add_argument('-d', "--parentDepth", type=int, default=1,
+                    help="ancestor generations kept above each root as context, default=%(default)s" )
+parser.add_argument('-i', "--ignore",   default=None,
+                    help="comma-separated PDG ids to remove from the final logical graph, e.g. '22'" )
+parser.add_argument("--showAll", action='store_true',
+                    help="do not hide zero-simhit subgraphs or large SIM source vertices in the logical DOT dump" )
 args = parser.parse_args()
+
+def _parsePdgIds(text):
+    return [int(token) for token in text.replace(' ', '').split(',') if token]
+
+seedPdgIds = _parsePdgIds(args.seeds) if args.seeds is not None else [23, 15, -15, 25, 4, 5, 6]
+decayPdgIdGroups = [_parsePdgIds(group) for group in args.groups.split(';')] if args.groups else []
+ignoredPdgIds = _parsePdgIds(args.ignore) if args.ignore else []
 if '/' not in args.inputFile and ':' not in args.inputFile:
     args.inputFile = 'file:'+args.inputFile
 if args.outdir and not os.path.exists(args.outdir):
@@ -76,22 +95,38 @@ process.truthLogicalGraphProducer = cms.EDProducer(
     genEventHepMC3=cms.InputTag("generatorSmeared"),
     genEventHepMC=cms.InputTag("generatorSmeared"),
 
-    mergeGenSimVertices=cms.bool(True),
+    mergeGenSimVertices=cms.bool(args.mergeGenSim),
 
     postProcessing=cms.PSet(
-        collapseIntermediateGenParticles=cms.bool(True),
+        collapseIntermediateGenParticles=cms.bool(args.collapse),
+        mergeGenSimVerticesByPosition=cms.bool(args.mergeGenSim),
 
         # Empty means: keep the full logical graph.
-        # Example: cms.vint32(22) keeps photons as seeds,
-        # keeps seedParentDepth parent generations above each seed,
-        # then keeps everything downstream.
-        seedPdgIds=cms.vint32(23,15,-15,25,4,5,6),
+        # The most upstream particle of each matching chain becomes a root and
+        # its full downstream subgraph is kept; unselected upstream activity is
+        # collapsed into one artificial source vertex.
+        # The special value 0 disables the selection and keeps the full graph
+        # (debugging escape hatch).
+        seedPdgIds=cms.vint32(*seedPdgIds),
 
-        seedParentDepth=cms.uint32(1),
+        # Ancestor generations kept above each root as context only: their
+        # other descendants are not pulled in.
+        seedParentDepth=cms.uint32(args.parentDepth),
+
+        # Decay patterns of interest: unordered, charge-sensitive PDG id
+        # multisets, OR-ed. With seedPdgIds set, only roots whose effective
+        # decay products contain a group are kept, e.g.
+        #   cms.PSet(pdgIds=cms.vint32(13, -13))
+        # keeps Z -> mu mu but drops Z -> e e. Without seedPdgIds, or when the
+        # event contains no seed particle at all, vertices whose outgoing PDG
+        # ids contain a group are selected directly.
+        decayPdgIdGroups=cms.VPSet(
+            *[cms.PSet(pdgIds=cms.vint32(*group)) for group in decayPdgIdGroups]
+        ),
 
         # Remove particles by PDG id.
         # Example: cms.vint32(22) removes all photons from the final logical graph.
-        ignoredPdgIds=cms.vint32(),
+        ignoredPdgIds=cms.vint32(*ignoredPdgIds),
 
         # Remove particles by logical particle id.
         # These ids refer to the graph after the previous postprocessing steps
@@ -157,12 +192,14 @@ process.truthLogicalGraphDumper = cms.EDAnalyzer(
 
     maxParticles=cms.uint32(20000),
     maxVertices=cms.uint32(20000),
-    maxEdgesPerNode=cms.uint32(300),
+    # --showAll lifts the per-node edge cap: with large events the artificial
+    # source vertex legitimately has more than 300 outgoing spectators.
+    maxEdgesPerNode=cms.uint32(1000000 if args.showAll else 300),
 
-    hideLargeSimSourceVertices=cms.bool(True),
+    hideLargeSimSourceVertices=cms.bool(not args.showAll),
     largeSimSourceVertexMinOutgoing=cms.uint32(50),
 
-    hideZeroSimHitSubgraphs=cms.bool(True),
+    hideZeroSimHitSubgraphs=cms.bool(not args.showAll),
 )
 
 
@@ -230,6 +267,9 @@ process.MessageLogger.cerr.TruthGraphProducer = cms.untracked.PSet(
     limit=cms.untracked.int32(-1)
 )
 process.MessageLogger.cerr.TruthLogicalGraphProducer = cms.untracked.PSet(
+    limit=cms.untracked.int32(-1)
+)
+process.MessageLogger.cerr.TruthLogicalGraphPostProcessor = cms.untracked.PSet(
     limit=cms.untracked.int32(-1)
 )
 process.MessageLogger.cerr.TruthLogicalGraphHitIndexProducer = cms.untracked.PSet(
