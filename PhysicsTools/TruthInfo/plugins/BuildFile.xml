@@ -23,6 +23,7 @@
 <use name="Geometry/Records"/>
 <use name="SimDataFormats/CaloHit"/>
 <use name="SimDataFormats/CaloTest"/>
+<use name="SimDataFormats/CaloAnalysis"/>
 
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
 <use name="DataFormats/NanoAOD"/>
@@ -60,5 +61,9 @@
 </library>
 
 <library file="TrackerSimHitFlatTableProducer.cc" name="TrackerSimHitFlatTableProducerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="BranchTruthReplacementValidator.cc" name="BranchTruthReplacementValidatorPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
