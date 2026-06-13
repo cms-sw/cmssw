@@ -47,8 +47,6 @@ process.truthLogicalGraphProducer = cms.EDProducer(
         decayPdgIdGroups=cms.VPSet(),
         ignoredPdgIds=cms.vint32(),
         ignoredParticleIds=cms.vuint32(),
-        mergeGenSimVerticesByPosition=cms.bool(True),
-        genSimVertexPositionTolerance=cms.double(5e-3),
     ),
 )
 
