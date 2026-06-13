@@ -78,3 +78,7 @@
 <library file="BranchTrackerReplacementValidator.cc" name="BranchTrackerReplacementValidatorPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="TruthGraphTopologyChecker.cc" name="TruthGraphTopologyCheckerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
