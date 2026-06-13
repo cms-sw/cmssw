@@ -109,7 +109,6 @@ process.truthLogicalGraphProducer = cms.EDProducer(
 
     postProcessing=cms.PSet(
         collapseIntermediateGenParticles=cms.bool(args.collapse),
-        mergeGenSimVerticesByPosition=cms.bool(args.mergeGenSim),
 
         # Empty means: keep the full logical graph.
         # The most upstream particle of each matching chain becomes a root and
