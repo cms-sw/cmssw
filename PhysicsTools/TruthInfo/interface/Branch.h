@@ -16,16 +16,14 @@ namespace truth {
 
   struct ClosureSpec {
     ClosureKind kind = ClosureKind::Subtree;
-    uint32_t maxDepth = 0;                  // DepthN: generations kept below each root (0 = roots only)
-    std::vector<int32_t> stopPdgIds;        // UntilPdgId: stop at (and include) particles with these ids
-    std::function<bool(Particle)> stopAt;   // Predicate: stop at (and include) particles where true
+    uint32_t maxDepth = 0;                 // DepthN: generations kept below each root (0 = roots only)
+    std::vector<int32_t> stopPdgIds;       // UntilPdgId: stop at (and include) particles with these ids
+    std::function<bool(Particle)> stopAt;  // Predicate: stop at (and include) particles where true
 
     static ClosureSpec subtree() { return {}; }
     static ClosureSpec stableLeaves() { return {ClosureKind::StableLeaves, 0, {}, {}}; }
     static ClosureSpec depth(uint32_t n) { return {ClosureKind::DepthN, n, {}, {}}; }
-    static ClosureSpec untilPdgId(std::vector<int32_t> ids) {
-      return {ClosureKind::UntilPdgId, 0, std::move(ids), {}};
-    }
+    static ClosureSpec untilPdgId(std::vector<int32_t> ids) { return {ClosureKind::UntilPdgId, 0, std::move(ids), {}}; }
     static ClosureSpec predicate(std::function<bool(Particle)> p) {
       return {ClosureKind::Predicate, 0, {}, std::move(p)};
     }

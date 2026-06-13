@@ -35,7 +35,7 @@ namespace truth {
   }
 
   std::vector<BranchMatch> BranchHitAssociator::bestBranches(std::span<const RecoHit> recoHitsIn,
-                                                            std::size_t maxResults) const {
+                                                             std::size_t maxResults) const {
     std::vector<BranchMatch> result;
     if (recoHitsIn.empty())
       return result;

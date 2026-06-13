@@ -35,7 +35,9 @@ namespace {
       v2o.emplace_back(vertexId, particleId);
       p2v.emplace_back(particleId, vertexId);
     }
-    static void csr(uint32_t n, std::vector<std::pair<uint32_t, uint32_t>>& pairs, std::vector<uint32_t>& off,
+    static void csr(uint32_t n,
+                    std::vector<std::pair<uint32_t, uint32_t>>& pairs,
+                    std::vector<uint32_t>& off,
                     std::vector<uint32_t>& flat) {
       std::sort(pairs.begin(), pairs.end());
       pairs.erase(std::unique(pairs.begin(), pairs.end()), pairs.end());
