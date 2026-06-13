@@ -82,6 +82,9 @@ namespace truth {
 
     [[nodiscard]] bool hasTrackerHits() const { return !trackerDirectHits_.empty(); }
 
+    [[nodiscard]] const std::vector<Hit>& trackerDirectHitStorage() const { return trackerDirectHits_; }
+    [[nodiscard]] const std::vector<Hit>& trackerSubgraphHitStorage() const { return trackerSubgraphHits_; }
+
   private:
     uint32_t nParticles_ = 0;
 
