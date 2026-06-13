@@ -199,11 +199,7 @@ std::string Tracklet::trackletparstr() {
     return oss;
   } else {
     std::string str = "";
-    if (seedIndex() == Seed::L1D1 || seedIndex() == Seed::L2D1) {
-      str += outerFPGAStub_->phiregionstr() + "|";
-    } else {
-      str += innerFPGAStub_->phiregionstr() + "|";
-    }
+    str += innerFPGAStub_->phiregionstr() + "|";
     str += innerFPGAStub_->stubindex().str() + "|";
     if (middleFPGAStub_) {
       str += middleFPGAStub_->stubindex().str() + "|";
@@ -326,6 +322,7 @@ std::string Tracklet::fullmatchstr(int layer) {
   tmp.set(trackletIndex_, settings_.nbitstrackletindex(), true, __LINE__, __FILE__);
   FPGAWord tcid;
   tcid.set(TCIndex_, settings_.nbitstcindex(), true, __LINE__, __FILE__);
+
   std::string oss = tcid.str() + "|" + tmp.str() + "|" + resid_[layer - 1].fpgastubid().str() + "|" +
                     resid_[layer - 1].stubptr()->r().str() + "|" + resid_[layer - 1].fpgaphiresid().str() + "|" +
                     resid_[layer - 1].fpgarzresid().str();
@@ -342,11 +339,9 @@ std::string Tracklet::fullmatchdiskstr(int disk) {
   tmp.set(trackletIndex_, settings_.nbitstrackletindex(), true, __LINE__, __FILE__);
   FPGAWord tcid;
   tcid.set(TCIndex_, settings_.nbitstcindex(), true, __LINE__, __FILE__);
-  const FPGAWord& stubr = resid_[N_LAYER + disk - 1].stubptr()->r();
-  const bool isPS = resid_[N_LAYER + disk - 1].stubptr()->isPSmodule();
+  const FPGAWord stubr(resid_[N_LAYER + disk - 1].stubptr()->rvalue(), 12, true, __LINE__, __FILE__);
   std::string oss = tcid.str() + "|" + tmp.str() + "|" + resid_[N_LAYER + disk - 1].fpgastubid().str() + "|" +
-                    (isPS ? "0" + stubr.str() : ("00000000" + stubr.str())) + "|" +
-                    resid_[N_LAYER + disk - 1].fpgaphiresid().str() + "|" +
+                    stubr.str() + "|" + resid_[N_LAYER + disk - 1].fpgaphiresid().str() + "|" +
                     resid_[N_LAYER + disk - 1].fpgarzresid().str();
   return oss;
 }
@@ -618,12 +613,12 @@ const std::string Tracklet::diskstubstr(const unsigned disk) const {
       assert(0);
     }
     const FPGAWord tmp(trackIndex_, settings_.nbitstrackletindex(), true, __LINE__, __FILE__);
-    const FPGAWord& stubr = resid_[N_LAYER + disk].stubptr()->r();
-    const bool isPS = resid_[N_LAYER + disk].stubptr()->isPSmodule();
+    const FPGAWord stubr(resid_[N_LAYER + disk].stubptr()->rvalue(), 12, true, __LINE__, __FILE__);
+
     oss << "1|";  // valid bit
     oss << tmp.str() << "|";
     oss << resid_[N_LAYER + disk].fpgastubid().str() << "|";
-    oss << (isPS ? ("0" + stubr.str()) : ("00000000" + stubr.str())) << "|";
+    oss << stubr.str() << "|";
     oss << resid_[N_LAYER + disk].fpgaphiresid().str() << "|";
     oss << resid_[N_LAYER + disk].fpgarzresid().str();
   }
@@ -743,13 +738,8 @@ std::string Tracklet::trackfitstr() const {
 
     oss += "1|";  // valid bit
     oss += tmp.str() + "|";
-    if (seedIndex() == Seed::L1D1 || seedIndex() == Seed::L2D1) {
-      oss += outerFPGAStub()->phiregionstr() + "|";
-      oss += innerFPGAStub()->phiregionstr() + "|";
-    } else {
-      oss += innerFPGAStub()->phiregionstr() + "|";
-      oss += outerFPGAStub()->phiregionstr() + "|";
-    }
+    oss += innerFPGAStub()->phiregionstr() + "|";
+    oss += outerFPGAStub()->phiregionstr() + "|";
     oss += innerFPGAStub()->stubindex().str() + "|";
     oss += outerFPGAStub()->stubindex().str() + "|";
     oss += fpgapars_.rinv().str() + "|";
