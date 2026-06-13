@@ -1,3 +1,7 @@
+// Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
+// Part of the MC-truth-graph prototype - under heavy development, not yet open
+// to external contributions (see PhysicsTools/TruthInfo/README.md).
+
 #include "PhysicsTools/TruthInfo/interface/Branch.h"
 
 #include <algorithm>
@@ -25,11 +29,13 @@ namespace {
     return nq1 == flavor || nq2 == flavor || nq3 == flavor;
   }
 
-  // Mirror of TruthGraphProducer::packEventId (a raw memcpy of EncodedEventId).
+  // Mirror of TruthGraphProducer::packEventId, which memcpys the EncodedEventId
+  // bytes into the low word of a uint64_t. Decode into a trivial uint32_t and
+  // rebuild through the public ctor (EncodedEventId is a uint32_t wrapper).
   EncodedEventId decodeEventId(uint64_t packedEventId) {
-    EncodedEventId id;
-    std::memcpy(&id, &packedEventId, sizeof(EncodedEventId));
-    return id;
+    uint32_t raw = 0;
+    std::memcpy(&raw, &packedEventId, sizeof(raw));
+    return EncodedEventId(raw);
   }
 
 }  // namespace

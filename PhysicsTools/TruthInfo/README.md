@@ -1,5 +1,14 @@
 # TruthInfo prototype
 
+> **Status: under heavy development — not open to external contributions.**
+> This is an experimental prototype: its data model, APIs, and configuration
+> change frequently and without notice, and it targets **Phase-2 (Run 4) only**
+> (no Phase-1/Run-2 support). Please do not submit external changes or depend on
+> it in production at this stage.
+>
+> **Original author and maintainer:** Felice Pantaleo (CERN),
+> <felice.pantaleo@cern.ch>.
+
 This package contains a prototype truth graph representation for CMSSW. The goal is to provide a compact, navigable, physics-oriented abstraction of the generator, simulation, and detector-hit truth history of an event.
 
 The current implementation is split into three layers:
