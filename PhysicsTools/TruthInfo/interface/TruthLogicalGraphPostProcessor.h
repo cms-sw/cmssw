@@ -65,19 +65,6 @@ namespace truth {
     // These ids refer to the graph state at the moment the ignored-particle
     // collapsing step is applied.
     std::vector<uint32_t> ignoredParticleIds;
-
-    // If true, post-processing is allowed to merge a GEN-only vertex and a
-    // SIM-only vertex when they are connected to the same visible particle and
-    // their four-positions are compatible within genSimVertexPositionTolerance.
-    //
-    // This is intentionally done at logical-graph level: the raw graph can still
-    // keep GenVertex and SimVertex as distinct provenance objects.
-    bool mergeGenSimVerticesByPosition = true;
-
-    // Absolute tolerance used for each x, y, z, t component when matching
-    // GEN-only and SIM-only vertices by position. Keep in sync with the
-    // default in psetDescription().
-    double genSimVertexPositionTolerance = 5e-3;
   };
 
   class TruthLogicalGraphPostProcessor {

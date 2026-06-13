@@ -113,30 +113,6 @@ namespace {
     return particle.hasGen() && particle.status == 1;
   }
 
-  bool isGenOnlyVertex(truth::VertexData const& vertex) { return vertex.hasGen() && !vertex.hasSim(); }
-
-  bool isSimOnlyVertex(truth::VertexData const& vertex) { return !vertex.hasGen() && vertex.hasSim(); }
-
-  bool compatibleVertexPositions(truth::VertexData const& a, truth::VertexData const& b, double tolerance) {
-    return std::abs(a.position.x() - b.position.x()) <= tolerance &&
-           std::abs(a.position.y() - b.position.y()) <= tolerance &&
-           std::abs(a.position.z() - b.position.z()) <= tolerance &&
-           std::abs(a.position.t() - b.position.t()) <= tolerance;
-  }
-
-  bool canMergeGenSimVerticesByPosition(truth::VertexData const& a, truth::VertexData const& b, double tolerance) {
-    const bool genSimPair = (isGenOnlyVertex(a) && isSimOnlyVertex(b)) || (isSimOnlyVertex(a) && isGenOnlyVertex(b));
-
-    if (!genSimPair)
-      return false;
-    const bool areCompatible = compatibleVertexPositions(a, b, tolerance);
-    LogDebug("TruthLogicalGraphPostProcessor")
-        << "GEN/SIM vertex pair (" << a.position.x() << ", " << a.position.y() << ", " << a.position.z() << ", "
-        << a.position.t() << ") vs (" << b.position.x() << ", " << b.position.y() << ", " << b.position.z() << ", "
-        << b.position.t() << "): " << (areCompatible ? "merged" : "not merged");
-    return areCompatible;
-  }
-
   void buildCSR(uint32_t nSources,
                 std::vector<std::pair<uint32_t, uint32_t>>& pairs,
                 std::vector<uint32_t>& offsets,
@@ -889,106 +865,6 @@ namespace {
     return rebuildFilteredGraph(input, keepParticle, keepVertex, attachRole);
   }
 
-  void mergeVertexPayload(truth::VertexData& output, truth::VertexData const& input) {
-    if (input.hasGen()) {
-      output.genNode = input.genNode;
-      output.genEvent = input.genEvent;
-
-      // Prefer the GEN position for merged GEN+SIM vertices.
-      output.position = input.position;
-    }
-
-    if (input.hasSim()) {
-      output.simNode = input.simNode;
-      output.eventId = input.eventId;
-
-      if (!output.hasGen()) {
-        output.position = input.position;
-      }
-    }
-  }
-
-  truth::Graph mergeGenSimVerticesByPosition(truth::Graph const& input, double tolerance) {
-    if (input.empty())
-      return input;
-
-    const uint32_t nParticles = input.nParticles();
-    const uint32_t nVertices = input.nVertices();
-
-    if (nVertices == 0)
-      return input;
-
-    DSU vertexDSU(static_cast<int>(nVertices));
-
-    auto tryMergeVertexList = [&](std::vector<truth::Vertex> const& vertices) {
-      for (std::size_t i = 0; i < vertices.size(); ++i) {
-        const uint32_t first = vertices[i].id();
-
-        if (first >= nVertices)
-          continue;
-
-        for (std::size_t j = i + 1; j < vertices.size(); ++j) {
-          const uint32_t second = vertices[j].id();
-
-          if (second >= nVertices)
-            continue;
-
-          if (canMergeGenSimVerticesByPosition(input.vertices[first], input.vertices[second], tolerance)) {
-            vertexDSU.unite(static_cast<int>(first), static_cast<int>(second));
-          }
-        }
-      }
-    };
-
-    for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
-      tryMergeVertexList(input.particle(particleId).productionVertices());
-      tryMergeVertexList(input.particle(particleId).decayVertices());
-    }
-
-    bool changed = false;
-
-    for (uint32_t vertexId = 0; vertexId < nVertices; ++vertexId) {
-      if (vertexDSU.find(static_cast<int>(vertexId)) != static_cast<int>(vertexId)) {
-        changed = true;
-        break;
-      }
-    }
-
-    if (!changed)
-      return input;
-
-    truth::Graph output;
-
-    output.particles = input.particles;
-
-    std::unordered_map<int, uint32_t> vertexRepToNew;
-    vertexRepToNew.reserve(nVertices);
-
-    std::vector<int32_t> oldVertexToNew(nVertices, -1);
-
-    for (uint32_t oldVertex = 0; oldVertex < nVertices; ++oldVertex) {
-      const int rep = vertexDSU.find(static_cast<int>(oldVertex));
-
-      auto inserted = vertexRepToNew.emplace(rep, static_cast<uint32_t>(output.vertices.size()));
-      const uint32_t newVertex = inserted.first->second;
-
-      if (inserted.second) {
-        output.vertices.emplace_back();
-      }
-
-      oldVertexToNew[oldVertex] = static_cast<int32_t>(newVertex);
-      mergeVertexPayload(output.vertices[newVertex], input.vertices[oldVertex]);
-    }
-
-    // Particles are untouched by vertex merging: identity map.
-    std::vector<int32_t> oldParticleToNew(nParticles);
-    std::iota(oldParticleToNew.begin(), oldParticleToNew.end(), 0);
-
-    rebuildAdjacency(input, oldParticleToNew, oldVertexToNew, {}, output);
-
-    return output;
-  }
-
   truth::Graph collapseIgnoredParticles(truth::Graph const& input,
                                         std::vector<int32_t> const& ignoredPdgIds,
                                         std::vector<uint32_t> const& ignoredParticleIds) {
@@ -1147,14 +1023,6 @@ namespace truth {
             "Logical particle ids to remove from the final logical graph. These ids refer to the graph state at "
             "the moment the ignored-particle collapsing step is applied.");
 
-    desc.add<bool>("mergeGenSimVerticesByPosition", true)
-        ->setComment(
-            "If true, merge GEN-only and SIM-only logical vertices connected to the same particle when their "
-            "positions are compatible within genSimVertexPositionTolerance.");
-
-    desc.add<double>("genSimVertexPositionTolerance", 5e-3)
-        ->setComment("Absolute tolerance applied independently to x, y, z, and t when merging GEN and SIM vertices.");
-
     return desc;
   }
 
@@ -1172,8 +1040,6 @@ namespace truth {
     }
     config.ignoredPdgIds = pset.getParameter<std::vector<int32_t>>("ignoredPdgIds");
     config.ignoredParticleIds = pset.getParameter<std::vector<uint32_t>>("ignoredParticleIds");
-    config.mergeGenSimVerticesByPosition = pset.getParameter<bool>("mergeGenSimVerticesByPosition");
-    config.genSimVertexPositionTolerance = pset.getParameter<double>("genSimVertexPositionTolerance");
 
     return config;
   }
@@ -1184,10 +1050,6 @@ namespace truth {
     }
 
     input = filterGraphBySelection(input, config_);
-
-    if (config_.mergeGenSimVerticesByPosition) {
-      input = mergeGenSimVerticesByPosition(input, config_.genSimVertexPositionTolerance);
-    }
 
     if (!config_.ignoredPdgIds.empty() || !config_.ignoredParticleIds.empty()) {
       input = collapseIgnoredParticles(input, config_.ignoredPdgIds, config_.ignoredParticleIds);

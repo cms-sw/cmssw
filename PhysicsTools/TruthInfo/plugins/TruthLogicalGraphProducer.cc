@@ -11,10 +11,11 @@
 // HepMC2 / HepMC3 / SimTrack / SimVertex inputs.
 //
 // GenParticle and SimTrack nodes are merged when a robust association exists.
-// The corresponding production GenVertex and SimVertex nodes are also merged,
-// but only for locally one-to-one GenVertex <-> SimVertex associations induced
-// by the same GenParticle <-> SimTrack match. This avoids creating artificial
-// high-degree merged vertices from transitive many-to-one vertex matches.
+// A merged GEN+SIM particle takes its production vertex from the GEN side (the
+// immediate GenParticle's production GenVertex, via genpartIndex); the redundant
+// SimTrack production vertex (the shared Geant4 beam vertex) is dropped. This
+// attaches each track to its faithful immediate GEN vertex, without the artificial
+// high-degree merged vertex that a position-based GEN/SIM vertex merge created.
 
 #include <algorithm>
 #include <cstddef>
@@ -761,10 +762,21 @@ public:
           const int32_t logicalParticle = rawToParticle[dst];
 
           if (logicalVertex >= 0 && logicalParticle >= 0) {
-            vertexToOutgoingParticlePairs.emplace_back(static_cast<uint32_t>(logicalVertex),
-                                                       static_cast<uint32_t>(logicalParticle));
-            particleToProductionVertexPairs.emplace_back(static_cast<uint32_t>(logicalParticle),
-                                                         static_cast<uint32_t>(logicalVertex));
+            // A merged GEN+SIM particle takes its production vertex from the GEN side: the
+            // immediate GenParticle's production GenVertex (faithful, via genpartIndex). The
+            // SimTrack's production SimVertex is the shared Geant4 beam vertex, redundant and
+            // many-GEN-to-one-SIM, so drop that edge here. The GEN production edge is added
+            // when the GEN side of this particle is visited. This replaces the former
+            // position-based GEN/SIM vertex merge.
+            const bool redundantSimProduction = srcRef.kind == TruthGraph::NodeKind::SimVertex &&
+                                                out->particles[static_cast<uint32_t>(logicalParticle)].hasGen();
+
+            if (!redundantSimProduction) {
+              vertexToOutgoingParticlePairs.emplace_back(static_cast<uint32_t>(logicalVertex),
+                                                         static_cast<uint32_t>(logicalParticle));
+              particleToProductionVertexPairs.emplace_back(static_cast<uint32_t>(logicalParticle),
+                                                           static_cast<uint32_t>(logicalVertex));
+            }
           }
 
         } else if (isParticleKind(srcRef.kind) && isVertexKind(dstRef.kind)) {
