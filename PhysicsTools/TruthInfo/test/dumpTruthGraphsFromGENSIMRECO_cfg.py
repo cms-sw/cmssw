@@ -20,10 +20,15 @@ parser.add_argument('-s', "--seeds",    default=None,
                          "default=%(default)s uses the hardcoded list" )
 parser.add_argument('-g', "--groups",   default=None,
                     help="semicolon-separated decay PDG id groups, e.g. '13,-14,16;-13,14,-16'" )
+parser.add_argument('-f', "--flavors",   default=None,
+                    help="comma-separated heavy-flavor quark ids to seed hadrons on, e.g. '5' for B hadrons, '4' for D" )
 parser.add_argument('-d', "--parentDepth", type=int, default=1,
                     help="ancestor generations kept above each root as context, default=%(default)s" )
 parser.add_argument('-i', "--ignore",   default=None,
                     help="comma-separated PDG ids to remove from the final logical graph, e.g. '22'" )
+parser.add_argument("--keepSpectators", action=BooleanOptionalAction, default=True,
+                    help="keep stable final-state spectators (underlying event) outside the selection; "
+                         "use --no-keepSpectators for a focused subgraph" )
 parser.add_argument("--showAll", action='store_true',
                     help="do not hide zero-simhit subgraphs or large SIM source vertices in the logical DOT dump" )
 args = parser.parse_args()
@@ -34,6 +39,7 @@ def _parsePdgIds(text):
 seedPdgIds = _parsePdgIds(args.seeds) if args.seeds is not None else [23, 15, -15, 25, 4, 5, 6]
 decayPdgIdGroups = [_parsePdgIds(group) for group in args.groups.split(';')] if args.groups else []
 ignoredPdgIds = _parsePdgIds(args.ignore) if args.ignore else []
+seedHadronFlavors = _parsePdgIds(args.flavors) if args.flavors else []
 if '/' not in args.inputFile and ':' not in args.inputFile:
     args.inputFile = 'file:'+args.inputFile
 if args.outdir and not os.path.exists(args.outdir):
@@ -109,9 +115,18 @@ process.truthLogicalGraphProducer = cms.EDProducer(
         # (debugging escape hatch).
         seedPdgIds=cms.vint32(*seedPdgIds),
 
+        # Seed on hadrons by heavy-flavor content (5=b, 4=c), OR-ed with
+        # seedPdgIds. E.g. -f 5 selects all B-hadron decay subgraphs.
+        seedHadronFlavors=cms.vint32(*seedHadronFlavors),
+
         # Ancestor generations kept above each root as context only: their
         # other descendants are not pulled in.
         seedParentDepth=cms.uint32(args.parentDepth),
+
+        # Keep stable spectators (underlying event) on an artificial
+        # UnderlyingEvent vertex; --no-keepSpectators drops them for a focused
+        # subgraph (only the selection + its Upstream/ISR context).
+        keepStableSpectators=cms.bool(args.keepSpectators),
 
         # Decay patterns of interest: unordered, charge-sensitive PDG id
         # multisets, OR-ed. With seedPdgIds set, only roots whose effective

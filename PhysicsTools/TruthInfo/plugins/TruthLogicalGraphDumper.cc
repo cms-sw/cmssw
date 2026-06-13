@@ -663,10 +663,25 @@ public:
       const auto& incoming = v.incomingParticles();
       const auto& outgoing = v.outgoingParticles();
 
+      const char* roleName = nullptr;
+      switch (d.vertexRole()) {
+        case truth::VertexRole::Upstream:
+          roleName = "ISR/upstream";
+          break;
+        case truth::VertexRole::UnderlyingEvent:
+          roleName = "underlying event";
+          break;
+        default:
+          break;
+      }
+
       os << "  v" << i << " [shape=diamond, domain=<" << logicalVertexDomain(d) << ">, hasGen=" << d.hasGen()
          << ", hasSim=" << d.hasSim() << ", eid=" << d.eventId << ", genEvent=" << d.genEvent
          << ", isSource=" << v.isSource() << ", isSink=" << v.isSink();
-      if (d.hasGen() && d.hasSim()) {
+      if (roleName != nullptr) {
+        os << ", role=\"" << roleName << "\", style=filled, fillcolor=\""
+           << (d.vertexRole() == truth::VertexRole::Upstream ? "navajowhite" : "lightgrey") << "\"";
+      } else if (d.hasGen() && d.hasSim()) {
         os << ", color=\"purple\", penwidth=2";
       } else if (d.hasGen()) {
         os << ", color=\"blue\"";
@@ -685,6 +700,10 @@ public:
       os << ", label=<\n";
       os << "    <TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" CELLPADDING=\"4\">\n";
       os << "      <TR><TD><B>Vertex " << i << "</B></TD></TR>\n";
+
+      if (roleName != nullptr)
+        os << "      <TR><TD><B>" << roleName << "</B> (genEvent=" << d.genEvent << ", eid=" << d.eventId
+           << ")</TD></TR>\n";
 
       os << "      <TR><TD>domain: " << logicalVertexDomain(d) << "</TD></TR>\n";
 

@@ -20,10 +20,24 @@ namespace truth {
     // full graph (debugging escape hatch).
     std::vector<int32_t> seedPdgIds;
 
+    // Seed on hadrons by heavy-flavor content instead of (or in addition to)
+    // exact PDG ids: a particle whose PDG id is a hadron containing any of these
+    // quark flavors becomes a seed. Use 5 for b hadrons, 4 for c hadrons. This
+    // lets the user select e.g. all B-hadron decay subgraphs without listing
+    // every B species. OR-ed with seedPdgIds.
+    std::vector<int32_t> seedHadronFlavors;
+
     // For each selected root, keep this many generations of ancestors above it
     // as context only: the ancestors and connecting vertices are kept, but not
     // their other descendants.
     uint32_t seedParentDepth = 0;
+
+    // If true (default), stable final-state GEN particles outside the selected
+    // subgraph are kept and attached to an artificial UnderlyingEvent source
+    // vertex. If false, they are dropped, giving a focused subgraph that
+    // contains only the selection and its truncated upstream (ISR) context.
+    // Only meaningful when a selection is active (seedPdgIds/decayPdgIdGroups).
+    bool keepStableSpectators = true;
 
     // Decay patterns of interest. Each group is an unordered, charge-sensitive
     // multiset of PDG ids; groups are OR-ed.

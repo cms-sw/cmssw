@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <map>
 #include <numeric>
 #include <queue>
 #include <unordered_map>
@@ -53,6 +54,34 @@ namespace {
 
   bool containsParticleId(std::vector<uint32_t> const& particleIds, uint32_t particleId) {
     return std::find(particleIds.begin(), particleIds.end(), particleId) != particleIds.end();
+  }
+
+  // True if pdgId is an ordinary hadron whose quark content includes the given
+  // flavor (5 = b, 4 = c, ...), using the PDG hadron-numbering digits.
+  bool hadronHasQuark(int32_t pdgId, int32_t flavor) {
+    const int32_t id = std::abs(pdgId);
+    if (id < 100 || id >= 1000000000)  // leptons/bosons/diquark-free codes and nuclei are not hadrons here
+      return false;
+    const int32_t nq1 = (id / 1000) % 10;
+    const int32_t nq2 = (id / 100) % 10;
+    const int32_t nq3 = (id / 10) % 10;
+    return nq1 == flavor || nq2 == flavor || nq3 == flavor;
+  }
+
+  bool matchesSeed(truth::Graph const& graph,
+                   uint32_t particleId,
+                   truth::LogicalGraphPostProcessingConfig const& config) {
+    const int32_t pdgId = graph.particles[particleId].pdgId;
+
+    if (containsPdgId(config.seedPdgIds, pdgId))
+      return true;
+
+    for (const int32_t flavor : config.seedHadronFlavors) {
+      if (hadronHasQuark(pdgId, flavor))
+        return true;
+    }
+
+    return false;
   }
 
   bool isIgnoredParticle(truth::Graph const& graph,
@@ -647,16 +676,17 @@ namespace {
     }
   }
 
+  // attachRole[i] is 0 for particles that are not attached to an artificial
+  // source, or the uint8_t value of a non-Normal VertexRole otherwise. One
+  // artificial source vertex is created per (role, genEvent) so that overlaid
+  // pile-up graphs stay distinguishable; it carries the genEvent/eventId of the
+  // activity it summarizes.
   truth::Graph rebuildFilteredGraph(truth::Graph const& input,
                                     std::vector<uint8_t> const& keepParticle,
                                     std::vector<uint8_t> const& keepVertex,
-                                    std::vector<uint8_t> const& connectToArtificialSourceVertex) {
+                                    std::vector<uint8_t> const& attachRole) {
     const uint32_t nParticles = input.nParticles();
     const uint32_t nVertices = input.nVertices();
-
-    const bool needArtificialSourceVertex = std::any_of(connectToArtificialSourceVertex.begin(),
-                                                        connectToArtificialSourceVertex.end(),
-                                                        [](uint8_t value) { return value != 0; });
 
     truth::Graph output;
 
@@ -664,7 +694,7 @@ namespace {
     std::vector<int32_t> oldVertexToNew(nVertices, -1);
 
     output.particles.reserve(nParticles);
-    output.vertices.reserve(nVertices + (needArtificialSourceVertex ? 1 : 0));
+    output.vertices.reserve(nVertices + 2);
 
     for (uint32_t oldParticle = 0; oldParticle < nParticles; ++oldParticle) {
       if (!keepParticle[oldParticle])
@@ -682,35 +712,35 @@ namespace {
       output.vertices.push_back(input.vertices[oldVertex]);
     }
 
-    int32_t artificialSourceVertex = -1;
-
-    if (needArtificialSourceVertex) {
-      artificialSourceVertex = static_cast<int32_t>(output.vertices.size());
-
-      truth::VertexData vertex;
-      vertex.genNode = -1;
-      vertex.simNode = -1;
-      vertex.eventId = 0;
-      vertex.genEvent = -1;
-
-      output.vertices.push_back(vertex);
-    }
-
+    std::map<std::pair<uint8_t, int32_t>, uint32_t> artificialNode;
     std::vector<std::pair<uint32_t, uint32_t>> artificialEdges;
 
-    if (artificialSourceVertex >= 0) {
-      const uint32_t newVertex = static_cast<uint32_t>(artificialSourceVertex);
+    for (uint32_t oldParticle = 0; oldParticle < nParticles; ++oldParticle) {
+      const uint8_t role = attachRole[oldParticle];
+      if (role == 0)
+        continue;
 
-      for (uint32_t oldParticle = 0; oldParticle < nParticles; ++oldParticle) {
-        if (!connectToArtificialSourceVertex[oldParticle])
-          continue;
+      const int32_t newParticle = oldParticleToNew[oldParticle];
+      if (newParticle < 0)
+        continue;
 
-        const int32_t newParticle = oldParticleToNew[oldParticle];
-        if (newParticle < 0)
-          continue;
+      const int32_t genEvent = input.particles[oldParticle].genEvent;
+      const std::pair<uint8_t, int32_t> key{role, genEvent};
 
-        artificialEdges.emplace_back(newVertex, static_cast<uint32_t>(newParticle));
+      auto it = artificialNode.find(key);
+      if (it == artificialNode.end()) {
+        truth::VertexData vertex;
+        vertex.genNode = -1;
+        vertex.simNode = -1;
+        vertex.role = role;
+        vertex.genEvent = genEvent;
+        vertex.eventId = input.particles[oldParticle].eventId;
+
+        it = artificialNode.emplace(key, static_cast<uint32_t>(output.vertices.size())).first;
+        output.vertices.push_back(vertex);
       }
+
+      artificialEdges.emplace_back(it->second, static_cast<uint32_t>(newParticle));
     }
 
     rebuildAdjacency(input, oldParticleToNew, oldVertexToNew, artificialEdges, output);
@@ -734,7 +764,7 @@ namespace {
       }
     }
 
-    const bool haveSeeds = !config.seedPdgIds.empty();
+    const bool haveSeeds = !config.seedPdgIds.empty() || !config.seedHadronFlavors.empty();
     const bool haveGroups = !sortedGroups.empty();
 
     if (!haveSeeds && !haveGroups)
@@ -755,7 +785,7 @@ namespace {
       std::vector<uint32_t> matches;
 
       for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
-        if (containsPdgId(config.seedPdgIds, input.particles[particleId].pdgId))
+        if (matchesSeed(input, particleId, config))
           matches.push_back(particleId);
       }
 
@@ -784,7 +814,8 @@ namespace {
     if (roots.empty()) {
       edm::LogWarning("TruthLogicalGraphPostProcessor")
           << "Configured truth graph selection (seedPdgIds and/or decayPdgIdGroups) matched nothing in this event; "
-             "keeping only stable GEN particles attached to the artificial source vertex.";
+          << (config.keepStableSpectators ? "keeping only stable GEN particles as underlying-event spectators."
+                                          : "the selected graph is empty.");
     }
 
     std::vector<uint8_t> keepParticle(nParticles, 0);
@@ -802,31 +833,34 @@ namespace {
 
     markAncestorContext(input, roots, config.seedParentDepth, keepParticle, keepVertex);
 
-    // Keep every final-state GEN particle unless the user explicitly asked to
-    // ignore/collapse it.
+    // Optionally keep every stable final-state GEN particle outside the
+    // selection; these become the underlying-event spectators. Disabled by
+    // keepStableSpectators=false for a focused subgraph.
     std::vector<uint8_t> stableSpectator(nParticles, 0);
 
-    for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
-      if (!isStableGenParticle(input, particleId))
-        continue;
+    if (config.keepStableSpectators) {
+      for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+        if (!isStableGenParticle(input, particleId))
+          continue;
 
-      if (isIgnoredParticle(input, particleId, config.ignoredPdgIds, config.ignoredParticleIds))
-        continue;
+        if (isIgnoredParticle(input, particleId, config.ignoredPdgIds, config.ignoredParticleIds))
+          continue;
 
-      if (keepParticle[particleId])
-        continue;
+        if (keepParticle[particleId])
+          continue;
 
-      keepParticle[particleId] = 1;
-      stableSpectator[particleId] = 1;
+        keepParticle[particleId] = 1;
+        stableSpectator[particleId] = 1;
+      }
     }
 
     dropVerticesWithoutVisibleParticles(input, keepParticle, keepVertex);
 
-    // Attach to the artificial source vertex every kept particle whose real
-    // production vertices were all dropped: stable spectators and particles at
-    // the truncated upstream boundary (conceptually ISR or other uninteresting
-    // upstream activity). True sources of the input graph stay sources.
-    std::vector<uint8_t> connectToArtificialSourceVertex(nParticles, 0);
+    // Assign an artificial-source role to every kept particle whose real
+    // production vertices were all dropped: stable spectators -> UnderlyingEvent,
+    // selected roots / truncated ancestors at the upstream boundary -> Upstream
+    // (ISR). True sources of the input graph stay sources.
+    std::vector<uint8_t> attachRole(nParticles, 0);
 
     for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
       if (!keepParticle[particleId])
@@ -842,11 +876,13 @@ namespace {
             return vertexId < nVertices && keepVertex[vertexId];
           });
 
-      if (!hasKeptProduction)
-        connectToArtificialSourceVertex[particleId] = 1;
+      if (!hasKeptProduction) {
+        attachRole[particleId] = static_cast<uint8_t>(stableSpectator[particleId] ? truth::VertexRole::UnderlyingEvent
+                                                                                  : truth::VertexRole::Upstream);
+      }
     }
 
-    return rebuildFilteredGraph(input, keepParticle, keepVertex, connectToArtificialSourceVertex);
+    return rebuildFilteredGraph(input, keepParticle, keepVertex, attachRole);
   }
 
   void mergeVertexPayload(truth::VertexData& output, truth::VertexData const& input) {
@@ -1069,7 +1105,19 @@ namespace truth {
         ->setComment(
             "Number of ancestor generations kept above each selected root as context only: the ancestors and "
             "connecting vertices are kept, but not their other descendants. Kept particles whose production "
-            "vertices all fall outside the selection are attached to the artificial source vertex.");
+            "vertices all fall outside the selection are attached to an artificial Upstream (ISR) source vertex.");
+
+    desc.add<std::vector<int32_t>>("seedHadronFlavors", {})
+        ->setComment(
+            "Seed on hadrons by heavy-flavor content (5 = b, 4 = c): a hadron whose quark content includes any of "
+            "these flavors becomes a seed, e.g. {5} selects all B-hadron decay subgraphs. OR-ed with seedPdgIds.");
+
+    desc.add<bool>("keepStableSpectators", true)
+        ->setComment(
+            "If true, stable final-state GEN particles outside the selected subgraph are kept and attached to an "
+            "artificial UnderlyingEvent source vertex (tagged with their genEvent/eventId for pile-up provenance). "
+            "If false, they are dropped, giving a focused subgraph with only the selection and its Upstream (ISR) "
+            "context. Only meaningful when a selection (seedPdgIds/decayPdgIdGroups) is active.");
 
     {
       edm::ParameterSetDescription groupDesc;
@@ -1111,7 +1159,9 @@ namespace truth {
 
     config.collapseIntermediateGenParticles = pset.getParameter<bool>("collapseIntermediateGenParticles");
     config.seedPdgIds = pset.getParameter<std::vector<int32_t>>("seedPdgIds");
+    config.seedHadronFlavors = pset.getParameter<std::vector<int32_t>>("seedHadronFlavors");
     config.seedParentDepth = pset.getParameter<uint32_t>("seedParentDepth");
+    config.keepStableSpectators = pset.getParameter<bool>("keepStableSpectators");
 
     for (auto const& groupPSet : pset.getParameter<std::vector<edm::ParameterSet>>("decayPdgIdGroups")) {
       config.decayPdgIdGroups.push_back(groupPSet.getParameter<std::vector<int32_t>>("pdgIds"));
