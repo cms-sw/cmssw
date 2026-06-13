@@ -54,9 +54,10 @@ namespace {
     }
     [[nodiscard]] std::string summary() const {
       std::ostringstream os;
-      os << "count=" << count << " mean=" << mean() << " max=" << maxValue << " | n(=0)=" << (dist.count(0) ? dist.at(0) : 0)
-         << " n(=1)=" << (dist.count(1) ? dist.at(1) : 0) << " n(2-9)=" << (atLeast(2) - atLeast(10))
-         << " n(10-49)=" << (atLeast(10) - atLeast(50)) << " n(>=50)=" << atLeast(50);
+      os << "count=" << count << " mean=" << mean() << " max=" << maxValue
+         << " | n(=0)=" << (dist.count(0) ? dist.at(0) : 0) << " n(=1)=" << (dist.count(1) ? dist.at(1) : 0)
+         << " n(2-9)=" << (atLeast(2) - atLeast(10)) << " n(10-49)=" << (atLeast(10) - atLeast(50))
+         << " n(>=50)=" << atLeast(50);
       return os.str();
     }
   };
