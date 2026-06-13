@@ -220,6 +220,15 @@ namespace {
     return 0;
   }
 
+  uint32_t countArtificialVerticesWithRole(truth::Graph const& graph, truth::VertexRole role) {
+    uint32_t count = 0;
+    for (auto const& vertex : graph.vertices) {
+      if (vertex.isArtificial() && vertex.vertexRole() == role)
+        ++count;
+    }
+    return count;
+  }
+
   truth::LogicalGraphPostProcessingConfig defaultConfig() {
     truth::LogicalGraphPostProcessingConfig config;
     config.collapseIntermediateGenParticles = false;
@@ -252,6 +261,10 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testZToTauTauDoesNotMatchMuonDecayGroup);
   CPPUNIT_TEST(testDecayGroupFallbackWhenSeedAbsent);
   CPPUNIT_TEST(testSeedPdgIdZeroKeepsFullGraphForDebugging);
+  CPPUNIT_TEST(testArtificialSourceRolesAndProvenance);
+  CPPUNIT_TEST(testKeepStableSpectatorsFalseDropsSpectators);
+  CPPUNIT_TEST(testSeedHadronFlavorSelectsBHadron);
+  CPPUNIT_TEST(testJetOriginLowestCommonAncestor);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -268,6 +281,10 @@ public:
   void testZToTauTauDoesNotMatchMuonDecayGroup();
   void testDecayGroupFallbackWhenSeedAbsent();
   void testSeedPdgIdZeroKeepsFullGraphForDebugging();
+  void testArtificialSourceRolesAndProvenance();
+  void testKeepStableSpectatorsFalseDropsSpectators();
+  void testSeedHadronFlavorSelectsBHadron();
+  void testJetOriginLowestCommonAncestor();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestTruthLogicalGraphPostProcessor);
@@ -1056,6 +1073,197 @@ void TestTruthLogicalGraphPostProcessor::testIgnoredParticleIdsAreCollapsedAway(
 
     const auto outgoing = output.outgoingParticles(decayVertices.front());
     CPPUNIT_ASSERT(std::find(outgoing.begin(), outgoing.end(), electron) != outgoing.end());
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testArtificialSourceRolesAndProvenance() {
+  try {
+    GraphBuilder builder(5, 3);
+
+    // q -> Z -> mu+ mu- ; plus an unrelated stable pi+ (underlying event).
+    builder.setGenParticle(0, 1, 2, 100);   // q
+    builder.setGenParticle(1, 23, 2, 101);  // Z
+    builder.setGenSimParticle(2, -13, 1, 102, 1002);
+    builder.setGenSimParticle(3, 13, 1, 103, 1003);
+    builder.setGenSimParticle(4, 211, 1, 104, 1004);  // stable spectator
+
+    builder.setGenVertex(0, 200);           // q -> Z (dropped at depth 0)
+    builder.setGenSimVertex(1, 201, 2001);  // Z -> mu mu
+    builder.setGenVertex(2, 202);           // -> pi+ (dropped)
+
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+    builder.addDecay(1, 1);
+    builder.addProduction(1, 2);
+    builder.addProduction(1, 3);
+    builder.addProduction(2, 4);
+
+    auto graph = builder.finish();
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {23};
+    config.seedParentDepth = 0;
+    config.keepStableSpectators = true;
+
+    auto output = runPostProcessing(std::move(graph), config);
+    CPPUNIT_ASSERT(output.isConsistent());
+
+    // Z (root with truncated upstream) -> Upstream node; pi+ -> UnderlyingEvent node.
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::Upstream));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::UnderlyingEvent));
+
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 1));  // q dropped at depth 0
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 211));
+
+    // Provenance: artificial sources carry the genEvent of the activity they summarize.
+    for (auto const& vertex : output.vertices) {
+      if (vertex.isArtificial())
+        CPPUNIT_ASSERT_EQUAL(int32_t(0), vertex.genEvent);
+    }
+
+    const uint32_t z = findParticleWithPdgId(output, 23);
+    const auto zProd = output.productionVertices(z);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), zProd.size());
+    CPPUNIT_ASSERT(output.vertices[zProd.front()].vertexRole() == truth::VertexRole::Upstream);
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testKeepStableSpectatorsFalseDropsSpectators() {
+  try {
+    GraphBuilder builder(5, 3);
+
+    builder.setGenParticle(0, 1, 2, 100);
+    builder.setGenParticle(1, 23, 2, 101);
+    builder.setGenSimParticle(2, -13, 1, 102, 1002);
+    builder.setGenSimParticle(3, 13, 1, 103, 1003);
+    builder.setGenSimParticle(4, 211, 1, 104, 1004);  // stable spectator
+
+    builder.setGenVertex(0, 200);
+    builder.setGenSimVertex(1, 201, 2001);
+    builder.setGenVertex(2, 202);
+
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+    builder.addDecay(1, 1);
+    builder.addProduction(1, 2);
+    builder.addProduction(1, 3);
+    builder.addProduction(2, 4);
+
+    auto graph = builder.finish();
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {23};
+    config.seedParentDepth = 0;
+    config.keepStableSpectators = false;
+
+    auto output = runPostProcessing(std::move(graph), config);
+    CPPUNIT_ASSERT(output.isConsistent());
+
+    // Spectator pion dropped; no UnderlyingEvent node.
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 211));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::UnderlyingEvent));
+
+    // Focused subgraph: Z + two muons, the Z hanging off an Upstream (ISR) node.
+    CPPUNIT_ASSERT_EQUAL(uint32_t(3), output.nParticles());
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::Upstream));
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testSeedHadronFlavorSelectsBHadron() {
+  try {
+    GraphBuilder builder(5, 3);
+
+    // b -> B0 -> D- mu+ ; unrelated stable pi+.
+    builder.setGenParticle(0, 5, 2, 100);              // b quark (not a hadron)
+    builder.setGenParticle(1, 511, 2, 101);            // B0 (b-hadron)
+    builder.setGenSimParticle(2, -411, 2, 102, 1002);  // D-
+    builder.setGenSimParticle(3, -13, 1, 103, 1003);   // mu+
+    builder.setGenSimParticle(4, 211, 1, 104, 1004);   // stable spectator
+
+    builder.setGenVertex(0, 200);           // b -> B0
+    builder.setGenSimVertex(1, 201, 2001);  // B0 -> D- mu+
+    builder.setGenVertex(2, 202);           // -> pi+
+
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+    builder.addDecay(1, 1);
+    builder.addProduction(1, 2);
+    builder.addProduction(1, 3);
+    builder.addProduction(2, 4);
+
+    auto graph = builder.finish();
+
+    auto config = defaultConfig();
+    config.seedHadronFlavors = {5};  // seed all b-hadrons
+    config.seedParentDepth = 0;
+    config.keepStableSpectators = false;
+
+    auto output = runPostProcessing(std::move(graph), config);
+    CPPUNIT_ASSERT(output.isConsistent());
+
+    // The B0 (flavor-5 hadron) is the seed; its decay products are kept.
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 511));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, -411));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, -13));
+
+    // The bare b quark is NOT a hadron, so it is not a seed and is dropped at depth 0.
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 5));
+    // Spectator dropped (keepStableSpectators = false).
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 211));
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testJetOriginLowestCommonAncestor() {
+  try {
+    GraphBuilder builder(5, 2);
+
+    // ttbar-like: top -> W+ b ; b -> pi+ pi- (a b-jet's truth constituents).
+    builder.setGenParticle(0, 6, 2, 100);              // top
+    builder.setGenParticle(1, 24, 2, 101);             // W+
+    builder.setGenParticle(2, 5, 2, 102);              // b
+    builder.setGenSimParticle(3, 211, 1, 103, 1003);   // pi+
+    builder.setGenSimParticle(4, -211, 1, 104, 1004);  // pi-
+
+    builder.setGenVertex(0, 200);
+    builder.setGenSimVertex(1, 201, 2001);
+
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+    builder.addProduction(0, 2);
+    builder.addDecay(2, 1);
+    builder.addProduction(1, 3);
+    builder.addProduction(1, 4);
+
+    auto graph = builder.finish();
+
+    // The b-jet constituents come from the b quark (closest common origin).
+    auto lcaB = graph.lowestCommonAncestor({graph.particle(3), graph.particle(4)});
+    CPPUNIT_ASSERT(lcaB.has_value());
+    CPPUNIT_ASSERT_EQUAL(int32_t(5), lcaB->pdgId());
+
+    // Walk up to the originating top.
+    auto top = graph.particle(3).firstAncestorWithPdgId(6);
+    CPPUNIT_ASSERT(top.has_value());
+    CPPUNIT_ASSERT_EQUAL(int32_t(6), top->pdgId());
+
+    // Mixing constituents from the b and W sides yields the top as common origin.
+    auto lcaTop = graph.lowestCommonAncestor({graph.particle(3), graph.particle(4), graph.particle(1)});
+    CPPUNIT_ASSERT(lcaTop.has_value());
+    CPPUNIT_ASSERT_EQUAL(int32_t(6), lcaTop->pdgId());
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);

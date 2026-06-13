@@ -50,6 +50,17 @@ namespace truth {
     [[nodiscard]] bool valid() const { return hasGen() || hasSim(); }
   };
 
+  // Role of a logical vertex. Normal vertices are real GEN/SIM vertices.
+  // Artificial source vertices summarize activity that was cut from a focused
+  // selection but is kept for context/consistency:
+  //   Upstream        - truncated production context of the selected roots (ISR,
+  //                     beam/initial-state activity that led to the selection);
+  //   UnderlyingEvent - stable final-state particles not in any selected
+  //                     subgraph (underlying event, unrelated to the selection).
+  // Artificial vertices carry the genEvent/eventId of the activity they
+  // summarize, so that overlaid pile-up graphs stay distinguishable.
+  enum class VertexRole : uint8_t { Normal = 0, Upstream = 1, UnderlyingEvent = 2 };
+
   struct VertexData {
     // Optional provenance/debug back-references to the raw TruthGraph nodes.
     // -1 means "not available".
@@ -62,6 +73,9 @@ namespace truth {
     // GEN connected component id from the raw TruthGraph, -1 if not applicable.
     int32_t genEvent = -1;
 
+    // VertexRole stored as its underlying type for dictionary simplicity.
+    uint8_t role = static_cast<uint8_t>(VertexRole::Normal);
+
     // Standalone payload.
     // Convention: "best available" position.
     // Prefer SIM if present, otherwise GEN, otherwise default-constructed.
@@ -70,6 +84,9 @@ namespace truth {
     [[nodiscard]] bool hasGen() const { return genNode >= 0; }
     [[nodiscard]] bool hasSim() const { return simNode >= 0; }
     [[nodiscard]] bool valid() const { return hasGen() || hasSim(); }
+
+    [[nodiscard]] VertexRole vertexRole() const { return static_cast<VertexRole>(role); }
+    [[nodiscard]] bool isArtificial() const { return vertexRole() != VertexRole::Normal; }
   };
 
   class Graph;
@@ -189,6 +206,14 @@ namespace truth {
 
     [[nodiscard]] std::vector<Particle> roots() const;
     [[nodiscard]] std::vector<Particle> leaves() const;
+
+    // Lowest (closest) common ancestor of a set of particles: the single truth
+    // particle from which all of them descend, minimizing the total number of
+    // generations. This answers "which particle did this jet come from" given
+    // the jet's truth constituents (e.g. the b quark of a b-jet); walk further
+    // up with Particle::firstAncestorWithPdgId to reach a specific origin
+    // species (e.g. the top). Returns nullopt if the inputs share no ancestor.
+    [[nodiscard]] std::optional<Particle> lowestCommonAncestor(std::vector<Particle> const& particles) const;
 
     [[nodiscard]] std::vector<Vertex> sourceVertices() const;
     [[nodiscard]] std::vector<Vertex> sinkVertices() const;

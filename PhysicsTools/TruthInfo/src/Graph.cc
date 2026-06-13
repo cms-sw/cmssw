@@ -394,6 +394,82 @@ std::optional<truth::Particle> truth::Graph::firstCommonAncestorOf(size_type a, 
   return particle(static_cast<uint32_t>(bestId));
 }
 
+std::optional<truth::Particle> truth::Graph::lowestCommonAncestor(std::vector<Particle> const& parts) const {
+  std::vector<uint32_t> ids;
+  ids.reserve(parts.size());
+  for (auto const& p : parts) {
+    if (p.valid() && p.id() < nParticles())
+      ids.push_back(p.id());
+  }
+
+  if (ids.empty())
+    return std::nullopt;
+  if (ids.size() == 1)
+    return particle(ids.front());
+
+  const uint32_t n = nParticles();
+
+  // Upward BFS distance from each input particle to every ancestor (itself at 0).
+  std::vector<std::vector<int>> dist(ids.size(), std::vector<int>(n, -1));
+
+  auto fillDistances = [this](uint32_t start, std::vector<int>& d) {
+    std::queue<uint32_t> q;
+    d[start] = 0;
+    q.push(start);
+
+    while (!q.empty()) {
+      const uint32_t cur = q.front();
+      q.pop();
+
+      for (auto const& parent : parentsOf(cur)) {
+        if (d[parent.id()] >= 0)
+          continue;
+        d[parent.id()] = d[cur] + 1;
+        q.push(parent.id());
+      }
+    }
+  };
+
+  for (std::size_t k = 0; k < ids.size(); ++k)
+    fillDistances(ids[k], dist[k]);
+
+  // Among ancestors reachable from ALL inputs, pick the closest (min total
+  // distance, then min worst-case distance, then lowest id for determinism).
+  int bestId = -1;
+  int bestTotal = -1;
+  int bestMax = -1;
+
+  for (uint32_t i = 0; i < n; ++i) {
+    int total = 0;
+    int maxDist = 0;
+    bool common = true;
+
+    for (std::size_t k = 0; k < ids.size(); ++k) {
+      if (dist[k][i] < 0) {
+        common = false;
+        break;
+      }
+      total += dist[k][i];
+      maxDist = std::max(maxDist, dist[k][i]);
+    }
+
+    if (!common)
+      continue;
+
+    if (bestId < 0 || total < bestTotal || (total == bestTotal && maxDist < bestMax) ||
+        (total == bestTotal && maxDist == bestMax && static_cast<int>(i) < bestId)) {
+      bestId = static_cast<int>(i);
+      bestTotal = total;
+      bestMax = maxDist;
+    }
+  }
+
+  if (bestId < 0)
+    return std::nullopt;
+
+  return particle(static_cast<uint32_t>(bestId));
+}
+
 bool truth::Graph::isConsistent() const {
   const bool p2dv = checkCSR(particleToDecayVertexOffsets, particleToDecayVertices, particles.size()) &&
                     checkTargets(particleToDecayVertices, nVertices());
