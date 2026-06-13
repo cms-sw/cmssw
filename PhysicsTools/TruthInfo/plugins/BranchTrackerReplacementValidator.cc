@@ -1,3 +1,7 @@
+// Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
+// Part of the MC-truth-graph prototype - under heavy development, not yet open
+// to external contributions (see PhysicsTools/TruthInfo/README.md).
+
 // Validates that a truth::Branch can stand in for a TrackingParticle for
 // track<->truth association. For each reco track it (a) matches the track to a
 // Branch via shared tracker hits (our PSimHit-based tracker hit index, DetId
