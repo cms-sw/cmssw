@@ -120,9 +120,32 @@ hit-index builder to guarantee the topological layout; see follow-up below.)
 5. **Closures include predicate-based stops**, in addition to the fixed
    `{Subtree, StableLeaves, DepthN, UntilPdgId}` set.
 
-## Follow-ups
-- Guarantee a graph-topological hit layout in `LogicalGraphHitIndexBuilder` so a
-  `Subtree` branch's hits are a contiguous `std::span` (zero gather; merge-join
-  matching).
-- Choose the first concrete `Metric`s (shared-hits, energy-fraction) and the
-  first reco target (tracks, then jets) when implementation starts.
+## Implementation status
+Implemented (library level, all unit-tested):
+- **Hit layout** (`LogicalGraphHitIndex`): a particle's subgraph hits are a
+  contiguous, detId-sorted `std::span`, so a `Subtree` branch's hits are
+  `subgraphHits(root)` with zero gather and are merge-join ready.
+- **`truth::Branch`** (`interface/Branch.h`): the view, with closures
+  `Subtree / StableLeaves / DepthN / UntilPdgId / Predicate`, members/leaves,
+  p4 / visible / invisible energy, origin (`originWithPdgId`), heavy-flavor
+  content, pile-up provenance (`bunchCrossing`/`event`/`isSignal`/`isFromPileup`),
+  and relations (`commonAncestor`, `merged`).
+- **`truth::BranchHitAssociator`** (`interface/BranchHitAssociator.h`): the
+  generic, batch-cached matcher. **Customization point**: any reco object that
+  exposes `R::truthHits()` returning a range of `truth::RecoHit`
+  (`{detId, energy, fraction}`) is matchable — the `HasTruthHits<R>` concept. It
+  caches the inverted `detId -> roots` index once, then `bestBranches(reco)`
+  merge-joins the object's sorted hits against each candidate's sorted subgraph
+  span. Metrics: `SharedEnergy` (HGCal-style score) and `SharedHits`.
+- **`truth::BranchSelector`** (`interface/BranchSelector.h`): pt/eta/pdgId/charge
+  + signal/in-time selection, mirroring TrackingParticleSelector/CaloParticleSelector.
+
+## Remaining (EDProducer wiring)
+- Wrap `BranchHitAssociator` in EDProducers that consume real reco collections
+  (tracks, tracksters/PFclusters, jets) and emit `ticl::AssociationMap`
+  (`mapWithSharedEnergyAndScore`) products in both directions, mirroring
+  `AllTracksterToSimTracksterAssociatorsByHitsProducer` and the
+  TrackingParticle<->reco::Track associator, but with a Branch in place of the
+  SimTrackster/TrackingParticle.
+- A tracker variant keyed on shared `(trackId, EncodedEventId)` SimTrack hits
+  (the QuickTrackAssociatorByHits metric) for track<->branch matching.
