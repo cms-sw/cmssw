@@ -812,3 +812,19 @@ from Configuration.ProcessModifiers.fixLongLivedSleptonSim_cff import fixLongLiv
 fixLongLivedSleptonSim.toModify( g4SimHits,
                                  Generator = dict(IsSlepton = True)
 )
+
+##
+## Truth-graph workflows: keep every track in the history so that the stored
+## ancestor branch of each persisted SimTrack is complete. With the default
+## PersistencyEmin (50 GeV) intermediate low-energy ancestors are dropped and
+## the production SimVertex of a stored secondary gets parentIndex = -1,
+## fragmenting the truth graph into components disconnected from the generator.
+## Setting PersistencyEmin = 0 keeps a mother whenever any daughter is kept, so
+## SimVertex::parentIndex always resolves to a stored ancestor (or a primary).
+## This increases the SimTrack/SimVertex multiplicity and is therefore scoped to
+## the enableTruth workflows only.
+##
+from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
+enableTruth.toModify( g4SimHits,
+                      TrackingAction = dict(PersistencyEmin = 0.0)
+)
