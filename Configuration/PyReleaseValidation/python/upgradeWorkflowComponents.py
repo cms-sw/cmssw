@@ -1010,7 +1010,11 @@ upgradeWFs['ticlv5_TrackLinkingGNN'].step4 = {'--procModifiers': 'ticlv5_TrackLi
 
 class UpgradeWorkflow_enableTruth(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'RecoGlobal' in step:
+        # enableTruth runs the truth-graph producers in RecoGlobal (step3) and,
+        # in GenSim (step1), keeps the full ancestor branch of every stored
+        # SimTrack (g4SimHits PersistencyEmin -> 0 via the modifier) so the
+        # truth graph stays connected to the generator.
+        if 'GenSim' in step or 'RecoGlobal' in step:
             stepDict[stepName][k] = deepcopy(stepDict[step][k])
 
             if '--procModifiers' in stepDict[stepName][k]:
@@ -1024,9 +1028,17 @@ class UpgradeWorkflow_enableTruth(UpgradeWorkflow):
 
 upgradeWFs['enableTruth'] = UpgradeWorkflow_enableTruth(
     steps = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'GenSimHLBeamSpotCloseBy',
         'RecoGlobal',
     ],
     PU = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'GenSimHLBeamSpotCloseBy',
         'RecoGlobal',
     ],
     suffix = '_enableTruth',
