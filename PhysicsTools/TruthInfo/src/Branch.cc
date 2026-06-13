@@ -83,9 +83,9 @@ namespace truth {
         case ClosureKind::UntilPdgId:
           // Stop at (but include) a particle whose id is in the stop list,
           // unless it is itself a root.
-          expand = depth == 0 || std::find(spec_.stopPdgIds.begin(),
-                                           spec_.stopPdgIds.end(),
-                                           graph_->particles[id].pdgId) == spec_.stopPdgIds.end();
+          expand =
+              depth == 0 || std::find(spec_.stopPdgIds.begin(), spec_.stopPdgIds.end(), graph_->particles[id].pdgId) ==
+                                spec_.stopPdgIds.end();
           break;
         case ClosureKind::Predicate:
           expand = depth == 0 || !(spec_.stopAt && spec_.stopAt(graph_->particle(id)));
@@ -113,9 +113,7 @@ namespace truth {
 
     // For StableLeaves keep only roots and final-state (childless) particles.
     if (spec_.kind == ClosureKind::StableLeaves) {
-      const auto isRoot = [this](uint32_t id) {
-        return std::find(roots_.begin(), roots_.end(), id) != roots_.end();
-      };
+      const auto isRoot = [this](uint32_t id) { return std::find(roots_.begin(), roots_.end(), id) != roots_.end(); };
       std::erase_if(order, [&](uint32_t id) { return !isRoot(id) && !graph_->particle(id).isLeaf(); });
     }
 
@@ -187,9 +185,7 @@ namespace truth {
     return valid() ? decodeEventId(graph_->particles[roots_.front()].eventId).bunchCrossing() : 0;
   }
 
-  int Branch::event() const {
-    return valid() ? decodeEventId(graph_->particles[roots_.front()].eventId).event() : 0;
-  }
+  int Branch::event() const { return valid() ? decodeEventId(graph_->particles[roots_.front()].eventId).event() : 0; }
 
   std::optional<Particle> Branch::commonAncestor(Branch const& other) const {
     if (!valid() || !other.valid() || graph_ != other.graph_)
