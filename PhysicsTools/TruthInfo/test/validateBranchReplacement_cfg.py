@@ -87,14 +87,38 @@ process.branchValidator = cms.EDAnalyzer(
     simClusters=cms.InputTag("mix", "MergedCaloTruth"),
 )
 
+# ClusterTPAssociation (cluster -> TrackingParticle) for the tracker validation.
+# Phase-2 tracker: pixel + outer-tracker (Phase2TrackerCluster1D), no strips.
+from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import tpClusterProducer
+process.tpClusterProducer = tpClusterProducer.clone(
+    pixelClusterSrc=cms.InputTag("siPixelClusters"),
+    phase2OTClusterSrc=cms.InputTag("siPhase2Clusters"),
+    pixelSimLinkSrc=cms.InputTag("simSiPixelDigis", "Pixel"),
+    phase2OTSimLinkSrc=cms.InputTag("simSiPixelDigis", "Tracker"),
+    trackingParticleSrc=cms.InputTag("mix", "MergedTrackTruth"),
+    throwOnMissingCollections=cms.bool(False),
+)
+
+process.trackerValidator = cms.EDAnalyzer(
+    "BranchTrackerReplacementValidator",
+    src=cms.InputTag("truthLogicalGraphProducer"),
+    rawSrc=cms.InputTag("truthGraphProducer"),
+    hitIndex=cms.InputTag("truthLogicalGraphHitIndexProducer"),
+    tracks=cms.InputTag("generalTracks"),
+    clusterTPMap=cms.InputTag("tpClusterProducer"),
+)
+
 process.MessageLogger.cerr.threshold = "INFO"
 process.MessageLogger.cerr.default = cms.untracked.PSet(limit=cms.untracked.int32(0))
 process.MessageLogger.cerr.BranchTruthReplacementValidator = cms.untracked.PSet(limit=cms.untracked.int32(-1))
+process.MessageLogger.cerr.BranchTrackerReplacementValidator = cms.untracked.PSet(limit=cms.untracked.int32(-1))
 
 process.p = cms.Path(
     process.truthGraphProducer
     + process.truthLogicalGraphProducer
     + process.simHitToRecHitMapProducer
     + process.truthLogicalGraphHitIndexProducer
+    + process.tpClusterProducer
     + process.branchValidator
+    + process.trackerValidator
 )

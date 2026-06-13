@@ -32,6 +32,13 @@
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="Geometry/CommonDetUnit"/>
 
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/TrackingRecHit"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="SimTracker/TrackAssociation"/>
+<use name="SimTracker/TrackerHitAssociation"/>
+
 <library file="TruthGraphProducer.cc" name="TruthGraphProducerPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
@@ -65,5 +72,9 @@
 </library>
 
 <library file="BranchTruthReplacementValidator.cc" name="BranchTruthReplacementValidatorPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="BranchTrackerReplacementValidator.cc" name="BranchTrackerReplacementValidatorPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
