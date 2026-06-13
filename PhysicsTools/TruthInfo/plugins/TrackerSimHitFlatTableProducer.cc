@@ -29,9 +29,9 @@ class TrackerSimHitFlatTableProducer : public edm::stream::EDProducer<> {
 public:
   explicit TrackerSimHitFlatTableProducer(edm::ParameterSet const& params)
       : objName_(params.getParameter<std::string>("objName")),
-        simhits_tokens_{edm::vector_transform(
-            params.getParameter<std::vector<edm::InputTag>>("label_simhits"),
-            [this](edm::InputTag const& tag) { return consumes<edm::PSimHitContainer>(tag); })},
+        simhits_tokens_{
+            edm::vector_transform(params.getParameter<std::vector<edm::InputTag>>("label_simhits"),
+                                  [this](edm::InputTag const& tag) { return consumes<edm::PSimHitContainer>(tag); })},
         trackerGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()) {
     produces<nanoaod::FlatTable>();
   }
