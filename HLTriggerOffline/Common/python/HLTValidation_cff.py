@@ -75,6 +75,9 @@ _phase2_hltassociation += hltTrackerphase2ValidationSource
 # Add HGCal SimTracksters
 _phase2_hltassociation += hltTiclSimTrackstersSeq
 
+# Add gentau reference for validation
+_phase2_hltassociation += tauPreValidSeq
+
 # Apply the modification
 phase2_common.toReplaceWith(hltassociation, _phase2_hltassociation)
 
@@ -102,7 +105,7 @@ hltvalidationWithMC = cms.Sequence(
 
 # Exclude everything except Muon and JetMET for now. Add HGCAL Hit Calibration
 _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
-  HLTTauVal,
+  #HLTTauVal,
   egammaValidationSequence,
   heavyFlavorValidationSequence,
   #HLTJetMETValSeq,
@@ -117,7 +120,7 @@ _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
   hltHCALNoiseRates])
 _hltvalidationWithMC_Phase2.insert(-1, hgcalHitCalibrationHLT)
 _hltvalidationWithMC_Phase2.insert(-1, hltHgcalValidator)
-_hltvalidationWithMC_Phase2.insert(-1, hltGENValidation)
+_hltvalidationWithMC_Phase2.insert(0, hltGENValidation)
 phase2_common.toReplaceWith(hltvalidationWithMC, _hltvalidationWithMC_Phase2)
 
 hltvalidationWithData = cms.Sequence(
