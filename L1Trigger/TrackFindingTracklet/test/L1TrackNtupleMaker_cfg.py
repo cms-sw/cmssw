@@ -24,7 +24,8 @@ GEOMETRY = "D110"
 # 'HYBRID_REDUCED' to use the "L5L6" seeding only reduced configuration.
 # 'HYBRID_DISPLACED_SIM' displaced tracklet followed by DR simulation and 5 param fit sim
 # (Or legacy algos 'TMTT' or 'TRACKLET').
-L1TRKALGO = 'HYBRID'
+L1TRKALGO = 'HYBRID_NEWKF'
+TRAINING_RUN = True
 
 WRITE_DATA = False
 
@@ -196,7 +197,10 @@ elif (L1TRKALGO == 'HYBRID_NEWKF' or L1TRKALGO == 'HYBRID_REDUCED'):
     process.HybridNewKF = cms.Sequence(process.L1THybridTracks + process.ProducerTM + process.ProducerDR + process.ProducerKF + process.ProducerTQ + process.ProducerTFP)
     process.TTTracksEmulation = cms.Path(process.HybridNewKF)
     # Optionally include code producing performance plots & end-of-job summary.
-    process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF + process.TrackTriggerAssociatorTracks + process.AnalyzerTracklet + process.AnalyzerTM + process.AnalyzerDR + process.AnalyzerKF + process.AnalyzerTFP )
+    if (TRAINING_RUN == True):
+        process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF + process.TrackTriggerAssociatorTracks + process.AnalyzerTracklet + process.AnalyzerTM + process.AnalyzerDR + process.AnalyzerKF + process.AnalyzerTQ + process.AnalyzerTFP )
+    else:
+        process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF + process.TrackTriggerAssociatorTracks + process.AnalyzerTracklet + process.AnalyzerTM + process.AnalyzerDR + process.AnalyzerKF + process.AnalyzerTFP )
     from L1Trigger.TrackFindingTracklet.Customize_cff import *
     if (L1TRKALGO == 'HYBRID_NEWKF'):
         fwConfig( process )
