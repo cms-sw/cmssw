@@ -1,0 +1,31 @@
+# Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
+# Part of the MC-truth-graph prototype - under heavy development, not yet open
+# to external contributions (see PhysicsTools/TruthInfo/README.md).
+
+# Phase-A pileup customise: enable the SimTrack/SimVertex crossing frames and run
+# TruthGraphMixedProducer in the DIGI step (the only place the transient
+# CrossingFrame<SimTrack/SimVertex> products live), then keep the compact mixed
+# raw TruthGraph in the output so downstream steps can read signal+pileup truth.
+
+import FWCore.ParameterSet.Config as cms
+from SimGeneral.MixingModule.fullMixCustomize_cff import setCrossingFrameOn
+
+
+def addMixedTruthGraph(process):
+    # makeCrossingFrame=True for SimTrack/SimVertex (transient, in-process only).
+    process = setCrossingFrameOn(process)
+
+    process.truthGraphMixedProducer = cms.EDProducer(
+        "TruthGraphMixedProducer",
+        simTracks=cms.InputTag("mix", "g4SimHits"),
+        simVertices=cms.InputTag("mix", "g4SimHits"),
+    )
+
+    process.truthGraphMixedPath = cms.Path(process.truthGraphMixedProducer)
+    if process.schedule is not None:
+        process.schedule.append(process.truthGraphMixedPath)
+
+    for out in process.outputModules_().values():
+        out.outputCommands.append("keep *_truthGraphMixedProducer_*_*")
+
+    return process
