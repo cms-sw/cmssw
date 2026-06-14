@@ -9,14 +9,19 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/Transition.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadataAcquireSentry.h"
 #include "HeterogeneousCore/AlpakaCore/interface/modulePrevalidate.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/Backend.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
 
+#include <any>
+#include <cassert>
 #include <memory>
+#include <string>
 #include <tuple>
+#include <utility>
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <typename Producer, edm::Transition Tr>
@@ -120,6 +125,49 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     }
 
+    // Type-erased overload of produces() for host products
+    //
+    // This overload does not check whether a CopyToDevice exists for the
+    // produced type. It always registers its host-to-device transformation,
+    // without a fallback. The caller must ensure that a HtoD copy operation
+    // exists for this type and provide the corresponding copyAsync and
+    // transform callables.
+    //
+    // This overload does not support producing host-only products.
+    template <edm::Transition Tr, typename TCopyAsync, typename TTransform>
+    edm::EDPutToken produces(edm::TypeID hostProductType,
+                             edm::TypeID deviceProductType,
+                             std::string instanceName,
+                             TCopyAsync&& copyAsync,
+                             TTransform&& transform) {
+      edm::EDPutToken token = Base::template produces<Tr>(hostProductType, instanceName);
+
+      if constexpr (not detail::useProductDirectly) {
+        using TplType = std::tuple<std::any, std::shared_ptr<EDMetadata>>;
+
+        this->registerTransformAsync(
+            token,
+            [copyAsync = std::forward<TCopyAsync>(copyAsync), synchronize = this->synchronize()](
+                edm::StreamID streamID, edm::WrapperBase const& wb, edm::WaitingTaskWithArenaHolder holder) {
+              detail::EDMetadataAcquireSentry sentry(streamID, std::move(holder), synchronize);
+              auto productOnDevice = copyAsync(sentry.metadata()->queue(), wb);
+              return std::make_shared<TplType>(std::move(productOnDevice), sentry.finish());
+            },
+            [transform = std::forward<TTransform>(transform)](edm::StreamID, std::shared_ptr<TplType> tplPtr) {
+              auto& productOnDevice = std::get<0>(*tplPtr);
+              return transform(productOnDevice, std::move(std::get<1>(*tplPtr)));
+            },
+            deviceProductType,
+            std::move(instanceName));
+      } else {
+        assert(hostProductType == deviceProductType &&
+               "On the synchronous CPU backend, only types whose CopyToHost<T>::copyAsync returns T itself are "
+               "supported.");
+      }
+
+      return token;
+    }
+
     // Device products
     //
     // intentionally not returning BranchAliasSetter
@@ -159,6 +207,39 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         return token;
       }
     }
+
+    template <edm::Transition Tr, typename TGetQueue, typename TCopyAsync, typename TTransform>
+    edm::EDPutToken deviceProduces(edm::TypeID deviceProductType,
+                                   edm::TypeID hostProductType,
+                                   std::string instanceName,
+                                   TGetQueue&& getQueue,
+                                   TCopyAsync&& copyAsync,
+                                   TTransform&& transform) {
+      edm::EDPutToken token = Base::template produces<Tr>(deviceProductType, instanceName);
+
+      if constexpr (not detail::useProductDirectly) {
+        using TplType = std::tuple<std::any, std::shared_ptr<EDMetadata>>;
+
+        this->registerTransformAsync(
+            token,
+            [getQueue = std::forward<TGetQueue>(getQueue), copyAsync = std::forward<TCopyAsync>(copyAsync)](
+                edm::StreamID, edm::WrapperBase const& wb, edm::WaitingTaskWithArenaHolder holder) {
+              auto queue = getQueue(wb);
+              detail::EDMetadataAcquireSentry sentry(queue, std::move(holder));
+              auto metadataPtr = sentry.metadata();
+              auto productOnHost = copyAsync(*queue, *metadataPtr, wb);
+              return std::make_shared<TplType>(std::move(productOnHost), sentry.finish());
+            },
+            [transform = std::forward<TTransform>(transform)](edm::StreamID, std::shared_ptr<TplType> tplPtr) {
+              auto productOnHost = std::get<0>(*tplPtr);
+              return transform(productOnHost);
+            },
+            hostProductType,
+            std::move(instanceName));
+      }
+
+      return token;
+    }
   };
 
   // Adaptor class to make the type-deducing produces() calls to work
@@ -171,10 +252,38 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return producer_.template produces<Type, Tr>(label_);
     }
 
+    // for runtime-typed host-only products
+    template <typename TCopyAsync, typename TTransform>
+    edm::EDPutToken produces(edm::TypeID hostProductType,
+                             edm::TypeID deviceProductType,
+                             TCopyAsync&& copyAsync,
+                             TTransform&& transform) {
+      return producer_.template produces<Tr>(hostProductType,
+                                             deviceProductType,
+                                             label_,
+                                             std::forward<TCopyAsync>(copyAsync),
+                                             std::forward<TTransform>(transform));
+    }
+
     // for device products
     template <typename TProduct, typename TToken>
     edm::EDPutTokenT<TToken> deviceProduces() {
       return producer_.template deviceProduces<TProduct, TToken, Tr>(label_);
+    }
+
+    // for runtime-typed device products
+    template <typename TGetQueue, typename TCopyAsync, typename TTransform>
+    edm::EDPutToken deviceProduces(edm::TypeID deviceProductType,
+                                   edm::TypeID hostProductType,
+                                   TGetQueue&& getQueue,
+                                   TCopyAsync&& copyAsync,
+                                   TTransform&& transform) {
+      return producer_.template deviceProduces<Tr>(deviceProductType,
+                                                   hostProductType,
+                                                   label_,
+                                                   std::forward<TGetQueue>(getQueue),
+                                                   std::forward<TCopyAsync>(copyAsync),
+                                                   std::forward<TTransform>(transform));
     }
 
   private:
