@@ -5,7 +5,9 @@
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <numeric>
+#include <utility>
 
 namespace truth {
 
@@ -21,21 +23,72 @@ namespace truth {
 
     // Per-cell total sim energy (denominator for branch fractions): sum of every
     // particle's direct-hit energy on that cell. Use the requested channel.
+    // directStorage is grouped by particle, not globally sorted, so collect and
+    // coalesce into a sorted (detId -> energy) table for binary-search lookup.
     const auto& directStorage = useTracker_ ? hitIndex_->trackerDirectHitStorage() : hitIndex_->directHitStorage();
+    std::vector<std::pair<uint32_t, float>> cells;
+    cells.reserve(directStorage.size());
     for (auto const& hit : directStorage)
-      cellTotalEnergy_[hit.detId] += hit.energy;
+      cells.emplace_back(hit.detId, hit.energy);
+    std::sort(cells.begin(), cells.end(), [](auto const& a, auto const& b) { return a.first < b.first; });
 
-    // Inverted index detId -> candidate roots, from each candidate's subgraph hits.
+    cellEnergyKeys_.reserve(cells.size());
+    cellEnergyValues_.reserve(cells.size());
+    for (auto const& [detId, energy] : cells) {
+      if (!cellEnergyKeys_.empty() && cellEnergyKeys_.back() == detId)
+        cellEnergyValues_.back() += energy;
+      else {
+        cellEnergyKeys_.push_back(detId);
+        cellEnergyValues_.push_back(energy);
+      }
+    }
+
+    // Inverted index detId -> candidate roots, from each candidate's subgraph
+    // hits. Built as a flat (detId, root) list, sorted, then packed CSR-style so
+    // lookups are a binary search plus a contiguous root span (no hashing).
+    std::vector<std::pair<uint32_t, uint32_t>> pairs;  // (detId, root)
     for (const uint32_t root : roots_) {
       if (root >= hitIndex_->nParticles())
         continue;
       for (auto const& hit : rootHits(root))
-        detIdToRoots_[hit.detId].push_back(root);
+        pairs.emplace_back(hit.detId, root);
+    }
+    std::sort(pairs.begin(), pairs.end());  // by detId, then root
+
+    cellRootsOffsets_.push_back(0);
+    cellRoots_.reserve(pairs.size());
+    for (std::size_t i = 0; i < pairs.size();) {
+      const uint32_t detId = pairs[i].first;
+      cellRootsKeys_.push_back(detId);
+      std::size_t j = i;
+      while (j < pairs.size() && pairs[j].first == detId) {
+        cellRoots_.push_back(pairs[j].second);
+        ++j;
+      }
+      cellRootsOffsets_.push_back(static_cast<uint32_t>(cellRoots_.size()));
+      i = j;
     }
   }
 
   std::span<const LogicalGraphHitIndex::Hit> BranchHitAssociator::rootHits(uint32_t rootId) const {
     return useTracker_ ? hitIndex_->trackerSubgraphHits(rootId) : hitIndex_->subgraphHits(rootId);
+  }
+
+  std::span<const uint32_t> BranchHitAssociator::rootsForCell(uint32_t detId) const {
+    auto it = std::lower_bound(cellRootsKeys_.begin(), cellRootsKeys_.end(), detId);
+    if (it == cellRootsKeys_.end() || *it != detId)
+      return {};
+    const std::size_t k = static_cast<std::size_t>(it - cellRootsKeys_.begin());
+    const uint32_t b = cellRootsOffsets_[k];
+    const uint32_t e = cellRootsOffsets_[k + 1];
+    return std::span<const uint32_t>(cellRoots_.data() + b, e - b);
+  }
+
+  float BranchHitAssociator::cellTotalEnergy(uint32_t detId) const {
+    auto it = std::lower_bound(cellEnergyKeys_.begin(), cellEnergyKeys_.end(), detId);
+    if (it == cellEnergyKeys_.end() || *it != detId)
+      return 0.f;
+    return cellEnergyValues_[static_cast<std::size_t>(it - cellEnergyKeys_.begin())];
   }
 
   std::vector<BranchMatch> BranchHitAssociator::bestBranches(std::span<const RecoHit> recoHitsIn,
@@ -53,9 +106,8 @@ namespace truth {
     std::vector<uint32_t> candidates;
     for (auto const& h : reco) {
       denominator += static_cast<double>(h.fraction * h.energy) * (h.fraction * h.energy);
-      auto it = detIdToRoots_.find(h.detId);
-      if (it != detIdToRoots_.end())
-        candidates.insert(candidates.end(), it->second.begin(), it->second.end());
+      auto roots = rootsForCell(h.detId);
+      candidates.insert(candidates.end(), roots.begin(), roots.end());
     }
     std::sort(candidates.begin(), candidates.end());
     candidates.erase(std::unique(candidates.begin(), candidates.end()), candidates.end());
@@ -81,7 +133,7 @@ namespace truth {
 
         float branchFraction = 0.f;
         if (j < branchHits.size() && branchHits[j].detId == rh.detId) {
-          const float cellTotal = cellTotalEnergy_.count(rh.detId) ? cellTotalEnergy_.at(rh.detId) : 0.f;
+          const float cellTotal = cellTotalEnergy(rh.detId);
           branchFraction = cellTotal > 0.f ? branchHits[j].energy / cellTotal : 0.f;
           ++sharedCells;
         }

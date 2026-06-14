@@ -39,6 +39,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
@@ -308,11 +309,8 @@ void TruthGraphAccumulator::finalizeEvent(edm::Event& event, edm::EventSetup con
   out->genEventOfNode.assign(nNodes, -1);
   out->simVtxToGen.assign(nNodes, -1);
 
-  std::vector<uint32_t> order(edges_.size());
-  for (uint32_t i = 0; i < order.size(); ++i)
-    order[i] = i;
-  std::sort(order.begin(), order.end(), [&](uint32_t a, uint32_t b) { return edges_[a].first < edges_[b].first; });
-
+  // CSR out-edges via the counting-sort cursor scatter: each edge lands in its
+  // source's range, by construction (no sort, no permutation vector).
   out->offsets.assign(nNodes + 1, 0);
   for (auto const& e : edges_)
     ++out->offsets[e.first + 1];
@@ -321,10 +319,15 @@ void TruthGraphAccumulator::finalizeEvent(edm::Event& event, edm::EventSetup con
 
   out->edges.resize(edges_.size());
   out->edgeKind.resize(edges_.size());
-  for (uint32_t k = 0; k < order.size(); ++k) {
-    out->edges[k] = edges_[order[k]].second;
-    out->edgeKind[k] = edgeKinds_[order[k]];
+  std::vector<uint32_t> cursor = out->offsets;
+  for (std::size_t e = 0; e < edges_.size(); ++e) {
+    const uint32_t pos = cursor[edges_[e].first]++;
+    out->edges[pos] = edges_[e].second;
+    out->edgeKind[pos] = edgeKinds_[e];
   }
+
+  if (!out->isConsistent())
+    throw cms::Exception("TruthGraphAccumulator") << "Produced TruthGraph is not consistent";
 
   event.put(std::move(out));
 }

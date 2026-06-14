@@ -16,7 +16,7 @@
 // reproduced here: pileup has no persisted GEN history anyway. Calo/tracker hit
 // crossing frames are handled separately.
 
-#include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <memory>
@@ -58,9 +58,7 @@ namespace {
     bool operator==(SubEventKey const& o) const { return eid == o.eid && localId == o.localId; }
   };
   struct SubEventKeyHash {
-    std::size_t operator()(SubEventKey const& k) const {
-      return (static_cast<std::size_t>(k.eid) << 32) ^ k.localId;
-    }
+    std::size_t operator()(SubEventKey const& k) const { return (static_cast<std::size_t>(k.eid) << 32) ^ k.localId; }
   };
 }  // namespace
 
@@ -117,8 +115,8 @@ void TruthGraphMixedProducer::produce(edm::Event& evt, edm::EventSetup const&) {
   // perEventVtxNodes[eid] preserves sub-event order, so the position equals the
   // local vector index used by SimTrack::vertIndex().
   std::unordered_map<uint32_t, std::vector<uint32_t>> perEventVtxNodes;
-  std::unordered_map<SubEventKey, uint32_t, SubEventKeyHash> trackKey;  // (eid, trackId) -> track node
-  std::vector<std::pair<uint32_t, int>> vtxParent(nVtx, {0u, -1});      // (eid, parentTrackId) per vertex node
+  std::unordered_map<SubEventKey, uint32_t, SubEventKeyHash> trackKey;    // (eid, trackId) -> track node
+  std::vector<std::pair<uint32_t, int>> vtxParent(nVtx, {0u, -1});        // (eid, parentTrackId) per vertex node
   std::vector<std::pair<uint32_t, int>> trkProdVtxLocal(nTrk, {0u, -1});  // (eid, local vertIndex) per track
 
   uint32_t v = 0;
@@ -177,14 +175,8 @@ void TruthGraphMixedProducer::produce(edm::Event& evt, edm::EventSetup const&) {
     pushEdge(kIt->second, i);  // parent track decays into vertex
   }
 
-  // CSR out-edges (sorted by src).
-  std::vector<uint32_t> order(edgePairs.size());
-  for (uint32_t i = 0; i < order.size(); ++i)
-    order[i] = i;
-  std::sort(order.begin(), order.end(), [&](uint32_t a, uint32_t b) {
-    return edgePairs[a].first < edgePairs[b].first;
-  });
-
+  // CSR out-edges via the counting-sort cursor scatter: each edge lands in its
+  // source's range, by construction (no sort, no permutation vector).
   out->offsets.assign(nNodes + 1, 0);
   for (auto const& e : edgePairs)
     ++out->offsets[e.first + 1];
@@ -193,9 +185,11 @@ void TruthGraphMixedProducer::produce(edm::Event& evt, edm::EventSetup const&) {
 
   out->edges.resize(edgePairs.size());
   out->edgeKind.resize(edgePairs.size());
-  for (uint32_t k = 0; k < order.size(); ++k) {
-    out->edges[k] = edgePairs[order[k]].second;
-    out->edgeKind[k] = edgeKinds[order[k]];
+  std::vector<uint32_t> cursor = out->offsets;
+  for (std::size_t e = 0; e < edgePairs.size(); ++e) {
+    const uint32_t pos = cursor[edgePairs[e].first]++;
+    out->edges[pos] = edgePairs[e].second;
+    out->edgeKind[pos] = edgeKinds[e];
   }
 
   if (!out->isConsistent())
