@@ -137,7 +137,8 @@ void TrackletCalculatorBase::calcPars(unsigned int idr,
                                       int& irinv_new,
                                       int& iphi0_new,
                                       int& iz0_new,
-                                      int& it_new) {
+                                      int& it_new,
+                                      bool print) {
   long int idz = iz2 - iz1;
 
   assert(idr < LUT_idrinv_.size());
@@ -158,18 +159,15 @@ void TrackletCalculatorBase::calcPars(unsigned int idr,
 
   long int ifact = (1 << n_r6_) * phiHG_ * phiHG_ / 6.0;
 
-  long int ir6 = (ir1 + ir2) * ifact;
+  long ir6 = ((ir1 + ir2) * ifact) >> n_r6_;
 
   long int idelta02 = (idelta0 * idelta2) >> n_delta02_;
 
-  long int ix6 =
-      (-(1 << n_x6_) +
-       ((ir6 * idelta02) >> (n_r6_ + 2 * n_Deltar_ + 2 * n_phi_ - n_x6_ - n_delta2_ - n_delta02_ - 2 * n_delta0_)));
+  long int ix6 = (-(1 << n_x6_) +
+                  ((ir6 * idelta02) >> (2 * n_Deltar_ + 2 * n_phi_ - n_x6_ - n_delta2_ - n_delta02_ - 2 * n_delta0_)));
 
   //Temporary hack here
   long int it1 = (ir1 * ideltaz) >> (n_Deltar_ - n_deltaz_ - 3);
-
-  //std::cout << "ifact it1 ix6: " << ifact << " " << it1 << " " << ix6 << std::endl;
 
   irinv_new = ((-idelta0 * ia) >> (n_phi_ + n_a_ - n_rinv_ + n_Deltar_ - n_delta0_ - n_r_ - 1));
 
@@ -180,6 +178,15 @@ void TrackletCalculatorBase::calcPars(unsigned int idr,
   it_new = (((ideltaz * ia) >> (shift_tmp - 1)) + 1) >> 1;
 
   iz0_new = iz1 + ((((it1 * ix6) >> (n_x6_ + 3 - 1)) + 1) >> 1);
+
+  if (print) {
+    std::cout << "=================================" << std::endl;
+    std::cout << "ir1 iz1: " << ir1 << " " << iz1 << std::endl;
+    std::cout << "ir2 iz2: " << ir2 << " " << iz2 << std::endl;
+    std::cout << "ir6 idelta02 : " << ir6 << " " << idelta02 << std::endl;
+    std::cout << "it1 ix6 : " << it1 << " " << ix6 << std::endl;
+    std::cout << "it iz0 : " << it_new << " " << iz0_new << std::endl;
+  }
 }
 
 bool TrackletCalculatorBase::goodTrackPars(bool goodrinv, bool goodz0) {
@@ -228,7 +235,8 @@ bool TrackletCalculatorBase::inSector(int iphi0, int irinv, double phi0approx, d
 bool TrackletCalculatorBase::barrelSeeding(const Stub* innerFPGAStub,
                                            const L1TStub* innerStub,
                                            const Stub* outerFPGAStub,
-                                           const L1TStub* outerStub) {
+                                           const L1TStub* outerStub,
+                                           bool print) {
   if (settings_.debugTracklet()) {
     edm::LogVerbatim("Tracklet") << "TrackletCalculatorBase " << getName()
                                  << " trying stub pair in layer (inner outer): " << innerFPGAStub->layer().value()
@@ -283,7 +291,7 @@ bool TrackletCalculatorBase::barrelSeeding(const Stub* innerFPGAStub,
   int ir1abs = ir1 + ir1mean;
   int ir2abs = ir2 + ir2mean;
 
-  calcPars(idr, iphi1, ir1abs, iz1, iphi2, ir2abs, iz2, irinv_new, iphi0_new, iz0_new, it_new);
+  calcPars(idr, iphi1, ir1abs, iz1, iphi2, ir2abs, iz2, irinv_new, iphi0_new, iz0_new, it_new, print);
 
   bool rinvcut = abs(irinv_new) < settings_.rinvcut() * (120.0 * (1 << n_rinv_)) / phiHG_;
   bool z0cut = abs(iz0_new) < settings_.z0cut() * (1 << n_z_) / 120.0;
@@ -430,7 +438,7 @@ bool TrackletCalculatorBase::diskSeeding(const Stub* innerFPGAStub,
 
   int irinv_new, iphi0_new, iz0_new, it_new;
 
-  calcPars(idr, iphi1, ir1, iz1abs, iphi2, ir2, iz2abs, irinv_new, iphi0_new, iz0_new, it_new);
+  calcPars(idr, iphi1, ir1, iz1abs, iphi2, ir2, iz2abs, irinv_new, iphi0_new, iz0_new, it_new, print);
 
   if (print) {
     edm::LogVerbatim("Tracklet") << "=======================";

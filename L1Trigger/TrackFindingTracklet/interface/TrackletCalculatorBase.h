@@ -45,7 +45,8 @@ namespace trklet {
                   int& irinv_new,
                   int& iphi0_new,
                   int& iz0_new,
-                  int& it_new);
+                  int& it_new,
+                  bool print = false);
 
     bool goodTrackPars(bool goodrinv, bool goodz0);
 
@@ -54,7 +55,8 @@ namespace trklet {
     bool barrelSeeding(const Stub* innerFPGAStub,
                        const L1TStub* innerStub,
                        const Stub* outerFPGAStub,
-                       const L1TStub* outerStub);
+                       const L1TStub* outerStub,
+                       bool print);
     bool diskSeeding(const Stub* innerFPGAStub,
                      const L1TStub* innerStub,
                      const Stub* outerFPGAStub,

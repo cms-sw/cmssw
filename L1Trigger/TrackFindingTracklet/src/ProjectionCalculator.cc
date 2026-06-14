@@ -20,17 +20,18 @@ ProjectionCalculator::ProjectionCalculator(string name, Settings const& settings
   n_rinv_ = 13;
   n_t_ = 9;
   n_phidisk_ = n_phi_ - 3;
-  n_rdisk_ = n_r_ - 1;
+  n_rdisk_ = n_r_;
 
   //Constants used for projectison to layers
   n_s_ = 12;
   n_s6_ = 14;
+  n_iv_ = 4;
 
   //Constants used for projectison to disks
-  n_tinv_ = 12;
+  n_tinv_ = 12 + 1;
   n_y_ = 14;
   n_x_ = 14;
-  n_xx6_ = 14;
+  n_xx6_ = 14 + 1;
 
   phiHG_ = settings_.dphisectorHG();
 
@@ -40,7 +41,7 @@ ProjectionCalculator::ProjectionCalculator(string name, Settings const& settings
     if (it < 100) {
       LUT_itinv_[it] = 0;
     } else {
-      LUT_itinv_[it] = (1 << (n_t_ + n_tinv_)) / abs(it);
+      LUT_itinv_[it] = 0.5 + float((1 << (n_t_ + n_tinv_))) / abs(it);
     }
   }
 
@@ -57,38 +58,41 @@ void ProjectionCalculator::projLayer(int ir, int irinv, int iphi0, int it, int i
   long int is6 = (1 << n_s6_) + ((is * is) >> (2 + 2 * n_r_ + 2 * n_rinv_ - 2 * n_s_ - n_s6_));
   long int iu = (ir * irinv) >> (n_r_ + n_rinv_ + 1 - n_phi_);
   iphi = (iphi0 << (n_phi_ - n_phi0_)) - ((iu * is6) >> n_s6_);
-  long int iv = (it * ir) >> (n_r_ + n_t_ - n_z_);
-  iz = iz0 + ((iv * is6) >> n_s6_);
+  long int iv = (it * ir) >> (n_r_ + n_t_ - n_z_ - n_iv_);
+  iz = iz0 + ((((iv * is6) >> (n_iv_ + n_s6_ - 1)) + 1) >> 1);
 }
+
 // Project to disk (taken from TrackletCalculatorBase.cc)
 void ProjectionCalculator::projDisk(
-    int iz, int irinv, int iphi0, int it, int iz0, int& ir, int& iphi, int& iderphi, int& iderr) {
+    int iz, int irinv, int iphi0, int it, int iz0, int& ir, int& iphi, int& iderphi, int& iderr, bool print) {
   long int iz0_sign = (it > 0) ? iz0 : -iz0;
 
   assert(abs(it) < static_cast<int>(LUT_itinv_.size()));
   long int itinv = LUT_itinv_[abs(it)];
 
-  iderphi = (-irinv * itinv) >> 17;
-  iderr = itinv >> 5;
+  iderphi = (-irinv * itinv) >> (n_tinv_ + 5);
+  iderr = ((itinv >> (n_tinv_ - 9 - 1)) + 1) >> 1;
 
   if (it < 0) {
     iderphi = -iderphi;
     iderr = -iderr;
   }
 
-  long int iw = (((iz << (n_r_ - n_z_)) - (iz0_sign << (n_r_ - n_z_))) * itinv) >> n_tinv_;
+  int nw = 2;
 
-  iphi = (iphi0 >> (n_phi0_ - n_phidisk_)) - ((iw * irinv) >> (1 + n_r_ + n_rinv_ - n_phidisk_));
+  long int iw = (((iz << (n_r_ - n_z_)) - (iz0_sign << (n_r_ - n_z_))) * itinv) >> (n_tinv_ - nw);
+
+  iphi = (iphi0 >> (n_phi0_ - n_phidisk_)) - ((iw * irinv) >> (1 + n_r_ + n_rinv_ - n_phidisk_ + nw));
 
   long int ifact = (1 << n_y_) * phiHG_ / sqrt(6.0);
 
   long int iy = (ifact * irinv) >> n_y_;
 
-  long int ix = (iw * iy) >> n_x_;
+  long int ix = (iw * iy) >> (n_x_ + nw);
 
   long int ix6 = (1 << n_xx6_) - ((ix * ix) >> (2 + 2 * n_r_ + 2 * n_rinv_ - 2 * n_x_ - n_xx6_));
 
-  ir = (iw * ix6) >> (n_r_ - n_rdisk_ + n_xx6_);
+  ir = (((iw * ix6) >> (n_r_ - n_rdisk_ + n_xx6_ + nw - 1)) + 1) >> 1;
 }
 
 void ProjectionCalculator::addOutput(MemoryBase* memory, string output) {
@@ -149,7 +153,8 @@ void ProjectionCalculator::addInput(MemoryBase* memory, string input) {
 }
 
 void ProjectionCalculator::execute(unsigned int iSector, double phimin) {
-  //bool print = getName() == "PC_L2L3ABCD" && iSector == 3;
+  //bool print = getName() == "PC_L1L2ABC" && iSector == 3;
+  bool print = false;
 
   unsigned int nPar1 = 0;
   unsigned int nPar2 = 0;
@@ -193,10 +198,6 @@ void ProjectionCalculator::execute(unsigned int iSector, double phimin) {
             continue;
           nPar2++;
           auto tracklet = inputpars_[i]->getTracklet(k);
-          //double phi0 = tracklet->phi0(); // non-digi track params, currently unneeded / unused
-          //double z0 = tracklet->z0();
-          //double t = tracklet->t();
-          //double rinv = tracklet->rinv();
 
           int irinv = tracklet->fpgarinv().value();  // digi track params
           int iphi0 = tracklet->fpgaphi0().value();
@@ -225,6 +226,7 @@ void ProjectionCalculator::execute(unsigned int iSector, double phimin) {
             int ir;
             ir = settings_.irmean(iLayer);
             projLayer(ir, irinv, iphi0, it, iz0, izr_LD[iLayer], iphi_LD[iLayer]);
+
             valid_zmin = izr_LD[iLayer] >= zmin;
             valid_zmax = izr_LD[iLayer] < zmax;
             valid_phimax = iphi_LD[iLayer] < phimax;
@@ -244,18 +246,24 @@ void ProjectionCalculator::execute(unsigned int iSector, double phimin) {
           ////////////////////////////////
           // calculate disk projections //
           ////////////////////////////////
-          double irmindisk = settings_.rmindisk() / settings_.krprojshiftdisk();
-          double irmaxdisk = settings_.rmaxdisk() / settings_.krprojshiftdisk();
+          double irmindisk = settings_.rmindisk() / settings_.kr();
+          double irmaxdisk = settings_.rmaxdisk() / settings_.kr();
 
           int tcut = 1.0 / (settings_.ktpars());
 
           for (unsigned int iDisk = N_LAYER; iDisk < N_LAYER + N_DISK; ++iDisk) {
             int izproj = settings_.izmean(iDisk % N_LAYER);
-            projDisk(izproj, irinv, iphi0, it, iz0, izr_LD[iDisk], iphi_LD[iDisk], der_phi_LD[1], der_zr_LD[1]);
+            projDisk(izproj, irinv, iphi0, it, iz0, izr_LD[iDisk], iphi_LD[iDisk], der_phi_LD[1], der_zr_LD[1], print);
             valid_LD[iDisk] = izr_LD[iDisk] >= irmindisk && izr_LD[iDisk] < irmaxdisk && ((it > tcut) || (it < -tcut));
-            //if (print) {
-            //  std::cout << "iDisk iphi_LD : " << iDisk << " " << iphi_LD[iDisk] << " valid: " << valid_LD[iDisk] << std::endl;
-            //}
+            if (settings_.writeMonitorData("ProjectionCalculator") & valid_LD[iDisk]) {
+              double tsign = fabs(it) / it;
+              double sinarg = fabs(tsign * izproj * settings_.kz() - iz0 * settings_.kz0pars()) * irinv *
+                              settings_.krinvpars() / (2 * fabs(it) * settings_.ktpars());
+              double rtmp = (2 / (irinv * settings_.krinvpars())) * sin(sinarg);
+              globals_->ofstream("projectioncalculator.txt")
+                  << "PC rproj: " << izr_LD[iDisk] * settings_.kr() << " " << rtmp
+                  << "   diff = " << izr_LD[iDisk] * settings_.kr() - rtmp << endl;
+            }
           }
 
           ///////////////////////////////////
@@ -272,15 +280,11 @@ void ProjectionCalculator::execute(unsigned int iSector, double phimin) {
                    ((1 << (settings_.nzbitsstub(layer - 1) - 1)) - 1))) {  // reject extreme z values
                 continue;
               }
-              if (std::abs(izr_LD[layer - 1]) > 2048) {
-                continue;
-              }
+              assert(std::abs(izr_LD[layer - 1]) <= 2048);
 
+              // FIXME find better way to calculate these - but don't have stub coordinates to use exacttracklet function
               double phiprojlayer = iphi_LD[layer - 1] * settings_.kphi(layer - 1);  // get un-digi projections
-              double zprojlayer =
-                  izr_LD[layer - 1] *
-                  settings_
-                      .kz();  // FIXME find better way to calculate these - but don't have stub coordinates to use exacttracklet function
+              double zprojlayer = izr_LD[layer - 1] * settings_.kz();
               double phiderlayer = der_phi_LD[0] * settings_.kphider();
               double zderlayer = der_zr_LD[0] * settings_.kzder();
 
@@ -327,9 +331,17 @@ void ProjectionCalculator::execute(unsigned int iSector, double phimin) {
               double phiprojdisk =
                   iphi_LD[N_LAYER + disk - 1] *
                   settings_.kphi(N_LAYER);  // un-digitize values using granularities for initializing projections
-              double rprojdisk = izr_LD[N_LAYER + disk - 1] * settings_.kr();
-              double phiderdisk = der_phi_LD[1] * settings_.kphiderdisk();
-              double rderdisk = der_zr_LD[1] * settings_.krder();
+                                            //double rprojdisk = izr_LD[N_LAYER + disk - 1] * settings_.kr();
+
+              int izproj = settings_.izmean(disk - 1);
+              double tsign = fabs(it) / it;
+              double sinarg = fabs(tsign * izproj * settings_.kz() - iz0 * settings_.kz0pars()) * irinv *
+                              settings_.krinvpars() / (2 * fabs(it) * settings_.ktpars());
+              double rprojdisk = (2 / (irinv * settings_.krinvpars())) * sin(sinarg);
+
+              double phiderdisk = der_phi_LD[1] * settings_.kphiderdisk();  //FIXME should be float!
+              //double rderdisk = der_zr_LD[1] * settings_.krder();
+              double rderdisk = 1.0 / tracklet->t();
 
               projs[N_LAYER + disk - 1].init(settings_,
                                              N_LAYER + disk - 1,
@@ -386,9 +398,9 @@ void ProjectionCalculator::execute(unsigned int iSector, double phimin) {
               } else {
                 FPGAWord fpgar = tracklet->proj(layerdisk).fpgarzproj();
 
-                if (fpgar.value() * settings_.krprojshiftdisk() < settings_.rmindiskvm())
+                if (fpgar.value() * settings_.kr() < settings_.rmindiskvm())
                   continue;
-                if (fpgar.value() * settings_.krprojshiftdisk() > settings_.rmaxdisk())
+                if (fpgar.value() * settings_.kr() > settings_.rmaxdisk())
                   continue;
 
                 FPGAWord fpgaphi = tracklet->proj(layerdisk).fpgaphiproj();

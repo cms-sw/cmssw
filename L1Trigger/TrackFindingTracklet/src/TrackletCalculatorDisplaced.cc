@@ -142,9 +142,9 @@ void TrackletCalculatorDisplaced::addDiskProj(Tracklet* tracklet, int disk) {
   disk = std::abs(disk);
   FPGAWord fpgar = tracklet->proj(N_LAYER + disk - 1).fpgarzproj();
 
-  if (fpgar.value() * settings_.krprojshiftdisk() < settings_.rmindiskvm())
+  if (fpgar.value() * settings_.kr() < settings_.rmindiskvm())
     return;
-  if (fpgar.value() * settings_.krprojshiftdisk() > settings_.rmaxdisk())
+  if (fpgar.value() * settings_.kr() > settings_.rmaxdisk())
     return;
 
   FPGAWord fpgaphi = tracklet->proj(N_LAYER + disk - 1).fpgaphiproj();

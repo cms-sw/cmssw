@@ -206,22 +206,22 @@ void TrackletLUT::initmatchcut(unsigned int layerdisk, MatchType type, unsigned 
       table_.push_back(settings_.rphicut2S(iSeed, layerdisk - N_LAYER) / (settings_.kphi() * settings_.kr()));
     }
     if (type == disk2Sr) {
-      table_.push_back(settings_.rcut2S(iSeed, layerdisk - N_LAYER) / settings_.krprojshiftdisk());
+      table_.push_back(settings_.rcut2S(iSeed, layerdisk - N_LAYER) / settings_.kr());
     }
     if (type == diskPSr) {
-      table_.push_back(settings_.rcutPS(iSeed, layerdisk - N_LAYER) / settings_.krprojshiftdisk());
+      table_.push_back(settings_.rcutPS(iSeed, layerdisk - N_LAYER) / settings_.kr());
     }
   }
   if (type == alphainner) {
     for (unsigned int i = 0; i < N_DSS_MOD * 2; i++) {
-      table_.push_back((1 << settings_.alphashift()) * settings_.krprojshiftdisk() * settings_.half2SmoduleWidth() /
+      table_.push_back((1 << settings_.alphashift()) * settings_.kr() * settings_.half2SmoduleWidth() /
                        (1 << (settings_.nbitsalpha() - 1)) / (settings_.rDSSinner(i) * settings_.rDSSinner(i)) /
                        settings_.kphi());
     }
   }
   if (type == alphaouter) {
     for (unsigned int i = 0; i < N_DSS_MOD * 2; i++) {
-      table_.push_back((1 << settings_.alphashift()) * settings_.krprojshiftdisk() * settings_.half2SmoduleWidth() /
+      table_.push_back((1 << settings_.alphashift()) * settings_.kr() * settings_.half2SmoduleWidth() /
                        (1 << (settings_.nbitsalpha() - 1)) / (settings_.rDSSouter(i) * settings_.rDSSouter(i)) /
                        settings_.kphi());
     }
@@ -820,7 +820,7 @@ void TrackletLUT::initProjectionBend(double k_phider,
           iphider -= (1 << nphiderbits);
         iphider = iphider << (settings_.nbitsphiprojderL123() - nphiderbits);
 
-        double rproj = ir * settings_.krprojshiftdisk();
+        double rproj = ir * settings_.kr();
         double phider = iphider * k_phider;
         double t = settings_.zmean(idisk) / rproj;
 

@@ -426,10 +426,6 @@ namespace trklet {
     double kzder() const { return 1.0 / 64; }
     double krder() const { return 1.0 / 128; }
 
-    //This is a 'historical accident' and should be fixed so that we don't
-    //have the factor if 2
-    double krprojshiftdisk() const { return 2 * kr(); }
-
     double benddecode(unsigned int ibend, unsigned int layerdisk, bool isPSmodule) const {
       if (layerdisk >= N_LAYER && (!isPSmodule))
         layerdisk += N_DISK;
@@ -630,7 +626,7 @@ namespace trklet {
 
     int phiresidbits_{12};
     int zresidbits_{9};
-    int rresidbits_{7};
+    int rresidbits_{8};
 
     //Trackfit
     int fitrinvbitshift_{9};  //6 OK?
@@ -770,10 +766,10 @@ namespace trklet {
 
     //r cuts for 2S modules in disks -the column is the seedindex
     std::array<std::array<double, N_SEED>, N_DISK> rcut2S_{
-        {{{3.8, 3.8, 3.8, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 0.0, 0.0, 0.0}},    //disk 1
-         {{3.8, 3.8, 3.8, 0.0, 0.0, 0.0, 3.8, 3.4, 3.0, 0.0, 3.0, 0.0}},    //disk 2
-         {{3.6, 3.8, 0.0, 0.0, 3.6, 0.0, 3.6, 3.8, 0.0, 0.0, 3.8, 3.0}},    //disk 3
-         {{3.6, 3.8, 0.0, 0.0, 3.6, 0.0, 3.5, 3.8, 0.0, 0.0, 3.0, 3.0}},    //disk 4
+        {{{3.6, 3.6, 3.6, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 0.0, 0.0, 0.0}},    //disk 1
+         {{3.6, 3.6, 3.6, 0.0, 0.0, 0.0, 3.6, 3.4, 3.0, 0.0, 3.0, 0.0}},    //disk 2
+         {{3.6, 3.6, 0.0, 0.0, 3.6, 0.0, 3.6, 3.6, 0.0, 0.0, 3.6, 3.0}},    //disk 3
+         {{3.6, 3.6, 0.0, 0.0, 3.6, 0.0, 3.5, 3.6, 0.0, 0.0, 3.0, 3.0}},    //disk 4
          {{0.0, 0.0, 0.0, 0.0, 3.6, 3.4, 3.7, 0.0, 0.0, 0.0, 0.0, 3.0}}}};  //disk 5
 
     //returns the mean bend (in strips at a 1.8 mm separation) for bendcode
@@ -886,6 +882,8 @@ namespace trklet {
                                                             {"TPars", false},
                                                             {"TPD", false},
                                                             {"TrackletPars", false},
+                                                            {"ProjectionCalculator", false},
+                                                            {"MPDiskProjection", false},
                                                             {"TED", false},
                                                             {"TP", false},
                                                             {"PC", false},

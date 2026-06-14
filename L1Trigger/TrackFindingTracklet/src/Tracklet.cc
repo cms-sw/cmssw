@@ -606,7 +606,7 @@ const std::string Tracklet::diskstubstr(const unsigned disk) const {
 
   std::stringstream oss("");
   if (!resid_[N_LAYER + disk].valid())
-    oss << "0|0000000|0000000000|000000000000|000000000000|0000000";
+    oss << "0|0000000|0000000000|000000000000|000000000000|00000000";
   else {
     if (trackIndex_ < 0 || trackIndex_ > (int)settings_.ntrackletmax()) {
       edm::LogWarning("Tracklet") << "trackIndex_ = " << trackIndex_;
@@ -636,7 +636,7 @@ std::string Tracklet::trackfitstr() const {
       stub[i] = "0|0000000|0000000000|0000000|000000000000|000000000";
     } else {
       //disk
-      stub[i] = "0|0000000|0000000000|000000000000|000000000000|0000000";
+      stub[i] = "0|0000000|0000000000|000000000000|000000000000|00000000";
     }
   }
   string hitmap(maxNHits * nBitsPerHit, '0');
