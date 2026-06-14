@@ -215,23 +215,48 @@ std::vector<truth::Particle> truth::Graph::outgoingParticlesOf(size_type vertexI
   return out;
 }
 
+void truth::Graph::appendParents(size_type particleId, std::vector<uint32_t>& out) const {
+  for (uint32_t v : productionVertices(particleId)) {
+    for (uint32_t p : incomingParticles(v)) {
+      if (p != particleId)
+        out.push_back(p);
+    }
+  }
+}
+
+void truth::Graph::appendChildren(size_type particleId, std::vector<uint32_t>& out) const {
+  for (uint32_t v : decayVertices(particleId)) {
+    for (uint32_t p : outgoingParticles(v)) {
+      if (p != particleId)
+        out.push_back(p);
+    }
+  }
+}
+
+namespace {
+  // Append the unique particles in `ids` (preserving first-occurrence order) to
+  // `out` as views. Degree is tiny, so the O(deg^2) scan beats an nParticles array.
+  void appendUnique(truth::Graph const* g, std::vector<uint32_t> const& ids, std::vector<truth::Particle>& out) {
+    for (uint32_t p : ids) {
+      bool dup = false;
+      for (auto const& q : out)
+        if (q.id() == p) {
+          dup = true;
+          break;
+        }
+      if (!dup)
+        out.emplace_back(g, p);
+    }
+  }
+}  // namespace
+
 std::vector<truth::Particle> truth::Graph::parentsOf(size_type particleId) const {
   std::vector<truth::Particle> out;
   if (particleId >= nParticles())
     return out;
-
-  std::vector<uint8_t> seen(nParticles(), 0);
-
-  for (uint32_t v : productionVertices(particleId)) {
-    for (uint32_t p : incomingParticles(v)) {
-      if (p == particleId)
-        continue;
-      if (!seen[p]) {
-        seen[p] = 1;
-        out.emplace_back(this, p);
-      }
-    }
-  }
+  std::vector<uint32_t> ids;
+  appendParents(particleId, ids);
+  appendUnique(this, ids, out);
   return out;
 }
 
@@ -239,19 +264,9 @@ std::vector<truth::Particle> truth::Graph::childrenOf(size_type particleId) cons
   std::vector<truth::Particle> out;
   if (particleId >= nParticles())
     return out;
-
-  std::vector<uint8_t> seen(nParticles(), 0);
-
-  for (uint32_t v : decayVertices(particleId)) {
-    for (uint32_t p : outgoingParticles(v)) {
-      if (p == particleId)
-        continue;
-      if (!seen[p]) {
-        seen[p] = 1;
-        out.emplace_back(this, p);
-      }
-    }
-  }
+  std::vector<uint32_t> ids;
+  appendChildren(particleId, ids);
+  appendUnique(this, ids, out);
   return out;
 }
 
@@ -262,23 +277,29 @@ std::vector<truth::Particle> truth::Graph::ancestorsOf(size_type particleId) con
 
   std::vector<int> dist(nParticles(), -1);
   std::queue<uint32_t> q;
+  std::vector<uint32_t> buf;  // reused per-node parent buffer (no per-node alloc)
 
-  for (auto const& parent : parentsOf(particleId)) {
-    dist[parent.id()] = 1;
-    q.push(parent.id());
-    out.push_back(parent);
+  appendParents(particleId, buf);
+  for (uint32_t p : buf) {
+    if (dist[p] >= 0)
+      continue;
+    dist[p] = 1;
+    q.push(p);
+    out.emplace_back(this, p);
   }
 
   while (!q.empty()) {
     const uint32_t cur = q.front();
     q.pop();
 
-    for (auto const& parent : parentsOf(cur)) {
-      if (dist[parent.id()] >= 0)
+    buf.clear();
+    appendParents(cur, buf);
+    for (uint32_t p : buf) {
+      if (dist[p] >= 0)
         continue;
-      dist[parent.id()] = dist[cur] + 1;
-      q.push(parent.id());
-      out.push_back(parent);
+      dist[p] = dist[cur] + 1;
+      q.push(p);
+      out.emplace_back(this, p);
     }
   }
 
@@ -292,23 +313,29 @@ std::vector<truth::Particle> truth::Graph::descendantsOf(size_type particleId) c
 
   std::vector<int> dist(nParticles(), -1);
   std::queue<uint32_t> q;
+  std::vector<uint32_t> buf;  // reused per-node child buffer (no per-node alloc)
 
-  for (auto const& child : childrenOf(particleId)) {
-    dist[child.id()] = 1;
-    q.push(child.id());
-    out.push_back(child);
+  appendChildren(particleId, buf);
+  for (uint32_t p : buf) {
+    if (dist[p] >= 0)
+      continue;
+    dist[p] = 1;
+    q.push(p);
+    out.emplace_back(this, p);
   }
 
   while (!q.empty()) {
     const uint32_t cur = q.front();
     q.pop();
 
-    for (auto const& child : childrenOf(cur)) {
-      if (dist[child.id()] >= 0)
+    buf.clear();
+    appendChildren(cur, buf);
+    for (uint32_t p : buf) {
+      if (dist[p] >= 0)
         continue;
-      dist[child.id()] = dist[cur] + 1;
-      q.push(child.id());
-      out.push_back(child);
+      dist[p] = dist[cur] + 1;
+      q.push(p);
+      out.emplace_back(this, p);
     }
   }
 
@@ -321,10 +348,14 @@ std::optional<truth::Particle> truth::Graph::firstAncestorWithPdgIdOf(size_type 
 
   std::vector<uint8_t> seen(nParticles(), 0);
   std::queue<uint32_t> q;
+  std::vector<uint32_t> buf;  // reused per-node parent buffer (no per-node alloc)
 
-  for (auto const& parent : parentsOf(particleId)) {
-    seen[parent.id()] = 1;
-    q.push(parent.id());
+  appendParents(particleId, buf);
+  for (uint32_t p : buf) {
+    if (seen[p])
+      continue;
+    seen[p] = 1;
+    q.push(p);
   }
 
   while (!q.empty()) {
@@ -334,11 +365,13 @@ std::optional<truth::Particle> truth::Graph::firstAncestorWithPdgIdOf(size_type 
     if (particles[cur].pdgId == pdgId)
       return particle(cur);
 
-    for (auto const& parent : parentsOf(cur)) {
-      if (seen[parent.id()])
+    buf.clear();
+    appendParents(cur, buf);
+    for (uint32_t p : buf) {
+      if (seen[p])
         continue;
-      seen[parent.id()] = 1;
-      q.push(parent.id());
+      seen[p] = 1;
+      q.push(p);
     }
   }
 
@@ -354,6 +387,7 @@ std::optional<truth::Particle> truth::Graph::firstCommonAncestorOf(size_type a, 
 
   auto fillDistances = [this](uint32_t start, std::vector<int>& dist) {
     std::queue<uint32_t> q;
+    std::vector<uint32_t> buf;
     dist[start] = 0;
     q.push(start);
 
@@ -361,11 +395,13 @@ std::optional<truth::Particle> truth::Graph::firstCommonAncestorOf(size_type a, 
       const uint32_t cur = q.front();
       q.pop();
 
-      for (auto const& parent : parentsOf(cur)) {
-        if (dist[parent.id()] >= 0)
+      buf.clear();
+      appendParents(cur, buf);
+      for (uint32_t p : buf) {
+        if (dist[p] >= 0)
           continue;
-        dist[parent.id()] = dist[cur] + 1;
-        q.push(parent.id());
+        dist[p] = dist[cur] + 1;
+        q.push(p);
       }
     }
   };
@@ -418,6 +454,7 @@ std::optional<truth::Particle> truth::Graph::lowestCommonAncestor(std::vector<Pa
 
   auto fillDistances = [this](uint32_t start, std::vector<int>& d) {
     std::queue<uint32_t> q;
+    std::vector<uint32_t> buf;
     d[start] = 0;
     q.push(start);
 
@@ -425,11 +462,13 @@ std::optional<truth::Particle> truth::Graph::lowestCommonAncestor(std::vector<Pa
       const uint32_t cur = q.front();
       q.pop();
 
-      for (auto const& parent : parentsOf(cur)) {
-        if (d[parent.id()] >= 0)
+      buf.clear();
+      appendParents(cur, buf);
+      for (uint32_t p : buf) {
+        if (d[p] >= 0)
           continue;
-        d[parent.id()] = d[cur] + 1;
-        q.push(parent.id());
+        d[p] = d[cur] + 1;
+        q.push(p);
       }
     }
   };

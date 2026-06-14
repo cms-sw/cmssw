@@ -8,7 +8,6 @@
 #include <cstdint>
 #include <ranges>
 #include <span>
-#include <unordered_map>
 #include <vector>
 
 #include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndex.h"
@@ -40,8 +39,9 @@ namespace truth {
   // Associates reco objects to truth branches (subtrees) by shared detector hits.
   // Built once per event over a set of candidate branch roots (default: every
   // particle); caches the inverted detId -> roots index and per-cell total sim
-  // energy. bestBranches() then answers any reco object via a merge-join of the
-  // object's (sorted) hits with each candidate's sorted subgraph-hit span.
+  // energy as flat, sorted arrays (binary-searched, no per-event hashing).
+  // bestBranches() then answers any reco object via a merge-join of the object's
+  // (sorted) hits with each candidate's sorted subgraph-hit span.
   class BranchHitAssociator {
   public:
     enum class Metric { SharedEnergy, SharedHits };
@@ -67,12 +67,27 @@ namespace truth {
   private:
     [[nodiscard]] std::span<const LogicalGraphHitIndex::Hit> rootHits(uint32_t rootId) const;
 
+    // Candidate roots whose subgraph touches a cell, by binary search; empty span
+    // if the cell is untouched.
+    [[nodiscard]] std::span<const uint32_t> rootsForCell(uint32_t detId) const;
+    // Total sim energy on a cell (denominator for branch fractions), 0 if none.
+    [[nodiscard]] float cellTotalEnergy(uint32_t detId) const;
+
     LogicalGraphHitIndex const* hitIndex_;
     Metric metric_;
     bool useTracker_;
     std::vector<uint32_t> roots_;
-    std::unordered_map<uint32_t, std::vector<uint32_t>> detIdToRoots_;  // inverted index
-    std::unordered_map<uint32_t, float> cellTotalEnergy_;               // per detId, summed sim energy
+
+    // Inverted index detId -> candidate roots, stored CSR-style: cellRootsKeys_
+    // holds the distinct cell detIds (ascending); cellRootsOffsets_ indexes
+    // cellRoots_, which holds the root ids (ascending within each cell).
+    std::vector<uint32_t> cellRootsKeys_;
+    std::vector<uint32_t> cellRootsOffsets_;
+    std::vector<uint32_t> cellRoots_;
+
+    // Per-cell total sim energy as parallel sorted arrays (cellEnergyKeys_ ascending).
+    std::vector<uint32_t> cellEnergyKeys_;
+    std::vector<float> cellEnergyValues_;
   };
 
 }  // namespace truth

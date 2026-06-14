@@ -258,6 +258,12 @@ namespace truth {
     [[nodiscard]] std::vector<Particle> parentsOf(size_type particleId) const;
     [[nodiscard]] std::vector<Particle> childrenOf(size_type particleId) const;
 
+    // Allocation-free cores for the traversals: append the immediate parent/child
+    // particle ids (excluding self) to `out`, without deduplication. Callers that
+    // need unique results dedup against their own (tiny) buffer or a visited set.
+    void appendParents(size_type particleId, std::vector<uint32_t>& out) const;
+    void appendChildren(size_type particleId, std::vector<uint32_t>& out) const;
+
     [[nodiscard]] std::vector<Particle> ancestorsOf(size_type particleId) const;
     [[nodiscard]] std::vector<Particle> descendantsOf(size_type particleId) const;
 
