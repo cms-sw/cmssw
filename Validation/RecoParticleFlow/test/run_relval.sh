@@ -41,6 +41,10 @@ case "${PHASE}" in
         CUSTOM="--customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000"
 	PHASE_Label="_phase2"
         ;;
+    *)
+        echo "Error: Unknown PHASE='${PHASE}'. Must be one of: phase1, phase1-mlpf, phase2"
+        exit 1
+        ;;
 esac
 
 echo "CONDITIONS=${CONDITIONS}"
@@ -126,7 +130,7 @@ SKIPEVENTS=$(($NJOB * $PERJOB))
 echo $INPUT_FILELIST $NAME $STEP $SKIPEVENTS
 #env
 
-echo $GEOM $$CONDITIONS
+echo $GEOM $CONDITIONS
 
 if [ $STEP == "RECO" ]; then
 
