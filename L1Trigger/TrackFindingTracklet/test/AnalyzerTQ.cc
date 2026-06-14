@@ -320,74 +320,66 @@ namespace trklet {
 
 AnalyzerTQ::TrackAssociationResult AnalyzerTQ::associateTrack(const std::vector<TTStubRef>& theseStubs, const TTClusterAssociationMap<Ref_Phase2TrackerDigi_>& clusterMap, const TTStubAssociationMap<Ref_Phase2TrackerDigi_>& stubMap) {
       
-      // Auxiliary map to relate TP addresses and TP edm::Ptr
-      std::map<const TrackingParticle*, TrackingParticlePtr> auxMap;
-      int mayCombinUnknown = 0;
-      
-      // Collect all TrackingParticles that contribute to this track's stubs
-      for (const TTStubRef& stub : theseStubs) {
-          for (unsigned int ic = 0; ic < 2; ic++) {
-              const std::vector<TrackingParticlePtr>& tempTPs =
-                  clusterMap.findTrackingParticlePtrs(stub->clusterRef(ic));
-              
-              for (const TrackingParticlePtr& testTP : tempTPs) {
-                  if (testTP.isNull())
-                      continue;
-                  
-                  if (auxMap.find(testTP.get()) == auxMap.end()) {
-                      auxMap.emplace(testTP.get(), testTP);
-                  }
-              }
-          }
-          
-          if (stubMap.isUnknown(stub))
-              ++mayCombinUnknown;
-      }
-      
-      // Reject tracks with ANY unknown stub (strict matching)
-      if (mayCombinUnknown > 0) {
-          return {false, TrackingParticlePtr(), mayCombinUnknown, 0};
-      }
-      
-      // Find which TrackingParticles appear in ALL stubs (strict matching - no mismatches allowed)
-      std::vector<const TrackingParticle*> tpInAllStubs;
-      
-      for (const auto& auxPair : auxMap) {
-          const std::vector<TTStubRef>& tempStubs = 
-              stubMap.findTTStubRefs(auxPair.second);
-          
-          // Count stubs on track that are NOT related to this TP
-          int nnotfound = 0;
-          for (const TTStubRef& stub : theseStubs) {
-              if (std::find(tempStubs.begin(), tempStubs.end(), stub) == tempStubs.end()) {
-                  ++nnotfound;
-                  break;  // Early exit - one mismatch is enough to fail strict matching
-              }
-          }
-          
-          // For strict matching, we require ALL stubs to be found
-          if (nnotfound > 0)
-              continue;
-          
-          // This TP generates hits in ALL stubs (strict matching)
-          tpInAllStubs.push_back(auxPair.first);
-      }
-      
-      // Count how many TPs were associated to all stubs on this track
-      unsigned int nTPs = tpInAllStubs.size();
-      
-      // Strict matching logic:
-      // - If exactly 1 TP appears in ALL stubs: GENUINE
-      // - If 0 or >= 2 TP: FAKE
-      if (nTPs != 1) {
-          return {false, TrackingParticlePtr(), mayCombinUnknown, static_cast<int>(nTPs)};
-      }
-      
-      // This track is genuine (strict matching) - return the associated TP
-      const TrackingParticle* bestTPptr = tpInAllStubs.at(0);
-      TrackingParticlePtr bestTP = auxMap.find(bestTPptr)->second;
-      
-      return {true, bestTP, mayCombinUnknown, 1};
+    std::map<const TrackingParticle*, TrackingParticlePtr> auxMap;
+    int mayCombinUnknown = 0;
+    
+    for (const TTStubRef& stub : theseStubs) {
+        for (unsigned int ic = 0; ic < 2; ic++) {
+            const std::vector<TrackingParticlePtr>& tempTPs =
+                clusterMap.findTrackingParticlePtrs(stub->clusterRef(ic));
+            
+            for (const TrackingParticlePtr& testTP : tempTPs) {
+                if (testTP.isNull())
+                    continue;
+                
+                if (auxMap.find(testTP.get()) == auxMap.end()) {
+                    auxMap.emplace(testTP.get(), testTP);
+                }
+            }
+        }
+        
+        if (stubMap.isUnknown(stub))
+            ++mayCombinUnknown;
+    }
+    
+    if (mayCombinUnknown > 0) {
+        return {false, TrackingParticlePtr(), mayCombinUnknown, 0};
+    }
+    
+    std::vector<const TrackingParticle*> tpInAllStubs;
+    
+    for (const auto& auxPair : auxMap) {
+        const std::vector<TTStubRef>& tempStubs = 
+            stubMap.findTTStubRefs(auxPair.second);
+        
+        int nnotfound = 0;
+        for (const TTStubRef& stub : theseStubs) {
+            if (std::find(tempStubs.begin(), tempStubs.end(), stub) == tempStubs.end()) {
+                ++nnotfound;
+                break;
+            }
+        }
+        
+        if (nnotfound > 0)
+            continue;
+        
+        tpInAllStubs.push_back(auxPair.first);
+    }
+    
+    unsigned int nTPs = tpInAllStubs.size();
+    
+    // Strict matching logic:
+    // - If exactly 1 TP appears in ALL stubs: GENUINE
+    // - If 0 or >= 2 TP: FAKE
+    if (nTPs != 1) {
+        return {false, TrackingParticlePtr(), mayCombinUnknown, static_cast<int>(nTPs)};
+    }
+    
+    // This track is genuine (strict matching) - return the associated TP
+    const TrackingParticle* bestTPptr = tpInAllStubs.at(0);
+    TrackingParticlePtr bestTP = auxMap.find(bestTPptr)->second;
+    
+    return {true, bestTP, mayCombinUnknown, 1};
   }
 
 }  // namespace trklet
