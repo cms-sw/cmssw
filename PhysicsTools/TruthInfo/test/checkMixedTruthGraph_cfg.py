@@ -13,6 +13,8 @@ from argparse import ArgumentParser
 parser = ArgumentParser()
 parser.add_argument("inputFile", nargs='?', default="step2_cf.root", metavar='FILE')
 parser.add_argument('-n', "--maxevts", type=int, default=3)
+parser.add_argument("--rawsrc", default="truthGraphMixedProducer",
+                    help="raw TruthGraph label: 'truthGraphMixedProducer' (Phase A) or 'mix' (accumulator)")
 args = parser.parse_args()
 if '/' not in args.inputFile and ':' not in args.inputFile:
     args.inputFile = 'file:' + args.inputFile
@@ -30,7 +32,7 @@ process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(False))
 # (g4SimHits); pileup particles keep structure + EncodedEventId but no momentum.
 process.truthLogicalGraphProducer = cms.EDProducer(
     "TruthLogicalGraphProducer",
-    src=cms.InputTag("truthGraphMixedProducer"),
+    src=cms.InputTag(args.rawsrc),
     simTracks=cms.InputTag("g4SimHits"),
     simVertices=cms.InputTag("g4SimHits"),
     genEventHepMC3=cms.InputTag("generatorSmeared"),
@@ -50,7 +52,7 @@ process.truthLogicalGraphProducer = cms.EDProducer(
 
 process.topoChecker = cms.EDAnalyzer(
     "TruthGraphTopologyChecker",
-    rawSrc=cms.InputTag("truthGraphMixedProducer"),
+    rawSrc=cms.InputTag(args.rawsrc),
     src=cms.InputTag("truthLogicalGraphProducer"),
 )
 

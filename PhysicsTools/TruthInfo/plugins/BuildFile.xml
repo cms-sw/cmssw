@@ -39,12 +39,17 @@
 <use name="SimTracker/TrackAssociation"/>
 <use name="SimTracker/TrackerHitAssociation"/>
 <use name="SimDataFormats/CrossingFrame"/>
+<use name="SimGeneral/MixingModule"/>
 
 <library file="TruthGraphProducer.cc" name="TruthGraphProducerPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
 
 <library file="TruthGraphMixedProducer.cc" name="TruthGraphMixedProducerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="TruthGraphAccumulator.cc" name="TruthGraphAccumulatorPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
 
