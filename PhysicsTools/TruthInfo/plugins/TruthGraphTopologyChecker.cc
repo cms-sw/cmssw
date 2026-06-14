@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <cstring>
 #include <map>
 #include <numeric>
 #include <sstream>
@@ -26,6 +27,8 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 #include "PhysicsTools/TruthInfo/interface/Graph.h"
 #include "PhysicsTools/TruthInfo/interface/TruthGraph.h"
@@ -100,6 +103,13 @@ namespace {
       v.push_back(std::move(s));
   }
 
+  // Decode the packed EncodedEventId (memcpy reverse of TruthGraphProducer::packEventId).
+  EncodedEventId decodeEid(uint64_t packed) {
+    uint32_t raw = 0;
+    std::memcpy(&raw, &packed, sizeof(raw));
+    return EncodedEventId(raw);
+  }
+
 }  // namespace
 
 class TruthGraphTopologyChecker : public edm::one::EDAnalyzer<> {
@@ -129,6 +139,8 @@ private:
   uint64_t logMultiProdParticles_ = 0, logMultiMotherVertices_ = 0, logMultiParentParticles_ = 0;
   uint64_t logMultiDecayParticles_ = 0, logArtificialVertices_ = 0;
   uint64_t logCycles_ = 0, logComponentsTotal_ = 0, logOrphanComponents_ = 0;
+  uint64_t logSignalParticles_ = 0, logPileupParticles_ = 0;
+  std::map<int, uint64_t> logBxHist_;  // bunchCrossing -> particle count
   std::vector<std::string> logBigVtxEx_, logMultiParentEx_, logMultiProdEx_, logOrphanEx_;
 };
 
@@ -338,6 +350,14 @@ void TruthGraphTopologyChecker::analyzeLogical(truth::Graph const& g) {
       os << "]";
       capPush(logMultiParentEx_, os.str());
     }
+
+    // Pileup provenance: signal is (bx==0, event==0); everything else is pileup.
+    const EncodedEventId eid = decodeEid(g.particles[p].eventId);
+    ++logBxHist_[eid.bunchCrossing()];
+    if (eid.bunchCrossing() == 0 && eid.event() == 0)
+      ++logSignalParticles_;
+    else
+      ++logPileupParticles_;
   }
 
   if (!isDag(outAdj, indeg))
@@ -404,6 +424,13 @@ void TruthGraphTopologyChecker::endJob() {
   dump("[LOG] multi-parent particles:", logMultiParentEx_);
   dump("[LOG] multi-production particles:", logMultiProdEx_);
   dump("[LOG] orphan fragments:", logOrphanEx_);
+
+  std::ostringstream bx;
+  for (auto const& [b, c] : logBxHist_)
+    bx << " bx" << b << "=" << c;
+  edm::LogPrint("TruthGraphTopologyChecker")
+      << "[LOG] pileup provenance: signalParticles(bx=0,ev=0)=" << logSignalParticles_
+      << " pileupParticles=" << logPileupParticles_ << " | per-bunchCrossing:" << bx.str();
 }
 
 DEFINE_FWK_MODULE(TruthGraphTopologyChecker);
