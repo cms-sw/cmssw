@@ -29,3 +29,27 @@ def addMixedTruthGraph(process):
         out.outputCommands.append("keep *_truthGraphMixedProducer_*_*")
 
     return process
+
+
+def addTruthGraphAccumulator(process,
+                             pileupBunchCrossings=(0,),
+                             collapsePileupGen=True):
+    """Phase-B (B1): register TruthGraphAccumulator inside the MixingModule.
+
+    The accumulator builds the mixed (signal + pileup) raw TruthGraph from the
+    native per-sub-event SimTrack/SimVertex collections. By default only in-time
+    pileup (bx 0) is included; pass pileupBunchCrossings to widen. The mixed graph
+    is kept in the output as TruthGraph_mix__<process>.
+    """
+    process.mix.digitizers.truthGraph = cms.PSet(
+        accumulatorType=cms.string("TruthGraphAccumulator"),
+        simTracks=cms.InputTag("g4SimHits"),
+        simVertices=cms.InputTag("g4SimHits"),
+        pileupBunchCrossings=cms.vint32(*pileupBunchCrossings),
+        collapsePileupGen=cms.bool(collapsePileupGen),
+    )
+
+    for out in process.outputModules_().values():
+        out.outputCommands.append("keep TruthGraph_mix_*_*")
+
+    return process
