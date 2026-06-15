@@ -15,7 +15,6 @@
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
 
-#include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
 #include "LayerClusterToCaloParticleAssociatorBaseImpl.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimClusterFwd.h"
 #include "LayerClusterToSimClusterAssociatorBaseImpl.h"
@@ -40,8 +39,6 @@ namespace ticl {
     virtual ticl::RecoToSimTracksterCollection associateRecoToSim(
         const edm::Handle<reco::CaloClusterCollection> &cCH,
         const edm::Handle<ticl::TracksterCollection> &sTCH,
-        const edm::Handle<CaloParticleCollection> &cPCH,
-        const ticl::RecoToSimCollectionT<reco::CaloClusterCollection> &lCToCPs,
         const edm::Handle<SimClusterCollection> &sCCH,
         const ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection> &lCToSCs) const;
 
@@ -49,8 +46,6 @@ namespace ticl {
     virtual ticl::SimTracksterToRecoCollection associateSimToReco(
         const edm::Handle<reco::CaloClusterCollection> &cCH,
         const edm::Handle<ticl::TracksterCollection> &sTCH,
-        const edm::Handle<CaloParticleCollection> &cPCH,
-        const ticl::SimToRecoCollectionT<reco::CaloClusterCollection> &cPToLCs,
         const edm::Handle<SimClusterCollection> &sCCH,
         const ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection> &sCToLCs) const;
   };

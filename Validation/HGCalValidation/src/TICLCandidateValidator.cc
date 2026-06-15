@@ -431,7 +431,9 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
 
   edm::Handle<ticl::TracksterToTracksterMap> mergeTsSimToReco_h;
   event.getByToken(associatorMapStRToken_, mergeTsSimToReco_h);
+  /// Map : SimTrackster collection in 1-1 correspondance to simTICLCandidate => TICLCandidates tracksters
   auto const& mergeTsSimToRecoMap = *mergeTsSimToReco_h;
+  assert(mergeTsSimToRecoMap.getCollectionIDs().second.id() == Tracksters_h.id());
 
   // candidates plots
   for (const auto& cand : TICLCandidates) {
@@ -445,7 +447,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
     histograms.h_candidate_partType->Fill(std::max_element(arr.begin(), arr.end()) - arr.begin());
   }
 
-  std::vector<int> chargedCandidates;
+  std::vector<int> chargedCandidates;  // indices into SimTICLCandidate collection
   std::vector<int> neutralCandidates;
   chargedCandidates.reserve(simTICLCandidates.size());
   neutralCandidates.reserve(simTICLCandidates.size());
@@ -508,14 +510,18 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
 
     int32_t cand_idx = -1;
     float shared_energy = 0.;
+    // take the SimTrackster used to build SimTICLCandidate ("base" ie CaloParticle one) and find simToReco-associated reco "ticlCandidate" tracksters (assume 1-1 mapping SimTICLCandidate-SimTrackster)
+    if (i >= (int)mergeTsSimToRecoMap.size())
+      throw cms::Exception("LogicError") << "Mismatch between SimTICLCandidate index and SimTrackster index. Most "
+                                            "likely mismatched collections were given as inputs.";
     const auto& ts_vec = mergeTsSimToRecoMap[i];
     if (!ts_vec.empty()) {
       auto min_elem =
           std::min_element(ts_vec.begin(), ts_vec.end(), [](auto const& ts1_id_pair, auto const& ts2_id_pair) {
             return ts1_id_pair.score() < ts2_id_pair.score();
-          });
+          });  // take the best-associated trackster
       shared_energy = min_elem->sharedEnergy();
-      cand_idx = min_elem->index();
+      cand_idx = min_elem->index();  // index of reco TICLCandidate trackster best-associated to simTICLCandidate
     }
     // no reco associated to sim
     if (cand_idx == -1) {
@@ -591,6 +597,7 @@ void TICLCandidateValidator::fillCandidateHistos(const edm::Event& event,
 
     int32_t cand_idx = -1;
     float shared_energy = 0.;
+    assert(i < (int)mergeTsSimToRecoMap.size());
     const auto& ts_vec = mergeTsSimToRecoMap[i];
     if (!ts_vec.empty()) {
       auto min_elem =

@@ -157,9 +157,9 @@ ticl_superclustering_mustache_ticl.toModify(
 
 associatorsInstances = []
 for labelts in ticlIterLabelsPSet.labels:
-    for labelsts in ["ticlSimTracksters", "ticlSimTrackstersfromCPs"]:
-        associatorsInstances.append(labelts + "To" + labelsts)
-        associatorsInstances.append(labelsts + "To" + labelts)
+    for labelsts in ['ticlSimTrackstersfromLegacySimCluster', 'ticlSimTrackstersfromBoundarySimCluster', 'ticlSimTrackstersfromCaloParticle', 'ticlSimTrackstersfromMergedSimCluster']:
+        associatorsInstances.append(labelts+'To'+labelsts)
+        associatorsInstances.append(labelsts+'To'+labelts)
 
 ticlTracksterLinksTask = cms.Task(ticlTracksterLinks, ticlSuperclusteringTask) 
 

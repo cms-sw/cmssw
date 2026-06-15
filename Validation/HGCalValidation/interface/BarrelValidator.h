@@ -99,8 +99,8 @@ protected:
   edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
   std::vector<edm::EDGetTokenT<std::vector<float>>> clustersMaskTokens_;
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> barrelHitMap_;
-  std::vector<edm::EDGetTokenT<ticl::RecoToSimCollectionT<reco::CaloClusterCollection>>> associatorMapRtS;
-  std::vector<edm::EDGetTokenT<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>>> associatorMapStR;
+  std::vector<edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>>> associatorMapRtS;
+  std::vector<edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>>> associatorMapStR;
   std::vector<edm::EDGetTokenT<ticl::SimToRecoCollectionWithSimClustersT<reco::CaloClusterCollection>>>
       associatorMapSimtR;
   std::vector<edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>>>
@@ -109,7 +109,7 @@ protected:
   edm::EDGetTokenT<edm::RefProdVector<reco::PFRecHitCollection>> hitsToken_;
   std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterAssociatorsTokens_;
   std::vector<edm::EDGetTokenT<TracksterToTracksterMap>> tracksterToTracksterByHitsAssociatorsTokens_;
-  edm::EDGetTokenT<SimClusterToCaloParticleMap> scToCpMapToken_;
+  edm::EDGetTokenT<SimClusterRefVector> scToCpMapToken_;
   edm::InputTag cpTag_;
 
 private:

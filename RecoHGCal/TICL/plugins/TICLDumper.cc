@@ -635,7 +635,6 @@ private:
   edm::EDGetTokenT<reco::CaloClusterCollection> recoSuperClusters_caloClusters_token;
   edm::EDGetTokenT<std::vector<ticl::Trackster>> recoSuperClusters_sourceTracksters_token;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometry_token_;
-  const edm::EDGetTokenT<std::vector<ticl::Trackster>> simTracksters_SC_token_;  // needed for simticlcandidate
   const edm::EDGetTokenT<std::vector<TICLCandidate>> simTICLCandidate_token_;
 
   // associators
@@ -962,8 +961,6 @@ TICLDumper::TICLDumper(const edm::ParameterSet& ps)
       recoSuperClusters_sourceTracksters_token(consumes<std::vector<ticl::Trackster>>(
           ps.getParameter<edm::InputTag>("recoSuperClusters_sourceTracksterCollection"))),
       caloGeometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
-      simTracksters_SC_token_(
-          consumes<std::vector<ticl::Trackster>>(ps.getParameter<edm::InputTag>("simtrackstersSC"))),
       simTICLCandidate_token_(
           consumes<std::vector<TICLCandidate>>(ps.getParameter<edm::InputTag>("simTICLCandidates"))),
       associations_parameterSets_(ps.getParameter<std::vector<edm::ParameterSet>>("associators")),
@@ -1382,7 +1379,6 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
     tracksters_trees[i]->Fill();
   }
 
-  const auto& simTrackstersSC_h = event.getHandle(simTracksters_SC_token_);
   simTICLCandidate_tracks_in_candidate.resize(simTICLCandidates.size());
   for (size_t i = 0; i < simTICLCandidates.size(); ++i) {
     auto const& cand = simTICLCandidates[i];
@@ -1397,8 +1393,7 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
     simTICLCandidate_eta.push_back(cand.eta());
     std::vector<int> tmpIdxVec;
     for (auto const& simTS : cand.tracksters()) {
-      auto trackster_idx = simTS.get() - (edm::Ptr<ticl::Trackster>(simTrackstersSC_h, 0)).get();
-      tmpIdxVec.push_back(trackster_idx);
+      tmpIdxVec.push_back(simTS.key());  // Index of SimTrackster in its collection
     }
     simTICLCandidate_simTracksterCPIndex.push_back(tmpIdxVec);
     tmpIdxVec.clear();
@@ -1636,9 +1631,7 @@ void TICLDumper::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
           "Trackster collection used to produce the reco::SuperCluster, used to provide a mapping back to the "
           "tracksters used in superclusters");
 
-  desc.add<edm::InputTag>("simtrackstersSC", edm::InputTag("ticlSimTracksters"))
-      ->setComment("SimTrackster from CaloParticle collection to use for simTICLcandidates");
-  desc.add<edm::InputTag>("simTICLCandidates", edm::InputTag("ticlSimTracksters"));
+  desc.add<edm::InputTag>("simTICLCandidates", edm::InputTag("ticlSimTICLCandidatesFromBoundary"));
   desc.add<std::vector<edm::InputTag>>("label_rechits",
                                        {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
                                         edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),

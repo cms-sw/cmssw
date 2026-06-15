@@ -6,7 +6,6 @@
 
 // system include files
 #include <memory>
-#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -14,14 +13,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/Associations/interface/LayerClusterToSimTracksterAssociator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -42,11 +38,6 @@ private:
   edm::EDGetTokenT<ticl::TracksterCollection> SimTSCollectionToken_;
   edm::EDGetTokenT<ticl::LayerClusterToSimTracksterAssociator> associatorToken_;
 
-  edm::EDGetTokenT<CaloParticleCollection> CPCollectionToken_;
-  edm::InputTag associatorCP_;
-  edm::EDGetTokenT<ticl::RecoToSimCollectionT<reco::CaloClusterCollection>> associationMapLCToCPToken_;
-  edm::EDGetTokenT<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>> associationMapCPToLCToken_;
-
   edm::EDGetTokenT<SimClusterCollection> SCCollectionToken_;
   edm::InputTag associatorSC_;
   edm::EDGetTokenT<ticl::RecoToSimCollectionWithSimClustersT<reco::CaloClusterCollection>> associationMapLCToSCToken_;
@@ -58,10 +49,6 @@ LCToSimTSAssociatorEDProducer::LCToSimTSAssociatorEDProducer(const edm::Paramete
       SimTSCollectionToken_(consumes<ticl::TracksterCollection>(pset.getParameter<edm::InputTag>("label_simTst"))),
       associatorToken_(
           consumes<ticl::LayerClusterToSimTracksterAssociator>(pset.getParameter<edm::InputTag>("associator"))),
-      CPCollectionToken_(consumes<CaloParticleCollection>(pset.getParameter<edm::InputTag>("label_cp"))),
-      associatorCP_(pset.getParameter<edm::InputTag>("associator_cp")),
-      associationMapLCToCPToken_(consumes<ticl::RecoToSimCollectionT<reco::CaloClusterCollection>>(associatorCP_)),
-      associationMapCPToLCToken_(consumes<ticl::SimToRecoCollectionT<reco::CaloClusterCollection>>(associatorCP_)),
       SCCollectionToken_(consumes<SimClusterCollection>(pset.getParameter<edm::InputTag>("label_scl"))),
       associatorSC_(pset.getParameter<edm::InputTag>("associator_sc")),
       associationMapLCToSCToken_(
@@ -91,11 +78,6 @@ void LCToSimTSAssociatorEDProducer::produce(edm::StreamID, edm::Event &iEvent, c
   Handle<ticl::TracksterCollection> SimTSCollection;
   iEvent.getByToken(SimTSCollectionToken_, SimTSCollection);
 
-  Handle<CaloParticleCollection> CPCollection;
-  iEvent.getByToken(CPCollectionToken_, CPCollection);
-  const auto &LCToCPsColl = iEvent.get(associationMapLCToCPToken_);
-  const auto &CPToLCsColl = iEvent.get(associationMapCPToLCToken_);
-
   Handle<SimClusterCollection> SCCollection;
   iEvent.getByToken(SCCollectionToken_, SCCollection);
   const auto &LCToSCsColl = iEvent.get(associationMapLCToSCToken_);
@@ -103,12 +85,12 @@ void LCToSimTSAssociatorEDProducer::produce(edm::StreamID, edm::Event &iEvent, c
 
   // associate LC and SimTS
   LogTrace("AssociatorValidator") << "Calling associateRecoToSim method\n";
-  ticl::RecoToSimTracksterCollection recSimColl = theAssociator->associateRecoToSim(
-      LCCollection, SimTSCollection, CPCollection, LCToCPsColl, SCCollection, LCToSCsColl);
+  ticl::RecoToSimTracksterCollection recSimColl =
+      theAssociator->associateRecoToSim(LCCollection, SimTSCollection, SCCollection, LCToSCsColl);
 
   LogTrace("AssociatorValidator") << "Calling associateSimToReco method\n";
-  ticl::SimTracksterToRecoCollection simRecColl = theAssociator->associateSimToReco(
-      LCCollection, SimTSCollection, CPCollection, CPToLCsColl, SCCollection, SCToLCsColl);
+  ticl::SimTracksterToRecoCollection simRecColl =
+      theAssociator->associateSimToReco(LCCollection, SimTSCollection, SCCollection, SCToLCsColl);
 
   auto rts = std::make_unique<ticl::RecoToSimTracksterCollection>(recSimColl);
   auto str = std::make_unique<ticl::SimTracksterToRecoCollection>(simRecColl);

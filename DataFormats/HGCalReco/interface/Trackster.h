@@ -36,6 +36,8 @@ namespace ticl {
         ambiguous,
         unknown,
       };
+      /// Length of id_probabilities : to keep same length as enum ParticleType
+      static constexpr std::size_t kParticleTypeLength = 8;
 
       enum class PCAOrdering { ascending = 0, descending };
 
@@ -217,7 +219,7 @@ namespace ticl {
       float timeError_;
 
       // trackster ID probabilities
-      std::array<float, 8> id_probabilities_;
+      std::array<float, kParticleTypeLength> id_probabilities_;
 
       // The vertices of the DAG are the indices of the
       // 2d objects in the global collection
