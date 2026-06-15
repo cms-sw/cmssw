@@ -528,8 +528,8 @@ upgradeWFs['trackingMkFitPhase2'].step3 = {
     '--procModifiers': 'trackingMkFitCommon,trackingMkFitInitialStep'
 }
 
-# LST on CPU, initialStep+highPtTripletStep-only tracking-only
-class UpgradeWorkflow_lstOnCPUIters01TrackingOnly(UpgradeWorkflowTracking):
+# LST and mkFit on CPU, initialStep+highPtTripletStep-only tracking-only
+class UpgradeWorkflow_lstmkFitOnCPUIters01TrackingOnly(UpgradeWorkflowTracking):
     def setup__(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, stepDict[step][k]])
@@ -537,7 +537,7 @@ class UpgradeWorkflow_lstOnCPUIters01TrackingOnly(UpgradeWorkflowTracking):
     def condition(self, fragment, stepList, key, hasHarvest):
         result = (fragment=="TTbar_14TeV") and hasHarvest and ('Run4' in key)
         return result
-upgradeWFs['lstOnCPUIters01TrackingOnly'] = UpgradeWorkflow_lstOnCPUIters01TrackingOnly(
+upgradeWFs['lstmkFitOnCPUIters01TrackingOnly'] = UpgradeWorkflow_lstmkFitOnCPUIters01TrackingOnly(
     steps = [
         'RecoGlobal',
         'HARVESTGlobal',
@@ -549,24 +549,24 @@ upgradeWFs['lstOnCPUIters01TrackingOnly'] = UpgradeWorkflow_lstOnCPUIters01Track
         'RecoGlobal',
         'HARVESTGlobal',
     ],
-    suffix = '_lstOnCPUIters01TrackingOnly',
+    suffix = '_lstmkFitOnCPUIters01TrackingOnly',
     offset = 0.711,
 )
-upgradeWFs['lstOnCPUIters01TrackingOnly'].step3 = upgradeWFs['trackingOnly'].step3 | {
-    '--procModifiers': 'trackingIters01,trackingLST',
+upgradeWFs['lstmkFitOnCPUIters01TrackingOnly'].step3 = upgradeWFs['trackingOnly'].step3 | {
+    '--procModifiers': 'trackingLST,seedingLST,trackingMkFitHighPtTripletStep,trackingIters01',
     '--accelerators' : 'cpu'
 }
 
-# LST on GPU (if available), initialStep+highPtTripletStep-only tracking-only
-class UpgradeWorkflow_lstOnGPUIters01TrackingOnly(UpgradeWorkflowTracking):
+# LST and mkFit on GPU (if available), initialStep+highPtTripletStep-only tracking-only
+class UpgradeWorkflow_lstmkFitOnGPUIters01TrackingOnly(UpgradeWorkflowTracking):
     def setup__(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
-        elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM', '--procModifiers': 'trackingIters01,trackingLST'}, stepDict[step][k]])
+        elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM', '--procModifiers': 'trackingLST,seedingLST,trackingMkFitHighPtTripletStep,trackingIters01'}, stepDict[step][k]])
         elif 'ALCA' in step: stepDict[stepName][k] = None
     def condition(self, fragment, stepList, key, hasHarvest):
         result = (fragment=="TTbar_14TeV") and hasHarvest and ('Run4' in key)
         return result
-upgradeWFs['lstOnGPUIters01TrackingOnly'] = UpgradeWorkflow_lstOnGPUIters01TrackingOnly(
+upgradeWFs['lstmkFitOnGPUIters01TrackingOnly'] = UpgradeWorkflow_lstmkFitOnGPUIters01TrackingOnly(
     steps = [
         'RecoGlobal',
         'HARVESTGlobal',
@@ -578,21 +578,21 @@ upgradeWFs['lstOnGPUIters01TrackingOnly'] = UpgradeWorkflow_lstOnGPUIters01Track
         'RecoGlobal',
         'HARVESTGlobal',
     ],
-    suffix = '_lstOnGPUIters01TrackingOnly',
+    suffix = '_lstmkFitOnGPUIters01TrackingOnly',
     offset = 0.712,
 )
-upgradeWFs['lstOnGPUIters01TrackingOnly'].step3 = upgradeWFs['trackingOnly'].step3 | {
-    '--procModifiers': 'trackingIters01,trackingLST',
+upgradeWFs['lstmkFitOnGPUIters01TrackingOnly'].step3 = upgradeWFs['trackingOnly'].step3 | {
+    '--procModifiers': 'trackingLST,seedingLST,trackingMkFitHighPtTripletStep,trackingIters01'
 }
 
 # LST on GPU (if available), initialStep+highPtTripletStep-only tracking-only, CPU vs. GPU comparison
-class UpgradeWorkflow_lstOnGPUIters01TrackingOnlyAlpakaValidationLST(UpgradeWorkflow_lstOnGPUIters01TrackingOnly):
+class UpgradeWorkflow_lstmkFitOnGPUIters01TrackingOnlyAlpakaValidationLST(UpgradeWorkflow_lstmkFitOnGPUIters01TrackingOnly):
     pass
-upgradeWFs['lstOnGPUIters01TrackingOnlyAlpakaValidationLST'] = deepcopy(upgradeWFs['lstOnGPUIters01TrackingOnly'])
-upgradeWFs['lstOnGPUIters01TrackingOnlyAlpakaValidationLST'].suffix = '_lstOnGPUIters01TrackingOnlyAlpakaValidationLST'
-upgradeWFs['lstOnGPUIters01TrackingOnlyAlpakaValidationLST'].offset = 0.713
-upgradeWFs['lstOnGPUIters01TrackingOnlyAlpakaValidationLST'].step3 = upgradeWFs['trackingOnly'].step3 | {
-    '--procModifiers': 'alpakaValidationLST,trackingIters01,trackingLST',
+upgradeWFs['lstmkFitOnGPUIters01TrackingOnlyAlpakaValidationLST'] = deepcopy(upgradeWFs['lstmkFitOnGPUIters01TrackingOnly'])
+upgradeWFs['lstmkFitOnGPUIters01TrackingOnlyAlpakaValidationLST'].suffix = '_lstmkFitOnGPUIters01TrackingOnlyAlpakaValidationLST'
+upgradeWFs['lstmkFitOnGPUIters01TrackingOnlyAlpakaValidationLST'].offset = 0.713
+upgradeWFs['lstmkFitOnGPUIters01TrackingOnlyAlpakaValidationLST'].step3 = upgradeWFs['trackingOnly'].step3 | {
+    '--procModifiers': 'alpakaValidationLST,trackingLST,seedingLST,trackingMkFitHighPtTripletStep,trackingIters01'
 }
 
 #DeepCore seeding for JetCore iteration workflow
