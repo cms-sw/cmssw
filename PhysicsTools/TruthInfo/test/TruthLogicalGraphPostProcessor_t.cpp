@@ -71,7 +71,7 @@ namespace {
       particle.pdgId = pdgId;
       particle.status = 0;
       particle.statusFlags = 0;
-      particle.eventId = 1;
+      particle.eventId = 0;  // signal interaction: EncodedEventId(0, 0) packs to 0
       particle.genEvent = -1;
     }
 
@@ -84,7 +84,7 @@ namespace {
       particle.pdgId = pdgId;
       particle.status = status;
       particle.statusFlags = 0;
-      particle.eventId = 1;
+      particle.eventId = 0;  // signal interaction: EncodedEventId(0, 0) packs to 0
       particle.genEvent = 0;
     }
 
@@ -104,7 +104,7 @@ namespace {
       auto& vertex = graph.vertices[vertexId];
       vertex.genNode = -1;
       vertex.simNode = simNode;
-      vertex.eventId = 1;
+      vertex.eventId = 0;  // signal interaction
       vertex.genEvent = -1;
     }
 
@@ -114,7 +114,7 @@ namespace {
       auto& vertex = graph.vertices[vertexId];
       vertex.genNode = genNode;
       vertex.simNode = simNode;
-      vertex.eventId = 1;
+      vertex.eventId = 0;  // signal interaction
       vertex.genEvent = 0;
     }
 
@@ -291,6 +291,7 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testJetOriginLowestCommonAncestor);
   CPPUNIT_TEST(testHitlessSimSubgraphsAreDropped);
   CPPUNIT_TEST(testAttachSelectionSourcesFalseRootsSeedsDirectly);
+  CPPUNIT_TEST(testEventIdKeyingSplitsInteractions);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -313,6 +314,7 @@ public:
   void testJetOriginLowestCommonAncestor();
   void testHitlessSimSubgraphsAreDropped();
   void testAttachSelectionSourcesFalseRootsSeedsDirectly();
+  void testEventIdKeyingSplitsInteractions();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestTruthLogicalGraphPostProcessor);
@@ -1446,6 +1448,81 @@ void TestTruthLogicalGraphPostProcessor::testAttachSelectionSourcesFalseRootsSee
     // The seed has no production vertex: the subgraph starts directly at the Z.
     const uint32_t z = findParticleWithPdgId(output, 23);
     CPPUNIT_ASSERT(output.productionVertices(z).empty());
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testEventIdKeyingSplitsInteractions() {
+  try {
+    // Two q -> Z -> mu+ mu- chains tagged with different EncodedEventIds: one
+    // signal (eid 0), one pile-up (eid != 0). Each Z is a truncated root, so the
+    // per-interaction Interaction vertices are keyed by eventId and the two
+    // interactions stay separate - signal + one pile-up interaction.
+    GraphBuilder builder(8, 4);
+
+    const uint64_t signalEid = 0;
+    const uint64_t pileupEid = 0x2a;  // a distinct pile-up EncodedEventId
+
+    builder.setGenParticle(0, 1, 2, 100);   // q (signal)
+    builder.setGenParticle(1, 23, 2, 101);  // Z (signal)
+    builder.setGenSimParticle(2, -13, 1, 102, 1002);
+    builder.setGenSimParticle(3, 13, 1, 103, 1003);
+
+    builder.setGenParticle(4, 1, 2, 104);   // q (pile-up)
+    builder.setGenParticle(5, 23, 2, 105);  // Z (pile-up)
+    builder.setGenSimParticle(6, -13, 1, 106, 1006);
+    builder.setGenSimParticle(7, 13, 1, 107, 1007);
+
+    // Tag the pile-up chain with its EncodedEventId.
+    for (const uint32_t i : {4u, 5u, 6u, 7u})
+      builder.graph.particles[i].eventId = pileupEid;
+
+    builder.setGenVertex(0, 200);           // q -> Z (signal, dropped at depth 0)
+    builder.setGenSimVertex(1, 201, 2001);  // Z -> mu mu (signal)
+    builder.setGenVertex(2, 202);           // q -> Z (pile-up, dropped at depth 0)
+    builder.setGenSimVertex(3, 203, 2003);  // Z -> mu mu (pile-up)
+
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+    builder.addDecay(1, 1);
+    builder.addProduction(1, 2);
+    builder.addProduction(1, 3);
+
+    builder.addDecay(4, 2);
+    builder.addProduction(2, 5);
+    builder.addDecay(5, 3);
+    builder.addProduction(3, 6);
+    builder.addProduction(3, 7);
+
+    auto graph = builder.finish();
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {23};
+    config.seedParentDepth = 0;
+    config.keepStableSpectators = false;
+
+    auto output = runPostProcessing(std::move(graph), config);
+    CPPUNIT_ASSERT(output.isConsistent());
+
+    // One Interaction (and one Upstream) vertex per interaction: signal + pile-up.
+    CPPUNIT_ASSERT_EQUAL(uint32_t(2), countArtificialVerticesWithRole(output, truth::VertexRole::Interaction));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(2), countArtificialVerticesWithRole(output, truth::VertexRole::Upstream));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::UnderlyingEvent));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(2), countParticlesWithPdgId(output, 23));
+
+    // The two Interaction vertices carry the two distinct EncodedEventIds.
+    bool sawSignal = false;
+    bool sawPileup = false;
+    for (auto const& vertex : output.vertices) {
+      if (vertex.vertexRole() != truth::VertexRole::Interaction)
+        continue;
+      sawSignal = sawSignal || vertex.eventId == signalEid;
+      sawPileup = sawPileup || vertex.eventId == pileupEid;
+    }
+    CPPUNIT_ASSERT(sawSignal);
+    CPPUNIT_ASSERT(sawPileup);
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);

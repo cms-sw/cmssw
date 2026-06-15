@@ -722,7 +722,9 @@ namespace {
       output.vertices.push_back(input.vertices[oldVertex]);
     }
 
-    // Artificial source structure, one per interaction (keyed by genEvent):
+    // Artificial source structure, one per interaction (keyed by the packed
+    // EncodedEventId, i.e. one node per pp collision: signal is bx 0 / event 0,
+    // each pile-up interaction its own):
     //
     //   (Interaction vertex, source)
     //      --connector particle--> (Upstream vertex)        --> ISR/upstream roots
@@ -730,15 +732,17 @@ namespace {
     //
     // so the whole interaction descends from a single Interaction vertex: the
     // signal is everything reachable from the signal Interaction vertex, and each
-    // overlaid pile-up interaction gets its own. The connector particles are
-    // artificial (genNode = simNode = -1) and carry the interaction provenance.
+    // overlaid pile-up interaction gets its own. Keying by eventId (not genEvent)
+    // keeps an interaction whose GEN history splits into several components under
+    // one Interaction vertex. The connector particles are artificial
+    // (genNode = simNode = -1) and carry the interaction provenance.
     struct InteractionNodes {
       int32_t interactionVertex = -1;
       int32_t upstreamVertex = -1;
       int32_t underlyingEventVertex = -1;
     };
 
-    std::map<int32_t, InteractionNodes> interactions;                 // key = genEvent
+    std::map<uint64_t, InteractionNodes> interactions;                // key = eventId (EncodedEventId)
     std::vector<std::pair<uint32_t, uint32_t>> extraProductionEdges;  // (vertex -> particle)
     std::vector<std::pair<uint32_t, uint32_t>> extraDecayEdges;       // (particle -> vertex)
 
@@ -767,7 +771,7 @@ namespace {
       const int32_t genEvent = input.particles[oldParticle].genEvent;
       const uint64_t eventId = input.particles[oldParticle].eventId;
 
-      InteractionNodes& nodes = interactions[genEvent];
+      InteractionNodes& nodes = interactions[eventId];
       if (nodes.interactionVertex < 0)
         nodes.interactionVertex = static_cast<int32_t>(
             makeArtificialVertex(static_cast<uint8_t>(truth::VertexRole::Interaction), genEvent, eventId));
