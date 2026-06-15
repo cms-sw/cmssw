@@ -48,17 +48,6 @@ namespace trklet {
 
   private:
 
-    struct TrackAssociationResult {
-      bool isGenuine;
-      TrackingParticlePtr associatedTP;
-      int nUnknownStubs;
-      int nMatchingTPs;
-    };
-
-    TrackAssociationResult associateTrack(const std::vector<TTStubRef>& theseStubs,
-                                          const TTClusterAssociationMap<Ref_Phase2TrackerDigi_>& clusterMap,
-                                          const TTStubAssociationMap<Ref_Phase2TrackerDigi_>& stubMap);
-
     // ED input token of stubs
     edm::EDGetTokenT<tt::StreamsStub> edGetTokenStubs_;
     // ED input token of tracks
@@ -77,8 +66,6 @@ namespace trklet {
     edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>> ttTrackMCTruthToken_;
     // TTTracks Token
     edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> ttTrackToken_;
-    edm::EDGetTokenT<TTStubAssociationMap<Ref_Phase2TrackerDigi_> > ttStubTruthToken_;
-    edm::EDGetTokenT<TTClusterAssociationMap<Ref_Phase2TrackerDigi_> > ttClusterTruthToken_;
     //
     int numMVA_ = 8;
     //
@@ -87,6 +74,8 @@ namespace trklet {
     int nEvents_ = 0;
     // Histograms
     std::vector<TProfile*> prof_;
+    TH1D* BDTScoreHist_Real;
+    TH1D* BDTScoreHist_Fake;
     // printout
     std::stringstream log_;
     // private
@@ -94,12 +83,15 @@ namespace trklet {
     edm::InputTag L1TrackInputTag;
     // tree
     bool training_run;
+    bool evaluation_run;
     TTree* tree_;
     std::vector<double> f_zT;
     std::vector<double> f_cot;
     std::vector<double> f_chi20;
     std::vector<double> f_chi21;
     std::vector<int> f_hitpattern;
+    std::vector<int> f_pt;
+    std::vector<int> f_eta;
     std::vector<int> f_nstubs;
     std::vector<int> f_ngaps;
     std::vector<int> matched_;
@@ -114,6 +106,7 @@ namespace trklet {
     L1TrackInputTag = iConfig.getParameter<edm::InputTag>("L1TrackInputTag");
     MCTruthTrackInputTag = iConfig.getParameter<edm::InputTag>("MCTruthTrackInputTag");
     training_run = iConfig.getParameter<bool>("TrainingMode");
+    evaluation_run = iConfig.getParameter<bool>("EvaluationMode");
     usesResource("TFileService");
     // book in- and output ED products
     const std::string& labelKF = iConfig.getParameter<std::string>("OutputLabelKF");
@@ -129,8 +122,6 @@ namespace trklet {
     edGetTokenEff_ = consumes(edm::InputTag(labelMC, branchEff));
     ttTrackToken_ = consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(L1TrackInputTag);
     ttTrackMCTruthToken_ = consumes<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>(MCTruthTrackInputTag);
-    ttClusterTruthToken_ = consumes<TTClusterAssociationMap<Ref_Phase2TrackerDigi_> >(iConfig.getParameter<edm::InputTag>("TTClusterTruth"));
-    ttStubTruthToken_ = consumes<TTStubAssociationMap<Ref_Phase2TrackerDigi_> >(iConfig.getParameter<edm::InputTag>("TTStubTruth"));
     // book ES products
     esGetTokenAssociator_ = esConsumes();
     esGetTokenSetup_ = esConsumes();
@@ -145,6 +136,8 @@ namespace trklet {
     edm::Service<TFileService> fs;
     TFileDirectory dir;
     dir = fs->mkdir("TQ");
+    BDTScoreHist_Real = dir.make<TH1D>("BDTScoreHist_Real", ";BDT Score;Entries", 7, 0, numMVA_ - 1);
+    BDTScoreHist_Fake = dir.make<TH1D>("BDTScoreHist_Fake", ";BDT Score;Entries", 7, 0, numMVA_ - 1);
     prof_ = std::vector<TProfile*>(numMVA_);
     for (int mva = 0; mva < numMVA_; mva++) {
       prof_[mva] = dir.make<TProfile>(("Counts for MVA" + std::to_string(mva)).c_str(), ";", 4, 0.5, 4.5);
@@ -164,6 +157,8 @@ namespace trklet {
       tree_->Branch("trk_feature_5", &f_chi21);
       tree_->Branch("trk_feature_6", &f_ngaps);
       tree_->Branch("trk_hitpattern", &f_hitpattern);
+      tree_->Branch("trk_pt", &f_pt);
+      tree_->Branch("trk_eta", &f_eta);
       tree_->Branch("trk_matchtp_eventtype", &matched_);
       tree_->Branch("matchtp_pdgid", &matchtp_pdgid);
     }
@@ -223,19 +218,12 @@ namespace trklet {
     // END OF TSCHUH PART
 
     // AMASTRON PART
-    if (training_run) {
+    if (training_run || evaluation_run) {
 
-      // Attempt to work with those failed miserably.
       edm::Handle<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>> MCTruthTTTrackHandle;
       iEvent.getByToken(ttTrackMCTruthToken_, MCTruthTTTrackHandle);
       edm::Handle<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> TTTrackHandle;
       iEvent.getByToken(ttTrackToken_, TTTrackHandle);
-
-      // Pull in Stub and Cluster Truth
-      edm::Handle<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>> ttClusterAssociationMapHandle;
-      iEvent.getByToken(ttClusterTruthToken_, ttClusterAssociationMapHandle);
-      edm::Handle<TTStubAssociationMap<Ref_Phase2TrackerDigi_>> ttStubAssociationMapHandle;
-      iEvent.getByToken(ttStubTruthToken_, ttStubAssociationMapHandle);
 
       // Build a map from stub set to L1Track index for fast lookup
       std::map<std::set<TTStubRef>, int> stubSetToTrackIndex;
@@ -256,16 +244,20 @@ namespace trklet {
           std::cout << "[AnalyzerTQ] TTTrackHandle is NOT valid" << std::endl;
       }
 
-      // clean from previous event
-      f_zT.clear();
-      f_cot.clear();
-      f_chi20.clear();
-      f_chi21.clear();
-      f_hitpattern.clear();
-      f_nstubs.clear();
-      f_ngaps.clear();
-      matched_.clear();
-      matchtp_pdgid.clear();
+      if (training_run) {
+        // clean from previous event
+        f_zT.clear();
+        f_cot.clear();
+        f_chi20.clear();
+        f_chi21.clear();
+        f_hitpattern.clear();
+        f_nstubs.clear();
+        f_ngaps.clear();
+        matched_.clear();
+        f_pt.clear();
+        f_eta.clear();
+        matchtp_pdgid.clear();
+      }
 
       for (int region = 0; region < setup->sysNumRegion(); region++) {
 
@@ -284,7 +276,6 @@ namespace trklet {
           const DataFormat& dfCot = df->format(Variable::cot, Process::tq);
 
           auto stubRefs = getStubRefs(region, frame, setup->kfNumLayers(), streamsStub);
-
           std::set<TTStubRef> tqStubSet;
           for (const auto& stub : stubRefs) {
             if (stub.isNonnull())
@@ -312,16 +303,6 @@ namespace trklet {
 
           const auto& matchedTrack = (*TTTrackHandle)[matchedIndex];
 
-          const double z0_scale = std::pow(2, 3);
-          const double tanL_scale = std::pow(2, 7);
-          const double feature_1 = stubRefs.size();
-          const double feature_2 = dfZT.integer(trackTQ.z0()) / z0_scale;
-          const double feature_3 = dfCot.integer(trackTQ.cot()) / tanL_scale;
-          const double feature_4 = dfChi20.integer(trackTQ.chi20()); // leave as is
-          const double feature_5 = dfChi21.integer(trackTQ.chi21()); // leave as is
-          const TTBV hitPattern = trackTQ.hitPattern();
-          const double feature_6 = hitPattern.count(hitPattern.plEncode(), hitPattern.pmEncode(), false);
-          
           edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> l1track_ptr(TTTrackHandle, matchedIndex);
           int tmp_trk_genuine = 0;
           int tmp_matchtp_pdgid = -999;
@@ -331,25 +312,50 @@ namespace trklet {
           int tmp_matchtp_eventtype = -999;
           if (tmp_trk_genuine) {
             edm::Ptr<TrackingParticle> my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(l1track_ptr);
-            if (my_tp.isNull())
-              assert(false);
+            if (my_tp.isNull()) assert(false);
             int tmp_eventid = my_tp->eventId().event();
             if (tmp_eventid > 0)
               tmp_matchtp_eventtype = 2;
             else
               tmp_matchtp_eventtype = 1;
-            
             tmp_matchtp_pdgid = my_tp->pdgId();
           }
-          matched_.push_back(tmp_matchtp_eventtype);
-          f_nstubs.push_back(feature_1);
-          f_zT.push_back(feature_2);
-          f_cot.push_back(feature_3);
-          f_chi20.push_back(feature_4);
-          f_chi21.push_back(feature_5);
-          f_ngaps.push_back(feature_6);
-          f_hitpattern.push_back(matchedTrack.hitPattern());
-          matchtp_pdgid.push_back(tmp_matchtp_pdgid);
+
+          if (evaluation_run) {
+            const float mva = trackTQ.mva();
+            if (tmp_matchtp_eventtype != -999) {
+              BDTScoreHist_Real->Fill(mva);
+            } else {
+              BDTScoreHist_Fake->Fill(mva);
+            }
+          }
+
+          if (training_run) {
+
+            // fetch attributes (as they are on TrackQuality.cc)
+            const double z0_scale = std::pow(2, 3);
+            const double tanL_scale = std::pow(2, 7);
+            const double feature_1 = stubRefs.size();
+            const double feature_2 = dfZT.integer(trackTQ.z0()) / z0_scale;
+            const double feature_3 = dfCot.integer(trackTQ.cot()) / tanL_scale;
+            const double feature_4 = dfChi20.integer(trackTQ.chi20());
+            const double feature_5 = dfChi21.integer(trackTQ.chi21());
+            const TTBV hitPattern = trackTQ.hitPattern();
+            const double feature_6 = hitPattern.count(hitPattern.plEncode(), hitPattern.pmEncode(), false);
+
+            // fill event
+            matched_.push_back(tmp_matchtp_eventtype);
+            f_pt.push_back(matchedTrack.pt());
+            f_eta.push_back(matchedTrack.eta());
+            f_nstubs.push_back(feature_1);
+            f_zT.push_back(feature_2);
+            f_cot.push_back(feature_3);
+            f_chi20.push_back(feature_4);
+            f_chi21.push_back(feature_5);
+            f_ngaps.push_back(feature_6);
+            f_hitpattern.push_back(matchedTrack.hitPattern());
+            matchtp_pdgid.push_back(tmp_matchtp_pdgid);
+          }
         }
       }
     }
@@ -389,70 +395,6 @@ namespace trklet {
     }
     return ttStubRefs;
     }
-
-AnalyzerTQ::TrackAssociationResult AnalyzerTQ::associateTrack(const std::vector<TTStubRef>& theseStubs, const TTClusterAssociationMap<Ref_Phase2TrackerDigi_>& clusterMap, const TTStubAssociationMap<Ref_Phase2TrackerDigi_>& stubMap) {
-      
-    std::map<const TrackingParticle*, TrackingParticlePtr> auxMap;
-    int mayCombinUnknown = 0;
-    
-    for (const TTStubRef& stub : theseStubs) {
-        for (unsigned int ic = 0; ic < 2; ic++) {
-            const std::vector<TrackingParticlePtr>& tempTPs =
-                clusterMap.findTrackingParticlePtrs(stub->clusterRef(ic));
-            
-            for (const TrackingParticlePtr& testTP : tempTPs) {
-                if (testTP.isNull())
-                    continue;
-                
-                if (auxMap.find(testTP.get()) == auxMap.end()) {
-                    auxMap.emplace(testTP.get(), testTP);
-                }
-            }
-        }
-        
-        if (stubMap.isUnknown(stub))
-            ++mayCombinUnknown;
-    }
-    
-    if (mayCombinUnknown > 0) {
-        return {false, TrackingParticlePtr(), mayCombinUnknown, 0};
-    }
-    
-    std::vector<const TrackingParticle*> tpInAllStubs;
-    
-    for (const auto& auxPair : auxMap) {
-        const std::vector<TTStubRef>& tempStubs = 
-            stubMap.findTTStubRefs(auxPair.second);
-        
-        int nnotfound = 0;
-        for (const TTStubRef& stub : theseStubs) {
-            if (std::find(tempStubs.begin(), tempStubs.end(), stub) == tempStubs.end()) {
-                ++nnotfound;
-                break;
-            }
-        }
-        
-        if (nnotfound > 0)
-            continue;
-        
-        tpInAllStubs.push_back(auxPair.first);
-    }
-    
-    unsigned int nTPs = tpInAllStubs.size();
-    
-    // Strict matching logic:
-    // - If exactly 1 TP appears in ALL stubs: GENUINE
-    // - If 0 or >= 2 TP: FAKE
-    if (nTPs != 1) {
-        return {false, TrackingParticlePtr(), mayCombinUnknown, static_cast<int>(nTPs)};
-    }
-    
-    // This track is genuine (strict matching) - return the associated TP
-    const TrackingParticle* bestTPptr = tpInAllStubs.at(0);
-    TrackingParticlePtr bestTP = auxMap.find(bestTPptr)->second;
-    
-    return {true, bestTP, mayCombinUnknown, 1};
-  }
 
 }  // namespace trklet
 

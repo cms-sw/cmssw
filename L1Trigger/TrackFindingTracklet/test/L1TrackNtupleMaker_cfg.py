@@ -108,7 +108,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 # input and output
 ############################################################
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*InputMC))
 process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
@@ -204,6 +204,14 @@ elif (L1TRKALGO == 'HYBRID_NEWKF' or L1TRKALGO == 'HYBRID_REDUCED'):
     process.TTTracksEmulation = cms.Path(process.HybridNewKF)
     # Optionally include code producing performance plots & end-of-job summary.
     if (TRAINING_RUN == True):
+        from L1Trigger.TrackFindingTracklet.Analyzer_cff import AnalyzerTQ
+        analyzer = AnalyzerTQ.clone(
+            TrainingMode = TRAINING_RUN,
+            EvaluationMode = True,
+            L1TrackInputTag = (L1TRK_NAME, L1TRK_LABEL),
+            MCTruthTrackInputTag = (L1TRUTH_NAME, L1TRK_LABEL),
+        )
+        process.AnalyzerTQ = analyzer
         process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF + process.TrackTriggerAssociatorTracks + process.AnalyzerTracklet + process.AnalyzerTM + process.AnalyzerDR + process.AnalyzerKF + process.AnalyzerTQ + process.AnalyzerTFP )
     else:
         process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF + process.TrackTriggerAssociatorTracks + process.AnalyzerTracklet + process.AnalyzerTM + process.AnalyzerDR + process.AnalyzerKF + process.AnalyzerTFP )
