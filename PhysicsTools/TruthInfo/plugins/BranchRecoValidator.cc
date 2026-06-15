@@ -78,6 +78,7 @@ namespace {
     static void fillDescriptions(edm::ParameterSetDescription& desc) {
       desc.add<edm::InputTag>("recoCollection", edm::InputTag("generalTracks"));
     }
+
   private:
     edm::EDGetTokenT<edm::View<reco::Track>> token_;
   };
@@ -108,6 +109,7 @@ namespace {
       desc.add<edm::InputTag>("recoCollection", edm::InputTag("ticlTrackstersCLUE3DHigh"));
       desc.add<edm::InputTag>("layerClusters", edm::InputTag("hgcalMergeLayerClusters"));
     }
+
   private:
     edm::EDGetTokenT<std::vector<ticl::Trackster>> tracksterToken_;
     edm::EDGetTokenT<std::vector<reco::CaloCluster>> layerClusterToken_;
