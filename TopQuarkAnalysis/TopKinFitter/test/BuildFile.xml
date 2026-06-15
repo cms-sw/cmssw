@@ -1,1 +1,1 @@
-<test name="runtestTqafTopKinFitter" command="runtests.sh"/>
+<!-- <test name="runtestTqafTopKinFitter" command="runtests.sh"/> COMMENT: reads old format files -->

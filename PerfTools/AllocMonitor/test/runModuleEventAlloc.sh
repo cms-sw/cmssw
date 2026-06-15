@@ -44,6 +44,11 @@ for F in product tempSize nTemp; do
     grep -q OtherThingProducer ${F}.txt || die 'OtherThingProducer not reported ${F}.txt' $?
 done
 
+edmModuleEventAllocMonitorAnalyze.py --json moduleEventAlloc.log > moduleEventAlloc.json
+edmModuleEventAllocJsonToCircles.py moduleEventAlloc.json -o moduleEventAlloc.circles.json
+grep '"\(type\|label\)": ".*",'  moduleEventAlloc.circles.json  > mea-circles.txt
+diff mea-circles.txt ${LOCAL_TEST_DIR}/unittest_output/mea-circles.txt || die 'differences in edmModuleEventAllocJsonToCircles.py output' $?
+
 ############### only 1 ED module kept
 PREFIX="edmodule"
 LD_PRELOAD="libPerfToolsAllocMonitorPreload.so" cmsRun ${LOCAL_TEST_DIR}/moduleEventAlloc_cfg.py --edmodule --output ${PREFIX}_moduleEventAlloc.log || die 'Failure using moduleEventAlloc_cfg.py --edmodule' $?

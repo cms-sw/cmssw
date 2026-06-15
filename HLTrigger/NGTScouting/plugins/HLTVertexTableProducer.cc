@@ -169,7 +169,7 @@ void HLTVertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   }
 
   //table for all primary vertices
-  auto pvTable = std::make_unique<nanoaod::FlatTable>(nPVs, pvName_, true);
+  auto pvTable = std::make_unique<nanoaod::FlatTable>(nPVs, pvName_, /*singleton*/ false);
   pvTable->addColumn<float>("ndof", v_ndof, "primary vertex number of degrees of freedom", 8);
   pvTable->addColumn<float>("chi2", v_chi2, "primary vertex reduced chi2", 8);
   pvTable->addColumn<float>("x", v_x, "primary vertex x coordinate", 10);

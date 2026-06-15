@@ -2,7 +2,7 @@
 
 #include "DataFormats/JetReco/interface/Jet.h"
 
-pat::tau::TauPFEssential::TauPFEssential(const reco::PFTau& tau)
+pat::tau::io_v1::TauPFEssential::TauPFEssential(const reco::PFTau& tau)
     : p4Jet_(reco::Candidate::LorentzVector()),
       p4CorrJet_(reco::Candidate::LorentzVector()),
       decayMode_(tau.decayMode()),

@@ -1,6 +1,7 @@
 <use name="CondFormats/Serialization"/>
 <use name="DataFormats/CLHEP"/>
 <use name="DataFormats/Math"/>
+<use name="rootcling"/>
 <use name="boost"/>
 <use name="clhep"/>
 <use name="DataFormats/DetId"/>

@@ -62,6 +62,9 @@ process.hltOnlineBeamSpot = _onlineBeamSpotProducer.clone()
 ### for pp collisions
 process.load("DQM.HLTEvF.ScoutingTrackingMonitor_cff")
 process.ScoutingTrackMonitorOnline.topFolderName = 'NGT/ScoutingOnline/Tracks'
+process.ScoutingRecoTrackMonitorOnline.FolderName = 'NGT/ScoutingOnline/Tracks'
+process.ScoutingRecoTrackMonitorOnline.BSFolderName = 'NGT/ScoutingOnline/Tracks'
+process.ScoutingRecoTrackMonitorOnline.PVFolderName = 'NGT/ScoutingOnline/Tracks'
 
 process.load("DQM.HLTEvF.ScoutingCollectionMonitor_cfi")
 process.scoutingCollectionMonitor.topfoldername = "NGT/ScoutingOnline/ScoutingCollections"
@@ -71,6 +74,9 @@ process.scoutingCollectionMonitor.rho = ["hltScoutingPFPacker", "rho"]
 
 process.load("DQM.HLTEvF.ScoutingDileptonMonitor_cfi")
 process.ScoutingDileptonMonitorOnline.OutputInternalPath = "NGT/ScoutingOnline/DiLepton"
+
+process.load("DQM.HLTEvF.ScoutingDiMuonVertexMonitor_cfi")
+process.ScoutingDiMuonVertexMonitorOnline.FolderName = "NGT/ScoutingOnline/DiMuon"
 
 process.load("DQM.HLTEvF.ScoutingPi0Monitor_cfi")
 process.ScoutingPi0MonitorOnline.OutputInternalPath = "NGT/ScoutingOnline/PiZero"
@@ -114,11 +120,12 @@ process.hltObjectMonitor.topFolderName = cms.untracked.string("NGT/ObjectMonitor
 
 process.p = cms.Path(process.dqmcommon *
                      process.hltOnlineBeamSpot *
-                     process.ScoutingTrackMonitorOnline *
+                     process.ScoutingTracksMonitoring *
                      process.run3ScoutingElectronBestTrack *
                      process.scoutingCollectionMonitor *
                      process.ScoutingRecHitsMonitoring *
                      process.ScoutingDileptonMonitorOnline *
+                     process.ScoutingDiMuonVertexMonitorOnline *
                      process.ScoutingMuonPropertiesMonitorOnline *
                      process.ScoutingPi0MonitorOnline *
                      process.hltResults *

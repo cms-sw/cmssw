@@ -3,9 +3,8 @@
 <use name="CalibCalorimetry/EcalLaserAnalyzer"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/EcalDetId"/>
-<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Provenance" source_only="1"/>
 <use name="FWCore/MessageLogger"/>
-<use name="boost"/>
 <use name="tbb"/>
 <export>
   <lib name="1"/>

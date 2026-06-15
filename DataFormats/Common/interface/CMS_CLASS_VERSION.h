@@ -14,7 +14,7 @@
       CMS_CLASS_VERSION(<number>)
 
   For classes that have been stored into ROOT files before the addition of the macro, we suggest starting the <number> at 10. This was chosen to be larger than any known number of stored changes to a templated class.
-  For new classes that have never been stored, we suggest starting the <number> at 2 (0 and 1 have special meanings to ROOT).
+  For new classes that have never been stored, we suggest starting the <number> at 3 (0 and 1 have special meanings to ROOT).
  
 */
 //

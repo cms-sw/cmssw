@@ -17,7 +17,7 @@ process.maxEvents.input = -1
 from IOPool.Output.modules import PoolOutputModule
 process.output = PoolOutputModule(fileName = 'reduced_test.root')
 
-from FWCore.Framework.modules import TestMergeResults, RunLumiEventAnalyzer
+from FWCore.Framework.modules import TestMergeResults
 process.testmerge = TestMergeResults(
     #   Check to see that the value we read matches what we know
     #   was written. Expected values listed below come in sets of three
@@ -78,6 +78,7 @@ process.testmerge = TestMergeResults(
 from IOPool.Input.modules import PoolSource
 process.source = PoolSource(fileNames = f"file:{sys.argv[1]}")
 
+from FWCore.TestModules.modules import RunLumiEventAnalyzer
 process.test = RunLumiEventAnalyzer(
     verbose = True,
     expectedRunLumiEvents = [

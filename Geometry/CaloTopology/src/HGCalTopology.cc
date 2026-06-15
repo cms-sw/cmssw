@@ -43,7 +43,7 @@ HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons, int det) : hdcons_
     types_ = 3;
   }
   kHGhalfType_ = sectors_ * layers_ * cells_ * types_;
-  kSizeForDenseIndexing = static_cast<unsigned int>(2 * kHGhalf_);
+  kSizeForDenseIndexing = static_cast<unsigned int>(hdcons_.endcaps() * kHGhalf_);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalTopology initialized for detector " << det << ":" << det_ << ":" << subdet_
                                 << " having " << sectors_ << " Sectors, " << layers_ << " Layers from " << firstLay_

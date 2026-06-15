@@ -121,6 +121,37 @@ hltPhase2LegacyTracking.toModify(hltPixelTrackTable, src = "hltPhase2PixelTracks
 hltPhase2LegacyTracking.toModify(hltPixelTrackExtTable, tracksSrc = "hltPhase2PixelTracks")
 hltPhase2LegacyTracking.toModify(hltPixelTrackRecHitsTable, tracksSrc = "hltPhase2PixelTracks")
 
+# TrackingParticle <-> hltGeneralTracks NanoAOD tables (Phase-2 HLT
+# validation). The underlying TrackAssociatorEDProducer is
+# `tpToHltGeneralTrackAssociation` and is assumed to be already present in the
+# process.
+from SimTracker.TrackAssociation.trackingParticleRecoTrackAssociationTables_cff import (
+    trackingParticleRecoTrackAssociationTable,
+    recoTrackTrackingParticleAssociationTable,
+)
+
+hltTrackingParticleRecoTrackAssociationTable = trackingParticleRecoTrackAssociationTable.clone(
+    src       = "tpToHltGeneralTrackAssociation",
+    keySrc    = ("mix", "MergedTrackTruth"),
+    valSrc    = "hltGeneralTracks",
+    name      = "hltTPAssoc",
+    linksName = "hltTPAssocLinks",
+    doc       = "TrackingParticle -> hltGeneralTracks associations (dense per TP)",
+    linksDoc  = "Flattened TP -> hltGeneralTracks links: target hltGeneralTrack index and association score",
+    skipNonExistingSrc = cms.bool(True),
+)
+
+hltRecoTrackTrackingParticleAssociationTable = recoTrackTrackingParticleAssociationTable.clone(
+    src       = "tpToHltGeneralTrackAssociation",
+    keySrc    = "hltGeneralTracks",
+    valSrc    = ("mix", "MergedTrackTruth"),
+    name      = "hltTrackAssoc",
+    linksName = "hltTrackAssocLinks",
+    doc       = "hltGeneralTrack -> TrackingParticle associations (dense per HLT general track)",
+    linksDoc  = "Flattened hltGeneralTrack -> TP links: target TP index and association score",
+    skipNonExistingSrc = cms.bool(True),
+)
+
 hltGeneralTrackTable = cms.EDProducer(
     "SimpleTriggerTrackFlatTableProducer",
     skipNonExistingSrc = cms.bool(True),

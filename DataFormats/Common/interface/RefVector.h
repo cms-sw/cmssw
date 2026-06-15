@@ -150,7 +150,7 @@ namespace edm {
     void fillView(ProductID const& id, std::vector<void const*>& pointers, FillViewHelperVector& helpers) const;
 
     //Needed for ROOT storage
-    CMS_CLASS_VERSION(13)
+    CMS_CLASS_VERSION(3)
 
   private:
     contents_type refVector_;
@@ -180,8 +180,7 @@ namespace edm {
     pointers.reserve(this->size());
     helpers.reserve(this->size());
 
-    size_type key = 0;
-    for (const_iterator i = begin(), e = end(); i != e; ++i, ++key) {
+    for (const_iterator i = begin(), e = end(); i != e; ++i) {
       member_type const* address = i->isNull() ? nullptr : &**i;
       pointers.push_back(address);
       helpers.emplace_back(i->id(), i->key());

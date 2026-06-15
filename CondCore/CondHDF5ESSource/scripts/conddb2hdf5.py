@@ -568,12 +568,30 @@ def main():
     parser.add_argument('--exclude', '-e', nargs='*', help = 'list of records to exclude from the file (can not be used with --include)')
     parser.add_argument('--include', '-i', nargs='*', help = 'lost of the only records that should be included in the file (can not be used with --exclude')
     parser.add_argument('--output', '-o', default='test.h5cond', help='name of hdf5 output file to write')
-    parser.add_argument('--compressor', '-c', default='zlib', choices =['zlib','lzma','none'], help="compress data using 'zlib', 'lzma' or 'none'")    
+    parser.add_argument('--compressor', '-c', default='zlib', choices=['zlib', 'lzma', 'zstd', 'none'], help="compress data using 'zlib', 'lzma', 'zstd', or 'none'")
+    parser.add_argument('--level', '-l', default=None, type=int, help='Compression level: 1..9 for zlib (default is 6), 1..9 for lzma (default is 6), -9..-1,1-19,20-22 for zstd (default is 3)')
     args = parser.parse_args()
 
     if args.exclude and args.include:
         print("Can not use --exclude and --include at the same time")
         exit(-1)
+
+    if args.compressor == 'none':
+        if args.level is not None:
+            print("Can not use a compression level if the compression is set to 'none'")
+            exit(-1)
+    elif args.compressor == 'zlib':
+        if args.level < 1 or args.level > 9:
+            print("Invalid compression level '%d': 'zlib' supports compression levels from 1 (fastest) to 9 (best)" % args.level)
+            exit(-1)
+    elif args.compressor == 'lzma':
+        if args.level < 1 or args.level > 9:
+            print("Invalid compression level '%d': 'lzma' supports compression levels from 1 (fastest) to 9 (best)" % args.level)
+            exit(-1)
+    elif args.compressor == 'zstd':
+        if args.level < -9 or args.level == 0 or args.level > 22:
+            print("Invalid compression level '%d': 'zstd' supports compression levels from 1 (fast) to 19 (best), 20 to 22 (ultra) and from -1 to -9 (fastest)" % args.level)
+            exit(-1)
 
     connection = connect(args)
     session = connection.session()
@@ -585,7 +603,7 @@ def main():
     if args.include:
         includeRecords = set(args.include)
 
-    writeH5File(args.output, args.name, excludeRecords, includeRecords, lambda x: DBGlobalTag(args, session, x), args.compressor)
+    writeH5File(args.output, args.name, excludeRecords, includeRecords, lambda x: DBGlobalTag(args, session, x), args.compressor, args.level)
     
 if __name__ == '__main__':
     main()

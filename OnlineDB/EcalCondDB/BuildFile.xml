@@ -1,3 +1,4 @@
+<use name="rootcling"/>
 <use name="OnlineDB/Oracle"/>
 <use name="DataFormats/EcalDetId"/>
 <export>

@@ -16,7 +16,7 @@ trackerGeometry.applyAlignment = True
 
 # calo
 from Geometry.CaloEventSetup.HGCalTopology_cfi import *
-from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *
+from Geometry.HGCalGeometry.hgcalGeometryESProducer_cff import *
 from Geometry.CaloEventSetup.HFNoseTopology_cfi import *
 from Geometry.ForwardGeometry.HFNoseGeometryESProducer_cfi import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *

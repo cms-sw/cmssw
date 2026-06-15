@@ -344,7 +344,7 @@ namespace edm {
 
     // This is used for a little sanity-check to make sure no code
     // modifications alter the number of workers at a later date.
-    size_t all_workers_count = moduleRegistry_->maxModuleID();
+    [[maybe_unused]] size_t all_workers_count = moduleRegistry_->maxModuleID();
 
     moduleRegistry_->forAllModuleHolders([this](maker::ModuleHolder* iHolder) {
       auto comm = iHolder->createOutputModuleCommunicator();

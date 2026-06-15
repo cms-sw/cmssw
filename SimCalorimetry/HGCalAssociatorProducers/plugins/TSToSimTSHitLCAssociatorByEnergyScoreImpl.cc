@@ -4,12 +4,13 @@
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-TSToSimTSHitLCAssociatorByEnergyScoreImpl::TSToSimTSHitLCAssociatorByEnergyScoreImpl(
+template <typename HIT>
+TSToSimTSHitLCAssociatorByEnergyScoreImpl<HIT>::TSToSimTSHitLCAssociatorByEnergyScoreImpl(
     edm::EDProductGetter const& productGetter,
     bool hardScatterOnly,
     std::shared_ptr<hgcal::RecHitTools> recHitTools,
     const std::unordered_map<DetId, const unsigned int>* hitMap,
-    std::vector<const HGCRecHit*>& hits)
+    std::vector<const HIT*>& hits)
     : hardScatterOnly_(hardScatterOnly),
       recHitTools_(recHitTools),
       hitMap_(hitMap),
@@ -18,7 +19,8 @@ TSToSimTSHitLCAssociatorByEnergyScoreImpl::TSToSimTSHitLCAssociatorByEnergyScore
   layers_ = recHitTools_->lastLayerBH();
 }
 
-ticl::association_t TSToSimTSHitLCAssociatorByEnergyScoreImpl::makeConnections(
+template <typename HIT>
+ticl::association_t TSToSimTSHitLCAssociatorByEnergyScoreImpl<HIT>::makeConnections(
     const edm::Handle<ticl::TracksterCollection>& tCH,
     const edm::Handle<reco::CaloClusterCollection>& lCCH,
     const edm::Handle<SimClusterCollection>& sCCH,
@@ -137,7 +139,7 @@ ticl::association_t TSToSimTSHitLCAssociatorByEnergyScoreImpl::makeConnections(
           }
         }
 
-        const HGCRecHit* hit = hits_[hitMap_->find(hitId)->second];
+        const HIT* hit = hits_[hitMap_->find(hitId)->second];
         float hitEnergy = hit->energy();
         float hitEnergySquared = hitEnergy * hitEnergy;
         float simFractionSquared = simFraction * simFraction;
@@ -177,7 +179,7 @@ ticl::association_t TSToSimTSHitLCAssociatorByEnergyScoreImpl::makeConnections(
         if (found != detIdToRecoTSId_Map[hitId].end())
           recoFraction = found->second;
 
-        const HGCRecHit* hit = hits_[hitMap_->find(hitId)->second];
+        const HIT* hit = hits_[hitMap_->find(hitId)->second];
         float hitEnergy = hit->energy();
         float hitEnergySquared = hitEnergy * hitEnergy;
         float recoFractionSquared = recoFraction * recoFraction;
@@ -213,7 +215,8 @@ ticl::association_t TSToSimTSHitLCAssociatorByEnergyScoreImpl::makeConnections(
   return {recoToSim_sharedEnergyAndScore, simToReco_sharedEnergyAndScore};
 }
 
-ticl::RecoToSimCollectionSimTracksters TSToSimTSHitLCAssociatorByEnergyScoreImpl::associateRecoToSim(
+template <typename HIT>
+ticl::RecoToSimCollectionSimTracksters TSToSimTSHitLCAssociatorByEnergyScoreImpl<HIT>::associateRecoToSim(
     const edm::Handle<ticl::TracksterCollection>& tCH,
     const edm::Handle<reco::CaloClusterCollection>& lCCH,
     const edm::Handle<SimClusterCollection>& sCCH,
@@ -241,7 +244,8 @@ ticl::RecoToSimCollectionSimTracksters TSToSimTSHitLCAssociatorByEnergyScoreImpl
   return returnValue;
 }
 
-ticl::SimToRecoCollectionSimTracksters TSToSimTSHitLCAssociatorByEnergyScoreImpl::associateSimToReco(
+template <typename HIT>
+ticl::SimToRecoCollectionSimTracksters TSToSimTSHitLCAssociatorByEnergyScoreImpl<HIT>::associateSimToReco(
     const edm::Handle<ticl::TracksterCollection>& tCH,
     const edm::Handle<reco::CaloClusterCollection>& lCCH,
     const edm::Handle<SimClusterCollection>& sCCH,
@@ -266,3 +270,6 @@ ticl::SimToRecoCollectionSimTracksters TSToSimTSHitLCAssociatorByEnergyScoreImpl
   }
   return returnValue;
 }
+
+template class TSToSimTSHitLCAssociatorByEnergyScoreImpl<HGCRecHit>;
+template class TSToSimTSHitLCAssociatorByEnergyScoreImpl<reco::PFRecHit>;

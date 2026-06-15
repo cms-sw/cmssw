@@ -8,7 +8,7 @@
 <use name="FastSimulation/ParticlePropagator"/>
 <use name="FastSimulation/TrackerSetup"/>
 <use name="FastSimulation/Utilities"/>
-<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonTopologies"/>
 <use name="MagneticField/Engine"/>
 <use name="RecoTracker/TkDetLayers"/>
 <use name="TrackingTools/DetLayers"/>

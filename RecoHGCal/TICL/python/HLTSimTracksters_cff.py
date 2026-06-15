@@ -29,7 +29,7 @@ hltTiclSimTracksters = _simTrackstersProducer.clone(
     recoTracks = cms.InputTag("hltGeneralTracks"),
     simclusters = cms.InputTag("mix","MergedCaloTruth"),
     tpToTrack = cms.InputTag("tpToHltGeneralTrackAssociation"),
-    computeLocalTime = cms.bool(False)
+    computeLocalTime = cms.bool(True)
 )
 
 from Validation.Configuration.hltHGCalSimValid_cff import *

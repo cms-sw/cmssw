@@ -4,6 +4,7 @@
 <use name="DataFormats/TrajectorySeed"/>
 <use name="FWCore/Utilities"/>
 <use name="clhepheader"/>
+<use name="rootcling"/>
 <export>
   <lib name="1"/>
 </export>

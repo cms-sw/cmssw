@@ -6,7 +6,10 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
-  class PFTauTransverseImpactParameter;
+  namespace io_v1 {
+    class PFTauTransverseImpactParameter;
+  }
+  using PFTauTransverseImpactParameter = io_v1::PFTauTransverseImpactParameter;
   /// collection of PFTauTransverseImpactParameter objects
   typedef std::vector<reco::PFTauTransverseImpactParameter> PFTauTransverseImpactParameterCollection;
   /// presistent reference to a PFTauTransverseImpactParameter

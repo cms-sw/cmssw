@@ -12,7 +12,7 @@
  */
 
 /* Base Class Headers */
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 /* Collaborating Class Declarations */
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"

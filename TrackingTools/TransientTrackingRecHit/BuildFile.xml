@@ -1,8 +1,8 @@
-
+<use name="rootcling"/>
 <use name="clhep"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/MessageLogger"/>
-<use name="Geometry/CommonDetUnit" source_only="1"/>
+<use name="Geometry/CommonTopologies" source_only="1"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/TrackingRecHit"/>
 <use name="DataFormats/TrackerRecHit2D"/>

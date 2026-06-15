@@ -16,12 +16,11 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
 <use name="Geometry/CaloGeometry"/>
-<use name="Geometry/CommonDetUnit" source_only="1"/>
+<use name="Geometry/CommonTopologies" source_only="1"/>
 <use name="Geometry/HGCalCommonData"/>
 <use name="Geometry/Records"/>
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
-<use name="PhysicsTools/TensorFlow"/>
 <use name="PhysicsTools/UtilAlgos"/>
 <use name="PhysicsTools/ONNXRuntime" />
 <use name="RecoEcal/EgammaCoreTools" />

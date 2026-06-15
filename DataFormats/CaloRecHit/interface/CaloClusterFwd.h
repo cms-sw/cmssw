@@ -7,7 +7,10 @@ namespace edm {
 }
 
 namespace reco {
-  class CaloCluster;
-}
+  namespace io_v1 {
+    class CaloCluster;
+  }
+  using CaloCluster = io_v1::CaloCluster;
+}  // namespace reco
 
 #endif

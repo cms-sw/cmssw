@@ -1,9 +1,9 @@
 <lcgdict>
-  <class name="Measurement1D"  ClassVersion="10">
-   <version ClassVersion="10" checksum="2157948156"/>
+  <class name="Measurement1D"  ClassVersion="3">
+   <version ClassVersion="3" checksum="2157948156"/>
   </class>
-  <class name="Measurement1DFloat"  ClassVersion="10">
-   <version ClassVersion="10" checksum="2540816510"/>
+  <class name="Measurement1DFloat"  ClassVersion="3">
+   <version ClassVersion="3" checksum="2540816510"/>
   </class>
   <class name="std::vector<Measurement1DFloat>" />
   <class name="edm::ValueMap<Measurement1DFloat>" />

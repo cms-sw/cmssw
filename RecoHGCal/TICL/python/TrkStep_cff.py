@@ -35,8 +35,6 @@ ticlTrackstersTrk = _trackstersProducer.clone(
     itername = "Trk"
 )
 
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
-ticl_v5.toModify(ticlTrackstersTrk.pluginPatternRecognitionByCA, computeLocalTime = cms.bool(True))
 
 ticlTrkStepTask = cms.Task(ticlSeedingTrk
     ,filteredLayerClustersTrk
@@ -62,6 +60,7 @@ ticlTrackstersHFNoseTrk = ticlTrackstersTrk.clone(
     filtered_mask = "filteredLayerClustersHFNoseTrk:Trkn",
     seeding_regions = "ticlSeedingTrkHFNose",
     time_layerclusters = "hgcalLayerClustersHFNose:timeLayerCluster",
+    patternRecognitionBy = cms.string('CA'),
     pluginPatternRecognitionByCA = dict(
         filter_on_categories = [2, 4], # filter muons and charged hadrons
         pid_threshold = 0.0,
@@ -72,8 +71,6 @@ ticlTrackstersHFNoseTrk = ticlTrackstersTrk.clone(
     ),
     itername = "Trkn"
 )
-
-ticl_v5.toModify(ticlTrackstersHFNoseTrk.pluginPatternRecognitionByCA, computeLocalTime = cms.bool(True))
 
 ticlHFNoseTrkStepTask = cms.Task(ticlSeedingTrkHFNose
     ,filteredLayerClustersHFNoseTrk

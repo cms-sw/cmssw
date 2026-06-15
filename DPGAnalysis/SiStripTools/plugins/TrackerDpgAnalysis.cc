@@ -53,11 +53,11 @@
 #include <CondFormats/DataRecord/interface/SiStripFedCablingRcd.h>
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include <Geometry/CommonTopologies/interface/Topology.h>
 #include <Geometry/CommonTopologies/interface/StripTopology.h>
-#include <Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h>
+#include <Geometry/CommonTopologies/interface/PixelGeomDetUnit.h>
 #include <Geometry/CommonTopologies/interface/PixelTopology.h>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h"

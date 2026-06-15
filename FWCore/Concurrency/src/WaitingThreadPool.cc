@@ -13,7 +13,7 @@ namespace edm::impl {
     // including the null termination
     static_assert(std::string_view(poolName).size() < 16);
 
-    int err = pthread_setname_np(thread_.native_handle(), poolName);
+    [[maybe_unused]] int err = pthread_setname_np(thread_.native_handle(), poolName);
     // According to the glibc documentation, the only error
     // pthread_setname_np() can return is about the argument C-string
     // being too long. We already check above the C-string is shorter

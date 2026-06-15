@@ -6,6 +6,7 @@
 <use name="DataFormats/HcalDetId"/>
 <use name="FWCore/Concurrency"/>
 <use name="FWCore/MessageLogger"/>
+<use name="rootcling"/>
 <use name="hls"/>
 <export>
   <lib name="1"/>

@@ -41,7 +41,7 @@ process.thingWithMergeProducer = ThingWithMergeProducer()
 from IOPool.Output.modules import PoolOutputModule
 process.out = PoolOutputModule(fileName = 'testRunMergeMERGE3.root')
 
-from FWCore.Framework.modules import RunLumiEventAnalyzer
+from FWCore.TestModules.modules import RunLumiEventAnalyzer
 process.test = RunLumiEventAnalyzer(
     verbose = True,
     expectedRunLumiEvents = [

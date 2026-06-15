@@ -14,7 +14,7 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/CommonTopologies/interface/TrackingGeometry.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"

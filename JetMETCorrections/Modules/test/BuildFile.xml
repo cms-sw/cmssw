@@ -1,1 +1,1 @@
-<test name="TestJetMETCorrectionsModulesJetResolutionObject" command="test_jetresolution.sh"/>
+<!-- <test name="TestJetMETCorrectionsModulesJetResolutionObject" command="test_jetresolution.sh"/> COMMENT: reads old format file -->

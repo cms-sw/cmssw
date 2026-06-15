@@ -455,6 +455,16 @@ def miniAODFromMiniAOD_customizeCommon(process):
     )
 
 
+    addToProcessAndTask("isolatedTracks", cms.EDProducer("PATIsolatedTrackRekeyer",
+        src = cms.InputTag("isolatedTracks", processName=cms.InputTag.skipCurrentProcess()),
+        packedCands = cms.InputTag("packedPFCandidates",processName=cms.InputTag.currentProcess()),
+        lostTrackCands = cms.InputTag("lostTracks",processName=cms.InputTag.skipCurrentProcess()),
+
+      ),
+      process, task
+    )
+
+
     _modified_run2_task = task.copyAndExclude([getattr(process,thisone) for thisone in ['slimmedDisplacedMuons']])
     from PhysicsTools.PatAlgos.patRefitVertexProducer_cfi import patRefitVertexProducer
     process.offlineSlimmedPrimaryVerticesWithBS = patRefitVertexProducer.clone(
@@ -485,7 +495,8 @@ def miniAODFromMiniAOD_customizeCommon(process):
                                        'slimmedLowPtElectrons',
                                        'slimmedKshortVertices',
                                        'slimmedLambdaVertices',
-                                       'slimmedSecondaryVertices']:
+                                       'slimmedSecondaryVertices',
+                                       'isolatedTracks']:
             new_collection_to_keep += '_*' if not '_' in new_collection_to_keep else ''
             mini_output.outputCommands += [
                 f'drop *_{new_collection_to_keep}_*',

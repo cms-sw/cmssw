@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HGCalAssociatorProducers.hitToTracksterAssociator_cfi import hitToTracksterAssociator
 
 hitToTrackstersAssociationLinking = hitToTracksterAssociator.clone(
-    tracksters = cms.InputTag("ticlTrackstersMerge"),
+    tracksters = cms.InputTag("ticlCandidate"),
 )
 
 
@@ -19,19 +19,21 @@ hitToSimTracksterFromCPsAssociation = hitToTracksterAssociator.clone(
 )
 
 
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
-
-ticl_v5.toModify(hitToTrackstersAssociationLinking, tracksters = cms.InputTag("ticlCandidate"))
-
 from SimCalorimetry.HGCalAssociatorProducers.AllHitToTracksterAssociatorsProducer_cfi import AllHitToTracksterAssociatorsProducer
-from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabels
+from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsPSet
 
 allHitToTracksterAssociations = AllHitToTracksterAssociatorsProducer.clone(    
     tracksterCollections = cms.VInputTag(
-        *[cms.InputTag(label) for label in ticlIterLabels],
+        *[cms.InputTag(label) for label in ticlIterLabelsPSet.labels],
         cms.InputTag("ticlSimTracksters"),
         cms.InputTag("ticlSimTracksters", "fromCPs"),
     )
 )
 
+## Barrel
+from SimCalorimetry.HGCalAssociatorProducers.AllHitToBarrelTracksterAssociatorsProducer_cfi import AllHitToBarrelTracksterAssociatorsProducer
 
+allHitToBarrelTracksterAssociations = AllHitToBarrelTracksterAssociatorsProducer.clone(
+    layerClusters = cms.InputTag("hgcalMergeLayerClusters"),
+    tracksterCollections = cms.VInputTag('ticlTrackstersCLUE3DBarrel', 'ticlSimTrackstersBarrel', 'ticlSimTrackstersBarrel:fromCPs')
+)

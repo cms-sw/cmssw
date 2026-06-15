@@ -14,6 +14,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <string>
+#include <vector>
+
 class AdePTConfiguration;
 
 class CMSEmStandardPhysicsA : public G4VPhysicsConstructor {
@@ -30,6 +33,7 @@ private:
   G4double fSafetyFactor;
   G4double fLambdaLimit;
   G4MscStepLimitType fStepLimitType;
+  std::vector<std::string> fDeadRegionNames;
   AdePTConfiguration* fAdePTConfiguration;
 };
 

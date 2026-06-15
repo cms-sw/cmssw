@@ -3,10 +3,16 @@
 
 /*----------------------------------------------------------------------
 
-RootInputFileSequence: This is an InputSource. initTheFile tries to open
-a file using a list of PFN names constructed from multiple data catalogs
-in site-local-config.xml. These are accessed via FileCatalogItem iterator
-fileIter_.
+RootInputFileSequence: This is a base class for RootPrimaryFileSequence,
+RootEmbeddedFileSequence, and RootSecondaryFileSequence, which are
+used by PoolSource and EmbeddedRootSource. It uses an InputFileCatalog
+to assist navigation through a vector of configuredFileNames. When requested,
+the  initTheFile function tries to open a file identified by a configuredFileName
+using the InputFileCatalog. The InputFileCatalog returns a list of PFN
+names associated with a particular configuredFileName and constructed from
+multiple data catalogs in site-local-config.xml with rules from
+storage.json. This attempts to open the PFNs until one of them
+successfully opens or all have failed.
 
 ----------------------------------------------------------------------*/
 
@@ -14,7 +20,6 @@ fileIter_.
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputType.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
-#include "FWStorage/Catalog/interface/InputFileCatalog.h"
 
 #include <memory>
 #include <string>
@@ -23,7 +28,6 @@ fileIter_.
 
 namespace edm {
 
-  class FileCatalogItem;
   class IndexIntoFile;
   class InputFileCatalog;
   class ParameterSetDescription;
@@ -81,15 +85,16 @@ namespace edm {
     void setAtNextFile() { ++fileIter_; }
     void setAtPreviousFile() { --fileIter_; }
 
-    std::vector<std::string> const& fileNames() const { return fileIter_->fileNames(); }
+    std::vector<std::string> physicalFileNames() const;
 
-    std::string const& logicalFileName() const { return fileIter_->logicalFileName(); }
-    std::string const& lfn() const { return lfn_; }
-    std::vector<FileCatalogItem> const& fileCatalogItems() const;
+    std::string const& logicalFileName() const;
+    // "cfn" stands for "configured file name"
+    std::string const& cfn() const { return cfn_; }
+    std::vector<std::string> const& configuredFileNames() const;
 
     std::vector<std::shared_ptr<IndexIntoFile>> const& indexesIntoFiles() const { return indexesIntoFiles_; }
     void setIndexIntoFile(size_t index);
-    size_t lfnHash() const { return lfnHash_; }
+    size_t cfnHash() const { return cfnHash_; }
     bool usedFallback() const { return usedFallback_; }
 
     std::shared_ptr<RootFile const> rootFile() const { return get_underlying_safe(rootFile_); }
@@ -97,19 +102,20 @@ namespace edm {
 
   private:
     InputFileCatalog const& catalog_;
-    std::string lfn_;
-    size_t lfnHash_;
+    std::string cfn_;
+    size_t cfnHash_;
     bool usedFallback_;
     edm::propagate_const<std::unique_ptr<std::unordered_multimap<size_t, size_t>>> findFileForSpecifiedID_;
-    std::vector<FileCatalogItem>::const_iterator const fileIterBegin_;
-    std::vector<FileCatalogItem>::const_iterator const fileIterEnd_;
-    std::vector<FileCatalogItem>::const_iterator fileIter_;
-    std::vector<FileCatalogItem>::const_iterator fileIterLastOpened_;
+    std::vector<std::string>::const_iterator const fileIterBegin_;
+    std::vector<std::string>::const_iterator const fileIterEnd_;
+    std::vector<std::string>::const_iterator fileIter_;
+    std::vector<std::string>::const_iterator fileIterLastOpened_;
     edm::propagate_const<RootFileSharedPtr> rootFile_;
     std::vector<std::shared_ptr<IndexIntoFile>> indexesIntoFiles_;
 
   private:
-    virtual RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) = 0;
+    virtual RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr,
+                                           std::string const& physicalFileNameFirstCatalog) = 0;
     virtual void initFile_(bool skipBadFiles) = 0;
     virtual void closeFile_() = 0;
 

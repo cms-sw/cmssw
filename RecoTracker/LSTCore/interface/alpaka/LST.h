@@ -24,7 +24,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
              LSTESData<Device> const* deviceESData,
              LSTInputDeviceCollection const* lstInputDC,
              bool no_pls_dupclean,
-             bool tc_pls_triplets);
+             bool tc_pls_triplets,
+             bool reduce_mem_by_full_precompute);
     std::unique_ptr<TrackCandidatesBaseDeviceCollection> getTrackCandidates() {
       return std::move(trackCandidatesBaseDC_);
     }

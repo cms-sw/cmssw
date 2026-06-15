@@ -61,6 +61,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         args.blockCount() = 0;
       }
 
+      // WARNING: for correctness blockDim must be the same for all prologue compute kernels.
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {  //loop over thread blocks
         for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nVertices)) {
           const warp::warp_mask_t active_lanes_mask = alpaka::warp::activemask(acc);
@@ -156,6 +157,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       unsigned int dst_vertex_idx = nVertices;
       unsigned int src_vertex_idx = nVertices;
+
+      // Warning: This algorithm relies on thread-private variables (e.g., cached_warp_local_offset etc.)
+      // For correctness on non-GPU architectures, the launch parameters
+      // must guarantee that these variables remain private to each thread.
 
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {  //loop over thread blocks
         // This kernel is intended to run with a single block for the full graph.

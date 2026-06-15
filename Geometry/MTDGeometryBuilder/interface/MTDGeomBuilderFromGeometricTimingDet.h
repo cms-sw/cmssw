@@ -6,7 +6,7 @@
 #include <map>
 #include "Geometry/MTDGeometryBuilder/interface/PlaneBuilderFromGeometricTimingDet.h"
 #include "Geometry/MTDNumberingBuilder/interface/GeometricTimingDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/GeomDetType.h"
 
 class MTDGeometry;
 class MTDGeomDetType;

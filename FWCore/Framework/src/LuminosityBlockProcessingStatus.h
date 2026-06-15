@@ -67,8 +67,7 @@ namespace edm {
     void globalEndRunHolderDoneWaiting() { globalEndRunHolder_.doneWaiting(std::exception_ptr{}); }
 
     bool shouldStreamStartLumi();
-    void noMoreEventsInLumi();
-    bool streamFinishedLumi() { return 0 == (--nStreamsStillProcessingLumi_); }
+    bool streamFinishedLumi() { return 0 == (--nStreamsProcessingLumi_); }
 
     //These should only be called while in the InputSource's task queue
     void updateLastTimestamp(edm::Timestamp const& iTime) {
@@ -81,12 +80,18 @@ namespace edm {
     //Called once all events in Lumi have been processed
     void setEndTime();
 
+    //these should only be called while in the source's task queue
     enum class EventProcessingState { kProcessing, kPauseForFileTransition, kStopLumi };
-    EventProcessingState eventProcessingState() const { return eventProcessingState_; }
-    void setEventProcessingState(EventProcessingState val) { eventProcessingState_ = val; }
+    EventProcessingState eventProcessingState() const { return eventProcessingState_.load(); }
+    bool setEventProcessingState(EventProcessingState val) {
+      EventProcessingState expected = EventProcessingState::kProcessing;
+      return eventProcessingState_.compare_exchange_strong(expected, val);
+    }
+    void resetEventProcessingStateToProcessing() { eventProcessingState_.store(EventProcessingState::kProcessing); }
 
     bool haveStartedNextLumiOrEndedRun() const { return startedNextLumiOrEndedRun_.load(); }
-    void startNextLumiOrEndRun() { startedNextLumiOrEndedRun_.store(true); }
+    //returns true if this is the first time it is called and false otherwise
+    bool startNextLumiOrEndRun() { return not startedNextLumiOrEndedRun_.exchange(true); }
 
     bool didGlobalBeginSucceed() const { return globalBeginSucceeded_; }
     void globalBeginDidSucceed() { globalBeginSucceeded_ = true; }
@@ -102,11 +107,8 @@ namespace edm {
     WaitingTaskList endIOVWaitingTasks_;
     edm::WaitingTaskHolder globalEndRunHolder_;
     edm::Timestamp endTime_{};
-    CMS_THREAD_GUARD(state_) unsigned int nStreamsProcessingLumi_ { 0 };
-    std::atomic<unsigned int> nStreamsStillProcessingLumi_{0};
-    enum class State { kRunning, kUpdating, kNoMoreEvents };
-    std::atomic<State> state_{State::kRunning};
-    EventProcessingState eventProcessingState_{EventProcessingState::kProcessing};
+    std::atomic<unsigned int> nStreamsProcessingLumi_{0};
+    std::atomic<EventProcessingState> eventProcessingState_{EventProcessingState::kProcessing};
     std::atomic<char> endTimeSetStatus_{0};
     std::atomic<bool> startedNextLumiOrEndedRun_{false};
     bool globalBeginSucceeded_{false};

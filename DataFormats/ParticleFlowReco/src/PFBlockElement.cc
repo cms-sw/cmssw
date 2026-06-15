@@ -5,15 +5,17 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 
-const reco::TrackRef reco::PFBlockElement::nullTrack_ = reco::TrackRef();
-const reco::PFRecTrackRef reco::PFBlockElement::nullPFRecTrack_ = reco::PFRecTrackRef();
-const reco::PFClusterRef reco::PFBlockElement::nullPFCluster_ = reco::PFClusterRef();
-const reco::PFDisplacedTrackerVertexRef reco::PFBlockElement::nullPFDispVertex_ = reco::PFDisplacedTrackerVertexRef();
-const reco::ConversionRefVector reco::PFBlockElement::nullConv_ = reco::ConversionRefVector();
-const reco::MuonRef reco::PFBlockElement::nullMuon_ = reco::MuonRef();
-const reco::VertexCompositeCandidateRef reco::PFBlockElement::nullVertex_ = reco::VertexCompositeCandidateRef();
+const reco::TrackRef reco::io_v1::PFBlockElement::nullTrack_ = reco::TrackRef();
+const reco::PFRecTrackRef reco::io_v1::PFBlockElement::nullPFRecTrack_ = reco::PFRecTrackRef();
+const reco::PFClusterRef reco::io_v1::PFBlockElement::nullPFCluster_ = reco::PFClusterRef();
+const reco::PFDisplacedTrackerVertexRef reco::io_v1::PFBlockElement::nullPFDispVertex_ =
+    reco::PFDisplacedTrackerVertexRef();
+const reco::ConversionRefVector reco::io_v1::PFBlockElement::nullConv_ = reco::ConversionRefVector();
+const reco::MuonRef reco::io_v1::PFBlockElement::nullMuon_ = reco::MuonRef();
+const reco::VertexCompositeCandidateRef reco::io_v1::PFBlockElement::nullVertex_ = reco::VertexCompositeCandidateRef();
 
 using namespace reco;
+using namespace reco::io_v1;
 
 // int PFBlockElement::instanceCounter_ = 0;
 
@@ -27,7 +29,7 @@ void PFBlockElement::Dump(std::ostream& out, const char* pad) const {
   out << pad << "base element";
 }
 
-std::ostream& reco::operator<<(std::ostream& out, const PFBlockElement& element) {
+std::ostream& reco::io_v1::operator<<(std::ostream& out, const PFBlockElement& element) {
   if (!out)
     return out;
 

@@ -42,7 +42,7 @@ namespace edm {
       bool isTransient() const override { return ref_.isTransient(); }
 
       //Used by ROOT storage
-      CMS_CLASS_VERSION(10)
+      CMS_CLASS_VERSION(3)
 
     private:
       REF ref_;

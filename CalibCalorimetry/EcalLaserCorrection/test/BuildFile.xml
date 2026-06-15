@@ -1,9 +1,8 @@
 <use name="CondFormats/EcalObjects"/>
 <use name="DataFormats/EcalDetId"/>
-<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Provenance" source_only="1"/>
 <use name="FWCore/Framework"/>
 <use name="CalibCalorimetry/EcalLaserCorrection"/>
-<use name="boost"/>
 <flags EDM_PLUGIN="1"/>
 <library file="EcalLaserTestAnalyzer.cc" name="EcalLaserTestAnalyzer">
 </library>

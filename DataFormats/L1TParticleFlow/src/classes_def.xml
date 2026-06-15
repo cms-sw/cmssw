@@ -1,21 +1,16 @@
 <lcgdict>
                       
-  <class name="l1t::PFCluster" ClassVersion="7">
-   <version ClassVersion="7" checksum="3070928172"/>
-   <version ClassVersion="6" checksum="439598246"/>
-   <version ClassVersion="5" checksum="3527085893"/>
-   <version ClassVersion="4" checksum="3917005656"/>
-        <version ClassVersion="3" checksum="1668592434"/>
+  <class name="l1t::io_v1::PFCluster" ClassVersion="3">
+   <version ClassVersion="3" checksum="2217551988"/>
   </class> 
   <class name="l1t::PFClusterCollection"/>
   <class name="edm::Wrapper<l1t::PFClusterCollection>" />
   <class name="edm::Ref<l1t::PFClusterCollection>" />
   <class name="edm::RefVector<l1t::PFClusterCollection>" /> 
 
-  <class name="l1t::PFTrack::TrackRef" />
-  <class name="l1t::PFTrack"  ClassVersion="4">
-        <version ClassVersion="4" checksum="1055891431"/>
-        <version ClassVersion="3" checksum="2332162612"/>
+  <class name="l1t::io_v1::PFTrack::TrackRef" />
+  <class name="l1t::io_v1::PFTrack"  ClassVersion="3">
+      <version ClassVersion="3" checksum="2193628913"/>
   </class>
   <class name="l1t::PFTrackCollection" />
   <class name="edm::Wrapper<l1t::PFTrackCollection>" />
@@ -23,13 +18,8 @@
   <class name="edm::RefVector<l1t::PFTrackCollection>" /> 
   <class name="std::vector<edm::Ref<l1t::PFTrackCollection> >" />
 
-  <class name="l1t::PFCandidate"  ClassVersion="8">
-        <version ClassVersion="8" checksum="2078921607"/>
-        <version ClassVersion="7" checksum="2118795037"/>
-        <version ClassVersion="6" checksum="2195440462"/>
-        <version ClassVersion="5" checksum="3777180193"/>
-        <version ClassVersion="4" checksum="3798885201"/>
-        <version ClassVersion="3" checksum="4253860178"/>
+  <class name="l1t::io_v1::PFCandidate"  ClassVersion="3">
+        <version ClassVersion="3" checksum="2694777321"/>
   </class>
   <class name="l1t::PFCandidateCollection" />
   <class name="edm::Wrapper<l1t::PFCandidateCollection>" />
@@ -39,31 +29,17 @@
   <class name="l1t::RegionalOutput<l1t::PFCandidateCollection>" />
   <class name="edm::Wrapper<l1t::RegionalOutput<l1t::PFCandidateCollection>>" />
 
-
-  <ioread sourceClass="l1t::PFCandidate" targetClass="l1t::PFCandidate" version="[-7]" target="" source="edm::Ref<l1t::PFClusterCollection> clusterRef_" include="DataFormats/Common/interface/RefToPtr.h,DataFormats/L1TParticleFlow/interface/PFCluster.h">
-  <![CDATA[
-   newObj->setCaloPtr(edm::refToPtr(onfile.clusterRef_));
-  ]]>
-  </ioread>
-
-  <class name="l1t::PFJet"  ClassVersion="8">
-        <version ClassVersion="8" checksum="2216717794"/>
-        <version ClassVersion="7" checksum="2216717791"/>
-        <version ClassVersion="6" checksum="2599349078"/>
-        <version ClassVersion="5" checksum="2270932343"/>
-        <version ClassVersion="4" checksum="1424452548"/>
-        <version ClassVersion="3" checksum="133342988"/>
+  <class name="l1t::io_v1::PFJet"  ClassVersion="3">
+        <version ClassVersion="3" checksum="1164493406"/>
   </class>
   <class name="l1t::PFJetCollection" />
   <class name="edm::Wrapper<l1t::PFJetCollection>" />
   <class name="edm::Ref<l1t::PFJetCollection>" />
   <class name="edm::RefVector<l1t::PFJetCollection>" />
-  <class name="std::vector<edm::Ref<std::vector<l1t::PFJet>,l1t::PFJet,edm::refhelper::FindUsingAdvance<std::vector<l1t::PFJet>,l1t::PFJet> > >" />
+  <class name="std::vector<edm::Ref<std::vector<l1t::io_v1::PFJet>,l1t::io_v1::PFJet,edm::refhelper::FindUsingAdvance<std::vector<l1t::io_v1::PFJet>,l1t::io_v1::PFJet> > >" />
 
-  <class name="l1t::PFTau"  ClassVersion="5">
-        <version ClassVersion="5" checksum="549313204"/>
-        <version ClassVersion="4" checksum="2045755946"/>
-        <version ClassVersion="3" checksum="1410157160"/>
+  <class name="l1t::io_v1::PFTau"  ClassVersion="3">
+        <version ClassVersion="3" checksum="3230913040"/>
   </class>
   <class name="l1t::PFTauCollection" />
   <class name="edm::Wrapper<l1t::PFTauCollection>" />
@@ -71,11 +47,8 @@
   <class name="edm::RefVector<l1t::PFTauCollection>" /> 
   <class name="std::vector<edm::Ref<l1t::PFTauCollection> >" /> 
 
-  <class name="l1t::HPSPFTau" ClassVersion="14">
-    <version ClassVersion="14" checksum="927489833"/>
-    <version ClassVersion="13" checksum="588131857"/>
-    <version ClassVersion="12" checksum="1127525942"/>
-    <version ClassVersion="11" checksum="98678086"/>
+  <class name="l1t::HPSPFTau" ClassVersion="3">
+    <version ClassVersion="3" checksum="1660641773"/>
   </class>
   <class name="l1t::HPSPFTauCollection"/>
   <class name="edm::Wrapper<l1t::HPSPFTauCollection>"/>

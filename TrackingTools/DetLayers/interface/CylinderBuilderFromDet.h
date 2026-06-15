@@ -9,7 +9,7 @@
  *
  */
 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 
 #include <vector>

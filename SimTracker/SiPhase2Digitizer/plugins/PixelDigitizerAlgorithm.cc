@@ -12,7 +12,7 @@
 // Geometry
 #include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "CondFormats/SiPixelObjects/interface/PixelROC.h"

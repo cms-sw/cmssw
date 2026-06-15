@@ -11,6 +11,9 @@ hltJetPreValidSeq = cms.Sequence(
     + ak4GenJetsNoNu
 )
 
+from Validation.RecoJets.JetCorrectionServices_cff import *
+hltJetPreValidSeq.associate(hltJetCorrectionTask)
+
 from Validation.RecoJets.jetTester_cfi import jetTester as _jetTester
 _hltJetTester = _jetTester.clone(
     isHLT=True,
@@ -24,16 +27,15 @@ _hltJetTester = _jetTester.clone(
 
 hltJetAnalyzerAK4PFPuppi = _hltJetTester.clone(
     src = "hltAK4PFPuppiJets",
-    JetCorrections = "hltAK4PFPuppiJetCorrector",
+    JetCorrections = "hltAK4PFPuppiJetCorrector_ForValidation",
 )
 
 hltJetAnalyzerAK4PF = _hltJetTester.clone(
     src = "hltAK4PFJets",
-    JetCorrections = "hltAK4PFJetCorrector",
+    JetCorrections = "hltAK4PFJetCorrector_ForValidation",
 )
 
 hltJetAnalyzerAK4PFCHS = _hltJetTester.clone(
     src = "hltAK4PFCHSJets",
-    JetCorrections = "hltAK4PFCHSJetCorrector",
+    JetCorrections = "hltAK4PFCHSJetCorrector_ForValidation",
 )
-

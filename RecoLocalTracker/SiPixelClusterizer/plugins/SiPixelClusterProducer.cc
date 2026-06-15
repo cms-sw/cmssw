@@ -16,7 +16,7 @@
 #include "PixelThresholdClusterizer.h"
 
 // Geometry
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 
 // Data Formats
 #include "DataFormats/Common/interface/DetSetVector.h"

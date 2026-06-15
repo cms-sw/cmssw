@@ -66,10 +66,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
 
     const unsigned int wExtend = alpaka::getPreferredWarpSize(alpaka::getDev(queue));
 
-    // for ROCm/CUDA backend should be a multiple of the warp size which can be 32 or 64
+    // For ROCm/CUDA backends, this should be a multiple of warp extent,
+    // which can be either 32 or 64.
+    // For the CPU backend, threadsPerBlock effectively represents the number
+    // of elements per thread and must be set to 1, since some compute kernels
+    // rely on thread-private local variables.
     const unsigned int threadsPerBlock =
         std::is_same_v<Device, alpaka::DevCpu>
-            ? nClusters
+            ? 1
             : (nClusters > 768 ? 256 : ::cms::alpakatools::round_up_by(nClusters, wExtend));
 
     const unsigned int blocks = ::cms::alpakatools::divide_up_by(nClusters, threadsPerBlock);
@@ -95,6 +99,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
     const bool do_opt_prologue = enable_multiblock_prologue && (blocks > 1);
 
     if (do_opt_prologue) {
+      // All multi-block prologue kernels must use the same launch parameters.
       reco::PFMultiDepthECLCCPrologueArgsDeviceCollection prologueArgs{queue, static_cast<int>(nClusters)};
 
       prologueArgs.zeroInitialise(queue);
@@ -229,6 +234,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
       reco::PFMultiDepthECLCCEpilogueArgsDeviceCollection epilogueArgs{queue, static_cast<int>(nClusters)};
 
       epilogueArgs.zeroInitialise(queue);
+
+      // All multi-block epilogue kernels must use the same launch parameters.
 
       alpaka::exec<Acc1D>(queue,
                           ::cms::alpakatools::make_workdiv<Acc1D>(blocks, threadsPerBlock),

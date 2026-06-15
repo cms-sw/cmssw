@@ -19,6 +19,7 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
                                  bool computeLocalTime,
                                  bool energyWeight,
                                  bool clean,
+                                 bool isBarrel,
                                  int minLayer,
                                  int maxLayer) {
   LogDebug("TrackstersPCA_Eigen") << "------- Eigen -------" << std::endl;
@@ -56,7 +57,15 @@ void ticl::assignPCAtoTracksters(std::vector<Trackster> &tracksters,
     for (size_t i = 0; i < N; ++i) {
       auto fraction = 1.f / trackster.vertex_multiplicity(i);
       trackster.addToRawEnergy(layerClusters[trackster.vertices(i)].energy() * fraction);
-      if (std::abs(layerClusters[trackster.vertices(i)].z()) <= z_limit_em)
+      bool isEM = false;
+      if (isBarrel) {
+        auto x2 = std::pow(layerClusters[trackster.vertices(i)].x(), 2);
+        auto y2 = std::pow(layerClusters[trackster.vertices(i)].y(), 2);
+        isEM = std::sqrt(x2 + y2) < z_limit_em;
+      } else {
+        isEM = std::abs(layerClusters[trackster.vertices(i)].z()) <= z_limit_em;
+      }
+      if (isEM)
         trackster.addToRawEmEnergy(layerClusters[trackster.vertices(i)].energy() * fraction);
 
       // Compute the weighted barycenter.

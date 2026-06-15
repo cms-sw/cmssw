@@ -76,7 +76,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
@@ -1630,9 +1630,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
 
 void SiPixelDigitizerAlgorithm::fillSimHitMaps(std::vector<PSimHit> simHits, const unsigned int tofBin) {
   // store here the SimHit map for later
-  int printnum = 0;
-  for (std::vector<PSimHit>::const_iterator it = simHits.begin(), itEnd = simHits.end(); it != itEnd;
-       ++it, ++printnum) {
+  for (std::vector<PSimHit>::const_iterator it = simHits.begin(), itEnd = simHits.end(); it != itEnd; ++it) {
     unsigned int detID = (*it).detUnitId();
     unsigned int subdetID = DetId(detID).subdetId();
     subDetTofBin theSubDetTofBin = std::make_pair(subdetID, tofBin);

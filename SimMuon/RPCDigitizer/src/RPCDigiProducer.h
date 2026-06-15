@@ -38,12 +38,8 @@ private:
   RPCDigitizer* theDigitizer;
   RPCSimSetUp* theRPCSimSetUp;
 
-  //Name of Collection used for create the XF
-  std::string mix_;
-  std::string collection_for_XF;
-
   //Token for accessing data
-  edm::EDGetTokenT<CrossingFrame<PSimHit>> crossingFrameToken;
+  std::vector<edm::EDGetTokenT<CrossingFrame<PSimHit>>> crossingFrameTokens;
 
   //EventSetup Tokens
   edm::ESGetToken<RPCGeometry, MuonGeometryRecord> geomToken;

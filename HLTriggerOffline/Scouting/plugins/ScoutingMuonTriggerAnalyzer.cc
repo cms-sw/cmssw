@@ -128,21 +128,26 @@ void ScoutingMuonTriggerAnalyzer::dqmBeginRun(edm::Run const& iRun, edm::EventSe
   bool changed{false};
   hltConfig_.init(iRun, iSetup, hltProcessName_, changed);
 
-  // deal with Fake HLT menus
-  if (hltConfig_.tableName().find("Fake") != std::string::npos) {
+  // deal with Fake and HIon HLT menus
+  const std::string& tableName = hltConfig_.tableName();
+
+  const bool toIgnore = tableName.find("Fake") != std::string::npos || tableName.find("HIon") != std::string::npos;
+
+  if (toIgnore) {
     edm::LogPrint("ScoutingMuonTriggerAnalyzer")
-        << "Detected Fake in HLT Config tableName(): " << hltConfig_.tableName()
+        << "Detected special HLT menu in HLT Config tableName(): " << tableName
         << "; the list of trigger expressions is going to be overridden!" << std::endl;
+
     vtriggerSelector_.clear();
     return;
   }
 
   for (const auto& menu : special_HLT_Menus_) {
-    std::size_t found = hltConfig_.tableName().find(menu);
+    std::size_t found = tableName.find(menu);
     if (found != std::string::npos) {
       isSpecial_ = true;
       edm::LogPrint("ScoutingMuonTriggerAnalyzer")
-          << "Detected " << menu << " in HLT Config tableName(): " << hltConfig_.tableName()
+          << "Detected " << menu << " in HLT Config tableName(): " << tableName
           << "; the list of trigger expressions is going to be overridden!" << std::endl;
       break;
     }

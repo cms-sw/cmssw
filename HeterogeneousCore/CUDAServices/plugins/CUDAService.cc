@@ -1,3 +1,4 @@
+#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -199,10 +200,18 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
   computeCapabilities_.reserve(numberOfDevices_);
 
   // NVIDIA system driver version, e.g. 470.57.02
+  // The NVML interface is not available on gaming GPUs. Just report "unknown" in that case.
   char systemDriverVersion[NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE];
-  nvmlCheck(nvmlInitWithFlags(NVML_INIT_FLAG_NO_GPUS | NVML_INIT_FLAG_NO_ATTACH));
-  nvmlCheck(nvmlSystemGetDriverVersion(systemDriverVersion, sizeof(systemDriverVersion)));
-  nvmlCheck(nvmlShutdown());
+  nvmlReturn_t result = nvmlInitWithFlags(NVML_INIT_FLAG_NO_GPUS | NVML_INIT_FLAG_NO_ATTACH);
+  if (NVML_SUCCESS != result) {
+    edm::LogWarning("CUDAService") << "NVML library not available, cannot query NVIDIA driver version:\n"
+                                   << nvmlErrorString(result) << "\nReporting NVIDIA driver version as \"unknown\".";
+    std::strncpy(systemDriverVersion, "unknown", sizeof(systemDriverVersion) - 1);
+    systemDriverVersion[sizeof(systemDriverVersion) - 1] = '\0';
+  } else {
+    nvmlCheck(nvmlSystemGetDriverVersion(systemDriverVersion, sizeof(systemDriverVersion)));
+    nvmlCheck(nvmlShutdown());
+  }
 
   // CUDA driver version, e.g. 11.4
   // the full version, like 11.4.1 or 11.4.100, is not reported
@@ -257,8 +266,14 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
       log << "  streaming multiprocessors: " << std::setw(13) << properties.multiProcessorCount << '\n';
       log << "  CUDA cores: " << std::setw(28)
           << properties.multiProcessorCount * getCudaCoresPerSM(properties.major, properties.minor) << '\n';
-      log << "  single to double performance: " << std::setw(8) << properties.singleToDoublePrecisionPerfRatio
-          << ":1\n";
+      int singleToDoublePrecisionPerfRatio = 0;
+#if CUDART_VERSION < 13000
+      singleToDoublePrecisionPerfRatio = properties.singleToDoublePrecisionPerfRatio;
+#else
+      cudaCheck(
+          cudaDeviceGetAttribute(&singleToDoublePrecisionPerfRatio, cudaDevAttrSingleToDoublePrecisionPerfRatio, i));
+#endif
+      log << "  single to double performance: " << std::setw(8) << singleToDoublePrecisionPerfRatio << ":1\n";
     }
 
     // compute mode
@@ -268,11 +283,18 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
         "prohibited",                  // cudaComputeModeProhibited
         "exclusive (single process)",  // cudaComputeModeExclusiveProcess
         "unknown"};
+    static constexpr const int cudaComputeModeUnknown = static_cast<int>(std::size(computeModeDescription)) - 1;
     if (verbose_) {
-      log << "  compute mode:" << std::right << std::setw(27)
-          << computeModeDescription[std::min(properties.computeMode,
-                                             static_cast<int>(std::size(computeModeDescription)) - 1)]
-          << '\n';
+      int computeMode = cudaComputeModeUnknown;
+#if CUDART_VERSION < 13000
+      computeMode = properties.computeMode;
+#else
+      cudaCheck(cudaDeviceGetAttribute(&computeMode, cudaDevAttrComputeMode, i));
+#endif
+      if (computeMode < 0 or computeMode >= cudaComputeModeUnknown) {
+        computeMode = cudaComputeModeUnknown;
+      }
+      log << "  compute mode:" << std::right << std::setw(27) << computeModeDescription[computeMode] << '\n';
     }
 
     // TODO if a device is in exclusive use, skip it and remove it from the list, instead of failing with abort()
@@ -318,8 +340,10 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
           << " directly access managed memory on the device without migration\n";
       log << "  " << (properties.cooperativeLaunch ? "supports" : "does not support")
           << " launching cooperative kernels via cudaLaunchCooperativeKernel()\n";
+#if CUDART_VERSION < 13000
       log << "  " << (properties.cooperativeMultiDeviceLaunch ? "supports" : "does not support")
           << " launching cooperative kernels via cudaLaunchCooperativeKernelMultiDevice()\n";
+#endif
       log << '\n';
     }
 

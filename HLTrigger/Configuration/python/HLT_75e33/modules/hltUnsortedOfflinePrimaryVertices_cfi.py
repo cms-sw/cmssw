@@ -47,3 +47,40 @@ hltUnsortedOfflinePrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
         )
     )
 )
+
+_mtdVertexTimeParameters = cms.PSet(
+    fromTracksPID = cms.PSet(
+        trackMTDTimeVMapTag = cms.InputTag('hltTrackExtenderWithMTD', 'generalTracktmtd'),
+        trackMTDTimeErrorVMapTag = cms.InputTag('hltTrackExtenderWithMTD', 'generalTracksigmatmtd'),
+        trackMTDTimeQualityVMapTag = cms.InputTag('hltMtdTrackQualityMVA', 'mtdQualMVA'),
+        trackMTDTofPiVMapTag = cms.InputTag('hltTrackExtenderWithMTD', 'generalTrackTofPi'),
+        trackMTDTofKVMapTag = cms.InputTag('hltTrackExtenderWithMTD', 'generalTrackTofK'),
+        trackMTDTofPVMapTag = cms.InputTag('hltTrackExtenderWithMTD', 'generalTrackTofP'),
+        trackMTDSigmaTofPiVMapTag = cms.InputTag('hltTrackExtenderWithMTD', 'generalTrackSigmaTofPi'),
+        trackMTDSigmaTofKVMapTag = cms.InputTag('hltTrackExtenderWithMTD', 'generalTrackSigmaTofK'),
+        trackMTDSigmaTofPVMapTag = cms.InputTag('hltTrackExtenderWithMTD', 'generalTrackSigmaTofP'),
+        minTrackVtxWeight = cms.double(0.5),
+        minTrackTimeQuality = cms.double(0.8),
+        probPion = cms.double(0.7),
+        probKaon = cms.double(0.2),
+        probProton = cms.double(0.1),
+        Tstart = cms.double(256),
+        coolingFactor = cms.double(0.5),
+        useMVAVtxTime = cms.bool(True)
+    ),
+    algorithm = cms.string('fromTracksPID')
+)
+
+from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
+mtd_at_hlt.toModify(hltUnsortedOfflinePrimaryVertices,
+    vertexCollections = cms.VPSet(
+        cms.PSet(
+            **hltUnsortedOfflinePrimaryVertices.vertexCollections[0].parameters_(),
+            vertexTimeParameters = _mtdVertexTimeParameters
+        ),
+        cms.PSet(
+            **hltUnsortedOfflinePrimaryVertices.vertexCollections[1].parameters_(),
+            vertexTimeParameters = _mtdVertexTimeParameters
+        )
+    )
+)

@@ -65,6 +65,7 @@ protected:
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
                       const edm::IOVSyncValue&,
                       edm::ValidityInterval&) override;
+  bool isConcurrentFinder() const override { return true; }
 };
 
 //----------------------------------------------------------------------------------------------------

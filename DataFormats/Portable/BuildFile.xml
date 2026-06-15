@@ -1,5 +1,4 @@
 <use name="alpaka"/>
-<use name="rootcling"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/TrivialSerialisation"/>
 <use name="FWCore/Utilities" source_only="1"/>

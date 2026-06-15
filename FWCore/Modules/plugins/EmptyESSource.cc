@@ -21,32 +21,35 @@ namespace edm {
     // ---------- member functions ---------------------------
     void setIntervalFor(eventsetup::EventSetupRecordKey const&,
                         IOVSyncValue const& iTime,
-                        ValidityInterval& oInterval) override;
+                        ValidityInterval& oInterval) final;
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    void delaySettingRecords() override;
+    bool isConcurrentFinder() const final { return true; }
+    void delaySettingRecords() final;
+
+    static std::set<IOVSyncValue> makeSetOfIOV(std::vector<unsigned int> const& iValues, bool iovIsTime) {
+      std::set<IOVSyncValue> returnValue;
+      for (auto value : iValues) {
+        if (iovIsTime) {
+          returnValue.insert(IOVSyncValue(Timestamp(value)));
+        } else {
+          returnValue.insert(IOVSyncValue(EventID(value, 0, 0)));
+        }
+      }
+      return returnValue;
+    }
     // ---------- member data --------------------------------
-    std::string recordName_;
-    std::set<IOVSyncValue> setOfIOV_;
-    bool iovIsTime_;
+    std::string const recordName_;
+    bool const iovIsTime_;
+    std::set<IOVSyncValue> const setOfIOV_;
   };
 
   EmptyESSource::EmptyESSource(ParameterSet const& pset)
       : recordName_(pset.getParameter<std::string>("recordName")),
-        iovIsTime_(!pset.getParameter<bool>("iovIsRunNotTime")) {
-    std::vector<unsigned int> temp(pset.getParameter<std::vector<unsigned int>>("firstValid"));
-    for (std::vector<unsigned int>::iterator itValue = temp.begin(), itValueEnd = temp.end(); itValue != itValueEnd;
-         ++itValue) {
-      if (iovIsTime_) {
-        setOfIOV_.insert(IOVSyncValue(Timestamp(*itValue)));
-      } else {
-        setOfIOV_.insert(IOVSyncValue(EventID(*itValue, 0, 0)));
-      }
-    }
-    //copy_all(temp, inserter(setOfIOV_ , setOfIOV_.end()));
-  }
+        iovIsTime_(!pset.getParameter<bool>("iovIsRunNotTime")),
+        setOfIOV_(makeSetOfIOV(pset.getParameter<std::vector<unsigned int>>("firstValid"), iovIsTime_)) {}
 
   void EmptyESSource::delaySettingRecords() {
     eventsetup::EventSetupRecordKey recordKey = eventsetup::EventSetupRecordKey::TypeTag::findType(recordName_);

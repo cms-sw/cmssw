@@ -1,5 +1,6 @@
 <environment>
   <bin file="DiagStreamerFile.cpp">
+    <use name="DataFormats/Streamer"/>
     <use name="FWCore/Utilities"/>
     <use name="IOPool/Streamer"/>
   </bin>

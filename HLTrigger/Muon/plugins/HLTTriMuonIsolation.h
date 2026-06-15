@@ -1,6 +1,7 @@
 #ifndef HLTrigger_Muon_HLTTriMuonIsolation_h
 #define HLTrigger_Muon_HLTTriMuonIsolation_h
 
+#include <array>
 #include <iostream>
 #include <string>
 
@@ -153,37 +154,31 @@ inline void HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event& iEvent, 
           reco::CompositeCandidate tau;
 
           // sort the muons by pt and add them to the tau
-          reco::RecoChargedCandidateCollection daughters;
-          daughters.reserve(3);
-
-          daughters.push_back(*i);
-          daughters.push_back(*j);
-          daughters.push_back(*k);
-
-          std::sort(daughters.begin(), daughters.end(), ptComparer<reco::RecoChargedCandidate>);
+          std::array<const reco::RecoChargedCandidate*, 3> daughters = {&*i, &*j, &*k};
+          std::sort(daughters.begin(), daughters.end(), [](auto a, auto b) { return a->pt() > b->pt(); });
 
           // Muon kinematic selections
-          if (daughters[0].pt() < Muon1PtCut_)
+          if (daughters[0]->pt() < Muon1PtCut_)
             continue;
-          if (daughters[1].pt() < Muon2PtCut_)
+          if (daughters[1]->pt() < Muon2PtCut_)
             continue;
-          if (daughters[2].pt() < Muon3PtCut_)
+          if (daughters[2]->pt() < Muon3PtCut_)
             continue;
 
           // assign the tau its daughters
-          tau.addDaughter((daughters)[0], "Muon_1");
-          tau.addDaughter((daughters)[1], "Muon_2");
-          tau.addDaughter((daughters)[2], "Muon_3");
+          tau.addDaughter(*(daughters)[0], "Muon_1");
+          tau.addDaughter(*(daughters)[1], "Muon_2");
+          tau.addDaughter(*(daughters)[2], "Muon_3");
 
           // start building the tau
-          int charge = daughters[0].charge() + daughters[1].charge() + daughters[2].charge();
-          math::XYZTLorentzVectorD taup4 = daughters[0].p4() + daughters[1].p4() + daughters[2].p4();
+          int charge = daughters[0]->charge() + daughters[1]->charge() + daughters[2]->charge();
+          math::XYZTLorentzVectorD taup4 = daughters[0]->p4() + daughters[1]->p4() + daughters[2]->p4();
           int tauPdgId = charge > 0 ? 15 : -15;
 
           tau.setP4(taup4);
           tau.setCharge(charge);
           tau.setPdgId(tauPdgId);
-          tau.setVertex((daughters)[0].vertex());  // assign the leading muon vertex as tau vertex
+          tau.setVertex((daughters)[0]->vertex());  // assign the leading muon vertex as tau vertex
 
           // the three muons must be close to each other in Z
           if (std::abs(tau.daughter(0)->vz() - tau.vz()) > MaxDZ_)
@@ -195,8 +190,8 @@ inline void HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event& iEvent, 
 
           // require muons to be collimated
           bool collimated = true;
-          for (auto const& idau : daughters) {
-            if (reco::deltaR2(tau.p4(), idau.p4()) > MaxTriMuonRadius_ * MaxTriMuonRadius_) {
+          for (auto const* idau : daughters) {
+            if (reco::deltaR2(tau.p4(), idau->p4()) > MaxTriMuonRadius_ * MaxTriMuonRadius_) {
               collimated = false;
               break;
             }

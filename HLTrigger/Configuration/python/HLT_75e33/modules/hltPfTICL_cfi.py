@@ -24,14 +24,15 @@ hltPfTICL = cms.EDProducer("PFTICLProducer",
         punchThroughMETFactor = cms.double(4),
         trackQuality = cms.string('highPurity')
     ),
-    ticlCandidateSrc = cms.InputTag("hltTiclTrackstersMerge"),
+    ticlCandidateSrc = cms.InputTag("hltTiclCandidate"),
     timingQualityThreshold = cms.double(0.5),
-    trackTimeErrorMap = cms.InputTag("tofPID","sigmat0"),
-    trackTimeQualityMap = cms.InputTag("mtdTrackQualityMVA","mtdQualMVA"),
-    trackTimeValueMap = cms.InputTag("tofPID","t0"),
+    trackTimeErrorMap = cms.InputTag("hltTofPID","sigmat0"),
+    trackTimeQualityMap = cms.InputTag("hltMtdTrackQualityMVA","mtdQualMVA"),
+    trackTimeValueMap = cms.InputTag("hltTofPID","t0"),
     useMTDTiming = cms.bool(False),
     useTimingAverage = cms.bool(False)
 )
 
-from Configuration.ProcessModifiers.ticl_v5_cff import ticl_v5
-ticl_v5.toModify(hltPfTICL, ticlCandidateSrc = cms.InputTag('hltTiclCandidate'), isTICLv5 = cms.bool(True))
+from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
+mtd_at_hlt.toModify(hltPfTICL,
+                    useMTDTiming = True)

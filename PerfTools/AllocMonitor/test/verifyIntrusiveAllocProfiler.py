@@ -667,10 +667,13 @@ def verify_realloc(test_case):
     if churnalloc_t['actual'] != churn_t['actual']:
         raise ValueError(f"realloc: churnalloc actual ({churnalloc_t['actual']}) must equal churn actual ({churn_t['actual']})")
 
-    # At peak, two buffers are simultaneously live (old + new during the final realloc)
+    # At peak, either
+    # - one buffer is live (realloc returned the same address)
+    # - two buffers are simultaneously live (realloc reaturned a new address)
+    # two buffers are simultaneously live (old + new during the final realloc)
     atMaxActual_t = totals(msg['atMaxActual'])
-    if atMaxActual_t['count'] != 2:
-        raise ValueError(f"realloc: atMaxActual count must be 2 (two buffers live during realloc peak), got {atMaxActual_t['count']}")
+    if not atMaxActual_t['count'] in [1, 2]:
+        raise ValueError(f"realloc: atMaxActual count must be 1 or 2 (one or two buffers live during realloc peak depending if realloc returned the same or new address), got {atMaxActual_t['count']}")
 
 
 def main():

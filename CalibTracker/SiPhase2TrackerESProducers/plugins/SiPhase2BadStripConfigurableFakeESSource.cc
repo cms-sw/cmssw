@@ -30,7 +30,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -55,6 +55,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
+  bool isConcurrentFinder() const override { return true; }
   std::map<unsigned short, unsigned short> clusterizeBadChannels(
       const std::vector<Phase2TrackerDigi::PackedDigiType>& maskedChannels);
 

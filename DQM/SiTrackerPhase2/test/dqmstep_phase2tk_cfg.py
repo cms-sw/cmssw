@@ -1,7 +1,7 @@
 ##Takes as input GEN-SIM-RECO
 # Auto generated configuration file
-# using: 
-# Revision: 1.19 
+# using:
+# Revision: 1.19
 
 # This configuration file runs the first step of the DQM sequence.
 # Usage:
@@ -9,7 +9,7 @@
 # Output:
 # step3_pre4_inDQM.root - input for the next step in the DQM sequence, harvestingstep_phase2tk_cfg.py
 
-# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
+# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v
 # with command line options: step3 --conditions auto:phase2_realistic_T21 -s RAW2DIGI,L1Reco,RECO,RECOSIM,VALIDATION:@phase2Validation,DQM:@phase2 --datatier DQMIO -n 10 --geometry Extended2026D110 --era Phase2C11M9 --eventcontent DQM --no_exec
 import FWCore.ParameterSet.Config as cms
 
@@ -23,13 +23,13 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D121Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
 process.load('Configuration.StandardSequences.RecoSim_cff')
-#process.load('Configuration.StandardSequences.Validation_cff')
+process.load('Configuration.StandardSequences.Validation_cff')
 process.load('DQMServices.Core.DQMStoreNonLegacy_cff')
 process.load('DQMOffline.Configuration.DQMOffline_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -41,7 +41,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_15_0_0/RelValTTbar_14TeV/GEN-SIM-RECO/PU_141X_mcRun4_realistic_v3_STD_Run4D110_PU-v3/2580000/01972f5c-64f5-4fea-890d-ffa3bb070b77.root'),
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_16_1_0_pre2/RelValTTbar_14TeV/GEN-SIM-RECO/PU_150X_mcRun4_realistic_v1_STD_Run4D110_PU-v1/2590000/06bf4d43-0cb7-450a-8b94-c29f447d84e9.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -114,14 +114,12 @@ process.load('RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi')
 process.rechits_step = cms.Path(process.siPhase2RecHits * process.siPixelRecHits)
 #DQM modules
 process.load('DQM.SiTrackerPhase2.Phase2TrackerDQMFirstStep_cff')
-process.load('DQM.SiTrackerPhase2.Phase2OTMonitorRecHit_cfi')
 
-process.otdqm_seq = cms.Sequence(process.trackerphase2DQMSource.copy()*process.Phase2OTMonitorRecHit)
+process.otdqm_seq = cms.Sequence(process.trackerphase2DQMSource.copy())
 
-#process.load('Validation.SiTrackerPhase2V.Phase2TrackerValidationFirstStep_cff')
-#process.load('Validation.SiTrackerPhase2V.Phase2OTValidateRecHit_cfi')
+process.load('Validation.SiTrackerPhase2V.Phase2TrackerValidationFirstStep_cff')
 
-#process.otvalid_seq = cms.Sequence(process.trackerphase2ValidationSource.copy()*process.Phase2OTValidateRecHit)
+process.otvalid_seq = cms.Sequence(process.trackerphase2ValidationSource.copy())
 
 process.dqm_step=cms.Path(process.otdqm_seq)
 #process.validation_step=cms.Path(process.otvalid_seq)
@@ -136,7 +134,7 @@ process.schedule = cms.Schedule(process.rechits_step,
 # customisation of the process.
 
 # Automatic addition of the customisation function from SimGeneral.MixingModule.fullMixCustomize_cff
-from SimGeneral.MixingModule.fullMixCustomize_cff import setCrossingFrameOn 
+from SimGeneral.MixingModule.fullMixCustomize_cff import setCrossingFrameOn
 
 #call to customisation function setCrossingFrameOn imported from SimGeneral.MixingModule.fullMixCustomize_cff
 process = setCrossingFrameOn(process)

@@ -1,4 +1,3 @@
-#include <cassert>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -18,6 +17,8 @@
 
 // FIXME for do_post_insert_if_available, remove when no longer needed
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
+
+#include "Require.h"
 
 namespace edmtest {
 
@@ -87,12 +88,12 @@ namespace edmtest {
           std::make_unique<edm::Wrapper<int>>(edm::WrapperBase::Emplace{}, value));
       // FIXME Wrapper should call post_insert (if available), but that is not implemented yet
       edm::detail::do_post_insert_if_available(unwrap_as<int>(*product));
-      assert(unwrap_as<int>(*product) == value);
+      REQUIRE(unwrap_as<int>(*product) == value);
       // Move the wrapper into the event
       auto handle = event.put(intToken_, std::move(product));
-      assert(not product);
-      assert(handle.isValid());
-      assert(unwrap_as<int>(*handle) == value);
+      REQUIRE(not product);
+      REQUIRE(handle.isValid());
+      REQUIRE(unwrap_as<int>(*handle) == value);
     }
 
     {
@@ -102,12 +103,12 @@ namespace edmtest {
       std::unique_ptr<edm::WrapperBase> product(new edm::Wrapper<float>(edm::WrapperBase::Emplace{}, value));
       // FIXME Wrapper should call post_insert (if available), but that is not implemented yet
       edm::detail::do_post_insert_if_available(unwrap_as<float>(*product));
-      assert(unwrap_as<float>(*product) == value);
+      REQUIRE(unwrap_as<float>(*product) == value);
       // Move the wrapper into the event
       auto handle = event.put(floatToken_, std::move(product));
-      assert(not product);
-      assert(handle.isValid());
-      assert(unwrap_as<float>(*handle) == value);
+      REQUIRE(not product);
+      REQUIRE(handle.isValid());
+      REQUIRE(unwrap_as<float>(*handle) == value);
     }
 
     {
@@ -118,12 +119,12 @@ namespace edmtest {
       std::unique_ptr<edm::WrapperBase> product(new edm::Wrapper<std::string>(edm::WrapperBase::Emplace{}, value));
       // FIXME Wrapper should call post_insert (if available), but that is not implemented yet
       edm::detail::do_post_insert_if_available(unwrap_as<std::string>(*product));
-      assert(unwrap_as<std::string>(*product) == value);
+      REQUIRE(unwrap_as<std::string>(*product) == value);
       // Move the wrapper into the event
       auto handle = event.put(stringToken_, std::move(product));
-      assert(not product);
-      assert(handle.isValid());
-      assert(unwrap_as<std::string>(*handle) == value);
+      REQUIRE(not product);
+      REQUIRE(handle.isValid());
+      REQUIRE(unwrap_as<std::string>(*handle) == value);
     }
 
     {
@@ -135,12 +136,12 @@ namespace edmtest {
       std::unique_ptr<edm::WrapperBase> product(new edm::Wrapper<Vector>(edm::WrapperBase::Emplace{}, value));
       // FIXME Wrapper should call post_insert (if available), but that is not implemented yet
       edm::detail::do_post_insert_if_available(unwrap_as<Vector>(*product));
-      assert(unwrap_as<Vector>(*product) == value);
+      REQUIRE(unwrap_as<Vector>(*product) == value);
       // Move the wrapper into the event
       auto handle = event.put(vectorToken_, std::move(product));
-      assert(not product);
-      assert(handle.isValid());
-      assert(unwrap_as<Vector>(*handle) == value);
+      REQUIRE(not product);
+      REQUIRE(handle.isValid());
+      REQUIRE(unwrap_as<Vector>(*handle) == value);
     }
 
     {
@@ -150,12 +151,12 @@ namespace edmtest {
       std::unique_ptr<edm::WrapperBase> product(new edm::Wrapper<Thing>(edm::WrapperBase::Emplace{}, value));
       // FIXME Wrapper should call post_insert (if available), but that is not implemented yet
       edm::detail::do_post_insert_if_available(unwrap_as<Thing>(*product));
-      assert(unwrap_as<Thing>(*product).a == value);
+      REQUIRE(unwrap_as<Thing>(*product).a == value);
       // Move the wrapper into the event
       auto handle = event.put(thingToken_, std::move(product));
-      assert(not product);
-      assert(handle.isValid());
-      assert(unwrap_as<Thing>(*handle).a == value);
+      REQUIRE(not product);
+      REQUIRE(handle.isValid());
+      REQUIRE(unwrap_as<Thing>(*handle).a == value);
     }
 
     {
@@ -166,17 +167,17 @@ namespace edmtest {
       std::unique_ptr<edm::WrapperBase> product(
           new edm::Wrapper<ThingWithPostInsert>(edm::WrapperBase::Emplace{}, value));
       // FIXME Wrapper should call post_insert (if available), but that is not implemented yet
-      assert(not unwrap_as<ThingWithPostInsert>(*product).valid());
+      REQUIRE(not unwrap_as<ThingWithPostInsert>(*product).valid());
       edm::detail::do_post_insert_if_available(unwrap_as<ThingWithPostInsert>(*product));
       // end-of-FIXME
-      assert(unwrap_as<ThingWithPostInsert>(*product).value() == value);
-      assert(unwrap_as<ThingWithPostInsert>(*product).valid());
+      REQUIRE(unwrap_as<ThingWithPostInsert>(*product).value() == value);
+      REQUIRE(unwrap_as<ThingWithPostInsert>(*product).valid());
       // Move the wrapper into the event
       auto handle = event.put(thingWithPostInsertToken_, std::move(product));
-      assert(not product);
-      assert(handle.isValid());
-      assert(unwrap_as<ThingWithPostInsert>(*handle).value() == value);
-      assert(unwrap_as<ThingWithPostInsert>(*handle).valid());
+      REQUIRE(not product);
+      REQUIRE(handle.isValid());
+      REQUIRE(unwrap_as<ThingWithPostInsert>(*handle).value() == value);
+      REQUIRE(unwrap_as<ThingWithPostInsert>(*handle).valid());
     }
 
     {
@@ -188,12 +189,12 @@ namespace edmtest {
           new edm::Wrapper<ThingWithDoNotSort>(edm::WrapperBase::Emplace{}, value));
       // FIXME Wrapper should call post_insert (if available), but that is not implemented yet
       edm::detail::do_post_insert_if_available(unwrap_as<ThingWithDoNotSort>(*product));
-      assert(unwrap_as<ThingWithDoNotSort>(*product).value() == value);
+      REQUIRE(unwrap_as<ThingWithDoNotSort>(*product).value() == value);
       // Move the wrapper into the event
       auto handle = event.put(thingWithDoNotSortToken_, std::move(product));
-      assert(not product);
-      assert(handle.isValid());
-      assert(unwrap_as<ThingWithDoNotSort>(*handle).value() == value);
+      REQUIRE(not product);
+      REQUIRE(handle.isValid());
+      REQUIRE(unwrap_as<ThingWithDoNotSort>(*handle).value() == value);
     }
 
     {
@@ -203,15 +204,15 @@ namespace edmtest {
       std::unique_ptr<edm::WrapperBase> product(new edm::Wrapper<float>(edm::WrapperBase::Emplace{}, value));
       // FIXME Wrapper should call post_insert (if available), but that is not implemented yet
       edm::detail::do_post_insert_if_available(unwrap_as<float>(*product));
-      assert(unwrap_as<float>(*product) == value);
+      REQUIRE(unwrap_as<float>(*product) == value);
       bool failed = false;
       try {
         event.put(badToken_, std::move(product));
       } catch (edm::Exception const& e) {
-        assert(e.categoryCode() == edm::errors::LogicError);
+        REQUIRE(e.categoryCode() == edm::errors::LogicError);
         failed = true;
       }
-      assert(failed);
+      REQUIRE(failed);
     }
   }
 

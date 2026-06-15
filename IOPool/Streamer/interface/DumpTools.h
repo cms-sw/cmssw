@@ -5,6 +5,7 @@
     Messages on screen.
 */
 
+#include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
@@ -17,7 +18,7 @@ namespace edm::streamer {
   void dumpInit(uint8* buf);
   void printBits(unsigned char c);
   void dumpEventHeader(const EventMsgView* eview);
-  void dumpEventView(const EventMsgView* eview);
+  void dumpEventView(const EventMsgView* eview, const SendEvent* sendEvent = nullptr);
   void dumpEventIndex(const EventMsgView* eview);
   void dumpEvent(uint8* buf);
   void dumpFRDEventView(const FRDEventMsgView* fview);

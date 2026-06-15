@@ -12,14 +12,26 @@ UniqueKey = namedtuple('UniqueKey', ['moduleLabel', 'moduleType', 'recordName'])
 
 transitionTypes = [
     "construction",
+    "destruction",
     "begin job",
     "begin stream",
+    "get next transition",
     "global begin run",
     "stream begin run",
     "global begin luminosity block",
     "stream begin luminosity block",
-    "event",
     EVENTSETUP_TRANSITION,
+    "event",
+    "clear event",
+    "stream end lumi",
+    "global end lumi",
+    "global write lumi",
+    "stream end run",
+    "global end run",
+    "global write run",
+    "write process block",
+    "end stream",
+    "end job",
 ]
 allocTypes = ["added", "nAlloc", "nDealloc", "maxTemp", "max1Alloc"]
 

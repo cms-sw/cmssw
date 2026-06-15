@@ -1,4 +1,4 @@
 <environment>
-  <test name="testProduceNanoHLT" command="testNanohltDQM.sh unitTest"/>
+  <!-- <test name="testProduceNanoHLT" command="testNanohltDQM.sh unitTest"/> COMMENT: reads old format file -->
 </environment>
 

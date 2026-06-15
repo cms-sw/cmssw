@@ -21,6 +21,8 @@ from Validation.SiTrackerPhase2V.HLTPhase2TrackerValidationFirstStep_cff import 
 # Gen-level Validation
 from Validation.HLTrigger.HLTGenValidation_cff import *
 from Validation.Configuration.globalValidation_cff import *
+#MTD
+from Validation.MtdValidation.hltMtdValidation_cff import *
 
 # HGCAL Rechit Calibration
 from Validation.HGCalValidation.hgcalHitCalibrationDefault_cfi import hgcalHitCalibrationDefault as _hgcalHitCalibrationDefault
@@ -75,6 +77,9 @@ _phase2_hltassociation += hltTrackerphase2ValidationSource
 # Add HGCal SimTracksters
 _phase2_hltassociation += hltTiclSimTrackstersSeq
 
+# Add gentau reference for validation
+_phase2_hltassociation += tauPreValidSeq
+
 # Apply the modification
 phase2_common.toReplaceWith(hltassociation, _phase2_hltassociation)
 
@@ -102,7 +107,7 @@ hltvalidationWithMC = cms.Sequence(
 
 # Exclude everything except Muon and JetMET for now. Add HGCAL Hit Calibration
 _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
-  HLTTauVal,
+  #HLTTauVal,
   egammaValidationSequence,
   heavyFlavorValidationSequence,
   #HLTJetMETValSeq,
@@ -117,7 +122,15 @@ _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
   hltHCALNoiseRates])
 _hltvalidationWithMC_Phase2.insert(-1, hgcalHitCalibrationHLT)
 _hltvalidationWithMC_Phase2.insert(-1, hltHgcalValidator)
-_hltvalidationWithMC_Phase2.insert(-1, hltGENValidation)
+_hltvalidationWithMC_Phase2.insert(0, hltGENValidation)
+
+# Add at the end only when mtd_at_hlt is active
+from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
+mtd_at_hlt.toModify(
+    _hltvalidationWithMC_Phase2,
+    func=lambda seq: seq.insert(-1, hltMtdRecoValid)
+)
+
 phase2_common.toReplaceWith(hltvalidationWithMC, _hltvalidationWithMC_Phase2)
 
 hltvalidationWithData = cms.Sequence(

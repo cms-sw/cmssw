@@ -3,7 +3,7 @@
 
 #include "DataFormats/GeometrySurface/interface/BoundDiskSector.h"
 #include "DataFormats/GeometrySurface/interface/DiskSectorBounds.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <utility>
 #include <vector>

@@ -49,6 +49,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecordFwd.h"
 
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtilsHelper.h"
 
@@ -58,7 +59,6 @@ class L1GtPrescaleFactors;
 class L1GtTriggerMask;
 class L1GtTriggerMenu;
 
-class L1GlobalTriggerReadoutRecord;
 class L1GlobalTriggerRecord;
 
 // class declaration

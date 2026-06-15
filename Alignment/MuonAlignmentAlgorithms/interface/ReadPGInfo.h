@@ -17,7 +17,7 @@ class ReadPGInfo {
 public:
   ReadPGInfo(const char *name);
   ~ReadPGInfo();
-  char *getId(int, int, int);
+  const char *getId(int, int, int);
   TMatrixD giveR(int, int, int);
   TMatrixD giveQC(int, int, int);
   TMatrixD giveSurvey(int, int, int);

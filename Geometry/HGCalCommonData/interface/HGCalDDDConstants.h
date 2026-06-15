@@ -72,8 +72,13 @@ public:
   std::vector<double> cellThickness() const;
   double cellThickness(int layer, int waferU, int waferV) const;
   int32_t cellType(int type, int waferU, int waferV, int iz, int fwdBack, int orient) const;
+  inline bool coldBoxMode() const { return (hgpar_->coldBoxMode_ > 0); }
+  inline double coldBoxRots(unsigned int k) const {
+    return ((k < hgpar_->coldBoxRots_.size()) ? hgpar_->coldBoxRots_[k] : 0);
+  }
   double distFromEdgeHex(double x, double y, double z) const;
   double distFromEdgeTrap(double x, double y, double z) const;
+  int endcaps() const { return (coldBoxMode() ? 1 : 2); }
   void etaPhiFromPosition(const double x,
                           const double y,
                           const double z,

@@ -29,7 +29,8 @@ using namespace std;
 L1FastjetCorrectorImplMaker::L1FastjetCorrectorImplMaker(edm::ParameterSet const& fConfig,
                                                          edm::ConsumesCollector fCollector)
     : JetCorrectorImplMakerBase(fConfig, fCollector),
-      rhoToken_(fCollector.consumes<double>(fConfig.getParameter<edm::InputTag>("srcRho"))) {}
+      rhoToken_(fCollector.consumes<double>(fConfig.getParameter<edm::InputTag>("srcRho"))),
+      skipMissingProduct_(fConfig.getParameter<bool>("skipMissingProduct")) {}
 
 std::unique_ptr<reco::JetCorrectorImpl> L1FastjetCorrectorImplMaker::make(edm::Event const& fEvent,
                                                                           edm::EventSetup const& fSetup) {
@@ -41,13 +42,25 @@ std::unique_ptr<reco::JetCorrectorImpl> L1FastjetCorrectorImplMaker::make(edm::E
 
   edm::Handle<double> hRho;
   fEvent.getByToken(rhoToken_, hRho);
-  return std::make_unique<L1FastjetCorrectorImpl>(corrector, *hRho);
+
+  if (hRho.isValid()) {
+    return std::make_unique<L1FastjetCorrectorImpl>(corrector, *hRho);
+  }
+  // Handle missing product
+  else if (skipMissingProduct_) {
+    edm::LogWarning("L1FastjetCorrector")
+        << "Rho product is missing, but skipMissingProduct is set to true. Returning corrector with rho = 0.";
+    return std::make_unique<L1FastjetCorrectorImpl>(corrector, 0.0);
+  } else {
+    throw cms::Exception("L1FastjetCorrector") << "Rho product is missing and skipMissingProduct is set to false.";
+  }
 }
 
 void L1FastjetCorrectorImplMaker::fillDescriptions(edm::ConfigurationDescriptions& iDescriptions) {
   edm::ParameterSetDescription desc;
   addToDescription(desc);
   desc.add<edm::InputTag>("srcRho", edm::InputTag(""));
+  desc.add<bool>("skipMissingProduct", false);
   iDescriptions.addWithDefaultLabel(desc);
 }
 

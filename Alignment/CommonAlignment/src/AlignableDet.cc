@@ -3,7 +3,7 @@
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CLHEP/Vector/RotationInterfaces.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/AlignmentPositionError.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonTopologies/interface/GeomDet.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
 

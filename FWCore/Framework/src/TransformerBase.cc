@@ -77,7 +77,7 @@ namespace edm {
     auto const& list = iBase.typeLabelList();
 
     std::size_t index = 0;
-    bool found = false;
+    [[maybe_unused]] bool found = false;
     for (auto const& element : list) {
       if (not element.isTransform_) {
         continue;
