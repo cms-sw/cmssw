@@ -77,7 +77,8 @@ namespace trklet {
     if (std::abs(d0_) > rangeD0 / 2.)
       valid_ = false;
     if (!valid_)
-      return;
+    { return; }
+
     // create bit vectors
     const TTBV other = TTBV(0, 2 * TTTrack_TrackWord::TrackBitWidths::kMVAQualitySize);
     const TTBV chi2bend = TTBV(0, TTTrack_TrackWord::TrackBitWidths::kBendChi2Size);

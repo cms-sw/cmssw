@@ -81,14 +81,21 @@ namespace trklet {
       chi21F = dfChi21.limit(chi21F);
       const int nStubs = hitPattern.count();
       const int nGaps = hitPattern.count(hitPattern.plEncode(), hitPattern.pmEncode(), false);
-      // get integer values
-      const int zT = dfZT.integer(frame.track_->z0());
-      const int cot = dfCot.integer(frame.track_->cot());
-      const int chi20 = dfChi20.integer(chi20F);
-      const int chi21 = dfChi21.integer(chi21F);
-      // transform double to AP_FIXED_BDT
-      static const double d = std::pow(2., 10);
-      const std::vector<AP_FIXED_BDT> features({nStubs, zT / d, cot / d, chi20 / d, chi21 / d, nGaps});
+      const double z0_scale = std::pow(2, 3);
+      const double tanL_scale = std::pow(2, 7);
+      const double feature_1 = nStubs;
+      const double feature_2 = dfZT.integer(frame.track_->z0()) / z0_scale;
+      const double feature_3 = dfCot.integer(frame.track_->cot()) / tanL_scale;
+      const double feature_4 = dfChi20.integer(chi20F); // leave as is
+      const double feature_5 = dfChi21.integer(chi21F); // leave as is
+      const double feature_6 = nGaps;
+      const std::vector<AP_FIXED_BDT> features({feature_1, 
+                                                feature_2, 
+                                                feature_3, 
+                                                feature_4, 
+                                                feature_5, 
+                                                feature_6});
+
       // Run the Track Quality BDT calculation
       const AP_FIXED_BDT mvaFixed = bdt_->decision_function(features).at(0);
       const AP_INT_BDT mvaInt = mvaFixed.range(mvaFixed.width - 1, 0);
