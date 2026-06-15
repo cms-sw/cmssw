@@ -8,7 +8,6 @@
 #include <cmath>
 #include <cstdint>
 #include <map>
-#include <numeric>
 #include <queue>
 #include <unordered_map>
 #include <utility>
@@ -302,20 +301,40 @@ namespace {
       skipVertex[decayVertexId] = 1;
     }
 
+    // Representative of a particle = end of its directChild collapse chain.
+    // Resolve with path compression so each node is visited once overall
+    // (amortized O(nParticles)) instead of re-walking the chain per particle
+    // (O(nParticles^2) for a long chain). state: 0 unvisited, 1 on the current
+    // walk, 2 resolved; the on-walk marker also makes a (graph is a DAG, so this
+    // cannot happen) cycle terminate deterministically rather than spin.
     std::vector<uint32_t> particleRepresentative(nParticles, 0);
+    std::vector<uint8_t> state(nParticles, 0);
+    std::vector<uint32_t> path;
 
     for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
-      uint32_t current = particleId;
+      if (state[particleId] == 2)
+        continue;
 
-      for (uint32_t step = 0; step < nParticles; ++step) {
+      path.clear();
+      uint32_t current = particleId;
+      while (state[current] == 0) {
         const int32_t next = directChild[current];
         if (next < 0)
-          break;
-
+          break;  // chain end -> representative is `current`
+        state[current] = 1;
+        path.push_back(current);
         current = static_cast<uint32_t>(next);
       }
 
-      particleRepresentative[particleId] = current;
+      const uint32_t representative = (state[current] == 2) ? particleRepresentative[current] : current;
+      if (state[current] != 2) {
+        particleRepresentative[current] = representative;
+        state[current] = 2;
+      }
+      for (const uint32_t x : path) {
+        particleRepresentative[x] = representative;
+        state[x] = 2;
+      }
     }
 
     truth::Graph output;
