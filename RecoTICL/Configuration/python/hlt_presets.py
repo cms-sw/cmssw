@@ -132,8 +132,14 @@ def hlt_candidate_defaults():
 
 
 def hlt_pf_defaults():
-    """Overrides for hltPfTICL (HLT muon source, no MTD timing)."""
-    return dict(muonSrc=cms.InputTag("hltPhase2L3Muons"), useMTDTiming=cms.bool(False))
+    """Overrides for hltPfTICL (HLT muon source + hlt-prefixed MTD-timing maps)."""
+    return dict(
+        muonSrc=cms.InputTag("hltPhase2L3Muons"),
+        useMTDTiming=cms.bool(False),
+        trackTimeValueMap=cms.InputTag("hltTofPID", "t0"),
+        trackTimeErrorMap=cms.InputTag("hltTofPID", "sigmat0"),
+        trackTimeQualityMap=cms.InputTag("hltMtdTrackQualityMVA", "mtdQualMVA"),
+    )
 
 
 def v5_hlt(name="v5_hlt"):
