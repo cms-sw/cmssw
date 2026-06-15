@@ -26,12 +26,13 @@ public:
   ReturnSummaryType produceSummary(const DIPLuminosityRcd&);
   typedef std::shared_ptr<const DIPLumiDetail> ReturnDetailType;
   ReturnDetailType produceDetail(const DIPLuminosityRcd&);
-  ~DIPLumiProducer() override;
+  ~DIPLumiProducer() final;
 
 protected:
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
                       const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
+                      edm::ValidityInterval&) final;
+  bool isConcurrentFinder() const final { return true; }
 
 private:
   unsigned int maxavailableLSforRun(coral::ISchema& schema, const std::string& tablename, unsigned int runnumber);
@@ -46,7 +47,6 @@ private:
   unsigned int m_cachesize;
   std::shared_ptr<const DIPLumiSummary> m_summaryresult;
   std::shared_ptr<const DIPLumiDetail> m_detailresult;
-  const edm::IOVSyncValue* m_pcurrentTime;
 
 private:
   void fillsummarycache(unsigned int runnumber, unsigned int startlsnum);

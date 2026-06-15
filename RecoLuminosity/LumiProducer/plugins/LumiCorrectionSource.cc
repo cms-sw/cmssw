@@ -203,8 +203,9 @@ LumiCorrectionSource::LumiCorrectionSource(const edm::ParameterSet& iConfig)
   }
 }
 
-LumiCorrectionSource::ReturnParamType LumiCorrectionSource::produceLumiCorrectionParam(const LumiCorrectionParamRcd&) {
-  unsigned int currentrun = m_pcurrentTime->eventID().run();
+LumiCorrectionSource::ReturnParamType LumiCorrectionSource::produceLumiCorrectionParam(
+    const LumiCorrectionParamRcd& iRcd) {
+  const unsigned int currentrun = iRcd.validityInterval().first().eventID().run();
   if (currentrun == 0 || currentrun == 4294967295) {
     return std::make_shared<const LumiCorrectionParam>();
   }
@@ -228,7 +229,6 @@ LumiCorrectionSource::ReturnParamType LumiCorrectionSource::produceLumiCorrectio
 void LumiCorrectionSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey,
                                           const edm::IOVSyncValue& iTime,
                                           edm::ValidityInterval& oValidity) {
-  m_pcurrentTime = &iTime;
   oValidity.setFirst(iTime);
   oValidity.setLast(iTime);
 }
