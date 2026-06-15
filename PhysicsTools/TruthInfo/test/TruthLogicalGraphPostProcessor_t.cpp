@@ -248,6 +248,13 @@ namespace {
     return processor.process(std::move(graph));
   }
 
+  truth::Graph runPostProcessing(truth::Graph graph,
+                                 truth::LogicalGraphPostProcessingConfig const& config,
+                                 std::vector<uint8_t> const& particleDirectHit) {
+    truth::TruthLogicalGraphPostProcessor processor(config);
+    return processor.process(std::move(graph), particleDirectHit);
+  }
+
 }  // namespace
 
 class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
@@ -269,6 +276,7 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testKeepStableSpectatorsFalseDropsSpectators);
   CPPUNIT_TEST(testSeedHadronFlavorSelectsBHadron);
   CPPUNIT_TEST(testJetOriginLowestCommonAncestor);
+  CPPUNIT_TEST(testHitlessSimSubgraphsAreDropped);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -289,6 +297,7 @@ public:
   void testKeepStableSpectatorsFalseDropsSpectators();
   void testSeedHadronFlavorSelectsBHadron();
   void testJetOriginLowestCommonAncestor();
+  void testHitlessSimSubgraphsAreDropped();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestTruthLogicalGraphPostProcessor);
@@ -1268,6 +1277,80 @@ void TestTruthLogicalGraphPostProcessor::testJetOriginLowestCommonAncestor() {
     auto lcaTop = graph.lowestCommonAncestor({graph.particle(3), graph.particle(4), graph.particle(1)});
     CPPUNIT_ASSERT(lcaTop.has_value());
     CPPUNIT_ASSERT_EQUAL(int32_t(6), lcaTop->pdgId());
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testHitlessSimSubgraphsAreDropped() {
+  try {
+    // pi+ -> {gamma, n}, and n -> {p, nu}. Only the photon leaves a hit.
+    //
+    //   V0 --> pi+(0) --V1--> gamma(1)   [hit]
+    //                    \---> n(2) --V2--> p(3)      [no hit]
+    //                                  \--> nu(4)     [GEN-only, no hit]
+    //
+    // The neutron's whole subgraph (n, p) is hitless, so it must be dropped
+    // together with its GEN-only daughter neutrino. The pi+ has no hit of its
+    // own but keeps a hit-bearing descendant (the photon), so it survives.
+    GraphBuilder builder(5, 3);
+
+    builder.setSimParticle(0, 211, 1000);   // pi+
+    builder.setSimParticle(1, 22, 1001);    // gamma (carries a hit)
+    builder.setSimParticle(2, 2112, 1002);  // neutron
+    builder.setSimParticle(3, 2212, 1003);  // proton
+    builder.setGenParticle(4, 12, 1, 104);  // nu_e: GEN-only daughter of the neutron
+
+    builder.setSimVertex(0, 2000);
+    builder.setSimVertex(1, 2001);
+    builder.setSimVertex(2, 2002);
+
+    builder.addProduction(0, 0);  // source vertex produces the pi+
+
+    builder.addDecay(0, 1);       // pi+ decays at V1
+    builder.addProduction(1, 1);  // -> gamma
+    builder.addProduction(1, 2);  // -> neutron
+
+    builder.addDecay(2, 2);       // neutron decays at V2
+    builder.addProduction(2, 3);  // -> proton
+    builder.addProduction(2, 4);  // -> neutrino
+
+    auto graph = builder.finish();
+
+    auto config = defaultConfig();
+    config.dropHitlessSimSubgraphs = true;
+
+    // particleDirectHit aligned to the input ids: only the photon (id 1).
+    const std::vector<uint8_t> particleDirectHit = {0, 1, 0, 0, 0};
+
+    auto output = runPostProcessing(graph, config, particleDirectHit);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+
+    // pi+ (hitless itself, hit-bearing descendant) and the photon survive.
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 211));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 22));
+
+    // The hitless neutron subgraph, including the GEN-only neutrino, is gone.
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 2112));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 2212));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 12));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(2), output.nParticles());
+
+    // The kept pi+ still points at the photon through its decay vertex, and the
+    // emptied neutron decay vertex has been dropped.
+    const uint32_t pion = findParticleWithPdgId(output, 211);
+    const uint32_t photon = findParticleWithPdgId(output, 22);
+    const auto decayVertices = output.decayVertices(pion);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), decayVertices.size());
+    const auto outgoing = output.outgoingParticles(decayVertices.front());
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), outgoing.size());
+    CPPUNIT_ASSERT(std::find(outgoing.begin(), outgoing.end(), photon) != outgoing.end());
+
+    // Without a presence vector the pruning is a no-op: the full graph survives.
+    auto untouched = runPostProcessing(graph, config);
+    CPPUNIT_ASSERT_EQUAL(uint32_t(5), untouched.nParticles());
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);

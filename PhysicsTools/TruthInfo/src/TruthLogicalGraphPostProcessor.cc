@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <map>
 #include <queue>
@@ -978,6 +979,99 @@ namespace {
     return output;
   }
 
+  // Remove every SIM particle whose calo+tracker sim-hit subgraph is empty,
+  // together with its whole downstream subtree. particleDirectHit[i] flags the
+  // particles that carry a sim-hit on their own SimTrack (supplied by the
+  // producer, aligned to input ids). subgraphHasHit[p] = "p or some logical
+  // descendant of p carries a hit"; it is computed by propagating the direct-hit
+  // flag UP the production edges (an ancestor inherits a hit from any descendant).
+  truth::Graph dropHitlessSimSubgraphs(truth::Graph const& input, std::vector<uint8_t> const& particleDirectHit) {
+    const uint32_t nParticles = input.nParticles();
+    const uint32_t nVertices = input.nVertices();
+
+    if (nParticles == 0 || particleDirectHit.size() != nParticles)
+      return input;
+
+    // Upward closure of the direct-hit set: a particle has a non-empty subgraph
+    // iff it is an ancestor-or-self of some particle that carries a hit.
+    std::vector<uint8_t> subgraphHasHit(nParticles, 0);
+    std::vector<uint32_t> worklist;
+    worklist.reserve(nParticles);
+
+    for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+      if (particleDirectHit[particleId]) {
+        subgraphHasHit[particleId] = 1;
+        worklist.push_back(particleId);
+      }
+    }
+
+    for (std::size_t head = 0; head < worklist.size(); ++head) {
+      const uint32_t particleId = worklist[head];
+      for (const uint32_t vertexId : input.productionVertices(particleId)) {
+        if (vertexId >= nVertices)
+          continue;
+        for (const uint32_t parentId : input.incomingParticles(vertexId)) {
+          if (parentId < nParticles && !subgraphHasHit[parentId]) {
+            subgraphHasHit[parentId] = 1;
+            worklist.push_back(parentId);
+          }
+        }
+      }
+    }
+
+    // Removal seeds = SIM particles with an empty subgraph. Sweep their whole
+    // downstream closure so GEN-only descendants (e.g. neutrinos) go with them
+    // and no kept particle is left orphaned.
+    std::vector<uint8_t> removeParticle(nParticles, 0);
+    std::vector<uint32_t> removalQueue;
+
+    for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+      if (input.particles[particleId].hasSim() && !subgraphHasHit[particleId]) {
+        removeParticle[particleId] = 1;
+        removalQueue.push_back(particleId);
+      }
+    }
+
+    for (std::size_t head = 0; head < removalQueue.size(); ++head) {
+      const uint32_t particleId = removalQueue[head];
+      for (const uint32_t vertexId : input.decayVertices(particleId)) {
+        if (vertexId >= nVertices)
+          continue;
+        for (const uint32_t childId : input.outgoingParticles(vertexId)) {
+          if (childId < nParticles && !removeParticle[childId]) {
+            removeParticle[childId] = 1;
+            removalQueue.push_back(childId);
+          }
+        }
+      }
+    }
+
+    if (std::none_of(removeParticle.begin(), removeParticle.end(), [](uint8_t value) { return value != 0; }))
+      return input;
+
+    std::vector<uint8_t> keepParticle(nParticles, 0);
+    for (uint32_t particleId = 0; particleId < nParticles; ++particleId)
+      keepParticle[particleId] = removeParticle[particleId] ? 0 : 1;
+
+    // Keep a vertex iff it still has at least one kept outgoing particle: this
+    // preserves the production vertex of every kept particle (and, since a kept
+    // particle never has a removed parent, its incoming side stays valid) while
+    // dropping decay vertices whose products were all pruned, so the parent
+    // simply becomes a leaf.
+    std::vector<uint8_t> keepVertex(nVertices, 0);
+    for (uint32_t vertexId = 0; vertexId < nVertices; ++vertexId) {
+      for (const uint32_t particleId : input.outgoingParticles(vertexId)) {
+        if (particleId < nParticles && keepParticle[particleId]) {
+          keepVertex[vertexId] = 1;
+          break;
+        }
+      }
+    }
+
+    const std::vector<uint8_t> attachRole(nParticles, 0);
+    return rebuildFilteredGraph(input, keepParticle, keepVertex, attachRole);
+  }
+
 }  // namespace
 
 namespace truth {
@@ -992,6 +1086,13 @@ namespace truth {
         ->setComment(
             "If true, collapse GEN chains P -> V -> C where P has status != 1, C is the only daughter, "
             "and P and C have the same PDG id. Status-1 GEN particles are never collapsed by this rule.");
+
+    desc.add<bool>("dropHitlessSimSubgraphs", true)
+        ->setComment(
+            "If true, remove every SIM logical particle whose calorimeter + tracker sim-hit subgraph is empty, "
+            "together with its whole downstream subtree (GEN-only descendants such as neutrinos go with it; the "
+            "GEN skeleton outside removed SIM subtrees is preserved). Requires the producer to supply the "
+            "per-particle sim-hit presence (it consumes the calo/tracker sim-hit collections); a no-op otherwise.");
 
     desc.add<std::vector<int32_t>>("seedPdgIds", {})
         ->setComment(
@@ -1049,6 +1150,7 @@ namespace truth {
     LogicalGraphPostProcessingConfig config;
 
     config.collapseIntermediateGenParticles = pset.getParameter<bool>("collapseIntermediateGenParticles");
+    config.dropHitlessSimSubgraphs = pset.getParameter<bool>("dropHitlessSimSubgraphs");
     config.seedPdgIds = pset.getParameter<std::vector<int32_t>>("seedPdgIds");
     config.seedHadronFlavors = pset.getParameter<std::vector<int32_t>>("seedHadronFlavors");
     config.seedParentDepth = pset.getParameter<uint32_t>("seedParentDepth");
@@ -1063,7 +1165,13 @@ namespace truth {
     return config;
   }
 
-  Graph TruthLogicalGraphPostProcessor::process(Graph input) const {
+  Graph TruthLogicalGraphPostProcessor::process(Graph input, std::vector<uint8_t> const& particleDirectHit) const {
+    // Run before any collapsing/selection so particleDirectHit stays aligned to
+    // the input particle ids the producer computed it for.
+    if (config_.dropHitlessSimSubgraphs && !particleDirectHit.empty()) {
+      input = dropHitlessSimSubgraphs(input, particleDirectHit);
+    }
+
     if (config_.collapseIntermediateGenParticles) {
       input = collapseIntermediateGenParticleChains(input);
     }

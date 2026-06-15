@@ -20,7 +20,9 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -33,11 +35,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 // Legacy HepMC (HepMC2)
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -314,8 +319,19 @@ public:
         hepmc3Token_(mayConsume<edm::HepMC3Product>(cfg.getParameter<edm::InputTag>("genEventHepMC3"))),
         hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
         mergeGenSimVertices_(cfg.getParameter<bool>("mergeGenSimVertices")),
+        dropHitlessSimSubgraphs_(
+            cfg.getParameter<edm::ParameterSet>("postProcessing").getParameter<bool>("dropHitlessSimSubgraphs")),
         postProcessor_(truth::TruthLogicalGraphPostProcessor::configFromPSet(
             cfg.getParameter<edm::ParameterSet>("postProcessing"))) {
+    // The hitless-subgraph pruning needs to know which SimTracks left a calo or
+    // tracker sim-hit; consume the same collections the hit-index producer uses.
+    if (dropHitlessSimSubgraphs_) {
+      for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("simHitCollections"))
+        caloSimHitTokens_.push_back(consumes<std::vector<PCaloHit>>(tag));
+      for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("trackerSimHitCollections"))
+        trackerSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
+    }
+
     produces<truth::Graph>();
   }
 
@@ -332,6 +348,35 @@ public:
         ->setComment(
             "If true, merge production GenVertex and SimVertex only for locally one-to-one matches induced by "
             "GenParticle <-> SimTrack associations.");
+
+    desc.add<std::vector<edm::InputTag>>("simHitCollections",
+                                         {edm::InputTag("g4SimHits", "HGCHitsEE"),
+                                          edm::InputTag("g4SimHits", "HGCHitsHEfront"),
+                                          edm::InputTag("g4SimHits", "HGCHitsHEback"),
+                                          edm::InputTag("g4SimHits", "EcalHitsEB"),
+                                          edm::InputTag("g4SimHits", "HcalHits")})
+        ->setComment(
+            "Calorimeter PCaloHit collections used only to decide which SimTracks left a hit, for the "
+            "postProcessing.dropHitlessSimSubgraphs pruning. Covers endcap (HGCAL) and barrel (ECAL/HCAL) "
+            "so a particle is kept if it leaves a hit in any calorimeter. Matched via PCaloHit::geantTrackId(); "
+            "only the track id and energy are read, so no DetId relabelling is needed.");
+
+    desc.add<std::vector<edm::InputTag>>("trackerSimHitCollections",
+                                         {edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelLowTof"),
+                                          edm::InputTag("g4SimHits", "TrackerHitsPixelBarrelHighTof"),
+                                          edm::InputTag("g4SimHits", "TrackerHitsPixelEndcapLowTof"),
+                                          edm::InputTag("g4SimHits", "TrackerHitsPixelEndcapHighTof"),
+                                          edm::InputTag("g4SimHits", "TrackerHitsTIBLowTof"),
+                                          edm::InputTag("g4SimHits", "TrackerHitsTIBHighTof"),
+                                          edm::InputTag("g4SimHits", "TrackerHitsTIDLowTof"),
+                                          edm::InputTag("g4SimHits", "TrackerHitsTIDHighTof"),
+                                          edm::InputTag("g4SimHits", "TrackerHitsTOBLowTof"),
+                                          edm::InputTag("g4SimHits", "TrackerHitsTOBHighTof"),
+                                          edm::InputTag("g4SimHits", "TrackerHitsTECLowTof"),
+                                          edm::InputTag("g4SimHits", "TrackerHitsTECHighTof")})
+        ->setComment(
+            "Tracker PSimHit collections used only to decide which SimTracks left a hit, for the "
+            "postProcessing.dropHitlessSimSubgraphs pruning. Matched to particles via PSimHit::trackId().");
 
     desc.add<edm::ParameterSetDescription>("postProcessing", truth::TruthLogicalGraphPostProcessor::psetDescription())
         ->setComment("Logical graph post-processing configuration.");
@@ -811,7 +856,67 @@ public:
              out->vertexToIncomingParticleOffsets,
              out->vertexToIncomingParticles);
 
-    *out = postProcessor_.process(std::move(*out));
+    // Per-particle sim-hit presence for the hitless-subgraph pruning. A logical
+    // particle is flagged when a calo or tracker sim-hit carries its SimTrack
+    // trackId with positive energy -- exactly how the LogicalGraphHitIndex
+    // attributes direct hits, so the pruned graph stays consistent with the
+    // index. Left empty (pruning disabled) when no sim-hit collection is present.
+    std::vector<uint8_t> particleDirectHit;
+
+    if (dropHitlessSimSubgraphs_) {
+      std::unordered_set<uint32_t> hitTrackIds;
+      bool anyCollectionValid = false;
+
+      for (auto const& token : caloSimHitTokens_) {
+        edm::Handle<std::vector<PCaloHit>> hHits;
+        evt.getByToken(token, hHits);
+        if (!hHits.isValid())
+          continue;
+        anyCollectionValid = true;
+        for (auto const& hit : *hHits) {
+          const int trackId = hit.geantTrackId();
+          if (trackId > 0 && hit.energy() > 0.f)
+            hitTrackIds.insert(static_cast<uint32_t>(trackId));
+        }
+      }
+
+      for (auto const& token : trackerSimHitTokens_) {
+        edm::Handle<edm::PSimHitContainer> hHits;
+        evt.getByToken(token, hHits);
+        if (!hHits.isValid())
+          continue;
+        anyCollectionValid = true;
+        for (auto const& hit : *hHits) {
+          if (hit.energyLoss() > 0.f)
+            hitTrackIds.insert(hit.trackId());
+        }
+      }
+
+      if (anyCollectionValid) {
+        particleDirectHit.assign(out->nParticles(), 0);
+        for (uint32_t particleId = 0; particleId < out->nParticles(); ++particleId) {
+          const int32_t simNode = out->particles[particleId].simNode;
+          if (simNode < 0)
+            continue;
+          const uint32_t simNodeU32 = static_cast<uint32_t>(simNode);
+          if (simNodeU32 >= nRawNodes)
+            continue;
+          auto const& ref = raw.nodeRef(simNodeU32);
+          if (ref.kind != TruthGraph::NodeKind::SimTrack)
+            continue;
+          if (ref.key <= 0 || ref.key > static_cast<int64_t>(std::numeric_limits<uint32_t>::max()))
+            continue;
+          if (hitTrackIds.count(static_cast<uint32_t>(ref.key)) != 0)
+            particleDirectHit[particleId] = 1;
+        }
+      } else {
+        edm::LogWarning("TruthLogicalGraphProducer")
+            << "dropHitlessSimSubgraphs is enabled but no calo/tracker sim-hit collection was found; "
+               "keeping the full logical graph for this event.";
+      }
+    }
+
+    *out = postProcessor_.process(std::move(*out), particleDirectHit);
 
     if (!out->isConsistent()) {
       throw cms::Exception("TruthLogicalGraphProducer") << "Produced truth::Graph is not consistent";
@@ -826,8 +931,11 @@ private:
   edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken_;
   edm::EDGetTokenT<edm::HepMC3Product> hepmc3Token_;
   edm::EDGetTokenT<edm::HepMCProduct> hepmc2Token_;
+  std::vector<edm::EDGetTokenT<std::vector<PCaloHit>>> caloSimHitTokens_;
+  std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> trackerSimHitTokens_;
 
   bool mergeGenSimVertices_;
+  bool dropHitlessSimSubgraphs_;
   truth::TruthLogicalGraphPostProcessor postProcessor_;
 };
 
