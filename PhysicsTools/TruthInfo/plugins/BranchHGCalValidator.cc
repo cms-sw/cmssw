@@ -129,8 +129,8 @@ void BranchHGCalValidator::book(DQMStore::IBooker& ib, Plots& p, std::string con
   p.completenessHits = ib.book1D("completeness_hits", "Branch hit completeness;completeness;objects", 52, -0.01, 1.03);
   p.completenessEnergy =
       ib.book1D("completeness_energy", "Branch energy completeness;completeness;objects", 52, -0.01, 1.03);
-  p.energyResponse = ib.book1D(
-      "energy_response", "Branch sim-energy containment;E^{sim}_{Branch}/E_{gen};objects", 60, 0., 1.5);
+  p.energyResponse =
+      ib.book1D("energy_response", "Branch sim-energy containment;E^{sim}_{Branch}/E_{gen};objects", 60, 0., 1.5);
 
   p.purityVsEta =
       ib.bookProfile("purity_vs_eta", "Branch hit purity vs #eta;#eta;purity", kEtaBins, -kEtaMax, kEtaMax, 0., 1.05);
