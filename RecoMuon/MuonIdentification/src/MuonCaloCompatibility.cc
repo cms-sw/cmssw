@@ -18,7 +18,7 @@
 
 #include "TFile.h"
 
-void MuonCaloCompatibility::configure(const edm::ParameterSet& iConfig) {
+void MuonCaloCompatibility::configure(const edm::ParameterSet& iConfig, const bool isPhase2) {
   const std::string muonfileName = (iConfig.getParameter<edm::FileInPath>("MuonTemplateFileName")).fullPath();
   const std::string pionfileName = (iConfig.getParameter<edm::FileInPath>("PionTemplateFileName")).fullPath();
   TFile muon_templates(muonfileName.c_str(), "READ");
@@ -137,6 +137,7 @@ void MuonCaloCompatibility::configure(const edm::ParameterSet& iConfig) {
   use_corrected_hcal = true;
   use_em_special = true;
   isConfigured_ = true;
+  isPhase2_ = isPhase2;
 }
 
 bool MuonCaloCompatibility::accessing_overflow(const TH2D& histo, double x, double y) {
@@ -152,6 +153,9 @@ bool MuonCaloCompatibility::accessing_overflow(const TH2D& histo, double x, doub
 }
 
 double MuonCaloCompatibility::evaluate(const reco::Muon& amuon) {
+  // Muon calo compatibility not yet updated for Phase2
+  if (isPhase2_ && std::abs(amuon.eta()) >= 1.52)
+    return 0.5;  // return "unknown" for Phase2 until we have updated templates for Phase2
   if (!isConfigured_) {
     edm::LogWarning("MuonIdentification") << "MuonCaloCompatibility is not configured! Nothing is calculated.";
     return -9999;

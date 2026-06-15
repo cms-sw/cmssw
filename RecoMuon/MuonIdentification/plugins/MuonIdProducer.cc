@@ -76,6 +76,7 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
       iConfig.getParameter<double>("sigmaThresholdToFillCandidateP4WithGlobalFit");
   caloCut_ = iConfig.getParameter<double>("minCaloCompatibility");  //CaloMuons
   arbClean_ = iConfig.getParameter<bool>("runArbitrationCleaner");  // muon mesh
+  isPhase2_ = iConfig.getParameter<bool>("isPhase2");
 
   // Load TrackDetectorAssociator parameters
   const edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
@@ -97,7 +98,7 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
   if (fillCaloCompatibility_) {
     // Load MuonCaloCompatibility parameters
     const auto caloParams = iConfig.getParameter<edm::ParameterSet>("MuonCaloCompatibility");
-    muonCaloCompatibility_.configure(caloParams);
+    muonCaloCompatibility_.configure(caloParams, isPhase2_);
   }
 
   if (fillIsolation_) {
@@ -620,6 +621,8 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
               muon.setType(muon.type() | reco::Muon::GEMMuon);
             if (goodME0Muon)
               muon.setType(muon.type() | reco::Muon::ME0Muon);
+            if (isPhase2_)
+              muon.setType(muon.type() | reco::Muon::Phase2Muon);
             LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
             break;
           }
@@ -1528,6 +1531,7 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<bool>("arbitrateTrackerMuons", false);
   desc.add<bool>("storeCrossedHcalRecHits", false);
   desc.add<bool>("fillShowerDigis", false);
+  desc.add<bool>("isPhase2", false);
   desc.ifValue(
       edm::ParameterDescription<bool>("selectHighPurity", false, true),
       true >> (edm::ParameterDescription<edm::InputTag>("pvInputTag", edm::InputTag("offlinePrimaryVertices"), true)) or
