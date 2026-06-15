@@ -158,6 +158,7 @@ protected:
   // -- add_noise
   const bool addNoise_;
   const bool addNoisyPixels_;
+  const bool checkAllModulesForNoisyCells_;
   const bool fluctuateCharge_;
 
   //-- pixel efficiency

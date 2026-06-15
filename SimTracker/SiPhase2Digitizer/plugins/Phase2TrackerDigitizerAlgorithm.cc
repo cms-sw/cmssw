@@ -120,6 +120,9 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
       // Add noisy pixels
       addNoisyPixels_(conf_specific.getParameter<bool>("AddNoisyPixels")),
 
+      // Check ALL modules to find Noisy Cells else only modules with at least one SimHit
+      checkAllModulesForNoisyCells_(conf_specific.getParameter<bool>("CheckAllModulesForNoisyCells")),
+
       // Fluctuate charge in track subsegments
       fluctuateCharge_(conf_specific.getUntrackedParameter<bool>("FluctuateCharge", true)),
 
@@ -659,13 +662,13 @@ void Phase2TrackerDigitizerAlgorithm::add_cross_talk(const Phase2TrackerGeomDetU
       auto XtalkPrev = std::make_pair(hitChan.first - 1, hitChan.second);
       int chanXtalkPrev = pixelFlag_ ? PixelDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second)
                                      : Phase2TrackerDigi::pixelToChannel(XtalkPrev.first, XtalkPrev.second);
-      signalNew.emplace(chanXtalkPrev, digitizerUtility::Ph2Amplitude(signalInElectrons_Xtalk, nullptr, -1.0));
+      signalNew.emplace(chanXtalkPrev, digitizerUtility::Ph2Amplitude(signalInElectrons_Xtalk * 0.5, nullptr, -1.0));
     }
     if (hitChan.first < numRows - 1) {
       auto XtalkNext = std::make_pair(hitChan.first + 1, hitChan.second);
       int chanXtalkNext = pixelFlag_ ? PixelDigi::pixelToChannel(XtalkNext.first, XtalkNext.second)
                                      : Phase2TrackerDigi::pixelToChannel(XtalkNext.first, XtalkNext.second);
-      signalNew.emplace(chanXtalkNext, digitizerUtility::Ph2Amplitude(signalInElectrons_Xtalk, nullptr, -1.0));
+      signalNew.emplace(chanXtalkNext, digitizerUtility::Ph2Amplitude(signalInElectrons_Xtalk * 0.5, nullptr, -1.0));
     }
   }
   for (auto const& l : signalNew) {
@@ -916,7 +919,9 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
                                                const TrackerTopology* tTopo) {
   uint32_t detID = pixdet->geographicalId().rawId();
   auto it = _signal.find(detID);
-  if (it == _signal.end())
+
+  //  if (it == _signal.end())
+  if (!checkAllModulesForNoisyCells_ && (it == _signal.end()))
     return;
 
   const signal_map_type& theSignal = _signal[detID];
