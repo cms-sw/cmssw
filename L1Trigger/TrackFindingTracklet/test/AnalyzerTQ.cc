@@ -102,6 +102,7 @@ namespace trklet {
     std::vector<int> f_nstubs;
     std::vector<int> f_ngaps;
     std::vector<int> matched_;
+    std::vector<int> matchtp_pdgid;
 
     // private helper methods
     std::vector<TTStubRef> getStubRefs(int region, int frame, int numRegions, const tt::StreamsStub& streamsStub);
@@ -159,6 +160,7 @@ namespace trklet {
     tree_->Branch("trk_feature_6", &f_ngaps);
     tree_->Branch("trk_hitpattern", &f_hitpattern);
     tree_->Branch("trk_matchtp_eventtype", &matched_);
+    tree_->Branch("matchtp_pdgid", &matchtp_pdgid);
   }
 
   void AnalyzerTQ::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -203,6 +205,8 @@ namespace trklet {
     f_nstubs.clear();
     f_ngaps.clear();
     matched_.clear();
+    matchtp_pdgid.clear();
+
     // read in tracks and stubs products
     const tt::StreamsStub& streamsStub = iEvent.get(edGetTokenStubs_);
     const tt::StreamsTrack& streamsTrack = iEvent.get(edGetTokenTracks_);
@@ -306,8 +310,11 @@ namespace trklet {
         const double feature_5 = dfChi21.integer(trackTQ.chi21()); // leave as is
         const TTBV hitPattern = trackTQ.hitPattern();
         const double feature_6 = hitPattern.count(hitPattern.plEncode(), hitPattern.pmEncode(), false);
+        
         edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> l1track_ptr(TTTrackHandle, matchedIndex);
         int tmp_trk_genuine = 0;
+        int tmp_matchtp_pdgid = -999;
+        
         if (MCTruthTTTrackHandle->isGenuine(l1track_ptr))
           tmp_trk_genuine = 1;
         int tmp_matchtp_eventtype = -999;
@@ -320,6 +327,8 @@ namespace trklet {
             tmp_matchtp_eventtype = 2;
           else
             tmp_matchtp_eventtype = 1;
+          
+          tmp_matchtp_pdgid = my_tp->pdgId();
         }
         matched_.push_back(tmp_matchtp_eventtype);
         f_nstubs.push_back(feature_1);
@@ -329,6 +338,7 @@ namespace trklet {
         f_chi21.push_back(feature_5);
         f_ngaps.push_back(feature_6);
         f_hitpattern.push_back(matchedTrack.hitPattern());
+        matchtp_pdgid.push_back(tmp_matchtp_pdgid);
     }
   }
     tree_->Fill();

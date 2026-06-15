@@ -1,3 +1,4 @@
+#!/cvmfs/cms.cern.ch/el9_amd64_gcc12/cms/cmssw/CMSSW_15_1_0_pre4/bin/el9_amd64_gcc12/cmsRun
 # N.B., DUE TO THE CHANGE IN STUB WINDOW SIZES WITH CMSSW 14_2_0_PRE2, THIS JOB HAS BEEN NODIFIED TO
 # RECREATE THE STUBS, WHICH IS NECESSARY WHEN RUNNING ON MONTE CARLO GENERATED WITH OLDER VERSIONS.
 
@@ -7,8 +8,50 @@
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.Utilities.FileUtils as FileUtils
+import FWCore.ParameterSet.VarParsing as VarParsing
 import os
 process = cms.Process("L1TrackNtuple")
+
+def get_input_mc_line(dataset_database, line_number):
+    with open(dataset_database, 'r') as file:
+        lines = file.readlines()
+        if line_number < 0 or line_number >= len(lines):
+            raise IndexError("Line number out of range")
+        return lines[line_number].strip()
+
+# Set up VarParsing options
+options = VarParsing.VarParsing('analysis')
+
+# Add custom command-line arguments
+options.register('cluster',
+                 0, # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Cluster ID from HTCondor")
+
+options.register('process',
+                 0, # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Process ID from HTCondor")
+
+# Parse command-line arguments
+options.parseArguments()
+
+# Print the ClusterID and ProcessID
+print(f'~ Cluster ID: {options.cluster}')
+print(f'~ Process ID: {options.process}')
+
+DatasetDatabase = "/home/hep/am2023/TQ_NEW_PR/CMSSW_15_1_0_pre4/src/Files.txt"
+
+try:
+    InputMC = [get_input_mc_line(DatasetDatabase, options.process)]
+except Exception as e:
+    print(f"Error: {e}")
+    InputMC = []
+
+for i in range(len(InputMC)):
+    print(f"InputMC[{i}]: {InputMC[i]}")
 
 ############################################################
 # edit options here
@@ -67,50 +110,9 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
-#--- To use MCsamples scripts, defining functions get*data*() for easy MC access,
-#--- follow instructions in https://github.com/cms-L1TK/MCsamples
-
-#from MCsamples.Scripts.getCMSdata_cfi import *
-#from MCsamples.Scripts.getCMSlocaldata_cfi import *
-
-if GEOMETRY == "D110":
-
-  # Read data from card files (defines getCMSdataFromCards()):
-  #from MCsamples.RelVal_1510_D110.PU200_TTbar_14TeV_cfi import *
-  #inputMC = getCMSdataFromCards()
-
-  # Or read .root files from directory on local computer:
-  #dirName = "$scratchmc/MCsamples1510_D110/RelVal/TTbar/PU0/"
-  #inputMC=getCMSlocaldata(dirName)  
-
-  # Or read specified dataset (accesses CMS DB, so use this method only occasionally):
-  #dataName="/RelValTTbar_14TeV_TuneCP5/CMSSW_15_1_0_pre5-PU_150X_mcRun4_realistic_v1_RV269_Run4D110_PU-v2/GEN-SIM-DIGI-RAW"
-  #inputMC=getCMSdata(dataName)
-  
-  # ttbar + 200PU
-  inputMC = [
-        "/store/relval/CMSSW_15_1_0_pre5/RelValTTbar_14TeV_TuneCP5/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_RV269_Run4D110_PU-v1/2590000/a3240179-8245-45eb-8364-3ea6766bd349.root",
-        "/store/relval/CMSSW_15_1_0_pre5/RelValTTbar_14TeV_TuneCP5/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_RV269_Run4D110_PU-v1/2590000/87e6ac25-289d-466e-9309-4ee69340b43e.root",
-        "/store/relval/CMSSW_15_1_0_pre5/RelValTTbar_14TeV_TuneCP5/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_RV269_Run4D110_PU-v1/2590000/744fa2bd-3d41-4415-9ff9-75eff89e553d.root",
-        "/store/relval/CMSSW_15_1_0_pre5/RelValTTbar_14TeV_TuneCP5/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_RV269_Run4D110_PU-v1/2590000/25127e07-9934-4e1b-9b79-d4e71ae467e1.root",
-        "/store/relval/CMSSW_15_1_0_pre5/RelValTTbar_14TeV_TuneCP5/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_RV269_Run4D110_PU-v1/2590000/5f0060e6-522c-47bc-ba4c-2b95118d3d93.root",
-        "/store/relval/CMSSW_15_1_0_pre5/RelValTTbar_14TeV_TuneCP5/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_RV269_Run4D110_PU-v1/2590000/ac5acc0b-7013-49b8-8c49-f6fc122184dc.root",
-        "/store/relval/CMSSW_15_1_0_pre5/RelValTTbar_14TeV_TuneCP5/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_RV269_Run4D110_PU-v1/2590000/4f6fd6e0-c1c2-47f2-b227-9f67dbbc5ecf.root"
-    ]
-
-elif GEOMETRY == "D98":
-
-  # Or read .root files from directory on local computer:
-  dirName = "$scratchmc/MCsamples1400_D98/RelVal/TTbar/PU200/"
-  inputMC=getCMSlocaldata(dirName)  
-  
-  #  inputMC = ['/store/relval/CMSSW_14_0_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_133X_mcRun4_realistic_v1_STD_2026D98_PU200_RV229-v1/2580000/0b2b0b0b-f312-48a8-9d46-ccbadc69bbfd.root']  
-  
-else:
-
-  print("this is not a valid geometry!!!")
-
-process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputMC))
+process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*InputMC))
+process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
+process.TFileService = cms.Service("TFileService", fileName = cms.string('L1TrkNtuple_' + str(options.process) + '.root'), closeFileFast = cms.untracked.bool(True))
 
 # Drop previously reconstructed L1 tracks + their truth association to avoid risk of analysing them instead of new tracks created by this job.
 process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
@@ -129,10 +131,6 @@ process.source.inputCommands.append('drop  *_*_*Level1TTTracks*_*')
 
 # Use skipEvents to select particular single events for test vectors
 #process.source.skipEvents = cms.untracked.uint32(11)
-
-process.TFileService = cms.Service("TFileService", fileName = cms.string('L1TrkNtuple.root'), closeFileFast = cms.untracked.bool(True))
-process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
-
 
 ############################################################
 # L1 tracking: stubs / DTC emulation
