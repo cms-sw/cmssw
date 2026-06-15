@@ -1,6 +1,58 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
+
+decayModes = [
+    "oneProng0Pi0",
+    "oneProng1Pi0",
+    "oneProng2Pi0",
+    "oneProngOther",
+    "threeProng0Pi0",
+    "threeProng1Pi0",
+    "threeProngOther",
+    "rare",
+    "unknown",
+]
+
+kinVars = {
+    "pt": "p_{T}",
+    "eta": "#eta",
+    "phi": "#phi",
+    "mass": "mass",
+}
+
+decayModeEfficiencyProfiles = []
+decayModeFakeProfiles = []
+decayModeSplitProfiles = []
+decayModeDuplicateProfiles = []
+decayModeResponseProfiles = []
+
+for dm in decayModes:
+    for var, title in kinVars.items():
+        decayModeEfficiencyProfiles.append(
+            f"Eff_{dm}_vs_{var} 'Efficiency {dm} vs {title}' genTauMatched_{dm}_{var} genTau_{dm}_{var}"
+        )
+
+        decayModeFakeProfiles.append(
+            f"Fake_{dm}_vs_{var} 'Fake Rate {dm} vs {title}' recoTauMatched_{dm}_{var} recoTau_{dm}_{var} fake"
+        )
+
+        decayModeSplitProfiles.append(
+            f"Split_{dm}_vs_{var} 'Split Rate {dm} vs {title}' genTauMultiMatched_{dm}_{var} genTau_{dm}_{var}"
+        )
+
+        decayModeDuplicateProfiles.append(
+            f"Dup_{dm}_vs_{var} 'Duplicate Rate {dm} vs {title}' recoTauMultiMatched_{dm}_{var} recoTau_{dm}_{var}"
+        )
+
+        decayModeResponseProfiles.append(
+            f"ResponsePt_{dm}_RecoOverGen_vs_{var} 'Response {dm} RecoOverGen vs {title}' responsePt_{dm}_{var} rms"
+        )
+
+        decayModeResponseProfiles.append(
+            f"ResponseMass_{dm}_RecoOverGen_vs_{var} 'Mass response {dm} RecoOverGen vs {title}' responseMass_{dm}_{var} rms"
+        )
+
 hltTauPostProcessor = DQMEDHarvester("DQMGenericClient",
     subDirs=cms.untracked.vstring("HLT/Tau/TauValidation/", 
                                   "HLT/Tau/TauValidation/Cut*",
@@ -84,6 +136,11 @@ hltTauPostProcessor = DQMEDHarvester("DQMGenericClient",
         "Dup_vs_idVSjet 'Duplicate Rate vs ID vs Jet' recoTauMultiMatched_idVSjet recoTau_idVSjet",
         "Dup_vs_idVSe 'Duplicate Rate vs ID vs E' recoTauMultiMatched_idVSe recoTau_idVSe",
         "Dup_vs_idVSmu 'Duplicate Rate vs ID vs Mu' recoTauMultiMatched_idVSmu recoTau_idVSmu",
+        # DM plots
+        *decayModeEfficiencyProfiles,
+        *decayModeFakeProfiles,
+        *decayModeSplitProfiles,
+        *decayModeDuplicateProfiles,
     ),
     resolution = cms.vstring(),
     resolutionProfile = cms.untracked.vstring(
@@ -95,6 +152,7 @@ hltTauPostProcessor = DQMEDHarvester("DQMGenericClient",
         "ResponseMass_RecoOverGen_vs_eta 'Response RecoOverGen vs #eta^{gen}' responseMass_eta rms",
         "ResponseMass_RecoOverGen_vs_phi 'Response RecoOverGen vs #phi^{gen}' responseMass_phi rms",
         "ResponseMass_RecoOverGen_vs_mass 'Response RecoOverGen vs mass^{gen}' responseMass_mass rms",
+        *decayModeResponseProfiles,
     ),
     verbose = cms.untracked.uint32(2), 
     outputFileName = cms.untracked.string("")
