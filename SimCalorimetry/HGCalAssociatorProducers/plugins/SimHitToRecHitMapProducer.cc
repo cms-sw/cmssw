@@ -70,14 +70,7 @@ void SimHitToRecHitMapProducer::produce(edm::StreamID, edm::Event& event, edm::E
     output->reserve(output->size() + handle->size());
 
     for (auto const& hit : *handle) {
-      const uint32_t rawId = hit.detid().rawId();
-
-      const auto [_, inserted] = output->emplace(rawId, globalRecHitIndex);
-      if (!inserted) {
-        edm::LogWarning("SimHitToRecHitMapProducer")
-            << "Duplicate HGCAL DetId rawId=" << rawId << ". Keeping the first recHit index.";
-      }
-
+      output->add(hit.detid().rawId(), globalRecHitIndex);
       ++globalRecHitIndex;
     }
   }
@@ -94,16 +87,19 @@ void SimHitToRecHitMapProducer::produce(edm::StreamID, edm::Event& event, edm::E
     output->reserve(output->size() + handle->size());
 
     for (auto const& hit : *handle) {
-      const uint32_t rawId = hit.detId();
-
-      const auto [_, inserted] = output->emplace(rawId, globalRecHitIndex);
-      if (!inserted) {
-        edm::LogWarning("SimHitToRecHitMapProducer")
-            << "Duplicate PFRecHit DetId rawId=" << rawId << ". Keeping the first recHit index.";
-      }
-
+      output->add(hit.detId(), globalRecHitIndex);
       ++globalRecHitIndex;
     }
+  }
+
+  // Sort for binary-search lookup and drop duplicate detIds (keeping the first
+  // inserted index, as the previous hash-map build did).
+  const uint32_t duplicates = output->finalize();
+  if (duplicates > 0) {
+    edm::LogWarning("SimHitToRecHitMapProducer")
+        << duplicates
+        << " duplicate DetId(s) across the configured RecHit collections; kept the first recHit index for each "
+           "(check for overlapping inputs, e.g. HGCalRecHit mixed with particleFlowRecHitHGC).";
   }
 
   event.put(std::move(output));
