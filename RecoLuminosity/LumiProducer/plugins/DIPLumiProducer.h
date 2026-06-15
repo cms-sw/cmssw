@@ -26,7 +26,7 @@ public:
   ReturnSummaryType produceSummary(const DIPLuminosityRcd&);
   typedef std::shared_ptr<const DIPLumiDetail> ReturnDetailType;
   ReturnDetailType produceDetail(const DIPLuminosityRcd&);
-  ~DIPLumiProducer() final;
+  ~DIPLumiProducer() override;
 
 protected:
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,

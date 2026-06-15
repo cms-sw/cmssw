@@ -27,7 +27,7 @@ public:
   LumiCorrectionSource(const edm::ParameterSet&);
   typedef std::shared_ptr<const LumiCorrectionParam> ReturnParamType;
   ReturnParamType produceLumiCorrectionParam(const LumiCorrectionParamRcd&);
-  ~LumiCorrectionSource() final;
+  ~LumiCorrectionSource() override;
 
 protected:
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
