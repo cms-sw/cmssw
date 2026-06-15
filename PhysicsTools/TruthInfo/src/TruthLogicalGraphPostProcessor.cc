@@ -145,13 +145,16 @@ namespace {
   // Rebuild the four CSR adjacency arrays of `output` from the edges of
   // `input`, remapping particle and vertex ids and dropping edges with an
   // unmapped endpoint. `extraProductionEdges` are additional
-  // (newVertex, newParticle) production-side edges, e.g. those attaching
-  // particles to the artificial source vertex. buildCSR sorts and deduplicates,
-  // so the collection order here does not affect the result.
+  // (newVertex, newParticle) production-side edges and `extraDecayEdges` are
+  // additional (newParticle, newVertex) decay-side edges - e.g. those wiring the
+  // artificial Interaction/Upstream/UnderlyingEvent vertices and their connector
+  // particles. buildCSR sorts and deduplicates, so the collection order here does
+  // not affect the result.
   void rebuildAdjacency(truth::Graph const& input,
                         std::vector<int32_t> const& oldParticleToNew,
                         std::vector<int32_t> const& oldVertexToNew,
                         std::vector<std::pair<uint32_t, uint32_t>> const& extraProductionEdges,
+                        std::vector<std::pair<uint32_t, uint32_t>> const& extraDecayEdges,
                         truth::Graph& output) {
     const uint32_t nParticles = input.nParticles();
 
@@ -196,6 +199,11 @@ namespace {
     for (auto const& [newVertex, newParticle] : extraProductionEdges) {
       vertexToOutgoingParticlePairs.emplace_back(newVertex, newParticle);
       particleToProductionVertexPairs.emplace_back(newParticle, newVertex);
+    }
+
+    for (auto const& [newParticle, newVertex] : extraDecayEdges) {
+      particleToDecayVertexPairs.emplace_back(newParticle, newVertex);
+      vertexToIncomingParticlePairs.emplace_back(newVertex, newParticle);
     }
 
     buildCSR(output.nParticles(),
@@ -394,7 +402,7 @@ namespace {
       output.vertices.push_back(input.vertices[oldVertex]);
     }
 
-    rebuildAdjacency(input, oldParticleToNew, oldVertexToNew, {}, output);
+    rebuildAdjacency(input, oldParticleToNew, oldVertexToNew, {}, {}, output);
 
     return output;
   }
@@ -677,10 +685,12 @@ namespace {
   }
 
   // attachRole[i] is 0 for particles that are not attached to an artificial
-  // source, or the uint8_t value of a non-Normal VertexRole otherwise. One
-  // artificial source vertex is created per (role, genEvent) so that overlaid
-  // pile-up graphs stay distinguishable; it carries the genEvent/eventId of the
-  // activity it summarizes.
+  // source, or the uint8_t value of the Upstream/UnderlyingEvent VertexRole
+  // otherwise. Per interaction (keyed by genEvent) a single Interaction source
+  // vertex is created and fans out, through connector particles, to the Upstream
+  // and UnderlyingEvent sub-vertices the attached particles hang off; all three
+  // carry the genEvent/eventId of the activity they summarize so overlaid
+  // pile-up interactions stay distinguishable.
   truth::Graph rebuildFilteredGraph(truth::Graph const& input,
                                     std::vector<uint8_t> const& keepParticle,
                                     std::vector<uint8_t> const& keepVertex,
@@ -694,7 +704,7 @@ namespace {
     std::vector<int32_t> oldVertexToNew(nVertices, -1);
 
     output.particles.reserve(nParticles);
-    output.vertices.reserve(nVertices + 2);
+    output.vertices.reserve(nVertices + 3);
 
     for (uint32_t oldParticle = 0; oldParticle < nParticles; ++oldParticle) {
       if (!keepParticle[oldParticle])
@@ -712,8 +722,38 @@ namespace {
       output.vertices.push_back(input.vertices[oldVertex]);
     }
 
-    std::map<std::pair<uint8_t, int32_t>, uint32_t> artificialNode;
-    std::vector<std::pair<uint32_t, uint32_t>> artificialEdges;
+    // Artificial source structure, one per interaction (keyed by genEvent):
+    //
+    //   (Interaction vertex, source)
+    //      --connector particle--> (Upstream vertex)        --> ISR/upstream roots
+    //      --connector particle--> (UnderlyingEvent vertex) --> spectators
+    //
+    // so the whole interaction descends from a single Interaction vertex: the
+    // signal is everything reachable from the signal Interaction vertex, and each
+    // overlaid pile-up interaction gets its own. The connector particles are
+    // artificial (genNode = simNode = -1) and carry the interaction provenance.
+    struct InteractionNodes {
+      int32_t interactionVertex = -1;
+      int32_t upstreamVertex = -1;
+      int32_t underlyingEventVertex = -1;
+    };
+
+    std::map<int32_t, InteractionNodes> interactions;                 // key = genEvent
+    std::vector<std::pair<uint32_t, uint32_t>> extraProductionEdges;  // (vertex -> particle)
+    std::vector<std::pair<uint32_t, uint32_t>> extraDecayEdges;       // (particle -> vertex)
+
+    auto makeArtificialVertex = [&](uint8_t role, int32_t genEvent, uint64_t eventId) {
+      truth::VertexData vertex;
+      vertex.genNode = -1;
+      vertex.simNode = -1;
+      vertex.role = role;
+      vertex.genEvent = genEvent;
+      vertex.eventId = eventId;
+
+      const uint32_t id = static_cast<uint32_t>(output.vertices.size());
+      output.vertices.push_back(vertex);
+      return id;
+    };
 
     for (uint32_t oldParticle = 0; oldParticle < nParticles; ++oldParticle) {
       const uint8_t role = attachRole[oldParticle];
@@ -725,25 +765,42 @@ namespace {
         continue;
 
       const int32_t genEvent = input.particles[oldParticle].genEvent;
-      const std::pair<uint8_t, int32_t> key{role, genEvent};
+      const uint64_t eventId = input.particles[oldParticle].eventId;
 
-      auto it = artificialNode.find(key);
-      if (it == artificialNode.end()) {
-        truth::VertexData vertex;
-        vertex.genNode = -1;
-        vertex.simNode = -1;
-        vertex.role = role;
-        vertex.genEvent = genEvent;
-        vertex.eventId = input.particles[oldParticle].eventId;
+      InteractionNodes& nodes = interactions[genEvent];
+      if (nodes.interactionVertex < 0)
+        nodes.interactionVertex = static_cast<int32_t>(
+            makeArtificialVertex(static_cast<uint8_t>(truth::VertexRole::Interaction), genEvent, eventId));
 
-        it = artificialNode.emplace(key, static_cast<uint32_t>(output.vertices.size())).first;
-        output.vertices.push_back(vertex);
+      int32_t& subVertex = (role == static_cast<uint8_t>(truth::VertexRole::UnderlyingEvent))
+                               ? nodes.underlyingEventVertex
+                               : nodes.upstreamVertex;
+
+      if (subVertex < 0) {
+        subVertex = static_cast<int32_t>(makeArtificialVertex(role, genEvent, eventId));
+
+        // Connector particle: produced at the Interaction vertex, decays at this
+        // Upstream/UnderlyingEvent sub-vertex, so the sub-vertex (and everything
+        // below it) descends from the single Interaction vertex.
+        truth::ParticleData connector;
+        connector.genNode = -1;
+        connector.simNode = -1;
+        connector.pdgId = 0;
+        connector.status = 0;
+        connector.genEvent = genEvent;
+        connector.eventId = eventId;
+
+        const uint32_t connectorId = static_cast<uint32_t>(output.particles.size());
+        output.particles.push_back(connector);
+
+        extraProductionEdges.emplace_back(static_cast<uint32_t>(nodes.interactionVertex), connectorId);
+        extraDecayEdges.emplace_back(connectorId, static_cast<uint32_t>(subVertex));
       }
 
-      artificialEdges.emplace_back(it->second, static_cast<uint32_t>(newParticle));
+      extraProductionEdges.emplace_back(static_cast<uint32_t>(subVertex), static_cast<uint32_t>(newParticle));
     }
 
-    rebuildAdjacency(input, oldParticleToNew, oldVertexToNew, artificialEdges, output);
+    rebuildAdjacency(input, oldParticleToNew, oldVertexToNew, extraProductionEdges, extraDecayEdges, output);
 
     return output;
   }
@@ -979,7 +1036,7 @@ namespace {
       oldVertexToNew[oldVertex] = static_cast<int32_t>(inserted.first->second);
     }
 
-    rebuildAdjacency(input, oldParticleToNew, oldVertexToNew, {}, output);
+    rebuildAdjacency(input, oldParticleToNew, oldVertexToNew, {}, {}, output);
 
     return output;
   }

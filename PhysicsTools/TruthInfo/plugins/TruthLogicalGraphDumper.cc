@@ -668,12 +668,19 @@ public:
       const auto& outgoing = v.outgoingParticles();
 
       const char* roleName = nullptr;
+      const char* roleColor = "lightgrey";
       switch (d.vertexRole()) {
+        case truth::VertexRole::Interaction:
+          roleName = "interaction";
+          roleColor = "indianred1";
+          break;
         case truth::VertexRole::Upstream:
           roleName = "ISR/upstream";
+          roleColor = "navajowhite";
           break;
         case truth::VertexRole::UnderlyingEvent:
           roleName = "underlying event";
+          roleColor = "lightgrey";
           break;
         default:
           break;
@@ -683,8 +690,7 @@ public:
          << ", hasSim=" << d.hasSim() << ", eid=" << d.eventId << ", genEvent=" << d.genEvent
          << ", isSource=" << v.isSource() << ", isSink=" << v.isSink();
       if (roleName != nullptr) {
-        os << ", role=\"" << roleName << "\", style=filled, fillcolor=\""
-           << (d.vertexRole() == truth::VertexRole::Upstream ? "navajowhite" : "lightgrey") << "\"";
+        os << ", role=\"" << roleName << "\", style=filled, fillcolor=\"" << roleColor << "\"";
       } else if (d.hasGen() && d.hasSim()) {
         os << ", color=\"purple\", penwidth=2";
       } else if (d.hasGen()) {
