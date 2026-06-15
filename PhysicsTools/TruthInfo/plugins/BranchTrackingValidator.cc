@@ -97,16 +97,15 @@ void BranchTrackingValidator::bookHistograms(DQMStore::IBooker& ib, edm::Run con
   constexpr int kPtBins = 50;
   constexpr double kPtMax = 200.;
 
-  plots_.denomEta =
-      ib.book1D("denom_eta", "TP-matched tracks vs #eta;#eta;tracks", kEtaBins, -kEtaMax, kEtaMax);
+  plots_.denomEta = ib.book1D("denom_eta", "TP-matched tracks vs #eta;#eta;tracks", kEtaBins, -kEtaMax, kEtaMax);
   plots_.denomPt = ib.book1D("denom_pt", "TP-matched tracks vs p_{T};p_{T} [GeV];tracks", kPtBins, 0., kPtMax);
-  plots_.effNumEta = ib.book1D(
-      "effnum_eta", "Branch-reproduced TP assignment vs #eta;#eta;tracks", kEtaBins, -kEtaMax, kEtaMax);
-  plots_.effNumPt = ib.book1D(
-      "effnum_pt", "Branch-reproduced TP assignment vs p_{T};p_{T} [GeV];tracks", kPtBins, 0., kPtMax);
+  plots_.effNumEta =
+      ib.book1D("effnum_eta", "Branch-reproduced TP assignment vs #eta;#eta;tracks", kEtaBins, -kEtaMax, kEtaMax);
+  plots_.effNumPt =
+      ib.book1D("effnum_pt", "Branch-reproduced TP assignment vs p_{T};p_{T} [GeV];tracks", kPtBins, 0., kPtMax);
 
-  plots_.completenessHits = ib.book1D(
-      "completeness_hits", "Branch shared-hit completeness;shared hits / track hits;tracks", 52, -0.01, 1.03);
+  plots_.completenessHits =
+      ib.book1D("completeness_hits", "Branch shared-hit completeness;shared hits / track hits;tracks", 52, -0.01, 1.03);
   plots_.sharedHits = ib.book1D("shared_hits", "Branch shared tracker hits;shared hits;tracks", 40, 0., 40.);
   plots_.completenessVsEta = ib.bookProfile("completeness_vs_eta",
                                             "Branch shared-hit completeness vs #eta;#eta;completeness",
@@ -147,8 +146,7 @@ namespace {
     uint32_t sharedHits = 0;
   };
 
-  BestMatch tightestBest(std::vector<truth::BranchMatch> const& matches,
-                         truth::LogicalGraphHitIndex const& hitIndex) {
+  BestMatch tightestBest(std::vector<truth::BranchMatch> const& matches, truth::LogicalGraphHitIndex const& hitIndex) {
     if (matches.empty())
       return {};
     const float best = matches.front().score;
