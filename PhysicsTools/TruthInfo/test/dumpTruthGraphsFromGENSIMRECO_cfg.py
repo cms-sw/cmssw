@@ -33,6 +33,9 @@ parser.add_argument('-i', "--ignore",   default=None,
 parser.add_argument("--keepSpectators", action=BooleanOptionalAction, default=True,
                     help="keep stable final-state spectators (underlying event) outside the selection; "
                          "use --no-keepSpectators for a focused subgraph" )
+parser.add_argument("--attachSources", action=BooleanOptionalAction, default=True,
+                    help="attach selected roots to artificial Upstream/UnderlyingEvent source vertices; "
+                         "use --no-attachSources to root each seed directly (e.g. ten taus -> ten subgraphs)" )
 parser.add_argument("--showAll", action='store_true',
                     help="do not hide zero-simhit subgraphs or large SIM source vertices in the logical DOT dump" )
 args = parser.parse_args()
@@ -130,6 +133,11 @@ process.truthLogicalGraphProducer = cms.EDProducer(
         # UnderlyingEvent vertex; --no-keepSpectators drops them for a focused
         # subgraph (only the selection + its Upstream/ISR context).
         keepStableSpectators=cms.bool(args.keepSpectators),
+
+        # Root each selected seed directly (true graph roots) instead of
+        # attaching it to an artificial Upstream/UnderlyingEvent vertex.
+        # --no-attachSources gives one self-contained subgraph per seed.
+        attachSelectionSources=cms.bool(args.attachSources),
 
         # Decay patterns of interest: unordered, charge-sensitive PDG id
         # multisets, OR-ed. With seedPdgIds set, only roots whose effective

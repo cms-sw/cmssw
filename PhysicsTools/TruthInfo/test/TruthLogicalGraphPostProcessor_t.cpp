@@ -277,6 +277,7 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testSeedHadronFlavorSelectsBHadron);
   CPPUNIT_TEST(testJetOriginLowestCommonAncestor);
   CPPUNIT_TEST(testHitlessSimSubgraphsAreDropped);
+  CPPUNIT_TEST(testAttachSelectionSourcesFalseRootsSeedsDirectly);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -298,6 +299,7 @@ public:
   void testSeedHadronFlavorSelectsBHadron();
   void testJetOriginLowestCommonAncestor();
   void testHitlessSimSubgraphsAreDropped();
+  void testAttachSelectionSourcesFalseRootsSeedsDirectly();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestTruthLogicalGraphPostProcessor);
@@ -1351,6 +1353,60 @@ void TestTruthLogicalGraphPostProcessor::testHitlessSimSubgraphsAreDropped() {
     // Without a presence vector the pruning is a no-op: the full graph survives.
     auto untouched = runPostProcessing(graph, config);
     CPPUNIT_ASSERT_EQUAL(uint32_t(5), untouched.nParticles());
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testAttachSelectionSourcesFalseRootsSeedsDirectly() {
+  try {
+    // q -> Z -> mu+ mu- ; plus an unrelated stable pi+ (underlying event). Same
+    // graph as the artificial-source test, but the selection is rooted directly
+    // at the seed: no upstream/underlying-event context and no artificial source.
+    GraphBuilder builder(5, 3);
+
+    builder.setGenParticle(0, 1, 2, 100);   // q
+    builder.setGenParticle(1, 23, 2, 101);  // Z
+    builder.setGenSimParticle(2, -13, 1, 102, 1002);
+    builder.setGenSimParticle(3, 13, 1, 103, 1003);
+    builder.setGenSimParticle(4, 211, 1, 104, 1004);  // stable spectator
+
+    builder.setGenVertex(0, 200);
+    builder.setGenSimVertex(1, 201, 2001);
+    builder.setGenVertex(2, 202);
+
+    builder.addDecay(0, 0);
+    builder.addProduction(0, 1);
+    builder.addDecay(1, 1);
+    builder.addProduction(1, 2);
+    builder.addProduction(1, 3);
+    builder.addProduction(2, 4);
+
+    auto graph = builder.finish();
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {23};
+    config.seedParentDepth = 0;
+    config.keepStableSpectators = false;
+    config.attachSelectionSources = false;
+
+    auto output = runPostProcessing(std::move(graph), config);
+    CPPUNIT_ASSERT(output.isConsistent());
+
+    // No artificial source vertices at all: the Z is a true graph root.
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::Upstream));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::UnderlyingEvent));
+
+    // q dropped (depth 0), pi+ dropped (no spectators); only Z + the two muons remain.
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 1));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 211));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(2), countParticlesWithPdgId(output, 13) + countParticlesWithPdgId(output, -13));
+
+    // The seed has no production vertex: the subgraph starts directly at the Z.
+    const uint32_t z = findParticleWithPdgId(output, 23);
+    CPPUNIT_ASSERT(output.productionVertices(z).empty());
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);
