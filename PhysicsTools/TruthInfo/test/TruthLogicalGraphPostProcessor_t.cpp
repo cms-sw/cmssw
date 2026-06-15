@@ -202,11 +202,14 @@ namespace {
     });
   }
 
+  // The artificial *sub*-vertex a particle attaches to (Upstream or
+  // UnderlyingEvent), i.e. skipping the per-interaction Interaction root that
+  // those sub-vertices descend from.
   uint32_t artificialVertexId(truth::Graph const& graph) {
     for (uint32_t i = 0; i < graph.nVertices(); ++i) {
       auto const& vertex = graph.vertices[i];
 
-      if (!vertex.hasGen() && !vertex.hasSim())
+      if (vertex.isArtificial() && vertex.vertexRole() != truth::VertexRole::Interaction)
         return i;
     }
 
@@ -217,6 +220,16 @@ namespace {
   uint32_t findParticleWithPdgId(truth::Graph const& graph, int32_t pdgId) {
     for (uint32_t i = 0; i < graph.nParticles(); ++i) {
       if (graph.particles[i].pdgId == pdgId)
+        return i;
+    }
+
+    CPPUNIT_ASSERT(false);
+    return 0;
+  }
+
+  uint32_t findVertexWithRole(truth::Graph const& graph, truth::VertexRole role) {
+    for (uint32_t i = 0; i < graph.nVertices(); ++i) {
+      if (graph.vertices[i].vertexRole() == role)
         return i;
     }
 
@@ -428,8 +441,13 @@ void TestTruthLogicalGraphPostProcessor::testSeedCutKeepsUnrelatedStableGenSimPa
     CPPUNIT_ASSERT(std::find(artificialOutgoing.begin(), artificialOutgoing.end(), electron) !=
                    artificialOutgoing.end());
 
+    // The sub-vertex is not a source: it descends from the per-interaction
+    // Interaction vertex through one artificial connector particle.
     const auto artificialIncoming = output.incomingParticles(collapsedVertex);
-    CPPUNIT_ASSERT(artificialIncoming.empty());
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), artificialIncoming.size());
+    const auto connectorProduction = output.productionVertices(artificialIncoming.front());
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), connectorProduction.size());
+    CPPUNIT_ASSERT(output.vertices[connectorProduction.front()].vertexRole() == truth::VertexRole::Interaction);
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);
@@ -822,10 +840,12 @@ void TestTruthLogicalGraphPostProcessor::testZToTauTauDoesNotMatchMuonDecayGroup
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 15));
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, -15));
 
-    // Stable muons and neutrinos survive as spectators only.
-    CPPUNIT_ASSERT_EQUAL(uint32_t(4), output.nParticles());
+    // Stable muons and neutrinos survive as spectators only: four real particles
+    // plus one artificial connector, under two artificial vertices
+    // (Interaction -> UnderlyingEvent).
+    CPPUNIT_ASSERT_EQUAL(uint32_t(5), output.nParticles());
     CPPUNIT_ASSERT(hasArtificialVertex(output));
-    CPPUNIT_ASSERT_EQUAL(uint32_t(1), output.nVertices());
+    CPPUNIT_ASSERT_EQUAL(uint32_t(2), output.nVertices());
 
     const uint32_t muon = findParticleWithPdgId(output, 13);
     const auto muonProductionVertices = output.productionVertices(muon);
@@ -1126,9 +1146,11 @@ void TestTruthLogicalGraphPostProcessor::testArtificialSourceRolesAndProvenance(
     auto output = runPostProcessing(std::move(graph), config);
     CPPUNIT_ASSERT(output.isConsistent());
 
-    // Z (root with truncated upstream) -> Upstream node; pi+ -> UnderlyingEvent node.
+    // Z (root with truncated upstream) -> Upstream node; pi+ -> UnderlyingEvent
+    // node; both descend from a single Interaction node for the one interaction.
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::Upstream));
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::UnderlyingEvent));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::Interaction));
 
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 1));  // q dropped at depth 0
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));
@@ -1144,6 +1166,20 @@ void TestTruthLogicalGraphPostProcessor::testArtificialSourceRolesAndProvenance(
     const auto zProd = output.productionVertices(z);
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), zProd.size());
     CPPUNIT_ASSERT(output.vertices[zProd.front()].vertexRole() == truth::VertexRole::Upstream);
+
+    // The Upstream and UnderlyingEvent vertices each descend from the single
+    // Interaction vertex through one artificial connector particle.
+    const uint32_t interaction = findVertexWithRole(output, truth::VertexRole::Interaction);
+    const uint32_t upstream = findVertexWithRole(output, truth::VertexRole::Upstream);
+    const uint32_t underlyingEvent = findVertexWithRole(output, truth::VertexRole::UnderlyingEvent);
+
+    for (const uint32_t sub : {upstream, underlyingEvent}) {
+      const auto incoming = output.incomingParticles(sub);
+      CPPUNIT_ASSERT_EQUAL(std::size_t(1), incoming.size());  // the connector particle
+      const auto connectorProd = output.productionVertices(incoming.front());
+      CPPUNIT_ASSERT_EQUAL(std::size_t(1), connectorProd.size());
+      CPPUNIT_ASSERT_EQUAL(interaction, connectorProd.front());
+    }
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);
@@ -1185,10 +1221,12 @@ void TestTruthLogicalGraphPostProcessor::testKeepStableSpectatorsFalseDropsSpect
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 211));
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::UnderlyingEvent));
 
-    // Focused subgraph: Z + two muons, the Z hanging off an Upstream (ISR) node.
-    CPPUNIT_ASSERT_EQUAL(uint32_t(3), output.nParticles());
+    // Focused subgraph: Z + two muons + one artificial connector, the Z hanging
+    // off an Upstream (ISR) node that descends from the Interaction node.
+    CPPUNIT_ASSERT_EQUAL(uint32_t(4), output.nParticles());
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::Upstream));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countArtificialVerticesWithRole(output, truth::VertexRole::Interaction));
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);
@@ -1397,6 +1435,7 @@ void TestTruthLogicalGraphPostProcessor::testAttachSelectionSourcesFalseRootsSee
     // No artificial source vertices at all: the Z is a true graph root.
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::Upstream));
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::UnderlyingEvent));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(0), countArtificialVerticesWithRole(output, truth::VertexRole::Interaction));
 
     // q dropped (depth 0), pi+ dropped (no spectators); only Z + the two muons remain.
     CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 1));

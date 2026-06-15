@@ -62,8 +62,12 @@ namespace truth {
   //   UnderlyingEvent - stable final-state particles not in any selected
   //                     subgraph (underlying event, unrelated to the selection).
   // Artificial vertices carry the genEvent/eventId of the activity they
-  // summarize, so that overlaid pile-up graphs stay distinguishable.
-  enum class VertexRole : uint8_t { Normal = 0, Upstream = 1, UnderlyingEvent = 2 };
+  // summarize, so that overlaid pile-up graphs stay distinguishable. Interaction
+  // is the per-interaction root that fans out (through connector particles) to
+  // its Upstream (ISR/hard-scatter) and UnderlyingEvent sub-vertices, so the
+  // whole interaction descends from one node: the signal is everything reachable
+  // from the signal Interaction vertex, and each pile-up interaction gets its own.
+  enum class VertexRole : uint8_t { Normal = 0, Upstream = 1, UnderlyingEvent = 2, Interaction = 3 };
 
   struct VertexData {
     // Optional provenance/debug back-references to the raw TruthGraph nodes.
