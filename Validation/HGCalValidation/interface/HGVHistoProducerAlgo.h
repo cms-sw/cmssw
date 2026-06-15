@@ -163,10 +163,14 @@ struct HGVHistoProducerAlgoHistograms {
   std::vector<dqm::reco::MonitorElement*> h_num_trackster_phi[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_num_trackster_en[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_num_trackster_pt[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_num_trackster_R[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_num_trackster_alpha[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_eta[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_phi[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_en[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_pt[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_R[numberOfValidationTypes_];
+  std::vector<dqm::reco::MonitorElement*> h_numMerge_trackster_alpha[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2caloparticle[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2bestCaloparticle[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_sharedenergy_trackster2bestCaloparticle2[numberOfValidationTypes_];

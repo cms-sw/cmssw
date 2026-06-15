@@ -1230,61 +1230,63 @@ void HGVHistoProducerAlgo::bookTracksterSTSHistos(DQMStore::IBooker& ibook,
       "Num_Trackster_Eta" + valSuffix_[valType], "Num Trackster Eta per Trackster;#eta", nintEta_, minEta_, maxEta_));
   histograms.h_numMerge_trackster_eta[valType].push_back(ibook.book1D("NumMerge_Trackster_Eta" + valSuffix_[valType],
                                                                       "Num Merge Trackster Eta per Trackster;#eta",
-                                                                      nintEta_,
-                                                                      minEta_,
-                                                                      maxEta_));
+                                                                      nintEta_, minEta_, maxEta_));
   histograms.h_denom_trackster_eta[valType].push_back(ibook.book1D("Denom_Trackster_Eta" + valSuffix_[valType],
                                                                    "Denom Trackster Eta per Trackster;#eta",
-                                                                   nintEta_,
-                                                                   minEta_,
-                                                                   maxEta_));
+                                                                   nintEta_, minEta_, maxEta_));
   // phi
   histograms.h_num_trackster_phi[valType].push_back(ibook.book1D(
       "Num_Trackster_Phi" + valSuffix_[valType], "Num Trackster Phi per Trackster;#phi", nintPhi_, minPhi_, maxPhi_));
   histograms.h_numMerge_trackster_phi[valType].push_back(ibook.book1D("NumMerge_Trackster_Phi" + valSuffix_[valType],
                                                                       "Num Merge Trackster Phi per Trackster;#phi",
-                                                                      nintPhi_,
-                                                                      minPhi_,
-                                                                      maxPhi_));
+                                                                      nintPhi_, minPhi_, maxPhi_));
   histograms.h_denom_trackster_phi[valType].push_back(ibook.book1D("Denom_Trackster_Phi" + valSuffix_[valType],
                                                                    "Denom Trackster Phi per Trackster;#phi",
-                                                                   nintPhi_,
-                                                                   minPhi_,
-                                                                   maxPhi_));
+                                                                   nintPhi_, minPhi_, maxPhi_));
   // energy
   histograms.h_num_trackster_en[valType].push_back(ibook.book1D("Num_Trackster_Energy" + valSuffix_[valType],
                                                                 "Num Trackster Energy per Trackster;energy [GeV]",
-                                                                nintEne_,
-                                                                minEne_,
-                                                                maxEne_));
+                                                                nintEne_, minEne_, maxEne_));
   histograms.h_numMerge_trackster_en[valType].push_back(
       ibook.book1D("NumMerge_Trackster_Energy" + valSuffix_[valType],
                    "Num Merge Trackster Energy per Trackster;energy [GeV]",
-                   nintEne_,
-                   minEne_,
-                   maxEne_));
+                   nintEne_, minEne_, maxEne_));
   histograms.h_denom_trackster_en[valType].push_back(ibook.book1D("Denom_Trackster_Energy" + valSuffix_[valType],
                                                                   "Denom Trackster Energy per Trackster;energy [GeV]",
-                                                                  nintEne_,
-                                                                  minEne_,
-                                                                  maxEne_));
+                                                                  nintEne_, minEne_, maxEne_));
   // pT
   histograms.h_num_trackster_pt[valType].push_back(ibook.book1D("Num_Trackster_Pt" + valSuffix_[valType],
                                                                 "Num Trackster p_{T} per Trackster;p_{T} [GeV]",
-                                                                nintPt_,
-                                                                minPt_,
-                                                                maxPt_));
+                                                                nintPt_, minPt_, maxPt_));
   histograms.h_numMerge_trackster_pt[valType].push_back(
       ibook.book1D("NumMerge_Trackster_Pt" + valSuffix_[valType],
                    "Num Merge Trackster p_{T} per Trackster;p_{T} [GeV]",
-                   nintPt_,
-                   minPt_,
-                   maxPt_));
+                   nintPt_, minPt_, maxPt_));
   histograms.h_denom_trackster_pt[valType].push_back(ibook.book1D("Denom_Trackster_Pt" + valSuffix_[valType],
                                                                   "Denom Trackster p_{T} per Trackster;p_{T} [GeV]",
-                                                                  nintPt_,
-                                                                  minPt_,
-                                                                  maxPt_));
+                                                                  nintPt_, minPt_, maxPt_));
+  // R
+  histograms.h_num_trackster_R[valType].push_back(ibook.book1D("Num_Trackster_R" + valSuffix_[valType],
+															   "Num Trackster R per Trackster;R [cm]",
+															   nintR_, minR_, maxR_));
+  histograms.h_numMerge_trackster_R[valType].push_back(
+      ibook.book1D("NumMerge_Trackster_R" + valSuffix_[valType],
+                   "Num Merge Trackster R per Trackster;R [cm]",
+                   nintR_, minR_, maxR_));
+  histograms.h_denom_trackster_R[valType].push_back(ibook.book1D("Denom_Trackster_R" + valSuffix_[valType],
+																 "Denom Trackster R per Trackster;R [cm]",
+																 nintR_, minR_, maxR_));
+  // Displacement angle (alpha)
+  histograms.h_num_trackster_alpha[valType].push_back(ibook.book1D("Num_Trackster_Alpha" + valSuffix_[valType],
+															   "Num Trackster #alpha per Trackster;#alpha [rad]",
+															   nintAlpha_, minAlpha_, maxAlpha_));
+  histograms.h_numMerge_trackster_alpha[valType].push_back(
+      ibook.book1D("NumMerge_Trackster_Alpha" + valSuffix_[valType],
+                   "Num Merge Trackster #alpha per Trackster;#alpha [rad]",
+                   nintAlpha_, minAlpha_, maxAlpha_));
+  histograms.h_denom_trackster_alpha[valType].push_back(ibook.book1D("Denom_Trackster_Alpha" + valSuffix_[valType],
+																 "Denom Trackster #alpha per Trackster;#alpha [rad]",
+																 nintAlpha_, minAlpha_, maxAlpha_));
 
   histograms.h_sharedenergy_trackster2caloparticle[valType].push_back(
       ibook.book1D("SharedEnergy_trackster2" + ref_[valType],
@@ -1475,24 +1477,24 @@ void HGVHistoProducerAlgo::bookTracksterSTSHistos(DQMStore::IBooker& ibook,
 
   // Displacement angle alpha
   histograms.h_numEff_caloparticle_alpha[valType].push_back(
-      ibook.book1D("NumEff_" + ref_[valType] + "_alpha",
+      ibook.book1D("NumEff_" + ref_[valType] + "_Alpha",
                    "Num Efficiency " + refText_[valType] + " #alpha per Trackster;#alpha [rad]",
                    nintAlpha_,
                    minAlpha_,
                    maxAlpha_));
   histograms.h_num_caloparticle_alpha[valType].push_back(
-      ibook.book1D("Num_" + ref_[valType] + "_alpha",
+      ibook.book1D("Num_" + ref_[valType] + "_Alpha",
                    "Num Purity " + refText_[valType] + " #alpha per Trackster;#alpha [rad]",
                    nintAlpha_,
                    minAlpha_,
                    maxAlpha_));
-  histograms.h_numDup_trackster_alpha[valType].push_back(ibook.book1D("NumDup_Trackster_alpha" + valSuffix_[valType],
+  histograms.h_numDup_trackster_alpha[valType].push_back(ibook.book1D("NumDup_Trackster_Alpha" + valSuffix_[valType],
 																  "Num Duplicate Trackster vs #alpha;#alpha [rad]",
 																  nintAlpha_,
 																  minAlpha_,
 																  maxAlpha_));
   histograms.h_denom_caloparticle_alpha[valType].push_back(
-      ibook.book1D("Denom_" + ref_[valType] + "_alpha",
+      ibook.book1D("Denom_" + ref_[valType] + "_Alpha",
                    "Denom " + refText_[valType] + " #alpha per Trackster;#alpha [rad]",
                    nintAlpha_,
                    minAlpha_,
@@ -2623,6 +2625,15 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
     histograms.h_denom_trackster_en[valType][count]->Fill(iTS_en);
     histograms.h_denom_trackster_pt[valType][count]->Fill(iTS_pt);
 
+	// const auto cpId = getCPId(trackster, cPHandle_id, scToCpMap);
+	// const SimTrack* simtrack = simTrackFromCaloParticle(cpId, cP);
+	// if (!simtrack) {
+	//   throw cms::Exception("HGVHistoProducerAlgo") << "SimTrack not found!";
+	// }
+	// const auto [R, alpha] = displacedQuantities(*simtrack);
+    // histograms.h_denom_trackster_R[valType][count]->Fill(R);
+    // histograms.h_denom_trackster_alpha[valType][count]->Fill(alpha);
+
     // loop over trackstersToSimTrackstersMap[tracksterIndex] by index
     for (unsigned int i = 0; i < trackstersToSimTrackstersMap[tracksterIndex].size(); ++i) {
       auto sharedEnergy = trackstersToSimTrackstersMap[tracksterIndex][i].sharedEnergy();
@@ -2653,12 +2664,16 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
       histograms.h_num_trackster_phi[valType][count]->Fill(iTS_phi);
       histograms.h_num_trackster_en[valType][count]->Fill(iTS_en);
       histograms.h_num_trackster_pt[valType][count]->Fill(iTS_pt);
+	  // histograms.h_num_trackster_R[valType][count]->Fill(R);
+	  // histograms.h_num_trackster_alpha[valType][count]->Fill(alpha);
 
       if (tracksters_FakeMerge[tracksterIndex] > 1) {
         histograms.h_numMerge_trackster_eta[valType][count]->Fill(iTS_eta);
         histograms.h_numMerge_trackster_phi[valType][count]->Fill(iTS_phi);
         histograms.h_numMerge_trackster_en[valType][count]->Fill(iTS_en);
         histograms.h_numMerge_trackster_pt[valType][count]->Fill(iTS_pt);
+		// histograms.h_numMerge_trackster_R[valType][count]->Fill(R);
+		// histograms.h_numMerge_trackster_alpha[valType][count]->Fill(alpha);
       }
     }
   }
@@ -2678,19 +2693,19 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
     const auto sts_pt = simTrackster.raw_pt();
     float inv_simtrackster_energy = 1.f / sts_en;
 
-	const SimTrack* simtrack = simTrackFromCaloParticle(cpId, cP);
-	if (!simtrack) {
-	  throw cms::Exception("HGVHistoProducerAlgo") << "SimTrack not found!";
-	}
-	const auto [R, alpha] = displacedQuantities(*simtrack);
+	// const SimTrack* simtrack = simTrackFromCaloParticle(cpId, cP);
+	// if (!simtrack) {
+	//   throw cms::Exception("HGVHistoProducerAlgo") << "SimTrack not found!";
+	// }
+	// const auto [R, alpha] = displacedQuantities(*simtrack);
 		
     histograms.h_denom_caloparticle_eta[valType][count]->Fill(sts_eta);
     histograms.h_denom_caloparticle_phi[valType][count]->Fill(sts_phi);
     histograms.h_denom_caloparticle_en[valType][count]->Fill(sts_en);
     histograms.h_denom_caloparticle_pt[valType][count]->Fill(sts_pt);
 
-	histograms.h_denom_caloparticle_R[valType][count]->Fill(R);
-	histograms.h_denom_caloparticle_alpha[valType][count]->Fill(alpha);
+	// histograms.h_denom_caloparticle_R[valType][count]->Fill(R);
+	// histograms.h_denom_caloparticle_alpha[valType][count]->Fill(alpha);
 
     //Loop through related Tracksters here
     // In case the threshold to associate a CaloParticle to a Trackster is
@@ -2731,6 +2746,8 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
         histograms.h_numEff_caloparticle_phi[valType][count]->Fill(sts_phi);
         histograms.h_numEff_caloparticle_en[valType][count]->Fill(sts_en);
         histograms.h_numEff_caloparticle_pt[valType][count]->Fill(sts_pt);
+		// histograms.h_numEff_caloparticle_R[valType][count]->Fill(R);
+		// histograms.h_numEff_caloparticle_alpha[valType][count]->Fill(alpha);
       }
 
       if (score < ScoreCutSTStoTSPurDup) {
@@ -2747,12 +2764,16 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
       histograms.h_num_caloparticle_phi[valType][count]->Fill(sts_phi);
       histograms.h_num_caloparticle_en[valType][count]->Fill(sts_en);
       histograms.h_num_caloparticle_pt[valType][count]->Fill(sts_pt);
+	  // histograms.h_num_caloparticle_R[valType][count]->Fill(R);
+	  // histograms.h_num_caloparticle_alpha[valType][count]->Fill(alpha);
 
       if (tracksters_PurityDuplicate[simTracksterIndex] > 1) {
         histograms.h_numDup_trackster_eta[valType][count]->Fill(sts_eta);
         histograms.h_numDup_trackster_phi[valType][count]->Fill(sts_phi);
         histograms.h_numDup_trackster_en[valType][count]->Fill(sts_en);
         histograms.h_numDup_trackster_pt[valType][count]->Fill(sts_pt);
+		// histograms.h_numDup_trackster_R[valType][count]->Fill(R);
+		// histograms.h_numDup_trackster_alpha[valType][count]->Fill(alpha);
       }
     }
 
@@ -2946,21 +2967,15 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
       histograms.h_trackster_pt[count]->Fill(tst.raw_pt());
       histograms.h_trackster_energy[count]->Fill(tst.raw_energy());
 
-	  // const auto& tsToSimTsMap = *trackstersToSimTrackstersByHitsMapH;
-	  // const auto& simToRecoIt = tsToSimTsMap.find(tstId);
-	  // if (simToRecoIt != tsToSimTsMap.end()) {
-	  // 	const auto simTstId = simToRecoIt->second[0];
-	  // 	const auto& simTst = simTSs[simTstId];
-	  // 	const auto& simtrack = simTst.trackPtr(); // or .track_in_candidate
-	  // 	const auto [R, alpha] = displacedQuantities(*simtrack);
-	  // 	histograms.h_trackster_R[count]->Fill(R);
-	  // 	histograms.h_trackster_alpha[count]->Fill(alpha);
+	  // const auto cpId = getCPId(tst, cPHandle_id, scToCpMap);
+	  // const SimTrack* simtrack = simTrackFromCaloParticle(cpId, cP);
+	  // if (!simtrack) {
+	  // 	throw cms::Exception("HGVHistoProducerAlgo") << "SimTrack not found!";
 	  // }
-	  // else {
-	  // 	histograms.h_trackster_R[count]->Fill(maxR_);
-	  // 	histograms.h_trackster_alpha[count]->Fill(maxAlpha_);
-	  // }
-    }
+	  // const auto [R, alpha] = displacedQuantities(*simtrack);
+	  // histograms.h_trackster_R[count]->Fill(R);
+	  // histograms.h_trackster_alpha[count]->Fill(alpha);
+	}
 
   }  //end of loop through Tracksters
 
