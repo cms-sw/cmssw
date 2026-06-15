@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 
 TrackQualityTraining_params = cms.PSet (
 
-  TrainingMode              = cms.bool     ( False ), # By Default False.
+  TrainingMode              = cms.bool     ( True ), # By Default False.
   EvaluationMode            = cms.bool     ( False ), # By Default False.
   L1TrackInputTag           = cms.InputTag ("ProducerTFP", "TTTrackAccepted"),
   MCTruthTrackInputTag      = cms.InputTag ("TTTrackAssociatorFromPixelDigis", "TTTrackAccepted"),

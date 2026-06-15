@@ -20,9 +20,4 @@ TrackFindingTrackletAnalyzer_params = cms.PSet (
   OutputLabelTQ  = cms.string( "ProducerTQ"  ), #
   OutputLabelTFP = cms.string( "ProducerTFP" ), #
 
-  L1TrackInputTag = cms.InputTag("ProducerTFP", "TTTrackAccepted"),
-  MCTruthTrackInputTag = cms.InputTag("TTTrackAssociatorFromPixelDigis", "TTTrackAccepted"),
-  TTClusterTruth = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
-  TTStubTruth = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
-
 )

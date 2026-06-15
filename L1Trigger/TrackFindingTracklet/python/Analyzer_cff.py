@@ -5,9 +5,10 @@ import FWCore.ParameterSet.Config as cms
 from L1Trigger.TrackFindingTracklet.Analyzer_cfi import TrackFindingTrackletAnalyzer_params
 from L1Trigger.TrackFindingTracklet.Producer_cfi import TrackFindingTrackletProducer_params
 from L1Trigger.TrackFindingTracklet.Setup_cfi import TrackFindingTracklet_params
+from L1Trigger.TrackFindingTracklet.TrackQualityTraining_cfi import TrackQualityTraining_params
 from SimTracker.TrackTriggerAssociation.StubAssociator_cfi import StubAssociator_params
 
-AnalyzerTQ = cms.EDAnalyzer( 'trklet::AnalyzerTQ', TrackFindingTrackletAnalyzer_params, TrackFindingTrackletProducer_params, StubAssociator_params )
+AnalyzerTQ = cms.EDAnalyzer( 'trklet::AnalyzerTQ', TrackFindingTrackletAnalyzer_params, TrackFindingTrackletProducer_params, StubAssociator_params, TrackQualityTraining_params )
 AnalyzerTB = cms.EDAnalyzer( 'trklet::AnalyzerTB', TrackFindingTrackletAnalyzer_params, TrackFindingTrackletProducer_params, StubAssociator_params )
 
 AnalyzerStream  = cms.EDAnalyzer( 'tt::AnalyzerStreamTrack',  TrackFindingTrackletAnalyzer_params, TrackFindingTrackletProducer_params, StubAssociator_params )
