@@ -41,6 +41,8 @@
 <use name="SimDataFormats/CrossingFrame"/>
 <use name="SimGeneral/MixingModule"/>
 
+<use name="DQMServices/Core"/>
+
 <library file="TruthGraphProducer.cc" name="TruthGraphProducerPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
@@ -86,6 +88,10 @@
 </library>
 
 <library file="BranchTrackerReplacementValidator.cc" name="BranchTrackerReplacementValidatorPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="BranchHGCalValidator.cc" name="BranchHGCalValidatorPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
 
