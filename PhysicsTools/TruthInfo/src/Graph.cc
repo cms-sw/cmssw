@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <queue>
+#include <unordered_map>
 
 namespace {
   bool checkCSR(std::vector<uint32_t> const& offsets, std::vector<uint32_t> const& edges, std::size_t nObjects) {
@@ -382,56 +383,9 @@ std::optional<truth::Particle> truth::Graph::firstCommonAncestorOf(size_type a, 
   if (a >= nParticles() || b >= nParticles())
     return std::nullopt;
 
-  std::vector<int> distA(nParticles(), -1);
-  std::vector<int> distB(nParticles(), -1);
-
-  auto fillDistances = [this](uint32_t start, std::vector<int>& dist) {
-    std::queue<uint32_t> q;
-    std::vector<uint32_t> buf;
-    dist[start] = 0;
-    q.push(start);
-
-    while (!q.empty()) {
-      const uint32_t cur = q.front();
-      q.pop();
-
-      buf.clear();
-      appendParents(cur, buf);
-      for (uint32_t p : buf) {
-        if (dist[p] >= 0)
-          continue;
-        dist[p] = dist[cur] + 1;
-        q.push(p);
-      }
-    }
-  };
-
-  fillDistances(a, distA);
-  fillDistances(b, distB);
-
-  int bestId = -1;
-  int bestScore = -1;
-  int bestMaxDist = -1;
-
-  for (uint32_t i = 0; i < nParticles(); ++i) {
-    if (distA[i] < 0 || distB[i] < 0)
-      continue;
-
-    const int score = distA[i] + distB[i];
-    const int maxDist = std::max(distA[i], distB[i]);
-
-    if (bestId < 0 || score < bestScore || (score == bestScore && maxDist < bestMaxDist) ||
-        (score == bestScore && maxDist == bestMaxDist && static_cast<int>(i) < bestId)) {
-      bestId = static_cast<int>(i);
-      bestScore = score;
-      bestMaxDist = maxDist;
-    }
-  }
-
-  if (bestId < 0)
-    return std::nullopt;
-
-  return particle(static_cast<uint32_t>(bestId));
+  // The two-input lowest common ancestor: same objective (min summed distance,
+  // then min worst-case distance, then lowest id).
+  return lowestCommonAncestor({particle(a), particle(b)});
 }
 
 std::optional<truth::Particle> truth::Graph::lowestCommonAncestor(std::vector<Particle> const& parts) const {
@@ -447,63 +401,67 @@ std::optional<truth::Particle> truth::Graph::lowestCommonAncestor(std::vector<Pa
   if (ids.size() == 1)
     return particle(ids.front());
 
-  const uint32_t n = nParticles();
+  // Per-ancestor accumulators keyed only by the ancestors actually visited, so
+  // the cost is O(sum of input ancestries) instead of O(inputs x nParticles),
+  // with no dense per-input distance matrix and no full-graph scan:
+  //   reach  = how many inputs reach the ancestor (common <=> reach == #inputs)
+  //   total  = summed upward distance over the inputs
+  //   worst  = worst-case (max) upward distance over the inputs
+  std::unordered_map<uint32_t, uint32_t> reach;
+  std::unordered_map<uint32_t, int> total;
+  std::unordered_map<uint32_t, int> worst;
 
-  // Upward BFS distance from each input particle to every ancestor (itself at 0).
-  std::vector<std::vector<int>> dist(ids.size(), std::vector<int>(n, -1));
+  std::unordered_map<uint32_t, int> dist;  // reused per-input BFS distances (also the visited set)
+  std::queue<uint32_t> q;
+  std::vector<uint32_t> buf;
 
-  auto fillDistances = [this](uint32_t start, std::vector<int>& d) {
-    std::queue<uint32_t> q;
-    std::vector<uint32_t> buf;
-    d[start] = 0;
+  for (const uint32_t start : ids) {
+    dist.clear();
+    dist.emplace(start, 0);
     q.push(start);
 
     while (!q.empty()) {
       const uint32_t cur = q.front();
       q.pop();
+      const int dcur = dist[cur];
 
       buf.clear();
       appendParents(cur, buf);
       for (uint32_t p : buf) {
-        if (d[p] >= 0)
-          continue;
-        d[p] = d[cur] + 1;
-        q.push(p);
+        if (dist.emplace(p, dcur + 1).second)
+          q.push(p);
       }
     }
-  };
 
-  for (std::size_t k = 0; k < ids.size(); ++k)
-    fillDistances(ids[k], dist[k]);
+    for (auto const& [node, d] : dist) {
+      ++reach[node];
+      total[node] += d;
+      auto it = worst.find(node);
+      if (it == worst.end())
+        worst.emplace(node, d);
+      else
+        it->second = std::max(it->second, d);
+    }
+  }
 
-  // Among ancestors reachable from ALL inputs, pick the closest (min total
-  // distance, then min worst-case distance, then lowest id for determinism).
+  // Among ancestors reached by ALL inputs, pick the closest (min total distance,
+  // then min worst-case distance, then lowest id for determinism).
+  const uint32_t needed = static_cast<uint32_t>(ids.size());
   int bestId = -1;
   int bestTotal = -1;
   int bestMax = -1;
 
-  for (uint32_t i = 0; i < n; ++i) {
-    int total = 0;
-    int maxDist = 0;
-    bool common = true;
-
-    for (std::size_t k = 0; k < ids.size(); ++k) {
-      if (dist[k][i] < 0) {
-        common = false;
-        break;
-      }
-      total += dist[k][i];
-      maxDist = std::max(maxDist, dist[k][i]);
-    }
-
-    if (!common)
+  for (auto const& [node, r] : reach) {
+    if (r != needed)
       continue;
 
-    if (bestId < 0 || total < bestTotal || (total == bestTotal && maxDist < bestMax) ||
-        (total == bestTotal && maxDist == bestMax && static_cast<int>(i) < bestId)) {
-      bestId = static_cast<int>(i);
-      bestTotal = total;
-      bestMax = maxDist;
+    const int t = total[node];
+    const int m = worst[node];
+    if (bestId < 0 || t < bestTotal || (t == bestTotal && m < bestMax) ||
+        (t == bestTotal && m == bestMax && static_cast<int>(node) < bestId)) {
+      bestId = static_cast<int>(node);
+      bestTotal = t;
+      bestMax = m;
     }
   }
 
