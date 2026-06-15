@@ -9,9 +9,9 @@ for lxplus with SLC8 (used for Run3 CMSSW releases)
 
 ~~~
 ssh -X username@lxplus8.cern.ch
-export SCRAM_ARCH=el8_amd64_gcc10
-cmsrel CMSSW_13_3_0_pre3
-cd CMSSW_13_3_0_pre3
+export SCRAM_ARCH=el8_amd64_gcc13
+cmsrel CMSSW_17_0_0_pre1
+cd CMSSW_17_0_0_pre1
 cmsenv
 ~~~
 
@@ -37,6 +37,10 @@ Create input file lists under test/tmp/das_cache
 ~~~
 cd test; python3 datasets.py; cd ..
 ~~~
+or
+~~~
+cd test; python3 datasets.py --phase phase2; cd ..
+~~~
 
 Proceed to RECO step, about 30 minutes
 
@@ -48,14 +52,28 @@ ERA in test/run_relval.sh when trying other era, before trying the above command
 Note 2: the execution will fail if the destination directory (test/tmp/QCD etc.)
 already exists. Rename or remove existing conflicting directories from test/tmp.
 
+Note 3: by default, PHASE=phase1 (traditional/default pf for Run 3).
+
 ~~~
 make QCD_reco
+~~~
+or
+~~~
+make QCD_reco PHASE=phase1-mlpf
+~~~
+or
+~~~
+make QCD_reco PHASE=phase2
 ~~~
 
 Now let's do the DQM step that takes a few minutes
 
 ~~~
 make QCD_dqm
+~~~
+or
+~~~
+make QCD_dqm PHASE=phase2
 ~~~
 
 Repeat for QCDPU & NuGunPU (make QCDPU_reco, make QCDPU_dqm etc.) or use CRAB
@@ -104,7 +122,7 @@ In this case the URL for the directory is 'http://cern.ch/foo/plots', where 'foo
 (This requires that your personal cern web page cern.ch/username is enabled)
 
 
-# Running via condor
+# Running via condor (outdated)
 
 Make sure datasets.py is already parsed above and there are input file lists under ${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache. This is written assuming that you are running condor jobs on CERN lxplus, although with some modifications, the setup can be used with condor of other clusters.
 
@@ -127,6 +145,19 @@ The reco step can also be run via Crab. Prepare CRAB scripts:
 ~~~
 make conf
 make dumpconf
+~~~
+or
+~~~
+make conf PHASE=phase1-mlpf
+make dumpconf PHASE=phase1
+~~~
+or
+~~~
+make conf PHASE=phase2
+make dumpconf PHASE=phase2
+~~~
+then
+~~~
 cd test/crab
 ~~~
 
@@ -145,6 +176,10 @@ Modify the "samples" -list there for changing datasets to process.
 ~~~
 python3 multicrab.py
 ~~~
+or
+~~~
+python3 multicrab_phase2.py
+~~~
 
 Once the jobs are done, move the step3_inMINIAODSIM root files
 from your GRID destination directory to test/tmp/QCD (etc) directory and proceed
@@ -161,35 +196,35 @@ Take note that the CMSSW python3 configuration for running the RECO sequence is 
 # Running DQM steps from existing MINIAOD samples
 
 ~~~
-# For example (default for 2021):
-#CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018 # for 2018 scenarios
-CONDITIONS=auto:phase1_2022_realistic ERA=Run3 # for run 3
-#CONDITIONS=auto:phase2_realistic ERA=Phase2C9 # for phase2
-#Running with 2 threads allows to use more memory on grid
-NTHREADS=2 TMPDIR=tmp
-
-cd $CMSSW_BASE/src/Validation/RecoParticleFlow
-make -p tmp/QCD; cd tmp/QCD
+cd $CMSSW_BASE/src/Validation/RecoParticleFlow/test/crab
+mkdir -p tmp/QCD; cd tmp/QCD
 #(or
-make -p tmp/QCDPU; cd tmp/QCDPU
-make -p tmp/NuGunPU; cd tmp/NuGunPU
+mkdir -p tmp/QCDPU; cd tmp/QCDPU
+mkdir -p tmp/NuGunPU; cd tmp/NuGunPU
 #)
 ~~~
 
 # Make a text file for input files. For example:
 
 ~~~
-dasgoclient --query="file dataset=/RelValQCD_FlatPt_15_3000HS_14/CMSSW_11_0_0_patch1-110X_mcRun3_2021_realistic_v6-v1/MINIAODSIM" > step3_filelist.txt
+dasgoclient --query="file dataset=/RelValQCD_FlatPt_15_3000HS_14/CMSSW_11_0_0_patch1-110X_mcRun3_2021_realistic_v6-v1/MINIAODSIM" | sed 's/^/file:/' > step3_filelist.txt
 #(or
-dasgoclient --query="file dataset=/RelValQCD_Pt15To7000_Flat_14TeV/CMSSW_11_0_0-110X_mcRun4_realistic_v2_2026D49noPU-v1/MINIAODSIM" > step3_filelist.txt
+dasgoclient --query="file dataset=/RelValQCD_Pt15To7000_Flat_14TeV/CMSSW_11_0_0-110X_mcRun4_realistic_v2_2026D49noPU-v1/MINIAODSIM" | sed 's/^/file:/' > step3_filelist.txt
 or using the list of files from your crab output areas.
 #)
 cat step3_filelist.txt
-
-cmsDriver.py step5 --conditions $CONDITIONS -s DQM:@pfDQM --datatier DQMIO --nThreads $NTHREADS --era $ERA --eventcontent DQM --filein filelist:step3_filelist.txt --fileout file:step5.root -n -1 >& step5.log &
 ~~~
 
-# After step5 is completed:
+and run DQM modules and produce DQM root files (so-called step5 & 6):
 ~~~
-cmsDriver.py step6 --conditions $CONDITIONS -s HARVESTING:@pfDQM --era $ERA --filetype DQM --filein file:step5.root --fileout file:step6.root >& step6.log &
+$CMSSW_BASE/src/Validation/RecoParticleFlow/test/run_relval.sh [QCD|QCDPU|ZEEPU|ZMMPU|TenTauPU|NuGunPU] dqm2 0 [phase1|phase2]
 ~~~
+
+# Make plots
+
+~~~
+cd $CMSSW_BASE/src/Validation/RecoParticleFlow/test/crab
+rm -Rf plots
+python3 $CMSSW_BASE/src/Validation/RecoParticleFlow/test/compare.py \
+    --sample FlatQCD_noPU:tmp/QCD/DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root:tmp/QCD/DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root \
+    --doResponsePlots --doMETPlots --doPFCandPlots
