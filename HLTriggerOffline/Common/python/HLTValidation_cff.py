@@ -21,6 +21,8 @@ from Validation.SiTrackerPhase2V.HLTPhase2TrackerValidationFirstStep_cff import 
 # Gen-level Validation
 from Validation.HLTrigger.HLTGenValidation_cff import *
 from Validation.Configuration.globalValidation_cff import *
+#MTD
+from Validation.MtdValidation.hltMtdValidation_cff import *
 
 # HGCAL Rechit Calibration
 from Validation.HGCalValidation.hgcalHitCalibrationDefault_cfi import hgcalHitCalibrationDefault as _hgcalHitCalibrationDefault
@@ -121,6 +123,14 @@ _hltvalidationWithMC_Phase2 = hltvalidationWithMC.copyAndExclude([#HLTMuonVal,
 _hltvalidationWithMC_Phase2.insert(-1, hgcalHitCalibrationHLT)
 _hltvalidationWithMC_Phase2.insert(-1, hltHgcalValidator)
 _hltvalidationWithMC_Phase2.insert(0, hltGENValidation)
+
+# Add at the end only when mtd_at_hlt is active
+from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
+mtd_at_hlt.toModify(
+    _hltvalidationWithMC_Phase2,
+    func=lambda seq: seq.insert(-1, hltMtdRecoValid)
+)
+
 phase2_common.toReplaceWith(hltvalidationWithMC, _hltvalidationWithMC_Phase2)
 
 hltvalidationWithData = cms.Sequence(

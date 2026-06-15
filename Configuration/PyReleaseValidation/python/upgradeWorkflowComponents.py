@@ -1964,6 +1964,11 @@ upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].suffix = '_HLT75e33TimingTiclV
 upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].offset = 0.7521
 upgradeWFs['HLTTiming75e33TiclV5TrackLinkingGNN'].step2['--procModifiers'] = 'ticlv5_TrackLinkingGNN'
 
+upgradeWFs['HLTTiming75e33MTDatHLT'] = deepcopy(upgradeWFs['HLTTiming75e33'])
+upgradeWFs['HLTTiming75e33MTDatHLT'].suffix = '_HLT75e33TimingMTDatHLT'
+upgradeWFs['HLTTiming75e33MTDatHLT'].offset = 0.7522
+upgradeWFs['HLTTiming75e33MTDatHLT'].step2['--procModifiers'] = 'mtd_at_hlt'
+upgradeWFs['HLTTiming75e33MTDatHLT'].step3['--procModifiers'] = 'mtd_at_hlt'
 
 upgradeWFs['HLTTiming75e33LegacyTracking'] = deepcopy(upgradeWFs['HLTTiming75e33'])
 upgradeWFs['HLTTiming75e33LegacyTracking'].suffix = '_HLT75e33TimingLegacyTracking'
