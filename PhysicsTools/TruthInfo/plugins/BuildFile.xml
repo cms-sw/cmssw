@@ -35,6 +35,8 @@
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/TrackingRecHit"/>
 <use name="DataFormats/TrackerRecHit2D"/>
+<use name="DataFormats/HGCalReco"/>
+<use name="DataFormats/CaloRecHit"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
 <use name="SimTracker/TrackAssociation"/>
 <use name="SimTracker/TrackerHitAssociation"/>
@@ -97,6 +99,18 @@
 </library>
 
 <library file="TruthBranchCaloAssociationProducer.cc" name="TruthBranchCaloAssociationProducerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="TruthBranchTrackingAssociationProducer.cc" name="TruthBranchTrackingAssociationProducerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="BranchTrackingValidator.cc" name="BranchTrackingValidatorPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="BranchRecoValidator.cc" name="BranchRecoValidatorPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
 
