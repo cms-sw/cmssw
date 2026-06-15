@@ -165,12 +165,12 @@ l1t::MuonStub L1TPhase2GMTBarrelStubProcessor::buildStubwithZandkSlope(const L1P
   //clamp to a signed 16-bit range. upstream z and kSlope were declared with keyword int from phi-theta digi matched pair dataformat
   //. this triggers only in wheels 1/2 wher k can exceed +/-1.0 for case of no theta digi!!!!!!!!!!!!!
   //point back as close to the origin as we can. fixed range of kSlope binds the value
-  if (k_centerDigi > (1 << 15)-1) {
-	k_centerDigi = (1 << 15)-1;
-	}
+  if (k_centerDigi > (1 << 15) - 1) {
+    k_centerDigi = (1 << 15) - 1;
+  }
   if (k_centerDigi < -(1 << 15)) {
-	k_centerDigi = -(1 << 15);
-	}
+    k_centerDigi = -(1 << 15);
+  }
   // check if theta digi exists with non-default constructor quality --> use z, k with etaQuality=3 from theta digi.
   // if theta digi has no real data, use z_center and slope which points to origin with etaQuality=0..
   // stub set to etaQuality==3 if theta digi exists, 0 if not.

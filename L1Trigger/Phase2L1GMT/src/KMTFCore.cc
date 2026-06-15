@@ -87,7 +87,6 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
   l1t::KMTFTrack nullTrack(seed, seed->coord1(), correctedPhiB(seed), seed->eta1(), satKSlope(seed->eta2()));
   seedQual = seed->quality();
   for (const auto& mask : combinatorics) {
-	
     l1t::KMTFTrack track(seed, seed->coord1(), correctedPhiB(seed), seed->eta1(), satKSlope(seed->eta2()));
     int phiB = correctedPhiB(seed);
     int charge;
@@ -116,7 +115,8 @@ std::pair<l1t::KMTFTrack, l1t::KMTFTrack> KMTFCore::chain(const l1t::MuonStubRef
       track.setCoordinates(seed->depthRegion(), initialK, seed->coord1(), 0, seed->eta1(), satKSlope(seed->eta2()));
     }
     if (verbose_) {
-         edm::LogInfo("KMTFCore") << "Initial state: phiB=" << phiB << " addr=" << address << " K=" << initialK << " z=" << seed->eta1() << " kSlope=" << satKSlope(seed->eta2());
+      edm::LogInfo("KMTFCore") << "Initial state: phiB=" << phiB << " addr=" << address << " K=" << initialK
+                               << " z=" << seed->eta1() << " kSlope=" << satKSlope(seed->eta2());
     }
     track.setHitPattern(hitPattern(track));
     track.setThetaDigiPattern(thetaDigiPattern(track));
@@ -1002,7 +1002,7 @@ bool KMTFCore::updateLUT(l1t::KMTFTrack& track, const l1t::MuonStubRef& stub, in
 
   if (verbose_)
     edm::LogInfo("KMTFCore") << "residual " << phi << " - " << trackPhi << " = " << residualPhi.to_int() << " " << phiB
-                                                       << " - " << trackPhiB << " = " << residualPhiB.to_int();
+                             << " - " << trackPhiB << " = " << residualPhiB.to_int();
 
   uint absK = fabs(trackK);
   if (absK > pow(2, BITSCURV - 2) - 1)
