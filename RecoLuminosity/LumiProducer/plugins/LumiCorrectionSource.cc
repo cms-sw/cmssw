@@ -255,15 +255,14 @@ void LumiCorrectionSource::fillparamcache(unsigned int runnumber) {
       reloadAuth();
     }
   }
-  coral::ConnectionService* mydbservice = new coral::ConnectionService;
+  coral::ConnectionService mydbservice;
   if (!m_globaltag.empty()) {
-    coral::ISessionProxy* gsession = mydbservice->connect(m_connectStr, coral::ReadOnly);
+    std::unique_ptr<coral::ISessionProxy> gsession{mydbservice.connect(m_connectStr, coral::ReadOnly)};
     gsession->transaction().start(true);
     parseGlobaltagForLumi(gsession->nominalSchema(), m_globaltag);
     gsession->transaction().commit();
-    delete gsession;
   }
-  coral::ISessionProxy* session = mydbservice->connect(m_connectStr, coral::ReadOnly);
+  std::unique_ptr<coral::ISessionProxy> session{mydbservice.connect(m_connectStr, coral::ReadOnly)};
   coral::ITypeConverter& tconverter = session->typeConverter();
   tconverter.setCppTypeForSqlType(std::string("float"), std::string("FLOAT(63)"));
   tconverter.setCppTypeForSqlType(std::string("unsigned int"), std::string("NUMBER(10)"));
@@ -286,8 +285,6 @@ void LumiCorrectionSource::fillparamcache(unsigned int runnumber) {
       std::shared_ptr<const LumiCorrectionParam> const_result = std::move(result);
       m_paramcache.insert(std::make_pair(runnumber, const_result));
       session->transaction().commit();
-      delete session;
-      delete mydbservice;
       return;
     }
 
@@ -297,7 +294,7 @@ void LumiCorrectionSource::fillparamcache(unsigned int runnumber) {
     std::string conditionStr("DATA_ID=:dataid");
     coral::AttributeList lumiparamOutput;
     lumiparamOutput.extend("NCOLLIDINGBUNCHES", typeid(unsigned int));
-    coral::IQuery* lumiparamQuery = schema.newQuery();
+    std::unique_ptr<coral::IQuery> lumiparamQuery{schema.newQuery()};
     lumiparamQuery->addToTableList(std::string("LUMIDATA"));
     lumiparamQuery->setCondition(conditionStr, lumidataBindVariables);
     lumiparamQuery->addToOutputList("NCOLLIDINGBUNCHES");
@@ -311,7 +308,7 @@ void LumiCorrectionSource::fillparamcache(unsigned int runnumber) {
       }
       result->setNBX(ncollidingbx);
     }
-    delete lumiparamQuery;
+    lumiparamQuery.reset();
     lumi::NormDML normdml;
     unsigned long long normid = 0;
     std::map<std::string, unsigned long long> normidmap;
@@ -344,12 +341,8 @@ void LumiCorrectionSource::fillparamcache(unsigned int runnumber) {
     session->transaction().commit();
   } catch (const coral::Exception& er) {
     session->transaction().rollback();
-    delete session;
-    delete mydbservice;
     throw cms::Exception("DatabaseError ") << er.what();
   }
-  delete session;
-  delete mydbservice;
 }
 void LumiCorrectionSource::parseGlobaltagForLumi(coral::ISchema& schema, const std::string& globaltag) {
   /**select i.pfn,i.tagname from TAGINVENTORY_TABLE i,TAGTREE_TABLE_GLOBALTAG v from i.tagid=v.tagid and i.recordname='LumiCorrectionParamRcd' **/
