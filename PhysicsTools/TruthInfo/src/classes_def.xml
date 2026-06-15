@@ -16,6 +16,10 @@
   <class name="truth::LogicalGraphHitIndex"/>
   <class name="truth::LogicalGraphHitIndex::Hit"/>
   <class name="std::vector<truth::LogicalGraphHitIndex::Hit>"/>
-  <class name="edm::Wrapper<truth::LogicalGraphHitIndex>"/>  
+  <class name="edm::Wrapper<truth::LogicalGraphHitIndex>"/>
+
+  <!-- The ticl::AssociationMap<mapWithSharedEnergyAndScore> (raw-index variant) and
+       its Wrapper dictionaries are provided by SimDataFormats/Associations; the
+       producer just uses them. -->
 
 </lcgdict>
