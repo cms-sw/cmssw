@@ -18,6 +18,18 @@ namespace truth {
   struct LogicalGraphPostProcessingConfig {
     bool collapseIntermediateGenParticles = true;
 
+    // If true, every SIM logical particle whose calorimeter + tracker sim-hit
+    // subgraph is empty is removed together with its whole downstream subtree.
+    // "Empty subgraph" is defined exactly as the LogicalGraphHitIndex sees it:
+    // a particle has a hit only if a calo/tracker sim-hit carries its SimTrack
+    // trackId, so the test reduces to "no logical particle at or below this one
+    // carries a positive-energy calo or tracker sim-hit". GEN-only descendants
+    // of a removed SIM particle (e.g. neutrinos) are swept out with it, while
+    // the GEN skeleton outside removed SIM subtrees is preserved. This step
+    // only runs when the producer supplies a per-particle direct-hit presence
+    // vector (it needs the sim-hit collections); without it it is a no-op.
+    bool dropHitlessSimSubgraphs = true;
+
     // If empty, no seed-based graph cut is applied.
     // The most upstream particle of each matching chain becomes a root of the
     // selected graph. The special value 0 disables the selection and keeps the
@@ -75,7 +87,11 @@ namespace truth {
     static edm::ParameterSetDescription psetDescription();
     static LogicalGraphPostProcessingConfig configFromPSet(edm::ParameterSet const& pset);
 
-    [[nodiscard]] Graph process(Graph input) const;
+    // particleDirectHit[i] != 0 marks logical particle i as carrying at least one
+    // positive-energy calorimeter or tracker sim-hit on its own SimTrack. It must
+    // be aligned to the input graph's particle ids; an empty vector disables the
+    // hitless-subgraph pruning (see LogicalGraphPostProcessingConfig).
+    [[nodiscard]] Graph process(Graph input, std::vector<uint8_t> const& particleDirectHit = {}) const;
 
   private:
     LogicalGraphPostProcessingConfig config_;
