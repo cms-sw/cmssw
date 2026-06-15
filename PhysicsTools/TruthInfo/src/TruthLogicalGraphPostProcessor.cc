@@ -859,26 +859,31 @@ namespace {
     // Assign an artificial-source role to every kept particle whose real
     // production vertices were all dropped: stable spectators -> UnderlyingEvent,
     // selected roots / truncated ancestors at the upstream boundary -> Upstream
-    // (ISR). True sources of the input graph stay sources.
+    // (ISR). True sources of the input graph stay sources. When
+    // attachSelectionSources is false these particles instead become true graph
+    // roots (no production vertex), so each selected seed yields a self-contained
+    // subgraph starting directly at the seed (e.g. ten taus -> ten components).
     std::vector<uint8_t> attachRole(nParticles, 0);
 
-    for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
-      if (!keepParticle[particleId])
-        continue;
+    if (config.attachSelectionSources) {
+      for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
+        if (!keepParticle[particleId])
+          continue;
 
-      const auto productionVertices = input.productionVertices(particleId);
+        const auto productionVertices = input.productionVertices(particleId);
 
-      if (productionVertices.empty() && !stableSpectator[particleId])
-        continue;
+        if (productionVertices.empty() && !stableSpectator[particleId])
+          continue;
 
-      const bool hasKeptProduction =
-          std::any_of(productionVertices.begin(), productionVertices.end(), [&](uint32_t vertexId) {
-            return vertexId < nVertices && keepVertex[vertexId];
-          });
+        const bool hasKeptProduction =
+            std::any_of(productionVertices.begin(), productionVertices.end(), [&](uint32_t vertexId) {
+              return vertexId < nVertices && keepVertex[vertexId];
+            });
 
-      if (!hasKeptProduction) {
-        attachRole[particleId] = static_cast<uint8_t>(stableSpectator[particleId] ? truth::VertexRole::UnderlyingEvent
-                                                                                  : truth::VertexRole::Upstream);
+        if (!hasKeptProduction) {
+          attachRole[particleId] = static_cast<uint8_t>(stableSpectator[particleId] ? truth::VertexRole::UnderlyingEvent
+                                                                                    : truth::VertexRole::Upstream);
+        }
       }
     }
 
@@ -1119,6 +1124,13 @@ namespace truth {
             "If false, they are dropped, giving a focused subgraph with only the selection and its Upstream (ISR) "
             "context. Only meaningful when a selection (seedPdgIds/decayPdgIdGroups) is active.");
 
+    desc.add<bool>("attachSelectionSources", true)
+        ->setComment(
+            "If true, kept particles whose production vertices all fall outside the selection are attached to an "
+            "artificial Upstream/UnderlyingEvent source vertex. If false, they become true graph roots, so each "
+            "selected seed yields a self-contained subgraph starting directly at the seed (e.g. ten taus -> ten "
+            "disjoint components). Only meaningful when a selection is active.");
+
     {
       edm::ParameterSetDescription groupDesc;
       groupDesc.add<std::vector<int32_t>>("pdgIds", {})
@@ -1155,6 +1167,7 @@ namespace truth {
     config.seedHadronFlavors = pset.getParameter<std::vector<int32_t>>("seedHadronFlavors");
     config.seedParentDepth = pset.getParameter<uint32_t>("seedParentDepth");
     config.keepStableSpectators = pset.getParameter<bool>("keepStableSpectators");
+    config.attachSelectionSources = pset.getParameter<bool>("attachSelectionSources");
 
     for (auto const& groupPSet : pset.getParameter<std::vector<edm::ParameterSet>>("decayPdgIdGroups")) {
       config.decayPdgIdGroups.push_back(groupPSet.getParameter<std::vector<int32_t>>("pdgIds"));

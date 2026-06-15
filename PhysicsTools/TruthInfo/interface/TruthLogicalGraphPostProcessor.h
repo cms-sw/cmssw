@@ -55,6 +55,16 @@ namespace truth {
     // Only meaningful when a selection is active (seedPdgIds/decayPdgIdGroups).
     bool keepStableSpectators = true;
 
+    // If true (default), kept particles whose real production vertices all fall
+    // outside the selection are attached to an artificial Upstream (ISR) or
+    // UnderlyingEvent source vertex, keeping the selected subgraph rooted in a
+    // summary of the activity above it. If false, those particles become true
+    // graph roots (no production vertex), so each selected seed yields a
+    // self-contained subgraph starting directly at the seed - e.g. the ten taus
+    // of a TenTau event come out as ten disjoint components. Only meaningful when
+    // a selection (seedPdgIds/seedHadronFlavors/decayPdgIdGroups) is active.
+    bool attachSelectionSources = true;
+
     // Decay patterns of interest. Each group is an unordered, charge-sensitive
     // multiset of PDG ids; groups are OR-ed.
     //
