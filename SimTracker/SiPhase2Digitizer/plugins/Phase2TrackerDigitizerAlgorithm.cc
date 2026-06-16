@@ -920,7 +920,6 @@ void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* p
   uint32_t detID = pixdet->geographicalId().rawId();
   auto it = _signal.find(detID);
 
-  //  if (it == _signal.end())
   if (!checkAllModulesForNoisyCells_ && (it == _signal.end()))
     return;
 
