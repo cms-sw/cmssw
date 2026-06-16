@@ -168,7 +168,7 @@ namespace gs {
   }
 
   bool CStringStream::getCompressionModeByName(const char *name, CompressionMode *m) {
-    static const char *names[] = {"n", "z", "b"};
+    static constexpr const char *names[] = {"n", "z", "b"};
     if (!name || !m)
       return false;
     for (unsigned i = 0; i < sizeof(names) / sizeof(names[0]); ++i)
