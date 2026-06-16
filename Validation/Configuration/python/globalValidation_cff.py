@@ -65,12 +65,13 @@ globalPrevalidation = cms.Sequence(
 )
 
 from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
+# The truth Branch validation is wired into the baseCommon{PreValidation,Validation}
+# sequences below (after they are defined): the monolithic globalPrevalidation /
+# globalValidation are NOT in the Phase-2 autoValidation assembly, so attaching there
+# would silently never run for the Run4 (.88) truth workflows. These imports make the
+# modules visible for labelling when the process loads this cff (import * idiom).
 from Validation.Configuration.truthPrevalidation_cff import *
-
-_globalPrevalidationWithTruth = globalPrevalidation.copy()
-_globalPrevalidationWithTruth += truthGraphPrevalidation
-
-enableTruth.toReplaceWith(globalPrevalidation, _globalPrevalidationWithTruth)
+from PhysicsTools.TruthInfo.truthGraphValidation_cff import *
 
 # filter/producer "pre-" sequence for validation_preprod
 preprodPrevalidation = cms.Sequence(
@@ -136,6 +137,22 @@ from Validation.Configuration.me0SimValid_cff import *
 
 baseCommonPreValidation = cms.Sequence(cms.SequencePlaceholder("mix"))
 baseCommonValidation = cms.Sequence()
+
+# Branch performance-plot validation, gated by enableTruth (only the Run4 .88 truth
+# workflows). baseCommon{PreValidation,Validation} are part of the 'baseValidation'
+# triplet that autoValidation['phase2Validation'] always schedules, so this is the
+# Phase-2 entry point: the truth-graph + association EDProducers run in the
+# prevalidation Path, the DQM analyzers in the validation EndPath. The matching
+# harvesting is attached to postValidation_common in postValidation_cff. The
+# reco-side eff/fake/merge/duplicate validators stay opt-in (antichain caveat, see
+# truthGraphValidation_cff).
+_baseCommonPreValidationWithTruth = baseCommonPreValidation.copy()
+_baseCommonPreValidationWithTruth += truthGraphValidationProducers
+enableTruth.toReplaceWith(baseCommonPreValidation, _baseCommonPreValidationWithTruth)
+
+_baseCommonValidationWithTruth = baseCommonValidation.copy()
+_baseCommonValidationWithTruth += truthGraphValidationAnalyzers
+enableTruth.toReplaceWith(baseCommonValidation, _baseCommonValidationWithTruth)
 
 # Tracking-only validation
 globalPrevalidationTrackingOnly = cms.Sequence(

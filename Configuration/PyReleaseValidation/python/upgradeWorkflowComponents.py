@@ -1013,8 +1013,10 @@ class UpgradeWorkflow_enableTruth(UpgradeWorkflow):
         # enableTruth runs the truth-graph producers in RecoGlobal (step3) and,
         # in GenSim (step1), keeps the full ancestor branch of every stored
         # SimTrack (g4SimHits PersistencyEmin -> 0 via the modifier) so the
-        # truth graph stays connected to the generator.
-        if 'GenSim' in step or 'RecoGlobal' in step:
+        # truth graph stays connected to the generator. The Branch validators run
+        # in the RecoGlobal VALIDATION and their efficiency harvesting in
+        # HARVESTGlobal (step4), so the modifier must reach the harvesting step too.
+        if 'GenSim' in step or 'RecoGlobal' in step or 'HARVESTGlobal' in step:
             stepDict[stepName][k] = deepcopy(stepDict[step][k])
 
             if '--procModifiers' in stepDict[stepName][k]:
@@ -1033,6 +1035,7 @@ upgradeWFs['enableTruth'] = UpgradeWorkflow_enableTruth(
         'GenSimHLBeamSpot14',
         'GenSimHLBeamSpotCloseBy',
         'RecoGlobal',
+        'HARVESTGlobal',
     ],
     PU = [
         'GenSim',
@@ -1040,6 +1043,7 @@ upgradeWFs['enableTruth'] = UpgradeWorkflow_enableTruth(
         'GenSimHLBeamSpot14',
         'GenSimHLBeamSpotCloseBy',
         'RecoGlobal',
+        'HARVESTGlobal',
     ],
     suffix = '_enableTruth',
     offset = 0.88,

@@ -144,6 +144,24 @@ truthGraphValidationSequence = cms.Sequence(
     + branchTrackingValidator
 )
 
+# Split views for wiring into the release validation: the EDProducers (truth graph,
+# hit index, association maps) run in the prevalidation Path, the DQM analyzers in
+# the validation EndPath. truthGraphValidationSequence (above) keeps both together
+# for the standalone single-file drivers in test/.
+truthGraphValidationProducers = cms.Sequence(
+    truthGraphProducer
+    + truthLogicalGraphProducer
+    + simHitToRecHitMapProducer
+    + truthLogicalGraphHitIndexProducer
+    + truthBranchCaloAssociationProducer
+    + truthTpClusterProducer
+    + truthBranchTrackingAssociationProducer
+)
+truthGraphValidationAnalyzers = cms.Sequence(
+    branchHGCalValidator
+    + branchTrackingValidator
+)
+
 # EXPERIMENTAL, opt-in (NOT in the default sequence): the generic reco-side
 # eff/fake/merge/duplicate validators are only meaningful against a DISJOINT
 # (antichain) interesting-particle reference. Because a Branch subgraph aggregates
