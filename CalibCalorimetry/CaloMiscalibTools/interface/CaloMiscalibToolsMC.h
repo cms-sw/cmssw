@@ -35,7 +35,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
@@ -45,9 +45,9 @@
 // class decleration
 //
 
-class CaloMiscalibToolsMC : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class CaloMiscalibToolsMC : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  CaloMiscalibToolsMC(const edm::ParameterSet &);
+  explicit CaloMiscalibToolsMC(const edm::ParameterSet &);
   ~CaloMiscalibToolsMC() override;
 
   typedef std::unique_ptr<EcalIntercalibConstantsMC> ReturnType;
@@ -56,9 +56,6 @@ public:
 
 private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                      const edm::IOVSyncValue &,
-                      edm::ValidityInterval &) override;
 
   std::string barrelfile_;
   std::string endcapfile_;

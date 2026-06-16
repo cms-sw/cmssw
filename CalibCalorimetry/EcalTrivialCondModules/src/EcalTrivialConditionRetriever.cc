@@ -575,16 +575,6 @@ EcalTrivialConditionRetriever::~EcalTrivialConditionRetriever() {}
 //
 // member functions
 //
-void EcalTrivialConditionRetriever::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& rk,
-                                                   const edm::IOVSyncValue& iTime,
-                                                   edm::ValidityInterval& oValidity) {
-  if (verbose_ >= 1)
-    edm::LogInfo("EcalTrivialConditionRetriever::setIntervalFor(): record key = ")
-        << rk.name() << "\ttime: " << iTime.time().value();
-  //For right now, we will just use an infinite interval of validity
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}
-
 //produce methods
 std::unique_ptr<EcalPedestals> EcalTrivialConditionRetriever::produceEcalPedestals(const EcalPedestalsRcd&) {
   auto peds = std::make_unique<EcalPedestals>();

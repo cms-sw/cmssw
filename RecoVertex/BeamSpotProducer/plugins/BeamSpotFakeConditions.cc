@@ -12,7 +12,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,7 +22,7 @@
 #include "CondFormats/DataRecord/interface/BeamSpotObjectsRcd.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
-class BeamSpotFakeConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class BeamSpotFakeConditions : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   typedef std::unique_ptr<BeamSpotObjects> ReturnType;
   BeamSpotFakeConditions(const edm::ParameterSet &params);
@@ -30,9 +30,6 @@ public:
   ReturnType produce(const BeamSpotObjectsRcd &record);
 
 private:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
-                      const edm::IOVSyncValue &syncValue,
-                      edm::ValidityInterval &oValidity) override;
   edm::FileInPath inputFilename_;
   bool getDataFromFile_;
   double x, y, z, sigmaZ, dxdz, dydz, beamWidthX, beamWidthY, emittanceX, emittanceY, betastar;
@@ -121,12 +118,6 @@ BeamSpotFakeConditions::ReturnType BeamSpotFakeConditions::produce(const BeamSpo
   adummy->setBetaStar(betastar);
 
   return adummy;
-}
-
-void BeamSpotFakeConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
-                                            const edm::IOVSyncValue &syncValue,
-                                            edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }
 
 DEFINE_FWK_EVENTSETUP_SOURCE(BeamSpotFakeConditions);

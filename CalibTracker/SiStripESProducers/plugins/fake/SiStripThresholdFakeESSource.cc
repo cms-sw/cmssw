@@ -16,7 +16,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "CondFormats/DataRecord/interface/SiStripThresholdRcd.h"
@@ -25,14 +25,10 @@
 
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
-class SiStripThresholdFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiStripThresholdFakeESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   SiStripThresholdFakeESSource(const edm::ParameterSet&);
   ~SiStripThresholdFakeESSource() override;
-
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue& iov,
-                      edm::ValidityInterval& iValidity) override;
 
   typedef std::unique_ptr<SiStripThreshold> ReturnType;
   ReturnType produce(const SiStripThresholdRcd&);
@@ -55,12 +51,6 @@ SiStripThresholdFakeESSource::SiStripThresholdFakeESSource(const edm::ParameterS
 }
 
 SiStripThresholdFakeESSource::~SiStripThresholdFakeESSource() {}
-
-void SiStripThresholdFakeESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                  const edm::IOVSyncValue& iov,
-                                                  edm::ValidityInterval& iValidity) {
-  iValidity = edm::ValidityInterval{iov.beginOfTime(), iov.endOfTime()};
-}
 
 // ------------ method called to produce the data  ------------
 SiStripThresholdFakeESSource::ReturnType SiStripThresholdFakeESSource::produce(const SiStripThresholdRcd& iRecord) {

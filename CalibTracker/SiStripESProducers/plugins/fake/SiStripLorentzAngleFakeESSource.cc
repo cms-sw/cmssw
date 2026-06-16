@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
@@ -35,14 +35,10 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
-class SiStripLorentzAngleFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiStripLorentzAngleFakeESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   SiStripLorentzAngleFakeESSource(const edm::ParameterSet&);
   ~SiStripLorentzAngleFakeESSource() override;
-
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue& iov,
-                      edm::ValidityInterval& iValidity) override;
 
   typedef std::unique_ptr<SiStripLorentzAngle> ReturnType;
   ReturnType produce(const SiStripLorentzAngleRcd&);
@@ -171,12 +167,6 @@ SiStripLorentzAngleFakeESSource::SiStripLorentzAngleFakeESSource(const edm::Para
 }
 
 SiStripLorentzAngleFakeESSource::~SiStripLorentzAngleFakeESSource() {}
-
-void SiStripLorentzAngleFakeESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                     const edm::IOVSyncValue& iov,
-                                                     edm::ValidityInterval& iValidity) {
-  iValidity = edm::ValidityInterval{iov.beginOfTime(), iov.endOfTime()};
-}
 
 // ------------ method called to produce the data  ------------
 SiStripLorentzAngleFakeESSource::ReturnType SiStripLorentzAngleFakeESSource::produce(

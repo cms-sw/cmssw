@@ -7,9 +7,9 @@ CSCcrosstalk *CSCFakeCrosstalkConditions::prefillCrosstalk() {
   CSCcrosstalk *cncrosstalk = new CSCcrosstalk();
 
   int max_istrip, id_layer, max_ring, max_cham;
-  seed = 10000;
+  int seed = 10000;
   srand(seed);
-  mean = -0.0009, min = 0.035, minchi = 1.5, M = 1000;
+  float mean = -0.0009, min = 0.035, minchi = 1.5;
 
   // endcap=1 to 2,station=1 to 4, ring=1 to 4,chamber=1 to 36,layer=1 to 6
   for (int iendcap = detId.minEndcapId(); iendcap <= detId.maxEndcapId(); iendcap++) {
@@ -124,10 +124,4 @@ CSCFakeCrosstalkConditions::~CSCFakeCrosstalkConditions() {
 // ------------ method called to produce the data  ------------
 CSCFakeCrosstalkConditions::ReturnType CSCFakeCrosstalkConditions::produceCrosstalk(const CSCcrosstalkRcd &iRecord) {
   return CSCFakeCrosstalkConditions::ReturnType(prefillCrosstalk());
-}
-
-void CSCFakeCrosstalkConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                                const edm::IOVSyncValue &,
-                                                edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }

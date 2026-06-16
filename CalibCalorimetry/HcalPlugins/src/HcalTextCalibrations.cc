@@ -155,12 +155,6 @@ HcalTextCalibrations::~HcalTextCalibrations() {}
 //
 // member functions
 //
-void HcalTextCalibrations::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey,
-                                          const edm::IOVSyncValue& iTime,
-                                          edm::ValidityInterval& oInterval) {
-  std::string record = iKey.name();
-  oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());  //infinite
-}
 namespace {
   template <class T, template <class> class F>
   std::unique_ptr<T> produce_impl(const std::string& fFile, const HcalTopology* topo = nullptr) {
