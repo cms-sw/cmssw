@@ -3,7 +3,13 @@
 # Build a DOT/SVG gallery of logical truth graphs for the enableTruth relval
 # samples, one folder per physics process. For each sample it dumps:
 #   <label>_full_eventN.dot      - the full logical graph (seedPdgIds=0, --showAll)
-#   <label>_selected_eventN.dot  - the natural-seed selection (+ rendered .svg)
+#   <label>_signal_eventN.dot    - the natural-seed signal view (+ rendered .svg):
+#                                  seedParentDepth=0, so the truncated upstream of
+#                                  each seed is summarized into one per-interaction
+#                                  Interaction -> {ISR/upstream, UnderlyingEvent}
+#                                  artificial-source structure (the signal-vs-rest
+#                                  split). Everything reachable from the signal
+#                                  Interaction vertex is, by definition, the signal.
 #
 # Requires cmsenv. Usage:
 #   cmsenv
@@ -40,27 +46,29 @@ for s in "${SAMPLES[@]}"; do
   step3=$(ls "$LIB"/${num}.88_*/step3.root 2>/dev/null | head -1)
   if [[ -z "$step3" ]]; then echo "SKIP $lab ($num): no step3.root under $LIB"; continue; fi
   mkdir -p "$OUT/$lab"
-  cmds+=("cmsRun $CFG file:$step3 -n $NEVT -o $OUT/$lab -s $seeds -d 1 -t _sel > $OUT/$lab/sel.log 2>&1")
+  cmds+=("cmsRun $CFG file:$step3 -n $NEVT -o $OUT/$lab -s $seeds -d 0 -t _sig > $OUT/$lab/sig.log 2>&1")
   cmds+=("cmsRun $CFG file:$step3 -n 1 --showAll -s 0 -t _full -o $OUT/$lab > $OUT/$lab/full.log 2>&1")
 done
 
 [[ ${#cmds[@]} -eq 0 ]] && { echo "No samples found under $LIB"; exit 1; }
 printf '%s\n' "${cmds[@]}" | xargs -d '\n' -P "$JOBS" -I CMD bash -c 'CMD'
 
-# keep only logical graphs, rename by real event id, render selected views to SVG
+# keep only logical graphs, rename by real event id, render signal views to SVG
 for d in "$OUT"/*/; do
   lab=$(basename "$d"); pushd "$d" >/dev/null
   rm -f truthgraph_*.dot ./*.log rechits_nano*.root
-  for f in truthlogicalgraph_sel_run1_lumi1_event*.dot; do
-    [[ -f "$f" ]] || continue; ev=$(grep -o 'event[0-9]*' <<< "$f"); mv -f "$f" "${lab}_selected_${ev}.dot"
+  for f in truthlogicalgraph_sig_run1_lumi1_event*.dot; do
+    [[ -f "$f" ]] || continue; ev=$(grep -o 'event[0-9]*' <<< "$f"); mv -f "$f" "${lab}_signal_${ev}.dot"
   done
   for f in truthlogicalgraph_full_run1_lumi1_event*.dot; do
     [[ -f "$f" ]] || continue; ev=$(grep -o 'event[0-9]*' <<< "$f"); mv -f "$f" "${lab}_full_${ev}.dot"
   done
   popd >/dev/null
 done
-ls "$OUT"/*/*_selected_event*.dot 2>/dev/null | \
-  xargs -P "$JOBS" -I {} bash -c 'timeout 300 dot -Tsvg "{}" -o "${1%.dot}.svg" 2>/dev/null' _ {}
+# Large signal graphs (full SIM cascade, O(10^4) nodes) need a generous layout
+# budget; the dense gun samples (TenTau) take several minutes in dot.
+ls "$OUT"/*/*_signal_event*.dot 2>/dev/null | \
+  xargs -P "$JOBS" -I {} bash -c 'timeout 1500 dot -Tsvg "{}" -o "${1%.dot}.svg" 2>/dev/null' _ {}
 
 echo "Gallery written to $OUT"
 for d in "$OUT"/*/; do
