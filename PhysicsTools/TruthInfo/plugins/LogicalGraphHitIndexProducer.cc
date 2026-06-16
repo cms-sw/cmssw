@@ -81,6 +81,27 @@ namespace {
     return static_cast<uint32_t>(key);
   }
 
+  // Map a config channel name to its HitChannel; false if unknown.
+  bool channelFromName(std::string const& name, truth::HitChannel& out) {
+    if (name == "HGCalCalo") {
+      out = truth::HitChannel::HGCalCalo;
+      return true;
+    }
+    if (name == "Tracker") {
+      out = truth::HitChannel::Tracker;
+      return true;
+    }
+    if (name == "MTD") {
+      out = truth::HitChannel::MTD;
+      return true;
+    }
+    if (name == "Muon") {
+      out = truth::HitChannel::Muon;
+      return true;
+    }
+    return false;
+  }
+
   bool inputTagLooksLikeHGCal(edm::InputTag const& tag) {
     const std::string& instance = tag.instance();
     return instance.find("HGCHits") != std::string::npos || instance.find("HGCEE") != std::string::npos ||
@@ -159,6 +180,8 @@ private:
 
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
 
+  std::array<bool, truth::kNumHitChannels> fillChannel_{};
+
   bool doHGCalRelabelling_ = true;
 };
 
@@ -193,6 +216,15 @@ TruthLogicalGraphHitIndexProducer::TruthLogicalGraphHitIndexProducer(edm::Parame
   mtdBarrelClusterToken_ = consumes<FTLClusterCollection>(cfg.getParameter<edm::InputTag>("mtdBarrelClusters"));
   mtdEndcapClusterToken_ = consumes<FTLClusterCollection>(cfg.getParameter<edm::InputTag>("mtdEndcapClusters"));
 
+  for (auto const& name : cfg.getParameter<std::vector<std::string>>("subdetectors")) {
+    truth::HitChannel channel;
+    if (channelFromName(name, channel))
+      fillChannel_[static_cast<std::size_t>(channel)] = true;
+    else
+      edm::LogWarning("TruthLogicalGraphHitIndexProducer")
+          << "Unknown subdetector channel '" << name << "'; ignoring it.";
+  }
+
   produces<truth::LogicalGraphHitIndex>();
 }
 
@@ -202,6 +234,11 @@ void TruthLogicalGraphHitIndexProducer::fillDescriptions(edm::ConfigurationDescr
   desc.add<edm::InputTag>("src", edm::InputTag("truthLogicalGraphProducer"));
   desc.add<edm::InputTag>("rawSrc", edm::InputTag("truthGraphProducer"));
   desc.add<edm::InputTag>("recHitMap", edm::InputTag("simHitToRecHitMapProducer"));
+
+  desc.add<std::vector<std::string>>("subdetectors", {"HGCalCalo", "Tracker", "MTD", "Muon"})
+      ->setComment(
+          "Detector channels to fill (subdetector selection): any of HGCalCalo, Tracker, MTD, Muon. Each reads its "
+          "own per-subdetector hit collections below; channels left out of this list stay empty in the index.");
 
   desc.add<std::vector<edm::InputTag>>("simHitCollections",
                                        {edm::InputTag("g4SimHits", "HGCHitsEE"),
@@ -261,10 +298,16 @@ void TruthLogicalGraphHitIndexProducer::produce(edm::StreamID, edm::Event& event
   truth::LogicalGraphHitIndexBuilder builder(graphView.nParticles());
 
   fillTrackToParticleMap(graphView, rawGraph, builder);
-  fillSimHits(event, setup, builder, recHitMap);
-  fillTrackerSimHits(event, builder);
-  fillMuonSimHits(event, builder);
-  fillMtdHits(event, builder);
+
+  // Each subdetector channel is filled only when selected (see "subdetectors").
+  if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::HGCalCalo)])
+    fillSimHits(event, setup, builder, recHitMap);
+  if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::Tracker)])
+    fillTrackerSimHits(event, builder);
+  if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::Muon)])
+    fillMuonSimHits(event, builder);
+  if (fillChannel_[static_cast<std::size_t>(truth::HitChannel::MTD)])
+    fillMtdHits(event, builder);
 
   auto output = std::make_unique<truth::LogicalGraphHitIndex>(builder.finish());
   event.put(std::move(output));
