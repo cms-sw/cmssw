@@ -222,7 +222,7 @@ std::vector<char> HDF5ProductResolver::decompress_zstd(std::vector<char> compres
     if (size == ZSTD_CONTENTSIZE_UNKNOWN) {
       // decompressed size field is not present, assume iMemSize
       size = iMemSize;
-    } else if (ZSTD_isError(size == ZSTD_CONTENTSIZE_ERROR)) {
+    } else if (size == ZSTD_CONTENTSIZE_ERROR) {
       throw cms::Exception("H5CondFailedDecompress")
           << "error detected before attempting to decompress buffer using zstd";
     } else if (size != iMemSize) {
