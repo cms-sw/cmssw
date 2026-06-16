@@ -28,20 +28,20 @@ pixDigiMon = digiMon.clone(
     ),
     XYPositionMapH = digiMon.XYPositionMapH.clone(
         Nxbins = 340,
-        xmin = -170.,
-        xmax = 170.,
+        xmin = -30.,
+        xmax = 30.,
         Nybins = 340,
-        ymin = -170.,
-        ymax = 170.,
+        ymin = -30.,
+        ymax = 30.,
         switch = True
     ),
     RZPositionMapH = digiMon.RZPositionMapH.clone(
         Nxbins = 600,
-        xmin = -3000.0,
-        xmax = 3000.,
+        xmin = -300.0,
+        xmax = 300.,
         Nybins = 280,
         ymin = 0.,
-        ymax = 280.,
+        ymax = 28.,
         switch = True
     ),
     ClusterPositionPH = digiMon.ClusterPositionPH.clone(
