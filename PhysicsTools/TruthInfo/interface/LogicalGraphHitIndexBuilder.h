@@ -73,6 +73,10 @@ namespace truth {
     // [channel index][particle] -> direct hit list. Subgraph hits are aggregated
     // in finish().
     std::array<std::vector<HitList>, kNumHitChannels> directHits_;
+
+    // A channel that never received a hit (not selected, or its detector absent)
+    // is left empty by finish() without the per-particle subgraph aggregation.
+    std::array<bool, kNumHitChannels> channelTouched_{};
   };
 
 }  // namespace truth
