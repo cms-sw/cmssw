@@ -25,6 +25,7 @@
 <use name="SimDataFormats/CaloTest"/>
 <use name="SimDataFormats/CaloAnalysis"/>
 <use name="SimDataFormats/EncodedEventId"/>
+<use name="DataFormats/FTLRecHit"/>
 
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
 <use name="DataFormats/NanoAOD"/>
