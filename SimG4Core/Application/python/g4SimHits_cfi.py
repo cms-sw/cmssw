@@ -56,6 +56,11 @@ common_MCtruth = cms.PSet(
     DoFineCalo = cms.bool(False),
     SaveCaloBoundaryInformation = cms.bool(False),
     PersistencyEmin = cms.double(50.0), # in GeV
+    # Keep the SimTrack/SimVertex history connected to the generator while leaving
+    # PersistencyEmin high: reattach the production vertex of a stored track whose
+    # immediate parent was dropped to its nearest stored ancestor, so no SimVertex
+    # is left with parentIndex = -1. Collapses the dropped intermediate nodes.
+    ReconnectDroppedAncestors = cms.bool(False),
     RegionEmin = cms.vdouble(), # in GeV
     RegionEminName = cms.vstring(), # name of regions for reduced 
     # currently unused; left in place for future studies
