@@ -39,7 +39,9 @@ namespace truth {
     if (it == trackIdToParticle_.end())
       return;
 
-    appendHit(directHits_[static_cast<std::size_t>(channel)][it->second], detId, recHitIndex, energy);
+    const std::size_t ch = static_cast<std::size_t>(channel);
+    appendHit(directHits_[ch][it->second], detId, recHitIndex, energy);
+    channelTouched_[ch] = true;
   }
 
   void LogicalGraphHitIndexBuilder::appendHit(HitList& hits, uint32_t detId, uint32_t recHitIndex, float energy) {
@@ -128,6 +130,11 @@ namespace truth {
     std::vector<LogicalGraphHitIndex::Channel> channels(kNumHitChannels);
 
     for (std::size_t ch = 0; ch < kNumHitChannels; ++ch) {
+      // Empty channels (not selected / detector absent) stay default-constructed,
+      // skipping the per-particle subgraph aggregation and CSR build entirely.
+      if (!channelTouched_[ch])
+        continue;
+
       auto& direct = directHits_[ch];
 
       // Coalesce the per-particle direct-hit lists once, so the subgraph
