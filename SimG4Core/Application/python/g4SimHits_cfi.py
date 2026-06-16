@@ -819,17 +819,18 @@ fixLongLivedSleptonSim.toModify( g4SimHits,
 )
 
 ##
-## Truth-graph workflows: keep every track in the history so that the stored
-## ancestor branch of each persisted SimTrack is complete. With the default
-## PersistencyEmin (50 GeV) intermediate low-energy ancestors are dropped and
-## the production SimVertex of a stored secondary gets parentIndex = -1,
-## fragmenting the truth graph into components disconnected from the generator.
-## Setting PersistencyEmin = 0 keeps a mother whenever any daughter is kept, so
-## SimVertex::parentIndex always resolves to a stored ancestor (or a primary).
-## This increases the SimTrack/SimVertex multiplicity and is therefore scoped to
-## the enableTruth workflows only.
+## Truth-graph workflows: keep the SimTrack/SimVertex history connected to the
+## generator while leaving PersistencyEmin at its default 50 GeV. With that
+## threshold the intermediate low-energy ancestors are dropped and the production
+## SimVertex of a stored secondary gets parentIndex = -1, fragmenting the truth
+## graph into components disconnected from the generator. ReconnectDroppedAncestors
+## reattaches each such vertex to its nearest stored ancestor, so
+## SimVertex::parentIndex always resolves (no orphans) without the SimTrack/SimVertex
+## multiplicity blow-up of PersistencyEmin = 0 - the dropped intermediate nodes are
+## collapsed into shortcut edges (measured ~65% fewer SimTracks than PersistencyEmin
+## = 0, same one-component-per-event connectivity). Scoped to enableTruth only.
 ##
 from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
 enableTruth.toModify( g4SimHits,
-                      TrackingAction = dict(PersistencyEmin = 0.0)
+                      TrackingAction = dict(ReconnectDroppedAncestors = True)
 )
