@@ -30,6 +30,7 @@ hltMtdAssociationProducers = cms.Sequence(
 from Validation.MtdValidation.mtdTracksValid_cfi import mtdTracksValid as _mtdTracksValid
 hltMtdTracksValid = _mtdTracksValid.clone(
     folder = cms.string('HLT/MTD/Tracks'),
+    skipNonExistingSrc = cms.bool(True), # at HLT to protect when the products are not available
     inputTagG = cms.InputTag('hltGeneralTracks'),
     inputTagT = cms.InputTag('hltTrackExtenderWithMTD'),
     inputTagV = cms.InputTag('hltOfflinePrimaryVertices4D'),
@@ -89,6 +90,6 @@ hltVertices4DValid =  _vertices4DValid.clone(
     probP = cms.InputTag('hltTofPID', 'probP')
 )
 
-hltMtdRecoValid = cms.Sequence(#hltMtdAssociationProducers +
-                               #hltMtdTracksValid +
+hltMtdRecoValid = cms.Sequence(hltMtdAssociationProducers +
+                               hltMtdTracksValid +
                                hltVertices4DValid)
