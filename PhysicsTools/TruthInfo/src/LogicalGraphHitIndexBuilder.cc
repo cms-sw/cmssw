@@ -11,12 +11,10 @@
 namespace truth {
 
   LogicalGraphHitIndexBuilder::LogicalGraphHitIndexBuilder(uint32_t nParticles)
-      : nParticles_(nParticles),
-        children_(nParticles),
-        directHits_(nParticles),
-        subgraphHits_(nParticles),
-        trackerDirectHits_(nParticles),
-        trackerSubgraphHits_(nParticles) {}
+      : nParticles_(nParticles), children_(nParticles) {
+    for (auto& channel : directHits_)
+      channel.resize(nParticles);
+  }
 
   void LogicalGraphHitIndexBuilder::setSimTrackForParticle(uint32_t particleId, uint32_t trackId) {
     if (particleId >= nParticles_)
@@ -32,10 +30,8 @@ namespace truth {
     children_[parentParticleId].push_back(childParticleId);
   }
 
-  void LogicalGraphHitIndexBuilder::addHitForTrack(uint32_t trackId,
-                                                   uint32_t detId,
-                                                   uint32_t recHitIndex,
-                                                   float energy) {
+  void LogicalGraphHitIndexBuilder::addHit(
+      HitChannel channel, uint32_t trackId, uint32_t detId, float energy, uint32_t recHitIndex) {
     if (energy <= 0.f)
       return;
 
@@ -43,21 +39,10 @@ namespace truth {
     if (it == trackIdToParticle_.end())
       return;
 
-    addHit(directHits_[it->second], detId, recHitIndex, energy);
+    appendHit(directHits_[static_cast<std::size_t>(channel)][it->second], detId, recHitIndex, energy);
   }
 
-  void LogicalGraphHitIndexBuilder::addTrackerHitForTrack(uint32_t trackId, uint32_t detId, float energy) {
-    if (energy <= 0.f)
-      return;
-
-    auto it = trackIdToParticle_.find(trackId);
-    if (it == trackIdToParticle_.end())
-      return;
-
-    addHit(trackerDirectHits_[it->second], detId, Hit::invalidRecHitIndex, energy);
-  }
-
-  void LogicalGraphHitIndexBuilder::addHit(HitList& hits, uint32_t detId, uint32_t recHitIndex, float energy) {
+  void LogicalGraphHitIndexBuilder::appendHit(HitList& hits, uint32_t detId, uint32_t recHitIndex, float energy) {
     hits.push_back(Hit{detId, recHitIndex, energy});
   }
 
@@ -140,48 +125,27 @@ namespace truth {
   }
 
   LogicalGraphHitIndex LogicalGraphHitIndexBuilder::finish() {
-    // Coalesce the per-particle direct-hit lists once, so the subgraph
-    // aggregation and the CSR build both operate on sorted, de-duplicated spans.
-    for (auto& hits : directHits_)
-      coalesce(hits);
-    for (auto& hits : trackerDirectHits_)
-      coalesce(hits);
+    std::vector<LogicalGraphHitIndex::Channel> channels(kNumHitChannels);
 
-    std::vector<uint8_t> caloState(nParticles_, 0);
-    for (uint32_t particleId = 0; particleId < nParticles_; ++particleId) {
-      fillSubgraphHits(particleId, directHits_, subgraphHits_, caloState);
+    for (std::size_t ch = 0; ch < kNumHitChannels; ++ch) {
+      auto& direct = directHits_[ch];
+
+      // Coalesce the per-particle direct-hit lists once, so the subgraph
+      // aggregation and the CSR build both operate on sorted, de-duplicated spans.
+      for (auto& hits : direct)
+        coalesce(hits);
+
+      std::vector<HitList> subgraph(nParticles_);
+      std::vector<uint8_t> state(nParticles_, 0);
+      for (uint32_t particleId = 0; particleId < nParticles_; ++particleId)
+        fillSubgraphHits(particleId, direct, subgraph, state);
+
+      auto& out = channels[ch];
+      buildHitCSR(direct, out.directOffsets, out.directHits);
+      buildHitCSR(subgraph, out.subgraphOffsets, out.subgraphHits);
     }
 
-    std::vector<uint8_t> trackerState(nParticles_, 0);
-    for (uint32_t particleId = 0; particleId < nParticles_; ++particleId) {
-      fillSubgraphHits(particleId, trackerDirectHits_, trackerSubgraphHits_, trackerState);
-    }
-
-    std::vector<uint32_t> directOffsets;
-    std::vector<Hit> directHitStorage;
-    buildHitCSR(directHits_, directOffsets, directHitStorage);
-
-    std::vector<uint32_t> subgraphOffsets;
-    std::vector<Hit> subgraphHitStorage;
-    buildHitCSR(subgraphHits_, subgraphOffsets, subgraphHitStorage);
-
-    std::vector<uint32_t> trackerDirectOffsets;
-    std::vector<Hit> trackerDirectHitStorage;
-    buildHitCSR(trackerDirectHits_, trackerDirectOffsets, trackerDirectHitStorage);
-
-    std::vector<uint32_t> trackerSubgraphOffsets;
-    std::vector<Hit> trackerSubgraphHitStorage;
-    buildHitCSR(trackerSubgraphHits_, trackerSubgraphOffsets, trackerSubgraphHitStorage);
-
-    return LogicalGraphHitIndex(nParticles_,
-                                std::move(directOffsets),
-                                std::move(directHitStorage),
-                                std::move(subgraphOffsets),
-                                std::move(subgraphHitStorage),
-                                std::move(trackerDirectOffsets),
-                                std::move(trackerDirectHitStorage),
-                                std::move(trackerSubgraphOffsets),
-                                std::move(trackerSubgraphHitStorage));
+    return LogicalGraphHitIndex(nParticles_, std::move(channels));
   }
 
 }  // namespace truth

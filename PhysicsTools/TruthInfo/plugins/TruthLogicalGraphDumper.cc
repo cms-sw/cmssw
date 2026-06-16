@@ -472,7 +472,7 @@ public:
           if (i >= hitIndex->nParticles())
             continue;
 
-          if (!hitIndex->subgraphHits(i).empty())
+          if (!hitIndex->subgraphHits(truth::HitChannel::HGCalCalo, i).empty())
             continue;
 
           hideParticle[i] = 1;
@@ -506,10 +506,10 @@ public:
 
       const bool hasHitInfo = hitIndex != nullptr && i < hitIndex->nParticles();
 
-      const auto directHits =
-          hasHitInfo ? hitIndex->directHits(i) : std::span<const truth::LogicalGraphHitIndex::Hit>();
-      const auto subgraphHits =
-          hasHitInfo ? hitIndex->subgraphHits(i) : std::span<const truth::LogicalGraphHitIndex::Hit>();
+      const auto directHits = hasHitInfo ? hitIndex->directHits(truth::HitChannel::HGCalCalo, i)
+                                         : std::span<const truth::LogicalGraphHitIndex::Hit>();
+      const auto subgraphHits = hasHitInfo ? hitIndex->subgraphHits(truth::HitChannel::HGCalCalo, i)
+                                           : std::span<const truth::LogicalGraphHitIndex::Hit>();
 
       const HitSummary directSummary = hasHitInfo ? summarizeHits(directHits, recHitEnergies) : HitSummary();
       const HitSummary subgraphSummary = hasHitInfo ? summarizeHits(subgraphHits, recHitEnergies) : HitSummary();
@@ -517,11 +517,11 @@ public:
       // Tracker simhits (separate channel, no recHit association). Reusing
       // summarizeHits is fine: tracker hits have an invalid recHitIndex, so only
       // nSimHits and simHitEnergy (energy loss) carry meaning.
-      const bool hasTrackerInfo = hasHitInfo && hitIndex->hasTrackerHits();
-      const auto trackerDirectHits =
-          hasTrackerInfo ? hitIndex->trackerDirectHits(i) : std::span<const truth::LogicalGraphHitIndex::Hit>();
-      const auto trackerSubgraphHits =
-          hasTrackerInfo ? hitIndex->trackerSubgraphHits(i) : std::span<const truth::LogicalGraphHitIndex::Hit>();
+      const bool hasTrackerInfo = hasHitInfo && hitIndex->hasChannel(truth::HitChannel::Tracker);
+      const auto trackerDirectHits = hasTrackerInfo ? hitIndex->directHits(truth::HitChannel::Tracker, i)
+                                                    : std::span<const truth::LogicalGraphHitIndex::Hit>();
+      const auto trackerSubgraphHits = hasTrackerInfo ? hitIndex->subgraphHits(truth::HitChannel::Tracker, i)
+                                                      : std::span<const truth::LogicalGraphHitIndex::Hit>();
       const HitSummary trackerDirectSummary =
           hasTrackerInfo ? summarizeHits(trackerDirectHits, recHitEnergies) : HitSummary();
       const HitSummary trackerSubgraphSummary =

@@ -13,7 +13,7 @@
 // These tests lock in the layout property the Branch view relies on: a particle's
 // subgraph hits are a single contiguous std::span, sorted by detId, deduplicated
 // by detId with energy accumulated across the whole subtree. That makes a
-// Subtree branch's hits == subgraphHits(root) with zero gather, and orders them
+// Subtree branch's hits == subgraphHits(truth::HitChannel::HGCalCalo, root) with zero gather, and orders them
 // for merge-join matching against reco objects.
 class TestLogicalGraphHitIndexBuilder : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TestLogicalGraphHitIndexBuilder);
@@ -35,14 +35,15 @@ void TestLogicalGraphHitIndexBuilder::testSubgraphHitsAreSortedContiguousAndAccu
   builder.setSimTrackForParticle(1, 101);
   builder.addParticleChild(0, 1);
 
-  builder.addHitForTrack(100, /*detId=*/10, /*recHitIndex=*/0, /*energy=*/1.0f);
-  builder.addHitForTrack(100, /*detId=*/5, /*recHitIndex=*/1, /*energy=*/2.0f);
-  builder.addHitForTrack(101, /*detId=*/10, /*recHitIndex=*/0, /*energy=*/3.0f);  // same detId as parent
-  builder.addHitForTrack(101, /*detId=*/20, /*recHitIndex=*/2, /*energy=*/1.5f);
+  builder.addHit(truth::HitChannel::HGCalCalo, 100, /*detId=*/10, /*energy=*/1.0f, /*recHitIndex=*/0);
+  builder.addHit(truth::HitChannel::HGCalCalo, 100, /*detId=*/5, /*energy=*/2.0f, /*recHitIndex=*/1);
+  builder.addHit(
+      truth::HitChannel::HGCalCalo, 101, /*detId=*/10, /*energy=*/3.0f, /*recHitIndex=*/0);  // same detId as parent
+  builder.addHit(truth::HitChannel::HGCalCalo, 101, /*detId=*/20, /*energy=*/1.5f, /*recHitIndex=*/2);
 
   auto index = builder.finish();
 
-  auto sub = index.subgraphHits(0);
+  auto sub = index.subgraphHits(truth::HitChannel::HGCalCalo, 0);
   // subtree of 0 = {5, 10, 20}, with detId 10 accumulated across parent+child.
   CPPUNIT_ASSERT_EQUAL(std::size_t(3), sub.size());
   CPPUNIT_ASSERT_EQUAL(uint32_t(5), sub[0].detId);
@@ -55,7 +56,7 @@ void TestLogicalGraphHitIndexBuilder::testSubgraphHitsAreSortedContiguousAndAccu
     CPPUNIT_ASSERT(sub[i - 1].detId < sub[i].detId);
 
   // child subtree is just its own hits.
-  auto subChild = index.subgraphHits(1);
+  auto subChild = index.subgraphHits(truth::HitChannel::HGCalCalo, 1);
   CPPUNIT_ASSERT_EQUAL(std::size_t(2), subChild.size());
   CPPUNIT_ASSERT_EQUAL(uint32_t(10), subChild[0].detId);
   CPPUNIT_ASSERT_EQUAL(uint32_t(20), subChild[1].detId);
@@ -64,12 +65,12 @@ void TestLogicalGraphHitIndexBuilder::testSubgraphHitsAreSortedContiguousAndAccu
 void TestLogicalGraphHitIndexBuilder::testDirectHitsAreSortedByDetId() {
   truth::LogicalGraphHitIndexBuilder builder(1);
   builder.setSimTrackForParticle(0, 7);
-  builder.addHitForTrack(7, 30, 0, 1.0f);
-  builder.addHitForTrack(7, 3, 1, 1.0f);
-  builder.addHitForTrack(7, 17, 2, 1.0f);
+  builder.addHit(truth::HitChannel::HGCalCalo, 7, 30, 1.0f, 0);
+  builder.addHit(truth::HitChannel::HGCalCalo, 7, 3, 1.0f, 1);
+  builder.addHit(truth::HitChannel::HGCalCalo, 7, 17, 1.0f, 2);
 
   auto index = builder.finish();
-  auto direct = index.directHits(0);
+  auto direct = index.directHits(truth::HitChannel::HGCalCalo, 0);
   CPPUNIT_ASSERT_EQUAL(std::size_t(3), direct.size());
   CPPUNIT_ASSERT_EQUAL(uint32_t(3), direct[0].detId);
   CPPUNIT_ASSERT_EQUAL(uint32_t(17), direct[1].detId);

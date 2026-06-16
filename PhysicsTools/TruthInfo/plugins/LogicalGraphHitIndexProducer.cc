@@ -390,7 +390,8 @@ void TruthLogicalGraphHitIndexProducer::fillSimHits(edm::Event& event,
         }
       }
 
-      builder.addHitForTrack(static_cast<uint32_t>(geantTrackId), detId, recHitIndex, simHit.energy());
+      builder.addHit(
+          truth::HitChannel::HGCalCalo, static_cast<uint32_t>(geantTrackId), detId, simHit.energy(), recHitIndex);
     }
   }
 }
@@ -410,7 +411,7 @@ void TruthLogicalGraphHitIndexProducer::fillTrackerSimHits(edm::Event& event,
     for (auto const& simHit : *hSimHits) {
       // PSimHit::trackId() is the G4 trackId of the SimTrack that made the hit,
       // the same id space used to associate calorimeter simhits to particles.
-      builder.addTrackerHitForTrack(simHit.trackId(), simHit.detUnitId(), simHit.energyLoss());
+      builder.addHit(truth::HitChannel::Tracker, simHit.trackId(), simHit.detUnitId(), simHit.energyLoss());
     }
   }
 }

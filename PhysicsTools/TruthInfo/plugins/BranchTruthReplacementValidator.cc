@@ -116,7 +116,7 @@ void BranchTruthReplacementValidator::validate(Collection const& objects,
 
     // Branch subgraph calo hits for the mapped logical particle.
     std::unordered_set<uint32_t> branchDetIds;
-    for (auto const& hit : hitIndex.subgraphHits(particleId))
+    for (auto const& hit : hitIndex.subgraphHits(truth::HitChannel::HGCalCalo, particleId))
       branchDetIds.insert(hit.detId);
 
     // Legacy object hits, and the reco-like hit list for the matcher.
@@ -149,11 +149,11 @@ void BranchTruthReplacementValidator::validate(Collection const& objects,
     if (!matches.empty()) {
       const float bestScore = matches.front().score;
       uint32_t tightest = matches.front().rootParticleId;
-      std::size_t tightestSize = hitIndex.subgraphHits(tightest).size();
+      std::size_t tightestSize = hitIndex.subgraphHits(truth::HitChannel::HGCalCalo, tightest).size();
       for (auto const& m : matches) {
         if (m.score > bestScore)
           break;
-        const std::size_t size = hitIndex.subgraphHits(m.rootParticleId).size();
+        const std::size_t size = hitIndex.subgraphHits(truth::HitChannel::HGCalCalo, m.rootParticleId).size();
         if (size < tightestSize) {
           tightestSize = size;
           tightest = m.rootParticleId;

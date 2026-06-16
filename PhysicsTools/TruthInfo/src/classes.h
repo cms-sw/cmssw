@@ -33,6 +33,8 @@ namespace {
     truth::LogicalGraphHitIndex logicalGraphHitIndex;
     truth::LogicalGraphHitIndex::Hit logicalGraphHitIndexHit;
     std::vector<truth::LogicalGraphHitIndex::Hit> logicalGraphHitIndexHitVector;
+    truth::LogicalGraphHitIndex::Channel logicalGraphHitIndexChannel;
+    std::vector<truth::LogicalGraphHitIndex::Channel> logicalGraphHitIndexChannelVector;
   };
 }  // namespace
 

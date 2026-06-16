@@ -73,7 +73,7 @@ namespace {
     static constexpr truth::BranchHitAssociator::Metric metric() {
       return truth::BranchHitAssociator::Metric::SharedHits;
     }
-    static constexpr bool useTracker() { return true; }
+    static constexpr truth::HitChannel channel() { return truth::HitChannel::Tracker; }
     static double particleX(math::XYZTLorentzVectorD const& p) { return p.pt(); }
     static void fillDescriptions(edm::ParameterSetDescription& desc) {
       desc.add<edm::InputTag>("recoCollection", edm::InputTag("generalTracks"));
@@ -103,7 +103,7 @@ namespace {
     static constexpr truth::BranchHitAssociator::Metric metric() {
       return truth::BranchHitAssociator::Metric::SharedEnergy;
     }
-    static constexpr bool useTracker() { return false; }
+    static constexpr truth::HitChannel channel() { return truth::HitChannel::HGCalCalo; }
     static double particleX(math::XYZTLorentzVectorD const& p) { return p.energy(); }
     static void fillDescriptions(edm::ParameterSetDescription& desc) {
       desc.add<edm::InputTag>("recoCollection", edm::InputTag("ticlTrackstersCLUE3DHigh"));
@@ -131,7 +131,7 @@ private:
   // Per-object span hits in the relevant channel (calo subgraph or tracker subgraph).
   [[nodiscard]] std::span<const truth::LogicalGraphHitIndex::Hit> channelHits(
       truth::LogicalGraphHitIndex const& hitIndex, uint32_t root) const {
-    return Traits::useTracker() ? hitIndex.trackerSubgraphHits(root) : hitIndex.subgraphHits(root);
+    return hitIndex.subgraphHits(Traits::channel(), root);
   }
 
   const edm::EDGetTokenT<truth::Graph> graphToken_;
@@ -224,7 +224,7 @@ void BranchRecoValidatorT<Traits>::analyze(edm::Event const& event, edm::EventSe
         roots.push_back(i);
     }
   }
-  truth::BranchHitAssociator assoc(hitIndex, roots, Traits::metric(), Traits::useTracker());
+  truth::BranchHitAssociator assoc(hitIndex, roots, Traits::metric(), Traits::channel());
 
   // Reco -> sim: match every reco object, accumulate per-branch match multiplicity.
   std::unordered_map<uint32_t, int> recoMatchCount;

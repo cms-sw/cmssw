@@ -14,8 +14,8 @@ namespace truth {
   BranchHitAssociator::BranchHitAssociator(LogicalGraphHitIndex const& hitIndex,
                                            std::vector<uint32_t> candidateRoots,
                                            Metric metric,
-                                           bool useTracker)
-      : hitIndex_(&hitIndex), metric_(metric), useTracker_(useTracker), roots_(std::move(candidateRoots)) {
+                                           HitChannel channel)
+      : hitIndex_(&hitIndex), metric_(metric), channel_(channel), roots_(std::move(candidateRoots)) {
     if (roots_.empty()) {
       roots_.resize(hitIndex_->nParticles());
       std::iota(roots_.begin(), roots_.end(), 0u);
@@ -25,7 +25,7 @@ namespace truth {
     // particle's direct-hit energy on that cell. Use the requested channel.
     // directStorage is grouped by particle, not globally sorted, so collect and
     // coalesce into a sorted (detId -> energy) table for binary-search lookup.
-    const auto& directStorage = useTracker_ ? hitIndex_->trackerDirectHitStorage() : hitIndex_->directHitStorage();
+    const auto& directStorage = hitIndex_->channel(channel_).directHits;
     std::vector<std::pair<uint32_t, float>> cells;
     cells.reserve(directStorage.size());
     for (auto const& hit : directStorage)
@@ -71,7 +71,7 @@ namespace truth {
   }
 
   std::span<const LogicalGraphHitIndex::Hit> BranchHitAssociator::rootHits(uint32_t rootId) const {
-    return useTracker_ ? hitIndex_->trackerSubgraphHits(rootId) : hitIndex_->subgraphHits(rootId);
+    return hitIndex_->subgraphHits(channel_, rootId);
   }
 
   std::span<const uint32_t> BranchHitAssociator::rootsForCell(uint32_t detId) const {

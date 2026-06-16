@@ -29,10 +29,10 @@ namespace {
     b.setSimTrackForParticle(0, 100);
     b.setSimTrackForParticle(1, 101);
     b.addParticleChild(0, 1);
-    b.addHitForTrack(100, 10, 0, 1.0f);
-    b.addHitForTrack(100, 11, 0, 1.0f);
-    b.addHitForTrack(101, 11, 0, 1.0f);
-    b.addHitForTrack(101, 12, 0, 2.0f);
+    b.addHit(truth::HitChannel::HGCalCalo, 100, 10, 1.0f, 0);
+    b.addHit(truth::HitChannel::HGCalCalo, 100, 11, 1.0f, 0);
+    b.addHit(truth::HitChannel::HGCalCalo, 101, 11, 1.0f, 0);
+    b.addHit(truth::HitChannel::HGCalCalo, 101, 12, 2.0f, 0);
     return b.finish();
   }
 
@@ -43,11 +43,11 @@ namespace {
     b.setSimTrackForParticle(0, 100);
     b.setSimTrackForParticle(1, 101);
     b.addParticleChild(0, 1);
-    b.addHitForTrack(100, 10, 0, 1.0f);  // calo channel
-    b.addTrackerHitForTrack(100, 20, 1.0f);
-    b.addTrackerHitForTrack(100, 21, 1.0f);
-    b.addTrackerHitForTrack(101, 21, 1.0f);
-    b.addTrackerHitForTrack(101, 22, 2.0f);
+    b.addHit(truth::HitChannel::HGCalCalo, 100, 10, 1.0f, 0);  // calo channel
+    b.addHit(truth::HitChannel::Tracker, 100, 20, 1.0f);
+    b.addHit(truth::HitChannel::Tracker, 100, 21, 1.0f);
+    b.addHit(truth::HitChannel::Tracker, 101, 21, 1.0f);
+    b.addHit(truth::HitChannel::Tracker, 101, 22, 2.0f);
     return b.finish();
   }
 
@@ -126,7 +126,8 @@ void TestBranchHitAssociator::testGenericRecoObjectInterface() {
 
 void TestBranchHitAssociator::testTrackerChannel() {
   auto index = buildTrackerIndex();
-  truth::BranchHitAssociator assoc(index, {}, truth::BranchHitAssociator::Metric::SharedHits, /*useTracker=*/true);
+  truth::BranchHitAssociator assoc(
+      index, {}, truth::BranchHitAssociator::Metric::SharedHits, truth::HitChannel::Tracker);
 
   // Tracker cells 20,21,22 are fully covered by root 0's tracker subgraph.
   std::vector<truth::RecoHit> reco{{20, 1.0f, 1.0f}, {21, 1.0f, 1.0f}, {22, 1.0f, 1.0f}};
@@ -139,6 +140,7 @@ void TestBranchHitAssociator::testTrackerChannel() {
   std::vector<truth::RecoHit> caloReco{{10, 1.0f, 1.0f}};
   CPPUNIT_ASSERT(assoc.bestBranches(caloReco).empty());
   // ...and a calo associator ignores the tracker cells.
-  truth::BranchHitAssociator caloAssoc(index, {}, truth::BranchHitAssociator::Metric::SharedHits, /*useTracker=*/false);
+  truth::BranchHitAssociator caloAssoc(
+      index, {}, truth::BranchHitAssociator::Metric::SharedHits, truth::HitChannel::HGCalCalo);
   CPPUNIT_ASSERT(caloAssoc.bestBranches(reco).empty());
 }

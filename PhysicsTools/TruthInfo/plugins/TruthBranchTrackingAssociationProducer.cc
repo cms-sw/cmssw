@@ -88,7 +88,7 @@ void TruthBranchTrackingAssociationProducer::produce(edm::Event& event, edm::Eve
   // energy to share, so matches are ranked by the multiplicity of shared simhit
   // DetIds (score = fraction of the track's hits left uncaptured, lower = better).
   truth::BranchHitAssociator assoc(
-      hitIndex, roots, truth::BranchHitAssociator::Metric::SharedHits, /*useTracker=*/true);
+      hitIndex, roots, truth::BranchHitAssociator::Metric::SharedHits, truth::HitChannel::Tracker);
 
   auto trackToBranch = std::make_unique<BranchAssociationMap>(static_cast<unsigned int>(tracks.size()));
   auto branchToTrack = std::make_unique<BranchAssociationMap>(graph.nParticles());
