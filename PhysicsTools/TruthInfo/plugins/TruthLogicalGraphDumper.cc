@@ -534,6 +534,21 @@ public:
       const HitSummary mtdSubgraphSummary =
           hasMtdInfo ? summarizeHits(hitIndex->subgraphHits(truth::HitChannel::MTD, i), recHitEnergies) : HitSummary();
 
+      // MTD recHitIndex points into the FTLCluster ordering (channel-relative, not
+      // the HGCal recHit ordering), so count the FTLCluster-linked hits directly.
+      uint32_t mtdSubgraphRecHitLinked = 0;
+      if (hasMtdInfo)
+        for (auto const& h : hitIndex->subgraphHits(truth::HitChannel::MTD, i))
+          mtdSubgraphRecHitLinked += static_cast<uint32_t>(h.hasRecHit());
+
+      // Muon-chamber simhits (DT/CSC/RPC/GEM), no recHit link.
+      const bool hasMuonInfo = hasHitInfo && hitIndex->hasChannel(truth::HitChannel::Muon);
+      const HitSummary muonDirectSummary =
+          hasMuonInfo ? summarizeHits(hitIndex->directHits(truth::HitChannel::Muon, i), recHitEnergies) : HitSummary();
+      const HitSummary muonSubgraphSummary =
+          hasMuonInfo ? summarizeHits(hitIndex->subgraphHits(truth::HitChannel::Muon, i), recHitEnergies)
+                      : HitSummary();
+
       os << "  p" << i << " [shape=ellipse, hasCheckpoints=" << p.hasCheckpoints() << ", hasGen=" << p.hasGen()
          << ", hasSim=" << d.hasSim();
 
@@ -573,7 +588,14 @@ public:
           os << ", nDirectMtdSimHits=" << mtdDirectSummary.nSimHits
              << ", directMtdSimHitEnergy=" << fmtEnergy(mtdDirectSummary.simHitEnergy)
              << ", nSubgraphMtdSimHits=" << mtdSubgraphSummary.nSimHits
-             << ", subgraphMtdSimHitEnergy=" << fmtEnergy(mtdSubgraphSummary.simHitEnergy);
+             << ", subgraphMtdSimHitEnergy=" << fmtEnergy(mtdSubgraphSummary.simHitEnergy)
+             << ", nSubgraphMtdRecHits=" << mtdSubgraphRecHitLinked;
+        }
+        if (hasMuonInfo) {
+          os << ", nDirectMuonSimHits=" << muonDirectSummary.nSimHits
+             << ", directMuonSimHitEnergy=" << fmtEnergy(muonDirectSummary.simHitEnergy)
+             << ", nSubgraphMuonSimHits=" << muonSubgraphSummary.nSimHits
+             << ", subgraphMuonSimHitEnergy=" << fmtEnergy(muonSubgraphSummary.simHitEnergy);
         }
         if (dumpSimHits_) {
           os << ", directHitsDetIds=\"";
