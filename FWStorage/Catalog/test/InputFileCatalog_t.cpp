@@ -43,9 +43,9 @@ TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWStorage/Catalog]") {
       SECTION("Catalog 0") {
         auto const names = catalog.fileNames(0);
         REQUIRE(names.size() == 3);
-        CHECK(names[0] == "root://cmsxrootd.fnal.gov/store/foo/bar?scitag.flow=196664");
+        CHECK(names[0] == "root://cmsxrootd.fnal.gov/store/foo/bar?scitag.flow=206");
         CHECK(names[1] == "file:/foo/bar");
-        CHECK(names[2] == "root://foobar?scitag.flow=196664");
+        CHECK(names[2] == "root://foobar?scitag.flow=206");
       }
       // The fileNames() works only for catalog 0
       // Catalog 1 or 2 leads to a crash because the input file list
@@ -65,17 +65,17 @@ TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWStorage/Catalog]") {
       REQUIRE(items[2].fileNames().size() == 1);
 
       SECTION("Catalog 0") {
-        CHECK(items[0].fileName(0) == "root://cmsxrootd.fnal.gov/store/foo/bar?scitag.flow=196664");
+        CHECK(items[0].fileName(0) == "root://cmsxrootd.fnal.gov/store/foo/bar?scitag.flow=206");
         CHECK(items[1].fileName(0) == "file:/foo/bar");
-        CHECK(items[2].fileName(0) == "root://foobar?scitag.flow=196664");
+        CHECK(items[2].fileName(0) == "root://foobar?scitag.flow=206");
       }
       SECTION("Catalog 1") {
-        CHECK(items[0].fileName(1) == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar?scitag.flow=196664");
+        CHECK(items[0].fileName(1) == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar?scitag.flow=206");
         CHECK(items[0].fileNames()[1] ==
-              "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar?scitag.flow=196664");
+              "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar?scitag.flow=206");
       }
       SECTION("Catalog 2") {
-        CHECK(items[0].fileName(2) == "root://host.domain//pnfs/cms/store/foo/bar?scitag.flow=196664");
+        CHECK(items[0].fileName(2) == "root://host.domain//pnfs/cms/store/foo/bar?scitag.flow=206");
       }
     }
   }
@@ -93,14 +93,14 @@ TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWStorage/Catalog]") {
       auto const& items = catalog.fileCatalogItems();
       SECTION("Embedded Catalog 0") {
         CHECK(items[0].fileName(0) == "file:/foo/bar");
-        CHECK(items[1].fileName(0) == "root://cmsxrootd.fnal.gov/store/foo/bar?scitag.flow=196700");
-        CHECK(items[2].fileName(0) == "root://foobar?scitag.flow=196700");
+        CHECK(items[1].fileName(0) == "root://cmsxrootd.fnal.gov/store/foo/bar?scitag.flow=215");
+        CHECK(items[2].fileName(0) == "root://foobar?scitag.flow=215");
       }
       SECTION("Embedded Catalog 1") {
-        CHECK(items[1].fileName(1) == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar?scitag.flow=196700");
+        CHECK(items[1].fileName(1) == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar?scitag.flow=215");
       }
       SECTION("Embedded Catalog 2") {
-        CHECK(items[1].fileName(2) == "root://host.domain//pnfs/cms/store/foo/bar?scitag.flow=196700");
+        CHECK(items[1].fileName(2) == "root://host.domain//pnfs/cms/store/foo/bar?scitag.flow=215");
       }
     }
   }
@@ -113,7 +113,7 @@ TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWStorage/Catalog]") {
                                   false,
                                   edm::SciTagCategory::PreMixedPileup);
     auto const& items = catalog.fileCatalogItems();
-    CHECK(items[1].fileName(0) == "root://cmsxrootd.fnal.gov/store/foo/bar?scitag.flow=196704");
+    CHECK(items[1].fileName(0) == "root://cmsxrootd.fnal.gov/store/foo/bar?scitag.flow=216");
   }
 
   SECTION("Behavior of 'Undefined' category") {
@@ -136,9 +136,9 @@ TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWStorage/Catalog]") {
     SECTION("fileNames") {
       auto const names = catalog.fileNames(0);
       REQUIRE(names.size() == 3);
-      CHECK(names[0] == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar?scitag.flow=196664");
+      CHECK(names[0] == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar?scitag.flow=206");
       CHECK(names[1] == "file:/foo/bar");
-      CHECK(names[2] == "root://foobar?scitag.flow=196664");
+      CHECK(names[2] == "root://foobar?scitag.flow=206");
     }
 
     SECTION("fileCatalogItems") {
@@ -153,9 +153,9 @@ TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWStorage/Catalog]") {
       REQUIRE(items[1].fileNames().size() == 1);
       REQUIRE(items[2].fileNames().size() == 1);
 
-      CHECK(items[0].fileName(0) == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar?scitag.flow=196664");
+      CHECK(items[0].fileName(0) == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar?scitag.flow=206");
       CHECK(items[1].fileName(0) == "file:/foo/bar");
-      CHECK(items[2].fileName(0) == "root://foobar?scitag.flow=196664");
+      CHECK(items[2].fileName(0) == "root://foobar?scitag.flow=206");
     }
   }
 
@@ -170,9 +170,9 @@ TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWStorage/Catalog]") {
       SECTION("Catalog 0") {
         auto const names = catalog.fileNames(0);
         REQUIRE(names.size() == 3);
-        CHECK(names[0] == "root://cmsxrootd.fnal.gov/store/foo/bar?scitag.flow=196664");
+        CHECK(names[0] == "root://cmsxrootd.fnal.gov/store/foo/bar?scitag.flow=206");
         CHECK(names[1] == "/tmp/foo/bar");
-        CHECK(names[2] == "root://foobar?scitag.flow=196664");
+        CHECK(names[2] == "root://foobar?scitag.flow=206");
       }
     }
 
@@ -188,16 +188,16 @@ TEST_CASE("InputFileCatalog with Rucio data catalog", "[FWStorage/Catalog]") {
       REQUIRE(items[2].fileNames().size() == 1);
 
       SECTION("Catalog 0") {
-        CHECK(items[0].fileName(0) == "root://cmsxrootd.fnal.gov/store/foo/bar?scitag.flow=196664");
+        CHECK(items[0].fileName(0) == "root://cmsxrootd.fnal.gov/store/foo/bar?scitag.flow=206");
         CHECK(items[1].fileName(0) == "/tmp/foo/bar");
-        CHECK(items[2].fileName(0) == "root://foobar?scitag.flow=196664");
+        CHECK(items[2].fileName(0) == "root://foobar?scitag.flow=206");
       }
       SECTION("Catalog 1") {
-        CHECK(items[0].fileName(1) == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar?scitag.flow=196664");
+        CHECK(items[0].fileName(1) == "root://cmsdcadisk.fnal.gov//dcache/uscmsdisk/store/foo/bar?scitag.flow=206");
         CHECK(items[1].fileName(1) == "/tmp/foo/bar");
       }
       SECTION("Catalog 2") {
-        CHECK(items[0].fileName(2) == "root://host.domain//pnfs/cms/store/foo/bar?scitag.flow=196664");
+        CHECK(items[0].fileName(2) == "root://host.domain//pnfs/cms/store/foo/bar?scitag.flow=206");
         CHECK(items[1].fileName(2) == "/tmp/foo/bar");
       }
     }
