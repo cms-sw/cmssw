@@ -49,7 +49,7 @@ namespace truth {
     explicit BranchHitAssociator(LogicalGraphHitIndex const& hitIndex,
                                  std::vector<uint32_t> candidateRoots = {},
                                  Metric metric = Metric::SharedEnergy,
-                                 bool useTracker = false);
+                                 HitChannel channel = HitChannel::HGCalCalo);
 
     // Best branches for a reco object's hits, sorted by score ascending. If
     // maxResults > 0, only the best maxResults are returned.
@@ -75,7 +75,7 @@ namespace truth {
 
     LogicalGraphHitIndex const* hitIndex_;
     Metric metric_;
-    bool useTracker_;
+    HitChannel channel_;
     std::vector<uint32_t> roots_;
 
     // Inverted index detId -> candidate roots, stored CSR-style: cellRootsKeys_

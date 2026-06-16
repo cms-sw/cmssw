@@ -16,6 +16,8 @@
   <class name="truth::LogicalGraphHitIndex"/>
   <class name="truth::LogicalGraphHitIndex::Hit"/>
   <class name="std::vector<truth::LogicalGraphHitIndex::Hit>"/>
+  <class name="truth::LogicalGraphHitIndex::Channel"/>
+  <class name="std::vector<truth::LogicalGraphHitIndex::Channel>"/>
   <class name="edm::Wrapper<truth::LogicalGraphHitIndex>"/>
 
   <!-- The ticl::AssociationMap<mapWithSharedEnergyAndScore> (raw-index variant) and

@@ -5,6 +5,7 @@
 #ifndef PhysicsTools_TruthInfo_LogicalGraphHitIndexBuilder_h
 #define PhysicsTools_TruthInfo_LogicalGraphHitIndexBuilder_h
 
+#include <array>
 #include <cstdint>
 #include <unordered_map>
 #include <vector>
@@ -20,10 +21,14 @@ namespace truth {
     void setSimTrackForParticle(uint32_t particleId, uint32_t trackId);
     void addParticleChild(uint32_t parentParticleId, uint32_t childParticleId);
 
-    void addHitForTrack(uint32_t trackId, uint32_t detId, uint32_t recHitIndex, float energy);
-
-    // Tracker simhits: separate channel, no recHit association.
-    void addTrackerHitForTrack(uint32_t trackId, uint32_t detId, float energy);
+    // Add a hit on `trackId`'s SimTrack to `channel`. recHitIndex defaults to "no
+    // recHit" for channels without a DetId->RecHit link (tracker, muon); calo/MTD
+    // pass the mapped global recHit index.
+    void addHit(HitChannel channel,
+                uint32_t trackId,
+                uint32_t detId,
+                float energy,
+                uint32_t recHitIndex = LogicalGraphHitIndex::Hit::invalidRecHitIndex);
 
     [[nodiscard]] LogicalGraphHitIndex finish();
 
@@ -33,11 +38,10 @@ namespace truth {
     // Per-particle hits are accumulated as a flat, append-only list and coalesced
     // (summed per detId, sorted) lazily. This keeps the hot insertion path a
     // single push_back and avoids a per-particle hash table (one per particle for
-    // each of the four channels), which dominated CPU and memory at high hit
-    // multiplicity.
+    // each channel), which dominated CPU and memory at high hit multiplicity.
     using HitList = std::vector<Hit>;
 
-    static void addHit(HitList& hits, uint32_t detId, uint32_t recHitIndex, float energy);
+    static void appendHit(HitList& hits, uint32_t detId, uint32_t recHitIndex, float energy);
 
     // Sort by detId and merge entries that share a detId: energies are summed and
     // the recHitIndex is the unique valid index for that detId, if any (a detId
@@ -66,11 +70,9 @@ namespace truth {
     std::unordered_map<uint32_t, uint32_t> trackIdToParticle_;
     std::vector<std::vector<uint32_t>> children_;
 
-    std::vector<HitList> directHits_;
-    std::vector<HitList> subgraphHits_;
-
-    std::vector<HitList> trackerDirectHits_;
-    std::vector<HitList> trackerSubgraphHits_;
+    // [channel index][particle] -> direct hit list. Subgraph hits are aggregated
+    // in finish().
+    std::array<std::vector<HitList>, kNumHitChannels> directHits_;
   };
 
 }  // namespace truth

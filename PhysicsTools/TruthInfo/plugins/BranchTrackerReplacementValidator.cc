@@ -80,11 +80,11 @@ namespace {
       return -1;
     const float best = matches.front().score;
     int tightest = static_cast<int>(matches.front().rootParticleId);
-    std::size_t tightestSize = hitIndex.trackerSubgraphHits(matches.front().rootParticleId).size();
+    std::size_t tightestSize = hitIndex.subgraphHits(truth::HitChannel::Tracker, matches.front().rootParticleId).size();
     for (auto const& m : matches) {
       if (m.score > best)
         break;
-      const std::size_t size = hitIndex.trackerSubgraphHits(m.rootParticleId).size();
+      const std::size_t size = hitIndex.subgraphHits(truth::HitChannel::Tracker, m.rootParticleId).size();
       if (size < tightestSize) {
         tightestSize = size;
         tightest = static_cast<int>(m.rootParticleId);
@@ -102,7 +102,8 @@ void BranchTrackerReplacementValidator::analyze(edm::Event const& event, edm::Ev
   auto const& clusterTP = event.get(clusterTPToken_);
 
   const auto tidToParticle = buildTrackIdToParticle(graph, raw);
-  truth::BranchHitAssociator assoc(hitIndex, {}, truth::BranchHitAssociator::Metric::SharedHits, /*useTracker=*/true);
+  truth::BranchHitAssociator assoc(
+      hitIndex, {}, truth::BranchHitAssociator::Metric::SharedHits, truth::HitChannel::Tracker);
 
   for (auto const& track : tracks) {
     ++nTracks_;
