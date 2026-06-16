@@ -26,6 +26,10 @@ TrackingAction::TrackingAction(SimTrackManager* stm, CMSSteppingVerbose* sv, con
       ekinMin_(p.getParameter<double>("PersistencyEmin") * CLHEP::GeV),
       ekinMinRegion_(p.getParameter<std::vector<double>>("RegionEmin")) {
   interface_ = CMSG4TrackInterface::instance();
+  // Keep the SimTrack/SimVertex history connected to the generator at a high
+  // PersistencyEmin by reattaching dropped-parent vertices to the nearest stored
+  // ancestor (no orphans), instead of lowering the threshold to keep everything.
+  trackManager_->setReconnectDroppedAncestors(p.getParameter<bool>("ReconnectDroppedAncestors"));
   double eth = p.getParameter<double>("EminFineTrack") * CLHEP::MeV;
   if (doFineCalo_ && eth < ekinMin_) {
     ekinMin_ = eth;
