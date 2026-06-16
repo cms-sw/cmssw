@@ -163,6 +163,12 @@ namespace {
   }
 
   const char* logicalVertexDomain(truth::VertexData const& d) {
+    // Artificial source vertices (Interaction / Upstream-ISR / UnderlyingEvent)
+    // have no GEN or SIM back-reference by construction; they are graph-internal
+    // bookkeeping nodes, so they get their own "Internal" domain rather than
+    // looking like an unclassified real vertex.
+    if (d.isArtificial())
+      return "Internal";
     if (d.hasGen() && !d.hasSim())
       return "GEN";
     if (!d.hasGen() && d.hasSim())

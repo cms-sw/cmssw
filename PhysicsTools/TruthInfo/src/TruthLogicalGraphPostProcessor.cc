@@ -746,17 +746,32 @@ namespace {
     std::vector<std::pair<uint32_t, uint32_t>> extraProductionEdges;  // (vertex -> particle)
     std::vector<std::pair<uint32_t, uint32_t>> extraDecayEdges;       // (particle -> vertex)
 
-    auto makeArtificialVertex = [&](uint8_t role, int32_t genEvent, uint64_t eventId) {
-      truth::VertexData vertex;
-      vertex.genNode = -1;
-      vertex.simNode = -1;
-      vertex.role = role;
-      vertex.genEvent = genEvent;
-      vertex.eventId = eventId;
+    auto makeArtificialVertex =
+        [&](uint8_t role, int32_t genEvent, uint64_t eventId, math::XYZTLorentzVectorD const& position) {
+          truth::VertexData vertex;
+          vertex.genNode = -1;
+          vertex.simNode = -1;
+          vertex.role = role;
+          vertex.genEvent = genEvent;
+          vertex.eventId = eventId;
+          vertex.position = position;
 
-      const uint32_t id = static_cast<uint32_t>(output.vertices.size());
-      output.vertices.push_back(vertex);
-      return id;
+          const uint32_t id = static_cast<uint32_t>(output.vertices.size());
+          output.vertices.push_back(vertex);
+          return id;
+        };
+
+    // The real production vertex of an attached particle is the primary
+    // interaction point of its pp collision: the Upstream (ISR) roots and the
+    // UnderlyingEvent spectators are all produced there. That vertex was dropped
+    // from the output (which is why the particle needs an artificial source), but
+    // it still carries its 4-position in `input`, so the artificial source nodes
+    // inherit the correct interaction-point 4-position instead of the origin.
+    auto productionPosition = [&input](uint32_t oldParticle) -> math::XYZTLorentzVectorD {
+      const auto prodVertices = input.productionVertices(oldParticle);
+      if (!prodVertices.empty())
+        return input.vertices[prodVertices.front()].position;
+      return math::XYZTLorentzVectorD();
     };
 
     for (uint32_t oldParticle = 0; oldParticle < nParticles; ++oldParticle) {
@@ -770,18 +785,19 @@ namespace {
 
       const int32_t genEvent = input.particles[oldParticle].genEvent;
       const uint64_t eventId = input.particles[oldParticle].eventId;
+      const math::XYZTLorentzVectorD interactionPoint = productionPosition(oldParticle);
 
       InteractionNodes& nodes = interactions[eventId];
       if (nodes.interactionVertex < 0)
-        nodes.interactionVertex = static_cast<int32_t>(
-            makeArtificialVertex(static_cast<uint8_t>(truth::VertexRole::Interaction), genEvent, eventId));
+        nodes.interactionVertex = static_cast<int32_t>(makeArtificialVertex(
+            static_cast<uint8_t>(truth::VertexRole::Interaction), genEvent, eventId, interactionPoint));
 
       int32_t& subVertex = (role == static_cast<uint8_t>(truth::VertexRole::UnderlyingEvent))
                                ? nodes.underlyingEventVertex
                                : nodes.upstreamVertex;
 
       if (subVertex < 0) {
-        subVertex = static_cast<int32_t>(makeArtificialVertex(role, genEvent, eventId));
+        subVertex = static_cast<int32_t>(makeArtificialVertex(role, genEvent, eventId, interactionPoint));
 
         // Connector particle: produced at the Interaction vertex, decays at this
         // Upstream/UnderlyingEvent sub-vertex, so the sub-vertex (and everything
