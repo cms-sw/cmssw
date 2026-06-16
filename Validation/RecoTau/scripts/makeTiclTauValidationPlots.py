@@ -1007,7 +1007,7 @@ def main():
     module = "ticlTauValidator"
 
     if args.step == 'HLT':
-        dqm_dir = f"DQMData/Run 1/HLT/Run summary/TICL/{module}"
+        dqm_dir = "DQMData/Run 1/HLT/Run summary/Tau/{module}"
     elif args.step == 'Offline':
         dqm_dir = f"DQMData/Run 1/Run summary/RecoTauV/{module}"
     else:
