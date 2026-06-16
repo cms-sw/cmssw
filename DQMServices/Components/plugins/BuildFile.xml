@@ -3,7 +3,7 @@
 <use name="DQMServices/Components"/>
 <use name="DataFormats/Histograms"/>
 <use name="DataFormats/OnlineMetaData"/>
-<use name="DataFormats/Provenance"/>
+<use name="DataFormats/Provenance" source_only="1"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>

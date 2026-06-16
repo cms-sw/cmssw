@@ -14,7 +14,7 @@
 <use name="DataFormats/HcalDigi"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/TrackReco"/>
-<use name="root"/>
+<use name="rootmathcore"/>
 <export>
   <lib name="1"/>
 </export>

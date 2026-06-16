@@ -6,6 +6,7 @@
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/DetId"/>
+<use name="rootcling"/>
 <use name="clhep"/>
 <use name="boost"/>
 <use name="boost_serialization"/>

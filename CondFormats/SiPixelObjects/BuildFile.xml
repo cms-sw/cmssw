@@ -1,3 +1,4 @@
+<use name="rootcling"/>
 <use name="alpaka"/>
 <use name="CalibFormats/SiPixelObjects"/>
 <use name="CondCore/DBOutputService"/>

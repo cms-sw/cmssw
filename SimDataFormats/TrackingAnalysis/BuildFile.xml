@@ -8,6 +8,7 @@
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/Vertex"/>
 <use name="FWCore/MessageLogger"/>
+<use name="rootcling"/>
 <use name="clhepheader"/>
 <export>
   <lib name="1"/>

@@ -1,3 +1,4 @@
+<use name="rootcling"/>
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/CLHEP"/>
 <use name="DataFormats/Common"/>
