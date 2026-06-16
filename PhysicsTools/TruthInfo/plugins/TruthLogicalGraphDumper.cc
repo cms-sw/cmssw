@@ -527,6 +527,13 @@ public:
       const HitSummary trackerSubgraphSummary =
           hasTrackerInfo ? summarizeHits(trackerSubgraphHits, recHitEnergies) : HitSummary();
 
+      // MTD (BTL/ETL) simhits from the MtdSimLayerCluster channel.
+      const bool hasMtdInfo = hasHitInfo && hitIndex->hasChannel(truth::HitChannel::MTD);
+      const HitSummary mtdDirectSummary =
+          hasMtdInfo ? summarizeHits(hitIndex->directHits(truth::HitChannel::MTD, i), recHitEnergies) : HitSummary();
+      const HitSummary mtdSubgraphSummary =
+          hasMtdInfo ? summarizeHits(hitIndex->subgraphHits(truth::HitChannel::MTD, i), recHitEnergies) : HitSummary();
+
       os << "  p" << i << " [shape=ellipse, hasCheckpoints=" << p.hasCheckpoints() << ", hasGen=" << p.hasGen()
          << ", hasSim=" << d.hasSim();
 
@@ -561,6 +568,12 @@ public:
              << ", directTrackerSimHitEnergy=" << fmtEnergy(trackerDirectSummary.simHitEnergy)
              << ", nSubgraphTrackerSimHits=" << trackerSubgraphSummary.nSimHits
              << ", subgraphTrackerSimHitEnergy=" << fmtEnergy(trackerSubgraphSummary.simHitEnergy);
+        }
+        if (hasMtdInfo) {
+          os << ", nDirectMtdSimHits=" << mtdDirectSummary.nSimHits
+             << ", directMtdSimHitEnergy=" << fmtEnergy(mtdDirectSummary.simHitEnergy)
+             << ", nSubgraphMtdSimHits=" << mtdSubgraphSummary.nSimHits
+             << ", subgraphMtdSimHitEnergy=" << fmtEnergy(mtdSubgraphSummary.simHitEnergy);
         }
         if (dumpSimHits_) {
           os << ", directHitsDetIds=\"";

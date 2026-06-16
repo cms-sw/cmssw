@@ -31,6 +31,8 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/CaloAnalysis/interface/MtdSimLayerClusterFwd.h"
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 #include "PhysicsTools/TruthInfo/interface/Graph.h"
 #include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndex.h"
@@ -120,6 +122,10 @@ private:
 
   void fillTrackerSimHits(edm::Event& event, truth::LogicalGraphHitIndexBuilder& builder) const;
 
+  // MTD (BTL/ETL): fill the MTD channel from the trackId-keyed MtdSimLayerClusters,
+  // restricted to the signal interaction (the logical graph is signal-only).
+  void fillMtdHits(edm::Event& event, truth::LogicalGraphHitIndexBuilder& builder) const;
+
   RelabelContext makeRelabelContext(edm::EventSetup const& setup) const;
 
   uint32_t recoDetIdForSimHit(PCaloHit const& simHit,
@@ -136,6 +142,8 @@ private:
 
   std::vector<edm::InputTag> trackerSimHitTags_;
   std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> trackerSimHitTokens_;
+
+  edm::EDGetTokenT<MtdSimLayerClusterCollection> mtdSimLayerClusterToken_;
 
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
 
@@ -159,6 +167,9 @@ TruthLogicalGraphHitIndexProducer::TruthLogicalGraphHitIndexProducer(edm::Parame
   for (auto const& tag : trackerSimHitTags_) {
     trackerSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
   }
+
+  mtdSimLayerClusterToken_ =
+      consumes<MtdSimLayerClusterCollection>(cfg.getParameter<edm::InputTag>("mtdSimLayerClusters"));
 
   produces<truth::LogicalGraphHitIndex>();
 }
@@ -193,6 +204,11 @@ void TruthLogicalGraphHitIndexProducer::fillDescriptions(edm::ConfigurationDescr
   desc.add<bool>("doHGCalRelabelling", true)
       ->setComment("Convert old HGCAL simulation DetIds to reco DetIds before looking up recHits");
 
+  desc.add<edm::InputTag>("mtdSimLayerClusters", edm::InputTag("mix", "MergedMtdTruthLC"))
+      ->setComment(
+          "MtdSimLayerCluster collection (BTL/ETL); keyed by SimTrack trackId via particleId(). The signal "
+          "interaction is selected by EncodedEventId; pile-up clusters are skipped.");
+
   descriptions.addWithDefaultLabel(desc);
 }
 
@@ -211,6 +227,7 @@ void TruthLogicalGraphHitIndexProducer::produce(edm::StreamID, edm::Event& event
   fillTrackToParticleMap(graphView, rawGraph, builder);
   fillSimHits(event, setup, builder, recHitMap);
   fillTrackerSimHits(event, builder);
+  fillMtdHits(event, builder);
 
   auto output = std::make_unique<truth::LogicalGraphHitIndex>(builder.finish());
   event.put(std::move(output));
@@ -412,6 +429,34 @@ void TruthLogicalGraphHitIndexProducer::fillTrackerSimHits(edm::Event& event,
       // PSimHit::trackId() is the G4 trackId of the SimTrack that made the hit,
       // the same id space used to associate calorimeter simhits to particles.
       builder.addHit(truth::HitChannel::Tracker, simHit.trackId(), simHit.detUnitId(), simHit.energyLoss());
+    }
+  }
+}
+
+void TruthLogicalGraphHitIndexProducer::fillMtdHits(edm::Event& event,
+                                                    truth::LogicalGraphHitIndexBuilder& builder) const {
+  edm::Handle<MtdSimLayerClusterCollection> hClusters;
+  event.getByToken(mtdSimLayerClusterToken_, hClusters);
+  if (!hClusters.isValid())
+    return;
+
+  for (auto const& cluster : *hClusters) {
+    // Only the signal interaction (bx 0, event 0): the logical graph is signal-only,
+    // so its trackId space matches the signal MtdSimLayerClusters; pile-up clusters
+    // (different EncodedEventId) could collide numerically and are skipped.
+    const EncodedEventId eid = cluster.eventId();
+    if (eid.bunchCrossing() != 0 || eid.event() != 0)
+      continue;
+
+    // particleId() carries the producing SimTrack trackId; hits_and_energies()
+    // returns (packed sensor-module DetId << 32 | row << 16 | col, energy). The
+    // builder coalesces per DetId, giving the module-level energy. recHitIndex is
+    // left invalid here; linking to the reco FTLCluster (via
+    // MtdRecoClusterToSimLayerClusterAssociation) is a follow-up.
+    const auto trackId = static_cast<uint32_t>(cluster.particleId());
+    for (auto const& [packedHit, energy] : cluster.hits_and_energies()) {
+      const uint32_t moduleDetId = static_cast<uint32_t>(packedHit >> 32);
+      builder.addHit(truth::HitChannel::MTD, trackId, moduleDetId, energy);
     }
   }
 }
