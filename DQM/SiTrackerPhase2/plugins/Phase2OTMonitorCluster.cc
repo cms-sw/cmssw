@@ -623,7 +623,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
     desc.add<edm::ParameterSetDescription>("PositionOfClusters_2SLadder", psd0);
   }
 
-  desc.add<std::string>("TopFolderName", "OuterTrackerP2");
+  desc.add<std::string>("TopFolderName", "OuterTracker");
   desc.add<edm::InputTag>("clusterSrc", edm::InputTag("siPhase2Clusters"));
   descriptions.add("Phase2OTMonitorCluster", desc);
 }

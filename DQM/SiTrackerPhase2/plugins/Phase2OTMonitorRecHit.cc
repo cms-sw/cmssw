@@ -462,7 +462,7 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
     psd0.add<bool>("switch", true);
     desc.add<edm::ParameterSetDescription>("LocalPositionXY_S", psd0);
   }
-  desc.add<std::string>("TopFolderName", "OuterTrackerP2");
+  desc.add<std::string>("TopFolderName", "OuterTracker");
   desc.add<bool>("Verbosity", false);
   desc.add<edm::InputTag>("rechitsSrc", edm::InputTag("siPhase2RecHits"));
   descriptions.add("Phase2OTMonitorRecHit", desc);

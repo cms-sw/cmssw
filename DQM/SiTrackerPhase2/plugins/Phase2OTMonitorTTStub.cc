@@ -476,7 +476,7 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
                             10.75);
   }
 
-  desc.add<std::string>("TopFolderName", "OuterTrackerP2");
+  desc.add<std::string>("TopFolderName", "OuterTracker");
   desc.add<edm::InputTag>("TTStubs", edm::InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"));
   descriptions.add("Phase2OTMonitorTTStub", desc);
 }

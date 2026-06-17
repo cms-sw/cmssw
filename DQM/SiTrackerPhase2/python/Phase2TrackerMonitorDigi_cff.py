@@ -4,7 +4,7 @@ from DQM.SiTrackerPhase2.Phase2TrackerMonitorDigi_cfi import *
 pixDigiMon = digiMon.clone(
     PixelPlotFillingFlag = True,
     StandAloneClusteriserFlag = False,
-    TopFolderName = "TrackerPhase2ITDigi",
+    TopFolderName = "InnerTracker",
     NumberOfDigisPerDetH = digiMon.NumberOfDigisPerDetH.clone(
         Nbins = 500,
         xmin = -0.5,
@@ -58,7 +58,7 @@ pixDigiMon = digiMon.clone(
 otDigiMon = digiMon.clone(
     PixelPlotFillingFlag = False,
     StandAloneClusteriserFlag = False,
-    TopFolderName = "OuterTrackerP2",
+    TopFolderName = "OuterTracker",
     XYPositionMapH = digiMon.XYPositionMapH.clone(
         Nxbins = 250,
         xmin = -125.,

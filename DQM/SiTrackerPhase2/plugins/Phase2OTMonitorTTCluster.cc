@@ -363,7 +363,7 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
                           0,
                           120);
 
-  desc.add<std::string>("TopFolderName", "OuterTrackerP2");
+  desc.add<std::string>("TopFolderName", "OuterTracker");
   desc.add<edm::InputTag>("TTClusters", edm::InputTag("TTClustersFromPhase2TrackerDigis", "ClusterInclusive"));
   descriptions.add("Phase2OTMonitorTTCluster", desc);
 }
