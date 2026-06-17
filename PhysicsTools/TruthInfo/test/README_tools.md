@@ -7,7 +7,8 @@ Reusable helpers for producing and inspecting truth graphs. All require `cmsenv`
 |---|---|
 | `dumpTruthGraphsFromGENSIMRECO_cfg.py` | cmsRun config: build the raw + logical truth graph from a GEN-SIM/RECO file and dump DOT (+NanoAOD rechit/simhit tables). Selection flags: `-s/--seeds`, `-g/--groups`, `-d/--parentDepth`, `-i/--ignore`, `-m/--merge`, `-c/--collapse`, `--showAll`, `-n`, `-o`, `-t`. `-s 0` keeps the full graph. |
 | `truthGraphConnectivity.py` | FWLite debugger: per-event count of weakly-connected components and how many SimTrack/SimVertex are disconnected from a generator primary (the orphans). Exits non-zero if any event has orphans. `--link {parentIndex,ancestor,combined}`. |
-| `makeTruthGallery.sh` | Build the per-process DOT/SVG gallery (full + natural-seed selection) from a relval library dir. |
+| `../python/truthGraphSelections.py` | Per-process selection presets: maps a generator fragment (or label) to one of seven archetypes (gun / resonance / vbf / ggf / top / heavyflavor / full) and returns the right `postProcessing` selection. `selectionForFragment(name, **overrides)` (dict), `postProcessingPSet(...)` (cms.PSet), `dumperArgs(...)` / CLI (`python3 truthGraphSelections.py <fragment>`) emit the dumper flags. |
+| `makeTruthGallery.sh` | Build the per-process DOT/SVG gallery (full + natural-seed selection) from a relval library dir; the per-sample selection is resolved by `truthGraphSelections.py` from each workflow's fragment. |
 | `makeBranchValidationPlots.sh` | Render the Branch DQM validation plots (overlaying a few samples) from the per-workflow harvested DQM, via `scripts/makeTruthGraphValidationPlots.py`. |
 | `runTruthRelvals.sh` | Run the 8 enableTruth Run4 D120 no-PU truth-validation workflows via `runTheMatrix`. |
 | `TruthLogicalGraphPostProcessor_t.cpp` | cppunit tests for the logical-graph postprocessing (selection, merging, collapsing). |
@@ -43,6 +44,15 @@ cmsRun dumpTruthGraphsFromGENSIMRECO_cfg.py file:step3.root -s 23 -d 1 --no-keep
 cmsRun dumpTruthGraphsFromGENSIMRECO_cfg.py file:step3.root -f 5 --no-keepSpectators
 # VBF Higgs with the tagging quarks/jets that produced it:
 cmsRun dumpTruthGraphsFromGENSIMRECO_cfg.py file:step3.root -s 25 -d 1 --keepProductionSiblings
+```
+Rather than remember the right flags per process, let `truthGraphSelections.py`
+pick them from the generator fragment (seven presets, fully overridable):
+```bash
+# the dumper flags for any fragment / label:
+python3 ../python/truthGraphSelections.py VBFHZZ4Nu_14TeV
+#  -> -s 25 -d 1 --keepSpectators --attachSources --keepProductionSiblings
+cmsRun dumpTruthGraphsFromGENSIMRECO_cfg.py file:step3.root \
+       $(python3 ../python/truthGraphSelections.py ZMM_14)
 ```
 
 ## Jet -> originating particle
