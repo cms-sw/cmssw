@@ -305,7 +305,7 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   edm::ParameterSetDescription desc;
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "NumberOfRecHits");
+    psd0.add<std::string>("name", "Num_RecHits");
     psd0.add<std::string>("title", ";Number of rechits per event;");
     psd0.add<double>("xmin", 0.0);
     psd0.add<bool>("switch", true);
@@ -370,7 +370,7 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   //Layer wise parameter
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "NumberOfRecHitsLayerP");
+    psd0.add<std::string>("name", "Num_RecHits_Layer_P");
     psd0.add<std::string>("title", "Number of RecHits per event in macro pixel sensors;");
     psd0.add<double>("xmin", 0.0);
     psd0.add<double>("xmax", 28000.0);
@@ -381,7 +381,7 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
 
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "NumberOfRecHitsLayerS");
+    psd0.add<std::string>("name", "Num_RecHits_Layer_S");
     psd0.add<std::string>("title", "Number of RecHits per event in strip sensors;");
     psd0.add<double>("xmin", 0.0);
     psd0.add<double>("xmax", 28000.0);

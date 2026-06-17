@@ -253,9 +253,6 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 
   globalRZ_S_ = phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionRZ_S"), ibooker);
 
-  numberClusters_Barrel_ =
-      phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NClusters_Barrel"), ibooker);
-
   edm::ParameterSet Parameters = config_.getParameter<edm::ParameterSet>("CrackOverview");
   if (Parameters.getParameter<bool>("switch")) {
     crackOverview_ = ibooker.book2DPoly(Parameters.getParameter<std::string>("name"),
@@ -281,6 +278,10 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 
   } else
     crackOverview_ = nullptr;
+
+  ibooker.setCurrentFolder(top_folder + "/Barrel/");
+  numberClusters_Barrel_ =
+      phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NClusters_Barrel"), ibooker);
 
   //Now book layer wise histos
   edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
@@ -416,8 +417,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   edm::ParameterSetDescription desc;
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "NumberOfOfflineClusters");
-    psd0.add<std::string>("title", "Number of offline clusters;Number of clusters per event;");
+    psd0.add<std::string>("name", "Num_Clusters");
+    psd0.add<std::string>("title", "Number of clusters;Number of clusters per event;");
     psd0.add<double>("xmin", 0.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 350000.0);
@@ -427,7 +428,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Crack_Overview_OTcluster");
-    psd0.add<std::string>("title", "Crack_Overview_offline_clusters;Module;Layer");
+    psd0.add<std::string>("title", "Crack_Overview_clusters;Module;Layer");
     psd0.add<double>("xmin", 0.0);
     psd0.add<bool>("switch", false);
     psd0.add<double>("xmax", 13.0);
@@ -437,8 +438,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Offline_Cluster_Position_XY_P");
-    psd0.add<std::string>("title", "Offline Cluster Position XY P;Cluster position x [cm];Cluster position y [cm];");
+    psd0.add<std::string>("name", "Cluster_Position_XY_P");
+    psd0.add<std::string>("title", "Cluster Position XY P;Cluster position x [cm];Cluster position y [cm];");
     psd0.add<int>("NxBins", 1250);
     psd0.add<double>("xmin", -125.0);
     psd0.add<double>("xmax", 125.0);
@@ -450,8 +451,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Offline_Cluster_Position_XY_S");
-    psd0.add<std::string>("title", "Offline Cluster Position XY S;Cluster position x [cm];Cluster position y [cm];");
+    psd0.add<std::string>("name", "Cluster_Position_XY_S");
+    psd0.add<std::string>("title", "Cluster Position XY S;Cluster position x [cm];Cluster position y [cm];");
     psd0.add<int>("NxBins", 1250);
     psd0.add<double>("xmin", -125.0);
     psd0.add<double>("xmax", 125.0);
@@ -464,8 +465,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
 
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Offline_Cluster_Position_RZ_P");
-    psd0.add<std::string>("title", "Offline Cluster Position RZ P;Cluster position z [cm];Cluster position #rho [cm]");
+    psd0.add<std::string>("name", "Cluster_Position_RZ_P");
+    psd0.add<std::string>("title", "Cluster Position RZ P;Cluster position z [cm];Cluster position #rho [cm]");
     psd0.add<int>("NxBins", 1500);
     psd0.add<double>("xmin", -300.0);
     psd0.add<double>("xmax", 300.0);
@@ -477,8 +478,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Offline_Cluster_Position_RZ_S");
-    psd0.add<std::string>("title", "Offline Cluster Position RZ S;Cluster position z [cm];Cluster position #rho [cm]");
+    psd0.add<std::string>("name", "Cluster_Position_RZ_S");
+    psd0.add<std::string>("title", "Cluster Position RZ S;Cluster position z [cm];Cluster position #rho [cm]");
     psd0.add<int>("NxBins", 1500);
     psd0.add<double>("xmin", -300.0);
     psd0.add<double>("xmax", 300.0);
@@ -490,7 +491,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "NumberOfOfflineClusters_Barrel");
+    psd0.add<std::string>("name", "Num_Clusters_Barrel");
     psd0.add<std::string>("title", "Number of clusters per Barrel Layer;Barrel Layer;Number of clusters");
     psd0.add<int>("NxBins", 7);
     psd0.add<double>("xmin", 0.5);
@@ -501,9 +502,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   //Layer wise parameter
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "NumberOfOfflineClusters_Layer_P");
-    psd0.add<std::string>("title",
-                          "Number Of Offline Clusters P Layer;Number of clusters per event (macro pixel sensor);");
+    psd0.add<std::string>("name", "Num_Clusters_Layer_P");
+    psd0.add<std::string>("title", "Number Of Clusters P Layer;Number of clusters per event (macro pixel sensor);");
     psd0.add<double>("xmin", 0.0);
     psd0.add<double>("xmax", 28000.0);
     psd0.add<int>("NxBins", 150);
@@ -512,8 +512,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "NumberOfOfflineClusters_Layer_S");
-    psd0.add<std::string>("title", "Number Of Offline Clusters S Layer;Number of clusters per event (strip sensor);");
+    psd0.add<std::string>("name", "Num_Clusters_Layer_S");
+    psd0.add<std::string>("title", "Number Of Clusters S Layer;Number of clusters per event (strip sensor);");
     psd0.add<double>("xmin", 0.0);
     psd0.add<double>("xmax", 28000.0);
     psd0.add<int>("NxBins", 150);
@@ -522,7 +522,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Offline_Cluster_Size_P");
+    psd0.add<std::string>("name", "Cluster_Size_P");
     psd0.add<std::string>("title", "Cluster Size P;Cluster size (macro pixel sensor);");
     psd0.add<double>("xmin", -0.5);
     psd0.add<double>("xmax", 30.5);
@@ -532,8 +532,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Offline_Cluster_Size_S");
-    psd0.add<std::string>("title", "Offline Cluster Size S;Cluster size (strip sensor);");
+    psd0.add<std::string>("name", "Cluster_Size_S");
+    psd0.add<std::string>("title", "Cluster Size S;Cluster size (strip sensor);");
     psd0.add<double>("xmin", -0.5);
     psd0.add<double>("xmax", 30.5);
     psd0.add<int>("NxBins", 31);
@@ -542,9 +542,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Offline_Cluster_Position_XY_perLayer_P");
-    psd0.add<std::string>("title",
-                          "Offline Cluster Position XY per Layer P;Cluster position x [cm];Cluster position y [cm];");
+    psd0.add<std::string>("name", "Cluster_Position_XY_perLayer_P");
+    psd0.add<std::string>("title", "Cluster Position XY per Layer P;Cluster position x [cm];Cluster position y [cm];");
     psd0.add<int>("NxBins", 1250);
     psd0.add<double>("xmin", -125.0);
     psd0.add<double>("xmax", 125.0);
@@ -556,9 +555,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Offline_Cluster_Position_XY_perLayer_S");
-    psd0.add<std::string>("title",
-                          "Offline Cluster Position XY per Layer S;Cluster position x [cm];Cluster position y [cm];");
+    psd0.add<std::string>("name", "Cluster_Position_XY_perLayer_S");
+    psd0.add<std::string>("title", "Cluster Position XY per Layer S;Cluster position x [cm];Cluster position y [cm];");
     psd0.add<int>("NxBins", 1250);
     psd0.add<double>("xmin", -125.0);
     psd0.add<double>("xmax", 125.0);
@@ -570,9 +568,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Offline_Cluster_Local_Position_XY_P");
-    psd0.add<std::string>("title",
-                          "Offline Cluster Local Position XY P;Cluster position x [cm];Cluster position y [cm];");
+    psd0.add<std::string>("name", "Cluster_Local_Position_XY_P");
+    psd0.add<std::string>("title", "Cluster Local Position XY P;Cluster position x [cm];Cluster position y [cm];");
     psd0.add<int>("NxBins", 25);
     psd0.add<double>("xmin", -5.0);
     psd0.add<double>("xmax", 5.0);
@@ -584,9 +581,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Offline_Cluster_Local_Position_XY_S");
-    psd0.add<std::string>("title",
-                          "Offline Cluster Local Position XY S;Cluster position x [cm];Cluster position y [cm];");
+    psd0.add<std::string>("name", "Cluster_Local_Position_XY_S");
+    psd0.add<std::string>("title", "Cluster Local Position XY S;Cluster position x [cm];Cluster position y [cm];");
     psd0.add<int>("NxBins", 25);
     psd0.add<double>("xmin", -5.0);
     psd0.add<double>("xmax", 5.0);
@@ -598,8 +594,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "PositionOfOfflineClusters_2S_module");
-    psd0.add<std::string>("title", "Positions Of Offline Clusters 2S_module;Strip;Half-module;");
+    psd0.add<std::string>("name", "Position_Clusters_2S_module");
+    psd0.add<std::string>("title", "Positions Of Clusters 2S_module;Strip;Half-module;");
     psd0.add<int>("NxBins", 1016);
     psd0.add<double>("xmin", 0.5);
     psd0.add<double>("xmax", 1016.5);
@@ -611,8 +607,8 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "PositionOfOfflineClusters_2S_Ladder");
-    psd0.add<std::string>("title", "Positions Of Offline Clusters 2S_Ladder;Module;Half-module;");
+    psd0.add<std::string>("name", "Position_Clusters_2S_Ladder");
+    psd0.add<std::string>("title", "Positions Of Clusters 2S_Ladder;Module;Half-module;");
     psd0.add<int>("NxBins", 25);
     psd0.add<double>("xmin", -12.5);
     psd0.add<double>("xmax", 12.5);
