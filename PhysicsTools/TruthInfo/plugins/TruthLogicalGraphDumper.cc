@@ -728,8 +728,9 @@ public:
       }
 
       os << "  v" << i << " [shape=diamond, domain=<" << logicalVertexDomain(d) << ">, hasGen=" << d.hasGen()
-         << ", hasSim=" << d.hasSim() << ", eid=" << d.eventId << ", genEvent=" << d.genEvent
-         << ", isSource=" << v.isSource() << ", isSink=" << v.isSink();
+         << ", hasSim=" << d.hasSim() << ", eid=" << d.eventId << ", genEvent=" << d.genEvent << ", reason=\""
+         << truth::vertexReasonName(d.vertexReason()) << "\"" << ", isSource=" << v.isSource()
+         << ", isSink=" << v.isSink();
       if (roleName != nullptr) {
         os << ", role=\"" << roleName << "\", style=filled, fillcolor=\"" << roleColor << "\"";
       } else if (d.hasGen() && d.hasSim()) {
@@ -757,6 +758,9 @@ public:
            << ")</TD></TR>\n";
 
       os << "      <TR><TD>domain: " << logicalVertexDomain(d) << "</TD></TR>\n";
+
+      if (d.vertexReason() != truth::VertexReason::Unknown)
+        os << "      <TR><TD>reason: " << truth::vertexReasonName(d.vertexReason()) << "</TD></TR>\n";
 
       if (d.eventId != 0)
         os << "      <TR><TD>eid: " << d.eventId << "</TD></TR>\n";
