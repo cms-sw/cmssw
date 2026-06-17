@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
-import os, sys, imp, re
+import os, sys, re
 
 from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process('SIM',Run3)

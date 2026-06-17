@@ -10,7 +10,7 @@
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
+import os, sys, re
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 ############################################################
