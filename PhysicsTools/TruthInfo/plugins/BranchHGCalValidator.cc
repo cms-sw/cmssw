@@ -182,7 +182,7 @@ void BranchHGCalValidator::book(DQMStore::IBooker& ib, Plots& p, std::string con
   p.selfMatchPt = ib.book1D(
       "selfmatch_pt", "Objects whose best Branch is the natural one vs p_{T};p_{T} [GeV];objects", kPtBins, 0., kPtMax);
   p.nSharingBranches = ib.book1D(
-      "n_sharing_branches", "Distinct Branches sharing >=10% of the object hits;#Branches;objects", 11, -0.5, 10.5);
+      "n_sharing_branches", "Distinct Branches sharing >=10% of the object hits;#Branches;objects", 51, -0.5, 50.5);
 }
 
 void BranchHGCalValidator::bookHistograms(DQMStore::IBooker& ib, edm::Run const&, edm::EventSetup const&) {
@@ -318,7 +318,7 @@ void BranchHGCalValidator::validate(Collection const& objects,
       for (auto const& m : matches)
         if (static_cast<double>(m.sharedEnergy) >= shareThreshold)
           ++nSharing;
-      plots.nSharingBranches->Fill(std::min<uint32_t>(nSharing, 10));
+      plots.nSharingBranches->Fill(std::min<uint32_t>(nSharing, 50));
 
       // Best Branch's purity / completeness / response vs the object.
       std::unordered_set<uint32_t> bestDetIds;
