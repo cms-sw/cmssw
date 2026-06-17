@@ -31,10 +31,12 @@ ROOT.gErrorIgnoreLevel = ROOT.kWarning
 FOLDERS = [
     ("Tracking/BranchValidator/TrackingParticle", "Branch vs TrackingParticle", {
         "ratios": {
-            "efficiency_eta": ("effnum_eta", "denom_eta", "Branch reproduces TP"),
-            "efficiency_pt": ("effnum_pt", "denom_pt", "Branch reproduces TP"),
+            # For tracking the self-match rate IS the reproduction efficiency
+            # (best Branch == the TP's natural Branch).
+            "efficiency_eta": ("effnum_eta", "denom_eta", "Branch reproduces TP / self-match"),
+            "efficiency_pt": ("effnum_pt", "denom_pt", "Branch reproduces TP / self-match"),
         },
-        "dists": ["completeness_hits", "shared_hits"],
+        "dists": ["completeness_hits", "shared_hits", "n_sharing_branches"],
     }),
     ("Tracking/BranchValidator/recoTrack", "Reco track vs Branch", {
         "ratios": {
@@ -60,16 +62,24 @@ FOLDERS = [
             "efficiency_eta": ("effnum_eta", "denom_eta", "Branch reproduces CP"),
             "efficiency_pt": ("effnum_pt", "denom_pt", "Branch reproduces CP"),
             "efficiency_energy": ("effnum_energy", "denom_energy", "Branch reproduces CP"),
+            "selfmatchrate_eta": ("selfmatch_eta", "denom_eta", "best Branch is the natural one"),
+            "selfmatchrate_pt": ("selfmatch_pt", "denom_pt", "best Branch is the natural one"),
         },
-        "dists": ["purity", "completeness_hits", "completeness_energy", "energy_response"],
+        "dists": ["purity", "completeness_hits", "completeness_energy", "energy_response",
+                  "bestmatch_purity", "bestmatch_completeness_hits", "bestmatch_completeness_energy",
+                  "bestmatch_response", "n_sharing_branches"],
     }),
     ("HGCAL/BranchValidator/SimCluster", "Branch vs SimCluster", {
         "ratios": {
             "efficiency_eta": ("effnum_eta", "denom_eta", "Branch reproduces SC"),
             "efficiency_pt": ("effnum_pt", "denom_pt", "Branch reproduces SC"),
             "efficiency_energy": ("effnum_energy", "denom_energy", "Branch reproduces SC"),
+            "selfmatchrate_eta": ("selfmatch_eta", "denom_eta", "best Branch is the natural one"),
+            "selfmatchrate_pt": ("selfmatch_pt", "denom_pt", "best Branch is the natural one"),
         },
-        "dists": ["purity", "completeness_hits", "completeness_energy", "energy_response"],
+        "dists": ["purity", "completeness_hits", "completeness_energy", "energy_response",
+                  "bestmatch_purity", "bestmatch_completeness_hits", "bestmatch_completeness_energy",
+                  "bestmatch_response", "n_sharing_branches"],
     }),
 ]
 

@@ -16,6 +16,7 @@
 // DQM form of BranchTrackerReplacementValidator and sits alongside the standard
 // tracking validation so the two truth descriptions can be compared.
 
+#include <algorithm>
 #include <cstdint>
 #include <span>
 #include <string>
@@ -59,11 +60,15 @@ private:
     MonitorElement* denomPt = nullptr;
     MonitorElement* effNumEta = nullptr;
     MonitorElement* effNumPt = nullptr;
-    // Quality distributions for the best branch match.
+    // Quality distributions for the best branch match. (For tracking the best-match
+    // Branch performance is exactly these, and the self-match rate is the efficiency
+    // above: effnum = best Branch is the TrackingParticle's natural Branch.)
     MonitorElement* completenessHits = nullptr;
     MonitorElement* sharedHits = nullptr;
     MonitorElement* completenessVsEta = nullptr;
     MonitorElement* completenessVsPt = nullptr;
+    // Merge/split: distinct Branches sharing >=10% of the track's hits.
+    MonitorElement* nSharingBranches = nullptr;
   };
 
   const edm::EDGetTokenT<truth::Graph> graphToken_;
@@ -121,6 +126,8 @@ void BranchTrackingValidator::bookHistograms(DQMStore::IBooker& ib, edm::Run con
                                            kPtMax,
                                            0.,
                                            1.05);
+  plots_.nSharingBranches = ib.book1D(
+      "n_sharing_branches", "Distinct Branches sharing >=10% of the track hits;#Branches;tracks", 11, -0.5, 10.5);
 }
 
 namespace {
@@ -195,8 +202,11 @@ void BranchTrackingValidator::analyze(edm::Event const& event, edm::EventSetup c
       }
     }
     BestMatch branch;
-    if (!trackHits.empty())
-      branch = tightestBest(assoc.bestBranches(std::span<const truth::RecoHit>(trackHits)), hitIndex);
+    std::vector<truth::BranchMatch> matches;
+    if (!trackHits.empty()) {
+      matches = assoc.bestBranches(std::span<const truth::RecoHit>(trackHits));
+      branch = tightestBest(matches, hitIndex);
+    }
 
     // TP side: shared clusters via ClusterTPAssociation -> dominant TP -> particle.
     auto clusters = track_associator::hitsToClusterRefs(track.recHitsBegin(), track.recHitsEnd());
@@ -234,6 +244,16 @@ void BranchTrackingValidator::analyze(edm::Event const& event, edm::EventSetup c
       plots_.sharedHits->Fill(branch.sharedHits);
       plots_.completenessVsEta->Fill(eta, completeness);
       plots_.completenessVsPt->Fill(pt, completeness);
+    }
+
+    // Merge/split: distinct Branches sharing >=10% of the track's hits.
+    if (nTrackHits > 0) {
+      const double shareThreshold = 0.1 * static_cast<double>(nTrackHits);
+      uint32_t nSharing = 0;
+      for (auto const& m : matches)
+        if (static_cast<double>(m.sharedEnergy) >= shareThreshold)
+          ++nSharing;
+      plots_.nSharingBranches->Fill(std::min<uint32_t>(nSharing, 10));
     }
 
     if (branch.particle == expectedParticle) {

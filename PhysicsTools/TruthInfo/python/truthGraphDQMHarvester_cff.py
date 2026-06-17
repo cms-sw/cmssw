@@ -15,6 +15,10 @@ _branchEfficiency = cms.vstring(
     "efficiency_eta 'Branch reproduction efficiency vs #eta;#eta;efficiency' effnum_eta denom_eta",
     "efficiency_pt 'Branch reproduction efficiency vs p_{T};p_{T} [GeV];efficiency' effnum_pt denom_pt",
     "efficiency_energy 'Branch reproduction efficiency vs E;E [GeV];efficiency' effnum_energy denom_energy",
+    # "Other way around": fraction of objects whose best hit-matched Branch is the
+    # natural (trackId-seeded) one, from the validator's selfmatch_* numerators.
+    "selfmatchrate_eta 'Best Branch is the natural one vs #eta;#eta;self-match rate' selfmatch_eta denom_eta",
+    "selfmatchrate_pt 'Best Branch is the natural one vs p_{T};p_{T} [GeV];self-match rate' selfmatch_pt denom_pt",
 )
 
 branchHGCalPostProcessor = DQMEDHarvester(

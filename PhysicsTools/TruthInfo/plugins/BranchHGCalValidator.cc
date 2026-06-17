@@ -13,6 +13,7 @@
 // directly. These sit alongside the standard SimTrackster/CaloParticle plots so
 // the two truth descriptions can be compared in the same DQM output.
 
+#include <algorithm>
 #include <cstdint>
 #include <span>
 #include <string>
@@ -68,6 +69,18 @@ private:
     MonitorElement* completenessVsEta = nullptr;
     MonitorElement* responseVsEta = nullptr;
     MonitorElement* responseVsEnergy = nullptr;
+
+    // "Other way around": for each truth object, its best hit-matched Branch (which
+    // need not be the natural, trackId-seeded one) and that Branch's performance.
+    MonitorElement* bestPurity = nullptr;
+    MonitorElement* bestCompletenessHits = nullptr;
+    MonitorElement* bestCompletenessEnergy = nullptr;
+    MonitorElement* bestResponse = nullptr;
+    // Self-match numerator: best hit-matched Branch == natural Branch (denom reused).
+    MonitorElement* selfMatchEta = nullptr;
+    MonitorElement* selfMatchPt = nullptr;
+    // Merge/split: distinct Branches sharing >=10% of the object's hits.
+    MonitorElement* nSharingBranches = nullptr;
   };
 
   void book(DQMStore::IBooker&, Plots&, std::string const& sub);
@@ -155,6 +168,21 @@ void BranchHGCalValidator::book(DQMStore::IBooker& ib, Plots& p, std::string con
                                       kEMax,
                                       0.,
                                       1.5);
+
+  // Best hit-matched Branch per object (the "other way around" view).
+  p.bestPurity = ib.book1D("bestmatch_purity", "Best-match Branch hit purity;purity;objects", 52, -0.01, 1.03);
+  p.bestCompletenessHits = ib.book1D(
+      "bestmatch_completeness_hits", "Best-match Branch hit completeness;completeness;objects", 52, -0.01, 1.03);
+  p.bestCompletenessEnergy = ib.book1D(
+      "bestmatch_completeness_energy", "Best-match Branch energy completeness;completeness;objects", 52, -0.01, 1.03);
+  p.bestResponse = ib.book1D(
+      "bestmatch_response", "Best-match Branch sim-energy containment;E^{sim}_{Branch}/E_{gen};objects", 60, 0., 1.5);
+  p.selfMatchEta = ib.book1D(
+      "selfmatch_eta", "Objects whose best Branch is the natural one vs #eta;#eta;objects", kEtaBins, -kEtaMax, kEtaMax);
+  p.selfMatchPt = ib.book1D(
+      "selfmatch_pt", "Objects whose best Branch is the natural one vs p_{T};p_{T} [GeV];objects", kPtBins, 0., kPtMax);
+  p.nSharingBranches = ib.book1D(
+      "n_sharing_branches", "Distinct Branches sharing >=10% of the object hits;#Branches;objects", 11, -0.5, 10.5);
 }
 
 void BranchHGCalValidator::bookHistograms(DQMStore::IBooker& ib, edm::Run const&, edm::EventSetup const&) {
@@ -275,6 +303,43 @@ void BranchHGCalValidator::validate(Collection const& objects,
         plots.effNumPt->Fill(pt);
         plots.effNumEnergy->Fill(energy);
       }
+
+      // --- "Other way around": the best hit-matched Branch's own performance. ---
+      // Self-match: the best Branch is the natural (trackId-seeded) one.
+      if (tightest == particleId) {
+        plots.selfMatchEta->Fill(eta);
+        plots.selfMatchPt->Fill(pt);
+      }
+
+      // Merge/split: how many distinct Branches share >=10% of the object's hits.
+      // For the SharedHits metric, BranchMatch::sharedEnergy is the shared-cell count.
+      const double shareThreshold = 0.1 * static_cast<double>(hitsAndFractions.size());
+      uint32_t nSharing = 0;
+      for (auto const& m : matches)
+        if (static_cast<double>(m.sharedEnergy) >= shareThreshold)
+          ++nSharing;
+      plots.nSharingBranches->Fill(std::min<uint32_t>(nSharing, 10));
+
+      // Best Branch's purity / completeness / response vs the object.
+      std::unordered_set<uint32_t> bestDetIds;
+      double bestBranchEnergy = 0.;
+      for (auto const& hit : hitIndex.subgraphHits(truth::HitChannel::HGCalCalo, tightest)) {
+        bestDetIds.insert(hit.detId);
+        bestBranchEnergy += hit.energy;
+      }
+      uint32_t bestShared = 0;
+      double bestSharedFraction = 0.;
+      for (auto const& [detId, fraction] : hitsAndFractions) {
+        if (bestDetIds.count(detId)) {
+          ++bestShared;
+          bestSharedFraction += fraction;
+        }
+      }
+      plots.bestPurity->Fill(bestDetIds.empty() ? 0. : static_cast<double>(bestShared) / bestDetIds.size());
+      plots.bestCompletenessHits->Fill(static_cast<double>(bestShared) / hitsAndFractions.size());
+      plots.bestCompletenessEnergy->Fill(totalFraction > 0. ? bestSharedFraction / totalFraction : 0.);
+      if (energy > 0.)
+        plots.bestResponse->Fill(bestBranchEnergy / energy);
     }
   }
 }
