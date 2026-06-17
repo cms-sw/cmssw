@@ -376,6 +376,7 @@ public:
     out->eventId.assign(nNodes, 0);
     out->statusFlags.assign(nNodes, 0);
     out->genEventOfNode.assign(nNodes, -1);
+    out->simVertexProcessType.assign(nNodes, 0);
 
     out->simTrackToGen.assign(nNodes, -1);
     out->simTrackToVtx.assign(nNodes, -1);
@@ -454,6 +455,7 @@ public:
 
       out->nodes[nodeId] = TruthGraph::NodeRef{TruthGraph::NodeKind::SimVertex, static_cast<int64_t>(i)};
       out->eventId[nodeId] = packEventId(simVertices[i].eventId());
+      out->simVertexProcessType[nodeId] = static_cast<uint16_t>(simVertices[i].processType());
     }
 
     std::unordered_map<uint32_t, uint32_t> simTrackIdToNode;

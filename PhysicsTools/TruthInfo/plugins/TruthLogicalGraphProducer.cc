@@ -757,6 +757,10 @@ public:
         } else if (ref.kind == TruthGraph::NodeKind::SimVertex) {
           v.simNode = static_cast<int32_t>(nodeId);
 
+          // Physical reason this vertex exists, from the SimVertex G4 process subtype.
+          // For GEN+SIM merged vertices the SIM side is the one that carries it.
+          v.reason = static_cast<uint8_t>(truth::reasonFromG4ProcessSubType(raw.nodeProcessType(nodeId)));
+
           if (v.eventId == 0)
             v.eventId = raw.nodeEventId(nodeId);
 

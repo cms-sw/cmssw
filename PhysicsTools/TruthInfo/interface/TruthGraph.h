@@ -59,6 +59,12 @@ public:
 
   std::vector<int32_t> genEventOfNode;  // -1 for SIM; for GEN nodes = component id
 
+  // Geant4 process *subtype* (G4VProcess::GetProcessSubType()) of the creator
+  // process of the SimVertex's outgoing particles - the physical reason the vertex
+  // exists (e.g. 2 = ionisation/delta-ray, 3 = bremsstrahlung, 14 = pair conversion,
+  // 121 = hadronic inelastic, 201 = decay). 0 for primaries and non-SimVertex nodes.
+  std::vector<uint16_t> simVertexProcessType;
+
   // Associations (nodeId -> nodeId). Only meaningful for SimTrack nodes.
   // -1 means "no association".
   std::vector<int32_t> simTrackToGen;  // SimTrack nodeId -> GenParticle nodeId
@@ -95,6 +101,10 @@ public:
   int16_t nodeStatus(uint32_t nodeId) const { return (nodeId < status.size()) ? status[nodeId] : 0; }
   uint16_t nodeStatusFlags(uint32_t nodeId) const { return (nodeId < statusFlags.size()) ? statusFlags[nodeId] : 0; }
   uint64_t nodeEventId(uint32_t nodeId) const { return (nodeId < eventId.size()) ? eventId[nodeId] : 0ull; }
+
+  uint16_t nodeProcessType(uint32_t nodeId) const {
+    return (nodeId < simVertexProcessType.size()) ? simVertexProcessType[nodeId] : 0;
+  }
 
   int32_t nodeSimTrackToGen(uint32_t nodeId) const {
     return (nodeId < simTrackToGen.size()) ? simTrackToGen[nodeId] : -1;
