@@ -14,6 +14,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "PhysicsTools/TruthInfo/interface/Graph.h"
 #include "PhysicsTools/TruthInfo/interface/TruthLogicalGraphPostProcessor.h"
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 namespace {
 
@@ -293,6 +294,7 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testHitlessSimSubgraphsAreDropped);
   CPPUNIT_TEST(testAttachSelectionSourcesFalseRootsSeedsDirectly);
   CPPUNIT_TEST(testEventIdKeyingSplitsInteractions);
+  CPPUNIT_TEST(testSignalOnlyAndBunchCrossingFilterDropPileup);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -317,6 +319,7 @@ public:
   void testHitlessSimSubgraphsAreDropped();
   void testAttachSelectionSourcesFalseRootsSeedsDirectly();
   void testEventIdKeyingSplitsInteractions();
+  void testSignalOnlyAndBunchCrossingFilterDropPileup();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestTruthLogicalGraphPostProcessor);
@@ -1606,6 +1609,78 @@ void TestTruthLogicalGraphPostProcessor::testEventIdKeyingSplitsInteractions() {
     }
     CPPUNIT_ASSERT(sawSignal);
     CPPUNIT_ASSERT(sawPileup);
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testSignalOnlyAndBunchCrossingFilterDropPileup() {
+  try {
+    // Signal Z -> mu+ mu- (eid 0) plus an out-of-time pile-up Z -> mu+ mu- (bx 1).
+    // The pile-up filter is orthogonal to the seed selection, so it composes here
+    // with seedPdgIds = {23}.
+    const uint64_t pileupEid = EncodedEventId(1, 0).rawId();  // out-of-time pile-up (bunchCrossing 1)
+
+    auto buildGraph = [&]() {
+      GraphBuilder builder(8, 4);
+      builder.setGenParticle(0, 1, 2, 100);   // q (signal)
+      builder.setGenParticle(1, 23, 2, 101);  // Z (signal)
+      builder.setGenSimParticle(2, -13, 1, 102, 1002);
+      builder.setGenSimParticle(3, 13, 1, 103, 1003);
+      builder.setGenParticle(4, 1, 2, 104);   // q (pile-up)
+      builder.setGenParticle(5, 23, 2, 105);  // Z (pile-up)
+      builder.setGenSimParticle(6, -13, 1, 106, 1006);
+      builder.setGenSimParticle(7, 13, 1, 107, 1007);
+      for (const uint32_t i : {4u, 5u, 6u, 7u})
+        builder.graph.particles[i].eventId = pileupEid;
+
+      builder.setGenVertex(0, 200);
+      builder.setGenSimVertex(1, 201, 2001);
+      builder.setGenVertex(2, 202);
+      builder.setGenSimVertex(3, 203, 2003);
+      builder.addDecay(0, 0);
+      builder.addProduction(0, 1);
+      builder.addDecay(1, 1);
+      builder.addProduction(1, 2);
+      builder.addProduction(1, 3);
+      builder.addDecay(4, 2);
+      builder.addProduction(2, 5);
+      builder.addDecay(5, 3);
+      builder.addProduction(3, 6);
+      builder.addProduction(3, 7);
+      return builder.finish();
+    };
+
+    // (a) No filter: both interactions are kept.
+    {
+      auto config = defaultConfig();
+      config.seedPdgIds = {23};
+      auto output = runPostProcessing(buildGraph(), config);
+      CPPUNIT_ASSERT(output.isConsistent());
+      CPPUNIT_ASSERT_EQUAL(uint32_t(2), countParticlesWithPdgId(output, 23));
+    }
+
+    // (b) signalOnly: only the signal Z survives, the pile-up is dropped.
+    {
+      auto config = defaultConfig();
+      config.seedPdgIds = {23};
+      config.signalOnly = true;
+      auto output = runPostProcessing(buildGraph(), config);
+      CPPUNIT_ASSERT(output.isConsistent());
+      CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));
+      CPPUNIT_ASSERT_EQUAL(uint32_t(0), countParticlesWithPdgId(output, 1));  // the pile-up q is gone too
+    }
+
+    // (c) keepBunchCrossings = {0}: the out-of-time (bx 1) pile-up is dropped.
+    {
+      auto config = defaultConfig();
+      config.seedPdgIds = {23};
+      config.keepBunchCrossings = {0};
+      auto output = runPostProcessing(buildGraph(), config);
+      CPPUNIT_ASSERT(output.isConsistent());
+      CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));
+    }
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);

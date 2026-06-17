@@ -38,7 +38,9 @@ def _selection(seedPdgIds=(0,),
                decayPdgIdGroups=(),
                keepStableSpectators=True,
                attachSelectionSources=True,
-               keepProductionSiblings=False):
+               keepProductionSiblings=False,
+               signalOnly=False,
+               keepBunchCrossings=()):
     """A full postProcessing selection dict with sensible build-side defaults."""
     return dict(
         seedPdgIds=[int(p) for p in seedPdgIds],
@@ -48,6 +50,9 @@ def _selection(seedPdgIds=(0,),
         keepStableSpectators=bool(keepStableSpectators),
         attachSelectionSources=bool(attachSelectionSources),
         keepProductionSiblings=bool(keepProductionSiblings),
+        # Pile-up filter (orthogonal to the preset; off by default = keep all bx).
+        signalOnly=bool(signalOnly),
+        keepBunchCrossings=[int(b) for b in keepBunchCrossings],
     )
 
 
@@ -166,6 +171,8 @@ def postProcessingPSet(name=None, template=None, **overrides):
         keepStableSpectators=cms.bool(s["keepStableSpectators"]),
         attachSelectionSources=cms.bool(s["attachSelectionSources"]),
         keepProductionSiblings=cms.bool(s["keepProductionSiblings"]),
+        signalOnly=cms.bool(s["signalOnly"]),
+        keepBunchCrossings=cms.vint32(*s["keepBunchCrossings"]),
         decayPdgIdGroups=cms.VPSet(*[cms.PSet(pdgIds=cms.vint32(*g)) for g in s["decayPdgIdGroups"]]),
         ignoredPdgIds=cms.vint32(*overrides.get("ignoredPdgIds", [])),
         ignoredParticleIds=cms.vuint32(*overrides.get("ignoredParticleIds", [])),
@@ -189,6 +196,10 @@ def dumperArgs(name=None, template=None, **overrides):
     args.append("--attachSources" if s["attachSelectionSources"] else "--no-attachSources")
     if s["keepProductionSiblings"]:
         args.append("--keepProductionSiblings")
+    if s["signalOnly"]:
+        args.append("--signal-only")
+    if s["keepBunchCrossings"]:
+        args += ["--bunch-crossings", ",".join(str(b) for b in s["keepBunchCrossings"])]
     return args
 
 

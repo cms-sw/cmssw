@@ -8,6 +8,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <map>
 #include <queue>
 #include <unordered_map>
@@ -15,6 +16,7 @@
 #include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 namespace {
 
@@ -525,6 +527,46 @@ namespace {
     }
   }
 
+  // Decode a particle's packed EncodedEventId (mirror of TruthGraphProducer::
+  // packEventId, which memcpys the EncodedEventId bytes into the low word).
+  EncodedEventId decodeEventId(uint64_t packedEventId) {
+    uint32_t raw = 0;
+    std::memcpy(&raw, &packedEventId, sizeof(raw));
+    return EncodedEventId(raw);
+  }
+
+  // Pile-up filter (orthogonal to the seed selection): drop already-kept particles
+  // by the provenance of their pp collision. signalOnly keeps only (bx 0, event 0);
+  // a non-empty keepBunchCrossings keeps only the listed bunch crossings; the two
+  // AND. A no-op when both are unset (every particle is signal in a no-PU sample).
+  void applyBunchCrossingFilter(truth::Graph const& graph,
+                                bool signalOnly,
+                                std::vector<int32_t> const& keepBunchCrossings,
+                                std::vector<uint8_t>& keepParticle,
+                                std::vector<uint8_t>& stableSpectator) {
+    if (!signalOnly && keepBunchCrossings.empty())
+      return;
+
+    for (uint32_t particleId = 0; particleId < graph.nParticles(); ++particleId) {
+      if (!keepParticle[particleId])
+        continue;
+
+      const EncodedEventId eid = decodeEventId(graph.particles[particleId].eventId);
+
+      bool keep = true;
+      if (signalOnly)
+        keep = eid.bunchCrossing() == 0 && eid.event() == 0;
+      if (keep && !keepBunchCrossings.empty())
+        keep = std::find(keepBunchCrossings.begin(), keepBunchCrossings.end(), eid.bunchCrossing()) !=
+               keepBunchCrossings.end();
+
+      if (!keep) {
+        keepParticle[particleId] = 0;
+        stableSpectator[particleId] = 0;
+      }
+    }
+  }
+
   // Restrict matches to the most upstream ones: a match that is a strict
   // descendant of another match is covered by that match's subgraph and is not
   // an independent root. Single multi-source downstream BFS, O(V + E).
@@ -963,6 +1005,10 @@ namespace {
       }
     }
 
+    // Drop pile-up (or out-of-bunch) particles by their EncodedEventId, after the
+    // seed selection so it composes with any preset. No-op unless configured.
+    applyBunchCrossingFilter(input, config.signalOnly, config.keepBunchCrossings, keepParticle, stableSpectator);
+
     dropVerticesWithoutVisibleParticles(input, keepParticle, keepVertex);
 
     // Assign an artificial-source role to every kept particle whose real
@@ -1248,6 +1294,16 @@ namespace truth {
             "Higgs - which are siblings of the seed, not ancestors, so seedParentDepth never reaches them. Only "
             "meaningful when a selection is active.");
 
+    desc.add<bool>("signalOnly", false)
+        ->setComment(
+            "Pile-up filter: if true, keep only the signal interaction (EncodedEventId bunchCrossing 0 and event 0), "
+            "dropping all pile-up. Orthogonal to the seed selection (composes with any preset).");
+
+    desc.add<std::vector<int32_t>>("keepBunchCrossings", {})
+        ->setComment(
+            "Pile-up filter: if non-empty, keep only particles whose EncodedEventId bunchCrossing is in this list "
+            "(e.g. {0} = in-time only). Empty keeps all bunch crossings; AND-ed with signalOnly.");
+
     {
       edm::ParameterSetDescription groupDesc;
       groupDesc.add<std::vector<int32_t>>("pdgIds", {})
@@ -1286,6 +1342,8 @@ namespace truth {
     config.keepStableSpectators = pset.getParameter<bool>("keepStableSpectators");
     config.attachSelectionSources = pset.getParameter<bool>("attachSelectionSources");
     config.keepProductionSiblings = pset.getParameter<bool>("keepProductionSiblings");
+    config.signalOnly = pset.getParameter<bool>("signalOnly");
+    config.keepBunchCrossings = pset.getParameter<std::vector<int32_t>>("keepBunchCrossings");
 
     for (auto const& groupPSet : pset.getParameter<std::vector<edm::ParameterSet>>("decayPdgIdGroups")) {
       config.decayPdgIdGroups.push_back(groupPSet.getParameter<std::vector<int32_t>>("pdgIds"));

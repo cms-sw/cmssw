@@ -76,6 +76,19 @@ namespace truth {
     // Only meaningful when a selection (seedPdgIds/seedHadronFlavors/...) is active.
     bool keepProductionSiblings = false;
 
+    // Pile-up filter (orthogonal to the seed selection): each particle carries the
+    // EncodedEventId of its pp collision - (0,0) for the signal, (bunchCrossing,
+    // pileupIndex) for pile-up. These drop particles by that provenance *after* the
+    // selection, so they compose with any seed preset.
+    //
+    // If true, keep only the signal interaction (bunchCrossing 0 and event 0),
+    // dropping all pile-up. Default false (keep every interaction).
+    bool signalOnly = false;
+
+    // If non-empty, keep only particles whose bunchCrossing is in this list (e.g.
+    // {0} = in-time only). Empty = keep all bunch crossings. AND-ed with signalOnly.
+    std::vector<int32_t> keepBunchCrossings;
+
     // Decay patterns of interest. Each group is an unordered, charge-sensitive
     // multiset of PDG ids; groups are OR-ed.
     //

@@ -40,6 +40,12 @@ parser.add_argument("--keepProductionSiblings", action=BooleanOptionalAction, de
                     help="also keep the seed's hard-scatter co-products (the other outgoing particles of its "
                          "production vertex and their subtrees), e.g. the VBF tagging quarks/jets recoiling against "
                          "the Higgs - siblings of the seed that seedParentDepth never reaches" )
+parser.add_argument("--signal-only", dest='signalOnly', action=BooleanOptionalAction, default=False,
+                    help="pile-up filter: keep only the signal interaction (EncodedEventId bx 0, event 0), dropping "
+                         "all pile-up; orthogonal to the seed selection" )
+parser.add_argument("--bunch-crossings", dest='bunchCrossings', default=None,
+                    help="pile-up filter: comma-separated bunch crossings to keep, e.g. '0' for in-time only "
+                         "(default: keep all)" )
 parser.add_argument("--showAll", action='store_true',
                     help="do not hide zero-simhit subgraphs or large SIM source vertices in the logical DOT dump" )
 args = parser.parse_args()
@@ -51,6 +57,7 @@ seedPdgIds = _parsePdgIds(args.seeds) if args.seeds is not None else [23, 15, -1
 decayPdgIdGroups = [_parsePdgIds(group) for group in args.groups.split(';')] if args.groups else []
 ignoredPdgIds = _parsePdgIds(args.ignore) if args.ignore else []
 seedHadronFlavors = _parsePdgIds(args.flavors) if args.flavors else []
+keepBunchCrossings = _parsePdgIds(args.bunchCrossings) if args.bunchCrossings else []
 if '/' not in args.inputFile and ':' not in args.inputFile:
     args.inputFile = 'file:'+args.inputFile
 if args.outdir and not os.path.exists(args.outdir):
@@ -147,6 +154,12 @@ process.truthLogicalGraphProducer = cms.EDProducer(
         # production vertex and their subtrees), e.g. the VBF tagging quarks
         # that become forward jets; --keepProductionSiblings to enable.
         keepProductionSiblings=cms.bool(args.keepProductionSiblings),
+
+        # Pile-up filter (orthogonal to the seed selection): --signal-only keeps
+        # only the signal interaction (EncodedEventId bx 0, event 0); a non-empty
+        # --bunch-crossings keeps only the listed bunch crossings (e.g. 0 = in-time).
+        signalOnly=cms.bool(args.signalOnly),
+        keepBunchCrossings=cms.vint32(*keepBunchCrossings),
 
         # Decay patterns of interest: unordered, charge-sensitive PDG id
         # multisets, OR-ed. With seedPdgIds set, only roots whose effective
