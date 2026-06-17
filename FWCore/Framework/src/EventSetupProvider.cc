@@ -44,7 +44,7 @@ namespace edm {
           dataProviders_(new std::vector<std::shared_ptr<ESProductResolverProvider>>()),
           recordToPreferred_(new std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription>>) {}
 
-    EventSetupProvider::~EventSetupProvider() { forceCacheClear(); }
+    EventSetupProvider::~EventSetupProvider() {}
 
     std::shared_ptr<EventSetupRecordProvider>& EventSetupProvider::recordProvider(const EventSetupRecordKey& iKey) {
       auto lb = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), iKey);
@@ -362,14 +362,6 @@ namespace edm {
       recProvider->resetResolvers();
       for (auto& d : dependents) {
         d->resetResolvers();
-      }
-    }
-
-    void EventSetupProvider::forceCacheClear() {
-      for (auto& recProvider : recordProviders_) {
-        if (recProvider) {
-          recProvider->resetResolvers();
-        }
       }
     }
 

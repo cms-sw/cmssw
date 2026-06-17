@@ -77,9 +77,6 @@ namespace edm {
       ///Used when we need to force a Record to reset all its resolvers
       void resetRecordPlusDependentRecords(EventSetupRecordKey const&);
 
-      ///Used when testing that all code properly updates on IOV changes of all Records
-      void forceCacheClear();
-
       void updateLookup();
 
       void clearInitializationData();

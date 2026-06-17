@@ -797,49 +797,6 @@ TEST_CASE("ESProducer", "[Framework][EventSetup]") {
 
   SECTION("failMultipleRegistration") { REQUIRE_THROWS_AS(MultiRegisterProducer(), cms::Exception); }
 
-  SECTION("forceCacheClearTest") {
-    SynchronousEventSetupsController controller;
-    edm::ParameterSet pset = createDummyPset();
-    EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
-
-    provider.add(std::make_shared<Test1Producer>());
-
-    auto pFinder = std::make_shared<DummyFinder>();
-    provider.add(std::shared_ptr<EventSetupRecordIntervalFinder>(pFinder));
-
-    const edm::Timestamp time(1);
-    pFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(time), edm::IOVSyncValue(time)));
-    controller.eventSetupForInstance(edm::IOVSyncValue(time));
-    {
-      DummyDataConsumer<DummyRecord> consumer;
-      consumer.updateLookup(provider.recordsToResolverIndices());
-      consumer.prefetch(provider.eventSetupImpl());
-      edm::ESParentContext parentC;
-      const edm::EventSetup eventSetup(provider.eventSetupImpl(),
-                                       static_cast<unsigned int>(edm::Transition::Event),
-                                       consumer.esGetTokenIndices(edm::Transition::Event),
-                                       parentC);
-      edm::ESHandle<DummyData> pDummy = eventSetup.getHandle(consumer.m_token);
-      REQUIRE(0 != pDummy.product());
-      REQUIRE(1 == pDummy->value_);
-    }
-    provider.forceCacheClear();
-    controller.eventSetupForInstance(edm::IOVSyncValue(time));
-    {
-      DummyDataConsumer<DummyRecord> consumer;
-      consumer.updateLookup(provider.recordsToResolverIndices());
-      consumer.prefetch(provider.eventSetupImpl());
-      edm::ESParentContext parentC;
-      const edm::EventSetup eventSetup2(provider.eventSetupImpl(),
-                                        static_cast<unsigned int>(edm::Transition::Event),
-                                        consumer.esGetTokenIndices(edm::Transition::Event),
-                                        parentC);
-      edm::ESHandle<DummyData> pDummy = eventSetup2.getHandle(consumer.m_token);
-      REQUIRE(0 != pDummy.product());
-      REQUIRE(2 == pDummy->value_);
-    }
-  }
-
   SECTION("productResolverProviderTest") {
     TestESProductResolverProvider productResolverProvider;
     EventSetupRecordKey dummyRecordKey = EventSetupRecordKey::makeKey<DummyRecord>();
