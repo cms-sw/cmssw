@@ -66,6 +66,8 @@ std::optional<truth::Checkpoint> truth::Particle::checkpoint(uint32_t checkpoint
 
 uint16_t truth::Particle::statusFlags() const { return data().statusFlags; }
 
+bool truth::Particle::backscattered() const { return data().backscattered; }
+
 bool truth::Particle::isRoot() const { return valid() && graph_->productionVertices(id_).empty(); }
 
 bool truth::Particle::isLeaf() const { return valid() && graph_->decayVertices(id_).empty(); }

@@ -65,6 +65,10 @@ public:
   // 121 = hadronic inelastic, 201 = decay). 0 for primaries and non-SimVertex nodes.
   std::vector<uint16_t> simVertexProcessType;
 
+  // 1 for SimTrack nodes Geant4 flagged as back-scattered (SimTrack::isFromBack-
+  // Scattering, the Tracker<->CALO inward albedo); 0 otherwise / non-SimTrack nodes.
+  std::vector<uint8_t> simTrackBackscattered;
+
   // Associations (nodeId -> nodeId). Only meaningful for SimTrack nodes.
   // -1 means "no association".
   std::vector<int32_t> simTrackToGen;  // SimTrack nodeId -> GenParticle nodeId
@@ -101,6 +105,10 @@ public:
   int16_t nodeStatus(uint32_t nodeId) const { return (nodeId < status.size()) ? status[nodeId] : 0; }
   uint16_t nodeStatusFlags(uint32_t nodeId) const { return (nodeId < statusFlags.size()) ? statusFlags[nodeId] : 0; }
   uint64_t nodeEventId(uint32_t nodeId) const { return (nodeId < eventId.size()) ? eventId[nodeId] : 0ull; }
+
+  bool nodeBackscattered(uint32_t nodeId) const {
+    return (nodeId < simTrackBackscattered.size()) && simTrackBackscattered[nodeId] != 0;
+  }
 
   uint16_t nodeProcessType(uint32_t nodeId) const {
     return (nodeId < simVertexProcessType.size()) ? simVertexProcessType[nodeId] : 0;

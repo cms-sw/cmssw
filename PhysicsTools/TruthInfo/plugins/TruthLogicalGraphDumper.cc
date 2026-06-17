@@ -574,7 +574,7 @@ public:
          << ", isLeaf=" << p.isLeaf() << ", p4=\"" << fmtP4(d.momentum)
          << "\", nProdVtx=" << p.productionVertices().size() << ", nDecayVtx=" << p.decayVertices().size()
          << ", nParents=" << p.parents().size() << ", nChildren=" << p.children().size()
-         << ", nCheckpoints=" << d.checkpoints.size();
+         << ", nCheckpoints=" << d.checkpoints.size() << ", backscattered=" << d.backscattered;
 
       if (hasHitInfo) {
         os << ", nDirectSimHits=" << directSummary.nSimHits << ", nDirectRecHits=" << directSummary.nMatchedRecHits
@@ -636,6 +636,9 @@ public:
         os << "      <TR><TD>statusFlags: " << d.statusFlags << "</TD></TR>\n";
         os << "      <TR><TD>flags: " << statusFlagsLabel(d.statusFlags) << "</TD></TR>\n";
       }
+
+      if (d.backscattered)
+        os << "      <TR><TD><B>back-scattered</B></TD></TR>\n";
 
       if (d.eventId != 0)
         os << "      <TR><TD>eid: " << d.eventId << "</TD></TR>\n";
