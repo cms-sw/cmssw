@@ -6,9 +6,10 @@ CSCPedestals *CSCFakePedestalsConditions::prefillPedestals() {
   CSCPedestals *cnpedestals = new CSCPedestals();
 
   int max_istrip, id_layer, max_ring, max_cham;
-  int seed = 10000;
+  constexpr int seed = 10000;
   srand(seed);
-  float meanped = 600.0, meanrms = 1.5;
+  constexpr float meanped = 600.0;
+  constexpr float meanrms = 1.5;
 
   // endcap=1 to 2,station=1 to 4, ring=1 to 4,chamber=1 to 36,layer=1 to 6
 

@@ -7,9 +7,11 @@ CSCcrosstalk *CSCFakeCrosstalkConditions::prefillCrosstalk() {
   CSCcrosstalk *cncrosstalk = new CSCcrosstalk();
 
   int max_istrip, id_layer, max_ring, max_cham;
-  int seed = 10000;
+  constexpr int seed = 10000;
   srand(seed);
-  float mean = -0.0009, min = 0.035, minchi = 1.5;
+  constexpr float mean = -0.0009;
+  constexpr float min = 0.035;
+  constexpr float minchi = 1.5;
 
   // endcap=1 to 2,station=1 to 4, ring=1 to 4,chamber=1 to 36,layer=1 to 6
   for (int iendcap = detId.minEndcapId(); iendcap <= detId.maxEndcapId(); iendcap++) {
