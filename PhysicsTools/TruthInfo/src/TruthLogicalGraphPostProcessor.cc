@@ -496,6 +496,35 @@ namespace {
     }
   }
 
+  // Keep each root's hard-scatter co-products: its production vertex and the
+  // *other* outgoing particles of that vertex, together with their decay
+  // subtrees. These siblings share the seed's production vertex (e.g. the VBF
+  // tagging quarks recoiling against the Higgs, which hadronise into the forward
+  // jets) - they are not ancestors, so seedParentDepth never reaches them.
+  void markProductionSiblings(truth::Graph const& graph,
+                              std::vector<uint32_t> const& roots,
+                              std::vector<uint8_t>& keepParticle,
+                              std::vector<uint8_t>& keepVertex) {
+    for (const uint32_t root : roots) {
+      if (root >= graph.nParticles())
+        continue;
+
+      for (const uint32_t vertexId : graph.productionVertices(root)) {
+        if (vertexId >= graph.nVertices())
+          continue;
+
+        keepVertex[vertexId] = 1;
+
+        for (const uint32_t siblingId : graph.outgoingParticles(vertexId)) {
+          if (siblingId >= graph.nParticles() || siblingId == root)
+            continue;
+
+          markDownstreamFromParticle(graph, siblingId, keepParticle, keepVertex);
+        }
+      }
+    }
+  }
+
   // Restrict matches to the most upstream ones: a match that is a strict
   // descendant of another match is covered by that match's subgraph and is not
   // an independent root. Single multi-source downstream BFS, O(V + E).
@@ -910,6 +939,9 @@ namespace {
 
     markAncestorContext(input, roots, config.seedParentDepth, keepParticle, keepVertex);
 
+    if (config.keepProductionSiblings)
+      markProductionSiblings(input, roots, keepParticle, keepVertex);
+
     // Optionally keep every stable final-state GEN particle outside the
     // selection; these become the underlying-event spectators. Disabled by
     // keepStableSpectators=false for a focused subgraph.
@@ -1208,6 +1240,14 @@ namespace truth {
             "selected seed yields a self-contained subgraph starting directly at the seed (e.g. ten taus -> ten "
             "disjoint components). Only meaningful when a selection is active.");
 
+    desc.add<bool>("keepProductionSiblings", false)
+        ->setComment(
+            "If true, also keep each selected root's hard-scatter co-products: its production vertex and the other "
+            "outgoing particles of that vertex (with their decay subtrees). Exposes the recoiling partons that share "
+            "the seed's production vertex - e.g. the VBF tagging quarks that become forward jets and produce the "
+            "Higgs - which are siblings of the seed, not ancestors, so seedParentDepth never reaches them. Only "
+            "meaningful when a selection is active.");
+
     {
       edm::ParameterSetDescription groupDesc;
       groupDesc.add<std::vector<int32_t>>("pdgIds", {})
@@ -1245,6 +1285,7 @@ namespace truth {
     config.seedParentDepth = pset.getParameter<uint32_t>("seedParentDepth");
     config.keepStableSpectators = pset.getParameter<bool>("keepStableSpectators");
     config.attachSelectionSources = pset.getParameter<bool>("attachSelectionSources");
+    config.keepProductionSiblings = pset.getParameter<bool>("keepProductionSiblings");
 
     for (auto const& groupPSet : pset.getParameter<std::vector<edm::ParameterSet>>("decayPdgIdGroups")) {
       config.decayPdgIdGroups.push_back(groupPSet.getParameter<std::vector<int32_t>>("pdgIds"));

@@ -281,6 +281,7 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testIgnoredParticleIdsAreCollapsedAway);
   CPPUNIT_TEST(testSeedRootIsMostUpstreamThroughRadiatingCopyChain);
   CPPUNIT_TEST(testSeedParentDepthKeepsAncestorContextOnly);
+  CPPUNIT_TEST(testKeepProductionSiblingsKeepsHardCoProducts);
   CPPUNIT_TEST(testSeedWithDecayGroupKeepsOnlyMatchingDecays);
   CPPUNIT_TEST(testZToTauTauDoesNotMatchMuonDecayGroup);
   CPPUNIT_TEST(testDecayGroupFallbackWhenSeedAbsent);
@@ -304,6 +305,7 @@ public:
   void testIgnoredParticleIdsAreCollapsedAway();
   void testSeedRootIsMostUpstreamThroughRadiatingCopyChain();
   void testSeedParentDepthKeepsAncestorContextOnly();
+  void testKeepProductionSiblingsKeepsHardCoProducts();
   void testSeedWithDecayGroupKeepsOnlyMatchingDecays();
   void testZToTauTauDoesNotMatchMuonDecayGroup();
   void testDecayGroupFallbackWhenSeedAbsent();
@@ -716,6 +718,87 @@ void TestTruthLogicalGraphPostProcessor::testSeedParentDepthKeepsAncestorContext
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), pionProductionVertices.size());
     CPPUNIT_ASSERT_EQUAL(artificialVertexId(output), pionProductionVertices.front());
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testKeepProductionSiblingsKeepsHardCoProducts() {
+  try {
+    GraphBuilder builder(7, 3);
+
+    // g g -> vp -> { Z, q };  Z -> vz -> { mu+, mu- };  q -> vq -> { pi+ (stable) }
+    //
+    // Same topology as the seedParentDepth test, but seeding on the Z with
+    // keepProductionSiblings keeps the recoiling quark q - the Z's sibling at the
+    // shared production vertex - and its decay subtree (the pion jet). This is the
+    // VBF case in miniature (the quark would be a tagging jet); seedParentDepth
+    // alone never reaches it because it is a co-product, not an ancestor.
+    builder.setGenParticle(0, 21, 2, 100);
+    builder.setGenParticle(1, 21, 2, 101);
+    builder.setGenParticle(2, 23, 2, 102);
+    builder.setGenParticle(3, 1, 2, 103);
+    builder.setGenSimParticle(4, 211, 1, 104, 1004);
+    builder.setGenSimParticle(5, -13, 1, 105, 1005);
+    builder.setGenSimParticle(6, 13, 1, 106, 1006);
+
+    builder.setGenVertex(0, 200);
+    builder.setGenVertex(1, 201);
+    builder.setGenSimVertex(2, 202, 2002);
+
+    builder.addDecay(0, 0);
+    builder.addDecay(1, 0);
+    builder.addProduction(0, 2);
+    builder.addProduction(0, 3);
+
+    builder.addDecay(3, 1);
+    builder.addProduction(1, 4);
+
+    builder.addDecay(2, 2);
+    builder.addProduction(2, 5);
+    builder.addProduction(2, 6);
+
+    auto graph = builder.finish();
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {23};
+    config.seedParentDepth = 0;
+    // Drop spectators so the quark/pion can only enter via keepProductionSiblings.
+    config.keepStableSpectators = false;
+    config.keepProductionSiblings = true;
+
+    auto output = runPostProcessing(std::move(graph), config);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+
+    // The recoiling quark (unlike seedParentDepth, which drops it) and its pion
+    // jet are kept.
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 1));
+    CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 211));
+
+    const uint32_t z = findParticleWithPdgId(output, 23);
+    const uint32_t quark = findParticleWithPdgId(output, 1);
+    const auto zProductionVertices = output.productionVertices(z);
+    const auto quarkProductionVertices = output.productionVertices(quark);
+
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), zProductionVertices.size());
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), quarkProductionVertices.size());
+
+    // The Z and the quark share the real hard-scatter production vertex, which now
+    // exposes both as outgoing - the recoiling co-product is visible.
+    CPPUNIT_ASSERT_EQUAL(zProductionVertices.front(), quarkProductionVertices.front());
+    CPPUNIT_ASSERT_EQUAL(std::size_t(2), output.outgoingParticles(zProductionVertices.front()).size());
+
+    // The pion came in through the quark's real decay chain (the jet), so its
+    // production vertex is the quark's decay vertex - not an artificial source.
+    const uint32_t pion = findParticleWithPdgId(output, 211);
+    const auto pionProductionVertices = output.productionVertices(pion);
+    const auto quarkDecayVertices = output.decayVertices(quark);
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), pionProductionVertices.size());
+    CPPUNIT_ASSERT_EQUAL(std::size_t(1), quarkDecayVertices.size());
+    CPPUNIT_ASSERT_EQUAL(quarkDecayVertices.front(), pionProductionVertices.front());
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);

@@ -36,6 +36,10 @@ parser.add_argument("--keepSpectators", action=BooleanOptionalAction, default=Tr
 parser.add_argument("--attachSources", action=BooleanOptionalAction, default=True,
                     help="attach selected roots to artificial Upstream/UnderlyingEvent source vertices; "
                          "use --no-attachSources to root each seed directly (e.g. ten taus -> ten subgraphs)" )
+parser.add_argument("--keepProductionSiblings", action=BooleanOptionalAction, default=False,
+                    help="also keep the seed's hard-scatter co-products (the other outgoing particles of its "
+                         "production vertex and their subtrees), e.g. the VBF tagging quarks/jets recoiling against "
+                         "the Higgs - siblings of the seed that seedParentDepth never reaches" )
 parser.add_argument("--showAll", action='store_true',
                     help="do not hide zero-simhit subgraphs or large SIM source vertices in the logical DOT dump" )
 args = parser.parse_args()
@@ -138,6 +142,11 @@ process.truthLogicalGraphProducer = cms.EDProducer(
         # attaching it to an artificial Upstream/UnderlyingEvent vertex.
         # --no-attachSources gives one self-contained subgraph per seed.
         attachSelectionSources=cms.bool(args.attachSources),
+
+        # Also keep the seed's hard-scatter co-products (siblings at its
+        # production vertex and their subtrees), e.g. the VBF tagging quarks
+        # that become forward jets; --keepProductionSiblings to enable.
+        keepProductionSiblings=cms.bool(args.keepProductionSiblings),
 
         # Decay patterns of interest: unordered, charge-sensitive PDG id
         # multisets, OR-ed. With seedPdgIds set, only roots whose effective

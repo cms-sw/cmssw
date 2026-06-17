@@ -27,26 +27,30 @@ CFG="$CMSSW_BASE/src/PhysicsTools/TruthInfo/test/dumpTruthGraphsFromGENSIMRECO_c
 NEVT="${NEVT:-3}"
 JOBS="${JOBS:-16}"
 
-# label : workflow-number : natural seed PDG ids for the selection
+# label : workflow-number : natural seed PDG ids : optional extra dump flags.
+# --keepProductionSiblings is added for the Higgs-production samples, whose seed
+# (the Higgs) recoils against other hard partons at its production vertex - the VBF
+# tagging quarks / ggF ISR - so the signal view shows the real hard vertex and the
+# recoiling jets rather than summarizing them into the artificial Upstream node.
 SAMPLES=(
-  "SingleElectron:34002:11,-11"
-  "TTbar:34034:6,-6"
-  "DYToLL:34044:23"
-  "DYToTauTau:34045:23"
-  "ZMM:34050:23"
-  "H125_diphoton:34052:25"
-  "VBFHZZ4Nu:34131:25"
-  "TenTau:34087:15,-15"
+  "SingleElectron:34002:11,-11:"
+  "TTbar:34034:6,-6:"
+  "DYToLL:34044:23:"
+  "DYToTauTau:34045:23:"
+  "ZMM:34050:23:"
+  "H125_diphoton:34052:25:--keepProductionSiblings"
+  "VBFHZZ4Nu:34131:25:--keepProductionSiblings"
+  "TenTau:34087:15,-15:"
 )
 
 rm -rf "$OUT"; mkdir -p "$OUT"
 cmds=()
 for s in "${SAMPLES[@]}"; do
-  IFS=: read -r lab num seeds <<< "$s"
+  IFS=: read -r lab num seeds extra <<< "$s"
   step3=$(ls "$LIB"/${num}.88_*/step3.root 2>/dev/null | head -1)
   if [[ -z "$step3" ]]; then echo "SKIP $lab ($num): no step3.root under $LIB"; continue; fi
   mkdir -p "$OUT/$lab"
-  cmds+=("cmsRun $CFG file:$step3 -n $NEVT -o $OUT/$lab -s $seeds -d 0 -t _sig > $OUT/$lab/sig.log 2>&1")
+  cmds+=("cmsRun $CFG file:$step3 -n $NEVT -o $OUT/$lab -s $seeds -d 0 $extra -t _sig > $OUT/$lab/sig.log 2>&1")
   cmds+=("cmsRun $CFG file:$step3 -n 1 --showAll -s 0 -t _full -o $OUT/$lab > $OUT/$lab/full.log 2>&1")
 done
 
