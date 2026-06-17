@@ -936,10 +936,12 @@ void FedRawDataInputSource::readSupervisor() {
           if (!getLSFromFilename_)
             ls = lsFromRaw;
         }
-      } else if (!useFileBroker_)
-        status = daqDirector_->updateFuLock(
-            ls, nextFile, fileSizeIndex, rawHeaderSize, thisLockWaitTimeUs, setExceptionState_);
-      else {
+      } else if (!useFileBroker_) {
+        edm::LogError("FedRawDataInputSource") << "file lock mode is no longer supported";
+        setExceptionState_ = true;
+	stop = true;
+        break;
+      } else {
         status = daqDirector_->getNextFromFileBroker(currentLumiSection,
                                                      ls,
                                                      nextFile,
@@ -975,12 +977,10 @@ void FedRawDataInputSource::readSupervisor() {
       //check again for any remaining index/EoLS files after EoR file is seen
       if (status == evf::EvFDaqDirector::runEnded && !fileListMode_ && !useFileBroker_) {
         setMonStateSup(inRunEnd);
-        usleep(100000);
-        //now all files should have appeared in ramdisk, check again if any raw files were left behind
-        status = daqDirector_->updateFuLock(
-            ls, nextFile, fileSizeIndex, rawHeaderSize, thisLockWaitTimeUs, setExceptionState_);
-        if (currentLumiSection != ls && status == evf::EvFDaqDirector::runEnded)
-          status = evf::EvFDaqDirector::noFile;
+        edm::LogError("FedRawDataInputSource") << "file lock mode is no longer supported";
+        setExceptionState_ = true;
+	stop = true;
+        break;
       }
 
       if (status == evf::EvFDaqDirector::runEnded) {
