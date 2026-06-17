@@ -121,7 +121,14 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
     if (!geomDetUnit)
       continue;
     nclusGlobal += DSVItr.size();
-    std::string folderkey = phase2tkutil::getITHistoId(detId, tTopo_);
+    // Workaround for filling histograms in both Ring<> and Wheel<>
+    bool isEndcap = (detId.subdetId() != PixelSubdetector::PixelBarrel);
+    for (int booking = 1; booking < 2 + isEndcap; booking++) {
+      // Will loop twice if the module is an EndCap module
+      // the default key divides endcaps into F/EPixs and Rings
+      // in second loop endcaps will be divided into F/EPix and Wheels
+      std::string folderkey = (booking == 2 ? phase2tkutil::getITHistoWheelId(detId, tTopo_) : phase2tkutil::getITHistoId(detId, tTopo_));
+
     // initialize the nhit counters if they don't exist for this layer
     auto counterDet = nClsmap.find(folderkey);
     if (counterDet == nClsmap.end()) {
@@ -158,6 +165,7 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
       local_mes.ClusterCharge->Fill(clusterItr.charge());
     }
   }
+  }
 
   for (const auto& it : nClsmap) {
     if (layerMEs_.find(it.first) == layerMEs_.end())
@@ -165,6 +173,7 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
     layerMEs_[it.first].nClusters->Fill(it.second);
   }
   numberClusters_->Fill(nclusGlobal);  //global histo of #clusters
+
 }
 
 //
@@ -214,7 +223,16 @@ void Phase2ITMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 
 //////////////////Layer Histo/////////////////////////////////
 void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_id, std::string& subdir) {
-  std::string folderName = phase2tkutil::getITHistoId(det_id, tTopo_);
+    // Workaround for booking same histogram for Ring<> and Wheel<>
+  bool isEndcap = (DetId(det_id).subdetId() != PixelSubdetector::PixelBarrel);
+  for (int booking = 1; booking < 2 + isEndcap; booking++) {
+    // Will loop twice if the module is an EndCap module
+    // By default, the "key" divides endcaps into F/Epix and Rings
+    // During first loop, the default key is used
+    // In the second loop, the Wheel key is used
+    // all layer-wise histograms will be booked in Wheels as well as Rings
+    std::string folderName = (booking == 2 ? phase2tkutil::getITHistoWheelId(det_id, tTopo_) : phase2tkutil::getITHistoId(det_id, tTopo_));
+	
   if (folderName.empty())
     return;
 
@@ -250,6 +268,7 @@ void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
         phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_perlayer"), ibooker);
 
     layerMEs_.emplace(folderName, local_mes);
+  }
   }
 }
 
@@ -398,7 +417,7 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
     desc.add<edm::ParameterSetDescription>("GlobalPositionXY_perlayer", psd0);
   }
 
-  desc.add<std::string>("TopFolderName", "TrackerPhase2ITCluster");
+  desc.add<std::string>("TopFolderName", "InnerTracker");
   desc.add<edm::InputTag>("InnerPixelClusterSource", edm::InputTag("siPixelClusters"));
   descriptions.add("Phase2ITMonitorCluster", desc);
 }
