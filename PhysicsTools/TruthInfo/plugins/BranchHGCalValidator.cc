@@ -28,9 +28,13 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+#include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
 #include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
@@ -64,11 +68,18 @@ private:
     MonitorElement* completenessHits = nullptr;
     MonitorElement* completenessEnergy = nullptr;
     MonitorElement* energyResponse = nullptr;
+    // Raw energy response: Branch hit energy over the object's *hit* energy (rather
+    // than its generator energy), on the deposited (sim) and reconstructed (rec)
+    // scales. ~1 when the Branch reproduces the object's calorimeter energy.
+    MonitorElement* rawEnergyResponseSim = nullptr;
+    MonitorElement* rawEnergyResponseReco = nullptr;
     // Profiles vs kinematics.
     MonitorElement* purityVsEta = nullptr;
     MonitorElement* completenessVsEta = nullptr;
     MonitorElement* responseVsEta = nullptr;
     MonitorElement* responseVsEnergy = nullptr;
+    MonitorElement* rawResponseSimVsEnergy = nullptr;
+    MonitorElement* rawResponseRecoVsEnergy = nullptr;
 
     // "Other way around": for each truth object, its best hit-matched Branch (which
     // need not be the natural, trackId-seeded one) and that Branch's performance.
@@ -92,13 +103,24 @@ private:
                 truth::LogicalGraphHitIndex const& hitIndex,
                 truth::BranchHitAssociator const& assoc,
                 std::unordered_map<uint32_t, uint32_t> const& tidToParticle,
+                std::unordered_map<uint32_t, float> const& cellSimEnergy,
+                std::unordered_map<uint32_t, float> const& recHitEnergyByDetId,
                 Plots& plots);
+
+  // Whole-cell RecHit energy keyed by DetId, rebuilt from the same RecHit
+  // collections (HGCal then PF, the SimHitToRecHitMapProducer order) the hit
+  // index was mapped against; first index kept for any duplicate DetId.
+  std::unordered_map<uint32_t, float> collectRecHitEnergyByDetId(edm::Event const&) const;
 
   const edm::EDGetTokenT<truth::Graph> graphToken_;
   const edm::EDGetTokenT<TruthGraph> rawToken_;
   const edm::EDGetTokenT<truth::LogicalGraphHitIndex> hitIndexToken_;
   const edm::EDGetTokenT<std::vector<CaloParticle>> caloParticleToken_;
   const edm::EDGetTokenT<std::vector<SimCluster>> simClusterToken_;
+  std::vector<edm::EDGetTokenT<HGCRecHitCollection>> hgcalRecHitTokens_;
+  std::vector<edm::EDGetTokenT<reco::PFRecHitCollection>> pfRecHitTokens_;
+  std::vector<edm::InputTag> hgcalRecHitTags_;
+  std::vector<edm::InputTag> pfRecHitTags_;
 
   const std::string folder_;
   const double minPt_;
@@ -116,7 +138,16 @@ BranchHGCalValidator::BranchHGCalValidator(edm::ParameterSet const& cfg)
       simClusterToken_(consumes<std::vector<SimCluster>>(cfg.getParameter<edm::InputTag>("simClusters"))),
       folder_(cfg.getParameter<std::string>("folder")),
       minPt_(cfg.getParameter<double>("minPt")),
-      maxEta_(cfg.getParameter<double>("maxEta")) {}
+      maxEta_(cfg.getParameter<double>("maxEta")) {
+  for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("hgcalRecHits")) {
+    hgcalRecHitTags_.push_back(tag);
+    hgcalRecHitTokens_.push_back(consumes<HGCRecHitCollection>(tag));
+  }
+  for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("pfRecHits")) {
+    pfRecHitTags_.push_back(tag);
+    pfRecHitTokens_.push_back(consumes<reco::PFRecHitCollection>(tag));
+  }
+}
 
 void BranchHGCalValidator::book(DQMStore::IBooker& ib, Plots& p, std::string const& sub) {
   ib.setCurrentFolder(folder_ + "/" + sub);
@@ -144,6 +175,22 @@ void BranchHGCalValidator::book(DQMStore::IBooker& ib, Plots& p, std::string con
       ib.book1D("completeness_energy", "Branch energy completeness;completeness;objects", 52, -0.01, 1.03);
   p.energyResponse =
       ib.book1D("energy_response", "Branch sim-energy containment;E^{sim}_{Branch}/E_{gen};objects", 60, 0., 1.5);
+  // Deposited-scale response is a closure test: == 1 by construction (the object's
+  // per-cell fraction is its tracks' share of the deposit, i.e. the Branch's own
+  // sim energy on that cell), so any deviation flags a fraction/deposit bug in PR
+  // validation. Reconstructed-scale response is the informative one.
+  p.rawEnergyResponseSim =
+      ib.book1D("raw_energy_response_sim",
+                "Branch raw energy response (deposited, closure: ==1);E^{sim}_{Branch}/E^{sim}_{hits};objects",
+                80,
+                0.,
+                2.);
+  p.rawEnergyResponseReco =
+      ib.book1D("raw_energy_response_reco",
+                "Branch raw energy response (reconstructed);E^{rec}_{Branch}/E^{rec}_{hits};objects",
+                80,
+                0.,
+                4.);
 
   p.purityVsEta =
       ib.bookProfile("purity_vs_eta", "Branch hit purity vs #eta;#eta;purity", kEtaBins, -kEtaMax, kEtaMax, 0., 1.05);
@@ -168,6 +215,22 @@ void BranchHGCalValidator::book(DQMStore::IBooker& ib, Plots& p, std::string con
                                       kEMax,
                                       0.,
                                       1.5);
+  p.rawResponseSimVsEnergy = ib.bookProfile(
+      "raw_response_sim_vs_energy",
+      "Branch raw energy response (deposited, closure: ==1) vs E;E [GeV];E^{sim}_{Branch}/E^{sim}_{hits}",
+      kEBins,
+      0.,
+      kEMax,
+      0.,
+      2.);
+  p.rawResponseRecoVsEnergy =
+      ib.bookProfile("raw_response_reco_vs_energy",
+                     "Branch raw energy response (reconstructed) vs E;E [GeV];E^{rec}_{Branch}/E^{rec}_{hits}",
+                     kEBins,
+                     0.,
+                     kEMax,
+                     0.,
+                     4.);
 
   // Best hit-matched Branch per object (the "other way around" view).
   p.bestPurity = ib.book1D("bestmatch_purity", "Best-match Branch hit purity;purity;objects", 52, -0.01, 1.03);
@@ -214,7 +277,13 @@ void BranchHGCalValidator::validate(Collection const& objects,
                                     truth::LogicalGraphHitIndex const& hitIndex,
                                     truth::BranchHitAssociator const& assoc,
                                     std::unordered_map<uint32_t, uint32_t> const& tidToParticle,
+                                    std::unordered_map<uint32_t, float> const& cellSimEnergy,
+                                    std::unordered_map<uint32_t, float> const& recHitEnergyByDetId,
                                     Plots& plots) {
+  auto recoEnergyOf = [&recHitEnergyByDetId](uint32_t detId) -> double {
+    auto it = recHitEnergyByDetId.find(detId);
+    return it != recHitEnergyByDetId.end() ? static_cast<double>(it->second) : 0.;
+  };
   for (auto const& obj : objects) {
     if (obj.g4Tracks().empty())
       continue;
@@ -240,11 +309,15 @@ void BranchHGCalValidator::validate(Collection const& objects,
       continue;  // unmapped -> counts as inefficiency
     const uint32_t particleId = it->second;
 
-    // Branch subgraph calo hits for the mapped logical particle.
-    std::unordered_set<uint32_t> branchDetIds;
+    // Branch subgraph calo hits for the mapped logical particle. branchEnergy is the
+    // total deposited (sim) energy; branchCellEnergy is its per-cell breakdown, used
+    // to restrict the raw response to the object's own footprint (a tiny object whose
+    // trackId maps to a large shower would otherwise blow up the un-thresholded sim
+    // ratio - the reco ratio stays finite only because the extra cells lack RecHits).
+    std::unordered_map<uint32_t, double> branchCellEnergy;
     double branchEnergy = 0.;
     for (auto const& hit : hitIndex.subgraphHits(truth::HitChannel::HGCalCalo, particleId)) {
-      branchDetIds.insert(hit.detId);
+      branchCellEnergy[hit.detId] += hit.energy;
       branchEnergy += hit.energy;
     }
 
@@ -253,17 +326,31 @@ void BranchHGCalValidator::validate(Collection const& objects,
     uint32_t shared = 0;
     double totalFraction = 0.;
     double sharedFraction = 0.;
+    // Raw energy response references, all on the *object's* cells: the object's own
+    // deposited (sim) and reconstructed (rec) energy -- fraction-weighted, the standard
+    // CaloParticle/SimCluster convention -- and the Branch's energy on those same cells
+    // (its per-cell sim deposit; the whole-cell RecHit it claims). The sim and reco
+    // responses then differ only by the deposited-vs-reconstructed scale.
+    double objectSimEnergy = 0.;
+    double objectRecoEnergy = 0.;
+    double branchSimOnObject = 0.;
+    double branchRecoOnObject = 0.;
     for (auto const& [detId, fraction] : hitsAndFractions) {
       recoHits.push_back(truth::RecoHit{detId, 1.f, fraction});
       totalFraction += fraction;
-      if (branchDetIds.count(detId)) {
+      if (auto cs = cellSimEnergy.find(detId); cs != cellSimEnergy.end())
+        objectSimEnergy += static_cast<double>(fraction) * static_cast<double>(cs->second);
+      objectRecoEnergy += static_cast<double>(fraction) * recoEnergyOf(detId);
+      if (auto be = branchCellEnergy.find(detId); be != branchCellEnergy.end()) {
         ++shared;
         sharedFraction += fraction;
+        branchSimOnObject += be->second;
+        branchRecoOnObject += recoEnergyOf(detId);
       }
     }
 
     const double completenessHits = static_cast<double>(shared) / hitsAndFractions.size();
-    const double purity = branchDetIds.empty() ? 0. : static_cast<double>(shared) / branchDetIds.size();
+    const double purity = branchCellEnergy.empty() ? 0. : static_cast<double>(shared) / branchCellEnergy.size();
     const double completenessEnergy = totalFraction > 0. ? sharedFraction / totalFraction : 0.;
     // Energy containment: Branch subgraph sim-hit energy over the object energy.
     // (CaloParticle::simEnergy() is not populated in these samples, so the
@@ -280,6 +367,21 @@ void BranchHGCalValidator::validate(Collection const& objects,
       plots.energyResponse->Fill(response);
       plots.responseVsEta->Fill(eta, response);
       plots.responseVsEnergy->Fill(energy, response);
+    }
+
+    // Raw energy response: the Branch's energy on the object's footprint normalised
+    // by the object's own hit energy (rather than its generator energy), on the
+    // deposited and reconstructed scales. The deposited ratio is == 1 by construction
+    // (closure / PR-validation invariant); the reconstructed ratio is informative.
+    if (objectSimEnergy > 0.) {
+      const double rawSim = branchSimOnObject / objectSimEnergy;
+      plots.rawEnergyResponseSim->Fill(rawSim);
+      plots.rawResponseSimVsEnergy->Fill(energy, rawSim);
+    }
+    if (objectRecoEnergy > 0.) {
+      const double rawReco = branchRecoOnObject / objectRecoEnergy;
+      plots.rawEnergyResponseReco->Fill(rawReco);
+      plots.rawResponseRecoVsEnergy->Fill(energy, rawReco);
     }
 
     // Reproduction efficiency numerator: the associator picks this particle's
@@ -344,6 +446,35 @@ void BranchHGCalValidator::validate(Collection const& objects,
   }
 }
 
+std::unordered_map<uint32_t, float> BranchHGCalValidator::collectRecHitEnergyByDetId(edm::Event const& event) const {
+  std::unordered_map<uint32_t, float> energies;
+  for (uint32_t i = 0; i < hgcalRecHitTokens_.size(); ++i) {
+    edm::Handle<HGCRecHitCollection> handle;
+    event.getByToken(hgcalRecHitTokens_[i], handle);
+    if (!handle.isValid()) {
+      edm::LogWarning("BranchHGCalValidator")
+          << "Missing HGCRecHit collection " << hgcalRecHitTags_[i].encode() << "; skipping it.";
+      continue;
+    }
+    energies.reserve(energies.size() + handle->size());
+    for (auto const& hit : *handle)
+      energies.emplace(hit.detid().rawId(), hit.energy());  // keep first for duplicate DetIds
+  }
+  for (uint32_t i = 0; i < pfRecHitTokens_.size(); ++i) {
+    edm::Handle<reco::PFRecHitCollection> handle;
+    event.getByToken(pfRecHitTokens_[i], handle);
+    if (!handle.isValid()) {
+      edm::LogWarning("BranchHGCalValidator")
+          << "Missing reco::PFRecHitCollection " << pfRecHitTags_[i].encode() << "; skipping it.";
+      continue;
+    }
+    energies.reserve(energies.size() + handle->size());
+    for (auto const& hit : *handle)
+      energies.emplace(hit.detId(), hit.energy());
+  }
+  return energies;
+}
+
 void BranchHGCalValidator::analyze(edm::Event const& event, edm::EventSetup const&) {
   auto const& graph = event.get(graphToken_);
   auto const& raw = event.get(rawToken_);
@@ -352,8 +483,34 @@ void BranchHGCalValidator::analyze(edm::Event const& event, edm::EventSetup cons
   const auto tidToParticle = buildTrackIdToParticle(graph, raw);
   truth::BranchHitAssociator assoc(hitIndex, {}, truth::BranchHitAssociator::Metric::SharedHits);
 
-  validate(event.get(caloParticleToken_), graph, raw, hitIndex, assoc, tidToParticle, caloParticlePlots_);
-  validate(event.get(simClusterToken_), graph, raw, hitIndex, assoc, tidToParticle, simClusterPlots_);
+  // Per-cell deposited (sim) energy = sum of every particle's direct HGCalCalo hits
+  // in that cell (each PCaloHit belongs to exactly one SimTrack), and per-cell
+  // reconstructed energy from the RecHit collections; both keyed by DetId so the
+  // raw response can normalise a Branch's energy by the object's own hit energy.
+  std::unordered_map<uint32_t, float> cellSimEnergy;
+  for (uint32_t p = 0; p < hitIndex.nParticles(); ++p)
+    for (auto const& hit : hitIndex.directHits(truth::HitChannel::HGCalCalo, p))
+      cellSimEnergy[hit.detId] += hit.energy;
+  const auto recHitEnergyByDetId = collectRecHitEnergyByDetId(event);
+
+  validate(event.get(caloParticleToken_),
+           graph,
+           raw,
+           hitIndex,
+           assoc,
+           tidToParticle,
+           cellSimEnergy,
+           recHitEnergyByDetId,
+           caloParticlePlots_);
+  validate(event.get(simClusterToken_),
+           graph,
+           raw,
+           hitIndex,
+           assoc,
+           tidToParticle,
+           cellSimEnergy,
+           recHitEnergyByDetId,
+           simClusterPlots_);
 }
 
 void BranchHGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -366,6 +523,17 @@ void BranchHGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<std::string>("folder", "HGCAL/BranchValidator");
   desc.add<double>("minPt", 1.0);
   desc.add<double>("maxEta", 3.0);
+  // RecHit collections for the raw (reconstructed) energy response, in the same
+  // order SimHitToRecHitMapProducer used to build the DetId->RecHit map.
+  desc.add<std::vector<edm::InputTag>>("hgcalRecHits",
+                                       {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
+                                        edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
+                                        edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
+  desc.add<std::vector<edm::InputTag>>("pfRecHits",
+                                       {edm::InputTag("particleFlowRecHitECAL", "Cleaned"),
+                                        edm::InputTag("particleFlowRecHitHBHE", "Cleaned"),
+                                        edm::InputTag("particleFlowRecHitHF", "Cleaned"),
+                                        edm::InputTag("particleFlowRecHitHO", "Cleaned")});
   descriptions.addWithDefaultLabel(desc);
 }
 
