@@ -65,6 +65,17 @@ namespace truth {
     // a selection (seedPdgIds/seedHadronFlavors/decayPdgIdGroups) is active.
     bool attachSelectionSources = true;
 
+    // If true, also keep each selected root's hard-scatter co-products: its
+    // production vertex and the *other* outgoing particles of that vertex (with
+    // their decay subtrees). This exposes the recoiling partons that share the
+    // seed's production vertex - e.g. the VBF tagging quarks that become forward
+    // jets and "produce" the Higgs - which are siblings of the seed, not its
+    // ancestors, and so are never reached by seedParentDepth. Keeping the
+    // production vertex also means the seed is no longer at the upstream boundary,
+    // so the real hard vertex is shown in place of the artificial Upstream summary.
+    // Only meaningful when a selection (seedPdgIds/seedHadronFlavors/...) is active.
+    bool keepProductionSiblings = false;
+
     // Decay patterns of interest. Each group is an unordered, charge-sensitive
     // multiset of PDG ids; groups are OR-ed.
     //
