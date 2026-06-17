@@ -1,23 +1,52 @@
 #include "DQM/SiTrackerPhase2/interface/TrackerPhase2DQMUtil.h"
+
 std::string phase2tkutil::getITHistoId(uint32_t det_id, const TrackerTopology* tTopo) {
-  std::string Disc;
+  std::string Side, Shell;
   std::ostringstream fname1;
   int layer = tTopo->getITPixelLayerNumber(det_id);
-
   if (layer < 0)
     return "";
   if (layer < 100) {
     fname1 << "Barrel/";
+    Shell = getITShell(det_id, tTopo);
+    if (Shell.empty())
+      return "";
+    fname1 << Shell << "/";
     fname1 << "Layer" << layer;
     fname1 << "";
   } else {
-    int side = tTopo->pxfSide(det_id);
-    fname1 << "EndCap_Side" << side << "/";
     int disc = tTopo->pxfDisk(det_id);
-    Disc = (disc < 9) ? "FPix" : "EPix";
-    fname1 << Disc << "/";
+    if (disc < 9) {  // If forward, needs half-cylinder
+      Shell = getITShell(det_id, tTopo);
+      fname1 << "/ForwardPix/" << Shell << "/";
+    } else {
+      int side = tTopo->pxfSide(det_id);
+      Side = (side == 1) ? "MINUS" : "PLUS";
+      fname1 << "/EndcapPix/" << Side << "/";
+    }
     int ring = tTopo->pxfBlade(det_id);
     fname1 << "Ring" << ring;
+  }
+  return fname1.str();
+}
+std::string phase2tkutil::getITHistoWheelId(uint32_t det_id, const TrackerTopology* tTopo) {
+  std::string Side, Shell;
+  std::ostringstream fname1;
+  int layer = tTopo->getITPixelLayerNumber(det_id);
+
+  if (layer < 100) {  //This should ALWAYS be an endcap or forward histo
+    return "";
+  } else {
+    int disc = tTopo->pxfDisk(det_id);
+    if (disc < 9) {  // If forward, needs half-cylinder
+      Shell = getITShell(det_id, tTopo);
+      fname1 << "/ForwardPix/" << Shell << "/";
+    } else {
+      int side = tTopo->pxfSide(det_id);
+      Side = (side == 1) ? "MINUS" : "PLUS";
+      fname1 << "/EndcapPix/" << Side << "/";
+    }
+    fname1 << "Wheel" << disc;
   }
   return fname1.str();
 }
@@ -52,12 +81,8 @@ std::string phase2tkutil::getOTHistoWheelId(uint32_t det_id, const TrackerTopolo
   std::ostringstream fname1;
   int layer = tTopo->getOTLayerNumber(det_id);
 
-  if (layer < 0)
+  if (layer < 100) {  //This should ALWAYS be an endcap histo
     return "";
-  if (layer < 100) {
-    fname1 << "Barrel/";
-    fname1 << "Layer" << layer;
-    fname1 << "";
   } else {
     fname1 << "EndCaps/";
     int side = tTopo->tidSide(det_id);
@@ -66,9 +91,36 @@ std::string phase2tkutil::getOTHistoWheelId(uint32_t det_id, const TrackerTopolo
     int disc = tTopo->tidWheel(det_id);
     Disc = (disc < 3) ? "TEDD_1" : "TEDD_2";
     fname1 << Disc << "/";
-    fname1 << "Wheel_" << disc;
+    fname1 << "Wheel" << disc;
   }
   return fname1.str();
+}
+
+std::string phase2tkutil::getITShell(uint32_t det_id, const TrackerTopology* tTopo) {
+  std::string Side, Inner;
+  std::ostringstream shellname;
+  // Replace these vectors with a calculation func
+  std::vector<unsigned int> nLaddersPerLayer = {12, 24, 20, 28};
+  std::vector<unsigned int> nModulesPerRing = {20, 32, 24, 32};
+  int layer = tTopo->getITPixelLayerNumber(det_id);
+  int ring = tTopo->pxfBlade(det_id);
+  if (layer < 100) {  // Barrel
+    if (layer % 2 == 0)
+      Side = (tTopo->module(det_id) <= 5) ? "m" : "p";
+    else
+      Side = (tTopo->module(det_id) <= 4) ? "m" : "p";
+    Inner = ((tTopo->pxbLadder(det_id) - (nLaddersPerLayer[layer - 1] / 4) - 1) >= (nLaddersPerLayer[layer - 1] / 2))
+                ? "I"
+                : "O";
+    shellname << Side << Inner;
+  } else {  // Forward
+    int side = tTopo->tidSide(det_id);
+    Side = (side == 1) ? "m" : "p";
+    Inner = ((tTopo->pxfModule(det_id) - (nModulesPerRing[ring - 1] / 4) - 1) >= (nModulesPerRing[ring - 1] / 2)) ? "I"
+                                                                                                                  : "O";
+    shellname << Side << Inner;
+  }
+  return shellname.str();
 }
 
 typedef dqm::reco::MonitorElement MonitorElement;
