@@ -4,15 +4,16 @@ import torch
 import math
 import sys
 
+from torch_utils import check_torch_gpu
+gpu, device, gpu_name = check_torch_gpu(torch, sys.argv[1])
+if not gpu:
+  exit(1)
+
 # We want to be able to train our model on an `accelerator <https://pytorch.org/docs/stable/torch.html#accelerators>`__
 # such as CUDA, MPS, MTIA, or XPU. If the current accelerator is available, we will use it. Otherwise, we use the CPU.
 
 dtype = torch.float
-device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
-print(f"Using {device} device")
-if (device == "cpu") and (len(sys.argv) > 1) and (sys.argv[1] != "cpu"):
-  pritn("Unable to find accelerator",sys.argv[1])
-  exit(1)
+print(f"Using {gpu_name}({device}) device")
 torch.set_default_device(device)
 
 # Create Tensors to hold input and outputs.
