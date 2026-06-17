@@ -71,11 +71,27 @@ class TestTruthGraphSelections(unittest.TestCase):
         # An explicit template can be forced regardless of the name.
         self.assertEqual(tgs.selectionForFragment(template="full")["seedPdgIds"], [0])
 
+    def test_pileup_filter_defaults_off_and_overridable(self):
+        # Presets never touch pile-up: every archetype keeps all bunch crossings.
+        for frag in ["VBFHZZ4Nu", "ZMM_14", "TTbar_14TeV", "SingleMuPt10", "QCD_Pt_80_120"]:
+            s = tgs.selectionForFragment(frag)
+            self.assertFalse(s["signalOnly"], frag)
+            self.assertEqual(s["keepBunchCrossings"], [], frag)
+        # The orthogonal filter composes with any preset via overrides.
+        s = tgs.selectionForFragment("ZMM_14", signalOnly=True, keepBunchCrossings=[0])
+        self.assertTrue(s["signalOnly"])
+        self.assertEqual(s["keepBunchCrossings"], [0])
+        self.assertIn("--signal-only", tgs.dumperArgs("ZMM_14", signalOnly=True))
+
     def test_pset_builds(self):
         pset = tgs.postProcessingPSet("VBFHZZ4Nu")
         self.assertTrue(pset.keepProductionSiblings.value())
         self.assertEqual(list(pset.seedPdgIds), [25])
         self.assertEqual(pset.seedParentDepth.value(), 1)
+        self.assertFalse(pset.signalOnly.value())
+        self.assertEqual(list(pset.keepBunchCrossings), [])
+        # Override flows through to the cms.PSet.
+        self.assertTrue(tgs.postProcessingPSet("ZMM_14", signalOnly=True).signalOnly.value())
 
 
 if __name__ == "__main__":

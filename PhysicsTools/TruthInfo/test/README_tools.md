@@ -37,6 +37,9 @@ The postprocessing supports focused, physics-oriented views:
   e.g. seeding on the Higgs in VBF, this brings in the recoiling tagging quarks and
   their forward jets, and shows the real hard vertex in place of the artificial
   Upstream node.
+- **Pile-up filter** (orthogonal to the seed, composes with any preset): `--signal-only`
+  keeps only the signal interaction (EncodedEventId bunchCrossing 0, event 0), dropping
+  all pile-up; `--bunch-crossings 0` keeps only the listed bunch crossings (in-time only).
 ```bash
 # clean Z -> mu mu view with an explicit ISR node:
 cmsRun dumpTruthGraphsFromGENSIMRECO_cfg.py file:step3.root -s 23 -d 1 --no-keepSpectators
