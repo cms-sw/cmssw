@@ -5068,12 +5068,14 @@ for step in upgradeStepDict.keys():
                         istep = step+preventReuseKeyword
 
                         if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '' and \
-                          (istep not in upgradeStepDict or key not in upgradeStepDict[istep] or upgradeStepDict[istep][key] is not None):
+                          (istep not in upgradeStepDict or key not in upgradeStepDict[istep] or upgradeStepDict[istep][key] is not None) and "Run4" in key:
+                          #  pre-Run4 input recycling is DISABLED
                            if 'FS' not in key: #For FullSim
                                steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
+                        # begin COMMENT: reads old format file 
                         #    else: #For FastSim to recycle GEN
                         #        steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN'%(baseDataSetReleaseBetter[s],),location='STD')}
-
+                        # end COMMENT: reads old format file 
                         # this condition is checked here to avoid skipping the creation of default steps for other fragments
                         if 'HybridPU' in step:
                             # minbias fastsim for PU mixing
