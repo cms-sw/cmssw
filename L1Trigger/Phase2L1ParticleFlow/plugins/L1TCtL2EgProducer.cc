@@ -32,7 +32,7 @@ public:
   explicit L1TCtL2EgProducer(const edm::ParameterSet &);
   ~L1TCtL2EgProducer() override;
 
-  // edm::ParameterSetDescription getParameterSetDescription();
+  edm::ParameterSetDescription getParameterSetDescription();
 
 private:
   ap_uint<64> encodeLayer1(const EGIsoObjEmu &egiso) const;
@@ -140,6 +140,28 @@ private:
           conf.getParameter<uint32_t>("TMUX"),
           conf.getParameter<uint32_t>("maxLinesPerFile"),
           channelSpecs);
+    }
+
+    static edm::ParameterSetDescription getParameterSetDescription() {
+      edm::ParameterSetDescription desc;
+      desc.add<std::string>("format");
+      desc.add<std::string>("outputFilename");
+      desc.add<std::string>("outputFileExtension");
+      desc.add<uint32_t>("nFramesPerBX");
+      desc.add<uint32_t>("TMUX");
+      desc.add<uint32_t>("maxLinesPerFile");
+      desc.add<uint32_t>("eventsPerFile");
+
+      edm::ParameterSetDescription channelDesc;
+      channelDesc.add<std::string>("interface");
+      channelDesc.add<uint32_t>("id");
+      channelDesc.add<uint32_t>("TMUX");
+      channelDesc.add<uint32_t>("nWords");
+      channelDesc.add<std::vector<uint32_t>>("channels");
+
+      desc.addVPSet("channels", channelDesc);
+
+      return desc;
     }
 
     struct RegionLinkMetadata {
@@ -277,26 +299,34 @@ L1TCtL2EgProducer::L1TCtL2EgProducer(const edm::ParameterSet &conf)
 
 L1TCtL2EgProducer::~L1TCtL2EgProducer() {}
 
-// edm::ParameterSetDescription L1TCtL2EgProducer::getParameterSetDescription() {
-//   edm::ParameterSetDescription desc;
-//   desc.add<std::vector<edm::ParameterSet>>("tkEgs", std::vector<edm::ParameterSet>());
-//   desc.add<std::vector<edm::ParameterSet>>("tkEms", std::vector<edm::ParameterSet>());
-//   desc.add<std::vector<edm::ParameterSet>>("tkElectrons", std::vector<edm::ParameterSet>());
-//   desc.add<std::string>("egStaInstanceLabel", "L1EGamma");
-//   desc.add<std::string>("tkEmInstanceLabel", "L1TkEm");
-//   desc.add<std::string>("tkEleInstanceLabel", "L1TkElectron");
-//   desc.add<edm::ParameterSetDescription>("sorter", l1ct::L2EgSorterEmulator::getParameterSetDescription());
-//   desc.add<edm::ParameterSetDescription>("encoder", l1ct::L2EgEncoderEmulator::getParameterSetDescription());
-//   desc.add<edm::ParameterSetDescription>("eleRegression", l1ct::L2TkEleRegressionEmulator::getParameterSetDescription());
-//   desc.add<edm::InputTag>("l1PFObjects", edm::InputTag("l1pfProducer"));
-//   desc.add<edm::ParameterSetDescription>("puppiIsoParametersTkEm", l1ct::L1EGPuppiIsoAlgo::getParameterSetDescription());
-//   desc.add<edm::ParameterSetDescription>("puppiIsoParametersTkEle", l1ct::L1EGPuppiIsoAlgo::getParameterSetDescription());
-//   desc.add<bool>("writeInPattern", false);
-//   desc.add<bool>("writeOutPattern", false);
-//   desc.add<edm::ParameterSetDescription>("inPatternFile", PatternWriter(conf).getParameterSetDescription());
-//   desc.add<edm::ParameterSetDescription>("outPatternFile", PatternWriter(conf).getParameterSetDescription());
-//   return desc;
-// }
+edm::ParameterSetDescription L1TCtL2EgProducer::getParameterSetDescription() {
+  edm::ParameterSetDescription desc;
+
+  edm::ParameterSetDescription inputDesc;
+  inputDesc.add<edm::InputTag>("pfProducer");
+  inputDesc.add<std::vector<int>>("regions");
+
+  desc.addVPSet("tkEgs", inputDesc);
+  desc.addVPSet("tkEms", inputDesc);
+  desc.addVPSet("tkElectrons", inputDesc);
+  desc.add<std::string>("egStaInstanceLabel", "L1CtEgEE");
+  desc.add<std::string>("tkEmInstanceLabel", "L1CtTkEm");
+  desc.add<std::string>("tkEleInstanceLabel", "L1CtTkElectron");
+  desc.add<edm::ParameterSetDescription>("sorter", l1ct::L2EgSorterEmulator::getParameterSetDescription());
+  desc.add<edm::ParameterSetDescription>("encoder", l1ct::L2EgEncoderEmulator::getParameterSetDescription());
+  desc.add<edm::ParameterSetDescription>("eleRegression",
+                                         l1ct::L2TkEleRegressionEmulator::getParameterSetDescription());
+  desc.add<edm::InputTag>("l1PFObjects", edm::InputTag("l1pfProducer"));
+  desc.add<edm::ParameterSetDescription>("puppiIsoParametersTkEm",
+                                         l1ct::L1EGPuppiIsoAlgo::getParameterSetDescription());
+  desc.add<edm::ParameterSetDescription>("puppiIsoParametersTkEle",
+                                         l1ct::L1EGPuppiIsoAlgo::getParameterSetDescription());
+  desc.add<bool>("writeInPattern", false);
+  desc.add<bool>("writeOutPattern", false);
+  desc.add<edm::ParameterSetDescription>("inPatternFile", PatternWriter::getParameterSetDescription());
+  desc.add<edm::ParameterSetDescription>("outPatternFile", PatternWriter::getParameterSetDescription());
+  return desc;
+}
 
 ap_uint<64> L1TCtL2EgProducer::encodeLayer1(const EGIsoObjEmu &egiso) const {
   ap_uint<64> ret = 0;
