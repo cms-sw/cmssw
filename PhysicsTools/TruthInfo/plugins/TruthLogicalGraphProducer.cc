@@ -693,6 +693,10 @@ public:
         } else if (ref.kind == TruthGraph::NodeKind::SimTrack) {
           p.simNode = static_cast<int32_t>(nodeId);
 
+          // Back-scattering (albedo) is a SimTrack property; OR it in so a merged
+          // GEN+SIM particle inherits it from its SIM side.
+          p.backscattered = p.backscattered || raw.nodeBackscattered(nodeId);
+
           if (p.pdgId == 0)
             p.pdgId = raw.nodePdgId(nodeId);
 

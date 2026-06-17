@@ -49,6 +49,11 @@ namespace truth {
     // Optional trajectory checkpoints.
     std::vector<Checkpoint> checkpoints;
 
+    // True for SIM particles that Geant4 flagged as back-scattered (albedo): the
+    // track crossed the Tracker<->CALO boundary inward. From SimTrack::isFromBack-
+    // Scattering(); always false for GEN-only particles.
+    bool backscattered = false;
+
     [[nodiscard]] bool hasGen() const { return genNode >= 0; }
     [[nodiscard]] bool hasSim() const { return simNode >= 0; }
     [[nodiscard]] bool valid() const { return hasGen() || hasSim(); }
@@ -231,6 +236,7 @@ namespace truth {
     [[nodiscard]] uint16_t statusFlags() const;
     [[nodiscard]] uint64_t eventId() const;
     [[nodiscard]] int32_t genEvent() const;
+    [[nodiscard]] bool backscattered() const;
     [[nodiscard]] const math::XYZTLorentzVectorD& momentum() const;
 
     [[nodiscard]] std::span<const Checkpoint> checkpoints() const;

@@ -377,6 +377,7 @@ public:
     out->statusFlags.assign(nNodes, 0);
     out->genEventOfNode.assign(nNodes, -1);
     out->simVertexProcessType.assign(nNodes, 0);
+    out->simTrackBackscattered.assign(nNodes, 0);
 
     out->simTrackToGen.assign(nNodes, -1);
     out->simTrackToVtx.assign(nNodes, -1);
@@ -472,6 +473,7 @@ public:
       out->nodes[nodeId] = TruthGraph::NodeRef{TruthGraph::NodeKind::SimTrack, static_cast<int64_t>(tid)};
       out->pdgId[nodeId] = simTrack.type();
       out->eventId[nodeId] = packEventId(simTrack.eventId());
+      out->simTrackBackscattered[nodeId] = simTrack.isFromBackScattering() ? 1 : 0;
 
       const int vtxIdx = simTrack.vertIndex();
       if (vtxIdx >= 0 && static_cast<uint32_t>(vtxIdx) < nSimVtx) {
