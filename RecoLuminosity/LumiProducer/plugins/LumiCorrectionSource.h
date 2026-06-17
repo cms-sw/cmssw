@@ -32,7 +32,8 @@ public:
 protected:
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
                       const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
+                      edm::ValidityInterval&) final;
+  bool isConcurrentFinder() const final { return true; }
 
 private:
   std::string translateFrontierConnect(const std::string& connectStr);
@@ -50,11 +51,9 @@ private:
   std::string m_normtag;
   std::string m_siteconfpath;
   std::map<unsigned int, std::shared_ptr<const LumiCorrectionParam> > m_paramcache;
-  bool m_isNullRun;  //if lumi data exist for this run
   unsigned int m_paramcachedrun;
   unsigned int m_cachesize;
   std::shared_ptr<const LumiCorrectionParam> m_paramresult;
-  const edm::IOVSyncValue* m_pcurrentTime;
 
 private:
   void fillparamcache(unsigned int runnumber);
