@@ -127,7 +127,7 @@ void BranchTrackingValidator::bookHistograms(DQMStore::IBooker& ib, edm::Run con
                                            0.,
                                            1.05);
   plots_.nSharingBranches = ib.book1D(
-      "n_sharing_branches", "Distinct Branches sharing >=10% of the track hits;#Branches;tracks", 11, -0.5, 10.5);
+      "n_sharing_branches", "Distinct Branches sharing >=10% of the track hits;#Branches;tracks", 51, -0.5, 50.5);
 }
 
 namespace {
@@ -253,7 +253,7 @@ void BranchTrackingValidator::analyze(edm::Event const& event, edm::EventSetup c
       for (auto const& m : matches)
         if (static_cast<double>(m.sharedEnergy) >= shareThreshold)
           ++nSharing;
-      plots_.nSharingBranches->Fill(std::min<uint32_t>(nSharing, 10));
+      plots_.nSharingBranches->Fill(std::min<uint32_t>(nSharing, 50));
     }
 
     if (branch.particle == expectedParticle) {
