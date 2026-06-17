@@ -38,19 +38,26 @@ fi
 check_logs_for_errors() {
     local log_dirs=${1:-"logs/step*/pid*"}
     local error_found=0
+    local pattern='fatal|fail|exception|traceback'
 
     for f in $log_dirs/stdout $log_dirs/stderr; do
-	if [[ -f "$f" ]]; then
-	    if grep -qiE 'error|fail|exception|traceback' "$f"; then
-		echo "Error keyword found in: $f"
-		error_found=1
-	    fi
-	fi
+        [[ -f "$f" ]] || continue
+
+        if grep -qiE "$pattern" "$f"; then
+            echo "Error keyword found in: $f"
+
+            grep -inE "$pattern" "$f" | while IFS=: read -r lineno line; do
+                keyword=$(grep -ioE "$pattern" <<< "$line" | head -1)
+                echo "  Line $lineno [$keyword]: $line"
+            done
+
+            error_found=1
+        fi
     done
 
     if [[ $error_found -eq 1 ]]; then
-	echo "Failure detected in logs."
-	return 1
+        echo "Failure detected in logs."
+        return 1
     fi
 }
 
