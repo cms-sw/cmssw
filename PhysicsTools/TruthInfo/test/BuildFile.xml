@@ -23,3 +23,5 @@
   <use name="SimDataFormats/EncodedEventId"/>
   <use name="cppunit"/>
 </bin>
+
+<test name="truthGraphSelections_t" command="python3 ${LOCALTOP}/src/PhysicsTools/TruthInfo/test/truthGraphSelections_t.py"/>

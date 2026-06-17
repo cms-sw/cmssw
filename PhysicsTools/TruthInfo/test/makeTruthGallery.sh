@@ -24,34 +24,40 @@ set -uo pipefail
 LIB="${1:-$PWD/library}"
 OUT="${2:-$PWD/dot_gallery}"
 CFG="$CMSSW_BASE/src/PhysicsTools/TruthInfo/test/dumpTruthGraphsFromGENSIMRECO_cfg.py"
+SELECT="$CMSSW_BASE/src/PhysicsTools/TruthInfo/python/truthGraphSelections.py"
 NEVT="${NEVT:-3}"
 JOBS="${JOBS:-16}"
 
-# label : workflow-number : natural seed PDG ids : optional extra dump flags.
-# --keepProductionSiblings is added for VBF, whose seed (the Higgs) recoils against
-# the two tagging quarks at its production vertex: the signal view then shows the
-# real hard vertex and the forward jets rather than summarizing them into the
-# artificial Upstream node. (It is a no-op for 2->1 production like ggF gg->H or
-# s-channel Drell-Yan, where the seed has no production-vertex co-products.)
+# label : workflow-number. The per-process signal-view selection (seed, parent
+# depth, decay channel, --keepProductionSiblings, ...) is no longer hard-coded:
+# it is resolved from each workflow's generator fragment by truthGraphSelections.py
+# (the seven enableTruth presets), so VBF gets the tagging quarks, Drell-Yan gets
+# the dilepton channel, guns get their species, etc., and a new sample needs no
+# edit here. Override per sample by appending flags after $flags below if needed.
 SAMPLES=(
-  "SingleElectron:34002:11,-11:"
-  "TTbar:34034:6,-6:"
-  "DYToLL:34044:23:"
-  "DYToTauTau:34045:23:"
-  "ZMM:34050:23:"
-  "H125_diphoton:34052:25:"
-  "VBFHZZ4Nu:34131:25:--keepProductionSiblings"
-  "TenTau:34087:15,-15:"
+  "SingleElectron:34002"
+  "TTbar:34034"
+  "DYToLL:34044"
+  "DYToTauTau:34045"
+  "ZMM:34050"
+  "H125_diphoton:34052"
+  "VBFHZZ4Nu:34131"
+  "TenTau:34087"
 )
 
 rm -rf "$OUT"; mkdir -p "$OUT"
 cmds=()
 for s in "${SAMPLES[@]}"; do
-  IFS=: read -r lab num seeds extra <<< "$s"
+  IFS=: read -r lab num <<< "$s"
   step3=$(ls "$LIB"/${num}.88_*/step3.root 2>/dev/null | head -1)
   if [[ -z "$step3" ]]; then echo "SKIP $lab ($num): no step3.root under $LIB"; continue; fi
+  # Generator fragment from the workflow dir name (strip the "<wf>.88_" prefix and
+  # the "+Run4..." suffix) -> per-process selection preset.
+  frag=$(basename "$(dirname "$step3")"); frag=${frag#*_}; frag=${frag%%+*}
+  flags=$(python3 "$SELECT" "$frag")
+  echo "  $lab: fragment '$frag' -> $(python3 "$SELECT" "$frag" --name) [$flags]"
   mkdir -p "$OUT/$lab"
-  cmds+=("cmsRun $CFG file:$step3 -n $NEVT -o $OUT/$lab -s $seeds -d 0 $extra -t _sig > $OUT/$lab/sig.log 2>&1")
+  cmds+=("cmsRun $CFG file:$step3 -n $NEVT -o $OUT/$lab $flags -t _sig > $OUT/$lab/sig.log 2>&1")
   cmds+=("cmsRun $CFG file:$step3 -n 1 --showAll -s 0 -t _full -o $OUT/$lab > $OUT/$lab/full.log 2>&1")
 done
 
