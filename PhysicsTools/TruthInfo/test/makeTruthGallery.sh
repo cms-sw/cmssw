@@ -28,17 +28,18 @@ NEVT="${NEVT:-3}"
 JOBS="${JOBS:-16}"
 
 # label : workflow-number : natural seed PDG ids : optional extra dump flags.
-# --keepProductionSiblings is added for the Higgs-production samples, whose seed
-# (the Higgs) recoils against other hard partons at its production vertex - the VBF
-# tagging quarks / ggF ISR - so the signal view shows the real hard vertex and the
-# recoiling jets rather than summarizing them into the artificial Upstream node.
+# --keepProductionSiblings is added for VBF, whose seed (the Higgs) recoils against
+# the two tagging quarks at its production vertex: the signal view then shows the
+# real hard vertex and the forward jets rather than summarizing them into the
+# artificial Upstream node. (It is a no-op for 2->1 production like ggF gg->H or
+# s-channel Drell-Yan, where the seed has no production-vertex co-products.)
 SAMPLES=(
   "SingleElectron:34002:11,-11:"
   "TTbar:34034:6,-6:"
   "DYToLL:34044:23:"
   "DYToTauTau:34045:23:"
   "ZMM:34050:23:"
-  "H125_diphoton:34052:25:--keepProductionSiblings"
+  "H125_diphoton:34052:25:"
   "VBFHZZ4Nu:34131:25:--keepProductionSiblings"
   "TenTau:34087:15,-15:"
 )

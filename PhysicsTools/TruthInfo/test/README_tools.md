@@ -30,11 +30,19 @@ The postprocessing supports focused, physics-oriented views:
   (pile-up provenance).
 - `-f/--flavors` seeds on hadrons by heavy-flavor content (`-f 5` = B hadrons,
   `-f 4` = D hadrons), OR-ed with `-s/--seeds`.
+- `--keepProductionSiblings` keeps the seed's **hard-scatter co-products**: the
+  other outgoing particles of its production vertex (and their subtrees). These are
+  siblings of the seed, not ancestors, so `-d/--parentDepth` never reaches them -
+  e.g. seeding on the Higgs in VBF, this brings in the recoiling tagging quarks and
+  their forward jets, and shows the real hard vertex in place of the artificial
+  Upstream node.
 ```bash
 # clean Z -> mu mu view with an explicit ISR node:
 cmsRun dumpTruthGraphsFromGENSIMRECO_cfg.py file:step3.root -s 23 -d 1 --no-keepSpectators
 # all B-hadron decay subgraphs:
 cmsRun dumpTruthGraphsFromGENSIMRECO_cfg.py file:step3.root -f 5 --no-keepSpectators
+# VBF Higgs with the tagging quarks/jets that produced it:
+cmsRun dumpTruthGraphsFromGENSIMRECO_cfg.py file:step3.root -s 25 -d 1 --keepProductionSiblings
 ```
 
 ## Jet -> originating particle
