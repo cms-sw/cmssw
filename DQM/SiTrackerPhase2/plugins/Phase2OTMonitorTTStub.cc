@@ -212,9 +212,7 @@ void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run 
 
   // Whole OT Summaries
   iBooker.setCurrentFolder(topFolderName_);
-  // Positions
-  Stub_RZ = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Stub_RZ"), iBooker);
-
+  
   // CRACK ONLY: module vs layer
   edm::ParameterSet Parameters = conf_.getParameter<edm::ParameterSet>("CrackOverview");
   if (Parameters.getParameter<bool>("switch")) {
@@ -250,6 +248,14 @@ void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run 
   Stub_bendBE = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Stub_bendBE"), iBooker);
   Stub_isPS = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Stub_isPS"), iBooker);
 
+  // Positions
+  iBooker.setCurrentFolder(topFolderName_ + "/Positions");
+  Stub_Barrel_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Stub_Global_Position_Barrel_XY"), iBooker);
+  Stub_RZ = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Stub_Global_Position_RZ"), iBooker);
+  Stub_Endcap_Fw_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Stub_Global_Position_Endcap_Fw_XY"), iBooker);
+  Stub_Endcap_Bw_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Stub_Global_Position_Endcap_Bw_XY"), iBooker);
+
+
   // Endcap Summaries
   iBooker.setCurrentFolder(topFolderName_ + "/EndCaps");
   Stub_Endcap_Disc = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Stubs_Endcap_Disc"), iBooker);
@@ -261,14 +267,12 @@ void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run 
 
   // Barrel Summaries
   iBooker.setCurrentFolder(topFolderName_ + "/Barrel");
-  Stub_Barrel_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Stub_Barrel_XY"), iBooker);
   Stub_Barrel = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Stubs_Barrel"), iBooker);
   Stub_Barrel_W = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Stub_Width_Barrel"), iBooker);
   Stub_Barrel_O = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Stub_Offset_Barrel"), iBooker);
 
   // BW Endcap Summaries
   iBooker.setCurrentFolder(topFolderName_ + "/EndCaps/MINUS");
-  Stub_Endcap_Bw_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Stub_Endcap_Bw_XY"), iBooker);
   Stub_Endcap_Disc_Bw = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Stubs_Endcap_Disc_Bw"), iBooker);
   for (int i = 0; i < static_cast<int>(trklet::N_DISK); i++) {
     Stub_Endcap_Ring_Bw[i] =
@@ -281,7 +285,6 @@ void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run 
 
   // FW Endcap Summaries
   iBooker.setCurrentFolder(topFolderName_ + "/EndCaps/PLUS");
-  Stub_Endcap_Fw_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Stub_Endcap_Fw_XY"), iBooker);
   Stub_Endcap_Disc_Fw = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Stubs_Endcap_Disc_Fw"), iBooker);
   for (int i = 0; i < static_cast<int>(trklet::N_DISK); i++) {
     Stub_Endcap_Ring_Fw[i] =
@@ -298,8 +301,8 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
 
   // Position
   phase2tkutil::add2DDesc(desc,
-                          "L1Stub_Barrel_XY",
-                          "L1Stub_Barrel_XY",
+                          "L1Stub_Global_Position_Barrel_XY",
+                          "L1Stub_Global_Position_Barrel_XY",
                           "L1 Stub Barrel position x [cm]",
                           "L1 Stub Barrel position y [cm]",
                           960,
@@ -309,8 +312,8 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
                           -120,
                           120);
   phase2tkutil::add2DDesc(desc,
-                          "L1Stub_Endcap_Fw_XY",
-                          "L1Stub_Endcap_Fw_XY",
+                          "L1Stub_Global_Position_Endcap_Fw_XY",
+                          "L1Stub_Global_Position_Endcap_Fw_XY",
                           "L1 Stub Endcap position x [cm]",
                           "L1 Stub Endcap position y [cm]",
                           960,
@@ -320,8 +323,8 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
                           -120,
                           120);
   phase2tkutil::add2DDesc(desc,
-                          "L1Stub_Endcap_Bw_XY",
-                          "L1Stub_Endcap_Bw_XY",
+                          "L1Stub_Global_Position_Endcap_Bw_XY",
+                          "L1Stub_Global_Position_Endcap_Bw_XY",
                           "L1 Stub Endcap position x [cm]",
                           "L1 Stub Endcap position y [cm]",
                           960,
@@ -331,8 +334,8 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
                           -120,
                           120);
   phase2tkutil::add2DDesc(desc,
-                          "L1Stub_RZ",
-                          "L1Stub_RZ",
+                          "L1Stub_Global_Position_RZ",
+                          "L1Stub_Global_Position_RZ",
                           "L1 Stub position z [cm]",
                           "L1 Stub position #rho [cm]",
                           900,

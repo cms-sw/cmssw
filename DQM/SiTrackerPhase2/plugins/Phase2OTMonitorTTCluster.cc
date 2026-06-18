@@ -203,17 +203,20 @@ void Phase2OTMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker,
   Cluster_Phi = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Cluster_Phi"), iBooker);
   Cluster_R = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Cluster_R"), iBooker);
 
-  Cluster_RZ = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Cluster_RZ"), iBooker);
+  // Positions
+  iBooker.setCurrentFolder(topFolderName_ + "/Positions/");
+  Cluster_RZ = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Cluster_Global_Position_RZ"), iBooker);
+  Cluster_Barrel_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Cluster_Global_Position_Barrel_XY"), iBooker);
+  Cluster_Endcap_Bw_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Cluster_Global_Position_Endcap_Bw_XY"), iBooker);
+  Cluster_Endcap_Fw_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Cluster_Global_Position_Endcap_Fw_XY"), iBooker);
 
   // Barrel Summaries
   iBooker.setCurrentFolder(topFolderName_ + "/Barrel/");
-  Cluster_Barrel_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Cluster_Barrel_XY"), iBooker);
   Cluster_IMem_Barrel = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Clusters_IMem_Barrel"), iBooker);
   Cluster_OMem_Barrel = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("Num_L1Clusters_OMem_Barrel"), iBooker);
 
   // BW Endcap Summaries
   iBooker.setCurrentFolder(topFolderName_ + "/EndCaps/MINUS/");
-  Cluster_Endcap_Bw_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Cluster_Endcap_Bw_XY"), iBooker);
   for (int i = 0; i < static_cast<int>(trklet::N_DISK); i++) {
     const std::string si = std::to_string(i + 1);
     Cluster_IMem_Endcap_Ring_Bw[i] =
@@ -224,7 +227,6 @@ void Phase2OTMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker,
 
   // FW Endcap Summaries
   iBooker.setCurrentFolder(topFolderName_ + "/EndCaps/PLUS/");
-  Cluster_Endcap_Fw_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Cluster_Endcap_Fw_XY"), iBooker);
   for (int i = 0; i < static_cast<int>(trklet::N_DISK); i++) {
     const std::string si = std::to_string(i + 1);
     Cluster_IMem_Endcap_Ring_Fw[i] =
@@ -331,8 +333,8 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
 
   // Position
   phase2tkutil::add2DDesc(desc,
-                          "L1Cluster_Barrel_XY",
-                          "L1Cluster_Barrel_XY",
+                          "L1Cluster_Global_Position_Barrel_XY",
+                          "L1Cluster_Global_Position_Barrel_XY",
                           "L1 Cluster Barrel position x [cm]",
                           "L1 Cluster Barrel position y [cm]",
                           960,
@@ -342,8 +344,8 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
                           -120,
                           120);
   phase2tkutil::add2DDesc(desc,
-                          "L1Cluster_Endcap_Fw_XY",
-                          "L1Cluster_Endcap_Fw_XY",
+                          "L1Cluster_Global_Position_Endcap_Fw_XY",
+                          "L1Cluster_Global_Position_Endcap_Fw_XY",
                           "L1 Cluster Forward Endcap position x [cm]",
                           "L1 Cluster Forward Endcap position y [cm]",
                           960,
@@ -353,8 +355,8 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
                           -120,
                           120);
   phase2tkutil::add2DDesc(desc,
-                          "L1Cluster_Endcap_Bw_XY",
-                          "L1Cluster_Endcap_Bw_XY",
+                          "L1Cluster_Global_Position_Endcap_Bw_XY",
+                          "L1Cluster_Global_Position_Endcap_Bw_XY",
                           "L1 Cluster Backward Endcap position x [cm]",
                           "L1 Cluster Backward Endcap position y [cm]",
                           960,
@@ -364,8 +366,8 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
                           -120,
                           120);
   phase2tkutil::add2DDesc(desc,
-                          "L1Cluster_RZ",
-                          "L1Cluster_RZ",
+                          "L1Cluster_Global_Position_RZ",
+                          "L1Cluster_Global_Position_RZ",
                           "L1 Cluster position z [cm]",
                           "L1 Cluster position #rho [cm]",
                           900,

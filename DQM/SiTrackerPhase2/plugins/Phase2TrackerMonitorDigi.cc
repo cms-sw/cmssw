@@ -481,14 +481,14 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
   }
   ibooker.cd();
   std::stringstream folder_name;
-  folder_name << top_folder + "/";
-  ibooker.setCurrentFolder(folder_name.str());
+  folder_name << top_folder;
+  ibooker.setCurrentFolder(folder_name.str() + "/Positions");
 
   edm::ParameterSet Parameters = config_.getParameter<edm::ParameterSet>("XYPositionMapH");
   edm::ParameterSet ParametersOcc = config_.getParameter<edm::ParameterSet>("DigiOccupancyPH");
   if (Parameters.getParameter<bool>("switch")) {
-    XYPositionMap = ibooker.book2D("Digi_Position_XY",
-                                   "Digi_Position_XY",
+    XYPositionMap = ibooker.book2D("Digi_Global_Position_XY",
+                                   "Digi_Global_Position_XY",
                                    Parameters.getParameter<int32_t>("Nxbins"),
                                    Parameters.getParameter<double>("xmin"),
                                    Parameters.getParameter<double>("xmax"),
@@ -518,8 +518,8 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
 
   Parameters = config_.getParameter<edm::ParameterSet>("RZPositionMapH");
   if (Parameters.getParameter<bool>("switch")) {
-    RZPositionMap = ibooker.book2D("Digi_Position_RZ",
-                                   "Digi_Position_RZ",
+    RZPositionMap = ibooker.book2D("Digi_Global_Position_RZ",
+                                   "Digi_Global_Position_RZ",
                                    Parameters.getParameter<int32_t>("Nxbins"),
                                    Parameters.getParameter<double>("xmin"),
                                    Parameters.getParameter<double>("xmax"),
@@ -546,6 +546,8 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
     RZOccupancyMap->setAxisTitle("Digi position #rho [cm]", 2);
   } else
     RZOccupancyMap = nullptr;
+
+  ibooker.setCurrentFolder(folder_name.str());
 
   Parameters = config_.getParameter<edm::ParameterSet>("CrackOverview");
   if (Parameters.getParameter<bool>("switch")) {

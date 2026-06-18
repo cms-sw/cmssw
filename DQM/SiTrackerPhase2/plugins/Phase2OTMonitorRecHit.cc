@@ -78,11 +78,6 @@ private:
   struct RecHitME {
     // use TH1D instead of TH1F to avoid stauration at 2^31
     // above this increments with +1 don't work for float, need double
-    MonitorElement* globalPosXY_P = nullptr;
-    MonitorElement* globalPosXY_S = nullptr;
-    MonitorElement* localPosXY_P = nullptr;
-    MonitorElement* localPosXY_S = nullptr;
-
     MonitorElement* numberRecHits_P = nullptr;
     MonitorElement* numberRecHits_S = nullptr;
     MonitorElement* clusterSize_P = nullptr;
@@ -182,15 +177,11 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
           globalRZ_P_->Fill(gz, gr);
           //layer wise histo
           layerMEs_[key].clusterSize_P->Fill(rechitIt->cluster()->size());
-          //layerMEs_[key].globalPosXY_P->Fill(gx, gy);
-          layerMEs_[key].localPosXY_P->Fill(lp.x(), lp.y());
         } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
           globalXY_S_->Fill(gx, gy);
           globalRZ_S_->Fill(gz, gr);
           //layer wise histo
           layerMEs_[key].clusterSize_S->Fill(rechitIt->cluster()->size());
-          //layerMEs_[key].globalPosXY_S->Fill(gx, gy);
-          layerMEs_[key].localPosXY_S->Fill(lp.x(), lp.y());
         }
       }  //end loop over rechits of a detId
     }  //End loop over DetSetVector
@@ -221,6 +212,8 @@ void Phase2OTMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
 
   //Global histos for OT
   numberRecHits_ = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalNRecHits"), ibooker);
+
+  ibooker.setCurrentFolder(top_folder + "/Positions/");
 
   globalXY_P_ = phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_P"), ibooker);
 
@@ -269,31 +262,16 @@ void Phase2OTMonitorRecHit::bookLayerHistos(DQMStore::IBooker& ibooker, unsigned
       if (tkGeom_->getDetectorType(det_id) == TrackerGeometry::ModuleType::Ph2PSP) {
         local_histos.numberRecHits_P =
             phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NRecHitsLayer_P"), ibooker);
-
         local_histos.clusterSize_P =
             phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitSize_P"), ibooker);
-
-        local_histos.globalPosXY_P = phase2tkutil::book2DFromPSet(
-            config_.getParameter<edm::ParameterSet>("GlobalPositionXY_perlayer_P"), ibooker);
-
-        local_histos.localPosXY_P =
-            phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY_P"), ibooker);
-
       }  //if block for P
 
       local_histos.numberRecHits_S =
-          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NRecHitsLayer_P"), ibooker);
+          phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("NRecHitsLayer_S"), ibooker);
       local_histos.clusterSize_S =
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("RecHitSize_S"), ibooker);
-      local_histos.localPosXY_S =
-          phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY_S"), ibooker);
 
       layerMEs_.insert(std::make_pair(key, local_histos));
-      int side = tTopo_->tidSide(det_id);
-      std::string Side = (side == 1) ? "MINUS/" : "PLUS/";
-      int disc = tTopo_->tidWheel(det_id);
-      std::string Disc = (disc < 3) ? "TEDD_1/" : "TEDD_2/";
-      key = "EndCaps/" + Side + Disc + "Wheel" + disc;
     }
   }
 }
@@ -315,7 +293,7 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Global_RecHitPosition_XY_P");
+    psd0.add<std::string>("name", "RecHit_Global_Position_XY_P");
     psd0.add<std::string>("title", "Global_RecHitPosition_XY_P;x [mm];y [mm];");
     psd0.add<int>("NxBins", 1250);
     psd0.add<double>("xmin", -1250.0);
@@ -328,7 +306,7 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Global_RecHitPosition_XY_S");
+    psd0.add<std::string>("name", "RecHit_Global_Position_XY_S");
     psd0.add<std::string>("title", "Global_RecHitPosition_XY_S;x [mm];y [mm];");
     psd0.add<int>("NxBins", 1250);
     psd0.add<double>("xmin", -1250.0);
@@ -342,7 +320,7 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
 
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Global_RecHitPosition_RZ_P");
+    psd0.add<std::string>("name", "RecHit_Global_Position_RZ_P");
     psd0.add<std::string>("title", "Global_RecHitPosition_RZ_P;z [mm];r [mm]");
     psd0.add<int>("NxBins", 1500);
     psd0.add<double>("xmin", -3000.0);
@@ -355,9 +333,8 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Global_RecHitPosition_RZ_S");
+    psd0.add<std::string>("name", "RecHit_Global_Position_RZ_S");
     psd0.add<std::string>("title", "Global_RecHitPosition_RZ_S;z [mm];r [mm]");
-
     psd0.add<int>("NxBins", 1500);
     psd0.add<double>("xmin", -3000.0);
     psd0.add<double>("xmax", 3000.0);
@@ -409,58 +386,6 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
     psd0.add<int>("NxBins", 31);
     psd0.add<bool>("switch", true);
     desc.add<edm::ParameterSetDescription>("RecHitSize_S", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "RecHit_GlobalPositionXY_perlayer_P");
-    psd0.add<std::string>("title", "RecHit_GlobalRecHitPositionXY_perlayer_P;x[mm];y[mm];");
-    psd0.add<int>("NxBins", 1250);
-    psd0.add<double>("xmin", -1250.0);
-    psd0.add<double>("xmax", 1250.0);
-    psd0.add<int>("NyBins", 1250);
-    psd0.add<double>("ymin", -1250.0);
-    psd0.add<double>("ymax", 1250.0);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("GlobalPositionXY_perlayer_P", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "RecHit_GlobalPositionXY_perlayer_S");
-    psd0.add<std::string>("title", "RecHit_GlobalRecHitPositionXY_perlayer_S;x[mm];y[mm];");
-    psd0.add<int>("NxBins", 1250);
-    psd0.add<double>("xmin", -1250.0);
-    psd0.add<double>("xmax", 1250.0);
-    psd0.add<int>("NyBins", 1250);
-    psd0.add<double>("ymin", -1250.0);
-    psd0.add<double>("ymax", 1250.0);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("GlobalPositionXY_perlayer_S", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "RecHit_LocalPositionXY_P");
-    psd0.add<std::string>("title", "RecHit_LocalPositionXY_P;x ;y ;");
-    psd0.add<int>("NxBins", 50);
-    psd0.add<double>("xmin", -10.0);
-    psd0.add<double>("xmax", 10.0);
-    psd0.add<int>("NyBins", 50);
-    psd0.add<double>("ymin", -10.0);
-    psd0.add<double>("ymax", 10.0);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("LocalPositionXY_P", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "RecHit_LocalPositionXY_S");
-    psd0.add<std::string>("title", "RecHit_LocalPositionXY_S;x ;y ;");
-    psd0.add<int>("NxBins", 50);
-    psd0.add<double>("xmin", -10.0);
-    psd0.add<double>("xmax", 10.0);
-    psd0.add<int>("NyBins", 50);
-    psd0.add<double>("ymin", -10.0);
-    psd0.add<double>("ymax", 10.0);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("LocalPositionXY_S", psd0);
   }
   desc.add<std::string>("TopFolderName", "OuterTracker");
   desc.add<bool>("Verbosity", false);

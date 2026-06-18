@@ -197,6 +197,7 @@ void Phase2ITMonitorRecHit::bookHistograms(DQMStore::IBooker& ibooker,
   numberRecHits_ =
       phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalNumberRecHits"), ibooker);
 
+  ibooker.setCurrentFolder(dir + "/Positions");
   globalXY_barrel_ =
       phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_PXB"), ibooker);
 
@@ -292,8 +293,8 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Global_Position_RZ_IT_barrel");
-    psd0.add<std::string>("title", "Global_Position_RZ_IT_barrel;z [mm];r [mm]");
+    psd0.add<std::string>("name", "RecHit_Global_Position_RZ_IT_barrel");
+    psd0.add<std::string>("title", "RecHit_Global_Position_RZ_IT_barrel;z [mm];r [mm]");
     psd0.add<double>("ymax", 300.0);
     psd0.add<int>("NxBins", 1500);
     psd0.add<int>("NyBins", 300);
@@ -305,8 +306,8 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Global_Position_XY_IT_barrel");
-    psd0.add<std::string>("title", "Global_Position_XY_IT_barrel;x [mm];y [mm];");
+    psd0.add<std::string>("name", "RecHit_Global_Position_XY_IT_barrel");
+    psd0.add<std::string>("title", "RecHit_Global_Position_XY_IT_barrel;x [mm];y [mm];");
     psd0.add<double>("ymax", 300.0);
     psd0.add<int>("NxBins", 600);
     psd0.add<int>("NyBins", 600);
@@ -318,8 +319,8 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Global_Position_RZ_IT_endcap");
-    psd0.add<std::string>("title", "Global_Position_RZ_IT_endcap;z [mm];r [mm]");
+    psd0.add<std::string>("name", "RecHit_Global_Position_RZ_IT_endcap");
+    psd0.add<std::string>("title", "RecHit_Global_Position_RZ_IT_endcap;z [mm];r [mm]");
     psd0.add<double>("ymax", 300.0);
     psd0.add<int>("NxBins", 1500);
     psd0.add<int>("NyBins", 300);
@@ -331,8 +332,8 @@ void Phase2ITMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Global_Position_XY_IT_endcap");
-    psd0.add<std::string>("title", "Global_Position_XY_IT_endcap; x [mm]; y [mm]");
+    psd0.add<std::string>("name", "RecHit_Global_Position_XY_IT_endcap");
+    psd0.add<std::string>("title", "RecHit_Global_Position_XY_IT_endcap; x [mm]; y [mm]");
     psd0.add<double>("ymax", 300.0);
     psd0.add<int>("NxBins", 600);
     psd0.add<int>("NyBins", 600);

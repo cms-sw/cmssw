@@ -193,6 +193,7 @@ void Phase2ITMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 
   numberClusters_ = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalNClusters"), ibooker);
 
+  ibooker.setCurrentFolder(folder_name.str() + "/Positions");
   globalXY_barrel_ =
       phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_PXB"), ibooker);
 
@@ -289,8 +290,8 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Global_Position_RZ_IT_barrel");
-    psd0.add<std::string>("title", "Global_Position_RZ_IT_barrel;z [mm];r [mm]");
+    psd0.add<std::string>("name", "Clusters_Global_Position_RZ_IT_barrel");
+    psd0.add<std::string>("title", "Clusters_Global_Position_RZ_IT_barrel;z [mm];r [mm]");
     psd0.add<double>("ymax", 300.0);
     psd0.add<int>("NxBins", 1500);
     psd0.add<int>("NyBins", 300);
@@ -302,8 +303,8 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Global_Position_XY_IT_barrel");
-    psd0.add<std::string>("title", "Global_Position_XY_IT_barrel;x [mm];y [mm];");
+    psd0.add<std::string>("name", "Clutsers_Global_Position_XY_IT_barrel");
+    psd0.add<std::string>("title", "Clusters_Global_Position_XY_IT_barrel;x [mm];y [mm];");
     psd0.add<double>("ymax", 300.0);
     psd0.add<int>("NxBins", 600);
     psd0.add<int>("NyBins", 600);
@@ -315,8 +316,8 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Global_Position_RZ_IT_endcap");
-    psd0.add<std::string>("title", "Global_Position_RZ_IT_endcap;z [mm];r [mm]");
+    psd0.add<std::string>("name", "Clusters_Global_Position_RZ_IT_endcap");
+    psd0.add<std::string>("title", "Clusters_Global_Position_RZ_IT_endcap;z [mm];r [mm]");
     psd0.add<double>("ymax", 300.0);
     psd0.add<int>("NxBins", 1500);
     psd0.add<int>("NyBins", 300);
@@ -328,8 +329,8 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Global_Position_XY_IT_endcap");
-    psd0.add<std::string>("title", "Global_Position_XY_IT_endcap; x [mm]; y [mm]");
+    psd0.add<std::string>("name", "Clusters_Global_Position_XY_IT_endcap");
+    psd0.add<std::string>("title", "Clusters_Global_Position_XY_IT_endcap; x [mm]; y [mm]");
     psd0.add<double>("ymax", 300.0);
     psd0.add<int>("NxBins", 600);
     psd0.add<int>("NyBins", 600);

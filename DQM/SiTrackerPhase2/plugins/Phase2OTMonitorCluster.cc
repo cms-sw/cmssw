@@ -52,12 +52,10 @@ private:
     MonitorElement* nClusters_P = nullptr;
     MonitorElement* ClusterSize_P = nullptr;
     MonitorElement* XYGlobalPositionMap_P = nullptr;
-    MonitorElement* XYLocalPositionMap_P = nullptr;
 
     MonitorElement* nClusters_S = nullptr;
     MonitorElement* ClusterSize_S = nullptr;
     MonitorElement* XYGlobalPositionMap_S = nullptr;
-    MonitorElement* XYLocalPositionMap_S = nullptr;
 
     std::vector<MonitorElement*> PositionOfClusters_2S;
     std::vector<MonitorElement*> PositionOfClusters_2SLadder;
@@ -176,7 +174,6 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
           globalXY_P_->Fill(gx, gy);
           globalRZ_P_->Fill(gz, gr);
           local_mes.ClusterSize_P->Fill(clusterItr.size());
-          local_mes.XYLocalPositionMap_P->Fill(localPosCluster.x(), localPosCluster.y());
 
           if (local_mes.XYGlobalPositionMap_P != nullptr)  //make this optional
             local_mes.XYGlobalPositionMap_P->Fill(gx, gy);
@@ -184,7 +181,6 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
           globalXY_S_->Fill(gx, gy);
           globalRZ_S_->Fill(gz, gr);
           local_mes.ClusterSize_S->Fill(clusterItr.size());
-          local_mes.XYLocalPositionMap_S->Fill(localPosCluster.x(), localPosCluster.y());
 
           if (local_mes.XYGlobalPositionMap_S != nullptr)  //make this optional
             local_mes.XYGlobalPositionMap_S->Fill(gx, gy);
@@ -245,14 +241,6 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 
   numberClusters_ = phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalNClusters"), ibooker);
 
-  globalXY_P_ = phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_P"), ibooker);
-
-  globalRZ_P_ = phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionRZ_P"), ibooker);
-
-  globalXY_S_ = phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_S"), ibooker);
-
-  globalRZ_S_ = phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionRZ_S"), ibooker);
-
   edm::ParameterSet Parameters = config_.getParameter<edm::ParameterSet>("CrackOverview");
   if (Parameters.getParameter<bool>("switch")) {
     crackOverview_ = ibooker.book2DPoly(Parameters.getParameter<std::string>("name"),
@@ -278,6 +266,15 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 
   } else
     crackOverview_ = nullptr;
+
+  ibooker.setCurrentFolder(top_folder + "/Positions/");
+  globalXY_P_ = phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_P"), ibooker);
+
+  globalRZ_P_ = phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionRZ_P"), ibooker);
+
+  globalXY_S_ = phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_S"), ibooker);
+
+  globalRZ_S_ = phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionRZ_S"), ibooker);
 
   ibooker.setCurrentFolder(top_folder + "/Barrel/");
   numberClusters_Barrel_ =
@@ -330,8 +327,6 @@ void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
             phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterSize_P"), ibooker);
         local_mes.XYGlobalPositionMap_P = phase2tkutil::book2DFromPSet(
             config_.getParameter<edm::ParameterSet>("GlobalPositionXY_perlayer_P"), ibooker);
-        local_mes.XYLocalPositionMap_P =
-            phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY_P"), ibooker);
       }
       if (mType == TrackerGeometry::ModuleType::Ph2SS) {
         //Book the right number of histograms per layer
@@ -404,9 +399,6 @@ void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
       local_mes.XYGlobalPositionMap_S =
           phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_perlayer_S"), ibooker);
 
-      local_mes.XYLocalPositionMap_S =
-          phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY_S"), ibooker);
-
       layerMEs_.emplace(folderName, local_mes);
     }  //if block layerME find
   }
@@ -438,7 +430,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_Position_XY_P");
+    psd0.add<std::string>("name", "Cluster_Global_Position_XY_P");
     psd0.add<std::string>("title", "Cluster Position XY P;Cluster position x [cm];Cluster position y [cm];");
     psd0.add<int>("NxBins", 1250);
     psd0.add<double>("xmin", -125.0);
@@ -451,7 +443,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_Position_XY_S");
+    psd0.add<std::string>("name", "Cluster_Global_Position_XY_S");
     psd0.add<std::string>("title", "Cluster Position XY S;Cluster position x [cm];Cluster position y [cm];");
     psd0.add<int>("NxBins", 1250);
     psd0.add<double>("xmin", -125.0);
@@ -465,7 +457,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
 
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_Position_RZ_P");
+    psd0.add<std::string>("name", "Cluster_Global_Position_RZ_P");
     psd0.add<std::string>("title", "Cluster Position RZ P;Cluster position z [cm];Cluster position #rho [cm]");
     psd0.add<int>("NxBins", 1500);
     psd0.add<double>("xmin", -300.0);
@@ -478,7 +470,7 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_Position_RZ_S");
+    psd0.add<std::string>("name", "Cluster_Global_Position_RZ_S");
     psd0.add<std::string>("title", "Cluster Position RZ S;Cluster position z [cm];Cluster position #rho [cm]");
     psd0.add<int>("NxBins", 1500);
     psd0.add<double>("xmin", -300.0);
@@ -565,32 +557,6 @@ void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
     psd0.add<double>("ymax", 125.0);
     psd0.add<bool>("switch", false);
     desc.add<edm::ParameterSetDescription>("GlobalPositionXY_perlayer_S", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_Local_Position_XY_P");
-    psd0.add<std::string>("title", "Cluster Local Position XY P;Cluster position x [cm];Cluster position y [cm];");
-    psd0.add<int>("NxBins", 25);
-    psd0.add<double>("xmin", -5.0);
-    psd0.add<double>("xmax", 5.0);
-    psd0.add<int>("NyBins", 15);
-    psd0.add<double>("ymin", -3.0);
-    psd0.add<double>("ymax", 3.0);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("LocalPositionXY_P", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Cluster_Local_Position_XY_S");
-    psd0.add<std::string>("title", "Cluster Local Position XY S;Cluster position x [cm];Cluster position y [cm];");
-    psd0.add<int>("NxBins", 25);
-    psd0.add<double>("xmin", -5.0);
-    psd0.add<double>("xmax", 5.0);
-    psd0.add<int>("NyBins", 15);
-    psd0.add<double>("ymin", -3.0);
-    psd0.add<double>("ymax", 3.0);
-    psd0.add<bool>("switch", true);
-    desc.add<edm::ParameterSetDescription>("LocalPositionXY_S", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
