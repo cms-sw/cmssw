@@ -1163,7 +1163,6 @@ void l1t::GlobalBoard::reset() {
   m_storedAXOScore = -999.f;
   m_storedAXOInputs.fill(0.f);
   m_uGtAXOScore.reset();
-  //  m_axoScoreConditionName = "";
 
   m_gtlDecisionWord.reset();
   m_gtlAlgorithmOR.reset();
