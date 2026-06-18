@@ -266,6 +266,7 @@ from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import *
 from RecoMTD.Configuration.RecoMTD_EventContent_cff import *
+from Configuration.ProcessModifiers.phase2_l1scout_cff import phase2_l1scout
 
 ctpps.toModify(RECOEventContent, 
     outputCommands = RECOEventContent.outputCommands + RecoCTPPSRECO.outputCommands)
@@ -920,6 +921,80 @@ MINIAODSIMEventContent= cms.PSet(
 )
 MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
 MINIAODSIMEventContent.outputCommands.extend(HLTriggerMINIAOD.outputCommands)
+
+phase2_l1scout.toModify(MINIAODSIMEventContent, 
+    outputCommands = cms.untracked.vstring("drop *",
+        # --- GEN
+        "keep *_genParticles_*_*",
+        "keep *_genFilterEfficiencyProducer_*_*",
+        "keep *_generator_*_*",
+        "keep *_externalLHEProducer_*_*",
+        "keep *_ak4GenJetsNoNu_*_*",
+        "keep *_genMetTrue_*_*",
+        # --- Calo TPs
+        "keep *_simEcalEBTriggerPrimitiveDigis_*_*",
+        "keep *_simHcalTriggerPrimitiveDigis_*_*",
+        "keep *_simCaloStage2Layer1Digis_*_*",
+        "keep *_simCaloStage2Digis_*_*",
+        # --- Muon TPs
+        "keep *_simMuonRPCDigis_*_*",
+        "keep *_simMuonGEMPadDigis_*_*",
+        "keep *_simMuonGEMPadDigiClusters_*_*",
+        "keep *_simDtTriggerPrimitiveDigis_*_*",
+        "keep *_simCscTriggerPrimitiveDigis_*_*",
+        "keep *_simTwinMuxDigis_*_*",
+        "keep *_simBmtfDigis_*_*",
+        "keep *_simKBmtfStubs_*_*",
+        "keep *_simKBmtfDigis_*_*",
+        "keep *_simEmtfDigis_*_*",
+        "keep *_simOmtfDigis_*_*",
+        "keep *_simGmtCaloSumDigis_*_*",
+        "keep *_simGmtStage2Digis_*_*",
+        "keep *_simEmtfShowers_*_*",
+        "keep *_simGmtShowerDigis_*_*",
+        "keep *_simCscTriggerPrimitiveDigisRun3_*_*",
+        "keep *_simMuonME0PadDigis_*_*",
+        "keep *_me0TriggerDigis_*_*",
+        "keep *_simMuonME0PseudoReDigisCoarse_*_*",
+        "keep *_me0RecHitsCoarse_*_*",
+        "keep *_me0TriggerPseudoDigis_*_*",
+        "keep *_me0RecHits_*_*",
+        "keep *_me0Segments_*_*",
+        "keep *_me0TriggerConvertedPseudoDigis_*_*",
+        "keep *_simCscTriggerPrimitiveDigisPhase2_*_*",
+        "keep *_simGtExtFakeStage2Digis_*_*",
+        "keep *_simGtStage2Digis_*_*",
+        "keep *_CalibratedDigis_*_*",
+        "keep *_dtTriggerPhase2PrimitiveDigis_*_*",
+        # --- HGCal TPs
+        "keep l1tHGCalTriggerCellBXVector_l1tHGCalVFEProducer_*_*",
+        "keep l1tHGCalMulticlusterBXVector_l1tHGCalBackEndLayer2Producer_*_*",
+        "keep l1tHGCalTowerBXVector_l1tHGCalTowerProducer_*_*",
+        # --- GCT reconstruction
+        "keep *_l1tEGammaClusterEmuProducer_*_*",
+        "keep *_l1tTowerCalibration_*_*",
+        "keep *_l1tCaloJet_*_*",
+        "keep *_l1tCaloJetHTT_*_*",
+        # --- GTT reconstruction
+        "keep *_l1tVertexFinder_*_*",
+        "keep *_l1tVertexFinderEmulator_*_*",
+        "keep *_l1tTrackJets_*_*",
+        "keep *_l1tTrackJetsExtended_*_*",
+        "keep *_l1tTrackFastJets_*_*",
+        "keep *_l1tTrackerEtMiss_*_*",
+        "keep *_l1tTrackerHTMiss_*_*",
+        "keep *_l1tTrackJetsEmulation_*_*",
+        "keep *_l1tTrackJetsExtendedEmulation_*_*",
+        "keep *_l1tTrackerEmuEtMiss_*_*",
+        "keep *_l1tTrackerEmuHTMiss_*_*",
+        "keep *_l1tTrackerEmuHTMissExtended_*_*",
+        # --- GMT reconstruction
+        "keep *_l1tStubsGmt_*_*",
+        "keep *_l1tKMTFMuonsGmt_*_*",
+        "keep *_l1tFwdMuonsGmt_*_*",
+        "keep *_l1tSAMuonsGmt_*_*",
+    )
+)
 
 MINIGENEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
