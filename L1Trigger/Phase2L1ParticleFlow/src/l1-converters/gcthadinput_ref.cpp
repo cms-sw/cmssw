@@ -38,7 +38,6 @@ l1ct::HadCaloObjEmu l1ct::GctHadClusterDecoderEmulator::decode(const l1ct::PFReg
 
   calo.hwEmPt = inclus.ecal() * inclus.ptLSB();
 
-
   if (corrector_.valid()) {
     float newpt = corrector_.correctedPt(
         calo.floatPt(), calo.floatEmPt(), calo.floatEta());  // NOTE: this is still abs(globalEta)
