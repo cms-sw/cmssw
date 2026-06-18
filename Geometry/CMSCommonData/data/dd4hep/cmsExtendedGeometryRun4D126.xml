@@ -92,9 +92,9 @@
     <Include ref='Geometry/ForwardCommonData/data/cmszdc.xml'/>
     <Include ref='Geometry/MTDCommonData/data/mtdMaterial/v4/mtdMaterial.xml'/>
     <Include ref='Geometry/MTDCommonData/data/btl/v4/btl.xml'/>
-    <Include ref='Geometry/MTDCommonData/data/etl/v12/etl.xml'/>
-    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v10/mtdStructureTopology.xml'/>
-    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v10/mtdParameters.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/etl/v11/etl.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v9/mtdStructureTopology.xml'/>
+    <Include ref='Geometry/MTDCommonData/data/mtdParameters/v9/mtdParameters.xml'/>
     <Include ref='Geometry/MuonCommonData/data/muonNumbering/TDR_DeV/v5/muonNumbering.xml'/>
     <Include ref='Geometry/EcalSimData/data/PhaseII/ecalsens.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalsens/NoHE/v1/hcalsenspmf.xml'/>
