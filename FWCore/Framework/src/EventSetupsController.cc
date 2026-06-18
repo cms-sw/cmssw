@@ -14,6 +14,7 @@
 
 #include <exception>
 #include <set>
+#include <oneapi/tbb/task_arena.h>
 
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
@@ -153,23 +154,27 @@ namespace edm {
       FinalWaitingTask waitUntilIOVInitializationCompletes{iGroup};
 
       // These do nothing ...
-      WaitingTaskList dummyWaitingTaskList;
-      std::shared_ptr<const EventSetupImpl> dummyEventSetupImpl;
 
-      {
-        WaitingTaskHolder waitingTaskHolder(iGroup, &waitUntilIOVInitializationCompletes);
-        // Caught exception is propagated via WaitingTaskHolder
-        CMS_SA_ALLOW try {
-          // All the real work is done here.
-          espController.eventSetupForInstanceAsync(
-              syncValue, waitingTaskHolder, dummyWaitingTaskList, dummyEventSetupImpl);
-          dummyWaitingTaskList.doneWaiting(std::exception_ptr{});
-        } catch (...) {
-          dummyWaitingTaskList.doneWaiting(std::exception_ptr{});
-          waitingTaskHolder.doneWaiting(std::current_exception());
+      oneapi::tbb::task_arena arena(1);
+      arena.execute([&]() {
+        WaitingTaskList dummyWaitingTaskList;
+        std::shared_ptr<const EventSetupImpl> dummyEventSetupImpl;
+
+        {
+          WaitingTaskHolder waitingTaskHolder(iGroup, &waitUntilIOVInitializationCompletes);
+          // Caught exception is propagated via WaitingTaskHolder
+          CMS_SA_ALLOW try {
+            // All the real work is done here.
+            espController.eventSetupForInstanceAsync(
+                syncValue, waitingTaskHolder, dummyWaitingTaskList, dummyEventSetupImpl);
+            dummyWaitingTaskList.doneWaiting(std::exception_ptr{});
+          } catch (...) {
+            dummyWaitingTaskList.doneWaiting(std::exception_ptr{});
+            waitingTaskHolder.doneWaiting(std::current_exception());
+          }
         }
-      }
-      waitUntilIOVInitializationCompletes.wait();
+        waitUntilIOVInitializationCompletes.wait();
+      });
     }
   }  // namespace eventsetup
 }  // namespace edm
