@@ -79,7 +79,7 @@ namespace edm {
       lastSyncValueForWhichWeSetValidityInterval_ = IOVSyncValue::invalidIOVSyncValue();
     }
 
-    void EventSetupRecordProvider::setDependentProviders(
+    void EventSetupRecordProvider::setSupportingProviders(
         const std::vector<std::shared_ptr<EventSetupRecordProvider>>& iProviders) {
       std::shared_ptr<DependentRecordIntervalFinder> newFinder =
           make_shared_noexcept_false<DependentRecordIntervalFinder>(key());
@@ -89,8 +89,8 @@ namespace edm {
       for (auto const& p : iProviders) {
         newFinder->addProviderWeAreDependentOn(p);
       };
-      //if a finder was already set, add it as a depedency.  This is done to ensure that the IOVs properly change even if the
-      // old finder does not update each time a dependent record does change
+      //if a finder was already set, add it as a dependency.  This is done to ensure that the IOVs properly change even if the
+      // old finder does not update each time a supporting record does change
       if (old.get() != nullptr) {
         newFinder->setAlternateFinder(old);
       }
@@ -231,7 +231,7 @@ namespace edm {
       }
     }
 
-    std::set<EventSetupRecordKey> EventSetupRecordProvider::dependentRecords() const { return dependencies(key()); }
+    std::set<EventSetupRecordKey> EventSetupRecordProvider::supportingRecords() const { return dependencies(key()); }
 
     std::set<ComponentDescription> EventSetupRecordProvider::resolverProviderDescriptions() const {
       using std::placeholders::_1;

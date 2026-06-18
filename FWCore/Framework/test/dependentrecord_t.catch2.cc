@@ -254,8 +254,8 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
   SECTION("dependentConstructorTest") {
     EventSetupRecordProvider depProvider(DepRecord::keyForClass(), &activityRegistry);
 
-    REQUIRE(1 == depProvider.dependentRecords().size());
-    REQUIRE(*(depProvider.dependentRecords().begin()) == DummyRecord::keyForClass());
+    REQUIRE(1 == depProvider.supportingRecords().size());
+    REQUIRE(*(depProvider.supportingRecords().begin()) == DummyRecord::keyForClass());
 
     edm::print_eventsetup_record_dependencies<DepRecord>(std::cout);
   }
@@ -711,11 +711,11 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
         edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
     dummyProvider->addFinder(dummyFinder);
 
-    REQUIRE(*(depProvider->dependentRecords().begin()) == dummyProvider->key());
+    REQUIRE(*(depProvider->supportingRecords().begin()) == dummyProvider->key());
 
     std::vector<std::shared_ptr<EventSetupRecordProvider>> providers;
     providers.push_back(dummyProvider);
-    depProvider->setDependentProviders(providers);
+    depProvider->setSupportingProviders(providers);
   }
 
   SECTION("getTest") {

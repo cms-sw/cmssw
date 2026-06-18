@@ -279,7 +279,7 @@ namespace edm {
 
       determinePreferred();
 
-      //For each Provider, find all the Providers it depends on.  If a dependent Provider
+      //For each Provider, find all the Providers it depends on.  If a supporting Provider
       // can not be found pass in an empty list
       //CHANGE: now allow for missing Providers
       for (auto& itRecordProvider : recordProviders_) {
@@ -291,11 +291,11 @@ namespace edm {
         //Give it our list of preferred
         itRecordProvider->usePreferred(*preferredInfo);
 
-        std::set<EventSetupRecordKey> records = itRecordProvider->dependentRecords();
+        std::set<EventSetupRecordKey> records = itRecordProvider->supportingRecords();
         if (!records.empty()) {
           std::string missingRecords;
-          std::vector<std::shared_ptr<EventSetupRecordProvider>> depProviders;
-          depProviders.reserve(records.size());
+          std::vector<std::shared_ptr<EventSetupRecordProvider>> supportingProviders;
+          supportingProviders.reserve(records.size());
           bool foundAllProviders = true;
           for (auto const& key : records) {
             auto lb = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), key);
@@ -309,7 +309,7 @@ namespace edm {
               }
             } else {
               auto index = std::distance(recordKeys_.begin(), lb);
-              depProviders.push_back(recordProviders_[index]);
+              supportingProviders.push_back(recordProviders_[index]);
             }
           }
 
@@ -321,11 +321,11 @@ namespace edm {
                    "\n This may lead to an exception begin thrown during event processing.\n If no exception occurs "
                    "during the job than it is usually safe to ignore this message.";
 
-            //depProviders.clear();
+            //supportingProviders.clear();
             //NOTE: should provide a warning
           }
 
-          itRecordProvider->setDependentProviders(depProviders);
+          itRecordProvider->setSupportingProviders(supportingProviders);
         }
       }
 
@@ -339,7 +339,7 @@ namespace edm {
                                std::vector<std::shared_ptr<EventSetupRecordProvider>>& oDependents) {
       for (Itr it = itBegin; it != itEnd; ++it) {
         //does it depend on the record in question?
-        const std::set<EventSetupRecordKey>& deps = (*it)->dependentRecords();
+        const std::set<EventSetupRecordKey>& deps = (*it)->supportingRecords();
         if (deps.end() != deps.find(iKey)) {
           oDependents.push_back(*it);
           //now see who is dependent on this record since they will be indirectly dependent on iKey

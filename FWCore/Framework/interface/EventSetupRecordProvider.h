@@ -72,7 +72,7 @@ namespace edm {
       EventSetupRecordImpl const& firstRecordImpl() const;
 
       ///Returns the list of Records the provided Record depends on (usually none)
-      std::set<EventSetupRecordKey> dependentRecords() const;
+      std::set<EventSetupRecordKey> supportingRecords() const;
 
       ///return information on which ESProductResolverProviders are supplying information
       std::set<ComponentDescription> resolverProviderDescriptions() const;
@@ -120,8 +120,8 @@ namespace edm {
        */
       bool setValidityIntervalFor(IOVSyncValue const&);
 
-      ///If the provided Record depends on other Records, here are the dependent Providers
-      void setDependentProviders(std::vector<std::shared_ptr<EventSetupRecordProvider>> const&);
+      ///If the provided Record depends on other Records, here are the supporting Providers
+      void setSupportingProviders(std::vector<std::shared_ptr<EventSetupRecordProvider>> const&);
 
       /**In the case of a conflict, sets what Provider to call.  This must be called after
          all providers have been added.  An empty map is acceptable. */
