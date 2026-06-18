@@ -299,7 +299,6 @@ namespace evf {
         checkExists(bu_base_dir_);
         bu_run_dir_ = (std::filesystem::path(bu_base_dir_) / run_string_).string();
       }
-
     }
 
     pthread_mutex_init(&init_lock_, nullptr);
@@ -390,10 +389,8 @@ namespace evf {
     desc.addUntracked<std::string>("hltSourceDirectory", "")->setComment("BU director mode source directory");
 
     //deprecated but we will not remove it at this point to avoid breaking test scripts
-    desc.addUntracked<unsigned int>("fuLockPollInterval", 2000)
-        ->setComment("Lock polling interval. Deprecated.");
-    desc.addUntracked<std::string>("mergingPset", "")
-        ->setComment("Name of merging PSet. Deprecated.");
+    desc.addUntracked<unsigned int>("fuLockPollInterval", 2000)->setComment("Lock polling interval. Deprecated.");
+    desc.addUntracked<std::string>("mergingPset", "")->setComment("Name of merging PSet. Deprecated.");
 
     descriptions.add("EvFDaqDirector", desc);
   }
@@ -774,7 +771,6 @@ namespace evf {
     }
     return true;
   }
-
 
   uint16_t EvFDaqDirector::frdFileDataType(const void* buf) const {
     //v2 is the largest possible read

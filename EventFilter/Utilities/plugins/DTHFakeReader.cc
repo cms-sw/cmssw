@@ -70,7 +70,7 @@ namespace evf {
     unsigned int norbits = 0;
     for (unsigned i = minOrbitBx; i <= maxOrbitBx; i++) {
       if ((std::rand() * rndFactor) < 1) {
-	norbits++;
+        norbits++;
         uint64_t eventId = orbitId * maxOrbitBx + i;
         eventIdList_.push_back(eventId);
         for (auto sourceId : sourceIdList_) {
@@ -82,7 +82,8 @@ namespace evf {
           randFedSizes[sourceId][eventId] = size;
         }
       }
-      if (norbits >= maxEventsPerOrbit) break;
+      if (norbits >= maxEventsPerOrbit)
+        break;
     }
 
     //calculate buffer size and create it

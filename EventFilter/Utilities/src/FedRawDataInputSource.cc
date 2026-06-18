@@ -939,7 +939,7 @@ void FedRawDataInputSource::readSupervisor() {
       } else if (!useFileBroker_) {
         edm::LogError("FedRawDataInputSource") << "file lock mode is no longer supported";
         setExceptionState_ = true;
-	stop = true;
+        stop = true;
         break;
       } else {
         status = daqDirector_->getNextFromFileBroker(currentLumiSection,
@@ -979,7 +979,7 @@ void FedRawDataInputSource::readSupervisor() {
         setMonStateSup(inRunEnd);
         edm::LogError("FedRawDataInputSource") << "file lock mode is no longer supported";
         setExceptionState_ = true;
-	stop = true;
+        stop = true;
         break;
       }
 
