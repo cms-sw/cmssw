@@ -34,18 +34,18 @@
 #include "Alignment/OfflineValidation/macros/CMS_lumi.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
-bool debugMode_{false};
-Int_t def_markers[9] = {kFullSquare,
-                        kFullCircle,
-                        kFullTriangleDown,
-                        kOpenSquare,
-                        kDot,
-                        kOpenCircle,
-                        kFullTriangleDown,
-                        kFullTriangleUp,
-                        kOpenTriangleDown};
+constexpr bool debugMode_{false};
+constexpr Int_t def_markers[9] = {kFullSquare,
+                                  kFullCircle,
+                                  kFullTriangleDown,
+                                  kOpenSquare,
+                                  kDot,
+                                  kOpenCircle,
+                                  kFullTriangleDown,
+                                  kFullTriangleUp,
+                                  kOpenTriangleDown};
 
-Int_t def_colors[9] = {kBlack, kRed, kBlue, kMagenta, kGreen, kCyan, kViolet, kOrange, kGreen + 2};
+constexpr Int_t def_colors[9] = {kBlack, kRed, kBlue, kMagenta, kGreen, kCyan, kViolet, kOrange, kGreen + 2};
 
 namespace diMuonMassBias {
 

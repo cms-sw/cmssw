@@ -10,7 +10,7 @@
 #include "TFrame.h"
 #include "TString.h"
 
-double arrowSize = 0.0095;
+constexpr double arrowSize = 0.0095;
 float y_, x_, z_, phi_, r_, dphi_, dr_, dx_, dz_, dy_;
 int level_, sublevel_;
 char outputDir_[292];
