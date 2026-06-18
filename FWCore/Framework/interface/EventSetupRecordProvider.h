@@ -100,7 +100,7 @@ namespace edm {
        *  object will be used. We set a pointer to it. In the EventSetupRecordImpl we set the cacheIdentifier
        *  and validity interval. We also set the pointer in the EventSetupImpl to the EventSetupRecordImpl here.
        */
-      void initializeForNewIOV(unsigned int iovIndex, unsigned long long cacheIdentifier);
+      void initializeForNewIOV(unsigned int iovIndex, unsigned long long cacheIdentifier, EventSetupImpl& eventSetupImpl);
 
       /** This function is called when we do not need to start a new IOV for a record and syncValue.
        *  If a new EventSetupImpl was created, then this will set its pointer to the EventSetupRecordImpl.
@@ -108,7 +108,7 @@ namespace edm {
        *  where the beginning of the interval did not change but the end changed so it is not treated
        *  as a new IOV.
        */
-      void continueIOV(bool newEventSetupImpl);
+      void continueIOV(bool newEventSetupImpl, EventSetupImpl& eventSetupImpl);
 
       /** The asynchronous task called when an IOV ends calls this function. It clears the caches
        *  of the ESProductResolver's.
@@ -135,8 +135,6 @@ namespace edm {
 
       void getReferencedESProducers(
           std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>>& referencedESProducers) const;
-
-      void setEventSetupImpl(EventSetupImpl* value) { eventSetupImpl_ = value; }
 
       IntervalStatus intervalStatus() const { return intervalStatus_; }
 
@@ -171,8 +169,6 @@ namespace edm {
        *  syncValue.
        */
       IOVSyncValue lastSyncValueForWhichWeSetValidityInterval_;
-
-      EventSetupImpl* eventSetupImpl_ = nullptr;
 
       std::vector<EventSetupRecordImpl> recordImpls_;
       EventSetupRecordImpl const* recordImpl_ = nullptr;

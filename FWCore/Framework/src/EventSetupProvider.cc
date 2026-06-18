@@ -400,10 +400,6 @@ namespace edm {
         //cannot use make_shared because constructor is private
         eventSetupImpl_ = std::shared_ptr<EventSetupImpl>(new EventSetupImpl());
         eventSetupImpl_->setKeyIters(recordKeys_.begin(), recordKeys_.end());
-
-        for (auto& recProvider : recordProviders_) {
-          recProvider->setEventSetupImpl(eventSetupImpl_.get());
-        }
       }
       return get_underlying_safe(eventSetupImpl_);
     }

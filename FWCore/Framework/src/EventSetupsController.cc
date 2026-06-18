@@ -130,9 +130,10 @@ namespace edm {
       // object.
       auto nonConst = provider_->cachedEventSetup(newEventSetupImpl);
 
+      eventSetupImpl = nonConst;
       for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
         eventSetupRecordIOVQueue->checkForNewIOVsAndStartIfNeededAsync(
-            taskToStartAfterIOVInit, endIOVWaitingTasks, newEventSetupImpl);
+            taskToStartAfterIOVInit, endIOVWaitingTasks, newEventSetupImpl, *nonConst);
       }
     }
 

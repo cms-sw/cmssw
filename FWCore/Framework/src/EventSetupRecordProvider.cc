@@ -131,20 +131,20 @@ namespace edm {
       }
     }
 
-    void EventSetupRecordProvider::initializeForNewIOV(unsigned int iovIndex, unsigned long long cacheIdentifier) {
+    void EventSetupRecordProvider::initializeForNewIOV(unsigned int iovIndex, unsigned long long cacheIdentifier, EventSetupImpl& eventSetupImpl) {
       EventSetupRecordImpl* impl = &recordImpls_[iovIndex];
       recordImpl_ = impl;
       bool hasFinder = finder_.get() != nullptr;
       impl->initializeForNewIOV(cacheIdentifier, validityInterval_, hasFinder);
-      eventSetupImpl_->addRecordImpl(*recordImpl_);
+      eventSetupImpl.addRecordImpl(*recordImpl_);
     }
 
-    void EventSetupRecordProvider::continueIOV(bool newEventSetupImpl) {
+    void EventSetupRecordProvider::continueIOV(bool newEventSetupImpl, EventSetupImpl& eventSetupImpl) {
       if (intervalStatus_ == IntervalStatus::UpdateIntervalEnd) {
         recordImpl_->setSafely(validityInterval_);
       }
       if (newEventSetupImpl && intervalStatus_ != IntervalStatus::Invalid) {
-        eventSetupImpl_->addRecordImpl(*recordImpl_);
+        eventSetupImpl.addRecordImpl(*recordImpl_);
       }
     }
 

@@ -60,10 +60,10 @@ namespace edm {
     }
 
     void EventSetupRecordIOVQueue::checkForNewIOVsAndStartIfNeededAsync(
-        WaitingTaskHolder const& taskToStartAfterIOVInit, WaitingTaskList& endIOVWaitingTasks, bool newEventSetupImpl) {
+        WaitingTaskHolder const& taskToStartAfterIOVInit, WaitingTaskList& endIOVWaitingTasks, bool newEventSetupImpl, EventSetupImpl& eventSetupImpl) {
       if (newIOVNeeded_) {
         newIOVNeeded_ = false;
-        startNewIOVAsync(taskToStartAfterIOVInit, endIOVWaitingTasks);
+        startNewIOVAsync(taskToStartAfterIOVInit, endIOVWaitingTasks, eventSetupImpl);
         return;
       }
 
@@ -71,11 +71,12 @@ namespace edm {
         endIOVWaitingTasks.add(endIOVTaskHolder_);
       }
 
-      recordProvider_->continueIOV(newEventSetupImpl);
+      recordProvider_->continueIOV(newEventSetupImpl, eventSetupImpl);
     }
 
     void EventSetupRecordIOVQueue::startNewIOVAsync(WaitingTaskHolder const& taskToStartAfterIOVInit,
-                                                    WaitingTaskList& endIOVWaitingTasks) {
+                                                    WaitingTaskList& endIOVWaitingTasks,
+                                                  EventSetupImpl& eventSetupImpl) {
       ++cacheIdentifier_;
       {
         // Let the old IOV end when all the lumis using it are done.
@@ -84,7 +85,7 @@ namespace edm {
       }
       auto taskHolder = std::make_shared<WaitingTaskHolder>(taskToStartAfterIOVInit);
       auto startIOVForRecord =
-          [this, taskHolder, &endIOVWaitingTasks](edm::LimitedTaskQueue::Resumer iResumer) mutable {
+          [this, taskHolder, &endIOVWaitingTasks, &eventSetupImpl](edm::LimitedTaskQueue::Resumer iResumer) mutable {
             // Caught exception is propagated via WaitingTaskHolder
             CMS_SA_ALLOW try {
               unsigned int iovIndex = 0;
@@ -102,7 +103,7 @@ namespace edm {
                     << "Couldn't find available IOV slot. This should never happen.\n"
                     << "Contact a Framework Developer\n";
               }
-              recordProvider_->initializeForNewIOV(iovIndex, cacheIdentifier_);
+              recordProvider_->initializeForNewIOV(iovIndex, cacheIdentifier_, eventSetupImpl);
 
               auto endIOVWaitingTask = make_waiting_task([this, iResumer, iovIndex](std::exception_ptr const*) mutable {
                 recordProvider_->endIOV(iovIndex);

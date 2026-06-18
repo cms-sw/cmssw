@@ -55,9 +55,10 @@ namespace edm {
 
       void checkForNewIOVsAndStartIfNeededAsync(WaitingTaskHolder const& taskToStartAfterIOVInit,
                                                 WaitingTaskList& endIOVWaitingTasks,
-                                                bool newEventSetupImpl);
+                                                bool newEventSetupImpl,
+                                                EventSetupImpl& eventSetupImpl);
 
-      void startNewIOVAsync(WaitingTaskHolder const& taskToStartAfterIOVInit, WaitingTaskList& endIOVWaitingTasks);
+      void startNewIOVAsync(WaitingTaskHolder const& taskToStartAfterIOVInit, WaitingTaskList& endIOVWaitingTasks, EventSetupImpl& eventSetupImpl);
 
       void addRecProvider(EventSetupRecordProvider* recProvider);
 
