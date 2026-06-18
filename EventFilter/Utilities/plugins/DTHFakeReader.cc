@@ -24,6 +24,7 @@ namespace evf {
   constexpr unsigned minOrbitBx = 1;
   constexpr unsigned maxOrbitBx = 2464;
   constexpr unsigned avgEventsPerOrbit = 70;
+  constexpr unsigned maxEventsPerOrbit = 100;
 
   //constexpr unsigned h_size_ = 8;//for SLink FEDs
   //constexpr unsigned t_size_ = 8;
@@ -66,8 +67,10 @@ namespace evf {
     uint32_t totSize = 0;
 
     //randomize which orbit was accepted
+    unsigned int norbits = 0;
     for (unsigned i = minOrbitBx; i <= maxOrbitBx; i++) {
       if ((std::rand() * rndFactor) < 1) {
+	norbits++;
         uint64_t eventId = orbitId * maxOrbitBx + i;
         eventIdList_.push_back(eventId);
         for (auto sourceId : sourceIdList_) {
@@ -79,6 +82,7 @@ namespace evf {
           randFedSizes[sourceId][eventId] = size;
         }
       }
+      if (norbits >= maxEventsPerOrbit) break;
     }
 
     //calculate buffer size and create it

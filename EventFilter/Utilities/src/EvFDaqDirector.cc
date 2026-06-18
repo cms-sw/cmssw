@@ -147,7 +147,7 @@ namespace evf {
     ss = std::stringstream();
     ss << run_;
     run_nstring_ = ss.str();
-    run_dir_ = base_dir_ + "/" + run_string_;
+    run_dir_ = (std::filesystem::path(base_dir_) / run_string_).string();
     input_throttled_file_ = run_dir_ + "/input_throttle";
     discard_ls_filestem_ = run_dir_ + "/discard_ls";
   }
@@ -190,17 +190,24 @@ namespace evf {
     //bu_run_dir: for FU, for which the base dir is local and the BU is remote, it is expected to be there
     //for BU, it is created at this point
     if (directorBU_) {
-      bu_run_dir_ = base_dir_ + "/" + run_string_;
+      bu_run_dir_ = (std::filesystem::path(base_dir_) / run_string_).string();
 
       //make or find bu run dir
-      retval = mkdir(bu_run_dir_.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
-      if (retval != 0 && errno != EEXIST) {
-        throw cms::Exception("DaqDirector")
-            << " Error creating bu run dir -: " << bu_run_dir_ << " mkdir error:" << strerror(errno);
+      if (!std::filesystem::exists(bu_run_dir_)) {
+        retval = mkdir(bu_run_dir_.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+        if (retval != 0) {
+          throw cms::Exception("DaqDirector")
+              << " Error creating bu run dir -: " << bu_run_dir_ << " mkdir error:" << strerror(errno);
+        }
       }
+
+      //check that directory is empty (no files from previous attempt should be present)
+      if (!std::filesystem::is_empty(bu_run_dir_))
+        throw cms::Exception("DaqDirector") << "Directory " << bu_run_dir_ << " to which BU should write is not empty";
+
       bu_run_open_dir_ = bu_run_dir_ + "/open";
       retval = mkdir(bu_run_open_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-      if (retval != 0 && errno != EEXIST) {
+      if (retval != 0) {
         throw cms::Exception("DaqDirector")
             << " Error creating bu run open dir -: " << bu_run_open_dir_ << " mkdir error:" << strerror(errno);
       }
@@ -285,12 +292,12 @@ namespace evf {
       if (!bu_base_dirs_all_.empty()) {
         std::string check_dir = bu_base_dir_.empty() ? bu_base_dirs_all_[0] : bu_base_dir_;
         checkExists(check_dir);
-        bu_run_dir_ = check_dir + "/" + run_string_;
+        bu_run_dir_ = (std::filesystem::path(check_dir) / run_string_).string();
         for (unsigned int i = 0; i < bu_base_dirs_all_.size(); i++)
           waitForDir(bu_base_dirs_all_[i]);
       } else {
         checkExists(bu_base_dir_);
-        bu_run_dir_ = bu_base_dir_ + "/" + run_string_;
+        bu_run_dir_ = (std::filesystem::path(bu_base_dir_) / run_string_).string();
       }
 
     }
