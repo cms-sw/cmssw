@@ -10,6 +10,7 @@
 #include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "RecoHGCal/TICL/interface/TICLUtils.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -21,27 +22,6 @@
 // One-to-many: TICLCandidate -> linked Tracksters
 // Or SimTICLCandidate --> SimTracksters
 //
-
-namespace {
-  std::array<std::unique_ptr<GeomDet>, 2> buildHGCalFirstDisks(const HGCalDDDConstants& hgcons,
-                                                               const CaloGeometry& geom) {
-    hgcal::RecHitTools rhtools;
-    rhtools.setGeometry(geom);
-    float zVal = hgcons.waferZ(1, true);
-    std::pair<float, float> rMinMax = hgcons.rangeR(zVal, true);
-
-    std::array<std::unique_ptr<GeomDet>, 2> firstDisk;
-    for (int iSide = 0; iSide < 2; ++iSide) {
-      float zSide = (iSide == 0) ? (-1. * zVal) : zVal;
-      firstDisk[iSide] = std::make_unique<GeomDet>(
-          Disk::build(Disk::PositionType(0, 0, zSide),
-                      Disk::RotationType(),
-                      SimpleDiskBounds(rMinMax.first, rMinMax.second, zSide - 0.5, zSide + 0.5))
-              .get());
-    }
-    return firstDisk;
-  }
-}  // namespace
 
 class TICLCandidateExtraTableProducer : public SimpleFlatTableProducerBase<TICLCandidate, std::vector<TICLCandidate>> {
 public:
@@ -84,7 +64,7 @@ public:
     const auto& bfield = iSetup.getData(bfield_token_);
     const auto& propagator = iSetup.getData(propagator_token_);
 
-    const auto firstDisk = buildHGCalFirstDisks(hgcons, geom);
+    const auto firstDisk = ticl::utils::buildHGCalFirstDisks(hgcons, geom);
 
     if (!prod.isValid() && this->skipNonExistingSrc_) {
       auto out = std::make_unique<nanoaod::FlatTable>(0, this->name_, /*singleton*/ false, /*extension*/ true);
