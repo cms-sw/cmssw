@@ -399,10 +399,11 @@ trackingPhase2PU140.toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_
 
 _HighPtTripletStepTask_LST = HighPtTripletStepTask.copy()
 from RecoLocalTracker.Phase2TrackerRecHits.Phase2TrackerRecHits_cfi import siPhase2RecHits
+from RecoTracker.LSTGeometry.lstGeometryESProducer_cfi import lstGeometryESProducer
 from RecoTracker.LST.lstInputProducer_cfi import lstInputProducer
 from RecoTracker.LST.lstProducerTask_cff import *
 
-_HighPtTripletStepTask_LST.add(siPhase2RecHits, lstInputProducer, lstProducerTask)
+_HighPtTripletStepTask_LST.add(siPhase2RecHits, lstGeometryESProducer, lstInputProducer, lstProducerTask)
 (trackingPhase2PU140 & trackingLST).toReplaceWith(HighPtTripletStepTask, _HighPtTripletStepTask_LST)
 
 from Configuration.ProcessModifiers.alpakaValidationLST_cff import alpakaValidationLST

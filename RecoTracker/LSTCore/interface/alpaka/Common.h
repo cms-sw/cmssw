@@ -32,8 +32,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       25.007152356, 37.2186993757, 52.3104270826, 68.6658656666, 85.9770373007, 108.301772384};
   HOST_DEVICE_CONSTANT float kMiniRminMeanEndcap[5] = {
       130.992832231, 154.813883559, 185.352604327, 221.635123002, 265.022076742};
-  HOST_DEVICE_CONSTANT float k2Rinv1GeVf = (2.99792458e-3 * 3.8) / 2;
-  HOST_DEVICE_CONSTANT float kR1GeVf = 1. / (2.99792458e-3 * 3.8);
+  HOST_DEVICE_CONSTANT float k2Rinv1GeVf = (kC * kB) / 2;
+  HOST_DEVICE_CONSTANT float kR1GeVf = 1. / (kC * kB);
   HOST_DEVICE_CONSTANT float kSinAlphaMax = 0.95;
   HOST_DEVICE_CONSTANT float kDeltaZLum = 15.0;
   HOST_DEVICE_CONSTANT float kPixelPSZpitch = 0.15;
@@ -44,8 +44,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   HOST_DEVICE_CONSTANT float kWidthPS = 0.01;
   HOST_DEVICE_CONSTANT float kPt_betaMax = 7.0;
   HOST_DEVICE_CONSTANT int kNTripletThreshold = 1000;
-  // To be updated with std::numeric_limits<float>::infinity() in the code and data files
-  HOST_DEVICE_CONSTANT float kVerticalModuleSlope = 123456789.0;
   HOST_DEVICE_CONSTANT int kLogicalOTLayers = 11;  // logical OT layers are 1..11
 
   HOST_DEVICE_CONSTANT float kMiniDeltaTilted[3] = {0.26f, 0.26f, 0.26f};

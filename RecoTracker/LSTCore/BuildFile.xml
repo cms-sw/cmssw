@@ -6,6 +6,7 @@
 <use name="DataFormats/SoATemplate"/>
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
+<use name="RecoTracker/LSTGeometry"/>
 <flags ALPAKA_BACKENDS="1"/>
 <export>
   <lib name="1"/>

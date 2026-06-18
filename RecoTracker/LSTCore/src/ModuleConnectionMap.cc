@@ -5,9 +5,11 @@
 #include <sstream>
 #include <algorithm>
 
-lst::ModuleConnectionMap::ModuleConnectionMap() {}
-
 lst::ModuleConnectionMap::ModuleConnectionMap(std::string const& filename) { load(filename); }
+
+lst::ModuleConnectionMap::ModuleConnectionMap(std::map<unsigned int, std::vector<unsigned int>> const& map) {
+  load(map);
+}
 
 void lst::ModuleConnectionMap::load(std::string const& filename) {
   moduleConnections_.clear();
@@ -51,6 +53,10 @@ void lst::ModuleConnectionMap::load(std::string const& filename) {
       }
     }
   }
+}
+
+void lst::ModuleConnectionMap::load(std::map<unsigned int, std::vector<unsigned int>> const& map) {
+  moduleConnections_ = map;
 }
 
 void lst::ModuleConnectionMap::add(std::string const& filename) {

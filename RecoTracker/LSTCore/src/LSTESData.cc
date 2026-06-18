@@ -1,3 +1,5 @@
+#include <filesystem>
+
 #include "RecoTracker/LSTCore/interface/LSTESData.h"
 #include "RecoTracker/LSTCore/interface/EndcapGeometry.h"
 #include "RecoTracker/LSTCore/interface/ModuleConnectionMap.h"
@@ -5,8 +7,6 @@
 #include "RecoTracker/LSTCore/interface/PixelMap.h"
 
 #include "ModuleMethods.h"
-
-#include <filesystem>
 
 namespace {
   std::string geometryDataDir() {
@@ -79,7 +79,7 @@ namespace {
   }
 }  // namespace
 
-std::unique_ptr<lst::LSTESData<alpaka_common::DevHost>> lst::loadAndFillESHost(std::string& ptCutLabel) {
+std::unique_ptr<lst::LSTESData<alpaka_common::DevHost>> lst::loadAndFillESDataHost(std::string& ptCutLabel) {
   uint16_t nModules;
   uint16_t nLowerModules;
   unsigned int nPixels;
@@ -110,6 +110,86 @@ std::unique_ptr<lst::LSTESData<alpaka_common::DevHost>> lst::loadAndFillESHost(s
                                                  endcapGeometry,
                                                  tiltedGeometry,
                                                  moduleConnectionMap);
+  auto pixelMappingPtr = std::make_shared<PixelMap>(std::move(pixelMapping));
+  return std::make_unique<LSTESData<alpaka_common::DevHost>>(nModules,
+                                                             nLowerModules,
+                                                             nPixels,
+                                                             endcapGeometry.nEndCapMap,
+                                                             std::move(modulesBuffers),
+                                                             std::move(endcapGeometryDev),
+                                                             pixelMappingPtr);
+}
+
+std::unique_ptr<lst::LSTESData<alpaka_common::DevHost>> lst::fillESDataHost(lstgeometry::Geometry const& lstg) {
+  uint16_t nModules;
+  uint16_t nLowerModules;
+  unsigned int nPixels;
+  MapPLStoLayer pLStoLayer;
+  EndcapGeometry endcapGeometry;
+  TiltedGeometry tiltedGeometry;
+  PixelMap pixelMapping;
+  ModuleConnectionMap moduleConnectionMap;
+
+  endcapGeometry.load(lstg.endcap_slopes, lstg.sensors);
+  auto endcapGeometryDev =
+      std::make_shared<EndcapGeometryDevHostCollection>(cms::alpakatools::host(), endcapGeometry.nEndCapMap);
+  std::memcpy(endcapGeometryDev->view().geoMapDetId().data(),
+              endcapGeometry.geoMapDetId_buf.data(),
+              endcapGeometry.nEndCapMap * sizeof(unsigned int));
+  std::memcpy(endcapGeometryDev->view().geoMapPhi().data(),
+              endcapGeometry.geoMapPhi_buf.data(),
+              endcapGeometry.nEndCapMap * sizeof(float));
+
+  tiltedGeometry.load(lstg.barrel_slopes);
+
+  std::map<unsigned int, std::vector<unsigned int>> final_modulemap;
+  for (auto const& [detId, connections] : lstg.module_map) {
+    if (connections.empty())
+      continue;
+    final_modulemap[detId] = connections;
+  }
+  moduleConnectionMap.load(final_modulemap);
+
+  for (auto& [layersubdetcharge, map] : lstg.pixel_map) {
+    auto& [layer, subdet, charge] = layersubdetcharge;
+
+    std::map<unsigned int, std::vector<unsigned int>> final_pixelmap;
+    for (unsigned int isuperbin = 0; isuperbin < map.size(); isuperbin++) {
+      auto const& vec = map.at(isuperbin);
+      if (vec.empty())
+        continue;
+      final_pixelmap[isuperbin] = vec;
+    }
+
+    int charge_index = (charge == 0 ? 0 : (charge > 0 ? 1 : 2));
+    int layer_subdet_index = layer - 1 + (subdet == Endcap ? 2 : 0);
+    pLStoLayer[charge_index][layer_subdet_index] = lst::ModuleConnectionMap(final_pixelmap);
+  }
+
+  ModuleMetaData mmd;
+  unsigned int counter = 0;
+  for (auto const& [detId, sensor] : lstg.sensors) {
+    mmd.detIdToIndex[detId] = counter;
+    mmd.module_x[detId] = sensor.centerX;
+    mmd.module_y[detId] = sensor.centerY;
+    mmd.module_z[detId] = sensor.centerZ;
+    mmd.module_type[detId] = static_cast<unsigned int>(sensor.moduleType);
+    counter++;
+  }
+  mmd.detIdToIndex[kPixelModuleId] = counter;  //pixel module is the last module in the module list
+  counter++;
+  nModules = counter;
+
+  auto modulesBuffers = constructModuleCollection(pLStoLayer,
+                                                  mmd,
+                                                  nModules,
+                                                  nLowerModules,
+                                                  nPixels,
+                                                  pixelMapping,
+                                                  endcapGeometry,
+                                                  tiltedGeometry,
+                                                  moduleConnectionMap);
+
   auto pixelMappingPtr = std::make_shared<PixelMap>(std::move(pixelMapping));
   return std::make_unique<LSTESData<alpaka_common::DevHost>>(nModules,
                                                              nLowerModules,

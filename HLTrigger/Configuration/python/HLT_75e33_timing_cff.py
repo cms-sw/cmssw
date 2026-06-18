@@ -99,6 +99,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/trackdnn_source_cfi"
 
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPPixelCPEFastParams_cfi")
 
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltLSTGeometry_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPModulesDevLST_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPTTRHBuilderWithoutRefit_cfi")
 
