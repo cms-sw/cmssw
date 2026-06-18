@@ -4,7 +4,7 @@ HLTriggerFirstPath
 
 Status_OnCPU   # CMSHLT-2206
 Status_OnGPU   # CMSHLT-2206
-HLT_TestData_v* # CMSHLT-3841
+HLT_HITestData_v* # CMSHLT-3862
 HLT_EcalCalibration_v*
 HLT_HcalCalibration_v*
 HLT_HIPhysics_v*
@@ -46,35 +46,6 @@ HLT_HIGEDPhoton30_EB_v*
 HLT_HIGEDPhoton40_EB_v*
 HLT_HIGEDPhoton50_EB_v*
 HLT_HIGEDPhoton60_EB_v*
-
-HLT_HIGEDPhoton30_bkp_v*        # CMSHLT-3658
-HLT_HIGEDPhoton20_bkp_v*        # CMSHLT-3658
-HLT_HIGEDPhoton10_bkp_v*        # CMSHLT-3658
-
-HLT_HIEle10Gsf_v*
-HLT_HIEle15Gsf_v*
-HLT_HIEle20Gsf_v*
-HLT_HIEle30Gsf_v*
-HLT_HIEle40Gsf_v*
-HLT_HIEle50Gsf_v*
-HLT_HIEle15Ele10Gsf_v*
-HLT_HIEle15Ele10GsfMass50_v*
-
-HLT_HIEle10Gsf_bkp_v*   # CMSHLT-3658
-HLT_HIEle15Gsf_bkp_v*   # CMSHLT-3658
-HLT_HIEle20Gsf_bkp_v*   # CMSHLT-3658
-HLT_HIEle30Gsf_bkp_v*   # CMSHLT-3658
-HLT_HIEle15Ele10Gsf_bkp_v*      # CMSHLT-3658
-HLT_HIEle15Ele10GsfMass50_bkp_v*        # CMSHLT-3658
-
-HLT_HIDoubleEle10Gsf_v*
-HLT_HIDoubleEle10GsfMass50_v*
-HLT_HIDoubleEle15Gsf_v*
-HLT_HIDoubleEle15GsfMass50_v*
-
-HLT_HIDoubleEle10Gsf_bkp_v*     # CMSHLT-3658
-HLT_HIDoubleEle15Gsf_bkp_v*     # CMSHLT-3658
-HLT_HIDoubleEle15GsfMass50_bkp_v*       # CMSHLT-3658
 
 HLT_HIL1NotBptxOR_v*
 HLT_HIL1UnpairedBunchBptxMinus_v*
@@ -260,7 +231,6 @@ HLT_HIPuAK4CaloJet100Fwd_v*           # CMSHLT-2882
 HLT_HIPuAK4CaloJet120Fwd_v*           # CMSHLT-2882
 HLT_HIDoubleGEDPhoton20_v*            # CMSHLT-2882
 
-HLT_HIDoubleGEDPhoton20_bkp_v*  # CMSHLT-3658
 
 HLT_HIUPC_NotMBHF2_v*                 # CMSHLT-2882
 HLT_HIL1DoubleMu0_MaxDr3p5_Open_v*    # CMSHLT-2882
@@ -294,9 +264,7 @@ HLT_HICscCluster_Loose_v*             # CMSHLT-2882
 HLT_HICscCluster_Medium_v*            # CMSHLT-2882
 HLT_HICscCluster_Tight_v*             # CMSHLT-2882
 
-HLT_HIL1SingleMu5_SingleEG20Gsf_v*        # CMSHLT-2906
 HLT_HIL1SingleMu5_SingleGEDPhoton20_v*    # CMSHLT-2906
-HLT_HIL1SingleMu7_SingleEG20Gsf_v*        # CMSHLT-2906
 HLT_HIL1SingleMu7_SingleGEDPhoton20_v*    # CMSHLT-3356
 
 HLT_HIL1SingleMu3_SinglePuAK4CaloJet40_v* # CMSHLT-3813
