@@ -21,12 +21,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-// Uncomment to enable verbose AXO debugging
-// #define AXO_DEBUG
-#ifdef AXO_DEBUG
-#include <sstream>
-#endif
-
 //
 // class declaration
 //
@@ -82,31 +76,28 @@ void L1AXOTreeProducer::analyze(edm::Event const &event, edm::EventSetup const &
       anomaly_inputs[i] = inputs[i];
     }
 
-#ifdef AXO_DEBUG
+
     static unsigned int nDebugEvents = 0;
 
     if (nDebugEvents < 20) {
-      std::ostringstream msg;
 
-      msg << "event=" << event.id().event() << " run=" << event.id().run() << " lumi=" << event.luminosityBlock()
+      LogDebug("AXOL1TL") << "event=" << event.id().event() << " run=" << event.id().run() << " lumi=" << event.luminosityBlock()
           << " score=" << anomaly_score << " nonzero inputs:";
 
       bool any = false;
       for (unsigned int i = 0; i < AXOL1TLScore::kNInputs; ++i) {
         if (anomaly_inputs[i] != 0.f) {
-          msg << " [" << i << "]=" << anomaly_inputs[i];
+          LogDebug("AXOL1TL") << " [" << i << "]=" << anomaly_inputs[i];
           any = true;
         }
       }
 
       if (!any) {
-        msg << " <none>";
+        LogDebug("AXOL1TL") << " <none>";
       }
 
-      edm::LogPrint("AXODebug") << msg.str();
       ++nDebugEvents;
     }
-#endif
 
   } else {
     anomaly_score = 0.f;
@@ -115,11 +106,9 @@ void L1AXOTreeProducer::analyze(edm::Event const &event, edm::EventSetup const &
       anomaly_inputs[i] = 0.f;
     }
 
-#ifdef AXO_DEBUG
-    edm::LogPrint("AXODebug") << "event=" << event.id().event() << " run=" << event.id().run()
+    edm::LogPrint("AXOL1TL") << "event=" << event.id().event() << " run=" << event.id().run()
                               << " lumi=" << event.luminosityBlock()
                               << " AXOL1TLScoreBxCollection missing or empty at BX 0";
-#endif
 
     edm::LogWarning("MissingProduct") << "AXOL1TLScoreBxCollection missing or empty at BX 0";
   }
