@@ -65,7 +65,7 @@ namespace edm {
       ///Set the validity intervals in all EventSetupRecordProviders
       void setAllValidityIntervals(const IOVSyncValue& iValue);
 
-      std::shared_ptr<const EventSetupImpl> eventSetupForInstance(IOVSyncValue const&, bool newEventSetupImpl);
+      std::shared_ptr<EventSetupImpl> cachedEventSetup(bool newEventSetupImpl);
 
       EventSetupImpl const& eventSetupImpl() const { return *eventSetupImpl_; }
 

@@ -128,7 +128,7 @@ namespace edm {
       // returns it. If a new one is needed it will create it, although the pointers
       // to the EventSetupRecordImpl's will not be set yet in the returned EventSetupImpl
       // object.
-      eventSetupImpl = provider_->eventSetupForInstance(syncValue, newEventSetupImpl);
+      auto nonConst = provider_->cachedEventSetup(newEventSetupImpl);
 
       for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
         eventSetupRecordIOVQueue->checkForNewIOVsAndStartIfNeededAsync(

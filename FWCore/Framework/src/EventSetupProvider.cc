@@ -395,10 +395,7 @@ namespace edm {
       }
     }
 
-    std::shared_ptr<const EventSetupImpl> EventSetupProvider::eventSetupForInstance(const IOVSyncValue& iValue,
-                                                                                    bool newEventSetupImpl) {
-      using IntervalStatus = EventSetupRecordProvider::IntervalStatus;
-
+    std::shared_ptr<EventSetupImpl> EventSetupProvider::cachedEventSetup(bool newEventSetupImpl) {
       if (newEventSetupImpl or !eventSetupImpl_) {
         //cannot use make_shared because constructor is private
         eventSetupImpl_ = std::shared_ptr<EventSetupImpl>(new EventSetupImpl());

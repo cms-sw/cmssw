@@ -287,7 +287,7 @@ TEST_CASE("EventSetup", "[Framework][EventSetup]") {
     const Timestamp time(1);
     const IOVSyncValue timestamp(time);
     bool newEventSetupImpl = true;
-    auto eventSetupImpl = provider.eventSetupForInstance(timestamp, newEventSetupImpl);
+    auto eventSetupImpl = provider.cachedEventSetup(newEventSetupImpl);
     REQUIRE(non_null(eventSetupImpl.get()));
     edm::ESParentContext pc;
     const edm::EventSetup eventSetup(provider.eventSetupImpl(), 0, nullptr, pc);
