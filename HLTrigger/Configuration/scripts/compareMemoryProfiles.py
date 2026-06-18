@@ -78,12 +78,12 @@ def plot_gpu_memory(
     streams_per_gpu: int = 256,
     # Figure layout
     figsize: tuple[float, float] = (10, 8),
-    x_lim: float = 2200,
+    # X axis
+    xlims: tuple[float, float] = (0, 2500),
     # Y axis
-    ylim: tuple[float, float] = (0, 60),
+    ylims: tuple[float, float] = (0, 60),
     major_tick_step: float = 10,
     minor_tick_step: float = 2,
-    tick_limit: float | None = None,
     # Axis labels
     xlabel: str = "Elapsed time [s]",
     ylabel: str = "Memory usage [GiB]",
@@ -134,15 +134,12 @@ def plot_gpu_memory(
         per-stream memory footprint (printed only).
     figsize : tuple
         Figure size in inches.
-    x_lim : float
-        Upper x-axis limit (time, in seconds).
-    ylim : tuple
+    xlims : tuple
+        (min, max) y-axis limits (memory, in GiB).
+    ylims : tuple
         (min, max) y-axis limits (memory, in GiB).
     major_tick_step, minor_tick_step : float
         Spacing of major/minor y-axis ticks.
-    tick_limit : float or None
-        Upper bound (exclusive) for generating tick arrays. Defaults
-        to ylim[1] + 1.
     xlabel, ylabel : str
         Axis labels.
     xlabel_fontsize, ylabel_fontsize : int
@@ -180,9 +177,15 @@ def plot_gpu_memory(
     colour_iter = cycle(colours)
     fig, ax = plt.subplots(figsize=figsize)
 
+    max_time, min_time = -1., 1E9
+    
     for file, legend_entry in zip(csv_files, legend_entries):
         raw = pd.read_csv(file, header=None, skiprows=1)
         time = raw.iloc[:, 0].to_numpy()
+        if time[0] < min_time:
+            min_time = time[0]
+        if time[-1] > max_time:
+            max_time = time[-1]
 
         if per_gpu:
             n_gpus = raw.shape[1] - 2  # exclude time col and total col
@@ -193,6 +196,7 @@ def plot_gpu_memory(
         else:
             curves = [(raw.iloc[:, -1].to_numpy() / 1024, legend_entry)]
 
+        overall_max_mem = 0.
         for mem, label in curves:
             colour = next(colour_iter)
             ax.plot(time, mem, label=label, color=colour, linewidth=2)
@@ -233,12 +237,14 @@ def plot_gpu_memory(
             print("---")
 
             max_mem = mem.max()
-            ax.hlines(max_mem, 0, x_lim, colors=colour, linestyles=":", linewidth=1.4)
-            ax.text(x_lim * 0.98, max_mem, f"{max_mem:.1f} GiB",
+            ax.hlines(max_mem, xlims[0], xlims[1], colors=colour, linestyles=":", linewidth=1.4)
+            ax.text(xlims[1] * 0.98, max_mem, f"{max_mem:.1f} GiB",
                     verticalalignment="center", horizontalalignment="right",
                     color=colour, fontsize=9, fontweight="bold",
                     bbox=dict(boxstyle="round,pad=0.2", facecolor="white", edgecolor=colour, alpha=0.8))
 
+            overall_max_mem = max(overall_max_mem, max_mem)
+            
     ax.set_xlabel(xlabel, fontsize=xlabel_fontsize)
     ax.set_ylabel(ylabel, fontsize=ylabel_fontsize)
 
@@ -256,19 +262,25 @@ def plot_gpu_memory(
                     fontsize=info_fontsize, va="top", ha="left", style="italic")
 
     if hw_limit is not None:
-        ax.hlines(hw_limit, 0, x_lim, colors="red", linestyles="-", linewidth=1.4)
-        ax.text(x_lim * 0.98, hw_limit, hw_limit_label,
+        ax.hlines(hw_limit, xlims[0], xlims[1], colors="red", linestyles="-", linewidth=1.4)
+        ax.text(xlims[1] * 0.98, hw_limit, hw_limit_label,
                 verticalalignment="center", horizontalalignment="right",
                 color="red", fontsize=9, fontweight="bold",
                 bbox=dict(boxstyle="round,pad=0.2", facecolor="white", edgecolor="red", alpha=1))
 
     ax.legend(loc=legend_loc, frameon=False, fontsize=legend_fontsize)
-    ax.set_xlim(0, x_lim)
-    ax.set_ylim(*ylim)
 
-    tick_lim = ylim[1] + 1 if tick_limit is None else tick_limit
-    major_ticks = np.arange(ylim[0], tick_lim, major_tick_step)
-    minor_ticks = np.arange(ylim[0], tick_lim, minor_tick_step)
+    if xlims == (0, 0):
+        ax.set_xlim(min_time, max_time + 0.2*(max_time - min_time))
+    else:
+        ax.set_xlim(*xlims)
+    if ylims == (0, 0):
+        true_ymin, true_ymax = ax.set_ylim(0., 1.4*overall_max_mem)
+    else:
+        true_ymin, true_ymax = ax.set_ylim(*ylims)
+
+    major_ticks = np.arange(true_ymin, true_ymax + 1, major_tick_step)
+    minor_ticks = np.arange(true_ymin, true_ymax + 1, minor_tick_step)
     ax.set_yticks(major_ticks)
     ax.set_yticks(minor_ticks, minor=True)
 
@@ -291,15 +303,14 @@ def main(args):
     fig, ax = plot_gpu_memory(
         csv_files=args.csv_files,
         legend_entries=args.csv_labels if len(args.csv_labels) > 0 else [str(x) for x in range(len(args.csv_files))],
-        colours=DEFAULT_COLOURS,
+        colours=args.colours,
         plateau_fraction=None,
         per_gpu=False,
         figsize=(12, 9),
-        x_lim=2500,
-        ylim=(0, 70),
-        major_tick_step=10,
+        xlims=args.xlims,
+        ylims=args.ylims,
+        major_tick_step=args.major_tick_step,
         minor_tick_step=2,
-        tick_limit=71,
         cms_label=args.cms_label,
         cms_loc=1,
         cms_rlabel='',
@@ -339,6 +350,41 @@ if __name__ == '__main__':
         type=str,
         required=False,
         help='Legend labels, one per input CSV file (same order, same count).'
+    )
+
+    parser.add_argument(
+        '--colours',
+        nargs='+',
+        type=str,
+        required=False,
+        default=DEFAULT_COLOURS,
+        help='Colours in hex format, one per input CSV file (same order, same count).'
+    )
+
+    parser.add_argument(
+        '--xlims',
+        type=float,
+        nargs=2,
+        required=False,
+        default=(0., 0.),
+        help='X axis limits [xmin, xmax]. If ignored, an automatic range is employed based on the overall maximum memory value.'
+    )
+
+    parser.add_argument(
+        '--ylims',
+        type=float,
+        nargs=2,
+        required=False,
+        default=(0., 0.),
+        help='Y axis limits [ymin, ymax]. If ignored, an automatic range is employed based on the overall maximum memory value.'
+    )
+
+    parser.add_argument(
+        '--major-tick-step',
+        type=float,
+        required=False,
+        default=10,
+        help='The separation between two major ticks in Y axis units.'
     )
 
     parser.add_argument(
