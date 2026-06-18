@@ -348,10 +348,11 @@ namespace edm {
       }
     }
 
-    void EventSetupProvider::resetRecordPlusDependentRecords(const EventSetupRecordKey& iKey) {
+    std::vector<EventSetupRecordKey> EventSetupProvider::resetRecordPlusDependentRecords(
+        const EventSetupRecordKey& iKey) {
       EventSetupRecordProvider* recProvider = tryToGetRecordProvider(iKey);
       if (recProvider == nullptr) {
-        return;
+        return {};
       }
 
       std::vector<std::shared_ptr<EventSetupRecordProvider>> dependents;
@@ -359,10 +360,14 @@ namespace edm {
 
       dependents.erase(std::unique(dependents.begin(), dependents.end()), dependents.end());
 
+      std::vector<EventSetupRecordKey> ret;
+      ret.reserve(dependents.size());
       recProvider->resetResolvers();
       for (auto& d : dependents) {
         d->resetResolvers();
+        ret.push_back(d->key());
       }
+      return ret;
     }
 
     void EventSetupProvider::updateLookup() {
@@ -385,48 +390,18 @@ namespace edm {
     }
 
     void EventSetupProvider::setAllValidityIntervals(const IOVSyncValue& iValue) {
-      // First loop sets a flag that helps us to not duplicate calls to the
-      // same EventSetupRecordProvider setting the IOVs. Dependent records
-      // can cause duplicate calls without this protection.
-      for (auto& recProvider : recordProviders_) {
-        recProvider->initializeForNewSyncValue();
-      }
-
       for (auto& recProvider : recordProviders_) {
         recProvider->setValidityIntervalFor(iValue);
       }
     }
 
     std::shared_ptr<const EventSetupImpl> EventSetupProvider::eventSetupForInstance(const IOVSyncValue& iValue,
-                                                                                    bool& newEventSetupImpl) {
+                                                                                    bool newEventSetupImpl) {
       using IntervalStatus = EventSetupRecordProvider::IntervalStatus;
 
-      // It is important to understand that eventSetupForInstance is a function
-      // where only one call is executing at a time (not multiple calls running
-      // concurrently). These calls are made in the order determined by the
-      // InputSource. One invocation completes and returns before another starts.
-
-      bool needNewEventSetupImpl = false;
-      if (eventSetupImpl_.get() == nullptr) {
-        needNewEventSetupImpl = true;
-      } else {
-        for (auto& recProvider : recordProviders_) {
-          if (recProvider->intervalStatus() == IntervalStatus::Invalid) {
-            if (eventSetupImpl_->validRecord(recProvider->key())) {
-              needNewEventSetupImpl = true;
-            }
-          } else {
-            if (recProvider->newInterval()) {
-              needNewEventSetupImpl = true;
-            }
-          }
-        }
-      }
-
-      if (needNewEventSetupImpl) {
+      if (newEventSetupImpl or !eventSetupImpl_) {
         //cannot use make_shared because constructor is private
         eventSetupImpl_ = std::shared_ptr<EventSetupImpl>(new EventSetupImpl());
-        newEventSetupImpl = true;
         eventSetupImpl_->setKeyIters(recordKeys_.begin(), recordKeys_.end());
 
         for (auto& recProvider : recordProviders_) {

@@ -92,6 +92,8 @@ namespace edm {
 
       bool mustFinishConfiguration() const { return mustFinishConfiguration_; }
 
+      void resetRecordPlusDependentRecords(EventSetupRecordKey const& recordKey);
+
     private:
       void initializeEventSetupRecordIOVQueues();
 

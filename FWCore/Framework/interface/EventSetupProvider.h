@@ -65,7 +65,7 @@ namespace edm {
       ///Set the validity intervals in all EventSetupRecordProviders
       void setAllValidityIntervals(const IOVSyncValue& iValue);
 
-      std::shared_ptr<const EventSetupImpl> eventSetupForInstance(IOVSyncValue const&, bool& newEventSetupImpl);
+      std::shared_ptr<const EventSetupImpl> eventSetupForInstance(IOVSyncValue const&, bool newEventSetupImpl);
 
       EventSetupImpl const& eventSetupImpl() const { return *eventSetupImpl_; }
 
@@ -75,7 +75,7 @@ namespace edm {
       void finishConfiguration(NumberOfConcurrentIOVs const&);
 
       ///Used when we need to force a Record to reset all its resolvers
-      void resetRecordPlusDependentRecords(EventSetupRecordKey const&);
+      std::vector<EventSetupRecordKey> resetRecordPlusDependentRecords(EventSetupRecordKey const&);
 
       void updateLookup();
 

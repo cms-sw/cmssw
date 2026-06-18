@@ -76,7 +76,7 @@ namespace edm {
     }
     void EventSetupRecordProvider::setValidityInterval_forTesting(const ValidityInterval& iInterval) {
       validityInterval_ = iInterval;
-      initializeForNewSyncValue();
+      lastSyncValueForWhichWeSetValidityInterval_ = IOVSyncValue::invalidIOVSyncValue();
     }
 
     void EventSetupRecordProvider::setDependentProviders(
@@ -150,10 +150,6 @@ namespace edm {
 
     void EventSetupRecordProvider::endIOV(unsigned int iovIndex) { recordImpls_[iovIndex].invalidateResolvers(); }
 
-    void EventSetupRecordProvider::initializeForNewSyncValue() {
-      intervalStatus_ = IntervalStatus::NotInitializedForSyncValue;
-    }
-
     bool EventSetupRecordProvider::setValidityIntervalFor(const IOVSyncValue& iTime) {
       // This function can be called multiple times for the same
       // IOVSyncValue because DependentRecordIntervalFinder::setIntervalFor
@@ -164,7 +160,8 @@ namespace edm {
       // were made in the right order, but it would take some development work
       // to come up with code to calculate that order (maybe a project for the
       // future, but it's not clear it would be worth the effort).
-      if (intervalStatus_ == IntervalStatus::NotInitializedForSyncValue) {
+      if (lastSyncValueForWhichWeSetValidityInterval_ != iTime) {
+        lastSyncValueForWhichWeSetValidityInterval_ = iTime;
         intervalStatus_ = IntervalStatus::Invalid;
 
         if (validityInterval_.first() != IOVSyncValue::invalidIOVSyncValue() && validityInterval_.validFor(iTime)) {
@@ -207,6 +204,7 @@ namespace edm {
       // Force a new IOV to start with a new cacheIdentifier
       // on the next eventSetupForInstance call.
       validityInterval_ = ValidityInterval{};
+      lastSyncValueForWhichWeSetValidityInterval_ = IOVSyncValue::invalidIOVSyncValue();
       if (finder_.get() != nullptr) {
         finder_->resetInterval(key_);
       }

@@ -118,7 +118,10 @@ namespace edm {
       provider_->setAllValidityIntervals(syncValue);
 
       for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
-        eventSetupRecordIOVQueue->setNewInterval();
+        auto v = eventSetupRecordIOVQueue->didIntervalChange();
+        if (not v.has_value() or v.value()) {
+          newEventSetupImpl = true;
+        }
       }
 
       // Decides whether we can reuse the existing EventSetupImpl and if we can
@@ -128,7 +131,8 @@ namespace edm {
       eventSetupImpl = provider_->eventSetupForInstance(syncValue, newEventSetupImpl);
 
       for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
-        eventSetupRecordIOVQueue->checkForNewIOVsAndStartIfNeededAsync(taskToStartAfterIOVInit, endIOVWaitingTasks, newEventSetupImpl);
+        eventSetupRecordIOVQueue->checkForNewIOVsAndStartIfNeededAsync(
+            taskToStartAfterIOVInit, endIOVWaitingTasks, newEventSetupImpl);
       }
     }
 
@@ -143,6 +147,17 @@ namespace edm {
         EventSetupRecordProvider* recProvider = provider_->tryToGetRecordProvider(key);
         if (recProvider) {
           iovQueue.addRecProvider(recProvider);
+        }
+      }
+    }
+
+    void EventSetupsController::resetRecordPlusDependentRecords(EventSetupRecordKey const& recordKey) {
+      auto dependentKeys = provider_->resetRecordPlusDependentRecords(recordKey);
+      for (auto& queue : eventSetupRecordIOVQueues_) {
+        if (queue->key() == recordKey) {
+          queue->reset();
+        } else if (std::find(dependentKeys.begin(), dependentKeys.end(), queue->key()) != dependentKeys.end()) {
+          queue->reset();
         }
       }
     }

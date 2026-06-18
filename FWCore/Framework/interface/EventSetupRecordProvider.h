@@ -115,20 +115,10 @@ namespace edm {
        */
       void endIOV(unsigned int iovIndex);
 
-      /** Set a flag each time the EventSetupProvider starts initializing with a new sync value.
-       *  setValidityIntervalFor can be called multiple times because of dependent records.
-       *  Using this flag allows setValidityIntervalFor to avoid duplicating its work on the same
-       *  syncValue.
-       */
-      void initializeForNewSyncValue();
-
       /** Sets the validity interval for this sync value and returns true if we have a valid
        *  interval for sync value. Also sets the interval status.
        */
       bool setValidityIntervalFor(IOVSyncValue const&);
-
-      bool newInterval() const { return newInterval_; }
-      void setNewInterval(bool value) { newInterval_ = value; }
 
       ///If the provided Record depends on other Records, here are the dependent Providers
       void setDependentProviders(std::vector<std::shared_ptr<EventSetupRecordProvider>> const&);
@@ -176,6 +166,12 @@ namespace edm {
       // might contain an older interval.
       ValidityInterval validityInterval_;
 
+      /** setValidityIntervalFor can be called multiple times because of dependent records.
+       *  Caching this value allows setValidityIntervalFor to avoid duplicating its work on the same
+       *  syncValue.
+       */
+      IOVSyncValue lastSyncValueForWhichWeSetValidityInterval_;
+
       EventSetupImpl* eventSetupImpl_ = nullptr;
 
       std::vector<EventSetupRecordImpl> recordImpls_;
@@ -183,12 +179,12 @@ namespace edm {
 
       edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>> finder_;
       std::vector<edm::propagate_const<std::shared_ptr<ESProductResolverProvider>>> providers_;
+      //only used during initialization. Eventually replaced with one finder_ to combine them all.
       std::unique_ptr<std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>>
           multipleFinders_;
 
       const unsigned int nConcurrentIOVs_;
-      IntervalStatus intervalStatus_ = IntervalStatus::NotInitializedForSyncValue;
-      bool newInterval_ = false;
+      IntervalStatus intervalStatus_ = IntervalStatus::Invalid;
     };
   }  // namespace eventsetup
 }  // namespace edm

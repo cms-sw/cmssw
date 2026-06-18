@@ -26,15 +26,17 @@
 // Original Author: W. David Dagenhart
 //          Created: 22 Feb 2019
 //
-
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 
 #include <atomic>
 #include <memory>
 #include <vector>
+#include <optional>
 
 namespace edm {
   namespace eventsetup {
@@ -48,15 +50,19 @@ namespace edm {
 
       void endIOVAsync(WaitingTaskHolder endTask);
 
-      void setNewInterval();
+      //returns std::nullopt if the IOVSyncValue is invalid, otherwise returns whether a new IOV is needed
+      std::optional<bool> didIntervalChange();
 
       void checkForNewIOVsAndStartIfNeededAsync(WaitingTaskHolder const& taskToStartAfterIOVInit,
-                           WaitingTaskList& endIOVWaitingTasks,
-                           bool newEventSetupImpl);
+                                                WaitingTaskList& endIOVWaitingTasks,
+                                                bool newEventSetupImpl);
 
       void startNewIOVAsync(WaitingTaskHolder const& taskToStartAfterIOVInit, WaitingTaskList& endIOVWaitingTasks);
 
       void addRecProvider(EventSetupRecordProvider* recProvider);
+
+      auto const& key() const { return recordProvider_->key(); }
+      void reset() { firstForCurrentIOV_ = IOVSyncValue(); }
 
     private:
       // Used to limit the number of concurrent IOVs
@@ -67,12 +73,16 @@ namespace edm {
       // out the set of possible concurrent IOVs.
       std::vector<std::atomic<bool>> isAvailable_;
 
+      // Can't watch for change in recordProvider_ since call to setValidityIntervalFor can happen multiple times
+      //  for the same transition because of dependent Records.
+      edm::IOVSyncValue firstForCurrentIOV_;
       edm::propagate_const<EventSetupRecordProvider*> recordProvider_;
 
       // These are associated with the most recent iov.
       unsigned long long cacheIdentifier_;
       WaitingTaskHolder endIOVTaskHolder_;
       bool endIOVCalled_ = false;
+      bool newIOVNeeded_ = false;
     };
 
   }  // namespace eventsetup

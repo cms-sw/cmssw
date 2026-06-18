@@ -277,7 +277,6 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     REQUIRE(definedInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 2))));
 
     dummyFinder->setInterval(edm::ValidityInterval::invalidInterval());
-    dummyProvider->initializeForNewSyncValue();
     REQUIRE(edm::ValidityInterval::invalidInterval() ==
             finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4))));
 
@@ -286,7 +285,6 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const edm::ValidityInterval unknownedEndInterval(sync_5, edm::IOVSyncValue::invalidIOVSyncValue());
     dummyFinder->setInterval(unknownedEndInterval);
 
-    dummyProvider->initializeForNewSyncValue();
     REQUIRE(unknownedEndInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 5))));
   }
 
@@ -354,20 +352,14 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
       // result when none of the IOVs changes. Next 3 just show that.
 
       //should give back same interval
-      dummyProviderEventID->initializeForNewSyncValue();
-      dummyProviderTime->initializeForNewSyncValue();
       REQUIRE(expectedIOV ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4), edm::Timestamp(4))));
 
       //should give back same interval
-      dummyProviderEventID->initializeForNewSyncValue();
-      dummyProviderTime->initializeForNewSyncValue();
       REQUIRE(expectedIOV ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 2), edm::Timestamp(3))));
 
       //should give back same interval
-      dummyProviderEventID->initializeForNewSyncValue();
-      dummyProviderTime->initializeForNewSyncValue();
       REQUIRE(expectedIOV ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 1), edm::Timestamp(2))));
     }
@@ -381,9 +373,6 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
 
       const edm::ValidityInterval expectedIOV(iovEventID.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
-      // Don't need to call initializeForNewSyncValue() if setValidityInterval_forTesting
-      // was called.
-      dummyProviderTime->initializeForNewSyncValue();
       REQUIRE(expectedIOV ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 6), edm::Timestamp(5))));
     }
@@ -394,7 +383,6 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
 
       const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
-      dummyProviderEventID->initializeForNewSyncValue();
       REQUIRE(expectedIOV ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 7), edm::Timestamp(7))));
     }
@@ -500,7 +488,6 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
                                         edm::IOVSyncValue::invalidIOVSyncValue());
     {
       dummyProviderEventID->setValidityInterval_forTesting(invalid);
-      dummyProviderTime->initializeForNewSyncValue();
       const edm::ValidityInterval expectedIOV(edm::IOVSyncValue(edm::Timestamp(7)),
                                               edm::IOVSyncValue::invalidIOVSyncValue());
       REQUIRE(expectedIOV ==
@@ -519,7 +506,6 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
       dummyProviderEventID->setValidityInterval_forTesting(invalid);
       dummyProviderTime->setValidityInterval_forTesting(invalid);
 
-      dummyProviderEventID->initializeForNewSyncValue();
       REQUIRE(invalid ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 13), edm::Timestamp(11))));
     }
@@ -558,7 +544,6 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
 
       const edm::ValidityInterval expectedIOV(iovTime.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
-      dummyProviderEventID->initializeForNewSyncValue();
       REQUIRE(expectedIOV ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 5), edm::Timestamp(3))));
     }
@@ -597,7 +582,6 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
 
       const edm::ValidityInterval expectedIOV(edm::IOVSyncValue(edm::Timestamp(1)),
                                               edm::IOVSyncValue::invalidIOVSyncValue());
-      dummyProviderTime->initializeForNewSyncValue();
       REQUIRE(expectedIOV ==
               finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 5), edm::Timestamp(4))));
     }
@@ -1284,29 +1268,29 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
   SECTION("resetTest") {
     SynchronousEventSetupsController controller;
     edm::ParameterSet pset = createDummyPset();
-    EventSetupProvider& provider = *controller.makeProvider(pset, &activityRegistry);
+    auto provider = controller.makeProvider(pset, &activityRegistry);
 
     std::shared_ptr<edm::eventsetup::ESProductResolverProvider> dummyProv =
         std::make_shared<DummyESProductResolverProvider>();
-    provider.add(dummyProv);
+    provider->add(dummyProv);
 
     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
     dummyFinder->setInterval(
         edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-    provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+    provider->add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
 
     std::shared_ptr<edm::eventsetup::ESProductResolverProvider> depProv = std::make_shared<DepRecordResolverProvider>();
-    provider.add(depProv);
+    provider->add(depProv);
     {
       edm::ESParentContext parentC;
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
-      const edm::EventSetup eventSetup1(provider.eventSetupImpl(), 0, nullptr, parentC);
+      const edm::EventSetup eventSetup1(provider->eventSetupImpl(), 0, nullptr, parentC);
       const DepRecord& depRecord = eventSetup1.get<DepRecord>();
       unsigned long long depCacheID = depRecord.cacheIdentifier();
       const DummyRecord& dummyRecord = depRecord.getRecord<DummyRecord>();
       unsigned long long dummyCacheID = dummyRecord.cacheIdentifier();
 
-      provider.resetRecordPlusDependentRecords(dummyRecord.key());
+      controller.resetRecordPlusDependentRecords(dummyRecord.key());
       controller.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
       REQUIRE(dummyCacheID != dummyRecord.cacheIdentifier());
       REQUIRE(depCacheID != depRecord.cacheIdentifier());
@@ -1350,7 +1334,6 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     dummyFinder->setInterval(edm::ValidityInterval::invalidInterval());
     depFinder->setInterval(edm::ValidityInterval::invalidInterval());
 
-    dummyProvider->initializeForNewSyncValue();
     REQUIRE(edm::ValidityInterval::invalidInterval() ==
             finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 5))));
 
@@ -1364,17 +1347,14 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const edm::ValidityInterval iov6_7(sync_6, sync_7);
     depFinder->setInterval(iov6_7);
 
-    dummyProvider->initializeForNewSyncValue();
     REQUIRE(unknownedEndInterval == finder.findIntervalFor(depRecordKey, sync_6));
 
     //see if dependent record can override the finder
     dummyFinder->setInterval(depInterval);
     depFinder->setInterval(definedInterval);
-    dummyProvider->initializeForNewSyncValue();
     REQUIRE(depInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 1))));
 
     dummyFinder->setInterval(dep2Interval);
-    dummyProvider->initializeForNewSyncValue();
     REQUIRE(dep2Interval == finder.findIntervalFor(depRecordKey, sync_3));
   }
 
@@ -1406,8 +1386,6 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
 
     const edm::ValidityInterval openEnded1(definedInterval2.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
-    dummyProvider1->initializeForNewSyncValue();
-    dummyProvider2->initializeForNewSyncValue();
     REQUIRE(openEnded1 == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 4))));
 
     dummyProvider1->setValidityInterval_forTesting(definedInterval1);
@@ -1415,15 +1393,11 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
     const edm::ValidityInterval overlapInterval(std::max(definedInterval1.first(), definedInterval2.first()),
                                                 std::min(definedInterval1.last(), definedInterval2.last()));
 
-    dummyProvider1->initializeForNewSyncValue();
-    dummyProvider2->initializeForNewSyncValue();
     REQUIRE(overlapInterval == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 5))));
 
     dummyProvider2->setValidityInterval_forTesting(invalid);
     const edm::ValidityInterval openEnded2(definedInterval1.first(), edm::IOVSyncValue::invalidIOVSyncValue());
 
-    dummyProvider1->initializeForNewSyncValue();
-    dummyProvider2->initializeForNewSyncValue();
     REQUIRE(openEnded2 == finder.findIntervalFor(depRecordKey, edm::IOVSyncValue(edm::EventID(1, 1, 7))));
   }
 

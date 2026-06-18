@@ -1011,7 +1011,12 @@ namespace edm {
 
   void EventProcessor::rewindInput() { sourceCoordinator_.rewind(); }
 
-  void EventProcessor::prepareForNextLoop() { looper_->prepareForNextLoop(esp_.get()); }
+  void EventProcessor::prepareForNextLoop() {
+    looper_->prepareForNextLoop();
+    for (auto const& key : looper_->modifyingRecords()) {
+      espController_->resetRecordPlusDependentRecords(key);
+    }
+  }
 
   bool EventProcessor::shouldWeCloseOutput() const { return schedule_->shouldWeCloseOutput(); }
 

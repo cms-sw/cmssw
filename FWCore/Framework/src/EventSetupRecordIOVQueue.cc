@@ -45,15 +45,24 @@ namespace edm {
       endIOVCalled_ = true;
     }
 
-    void EventSetupRecordIOVQueue::setNewInterval() {
-      bool newInterval = (recordProvider_->intervalStatus() == EventSetupRecordProvider::IntervalStatus::NewInterval);
-      recordProvider_->setNewInterval(newInterval);
+    std::optional<bool> EventSetupRecordIOVQueue::didIntervalChange() {
+      if (recordProvider_->validityInterval().first() == IOVSyncValue::invalidIOVSyncValue()) {
+        if (firstForCurrentIOV_ != IOVSyncValue::invalidIOVSyncValue()) {
+          firstForCurrentIOV_ = IOVSyncValue::invalidIOVSyncValue();
+        }
+        return std::nullopt;
+      }
+      newIOVNeeded_ = recordProvider_->validityInterval().first() != firstForCurrentIOV_;
+      if (newIOVNeeded_) {
+        firstForCurrentIOV_ = recordProvider_->validityInterval().first();
+      }
+      return newIOVNeeded_;
     }
 
-    void EventSetupRecordIOVQueue::checkForNewIOVsAndStartIfNeededAsync(WaitingTaskHolder const& taskToStartAfterIOVInit,
-                                                   WaitingTaskList& endIOVWaitingTasks,
-                                                   bool newEventSetupImpl) {
-      if (recordProvider_->newInterval()) {
+    void EventSetupRecordIOVQueue::checkForNewIOVsAndStartIfNeededAsync(
+        WaitingTaskHolder const& taskToStartAfterIOVInit, WaitingTaskList& endIOVWaitingTasks, bool newEventSetupImpl) {
+      if (newIOVNeeded_) {
+        newIOVNeeded_ = false;
         startNewIOVAsync(taskToStartAfterIOVInit, endIOVWaitingTasks);
         return;
       }
