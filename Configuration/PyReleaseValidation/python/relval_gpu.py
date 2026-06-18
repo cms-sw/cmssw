@@ -17,9 +17,6 @@ from Configuration.PyReleaseValidation.relval_Run4 import prefixDet
 
 # mc WFs to run in IB:
 
-# no PU     Alpaka pixel-only                                   TTbar: quadruplets any backend and profiling; ECAL-only any backend; HCAL-only any backend and profiling
-# mc 2025 
-#           (Alpaka wfs to be removed, kept here to be used by the bot in the transition)
 # mc 2026
 # no PU  
 #           Alpaka pixel-only quadruplets:                      TTbar: any backend, any backend vs cpu validation, profiling
@@ -30,15 +27,6 @@ from Configuration.PyReleaseValidation.relval_Run4 import prefixDet
 #           Alpaka pixel-only quadruplets:                      ZMM: any backend, any backend vs cpu validation, profiling
 #           Alpaka pixel-only triplets:                         ZMM: any backend, any backend vs cpu validation, profiling
 #           Alpaka pixel-only quadruplets:                      Single Nu E10: any backend
-# with PU
-#           Alpaka pixel-only quadruplets:                      TTbar with PU: any backend, any backend vs cpu validation, profiling
-#           Alpaka pixel-only triplets:                         TTbar with PU: any backend, any backend vs cpu validation, profiling
-#           Alpaka ECAL-only:                                   TTbar with PU: any backend
-#           Alpaka HCAL-only:                                   TTbar with PU: any backend, any backend vs cpu validation, profiling
-#           Alpaka with full reco and pixel-only:               TTbar with PU: any backend quadruplets, any backend triplets
-#           Alpaka pixel-only quadruplets:                      ZMM with PU: any backend, any backend vs cpu validation, profiling
-#           Alpaka pixel-only triplets:                         ZMM with PU: any backend, any backend vs cpu validation, profiling
-#           Alpaka pixel-only quadruplets:                      Single Nu E10 with PU: any backend
 # mc Run4   
 # no PU
 #           Alpaka pixel-only:                                  TTbar: quadruplets any backend, CA Extension any backend, any backend vs cpu validation, profiling, triplets
@@ -52,8 +40,6 @@ from Configuration.PyReleaseValidation.relval_Run4 import prefixDet
 #           Alpaka LST-only:                                    TTbar: TRK-only w/ 2 iterations and LST building on any backend
 #           Alpaka HLTTiming75e33:                              TTbar: any backend
 numWFIB = [
-           # 2025, Alpaka-based (to be removed, used by the bot)
-           17034.422, 17034.403, 17034.406, 17034.412, 17034.402, 17034.423,
            # 2026, Alpaka-based noPU
            18434.402, 18434.403, 18434.404,
            18434.406, 18434.407, 18434.408,
@@ -65,18 +51,6 @@ numWFIB = [
            18450.402, 18450.403, 18450.404,
            18450.406, 18450.407, 18450.408,
            18461.402,
-
-           # 2026 with PU, Alpaka-based
-           18634.402, 18634.403, 18634.404,
-           18634.406, 18634.407, 18634.408,
-           18634.412, 18634.413, #18634.414
-           18634.422, 18634.423, 18634.424,
-           #18634.482, 18634.483, 18634.484
-           #18634.486, 18634.487, 18634.488
-           18634.492, 18634.493,
-           18650.402, 18650.403, 18650.404,
-           18650.406, 18650.407, 18650.408,
-           18661.402,
 
            # Run4, Alpaka-based noPU
            prefixDet+34.402, prefixDet+34.4021, prefixDet+34.403, prefixDet+34.404, prefixDet+34.406,
