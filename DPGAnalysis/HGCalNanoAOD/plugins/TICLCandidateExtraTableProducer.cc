@@ -26,6 +26,7 @@
 class TICLCandidateExtraTableProducer : public SimpleFlatTableProducerBase<TICLCandidate, std::vector<TICLCandidate>> {
 public:
   using TProd = edm::Ptr<ticl::Trackster>;
+  static constexpr float kInvalidBoundaryValue = -999.f;
 
   TICLCandidateExtraTableProducer(edm::ParameterSet const& params)
       : SimpleFlatTableProducerBase<TICLCandidate, std::vector<TICLCandidate>>(params),
@@ -50,9 +51,48 @@ public:
         coltable.useCount = coltablePSet.getParameter<bool>("useCount");
         coltable.useOffset = coltablePSet.getParameter<bool>("useOffset");
 
-        this->coltables_.push_back(std::move(coltable));
+        coltables_.push_back(std::move(coltable));
         produces<nanoaod::FlatTable>(coltables_.back().name + "Table");
       }
+    }
+  }
+
+  //write empty tables when products are missing
+  void writeEmptyTables(edm::Event& iEvent, size_t table_size) const {
+    auto out = std::make_unique<nanoaod::FlatTable>(table_size, this->name_, /*singleton*/ false, /*extension*/ true);
+
+    for (const auto& coltable : coltables_) {
+      std::vector<uint16_t> emptyCounts(table_size, 0);
+      std::vector<uint16_t> emptyOffsets(table_size, 0);
+
+      if (coltable.useCount) {
+        out->addColumn<uint16_t>("n" + coltable.name, emptyCounts, "Count for " + coltable.name);
+      }
+      if (coltable.useOffset) {
+        out->addColumn<uint16_t>("o" + coltable.name, emptyOffsets, "Offset for " + coltable.name);
+      }
+
+      auto outcoltable = std::make_unique<nanoaod::FlatTable>(0, coltable.name, false, false);
+      std::vector<uint32_t> emptyTracksterKeys;
+      std::vector<float> emptyBoundaryX, emptyBoundaryY, emptyBoundaryZ;
+      std::vector<float> emptyBoundaryEta, emptyBoundaryPhi;
+      std::vector<float> emptyBoundaryPx, emptyBoundaryPy, emptyBoundaryPz;
+      outcoltable->addColumn<uint32_t>("tracksterIndex", emptyTracksterKeys, "Index of associated Trackster");
+      outcoltable->addColumn<float>("track_boundaryX", emptyBoundaryX, "Track X position at HGCal boundary");
+      outcoltable->addColumn<float>("track_boundaryY", emptyBoundaryY, "Track Y position at HGCal boundary");
+      outcoltable->addColumn<float>("track_boundaryZ", emptyBoundaryZ, "Track Z position at HGCal boundary");
+      outcoltable->addColumn<float>("track_boundaryEta", emptyBoundaryEta, "Track eta at HGCal boundary");
+      outcoltable->addColumn<float>("track_boundaryPhi", emptyBoundaryPhi, "Track phi at HGCal boundary");
+      outcoltable->addColumn<float>("track_boundaryPx", emptyBoundaryPx, "Track Px at HGCal boundary");
+      outcoltable->addColumn<float>("track_boundaryPy", emptyBoundaryPy, "Track Py at HGCal boundary");
+      outcoltable->addColumn<float>("track_boundaryPz", emptyBoundaryPz, "Track Pz at HGCal boundary");
+      outcoltable->setDoc(coltable.doc);
+      iEvent.put(std::move(outcoltable), coltable.name + "Table");
+    }
+
+    if (out->nColumns() > 0) {
+      out->setDoc(this->doc_);
+      iEvent.put(std::move(out));
     }
   }
 
@@ -67,126 +107,20 @@ public:
     const auto firstDisk = ticl::utils::buildHGCalFirstDisks(hgcons, geom);
 
     if (!prod.isValid() && this->skipNonExistingSrc_) {
-      auto out = std::make_unique<nanoaod::FlatTable>(0, this->name_, /*singleton*/ false, /*extension*/ true);
-
-      for (const auto& coltable : this->coltables_) {
-        std::vector<uint16_t> emptyCounts;
-        std::vector<uint16_t> emptyOffsets;
-
-        if (coltable.useCount) {
-          out->addColumn<uint16_t>("n" + coltable.name, emptyCounts, "Count for " + coltable.name);
-        }
-        if (coltable.useOffset) {
-          out->addColumn<uint16_t>("o" + coltable.name, emptyOffsets, "Offset for " + coltable.name);
-        }
-
-        auto outcoltable = std::make_unique<nanoaod::FlatTable>(0, coltable.name, false, false);
-        std::vector<uint32_t> emptyTracksterKeys;
-        std::vector<float> emptyBoundaryX, emptyBoundaryY, emptyBoundaryZ;
-        std::vector<float> emptyBoundaryEta, emptyBoundaryPhi;
-        std::vector<float> emptyBoundaryPx, emptyBoundaryPy, emptyBoundaryPz;
-        outcoltable->addColumn<uint32_t>("tracksterIndex", emptyTracksterKeys, "Index of associated Trackster");
-        outcoltable->addColumn<float>("track_boundaryX", emptyBoundaryX, "Track X position at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryY", emptyBoundaryY, "Track Y position at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryZ", emptyBoundaryZ, "Track Z position at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryEta", emptyBoundaryEta, "Track eta at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryPhi", emptyBoundaryPhi, "Track phi at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryPx", emptyBoundaryPx, "Track Px at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryPy", emptyBoundaryPy, "Track Py at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryPz", emptyBoundaryPz, "Track Pz at HGCal boundary");
-        outcoltable->setDoc(coltable.doc);
-        iEvent.put(std::move(outcoltable), coltable.name + "Table");
-      }
-
-      if (out->nColumns() > 0) {
-        out->setDoc(this->doc_);
-        iEvent.put(std::move(out));
-      }
+      writeEmptyTables(iEvent, 0);
       return;
     }
 
     const auto& tracksters_h = iEvent.getHandle(tracksters_token_);
     if (!tracksters_h.isValid() && this->skipNonExistingSrc_) {
-      const auto& candidates = *prod;
-      const size_t table_size = candidates.size();
-      auto out = std::make_unique<nanoaod::FlatTable>(table_size, this->name_, /*singleton*/ false, /*extension*/ true);
-
-      for (const auto& coltable : this->coltables_) {
-        std::vector<uint16_t> emptyCounts(table_size, 0);
-        std::vector<uint16_t> emptyOffsets(table_size, 0);
-
-        if (coltable.useCount) {
-          out->addColumn<uint16_t>("n" + coltable.name, emptyCounts, "Count for " + coltable.name);
-        }
-        if (coltable.useOffset) {
-          out->addColumn<uint16_t>("o" + coltable.name, emptyOffsets, "Offset for " + coltable.name);
-        }
-
-        auto outcoltable = std::make_unique<nanoaod::FlatTable>(0, coltable.name, false, false);
-        std::vector<uint32_t> emptyTracksterKeys;
-        std::vector<float> emptyBoundaryX, emptyBoundaryY, emptyBoundaryZ;
-        std::vector<float> emptyBoundaryEta, emptyBoundaryPhi;
-        std::vector<float> emptyBoundaryPx, emptyBoundaryPy, emptyBoundaryPz;
-        outcoltable->addColumn<uint32_t>("tracksterIndex", emptyTracksterKeys, "Index of associated Trackster");
-        outcoltable->addColumn<float>("track_boundaryX", emptyBoundaryX, "Track X position at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryY", emptyBoundaryY, "Track Y position at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryZ", emptyBoundaryZ, "Track Z position at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryEta", emptyBoundaryEta, "Track eta at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryPhi", emptyBoundaryPhi, "Track phi at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryPx", emptyBoundaryPx, "Track Px at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryPy", emptyBoundaryPy, "Track Py at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryPz", emptyBoundaryPz, "Track Pz at HGCal boundary");
-        outcoltable->setDoc(coltable.doc);
-        iEvent.put(std::move(outcoltable), coltable.name + "Table");
-      }
-
-      if (out->nColumns() > 0) {
-        out->setDoc(this->doc_);
-        iEvent.put(std::move(out));
-      }
+      writeEmptyTables(iEvent, prod->size());
       return;
     }
     const auto& tracksters = *tracksters_h;
 
     const auto& tracks_h = iEvent.getHandle(tracks_token_);
     if (!tracks_h.isValid() && this->skipNonExistingSrc_) {
-      const auto& candidates = *prod;
-      const size_t table_size = candidates.size();
-      auto out = std::make_unique<nanoaod::FlatTable>(table_size, this->name_, /*singleton*/ false, /*extension*/ true);
-
-      for (const auto& coltable : this->coltables_) {
-        std::vector<uint16_t> emptyCounts(table_size, 0);
-        std::vector<uint16_t> emptyOffsets(table_size, 0);
-
-        if (coltable.useCount) {
-          out->addColumn<uint16_t>("n" + coltable.name, emptyCounts, "Count for " + coltable.name);
-        }
-        if (coltable.useOffset) {
-          out->addColumn<uint16_t>("o" + coltable.name, emptyOffsets, "Offset for " + coltable.name);
-        }
-
-        auto outcoltable = std::make_unique<nanoaod::FlatTable>(0, coltable.name, false, false);
-        std::vector<uint32_t> emptyTracksterKeys;
-        std::vector<float> emptyBoundaryX, emptyBoundaryY, emptyBoundaryZ;
-        std::vector<float> emptyBoundaryEta, emptyBoundaryPhi;
-        std::vector<float> emptyBoundaryPx, emptyBoundaryPy, emptyBoundaryPz;
-        outcoltable->addColumn<uint32_t>("tracksterIndex", emptyTracksterKeys, "Index of associated Trackster");
-        outcoltable->addColumn<float>("track_boundaryX", emptyBoundaryX, "Track X position at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryY", emptyBoundaryY, "Track Y position at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryZ", emptyBoundaryZ, "Track Z position at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryEta", emptyBoundaryEta, "Track eta at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryPhi", emptyBoundaryPhi, "Track phi at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryPx", emptyBoundaryPx, "Track Px at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryPy", emptyBoundaryPy, "Track Py at HGCal boundary");
-        outcoltable->addColumn<float>("track_boundaryPz", emptyBoundaryPz, "Track Pz at HGCal boundary");
-        outcoltable->setDoc(coltable.doc);
-        iEvent.put(std::move(outcoltable), coltable.name + "Table");
-      }
-
-      if (out->nColumns() > 0) {
-        out->setDoc(this->doc_);
-        iEvent.put(std::move(out));
-      }
+      writeEmptyTables(iEvent, prod->size());
       return;
     }
     const auto& tracks = *tracks_h;
@@ -238,30 +172,30 @@ public:
             track_boundaryPy.push_back(globalMom.y());
             track_boundaryPz.push_back(globalMom.z());
           } else {
-            track_boundaryX.push_back(-999);
-            track_boundaryY.push_back(-999);
-            track_boundaryZ.push_back(-999);
-            track_boundaryEta.push_back(-999);
-            track_boundaryPhi.push_back(-999);
-            track_boundaryPx.push_back(-999);
-            track_boundaryPy.push_back(-999);
-            track_boundaryPz.push_back(-999);
+            track_boundaryX.push_back(kInvalidBoundaryValue);
+            track_boundaryY.push_back(kInvalidBoundaryValue);
+            track_boundaryZ.push_back(kInvalidBoundaryValue);
+            track_boundaryEta.push_back(kInvalidBoundaryValue);
+            track_boundaryPhi.push_back(kInvalidBoundaryValue);
+            track_boundaryPx.push_back(kInvalidBoundaryValue);
+            track_boundaryPy.push_back(kInvalidBoundaryValue);
+            track_boundaryPz.push_back(kInvalidBoundaryValue);
           }
         } else {
           // no tracks associated with this trackster
-          track_boundaryX.push_back(-999);
-          track_boundaryY.push_back(-999);
-          track_boundaryZ.push_back(-999);
-          track_boundaryEta.push_back(-999);
-          track_boundaryPhi.push_back(-999);
-          track_boundaryPx.push_back(-999);
-          track_boundaryPy.push_back(-999);
-          track_boundaryPz.push_back(-999);
+          track_boundaryX.push_back(kInvalidBoundaryValue);
+          track_boundaryY.push_back(kInvalidBoundaryValue);
+          track_boundaryZ.push_back(kInvalidBoundaryValue);
+          track_boundaryEta.push_back(kInvalidBoundaryValue);
+          track_boundaryPhi.push_back(kInvalidBoundaryValue);
+          track_boundaryPx.push_back(kInvalidBoundaryValue);
+          track_boundaryPy.push_back(kInvalidBoundaryValue);
+          track_boundaryPz.push_back(kInvalidBoundaryValue);
         }
       }
     }
 
-    for (const auto& coltable : this->coltables_) {
+    for (const auto& coltable : coltables_) {
       if (coltable.useCount) {
         out->addColumn<uint16_t>("n" + coltable.name, counts, "Count for " + coltable.name);
       }
