@@ -123,7 +123,10 @@ class DQMPlotter:
         """Clean up bin label for better readability."""
         return label.replace("TrackSelectionHighPurity", "HP")
 
-    def _apply_axis_scaling(self, ax, xlabel, ylabel, title, logy=False, has_negative_values=False):
+    def _tex_math_or_not(self, label):
+        return fr'${label}$' if any(x in label for x in ('\\','~')) else label
+        
+    def _apply_axis_scaling(self, ax, xlabel, ylabel, title, logy=False, xlim=None, has_negative_values=False):
         """Apply log scaling to axes based on content and user settings."""
         if logy:
             if has_negative_values:
@@ -132,15 +135,18 @@ class DQMPlotter:
             else:
                 ax.set_yscale("log")
 
+        # Skip auto x-log-scale if the user gave an explicit xlim that includes non-positive values
+        xlim_blocks_log = xlim is not None and xlim[0] <= 0
+        
         # Automatic log scale for specific variable types
-        if "p_{\mathrm{T}}" in xlabel and "pull" not in xlabel.lower():
+        if "p_{\mathrm{T}}" in xlabel and "pull" not in xlabel.lower() and not xlim_blocks_log:
             ax.set_xscale("log")
 
         if ("p_{\mathrm{T}}" in ylabel and "pull" not in ylabel.lower()) or "Sigma" in title:
             if not has_negative_values:
                 ax.set_yscale("log")
 
-        if "vertpos" in xlabel:
+        if "vertpos" in xlabel and not xlim_blocks_log:
             ax.set_xscale("log")
             xlabel = "vert r [cm]"
 
@@ -406,10 +412,10 @@ class DQMPlotter:
 
         return histograms, valid_labels
 
-    def extract_labels_from_hist(self, hist):
+    def extract_labels_from_hist(self, hist, xtitle=None, ytitle=None):
         """
         Extract title and axis labels from ROOT histogram.
-
+        Overwrite result with user optional arguments.
         Args:
             hist: ROOT histogram
 
@@ -474,10 +480,12 @@ class DQMPlotter:
             elif "turn-on" in title.lower():
                 ylabel = "Turn-On"
 
+        xtitle = xlabel if xtitle is None else self._tex_math_or_not(xtitle)
+        ytitle = ylabel if ytitle is None else self._tex_math_or_not(ytitle)
         return (
             self.convert_root_to_latex(title),
-            self.convert_root_to_latex(xlabel),
-            self.convert_root_to_latex(ylabel),
+            self.convert_root_to_latex(xtitle),
+            self.convert_root_to_latex(ytitle),
         )
 
     def convert_root_to_latex(self, text):
@@ -708,7 +716,13 @@ class DQMPlotter:
         do_ratio=True,
         save_as_pdf=False,
         legend_outside=False,
+        legend_title=None,
         overlay_groups=None,
+        xtitle=None,
+        ytitle=None,
+        xlim=None,
+        ylim=None,
+        ylim_ratio=None,
     ):
         """
         Create comparison plot with ratio panel.
@@ -731,20 +745,20 @@ class DQMPlotter:
         if len(histograms) != len(labels):
             raise ValueError("Number of histograms must match number of labels")
 
-        title, xlabel, ylabel = self.extract_labels_from_hist(histograms[0])
+        title, xlabel, ylabel = self.extract_labels_from_hist(histograms[0], xtitle, ytitle)
 
-        legend_title = None
-        if hasattr(self, "_current_output_path"):
-            output_parts = self._current_output_path.replace("\\", "/").split("/")
-            if len(output_parts) > 1:
-                # Get the parent directory name (second to last part)
-                legend_title = output_parts[-2] if len(output_parts) >= 2 else None
-                # Ignore legend name for summary plots
-                if "global" in output_parts[-1].lower() or "coll" in output_parts[-1].lower():
-                    legend_title = None
-                # Split long overlay titles at + marker
-                elif legend_title and "+" in legend_title and len(legend_title) > 30:
-                    legend_title = legend_title.replace("+", "\n+")
+        if legend_title is None: # otherwise use the user's choice
+            if hasattr(self, "_current_output_path"):
+                output_parts = self._current_output_path.replace("\\", "/").split("/")
+                if len(output_parts) > 1:
+                    # Get the parent directory name (second to last part)
+                    legend_title = output_parts[-2] if len(output_parts) >= 2 else None
+                    # Ignore legend name for summary plots
+                    if "global" in output_parts[-1].lower() or "coll" in output_parts[-1].lower():
+                        legend_title = None
+                    # Split long overlay titles at + marker
+                    elif legend_title and "+" in legend_title and len(legend_title) > 30:
+                        legend_title = legend_title.replace("+", "\n+")
 
         fig = plt.figure(figsize=self.figsize)
         gs = gridspec.GridSpec(
@@ -759,7 +773,8 @@ class DQMPlotter:
                 # Default energy text (13 TeV)
                 hep.cms.label(cms_text, data=data, ax=ax_main)
             else:
-                hep.cms.label(cms_text, data=data, ax=ax_main, rlabel=energy_text)
+                hep.cms.label(cms_text, data=data, ax=ax_main,
+                              rlabel=self._tex_math_or_not(energy_text))
         else:
             hep.cms.label(cms_text, data=data, ax=ax_main, rlabel="")
 
@@ -808,10 +823,12 @@ class DQMPlotter:
         if title:
             ax_main.set_title(title, pad=50)
         has_negative_values = np.any(bin_contents < 0)
-        xlabel, ylabel = self._apply_axis_scaling(ax_main, xlabel, ylabel, title, logy, has_negative_values)
+        xlabel, ylabel = self._apply_axis_scaling(ax_main, xlabel, ylabel, title, logy, xlim, has_negative_values)
 
-        # Set custom labels if available
-        if has_labels:
+        ax_main.set_xlabel(xlabel, fontsize=label_size)
+        ax_main.set_ylabel(ylabel, fontsize=label_size)
+        
+        if has_labels: # Set custom labels if available
             ax_main.set_xticks(
                 ref_centers,
                 bin_labels,
@@ -821,15 +838,16 @@ class DQMPlotter:
                 va="top",
             )
             ax_main.tick_params(axis="x", which="minor", bottom=False)
-        else:
-            ax_main.set_xlabel(xlabel)
-
-        ax_main.set_ylabel(ylabel, fontsize=label_size)
 
         self._configure_legend(ax_main, labels, legend_title, logy, force_outside=legend_outside)
 
         if grid:
-            ax_main.grid(True, alpha=0.75, linestyle="dashdot", linewidth=0.75)
+            ax_main.grid(True, alpha=0.75, linestyle="dashdot", linewidth=0.75)           
+        if xlim:
+            ax_main.set_xlim(*xlim)
+        if ylim:
+            ax_main.set_ylim(*ylim)
+ 
 
         self._apply_custom_formatter(ax_main)
 
@@ -840,7 +858,9 @@ class DQMPlotter:
             ax_main.tick_params(axis="x", labelbottom=False)
 
             # Set ratio plot limits
-            if len(all_ratios) > 0:
+            if ylim_ratio:
+                ax_ratio.set_ylim(*ylim_ratio)
+            elif len(all_ratios) > 0:
                 # Use percentiles to avoid extreme outliers
                 ratio_min = np.percentile(all_ratios, 5)
                 ratio_max = np.percentile(all_ratios, 95)
@@ -937,8 +957,6 @@ class DQMPlotter:
                 if legend_label.startswith("DQM_"):
                     legend_label = legend_label.replace("DQM_", "")
                 labels.append(legend_label)
-        elif isinstance(labels, str):
-            labels = [label.strip() for label in labels.split(",")]
 
         if len(labels) != len(file_paths):
             raise ValueError(
@@ -1256,43 +1274,64 @@ if __name__ == "__main__":
              "Use multiple -s or space-separated values to provide several patterns.",
     )
     parser.add_argument(
-        "-l", "--legend", help="Comma-separated list of legend entries for each file. Use \\n for explicit line breaks."
+        '-l', '--legend', nargs='+',
+        help="List of legend entries for each file. "
     )
-    parser.add_argument("-o", "--output-dir", default="plots", help="Output directory")
-    parser.add_argument("--logy", action="store_true", help="Use log scale for y-axis")
-    parser.add_argument("--normalize", action="store_true", help="Normalize histograms")
+    parser.add_argument("-o", "--output-dir", default="plots", help="Output directory.")
+    parser.add_argument("--logy", action="store_true", help="Use log scale for y-axis.")
+    parser.add_argument("--normalize", action="store_true", help="Normalize histograms.")
     parser.add_argument(
         "--cms-text",
         default="Preliminary",
-        help="CMS label text (e.g. Preliminary, Work in progress)",
+        help="CMS label text (e.g. Preliminary, Work in progress).",
     )
     parser.add_argument(
         "--energy-text",
         default=None,
-        help="Custom energy text in the top right corner (e.g., '14 TeV', 'Run 3')",
+        help="Custom energy text in the top right corner (e.g., '14 TeV', 'Run 3').",
     )
     parser.add_argument(
-        "--data", action="store_true", help="Use CMS datastyle for plots"
+        "--data", action="store_true", help="Use CMS datastyle for plots."
     )
     parser.add_argument(
-        "--no-energy", action="store_true", help="Don't show energy text"
+        "--no-energy", action="store_true", help="Don't show energy text."
     )
-    parser.add_argument("--no-ratio", action="store_true", help="Disable ratio plots")
+    parser.add_argument("--no-ratio", action="store_true", help="Disable ratio plots.")
     parser.add_argument(
-        "--no-grid", action="store_true", help="Remove grid from all plots"
+        "--no-grid", action="store_true", help="Remove grid from all plots."
+    )
+    parser.add_argument(
+        '--xtitle', required=False, default=None,
+        help="Label of the x axis."
+    )
+    parser.add_argument(
+        '--ytitle', required=False, default=None,
+        help="Label of the y axis."
+    )
+    parser.add_argument(
+        '--xlim', nargs=2, type=float, required=False,
+        help="Numerical limits of the x axis of the main and ratio histograms."
+    )
+    parser.add_argument(
+        '--ylim', nargs=2, type=float, required=False,
+        help="Numerical limits of the y axis of the main histogram."
+    )
+    parser.add_argument(
+        '--ylim-ratio', nargs=2, type=float, required=False,
+        help="Numerical limits of the y axis of the ratio histogram."
     )
     parser.add_argument(
         "--histograms",
         action="store_true",
-        help="Plot histograms instead of points (default: points with error bars)",
+        help="Plot histograms instead of points (default: points with error bars).",
     )
     parser.add_argument(
-        "--pdf", action="store_true", help="Also save plots in PDF format"
+        "--pdf", action="store_true", help="Also save plots in PDF format."
     )
     parser.add_argument(
         "--more-files",
         action="store_true",
-        help="Allow more than 10 input files (legend might overlap with the plots, color palette only supports 10 files)",
+        help="Allow more than 10 input files (legend might overlap with the plots, color palette only supports 10 files).",
     )
     parser.add_argument(
         "-n",
@@ -1304,7 +1343,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--web",
         action="store_true",
-        help="Create index.php files for web viewing (downloads from CernBox)",
+        help="Create index.php files for web viewing (downloads from CernBox).",
     )
     parser.add_argument(
         "--legend-outside",
@@ -1312,16 +1351,20 @@ if __name__ == "__main__":
         help="Force legend to be placed outside the plot area",
     )
     parser.add_argument(
+        "--legend-title",
+        help="Legend title.",
+    )
+    parser.add_argument(
         "--overlay",
         action="append",
-        help="Overlay histograms from different collections. Specify colon-separated patterns "
-             "(e.g., 'hltPhase2PixelTracks:hltPhase2PixelTracksCAExtension'). "
+        help="Overlay histograms from different collections. Specify colon-separated patterns."
+             "(e.g., 'hltPhase2PixelTracks:hltPhase2PixelTracksCAExtension')."
              "Can be used multiple times for different overlay groups.",
     )
     parser.add_argument(
         "--no-overlay-individual",
         action="store_true",
-        help="Disable creation of individual plots for collections that are overlaid (default: create both overlay and individual plots)",
+        help="Disable creation of individual plots for collections that are overlaid (default: create both overlay and individual plots).",
     )
 
     args = parser.parse_args()
@@ -1331,6 +1374,14 @@ if __name__ == "__main__":
 
     plotter = DQMPlotter(processors=args.nProcessors)
 
+    # Ensure the first axis limit lies below the second
+    if args.xlim is not None and args.xlim[0] >= args.xlim[1]:
+        parser.error(f"--xlim: lower bound ({args.xlim[0]}) must be <= upper bound ({args.xlim[1]})")
+    if args.ylim is not None and args.ylim[0] >= args.ylim[1]:
+        parser.error(f"--ylim: lower bound ({args.ylim[0]}) must be <= upper bound ({args.ylim[1]})")
+    if args.ylim_ratio is not None and args.ylim_ratio[0] >= args.ylim_ratio[1]:
+        parser.error(f"--ylim_ratio: lower bound ({args.ylim_ratio[0]}) must be <= upper bound ({args.ylim_ratio[1]})")
+        
     # Flatten list of patterns
     source_patterns = [p for group in args.source for p in group] if isinstance(args.source, list) else [args.source]
 
@@ -1350,11 +1401,17 @@ if __name__ == "__main__":
         data=args.data,
         do_ratio=not args.no_ratio,
         grid=not args.no_grid,
+        xtitle=args.xtitle,
+        ytitle=args.ytitle,
+        xlim=args.xlim,
+        ylim=args.ylim,
+        ylim_ratio=args.ylim_ratio,
         plot_histograms=args.histograms,
         save_as_pdf=args.pdf,
         more_files=args.more_files,
         create_web_index=args.web,
         legend_outside=args.legend_outside,
+        legend_title=args.legend_title,
         overlay_groups=overlay_groups,
         overlay_individual=not args.no_overlay_individual,
     )
