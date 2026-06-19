@@ -13,7 +13,7 @@ namespace edmtest::catalog {
 
   class TestScitagConfig : public edm::StorageURLModifier {
   public:
-    TestScitagConfig() : testSuffixes_{"?scitag.flow=196664", "?scitag.flow=196700", "?scitag.flow=196704"} {}
+    TestScitagConfig() : testSuffixes_{"?scitag.flow=206", "?scitag.flow=215", "?scitag.flow=216"} {}
 
     void modify(edm::SciTagCategory sciTagCategory, std::string& url) const override {
       if (url.starts_with("root:")) {
