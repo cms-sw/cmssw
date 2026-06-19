@@ -78,6 +78,7 @@ public:
   }
   double distFromEdgeHex(double x, double y, double z) const;
   double distFromEdgeTrap(double x, double y, double z) const;
+  int endcaps() const { return (coldBoxMode() ? 1 : 2); }
   void etaPhiFromPosition(const double x,
                           const double y,
                           const double z,
