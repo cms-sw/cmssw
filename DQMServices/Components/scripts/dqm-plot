@@ -139,10 +139,10 @@ class DQMPlotter:
         xlim_blocks_log = xlim is not None and xlim[0] <= 0
         
         # Automatic log scale for specific variable types
-        if "p_{\mathrm{T}}" in xlabel and "pull" not in xlabel.lower() and not xlim_blocks_log:
+        if "p_{\text{T}}" in xlabel and "pull" not in xlabel.lower() and not xlim_blocks_log:
             ax.set_xscale("log")
 
-        if ("p_{\mathrm{T}}" in ylabel and "pull" not in ylabel.lower()) or "Sigma" in title:
+        if ("p_{\text{T}}" in ylabel and "pull" not in ylabel.lower()) or "Sigma" in title:
             if not has_negative_values:
                 ax.set_yscale("log")
 
@@ -469,9 +469,9 @@ class DQMPlotter:
                 if "eta" in title.lower():
                     xlabel = r"$\eta$"
                 elif "pt2" in title.lower():
-                    xlabel = r"$p_{\mathrm{T}}^2$"
+                    xlabel = r"$p_{\text{T}}^2$"
                 elif "pt" in title.lower():
-                    xlabel = r"$p_{\mathrm{T}}$"
+                    xlabel = r"$p_{\text{T}}$"
                 elif "phi" in title.lower():
                     xlabel = r"$\phi$"
             # Efficiency and turn-on plots
@@ -513,13 +513,13 @@ class DQMPlotter:
             ("#chi", r"$\chi$"),
             ("#nu", r"$\nu$"),
             ("#tau", r"$\tau$"),
-            ("pt2", r"$p_{\mathrm{T}}^2$"),
-            ("Pt2", r"$p_{\mathrm{T}}^2$"),
-            ("pT2", r"$p_{\mathrm{T}}^2$"),
-            ("p_{T}", r"$p_{\mathrm{T}}$"),
-            ("p_{t}", r"$p_{\mathrm{T}}$"),
-            ("pT", r"$p_{\mathrm{T}}$"),
-            ("pt", r"$p_{\mathrm{T}}$"),
+            ("pt2", r"$p_{\text{T}}^2$"),
+            ("Pt2", r"$p_{\text{T}}^2$"),
+            ("pT2", r"$p_{\text{T}}^2$"),
+            ("p_{T}", r"$p_{\text{T}}$"),
+            ("p_{t}", r"$p_{\text{T}}$"),
+            ("pT", r"$p_{\text{T}}$"),
+            ("pt", r"$p_{\text{T}}$"),
             ("GeV/c^{2}", r"GeV/$c^2$"),
             ("GeV/c", r"GeV/$c$"),
             ("^{2}", r"$^2$"),
@@ -1115,7 +1115,7 @@ class DQMPlotter:
                     output_path = os.path.join(output_dir, subdirs, f"{filename}")
                 else:
                     # Single file, no subdirectories
-                    filename = path_parts[0]
+                    filename = os.path.basename(hist_path)
                     output_path = os.path.join(output_dir, f"{filename}")
             else:
                 # If no remaining path, use the last part of the matched path
