@@ -3,8 +3,8 @@ from Validation.RecoTau.ticlTauValidator_cfi import ticlTauValidator as _ticlTau
 
 # RECO: default
 recoTiclTauValidator = _ticlTauValidator.clone(
-    folder = cms.string("RecoTauV/ticlTauValidator"),
     TauProducer = cms.InputTag("hpsPFTauProducer")
+    folder = cms.string("Tau/ticlTauValidator"),
 )
 
 # HLT
@@ -18,24 +18,19 @@ hltTiclTauValidator = _ticlTauValidator.clone(
     ticlCandidates = cms.InputTag("hltTiclTrackstersMerge"),
     simTICLCandidates = cms.InputTag("hltTiclSimTracksters"),
     simTracksters = cms.InputTag("hltTiclSimTracksters","fromCPs"),
-    simToRecoTracksterAssocByLCs =
-        cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs",
-                        "hltTiclSimTrackstersfromCPsTohltTiclTrackstersMerge"),
-    recoToSimTracksterAssocByLCs =
-        cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs",
-                        "hltTiclTrackstersMergeTohltTiclSimTrackstersfromCPs"),
+    ticlCandidates = cms.InputTag("hltTiclCandidate"),
+    simTracksters  = cms.InputTag("hltTiclSimTracksters","fromCPs"),
+    simToRecoTracksterAssocByLCs = cms.InputTag(
+        "hltAllTrackstersToSimTrackstersAssociationsByLCs",
+        "hltTiclSimTrackstersfromCPsTohltTiclCandidate"
+    ),
+    recoToSimTracksterAssocByLCs = cms.InputTag(
+        "hltAllTrackstersToSimTrackstersAssociationsByLCs",
+        "hltTiclCandidateTohltTiclSimTrackstersfromCPs"
+    ),
     genVisTaus = cms.InputTag("genVisTaus"),
     genParticles = cms.InputTag("genParticles"),
-    maxAssocScore = 0.6,
+    hltProcessName = cms.string("HLT"),
+    maxAssocScore = 0.6
 )
 
-from Configuration.ProcessModifiers.ticlv5_TrackLinkingGNN_cff import ticlv5_TrackLinkingGNN
-ticlv5_TrackLinkingGNN.toModify(hltTiclTauValidator,
-                                ticlCandidates = cms.InputTag("hltTiclCandidate"),
-                                simToRecoTracksterAssocByLCs =
-                                cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs",
-                                             "hltTiclSimTrackstersfromCPsTohltTiclCandidate"),
-                                recoToSimTracksterAssocByLCs =
-                                cms.InputTag("hltAllTrackstersToSimTrackstersAssociationsByLCs",
-                                             "hltTiclCandidateTohltTiclSimTrackstersfromCPs"),
-                                )
