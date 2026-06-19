@@ -680,6 +680,32 @@ void TICLTauValidator::analyze(const edm::Event& iEvent,
   edm::Handle<reco::PFJetCollection>      pfJets;            iEvent.getByToken(pfJetsToken_, pfJets);
   edm::Handle<reco::GenParticleCollection> genParticles;     iEvent.getByToken(genParticlesToken_, genParticles);
   edm::Handle<reco::GenParticleCollection> genVisTaus;       iEvent.getByToken(genVisTausToken_, genVisTaus);
+<<<<<<< HEAD
+=======
+  edm::Handle<TrackingParticleCollection> trackingParticles;  iEvent.getByToken(trackingParticleToken_, trackingParticles);
+  edm::Handle<reco::RecoToSimCollection> trackRecoToSim;       iEvent.getByToken(trackRecoToSimToken_, trackRecoToSim);
+
+  if (!taus.isValid())
+    return;
+
+  std::vector<reco::PFTauRef> finalFilterTauRefs;
+
+  // Access HLT filter products and extract PFTau refs
+  for (size_t fi = 0; fi < hltTauFilterLabels_.size(); ++fi) {
+    edm::Handle<trigger::TriggerFilterObjectWithRefs> filterProduct;
+    iEvent.getByToken(hltFilterTokens_[fi], filterProduct);
+    if (filterProduct.isValid()) {
+      trigger::VRpftau tauRefs;
+      filterProduct->getObjects(trigger::TriggerTau, tauRefs);
+      if (hltTauFilterLabels_[fi] == "hltHpsDoublePFTau40TrackPt1MediumChargedIsolation")
+	finalFilterTauRefs = tauRefs;
+      // HLT filter products accessed for final filter tau reference extraction
+    } else {
+      edm::LogWarning("TICLTauValidator") << "HLT filter " << hltTauFilterLabels_[fi]
+                                          << " product not available";
+    }
+  }
+>>>>>>> f2ee35f65de (test one more HLT path)
 
   if (!simTaus.isValid()) {
     edm::LogWarning("TICLTauValidator") << "simTaus invalid, skipping event " << iEvent.id();
@@ -1693,8 +1719,7 @@ void TICLTauValidator::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<edm::InputTag>("genVisTaus", edm::InputTag("genVisTaus"));
   desc.add<double>("maxAssocScore", 0.6);
   desc.add<double>("hgcalEtaAbsMin", 1.5);
-
-
+  desc.add<std::string>("hltProcessName", "HLTX");
   descriptions.add("ticlTauValidator", desc);
 }
 
