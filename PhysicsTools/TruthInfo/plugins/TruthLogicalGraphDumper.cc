@@ -622,8 +622,12 @@ public:
            << ">";
       }
 
+      // Big, immediately-legible particle name + PDG id as the table's title row
+      // (HTML-like labels cannot mix free text and a TABLE), with the details below.
+      const std::string bigName = (!p.hasGen() && !d.hasSim()) ? std::string("connector") : pdgLabel(d.pdgId);
       os << ", label=<\n";
       os << "    <TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" CELLPADDING=\"4\">\n";
+      os << "      <TR><TD><FONT POINT-SIZE=\"22\"><B>" << bigName << "</B></FONT></TD></TR>\n";
       os << "      <TR><TD><B>Particle " << i << "</B></TD></TR>\n";
 
       if (d.pdgId != 0)
@@ -752,8 +756,19 @@ public:
            << ">";
       }
 
+      // Big title row: the role for artificial vertices; the physical reason when
+      // known (SIM vertices carry the Geant4 process); else - GEN-only vertices have
+      // no process - infer from the topology (a single incoming particle decays).
+      std::string vBig;
+      if (roleName != nullptr)
+        vBig = roleName;
+      else if (d.vertexReason() != truth::VertexReason::Unknown)
+        vBig = truth::vertexReasonName(d.vertexReason());
+      else
+        vBig = (incoming.size() == 1) ? "decay" : "production";
       os << ", label=<\n";
       os << "    <TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\" CELLPADDING=\"4\">\n";
+      os << "      <TR><TD><FONT POINT-SIZE=\"18\"><B>" << vBig << "</B></FONT></TD></TR>\n";
       os << "      <TR><TD><B>Vertex " << i << "</B></TD></TR>\n";
 
       if (roleName != nullptr)
