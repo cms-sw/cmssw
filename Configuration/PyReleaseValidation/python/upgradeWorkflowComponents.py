@@ -2385,7 +2385,16 @@ class UpgradeWorkflow_ecalDevel(UpgradeWorkflow):
             stepDict[stepName][k] = None
 
     def condition(self, fragment, stepList, key, hasHarvest):
-        return fragment=="TTbar_14TeV" and 'Run4' in key
+        return any([f in fragment for f in [
+                                            "SingleElectron",
+                                            "SingleEFlat",
+                                            "SingleGamma",
+                                            "CloseByPGun_Barrel_Front",
+                                            "TTbar_14TeV",
+                                            "ZEE_14",
+                                            "DYToLL_M_50_14TeV",
+                                            "H125GGgluonfusion_14"
+                                           ]]) and not 'Eta1p7_2p7' in fragment and 'Run4' in key
 
 # ECAL Phase 2 workflow running on CPU
 upgradeWFs['ecalDevel'] = UpgradeWorkflow_ecalDevel(
@@ -2455,7 +2464,16 @@ class UpgradeWorkflow_ECalComponent(UpgradeWorkflow):
             stepDict[stepName][k] = None
 
     def condition(self, fragment, stepList, key, hasHarvest):
-        return fragment=="TTbar_14TeV" and ('2022' in key or '2023' in key or 'Run4' in key)
+        return any([f in fragment for f in [
+                                            "SingleElectron",
+                                            "SingleEFlat",
+                                            "SingleGamma",
+                                            "CloseByPGun_Barrel_Front",
+                                            "TTbar_14TeV",
+                                            "ZEE_14",
+                                            "DYToLL_M_50_14TeV",
+                                            "H125GGgluonfusion_14"
+                                           ]]) and not 'Eta1p7_2p7' in fragment and ('2022' in key or '2023' in key or 'Run4' in key)
 
 upgradeWFs['ECALComponent'] = UpgradeWorkflow_ECalComponent(
     suffix = '_ecalComponent',
