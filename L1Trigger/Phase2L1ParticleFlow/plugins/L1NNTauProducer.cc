@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/L1TParticleFlow/interface/PFTau.h"
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
@@ -17,7 +18,12 @@
 #include "ap_int.h"
 #include "ap_fixed.h"
 
+#include "hls4ml/emulator.h"
+
 using namespace l1t;
+
+// Intermediate precision for the seed-cone clustering math below (mass/pt sums).
+typedef ap_fixed<24, 12> input2_t;
 
 class L1NNTauProducer : public edm::stream::EDProducer<edm::GlobalCache<tensorflow::SessionCache>> {
 public:
@@ -53,6 +59,9 @@ private:
   const bool fEMSeed;
   const bool fDebug;
   edm::EDGetTokenT<vector<l1t::PFCandidate>> fL1PFToken_;
+
+  hls4mlEmulator::ModelLoader loader_;
+  std::shared_ptr<hls4mlEmulator::Model> model_;
 };
 
 static constexpr float track_trigger_eta_max = 2.5;
@@ -66,10 +75,17 @@ L1NNTauProducer::L1NNTauProducer(const edm::ParameterSet& cfg, const tensorflow:
       fHW(cfg.getParameter<bool>("HW")),
       fEMSeed(cfg.getParameter<bool>("emseed")),
       fDebug(cfg.getParameter<bool>("debug")),
-      fL1PFToken_(consumes<vector<l1t::PFCandidate>>(cfg.getParameter<edm::InputTag>("L1PFObjects"))) {
+      fL1PFToken_(consumes<vector<l1t::PFCandidate>>(cfg.getParameter<edm::InputTag>("L1PFObjects"))),
+      loader_(hls4mlEmulator::ModelLoader(cfg.getParameter<std::string>("tauModelPath"))) {
   std::string lNNFile = cfg.getParameter<std::string>("NNFileName");  //,"L1Trigger/Phase2L1Taus/data/tau_3layer.pb");
   if (fHW) {
-    fTauNNIdHW_ = std::make_unique<TauNNIdHW>();
+    try {
+      model_ = loader_.load_model();
+    } catch (std::runtime_error& e) {
+      throw cms::Exception("ModelError") << " ERROR: failed to load NNPuppiTau model version \""
+                                          << loader_.model_name() << "\". Model version not found in cms-hls4ml externals.";
+    }
+    fTauNNIdHW_ = std::make_unique<TauNNIdHW>(model_);
     fTauNNIdHW_->initialize("input_1:0", fNParticles_);
   } else {
     fTauNNId_ = std::make_unique<TauNNId>(lNNFile.find("v0") == std::string::npos ? "input_1:0" : "dense_1_input:0",
@@ -177,6 +193,7 @@ void L1NNTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   // L1NNTauProducer
   edm::ParameterSetDescription desc;
   desc.add<std::string>("NNFileName", "L1Trigger/Phase2L1ParticleFlow/data/tau_3layer.pb");
+  desc.add<std::string>("tauModelPath", std::string("NNPuppiTauModel_v1"));
   desc.add<double>("tausize", 0.1);
   desc.add<int>("maxtaus", 5);
   desc.add<int>("nparticles", 10);
