@@ -14,7 +14,6 @@
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "HeterogeneousCore/MPICore/interface/MPIChannel.h"
-#include "HeterogeneousCore/MPICore/interface/conversion.h"
 #include "HeterogeneousCore/MPICore/interface/messages.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/ReaderBase.h"
 #include "HeterogeneousCore/TrivialSerialisation/interface/WriterBase.h"
@@ -252,9 +251,23 @@ void MPIChannel::sendMetadata(int instance, std::shared_ptr<ProductMetadataBuild
   MPI_Ssend(meta->data(), meta->size(), MPI_BYTE, dest_, tag, comm_);
 }
 
+MPI_Request MPIChannel::sendMetadataAsync(int instance, std::shared_ptr<ProductMetadataBuilder> meta) {
+  int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
+  MPI_Request request;
+  MPI_Isend(meta->data(), meta->size(), MPI_BYTE, dest_, tag, comm_, &request);
+  return request;
+}
+
+void MPIChannel::waitMetadata(MPI_Request& request) { MPI_Wait(&request, MPI_STATUS_IGNORE); }
+
 void MPIChannel::receiveMetadata(int instance, std::shared_ptr<ProductMetadataBuilder> meta) {
   int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
   meta->receiveMetadata(dest_, tag, comm_);
+}
+
+void MPIChannel::receiveMetadataAsync(int instance, std::shared_ptr<ProductMetadataBuilder> meta) {
+  int tag = EDM_MPI_SendMetadata | instance * EDM_MPI_MessageTagWidth_;
+  meta->receiveMetadataAsync(dest_, tag, comm_);
 }
 
 void MPIChannel::sendBuffer(const void* buf, size_t size, int instance, EDM_MPI_MessageTag tag) {
@@ -295,15 +308,25 @@ void MPIChannel::receiveSerializedProduct_(int instance, TClass const* type, voi
   type->Streamer(product, buffer);
 }
 
-void MPIChannel::sendTrivialCopyProduct(int instance, const ngt::ReaderBase& reader) {
+void MPIChannel::sendTrivialCopyProduct(int instance, std::vector<std::span<const std::byte>> const& regions) {
   int tag = EDM_MPI_SendTrivialCopyProduct | instance * EDM_MPI_MessageTagWidth_;
-  // transfer the memory regions
-  auto regions = reader.regions();
   // TODO send the number of regions ?
   for (size_t i = 0; i < regions.size(); ++i) {
     assert(regions[i].data() != nullptr);
     MPI_Send(regions[i].data(), regions[i].size_bytes(), MPI_BYTE, dest_, tag, comm_);
   }
+}
+
+void MPIChannel::sendTrivialCopyProduct(int instance, const ngt::ReaderBase& reader) {
+  auto regions = reader.regions();
+  sendTrivialCopyProduct(instance, regions);
+}
+
+void MPIChannel::waitAll(std::vector<MPI_Request>& requests) {
+  if (requests.empty()) {
+    return;
+  }
+  MPI_Waitall(requests.size(), requests.data(), MPI_STATUSES_IGNORE);
 }
 
 void MPIChannel::receiveInitializedTrivialCopy(int instance, ngt::WriterBase& writer) {
@@ -315,5 +338,18 @@ void MPIChannel::receiveInitializedTrivialCopy(int instance, ngt::WriterBase& wr
   for (size_t i = 0; i < regions.size(); ++i) {
     assert(regions[i].data() != nullptr);
     MPI_Recv(regions[i].data(), regions[i].size_bytes(), MPI_BYTE, dest_, tag, comm_, &status);
+  }
+}
+
+void MPIChannel::receiveInitializedTrivialCopyAsync(int instance,
+                                                    ngt::WriterBase& writer,
+                                                    std::vector<MPI_Request>& requests) {
+  int tag = EDM_MPI_SendTrivialCopyProduct | instance * EDM_MPI_MessageTagWidth_;
+  auto regions = writer.regions();
+  size_t base = requests.size();
+  requests.resize(base + regions.size());
+  for (size_t i = 0; i < regions.size(); ++i) {
+    assert(regions[i].data() != nullptr);
+    MPI_Irecv(regions[i].data(), regions[i].size_bytes(), MPI_BYTE, dest_, tag, comm_, &requests[base + i]);
   }
 }
