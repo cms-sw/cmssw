@@ -190,7 +190,7 @@ recoTiclTauHarvester = DQMEDHarvester(
     makeGlobalEffienciesPlot=cms.untracked.bool(False),
 
     # matches recoTiclTauValidator.folder
-    subDirs=cms.untracked.vstring("RecoTauV/ticlTauValidator/*"),
+    subDirs=cms.untracked.vstring("Tau/ticlTauValidator/*"),
 
     efficiency=cms.vstring(*effs),
     resolution=cms.vstring(),
