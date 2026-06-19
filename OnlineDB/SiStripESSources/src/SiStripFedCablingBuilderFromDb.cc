@@ -1063,12 +1063,3 @@ void SiStripFedCablingBuilderFromDb::getFecCabling(const SiStripFedCabling& fed_
                                                    SiStripFecCabling& fec_cabling) {
   fec_cabling.buildFecCabling(fed_cabling);
 }
-
-// -----------------------------------------------------------------------------
-//
-void SiStripFedCablingBuilderFromDb::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& key,
-                                                    const edm::IOVSyncValue& iov_sync,
-                                                    edm::ValidityInterval& iov_validity) {
-  edm::ValidityInterval infinity(iov_sync.beginOfTime(), iov_sync.endOfTime());
-  iov_validity = infinity;
-}

@@ -226,9 +226,3 @@ CSCGainsConditions::ReturnType CSCGainsConditions::produceGains(const CSCGainsRc
   // Added by Zhen, need a new object so to not be deleted at exit
   return CSCGainsConditions::ReturnType(prefillGains());
 }
-
-void CSCGainsConditions::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
-                                        const edm::IOVSyncValue &,
-                                        edm::ValidityInterval &oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}

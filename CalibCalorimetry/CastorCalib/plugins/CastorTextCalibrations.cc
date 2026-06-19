@@ -6,7 +6,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -32,18 +32,12 @@
 #include "CondFormats/DataRecord/interface/CastorRecoParamsRcd.h"
 #include "CondFormats/DataRecord/interface/CastorSaturationCorrsRcd.h"
 
-class CastorTextCalibrations : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class CastorTextCalibrations : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  CastorTextCalibrations(const edm::ParameterSet&);
+  explicit CastorTextCalibrations(const edm::ParameterSet&);
   ~CastorTextCalibrations() override;
 
-  void produce() {}
-
-protected:
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue&,
-                      edm::ValidityInterval&) override;
-
+private:
   std::unique_ptr<CastorPedestals> producePedestals(const CastorPedestalsRcd& rcd);
   std::unique_ptr<CastorPedestalWidths> producePedestalWidths(const CastorPedestalWidthsRcd& rcd);
   std::unique_ptr<CastorGains> produceGains(const CastorGainsRcd& rcd);
@@ -115,12 +109,6 @@ CastorTextCalibrations::~CastorTextCalibrations() {}
 //
 // member functions
 //
-void CastorTextCalibrations::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey,
-                                            const edm::IOVSyncValue& iTime,
-                                            edm::ValidityInterval& oInterval) {
-  std::string record = iKey.name();
-  oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());  //infinite
-}
 
 template <class T>
 std::unique_ptr<T> produce_impl(const std::string& fFile) {

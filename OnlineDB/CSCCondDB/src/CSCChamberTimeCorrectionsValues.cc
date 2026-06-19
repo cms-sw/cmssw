@@ -36,9 +36,3 @@ CSCChamberTimeCorrectionsValues::ReturnType CSCChamberTimeCorrectionsValues::pro
   return ReturnType(
       prefill(isForMC, isForMC ? ME11offsetMC : ME11offsetData, isForMC ? nonME11offsetMC : nonME11offsetData));
 }
-
-void CSCChamberTimeCorrectionsValues::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                     const edm::IOVSyncValue&,
-                                                     edm::ValidityInterval& oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}

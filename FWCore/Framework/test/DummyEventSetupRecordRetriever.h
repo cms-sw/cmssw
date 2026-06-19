@@ -21,7 +21,7 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/test/DummyEventSetupRecord.h"
@@ -29,7 +29,7 @@
 
 // forward declarations
 namespace edm {
-  class DummyEventSetupRecordRetriever : public EventSetupRecordIntervalFinder, public ESProducer {
+  class DummyEventSetupRecordRetriever : public EventSetupRecordInfiniteIntervalFinder, public ESProducer {
   public:
     DummyEventSetupRecordRetriever() {
       this->findingRecord<DummyEventSetupRecord>();
@@ -39,20 +39,6 @@ namespace edm {
     std::unique_ptr<DummyEventSetupData> produce(const DummyEventSetupRecord&) {
       return std::make_unique<DummyEventSetupData>(1);
     }
-
-  protected:
-    virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                const edm::IOVSyncValue& /*iTime*/,
-                                edm::ValidityInterval& iInterval) {
-      iInterval = edm::ValidityInterval(IOVSyncValue::beginOfTime(), IOVSyncValue::endOfTime());
-    }
-
-  private:
-    DummyEventSetupRecordRetriever(const DummyEventSetupRecordRetriever&);  // stop default
-
-    const DummyEventSetupRecordRetriever& operator=(const DummyEventSetupRecordRetriever&);  // stop default
-
-    // ---------- member data --------------------------------
   };
 }  // namespace edm
 #endif

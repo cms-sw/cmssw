@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
@@ -28,14 +28,10 @@
 
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
-class SiStripNoisesFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class SiStripNoisesFakeESSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
   SiStripNoisesFakeESSource(const edm::ParameterSet&);
   ~SiStripNoisesFakeESSource() override;
-
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                      const edm::IOVSyncValue& iov,
-                      edm::ValidityInterval& iValidity) override;
 
   typedef std::unique_ptr<SiStripNoises> ReturnType;
   ReturnType produce(const SiStripNoisesRcd&);
@@ -85,12 +81,6 @@ SiStripNoisesFakeESSource::SiStripNoisesFakeESSource(const edm::ParameterSet& iC
 }
 
 SiStripNoisesFakeESSource::~SiStripNoisesFakeESSource() {}
-
-void SiStripNoisesFakeESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                               const edm::IOVSyncValue& iov,
-                                               edm::ValidityInterval& iValidity) {
-  iValidity = edm::ValidityInterval{iov.beginOfTime(), iov.endOfTime()};
-}
 
 // ------------ method called to produce the data  ------------
 SiStripNoisesFakeESSource::ReturnType SiStripNoisesFakeESSource::produce(const SiStripNoisesRcd& iRecord) {

@@ -25,15 +25,14 @@
 
 using namespace std;
 
-DTFakeT0ESProducer::DTFakeT0ESProducer(const edm::ParameterSet& pset) {
+DTFakeT0ESProducer::DTFakeT0ESProducer(const edm::ParameterSet& pset)
+    : t0Mean{pset.getParameter<double>("t0Mean")}, t0Sigma{pset.getParameter<double>("t0Sigma")} {
   //framework
   auto cc = setWhatProduced(this, &DTFakeT0ESProducer::produce);
   //  setWhatProduced(this,dependsOn(& DTGeometryESModule::parseDDD()));
   findingRecord<DTT0Rcd>();
 
   //read constant value for t0 from cfg
-  t0Mean = pset.getParameter<double>("t0Mean");
-  t0Sigma = pset.getParameter<double>("t0Sigma");
   cpvTokenDDD_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(edm::ESInputTag());
   mdcToken_ = cc.consumes();
 }
@@ -65,10 +64,4 @@ void DTFakeT0ESProducer::parseDDD(const DTT0Rcd& iRecord) {
   const auto& mdc = iRecord.get(mdcToken_);
 
   DTGeometryParserFromDDD parser(&(*cpv), mdc, theLayerIdWiresMap);
-}
-
-void DTFakeT0ESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                        const edm::IOVSyncValue&,
-                                        edm::ValidityInterval& oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }

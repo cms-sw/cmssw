@@ -29,9 +29,3 @@ CSCChamberMapValues::ReturnType CSCChamberMapValues::produceChamberMap(const CSC
   //need a new object so to not be deleted at exit
   return ReturnType(fillChamberMap());
 }
-
-void CSCChamberMapValues::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                         const edm::IOVSyncValue&,
-                                         edm::ValidityInterval& oValidity) {
-  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
-}

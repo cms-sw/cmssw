@@ -26,7 +26,7 @@ reconstruction Geometry should notice that and not pass to GeometryAligner.
 // Framework
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Framework/interface/EventSetupRecordInfiniteIntervalFinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -43,9 +43,9 @@ reconstruction Geometry should notice that and not pass to GeometryAligner.
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
 
-class FakeAlignmentSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+class FakeAlignmentSource : public edm::ESProducer, public edm::EventSetupRecordInfiniteIntervalFinder {
 public:
-  FakeAlignmentSource(const edm::ParameterSet&);
+  explicit FakeAlignmentSource(const edm::ParameterSet&);
   ~FakeAlignmentSource() override {}
 
   /// Tracker and its APE
@@ -73,12 +73,6 @@ public:
   std::unique_ptr<AlignmentSurfaceDeformations> produceTrackerSurfaceDeformation(const TrackerSurfaceDeformationRcd&) {
     return std::make_unique<AlignmentSurfaceDeformations>();
   }
-
-protected:
-  /// provide (dummy) IOV
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey& /*dummy*/,
-                      const edm::IOVSyncValue& ioSyncVal,
-                      edm::ValidityInterval& iov) override;
 
 private:
   bool produceTracker_;
@@ -145,13 +139,6 @@ FakeAlignmentSource::FakeAlignmentSource(const edm::ParameterSet& iConfig)
   if (produceTrackerSurfaceDeformation_) {
     this->findingRecord<TrackerSurfaceDeformationRcd>();
   }
-}
-
-void FakeAlignmentSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& /*dummy*/,
-                                         const edm::IOVSyncValue& ioSyncVal,
-                                         edm::ValidityInterval& outValidity) {
-  // Implementation copied from SiStripGainFakeESSource: unlimited IOV
-  outValidity = edm::ValidityInterval(ioSyncVal.beginOfTime(), ioSyncVal.endOfTime());
 }
 
 //define this as a plug-in
