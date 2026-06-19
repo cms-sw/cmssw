@@ -82,8 +82,8 @@ L1NNTauProducer::L1NNTauProducer(const edm::ParameterSet& cfg, const tensorflow:
     try {
       model_ = loader_.load_model();
     } catch (std::runtime_error& e) {
-      throw cms::Exception("ModelError") << " ERROR: failed to load NNPuppiTau model version \""
-                                          << loader_.model_name() << "\". Model version not found in cms-hls4ml externals.";
+      throw cms::Exception("ModelError") << " ERROR: failed to load NNPuppiTau model version \"" << loader_.model_name()
+                                         << "\". Model version not found in cms-hls4ml externals.";
     }
     fTauNNIdHW_ = std::make_unique<TauNNIdHW>(model_);
     fTauNNIdHW_->initialize("input_1:0", fNParticles_);
