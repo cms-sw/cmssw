@@ -19,9 +19,9 @@ void TauNNIdHW::initialize(const std::string &iInput, int iNParticles) {
 void TauNNIdHW::SetNNVectorVar() {
   NNvectorVar_.clear();
   for (unsigned i0 = 0; i0 < fNParticles_; i0++) {
-    input_t pPt = input_t(fPt_.get()[i0]);
-    input_t pEta = input_t(fEta_.get()[i0]);
-    input_t pPhi = input_t(fPhi_.get()[i0]);
+    tauinput_t pPt = tauinput_t(fPt_.get()[i0]);
+    tauinput_t pEta = tauinput_t(fEta_.get()[i0]);
+    tauinput_t pPhi = tauinput_t(fPhi_.get()[i0]);
 
     NNvectorVar_.push_back(pPt);
     NNvectorVar_.push_back(pEta);
@@ -44,13 +44,13 @@ void TauNNIdHW::SetNNVectorVar() {
 // in-tree weight arrays, avoiding ELF symbol clashes between hls4ml models
 // loaded into the same process (cms-sw/cmssw#49632).
 Tau_NN_Result TauNNIdHW::EvaluateNN() {
-  const unsigned NInputs = 80;
-  input_t model_input[NInputs];
+  constexpr unsigned kNInputs = 80;
+  tauinput_t model_input[kNInputs];
   for (unsigned int i = 0; i < NNvectorVar_.size(); i++) {
-    model_input[i] = input_t(NNvectorVar_[i]);
+    model_input[i] = tauinput_t(NNvectorVar_[i]);
   }
 
-  typedef std::pair<std::array<result_t, 1>, std::array<result_t, 1>> pairtype;
+  typedef std::pair<std::array<tauresult_t, 1>, std::array<tauresult_t, 1>> pairtype;
   pairtype modelResult;
   modelRef_->prepare_input(model_input);
   modelRef_->predict();
@@ -68,10 +68,10 @@ Tau_NN_Result TauNNIdHW::EvaluateNN() {
 // Uncomment for debugging purposes
 void TauNNIdHW::print() { 
   for (unsigned i0 = 0; i0 < fNParticles_; i0++) {
-    input_t pPt  = input_t(fPt_.get()[i0]);
-    input_t pEta = input_t(fEta_.get()[i0]);
-    input_t pPhi = input_t(fPhi_.get()[i0]);
-    input_t pId  = input_t(fId_.get()[i0]);    
+    tauinput_t pPt  = tauinput_t(fPt_.get()[i0]);
+    tauinput_t pEta = tauinput_t(fEta_.get()[i0]);
+    tauinput_t pPhi = tauinput_t(fPhi_.get()[i0]);
+    tauinput_t pId  = tauinput_t(fId_.get()[i0]);
     fprintf(file_, " %08x", pPt.to_uint());
     fprintf(file_, " %08x", pEta.to_uint());
     fprintf(file_, " %08x", pPhi.to_uint());

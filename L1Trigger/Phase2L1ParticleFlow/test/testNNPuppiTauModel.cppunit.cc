@@ -12,8 +12,8 @@
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 
 namespace {
-  typedef ap_fixed<16, 10> input_t;
-  typedef ap_fixed<16, 6> result_t;
+  typedef ap_fixed<16, 10> tauinput_t;
+  typedef ap_fixed<16, 6> tauresult_t;
   constexpr int kNInputs = 80;
 }  // namespace
 
@@ -51,11 +51,11 @@ void test_NNPuppiTauModel::doPredictSanity() {
   // All-zero input: not physically representative, but exercises the full
   // dense/relu/sigmoid layer sequence and checks the returned values land in
   // the expected output ranges.
-  input_t input[kNInputs];
+  tauinput_t input[kNInputs];
   for (int i = 0; i < kNInputs; ++i)
-    input[i] = input_t(0);
+    input[i] = tauinput_t(0);
 
-  typedef std::pair<std::array<result_t, 1>, std::array<result_t, 1>> pairtype;
+  typedef std::pair<std::array<tauresult_t, 1>, std::array<tauresult_t, 1>> pairtype;
   pairtype result;
   model->prepare_input(input);
   model->predict();

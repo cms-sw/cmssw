@@ -219,8 +219,8 @@ void L1NNTauProducer::makeTau_HW(const l1t::PFCandidate& seed,
   input2_t p1y_tot = 0;
   input2_t p1z_tot = 0;
 
-  input_t e1ta_1 = seed.eta();
-  input_t p1hi_1 = seed.phi();
+  tauinput_t e1ta_1 = seed.eta();
+  tauinput_t p1hi_1 = seed.phi();
   L1TauEmu::pt_t pt = 0;
   L1TauEmu::z0_t z0 = 0;
   L1TauEmu::dxy_t dxy = 0;
@@ -233,10 +233,10 @@ void L1NNTauProducer::makeTau_HW(const l1t::PFCandidate& seed,
         lId++;
         pt = pt + L1TauEmu::pt_t(parts[i0].pt());
 
-        input2_t d1eta = input_t(parts[i0].eta()) - e1ta_1;
-        input2_t d1phi = input_t(parts[i0].phi()) - p1hi_1;
+        input2_t d1eta = tauinput_t(parts[i0].eta()) - e1ta_1;
+        input2_t d1phi = tauinput_t(parts[i0].phi()) - p1hi_1;
         input2_t d1r2 = d1eta * d1eta + d1phi * d1phi;
-        input2_t tmppt = input_t(parts[i0].pt());
+        input2_t tmppt = tauinput_t(parts[i0].pt());
         input2_t half = 0.5;
         p1z_tot = p1z_tot + tmppt * (1 - d1r2 * half);
         p1y_tot = p1y_tot + tmppt * d1phi;
@@ -264,7 +264,7 @@ void L1NNTauProducer::makeTau_HW(const l1t::PFCandidate& seed,
   Tau_NN_Result NN_ouput = fTauNNIdHW_->compute(seed, parts);
 
   // Needed for making PFTau
-  input_t* lNNVector = fTauNNIdHW_->NNVectorVar();
+  tauinput_t* lNNVector = fTauNNIdHW_->NNVectorVar();
   float pNNVec[80];
   for (unsigned i0 = 0; i0 < 80; i0++)
     pNNVec[i0] = float(lNNVector[i0]);
