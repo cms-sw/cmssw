@@ -94,11 +94,13 @@ void HGCalNeighbourTester::beginRun(edm::Run const &iRun, edm::EventSetup const 
       HGCSiliconDetId id(detIds_[k]);
       std::vector<unsigned int> ids = hgc_->nearestNeighboursOfDetId(detIds_[k].rawId());
       std::ostringstream st1;
-      st1 << "[" << k << "] Layer " << id.layer() << " Wafer " << id.waferU() << ":" << id.waferV() << " Cell " << id.cellU() << ":" << id.cellV() << " has " << ids.size() << " neighbours:";
+      st1 << "[" << k << "] Layer " << id.layer() << " Wafer " << id.waferU() << ":" << id.waferV() << " Cell "
+          << id.cellU() << ":" << id.cellV() << " has " << ids.size() << " neighbours:";
       unsigned int k1(0);
       for (auto const &idZ : ids) {
         HGCSiliconDetId idx(idZ);
-        st1 << " [" << k1 << "] Wafer " << idx.waferU() << ":" << idx.waferV() << " Cell " << idx.cellU() << ":" << idx.cellV();
+        st1 << " [" << k1 << "] Wafer " << idx.waferU() << ":" << idx.waferV() << " Cell " << idx.cellU() << ":"
+            << idx.cellV();
         ++k1;
       }
       edm::LogVerbatim("HGCGeom") << st1.str();
