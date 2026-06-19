@@ -301,10 +301,6 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
       if (geomDet) {
         GlobalPoint gp = geomDet->surface().toGlobal(
             gDetUnit->topology().localPosition(MeasurementPoint(nRows / 2.0, nColumns / 2.0)));
-        if (XYOccupancyMap)
-          XYOccupancyMap->Fill(gp.x(), gp.y(), occupancy);
-        if (RZOccupancyMap)
-          RZOccupancyMap->Fill(gp.z(), std::hypot(gp.x(), gp.y()), occupancy);
         if (local_mes.EtaOccupancyProfP)
           local_mes.EtaOccupancyProfP->Fill(gp.eta(), occupancy);
       }
@@ -432,11 +428,7 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
       if (nRows * nColumns > 0)
         occupancy = nDigi * 1.0 / (nRows * nColumns);
       if (geomDet) {
-        GlobalPoint gp = geomDet->surface().toGlobal(gDetUnit->topology().localPosition(MeasurementPoint(0.0, 0.0)));
-        if (XYOccupancyMap)
-          XYOccupancyMap->Fill(gp.x(), gp.y(), occupancy);
-        if (RZOccupancyMap)
-          RZOccupancyMap->Fill(gp.z(), std::hypot(gp.x(), gp.y()), occupancy);
+        GlobalPoint gp = geomDet->surface().toGlobal(gDetUnit->topology().localPosition(MeasurementPoint(0.0, 0.0)));;
         if (nColumns > 2) {
           if (local_mes.DigiOccupancyP)
             local_mes.DigiOccupancyP->Fill(occupancy);
@@ -485,7 +477,6 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
   ibooker.setCurrentFolder(folder_name.str() + "/Positions");
 
   edm::ParameterSet Parameters = config_.getParameter<edm::ParameterSet>("XYPositionMapH");
-  edm::ParameterSet ParametersOcc = config_.getParameter<edm::ParameterSet>("DigiOccupancyPH");
   if (Parameters.getParameter<bool>("switch")) {
     XYPositionMap = ibooker.book2D("Digi_Global_Position_XY",
                                    "Digi_Global_Position_XY",
@@ -499,22 +490,6 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
     XYPositionMap->setAxisTitle("Digi position Y [cm]", 2);
   } else
     XYPositionMap = nullptr;
-
-  if (Parameters.getParameter<bool>("switch") && ParametersOcc.getParameter<bool>("switch")) {
-    XYOccupancyMap = ibooker.bookProfile2D("Digi_Occupancy_XY",
-                                           "Digi_Occupancy_XY",
-                                           Parameters.getParameter<int32_t>("Nxbins"),
-                                           Parameters.getParameter<double>("xmin"),
-                                           Parameters.getParameter<double>("xmax"),
-                                           Parameters.getParameter<int32_t>("Nybins"),
-                                           Parameters.getParameter<double>("ymin"),
-                                           Parameters.getParameter<double>("ymax"),
-                                           ParametersOcc.getParameter<double>("xmin"),
-                                           ParametersOcc.getParameter<double>("xmax"));
-    XYOccupancyMap->setAxisTitle("Digi position X [cm]", 1);
-    XYOccupancyMap->setAxisTitle("Digi position Y [cm]", 2);
-  } else
-    XYOccupancyMap = nullptr;
 
   Parameters = config_.getParameter<edm::ParameterSet>("RZPositionMapH");
   if (Parameters.getParameter<bool>("switch")) {
@@ -530,22 +505,6 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
     RZPositionMap->setAxisTitle("Digi position #rho [cm]", 2);
   } else
     RZPositionMap = nullptr;
-
-  if (Parameters.getParameter<bool>("switch") && ParametersOcc.getParameter<bool>("switch")) {
-    RZOccupancyMap = ibooker.bookProfile2D("Digi_Occupancy_RZ",
-                                           "Digi_Occupancy_RZ",
-                                           Parameters.getParameter<int32_t>("Nxbins"),
-                                           Parameters.getParameter<double>("xmin"),
-                                           Parameters.getParameter<double>("xmax"),
-                                           Parameters.getParameter<int32_t>("Nybins"),
-                                           Parameters.getParameter<double>("ymin"),
-                                           Parameters.getParameter<double>("ymax"),
-                                           ParametersOcc.getParameter<double>("xmin"),
-                                           ParametersOcc.getParameter<double>("xmax"));
-    RZOccupancyMap->setAxisTitle("Digi position z [cm]", 1);
-    RZOccupancyMap->setAxisTitle("Digi position #rho [cm]", 2);
-  } else
-    RZOccupancyMap = nullptr;
 
   ibooker.setCurrentFolder(folder_name.str());
 

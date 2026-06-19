@@ -206,9 +206,12 @@ void Phase2OTMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker,
   // Positions
   iBooker.setCurrentFolder(topFolderName_ + "/Positions/");
   Cluster_RZ = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Cluster_Global_Position_RZ"), iBooker);
-  Cluster_Barrel_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Cluster_Global_Position_Barrel_XY"), iBooker);
-  Cluster_Endcap_Bw_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Cluster_Global_Position_Endcap_Bw_XY"), iBooker);
-  Cluster_Endcap_Fw_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Cluster_Global_Position_Endcap_Fw_XY"), iBooker);
+  Cluster_Barrel_XY =
+      book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Cluster_Global_Position_Barrel_XY"), iBooker);
+  Cluster_Endcap_Bw_XY =
+      book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Cluster_Global_Position_Endcap_Bw_XY"), iBooker);
+  Cluster_Endcap_Fw_XY =
+      book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Cluster_Global_Position_Endcap_Fw_XY"), iBooker);
 
   // Barrel Summaries
   iBooker.setCurrentFolder(topFolderName_ + "/Barrel/");

@@ -255,7 +255,8 @@ void Phase2OTMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
   Track_All_Chi2_Probability =
       book1DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Track_All_Chi2_Probability"), iBooker);
   Track_All_MVA1 = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Track_All_MVA1"), iBooker);
-  Track_All_Chi2Red_NStubs = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Track_All_Chi2Red_NStubs"), iBooker);
+  Track_All_Chi2Red_NStubs =
+      book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Track_All_Chi2Red_NStubs"), iBooker);
   Track_All_Chi2Red_Eta = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Track_All_Chi2Red_Eta"), iBooker);
   Track_All_Eta_BarrelStubs =
       book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Track_All_Eta_BarrelStubs"), iBooker);
@@ -281,7 +282,8 @@ void Phase2OTMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker,
   Track_HQ_MVA1 = book1DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Track_HQ_MVA1"), iBooker);
   Track_HQ_Chi2Red_NStubs = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Track_HQ_Chi2Red_NStubs"), iBooker);
   Track_HQ_Chi2Red_Eta = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Track_HQ_Chi2Red_Eta"), iBooker);
-  Track_HQ_Eta_BarrelStubs = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Track_HQ_Eta_BarrelStubs"), iBooker);
+  Track_HQ_Eta_BarrelStubs =
+      book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Track_HQ_Eta_BarrelStubs"), iBooker);
   Track_HQ_Eta_ECStubs = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Track_HQ_Eta_ECStubs"), iBooker);
 }
 
@@ -331,8 +333,17 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
                           15,
                           0,
                           10);
-  phase2tkutil::add2DDesc(
-      desc, "L1Track_All_Chi2Red_Eta", "L1Track_All_Chi2Red_Eta", "#eta", "L1 Track #chi^{2}/ndf", 15, -3.0, 3.0, 15, 0, 10);
+  phase2tkutil::add2DDesc(desc,
+                          "L1Track_All_Chi2Red_Eta",
+                          "L1Track_All_Chi2Red_Eta",
+                          "#eta",
+                          "L1 Track #chi^{2}/ndf",
+                          15,
+                          -3.0,
+                          3.0,
+                          15,
+                          0,
+                          10);
   phase2tkutil::add2DDesc(desc,
                           "L1Track_All_Eta_BarrelStubs",
                           "L1Track_All_Eta_BarrelStubs",
@@ -370,8 +381,14 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
       desc, "L1Track_HQ_Chi2RPhi", "L1Track_HQ_Chi2RPhi", "L1 Track #chi^{2} r-phi", "# L1 Tracks", 100, 0, 50);
   phase2tkutil::add1DDesc(
       desc, "L1Track_HQ_Chi2Red", "L1Track_HQ_Chi2Red", "L1 Track #chi^{2}/ndf", "# L1 Tracks", 100, 0, 10);
-  phase2tkutil::add1DDesc(
-      desc, "L1Track_HQ_Chi2_Probability", "L1Track_HQ_Chi2_Probability", "#chi^{2} probability", "# L1 Tracks", 100, 0, 1);
+  phase2tkutil::add1DDesc(desc,
+                          "L1Track_HQ_Chi2_Probability",
+                          "L1Track_HQ_Chi2_Probability",
+                          "#chi^{2} probability",
+                          "# L1 Tracks",
+                          100,
+                          0,
+                          1);
   phase2tkutil::add1DDesc(desc, "L1Track_HQ_MVA1", "L1Track_HQ_MVA1", "MVA1", "# L1 Tracks", 100, 0, 1);
   phase2tkutil::add2DDesc(desc,
                           "L1Track_HQ_Chi2Red_NStubs",
@@ -384,10 +401,28 @@ void Phase2OTMonitorTTTrack::fillDescriptions(edm::ConfigurationDescriptions &de
                           15,
                           0,
                           10);
-  phase2tkutil::add2DDesc(
-      desc, "L1Track_HQ_Chi2Red_Eta", "L1Track_HQ_Chi2Red_Eta", "#eta", "L1 Track #chi^{2}/ndf", 15, -3.0, 3.0, 15, 0, 10);
-  phase2tkutil::add2DDesc(
-      desc, "L1Track_HQ_Eta_BarrelStubs", "L1Track_HQ_Eta_BarrelStubs", "#eta", "# L1 Barrel Stubs", 15, -3.0, 3.0, 5, 3, 8);
+  phase2tkutil::add2DDesc(desc,
+                          "L1Track_HQ_Chi2Red_Eta",
+                          "L1Track_HQ_Chi2Red_Eta",
+                          "#eta",
+                          "L1 Track #chi^{2}/ndf",
+                          15,
+                          -3.0,
+                          3.0,
+                          15,
+                          0,
+                          10);
+  phase2tkutil::add2DDesc(desc,
+                          "L1Track_HQ_Eta_BarrelStubs",
+                          "L1Track_HQ_Eta_BarrelStubs",
+                          "#eta",
+                          "# L1 Barrel Stubs",
+                          15,
+                          -3.0,
+                          3.0,
+                          5,
+                          3,
+                          8);
   phase2tkutil::add2DDesc(
       desc, "L1Track_HQ_Eta_ECStubs", "L1Track_HQ_Eta_ECStubs", "#eta", "# L1 EC Stubs", 15, -3.0, 3.0, 5, 3, 8);
 

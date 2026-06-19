@@ -212,7 +212,7 @@ void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run 
 
   // Whole OT Summaries
   iBooker.setCurrentFolder(topFolderName_);
-  
+
   // CRACK ONLY: module vs layer
   edm::ParameterSet Parameters = conf_.getParameter<edm::ParameterSet>("CrackOverview");
   if (Parameters.getParameter<bool>("switch")) {
@@ -252,9 +252,10 @@ void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run 
   iBooker.setCurrentFolder(topFolderName_ + "/Positions");
   Stub_Barrel_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Stub_Global_Position_Barrel_XY"), iBooker);
   Stub_RZ = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Stub_Global_Position_RZ"), iBooker);
-  Stub_Endcap_Fw_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Stub_Global_Position_Endcap_Fw_XY"), iBooker);
-  Stub_Endcap_Bw_XY = book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Stub_Global_Position_Endcap_Bw_XY"), iBooker);
-
+  Stub_Endcap_Fw_XY =
+      book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Stub_Global_Position_Endcap_Fw_XY"), iBooker);
+  Stub_Endcap_Bw_XY =
+      book2DFromPSet(conf_.getParameter<edm::ParameterSet>("L1Stub_Global_Position_Endcap_Bw_XY"), iBooker);
 
   // Endcap Summaries
   iBooker.setCurrentFolder(topFolderName_ + "/EndCaps");
