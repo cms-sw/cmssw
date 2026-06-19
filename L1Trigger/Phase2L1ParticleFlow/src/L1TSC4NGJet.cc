@@ -5,17 +5,17 @@
 
 using namespace L1TSC4NGJet;
 
-  struct ModelInputs {
-        inputtype* candidate_inputs;
-        inputtype* jet_inputs;
-        int total_candidate_inputs;
-        int total_jet_inputs;
-  };
+struct ModelInputs {
+  inputtype* candidate_inputs;
+  inputtype* jet_inputs;
+  int total_candidate_inputs;
+  int total_jet_inputs;
+};
 
-  struct ModelOutputs {
-        inputtype* jet_class_output;
-        inputtype* jet_regression_output;
-  };
+struct ModelOutputs {
+  inputtype* jet_class_output;
+  inputtype* jet_regression_output;
+};
 
 L1TSC4NGJetID::L1TSC4NGJetID(const std::shared_ptr<hls4mlEmulator::Model> model, int iNParticles, bool debug)
     : modelRef_(model) {
@@ -61,21 +61,25 @@ void L1TSC4NGJetID::setVectors() {
     candidate_vector_.push_back(filled ? fDEta_.get()[i0] : null_value);    // dEta from jet axis
     candidate_vector_.push_back(filled ? fDPhi_.get()[i0] : null_value);    // dPhi from jet axis
     candidate_vector_.push_back(filled ? fMass_.get()[i0] : null_value);    // Mass
-    candidate_vector_.push_back(filled ? inputtype(fId_.get()[i0] == l1ct::ParticleID::PHOTON) : null_value);    // Photon
-    candidate_vector_.push_back(filled ? inputtype(fId_.get()[i0] == l1ct::ParticleID::ELEPLUS) : null_value);   // Positron
-    candidate_vector_.push_back(filled ? inputtype(fId_.get()[i0] == l1ct::ParticleID::ELEMINUS) : null_value);  // Electron
-    candidate_vector_.push_back(filled ? inputtype(fId_.get()[i0] == l1ct::ParticleID::MUPLUS) : null_value);    // Anti-muon
-    candidate_vector_.push_back(filled ? inputtype(fId_.get()[i0] == l1ct::ParticleID::MUMINUS) : null_value);   // Muon
+    candidate_vector_.push_back(filled ? inputtype(fId_.get()[i0] == l1ct::ParticleID::PHOTON) : null_value);  // Photon
+    candidate_vector_.push_back(filled ? inputtype(fId_.get()[i0] == l1ct::ParticleID::ELEPLUS)
+                                       : null_value);  // Positron
+    candidate_vector_.push_back(filled ? inputtype(fId_.get()[i0] == l1ct::ParticleID::ELEMINUS)
+                                       : null_value);  // Electron
+    candidate_vector_.push_back(filled ? inputtype(fId_.get()[i0] == l1ct::ParticleID::MUPLUS)
+                                       : null_value);  // Anti-muon
+    candidate_vector_.push_back(filled ? inputtype(fId_.get()[i0] == l1ct::ParticleID::MUMINUS) : null_value);  // Muon
     candidate_vector_.push_back(filled ? inputtype(fId_.get()[i0] == l1ct::ParticleID::HADZERO) : null_value);
-    candidate_vector_.push_back(filled ? inputtype(fId_.get()[i0] == l1ct::ParticleID::HADPLUS) : null_value);   // Anti-Pion
+    candidate_vector_.push_back(filled ? inputtype(fId_.get()[i0] == l1ct::ParticleID::HADPLUS)
+                                       : null_value);  // Anti-Pion
     candidate_vector_.push_back(filled ? inputtype(fId_.get()[i0] == l1ct::ParticleID::HADMINUS) : null_value);  // Pion
     candidate_vector_.push_back(filled ? fZ0_.get()[i0] : null_value);                                           // z0
     candidate_vector_.push_back(filled ? fDxy_.get()[i0] : null_value);                                          // dxy
-    candidate_vector_.push_back(filled ? fIs_filled_.get()[i0] : null_value);                                    // isfilled
+    candidate_vector_.push_back(filled ? fIs_filled_.get()[i0] : null_value);     // isfilled
     candidate_vector_.push_back(filled ? fPuppi_weight_.get()[i0] : null_value);  // puppi weight
     candidate_vector_.push_back(filled ? fEmID_.get()[i0] : null_value);          // emID
     candidate_vector_.push_back(filled ? fQuality_.get()[i0] : null_value);       // quality
-    candidate_vector_.push_back(filled ? fEta_.get()[i0] : null_value); // eta
+    candidate_vector_.push_back(filled ? fEta_.get()[i0] : null_value);           // eta
 
     if (isDebugEnabled_) {
       LogDebug("L1TSC4NGJetID") << "Particle: " << i0 << "\n"
@@ -138,9 +142,9 @@ void L1TSC4NGJetID::setVectors() {
                                    "Track Quality: "
                                 << candidate_vector_[i0 * N_candidate_features + 19]
                                 << " | "
-				   "Eta: "
-				<< candidate_vector_[i0 * N_candidate_features + 20] << " | "
-				<< "===========" << std::endl;
+                                   "Eta: "
+                                << candidate_vector_[i0 * N_candidate_features + 20] << " | "
+                                << "===========" << std::endl;
     }
   }
   // After the particle loop
@@ -149,11 +153,10 @@ void L1TSC4NGJetID::setVectors() {
 }
 
 L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::EvaluateNNFixed() {
-
   inputtype fillzero = 0.0;
 
-   // Define Candidate inputs and fill fully with 0s. Allows for case when N_candidate_inputs > candidate_vector_.size(). 
-  inputtype modelCandidateInput[N_candidate_inputs] = {};  
+  // Define Candidate inputs and fill fully with 0s. Allows for case when N_candidate_inputs > candidate_vector_.size().
+  inputtype modelCandidateInput[N_candidate_inputs] = {};
   std::fill(modelCandidateInput, modelCandidateInput + N_candidate_inputs, fillzero);
 
   // Fill the candidate inputs from the pre calculated NNvectorVar
@@ -162,7 +165,7 @@ L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::EvaluateNNFixed() {
   }
 
   // Define Jet inputs and fill fully with 0s.
-  inputtype modelJetInput[N_jet_inputs] = {};  
+  inputtype modelJetInput[N_jet_inputs] = {};
   std::fill(modelJetInput, modelJetInput + N_jet_inputs, fillzero);
   for (unsigned int i = 0; i < jet_vector_.size(); i++) {
     modelJetInput[i] = jet_vector_[i];
@@ -170,7 +173,7 @@ L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::EvaluateNNFixed() {
 
   // Define input struct
   ModelInputs modelInputStruct;
-  // Load candidate and jet inputs 
+  // Load candidate and jet inputs
   modelInputStruct.candidate_inputs = modelCandidateInput;
   modelInputStruct.jet_inputs = modelJetInput;
   modelInputStruct.total_candidate_inputs = N_candidate_features;
@@ -178,14 +181,14 @@ L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::EvaluateNNFixed() {
 
   // Define output struct
   ModelOutputs modelOutputStruct;
-  
+
   // Define and load output with zeros ready for replacement from the model
-  inputtype modelClassOutput[N_class_outputs] = {}; 
-  inputtype modelRegressionOutput[N_regression_outputs] = {};  
+  inputtype modelClassOutput[N_class_outputs] = {};
+  inputtype modelRegressionOutput[N_regression_outputs] = {};
   std::fill(modelClassOutput, modelClassOutput + N_class_outputs, fillzero);
   std::fill(modelRegressionOutput, modelRegressionOutput + N_regression_outputs, fillzero);
 
-  // Load class and regression outputs 
+  // Load class and regression outputs
   modelOutputStruct.jet_class_output = modelClassOutput;
   modelOutputStruct.jet_regression_output = modelRegressionOutput;
 
@@ -202,25 +205,26 @@ L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::EvaluateNNFixed() {
     // Cast model output to jet tag score datatype
     modelResult_forOutput.second[i] = l1ct::jet_tag_score_t(modelOutputStruct.jet_class_output[i]);
     if (isDebugEnabled_) {
-      LogDebug("L1TSC4NGJetID") << l1ct::JetTagClassHandler::tagClassesDefault_[i] << " : " << modelOutputStruct.jet_class_output[i]
+      LogDebug("L1TSC4NGJetID") << l1ct::JetTagClassHandler::tagClassesDefault_[i] << " : "
+                                << modelOutputStruct.jet_class_output[i]
                                 << " Cast to Jet Class type: " << modelResult_forOutput.second[i] << std::endl;
     }
   }
-  
+
   for (unsigned int i = 0; i < N_regression_outputs; i++) {
-      // Cast model output to transient regression score for jet pt multiplication
-      modelResult_forOutput.first[i] = modelOutputStruct.jet_regression_output[i];
-      if (isDebugEnabled_) {
-         LogDebug("L1TSC4NGJetID") << "\n ===== Jet pT Correction Output ===== \n"
-                                    << modelOutputStruct.jet_regression_output[i] << " Cast to Jet pT type: " << modelResult_forOutput.first[i]
-                                    << std::endl;
-      }
-   }
+    // Cast model output to transient regression score for jet pt multiplication
+    modelResult_forOutput.first[i] = modelOutputStruct.jet_regression_output[i];
+    if (isDebugEnabled_) {
+      LogDebug("L1TSC4NGJetID") << "\n ===== Jet pT Correction Output ===== \n"
+                                << modelOutputStruct.jet_regression_output[i]
+                                << " Cast to Jet pT type: " << modelResult_forOutput.first[i] << std::endl;
+    }
+  }
 
   return modelResult_forOutput;
 }  //end EvaluateNNFixed
 
-L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::computeFixed(const l1t::PFJet &iJet) {
+L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::computeFixed(const l1t::PFJet& iJet) {
   for (int i0 = 0; i0 < fNParticles_; i0++) {
     fPt_rel_.get()[i0] = 0;
     fPt_.get()[i0] = 0;
@@ -249,11 +253,10 @@ L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::computeFixed(const l1t::PFJet &iJet
   inputtype jet_pt_ = inputtype(ctJet.hwPt);
   inputtype jet_eta_ = inputtype(ctJet.hwEta);
   inputtype jet_phi_ = inputtype(ctJet.hwPhi);
-  
+
   // Fill jet level features
   fJetPt_ = jet_pt_;
   fJetEta_ = jet_eta_;
-
 
   for (unsigned int i0 = 0; i0 < iParts.size(); i0++) {
     if (i0 >= (unsigned int)fNParticles_)
@@ -287,9 +290,7 @@ L1TSC4NGJetID::outputpairtype L1TSC4NGJetID::computeFixed(const l1t::PFJet &iJet
     fMass_.get()[i0] = inputtype(massCand);
 
     inputtype const_eta = inputtype(puppicand.hwEta);
-    fEta_.get()[i0] = (const_eta < 0)
-      ? inputtype(-const_eta)
-      : inputtype(const_eta);
+    fEta_.get()[i0] = (const_eta < 0) ? inputtype(-const_eta) : inputtype(const_eta);
 
     fZ0_.get()[i0] = puppicand.hwId.charged() ? inputtype(puppicand.hwZ0()) : inputtype(0);
     fDxy_.get()[i0] = puppicand.hwId.charged() ? inputtype(puppicand.hwDxy()) : inputtype(0);
