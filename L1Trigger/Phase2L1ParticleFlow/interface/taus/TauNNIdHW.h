@@ -3,12 +3,20 @@
 
 #include <cstdio>
 #include <complex>
+#include <memory>
 
-#include "L1Trigger/Phase2L1ParticleFlow/interface/taus/tau_parameters.h"
-#include "L1Trigger/Phase2L1ParticleFlow/interface/taus/defines.h"
+#include "ap_fixed.h"
+#include "ap_int.h"
+#include "hls4ml/emulator.h"
 
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
+
+// Input/output precision of the NNPuppiTauModel hls4ml network, matching the
+// model's defines.h (kept here since the weights/layer code now live in the
+// externally-built NNPuppiTauModel package, not in-tree).
+typedef ap_fixed<16, 10> input_t;
+typedef ap_fixed<16, 6> result_t;
 
 typedef ap_ufixed<16, 14> pt_t;
 typedef ap_fixed<10, 4> etaphi_t;
@@ -134,7 +142,7 @@ namespace L1TauEmu {
 
 class TauNNIdHW {
 public:
-  TauNNIdHW();
+  TauNNIdHW(const std::shared_ptr<hls4mlEmulator::Model> model);
   ~TauNNIdHW();
 
   void initialize(const std::string &iName, int iNParticles);
@@ -154,6 +162,7 @@ public:
 
 private:
   std::vector<input_t> NNvectorVar_;
+  std::shared_ptr<hls4mlEmulator::Model> modelRef_;
 };
 
 #endif
