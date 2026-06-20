@@ -46,6 +46,12 @@ class TestTruthGraphSelections(unittest.TestCase):
         # ggF gg->H is 2->1: no production-vertex co-products.
         self.assertFalse(tgs.selectionForFragment("H125GGgluonfusion")["keepProductionSiblings"])
 
+    def test_top_keeps_production_siblings(self):
+        # Single top must keep the recoiling W / spectator quark (t+W, t+q); ttbar
+        # keeps its associated production system. Both resolve to the 'top' preset.
+        self.assertTrue(tgs.selectionForFragment("ST_tch_top")["keepProductionSiblings"])
+        self.assertTrue(tgs.selectionForFragment("TTbar_14TeV")["keepProductionSiblings"])
+
     def test_channel_groups(self):
         self.assertEqual(tgs.selectionForFragment("ZMM_14")["decayPdgIdGroups"], [[13, -13]])
         self.assertEqual(tgs.selectionForFragment("ZEE_14")["decayPdgIdGroups"], [[11, -11]])

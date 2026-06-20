@@ -138,11 +138,6 @@ private:
   std::vector<std::pair<int, math::XYZVectorD> > m_endPoints;
   std::vector<TrackWithHistory*> m_trackContainer;
 
-  // New members are appended at the end so the offsets of every member above are
-  // unchanged. SimG4CMS/{Calo,Muon,FP420,PPS,...} include this header and call the
-  // inline accessors but are not recompiled in a partial checkout; SimTrackManager
-  // is only ever allocated from SimG4Core/Application (recompiled), so the sizeof
-  // change stays confined to recompiled code.
   bool m_reconnectDroppedAncestors{false};
   // Complete trackID -> immediate parentID map for every simulated track of the
   // event (filled in addTrack when enabled). idsave is consumed per primary by
