@@ -16,6 +16,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return cms::alpakatools::deltaPhi(acc, x1, y1, x2 - x1, y2 - y1);
   }
 
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE unsigned int packedHitIdx(unsigned int ih, HitsBaseConst hitsBase) {
+    constexpr int kOTBit = 1 << 31;
+    return hitsBase.idxs()[ih] | (hitsBase.detid()[ih] == kPixelModuleId ? 0 : kOTBit);
+  }
+
   struct ModuleRangesKernel {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ModulesConst modules,

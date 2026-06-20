@@ -26,6 +26,9 @@ namespace lst {
 
   constexpr unsigned int kPixelModuleId = 1;
 
+  constexpr unsigned int kMaxPLSHitsInHitsSoA = 4;
+  constexpr unsigned int kMaxPLSHitBitsInHitsSoA = 8;
+
   constexpr unsigned int max_blocks = 80;
   constexpr unsigned int max_connected_modules = 40;
 

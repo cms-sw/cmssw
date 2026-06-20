@@ -155,7 +155,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       constexpr unsigned int kInputFeatures = 7;
       constexpr unsigned int kHiddenFeatures = 32;
       constexpr unsigned int kOutputFeatures = 1;
-
       float x[kInputFeatures] = {
           alpaka::math::log10(acc, rPhiChiSquared),
           alpaka::math::log10(acc, tripletRadius),

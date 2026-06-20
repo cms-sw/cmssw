@@ -151,41 +151,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 #endif
   }
 
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE int checkPixelHits(
-      unsigned int ix, unsigned int jx, MiniDoubletsConst mds, SegmentsConst segments, HitsBaseConst hitsBase) {
-    int phits1[Params_pLS::kHits];
-    int phits2[Params_pLS::kHits];
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool pixelHitsOverlapAny(unsigned int ix,
+                                                          unsigned int jx,
+                                                          PixelSegmentsConst pixelSegments) {
+    if (ix == jx)
+      return true;
 
-    phits1[0] = hitsBase.idxs()[mds.anchorHitIndices()[segments.mdIndices()[ix][0]]];
-    phits1[1] = hitsBase.idxs()[mds.anchorHitIndices()[segments.mdIndices()[ix][1]]];
-    phits1[2] = hitsBase.idxs()[mds.outerHitIndices()[segments.mdIndices()[ix][0]]];
-    phits1[3] = hitsBase.idxs()[mds.outerHitIndices()[segments.mdIndices()[ix][1]]];
-
-    phits2[0] = hitsBase.idxs()[mds.anchorHitIndices()[segments.mdIndices()[jx][0]]];
-    phits2[1] = hitsBase.idxs()[mds.anchorHitIndices()[segments.mdIndices()[jx][1]]];
-    phits2[2] = hitsBase.idxs()[mds.outerHitIndices()[segments.mdIndices()[jx][0]]];
-    phits2[3] = hitsBase.idxs()[mds.outerHitIndices()[segments.mdIndices()[jx][1]]];
-
-    int npMatched = 0;
-
+    auto const& phits1 = pixelSegments.pLSHitsIdxs()[ix];
+    auto const& phits2 = pixelSegments.pLSHitsIdxs()[jx];
     for (int i = 0; i < Params_pLS::kHits; i++) {
-      bool pmatched = false;
-      if (phits1[i] == -1)
-        continue;
-
       for (int j = 0; j < Params_pLS::kHits; j++) {
-        if (phits2[j] == -1)
-          continue;
-
         if (phits1[i] == phits2[j]) {
-          pmatched = true;
-          break;
+          return true;
         }
       }
-      if (pmatched)
-        npMatched++;
     }
-    return npMatched;
+    return false;
   }
 
   struct CrossCleanpT3 {
@@ -405,9 +386,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
           } else if (type == LSTObjType::pT3) {
             int pT3Index = innerTrackletIdx;
             int pLSIndex = pixelTriplets.pixelSegmentIndices()[pT3Index];
-            int npMatched = checkPixelHits(prefix + pixelArrayIndex, pLSIndex, mds, segments, hitsBase);
-            if (npMatched > 0)
+            if (pixelHitsOverlapAny(pixelArrayIndex, pLSIndex - prefix, pixelSegments)) {
               pixelSegments.isDup()[pixelArrayIndex] = true;
+            }
 
             float eta2 = __H2F(pixelTriplets.eta_pix()[pT3Index]);
             float phi2 = __H2F(pixelTriplets.phi_pix()[pT3Index]);
@@ -415,12 +396,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             float dPhi = cms::alpakatools::deltaPhi(acc, phi1, phi2);
 
             float dR2 = dEta * dEta + dPhi * dPhi;
-            if (dR2 < 0.000001f)
+            if (dR2 < 0.000001f) {
               pixelSegments.isDup()[pixelArrayIndex] = true;
+            }
           } else if (type == LSTObjType::pT5) {
             unsigned int pLSIndex = innerTrackletIdx;
-            int npMatched = checkPixelHits(prefix + pixelArrayIndex, pLSIndex, mds, segments, hitsBase);
-            if (npMatched > 0) {
+            if (pixelHitsOverlapAny(pixelArrayIndex, pLSIndex - prefix, pixelSegments)) {
               pixelSegments.isDup()[pixelArrayIndex] = true;
             }
 
@@ -430,8 +411,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             float dPhi = cms::alpakatools::deltaPhi(acc, phi1, phi2);
 
             float dR2 = dEta * dEta + dPhi * dPhi;
-            if (dR2 < 0.000001f)
+            if (dR2 < 0.000001f) {
               pixelSegments.isDup()[pixelArrayIndex] = true;
+            }
           }
         }
       }
