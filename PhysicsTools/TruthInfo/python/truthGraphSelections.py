@@ -13,7 +13,7 @@ seed's hard-scatter co-products, which decay channel to keep, ...):
   resonance    s-channel Z / Drell-Yan / Z' / W     seed = the resonance, ISR context
   vbf          VBF / t-channel Higgs               seed = Higgs + keepProductionSiblings
   ggf          ggF / s-channel single Higgs        seed = Higgs
-  top          ttbar / single top / t'              seed = top
+  top          ttbar / single top / t'              seed = top + keepProductionSiblings
   heavyflavor  B / charmonium / bottomonium         seed by heavy-flavor content
   full         QCD / MinBias / NuGun / unknown      keep the whole graph (no selection)
 
@@ -68,8 +68,10 @@ TEMPLATES = {
     "vbf": lambda: _selection(seedPdgIds=(25,), seedParentDepth=1, keepProductionSiblings=True),
     # ggF / s-channel single Higgs: 2->1, no production-vertex co-products.
     "ggf": lambda: _selection(seedPdgIds=(25,), seedParentDepth=1),
-    # Top: seed both tops; their decay chains are the signal.
-    "top": lambda: _selection(seedPdgIds=(6, -6), seedParentDepth=1),
+    # Top: seed both tops; their decay chains are the signal. Keep the hard-scatter
+    # co-products too (keepProductionSiblings), so single top retains the recoiling
+    # W / spectator quark (t+W, t+q) and ttbar the associated production system.
+    "top": lambda: _selection(seedPdgIds=(6, -6), seedParentDepth=1, keepProductionSiblings=True),
     # Heavy flavor: seed by hadron flavor content (5=b, 4=c); the hadron is the root.
     "heavyflavor": lambda: _selection(seedPdgIds=(), seedHadronFlavors=(5,), seedParentDepth=0,
                                       keepStableSpectators=False),

@@ -251,7 +251,7 @@ process.truthLogicalGraphDumper = cms.EDAnalyzer(
 )
 
 
-process.load("PhysicsTools.TruthInfo.recHitTable_cff")
+process.load("PhysicsTools.TruthInfo.recHitTable_cfi")
 
 # Barrel/forward calorimeter PFRecHits as a separate NanoAOD collection.
 # HGCal rechits stay in recHitTable above. NOTE: the offline (RECO) PFRecHit
