@@ -124,6 +124,10 @@ private:
 
   const edm::EDGetTokenT<TruthGraph> rawToken_;
   const edm::EDGetTokenT<truth::Graph> logicalToken_;
+  // When true, throw at endJob if any history-fragmentation violation (orphan
+  // components or cycles, raw or logical) was seen - used by the history-guard
+  // unit test to fail if the simulation stops producing connected parentage.
+  const bool failOnViolations_;
 
   uint64_t nEvents_ = 0;
 
@@ -146,7 +150,8 @@ private:
 
 TruthGraphTopologyChecker::TruthGraphTopologyChecker(edm::ParameterSet const& cfg)
     : rawToken_(consumes<TruthGraph>(cfg.getParameter<edm::InputTag>("rawSrc"))),
-      logicalToken_(consumes<truth::Graph>(cfg.getParameter<edm::InputTag>("src"))) {}
+      logicalToken_(consumes<truth::Graph>(cfg.getParameter<edm::InputTag>("src"))),
+      failOnViolations_(cfg.getUntrackedParameter<bool>("failOnViolations", false)) {}
 
 void TruthGraphTopologyChecker::analyze(edm::Event const& event, edm::EventSetup const&) {
   ++nEvents_;
@@ -431,6 +436,20 @@ void TruthGraphTopologyChecker::endJob() {
   edm::LogPrint("TruthGraphTopologyChecker")
       << "[LOG] pileup provenance: signalParticles(bx=0,ev=0)=" << logSignalParticles_
       << " pileupParticles=" << logPileupParticles_ << " | per-bunchCrossing:" << bx.str();
+
+  // History guard: a disconnected (orphan) fragment or a parentage cycle means the
+  // SimTrack/SimVertex history no longer forms one tree reaching the generator -
+  // exactly the regression a simulation change that drops the per-track parentage
+  // (e.g. a GPU port) would cause. Fail hard when asked to (the history-guard test).
+  if (failOnViolations_) {
+    const uint64_t violations = rawOrphanComponents_ + logOrphanComponents_ + rawCycles_ + logCycles_;
+    if (violations != 0)
+      throw cms::Exception("TruthGraphHistoryBroken")
+          << "Truth-graph history is fragmented over " << nEvents_
+          << " events: raw orphanFragments=" << rawOrphanComponents_ << " cyclesEvents=" << rawCycles_
+          << ", logical orphanFragments=" << logOrphanComponents_ << " cyclesEvents=" << logCycles_
+          << ". The SimTrack/SimVertex parentage is no longer fully connected to the generator.";
+  }
 }
 
 DEFINE_FWK_MODULE(TruthGraphTopologyChecker);

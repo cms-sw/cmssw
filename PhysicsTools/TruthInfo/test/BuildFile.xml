@@ -26,3 +26,5 @@
 </bin>
 
 <test name="truthGraphSelections_t" command="python3 ${LOCALTOP}/src/PhysicsTools/TruthInfo/test/truthGraphSelections_t.py"/>
+
+<test name="testTruthHistoryGuard" command="bash ${LOCALTOP}/src/PhysicsTools/TruthInfo/test/testTruthHistoryGuard.sh"/>

@@ -200,41 +200,55 @@ void SimTrackManager::reallyStoreTracks() {
   }
 }
 
-void SimTrackManager::buildDroppedAncestorRedirect() {
-  m_droppedParentRedirect.clear();
-  if (m_trackContainer.empty())
-    return;
+std::unordered_map<int, int> SimTrackManager::computeDroppedAncestorRedirect(
+    const std::vector<std::pair<int, int> >& storedTracks, const std::unordered_map<int, int>& parentOfAll) {
+  std::unordered_map<int, int> redirect;
+  if (storedTracks.empty())
+    return redirect;
 
   // The set of tracks that will be persisted as SimTracks this event.
   std::unordered_set<int> savedIds;
-  savedIds.reserve(2 * m_trackContainer.size());
-  for (auto const& trk : m_trackContainer)
-    savedIds.insert(trk->trackID());
+  savedIds.reserve(2 * storedTracks.size());
+  for (auto const& [trackId, parentId] : storedTracks)
+    savedIds.insert(trackId);
 
-  for (auto const& trk : m_trackContainer) {
-    const int parentId = trk->parentID();
+  for (auto const& [trackId, parentId] : storedTracks) {
     // Primary, or immediate parent already stored: getOrCreateVertex resolves it.
     if (parentId <= 0 || savedIds.count(parentId) != 0)
       continue;
 
-    // Walk up through the dropped intermediates (m_parentOfAll holds the complete
+    // Walk up through the dropped intermediates (parentOfAll holds the complete
     // topology) to the nearest stored ancestor. The chain terminates at the
     // primary (always stored), so it resolves; the step cap is a defensive guard
     // against a malformed parent loop.
     int p = parentId;
     std::size_t guard = 0;
-    const std::size_t maxSteps = m_parentOfAll.size() + 1;
+    const std::size_t maxSteps = parentOfAll.size() + 1;
     while (p > 0 && savedIds.count(p) == 0 && guard++ < maxSteps) {
-      auto it = m_parentOfAll.find(p);
-      if (it == m_parentOfAll.end()) {
+      auto it = parentOfAll.find(p);
+      if (it == parentOfAll.end()) {
         p = 0;
         break;
       }
       p = it->second;
     }
     if (p > 0 && savedIds.count(p) != 0)
-      m_droppedParentRedirect.emplace(trk->trackID(), p);
+      redirect.emplace(trackId, p);
   }
+  return redirect;
+}
+
+void SimTrackManager::buildDroppedAncestorRedirect() {
+  m_droppedParentRedirect.clear();
+  if (m_trackContainer.empty())
+    return;
+
+  std::vector<std::pair<int, int> > storedTracks;
+  storedTracks.reserve(m_trackContainer.size());
+  for (auto const& trk : m_trackContainer)
+    storedTracks.emplace_back(trk->trackID(), trk->parentID());
+
+  m_droppedParentRedirect = computeDroppedAncestorRedirect(storedTracks, m_parentOfAll);
 }
 
 int SimTrackManager::getOrCreateVertex(TrackWithHistory* trkH, int iParentID) {
