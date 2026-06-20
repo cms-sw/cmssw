@@ -43,6 +43,14 @@ SAMPLES=(
   "H125_diphoton:34052"
   "VBFHZZ4Nu:34131"
   "TenTau:34087"
+  # No single-top sample exists in the relval matrix; 34999.88 is a custom
+  # ST t-channel (PhysicsTools/TruthInfo/ST_tch_top_14TeV_TuneCP5_cfi) produced
+  # locally to exercise the 'top' preset keeping the t + spectator-quark co-products.
+  "SingleTop:34999"
+  # 34998.88 is a custom ttbar-POWHEG (TTto2L2Nu, 13.6 TeV gridpack -> 14 TeV Phase-2,
+  # see the WARNING in PhysicsTools/TruthInfo/TTto2L2Nu_Powheg_Pythia8_cfi): an NLO
+  # ttbar example alongside the LO Pythia8 ttbar (34034).
+  "TTbarPowheg:34998"
 )
 
 rm -rf "$OUT"; mkdir -p "$OUT"
@@ -64,9 +72,14 @@ done
 [[ ${#cmds[@]} -eq 0 ]] && { echo "No samples found under $LIB"; exit 1; }
 printf '%s\n' "${cmds[@]}" | xargs -d '\n' -P "$JOBS" -I CMD bash -c 'CMD'
 
-# keep only logical graphs, rename by real event id, render signal views to SVG
+# Publish the rechit NanoAOD tables (recHitTable + PFRecHitFlatTable +
+# TrackerSimHitFlatTableProducer) the dump produces, one per sample, in a separate
+# rechits/ folder; then keep only the logical graphs, rename by real event id.
+mkdir -p "$OUT/rechits"
 for d in "$OUT"/*/; do
-  lab=$(basename "$d"); pushd "$d" >/dev/null
+  lab=$(basename "$d"); [[ "$lab" == rechits ]] && continue
+  pushd "$d" >/dev/null
+  [[ -f rechits_nano_sig.root ]] && mv -f rechits_nano_sig.root "$OUT/rechits/${lab}_rechits.root"
   rm -f truthgraph_*.dot ./*.log rechits_nano*.root
   for f in truthlogicalgraph_sig_run1_lumi1_event*.dot; do
     [[ -f "$f" ]] || continue; ev=$(grep -o 'event[0-9]*' <<< "$f"); mv -f "$f" "${lab}_signal_${ev}.dot"
