@@ -94,6 +94,15 @@ public:
   // PersistencyEmin, at the cost of collapsing the dropped intermediate nodes.
   void setReconnectDroppedAncestors(bool v) { m_reconnectDroppedAncestors = v; }
 
+  // Pure, unit-testable core of buildDroppedAncestorRedirect(): for each stored
+  // track whose immediate parent is not in the stored set, walk the full
+  // trackID -> parentID map (parentOfAll) up to the nearest stored ancestor and
+  // record trackID -> ancestorTrackID. Primaries (parentID <= 0) and tracks whose
+  // immediate parent is already stored get no entry; walks are capped to guard
+  // against a malformed parent loop.
+  static std::unordered_map<int, int> computeDroppedAncestorRedirect(
+      const std::vector<std::pair<int, int> >& storedTracks, const std::unordered_map<int, int>& parentOfAll);
+
   // stop default
   SimTrackManager(const SimTrackManager&) = delete;
   const SimTrackManager& operator=(const SimTrackManager&) = delete;
