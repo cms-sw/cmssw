@@ -130,7 +130,7 @@ void HGCalNeighbourCheck::beginRun(edm::Run const &iRun, edm::EventSetup const &
       }
       edm::LogVerbatim("HGCGeom") << st1.str();
     }
-    edm::LogVerbatim("HGCGeom") << "Log information of " << detIds_.size() << "cells";
+    edm::LogVerbatim("HGCGeom") << "Log information of " << detIds_.size() << " cells";
   } else {
     edm::LogWarning("HGCGeom") << "Cannot initiate HGCalGeometry for " << nameDetector_ << std::endl;
   }
