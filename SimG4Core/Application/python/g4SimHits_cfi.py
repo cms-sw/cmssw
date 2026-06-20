@@ -56,11 +56,6 @@ common_MCtruth = cms.PSet(
     DoFineCalo = cms.bool(False),
     SaveCaloBoundaryInformation = cms.bool(False),
     PersistencyEmin = cms.double(50.0), # in GeV
-    # Keep the SimTrack/SimVertex history connected to the generator while leaving
-    # PersistencyEmin high: reattach the production vertex of a stored track whose
-    # immediate parent was dropped to its nearest stored ancestor, so no SimVertex
-    # is left with parentIndex = -1. Collapses the dropped intermediate nodes.
-    ReconnectDroppedAncestors = cms.bool(False),
     RegionEmin = cms.vdouble(), # in GeV
     RegionEminName = cms.vstring(), # name of regions for reduced 
     # currently unused; left in place for future studies
@@ -830,7 +825,12 @@ fixLongLivedSleptonSim.toModify( g4SimHits,
 ## collapsed into shortcut edges (measured ~65% fewer SimTracks than PersistencyEmin
 ## = 0, same one-component-per-event connectivity). Scoped to enableTruth only.
 ##
+## The parameter is deliberately NOT added to the default common_MCtruth PSet, so a
+## baseline (no-enableTruth) g4SimHits config is byte-identical to upstream; it is
+## injected here only under enableTruth (cms.bool signals "add"), and the C++
+## TrackingAction reads it defensively (absent -> false).
+##
 from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
 enableTruth.toModify( g4SimHits,
-                      TrackingAction = dict(ReconnectDroppedAncestors = True)
+                      TrackingAction = dict(ReconnectDroppedAncestors = cms.bool(True))
 )
