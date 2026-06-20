@@ -51,24 +51,14 @@ namespace evf {
         fileBrokerPort_(pset.getUntrackedParameter<std::string>("fileBrokerPort", "8080")),
         fileBrokerKeepAlive_(pset.getUntrackedParameter<bool>("fileBrokerKeepAlive", true)),
         fileBrokerUseLocalLock_(pset.getUntrackedParameter<bool>("fileBrokerUseLocalLock", true)),
-        fuLockPollInterval_(pset.getUntrackedParameter<unsigned int>("fuLockPollInterval", 2000)),
         outputAdler32Recheck_(pset.getUntrackedParameter<bool>("outputAdler32Recheck", false)),
         directorBU_(pset.getUntrackedParameter<bool>("directorIsBU", false)),
         hltSourceDirectory_(pset.getUntrackedParameter<std::string>("hltSourceDirectory", "")),
         hostname_(""),
-        bu_readlock_fd_(-1),
-        fu_readwritelock_fd_(-1),
         fulocal_rwlock_fd_(-1),
         fulocal_rwlock_fd2_(-1),
-        fu_rw_lock_stream(nullptr),
         dirManager_(base_dir_),
-        previousFileSize_(0),
-        bu_w_flk(make_flock(F_WRLCK, SEEK_SET, 0, 0, 0)),
-        bu_r_flk(make_flock(F_RDLCK, SEEK_SET, 0, 0, 0)),
-        bu_w_fulk(make_flock(F_UNLCK, SEEK_SET, 0, 0, 0)),
-        bu_r_fulk(make_flock(F_UNLCK, SEEK_SET, 0, 0, 0)),
-        fu_rw_flk(make_flock(F_WRLCK, SEEK_SET, 0, 0, getpid())),
-        fu_rw_fulk(make_flock(F_UNLCK, SEEK_SET, 0, 0, getpid())) {
+        previousFileSize_(0) {
     reg.watchPreallocate(this, &EvFDaqDirector::preallocate);
     reg.watchPreGlobalBeginRun(this, &EvFDaqDirector::preBeginRun);
     reg.watchPreGlobalEndLumi(this, &EvFDaqDirector::preGlobalEndLumi);
@@ -77,17 +67,6 @@ namespace evf {
     char hostname[33];
     gethostname(hostname, 32);
     hostname_ = hostname;
-
-    char* fuLockPollIntervalPtr = std::getenv("FFF_LOCKPOLLINTERVAL");
-    if (fuLockPollIntervalPtr) {
-      try {
-        fuLockPollInterval_ = std::stoul(std::string(fuLockPollIntervalPtr));
-        edm::LogInfo("EvFDaqDirector") << "Setting fu lock poll interval by environment string: " << fuLockPollInterval_
-                                       << " us";
-      } catch (const std::exception&) {
-        edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fuLockPollIntervalPtr);
-      }
-    }
 
     //override file service parameter if specified by environment
     char* fileBrokerParamPtr = std::getenv("FFF_USEFILEBROKER");
@@ -168,7 +147,7 @@ namespace evf {
     ss = std::stringstream();
     ss << run_;
     run_nstring_ = ss.str();
-    run_dir_ = base_dir_ + "/" + run_string_;
+    run_dir_ = (std::filesystem::path(base_dir_) / run_string_).string();
     input_throttled_file_ = run_dir_ + "/input_throttle";
     discard_ls_filestem_ = run_dir_ + "/discard_ls";
   }
@@ -211,18 +190,24 @@ namespace evf {
     //bu_run_dir: for FU, for which the base dir is local and the BU is remote, it is expected to be there
     //for BU, it is created at this point
     if (directorBU_) {
-      bu_run_dir_ = base_dir_ + "/" + run_string_;
-      fulockfile_ = bu_run_dir_ + "/fu.lock";
+      bu_run_dir_ = (std::filesystem::path(base_dir_) / run_string_).string();
 
       //make or find bu run dir
-      retval = mkdir(bu_run_dir_.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
-      if (retval != 0 && errno != EEXIST) {
-        throw cms::Exception("DaqDirector")
-            << " Error creating bu run dir -: " << bu_run_dir_ << " mkdir error:" << strerror(errno);
+      if (!std::filesystem::exists(bu_run_dir_)) {
+        retval = mkdir(bu_run_dir_.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+        if (retval != 0) {
+          throw cms::Exception("DaqDirector")
+              << " Error creating bu run dir -: " << bu_run_dir_ << " mkdir error:" << strerror(errno);
+        }
       }
+
+      //check that directory is empty (no files from previous attempt should be present)
+      if (!std::filesystem::is_empty(bu_run_dir_))
+        throw cms::Exception("DaqDirector") << "Directory " << bu_run_dir_ << " to which BU should write is not empty";
+
       bu_run_open_dir_ = bu_run_dir_ + "/open";
       retval = mkdir(bu_run_open_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-      if (retval != 0 && errno != EEXIST) {
+      if (retval != 0) {
         throw cms::Exception("DaqDirector")
             << " Error creating bu run open dir -: " << bu_run_open_dir_ << " mkdir error:" << strerror(errno);
       }
@@ -307,17 +292,13 @@ namespace evf {
       if (!bu_base_dirs_all_.empty()) {
         std::string check_dir = bu_base_dir_.empty() ? bu_base_dirs_all_[0] : bu_base_dir_;
         checkExists(check_dir);
-        bu_run_dir_ = check_dir + "/" + run_string_;
+        bu_run_dir_ = (std::filesystem::path(check_dir) / run_string_).string();
         for (unsigned int i = 0; i < bu_base_dirs_all_.size(); i++)
           waitForDir(bu_base_dirs_all_[i]);
       } else {
         checkExists(bu_base_dir_);
-        bu_run_dir_ = bu_base_dir_ + "/" + run_string_;
+        bu_run_dir_ = (std::filesystem::path(bu_base_dir_) / run_string_).string();
       }
-
-      fulockfile_ = bu_run_dir_ + "/fu.lock";
-      if (!useFileBroker_ && !fileListMode_)
-        openFULockfileStream(false);
     }
 
     pthread_mutex_init(&init_lock_, nullptr);
@@ -402,14 +383,15 @@ namespace evf {
         ->setComment("Use keep alive to avoid using large number of sockets");
     desc.addUntracked<bool>("fileBrokerUseLocalLock", true)
         ->setComment("Use local lock file to synchronize appearance of index and EoLS file markers for hltd");
-    desc.addUntracked<unsigned int>("fuLockPollInterval", 2000)
-        ->setComment("Lock polling interval in microseconds for the input directory file lock");
     desc.addUntracked<bool>("outputAdler32Recheck", false)
         ->setComment("Check Adler32 of per-process output files while micro-merging");
     desc.addUntracked<bool>("directorIsBU", false)->setComment("BU director mode used for testing");
     desc.addUntracked<std::string>("hltSourceDirectory", "")->setComment("BU director mode source directory");
-    desc.addUntracked<std::string>("mergingPset", "")
-        ->setComment("Name of merging PSet to look for merging type definitions for streams");
+
+    //deprecated but we will not remove it at this point to avoid breaking test scripts
+    desc.addUntracked<unsigned int>("fuLockPollInterval", 2000)->setComment("Lock polling interval. Deprecated.");
+    desc.addUntracked<std::string>("mergingPset", "")->setComment("Name of merging PSet. Deprecated.");
+
     descriptions.add("EvFDaqDirector", desc);
   }
 
@@ -531,405 +513,6 @@ namespace evf {
     if (retval != 0)
       edm::LogError("EvFDaqDirector") << "Could not remove used file -: " << filename
                                       << ". error = " << strerror(errno);
-  }
-
-  //deprecated (file locking mode)
-  EvFDaqDirector::FileStatus EvFDaqDirector::updateFuLock(unsigned int& ls,
-                                                          std::string& nextFile,
-                                                          uint32_t& fsize,
-                                                          uint16_t& rawHeaderSize,
-                                                          uint64_t& lockWaitTime,
-                                                          bool& setExceptionState) {
-    EvFDaqDirector::FileStatus fileStatus = noFile;
-    rawHeaderSize = 0;
-
-    int retval = -1;
-    int lock_attempts = 0;
-    long total_lock_attempts = 0;
-
-    struct stat buf;
-    int stopFileLS = -1;
-    int stopFileCheck = stat(stopFilePath_.c_str(), &buf);
-    int stopFilePidCheck = stat(stopFilePathPid_.c_str(), &buf);
-    if (stopFileCheck == 0 || stopFilePidCheck == 0) {
-      if (stopFileCheck == 0)
-        stopFileLS = readLastLSEntry(stopFilePath_);
-      else
-        stopFileLS = 1;  //stop without drain if only pid is stopped
-      if (!stop_ls_override_) {
-        //if lumisection is higher than in stop file, should quit at next from current
-        if (stopFileLS >= 0 && (int)ls >= stopFileLS)
-          stopFileLS = stop_ls_override_ = ls;
-      } else
-        stopFileLS = stop_ls_override_;
-      edm::LogWarning("EvFDaqDirector") << "Detected stop request from hltd. Ending run for this process after LS -: "
-                                        << stopFileLS;
-      //return runEnded;
-    } else  //if file was removed before reaching stop condition, reset this
-      stop_ls_override_ = 0;
-
-    timeval ts_lockbegin;
-    gettimeofday(&ts_lockbegin, nullptr);
-
-    while (retval == -1) {
-      retval = fcntl(fu_readwritelock_fd_, F_SETLK, &fu_rw_flk);
-      if (retval == -1)
-        usleep(fuLockPollInterval_);
-      else
-        continue;
-
-      lock_attempts += fuLockPollInterval_;
-      total_lock_attempts += fuLockPollInterval_;
-      if (lock_attempts > 5000000 || errno == 116) {
-        if (errno == 116)
-          edm::LogWarning("EvFDaqDirector")
-              << "Stale lock file handle. Checking if run directory and fu.lock file are present" << std::endl;
-        else
-          edm::LogWarning("EvFDaqDirector") << "Unable to obtain a lock for 5 seconds. Checking if run directory and "
-                                               "fu.lock file are present -: errno "
-                                            << errno << ":" << strerror(errno) << std::endl;
-
-        if (stat(getEoLSFilePathOnFU(ls).c_str(), &buf) == 0) {
-          edm::LogWarning("EvFDaqDirector") << "Detected local EoLS for lumisection " << ls;
-          ls++;
-          return noFile;
-        }
-
-        if (stat(bu_run_dir_.c_str(), &buf) != 0)
-          return runEnded;
-        if (stat(fulockfile_.c_str(), &buf) != 0)
-          return runEnded;
-
-        lock_attempts = 0;
-      }
-      if (total_lock_attempts > 5 * 60000000) {
-        edm::LogError("EvFDaqDirector") << "Unable to obtain a lock for 5 minutes. Stopping polling activity.";
-        return runAbort;
-      }
-    }
-
-    timeval ts_lockend;
-    gettimeofday(&ts_lockend, nullptr);
-    long deltat = (ts_lockend.tv_usec - ts_lockbegin.tv_usec) + (ts_lockend.tv_sec - ts_lockbegin.tv_sec) * 1000000;
-    if (deltat > 0.)
-      lockWaitTime = deltat;
-
-    if (retval != 0)
-      return fileStatus;
-
-    //open another lock file FD after the lock using main fd has been acquired
-    int fu_readwritelock_fd2 = open(fulockfile_.c_str(), O_RDWR, S_IRWXU);
-    if (fu_readwritelock_fd2 == -1)
-      edm::LogError("EvFDaqDirector") << "problem with creating filedesc for fuwritelock -: " << fulockfile_
-                                      << " create. error:" << strerror(errno);
-
-    FILE* fu_rw_lock_stream2 = fdopen(fu_readwritelock_fd2, "r+");
-
-    // if the stream is readable
-    if (fu_rw_lock_stream2 != nullptr) {
-      unsigned int readLs, readIndex;
-      int check = 0;
-      // rewind the stream
-      check = fseek(fu_rw_lock_stream2, 0, SEEK_SET);
-      // if rewinded ok
-      if (check == 0) {
-        // read its' values
-        fscanf(fu_rw_lock_stream2, "%u %u", &readLs, &readIndex);
-        edm::LogInfo("EvFDaqDirector") << "Read fu.lock file file -: " << readLs << ":" << readIndex;
-
-        unsigned int currentLs = readLs;
-        bool bumpedOk = false;
-        //if next lumisection in a lock file is not +1 wrt. source, cycle through the next empty one, unless initial lumi not yet set
-        //no lock file write in this case
-        if (ls && ls + 1 < currentLs)
-          ls++;
-        else {
-          // try to bump (look for new index or EoLS file)
-          bumpedOk = bumpFile(readLs, readIndex, nextFile, fsize, rawHeaderSize, stopFileLS, setExceptionState);
-          //avoid 2 lumisections jump
-          if (ls && readLs > currentLs && currentLs > ls) {
-            ls++;
-            readLs = currentLs = ls;
-            readIndex = 0;
-            bumpedOk = false;
-            //no write to lock file
-          } else {
-            if (ls == 0 && readLs > currentLs) {
-              //make sure to intialize always with LS found in the lock file, with possibility of grabbing index file immediately
-              //in this case there is no new file in the same LS
-              //this covers case where run has empty first lumisections and CMSSW are late to the lock file. always one process will start with LS 1,... and create empty files for them
-              readLs = currentLs;
-              readIndex = 0;
-              bumpedOk = false;
-              //no write to lock file
-            }
-            //update return LS value
-            ls = readLs;
-          }
-        }
-        if (bumpedOk) {
-          // there is a new index file to grab, lock file needs to be updated
-          check = fseek(fu_rw_lock_stream2, 0, SEEK_SET);
-          if (check == 0) {
-            ftruncate(fu_readwritelock_fd2, 0);
-            // write next index in the file, which is the file the next process should take
-            fprintf(fu_rw_lock_stream2, "%u %u", readLs, readIndex + 1);
-            fflush(fu_rw_lock_stream2);
-            fsync(fu_readwritelock_fd2);
-            fileStatus = newFile;
-            {
-              oneapi::tbb::concurrent_hash_map<unsigned int, unsigned int>::accessor acc;
-              bool result = lsWithFilesMap_.insert(acc, readLs);
-              if (!result)
-                acc->second++;
-              else
-                acc->second = 1;
-            }  //release accessor lock
-            LogDebug("EvFDaqDirector") << "Written to file -: " << readLs << ":" << readIndex + 1;
-          } else {
-            edm::LogError("EvFDaqDirector")
-                << "seek on fu read/write lock for updating failed with error " << strerror(errno);
-            setExceptionState = true;
-            return noFile;
-          }
-        } else if (currentLs < readLs) {
-          //there is no new file in next LS (yet), but lock file can be updated to the next LS
-          check = fseek(fu_rw_lock_stream2, 0, SEEK_SET);
-          if (check == 0) {
-            ftruncate(fu_readwritelock_fd2, 0);
-            // in this case LS was bumped, but no new file. Thus readIndex is 0 (set by bumpFile)
-            fprintf(fu_rw_lock_stream2, "%u %u", readLs, readIndex);
-            fflush(fu_rw_lock_stream2);
-            fsync(fu_readwritelock_fd2);
-            LogDebug("EvFDaqDirector") << "Written to file -: " << readLs << ":" << readIndex;
-          } else {
-            edm::LogError("EvFDaqDirector")
-                << "seek on fu read/write lock for updating failed with error " << strerror(errno);
-            setExceptionState = true;
-            return noFile;
-          }
-        }
-      } else {
-        edm::LogError("EvFDaqDirector") << "seek on fu read/write lock for reading failed with error "
-                                        << strerror(errno);
-      }
-    } else {
-      edm::LogError("EvFDaqDirector") << "fu read/write lock stream is invalid " << strerror(errno);
-    }
-    fclose(fu_rw_lock_stream2);  // = fdopen(fu_readwritelock_fd2, "r+");
-
-    //if new json is present, lock file which FedRawDataInputSource will later unlock
-    if (fileStatus == newFile)
-      lockFULocal();
-
-    //release lock at this point
-    int retvalu = -1;
-    retvalu = fcntl(fu_readwritelock_fd_, F_SETLKW, &fu_rw_fulk);
-    if (retvalu == -1)
-      edm::LogError("EvFDaqDirector") << "Error unlocking the fu.lock " << strerror(errno);
-
-    if (fileStatus == noFile) {
-      struct stat buf;
-      //edm::LogInfo("EvFDaqDirector") << " looking for EoR file: " << getEoRFilePath().c_str();
-      if (stat(getEoRFilePath().c_str(), &buf) == 0 || stat(bu_run_dir_.c_str(), &buf) != 0)
-        fileStatus = runEnded;
-      if (stopFileLS >= 0 && (int)ls > stopFileLS) {
-        edm::LogInfo("EvFDaqDirector") << "Reached maximum lumisection set by hltd";
-        fileStatus = runEnded;
-      }
-    }
-    return fileStatus;
-  }
-
-  int EvFDaqDirector::getNFilesFromEoLS(std::string BUEoLSFile) {
-    std::ifstream ij(BUEoLSFile);
-    Json::Value deserializeRoot;
-    Json::Reader reader;
-
-    if (!reader.parse(ij, deserializeRoot)) {
-      edm::LogError("EvFDaqDirector") << "Cannot deserialize input JSON file -:" << BUEoLSFile;
-      return -1;
-    }
-
-    std::string data;
-    DataPoint dp;
-    dp.deserialize(deserializeRoot);
-
-    //read definition
-    if (readEolsDefinition_) {
-      //std::string def = boost::algorithm::trim(dp.getDefinition());
-      std::string def = dp.getDefinition();
-      if (def.empty())
-        readEolsDefinition_ = false;
-      while (!def.empty()) {
-        std::string fullpath;
-        if (def.find('/') == 0)
-          fullpath = def;
-        else
-          fullpath = bu_run_dir_ + '/' + def;
-        struct stat buf;
-        if (stat(fullpath.c_str(), &buf) == 0) {
-          DataPointDefinition eolsDpd;
-          std::string defLabel = "legend";
-          DataPointDefinition::getDataPointDefinitionFor(fullpath, &eolsDpd, &defLabel);
-          if (eolsDpd.getNames().empty()) {
-            //try with "data" label if "legend" format is not used
-            eolsDpd = DataPointDefinition();
-            defLabel = "data";
-            DataPointDefinition::getDataPointDefinitionFor(fullpath, &eolsDpd, &defLabel);
-          }
-          for (unsigned int i = 0; i < eolsDpd.getNames().size(); i++)
-            if (eolsDpd.getNames().at(i) == "NFiles")
-              eolsNFilesIndex_ = i;
-          readEolsDefinition_ = false;
-          break;
-        }
-        //check if we can still find definition
-        if (def.size() <= 1 || def.find('/') == std::string::npos) {
-          readEolsDefinition_ = false;
-          break;
-        }
-        def = def.substr(def.find('/') + 1);
-      }
-    }
-
-    if (dp.getData().size() > eolsNFilesIndex_)
-      data = dp.getData()[eolsNFilesIndex_];
-    else {
-      edm::LogError("EvFDaqDirector") << " error reading number of files from BU JSON -: " << BUEoLSFile;
-      return -1;
-    }
-    return std::stoi(data);
-  }
-
-  //deprecated (file locking mode)
-  bool EvFDaqDirector::bumpFile(unsigned int& ls,
-                                unsigned int& index,
-                                std::string& nextFile,
-                                uint32_t& fsize,
-                                uint16_t& rawHeaderSize,
-                                int maxLS,
-                                bool& setExceptionState) {
-    if (previousFileSize_ != 0) {
-      if (!fms_) {
-        fms_ = (FastMonitoringService*)(edm::Service<evf::FastMonitoringService>().operator->());
-      }
-      if (fms_)
-        fms_->accumulateFileSize(ls, previousFileSize_);
-      previousFileSize_ = 0;
-    }
-    nextFile = "";
-
-    //reached limit
-    if (maxLS >= 0 && ls > (unsigned int)maxLS)
-      return false;
-
-    struct stat buf;
-    std::stringstream ss;
-
-    // 1. Check suggested file
-    std::string nextFileJson = getInputJsonFilePath(ls, index);
-    if (stat(nextFileJson.c_str(), &buf) == 0) {
-      fsize = previousFileSize_ = buf.st_size;
-      nextFile = nextFileJson;
-      return true;
-    }
-    // 2. No file -> lumi ended? (and how many?)
-    else {
-      // 3. No file -> check for standalone raw file
-      std::string nextFileRaw = getRawFilePath(ls, index);
-      if (stat(nextFileRaw.c_str(), &buf) == 0 && rawFileHasHeader(nextFileRaw, rawHeaderSize)) {
-        fsize = previousFileSize_ = buf.st_size;
-        nextFile = nextFileRaw;
-        return true;
-      }
-
-      std::string BUEoLSFile = getEoLSFilePathOnBU(ls);
-
-      if (stat(BUEoLSFile.c_str(), &buf) == 0) {
-        // recheck that no raw file appeared in the meantime
-        if (stat(nextFileJson.c_str(), &buf) == 0) {
-          fsize = previousFileSize_ = buf.st_size;
-          nextFile = nextFileJson;
-          return true;
-        }
-        if (stat(nextFileRaw.c_str(), &buf) == 0 && rawFileHasHeader(nextFileRaw, rawHeaderSize)) {
-          fsize = previousFileSize_ = buf.st_size;
-          nextFile = nextFileRaw;
-          return true;
-        }
-
-        int indexFilesInLS = getNFilesFromEoLS(BUEoLSFile);
-        if (indexFilesInLS < 0)
-          //parsing failed
-          return false;
-        else {
-          //check index
-          if ((int)index < indexFilesInLS) {
-            //we have 2 files, and check for 1 failed... retry (2 will never be here)
-            edm::LogError("EvFDaqDirector")
-                << "Potential miss of index file in LS -: " << ls << ". Missing " << nextFile << " because "
-                << indexFilesInLS - 1 << " is the highest index expected. Will not update fu.lock file";
-            setExceptionState = true;
-            return false;
-          }
-        }
-        // this lumi ended, check for files
-        ++ls;
-        index = 0;
-
-        //reached limit
-        if (maxLS >= 0 && ls > (unsigned int)maxLS)
-          return false;
-
-        nextFileJson = getInputJsonFilePath(ls, 0);
-        nextFileRaw = getRawFilePath(ls, 0);
-        if (stat(nextFileJson.c_str(), &buf) == 0) {
-          // a new file was found at new lumisection, index 0
-          fsize = previousFileSize_ = buf.st_size;
-          nextFile = nextFileJson;
-          return true;
-        }
-        if (stat(nextFileRaw.c_str(), &buf) == 0 && rawFileHasHeader(nextFileRaw, rawHeaderSize)) {
-          fsize = previousFileSize_ = buf.st_size;
-          nextFile = nextFileRaw;
-          return true;
-        }
-        return false;
-      }
-    }
-    // no new file found
-    return false;
-  }
-
-  //deprecated (file locking mode)
-  void EvFDaqDirector::tryInitializeFuLockFile() {
-    if (fu_rw_lock_stream == nullptr)
-      edm::LogError("EvFDaqDirector") << "Error creating fu read/write lock stream " << strerror(errno);
-    else {
-      edm::LogInfo("EvFDaqDirector") << "Initializing FU LOCK FILE";
-      unsigned int readLs = 1, readIndex = 0;
-      fprintf(fu_rw_lock_stream, "%u %u", readLs, readIndex);
-    }
-  }
-
-  void EvFDaqDirector::openFULockfileStream(bool create) {
-    if (create) {
-      fu_readwritelock_fd_ =
-          open(fulockfile_.c_str(), O_RDWR | O_CREAT, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);
-      chmod(fulockfile_.c_str(), 0766);
-    } else {
-      fu_readwritelock_fd_ = open(fulockfile_.c_str(), O_RDWR, S_IRWXU);
-    }
-    if (fu_readwritelock_fd_ == -1)
-      edm::LogError("EvFDaqDirector") << "problem with creating filedesc for fuwritelock -: " << fulockfile_
-                                      << " create:" << create << " error:" << strerror(errno);
-    else
-      LogDebug("EvFDaqDirector") << "creating filedesc for fureadwritelock -: " << fu_readwritelock_fd_;
-
-    fu_rw_lock_stream = fdopen(fu_readwritelock_fd_, "r+");
-    if (fu_rw_lock_stream == nullptr)
-      edm::LogError("EvFDaqDirector") << "problem with opening fuwritelock file stream -: " << strerror(errno);
   }
 
   void EvFDaqDirector::lockInitLock() { pthread_mutex_lock(&init_lock_); }
@@ -1187,43 +770,6 @@ namespace evf {
       return false;
     }
     return true;
-  }
-
-  //deprecated (file locking mode)
-  bool EvFDaqDirector::rawFileHasHeader(std::string const& rawSourcePath, uint16_t& rawHeaderSize) {
-    int infile;
-    if ((infile = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
-      edm::LogWarning("EvFDaqDirector") << "rawFileHasHeader - failed to open input file -: " << rawSourcePath << " : "
-                                        << strerror(errno);
-      return false;
-    }
-    //try to read FRD header size (v2 is the biggest, use read buffer of that size)
-    char hdr[sizeof(FRDFileHeader_v2)];
-    if (!checkFileRead(hdr, infile, sizeof(FRDFileHeaderIdentifier), rawSourcePath))
-      return false;
-    FRDFileHeaderIdentifier* fileId = (FRDFileHeaderIdentifier*)hdr;
-    uint16_t frd_version = getFRDFileHeaderVersion(fileId->id_, fileId->version_);
-
-    if (frd_version == 1) {
-      if (!checkFileRead(hdr, infile, sizeof(FRDFileHeaderContent_v1), rawSourcePath))
-        return false;
-      FRDFileHeaderContent_v1* fhContent = (FRDFileHeaderContent_v1*)hdr;
-      rawHeaderSize = fhContent->headerSize_;
-      close(infile);
-      return true;
-    } else if (frd_version == 2) {
-      if (!checkFileRead(hdr, infile, sizeof(FRDFileHeaderContent_v2), rawSourcePath))
-        return false;
-      FRDFileHeaderContent_v2* fhContent = (FRDFileHeaderContent_v2*)hdr;
-      rawHeaderSize = fhContent->headerSize_;
-      close(infile);
-      return true;
-    } else
-      edm::LogError("EvFDaqDirector") << "rawFileHasHeader - unknown version: " << frd_version;
-
-    close(infile);
-    rawHeaderSize = 0;
-    return false;
   }
 
   uint16_t EvFDaqDirector::frdFileDataType(const void* buf) const {

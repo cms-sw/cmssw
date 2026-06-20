@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 import os
+import time
 
 options = VarParsing.VarParsing ('analysis')
 
@@ -46,6 +47,11 @@ options.register ('numFwkStreams',
                   VarParsing.VarParsing.varType.int,          # string, int, or float
                   "Number of CMSSW streams")
 
+options.register ('cleanup',
+                  False,
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.bool,
+                  "Delete any existing output directory")
 
 options.parseArguments()
 
@@ -80,14 +86,52 @@ process.EvFDaqDirector = cms.Service("EvFDaqDirector",
     directorIsBU = cms.untracked.bool(False),
 )
 
-try:
-  os.makedirs(options.fffBaseDir+"/"+options.fuBaseDir+"/run"+str(options.runNumber).zfill(6))
-except Exception as ex:
-  print(str(ex))
-  pass
+rundirectory = f"run{str(options.runNumber).zfill(6)}"
 
-ram_dir_path=options.buBaseDir+"/run"+str(options.runNumber).zfill(6)+"/"
+#look for input files
+ram_dir_path=os.path.join(options.buBaseDir, rundirectory)
+file_path_prefix = os.path.join(ram_dir_path, f"run{str(options.runNumber)}")
+in_filelist = [
+        file_path_prefix + "_ls0001_index000000.raw",
+        file_path_prefix + "_ls0001_index000001.raw",
+        file_path_prefix + "_ls0002_index000000.raw",
+        file_path_prefix + "_ls0002_index000001.raw"
+        ]
+out_filelist = []
+out_filelist_missing = []
+for f in in_filelist:
+    if os.path.exists(f):
+        out_filelist.append(f)
+    else:
+        out_filelist_missing.append(f)
 
+if not len(out_filelist):
+    raise Exception(f"No input files from the list were found: {in_filelist}")
+elif len(out_filelist) < len(in_filelist):
+    print(f"Some files from the list were not found, running with available files. Missing: {out_filelist_missing}")
+    time.sleep(1)
+
+#check the state of output directory
+workdir = os.path.join(options.fffBaseDir, options.fuBaseDir, rundirectory)
+
+if os.path.exists(workdir):
+    if options.cleanup:
+        import shutil
+        shutil.rmtree(workdir)
+        os.makedirs(workdir)
+    else:
+        workdir_files = list(os.listdir(workdir))
+        if len(workdir_files):
+            print(f"WARNING: writeout directory {workfir} is not empty. Files will be mixed with the new run or overwritten.")
+            print(f"Add cleanup=True to delete writeout directory it automatically")
+            for f in workdir_files:
+                print(f)
+            time.sleep(2)
+else:
+    os.makedirs(workdir)
+
+
+# Input source
 process.source = cms.Source("DAQSource",
     testing = cms.untracked.bool(True),
     dataMode = cms.untracked.string(options.daqSourceMode),
@@ -95,18 +139,12 @@ process.source = cms.Source("DAQSource",
     useL1EventID = cms.untracked.bool(False),
     eventChunkBlock = cms.untracked.uint32(2),
     eventChunkSize = cms.untracked.uint32(3),
-    maxChunkSize = cms.untracked.uint32(10),
+    maxChunkSize = cms.untracked.uint32(100),
     numBuffers = cms.untracked.uint32(3),
     maxBufferedFiles = cms.untracked.uint32(2),
     fileListMode = cms.untracked.bool(True),
-    fileNames = cms.untracked.vstring(
-        ram_dir_path + "run" + str(options.runNumber) + "_ls0001_index000000.raw",
-        ram_dir_path + "run" + str(options.runNumber) + "_ls0001_index000001.raw",
-        ram_dir_path + "run" + str(options.runNumber) + "_ls0002_index000000.raw",
-        ram_dir_path + "run" + str(options.runNumber) + "_ls0002_index000001.raw"
+    fileNames = cms.untracked.vstring(out_filelist)
     )
-
-)
 
 process.PrescaleService = cms.Service( "PrescaleService",
                                        forceDefault = cms.bool( False ),
