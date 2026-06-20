@@ -95,7 +95,7 @@ void CompareAlignments::MergeRootfile(TDirectory *target, TList *sourcelist, TLi
     return;
   }
 
-  TString path((char *)strstr(target->GetPath(), ":"));
+  TString path(std::strstr(target->GetPath(), ":"));
   path.Remove(0, 2);
 
   TFile *first_source = (TFile *)sourcelist->First();
