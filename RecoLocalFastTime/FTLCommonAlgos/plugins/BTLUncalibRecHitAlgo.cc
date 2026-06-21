@@ -1,46 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "RecoLocalFastTime/FTLCommonAlgos/interface/MTDUncalibratedRecHitAlgoBase.h"
 #include "RecoLocalFastTime/FTLClusterizer/interface/BTLRecHitsErrorEstimatorIM.h"
 
-#include "CommonTools/Utils/interface/FormulaEvaluator.h"
-
-class BTLUncalibRecHitAlgo : public BTLUncalibratedRecHitAlgoBase {
-public:
-  /// Constructor
-  BTLUncalibRecHitAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
-      : MTDUncalibratedRecHitAlgoBase<BTLDataFrame>(conf, sumes),
-        invLightSpeedLYSO_(conf.getParameter<double>("invLightSpeedLYSO")),
-        c_LYSO_(1. / invLightSpeedLYSO_),
-        npeToADC_(conf.getParameter<std::vector<double>>("npeToADC")),
-        npePerMeV_(conf.getParameter<double>("npePerMeV")),
-        invADCPerMeV_(1. / (npeToADC_[1] * npePerMeV_)),
-        npeSaturationCorr_(conf.getParameter<std::vector<double>>("npeSaturationCorrection")),
-        tdc_to_ns_(conf.getParameter<double>("tdcLSB_ns")),
-        timeError_(conf.getParameter<std::string>("timeResolutionInNs")),
-        timeWalkCorr_(conf.getParameter<std::string>("timeWalkCorrection")) {}
-
-  /// Destructor
-  ~BTLUncalibRecHitAlgo() override {}
-
-  /// get event and eventsetup information
-  void getEvent(const edm::Event&) final {}
-  void getEventSetup(const edm::EventSetup&) final {}
-
-  /// make the rec hit
-  FTLUncalibratedRecHit makeRecHit(const BTLDataFrame& dataFrame) const final;
-
-private:
-  const double invLightSpeedLYSO_;
-  const double c_LYSO_;
-  const std::vector<double> npeToADC_;
-  const double npePerMeV_;
-  const double invADCPerMeV_;
-  const std::vector<double> npeSaturationCorr_;
-  const double tdc_to_ns_;
-  const reco::FormulaEvaluator timeError_;
-  const reco::FormulaEvaluator timeWalkCorr_;
-};
+#include "BTLUncalibRecHitAlgo.h"
 
 FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataFrame) const {
   // The reconstructed amplitudes and times of the right and left hits are saved in a std::pair
@@ -119,5 +80,12 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
       dataFrame.id(), dataFrame.row(), dataFrame.column(), amplitude, time, timeError, position, positionError, flag);
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_EDM_PLUGIN(BTLUncalibratedRecHitAlgoFactory, BTLUncalibRecHitAlgo, "BTLUncalibRecHitAlgo");
+void BTLUncalibRecHitAlgo::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<double>("invLightSpeedLYSO");
+  desc.add<std::vector<double>>("npeToADC");
+  desc.add<double>("npePerMeV");
+  desc.add<std::vector<double>>("npeSaturationCorrection");
+  desc.add<double>("tdcLSB_ns");
+  desc.add<std::string>("timeResolutionInNs");
+  desc.add<std::string>("timeWalkCorrection");
+}
