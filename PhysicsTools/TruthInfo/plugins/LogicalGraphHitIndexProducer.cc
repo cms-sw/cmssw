@@ -36,10 +36,10 @@
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "DataFormats/FTLRecHit/interface/FTLClusterCollections.h"
 
-#include "PhysicsTools/TruthInfo/interface/Graph.h"
-#include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndex.h"
+#include "SimDataFormats/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 #include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndexBuilder.h"
-#include "PhysicsTools/TruthInfo/interface/TruthGraph.h"
+#include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
 #include "SimCalorimetry/HGCalAssociatorProducers/interface/DetIdRecHitMap.h"
 

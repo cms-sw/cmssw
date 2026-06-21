@@ -56,8 +56,8 @@
 #include "HepMC3/GenParticle.h"
 #include "HepMC3/GenVertex.h"
 
-#include "PhysicsTools/TruthInfo/interface/Graph.h"
-#include "PhysicsTools/TruthInfo/interface/TruthGraph.h"
+#include "SimDataFormats/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 #include "PhysicsTools/TruthInfo/interface/TruthLogicalGraphPostProcessor.h"
 
 namespace {

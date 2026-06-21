@@ -10,7 +10,7 @@
 
 #include "PhysicsTools/TruthInfo/interface/Branch.h"
 #include "PhysicsTools/TruthInfo/interface/BranchSelector.h"
-#include "PhysicsTools/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 namespace {

@@ -24,9 +24,9 @@
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
-#include "PhysicsTools/TruthInfo/interface/Graph.h"
-#include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndex.h"
-#include "PhysicsTools/TruthInfo/interface/TruthGraph.h"
+#include "SimDataFormats/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
+#include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
 namespace {
 

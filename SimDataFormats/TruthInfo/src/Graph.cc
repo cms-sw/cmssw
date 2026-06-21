@@ -2,7 +2,7 @@
 // Part of the MC-truth-graph prototype - under heavy development, not yet open
 // to external contributions (see PhysicsTools/TruthInfo/README.md).
 
-#include "PhysicsTools/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/Graph.h"
 
 #include <algorithm>
 #include <cstddef>

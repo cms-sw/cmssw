@@ -12,7 +12,7 @@
 #include <vector>
 
 #include "FWCore/Utilities/interface/Exception.h"
-#include "PhysicsTools/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/Graph.h"
 #include "PhysicsTools/TruthInfo/interface/TruthLogicalGraphPostProcessor.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 

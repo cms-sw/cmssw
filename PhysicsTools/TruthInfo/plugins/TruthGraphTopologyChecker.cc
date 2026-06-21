@@ -30,8 +30,8 @@
 
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
-#include "PhysicsTools/TruthInfo/interface/Graph.h"
-#include "PhysicsTools/TruthInfo/interface/TruthGraph.h"
+#include "SimDataFormats/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
 namespace {
 

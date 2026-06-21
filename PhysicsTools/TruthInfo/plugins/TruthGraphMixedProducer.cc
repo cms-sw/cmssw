@@ -40,7 +40,7 @@
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 
-#include "PhysicsTools/TruthInfo/interface/TruthGraph.h"
+#include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
 namespace {
   // Mirror of TruthGraphProducer::packEventId so the logical producer / consumers

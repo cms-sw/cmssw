@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "PhysicsTools/TruthInfo/interface/Branch.h"
-#include "PhysicsTools/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/Graph.h"
 
 namespace {
 

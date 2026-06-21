@@ -2,13 +2,13 @@
 // Part of the MC-truth-graph prototype - under heavy development, not yet open
 // to external contributions (see PhysicsTools/TruthInfo/README.md).
 
-#ifndef PhysicsTools_TruthInfo_src_classes_h
-#define PhysicsTools_TruthInfo_src_classes_h
+#ifndef SimDataFormats_TruthInfo_src_classes_h
+#define SimDataFormats_TruthInfo_src_classes_h
 
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "PhysicsTools/TruthInfo/interface/Graph.h"
-#include "PhysicsTools/TruthInfo/interface/TruthGraph.h"
-#include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndex.h"
+#include "SimDataFormats/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
+#include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 
 namespace {
   struct dictionary {

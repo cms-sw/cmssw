@@ -7,7 +7,7 @@
 
 #include <cstdint>
 
-#include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndex.h"
+#include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 #include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndexBuilder.h"
 
 // These tests lock in the layout property the Branch view relies on: a particle's

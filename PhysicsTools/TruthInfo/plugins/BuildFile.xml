@@ -2,6 +2,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="PhysicsTools/TruthInfo"/>
+<use name="SimDataFormats/TruthInfo"/>
 <use name="DataFormats/HepMCCandidate"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/Vertex"/>

@@ -11,7 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "PhysicsTools/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/Graph.h"
 
 namespace truth {
 

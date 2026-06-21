@@ -8,8 +8,8 @@
 // The graph is built in the TruthGraphProducer module, which also fills the node metadata and associations.
 // The graph is intended to be a common data format for various use cases (e.g. validation, analysis, visualization).
 
-#ifndef PhysicsTools_TruthInfo_interface_TruthGraph_h
-#define PhysicsTools_TruthInfo_interface_TruthGraph_h
+#ifndef SimDataFormats_TruthInfo_interface_TruthGraph_h
+#define SimDataFormats_TruthInfo_interface_TruthGraph_h
 
 #include <cstdint>
 #include <span>

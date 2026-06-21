@@ -39,8 +39,8 @@
 #include "SimDataFormats/Associations/interface/TICLAssociationMap.h"
 
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
-#include "PhysicsTools/TruthInfo/interface/Graph.h"
-#include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndex.h"
+#include "SimDataFormats/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 
 namespace {
   // Raw-index AssociationMap (object index -> [(branch id, sharedHits, score)]).

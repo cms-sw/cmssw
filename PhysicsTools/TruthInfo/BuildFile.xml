@@ -6,6 +6,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="SimDataFormats/EncodedEventId"/>
 <use name="SimDataFormats/Associations"/>
+<use name="SimDataFormats/TruthInfo"/>
 <use name="heppdt"/>
 
 <export>
