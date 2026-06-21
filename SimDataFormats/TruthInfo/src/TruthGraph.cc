@@ -8,7 +8,7 @@
 // The graph is built in the TruthGraphProducer module, which also fills the node metadata and associations.
 // The graph is intended to be a common data format for various use cases (e.g. validation, analysis, visualization).
 
-#include "PhysicsTools/TruthInfo/interface/TruthGraph.h"
+#include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
 bool TruthGraph::isConsistent() const {
   if (offsets.size() != nodes.size() + 1)

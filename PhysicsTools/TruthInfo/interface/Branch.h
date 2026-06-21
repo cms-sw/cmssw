@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "PhysicsTools/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/Graph.h"
 
 namespace truth {
 

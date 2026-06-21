@@ -2,8 +2,8 @@
 // Part of the MC-truth-graph prototype - under heavy development, not yet open
 // to external contributions (see PhysicsTools/TruthInfo/README.md).
 
-#ifndef PhysicsTools_TruthInfo_interface_Graph_h
-#define PhysicsTools_TruthInfo_interface_Graph_h
+#ifndef SimDataFormats_TruthInfo_interface_Graph_h
+#define SimDataFormats_TruthInfo_interface_Graph_h
 
 #include <cstdint>
 #include <optional>

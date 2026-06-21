@@ -58,7 +58,7 @@
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/GenParticle.h"
 
-#include "PhysicsTools/TruthInfo/interface/TruthGraph.h"
+#include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
 namespace {
   uint64_t packEventId(EncodedEventId const& id) {

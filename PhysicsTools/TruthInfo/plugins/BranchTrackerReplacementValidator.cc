@@ -28,9 +28,9 @@
 #include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
 
 #include "PhysicsTools/TruthInfo/interface/BranchHitAssociator.h"
-#include "PhysicsTools/TruthInfo/interface/Graph.h"
-#include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndex.h"
-#include "PhysicsTools/TruthInfo/interface/TruthGraph.h"
+#include "SimDataFormats/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
+#include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
 class BranchTrackerReplacementValidator : public edm::one::EDAnalyzer<> {
 public:

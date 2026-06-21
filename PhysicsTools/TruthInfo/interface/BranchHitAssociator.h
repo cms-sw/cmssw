@@ -10,7 +10,7 @@
 #include <span>
 #include <vector>
 
-#include "PhysicsTools/TruthInfo/interface/LogicalGraphHitIndex.h"
+#include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 
 namespace truth {
 
