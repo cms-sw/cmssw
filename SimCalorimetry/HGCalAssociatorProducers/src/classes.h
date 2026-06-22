@@ -8,11 +8,4 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "SimCalorimetry/HGCalAssociatorProducers/interface/DetIdRecHitMap.h"
 
-namespace SimCalorimetry_HGCalAssociatorProducers {
-  struct dictionary {
-    hgcal::DetIdRecHitMap detIdRecHitMap_;
-    edm::Wrapper<hgcal::DetIdRecHitMap> detIdRecHitMapWrapper_;
-  };
-}  // namespace SimCalorimetry_HGCalAssociatorProducers
-
 #endif
