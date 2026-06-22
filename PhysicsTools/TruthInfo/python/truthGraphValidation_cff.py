@@ -14,7 +14,7 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 from Validation.Configuration.truthPrevalidation_cff import (
     truthGraphProducer,
     truthLogicalGraphProducer,
-    simHitToRecHitMapProducer,
+    detIdToRecHitMapProducer,
     truthLogicalGraphHitIndexProducer,
 )
 
@@ -135,7 +135,7 @@ branchTracksterRecoValidator = DQMEDAnalyzer(
 truthGraphValidationSequence = cms.Sequence(
     truthGraphProducer
     + truthLogicalGraphProducer
-    + simHitToRecHitMapProducer
+    + detIdToRecHitMapProducer
     + truthLogicalGraphHitIndexProducer
     + truthBranchCaloAssociationProducer
     + truthTpClusterProducer
@@ -151,7 +151,7 @@ truthGraphValidationSequence = cms.Sequence(
 truthGraphValidationProducers = cms.Sequence(
     truthGraphProducer
     + truthLogicalGraphProducer
-    + simHitToRecHitMapProducer
+    + detIdToRecHitMapProducer
     + truthLogicalGraphHitIndexProducer
     + truthBranchCaloAssociationProducer
     + truthTpClusterProducer

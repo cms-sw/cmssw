@@ -50,8 +50,8 @@ process.truthLogicalGraphProducer = cms.EDProducer(
     ),
 )
 
-process.simHitToRecHitMapProducer = cms.EDProducer(
-    "SimHitToRecHitMapProducer",
+process.detIdToRecHitMapProducer = cms.EDProducer(
+    "DetIdToRecHitMapProducer",
     hgcalRecHits=cms.VInputTag(
         cms.InputTag("HGCalRecHit", "HGCEERecHits"),
         cms.InputTag("HGCalRecHit", "HGCHEFRecHits"),
@@ -69,7 +69,7 @@ process.truthLogicalGraphHitIndexProducer = cms.EDProducer(
     "TruthLogicalGraphHitIndexProducer",
     src=cms.InputTag("truthLogicalGraphProducer"),
     rawSrc=cms.InputTag("truthGraphProducer"),
-    recHitMap=cms.InputTag("simHitToRecHitMapProducer"),
+    recHitMap=cms.InputTag("detIdToRecHitMapProducer"),
     simHitCollections=cms.VInputTag(
         cms.InputTag("g4SimHits", "HGCHitsEE"),
         cms.InputTag("g4SimHits", "HGCHitsHEfront"),
@@ -118,7 +118,7 @@ process.MessageLogger.cerr.BranchTrackerReplacementValidator = cms.untracked.PSe
 process.p = cms.Path(
     process.truthGraphProducer
     + process.truthLogicalGraphProducer
-    + process.simHitToRecHitMapProducer
+    + process.detIdToRecHitMapProducer
     + process.truthLogicalGraphHitIndexProducer
     + process.tpClusterProducer
     + process.branchValidator

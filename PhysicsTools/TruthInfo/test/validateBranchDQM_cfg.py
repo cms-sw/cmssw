@@ -41,7 +41,7 @@ process.dqmOut = cms.OutputModule(
 process.p = cms.Path(
     process.truthGraphProducer
     + process.truthLogicalGraphProducer
-    + process.simHitToRecHitMapProducer
+    + process.detIdToRecHitMapProducer
     + process.truthLogicalGraphHitIndexProducer
     + process.truthBranchCaloAssociationProducer
     + process.branchHGCalValidator

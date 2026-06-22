@@ -182,8 +182,8 @@ process.truthLogicalGraphProducer = cms.EDProducer(
         ignoredParticleIds=cms.vuint32(),
     ),
 )
-process.simHitToRecHitMapProducer = cms.EDProducer(
-    "SimHitToRecHitMapProducer",
+process.detIdToRecHitMapProducer = cms.EDProducer(
+    "DetIdToRecHitMapProducer",
 
     hgcalRecHits=cms.VInputTag(
         cms.InputTag("HGCalRecHit", "HGCEERecHits", "RECO"),
@@ -204,7 +204,7 @@ process.truthLogicalGraphHitIndexProducer = cms.EDProducer(
     src=cms.InputTag("truthLogicalGraphProducer"),
     rawSrc=cms.InputTag("truthGraphProducer"),
 
-    recHitMap=cms.InputTag("simHitToRecHitMapProducer"),
+    recHitMap=cms.InputTag("detIdToRecHitMapProducer"),
 
     simHitCollections=cms.VInputTag(
         cms.InputTag("g4SimHits", "HGCHitsEE", "SIM"),
@@ -323,7 +323,7 @@ process.MessageLogger.cerr.TruthLogicalGraphPostProcessor = cms.untracked.PSet(
 process.MessageLogger.cerr.TruthLogicalGraphHitIndexProducer = cms.untracked.PSet(
     limit=cms.untracked.int32(-1)
 )
-process.MessageLogger.cerr.SimHitToRecHitMapProducer = cms.untracked.PSet(
+process.MessageLogger.cerr.DetIdToRecHitMapProducer = cms.untracked.PSet(
     limit=cms.untracked.int32(-1)
 )
 
@@ -331,7 +331,7 @@ process.truthGraph_step = cms.Path(
     process.truthGraphProducer
     + process.truthGraphDumper
     + process.truthLogicalGraphProducer
-    + process.simHitToRecHitMapProducer
+    + process.detIdToRecHitMapProducer
     + process.truthLogicalGraphHitIndexProducer
     + process.truthLogicalGraphDumper
     + process.recHitTable

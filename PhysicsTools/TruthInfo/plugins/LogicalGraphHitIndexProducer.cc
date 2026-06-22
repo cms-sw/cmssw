@@ -233,7 +233,7 @@ void TruthLogicalGraphHitIndexProducer::fillDescriptions(edm::ConfigurationDescr
 
   desc.add<edm::InputTag>("src", edm::InputTag("truthLogicalGraphProducer"));
   desc.add<edm::InputTag>("rawSrc", edm::InputTag("truthGraphProducer"));
-  desc.add<edm::InputTag>("recHitMap", edm::InputTag("simHitToRecHitMapProducer"));
+  desc.add<edm::InputTag>("recHitMap", edm::InputTag("detIdToRecHitMapProducer"));
 
   desc.add<std::vector<std::string>>("subdetectors", {"HGCalCalo", "Tracker", "MTD", "Muon"})
       ->setComment(

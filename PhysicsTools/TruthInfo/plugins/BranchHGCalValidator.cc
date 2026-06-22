@@ -108,7 +108,7 @@ private:
                 Plots& plots);
 
   // Whole-cell RecHit energy keyed by DetId, rebuilt from the same RecHit
-  // collections (HGCal then PF, the SimHitToRecHitMapProducer order) the hit
+  // collections (HGCal then PF, the DetIdToRecHitMapProducer order) the hit
   // index was mapped against; first index kept for any duplicate DetId.
   std::unordered_map<uint32_t, float> collectRecHitEnergyByDetId(edm::Event const&) const;
 
@@ -524,7 +524,7 @@ void BranchHGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("minPt", 1.0);
   desc.add<double>("maxEta", 3.0);
   // RecHit collections for the raw (reconstructed) energy response, in the same
-  // order SimHitToRecHitMapProducer used to build the DetId->RecHit map.
+  // order DetIdToRecHitMapProducer used to build the DetId->RecHit map.
   desc.add<std::vector<edm::InputTag>>("hgcalRecHits",
                                        {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
                                         edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),

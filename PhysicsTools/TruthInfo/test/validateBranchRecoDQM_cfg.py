@@ -48,7 +48,7 @@ process.dqmOut = cms.OutputModule("DQMRootOutputModule", fileName=cms.untracked.
 process.p = cms.Path(
     process.truthGraphProducer
     + process.truthLogicalGraphProducer
-    + process.simHitToRecHitMapProducer
+    + process.detIdToRecHitMapProducer
     + process.truthLogicalGraphHitIndexProducer
     + process.truthGraphRecoSideValidationSequence
 )
