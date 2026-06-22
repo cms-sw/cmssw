@@ -21,10 +21,10 @@ import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 import RecoTracker.IterativeTracking.iterativeTkUtils as _utils
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 from Configuration.ProcessModifiers.hltClusterSplitting_cff import hltClusterSplitting
-
 ####Importing phase2 modifier
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
-
+from Configuration.ProcessModifiers.seedingLST_cff import seedingLST
+from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
 ### First define the stuff for the standard validation sequence
 ## Track selectors
 for _eraName, _postfix, _era in _cfg.allEras():
@@ -33,11 +33,12 @@ for _eraName, _postfix, _era in _cfg.allEras():
     if _eraName in ["trackingLowPU", "trackingPhase2PU140"]: # these don't have preSplitting
         _seedProd = []
         _trackProd = []
-
     locals()["_algos"+_postfix] = ["generalTracks"] + _cfg.iterationAlgos(_postfix) + ["duplicateMerge"]
     locals()["_seedProducersPreSplitting"+_postfix] = _seedProd
     locals()["_trackProducersPreSplitting"+_postfix] = _trackProd
     locals()["_seedProducers"+_postfix] = _cfg.seedProducers(_postfix)
+    if seedingLST._isChosen():
+        locals()["_seedProducers"+_postfix] = _cfg.seedProducers(_postfix) + ["highPtTripletStepSeedsPixelsWithLST"] + ["highPtTripletStepSeedsPixelsOnly"]
     locals()["_trackProducers"+_postfix] = _cfg.trackProducers(_postfix)
 
     if _eraName != "trackingPhase2PU140":
@@ -48,6 +49,8 @@ for _eraName, _postfix, _era in _cfg.allEras():
 _removeForFastSimSeedProducers =["initialStepSeedsPreSplitting",
                                  "jetCoreRegionalStepSeeds",
                                  "jetCoreRegionalStepSeedsBarrel","jetCoreRegionalStepSeedsEndcap",
+                                 "highPtTripletStepSeedsPixelsWithLST",
+                                 "highPtTripletStepSeedsPixelsOnly",
                                  "displacedRegionalStepSeeds",
                                  "muonSeededSeedsInOut",
                                  "muonSeededSeedsOutIn"]
@@ -140,12 +143,15 @@ def _addSelectorsByOriginalAlgoMask(modules, midfix, algoParam,modDict):
         names.append(modNameNew)
         task.add(mod)
     return (names, task)
+
 def _addSeedToTrackProducers(seedProducers,modDict):
     names = []
     task = cms.Task()
     for seed in seedProducers:
         modName = ("seedTracks"+seed).replace(":", "MI")
         if modName not in modDict:
+            if modName == "seedTracksinitialStepSeeds" and seedingLST._isChosen():
+                continue
             mod = _trajectorySeedTracks.clone(src=seed)
             modDict[modName] = mod
         else:
@@ -986,6 +992,11 @@ for _eraName, _postfix, _era in _relevantEras:
                  label = [ "seedTracksjetCoreRegionalStepSeedsBarrel","seedTracksjetCoreRegionalStepSeedsEndcap" ],
                  doResolutionPlotsForLabels = [ "seedTracksjetCoreRegionalStepSeedsBarrel","seedTracksjetCoreRegionalStepSeedsEndcap" ]
       )
+    if 'highPtTripletStep' in _cfg.iterationAlgos(_postfix) :
+        _setForEra(trackValidatorSeedingTrackingOnly, _eraName, _era,
+                 label = ["seedTrackshighPtTripletStepSeedsPixelsWithLST", "highPtTripletStepSeedsPixelsOnly"],
+                doResolutionPlotsForLabels = ["seedTrackshighPtTripletStepSeedsPixelsWithLST", "highPtTripletStepSeedsPixelsOnly"]
+)
     
 for _eraName, _postfix, _era in _relevantErasAndFastSim:
     _setForEra(trackValidatorSeedingTrackingOnly, _eraName, _era, label = locals()["_seedSelectors"+_postfix])
