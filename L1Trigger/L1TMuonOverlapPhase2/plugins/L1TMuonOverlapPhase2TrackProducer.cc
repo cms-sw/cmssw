@@ -36,8 +36,8 @@ L1TMuonOverlapPhase2TrackProducer::L1TMuonOverlapPhase2TrackProducer(const edm::
       propagatorEsToken(esConsumes<Propagator, TrackingComponentsRecord, edm::Transition::BeginRun>(
           edm::ESInputTag("", "SteppingHelixPropagatorAlong"))),
       omtfEmulation(edmParameterSet, muStubsInputTokens, muStubsPhase2InputTokens) {
-  produces<l1t::SAMuonCollection>("OMTFconstr");
-  produces<l1t::SAMuonCollection>("OMTFunconstr");
+  produces<l1t::SAMuonCollection>("constrCands");
+  produces<l1t::SAMuonCollection>("unconstrCands");
 
   //it is needed for pattern generation and RootDataDumper
   if (edmParameterSet.exists("simTracksTag"))
@@ -66,8 +66,8 @@ void L1TMuonOverlapPhase2TrackProducer::produce(edm::Event& iEvent, const edm::E
 
   auto outputCollections = omtfEmulation.run(iEvent, evSetup);
 
-  iEvent.put(std::move(outputCollections.constrSaMuons), "OMTFconstr");
-  iEvent.put(std::move(outputCollections.unConstrSaMuons), "OMTFunconstr");
+  iEvent.put(std::move(outputCollections.constrSaMuons), "constrCands");
+  iEvent.put(std::move(outputCollections.unConstrSaMuons), "unconstrCands");
 }
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
