@@ -81,7 +81,6 @@ StubResult GoldenPatternBase::process1Layer1RefLayer(unsigned int iRefLayer,
 
     int deltaPhi = hitPhi - extrapolatedPhi[iStub] - phiRefHit;
     int phiDist = deltaPhi - phiMean;
-    //int phiDist = this->myOmtfConfig->foldPhi(hitPhi - extrapolatedPhi[iStub] - phiMean - phiRefHit);
     /*LogTrace("l1tOmtfEventPrint") <<"\n"<<__FUNCTION__<<":"<<__LINE__<<" "<<theKey<<std::endl;
     LogTrace("l1tOmtfEventPrint") <<__FUNCTION__<<":"<<__LINE__
                <<"  iRefLayer "<<iRefLayer<<" iLayer "<<iLayer

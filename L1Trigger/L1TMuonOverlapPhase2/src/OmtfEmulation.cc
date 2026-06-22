@@ -46,15 +46,14 @@ void OmtfEmulation::beginRun(edm::Run const& run,
   omtfProcPhase2.beginRun(edmParameterSet, eventSetup);
 }
 
-OmtfEmulation::OmtfOutptutCollections OmtfEmulation::run(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
-  LogTrace("l1tOmtfEventPrint") << "\n" << __FUNCTION__ << ":" << __LINE__ << " iEvent " << iEvent.id().event() << endl;
+OmtfEmulation::OmtfOutputCollections OmtfEmulation::run(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   inputMaker->loadAndFilterDigis(iEvent);
 
   for (auto& obs : observers) {
     obs->observeEventBegin(iEvent);
   }
 
-  OmtfOutptutCollections outptuCollections;
+  OmtfOutputCollections outptuCollections;
   outptuCollections.constrSaMuons = std::make_unique<l1t::SAMuonCollection>();
   outptuCollections.unConstrSaMuons = std::make_unique<l1t::SAMuonCollection>();
 
