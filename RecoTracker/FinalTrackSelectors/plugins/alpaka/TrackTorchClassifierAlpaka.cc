@@ -68,10 +68,48 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       iEvent.emplace(scoresPut_token_, std::move(scores_device));
     }
 
+    void beginStream(edm::StreamID sid, Queue queue) override {
+      // Warmup the model with dummy data
+      const int warmupBatchSize = 4992;
+      // Allocate dummy input and output tensors on the device
+      auto features = TrackFeaturesDeviceCollection(queue, warmupBatchSize);
+      auto scores_device = TrackScoresDeviceCollection(queue, warmupBatchSize);
+
+      auto input_records = features.view().records();
+      auto output_records = scores_device.view().records();
+
+      for (auto it = 0; it < warmupIterations_; ++it) {
+        cms::torch::alpakatools::TensorCollection<Queue> dummy_inputs(warmupBatchSize);
+        cms::torch::alpakatools::TensorCollection<Queue> dummy_outputs(warmupBatchSize);
+
+        dummy_inputs.add<TrackTorchClassifierFeaturesSoA>("features",
+                                                          input_records.dxyBeamSpot(),
+                                                          input_records.dzBeamSpot(),
+                                                          input_records.dxyError(),
+                                                          input_records.dzError(),
+                                                          input_records.normalizedChi2(),
+                                                          input_records.eta(),
+                                                          input_records.phi(),
+                                                          input_records.etaError(),
+                                                          input_records.phiError(),
+                                                          input_records.ndof(),
+                                                          input_records.lostInnerHits(),
+                                                          input_records.lostOuterHits(),
+                                                          input_records.layersWithoutMeas(),
+                                                          input_records.validPixelHits(),
+                                                          input_records.validStripHits());
+
+        dummy_outputs.add<TrackTorchClassifierScoresSoA>("scores", output_records.score());
+
+        model_.forward(queue, dummy_inputs, dummy_outputs);
+      }
+    }
+
   private:
     const device::EDGetToken<TrackFeaturesDeviceCollection> featuresInput_token_;
     const device::EDPutToken<TrackScoresDeviceCollection> scoresPut_token_;
     torch::AlpakaModel model_;
+    const int warmupIterations_ = 3;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
