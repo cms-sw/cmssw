@@ -46,17 +46,16 @@ void OmtfEmulation::beginRun(edm::Run const& run,
   omtfProcPhase2.beginRun(edmParameterSet, eventSetup);
 }
 
-OmtfEmulation::OmtfOutptutCollections OmtfEmulation::run(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
-  LogTrace("l1tOmtfEventPrint") << "\n" << __FUNCTION__ << ":" << __LINE__ << " iEvent " << iEvent.id().event() << endl;
+OmtfEmulation::OmtfOutputCollections OmtfEmulation::run(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   inputMaker->loadAndFilterDigis(iEvent);
 
   for (auto& obs : observers) {
     obs->observeEventBegin(iEvent);
   }
 
-  OmtfOutptutCollections outptuCollections;
-  outptuCollections.constrSaMuons = std::make_unique<l1t::SAMuonCollection>();
-  outptuCollections.unConstrSaMuons = std::make_unique<l1t::SAMuonCollection>();
+  OmtfOutputCollections outputCollections;
+  outputCollections.constrSaMuons = std::make_unique<l1t::SAMuonCollection>();
+  outputCollections.unConstrSaMuons = std::make_unique<l1t::SAMuonCollection>();
 
   FinalMuons allFinalMuons;
 
@@ -69,12 +68,12 @@ OmtfEmulation::OmtfOutptutCollections OmtfEmulation::run(const edm::Event& iEven
 
         l1t::SAMuonCollection constrSAMuons = omtfProcPhase2.getSAMuons(iProcessor, mtfType, finalMuons, true);
         for (auto& saMuon : constrSAMuons) {
-          outptuCollections.constrSaMuons->push_back(saMuon);
+          outputCollections.constrSaMuons->push_back(saMuon);
         }
 
         l1t::SAMuonCollection unconstrSAMuons = omtfProcPhase2.getSAMuons(iProcessor, mtfType, finalMuons, false);
         for (auto& saMuon : unconstrSAMuons) {
-          outptuCollections.unConstrSaMuons->push_back(saMuon);
+          outputCollections.unConstrSaMuons->push_back(saMuon);
         }
 
         allFinalMuons.insert(allFinalMuons.end(), finalMuons.begin(), finalMuons.end());
@@ -88,5 +87,5 @@ OmtfEmulation::OmtfOutptutCollections OmtfEmulation::run(const edm::Event& iEven
     obs->observeEventEnd(iEvent, allFinalMuons);
   }
 
-  return outptuCollections;
+  return outputCollections;
 }
