@@ -10,32 +10,4 @@
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 #include "SimDataFormats/TruthInfo/interface/LogicalGraphHitIndex.h"
 
-namespace {
-  struct dictionary {
-    TruthGraph rawTruthGraph;
-    edm::Wrapper<TruthGraph> wrappedRawTruthGraph;
-
-    TruthGraph::NodeRef rawTruthNodeRef;
-    std::vector<TruthGraph::NodeRef> rawTruthNodeRefs;
-
-    truth::Graph logicalTruthGraph;
-    edm::Wrapper<truth::Graph> wrappedLogicalTruthGraph;
-
-    truth::Checkpoint logicalTruthCheckpoint;
-    std::vector<truth::Checkpoint> logicalTruthCheckpoints;
-
-    truth::ParticleData logicalTruthParticleData;
-    std::vector<truth::ParticleData> logicalTruthParticleDataVec;
-
-    truth::VertexData logicalTruthVertexData;
-    std::vector<truth::VertexData> logicalTruthVertexDataVec;
-
-    truth::LogicalGraphHitIndex logicalGraphHitIndex;
-    truth::LogicalGraphHitIndex::Hit logicalGraphHitIndexHit;
-    std::vector<truth::LogicalGraphHitIndex::Hit> logicalGraphHitIndexHitVector;
-    truth::LogicalGraphHitIndex::Channel logicalGraphHitIndexChannel;
-    std::vector<truth::LogicalGraphHitIndex::Channel> logicalGraphHitIndexChannelVector;
-  };
-}  // namespace
-
 #endif
