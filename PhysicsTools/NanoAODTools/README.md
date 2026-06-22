@@ -9,10 +9,12 @@ It can be used directly from a CMSSW environment, or checked out as a standalone
 
 Originally imported to CMSSW from [cms-nanoAOD/nanoAOD-tools](https://github.com/cms-nanoAOD/nanoAOD-tools) (post-processor functionality only).
 
+A library of **modules to apply corrections using official correctionlib JSONS** is maintained in [cms-cat/nanoAOD-tools-modules](https://github.com/cms-cat/nanoAOD-tools-modules).
+
 ## Usage in CMSSW
 No specific setup is needed.
 
-It is recommended to add external modules (eg correction modules) in separate packages.
+It is recommended to add external modules (in particular correction modules, see above) in separate packages. 
 
 ## Standalone usage (without CMSSW): checkout instructions
 
