@@ -13,7 +13,8 @@ seed's hard-scatter co-products, which decay channel to keep, ...):
   resonance    s-channel Z / Drell-Yan / Z' / W     seed = the resonance, ISR context
   vbf          VBF / t-channel Higgs               seed = Higgs + keepProductionSiblings
   ggf          ggF / s-channel single Higgs        seed = Higgs
-  top          ttbar / single top / t'              seed = top + keepProductionSiblings
+  top          ttbar / t' pair production           seed = both tops + keepProductionSiblings
+  singletop    single top (t-channel / tW / s-chan) seed = top + production partner (VBF-like)
   heavyflavor  B / charmonium / bottomonium         seed by heavy-flavor content
   full         QCD / MinBias / NuGun / unknown      keep the whole graph (no selection)
 
@@ -29,7 +30,7 @@ makeTruthGallery.sh).
 import re
 
 # The seven archetype names, in resolution priority is handled by RULES below.
-TEMPLATE_NAMES = ("gun", "resonance", "vbf", "ggf", "top", "heavyflavor", "full")
+TEMPLATE_NAMES = ("gun", "resonance", "vbf", "ggf", "top", "singletop", "heavyflavor", "full")
 
 
 def _selection(seedPdgIds=(0,),
@@ -68,10 +69,13 @@ TEMPLATES = {
     "vbf": lambda: _selection(seedPdgIds=(25,), seedParentDepth=1, keepProductionSiblings=True),
     # ggF / s-channel single Higgs: 2->1, no production-vertex co-products.
     "ggf": lambda: _selection(seedPdgIds=(25,), seedParentDepth=1),
-    # Top: seed both tops; their decay chains are the signal. Keep the hard-scatter
-    # co-products too (keepProductionSiblings), so single top retains the recoiling
-    # W / spectator quark (t+W, t+q) and ttbar the associated production system.
+    # Top pair (ttbar / t'): seed both tops; their decay chains are the signal,
+    # with keepProductionSiblings retaining the gg/qq -> tt production system.
     "top": lambda: _selection(seedPdgIds=(6, -6), seedParentDepth=1, keepProductionSiblings=True),
+    # Single top: one top plus its production partner is the point of interest -
+    # the t-channel spectator quark, the tW associated W, the s-channel b. VBF-like,
+    # keepProductionSiblings pulls in t+q / t+W rather than (just) the top decay.
+    "singletop": lambda: _selection(seedPdgIds=(6, -6), seedParentDepth=1, keepProductionSiblings=True),
     # Heavy flavor: seed by hadron flavor content (5=b, 4=c); the hadron is the root.
     "heavyflavor": lambda: _selection(seedPdgIds=(), seedHadronFlavors=(5,), seedParentDepth=0,
                                       keepStableSpectators=False),
@@ -116,7 +120,8 @@ def gunSeed(name):
 _RULES = (
     (r"(?i)(^|[_-])vbf|qqtohto", "vbf", {}),
     (r"(?i)h125gggluonfusion|glugluh(to)?|(^|[_-])ggh", "ggf", {}),
-    (r"(?i)ttbar|^tt(to|_)|tprimeto|(^|[_-])singletop|(^|[_-])st_t", "top", {}),
+    (r"(?i)(^|[_-])singletop|(^|[_-])st_t", "singletop", {}),
+    (r"(?i)ttbar|^tt(to|_)|tprimeto", "top", {}),
     (r"(?i)wprime|wto[lme]nu|(^|[_-])wto", "resonance", dict(seedPdgIds=[24, -24])),
     (r"(?i)zmm|zptomm", "resonance", dict(seedPdgIds=[23, 32], decayPdgIdGroups=[[13, -13]])),
     (r"(?i)zee|zptoee", "resonance", dict(seedPdgIds=[23, 32], decayPdgIdGroups=[[11, -11]])),

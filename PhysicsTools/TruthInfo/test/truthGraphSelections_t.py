@@ -17,6 +17,8 @@ class TestTruthGraphSelections(unittest.TestCase):
             "SingleElectronPt35": ("gun", [11, -11]),
             "TenTau_E_15_500": ("gun", [15, -15]),
             "TTbar_14TeV_TuneCP5_cfi": ("top", [6, -6]),
+            "TTto2L2Nu_Powheg_Pythia8_cfi": ("top", [6, -6]),
+            "ST_tch_top_14TeV_TuneCP5_cfi": ("singletop", [6, -6]),
             "DYToLL_M-50_14TeV": ("resonance", [23, 32]),
             "DYToTauTau_M-50_14TeV": ("resonance", [23, 32]),
             "ZMM_14": ("resonance", [23, 32]),
@@ -46,9 +48,13 @@ class TestTruthGraphSelections(unittest.TestCase):
         # ggF gg->H is 2->1: no production-vertex co-products.
         self.assertFalse(tgs.selectionForFragment("H125GGgluonfusion")["keepProductionSiblings"])
 
-    def test_top_keeps_production_siblings(self):
-        # Single top must keep the recoiling W / spectator quark (t+W, t+q); ttbar
-        # keeps its associated production system. Both resolve to the 'top' preset.
+    def test_top_and_singletop_keep_production_siblings(self):
+        # Single top routes to its own 'singletop' preset and keeps the recoiling
+        # W / spectator quark (t+W, t+q); ttbar keeps its associated production
+        # system on 'top'. Both seed the top quark.
+        self.assertEqual(tgs.templateForFragment("ST_tch_top")[0], "singletop")
+        self.assertEqual(tgs.templateForFragment("TTbar_14TeV")[0], "top")
+        self.assertEqual(tgs.selectionForFragment("ST_tch_top")["seedPdgIds"], [6, -6])
         self.assertTrue(tgs.selectionForFragment("ST_tch_top")["keepProductionSiblings"])
         self.assertTrue(tgs.selectionForFragment("TTbar_14TeV")["keepProductionSiblings"])
 
