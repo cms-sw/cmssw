@@ -20,15 +20,25 @@ def split_remote(local_process, args, cpp_names_of_the_products):
     modules_to_offload.extend(m for m in modules_to_run_on_both if m not in modules_to_offload)
 
     analyzer = ModuleDependencyAnalyzer(local_process)
-
-    groups = analyzer.dependency_groups(modules_to_offload)
-    grouped_deps = analyzer.grouped_external_dependencies(groups)
+    groups = analyzer.dependency_groups_except(modules_to_offload, modules_to_run_on_both)
+    grouped_deps = analyzer.grouped_external_dependencies(groups, exceptions=modules_to_run_on_both)
     producer_to_groups = analyzer.producer_to_groups(grouped_deps)
+    
+    first_dependency_in_a_group = [""]*len(groups)
+    for i,group in enumerate(groups):
+        elem = group[0]
+        j=0
+        while elem in modules_to_run_on_both and j<len(group):
+            elem=group[j]
+            j+=1
+        first_dependency_in_a_group[i]=elem
+        
 
     if args.verbose:
         print("Dependency groups: ", groups)
         print("Grouped depencencies:", grouped_deps )
         print("Local producers - dependant groups correspondance: ", producer_to_groups)
+        print("Modules to insert path state capture before for each group: ", first_dependency_in_a_group)
 
     # get products whose data needs to be sent, excluding modules without local dependencies and modules which should run on both processes
     modules_to_send, modules_without_local_deps = analyzer.modules_to_send_back_by_group(groups, modules_to_run_on_both)
@@ -66,9 +76,9 @@ def split_remote(local_process, args, cpp_names_of_the_products):
     # send the data needed by offloaded modules from local to remote
     remote_filters_by_group = [[] for _ in range(len(groups))]
     for local_dependency, group_indices in producer_to_groups.items():
-        first_dependency_in_a_group = [groups[i][0] for i in group_indices]
+        markers = [first_dependency_in_a_group[i] for i in group_indices]
         capture_name = f"activityCaptureBefore{local_dependency.title()}"
-        insert_path_state_capture_before(local_process, first_modules_in_a_group=first_dependency_in_a_group, capture_name=capture_name)
+        insert_path_state_capture_before(local_process, first_modules_in_a_group=markers, capture_name=capture_name)
         sender = create_sender(
                 module_name=local_dependency,
                 products=cpp_names_of_the_products[local_dependency],
@@ -103,7 +113,7 @@ def split_remote(local_process, args, cpp_names_of_the_products):
         if len(group_indices) >= 2:
             for group_idx in group_indices:
                 capture_name=f"activityCaptureBefore{args.remote_process_name.title()}Group{group_idx}"
-                insert_path_state_capture_before(local_process, first_modules_in_a_group=[groups[group_idx][0]], capture_name=capture_name)
+                insert_path_state_capture_before(local_process, first_modules_in_a_group=[first_dependency_in_a_group[group_idx]], capture_name=capture_name)
                 sender = create_sender(
                         module_name=local_dependency,
                         products=[],
@@ -200,8 +210,10 @@ def split_remote(local_process, args, cpp_names_of_the_products):
  
     # add all needed paths to the process and schedule them
     for i, group in enumerate(groups):
-        make_new_path(local_process, f"Offload{args.remote_process_name.title()}Group{i}", mpi_path_modules_local[i])
-        make_new_path(remote_process, f"MPIPathGroup{i}", mpi_path_modules_remote[i])
+        if mpi_path_modules_local[i]:
+            make_new_path(local_process, f"Offload{args.remote_process_name.title()}Group{i}", mpi_path_modules_local[i])
+        if mpi_path_modules_remote[i]:
+            make_new_path(remote_process, f"MPIPathGroup{i}", mpi_path_modules_remote[i])
         make_new_path(remote_process, args.remote_process_name.title()+"RemoteOffloadedSequence"+str(i), remote_filters_by_group[i]+group+per_group_remote_captures[i])
     
     if args.verbose:
