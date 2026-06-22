@@ -49,9 +49,9 @@ TICL_FEVT.outputCommands.extend(TICL_RECO.outputCommands)
 TICL_FEVTHLT = cms.PSet(
     outputCommands = cms.untracked.vstring(
             ['keep *_hltPfTICL_*_*',
-            'keep *_hltTiclTrackstersCLUE3D*_*_*',
-            'keep *_hltTiclTracksterLinks*_*_*',
-            'keep *_hltTiclCandidate_*_*']
+             'keep *_hltTiclTrackstersCLUE3D*_*_*',
+             'keep *_hltTiclTracksterLinks*_*_*',
+             'keep *_hltTiclCandidate_*_*']
     )
 )
 TICL_FEVTHLT.outputCommands.extend(TICL_FEVT.outputCommands)
