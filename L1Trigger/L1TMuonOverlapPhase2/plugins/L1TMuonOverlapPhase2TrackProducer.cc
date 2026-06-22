@@ -64,10 +64,10 @@ void L1TMuonOverlapPhase2TrackProducer::beginRun(edm::Run const& run, edm::Event
 void L1TMuonOverlapPhase2TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup) {
   std::ostringstream str;
 
-  auto outptuCollections = omtfEmulation.run(iEvent, evSetup);
+  auto outputCollections = omtfEmulation.run(iEvent, evSetup);
 
-  iEvent.put(std::move(outptuCollections.constrSaMuons), "OMTFconstr");
-  iEvent.put(std::move(outptuCollections.unConstrSaMuons), "OMTFunconstr");
+  iEvent.put(std::move(outputCollections.constrSaMuons), "OMTFconstr");
+  iEvent.put(std::move(outputCollections.unConstrSaMuons), "OMTFunconstr");
 }
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////

@@ -38,6 +38,7 @@ public:
     pdfVal = 0;
     valid = false;
     pdfBin = 0;
+    deltaPhi = 0;
     layer = 0;
     stub.reset();
   }
