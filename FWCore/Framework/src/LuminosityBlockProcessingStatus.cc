@@ -27,8 +27,6 @@ namespace edm {
   bool LuminosityBlockProcessingStatus::shouldStreamStartLumi() {
     if (haveStartedNextLumiOrEndedRun())
       return false;
-
-    ++nStreamsProcessingLumi_;
     return true;
   }
 

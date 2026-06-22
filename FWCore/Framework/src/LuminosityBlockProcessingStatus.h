@@ -67,6 +67,7 @@ namespace edm {
     void globalEndRunHolderDoneWaiting() { globalEndRunHolder_.doneWaiting(std::exception_ptr{}); }
 
     bool shouldStreamStartLumi();
+    void setNStreamsThatMayProcessLumi(unsigned int iNLumis) { nStreamsProcessingLumi_ = iNLumis; }
     bool streamFinishedLumi() { return 0 == (--nStreamsProcessingLumi_); }
 
     //These should only be called while in the InputSource's task queue

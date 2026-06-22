@@ -1605,6 +1605,7 @@ namespace edm {
                                      LuminosityBlockAuxiliary const& iLumiAux,
                                      WaitingTaskHolder iNextTask) {
     auto lbp = principalCache_.getAvailableLumiPrincipalPtr();
+    assert(lbp);
     iLumiStatus->setLumiPrincipal(lbp);
     //A new file may have been opened since the last use of the LuminosityBlock
     lbp->possiblyUpdateAfterAddition(preg());
@@ -1700,12 +1701,15 @@ namespace edm {
 
                     EventSetupImpl const& es = status->eventSetupImpl();
                     using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>;
-
+                    status->setNStreamsThatMayProcessLumi(preallocations_.numberOfStreams());
                     streamQueuesInserter_.push(*holder.group(), [this, status, holder, &es]() mutable {
                       for (auto i : std::views::iota(0U, preallocations_.numberOfStreams())) {
                         streamQueues_[i].push(*holder.group(), [this, i, status, holder, &es]() mutable {
-                          //the status increments the number of streams here if successful
                           if (!status->shouldStreamStartLumi()) {
+                            if (status->streamFinishedLumi()) {
+                              //we didn't start, but we are the last to decrement so have to start job
+                              globalEndLumiAsync(holder, std::move(status));
+                            }
                             return;
                           }
                           streamQueues_[i].pause();
@@ -1820,7 +1824,6 @@ namespace edm {
       ServiceRegistry::Operate operate(serviceToken_);
 
       std::exception_ptr ptr;
-
       // Try hard to clean up resources so the
       // process can terminate in a controlled
       // fashion even after exceptions have occurred.
