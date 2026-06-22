@@ -5,11 +5,11 @@
  *      Author: kbunkow
  */
 
-#include <L1Trigger/L1TMuonOverlapPhase2/interface/NNRegression.h>
+#include "L1Trigger/L1TMuonOverlapPhase2/interface/NNRegression.h"
 #include "L1Trigger/L1TMuonOverlapPhase2/interface/OmtfProcessorPhase2.h"
 
 OmtfProcessorPhase2::OmtfProcessorPhase2(const OMTFConfiguration* omtfConfig,
-                                         const unique_ptr<IProcessorEmulator>& omtfProc)
+                                         const std::unique_ptr<IProcessorEmulator>& omtfProc)
     : omtfConfig(omtfConfig), omtfProc(omtfProc) {
   //TODO read from configuration
   //.....................rrrrrrrrccccdddddd
@@ -226,6 +226,7 @@ l1t::SAMuonCollection OmtfProcessorPhase2::getSAMuons(unsigned int iProcessor,
     int charge = finalMuon->getSign();
 
     unsigned int pt = constrainedPt ? finalMuon->getPtGmt() : finalMuon->getPtUnconstrGmt();
+    //Set d0 to the default values of zero (0) and a large number (50), respectively for constrained and unconstrained reconstruction, until the d0 measurement is implemented
     int d0 = constrainedPt ? 0 : 50 / Phase2L1GMT::LSBSAd0;  //finalMuon->getHwD0();
     if (constrainedPt == false) {
       //this assures the collection of constrained and unconstrained muons have the same size
