@@ -301,8 +301,8 @@ void Phase2L1TGMTFwdMuonTranslator::fillDescriptions(edm::ConfigurationDescripti
   // Input Collections
   desc.add<edm::InputTag>("stubs", edm::InputTag("gmtStubs"));
   desc.add<edm::InputTag>("emtfTracks", edm::InputTag("simEmtfDigisPhase2"));
-  desc.add<edm::InputTag>("omtfConstrSAMs", edm::InputTag("simOmtfPhase2Digis", "constrSAMs"));
-  desc.add<edm::InputTag>("omtfUnconstrSAMs", edm::InputTag("simOmtfPhase2Digis", "unconstrSAMs"));
+  desc.add<edm::InputTag>("omtfConstrSAMs", edm::InputTag("simOmtfPhase2Digis", "constrCands"));
+  desc.add<edm::InputTag>("omtfUnconstrSAMs", edm::InputTag("simOmtfPhase2Digis", "unconstrCands"));
 
   // Register
   descriptions.add("Phase2L1TGMTFwdMuonTranslator", desc);
