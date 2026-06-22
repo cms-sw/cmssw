@@ -391,14 +391,14 @@ public:
                                          {edm::InputTag("HGCalRecHit", "HGCEERecHits", "RECO"),
                                           edm::InputTag("HGCalRecHit", "HGCHEFRecHits", "RECO"),
                                           edm::InputTag("HGCalRecHit", "HGCHEBRecHits", "RECO")})
-        ->setComment("HGCRecHit collections, in the same order used by SimHitToRecHitMapProducer");
+        ->setComment("HGCRecHit collections, in the same order used by DetIdToRecHitMapProducer");
 
     desc.add<std::vector<edm::InputTag>>("pfRecHits",
                                          {edm::InputTag("particleFlowRecHitECAL", "Cleaned", "RECO"),
                                           edm::InputTag("particleFlowRecHitHBHE", "Cleaned", "RECO"),
                                           edm::InputTag("particleFlowRecHitHF", "Cleaned", "RECO"),
                                           edm::InputTag("particleFlowRecHitHO", "Cleaned", "RECO")})
-        ->setComment("PFRecHit collections, in the same order used by SimHitToRecHitMapProducer");
+        ->setComment("PFRecHit collections, in the same order used by DetIdToRecHitMapProducer");
 
     desc.add<std::string>("dotFile", "truthlogicalgraph.dot");
 
@@ -856,7 +856,7 @@ private:
   std::vector<float> collectRecHitEnergies(const edm::Event& evt) const {
     std::vector<float> energies;
 
-    // This must match the global recHit indexing order used by SimHitToRecHitMapProducer:
+    // This must match the global recHit indexing order used by DetIdToRecHitMapProducer:
     // first all HGCRecHit collections, then all PFRecHit collections.
     for (uint32_t i = 0; i < hgcalRecHitTokens_.size(); ++i) {
       edm::Handle<HGCRecHitCollection> handle;

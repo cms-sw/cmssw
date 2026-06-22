@@ -31,8 +31,8 @@ truthLogicalGraphProducer = cms.EDProducer(
     ),
 )
 
-simHitToRecHitMapProducer = cms.EDProducer(
-    "SimHitToRecHitMapProducer",
+detIdToRecHitMapProducer = cms.EDProducer(
+    "DetIdToRecHitMapProducer",
 
     hgcalRecHits = cms.VInputTag(
         cms.InputTag("HGCalRecHit", "HGCEERecHits"),
@@ -53,7 +53,7 @@ truthLogicalGraphHitIndexProducer = cms.EDProducer(
 
     src = cms.InputTag("truthLogicalGraphProducer"),
     rawSrc = cms.InputTag("truthGraphProducer"),
-    recHitMap = cms.InputTag("simHitToRecHitMapProducer"),
+    recHitMap = cms.InputTag("detIdToRecHitMapProducer"),
 
     simHitCollections = cms.VInputTag(
         cms.InputTag("g4SimHits", "HGCHitsEE"),
@@ -113,6 +113,6 @@ truthLogicalGraphDumper = cms.EDAnalyzer(
 truthGraphPrevalidation = cms.Sequence(
     truthGraphProducer
   + truthLogicalGraphProducer
-  + simHitToRecHitMapProducer
+  + detIdToRecHitMapProducer
   + truthLogicalGraphHitIndexProducer
 )

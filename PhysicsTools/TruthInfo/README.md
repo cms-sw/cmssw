@@ -38,10 +38,10 @@ validation, pileup, and the roadmap. The MkDocs sources are in the companion
    subgraph view + `BranchSelector` selection.
 3. **`truth::LogicalGraphHitIndex`** — per-particle direct vs aggregated subgraph
    calorimeter and tracker hits, built by `LogicalGraphHitIndexProducer` (with the
-   DetId→RecHit map from `SimHitToRecHitMapProducer`).
+   DetId→RecHit map from `DetIdToRecHitMapProducer`).
 
 Producer chain (order matters): `truthGraphProducer` → `truthLogicalGraphProducer`
-→ `simHitToRecHitMapProducer` → `truthLogicalGraphHitIndexProducer`. In a release
+→ `detIdToRecHitMapProducer` → `truthLogicalGraphHitIndexProducer`. In a release
 job these run behind the `enableTruth` process modifier (the
 `truthGraphPrevalidation` sequence in `Validation/Configuration`).
 

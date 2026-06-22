@@ -22,10 +22,10 @@
 
 #include "SimCalorimetry/HGCalAssociatorProducers/interface/DetIdRecHitMap.h"
 
-class SimHitToRecHitMapProducer : public edm::global::EDProducer<> {
+class DetIdToRecHitMapProducer : public edm::global::EDProducer<> {
 public:
-  explicit SimHitToRecHitMapProducer(edm::ParameterSet const& ps);
-  ~SimHitToRecHitMapProducer() override = default;
+  explicit DetIdToRecHitMapProducer(edm::ParameterSet const& ps);
+  ~DetIdToRecHitMapProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -36,7 +36,7 @@ private:
   std::vector<edm::EDGetTokenT<reco::PFRecHitCollection>> pfRecHitTokens_;
 };
 
-SimHitToRecHitMapProducer::SimHitToRecHitMapProducer(edm::ParameterSet const& ps) {
+DetIdToRecHitMapProducer::DetIdToRecHitMapProducer(edm::ParameterSet const& ps) {
   const auto hgcalTags = ps.getParameter<std::vector<edm::InputTag>>("hgcalRecHits");
   const auto pfTags = ps.getParameter<std::vector<edm::InputTag>>("pfRecHits");
 
@@ -53,7 +53,7 @@ SimHitToRecHitMapProducer::SimHitToRecHitMapProducer(edm::ParameterSet const& ps
   produces<hgcal::DetIdRecHitMap>();
 }
 
-void SimHitToRecHitMapProducer::produce(edm::StreamID, edm::Event& event, edm::EventSetup const&) const {
+void DetIdToRecHitMapProducer::produce(edm::StreamID, edm::Event& event, edm::EventSetup const&) const {
   auto output = std::make_unique<hgcal::DetIdRecHitMap>();
 
   uint32_t globalRecHitIndex = 0;
@@ -63,7 +63,7 @@ void SimHitToRecHitMapProducer::produce(edm::StreamID, edm::Event& event, edm::E
     event.getByToken(token, handle);
 
     if (!handle.isValid()) {
-      edm::LogWarning("SimHitToRecHitMapProducer") << "Missing HGCRecHitCollection. Skipping it.";
+      edm::LogWarning("DetIdToRecHitMapProducer") << "Missing HGCRecHitCollection. Skipping it.";
       continue;
     }
 
@@ -80,7 +80,7 @@ void SimHitToRecHitMapProducer::produce(edm::StreamID, edm::Event& event, edm::E
     event.getByToken(token, handle);
 
     if (!handle.isValid()) {
-      edm::LogWarning("SimHitToRecHitMapProducer") << "Missing reco::PFRecHitCollection. Skipping it.";
+      edm::LogWarning("DetIdToRecHitMapProducer") << "Missing reco::PFRecHitCollection. Skipping it.";
       continue;
     }
 
@@ -96,7 +96,7 @@ void SimHitToRecHitMapProducer::produce(edm::StreamID, edm::Event& event, edm::E
   // inserted index, as the previous hash-map build did).
   const uint32_t duplicates = output->finalize();
   if (duplicates > 0) {
-    edm::LogWarning("SimHitToRecHitMapProducer")
+    edm::LogWarning("DetIdToRecHitMapProducer")
         << duplicates
         << " duplicate DetId(s) across the configured RecHit collections; kept the first recHit index for each "
            "(check for overlapping inputs, e.g. HGCalRecHit mixed with particleFlowRecHitHGC).";
@@ -105,7 +105,7 @@ void SimHitToRecHitMapProducer::produce(edm::StreamID, edm::Event& event, edm::E
   event.put(std::move(output));
 }
 
-void SimHitToRecHitMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void DetIdToRecHitMapProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add<std::vector<edm::InputTag>>("hgcalRecHits",
@@ -121,4 +121,4 @@ void SimHitToRecHitMapProducer::fillDescriptions(edm::ConfigurationDescriptions&
   descriptions.addWithDefaultLabel(desc);
 }
 
-DEFINE_FWK_MODULE(SimHitToRecHitMapProducer);
+DEFINE_FWK_MODULE(DetIdToRecHitMapProducer);

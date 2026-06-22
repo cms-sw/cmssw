@@ -16,7 +16,7 @@ namespace hgcal {
   // Maps DetId::rawId() to a global recHit index.
   //
   // The index is defined by the concatenation order used by
-  // SimHitToRecHitMapProducer:
+  // DetIdToRecHitMapProducer:
   //
   //   1. all configured HGCRecHitCollection inputs, in cfg order
   //   2. all configured reco::PFRecHitCollection inputs, in cfg order
