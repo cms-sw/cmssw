@@ -93,3 +93,6 @@ from RecoMET.METFilters.BadPFMuonDzFilter_cfi import *
 
 #HF noise filter 
 from RecoMET.METFilters.hfNoisyHitsFilter_cfi import *
+
+## Hcal Digi filters, for HBHE
+from RecoMET.METFilters.hcalBadDigiFilter_cfi import *
