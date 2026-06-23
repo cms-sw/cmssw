@@ -26,6 +26,7 @@
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
+#include "FWCore/Concurrency/interface/SpinLock.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
 // forward declarations
@@ -67,8 +68,7 @@ namespace edm {
     void globalEndRunHolderDoneWaiting() { globalEndRunHolder_.doneWaiting(std::exception_ptr{}); }
 
     bool shouldStreamStartLumi();
-    void setNStreamsThatMayProcessLumi(unsigned int iNLumis) { nStreamsProcessingLumi_ = iNLumis; }
-    bool streamFinishedLumi() { return 0 == (--nStreamsProcessingLumi_); }
+    bool streamFinishedLumi();
 
     //These should only be called while in the InputSource's task queue
     void updateLastTimestamp(edm::Timestamp const& iTime) {
@@ -108,10 +108,12 @@ namespace edm {
     WaitingTaskList endIOVWaitingTasks_;
     edm::WaitingTaskHolder globalEndRunHolder_;
     edm::Timestamp endTime_{};
-    std::atomic<unsigned int> nStreamsProcessingLumi_{0};
+    unsigned int nStreamsProcessingLumi_{0};  //guarded by spinlock
     std::atomic<EventProcessingState> eventProcessingState_{EventProcessingState::kProcessing};
     std::atomic<char> endTimeSetStatus_{0};
+    edm::SpinLock checkShouldStartStream_;
     std::atomic<bool> startedNextLumiOrEndedRun_{false};
+    std::atomic<bool> aStreamStartedLumi_{false};
     bool globalBeginSucceeded_{false};
     bool cleaningUpAfterException_{false};
   };

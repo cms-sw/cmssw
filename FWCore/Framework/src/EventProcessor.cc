@@ -1701,15 +1701,10 @@ namespace edm {
 
                     EventSetupImpl const& es = status->eventSetupImpl();
                     using Traits = OccurrenceTraits<LuminosityBlockPrincipal, TransitionActionStreamBegin>;
-                    status->setNStreamsThatMayProcessLumi(preallocations_.numberOfStreams());
                     streamQueuesInserter_.push(*holder.group(), [this, status, holder, &es]() mutable {
                       for (auto i : std::views::iota(0U, preallocations_.numberOfStreams())) {
                         streamQueues_[i].push(*holder.group(), [this, i, status, holder, &es]() mutable {
                           if (!status->shouldStreamStartLumi()) {
-                            if (status->streamFinishedLumi()) {
-                              //we didn't start, but we are the last to decrement so have to start job
-                              globalEndLumiAsync(holder, std::move(status));
-                            }
                             return;
                           }
                           streamQueues_[i].pause();
