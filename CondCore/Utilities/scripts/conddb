@@ -22,6 +22,8 @@ import sqlalchemy
 import json
 
 from prettytable import PrettyTable
+from sqlalchemy import event
+
 
 import CondCore.Utilities.conddblib as conddb
 import CondCore.Utilities.cond2xml as cond2xml
@@ -54,6 +56,42 @@ db_credential_type_map = { db_key_credential_type_code : ("DB KEY",'K'),
                            db_session_credential_type_code : ("DB SESSION",'S'), }
 
 # Utility functions
+query_logger = logging.getLogger("sqlalchemy.query_time")
+query_logger.setLevel(logging.DEBUG)
+query_logger.propagate = True
+
+
+def install_query_timer(engine, label="db"):
+    if getattr(engine, "_query_timer_installed", False):
+        return engine._query_timer_stats
+
+    stats = {
+        "label": label,
+        "query_count": 0,
+        "total_query_time": 0.0,
+    }
+
+    engine._query_timer_stats = stats
+    engine._query_timer_installed = True
+
+    @event.listens_for(engine, "before_cursor_execute")
+    def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+        conn.info.setdefault("query_start_time", []).append(time.perf_counter())
+
+    @event.listens_for(engine, "after_cursor_execute")
+    def after_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+        total = time.perf_counter() - conn.info["query_start_time"].pop()
+
+        stats["query_count"] += 1
+        stats["total_query_time"] += total
+
+        query_logger.debug(
+            "[%s] Query complete in %.6f seconds",
+            label,
+            total,
+        )
+
+    return stats
 
 def _rawdict(obj):
     return dict([(str(column), getattr(obj, column)) for column in obj.__table__.columns.keys()])
@@ -1658,417 +1696,486 @@ def _update_tag_log(session,the_tag,the_timestamp,the_action,note):
     TagLog = session.get_dbtype(conddb.TagLog)
     session.add(TagLog(tag_name=the_tag, event_time=the_timestamp, action=the_action, user_name=userName, host_name=hostName, command=userCommand, user_text=note ))
 
-def _copy_payload( args, copyTime, session1, session2, payloadHash, payloadSerializationVersionMap=None ):
+
+def _copy_payload(args, copyTime, session1, session2, payloadHash, payloadSerializationVersionMap=None):
+    function_start = time.perf_counter()
+
     Payload1 = session1.get_dbtype(conddb.Payload)
     Payload2 = session2.get_dbtype(conddb.Payload)
+
     ret = False
     streamerInfo = None
-    if _exists(session2, Payload2.hash, payloadHash):
-        logging.debug('Skipping copy of payload %s to %s since it already exists...', str_db_object(args.db, payloadHash), str_db_object(args.destdb, payloadHash))
+
+    try:
+        payload_exists = _exists(session2, Payload2.hash, payloadHash)
+
+        if payload_exists:
+            logging.debug(
+                'Skipping copy of payload %s to %s since it already exists...',
+                str_db_object(args.db, payloadHash),
+                str_db_object(args.destdb, payloadHash)
+            )
+
+            if payloadSerializationVersionMap is not None:
+                q = session1.query(Payload1.streamer_info).filter(Payload1.hash == payloadHash).one()
+                streamerInfo = q[0]
+
+        else:
+            logging.info(
+                'Copying payload %s to %s ...',
+                str_db_object(args.db, payloadHash),
+                str_db_object(args.destdb, payloadHash)
+            )
+
+            q = session1.query(Payload1).filter(Payload1.hash == payloadHash).one()
+
+            payload = _rawdict(q)
+            payload['insertion_time'] = copyTime
+            streamerInfo = payload['streamer_info']
+
+            session2.add(Payload2(**payload))
+            ret = True
+
         if payloadSerializationVersionMap is not None:
-            q = session1.query(Payload1.streamer_info).filter(Payload1.hash == payloadHash).one()
-            streamerInfo = q[0]
-    else:
-        logging.info('Copying payload %s to %s ...', str_db_object(args.db, payloadHash), str_db_object(args.destdb, payloadHash))
-        q = session1.query(Payload1).filter(Payload1.hash == payloadHash).one()
-        payload = _rawdict(q)
-        payload['insertion_time'] = copyTime
-        streamerInfo = payload['streamer_info']
-        session2.add(Payload2(** payload))
-        ret = True
-    if payloadSerializationVersionMap is not None:
-        serialization_version = serialization_metadata.get_boost_version_from_streamer_info(streamerInfo)
-        payloadSerializationVersionMap[payloadHash] = serialization_version
-    return ret
+            serialization_version = serialization_metadata.get_boost_version_from_streamer_info(streamerInfo)
+            payloadSerializationVersionMap[payloadHash] = serialization_version
+
+        return ret
+
+    finally:
+        total_time = time.perf_counter() - function_start
+
+        query_logger.debug(
+            "_copy_payload payload=%s total_time=%.6fs",
+            payloadHash,
+            total_time
+        )
 
 def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, toIOV=None, timeMap=None):
+    function_start = time.perf_counter()
+    
     ret = True
-    Tag1 = session1.get_dbtype(conddb.Tag)
-    Tag2 = session2.get_dbtype(conddb.Tag)
-    # Copy the tag
-    obj = session1.query(Tag1.name, Tag1.time_type, Tag1.object_type, Tag1.synchronization, Tag1.description, Tag1.last_validated_time, Tag1.end_of_validity, Tag1.insertion_time, Tag1.modification_time).filter(Tag1.name == first).first()
-    tag = _rawdict_selection(obj)
-    tag['name'] = second
 
-    if session2._is_sqlite:
-        if tag['end_of_validity'] >= maxSince:
-            tag['end_of_validity'] = -1
-    else:
-        if tag['end_of_validity'] == -1 or tag['end_of_validity'] > maxSince :
-            tag['end_of_validity'] = maxSince
-    tag['insertion_time'] = copyTime
-    tag['modification_time'] = copyTime
+    try:
+        Tag1 = session1.get_dbtype(conddb.Tag)
+        Tag2 = session2.get_dbtype(conddb.Tag)
+        # Copy the tag
+        obj = session1.query(Tag1.name, Tag1.time_type, Tag1.object_type, Tag1.synchronization, Tag1.description, Tag1.last_validated_time, Tag1.end_of_validity, Tag1.insertion_time, Tag1.modification_time).filter(Tag1.name == first).first()
+        tag = _rawdict_selection(obj)
+        tag['name'] = second
 
-    if timeMap:
-        fromIOV = timeMap['from'][ tag['time_type'].lower().strip() ]
-        toIOV   = timeMap['to'] [ tag['time_type'].lower().strip() ]
-
-    if fromIOV is None:
-        fromIOV = 1
-
-    selectStr = 'from since=%s' %fromIOV
-    if toIOV is not None:
-        selectStr += ' to since=%s' %toIOV
-    if args.snapshot is not None:
-        selectStr += ' selecting insertion time < %s' %args.snapshot
-
-    logging.info('Copying tag %s to %s %s', str_db_object(args.db, first), str_db_object(args.destdb, second), selectStr)
-    query = session2.query(Tag2.time_type, Tag2.object_type, Tag2.synchronization).filter(Tag2.name == second )
-    destExists = False
-    destPayloadType = None
-    destTimeType = None
-    destSynchro = None
-    for t in query:
-        destExists = True
-        t = _rawdict_selection(t)
-        destPayloadType = t['object_type']
-        destTimeType = t['time_type']
-        destSynchro = t['synchronization']
-    if args.toTimestamp:
-        if tag['time_type'] == 'Time':
-            logging.info('Source Tag timeType=Time. Ignoring request of conversion to Timestamp')
-            args.toTimestamp = False
+        if session2._is_sqlite:
+            if tag['end_of_validity'] >= maxSince:
+                tag['end_of_validity'] = -1
         else:
-            if not tag['time_type']=='Run':
-                logging.error('Conversion from %s to Timestamp is not supported.' %tag['time_type'])
-                raise Exception("Cannot execute the copy.")
-    if args.toRun:
-        if tag['time_type'] == 'Run':
-            logging.info('Source Tag timeType=Run. Ignoring request of conversion to Run')
-            args.toRun = False
-        else:
-            if not tag['time_type']=='Time':
-                logging.error('Conversion from %s to Run is not supported.' %tag['time_type'])
-                raise Exception("Cannot execute the copy.")
-    if destExists:
-        logging.warning('Destination tag "%s" already exists.' %second )
-        if destPayloadType != tag['object_type']:
-            logging.error('Cannot copy iovs from tag %s (object type: %s) to tag %s (object type: %s), since the object types are different.' %(first,tag['object_type'],second,destPayloadType))
-            raise Exception('Object type mismatch, bailing out.')
-        destTimeTypeOk = (destTimeType == tag['time_type'])
-        if args.toTimestamp:
-            if not destTimeType=='Time':
-                logging.error('TimeType of target tag %s does not allow conversion to Time.' %destTimeType)
-                raise Exception("Cannot execute the copy.")
-            else:
-                destTimeTypeOk = True
-        if args.toRun:
-            if not destTimeType=='Run':
-                logging.error('TimeType of target tag %s does not allow conversion to Run.' %destTimeType)
-                raise Exception("Cannot execute the copy.")
-            else:
-                destTimeTypeOk = True
-        if not destTimeTypeOk:
-            logging.error('Cannot copy iovs from tag %s (time type: %s) to tag %s (time type: %s), since the time types are different.' %(first,tag['time_type'],second,destTimeType))
-            raise Exception('Time type mismatch, bailing out.')
-        if not args.yes:
-            output(args, 'Confirm the update of the existing tag "%s" in %s [n]?' %(second,args.destdb), newline=False)
-            if input().lower() not in ['y', 'yes']:
-                raise Exception('Aborted by the user.')
-    else:
-        destSynchro = 'any'
-        if args.toTimestamp:
-            tag['time_type'] = 'Time'
-        if args.toRun:
-            tag['time_type'] = 'Run'
-        destTimeType = tag['time_type']
-        dest = Tag2(**tag)
-        dest.synchronization = destSynchro
-        session2.add(dest)
-        note = args.note 
-        if note is None or note=='' or note==' ':
-            note = '-'
-        _update_tag_log(session2,second,copyTime,'New tag created.',note)
+            if tag['end_of_validity'] == -1 or tag['end_of_validity'] > maxSince :
+                tag['end_of_validity'] = maxSince
+        tag['insertion_time'] = copyTime
+        tag['modification_time'] = copyTime
 
-    IOV1 = session1.get_dbtype(conddb.IOV)
-    IOV2 = session2.get_dbtype(conddb.IOV)
-    # Get the closest smaller IOV than the given starting point (args.from),
-    # since it may lie between two sinces. For the ending point (args.to)
-    # is not needed, since the last IOV of a tag always goes up to infinity.
-    # In the case where the starting point is before any IOV, we do not need
-    # to cut the query anyway.
-    prev_iov = None
-    if fromIOV is not None:
-        fromVal = fromIOV
-        logging.debug("checking FROM %s of type %s for tag: %s "  % (fromIOV, tag['time_type'], str(tag['name'])) )
-        prev_iov = session1.query(IOV1.since).\
-            filter(
-                IOV1.tag_name == first,
-                IOV1.since <= fromVal,
-                _inserted_before(IOV1,args.snapshot)
-            ).\
-            order_by(IOV1.since.desc()).\
-            limit(1).\
-            scalar()
-        logging.debug('The closest smaller IOV than the given starting one (--from %s) is %s...', fromVal, prev_iov)
+        if timeMap:
+            fromIOV = timeMap['from'][ tag['time_type'].lower().strip() ]
+            toIOV   = timeMap['to'] [ tag['time_type'].lower().strip() ]
 
-    # Select the input IOVs
-    query = session1.query(IOV1).filter(IOV1.tag_name == first)
-    if prev_iov is not None:
-        query = query.filter(IOV1.since >= prev_iov)
-    if toIOV is not None:
-        query = query.filter(IOV1.since <= toIOV)
-    query = query.filter(_inserted_before(IOV1,args.snapshot))
-    iovs = {}
-    hashes = set()
-    payloadSerializationVersionMap = None
-    if session2.is_oracle:
-        payloadSerializationVersionMap = {}
-    if not args.o2oTest:
-        query = query.order_by(IOV1.since, IOV1.insertion_time.desc())
-        for iov in query:
-            iov = _rawdict(iov)
+        if fromIOV is None:
+            fromIOV = 1
 
-            # In the first IOV of the tag we need to use the starting point given
-            # by the user, instead of the one coming from the source tag; unless
-            # the starting point was before any IOV: in such case, up to the first
-            # IOV there is no payload, so we use the one from the source tag.
-            # Note that we need to replace it for every insertion time (since
-            # the primary key is (since, insertion_time).
-            if prev_iov is not None and iov['since'] == prev_iov:
-                iov['since'] = fromIOV
-            since = iov['since']
-
-            if since not in iovs.keys():
-            # for a given since, only the most recent will be added.
-                iovs[since] = iov['payload_hash']
-            else:
-                logging.warning('Skipping older iov with since %s...', since)
-        sourceIovSize = len(iovs)
-        logging.info('Selected %s source iov(s)' %sourceIovSize)
-        if not args.nosynchro:
-            # synchronize lower boundary when required
-            logging.info('Destination tag synchronization is %s' %destSynchro)
-            policy_type = _get_synchro_policy( destSynchro )
-            synchro_policy = policy_type( session1, session2, destTimeType, second )
-            ret, iovs = synchro_policy.validate( iovs )
-        if args.toTimestamp:
-            converter = run_to_timestamp( conddb.getSessionOnMasterDB( session1, session2 ) )
-            iovs = converter.convertIovs( iovs )
-        if args.toRun:
-            converter = timestamp_to_run( conddb.getSessionOnMasterDB( session1, session2 ) )
-            iovs = converter.convertIovs( iovs )            
-        # making the list of the payloads to export...         
-        for since in iovs.keys():
-            hashes.add( iovs[since] )
-
-        logging.debug('%s iov(s) to copy with %s payload(s)' %(len(iovs),len(hashes)))
-    else:
-        maxTime = _get_maxtime_for_boost_version( session1, tag['time_type'], cond2xml.boost_version_for_this_release())
-        logging.info('Max time for boost version %s is %s'%(cond2xml.boost_version_for_this_release(),maxTime))
-        query = query.order_by(IOV1.since.desc(), IOV1.insertion_time.desc())
-        lastIov = None
-        prevIovSince = None
-        targetIovSince = None
-        targetIovPayload = None
-        for iov in query:
-            iov = _rawdict(iov)
-            since = iov['since'] 
-            if lastIov is None:
-                lastIov = since
-            else:
-                if lastIov != since:
-                    if targetIovSince is None:
-                        targetIovSince = since
-                    if since < maxTime: 
-                        targetIovPayload = iov['payload_hash']
-                        prevIovSince = since
-                        break
-        iovs[prevIovSince]=targetIovPayload
-        iovs[targetIovSince]=targetIovPayload
-        hashes.add(targetIovPayload)
-    logfun = logging.info 
-    if len(iovs)==0:
-        logfun = logging.warning
-    logfun('Found %s iovs and %s referenced payloads to copy.',len(iovs), len(hashes))
-    # Copy the payloads referenced in the selected iovs
-    np = 0
-    for h in hashes:
-        if _copy_payload( args, copyTime, session1, session2, h, payloadSerializationVersionMap ):
-            np += 1
-    if not np==0:
-        logging.info('%s payload(s) copied.',np)
-    # Calculate if extra iovs are needed - for the override mode ( they will have already their payloads copied )                        
-    extraiovs = {}
-    if args.override:
-        # the interval to be overriden is defined by the new iov set boundaries, 
-        # or by the actual user-provided boundaries - when available 
-        l_b = sorted(iovs.keys())[0]
-        h_b = sorted(iovs.keys())[-1]
-        if fromIOV is not None:
-            l_b = fromIOV
+        selectStr = 'from since=%s' %fromIOV
         if toIOV is not None:
-            h_b = toIOV
-        query = session2.query(IOV2).filter(IOV2.tag_name == second)
-        query = query.filter(IOV2.since >= l_b).filter(IOV2.since <= h_b)
-        query = query.order_by(IOV2.since, IOV2.insertion_time.desc())
-        for iov in query:
-            iov = _rawdict(iov)
-            since = iov['since']
-            if since not in extraiovs.keys() and since not in iovs.keys():
-                for newSince in sorted(iovs.keys(),reverse=True):
-                    if newSince < since:
-                        extraiovs[since] = iovs[newSince]
-                        break
+            selectStr += ' to since=%s' %toIOV
+        if args.snapshot is not None:
+            selectStr += ' selecting insertion time < %s' %args.snapshot
 
-    # re-assemble the 2 iov set
-    if len(extraiovs):
-        logging.info('Adding %s extra iovs for overriding the existing ones with the payloads from the new iovs...' %len(extraiovs))
-    if args.override and len(extraiovs)==0:
-        logging.info('No extra iovs required for overriding the existing ones with the new ones.')
-    for k,v in extraiovs.items():
-        iovs[k] = extraiovs[k]
+        logging.info('Copying tag %s to %s %s', str_db_object(args.db, first), str_db_object(args.destdb, second), selectStr)
+        query = session2.query(Tag2.time_type, Tag2.object_type, Tag2.synchronization).filter(Tag2.name == second )
+        destExists = False
+        destPayloadType = None
+        destTimeType = None
+        destSynchro = None
+        for t in query:
+            destExists = True
+            t = _rawdict_selection(t)
+            destPayloadType = t['object_type']
+            destTimeType = t['time_type']
+            destSynchro = t['synchronization']
+        if args.toTimestamp:
+            if tag['time_type'] == 'Time':
+                logging.info('Source Tag timeType=Time. Ignoring request of conversion to Timestamp')
+                args.toTimestamp = False
+            else:
+                if not tag['time_type']=='Run':
+                    logging.error('Conversion from %s to Timestamp is not supported.' %tag['time_type'])
+                    raise Exception("Cannot execute the copy.")
+        if args.toRun:
+            if tag['time_type'] == 'Run':
+                logging.info('Source Tag timeType=Run. Ignoring request of conversion to Run')
+                args.toRun = False
+            else:
+                if not tag['time_type']=='Time':
+                    logging.error('Conversion from %s to Run is not supported.' %tag['time_type'])
+                    raise Exception("Cannot execute the copy.")
+        if destExists:
+            logging.warning('Destination tag "%s" already exists.' %second )
+            if destPayloadType != tag['object_type']:
+                logging.error('Cannot copy iovs from tag %s (object type: %s) to tag %s (object type: %s), since the object types are different.' %(first,tag['object_type'],second,destPayloadType))
+                raise Exception('Object type mismatch, bailing out.')
+            destTimeTypeOk = (destTimeType == tag['time_type'])
+            if args.toTimestamp:
+                if not destTimeType=='Time':
+                    logging.error('TimeType of target tag %s does not allow conversion to Time.' %destTimeType)
+                    raise Exception("Cannot execute the copy.")
+                else:
+                    destTimeTypeOk = True
+            if args.toRun:
+                if not destTimeType=='Run':
+                    logging.error('TimeType of target tag %s does not allow conversion to Run.' %destTimeType)
+                    raise Exception("Cannot execute the copy.")
+                else:
+                    destTimeTypeOk = True
+            if not destTimeTypeOk:
+                logging.error('Cannot copy iovs from tag %s (time type: %s) to tag %s (time type: %s), since the time types are different.' %(first,tag['time_type'],second,destTimeType))
+                raise Exception('Time type mismatch, bailing out.')
+            if not args.yes:
+                output(args, 'Confirm the update of the existing tag "%s" in %s [n]?' %(second,args.destdb), newline=False)
+                if input().lower() not in ['y', 'yes']:
+                    raise Exception('Aborted by the user.')
+        else:
+            destSynchro = 'any'
+            if args.toTimestamp:
+                tag['time_type'] = 'Time'
+            if args.toRun:
+                tag['time_type'] = 'Run'
+            destTimeType = tag['time_type']
+            dest = Tag2(**tag)
+            dest.synchronization = destSynchro
+            session2.add(dest)
+            note = args.note 
+            if note is None or note=='' or note==' ':
+                note = '-'
+            _update_tag_log(session2,second,copyTime,'New tag created.',note)
 
-    # Copy the set of IOVs collected        
-    session2.merge(Tag2(name=second,modification_time=copyTime))
-    minIov = None
-    if payloadSerializationVersionMap is not None:
-        BoostRunMap = session2.get_dbtype(conddb.BoostRunMap)
-        q = session2.query(BoostRunMap).order_by(BoostRunMap.run_number)
-        boost_run_map = []
-        for r in q:
-            r = _rawdict(r)
-            boost_run_map.append( (r['run_number'],r['run_start_time'],r['boost_version']) )
-        TagMetadata = session2.get_dbtype(conddb.TagMetadata)
-        q = session2.query(TagMetadata.min_serialization_v,TagMetadata.min_since).filter(TagMetadata.tag_name == second )
-        tagBoostVersion = None
-        for r in q:
-            tagBoostVersion = r[0]
-            minIov = r[1]
-            break
-        currentTagBoostVersion = tagBoostVersion
-        if len(iovs)>0 and destExists and currentTagBoostVersion is None:
-            raise Exception('No information found about the destination tag boost version. Cannot proceed with the update.')
-        logging.info('Destination tag boost version is %s' %currentTagBoostVersion )
-    niovs = 0
-    for k,v in iovs.items():
-        logging.debug('Copying IOV %s -> %s...', k, v)
-        session2.add(IOV2(tag_name=second,since=k,insertion_time=copyTime,payload_hash=v))
-        niovs += 1
+        IOV1 = session1.get_dbtype(conddb.IOV)
+        IOV2 = session2.get_dbtype(conddb.IOV)
+        # Get the closest smaller IOV than the given starting point (args.from),
+        # since it may lie between two sinces. For the ending point (args.to)
+        # is not needed, since the last IOV of a tag always goes up to infinity.
+        # In the case where the starting point is before any IOV, we do not need
+        # to cut the query anyway.
+        prev_iov = None
+        if fromIOV is not None:
+            fromVal = fromIOV
+            logging.debug("checking FROM %s of type %s for tag: %s "  % (fromIOV, tag['time_type'], str(tag['name'])) )
+            prev_iov = session1.query(IOV1.since).\
+                filter(
+                    IOV1.tag_name == first,
+                    IOV1.since <= fromVal,
+                    _inserted_before(IOV1,args.snapshot)
+                ).\
+                order_by(IOV1.since.desc()).\
+                limit(1).\
+                scalar()
+            logging.debug('The closest smaller IOV than the given starting one (--from %s) is %s...', fromVal, prev_iov)
+
+        # Select the input IOVs
+        query = session1.query(IOV1).filter(IOV1.tag_name == first)
+        if prev_iov is not None:
+            query = query.filter(IOV1.since >= prev_iov)
+        if toIOV is not None:
+            query = query.filter(IOV1.since <= toIOV)
+        query = query.filter(_inserted_before(IOV1,args.snapshot))
+        iovs = {}
+        hashes = set()
+        payloadSerializationVersionMap = None
+        if session2.is_oracle:
+            payloadSerializationVersionMap = {}
+        if not args.o2oTest:
+            query = query.order_by(IOV1.since, IOV1.insertion_time.desc())
+            for iov in query:
+                iov = _rawdict(iov)
+
+                # In the first IOV of the tag we need to use the starting point given
+                # by the user, instead of the one coming from the source tag; unless
+                # the starting point was before any IOV: in such case, up to the first
+                # IOV there is no payload, so we use the one from the source tag.
+                # Note that we need to replace it for every insertion time (since
+                # the primary key is (since, insertion_time).
+                if prev_iov is not None and iov['since'] == prev_iov:
+                    iov['since'] = fromIOV
+                since = iov['since']
+
+                if since not in iovs.keys():
+                # for a given since, only the most recent will be added.
+                    iovs[since] = iov['payload_hash']
+                else:
+                    logging.warning('Skipping older iov with since %s...', since)
+            sourceIovSize = len(iovs)
+            logging.info('Selected %s source iov(s)' %sourceIovSize)
+            if not args.nosynchro:
+                # synchronize lower boundary when required
+                logging.info('Destination tag synchronization is %s' %destSynchro)
+                policy_type = _get_synchro_policy( destSynchro )
+                synchro_policy = policy_type( session1, session2, destTimeType, second )
+                ret, iovs = synchro_policy.validate( iovs )
+            if args.toTimestamp:
+                converter = run_to_timestamp( conddb.getSessionOnMasterDB( session1, session2 ) )
+                iovs = converter.convertIovs( iovs )
+            if args.toRun:
+                converter = timestamp_to_run( conddb.getSessionOnMasterDB( session1, session2 ) )
+                iovs = converter.convertIovs( iovs )            
+            # making the list of the payloads to export...         
+            for since in iovs.keys():
+                hashes.add( iovs[since] )
+
+            logging.debug('%s iov(s) to copy with %s payload(s)' %(len(iovs),len(hashes)))
+        else:
+            maxTime = _get_maxtime_for_boost_version( session1, tag['time_type'], cond2xml.boost_version_for_this_release())
+            logging.info('Max time for boost version %s is %s'%(cond2xml.boost_version_for_this_release(),maxTime))
+            query = query.order_by(IOV1.since.desc(), IOV1.insertion_time.desc())
+            lastIov = None
+            prevIovSince = None
+            targetIovSince = None
+            targetIovPayload = None
+            for iov in query:
+                iov = _rawdict(iov)
+                since = iov['since'] 
+                if lastIov is None:
+                    lastIov = since
+                else:
+                    if lastIov != since:
+                        if targetIovSince is None:
+                            targetIovSince = since
+                        if since < maxTime: 
+                            targetIovPayload = iov['payload_hash']
+                            prevIovSince = since
+                            break
+            iovs[prevIovSince]=targetIovPayload
+            iovs[targetIovSince]=targetIovPayload
+            hashes.add(targetIovPayload)
+        logfun = logging.info 
+        if len(iovs)==0:
+            logfun = logging.warning
+        logfun('Found %s iovs and %s referenced payloads to copy.',len(iovs), len(hashes))
+        # Copy the payloads referenced in the selected iovs
+        np = 0
+        for h in hashes:
+            if _copy_payload( args, copyTime, session1, session2, h, payloadSerializationVersionMap ):
+                np += 1
+        if not np==0:
+            logging.info('%s payload(s) copied.',np)
+        # Calculate if extra iovs are needed - for the override mode ( they will have already their payloads copied )                        
+        extraiovs = {}
+        if args.override:
+            # the interval to be overriden is defined by the new iov set boundaries, 
+            # or by the actual user-provided boundaries - when available 
+            l_b = sorted(iovs.keys())[0]
+            h_b = sorted(iovs.keys())[-1]
+            if fromIOV is not None:
+                l_b = fromIOV
+            if toIOV is not None:
+                h_b = toIOV
+            query = session2.query(IOV2).filter(IOV2.tag_name == second)
+            query = query.filter(IOV2.since >= l_b).filter(IOV2.since <= h_b)
+            query = query.order_by(IOV2.since, IOV2.insertion_time.desc())
+            for iov in query:
+                iov = _rawdict(iov)
+                since = iov['since']
+                if since not in extraiovs.keys() and since not in iovs.keys():
+                    for newSince in sorted(iovs.keys(),reverse=True):
+                        if newSince < since:
+                            extraiovs[since] = iovs[newSince]
+                            break
+
+        # re-assemble the 2 iov set
+        if len(extraiovs):
+            logging.info('Adding %s extra iovs for overriding the existing ones with the payloads from the new iovs...' %len(extraiovs))
+        if args.override and len(extraiovs)==0:
+            logging.info('No extra iovs required for overriding the existing ones with the new ones.')
+        for k,v in extraiovs.items():
+            iovs[k] = extraiovs[k]
+
+        # Copy the set of IOVs collected        
+        session2.merge(Tag2(name=second,modification_time=copyTime))
+        minIov = None
         if payloadSerializationVersionMap is not None:
-            if v in payloadSerializationVersionMap.keys():
-                tagBoostVersion = serialization_metadata.do_update_tag_boost_version(tagBoostVersion,minIov,payloadSerializationVersionMap[v], k, destTimeType, boost_run_map )
-        if minIov is None or k<minIov:
-            minIov = k
-    if not niovs==0:
-        logging.info('%s iov(s) copied.',niovs)
-        merge = False
-        if payloadSerializationVersionMap is not None and tagBoostVersion is not None:
-            if currentTagBoostVersion is not None: 
-                if currentTagBoostVersion != tagBoostVersion:
-                    if serialization_metadata.cmp_boost_version( currentTagBoostVersion, tagBoostVersion )<0:
-                        if destSynchro not in ['any','validation']:
-                            raise Exception('Cannot update existing tag %s, since the minimum serialization version %s is not compatible with the combined boost version of the payloads to add (%s)' %(second,currentTagBoostVersion,tagBoostVersion))
-            merge = True
-        if merge:
-            session2.merge(TagMetadata(tag_name=second,min_serialization_v=tagBoostVersion,min_since=minIov,modification_time=copyTime))
-            logging.info('Destination Tag boost Version set to %s ( was %s )' %(tagBoostVersion,currentTagBoostVersion) )
-    return ret, niovs
+            BoostRunMap = session2.get_dbtype(conddb.BoostRunMap)
+            q = session2.query(BoostRunMap).order_by(BoostRunMap.run_number)
+            boost_run_map = []
+            for r in q:
+                r = _rawdict(r)
+                boost_run_map.append( (r['run_number'],r['run_start_time'],r['boost_version']) )
+            TagMetadata = session2.get_dbtype(conddb.TagMetadata)
+            q = session2.query(TagMetadata.min_serialization_v,TagMetadata.min_since).filter(TagMetadata.tag_name == second )
+            tagBoostVersion = None
+            for r in q:
+                tagBoostVersion = r[0]
+                minIov = r[1]
+                break
+            currentTagBoostVersion = tagBoostVersion
+            if len(iovs)>0 and destExists and currentTagBoostVersion is None:
+                raise Exception('No information found about the destination tag boost version. Cannot proceed with the update.')
+            logging.info('Destination tag boost version is %s' %currentTagBoostVersion )
+        niovs = 0
+        for k,v in iovs.items():
+            logging.debug('Copying IOV %s -> %s...', k, v)
+            session2.add(IOV2(tag_name=second,since=k,insertion_time=copyTime,payload_hash=v))
+            niovs += 1
+            if payloadSerializationVersionMap is not None:
+                if v in payloadSerializationVersionMap.keys():
+                    tagBoostVersion = serialization_metadata.do_update_tag_boost_version(tagBoostVersion,minIov,payloadSerializationVersionMap[v], k, destTimeType, boost_run_map )
+            if minIov is None or k<minIov:
+                minIov = k
+        if not niovs==0:
+            logging.info('%s iov(s) copied.',niovs)
+            merge = False
+            if payloadSerializationVersionMap is not None and tagBoostVersion is not None:
+                if currentTagBoostVersion is not None: 
+                    if currentTagBoostVersion != tagBoostVersion:
+                        if serialization_metadata.cmp_boost_version( currentTagBoostVersion, tagBoostVersion )<0:
+                            if destSynchro not in ['any','validation']:
+                                raise Exception('Cannot update existing tag %s, since the minimum serialization version %s is not compatible with the combined boost version of the payloads to add (%s)' %(second,currentTagBoostVersion,tagBoostVersion))
+                merge = True
+            if merge:
+                session2.merge(TagMetadata(tag_name=second,min_serialization_v=tagBoostVersion,min_since=minIov,modification_time=copyTime))
+                logging.info('Destination Tag boost Version set to %s ( was %s )' %(tagBoostVersion,currentTagBoostVersion) )
+        return ret, niovs
+
+    finally:
+        total_time = time.perf_counter() - function_start
+
+        query_logger.debug(
+            "_copy_tag tag=%s total_time=%.6fs, num_payloads=%d, num_iovs=%d",
+            str_db_object(args.db, first),
+            total_time,
+            np,
+            niovs
+        )
 
 def copy(args):
-    _check_same_object(args)
+    try:
+        _check_same_object(args)
 
-    connection1, connection2 = connect(args, read_only=False)
-    session1, session2 = connection1.session(), connection2.session()
+        connection1, connection2 = connect(args, read_only=False)
+        session1, session2 = connection1.session(), connection2.session()
 
-    args.type, args.first = _identify_object(session1, args.type, args.first)
+        engine1 = session1.get_bind()
+        engine2 = session2.get_bind()
 
-    copyTime = datetime.datetime.utcnow()
+        stats1 = install_query_timer(engine1, label="source")
+        stats2 = install_query_timer(engine2, label="destination")
 
-    if args.type == 'payload':
-        if args.second is None:
-            args.second = args.first
-        elif args.first != args.second:
-            raise Exception('Cannot modify the name (hash) of a payload while copying, since the hash has to match the data.')
+        args.type, args.first = _identify_object(session1, args.type, args.first)
 
-        if _copy_payload( args, copyTime, session1, session2, args.first ):
+        copyTime = datetime.datetime.utcnow()
+
+        if args.type == 'payload':
+            if args.second is None:
+                args.second = args.first
+            elif args.first != args.second:
+                raise Exception('Cannot modify the name (hash) of a payload while copying, since the hash has to match the data.')
+
+            if _copy_payload( args, copyTime, session1, session2, args.first ):
+                _confirm_changes(args)
+                session2.commit()
+
+        elif args.type == 'tag':
+            if args.second is None:
+                args.second = args.first
+            if args.force and args.yes:
+                if args.note is None or args.note=='' or args.note==' ':
+                    raise Exception('Cannot run in force edit mode without to provide a non-empty editing note.')
+            if args.o2oTest:
+                if args.to is not None or getattr(args, 'from') is not None or args.snapshot is not None or args.override or args.nosynchro or args.toTimestamp:
+                    raise Exception('Cannot execute the copy for the o2o test with the options from, to, override, nosynchro, snapshot or toTimestamp.')
+
+            try:
+                ret, niovs = _copy_tag(args, copyTime, session1, session2, args.first, args.second, getattr(args, 'from'), args.to)
+                if niovs!=0:
+                    _confirm_changes(args)
+                    note = args.note
+                    if args.force and args.note is None:
+                        note = _get_user_note(args,'Force edit mode requires an editing note to be provided: ')
+                    if note is None or note=='' or note==' ':
+                        note = '-'
+                    _update_tag_log(session2,args.second,copyTime,'%s iov(s) inserted.' %niovs,note)
+                    session2.commit()
+                    logging.info('Changes committed.')
+            except Exception as e:
+                session2.rollback()
+                logging.error('Changes rolled back.')
+                raise e
+
+            return 1*( not ret )
+
+
+        elif args.type == 'gt':
+            if args.second is None:
+                args.second = args.first
+
+            # 'from' is a keyword!
+            session = conddb.getSessionOnMasterDB( session1, session2 )
+            timeMap = convertRunToTimes(session, getattr(args, 'from'), args.to)
+
+            logging.info('Copying global tag %s to %s ...', str_db_object(args.db, args.first), str_db_object(args.destdb, args.second))
+
+            GlobalTag1 = session1.get_dbtype(conddb.GlobalTag)
+            GlobalTag2 = session2.get_dbtype(conddb.GlobalTag)
+            GlobalTagMap1 = session1.get_dbtype(conddb.GlobalTagMap)
+            GlobalTagMap2 = session2.get_dbtype(conddb.GlobalTagMap)
+            # Prepare the copy
+            global_tag = _rawdict(session1.query(GlobalTag1).get(args.first))
+            global_tag['name'] = args.second
+            global_tag['validity'] = 0 # XXX: SQLite does not work with long ints...
+            if args.snapshot is None:
+                args.snapshot = str(global_tag['snapshot_time'].strftime("%Y-%m-%d %H:%M:%S"))
+            else:
+                global_tag['snapshot_time'] = _parse_timestamp(args.snapshot)
+            if _exists(session2, GlobalTag2.name, args.second):
+                raise Exception('A GlobalTag named "%s" already exists in %s' %(args.second, args.destdb))   
+
+            # Copy the tags of the global tag
+            logging.debug('Creating query for tag %s filter %s ...', GlobalTagMap1.tag_name, args.first)
+            query = session1.query(GlobalTagMap1.tag_name).filter(GlobalTagMap1.global_tag_name == args.first).distinct()
+            copyTime = datetime.datetime.utcnow()
+            for (tag, ) in query:
+                logging.debug('Copying tag %s to %s for GT %s ...', str_db_object(args.db, tag), str_db_object(args.destdb, tag), str_db_object(args.destdb, args.second))
+                Tag2 = session2.get_dbtype(conddb.Tag)
+                if _exists(session2, Tag2.name, tag ):
+                    logging.warn('Skipping copy of tag %s to %s since it already exists... *The tags may differ in content*', str_db_object(args.db, tag), str_db_object(args.destdb, tag))
+                else:
+                    logging.debug('going to copy tag %s to %s ... ', str_db_object(args.db, tag), str_db_object(args.destdb, tag))
+                    _copy_tag(args, copyTime, session1, session2, tag, tag, timeMap=timeMap)
+
+            # Copy the global tag
+            global_tag2 = GlobalTag2(**global_tag)
+            copyTime = datetime.datetime.utcnow()
+            global_tag2.snapshot_time = copyTime
+            global_tag2.insertion_time = copyTime
+            session2.add(global_tag2)
+            # Copy the map of the global tag
+            query = session1.query(GlobalTagMap1).filter(GlobalTagMap1.global_tag_name == args.first)
+            for map_ in query:
+                logging.debug('Copying global tag map %s -> %s ...', str_record(map_.record, map_.label), map_.tag_name)
+                map_ = _rawdict(map_)
+                map_['global_tag_name'] = args.second
+                session2.add(GlobalTagMap2(**map_))
+
             _confirm_changes(args)
             session2.commit()
 
-    elif args.type == 'tag':
-        if args.second is None:
-            args.second = args.first
-        if args.force and args.yes:
-            if args.note is None or args.note=='' or args.note==' ':
-                raise Exception('Cannot run in force edit mode without to provide a non-empty editing note.')
-        if args.o2oTest:
-            if args.to is not None or getattr(args, 'from') is not None or args.snapshot is not None or args.override or args.nosynchro or args.toTimestamp:
-                raise Exception('Cannot execute the copy for the o2o test with the options from, to, override, nosynchro, snapshot or toTimestamp.')
+    finally:
 
-        try:
-            ret, niovs = _copy_tag(args, copyTime, session1, session2, args.first, args.second, getattr(args, 'from'), args.to)
-            if niovs!=0:
-                _confirm_changes(args)
-                note = args.note
-                if args.force and args.note is None:
-                    note = _get_user_note(args,'Force edit mode requires an editing note to be provided: ')
-                if note is None or note=='' or note==' ':
-                    note = '-'
-                _update_tag_log(session2,args.second,copyTime,'%s iov(s) inserted.' %niovs,note)
-                session2.commit()
-                logging.info('Changes committed.')
-        except Exception as e:
-            session2.rollback()
-            logging.error('Changes rolled back.')
-            raise e
+        query_logger.debug(
+            "Source DB session during Copy Executed %s queries in a total %.6f seconds",
+            stats1["query_count"],
+            stats1["total_query_time"],
+        )
 
-        return 1*( not ret )
+        query_logger.debug(
+            "Destination DB session during Copy Executed %s queries in a total %.6f seconds",
+            stats2["query_count"],
+            stats2["total_query_time"],
+        )
 
-
-    elif args.type == 'gt':
-        if args.second is None:
-            args.second = args.first
-
-        # 'from' is a keyword!
-        session = conddb.getSessionOnMasterDB( session1, session2 )
-        timeMap = convertRunToTimes(session, getattr(args, 'from'), args.to)
-
-        logging.info('Copying global tag %s to %s ...', str_db_object(args.db, args.first), str_db_object(args.destdb, args.second))
-
-        GlobalTag1 = session1.get_dbtype(conddb.GlobalTag)
-        GlobalTag2 = session2.get_dbtype(conddb.GlobalTag)
-        GlobalTagMap1 = session1.get_dbtype(conddb.GlobalTagMap)
-        GlobalTagMap2 = session2.get_dbtype(conddb.GlobalTagMap)
-        # Prepare the copy
-        global_tag = _rawdict(session1.query(GlobalTag1).get(args.first))
-        global_tag['name'] = args.second
-        global_tag['validity'] = 0 # XXX: SQLite does not work with long ints...
-        if args.snapshot is None:
-            args.snapshot = str(global_tag['snapshot_time'].strftime("%Y-%m-%d %H:%M:%S"))
-        else:
-            global_tag['snapshot_time'] = _parse_timestamp(args.snapshot)
-        if _exists(session2, GlobalTag2.name, args.second):
-            raise Exception('A GlobalTag named "%s" already exists in %s' %(args.second, args.destdb))   
-
-        # Copy the tags of the global tag
-        logging.debug('Creating query for tag %s filter %s ...', GlobalTagMap1.tag_name, args.first)
-        query = session1.query(GlobalTagMap1.tag_name).filter(GlobalTagMap1.global_tag_name == args.first).distinct()
-        copyTime = datetime.datetime.utcnow()
-        for (tag, ) in query:
-            logging.debug('Copying tag %s to %s for GT %s ...', str_db_object(args.db, tag), str_db_object(args.destdb, tag), str_db_object(args.destdb, args.second))
-            Tag2 = session2.get_dbtype(conddb.Tag)
-            if _exists(session2, Tag2.name, tag ):
-                logging.warn('Skipping copy of tag %s to %s since it already exists... *The tags may differ in content*', str_db_object(args.db, tag), str_db_object(args.destdb, tag))
-            else:
-                logging.debug('going to copy tag %s to %s ... ', str_db_object(args.db, tag), str_db_object(args.destdb, tag))
-                _copy_tag(args, copyTime, session1, session2, tag, tag, timeMap=timeMap)
-
-        # Copy the global tag
-        global_tag2 = GlobalTag2(**global_tag)
-        copyTime = datetime.datetime.utcnow()
-        global_tag2.snapshot_time = copyTime
-        global_tag2.insertion_time = copyTime
-        session2.add(global_tag2)
-        # Copy the map of the global tag
-        query = session1.query(GlobalTagMap1).filter(GlobalTagMap1.global_tag_name == args.first)
-        for map_ in query:
-            logging.debug('Copying global tag map %s -> %s ...', str_record(map_.record, map_.label), map_.tag_name)
-            map_ = _rawdict(map_)
-            map_['global_tag_name'] = args.second
-            session2.add(GlobalTagMap2(**map_))
-
-        _confirm_changes(args)
-        session2.commit()
         return 0
 
 
@@ -3003,4 +3110,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
 
