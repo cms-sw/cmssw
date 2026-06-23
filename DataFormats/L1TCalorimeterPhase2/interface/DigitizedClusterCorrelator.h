@@ -93,8 +93,9 @@ namespace l1tp2 {
       // LSB_ETA/2 is to add half a crystal width to get the center of the crystal in eta
       float realEta() const {
         float tmpeta = (eta() * LSB_ETA) + (LSB_ETA / 2);
-        if ((spare() & 0x4) == 0)
+        if ((spare() & 0x4) == 0) {
           tmpeta = -((eta() * LSB_ETA) + (LSB_ETA / 2));
+        }
         return tmpeta;
       }
 
@@ -116,14 +117,14 @@ namespace l1tp2 {
           tmpphi += PHI_RANGE_PER_SLR_DEGREES / 2;
         }
         int thisPhi = (tmpphi + (offset_tower * n_crystals_in_tower));
-        if (thisPhi > 180)
+        if (thisPhi > 180) {
           thisPhi -= 360;  // range between -180 to 180 degrees
-
+        }
         // LSB_PHI/2 is to add half a crystal width to get the center of the crystal in phi
         return (float)((thisPhi * LSB_PHI) + (LSB_PHI / 2));
       }
     };
-  };  // namespace io_v1
+  }  // namespace io_v1
   using DigitizedClusterCorrelator = io_v1::DigitizedClusterCorrelator;
   // Collection typedef
   typedef std::vector<l1tp2::DigitizedClusterCorrelator> DigitizedClusterCorrelatorCollection;

@@ -32,7 +32,7 @@ public:
   explicit L1TCtL2EgProducer(const edm::ParameterSet &);
   ~L1TCtL2EgProducer() override;
 
-  edm::ParameterSetDescription getParameterSetDescription();
+  static edm::ParameterSetDescription getParameterSetDescription();
 
 private:
   ap_uint<64> encodeLayer1(const EGIsoObjEmu &egiso) const;

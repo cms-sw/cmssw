@@ -1061,7 +1061,9 @@ namespace p2eg {
 
     inline int standaloneWP() const { return (is_iso && is_ss); }
     inline int looseL1TkMatchWP() const { return (is_looseTkiso && is_looseTkss); }
-    inline int photonWP() const { return (is_looseTkiso && is_looseTkss); }  // NOTE: NO PHOTON WP
+    inline int photonWP() const {
+      return (is_looseTkiso && is_looseTkss);
+    }  // NOTE: NO PHOTON WP, we use tghe Tkloose WP for the menu
 
     inline int passesShowerShape() const { return is_ss; }
 
@@ -1296,7 +1298,7 @@ namespace p2eg {
       ap_int<7> phivscenter = 0;
       for (int i = 0; i < 6; i++) {
         float tempDifference = p2eg::deltaPhiInDegrees(clusterRealPhiAsDegree, regionCentersInDegrees[i]);
-        if (abs(tempDifference) < PHI_RANGE_PER_SLR_DEGREES / 4) {
+        if (std::abs(tempDifference) < PHI_RANGE_PER_SLR_DEGREES / 4) {
           phivscenter = 0x7F & int(std::floor(tempDifference));  // greatest integer <= x
           cardnumber = int(i / 2);
         }

@@ -46,16 +46,16 @@ void Phase2L1CaloToCorrelatorTM18::produce(edm::Event& evt, const edm::EventSetu
   std::unique_ptr<l1tp2::DigitizedCaloToCorrelatorCollectionTM18> caloCandsTM18(
       std::make_unique<l1tp2::DigitizedCaloToCorrelatorCollectionTM18>());
 
-  int EM_SLR1_POS_OFFSET = 1;
-  int EM_SLR1_NEG_OFFSET = 17;
-  int PF_SLR1_POS_OFFSET = 33;
-  int PF_SLR1_NEG_OFFSET = 57;
-  int EM_SLR3_POS_OFFSET = 82;
-  int EM_SLR3_NEG_OFFSET = 98;
-  int PF_SLR3_POS_OFFSET = 114;
-  int PF_SLR3_NEG_OFFSET = 138;
-  int NUM_EM_WORDS = 16;
-  int NUM_PF_WORDS = 24;
+  const int EM_SLR1_POS_OFFSET = 1;
+  const int EM_SLR1_NEG_OFFSET = 17;
+  const int PF_SLR1_POS_OFFSET = 33;
+  const int PF_SLR1_NEG_OFFSET = 57;
+  const int EM_SLR3_POS_OFFSET = 82;
+  const int EM_SLR3_NEG_OFFSET = 98;
+  const int PF_SLR3_POS_OFFSET = 114;
+  const int PF_SLR3_NEG_OFFSET = 138;
+  const int NUM_EM_WORDS = 16;
+  const int NUM_PF_WORDS = 24;
 
   int cntr03pos = 0;
   int cntr03neg = 0;

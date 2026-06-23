@@ -669,13 +669,6 @@ void l1ct::MiddleBufferMultififoRegionizerEmulator::init_GCT_tmux18sectors(
 
 void l1ct::MiddleBufferMultififoRegionizerEmulator::run(const RegionizerDecodedInputs& in,
                                                         std::vector<PFInputRegion>& out) {
-  // FIXME: run_worker is no longer needed
-  run_worker(in, out);
-}
-
-// FIXME: run_worker is no longer needed
-void l1ct::MiddleBufferMultififoRegionizerEmulator::run_worker(const RegionizerDecodedInputs& in,
-                                                               std::vector<PFInputRegion>& out) {
   assert(streaming_);  // doesn't make sense otherwise
   if (!init_)
     initSectorsAndRegions(in, out);

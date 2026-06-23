@@ -246,11 +246,11 @@ void l1ct::tdr_regionizer::Regionizer<T>::setBuffers(const std::vector<std::vect
       auto srs = (obj.intPt() > 0) ? getSmallRegions(glbeta, glbphi) : std::vector<size_t>();
       if (debug_) {
         if (!srs.empty()) {
-          std::cout << " ";
+          dbgCout() << " ";
           for (auto sr : srs) {
-            std::cout << " " << sr;
+            dbgCout() << " " << sr;
           }
-          std::cout << std::endl;
+          dbgCout() << std::endl;
         }
       }
       buffers_[buffer].addEntry(obj, srs, glbeta, glbphi);

@@ -63,7 +63,7 @@ namespace l1tp2 {
     static constexpr unsigned int n_bits_eta = 14;
 
     // Private member functions for doing the digitization
-    ap_uint<16> digitizePt(float pt_f) {
+    ap_uint<16> digitizePt(float pt_f) const {
       float maxPt_f = (std::pow(2.0f, n_bits_pt) - 1) * LSB_PT;
       // If pT exceeds the maximum, saturate the value
       if (pt_f >= maxPt_f) {
@@ -72,7 +72,7 @@ namespace l1tp2 {
       return (ap_uint<16>)(pt_f / LSB_PT);
     }
 
-    ap_uint<13> digitizePhi(float phi_f) {
+    ap_uint<13> digitizePhi(float phi_f) const {
       float maxPhi_f = (std::pow(2.0f, n_bits_phi - 1) - 1) * LSB_PHI;
       // If phi exceeds the maximum (very few values should), saturate the value
       if (phi_f >= maxPhi_f) {
@@ -83,7 +83,7 @@ namespace l1tp2 {
       return (ap_uint<13>)(phi_f / LSB_PHI);
     }
 
-    ap_uint<14> digitizeEta(float eta_f) {
+    ap_uint<14> digitizeEta(float eta_f) const {
       float maxEta_f = (std::pow(2.0f, n_bits_eta - 1) - 1) * LSB_ETA;
       // If eta exceeds the maximum, saturate the value
       if (eta_f >= maxEta_f) {
@@ -94,7 +94,7 @@ namespace l1tp2 {
       return (ap_uint<14>)(eta_f / LSB_ETA);
     }
 
-    ap_uint<1> digitizeIsValid(bool isValid_b) { return (ap_uint<1>)isValid_b; }
+    ap_uint<1> digitizeIsValid(bool isValid_b) const { return (ap_uint<1>)isValid_b; }
   };
 
   // Concrete collection of output objects (with extra tuning information)
