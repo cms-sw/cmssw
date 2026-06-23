@@ -42,7 +42,6 @@ Phase2L1CaloToCorrelatorTM18::Phase2L1CaloToCorrelatorTM18(const edm::ParameterS
 }
 
 void Phase2L1CaloToCorrelatorTM18::produce(edm::Event& evt, const edm::EventSetup& es) {
-  using namespace edm;
   std::unique_ptr<l1tp2::DigitizedCaloToCorrelatorCollectionTM18> caloCandsTM18(
       std::make_unique<l1tp2::DigitizedCaloToCorrelatorCollectionTM18>());
 
