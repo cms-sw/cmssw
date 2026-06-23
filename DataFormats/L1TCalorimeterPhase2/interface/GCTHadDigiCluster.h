@@ -58,7 +58,7 @@ namespace l1tp2 {
     ap_uint<6> fb() const { return ((clusterData >> 38) & 0x3F); }
 
     // Encoding region information
-    ap_uint<36> spare() const { return ((clusterData >> 44) & 0xFFFFF); }
+    ap_uint<20> spare() const { return ((clusterData >> 44) & 0xFFFFF); }
 
 #ifdef CMSSW_GIT_HASH
     // Get the underlying ref

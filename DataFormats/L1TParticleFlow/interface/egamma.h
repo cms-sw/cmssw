@@ -133,7 +133,10 @@ namespace l1ct {
     float floatVtxPhi() const { return Scales::floatPhi(hwVtxPhi()); }
     float floatZ0() const { return Scales::floatZ0(hwZ0); }
     float floatIDScore() const { return Scales::floatIDScore(hwIDScore); }
-    // FIXME: add accessors
+    int intTkRedChi2RPhi() const { return hwTkRedChi2RPhi.to_int(); }
+    float floatCaloDPhi() const { return Scales::floatPhi(hwTkCaloDphi); }
+    float floatCaloShowerShape() const { return Scales::floatShoweShape(hwCaloShowerShape); }
+    float floatCaloTkPtRatio() const { return Scales::floatCaloTkPtRatio(hwCaloTkPtRatio); }
 
     static const int BITWIDTH = EGIsoObj::BITWIDTH + tkdeta_t::width + tkdphi_t::width + z0_t::width +
                                 id_score_t::width + 1 + redChi2Bin_t::width + tkdphi_t::width + shower_shape_t::width +

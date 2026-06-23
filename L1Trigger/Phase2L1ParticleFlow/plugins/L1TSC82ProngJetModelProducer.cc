@@ -1,8 +1,9 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/L1TParticleFlow/interface/PFJet.h"
@@ -19,8 +20,6 @@
 #include <string>
 #include "ap_fixed.h"
 #include "hls4ml/emulator.h"
-
-using namespace l1t;
 
 class L1TSC82ProngJetProducer : public edm::stream::EDProducer<> {
 public:
@@ -86,9 +85,10 @@ void L1TSC82ProngJetProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
     taggedJets.push_back(edmJet);
   }
-  std::sort(taggedJets.begin(), taggedJets.end(), [](l1t::PFJet a, l1t::PFJet b) { return (a.pt() > b.pt()); });
+  std::sort(
+      taggedJets.begin(), taggedJets.end(), [](const l1t::PFJet& a, const l1t::PFJet& b) { return (a.pt() > b.pt()); });
 
-  std::unique_ptr<l1t::PFJetCollection> taggedJetsCollection(new l1t::PFJetCollection);
+  std::unique_ptr<l1t::PFJetCollection> taggedJetsCollection = std::make_unique<l1t::PFJetCollection>();
   taggedJetsCollection->swap(taggedJets);
   iEvent.put(std::move(taggedJetsCollection), "l1tSC82ProngJets");
 }
