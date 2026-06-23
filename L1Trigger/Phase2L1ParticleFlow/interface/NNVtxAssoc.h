@@ -21,8 +21,8 @@ struct AssociationObjEmu {
 typedef ap_ufixed<22, 9> nn_inputtype;
 typedef ap_fixed<22, 9> classtype;
 
-#define N_NN_ASSOC_FEATURES 4  // How many features are used in a track
-#define N_NN_ASSOC_OUTPUTS 1   // How many features are used in a track
+static constexpr int N_NN_ASSOC_FEATURES = 4;  // How many features are used in a track
+static constexpr int N_NN_ASSOC_OUTPUTS = 1;   // How many features are used in a track
 
 static const nn_inputtype associationNetworkEtaBounds[127] = {0.0,
                                                               0.01984126984126984,
