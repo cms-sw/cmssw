@@ -26,6 +26,7 @@ from HLTrigger.NGTScouting.hltTICLCandidates_cfi import *
 from HLTrigger.NGTScouting.hltTICLSuperClusters_cfi import *
 from HLTrigger.NGTScouting.hltLayerClusters_cfi import * 
 from HLTrigger.NGTScouting.hltSums_cfi import *
+from HLTrigger.NGTScouting.hltTriggerObjects_cff import *
 from HLTrigger.NGTScouting.hltTriggerAcceptFilter_cfi import hltTriggerAcceptFilter,dstTriggerAcceptFilter
 
 ######################################
@@ -55,7 +56,8 @@ NanoGenTables = cms.Sequence(
 
 # Store hlt objects for NGT scouting
 NanoHltTables = cms.Sequence(
-    hltVertexTable
+    hltTriggerObjP4Table
+    + hltVertexTable
     + hltSecondaryVertexTable
     + hltPixelVertexTable
     + hltGeneralTrackTable
