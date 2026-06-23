@@ -237,3 +237,21 @@ class TICLConfig:
         scheduled, dumper, validator).  Returns ``(modules, task_children, labels)``."""
         from RecoTICL.Configuration.validation import build_validation
         return build_validation(self)
+
+    # -- visualisation ----------------------------------------------------- #
+
+    def to_dot(self, path=None, **opts):
+        """Graphviz DOT of the assembled module graph: each module's python label
+        and configuration as a node, and the consumed/produced product (C++ type
+        and instance label) on every edge.  Writes ``path`` if given; returns the
+        DOT string.  See :func:`RecoTICL.Configuration.graph.to_dot`."""
+        from RecoTICL.Configuration.graph import to_dot
+        return to_dot(self, path, **opts)
+
+    def show_graph(self, **opts):
+        """Render the module graph and show it interactively -- inline in a Jupyter
+        notebook, or by opening a rendered image.  Uses the ``graphviz`` python
+        package or the ``dot`` binary, otherwise writes a DOT file.  See
+        :func:`RecoTICL.Configuration.graph.show_graph`."""
+        from RecoTICL.Configuration.graph import show_graph
+        return show_graph(self, **opts)

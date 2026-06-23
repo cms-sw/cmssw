@@ -17,3 +17,5 @@
       command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_reproduce_barrel.py"/>
 <test name="testPyTICLLocalReco"
       command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_localreco.py"/>
+<test name="testPyTICLGraph"
+      command="python3 ${LOCALTOP}/src/RecoTICL/Configuration/test/test_graph.py"/>
