@@ -2398,13 +2398,13 @@ class PlotGroup(object):
         lx2def = 0.95
         ly1def = 0.85
         ly2def = 0.95
-        
+
         ret = []
         for plot in self._plots:
             if plot.isEmpty():
                 continue
 
-            canvasId = self._nextCanvasId()
+            canvasId = self._resolveNextCanvasId()
             canvas = _createCanvas(self._name+'Single'+canvasId, width, height)
             canvasRatio = _createCanvas(self._name+'SingleRatio'+canvasId, width, int(height*self._ratioFactor))
 
@@ -2450,10 +2450,10 @@ class PlotGroup(object):
 
             del canvas
             del canvasRatio
-            
+
         return ret
 
-    def _nextCanvasId(self):
+    def _resolveNextCanvasId(self):
         """Return an id for unique ROOT canvas names."""
         self._canvasId += 1
         return str(self._canvasId)
