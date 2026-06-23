@@ -1298,9 +1298,6 @@ class Frame:
     def redrawAxis(self):
         self._pad.RedrawAxis()
 
-    def detach(self):
-        self._pad = None
-
 class FrameRatio:
     """Class for creating and managing a frame for a ratio plot with two subpads"""
     def __init__(self, pad, bounds, zmax, ratioBounds, ratioFactor, nrows, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None, ratioYTitle=_ratioYTitle):
@@ -1408,12 +1405,6 @@ class FrameRatio:
         self._pad.cd()
         self._pad.Pop() # Move the first pad on top
 
-    def detach(self):
-        self._parentPad = None
-        self._pad = None
-        self._padRatio = None
-        self._coverPad = None
-
 class FrameTGraph2D:
     """Class for creating and managing a frame for a plot from TGraph2D"""
     def __init__(self, pad, bounds, histos, ratioOrig, ratioFactor):
@@ -1513,9 +1504,6 @@ class FrameTGraph2D:
             self._firstHisto.GetYaxis().SetTitleSize(self._ytitlesize)
         if hasattr(self, "_ytitleoffset"):
             self._firstHisto.GetYaxis().SetTitleOffset(self._ytitleoffset)
-
-    def detach(self):
-        self._pad = None
 
 class PlotText:
     """Abstraction on top of TLatex"""
@@ -2213,7 +2201,6 @@ class Plot:
                 addl.Draw("same")
 
         frame.redrawAxis()
-        frame.detach()
         self._frame = frame # keep the frame in memory for sure
 
     def addToLegend(self, legend, legendLabels, denomUncertainty):
@@ -2277,6 +2264,7 @@ class PlotGroup(object):
         _set("onlyForPileup", False)
 
         self._ratioFactor = 1.25
+        self._canvasId = 0
 
     def setProperties(self, **kwargs):
         for name, value in kwargs.items():
@@ -2416,8 +2404,9 @@ class PlotGroup(object):
             if plot.isEmpty():
                 continue
 
-            canvas = _createCanvas(self._name+'Single', width, height)
-            canvasRatio = _createCanvas(self._name+'SingleRatio', width, int(height*self._ratioFactor))
+            canvasId = self._nextCanvasId()
+            canvas = _createCanvas(self._name+'Single'+canvasId, width, height)
+            canvasRatio = _createCanvas(self._name+'SingleRatio'+canvasId, width, int(height*self._ratioFactor))
 
             # from TDRStyle
             for c in [canvas, canvasRatio]:
@@ -2459,11 +2448,15 @@ class PlotGroup(object):
                                             denomUncertainty=(ratioForThisPlot and plot.drawRatioUncertainty))
             ret.extend(self._save(c, saveFormat, prefix=prefix, postfix="/"+plot.getName(), single=True, directory=directory))
 
-            del c
             del canvas
             del canvasRatio
             
         return ret
+
+    def _nextCanvasId(self):
+        """Return an id for unique ROOT canvas names."""
+        self._canvasId += 1
+        return str(self._canvasId)
 
     def _modifyPadForRatio(self, pad):
         """Internal method to set divide a pad to two for ratio plots"""
