@@ -766,7 +766,7 @@ dd4hep.toModify( g4SimHits,
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(g4SimHits,
-                       AddRegions = True,
+                       AddRegions = False,
                        OnlySDs = ['BCM1FSensitiveDetector','BHMSensitiveDetector','CTPPSDiamondSensitiveDetector','CTPPSSensitiveDetector','CaloTrkProcessing','EcalSensitiveDetector','HFNoseSensitiveDetector','HGCScintillatorSensitiveDetector','HGCalSensitiveDetector','HcalSensitiveDetector','MtdSensitiveDetector','MuonSensitiveDetector','PLTSensitiveDetector','RomanPotSensitiveDetector','TkAccumulatingSensitiveDetector','ZdcSensitiveDetector','FSCSensitiveDetector'],
                        TrackHits = ['BCM1FHits','BHMHits','CTPPSPixelHits','CTPPSTimingHits','FastTimerHitsBarrel','FastTimerHitsEndcap','HFNoseHits','MuonCSCHits','MuonDTHits','MuonGEMHits','MuonME0Hits','MuonRPCHits','PLTHits','TrackerHitsPixelEndcapLowTof','TrackerHitsPixelEndcapHighTof','TrackerHitsPixelBarrelLowTof','TrackerHitsPixelBarrelHighTof','TrackerHitsTECLowTof','TrackerHitsTECHighTof','TrackerHitsTIBLowTof','TrackerHitsTIBHighTof','TrackerHitsTIDLowTof','TrackerHitsTIDHighTof','TrackerHitsTOBLowTof','TrackerHitsTOBHighTof'],
                        CaloHits = ["CalibrationHGCHitsEE",'CalibrationHGCHitsHEback',"CalibrationHGCHitsHEfront",'CaloHitsTk','EcalHitsEB','HFNoseHits',"HGCHitsEE","HGCHitsHEback","HGCHitsHEfront",'HcalHits','ZDCHITS','FSCHits'],
