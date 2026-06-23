@@ -10,5 +10,5 @@ hltPrimary4DVertexPostProcessor = _Primary4DVertexPostProcessor.clone(
     folder = cms.string('HLT/MTD/Vertices/')
 )
 
-hltMtdValidationPostProcessor = cms.Sequence(#hltMtdTracksPostProcessor +
+hltMtdValidationPostProcessor = cms.Sequence(hltMtdTracksPostProcessor +
                                              hltPrimary4DVertexPostProcessor)

@@ -760,6 +760,14 @@ phase2_muon.toModify(FEVTDEBUGHLTEventContent,
 phase2_hgcal.toModify(FEVTDEBUGHLTEventContent,
     outputCommands = FEVTDEBUGHLTEventContent.outputCommands + TICL_FEVTHLT.outputCommands)
 
+from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
+mtd_at_hlt.toModify(FEVTDEBUGHLTEventContent,
+                    outputCommands = FEVTDEBUGHLTEventContent.outputCommands + RecoLocalFastTimeFEVTHLT.outputCommands + RecoMTDFEVTHLT.outputCommands)
+
+mtd_at_hlt.toModify(FEVTDEBUGHLTEventContent,
+                    outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+                        'keep *_hltOfflinePrimaryVertices4D_*_*'
+                    ])
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 
