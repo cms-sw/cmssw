@@ -195,12 +195,13 @@ def _calculateRatios(histos, ratioUncertainty=False):
 
             xaxis = th1.GetXaxis()
             xaxis_arr = xaxis.GetXbins()
+            ratio_name = f"ratio_{id(self)}"
             if xaxis_arr.GetSize() > 0: # unequal binning
                 lst = [xaxis_arr[i] for i in range(0, xaxis_arr.GetSize())]
                 arr = array.array("d", lst)
-                self._ratio = ROOT.TH1F("foo", "foo", xaxis.GetNbins(), arr)
+                self._ratio = ROOT.TH1F(ratio_name, ratio_name, xaxis.GetNbins(), arr)
             else:
-                self._ratio = ROOT.TH1F("foo", "foo", xaxis.GetNbins(), xaxis.GetXmin(), xaxis.GetXmax())
+                self._ratio = ROOT.TH1F(ratio_name, ratio_name, xaxis.GetNbins(), xaxis.GetXmin(), xaxis.GetXmax())
             _copyStyle(th1, self._ratio)
             self._ratio.SetStats(0)
             self._ratio.SetLineColor(ROOT.kBlack)
@@ -1212,7 +1213,6 @@ def _drawFrame(pad, bounds, zmax=None, xbinlabels=None, xbinlabelsize=None, xbin
             frame.SetMaximum(zmax)
 
         frame.SetBit(ROOT.TH1.kNoStats)
-        frame.SetBit(ROOT.kCanDelete)
         frame.Draw("")
 
         xaxis = frame.GetXaxis()
@@ -1297,6 +1297,9 @@ class Frame:
 
     def redrawAxis(self):
         self._pad.RedrawAxis()
+
+    def detach(self):
+        self._pad = None
 
 class FrameRatio:
     """Class for creating and managing a frame for a ratio plot with two subpads"""
@@ -1405,6 +1408,12 @@ class FrameRatio:
         self._pad.cd()
         self._pad.Pop() # Move the first pad on top
 
+    def detach(self):
+        self._parentPad = None
+        self._pad = None
+        self._padRatio = None
+        self._coverPad = None
+
 class FrameTGraph2D:
     """Class for creating and managing a frame for a plot from TGraph2D"""
     def __init__(self, pad, bounds, histos, ratioOrig, ratioFactor):
@@ -1504,6 +1513,9 @@ class FrameTGraph2D:
             self._firstHisto.GetYaxis().SetTitleSize(self._ytitlesize)
         if hasattr(self, "_ytitleoffset"):
             self._firstHisto.GetYaxis().SetTitleOffset(self._ytitleoffset)
+
+    def detach(self):
+        self._pad = None
 
 class PlotText:
     """Abstraction on top of TLatex"""
@@ -2201,6 +2213,7 @@ class Plot:
                 addl.Draw("same")
 
         frame.redrawAxis()
+        frame.detach()
         self._frame = frame # keep the frame in memory for sure
 
     def addToLegend(self, legend, legendLabels, denomUncertainty):
@@ -2446,6 +2459,7 @@ class PlotGroup(object):
                                             denomUncertainty=(ratioForThisPlot and plot.drawRatioUncertainty))
             ret.extend(self._save(c, saveFormat, prefix=prefix, postfix="/"+plot.getName(), single=True, directory=directory))
 
+            del c
             del canvas
             del canvasRatio
             

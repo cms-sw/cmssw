@@ -4,6 +4,8 @@ import os
 import argparse
 import datetime
 import ROOT
+import faulthandler
+faulthandler.enable(all_threads=True)
 
 from Validation.RecoTrack.plotting.validation import SimpleValidation, SimpleSample
 from Validation.HGCalValidation.HGCalValidator_cff import hgcalValidator
