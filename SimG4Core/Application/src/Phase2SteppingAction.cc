@@ -39,7 +39,7 @@ Phase2SteppingAction::Phase2SteppingAction(
   cms2ZDCName_ = p.getParameter<std::string>("CMS2ZDCName");
   doFineCalo_ = (p.getParameter<bool>("DoFineCalo"));
 
-  filter = new Phase2TrackFilter(pstack, sv);
+  filter = std::make_unique<Phase2TrackFilter>(pstack, sv);
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "Phase2SteppingAction:: KillBeamPipe = " << killBeamPipe
