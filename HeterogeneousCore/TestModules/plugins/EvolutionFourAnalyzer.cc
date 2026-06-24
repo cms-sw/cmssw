@@ -1,5 +1,3 @@
-#include "DataFormats/PortableTestObjects/interface/SchemaEvolutionSoA.h"
-#include "DataFormats/PortableTestObjects/interface/SchemaEvolutionHostCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -11,11 +9,14 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-using CollectionVersion = portabletest::HostCollectionEvolutionFive;
+#include "HeterogeneousCore/TestModules/interface/SchemaEvolutionSoA.h"
+#include "HeterogeneousCore/TestModules/interface/SchemaEvolutionHostCollection.h"
 
-class EvolutionFiveAnalyzer : public edm::global::EDAnalyzer<> {
+using CollectionVersion = testmodules::HostCollectionEvolutionFour;
+
+class EvolutionFourAnalyzer : public edm::global::EDAnalyzer<> {
 public:
-  EvolutionFiveAnalyzer(edm::ParameterSet const& config)
+  EvolutionFourAnalyzer(edm::ParameterSet const& config)
       : source_{config.getParameter<edm::InputTag>("source")}, soaToken_{consumes(source_)} {}
 
   void analyze(edm::StreamID sid, edm::Event const& event, edm::EventSetup const&) const override {
@@ -43,17 +44,17 @@ public:
       assert(std::abs(element.cDouble() - expectedDouble) < EPS_D);
 
       // Check enum
-      assert(element.cEnum() == portabletest::SEEnumType::s2);
+      assert(element.cEnum() == testmodules::SEEnumType::s2);
 
       // Check Eigen matrix
-      portabletest::SEEigenObject expectedEigen;
+      testmodules::SEEigenObject expectedEigen;
       expectedEigen << 10 * i + 1.1f, -10 * i - 1.2f, 10 * i + 2.3f, -10 * i - 2.4f, 10 * i + 3.5f, -10 * i - 3.6f,
           10 * i + 4.7f, -10 * i - 4.8f;
       assert((element.eEigenObject() - expectedEigen).cwiseAbs().maxCoeff() < EPS_F);
 
       for (std::size_t j = 0; j < element.cArray().size(); j++) {
-        double expectedArrayValue = i * static_cast<double>(6) + static_cast<double>(j);
-        assert(std::abs(element.cArray()[j] - expectedArrayValue) < EPS_D);
+        int expectedArrayValue = i * static_cast<int>(element.cArray().size()) + static_cast<int>(j);
+        assert(element.cArray()[j] == expectedArrayValue);
       }
     }
 
@@ -61,7 +62,7 @@ public:
     assert(view.sInt() == std::numeric_limits<int>::max() - 7);
     assert(std::abs(view.sFloat() - (1.0f / 3.0f)) < EPS_F);
     assert(std::abs(view.sDouble() - (1.0 / 10.0)) < EPS_D);
-    assert(view.sEnum() == portabletest::SEEnumType::s1);
+    assert(view.sEnum() == testmodules::SEEnumType::s1);
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -75,4 +76,4 @@ private:
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(EvolutionFiveAnalyzer);
+DEFINE_FWK_MODULE(EvolutionFourAnalyzer);

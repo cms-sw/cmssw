@@ -2,13 +2,13 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 
-#include "DataFormats/PortableTestObjects/interface/SchemaEvolutionHostCollection.h"
+#include "HeterogeneousCore/TestModules/interface/SchemaEvolutionHostCollection.h"
 
 // This producer was used to create two different ROOT files
 // using SoALayouts that resemble the SoAEvolutionZeroLayout but under different class names (SoAEvolutionOneLayout to SoAEvolutionTwoLayout).
-// Later SoAEvolutionOneLayout to SoAEvolutionTwoLayout were changes to test if the schema evolution works correctly (see EvolutionOneAnalyzer.cc to EvolutionTwoAnalyzer.cc).
+// Then SoAEvolutionOneLayout to SoAEvolutionTwoLayout were changes to test if the schema evolution works correctly (see EvolutionOneAnalyzer.cc to EvolutionTwoAnalyzer.cc).
 
-using CollectionVersion = portabletest::HostCollectionEvolutionZero;
+using CollectionVersion = testmodules::HostCollectionEvolutionZero;
 constexpr auto productName = "EvolutionZeroProduct";
 
 class SchemaEvolutionSoAProducer : public edm::global::EDProducer<> {
@@ -40,12 +40,12 @@ void SchemaEvolutionSoAProducer::produce(edm::StreamID iID, edm::Event& event, c
     element.cInt() = static_cast<int>(i);
     element.cDouble() = std::sin(static_cast<double>(i)) * 1e3;
 
-    element.cEnum() = portabletest::SEEnumType::s2;
+    element.cEnum() = testmodules::SEEnumType::s2;
 
-    element.eEigenObject() = portabletest::SEEigenObject({{10 * i + 1.1f, -10 * i - 1.2f},
-                                                          {10 * i + 2.3f, -10 * i - 2.4f},
-                                                          {10 * i + 3.5f, -10 * i - 3.6f},
-                                                          {10 * i + 4.7f, -10 * i - 4.8f}});
+    element.eEigenObject() = testmodules::SEEigenObject({{10 * i + 1.1f, -10 * i - 1.2f},
+                                                         {10 * i + 2.3f, -10 * i - 2.4f},
+                                                         {10 * i + 3.5f, -10 * i - 3.6f},
+                                                         {10 * i + 4.7f, -10 * i - 4.8f}});
 
     for (std::size_t j = 0; j < element.cArray().size(); j++) {
       element.cArray()[j] = i * static_cast<int>(element.cArray().size()) + static_cast<int>(j);
@@ -55,7 +55,7 @@ void SchemaEvolutionSoAProducer::produce(edm::StreamID iID, edm::Event& event, c
   view.sInt() = std::numeric_limits<int>::max() - 7;
   view.sFloat() = 1.0f / 3.0f;
   view.sDouble() = 1.0 / 10.0;
-  view.sEnum() = portabletest::SEEnumType::s1;
+  view.sEnum() = testmodules::SEEnumType::s1;
 
   std::cout << "Running " << __func__ << " with " << view.metadata().size() << " elements" << std::endl;
 
