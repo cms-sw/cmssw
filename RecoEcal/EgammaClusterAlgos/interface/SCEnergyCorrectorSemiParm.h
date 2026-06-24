@@ -125,6 +125,16 @@ private:
   edm::Handle<reco::PFRecHitCollection> recHitsHgcal_;
   edm::Handle<reco::VertexCollection> vertices_;
 
+  std::vector<edm::Handle<std::vector<double>>> rhoMaps_;
+  std::vector<edm::EDGetTokenT<std::vector<double>>> rhoMapTokens_;
+  double getRho(double eta) const {
+    const auto& etaMap = *rhoMaps_[0];
+    const auto& rhoMap = *rhoMaps_[1];
+    assert(etaMap.size() == rhoMap.size() + 1);
+    const size_t n = std::upper_bound(etaMap.begin(), etaMap.end(), eta) - etaMap.begin();
+    return (n > 0 && n <= rhoMap.size()) ? rhoMap[n - 1] : 0.;
+  };
+
   bool isHLT_;
   bool isPhaseII_;
   bool regTrainedWithPS_;
@@ -178,5 +188,10 @@ void SCEnergyCorrectorSemiParm::setTokens(const edm::ParameterSet& iConfig, edm:
   if (not isHLT_) {
     tokenVertices_ = cc.consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"));
   }
+  for (const auto& tag : iConfig.getParameter<std::vector<edm::InputTag>>("rhoMaps"))
+    rhoMapTokens_.emplace_back(cc.consumes<std::vector<double>>(tag));
+  rhoMaps_.resize(rhoMapTokens_.size());
+  if (not rhoMaps_.empty() && rhoMaps_.size() != 2)
+    throw cms::Exception("InvalidConfiguration") << "SCEnergyCorrectorSemiParm expects only 2 tags in rhoMaps!";
 }
 #endif
