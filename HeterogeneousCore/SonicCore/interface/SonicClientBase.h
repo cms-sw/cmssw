@@ -9,11 +9,14 @@
 #include "HeterogeneousCore/SonicCore/interface/SonicDispatcherPseudoAsync.h"
 
 #include <string>
+#include <vector>
 #include <exception>
 #include <memory>
 #include <optional>
 
 enum class SonicMode { Sync = 1, Async = 2, PseudoAsync = 3 };
+
+class RetryActionBase;
 
 class SonicClientBase {
 public:
@@ -54,14 +57,23 @@ protected:
   SonicMode mode_;
   bool verbose_;
   std::unique_ptr<SonicDispatcher> dispatcher_;
-  unsigned allowedTries_, tries_;
+  unsigned totalTries_;
   std::optional<edm::WaitingTaskWithArenaHolder> holder_;
+
+  // Use a unique_ptr with a custom deleter to avoid incomplete type issues
+  struct RetryDeleter {
+    void operator()(RetryActionBase* ptr) const;
+  };
+
+  using RetryActionPtr = std::unique_ptr<RetryActionBase, RetryDeleter>;
+  std::vector<RetryActionPtr> retryActions_;
 
   //for logging/debugging
   std::string debugName_, clientName_, fullDebugName_;
 
   friend class SonicDispatcher;
   friend class SonicDispatcherPseudoAsync;
+  friend class RetryActionBase;
 };
 
 #endif

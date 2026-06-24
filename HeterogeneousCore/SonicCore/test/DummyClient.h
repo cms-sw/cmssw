@@ -36,7 +36,7 @@ protected:
     this->output_ = this->input_ * factor_;
 
     //simulate a failure
-    if (this->tries_ < fails_)
+    if (this->totalTries_ < fails_)
       this->finish(false);
     else
       this->finish(true);
