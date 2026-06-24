@@ -796,7 +796,7 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     numPFCands = patPfCollection->size();
   }
 
-  if(!m_isMiniAOD){
+  if (!m_isMiniAOD) {
     iEvent.getByToken(puppiWeightToken_, puppiWeight);
     if (!puppiWeightToken_.isUninitialized())
       iEvent.getByToken(puppiWeightToken_, puppiWeight);
@@ -881,14 +881,14 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   map_of_MEs[m_directory + "/Event/NPV"]->Fill(numPV, eventWeight);
   reco::Jet leadJet;
 
-  if(numJets){
-  if (m_isMiniAOD) {
-    leadJet = jets[0];
-  } else {
-    leadJet = *pfJets->begin();
-  }
-  map_of_MEs[m_directory + Form("/JetKinematics/jetPtLead_%s", npvString.c_str())]->Fill(leadJet.pt(), eventWeight);
-  map_of_MEs[m_directory + Form("/JetKinematics/jetEtaLead_%s", npvString.c_str())]->Fill(leadJet.eta(), eventWeight);
+  if (numJets) {
+    if (m_isMiniAOD) {
+      leadJet = jets[0];
+    } else {
+      leadJet = *pfJets->begin();
+    }
+    map_of_MEs[m_directory + Form("/JetKinematics/jetPtLead_%s", npvString.c_str())]->Fill(leadJet.pt(), eventWeight);
+    map_of_MEs[m_directory + Form("/JetKinematics/jetEtaLead_%s", npvString.c_str())]->Fill(leadJet.eta(), eventWeight);
   }
 
   // Make plots of all observables, this time for PF candidates within jets
