@@ -2625,14 +2625,14 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
     histograms.h_denom_trackster_en[valType][count]->Fill(iTS_en);
     histograms.h_denom_trackster_pt[valType][count]->Fill(iTS_pt);
 
-	// const auto cpId = getCPId(trackster, cPHandle_id, scToCpMap);
-	// const SimTrack* simtrack = simTrackFromCaloParticle(cpId, cP);
-	// if (!simtrack) {
-	//   throw cms::Exception("HGVHistoProducerAlgo") << "SimTrack not found!";
-	// }
-	// const auto [R, alpha] = displacedQuantities(*simtrack);
-    // histograms.h_denom_trackster_R[valType][count]->Fill(R);
-    // histograms.h_denom_trackster_alpha[valType][count]->Fill(alpha);
+	const auto cpId = getCPId(trackster, cPHandle_id, scToCpMap);
+	const SimTrack* simtrack = simTrackFromCaloParticle(cpId, cP);
+	if (!simtrack) {
+	  throw cms::Exception("HGVHistoProducerAlgo") << "SimTrack not found!";
+	}
+	const auto [R, alpha] = displacedQuantities(*simtrack);
+    histograms.h_denom_trackster_R[valType][count]->Fill(R);
+    histograms.h_denom_trackster_alpha[valType][count]->Fill(alpha);
 
     // loop over trackstersToSimTrackstersMap[tracksterIndex] by index
     for (unsigned int i = 0; i < trackstersToSimTrackstersMap[tracksterIndex].size(); ++i) {
@@ -2664,16 +2664,16 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
       histograms.h_num_trackster_phi[valType][count]->Fill(iTS_phi);
       histograms.h_num_trackster_en[valType][count]->Fill(iTS_en);
       histograms.h_num_trackster_pt[valType][count]->Fill(iTS_pt);
-	  // histograms.h_num_trackster_R[valType][count]->Fill(R);
-	  // histograms.h_num_trackster_alpha[valType][count]->Fill(alpha);
+	  histograms.h_num_trackster_R[valType][count]->Fill(R);
+	  histograms.h_num_trackster_alpha[valType][count]->Fill(alpha);
 
       if (tracksters_FakeMerge[tracksterIndex] > 1) {
         histograms.h_numMerge_trackster_eta[valType][count]->Fill(iTS_eta);
         histograms.h_numMerge_trackster_phi[valType][count]->Fill(iTS_phi);
         histograms.h_numMerge_trackster_en[valType][count]->Fill(iTS_en);
         histograms.h_numMerge_trackster_pt[valType][count]->Fill(iTS_pt);
-		// histograms.h_numMerge_trackster_R[valType][count]->Fill(R);
-		// histograms.h_numMerge_trackster_alpha[valType][count]->Fill(alpha);
+		histograms.h_numMerge_trackster_R[valType][count]->Fill(R);
+		histograms.h_numMerge_trackster_alpha[valType][count]->Fill(alpha);
       }
     }
   }
@@ -2693,19 +2693,19 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
     const auto sts_pt = simTrackster.raw_pt();
     float inv_simtrackster_energy = 1.f / sts_en;
 
-	// const SimTrack* simtrack = simTrackFromCaloParticle(cpId, cP);
-	// if (!simtrack) {
-	//   throw cms::Exception("HGVHistoProducerAlgo") << "SimTrack not found!";
-	// }
-	// const auto [R, alpha] = displacedQuantities(*simtrack);
+	const SimTrack* simtrack = simTrackFromCaloParticle(cpId, cP);
+	if (!simtrack) {
+	  throw cms::Exception("HGVHistoProducerAlgo") << "SimTrack not found!";
+	}
+	const auto [R, alpha] = displacedQuantities(*simtrack);
 		
     histograms.h_denom_caloparticle_eta[valType][count]->Fill(sts_eta);
     histograms.h_denom_caloparticle_phi[valType][count]->Fill(sts_phi);
     histograms.h_denom_caloparticle_en[valType][count]->Fill(sts_en);
     histograms.h_denom_caloparticle_pt[valType][count]->Fill(sts_pt);
 
-	// histograms.h_denom_caloparticle_R[valType][count]->Fill(R);
-	// histograms.h_denom_caloparticle_alpha[valType][count]->Fill(alpha);
+	histograms.h_denom_caloparticle_R[valType][count]->Fill(R);
+	histograms.h_denom_caloparticle_alpha[valType][count]->Fill(alpha);
 
     //Loop through related Tracksters here
     // In case the threshold to associate a CaloParticle to a Trackster is
@@ -2746,8 +2746,8 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
         histograms.h_numEff_caloparticle_phi[valType][count]->Fill(sts_phi);
         histograms.h_numEff_caloparticle_en[valType][count]->Fill(sts_en);
         histograms.h_numEff_caloparticle_pt[valType][count]->Fill(sts_pt);
-		// histograms.h_numEff_caloparticle_R[valType][count]->Fill(R);
-		// histograms.h_numEff_caloparticle_alpha[valType][count]->Fill(alpha);
+		histograms.h_numEff_caloparticle_R[valType][count]->Fill(R);
+		histograms.h_numEff_caloparticle_alpha[valType][count]->Fill(alpha);
       }
 
       if (score < ScoreCutSTStoTSPurDup) {
@@ -2764,16 +2764,16 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
       histograms.h_num_caloparticle_phi[valType][count]->Fill(sts_phi);
       histograms.h_num_caloparticle_en[valType][count]->Fill(sts_en);
       histograms.h_num_caloparticle_pt[valType][count]->Fill(sts_pt);
-	  // histograms.h_num_caloparticle_R[valType][count]->Fill(R);
-	  // histograms.h_num_caloparticle_alpha[valType][count]->Fill(alpha);
+	  histograms.h_num_caloparticle_R[valType][count]->Fill(R);
+	  histograms.h_num_caloparticle_alpha[valType][count]->Fill(alpha);
 
       if (tracksters_PurityDuplicate[simTracksterIndex] > 1) {
         histograms.h_numDup_trackster_eta[valType][count]->Fill(sts_eta);
         histograms.h_numDup_trackster_phi[valType][count]->Fill(sts_phi);
         histograms.h_numDup_trackster_en[valType][count]->Fill(sts_en);
         histograms.h_numDup_trackster_pt[valType][count]->Fill(sts_pt);
-		// histograms.h_numDup_trackster_R[valType][count]->Fill(R);
-		// histograms.h_numDup_trackster_alpha[valType][count]->Fill(alpha);
+		histograms.h_numDup_trackster_R[valType][count]->Fill(R);
+		histograms.h_numDup_trackster_alpha[valType][count]->Fill(alpha);
       }
     }
 
@@ -2967,14 +2967,14 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
       histograms.h_trackster_pt[count]->Fill(tst.raw_pt());
       histograms.h_trackster_energy[count]->Fill(tst.raw_energy());
 
-	  // const auto cpId = getCPId(tst, cPHandle_id, scToCpMap);
-	  // const SimTrack* simtrack = simTrackFromCaloParticle(cpId, cP);
-	  // if (!simtrack) {
-	  // 	throw cms::Exception("HGVHistoProducerAlgo") << "SimTrack not found!";
-	  // }
-	  // const auto [R, alpha] = displacedQuantities(*simtrack);
-	  // histograms.h_trackster_R[count]->Fill(R);
-	  // histograms.h_trackster_alpha[count]->Fill(alpha);
+	  const auto cpId = getCPId(tst, cPHandle_id, scToCpMap);
+	  const SimTrack* simtrack = simTrackFromCaloParticle(cpId, cP);
+	  if (!simtrack) {
+	    throw cms::Exception("HGVHistoProducerAlgo") << "SimTrack not found!";
+	  }
+	  const auto [R, alpha] = displacedQuantities(*simtrack);
+	  histograms.h_trackster_R[count]->Fill(R);
+	  histograms.h_trackster_alpha[count]->Fill(alpha);
 	}
 
   }  //end of loop through Tracksters
