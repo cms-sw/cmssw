@@ -4,7 +4,11 @@ import FWCore.Utilities.FileUtils as FileUtils
 import FWCore.ParameterSet.VarParsing as VarParsing
 import sys
 
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_DoubleElectron_string
+
 from Configuration.StandardSequences.Eras import eras
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
 
 ###################################################################
 def best_match(rcd):
@@ -25,13 +29,13 @@ options.register('maxEvents',
                  VarParsing.VarParsing.varType.int,
                  "number of events to process (\"-1\" for all)")
 options.register ('era',
-                  '2022', # default value
+                  'Phase2', # default value
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,         # string, int, or float
                   "CMS running era")
 
 options.register ('GlobalTag',
-                  'auto:phase1_2022_realistic', # default value
+                  _PH2_GLOBAL_TAG, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "seed number")
@@ -55,7 +59,7 @@ options.register ('myseed',
                   "seed number")
 
 options.register ('myfile',
-                  '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/4a1ae43b-f4b3-4ad9-b86e-a7d9f6fc5c40.root',
+                  filesDefaultMC_DoubleElectron_string,
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "file name")
@@ -100,13 +104,19 @@ elif options.era=='2022':
 elif options.era=='2023':
     print("===> running era 2023")
     process = cms.Process('Analysis',eras.Run3_2023)
+elif options.era=='Phase2':
+    print("===> running era Phase2")
+    process = cms.Process('Analysis', _PH2_ERA)
 else:
     print("unrecognized era %s" % options.era)
     sys.exit(1)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
-process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+if options.era=='Phase2':
+    process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
+else:
+    process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 

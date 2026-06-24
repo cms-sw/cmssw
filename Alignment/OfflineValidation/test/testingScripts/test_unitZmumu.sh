@@ -8,7 +8,7 @@ pushd test_yaml/Zmumu/single/testSingleZMM/unitTestZmumuMCreal/1/
 popd
 
 echo "TESTING Alignment/Zmumu single configuration with json..."
-pushd test_yaml/Zmumu/single/testSingleZMM/unitTestZmumuMCdesign/1/
+pushd test_yaml/Zmumu/single/testSingleZMM/unitTestZmumuMCdisplacedBS/1/
 ./cmsRun validation_cfg.py config=validation.json || die "Failure running Zmumu second single configuration with json" $?
 
 echo "TESTING Alignment/Zmumu single configuration standalone..."
