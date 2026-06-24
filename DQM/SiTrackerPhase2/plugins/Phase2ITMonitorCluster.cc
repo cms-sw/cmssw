@@ -303,7 +303,7 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Clutsers_Global_Position_XY_IT_barrel");
+    psd0.add<std::string>("name", "Clusters_Global_Position_XY_IT_barrel");
     psd0.add<std::string>("title", "Clusters_Global_Position_XY_IT_barrel;x [mm];y [mm];");
     psd0.add<double>("ymax", 300.0);
     psd0.add<int>("NxBins", 600);
@@ -345,7 +345,7 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
   {
     edm::ParameterSetDescription psd0;
     psd0.add<std::string>("name", "Num_Clusters_Layer");
-    psd0.add<std::string>("title", "NumberOfClutsers;Number of Clusters;");
+    psd0.add<std::string>("title", "NumberOfClusters;Number of Clusters;");
     psd0.add<double>("xmin", 0.0);
     psd0.add<bool>("switch", true);
     psd0.add<double>("xmax", 20000.0);

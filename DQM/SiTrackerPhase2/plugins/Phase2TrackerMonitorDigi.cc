@@ -90,10 +90,10 @@ public:
   MonitorElement* XYPositionMap{nullptr};
   MonitorElement* RZPositionMap{nullptr};
 
-  MonitorElement* XYPosition_shell[8] = {nullptr};
-  MonitorElement* RZPosition_shell[8] = {nullptr};
-  MonitorElement* XZPosition_shell[8] = {nullptr};
-  MonitorElement* ZPhiPosition_shell[8] = {nullptr};
+  MonitorElement* XYPosition_shell[12] = {nullptr};
+  MonitorElement* RZPosition_shell[12] = {nullptr};
+  MonitorElement* XZPosition_shell[12] = {nullptr};
+  MonitorElement* ZPhiPosition_shell[12] = {nullptr};
 
   MonitorElement* XYOccupancyMap{nullptr};
   MonitorElement* RZOccupancyMap{nullptr};
@@ -226,32 +226,41 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
           if (RZPositionMap)
             RZPositionMap->Fill(pdPos.z(), std::hypot(pdPos.x(), pdPos.y()));
 
-          if (XYPositionMap && (!isEndcap || (isEndcap && tTopo_->pxfDisk(detId) < 9))) {
+          if (XYPositionMap) {
             int i = 0;
+            int disc = tTopo_->pxfDisk(detId);
             std::string shell = phase2tkutil::getITShell(detId, tTopo_);
             if (shell == "pI") {
               if (!isEndcap) {
                 i = 0;
-              } else {
+              } else if (disc < 9) {
                 i = 4;
+              } else {
+                i = 8;
               }
             } else if (shell == "pO") {
               if (!isEndcap) {
                 i = 1;
-              } else {
+              } else if (disc < 9) {
                 i = 5;
+              } else {
+                i = 9;
               }
             } else if (shell == "mI") {
               if (!isEndcap) {
                 i = 2;
-              } else {
+              } else if (disc < 9) {
                 i = 6;
+              } else {
+                i = 10;
               }
             } else if (shell == "mO") {
               if (!isEndcap) {
                 i = 3;
-              } else {
+              } else if (disc < 9) {
                 i = 7;
+              } else {
+                i = 11;
               }
             }
             XZPosition_shell[i]->Fill(pdPos.x(), pdPos.z());
@@ -428,7 +437,7 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
       if (nRows * nColumns > 0)
         occupancy = nDigi * 1.0 / (nRows * nColumns);
       if (geomDet) {
-        GlobalPoint gp = geomDet->surface().toGlobal(gDetUnit->topology().localPosition(MeasurementPoint(0.0, 0.0)));;
+        GlobalPoint gp = geomDet->surface().toGlobal(gDetUnit->topology().localPosition(MeasurementPoint(0.0, 0.0)));
         if (nColumns > 2) {
           if (local_mes.DigiOccupancyP)
             local_mes.DigiOccupancyP->Fill(occupancy);
@@ -537,9 +546,9 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
   Parameters = config_.getParameter<edm::ParameterSet>("XYPositionMapH");
   edm::ParameterSet ParametersRZ = config_.getParameter<edm::ParameterSet>("RZPositionMapH");
   if (Parameters.getParameter<bool>("switch") && pixelFlag_) {
-    std::vector<std::string> topFold = {"/Barrel", "/ForwardPix"};
+    std::vector<std::string> topFold = {"/Barrel", "/Endcaps/ForwardPix", "/Endcaps/EndcapPix"};
     std::vector<std::string> Shell = {"/pI/", "/pO/", "/mI/", "/mO/"};
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 4; j++) {
         ibooker.setCurrentFolder(top_folder + topFold[i] + Shell[j]);
         XYPosition_shell[j + (4 * i)] = ibooker.book2D("Digi_Position_XY",
@@ -556,18 +565,18 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
                                                        -40.0,
                                                        40.0,
                                                        Parameters.getParameter<int32_t>("Nybins"),
-                                                       -30.0,
-                                                       30.0);
+                                                       -300.0,
+                                                       300.0);
 
         RZPosition_shell[j + (4 * i)] = ibooker.book2D("Digi_Position_RZ",
                                                        "Digi_Position_RZ (side view);z [cm];r [cm]",
                                                        ParametersRZ.getParameter<int32_t>("Nxbins"),
-                                                       -60.0,
-                                                       60.0,
+                                                       -300.0,
+                                                       300.0,
                                                        ParametersRZ.getParameter<int32_t>("Nybins"),
                                                        ParametersRZ.getParameter<double>("ymin"),
                                                        ParametersRZ.getParameter<double>("ymax"));
-        ZPhiPosition_shell[j + (4 * i)] = ibooker.book2D("Digi_ZPhi", "digi z phi", 60, -60.0, 60.0, 50, -4.0, 4.0);
+        ZPhiPosition_shell[j + (4 * i)] = ibooker.book2D("Digi_ZPhi", "digi z phi", 60, -300.0, 300.0, 50, -4.0, 4.0);
       }
     }
   }
