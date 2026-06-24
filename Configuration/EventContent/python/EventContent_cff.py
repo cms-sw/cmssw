@@ -734,10 +734,9 @@ from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2
 
 phase2_common.toModify(FEVTDEBUGHLTEventContent,
                        outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
-                           'keep *_hltHGCalRecHit_*_*',
-                           'keep *_hltMergeLayerClusters*_*_*',
                            'keep *_hltParticleFlowRecHit*_*_*',
                            'keep *_hltEgammaGsfTracksL1Seeded_*_*',
+                           'keep *_hltEgammaGsfTracksUnseeded_*_*',
                            'keep *_hltPFMET_*_*',
                            'keep *_hltPFPuppiMET_*_*',
                            'keep *_hltPFPuppiMETTypeOne_*_*',
@@ -768,6 +767,9 @@ mtd_at_hlt.toModify(FEVTDEBUGHLTEventContent,
                     outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
                         'keep *_hltOfflinePrimaryVertices4D_*_*'
                     ])
+
+phase2_hgcal.toModify(FEVTDEBUGHLTEventContent,
+    outputCommands = FEVTDEBUGHLTEventContent.outputCommands + HGCAL_FEVTHLT.outputCommands)
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 
