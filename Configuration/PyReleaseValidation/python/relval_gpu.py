@@ -11,6 +11,7 @@ workflows = Matrix()
 # the name of step1 will be used
 
 from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgrade_workflows
+from Configuration.PyReleaseValidation.relval_standard import workflows as _standard_workflows
 
 # to get the default upgrade geometry
 from Configuration.PyReleaseValidation.relval_Run4 import prefixDet
@@ -39,6 +40,8 @@ from Configuration.PyReleaseValidation.relval_Run4 import prefixDet
 #           Alpaka pixel-only quadruplets:                      ZMM with PU: any backend, any backend vs cpu validation, profiling
 #           Alpaka pixel-only triplets:                         ZMM with PU: any backend, any backend vs cpu validation, profiling
 #           Alpaka pixel-only quadruplets:                      Single Nu E10 with PU: any backend
+# Heavy Ions
+#           Alpaka with full HLT reco                           MinBias: any backend, to test HLT reconstruction
 # mc Run4   
 # no PU
 #           Alpaka pixel-only:                                  TTbar: quadruplets any backend, CA Extension any backend, any backend vs cpu validation, profiling, triplets
@@ -78,6 +81,9 @@ numWFIB = [
            18650.406, 18650.407, 18650.408,
            18661.402,
 
+           # 2026 Heavy Ions
+           163.03,
+
            # Run4, Alpaka-based noPU
            prefixDet+34.402, prefixDet+34.4021, prefixDet+34.403, prefixDet+34.404, prefixDet+34.406,
            prefixDet+34.612,
@@ -98,6 +104,11 @@ for numWF in numWFIB:
     if not numWF in _upgrade_workflows:
         continue
     workflows[numWF] = _upgrade_workflows[numWF]
+
+for numWF in numWFIB:
+    if not numWF in _standard_workflows:
+        continue
+    workflows[numWF] = _standard_workflows[numWF]
 
 # data WFs to run in IB:
 
