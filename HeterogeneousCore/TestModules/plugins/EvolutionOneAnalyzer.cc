@@ -1,5 +1,3 @@
-#include "DataFormats/PortableTestObjects/interface/SchemaEvolutionSoA.h"
-#include "DataFormats/PortableTestObjects/interface/SchemaEvolutionHostCollection.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -11,7 +9,10 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-using CollectionVersion = portabletest::HostCollectionEvolutionOne;
+#include "HeterogeneousCore/TestModules/interface/SchemaEvolutionSoA.h"
+#include "HeterogeneousCore/TestModules/interface/SchemaEvolutionHostCollection.h"
+
+using CollectionVersion = testmodules::HostCollectionEvolutionOne;
 
 class EvolutionOneAnalyzer : public edm::global::EDAnalyzer<> {
 public:
@@ -46,10 +47,10 @@ public:
       }
 
       // Check that enum has been casted to the new enum type
-      assert(element.cEnum() == portabletest::SEEnumTypeTwo::s2);
+      assert(element.cEnum() == testmodules::SEEnumTypeTwo::s2);
 
       // Check that Eigen matrix has been casted to Eigen matrix with type double
-      portabletest::SEEigenObjectTwo expectedEigen;
+      testmodules::SEEigenObjectTwo expectedEigen;
       expectedEigen << 10 * i + 1.1, -10 * i - 1.2, 10 * i + 2.3, -10 * i - 2.4, 10 * i + 3.5, -10 * i - 3.6,
           10 * i + 4.7, -10 * i - 4.8;
       for (int r = 0; r < element.eEigenObject().rows(); ++r) {
@@ -68,7 +69,7 @@ public:
     assert(view.sInt() == static_cast<int64_t>(std::numeric_limits<int>::max() - 7));
     assert(view.sFloat() == static_cast<int8_t>(1.0f / 3.0f));
     assert(std::abs(view.sDouble() - (1.0f / 10.0f)) < EPS_F);
-    assert(view.sEnum() == portabletest::SEEnumTypeTwo::s1);
+    assert(view.sEnum() == testmodules::SEEnumTypeTwo::s1);
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

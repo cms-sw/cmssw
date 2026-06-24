@@ -214,6 +214,7 @@ Eigen::Matrix<float, ...> -> Eigen::Matrix<double, ...>
     
 ### Complex Types
 
+In the following complex types refers to non-fundamental types for example user-defined structs or classes.
 Columns containing user-defined structs or classes require explicit I/O schema evolution rules.
 
 To support schema evolution for a complex column type:
@@ -232,7 +233,7 @@ When defining an I/O read rule:
 
 ##### Removing Complex-Type Columns
 
-Removing a column that contains a complex type consistently triggers a ROOT error during reading. See ROOT issue [#22097](https://github.com/root-project/root/issues/22097).
+Removing a column that contains a non-fundamental type consistently triggers a ROOT error during reading. See ROOT issue [#22097](https://github.com/root-project/root/issues/22097).
 
 ##### I/O Read Rules for SCALAR Columns
 
