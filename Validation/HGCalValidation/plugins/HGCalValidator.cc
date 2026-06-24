@@ -1,14 +1,12 @@
 #include <memory>
-
-#include "Validation/HGCalValidation/interface/HGCalValidator.h"
-
-#include "SimCalorimetry/HGCalAssociatorProducers/interface/AssociatorTools.h"
+#include <numbers>
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "SimCalorimetry/HGCalAssociatorProducers/interface/AssociatorTools.h"
+#include "Validation/HGCalValidation/interface/HGCalValidator.h"
 
 using namespace std;
 using namespace edm;
@@ -691,6 +689,12 @@ void HGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptio
     psd1.add<double>("minPhi", -3.2);
     psd1.add<double>("maxPhi", 3.2);
     psd1.add<int>("nintPhi", 80);
+    psd1.add<double>("minR", 0.);
+    psd1.add<double>("maxR", 100.);
+    psd1.add<int>("nintR", 50);
+    psd1.add<double>("minAlpha", 0.);
+    psd1.add<double>("maxAlpha", std::numbers::pi / 4.);
+    psd1.add<int>("nintAlpha", 50);
     psd1.add<double>("minMixedHitsSimCluster", 0.0);
     psd1.add<double>("maxMixedHitsSimCluster", 800.0);
     psd1.add<int>("nintMixedHitsSimCluster", 100);
