@@ -60,9 +60,9 @@ namespace edm {
       for (Providers::iterator itProvider = providers_.begin(), itProviderEnd = providers_.end();
            itProvider != itProviderEnd;
            ++itProvider) {
-        if ((*itProvider)->setValidityIntervalFor(iTime)) {
+        const ValidityInterval& providerInterval = (*itProvider)->findIntervalFor(iTime);
+        if (providerInterval != ValidityInterval::invalidInterval()) {
           haveAValidDependentRecord = true;
-          ValidityInterval providerInterval = (*itProvider)->validityInterval();
           if ((!newInterval.first().comparable(providerInterval.first())) ||
               (!newInterval.last().comparable(providerInterval.last()))) {
             intervalsWereComparible = false;
@@ -115,8 +115,8 @@ namespace edm {
       for (Providers::iterator itProvider = providers_.begin(), itProviderEnd = providers_.end();
            itProvider != itProviderEnd;
            ++itProvider, ++itIOVs) {
-        if ((*itProvider)->setValidityIntervalFor(iTime)) {
-          ValidityInterval providerInterval = (*itProvider)->validityInterval();
+        const ValidityInterval& providerInterval = (*itProvider)->findIntervalFor(iTime);
+        if (providerInterval != ValidityInterval::invalidInterval()) {
           if (*itIOVs != providerInterval) {
             hadChangedIOV = true;
             if (providerInterval.first().time().value() == 0) {

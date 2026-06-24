@@ -80,6 +80,13 @@ namespace edm {
       lastSyncValueForWhichWeSetValidityInterval_ = IOVSyncValue::invalidIOVSyncValue();
     }
 
+    const ValidityInterval& EventSetupRecordProvider::findIntervalFor(const IOVSyncValue& iInstance) {
+      if (nullptr == finder_.get()) {
+        return validityInterval_;
+      }
+      return finder_->findIntervalFor(key(), iInstance);
+    }
+
     void EventSetupRecordProvider::setSupportingProviders(
         const std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordProvider>>& iKeyToProviders) {
       auto const& supportingKeys = supportingRecords();
@@ -179,15 +186,6 @@ namespace edm {
     void EventSetupRecordProvider::endIOV(unsigned int iovIndex) { recordImpls_[iovIndex].invalidateResolvers(); }
 
     bool EventSetupRecordProvider::setValidityIntervalFor(const IOVSyncValue& iTime) {
-      // This function can be called multiple times for the same
-      // IOVSyncValue because DependentRecordIntervalFinder::setIntervalFor
-      // can call it in addition to it being called directly. We don't
-      // need to do the work multiple times for the same IOVSyncValue.
-      // The next line of code protects against this. Note that it would
-      // be possible to avoid this check if the calls to setValidityIntervalFor
-      // were made in the right order, but it would take some development work
-      // to come up with code to calculate that order (maybe a project for the
-      // future, but it's not clear it would be worth the effort).
       if (lastSyncValueForWhichWeSetValidityInterval_ != iTime) {
         lastSyncValueForWhichWeSetValidityInterval_ = iTime;
         intervalStatus_ = IntervalStatus::Invalid;
