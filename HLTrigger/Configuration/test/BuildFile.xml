@@ -38,3 +38,7 @@
 <test name="test_SpecialFullOutput" command="python3
 					     ${CMSSW_BASE}/src/HLTrigger/Configuration/test/testHLTOutput.py
 					     full Special"/>
+
+<!-- test script to check the configuration validaiton coverage -->
+<test name="test_PluginConfigValidationCoverage" command="python3
+							  ${CMSSW_BASE}/src/HLTrigger/Configuration/test/testPluginConfigValidationCoverage.py"/>
