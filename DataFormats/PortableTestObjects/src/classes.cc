@@ -10,8 +10,6 @@
 #include "DataFormats/PortableTestObjects/interface/MultiHeadNetHostCollection.h"
 #include "DataFormats/PortableTestObjects/interface/MaskHostCollection.h"
 
-#include "DataFormats/PortableTestObjects/interface/SchemaEvolutionHostCollection.h"
-
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::TestHostCollection);
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::TestHostCollection2);
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::TestHostCollection3);
@@ -23,10 +21,3 @@ SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::MultiHeadNetHostCollection);
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::ImageHostCollection);
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::LogitsHostCollection);
 SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::MaskHostCollection);
-
-SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::HostCollectionEvolutionZero);
-SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::HostCollectionEvolutionOne);
-SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::HostCollectionEvolutionTwo);
-SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::HostCollectionEvolutionThree);
-SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::HostCollectionEvolutionFour);
-SET_PORTABLEHOSTCOLLECTION_READ_RULES(portabletest::HostCollectionEvolutionFive);

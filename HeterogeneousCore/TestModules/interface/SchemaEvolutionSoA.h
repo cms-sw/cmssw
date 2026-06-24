@@ -1,5 +1,5 @@
-#ifndef DataFormats_PortableTestObjects_interface_SchemaEvolutionSoA_h
-#define DataFormats_PortableTestObjects_interface_SchemaEvolutionSoA_h
+#ifndef HeterogeneousCore_TestModules_interface_SchemaEvolutionSoA_h
+#define HeterogeneousCore_TestModules_interface_SchemaEvolutionSoA_h
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
@@ -10,7 +10,7 @@
 
 // These layouts form the basis of the schema evolution test.
 // ROOT files have been written with SoAEvolutionZeroLayout and will be read with SoAEvolutionOneLayout to SoAEvolutionFiveLayout
-namespace portabletest {
+namespace testmodules {
 
   using SEArray = edm::StdArray<int, 6>;
   using SEArrayTwo = edm::StdArray<double, 4>;
@@ -92,6 +92,6 @@ namespace portabletest {
   using SoAEvolutionThree = SoAEvolutionThreeLayout<>;
   using SoAEvolutionFour = SoAEvolutionFourLayout<>;
   using SoAEvolutionFive = SoAEvolutionFiveLayout<>;
-}  // namespace portabletest
+}  // namespace testmodules
 
-#endif  // DataFormats_PortableTestObjects_interface_SchemaEvolutionSoA_h
+#endif  // HeterogeneousCore_TestModules_interface_SchemaEvolutionSoA_h
