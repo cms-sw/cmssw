@@ -713,8 +713,8 @@ TEST_CASE("DependentRecord", "[Framework][EventSetup]") {
 
     REQUIRE(*(depProvider->supportingRecords().begin()) == dummyProvider->key());
 
-    std::vector<std::shared_ptr<EventSetupRecordProvider>> providers;
-    providers.push_back(dummyProvider);
+    std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordProvider>> providers;
+    providers.emplace(dummyProvider->key(), dummyProvider);
     depProvider->setSupportingProviders(providers);
   }
 

@@ -279,9 +279,7 @@ namespace edm {
 
       determinePreferred();
 
-      //For each Provider, find all the Providers it depends on.  If a supporting Provider
-      // can not be found pass in an empty list
-      //CHANGE: now allow for missing Providers
+      std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordProvider>> keyToProviders;
       for (auto& itRecordProvider : recordProviders_) {
         const EventSetupRecordProvider::DataToPreferredProviderMap* preferredInfo = &kEmptyMap;
         RecordToPreferred::const_iterator itRecordFound = recordToPreferred_->find(itRecordProvider->key());
@@ -290,43 +288,11 @@ namespace edm {
         }
         //Give it our list of preferred
         itRecordProvider->usePreferred(*preferredInfo);
-
-        std::set<EventSetupRecordKey> records = itRecordProvider->supportingRecords();
-        if (!records.empty()) {
-          std::string missingRecords;
-          std::vector<std::shared_ptr<EventSetupRecordProvider>> supportingProviders;
-          supportingProviders.reserve(records.size());
-          bool foundAllProviders = true;
-          for (auto const& key : records) {
-            auto lb = std::lower_bound(recordKeys_.begin(), recordKeys_.end(), key);
-            if (lb == recordKeys_.end() || key != *lb) {
-              foundAllProviders = false;
-              if (missingRecords.empty()) {
-                missingRecords = key.name();
-              } else {
-                missingRecords += ", ";
-                missingRecords += key.name();
-              }
-            } else {
-              auto index = std::distance(recordKeys_.begin(), lb);
-              supportingProviders.push_back(recordProviders_[index]);
-            }
-          }
-
-          if (!foundAllProviders) {
-            edm::LogInfo("EventSetupDependency")
-                << "The EventSetup record " << itRecordProvider->key().name() << " depends on at least one Record \n ("
-                << missingRecords
-                << ") which is not present in the job."
-                   "\n This may lead to an exception begin thrown during event processing.\n If no exception occurs "
-                   "during the job than it is usually safe to ignore this message.";
-
-            //supportingProviders.clear();
-            //NOTE: should provide a warning
-          }
-
-          itRecordProvider->setSupportingProviders(supportingProviders);
-        }
+        keyToProviders.insert(std::make_pair(itRecordProvider->key(), itRecordProvider));
+      }
+      //For each Provider, find all the Providers it depends on.
+      for (auto& itRecordProvider : recordProviders_) {
+        itRecordProvider->setSupportingProviders(keyToProviders);
       }
 
       dataProviders_.reset();

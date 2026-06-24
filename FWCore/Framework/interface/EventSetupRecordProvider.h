@@ -100,7 +100,9 @@ namespace edm {
        *  object will be used. We set a pointer to it. In the EventSetupRecordImpl we set the cacheIdentifier
        *  and validity interval. We also set the pointer in the EventSetupImpl to the EventSetupRecordImpl here.
        */
-      void initializeForNewIOV(unsigned int iovIndex, unsigned long long cacheIdentifier, EventSetupImpl& eventSetupImpl);
+      void initializeForNewIOV(unsigned int iovIndex,
+                               unsigned long long cacheIdentifier,
+                               EventSetupImpl& eventSetupImpl);
 
       /** This function is called when we do not need to start a new IOV for a record and syncValue.
        *  If a new EventSetupImpl was created, then this will set its pointer to the EventSetupRecordImpl.
@@ -121,7 +123,7 @@ namespace edm {
       bool setValidityIntervalFor(IOVSyncValue const&);
 
       ///If the provided Record depends on other Records, here are the supporting Providers
-      void setSupportingProviders(std::vector<std::shared_ptr<EventSetupRecordProvider>> const&);
+      void setSupportingProviders(std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordProvider>> const&);
 
       /**In the case of a conflict, sets what Provider to call.  This must be called after
          all providers have been added.  An empty map is acceptable. */

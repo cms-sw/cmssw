@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/ESProductResolverProvider.h"
 #include "FWCore/Framework/interface/ESProductResolver.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "make_shared_noexcept_false.h"
@@ -80,15 +81,40 @@ namespace edm {
     }
 
     void EventSetupRecordProvider::setSupportingProviders(
-        const std::vector<std::shared_ptr<EventSetupRecordProvider>>& iProviders) {
+        const std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordProvider>>& iKeyToProviders) {
+      auto const& supportingKeys = supportingRecords();
+      if (supportingKeys.empty()) {
+        return;
+      }
+      assert(not(finder_ and dynamic_cast<DependentRecordIntervalFinder*>(finder_.get()) != nullptr));
       std::shared_ptr<DependentRecordIntervalFinder> newFinder =
           make_shared_noexcept_false<DependentRecordIntervalFinder>(key());
 
       std::shared_ptr<EventSetupRecordIntervalFinder> old = swapFinder(newFinder);
 
-      for (auto const& p : iProviders) {
-        newFinder->addProviderWeAreDependentOn(p);
-      };
+      std::string missingRecords;
+
+      for (auto const& key : supportingKeys) {
+        auto itFound = iKeyToProviders.find(key);
+        if (itFound == iKeyToProviders.end()) {
+          if (missingRecords.empty()) {
+            missingRecords = key.name();
+          } else {
+            missingRecords += ", ";
+            missingRecords += key.name();
+          }
+        } else {
+          newFinder->addProviderWeAreDependentOn(itFound->second);
+        }
+      }
+      if (!missingRecords.empty()) {
+        edm::LogInfo("EventSetupDependency")
+            << "The EventSetup record " << key().name() << " depends on at least one Record \n (" << missingRecords
+            << ") which is not present in the job."
+               "\n This may lead to an exception begin thrown during event processing.\n If no exception occurs "
+               "during the job than it is usually safe to ignore this message.";
+      }
+
       //if a finder was already set, add it as a dependency.  This is done to ensure that the IOVs properly change even if the
       // old finder does not update each time a supporting record does change
       if (old.get() != nullptr) {
@@ -131,7 +157,9 @@ namespace edm {
       }
     }
 
-    void EventSetupRecordProvider::initializeForNewIOV(unsigned int iovIndex, unsigned long long cacheIdentifier, EventSetupImpl& eventSetupImpl) {
+    void EventSetupRecordProvider::initializeForNewIOV(unsigned int iovIndex,
+                                                       unsigned long long cacheIdentifier,
+                                                       EventSetupImpl& eventSetupImpl) {
       EventSetupRecordImpl* impl = &recordImpls_[iovIndex];
       recordImpl_ = impl;
       bool hasFinder = finder_.get() != nullptr;
