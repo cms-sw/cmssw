@@ -84,6 +84,7 @@ void SCEnergyCorrectorSemiParm::fillPSetDescription(edm::ParameterSetDescription
   desc.add<double>("uncertaintyMinEE", 0.0002);
   desc.add<double>("uncertaintyMaxEE", 0.5);
   desc.add<edm::InputTag>("vertexCollection", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<std::vector<edm::InputTag>>("rhoMaps", {});
   desc.add<double>("eRecHitThreshold", 1.);
   desc.add<edm::InputTag>("hgcalRecHits", edm::InputTag());
   desc.add<double>("hgcalCylinderR", EgammaHGCALIDParamDefaults::kRCylinder);
@@ -125,6 +126,8 @@ void SCEnergyCorrectorSemiParm::setEvent(const edm::Event& event) {
   if (!isHLT_) {
     event.getByToken(tokenVertices_, vertices_);
   }
+  for (size_t i = 0; i < rhoMapTokens_.size(); i++)
+    rhoMaps_[i] = event.getHandle(rhoMapTokens_[i]);
 }
 
 std::pair<double, double> SCEnergyCorrectorSemiParm::getCorrections(const reco::SuperCluster& sc) const {
@@ -271,7 +274,7 @@ std::vector<float> SCEnergyCorrectorSemiParm::getRegDataECALV1(const reco::Super
     ++iclus;
   }
 
-  eval[0] = vertices_->size();
+  eval[0] = rhoMaps_.empty() ? vertices_->size() : getRho(sc.eta());
   eval[1] = raw_energy;
   eval[2] = sc.etaWidth();
   eval[3] = sc.phiWidth();
