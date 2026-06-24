@@ -212,17 +212,17 @@ Eigen::Matrix<float, ...> -> Eigen::Matrix<double, ...>
     - Schema evolution follows the same rules as for fundamental integer types.
     - Changing the underlying type (e.g. `uint16_t` → `uint32_t`) is supported via implicit conversion.
     
-### Complex Types
+### User-defined Types
 
-In the following complex types refers to non-fundamental types for example user-defined structs or classes.
+In the following user-defined types refers to non-fundamental types for example user-defined structs or classes.
 Columns containing user-defined structs or classes require explicit I/O schema evolution rules.
 
-To support schema evolution for a complex column type:
+To support schema evolution for a column of a user-defined type:
 
 1. A class version and checksum must be defined in the SoA layout dictionary.
 2. An I/O read rule must be provided that describes how data should be converted between schema versions.
 
-Examples can be found in `DataFormats/PortableTestObjects/src/classes_def.xml`, where schema evolution rules are implemented for `edm::StdArray`.
+Examples can be found in `HeterogeneousCore/TestModules/src/classes_def.xml`, where schema evolution rules are implemented for `edm::StdArray`.
 
 When defining an I/O read rule:
 
@@ -231,7 +231,7 @@ When defining an I/O read rule:
 
 #### Known Limitations
 
-##### Removing Complex-Type Columns
+##### Removing User-defined type Columns
 
 Removing a column that contains a non-fundamental type consistently triggers a ROOT error during reading. See ROOT issue [#22097](https://github.com/root-project/root/issues/22097).
 
