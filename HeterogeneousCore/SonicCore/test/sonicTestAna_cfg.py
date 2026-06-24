@@ -16,16 +16,27 @@ process.dummySyncAna = cms.EDAnalyzer("SonicDummyOneAnalyzer",
         mode = cms.string("Sync"),
         factor = cms.int32(-1),
         wait = cms.int32(10),
-        allowedTries = cms.untracked.uint32(0),
         fails = cms.uint32(0),
+        Retry = cms.VPSet(
+          cms.PSet(
+            retryType = cms.string('RetrySameServerAction'),
+            allowedTries = cms.untracked.uint32(0),
+          )
+        )
     ),
 )
 
 process.dummySyncAnaRetry = process.dummySyncAna.clone(
     Client = dict(
         wait = 2,
-        allowedTries = 2,
         fails = 1,
+        Retry = cms.VPSet(
+          cms.PSet(
+            retryType = cms.string('RetrySameServerAction'),
+            allowedTries = cms.untracked.uint32(2),
+          )
+        )
+
     )
 )
 

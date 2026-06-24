@@ -10,6 +10,7 @@
 <iftool name="cuda">
   <use name="cuda"/>
 </iftool>
+
 <export>
-  <lib   name="1"/>
+  <lib name="1"/>
 </export>
