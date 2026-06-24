@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <optional>
 #include <vector>
 #include <unordered_map>
 
@@ -204,7 +205,7 @@ struct HGVHistoProducerAlgoHistograms {
   std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_en[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_pt[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_R[numberOfValidationTypes_];
-  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_alpha[numberOfValidationTypes_];  
+  std::vector<dqm::reco::MonitorElement*> h_numDup_trackster_alpha[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_eta[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_phi[numberOfValidationTypes_];
   std::vector<dqm::reco::MonitorElement*> h_denom_caloparticle_en[numberOfValidationTypes_];
@@ -320,7 +321,7 @@ public:
                                       const TracksterToTracksterMap& simTrackstersToTrackstersMap,
                                       const validationType valType,
                                       const SimClusterToCaloParticleMap& scToCpMap,
-									  const std::vector<CaloParticle>& cP,									  
+									  const std::vector<CaloParticle>& cP,
                                       const std::vector<size_t>& cPIndices,
                                       const std::vector<size_t>& cPSelectedIndices,
                                       const edm::ProductID& cPHandle_id) const;
@@ -422,11 +423,34 @@ public:
   };
 
 private:
+  struct CaloParticleDisplacement {
+    double R;
+    double alpha;
+  };
+
   double getEta(double eta) const;
-  std::pair<double, double> displacedQuantities(const SimTrack& st) const;
-  const SimTrack* simTrackFromCaloParticle(int cpIdx, const std::vector<CaloParticle>& caloParticles) const;
-  int getCPId(const ticl::Trackster& simTS, const edm::ProductID& cPHandle_id, const SimClusterToCaloParticleMap& scToCpMap) const;
-	
+  static const ticl::Trackster* resolveSimTracksterByRecoTrackster(
+      unsigned int recoTracksterIndex,
+      const TracksterToTracksterMap& recoToSimTrackstersMap);
+  const CaloParticle* resolveSimTracksterCaloParticle(const ticl::Trackster& simTrackster,
+                                                      const edm::ProductID& cPHandle_id,
+                                                      const SimClusterToCaloParticleMap& scToCpMap,
+                                                      const std::vector<CaloParticle>& caloParticles) const;
+  const CaloParticle* resolveSimTracksterCaloParticle(const TracksterToTracksterMap& recoToSimTrackstersMap,
+                                                      const TracksterToTracksterMap::AssociationElementType& simTracksterAssociation,
+                                                      const edm::ProductID& cPHandle_id,
+                                                      const SimClusterToCaloParticleMap& scToCpMap,
+                                                      const std::vector<CaloParticle>& caloParticles) const;
+  const CaloParticle* resolveRecoTracksterCaloParticle(unsigned int recoTracksterIndex,
+                                                       const TracksterToTracksterMap& recoToSimTrackstersMap,
+                                                       const edm::ProductID& cPHandle_id,
+                                                       const SimClusterToCaloParticleMap& scToCpMap,
+                                                       const std::vector<CaloParticle>& caloParticles) const;
+  std::optional<CaloParticleDisplacement> resolveCaloParticleDisplacement(
+      const CaloParticle& caloParticle) const;
+  static const SimTrack* simTrackFromCaloParticle(const CaloParticle& caloParticle);
+  int getCaloParticleId(const ticl::Trackster& simTS, const edm::ProductID& cPHandle_id, const SimClusterToCaloParticleMap& scToCpMap) const;
+
   std::shared_ptr<hgcal::RecHitTools> recHitTools_;
   constexpr static int numberOfValidationTypes_ = 4;
   std::array<std::string, numberOfValidationTypes_> ref_ = {

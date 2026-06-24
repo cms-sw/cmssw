@@ -2625,11 +2625,19 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
     histograms.h_denom_trackster_en[valType][count]->Fill(iTS_en);
     histograms.h_denom_trackster_pt[valType][count]->Fill(iTS_pt);
 
+    const auto* caloParticle =
+        resolveRecoTracksterCaloParticle(tracksterIndex, trackstersToSimTrackstersMap, cPHandle_id, scToCpMap, cP);
+    const auto displacement = caloParticle ? resolveCaloParticleDisplacement(*caloParticle) : std::nullopt;
+    if (displacement) {
+      histograms.h_denom_trackster_R[valType][count]->Fill(displacement->R);
+      histograms.h_denom_trackster_alpha[valType][count]->Fill(displacement->alpha);
+    }
 
     // loop over trackstersToSimTrackstersMap[tracksterIndex] by index
     for (unsigned int i = 0; i < trackstersToSimTrackstersMap[tracksterIndex].size(); ++i) {
-      auto sharedEnergy = trackstersToSimTrackstersMap[tracksterIndex][i].sharedEnergy();
-      auto score = trackstersToSimTrackstersMap[tracksterIndex][i].score();
+      const auto& simTracksterAssociation = trackstersToSimTrackstersMap[tracksterIndex][i];
+      auto sharedEnergy = simTracksterAssociation.sharedEnergy();
+      auto score = simTracksterAssociation.score();
       float sharedEnergyFraction = sharedEnergy / trackster.raw_energy();
       if (i == 0) {
         histograms.h_score_trackster2bestCaloparticle[valType][count]->Fill(score);
@@ -2656,12 +2664,20 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
       histograms.h_num_trackster_phi[valType][count]->Fill(iTS_phi);
       histograms.h_num_trackster_en[valType][count]->Fill(iTS_en);
       histograms.h_num_trackster_pt[valType][count]->Fill(iTS_pt);
+      if (displacement) {
+        histograms.h_num_trackster_R[valType][count]->Fill(displacement->R);
+        histograms.h_num_trackster_alpha[valType][count]->Fill(displacement->alpha);
+      }
 
       if (tracksters_FakeMerge[tracksterIndex] > 1) {
         histograms.h_numMerge_trackster_eta[valType][count]->Fill(iTS_eta);
         histograms.h_numMerge_trackster_phi[valType][count]->Fill(iTS_phi);
         histograms.h_numMerge_trackster_en[valType][count]->Fill(iTS_en);
         histograms.h_numMerge_trackster_pt[valType][count]->Fill(iTS_pt);
+        if (displacement) {
+          histograms.h_numMerge_trackster_R[valType][count]->Fill(displacement->R);
+          histograms.h_numMerge_trackster_alpha[valType][count]->Fill(displacement->alpha);
+        }
       }
     }
   }
@@ -2671,7 +2687,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
   // only to the selected caloParticles.
   for (unsigned int simTracksterIndex = 0; simTracksterIndex < nSimTracksters; ++simTracksterIndex) {
     const auto& simTrackster = *(simTrackstersToTrackstersMap.getRefFirst(simTracksterIndex));
-    const auto cpId = getCPId(simTrackster, cPHandle_id, scToCpMap);
+    const auto cpId = getCaloParticleId(simTrackster, cPHandle_id, scToCpMap);
     if (std::find(cPSelectedIndices.begin(), cPSelectedIndices.end(), cpId) == cPSelectedIndices.end())
       continue;
 
@@ -2681,19 +2697,18 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
     const auto sts_pt = simTrackster.raw_pt();
     float inv_simtrackster_energy = 1.f / sts_en;
 
-	const SimTrack* simtrack = simTrackFromCaloParticle(cpId, cP);
-	if (!simtrack) {
-	  throw cms::Exception("HGVHistoProducerAlgo") << "SimTrack not found!";
-	}
-	const auto [R, alpha] = displacedQuantities(*simtrack);
+    const auto displacement = resolveCaloParticleDisplacement(cP[cpId]);
+    if (!displacement) {
+      throw cms::Exception("HGVHistoProducerAlgo") << "SimTrack not found!";
+    }
 
     histograms.h_denom_caloparticle_eta[valType][count]->Fill(sts_eta);
     histograms.h_denom_caloparticle_phi[valType][count]->Fill(sts_phi);
     histograms.h_denom_caloparticle_en[valType][count]->Fill(sts_en);
     histograms.h_denom_caloparticle_pt[valType][count]->Fill(sts_pt);
 
-	  histograms.h_denom_caloparticle_R[valType][count]->Fill(R);
-	  histograms.h_denom_caloparticle_alpha[valType][count]->Fill(alpha);
+    histograms.h_denom_caloparticle_R[valType][count]->Fill(displacement->R);
+    histograms.h_denom_caloparticle_alpha[valType][count]->Fill(displacement->alpha);
 
     //Loop through related Tracksters here
     // In case the threshold to associate a CaloParticle to a Trackster is
@@ -2734,8 +2749,8 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
         histograms.h_numEff_caloparticle_phi[valType][count]->Fill(sts_phi);
         histograms.h_numEff_caloparticle_en[valType][count]->Fill(sts_en);
         histograms.h_numEff_caloparticle_pt[valType][count]->Fill(sts_pt);
-		    histograms.h_numEff_caloparticle_R[valType][count]->Fill(R);
-		    histograms.h_numEff_caloparticle_alpha[valType][count]->Fill(alpha);
+        histograms.h_numEff_caloparticle_R[valType][count]->Fill(displacement->R);
+        histograms.h_numEff_caloparticle_alpha[valType][count]->Fill(displacement->alpha);
       }
 
       if (score < ScoreCutSTStoTSPurDup) {
@@ -2752,16 +2767,16 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
       histograms.h_num_caloparticle_phi[valType][count]->Fill(sts_phi);
       histograms.h_num_caloparticle_en[valType][count]->Fill(sts_en);
       histograms.h_num_caloparticle_pt[valType][count]->Fill(sts_pt);
-	    histograms.h_num_caloparticle_R[valType][count]->Fill(R);
-	    histograms.h_num_caloparticle_alpha[valType][count]->Fill(alpha);
+      histograms.h_num_caloparticle_R[valType][count]->Fill(displacement->R);
+      histograms.h_num_caloparticle_alpha[valType][count]->Fill(displacement->alpha);
 
       if (tracksters_PurityDuplicate[simTracksterIndex] > 1) {
         histograms.h_numDup_trackster_eta[valType][count]->Fill(sts_eta);
         histograms.h_numDup_trackster_phi[valType][count]->Fill(sts_phi);
         histograms.h_numDup_trackster_en[valType][count]->Fill(sts_en);
         histograms.h_numDup_trackster_pt[valType][count]->Fill(sts_pt);
-		    histograms.h_numDup_trackster_R[valType][count]->Fill(R);
-		    histograms.h_numDup_trackster_alpha[valType][count]->Fill(alpha);
+        histograms.h_numDup_trackster_R[valType][count]->Fill(displacement->R);
+        histograms.h_numDup_trackster_alpha[valType][count]->Fill(displacement->alpha);
       }
     }
 
@@ -2955,7 +2970,16 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
       histograms.h_trackster_pt[count]->Fill(tst.raw_pt());
       histograms.h_trackster_energy[count]->Fill(tst.raw_energy());
 
-	}
+      if (mapsFound && trackstersToSimTrackstersByLCsMapH.isValid()) {
+        const auto* caloParticle =
+            resolveRecoTracksterCaloParticle(tstId, *trackstersToSimTrackstersByLCsMapH, cPHandle_id, scToCpMap, cP);
+        const auto displacement = caloParticle ? resolveCaloParticleDisplacement(*caloParticle) : std::nullopt;
+        if (displacement) {
+          histograms.h_trackster_R[count]->Fill(displacement->R);
+          histograms.h_trackster_alpha[count]->Fill(displacement->alpha);
+        }
+      }
+    }
 
   }  //end of loop through Tracksters
 
@@ -3067,17 +3091,65 @@ double HGVHistoProducerAlgo::getEta(double eta) const {
     return eta;
 }
 
-/* Returns the R=sqrt(x*x+y*y) at z=0 and the displacement angle alpha,
-   extrapolating from the position and momentum at the surface of HGCAL.
-   Works for uncharged particles only.
+const CaloParticle* HGVHistoProducerAlgo::resolveSimTracksterCaloParticle(
+    const ticl::Trackster& simTrackster,
+    const edm::ProductID& cPHandle_id,
+    const SimClusterToCaloParticleMap& scToCpMap,
+    const std::vector<CaloParticle>& caloParticles) const {
+  const auto cpId = getCaloParticleId(simTrackster, cPHandle_id, scToCpMap);
+  if (cpId < 0 || static_cast<size_t>(cpId) >= caloParticles.size()) {
+    return nullptr;
+  }
 
-   The displacement angle is the angle between the trajectory of the particle
-   and the trajectory that a particle crossing the HGCAL surface at the same point
-   would have. It measures how non-pointing a given particle's trajectory is.
-*/
-std::pair<double, double> HGVHistoProducerAlgo::displacedQuantities(const SimTrack& st) const {
-  math::XYZTLorentzVectorF boundary_pos = st.getPositionAtBoundary();
-  math::XYZTLorentzVectorF boundary_mom = st.getMomentumAtBoundary();
+  return &caloParticles[cpId];
+}
+
+const ticl::Trackster* HGVHistoProducerAlgo::resolveSimTracksterByRecoTrackster(
+    unsigned int recoTracksterIndex,
+    const TracksterToTracksterMap& recoToSimTrackstersMap) {
+  if (recoTracksterIndex >= recoToSimTrackstersMap.size()) {
+    return nullptr;
+  }
+
+  const auto& matchingSimTracksters = recoToSimTrackstersMap[recoTracksterIndex];
+  if (matchingSimTracksters.empty()) {
+    return nullptr;
+  }
+
+  const auto bestSimTracksterIndex = matchingSimTracksters[0].index();
+  return recoToSimTrackstersMap.getRefSecond(bestSimTracksterIndex).get();
+}
+
+const CaloParticle* HGVHistoProducerAlgo::resolveRecoTracksterCaloParticle(
+    unsigned int recoTracksterIndex,
+    const TracksterToTracksterMap& recoToSimTrackstersMap,
+    const edm::ProductID& caloParticleProductId,
+    const SimClusterToCaloParticleMap& simClusterToCaloParticleMap,
+    const std::vector<CaloParticle>& caloParticles) const {
+  const auto* simTrackster = resolveSimTracksterByRecoTrackster(recoTracksterIndex, recoToSimTrackstersMap);
+  if (!simTrackster) {
+    return nullptr;
+  }
+
+  return resolveSimTracksterCaloParticle(*simTrackster, caloParticleProductId, simClusterToCaloParticleMap, caloParticles);
+}
+
+ /* Returns the R=sqrt(x*x+y*y) at z=0 and the displacement angle alpha,
+     extrapolating from the position and momentum at the surface of HGCAL.
+     Works for uncharged particles only.
+
+     The displacement angle is the angle between the trajectory of the particle
+     and the trajectory that a particle crossing the HGCAL surface at the same point
+     would have. It measures how non-pointing a given particle's trajectory is.
+  */
+std::optional<HGVHistoProducerAlgo::CaloParticleDisplacement> HGVHistoProducerAlgo::resolveCaloParticleDisplacement(const CaloParticle& caloParticle) const {
+  const SimTrack* simtrack = simTrackFromCaloParticle(caloParticle);
+  if (!simtrack || !simtrack->crossedBoundary()) {
+    return std::nullopt;
+  }
+
+  math::XYZTLorentzVectorF boundary_pos = simtrack->getPositionAtBoundary();
+  math::XYZTLorentzVectorF boundary_mom = simtrack->getMomentumAtBoundary();
 
   math::XYZVectorF dir(boundary_mom.x(), boundary_mom.y(), boundary_mom.z());
   dir = dir.Unit();
@@ -3094,19 +3166,17 @@ std::pair<double, double> HGVHistoProducerAlgo::displacedQuantities(const SimTra
   cos_alpha = std::clamp(cos_alpha, -1.0, 1.0);
   double alpha = std::acos(cos_alpha);
 
-  return {R, alpha};
+  return CaloParticleDisplacement{R, alpha};
 }
 
-const SimTrack* HGVHistoProducerAlgo::simTrackFromCaloParticle(int cpIdx, const std::vector<CaloParticle>& caloParticles) const
-{
-  const CaloParticle& cp = caloParticles[cpIdx];
-  if (cp.g4Tracks().empty())
-	return nullptr;
+const SimTrack* HGVHistoProducerAlgo::simTrackFromCaloParticle(const CaloParticle& caloParticle) {
+  if (caloParticle.g4Tracks().empty())
+    return nullptr;
 
-  return &cp.g4Tracks().front();
+  return &caloParticle.g4Tracks().front();
 }
 
-int HGVHistoProducerAlgo::getCPId(const ticl::Trackster& simTS,
+int HGVHistoProducerAlgo::getCaloParticleId(const ticl::Trackster& simTS,
 								  const edm::ProductID& cPHandle_id,
 								  const SimClusterToCaloParticleMap& scToCpMap) const {
   const auto productID = simTS.seedID();
