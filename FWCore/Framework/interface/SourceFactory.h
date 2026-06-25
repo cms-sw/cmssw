@@ -37,6 +37,7 @@
 // system include files
 #include <memory>
 #include <string>
+#include <type_traits>
 
 // user include files
 #include "FWCore/Framework/interface/ComponentFactory.h"
@@ -51,19 +52,6 @@ namespace edm {
   namespace eventsetup {
     class ESProductResolverProvider;
 
-    template <class T>
-    void addProviderTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent, const ESProductResolverProvider*) {
-      std::shared_ptr<ESProductResolverProvider> pProvider(iComponent);
-      ComponentDescription description = pProvider->description();
-      description.isSource_ = true;
-      pProvider->setDescription(description);
-      iProvider.add(pProvider);
-    }
-    template <class T>
-    void addProviderTo(EventSetupProvider& /* iProvider */, std::shared_ptr<T> /*iComponent*/, const void*) {
-      //do nothing
-    }
-
     struct SourceMakerTraits {
       typedef EventSetupRecordIntervalFinder base_type;
       static std::string name();
@@ -71,7 +59,13 @@ namespace edm {
       template <class T>
       static void addTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent) {
         //a source does not always have to be a provider
-        addProviderTo(iProvider, iComponent, static_cast<const T*>(nullptr));
+        if constexpr (std::is_base_of_v<ESProductResolverProvider, T>) {
+          std::shared_ptr<ESProductResolverProvider> pProvider(iComponent);
+          ComponentDescription description = pProvider->description();
+          description.isSource_ = true;
+          pProvider->setDescription(description);
+          iProvider.add(pProvider);
+        }
         std::shared_ptr<EventSetupRecordIntervalFinder> pFinder(iComponent);
         iProvider.add(pFinder);
       }
