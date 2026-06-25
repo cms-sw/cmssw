@@ -264,8 +264,13 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
     if (verbose_) {
       log << '\n';
       log << "  streaming multiprocessors: " << std::setw(13) << properties.multiProcessorCount << '\n';
+      log << "  max threads per multiprocessor: " << std::setw(8) << properties.maxThreadsPerMultiProcessor << '\n';
+      log << "  max resident threads: " << std::setw(18)
+          << properties.multiProcessorCount * properties.maxThreadsPerMultiProcessor << '\n';
       log << "  CUDA cores: " << std::setw(28)
           << properties.multiProcessorCount * getCudaCoresPerSM(properties.major, properties.minor) << '\n';
+      log << "  max resident threads per CUDA core: " << std::setw(4)
+          << properties.maxThreadsPerMultiProcessor / getCudaCoresPerSM(properties.major, properties.minor) << '\n';
       log << "  single to double performance: " << std::setw(8) << properties.singleToDoublePrecisionPerfRatio
           << ":1\n";
     }
