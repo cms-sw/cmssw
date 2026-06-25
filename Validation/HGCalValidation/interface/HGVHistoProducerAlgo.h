@@ -429,9 +429,6 @@ private:
   };
 
   double getEta(double eta) const;
-  static const ticl::Trackster* resolveSimTracksterByRecoTrackster(
-      unsigned int recoTracksterIndex,
-      const TracksterToTracksterMap& recoToSimTrackstersMap);
   const CaloParticle* resolveSimTracksterCaloParticle(const ticl::Trackster& simTrackster,
                                                       const edm::ProductID& cPHandle_id,
                                                       const SimClusterToCaloParticleMap& scToCpMap,
@@ -448,6 +445,10 @@ private:
                                                        const std::vector<CaloParticle>& caloParticles) const;
   std::optional<CaloParticleDisplacement> resolveCaloParticleDisplacement(
       const CaloParticle& caloParticle) const;
+
+  const ticl::Trackster::Vector &resolveTracksterDirection(
+      const ticl::Trackster &trackster) const;
+
   static const SimTrack* simTrackFromCaloParticle(const CaloParticle& caloParticle);
   int getCaloParticleId(const ticl::Trackster& simTS, const edm::ProductID& cPHandle_id, const SimClusterToCaloParticleMap& scToCpMap) const;
 
