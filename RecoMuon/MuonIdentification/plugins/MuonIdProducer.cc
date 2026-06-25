@@ -1523,6 +1523,56 @@ bool MuonIdProducer::checkLinks(const reco::MuonTrackLinks* links) const {
 
 void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+
+  desc.add<double>("minPt", 0.5);
+  desc.add<double>("minP", 2.5);
+  desc.add<double>("minPCaloMuon", 1e9);
+  desc.add<int>("minNumberOfMatches", 1);
+  desc.add<bool>("addExtraSoftMuons", false);
+  desc.add<double>("maxAbsEta", 3.0);
+
+  desc.add<double>("maxAbsDx", 3.0);
+  desc.add<double>("maxAbsDy", 9999.0);
+  desc.add<double>("maxAbsPullX", 3.0);
+  desc.add<double>("maxAbsPullY", 9999.0);
+
+  desc.add<bool>("fillCaloCompatibility", true);
+  desc.add<bool>("fillEnergy", true);
+  desc.add<bool>("fillMatching", true);
+  desc.add<bool>("fillIsolation", true);
+  desc.add<bool>("writeIsoDeposits", false);
+  desc.add<bool>("fillGlobalTrackQuality", false);
+  desc.add<bool>("fillGlobalTrackRefits", true);
+  desc.add<bool>("debugWithTruthMatching", false);
+
+  desc.add<double>("ptThresholdToFillCandidateP4WithGlobalFit", 200.0);
+  desc.add<double>("sigmaThresholdToFillCandidateP4WithGlobalFit", 2.0);
+
+  desc.add<double>("minCaloCompatibility", 0.6);
+
+  desc.add<bool>("runArbitrationCleaner", true);
+
+  desc.add<std::vector<edm::InputTag>>("inputCollectionLabels",
+                                       std::vector<edm::InputTag>{edm::InputTag("generalTracks"),
+                                                                  edm::InputTag("globalMuons"),
+                                                                  edm::InputTag("standAloneMuons", "UpdatedAtVtx"),
+                                                                  edm::InputTag("standAloneMuons"),
+                                                                  edm::InputTag("tevMuons", "firstHit"),
+                                                                  edm::InputTag("tevMuons", "picky"),
+                                                                  edm::InputTag("tevMuons", "dyt")});
+  desc.add<std::vector<std::string>>(
+      "inputCollectionTypes",
+      std::vector<std::string>{
+          "inner tracks", "links", "outer tracks", "outer tracks", "tev firstHit", "tev picky", "tev dyt"});
+
+  desc.add<std::string>("trackDepositName", "tracker");
+  desc.add<std::string>("ecalDepositName", "ecal");
+  desc.add<std::string>("hcalDepositName", "hcal");
+  desc.add<std::string>("hoDepositName", "ho");
+  desc.add<std::string>("jetDepositName", "jets");
+
+  desc.add<edm::InputTag>("globalTrackQualityInputTag", edm::InputTag("globalTrackQualityInputTag"));
+
   desc.setAllowAnything();
 
   desc.add<bool>("arbitrateTrackerMuons", false);
