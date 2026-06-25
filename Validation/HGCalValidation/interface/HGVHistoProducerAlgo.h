@@ -21,6 +21,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "DataFormats/Common/interface/MultiSpan.h"
@@ -429,27 +430,20 @@ private:
   };
 
   double getEta(double eta) const;
-  const CaloParticle* resolveSimTracksterCaloParticle(const ticl::Trackster& simTrackster,
-                                                      const edm::ProductID& cPHandle_id,
-                                                      const SimClusterToCaloParticleMap& scToCpMap,
-                                                      const std::vector<CaloParticle>& caloParticles) const;
-  const CaloParticle* resolveSimTracksterCaloParticle(const TracksterToTracksterMap& recoToSimTrackstersMap,
-                                                      const TracksterToTracksterMap::AssociationElementType& simTracksterAssociation,
-                                                      const edm::ProductID& cPHandle_id,
-                                                      const SimClusterToCaloParticleMap& scToCpMap,
-                                                      const std::vector<CaloParticle>& caloParticles) const;
-  const CaloParticle* resolveRecoTracksterCaloParticle(unsigned int recoTracksterIndex,
-                                                       const TracksterToTracksterMap& recoToSimTrackstersMap,
-                                                       const edm::ProductID& cPHandle_id,
-                                                       const SimClusterToCaloParticleMap& scToCpMap,
-                                                       const std::vector<CaloParticle>& caloParticles) const;
-  std::optional<CaloParticleDisplacement> resolveCaloParticleDisplacement(
-      const CaloParticle& caloParticle) const;
+  static const ticl::Trackster* resolveSimTracksterByRecoTrackster(
+      unsigned int recoTracksterIndex,
+      const TracksterToTracksterMap& recoToSimTrackstersMap);
+  CaloParticleDisplacement resolveDisplacement(const math::XYZVectorF& point,
+                                               const math::XYZVectorF& direction) const;
+  std::optional<CaloParticleDisplacement> resolveSimTrackDisplacement(const SimTrack& simTrack) const;
 
-  const ticl::Trackster::Vector &resolveTracksterDirection(
+  const ticl::Trackster::Vector& resolveTracksterDirection(
+      const ticl::Trackster& trackster) const;
+
+  CaloParticleDisplacement resolveRecoTracksterDisplacement(
       const ticl::Trackster &trackster) const;
 
-  static const SimTrack* simTrackFromCaloParticle(const CaloParticle& caloParticle);
+  static const SimTrack* getSimTrack(const CaloParticle& caloParticle);
   int getCaloParticleId(const ticl::Trackster& simTS, const edm::ProductID& cPHandle_id, const SimClusterToCaloParticleMap& scToCpMap) const;
 
   std::shared_ptr<hgcal::RecHitTools> recHitTools_;
