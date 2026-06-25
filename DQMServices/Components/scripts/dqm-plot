@@ -16,6 +16,7 @@ import argparse
 import os
 import re
 import multiprocessing
+from functools import partial
 import warnings
 import urllib.request
 import urllib.error
@@ -31,9 +32,8 @@ plt.style.use(hep.style.CMS)
 # Use matplotlib's mathtext
 plt.rcParams["mathtext.default"] = "regular"
 
-
 class DQMPlotter:
-    def __init__(self, figsize=(12, 9), ratio_height=0.3, processors=None):
+    def __init__(self, figsize=(12, 9), ratio_height=0.3, processors=None, debug=False):
         """
         Initialize the plotter.
 
@@ -72,6 +72,7 @@ class DQMPlotter:
         self.processors = (
             processors if processors is not None else len(os.sched_getaffinity(0))
         )
+        self.debug = debug
 
     def _extend_color_palette(self, needed: int):
         """Ensure self.colors has at least 'needed' distinct entries."""
@@ -137,12 +138,14 @@ class DQMPlotter:
 
         # Skip auto x-log-scale if the user gave an explicit xlim that includes non-positive values
         xlim_blocks_log = xlim is not None and xlim[0] <= 0
-        
+
         # Automatic log scale for specific variable types
-        if "p_{\text{T}}" in xlabel and "pull" not in xlabel.lower() and not xlim_blocks_log:
+        if ( any(x in xlabel for x in ('p_{\text{T}}', '$p_{\\text{T}}$'))
+             and "pull" not in xlabel.lower() and not xlim_blocks_log ):
             ax.set_xscale("log")
 
-        if ("p_{\text{T}}" in ylabel and "pull" not in ylabel.lower()) or "Sigma" in title:
+        if ( (any(x in ylabel for x in ('p_{\text{T}}', '$p_{\\text{T}}$'))
+             and "pull" not in ylabel.lower()) or "Sigma" in title ):
             if not has_negative_values:
                 ax.set_yscale("log")
 
@@ -823,6 +826,7 @@ class DQMPlotter:
         if title:
             ax_main.set_title(title, pad=50)
         has_negative_values = np.any(bin_contents < 0)
+
         xlabel, ylabel = self._apply_axis_scaling(ax_main, xlabel, ylabel, title, logy, xlim, has_negative_values)
 
         ax_main.set_xlabel(xlabel, fontsize=label_size)
@@ -918,6 +922,7 @@ class DQMPlotter:
         create_web_index=False,
         overlay_groups=None,
         overlay_individual=True,
+        debug=False,
         **plot_kwargs,
     ):
         """
@@ -969,7 +974,8 @@ class DQMPlotter:
         print(f"Scanning all files for histograms matching the pattern(s) using {self.processors} parallel processes...")
         scan_tasks = [{"file_path": fp, "patterns": patterns} for fp in file_paths]
         with multiprocessing.Pool(self.processors) as pool:
-            scan_results = pool.map(scan_file_task, scan_tasks)
+            scan_file_task_extra_args = partial(scan_file_task, debug=self.debug)
+            scan_results = pool.map(scan_file_task_extra_args, scan_tasks)
 
         for file_hists, file_hist_to_pattern in scan_results:
             all_matching_hists.update(file_hists)
@@ -1149,23 +1155,17 @@ class DQMPlotter:
         print(f"Created index.php files in {n_index} directories for web viewing")
 
     def _process_files(self, plot_tasks):
-        """Process plotting tasks using multiprocessing."""
-        print(f"Using {self.processors} parallel processes")
-
-        with multiprocessing.Pool(self.processors) as pool:
-            results = []
+        """Process plotting tasks using multiprocessing or sequentially in debug mode."""
+        if self.debug:
+            print("Debug mode: processing sequentially")
+            completed = 0
+            failed = 0
             for i, task in enumerate(plot_tasks):
                 task_copy = task.copy()
                 task_copy.pop("progress_counter", None)
                 task_copy.pop("total_tasks", None)
-                result = pool.apply_async(process_histogram_task, (task_copy,))
-                results.append((i, result))
-
-            completed = 0
-            failed = 0
-            for i, result in results:
                 try:
-                    result.get(timeout=300)
+                    process_histogram_task(task_copy, self.debug)
                     completed += 1
                     if completed % 10 == 0 or completed == len(plot_tasks):
                         print(
@@ -1173,33 +1173,57 @@ class DQMPlotter:
                             end="",
                             flush=True,
                         )
-                except multiprocessing.TimeoutError:
-                    print(f"\nTask {i} timed out")
-                    failed += 1
                 except Exception as e:
                     print(f"\nError in task {i}: {e}")
                     failed += 1
-
-            pool.close()
-            pool.join()
-
-            if failed > 0:
-                print(f"\n{failed} tasks failed out of {len(plot_tasks)} total")
+        else:
+            print(f"Using {self.processors} parallel processes")
+            with multiprocessing.Pool(self.processors) as pool:
+                results = []
+                for i, task in enumerate(plot_tasks):
+                    task_copy = task.copy()
+                    task_copy.pop("progress_counter", None)
+                    task_copy.pop("total_tasks", None)
+                    result = pool.apply_async(process_histogram_task, (task_copy, self.debug))
+                    results.append((i, result))
+                completed = 0
+                failed = 0
+                for i, result in results:
+                    try:
+                        result.get(timeout=300)
+                        completed += 1
+                        if completed % 10 == 0 or completed == len(plot_tasks):
+                            print(
+                                f"\rProgress: {completed}/{len(plot_tasks)} plots completed",
+                                end="",
+                                flush=True,
+                            )
+                    except multiprocessing.TimeoutError:
+                        print(f"\nTask {i} timed out")
+                        failed += 1
+                    except Exception as e:
+                        print(f"\nError in task {i}: {e}")
+                        failed += 1
+                pool.close()
+                pool.join()
+     
+        if failed > 0:
+            print(f"\n{failed} tasks failed out of {len(plot_tasks)} total")
         print()
 
-def scan_file_task(task):
+def scan_file_task(task, debug):
     """Scan a single ROOT file for histograms matching patterns, in a separate process."""
     try:
         file_path = task["file_path"]
         patterns = task["patterns"]
 
-        plotter = DQMPlotter()
+        finder = DQMPlotter(debug=debug)
         root_file = ROOT.TFile.Open(file_path, "READ")
         if not root_file or root_file.IsZombie():
             print(f"Error: Could not open {file_path}")
             return [], {}
 
-        results = plotter.find_histograms_in_file(root_file, patterns)
+        results = finder.find_histograms_in_file(root_file, patterns)
         root_file.Close()
 
         file_hists = [hp for hp, _ in results]
@@ -1215,7 +1239,7 @@ def scan_file_task(task):
         return [], {}
 
 
-def process_histogram_task(task):
+def process_histogram_task(task, debug):
     """Process a single histogram task in a separate process."""
     try:
         file_paths = task["file_paths"]
@@ -1225,7 +1249,7 @@ def process_histogram_task(task):
         plot_kwargs = task["plot_kwargs"]
         is_overlay = task["is_overlay"]
 
-        plotter = DQMPlotter()
+        plotter = DQMPlotter(debug=debug)
         plotter._current_output_path = output_path
         plotter.colors = task["colors"]
 
@@ -1367,12 +1391,18 @@ if __name__ == "__main__":
         help="Disable creation of individual plots for collections that are overlaid (default: create both overlay and individual plots).",
     )
 
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Run in debug mode: converts CPU-parallel calls to sequential steps.",
+    )
+
     args = parser.parse_args()
 
     if args.nProcessors < 1:
         args.nProcessors = len(os.sched_getaffinity(0))
 
-    plotter = DQMPlotter(processors=args.nProcessors)
+    plotter = DQMPlotter(processors=args.nProcessors, debug=args.debug)
 
     # Ensure the first axis limit lies below the second
     if args.xlim is not None and args.xlim[0] >= args.xlim[1]:
@@ -1414,4 +1444,5 @@ if __name__ == "__main__":
         legend_title=args.legend_title,
         overlay_groups=overlay_groups,
         overlay_individual=not args.no_overlay_individual,
+        debug=args.debug,
     )
