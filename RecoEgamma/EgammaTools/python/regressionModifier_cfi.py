@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 regressionModifier106XUL = cms.PSet(
     modifierName = cms.string('EGRegressionModifierV3'),       
     rhoTag = cms.InputTag('fixedGridRhoFastjetAllTmp'),
+    rhoMaps = cms.VInputTag(),
     useClosestToCentreSeedCrysDef = cms.bool(False),
     useBuggedHOverE = cms.bool(False),
     maxRawEnergyForLowPtEBSigma = cms.double(-1), 
@@ -94,6 +95,7 @@ regressionModifier106XUL = cms.PSet(
 regressionModifier103XLowPtPho = cms.PSet(
     modifierName = cms.string('EGRegressionModifierV3'),       
     rhoTag = cms.InputTag('fixedGridRhoFastjetAllTmp'),
+    rhoMaps = cms.VInputTag(),
     useClosestToCentreSeedCrysDef = cms.bool(False),
     useBuggedHOverE = cms.bool(False),
     maxRawEnergyForLowPtEBSigma = cms.double(-1), 
