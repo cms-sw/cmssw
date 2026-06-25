@@ -264,6 +264,7 @@ from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_la
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+from Configuration.ProcessModifiers.phase2_l1scout_cff import phase2_l1scout
 from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import *
 from RecoMTD.Configuration.RecoMTD_EventContent_cff import *
 
@@ -920,6 +921,8 @@ MINIAODSIMEventContent= cms.PSet(
 )
 MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
 MINIAODSIMEventContent.outputCommands.extend(HLTriggerMINIAOD.outputCommands)
+
+phase2_l1scout.toModify(MINIAODSIMEventContent, outputCommands = L1TriggerPhase2L1ScoutMINIAODSIM.outputCommands)
 
 MINIGENEventContent= cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
