@@ -42,7 +42,7 @@ private:
   const G4VPhysicalVolume* calo{nullptr};
   const G4VPhysicalVolume* btl{nullptr};
   const CMSSteppingVerbose* steppingVerbose;
-  Phase2TrackFilter* filter;
+  std::unique_ptr<Phase2TrackFilter> filter;
   double theCriticalEnergyForVacuum;
   double theCriticalDensity;
   double maxTrackTime;
