@@ -76,9 +76,13 @@ events_per_file = 100
 events_per_lumi = 11655
 output_directory = os.getcwd()
 
-parser = argparse.ArgumentParser(description='Convert RAW data from .root format to .raw format.', formatter_class = argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('files', type=str, metavar='FILES', nargs='+', help='input files in .root format')
-parser.add_argument('-s', '--source', type=str, dest='raw_data_collection', metavar='TAG', default='rawDataCollector', help='name of the FEDRawDataCollection to be repacked into RAW format')
+parser = argparse.ArgumentParser(
+  description='Convert raw data stored into one or more EDM files format (.root files) or Streamer format (.dat files) into the DAQ format (.raw files) used as input by the HLT.',
+  epilog='''The default behaviour is to process a single luminosity section at a time, in order to support luminosity sections split across multiple files and a limit on the number of events in each lumisection.
+            If neither of these features is needed (i.e. if lumisections are not split, and all events should be converted) the `-1` or `--one-file-per-lumi` can be used to process all data with a single job, speeding up the conversion considerably.''',
+  formatter_class = argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('files', type=str, metavar='FILES', nargs='+', help='input files in .root or .dat format')
+parser.add_argument('-s', '--source', type=str, dest='raw_data_collection', metavar='TAG', default='rawDataCollector', help='name of the FEDRawDataCollection to be repacked into raw format')
 parser.add_argument('-o', '--output', type=str, dest='output_directory', metavar='PATH', default=os.getcwd(), help='base path to store the output files; subdirectories based on the run number are automatically created')
 parser.add_argument('-f', '--events_per_file', type=int, dest='events_per_file', metavar='EVENTS', default=events_per_file, help='split the output into files with at most EVENTS events')
 parser.add_argument('-l', '--events_per_lumi', type=int, dest='events_per_lumi', metavar='EVENTS', default=events_per_lumi, help='process at most EVENTS events in each lumisection')
@@ -92,7 +96,34 @@ if args.output_directory and args.output_directory.endswith('/'):
     args.output_directory = args.output_directory[:-1]
 
 # read the list of input files from the command line arguments
-files = [ 'file:' + f if (not ':' in f and not f.startswith('/store/') and os.path.exists(f)) else f for f in args.files ]
+format = ''
+for f in args.files:
+    latest = ''
+    if f.endswith('.root'):
+        latest = 'edm'
+    elif f.endswith('.dat'):
+        latest = 'streamer'
+    else:
+        sys.stderr.write(f'error: \'{f}\' is not a unsupported file type. Only .root files or .dat files can be converted.')
+        sys.exit(1)
+
+    if format == '':
+        format = latest
+    elif format != latest:
+        sys.stderr.write('error: cannot mix files of different types. Input files must all be of type \'.root\' or \'.dat.')
+        sys.exit(1)
+
+files = []
+for f in args.files:
+    if ':' in f or f.startswith('/store/'):
+        # PFN or LFN
+        files.append(f)
+    else:
+        # local file
+        if os.path.exists(f):
+            files.append('file:' + f)
+        else:
+            sys.stderr.write(f'warning: skipping non-existent input file {f}')
 
 # extract the list of runs and lumiections in the input files
 class FileInfo(object):
@@ -100,61 +131,148 @@ class FileInfo(object):
         self.events = 0
         self.files = set()
 
-header  = re.compile(r'^ +Run +Lumi +# Events$')
-empty   = re.compile(r'^ *$')
 content = {}
 
-for f in files:
+# TODO can we run these in parallel over the various files ?
+if format == 'edm':
+    header  = re.compile(r'^ +Run +Lumi +# Events$')
+    empty   = re.compile(r'^ *$')
 
-    # run edmFileUtil --eventsInLumis ...
-    print(f'preprocessing input file {f}')
-    output = subprocess.run(['edmFileUtil', '--eventsInLumis', f], capture_output=True, text=True)
-    if args.verbose:
-        print(output.stdout)
+    for f in files:
 
-    # handle error conditions
-    if output.returncode < 0:
-        sys.stderr.write('error: edmFileUtil was killed by signal %d\n' % -output.returncode)
-        if not args.verbose:
-            sys.stderr.write('\n')
-            sys.stderr.write(output.stderr)
-        sys.exit(output.returncode)
-    elif output.returncode > 0:
-        sys.stderr.write('error: edmFileUtil exited with error code %d\n' % output.returncode)
-        if not args.verbose:
-            sys.stderr.write('\n')
-            sys.stderr.write(output.stderr)
-        sys.exit(output.returncode)
+        # run edmFileUtil --eventsInLumis ...
+        print(f'preprocessing input file {f}')
+        output = subprocess.run(['edmFileUtil', '--eventsInLumis', f], capture_output=True, text=True)
+        if args.verbose:
+            print(output.stdout)
 
-    # parse the output of edmFileUtil
-    parsing = False
-    for line in output.stdout.splitlines():
-        if not parsing and header.match(line):
-            # start parsing
-            parsing = True
-            continue
+        # handle error conditions
+        if output.returncode < 0:
+            sys.stderr.write('error: edmFileUtil was killed by signal %d\n' % -output.returncode)
+            if not args.verbose:
+                sys.stderr.write('\n')
+                sys.stderr.write(output.stderr)
+            sys.exit(output.returncode)
+        elif output.returncode > 0:
+            sys.stderr.write('error: edmFileUtil exited with error code %d\n' % output.returncode)
+            if not args.verbose:
+                sys.stderr.write('\n')
+                sys.stderr.write(output.stderr)
+            sys.exit(output.returncode)
 
-        if parsing and empty.match(line):
-            # stop parsing
-            parsing = False
-            continue
-
-        if parsing:
-            run, lumi, events = tuple(map(int, line.split()))
-            if not args.range.is_in_range(run, lumi):
-                print(f'  run {run}, lumisection {lumi} is outside of the given range and will be skipped')
+        # parse the output of edmFileUtil
+        parsing = False
+        for line in output.stdout.splitlines():
+            if not parsing and header.match(line):
+                # start parsing
+                parsing = True
                 continue
-            if events == 0:
-                print(f'  run {run}, lumisection {lumi} is empty and will be skipped')
+
+            if parsing and empty.match(line):
+                # stop parsing
+                parsing = False
                 continue
-            print(f'  run {run}, lumisection {lumi} with {events} events will be processed')
-            if not run in content:
-                content[run] = {}
-            if not lumi in content[run]:
-                content[run][lumi] = FileInfo()
-            content[run][lumi].events += events
-            content[run][lumi].files.add(f)
-    print()
+
+            if parsing:
+                run, lumi, events = tuple(map(int, line.split()))
+                if not args.range.is_in_range(run, lumi):
+                    print(f'  run {run}, lumisection {lumi} is outside of the given range and will be skipped')
+                    continue
+                if events == 0:
+                    print(f'  run {run}, lumisection {lumi} is empty and will be skipped')
+                    continue
+                print(f'  run {run}, lumisection {lumi} with {events} events will be processed')
+                if not run in content:
+                    content[run] = {}
+                if not lumi in content[run]:
+                    content[run][lumi] = FileInfo()
+                content[run][lumi].events += events
+                content[run][lumi].files.add(f)
+        print()
+
+elif format == 'streamer':
+    header  = re.compile(r'^----------dumping first EVENT-----------$')
+    footer  = re.compile(r'^------------END--------------$')
+    empty   = re.compile(r'^ *$')
+    run_p   = re.compile(r'^run=(\d+)')
+    lumi_p  = re.compile(r'^lumi=(\d+)')
+    event_p = re.compile(r'^and (\d+) events')
+
+    for f in files:
+
+        # run DiagStreamerFile ...
+        print(f'preprocessing input file {f}')
+        output = subprocess.run(['DiagStreamerFile', f], capture_output=True, text=True)
+        if args.verbose:
+            print(output.stdout)
+
+        # handle error conditions
+        if output.returncode < 0:
+            sys.stderr.write('error: DiagStreamerFile was killed by signal %d\n' % -output.returncode)
+            if not args.verbose:
+                sys.stderr.write('\n')
+                sys.stderr.write(output.stderr)
+            sys.exit(output.returncode)
+        elif output.returncode > 0:
+            sys.stderr.write('error: DiagStreamerFile exited with error code %d\n' % output.returncode)
+            if not args.verbose:
+                sys.stderr.write('\n')
+                sys.stderr.write(output.stderr)
+            sys.exit(output.returncode)
+
+        # parse the output of DiagStreamerFile
+        parsing = None
+        for line in output.stdout.splitlines():
+            if not parsing and header.match(line):
+                # start parsing the header
+                parsing = 'header'
+                continue
+
+            if not parsing and footer.match(line):
+                # start parsing the footer
+                parsing = 'footer'
+                continue
+
+            if parsing and empty.match(line):
+                # stop parsing after an empty line
+                parsing = None
+                continue
+
+            if parsing == 'header':
+                is_run = run_p.match(line)
+                if is_run:
+                    run = int(is_run[1])
+                    continue
+                is_lumi = lumi_p.match(line)
+                if is_lumi:
+                    lumi = int(is_lumi[1])
+                    continue
+           
+            # TODO can we improve the logic for parsing the footer and make it more robust ?
+            if parsing == 'footer':
+                is_event = event_p.match(line)
+                if is_event:
+                    if not args.range.is_in_range(run, lumi):
+                        print(f'  run {run}, lumisection {lumi} is outside of the given range and will be skipped')
+                        continue
+                    events = int(is_event[1])
+                    if events == 0:
+                        print(f'  run {run}, lumisection {lumi} is empty and will be skipped')
+                        continue
+                    print(f'  run {run}, lumisection {lumi} with {events} events will be processed')
+                    if not run in content:
+                        content[run] = {}
+                    if not lumi in content[run]:
+                        content[run][lumi] = FileInfo()
+                    content[run][lumi].events += events
+                    content[run][lumi].files.add(f)
+                    break
+        print()
+
+else:
+    sys.stderr.write(f'logic error')
+    sys.exit(1)
+
 
 # drop empty lumisections
 # note: this may no longer be needed, but is left as a cross check
@@ -168,19 +286,31 @@ empty_runs = [ run for run in content if not content[run] ]
 for run in empty_runs:
     del content[run]
 
+
 # locate the CMSSW configuration file
-config_name = 'HLTrigger/Tools/python/convertToRaw.py'
+if format == 'edm':
+    config_name = 'HLTrigger/Tools/python/convertToRaw.py'
+elif format == 'streamer':
+    config_name = 'HLTrigger/Tools/python/streamerToRaw.py'
+else:
+    sys.stderr.write(f'logic error')
+    sys.exit(1)
+
 current_area = os.environ['CMSSW_BASE']
 release_area = os.environ['CMSSW_RELEASE_BASE']
+full_release = os.environ['CMSSW_FULL_RELEASE_BASE']
 
-config_py = current_area + '/src/' + config_name
-if not os.path.exists(config_py):
+if current_area and os.path.exists(current_area + '/src/' + config_name):
+    config_py = current_area + '/src/' + config_name
+elif release_area and os.path.exists(release_area + '/src/' + config_name):
     config_py = release_area + '/src/' + config_name
-if not os.path.exists(config_py):
+elif full_release and os.path.exists(full_release + '/src/' + config_name):
+    config_py = full_release + '/src/' + config_name
+else:
     sys.stderr.write('error: cannot find the configuration file %s\n' % config_name)
     sys.exit(1)
 
-# convert the input data to FED RAW data format
+# convert the input data to FED raw data format
 converted_files = []
 
 # process each run
