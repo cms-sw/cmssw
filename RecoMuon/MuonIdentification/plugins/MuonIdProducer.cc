@@ -130,8 +130,8 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
     produces<reco::IsoDepositMap>(jetDepositName_);
   }
 
-  inputCollectionLabels_ = iConfig.getParameter<std::vector<edm::InputTag> >("inputCollectionLabels");
-  const auto inputCollectionTypes = iConfig.getParameter<std::vector<std::string> >("inputCollectionTypes");
+  inputCollectionLabels_ = iConfig.getParameter<std::vector<edm::InputTag>>("inputCollectionLabels");
+  const auto inputCollectionTypes = iConfig.getParameter<std::vector<std::string>>("inputCollectionTypes");
   if (inputCollectionLabels_.size() != inputCollectionTypes.size())
     throw cms::Exception("ConfigurationError")
         << "Number of input collection labels is different from number of types. "
@@ -150,7 +150,7 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
   }
   if (fillGlobalTrackQuality_) {
     const auto& glbQualTag = iConfig.getParameter<edm::InputTag>("globalTrackQualityInputTag");
-    glbQualToken_ = consumes<edm::ValueMap<reco::MuonQuality> >(glbQualTag);
+    glbQualToken_ = consumes<edm::ValueMap<reco::MuonQuality>>(glbQualTag);
   }
 
   if (fillTrackerKink_) {
@@ -1196,9 +1196,9 @@ void MuonIdProducer::fillArbitrationInfo(reco::MuonCollection* pOutputMuons, uns
   //
   // apply segment flags
   //
-  std::vector<std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*> > chamberPairs;  // for chamber segment sorting
-  std::vector<std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*> > stationPairs;  // for station segment sorting
-  std::vector<std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*> >
+  std::vector<std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*>> chamberPairs;  // for chamber segment sorting
+  std::vector<std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*>> stationPairs;  // for station segment sorting
+  std::vector<std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*>>
       arbitrationPairs;  // for muon segment arbitration
 
   // muonIndex1
