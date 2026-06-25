@@ -507,6 +507,7 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
     const std::string genDM = JetMCTagUtils::genTauDecayMode(genTau);
     if (std::find(decayModes_.begin(), decayModes_.end(), genDM) == decayModes_.end()) {
       edm::LogWarning("TauValidator") << "Unexpected gen tau decay mode: '" << genDM << "'";
+      continue;
     }
     const std::string genKey = genDM + "_";
 
@@ -610,6 +611,7 @@ void TauValidator::analyze(const edm::Event& mEvent, const edm::EventSetup& mSet
     const std::string recoDM = recoTauDecayModes[itau];
     if (std::find(decayModes_.begin(), decayModes_.end(), recoDM) == decayModes_.end()) {
       edm::LogWarning("TauValidator") << "Unexpected reco tau decay mode: '" << recoDM << "'";
+      continue;
     }
     const std::string recoKey = recoDM + "_";
     h_recoTau_[recoKey + "pt"]->Fill(recoTau.pt());
