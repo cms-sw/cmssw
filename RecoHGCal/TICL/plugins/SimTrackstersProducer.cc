@@ -696,16 +696,18 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
     }
   }
 
-  std::vector<int> all_nums(result_fromCP->size());  // vector containing all caloparticles indexes
-  std::iota(all_nums.begin(), all_nums.end(), 0);    // fill the vector with consecutive numbers starting from 0
-
-  std::vector<int> toRemove;
-  std::set_difference(all_nums.begin(), all_nums.end(), toKeep.begin(), toKeep.end(), std::back_inserter(toRemove));
-  std::sort(toRemove.begin(), toRemove.end(), [](int x, int y) { return x > y; });
-  for (auto const& r : toRemove) {
-    result_fromCP->erase(result_fromCP->begin() + r);
-    result_ticlCandidates->erase(result_ticlCandidates->begin() + r);
+  std::sort(toKeep.begin(), toKeep.end());
+  toKeep.erase(std::unique(toKeep.begin(), toKeep.end()), toKeep.end());
+  TracksterCollection keptFromCP;
+  std::vector<TICLCandidate> keptCandidates;
+  keptFromCP.reserve(toKeep.size());
+  keptCandidates.reserve(toKeep.size());
+  for (auto idx : toKeep) {
+    keptFromCP.push_back(std::move((*result_fromCP)[idx]));
+    keptCandidates.push_back(std::move((*result_ticlCandidates)[idx]));
   }
+  *result_fromCP = std::move(keptFromCP);
+  *result_ticlCandidates = std::move(keptCandidates);
   evt.put(std::move(result_ticlCandidates));
   evt.put(std::move(output_mask));
   evt.put(std::move(result_fromCP), "fromCPs");
