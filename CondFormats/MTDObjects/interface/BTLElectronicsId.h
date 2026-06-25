@@ -33,10 +33,10 @@ public:
   explicit BTLElectronicsId(uint32_t rawid);
 
   /** Constructor from (FED id, HS-link id, e-link id, tofhir channel id) **/
-  BTLElectronicsId(uint16_t fedId,  // sLinkId
-                   uint8_t hsLinkId,
-                   uint8_t eLinkId,
-                   uint8_t channelId);
+  BTLElectronicsId(int fedId,  // sLinkId
+                   int hsLinkId,
+                   int eLinkId,
+                   int channelId);
 
   /// Accessors
   int fedId() const { return (rawid_ >> kFEDShift) & kFEDMask; };

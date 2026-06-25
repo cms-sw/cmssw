@@ -67,10 +67,8 @@ std::unique_ptr<BTLReadoutMap> BTLReadoutMapESProducer::produce(const BTLReadout
         }
       }
 
-      elecIds.minus = BTLElectronicsId(
-          static_cast<uint16_t>(sl), static_cast<uint8_t>(hs), static_cast<uint8_t>(el), static_cast<uint8_t>(ch[0]));
-      elecIds.plus = BTLElectronicsId(
-          static_cast<uint16_t>(sl), static_cast<uint8_t>(hs), static_cast<uint8_t>(el), static_cast<uint8_t>(ch[1]));
+      elecIds.minus = BTLElectronicsId(sl, hs, el, ch[0]);
+      elecIds.plus = BTLElectronicsId(sl, hs, el, ch[1]);
 
       readoutMap->add(btlId, elecIds);
     }
