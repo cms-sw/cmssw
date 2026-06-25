@@ -59,8 +59,10 @@ namespace edm {
       return newIOVNeeded_;
     }
 
-    void EventSetupRecordIOVQueue::checkForNewIOVsAndStartIfNeededAsync(
-        WaitingTaskHolder const& taskToStartAfterIOVInit, WaitingTaskList& endIOVWaitingTasks, bool newEventSetupImpl, EventSetupImpl& eventSetupImpl) {
+    void EventSetupRecordIOVQueue::checkForNewIOVsAndStartIfNeededAsync(WaitingTaskHolder const& taskToStartAfterIOVInit,
+                                                                        WaitingTaskList& endIOVWaitingTasks,
+                                                                        bool newEventSetupImpl,
+                                                                        EventSetupImpl& eventSetupImpl) {
       if (newIOVNeeded_) {
         newIOVNeeded_ = false;
         startNewIOVAsync(taskToStartAfterIOVInit, endIOVWaitingTasks, eventSetupImpl);
@@ -76,7 +78,7 @@ namespace edm {
 
     void EventSetupRecordIOVQueue::startNewIOVAsync(WaitingTaskHolder const& taskToStartAfterIOVInit,
                                                     WaitingTaskList& endIOVWaitingTasks,
-                                                  EventSetupImpl& eventSetupImpl) {
+                                                    EventSetupImpl& eventSetupImpl) {
       ++cacheIdentifier_;
       {
         // Let the old IOV end when all the lumis using it are done.
