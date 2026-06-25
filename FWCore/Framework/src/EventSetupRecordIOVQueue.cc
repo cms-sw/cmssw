@@ -45,12 +45,14 @@ namespace edm {
       endIOVCalled_ = true;
     }
 
-    std::optional<bool> EventSetupRecordIOVQueue::didIntervalChange() {
-      if (recordProvider_->validityInterval().first() == IOVSyncValue::invalidIOVSyncValue()) {
+    bool EventSetupRecordIOVQueue::setValidityIntervalFor(const IOVSyncValue& iTime) {
+      // Implementation for setting validity interval
+      auto status = recordProvider_->setValidityIntervalFor(iTime);
+      if (not status) {
         if (firstForCurrentIOV_ != IOVSyncValue::invalidIOVSyncValue()) {
           firstForCurrentIOV_ = IOVSyncValue::invalidIOVSyncValue();
         }
-        return std::nullopt;
+        return true;
       }
       newIOVNeeded_ = recordProvider_->validityInterval().first() != firstForCurrentIOV_;
       if (newIOVNeeded_) {

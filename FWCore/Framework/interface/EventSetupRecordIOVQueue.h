@@ -50,8 +50,8 @@ namespace edm {
 
       void endIOVAsync(WaitingTaskHolder endTask);
 
-      //returns std::nullopt if the IOVSyncValue is invalid, otherwise returns whether a new IOV is needed
-      std::optional<bool> didIntervalChange();
+      ///returns true if the IOV is different than previously, including if it changed from valid to invalid.
+      bool setValidityIntervalFor(const IOVSyncValue& iTime);
 
       void checkForNewIOVsAndStartIfNeededAsync(WaitingTaskHolder const& taskToStartAfterIOVInit,
                                                 WaitingTaskList& endIOVWaitingTasks,

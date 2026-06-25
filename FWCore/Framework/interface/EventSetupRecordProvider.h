@@ -167,12 +167,6 @@ namespace edm {
       // might contain an older interval.
       ValidityInterval validityInterval_;
 
-      /** setValidityIntervalFor can be called multiple times because of dependent records.
-       *  Caching this value allows setValidityIntervalFor to avoid duplicating its work on the same
-       *  syncValue.
-       */
-      IOVSyncValue lastSyncValueForWhichWeSetValidityInterval_;
-
       std::vector<EventSetupRecordImpl> recordImpls_;
       EventSetupRecordImpl const* recordImpl_ = nullptr;
 

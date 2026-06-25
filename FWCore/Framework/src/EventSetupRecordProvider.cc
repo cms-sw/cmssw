@@ -77,7 +77,6 @@ namespace edm {
     }
     void EventSetupRecordProvider::setValidityInterval_forTesting(const ValidityInterval& iInterval) {
       validityInterval_ = iInterval;
-      lastSyncValueForWhichWeSetValidityInterval_ = IOVSyncValue::invalidIOVSyncValue();
     }
 
     const ValidityInterval& EventSetupRecordProvider::findIntervalFor(const IOVSyncValue& iInstance) {
@@ -186,35 +185,32 @@ namespace edm {
     void EventSetupRecordProvider::endIOV(unsigned int iovIndex) { recordImpls_[iovIndex].invalidateResolvers(); }
 
     bool EventSetupRecordProvider::setValidityIntervalFor(const IOVSyncValue& iTime) {
-      if (lastSyncValueForWhichWeSetValidityInterval_ != iTime) {
-        lastSyncValueForWhichWeSetValidityInterval_ = iTime;
-        intervalStatus_ = IntervalStatus::Invalid;
+      intervalStatus_ = IntervalStatus::Invalid;
 
-        if (validityInterval_.first() != IOVSyncValue::invalidIOVSyncValue() && validityInterval_.validFor(iTime)) {
-          intervalStatus_ = IntervalStatus::SameInterval;
+      if (validityInterval_.first() != IOVSyncValue::invalidIOVSyncValue() && validityInterval_.validFor(iTime)) {
+        intervalStatus_ = IntervalStatus::SameInterval;
 
-        } else if (finder_.get() != nullptr) {
-          IOVSyncValue oldFirst(validityInterval_.first());
-          IOVSyncValue oldLast(validityInterval_.last());
-          validityInterval_ = finder_->findIntervalFor(key_, iTime);
+      } else if (finder_.get() != nullptr) {
+        IOVSyncValue oldFirst(validityInterval_.first());
+        IOVSyncValue oldLast(validityInterval_.last());
+        validityInterval_ = finder_->findIntervalFor(key_, iTime);
 
-          // An interval is valid if and only if the start of the interval is
-          // valid. If the start is valid and the end is invalid, it means we
-          // do not know when the interval ends, but the interval is valid and
-          // iTime is within the interval.
-          if (validityInterval_.first() != IOVSyncValue::invalidIOVSyncValue()) {
-            // An interval is new if the start of the interval changes
-            if (validityInterval_.first() != oldFirst) {
-              intervalStatus_ = IntervalStatus::NewInterval;
+        // An interval is valid if and only if the start of the interval is
+        // valid. If the start is valid and the end is invalid, it means we
+        // do not know when the interval ends, but the interval is valid and
+        // iTime is within the interval.
+        if (validityInterval_.first() != IOVSyncValue::invalidIOVSyncValue()) {
+          // An interval is new if the start of the interval changes
+          if (validityInterval_.first() != oldFirst) {
+            intervalStatus_ = IntervalStatus::NewInterval;
 
-              // If the start is the same but the end changes, we consider
-              // this the same interval because we do not want to do the
-              // work to update the caches of data in this case.
-            } else if (validityInterval_.last() != oldLast) {
-              intervalStatus_ = IntervalStatus::UpdateIntervalEnd;
-            } else {
-              intervalStatus_ = IntervalStatus::SameInterval;
-            }
+            // If the start is the same but the end changes, we consider
+            // this the same interval because we do not want to do the
+            // work to update the caches of data in this case.
+          } else if (validityInterval_.last() != oldLast) {
+            intervalStatus_ = IntervalStatus::UpdateIntervalEnd;
+          } else {
+            intervalStatus_ = IntervalStatus::SameInterval;
           }
         }
       }
@@ -230,7 +226,6 @@ namespace edm {
       // Force a new IOV to start with a new cacheIdentifier
       // on the next eventSetupForInstance call.
       validityInterval_ = ValidityInterval{};
-      lastSyncValueForWhichWeSetValidityInterval_ = IOVSyncValue::invalidIOVSyncValue();
       if (finder_.get() != nullptr) {
         finder_->resetInterval(key_);
       }

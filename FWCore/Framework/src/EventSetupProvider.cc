@@ -355,12 +355,6 @@ namespace edm {
       }
     }
 
-    void EventSetupProvider::setAllValidityIntervals(const IOVSyncValue& iValue) {
-      for (auto& recProvider : recordProviders_) {
-        recProvider->setValidityIntervalFor(iValue);
-      }
-    }
-
     std::shared_ptr<EventSetupImpl> EventSetupProvider::cachedEventSetup(bool newEventSetupImpl) {
       if (newEventSetupImpl or !eventSetupImpl_) {
         //cannot use make_shared because constructor is private

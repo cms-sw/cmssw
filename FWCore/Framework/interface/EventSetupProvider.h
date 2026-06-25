@@ -62,9 +62,6 @@ namespace edm {
 
       ESRecordsToProductResolverIndices recordsToResolverIndices() const;
 
-      ///Set the validity intervals in all EventSetupRecordProviders
-      void setAllValidityIntervals(const IOVSyncValue& iValue);
-
       std::shared_ptr<EventSetupImpl> cachedEventSetup(bool newEventSetupImpl);
 
       EventSetupImpl const& eventSetupImpl() const { return *eventSetupImpl_; }

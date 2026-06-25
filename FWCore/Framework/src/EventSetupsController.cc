@@ -115,11 +115,8 @@ namespace edm {
       bool newEventSetupImpl = false;
       eventSetupImpl.reset();
 
-      provider_->setAllValidityIntervals(syncValue);
-
       for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
-        auto v = eventSetupRecordIOVQueue->didIntervalChange();
-        if (not v.has_value() or v.value()) {
+        if( eventSetupRecordIOVQueue->setValidityIntervalFor(syncValue) ) {
           newEventSetupImpl = true;
         }
       }
