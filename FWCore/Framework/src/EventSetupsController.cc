@@ -131,8 +131,7 @@ namespace edm {
                                                            WaitingTaskHolder const& taskToStartAfterIOVInit,
                                                            WaitingTaskList& endIOVWaitingTasks,
                                                            std::shared_ptr<const EventSetupImpl>& eventSetupImpl) {
-      finishConfiguration();
-
+      assert(mustFinishConfiguration_ == false);
       bool newEventSetupImpl = false;
       eventSetupImpl.reset();
 
@@ -182,6 +181,7 @@ namespace edm {
     void synchronousEventSetupForInstance(IOVSyncValue const& syncValue,
                                           oneapi::tbb::task_group& iGroup,
                                           eventsetup::EventSetupsController& espController) {
+      espController.finishConfiguration();
       FinalWaitingTask waitUntilIOVInitializationCompletes{iGroup};
 
       // These do nothing ...
