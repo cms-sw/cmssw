@@ -429,18 +429,21 @@ private:
   };
 
   double getEta(double eta) const;
-  CaloParticleDisplacement resolveDisplacement(const math::XYZVectorF& point,
-                                               const math::XYZVectorF& direction) const;
-  CaloParticleDisplacement resolveSimTrackDisplacement(const SimTrack& simTrack) const;
 
-  const ticl::Trackster::Vector& resolveTracksterDirection(
-      const ticl::Trackster& trackster) const;
+  static CaloParticleDisplacement resolveDisplacement(const math::XYZVectorF& point,
+                                                      const math::XYZVectorF& direction);
 
-  CaloParticleDisplacement resolveRecoTracksterDisplacement(
-      const ticl::Trackster& trackster) const;
+  static CaloParticleDisplacement resolveSimTrackDisplacement(const SimTrack& simTrack);
+
+  static const ticl::Trackster::Vector& resolveTracksterDirection(
+      const ticl::Trackster& trackster);
+
+  static CaloParticleDisplacement resolveRecoTracksterDisplacement(
+      const ticl::Trackster& trackster);
 
   static const SimTrack& getSimTrack(const CaloParticle& caloParticle);
-  int getCaloParticleId(const ticl::Trackster& simTS, const edm::ProductID& cPHandle_id, const SimClusterToCaloParticleMap& scToCpMap) const;
+
+  static int getCaloParticleId(const ticl::Trackster& simTS, const edm::ProductID& cPHandle_id, const SimClusterToCaloParticleMap& scToCpMap);
 
   std::shared_ptr<hgcal::RecHitTools> recHitTools_;
   constexpr static int numberOfValidationTypes_ = 4;

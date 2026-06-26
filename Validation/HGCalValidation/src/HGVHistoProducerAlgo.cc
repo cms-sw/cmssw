@@ -3083,10 +3083,7 @@ double HGVHistoProducerAlgo::getEta(double eta) const {
      and the trajectory that a particle crossing the HGCAL surface at the same point
      would have. It measures how non-pointing a given particle's trajectory is.
   */
-HGVHistoProducerAlgo::CaloParticleDisplacement
-HGVHistoProducerAlgo::resolveDisplacement(
-    const math::XYZVectorF& point,
-    const math::XYZVectorF& direction) const {
+HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveDisplacement(const math::XYZVectorF& point,const math::XYZVectorF& direction) {
   const auto unitDirection = direction.Unit();
 
   const float t = -point.z() / unitDirection.z();
@@ -3094,41 +3091,31 @@ HGVHistoProducerAlgo::resolveDisplacement(
   const float y = point.y() + t * unitDirection.y();
 
   const double R = std::hypot(x, y);
-
   const auto radialDirection = point.Unit();
-
   const double cosAlpha = std::clamp(static_cast<double>(unitDirection.Dot(radialDirection)), -1.0, 1.0);
 
   return {R, std::acos(cosAlpha)};
 }
 
-HGVHistoProducerAlgo::CaloParticleDisplacement
-HGVHistoProducerAlgo::resolveSimTrackDisplacement(
-    const SimTrack& simTrack) const {
-  const auto boundaryPos = simTrack.getPositionAtBoundary();
-  const auto boundaryMom = simTrack.getMomentumAtBoundary();
+HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveSimTrackDisplacement(const SimTrack& simTrack) {
+  const auto& boundaryPos = simTrack.getPositionAtBoundary();
+  const auto& boundaryMom = simTrack.getMomentumAtBoundary();
 
   const math::XYZVectorF point(boundaryPos.x(), boundaryPos.y(), boundaryPos.z());
-
   const math::XYZVectorF direction(boundaryMom.x(), boundaryMom.y(), boundaryMom.z());
 
   return resolveDisplacement(point, direction);
 }
 
-const ticl::Trackster::Vector&
-HGVHistoProducerAlgo::resolveTracksterDirection(
-    const ticl::Trackster& trackster) const {
+const ticl::Trackster::Vector& HGVHistoProducerAlgo::resolveTracksterDirection(const ticl::Trackster& trackster) {
     return trackster.eigenvectors()[0];
 }
 
-HGVHistoProducerAlgo::CaloParticleDisplacement
-HGVHistoProducerAlgo::resolveRecoTracksterDisplacement(
-    const ticl::Trackster& trackster) const {
+HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveRecoTracksterDisplacement(const ticl::Trackster& trackster) {
   const auto& barycenter = trackster.barycenter();
   const auto& eigenvector = resolveTracksterDirection(trackster);
 
   const math::XYZVectorF point(barycenter.x(), barycenter.y(), barycenter.z());
-
   const math::XYZVectorF direction(eigenvector.x(), eigenvector.y(), eigenvector.z());
 
   return resolveDisplacement(point, direction);
@@ -3143,7 +3130,7 @@ const SimTrack& HGVHistoProducerAlgo::getSimTrack(const CaloParticle& caloPartic
 
 int HGVHistoProducerAlgo::getCaloParticleId(const ticl::Trackster& simTS,
                                             const edm::ProductID& cPHandle_id,
-                                            const SimClusterToCaloParticleMap& scToCpMap) const {
+                                            const SimClusterToCaloParticleMap& scToCpMap) {
   const auto productID = simTS.seedID();
   if (productID == cPHandle_id) {
     return simTS.seedIndex();
