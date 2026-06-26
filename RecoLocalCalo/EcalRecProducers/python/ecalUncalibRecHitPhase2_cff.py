@@ -42,3 +42,10 @@ alpaka.toReplaceWith(ecalUncalibRecHitPhase2Task, cms.Task(
   # Convert the uncalibrated rechits from Portable Collection to legacy format
   ecalUncalibRecHitPhase2
 ))
+
+# Get the digis from the mixing module for premixing
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+(phase2_ecal_devel & premix_stage2 & ~alpaka).toModify(ecalUncalibRecHitPhase2, BarrelDigis = 'mixData')
+(phase2_ecal_devel & premix_stage2).toModify(ecalUncalibRecHitPhase2Legacy, BarrelDigis = 'mixData')
+(phase2_ecal_devel & premix_stage2).toModify(simEcalUnsuppressedDigisSoA, BarrelDigis = 'mixData')
