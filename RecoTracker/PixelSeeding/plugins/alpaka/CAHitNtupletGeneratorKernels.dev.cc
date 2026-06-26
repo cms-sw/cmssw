@@ -99,6 +99,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // This will hold where each layer starts in the hit soa
     device_layerStarts_ = cms::alpakatools::make_device_buffer<hindex_type[]>(queue, nLayers + 1);
 
+    // Scratch quality mirror used by the (order-independent) duplicate-removal kernels
+    device_qualityScratch_ = cms::alpakatools::make_device_buffer<int32_t[]>(queue, maxTuples);
+
     // Cell -> Neighbor Cells
     // One bin per cell (maxDoublets+1 offsets). The skipping-vs-non-skipping
     // distinction is encoded in bit 31 of each stored neighbor index:
@@ -595,6 +598,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     auto blockSize = 64;
     auto const maxDoublets = this->maxNumberOfDoublets_;
     auto const maxTuples = tracks_view.metadata().size();
+
+    // Order/backend-independent duplicate removal via the int32 quality scratch (see the kernel headers)
+    // snapshotQuality() freezes quality() into the scratch; applyQuality() copies it back. The fast
+    // remover needs both; the track-parallel cleaners are single-writer and need only the snapshot
+    auto qScratch = this->device_qualityScratch_->data();
+    auto qScratchWorkDiv =
+        cms::alpakatools::make_workdiv<Acc1D>(cms::alpakatools::divide_up_by(maxTuples, blockSize), blockSize);
+    auto snapshotQuality = [&]() {
+      alpaka::exec<Acc1D>(
+          queue, qScratchWorkDiv, Kernel_snapshotQuality{}, tracks_view, this->device_hitContainer_->data(), qScratch);
+    };
+    auto applyQuality = [&]() {
+      alpaka::exec<Acc1D>(
+          queue, qScratchWorkDiv, Kernel_applyQuality{}, tracks_view, this->device_hitContainer_->data(), qScratch);
+    };
+
     // classify tracks based on kinematics
     auto numberOfBlocks = cms::alpakatools::divide_up_by(3 * maxTuples / 4, blockSize);
     auto workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
@@ -629,6 +648,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // mark duplicates (tracks that share a doublet)
       numberOfBlocks = cms::alpakatools::divide_up_by(3 * maxDoublets / 4, blockSize);
       workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
+      snapshotQuality();
       alpaka::exec<Acc1D>(queue,
                           workDiv1D,
                           Kernel_fastDuplicateRemover<TrackerTraits>{},
@@ -636,7 +656,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           this->device_nCells_->data(),
                           this->device_cellToTracks_->data(),
                           tracks_view,
+                          qScratch,
                           this->m_params.algoParams_.dupPassThrough_);
+      applyQuality();
 #ifdef GPU_DEBUG
       alpaka::wait(queue);
       std::cout << "Kernel_fastDuplicateRemover   -> done!" << std::endl;
@@ -670,17 +692,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       // mark duplicates (tracks that share at least one hit)
       numberOfBlocks = cms::alpakatools::divide_up_by(3 * maxTuples / 4, blockSize);
       workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
+      // The shared-hit removers are track-parallel and single-writer: snapshotQuality() freezes the
+      // quality into the scratch, the kernel reads the scratch and writes only each track's own
+      // quality directly (no atomics, no copy-back)
+      snapshotQuality();
       alpaka::exec<Acc1D>(queue,
                           workDiv1D,
                           Kernel_rejectDuplicate<TrackerTraits>{},
                           tracks_view,
                           this->m_params.algoParams_.dupPassThrough_,
+                          this->device_hitContainer_->data(),
+                          qScratch,
                           this->device_hitToTuple_->data());
 #ifdef GPU_DEBUG
       alpaka::wait(queue);
       std::cout << "Kernel_rejectDuplicate   -> done!" << std::endl;
 #endif
 
+      snapshotQuality();
       alpaka::exec<Acc1D>(queue,
                           workDiv1D,
                           Kernel_sharedHitCleaner<TrackerTraits>{},
@@ -689,6 +718,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           tracks_view,
                           this->m_params.algoParams_.minHitsForSharingCut_,
                           this->m_params.algoParams_.dupPassThrough_,
+                          this->device_hitContainer_->data(),
+                          qScratch,
                           this->device_hitToTuple_->data());
 #ifdef GPU_DEBUG
       alpaka::wait(queue);
@@ -699,11 +730,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           numberOfBlocks =
               cms::alpakatools::divide_up_by(int(nhits * this->m_params.algoParams_.avgHitsPerTrack_) + 1, blockSize);
           workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
+          snapshotQuality();
           alpaka::exec<Acc1D>(queue,
                               workDiv1D,
                               Kernel_simpleTripletCleaner<TrackerTraits>{},
                               tracks_view,
                               this->m_params.algoParams_.dupPassThrough_,
+                              this->device_hitContainer_->data(),
+                              qScratch,
                               this->device_hitToTuple_->data());
 #ifdef GPU_DEBUG
           alpaka::wait(queue);
@@ -713,11 +747,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           numberOfBlocks =
               cms::alpakatools::divide_up_by(int(nhits * this->m_params.algoParams_.avgHitsPerTrack_) + 1, blockSize);
           workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
+          snapshotQuality();
           alpaka::exec<Acc1D>(queue,
                               workDiv1D,
                               Kernel_tripletCleaner<TrackerTraits>{},
                               tracks_view,
                               this->m_params.algoParams_.dupPassThrough_,
+                              this->device_hitContainer_->data(),
+                              qScratch,
                               this->device_hitToTuple_->data());
 #ifdef GPU_DEBUG
           alpaka::wait(queue);

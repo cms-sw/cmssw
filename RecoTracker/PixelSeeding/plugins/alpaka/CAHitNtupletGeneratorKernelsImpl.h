@@ -342,7 +342,37 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     }
   };
 
-  // assume the above (so, short tracks already removed)
+  // Order/backend-independent duplicate removal: a track's final quality must not depend on the order
+  // concurrent threads run in. Two disciplines share the int32 quality scratch (device_qualityScratch_)
+  // and the two helpers below:
+  //   - Kernel_fastDuplicateRemover is cell-parallel (several threads may demote the same shared track):
+  //     it reads quality(), accumulates demotions into the scratch via atomicMin, and Kernel_applyQuality
+  //     copies the scratch back into quality()
+  //   - The hit-based removers (rejectDuplicate, sharedHitCleaner, triplet/simpleTripletCleaner) are
+  //     track-parallel single-writers: Kernel_snapshotQuality freezes quality() into the scratch, then
+  //     each thread reads that snapshot and writes only its own track's quality() (no atomics, no copy-back)
+  class Kernel_snapshotQuality {
+  public:
+    ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                  TkSoAView tracks_view,
+                                  HitContainer const *__restrict__ foundNtuplets,
+                                  int32_t *__restrict__ qualityScratch) const {
+      for (auto i : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes()))
+        qualityScratch[i] = static_cast<int32_t>(tracks_view[i].quality());
+    }
+  };
+
+  class Kernel_applyQuality {
+  public:
+    ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                  TkSoAView tracks_view,
+                                  HitContainer const *__restrict__ foundNtuplets,
+                                  int32_t const *__restrict__ qualityScratch) const {
+      for (auto i : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes()))
+        tracks_view[i].quality() = static_cast<Quality>(qualityScratch[i]);
+    }
+  };
+
   template <typename TrackerTraits>
   class Kernel_fastDuplicateRemover {
   public:
@@ -351,6 +381,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   uint32_t const *__restrict__ nCells,
                                   CellToTrack const *__restrict__ cellTracksHisto,
                                   TkSoAView tracks_view,
+                                  int32_t *__restrict__ qualityScratch,
                                   bool dupPassThrough) const {
       // quality to mark rejected
       auto const reject = dupPassThrough ? Quality::loose : Quality::dup;
@@ -359,20 +390,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
       ALPAKA_ASSERT_ACC(nCells);
       const auto ntNCells = (*nCells);
 
+      auto score = [&](uint32_t it) { return tracks_view[it].chi2(); };
+      auto demote = [&](uint32_t it, Quality q) {
+        alpaka::atomicMin(acc, &qualityScratch[it], static_cast<int32_t>(q), alpaka::hierarchy::Blocks{});
+      };
+
       for (auto idx : cms::alpakatools::uniform_elements(acc, ntNCells)) {
-        if (cellTracksHisto->size(idx) < 2)
+        int ntr = cellTracksHisto->size(idx);
+        if (ntr < 2)
           continue;
 
-        float mc = maxScore;
-        uint32_t im = tkNotFound;
-
-        // auto score = [&](auto it) { return std::abs(reco::tip(tracks_view, it)); };
-        auto score = [&](auto it) { return tracks_view[it].chi2(); };
-
-        // full crazy combinatorics
         auto const *__restrict__ thisCellTracks = cellTracksHisto->begin(idx);
-        int ntr = cellTracksHisto->size(idx);
-        for (int i = 0; i < ntr - 1; i++) {
+
+        // Demote any track dominated by a compatible, strictly better one (higher quality, or equal
+        // quality and lower chi2); each track tests all others and exact ties keep both
+        for (int i = 0; i < ntr; ++i) {
           auto it = thisCellTracks[i];
           auto qi = tracks_view[it].quality();
           if (qi <= reject)
@@ -383,35 +415,31 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           float iCovs[nTrackParameters];
           for (int p{0}; p < nTrackParameters; ++p) {
             iParams[p] = tracks_view[it].state()(p);
-            const auto c = iParam2iCov[p];
-            iCovs[p] = tracks_view[it].covariance()(c);
+            iCovs[p] = tracks_view[it].covariance()(iParam2iCov[p]);
           }
           // function that compares the five track parameters of tracks it and jt
-          auto incompatibleTrackParams = [=](int jt) -> bool {
+          auto incompatibleTrackParams = [&](uint32_t jt) -> bool {
             // comparing phi, tip, 1/pT, cotan(theta) and zip
             for (int p{0}; p < nTrackParameters; ++p) {
               const auto dpij = iParams[p] - tracks_view[jt].state()(p);
-              const auto c = iParam2iCov[p];
-              const auto e2dpij = nSigma2 * (iCovs[p] + tracks_view[jt].covariance()(c));
+              const auto e2dpij = nSigma2 * (iCovs[p] + tracks_view[jt].covariance()(iParam2iCov[p]));
               if (dpij * dpij > e2dpij)
                 return true;  // incompatible param found
             }
             return false;  // all params compatible
           };
 
-          // loop over remaining tracks j and compare
-          for (int j = i + 1; j < ntr; ++j) {
+          for (int j = 0; j < ntr; ++j) {
+            if (j == i)
+              continue;
             auto jt = thisCellTracks[j];
             auto qj = tracks_view[jt].quality();
             if (qj <= reject)
               continue;
             if (incompatibleTrackParams(jt))
               continue;
-            if ((qj < qi) || (qj == qi && score(it) < score(jt)))
-              tracks_view[jt].quality() = reject;
-            // explicitly check since they might be identical when using the same hits for fitting!
-            else if ((qj > qi) || (qj == qi && score(it) > score(jt))) {
-              tracks_view[it].quality() = reject;
+            if ((qj > qi) || (qj == qi && score(jt) < score(it))) {
+              demote(it, reject);
               break;
             }
           }
@@ -420,38 +448,34 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         // find maxQual
         auto maxQual = reject;  // no duplicate!
         for (int i = 0; i < ntr; i++) {
-          auto it = thisCellTracks[i];
-          if (tracks_view[it].quality() > maxQual)
-            maxQual = tracks_view[it].quality();
+          auto q = tracks_view[thisCellTracks[i]].quality();
+          if (q > maxQual)
+            maxQual = q;
         }
 
         if (maxQual <= loose)
           continue;
 
-        // find min score
+        // min chi2 among the best-quality tracks (read from the unmodified quality, which the dup-marking
+        // above does not affect for the max-quality min-chi2 track)
+        float mc = maxScore;
         for (int i = 0; i < ntr; i++) {
           auto it = thisCellTracks[i];
-          if (tracks_view[it].quality() == maxQual && score(it) < mc) {
+          if (tracks_view[it].quality() == maxQual && score(it) < mc)
             mc = score(it);
-            im = it;
-          }
         }
 
-        if (tkNotFound == im)
-          continue;
-
-        // mark all other duplicates  (not yet, keep it loose)
+        // mark all other duplicates (keep them loose)
         for (int i = 0; i < ntr; i++) {
           auto it = thisCellTracks[i];
           if (tracks_view[it].quality() > loose && score(it) > mc)
-            tracks_view[it].quality() = loose;  //no race:  simple assignment of the same constant
+            demote(it, loose);
         }
       }
     }
   };
 
-  // specialization for Phase-1 to keep the same behavior as before.
-  // assume the above (so, short tracks already removed)
+  // Phase-1 specialization
   template <>
   class Kernel_fastDuplicateRemover<pixelTopology::Phase1> {
   public:
@@ -460,6 +484,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   uint32_t const *__restrict__ nCells,
                                   CellToTrack const *__restrict__ cellTracksHisto,
                                   TkSoAView tracks_view,
+                                  int32_t *__restrict__ qualityScratch,
                                   bool dupPassThrough) const {
       // quality to mark rejected
       auto const reject = dupPassThrough ? Quality::loose : Quality::dup;
@@ -468,19 +493,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
       ALPAKA_ASSERT_ACC(nCells);
       const auto ntNCells = (*nCells);
 
+      auto score = [&](uint32_t it) { return std::abs(reco::tip(tracks_view, it)); };
+      auto demote = [&](uint32_t it, Quality q) {
+        alpaka::atomicMin(acc, &qualityScratch[it], static_cast<int32_t>(q), alpaka::hierarchy::Blocks{});
+      };
+
       for (auto idx : cms::alpakatools::uniform_elements(acc, ntNCells)) {
-        if (cellTracksHisto->size(idx) < 2)
+        int ntr = cellTracksHisto->size(idx);
+        if (ntr < 2)
           continue;
 
-        float mc = maxScore;
-        uint32_t im = tkNotFound;
-
-        auto score = [&](auto it) { return std::abs(reco::tip(tracks_view, it)); };
-
-        // full crazy combinatorics
         auto const *__restrict__ thisCellTracks = cellTracksHisto->begin(idx);
-        int ntr = cellTracksHisto->size(idx);
-        for (int i = 0; i < ntr - 1; i++) {
+
+        // Mark as duplicate any track dominated by a compatible, strictly better one
+        // (order-independent; lower track index breaks exact ties)
+        for (int i = 0; i < ntr; ++i) {
           auto it = thisCellTracks[i];
           auto qi = tracks_view[it].quality();
           if (qi <= reject)
@@ -489,7 +516,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           auto e2opi = tracks_view[it].covariance()(9);
           auto cti = tracks_view[it].state()(3);
           auto e2cti = tracks_view[it].covariance()(12);
-          for (int j = i + 1; j < ntr; ++j) {
+          for (int j = 0; j < ntr; ++j) {
+            if (j == i)
+              continue;
             auto jt = thisCellTracks[j];
             auto qj = tracks_view[jt].quality();
             if (qj <= reject)
@@ -502,10 +531,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
             auto dop = nSigma2Phase1 * (tracks_view[jt].covariance()(9) + e2opi);
             if ((opi - opj) * (opi - opj) > dop)
               continue;
-            if ((qj < qi) || (qj == qi && score(it) < score(jt)))
-              tracks_view[jt].quality() = reject;
-            else {
-              tracks_view[it].quality() = reject;
+            if ((qj > qi) || (qj == qi && (score(jt) < score(it) || (score(jt) == score(it) && jt < it)))) {
+              demote(it, reject);
               break;
             }
           }
@@ -514,31 +541,36 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         // find maxQual
         auto maxQual = reject;  // no duplicate!
         for (int i = 0; i < ntr; i++) {
-          auto it = thisCellTracks[i];
-          if (tracks_view[it].quality() > maxQual)
-            maxQual = tracks_view[it].quality();
+          auto q = tracks_view[thisCellTracks[i]].quality();
+          if (q > maxQual)
+            maxQual = q;
         }
 
         if (maxQual <= loose)
           continue;
 
-        // find min score
+        // keep the single best-quality, min-score track (lower index breaks ties); demote the rest
+        float mc = maxScore;
+        uint32_t im = tkNotFound;
         for (int i = 0; i < ntr; i++) {
           auto it = thisCellTracks[i];
-          if (tracks_view[it].quality() == maxQual && score(it) < mc) {
-            mc = score(it);
-            im = it;
+          if (tracks_view[it].quality() == maxQual) {
+            auto s = score(it);
+            if (s < mc || (s == mc && it < im)) {
+              mc = s;
+              im = it;
+            }
           }
         }
 
         if (tkNotFound == im)
           continue;
 
-        // mark all other duplicates  (not yet, keep it loose)
+        // mark all other duplicates (keep them loose)
         for (int i = 0; i < ntr; i++) {
           auto it = thisCellTracks[i];
           if (tracks_view[it].quality() > loose && it != im)
-            tracks_view[it].quality() = loose;  //no race:  simple assignment of the same constant
+            demote(it, loose);
         }
       }
     }
@@ -1069,136 +1101,147 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     }
   };
 
-  // mostly for very forward triplets.....
+  // Track-parallel single-writer shared-hit removers: each thread owns one track, inspects the hit
+  // buckets it belongs to (hitToTuple), reads every quality from the frozen scratch snapshot, and writes
+  // only its own track's quality()
   template <typename TrackerTraits>
   class Kernel_rejectDuplicate {
   public:
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                   TkSoAView tracks_view,
                                   bool dupPassThrough,
+                                  HitContainer const *__restrict__ foundNtuplets,
+                                  int32_t const *__restrict__ qualityScratch,
                                   HitToTuple const *__restrict__ phitToTuple) const {
       // quality to mark rejected
       auto const reject = dupPassThrough ? Quality::loose : Quality::dup;
 
       auto &hitToTuple = *phitToTuple;
+      auto qual = [&](uint32_t t) { return static_cast<Quality>(qualityScratch[t]); };
+      auto score = [&](uint32_t it) { return tracks_view[it].chi2(); };
 
-      for (auto idx : cms::alpakatools::uniform_elements(acc, hitToTuple.nOnes())) {
-        if (hitToTuple.size(idx) < 2)
+      // A track is rejected iff some compatible track sharing one of its hits is strictly better by
+      // the total order (more layers, then higher quality, then lower chi2, then lower track index)
+      for (auto it : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes())) {
+        if (foundNtuplets->size(it) == 0)
+          break;  // guard
+        auto const qi = qual(it);
+        if (qi <= reject)
           continue;
+        auto const nli = tracks_view[it].nLayers();
 
-        // auto score = [&](auto it, auto nl) { return std::abs(reco::tip(tracks_view, it)); };
-        auto score = [&](auto it, auto nl) { return tracks_view[it].chi2(); };
-
-        // full combinatorics
-        for (auto ip = hitToTuple.begin(idx); ip < hitToTuple.end(idx) - 1; ++ip) {
-          auto const it = *ip;
-          auto qi = tracks_view[it].quality();
-          if (qi <= reject)
-            continue;
-
-          // get track parameters and covariances
-          float iParams[nTrackParameters];
-          float iCovs[nTrackParameters];
+        // get track parameters and covariances
+        float iParams[nTrackParameters];
+        float iCovs[nTrackParameters];
+        for (int p{0}; p < nTrackParameters; ++p) {
+          iParams[p] = tracks_view[it].state()(p);
+          iCovs[p] = tracks_view[it].covariance()(iParam2iCov[p]);
+        }
+        auto incompatibleTrackParams = [&](uint32_t jt) -> bool {
           for (int p{0}; p < nTrackParameters; ++p) {
-            iParams[p] = tracks_view[it].state()(p);
-            const auto c = iParam2iCov[p];
-            iCovs[p] = tracks_view[it].covariance()(c);
+            const auto dpij = iParams[p] - tracks_view[jt].state()(p);
+            const auto e2dpij = nSigma2 * (iCovs[p] + tracks_view[jt].covariance()(iParam2iCov[p]));
+            if (dpij * dpij > e2dpij)
+              return true;
           }
-          // function that compares the five track parameters of tracks it and jt
-          auto incompatibleTrackParams = [=](int jt) -> bool {
-            // comparing phi, tip, 1/pT, cotan(theta) and zip
-            for (int p{0}; p < nTrackParameters; ++p) {
-              const auto dpij = iParams[p] - tracks_view[jt].state()(p);
-              const auto c = iParam2iCov[p];
-              const auto e2dpij = nSigma2 * (iCovs[p] + tracks_view[jt].covariance()(c));
-              if (dpij * dpij > e2dpij)
-                return true;  // incompatible param found
-            }
-            return false;  // all params compatible
-          };
+          return false;
+        };
 
-          auto nli = tracks_view[it].nLayers();
-
-          for (auto jp = ip + 1; jp < hitToTuple.end(idx); ++jp) {
+        bool dominated = false;
+        for (auto hp = foundNtuplets->begin(it); hp != foundNtuplets->end(it) && !dominated; ++hp) {
+          auto const h = *hp;
+          for (auto jp = hitToTuple.begin(h); jp != hitToTuple.end(h); ++jp) {
             auto const jt = *jp;
-            auto qj = tracks_view[jt].quality();
+            if (jt == it)
+              continue;
+            auto const qj = qual(jt);
             if (qj <= reject)
               continue;
             if (incompatibleTrackParams(jt))
               continue;
-            auto nlj = tracks_view[jt].nLayers();
-            if (nlj < nli || (nlj == nli && (qj < qi || (qj == qi && score(it, nli) < score(jt, nlj)))))
-              tracks_view[jt].quality() = reject;
-            // explicitly check since we can have actual duplicated tracks with identical parameters
-            else if (nli < nlj || (nli == nlj && (qi < qj || (qi == qj && score(jt, nlj) < score(it, nli))))) {
-              tracks_view[it].quality() = reject;
+            auto const nlj = tracks_view[jt].nLayers();
+            // jt dominates it by the total order (nLayers, quality, score, then track index). The score
+            // test stays a strict order even for a non-finite score (NaN), so exactly one of a duplicate
+            // pair is always demoted
+            bool jBetter =
+                (nlj > nli) ||
+                (nlj == nli &&
+                 (qj > qi || (qj == qi && (score(jt) < score(it) || (!(score(it) < score(jt)) && jt < it)))));
+            if (jBetter) {
+              dominated = true;
               break;
             }
-            // if we have two tracks with the same length, parameters and quality, we keep the one with the lower index
-            // (arbitrary but deterministic) and reject the other to avoid double counting
-            else if (it < jt)
-              tracks_view[jt].quality() = reject;
-            else
-              tracks_view[it].quality() = reject;
           }
         }
+        if (dominated)
+          tracks_view[it].quality() = reject;
       }
     }
   };
 
-  // Specialization for Phase-1 to keep the same behavior as before.
-  // mostly for very forward triplets.....
+  // Phase-1 specialization (very forward triplets)
   template <>
   class Kernel_rejectDuplicate<pixelTopology::Phase1> {
   public:
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                   TkSoAView tracks_view,
                                   bool dupPassThrough,
+                                  HitContainer const *__restrict__ foundNtuplets,
+                                  int32_t const *__restrict__ qualityScratch,
                                   HitToTuple const *__restrict__ phitToTuple) const {
       // quality to mark rejected
       auto const reject = dupPassThrough ? Quality::loose : Quality::dup;
 
       auto &hitToTuple = *phitToTuple;
+      auto qual = [&](uint32_t t) { return static_cast<Quality>(qualityScratch[t]); };
+      auto score = [&](uint32_t it) { return std::abs(reco::tip(tracks_view, it)); };
 
-      for (auto idx : cms::alpakatools::uniform_elements(acc, hitToTuple.nOnes())) {
-        if (hitToTuple.size(idx) < 2)
+      for (auto it : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes())) {
+        if (foundNtuplets->size(it) == 0)
+          break;  // guard
+        auto const qi = qual(it);
+        if (qi <= reject)
           continue;
+        auto const opi = tracks_view[it].state()(2);
+        auto const e2opi = tracks_view[it].covariance()(9);
+        auto const cti = tracks_view[it].state()(3);
+        auto const e2cti = tracks_view[it].covariance()(12);
+        auto const nli = tracks_view[it].nLayers();
 
-        auto score = [&](auto it, auto nl) { return std::abs(reco::tip(tracks_view, it)); };
-
-        // full combinatorics
-        for (auto ip = hitToTuple.begin(idx); ip < hitToTuple.end(idx) - 1; ++ip) {
-          auto const it = *ip;
-          auto qi = tracks_view[it].quality();
-          if (qi <= reject)
-            continue;
-          auto opi = tracks_view[it].state()(2);
-          auto e2opi = tracks_view[it].covariance()(9);
-          auto cti = tracks_view[it].state()(3);
-          auto e2cti = tracks_view[it].covariance()(12);
-          auto nli = tracks_view[it].nLayers();
-          for (auto jp = ip + 1; jp < hitToTuple.end(idx); ++jp) {
+        bool dominated = false;
+        for (auto hp = foundNtuplets->begin(it); hp != foundNtuplets->end(it) && !dominated; ++hp) {
+          auto const h = *hp;
+          for (auto jp = hitToTuple.begin(h); jp != hitToTuple.end(h); ++jp) {
             auto const jt = *jp;
-            auto qj = tracks_view[jt].quality();
+            if (jt == it)
+              continue;
+            auto const qj = qual(jt);
             if (qj <= reject)
               continue;
-            auto opj = tracks_view[jt].state()(2);
-            auto ctj = tracks_view[jt].state()(3);
-            auto dct = nSigma2Phase1 * (tracks_view[jt].covariance()(12) + e2cti);
+            auto const opj = tracks_view[jt].state()(2);
+            auto const ctj = tracks_view[jt].state()(3);
+            auto const dct = nSigma2Phase1 * (tracks_view[jt].covariance()(12) + e2cti);
             if ((cti - ctj) * (cti - ctj) > dct)
               continue;
-            auto dop = nSigma2Phase1 * (tracks_view[jt].covariance()(9) + e2opi);
+            auto const dop = nSigma2Phase1 * (tracks_view[jt].covariance()(9) + e2opi);
             if ((opi - opj) * (opi - opj) > dop)
               continue;
-            auto nlj = tracks_view[jt].nLayers();
-            if (nlj < nli || (nlj == nli && (qj < qi || (qj == qi && score(it, nli) < score(jt, nlj)))))
-              tracks_view[jt].quality() = reject;
-            else {
-              tracks_view[it].quality() = reject;
+            auto const nlj = tracks_view[jt].nLayers();
+            // jt dominates it by the total order (nLayers, quality, score, then track index). The score
+            // test stays a strict order even for a non-finite score (NaN), so exactly one of a duplicate
+            // pair is always demoted
+            bool jBetter =
+                (nlj > nli) ||
+                (nlj == nli &&
+                 (qj > qi || (qj == qi && (score(jt) < score(it) || (!(score(it) < score(jt)) && jt < it)))));
+            if (jBetter) {
+              dominated = true;
               break;
             }
           }
         }
+        if (dominated)
+          tracks_view[it].quality() = reject;
       }
     }
   };
@@ -1212,6 +1255,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   TkSoAView tracks_view,
                                   int nmin,
                                   bool dupPassThrough,
+                                  HitContainer const *__restrict__ foundNtuplets,
+                                  int32_t const *__restrict__ qualityScratch,
                                   HitToTuple const *__restrict__ phitToTuple) const {
       // quality to mark rejected
       auto const reject = dupPassThrough ? Quality::loose : Quality::dup;
@@ -1219,45 +1264,39 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
       auto const longTqual = Quality::highPurity;
 
       auto &hitToTuple = *phitToTuple;
-
+      auto qual = [&](uint32_t t) { return static_cast<Quality>(qualityScratch[t]); };
       uint32_t l1end = layerStarts[1];
 
-      for (auto idx : cms::alpakatools::uniform_elements(acc, hitToTuple.nOnes())) {
-        if (hitToTuple.size(idx) < 2)
+      // Short track `it` (nLayers <= nmin) is killed if it shares a non-bpix1 hit with a longer track
+      // (nLayers == maxNl >= 4 among the highPurity tracks of that hit). maxNl is a reduction over the
+      // frozen snapshot, so this is order-independent
+      for (auto it : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes())) {
+        if (foundNtuplets->size(it) == 0)
+          break;  // guard
+        if (qual(it) <= reject)
           continue;
+        auto const nlit = tracks_view[it].nLayers();
+        if (nlit > nmin)
+          continue;  // only short tracks are cleaned here
 
-        // checking if shared hit is on bpix1
-        if (idx < l1end)
-          continue;
-
-        int8_t maxNl = 0;
-
-        // find maxNl
-        for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
-          if (tracks_view[*it].quality() < longTqual)
+        bool kill = false;
+        for (auto hp = foundNtuplets->begin(it); hp != foundNtuplets->end(it) && !kill; ++hp) {
+          auto const h = *hp;
+          if (h < l1end)
+            continue;  // shared hit on bpix1
+          if (hitToTuple.size(h) < 2)
             continue;
-          // if (tracks_view[*it].nHits()==3) continue;
-          auto nl = tracks_view[*it].nLayers();
-          maxNl = std::max(nl, maxNl);
+          int8_t maxNl = 0;
+          for (auto jp = hitToTuple.begin(h); jp != hitToTuple.end(h); ++jp) {
+            if (qual(*jp) < longTqual)
+              continue;
+            maxNl = std::max(tracks_view[*jp].nLayers(), maxNl);
+          }
+          if (maxNl >= 4 && nlit < maxNl)
+            kill = true;
         }
-
-        if (maxNl < 4)
-          continue;
-
-        // quad pass through (leave for tests)
-        // maxNl = std::min(4, maxNl);
-
-        // kill all tracks shorter than maxHl (only triplets???
-        for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
-          auto nl = tracks_view[*it].nLayers();
-
-          // checking if the tuple is short enough
-          if (nl > nmin)
-            continue;
-
-          if (nl < maxNl && tracks_view[*it].quality() > reject)
-            tracks_view[*it].quality() = reject;
-        }
+        if (kill)
+          tracks_view[it].quality() = reject;
       }
     }
   };
@@ -1267,6 +1306,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                   TkSoAView tracks_view,
                                   bool dupPassThrough,
+                                  HitContainer const *__restrict__ foundNtuplets,
+                                  int32_t const *__restrict__ qualityScratch,
                                   HitToTuple const *__restrict__ phitToTuple) const {
       // quality to mark rejected
       auto const reject = Quality::loose;
@@ -1274,48 +1315,49 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
       auto const good = Quality::strict;
 
       auto &hitToTuple = *phitToTuple;
+      auto qual = [&](uint32_t t) { return static_cast<Quality>(qualityScratch[t]); };
 
-      for (auto idx : cms::alpakatools::uniform_elements(acc, hitToTuple.nOnes())) {
-        if (hitToTuple.size(idx) < 2)
+      // Track `it` is rejected if, on one of its shared hits whose good-quality tracks are all
+      // triplets, it is not the best-tip survivor (lower track index breaks ties)
+      for (auto it : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes())) {
+        if (foundNtuplets->size(it) == 0)
+          break;  // guard
+        if (qual(it) <= reject)
           continue;
 
-        float mc = maxScore;
-        uint32_t im = tkNotFound;
-        bool onlyTriplets = true;
-
-        // check if only triplets
-        for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
-          if (tracks_view[*it].quality() <= good)
+        bool kill = false;
+        for (auto hp = foundNtuplets->begin(it); hp != foundNtuplets->end(it) && !kill; ++hp) {
+          auto const h = *hp;
+          if (hitToTuple.size(h) < 2)
             continue;
-          onlyTriplets &= reco::isTriplet(tracks_view, *it);
-          if (!onlyTriplets)
-            break;
-        }
-
-        // only triplets
-        if (!onlyTriplets)
-          continue;
-
-        // for triplets choose best tip!  (should we first find best quality???)
-        for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
-          auto const it = *ip;
-          if (tracks_view[it].quality() >= good && std::abs(reco::tip(tracks_view, it)) < mc) {
-            mc = std::abs(reco::tip(tracks_view, it));
-            im = it;
+          bool onlyTriplets = true;
+          for (auto jp = hitToTuple.begin(h); jp != hitToTuple.end(h); ++jp) {
+            if (qual(*jp) <= good)
+              continue;
+            onlyTriplets &= reco::isTriplet(tracks_view, *jp);
+            if (!onlyTriplets)
+              break;
           }
+          if (!onlyTriplets)
+            continue;
+          float mc = maxScore;
+          uint32_t im = tkNotFound;
+          for (auto jp = hitToTuple.begin(h); jp != hitToTuple.end(h); ++jp) {
+            auto const jt = *jp;
+            if (qual(jt) >= good) {
+              auto const t = std::abs(reco::tip(tracks_view, jt));
+              if (t < mc || (t == mc && jt < im)) {
+                mc = t;
+                im = jt;
+              }
+            }
+          }
+          if (im != tkNotFound && it != im)
+            kill = true;
         }
-
-        if (tkNotFound == im)
-          continue;
-
-        // mark worse ambiguities
-        for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
-          auto const it = *ip;
-          if (tracks_view[it].quality() > reject && it != im)
-            tracks_view[it].quality() = reject;  //no race:  simple assignment of the same constant
-        }
-
-      }  // loop over hits
+        if (kill)
+          tracks_view[it].quality() = reject;
+      }
     }
   };
 
@@ -1325,6 +1367,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                   TkSoAView tracks_view,
                                   bool dupPassThrough,
+                                  HitContainer const *__restrict__ foundNtuplets,
+                                  int32_t const *__restrict__ qualityScratch,
                                   HitToTuple const *__restrict__ phitToTuple) const {
       // quality to mark rejected
       auto const reject = Quality::loose;
@@ -1332,34 +1376,38 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
       auto const good = Quality::loose;
 
       auto &hitToTuple = *phitToTuple;
+      auto qual = [&](uint32_t t) { return static_cast<Quality>(qualityScratch[t]); };
 
-      for (auto idx : cms::alpakatools::uniform_elements(acc, hitToTuple.nOnes())) {
-        if (hitToTuple.size(idx) < 2)
+      // Triplet `it` is rejected if, on one of its shared hits, it is not the best-tip survivor
+      for (auto it : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes())) {
+        if (foundNtuplets->size(it) == 0)
+          break;  // guard
+        if (qual(it) <= reject || !reco::isTriplet(tracks_view, it))
           continue;
 
-        float mc = maxScore;
-        uint32_t im = tkNotFound;
-
-        // choose best tip!  (should we first find best quality???)
-        for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
-          auto const it = *ip;
-          if (tracks_view[it].quality() >= good && std::abs(reco::tip(tracks_view, it)) < mc) {
-            mc = std::abs(reco::tip(tracks_view, it));
-            im = it;
+        bool kill = false;
+        for (auto hp = foundNtuplets->begin(it); hp != foundNtuplets->end(it) && !kill; ++hp) {
+          auto const h = *hp;
+          if (hitToTuple.size(h) < 2)
+            continue;
+          float mc = maxScore;
+          uint32_t im = tkNotFound;
+          for (auto jp = hitToTuple.begin(h); jp != hitToTuple.end(h); ++jp) {
+            auto const jt = *jp;
+            if (qual(jt) >= good) {
+              auto const t = std::abs(reco::tip(tracks_view, jt));
+              if (t < mc || (t == mc && jt < im)) {
+                mc = t;
+                im = jt;
+              }
+            }
           }
+          if (im != tkNotFound && it != im)
+            kill = true;
         }
-
-        if (tkNotFound == im)
-          continue;
-
-        // mark worse ambiguities
-        for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
-          auto const it = *ip;
-          if (tracks_view[it].quality() > reject && reco::isTriplet(tracks_view, it) && it != im)
-            tracks_view[it].quality() = reject;  //no race:  simple assignment of the same constant
-        }
-
-      }  // loop over hits
+        if (kill)
+          tracks_view[it].quality() = reject;
+      }
     }
   };
 
