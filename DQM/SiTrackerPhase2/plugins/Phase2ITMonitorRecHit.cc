@@ -105,7 +105,7 @@ void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
   if (!rechits.isValid())
     return;
   std::map<std::string, unsigned int> nrechitLayerMap;
-  unsigned long int nTotrechitsinevt = 0;
+  unsigned long int nRechitsInEvent = 0;
   // Loop over modules
   for (const auto& DSViter : *rechits) {
     // Get the detector id
@@ -116,39 +116,36 @@ void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
     if (!geomDetunit)
       continue;
 
-    // Workaround for filling histograms in both Ring<> and Wheel<>
-    bool isEndcap = (detId.subdetId() != PixelSubdetector::PixelBarrel);
-    for (int booking = 1; booking < 2 + isEndcap; booking++) {
-      // Will loop twice if the module is an EndCap module
-      // The default key divides endcaps into F/EPixs and Rings
-      // in second loop  endcaps will be divided into F/EPix and Wheels
-      std::string key = (booking == 2 ? phase2tkutil::getITHistoWheelId(detId.rawId(), tTopo_)
-                                      : phase2tkutil::getITHistoId(detId.rawId(), tTopo_));
-      nTotrechitsinevt += DSViter.size();
-      auto counterDet = nrechitLayerMap.find(key);
-      if (nrechitLayerMap.find(key) == nrechitLayerMap.end()) {
-        nrechitLayerMap.emplace(key, DSViter.size());
-      } else
-        counterDet->second += DSViter.size();
+    nRechitsInEvent += DSViter.size();
+    int nRecHits = 0;
+    //loop over rechits for a single detId
+    for (const auto& rechit : DSViter) {
+      LocalPoint lp = rechit.localPosition();
+      Global3DPoint globalPos = geomDetunit->surface().toGlobal(lp);
+      float eta = geomDetunit->surface().toGlobal(lp).eta();
+      nRecHits++;
+      //in mm
+      double gx = globalPos.x() * 10.;
+      double gy = globalPos.y() * 10.;
+      double gz = globalPos.z() * 10.;
+      double gr = globalPos.perp() * 10.;
+      //Fill global positions
+      if (geomDetunit->subDetector() == GeomDetEnumerators::SubDetector::P2PXB) {
+        globalXY_barrel_->Fill(gx, gy);
+        globalRZ_barrel_->Fill(gz, gr);
+      } else if (geomDetunit->subDetector() == GeomDetEnumerators::SubDetector::P2PXEC) {
+        globalXY_endcap_->Fill(gx, gy);
+        globalRZ_endcap_->Fill(gz, gr);
+      }
+      // Workaround for filling layer histograms in both Ring<> and Wheel<>
+      bool isEndcap = (detId.subdetId() != PixelSubdetector::PixelBarrel);
+      for (int booking = 1; booking < 2 + isEndcap; booking++) {
+        // Will loop twice if the module is an EndCap module
+        // The default key divides endcaps into F/EPixs and Rings
+        // in second loop  endcaps will be divided into F/EPix and Wheels
+        std::string key = (booking == 2 ? phase2tkutil::getITHistoWheelId(detId.rawId(), tTopo_)
+                                        : phase2tkutil::getITHistoId(detId.rawId(), tTopo_));
 
-      //loop over rechits for a single detId
-      for (const auto& rechit : DSViter) {
-        LocalPoint lp = rechit.localPosition();
-        Global3DPoint globalPos = geomDetunit->surface().toGlobal(lp);
-        //in mm
-        double gx = globalPos.x() * 10.;
-        double gy = globalPos.y() * 10.;
-        double gz = globalPos.z() * 10.;
-        double gr = globalPos.perp() * 10.;
-        //Fill global positions
-        if (geomDetunit->subDetector() == GeomDetEnumerators::SubDetector::P2PXB) {
-          globalXY_barrel_->Fill(gx, gy);
-          globalRZ_barrel_->Fill(gz, gr);
-        } else if (geomDetunit->subDetector() == GeomDetEnumerators::SubDetector::P2PXEC) {
-          globalXY_endcap_->Fill(gx, gy);
-          globalRZ_endcap_->Fill(gz, gr);
-        }
-        //layer wise histo
         if (layerMEs_[key].clusterSizeX)
           layerMEs_[key].clusterSizeX->Fill(rechit.cluster()->sizeX());
         if (layerMEs_[key].clusterSizeY)
@@ -163,17 +160,26 @@ void Phase2ITMonitorRecHit::fillITHistos(const edm::Event& iEvent) {
           layerMEs_[key].posX->Fill(lp.x());
         if (layerMEs_[key].posY)
           layerMEs_[key].posY->Fill(lp.y());
-        float eta = geomDetunit->surface().toGlobal(lp).eta();
         if (layerMEs_[key].poserrX)
           layerMEs_[key].poserrX->Fill(eta, million * rechit.localPositionError().xx());
         if (layerMEs_[key].poserrY)
           layerMEs_[key].poserrY->Fill(eta, million * rechit.localPositionError().yy());
-      }  //end loop over rechits of a detId
-    }  //End loop over DetSetVector
-  }
+
+        if (nRecHits == int(DSViter.size())) {
+          // Reached the end of rechits in this Det
+          // Fill any histos that should only be filled once per det
+          auto counterDet = nrechitLayerMap.find(key);
+          if (counterDet == nrechitLayerMap.end()) {
+            nrechitLayerMap.emplace(key, DSViter.size());
+          } else
+            counterDet->second += DSViter.size();
+        }
+      }  // End layer ME filling loop
+    }  //end loop over rechits of a detId
+  }  //End loop over DetSetVector
 
   //fill nRecHits per event
-  numberRecHits_->Fill(nTotrechitsinevt);
+  numberRecHits_->Fill(nRechitsInEvent);
   //fill nRecHit counter per layer
   for (const auto& lme : nrechitLayerMap)
     if (layerMEs_[lme.first].numberRecHits)
