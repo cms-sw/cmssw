@@ -3107,18 +3107,23 @@ HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveSimT
   return resolveDisplacement(point, direction);
 }
 
-const ticl::Trackster::Vector& HGVHistoProducerAlgo::resolveTracksterDirection(const ticl::Trackster& trackster) {
-    return trackster.eigenvectors()[0];
+ticl::Trackster::Vector HGVHistoProducerAlgo::resolveTracksterDirection(const ticl::Trackster& trackster) {
+  auto direction = trackster.eigenvectors()[0];
+  const auto& point = trackster.barycenter();
+  if (direction.Dot(point) < 0.f) {
+    direction *= -1.f;
+  }
+  return direction;
 }
 
 HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveRecoTracksterDisplacement(const ticl::Trackster& trackster) {
   const auto& barycenter = trackster.barycenter();
-  const auto& eigenvector = resolveTracksterDirection(trackster);
+  const auto& direction = resolveTracksterDirection(trackster);
 
   const math::XYZVectorF point(barycenter.x(), barycenter.y(), barycenter.z());
-  const math::XYZVectorF direction(eigenvector.x(), eigenvector.y(), eigenvector.z());
+  const math::XYZVectorF directionVector(direction.x(), direction.y(), direction.z());
 
-  return resolveDisplacement(point, direction);
+  return resolveDisplacement(point, directionVector);
 }
 
 const SimTrack& HGVHistoProducerAlgo::getSimTrack(const CaloParticle& caloParticle) {

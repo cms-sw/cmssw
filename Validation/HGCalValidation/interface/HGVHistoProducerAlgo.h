@@ -435,7 +435,7 @@ private:
 
   static CaloParticleDisplacement resolveSimTrackDisplacement(const SimTrack& simTrack);
 
-  static const ticl::Trackster::Vector& resolveTracksterDirection(
+  static ticl::Trackster::Vector resolveTracksterDirection(
       const ticl::Trackster& trackster);
 
   static CaloParticleDisplacement resolveRecoTracksterDisplacement(
