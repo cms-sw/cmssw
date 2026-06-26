@@ -468,7 +468,6 @@ bool RecHitTools::isHalfCell(const DetId& id) const {
 int RecHitTools::getCellType(const DetId& id) const {
   checkGeometry();
   auto layer_number = getLayerWithOffset(id);
-  auto thickness = getSiThickIndex(id);
   auto geomNose =
       static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward, ForwardSubdetector::HFNose));
   auto isNose = geomNose ? true : false;
