@@ -254,14 +254,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
 
       const int topH = pfClusteringCCLabels.topH();
 
+      if (::cms::alpakatools::once_per_block(acc)) {
+        int i = alpaka::atomicAdd(acc, &pfClusteringCCLabels.posH() /*posH*/, -1, alpaka::hierarchy::Blocks{});
+        v = (i > topH) ? pfClusteringCCLabels[i].workl() : -1;
+      }
+
+      alpaka::syncBlockThreads(acc);
+
       for (auto group : ::cms::alpakatools::uniform_groups(acc)) {
-        if (::cms::alpakatools::once_per_block(acc)) {
-          int i = alpaka::atomicAdd(acc, &pfClusteringCCLabels.posH() /*posH*/, -1, alpaka::hierarchy::Blocks{});
-          v = (i > topH) ? pfClusteringCCLabels[i].workl() : -1;
-        }
-
-        alpaka::syncBlockThreads(acc);
-
         while (v >= 0) {
           for (auto idx : ::cms::alpakatools::uniform_group_elements(acc, group, nClusters)) {
             const int begin_v = pfClusteringEdgeVars[v].mdpf_adjacencyIndex() + idx.local;
@@ -269,6 +269,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::eclcc {
 
             hook(acc, pfClusteringCCLabels, pfClusteringEdgeVars, v, begin_v, end_v, blockDim_x);
           }
+
           if (::cms::alpakatools::once_per_block(acc)) {
             int i = alpaka::atomicAdd(acc, &pfClusteringCCLabels.posH() /*posH*/, -1, alpaka::hierarchy::Blocks{});
             v = (i > topH) ? pfClusteringCCLabels[i].workl() : -1;
