@@ -47,3 +47,9 @@ from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2
 hltPhase2LegacyTracking.toModify(hltInitialStepTrackCutClassifier,
     mva = dict(passThroughForAll=False, passThroughForDisplaced=False)
 )
+
+
+from Configuration.ProcessModifiers.trackTorchClassifier_cff import trackTorchClassifier
+trackTorchClassifier.toModify(hltInitialStepTrackCutClassifier,
+    src = "hltInitialStepTrackTorchClassifierOutput"
+)
