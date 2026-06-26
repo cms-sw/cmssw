@@ -1,5 +1,6 @@
 // Original author: Felice Pantaleo, felice.pantaleo@cern.ch, 02/2026
-#pragma once
+#ifndef PerfTools_Perfetto_plugins_PerfettoCuptiProfiler_h
+#define PerfTools_Perfetto_plugins_PerfettoCuptiProfiler_h
 
 #include "PerfTools/Perfetto/interface/CMSSWPerfettoCategories.h"
 #include <perfetto.h>
@@ -228,3 +229,5 @@ namespace cms::perfetto {
 }  // namespace cms::perfetto
 
 #endif  // PERFETTO_HAS_CUPTI
+
+#endif  // PerfTools_Perfetto_plugins_PerfettoCuptiProfiler_h

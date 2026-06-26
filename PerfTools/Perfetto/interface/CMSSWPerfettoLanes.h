@@ -1,5 +1,6 @@
 // Original author: Felice Pantaleo, felice.pantaleo@cern.ch, 02/2026
-#pragma once
+#ifndef PerfTools_Perfetto_interface_CMSSWPerfettoLanes_h
+#define PerfTools_Perfetto_interface_CMSSWPerfettoLanes_h
 
 #include "PerfTools/Perfetto/interface/CMSSWPerfettoCategories.h"
 #include <perfetto.h>
@@ -54,3 +55,5 @@ namespace cms::perfetto {
   }
 
 }  // namespace cms::perfetto
+
+#endif  // PerfTools_Perfetto_interface_CMSSWPerfettoLanes_h

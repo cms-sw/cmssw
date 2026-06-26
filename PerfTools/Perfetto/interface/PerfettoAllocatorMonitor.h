@@ -1,5 +1,6 @@
 // Original author: Felice Pantaleo, felice.pantaleo@cern.ch, 02/2026
-#pragma once
+#ifndef PerfTools_Perfetto_interface_PerfettoAllocatorMonitor_h
+#define PerfTools_Perfetto_interface_PerfettoAllocatorMonitor_h
 
 #include "PerfTools/Perfetto/interface/CMSSWPerfettoCategories.h"
 #include "PerfTools/Perfetto/interface/CMSSWPerfettoLanes.h"
@@ -99,3 +100,5 @@ namespace cms::perfetto {
   };
 
 }  // namespace cms::perfetto
+
+#endif  // PerfTools_Perfetto_interface_PerfettoAllocatorMonitor_h

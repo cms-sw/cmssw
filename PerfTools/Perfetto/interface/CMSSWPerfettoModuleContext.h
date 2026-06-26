@@ -1,5 +1,6 @@
 // Original author: Felice Pantaleo, felice.pantaleo@cern.ch, 02/2026
-#pragma once
+#ifndef PerfTools_Perfetto_interface_CMSSWPerfettoModuleContext_h
+#define PerfTools_Perfetto_interface_CMSSWPerfettoModuleContext_h
 
 #include <type_traits>
 #include <utility>
@@ -65,3 +66,5 @@ namespace cms::perfetto {
   }
 
 }  // namespace cms::perfetto
+
+#endif  // PerfTools_Perfetto_interface_CMSSWPerfettoModuleContext_h

@@ -1,5 +1,6 @@
 // Original author: Felice Pantaleo, felice.pantaleo@cern.ch, 02/2026
-#pragma once
+#ifndef PerfTools_Perfetto_interface_CMSSWPerfettoTrace_h
+#define PerfTools_Perfetto_interface_CMSSWPerfettoTrace_h
 
 #include "PerfTools/Perfetto/interface/CMSSWPerfettoCategories.h"
 #include "PerfTools/Perfetto/interface/CMSSWPerfettoLanes.h"
@@ -53,3 +54,5 @@ namespace cms::perfetto_trace {
 
 #define CMS_PERFETTO_SCOPE(name_literal) \
   cms::perfetto_trace::SliceScope PERFETTO_UID(_cms_perfetto_scope_) { name_literal }
+
+#endif  // PerfTools_Perfetto_interface_CMSSWPerfettoTrace_h
