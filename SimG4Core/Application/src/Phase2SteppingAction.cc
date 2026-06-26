@@ -39,7 +39,7 @@ Phase2SteppingAction::Phase2SteppingAction(
   cms2ZDCName_ = p.getParameter<std::string>("CMS2ZDCName");
   doFineCalo_ = (p.getParameter<bool>("DoFineCalo"));
 
-  filter = new Phase2TrackFilter(pstack, sv);
+  filter = std::make_unique<Phase2TrackFilter>(pstack, sv);
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "Phase2SteppingAction:: KillBeamPipe = " << killBeamPipe
@@ -107,14 +107,16 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
     auto step = const_cast<G4Step*>(aStep);
     auto sec = step->GetfSecondary();
     std::size_t n0 = sec->size() - nn;
-    for (std::size_t i = n0; i < sec->size(); ++i) {
-      auto track = (*sec)[i];
+    auto secit = sec->begin() + n0;
+    while (secit != sec->end()) {
+      auto track = *secit;
       if (nullptr != track) {
         auto status = filter->ClassifyNewTrack(track);
         if (status == fKill) {
           step->AddTotalEnergyDeposit(track->GetKineticEnergy());
-          sec->erase(sec->begin() + i);
-          delete track;
+          secit = sec->erase(secit);
+        } else {
+          ++secit;
         }
       }
     }
