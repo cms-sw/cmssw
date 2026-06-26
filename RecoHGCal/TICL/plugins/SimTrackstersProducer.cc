@@ -698,16 +698,17 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
 
   std::sort(toKeep.begin(), toKeep.end());
   toKeep.erase(std::unique(toKeep.begin(), toKeep.end()), toKeep.end());
-  TracksterCollection keptFromCP;
-  std::vector<TICLCandidate> keptCandidates;
-  keptFromCP.reserve(toKeep.size());
-  keptCandidates.reserve(toKeep.size());
+  size_t writeIdx = 0;
   for (auto idx : toKeep) {
-    keptFromCP.push_back(std::move((*result_fromCP)[idx]));
-    keptCandidates.push_back(std::move((*result_ticlCandidates)[idx]));
+    if (writeIdx != (size_t)idx) {
+      (*result_fromCP)[writeIdx] = std::move((*result_fromCP)[idx]);
+      (*result_ticlCandidates)[writeIdx] = std::move((*result_ticlCandidates)[idx]);
+    }
+    ++writeIdx;
   }
-  *result_fromCP = std::move(keptFromCP);
-  *result_ticlCandidates = std::move(keptCandidates);
+  result_fromCP->resize(writeIdx);
+  result_ticlCandidates->resize(writeIdx);
+ 
   evt.put(std::move(result_ticlCandidates));
   evt.put(std::move(output_mask));
   evt.put(std::move(result_fromCP), "fromCPs");
