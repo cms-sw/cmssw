@@ -2333,71 +2333,101 @@ upgradeWFs['ecalDevelAlpaka'] = UpgradeWorkflow_ecalDevel(
     offset = 0.612,
 )
 
-# Offline HGCAL NanoAOD workflows
-class UpgradeWorkflow_HGCALNano(UpgradeWorkflow):
+# ECAL Phase 2 workflow with Alpaka reconstruction and PU from premix
+class UpgradeWorkflowPremix_ecalDevel(UpgradeWorkflow):
+    def __init__(self, digi = {}, reco = {}, harvest = {}, **kwargs):
+        # adapt the parameters for the UpgradeWorkflow init method
+        super(UpgradeWorkflowPremix_ecalDevel, self).__init__(
+            steps = [],
+            PU = [
+                'GenSimHLBeamSpot14',
+                'DigiTrigger',
+                'RecoGlobal',
+                'RecoGlobalFakeHLT',
+                'HARVESTGlobal',
+                'HARVESTGlobalFakeHLT',
+                'ALCAPhase2',
+            ],
+            **kwargs)
+        self.__digi = digi
+        self.__reco = reco
+        self.__harvest = harvest
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'RecoGlobal' in step:
-            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
-        else:
-            stepDict[stepName][k] = merge([stepDict[step][k]])
+        # just copy steps
+        stepDict[stepName][k] = merge([stepDict[step][k]])
+    def setupPU_(self, step, stepName, stepDict, k, properties):
+        # setup for stage 1
+        if "GenSim" in stepName:
+            stepNamePmx = stepName.replace('GenSim','Premix')
+            if not stepNamePmx in stepDict: stepDict[stepNamePmx] = {}
+            stepDict[stepNamePmx][k] = merge([
+                {
+                    '-s': 'GEN,SIM,DIGI:pdigi_valid',
+                    '--era': stepDict[step][k]['--era']+',phase2_ecal_devel',
+                    '--datatier': 'PREMIX',
+                    '--eventcontent': 'PREMIX',
+                    '--procModifiers': 'premix_stage1',
+                    '--custom_conditions': 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+                },
+                stepDict[stepName][k]
+            ])
+        # setup for stage 2
+        elif 'Digi' in step or 'Reco' in step:
+            # temporarily remove trigger & downstream steps
+            mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel'}
+            if 'Digi' in step:
+                mods['-s'] = 'DIGI:pdigi_valid,DATAMIX,DIGI2RAW'
+                mods['--datamix'] = 'PreMix'
+                mods['--procModifiers'] = 'premix_stage2'
+                mods['--custom_conditions'] = 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+                mods['--filein'] = 'file:step1.root'
+                mods['--pileup_input'] = 'file:step2.root'
+                mods |= self.__digi
+            elif 'Reco' in step:
+                mods['-s'] = 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly'
+                mods['--datatier'] = 'GEN-SIM-RECO,DQMIO'
+                mods['--eventcontent'] = 'FEVTDEBUGHLT,DQM'
+                mods['--custom_conditions'] = 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
+                mods |= self.__reco
+                mods['--procModifiers'] = mods['--procModifiers']+',premix_stage2' if '--procModifiers' in mods else 'premix_stage2'
+            stepDict[stepName][k] = merge([mods, stepDict[step][k]])
+        if 'HARVEST' in stepName:
+            # temporarily remove trigger & downstream steps
+            mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel'}
+            mods['-s'] = 'HARVESTING:@ecalOnlyValidation+@ecal'
+            mods |= self.__harvest
+            stepDict[stepName][k] = merge([mods, stepDict[step][k]])
+        # skip ALCA step
+        if 'ALCA' in step:
+            stepDict[stepName][k] = None
 
     def condition(self, fragment, stepList, key, hasHarvest):
-        # Apply to all Run4 workflows
-        return 'Run4' in key
+        if not 'PU' in key:
+            return False
+        return any([f in fragment for f in [
+                                            "SingleElectron",
+                                            "SingleEFlat",
+                                            "SingleGamma",
+                                            "CloseByPGun_Barrel_Front",
+                                            "TTbar_14TeV",
+                                            "ZEE_14",
+                                            "DYToLL_M_50_14TeV",
+                                            "H125GGgluonfusion_14"
+                                           ]]) and not 'Eta1p7_2p7' in fragment and 'Run4' in key
 
-upgradeWFs['HGCALNano'] = UpgradeWorkflow_HGCALNano(
-    steps = [
-        'RecoGlobal',
-        'HARVESTGlobal',
-        'ALCAPhase2',
-    ],
-    PU = [
-        'RecoGlobal',
-        'HARVESTGlobal',
-        'ALCAPhase2',
-    ],
-    suffix = '_HGCALNano',
-    offset = 0.212,
+    def workflow_(self, workflows, num, fragment, stepList, key):
+        fragmentTmp = fragment
+        super(UpgradeWorkflowPremix_ecalDevel,self).workflow_(workflows, num, fragmentTmp, stepList, key)
+
+# Premix combined stage1+stage2
+upgradeWFs['ecalDevelAlpakaPMXS1S2'] = UpgradeWorkflowPremix_ecalDevel(
+    reco = {
+        '--procModifiers': 'alpaka',
+        '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling'
+    },
+    suffix = '_ecalDevelAlpakaPMXS1S2',
+    offset = 0.61299,
 )
-
-upgradeWFs['HGCALNano'].step3 = {
-    '-s': 'RAW2DIGI,RECO,RECOSIM,PAT,NANO:@HGCAL,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM',
-    '--datatier': 'GEN-SIM-RECO,MINIAODSIM,DQMIO,NANOAODSIM',
-    '--eventcontent': 'FEVTDEBUGHLT,MINIAODSIM,DQM,NANOAODSIM'
-}
-
-# Offline HGCAL NanoAOD with validation objects 
-class UpgradeWorkflow_HGCALNanoVal(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if 'RecoGlobal' in step:
-            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
-        else:
-            stepDict[stepName][k] = merge([stepDict[step][k]])
-
-    def condition(self, fragment, stepList, key, hasHarvest):
-        # Apply to all Run4 workflows
-        return 'Run4' in key
-
-upgradeWFs['HGCALNanoVal'] = UpgradeWorkflow_HGCALNanoVal(
-    steps = [
-        'RecoGlobal',
-        'HARVESTGlobal',
-        'ALCAPhase2',
-    ],
-    PU = [
-        'RecoGlobal',
-        'HARVESTGlobal',
-        'ALCAPhase2',
-    ],
-    suffix = '_HGCALNanoVal',
-    offset = 0.213,
-)
-
-upgradeWFs['HGCALNanoVal'].step3 = {
-    '-s': 'RAW2DIGI,RECO,RECOSIM,PAT,NANO:@HGCALVal,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM',
-    '--datatier': 'GEN-SIM-RECO,MINIAODSIM,DQMIO,NANOAODSIM',
-    '--eventcontent': 'FEVTDEBUGHLT,MINIAODSIM,DQM,NANOAODSIM'
-}
 
 # ECAL component
 class UpgradeWorkflow_ECalComponent(UpgradeWorkflow):
@@ -2487,6 +2517,72 @@ upgradeWFs['ECALTPPh2ComponentFSW'] = UpgradeWorkflow_ECalComponent(
     ecalTPPh2 = 'phase2_ecal_devel,phase2_ecalTP_devel',
     ecalMod = 'ecal_component_finely_sampled_waveforms',
 )
+
+# Offline HGCAL NanoAOD workflows
+class UpgradeWorkflow_HGCALNano(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        else:
+            stepDict[stepName][k] = merge([stepDict[step][k]])
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        # Apply to all Run4 workflows
+        return 'Run4' in key
+
+upgradeWFs['HGCALNano'] = UpgradeWorkflow_HGCALNano(
+    steps = [
+        'RecoGlobal',
+        'HARVESTGlobal',
+        'ALCAPhase2',
+    ],
+    PU = [
+        'RecoGlobal',
+        'HARVESTGlobal',
+        'ALCAPhase2',
+    ],
+    suffix = '_HGCALNano',
+    offset = 0.212,
+)
+
+upgradeWFs['HGCALNano'].step3 = {
+    '-s': 'RAW2DIGI,RECO,RECOSIM,PAT,NANO:@HGCAL,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM',
+    '--datatier': 'GEN-SIM-RECO,MINIAODSIM,DQMIO,NANOAODSIM',
+    '--eventcontent': 'FEVTDEBUGHLT,MINIAODSIM,DQM,NANOAODSIM'
+}
+
+# Offline HGCAL NanoAOD with validation objects 
+class UpgradeWorkflow_HGCALNanoVal(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'RecoGlobal' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+        else:
+            stepDict[stepName][k] = merge([stepDict[step][k]])
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        # Apply to all Run4 workflows
+        return 'Run4' in key
+
+upgradeWFs['HGCALNanoVal'] = UpgradeWorkflow_HGCALNanoVal(
+    steps = [
+        'RecoGlobal',
+        'HARVESTGlobal',
+        'ALCAPhase2',
+    ],
+    PU = [
+        'RecoGlobal',
+        'HARVESTGlobal',
+        'ALCAPhase2',
+    ],
+    suffix = '_HGCALNanoVal',
+    offset = 0.213,
+)
+
+upgradeWFs['HGCALNanoVal'].step3 = {
+    '-s': 'RAW2DIGI,RECO,RECOSIM,PAT,NANO:@HGCALVal,VALIDATION:@phase2Validation+@miniAODValidation,DQM:@phase2+@miniAODDQM',
+    '--datatier': 'GEN-SIM-RECO,MINIAODSIM,DQMIO,NANOAODSIM',
+    '--eventcontent': 'FEVTDEBUGHLT,MINIAODSIM,DQM,NANOAODSIM'
+}
 
 class UpgradeWorkflow_0T(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
