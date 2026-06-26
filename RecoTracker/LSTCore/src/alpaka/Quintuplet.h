@@ -2155,6 +2155,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
         if (dynamic_count == 0)
           continue;
+        if (dynamic_count > kNQuintupletThreshold)
+          dynamic_count = kNQuintupletThreshold;
 
         int nEligibleT5Modules = alpaka::atomicAdd(acc, &nEligibleT5Modulesx, 1, alpaka::hierarchy::Threads{});
         int nTotQ = alpaka::atomicAdd(acc, &nTotalQuintupletsx, dynamic_count, alpaka::hierarchy::Threads{});
