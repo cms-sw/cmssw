@@ -708,7 +708,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   }
   result_fromCP->resize(writeIdx);
   result_ticlCandidates->resize(writeIdx);
- 
+
   evt.put(std::move(result_ticlCandidates));
   evt.put(std::move(output_mask));
   evt.put(std::move(result_fromCP), "fromCPs");
