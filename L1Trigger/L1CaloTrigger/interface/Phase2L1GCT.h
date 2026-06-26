@@ -240,7 +240,6 @@ inline p2eg::GCTintTowers_t p2eg::getFullTowers(const p2eg::GCTinternal_t& GCTin
         ap_uint<15> phi = i + i1;
         ap_uint<15> eta = p2eg::N_GCTETA / 2 + k;
         GCTintTowers.GCTtower[eta][phi].et = GCTinternal.GCTCorrfiber[phi].GCTtowers[k].et;
-        GCTintTowers.GCTtower[eta][phi].hoe = GCTinternal.GCTCorrfiber[phi].GCTtowers[k].hoe;
         GCTintTowers.GCTtower[eta][phi].ecalEt = GCTinternal.GCTCorrfiber[phi].GCTtowers[k].ecalEt;
         GCTintTowers.GCTtower[eta][phi].hcalEt = GCTinternal.GCTCorrfiber[phi].GCTtowers[k].hcalEt;
         for (int ic1 = 0; ic1 < 4; ic1++) {
@@ -250,9 +249,13 @@ inline p2eg::GCTintTowers_t p2eg::getFullTowers(const p2eg::GCTinternal_t& GCTin
             if (eta == eta1 && phi == phi1) {
               GCTintTowers.GCTtower[eta][phi].et =
                   (GCTintTowers.GCTtower[eta][phi].et + GCTinternal.GCTCorrfiber[i + ic1].GCTclusters[jc].et);
+              GCTintTowers.GCTtower[eta][phi].ecalEt =
+                  (GCTintTowers.GCTtower[eta][phi].ecalEt + GCTinternal.GCTCorrfiber[i + ic1].GCTclusters[jc].et);
             }
           }
         }
+        GCTintTowers.GCTtower[eta][phi].addHoverEToTower(GCTintTowers.GCTtower[eta][phi].ecalEt,
+                                                         GCTintTowers.GCTtower[eta][phi].hcalEt);
       }
     }
   }
@@ -264,7 +267,6 @@ inline p2eg::GCTintTowers_t p2eg::getFullTowers(const p2eg::GCTinternal_t& GCTin
         ap_uint<15> eta = p2eg::N_GCTETA / 2 - k - 1;
         ap_uint<15> phi = i + i1 - p2eg::N_GCTPOSITIVE_FIBERS;
         GCTintTowers.GCTtower[eta][phi].et = GCTinternal.GCTCorrfiber[i + i1].GCTtowers[k].et;
-        GCTintTowers.GCTtower[eta][phi].hoe = GCTinternal.GCTCorrfiber[i + i1].GCTtowers[k].hoe;
         GCTintTowers.GCTtower[eta][phi].ecalEt = GCTinternal.GCTCorrfiber[i + i1].GCTtowers[k].ecalEt;
         GCTintTowers.GCTtower[eta][phi].hcalEt = GCTinternal.GCTCorrfiber[i + i1].GCTtowers[k].hcalEt;
         for (int ic1 = 0; ic1 < 4; ic1++) {
@@ -274,9 +276,13 @@ inline p2eg::GCTintTowers_t p2eg::getFullTowers(const p2eg::GCTinternal_t& GCTin
             if (eta == eta1 && phi == phi1) {
               GCTintTowers.GCTtower[eta][phi].et =
                   (GCTintTowers.GCTtower[eta][phi].et + GCTinternal.GCTCorrfiber[i + ic1].GCTclusters[jc].et);
+              GCTintTowers.GCTtower[eta][phi].ecalEt =
+                  (GCTintTowers.GCTtower[eta][phi].ecalEt + GCTinternal.GCTCorrfiber[i + ic1].GCTclusters[jc].et);
             }
           }
         }
+        GCTintTowers.GCTtower[eta][phi].addHoverEToTower(GCTintTowers.GCTtower[eta][phi].ecalEt,
+                                                         GCTintTowers.GCTtower[eta][phi].hcalEt);
       }
     }
   }
