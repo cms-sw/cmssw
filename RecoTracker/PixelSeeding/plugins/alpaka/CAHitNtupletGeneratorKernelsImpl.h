@@ -37,7 +37,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
   constexpr uint32_t tkNotFound = std::numeric_limits<uint32_t>::max();
   constexpr float maxScore = std::numeric_limits<float>::max();
-  constexpr float nSigma2 = 25.f;
+  constexpr float nSigma2Phase1 = 25.f;
+  constexpr float nSigma2 = 5.f;
+  constexpr int nTrackParameters = 5;
+  // map: index of a track parameter -> index of its covariance
+  HOST_DEVICE_CONSTANT std::array<uint8_t, nTrackParameters> iParam2iCov = {0u, 5u, 9u, 12u, 14u};
 
   // all of these below are mostly to avoid carrying around the relative namespace
 
@@ -90,14 +94,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   uint32_t const *__restrict__ nTrips,
                                   uint32_t const *__restrict__ nCellTracks) const {
       if (cms::alpakatools::once_per_grid(acc))
-        printf("nSizes:%d;%d;%d;%d;%d;%d;%d\n",
-               hh.metadata().size(),
-               hh.metadata().size() - hh.offsetBPIX2(),
-               *nCells,
-               *nTrips,
-               *nCellTracks,
-               tt.nTracks(),
-               tt.metadata().size());
+        printf(
+            "nSizes: hh.metadata().size() %d; hh.metadata().size() - hh.offsetBPIX2() %d; nCells %d; nTrips %d; "
+            "nCellTracks %d; nTracks %d; tt.metadata().size() %d\n",
+            hh.metadata().size(),
+            hh.metadata().size() - hh.offsetBPIX2(),
+            *nCells,
+            *nTrips,
+            *nCellTracks,
+            tt.nTracks(),
+            tt.metadata().size());
     }
   };
 
@@ -205,11 +211,96 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
   // remove shorter tracks if sharing a cell
   // It does not seem to affect efficiency in any way!
+  // Work division: Acc2D with Y indexing cells and X indexing warp lanes
+  // (warpSize threads per cell). All lanes of a warp cooperate on a single cell
   template <typename TrackerTraits>
   class Kernel_earlyDuplicateRemover {
   public:
-    ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+    ALPAKA_FN_ACC void operator()(Acc2D const &acc,
                                   CACell<TrackerTraits> const *cells,
+                                  uint32_t const *__restrict__ nCells,
+                                  CellToTrack const *__restrict__ cellTracksHisto,
+                                  TkSoAView tracks_view,
+                                  bool dupPassThrough) const {
+      // quality to mark rejected
+      constexpr auto reject = Quality::edup;  /// cannot be loose
+      ALPAKA_ASSERT_ACC(nCells);
+
+      const int32_t warpSize = alpaka::warp::getSize(acc);
+      const int32_t laneId = static_cast<int32_t>(alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[1u]);
+
+      for (uint32_t idx : cms::alpakatools::uniform_elements_y(acc, *nCells)) {
+#ifdef CA_SIZES
+        if (laneId == 0)
+          printf("cellTracksSizes;%d;%d;%d\n", idx, cT.size(), cT.capacity());
+#endif
+        const int ntr = static_cast<int>(cellTracksHisto->size(idx));
+        if (ntr < 2)
+          continue;
+
+        auto const *__restrict__ tracksOfCell = cellTracksHisto->begin(idx);
+
+        // Warp-reduce maxNl over the cell's tracks.
+        // Lanes scan a strided subset of the cell's tracks and hold a local maxNl in register
+        int32_t localMax = 0;
+        for (int k = laneId; k < ntr; k += warpSize) {
+          const int32_t nl = tracks_view[tracksOfCell[k]].nLayers();
+          if (nl > localMax)
+            localMax = nl;
+        }
+        // Warp-reduce to find the maxNl across all lanes. The result is uniform across the warp.
+        // Idle lanes start with 0 and do not influence the result.
+        // All lanes must be active for the shuffle to work: no branching or return early here.
+        for (int32_t off = 1; off < warpSize; off <<= 1) {
+          const int32_t y = alpaka::warp::shfl_xor(acc, localMax, off);
+          if (y > localMax)
+            localMax = y;
+        }
+        const int32_t maxNl = localMax;
+
+        // Process tracks sequentially using warps
+        for (int i = 0; i < ntr; ++i) {
+          const auto it = tracksOfCell[i];
+          const int32_t nli = tracks_view[it].nLayers();
+          // Same nli and maxNl across lanes, so uniform check and no early return here to keep all lanes active.
+          if (nli >= maxNl) {
+            continue;
+          }
+
+          // Look for compatible tracks in the same cell with fewer layers and similar curvature
+          // Mark as duplicate if both conditions are met
+          const float curvi = tracks_view[it].pt();
+          bool foundCompatible = false;
+          // Parallelize inner loop across lanes
+          for (int j = laneId; j < ntr; j += warpSize) {
+            const auto jt = tracksOfCell[j];
+            if (tracks_view[jt].nLayers() <= nli)
+              continue;  // need a strictly longer companion
+            const float dcurv = curvi - tracks_view[jt].pt();
+            if (dcurv * dcurv <= 0.000001f) {
+              foundCompatible = true;
+              break;
+            }
+          }
+          // All lanes converge here to check if any foundCompatible is true, and if so, mark track as duplicate.
+          if (alpaka::warp::any(acc, static_cast<int32_t>(foundCompatible))) {
+            // One thread assigns warp-wide decision
+            if (laneId == 0) {
+              tracks_view[it].quality() = reject;
+            }
+          }
+        }
+      }
+    }
+  };
+
+  // Specialization for Phase-1 to keep the same behavior as before.
+  // remove shorter tracks if sharing a cell
+  // It does not seem to affect efficiency in any way!
+  class Kernel_earlyDuplicateRemoverPhase1 {
+  public:
+    ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                  CACell<pixelTopology::Phase1> const *cells,
                                   uint32_t const *__restrict__ nCells,
                                   CellToTrack const *__restrict__ cellTracksHisto,
                                   TkSoAView tracks_view,
@@ -275,6 +366,115 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         float mc = maxScore;
         uint32_t im = tkNotFound;
 
+        // auto score = [&](auto it) { return std::abs(reco::tip(tracks_view, it)); };
+        auto score = [&](auto it) { return tracks_view[it].chi2(); };
+
+        // full crazy combinatorics
+        auto const *__restrict__ thisCellTracks = cellTracksHisto->begin(idx);
+        int ntr = cellTracksHisto->size(idx);
+        for (int i = 0; i < ntr - 1; i++) {
+          auto it = thisCellTracks[i];
+          auto qi = tracks_view[it].quality();
+          if (qi <= reject)
+            continue;
+
+          // get track parameters and covariances
+          float iParams[nTrackParameters];
+          float iCovs[nTrackParameters];
+          for (int p{0}; p < nTrackParameters; ++p) {
+            iParams[p] = tracks_view[it].state()(p);
+            const auto c = iParam2iCov[p];
+            iCovs[p] = tracks_view[it].covariance()(c);
+          }
+          // function that compares the five track parameters of tracks it and jt
+          auto incompatibleTrackParams = [=](int jt) -> bool {
+            // comparing phi, tip, 1/pT, cotan(theta) and zip
+            for (int p{0}; p < nTrackParameters; ++p) {
+              const auto dpij = iParams[p] - tracks_view[jt].state()(p);
+              const auto c = iParam2iCov[p];
+              const auto e2dpij = nSigma2 * (iCovs[p] + tracks_view[jt].covariance()(c));
+              if (dpij * dpij > e2dpij)
+                return true;  // incompatible param found
+            }
+            return false;  // all params compatible
+          };
+
+          // loop over remaining tracks j and compare
+          for (int j = i + 1; j < ntr; ++j) {
+            auto jt = thisCellTracks[j];
+            auto qj = tracks_view[jt].quality();
+            if (qj <= reject)
+              continue;
+            if (incompatibleTrackParams(jt))
+              continue;
+            if ((qj < qi) || (qj == qi && score(it) < score(jt)))
+              tracks_view[jt].quality() = reject;
+            // explicitly check since they might be identical when using the same hits for fitting!
+            else if ((qj > qi) || (qj == qi && score(it) > score(jt))) {
+              tracks_view[it].quality() = reject;
+              break;
+            }
+          }
+        }
+
+        // find maxQual
+        auto maxQual = reject;  // no duplicate!
+        for (int i = 0; i < ntr; i++) {
+          auto it = thisCellTracks[i];
+          if (tracks_view[it].quality() > maxQual)
+            maxQual = tracks_view[it].quality();
+        }
+
+        if (maxQual <= loose)
+          continue;
+
+        // find min score
+        for (int i = 0; i < ntr; i++) {
+          auto it = thisCellTracks[i];
+          if (tracks_view[it].quality() == maxQual && score(it) < mc) {
+            mc = score(it);
+            im = it;
+          }
+        }
+
+        if (tkNotFound == im)
+          continue;
+
+        // mark all other duplicates  (not yet, keep it loose)
+        for (int i = 0; i < ntr; i++) {
+          auto it = thisCellTracks[i];
+          if (tracks_view[it].quality() > loose && score(it) > mc)
+            tracks_view[it].quality() = loose;  //no race:  simple assignment of the same constant
+        }
+      }
+    }
+  };
+
+  // specialization for Phase-1 to keep the same behavior as before.
+  // assume the above (so, short tracks already removed)
+  template <>
+  class Kernel_fastDuplicateRemover<pixelTopology::Phase1> {
+  public:
+    ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                  CACell<pixelTopology::Phase1> const *__restrict__ cells,
+                                  uint32_t const *__restrict__ nCells,
+                                  CellToTrack const *__restrict__ cellTracksHisto,
+                                  TkSoAView tracks_view,
+                                  bool dupPassThrough) const {
+      // quality to mark rejected
+      auto const reject = dupPassThrough ? Quality::loose : Quality::dup;
+      constexpr auto loose = Quality::loose;
+
+      ALPAKA_ASSERT_ACC(nCells);
+      const auto ntNCells = (*nCells);
+
+      for (auto idx : cms::alpakatools::uniform_elements(acc, ntNCells)) {
+        if (cellTracksHisto->size(idx) < 2)
+          continue;
+
+        float mc = maxScore;
+        uint32_t im = tkNotFound;
+
         auto score = [&](auto it) { return std::abs(reco::tip(tracks_view, it)); };
 
         // full crazy combinatorics
@@ -296,10 +496,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
               continue;
             auto opj = tracks_view[jt].state()(2);
             auto ctj = tracks_view[jt].state()(3);
-            auto dct = nSigma2 * (tracks_view[jt].covariance()(12) + e2cti);
+            auto dct = nSigma2Phase1 * (tracks_view[jt].covariance()(12) + e2cti);
             if ((cti - ctj) * (cti - ctj) > dct)
               continue;
-            auto dop = nSigma2 * (tracks_view[jt].covariance()(9) + e2opi);
+            auto dop = nSigma2Phase1 * (tracks_view[jt].covariance()(9) + e2opi);
             if ((opi - opj) * (opi - opj) > dop)
               continue;
             if ((qj < qi) || (qj == qi && score(it) < score(jt)))
@@ -351,6 +551,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   cms::alpakatools::AtomicPairCounter *apc,  // just to zero them
                                   HitsConstView hh,
                                   reco::CALayersSoAConstView ll,
+                                  reco::CAGraphSoAConstView cc,
                                   caStructures::CAPairSoAView cn,
                                   CACell<TrackerTraits> *cells,
                                   uint32_t const *nCells,
@@ -389,6 +590,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         auto ro = thisCell.outer_r(hh);
         auto zo = thisCell.outer_z(hh);
         auto thetaCut = ll[thisCell.innerLayer()].caThetaCut();
+        auto skips = cc[thisCell.layerPairId()].skipsLayers();
 
         // loop on inner cells
         for (uint32_t j : cms::alpakatools::independent_group_elements_x(acc, numberOfPossibleNeighbors)) {
@@ -398,43 +600,49 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
           auto z1 = oc.inner_z(hh);
           auto dcaCut = ll[oc.innerLayer()].caDCACut();
           bool aligned = Cell::areAlignedRZ(r1, z1, ri, zi, ro, zo, params.ptmin_, thetaCut);
-          if (aligned && thisCell.dcaCut(hh, oc, dcaCut, params.hardCurvCut_)) {
-            auto t_ind = alpaka::atomicAdd(acc, nTrips, 1u, alpaka::hierarchy::Blocks{});
+          if (aligned) {
+            if (thisCell.dcaCut(hh, oc, dcaCut, params.hardCurvCut_)) {
+              auto t_ind = alpaka::atomicAdd(acc, nTrips, 1u, alpaka::hierarchy::Blocks{});
 #ifdef CA_DEBUG
-            printf("Triplet no. %d %.5f %.5f (%d %d) - %d %d -> (%d, %d, %d, %d) \n",
-                   t_ind,
-                   thetaCut,
-                   dcaCut,
-                   thisCell.layerPairId(),
-                   oc.layerPairId(),
-                   otherCell,
-                   cellIndex,
-                   thisCell.inner_hit_id(),
-                   thisCell.outer_hit_id(),
-                   oc.inner_hit_id(),
-                   oc.outer_hit_id());
+              printf("Triplet no. %d %.5f %.5f (%d %d) - %d %d -> (%d, %d, %d, %d) \n",
+                     t_ind,
+                     thetaCut,
+                     dcaCut,
+                     thisCell.layerPairId(),
+                     oc.layerPairId(),
+                     otherCell,
+                     cellIndex,
+                     thisCell.inner_hit_id(),
+                     thisCell.outer_hit_id(),
+                     oc.inner_hit_id(),
+                     oc.outer_hit_id());
 #endif
 
 #ifdef CA_DEBUG
-            printf("filling cell no. %d %d: %d -> %d\n", t_ind, cellNeighborsHisto->size(), otherCell, cellIndex);
+              printf("filling cell no. %d %d: %d -> %d\n", t_ind, cellNeighborsHisto->size(), otherCell, cellIndex);
 #endif
 
-            if (t_ind >= maxTriplets) {
+              if (t_ind >= maxTriplets) {
 #ifdef CA_WARNINGS
-              printf("Warning!!!! Too many cell->cell (triplets) associations (limit = %d)!\n", cn.metadata().size());
+                printf("Warning!!!! Too many cell->cell (triplets) associations (limit = %d)!\n", cn.metadata().size());
 #endif
-              alpaka::atomicSub(acc, nTrips, 1u, alpaka::hierarchy::Blocks{});
-              break;
+                alpaka::atomicSub(acc, nTrips, 1u, alpaka::hierarchy::Blocks{});
+                break;
+              }
+
+              // One bin per cell (otherCell). The non-layer-skipping vs
+              // layer-skipping distinction is encoded in bit 31 of the stored
+              // outer-cell index:
+              //   bit 31 = 0 -> non-layer-skipping neighbor
+              //   bit 31 = 1 -> layer-skipping neighbor
+              cellNeighborsHisto->count(acc, otherCell);
+
+              cn[t_ind].inner() = otherCell;
+              cn[t_ind].outer() = cellIndex | (skips ? caStructures::kSkipsLayerFlag : 0u);
+              thisCell.setStatusBits(Cell::StatusBit::kUsed);
+              oc.setStatusBits(Cell::StatusBit::kUsed);
             }
-
-            cellNeighborsHisto->count(acc, otherCell);
-
-            cn[t_ind].inner() = otherCell;
-            cn[t_ind].outer() = cellIndex;
-            thisCell.setStatusBits(Cell::StatusBit::kUsed);
-            oc.setStatusBits(Cell::StatusBit::kUsed);
           }
-
         }  // loop on inner cells
       }  // loop on outer cells
     }
@@ -457,12 +665,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
     }
   };
 
+  template <typename CAPairView, typename Container>
   class Kernel_fillGenericPair {
   public:
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
-                                  caStructures::CAPairSoAConstView cn,
+                                  CAPairView cn,
                                   uint32_t const *nElements,
-                                  GenericContainer *genericHisto) const {
+                                  Container *genericHisto) const {
       for (uint32_t index : cms::alpakatools::uniform_elements(acc, *nElements)) {
         genericHisto->fill(acc, cn[index].inner(), cn[index].outer());
       }
@@ -473,6 +682,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   class Kernel_find_ntuplets {
   public:
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                  HitsConstView hh,
+                                  const ::reco::CALayersSoAConstView &ll,
                                   const ::reco::CAGraphSoAConstView &cc,
                                   TkSoAView tracks_view,
                                   HitContainer *foundNtuplets,
@@ -503,16 +714,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         if (cellNeighborsHisto->size(idx) == 0)
           continue;
 
+        // check if the layer pair of the cell is among the set of starting pairs
         auto pid = thisCell.layerPairId();
         bool doit = cc[pid].startingPair();
 
-        constexpr uint32_t maxDepth = TrackerTraits::maxDepth;
+        // check if the most inner hit does not fulfill the starting requirement
+        auto lid = thisCell.innerLayer();
+        if (thisCell.inner_r() > ll[lid].startMaxInnerR())
+          doit = false;
+
+        constexpr uint32_t maxDepth = TrackerTraits::maxLayersPerTrack - 1;
 #ifdef CA_DEBUG
-        printf("LayerPairId %d doit ? %d From cell %d with nNeighbors = %d \n",
-               pid,
-               doit,
-               idx,
-               cellNeighborsHisto->size(idx));
+        printf(
+            "LayerPairId %d and inner layer %d doit ? %d From cell %d with nNeighbors = %d and innerR=%f < "
+            "maxInnerR=%f ?\n",
+            pid,
+            lid,
+            doit,
+            idx,
+            cellNeighborsHisto->size(idx),
+            thisCell.inner_r(),
+            ll[lid].startMaxInnerR());
 #endif
 
         if (doit) {
@@ -520,7 +742,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
 
           stack.reset();
           thisCell.template find_ntuplets<maxDepth>(acc,
-                                                    cc,
+                                                    hh,
+                                                    ll,
                                                     cells,
                                                     *foundNtuplets,
                                                     cellNeighborsHisto,
@@ -529,6 +752,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                                     ct,
                                                     *apc,
                                                     tracks_view.quality().data(),
+                                                    tracks_view.nLayers().data(),
+                                                    tracks_view.pt().data(),
                                                     stack,
                                                     params.minHitsPerNtuplet_);
           ALPAKA_ASSERT_ACC(stack.empty());
@@ -705,9 +930,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   TkSoAView tracks_view,
                                   TkHitSoAView track_hits_view,
                                   HitContainer const *__restrict__ foundNtuplets,
-                                  HitsConstView hh) const {
+                                  HitsConstView hh,
+                                  cms::alpakatools::AtomicPairCounter *apc) const {
+      // clamp the number of tracks to the capacity of the SoA
+      auto ntracks = std::min<int>(apc->get().first, tracks_view.metadata().size() - 1);
+      if (cms::alpakatools::once_per_grid(acc))
+        tracks_view.nTracks() = ntracks;
+
       // copy offsets
-      for (auto idx : cms::alpakatools::uniform_elements(acc, foundNtuplets->nOnes() - 1)) {
+      for (auto idx : cms::alpakatools::uniform_elements(acc, ntracks)) {
         tracks_view[idx].hitOffsets() = foundNtuplets->off[idx + 1];  // offset for track 0 is always 0
       }
       // fill hit indices
@@ -851,6 +1082,84 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         if (hitToTuple.size(idx) < 2)
           continue;
 
+        // auto score = [&](auto it, auto nl) { return std::abs(reco::tip(tracks_view, it)); };
+        auto score = [&](auto it, auto nl) { return tracks_view[it].chi2(); };
+
+        // full combinatorics
+        for (auto ip = hitToTuple.begin(idx); ip < hitToTuple.end(idx) - 1; ++ip) {
+          auto const it = *ip;
+          auto qi = tracks_view[it].quality();
+          if (qi <= reject)
+            continue;
+
+          // get track parameters and covariances
+          float iParams[nTrackParameters];
+          float iCovs[nTrackParameters];
+          for (int p{0}; p < nTrackParameters; ++p) {
+            iParams[p] = tracks_view[it].state()(p);
+            const auto c = iParam2iCov[p];
+            iCovs[p] = tracks_view[it].covariance()(c);
+          }
+          // function that compares the five track parameters of tracks it and jt
+          auto incompatibleTrackParams = [=](int jt) -> bool {
+            // comparing phi, tip, 1/pT, cotan(theta) and zip
+            for (int p{0}; p < nTrackParameters; ++p) {
+              const auto dpij = iParams[p] - tracks_view[jt].state()(p);
+              const auto c = iParam2iCov[p];
+              const auto e2dpij = nSigma2 * (iCovs[p] + tracks_view[jt].covariance()(c));
+              if (dpij * dpij > e2dpij)
+                return true;  // incompatible param found
+            }
+            return false;  // all params compatible
+          };
+
+          auto nli = tracks_view[it].nLayers();
+
+          for (auto jp = ip + 1; jp < hitToTuple.end(idx); ++jp) {
+            auto const jt = *jp;
+            auto qj = tracks_view[jt].quality();
+            if (qj <= reject)
+              continue;
+            if (incompatibleTrackParams(jt))
+              continue;
+            auto nlj = tracks_view[jt].nLayers();
+            if (nlj < nli || (nlj == nli && (qj < qi || (qj == qi && score(it, nli) < score(jt, nlj)))))
+              tracks_view[jt].quality() = reject;
+            // explicitly check since we can have actual duplicated tracks with identical parameters
+            else if (nli < nlj || (nli == nlj && (qi < qj || (qi == qj && score(jt, nlj) < score(it, nli))))) {
+              tracks_view[it].quality() = reject;
+              break;
+            }
+            // if we have two tracks with the same length, parameters and quality, we keep the one with the lower index
+            // (arbitrary but deterministic) and reject the other to avoid double counting
+            else if (it < jt)
+              tracks_view[jt].quality() = reject;
+            else
+              tracks_view[it].quality() = reject;
+          }
+        }
+      }
+    }
+  };
+
+  // Specialization for Phase-1 to keep the same behavior as before.
+  // mostly for very forward triplets.....
+  template <>
+  class Kernel_rejectDuplicate<pixelTopology::Phase1> {
+  public:
+    ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                  TkSoAView tracks_view,
+                                  bool dupPassThrough,
+                                  HitToTuple const *__restrict__ phitToTuple) const {
+      // quality to mark rejected
+      auto const reject = dupPassThrough ? Quality::loose : Quality::dup;
+
+      auto &hitToTuple = *phitToTuple;
+
+      for (auto idx : cms::alpakatools::uniform_elements(acc, hitToTuple.nOnes())) {
+        if (hitToTuple.size(idx) < 2)
+          continue;
+
         auto score = [&](auto it, auto nl) { return std::abs(reco::tip(tracks_view, it)); };
 
         // full combinatorics
@@ -871,10 +1180,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
               continue;
             auto opj = tracks_view[jt].state()(2);
             auto ctj = tracks_view[jt].state()(3);
-            auto dct = nSigma2 * (tracks_view[jt].covariance()(12) + e2cti);
+            auto dct = nSigma2Phase1 * (tracks_view[jt].covariance()(12) + e2cti);
             if ((cti - ctj) * (cti - ctj) > dct)
               continue;
-            auto dop = nSigma2 * (tracks_view[jt].covariance()(9) + e2opi);
+            auto dop = nSigma2Phase1 * (tracks_view[jt].covariance()(9) + e2opi);
             if ((opi - opj) * (opi - opj) > dop)
               continue;
             auto nlj = tracks_view[jt].nLayers();
@@ -913,6 +1222,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         if (hitToTuple.size(idx) < 2)
           continue;
 
+        // checking if shared hit is on bpix1
+        if (idx < l1end)
+          continue;
+
         int8_t maxNl = 0;
 
         // find maxNl
@@ -934,8 +1247,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
         for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
           auto nl = tracks_view[*it].nLayers();
 
-          //checking if shared hit is on bpix1 and if the tuple is short enough
-          if (idx < l1end and nl > nmin)
+          // checking if the tuple is short enough
+          if (nl > nmin)
             continue;
 
           if (nl < maxNl && tracks_view[*it].quality() > reject)

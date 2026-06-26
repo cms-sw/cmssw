@@ -17,9 +17,9 @@
 #include "CAHitNtupletGeneratorKernels.h"
 #include "CAHitNtupletGeneratorKernelsImpl.h"
 
-// #define GPU_DEBUG
+//#define GPU_DEBUG
 // #define NTUPLE_DEBUG
-// #define CA_STATS
+//#define CA_STATS
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -100,6 +100,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device_layerStarts_ = cms::alpakatools::make_device_buffer<hindex_type[]>(queue, nLayers + 1);
 
     // Cell -> Neighbor Cells
+    // One bin per cell (maxDoublets+1 offsets). The skipping-vs-non-skipping
+    // distinction is encoded in bit 31 of each stored neighbor index:
+    //   bit 31 = 0 -> non-layer-skipping neighbor
+    //   bit 31 = 1 -> layer-skipping neighbor
+    // This packing is possible since maxNumberOfDoublets should be well below 2^31.
     device_cellToNeighbors_ = cms::alpakatools::make_device_buffer<GenericContainer>(queue);
     device_cellToNeighborsStorage_ =
         cms::alpakatools::make_device_buffer<GenericContainerStorage[]>(queue, nCellsToCells);
@@ -108,7 +113,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device_cellToNeighborsView_ = {device_cellToNeighbors_->data(),
                                    device_cellToNeighborsOffsets_->data(),
                                    device_cellToNeighborsStorage_->data(),
-                                   maxDoublets + 1,
+                                   maxDoublets + 1u,
                                    nCellsToCells};
 
     CellToCell::template launchZero<Acc1D>(device_cellToNeighborsView_, queue);
@@ -148,12 +153,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     device_tupleMultiplicityStorage_ =
         cms::alpakatools::make_device_buffer<GenericContainerStorage[]>(queue, maxTuples);
     device_tupleMultiplicityOffsets_ =
-        cms::alpakatools::make_device_buffer<GenericContainerOffsets[]>(queue, TrackerTraits::maxHitsOnTrack + 1);
+        cms::alpakatools::make_device_buffer<GenericContainerOffsets[]>(queue, TrackerTraits::maxHitsOnTrack + 2);
     device_tupleMultiplicityView_ = {
         device_tupleMultiplicity_->data(),
         device_tupleMultiplicityOffsets_->data(),
         device_tupleMultiplicityStorage_->data(),
-        TrackerTraits::maxHitsOnTrack + 1,  //TODO: this could become configurable with some work
+        // this has to be +2 instead of +1 because you want all values from 0 to maxHitsOnTrack to be valid keys
+        // (N+1 values) + the extra +1 for the Container definition
+        TrackerTraits::maxHitsOnTrack + 2,
         maxTuples};
     TupleMultiplicity::template launchZero<Acc1D>(device_tupleMultiplicityView_, queue);
 
@@ -259,6 +266,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         this->device_hitTuple_apc_,  // needed only to be reset, ready for next kernel
                         hh,
                         ll,
+                        cc,
                         this->deviceTriplets_->view(),
                         this->device_simpleCells_->data(),
                         this->device_nCells_->data(),
@@ -281,7 +289,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     alpaka::exec<Acc1D>(queue,
                         workDiv1D,
-                        Kernel_fillGenericPair{},
+                        Kernel_fillGenericPair<caStructures::CAPairSoAConstView, GenericContainer>{},
                         this->deviceTriplets_->view(),
                         this->device_nTriplets_->data(),
                         this->device_cellToNeighbors_->data());
@@ -304,12 +312,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           fishboneWorkDiv,
                           CAFishbone<TrackerTraits>{},
                           hh,
+                          ll,
                           this->device_simpleCells_->data(),
                           this->device_nCells_->data(),
                           this->device_hitToCell_->data(),
                           this->device_cellToTracks_->data(),
                           nhits - offsetBPIX2,
-                          false);
+                          false,
+                          this->m_params.algoParams_.onlySameLayersFishbone_);
 #ifdef GPU_DEBUG
       alpaka::wait(queue);
       std::cout << "Early fishbone -> Done!" << std::endl;
@@ -321,6 +331,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::exec<Acc1D>(queue,
                         workDiv1D,
                         Kernel_find_ntuplets<TrackerTraits>{},
+                        hh,
+                        ll,
                         cc,
                         tracks_view,
                         this->device_hitContainer_->data(),
@@ -347,7 +359,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     alpaka::exec<Acc1D>(queue,
                         workDiv1D,
-                        Kernel_fillGenericPair{},
+                        Kernel_fillGenericPair<caStructures::CAPairSoAConstView, GenericContainer>{},
                         this->deviceTracksCells_->view(),
                         this->device_nCellTracks_->data(),
                         this->device_cellToTracks_->data());
@@ -384,41 +396,58 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         tracks_view,
                         tracks_hits_view,
                         this->device_hitContainer_->data(),
-                        hh);
+                        hh,
+                        this->device_hitTuple_apc_);
 
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
     std::cout << "Kernel_fillHitDetIndices   -> done!" << std::endl;
 #endif
-    alpaka::exec<Acc1D>(queue,
-                        workDiv1D,
-                        Kernel_fillNLayers<TrackerTraits>{},
-                        view,
-                        this->device_layerStarts_->data(),
-                        nLayers,
-                        this->device_hitTuple_apc_);
 
+    if (this->m_params.algoParams_.doEarlyDuplicateRemover_) {
+      if constexpr (std::is_same_v<pixelTopology::Phase1, TrackerTraits>) {
+        // for Phase-1, the workdivision is simpler and therefore needs a separate call here
+        // remove duplicates (tracks that share a doublet)
+        numberOfBlocks = cms::alpakatools::divide_up_by(3 * maxDoublets / 4, blockSize);
+        workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
+
+        alpaka::exec<Acc1D>(queue,
+                            workDiv1D,
+                            Kernel_earlyDuplicateRemoverPhase1{},
+                            this->device_simpleCells_->data(),
+                            this->device_nCells_->data(),
+                            this->device_cellToTracks_->data(),
+                            tracks_view,
+                            this->m_params.algoParams_.dupPassThrough_);
+      } else {
+        // remove duplicates (tracks that share a doublet).
+        // Warp-cooperative work division: one cell per Y-thread, one warp per cell.
+        const uint32_t stride = alpaka::getPreferredWarpSize(alpaka::getDev(queue));
+        const uint32_t cellsPerBlock = 8;  // 8 cells * 32 threads = 256 threads/block
+        // gridDim.y is capped at 65535 by CUDA. If maxDoublets needs more, uniform_elements_y
+        // strides each Y-thread across the remaining cells.
+        auto earlyDupRemoverNumBlocks = cms::alpakatools::divide_up_by(3 * maxDoublets / 4, cellsPerBlock);
+        // Cap at Y-dim limit
+        earlyDupRemoverNumBlocks = std::min<uint32_t>(earlyDupRemoverNumBlocks, 65535u);
+        const Vec2D earlyDupRemoverBlocks{earlyDupRemoverNumBlocks, 1u};
+        const Vec2D earlyDupRemoverThreads{cellsPerBlock, stride};
+        const auto earlyDupRemoverWorkDiv =
+            cms::alpakatools::make_workdiv<Acc2D>(earlyDupRemoverBlocks, earlyDupRemoverThreads);
+
+        alpaka::exec<Acc2D>(queue,
+                            earlyDupRemoverWorkDiv,
+                            Kernel_earlyDuplicateRemover<TrackerTraits>{},
+                            this->device_simpleCells_->data(),
+                            this->device_nCells_->data(),
+                            this->device_cellToTracks_->data(),
+                            tracks_view,
+                            this->m_params.algoParams_.dupPassThrough_);
+      }
 #ifdef GPU_DEBUG
-    alpaka::wait(queue);
-    std::cout << "Kernel_fillNLayers   -> done!" << std::endl;
+      alpaka::wait(queue);
+      std::cout << "Kernel_earlyDuplicateRemover   -> done!" << std::endl;
 #endif
-
-    // remove duplicates (tracks that share a doublet)
-    numberOfBlocks = cms::alpakatools::divide_up_by(3 * maxDoublets / 4, blockSize);
-    workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
-
-    alpaka::exec<Acc1D>(queue,
-                        workDiv1D,
-                        Kernel_earlyDuplicateRemover<TrackerTraits>{},
-                        this->device_simpleCells_->data(),
-                        this->device_nCells_->data(),
-                        this->device_cellToTracks_->data(),
-                        tracks_view,
-                        this->m_params.algoParams_.dupPassThrough_);
-#ifdef GPU_DEBUG
-    alpaka::wait(queue);
-    std::cout << "Kernel_earlyDuplicateRemover   -> done!" << std::endl;
-#endif
+    }
 
     blockSize = 128;
     numberOfBlocks = cms::alpakatools::divide_up_by(3 * maxTuples / 4, blockSize);
@@ -462,12 +491,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                           workDiv2D,
                           CAFishbone<TrackerTraits>{},
                           hh,
+                          ll,
                           this->device_simpleCells_->data(),
                           this->device_nCells_->data(),
                           this->device_hitToCell_->data(),
                           this->device_cellToTracks_->data(),
                           nhits - offsetBPIX2,
-                          true);
+                          true,
+                          this->m_params.algoParams_.onlySameLayersFishbone_);
     }
 
 #ifdef GPU_DEBUG
@@ -594,22 +625,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::wait(queue);
     std::cout << "Kernel_fishboneCleaner   -> done!" << std::endl;
 #endif
-    // mark duplicates (tracks that share a doublet)
-    numberOfBlocks = cms::alpakatools::divide_up_by(3 * maxDoublets / 4, blockSize);
-    workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
-    alpaka::exec<Acc1D>(queue,
-                        workDiv1D,
-                        Kernel_fastDuplicateRemover<TrackerTraits>{},
-                        this->device_simpleCells_->data(),
-                        this->device_nCells_->data(),
-                        this->device_cellToTracks_->data(),
-                        tracks_view,
-                        this->m_params.algoParams_.dupPassThrough_);
+    if (this->m_params.algoParams_.doFastDuplicateRemover_) {
+      // mark duplicates (tracks that share a doublet)
+      numberOfBlocks = cms::alpakatools::divide_up_by(3 * maxDoublets / 4, blockSize);
+      workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
+      alpaka::exec<Acc1D>(queue,
+                          workDiv1D,
+                          Kernel_fastDuplicateRemover<TrackerTraits>{},
+                          this->device_simpleCells_->data(),
+                          this->device_nCells_->data(),
+                          this->device_cellToTracks_->data(),
+                          tracks_view,
+                          this->m_params.algoParams_.dupPassThrough_);
 #ifdef GPU_DEBUG
-    alpaka::wait(queue);
-    std::cout << "Kernel_fastDuplicateRemover   -> done!" << std::endl;
+      alpaka::wait(queue);
+      std::cout << "Kernel_fastDuplicateRemover   -> done!" << std::endl;
 #endif
-
+    }
     if (this->m_params.algoParams_.doSharedHitCut_ || this->m_params.algoParams_.doStats_) {
       // fill hit->track "map"
       numberOfBlocks = cms::alpakatools::divide_up_by(3 * maxTuples / 4, blockSize);
@@ -662,34 +694,36 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       alpaka::wait(queue);
       std::cout << "Kernel_sharedHitCleaner   -> done!" << std::endl;
 #endif
-      if (this->m_params.algoParams_.useSimpleTripletCleaner_) {
-        numberOfBlocks =
-            cms::alpakatools::divide_up_by(int(nhits * this->m_params.algoParams_.avgHitsPerTrack_) + 1, blockSize);
-        workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
-        alpaka::exec<Acc1D>(queue,
-                            workDiv1D,
-                            Kernel_simpleTripletCleaner<TrackerTraits>{},
-                            tracks_view,
-                            this->m_params.algoParams_.dupPassThrough_,
-                            this->device_hitToTuple_->data());
+      if (this->m_params.algoParams_.doTripletCleaner_ && (this->m_params.algoParams_.minHitsPerNtuplet_ <= 3)) {
+        if (this->m_params.algoParams_.useSimpleTripletCleaner_) {
+          numberOfBlocks =
+              cms::alpakatools::divide_up_by(int(nhits * this->m_params.algoParams_.avgHitsPerTrack_) + 1, blockSize);
+          workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
+          alpaka::exec<Acc1D>(queue,
+                              workDiv1D,
+                              Kernel_simpleTripletCleaner<TrackerTraits>{},
+                              tracks_view,
+                              this->m_params.algoParams_.dupPassThrough_,
+                              this->device_hitToTuple_->data());
 #ifdef GPU_DEBUG
-        alpaka::wait(queue);
-        std::cout << "Kernel_simpleTripletCleaner   -> done!" << std::endl;
+          alpaka::wait(queue);
+          std::cout << "Kernel_simpleTripletCleaner   -> done!" << std::endl;
 #endif
-      } else {
-        numberOfBlocks =
-            cms::alpakatools::divide_up_by(int(nhits * this->m_params.algoParams_.avgHitsPerTrack_) + 1, blockSize);
-        workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
-        alpaka::exec<Acc1D>(queue,
-                            workDiv1D,
-                            Kernel_tripletCleaner<TrackerTraits>{},
-                            tracks_view,
-                            this->m_params.algoParams_.dupPassThrough_,
-                            this->device_hitToTuple_->data());
+        } else {
+          numberOfBlocks =
+              cms::alpakatools::divide_up_by(int(nhits * this->m_params.algoParams_.avgHitsPerTrack_) + 1, blockSize);
+          workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
+          alpaka::exec<Acc1D>(queue,
+                              workDiv1D,
+                              Kernel_tripletCleaner<TrackerTraits>{},
+                              tracks_view,
+                              this->m_params.algoParams_.dupPassThrough_,
+                              this->device_hitToTuple_->data());
 #ifdef GPU_DEBUG
-        alpaka::wait(queue);
-        std::cout << "Kernel_tripletCleaner   -> done!" << std::endl;
+          alpaka::wait(queue);
+          std::cout << "Kernel_tripletCleaner   -> done!" << std::endl;
 #endif
+        }
       }
     }
 

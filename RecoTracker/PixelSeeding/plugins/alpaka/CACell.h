@@ -54,7 +54,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     static constexpr auto invalidHitId = std::numeric_limits<hindex_type>::max();
 
-    using TmpTuple = cms::alpakatools::VecArray<uint32_t, TrackerTraits::maxDepth>;
+    using TmpTuple = cms::alpakatools::VecArray<uint32_t, TrackerTraits::maxLayersPerTrack>;
     using HitContainer = caStructures::SequentialContainer;
     using CellToCell = caStructures::GenericContainer;
     using CellToTracks = caStructures::GenericContainer;
@@ -62,6 +62,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     using Quality = ::pixelTrack::Quality;
     static constexpr auto bad = ::pixelTrack::Quality::bad;
+
+    static constexpr float kUninitializeCurvature = std::numeric_limits<float>::max();
 
     enum class StatusBit : uint16_t { kUsed = 1, kInTrack = 2, kKilled = 1 << 15 };
 
@@ -85,8 +87,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_y(const HitsConstView& hh) const { return hh[theInnerHitId_].yGlobal(); }
     ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_y(const HitsConstView& hh) const { return hh[theOuterHitId_].yGlobal(); }
     ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_z(const HitsConstView& hh) const { return theInnerZ_; }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_z() const { return theInnerZ_; }
     ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_z(const HitsConstView& hh) const { return hh[theOuterHitId_].zGlobal(); }
     ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_r(const HitsConstView& hh) const { return theInnerR_; }
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE float inner_r() const { return theInnerR_; }
     ALPAKA_FN_ACC ALPAKA_FN_INLINE float outer_r(const HitsConstView& hh) const { return hh[theOuterHitId_].rGlobal(); }
 
     ALPAKA_FN_ACC ALPAKA_FN_INLINE auto inner_iphi(const HitsConstView& hh) const { return hh[theInnerHitId_].iphi(); }
@@ -137,7 +141,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return tan_12_13_half_mul_distance_13_squared * pMin <= thetaCut * distance_13_squared * radius_diff;
     }
 
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE bool dcaCut(const HitsConstView& hh,
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE auto dcaCut(const HitsConstView& hh,
                                                CACell const& otherCell,
                                                const float region_origin_radius_plus_tolerance,
                                                const float maxCurv) const {
@@ -152,10 +156,48 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       CircleEq<float> eq(x1, y1, x2, y2, x3, y3);
 
-      if (std::abs(eq.curvature()) > maxCurv)
+      auto curvature = eq.curvature();
+
+      if (std::abs(curvature) > maxCurv)
         return false;
 
-      return std::abs(eq.dca0()) < region_origin_radius_plus_tolerance * std::abs(eq.curvature());
+      return std::abs(eq.dca0()) < region_origin_radius_plus_tolerance * std::abs(curvature);
+    }
+
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE auto quadrupletCut(const float innerCurvature,
+                                                      float& outerCurvature,
+                                                      const ::reco::CALayersSoAConstView& ll,
+                                                      const HitsConstView& hh,
+                                                      const float x1,
+                                                      const float y1) const {
+      // calculate curvature for the XY plane cuts
+      float x2 = inner_x(hh);
+      float y2 = inner_y(hh);
+      float x3 = outer_x(hh);
+      float y3 = outer_y(hh);
+      CircleEq<float> eq(x1, y1, x2, y2, x3, y3);
+      outerCurvature = eq.curvature();
+
+      if (innerCurvature == kUninitializeCurvature)
+        return false;
+
+      auto maxDCurv = ll[theOuterLayer_].maxDCurv();
+      auto dCurv0 = ll[theOuterLayer_].floorDCurv();
+
+#ifdef CA_DEBUG
+      printf("quadCut: layer=%d, dCurv=%f, curv0=%f, Co=%f, Ci=%f",
+             theOuterLayer_,
+             maxDCurv,
+             dCurv0,
+             outerCurvature,
+             innerCurvature);
+#endif
+      // linear cut
+      return std::abs(outerCurvature - innerCurvature) >
+             maxDCurv * (std::abs(innerCurvature + outerCurvature)) + dCurv0;
+      // sqrt cut
+      // return (outerCurvature - innerCurvature) * (outerCurvature - innerCurvature) >
+      //        maxDCurv * (std::abs(innerCurvature + outerCurvature)) + dCurv0;
     }
 
     // trying to free the track building process from hardcoded layers, leaving
@@ -163,7 +205,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     template <int DEPTH>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void find_ntuplets(Acc1D const& acc,
-                                                      const ::reco::CAGraphSoAConstView& cc,
+                                                      const HitsConstView& hh,
+                                                      const ::reco::CALayersSoAConstView& ll,
                                                       CACell* __restrict__ cells,
                                                       HitContainer& foundNtuplets,
                                                       CellToCell const* __restrict__ cellNeighborsHisto,
@@ -172,8 +215,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                       CAPairSoAView ct,
                                                       cms::alpakatools::AtomicPairCounter& apc,
                                                       Quality* __restrict__ quality,
+                                                      int8_t* __restrict__ nLayers,
+                                                      float* __restrict__ pt,
                                                       TmpTuple& tmpNtuplet,
-                                                      const unsigned int minHitsPerNtuplet) const {
+                                                      const unsigned int minHitsPerNtuplet,
+                                                      const float preCurvature = kUninitializeCurvature) const {
       // the building process for a track ends if:
       // it has no right neighbor
       // it has no compatible neighbor
@@ -185,60 +231,86 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       } else {
         auto doubletId = this - cells;
         tmpNtuplet.push_back_unsafe(doubletId);  // if we move this to be safe we could parallelize further below?
-        ALPAKA_ASSERT_ACC(tmpNtuplet.size() <= int(TrackerTraits::maxHitsOnTrack - 3));
+        ALPAKA_ASSERT_ACC(tmpNtuplet.size() <= int(TrackerTraits::maxLayersPerTrack - 1));
 
-        bool last = true;
-        auto const* __restrict__ bin = cellNeighborsHisto->begin(doubletId);
-        auto nInBin = cellNeighborsHisto->size(doubletId);
+        // Single bin per cell. Each stored entry encodes the neighbor cell index
+        // in its low 31 bits and the layer-skipping flag in bit 31. Walk the
+        // bin in two passes so that non-skipping neighbors are tried first and
+        // skipping ones are only explored when no good non-skipping neighbor
+        // was found at triplet-or-more depth.
+        auto const* __restrict__ neighborCells = cellNeighborsHisto->begin(doubletId);
+        auto const nNeighbors = cellNeighborsHisto->size(doubletId);
 
-        for (auto idx = 0u; idx < nInBin; idx++) {
-          // FIXME implement alpaka::ldg and use it here? or is it const* __restrict__ enough?
-          unsigned int otherCell = bin[idx];
-          if (cells[otherCell].isKilled())
-            continue;
+        bool tripletOrMore = ((unsigned int)(tmpNtuplet.size()) > 1);
+        bool foundNeighbor = false;
+
+        // The two passes are identical but for the check on bit 31 (layer skipping):
+        // pass==0 keeps entries with bit 31 clear, pass==1 keeps entries with
+        // bit 31 set. Bail out of pass 1 if a non-skipping neighbor already
+        // produced a triplet-or-more.
+        for (int pass = 0; pass < 2; ++pass) {
+          if (pass == 1 && foundNeighbor && tripletOrMore)
+            break;
+          const uint32_t wantSkip = (pass == 0) ? 0u : caStructures::kSkipsLayerFlag;
+          for (auto idx = 0u; idx < nNeighbors; idx++) {
+            auto encoded = neighborCells[idx];
+            if ((encoded & caStructures::kSkipsLayerFlag) != wantSkip)
+              continue;
+            auto otherCell = encoded & caStructures::kCellIndexMask;
+            if (cells[otherCell].isKilled())
+              continue;
+
+            // check compatiblity of triplets and calculate this triplets curvature
+            float thisCurvature{kUninitializeCurvature};
+            if (cells[otherCell].quadrupletCut(preCurvature, thisCurvature, ll, hh, inner_x(hh), inner_y(hh)))
+              continue;
 #ifdef CA_DEBUG
-          printf("Doublet no. %d %d doubletId: %ld -> %d (isKilled %d) (%d,%d) -> (%d,%d) %d %d\n",
-                 tmpNtuplet.size(),
-                 idx,
-                 doubletId,
-                 otherCell,
-                 cells[otherCell].isKilled(),
-                 this->inner_hit_id(),
-                 this->outer_hit_id(),
-                 cells[otherCell].inner_hit_id(),
-                 cells[otherCell].outer_hit_id(),
-                 idx,
-                 nInBin);
+            printf("Doublet no. %d %d doubletId: %ld -> %d (isKilled %d) (%d,%d) -> (%d,%d) %d %d\n",
+                   tmpNtuplet.size(),
+                   idx,
+                   doubletId,
+                   otherCell,
+                   cells[otherCell].isKilled(),
+                   this->inner_hit_id(),
+                   this->outer_hit_id(),
+                   cells[otherCell].inner_hit_id(),
+                   cells[otherCell].outer_hit_id(),
+                   idx,
+                   nNeighbors);
 #endif
 
-          last = false;
-          cells[otherCell].template find_ntuplets<DEPTH - 1>(acc,
-                                                             cc,
-                                                             cells,
-                                                             foundNtuplets,
-                                                             cellNeighborsHisto,
-                                                             cellTracksHisto,
-                                                             nCellTracks,
-                                                             ct,
-                                                             apc,
-                                                             quality,
-                                                             tmpNtuplet,
-                                                             minHitsPerNtuplet);
+            foundNeighbor = true;
+            cells[otherCell].template find_ntuplets<DEPTH - 1>(acc,
+                                                               hh,
+                                                               ll,
+                                                               cells,
+                                                               foundNtuplets,
+                                                               cellNeighborsHisto,
+                                                               cellTracksHisto,
+                                                               nCellTracks,
+                                                               ct,
+                                                               apc,
+                                                               quality,
+                                                               nLayers,
+                                                               pt,
+                                                               tmpNtuplet,
+                                                               minHitsPerNtuplet,
+                                                               thisCurvature);
+          }
         }
-        if (last) {  // if long enough save...
-          if ((unsigned int)(tmpNtuplet.size()) >= minHitsPerNtuplet - 1) {
-            {
-              constexpr int maxFB = 2;  // for the time being let's limit this - fishbone extra hits limit
-              // maxDepth is the number of CACells. So +maxFB for the fishbone and +1 to properly count the number of hits
-              hindex_type hits
-                  [TrackerTraits::maxDepth + maxFB +
-                   1];  // maxDepth is the number of CACells. So +maxFB for the fishbone and +1 to properly count the number of hits
 
-              auto nh = 0U;
-              int nfb = 0;
+        // if no more doublets were found, save N-tuplet if long enough
+        if (!foundNeighbor) {
+          const uint8_t nl = tmpNtuplet.size() + 1;  // numLayers in tuplet
+          // if long enough save...
+          if (nl >= minHitsPerNtuplet) {
+            {
+              hindex_type hits[TrackerTraits::maxHitsOnTrack];  // maxHitsOnTracks takes fishbone hits into account
+              uint32_t nh = 0U;
+              uint32_t nfb = 0U;
               for (auto c : tmpNtuplet) {
                 hits[nh++] = cells[c].theInnerHitId_;
-                if (nfb < maxFB && cells[c].hasFishbone()) {
+                if (nfb < TrackerTraits::maxFishboneHitsPerTrack && cells[c].hasFishbone()) {
                   ++nfb;
                   hits[nh++] = cells[c].theFishboneId_;  // Fishbone hit is always outer than inner hit
                 }
@@ -265,13 +337,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   }
                   cellTracksHisto->count(acc, c);
 
-                  ct[t_ind].inner() = c;   //cell
-                  ct[t_ind].outer() = it;  //track
+                  ct[t_ind].inner() = c;   // cell
+                  ct[t_ind].outer() = it;  // track
                 }
 #ifdef CA_DEBUG
                 printf("\n");
 #endif
+                // set number of layers in the TrackSoA (if not done here, one would need to recalculate it from the hits later)
+                nLayers[it] = int8_t(nl);
                 quality[it] = bad;  // initialize to bad
+                pt[it] =
+                    preCurvature;  // fill the curvature as an early (pre-fit) reference for pt comparisons in duplicate removers
               }
             }
           }
