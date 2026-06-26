@@ -28,7 +28,6 @@ std::unique_ptr<BTLReadoutMap> BTLReadoutMapESProducer::produce(const BTLReadout
         << "BTL electronics mapping not available for BTL crystal layout " << static_cast<int>(btlCrysLayout)
         << ", use layout 7 (v4) or later!" << std::endl;
     return std::make_unique<BTLReadoutMap>();
-    ;
   }
 
   // -- Initialize mapping helper
