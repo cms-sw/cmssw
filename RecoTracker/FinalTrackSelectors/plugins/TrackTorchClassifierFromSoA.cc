@@ -26,7 +26,7 @@ private:
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   const edm::EDGetTokenT<reco::TrackCollection> tracks_token_;
-  const edm::EDGetTokenT<std::vector<Trajectory>> trajectories_token_;
+  edm::EDGetTokenT<std::vector<Trajectory>> trajectories_token_;
   const edm::EDGetTokenT<PortableHostCollection<TrackTorchClassifierScoresSoA>> scores_token_;
   const edm::EDGetTokenT<PortableHostCollection<TrackTorchClassifierFeaturesSoA>> features_token_;
   const bool copy_trajectories_;
@@ -42,7 +42,7 @@ private:
 
 TrackTorchClassifierFromSoA::TrackTorchClassifierFromSoA(const edm::ParameterSet& iConfig)
     : tracks_token_(consumes(iConfig.getParameter<edm::InputTag>("src"))),
-      trajectories_token_(consumes(iConfig.getParameter<edm::InputTag>("src"))),
+      trajectories_token_(),
       scores_token_(consumes(iConfig.getParameter<edm::InputTag>("scores"))),
       features_token_(consumes(iConfig.getParameter<edm::InputTag>("features"))),
       copy_trajectories_(iConfig.getParameter<bool>("copyTrajectories")),
@@ -52,7 +52,11 @@ TrackTorchClassifierFromSoA::TrackTorchClassifierFromSoA(const edm::ParameterSet
       filtered_tracks_token_(produces<reco::TrackCollection>()),
       filtered_trajectories_token_(produces<std::vector<Trajectory>>()),
       traj_track_associations_token_(produces<TrajTrackAssociationCollection>()),
-      scores_output_token_(produces<std::vector<float>>("MVAScores")) {}
+      scores_output_token_(produces<std::vector<float>>("MVAScores")) {
+  if (copy_trajectories_) {
+    trajectories_token_ = consumes(iConfig.getParameter<edm::InputTag>("src"));
+  }
+}
 
 void TrackTorchClassifierFromSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -69,17 +73,22 @@ void TrackTorchClassifierFromSoA::fillDescriptions(edm::ConfigurationDescription
 
 void TrackTorchClassifierFromSoA::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& tracks = iEvent.get(tracks_token_);
-  const auto& trajectories = iEvent.get(trajectories_token_);
   const auto& scores_host = iEvent.get(scores_token_);
   const auto& features_host = iEvent.get(features_token_);
+
+  const std::vector<Trajectory>* trajectories = nullptr;
+  if (copy_trajectories_) {
+    trajectories = &iEvent.get(trajectories_token_);
+  }
 
   const auto nTracks = tracks.size();
 
   // Create filtered track collection and optionally copy the corresponding trajectories
   auto filtered_tracks = std::make_unique<reco::TrackCollection>();
-  auto filtered_trajectories = std::make_unique<std::vector<Trajectory>>();
+  std::unique_ptr<std::vector<Trajectory>> filtered_trajectories;
   std::unique_ptr<TrajTrackAssociationCollection> traj_track_associations;
   if (copy_trajectories_) {
+    filtered_trajectories = std::make_unique<std::vector<Trajectory>>();
     traj_track_associations = std::make_unique<TrajTrackAssociationCollection>(
         iEvent.getRefBeforePut<std::vector<Trajectory>>(), iEvent.getRefBeforePut<reco::TrackCollection>());
   }
@@ -98,7 +107,7 @@ void TrackTorchClassifierFromSoA::produce(edm::Event& iEvent, const edm::EventSe
     if (score >= min_score_ || ((std::abs(dxy) > dxy_threshold_) && (score >= high_dxy_min_score_))) {
       filtered_tracks->push_back(tracks[i]);
       if (copy_trajectories_) {
-        filtered_trajectories->push_back(trajectories[i]);
+        filtered_trajectories->push_back((*trajectories)[i]);
         traj_track_associations->insert(
             edm::Ref<std::vector<Trajectory>>(iEvent.getRefBeforePut<std::vector<Trajectory>>(),
                                               filtered_trajectories->size() - 1),
