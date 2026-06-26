@@ -9,6 +9,11 @@
 # records found by that ESSource.
 
 import FWCore.ParameterSet.Config as cms
+import argparse
+
+parser = argparse.ArgumentParser(add_help=False)
+parser.add_argument("-n", type=int, default=4)
+args, _ = parser.parse_known_args()
 
 process = cms.Process("TEST")
 
@@ -25,7 +30,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.options = dict(
-    numberOfThreads = 4,
+    numberOfThreads = args.n,
     numberOfStreams = 4,
     numberOfConcurrentRuns = 1,
     numberOfConcurrentLuminosityBlocks = 4,
