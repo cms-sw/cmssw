@@ -1,0 +1,80 @@
+<lcgdict>
+  <class name="edm::StdArray<int, 6>"/>
+  <class name="edm::StdArray<double, 4>"/>
+
+  <!-- ::Layout alias must be listed before the aliased-to type -->
+  <class name="testmodules::HostCollectionEvolutionZero::Layout" ClassVersion="2">
+    <version ClassVersion="2" checksum="3045916688"/>
+  </class>
+  <class name="testmodules::SoAEvolutionZeroLayout<128,false>"/>
+  <class name="testmodules::HostCollectionEvolutionZero"/>
+  <class name="edm::Wrapper<testmodules::HostCollectionEvolutionZero>" splitLevel="0"/>
+
+  <!-- ::Layout alias must be listed before the aliased-to type -->
+  <class name="testmodules::HostCollectionEvolutionOne::Layout" ClassVersion="3">
+    <version ClassVersion="2" checksum="637422652"/>
+    <version ClassVersion="3" checksum="388889898"/>
+  </class>
+  <ioread sourceClass="testmodules::HostCollectionEvolutionOne::Layout" targetClass="testmodules::HostCollectionEvolutionOne::Layout" version="[2]" source="cms::soa::size_type elements_; double *cDouble_" target="cDouble_">
+    <![CDATA[cDouble_ = new signed char[onfile.elements_];
+             for (cms::soa::size_type i = 0; i < onfile.elements_; i++) {
+                const double onFileValue = onfile.cDouble_[i];
+
+                if (onFileValue >= INT8_MIN && onFileValue <= INT8_MAX) {
+                    cDouble_[i] = static_cast<signed char>(onFileValue);
+                } else {
+                    // Warning could be inserted like this:
+                    // printf("Warning: Value %f at index %i is out of int8_t range. Setting to 0.\n", onFileValue, i);
+                    cDouble_[i] = static_cast<signed char>(0);
+                }
+             }]]>
+  </ioread>
+  <class name="testmodules::SoAEvolutionOneLayout<128,false>"/>
+  <class name="testmodules::HostCollectionEvolutionOne"/>
+  <class name="edm::Wrapper<testmodules::HostCollectionEvolutionOne>" splitLevel="0"/>
+
+  <!-- ::Layout alias must be listed before the aliased-to type -->
+  <class name="testmodules::HostCollectionEvolutionTwo::Layout" ClassVersion="3">
+    <version ClassVersion="2" checksum="3773429550"/>
+    <version ClassVersion="3" checksum="303658585"/>
+  </class>
+  <class name="testmodules::SoAEvolutionTwoLayout<128,false>"/>
+  <class name="testmodules::HostCollectionEvolutionTwo"/>
+  <class name="edm::Wrapper<testmodules::HostCollectionEvolutionTwo>" splitLevel="0"/>
+
+  <!-- ::Layout alias must be listed before the aliased-to type -->
+  <class name="testmodules::HostCollectionEvolutionThree::Layout" ClassVersion="3">
+    <version ClassVersion="2" checksum="4242157584"/>
+    <version ClassVersion="3" checksum="228226274"/>
+  </class>
+  <class name="testmodules::SoAEvolutionThreeLayout<128,false>"/>
+  <class name="testmodules::HostCollectionEvolutionThree"/>
+  <class name="edm::Wrapper<testmodules::HostCollectionEvolutionThree>" splitLevel="0"/>
+
+  <!-- ::Layout alias must be listed before the aliased-to type -->
+  <class name="testmodules::HostCollectionEvolutionFour::Layout" ClassVersion="3">
+    <version ClassVersion="2" checksum="3789185658"/>
+    <version ClassVersion="3" checksum="330366848"/>
+  </class>
+  <class name="testmodules::SoAEvolutionFourLayout<128,false>"/>
+  <class name="testmodules::HostCollectionEvolutionFour"/>
+  <class name="edm::Wrapper<testmodules::HostCollectionEvolutionFour>" splitLevel="0"/>
+
+    <!-- ::Layout alias must be listed before the aliased-to type -->
+  <class name="testmodules::HostCollectionEvolutionFive::Layout" ClassVersion="3">
+    <version ClassVersion="2" checksum="1446325818"/>
+    <version ClassVersion="3" checksum="3473424638"/>
+  </class>
+  <ioread sourceClass="testmodules::HostCollectionEvolutionFive::Layout" targetClass="testmodules::HostCollectionEvolutionFive::Layout" version="[2]" source="cms::soa::size_type elements_; edm::StdArray<int, 6> *cArray_" target="cArray_">
+    <![CDATA[cArray_ = new edm::StdArray<double, 4>[onfile.elements_];
+             for (cms::soa::size_type i = 0; i < onfile.elements_; i++) {
+                cArray_[i][0] = (double)onfile.cArray_[i][0];
+                cArray_[i][1] = (double)onfile.cArray_[i][1];
+                cArray_[i][2] = (double)onfile.cArray_[i][2];
+                cArray_[i][3] = (double)onfile.cArray_[i][3];
+             }]]>
+  </ioread>
+  <class name="testmodules::SoAEvolutionFiveLayout<128,false>"/>
+  <class name="testmodules::HostCollectionEvolutionFive"/>
+  <class name="edm::Wrapper<testmodules::HostCollectionEvolutionFive>" splitLevel="0"/>
+</lcgdict>
