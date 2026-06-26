@@ -49,8 +49,8 @@ namespace BTLElectronicsSpecs {
   static constexpr std::array<std::pair<int, int>, BTLDetId::kDModulesPerRU * 2> ELINK_to_FE_mapping_L1{{
       {6, 1},  // e-link 0:  {DM 6, chipId 1}
       {3, 1},  // e-link 1:  {DM 3, chipId 1}
-      {11, 0}, {11, 1}, {3, 0}, {6, 0}, {2, 1}, {2, 0}, {1, 0},  {1, 1},  {0, 0},  {0, 1}, {5, 1}, {5, 0},
-      {4, 0},  {4, 1},  {9, 1}, {9, 0}, {8, 0}, {8, 1}, {10, 0}, {10, 1}, {11, 0}, {11, 1}  // e-link 23:  {DM 11, chipId 1}
+      {7, 0}, {7, 1}, {3, 0}, {6, 0}, {2, 1}, {2, 0}, {1, 0},  {1, 1},  {0, 0},  {0, 1}, {5, 1}, {5, 0},
+      {4, 0}, {4, 1}, {9, 1}, {9, 0}, {8, 0}, {8, 1}, {10, 0}, {10, 1}, {11, 0}, {11, 1}  // e-link 23:  {DM 11, chipId 1}
   }};
 
   // ELINK Reverse mapping: given an FE/DM (0-11) and a ChipId (0-1), find the corresponding e-link
