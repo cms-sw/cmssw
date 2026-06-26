@@ -121,38 +121,34 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
     if (!geomDetUnit)
       continue;
     nclusGlobal += DSVItr.size();
-    // Workaround for filling histograms in both Ring<> and Wheel<>
-    bool isEndcap = (detId.subdetId() != PixelSubdetector::PixelBarrel);
-    for (int booking = 1; booking < 2 + isEndcap; booking++) {
-      // Will loop twice if the module is an EndCap module
-      // the default key divides endcaps into F/EPixs and Rings
-      // in second loop endcaps will be divided into F/EPix and Wheels
-      std::string folderkey =
-          (booking == 2 ? phase2tkutil::getITHistoWheelId(detId, tTopo_) : phase2tkutil::getITHistoId(detId, tTopo_));
+    int nClus = 0;
+    for (const auto& clusterItr : DSVItr) {
+      MeasurementPoint mpCluster(clusterItr.x(), clusterItr.y());
+      Local3DPoint localPosCluster = geomDetUnit->topology().localPosition(mpCluster);
+      Global3DPoint globalPosCluster = geomDetUnit->surface().toGlobal(localPosCluster);
+      double gx = globalPosCluster.x() * 10.;
+      double gy = globalPosCluster.y() * 10.;
+      double gz = globalPosCluster.z() * 10.;
+      double gr = globalPosCluster.perp() * 10.;
+      nClus++;
 
-      // initialize the nhit counters if they don't exist for this layer
-      auto counterDet = nClsmap.find(folderkey);
-      if (counterDet == nClsmap.end()) {
-        nClsmap.emplace(folderkey, DSVItr.size());
-      } else
-        counterDet->second += DSVItr.size();
-      for (const auto& clusterItr : DSVItr) {
-        MeasurementPoint mpCluster(clusterItr.x(), clusterItr.y());
-        Local3DPoint localPosCluster = geomDetUnit->topology().localPosition(mpCluster);
-        Global3DPoint globalPosCluster = geomDetUnit->surface().toGlobal(localPosCluster);
-        double gx = globalPosCluster.x() * 10.;
-        double gy = globalPosCluster.y() * 10.;
-        double gz = globalPosCluster.z() * 10.;
-        double gr = globalPosCluster.perp() * 10.;
+      // Fill non-layer histos
+      if (geomDetUnit->subDetector() == GeomDetEnumerators::SubDetector::P2PXB) {
+        globalXY_barrel_->Fill(gx, gy);
+        globalRZ_barrel_->Fill(gz, gr);
+      } else if (geomDetUnit->subDetector() == GeomDetEnumerators::SubDetector::P2PXEC) {
+        globalXY_endcap_->Fill(gx, gy);
+        globalRZ_endcap_->Fill(gz, gr);
+      }
+      // Workaround for filling histograms in both Ring<> and Wheel<>
+      bool isEndcap = (detId.subdetId() != PixelSubdetector::PixelBarrel);
+      for (int booking = 1; booking < 2 + isEndcap; booking++) {
+        // Will loop twice if the module is an EndCap module
+        // the default key divides endcaps into F/EPixs and Rings
+        // in second loop endcaps will be divided into F/EPix and Wheels
+        std::string folderkey =
+            (booking == 2 ? phase2tkutil::getITHistoWheelId(detId, tTopo_) : phase2tkutil::getITHistoId(detId, tTopo_));
 
-        // cluster size
-        if (geomDetUnit->subDetector() == GeomDetEnumerators::SubDetector::P2PXB) {
-          globalXY_barrel_->Fill(gx, gy);
-          globalRZ_barrel_->Fill(gz, gr);
-        } else if (geomDetUnit->subDetector() == GeomDetEnumerators::SubDetector::P2PXEC) {
-          globalXY_endcap_->Fill(gx, gy);
-          globalRZ_endcap_->Fill(gz, gr);
-        }
         auto local_mesIT = layerMEs_.find(folderkey);
         if (local_mesIT == layerMEs_.end())
           continue;
@@ -164,6 +160,18 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
         local_mes.ClusterSizeX->Fill(clusterItr.sizeX());
         local_mes.ClusterSizeY->Fill(clusterItr.sizeY());
         local_mes.ClusterCharge->Fill(clusterItr.charge());
+
+        if (nClus == int(DSVItr.size())) {
+          // Reached the end of clusters in this Det
+          // Fill any histos that should only be filled once per det
+
+          // initialize the nhit counters if they don't exist for this layer
+          auto counterDet = nClsmap.find(folderkey);
+          if (counterDet == nClsmap.end()) {
+            nClsmap.emplace(folderkey, DSVItr.size());
+          } else
+            counterDet->second += DSVItr.size();
+        }
       }
     }
   }
