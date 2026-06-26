@@ -168,8 +168,7 @@ namespace edm {
                                                        EventSetupImpl& eventSetupImpl) {
       EventSetupRecordImpl* impl = &recordImpls_[iovIndex];
       recordImpl_ = impl;
-      bool hasFinder = finder_.get() != nullptr;
-      impl->initializeForNewIOV(cacheIdentifier, validityInterval_, hasFinder);
+      impl->initializeForNewIOV(cacheIdentifier, validityInterval_);
       eventSetupImpl.addRecordImpl(*recordImpl_);
     }
 
