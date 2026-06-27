@@ -296,6 +296,7 @@ namespace reco {
       static const unsigned int GEMMuon = 1 << 7;
       static const unsigned int ME0Muon = 1 << 8;
       static const unsigned int ScoutingMuon = 1 << 9;
+      static const unsigned int Phase2Muon = 1 << 10;
 
       void setType(unsigned int type) { type_ = type; }
       unsigned int type() const { return type_; }
@@ -311,6 +312,7 @@ namespace reco {
       bool isGEMMuon() const { return type_ & GEMMuon; }
       bool isME0Muon() const { return type_ & ME0Muon; }
       bool isScoutingMuon() const { return type_ & ScoutingMuon; }
+      bool isPhase2Muon() const { return type_ & Phase2Muon; }
 
     private:
       /// check overlap with another candidate

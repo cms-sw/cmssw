@@ -225,6 +225,7 @@ private:
 
   bool arbitrateTrackerMuons_;
 
+  bool isPhase2_;
   bool debugWithTruthMatching_;
 
   edm::Handle<reco::TrackCollection> innerTrackCollectionHandle_;
