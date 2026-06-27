@@ -121,7 +121,4 @@ namespace edmplugin {
 #define EDM_PLUGIN_SYM2(x, y) x##y
 
 #define DEFINE_EDM_PLUGIN(factory, type, name) \
-  static const factory::PMaker<type> EDM_PLUGIN_SYM(s_maker, __LINE__)(name)
-
-#define DEFINE_EDM_PLUGIN2(factory, type, name) \
-  static const factory::PMaker<type> EDM_PLUGIN_SYM(s_maker2_, __LINE__)(name)
+  static const factory::PMaker<type> EDM_PLUGIN_SYM(s_maker, __COUNTER__)(name)

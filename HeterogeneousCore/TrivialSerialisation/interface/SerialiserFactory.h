@@ -18,6 +18,6 @@ namespace ngt {
 // more suitable for Python configuration files.
 #define DEFINE_TRIVIAL_SERIALISER_PLUGIN(TYPE)                                           \
   DEFINE_EDM_PLUGIN(ngt::SerialiserFactory, ngt::Serialiser<TYPE>, typeid(TYPE).name()); \
-  DEFINE_EDM_PLUGIN2(ngt::SerialiserFactory, ngt::Serialiser<TYPE>, EDM_STRINGIZE(TYPE))
+  DEFINE_EDM_PLUGIN(ngt::SerialiserFactory, ngt::Serialiser<TYPE>, EDM_STRINGIZE(TYPE))
 
 #endif  // HeterogeneousCore_TrivialSerialisation_interface_SerialiserFactory_h
