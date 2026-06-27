@@ -179,3 +179,71 @@ For the host xml, all SoA layouts have to be listed. The scripts are called as f
 ```
 The layouts should not be added as parameters for the device collection. Those script can be used equally with the
 single layout collections or multi layout collections.
+
+
+## Schema Evolution of SoA Layouts
+
+`ROOT` files written using a `PortableCollection` with a specific `SoA layout` are read through a custom streamer.
+This streamer copies data into the SoA buffer and relies heavily on ROOT’s built-in schema evolution mechanisms when the layout definition changes in the CMSSW codebase.
+The schema evolution behavior is summarized below:
+
+### General Behavior
+  - **Removed columns**: Columns that exist in the file but are no longer present in the current layout are skipped during reading. Their data is not loaded into memory.
+  - **Added columns**: Columns that are present in the current layout but missing from the file are default-initialized to **zero**.
+### Fundamental datatype changes
+When the datatype of a column changes between versions, `ROOT` performs an element-wise conversion during reading, for example:
+```
+double → float
+```
+In this case, values are cast to the new type as they are read.
+**Important notes:**
+ - Conversions are performed silently.
+ - Precision loss (e.g. truncation) is **not reported** by default.
+ - Overflow and underflow may occur if the new type cannot represent the original values.
+### Eigen Columns
+  - **Supported evolution**: Eigen-based columns can only evolve with respect to their **underlying scalar type**, for example:
+```
+Eigen::Matrix<float, ...> -> Eigen::Matrix<double, ...>
+```
+  - **Unsupported changes**: Changes to the matrix shape (number of rows or columns) are **not supported** and will result in a runtime error during reading.
+### Enum Types
+  - Columns defined with `enum` types are fully supported.
+  - They behave identically to columns defined with the enum’s **underlying integer type**:
+    - Schema evolution follows the same rules as for fundamental integer types.
+    - Changing the underlying type (e.g. `uint16_t` → `uint32_t`) is supported via implicit conversion.
+    
+### User-defined Types
+
+In the following user-defined types refers to non-fundamental types for example user-defined structs or classes.
+Columns containing user-defined structs or classes require explicit I/O schema evolution rules.
+
+To support schema evolution for a column of a user-defined type:
+
+1. A class version and checksum must be defined in the SoA layout dictionary.
+2. An I/O read rule must be provided that describes how data should be converted between schema versions.
+
+Examples can be found in `HeterogeneousCore/TestModules/src/classes_def.xml`, where schema evolution rules are implemented for `edm::StdArray`.
+
+When defining an I/O read rule:
+
+* Both the source and target columns must be specified.
+* The source-side leaf counter called `elements_` must be accessed and is used to determine the size of the temporary conversion buffer.
+
+#### Known Limitations
+
+##### Removing User-defined type Columns
+
+Removing a column that contains a non-fundamental type consistently triggers a ROOT error during reading. See ROOT issue [#22097](https://github.com/root-project/root/issues/22097).
+
+##### I/O Read Rules for SCALAR Columns
+
+I/O read rules can also be defined for `SCALAR` columns, but they require special handling:
+
+* The leaf counter `scalar_` must be included in the rule, even though its value is always `1`.
+* Omitting this leaf counter will trigger and error from ROOT.
+
+For details, see ROOT issue [#22329](https://github.com/root-project/root/issues/22329).
+
+In addition, if an I/O read rule is defined for one `SCALAR` column, corresponding read rules must also be provided for all other `SCALAR` columns, even if their schema has not changed.
+
+For details, see ROOT issue [#22330](https://github.com/root-project/root/issues/22330).
