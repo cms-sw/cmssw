@@ -2,7 +2,7 @@ import math
 import glob
 import importlib
 import FWCore.ParameterSet.Config as cms
-from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultData_Comissioning2022_Cosmics_string,filesDefaultMC_DoubleMuonPUPhase_string
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultData_Comissioning2022_Cosmics_string,filesDefaultMC_DoubleMuonAlCa_string
 
 ###################################################################
 # Setup 'standard' options
@@ -136,7 +136,7 @@ if(options.unitTest):
     ## fixed input for the unit test
     if('D' in options.Detector) :
         # it's for phase-2
-        readFiles.extend([filesDefaultMC_DoubleMuonPUPhase_string])
+        readFiles.extend([filesDefaultMC_DoubleMuonAlCa_string])
     else:
         # it's for phase-1
         readFiles.extend([filesDefaultData_Comissioning2022_Cosmics_string])

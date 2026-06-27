@@ -12,7 +12,9 @@ import os
 ###################################################################
 # Define process
 ###################################################################
-process = cms.Process("DiMuonVertexValidation")
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+process = cms.Process("DiMuonVertexValidation",_PH2_ERA)
 
 ###################################################################
 # Argument parsing
@@ -111,7 +113,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
 # import of standard configurations
 ###################################################################
 process.load('Configuration.StandardSequences.Services_cff')
-process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
@@ -134,7 +136,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 # default to remain in sycn with the default input sample
-process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", "125X_mcRun3_2022_realistic_v3"))
+process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", _PH2_GLOBAL_TAG))
 
 ####################################################################
 # Load conditions if wished

@@ -1,54 +1,54 @@
 <environment>
   <test name="validateAlignments" command="testingScripts/validateAlignments.sh"/>
-  <!-- <test name="DMRall" command="testingScripts/test_unitDMR.sh"> COMMENT: reads old format file
+  <test name="DMRall" command="testingScripts/test_unitDMR.sh"> 
     <flags PRE_TEST="validateAlignments"/>
-  </test> -->
-  <!-- <test name="PVall" command="testingScripts/test_unitPV.sh"> COMMENT: reads old format file
+  </test>
+  <test name="PVall" command="testingScripts/test_unitPV.sh"> 
     <flags PRE_TEST="validateAlignments"/>
-  </test> -->
-  <!-- <test name="Zmumuall" command="testingScripts/test_unitZmumu.sh"> COMMENT: reads old format file
+  </test>
+  <test name="Zmumuall" command="testingScripts/test_unitZmumu.sh"> 
     <flags PRE_TEST="validateAlignments"/>
-  </test> -->
-  <!-- <test name="SplitVall" command="testingScripts/test_unitSplitV.sh"> COMMENT: reads old format file
+  </test>
+  <test name="SplitVall" command="testingScripts/test_unitSplitV.sh"> 
     <flags PRE_TEST="validateAlignments"/>
-  </test> -->
-  <!-- <test name="JetHTall" command="testingScripts/test_unitJetHT.sh"> COMMENT: reads old format file
+  </test>
+  <test name="JetHTall" command="testingScripts/test_unitJetHT.sh">
     <flags PRE_TEST="validateAlignments"/>
-  </test> -->
+  </test>
   <test name="GCPall" command="testingScripts/test_unitGCP.sh">
     <flags PRE_TEST="validateAlignments"/>
   </test>
-  <!-- <test name="DiMuonVall" command="testingScripts/test_unitDiMuonV.sh"> COMMENT: reads old format file
+  <test name="DiMuonVall" command="testingScripts/test_unitDiMuonV.sh"> 
     <flags PRE_TEST="validateAlignments"/>
-  </test> -->
+  </test>
   <!-- <test name="MTSall" command="testingScripts/test_unitMTS.sh"> COMMENT: reads old format file
     <flags PRE_TEST="validateAlignments"/>
-  </test>  -->
+  </test> -->
   <test name="PixBaryall" command="testingScripts/test_unitPixBary.sh">
     <flags PRE_TEST="validateAlignments"/>
   </test>
-  <!-- <test name="Genericall" command="testingScripts/test_unitGeneric.sh"> COMMENT: reads old format file
+  <test name="Genericall" command="testingScripts/test_unitGeneric.sh"> 
     <flags PRE_TEST="validateAlignments"/>
-  </test> -->
-  <!-- <test name="PVValidation" command="testingScripts/test_unitPVValidation.sh"/> COMMENT: reads old format file -->
+  </test>
+  <test name="PVValidation" command="testingScripts/test_unitPVValidation.sh"/> 
   <bin file="testTrackAnalyzers.cc" name="testTrackAnalysis">
     <use name="FWCore/TestProcessor"/>
     <use name="catch2"/>
   </bin>
-  <!-- <test name="PrimaryVertex" command="testingScripts/test_unitPrimaryVertex.sh"/> COMMENT: reads old format file -->
-  <!-- <bin file="testPVPlotting.cpp" name="testPVPlotting"> COMMENT: dependent test disabled
+  <test name="PrimaryVertex" command="testingScripts/test_unitPrimaryVertex.sh"/> 
+  <bin file="testPVPlotting.cpp" name="testPVPlotting">
     <flags PRE_TEST="PrimaryVertex"/>
     <use name="rootmath"/>
     <use name="roothistmatrix"/>
     <use name="rootgraphics"/>
     <use name="Alignment/OfflineValidation"/>
-  </bin> -->
+  </bin>
   <bin file="testTkAlStyle.C" name="testTkAlStyle">
     <use name="rootgraphics"/>
     <use name="Alignment/OfflineValidation"/>
   </bin>
-  <!-- <test name="DiMuonVertex" command="testingScripts/test_unitDiMuonVertex.sh"/> COMMENT: reads old format file -->
-  <!-- <test name="DiElectronVertex" command="testingScripts/test_unitDiElectronVertex.sh"/> COMMENT: reads old format file -->
+  <test name="DiMuonVertex" command="testingScripts/test_unitDiMuonVertex.sh"/> 
+  <test name="DiElectronVertex" command="testingScripts/test_unitDiElectronVertex.sh"/> 
   <test name="SubmitPVrbr" command="testingScripts/test_unitSubmitPVrbr.sh"/>
   <test name="SubmitPVsplit" command="testingScripts/test_unitSubmitPVsplit.sh"/>
   <!-- <test name="EoP" command="testingScripts/test_unitEoP.sh"/> COMMENT: reads old format file -->
@@ -61,13 +61,13 @@
   </bin> -->
   <!-- <test name="Miscellanea" command="testingScripts/test_unitMiscellanea.sh"/> COMMENT: reads old format file -->
   <!-- <test name="ShortTrackValidation" command="testingScripts/test_unitShortTrackValidation.sh"/> COMMENT: reads old format file -->
-  <!-- <test name="SagittaBiasNtuplizer" command="testingScripts/test_unitSagittaBiasNtuplizer.sh"/> COMMENT: reads old format file -->
+  <test name="SagittaBiasNtuplizer" command="testingScripts/test_unitSagittaBiasNtuplizer.sh"/>
   <test name="BeamSpotPlotting" command="testingScripts/test_unitBeamSpotPlotting.sh"/>
-  <!-- <bin file="testanalyzeDiMuonBiases.cpp" name="testDiMuonBiasesPlotting"> COMMENT: dependent test disabled
+  <bin file="testanalyzeDiMuonBiases.cpp" name="testDiMuonBiasesPlotting"> 
     <flags PRE_TEST="SagittaBiasNtuplizer"/>
     <use name="rootmath"/>
     <use name="roothistmatrix"/>
     <use name="rootgraphics"/>
     <use name="Alignment/OfflineValidation"/>
-  </bin> -->
+  </bin>
 </environment>
