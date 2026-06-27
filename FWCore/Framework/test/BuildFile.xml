@@ -195,6 +195,13 @@
   <use name="FWCore/Sources"/>
 </library>
 
+<library file="stubs/ConcurrentLumiAnalyzer.cc" name="FWCoreFrameworkConcurrentLumiAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+</library>
+
 
 <bin name="TestFWCoreFramework" file="maker2_t.catch2.cc,productregistry.catch2.cc,edproducer_productregistry_callback.cc,event_getrefbeforeput_t.catch2.cc,generichandle_t.catch2.cc,edconsumerbase_t.catch2.cc,checkForModuleDependencyCorrectness_t.catch2.cc">
   <use name="DataFormats/Common"/>
@@ -398,3 +405,4 @@
 <test name="testFWCoreFrameworkCmsRunVarparsing" command="run_cmsRun_varparsing.sh"/>
 <test name="testFWCoreFrameworkCmsRunArgparse" command="run_cmsRun_argparse.sh"/>
 <test name="testFWCoreFrameworkCmsRunArgv" command="run_cmsRun_argv.sh"/>
+<test name="testFWCoreFrameworkBlockedLumi" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_2_concurrent_lumis_with_blocked_event_cfg.py"/>
