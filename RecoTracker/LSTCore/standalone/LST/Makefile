@@ -41,7 +41,7 @@ LIBS=$(LIB_CPU) $(LIB_CUDA) $(LIB_ROCM)
 #
 
 # Different architectures to optimize for
-GENCODE_CUDA := -gencode arch=compute_70,code=[sm_70,compute_70] -gencode arch=compute_89,code=[sm_89,compute_89]
+GENCODE_CUDA := -gencode arch=compute_80,code=[sm_80,compute_80] -gencode arch=compute_89,code=[sm_89,compute_89]
 
 CXX                  = g++
 CXXFLAGS_CPU         = -march=native -mtune=native -Ofast -fno-reciprocal-math -fopenmp-simd -g -Wall -Woverloaded-virtual -fPIC -fopenmp -I..
