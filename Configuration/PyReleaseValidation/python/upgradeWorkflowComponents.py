@@ -228,6 +228,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'Sim',
         'GenSim',
         'GenSimCloseBy',
+        'GenSimDisplaced',
         'GenSimHLBeamSpot',
         'GenSimHLBeamSpot14',
         'GenSimHLBeamSpotCloseBy',
@@ -925,7 +926,7 @@ class UpgradeWorkflow_ticl_barrel(UpgradeWorkflow):
         if 'HARVESTGlobal' in step:
             stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return ('CloseByPGun_Barrel') in fragment and ('Run4' in key)
+        return 'CloseByPGun_Barrel' in fragment and 'Run4' in key
 
 upgradeWFs['ticl_barrel'] = UpgradeWorkflow_ticl_barrel(
     steps = [
@@ -956,7 +957,7 @@ class UpgradeWorkflow_ticl_barrel_CPfromPU(UpgradeWorkflow):
         if 'HARVESTGlobal' in step:
             stepDict[stepName][k] = merge([self.step4, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return ('CloseByPGun_Barrel') in fragment and ('Run4' in key) and ('PU' in key)
+        return 'CloseByPGun_Barrel' in fragment and 'Run4' in key and 'PU' in key
 
 upgradeWFs['ticl_barrel_CPfromPU'] = UpgradeWorkflow_ticl_barrel_CPfromPU(
     steps = [
@@ -2111,7 +2112,7 @@ upgradeWFs['HLTwDIGI75e33'] = UpgradeWorkflow_HLTwDIGI75e33(
 class UpgradeWorkflow_NGTScouting(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         # skip RECO, ALCA and HARVEST
-        if ('ALCA' in step) or ('Reco' in step) or ('HLT' in step):
+        if any(x in step for x in ('ALCA', 'Reco', 'HLT')):
             stepDict[stepName][k] = None
         elif 'DigiTrigger' in step:
             # Add the aging customization
@@ -2125,8 +2126,10 @@ class UpgradeWorkflow_NGTScouting(UpgradeWorkflow):
             stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         else:
             stepDict[stepName][k] = merge([stepDict[step][k]])
+
     def condition(self, fragment, stepList, key, hasHarvest):
-        return (fragment=="TTbar_14TeV" or fragment=="SingleMuPt15Eta0p_0p4") and 'Run4' in key
+        return (fragment=='TTbar_14TeV' or fragment=='SingleMuPt15Eta0p_0p4' or 'Displaced' in fragment) and 'Run4' in key
+    
 upgradeWFs['NGTScouting'] = UpgradeWorkflow_NGTScouting(
     steps = [
         'Reco',
@@ -3930,4 +3933,5 @@ upgradeFragments = OrderedDict([
     ('Hydjet_Quenched_MinBias_5519GeV_cfi', UpgradeFragment(U2000by1,'HydjetQMinBias_5519GeV')),
     ('SingleMuPt15Eta0_0p4_cfi', UpgradeFragment(Kby(9,100),'SingleMuPt15Eta0p_0p4')),
     ('CloseByPGun_Barrel_Front_cfi', UpgradeFragment(Kby(9,100),'CloseByPGun_Barrel_Front')),
+    ('DisplacedParticleGun_cfi', UpgradeFragment(Kby(9,100),'DisplacedPGun')),
 ])
