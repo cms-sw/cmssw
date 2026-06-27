@@ -119,6 +119,8 @@ The offsets currently in use are:
 * 0.204: HGCAL superclustering : using Mustache in TICL
 * 0.205: HGCAL superclustering : using old PFCluster-based Mustache algorithm with TICL
 * 0.209: TICL barrel : run TICL in HGCAL and barrel calorimeters
+* 0.212: Enables offline HGCAL/TICL NanoAOD: NANO:@HGCAL
+* 0.213: Enables offline HGCAL/TICL NanoAOD with Sim objects for validation purposes: NANO:@HGCALVal
 * 0.2091: TICL barrel with CaloParticles from PU enabled
 * 0.302: FastSim Run-3 trackingOnly validation
 * 0.303: FastSim Run-3 MB for mixing
