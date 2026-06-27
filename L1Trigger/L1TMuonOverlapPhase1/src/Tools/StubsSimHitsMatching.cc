@@ -5,10 +5,10 @@
  *      Author: kbunkow
  */
 
+#include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/FinalMuon.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Tools/StubsSimHitsMatcher.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OmtfName.h"
 #include "L1Trigger/L1TMuonOverlapPhase1/interface/Omtf/OMTFinputMaker.h"
-#include "L1Trigger/L1TMuonOverlapPhase1/interface/AngleConverterBase.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -91,10 +91,7 @@ void StubsSimHitsMatcher::beginRun(edm::EventSetup const& eventSetup) {
   }
 }
 
-void StubsSimHitsMatcher::match(const edm::Event& iEvent,
-                                const l1t::RegionalMuonCand* omtfCand,
-                                const AlgoMuonPtr& procMuon,
-                                std::ostringstream& ostr) {
+void StubsSimHitsMatcher::match(const edm::Event& iEvent, const FinalMuonPtr& finalMuon, std::ostringstream& ostr) {
   ostr << "stubsSimHitsMatching ---------------" << std::endl;
 
   edm::Handle<edm::PSimHitContainer> rpcSimHitsHandle;
@@ -124,14 +121,14 @@ void StubsSimHitsMatcher::match(const edm::Event& iEvent,
   edm::Handle<TrackingParticleCollection> trackingParticleHandle;
   iEvent.getByLabel(trackingParticleTag, trackingParticleHandle);
 
-  if (procMuon->isValid() && omtfCand) {
-    OmtfName board(omtfCand->processor(), omtfCand->trackFinderType(), omtfConfig);
-    auto processorPhiZero = OMTFinputMaker::getProcessorPhiZero(omtfConfig, omtfCand->processor());
+  if (finalMuon->getAlgoMuon()->isValid()) {
+    OmtfName board(finalMuon->getProcessor(), finalMuon->trackFinderType(), omtfConfig);
+    auto processorPhiZero = OMTFinputMaker::getProcessorPhiZero(omtfConfig, finalMuon->getProcessor());
 
     std::set<MatchedTrackInfo> matchedTrackInfos;
-    ostr << board.name() << " " << *procMuon << std::endl;
+    ostr << board.name() << " " << *finalMuon->getAlgoMuon() << std::endl;
 
-    auto& gpResult = procMuon->getGpResultConstr();
+    auto& gpResult = finalMuon->getAlgoMuon()->getGpResultConstr();
     for (unsigned int iLogicLayer = 0; iLogicLayer < gpResult.getStubResults().size(); ++iLogicLayer) {
       auto& stub = gpResult.getStubResults()[iLogicLayer].getMuonStub();
       if (stub && gpResult.isLayerFired(iLogicLayer)) {
@@ -145,7 +142,7 @@ void StubsSimHitsMatcher::match(const edm::Event& iEvent,
           continue;
         }
 
-        auto stubGlobalPhi = omtfConfig->procHwPhiToGlobalPhi(stub->phiHw, processorPhiZero);
+        auto stubGlobalPhi = omtfConfig->procPhiOmtfToPhiRad(stub->phiHw, processorPhiZero);
         ostr << (*stub) << "\nstubGlobalPhi " << stubGlobalPhi << std::endl;
 
         switch (stubDetId.subdetId()) {
@@ -350,8 +347,8 @@ void StubsSimHitsMatcher::match(const edm::Event& iEvent,
       }
     }
 
-    ostr << board.name() << " " << *procMuon << std::endl;
-    ostr << procMuon->getGpResultConstr() << std::endl << std::endl;
+    ostr << board.name() << " " << *finalMuon->getAlgoMuon() << std::endl;
+    ostr << finalMuon->getAlgoMuon()->getGpResultConstr() << std::endl << std::endl;
 
     int maxMatchedStubs = 0;
     const TrackingParticle* bestMatchedPart = nullptr;
