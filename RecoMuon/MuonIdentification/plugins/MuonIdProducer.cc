@@ -131,8 +131,8 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
     produces<reco::IsoDepositMap>(jetDepositName_);
   }
 
-  inputCollectionLabels_ = iConfig.getParameter<std::vector<edm::InputTag> >("inputCollectionLabels");
-  const auto inputCollectionTypes = iConfig.getParameter<std::vector<std::string> >("inputCollectionTypes");
+  inputCollectionLabels_ = iConfig.getParameter<std::vector<edm::InputTag>>("inputCollectionLabels");
+  const auto inputCollectionTypes = iConfig.getParameter<std::vector<std::string>>("inputCollectionTypes");
   if (inputCollectionLabels_.size() != inputCollectionTypes.size())
     throw cms::Exception("ConfigurationError")
         << "Number of input collection labels is different from number of types. "
@@ -151,7 +151,7 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
   }
   if (fillGlobalTrackQuality_) {
     const auto& glbQualTag = iConfig.getParameter<edm::InputTag>("globalTrackQualityInputTag");
-    glbQualToken_ = consumes<edm::ValueMap<reco::MuonQuality> >(glbQualTag);
+    glbQualToken_ = consumes<edm::ValueMap<reco::MuonQuality>>(glbQualTag);
   }
 
   if (fillTrackerKink_) {
@@ -1199,9 +1199,9 @@ void MuonIdProducer::fillArbitrationInfo(reco::MuonCollection* pOutputMuons, uns
   //
   // apply segment flags
   //
-  std::vector<std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*> > chamberPairs;  // for chamber segment sorting
-  std::vector<std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*> > stationPairs;  // for station segment sorting
-  std::vector<std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*> >
+  std::vector<std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*>> chamberPairs;  // for chamber segment sorting
+  std::vector<std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*>> stationPairs;  // for station segment sorting
+  std::vector<std::pair<reco::MuonChamberMatch*, reco::MuonSegmentMatch*>>
       arbitrationPairs;  // for muon segment arbitration
 
   // muonIndex1
@@ -1526,7 +1526,55 @@ bool MuonIdProducer::checkLinks(const reco::MuonTrackLinks* links) const {
 
 void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.setAllowAnything();
+
+  desc.add<double>("minPt", 0.5);
+  desc.add<double>("minP", 2.5);
+  desc.add<double>("minPCaloMuon", 1e9);
+  desc.add<int>("minNumberOfMatches", 1);
+  desc.add<bool>("addExtraSoftMuons", false);
+  desc.add<double>("maxAbsEta", 3.0);
+
+  desc.add<double>("maxAbsDx", 3.0);
+  desc.add<double>("maxAbsDy", 9999.0);
+  desc.add<double>("maxAbsPullX", 3.0);
+  desc.add<double>("maxAbsPullY", 9999.0);
+
+  desc.add<bool>("fillCaloCompatibility", true);
+  desc.add<bool>("fillEnergy", true);
+  desc.add<bool>("fillMatching", true);
+  desc.add<bool>("fillIsolation", true);
+  desc.add<bool>("writeIsoDeposits", false);
+  desc.add<bool>("fillGlobalTrackQuality", false);
+  desc.add<bool>("fillGlobalTrackRefits", true);
+  desc.add<bool>("debugWithTruthMatching", false);
+
+  desc.add<double>("ptThresholdToFillCandidateP4WithGlobalFit", 200.0);
+  desc.add<double>("sigmaThresholdToFillCandidateP4WithGlobalFit", 2.0);
+
+  desc.add<double>("minCaloCompatibility", 0.6);
+
+  desc.add<bool>("runArbitrationCleaner", true);
+
+  desc.add<std::vector<edm::InputTag>>("inputCollectionLabels",
+                                       std::vector<edm::InputTag>{edm::InputTag("generalTracks"),
+                                                                  edm::InputTag("globalMuons"),
+                                                                  edm::InputTag("standAloneMuons", "UpdatedAtVtx"),
+                                                                  edm::InputTag("standAloneMuons"),
+                                                                  edm::InputTag("tevMuons", "firstHit"),
+                                                                  edm::InputTag("tevMuons", "picky"),
+                                                                  edm::InputTag("tevMuons", "dyt")});
+  desc.add<std::vector<std::string>>(
+      "inputCollectionTypes",
+      std::vector<std::string>{
+          "inner tracks", "links", "outer tracks", "outer tracks", "tev firstHit", "tev picky", "tev dyt"});
+
+  desc.add<std::string>("trackDepositName", "tracker");
+  desc.add<std::string>("ecalDepositName", "ecal");
+  desc.add<std::string>("hcalDepositName", "hcal");
+  desc.add<std::string>("hoDepositName", "ho");
+  desc.add<std::string>("jetDepositName", "jets");
+
+  desc.add<edm::InputTag>("globalTrackQualityInputTag", edm::InputTag("globalTrackQualityInputTag"));
 
   desc.add<bool>("arbitrateTrackerMuons", false);
   desc.add<bool>("storeCrossedHcalRecHits", false);
@@ -1546,16 +1594,13 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descTrkAsoPar.add<edm::InputTag>("RPCHitCollectionLabel", edm::InputTag("rpcRecHits"));
   descTrkAsoPar.add<edm::InputTag>("GEMHitCollectionLabel", edm::InputTag("gemRecHits"));
   descTrkAsoPar.add<edm::InputTag>("ME0HitCollectionLabel", edm::InputTag("me0RecHits"));
-  descTrkAsoPar.setAllowAnything();
   desc.add<edm::ParameterSetDescription>("TrackAssociatorParameters", descTrkAsoPar);
 
   edm::ParameterSetDescription descJet;
-  descJet.setAllowAnything();
   descJet.add<edm::ParameterSetDescription>("TrackAssociatorParameters", descTrkAsoPar);
   desc.add<edm::ParameterSetDescription>("JetExtractorPSet", descJet);
 
   edm::ParameterSetDescription descCalo;
-  descCalo.setAllowAnything();
   descCalo.add<edm::ParameterSetDescription>("TrackAssociatorParameters", descTrkAsoPar);
   descCalo.add<bool>("UseEcalRecHitsFlag", false);
   descCalo.add<bool>("UseHcalRecHitsFlag", false);
