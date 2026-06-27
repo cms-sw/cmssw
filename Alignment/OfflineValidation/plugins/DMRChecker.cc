@@ -49,6 +49,7 @@
 
 // user system includes
 
+#include "Alignment/OfflineValidation/interface/OfflineValidationUtils.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -76,7 +77,6 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -85,11 +85,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackResiduals.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -555,8 +551,9 @@ private:
       unsigned int nHit2D = 0;
       int h_index = 0;
       for (trackingRecHit_iterator iHit = track.recHitsBegin(); iHit != track.recHitsEnd(); ++iHit, ++h_index) {
-        if (this->isHit2D(**iHit))
+        if (alignment::offlineValidationUtils::isHit2D(**iHit, trackerGeometry_, phase_)) {
           ++nHit2D;
+        }
 
         double resX = residuals.residualX(h_index);
         double resY = residuals.residualY(h_index);
@@ -1877,49 +1874,6 @@ private:
                        1 - gPad->GetTopMargin() + 0.01,
                        (PixelRegions::IDlabels.at(index) + " " + toAppend).c_str());
     }
-  }
-
-  //*************************************************************
-  // check if the hit is 2D
-  //*************************************************************
-  bool isHit2D(const TrackingRecHit &hit) {
-    bool countStereoHitAs2D_ = true;
-    // we count SiStrip stereo modules as 2D if selected via countStereoHitAs2D_
-    // (since they provide theta information)
-    if (!hit.isValid() ||
-        (hit.dimension() < 2 && !countStereoHitAs2D_ && !dynamic_cast<const SiStripRecHit1D *>(&hit))) {
-      return false;  // real RecHit1D - but SiStripRecHit1D depends on countStereoHitAs2D_
-    } else {
-      const DetId detId(hit.geographicalId());
-      if (detId.det() == DetId::Tracker) {
-        if (detId.subdetId() == kBPIX || detId.subdetId() == kFPIX) {
-          return true;  // pixel is always 2D
-        } else {        // should be SiStrip now
-          const SiStripDetId stripId(detId);
-          if (stripId.stereo())
-            return countStereoHitAs2D_;  // stereo modules
-          else if (dynamic_cast<const SiStripRecHit1D *>(&hit) || dynamic_cast<const SiStripRecHit2D *>(&hit))
-            return false;  // rphi modules hit
-          //the following two are not used any more since ages...
-          else if (dynamic_cast<const SiStripMatchedRecHit2D *>(&hit))
-            return true;  // matched is 2D
-          else if (dynamic_cast<const ProjectedSiStripRecHit2D *>(&hit)) {
-            const ProjectedSiStripRecHit2D *pH = static_cast<const ProjectedSiStripRecHit2D *>(&hit);
-            return (countStereoHitAs2D_ && this->isHit2D(pH->originalHit()));  // depends on original...
-          } else {
-            edm::LogError("UnknownType") << "@SUB=DMRChecker::isHit2D"
-                                         << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
-                                         << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
-            return false;
-          }
-        }
-      } else {  // not tracker??
-        edm::LogWarning("DetectorMismatch") << "@SUB=DMRChecker::isHit2D"
-                                            << "Hit not in tracker with 'official' dimension >=2.";
-        return true;  // dimension() >= 2 so accept that...
-      }
-    }
-    // never reached...
   }
 
   //*************************************************************
