@@ -18,6 +18,7 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/AllocatorConfig.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/AlpakaServiceFwd.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/CachingAllocatorMonitor.h"
 
 // Inspired by cub::CachingDeviceAllocator
 
@@ -202,7 +203,8 @@ namespace cms::alpakatools {
       std::tie(block.bin, block.bytes) = findBin(bytes);
 
       // try to re-use a cached block, or allocate a new buffer
-      if (tryReuseCachedBlock(block)) {
+      bool const cacheHit = tryReuseCachedBlock(block);
+      if (cacheHit) {
         // fill the re-used memory block with a pattern
         if (fillReallocations_) {
           immediateOrAsyncMemset(*block.queue, *block.buffer, fillReallocationValue_);
@@ -215,6 +217,12 @@ namespace cms::alpakatools {
         if (fillAllocations_) {
           immediateOrAsyncMemset(*block.queue, *block.buffer, fillAllocationValue_);
         }
+      }
+
+      if (auto* monitor = cachingAllocatorMonitor()) [[unlikely]] {
+        monitor->onAllocate(
+            monitorDevice(), block.buffer->data(), block.bytes, block.requested, cacheHit, monitorQueue(block));
+        monitor->onUsage(monitorDevice(), cachedBytes_.live, cachedBytes_.free, cachedBytes_.requested);
       }
 
       return block.buffer->data();
@@ -235,6 +243,11 @@ namespace cms::alpakatools {
       liveBlocks_.erase(iBlock);
       cachedBytes_.live -= block.bytes;
       cachedBytes_.requested -= block.requested;
+
+      if (auto* monitor = cachingAllocatorMonitor()) [[unlikely]] {
+        monitor->onFree(monitorDevice(), ptr, block.bytes, monitorQueue(block));
+        monitor->onUsage(monitorDevice(), cachedBytes_.live, cachedBytes_.free, cachedBytes_.requested);
+      }
 
       bool recache = (cachedBytes_.free + block.bytes <= maxCachedBytes_);
       if (recache) {
@@ -333,6 +346,24 @@ namespace cms::alpakatools {
     };
 
   private:
+    // identifiers passed to a registered CachingAllocatorMonitor
+    int monitorDevice() const noexcept {
+      if constexpr (std::is_same_v<Device, alpaka::DevCpu>) {
+        return 0;  // the host platform has exactly one device
+      } else if constexpr (requires(Device const& d) { alpaka::getNativeHandle(d); }) {
+        return static_cast<int>(alpaka::getNativeHandle(device_));
+      } else {
+        return -1;  // a backend without a native device handle
+      }
+    }
+
+    unsigned long long monitorQueue(BlockDescriptor const& block) const noexcept {
+      if (not block.queue) {
+        return 0;
+      }
+      return reinterpret_cast<unsigned long long>(block.queue->m_spQueueImpl.get());
+    }
+
     // return the maximum amount of memory that should be cached on this device
     size_t cacheSize(size_t maxCachedBytes, double maxCachedFraction) const {
       // note that getMemBytes() returns 0 if the platform does not support querying the device memory
