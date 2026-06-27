@@ -370,7 +370,7 @@ private:
       unsigned int nHit2D = 0;
       std::bitset<16> rocsToMask;
       for (auto iHit = track->recHitsBegin(); iHit != track->recHitsEnd(); ++iHit) {
-        if (this->isHit2D(**iHit)) {
+        if (this->isHit2D(**iHit, theGeometry)) {
           ++nHit2D;
         }
         // rest the ROCs for the map
@@ -1162,9 +1162,20 @@ private:
   }
 
   //*************************************************************
-  bool isHit2D(const TrackingRecHit &hit)
+  bool isHit2D(const TrackingRecHit &hit, const TrackerGeometry *geom)
   //*************************************************************
   {
+    // helper functionals
+    auto isPinPS = [&](DetId detId) {
+      // Select only P-hits from the OT barrel
+      return (geom->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP);
+    };
+
+    auto isPixel = [&](DetId detId) {
+      auto subId = detId.subdetId();
+      return (subId == PixelSubdetector::PixelBarrel || subId == PixelSubdetector::PixelEndcap);
+    };
+
     bool countStereoHitAs2D_ = true;
     // we count SiStrip stereo modules as 2D if selected via countStereoHitAs2D_
     // (since they provide theta information)
@@ -1174,25 +1185,34 @@ private:
     } else {
       const DetId detId(hit.geographicalId());
       if (detId.det() == DetId::Tracker) {
-        if (detId.subdetId() == kBPIX || detId.subdetId() == kFPIX) {
+        if (isPixel(detId)) {
           return true;  // pixel is always 2D
-        } else {        // should be SiStrip now
-          const SiStripDetId stripId(detId);
-          if (stripId.stereo())
-            return countStereoHitAs2D_;  // stereo modules
-          else if (dynamic_cast<const SiStripRecHit1D *>(&hit) || dynamic_cast<const SiStripRecHit2D *>(&hit))
-            return false;  // rphi modules hit
-          //the following two are not used any more since ages...
-          else if (dynamic_cast<const SiStripMatchedRecHit2D *>(&hit))
-            return true;  // matched is 2D
-          else if (dynamic_cast<const ProjectedSiStripRecHit2D *>(&hit)) {
-            const ProjectedSiStripRecHit2D *pH = static_cast<const ProjectedSiStripRecHit2D *>(&hit);
-            return (countStereoHitAs2D_ && this->isHit2D(pH->originalHit()));  // depends on original...
+        } else {
+          if (phase_ == SiPixelPI::phase::two) {
+            // if the hit is phase-2
+            if (isPinPS(detId))
+              return true;
+            else
+              return false;
           } else {
-            edm::LogError("UnknownType") << "@SUB=GeneralPurposeTrackAnalyzer::isHit2D"
-                                         << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
-                                         << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
-            return false;
+            // should be SiStrip now
+            const SiStripDetId stripId(detId);
+            if (stripId.stereo())
+              return countStereoHitAs2D_;  // stereo modules
+            else if (dynamic_cast<const SiStripRecHit1D *>(&hit) || dynamic_cast<const SiStripRecHit2D *>(&hit))
+              return false;  // rphi modules hit
+            //the following two are not used any more since ages...
+            else if (dynamic_cast<const SiStripMatchedRecHit2D *>(&hit))
+              return true;  // matched is 2D
+            else if (dynamic_cast<const ProjectedSiStripRecHit2D *>(&hit)) {
+              const ProjectedSiStripRecHit2D *pH = static_cast<const ProjectedSiStripRecHit2D *>(&hit);
+              return (countStereoHitAs2D_ && this->isHit2D(pH->originalHit(), geom));  // depends on original...
+            } else {
+              edm::LogError("UnknownType") << "@SUB=GeneralPurposeTrackAnalyzer::isHit2D"
+                                           << "Tracker hit not in pixel, neither SiStripRecHit[12]D nor "
+                                           << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
+              return false;
+            }
           }
         }
       } else {  // not tracker??
