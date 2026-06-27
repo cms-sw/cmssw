@@ -120,24 +120,22 @@ def main(args):
 
     # Read data
     df1 = read_file(args.file1)
-    df2 = read_file(args.file2)
 
     # Convert MiB -> GiB
     df1["memory_gib"] = df1["memory_mib"] / 1024.0
-    df2["memory_gib"] = df2["memory_mib"] / 1024.0
         
     # Labels
     label1 = args.label1 or default_label(args.file1)
-    label2 = args.label2 or default_label(args.file2)
 
     # Statistics
     stats1 = compute_stats(df1)
-    stats2 = compute_stats(df2)
 
-    # Relative peak difference
-    rel_diff = 100.0 * (
-        stats2["peak"] - stats1["peak"]
-    ) / stats1["peak"]
+    if args.file2:
+        df2 = read_file(args.file2)
+        df2["memory_gib"] = df2["memory_mib"] / 1024.0
+        label2 = args.label2 or default_label(args.file2)
+        stats2 = compute_stats(df2)
+        rel_diff = 100.0 * (stats2["peak"] - stats1["peak"]) / stats1["peak"]
 
     # Figure
     fig, ax = plt.subplots(figsize=(10.5, 6.5))
@@ -154,17 +152,19 @@ def main(args):
         color=colors[0],
     )
 
-    line2, = ax.plot(
-        df2["elapsed_seconds"],
-        df2["memory_gib"],
-        label=label2,
-        linewidth=2.4,
-        color=colors[1],
-    )
+    if args.file2:
+        ax.plot(
+            df2["elapsed_seconds"],
+            df2["memory_gib"],
+            label=label2,
+            linewidth=2.4,
+            color=colors[1],
+        )
 
     # Peak annotations
     annotate_peak(ax, stats1, colors[0])
-    annotate_peak(ax, stats2, colors[1])
+    if args.file2:
+        annotate_peak(ax, stats2, colors[1])
 
     # Axis labels
     ax.set_xlabel(
@@ -178,10 +178,7 @@ def main(args):
     )
     
     # Dynamic y-axis scaling
-    ymax = max(
-        stats1["peak"],
-        stats2["peak"],
-    )
+    ymax = max(stats1["peak"], stats2["peak"]) if args.file2 else stats1["peak"]
 
     ax.set_ylim(0, 1.30 * ymax)
 
@@ -215,12 +212,14 @@ def main(args):
     stats_text = (
         f"{label1:<30}"
         f"Peak: {stats1['peak']:.2f} GiB   "
-        f"Avg: {stats1['avg']:.2f} GiB\n"
-        f"{label2:<30}"
-        f"Peak: {stats2['peak']:.2f} GiB   "
-        f"Avg: {stats2['avg']:.2f} GiB\n"
-        f"{'Relative peak diff':<30}"
-        f"{rel_diff:+.2f}%"
+        f"Avg: {stats1['avg']:.2f} GiB"
+        + (
+            f"\n{label2:<30}"
+            f"Peak: {stats2['peak']:.2f} GiB   "
+            f"Avg: {stats2['avg']:.2f} GiB\n"
+            f"{'Relative peak diff':<30}{rel_diff:+.2f}%"
+            if args.file2 else ""
+        )
     )
 
     ax.text(
@@ -294,7 +293,8 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "file2",
-        help="Second input CSV file",
+        nargs="?",
+        help="Second input CSV file (optional)",
     )
 
     parser.add_argument(
