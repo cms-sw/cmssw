@@ -18,6 +18,7 @@ namespace reco {
   using Vector5f = Eigen::Matrix<float, 5, 1>;
   using Vector15f = Eigen::Matrix<float, 15, 1>;
   using Quality = pixelTrack::Quality;
+  using Iteration = pixelTrack::Iteration;
 
   GENERATE_SOA_LAYOUT(TrackLayout,
                       SOA_COLUMN(Quality, quality),
@@ -29,7 +30,8 @@ namespace reco {
                       SOA_EIGEN_COLUMN(Vector5f, state),
                       SOA_EIGEN_COLUMN(Vector15f, covariance),
                       SOA_SCALAR(int, nTracks),
-                      SOA_COLUMN(uint32_t, hitOffsets))
+                      SOA_COLUMN(uint32_t, hitOffsets),
+                      SOA_COLUMN(Iteration, iteration))
 
   GENERATE_SOA_LAYOUT(TrackHitsLayout, SOA_COLUMN(uint32_t, id), SOA_COLUMN(uint32_t, detId))
 

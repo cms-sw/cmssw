@@ -21,6 +21,9 @@ namespace reco {
   using HitPortableCollectionDevice = PortableDeviceCollection<TDev, reco::TrackingBlocksSoA>;
 
   template <typename TDev>
+  using TrackingRecHitsMaskingDevice = PortableDeviceCollection<TDev, TrackingRecHitsMaskingSoA>;
+
+  template <typename TDev>
   class TrackingRecHitDevice : public HitPortableCollectionDevice<TDev> {
   public:
     TrackingRecHitDevice() = default;

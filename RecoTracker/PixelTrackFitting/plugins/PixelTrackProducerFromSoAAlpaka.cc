@@ -200,6 +200,8 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
   std::cout << "Converting soa helix in reco tracks" << std::endl;
 #endif
 
+  // int aux = 0; // To check for events with too many zeros in eta and phi
+
   // index map: trackId(in SoA) -> trackId(in legacy edm)
   auto indToEdmP = std::make_unique<IndToEdm>();
   auto &indToEdm = *indToEdmP;
@@ -367,6 +369,9 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
   auto const hitOffs = tsoa.view().tracks().hitOffsets();
   auto const hitIdxs = tsoa.view().trackHits().id();
   auto nTracks = tsoa.view().tracks().nTracks();
+  // auto const iteration = tsoa.view().tracks().iteration();  // To check for events with too many zeros in eta and phi
+  //                                                           // But can be more general and used for validation of distinct iterations
+  //                                                           // Has to be implemented yet
 
   tracks.reserve(nTracks);
 
@@ -390,6 +395,9 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     auto nHits = reco::nHits(tsoa.view().tracks(), it);
     assert(nHits >= 3);
     auto q = quality[it];
+    // auto auxIt = iteration[it]; // To check for events with too many zeros in eta and phi
+    //                             // But can be more general and used for validation of distinct iterations
+    //                             // Has to be implemented yet
 
     // apply cuts on quality and number of hits
     if (q < minQuality_)
@@ -398,6 +406,11 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
       break;
     if (nHits < minNumberOfHits_)  //move to nLayers?
       continue;
+
+    // // To check for events with too many zeros in eta and phi
+    // if (auxIt == pixelTrack::iterationByName("promptLowPt") && abs(tsoa.view().tracks().eta()[it]) < 0.001) {
+    //   ++aux;
+    // }
 
     hits.resize(nHits);
     auto start = (it == 0) ? 0 : hitOffs[it - 1];
@@ -495,6 +508,8 @@ void PixelTrackProducerFromSoAAlpaka::produce(edm::StreamID streamID,
     // filter???
     tracks.emplace_back(track.release(), hits);
   }
+
+  // if (aux > 0) std::cout << "========================================\n" << "The amount of zeros in this event is: " << aux << "\n========================================" << std::endl; // To check for events with too many zeros in eta and phi
 
 #ifdef GPU_DEBUG
   std::cout << "processed " << nt << " good tuples " << tracks.size() << " out of " << indToEdm.size() << std::endl;
