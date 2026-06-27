@@ -812,3 +812,25 @@ from Configuration.ProcessModifiers.fixLongLivedSleptonSim_cff import fixLongLiv
 fixLongLivedSleptonSim.toModify( g4SimHits,
                                  Generator = dict(IsSlepton = True)
 )
+
+##
+## Truth-graph workflows: keep the SimTrack/SimVertex history connected to the
+## generator while leaving PersistencyEmin at its default 50 GeV. With that
+## threshold the intermediate low-energy ancestors are dropped and the production
+## SimVertex of a stored secondary gets parentIndex = -1, fragmenting the truth
+## graph into components disconnected from the generator. ReconnectDroppedAncestors
+## reattaches each such vertex to its nearest stored ancestor, so
+## SimVertex::parentIndex always resolves (no orphans) without the SimTrack/SimVertex
+## multiplicity blow-up of PersistencyEmin = 0 - the dropped intermediate nodes are
+## collapsed into shortcut edges (measured ~65% fewer SimTracks than PersistencyEmin
+## = 0, same one-component-per-event connectivity). Scoped to enableTruth only.
+##
+## The parameter is deliberately NOT added to the default common_MCtruth PSet, so a
+## baseline (no-enableTruth) g4SimHits config is byte-identical to upstream; it is
+## injected here only under enableTruth (cms.bool signals "add"), and the C++
+## TrackingAction reads it defensively (absent -> false).
+##
+from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
+enableTruth.toModify( g4SimHits,
+                      TrackingAction = dict(ReconnectDroppedAncestors = cms.bool(True))
+)

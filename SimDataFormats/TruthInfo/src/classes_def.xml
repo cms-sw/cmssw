@@ -1,0 +1,45 @@
+<lcgdict>
+  <class name="TruthGraph" ClassVersion="3">
+    <version ClassVersion="3" checksum="2885336572"/>
+  </class>
+  <class name="TruthGraph::NodeRef" ClassVersion="3">
+    <version ClassVersion="3" checksum="4042798111"/>
+  </class>
+  <class name="std::vector<TruthGraph::NodeRef>"/>
+  <class name="edm::Wrapper<TruthGraph>"/>
+
+  <class name="truth::Graph" ClassVersion="3">
+    <version ClassVersion="3" checksum="260758393"/>
+  </class>
+  <class name="truth::Checkpoint" ClassVersion="3">
+    <version ClassVersion="3" checksum="4215584109"/>
+  </class>
+  <class name="truth::ParticleData" ClassVersion="3">
+    <version ClassVersion="3" checksum="3588168857"/>
+  </class>
+  <class name="truth::VertexData" ClassVersion="3">
+    <version ClassVersion="3" checksum="3205991304"/>
+  </class>
+  <class name="std::vector<truth::Checkpoint>"/>
+  <class name="std::vector<truth::ParticleData>"/>
+  <class name="std::vector<truth::VertexData>"/>
+  <class name="edm::Wrapper<truth::Graph>"/>
+
+  <class name="truth::LogicalGraphHitIndex" ClassVersion="3">
+    <version ClassVersion="3" checksum="1046280499"/>
+  </class>
+  <class name="truth::LogicalGraphHitIndex::Hit" ClassVersion="3">
+    <version ClassVersion="3" checksum="611807671"/>
+  </class>
+  <class name="std::vector<truth::LogicalGraphHitIndex::Hit>"/>
+  <class name="truth::LogicalGraphHitIndex::Channel" ClassVersion="3">
+    <version ClassVersion="3" checksum="1904217884"/>
+  </class>
+  <class name="std::vector<truth::LogicalGraphHitIndex::Channel>"/>
+  <class name="edm::Wrapper<truth::LogicalGraphHitIndex>"/>
+
+  <!-- The ticl::AssociationMap<mapWithSharedEnergyAndScore> (raw-index variant) and
+       its Wrapper dictionaries are provided by SimDataFormats/Associations; the
+       producer just uses them. -->
+
+</lcgdict>
