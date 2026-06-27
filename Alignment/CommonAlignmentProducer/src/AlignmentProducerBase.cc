@@ -242,6 +242,9 @@ void AlignmentProducerBase::beginRunImpl(const edm::Run& run, const edm::EventSe
   for (const auto& iCal : calibrations_)
     iCal->beginRun(run, setup);
 
+  for (const auto& monitor : monitors_)
+    monitor->beginRun(run, setup);
+
   //store the first run analyzed to be used for setting the IOV (for PCL)
   if (firstRun_ > static_cast<cond::Time_t>(run.id().run())) {
     firstRun_ = static_cast<cond::Time_t>(run.id().run());
