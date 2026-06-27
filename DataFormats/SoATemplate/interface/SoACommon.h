@@ -12,6 +12,7 @@
 #include <ostream>
 #include <sstream>
 #include <span>
+#include <source_location>
 #include <tuple>
 #include <type_traits>
 
@@ -34,16 +35,26 @@
 
 // Exception throwing (or willful crash in kernels)
 #if defined(__CUDACC__) && defined(__CUDA_ARCH__)
-#define SOA_THROW_OUT_OF_RANGE(A, I, R)                      \
-  {                                                          \
-    printf("%s: index %d out of range %d\n", (A), (I), (R)); \
-    __trap();                                                \
+#define SOA_THROW_OUT_OF_RANGE(A, I, R)                         \
+  {                                                             \
+    printf("%s: index %d out of range %d at file %s line %d\n", \
+           (A),                                                 \
+           (I.value_),                                          \
+           (R),                                                 \
+           (I.location_.file_name()),                           \
+           (I.location_.line()));                               \
+    __trap();                                                   \
   }
 #elif defined(__HIPCC__) && defined(__HIP_DEVICE_COMPILE__)
-#define SOA_THROW_OUT_OF_RANGE(A, I, R)                      \
-  {                                                          \
-    printf("%s: index %d out of range %d\n", (A), (I), (R)); \
-    abort();                                                 \
+#define SOA_THROW_OUT_OF_RANGE(A, I, R)                         \
+  {                                                             \
+    printf("%s: index %d out of range %d at file %s line %d\n", \
+           (A),                                                 \
+           (I.value_),                                          \
+           (R),                                                 \
+           (I.location_.file_name()),                           \
+           (I.location_.line()));                               \
+    abort();                                                    \
   }
 #else
 #define SOA_THROW_OUT_OF_RANGE(A, I, R)                    \
@@ -829,7 +840,17 @@ SOA_HOST_ONLY std::ostream& operator<<(std::ostream& os, const SOA& soa) {
 }
 
 namespace cms::soa::detail {
-  [[noreturn]] void throwOutOfRangeError(const char* message, cms::soa::size_type index, cms::soa::size_type range);
+
+  struct IndexWithSourceLocation {
+    SOA_HOST_DEVICE constexpr IndexWithSourceLocation(
+        const cms::soa::size_type value, std::source_location location = std::source_location::current()) noexcept
+        : value_{value}, location_{location} {}
+
+    cms::soa::size_type value_;
+    std::source_location location_;
+  };
+
+  [[noreturn]] void throwOutOfRangeError(const char* message, IndexWithSourceLocation index, cms::soa::size_type range);
   // Helper function to check alignment of a pointer. Returns true if the pointer is not aligned to the specified alignment.
   [[noreturn]] void throwRuntimeError(const char* message);
 
