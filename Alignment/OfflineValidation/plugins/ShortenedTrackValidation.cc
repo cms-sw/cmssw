@@ -30,6 +30,7 @@
 #include <fmt/printf.h>
 
 // user includes
+#include "Alignment/OfflineValidation/interface/OfflineValidationUtils.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
@@ -45,6 +46,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/transform.h"  // for edm::vector_transform
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #define CREATE_HIST_1D(varname, nbins, first, last, fs) fs.make<TH1D>(#varname, #varname, nbins, first, last)
 
@@ -54,7 +57,7 @@
 const int kBPIX = PixelSubdetector::PixelBarrel;
 const int kFPIX = PixelSubdetector::PixelEndcap;
 
-class ShortenedTrackValidation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class ShortenedTrackValidation : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
   class trackingMon {
   public:
     trackingMon() {}
@@ -115,42 +118,10 @@ class ShortenedTrackValidation : public edm::one::EDAnalyzer<edm::one::SharedRes
     }
 
     //____________________________________________________________
-    static bool isHit2D(const TrackingRecHit &hit) {
-      if (hit.dimension() < 2) {
-        return false;  // some (muon...) stuff really has RecHit1D
-      } else {
-        const DetId detId(hit.geographicalId());
-        if (detId.det() == DetId::Tracker) {
-          if (detId.subdetId() == kBPIX || detId.subdetId() == kFPIX) {
-            return true;  // pixel is always 2D
-          } else {        // should be SiStrip now
-            if (dynamic_cast<const SiStripRecHit2D *>(&hit))
-              return false;  // normal hit
-            else if (dynamic_cast<const SiStripMatchedRecHit2D *>(&hit))
-              return true;  // matched is 2D
-            else if (dynamic_cast<const ProjectedSiStripRecHit2D *>(&hit))
-              return false;  // crazy hit...
-            else {
-              edm::LogError("UnknownType") << "@SUB=CalibrationTrackSelector::isHit2D"
-                                           << "Tracker hit not in pixel and neither SiStripRecHit2D nor "
-                                           << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
-              return false;
-            }
-          }
-        } else {  // not tracker??
-          edm::LogWarning("DetectorMismatch") << "@SUB=CalibrationTrackSelector::isHit2D"
-                                              << "Hit not in tracker with 'official' dimension >=2.";
-          return true;  // dimension() >= 2 so accept that...
-        }
-      }
-      // never reached...
-    }
-
-    //____________________________________________________________
-    unsigned int count2DHits(const reco::Track &track) {
+    unsigned int count2DHits(const reco::Track &track, const TrackerGeometry *geom, const SiPixelPI::phase &thePhase) {
       unsigned int nHit2D = 0;
       for (auto iHit = track.recHitsBegin(); iHit != track.recHitsEnd(); ++iHit) {
-        if (isHit2D(**iHit)) {
+        if (alignment::offlineValidationUtils::isHit2D(**iHit, geom, thePhase)) {
           ++nHit2D;
         }
       }
@@ -158,7 +129,11 @@ class ShortenedTrackValidation : public edm::one::EDAnalyzer<edm::one::SharedRes
     }
 
     //____________________________________________________________
-    void fill(const reco::Track &track, const reco::BeamSpot &beamSpot, const reco::Vertex &pvtx) {
+    void fill(const reco::Track &track,
+              const reco::BeamSpot &beamSpot,
+              const reco::Vertex &pvtx,
+              const TrackerGeometry *geom,
+              const SiPixelPI::phase &thePhase) {
       h_chi2ndof->Fill(track.normalizedChi2());
       h_trkQuality->Fill(trackQual(track));
       h_trkAlgo->Fill(static_cast<float>(track.algo()));
@@ -166,7 +141,7 @@ class ShortenedTrackValidation : public edm::one::EDAnalyzer<edm::one::SharedRes
       h_P->Fill(track.p());
       h_Pt->Fill(track.pt());
       h_nHit->Fill(track.numberOfValidHits());
-      h_nHit2D->Fill(count2DHits(track));
+      h_nHit2D->Fill(count2DHits(track, geom, thePhase));
       h_Charge->Fill(track.charge());
       h_QoverP->Fill(track.qoverp());
       h_QoverPZoom->Fill(track.qoverp());
@@ -319,7 +294,9 @@ private:
   template <typename T, typename... Args>
   T *book(const TFileDirectory &dir, const Args &...args) const;
   void beginJob() override;
+  void beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup) override;
   void analyze(edm::Event const &iEvent, edm::EventSetup const &iSetup) override;
+  void endRun(edm::Run const &, edm::EventSetup const &) override {}
 
   // ----------member data ---------------------------
   edm::Service<TFileService> fs_;
@@ -339,6 +316,10 @@ private:
   const std::vector<edm::EDGetTokenT<std::vector<reco::Track>>> tracksRerecoToken_;
   const edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
   const edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  SiPixelPI::phase phase_;
+  const TrackerGeometry *trackerGeometry_;
 
   // monitoring histograms
   std::vector<TH1F *> histsPtRatioAll_;
@@ -377,7 +358,8 @@ ShortenedTrackValidation::ShortenedTrackValidation(const edm::ParameterSet &ps)
       tracksRerecoToken_(edm::vector_transform(
           tracksRerecoTag_, [this](edm::InputTag const &tag) { return consumes<std::vector<reco::Track>>(tag); })),
       beamspotToken_(consumes<reco::BeamSpot>(BeamSpotTag_)),
-      vertexToken_(consumes<reco::VertexCollection>(VerticesTag_)) {
+      vertexToken_(consumes<reco::VertexCollection>(VerticesTag_)),
+      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()) {
   usesResource(TFileService::kSharedResource);
   histsPtRatioAll_.clear();
   histsPtDiffAll_.clear();
@@ -403,6 +385,18 @@ template <typename T, typename... Args>
 T *ShortenedTrackValidation::book(const TFileDirectory &dir, const Args &...args) const {
   T *t = dir.make<T>(args...);
   return t;
+}
+
+void ShortenedTrackValidation::beginRun(edm::Run const &iRun, edm::EventSetup const &iSetup) {
+  trackerGeometry_ = &iSetup.getData(geomToken_);
+  if (trackerGeometry_->isThere(GeomDetEnumerators::P2PXB) || trackerGeometry_->isThere(GeomDetEnumerators::P2PXEC)) {
+    phase_ = SiPixelPI::phase::two;
+  } else if (trackerGeometry_->isThere(GeomDetEnumerators::P1PXB) ||
+             trackerGeometry_->isThere(GeomDetEnumerators::P1PXEC)) {
+    phase_ = SiPixelPI::phase::one;
+  } else {
+    phase_ = SiPixelPI::phase::zero;
+  }
 }
 
 //__________________________________________________________________________________
@@ -549,7 +543,7 @@ void ShortenedTrackValidation::analyze(edm::Event const &iEvent, edm::EventSetup
     }
 
     // fill the original track properties monitoring
-    originalTrack.fill(track, beamSpot, pvtx);
+    originalTrack.fill(track, beamSpot, pvtx, trackerGeometry_, phase_);
 
     TLorentzVector tvec;
     tvec.SetPtEtaPhiM(track.pt(), track.eta(), track.phi(), muMass);
