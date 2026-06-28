@@ -102,9 +102,17 @@ void TruthBranchCaloAssociationProducer::associate(Collection const& objects,
     ++objIndex;
   }
 
-  // Sort each row by score (ascending) so the best-matched branch/object is first.
-  recoToBranch->sort(true);
-  branchToReco->sort(true);
+  // Sort each row by score in ascending order so the best-matched branch/object
+  // is first. TICLAssociationMap::sort(true) sorts *descending* by score, but the
+  // association score is lower-is-better, so we pass an explicit ascending
+  // comparator (matching the standard HGCal associators).
+  auto byAscendingScore = [](auto const& a, auto const& b) {
+    if (a.score() != b.score())
+      return a.score() < b.score();
+    return a.index() < b.index();
+  };
+  recoToBranch->sort(byAscendingScore);
+  branchToReco->sort(byAscendingScore);
 
   event.put(std::move(recoToBranch), recoToBranchLabel);
   event.put(std::move(branchToReco), branchToRecoLabel);
