@@ -30,11 +30,8 @@ Phase2TrackingAction::Phase2TrackingAction(SimTrackManager* stm, CMSSteppingVerb
   // Keep the SimTrack/SimVertex history connected to the generator at a high
   // PersistencyEmin by reattaching dropped-parent vertices to the nearest stored
   // ancestor (no orphans), instead of lowering the threshold to keep everything.
-  // Read defensively: the parameter is only injected under the enableTruth modifier
-  // (it is absent from the default g4SimHits config), so a baseline config is
-  // byte-identical to upstream and an absent parameter means "disabled".
-  trackManager_->setReconnectDroppedAncestors(p.existsAs<bool>("ReconnectDroppedAncestors") &&
-                                              p.getParameter<bool>("ReconnectDroppedAncestors"));
+  // Baseline TrackingAction parameter (default False); enabled under enableTruth.
+  trackManager_->setReconnectDroppedAncestors(p.getParameter<bool>("ReconnectDroppedAncestors"));
   double eth = p.getParameter<double>("EminFineTrack") * CLHEP::MeV;
   if (doFineCalo_ && eth < ekinMin_) {
     ekinMin_ = eth;
