@@ -53,12 +53,17 @@ namespace truth {
     // hash-based build at the float-reassociation level (~1e-7 relative).
     static void coalesce(HitList& hits);
 
-    // Aggregate the (already coalesced) direct hits of a particle and all its
-    // descendants into subgraph[particleId]; the result is coalesced in place.
-    void fillSubgraphHits(uint32_t particleId,
-                          std::vector<HitList> const& direct,
-                          std::vector<HitList>& subgraph,
-                          std::vector<uint8_t>& state);
+    // Collect the particle and every distinct descendant (cycle-safe) into
+    // `order`. `visited`/`touched`/`stack` are reusable scratch: `touched` lists
+    // the ids set in `visited` so they can be cleared in O(subgraph size) between
+    // calls. Each descendant appears exactly once, so a particle reachable through
+    // several paths (a re-convergent DAG) is not double-counted when its direct
+    // hits are later summed into the subgraph aggregate.
+    void collectSubgraphParticles(uint32_t particleId,
+                                  std::vector<uint8_t>& visited,
+                                  std::vector<uint32_t>& touched,
+                                  std::vector<uint32_t>& stack,
+                                  std::vector<uint32_t>& order) const;
 
     // Concatenate the (already coalesced) per-particle lists into CSR storage.
     static void buildHitCSR(std::vector<HitList> const& lists,
