@@ -346,7 +346,11 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         common_MCtruth,
         DetailedTiming = cms.untracked.bool(False),
         CheckTrack = cms.untracked.bool(False),
-        EndPrintTrackID = cms.int32(0)
+        EndPrintTrackID = cms.int32(0),
+        # Reattach SimVertices whose parent SimTrack was dropped (PersistencyEmin) to
+        # the nearest stored ancestor so SimVertex::parentIndex never orphans. Off by
+        # default; enabled by the enableTruth process modifier (truth-graph workflows).
+        ReconnectDroppedAncestors = cms.bool(False)
     ),
     SteppingAction = cms.PSet(
         common_MCtruth,
@@ -819,18 +823,14 @@ fixLongLivedSleptonSim.toModify( g4SimHits,
 ## threshold the intermediate low-energy ancestors are dropped and the production
 ## SimVertex of a stored secondary gets parentIndex = -1, fragmenting the truth
 ## graph into components disconnected from the generator. ReconnectDroppedAncestors
-## reattaches each such vertex to its nearest stored ancestor, so
-## SimVertex::parentIndex always resolves (no orphans) without the SimTrack/SimVertex
-## multiplicity blow-up of PersistencyEmin = 0 - the dropped intermediate nodes are
-## collapsed into shortcut edges (measured ~65% fewer SimTracks than PersistencyEmin
-## = 0, same one-component-per-event connectivity). Scoped to enableTruth only.
-##
-## The parameter is deliberately NOT added to the default common_MCtruth PSet, so a
-## baseline (no-enableTruth) g4SimHits config is byte-identical to upstream; it is
-## injected here only under enableTruth (cms.bool signals "add"), and the C++
-## TrackingAction reads it defensively (absent -> false).
+## (a baseline TrackingAction parameter, default False above) reattaches each such
+## vertex to its nearest stored ancestor, so SimVertex::parentIndex always resolves
+## (no orphans) without the SimTrack/SimVertex multiplicity blow-up of
+## PersistencyEmin = 0 - the dropped intermediate nodes are collapsed into shortcut
+## edges (measured ~65% fewer SimTracks than PersistencyEmin = 0, same
+## one-component-per-event connectivity). Enabled only under enableTruth.
 ##
 from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
 enableTruth.toModify( g4SimHits,
-                      TrackingAction = dict(ReconnectDroppedAncestors = cms.bool(True))
+                      TrackingAction = dict(ReconnectDroppedAncestors = True)
 )
