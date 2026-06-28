@@ -48,6 +48,9 @@ parser.add_argument("--bunch-crossings", dest='bunchCrossings', default=None,
                          "(default: keep all)" )
 parser.add_argument("--showAll", action='store_true',
                     help="do not hide zero-simhit subgraphs or large SIM source vertices in the logical DOT dump" )
+parser.add_argument("--layout", default="dot",
+                    help="DOT layout for the logical-graph dump: 'dot' (default, hierarchical L->R ranks) "
+                         "or a force-directed engine ('sfdp'/'fdp'/'neato') for node repulsion + spring edges" )
 args = parser.parse_args()
 
 def _parsePdgIds(text):
@@ -237,6 +240,8 @@ process.truthLogicalGraphDumper = cms.EDAnalyzer(
     ),
 
     dotFile=cms.string(os.path.join(args.outdir,f"truthlogicalgraph{args.tag}.dot")), # output file
+
+    layout=cms.string(args.layout),
 
     maxParticles=cms.uint32(20000),
     maxVertices=cms.uint32(20000),
