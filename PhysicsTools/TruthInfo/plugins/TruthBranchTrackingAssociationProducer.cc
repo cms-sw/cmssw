@@ -115,9 +115,17 @@ void TruthBranchTrackingAssociationProducer::produce(edm::Event& event, edm::Eve
     }
   }
 
-  // Sort each row by score (ascending) so the best-matched branch/track is first.
-  trackToBranch->sort(true);
-  branchToTrack->sort(true);
+  // Sort each row by score in ascending order so the best-matched branch/track
+  // is first. TICLAssociationMap::sort(true) sorts *descending* by score, but the
+  // association score is lower-is-better, so we pass an explicit ascending
+  // comparator (matching the standard HGCal associators).
+  auto byAscendingScore = [](auto const& a, auto const& b) {
+    if (a.score() != b.score())
+      return a.score() < b.score();
+    return a.index() < b.index();
+  };
+  trackToBranch->sort(byAscendingScore);
+  branchToTrack->sort(byAscendingScore);
 
   event.put(std::move(trackToBranch), "trackToBranch");
   event.put(std::move(branchToTrack), "branchToTrack");
