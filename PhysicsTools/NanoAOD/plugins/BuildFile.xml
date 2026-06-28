@@ -31,6 +31,7 @@
 <use name="Geometry/CSCGeometry"/>
 <use name="IOPool/Provenance"/>
 <use name="MagneticField/Records"/>
+<use name="PhysicsTools/NanoAOD"/>
 <use name="PhysicsTools/PatAlgos"/>
 <use name="PhysicsTools/RecoUtils"/>
 <use name="RecoVertex/KalmanVertexFit"/>
