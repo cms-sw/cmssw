@@ -74,9 +74,13 @@ void TruthBranchTrackingAssociationProducer::produce(edm::Event& event, edm::Eve
   auto const& hitIndex = event.get(hitIndexToken_);
   auto const& tracks = event.get(trackToken_);
 
-  // Candidate branch roots = the interesting particles (empty config -> all).
+  // Candidate branch roots = the interesting particles. No configured restriction
+  // means "all branches"; a configured restriction that matches nothing in this
+  // event means "no branches" (not all), so the empty-roots fallback is disabled
+  // whenever interestingPdgIds_ is set.
+  const bool restrictRoots = !interestingPdgIds_.empty();
   std::vector<uint32_t> roots;
-  if (!interestingPdgIds_.empty()) {
+  if (restrictRoots) {
     for (uint32_t i = 0; i < graph.nParticles(); ++i) {
       const int pdgId = graph.particles[i].pdgId;
       if (std::find(interestingPdgIds_.begin(), interestingPdgIds_.end(), pdgId) != interestingPdgIds_.end())
@@ -87,8 +91,11 @@ void TruthBranchTrackingAssociationProducer::produce(edm::Event& event, edm::Eve
   // SharedHits metric on the tracker channel: the tracker carries no per-cell
   // energy to share, so matches are ranked by the multiplicity of shared simhit
   // DetIds (score = fraction of the track's hits left uncaptured, lower = better).
-  truth::BranchHitAssociator assoc(
-      hitIndex, roots, truth::BranchHitAssociator::Metric::SharedHits, truth::HitChannel::Tracker);
+  truth::BranchHitAssociator assoc(hitIndex,
+                                   roots,
+                                   truth::BranchHitAssociator::Metric::SharedHits,
+                                   truth::HitChannel::Tracker,
+                                   /*emptyRootsMeansAll=*/!restrictRoots);
 
   auto trackToBranch = std::make_unique<BranchAssociationMap>(static_cast<unsigned int>(tracks.size()));
   auto branchToTrack = std::make_unique<BranchAssociationMap>(graph.nParticles());
@@ -111,7 +118,9 @@ void TruthBranchTrackingAssociationProducer::produce(edm::Event& event, edm::Eve
 
     for (auto const& m : assoc.bestBranches(std::span<const truth::RecoHit>(recoHits))) {
       trackToBranch->insert(trackIndex, m.rootParticleId, m.sharedEnergy, m.score);
-      branchToTrack->insert(m.rootParticleId, trackIndex, m.sharedEnergy, m.score);
+      // Branch-normalized score for the sim->reco direction (how much of the branch
+      // this track captures), not the reco-normalized one.
+      branchToTrack->insert(m.rootParticleId, trackIndex, m.sharedEnergy, m.reverseScore);
     }
   }
 

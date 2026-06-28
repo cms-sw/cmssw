@@ -96,7 +96,9 @@ void TruthBranchCaloAssociationProducer::associate(Collection const& objects,
     if (!recoHits.empty()) {
       for (auto const& m : assoc.bestBranches(std::span<const truth::RecoHit>(recoHits))) {
         recoToBranch->insert(objIndex, m.rootParticleId, m.sharedEnergy, m.score);
-        branchToReco->insert(m.rootParticleId, objIndex, m.sharedEnergy, m.score);
+        // Branch-normalized score for the sim->reco direction (how much of the
+        // branch this reco object captures), not the reco-normalized one.
+        branchToReco->insert(m.rootParticleId, objIndex, m.sharedEnergy, m.reverseScore);
       }
     }
     ++objIndex;
@@ -122,9 +124,13 @@ void TruthBranchCaloAssociationProducer::produce(edm::Event& event, edm::EventSe
   auto const& graph = event.get(graphToken_);
   auto const& hitIndex = event.get(hitIndexToken_);
 
-  // Candidate branch roots = the interesting particles (empty config -> all).
+  // Candidate branch roots = the interesting particles. No configured restriction
+  // means "all branches"; a configured restriction that matches nothing in this
+  // event means "no branches" (not all), so the empty-roots fallback is disabled
+  // whenever interestingPdgIds_ is set.
+  const bool restrictRoots = !interestingPdgIds_.empty();
   std::vector<uint32_t> roots;
-  if (!interestingPdgIds_.empty()) {
+  if (restrictRoots) {
     for (uint32_t i = 0; i < graph.nParticles(); ++i) {
       const int pdgId = graph.particles[i].pdgId;
       if (std::find(interestingPdgIds_.begin(), interestingPdgIds_.end(), pdgId) != interestingPdgIds_.end())
@@ -134,7 +140,11 @@ void TruthBranchCaloAssociationProducer::produce(edm::Event& event, edm::EventSe
 
   // SharedEnergy metric -> score is the normalized shared-energy penalty (lower is
   // better), matching the TICL association-score convention.
-  truth::BranchHitAssociator assoc(hitIndex, roots, truth::BranchHitAssociator::Metric::SharedEnergy);
+  truth::BranchHitAssociator assoc(hitIndex,
+                                   roots,
+                                   truth::BranchHitAssociator::Metric::SharedEnergy,
+                                   truth::HitChannel::HGCalCalo,
+                                   /*emptyRootsMeansAll=*/!restrictRoots);
 
   associate(event.get(caloParticleToken_), graph, assoc, "caloParticleToBranch", "branchToCaloParticle", event);
   associate(event.get(simClusterToken_), graph, assoc, "simClusterToBranch", "branchToSimCluster", event);

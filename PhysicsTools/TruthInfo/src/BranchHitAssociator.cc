@@ -14,9 +14,10 @@ namespace truth {
   BranchHitAssociator::BranchHitAssociator(LogicalGraphHitIndex const& hitIndex,
                                            std::vector<uint32_t> candidateRoots,
                                            Metric metric,
-                                           HitChannel channel)
+                                           HitChannel channel,
+                                           bool emptyRootsMeansAll)
       : hitIndex_(&hitIndex), metric_(metric), channel_(channel), roots_(std::move(candidateRoots)) {
-    if (roots_.empty()) {
+    if (roots_.empty() && emptyRootsMeansAll) {
       roots_.resize(hitIndex_->nParticles());
       std::iota(roots_.begin(), roots_.end(), 0u);
     }
@@ -46,12 +47,17 @@ namespace truth {
     // Inverted index detId -> candidate roots, from each candidate's subgraph
     // hits. Built as a flat (detId, root) list, sorted, then packed CSR-style so
     // lookups are a binary search plus a contiguous root span (no hashing).
+    rootSelfEnergySq_.assign(hitIndex_->nParticles(), 0.0);
     std::vector<std::pair<uint32_t, uint32_t>> pairs;  // (detId, root)
     for (const uint32_t root : roots_) {
       if (root >= hitIndex_->nParticles())
         continue;
-      for (auto const& hit : rootHits(root))
+      double selfEnergySq = 0.0;
+      for (auto const& hit : rootHits(root)) {
         pairs.emplace_back(hit.detId, root);
+        selfEnergySq += static_cast<double>(hit.energy) * hit.energy;
+      }
+      rootSelfEnergySq_[root] = selfEnergySq;
     }
     std::sort(pairs.begin(), pairs.end());  // by detId, then root
 
@@ -121,6 +127,10 @@ namespace truth {
       double scoreNum = 0.0;
       uint32_t sharedCells = 0;
 
+      // Branch-normalized (reverse) accumulators over the shared cells.
+      double sharedBranchEnergySq = 0.0;
+      double branchExcessNum = 0.0;
+
       // Merge-join reco hits and the branch subgraph hits by detId.
       std::size_t i = 0;
       std::size_t j = 0;
@@ -132,9 +142,13 @@ namespace truth {
           ++j;
 
         float branchFraction = 0.f;
-        if (j < branchHits.size() && branchHits[j].detId == rh.detId) {
-          const float cellTotal = cellTotalEnergy(rh.detId);
-          branchFraction = cellTotal > 0.f ? branchHits[j].energy / cellTotal : 0.f;
+        float branchEnergy = 0.f;
+        float cellTotal = 0.f;
+        const bool shared = (j < branchHits.size() && branchHits[j].detId == rh.detId);
+        if (shared) {
+          cellTotal = cellTotalEnergy(rh.detId);
+          branchEnergy = branchHits[j].energy;
+          branchFraction = cellTotal > 0.f ? branchEnergy / cellTotal : 0.f;
           ++sharedCells;
         }
 
@@ -142,6 +156,11 @@ namespace truth {
           sharedEnergy += std::min(branchFraction * rh.energy, rh.fraction * rh.energy);
           const float excess = std::max(0.f, rh.fraction - branchFraction);
           scoreNum += static_cast<double>(excess * rh.energy) * (excess * rh.energy);
+          if (shared) {
+            sharedBranchEnergySq += static_cast<double>(branchEnergy) * branchEnergy;
+            const float branchExcessEnergy = std::max(0.f, branchFraction - rh.fraction) * cellTotal;
+            branchExcessNum += static_cast<double>(branchExcessEnergy) * branchExcessEnergy;
+          }
         }
         ++i;
       }
@@ -153,11 +172,22 @@ namespace truth {
           continue;
         m.sharedEnergy = static_cast<float>(sharedEnergy);
         m.score = static_cast<float>(scoreNum / denominator);
+        // Reverse score: the fraction of the branch self-energy the reco object
+        // fails to capture. Branch-only cells (not visited in the merge-join above)
+        // are entirely un-captured, contributing (branchDenom - sharedBranchEnergySq)
+        // to the numerator; the shared cells contribute branchExcessNum.
+        const double branchDenom = rootSelfEnergySq_[root];
+        const double branchScoreNum = std::max(0.0, (branchDenom - sharedBranchEnergySq) + branchExcessNum);
+        m.reverseScore = branchDenom > 0.0 ? static_cast<float>(branchScoreNum / branchDenom) : 0.f;
       } else {
         if (sharedCells == 0)
           continue;
         m.sharedEnergy = static_cast<float>(sharedCells);
         m.score = 1.f - static_cast<float>(sharedCells) / static_cast<float>(reco.size());
+        // Reverse score: fraction of the branch's cells the reco object misses.
+        const std::size_t branchCellCount = branchHits.size();
+        m.reverseScore =
+            branchCellCount > 0 ? 1.f - static_cast<float>(sharedCells) / static_cast<float>(branchCellCount) : 1.f;
       }
       result.push_back(m);
     }
