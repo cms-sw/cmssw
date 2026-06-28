@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_interface_TracksterInferenceByCNN_h
-#define RecoHGCal_TICL_interface_TracksterInferenceByCNN_h
+#ifndef RecoHGCal_TICL_TracksterInferenceByCNN_h
+#define RecoHGCal_TICL_TracksterInferenceByCNN_h
 
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "RecoHGCal/TICL/interface/TICLONNXGlobalCache.h"

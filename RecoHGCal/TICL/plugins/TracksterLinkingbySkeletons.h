@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_TracksterLinkingAlgoBySkeletons_H
-#define RecoHGCal_TICL_TracksterLinkingAlgoBySkeletons_H
+#ifndef RecoHGCal_TICL_TracksterLinkingbySkeletons_h
+#define RecoHGCal_TICL_TracksterLinkingbySkeletons_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"

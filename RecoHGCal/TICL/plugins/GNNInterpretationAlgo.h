@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_GNNInterpretationAlgo_H_
-#define RecoHGCal_TICL_GNNInterpretationAlgo_H_
+#ifndef RecoHGCal_TICL_GNNInterpretationAlgo_h
+#define RecoHGCal_TICL_GNNInterpretationAlgo_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"

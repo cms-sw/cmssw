@@ -11,8 +11,8 @@
 // Date: 02/2026
 //
 
-#ifndef __RecoHGCal_TICL_SuperclusteringDNNInputs_H__
-#define __RecoHGCal_TICL_SuperclusteringDNNInputs_H__
+#ifndef RecoHGCal_TICL_SuperclusteringDNNInputs_h
+#define RecoHGCal_TICL_SuperclusteringDNNInputs_h
 
 #include "DataFormats/HGCalReco/interface/TracksterFwd.h"
 #include <vector>

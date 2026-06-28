@@ -1,8 +1,8 @@
 // Author: Felice Pantaleo - felice.pantaleo@cern.ch
 // Date: 09/2018
 
-#ifndef RecoHGCal_TICL_PatternRecognitionAlgoBase_H__
-#define RecoHGCal_TICL_PatternRecognitionAlgoBase_H__
+#ifndef RecoHGCal_TICL_PatternRecognitionAlgoBase_h
+#define RecoHGCal_TICL_PatternRecognitionAlgoBase_h
 
 #include <memory>
 #include <vector>

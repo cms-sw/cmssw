@@ -1,8 +1,8 @@
 // Author: Marco Rovere - marco.rovere@cern.ch
 // Date: 10/2021
 
-#ifndef __RecoHGCal_TICL_PRbyFASTJET_H__
-#define __RecoHGCal_TICL_PRbyFASTJET_H__
+#ifndef RecoHGCal_TICL_PatternRecognitionbyFastJet_h
+#define RecoHGCal_TICL_PatternRecognitionbyFastJet_h
 #include <memory>  // unique_ptr
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"

@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_PatternRecognitionAlgoBase_H__
-#define RecoHGCal_TICL_PatternRecognitionAlgoBase_H__
+#ifndef RecoHGCal_TICL_TICLInterpretationAlgoBase_h
+#define RecoHGCal_TICL_TICLInterpretationAlgoBase_h
 
 #include <memory>
 #include <vector>

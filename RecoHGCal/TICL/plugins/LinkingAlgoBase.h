@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_LinkingAlgoBase_H__
-#define RecoHGCal_TICL_LinkingAlgoBase_H__
+#ifndef RecoHGCal_TICL_LinkingAlgoBase_h
+#define RecoHGCal_TICL_LinkingAlgoBase_h
 
 #include <vector>
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"

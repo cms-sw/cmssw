@@ -1,8 +1,8 @@
 // Author: Marco Rovere - marco.rovere@cern.ch
 // Date: 04/2021
 
-#ifndef __RecoHGCal_TICL_PRbyCLUE3D_H__
-#define __RecoHGCal_TICL_PRbyCLUE3D_H__
+#ifndef RecoHGCal_TICL_PatternRecognitionbyCLUE3D_h
+#define RecoHGCal_TICL_PatternRecognitionbyCLUE3D_h
 #include <memory>  // unique_ptr
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
