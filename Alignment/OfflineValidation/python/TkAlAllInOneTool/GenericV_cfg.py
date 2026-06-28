@@ -8,7 +8,9 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 ###################################################################
 # Define process 
 ###################################################################
-process = cms.Process("GenericTrackAndVertexValidation")
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+process = cms.Process("GenericTrackAndVertexValidation",_PH2_ERA)
 
 ###################################################################
 # Argument parsing
@@ -99,7 +101,7 @@ process.MessageLogger.cout.enableStatistics = cms.untracked.bool(True)
 # Basic modules
 ###################################################################
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-process.load("Configuration.Geometry.GeometryDB_cff")
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -116,7 +118,7 @@ process.TrackRefitter.NavigationSchool = ""
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", "auto:phase1_2017_realistic"))
+process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", _PH2_GLOBAL_TAG))
 
 ####################################################################
 # Load conditions if wished

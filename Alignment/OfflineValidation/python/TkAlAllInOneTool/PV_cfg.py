@@ -1,7 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.PythonUtilities.LumiList as LumiList
-from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultData_HLTPhys2024I
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_NoPU 
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 
@@ -10,7 +10,9 @@ import json
 import os
 
 ##Define process
-process = cms.Process("PrimaryVertexValidation")
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+process = cms.Process("PrimaryVertexValidation",_PH2_ERA)
 
 ##Argument parsing
 options = VarParsing()
@@ -44,9 +46,9 @@ if "dataset" in config["validation"]:
                                 skipEvents = cms.untracked.uint32(0)
                             )
 else:
-    print(">>>>>>>>>> PV_cfg.py: msg%-i: config not specified! Loading default dataset -> filesDefaultData_HLTPhys2024I!")
+    print(">>>>>>>>>> PV_cfg.py: msg%-i: config not specified! Loading default dataset -> filesDefaultMC_NoPU !")
     process.source = cms.Source("PoolSource",
-                                fileNames = filesDefaultData_HLTPhys2024I,
+                                fileNames = filesDefaultMC_NoPU,
                                 skipEvents = cms.untracked.uint32(0)
                             )
 
@@ -95,9 +97,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 ##Basic modules
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
-process.load("Configuration.Geometry.GeometryRecoDB_cff") #or process.load("Configuration.Geometry.GeometryDB_cff")?????
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 
 ####################################################################
 # Produce the Transient Track Record in the event
@@ -109,7 +111,7 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 ####################################################################
 import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
 process.seqTrackselRefit = trackselRefit.getSequence(process,
-                                                     config["validation"].get("trackcollection", "ALCARECOTkAlMinBias"),
+                                                     config["validation"].get("trackcollection", "generalTracks"),
                                                      isPVValidation=True,
                                                      TTRHBuilder=config["validation"].get("tthrbuilder", "WithTrackAngle"),
                                                      usePixelQualityFlag=config["validation"].get("usePixelQualityFlag", False),
@@ -124,7 +126,7 @@ process.seqTrackselRefit = trackselRefit.getSequence(process,
 #Global tag
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", "140X_dataRun3_Prompt_v4"))
+process.GlobalTag = GlobalTag(process.GlobalTag, config["alignment"].get("globaltag", _PH2_GLOBAL_TAG))
 
 ##Load conditions if wished
 if "conditions" in config["alignment"]:
@@ -147,15 +149,19 @@ if "conditions" in config["alignment"]:
 ####################################################################
 # Load and Configure event selection
 ####################################################################
-process.primaryVertexFilter = cms.EDFilter("VertexSelector",
-                                           src = cms.InputTag(config["validation"].get("vertexcollection", "offlinePrimaryVertices")),
-                                           cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
-                                           filter = cms.bool(True)
-                                           )
+vertex_collection = config["validation"].get("vertexcollection", "offlinePrimaryVertices")
+if vertex_collection != "hltVerticesPFFilter":
+    process.primaryVertexFilter = cms.EDFilter("VertexSelector",
+                                               src = cms.InputTag(vertex_collection),
+                                               cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
+                                               filter = cms.bool(True)
+                                               )
+else:
+    process.primaryVertexFilter = cms.EDFilter("HLTBool", result=cms.bool(True))
 
 process.noscraping = cms.EDFilter("FilterOutScraping",
                                   applyfilter = cms.untracked.bool(True),
-                                  src = cms.untracked.InputTag(config["validation"].get("trackcollection", "ALCARECOTkAlMinBias")),
+                                  src = cms.untracked.InputTag(config["validation"].get("trackcollection", "generalTracks")),
                                   debugOn = cms.untracked.bool(False),
                                   numtrack = cms.untracked.uint32(10),
                                   thresh = cms.untracked.double(0.25)
@@ -168,7 +174,7 @@ maxclusters = config["validation"].get("maxclusters", None)
 if(maxclusters is not None):
     import  HLTrigger.special.hltPixelActivityFilter_cfi
     process.multFilter = HLTrigger.special.hltPixelActivityFilter_cfi.hltPixelActivityFilter.clone(
-        inputTag = 'ALCARECOTkAlMinBias',
+        inputTag = cms.InputTag(config["validation"].get("trackcollection", "generalTracks")),
         minClusters = 1,
         maxClusters = maxclusters
     )
@@ -178,16 +184,25 @@ if(maxclusters is not None):
 # Beamspot compatibility check
 ###################################################################
 from RecoVertex.BeamSpotProducer.beamSpotCompatibilityChecker_cfi import beamSpotCompatibilityChecker
-process.BeamSpotChecker = beamSpotCompatibilityChecker.clone(
-    bsFromFile = config["validation"].get("bsFromFile","offlineBeamSpot::RECO"),  # source of the event beamspot (in the ALCARECO files)
-    bsFromDB = "offlineBeamSpot::@currentProcess", # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
-    dbFromEvent = True,
-    warningThr = config["validation"].get("bsIncompatibleWarnThresh", 3), # significance threshold to emit a warning message
-    errorThr = config["validation"].get("bsIncompatibleErrThresh", 5),    # significance threshold to abort the job
-)
+if vertex_collection != "hltVerticesPFFilter":
+    process.BeamSpotChecker = beamSpotCompatibilityChecker.clone(
+        bsFromFile = config["validation"].get("bsFromFile","offlineBeamSpot::RECO"),  # source of the event beamspot (in the ALCARECO files)
+        bsFromDB = "offlineBeamSpot::@currentProcess", # source of the DB beamspot (from Global Tag) NOTE: only if dbFromEvent is True!
+        dbFromEvent = True,
+        warningThr = config["validation"].get("bsIncompatibleWarnThresh", 3), # significance threshold to emit a warning message
+        errorThr = config["validation"].get("bsIncompatibleErrThresh", 5),    # significance threshold to abort the job
+    )
+else:
+    process.BeamSpotChecker = beamSpotCompatibilityChecker.clone(
+        bsFromFile = "hltOnlineBeamSpot::HLT",  
+        bsFromDB = "offlineBeamSpot", 
+        dbFromEvent = True,
+        warningThr = config["validation"].get("bsIncompatibleWarnThresh", 3), # significance threshold to emit a warning message
+        errorThr = config["validation"].get("bsIncompatibleErrThresh", 5),    # significance threshold to abort the job
+    )
 
 process.load("Alignment.CommonAlignment.filterOutLowPt_cfi")
-process.filterOutLowPt.src = cms.untracked.InputTag(config["validation"].get("trackcollection", "ALCARECOTkAlMinBias"))
+process.filterOutLowPt.src = cms.untracked.InputTag(config["validation"].get("trackcollection", "generalTracks"))
 process.filterOutLowPt.ptmin = cms.untracked.double(config["validation"].get("ptCut", 3.))
 process.filterOutLowPt.runControl = False
 if(isMultipleRuns):
@@ -245,7 +260,7 @@ process.PVValidation = _primaryVertexValidation.clone(
     askFirstLayerHit = False,
     forceBeamSpot = config["validation"].get("forceBeamSpot", False),
     probePt = config["validation"].get("ptCut", 3),
-    probeEta  = config["validation"].get("etaCut", 2.5),
+    probeEta  = config["validation"].get("etaCut", 4),
     minPt  = config["validation"].get("minPt", 1.),
     maxPt  = config["validation"].get("maxPt", 30.),
     doBPix = config["validation"].get("doBPix", True),
