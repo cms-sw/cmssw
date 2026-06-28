@@ -77,32 +77,39 @@ namespace truth {
     hits.erase(std::remove_if(hits.begin(), hits.end(), [](Hit const& h) { return h.energy <= 0.f; }), hits.end());
   }
 
-  void LogicalGraphHitIndexBuilder::fillSubgraphHits(uint32_t particleId,
-                                                     std::vector<HitList> const& direct,
-                                                     std::vector<HitList>& subgraph,
-                                                     std::vector<uint8_t>& state) {
+  void LogicalGraphHitIndexBuilder::collectSubgraphParticles(uint32_t particleId,
+                                                             std::vector<uint8_t>& visited,
+                                                             std::vector<uint32_t>& touched,
+                                                             std::vector<uint32_t>& stack,
+                                                             std::vector<uint32_t>& order) const {
+    order.clear();
     if (particleId >= nParticles_)
       return;
 
-    // 1 = on the current DFS stack (cycle guard), 2 = already aggregated.
-    if (state[particleId] != 0)
-      return;
+    // Iterative DFS over the distinct descendants, cycle-safe via `visited`. A
+    // descendant reachable through more than one path (a re-convergent DAG, e.g. a
+    // particle whose production vertex has several incoming particles that share a
+    // common ancestor) is enqueued and summed only once; merging the already
+    // aggregated child subgraphs instead would add such a descendant's per-cell
+    // energy once per path (coalesce() sums equal detIds), inflating the subgraph.
+    stack.clear();
+    stack.push_back(particleId);
+    visited[particleId] = 1;
+    touched.push_back(particleId);
 
-    state[particleId] = 1;
+    while (!stack.empty()) {
+      const uint32_t current = stack.back();
+      stack.pop_back();
+      order.push_back(current);
 
-    auto& out = subgraph[particleId];
-    out.insert(out.end(), direct[particleId].begin(), direct[particleId].end());
-
-    for (uint32_t childId : children_[particleId]) {
-      if (childId >= nParticles_)
-        continue;
-
-      fillSubgraphHits(childId, direct, subgraph, state);
-      out.insert(out.end(), subgraph[childId].begin(), subgraph[childId].end());
+      for (uint32_t childId : children_[current]) {
+        if (childId >= nParticles_ || visited[childId])
+          continue;
+        visited[childId] = 1;
+        touched.push_back(childId);
+        stack.push_back(childId);
+      }
     }
-
-    coalesce(out);
-    state[particleId] = 2;
   }
 
   void LogicalGraphHitIndexBuilder::buildHitCSR(std::vector<HitList> const& lists,
@@ -143,9 +150,24 @@ namespace truth {
         coalesce(hits);
 
       std::vector<HitList> subgraph(nParticles_);
-      std::vector<uint8_t> state(nParticles_, 0);
-      for (uint32_t particleId = 0; particleId < nParticles_; ++particleId)
-        fillSubgraphHits(particleId, direct, subgraph, state);
+      std::vector<uint8_t> visited(nParticles_, 0);
+      std::vector<uint32_t> touched;
+      std::vector<uint32_t> stack;
+      std::vector<uint32_t> order;
+      for (uint32_t particleId = 0; particleId < nParticles_; ++particleId) {
+        collectSubgraphParticles(particleId, visited, touched, stack, order);
+
+        auto& out = subgraph[particleId];
+        for (const uint32_t descendant : order)
+          out.insert(out.end(), direct[descendant].begin(), direct[descendant].end());
+        coalesce(out);
+
+        // Reset only the entries we set, keeping the per-particle cost proportional
+        // to the subgraph size rather than nParticles_.
+        for (const uint32_t id : touched)
+          visited[id] = 0;
+        touched.clear();
+      }
 
       auto& out = channels[ch];
       buildHitCSR(direct, out.directOffsets, out.directHits);
