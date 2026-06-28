@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
+#include <queue>
 #include <utility>
 #include <vector>
 
@@ -247,6 +248,39 @@ namespace {
     return count;
   }
 
+  // True if, walking up its production chain, the particle reaches an artificial
+  // source vertex (Interaction / Upstream / UnderlyingEvent) - i.e. it is grounded
+  // on the per-interaction artificial-source structure rather than on a real vertex.
+  bool descendsFromArtificialSource(truth::Graph const& graph, uint32_t particleId) {
+    std::vector<uint8_t> seenParticle(graph.nParticles(), 0);
+    std::vector<uint8_t> seenVertex(graph.nVertices(), 0);
+    std::queue<uint32_t> queue;
+    queue.push(particleId);
+    seenParticle[particleId] = 1;
+
+    while (!queue.empty()) {
+      const uint32_t particle = queue.front();
+      queue.pop();
+
+      for (const uint32_t vertex : graph.productionVertices(particle)) {
+        if (vertex >= graph.nVertices() || seenVertex[vertex])
+          continue;
+        seenVertex[vertex] = 1;
+
+        if (graph.vertices()[vertex].isArtificial())
+          return true;
+
+        for (const uint32_t parent : graph.incomingParticles(vertex)) {
+          if (parent < graph.nParticles() && !seenParticle[parent]) {
+            seenParticle[parent] = 1;
+            queue.push(parent);
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   truth::LogicalGraphPostProcessingConfig defaultConfig() {
     truth::LogicalGraphPostProcessingConfig config;
     config.collapseIntermediateGenParticles = false;
@@ -295,6 +329,7 @@ class TestTruthLogicalGraphPostProcessor : public CppUnit::TestFixture {
   CPPUNIT_TEST(testAttachSelectionSourcesFalseRootsSeedsDirectly);
   CPPUNIT_TEST(testEventIdKeyingSplitsInteractions);
   CPPUNIT_TEST(testSignalOnlyAndBunchCrossingFilterDropPileup);
+  CPPUNIT_TEST(testEveryParticleDescendsFromArtificialSource);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -320,6 +355,7 @@ public:
   void testAttachSelectionSourcesFalseRootsSeedsDirectly();
   void testEventIdKeyingSplitsInteractions();
   void testSignalOnlyAndBunchCrossingFilterDropPileup();
+  void testEveryParticleDescendsFromArtificialSource();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestTruthLogicalGraphPostProcessor);
@@ -1697,6 +1733,68 @@ void TestTruthLogicalGraphPostProcessor::testSignalOnlyAndBunchCrossingFilterDro
       CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 13));   // signal mu-
       CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, -13));  // signal mu+
     }
+  } catch (cms::Exception const& ex) {
+    std::cerr << ex.what() << std::endl;
+    CPPUNIT_ASSERT(false);
+  }
+}
+
+void TestTruthLogicalGraphPostProcessor::testEveryParticleDescendsFromArtificialSource() {
+  try {
+    // beam source -> q qbar -> Z -> mu+ mu-, with stable underlying-event spectators
+    // (a photon and an electron) produced at the hard-interaction vertex. With a
+    // seed selection and attachSelectionSources, the post-processor must leave NO
+    // real (Normal) source vertex behind: every particle has to trace up to an
+    // artificial source (Interaction / Upstream / UnderlyingEvent), so nothing is
+    // left rooted at a real vertex. (A real source vertex surviving is what makes a
+    // cluster of particles look orphaned once such a vertex is hidden in the dump.)
+    GraphBuilder builder(7, 3);
+    builder.setGenParticle(0, 1, 21, 100);            // q   (incoming parton)
+    builder.setGenParticle(1, -1, 21, 101);           // qbar (incoming parton)
+    builder.setGenParticle(2, 23, 22, 102);           // Z
+    builder.setGenSimParticle(3, 13, 1, 103, 1003);   // mu-
+    builder.setGenSimParticle(4, -13, 1, 104, 1004);  // mu+
+    builder.setGenSimParticle(5, 22, 1, 105, 1005);   // underlying-event photon (stable spectator)
+    builder.setGenParticle(6, 11, 1, 106);            // underlying-event electron (stable spectator)
+
+    builder.setGenSimVertex(0, 200, 2000);  // beam / source vertex (a real source: no incoming)
+    builder.setGenVertex(1, 201);           // hard-interaction vertex
+    builder.setGenSimVertex(2, 202, 2002);  // Z decay vertex
+
+    builder.addProduction(0, 0);  // beam -> q
+    builder.addProduction(0, 1);  // beam -> qbar
+    builder.addDecay(0, 1);       // q    -> hard vertex
+    builder.addDecay(1, 1);       // qbar -> hard vertex
+    builder.addProduction(1, 2);  // hard -> Z
+    builder.addProduction(1, 5);  // hard -> photon (spectator)
+    builder.addProduction(1, 6);  // hard -> electron (spectator)
+    builder.addDecay(2, 2);       // Z -> decay vertex
+    builder.addProduction(2, 3);  // -> mu-
+    builder.addProduction(2, 4);  // -> mu+
+    auto graph = builder.finish();
+
+    auto config = defaultConfig();
+    config.seedPdgIds = {23};
+    config.seedParentDepth = 1;
+    config.keepProductionSiblings = true;
+    config.keepStableSpectators = true;
+    config.attachSelectionSources = true;
+    auto output = runPostProcessing(std::move(graph), config);
+
+    CPPUNIT_ASSERT(output.isConsistent());
+    CPPUNIT_ASSERT(hasArtificialVertex(output));
+
+    // No real (Normal) source vertex may survive: every source vertex is artificial.
+    for (uint32_t vertex = 0; vertex < output.nVertices(); ++vertex) {
+      if (output.incomingParticles(vertex).empty())
+        CPPUNIT_ASSERT_MESSAGE("a real (Normal) source vertex survived the selection",
+                               output.vertices()[vertex].isArtificial());
+    }
+
+    // And every particle traces up to an artificial source vertex.
+    for (uint32_t particle = 0; particle < output.nParticles(); ++particle)
+      CPPUNIT_ASSERT_MESSAGE("particle is not grounded on an artificial source",
+                             descendsFromArtificialSource(output, particle));
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);
