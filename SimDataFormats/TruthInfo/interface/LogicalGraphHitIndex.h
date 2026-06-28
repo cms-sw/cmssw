@@ -18,10 +18,12 @@ namespace truth {
   // muon hits stay separate (different DetId spaces, metrics and recHit links).
   // Stored as the underlying type for dictionary simplicity; the order is the
   // channel index and must stay stable.
+  // Ordered inner -> outer by detector radius. The value is the channel index and
+  // must stay stable; code refers to channels by name, never by literal index.
   enum class HitChannel : uint8_t {
-    HGCalCalo = 0,  // calorimeter PCaloHits, recHit-mapped via the DetId->RecHit map
-    Tracker = 1,    // tracker PSimHits, energy = energyLoss, no recHit link
-    MTD = 2,        // MIP timing layer (BTL/ETL)
+    Tracker = 0,    // tracker PSimHits, energy = energyLoss, no recHit link
+    MTD = 1,        // MIP timing layer (BTL/ETL)
+    HGCalCalo = 2,  // calorimeter PCaloHits, recHit-mapped via the DetId->RecHit map
     Muon = 3        // muon chambers (DT/CSC/RPC/GEM)
   };
   inline constexpr std::size_t kNumHitChannels = 4;
