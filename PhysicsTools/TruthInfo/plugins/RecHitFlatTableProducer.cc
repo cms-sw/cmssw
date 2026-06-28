@@ -39,15 +39,13 @@ public:
     std::vector<float> rechit_z;
     std::vector<float> rechit_time;
     std::vector<float> rechit_radius;
-    std::vector<float> rechit_simEnergy;
-    std::vector<float> rechit_simEnergyEM;
-    std::vector<float> rechit_simEnergyHad;
 
     for (auto const& rh_token : rechits_tokens_) {
       edm::Handle<HGCRecHitCollection> rechit_handle;
       event.getByToken(rh_token, rechit_handle);
-      const auto& rhColl = *rechit_handle;
-      for (auto const& rh : rhColl) {
+      if (!rechit_handle.isValid())
+        continue;
+      for (auto const& rh : *rechit_handle) {
         rechit_energy.push_back(rh.energy());
         auto const rhPosition = rhtools_.getPosition(rh.detid());
         rechit_x.push_back(rhPosition.x());
@@ -56,20 +54,16 @@ public:
         rechit_ID.push_back(rh.detid().rawId());
         rechit_time.push_back(rh.time());
         rechit_radius.push_back(rhtools_.getRadiusToSide(rh.detid()));
-        // const auto hitId = hitMap->find(DetId(rh.detid()));
-        // if (hitId != hitMap->end()) {
-        //   rechit_simEnergy.push_back(hitIdToEnergies[hitId->second].energy);
-        //   rechit_simEnergyEM.push_back(hitIdToEnergies[hitId->second].energyEM);
-        //   rechit_simEnergyHad.push_back(hitIdToEnergies[hitId->second].energyHad);
-        // }
       }
     }
 
     auto tab = std::make_unique<nanoaod::FlatTable>(rechit_ID.size(), objName_, false, false);
     tab->addColumn<uint32_t>("rechit_ID", rechit_ID, "Rechit ID");
+    tab->addColumn<float>("rechit_energy", rechit_energy, "Rechit energy");
     tab->addColumn<float>("rechit_x", rechit_x, "Rechit X from rechittools");
     tab->addColumn<float>("rechit_y", rechit_y, "Rechit Y from rechittools");
     tab->addColumn<float>("rechit_z", rechit_z, "Rechit Z from rechittools");
+    tab->addColumn<float>("rechit_time", rechit_time, "Rechit time");
     tab->addColumn<float>("rechit_radius", rechit_radius, "Rechit radius to side from rechittools");
 
     event.put(std::move(tab));
