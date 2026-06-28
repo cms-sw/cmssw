@@ -59,28 +59,28 @@ namespace truth {
 
     // Direct hits of a particle in a channel (the hits on its own SimTrack).
     [[nodiscard]] std::span<const Hit> directHits(HitChannel channel, uint32_t particleId) const {
-      Channel const* c = channelOrNull(channel);
-      if (c == nullptr || particleId + 1 >= c->directOffsets.size())
+      Channel const* channelData = channelOrNull(channel);
+      if (channelData == nullptr || particleId + 1 >= channelData->directOffsets.size())
         return {};
-      const auto b = c->directOffsets[particleId];
-      const auto e = c->directOffsets[particleId + 1];
-      return std::span<const Hit>(c->directHits.data() + b, e - b);
+      const auto begin = channelData->directOffsets[particleId];
+      const auto end = channelData->directOffsets[particleId + 1];
+      return std::span<const Hit>(channelData->directHits.data() + begin, end - begin);
     }
 
     // Subgraph hits of a particle in a channel (its own hits plus those of every
     // logical descendant), coalesced and sorted by detId.
     [[nodiscard]] std::span<const Hit> subgraphHits(HitChannel channel, uint32_t particleId) const {
-      Channel const* c = channelOrNull(channel);
-      if (c == nullptr || particleId + 1 >= c->subgraphOffsets.size())
+      Channel const* channelData = channelOrNull(channel);
+      if (channelData == nullptr || particleId + 1 >= channelData->subgraphOffsets.size())
         return {};
-      const auto b = c->subgraphOffsets[particleId];
-      const auto e = c->subgraphOffsets[particleId + 1];
-      return std::span<const Hit>(c->subgraphHits.data() + b, e - b);
+      const auto begin = channelData->subgraphOffsets[particleId];
+      const auto end = channelData->subgraphOffsets[particleId + 1];
+      return std::span<const Hit>(channelData->subgraphHits.data() + begin, end - begin);
     }
 
     [[nodiscard]] bool hasChannel(HitChannel channel) const {
-      Channel const* c = channelOrNull(channel);
-      return c != nullptr && !c->directHits.empty();
+      Channel const* channelData = channelOrNull(channel);
+      return channelData != nullptr && !channelData->directHits.empty();
     }
 
     // Raw channel storage (flat hit vectors + offsets), for callers that scan a
@@ -91,8 +91,8 @@ namespace truth {
     [[nodiscard]] static constexpr std::size_t index(HitChannel channel) { return static_cast<std::size_t>(channel); }
 
     [[nodiscard]] Channel const* channelOrNull(HitChannel channel) const {
-      const std::size_t i = index(channel);
-      return i < channels_.size() ? &channels_[i] : nullptr;
+      const std::size_t channelIndex = index(channel);
+      return channelIndex < channels_.size() ? &channels_[channelIndex] : nullptr;
     }
 
     uint32_t nParticles_ = 0;
