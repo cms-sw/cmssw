@@ -34,7 +34,17 @@ namespace {
   }
 }  // namespace
 
-const truth::ParticleData& truth::Particle::data() const { return graph_->particles.at(id_); }
+const truth::ParticleData& truth::Particle::data() const {
+  // Graph::particle() returns an invalid (null-graph) view for an out-of-range id,
+  // and a default-constructed Particle is likewise invalid. The scalar getters all
+  // route through data(), so return a shared empty record instead of dereferencing
+  // a null graph_ (the traversal methods already guard with valid()).
+  if (graph_ == nullptr) {
+    static const truth::ParticleData kEmpty{};
+    return kEmpty;
+  }
+  return graph_->particles.at(id_);
+}
 
 bool truth::Particle::hasGen() const { return data().hasGen(); }
 
@@ -108,7 +118,15 @@ std::optional<truth::Particle> truth::Particle::firstCommonAncestor(Particle oth
   return graph_->firstCommonAncestorOf(id_, other.id_);
 }
 
-const truth::VertexData& truth::Vertex::data() const { return graph_->vertices.at(id_); }
+const truth::VertexData& truth::Vertex::data() const {
+  // See Particle::data(): return a shared empty record for an invalid view rather
+  // than dereferencing a null graph_.
+  if (graph_ == nullptr) {
+    static const truth::VertexData kEmpty{};
+    return kEmpty;
+  }
+  return graph_->vertices.at(id_);
+}
 
 bool truth::Vertex::hasGen() const { return data().hasGen(); }
 
