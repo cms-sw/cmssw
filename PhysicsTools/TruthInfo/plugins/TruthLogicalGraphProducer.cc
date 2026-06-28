@@ -647,6 +647,14 @@ public:
     out->particles.resize(particleRepToLogical.size());
     out->vertices.resize(vertexRepToLogical.size());
 
+    // Whether the GEN payload actually supplied a momentum/position for each
+    // logical object. For a merged GEN+SIM object whose GEN barcode is absent from
+    // the payload (e.g. pile-up GEN particles, which are not in the signal HepMC,
+    // or jobs with no HepMC product), the SimTrack/SimVertex value is used as the
+    // fallback instead of leaving the field default-constructed (zero momentum).
+    std::vector<uint8_t> genMomentumApplied(out->particles.size(), 0);
+    std::vector<uint8_t> genPositionApplied(out->vertices.size(), 0);
+
     // ------------------------------------------------------------------
     // 4. Fill payload
     // ------------------------------------------------------------------
@@ -687,6 +695,7 @@ public:
 
               // Keep the GEN four-momentum as nominal for GEN and GEN+SIM logical particles.
               p.momentum = it->second.momentum;
+              genMomentumApplied[static_cast<uint32_t>(rawToParticle[nodeId])] = 1;
             }
           }
 
@@ -716,9 +725,11 @@ public:
               const math::XYZTLorentzVectorD simMomentum(
                   t.momentum().px(), t.momentum().py(), t.momentum().pz(), t.momentum().e());
 
-              // For SIM-only logical particles, use the SimTrack momentum.
-              // For GEN+SIM logical particles, the GEN momentum remains the nominal one.
-              if (!p.hasGen()) {
+              // Use the SimTrack momentum whenever the GEN side did not supply one:
+              // SIM-only particles, and merged GEN+SIM particles whose GEN barcode
+              // missed the payload (pile-up / no-HepMC). When a GEN momentum was
+              // applied it remains the nominal one.
+              if (!genMomentumApplied[static_cast<uint32_t>(rawToParticle[nodeId])]) {
                 p.momentum = simMomentum;
               }
 
@@ -755,6 +766,7 @@ public:
             if (it != genVertexPayload.end()) {
               // Keep the GEN position as nominal for GEN and GEN+SIM logical vertices.
               v.position = it->second.position;
+              genPositionApplied[static_cast<uint32_t>(rawToVertex[nodeId])] = 1;
             }
           }
 
@@ -776,11 +788,13 @@ public:
               const auto& pos = sv.position();
               constexpr double sToNs = 1e9;  // SimVertex time is stored in seconds -> ns
 
-              // For SIM-only logical vertices, use the SimVertex position.
-              // Position is in cm; SimVertex time is converted from seconds to ns so it
-              // shares the (cm, ns) convention used for GEN vertices.
-              // For GEN+SIM logical vertices, the GEN position remains the nominal one.
-              if (!v.hasGen()) {
+              // Use the SimVertex position whenever the GEN side did not supply one:
+              // SIM-only vertices, and merged GEN+SIM vertices whose GEN barcode
+              // missed the payload (pile-up / no-HepMC). Position is in cm; SimVertex
+              // time is converted from seconds to ns so it shares the (cm, ns)
+              // convention used for GEN vertices. When a GEN position was applied it
+              // remains the nominal one.
+              if (!genPositionApplied[static_cast<uint32_t>(rawToVertex[nodeId])]) {
                 v.position = math::XYZTLorentzVectorD(pos.x(), pos.y(), pos.z(), pos.t() * sToNs);
               }
             }
