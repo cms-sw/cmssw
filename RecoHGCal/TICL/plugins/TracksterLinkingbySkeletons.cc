@@ -480,7 +480,8 @@ void TracksterLinkingbySkeletons::linkTracksters(
           auto const &tracksterOut = tracksters[n];
           auto const &skeletonOut = skeletons[n];
           auto const deltaphi = reco::deltaPhi(trackster.barycenter().phi(), tracksterOut.barycenter().phi());
-          if (abs(trackster.barycenter().eta() - tracksterOut.barycenter().eta()) <= window && deltaphi <= window) {
+          if (abs(trackster.barycenter().eta() - tracksterOut.barycenter().eta()) <= window &&
+              std::abs(deltaphi) <= window) {
             bool isInGood = isGoodTrackster(trackster, skeleton, min_num_lcs_, min_trackster_energy_, pca_quality_th_);
             bool isOutGood =
                 isGoodTrackster(tracksterOut, skeletonOut, min_num_lcs_, min_trackster_energy_, pca_quality_th_);

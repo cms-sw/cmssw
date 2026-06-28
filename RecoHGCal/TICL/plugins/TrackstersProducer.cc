@@ -191,11 +191,11 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       const typename PatternRecognitionAlgoBaseT<TICLLayerTilesBarrel>::Inputs inputBarrel(
           evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_barrel_tiles, seeding_regions);
 
-      if (inferenceAlgo_) {
-        inferenceAlgo_->runInference(layerClusters, *initialResult, rhtools_);
-      }
-
       myAlgoBarrel_->makeTracksters(inputBarrel, *result, seedToTrackstersAssociation);
+
+      if (inferenceAlgo_) {
+        inferenceAlgo_->runInference(layerClusters, *result, rhtools_);
+      }
     } else {
       const auto& tiles = evt.get(layer_clusters_tiles_token_);
       const typename PatternRecognitionAlgoBaseT<TICLLayerTiles>::Inputs input(

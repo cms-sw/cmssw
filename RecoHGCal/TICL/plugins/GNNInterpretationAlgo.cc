@@ -145,7 +145,9 @@ void GNNInterpretationAlgo::constructNodeFromWindow(
     float delta2,
     unsigned trackstersSize,
     std::vector<ticl::Node>& graph) {
-  const float delta = 0.5f * delta2;
+  // delta2 carries the configured linear deltaR window (del_tk_ts_); build the eta/phi search box
+  // with the full window and cut on the squared distance below, matching the General algo.
+  const float delta = delta2;
 
   for (const auto& [seedPos, seedIdx, _] : seeding) {
     const float seedEta = seedPos.Eta();
@@ -173,7 +175,7 @@ void GNNInterpretationAlgo::constructNodeFromWindow(
 
           const float sep2 =
               reco::deltaR2(tracksterPropPoints[tsIdx].Eta(), tracksterPropPoints[tsIdx].Phi(), seedEta, seedPhi);
-          if (sep2 < delta2) {
+          if (sep2 < delta * delta) {
             node.addOuterNeighbour(tsIdx);
           }
         }
