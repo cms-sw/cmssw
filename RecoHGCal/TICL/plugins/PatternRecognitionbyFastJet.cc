@@ -99,14 +99,15 @@ void PatternRecognitionbyFastJet<TILES>::makeTracksters(
   constexpr int nPhiBin = TILES::constants_type_t::nPhiBins;
 
   // We need to partition the two sides of the HGCAL detector
-  auto lastLayerPerSide = static_cast<unsigned int>(rhtools->lastLayer(isHFnose)) - 1;
+  auto lastLayerPerSide = static_cast<unsigned int>(rhtools->lastLayer(isHFnose));
   if (isBarrel)
-    lastLayerPerSide = static_cast<unsigned int>(rhtools->lastLayerBarrel()) - 1;
-  unsigned int maxLayer = isBarrel ? lastLayerPerSide + 1 : 2 * lastLayerPerSide - 1;
+    lastLayerPerSide = static_cast<unsigned int>(rhtools->lastLayerBarrel());
+  unsigned int maxLayer = isBarrel ? lastLayerPerSide : 2 * lastLayerPerSide - 1;
   std::vector<fastjet::PseudoJet> fjInputs;
   fjInputs.clear();
   for (unsigned int currentLayer = 0; currentLayer <= maxLayer; ++currentLayer) {
-    if (currentLayer == lastLayerPerSide) {
+    // flush the first endcap before starting the second; the barrel is a single region (no split)
+    if (!isBarrel && currentLayer == lastLayerPerSide) {
       buildJetAndTracksters(fjInputs, result);
     }
     const auto &tileOnLayer = input.tiles[currentLayer];
