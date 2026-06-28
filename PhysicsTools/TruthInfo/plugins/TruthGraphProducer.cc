@@ -606,6 +606,7 @@ public:
       }
     }
 
+    // Production edges: SimVertex -> outgoing SimTrack, one per track.
     for (uint32_t i = 0; i < nSimTrk; ++i) {
       auto const& simTrack = simTracks[i];
 
@@ -618,14 +619,20 @@ public:
       const uint32_t vtxNode = simVtxIndexToNode[static_cast<uint32_t>(vtxIdx)];
 
       push_edge(vtxNode, childNode, TruthGraph::EdgeKind::Sim);
+    }
 
-      const int parentTid = simVertices[static_cast<uint32_t>(vtxIdx)].parentIndex();
+    // Decay edges: parent SimTrack -> SimVertex, one per vertex. Built in a
+    // separate pass over SimVertices (not inside the track loop) so the edge is
+    // emitted once per vertex rather than once per outgoing daughter, which would
+    // duplicate parentTrack -> vertex by the vertex's out-degree.
+    for (uint32_t i = 0; i < nSimVtx; ++i) {
+      const int parentTid = simVertices[i].parentIndex();
+      if (parentTid <= 0)
+        continue;
 
-      if (parentTid > 0) {
-        auto itParent = simTrackIdToNode.find(static_cast<uint32_t>(parentTid));
-        if (itParent != simTrackIdToNode.end()) {
-          push_edge(itParent->second, vtxNode, TruthGraph::EdgeKind::Sim);
-        }
+      auto itParent = simTrackIdToNode.find(static_cast<uint32_t>(parentTid));
+      if (itParent != simTrackIdToNode.end()) {
+        push_edge(itParent->second, simVtxIndexToNode[i], TruthGraph::EdgeKind::Sim);
       }
     }
 
