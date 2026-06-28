@@ -4,19 +4,22 @@
 
 """Per-process logical-graph selection presets for the enableTruth relval samples.
 
-The enableTruth process modifier attaches to *every* Run4 workflow, i.e. to ~140
-generator fragments. They collapse to seven archetypes that fix the right
-``postProcessing`` selection (which particle is the seed, whether to pull in the
-seed's hard-scatter co-products, which decay channel to keep, ...):
+The enableTruth process modifier attaches to *every* Run4 workflow, and the same
+presets are used to pick a focused view for the much larger production zoo. They
+collapse to a handful of archetypes that fix the right ``postProcessing``
+selection (which particle is the seed, whether to pull in the seed's hard-scatter
+co-products, which decay channel to keep, ...):
 
   gun          single/multi-particle guns          seed = the gun species
-  resonance    s-channel Z / Drell-Yan / Z' / W     seed = the resonance, ISR context
-  vbf          VBF / t-channel Higgs               seed = Higgs + keepProductionSiblings
-  ggf          ggF / s-channel single Higgs        seed = Higgs
-  top          ttbar / t' pair production           seed = both tops + keepProductionSiblings
+  resonance    s-channel Z / DY (+n-jet) / Z' / W(+jets)  seed = the resonance, ISR context
+  vbf          VBF / t-channel Higgs (incl. VBF HH) seed = Higgs + keepProductionSiblings
+  ggf          ggF / s-channel single Higgs, di-Higgs (gg->HH)  seed = Higgs
+  vh           associated Higgs (WH / ZH / VH / WWH / ZZH)  seed = Higgs + recoiling boson
+  top          ttbar / t' pair / ttX (ttH, ttW, ttZ, ttbb, tttt, ...)  seed = tops + siblings
   singletop    single top (t-channel / tW / s-chan) seed = top + production partner (VBF-like)
+  diboson      WW / WZ / ZZ / VBS / same-sign WW    seed = the vector bosons + production system
   heavyflavor  B / charmonium / bottomonium         seed by heavy-flavor content
-  full         QCD / MinBias / NuGun / unknown      keep the whole graph (no selection)
+  full         QCD / MinBias / NuGun / SUSY / LLP / DM / EFT / BSM / unknown  keep the whole graph
 
 ``selectionForFragment(name)`` maps a generator-fragment (or short gallery label)
 to one of these and returns a plain dict of ``postProcessing`` parameters; the
@@ -29,8 +32,8 @@ makeTruthGallery.sh).
 
 import re
 
-# The seven archetype names, in resolution priority is handled by RULES below.
-TEMPLATE_NAMES = ("gun", "resonance", "vbf", "ggf", "top", "singletop", "heavyflavor", "full")
+# The archetype names; resolution priority is handled by _RULES below.
+TEMPLATE_NAMES = ("gun", "resonance", "vbf", "ggf", "vh", "top", "singletop", "diboson", "heavyflavor", "full")
 
 
 def _selection(seedPdgIds=(0,),
@@ -67,8 +70,12 @@ TEMPLATES = {
     "resonance": lambda: _selection(seedPdgIds=(23, 32), seedParentDepth=1),
     # VBF / t-channel: the tagging quarks recoil at the Higgs production vertex.
     "vbf": lambda: _selection(seedPdgIds=(25,), seedParentDepth=1, keepProductionSiblings=True),
-    # ggF / s-channel single Higgs: 2->1, no production-vertex co-products.
+    # ggF / s-channel single Higgs: 2->1, no production-vertex co-products. Also
+    # used for gg->HH di-Higgs: seedPdgIds=25 seeds every Higgs.
     "ggf": lambda: _selection(seedPdgIds=(25,), seedParentDepth=1),
+    # Associated single Higgs (VH: WH / ZH / VH / WWH / ZZH): seed the Higgs;
+    # keepProductionSiblings retains the recoiling vector boson(s).
+    "vh": lambda: _selection(seedPdgIds=(25,), seedParentDepth=1, keepProductionSiblings=True),
     # Top pair (ttbar / t'): seed both tops; their decay chains are the signal,
     # with keepProductionSiblings retaining the gg/qq -> tt production system.
     "top": lambda: _selection(seedPdgIds=(6, -6), seedParentDepth=1, keepProductionSiblings=True),
@@ -76,6 +83,9 @@ TEMPLATES = {
     # the t-channel spectator quark, the tW associated W, the s-channel b. VBF-like,
     # keepProductionSiblings pulls in t+q / t+W rather than (just) the top decay.
     "singletop": lambda: _selection(seedPdgIds=(6, -6), seedParentDepth=1, keepProductionSiblings=True),
+    # Diboson (WW / WZ / ZZ, including VBS and same-sign WW): seed the vector
+    # bosons and keep the production system (VBS tagging jets, associated partons).
+    "diboson": lambda: _selection(seedPdgIds=(23, 24, -24), seedParentDepth=1, keepProductionSiblings=True),
     # Heavy flavor: seed by hadron flavor content (5=b, 4=c); the hadron is the root.
     "heavyflavor": lambda: _selection(seedPdgIds=(), seedHadronFlavors=(5,), seedParentDepth=0,
                                       keepStableSpectators=False),
@@ -120,13 +130,25 @@ def gunSeed(name):
 _RULES = (
     (r"(?i)(^|[_-])vbf|qqtohto", "vbf", {}),
     (r"(?i)h125gggluonfusion|glugluh(to)?|(^|[_-])ggh", "ggf", {}),
-    (r"(?i)(^|[_-])singletop|(^|[_-])st_t", "singletop", {}),
-    (r"(?i)ttbar|^tt(to|_)|tprimeto", "top", {}),
-    (r"(?i)wprime|wto[lme]nu|(^|[_-])wto", "resonance", dict(seedPdgIds=[24, -24])),
+    (r"(?i)(^|[_-])singletop|(^|[_-])st_[ts]", "singletop", {}),
+    # ttbar / t' pair AND ttX (ttH, ttW, ttZ, ttbb, tttt, ttDM, ...): anything
+    # whose name starts with "tt" followed by a top partner/decay token has tops.
+    # Checked before the Higgs(VH/HH) and diboson rules so e.g. ttHH / ttZ seed tops.
+    (r"(?i)ttbar|(^|[_-])tt[0-9]*(to|bar|h|w|z|b|c|d|g|j|t|s)|tprimeto", "top", {}),
+    # Associated single Higgs: WH / ZH / VH / WWH / ZZH (and HW/HZ orderings).
+    (r"(?i)(^|[_-])(w|z|v|ww|wz|zz)h([0-9]|to|j|_|-|$)|(^|[_-])h[wz]j?([0-9]|to|_|-)|ggzh", "vh", {}),
+    # Di-Higgs (gg->HH and HH->...): seed every Higgs via the ggf preset.
+    (r"(?i)(^|[_-])hh|hhto|gluglutohh|to2hh|dihiggs", "ggf", {}),
+    # Diboson incl. VBS / same-sign WW. After VH/HH so WWH/ZZH/HHto...WWZZ are not stolen.
+    (r"(?i)(^|[_-])(ww|wz|zz|vv)([0-9]|to|jj|_|-|$)|(^|[_-])vbs|ssww|osww|wpwp|diboson", "diboson", {}),
+    # W single-boson and W+jets (WToLNu/WtoTauNu, WJetsToLNu, W4JToLNu, Wj_enuj, ...).
+    (r"(?i)wprime|wto[lme]nu|wtotaunu|wtolnu|(^|[_-])wto|(^|[_-])w[0-9]*j(et|ets|_|to)", "resonance",
+     dict(seedPdgIds=[24, -24])),
     (r"(?i)zmm|zptomm", "resonance", dict(seedPdgIds=[23, 32], decayPdgIdGroups=[[13, -13]])),
     (r"(?i)zee|zptoee", "resonance", dict(seedPdgIds=[23, 32], decayPdgIdGroups=[[11, -11]])),
     (r"(?i)ztt|zptt|dytotautau", "resonance", dict(seedPdgIds=[23, 32], decayPdgIdGroups=[[15, -15]])),
-    (r"(?i)dyto|drell|(^|[_-])z(prime)?to", "resonance", {}),
+    # Drell-Yan (incl. n-jet DY1jToLL / dyellell) and s-channel Z / Z' (incl. prefixed Z').
+    (r"(?i)(^|[_-])dy|drell|zprimeto|(^|[_-])z(prime)?to", "resonance", {}),
     (r"(?i)jpsi|psi2s|chic|chib|upsilon|etab", "heavyflavor", dict(seedHadronFlavors=[4])),
     (r"(?i)(^|[_-])b[sdu0c]to|bumixing|lambdab", "heavyflavor", dict(seedHadronFlavors=[5])),
     (r"(?i)sms-|displacedsusy|(^|[_-])susy|glugluto2jets", "full", {}),

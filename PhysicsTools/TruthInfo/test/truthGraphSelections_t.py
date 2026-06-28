@@ -58,6 +58,48 @@ class TestTruthGraphSelections(unittest.TestCase):
         self.assertTrue(tgs.selectionForFragment("ST_tch_top")["keepProductionSiblings"])
         self.assertTrue(tgs.selectionForFragment("TTbar_14TeV")["keepProductionSiblings"])
 
+    def test_ttX_routes_to_top(self):
+        # ttbar+X (ttH, ttW, ttZ, ttbb, four-top, ttDM) all carry top quarks and
+        # seed both tops, like ttbar. SUSY models with a trailing 'tttt' must NOT
+        # be caught by the broadened top rule.
+        for frag in ["TTH", "TTHH_SL_LO_includeTau", "ttZJets", "TTbb_4f", "TTW", "TTTT_TuneCP5", "ttDM_fragment"]:
+            self.assertEqual(tgs.templateForFragment(frag)[0], "top", frag)
+            self.assertEqual(tgs.selectionForFragment(frag)["seedPdgIds"], [6, -6], frag)
+        self.assertEqual(tgs.templateForFragment("SMS-T1tttt")[0], "full")
+
+    def test_associated_higgs_vh(self):
+        # WH / ZH / VH / WWH / ZZH (and HZJ/HWJ orderings): seed the Higgs and keep
+        # the recoiling vector boson as a production sibling.
+        for frag in ["WH_HToBB_WToLNu", "ZH_HToBB_ZToLL", "WWH_3l", "ZZH", "HZJ_Hee_CT10_13TeV"]:
+            self.assertEqual(tgs.templateForFragment(frag)[0], "vh", frag)
+            self.assertEqual(tgs.selectionForFragment(frag)["seedPdgIds"], [25], frag)
+            self.assertTrue(tgs.selectionForFragment(frag)["keepProductionSiblings"], frag)
+
+    def test_di_higgs_uses_ggf(self):
+        # gg -> HH and HH -> ...: seedPdgIds=25 seeds every Higgs (the ggf preset).
+        for frag in ["GluGluToHHTo2B2Tau", "HHto2B2G", "HHToWWZZ_4lplus"]:
+            self.assertEqual(tgs.templateForFragment(frag)[0], "ggf", frag)
+            self.assertEqual(tgs.selectionForFragment(frag)["seedPdgIds"], [25], frag)
+
+    def test_diboson(self):
+        for frag in ["WWTo2L2Nu", "WZTo3LNu", "ZZTo4L", "VBS_OSWW_LL_noTop", "WWJJ_SS", "VVTo2L2Nu"]:
+            self.assertEqual(tgs.templateForFragment(frag)[0], "diboson", frag)
+        self.assertEqual(tgs.selectionForFragment("WZTo3LNu")["seedPdgIds"], [23, 24, -24])
+        self.assertTrue(tgs.selectionForFragment("VBS_OSWW")["keepProductionSiblings"])
+
+    def test_wjets_and_dy_njet(self):
+        # W+jets and W single-boson seed the W; DrellYan incl. n-jet / dyellell seed the Z.
+        for frag in ["WJetsToLNu_TuneCP5", "W4JToLNu", "Wj_enuj_CT10_13TeV", "WtoTauNu_Bin-M-200"]:
+            self.assertEqual(tgs.templateForFragment(frag)[0], "resonance", frag)
+            self.assertEqual(tgs.selectionForFragment(frag)["seedPdgIds"], [24, -24], frag)
+        for frag in ["DY1jToLL_M-50", "dyellell012j_5f_NLO_FXFX", "DYToLL_M-50_14TeV"]:
+            self.assertEqual(tgs.templateForFragment(frag)[0], "resonance", frag)
+            self.assertEqual(tgs.selectionForFragment(frag)["seedPdgIds"], [23, 32], frag)
+
+    def test_single_top_s_channel(self):
+        self.assertEqual(tgs.templateForFragment("ST_s-channel_4f")[0], "singletop")
+        self.assertEqual(tgs.selectionForFragment("ST_s-channel_4f")["seedPdgIds"], [6, -6])
+
     def test_channel_groups(self):
         self.assertEqual(tgs.selectionForFragment("ZMM_14")["decayPdgIdGroups"], [[13, -13]])
         self.assertEqual(tgs.selectionForFragment("ZEE_14")["decayPdgIdGroups"], [[11, -11]])
