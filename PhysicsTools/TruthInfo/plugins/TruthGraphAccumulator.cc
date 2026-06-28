@@ -142,6 +142,8 @@ private:
   std::vector<int32_t> simTrackToGen_;
   std::vector<std::pair<uint32_t, uint32_t>> edges_;
   std::vector<uint8_t> edgeKinds_;
+  std::vector<uint16_t> simVertexProcessType_;  // node-parallel; G4 process subtype (SimVertex only)
+  std::vector<uint8_t> simTrackBackscattered_;  // node-parallel; albedo flag (SimTrack only)
 
   [[nodiscard]] bool keepBx(int bx) const {
     return std::find(pileupBunchCrossings_.begin(), pileupBunchCrossings_.end(), bx) != pileupBunchCrossings_.end();
@@ -175,6 +177,8 @@ void TruthGraphAccumulator::initializeEvent(edm::Event const&, edm::EventSetup c
   simTrackToGen_.clear();
   edges_.clear();
   edgeKinds_.clear();
+  simVertexProcessType_.clear();
+  simTrackBackscattered_.clear();
 }
 
 void TruthGraphAccumulator::addSubEvent(std::vector<std::pair<int, int>> const& stableGen,
@@ -190,6 +194,8 @@ void TruthGraphAccumulator::addSubEvent(std::vector<std::pair<int, int>> const& 
     eventId_.push_back(packed);
     simTrackToVtx_.push_back(-1);
     simTrackToGen_.push_back(-1);
+    simVertexProcessType_.push_back(0);
+    simTrackBackscattered_.push_back(0);
     return node;
   };
   auto pushEdge = [&](uint32_t src, uint32_t dst, TruthGraph::EdgeKind k) {
@@ -216,6 +222,7 @@ void TruthGraphAccumulator::addSubEvent(std::vector<std::pair<int, int>> const& 
   const uint32_t baseVtx = static_cast<uint32_t>(nodes_.size());
   for (auto const& v : vertices) {
     const uint32_t node = pushNode(TruthGraph::NodeKind::SimVertex, static_cast<int64_t>(v.vertexId()), 0, 0);
+    simVertexProcessType_[node] = static_cast<uint16_t>(v.processType());
     vertexIdToNode.emplace(static_cast<uint32_t>(v.vertexId()), node);
   }
   const uint32_t baseTrk = static_cast<uint32_t>(nodes_.size());
@@ -223,6 +230,7 @@ void TruthGraphAccumulator::addSubEvent(std::vector<std::pair<int, int>> const& 
   trackIdToNode.reserve(tracks.size() * 2);
   for (auto const& t : tracks) {
     const uint32_t node = pushNode(TruthGraph::NodeKind::SimTrack, static_cast<int64_t>(t.trackId()), t.type(), 0);
+    simTrackBackscattered_[node] = t.isFromBackScattering() ? 1 : 0;
     trackIdToNode.emplace(t.trackId(), node);
   }
 
@@ -305,6 +313,8 @@ void TruthGraphAccumulator::finalizeEvent(edm::Event& event, edm::EventSetup con
   out->eventId = std::move(eventId_);
   out->simTrackToVtx = std::move(simTrackToVtx_);
   out->simTrackToGen = std::move(simTrackToGen_);
+  out->simVertexProcessType = std::move(simVertexProcessType_);
+  out->simTrackBackscattered = std::move(simTrackBackscattered_);
   out->statusFlags.assign(nNodes, 0);
   out->genEventOfNode.assign(nNodes, -1);
   out->simVtxToGen.assign(nNodes, -1);
