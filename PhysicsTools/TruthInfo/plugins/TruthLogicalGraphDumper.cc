@@ -262,16 +262,30 @@ namespace {
     if (particleId >= g.nParticles())
       return;
 
-    for (const uint32_t vertexId : g.decayVertices(particleId)) {
-      if (vertexId >= g.nVertices())
-        continue;
+    // Iterative DFS with a visited set: cycle-safe (a stray cycle would otherwise
+    // overflow the stack) and visits each descendant exactly once (no exponential
+    // blow-up on re-convergent / diamond topologies). f is invoked once per
+    // distinct descendant, never on the start particle itself.
+    std::vector<uint8_t> visited(g.nParticles(), 0);
+    std::vector<uint32_t> stack;
+    visited[particleId] = 1;
+    stack.push_back(particleId);
 
-      for (const uint32_t childId : g.outgoingParticles(vertexId)) {
-        if (childId >= g.nParticles())
+    while (!stack.empty()) {
+      const uint32_t current = stack.back();
+      stack.pop_back();
+
+      for (const uint32_t vertexId : g.decayVertices(current)) {
+        if (vertexId >= g.nVertices())
           continue;
 
-        f(childId);
-        forEachDescendantParticle(g, childId, f);
+        for (const uint32_t childId : g.outgoingParticles(vertexId)) {
+          if (childId >= g.nParticles() || visited[childId])
+            continue;
+          visited[childId] = 1;
+          f(childId);
+          stack.push_back(childId);
+        }
       }
     }
   }

@@ -300,6 +300,10 @@ std::vector<truth::Particle> truth::Graph::ancestorsOf(size_type particleId) con
   std::queue<uint32_t> q;
   std::vector<uint32_t> buf;  // reused per-node parent buffer (no per-node alloc)
 
+  // Mark the start visited so a cycle back to it cannot list it as its own
+  // ancestor (and so a direct self-loop is skipped).
+  dist[particleId] = 0;
+
   appendParents(particleId, buf);
   for (uint32_t p : buf) {
     if (dist[p] >= 0)
@@ -336,6 +340,10 @@ std::vector<truth::Particle> truth::Graph::descendantsOf(size_type particleId) c
   std::queue<uint32_t> q;
   std::vector<uint32_t> buf;  // reused per-node child buffer (no per-node alloc)
 
+  // Mark the start visited so a cycle back to it cannot list it as its own
+  // descendant (and so a direct self-loop is skipped).
+  dist[particleId] = 0;
+
   appendChildren(particleId, buf);
   for (uint32_t p : buf) {
     if (dist[p] >= 0)
@@ -370,6 +378,10 @@ std::optional<truth::Particle> truth::Graph::firstAncestorWithPdgIdOf(size_type 
   std::vector<uint8_t> seen(nParticles(), 0);
   std::queue<uint32_t> q;
   std::vector<uint32_t> buf;  // reused per-node parent buffer (no per-node alloc)
+
+  // Mark the start visited so a cycle back to it cannot return it as its own
+  // ancestor.
+  seen[particleId] = 1;
 
   appendParents(particleId, buf);
   for (uint32_t p : buf) {
