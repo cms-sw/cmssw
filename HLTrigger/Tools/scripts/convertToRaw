@@ -296,16 +296,17 @@ else:
     sys.stderr.write(f'logic error')
     sys.exit(1)
 
-current_area = os.environ['CMSSW_BASE']
-release_area = os.environ['CMSSW_RELEASE_BASE']
-full_release = os.environ['CMSSW_FULL_RELEASE_BASE']
 
-if current_area and os.path.exists(current_area + '/src/' + config_name):
-    config_py = current_area + '/src/' + config_name
-elif release_area and os.path.exists(release_area + '/src/' + config_name):
-    config_py = release_area + '/src/' + config_name
-elif full_release and os.path.exists(full_release + '/src/' + config_name):
-    config_py = full_release + '/src/' + config_name
+current_area = os.environ.get("CMSSW_BASE")
+release_area = os.environ.get("CMSSW_RELEASE_BASE")
+full_release = os.environ.get("CMSSW_FULL_RELEASE_BASE")
+
+if current_area and os.path.exists(os.path.join(current_area, "src", config_name)):
+    config_py = os.path.join(current_area, "src", config_name)
+elif release_area and os.path.exists(os.path.join(release_area, "src", config_name)):
+    config_py = os.path.join(release_area, "src", config_name)
+elif full_release and os.path.exists(os.path.join(full_release, "src", config_name)):
+    config_py = os.path.join(full_release, "src", config_name)
 else:
     sys.stderr.write('error: cannot find the configuration file %s\n' % config_name)
     sys.exit(1)
