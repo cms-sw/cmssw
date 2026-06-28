@@ -52,7 +52,7 @@ namespace truth {
     if (hits.empty())
       return;
 
-    // Sort by detId, then recHitIndex. invalidRecHitIndex == UINT32_MAX sorts
+    // Sort by detId, then recHitIndex. kInvalidRecHitIndex == UINT32_MAX sorts
     // last, so the first entry of each detId run already carries the valid index
     // when one exists.
     std::sort(hits.begin(), hits.end(), [](Hit const& a, Hit const& b) {
@@ -66,7 +66,7 @@ namespace truth {
     for (std::size_t r = 0; r < hits.size(); ++r) {
       if (w > 0 && hits[w - 1].detId == hits[r].detId) {
         hits[w - 1].energy += hits[r].energy;
-        if (hits[w - 1].recHitIndex == Hit::invalidRecHitIndex && hits[r].recHitIndex != Hit::invalidRecHitIndex)
+        if (hits[w - 1].recHitIndex == Hit::kInvalidRecHitIndex && hits[r].recHitIndex != Hit::kInvalidRecHitIndex)
           hits[w - 1].recHitIndex = hits[r].recHitIndex;
       } else {
         hits[w++] = hits[r];

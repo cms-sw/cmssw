@@ -478,7 +478,7 @@ void TruthLogicalGraphHitIndexProducer::fillSimHits(edm::Event& event,
       if (detId == 0)
         continue;
 
-      uint32_t recHitIndex = truth::LogicalGraphHitIndex::Hit::invalidRecHitIndex;
+      uint32_t recHitIndex = truth::LogicalGraphHitIndex::Hit::kInvalidRecHitIndex;
 
       if (recHitMap != nullptr) {
         const auto it = recHitMap->find(detId);
@@ -559,7 +559,7 @@ void TruthLogicalGraphHitIndexProducer::fillMtdHits(edm::Event& event,
       continue;
 
     // The best-matched reco FTLCluster -> a global index across the two collections.
-    uint32_t recHitIndex = truth::LogicalGraphHitIndex::Hit::invalidRecHitIndex;
+    uint32_t recHitIndex = truth::LogicalGraphHitIndex::Hit::kInvalidRecHitIndex;
     if (haveReco) {
       const MtdSimLayerClusterRef simRef(hClusters, i);
       const auto range = hAssoc->equal_range(simRef);

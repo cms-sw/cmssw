@@ -16,10 +16,9 @@ namespace truth {
   // Detector channels of the hit index. Each channel keeps its own per-particle
   // direct hits and subgraph-aggregated hits, so calorimeter, tracker, MTD and
   // muon hits stay separate (different DetId spaces, metrics and recHit links).
-  // Stored as the underlying type for dictionary simplicity; the order is the
-  // channel index and must stay stable.
-  // Ordered inner -> outer by detector radius. The value is the channel index and
-  // must stay stable; code refers to channels by name, never by literal index.
+  // Stored as the underlying type for dictionary simplicity, ordered inner ->
+  // outer by detector radius. The value is the channel index and must stay stable;
+  // code refers to channels by name, never by literal index.
   enum class HitChannel : uint8_t {
     Tracker = 0,    // tracker PSimHits, energy = energyLoss, no recHit link
     MTD = 1,        // MIP timing layer (BTL/ETL)
@@ -31,13 +30,13 @@ namespace truth {
   class LogicalGraphHitIndex {
   public:
     struct Hit {
-      static constexpr uint32_t invalidRecHitIndex = std::numeric_limits<uint32_t>::max();
+      static constexpr uint32_t kInvalidRecHitIndex = std::numeric_limits<uint32_t>::max();
 
       uint32_t detId = 0;
-      uint32_t recHitIndex = invalidRecHitIndex;
+      uint32_t recHitIndex = kInvalidRecHitIndex;
       float energy = 0.f;
 
-      [[nodiscard]] bool hasRecHit() const { return recHitIndex != invalidRecHitIndex; }
+      [[nodiscard]] bool hasRecHit() const { return recHitIndex != kInvalidRecHitIndex; }
     };
 
     // One detector channel: per-particle direct hits and subgraph-aggregated hits,
