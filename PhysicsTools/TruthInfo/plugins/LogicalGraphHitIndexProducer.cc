@@ -51,10 +51,10 @@ namespace {
     uint32_t nParticles() const { return graph_.nParticles(); }
 
     bool particleHasSim(uint32_t particleId) const {
-      return particleId < graph_.particles.size() && graph_.particles[particleId].hasSim();
+      return particleId < graph_.particles().size() && graph_.particles()[particleId].hasSim();
     }
 
-    int32_t particleSimNode(uint32_t particleId) const { return graph_.particles[particleId].simNode; }
+    int32_t particleSimNode(uint32_t particleId) const { return graph_.particles()[particleId].simNode; }
 
     template <typename F>
     void forEachParticleChild(uint32_t parentParticleId, F&& f) const {

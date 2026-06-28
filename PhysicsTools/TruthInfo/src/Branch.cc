@@ -89,9 +89,9 @@ namespace truth {
         case ClosureKind::UntilPdgId:
           // Stop at (but include) a particle whose id is in the stop list,
           // unless it is itself a root.
-          expand =
-              depth == 0 || std::find(spec_.stopPdgIds.begin(), spec_.stopPdgIds.end(), graph_->particles[id].pdgId) ==
-                                spec_.stopPdgIds.end();
+          expand = depth == 0 ||
+                   std::find(spec_.stopPdgIds.begin(), spec_.stopPdgIds.end(), graph_->particles()[id].pdgId) ==
+                       spec_.stopPdgIds.end();
           break;
         case ClosureKind::Predicate:
           expand = depth == 0 || !(spec_.stopAt && spec_.stopAt(graph_->particle(id)));
@@ -167,7 +167,7 @@ namespace truth {
 
   double Branch::invisibleEnergy() const { return p4().energy() - visibleP4().energy(); }
 
-  int32_t Branch::rootPdgId() const { return valid() ? graph_->particles[roots_.front()].pdgId : 0; }
+  int32_t Branch::rootPdgId() const { return valid() ? graph_->particles()[roots_.front()].pdgId : 0; }
 
   std::optional<Particle> Branch::originWithPdgId(int32_t pdgId) const {
     if (!valid())
@@ -179,19 +179,19 @@ namespace truth {
 
   bool Branch::hasHeavyFlavor(int32_t quarkFlavor) const {
     for (uint32_t id : traverse()) {
-      if (hadronHasQuark(graph_->particles[id].pdgId, quarkFlavor))
+      if (hadronHasQuark(graph_->particles()[id].pdgId, quarkFlavor))
         return true;
     }
     return false;
   }
 
-  int32_t Branch::genEvent() const { return valid() ? graph_->particles[roots_.front()].genEvent : -1; }
+  int32_t Branch::genEvent() const { return valid() ? graph_->particles()[roots_.front()].genEvent : -1; }
 
   int Branch::bunchCrossing() const {
-    return valid() ? decodeEventId(graph_->particles[roots_.front()].eventId).bunchCrossing() : 0;
+    return valid() ? decodeEventId(graph_->particles()[roots_.front()].eventId).bunchCrossing() : 0;
   }
 
-  int Branch::event() const { return valid() ? decodeEventId(graph_->particles[roots_.front()].eventId).event() : 0; }
+  int Branch::event() const { return valid() ? decodeEventId(graph_->particles()[roots_.front()].eventId).event() : 0; }
 
   std::optional<Particle> Branch::commonAncestor(Branch const& other) const {
     if (!valid() || !other.valid() || graph_ != other.graph_)

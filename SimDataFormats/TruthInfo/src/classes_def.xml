@@ -1,6 +1,7 @@
 <lcgdict>
-  <class name="TruthGraph" ClassVersion="3">
+  <class name="TruthGraph" ClassVersion="4">
     <version ClassVersion="3" checksum="2885336572"/>
+    <version ClassVersion="4" checksum="2439525732"/>
   </class>
   <class name="TruthGraph::NodeRef" ClassVersion="3">
     <version ClassVersion="3" checksum="4042798111"/>
@@ -8,8 +9,9 @@
   <class name="std::vector<TruthGraph::NodeRef>"/>
   <class name="edm::Wrapper<TruthGraph>"/>
 
-  <class name="truth::Graph" ClassVersion="3">
+  <class name="truth::Graph" ClassVersion="4">
     <version ClassVersion="3" checksum="260758393"/>
+    <version ClassVersion="4" checksum="2233235025"/>
   </class>
   <class name="truth::Checkpoint" ClassVersion="3">
     <version ClassVersion="3" checksum="4215584109"/>

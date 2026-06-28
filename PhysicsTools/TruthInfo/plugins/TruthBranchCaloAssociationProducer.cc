@@ -132,7 +132,7 @@ void TruthBranchCaloAssociationProducer::produce(edm::Event& event, edm::EventSe
   std::vector<uint32_t> roots;
   if (restrictRoots) {
     for (uint32_t i = 0; i < graph.nParticles(); ++i) {
-      const int pdgId = graph.particles[i].pdgId;
+      const int pdgId = graph.particles()[i].pdgId;
       if (std::find(interestingPdgIds_.begin(), interestingPdgIds_.end(), pdgId) != interestingPdgIds_.end())
         roots.push_back(i);
     }

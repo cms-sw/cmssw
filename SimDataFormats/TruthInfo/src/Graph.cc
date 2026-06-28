@@ -43,7 +43,7 @@ const truth::ParticleData& truth::Particle::data() const {
     static const truth::ParticleData kEmpty{};
     return kEmpty;
   }
-  return graph_->particles.at(id_);
+  return graph_->particles_.at(id_);
 }
 
 bool truth::Particle::hasGen() const { return data().hasGen(); }
@@ -125,7 +125,7 @@ const truth::VertexData& truth::Vertex::data() const {
     static const truth::VertexData kEmpty{};
     return kEmpty;
   }
-  return graph_->vertices.at(id_);
+  return graph_->vertices_.at(id_);
 }
 
 bool truth::Vertex::hasGen() const { return data().hasGen(); }
@@ -255,7 +255,7 @@ void truth::Graph::appendChildren(size_type particleId, std::vector<uint32_t>& o
 }
 
 namespace {
-  // Append the unique particles in `ids` (preserving first-occurrence order) to
+  // Append the unique particles_ in `ids` (preserving first-occurrence order) to
   // `out` as views. Degree is tiny, so the O(deg^2) scan beats an nParticles array.
   void appendUnique(truth::Graph const* g, std::vector<uint32_t> const& ids, std::vector<truth::Particle>& out) {
     for (uint32_t p : ids) {
@@ -395,7 +395,7 @@ std::optional<truth::Particle> truth::Graph::firstAncestorWithPdgIdOf(size_type 
     const uint32_t cur = q.front();
     q.pop();
 
-    if (particles[cur].pdgId == pdgId)
+    if (particles_[cur].pdgId == pdgId)
       return particle(cur);
 
     buf.clear();
@@ -504,17 +504,17 @@ std::optional<truth::Particle> truth::Graph::lowestCommonAncestor(std::vector<Pa
 }
 
 bool truth::Graph::isConsistent() const {
-  const bool p2dv = checkCSR(particleToDecayVertexOffsets, particleToDecayVertices, particles.size()) &&
-                    checkTargets(particleToDecayVertices, nVertices());
+  const bool p2dv = checkCSR(particleToDecayVertexOffsets_, particleToDecayVertices_, particles_.size()) &&
+                    checkTargets(particleToDecayVertices_, nVertices());
 
-  const bool p2pv = checkCSR(particleToProductionVertexOffsets, particleToProductionVertices, particles.size()) &&
-                    checkTargets(particleToProductionVertices, nVertices());
+  const bool p2pv = checkCSR(particleToProductionVertexOffsets_, particleToProductionVertices_, particles_.size()) &&
+                    checkTargets(particleToProductionVertices_, nVertices());
 
-  const bool v2op = checkCSR(vertexToOutgoingParticleOffsets, vertexToOutgoingParticles, vertices.size()) &&
-                    checkTargets(vertexToOutgoingParticles, nParticles());
+  const bool v2op = checkCSR(vertexToOutgoingParticleOffsets_, vertexToOutgoingParticles_, vertices_.size()) &&
+                    checkTargets(vertexToOutgoingParticles_, nParticles());
 
-  const bool v2ip = checkCSR(vertexToIncomingParticleOffsets, vertexToIncomingParticles, vertices.size()) &&
-                    checkTargets(vertexToIncomingParticles, nParticles());
+  const bool v2ip = checkCSR(vertexToIncomingParticleOffsets_, vertexToIncomingParticles_, vertices_.size()) &&
+                    checkTargets(vertexToIncomingParticles_, nParticles());
 
   return p2dv && p2pv && v2op && v2ip;
 }

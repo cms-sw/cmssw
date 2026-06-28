@@ -292,12 +292,12 @@ void TruthGraphTopologyChecker::analyzeLogical(truth::Graph const& g) {
 
   auto partStr = [&](uint32_t p) {
     std::ostringstream os;
-    os << "pdg=" << g.particles[p].pdgId << " st=" << g.particles[p].status;
+    os << "pdg=" << g.particles()[p].pdgId << " st=" << g.particles()[p].status;
     return os.str();
   };
 
   for (uint32_t v = 0; v < nV; ++v) {
-    if (g.vertices[v].isArtificial())
+    if (g.vertices()[v].isArtificial())
       ++logArtificialVertices_;
     const auto out = g.outgoingParticles(v);
     const auto in = g.incomingParticles(v);
@@ -357,7 +357,7 @@ void TruthGraphTopologyChecker::analyzeLogical(truth::Graph const& g) {
     }
 
     // Pileup provenance: signal is (bx==0, event==0); everything else is pileup.
-    const EncodedEventId eid = decodeEid(g.particles[p].eventId);
+    const EncodedEventId eid = decodeEid(g.particles()[p].eventId);
     ++logBxHist_[eid.bunchCrossing()];
     if (eid.bunchCrossing() == 0 && eid.event() == 0)
       ++logSignalParticles_;

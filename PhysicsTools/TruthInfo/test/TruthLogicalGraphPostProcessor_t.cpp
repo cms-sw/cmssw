@@ -46,14 +46,14 @@ namespace {
 
   struct GraphBuilder {
     explicit GraphBuilder(uint32_t nParticles, uint32_t nVertices) {
-      graph.particles.resize(nParticles);
-      graph.vertices.resize(nVertices);
+      graph.particles().resize(nParticles);
+      graph.vertices().resize(nVertices);
     }
 
     void setGenParticle(uint32_t particleId, int32_t pdgId, int16_t status, int32_t genNode) {
       CPPUNIT_ASSERT(particleId < graph.nParticles());
 
-      auto& particle = graph.particles[particleId];
+      auto& particle = graph.particles()[particleId];
       particle.genNode = genNode;
       particle.simNode = -1;
       particle.pdgId = pdgId;
@@ -66,7 +66,7 @@ namespace {
     void setSimParticle(uint32_t particleId, int32_t pdgId, int32_t simNode) {
       CPPUNIT_ASSERT(particleId < graph.nParticles());
 
-      auto& particle = graph.particles[particleId];
+      auto& particle = graph.particles()[particleId];
       particle.genNode = -1;
       particle.simNode = simNode;
       particle.pdgId = pdgId;
@@ -79,7 +79,7 @@ namespace {
     void setGenSimParticle(uint32_t particleId, int32_t pdgId, int16_t status, int32_t genNode, int32_t simNode) {
       CPPUNIT_ASSERT(particleId < graph.nParticles());
 
-      auto& particle = graph.particles[particleId];
+      auto& particle = graph.particles()[particleId];
       particle.genNode = genNode;
       particle.simNode = simNode;
       particle.pdgId = pdgId;
@@ -92,7 +92,7 @@ namespace {
     void setGenVertex(uint32_t vertexId, int32_t genNode) {
       CPPUNIT_ASSERT(vertexId < graph.nVertices());
 
-      auto& vertex = graph.vertices[vertexId];
+      auto& vertex = graph.vertices()[vertexId];
       vertex.genNode = genNode;
       vertex.simNode = -1;
       vertex.eventId = 0;
@@ -102,7 +102,7 @@ namespace {
     void setSimVertex(uint32_t vertexId, int32_t simNode) {
       CPPUNIT_ASSERT(vertexId < graph.nVertices());
 
-      auto& vertex = graph.vertices[vertexId];
+      auto& vertex = graph.vertices()[vertexId];
       vertex.genNode = -1;
       vertex.simNode = simNode;
       vertex.eventId = 0;  // signal interaction
@@ -112,7 +112,7 @@ namespace {
     void setGenSimVertex(uint32_t vertexId, int32_t genNode, int32_t simNode) {
       CPPUNIT_ASSERT(vertexId < graph.nVertices());
 
-      auto& vertex = graph.vertices[vertexId];
+      auto& vertex = graph.vertices()[vertexId];
       vertex.genNode = genNode;
       vertex.simNode = simNode;
       vertex.eventId = 0;  // signal interaction
@@ -138,23 +138,23 @@ namespace {
     truth::Graph finish() {
       buildCSR(graph.nParticles(),
                particleToDecayVertexPairs,
-               graph.particleToDecayVertexOffsets,
-               graph.particleToDecayVertices);
+               graph.particleToDecayVertexOffsets(),
+               graph.particleToDecayVertices());
 
       buildCSR(graph.nParticles(),
                particleToProductionVertexPairs,
-               graph.particleToProductionVertexOffsets,
-               graph.particleToProductionVertices);
+               graph.particleToProductionVertexOffsets(),
+               graph.particleToProductionVertices());
 
       buildCSR(graph.nVertices(),
                vertexToOutgoingParticlePairs,
-               graph.vertexToOutgoingParticleOffsets,
-               graph.vertexToOutgoingParticles);
+               graph.vertexToOutgoingParticleOffsets(),
+               graph.vertexToOutgoingParticles());
 
       buildCSR(graph.nVertices(),
                vertexToIncomingParticlePairs,
-               graph.vertexToIncomingParticleOffsets,
-               graph.vertexToIncomingParticles);
+               graph.vertexToIncomingParticleOffsets(),
+               graph.vertexToIncomingParticles());
 
       CPPUNIT_ASSERT(graph.isConsistent());
 
@@ -172,7 +172,7 @@ namespace {
   uint32_t countParticlesWithPdgId(truth::Graph const& graph, int32_t pdgId) {
     uint32_t count = 0;
 
-    for (auto const& particle : graph.particles) {
+    for (auto const& particle : graph.particles()) {
       if (particle.pdgId == pdgId)
         ++count;
     }
@@ -183,7 +183,7 @@ namespace {
   uint32_t countStableGenParticles(truth::Graph const& graph) {
     uint32_t count = 0;
 
-    for (auto const& particle : graph.particles) {
+    for (auto const& particle : graph.particles()) {
       if (particle.hasGen() && particle.status == 1)
         ++count;
     }
@@ -192,13 +192,13 @@ namespace {
   }
 
   bool hasGenSimParticleWithPdgId(truth::Graph const& graph, int32_t pdgId) {
-    return std::any_of(graph.particles.begin(), graph.particles.end(), [pdgId](auto const& particle) {
+    return std::any_of(graph.particles().begin(), graph.particles().end(), [pdgId](auto const& particle) {
       return particle.pdgId == pdgId && particle.hasGen() && particle.hasSim();
     });
   }
 
   bool hasArtificialVertex(truth::Graph const& graph) {
-    return std::any_of(graph.vertices.begin(), graph.vertices.end(), [](auto const& vertex) {
+    return std::any_of(graph.vertices().begin(), graph.vertices().end(), [](auto const& vertex) {
       return !vertex.hasGen() && !vertex.hasSim();
     });
   }
@@ -208,7 +208,7 @@ namespace {
   // those sub-vertices descend from.
   uint32_t artificialVertexId(truth::Graph const& graph) {
     for (uint32_t i = 0; i < graph.nVertices(); ++i) {
-      auto const& vertex = graph.vertices[i];
+      auto const& vertex = graph.vertices()[i];
 
       if (vertex.isArtificial() && vertex.vertexRole() != truth::VertexRole::Interaction)
         return i;
@@ -220,7 +220,7 @@ namespace {
 
   uint32_t findParticleWithPdgId(truth::Graph const& graph, int32_t pdgId) {
     for (uint32_t i = 0; i < graph.nParticles(); ++i) {
-      if (graph.particles[i].pdgId == pdgId)
+      if (graph.particles()[i].pdgId == pdgId)
         return i;
     }
 
@@ -230,7 +230,7 @@ namespace {
 
   uint32_t findVertexWithRole(truth::Graph const& graph, truth::VertexRole role) {
     for (uint32_t i = 0; i < graph.nVertices(); ++i) {
-      if (graph.vertices[i].vertexRole() == role)
+      if (graph.vertices()[i].vertexRole() == role)
         return i;
     }
 
@@ -240,7 +240,7 @@ namespace {
 
   uint32_t countArtificialVerticesWithRole(truth::Graph const& graph, truth::VertexRole role) {
     uint32_t count = 0;
-    for (auto const& vertex : graph.vertices) {
+    for (auto const& vertex : graph.vertices()) {
       if (vertex.isArtificial() && vertex.vertexRole() == role)
         ++count;
     }
@@ -454,7 +454,7 @@ void TestTruthLogicalGraphPostProcessor::testSeedCutKeepsUnrelatedStableGenSimPa
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), artificialIncoming.size());
     const auto connectorProduction = output.productionVertices(artificialIncoming.front());
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), connectorProduction.size());
-    CPPUNIT_ASSERT(output.vertices[connectorProduction.front()].vertexRole() == truth::VertexRole::Interaction);
+    CPPUNIT_ASSERT(output.vertices()[connectorProduction.front()].vertexRole() == truth::VertexRole::Interaction);
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);
@@ -521,7 +521,7 @@ void TestTruthLogicalGraphPostProcessor::testSeedCutHidesUnselectedParentsOfKept
     const auto incoming = output.incomingParticles(pi0ProductionVertices.front());
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), incoming.size());
-    CPPUNIT_ASSERT_EQUAL(int32_t(25), output.particles[incoming.front()].pdgId);
+    CPPUNIT_ASSERT_EQUAL(int32_t(25), output.particles()[incoming.front()].pdgId);
 
     const uint32_t electron = findParticleWithPdgId(output, 11);
     const auto electronProductionVertices = output.productionVertices(electron);
@@ -639,7 +639,7 @@ void TestTruthLogicalGraphPostProcessor::testSeedRootIsMostUpstreamThroughRadiat
     uint32_t nZAttachedToArtificial = 0;
 
     for (uint32_t particleId = 0; particleId < output.nParticles(); ++particleId) {
-      if (output.particles[particleId].pdgId != 23)
+      if (output.particles()[particleId].pdgId != 23)
         continue;
 
       const auto productionVertices = output.productionVertices(particleId);
@@ -1134,7 +1134,7 @@ void TestTruthLogicalGraphPostProcessor::testSeedCutWithIgnoredParticles() {
     const auto incoming = output.incomingParticles(gammaProductionVertices.front());
 
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), incoming.size());
-    CPPUNIT_ASSERT_EQUAL(int32_t(25), output.particles[incoming.front()].pdgId);
+    CPPUNIT_ASSERT_EQUAL(int32_t(25), output.particles()[incoming.front()].pdgId);
 
     const uint32_t electron = findParticleWithPdgId(output, 11);
     const auto electronProductionVertices = output.productionVertices(electron);
@@ -1245,7 +1245,7 @@ void TestTruthLogicalGraphPostProcessor::testArtificialSourceRolesAndProvenance(
     CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 211));
 
     // Provenance: artificial sources carry the genEvent of the activity they summarize.
-    for (auto const& vertex : output.vertices) {
+    for (auto const& vertex : output.vertices()) {
       if (vertex.isArtificial())
         CPPUNIT_ASSERT_EQUAL(int32_t(0), vertex.genEvent);
     }
@@ -1253,7 +1253,7 @@ void TestTruthLogicalGraphPostProcessor::testArtificialSourceRolesAndProvenance(
     const uint32_t z = findParticleWithPdgId(output, 23);
     const auto zProd = output.productionVertices(z);
     CPPUNIT_ASSERT_EQUAL(std::size_t(1), zProd.size());
-    CPPUNIT_ASSERT(output.vertices[zProd.front()].vertexRole() == truth::VertexRole::Upstream);
+    CPPUNIT_ASSERT(output.vertices()[zProd.front()].vertexRole() == truth::VertexRole::Upstream);
 
     // The Upstream and UnderlyingEvent vertices each descend from the single
     // Interaction vertex through one artificial connector particle.
@@ -1563,7 +1563,7 @@ void TestTruthLogicalGraphPostProcessor::testEventIdKeyingSplitsInteractions() {
 
     // Tag the pile-up chain with its EncodedEventId.
     for (const uint32_t i : {4u, 5u, 6u, 7u})
-      builder.graph.particles[i].eventId = pileupEid;
+      builder.graph.particles()[i].eventId = pileupEid;
 
     builder.setGenVertex(0, 200);           // q -> Z (signal, dropped at depth 0)
     builder.setGenSimVertex(1, 201, 2001);  // Z -> mu mu (signal)
@@ -1601,7 +1601,7 @@ void TestTruthLogicalGraphPostProcessor::testEventIdKeyingSplitsInteractions() {
     // The two Interaction vertices carry the two distinct EncodedEventIds.
     bool sawSignal = false;
     bool sawPileup = false;
-    for (auto const& vertex : output.vertices) {
+    for (auto const& vertex : output.vertices()) {
       if (vertex.vertexRole() != truth::VertexRole::Interaction)
         continue;
       sawSignal = sawSignal || vertex.eventId == signalEid;
@@ -1633,7 +1633,7 @@ void TestTruthLogicalGraphPostProcessor::testSignalOnlyAndBunchCrossingFilterDro
       builder.setGenSimParticle(6, -13, 1, 106, 1006);
       builder.setGenSimParticle(7, 13, 1, 107, 1007);
       for (const uint32_t i : {4u, 5u, 6u, 7u})
-        builder.graph.particles[i].eventId = pileupEid;
+        builder.graph.particles()[i].eventId = pileupEid;
 
       builder.setGenVertex(0, 200);
       builder.setGenSimVertex(1, 201, 2001);

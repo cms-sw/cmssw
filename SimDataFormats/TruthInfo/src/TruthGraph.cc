@@ -11,17 +11,17 @@
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
 bool TruthGraph::isConsistent() const {
-  if (offsets.size() != nodes.size() + 1)
+  if (offsets_.size() != nodes_.size() + 1)
     return false;
-  if (!offsets.empty() && offsets.front() != 0)
+  if (!offsets_.empty() && offsets_.front() != 0)
     return false;
-  if (!offsets.empty() && offsets.back() != edges.size())
+  if (!offsets_.empty() && offsets_.back() != edges_.size())
     return false;
-  if (!edgeKind.empty() && edgeKind.size() != edges.size())
+  if (!edgeKind_.empty() && edgeKind_.size() != edges_.size())
     return false;
 
-  for (size_t i = 1; i < offsets.size(); ++i) {
-    if (offsets[i] < offsets[i - 1])
+  for (size_t i = 1; i < offsets_.size(); ++i) {
+    if (offsets_[i] < offsets_[i - 1])
       return false;
   }
   return true;
