@@ -94,8 +94,13 @@ def overlay_efficiency(list_objs, out, legend_title_override=None, xlabel=None):
 
     fontsize = 20
     fig, ax = plt.subplots(figsize=(10, 10))
+<<<<<<< HEAD
     hep.cms.label(llabel='Simulation Preliminary', rlabel=args.sample_label, ax=ax, fontsize=fontsize)
 
+=======
+    hep.cms.label(f'Preliminary  {args.sample_label}', data=False, lumi=None, com=None)
+    
+>>>>>>> d0d8f0375cd (fix hep lumitext issue and change RecoTauV to Tau)
     for i,obj in enumerate(list_objs):
         nbins, bin_edges, bin_centers, bin_widths = define_bins(obj)
         values, errors = histo_values_errors(obj)
@@ -187,7 +192,11 @@ def overlay_efficiency_with_gen(list_eff_objs, gen_obj, out, step_labels=None):
         step_labels = step_label_dict
     fontsize = 20
     fig, ax1 = plt.subplots(figsize=(12, 10))
+<<<<<<< HEAD
     hep.cms.label(llabel='Simulation Preliminary', rlabel=args.sample_label, ax=ax1, fontsize=fontsize)
+=======
+    hep.cms.label(f'Preliminary  {args.sample_label}', data=False, lumi=None, com=None)
+>>>>>>> d0d8f0375cd (fix hep lumitext issue and change RecoTauV to Tau)
     dm = int(list_eff_objs[0].GetTitle().split('DM ')[1].split(' ')[0])
     leg = int(list_eff_objs[0].GetTitle().split('leg')[1].split(' ')[0])
     var = list_eff_objs[0].GetTitle().split('vs ')[1]
@@ -276,8 +285,13 @@ def overlay_calo_and_track_chain(calo_objs, track_objs, gen_obj, out):
     """
     fontsize = 20
     fig, ax1 = plt.subplots(figsize=(14, 10))
+<<<<<<< HEAD
     hep.cms.label(llabel='Simulation Preliminary', rlabel=args.sample_label, ax=ax1, fontsize=fontsize)
 
+=======
+    hep.cms.label(f'Preliminary  {args.sample_label}', data=False, lumi=None, com=None)
+    
+>>>>>>> d0d8f0375cd (fix hep lumitext issue and change RecoTauV to Tau)
     ref_obj = calo_objs[0] if calo_objs else track_objs[0]
     dm = int(ref_obj.GetTitle().split('DM ')[1].split(' ')[0])
     leg = int(ref_obj.GetTitle().split('leg')[1].split(' ')[0])
@@ -389,8 +403,13 @@ def overlay_hist(list_objs, labels, out, xlabel, ylabel, title=""):
 
     fontsize = 20
     fig, ax = plt.subplots(figsize=(10, 10))
+<<<<<<< HEAD
     hep.cms.label(llabel='Simulation Preliminary', rlabel=args.sample_label, ax=ax, fontsize=fontsize)
 
+=======
+    hep.cms.label(f'Preliminary  {args.sample_label}', data=False, lumi=None, com=None)
+    
+>>>>>>> d0d8f0375cd (fix hep lumitext issue and change RecoTauV to Tau)
     for i, (obj, label) in enumerate(zip(list_objs, labels)):
         nbins, bin_edges, bin_centers, bin_widths = define_bins(obj)
         values, errors = histo_values_errors(obj)
@@ -1009,7 +1028,7 @@ def main():
     if args.step == 'HLT':
         dqm_dir = "DQMData/Run 1/HLT/Run summary/Tau/{module}"
     elif args.step == 'Offline':
-        dqm_dir = f"DQMData/Run 1/Run summary/RecoTauV/{module}"
+        dqm_dir = "DQMData/Run 1/Run summary/Tau/{module}"
     else:
         sys.exit("### ERROR: Please chose the step among the following ['HLT', 'Offline']")
 
