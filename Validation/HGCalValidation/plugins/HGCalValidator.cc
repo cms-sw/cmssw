@@ -695,6 +695,9 @@ void HGCalValidator::fillDescriptions(edm::ConfigurationDescriptions& descriptio
     psd1.add<double>("minAlpha", 0.);
     psd1.add<double>("maxAlpha", std::numbers::pi / 4.);
     psd1.add<int>("nintAlpha", 50);
+    psd1.add<double>("minTime", -50.);
+    psd1.add<double>("maxTime", 50.);
+    psd1.add<int>("nintTime", 100);
     psd1.add<double>("minMixedHitsSimCluster", 0.0);
     psd1.add<double>("maxMixedHitsSimCluster", 800.0);
     psd1.add<int>("nintMixedHitsSimCluster", 100);

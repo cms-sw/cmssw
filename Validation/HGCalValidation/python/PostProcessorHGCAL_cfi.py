@@ -56,7 +56,7 @@ eff_tracksters = []
 simDict = {"SimTrackster_fromCP_byHits":"_byHits_CP", "SimTrackster_byLCs":"_byLCs", "SimTrackster_fromCP_byLCs":"_byLCs_CP", "SimTrackster_byHits":"_byHits"}
 metrics = {"purity":["Purity","_"], "effic":["Efficiency","Eff_"], "fake":["Fake Rate","_"], "duplicate":["Duplicate(Split)","Dup_"], "merge":["Merge Rate","Merge_"]}
 variables = {"eta":["#eta",""], "phi":["#phi",""], "energy":["energy"," [GeV]"], "pt":["p_{T}"," [GeV]"],
-             "R":["R"," [cm]"], "alpha":["#alpha"," [rad]"]}
+             "R":["R"," [cm]"], "alpha":["#alpha"," [rad]"], "time":["time"," [ns]"]}
 for elem in simDict:
     for m in list(metrics.keys())[:2]:
         for v in variables:

@@ -1784,6 +1784,7 @@ _trackster_eppe_plots.extend([Plot("trackster_pt", **_common)])
 _trackster_eppe_plots.extend([Plot("trackster_energy", **_common)])
 _trackster_eppe_plots.extend([Plot("trackster_R", **_common)])
 _trackster_eppe_plots.extend([Plot("trackster_alpha", **_common)])
+_trackster_eppe_plots.extend([Plot("trackster_time", **_common)])
 _trackster_eppe = PlotGroup("EtaPhiPtEnergy", _trackster_eppe_plots, ncols=2)
 
 _trackster_xyz_plots = [Plot("trackster_x", **_common)]
