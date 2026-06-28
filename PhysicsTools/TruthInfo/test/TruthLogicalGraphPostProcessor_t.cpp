@@ -1681,6 +1681,22 @@ void TestTruthLogicalGraphPostProcessor::testSignalOnlyAndBunchCrossingFilterDro
       CPPUNIT_ASSERT(output.isConsistent());
       CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));
     }
+
+    // (d) The pile-up filter is orthogonal to the seed selection and must work
+    // with NO seeds: signalOnly on the full graph keeps the signal interaction
+    // untouched and drops the pile-up one. (Regression: previously the filter was
+    // folded inside the seed selection, which short-circuits without seeds, so the
+    // pile-up Z survived.)
+    {
+      auto config = defaultConfig();
+      config.signalOnly = true;
+      auto output = runPostProcessing(buildGraph(), config);
+      CPPUNIT_ASSERT(output.isConsistent());
+      CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 23));   // only the signal Z
+      CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 1));    // signal q kept (full graph)
+      CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, 13));   // signal mu-
+      CPPUNIT_ASSERT_EQUAL(uint32_t(1), countParticlesWithPdgId(output, -13));  // signal mu+
+    }
   } catch (cms::Exception const& ex) {
     std::cerr << ex.what() << std::endl;
     CPPUNIT_ASSERT(false);

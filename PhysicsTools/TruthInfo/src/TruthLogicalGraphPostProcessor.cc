@@ -1005,10 +1005,6 @@ namespace {
       }
     }
 
-    // Drop pile-up (or out-of-bunch) particles by their EncodedEventId, after the
-    // seed selection so it composes with any preset. No-op unless configured.
-    applyBunchCrossingFilter(input, config.signalOnly, config.keepBunchCrossings, keepParticle, stableSpectator);
-
     dropVerticesWithoutVisibleParticles(input, keepParticle, keepVertex);
 
     // Assign an artificial-source role to every kept particle whose real
@@ -1042,6 +1038,32 @@ namespace {
       }
     }
 
+    return rebuildFilteredGraph(input, keepParticle, keepVertex, attachRole);
+  }
+
+  // Stand-alone pile-up filter. The bunch-crossing pass must run independently of
+  // the seed/decay selection (which short-circuits when no seeds are configured),
+  // so a "keep the full graph but drop pile-up" configuration (signalOnly and/or
+  // keepBunchCrossings, no seeds) actually removes the out-of-time / pile-up
+  // particles. Keeps every in-time particle and the topology connecting them;
+  // no-op unless a pile-up filter is configured.
+  truth::Graph filterGraphByBunchCrossing(truth::Graph const& input,
+                                          truth::LogicalGraphPostProcessingConfig const& config) {
+    if (input.empty() || (!config.signalOnly && config.keepBunchCrossings.empty()))
+      return input;
+
+    const uint32_t nParticles = input.nParticles();
+    const uint32_t nVertices = input.nVertices();
+
+    std::vector<uint8_t> keepParticle(nParticles, 1);
+    std::vector<uint8_t> stableSpectator(nParticles, 0);  // unused outside applyBunchCrossingFilter
+    applyBunchCrossingFilter(input, config.signalOnly, config.keepBunchCrossings, keepParticle, stableSpectator);
+
+    std::vector<uint8_t> keepVertex(nVertices, 1);
+    dropVerticesWithoutVisibleParticles(input, keepParticle, keepVertex);
+
+    // No artificial sources: this is pile-up removal, not a focused selection.
+    std::vector<uint8_t> attachRole(nParticles, 0);
     return rebuildFilteredGraph(input, keepParticle, keepVertex, attachRole);
   }
 
@@ -1364,6 +1386,11 @@ namespace truth {
     if (config_.collapseIntermediateGenParticles) {
       input = collapseIntermediateGenParticleChains(input);
     }
+
+    // Pile-up removal runs before the seed selection so it composes with any
+    // preset (including the full-graph / no-seed case) and operates on the
+    // post-collapse indexing.
+    input = filterGraphByBunchCrossing(input, config_);
 
     input = filterGraphBySelection(input, config_);
 
