@@ -138,8 +138,8 @@ void EGammaSuperclusterProducer::produce(edm::Event& iEvent, const edm::EventSet
     assert(!superclusterLink.empty());
 
     reco::CaloClusterPtrVector trackstersEMInSupercluster;
-    float max_eta = std::numeric_limits<float>::min();
-    float max_phi = std::numeric_limits<float>::min();
+    float max_eta = std::numeric_limits<float>::lowest();
+    float max_phi = std::numeric_limits<float>::lowest();
     float min_eta = std::numeric_limits<float>::max();
     float min_phi = std::numeric_limits<float>::max();
     for (unsigned int tsInSc_id : superclusterLink) {
