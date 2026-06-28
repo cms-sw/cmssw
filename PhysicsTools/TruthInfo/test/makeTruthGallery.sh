@@ -51,6 +51,12 @@ SAMPLES=(
   # see the WARNING in PhysicsTools/TruthInfo/TTto2L2Nu_Powheg_Pythia8_cfi): an NLO
   # ttbar example alongside the LO Pythia8 ttbar (34034).
   "TTbarPowheg:34998"
+  # 34997.88 is a custom diboson WW->2l2nu (PhysicsTools/TruthInfo/WWTo2L2Nu_14TeV_TuneCP5_cfi):
+  # exercises the 'diboson' preset (seed the vector bosons {23,24,-24} + production system).
+  "Diboson:34997"
+  # 34996.88 is a custom VH ZH->bb,ll (PhysicsTools/TruthInfo/ZHToBB_ZToLL_14TeV_TuneCP5_cfi):
+  # exercises the 'vh' preset (seed the Higgs {25}, keep the recoiling Z as a sibling).
+  "VH:34996"
 )
 
 rm -rf "$OUT"; mkdir -p "$OUT"
