@@ -25,6 +25,12 @@ LIB="${1:-$PWD/library}"
 OUT="${2:-$PWD/dot_gallery}"
 CFG="$CMSSW_BASE/src/PhysicsTools/TruthInfo/test/dumpTruthGraphsFromGENSIMRECO_cfg.py"
 SELECT="$CMSSW_BASE/src/PhysicsTools/TruthInfo/python/truthGraphSelections.py"
+# DOT layout: 'dot' (default, hierarchical left-to-right ranks) or a force-directed
+# engine ('sfdp'/'fdp'/'neato') for node repulsion + spring edges toward parents.
+# ENGINE is the graphviz binary used to render and follows LAYOUT by default, so
+# e.g. `LAYOUT=sfdp makeTruthGallery.sh ...` produces the force-directed view.
+LAYOUT="${LAYOUT:-dot}"
+ENGINE="${ENGINE:-$LAYOUT}"
 NEVT="${NEVT:-3}"
 JOBS="${JOBS:-16}"
 
@@ -71,8 +77,8 @@ for s in "${SAMPLES[@]}"; do
   flags=$(python3 "$SELECT" "$frag")
   echo "  $lab: fragment '$frag' -> $(python3 "$SELECT" "$frag" --name) [$flags]"
   mkdir -p "$OUT/$lab"
-  cmds+=("cmsRun $CFG file:$step3 -n $NEVT -o $OUT/$lab $flags -t _sig > $OUT/$lab/sig.log 2>&1")
-  cmds+=("cmsRun $CFG file:$step3 -n 1 --showAll -s 0 -t _full -o $OUT/$lab > $OUT/$lab/full.log 2>&1")
+  cmds+=("cmsRun $CFG file:$step3 -n $NEVT -o $OUT/$lab $flags --layout $LAYOUT -t _sig > $OUT/$lab/sig.log 2>&1")
+  cmds+=("cmsRun $CFG file:$step3 -n 1 --showAll -s 0 --layout $LAYOUT -t _full -o $OUT/$lab > $OUT/$lab/full.log 2>&1")
 done
 
 [[ ${#cmds[@]} -eq 0 ]] && { echo "No samples found under $LIB"; exit 1; }
@@ -97,8 +103,9 @@ for d in "$OUT"/*/; do
 done
 # Large signal graphs (full SIM cascade, O(10^4) nodes) need a generous layout
 # budget; the dense gun samples (TenTau) take several minutes in dot.
+export ENGINE
 ls "$OUT"/*/*_signal_event*.dot 2>/dev/null | \
-  xargs -P "$JOBS" -I {} bash -c 'timeout 1500 dot -Tsvg "{}" -o "${1%.dot}.svg" 2>/dev/null' _ {}
+  xargs -P "$JOBS" -I {} bash -c 'timeout 1500 "$ENGINE" -Tsvg "$1" -o "${1%.dot}.svg" 2>/dev/null' _ {}
 
 echo "Gallery written to $OUT"
 for d in "$OUT"/*/; do

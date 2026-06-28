@@ -365,6 +365,7 @@ public:
         hitIndexToken_(mayConsume<truth::LogicalGraphHitIndex>(hitIndexTag_)),
         useHitIndex_(!hitIndexTag_.label().empty()),
         dotFile_(cfg.getParameter<std::string>("dotFile")),
+        layout_(cfg.getParameter<std::string>("layout")),
         maxParticles_(cfg.getParameter<unsigned>("maxParticles")),
         maxVertices_(cfg.getParameter<unsigned>("maxVertices")),
         maxEdgesPerNode_(cfg.getParameter<unsigned>("maxEdgesPerNode")),
@@ -419,6 +420,10 @@ public:
         ->setComment("PFRecHit collections, in the same order used by DetIdToRecHitMapProducer");
 
     desc.add<std::string>("dotFile", "truthlogicalgraph.dot");
+    desc.add<std::string>("layout", "dot")
+        ->setComment(
+            "DOT layout: 'dot' (default, hierarchical left-to-right ranks) or a force-directed engine "
+            "name ('sfdp'/'fdp'/'neato') for node repulsion + spring edges toward parents (no forced ranks)");
 
     desc.add<unsigned>("maxParticles", 5000)->setComment("Truncate logical particle nodes");
     desc.add<unsigned>("maxVertices", 5000)->setComment("Truncate logical vertex nodes");
@@ -459,7 +464,18 @@ public:
     std::ofstream os(eventDotFile);
 
     os << "digraph TruthLogicalGraph {\n";
-    os << "  rankdir=LR;\n";
+    if (layout_.empty() || layout_ == "dot") {
+      os << "  rankdir=LR;\n";  // hierarchical: left-to-right ranks (the default)
+    } else {
+      // Force-directed engine (sfdp / fdp / neato / ...): nodes repel each other and
+      // edges act as springs pulling children toward their parents, with overlap
+      // removal and no forced ranks. The `layout` graph attribute makes the standard
+      // `dot -Tsvg` invocation use that engine.
+      os << "  layout=\"" << layout_ << "\";\n";
+      os << "  overlap=\"prism\";\n";  // remove node overlaps
+      os << "  splines=line;\n";       // straight edges (spline routing is very slow on big graphs)
+      os << "  K=1.0;\n";              // preferred edge length / spring constant
+    }
     os << "  node [fontsize=10];\n";
 
     const uint32_t nParticles = std::min<uint32_t>(g.nParticles(), maxParticles_);
@@ -970,6 +986,7 @@ private:
   std::vector<edm::EDGetTokenT<reco::PFRecHitCollection>> pfRecHitTokens_;
 
   std::string dotFile_;
+  std::string layout_;
   unsigned maxParticles_;
   unsigned maxVertices_;
   unsigned maxEdgesPerNode_;
