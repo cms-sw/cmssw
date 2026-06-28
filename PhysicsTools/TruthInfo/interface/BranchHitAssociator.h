@@ -33,7 +33,14 @@ namespace truth {
   struct BranchMatch {
     uint32_t rootParticleId = 0;
     float sharedEnergy = 0.f;  // (SharedHits metric: number of shared cells)
-    float score = 0.f;         // lower is better
+    // Reco-normalized score: how much of the reco object the branch fails to
+    // cover (denominator = reco self-energy / reco hit count). Use for the
+    // reco->branch direction. Lower is better.
+    float score = 0.f;
+    // Branch-normalized score: how much of the branch the reco object fails to
+    // cover (denominator = branch subgraph self-energy / branch hit count). Use
+    // for the branch->reco direction. Lower is better.
+    float reverseScore = 0.f;
   };
 
   // Associates reco objects to truth branches (subtrees) by shared detector hits.
@@ -46,10 +53,16 @@ namespace truth {
   public:
     enum class Metric { SharedEnergy, SharedHits };
 
+    // candidateRoots restricts the branch roots considered. By default an empty
+    // list means "every particle" (the common unrestricted case). Pass
+    // emptyRootsMeansAll = false to instead treat an empty list as "no candidates"
+    // (match nothing) - needed when a caller asked for a restriction that happened
+    // to select no particle in this event, which must not silently fall back to all.
     explicit BranchHitAssociator(LogicalGraphHitIndex const& hitIndex,
                                  std::vector<uint32_t> candidateRoots = {},
                                  Metric metric = Metric::SharedEnergy,
-                                 HitChannel channel = HitChannel::HGCalCalo);
+                                 HitChannel channel = HitChannel::HGCalCalo,
+                                 bool emptyRootsMeansAll = true);
 
     // Best branches for a reco object's hits, sorted by score ascending. If
     // maxResults > 0, only the best maxResults are returned.
@@ -88,6 +101,12 @@ namespace truth {
     // Per-cell total sim energy as parallel sorted arrays (cellEnergyKeys_ ascending).
     std::vector<uint32_t> cellEnergyKeys_;
     std::vector<float> cellEnergyValues_;
+
+    // Per-root branch self-energy (sum of subgraph-hit energy^2 on channel_),
+    // indexed by particle id; the denominator for the branch-normalized reverse
+    // score. Computed once with the inverted index so bestBranches() needs no
+    // full branch-hit scan.
+    std::vector<double> rootSelfEnergySq_;
   };
 
 }  // namespace truth

@@ -59,6 +59,8 @@ class TestBranchHitAssociator : public CppUnit::TestFixture {
   CPPUNIT_TEST(testSharedHitsMetric);
   CPPUNIT_TEST(testGenericRecoObjectInterface);
   CPPUNIT_TEST(testTrackerChannel);
+  CPPUNIT_TEST(testEmptyRootsMatchNothingWhenRestricted);
+  CPPUNIT_TEST(testReverseScoreIsBranchNormalized);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -66,6 +68,8 @@ public:
   void testSharedHitsMetric();
   void testGenericRecoObjectInterface();
   void testTrackerChannel();
+  void testEmptyRootsMatchNothingWhenRestricted();
+  void testReverseScoreIsBranchNormalized();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranchHitAssociator);
@@ -143,4 +147,51 @@ void TestBranchHitAssociator::testTrackerChannel() {
   truth::BranchHitAssociator caloAssoc(
       index, {}, truth::BranchHitAssociator::Metric::SharedHits, truth::HitChannel::HGCalCalo);
   CPPUNIT_ASSERT(caloAssoc.bestBranches(reco).empty());
+}
+
+void TestBranchHitAssociator::testEmptyRootsMatchNothingWhenRestricted() {
+  auto index = buildIndex();
+
+  // Empty roots with emptyRootsMeansAll=false => no candidate branches, so even a
+  // perfectly-covering reco object matches nothing. (Regression: a configured
+  // pdg-id restriction that selects no particle in an event must not silently fall
+  // back to matching every branch.)
+  truth::BranchHitAssociator restricted(index,
+                                        {},
+                                        truth::BranchHitAssociator::Metric::SharedEnergy,
+                                        truth::HitChannel::HGCalCalo,
+                                        /*emptyRootsMeansAll=*/false);
+  std::vector<truth::RecoHit> reco{{10, 1.0f, 1.0f}, {11, 2.0f, 1.0f}, {12, 2.0f, 1.0f}};
+  CPPUNIT_ASSERT(restricted.bestBranches(reco).empty());
+
+  // Sanity: the default (empty roots => all) still matches the same object.
+  truth::BranchHitAssociator all(index);
+  CPPUNIT_ASSERT(!all.bestBranches(reco).empty());
+}
+
+void TestBranchHitAssociator::testReverseScoreIsBranchNormalized() {
+  auto index = buildIndex();
+  truth::BranchHitAssociator assoc(index);
+
+  // Reco object fully covers cells 10,11,12. Root 1's branch is only {11,12},
+  // which the reco object fully contains.
+  std::vector<truth::RecoHit> reco{{10, 1.0f, 1.0f}, {11, 2.0f, 1.0f}, {12, 2.0f, 1.0f}};
+  auto matches = assoc.bestBranches(reco);
+
+  bool sawRoot1 = false;
+  for (auto const& m : matches) {
+    if (m.rootParticleId == 0) {
+      // Root 0's subtree == the reco object: perfect both ways.
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, m.score, 1e-6);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, m.reverseScore, 1e-6);
+    } else if (m.rootParticleId == 1) {
+      sawRoot1 = true;
+      // Reco-centric: the reco object also hits cell 10, which root 1 does not
+      // explain -> score > 0. Branch-centric: the reco object covers all of root
+      // 1's branch -> reverseScore == 0. This asymmetry is the point of the fix.
+      CPPUNIT_ASSERT(m.score > 0.f);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, m.reverseScore, 1e-6);
+    }
+  }
+  CPPUNIT_ASSERT(sawRoot1);
 }
