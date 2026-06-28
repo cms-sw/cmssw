@@ -496,7 +496,17 @@ public:
           if (i >= hitIndex->nParticles())
             continue;
 
-          if (!hitIndex->subgraphHits(truth::HitChannel::HGCalCalo, i).empty())
+          // "Hitless" means no detectable hit in ANY channel: a particle that
+          // deposits only in the tracker / MTD / muon system (but never reaches
+          // HGCal) must not be treated as hitless and hidden.
+          bool hasAnySubgraphHit = false;
+          for (std::size_t ch = 0; ch < truth::kNumHitChannels; ++ch) {
+            if (!hitIndex->subgraphHits(static_cast<truth::HitChannel>(ch), i).empty()) {
+              hasAnySubgraphHit = true;
+              break;
+            }
+          }
+          if (hasAnySubgraphHit)
             continue;
 
           hideParticle[i] = 1;
