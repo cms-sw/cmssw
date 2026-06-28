@@ -6,6 +6,7 @@
 #define SimCalorimetry_HGCalAssociatorProducers_DetIdRecHitMap_h
 
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <utility>
@@ -37,14 +38,20 @@ namespace hgcal {
     [[nodiscard]] std::size_t size() const { return entries_.size(); }
     [[nodiscard]] bool empty() const { return entries_.empty(); }
 
-    // Append a (detId -> recHit index) entry. Call finalize() once afterwards.
-    void add(uint32_t detId, uint32_t recHitIndex) { entries_.emplace_back(detId, recHitIndex); }
+    // Append a (detId -> recHit index) entry. Only valid before finalize(); call
+    // finalize() exactly once after all entries are added.
+    void add(uint32_t detId, uint32_t recHitIndex) {
+      assert(!finalized_ && "DetIdRecHitMap::add() called after finalize()");
+      entries_.emplace_back(detId, recHitIndex);
+    }
 
     // Sort by detId so find() can binary-search, and drop duplicate detIds
     // (keeping the first inserted, i.e. the lowest recHit index, as the hash-map
     // build did). stable_sort preserves insertion order among equal detIds.
-    // Returns the number of duplicate entries dropped.
+    // Returns the number of duplicate entries dropped. Must be called exactly once.
     uint32_t finalize() {
+      assert(!finalized_ && "DetIdRecHitMap::finalize() called more than once");
+      finalized_ = true;
       std::stable_sort(
           entries_.begin(), entries_.end(), [](value_type const& a, value_type const& b) { return a.first < b.first; });
 
@@ -62,6 +69,7 @@ namespace hgcal {
 
     // Lookup by detId; returns end() when absent. Requires finalize() first.
     [[nodiscard]] const_iterator find(uint32_t detId) const {
+      assert(finalized_ && "DetIdRecHitMap::find() called before finalize()");
       auto it = std::lower_bound(
           entries_.begin(), entries_.end(), detId, [](value_type const& e, uint32_t key) { return e.first < key; });
       return (it != entries_.end() && it->first == detId) ? it : entries_.end();
@@ -72,6 +80,7 @@ namespace hgcal {
 
   private:
     std::vector<value_type> entries_;
+    bool finalized_ = false;  // guards the build-once (add) / lookup-many (find) contract
   };
 
 }  // namespace hgcal
