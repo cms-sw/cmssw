@@ -51,16 +51,17 @@
   <test name="DiElectronVertex" command="testingScripts/test_unitDiElectronVertex.sh"/> 
   <test name="SubmitPVrbr" command="testingScripts/test_unitSubmitPVrbr.sh"/>
   <test name="SubmitPVsplit" command="testingScripts/test_unitSubmitPVsplit.sh"/>
-  <!-- <test name="EoP" command="testingScripts/test_unitEoP.sh"/> COMMENT: reads old format file -->
-  <!-- <bin file="testEoPPlotting.cpp" name="testEoPPlotting">
+  <test name="EoP" command="testingScripts/test_unitEoP.sh"/>
+  <bin file="testEoPPlotting.cpp" name="testEoPPlotting">
     <flags PRE_TEST="EoP"/>
     <use name="rootmath"/>
     <use name="roothistmatrix"/>
     <use name="rootgraphics"/>
     <use name="Alignment/OfflineValidation"/>
-  </bin> -->
-  <!-- <test name="Miscellanea" command="testingScripts/test_unitMiscellanea.sh"/> COMMENT: reads old format file -->
-  <!-- <test name="ShortTrackValidation" command="testingScripts/test_unitShortTrackValidation.sh"/> COMMENT: reads old format file -->
+  </bin>
+  <!-- COMMENT: reads old format file: needs more work when cosmics samples are available -->
+  <test name="Miscellanea" command="testingScripts/test_unitMiscellanea.sh"/>
+  <test name="ShortTrackValidation" command="testingScripts/test_unitShortTrackValidation.sh"/>
   <test name="SagittaBiasNtuplizer" command="testingScripts/test_unitSagittaBiasNtuplizer.sh"/>
   <test name="BeamSpotPlotting" command="testingScripts/test_unitBeamSpotPlotting.sh"/>
   <bin file="testanalyzeDiMuonBiases.cpp" name="testDiMuonBiasesPlotting"> 
