@@ -37,8 +37,8 @@ private:
 };
 
 DetIdToRecHitMapProducer::DetIdToRecHitMapProducer(edm::ParameterSet const& ps) {
-  const auto hgcalTags = ps.getParameter<std::vector<edm::InputTag>>("hgcalRecHits");
-  const auto pfTags = ps.getParameter<std::vector<edm::InputTag>>("pfRecHits");
+  const auto& hgcalTags = ps.getParameter<std::vector<edm::InputTag>>("hgcalRecHits");
+  const auto& pfTags = ps.getParameter<std::vector<edm::InputTag>>("pfRecHits");
 
   hgcalRecHitTokens_.reserve(hgcalTags.size());
   for (auto const& tag : hgcalTags) {
