@@ -104,6 +104,7 @@ class TestBranch : public CppUnit::TestFixture {
   CPPUNIT_TEST(testKinematics);
   CPPUNIT_TEST(testTaggingAndProvenance);
   CPPUNIT_TEST(testRelations);
+  CPPUNIT_TEST(testInvalidViews);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -111,6 +112,7 @@ public:
   void testKinematics();
   void testTaggingAndProvenance();
   void testRelations();
+  void testInvalidViews();
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBranch);
@@ -190,4 +192,35 @@ void TestBranch::testRelations() {
   CPPUNIT_ASSERT_EQUAL(std::size_t(2), merged.rootIds().size());
   // W subtree (W,mu,nu) + b subtree (b,B0,D-,pi+) = 7 members.
   CPPUNIT_ASSERT_EQUAL(std::size_t(7), merged.members().size());
+}
+
+void TestBranch::testInvalidViews() {
+  // A default-constructed view and an out-of-range Graph::particle()/vertex() are
+  // invalid (null graph). The scalar getters must return defaults instead of
+  // dereferencing the null graph_ (regression for the unguarded data()).
+  auto g = buildTtbarLike();
+
+  for (truth::Particle p : {truth::Particle{}, g.particle(9999)}) {
+    CPPUNIT_ASSERT(!p.valid());
+    CPPUNIT_ASSERT_EQUAL(int32_t(0), p.pdgId());
+    CPPUNIT_ASSERT_EQUAL(int16_t(0), p.status());
+    CPPUNIT_ASSERT(!p.hasGen());
+    CPPUNIT_ASSERT(!p.hasSim());
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, p.momentum().energy(), 1e-9);
+    CPPUNIT_ASSERT(!p.hasCheckpoints());
+    CPPUNIT_ASSERT(p.checkpoints().empty());
+    CPPUNIT_ASSERT(p.parents().empty());
+    CPPUNIT_ASSERT(p.children().empty());
+    CPPUNIT_ASSERT(p.descendants().empty());
+    CPPUNIT_ASSERT(!p.hasAncestorPdgId(6));
+  }
+
+  for (truth::Vertex v : {truth::Vertex{}, g.vertex(9999)}) {
+    CPPUNIT_ASSERT(!v.valid());
+    CPPUNIT_ASSERT(!v.hasGen());
+    CPPUNIT_ASSERT(!v.hasSim());
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, v.position().energy(), 1e-9);
+    CPPUNIT_ASSERT(v.incomingParticles().empty());
+    CPPUNIT_ASSERT(v.outgoingParticles().empty());
+  }
 }
