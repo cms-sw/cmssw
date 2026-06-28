@@ -876,7 +876,6 @@ private:
     for (uint32_t i = 0; i < pfRecHitTokens_.size(); ++i) {
       edm::Handle<reco::PFRecHitCollection> handle;
       evt.getByToken(pfRecHitTokens_[i], handle);
-      std::cout << pfRecHitTags_[i].label() << " size() " << handle->size() << std::endl;
 
       if (!handle.isValid()) {
         edm::LogWarning("TruthLogicalGraphDumper") << "Missing reco::PFRecHitCollection " << pfRecHitTags_[i].encode()
