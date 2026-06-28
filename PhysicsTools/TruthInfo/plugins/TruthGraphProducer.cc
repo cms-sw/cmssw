@@ -369,26 +369,26 @@ public:
 
     const uint32_t nNodes = baseSimTrk + nSimTrk;
 
-    out->nodes.resize(nNodes);
+    out->nodes().resize(nNodes);
 
-    out->pdgId.assign(nNodes, 0);
-    out->status.assign(nNodes, 0);
-    out->eventId.assign(nNodes, 0);
-    out->statusFlags.assign(nNodes, 0);
-    out->genEventOfNode.assign(nNodes, -1);
-    out->simVertexProcessType.assign(nNodes, 0);
-    out->simTrackBackscattered.assign(nNodes, 0);
+    out->pdgId().assign(nNodes, 0);
+    out->status().assign(nNodes, 0);
+    out->eventId().assign(nNodes, 0);
+    out->statusFlags().assign(nNodes, 0);
+    out->genEventOfNode().assign(nNodes, -1);
+    out->simVertexProcessType().assign(nNodes, 0);
+    out->simTrackBackscattered().assign(nNodes, 0);
 
-    out->simTrackToGen.assign(nNodes, -1);
-    out->simTrackToVtx.assign(nNodes, -1);
-    out->simVtxToGen.assign(nNodes, -1);
+    out->simTrackToGen().assign(nNodes, -1);
+    out->simTrackToVtx().assign(nNodes, -1);
+    out->simVtxToGen().assign(nNodes, -1);
 
     for (int cid = 0; cid < nGenEvents; ++cid) {
       const uint32_t nodeId = baseGenEvent + static_cast<uint32_t>(cid);
 
-      out->nodes[nodeId] = TruthGraph::NodeRef{TruthGraph::NodeKind::GenEvent, static_cast<int64_t>(cid)};
-      out->eventId[nodeId] = 0;
-      out->genEventOfNode[nodeId] = cid;
+      out->nodes()[nodeId] = TruthGraph::NodeRef{TruthGraph::NodeKind::GenEvent, static_cast<int64_t>(cid)};
+      out->eventId()[nodeId] = 0;
+      out->genEventOfNode()[nodeId] = cid;
     }
 
     std::unordered_map<int, uint32_t> genVtxBarcodeToNode;
@@ -404,11 +404,11 @@ public:
 
         genVtxBarcodeToNode.emplace(vbc, nodeId);
 
-        out->nodes[nodeId] = TruthGraph::NodeRef{TruthGraph::NodeKind::GenVertex, static_cast<int64_t>(vbc)};
-        out->eventId[nodeId] = 0;
+        out->nodes()[nodeId] = TruthGraph::NodeRef{TruthGraph::NodeKind::GenVertex, static_cast<int64_t>(vbc)};
+        out->eventId()[nodeId] = 0;
 
         const int tidx = tempIndex.at(genKeyVertex(vbc));
-        out->genEventOfNode[nodeId] = compOfTemp[tidx];
+        out->genEventOfNode()[nodeId] = compOfTemp[tidx];
       }
 
       for (uint32_t i = 0; i < nGenPar; ++i) {
@@ -417,23 +417,23 @@ public:
 
         genParBarcodeToNode.emplace(pbc, nodeId);
 
-        out->nodes[nodeId] = TruthGraph::NodeRef{TruthGraph::NodeKind::GenParticle, static_cast<int64_t>(pbc)};
-        out->eventId[nodeId] = 0;
+        out->nodes()[nodeId] = TruthGraph::NodeRef{TruthGraph::NodeKind::GenParticle, static_cast<int64_t>(pbc)};
+        out->eventId()[nodeId] = 0;
 
         const int tidx = tempIndex.at(genKeyParticle(pbc));
-        out->genEventOfNode[nodeId] = compOfTemp[tidx];
+        out->genEventOfNode()[nodeId] = compOfTemp[tidx];
 
         auto itPdg = gb.particlePdgIdByBarcode.find(pbc);
         if (itPdg != gb.particlePdgIdByBarcode.end())
-          out->pdgId[nodeId] = itPdg->second;
+          out->pdgId()[nodeId] = itPdg->second;
 
         auto itStatus = gb.particleStatusByBarcode.find(pbc);
         if (itStatus != gb.particleStatusByBarcode.end())
-          out->status[nodeId] = itStatus->second;
+          out->status()[nodeId] = itStatus->second;
 
         // Do not fill statusFlags from reco::GenParticle unless we have a validated
         // barcode-to-reco::GenParticle association.
-        out->statusFlags[nodeId] = 0;
+        out->statusFlags()[nodeId] = 0;
       }
     }
 
@@ -454,9 +454,9 @@ public:
 
       simVtxIndexToNode[i] = nodeId;
 
-      out->nodes[nodeId] = TruthGraph::NodeRef{TruthGraph::NodeKind::SimVertex, static_cast<int64_t>(i)};
-      out->eventId[nodeId] = packEventId(simVertices[i].eventId());
-      out->simVertexProcessType[nodeId] = static_cast<uint16_t>(simVertices[i].processType());
+      out->nodes()[nodeId] = TruthGraph::NodeRef{TruthGraph::NodeKind::SimVertex, static_cast<int64_t>(i)};
+      out->eventId()[nodeId] = packEventId(simVertices[i].eventId());
+      out->simVertexProcessType()[nodeId] = static_cast<uint16_t>(simVertices[i].processType());
     }
 
     std::unordered_map<uint32_t, uint32_t> simTrackIdToNode;
@@ -470,14 +470,14 @@ public:
 
       simTrackIdToNode.emplace(tid, nodeId);
 
-      out->nodes[nodeId] = TruthGraph::NodeRef{TruthGraph::NodeKind::SimTrack, static_cast<int64_t>(tid)};
-      out->pdgId[nodeId] = simTrack.type();
-      out->eventId[nodeId] = packEventId(simTrack.eventId());
-      out->simTrackBackscattered[nodeId] = simTrack.isFromBackScattering() ? 1 : 0;
+      out->nodes()[nodeId] = TruthGraph::NodeRef{TruthGraph::NodeKind::SimTrack, static_cast<int64_t>(tid)};
+      out->pdgId()[nodeId] = simTrack.type();
+      out->eventId()[nodeId] = packEventId(simTrack.eventId());
+      out->simTrackBackscattered()[nodeId] = simTrack.isFromBackScattering() ? 1 : 0;
 
       const int vtxIdx = simTrack.vertIndex();
       if (vtxIdx >= 0 && static_cast<uint32_t>(vtxIdx) < nSimVtx) {
-        out->simTrackToVtx[nodeId] = static_cast<int32_t>(simVtxIndexToNode[static_cast<uint32_t>(vtxIdx)]);
+        out->simTrackToVtx()[nodeId] = static_cast<int32_t>(simVtxIndexToNode[static_cast<uint32_t>(vtxIdx)]);
       }
 
       // SimTrack::genpartIndex() must be used only for primary G4 tracks.
@@ -495,18 +495,18 @@ public:
             const int genPdgId = out->nodePdgId(it->second);
 
             if (genPdgId == 0 || genPdgId == simPdgId) {
-              out->simTrackToGen[nodeId] = static_cast<int32_t>(it->second);
+              out->simTrackToGen()[nodeId] = static_cast<int32_t>(it->second);
 
               // Provenance SimVertex -> GenVertex association: the SimTrack's production
               // SimVertex corresponds to the production GenVertex of its GenParticle.
-              const int32_t simVtxNode = out->simTrackToVtx[nodeId];
+              const int32_t simVtxNode = out->simTrackToVtx()[nodeId];
               if (simVtxNode >= 0) {
                 auto itProd = genPartToProdVtxBarcode.find(barcode);
                 if (itProd != genPartToProdVtxBarcode.end()) {
                   auto itGV = genVtxBarcodeToNode.find(itProd->second);
                   if (itGV != genVtxBarcodeToNode.end()) {
                     const int32_t gvNode = static_cast<int32_t>(itGV->second);
-                    int32_t& slot = out->simVtxToGen[simVtxNode];
+                    int32_t& slot = out->simVtxToGen()[simVtxNode];
                     if (slot < 0) {
                       slot = gvNode;
                     } else if (slot != gvNode) {
@@ -644,7 +644,7 @@ public:
     if (addGenToSimEdges_ && haveGen) {
       for (uint32_t i = 0; i < nSimTrk; ++i) {
         const uint32_t simNode = baseSimTrk + i;
-        const int32_t genNode = out->simTrackToGen[simNode];
+        const int32_t genNode = out->simTrackToGen()[simNode];
 
         if (genNode >= 0) {
           push_edge(static_cast<uint32_t>(genNode), simNode, TruthGraph::EdgeKind::GenToSim);
@@ -656,7 +656,7 @@ public:
       // associations and stored as a single edge per SimVertex (simVtxToGen).
       for (uint32_t i = 0; i < nSimVtx; ++i) {
         const uint32_t simVtxNode = baseSimVtx + i;
-        const int32_t genVtxNode = out->simVtxToGen[simVtxNode];
+        const int32_t genVtxNode = out->simVtxToGen()[simVtxNode];
 
         if (genVtxNode >= 0) {
           push_edge(simVtxNode, static_cast<uint32_t>(genVtxNode), TruthGraph::EdgeKind::SimToGen);
@@ -664,22 +664,22 @@ public:
       }
     }
 
-    out->offsets.assign(nNodes + 1, 0);
+    out->offsets().assign(nNodes + 1, 0);
 
     for (auto const& e : edgePairs) {
       if (e.first < nNodes)
-        ++out->offsets[e.first + 1];
+        ++out->offsets()[e.first + 1];
     }
 
     for (uint32_t i = 1; i <= nNodes; ++i)
-      out->offsets[i] += out->offsets[i - 1];
+      out->offsets()[i] += out->offsets()[i - 1];
 
-    const uint32_t nEdges = out->offsets.back();
+    const uint32_t nEdges = out->offsets().back();
 
-    out->edges.assign(nEdges, 0);
-    out->edgeKind.assign(nEdges, static_cast<uint8_t>(TruthGraph::EdgeKind::Gen));
+    out->edges().assign(nEdges, 0);
+    out->edgeKind().assign(nEdges, static_cast<uint8_t>(TruthGraph::EdgeKind::Gen));
 
-    std::vector<uint32_t> cursor = out->offsets;
+    std::vector<uint32_t> cursor = out->offsets();
 
     for (std::size_t i = 0; i < edgePairs.size(); ++i) {
       const uint32_t src = edgePairs[i].first;
@@ -687,8 +687,8 @@ public:
 
       if (src < nNodes && dst < nNodes) {
         const uint32_t pos = cursor[src]++;
-        out->edges[pos] = dst;
-        out->edgeKind[pos] = edgeKinds[i];
+        out->edges()[pos] = dst;
+        out->edgeKind()[pos] = edgeKinds[i];
       }
     }
 
@@ -713,12 +713,12 @@ public:
           break;
         case TruthGraph::NodeKind::SimVertex:
           ++nSimVertexOut;
-          if (out->simVtxToGen[i] >= 0)
+          if (out->simVtxToGen()[i] >= 0)
             ++nSimVtxToGenLinks;
           break;
         case TruthGraph::NodeKind::SimTrack:
           ++nSimTrackOut;
-          if (out->simTrackToGen[i] >= 0)
+          if (out->simTrackToGen()[i] >= 0)
             ++nGenToSimParticleLinks;
           break;
       }

@@ -632,10 +632,11 @@ public:
 
       unsigned kept = 0;
       for (uint32_t pos = b; pos < e; ++pos) {
-        const uint32_t dst = g.edges[pos];
+        const uint32_t dst = g.edges()[pos];
         if (dst >= n)
           continue;
-        os << "  n" << src << " -> n" << dst << edgeAttrs(static_cast<TruthGraph::EdgeKind>(g.edgeKind[pos])) << ";\n";
+        os << "  n" << src << " -> n" << dst << edgeAttrs(static_cast<TruthGraph::EdgeKind>(g.edgeKind()[pos]))
+           << ";\n";
         if (++kept >= maxEdgesPerNode_)
           break;
       }

@@ -28,9 +28,9 @@ namespace {
   //   p2: e-   pt=30, eta~1.7, pile-up (bunchCrossing 1)
   truth::Graph buildParticles() {
     truth::Graph g;
-    g.particles.resize(3);
+    g.particles().resize(3);
     auto set = [&](uint32_t i, int32_t pdg, double px, double py, double pz, double e, uint64_t eid) {
-      auto& p = g.particles[i];
+      auto& p = g.particles()[i];
       p.genNode = 100 + i;
       p.pdgId = pdg;
       p.status = 1;
@@ -43,10 +43,10 @@ namespace {
     set(2, 11, 30., 0., 80., 85.44, packEventId(1, 0));
 
     // empty CSR (no edges) consistent with 3 particles, 0 vertices.
-    g.particleToDecayVertexOffsets.assign(4, 0);
-    g.particleToProductionVertexOffsets.assign(4, 0);
-    g.vertexToOutgoingParticleOffsets.assign(1, 0);
-    g.vertexToIncomingParticleOffsets.assign(1, 0);
+    g.particleToDecayVertexOffsets().assign(4, 0);
+    g.particleToProductionVertexOffsets().assign(4, 0);
+    g.vertexToOutgoingParticleOffsets().assign(1, 0);
+    g.vertexToIncomingParticleOffsets().assign(1, 0);
     CPPUNIT_ASSERT(g.isConsistent());
     return g;
   }

@@ -82,7 +82,7 @@ namespace {
     std::unordered_map<uint32_t, uint32_t> out;
     out.reserve(graph.nParticles());
     for (uint32_t i = 0; i < graph.nParticles(); ++i) {
-      const int32_t simNode = graph.particles[i].simNode;
+      const int32_t simNode = graph.particles()[i].simNode;
       if (simNode < 0 || static_cast<uint32_t>(simNode) >= raw.nNodes())
         continue;
       auto const& nr = raw.nodeRef(static_cast<uint32_t>(simNode));

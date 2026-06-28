@@ -307,33 +307,33 @@ void TruthGraphAccumulator::finalizeEvent(edm::Event& event, edm::EventSetup con
   auto out = std::make_unique<TruthGraph>();
   const uint32_t nNodes = static_cast<uint32_t>(nodes_.size());
 
-  out->nodes = std::move(nodes_);
-  out->pdgId = std::move(pdgId_);
-  out->status = std::move(status_);
-  out->eventId = std::move(eventId_);
-  out->simTrackToVtx = std::move(simTrackToVtx_);
-  out->simTrackToGen = std::move(simTrackToGen_);
-  out->simVertexProcessType = std::move(simVertexProcessType_);
-  out->simTrackBackscattered = std::move(simTrackBackscattered_);
-  out->statusFlags.assign(nNodes, 0);
-  out->genEventOfNode.assign(nNodes, -1);
-  out->simVtxToGen.assign(nNodes, -1);
+  out->nodes() = std::move(nodes_);
+  out->pdgId() = std::move(pdgId_);
+  out->status() = std::move(status_);
+  out->eventId() = std::move(eventId_);
+  out->simTrackToVtx() = std::move(simTrackToVtx_);
+  out->simTrackToGen() = std::move(simTrackToGen_);
+  out->simVertexProcessType() = std::move(simVertexProcessType_);
+  out->simTrackBackscattered() = std::move(simTrackBackscattered_);
+  out->statusFlags().assign(nNodes, 0);
+  out->genEventOfNode().assign(nNodes, -1);
+  out->simVtxToGen().assign(nNodes, -1);
 
   // CSR out-edges via the counting-sort cursor scatter: each edge lands in its
   // source's range, by construction (no sort, no permutation vector).
-  out->offsets.assign(nNodes + 1, 0);
+  out->offsets().assign(nNodes + 1, 0);
   for (auto const& e : edges_)
-    ++out->offsets[e.first + 1];
+    ++out->offsets()[e.first + 1];
   for (uint32_t i = 1; i <= nNodes; ++i)
-    out->offsets[i] += out->offsets[i - 1];
+    out->offsets()[i] += out->offsets()[i - 1];
 
-  out->edges.resize(edges_.size());
-  out->edgeKind.resize(edges_.size());
-  std::vector<uint32_t> cursor = out->offsets;
+  out->edges().resize(edges_.size());
+  out->edgeKind().resize(edges_.size());
+  std::vector<uint32_t> cursor = out->offsets();
   for (std::size_t e = 0; e < edges_.size(); ++e) {
     const uint32_t pos = cursor[edges_[e].first]++;
-    out->edges[pos] = edges_[e].second;
-    out->edgeKind[pos] = edgeKinds_[e];
+    out->edges()[pos] = edges_[e].second;
+    out->edgeKind()[pos] = edgeKinds_[e];
   }
 
   if (!out->isConsistent())

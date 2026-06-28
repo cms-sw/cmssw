@@ -101,17 +101,17 @@ void TruthGraphMixedProducer::produce(edm::Event& evt, edm::EventSetup const&) {
   const uint32_t nTrk = static_cast<uint32_t>(simTracks.size());
   const uint32_t nNodes = nVtx + nTrk;
 
-  out->nodes.resize(nNodes);
-  out->pdgId.assign(nNodes, 0);
-  out->status.assign(nNodes, 0);
-  out->statusFlags.assign(nNodes, 0);
-  out->eventId.assign(nNodes, 0ull);
-  out->genEventOfNode.assign(nNodes, -1);
-  out->simTrackToGen.assign(nNodes, -1);
-  out->simTrackToVtx.assign(nNodes, -1);
-  out->simVtxToGen.assign(nNodes, -1);
-  out->simVertexProcessType.assign(nNodes, 0);
-  out->simTrackBackscattered.assign(nNodes, 0);
+  out->nodes().resize(nNodes);
+  out->pdgId().assign(nNodes, 0);
+  out->status().assign(nNodes, 0);
+  out->statusFlags().assign(nNodes, 0);
+  out->eventId().assign(nNodes, 0ull);
+  out->genEventOfNode().assign(nNodes, -1);
+  out->simTrackToGen().assign(nNodes, -1);
+  out->simTrackToVtx().assign(nNodes, -1);
+  out->simVtxToGen().assign(nNodes, -1);
+  out->simVertexProcessType().assign(nNodes, 0);
+  out->simTrackBackscattered().assign(nNodes, 0);
 
   // Vertex nodes come first (ids [0, nVtx)), tracks after (ids [nVtx, nNodes)).
   // perEventVtxNodes[eid] preserves sub-event order, so the position equals the
@@ -125,9 +125,9 @@ void TruthGraphMixedProducer::produce(edm::Event& evt, edm::EventSetup const&) {
   for (auto it = simVertices.begin(); it != simVertices.end(); ++it, ++v) {
     const uint32_t node = v;  // vertex nodes [0, nVtx)
     const EncodedEventId eid = it->eventId();
-    out->nodes[node] = TruthGraph::NodeRef{TruthGraph::NodeKind::SimVertex, static_cast<int64_t>(it->vertexId())};
-    out->eventId[node] = packEventId(eid);
-    out->simVertexProcessType[node] = static_cast<uint16_t>(it->processType());
+    out->nodes()[node] = TruthGraph::NodeRef{TruthGraph::NodeKind::SimVertex, static_cast<int64_t>(it->vertexId())};
+    out->eventId()[node] = packEventId(eid);
+    out->simVertexProcessType()[node] = static_cast<uint16_t>(it->processType());
     perEventVtxNodes[eid.rawId()].push_back(node);
     vtxParent[v] = {eid.rawId(), it->parentIndex()};
   }
@@ -136,10 +136,10 @@ void TruthGraphMixedProducer::produce(edm::Event& evt, edm::EventSetup const&) {
   for (auto it = simTracks.begin(); it != simTracks.end(); ++it, ++t) {
     const uint32_t node = nVtx + t;  // track nodes [nVtx, nNodes)
     const EncodedEventId eid = it->eventId();
-    out->nodes[node] = TruthGraph::NodeRef{TruthGraph::NodeKind::SimTrack, static_cast<int64_t>(it->trackId())};
-    out->pdgId[node] = it->type();
-    out->eventId[node] = packEventId(eid);
-    out->simTrackBackscattered[node] = it->isFromBackScattering() ? 1 : 0;
+    out->nodes()[node] = TruthGraph::NodeRef{TruthGraph::NodeKind::SimTrack, static_cast<int64_t>(it->trackId())};
+    out->pdgId()[node] = it->type();
+    out->eventId()[node] = packEventId(eid);
+    out->simTrackBackscattered()[node] = it->isFromBackScattering() ? 1 : 0;
     trackKey[SubEventKey{eid.rawId(), it->trackId()}] = node;
     trkProdVtxLocal[t] = {eid.rawId(), it->vertIndex()};
   }
@@ -165,7 +165,7 @@ void TruthGraphMixedProducer::produce(edm::Event& evt, edm::EventSetup const&) {
       continue;
     const uint32_t prodVtxNode = evIt->second[static_cast<std::size_t>(vi)];
     pushEdge(prodVtxNode, trkNode);  // vertex produces track
-    out->simTrackToVtx[trkNode] = static_cast<int32_t>(prodVtxNode);
+    out->simTrackToVtx()[trkNode] = static_cast<int32_t>(prodVtxNode);
   }
 
   // Decay edge: a vertex's parent track (SimVertex::parentIndex() is a trackId).
@@ -181,19 +181,19 @@ void TruthGraphMixedProducer::produce(edm::Event& evt, edm::EventSetup const&) {
 
   // CSR out-edges via the counting-sort cursor scatter: each edge lands in its
   // source's range, by construction (no sort, no permutation vector).
-  out->offsets.assign(nNodes + 1, 0);
+  out->offsets().assign(nNodes + 1, 0);
   for (auto const& e : edgePairs)
-    ++out->offsets[e.first + 1];
+    ++out->offsets()[e.first + 1];
   for (uint32_t i = 1; i <= nNodes; ++i)
-    out->offsets[i] += out->offsets[i - 1];
+    out->offsets()[i] += out->offsets()[i - 1];
 
-  out->edges.resize(edgePairs.size());
-  out->edgeKind.resize(edgePairs.size());
-  std::vector<uint32_t> cursor = out->offsets;
+  out->edges().resize(edgePairs.size());
+  out->edgeKind().resize(edgePairs.size());
+  std::vector<uint32_t> cursor = out->offsets();
   for (std::size_t e = 0; e < edgePairs.size(); ++e) {
     const uint32_t pos = cursor[edgePairs[e].first]++;
-    out->edges[pos] = edgePairs[e].second;
-    out->edgeKind[pos] = edgeKinds[e];
+    out->edges()[pos] = edgePairs[e].second;
+    out->edgeKind()[pos] = edgeKinds[e];
   }
 
   if (!out->isConsistent())

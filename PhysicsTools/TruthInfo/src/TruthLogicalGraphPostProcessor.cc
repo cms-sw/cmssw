@@ -77,7 +77,7 @@ namespace {
   bool matchesSeed(truth::Graph const& graph,
                    uint32_t particleId,
                    truth::LogicalGraphPostProcessingConfig const& config) {
-    const int32_t pdgId = graph.particles[particleId].pdgId;
+    const int32_t pdgId = graph.particles()[particleId].pdgId;
 
     if (containsPdgId(config.seedPdgIds, pdgId))
       return true;
@@ -100,7 +100,7 @@ namespace {
     if (containsParticleId(ignoredParticleIds, particleId))
       return true;
 
-    if (containsPdgId(ignoredPdgIds, graph.particles[particleId].pdgId))
+    if (containsPdgId(ignoredPdgIds, graph.particles()[particleId].pdgId))
       return true;
 
     return false;
@@ -110,7 +110,7 @@ namespace {
     if (particleId >= graph.nParticles())
       return false;
 
-    auto const& particle = graph.particles[particleId];
+    auto const& particle = graph.particles()[particleId];
 
     return particle.hasGen() && particle.status == 1;
   }
@@ -210,23 +210,23 @@ namespace {
 
     buildCSR(output.nParticles(),
              particleToDecayVertexPairs,
-             output.particleToDecayVertexOffsets,
-             output.particleToDecayVertices);
+             output.particleToDecayVertexOffsets(),
+             output.particleToDecayVertices());
 
     buildCSR(output.nParticles(),
              particleToProductionVertexPairs,
-             output.particleToProductionVertexOffsets,
-             output.particleToProductionVertices);
+             output.particleToProductionVertexOffsets(),
+             output.particleToProductionVertices());
 
     buildCSR(output.nVertices(),
              vertexToOutgoingParticlePairs,
-             output.vertexToOutgoingParticleOffsets,
-             output.vertexToOutgoingParticles);
+             output.vertexToOutgoingParticleOffsets(),
+             output.vertexToOutgoingParticles());
 
     buildCSR(output.nVertices(),
              vertexToIncomingParticlePairs,
-             output.vertexToIncomingParticleOffsets,
-             output.vertexToIncomingParticles);
+             output.vertexToIncomingParticleOffsets(),
+             output.vertexToIncomingParticles());
   }
 
   bool directCollapsibleGenParticleChain(truth::Graph const& graph,
@@ -236,7 +236,7 @@ namespace {
     if (particleId >= graph.nParticles())
       return false;
 
-    auto const& particle = graph.particles[particleId];
+    auto const& particle = graph.particles()[particleId];
 
     if (!particle.hasGen())
       return false;
@@ -256,7 +256,7 @@ namespace {
     if (vertexId >= graph.nVertices())
       return false;
 
-    auto const& vertex = graph.vertices[vertexId];
+    auto const& vertex = graph.vertices()[vertexId];
 
     if (!vertex.hasGen() || vertex.hasSim())
       return false;
@@ -277,7 +277,7 @@ namespace {
     if (candidateChild == particleId)
       return false;
 
-    auto const& child = graph.particles[candidateChild];
+    auto const& child = graph.particles()[candidateChild];
 
     if (!child.hasGen())
       return false;
@@ -359,12 +359,12 @@ namespace {
       const uint32_t representative = particleRepresentative[oldParticle];
 
       auto inserted =
-          representativeToNewParticle.emplace(representative, static_cast<uint32_t>(output.particles.size()));
+          representativeToNewParticle.emplace(representative, static_cast<uint32_t>(output.particles().size()));
 
       const uint32_t newParticle = inserted.first->second;
 
       if (inserted.second) {
-        output.particles.push_back(input.particles[representative]);
+        output.particles().push_back(input.particles()[representative]);
       }
 
       oldParticleToNew[oldParticle] = static_cast<int32_t>(newParticle);
@@ -400,8 +400,8 @@ namespace {
       if (!keepVertex[oldVertex])
         continue;
 
-      oldVertexToNew[oldVertex] = static_cast<int32_t>(output.vertices.size());
-      output.vertices.push_back(input.vertices[oldVertex]);
+      oldVertexToNew[oldVertex] = static_cast<int32_t>(output.vertices().size());
+      output.vertices().push_back(input.vertices()[oldVertex]);
     }
 
     rebuildAdjacency(input, oldParticleToNew, oldVertexToNew, {}, {}, output);
@@ -551,7 +551,7 @@ namespace {
       if (!keepParticle[particleId])
         continue;
 
-      const EncodedEventId eid = decodeEventId(graph.particles[particleId].eventId);
+      const EncodedEventId eid = decodeEventId(graph.particles()[particleId].eventId);
 
       bool keep = true;
       if (signalOnly)
@@ -623,11 +623,11 @@ namespace {
   // ran before; this handles surviving chains like Z -> Z gamma. Any ambiguity
   // (several decay vertices, several same-PDG daughters) stops the walk.
   uint32_t lastCopyOf(truth::Graph const& graph, uint32_t rootId) {
-    const int32_t pdgId = graph.particles[rootId].pdgId;
+    const int32_t pdgId = graph.particles()[rootId].pdgId;
     uint32_t current = rootId;
 
     for (uint32_t guard = 0; guard < graph.nParticles(); ++guard) {
-      if (graph.particles[current].status == 1)
+      if (graph.particles()[current].status == 1)
         break;
 
       const auto decayVertices = graph.decayVertices(current);
@@ -638,7 +638,7 @@ namespace {
       uint32_t nSameId = 0;
 
       for (const uint32_t childId : graph.outgoingParticles(decayVertices.front())) {
-        if (childId < graph.nParticles() && childId != current && graph.particles[childId].pdgId == pdgId) {
+        if (childId < graph.nParticles() && childId != current && graph.particles()[childId].pdgId == pdgId) {
           sameIdChild = childId;
           ++nSameId;
         }
@@ -666,7 +666,7 @@ namespace {
 
       for (const uint32_t childId : graph.outgoingParticles(vertexId)) {
         if (childId < graph.nParticles())
-          pdgIds.push_back(graph.particles[childId].pdgId);
+          pdgIds.push_back(graph.particles()[childId].pdgId);
       }
     }
 
@@ -699,7 +699,7 @@ namespace {
 
       for (const uint32_t childId : outgoing) {
         if (childId < graph.nParticles())
-          outgoingPdgIds.push_back(graph.particles[childId].pdgId);
+          outgoingPdgIds.push_back(graph.particles()[childId].pdgId);
       }
 
       std::sort(outgoingPdgIds.begin(), outgoingPdgIds.end());
@@ -713,7 +713,7 @@ namespace {
         vertexMatched = true;
 
         for (const uint32_t childId : outgoing) {
-          if (childId < graph.nParticles() && containsPdgId(group, graph.particles[childId].pdgId))
+          if (childId < graph.nParticles() && containsPdgId(group, graph.particles()[childId].pdgId))
             roots.push_back(childId);
         }
       }
@@ -774,23 +774,23 @@ namespace {
     std::vector<int32_t> oldParticleToNew(nParticles, -1);
     std::vector<int32_t> oldVertexToNew(nVertices, -1);
 
-    output.particles.reserve(nParticles);
-    output.vertices.reserve(nVertices + 3);
+    output.particles().reserve(nParticles);
+    output.vertices().reserve(nVertices + 3);
 
     for (uint32_t oldParticle = 0; oldParticle < nParticles; ++oldParticle) {
       if (!keepParticle[oldParticle])
         continue;
 
-      oldParticleToNew[oldParticle] = static_cast<int32_t>(output.particles.size());
-      output.particles.push_back(input.particles[oldParticle]);
+      oldParticleToNew[oldParticle] = static_cast<int32_t>(output.particles().size());
+      output.particles().push_back(input.particles()[oldParticle]);
     }
 
     for (uint32_t oldVertex = 0; oldVertex < nVertices; ++oldVertex) {
       if (!keepVertex[oldVertex])
         continue;
 
-      oldVertexToNew[oldVertex] = static_cast<int32_t>(output.vertices.size());
-      output.vertices.push_back(input.vertices[oldVertex]);
+      oldVertexToNew[oldVertex] = static_cast<int32_t>(output.vertices().size());
+      output.vertices().push_back(input.vertices()[oldVertex]);
     }
 
     // Artificial source structure, one per interaction (keyed by the packed
@@ -827,8 +827,8 @@ namespace {
           vertex.eventId = eventId;
           vertex.position = position;
 
-          const uint32_t id = static_cast<uint32_t>(output.vertices.size());
-          output.vertices.push_back(vertex);
+          const uint32_t id = static_cast<uint32_t>(output.vertices().size());
+          output.vertices().push_back(vertex);
           return id;
         };
 
@@ -841,7 +841,7 @@ namespace {
     auto productionPosition = [&input](uint32_t oldParticle) -> math::XYZTLorentzVectorD {
       const auto prodVertices = input.productionVertices(oldParticle);
       if (!prodVertices.empty())
-        return input.vertices[prodVertices.front()].position;
+        return input.vertices()[prodVertices.front()].position;
       return math::XYZTLorentzVectorD();
     };
 
@@ -854,8 +854,8 @@ namespace {
       if (newParticle < 0)
         continue;
 
-      const int32_t genEvent = input.particles[oldParticle].genEvent;
-      const uint64_t eventId = input.particles[oldParticle].eventId;
+      const int32_t genEvent = input.particles()[oldParticle].genEvent;
+      const uint64_t eventId = input.particles()[oldParticle].eventId;
       const math::XYZTLorentzVectorD interactionPoint = productionPosition(oldParticle);
 
       InteractionNodes& nodes = interactions[eventId];
@@ -881,8 +881,8 @@ namespace {
         connector.genEvent = genEvent;
         connector.eventId = eventId;
 
-        const uint32_t connectorId = static_cast<uint32_t>(output.particles.size());
-        output.particles.push_back(connector);
+        const uint32_t connectorId = static_cast<uint32_t>(output.particles().size());
+        output.particles().push_back(connector);
 
         extraProductionEdges.emplace_back(static_cast<uint32_t>(nodes.interactionVertex), connectorId);
         extraDecayEdges.emplace_back(connectorId, static_cast<uint32_t>(subVertex));
@@ -1125,8 +1125,8 @@ namespace {
       if (removeParticle[oldParticle])
         continue;
 
-      oldParticleToNew[oldParticle] = static_cast<int32_t>(output.particles.size());
-      output.particles.push_back(input.particles[oldParticle]);
+      oldParticleToNew[oldParticle] = static_cast<int32_t>(output.particles().size());
+      output.particles().push_back(input.particles()[oldParticle]);
     }
 
     std::unordered_map<int, uint32_t> vertexRepToNew;
@@ -1147,10 +1147,10 @@ namespace {
         continue;
 
       const int rep = vertexDSU.find(static_cast<int>(oldVertex));
-      auto inserted = vertexRepToNew.emplace(rep, static_cast<uint32_t>(output.vertices.size()));
+      auto inserted = vertexRepToNew.emplace(rep, static_cast<uint32_t>(output.vertices().size()));
 
       if (inserted.second) {
-        output.vertices.push_back(input.vertices[oldVertex]);
+        output.vertices().push_back(input.vertices()[oldVertex]);
       }
 
       oldVertexToNew[oldVertex] = static_cast<int32_t>(inserted.first->second);
@@ -1208,7 +1208,7 @@ namespace {
     std::vector<uint32_t> removalQueue;
 
     for (uint32_t particleId = 0; particleId < nParticles; ++particleId) {
-      if (input.particles[particleId].hasSim() && !subgraphHasHit[particleId]) {
+      if (input.particles()[particleId].hasSim() && !subgraphHasHit[particleId]) {
         removeParticle[particleId] = 1;
         removalQueue.push_back(particleId);
       }

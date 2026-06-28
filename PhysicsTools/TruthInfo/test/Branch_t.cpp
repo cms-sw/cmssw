@@ -18,11 +18,11 @@ namespace {
   // Minimal graph builder mirroring the one in the postprocessor test.
   struct GraphBuilder {
     explicit GraphBuilder(uint32_t nParticles, uint32_t nVertices) {
-      graph.particles.resize(nParticles);
-      graph.vertices.resize(nVertices);
+      graph.particles().resize(nParticles);
+      graph.vertices().resize(nVertices);
     }
     void setParticle(uint32_t id, int32_t pdgId, int16_t status, double e = 1.0) {
-      auto& p = graph.particles[id];
+      auto& p = graph.particles()[id];
       p.genNode = 100 + id;
       p.simNode = -1;
       p.pdgId = pdgId;
@@ -56,10 +56,10 @@ namespace {
         flat[cur[pr.first]++] = pr.second;
     }
     truth::Graph finish() {
-      csr(graph.nParticles(), d2v, graph.particleToDecayVertexOffsets, graph.particleToDecayVertices);
-      csr(graph.nParticles(), p2v, graph.particleToProductionVertexOffsets, graph.particleToProductionVertices);
-      csr(graph.nVertices(), v2o, graph.vertexToOutgoingParticleOffsets, graph.vertexToOutgoingParticles);
-      csr(graph.nVertices(), v2i, graph.vertexToIncomingParticleOffsets, graph.vertexToIncomingParticles);
+      csr(graph.nParticles(), d2v, graph.particleToDecayVertexOffsets(), graph.particleToDecayVertices());
+      csr(graph.nParticles(), p2v, graph.particleToProductionVertexOffsets(), graph.particleToProductionVertices());
+      csr(graph.nVertices(), v2o, graph.vertexToOutgoingParticleOffsets(), graph.vertexToOutgoingParticles());
+      csr(graph.nVertices(), v2i, graph.vertexToIncomingParticleOffsets(), graph.vertexToIncomingParticles());
       CPPUNIT_ASSERT(graph.isConsistent());
       return graph;
     }

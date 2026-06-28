@@ -644,16 +644,16 @@ public:
       }
     }
 
-    out->particles.resize(particleRepToLogical.size());
-    out->vertices.resize(vertexRepToLogical.size());
+    out->particles().resize(particleRepToLogical.size());
+    out->vertices().resize(vertexRepToLogical.size());
 
     // Whether the GEN payload actually supplied a momentum/position for each
     // logical object. For a merged GEN+SIM object whose GEN barcode is absent from
     // the payload (e.g. pile-up GEN particles, which are not in the signal HepMC,
     // or jobs with no HepMC product), the SimTrack/SimVertex value is used as the
     // fallback instead of leaving the field default-constructed (zero momentum).
-    std::vector<uint8_t> genMomentumApplied(out->particles.size(), 0);
-    std::vector<uint8_t> genPositionApplied(out->vertices.size(), 0);
+    std::vector<uint8_t> genMomentumApplied(out->particles().size(), 0);
+    std::vector<uint8_t> genPositionApplied(out->vertices().size(), 0);
 
     // ------------------------------------------------------------------
     // 4. Fill payload
@@ -665,13 +665,13 @@ public:
       auto const& ref = raw.nodeRef(nodeId);
 
       if (rawToParticle[nodeId] >= 0) {
-        auto& p = out->particles[static_cast<uint32_t>(rawToParticle[nodeId])];
+        auto& p = out->particles()[static_cast<uint32_t>(rawToParticle[nodeId])];
 
         if (ref.kind == TruthGraph::NodeKind::GenParticle) {
           p.genNode = static_cast<int32_t>(nodeId);
 
-          if (nodeId < raw.genEventOfNode.size())
-            p.genEvent = raw.genEventOfNode[nodeId];
+          if (nodeId < raw.genEventOfNode().size())
+            p.genEvent = raw.genEventOfNode()[nodeId];
 
           if (p.pdgId == 0)
             p.pdgId = raw.nodePdgId(nodeId);
@@ -751,13 +751,13 @@ public:
       }
 
       if (rawToVertex[nodeId] >= 0) {
-        auto& v = out->vertices[static_cast<uint32_t>(rawToVertex[nodeId])];
+        auto& v = out->vertices()[static_cast<uint32_t>(rawToVertex[nodeId])];
 
         if (ref.kind == TruthGraph::NodeKind::GenVertex) {
           v.genNode = static_cast<int32_t>(nodeId);
 
-          if (nodeId < raw.genEventOfNode.size())
-            v.genEvent = raw.genEventOfNode[nodeId];
+          if (nodeId < raw.genEventOfNode().size())
+            v.genEvent = raw.genEventOfNode()[nodeId];
 
           if (haveGenPayload) {
             const int barcode = static_cast<int>(ref.key);
@@ -836,7 +836,7 @@ public:
             // when the GEN side of this particle is visited. This replaces the former
             // position-based GEN/SIM vertex merge.
             const bool redundantSimProduction = srcRef.kind == TruthGraph::NodeKind::SimVertex &&
-                                                out->particles[static_cast<uint32_t>(logicalParticle)].hasGen();
+                                                out->particles()[static_cast<uint32_t>(logicalParticle)].hasGen();
 
             if (!redundantSimProduction) {
               vertexToOutgoingParticlePairs.emplace_back(static_cast<uint32_t>(logicalVertex),
@@ -860,23 +860,25 @@ public:
       }
     }
 
-    buildCSR(
-        out->nParticles(), particleToDecayVertexPairs, out->particleToDecayVertexOffsets, out->particleToDecayVertices);
+    buildCSR(out->nParticles(),
+             particleToDecayVertexPairs,
+             out->particleToDecayVertexOffsets(),
+             out->particleToDecayVertices());
 
     buildCSR(out->nParticles(),
              particleToProductionVertexPairs,
-             out->particleToProductionVertexOffsets,
-             out->particleToProductionVertices);
+             out->particleToProductionVertexOffsets(),
+             out->particleToProductionVertices());
 
     buildCSR(out->nVertices(),
              vertexToOutgoingParticlePairs,
-             out->vertexToOutgoingParticleOffsets,
-             out->vertexToOutgoingParticles);
+             out->vertexToOutgoingParticleOffsets(),
+             out->vertexToOutgoingParticles());
 
     buildCSR(out->nVertices(),
              vertexToIncomingParticlePairs,
-             out->vertexToIncomingParticleOffsets,
-             out->vertexToIncomingParticles);
+             out->vertexToIncomingParticleOffsets(),
+             out->vertexToIncomingParticles());
 
     // Per-particle sim-hit presence for the hitless-subgraph pruning. A logical
     // particle is flagged when a calo or tracker sim-hit carries its SimTrack
@@ -917,7 +919,7 @@ public:
       if (anyCollectionValid) {
         particleDirectHit.assign(out->nParticles(), 0);
         for (uint32_t particleId = 0; particleId < out->nParticles(); ++particleId) {
-          const int32_t simNode = out->particles[particleId].simNode;
+          const int32_t simNode = out->particles()[particleId].simNode;
           if (simNode < 0)
             continue;
           const uint32_t simNodeU32 = static_cast<uint32_t>(simNode);

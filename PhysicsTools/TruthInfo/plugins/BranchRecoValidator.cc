@@ -219,7 +219,7 @@ void BranchRecoValidatorT<Traits>::analyze(edm::Event const& event, edm::EventSe
   std::vector<uint32_t> roots;
   if (!interestingPdgIds_.empty()) {
     for (uint32_t i = 0; i < graph.nParticles(); ++i) {
-      const int pdgId = graph.particles[i].pdgId;
+      const int pdgId = graph.particles()[i].pdgId;
       if (std::find(interestingPdgIds_.begin(), interestingPdgIds_.end(), pdgId) != interestingPdgIds_.end())
         roots.push_back(i);
     }
@@ -266,13 +266,13 @@ void BranchRecoValidatorT<Traits>::analyze(edm::Event const& event, edm::EventSe
   auto considerRoot = [&](uint32_t r) {
     if (interestingPdgIds_.empty())
       return true;
-    return std::find(interestingPdgIds_.begin(), interestingPdgIds_.end(), graph.particles[r].pdgId) !=
+    return std::find(interestingPdgIds_.begin(), interestingPdgIds_.end(), graph.particles()[r].pdgId) !=
            interestingPdgIds_.end();
   };
   for (uint32_t r = 0; r < nP; ++r) {
     if (!considerRoot(r) || channelHits(hitIndex, r).empty())
       continue;
-    auto const& p = graph.particles[r].momentum;
+    auto const& p = graph.particles()[r].momentum;
     const double eta = p.eta();
     const double x = Traits::particleX(p);
     if (!selected(eta, x))
