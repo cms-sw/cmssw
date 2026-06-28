@@ -528,6 +528,42 @@ public:
       }
     }
 
+    // Suppress particles that would render with no edge at all (floating "Particle
+    // N" boxes): the leaf tail of a vertex whose outgoing edges are truncated past
+    // maxEdgesPerNode_, or particles whose only incident vertices are hidden. They
+    // are not graph orphans (their production vertex exists) - the crowded DOT view
+    // just cannot draw the edge. Mirror the emission loops' per-node cap so the same
+    // edges are considered drawn. (No-op in --showAll: maxEdgesPerNode_ is huge.)
+    {
+      std::vector<uint8_t> hasVisibleEdge(nParticles, 0);
+      for (uint32_t v = 0; v < nVertices; ++v) {
+        if (hideVertex[v])
+          continue;
+        unsigned kept = 0;
+        for (uint32_t p : g.outgoingParticles(v)) {
+          if (p >= nParticles || hideParticle[p])
+            continue;
+          hasVisibleEdge[p] = 1;  // a production edge v -> p will be drawn
+          if (++kept >= maxEdgesPerNode_)
+            break;
+        }
+      }
+      for (uint32_t i = 0; i < nParticles; ++i) {
+        if (hideParticle[i] || hasVisibleEdge[i])
+          continue;
+        for (uint32_t v : g.decayVertices(i)) {  // any visible decay vertex gives a drawn p -> v edge
+          if (v < nVertices && !hideVertex[v]) {
+            hasVisibleEdge[i] = 1;
+            break;
+          }
+        }
+      }
+      for (uint32_t i = 0; i < nParticles; ++i) {
+        if (!hideParticle[i] && !hasVisibleEdge[i])
+          hideParticle[i] = 1;
+      }
+    }
+
     // ------------------------------------------------------------------
     // Particle nodes
     // ------------------------------------------------------------------
