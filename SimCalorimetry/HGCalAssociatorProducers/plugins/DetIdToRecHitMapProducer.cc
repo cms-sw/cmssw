@@ -113,10 +113,15 @@ void DetIdToRecHitMapProducer::fillDescriptions(edm::ConfigurationDescriptions& 
                                         edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
                                         edm::InputTag("HGCalRecHit", "HGCHEBRecHits")});
 
+  // Cleaned barrel/forward PFRecHits, in the global-index order the consumers
+  // (e.g. TruthLogicalGraphDumper) must mirror exactly. Keep this list and that
+  // one in sync: the recHit index is pure concatenation order, so adding,
+  // removing or reordering a collection shifts every downstream index.
   desc.add<std::vector<edm::InputTag>>("pfRecHits",
-                                       {edm::InputTag("particleFlowRecHitECAL"),
-                                        edm::InputTag("particleFlowRecHitHBHE"),
-                                        edm::InputTag("particleFlowRecHitHO")});
+                                       {edm::InputTag("particleFlowRecHitECAL", "Cleaned"),
+                                        edm::InputTag("particleFlowRecHitHBHE", "Cleaned"),
+                                        edm::InputTag("particleFlowRecHitHF", "Cleaned"),
+                                        edm::InputTag("particleFlowRecHitHO", "Cleaned")});
 
   descriptions.addWithDefaultLabel(desc);
 }

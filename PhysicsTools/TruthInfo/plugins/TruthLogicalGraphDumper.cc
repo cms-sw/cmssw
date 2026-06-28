@@ -387,17 +387,21 @@ public:
     desc.add<edm::InputTag>("hitIndex", edm::InputTag(""))
         ->setComment("Optional LogicalGraphHitIndex used to annotate particles with SimHit and RecHit summaries");
 
+    // These two lists MUST match DetIdToRecHitMapProducer's hgcalRecHits/pfRecHits
+    // (same collections, same order): hit.recHitIndex is the global concatenation
+    // index into HGC-then-PF, so any divergence makes recHitEnergies[recHitIndex]
+    // read the wrong hit. Defaults mirror that producer's defaults.
     desc.add<std::vector<edm::InputTag>>("hgcalRecHits",
-                                         {edm::InputTag("HGCalRecHit", "HGCEERecHits", "RECO"),
-                                          edm::InputTag("HGCalRecHit", "HGCHEFRecHits", "RECO"),
-                                          edm::InputTag("HGCalRecHit", "HGCHEBRecHits", "RECO")})
+                                         {edm::InputTag("HGCalRecHit", "HGCEERecHits"),
+                                          edm::InputTag("HGCalRecHit", "HGCHEFRecHits"),
+                                          edm::InputTag("HGCalRecHit", "HGCHEBRecHits")})
         ->setComment("HGCRecHit collections, in the same order used by DetIdToRecHitMapProducer");
 
     desc.add<std::vector<edm::InputTag>>("pfRecHits",
-                                         {edm::InputTag("particleFlowRecHitECAL", "Cleaned", "RECO"),
-                                          edm::InputTag("particleFlowRecHitHBHE", "Cleaned", "RECO"),
-                                          edm::InputTag("particleFlowRecHitHF", "Cleaned", "RECO"),
-                                          edm::InputTag("particleFlowRecHitHO", "Cleaned", "RECO")})
+                                         {edm::InputTag("particleFlowRecHitECAL", "Cleaned"),
+                                          edm::InputTag("particleFlowRecHitHBHE", "Cleaned"),
+                                          edm::InputTag("particleFlowRecHitHF", "Cleaned"),
+                                          edm::InputTag("particleFlowRecHitHO", "Cleaned")})
         ->setComment("PFRecHit collections, in the same order used by DetIdToRecHitMapProducer");
 
     desc.add<std::string>("dotFile", "truthlogicalgraph.dot");
