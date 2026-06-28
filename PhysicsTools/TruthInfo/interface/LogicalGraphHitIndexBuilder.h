@@ -28,7 +28,7 @@ namespace truth {
                 uint32_t trackId,
                 uint32_t detId,
                 float energy,
-                uint32_t recHitIndex = LogicalGraphHitIndex::Hit::invalidRecHitIndex);
+                uint32_t recHitIndex = LogicalGraphHitIndex::Hit::kInvalidRecHitIndex);
 
     [[nodiscard]] LogicalGraphHitIndex finish();
 

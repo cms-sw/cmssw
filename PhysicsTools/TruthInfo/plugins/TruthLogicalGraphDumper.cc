@@ -244,7 +244,7 @@ namespace {
     for (auto const& hit : hits) {
       summary.simHitEnergy += hit.energy;
 
-      if (hit.recHitIndex == truth::LogicalGraphHitIndex::Hit::invalidRecHitIndex ||
+      if (hit.recHitIndex == truth::LogicalGraphHitIndex::Hit::kInvalidRecHitIndex ||
           hit.recHitIndex >= recHitEnergies.size()) {
         ++summary.nMissingRecHits;
         continue;
