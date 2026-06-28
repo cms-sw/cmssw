@@ -110,6 +110,8 @@ void TruthGraphMixedProducer::produce(edm::Event& evt, edm::EventSetup const&) {
   out->simTrackToGen.assign(nNodes, -1);
   out->simTrackToVtx.assign(nNodes, -1);
   out->simVtxToGen.assign(nNodes, -1);
+  out->simVertexProcessType.assign(nNodes, 0);
+  out->simTrackBackscattered.assign(nNodes, 0);
 
   // Vertex nodes come first (ids [0, nVtx)), tracks after (ids [nVtx, nNodes)).
   // perEventVtxNodes[eid] preserves sub-event order, so the position equals the
@@ -125,6 +127,7 @@ void TruthGraphMixedProducer::produce(edm::Event& evt, edm::EventSetup const&) {
     const EncodedEventId eid = it->eventId();
     out->nodes[node] = TruthGraph::NodeRef{TruthGraph::NodeKind::SimVertex, static_cast<int64_t>(it->vertexId())};
     out->eventId[node] = packEventId(eid);
+    out->simVertexProcessType[node] = static_cast<uint16_t>(it->processType());
     perEventVtxNodes[eid.rawId()].push_back(node);
     vtxParent[v] = {eid.rawId(), it->parentIndex()};
   }
@@ -136,6 +139,7 @@ void TruthGraphMixedProducer::produce(edm::Event& evt, edm::EventSetup const&) {
     out->nodes[node] = TruthGraph::NodeRef{TruthGraph::NodeKind::SimTrack, static_cast<int64_t>(it->trackId())};
     out->pdgId[node] = it->type();
     out->eventId[node] = packEventId(eid);
+    out->simTrackBackscattered[node] = it->isFromBackScattering() ? 1 : 0;
     trackKey[SubEventKey{eid.rawId(), it->trackId()}] = node;
     trkProdVtxLocal[t] = {eid.rawId(), it->vertIndex()};
   }
