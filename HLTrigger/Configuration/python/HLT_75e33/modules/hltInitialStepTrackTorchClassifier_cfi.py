@@ -4,6 +4,6 @@ hltInitialStepTrackTorchClassifier = cms.EDProducer("TrackTorchClassifierAlpaka@
     modelPath = cms.FileInPath('RecoTracker/FinalTrackSelectors/data/TrackTorchClassifier/model.pt'),
     features = cms.InputTag("hltInitialStepTrackFeatureExtractor"),
     alpaka = cms.untracked.PSet(
-        backend = cms.untracked.string('')
+        backend = cms.untracked.string("serial_sync")
     )
 )

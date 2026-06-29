@@ -4,6 +4,6 @@ hltInitialStepTrackFeatureExtractor = cms.EDProducer("TrackFeatureExtractor@alpa
     src = cms.InputTag("hltInitialStepTracks"),
     beamSpot = cms.InputTag("hltOnlineBeamSpot"),
     alpaka = cms.untracked.PSet(
-        backend = cms.untracked.string('')
+        backend = cms.untracked.string("serial_sync")
     )
 )
