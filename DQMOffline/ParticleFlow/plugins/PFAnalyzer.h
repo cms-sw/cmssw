@@ -1058,7 +1058,7 @@ private:
       const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
       for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
         if (elements[iEle].index() == pfCand.get()->elementsInBlocks()[e].second) {
-          if ( elements[iEle].type() == reco::PFBlockElement::HCAL) {  // Element is HB or HE
+          if (elements[iEle].type() == reco::PFBlockElement::HCAL) {  // Element is HB or HE
             reco::PFClusterRef clusterref = elements[iEle].clusterRef();
             const reco::PFCluster& cluster = *clusterref;
 
