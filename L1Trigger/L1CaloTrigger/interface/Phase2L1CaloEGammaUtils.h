@@ -1063,7 +1063,7 @@ namespace p2eg {
     inline int looseL1TkMatchWP() const { return (is_looseTkiso && is_looseTkss); }
     inline int photonWP() const {
       return (is_looseTkiso && is_looseTkss);
-    }  // NOTE: NO PHOTON WP, we use tghe Tkloose WP for the menu
+    }  // NOTE: NO PHOTON WP, we use the Tkloose WP for the menu
 
     inline int passesShowerShape() const { return is_ss; }
 
@@ -1293,19 +1293,20 @@ namespace p2eg {
       // Use realPhi() to determine relative phi as current GCT card assignment uses old geometry
       // This is emulator specific to bypass geometry issue
       int cardnumber = 0;
-      float regionCentersInDegrees[6] = {10.0, 70.0, 130.0, -170.0, -110.0, -50.0};
+      const std::array<float, 6> regionCentersInDegrees = {{10.0, 70.0, 130.0, -170.0, -110.0, -50.0}};
       float clusterRealPhiAsDegree = realPhi() * 180 / M_PI;
       ap_int<7> phivscenter = 0;
       for (int i = 0; i < 6; i++) {
         float tempDifference = p2eg::deltaPhiInDegrees(clusterRealPhiAsDegree, regionCentersInDegrees[i]);
-        if (std::abs(tempDifference) < PHI_RANGE_PER_SLR_DEGREES / 4) {
+        if (std::abs(tempDifference) <= PHI_RANGE_PER_SLR_DEGREES / 4) {
           phivscenter = 0x7F & int(std::floor(tempDifference));  // greatest integer <= x
           cardnumber = int(i / 2);
+          break;
         }
       }
 
-      float cardCentersInDegrees[3] = {40., 160., -80.};
-      if (p2eg::deltaPhiInDegrees(clusterRealPhiAsDegree, cardCentersInDegrees[cardnumber]) > 0) {
+      const std::array<float, 3> cardCentersInDegrees = {{40., 160., -80.}};
+      if (p2eg::deltaPhiInDegrees(clusterRealPhiAsDegree, cardCentersInDegrees[cardnumber]) >= 0) {
         spare = spare | 3;
       } else {
         spare = spare | 1;
@@ -1324,7 +1325,7 @@ namespace p2eg {
         reliso_f = 63.0f;
 
       // normalize hoe to 0x3F
-      int hoe_int = (int)(hoe * 63 / 15);
+      int hoe_int = static_cast<int>(hoe * 63 / 15);
 
       return l1tp2::DigitizedClusterCorrelator(
           et,  // technically we are just multiplying and then dividing again by the LSB

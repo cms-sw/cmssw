@@ -82,8 +82,8 @@
   <class name="l1tp2::DigitizedL1CaloJetCollection" />
   <class name="edm::Wrapper<l1tp2::DigitizedL1CaloJetCollection>" />
 
-  <class name="l1tp2::DigitizedCaloToCorrelatorTM18"  ClassVersion="9">
-	  <version ClassVersion="9" checksum="3355885888"/>
+  <class name="l1tp2::DigitizedCaloToCorrelatorTM18"  ClassVersion="10">
+	  <version ClassVersion="10" checksum="222187906"/>
   </class>
   <class name="l1tp2::DigitizedCaloToCorrelatorCollectionTM18" />
   <class name="edm::Wrapper<l1tp2::DigitizedCaloToCorrelatorCollectionTM18>" />

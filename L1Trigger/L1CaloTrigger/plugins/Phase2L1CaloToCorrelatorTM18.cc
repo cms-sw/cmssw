@@ -45,14 +45,6 @@ void Phase2L1CaloToCorrelatorTM18::produce(edm::Event& evt, const edm::EventSetu
   std::unique_ptr<l1tp2::DigitizedCaloToCorrelatorCollectionTM18> caloCandsTM18(
       std::make_unique<l1tp2::DigitizedCaloToCorrelatorCollectionTM18>());
 
-  const int EM_SLR1_POS_OFFSET = 1;
-  const int EM_SLR1_NEG_OFFSET = 17;
-  const int PF_SLR1_POS_OFFSET = 33;
-  const int PF_SLR1_NEG_OFFSET = 57;
-  const int EM_SLR3_POS_OFFSET = 82;
-  const int EM_SLR3_NEG_OFFSET = 98;
-  const int PF_SLR3_POS_OFFSET = 114;
-  const int PF_SLR3_NEG_OFFSET = 138;
   const int NUM_EM_WORDS = 16;
   const int NUM_PF_WORDS = 24;
 
@@ -72,12 +64,12 @@ void Phase2L1CaloToCorrelatorTM18::produce(edm::Event& evt, const edm::EventSetu
   int cntr21neg = 0;
 
   ap_uint<64> mydata = 0;
-  ap_uint<64> dataToCL1Card0[162] = {0};
-  ap_uint<64> dataToCL1Card1[162] = {0};
-  ap_uint<64> dataToCL1Card2[162] = {0};
-  l1tp2::GCTDigiClusterLink clusterCollCard0(162);
-  l1tp2::GCTDigiClusterLink clusterCollCard1(162);
-  l1tp2::GCTDigiClusterLink clusterCollCard2(162);
+  std::array<ap_uint<64>, l1tp2::kNCardLinks> dataToCL1Card0 = {{0}};
+  std::array<ap_uint<64>, l1tp2::kNCardLinks> dataToCL1Card1 = {{0}};
+  std::array<ap_uint<64>, l1tp2::kNCardLinks> dataToCL1Card2 = {{0}};
+  l1tp2::GCTDigiClusterLink clusterCollCard0(l1tp2::kNCardLinks);
+  l1tp2::GCTDigiClusterLink clusterCollCard1(l1tp2::kNCardLinks);
+  l1tp2::GCTDigiClusterLink clusterCollCard2(l1tp2::kNCardLinks);
 
   // SLR1 and SLR3 both send 24 PFclusters each from +ve and -ve eta, total 48 words: 4x12(x64b)
 
@@ -100,63 +92,63 @@ void Phase2L1CaloToCorrelatorTM18::produce(edm::Event& evt, const edm::EventSetu
         mydata = cluster.data();
 
         if ((iGCT == 0) && isSLR1 && !isNegativeEta && (cntr01pos < NUM_PF_WORDS)) {
-          dataToCL1Card0[PF_SLR1_POS_OFFSET + cntr01pos] = mydata;
-          clusterCollCard0[PF_SLR1_POS_OFFSET + cntr01pos] = cluster;
+          dataToCL1Card0[l1tp2::PF_SLR1_POS_OFFSET + cntr01pos] = mydata;
+          clusterCollCard0[l1tp2::PF_SLR1_POS_OFFSET + cntr01pos] = cluster;
           cntr01pos++;
         }
         if ((iGCT == 1) && isSLR1 && !isNegativeEta && (cntr11pos < NUM_PF_WORDS)) {
-          dataToCL1Card1[PF_SLR1_POS_OFFSET + cntr11pos] = mydata;
-          clusterCollCard1[PF_SLR1_POS_OFFSET + cntr11pos] = cluster;
+          dataToCL1Card1[l1tp2::PF_SLR1_POS_OFFSET + cntr11pos] = mydata;
+          clusterCollCard1[l1tp2::PF_SLR1_POS_OFFSET + cntr11pos] = cluster;
           cntr11pos++;
         }
         if ((iGCT == 2) && isSLR1 && !isNegativeEta && (cntr21pos < NUM_PF_WORDS)) {
-          dataToCL1Card2[PF_SLR1_POS_OFFSET + cntr21pos] = mydata;
-          clusterCollCard2[PF_SLR1_POS_OFFSET + cntr21pos] = cluster;
+          dataToCL1Card2[l1tp2::PF_SLR1_POS_OFFSET + cntr21pos] = mydata;
+          clusterCollCard2[l1tp2::PF_SLR1_POS_OFFSET + cntr21pos] = cluster;
           cntr21pos++;
         }
         if ((iGCT == 0) && isSLR1 && isNegativeEta && (cntr01neg < NUM_PF_WORDS)) {
-          dataToCL1Card0[PF_SLR1_NEG_OFFSET + cntr01neg] = mydata;
-          clusterCollCard0[PF_SLR1_NEG_OFFSET + cntr01neg] = cluster;
+          dataToCL1Card0[l1tp2::PF_SLR1_NEG_OFFSET + cntr01neg] = mydata;
+          clusterCollCard0[l1tp2::PF_SLR1_NEG_OFFSET + cntr01neg] = cluster;
           cntr01neg++;
         }
         if ((iGCT == 1) && isSLR1 && isNegativeEta && (cntr11neg < NUM_PF_WORDS)) {
-          dataToCL1Card1[PF_SLR1_NEG_OFFSET + cntr11neg] = mydata;
-          clusterCollCard1[PF_SLR1_NEG_OFFSET + cntr11neg] = cluster;
+          dataToCL1Card1[l1tp2::PF_SLR1_NEG_OFFSET + cntr11neg] = mydata;
+          clusterCollCard1[l1tp2::PF_SLR1_NEG_OFFSET + cntr11neg] = cluster;
           cntr11neg++;
         }
         if ((iGCT == 2) && isSLR1 && isNegativeEta && (cntr21neg < NUM_PF_WORDS)) {
-          dataToCL1Card2[PF_SLR1_NEG_OFFSET + cntr21neg] = mydata;
-          clusterCollCard2[PF_SLR1_NEG_OFFSET + cntr21neg] = cluster;
+          dataToCL1Card2[l1tp2::PF_SLR1_NEG_OFFSET + cntr21neg] = mydata;
+          clusterCollCard2[l1tp2::PF_SLR1_NEG_OFFSET + cntr21neg] = cluster;
           cntr21neg++;
         }
         if ((iGCT == 0) && isSLR3 && !isNegativeEta && (cntr03pos < NUM_PF_WORDS)) {
-          dataToCL1Card0[PF_SLR3_POS_OFFSET + cntr03pos] = mydata;
-          clusterCollCard0[PF_SLR3_POS_OFFSET + cntr03pos] = cluster;
+          dataToCL1Card0[l1tp2::PF_SLR3_POS_OFFSET + cntr03pos] = mydata;
+          clusterCollCard0[l1tp2::PF_SLR3_POS_OFFSET + cntr03pos] = cluster;
           cntr03pos++;
         }
         if ((iGCT == 1) && isSLR3 && !isNegativeEta && (cntr13pos < NUM_PF_WORDS)) {
-          dataToCL1Card1[PF_SLR3_POS_OFFSET + cntr13pos] = mydata;
-          clusterCollCard1[PF_SLR3_POS_OFFSET + cntr13pos] = cluster;
+          dataToCL1Card1[l1tp2::PF_SLR3_POS_OFFSET + cntr13pos] = mydata;
+          clusterCollCard1[l1tp2::PF_SLR3_POS_OFFSET + cntr13pos] = cluster;
           cntr13pos++;
         }
         if ((iGCT == 2) && isSLR3 && !isNegativeEta && (cntr23pos < NUM_PF_WORDS)) {
-          dataToCL1Card2[PF_SLR3_POS_OFFSET + cntr23pos] = mydata;
-          clusterCollCard2[PF_SLR3_POS_OFFSET + cntr23pos] = cluster;
+          dataToCL1Card2[l1tp2::PF_SLR3_POS_OFFSET + cntr23pos] = mydata;
+          clusterCollCard2[l1tp2::PF_SLR3_POS_OFFSET + cntr23pos] = cluster;
           cntr23pos++;
         }
         if ((iGCT == 0) && isSLR3 && isNegativeEta && (cntr03neg < NUM_PF_WORDS)) {
-          dataToCL1Card0[PF_SLR3_NEG_OFFSET + cntr03neg] = mydata;
-          clusterCollCard0[PF_SLR3_NEG_OFFSET + cntr03neg] = cluster;
+          dataToCL1Card0[l1tp2::PF_SLR3_NEG_OFFSET + cntr03neg] = mydata;
+          clusterCollCard0[l1tp2::PF_SLR3_NEG_OFFSET + cntr03neg] = cluster;
           cntr03neg++;
         }
         if ((iGCT == 1) && isSLR3 && isNegativeEta && (cntr13neg < NUM_PF_WORDS)) {
-          dataToCL1Card1[PF_SLR3_NEG_OFFSET + cntr13neg] = mydata;
-          clusterCollCard1[PF_SLR3_NEG_OFFSET + cntr13neg] = cluster;
+          dataToCL1Card1[l1tp2::PF_SLR3_NEG_OFFSET + cntr13neg] = mydata;
+          clusterCollCard1[l1tp2::PF_SLR3_NEG_OFFSET + cntr13neg] = cluster;
           cntr13neg++;
         }
         if ((iGCT == 2) && isSLR3 && isNegativeEta && (cntr23neg < NUM_PF_WORDS)) {
-          dataToCL1Card2[PF_SLR3_NEG_OFFSET + cntr23neg] = mydata;
-          clusterCollCard2[PF_SLR3_NEG_OFFSET + cntr23neg] = cluster;
+          dataToCL1Card2[l1tp2::PF_SLR3_NEG_OFFSET + cntr23neg] = mydata;
+          clusterCollCard2[l1tp2::PF_SLR3_NEG_OFFSET + cntr23neg] = cluster;
           cntr23neg++;
         }
       }
@@ -197,63 +189,63 @@ void Phase2L1CaloToCorrelatorTM18::produce(edm::Event& evt, const edm::EventSetu
         mydata = cluster.data();
 
         if ((iGCT == 0) && isSLR1 && !isNegativeEta && (cntr01pos < NUM_EM_WORDS)) {
-          dataToCL1Card0[EM_SLR1_POS_OFFSET + cntr01pos] = mydata;
-          clusterCollCard0[EM_SLR1_POS_OFFSET + cntr01pos] = cluster;
+          dataToCL1Card0[l1tp2::EM_SLR1_POS_OFFSET + cntr01pos] = mydata;
+          clusterCollCard0[l1tp2::EM_SLR1_POS_OFFSET + cntr01pos] = cluster;
           cntr01pos++;
         }
         if ((iGCT == 1) && isSLR1 && !isNegativeEta && (cntr11pos < NUM_EM_WORDS)) {
-          dataToCL1Card1[EM_SLR1_POS_OFFSET + cntr11pos] = mydata;
-          clusterCollCard1[EM_SLR1_POS_OFFSET + cntr11pos] = cluster;
+          dataToCL1Card1[l1tp2::EM_SLR1_POS_OFFSET + cntr11pos] = mydata;
+          clusterCollCard1[l1tp2::EM_SLR1_POS_OFFSET + cntr11pos] = cluster;
           cntr11pos++;
         }
         if ((iGCT == 2) && isSLR1 && !isNegativeEta && (cntr21pos < NUM_EM_WORDS)) {
-          dataToCL1Card2[EM_SLR1_POS_OFFSET + cntr21pos] = mydata;
-          clusterCollCard2[EM_SLR1_POS_OFFSET + cntr21pos] = cluster;
+          dataToCL1Card2[l1tp2::EM_SLR1_POS_OFFSET + cntr21pos] = mydata;
+          clusterCollCard2[l1tp2::EM_SLR1_POS_OFFSET + cntr21pos] = cluster;
           cntr21pos++;
         }
         if ((iGCT == 0) && isSLR1 && isNegativeEta && (cntr01neg < NUM_EM_WORDS)) {
-          dataToCL1Card0[EM_SLR1_NEG_OFFSET + cntr01neg] = mydata;
-          clusterCollCard0[EM_SLR1_NEG_OFFSET + cntr01neg] = cluster;
+          dataToCL1Card0[l1tp2::EM_SLR1_NEG_OFFSET + cntr01neg] = mydata;
+          clusterCollCard0[l1tp2::EM_SLR1_NEG_OFFSET + cntr01neg] = cluster;
           cntr01neg++;
         }
         if ((iGCT == 1) && isSLR1 && isNegativeEta && (cntr11neg < NUM_EM_WORDS)) {
-          dataToCL1Card1[EM_SLR1_NEG_OFFSET + cntr11neg] = mydata;
-          clusterCollCard1[EM_SLR1_NEG_OFFSET + cntr11neg] = cluster;
+          dataToCL1Card1[l1tp2::EM_SLR1_NEG_OFFSET + cntr11neg] = mydata;
+          clusterCollCard1[l1tp2::EM_SLR1_NEG_OFFSET + cntr11neg] = cluster;
           cntr11neg++;
         }
         if ((iGCT == 2) && isSLR1 && isNegativeEta && (cntr21neg < NUM_EM_WORDS)) {
-          dataToCL1Card2[EM_SLR1_NEG_OFFSET + cntr21neg] = mydata;
-          clusterCollCard2[EM_SLR1_NEG_OFFSET + cntr21neg] = cluster;
+          dataToCL1Card2[l1tp2::EM_SLR1_NEG_OFFSET + cntr21neg] = mydata;
+          clusterCollCard2[l1tp2::EM_SLR1_NEG_OFFSET + cntr21neg] = cluster;
           cntr21neg++;
         }
         if ((iGCT == 0) && isSLR3 && !isNegativeEta && (cntr03pos < NUM_EM_WORDS)) {
-          dataToCL1Card0[EM_SLR3_POS_OFFSET + cntr03pos] = mydata;
-          clusterCollCard0[EM_SLR3_POS_OFFSET + cntr03pos] = cluster;
+          dataToCL1Card0[l1tp2::EM_SLR3_POS_OFFSET + cntr03pos] = mydata;
+          clusterCollCard0[l1tp2::EM_SLR3_POS_OFFSET + cntr03pos] = cluster;
           cntr03pos++;
         }
         if ((iGCT == 1) && isSLR3 && !isNegativeEta && (cntr13pos < NUM_EM_WORDS)) {
-          dataToCL1Card1[EM_SLR3_POS_OFFSET + cntr13pos] = mydata;
-          clusterCollCard1[EM_SLR3_POS_OFFSET + cntr13pos] = cluster;
+          dataToCL1Card1[l1tp2::EM_SLR3_POS_OFFSET + cntr13pos] = mydata;
+          clusterCollCard1[l1tp2::EM_SLR3_POS_OFFSET + cntr13pos] = cluster;
           cntr13pos++;
         }
         if ((iGCT == 2) && isSLR3 && !isNegativeEta && (cntr23pos < NUM_EM_WORDS)) {
-          dataToCL1Card2[EM_SLR3_POS_OFFSET + cntr23pos] = mydata;
-          clusterCollCard2[EM_SLR3_POS_OFFSET + cntr23pos] = cluster;
+          dataToCL1Card2[l1tp2::EM_SLR3_POS_OFFSET + cntr23pos] = mydata;
+          clusterCollCard2[l1tp2::EM_SLR3_POS_OFFSET + cntr23pos] = cluster;
           cntr23pos++;
         }
         if ((iGCT == 0) && isSLR3 && isNegativeEta && (cntr03neg < NUM_EM_WORDS)) {
-          dataToCL1Card0[EM_SLR3_NEG_OFFSET + cntr03neg] = mydata;
-          clusterCollCard0[EM_SLR3_NEG_OFFSET + cntr03neg] = cluster;
+          dataToCL1Card0[l1tp2::EM_SLR3_NEG_OFFSET + cntr03neg] = mydata;
+          clusterCollCard0[l1tp2::EM_SLR3_NEG_OFFSET + cntr03neg] = cluster;
           cntr03neg++;
         }
         if ((iGCT == 1) && isSLR3 && isNegativeEta && (cntr13neg < NUM_EM_WORDS)) {
-          dataToCL1Card1[EM_SLR3_NEG_OFFSET + cntr13neg] = mydata;
-          clusterCollCard1[EM_SLR3_NEG_OFFSET + cntr13neg] = cluster;
+          dataToCL1Card1[l1tp2::EM_SLR3_NEG_OFFSET + cntr13neg] = mydata;
+          clusterCollCard1[l1tp2::EM_SLR3_NEG_OFFSET + cntr13neg] = cluster;
           cntr13neg++;
         }
         if ((iGCT == 2) && isSLR3 && isNegativeEta && (cntr23neg < NUM_EM_WORDS)) {
-          dataToCL1Card2[EM_SLR3_NEG_OFFSET + cntr23neg] = mydata;
-          clusterCollCard2[EM_SLR3_NEG_OFFSET + cntr23neg] = cluster;
+          dataToCL1Card2[l1tp2::EM_SLR3_NEG_OFFSET + cntr23neg] = mydata;
+          clusterCollCard2[l1tp2::EM_SLR3_NEG_OFFSET + cntr23neg] = cluster;
           cntr23neg++;
         }
       }

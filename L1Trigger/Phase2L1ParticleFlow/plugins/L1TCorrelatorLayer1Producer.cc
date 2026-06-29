@@ -1012,11 +1012,11 @@ void L1TCorrelatorLayer1Producer::addHGCalHadCalo(const l1t::HGCalMulticluster &
 //  2              11          5        10          4
 
 unsigned int L1TCorrelatorLayer1Producer::emDecodedIndex(unsigned int linkidx, unsigned int entidx) const {
-  if (entidx < 17) {
+  if (entidx < l1tp2::EM_SLR1_NEG_OFFSET) {
     return 2 * linkidx + 7;
-  } else if (entidx < 81) {
+  } else if (entidx < l1tp2::EM_SLR3_POS_OFFSET) {
     return 2 * linkidx + 1;
-  } else if (entidx < 98) {
+  } else if (entidx < l1tp2::EM_SLR3_NEG_OFFSET) {
     return 2 * linkidx + 6;
   } else {
     return 2 * linkidx;
@@ -1024,11 +1024,11 @@ unsigned int L1TCorrelatorLayer1Producer::emDecodedIndex(unsigned int linkidx, u
 }
 
 unsigned int L1TCorrelatorLayer1Producer::hadDecodedIndex(unsigned int linkidx, unsigned int entidx) const {
-  if (entidx < 57) {
+  if (entidx < l1tp2::PF_SLR1_NEG_OFFSET) {
     return 2 * linkidx + 7;
-  } else if (entidx < 81) {
+  } else if (entidx < l1tp2::EM_SLR3_POS_OFFSET) {
     return 2 * linkidx + 1;
-  } else if (entidx < 138) {
+  } else if (entidx < l1tp2::PF_SLR3_NEG_OFFSET) {
     return 2 * linkidx + 6;
   } else {
     return 2 * linkidx;
