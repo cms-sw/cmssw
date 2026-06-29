@@ -3135,9 +3135,7 @@ double HGVHistoProducerAlgo::getEta(double eta) const {
      and the trajectory that a particle crossing the HGCAL surface at the same point
      would have. It measures how non-pointing a given particle's trajectory is.
   */
-HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveDisplacement(const math::XYZVectorF& point,const math::XYZVectorF& direction) {
-  const auto unitDirection = direction.Unit();
-
+HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveDisplacement(const math::XYZVectorF& point, const math::XYZVectorF& unitDirection) {
   const float t = -point.z() / unitDirection.z();
   const float x = point.x() + t * unitDirection.x();
   const float y = point.y() + t * unitDirection.y();
@@ -3156,28 +3154,17 @@ HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveSimT
   const math::XYZVectorF point(boundaryPos.x(), boundaryPos.y(), boundaryPos.z());
   const math::XYZVectorF direction(boundaryMom.x(), boundaryMom.y(), boundaryMom.z());
 
-  return resolveDisplacement(point, direction);
+  return resolveDisplacement(point, direction.unit());
 }
 
-ticl::Trackster::Vector HGVHistoProducerAlgo::resolveTracksterDirection(const ticl::Trackster &trackster) {
-    auto direction = trackster.eigenvectors()[0];
-    const auto &point = trackster.barycenter();
-
-    if (direction.z() * point.z() < 0.f) {
-        direction *= -1.f;
-    }
-
-    return direction;
+const ticl::Trackster::Vector& HGVHistoProducerAlgo::resolveTracksterDirection(const ticl::Trackster& trackster) {
+    // eigenvectors()[0] is the unit-norm principal PCA axis of the trackster,
+    // oriented along the particle direction regarding z sign
+    return trackster.eigenvectors()[0];
 }
 
 HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveRecoTracksterDisplacement(const ticl::Trackster& trackster) {
-  const auto& barycenter = trackster.barycenter();
-  const auto& direction = resolveTracksterDirection(trackster);
-
-  const math::XYZVectorF point(barycenter.x(), barycenter.y(), barycenter.z());
-  const math::XYZVectorF directionVector(direction.x(), direction.y(), direction.z());
-
-  return resolveDisplacement(point, directionVector);
+  return resolveDisplacement(trackster.barycenter(), resolveTracksterDirection(trackster));
 }
 
 const SimTrack& HGVHistoProducerAlgo::getSimTrack(const CaloParticle& caloParticle) {
