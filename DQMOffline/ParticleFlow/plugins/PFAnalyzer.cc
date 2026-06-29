@@ -120,7 +120,7 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   m_funcMap["trk_ptError"] = getTrackPtError;
   m_funcMap["trk_relPtError"] = getTrackRelPtError;
   m_funcMap["trk_d0"] = getTrackD0;
-  m_funcMap["trk_z0"] = getTrackZ0;
+  m_funcMap["trk_dz"] = getTrackDZ;
   m_funcMap["trk_thetaError"] = getTrackThetaError;
   m_funcMap["trk_etaError"] = getTrackEtaError;
   m_funcMap["trk_phiError"] = getTrackPhiError;
