@@ -4939,7 +4939,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
     upgradeStepDict['HARVESTGlobalFakeHLT'][k] = merge([{'-s': 'HARVESTING:@phase2ValidationFakeHLT+@phase2FakeHLT+@miniAODValidation+@miniAODDQM'}, upgradeStepDict['HARVEST'][k]])
 
-    upgradeStepDict['ALCA'][k] = {'-s':'ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+TkAlDiMuonAndVertex+HcalCalHBHEMuonProducerFilter+TkAlUpsilonMuMu+TkAlJpsiMuMu+SiStripCalMinBias',
+    upgradeStepDict['ALCA'][k] = {'-s':'ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+TkAlDiMuonAndVertex+HcalCalHBHEMuonProducerFilter+TkAlUpsilonMuMu+TkAlJpsiMuMu+SiStripCalMinBias+TkAlV0s+TkAlJetHT',
                                       '--conditions':gt,
                                       '--datatier':'ALCARECO',
                                       '-n':'10',
@@ -4947,7 +4947,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--geometry' : geom,
                                       }
 
-    upgradeStepDict['ALCAPhase2'][k] = merge([{'-s':'ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+TkAlDiMuonAndVertex+HcalCalHBHEMuonProducerFilter+TkAlUpsilonMuMu+TkAlJpsiMuMu'},upgradeStepDict['ALCA'][k]])
+    upgradeStepDict['ALCAPhase2'][k] = merge([{'-s':'ALCA:SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps+EcalESAlign+TkAlZMuMu+TkAlDiMuonAndVertex+HcalCalHBHEMuonProducerFilter+TkAlUpsilonMuMu+TkAlJpsiMuMu+TkAlV0s+TkAlJetHT'},upgradeStepDict['ALCA'][k]])
 
     upgradeStepDict['FastSim'][k]={'-s':'GEN,SIM,RECO,VALIDATION',
                                    '--eventcontent':'FEVTDEBUGHLT,DQM',
