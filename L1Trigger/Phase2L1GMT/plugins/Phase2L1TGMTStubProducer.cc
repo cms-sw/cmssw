@@ -48,7 +48,7 @@ private:
 Phase2L1TGMTStubProducer::Phase2L1TGMTStubProducer(const edm::ParameterSet& iConfig)
     : srcCSC_(
           consumes<MuonDigiCollection<CSCDetId, CSCCorrelatedLCTDigi>>(iConfig.getParameter<edm::InputTag>("srcCSC"))),
-	  srcDT_(consumes<L1Phase2MuDTPhContainer>(iConfig.getParameter<edm::InputTag>("srcDT"))),
+      srcDT_(consumes<L1Phase2MuDTPhContainer>(iConfig.getParameter<edm::InputTag>("srcDT"))),
       srcDTTheta_(consumes<L1MuDTChambThContainer>(iConfig.getParameter<edm::InputTag>("srcDTTheta"))),
       srcDTPairs_(consumes<L1Phase2MuDTExtPhiThetaPairContainer>(iConfig.getParameter<edm::InputTag>("srcDTPairs"))),
       srcRPC_(consumes<RPCDigiCollection>(iConfig.getParameter<edm::InputTag>("srcRPC"))),

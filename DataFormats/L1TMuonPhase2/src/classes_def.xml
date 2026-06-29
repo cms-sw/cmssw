@@ -27,7 +27,7 @@
 
    <class name="l1t::KMTFTrack" ClassVersion="4">
     <version ClassVersion="4" checksum="251130338"/>
-    <version ClassVersion="3" checksum="502486181"/>
+    <version ClassVersion="3" checksum="754125433"/>
    </class>
    <class name="std::vector<l1t::KMTFTrack>"/>
    <class name="l1t::KMTFTrackCollection"/>
