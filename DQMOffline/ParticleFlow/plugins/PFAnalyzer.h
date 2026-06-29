@@ -373,7 +373,7 @@ private:
     if (partType == 1) {
       fastjet::PseudoJet weightedPF = fastjet::PseudoJet(
           weight * packedPart.px(), weight * packedPart.py(), weight * packedPart.pz(), weight * packedPart.energy());
-      return packedPart.puppiWeight() * packedPart.eta();
+      return weightedPF.eta();
     }
     return -1;
   }
@@ -878,7 +878,7 @@ private:
     return -1;
   }
 
-  static double getTrackZ0(const reco::PFCandidatePtr pfCand,
+  static double getTrackDZ(const reco::PFCandidatePtr pfCand,
                            const pat::PackedCandidate packedPart,
                            const reco::CandidatePtr cand,
                            int partType,
@@ -887,7 +887,7 @@ private:
       return -1;
     }
     if (pfCand.get()->trackRef().isNonnull())
-      return (pfCand.get()->trackRef())->d0();
+      return (pfCand.get()->trackRef())->dz();
     return -1;
   }
 
@@ -1052,15 +1052,13 @@ private:
     // We need this function to return a double, even though this is an integer value
     double nTrack = 0;
     int maxElement = pfCand.get()->elementsInBlocks().size();
-    std::cout << maxElement << std::endl;
     for (int e = 0; e < maxElement; ++e) {
       // Get elements from block
       reco::PFBlockRef blockRef = pfCand.get()->elementsInBlocks()[e].first;
       const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
       for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
         if (elements[iEle].index() == pfCand.get()->elementsInBlocks()[e].second) {
-          if (elements[iEle].type() == elements[iEle].type() ||
-              elements[iEle].type() == reco::PFBlockElement::HCAL) {  // Element is HB or HE
+          if ( elements[iEle].type() == reco::PFBlockElement::HCAL) {  // Element is HB or HE
             reco::PFClusterRef clusterref = elements[iEle].clusterRef();
             const reco::PFCluster& cluster = *clusterref;
 

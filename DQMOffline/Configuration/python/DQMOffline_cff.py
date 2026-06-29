@@ -137,7 +137,6 @@ from DQMOffline.RecoB.dqmAnalyzer_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitor_cff import *
 from DQM.Physics.DQMPhysics_cff import *
 from DQM.Physics.heavyFlavorDQMFirstStep_cff import *
-from DQMOffline.ParticleFlow.runBasic_cff import DQMOfflinePFAnalyzer
 
 DQMOfflineVertex = cms.Sequence( pvMonitor )
 

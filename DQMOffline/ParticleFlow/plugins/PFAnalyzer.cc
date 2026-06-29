@@ -797,7 +797,6 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
   if (!m_isMiniAOD) {
-    iEvent.getByToken(puppiWeightToken_, puppiWeight);
     if (!puppiWeightToken_.isUninitialized())
       iEvent.getByToken(puppiWeightToken_, puppiWeight);
 
