@@ -202,6 +202,12 @@
   <use name="FWCore/Utilities"/>
 </library>
 
+<library file="stubs/DelayESCallsService.cc" name="FWCoreFrameworkDelayESCallsService">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ServiceRegistry"/>
+</library>
 
 <bin name="TestFWCoreFramework" file="maker2_t.catch2.cc,productregistry.catch2.cc,edproducer_productregistry_callback.cc,event_getrefbeforeput_t.catch2.cc,generichandle_t.catch2.cc,edconsumerbase_t.catch2.cc,checkForModuleDependencyCorrectness_t.catch2.cc">
   <use name="DataFormats/Common"/>
@@ -388,6 +394,11 @@
 <test name="testFWCoreFrameworkWrongOptionsNumberOfThreadsType" command="run_wrongOptionsType.sh numberOfThreads 'cms.untracked.int32(1)'"/>
 <test name="testFWCoreFrameworkWrongOptionsNumberOfStreamsType" command="run_wrongOptionsType.sh numberOfStreams 'cms.untracked.int32(1)'"/>
 <test name="testFWCoreFrameworkWrongOptionssizeOfStackForThreadsInKBType" command="run_wrongOptionsType.sh sizeOfStackForThreadsInKB 'cms.untracked.int32(1024)'"/>
+
+<!-- cant do Runs until there is a way for EmptySource  to stop job when using Runs only processing 
+<test name="testFWCoreFrameworkDelayedESRuns" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_delayed_es_cfg.py -d=runs"/>
+-->
+<test name="testFWCoreFrameworkDelayedESLumis" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_delayed_es_cfg.py --delay-target=lumis"/>
 
 <bin file="test_catch2_main.cc,test_catch2_CmsRunParser.cc" name="TestFWCoreFrameworkCmsRunParser">
   <use name="catch2"/>
