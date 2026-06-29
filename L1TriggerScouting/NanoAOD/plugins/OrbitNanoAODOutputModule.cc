@@ -195,6 +195,8 @@ void OrbitNanoAODOutputModule::writeRunTree(edm::RunForOutput const& iRun) {
 
 void OrbitNanoAODOutputModule::initTables() {
   m_tables.clear();
+  m_selbxs.clear();
+
   auto const& keeps = keptProducts();
   for (auto const& keep : keeps[edm::InEvent]) {
     if (keep.first->className() == "l1ScoutingRun3::OrbitFlatTable")
