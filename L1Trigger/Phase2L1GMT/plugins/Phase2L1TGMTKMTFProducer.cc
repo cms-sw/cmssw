@@ -95,11 +95,12 @@ void Phase2L1TGMTKMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup
   std::vector<l1t::KMTFTrack> kmtfTracks;
   for (const auto& track : kmtfOutput.first) {
     kmtfTracks.push_back(track);
-	//convert kmtf track.zPosition (LSB_kmtf=1500./2<<16) into z0 for SAMuon. 
+    //convert kmtf track.zPosition (LSB_kmtf=1500./2<<16) into z0 for SAMuon.
     //LSBSAz0 = 1.6cm is too small given only 5 bits. the range fro z0 is +- 25.6cm from DataFormats/L1TMuonPhase2/interface/Constants.h
-    //eff. LSB = 1.6cm * 16 = 25.6 cm to widen the z0 range that can covered given only 5 bits.  
+    //eff. LSB = 1.6cm * 16 = 25.6 cm to widen the z0 range that can covered given only 5 bits.
     //full conversion is z0_SA=z0_kmtf*(LSB_kmtf)*(1/LSB_SA)*(1/16) to convert between kmtf->SAMuon digitizations
-    ap_fixed<BITSSAZ0, BITSSAZ0, AP_TRN, AP_SAT> z0 = track.zPosition() * ap_ufixed<18, 0>((1500.0 / (1 << 16)) / (LSBSAz0 * 16));
+    ap_fixed<BITSSAZ0, BITSSAZ0, AP_TRN, AP_SAT> z0 =
+        track.zPosition() * ap_ufixed<18, 0>((1500.0 / (1 << 16)) / (LSBSAz0 * 16));
     l1t::SAMuon p(track.p4(),
                   (track.curvatureAtVertex() < 0),
                   track.ptPrompt(),
@@ -128,7 +129,8 @@ void Phase2L1TGMTKMTFProducer::produce(edm::Event& iEvent, const edm::EventSetup
   for (const auto& track : kmtfOutput.second) {
     kmtfTracks.push_back(track);
     ap_int<7> dxy = track.dxy() * ap_ufixed<8, 1>(1.606);
-    ap_fixed<BITSSAZ0, BITSSAZ0, AP_TRN, AP_SAT> z0 = track.zPosition() * ap_ufixed<18, 0>((1500.0 / (1 << 16)) / (LSBSAz0 * 16));
+    ap_fixed<BITSSAZ0, BITSSAZ0, AP_TRN, AP_SAT> z0 =
+        track.zPosition() * ap_ufixed<18, 0>((1500.0 / (1 << 16)) / (LSBSAz0 * 16));
     l1t::SAMuon p(track.displacedP4(),
                   (track.curvatureAtMuon() < 0),
                   track.ptDisplaced(),
