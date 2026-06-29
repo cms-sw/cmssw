@@ -47,3 +47,6 @@ seqALCARECOTkAlJetHT = cms.Sequence(ALCARECOTkAlJetHTHLT+ALCARECOTkAlJetHTDCSFil
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(ALCARECOTkAlJetHT, etaMin = -4, etaMax = 4)
+phase2_tracker.toModify(ALCARECOTkAlJetHTHLT,
+                        eventSetupPathsKey='',
+                        HLTPaths = ['HLT_*HT*','HLT_*Jet*'])
