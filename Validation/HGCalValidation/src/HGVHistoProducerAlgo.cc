@@ -44,12 +44,12 @@ HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
       maxPhi_(pset.getParameter<double>("maxPhi")),
       nintPhi_(pset.getParameter<int>("nintPhi")),
 
-	  //parameters for R
+      //parameters for R
       minR_(pset.getParameter<double>("minR")),
       maxR_(pset.getParameter<double>("maxR")),
       nintR_(pset.getParameter<int>("nintR")),
 
-	  //parameters for alpha
+      //parameters for alpha
       minAlpha_(pset.getParameter<double>("minAlpha")),
       maxAlpha_(pset.getParameter<double>("maxAlpha")),
       nintAlpha_(pset.getParameter<int>("nintAlpha")),
@@ -691,12 +691,12 @@ void HGVHistoProducerAlgo::bookClusterHistos_ClusterLevel(DQMStore::IBooker& ibo
                                                             nintTotNClsperlay_,
                                                             minTotNClsperlay_,
                                                             maxTotNClsperlay_);
-    histograms.h_energyclustered_perlayer[ilayer] = ibook.book1D(
-        "energyclustered_perlayer" + istr1,
-        "percent of total energy clustered by layer clusters over CaloParticles energy for layer " + istr2,
-        nintEneClperlay_,
-        minEneClperlay_,
-        maxEneClperlay_);
+    histograms.h_energyclustered_perlayer[ilayer] =
+        ibook.book1D("energyclustered_perlayer" + istr1,
+                     "percent of total energy clustered by layer clusters over CaloParticles energy for layer " + istr2,
+                     nintEneClperlay_,
+                     minEneClperlay_,
+                     maxEneClperlay_);
   }
 
   //---------------------------------------------------------------------------------------------------------------------------
@@ -1118,8 +1118,8 @@ void HGVHistoProducerAlgo::bookTracksterHistos(DQMStore::IBooker& ibook, Histogr
       ibook.book1D("trackster_z", "Z position of the Trackster;Trackster z", nintZ_, minZ_, maxZ_));
   histograms.h_trackster_R.push_back(
       ibook.book1D("trackster_R", "R of the Trackster;Trackster R [cm]", nintR_, minR_, maxR_));
-  histograms.h_trackster_alpha.push_back(
-      ibook.book1D("trackster_alpha", "#alpha of the Trackster;Trackster #alpha [rad]", nintAlpha_, minAlpha_, maxAlpha_));
+  histograms.h_trackster_alpha.push_back(ibook.book1D(
+      "trackster_alpha", "#alpha of the Trackster;Trackster #alpha [rad]", nintAlpha_, minAlpha_, maxAlpha_));
   histograms.h_trackster_time.push_back(
       ibook.book1D("trackster_time", "Time of the Trackster;Trackster time [ns]", nintTime_, minTime_, maxTime_));
   histograms.h_trackster_firstlayer.push_back(ibook.book1D(
@@ -1239,74 +1239,103 @@ void HGVHistoProducerAlgo::bookTracksterSTSHistos(DQMStore::IBooker& ibook,
       "Num_Trackster_Eta" + valSuffix_[valType], "Num Trackster Eta per Trackster;#eta", nintEta_, minEta_, maxEta_));
   histograms.h_numMerge_trackster_eta[valType].push_back(ibook.book1D("NumMerge_Trackster_Eta" + valSuffix_[valType],
                                                                       "Num Merge Trackster Eta per Trackster;#eta",
-                                                                      nintEta_, minEta_, maxEta_));
+                                                                      nintEta_,
+                                                                      minEta_,
+                                                                      maxEta_));
   histograms.h_denom_trackster_eta[valType].push_back(ibook.book1D("Denom_Trackster_Eta" + valSuffix_[valType],
                                                                    "Denom Trackster Eta per Trackster;#eta",
-                                                                   nintEta_, minEta_, maxEta_));
+                                                                   nintEta_,
+                                                                   minEta_,
+                                                                   maxEta_));
   // phi
   histograms.h_num_trackster_phi[valType].push_back(ibook.book1D(
       "Num_Trackster_Phi" + valSuffix_[valType], "Num Trackster Phi per Trackster;#phi", nintPhi_, minPhi_, maxPhi_));
   histograms.h_numMerge_trackster_phi[valType].push_back(ibook.book1D("NumMerge_Trackster_Phi" + valSuffix_[valType],
                                                                       "Num Merge Trackster Phi per Trackster;#phi",
-                                                                      nintPhi_, minPhi_, maxPhi_));
+                                                                      nintPhi_,
+                                                                      minPhi_,
+                                                                      maxPhi_));
   histograms.h_denom_trackster_phi[valType].push_back(ibook.book1D("Denom_Trackster_Phi" + valSuffix_[valType],
                                                                    "Denom Trackster Phi per Trackster;#phi",
-                                                                   nintPhi_, minPhi_, maxPhi_));
+                                                                   nintPhi_,
+                                                                   minPhi_,
+                                                                   maxPhi_));
   // energy
   histograms.h_num_trackster_en[valType].push_back(ibook.book1D("Num_Trackster_Energy" + valSuffix_[valType],
                                                                 "Num Trackster Energy per Trackster;energy [GeV]",
-                                                                nintEne_, minEne_, maxEne_));
+                                                                nintEne_,
+                                                                minEne_,
+                                                                maxEne_));
   histograms.h_numMerge_trackster_en[valType].push_back(
       ibook.book1D("NumMerge_Trackster_Energy" + valSuffix_[valType],
                    "Num Merge Trackster Energy per Trackster;energy [GeV]",
-                   nintEne_, minEne_, maxEne_));
+                   nintEne_,
+                   minEne_,
+                   maxEne_));
   histograms.h_denom_trackster_en[valType].push_back(ibook.book1D("Denom_Trackster_Energy" + valSuffix_[valType],
                                                                   "Denom Trackster Energy per Trackster;energy [GeV]",
-                                                                  nintEne_, minEne_, maxEne_));
+                                                                  nintEne_,
+                                                                  minEne_,
+                                                                  maxEne_));
   // pT
   histograms.h_num_trackster_pt[valType].push_back(ibook.book1D("Num_Trackster_Pt" + valSuffix_[valType],
                                                                 "Num Trackster p_{T} per Trackster;p_{T} [GeV]",
-                                                                nintPt_, minPt_, maxPt_));
+                                                                nintPt_,
+                                                                minPt_,
+                                                                maxPt_));
   histograms.h_numMerge_trackster_pt[valType].push_back(
       ibook.book1D("NumMerge_Trackster_Pt" + valSuffix_[valType],
                    "Num Merge Trackster p_{T} per Trackster;p_{T} [GeV]",
-                   nintPt_, minPt_, maxPt_));
+                   nintPt_,
+                   minPt_,
+                   maxPt_));
   histograms.h_denom_trackster_pt[valType].push_back(ibook.book1D("Denom_Trackster_Pt" + valSuffix_[valType],
                                                                   "Denom Trackster p_{T} per Trackster;p_{T} [GeV]",
-                                                                  nintPt_, minPt_, maxPt_));
+                                                                  nintPt_,
+                                                                  minPt_,
+                                                                  maxPt_));
   // R
-  histograms.h_num_trackster_R[valType].push_back(ibook.book1D("Num_Trackster_R" + valSuffix_[valType],
-															   "Num Trackster R per Trackster;R [cm]",
-															   nintR_, minR_, maxR_));
-  histograms.h_numMerge_trackster_R[valType].push_back(
-      ibook.book1D("NumMerge_Trackster_R" + valSuffix_[valType],
-                   "Num Merge Trackster R per Trackster;R [cm]",
-                   nintR_, minR_, maxR_));
-  histograms.h_denom_trackster_R[valType].push_back(ibook.book1D("Denom_Trackster_R" + valSuffix_[valType],
-																 "Denom Trackster R per Trackster;R [cm]",
-																 nintR_, minR_, maxR_));
+  histograms.h_num_trackster_R[valType].push_back(ibook.book1D(
+      "Num_Trackster_R" + valSuffix_[valType], "Num Trackster R per Trackster;R [cm]", nintR_, minR_, maxR_));
+  histograms.h_numMerge_trackster_R[valType].push_back(ibook.book1D(
+      "NumMerge_Trackster_R" + valSuffix_[valType], "Num Merge Trackster R per Trackster;R [cm]", nintR_, minR_, maxR_));
+  histograms.h_denom_trackster_R[valType].push_back(ibook.book1D(
+      "Denom_Trackster_R" + valSuffix_[valType], "Denom Trackster R per Trackster;R [cm]", nintR_, minR_, maxR_));
   // Displacement angle (alpha)
   histograms.h_num_trackster_alpha[valType].push_back(ibook.book1D("Num_Trackster_Alpha" + valSuffix_[valType],
-															   "Num Trackster #alpha per Trackster;#alpha [rad]",
-															   nintAlpha_, minAlpha_, maxAlpha_));
+                                                                   "Num Trackster #alpha per Trackster;#alpha [rad]",
+                                                                   nintAlpha_,
+                                                                   minAlpha_,
+                                                                   maxAlpha_));
   histograms.h_numMerge_trackster_alpha[valType].push_back(
       ibook.book1D("NumMerge_Trackster_Alpha" + valSuffix_[valType],
                    "Num Merge Trackster #alpha per Trackster;#alpha [rad]",
-                   nintAlpha_, minAlpha_, maxAlpha_));
-  histograms.h_denom_trackster_alpha[valType].push_back(ibook.book1D("Denom_Trackster_Alpha" + valSuffix_[valType],
-																 "Denom Trackster #alpha per Trackster;#alpha [rad]",
-																 nintAlpha_, minAlpha_, maxAlpha_));
+                   nintAlpha_,
+                   minAlpha_,
+                   maxAlpha_));
+  histograms.h_denom_trackster_alpha[valType].push_back(
+      ibook.book1D("Denom_Trackster_Alpha" + valSuffix_[valType],
+                   "Denom Trackster #alpha per Trackster;#alpha [rad]",
+                   nintAlpha_,
+                   minAlpha_,
+                   maxAlpha_));
   // time
   histograms.h_num_trackster_time[valType].push_back(ibook.book1D("Num_Trackster_Time" + valSuffix_[valType],
                                                                   "Num Trackster time per Trackster;time [ns]",
-                                                                  nintTime_, minTime_, maxTime_));
+                                                                  nintTime_,
+                                                                  minTime_,
+                                                                  maxTime_));
   histograms.h_numMerge_trackster_time[valType].push_back(
       ibook.book1D("NumMerge_Trackster_Time" + valSuffix_[valType],
                    "Num Merge Trackster time per Trackster;time [ns]",
-                   nintTime_, minTime_, maxTime_));
+                   nintTime_,
+                   minTime_,
+                   maxTime_));
   histograms.h_denom_trackster_time[valType].push_back(ibook.book1D("Denom_Trackster_Time" + valSuffix_[valType],
                                                                     "Denom Trackster time per Trackster;time [ns]",
-                                                                    nintTime_, minTime_, maxTime_));
+                                                                    nintTime_,
+                                                                    minTime_,
+                                                                    maxTime_));
 
   histograms.h_sharedenergy_trackster2caloparticle[valType].push_back(
       ibook.book1D("SharedEnergy_trackster2" + ref_[valType],
@@ -1483,11 +1512,8 @@ void HGVHistoProducerAlgo::bookTracksterSTSHistos(DQMStore::IBooker& ibook,
                    nintR_,
                    minR_,
                    maxR_));
-  histograms.h_numDup_trackster_R[valType].push_back(ibook.book1D("NumDup_Trackster_R" + valSuffix_[valType],
-																  "Num Duplicate Trackster vs R;R [cm]",
-																  nintR_,
-																  minR_,
-																  maxR_));
+  histograms.h_numDup_trackster_R[valType].push_back(ibook.book1D(
+      "NumDup_Trackster_R" + valSuffix_[valType], "Num Duplicate Trackster vs R;R [cm]", nintR_, minR_, maxR_));
   histograms.h_denom_caloparticle_R[valType].push_back(
       ibook.book1D("Denom_" + ref_[valType] + "_R",
                    "Denom " + refText_[valType] + " p_{T} per Trackster;R [GeV]",
@@ -1509,10 +1535,10 @@ void HGVHistoProducerAlgo::bookTracksterSTSHistos(DQMStore::IBooker& ibook,
                    minAlpha_,
                    maxAlpha_));
   histograms.h_numDup_trackster_alpha[valType].push_back(ibook.book1D("NumDup_Trackster_Alpha" + valSuffix_[valType],
-																  "Num Duplicate Trackster vs #alpha;#alpha [rad]",
-																  nintAlpha_,
-																  minAlpha_,
-																  maxAlpha_));
+                                                                      "Num Duplicate Trackster vs #alpha;#alpha [rad]",
+                                                                      nintAlpha_,
+                                                                      minAlpha_,
+                                                                      maxAlpha_));
   histograms.h_denom_caloparticle_alpha[valType].push_back(
       ibook.book1D("Denom_" + ref_[valType] + "_Alpha",
                    "Denom " + refText_[valType] + " #alpha per Trackster;#alpha [rad]",
@@ -1950,7 +1976,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(
         hitsToCaloParticleId[iHit] = -2;
       }
 
-	  // if the hit does not belong to any calo particle, subtract 1 (resulting in -1 or -3)
+      // if the hit does not belong to any calo particle, subtract 1 (resulting in -1 or -3)
       if (hit_find_in_CP == detIdToCaloParticleId_Map.end()) {
         hitsToCaloParticleId[iHit] -= 1;
       } else {
@@ -2070,11 +2096,11 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(
     }
 
     for (unsigned int layerId = 0; layerId < layers * 2; ++layerId) {
-	  auto& cpEn = cPEnergyOnLayer[layerId];
+      auto& cpEn = cPEnergyOnLayer[layerId];
       if (!cpEn)
-		continue;
+        continue;
 
-	  auto& simtrack = cP[cpId].g4Tracks()[0];
+      auto& simtrack = cP[cpId].g4Tracks()[0];
       histograms.h_denom_caloparticle_eta_perlayer.at(layerId)->Fill(simtrack.momentum().eta());
       histograms.h_denom_caloparticle_phi_perlayer.at(layerId)->Fill(simtrack.momentum().phi());
 
@@ -2097,10 +2123,9 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(
         if (getLCLayerId(lcPair.first.index()) != layerId)
           continue;
         histograms.h_score_caloparticle2layercl_perlayer.at(layerId)->Fill(lcPair.second.second);
-        histograms.h_sharedenergy_caloparticle2layercl_perlayer.at(layerId)->Fill(
-            lcPair.second.first / cpEn, cpEn);
-        histograms.h_energy_vs_score_caloparticle2layercl_perlayer.at(layerId)->Fill(
-            lcPair.second.second, lcPair.second.first / cpEn);
+        histograms.h_sharedenergy_caloparticle2layercl_perlayer.at(layerId)->Fill(lcPair.second.first / cpEn, cpEn);
+        histograms.h_energy_vs_score_caloparticle2layercl_perlayer.at(layerId)->Fill(lcPair.second.second,
+                                                                                     lcPair.second.first / cpEn);
       }
       const auto assoc = std::count_if(std::begin(lcs), std::end(lcs), [&](const auto& obj) {
         if (getLCLayerId(obj.first.index()) != layerId)
@@ -2123,10 +2148,10 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(
           else
             return true;
         });
-        histograms.h_sharedenergy_caloparticle2layercl_vs_eta_perlayer.at(layerId)->Fill(
-            simtrack.momentum().eta(), best->second.first / cpEn);
-        histograms.h_sharedenergy_caloparticle2layercl_vs_phi_perlayer.at(layerId)->Fill(
-            simtrack.momentum().phi(), best->second.first / cpEn);
+        histograms.h_sharedenergy_caloparticle2layercl_vs_eta_perlayer.at(layerId)->Fill(simtrack.momentum().eta(),
+                                                                                         best->second.first / cpEn);
+        histograms.h_sharedenergy_caloparticle2layercl_vs_phi_perlayer.at(layerId)->Fill(simtrack.momentum().phi(),
+                                                                                         best->second.first / cpEn);
       }
     }
   }
@@ -2646,7 +2671,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters_fp(const Histograms& hist
                                                           const TracksterToTracksterMap& simTrackstersToTrackstersMap,
                                                           const validationType valType,
                                                           const SimClusterToCaloParticleMap& scToCpMap,
-														  const std::vector<CaloParticle>& cP,
+                                                          const std::vector<CaloParticle>& cP,
                                                           const std::vector<size_t>& cPIndices,
                                                           const std::vector<size_t>& cPSelectedIndices,
                                                           const edm::ProductID& cPHandle_id) const {
@@ -3038,7 +3063,7 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
                                    simTrackstersToTrackstersByLCsMap,
                                    validationType::byLCs,
                                    scToCpMap,
-								   cP,
+                                   cP,
                                    cPIndices,
                                    cPSelectedIndices,
                                    cPHandle_id);
@@ -3049,7 +3074,7 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
                                    simTrackstersFromCPsToTrackstersByLCsMap,
                                    validationType::byLCs_CP,
                                    scToCpMap,
-								   cP,
+                                   cP,
                                    cPIndices,
                                    cPSelectedIndices,
                                    cPHandle_id);
@@ -3060,7 +3085,7 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
                                    simTrackstersFromCPsToTrackstersByHitsMap,
                                    validationType::byHits_CP,
                                    scToCpMap,
-								   cP,
+                                   cP,
                                    cPIndices,
                                    cPSelectedIndices,
                                    cPHandle_id);
@@ -3071,7 +3096,7 @@ void HGVHistoProducerAlgo::fill_trackster_histos(
                                    simTrackstersToTrackstersByHitsMap,
                                    validationType::byHits,
                                    scToCpMap,
-								   cP,
+                                   cP,
                                    cPIndices,
                                    cPSelectedIndices,
                                    cPHandle_id);
@@ -3127,7 +3152,7 @@ double HGVHistoProducerAlgo::getEta(double eta) const {
     return eta;
 }
 
- /* Returns the R=sqrt(x*x+y*y) at z=0 and the displacement angle alpha,
+/* Returns the R=sqrt(x*x+y*y) at z=0 and the displacement angle alpha,
      extrapolating from the position and momentum at the surface of HGCAL.
      Works for uncharged particles only.
 
@@ -3135,7 +3160,8 @@ double HGVHistoProducerAlgo::getEta(double eta) const {
      and the trajectory that a particle crossing the HGCAL surface at the same point
      would have. It measures how non-pointing a given particle's trajectory is.
   */
-HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveDisplacement(const math::XYZVectorF& point, const math::XYZVectorF& unitDirection) {
+HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveDisplacement(
+    const math::XYZVectorF& point, const math::XYZVectorF& unitDirection) {
   const float t = -point.z() / unitDirection.z();
   const float x = point.x() + t * unitDirection.x();
   const float y = point.y() + t * unitDirection.y();
@@ -3147,7 +3173,8 @@ HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveDisp
   return {R, std::acos(cosAlpha)};
 }
 
-HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveSimTrackDisplacement(const SimTrack& simTrack) {
+HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveSimTrackDisplacement(
+    const SimTrack& simTrack) {
   const auto& boundaryPos = simTrack.getPositionAtBoundary();
   const auto& boundaryMom = simTrack.getMomentumAtBoundary();
 
@@ -3158,12 +3185,13 @@ HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveSimT
 }
 
 const ticl::Trackster::Vector& HGVHistoProducerAlgo::resolveTracksterDirection(const ticl::Trackster& trackster) {
-    // eigenvectors()[0] is the unit-norm principal PCA axis of the trackster,
-    // oriented along the particle direction regarding z sign
-    return trackster.eigenvectors()[0];
+  // eigenvectors()[0] is the unit-norm principal PCA axis of the trackster,
+  // oriented along the particle direction regarding z sign
+  return trackster.eigenvectors()[0];
 }
 
-HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveRecoTracksterDisplacement(const ticl::Trackster& trackster) {
+HGVHistoProducerAlgo::CaloParticleDisplacement HGVHistoProducerAlgo::resolveRecoTracksterDisplacement(
+    const ticl::Trackster& trackster) {
   return resolveDisplacement(trackster.barycenter(), resolveTracksterDirection(trackster));
 }
 
