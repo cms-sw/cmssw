@@ -121,6 +121,7 @@ def _preset_recovery(it):
     it.pattern_type = "Recovery"
     it.pattern_params = dict(algo_verbosity=0)
     it.masks_from = "CLUE3DHigh"
+    it.persist = False   # recovery tracksters are intermediate (linked, not kept)
     it.trackster_extra = dict(
         inferenceAlgo=cms.string(""),
         pluginInferenceAlgoTracksterInferenceByPFN=_RECOVERY_PFN.clone(),

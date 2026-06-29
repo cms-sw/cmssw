@@ -59,6 +59,10 @@ class IterationSpec:
     masks_from: Optional[str] = None                     # name of the upstream iteration
     backend: str = CPU
     detector: str = "HGCAL"
+    # whether this iteration's tracksters are a tracked/persisted output: a
+    # recovery pass is intermediate (its tracksters are captured by the links),
+    # so it is not kept in the Event Content (cf. ticlIterLabelsPSet.labels).
+    persist: bool = True
 
 
 @dataclass
@@ -237,6 +241,16 @@ class TICLConfig:
         scheduled, dumper, validator).  Returns ``(modules, task_children, labels)``."""
         from RecoTICL.Configuration.validation import build_validation
         return build_validation(self)
+
+    def event_content(self, tier="RECO"):
+        """The TICL ``keep`` statements for this configuration's persisted
+        reconstruction products at ``tier`` ('AOD' / 'RECO' / 'FEVT').
+
+        pyTICL owns the Event Content: the stages assembled here define what is
+        kept, so the output stays in sync with the modules with no hand-edited
+        list.  See :mod:`RecoTICL.Configuration.event_content`."""
+        from RecoTICL.Configuration.event_content import keep_statements
+        return keep_statements(self, tier)
 
     # -- visualisation ----------------------------------------------------- #
 
