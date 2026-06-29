@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.PythonUtilities.LumiList as LumiList
 from FWCore.ParameterSet.VarParsing import VarParsing
 from Alignment.OfflineValidation.TkAlAllInOneTool.utils import _byteify
-from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_DoubleMuon_string
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_DoubleMuonAlCa_string
 
 ###################################################################
 # Define process
@@ -49,7 +49,7 @@ if "dataset" in config["validation"]:
         for fileName in datafiles.readlines():
             readFiles.append(fileName.replace("\n", ""))
 else:
-    readFiles = filesDefaultMC_DoubleMuon_string
+    readFiles = filesDefaultMC_DoubleMuonAlCa_string
 
 ###################################################################
 # Get good lumi section
