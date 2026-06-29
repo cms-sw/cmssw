@@ -1873,6 +1873,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
             // Match inner Sg and Outer Sg
             int mIdx = alpaka::atomicAdd(acc, &matchCount, 1, alpaka::hierarchy::Threads{});
+            if (mIdx >= ranges.quintupletModuleOccupancy()[lowerModule1])
+              continue;
             unsigned int quintupletIndex = ranges.quintupletModuleIndices()[lowerModule1] + mIdx;
 
 #ifdef WARNINGS
@@ -1902,7 +1904,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         }
 
         // Step 2: Parallel processing of triplet pairs
-        for (int i = flatThreadIdxXY; i < matchCount; i += flatThreadExtent) {
+        const int stage2Bound = matchCount < ranges.quintupletModuleOccupancy()[lowerModule1]
+                                    ? matchCount
+                                    : ranges.quintupletModuleOccupancy()[lowerModule1];
+        for (int i = flatThreadIdxXY; i < stage2Bound; i += flatThreadExtent) {
           unsigned int quintupletIndex = ranges.quintupletModuleIndices()[lowerModule1] + i;
           int innerTripletIndex = quintuplets.preAllocatedTripletIndices()[quintupletIndex][0];
           int outerTripletIndex = quintuplets.preAllocatedTripletIndices()[quintupletIndex][1];
