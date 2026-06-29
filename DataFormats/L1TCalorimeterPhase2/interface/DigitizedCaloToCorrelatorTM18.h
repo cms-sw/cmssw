@@ -11,28 +11,37 @@ namespace l1tp2 {
 
   typedef std::variant<std::monostate, l1tp2::GCTEmDigiCluster, l1tp2::GCTHadDigiCluster> GCTDigiCluster;
   typedef std::vector<l1tp2::GCTDigiCluster> GCTDigiClusterLink;
+  static constexpr int kNCardLinks = 162;
+  static constexpr int EM_SLR1_POS_OFFSET = 1;
+  static constexpr int EM_SLR1_NEG_OFFSET = 17;
+  static constexpr int PF_SLR1_POS_OFFSET = 33;
+  static constexpr int PF_SLR1_NEG_OFFSET = 57;
+  static constexpr int EM_SLR3_POS_OFFSET = 82;
+  static constexpr int EM_SLR3_NEG_OFFSET = 98;
+  static constexpr int PF_SLR3_POS_OFFSET = 114;
+  static constexpr int PF_SLR3_NEG_OFFSET = 138;
 
   class DigitizedCaloToCorrelatorTM18 {
   private:
-    // Data (to remove)
-    ap_uint<64> CardData[162];
+    // Data
+    std::array<ap_uint<64>, kNCardLinks> CardData;
 
     GCTDigiClusterLink CardLink;
 
   public:
     DigitizedCaloToCorrelatorTM18() {
-      for (int i = 0; i < 162; i++) {
+      for (int i = 0; i < kNCardLinks; i++) {
         CardData[i] = 0;
       }
     }
-    DigitizedCaloToCorrelatorTM18(ap_uint<64> data[162], GCTDigiClusterLink link) {
-      for (int i = 0; i < 162; i++) {
+    DigitizedCaloToCorrelatorTM18(std::array<ap_uint<64>, kNCardLinks>& data, GCTDigiClusterLink link) {
+      for (int i = 0; i < kNCardLinks; i++) {
         CardData[i] = data[i];
       }
       CardLink = link;
     }
 
-    const ap_uint<64>* dataCard() const { return CardData; }
+    const std::array<ap_uint<64>, kNCardLinks> dataCard() const { return CardData; }
     const GCTDigiClusterLink& linkCard() const { return CardLink; }
   };
 
