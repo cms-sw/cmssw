@@ -197,6 +197,8 @@ void NanoAODOutputModule::initTables() {
   m_lumiTables.clear();
   m_lumiTables2.clear();
   m_runFlatTables.clear();
+  m_nanoMetadata.clear();
+
   auto const& keeps = keptProducts();
   for (auto const& keep : keeps[edm::InEvent]) {
     if (keep.first->className() == "nanoaod::FlatTable")
