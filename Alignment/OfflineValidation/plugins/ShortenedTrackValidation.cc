@@ -54,9 +54,6 @@
 #define CREATE_HIST_2D(varname, nbins, first, last, fs) \
   fs.make<TH2D>(#varname, #varname, nbins, first, last, nbins, first, last)
 
-const int kBPIX = PixelSubdetector::PixelBarrel;
-const int kFPIX = PixelSubdetector::PixelEndcap;
-
 class ShortenedTrackValidation : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
   class trackingMon {
   public:

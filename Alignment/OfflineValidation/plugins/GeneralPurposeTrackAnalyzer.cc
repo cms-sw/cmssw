@@ -75,9 +75,6 @@
 // toggle to enable debugging
 #define DEBUG 0
 
-const int kBPIX = PixelSubdetector::PixelBarrel;
-const int kFPIX = PixelSubdetector::PixelEndcap;
-
 class GeneralPurposeTrackAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   GeneralPurposeTrackAnalyzer(const edm::ParameterSet &pset)

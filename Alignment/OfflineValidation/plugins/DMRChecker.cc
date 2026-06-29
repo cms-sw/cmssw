@@ -118,8 +118,6 @@
 using namespace std;
 using namespace edm;
 
-const int kBPIX = PixelSubdetector::PixelBarrel;
-const int kFPIX = PixelSubdetector::PixelEndcap;
 constexpr float cmToUm = 10000.;
 
 /**
