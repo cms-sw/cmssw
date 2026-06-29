@@ -123,7 +123,7 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
     return;
   std::map<std::string, unsigned int> nrechitLayerMapP;
   std::map<std::string, unsigned int> nrechitLayerMapS;
-  unsigned long int nTotrechitsinevt = 0;
+  unsigned long int nRechitsInEvent = 0;
   // Loop over modules
   Phase2TrackerRecHit1DCollectionNew::const_iterator DSViter;
   for (DSViter = rechits->begin(); DSViter != rechits->end(); ++DSViter) {
@@ -136,65 +136,72 @@ void Phase2OTMonitorRecHit::analyze(const edm::Event& iEvent, const edm::EventSe
       continue;
     // determine the detector we are in
     TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(detId);
-    // Workaround for booking same histogram for Ring<> and Wheel<>
-    bool isEndcap = (detId.subdetId() != SiStripSubdetector::TOB);
-    for (int booking = 1; booking < 2 + isEndcap; booking++) {
-      // Will loop twice if the module is an EndCap module
-      // By default, the "key" divides endcaps into TEDDs and Rings
-      // During first loop, the default key is used (wheel = false)
-      // In the second loop, the Wheel key is used
-      // all layer-wise histograms will be booked in Wheels as well as Rings
-      std::string key =
-          (booking == 2 ? phase2tkutil::getOTHistoWheelId(detId, tTopo_) : phase2tkutil::getOTHistoId(detId, tTopo_));
-
-      nTotrechitsinevt += DSViter->size();
+    nRechitsInEvent += DSViter->size();
+    int nRechitsInDet = 0;
+    edmNew::DetSet<Phase2TrackerRecHit1D>::const_iterator rechitIt;
+    //loop over rechits for a single detId
+    for (rechitIt = DSViter->begin(); rechitIt != DSViter->end(); ++rechitIt) {
+      nRechitsInDet++;
+      LocalPoint lp = rechitIt->localPosition();
+      Global3DPoint globalPos = geomDetunit->surface().toGlobal(lp);
+      //in mm
+      double gx = globalPos.x() * 10.;
+      double gy = globalPos.y() * 10.;
+      double gz = globalPos.z() * 10.;
+      double gr = globalPos.perp() * 10.;
+      //Fill positions
       if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
-        if (nrechitLayerMapP.find(key) == nrechitLayerMapP.end()) {
-          nrechitLayerMapP.insert(std::make_pair(key, DSViter->size()));
-        } else {
-          nrechitLayerMapP[key] += DSViter->size();
-        }
+        globalXY_P_->Fill(gx, gy);
+        globalRZ_P_->Fill(gz, gr);
       } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
-        if (nrechitLayerMapS.find(key) == nrechitLayerMapS.end()) {
-          nrechitLayerMapS.insert(std::make_pair(key, DSViter->size()));
-        } else {
-          nrechitLayerMapS[key] += DSViter->size();
+        globalXY_S_->Fill(gx, gy);
+        globalRZ_S_->Fill(gz, gr);
+      }
+      // Workaround for filling same histogram for Ring<> and Wheel<>
+      bool isEndcap = (detId.subdetId() != SiStripSubdetector::TOB);
+      for (int booking = 1; booking < 2 + isEndcap; booking++) {
+        // Will loop twice if the module is an EndCap module
+        // By default, the "key" divides endcaps into TEDDs and Rings
+        // During first loop, the default key is used (wheel = false)
+        // In the second loop, the Wheel key is used
+        // all layer-wise histograms will be filled in Wheels as well as Rings
+        std::string key =
+            (booking == 2 ? phase2tkutil::getOTHistoWheelId(detId, tTopo_) : phase2tkutil::getOTHistoId(detId, tTopo_));
+
+        if (mType == TrackerGeometry::ModuleType::Ph2PSP)
+          layerMEs_[key].clusterSize_P->Fill(rechitIt->cluster()->size());
+        else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS)
+          layerMEs_[key].clusterSize_S->Fill(rechitIt->cluster()->size());
+
+        if (nRechitsInDet == int(DSViter->size())) {
+          // Reached the end of rechits in this Det
+          // Fill any histos that should only be filled once per det
+          if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
+            if (nrechitLayerMapP.find(key) == nrechitLayerMapP.end()) {
+              nrechitLayerMapP.insert(std::make_pair(key, DSViter->size()));
+            } else {
+              nrechitLayerMapP[key] += DSViter->size();
+            }
+          } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
+            if (nrechitLayerMapS.find(key) == nrechitLayerMapS.end()) {
+              nrechitLayerMapS.insert(std::make_pair(key, DSViter->size()));
+            } else {
+              nrechitLayerMapS[key] += DSViter->size();
+            }
+          }
         }
       }
-      edmNew::DetSet<Phase2TrackerRecHit1D>::const_iterator rechitIt;
-      //loop over rechits for a single detId
-      for (rechitIt = DSViter->begin(); rechitIt != DSViter->end(); ++rechitIt) {
-        LocalPoint lp = rechitIt->localPosition();
-        Global3DPoint globalPos = geomDetunit->surface().toGlobal(lp);
-        //in mm
-        double gx = globalPos.x() * 10.;
-        double gy = globalPos.y() * 10.;
-        double gz = globalPos.z() * 10.;
-        double gr = globalPos.perp() * 10.;
-        //Fill positions
-        if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
-          globalXY_P_->Fill(gx, gy);
-          globalRZ_P_->Fill(gz, gr);
-          //layer wise histo
-          layerMEs_[key].clusterSize_P->Fill(rechitIt->cluster()->size());
-        } else if (mType == TrackerGeometry::ModuleType::Ph2PSS || mType == TrackerGeometry::ModuleType::Ph2SS) {
-          globalXY_S_->Fill(gx, gy);
-          globalRZ_S_->Fill(gz, gr);
-          //layer wise histo
-          layerMEs_[key].clusterSize_S->Fill(rechitIt->cluster()->size());
-        }
-      }  //end loop over rechits of a detId
-    }  //End loop over DetSetVector
+    }  //end loop over rechits of a detId
+  }  //End loop over DetSetVector
 
-    //fill nRecHits per event
-    numberRecHits_->Fill(nTotrechitsinevt);
-    //fill nRecHit counter per layer
-    for (auto& lme : nrechitLayerMapP) {
-      layerMEs_[lme.first].numberRecHits_P->Fill(lme.second);
-    }
-    for (auto& lme : nrechitLayerMapS) {
-      layerMEs_[lme.first].numberRecHits_S->Fill(lme.second);
-    }
+  //fill nRecHits per event
+  numberRecHits_->Fill(nRechitsInEvent);
+  //fill nRecHit counter per layer
+  for (auto& lme : nrechitLayerMapP) {
+    layerMEs_[lme.first].numberRecHits_P->Fill(lme.second);
+  }
+  for (auto& lme : nrechitLayerMapS) {
+    layerMEs_[lme.first].numberRecHits_S->Fill(lme.second);
   }
 }
 //
@@ -287,7 +294,7 @@ void Phase2OTMonitorRecHit::fillDescriptions(edm::ConfigurationDescriptions& des
     psd0.add<std::string>("title", ";Number of rechits per event;");
     psd0.add<double>("xmin", 0.0);
     psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 000.0);
+    psd0.add<double>("xmax", 350000.0);
     psd0.add<int>("NxBins", 150);
     desc.add<edm::ParameterSetDescription>("GlobalNRecHits", psd0);
   }
