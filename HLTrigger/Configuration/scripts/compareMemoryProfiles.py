@@ -292,14 +292,6 @@ def plot_gpu_memory(
 
 
 def main(args):
-    info_lines = (
-        #r'$t\bar{t}$ + 200 PU ($\sqrt{s}$ = 14 TeV)',
-        'tt + 200 PU (s = 14 TeV)',
-        '2x AMD EPYC 9534 64-Core Processor',
-        '4x NVIDIA L40S GPUs',
-        '16 jobs with 16 threads/streams each',
-    )
-    
     fig, ax = plot_gpu_memory(
         csv_files=args.csv_files,
         legend_entries=args.csv_labels if len(args.csv_labels) > 0 else [str(x) for x in range(len(args.csv_files))],
@@ -315,7 +307,7 @@ def main(args):
         cms_loc=1,
         cms_rlabel='',
         cms_fontsize=18,
-        info_text=info_lines,
+        info_text=args.info_text,
         info_xy=(0.05, 0.92),
         hw_limit=None,
         legend_loc='upper right',
@@ -403,6 +395,19 @@ if __name__ == '__main__':
         '--cms-label',
         default='CMSSW integration testing.',
         help='CMS label text',
+    )
+
+    info_text_default = (
+        'tt + 200 PU (s = 14 TeV)',
+        '2x AMD EPYC 9534 64-Core Processor',
+        '4x NVIDIA L40S GPUs',
+        '16 jobs with 16 threads/streams each',
+    )
+    parser.add_argument(
+        '--info-text',
+        nargs='+',
+        default=info_text_default,
+        help='Informative text to add below the CMS label in the top left corner.',
     )
 
     args = parser.parse_args()
