@@ -1,11 +1,10 @@
 #ifndef FWCore_Concurrency_SpinLock_h
 #define FWCore_Concurrency_SpinLock_h
-// -*- C++ -*-
 //
 // Package:     FWCore/Concurrency
 // Class  :     SpinLock
 //
-/**\class SpinLock SpinLock.h "FWCore/Concurrency/interface/SpinLock.h"
+/**\class edm::SpinLock SpinLock.h "FWCore/Concurrency/interface/SpinLock.h"
 
  Description: A trivial lock which continues looping until the lock is acquired
 
