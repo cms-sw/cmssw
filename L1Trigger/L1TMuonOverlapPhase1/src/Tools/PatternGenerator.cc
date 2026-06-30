@@ -133,7 +133,7 @@ void PatternGenerator::updateStat() {
   }
 
   simMuEta->Fill(simMuon->momentum().eta());
-  candEta->Fill(omtfConfig->hwEtaToEta(regionalMuonCand.hwEta()));
+  candEta->Fill(finalMuon->getEtaRad());
 
   double ptSim = simMuon->momentum().pt();
   int chargeSim = (abs(simMuon->type()) == 13) ? simMuon->type() / -13 : 0;
@@ -159,11 +159,7 @@ void PatternGenerator::updateStat() {
 
         bool fired = false;
         if (gpResult.getStubResults()[iLayer].getMuonStub()) {
-          if (omtfConfig->isBendingLayer(iLayer)) {
-            if (gpResult.getStubResults()[iLayer].getMuonStub()->qualityHw >= 4)  //TODO change quality cut if needed
-              fired = true;
-          } else
-            fired = true;
+          fired = true;
         }
 
         if (fired) {  //the result is not empty
@@ -208,7 +204,7 @@ void PatternGenerator::updateStatUsingMatcher2() {
       //&& matchingResult.muonCand->hwQual() >= 12 &&
       //matchingResult.muonCand->hwPt() > 38
 
-      AlgoMuon* algoMuon = matchingResult.procMuon.get();
+      AlgoMuon* algoMuon = matchingResult.muonCand->getAlgoMuon().get();
       if (!algoMuon) {
         edm::LogImportant("l1tOmtfEventPrint") << ":" << __LINE__ << " algoMuon is null" << std::endl;
         throw runtime_error("algoMuon is null");
@@ -232,7 +228,7 @@ void PatternGenerator::updateStatUsingMatcher2() {
       eventCntPerGp[exptPatNum]++;
 
       candProcIndx =
-          omtfConfig->getProcIndx(matchingResult.muonCand->processor(), matchingResult.muonCand->trackFinderType());
+          omtfConfig->getProcIndx(matchingResult.muonCand->getProcessor(), matchingResult.muonCand->trackFinderType());
 
       //edm::LogImportant("l1tOmtfEventPrint")<<"\n" <<__FUNCTION__<<": "<<__LINE__<<" exptCandGp "<<exptCandGp->key()<<" candProcIndx "<<candProcIndx<<" ptSim "<<ptSim<<" chargeSim "<<chargeSim<<std::endl;
 
@@ -323,15 +319,14 @@ void PatternGenerator::updateStatUsingMatcher2() {
   }
 }
 
-void PatternGenerator::observeEventEnd(const edm::Event& iEvent,
-                                       std::unique_ptr<l1t::RegionalMuonCandBxCollection>& finalCandidates) {
+void PatternGenerator::observeEventEnd(const edm::Event& iEvent, FinalMuons& finalMuons) {
   if (simMuon == nullptr || omtfCand->getGoldenPatern() == nullptr)  //no sim muon or empty candidate
     return;
 
   if (abs(simMuon->momentum().eta()) < 0.8 || abs(simMuon->momentum().eta()) > 1.24)
     return;
 
-  PatternOptimizerBase::observeEventEnd(iEvent, finalCandidates);
+  PatternOptimizerBase::observeEventEnd(iEvent, finalMuons);
 
   //updateStat();
   //updateStatUsingMatcher2();
@@ -428,7 +423,7 @@ void PatternGenerator::endJob() {
 
     //groupPatterns(); IMPORTANT don't call grouping here, just set the groups above!!!!
 
-    reCalibratePt();
+    //reCalibratePt();
     this->writeLayerStat = true;
   }
 
@@ -452,7 +447,7 @@ void PatternGenerator::upadatePdfs() {
         //the shift for given pattern and layer should be the same same for all refLayers
         //otherwise the firmware does not compile - at least the phase-1
         //for phase2
-        /*if ((gp->key().thePt <= 10) &&
+        if ((gp->key().thePt <= 10) &&
             (iLayer == 1 || iLayer == 3 || iLayer == 5)) {  //iRefLayer: MB2, iLayer: MB1 and MB2 phiB
           gp->setDistPhiBitShift(2, iLayer, iRefLayer);
         } else if ((gp->key().thePt <= 10) && (iLayer == 10)) {  //iRefLayer: MB2, iLayer: RB1_in
@@ -466,10 +461,10 @@ void PatternGenerator::upadatePdfs() {
           //so the shift must be increased (or the group should be divided into to 2 groups, but it will increase fw occupancy
           gp->setDistPhiBitShift(1, iLayer, iRefLayer);
         } else
-          gp->setDistPhiBitShift(0, iLayer, iRefLayer);*/
+          gp->setDistPhiBitShift(0, iLayer, iRefLayer);
 
         //for phase1
-        if ((gp->key().thePt <= 8) &&
+        /*if ((gp->key().thePt <= 8) &&
             (iLayer == 1 || iLayer == 3 || iLayer == 5)) {  //iRefLayer: MB2, iLayer: MB1 and MB2 phiB
           gp->setDistPhiBitShift(2, iLayer, iRefLayer);
         } else if ((gp->key().thePt <= 10) && (iLayer == 10)) {  //iRefLayer: MB2, iLayer: RB1_in
@@ -486,7 +481,7 @@ void PatternGenerator::upadatePdfs() {
           //so the shift must be increased (or the group should be divided into to 2 groups, but it will increase fw occupancy
           gp->setDistPhiBitShift(0, iLayer, iRefLayer);
         } else
-          gp->setDistPhiBitShift(0, iLayer, iRefLayer);
+          gp->setDistPhiBitShift(0, iLayer, iRefLayer);*/
       }
     }
   }
@@ -738,10 +733,10 @@ void PatternGenerator::modifyClassProb(double step) {
 
         //if (ptFrom == 20) //pattern Key_13
         //  newPdfVal += 1;
-        if (ptFrom >= 22 && ptFrom <= 26)
-          newPdfVal += 2;
-        if (ptFrom == 28)  //pattern Key_17
-          newPdfVal += 1;
+        //if (ptFrom >= 22 && ptFrom <= 26)
+        //  newPdfVal += 2;
+        //if (ptFrom == 28)  //pattern Key_17
+        //  newPdfVal += 1;
 
         if (ptFrom == 100)
           newPdfVal = 16;

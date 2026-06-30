@@ -40,11 +40,11 @@ if not verbose:
 										 #SkipEvent = cms.untracked.vstring('ProductNotFound') 
 									 )                                         #SkipEvent = cms.untracked.vstring('ProductNotFound') 
 
-process.source = cms.Source('PoolSource',  
-  fileNames = cms.untracked.vstring('file:///eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/OMTF/13_1_0_03_04_2024/SingleMu_ch0_OneOverPt_Run2029_13_1_0_03_04_2024/13_1_0_03_04_2024/240403_080928/0000/SingleMu_OneOverPt_1_100_m_1.root')                  
+process.source = cms.Source('PoolSource',
+  fileNames = cms.untracked.vstring('file:///eos/cms/store/group/dpg_trigger/comm_trigger/L1Trigger/OMTF/PrivateProductionForOMTFStudy/13_1_0_03_04_2024/SingleMu_ch0_OneOverPt_Run2029_13_1_0_03_04_2024/13_1_0_03_04_2024/240403_080928/0000/SingleMu_OneOverPt_1_100_m_1.root')
  )
 	                    
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -52,7 +52,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 #process.load('FWCore.MessageService.MessageLogger_cfi')
 #process.load('Configuration.EventContent.EventContent_cff')
 #process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtendedRun4D95Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D110Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 #process.load('Configuration.StandardSequences.RawToDigi_cff')
 #process.load('Configuration.StandardSequences.SimL1Emulator_cff')
@@ -62,8 +62,8 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, '131X_mcRun4_realistic_v9', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '') 
+process.GlobalTag = GlobalTag(process.GlobalTag, '131X_mcRun4_realistic_v9', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string('omtfAnalysis1.root'), closeFileFast = cms.untracked.bool(True) )
 		
@@ -80,7 +80,8 @@ process.dtTriggerPhase2PrimitiveDigis.scenario = 0
 	
 								
 ####OMTF Emulator
-process.load('L1Trigger.L1TMuonOverlapPhase2.simOmtfPhase2Digis_cfi')
+#process.load('L1Trigger.L1TMuonOverlapPhase2.simOmtfPhase2Digis_cfi')
+process.load('L1Trigger.L1TMuonOverlapPhase2.simOmtfPhase2Digis_DT_2_2_2_cff')
 
 process.simOmtfPhase2Digis.dumpResultToXML = cms.bool(True)
 process.simOmtfPhase2Digis.eventCaptureDebug = cms.bool(True)
