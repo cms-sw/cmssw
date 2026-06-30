@@ -597,6 +597,12 @@ workflows[144.903] = ['',['RunUPC2025','RECONANODR3_2026_UPC','HARVESTDPROMPTR3'
 workflows[144.201] = ['',['HydjetQ_B12_5362GeV_2026','DIGIHI2026','SKIMHIFORWARDRUN3_2026','HARVESTHI2026']]
 workflows[144.202] = ['',['HydjetQ_MinBias_5362GeV_2026','DIGIHI2026','RAWPRIMESIMHI26','SKIMHIPHYSICSRAWPRIMERUN3_2026','HARVESTHI2026S4']]
 
+## run3 MINI2MINI (HI RawPrime data)
+workflows[141.401] = ['',['RunHI2023MAOD','MAOD2MAODHI23']]
+workflows[142.401] = ['',['RunHI2024MAOD','MAOD2MAODHI24']]
+workflows[143.401] = ['',['RunHI2025MAOD','MAOD2MAODHI25']]
+workflows[144.401] = ['',['RunHI2026MAOD','MAOD2MAODHI26']]
+
 ## special HLT scouting workflow (with hardcoded private input file from ScoutingPFMonitor skimmed to remove all events without scouting)
 workflows[145.415] = ['',['HLTDR3_ScoutingPFMonitor_2024','RECONANORUN3_ScoutingPFMonitor_reHLT_2024','HARVESTRUN3_ScoutingPFMonitor_2024']]
 

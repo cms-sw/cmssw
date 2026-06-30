@@ -656,6 +656,14 @@ steps['RunUPC2025']={'INPUT':InputInfo(dataSet='/HIForward0/HIRun2025A-v1/RAW',l
 RunHI2023={375491: [[100, 100]]}
 steps['RunHIPhysicsRawPrime2023A']={'INPUT':InputInfo(dataSet='/HIPhysicsRawPrime0/HIRun2023A-v1/RAW',label='HI2023A',events=100000,location='STD', ls=RunHI2023)}
 
+steps['RunHI2023MAOD']={'INPUT':InputInfo(dataSet='/HIPhysicsRawPrime0/HIRun2023A-PromptReco-v2/MINIAOD',label='HI2023A',events=100000,location='STD',ls=RunHI2023)}
+
+steps['RunHI2024MAOD']={'INPUT':InputInfo(dataSet='/HIPhysicsRawPrime0/HIRun2024B-PromptReco-v2/MINIAOD',label='HI2024B',events=1000,location='STD',ls={388468 : [[89, 89]]})}
+
+steps['RunHI2025MAOD']={'INPUT':InputInfo(dataSet='/HIPhysicsRawPrime0/HIRun2025A-PbPbEW-PromptReco-v1/MINIAOD',label='HI2025A',events=1000,location='STD',ls={399499 : [[55, 55]]})}
+
+steps['RunHI2026MAOD']={'INPUT':InputInfo(dataSet='/HIPhysicsRawPrime0/HIRun2026A-PbPbEW-PromptReco-v1/MINIAOD',label='HI2026A',events=1000,location='STD',ls={404339 : [[55, 55]]})}
+
 steps['RunHLTMonitor2024I']={'INPUT':InputInfo(dataSet='/HLTMonitor/Run2024I-Express-v2/FEVTHLTALL',label='2024I',events=100000,location='STD', ls={386801: [[32, 111]]})}
 
 ####################################################################################################################################
@@ -2562,6 +2570,18 @@ steps['REMINIAODHID18']={ '--scenario':'pp',
                           '-n':'100'
 }
 
+steps['MAOD2MAODHI23']={ '--scenario':'pp',
+                         '--conditions':'auto:run3_data_prompt',
+                         '-s':'PAT:Configuration/StandardSequences/REMINI_HIN_cff.patAlgosToolsTask,SKIM:PbPbEW',
+                         '--datatier':'MINIAOD',
+                         '--eventcontent':'MINIAOD',
+                         '--era':'Run3_pp_on_PbPb_2023',
+                         '--data':'',
+                         '--processName':'M2M',
+                         '-n':'100' }
+steps['MAOD2MAODHI24']=merge([{'--era':'Run3_pp_on_PbPb_2024'},steps['MAOD2MAODHI23']])
+steps['MAOD2MAODHI25']=merge([{'--era':'Run3_pp_on_PbPb_2025'},steps['MAOD2MAODHI23']])
+steps['MAOD2MAODHI26']=merge([{'--era':'Run3_pp_on_PbPb_2026'},steps['MAOD2MAODHI23']])
 
 steps['RECOHID22APPROXCLUSTERS']=merge([{ '--scenario':'pp',
                                           '--conditions':'auto:run3_data_prompt',
