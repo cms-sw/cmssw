@@ -6,19 +6,24 @@
 #include <vector>
 #include <cstdint>
 #include <cmath>
+#include <algorithm>
 
 namespace l1t {
   namespace me0 {
     uint64_t parseData(const UInt192& data, int strip, int maxSpan);
-    std::vector<uint64_t> extractDataWindow(const std::vector<UInt192>& layerData, int strip, int maxSpan);
+    std::vector<uint64_t> extractDataWindow(const std::vector<UInt192>& prtData,
+                                            int strip,
+                                            const std::vector<int>& layerSpans);
     std::vector<int> parseBxData(const std::vector<int>& bxData, int strip, int maxSpan);
-    std::vector<std::vector<int>> extractBxDataWindow(const std::vector<std::vector<int>>& layerData,
+    std::vector<std::vector<int>> extractBxDataWindow(const std::vector<std::vector<int>>& prtBxData,
                                                       int strip,
                                                       int maxSpan);
     std::vector<ME0StubPrimitive> patMux(const std::vector<UInt192>& partitionData,
                                          const std::vector<std::vector<int>>& partitionBxData,
                                          int partition,
-                                         Config& config);
+                                         Config& config,
+                                         PeakingManager& peakingManager,
+                                         bool debug = false);
   }  // namespace me0
 }  // namespace l1t
 #endif

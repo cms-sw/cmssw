@@ -10,11 +10,15 @@
 
 namespace l1t {
   namespace me0 {
+    std::vector<std::vector<ME0StubPrimitive>> deghostingClearance(std::vector<std::vector<ME0StubPrimitive>>& segments,
+                                                                   int clearanceWidth);
     std::vector<std::vector<ME0StubPrimitive>> crossPartitionCancellation(
         std::vector<std::vector<ME0StubPrimitive>>& segments, int crossPartSegWidth);
-    std::vector<ME0StubPrimitive> processChamber(const std::vector<std::vector<UInt192>>& chamberData,
-                                                 const std::vector<std::vector<std::vector<int>>>& chamberBxData,
-                                                 Config& config);
+    std::tuple<std::vector<ME0StubPrimitive>, Config> processChamber(
+        const std::vector<std::vector<UInt192>>& chamberData,
+        const std::vector<std::vector<std::vector<int>>>& chamberBxData,
+        Config& config,
+        PeakingManager& peakingManager);
   }  // namespace me0
 }  // namespace l1t
 

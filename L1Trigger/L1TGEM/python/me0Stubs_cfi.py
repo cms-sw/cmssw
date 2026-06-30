@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-me0Stubs = cms.EDProducer("ME0StubProducer",
+me0Stubs = cms.EDProducer("ME0TriggerProducerV2",
     # parameters for l1t::me0::Config
     skipCentroids = cms.bool(False), 
     layerThresholdPatternId = cms.vint32(7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 5, 5, 4, 4, 4, 4, 4), 
@@ -20,5 +20,5 @@ me0Stubs = cms.EDProducer("ME0StubProducer",
     numOr = cms.int32(2),
     mseThreshold = cms.double(0.75),
     # input collections : GEMPadDigis
-    InputCollection = cms.InputTag("GEMPadDigis"),
+    ME0PadDigis = cms.InputTag("GEMPadDigis"),
 )

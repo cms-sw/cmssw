@@ -19,7 +19,8 @@ namespace l1t {
     std::vector<ME0StubPrimitive> processPartition(const std::vector<UInt192>& partitionData,
                                                    const std::vector<std::vector<int>>& partitionBxData,
                                                    int partition,
-                                                   Config& config);
+                                                   Config& config,
+                                                   PeakingManager& peakingManager);
   }  // namespace me0
 }  // namespace l1t
 
