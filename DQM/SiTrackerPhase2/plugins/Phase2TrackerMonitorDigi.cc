@@ -194,6 +194,7 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
     if (nRows * nColumns == 0)
       continue;
 
+    GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
     int nDigi = 0;
     int row_last = -1;
     int col_last = -1;
@@ -214,7 +215,7 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
         if (XYPositionMap) {
           int i = 0;
           int disc = tTopo_->pxfDisk(detId);
-          std::string shell = phase2tkutil::getITShell(detId, tTopo_);
+          std::string shell = phase2tkutil::getITShell(detId, tTopo_, detPos.phi());
           if (shell == "pI") {
             if (!isEndcap) {
               i = 0;
@@ -885,10 +886,12 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
 
 std::string Phase2TrackerMonitorDigi::getHistoId(uint32_t det_id, bool flag, bool wheel) {
   if (flag) {
+    const GeomDet* geomDet = tkGeom_->idToDet(det_id);
+    GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
     if (wheel)
-      return phase2tkutil::getITHistoWheelId(det_id, tTopo_);
+      return phase2tkutil::getITHistoWheelId(det_id, tTopo_, detPos.phi());
     else
-      return phase2tkutil::getITHistoId(det_id, tTopo_);
+      return phase2tkutil::getITHistoId(det_id, tTopo_, detPos.phi());
   } else {
     if (wheel)
       return phase2tkutil::getOTHistoWheelId(det_id, tTopo_);

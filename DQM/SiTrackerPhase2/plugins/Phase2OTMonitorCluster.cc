@@ -306,8 +306,8 @@ void Phase2OTMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
            det_u->subDetector() == GeomDetEnumerators::SubDetector::P2PXEC))
         continue;
       unsigned int detId_raw = det_u->geographicalId().rawId();
-      edm::LogInfo("Phase2ITMonitorRecHit") << "Detid:" << detId_raw << "\tsubdet=" << det_u->subDetector()
-                                            << "\t key=" << phase2tkutil::getITHistoId(detId_raw, tTopo_) << std::endl;
+      edm::LogInfo("Phase2OTMonitorCluster") << "Detid:" << detId_raw << "\tsubdet=" << det_u->subDetector()
+                                             << "\t key=" << phase2tkutil::getOTHistoId(detId_raw, tTopo_) << std::endl;
       bookLayerHistos(ibooker, detId_raw, top_folder);
     }
   }

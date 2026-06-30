@@ -120,6 +120,7 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
     const GeomDetUnit* geomDetUnit(tkGeom_->idToDetUnit(detId));
     if (!geomDetUnit)
       continue;
+    GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
     nclusGlobal += DSVItr.size();
     int nClus = 0;
     for (const auto& clusterItr : DSVItr) {
@@ -146,8 +147,8 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
         // Will loop twice if the module is an EndCap module
         // the default key divides endcaps into F/EPixs and Rings
         // in second loop endcaps will be divided into F/EPix and Wheels
-        std::string folderkey =
-            (booking == 2 ? phase2tkutil::getITHistoWheelId(detId, tTopo_) : phase2tkutil::getITHistoId(detId, tTopo_));
+        std::string folderkey = (booking == 2 ? phase2tkutil::getITHistoWheelId(detId, tTopo_, detPos.phi())
+                                              : phase2tkutil::getITHistoId(detId, tTopo_, detPos.phi()));
 
         auto local_mesIT = layerMEs_.find(folderkey);
         if (local_mesIT == layerMEs_.end())
@@ -223,8 +224,10 @@ void Phase2ITMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
             det_u->subDetector() == GeomDetEnumerators::SubDetector::P2PXEC))
         continue;
       unsigned int detId_raw = det_u->geographicalId().rawId();
-      edm::LogInfo("Phase2ITMonitorRecHit") << "Detid:" << detId_raw << "\tsubdet=" << det_u->subDetector()
-                                            << "\t key=" << phase2tkutil::getITHistoId(detId_raw, tTopo_) << std::endl;
+      GlobalPoint detPos = det_u->surface().toGlobal(Local2DPoint(0, 0));
+      edm::LogInfo("Phase2ITMonitorRecHit")
+          << "Detid:" << detId_raw << "\tsubdet=" << det_u->subDetector()
+          << "\t key=" << phase2tkutil::getITHistoId(detId_raw, tTopo_, detPos.phi()) << std::endl;
       bookLayerHistos(ibooker, detId_raw, top_folder);
     }
   }
@@ -232,6 +235,8 @@ void Phase2ITMonitorCluster::bookHistograms(DQMStore::IBooker& ibooker,
 
 //////////////////Layer Histo/////////////////////////////////
 void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_t det_id, std::string& subdir) {
+  const GeomDet* geomDet = tkGeom_->idToDet(det_id);
+  GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
   // Workaround for booking same histogram for Ring<> and Wheel<>
   bool isEndcap = (DetId(det_id).subdetId() != PixelSubdetector::PixelBarrel);
   for (int booking = 1; booking < 2 + isEndcap; booking++) {
@@ -240,8 +245,8 @@ void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
     // During first loop, the default key is used
     // In the second loop, the Wheel key is used
     // all layer-wise histograms will be booked in Wheels as well as Rings
-    std::string folderName =
-        (booking == 2 ? phase2tkutil::getITHistoWheelId(det_id, tTopo_) : phase2tkutil::getITHistoId(det_id, tTopo_));
+    std::string folderName = (booking == 2 ? phase2tkutil::getITHistoWheelId(det_id, tTopo_, detPos.phi())
+                                           : phase2tkutil::getITHistoId(det_id, tTopo_, detPos.phi()));
 
     if (folderName.empty())
       return;
