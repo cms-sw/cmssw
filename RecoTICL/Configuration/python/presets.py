@@ -135,7 +135,7 @@ def _preset_clue3dbarrel(it):
     it.filter_params = dict(algo_number=[10, 11], max_layerId=5)
     it.pattern_type = "CLUE3D"
     it.pattern_params = dict(
-        algo_verbosity=9999,
+        algo_verbosity=0,
         criticalDensity=[0.5, 0.5, 0.5],
         criticalSelfDensity=[0.0, 0.0, 0.0],
         criticalEtaPhiDistance=[3 * 0.0175, 3 * 0.087, 3 * 0.087, 3 * 0.087],
