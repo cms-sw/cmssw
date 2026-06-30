@@ -106,6 +106,17 @@ namespace edm {
       }
       if (finder_) {
         hasNonconcurrentFinder_ = !finder_->concurrentFinder();
+        if (hasNonconcurrentFinder_ and nConcurrentIOVs_ > 1) {
+          throw cms::Exception("Configuration")
+              .format(
+                  "EventSetupRecord {} has a nonconcurrent finder and the number of concurrent IOVs is set to {}.\n"
+                  "The number of concurrent IOVs for this record must be set to 1. This may be done by adding the "
+                  "following to the configuration:\n"
+                  "process.options.eventSetup.forceNumberOfConcurrentIOVs.{} = 1'",
+                  key_.name(),
+                  nConcurrentIOVs_,
+                  key_.name());
+        }
       }
 
       //now we get rid of the temporary

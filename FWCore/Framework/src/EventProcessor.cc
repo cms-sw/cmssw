@@ -706,13 +706,6 @@ namespace edm {
       auto guard = makeGuard([this]() { actReg_->postEventSetupConfigurationFinalizedSignal_.emit(); });
       espController_->finishConfiguration();
     }
-    if (espController_->hasNonconcurrentFinder() and preallocations_.numberOfThreads() > 1) {
-      throw edm::Exception(edm::errors::Configuration, "Non-concurrent ESSource")
-          << "The EventSetup configuration contains a non-concurrent ESSource. "
-             "This will limit the number of threads allowed in the job to 1. Either \n"
-             " - see if the ESSource can be made conccurent or \n"
-             " - set the numberOfThreads in the configuration to 1.";
-    }
     eventsetup::ESRecordsToProductResolverIndices esRecordsToProductResolverIndices = esp_->recordsToResolverIndices();
 
     actReg_->eventSetupConfigurationSignal_.emit(esRecordsToProductResolverIndices, processContext_);

@@ -12,7 +12,7 @@ import FWCore.ParameterSet.Config as cms
 import argparse
 
 parser = argparse.ArgumentParser(add_help=False)
-parser.add_argument("-n", type=int, default=4)
+parser.add_argument("-n", type=int, default=2)
 args, _ = parser.parse_known_args()
 
 process = cms.Process("TEST")
@@ -30,12 +30,14 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.options = dict(
-    numberOfThreads = args.n,
+    numberOfThreads = 4,
     numberOfStreams = 4,
     numberOfConcurrentRuns = 1,
     numberOfConcurrentLuminosityBlocks = 4,
     eventSetup = dict(
-        numberOfConcurrentIOVs = 2
+        numberOfConcurrentIOVs = 2,
+        forceNumberOfConcurrentIOVs = dict(
+            ESTestRecordI = args.n,)
     )
 )
 

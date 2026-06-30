@@ -16,12 +16,12 @@ cmsRun ${LOCAL_TEST_DIR}/ESProductHostTest_cfg.py || die 'Failed in ESProductHos
 echo testConcurrentIOVs
 cmsRun ${LOCAL_TEST_DIR}/testConcurrentIOVs_cfg.py || die 'Failed in testConcurrentIOVs_cfg.py' $?
 
-echo testConcurrentIOVsLegacy 1 thread
+echo testConcurrentIOVsLegacy 1 concurrent record
 cmsRun ${LOCAL_TEST_DIR}/testConcurrentIOVsLegacy_cfg.py -n 1|| die 'Failed in testConcurrentIOVsLegacy_cfg.py' $?
 
-echo testConcurrentIOVsLegacy 4 threads
-cmsRun ${LOCAL_TEST_DIR}/testConcurrentIOVsLegacy_cfg.py -n 4 &> testConcurrentIOVsLegacy_4threads.txt && die 'Failed in testConcurrentIOVsLegacy_cfg.py, the configuration succeeded while it should have failed' $?
-grep "The EventSetup configuration contains a non-concurrent ESSource" testConcurrentIOVsLegacy_4threads.txt >/dev/null || diecat 'Failed in testConcurrentIOVsLegacy_cfg.py, the configuration failed but in an unexpected way' $? testConcurrentIOVsLegacy_4threads.txt
+echo testConcurrentIOVsLegacy 2 concurrent records
+cmsRun ${LOCAL_TEST_DIR}/testConcurrentIOVsLegacy_cfg.py -n 2 &> testConcurrentIOVsLegacy_2concurrentRecords.txt && die 'Failed in testConcurrentIOVsLegacy_cfg.py, the configuration succeeded while it should have failed' $?
+grep "EventSetupRecord ESTestRecordI has a nonconcurrent finder" testConcurrentIOVsLegacy_2concurrentRecords.txt >/dev/null || diecat 'Failed in testConcurrentIOVsLegacy_cfg.py, the configuration failed but in an unexpected way' $? testConcurrentIOVsLegacy_2concurrentRecords.txt
 
 echo testAllowConcurrentIOVs_cfg
 cmsRun ${LOCAL_TEST_DIR}/testAllowConcurrentIOVs_cfg.py || die 'Failed in testAllowConcurrentIOVs_cfg.py' $?
