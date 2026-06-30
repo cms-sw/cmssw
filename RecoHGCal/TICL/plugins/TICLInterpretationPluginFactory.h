@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_TICLInterpretationPluginFactory_H
-#define RecoHGCal_TICL_TICLInterpretationPluginFactory_H
+#ifndef RecoHGCal_TICL_TICLInterpretationPluginFactory_h
+#define RecoHGCal_TICL_TICLInterpretationPluginFactory_h
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_TracksterInferenceByPFN_H__
-#define RecoHGCal_TICL_TracksterInferenceByPFN_H__
+#ifndef RecoHGCal_TICL_TracksterInferenceByPFN_h
+#define RecoHGCal_TICL_TracksterInferenceByPFN_h
 
 #include <vector>
 
@@ -44,4 +44,4 @@ namespace ticl {
 
 }  // namespace ticl
 
-#endif  // RecoHGCal_TICL_TracksterInferenceByPFN_H__
+#endif  // RecoHGCal_TICL_TracksterInferenceByPFN_h

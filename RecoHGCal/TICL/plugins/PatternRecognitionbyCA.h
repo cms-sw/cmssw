@@ -1,8 +1,8 @@
 // Author: Felice Pantaleo,Marco Rovere - felice.pantaleo@cern.ch, marco.rovere@cern.ch
 // Date: 09/2018
 
-#ifndef __RecoHGCal_TICL_PRbyCA_H__
-#define __RecoHGCal_TICL_PRbyCA_H__
+#ifndef RecoHGCal_TICL_PatternRecognitionbyCA_h
+#define RecoHGCal_TICL_PatternRecognitionbyCA_h
 #include <memory>  // unique_ptr
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"

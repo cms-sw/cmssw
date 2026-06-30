@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_TracksterLinkingAlgoByFastJet_H
-#define RecoHGCal_TICL_TracksterLinkingAlgoByFastJet_H
+#ifndef RecoHGCal_TICL_TracksterLinkingbyFastJet_h
+#define RecoHGCal_TICL_TracksterLinkingbyFastJet_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"

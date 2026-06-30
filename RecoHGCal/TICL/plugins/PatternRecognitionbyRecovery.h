@@ -1,8 +1,8 @@
 // Author: Felice Pantaleo - felice.pantaleo@cern.ch
 // Date: 05/2024
 
-#ifndef __RecoHGCal_TICL_PatternRecognitionbyRecovery_H__
-#define __RecoHGCal_TICL_PatternRecognitionbyRecovery_H__
+#ifndef RecoHGCal_TICL_PatternRecognitionbyRecovery_h
+#define RecoHGCal_TICL_PatternRecognitionbyRecovery_h
 #include <memory>  // unique_ptr
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
@@ -33,4 +33,4 @@ namespace ticl {
 
 }  // namespace ticl
 
-#endif  // __RecoHGCal_TICL_PatternRecognitionbyRecovery_H__
+#endif  // RecoHGCal_TICL_PatternRecognitionbyRecovery_h
