@@ -6,12 +6,15 @@
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
+enum class TestEnum : int16_t { s0 = -2, s1 = -1, s2 = 0, s3 = 1, s4 = 2 };
+
 // clang-format off
 GENERATE_SOA_LAYOUT(SimpleLayoutTemplate,
   SOA_COLUMN(float, x),
   SOA_COLUMN(float, y),
   SOA_COLUMN(float, z),
-  SOA_COLUMN(float, t))
+  SOA_COLUMN(float, t),
+  SOA_COLUMN(TestEnum, e))
 // clang-format on
 
 using SimpleLayout = SimpleLayoutTemplate<>;
@@ -35,6 +38,7 @@ TEST_CASE("SoATemplate") {
     slv0.y() = 2;
     slv0.z() = 3;
     slv0.t() = 5;
+    slv0.e() = TestEnum::s3;
     // Fill up
     for (SimpleLayout::View::size_type i = 1; i < slv.metadata().size(); ++i) {
       auto slvi = slv[i];
@@ -58,6 +62,7 @@ TEST_CASE("SoATemplate") {
       REQUIRE(slcvi.y() == y);
       REQUIRE(slcvi.z() == z);
       REQUIRE(slcvi.t() == t);
+      REQUIRE(slcvi.e() == TestEnum::s3);
       auto tx = x;
       x += y;
       y += z;
@@ -74,7 +79,7 @@ TEST_CASE("SoATemplate") {
     View slv{sl};
     ConstView slcv{sl};
     auto slv0 = slv[0];
-    slv0 = {7, 11, 13, 17};
+    slv0 = {7, 11, 13, 17, TestEnum::s3};
     // Fill up
     for (SimpleLayout::View::size_type i = 1; i < slv.metadata().size(); ++i) {
       auto slvi = slv[i];
