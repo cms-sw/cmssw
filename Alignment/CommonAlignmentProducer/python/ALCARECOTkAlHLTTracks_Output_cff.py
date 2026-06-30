@@ -16,7 +16,8 @@ OutALCARECOTkAlHLTTracks_noDrop = cms.PSet(
         'keep *_hltPixelVertices_*_*',
         'keep *_hltVerticesPFFilter_*_*',
         'keep *_hltOnlineBeamSpot_*_*',
-        'keep DCSRecord_onlineMetaDataDigis_*_*'
+        'keep DCSRecord_onlineMetaDataDigis_*_*',
+        'keep PixelFEDChanneledmNewDetSetVector_siPixelDigis_*_*'
     )
 )
 

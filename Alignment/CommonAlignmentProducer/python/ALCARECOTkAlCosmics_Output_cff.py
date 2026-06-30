@@ -22,7 +22,8 @@ OutALCARECOTkAlCosmics_noDrop = cms.PSet(
         'keep *_TriggerResults_*_*',
         'keep DcsStatuss_scalersRawToDigi_*_*',
         'keep Si*Cluster*_si*Clusters_*_*', # for cosmics keep original clusters
-        'keep recoMuons_muons1Leg_*_*') # save muons as timing info is needed for BP corrections in deconvolution
+        'keep recoMuons_muons1Leg_*_*', # save muons as timing info is needed for BP corrections in deconvolution
+        'keep PixelFEDChanneledmNewDetSetVector_siPixelDigis_*_*')
 )
 
 import copy
