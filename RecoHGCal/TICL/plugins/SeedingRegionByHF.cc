@@ -26,14 +26,16 @@ void SeedingRegionByHF::makeRegions(const edm::Event &ev,
 
   for (const auto &erh : recHits) {
     const HcalDetId &detid = (HcalDetId)erh.detid();
-    if (erh.energy() < minEt_)
-      continue;
 
     const GlobalPoint &globalPosition =
         geometry_->getSubdetectorGeometry(DetId::Hcal, HcalForward)->getGeometry(detid)->getPosition(detid);
     auto eta = globalPosition.eta();
 
     if (std::abs(eta) < minAbsEta_ || std::abs(eta) > maxAbsEta_)
+      continue;
+
+    // minEt_ is a transverse-energy threshold: cut on Et = energy / cosh(eta), not raw energy
+    if (erh.energy() / cosh(eta) < minEt_)
       continue;
 
     int iSide = int(eta > 0);
