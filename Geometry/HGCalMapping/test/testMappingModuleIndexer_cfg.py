@@ -28,7 +28,7 @@ kwargs = { k: getattr(options,k) for k in ['modules','sicells','sipmcells','offs
 process = customise_hgcalmapper(process, **kwargs)
 
 # Geometry
-process.load('Configuration.Geometry.GeometryExtendedRun4D104Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D121Reco_cff')
 
 # tester
 process.tester = cms.EDAnalyzer('HGCalMappingESSourceTester')

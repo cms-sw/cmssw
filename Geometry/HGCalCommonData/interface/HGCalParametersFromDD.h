@@ -11,7 +11,7 @@ class HGCalParameters;
 
 class HGCalParametersFromDD {
 public:
-  HGCalParametersFromDD() = default;
+  HGCalParametersFromDD(bool coldBoxMode) : coldBoxMode_(coldBoxMode) {}
   virtual ~HGCalParametersFromDD() = default;
 
   bool build(const DDCompactView* cpv,
@@ -32,6 +32,8 @@ private:
   void getCellPosition(HGCalParameters& php, int type);
   double getDDDValue(const char* s, const DDsvalues_type& sv);
   std::vector<double> getDDDArray(const char* s, const DDsvalues_type& sv);
+
+  const bool coldBoxMode_;
   constexpr static double tan30deg_ = 0.5773502693;
 };
 
