@@ -35,27 +35,39 @@
 
 // Exception throwing (or willful crash in kernels)
 #if defined(__CUDACC__) && defined(__CUDA_ARCH__)
-#define SOA_THROW_OUT_OF_RANGE(A, I, R)                         \
-  {                                                             \
-    printf("%s: index %d out of range %d at file %s line %d\n", \
-           (A),                                                 \
-           (I.value_),                                          \
-           (R),                                                 \
-           (I.location_.file_name()),                           \
-           (I.location_.line()));                               \
-    __trap();                                                   \
+
+#define SOA_THROW_OUT_OF_RANGE(A, I, R)                                     \
+  {                                                                         \
+    if constexpr (decltype(I)::mode == cms::soa::RangeChecking::extended) { \
+      printf("%s: index %d out of range %d at file %s line %d\n",           \
+             (A),                                                           \
+             (I.value_),                                                    \
+             (R),                                                           \
+             (I.location_.file_name()),                                     \
+             (I.location_.line()));                                         \
+    } else {                                                                \
+      printf("%s: index %d out of range %d\n", (A), (I.value_), (R));       \
+    }                                                                       \
+    __trap();                                                               \
   }
+
 #elif defined(__HIPCC__) && defined(__HIP_DEVICE_COMPILE__)
-#define SOA_THROW_OUT_OF_RANGE(A, I, R)                         \
-  {                                                             \
-    printf("%s: index %d out of range %d at file %s line %d\n", \
-           (A),                                                 \
-           (I.value_),                                          \
-           (R),                                                 \
-           (I.location_.file_name()),                           \
-           (I.location_.line()));                               \
-    abort();                                                    \
+
+#define SOA_THROW_OUT_OF_RANGE(A, I, R)                                     \
+  {                                                                         \
+    if constexpr (decltype(I)::mode == cms::soa::RangeChecking::extended) { \
+      printf("%s: index %d out of range %d at file %s line %d\n",           \
+             (A),                                                           \
+             (I.value_),                                                    \
+             (R),                                                           \
+             (I.location_.file_name()),                                     \
+             (I.location_.line()));                                         \
+    } else {                                                                \
+      printf("%s: index %d out of range %d\n", (A), (I.value_), (R));       \
+    }                                                                       \
+    abort();                                                                \
   }
+
 #else
 #define SOA_THROW_OUT_OF_RANGE(A, I, R)                    \
   {                                                        \
@@ -104,9 +116,15 @@ namespace cms::soa {
   }  // namespace RestrictQualify
 
   namespace RangeChecking {
-    constexpr bool enabled = true;
-    constexpr bool disabled = false;
-    constexpr bool Default = enabled;
+
+    enum class Mode { Disabled, Enabled, Extended };
+
+    constexpr Mode disabled = Mode::Disabled;
+    constexpr Mode enabled = Mode::Enabled;
+    constexpr Mode extended = Mode::Extended;
+
+    constexpr Mode Default = enabled;
+
   }  // namespace RangeChecking
 
   template <typename T, bool RESTRICT_QUALIFY>
@@ -841,16 +859,36 @@ SOA_HOST_ONLY std::ostream& operator<<(std::ostream& os, const SOA& soa) {
 
 namespace cms::soa::detail {
 
-  struct IndexWithSourceLocation {
+  template <RangeChecking::Mode M>
+  struct IndexWithSourceLocation;
+
+  template <RangeChecking::Mode M>
+    requires(M != RangeChecking::extended)
+  struct IndexWithSourceLocation<M> {
+    static constexpr auto mode = M;
+
+    SOA_HOST_DEVICE constexpr IndexWithSourceLocation(cms::soa::size_type value) noexcept : value_{value} {}
+
+    cms::soa::size_type value_;
+  };
+
+  template <>
+  struct IndexWithSourceLocation<RangeChecking::extended> {
+    static constexpr auto mode = RangeChecking::extended;
+
     SOA_HOST_DEVICE constexpr IndexWithSourceLocation(
-        const cms::soa::size_type value, std::source_location location = std::source_location::current()) noexcept
+        cms::soa::size_type value, std::source_location location = std::source_location::current()) noexcept
         : value_{value}, location_{location} {}
 
     cms::soa::size_type value_;
     std::source_location location_;
   };
 
-  [[noreturn]] void throwOutOfRangeError(const char* message, IndexWithSourceLocation index, cms::soa::size_type range);
+  template <RangeChecking::Mode M>
+  [[noreturn]] void throwOutOfRangeError(const char* message,
+                                         const IndexWithSourceLocation<M>& index,
+                                         cms::soa::size_type range);
+
   // Helper function to check alignment of a pointer. Returns true if the pointer is not aligned to the specified alignment.
   [[noreturn]] void throwRuntimeError(const char* message);
 
