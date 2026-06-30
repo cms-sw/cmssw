@@ -51,6 +51,14 @@ hgcalLayerClustersHSci = hgcalLayerClusters_.clone(
     detector = 'BH',
     recHits = "HGCalRecHit:HGCHEBRecHits",
     plugin = dict(
+        # Scintillator tiles use (eta, phi) coordinates, so the critical/seed/outlier
+        # distances need the scintillator scale (the default deltac/deltas/deltao are
+        # the silicon-scale values used by the EE/FH/HFNose instances).
+        # deltao = 0.063 reproduces the previous effective outlier distance
+        # (outlierDeltaFactor = 2.0) x (scint critical distance = 0.0315).
+        deltac = [0.0315, 0.0315, 0.0315, 0.0315],
+        deltas = [0.0315, 0.0315, 0.0315, 0.0315],
+        deltao = [0.063, 0.063, 0.063, 0.063],
         dEdXweights = HGCalRecHit.layerWeights.value(),
         #With the introduction of 7 regional factors (6 for silicon plus 1 for scintillator),
         #we extend fcPerMip (along with noises below) so that it is guaranteed that they have 6 entries.
