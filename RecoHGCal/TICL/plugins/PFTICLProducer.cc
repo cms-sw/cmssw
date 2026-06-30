@@ -92,7 +92,7 @@ void PFTICLProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       total_raw_energy += t->raw_energy();
       total_em_raw_energy += t->raw_em_energy();
     }
-    float ecal_energy_fraction = total_em_raw_energy / total_raw_energy;
+    float ecal_energy_fraction = (total_raw_energy > 0.f) ? (total_em_raw_energy / total_raw_energy) : 0.f;
     float ecal_energy = energy_from_regression_ ? ticl_cand.p4().energy() * ecal_energy_fraction
                                                 : ticl_cand.rawEnergy() * ecal_energy_fraction;
     float hcal_energy =
