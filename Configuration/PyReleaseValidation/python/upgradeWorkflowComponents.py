@@ -2364,8 +2364,9 @@ class UpgradeWorkflow_ecalDevel(UpgradeWorkflow):
         self.__harvest = harvest
 
     def setup_(self, step, stepName, stepDict, k, properties):
+        # run the ECAL devel modules and the Phase 2 ECAL TP
+        mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel,phase2_ecalTP_devel'}
         # temporarily remove trigger & downstream steps
-        mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel'}
         if 'Digi' in step:
             mods['-s'] = 'DIGI:pdigi_valid,DIGI2RAW'
             mods['--custom_conditions'] = 'EcalSimPulseShapePhaseII,EcalSimPulseShapeRcd,frontier://FrontierProd/CMS_CONDITIONS'
@@ -2433,7 +2434,7 @@ class UpgradeWorkflowPremix_ecalDevel(UpgradeWorkflow):
             stepDict[stepNamePmx][k] = merge([
                 {
                     '-s': 'GEN,SIM,DIGI:pdigi_valid',
-                    '--era': stepDict[step][k]['--era']+',phase2_ecal_devel',
+                    '--era': stepDict[step][k]['--era']+',phase2_ecal_devel,phase2_ecalTP_devel',
                     '--datatier': 'PREMIX',
                     '--eventcontent': 'PREMIX',
                     '--procModifiers': 'premix_stage1',
@@ -2443,8 +2444,9 @@ class UpgradeWorkflowPremix_ecalDevel(UpgradeWorkflow):
             ])
         # setup for stage 2
         elif 'Digi' in step or 'Reco' in step:
+            # run the ECAL devel modules and the Phase 2 ECAL TP
+            mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel,phase2_ecalTP_devel'}
             # temporarily remove trigger & downstream steps
-            mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel'}
             if 'Digi' in step:
                 mods['-s'] = 'DIGI:pdigi_valid,DATAMIX,DIGI2RAW'
                 mods['--datamix'] = 'PreMix'
@@ -2462,8 +2464,8 @@ class UpgradeWorkflowPremix_ecalDevel(UpgradeWorkflow):
                 mods['--procModifiers'] = mods['--procModifiers']+',premix_stage2' if '--procModifiers' in mods else 'premix_stage2'
             stepDict[stepName][k] = merge([mods, stepDict[step][k]])
         if 'HARVEST' in stepName:
-            # temporarily remove trigger & downstream steps
-            mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel'}
+            # run the ECAL devel modules and the Phase 2 ECAL TP
+            mods = {'--era': stepDict[step][k]['--era']+',phase2_ecal_devel,phase2_ecalTP_devel'}
             mods['-s'] = 'HARVESTING:@ecalOnlyValidation+@ecal'
             mods |= self.__harvest
             stepDict[stepName][k] = merge([mods, stepDict[step][k]])
@@ -2489,7 +2491,13 @@ class UpgradeWorkflowPremix_ecalDevel(UpgradeWorkflow):
         fragmentTmp = fragment
         super(UpgradeWorkflowPremix_ecalDevel,self).workflow_(workflows, num, fragmentTmp, stepList, key)
 
-# Premix combined stage1+stage2
+# ECAL developemnt workflow on CPU with premix combined stage1+stage2
+upgradeWFs['ecalDevelPMXS1S2'] = UpgradeWorkflowPremix_ecalDevel(
+    suffix = '_ecalDevelPMXS1S2',
+    offset = 0.6199,
+)
+
+# ECAL developemnt Alpaka workflow with premix combined stage1+stage2
 upgradeWFs['ecalDevelAlpakaPMXS1S2'] = UpgradeWorkflowPremix_ecalDevel(
     reco = {
         '--procModifiers': 'alpaka',
