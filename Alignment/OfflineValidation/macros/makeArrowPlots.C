@@ -278,20 +278,31 @@ void makeArrowPlots(const char* filename, const char* outputDir) {
   //int dummy = 0;
   if (plotPXB) {
     double pxbScale = 30.0;
-    totalPXB_modules += makeRPhiArrowPlot(data, branches, outputDir, "PXB_BarrelXY-4", 20, 20, 1, 1, -26, -20, 0, 19, pxbScale);
-    totalPXB_modules += makeRPhiArrowPlot(data, branches, outputDir, "PXB_BarrelXY-3", 20, 20, 1, 1, -19, -14, 0, 19, pxbScale);
-    totalPXB_modules += makeRPhiArrowPlot(data, branches, outputDir, "PXB_BarrelXY-2", 20, 20, 1, 1, -14, -6.5, 0, 19, pxbScale);
-    totalPXB_modules += makeRPhiArrowPlot(data, branches, outputDir, "PXB_BarrelXY-1", 20, 20, 1, 1, -6.5, 0, 0, 19, pxbScale);
-    totalPXB_modules += makeRPhiArrowPlot(data, branches, outputDir, "PXB_BarrelXY+1", 20, 20, 1, 1, 0, 6.5, 0, 19, pxbScale);
-    totalPXB_modules += makeRPhiArrowPlot(data, branches, outputDir, "PXB_BarrelXY+2", 20, 20, 1, 1, 6.5, 14, 0, 19, pxbScale);
-    totalPXB_modules += makeRPhiArrowPlot(data, branches, outputDir, "PXB_BarrelXY+3", 20, 20, 1, 1, 14, 19, 0, 19, pxbScale);
-    totalPXB_modules += makeRPhiArrowPlot(data, branches, outputDir, "PXB_BarrelXY+4", 20, 20, 1, 1, 19, 26, 0, 19, pxbScale);
+    totalPXB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "PXB_BarrelXY-4", 20, 20, 1, 1, -26, -20, 0, 19, pxbScale);
+    totalPXB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "PXB_BarrelXY-3", 20, 20, 1, 1, -19, -14, 0, 19, pxbScale);
+    totalPXB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "PXB_BarrelXY-2", 20, 20, 1, 1, -14, -6.5, 0, 19, pxbScale);
+    totalPXB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "PXB_BarrelXY-1", 20, 20, 1, 1, -6.5, 0, 0, 19, pxbScale);
+    totalPXB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "PXB_BarrelXY+1", 20, 20, 1, 1, 0, 6.5, 0, 19, pxbScale);
+    totalPXB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "PXB_BarrelXY+2", 20, 20, 1, 1, 6.5, 14, 0, 19, pxbScale);
+    totalPXB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "PXB_BarrelXY+3", 20, 20, 1, 1, 14, 19, 0, 19, pxbScale);
+    totalPXB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "PXB_BarrelXY+4", 20, 20, 1, 1, 19, 26, 0, 19, pxbScale);
     double pxbScale_zphi = 40.0;
-    totalPXB_modules_zphi += makeZPhiArrowPlot(data, branches, outputDir, "PXB_BarrelZPhi_1", 35, 15, 1, 1, -300, 300, 0, 5, pxbScale_zphi);
-    totalPXB_modules_zphi += makeZPhiArrowPlot(data, branches, outputDir, "PXB_BarrelZPhi_2", 35, 30, 1, 1, -300, 300, 5, 9, pxbScale_zphi);
-    totalPXB_modules_zphi += makeZPhiArrowPlot(data, branches, outputDir, "PXB_BarrelZPhi_3", 35, 45, 1, 1, -300, 300, 9, 14, pxbScale_zphi);
     totalPXB_modules_zphi +=
-        makeZPhiArrowPlot(data, branches, outputDir, "PXB_BarrelZPhi_4", 35, 65, 1, 1, -300, 300, 14, 19, pxbScale_zphi);
+        makeZPhiArrowPlot(data, branches, outputDir, "PXB_BarrelZPhi_1", 35, 15, 1, 1, -300, 300, 0, 5, pxbScale_zphi);
+    totalPXB_modules_zphi +=
+        makeZPhiArrowPlot(data, branches, outputDir, "PXB_BarrelZPhi_2", 35, 30, 1, 1, -300, 300, 5, 9, pxbScale_zphi);
+    totalPXB_modules_zphi +=
+        makeZPhiArrowPlot(data, branches, outputDir, "PXB_BarrelZPhi_3", 35, 45, 1, 1, -300, 300, 9, 14, pxbScale_zphi);
+    totalPXB_modules_zphi += makeZPhiArrowPlot(
+        data, branches, outputDir, "PXB_BarrelZPhi_4", 35, 65, 1, 1, -300, 300, 14, 19, pxbScale_zphi);
   }
 
   // TIB slices
@@ -299,27 +310,39 @@ void makeArrowPlots(const char* filename, const char* outputDir) {
   int totalTIB_modules_zphi = 0;
   if (plotTIB) {
     double tibScale = 30.0;
-    totalTIB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY-6", 80, 80, 1, 3, -70, -56, 0, 120, tibScale);
-    totalTIB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY-5", 80, 80, 1, 3, -56, -42, 0, 120, tibScale);
-    totalTIB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY-4", 80, 80, 1, 3, -42, -32, 0, 120, tibScale);
-    totalTIB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY-3", 80, 80, 1, 3, -32, -20, 0, 120, tibScale);
-    totalTIB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY-2", 80, 80, 1, 3, -20, -10, 0, 120, tibScale);
-    totalTIB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY-1", 80, 80, 1, 3, -10, 0, 0, 120, tibScale);
-    totalTIB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY+1", 80, 80, 1, 3, 0, 10, 0, 120, tibScale);
-    totalTIB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY+2", 80, 80, 1, 3, 10, 20, 0, 120, tibScale);
-    totalTIB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY+3", 80, 80, 1, 3, 20, 32, 0, 120, tibScale);
-    totalTIB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY+4", 80, 80, 1, 3, 32, 42, 0, 120, tibScale);
-    totalTIB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY+5", 80, 80, 1, 3, 42, 56, 0, 120, tibScale);
-    totalTIB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY+6", 80, 80, 1, 3, 56, 70, 0, 120, tibScale);
+    totalTIB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY-6", 80, 80, 1, 3, -70, -56, 0, 120, tibScale);
+    totalTIB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY-5", 80, 80, 1, 3, -56, -42, 0, 120, tibScale);
+    totalTIB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY-4", 80, 80, 1, 3, -42, -32, 0, 120, tibScale);
+    totalTIB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY-3", 80, 80, 1, 3, -32, -20, 0, 120, tibScale);
+    totalTIB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY-2", 80, 80, 1, 3, -20, -10, 0, 120, tibScale);
+    totalTIB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY-1", 80, 80, 1, 3, -10, 0, 0, 120, tibScale);
+    totalTIB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY+1", 80, 80, 1, 3, 0, 10, 0, 120, tibScale);
+    totalTIB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY+2", 80, 80, 1, 3, 10, 20, 0, 120, tibScale);
+    totalTIB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY+3", 80, 80, 1, 3, 20, 32, 0, 120, tibScale);
+    totalTIB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY+4", 80, 80, 1, 3, 32, 42, 0, 120, tibScale);
+    totalTIB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY+5", 80, 80, 1, 3, 42, 56, 0, 120, tibScale);
+    totalTIB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TIB_BarrelXY+6", 80, 80, 1, 3, 56, 70, 0, 120, tibScale);
     double tibScale_zphi = 40.0;
-    totalTIB_modules_zphi +=
-        makeZPhiArrowPlot(data, branches, outputDir, "TIB_BarrelZPhi_1", 80, 120, 1, 3, -300, 300, 20.0, 29.0, tibScale_zphi);
-    totalTIB_modules_zphi +=
-        makeZPhiArrowPlot(data, branches, outputDir, "TIB_BarrelZPhi_2", 80, 140, 1, 3, -300, 300, 29.0, 37.5, tibScale_zphi);
-    totalTIB_modules_zphi +=
-        makeZPhiArrowPlot(data, branches, outputDir, "TIB_BarrelZPhi_3", 80, 170, 1, 3, -300, 300, 37.5, 47.5, tibScale_zphi);
-    totalTIB_modules_zphi +=
-        makeZPhiArrowPlot(data, branches, outputDir, "TIB_BarrelZPhi_4", 80, 200, 1, 3, -300, 300, 47.5, 60.0, tibScale_zphi);
+    totalTIB_modules_zphi += makeZPhiArrowPlot(
+        data, branches, outputDir, "TIB_BarrelZPhi_1", 80, 120, 1, 3, -300, 300, 20.0, 29.0, tibScale_zphi);
+    totalTIB_modules_zphi += makeZPhiArrowPlot(
+        data, branches, outputDir, "TIB_BarrelZPhi_2", 80, 140, 1, 3, -300, 300, 29.0, 37.5, tibScale_zphi);
+    totalTIB_modules_zphi += makeZPhiArrowPlot(
+        data, branches, outputDir, "TIB_BarrelZPhi_3", 80, 170, 1, 3, -300, 300, 37.5, 47.5, tibScale_zphi);
+    totalTIB_modules_zphi += makeZPhiArrowPlot(
+        data, branches, outputDir, "TIB_BarrelZPhi_4", 80, 200, 1, 3, -300, 300, 47.5, 60.0, tibScale_zphi);
   }
 
   // TOB slices
@@ -327,31 +350,43 @@ void makeArrowPlots(const char* filename, const char* outputDir) {
   int totalTOB_modules_zphi = 0;
   if (plotTOB) {
     double tobScale = 100.0;
-    totalTOB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY-6", 150, 150, 1, 5, -108, -90, 0, 120, tobScale);
-    totalTOB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY-5", 150, 150, 1, 5, -90, -72, 0, 120, tobScale);
-    totalTOB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY-4", 150, 150, 1, 5, -72, -54, 0, 120, tobScale);
-    totalTOB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY-3", 150, 150, 1, 5, -54, -36, 0, 120, tobScale);
-    totalTOB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY-2", 150, 150, 1, 5, -36, -18, 0, 120, tobScale);
-    totalTOB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY-1", 150, 150, 1, 5, -18, 0, 0, 120, tobScale);
-    totalTOB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY+1", 150, 150, 1, 5, 0, 18, 0, 120, tobScale);
-    totalTOB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY+2", 150, 150, 1, 5, 18, 36, 0, 120, tobScale);
-    totalTOB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY+3", 150, 150, 1, 5, 36, 54, 0, 120, tobScale);
-    totalTOB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY+4", 150, 150, 1, 5, 54, 72, 0, 120, tobScale);
-    totalTOB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY+5", 150, 150, 1, 5, 72, 90, 0, 120, tobScale);
-    totalTOB_modules += makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY+6", 150, 150, 1, 5, 90, 108, 0, 120, tobScale);
+    totalTOB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY-6", 150, 150, 1, 5, -108, -90, 0, 120, tobScale);
+    totalTOB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY-5", 150, 150, 1, 5, -90, -72, 0, 120, tobScale);
+    totalTOB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY-4", 150, 150, 1, 5, -72, -54, 0, 120, tobScale);
+    totalTOB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY-3", 150, 150, 1, 5, -54, -36, 0, 120, tobScale);
+    totalTOB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY-2", 150, 150, 1, 5, -36, -18, 0, 120, tobScale);
+    totalTOB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY-1", 150, 150, 1, 5, -18, 0, 0, 120, tobScale);
+    totalTOB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY+1", 150, 150, 1, 5, 0, 18, 0, 120, tobScale);
+    totalTOB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY+2", 150, 150, 1, 5, 18, 36, 0, 120, tobScale);
+    totalTOB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY+3", 150, 150, 1, 5, 36, 54, 0, 120, tobScale);
+    totalTOB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY+4", 150, 150, 1, 5, 54, 72, 0, 120, tobScale);
+    totalTOB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY+5", 150, 150, 1, 5, 72, 90, 0, 120, tobScale);
+    totalTOB_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TOB_BarrelXY+6", 150, 150, 1, 5, 90, 108, 0, 120, tobScale);
     double tobScale_zphi = 40.0;
-    totalTOB_modules_zphi +=
-        makeZPhiArrowPlot(data, branches, outputDir, "TOB_BarrelZPhi_1", 130, 250, 1, 5, -300, 300, 55.0, 65.0, tobScale_zphi);
-    totalTOB_modules_zphi +=
-        makeZPhiArrowPlot(data, branches, outputDir, "TOB_BarrelZPhi_2", 130, 280, 1, 5, -300, 300, 65.0, 75.0, tobScale_zphi);
-    totalTOB_modules_zphi +=
-        makeZPhiArrowPlot(data, branches, outputDir, "TOB_BarrelZPhi_3", 130, 320, 1, 5, -300, 300, 75.0, 85.0, tobScale_zphi);
-    totalTOB_modules_zphi +=
-        makeZPhiArrowPlot(data, branches, outputDir, "TOB_BarrelZPhi_4", 130, 350, 1, 5, -300, 300, 85.0, 93.0, tobScale_zphi);
-    totalTOB_modules_zphi +=
-        makeZPhiArrowPlot(data, branches, outputDir, "TOB_BarrelZPhi_5", 130, 380, 1, 5, -300, 300, 93.0, 101.0, tobScale_zphi);
-    totalTOB_modules_zphi +=
-        makeZPhiArrowPlot(data, branches, outputDir, "TOB_BarrelZPhi_6", 130, 410, 1, 5, -300, 300, 101.0, 110.0, tobScale_zphi);
+    totalTOB_modules_zphi += makeZPhiArrowPlot(
+        data, branches, outputDir, "TOB_BarrelZPhi_1", 130, 250, 1, 5, -300, 300, 55.0, 65.0, tobScale_zphi);
+    totalTOB_modules_zphi += makeZPhiArrowPlot(
+        data, branches, outputDir, "TOB_BarrelZPhi_2", 130, 280, 1, 5, -300, 300, 65.0, 75.0, tobScale_zphi);
+    totalTOB_modules_zphi += makeZPhiArrowPlot(
+        data, branches, outputDir, "TOB_BarrelZPhi_3", 130, 320, 1, 5, -300, 300, 75.0, 85.0, tobScale_zphi);
+    totalTOB_modules_zphi += makeZPhiArrowPlot(
+        data, branches, outputDir, "TOB_BarrelZPhi_4", 130, 350, 1, 5, -300, 300, 85.0, 93.0, tobScale_zphi);
+    totalTOB_modules_zphi += makeZPhiArrowPlot(
+        data, branches, outputDir, "TOB_BarrelZPhi_5", 130, 380, 1, 5, -300, 300, 93.0, 101.0, tobScale_zphi);
+    totalTOB_modules_zphi += makeZPhiArrowPlot(
+        data, branches, outputDir, "TOB_BarrelZPhi_6", 130, 410, 1, 5, -300, 300, 101.0, 110.0, tobScale_zphi);
   }
 
   // PXF slices
@@ -359,12 +394,18 @@ void makeArrowPlots(const char* filename, const char* outputDir) {
   //int totalPXF_modules_rz = 0;
   if (plotPXF) {
     double pxfScale = 30.0;
-    totalPXF_modules += makeRPhiArrowPlot(data, branches, outputDir, "PXF_DiskXY+1", 20, 20, 1, 2, 25, 36, 0, 120, pxfScale);
-    totalPXF_modules += makeRPhiArrowPlot(data, branches, outputDir, "PXF_DiskXY+2", 20, 20, 1, 2, 36, 44, 0, 120, pxfScale);
-    totalPXF_modules += makeRPhiArrowPlot(data, branches, outputDir, "PXF_DiskXY+3", 20, 20, 1, 2, 44, 55, 0, 120, pxfScale);
-    totalPXF_modules += makeRPhiArrowPlot(data, branches, outputDir, "PXF_DiskXY-1", 20, 20, 1, 2, -36, -25, 0, 120, pxfScale);
-    totalPXF_modules += makeRPhiArrowPlot(data, branches, outputDir, "PXF_DiskXY-2", 20, 20, 1, 2, -44, -36, 0, 120, pxfScale);
-    totalPXF_modules += makeRPhiArrowPlot(data, branches, outputDir, "PXF_DiskXY-3", 20, 20, 1, 2, -55, -44, 0, 120, pxfScale);
+    totalPXF_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "PXF_DiskXY+1", 20, 20, 1, 2, 25, 36, 0, 120, pxfScale);
+    totalPXF_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "PXF_DiskXY+2", 20, 20, 1, 2, 36, 44, 0, 120, pxfScale);
+    totalPXF_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "PXF_DiskXY+3", 20, 20, 1, 2, 44, 55, 0, 120, pxfScale);
+    totalPXF_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "PXF_DiskXY-1", 20, 20, 1, 2, -36, -25, 0, 120, pxfScale);
+    totalPXF_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "PXF_DiskXY-2", 20, 20, 1, 2, -44, -36, 0, 120, pxfScale);
+    totalPXF_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "PXF_DiskXY-3", 20, 20, 1, 2, -55, -44, 0, 120, pxfScale);
     /*
       double pxfScale_zphi = 10.0;
       totalPXF_modules_rz += makeRZArrowPlot( data, "PXF_DiskRZ-1", -38, -30, 5, 17, 1, 2, -40, -25, 0, 120.0, pxfScale_zphi);
@@ -379,12 +420,18 @@ void makeArrowPlots(const char* filename, const char* outputDir) {
   //int totalTID_modules_rz = 0;
   if (plotTID) {
     double tidScale = 50.0;
-    totalTID_modules += makeRPhiArrowPlot(data, branches, outputDir, "TID_DiskXY+1", 70, 70, 1, 4, 70, 80, 0, 120, tidScale);
-    totalTID_modules += makeRPhiArrowPlot(data, branches, outputDir, "TID_DiskXY+2", 70, 70, 1, 4, 80, 95, 0, 120, tidScale);
-    totalTID_modules += makeRPhiArrowPlot(data, branches, outputDir, "TID_DiskXY+3", 70, 70, 1, 4, 95, 110, 0, 120, tidScale);
-    totalTID_modules += makeRPhiArrowPlot(data, branches, outputDir, "TID_DiskXY-1", 70, 70, 1, 4, -80, -70, 0, 120, tidScale);
-    totalTID_modules += makeRPhiArrowPlot(data, branches, outputDir, "TID_DiskXY-2", 70, 70, 1, 4, -95, -80, 0, 120, tidScale);
-    totalTID_modules += makeRPhiArrowPlot(data, branches, outputDir, "TID_DiskXY-3", 70, 70, 1, 4, -110, -95, 0, 120, tidScale);
+    totalTID_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TID_DiskXY+1", 70, 70, 1, 4, 70, 80, 0, 120, tidScale);
+    totalTID_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TID_DiskXY+2", 70, 70, 1, 4, 80, 95, 0, 120, tidScale);
+    totalTID_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TID_DiskXY+3", 70, 70, 1, 4, 95, 110, 0, 120, tidScale);
+    totalTID_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TID_DiskXY-1", 70, 70, 1, 4, -80, -70, 0, 120, tidScale);
+    totalTID_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TID_DiskXY-2", 70, 70, 1, 4, -95, -80, 0, 120, tidScale);
+    totalTID_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TID_DiskXY-3", 70, 70, 1, 4, -110, -95, 0, 120, tidScale);
     /*
       double tidScale_zphi = 10.0;
       totalTID_modules_rz += makeRZArrowPlot( data, "TID_DiskRZ-1", -80, -70, -3, 55, 1, 4, -80, -70, 0, 120.0, tidScale_zphi);
@@ -400,24 +447,42 @@ void makeArrowPlots(const char* filename, const char* outputDir) {
   int totalTEC_modules = 0;
   if (plotTEC) {
     double tecScale = 100.0;
-    totalTEC_modules += makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY+1", 150, 150, 1, 6, 120, 130, 0, 120, tecScale);
-    totalTEC_modules += makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY+2", 150, 150, 1, 6, 130, 145, 0, 120, tecScale);
-    totalTEC_modules += makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY+3", 150, 150, 1, 6, 145, 160, 0, 120, tecScale);
-    totalTEC_modules += makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY+4", 150, 150, 1, 6, 160, 175, 0, 120, tecScale);
-    totalTEC_modules += makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY+5", 150, 150, 1, 6, 175, 190, 0, 120, tecScale);
-    totalTEC_modules += makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY+6", 150, 150, 1, 6, 190, 215, 0, 120, tecScale);
-    totalTEC_modules += makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY+7", 150, 150, 1, 6, 215, 235, 0, 120, tecScale);
-    totalTEC_modules += makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY+8", 150, 150, 1, 6, 235, 260, 0, 120, tecScale);
-    totalTEC_modules += makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY+9", 150, 150, 1, 6, 260, 280, 0, 120, tecScale);
-    totalTEC_modules += makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY-1", 150, 150, 1, 6, -130, -120, 0, 120, tecScale);
-    totalTEC_modules += makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY-2", 150, 150, 1, 6, -145, -130, 0, 120, tecScale);
-    totalTEC_modules += makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY-3", 150, 150, 1, 6, -160, -145, 0, 120, tecScale);
-    totalTEC_modules += makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY-4", 150, 150, 1, 6, -175, -160, 0, 120, tecScale);
-    totalTEC_modules += makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY-5", 150, 150, 1, 6, -190, -175, 0, 120, tecScale);
-    totalTEC_modules += makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY-6", 150, 150, 1, 6, -215, -190, 0, 120, tecScale);
-    totalTEC_modules += makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY-7", 150, 150, 1, 6, -235, -215, 0, 120, tecScale);
-    totalTEC_modules += makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY-8", 150, 150, 1, 6, -260, -235, 0, 120, tecScale);
-    totalTEC_modules += makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY-9", 150, 150, 1, 6, -280, -260, 0, 120, tecScale);
+    totalTEC_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY+1", 150, 150, 1, 6, 120, 130, 0, 120, tecScale);
+    totalTEC_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY+2", 150, 150, 1, 6, 130, 145, 0, 120, tecScale);
+    totalTEC_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY+3", 150, 150, 1, 6, 145, 160, 0, 120, tecScale);
+    totalTEC_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY+4", 150, 150, 1, 6, 160, 175, 0, 120, tecScale);
+    totalTEC_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY+5", 150, 150, 1, 6, 175, 190, 0, 120, tecScale);
+    totalTEC_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY+6", 150, 150, 1, 6, 190, 215, 0, 120, tecScale);
+    totalTEC_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY+7", 150, 150, 1, 6, 215, 235, 0, 120, tecScale);
+    totalTEC_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY+8", 150, 150, 1, 6, 235, 260, 0, 120, tecScale);
+    totalTEC_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY+9", 150, 150, 1, 6, 260, 280, 0, 120, tecScale);
+    totalTEC_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY-1", 150, 150, 1, 6, -130, -120, 0, 120, tecScale);
+    totalTEC_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY-2", 150, 150, 1, 6, -145, -130, 0, 120, tecScale);
+    totalTEC_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY-3", 150, 150, 1, 6, -160, -145, 0, 120, tecScale);
+    totalTEC_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY-4", 150, 150, 1, 6, -175, -160, 0, 120, tecScale);
+    totalTEC_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY-5", 150, 150, 1, 6, -190, -175, 0, 120, tecScale);
+    totalTEC_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY-6", 150, 150, 1, 6, -215, -190, 0, 120, tecScale);
+    totalTEC_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY-7", 150, 150, 1, 6, -235, -215, 0, 120, tecScale);
+    totalTEC_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY-8", 150, 150, 1, 6, -260, -235, 0, 120, tecScale);
+    totalTEC_modules +=
+        makeRPhiArrowPlot(data, branches, outputDir, "TEC_DiskXY-9", 150, 150, 1, 6, -280, -260, 0, 120, tecScale);
   }
 
   std::cout << "Plotted PXB modules: " << totalPXB_modules << std::endl;
