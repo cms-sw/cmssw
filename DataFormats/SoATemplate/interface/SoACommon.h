@@ -69,9 +69,9 @@
   }
 
 #else
-#define SOA_THROW_OUT_OF_RANGE(A, I, R)                    \
-  {                                                        \
-    cms::soa::detail::throwOutOfRangeError((A), (I), (R)); \
+#define SOA_THROW_OUT_OF_RANGE(A, I, R)                                       \
+  {                                                                           \
+    cms::soa::detail::throwOutOfRangeError<decltype(I)::mode>((A), (I), (R)); \
   }
 #endif
 
@@ -122,8 +122,11 @@ namespace cms::soa {
     constexpr Mode disabled = Mode::Disabled;
     constexpr Mode enabled = Mode::Enabled;
     constexpr Mode extended = Mode::Extended;
-
+#ifdef DEBUG
+    constexpr Mode Default = extended;
+#else
     constexpr Mode Default = enabled;
+#endif
 
   }  // namespace RangeChecking
 
@@ -860,11 +863,7 @@ SOA_HOST_ONLY std::ostream& operator<<(std::ostream& os, const SOA& soa) {
 namespace cms::soa::detail {
 
   template <RangeChecking::Mode M>
-  struct IndexWithSourceLocation;
-
-  template <RangeChecking::Mode M>
-    requires(M != RangeChecking::extended)
-  struct IndexWithSourceLocation<M> {
+  struct IndexWithSourceLocation {
     static constexpr auto mode = M;
 
     SOA_HOST_DEVICE constexpr IndexWithSourceLocation(cms::soa::size_type value) noexcept : value_{value} {}
@@ -872,9 +871,10 @@ namespace cms::soa::detail {
     cms::soa::size_type value_;
   };
 
-  template <>
-  struct IndexWithSourceLocation<RangeChecking::extended> {
-    static constexpr auto mode = RangeChecking::extended;
+  template <RangeChecking::Mode M>
+    requires(M == RangeChecking::extended)
+  struct IndexWithSourceLocation<M> {
+    static constexpr auto mode = M;
 
     SOA_HOST_DEVICE constexpr IndexWithSourceLocation(
         cms::soa::size_type value, std::source_location location = std::source_location::current()) noexcept
