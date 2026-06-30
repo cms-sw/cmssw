@@ -614,7 +614,7 @@ void PatternRecognitionbyCLUE3D<TILES>::calculateDistanceToHigher(
       minLayer = std::max(layerId - densitySiblingLayers_[algoId], minLayer);
       maxLayer = std::min(layerId + densitySiblingLayers_[algoId], lastLayerPerSide - 1);
     } else {
-      minLayer = std::max(layerId - densitySiblingLayers_[algoId], lastLayerPerSide + 1);
+      minLayer = std::max(layerId - densitySiblingLayers_[algoId], lastLayerPerSide);
       maxLayer = std::min(layerId + densitySiblingLayers_[algoId], maxLayer);
     }
     constexpr float maxDelta = std::numeric_limits<float>::max();
@@ -699,7 +699,7 @@ int PatternRecognitionbyCLUE3D<TILES>::findAndAssignTracksters(
   const auto &critical_transverse_distance =
       useAbsoluteProjectiveScale_ ? criticalXYDistance_ : criticalEtaPhiDistance_;
   // find cluster seeds and outlier
-  unsigned int maxLayer = (isBarrel_) ? this->rhtools_->lastLayerBarrel() : 2 * this->rhtools_->lastLayer();
+  unsigned int maxLayer = (isBarrel_) ? this->rhtools_->lastLayerBarrel() + 1 : 2 * this->rhtools_->lastLayer();
   for (unsigned int layer = 0; layer < maxLayer; layer++) {
     auto &clustersOnLayer = clusters_[layer];
     unsigned int numberOfClusters = clustersOnLayer.x.size();
