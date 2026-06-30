@@ -989,7 +989,7 @@ TICLDumper::TICLDumper(const edm::ParameterSet& ps)
       saveSuperclustering_(ps.getParameter<bool>("saveSuperclustering")),
       //saveSuperclusteringDNNScore_(ps.getParameter<bool>("saveSuperclusteringDNNScore")),
       saveRecoSuperclusters_(ps.getParameter<bool>("saveRecoSuperclusters")),
-      saveTICLCandidate_(ps.getParameter<bool>("saveSimTICLCandidate")),
+      saveTICLCandidate_(ps.getParameter<bool>("saveTICLCandidate")),
       saveSimTICLCandidate_(ps.getParameter<bool>("saveSimTICLCandidate")),
       saveTracks_(ps.getParameter<bool>("saveTracks")),
       saveHits_(ps.getParameter<bool>("saveHits")) {
@@ -1193,9 +1193,6 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
   eventId_ = event.id();
   clearVariables();
 
-  edm::Handle<std::vector<ticl::Trackster>> tracksters_in_candidate_handle;
-  event.getByToken(tracksters_in_candidate_token_, tracksters_in_candidate_handle);
-
   //get all the layer clusters
   edm::Handle<std::vector<reco::CaloCluster>> layer_clusters_h;
   event.getByToken(layer_clusters_token_, layer_clusters_h);
@@ -1395,6 +1392,7 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
     simTICLCandidate_pt.push_back(cand.pt());
     simTICLCandidate_phi.push_back(cand.phi());
     simTICLCandidate_eta.push_back(cand.eta());
+    simTICLCandidate_caloParticleMass.push_back(cand.p4().mass());
     std::vector<int> tmpIdxVec;
     for (auto const& simTS : cand.tracksters()) {
       auto trackster_idx = simTS.get() - (edm::Ptr<ticl::Trackster>(simTrackstersSC_h, 0)).get();
@@ -1512,7 +1510,8 @@ void TICLDumper::analyze(const edm::Event& event, const edm::EventSetup& setup) 
     auto trackster_ptrs = candidate.tracksters();
     auto track_ptr = candidate.trackPtr();
     for (const auto& ts_ptr : trackster_ptrs) {
-      auto ts_idx = ts_ptr.get() - (edm::Ptr<ticl::Trackster>(tracksters_in_candidate_handle, 0)).get();
+      // the candidate's trackster Ptrs reference the ticlCandidate trackster collection, not trackstersInCand
+      auto ts_idx = ts_ptr.get() - (edm::Ptr<ticl::Trackster>(ticlcandidates_tracksters_h, 0)).get();
       tracksters_in_candidate[i].push_back(ts_idx);
     }
     if (track_ptr.isNull())
