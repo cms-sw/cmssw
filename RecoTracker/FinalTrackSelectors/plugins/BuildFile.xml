@@ -48,8 +48,7 @@
   <use name="pytorch"/>
   <use name="pytorch-cuda"/>
 
-  <flags ALPAKA_BACKENDS="cuda"/>
-  <flags ALPAKA_BACKENDS="serial"/>
+  <flags ALPAKA_BACKENDS="1"/>
   <flags EDM_PLUGIN="1"/>
   <flags remove="1">ofast-flag</flags>
 </library>
