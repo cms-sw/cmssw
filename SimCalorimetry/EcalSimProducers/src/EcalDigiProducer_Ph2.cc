@@ -139,7 +139,6 @@ EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params, edm:
                                                        &m_ComponentShapes)),
 
       m_PreMix1(params.getParameter<bool>("EcalPreMixStage1")),
-      m_PreMix2(params.getParameter<bool>("EcalPreMixStage2")),
       m_HitsEBToken(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsEB"))),
 
       m_APDDigitizer(nullptr),
