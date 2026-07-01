@@ -122,11 +122,8 @@ namespace cms::soa {
     constexpr Mode disabled = Mode::Disabled;
     constexpr Mode enabled = Mode::Enabled;
     constexpr Mode extended = Mode::Extended;
-#ifdef DEBUG
-    constexpr Mode Default = extended;
-#else
+
     constexpr Mode Default = enabled;
-#endif
 
   }  // namespace RangeChecking
 

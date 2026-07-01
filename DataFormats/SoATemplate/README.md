@@ -320,8 +320,6 @@ blocksView.scalars().energy() = 100.0f;
   not compiled). Using `RangeChecking::extended` causes a capture of the source location using `std::source_location`,
   when an integer index is passed to access the data. When an out-of-bounds error is thrown, this leads to more information
   in the error message, including the file name and line number where the out-of-bounds index was passed to the SoA.
-  `RangeChecking::Default` is `RangeChecking::enabled` when build without `DEBUG` and `RangeChecking::extended` when build
-  with `DEBUG`.
 - Eigen columns are also suported, with both const and non-const flavors.
 - ROOT serialization and deserialization is supported. In CMSSW, it is planned to be used through the memory
   managing `PortableCollection` family of classes.
