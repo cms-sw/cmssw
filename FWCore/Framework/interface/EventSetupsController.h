@@ -70,10 +70,8 @@ namespace edm {
                                                 WaitingTaskHolder& taskToStartAfterIOVInit,
                                                 WaitingTaskList& endIOVWaitingTasks,
                                                 std::shared_ptr<const EventSetupImpl>&,
-                                                edm::SerialTaskQueue& queueWhichWaitsForIOVsToFinish,
                                                 ActivityRegistry*,
-                                                ServiceToken const&,
-                                                bool iForceCacheClear = false);
+                                                ServiceToken const&);
 
       // Pass in an IOVSyncValue to let the EventSetup system know which run and lumi
       // need to be processed and prepare IOVs for it (also could be a time or only a run).
@@ -91,8 +89,6 @@ namespace edm {
                                       WaitingTaskHolder const& taskToStartAfterIOVInit,
                                       WaitingTaskList& endIOVWaitingTasks,
                                       std::shared_ptr<const EventSetupImpl>&);
-
-      void forceCacheClear();
 
       bool mustFinishConfiguration() const { return mustFinishConfiguration_; }
 
