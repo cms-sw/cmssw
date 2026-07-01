@@ -70,17 +70,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         features_view[i].validStripHits() = hitPattern.numberOfValidStripHits();
       }
 
-      // Create device collection and copy from host
-      TrackFeaturesDeviceCollection features_device(iEvent.queue(), nTracks);
-      alpaka::memcpy(iEvent.queue(), features_device.buffer(), features_host.const_buffer());
-
-      iEvent.emplace(featuresPut_token_, std::move(features_device));
+      iEvent.emplace(featuresPut_token_, std::move(features_host));
     }
 
   private:
     const edm::EDGetTokenT<reco::TrackCollection> tracksInput_token_;
     const edm::EDGetTokenT<reco::BeamSpot> beamspot_token_;
-    const device::EDPutToken<TrackFeaturesDeviceCollection> featuresPut_token_;
+    const edm::EDPutTokenT<PortableHostCollection<TrackTorchClassifierFeaturesSoA>> featuresPut_token_;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
