@@ -3,20 +3,30 @@
 
 #include <cstdio>
 #include <complex>
+#include <memory>
 
-#include "L1Trigger/Phase2L1ParticleFlow/interface/taus/tau_parameters.h"
-#include "L1Trigger/Phase2L1ParticleFlow/interface/taus/defines.h"
+#include "ap_fixed.h"
+#include "ap_int.h"
+#include "hls4ml/emulator.h"
 
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
+
+// Input/output precision of the NNPuppiTauModel hls4ml network, matching the
+// model's defines.h (kept here since the weights/layer code now live in the
+// externally-built NNPuppiTauModel package, not in-tree). Named distinctively
+// (not input_t/result_t) to avoid clashing with the generic typedefs other
+// hls4ml model headers define at global scope.
+typedef ap_fixed<16, 10> tauinput_t;
+typedef ap_fixed<16, 6> tauresult_t;
 
 typedef ap_ufixed<16, 14> pt_t;
 typedef ap_fixed<10, 4> etaphi_t;
 
 // Tau NN returns two values
 struct Tau_NN_Result {
-  result_t nn_pt_correction;
-  result_t nn_id;
+  tauresult_t nn_pt_correction;
+  tauresult_t nn_id;
 };
 
 namespace L1TauEmu {
@@ -134,12 +144,12 @@ namespace L1TauEmu {
 
 class TauNNIdHW {
 public:
-  TauNNIdHW();
+  TauNNIdHW(const std::shared_ptr<hls4mlEmulator::Model> model);
   ~TauNNIdHW();
 
   void initialize(const std::string &iName, int iNParticles);
   void SetNNVectorVar();
-  input_t *NNVectorVar() { return NNvectorVar_.data(); }
+  tauinput_t *NNVectorVar() { return NNvectorVar_.data(); }
   Tau_NN_Result EvaluateNN();
   Tau_NN_Result compute(const l1t::PFCandidate &iSeed, std::vector<l1t::PFCandidate> &iParts);
   //void print();
@@ -153,7 +163,8 @@ public:
   //FILE *file_;
 
 private:
-  std::vector<input_t> NNvectorVar_;
+  std::vector<tauinput_t> NNvectorVar_;
+  std::shared_ptr<hls4mlEmulator::Model> modelRef_;
 };
 
 #endif
