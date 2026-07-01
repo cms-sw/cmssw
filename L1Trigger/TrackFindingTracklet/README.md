@@ -30,6 +30,14 @@ runs the clock and bit accurate emulation of the Hybrid chain. In the run script
 
 Apart from producing TTTrack collection as the f/w will, HybridTracksNewKF_cfg.py analyses the results. It provides a end-of-job summary, which reports data rates and tracking efficiencies at the end of each processing step. The definition of which Tracking Particles are taken into account for this efficiency measurements are described here: SimTracker/TrackTriggerAssociation/python/StubAssociator_cfi.py in the PSet StubAssociator_params.TrackingParticle. The "maximal possible tracking efficiency" reported for tracking steps part way through the chain is derived assuming zero efficiency loss in subsequent steps. This method allows to assess which processing steps cause most inefficiency. Beside this end job summary HybridTracksNewKF_cfg.py produces Hist.root which contains histograms with more details like efficiencies over certain tracking particle parameter.
 
+=== Simulation ===
+
+    cmsRun L1Trigger/TrackFindingTracklet/test/HybridTracksSim_cfg.py Events=<n>
+
+runs tracklet track finding followed by Track Processing simulation. In the run script one may want to change the used event files or tracker geometry. One can also easliy switch between prompt and extended tracking there. TTTracks produced by this contain covariance matrix elements.
+
+=== Demonstration ===
+
     cmsRun L1Trigger/TrackFindingTracklet/test/demonstrator_cfg.py Events=<n>
 
 runs the clock-and-bit-accurate emulation of the Hybrid chain, calls questasim to simulate the f/w and compares the results of both. A single bit error interrupts the run. This script is used to validate the clock and bit accurate emulation code. In L1Trigger/TrackFindingTracklet/python/Demonstrator_cfi.py one has to specify the input and output stage of the chain one wants to test, the location where the IPBB (https://ipbus.web.cern.ch/doc/user/html/firmware/ipbb-primer.html) project is located and the runtime of the f/w simulator. Additionally one needs to ensure that the system variable PATH contains the questasim executables.

@@ -1,7 +1,4 @@
 #include "L1Trigger/TrackFindingTracklet/interface/KalmanFilter.h"
-#include "L1Trigger/TrackFindingTMTT/interface/L1track3D.h"
-#include "L1Trigger/TrackFindingTMTT/interface/Stub.h"
-#include "L1Trigger/TrackFindingTMTT/interface/L1fittedTrack.h"
 
 #include <numeric>
 #include <algorithm>

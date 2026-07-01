@@ -36,15 +36,15 @@ process.load( 'L1Trigger.TrackFindingTracklet.Analyzer_cff' )
 # load code that fits hybrid tracks
 process.load( 'L1Trigger.TrackFindingTracklet.Producer_cff' )
 from L1Trigger.TrackFindingTracklet.Customize_cff import *
-simConfig( process )
-
-process.AnalyzerTracklet.InputTag = ( "l1tTTTracksFromExtendedTrackletEmulation", "Level1TTTracks" )
+# prompt + 4 param fit
+sim4Config( process )
+# extended + 5 param fit
+#sim5Config( process )
 
 # build schedule
-process.mc       = cms.Sequence( process.StubAssociator          + process.AnalyzerMC       )
-process.dtc      = cms.Sequence( process.ProducerDTC             + process.AnalyzerDTC      )
-process.tracklet = cms.Sequence( process.L1TExtendedHybridTracks + process.AnalyzerTracklet )
-process.sim      = cms.Sequence( process.ProducerSim             + process.AnalyzerSim      )
+process.mc       = cms.Sequence( process.StubAssociator + process.AnalyzerMC  )
+process.dtc      = cms.Sequence( process.ProducerDTC    + process.AnalyzerDTC )
+process.sim      = cms.Sequence( process.ProducerSim    + process.AnalyzerSim )
 process.tt       = cms.Path( process.mc + process.dtc + process.tracklet + process.sim )
 process.schedule = cms.Schedule( process.tt )
 
@@ -57,7 +57,7 @@ options = VarParsing.VarParsing( 'analysis' )
 #from MCsamples.RelVal_1260_D88.PU200_TTbar_14TeV_cfi import *
 #inputMC = getCMSdataFromCards()
 Samples = [
-  "/store/relval/CMSSW_15_1_0_pre5/RelValTTbar_14TeV_TuneCP5/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_RV269_Run4D110_PU-v2/2590000/0f0bcfd3-dafe-4dda-8d39-9765f6eae68e.root",
+  "/store/relval/CMSSW_15_1_0_pre5/RelValTTbar_14TeV_TuneCP5/GEN-SIM-DIGI-RAW/PU_150X_mcRun4_realistic_v1_RV269_Run4D110_PU-v2/2590000/0f0bcfd3-dafe-4dda-8d39-9765f6eae68e.root"
 ]
 #Samples = ["/store/trimmed.root"]
 options.register( 'inputMC', Samples, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed" )

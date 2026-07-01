@@ -24,6 +24,8 @@ namespace trklet {
     struct Config {
       //  enables emulation of truncation
       bool enableTruncation;
+      // use either 4 or 5 parameter fit in simulation
+      int simNPar;
       // barrel layer limit r value to partition into PS and 2S region
       double otLimitPSBarrel;
       // barrel layer limit r value to partition into tilted and untilted region
@@ -245,6 +247,9 @@ namespace trklet {
     bool enableTruncation() const { return config_.enableTruncation; }
     // number of frames which can be processed internally using high clock frequency
     int numFrames() const { return numFrames_; }
+
+    // use either 4 or 5 parameter fit in simulation
+    int simNPar() const { return config_.simNPar; }
 
     // number of seed Types
     int tbNumSeedTypes() const { return config_.tbNumSeedTypes; }

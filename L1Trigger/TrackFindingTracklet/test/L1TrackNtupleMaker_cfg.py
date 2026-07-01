@@ -22,7 +22,8 @@ GEOMETRY = "D110"
 # 'HYBRID' (baseline, 4par fit) or 'HYBRID_DISPLACED' (extended, 5par fit).
 # 'HYBRID_NEWKF' (baseline, 4par fit, with bit-accurate KF emulation),
 # 'HYBRID_REDUCED' to use the "L5L6" seeding only reduced configuration.
-# 'HYBRID_DISPLACED_SIM' displaced tracklet followed by DR simulation and 5 param fit sim
+# 'HYBRID_SIM' prompt tracklet track finding followed by Track Processing simulation (4 param fit)
+# 'HYBRID_SIM_DISPLACED' displaced tracklet track finding followed Track Processing simulation (5 param fit)
 # (Or legacy algos 'TMTT' or 'TRACKLET').
 L1TRKALGO = 'HYBRID'
 
@@ -207,8 +208,25 @@ elif (L1TRKALGO == 'HYBRID_NEWKF' or L1TRKALGO == 'HYBRID_REDUCED'):
     # Needed by L1TrackNtupleMaker
     process.HitPatternHelperSetup.useNewKF = True
 
-# HYBRID: extended tracking followd by 5 param fit sim
-elif (L1TRKALGO == 'HYBRID_DISPLACED_SIM'):
+# prompt tracklet track finding followed by Track Processing simulation (4 param fit)
+elif (L1TRKALGO == 'HYBRID_SIM'):
+    process.load( 'L1Trigger.TrackFindingTracklet.Producer_cff' )
+    process.load( 'L1Trigger.TrackFindingTracklet.Analyzer_cff' )
+    process.load( 'SimTracker.TrackTriggerAssociation.StubAssociator_cff' )
+    from L1Trigger.TrackFindingTracklet.Customize_cff import *
+    NHELIXPAR = 4
+    L1TRK_NAME  = "ProducerSim"
+    L1TRK_LABEL = process.TrackFindingTrackletProducer_params.BranchTTTracks.value()
+    L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigis"
+    process.TTTrackAssociatorFromPixelDigis.TTTracks = cms.VInputTag( cms.InputTag(L1TRK_NAME, L1TRK_LABEL) )
+    from L1Trigger.TrackFindingTracklet.Customize_cff import *
+    sim4Config( process )
+    process.Sim = cms.Sequence(process.L1THybridTracks + process.ProducerSim)
+    process.TTTracksEmulationWithTruth = cms.Path(process.Sim + process.TrackTriggerAssociatorTracks + process.AnalyzerTracklet + process.AnalyzerSim)
+    process.TTTracksEmulation = cms.Path(process.Sim)
+
+# displaced tracklet track finding followed Track Processing simulation (5 param fit)
+elif (L1TRKALGO == 'HYBRID_SIM_DISPLACED'):
     process.load( 'L1Trigger.TrackFindingTracklet.Producer_cff' )
     process.load( 'L1Trigger.TrackFindingTracklet.Analyzer_cff' )
     process.load( 'SimTracker.TrackTriggerAssociation.StubAssociator_cff' )
@@ -226,9 +244,9 @@ elif (L1TRKALGO == 'HYBRID_DISPLACED_SIM'):
     process.StubAssociator.MaxVertR = 10.
     process.StubAssociator.MaxVertZ = 60.
     from L1Trigger.TrackFindingTracklet.Customize_cff import *
-    simConfig( process )
+    sim5Config( process )
     process.Sim = cms.Sequence(process.L1TExtendedHybridTracks + process.ProducerSim)
-    process.TTTracksEmulationWithTruth = cms.Path(process.Sim + process.L1TExtendedHybridTracksWithAssociators + process.StubAssociator + process.AnalyzerTracklet + process.AnalyzerSim)
+    process.TTTracksEmulationWithTruth = cms.Path(process.Sim + process.L1TExtendedHybridTracksWithAssociators + process.AnalyzerTracklet + process.AnalyzerSim)
     process.TTTracksEmulation = cms.Path(process.Sim)
 
 # LEGACY ALGORITHM (EXPERTS ONLY): TRACKLET

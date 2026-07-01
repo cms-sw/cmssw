@@ -29,6 +29,8 @@ namespace trklet {
     auto cc = setWhatProduced(this);
     esGetToken_ = cc.consumes();
     config_.enableTruncation = iConfig.getParameter<bool>("EnableTruncation");
+    const edm::ParameterSet& pSetSim = iConfig.getParameter<edm::ParameterSet>("Sim");
+    config_.simNPar = pSetSim.getParameter<int>("NPar");
     const edm::ParameterSet& pSetOT = iConfig.getParameter<edm::ParameterSet>("OT");
     config_.otLimitPSBarrel = pSetOT.getParameter<double>("LimitPSBarrel");
     config_.otLimitsTiltedR = pSetOT.getParameter<std::vector<double>>("LimitsTiltedR");

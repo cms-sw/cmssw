@@ -6,6 +6,11 @@ TrackFindingTracklet_params = cms.PSet (
 
   EnableTruncation = cms.bool( True ),
 
+  # Parameter specifying simuation
+  Sim = cms.PSet (
+    NPar = cms.int32 ( 5 ), # use either 4 or 5 parameter fit in simulation
+  ),
+
   # Parameter specifying outer tracker
   OT = cms.PSet (
     LimitPSBarrel = cms.double ( 125.0 ),                              # barrel layer limit r value to partition into PS and 2S region
