@@ -3,7 +3,9 @@
 <use name="DataFormats/DetId"/>
 <use name="FWCore/Utilities"/>
 <use name="rootmathcore"/>
+<use name="alpaka"/>
 <use name="eigen"/>
+<use name="xtd"/>
 <export>
   <lib name="1"/>
 </export>
