@@ -222,26 +222,43 @@ The mutable and const views with the exact same set of columns and their paramet
 struct SoA1Layout::View;
 
 template<bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::enabled,
-         bool RANGE_CHECKING = cms::soa::RangeChecking::disabled>
+         bool RANGE_CHECKING = cms::soa::RangeChecking::enabled>
 struct SoA1Layout::ViewTemplate;
 
 template<size_t ALIGNMENT = cms::soa::CacheLineSize::defaultSize,
          bool ALIGNMENT_ENFORCEMENT = cms::soa::AlignmentEnforcement::relaxed,
          bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::enabled,
-         bool RANGE_CHECKING = cms::soa::RangeChecking::disabled>
+         bool RANGE_CHECKING = cms::soa::RangeChecking::enabled>
 struct SoA1Layout::ViewTemplateFreeParams;
 
 struct SoA1Layout::ConstView;
 
 template<bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::enabled,
-         bool RANGE_CHECKING = cms::soa::RangeChecking::disabled>
+         bool RANGE_CHECKING = cms::soa::RangeChecking::enabled>
 struct SoA1Layout::ConstViewTemplate;
 
 template<size_t ALIGNMENT = cms::soa::CacheLineSize::defaultSize,
          bool ALIGNMENT_ENFORCEMENT = cms::soa::AlignmentEnforcement::relaxed,
          bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::enabled,
-         bool RANGE_CHECKING = cms::soa::RangeChecking::disabled>
+         bool RANGE_CHECKING = cms::soa::RangeChecking::enabled>
 struct SoA1Layout::ConstViewTemplateFreeParams;
+```
+
+The trivial and const views derived from a layout use the `__restrict__` compiler hint where supported, and provide optional range checking.
+
+Range checking can also be enabled in an extended mode with `cms::soa::RangeChecking::extended` as the template parameter of a view. In this mode, `std::source_location` 
+is captured whenever an index is passed to a view, allowing out-of-bounds errors to report the originating file name and line number. 
+This additional context makes it easier to identify the exact access responsible for an out-of-bounds error, improving the debugging experience.
+Views with the extended range checking can be created like this: 
+
+```C++
+// default views with cms::soa::RestrictQualify::Default and cms::soa::RangeChecking::Default
+using SoAView = SoA::View;
+using SoAConstView = SoA::ConstView;
+
+// extended range checking to get more output when access out-of-bounds is encountered
+using SoAViewExtended = SoA::ViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::extended>;
+using SoAConstViewExtended = SoA::ConstViewTemplate<cms::soa::RestrictQualify::Default, cms::soa::RangeChecking::extended>;
 ```
 
 The SoA by blocks can be created in this way:
@@ -317,7 +334,9 @@ blocksView.scalars().energy() = 100.0f;
   directly by the module developer, orthogonally from SoA.
 - Optional (compile time) range checking validates the index of every column access, throwing an exception on the
   CPU side and forcing a segmentation fault to halt kernels. When not enabled, it has no impact on performance (code
-  not compiled)
+  not compiled). Using `RangeChecking::extended` causes a capture of the source location using `std::source_location`,
+  when an integer index is passed to access the data. When an out-of-bounds error is thrown, this leads to more information
+  in the error message, including the file name and line number where the out-of-bounds index was passed to the SoA.
 - Eigen columns are also suported, with both const and non-const flavors.
 - ROOT serialization and deserialization is supported. In CMSSW, it is planned to be used through the memory
   managing `PortableCollection` family of classes.
