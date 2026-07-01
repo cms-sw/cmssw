@@ -8,7 +8,6 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 cmsRun ${LOCAL_TEST_DIR}/EventSetupTest_cfg.py || die 'Failed in EventSetupTest_cfg.py' $?
 cmsRun ${LOCAL_TEST_DIR}/EventSetupAppendLabelTest_cfg.py || die 'Failed in EventSetupAppendLabelTest_cfg.py' $?
 cmsRun ${LOCAL_TEST_DIR}/EventSetupTest2_cfg.py || die 'Failed in EventSetupTest2_cfg.py' $?
-cmsRun ${LOCAL_TEST_DIR}/EventSetupForceCacheClearTest_cfg.py || die 'Failed in EventSetupForceCacheClearTest_cfg.py' $?
 
 echo testESProductHost
 cmsRun ${LOCAL_TEST_DIR}/ESProductHostTest_cfg.py || die 'Failed in ESProductHostTest_cfg.py' $?

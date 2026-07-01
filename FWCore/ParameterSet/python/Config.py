@@ -241,7 +241,7 @@ class Process(object):
                               accelerators = untracked.vstring('*'),
                               wantSummary = untracked.bool(False),
                               fileMode = untracked.string('FULLMERGE'),
-                              forceEventSetupCacheClearOnNewRun = untracked.bool(False),
+                              forceEventSetupCacheClearOnNewRun = obsolete.untracked.bool,
                               throwIfIllegalParameter = untracked.bool(True),
                               printDependencies = untracked.bool(False),
                               deleteNonConsumedUnscheduledModules = untracked.bool(True),
@@ -2225,7 +2225,7 @@ process.options = cms.untracked.PSet(
         numberOfConcurrentIOVs = cms.untracked.uint32(0)
     ),
     fileMode = cms.untracked.string('FULLMERGE'),
-    forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
+    forceEventSetupCacheClearOnNewRun = cms.obsolete.untracked.bool,
     holdsReferencesToDeleteEarly = cms.untracked.VPSet(),
     makeTriggerResults = cms.obsolete.untracked.bool,
     modulesToCallForTryToContinue = cms.untracked.vstring(),
@@ -3833,7 +3833,7 @@ process.options = cms.untracked.PSet(
         numberOfConcurrentIOVs = cms.untracked.uint32(0)
     ),
     fileMode = cms.untracked.string('FULLMERGE'),
-    forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
+    forceEventSetupCacheClearOnNewRun = cms.obsolete.untracked.bool,
     holdsReferencesToDeleteEarly = cms.untracked.VPSet(),
     makeTriggerResults = cms.obsolete.untracked.bool,
     modulesToCallForTryToContinue = cms.untracked.vstring(),
