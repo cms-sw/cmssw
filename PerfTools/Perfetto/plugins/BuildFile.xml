@@ -1,0 +1,13 @@
+<use name="PerfTools/Perfetto"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<use name="sockets"/>
+<iftool name="cuda">
+  <use name="cuda"/>
+  <use name="cupti"/>
+  <flags CPPDEFINES="PERFETTO_HAS_CUPTI"/>
+</iftool>
+<flags EDM_PLUGIN="1"/>

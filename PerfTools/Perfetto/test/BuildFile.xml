@@ -1,0 +1,13 @@
+<bin name="testPerfettoAllocator" file="alpaka/testPerfettoAllocator.dev.cc">
+  <use name="alpaka"/>
+  <use name="catch2"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="PerfTools/Perfetto"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
+<bin name="testPerfettoTrace" file="testPerfettoTrace.cpp">
+  <use name="catch2"/>
+  <use name="PerfTools/Perfetto"/>
+</bin>
