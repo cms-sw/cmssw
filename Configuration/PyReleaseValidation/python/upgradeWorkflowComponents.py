@@ -1513,6 +1513,27 @@ upgradeWFs['PatatrackPixelOnlyAlpakaCAExtension'] = PatatrackWorkflow(
     offset = 0.4021,
 )
 
+# Pixel-only quadruplets with CA Extension and recHit masking workflow running on GPU (optional)
+#  - Pixel-only with CA Extension and recHit masking reconstruction with Alpaka, with DQM and validation
+#  - harvesting
+
+upgradeWFs['PatatrackPixelOnlyAlpakaCAExtensionMask'] = PatatrackWorkflow(
+    digi = {
+        '--procModifiers': 'allPixelTrackMask',
+        '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+        '--procModifiers': 'allPixelTrackMask',
+        '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
+    },
+    harvest = {
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+    },
+    suffix = 'Patatrack_PixelOnlyAlpakaCAExtensionMask',
+    offset = 0.4022,
+)
+
 # Pixel-only quadruplets workflow running on GPU (optional)
 #  - Pixel-only reconstruction with Alpaka, with standard and CPUvsGPU DQM and validation
 #  - harvesting for CPUvsGPU validation

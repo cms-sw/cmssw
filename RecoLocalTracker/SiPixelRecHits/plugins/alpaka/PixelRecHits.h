@@ -220,6 +220,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     };
 
+    class LaunchZerosPixelMask {
+    public:
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc, ::reco::TrackingRecHitsMaskingView mask) const {
+        for (uint32_t ic : cms::alpakatools::independent_group_elements(acc, mask.metadata().size())) {
+          assert(ic < (uint32_t)mask.metadata().size());
+          mask[ic].recHitMask() = 0;
+        }
+        alpaka::syncBlockThreads(acc);
+      }
+    };
+
   }  // namespace pixelRecHits
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 

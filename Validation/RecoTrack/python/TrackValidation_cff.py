@@ -1084,6 +1084,22 @@ PixelVertexAssociatorByPositionAndTracks = VertexAssociatorByPositionAndTracks.c
     trackAssociation = "trackingParticlePixelTrackAsssociation"
 )
 
+trackingParticleHighPtPixelTrackAsssociation = trackingParticleRecoTrackAsssociation.clone(
+    label_tr = "pixelTracksHighPt",
+    associator = "quickTrackAssociatorByHitsPreSplitting",
+)
+PixelVertexAssociatorByPositionAndHighPtTracks = VertexAssociatorByPositionAndTracks.clone(
+    trackAssociation = "trackingParticleHighPtPixelTrackAsssociation"
+)
+
+trackingParticleLowPtPixelTrackAsssociation = trackingParticleRecoTrackAsssociation.clone(
+    label_tr = "pixelTracksLowPt",
+    associator = "quickTrackAssociatorByHitsPreSplitting",
+)
+PixelVertexAssociatorByPositionAndLowPtTracks = VertexAssociatorByPositionAndTracks.clone(
+    trackAssociation = "trackingParticleLowPtPixelTrackAsssociation"
+)
+
 _pixelTracksCustom = dict(
     src = "pixelTracks",
     vertexTag = "pixelVertices",
@@ -1135,6 +1151,34 @@ trackValidatorPixelTrackingOnly = trackValidator.clone(
     cores = "" 
 )
 
+trackValidatorHighPtPixelTrackingOnly = trackValidator.clone(
+    dirName = "Tracking/PixelTrack/",
+    label = [
+        "pixelTracksHighPt",
+    ],
+    doResolutionPlotsForLabels = [],
+    trackCollectionForDrCalculation = "pixelTracksHighPt",
+    associators = ["trackingParticleHighPtPixelTrackAsssociation"],
+    label_vertex = "pixelVertices",
+    vertexAssociator = "PixelVertexAssociatorByPositionAndHighPtTracks",
+    dodEdxPlots = False,
+    cores = "" 
+)
+
+trackValidatorLowPtPixelTrackingOnly = trackValidator.clone(
+    dirName = "Tracking/PixelTrack/",
+    label = [
+        "pixelTracksLowPt",
+    ],
+    doResolutionPlotsForLabels = [],
+    trackCollectionForDrCalculation = "pixelTracksLowPt",
+    associators = ["trackingParticleLowPtPixelTrackAsssociation"],
+    label_vertex = "pixelVertices",
+    vertexAssociator = "PixelVertexAssociatorByPositionAndLowPtTracks",
+    dodEdxPlots = False,
+    cores = "" 
+)
+
 trackValidatorFromPVPixelTrackingOnly = trackValidatorPixelTrackingOnly.clone(
     dirName = "Tracking/PixelTrackFromPV/",
     label = [
@@ -1179,6 +1223,10 @@ trackValidatorBHadronPixelTrackingOnly = trackValidatorPixelTrackingOnly.clone(
 tracksValidationTruthPixelTrackingOnly = tracksValidationTruth.copy()
 tracksValidationTruthPixelTrackingOnly.replace(trackingParticleRecoTrackAsssociation, trackingParticlePixelTrackAsssociation)
 tracksValidationTruthPixelTrackingOnly.replace(VertexAssociatorByPositionAndTracks, PixelVertexAssociatorByPositionAndTracks)
+tracksValidationTruthPixelTrackingOnly.add(trackingParticleHighPtPixelTrackAsssociation)
+tracksValidationTruthPixelTrackingOnly.add(PixelVertexAssociatorByPositionAndHighPtTracks)
+tracksValidationTruthPixelTrackingOnly.add(trackingParticleLowPtPixelTrackAsssociation)
+tracksValidationTruthPixelTrackingOnly.add(PixelVertexAssociatorByPositionAndLowPtTracks)
 tracksValidationTruthPixelTrackingOnly.add(trackingParticlesBHadron)
 tracksValidationTruthPixelTrackingOnly.add( pixelTracks3hits )
 tracksValidationTruthPixelTrackingOnly.add( pixelTracks4hits )
@@ -1240,6 +1288,8 @@ for key,value in quality.items():
      
 tracksValidationPixelTrackingOnly = cms.Sequence(
     trackValidatorPixelTrackingOnly +
+    trackValidatorHighPtPixelTrackingOnly +
+    trackValidatorLowPtPixelTrackingOnly +
     trackValidatorFromPVPixelTrackingOnly +
     trackValidatorFromPVAllTPPixelTrackingOnly +
     trackValidatorBHadronPixelTrackingOnly,
