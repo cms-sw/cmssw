@@ -68,7 +68,7 @@ namespace edm {
     void EventSetupsController::finishConfiguration() {
       if (mustFinishConfiguration_) {
         numberOfConcurrentIOVs_.fillRecordsNotAllowingConcurrentIOVs(*provider_);
-        provider_->finishConfiguration(numberOfConcurrentIOVs_, hasNonconcurrentFinder_);
+        provider_->finishConfiguration(numberOfConcurrentIOVs_);
         provider_->clearInitializationData();
         provider_->updateLookup();
 
@@ -110,7 +110,7 @@ namespace edm {
               task.doneWaiting(std::current_exception());
             }
           };
-      if (doWeNeedToWaitForIOVsToFinish(iSync) || iForceCacheClear) {
+      if (iForceCacheClear) {
         // We get inside this block if there is an EventSetup
         // module not able to handle concurrent IOVs (usually an ESSource)
         // and the new sync value is outside the current IOV of that module.
@@ -150,15 +150,6 @@ namespace edm {
       for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
         eventSetupRecordIOVQueue->checkForNewIOVs(taskToStartAfterIOVInit, endIOVWaitingTasks, newEventSetupImpl);
       }
-    }
-
-    bool EventSetupsController::doWeNeedToWaitForIOVsToFinish(IOVSyncValue const& syncValue) const {
-      if (hasNonconcurrentFinder()) {
-        if (provider_->doWeNeedToWaitForIOVsToFinish(syncValue)) {
-          return true;
-        }
-      }
-      return false;
     }
 
     void EventSetupsController::forceCacheClear() { provider_->forceCacheClear(); }

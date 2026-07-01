@@ -50,8 +50,6 @@ public:
     return counter_ == 2 ? kStop : kContinue;
   }
 
-  bool isConcurrentFinder() const final { return true; }
-
 private:
   // ----------member data ---------------------------
   ConstReturnType data() const { return get_underlying_safe(data_); }

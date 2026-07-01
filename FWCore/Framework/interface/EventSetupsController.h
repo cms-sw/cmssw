@@ -92,11 +92,8 @@ namespace edm {
                                       WaitingTaskList& endIOVWaitingTasks,
                                       std::shared_ptr<const EventSetupImpl>&);
 
-      bool doWeNeedToWaitForIOVsToFinish(IOVSyncValue const&) const;
-
       void forceCacheClear();
 
-      bool hasNonconcurrentFinder() const { return hasNonconcurrentFinder_; }
       bool mustFinishConfiguration() const { return mustFinishConfiguration_; }
 
     private:
@@ -112,7 +109,6 @@ namespace edm {
 
       ModuleTypeResolverMaker const* typeResolverMaker_ = nullptr;
 
-      bool hasNonconcurrentFinder_ = false;
       bool mustFinishConfiguration_ = true;
     };
 
