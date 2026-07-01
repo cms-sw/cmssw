@@ -174,7 +174,7 @@ public:
 
   /// Printout
   constexpr std::string detType() const {
-    return ((det() == HGCalEE) ? "EE" : ((det() == HGCalHSi) ? "HESil" : "Unknown"));
+    return ((det() == HGCalEE) ? "EE" : ((det() == HGCalHSi) ? "HSi" : "Unknown"));
   }
   void print(std::ostream& s) const {
     s << " HGCSiliconDetId::EE:HE= " << isEE() << ":" << isHE() << " type= " << type() << " z= " << zside()
