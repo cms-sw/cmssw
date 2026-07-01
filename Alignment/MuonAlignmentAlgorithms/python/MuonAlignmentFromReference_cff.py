@@ -14,9 +14,10 @@ from TrackingTools.TrackRefitter.globalMuonTrajectories_cff import *
 MuonAlignmentFromReferenceGlobalMuonRefit = globalMuons.clone()
 MuonAlignmentFromReferenceGlobalMuonRefit.Tracks = cms.InputTag("ALCARECOMuAlCalIsolatedMu:GlobalMuon")
 MuonAlignmentFromReferenceGlobalMuonRefit.TrackTransformer.RefitRPCHits = cms.bool(False)
+MuonAlignmentFromReferenceGlobalMuonRefit.TrackTransformer.RefitMuonHits = cms.bool(False)
 
 ### Track refitter for global cosmic muons
-from TrackingTools.TrackRefitter.globalCosmicMuonTrajectories_cff import *
+# from TrackingTools.TrackRefitter.globalCosmicMuonTrajectories_cff import *
 #MuonAlignmentFromReferenceGlobalCosmicRefit = globalCosmicMuons.clone()
 #MuonAlignmentFromReferenceGlobalCosmicRefit.Tracks = cms.InputTag("ALCARECOMuAlGlobalCosmics:GlobalMuon")
 #MuonAlignmentFromReferenceGlobalCosmicRefit.TrackTransformer.RefitRPCHits = cms.bool(False)
@@ -52,16 +53,20 @@ looper.algoConfig = MuonAlignmentFromReference
 MuonAlignmentFromReferenceTFileService = cms.Service("TFileService", fileName = cms.string("MuonAlignmentFromReference.root"))
 
 ### Input geometry database
+from CondCore.CondDB.CondDB_cfi import *
+CondDBSetup = CondDB.clone()
+CondDBSetup.__delattr__('connect')
 looper.applyDbAlignment = cms.untracked.bool(True)
-from CondCore.DBCommon.CondDBSetup_cfi import *
+
 MuonAlignmentFromReferenceInputDB = cms.ESSource("PoolDBESSource",
                                                   CondDBSetup,
                                                   connect = cms.string("sqlite_file:MuonAlignmentFromReference_inputdb.db"),
                                                   toGet = cms.VPSet(cms.PSet(record = cms.string("DTAlignmentRcd"), tag = cms.string("DTAlignmentRcd")),
                                                                     cms.PSet(record = cms.string("DTAlignmentErrorExtendedRcd"), tag = cms.string("DTAlignmentErrorExtendedRcd")),
                                                                     cms.PSet(record = cms.string("CSCAlignmentRcd"), tag = cms.string("CSCAlignmentRcd")),
-                                                                    cms.PSet(record = cms.string("CSCAlignmentErrorExtendedRcd"), tag = cms.string("CSCAlignmentErrorExtendedRcd"))))
-es_prefer_MuonAlignmentFromReferenceInputDB = cms.ESPrefer("PoolDBESSource", "MuonAlignmentFromReferenceInputDB")
+                                                                    cms.PSet(record = cms.string("CSCAlignmentErrorExtendedRcd"), tag = cms.string("CSCAlignmentErrorExtendedRcd")),
+                                                                    cms.PSet(record = cms.string("GEMAlignmentRcd"), tag = cms.string("GEMAlignmentRcd")),
+                                                                    cms.PSet(record = cms.string("GEMAlignmentErrorExtendedRcd"), tag = cms.string("GEMAlignmentErrorExtendedRcd"))))
 
 ### Output geometry database
 looper.saveToDB = cms.bool(True)
@@ -72,4 +77,6 @@ PoolDBOutputService = cms.Service("PoolDBOutputService",
                                   toPut = cms.VPSet(cms.PSet(record = cms.string("DTAlignmentRcd"), tag = cms.string("DTAlignmentRcd")),
                                                     cms.PSet(record = cms.string("DTAlignmentErrorExtendedRcd"), tag = cms.string("DTAlignmentErrorExtendedRcd")),
                                                     cms.PSet(record = cms.string("CSCAlignmentRcd"), tag = cms.string("CSCAlignmentRcd")),
-                                                    cms.PSet(record = cms.string("CSCAlignmentErrorExtendedRcd"), tag = cms.string("CSCAlignmentErrorExtendedRcd"))))
+                                                    cms.PSet(record = cms.string("CSCAlignmentErrorExtendedRcd"), tag = cms.string("CSCAlignmentErrorExtendedRcd")),
+                                                    cms.PSet(record = cms.string("GEMAlignmentRcd"), tag = cms.string("GEMAlignmentRcd")),
+                                                    cms.PSet(record = cms.string("GEMAlignmentErrorExtendedRcd"), tag = cms.string("GEMAlignmentErrorExtendedRcd"))))
