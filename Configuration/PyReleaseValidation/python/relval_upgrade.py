@@ -45,13 +45,15 @@ for year in upgradeKeys:
                             step = 'GenSimHLBeamSpotCloseBy'
                     elif 'CloseBy' in frag or 'CE_E' in frag or 'CE_H' in frag:
                         step = 'GenSimCloseBy'
+                    elif 'Displaced' in frag:
+                        step = 'GenSimDisplaced'
                     stepMaker = makeStepNameSim
                 elif 'Gen' in step:
                     if 'HLBeamSpot' in step:
                         if '14TeV' in frag:
                             step = 'GenHLBeamSpot14'
                     stepMaker = makeStepNameSim
-                
+
                 if 'HARVEST' in step: hasHarvest = True
                 for specialType,specialWF in upgradeWFs.items():
                     if notForGenOnly(key,specialType): ## we don't need all the flavors for the GEN
