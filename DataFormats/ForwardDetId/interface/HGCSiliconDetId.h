@@ -173,11 +173,16 @@ public:
   constexpr bool isForward() const { return true; }
 
   /// Printout
-  constexpr std::string detType() const { return ((det() == HGCalEE) ? "EE" : ((det() == HGCalHSi) ? "HESil" : "Unknown")); }
-  void print(std::ostream& s) const {
-    s << " HGCSiliconDetId::EE:HE= " << isEE() << ":" << isHE() << " type= " << type() << " z= " << zside() << " layer= " << layer() << " wafer(u,v:x,y)= (" << waferU() << "," << waferV() << ":" << waferX() << "," << waferY() << ")" << " cell(u,v:x,y)= (" << cellU() << "," << cellV() << ":" << cellX() << "," << cellY() << ")\n";
+  constexpr std::string detType() const {
+    return ((det() == HGCalEE) ? "EE" : ((det() == HGCalHSi) ? "HESil" : "Unknown"));
   }
-  
+  void print(std::ostream& s) const {
+    s << " HGCSiliconDetId::EE:HE= " << isEE() << ":" << isHE() << " type= " << type() << " z= " << zside()
+      << " layer= " << layer() << " wafer(u,v:x,y)= (" << waferU() << "," << waferV() << ":" << waferX() << ","
+      << waferY() << ")" << " cell(u,v:x,y)= (" << cellU() << "," << cellV() << ":" << cellX() << "," << cellY()
+      << ")\n";
+  }
+
   static const HGCSiliconDetId Undefined;
 
 public:
@@ -201,7 +206,7 @@ public:
   static constexpr uint32_t kHGCalTypeMask = 0x3;
 
 private:
-  static constexpr std::string waferTypes[4] = {"HD120", "LD200", "LD300","HD200"};
+  static constexpr std::string waferTypes[4] = {"HD120", "LD200", "LD300", "HD200"};
 };
 
 std::ostream& operator<<(std::ostream&, const HGCSiliconDetId& id);
