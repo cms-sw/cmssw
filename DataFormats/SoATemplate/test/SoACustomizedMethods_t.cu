@@ -24,6 +24,15 @@ __global__ void checkNormalise(SoAView soaView, double* checkTimesFunction) {
   soaView[i].normalise();
 }
 
+__global__ void checkPointsDistance(PointsConstView view, bool* result) { *result &= (view.distance2(0, 1) == 14.f); }
+
+__global__ void checkPointsPositionUpdate(PointsView view, float time, bool* result) {
+  view.update_position(0, time);
+  *result &= (view.position()[0].x() == 2.5f);
+  *result &= (view.position()[0].y() == 5.5f);
+  *result &= (view.position()[0].z() == 5.5f);
+}
+
 TEST_CASE("SoACustomizedMethods CUDA", "[SoACustomizedMethods][cuda]") {
   // common number of elements for the SoAs
   const std::size_t elems = 10;
@@ -69,7 +78,7 @@ TEST_CASE("SoACustomizedMethods CUDA", "[SoACustomizedMethods][cuda]") {
   // Host → Device copy
   cudaCheck(cudaMemcpy(d_buf, h_buf, bufferSize, cudaMemcpyHostToDevice));
 
-  SECTION("ConstView methods CUDA") {
+  SECTION("ConstElement methods CUDA") {
     calculateNorm<<<(elems + 255) / 256, 256>>>(d_Constview, d_position_norms, d_velocity_norms);
 
     cudaCheck(cudaMemcpy(h_position_norms.data(), d_position_norms, elems * sizeof(float), cudaMemcpyDeviceToHost));
@@ -88,7 +97,7 @@ TEST_CASE("SoACustomizedMethods CUDA", "[SoACustomizedMethods][cuda]") {
     }
   }
 
-  SECTION("View methods CUDA") {
+  SECTION("Element methods CUDA") {
     std::array<double, elems> times;
 
     // Check for the correctness of the time() function
@@ -116,10 +125,55 @@ TEST_CASE("SoACustomizedMethods CUDA", "[SoACustomizedMethods][cuda]") {
     }
   }
 
+  const auto points_sizes = std::array<cms::soa::size_type, 2>{{2, 2}};
+  const std::size_t blocksBufferSize = Points::computeDataSize(points_sizes);
+
+  std::byte* points_buffer_host = nullptr;
+  cudaCheck(cudaMallocHost(&points_buffer_host, blocksBufferSize));
+
+  Points h_points(points_buffer_host, points_sizes);
+  PointsView h_points_view{h_points};
+  h_points_view.position()[0].x() = 2.f;
+  h_points_view.position()[0].y() = 4.f;
+  h_points_view.position()[0].z() = 3.f;
+  h_points_view.position()[1].x() = 1.f;
+  h_points_view.position()[1].y() = 1.f;
+  h_points_view.position()[1].z() = 1.f;
+  h_points_view.velocity()[0].vx() = 1.f;
+  h_points_view.velocity()[0].vy() = 3.f;
+  h_points_view.velocity()[0].vz() = 5.f;
+
+  std::byte* points_buffer_device = nullptr;
+  cudaCheck(cudaMalloc(&points_buffer_device, blocksBufferSize));
+
+  Points d_points(points_buffer_device, points_sizes);
+  PointsView d_points_view{d_points};
+  PointsConstView d_points_const_view{d_points};
+
+  cudaCheck(cudaMemcpy(points_buffer_device, points_buffer_host, blocksBufferSize, cudaMemcpyHostToDevice));
+
+  bool* d_result = nullptr;
+  cudaCheck(cudaMalloc(&d_result, sizeof(bool)));
+  cudaCheck(cudaMemset(d_result, 1, sizeof(bool)));
+
+  SECTION("View methods") { checkPointsDistance<<<1, 1>>>(d_points_const_view, d_result); }
+
+  SECTION("ConstView methods") {
+    const auto time = .5f;
+    checkPointsPositionUpdate<<<1, 1>>>(d_points_view, time, d_result);
+  }
+
+  bool h_result;
+  cudaCheck(cudaMemcpy(&h_result, d_result, sizeof(bool), cudaMemcpyDeviceToHost));
+  REQUIRE(h_result);
+
   // ===== cleanup =====
   cudaCheck(cudaFree(d_position_norms));
   cudaCheck(cudaFree(d_velocity_norms));
   cudaCheck(cudaFree(d_times));
   cudaCheck(cudaFree(d_buf));
+  cudaCheck(cudaFree(points_buffer_device));
+  cudaCheck(cudaFree(d_result));
   cudaCheck(cudaFreeHost(h_buf));
+  cudaCheck(cudaFreeHost(points_buffer_host));
 }

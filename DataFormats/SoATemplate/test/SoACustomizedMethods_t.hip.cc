@@ -26,6 +26,15 @@ __global__ void checkNormalise(SoAView soaView, double* checkTimesFunction) {
   soaView[i].normalise();
 }
 
+__global__ void checkPointsDistance(PointsConstView view, bool* result) { *result &= (view.distance2(0, 1) == 14.f); }
+
+__global__ void checkPointsPositionUpdate(PointsView view, float time, bool* result) {
+  view.update_position(0, time);
+  *result &= (view.position()[0].x() == 2.5f);
+  *result &= (view.position()[0].y() == 5.5f);
+  *result &= (view.position()[0].z() == 5.5f);
+}
+
 TEST_CASE("SoACustomizedMethods hip", "[SoACustomizedMethods][hip]") {
   // common number of elements for the SoAs
   const std::size_t elems = 10;
@@ -71,7 +80,7 @@ TEST_CASE("SoACustomizedMethods hip", "[SoACustomizedMethods][hip]") {
   // Host → Device copy
   hipCheck(hipMemcpy(d_buf, h_buf, bufferSize, hipMemcpyHostToDevice));
 
-  SECTION("ConstView methods HIP") {
+  SECTION("ConstElement methods HIP") {
     calculateNorm<<<(elems + 255) / 256, 256>>>(d_Constview, d_position_norms, d_velocity_norms);
 
     hipCheck(hipMemcpy(h_position_norms.data(), d_position_norms, elems * sizeof(float), hipMemcpyDeviceToHost));
@@ -90,7 +99,7 @@ TEST_CASE("SoACustomizedMethods hip", "[SoACustomizedMethods][hip]") {
     }
   }
 
-  SECTION("View methods HIP") {
+  SECTION("Element methods HIP") {
     std::array<double, elems> times;
 
     // Check for the correctness of the time() function
@@ -118,10 +127,55 @@ TEST_CASE("SoACustomizedMethods hip", "[SoACustomizedMethods][hip]") {
     }
   }
 
+  const auto points_sizes = std::array<cms::soa::size_type, 2>{{2, 2}};
+  const std::size_t blocksBufferSize = Points::computeDataSize(points_sizes);
+
+  std::byte* points_buffer_host = nullptr;
+  hipCheck(hipHostMalloc(&points_buffer_host, blocksBufferSize));
+
+  Points h_points(points_buffer_host, points_sizes);
+  PointsView h_points_view{h_points};
+  h_points_view.position()[0].x() = 2.f;
+  h_points_view.position()[0].y() = 4.f;
+  h_points_view.position()[0].z() = 3.f;
+  h_points_view.position()[1].x() = 1.f;
+  h_points_view.position()[1].y() = 1.f;
+  h_points_view.position()[1].z() = 1.f;
+  h_points_view.velocity()[0].vx() = 1.f;
+  h_points_view.velocity()[0].vy() = 3.f;
+  h_points_view.velocity()[0].vz() = 5.f;
+
+  std::byte* points_buffer_device = nullptr;
+  hipCheck(hipMalloc(&points_buffer_device, blocksBufferSize));
+
+  Points d_points(points_buffer_device, points_sizes);
+  PointsView d_points_view{d_points};
+  PointsConstView d_points_const_view{d_points};
+
+  hipCheck(hipMemcpy(points_buffer_device, points_buffer_host, blocksBufferSize, hipMemcpyHostToDevice));
+
+  bool* d_result = nullptr;
+  hipCheck(hipMalloc(&d_result, sizeof(bool)));
+  hipCheck(hipMemset(d_result, 1, sizeof(bool)));
+
+  SECTION("View methods") { checkPointsDistance<<<1, 1>>>(d_points_const_view, d_result); }
+
+  SECTION("ConstView methods") {
+    const auto time = .5f;
+    checkPointsPositionUpdate<<<1, 1>>>(d_points_view, time, d_result);
+  }
+
+  bool h_result;
+  hipCheck(hipMemcpy(&h_result, d_result, sizeof(bool), hipMemcpyDeviceToHost));
+  REQUIRE(h_result);
+
   // ===== cleanup =====
   hipCheck(hipFree(d_position_norms));
   hipCheck(hipFree(d_velocity_norms));
   hipCheck(hipFree(d_times));
   hipCheck(hipFree(d_buf));
+  hipCheck(hipFree(points_buffer_device));
+  hipCheck(hipFree(d_result));
   hipCheck(hipFreeHost(h_buf));
+  hipCheck(hipFreeHost(points_buffer_host));
 }
