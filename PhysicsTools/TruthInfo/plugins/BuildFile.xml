@@ -1,0 +1,123 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="PhysicsTools/TruthInfo"/>
+<use name="SimDataFormats/TruthInfo"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/Vertex"/>
+
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="hepmc"/>
+<use name="hepmc3"/>
+
+<use name="clhep"/>
+<use name="dd4hep"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/ForwardDetId"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/CaloTopology"/>
+<use name="Geometry/HGCalCommonData"/>
+<use name="Geometry/HGCalGeometry"/>
+<use name="Geometry/HcalCommonData"/>
+<use name="Geometry/HcalTowerAlgo"/>
+<use name="Geometry/Records"/>
+<use name="SimDataFormats/CaloHit"/>
+<use name="SimDataFormats/CaloTest"/>
+<use name="SimDataFormats/CaloAnalysis"/>
+<use name="SimDataFormats/EncodedEventId"/>
+<use name="DataFormats/FTLRecHit"/>
+
+<use name="RecoLocalCalo/HGCalRecAlgos"/>
+<use name="DataFormats/NanoAOD"/>
+<use name="DataFormats/ParticleFlowReco"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/CommonTopologies"/>
+
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/TrackingRecHit"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="DataFormats/HGCalReco"/>
+<use name="DataFormats/CaloRecHit"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="SimTracker/TrackAssociation"/>
+<use name="SimTracker/TrackerHitAssociation"/>
+<use name="SimDataFormats/CrossingFrame"/>
+<use name="SimGeneral/MixingModule"/>
+
+<use name="DQMServices/Core"/>
+<use name="SimDataFormats/Associations"/>
+
+<library file="TruthGraphProducer.cc" name="TruthGraphProducerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="TruthGraphMixedProducer.cc" name="TruthGraphMixedProducerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="TruthGraphAccumulator.cc" name="TruthGraphAccumulatorPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="TruthGraphDumper.cc" name="TruthGraphDumpPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="TruthLogicalGraphProducer.cc" name="TruthLogicalGraphPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="TruthLogicalGraphDumper.cc" name="TruthLogicalGraphDumpPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="LogicalGraphHitIndexProducer.cc" name="LogicalGraphHitIndexProducerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="RecHitFlatTableProducer.cc" name="RecHitFlatTableProducerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="PFRecHitFlatTableProducer.cc" name="PFRecHitFlatTableProducerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="TrackerSimHitFlatTableProducer.cc" name="TrackerSimHitFlatTableProducerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="BranchTruthReplacementValidator.cc" name="BranchTruthReplacementValidatorPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="BranchTrackerReplacementValidator.cc" name="BranchTrackerReplacementValidatorPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="BranchHGCalValidator.cc" name="BranchHGCalValidatorPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="TruthBranchCaloAssociationProducer.cc" name="TruthBranchCaloAssociationProducerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="TruthBranchTrackingAssociationProducer.cc" name="TruthBranchTrackingAssociationProducerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="BranchTrackingValidator.cc" name="BranchTrackingValidatorPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="BranchRecoValidator.cc" name="BranchRecoValidatorPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="TruthGraphTopologyChecker.cc" name="TruthGraphTopologyCheckerPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
