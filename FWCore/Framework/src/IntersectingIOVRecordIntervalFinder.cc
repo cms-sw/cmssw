@@ -73,25 +73,5 @@ namespace edm {
         finder->resetInterval(key);
       }
     }
-
-    bool IntersectingIOVRecordIntervalFinder::isConcurrentFinder() const {
-      for (auto const& finder : finders_) {
-        if (!finder->concurrentFinder()) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    bool IntersectingIOVRecordIntervalFinder::isNonconcurrentAndIOVNeedsUpdate(const EventSetupRecordKey& iKey,
-                                                                               const IOVSyncValue& iTime) const {
-      for (auto const& finder : finders_) {
-        if (finder->nonconcurrentAndIOVNeedsUpdate(iKey, iTime)) {
-          return true;
-        }
-      }
-      return false;
-    }
-
   }  // namespace eventsetup
 }  // namespace edm

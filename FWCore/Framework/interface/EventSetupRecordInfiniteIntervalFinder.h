@@ -36,8 +36,6 @@ namespace edm {
     void setIntervalFor(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&, ValidityInterval& oIOV) final {
       oIOV = edm::ValidityInterval(IOVSyncValue::beginOfTime(), IOVSyncValue::endOfTime());
     }
-
-    bool isConcurrentFinder() const final { return true; }
   };
 
 }  // namespace edm

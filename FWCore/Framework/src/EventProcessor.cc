@@ -249,8 +249,7 @@ namespace edm {
         exceptionMessageRuns_(false),
         exceptionMessageLumis_(false),
         forceLooperToEnd_(false),
-        looperBeginJobRun_(false),
-        forceESCacheClearOnNewRun_(false) {
+        looperBeginJobRun_(false) {
     auto processDesc = std::make_shared<ProcessDesc>(std::move(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, iToken, iLegacy);
@@ -284,8 +283,7 @@ namespace edm {
         exceptionMessageRuns_(false),
         exceptionMessageLumis_(false),
         forceLooperToEnd_(false),
-        looperBeginJobRun_(false),
-        forceESCacheClearOnNewRun_(false) {
+        looperBeginJobRun_(false) {
     auto processDesc = std::make_shared<ProcessDesc>(std::move(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
     init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
@@ -319,8 +317,7 @@ namespace edm {
         exceptionMessageRuns_(false),
         exceptionMessageLumis_(false),
         forceLooperToEnd_(false),
-        looperBeginJobRun_(false),
-        forceESCacheClearOnNewRun_(false) {
+        looperBeginJobRun_(false) {
     init(processDesc, token, legacy);
   }
 
@@ -352,7 +349,6 @@ namespace edm {
     } else {
       fileModeNoMerge_ = (fileMode == "NOMERGE");
     }
-    forceESCacheClearOnNewRun_ = optionsPset.getUntrackedParameter<bool>("forceEventSetupCacheClearOnNewRun");
     ensureAvailableAccelerators(*parameterSet);
 
     //threading
@@ -705,13 +701,6 @@ namespace edm {
       actReg_->preEventSetupConfigurationFinalizedSignal_.emit();
       auto guard = makeGuard([this]() { actReg_->postEventSetupConfigurationFinalizedSignal_.emit(); });
       espController_->finishConfiguration();
-    }
-    if (espController_->hasNonconcurrentFinder() and preallocations_.numberOfThreads() > 1) {
-      throw edm::Exception(edm::errors::Configuration, "Non-concurrent ESSource")
-          << "The EventSetup configuration contains a non-concurrent ESSource. "
-             "This will limit the number of threads allowed in the job to 1. Either \n"
-             " - see if the ESSource can be made conccurent or \n"
-             " - set the numberOfThreads in the configuration to 1.";
     }
     eventsetup::ESRecordsToProductResolverIndices esRecordsToProductResolverIndices = esp_->recordsToResolverIndices();
 
@@ -1133,14 +1122,9 @@ namespace edm {
   }
 
   namespace {
-    void releaseBeginRunResourcesAfterFailure(RunProcessingStatus& iStatus, edm::SerialTaskQueue& iQueue) {
+    void releaseBeginRunResourcesAfterFailure(RunProcessingStatus& iStatus) { iStatus.resetBeginResources(); }
+    void releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(RunProcessingStatus& iStatus) {
       iStatus.resetBeginResources();
-      iQueue.resume();
-    }
-    void releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(RunProcessingStatus& iStatus,
-                                                                     edm::SerialTaskQueue& iQueue) {
-      iStatus.resetBeginResources();
-      iQueue.resume();
       iStatus.resumeGlobalRunQueue();
     }
   }  // namespace
@@ -1172,10 +1156,8 @@ namespace edm {
                                                            nextTask,
                                                            runStatus->endIOVWaitingTasks(),
                                                            runStatus->eventSetupImplPtr(),
-                                                           queueWhichWaitsForIOVsToFinish_,
                                                            actReg_.get(),
-                                                           serviceToken_,
-                                                           forceESCacheClearOnNewRun_);
+                                                           serviceToken_);
     }) | chain::then([this, runStatus, iRunAux](std::exception_ptr const* iException, auto nextTask) {
       CMS_SA_ALLOW try {
         if (iException) {
@@ -1190,8 +1172,7 @@ namespace edm {
             [this, postRunQueueTask = nextTask, runStatus, iRunAux](edm::LimitedTaskQueue::Resumer iResumer) mutable {
               CMS_SA_ALLOW try {
                 if (postRunQueueTask.taskHasFailed()) {
-                  releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus,
-                                                                              queueWhichWaitsForIOVsToFinish_);
+                  releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus);
                   return;
                 }
 
@@ -1206,8 +1187,7 @@ namespace edm {
                     //handle exception from readRunAsync
                     WaitingTaskHolder copyHolder(nextTask);
                     copyHolder.doneWaiting(*iException);
-                    releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus,
-                                                                                queueWhichWaitsForIOVsToFinish_);
+                    releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus);
                   }
                 }) |
                     chain::ifThen(looper_ and not looperBeginJobRun_.exchange(true),
@@ -1219,8 +1199,7 @@ namespace edm {
                                         looper_->esPrefetchAsync(nextTask, es, Transition::BeginRun, serviceToken_);
                                       } catch (...) {
                                         nextTask.doneWaiting(std::current_exception());
-                                        releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(
-                                            *runStatus, queueWhichWaitsForIOVsToFinish_);
+                                        releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus);
                                       }
                                     }) | chain::then([this, runStatus](auto nextTask) mutable {
                                       CMS_SA_ALLOW try {
@@ -1230,8 +1209,7 @@ namespace edm {
 
                                       } catch (...) {
                                         nextTask.doneWaiting(std::current_exception());
-                                        releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(
-                                            *runStatus, queueWhichWaitsForIOVsToFinish_);
+                                        releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus);
                                       }
                                     }) | chain::runLast(nextTask);
                                   }) |
@@ -1273,8 +1251,7 @@ namespace edm {
                       }
                       if (runStatus->stopBeforeProcessingRun()) {
                         // We just quit now if there was a failure when merging runs
-                        releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus,
-                                                                                    queueWhichWaitsForIOVsToFinish_);
+                        releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus);
                         return;
                       }
                       CMS_SA_ALLOW try {
@@ -1292,8 +1269,7 @@ namespace edm {
                             });
                         runStatus->setGlobalEndRunHolder(WaitingTaskHolder{*holder.group(), globalEndRunTask});
                       } catch (...) {
-                        releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus,
-                                                                                    queueWhichWaitsForIOVsToFinish_);
+                        releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus);
                         holder.doneWaiting(std::current_exception());
                         return;
                       }
@@ -1318,7 +1294,7 @@ namespace edm {
                               if (runStatus->streamFinishedBeginRun()) {
                                 WaitingTaskHolder copyHolder(holder);
                                 copyHolder.doneWaiting(std::current_exception());
-                                releaseBeginRunResourcesAfterFailure(*runStatus, queueWhichWaitsForIOVsToFinish_);
+                                releaseBeginRunResourcesAfterFailure(*runStatus);
                                 exceptionRunStatus_ = runStatus;
                               }
                             }
@@ -1327,20 +1303,19 @@ namespace edm {
                       } catch (...) {
                         WaitingTaskHolder copyHolder(holder);
                         copyHolder.doneWaiting(std::current_exception());
-                        releaseBeginRunResourcesAfterFailure(*runStatus, queueWhichWaitsForIOVsToFinish_);
+                        releaseBeginRunResourcesAfterFailure(*runStatus);
                         exceptionRunStatus_ = runStatus;
                       }
                       handleNextItemAfterMergingRunEntriesAsync(runStatus, holder, *sourceStatus);
                     }) |
                     chain::runLast(postRunQueueTask);
               } catch (...) {
-                releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus,
-                                                                            queueWhichWaitsForIOVsToFinish_);
+                releaseBeginRunResourcesAndResumeGlobalRunQueueAfterFailure(*runStatus);
                 postRunQueueTask.doneWaiting(std::current_exception());
               }
             });  // task in runQueue
       } catch (...) {
-        releaseBeginRunResourcesAfterFailure(*runStatus, queueWhichWaitsForIOVsToFinish_);
+        releaseBeginRunResourcesAfterFailure(*runStatus);
         nextTask.doneWaiting(std::current_exception());
       }
     }) | chain::runLast(std::move(iHolder));
@@ -1379,7 +1354,6 @@ namespace edm {
     auto& status = streamRunStatus_[iStream];
     if (status->streamFinishedBeginRun()) {
       status->resetBeginResources();
-      queueWhichWaitsForIOVsToFinish_.resume();
     }
     streamQueues_[iStream].resume();
   }
@@ -1402,7 +1376,6 @@ namespace edm {
                                                            nextTask,
                                                            iRunStatus->endIOVWaitingTasksEndRun(),
                                                            iRunStatus->eventSetupImplPtrEndRun(),
-                                                           queueWhichWaitsForIOVsToFinish_,
                                                            actReg_.get(),
                                                            serviceToken_);
     }) | chain::then([this, iRunStatus, iRunAuxiliary](std::exception_ptr const* iException, auto nextTask) {
@@ -1497,10 +1470,7 @@ namespace edm {
               ptr = std::current_exception();
             }
           }
-          CMS_SA_ALLOW try {
-            status->resumeGlobalRunQueue();
-            queueWhichWaitsForIOVsToFinish_.resume();
-          } catch (...) {
+          CMS_SA_ALLOW try { status->resumeGlobalRunQueue(); } catch (...) {
             if (not ptr) {
               ptr = std::current_exception();
             }
@@ -1600,10 +1570,7 @@ namespace edm {
         }
       }
     }
-    void releaseLumiResourcesAfterFailure(LuminosityBlockProcessingStatus& iStatus, edm::SerialTaskQueue& iQueue) {
-      iStatus.resetResources();
-      iQueue.resume();
-    }
+    void releaseLumiResourcesAfterFailure(LuminosityBlockProcessingStatus& iStatus) { iStatus.resetResources(); }
 
   }  // namespace
 
@@ -1628,13 +1595,8 @@ namespace edm {
 
     auto status = std::make_shared<LuminosityBlockProcessingStatus>();
     chain::first([this, &iSync, &status](auto nextTask) {
-      espController_->runOrQueueEventSetupForInstanceAsync(iSync,
-                                                           nextTask,
-                                                           status->endIOVWaitingTasks(),
-                                                           status->eventSetupImplPtr(),
-                                                           queueWhichWaitsForIOVsToFinish_,
-                                                           actReg_.get(),
-                                                           serviceToken_);
+      espController_->runOrQueueEventSetupForInstanceAsync(
+          iSync, nextTask, status->endIOVWaitingTasks(), status->eventSetupImplPtr(), actReg_.get(), serviceToken_);
     }) | chain::then([this, status, iRunStatus, iLumiAux](std::exception_ptr const* iException, auto nextTask) {
       CMS_SA_ALLOW try {
         //the call to doneWaiting will cause the count to decrement
@@ -1649,7 +1611,7 @@ namespace edm {
                 edm::LimitedTaskQueue::Resumer iResumer) mutable {
               CMS_SA_ALLOW try {
                 if (postLumiQueueTask.taskHasFailed()) {
-                  releaseLumiResourcesAfterFailure(*status, queueWhichWaitsForIOVsToFinish_);
+                  releaseLumiResourcesAfterFailure(*status);
                   endRunAsync(iRunStatus, std::nullopt, postLumiQueueTask);
                   return;
                 }
@@ -1664,7 +1626,7 @@ namespace edm {
                 }) | then([this, status, iRunStatus](std::exception_ptr const* iException, auto nextTask) mutable {
                   if (iException) {
                     //deal with possible failure from readLumiAsync
-                    releaseLumiResourcesAfterFailure(*status, queueWhichWaitsForIOVsToFinish_);
+                    releaseLumiResourcesAfterFailure(*status);
                     nextTask.doneWaiting(*iException);
                     endRunAsync(iRunStatus, std::nullopt, nextTask);
                     return;
@@ -1735,14 +1697,14 @@ namespace edm {
                   }
                 }) | runLast(postLumiQueueTask);
               } catch (...) {
-                releaseLumiResourcesAfterFailure(*status, queueWhichWaitsForIOVsToFinish_);
+                releaseLumiResourcesAfterFailure(*status);
                 WaitingTaskHolder copyHolder(postLumiQueueTask);
                 copyHolder.doneWaiting(std::current_exception());
                 endRunAsync(iRunStatus, std::nullopt, postLumiQueueTask);
               }
             });  // task in lumiQueue
       } catch (...) {
-        releaseLumiResourcesAfterFailure(*status, queueWhichWaitsForIOVsToFinish_);
+        releaseLumiResourcesAfterFailure(*status);
         WaitingTaskHolder copyHolder(nextTask);
         copyHolder.doneWaiting(std::current_exception());
         endRunAsync(iRunStatus, std::nullopt, nextTask);
@@ -1831,12 +1793,6 @@ namespace edm {
       // fashion even after exceptions have occurred.
       // Caught exception is passed to handleEndLumiExceptions()
       CMS_SA_ALLOW try { clearLumiPrincipal(*status); } catch (...) {
-        if (not ptr) {
-          ptr = std::current_exception();
-        }
-      }
-      // Caught exception is passed to handleEndLumiExceptions()
-      CMS_SA_ALLOW try { queueWhichWaitsForIOVsToFinish_.resume(); } catch (...) {
         if (not ptr) {
           ptr = std::current_exception();
         }

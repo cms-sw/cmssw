@@ -68,7 +68,7 @@ namespace edm {
     void EventSetupsController::finishConfiguration() {
       if (mustFinishConfiguration_) {
         numberOfConcurrentIOVs_.fillRecordsNotAllowingConcurrentIOVs(*provider_);
-        provider_->finishConfiguration(numberOfConcurrentIOVs_, hasNonconcurrentFinder_);
+        provider_->finishConfiguration(numberOfConcurrentIOVs_);
         provider_->clearInitializationData();
         provider_->updateLookup();
 
@@ -83,48 +83,27 @@ namespace edm {
         WaitingTaskHolder& taskToStartAfterIOVInit,
         WaitingTaskList& endIOVWaitingTasks,
         std::shared_ptr<const EventSetupImpl>& eventSetupImpl,
-        edm::SerialTaskQueue& queueWhichWaitsForIOVsToFinish,
         ActivityRegistry* actReg,
-        ServiceToken const& iToken,
-        bool iForceCacheClear) {
-      auto asyncEventSetup =
-          [this, &endIOVWaitingTasks, &eventSetupImpl, &queueWhichWaitsForIOVsToFinish, actReg, iForceCacheClear](
-              IOVSyncValue const& iSync, WaitingTaskHolder& task) {
-            queueWhichWaitsForIOVsToFinish.pause();
-            CMS_SA_ALLOW try {
-              if (iForceCacheClear) {
-                forceCacheClear();
-              }
-              SendSourceTerminationSignalIfException sentry(actReg);
-              {
-                //all EventSetupRecordIntervalFinders are sequentially set to the
-                // new SyncValue in the call. The async part is just waiting for
-                // the Records to be available which is done after the SyncValue setup.
-                actReg->preESSyncIOVSignal_.emit(iSync);
-                auto postSignal = [&iSync](ActivityRegistry* actReg) { actReg->postESSyncIOVSignal_.emit(iSync); };
-                std::unique_ptr<ActivityRegistry, decltype(postSignal)> guard(actReg, postSignal);
-                eventSetupForInstanceAsync(iSync, task, endIOVWaitingTasks, eventSetupImpl);
-              }
-              sentry.completedSuccessfully();
-            } catch (...) {
-              task.doneWaiting(std::current_exception());
-            }
-          };
-      if (doWeNeedToWaitForIOVsToFinish(iSync) || iForceCacheClear) {
-        // We get inside this block if there is an EventSetup
-        // module not able to handle concurrent IOVs (usually an ESSource)
-        // and the new sync value is outside the current IOV of that module.
-        // Also at beginRun when forcing caches to clear.
-        auto group = taskToStartAfterIOVInit.group();
-        ServiceWeakToken weakToken = iToken;
-        queueWhichWaitsForIOVsToFinish.push(*group,
-                                            [iSync, taskToStartAfterIOVInit, asyncEventSetup, weakToken]() mutable {
-                                              ServiceRegistry::Operate operate(weakToken.lock());
-                                              asyncEventSetup(iSync, taskToStartAfterIOVInit);
-                                            });
-      } else {
-        asyncEventSetup(iSync, taskToStartAfterIOVInit);
-      }
+        ServiceToken const& iToken) {
+      auto asyncEventSetup = [this, &endIOVWaitingTasks, &eventSetupImpl, actReg](IOVSyncValue const& iSync,
+                                                                                  WaitingTaskHolder& task) {
+        CMS_SA_ALLOW try {
+          SendSourceTerminationSignalIfException sentry(actReg);
+          {
+            //all EventSetupRecordIntervalFinders are sequentially set to the
+            // new SyncValue in the call. The async part is just waiting for
+            // the Records to be available which is done after the SyncValue setup.
+            actReg->preESSyncIOVSignal_.emit(iSync);
+            auto postSignal = [&iSync](ActivityRegistry* actReg) { actReg->postESSyncIOVSignal_.emit(iSync); };
+            std::unique_ptr<ActivityRegistry, decltype(postSignal)> guard(actReg, postSignal);
+            eventSetupForInstanceAsync(iSync, task, endIOVWaitingTasks, eventSetupImpl);
+          }
+          sentry.completedSuccessfully();
+        } catch (...) {
+          task.doneWaiting(std::current_exception());
+        }
+      };
+      asyncEventSetup(iSync, taskToStartAfterIOVInit);
     }
 
     void EventSetupsController::eventSetupForInstanceAsync(IOVSyncValue const& syncValue,
@@ -151,17 +130,6 @@ namespace edm {
         eventSetupRecordIOVQueue->checkForNewIOVs(taskToStartAfterIOVInit, endIOVWaitingTasks, newEventSetupImpl);
       }
     }
-
-    bool EventSetupsController::doWeNeedToWaitForIOVsToFinish(IOVSyncValue const& syncValue) const {
-      if (hasNonconcurrentFinder()) {
-        if (provider_->doWeNeedToWaitForIOVsToFinish(syncValue)) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    void EventSetupsController::forceCacheClear() { provider_->forceCacheClear(); }
 
     void EventSetupsController::initializeEventSetupRecordIOVQueues() {
       std::set<EventSetupRecordKey> keys;
