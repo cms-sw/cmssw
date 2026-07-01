@@ -147,11 +147,11 @@ public:
   constexpr int position() const { return (id_ & kHGCalPositionMask); }
 
   /// Prntout
-    constexpr std::string detType() const {
-      return ((det() == HGCalHSc) ? "HSc" : "Unknown");
-  }
+  constexpr std::string detType() const { return ((det() == HGCalHSc) ? "HSc" : "Unknown"); }
   void print(std::ostream& s) const {
-    s << " HGCScintillatorDetId::EE:HE= " << isEE() << ":" << isHE() << " trigger= " << trigger() << " granularity= " << granularity() << " type= " << type() << " SiPM= " << sipm() << " layer= " << layer() << " ring= " << iradius() << ":" << iradiusTrigger() << " phi= " << iphi() << ":" << iphiTrigger() << "\n";
+    s << " HGCScintillatorDetId::EE:HE= " << isEE() << ":" << isHE() << " trigger= " << trigger()
+      << " granularity= " << granularity() << " type= " << type() << " SiPM= " << sipm() << " layer= " << layer()
+      << " ring= " << iradius() << ":" << iradiusTrigger() << " phi= " << iphi() << ":" << iphiTrigger() << "\n";
   }
   static const HGCScintillatorDetId Undefined;
 
@@ -190,6 +190,7 @@ public:
     else
       return iphi();
   }
+
 private:
   static constexpr std::string sipmTypes[2] = {"Small", "Large"};
   static constexpr std::string tileTypes[4] = {"Unknown", "Cast", "Mould", "Wrong"};
