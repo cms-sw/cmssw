@@ -6,7 +6,8 @@
 #include "DataFormats/HGCalReco/interface/HGCalSoARecHitsHostCollection.h"
 #include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsDeviceCollection.h"
 #include "DataFormats/HGCalReco/interface/alpaka/HGCalSoARecHitsExtraDeviceCollection.h"
-#include "DataFormats/HGCalReco/interface/alpaka/HGCalSoAClustersDeviceCollection.h"
+// #include "DataFormats/HGCalReco/interface/alpaka/HGCalSoAClustersDeviceCollection.h"
+#include "DataFormats/TICL/interface/alpaka/CaloClusterDeviceCollection.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/alpaka/HGCalSoAClustersExtraDeviceCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
@@ -22,7 +23,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
              float positionDeltaRho2,
              const HGCalSoARecHitsDeviceCollection::ConstView input_rechits_soa,
              const HGCalSoARecHitsExtraDeviceCollection::ConstView input_clusters_soa,
-             HGCalSoAClustersDeviceCollection::View outputs,
+             reco::CaloClusterDeviceCollection::View outputs,
              HGCalSoAClustersExtraDeviceCollection::View outputs_service) const;
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

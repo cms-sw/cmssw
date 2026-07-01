@@ -5,6 +5,8 @@
 
 #include "CLUEAlgoAlpaka.h"
 
+#include <cstdint>
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace cms::alpakatools;
@@ -17,18 +19,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   const unsigned int numer_of_clusters,
                                   const HGCalSoARecHitsDeviceCollection::ConstView input_rechits_soa,
                                   const HGCalSoARecHitsExtraDeviceCollection::ConstView input_clusters_soa,
-                                  HGCalSoAClustersDeviceCollection::View outputs) const {
+                                  reco::CaloClusterDeviceCollection::View outputs) const {
       // make a strided loop over the kernel grid, covering up to "size" elements
-      for (int32_t i : uniform_elements(acc, input_rechits_soa.metadata().size())) {
+      for (auto i : uniform_elements(acc, input_rechits_soa.metadata().size())) {
         // Skip unassigned rechits
         if (input_clusters_soa[i].clusterIndex() == kInvalidCluster) {
           continue;
         }
         auto clIdx = input_clusters_soa[i].clusterIndex();
-        alpaka::atomicAdd(acc, &outputs[clIdx].energy(), input_rechits_soa[i].energy());
-        alpaka::atomicAdd(acc, &outputs[clIdx].cells(), 1);
+        alpaka::atomicAdd(acc, &outputs.energy()[clIdx].energy(), input_rechits_soa[i].energy());
+        alpaka::atomicAdd(acc, &outputs.position()[clIdx].cells(), 1);
         if (input_clusters_soa[i].isSeed() == 1) {
-          outputs[clIdx].seed() = input_rechits_soa[i].detid();
+          outputs.indexes()[clIdx].seedID() = input_rechits_soa[i].detid();
         }
       }
     }
@@ -43,7 +45,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   float positionDeltaRho2,
                                   const HGCalSoARecHitsDeviceCollection::ConstView input_rechits_soa,
                                   const HGCalSoARecHitsExtraDeviceCollection::ConstView input_clusters_soa,
-                                  HGCalSoAClustersDeviceCollection::View outputs,
+                                  reco::CaloClusterDeviceCollection::View outputs,
                                   HGCalSoAClustersExtraDeviceCollection::View outputs_service) const {
       // make a strided loop over the kernel grid, covering up to "size" elements
       for (int32_t hit_index : uniform_elements(acc, input_rechits_soa.metadata().size())) {
@@ -87,10 +89,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   float positionDeltaRho2,
                                   const HGCalSoARecHitsDeviceCollection::ConstView input_rechits_soa,
                                   const HGCalSoARecHitsExtraDeviceCollection::ConstView input_clusters_soa,
-                                  HGCalSoAClustersDeviceCollection::View outputs,
+                                  reco::CaloClusterDeviceCollection::View outputs,
                                   HGCalSoAClustersExtraDeviceCollection::View outputs_service) const {
       // make a strided loop over the kernel grid, covering up to "size" elements
-      for (int32_t hit_index : uniform_elements(acc, input_rechits_soa.metadata().size())) {
+      for (auto hit_index : uniform_elements(acc, input_rechits_soa.metadata().size())) {
         const int cluster_index = input_clusters_soa[hit_index].clusterIndex();
 
         // Bail out if you are not part of any cluster
@@ -108,8 +110,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         float Wi = std::max(thresholdW0 + std::log(input_rechits_soa[hit_index].energy() /
                                                    outputs_service[cluster_index].total_weight()),
                             0.f);
-        alpaka::atomicAdd(acc, &outputs[cluster_index].x(), input_rechits_soa[hit_index].dim1() * Wi);
-        alpaka::atomicAdd(acc, &outputs[cluster_index].y(), input_rechits_soa[hit_index].dim2() * Wi);
+        alpaka::atomicAdd(acc, &outputs.position()[cluster_index].x(), input_rechits_soa[hit_index].dim1() * Wi);
+        alpaka::atomicAdd(acc, &outputs.position()[cluster_index].y(), input_rechits_soa[hit_index].dim2() * Wi);
         alpaka::atomicAdd(acc, &outputs_service[cluster_index].total_weight_log(), Wi);
       }  // uniform_elements
     }  // operator()
@@ -124,21 +126,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   float positionDeltaRho2,
                                   const HGCalSoARecHitsDeviceCollection::ConstView input_rechits_soa,
                                   const HGCalSoARecHitsExtraDeviceCollection::ConstView input_clusters_soa,
-                                  HGCalSoAClustersDeviceCollection::View outputs,
+                                  reco::CaloClusterDeviceCollection::View outputs,
                                   HGCalSoAClustersExtraDeviceCollection::View outputs_service) const {
       // make a strided loop over the kernel grid, covering up to "size" elements
-      for (int32_t cluster_index : uniform_elements(acc, outputs.metadata().size())) {
+      for (auto cluster_index : uniform_elements(acc, outputs.position().metadata().size())) {
         const int max_energy_index = outputs_service[cluster_index].maxEnergyIndex();
 
         if (outputs_service[cluster_index].total_weight_log() > 0.f) {
           float inv_tot_weight = 1.f / outputs_service[cluster_index].total_weight_log();
-          outputs[cluster_index].x() *= inv_tot_weight;
-          outputs[cluster_index].y() *= inv_tot_weight;
+          outputs.position()[cluster_index].x() *= inv_tot_weight;
+          outputs.position()[cluster_index].y() *= inv_tot_weight;
         } else {
-          outputs[cluster_index].x() = input_rechits_soa[max_energy_index].dim1();
-          outputs[cluster_index].y() = input_rechits_soa[max_energy_index].dim2();
+          outputs.position()[cluster_index].x() = input_rechits_soa[max_energy_index].dim1();
+          outputs.position()[cluster_index].y() = input_rechits_soa[max_energy_index].dim2();
         }
-        outputs[cluster_index].z() = input_rechits_soa[max_energy_index].dim3();
+        outputs.position()[cluster_index].z() = input_rechits_soa[max_energy_index].dim3();
       }  // uniform_elements
     }  // operator()
   };
@@ -149,15 +151,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                              float positionDeltaRho2,
                                              const HGCalSoARecHitsDeviceCollection::ConstView input_rechits_soa,
                                              const HGCalSoARecHitsExtraDeviceCollection::ConstView input_clusters_soa,
-                                             HGCalSoAClustersDeviceCollection::View outputs,
+                                             reco::CaloClusterDeviceCollection::View outputs,
                                              HGCalSoAClustersExtraDeviceCollection::View outputs_service) const {
-    auto x = cms::alpakatools::make_device_view<float>(queue, outputs.x(), size);
+    auto x = cms::alpakatools::make_device_view<float>(queue, outputs.position().x());
     alpaka::memset(queue, x, 0x0);
-    auto y = cms::alpakatools::make_device_view<float>(queue, outputs.y(), size);
+    auto y = cms::alpakatools::make_device_view<float>(queue, outputs.position().y());
     alpaka::memset(queue, y, 0x0);
-    auto energy = cms::alpakatools::make_device_view<float>(queue, outputs.energy(), size);
+    auto energy = cms::alpakatools::make_device_view<float>(queue, outputs.energy().energy());
     alpaka::memset(queue, energy, 0x0);
-    auto cells = cms::alpakatools::make_device_view<int>(queue, outputs.cells(), size);
+    auto cells = cms::alpakatools::make_device_view<int>(queue, outputs.position().cells());
     alpaka::memset(queue, cells, 0x0);
     auto total_weight = cms::alpakatools::make_device_view<float>(queue, outputs_service.total_weight(), size);
     alpaka::memset(queue, total_weight, 0x0);
