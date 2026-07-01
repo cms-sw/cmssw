@@ -6,6 +6,8 @@
 
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
+#include <iostream>
+
 // clang-format off
 GENERATE_SOA_LAYOUT(SimpleLayoutTemplate,
   SOA_COLUMN(float, x),
@@ -134,5 +136,26 @@ TEST_CASE("SoATemplate") {
     // Check for under-and overflow in the element accessors
     REQUIRE_THROWS_AS(slcv.x(underflow), std::out_of_range);
     REQUIRE_THROWS_AS(slcv.x(overflow), std::out_of_range);
+  }
+
+  SECTION("Adapt valid data range") {
+    SimpleLayout::View slv{sl};
+    REQUIRE(slv.metadata().size() == slSize);
+    REQUIRE(slv.metadata().capacity() == slSize);
+
+    slv.setSize(slv.metadata().size() * 2);  // should not change anything
+    REQUIRE(slv.metadata().size() == slSize);
+    REQUIRE(slv.metadata().capacity() == slSize);
+
+    slv.setSize(-10);  // should set size to 0
+    REQUIRE(slv.metadata().size() == 0);
+    REQUIRE(slv.metadata().capacity() == slSize);
+
+    const SimpleLayout::size_type validDataRange = 6;
+
+    slv.setSize(validDataRange);  // should set size to validDataRange
+    REQUIRE(slv.metadata().size() == validDataRange);
+    REQUIRE(slv.metadata().capacity() == slSize);
+    REQUIRE_THROWS_AS(slv[validDataRange], std::out_of_range);
   }
 }
