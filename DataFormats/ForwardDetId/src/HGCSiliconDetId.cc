@@ -5,8 +5,5 @@
 const HGCSiliconDetId HGCSiliconDetId::Undefined(DetId::HGCalEE, 0, 0, 0, 0, 0, 0, 0);
 
 std::ostream& operator<<(std::ostream& s, const HGCSiliconDetId& id) {
-  return s << " HGCSiliconDetId::EE:HE= " << id.isEE() << ":" << id.isHE() << " type= " << id.type()
-           << " z= " << id.zside() << " layer= " << id.layer() << " wafer(u,v:x,y)= (" << id.waferU() << ","
-           << id.waferV() << ":" << id.waferX() << "," << id.waferY() << ")"
-           << " cell(u,v:x,y)= (" << id.cellU() << "," << id.cellV() << ":" << id.cellX() << "," << id.cellY() << ")";
+  return s << " HGCSiliconDetId:: " << id.detType() << " type= " << id.waferTypeX() << " z= " << id.zside() << " layer= " << id.layer() << " wafer(u,v)= (" << id.waferU() << "," << id.waferV() << ")" << " cell(u,v)= (" << id.cellU() << "," << id.cellV() << ")";
 }
