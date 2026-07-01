@@ -32,7 +32,7 @@
 
 #define ONLY_REGISTER_PLUGIN(record_, type_)                                                \
   typedef ProductResolverWrapper<record_, type_> EDM_PLUGIN_SYM(ProductResolver, __LINE__); \
-  DEFINE_EDM_PLUGIN2(cond::ProductResolverFactory, EDM_PLUGIN_SYM(ProductResolver, __LINE__), #record_ "@NewProxy")
+  DEFINE_EDM_PLUGIN(cond::ProductResolverFactory, EDM_PLUGIN_SYM(ProductResolver, __LINE__), #record_ "@NewProxy")
 
 #define REGISTER_PLUGIN(record_, type_)      \
   INSTANTIATE_RESOLVER(record_, type_)       \
@@ -48,7 +48,7 @@
 
 #define ONLY_REGISTER_PLUGIN_INIT(record_, type_, initializer_)                                           \
   typedef ProductResolverWrapper<record_, type_, initializer_> EDM_PLUGIN_SYM(ProductResolver, __LINE__); \
-  DEFINE_EDM_PLUGIN2(cond::ProductResolverFactory, EDM_PLUGIN_SYM(ProductResolver, __LINE__), #record_ "@NewProxy")
+  DEFINE_EDM_PLUGIN(cond::ProductResolverFactory, EDM_PLUGIN_SYM(ProductResolver, __LINE__), #record_ "@NewProxy")
 
 #define REGISTER_PLUGIN_INIT(record_, type_, initializer_)      \
   INSTANTIATE_RESOLVER_INIT(record_, type_, initializer_)       \
