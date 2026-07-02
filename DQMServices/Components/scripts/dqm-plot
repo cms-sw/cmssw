@@ -124,8 +124,9 @@ class DQMPlotter:
         """Clean up bin label for better readability."""
         return label.replace("TrackSelectionHighPurity", "HP")
 
-    def _tex_math_or_not(self, label):
-        return fr'${label}$' if any(x in label for x in ('\\','~')) else label
+    def _is_tex_math(self, label):
+        """Whether the string is to be interpreted as a latex string."""
+        return any(x in label for x in ('\\','~'))
         
     def _apply_axis_scaling(self, ax, xlabel, ylabel, title, logy=False, xlim=None, has_negative_values=False):
         """Apply log scaling to axes based on content and user settings."""
@@ -489,12 +490,20 @@ class DQMPlotter:
             elif "turn-on" in title.lower():
                 ylabel = "Turn-On"
 
-        xtitle = xlabel if xtitle is None else self._tex_math_or_not(xtitle)
-        ytitle = ylabel if ytitle is None else self._tex_math_or_not(ytitle)
+        if xtitle is None:
+            xtitle = xlabel
+        if ytitle is None:
+            ytitle = ylabel
+
+        if self._is_tex_math(xtitle):
+            xtitle = fr'${xtitle}$'
+        if self._is_tex_math(ytitle):
+            ytitle = fr'${ytitle}$'
+
         return (
             self.convert_root_to_latex(title),
-            self.convert_root_to_latex(xtitle),
-            self.convert_root_to_latex(ytitle),
+            self.convert_root_to_latex(xtitle) if not self._is_tex_math(xtitle) else xtitle,
+            self.convert_root_to_latex(ytitle) if not self._is_tex_math(ytitle) else ytitle
         )
 
     def convert_root_to_latex(self, text):
@@ -730,6 +739,7 @@ class DQMPlotter:
         legend_title_fontsize=None,
         legend_fontsize=None,
         overlay_groups=None,
+        title=None,
         xtitle=None,
         ytitle=None,
         xlim=None,
@@ -757,8 +767,11 @@ class DQMPlotter:
         if len(histograms) != len(labels):
             raise ValueError("Number of histograms must match number of labels")
 
-        title, xlabel, ylabel = self.extract_labels_from_hist(histograms[0], xtitle, ytitle)
-
+        if title is None:
+            title, xlabel, ylabel = self.extract_labels_from_hist(histograms[0], xtitle, ytitle)
+        else:
+            _, xlabel, ylabel = self.extract_labels_from_hist(histograms[0], xtitle, ytitle)
+            
         if legend_title is None: # otherwise use the user's choice
             if hasattr(self, "_current_output_path"):
                 output_parts = self._current_output_path.replace("\\", "/").split("/")
@@ -786,7 +799,7 @@ class DQMPlotter:
                 hep.cms.label(cms_text, data=data, ax=ax_main, fontsize=cms_text_fontsize)
             else:
                 hep.cms.label(cms_text, data=data, ax=ax_main, fontsize=cms_text_fontsize,
-                              rlabel=self._tex_math_or_not(energy_text))
+                              rlabel=fr"${energy_text}$" if self._is_tex_math(energy_text) else energy_text)
         else:
             hep.cms.label(cms_text, data=data, ax=ax_main, rlabel="", fontsize=cms_text_fontsize)
 
@@ -1342,6 +1355,10 @@ if __name__ == "__main__":
         "--no-grid", action="store_true", help="Remove grid from all plots."
     )
     parser.add_argument(
+        '--title', required=False, default=None,
+        help="Plot title."
+    )
+    parser.add_argument(
         '--xtitle', required=False, default=None,
         help="Label of the x axis."
     )
@@ -1463,6 +1480,7 @@ if __name__ == "__main__":
         data=args.data,
         do_ratio=not args.no_ratio,
         grid=not args.no_grid,
+        title=args.title,
         xtitle=args.xtitle,
         ytitle=args.ytitle,
         xlim=args.xlim,
