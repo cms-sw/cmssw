@@ -303,7 +303,9 @@ class DQMPlotter:
             wrapped.append(wrapped_label)
         return wrapped
 
-    def _configure_legend(self, ax, labels, legend_title, logy=False, force_outside=False):
+    def _configure_legend(self, ax, labels, legend_title,
+                          legend_title_fontsize, legend_fontsize,
+                          logy=False, force_outside=False):
         """Configure legend; wrap long entries and move outside if needed."""
         if not labels:
             return
@@ -317,16 +319,19 @@ class DQMPlotter:
             or (len(wrapped_labels) > 8 and max_label_length > 20)
         )
 
-        legend_columns = 1 if len(wrapped_labels) <= 2 else 2
-        legend_fontsize = "22"
-        if len(wrapped_labels) > 6:
-            legend_fontsize = "20"
-        if len(wrapped_labels) > 10:
-            legend_fontsize = "18"
+        if legend_fontsize is None:
+            if len(wrapped_labels) > 10:
+                legend_fontsize = 18
+            elif len(wrapped_labels) > 6:
+                legend_fontsize = 20
+            else:
+                legend_fontsize = 22
 
-        legend_title_fontsize = "24"
-        if legend_title and len(legend_title) > 30:
-            legend_title_fontsize = "20"
+        if legend_title_fontsize is None:
+            if legend_title and len(legend_title) > 30:
+                legend_title_fontsize = 20
+            else:
+                legend_title_fontsize = 24
 
         if place_outside:
             y_min, y_max = ax.get_ylim()
@@ -355,6 +360,7 @@ class DQMPlotter:
         y_range = y_max - y_min
         ax.set_ylim(y_min, y_max + y_range * legend_padding)
 
+        legend_columns = 1 if len(wrapped_labels) <= 2 else 2
         ax.legend(
             wrapped_labels,
             loc="upper right",
@@ -711,6 +717,7 @@ class DQMPlotter:
         logy=False,
         normalize=False,
         cms_text="Preliminary",
+        cms_text_fontsize=18,
         energy_text=None,
         show_energy=False,
         data=False,
@@ -720,6 +727,8 @@ class DQMPlotter:
         save_as_pdf=False,
         legend_outside=False,
         legend_title=None,
+        legend_title_fontsize=None,
+        legend_fontsize=None,
         overlay_groups=None,
         xtitle=None,
         ytitle=None,
@@ -774,12 +783,12 @@ class DQMPlotter:
         if show_energy:
             if energy_text is None:
                 # Default energy text (13 TeV)
-                hep.cms.label(cms_text, data=data, ax=ax_main)
+                hep.cms.label(cms_text, data=data, ax=ax_main, fontsize=cms_text_fontsize)
             else:
-                hep.cms.label(cms_text, data=data, ax=ax_main,
+                hep.cms.label(cms_text, data=data, ax=ax_main, fontsize=cms_text_fontsize,
                               rlabel=self._tex_math_or_not(energy_text))
         else:
-            hep.cms.label(cms_text, data=data, ax=ax_main, rlabel="")
+            hep.cms.label(cms_text, data=data, ax=ax_main, rlabel="", fontsize=cms_text_fontsize)
 
         ax_ratio = None
         if do_ratio and len(histograms) > 1:
@@ -843,7 +852,9 @@ class DQMPlotter:
             )
             ax_main.tick_params(axis="x", which="minor", bottom=False)
 
-        self._configure_legend(ax_main, labels, legend_title, logy, force_outside=legend_outside)
+        self._configure_legend(ax_main, labels, legend_title,
+                               legend_title_fontsize, legend_fontsize,
+                               logy, force_outside=legend_outside)
 
         if grid:
             ax_main.grid(True, alpha=0.75, linestyle="dashdot", linewidth=0.75)           
@@ -1310,6 +1321,12 @@ if __name__ == "__main__":
         help="CMS label text (e.g. Preliminary, Work in progress).",
     )
     parser.add_argument(
+        "--cms-text-fontsize",
+        default=20,
+        type=int,
+        help="CMS label text fontsize.",
+    )
+    parser.add_argument(
         "--energy-text",
         default=None,
         help="Custom energy text in the top right corner (e.g., '14 TeV', 'Run 3').",
@@ -1379,6 +1396,20 @@ if __name__ == "__main__":
         help="Legend title.",
     )
     parser.add_argument(
+        "--legend-title-fontsize",
+        required=False,
+        default=None,
+        type=int,
+        help="Legend title fontsize.",
+    )
+    parser.add_argument(
+        "--legend-fontsize",
+        required=False,
+        default=None,
+        type=int,
+        help="Legend label fontsize.",
+    )
+    parser.add_argument(
         "--overlay",
         action="append",
         help="Overlay histograms from different collections. Specify colon-separated patterns."
@@ -1426,6 +1457,7 @@ if __name__ == "__main__":
         logy=args.logy,
         normalize=args.normalize,
         cms_text=args.cms_text,
+        cms_text_fontsize=args.cms_text_fontsize,
         energy_text=args.energy_text,
         show_energy=not args.no_energy or args.energy_text is not None,
         data=args.data,
@@ -1442,6 +1474,8 @@ if __name__ == "__main__":
         create_web_index=args.web,
         legend_outside=args.legend_outside,
         legend_title=args.legend_title,
+        legend_title_fontsize=args.legend_title_fontsize,
+        legend_fontsize=args.legend_fontsize,
         overlay_groups=overlay_groups,
         overlay_individual=not args.no_overlay_individual,
         debug=args.debug,
