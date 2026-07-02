@@ -333,6 +333,13 @@ namespace trklet {
       return rmaxdisk_ / (1 << (nrbitsstub_[N_LAYER] + 1));
     }  // + 1 required to offset artificial decrease in # of diskps r bits from 12 -> 11 to make space for negDisk bit
     double krbarrel() const { return 2.0 * drmax() / (1 << nrbitsstub_[0]); }
+    double kr(unsigned int layerdisk) const {
+      if (layerdisk << N_LAYER) {
+        return krbarrel();
+      } else {
+        return kr();
+      }
+    }
 
     double maxrinv() const { return maxrinv_; }
     double maxd0() const { return maxd0_; }
@@ -365,12 +372,6 @@ namespace trklet {
     int nbitsphi0() const { return nbitsphi0_; }
     int nbitst() const { return nbitst_; }
     int nbitsz0() const { return nbitsz0_; }
-
-    //track and tracklet parameters
-    int rinv_shift() const { return rinv_shift_; }
-    int phi0_shift() const { return phi0_shift_; }
-    int t_shift() const { return t_shift_; }
-    int z0_shift() const { return z0_shift_; }
 
     //projections are coarsened from global to stub precision
 
@@ -418,7 +419,7 @@ namespace trklet {
     }
     double kphi0pars() const { return 2 * kphi1(); }
     double ktpars() const { return maxt_ / (1 << nbitst_); }
-    double kz0pars() const { return kz(); }
+    double kz0pars() const { return 0.5 * zlength_ / (1 << nbitsz0_); }
     double kd0pars() const { return kd0(); }
 
     double kphider() const { return kphi() / kr() / 256; }
@@ -487,6 +488,12 @@ namespace trklet {
 
     //projection disks by seed index. For each seeding index (row) the list of diks that we consider projections to
     std::array<std::array<unsigned int, N_DISK>, N_SEED> projdisks() const { return projdisks_; }
+
+    bool barrelSeed(unsigned int iSeed) const {
+      return iSeed == Seed::L1L2 || iSeed == Seed::L2L3 || iSeed == Seed::L3L4 || iSeed == Seed::L5L6;
+    }
+    bool diskSeed(unsigned int iSeed) const { return iSeed == Seed::D1D2 || iSeed == Seed::D3D4; }
+    bool overlapSeed(unsigned int iSeed) const { return iSeed == Seed::L1D1 || iSeed == Seed::L2D1; }
 
   private:
     const Setup* setup_;
@@ -593,14 +600,8 @@ namespace trklet {
     //Bits used to store track parameter in tracklet
     int nbitsrinv_{14};
     int nbitsphi0_{18};
-    int nbitst_{14};
-    int nbitsz0_{10};
-
-    //track and tracklet parameters
-    int rinv_shift_{-8};  // Krinv = 2^shift * Kphi/Kr
-    int phi0_shift_{1};   // Kphi0 = 2^shift * Kphi
-    int t_shift_{-10};    // Kt    = 2^shift * Kz/Kr
-    int z0_shift_{0};     // Kz0   = 2^shift * kz
+    int nbitst_{15};   //change from 14 to 15?
+    int nbitsz0_{11};  //change from 10 to 11
 
     //projections are coarsened from global to stub precision
 

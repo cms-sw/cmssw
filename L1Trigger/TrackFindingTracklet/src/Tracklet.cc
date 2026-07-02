@@ -2,6 +2,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Stub.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Track.h"
+#include "L1Trigger/TrackFindingTracklet/interface/Globals.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -14,6 +15,7 @@ using namespace std;
 using namespace trklet;
 
 Tracklet::Tracklet(Settings const& settings,
+                   Globals* globals,
                    unsigned int iSeed,
                    const Stub* innerFPGAStub,
                    const Stub* middleFPGAStub,
@@ -82,6 +84,10 @@ Tracklet::Tracklet(Settings const& settings,
 
   ichisqrphifit_.set(-1, 8, false);
   ichisqrzfit_.set(-1, 8, false);
+
+  if (settings_.writeMonitorData("TPars")) {
+    writeTParCheck(globals, iSeed, innerFPGAStub, outerFPGAStub, irinv, iphi0, iz0, it);
+  }
 }
 
 void Tracklet::addProjs(
@@ -285,6 +291,7 @@ std::string Tracklet::trackletprojstrD(int disk) const {
   if (trackletIndex_ < 0 || trackletIndex_ > (int)settings_.ntrackletmax()) {
     throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " trackletIndex_ = " << trackletIndex_;
   }
+
   tmp.set(trackletIndex_, settings_.nbitstrackletindex(), true, __LINE__, __FILE__);
   FPGAWord tcid;
   if (settings_.extended()) {
@@ -838,3 +845,64 @@ void Tracklet::setTrackIndex(int index) {
 }
 
 int Tracklet::trackIndex() const { return trackIndex_; }
+
+void Tracklet::writeTParCheck(Globals* globals,
+                              unsigned int iSeed,
+                              const Stub* innerFPGAStub,
+                              const Stub* outerFPGAStub,
+                              int irinv,
+                              int iphi0,
+                              int iz0,
+                              int it) {
+  double phi1, r1, z1, phi2, r2, z2;
+
+  innerFPGAStub->getCoord(phi1, r1, z1);
+  outerFPGAStub->getCoord(phi2, r2, z2);
+
+  //An exact calculation
+  /*
+  double dphi = phi1 - phi2;
+
+  double dist = sqrt(r2*r2 + r1*r1 - 2*r1*r2*cos(dphi));
+
+  double rinv = 2*sin(dphi)/dist;
+
+  double rhopsi1 = 2*asin(0.5*r1*rinv)/rinv;
+  double rhopsi2 = 2*asin(0.5*r2*rinv)/rinv;
+
+  double sinarg = 0.5*r1*rinv;
+  double phi0 = phi1 + asin(sinarg);
+  //double phi0 = phi1 + sinarg*(1.0 + sinarg*sinarg/6.0);
+
+  double t = (z1-z2)/(rhopsi1-rhopsi2);
+  double z0 = z1-t*rhopsi1;
+  */
+
+  //Yuri calc.
+
+  double delta_0 = (phi2 - phi1) / (r2 - r1);
+
+  double delta_z = (z2 - z1) / (r2 - r1);
+
+  double delta_1 = r1 * delta_0;
+
+  double delta_2 = r2 * delta_0;
+
+  double a = 1 - 0.5 * delta_1 * delta_2;
+
+  double x_6 = -(1 - delta_0 * delta_2 * (r1 + r2) / 6.0);
+
+  double rinv = -2 * a * delta_0;
+
+  double t = delta_z * a;
+
+  double phi0 = phi1 + delta_1 * x_6;
+
+  double z0 = z1 + r1 * delta_z * x_6;
+
+  globals->ofstream("trackparscheck.dat")
+      << "Trackpars " << iSeed << "   " << rinv << " " << irinv * settings_.krinvpars() << " " << settings_.krinvpars()
+      << " " << phi0 << " " << iphi0 * settings_.kphi0pars() << " " << settings_.kphi0pars() << " " << t << " "
+      << it * settings_.ktpars() << " " << settings_.ktpars() << " " << z0 << " " << iz0 * settings_.kz0pars() << " "
+      << settings_.kz0pars() << std::endl;
+}

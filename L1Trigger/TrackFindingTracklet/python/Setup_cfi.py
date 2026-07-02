@@ -59,8 +59,8 @@ TrackFindingTracklet_params = cms.PSet (
     WidthStubId  = cms.int32( 10 ), # number of Bits used to represent stubId
     WidthInv2R   = cms.int32( 14 ), # number of Bits used to represent inv2R
     WidthPhi0    = cms.int32( 18 ), # number of Bits used to represent phi0
-    WidthZ0      = cms.int32( 10 ), # number of Bits used to represent z0
-    WidthCot     = cms.int32( 14 ), # number of Bits used to represent cot
+    WidthZ0      = cms.int32( 11 ), # number of Bits used to represent z0
+    WidthCot     = cms.int32( 15 ), # number of Bits used to represent cot
   ),
 
   # Parameter specifying Track Multiplexer

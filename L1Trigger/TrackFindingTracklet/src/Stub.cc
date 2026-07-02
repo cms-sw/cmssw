@@ -197,3 +197,30 @@ unsigned int Stub::layerdisk() const {
     return N_LAYER - 1 + abs(disk_.value());
   return layer_.value();
 }
+
+void Stub::getCoord(double& phi, double& r, double& z) const {
+  phi = phi_.value() * settings_.kphi(layerdisk());
+
+  r = r_.value() * settings_.kr();
+
+  z = z_.value() * settings_.kz();
+
+  bool negdisk = disk_.value() < 0;
+
+  if (layerdisk() <= 5) {
+    r = r_.value() * settings_.krbarrel() + settings_.rmean(layerdisk());
+    if (layerdisk() >= 3) {
+      z *= 16;
+    }
+  } else {
+    z += (negdisk ? -1 : 1) * settings_.zmean(layerdisk() - 6);
+    r += 7.5;
+    if (!isPSmodule()) {
+      if (layerdisk() <= 7) {
+        r = settings_.rDSSinner(r_.value());
+      } else {
+        r = settings_.rDSSouter(r_.value());
+      }
+    }
+  }
+}

@@ -16,10 +16,10 @@ namespace trklet {
     numFrames_ = dtc_->sysNumFrames() + dtc_->sysNumFramesInfra() - 1;
     tbMaxCot_ = std::sinh(dtc_->regMaxEta());
     const Settings settings;
-    tbBaseInv2R_ = .5 * settings.kphi1() / settings.kr() * pow(2, settings.rinv_shift());
-    tbBasePhi0_ = settings.kphi1() * pow(2, settings.phi0_shift());
-    tbBaseCot_ = settings.kz() / settings.kr() * pow(2, settings.t_shift());
-    tbBaseZ0_ = settings.kz() * pow(2, settings.z0_shift());
+    tbBaseInv2R_ = .5 * settings.krinvpars();
+    tbBasePhi0_ = settings.kphi0pars();
+    tbBaseCot_ = settings.ktpars();
+    tbBaseZ0_ = settings.kz0pars();
     tbBaseR_ = settings.kr();
     tbBasePhi_ = settings.kphi1();
     tbBaseZ_ = settings.kz();

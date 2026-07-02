@@ -385,11 +385,8 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
   }
 
   //now binary
-  double krinv = settings_.kphi1() / settings_.kr() * pow(2, settings_.rinv_shift()),
-         kphi0 = settings_.kphi1() * pow(2, settings_.phi0_shift()),
-         kt = settings_.kz() / settings_.kr() * pow(2, settings_.t_shift()),
-         kz0 = settings_.kz() * pow(2, settings_.z0_shift()),
-         kphiproj = settings_.kphi1() * pow(2, settings_.SS_phiL_shift()),
+  double krinv = settings_.krinvpars(), kphi0 = settings_.kphi0pars(), kt = settings_.ktpars(),
+         kz0 = settings_.kz0pars(), kphiproj = settings_.kphi1() * pow(2, settings_.SS_phiL_shift()),
          kphider = settings_.kphi1() / settings_.kr() * pow(2, settings_.SS_phiderL_shift()),
          kzproj = settings_.kz() * pow(2, settings_.PS_zL_shift()),
          kzder = settings_.kz() / settings_.kr() * pow(2, settings_.PS_zderL_shift()),
@@ -564,6 +561,7 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
   }
 
   Tracklet* tracklet = new Tracklet(settings_,
+                                    globals_,
                                     iSeed_,
                                     innerFPGAStub,
                                     middleFPGAStub,
@@ -802,11 +800,8 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
   }
 
   //now binary
-  double krinv = settings_.kphi1() / settings_.kr() * pow(2, settings_.rinv_shift()),
-         kphi0 = settings_.kphi1() * pow(2, settings_.phi0_shift()),
-         kt = settings_.kz() / settings_.kr() * pow(2, settings_.t_shift()),
-         kz0 = settings_.kz() * pow(2, settings_.z0_shift()),
-         kphiproj = settings_.kphi1() * pow(2, settings_.SS_phiL_shift()),
+  double krinv = settings_.krinvpars(), kphi0 = settings_.kphi0pars(), kt = settings_.ktpars(),
+         kz0 = settings_.kz0pars(), kphiproj = settings_.kphi1() * pow(2, settings_.SS_phiL_shift()),
          kphider = settings_.kphi1() / settings_.kr() * pow(2, settings_.SS_phiderL_shift()),
          kzproj = settings_.kz() * pow(2, settings_.PS_zL_shift()),
          kzder = settings_.kz() / settings_.kr() * pow(2, settings_.PS_zderL_shift()),
@@ -971,6 +966,7 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
   }
 
   Tracklet* tracklet = new Tracklet(settings_,
+                                    globals_,
                                     iSeed_,
                                     innerFPGAStub,
                                     middleFPGAStub,
@@ -1206,11 +1202,8 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
   }
 
   //now binary
-  double krinv = settings_.kphi1() / settings_.kr() * pow(2, settings_.rinv_shift()),
-         kphi0 = settings_.kphi1() * pow(2, settings_.phi0_shift()),
-         kt = settings_.kz() / settings_.kr() * pow(2, settings_.t_shift()),
-         kz0 = settings_.kz() * pow(2, settings_.z0_shift()),
-         kphiproj = settings_.kphi1() * pow(2, settings_.SS_phiL_shift()),
+  double krinv = settings_.krinvpars(), kphi0 = settings_.kphi0pars(), kt = settings_.ktpars(),
+         kz0 = settings_.kz0pars(), kphiproj = settings_.kphi1() * pow(2, settings_.SS_phiL_shift()),
          kphider = settings_.kphi1() / settings_.kr() * pow(2, settings_.SS_phiderL_shift()),
          kzproj = settings_.kz() * pow(2, settings_.PS_zL_shift()),
          kzder = settings_.kz() / settings_.kr() * pow(2, settings_.PS_zderL_shift()),
@@ -1376,6 +1369,7 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
   }
 
   Tracklet* tracklet = new Tracklet(settings_,
+                                    globals_,
                                     iSeed_,
                                     innerFPGAStub,
                                     middleFPGAStub,

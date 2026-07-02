@@ -180,6 +180,20 @@ void VMRouterCM::addInput(MemoryBase* memory, string input) {
   throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " Could not find input : " << input;
 }
 
+void VMRouterCM::printStub(const Stub* stub) {
+  double phi, r, z;
+
+  stub->getCoord(phi, r, z);
+
+  globals_->ofstream("stubposition.txt") << layerdisk_ << " " << phi << " " << stub->l1tstub()->phi() << " "
+                                         << settings_.kphi(layerdisk_) << " " << r << " " << stub->l1tstub()->r() << " "
+                                         << ((layerdisk_ >= N_LAYER && (!stub->isPSmodule()))
+                                                 ? -1.0
+                                                 : settings_.kr(layerdisk_))
+                                         << " " << z << " " << stub->l1tstub()->z() << " " << settings_.kz()
+                                         << std::endl;
+}
+
 void VMRouterCM::execute(unsigned int) {
   unsigned int allStubCounter = 0;
 
@@ -195,6 +209,10 @@ void VMRouterCM::execute(unsigned int) {
         continue;
 
       Stub* stub = stubinput->getStub(i);
+
+      if (settings_.writeMonitorData("VMR")) {
+        printStub(stub);
+      }
 
       //Note - below information is not part of the stub, but rather from which input memory
       //we are reading

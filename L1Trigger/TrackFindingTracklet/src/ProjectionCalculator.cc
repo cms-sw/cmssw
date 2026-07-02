@@ -28,7 +28,7 @@ ProjectionCalculator::ProjectionCalculator(string name, Settings const& settings
   n_iv_ = 4;
 
   //Constants used for projectison to disks
-  n_tinv_ = 12 + 1;
+  n_tinv_ = 12 + 2;
   n_y_ = 14;
   n_x_ = 14;
   n_xx6_ = 14 + 1;
@@ -58,8 +58,8 @@ void ProjectionCalculator::projLayer(int ir, int irinv, int iphi0, int it, int i
   long int is6 = (1 << n_s6_) + ((is * is) >> (2 + 2 * n_r_ + 2 * n_rinv_ - 2 * n_s_ - n_s6_));
   long int iu = (ir * irinv) >> (n_r_ + n_rinv_ + 1 - n_phi_);
   iphi = (iphi0 << (n_phi_ - n_phi0_)) - ((iu * is6) >> n_s6_);
-  long int iv = (it * ir) >> (n_r_ + n_t_ - n_z_ - n_iv_);
-  iz = iz0 + ((((iv * is6) >> (n_iv_ + n_s6_ - 1)) + 1) >> 1);
+  long int iv = (it * ir) >> (1 + n_r_ + n_t_ - n_z_ - n_iv_);
+  iz = ((iz0 + ((iv * is6) >> (n_iv_ + n_s6_ - 1)) + 1) >> 1);  //FIXME
 }
 
 // Project to disk (taken from TrackletCalculatorBase.cc)
@@ -70,8 +70,8 @@ void ProjectionCalculator::projDisk(
   assert(abs(it) < static_cast<int>(LUT_itinv_.size()));
   long int itinv = LUT_itinv_[abs(it)];
 
-  iderphi = (-irinv * itinv) >> (n_tinv_ + 5);
-  iderr = ((itinv >> (n_tinv_ - 9 - 1)) + 1) >> 1;
+  iderphi = (-irinv * itinv) >> (n_tinv_ + 4);
+  iderr = ((itinv >> (n_tinv_ - 9 - 2)) + 1) >> 1;
 
   if (it < 0) {
     iderphi = -iderphi;
@@ -80,7 +80,7 @@ void ProjectionCalculator::projDisk(
 
   int nw = 2;
 
-  long int iw = (((iz << (n_r_ - n_z_)) - (iz0_sign << (n_r_ - n_z_))) * itinv) >> (n_tinv_ - nw);
+  long int iw = (((iz << (n_r_ - n_z_)) - (iz0_sign << (n_r_ - n_z_ - 1))) * itinv) >> (n_tinv_ - nw - 1);  //FIXME
 
   iphi = (iphi0 >> (n_phi0_ - n_phidisk_)) - ((iw * irinv) >> (1 + n_r_ + n_rinv_ - n_phidisk_ + nw));
 
@@ -241,7 +241,7 @@ void ProjectionCalculator::execute(unsigned int iSector, double phimin) {
 
           // Layer Proj Derivatives
           der_phi_LD[0] = -(irinv >> (1 + 3));
-          der_zr_LD[0] = it >> 3;
+          der_zr_LD[0] = it >> (3 + 1);
 
           ////////////////////////////////
           // calculate disk projections //
@@ -249,7 +249,7 @@ void ProjectionCalculator::execute(unsigned int iSector, double phimin) {
           double irmindisk = settings_.rmindisk() / settings_.kr();
           double irmaxdisk = settings_.rmaxdisk() / settings_.kr();
 
-          int tcut = 1.0 / (settings_.ktpars());
+          int tcut = 1.0 / (settings_.ktpars()) + 1;  //Adding +1 protects against iderr (tinv) too large
 
           for (unsigned int iDisk = N_LAYER; iDisk < N_LAYER + N_DISK; ++iDisk) {
             int izproj = settings_.izmean(iDisk % N_LAYER);

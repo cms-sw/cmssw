@@ -91,7 +91,7 @@ namespace trklet {
           const double baseR = setup_->stubBaseR(stub.sm_->type());
           const double basePhi =
               stub.sm_->barrel() ? setup_->tbBasePhi() : setup_->tbBasePhi(stub.sm_->layerIndexCombined());
-          const double baseRZ = stub.sm_->barrel() ? setup_->tbBaseZ(stub.sm_->layerIndex()) : setup_->tbBaseZ();
+          const double baseRZ = stub.sm_->barrel() ? setup_->tbBaseZ(stub.sm_->layerIndex()) : setup_->tbBaseR();
           TTBV ttBV(frameStub.second);
           stub.z_ = ttBV.val(widthRZ, 0, true) * baseRZ;
           ttBV >>= widthRZ;

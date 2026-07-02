@@ -189,6 +189,7 @@ void TrackletProcessor::addInput(MemoryBase* memory, string input) {
 }
 
 void TrackletProcessor::execute(unsigned int iSector, double phimin, double phimax) {
+  //bool print = (iSector == 3) && (getName() == "TP_D1D2C");
   bool print = false;
 
   phimin_ = phimin;

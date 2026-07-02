@@ -23,10 +23,12 @@ namespace trklet {
   class Settings;
   class Stub;
   class Track;
+  class Globals;
 
   class Tracklet {
   public:
     Tracklet(Settings const& settings,
+             Globals* globals,
              unsigned int iSeed,
              const Stub* innerFPGAStub,
              const Stub* middleFPGAStub,
@@ -234,6 +236,15 @@ namespace trklet {
     // Seed type:
     //  L1L2=0,L2L3=1,L3L4=2,L5L6=3,D1D2=4,D3D4=5,L1D1=6,L2D1=7
     unsigned int seedIndex() const { return seedIndex_; }
+
+    void writeTParCheck(Globals* global,
+                        unsigned int iSeed,
+                        const Stub* innerFPGAStub,
+                        const Stub* outerFPGAStub,
+                        int irinv,
+                        int iphi0,
+                        int iz0,
+                        int it);
 
   private:
     unsigned int seedIndex_;

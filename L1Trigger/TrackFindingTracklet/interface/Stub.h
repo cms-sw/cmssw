@@ -87,6 +87,9 @@ namespace trklet {
 
     bool isBarrel() const { return layerdisk_ < N_LAYER; }
 
+    //get floating point coordinates from the integer values
+    void getCoord(double& phi, double& r, double& z) const;
+
   private:
     unsigned int layerdisk_;
 
