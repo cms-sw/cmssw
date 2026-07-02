@@ -9,8 +9,6 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
-#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
-
 #include "TracksForDAInBlocksAlgo.h"
 #include "DAInBlocksClusterizerAlgo.h"
 #include "WeightedVertexFitterAlgo.h"
@@ -59,14 +57,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     void produce(device::Event& iEvent, device::EventSetup const& iSetup) override {
-      const TrackForVertexDeviceCollection& inputtracks = iEvent.get(trackToken_);
+      const reco::TrackForVertexDeviceCollection& inputtracks = iEvent.get(trackToken_);
       const BeamSpotDevice& beamSpot = iEvent.get(beamSpotToken_);
       int32_t nT = inputtracks.view().nT();
       int32_t nBlocks = nT > blockSize_ ? int32_t((nT - 1) / (blockOverlap_ * blockSize_))
                                         : 1;  // If all fit within a block, no need to split
       // Now the device collections we still need
-      TrackForVertexDeviceCollection tracksInBlocks(iEvent.queue(), nBlocks * blockSize_);  // As high as needed
-      VertexDeviceCollection deviceVertex(
+      reco::TrackForVertexDeviceCollection tracksInBlocks(iEvent.queue(), nBlocks * blockSize_);  // As high as needed
+      reco::VertexDeviceCollection deviceVertex(
           iEvent.queue(), 1024);  // Hard capped to 1024, though we might want to restrict it for low PU cases
 
       // run the algorithm
@@ -119,13 +117,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
-    device::EDGetToken<TrackForVertexDeviceCollection> trackToken_;
+    device::EDGetToken<reco::TrackForVertexDeviceCollection> trackToken_;
     device::EDGetToken<BeamSpotDevice> beamSpotToken_;
-    device::EDPutToken<VertexDeviceCollection> devicePutToken_;
+    device::EDPutToken<reco::VertexDeviceCollection> devicePutToken_;
     int32_t blockSize_;
     double blockOverlap_;
     FitterParameters fitterParams_;
-    ClusterParameters clusterParams_;
+    DAInBlocksClusterParameters clusterParams_;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

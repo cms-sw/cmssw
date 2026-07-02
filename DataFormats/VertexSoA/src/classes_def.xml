@@ -10,11 +10,11 @@
 
   <class name="edm::Wrapper<reco::ZVertexHost>" splitLevel="0"/>
 
-  <class name="VertexHostCollection" rntupleStreamerMode="true"/>
-  <class name="VertexHostCollection::Layout"/>
-  <class name="edm::Wrapper<VertexHostCollection>" splitLevel="0"/>
+  <class name="reco::VertexHostCollection" rntupleStreamerMode="true"/>
+  <class name="reco::VertexHostCollection::Layout"/>
+  <class name="edm::Wrapper<reco::VertexHostCollection>" splitLevel="0"/>
 
-  <class name="TrackForVertexHostCollection" rntupleStreamerMode="true"/>
-  <class name="TrackForVertexHostCollection::Layout"/>
-  <class name="edm::Wrapper<TrackForVertexHostCollection>" splitLevel="0"/>
+  <class name="reco::TrackForVertexHostCollection" rntupleStreamerMode="true"/>
+  <class name="reco::TrackForVertexHostCollection::Layout"/>
+  <class name="edm::Wrapper<reco::TrackForVertexHostCollection>" splitLevel="0"/>
 </lcgdict>

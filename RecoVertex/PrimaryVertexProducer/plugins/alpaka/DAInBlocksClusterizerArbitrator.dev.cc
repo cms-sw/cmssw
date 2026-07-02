@@ -4,9 +4,9 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/radixSort.h"
 
-#include "RecoVertex/PrimaryVertexProducer/plugins/alpaka/DAInBlocksClusterizerAlgo.h"
+#include "DAInBlocksClusterizerAlgo.h"
 
-#define DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ARBITRATOR 1
+//#define DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ARBITRATOR 1
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakatools;
@@ -14,11 +14,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Device functions //
   //////////////////////
 
-  template <alpaka::concepts::Acc TAcc>
-  ALPAKA_FN_ACC static void resortVerticesAndAssign(const TAcc& acc,
-                                                    TrackForVertexDeviceCollection::View tracks,
-                                                    VertexDeviceCollection::View vertices,
-                                                    ClusterParameters const& cParams) {
+  ALPAKA_FN_ACC static void resortVerticesAndAssign(const Acc1D& acc,
+                                                    reco::TrackForVertexDeviceCollection::View tracks,
+                                                    reco::VertexDeviceCollection::View vertices,
+                                                    DAInBlocksClusterParameters const& cParams) {
     // Multiblock vertex arbitration
     double beta = 1. / cParams.Tstop;
     const unsigned int maxVerticesInSoA = 1024;
@@ -35,7 +34,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     for (unsigned int iv = 0; iv < maxVerticesInSoA; iv += blockSize) {
       if (vertices[iv].isGood()) {
-        if ((vertices[iv].rho() > 10000) || (abs(vertices[iv].z()) > 30)) {
+        if ((vertices[iv].rho() > 10000) || (alpaka::math::abs(acc,vertices[iv].z()) > 30)) {
           vertices[iv].isGood() = false;
         }
       }
@@ -102,7 +101,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     for (int itrack = threadIdx; itrack < tracks.nT(); itrack += blockSize) {
       if (not(tracks[itrack].isGood()))
         continue;
-      double zrange = std::max(cParams.zrange / sqrt((beta)*tracks[itrack].oneoverdz2()), zrange_min_);
+      double zrange = alpaka::math::max(acc,cParams.zrange / alpaka::math::sqrt(acc,(beta)*tracks[itrack].oneoverdz2()), zrange_min_);
       double zmin = tracks[itrack].z() - zrange;
       int kmin = vertices[0].nV() - 1;
       if (kmin < 0)
@@ -134,8 +133,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         tracks[itrack].kmin() = kmin;
         tracks[itrack].kmax() = kmax + 1;
       } else {
-        tracks[itrack].kmin() = std::max(0, std::min(kmin, kmax));
-        tracks[itrack].kmax() = std::min(vertices[0].nV(), std::max(kmin, kmax) + 1);
+        tracks[itrack].kmin() = alpaka::math::max(acc,0, alpaka::math::min(acc,kmin, kmax));
+        tracks[itrack].kmax() = alpaka::math::min(acc,vertices[0].nV(), alpaka::math::max(acc,kmin, kmax) + 1);
       }
     }
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ARBITRATOR
@@ -148,7 +147,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::syncBlockThreads(acc);
     double mintrkweight_ = 0.5;
     double rho0 = vertices[0].nV() > 1 ? 1. / vertices[0].nV() : 1.;
-    double z_sum_init = rho0 * exp(-(beta)*cParams.dzCutOff * cParams.dzCutOff);
+    double z_sum_init = rho0 * alpaka::math::exp(acc,-(beta)*cParams.dzCutOff * cParams.dzCutOff);
     for (int itrack = threadIdx; itrack < tracks.nT(); itrack += blockSize) {
       int kmin = tracks[itrack].kmin();
       int kmax = tracks[itrack].kmax();
@@ -156,14 +155,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       int iMax = 10000;
       double sum_Z = z_sum_init;
       for (auto k = kmin; k < kmax; k++) {
-        double v_exp = exp(-(beta)*std::pow(tracks[itrack].z() - vertices[vertices[k].order()].z(), 2) *
+        double v_exp = alpaka::math::exp(acc,-(beta)*alpaka::math::pow(acc,tracks[itrack].z() - vertices[vertices[k].order()].z(), 2) *
                            tracks[itrack].oneoverdz2());
         sum_Z += vertices[vertices[k].order()].rho() * v_exp;
       }
       double invZ = sum_Z > 1e-40 ? 1. / sum_Z : 0.0;
       // Univocally assign a track to the highest probability vertex
       for (auto k = kmin; k < kmax; k++) {
-        float v_exp = exp(-(beta)*std::pow(tracks[itrack].z() - vertices[vertices[k].order()].z(), 2) *
+        float v_exp = alpaka::math::exp(acc,-(beta)*alpaka::math::pow(acc,tracks[itrack].z() - vertices[vertices[k].order()].z(), 2) *
                           tracks[itrack].oneoverdz2());
         float p = vertices[vertices[k].order()].rho() * v_exp * invZ;
         if (p > p_max && p > mintrkweight_) {
@@ -185,11 +184,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::syncBlockThreads(acc);
   }  //resortVerticesAndAssign
 
-  template <alpaka::concepts::Acc TAcc>
-  ALPAKA_FN_ACC static void finalizeVertices(const TAcc& acc,
-                                             TrackForVertexDeviceCollection::View tracks,
-                                             VertexDeviceCollection::View vertices,
-                                             ClusterParameters const& cParams) {
+  ALPAKA_FN_ACC static void finalizeVertices(const Acc1D& acc,
+                                             reco::TrackForVertexDeviceCollection::View tracks,
+                                             reco::VertexDeviceCollection::View vertices,
+                                             DAInBlocksClusterParameters const& cParams) {
     int blockSize = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
     int threadIdx = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u];
     // First put the tracks in vertex SoA
@@ -254,7 +252,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                    k);
           }
 #endif
-        } else if (abs(vertices[thisVertex].z() - vertices[vertices[prevVertex].order()].z()) >
+        } else if (alpaka::math::abs(acc,vertices[thisVertex].z() - vertices[vertices[prevVertex].order()].z()) >
                    (2 * cParams.vertexSize)) {
           // If it is further away enough, it is also good
           vertices[thisVertex].isGood() = true;
@@ -300,10 +298,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
       // We have to deal with the order being broken by the invalidation of vertexes and set back again the vertex multiplicity, unfortunately can't be parallelized without threads competing
       int k = 0;
+      const int lastPossibleVertex = 9999;
       while (k != vertices[0].nV()) {
         int thisVertex = vertices[k].order();
-        printf("%i, %i, %i\n", k, thisVertex, vertices[0].nV());
-        if (thisVertex == 9999) {
+        if (thisVertex == lastPossibleVertex) {
           // i.e. if it was purged it was bad
           for (int l = k; l < vertices[0].nV(); l++) {
             vertices[l].order() = vertices[l + 1].order();
@@ -330,11 +328,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class ArbitrateKernel {
   public:
-    template <alpaka::concepts::Acc TAcc>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                  TrackForVertexDeviceCollection::View tracks,
-                                  VertexDeviceCollection::View vertices,
-                                  ClusterParameters const& cParams,
+    ALPAKA_FN_ACC void operator()(const Acc1D& acc,
+                                  reco::TrackForVertexDeviceCollection::View tracks,
+                                  reco::VertexDeviceCollection::View vertices,
+                                  DAInBlocksClusterParameters const& cParams,
                                   int32_t nBlocks) const {
       // This has the core of the clusterization algorithm
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCER_ARBITRATOR
@@ -360,9 +357,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };  // class kernel
 
   void DAInBlocksClusterizerAlgo::arbitrate(Queue& queue,
-                                            TrackForVertexDeviceCollection& deviceTrack,
-                                            VertexDeviceCollection& deviceVertex,
-                                            ClusterParameters const& cParams,
+                                            reco::TrackForVertexDeviceCollection& deviceTrack,
+                                            reco::VertexDeviceCollection& deviceVertex,
+                                            DAInBlocksClusterParameters const& cParams,
                                             int32_t nBlocks,
                                             int32_t blockSize) {
     const int blocks = divide_up_by(blockSize, blockSize);  //Single block, as it has to converge to a single collection

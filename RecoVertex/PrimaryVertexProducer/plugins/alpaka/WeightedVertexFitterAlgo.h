@@ -17,8 +17,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     WeightedVertexFitterAlgo(Queue& queue, FitterParameters fPar);
     void fit(Queue& queue,
-             const TrackForVertexDeviceCollection& deviceTrack,
-             VertexDeviceCollection& deviceVertex,
+             const reco::TrackForVertexDeviceCollection& deviceTrack,
+             reco::VertexDeviceCollection& deviceVertex,
              const BeamSpotDevice& deviceBeamSpot);
 
   private:

@@ -6,11 +6,10 @@
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
-namespace {
-  constexpr int maxTracksPerVertex = 1024;
-}
-using VertexToTrack = Eigen::Vector<float, maxTracksPerVertex>;
-using VertexToTrackInt = Eigen::Vector<int, maxTracksPerVertex>;
+namespace reco {
+constexpr int maxTracksPerVertexForDeterministicAnnealing = 1024;
+using VertexToTrack = Eigen::Vector<float, maxTracksPerVertexForDeterministicAnnealing>;
+using VertexToTrackInt = Eigen::Vector<int, maxTracksPerVertexForDeterministicAnnealing>;
 
 GENERATE_SOA_LAYOUT(
     VertexSoALayout,
@@ -46,5 +45,5 @@ GENERATE_SOA_LAYOUT(
     SOA_COLUMN(int32_t, nV))
 
 using VertexSoA = VertexSoALayout<>;
-
+}
 #endif  // DataFormats_VertexSoA_interface_VertexSoA_h

@@ -1,5 +1,4 @@
 #include <alpaka/alpaka.hpp>
-#include <cmath>
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
@@ -10,12 +9,11 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakatools;
 
-  class createBlocksKernel {
+  class CreateBlocksKernel {
   public:
-    template <alpaka::concepts::Acc TAcc>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                  const TrackForVertexDeviceCollection::ConstView inputTracks,
-                                  TrackForVertexDeviceCollection::View trackInBlocks,
+    ALPAKA_FN_ACC void operator()(const Acc1D& acc,
+                                  const reco::TrackForVertexDeviceCollection::ConstView inputTracks,
+                                  reco::TrackForVertexDeviceCollection::View trackInBlocks,
                                   double blockOverlap,
                                   int32_t blockSize) const {
 #ifdef DEBUG_RECOVERTEX_PRIMARYVERTEXPRODUCERPORTABLE_BLOCKALGO
@@ -34,9 +32,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       printf("[TracksForDAInBlocksAlgo::operator()] Will create nBlocks: %i\n", nBlocks);
 #endif
       int32_t overlapStart = blockOverlap * blockSize;
+      // The accelerator has as much threads as blockSize, so each thread will enter once on each block
       for (auto iNewTrack : uniform_elements(
                acc,
-               blockSize)) {  // The accelerator has as much threads as blockSize, so each thread will enter once on each block
+               blockSize)) {  
         for (int32_t iblock = 0; iblock < nBlocks; iblock++) {  // Each thread will create -up to- one track per block
           int32_t oldIndex = (iblock * overlapStart) +
                              iNewTrack;  // I.e. first track in the block in which we are + thread in which we are
@@ -80,7 +79,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         trackInBlocks.nT() =
             (int32_t)(nBlocks * blockSize + nTOld -
                       blockOverlap * blockSize *
-                          std::ceil(
+                          alpaka::math::ceil(acc,
                               nTOld /
                               (blockOverlap *
                                blockSize)));  // The new number of tracks has to account for the fact that we overlapped
@@ -97,15 +96,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   TracksForDAInBlocksAlgo::TracksForDAInBlocksAlgo() {}  // TracksForDAInBlocksAlgo::TracksForDAInBlocksAlgo
 
   void TracksForDAInBlocksAlgo::createBlocks(Queue& queue,
-                                             const TrackForVertexDeviceCollection& inputTracks,
-                                             TrackForVertexDeviceCollection& trackInBlocks,
+                                             const reco::TrackForVertexDeviceCollection& inputTracks,
+                                             reco::TrackForVertexDeviceCollection& trackInBlocks,
                                              int32_t bSize,
                                              double bOverlap) {
     const int threadsPerBlock = bSize;  // each thread will write nBlocks tracks
     const int blocks = 1;               // 1 block with all threads
     alpaka::exec<Acc1D>(queue,
                         make_workdiv<Acc1D>(blocks, threadsPerBlock),
-                        createBlocksKernel{},
+                        CreateBlocksKernel{},
                         inputTracks.view(),
                         trackInBlocks.view(),
                         bOverlap,

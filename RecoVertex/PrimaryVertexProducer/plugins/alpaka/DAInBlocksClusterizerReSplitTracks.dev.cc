@@ -1,4 +1,4 @@
-#include "RecoVertex/PrimaryVertexProducer/plugins/alpaka/DAInBlocksClusterizerAlgo.h"
+#include "DAInBlocksClusterizerAlgo.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace cms::alpakatools;
@@ -8,11 +8,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class ReSplitTracksKernel {
   public:
-    template <alpaka::concepts::Acc TAcc>
-    ALPAKA_FN_ACC void operator()(const TAcc& acc,
-                                  TrackForVertexDeviceCollection::View tracks,
-                                  VertexDeviceCollection::View vertices,
-                                  ClusterParameters const& cParams,
+    ALPAKA_FN_ACC void operator()(const Acc1D& acc,
+                                  reco::TrackForVertexDeviceCollection::View tracks,
+                                  reco::VertexDeviceCollection::View vertices,
+                                  DAInBlocksClusterParameters const& cParams,
                                   double* beta_,
                                   double* osumtkwt_,
                                   int trackBlockSize) const {
@@ -43,14 +42,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };  // class kernel
 
   void DAInBlocksClusterizerAlgo::resplit_tracks(Queue& queue,
-                                                 TrackForVertexDeviceCollection& deviceTrack,
-                                                 VertexDeviceCollection& deviceVertex,
-                                                 ClusterParameters const& cParams,
+                                                 reco::TrackForVertexDeviceCollection& deviceTrack,
+                                                 reco::VertexDeviceCollection& deviceVertex,
+                                                 DAInBlocksClusterParameters const& cParams,
                                                  int32_t nBlocks,
                                                  int32_t blockSize) {
-    const int blocks = divide_up_by(nBlocks * blockSize, blockSize);  //nBlocks of size blockSize
     alpaka::exec<Acc1D>(queue,
-                        make_workdiv<Acc1D>(blocks, blockSize),
+                        make_workdiv<Acc1D>(nBlocks, blockSize),
                         ReSplitTracksKernel{},
                         deviceTrack.view(),
                         deviceVertex.view(),

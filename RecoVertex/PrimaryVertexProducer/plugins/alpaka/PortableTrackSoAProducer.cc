@@ -9,7 +9,7 @@
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/global/EDProducer.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDPutToken.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -39,7 +39,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     double maxchi2;
     int minpixelHits;
     int mintrackerHits;
-    reco::TrackBase::TrackQuality trackQuality;
+    ::reco::TrackBase::TrackQuality trackQuality;
     double vertexSize;
     double d0CutOff;
   };
@@ -49,8 +49,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     PortableTrackSoAProducer(edm::ParameterSet const& config)
         : global::EDProducer<>(config),
           theTTBToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
-          trackToken_(consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("TrackLabel"))),
-          beamSpotToken_(consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("BeamSpotLabel"))),
+          trackToken_(consumes<::reco::TrackCollection>(config.getParameter<edm::InputTag>("TrackLabel"))),
+          beamSpotToken_(consumes<::reco::BeamSpot>(config.getParameter<edm::InputTag>("BeamSpotLabel"))),
           fParams(
               {.maxSignificance = config.getParameter<edm::ParameterSet>("TkFilterParameters")
                                       .getParameter<double>("maxD0Significance"),
@@ -67,7 +67,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                    .getParameter<int>("minPixelLayersWithHits"),
                .mintrackerHits = config.getParameter<edm::ParameterSet>("TkFilterParameters")
                                      .getParameter<int>("minSiliconLayersWithHits"),
-               .trackQuality = reco::TrackBase::undefQuality,
+               .trackQuality = ::reco::TrackBase::undefQuality,
                .vertexSize =
                    config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<double>("vertexSize"),
                .d0CutOff =
@@ -76,23 +76,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       std::string qualityClass =
           config.getParameter<edm::ParameterSet>("TkFilterParameters").getParameter<std::string>("trackQuality");
       if (qualityClass != "any" && qualityClass != "Any" && qualityClass != "ANY" && !(qualityClass.empty()))
-        fParams.trackQuality = reco::TrackBase::qualityByName(qualityClass);
+        fParams.trackQuality = ::reco::TrackBase::qualityByName(qualityClass);
     }
 
     void produce(edm::StreamID sid, device::Event& iEvent, device::EventSetup const& iSetup) const override {
       // Get input collections from event
       auto tracks = iEvent.getHandle(trackToken_);
-      auto beamSpotHandle = iEvent.getHandle(beamSpotToken_);
-      reco::BeamSpot beamSpot;
-      if (beamSpotHandle.isValid())
-        beamSpot = *beamSpotHandle;
-      else
-        throw cms::Exception("FatalError")
-            << "[PortableTrackSoAProducer::produce] Unable to find valid BeamSpot in event\n";
-      int32_t tsize_ = tracks.product()->size();
+      const ::reco::BeamSpot beamSpot = iEvent.get(beamSpotToken_);
+      int32_t tsize_ = tracks->size();
 
       // Host collections
-      TrackForVertexHostCollection hostTracks(iEvent.queue(), tsize_);
+      reco::TrackForVertexHostCollection hostTracks(iEvent.queue(), tsize_);
       auto& tview = hostTracks.view();
 
       // Fill Host collections with input, first initialize globals
@@ -100,11 +94,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       tview.nT() = 0;
 
       // Build transient tracks
-      const auto& theB = &iSetup.getData(theTTBToken_);
-      std::vector<reco::TransientTrack> t_tks = (*theB).build(tracks, beamSpot);
+      const auto& theB = iSetup.getData(theTTBToken_);
+      std::vector<::reco::TransientTrack> t_tks = theB.build(tracks, beamSpot);
 
       // We want to keep track of the original reco::Track index to later redo the conversion back to reco::Vertex
-      std::vector<std::pair<int32_t, reco::TransientTrack>> sortedTracksPair;
+      std::vector<std::pair<int32_t, ::reco::TransientTrack>> sortedTracksPair;
       sortedTracksPair.reserve(tsize_);
       for (int32_t idx = 0; idx < tsize_; idx++) {
         sortedTracksPair.emplace_back(idx, t_tks[idx]);
@@ -112,8 +106,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       std::sort(sortedTracksPair.begin(),
                 sortedTracksPair.end(),
-                [](const std::pair<int32_t, reco::TransientTrack>& a,
-                   const std::pair<int32_t, reco::TransientTrack>& b) -> bool {
+                [](const std::pair<int32_t, ::reco::TransientTrack>& a,
+                   const std::pair<int32_t, ::reco::TransientTrack>& b) -> bool {
                   return (a.second.stateAtBeamLine().trackStateAtPCA()).position().z() <
                          (b.second.stateAtBeamLine().trackStateAtPCA()).position().z();
                 });
@@ -124,7 +118,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         double weight = convertTrack(tview[nTrueTracks],
                                      sortedTracksPair[idx].second,
                                      beamSpot,
-                                     fParams,
                                      sortedTracksPair[idx].first,
                                      nTrueTracks);
         if (weight > 0) {
@@ -143,7 +136,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
              nTrueTracks);
 #endif
       // Create device collections and copy into device
-      TrackForVertexDeviceCollection deviceTracks(iEvent.queue(), tsize_);
+      reco::TrackForVertexDeviceCollection deviceTracks(iEvent.queue(), tsize_);
 
       alpaka::memcpy(iEvent.queue(), deviceTracks.buffer(), hostTracks.buffer());
 
@@ -174,22 +167,20 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> theTTBToken_;
-    edm::EDGetTokenT<reco::TrackCollection> trackToken_;
-    edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
-    device::EDPutToken<TrackForVertexDeviceCollection> devicePutToken_;
-    static double convertTrack(TrackForVertexHostCollection::View::element out,
-                               const reco::TransientTrack in,
-                               const reco::BeamSpot bs,
-                               const TrackFilterParametersForVertexing fParams,
+    edm::EDGetTokenT<::reco::TrackCollection> trackToken_;
+    edm::EDGetTokenT<::reco::BeamSpot> beamSpotToken_;
+    device::EDPutToken<reco::TrackForVertexDeviceCollection> devicePutToken_;
+    double convertTrack(reco::TrackForVertexHostCollection::View::element out,
+                               const ::reco::TransientTrack in,
+                               const ::reco::BeamSpot bs,
                                int32_t idx,
                                int32_t order);
     TrackFilterParametersForVertexing fParams;
   };  //PortableTrackSoAProducer declaration
 
-  double PortableTrackSoAProducer::convertTrack(TrackForVertexHostCollection::View::element out,
-                                                const reco::TransientTrack in,
-                                                const reco::BeamSpot bs,
-                                                const TrackFilterParametersForVertexing fParams,
+  double PortableTrackSoAProducer::convertTrack(reco::TrackForVertexHostCollection::View::element out,
+                                                const ::reco::TransientTrack in,
+                                                const ::reco::BeamSpot bs,
                                                 int32_t idx,
                                                 int32_t order) {
     double weight = -1;
@@ -202,7 +193,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         (in.normalizedChi2() < fParams.maxchi2) &&
         (in.hitPattern().pixelLayersWithMeasurement() >= fParams.minpixelHits) &&
         (in.hitPattern().trackerLayersWithMeasurement() >= fParams.mintrackerHits) &&
-        (in.track().quality(fParams.trackQuality) || (fParams.trackQuality == reco::TrackBase::undefQuality))) {
+        (in.track().quality(fParams.trackQuality) || (fParams.trackQuality == ::reco::TrackBase::undefQuality))) {
       weight = 1.;
       if (fParams.d0CutOff > 0) {
         // significance is measured in the transverse plane
@@ -212,12 +203,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         weight = 1. / (1. + exp(std::pow(significance, 2) - std::pow(fParams.d0CutOff, 2)));
       }
       // Just fill up variables
-      out.x() = in.stateAtBeamLine().trackStateAtPCA().position().x();
-      out.y() = in.stateAtBeamLine().trackStateAtPCA().position().y();
-      out.z() = in.stateAtBeamLine().trackStateAtPCA().position().z();
-      out.px() = in.stateAtBeamLine().trackStateAtPCA().momentum().x();
-      out.py() = in.stateAtBeamLine().trackStateAtPCA().momentum().y();
-      out.pz() = in.stateAtBeamLine().trackStateAtPCA().momentum().z();
+      auto position = in.stateAtBeamLine().trackStateAtPCA().position();
+      auto momentum = in.stateAtBeamLine().trackStateAtPCA().momentum();
+      out.x() = position.x();
+      out.y() = position.y();
+      out.z() = position.z();
+      out.px() = momentum.x();
+      out.py() = momentum.y();
+      out.pz() = momentum.z();
       out.weight() = weight;
       // The original index in the reco::Track collection so we can go back to it eventually
       out.ttIndex() = idx;
@@ -227,7 +220,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       double oneoverdz2 = (out.dz2()) +
                           ((std::pow(bs.BeamWidthX() * out.px(), 2)) + (std::pow(bs.BeamWidthY() * out.py(), 2))) *
                               std::pow(out.pz(), 2) /
-                              std::pow(in.stateAtBeamLine().trackStateAtPCA().momentum().perp2(), 2) +
+                              std::pow(momentum.perp2(), 2) +
                           std::pow(fParams.vertexSize, 2);
       oneoverdz2 = 1. / oneoverdz2;
       out.oneoverdz2() = oneoverdz2;

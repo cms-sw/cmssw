@@ -4,5 +4,5 @@
 #include "HeterogeneousCore/TrivialSerialisation/interface/SerialiserFactory.h"
 
 DEFINE_TRIVIAL_SERIALISER_PLUGIN(reco::ZVertexHost);
-DEFINE_TRIVIAL_SERIALISER_PLUGIN(VertexHostCollection);
-DEFINE_TRIVIAL_SERIALISER_PLUGIN(TrackForVertexHostCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN(reco::VertexHostCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN(reco::TrackForVertexHostCollection);

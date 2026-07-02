@@ -11,8 +11,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     TracksForDAInBlocksAlgo();
     void createBlocks(Queue& queue,
-                      const TrackForVertexDeviceCollection& inputTrack,
-                      TrackForVertexDeviceCollection& trackInBlocks,
+                      const reco::TrackForVertexDeviceCollection& inputTrack,
+                      reco::TrackForVertexDeviceCollection& trackInBlocks,
                       int32_t blockSize,
                       double blockOverlap);  // The actual block creation
 

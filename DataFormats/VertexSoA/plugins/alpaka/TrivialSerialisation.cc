@@ -4,5 +4,5 @@
 #include "HeterogeneousCore/TrivialSerialisation/interface/alpaka/SerialiserFactoryDevice.h"
 
 DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(reco::ZVertexSoACollection);
-DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(VertexDeviceCollection);
-DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(TrackForVertexDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(reco::VertexDeviceCollection);
+DEFINE_TRIVIAL_SERIALISER_PLUGIN_DEVICE(reco::TrackForVertexDeviceCollection);

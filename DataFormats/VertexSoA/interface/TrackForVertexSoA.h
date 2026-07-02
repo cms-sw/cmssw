@@ -6,11 +6,11 @@
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
-namespace {
-  constexpr int maxTotalVertex = 1024;
-}
 
-using TrackToVertex = Eigen::Vector<float, maxTotalVertex>;
+namespace reco {
+constexpr int maxTotalVertexForDeterministicAnnealing = 1024;
+
+using TrackToVertex = Eigen::Vector<float, maxTotalVertexForDeterministicAnnealing>;
 GENERATE_SOA_LAYOUT(TrackForVertexSoALayout,
                     // columns: one value per element
                     SOA_COLUMN(float, dxy2),
@@ -58,5 +58,5 @@ GENERATE_SOA_LAYOUT(TrackForVertexSoALayout,
                     SOA_SCALAR(float, totweight))
 
 using TrackForVertexSoA = TrackForVertexSoALayout<>;
-
+}
 #endif  // DataFormats_VertexSoA_interface_TrackForVertexSoA_h

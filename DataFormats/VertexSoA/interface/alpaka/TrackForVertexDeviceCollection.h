@@ -6,11 +6,11 @@
 #include "DataFormats/VertexSoA/interface/TrackForVertexSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
-  using ::TrackForVertexHostCollection;
+namespace ALPAKA_ACCELERATOR_NAMESPACE::reco {
+  using ::reco::TrackForVertexHostCollection;
 
-  using TrackForVertexDeviceCollection = PortableCollection<::TrackForVertexSoA>;
+  using TrackForVertexDeviceCollection = PortableCollection<::reco::TrackForVertexSoA>;
 
-}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE::reco
 
 #endif  // DataFormats_VertexSoA_interface_alpaka_TrackForVertexDeviceCollection_h
