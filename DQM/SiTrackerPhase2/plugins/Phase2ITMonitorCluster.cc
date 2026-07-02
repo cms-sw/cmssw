@@ -53,8 +53,6 @@ private:
     MonitorElement* ClusterSizeX = nullptr;
     MonitorElement* ClusterSizeY = nullptr;
     MonitorElement* ClusterCharge = nullptr;
-    MonitorElement* XYGlobalPositionMapPixel = nullptr;
-    MonitorElement* XYLocalPositionMapPixel = nullptr;
   };
 
   MonitorElement* numberClusters_;
@@ -154,9 +152,7 @@ void Phase2ITMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
         if (local_mesIT == layerMEs_.end())
           continue;
         ClusterMEs& local_mes = local_mesIT->second;
-        if (local_mes.XYGlobalPositionMapPixel)  //make this optional
-          local_mes.XYGlobalPositionMapPixel->Fill(globalPosCluster.z(), globalPosCluster.perp());
-        local_mes.XYLocalPositionMapPixel->Fill(localPosCluster.x(), localPosCluster.y());
+
         local_mes.ClusterSize->Fill(clusterItr.size());
         local_mes.ClusterSizeX->Fill(clusterItr.sizeX());
         local_mes.ClusterSizeY->Fill(clusterItr.sizeY());
@@ -275,12 +271,6 @@ void Phase2ITMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
 
       local_mes.ClusterCharge =
           phase2tkutil::book1DFromPSet(config_.getParameter<edm::ParameterSet>("ClusterCharge"), ibooker);
-
-      local_mes.XYLocalPositionMapPixel =
-          phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("LocalPositionXY"), ibooker);
-
-      local_mes.XYGlobalPositionMapPixel =
-          phase2tkutil::book2DFromPSet(config_.getParameter<edm::ParameterSet>("GlobalPositionXY_perlayer"), ibooker);
 
       layerMEs_.emplace(folderName, local_mes);
     }
@@ -404,32 +394,6 @@ void Phase2ITMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& de
     psd0.add<double>("xmax", 30.5);
     psd0.add<int>("NxBins", 31);
     desc.add<edm::ParameterSetDescription>("ClusterSizeX", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "Local_Cluster_Position_XY");
-    psd0.add<std::string>("title", "Local_ClusterPosition_XY; x; y");
-    psd0.add<double>("ymax", 0.0);
-    psd0.add<int>("NxBins", 500);
-    psd0.add<int>("NyBins", 500);
-    psd0.add<bool>("switch", true);
-    psd0.add<double>("xmax", 0.0);
-    psd0.add<double>("xmin", 0.0);
-    psd0.add<double>("ymin", 0.0);
-    desc.add<edm::ParameterSetDescription>("LocalPositionXY", psd0);
-  }
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("name", "GlobalPositionXY_perlayer");
-    psd0.add<std::string>("title", "GlobalClusterPositionXY_perlayer;x [mm];y [mm];");
-    psd0.add<double>("ymax", 300.0);
-    psd0.add<int>("NxBins", 600);
-    psd0.add<int>("NyBins", 600);
-    psd0.add<bool>("switch", false);
-    psd0.add<double>("xmax", 300.0);
-    psd0.add<double>("xmin", -300.0);
-    psd0.add<double>("ymin", -300.0);
-    desc.add<edm::ParameterSetDescription>("GlobalPositionXY_perlayer", psd0);
   }
 
   desc.add<std::string>("TopFolderName", "InnerTracker");

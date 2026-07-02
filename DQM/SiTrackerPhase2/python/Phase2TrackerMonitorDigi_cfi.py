@@ -84,7 +84,7 @@ digiMon = DQMEDAnalyzer('Phase2TrackerMonitorDigi',
                         NumberOfHitDetsPerLayerH = cms.PSet(
                             Nbins = cms.int32(5000),
                             xmin   = cms.double(-0.5),
-                            xmax   = cms.double(4999.5),
+                            xmax   = cms.double(2999.5),
                             switch = cms.bool(True)
                         ),
                         NumberOfClustersPerDetH = cms.PSet(
