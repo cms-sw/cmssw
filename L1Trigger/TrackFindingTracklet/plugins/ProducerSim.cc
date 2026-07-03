@@ -15,6 +15,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
 #include "L1Trigger/TrackTrigger/interface/StubPtConsistency.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "conifer.h"
 
 #include <string>
 #include <vector>
@@ -49,9 +50,14 @@ namespace trklet {
     const Setup* setup_;
     //
     std::vector<int> nPer_;
+    // bdt models for baseline and extended tracking
+    conifer::BDT<float, float> bdt4_;
+    conifer::BDT<float, float> bdt5_;
   };
 
-  ProducerSim::ProducerSim(const edm::ParameterSet& iConfig) {
+  ProducerSim::ProducerSim(const edm::ParameterSet& iConfig) :
+    bdt4_ (iConfig.getParameter<edm::FileInPath>("BDT4ParSim").fullPath()),
+    bdt5_ (iConfig.getParameter<edm::FileInPath>("BDT5ParSim").fullPath()) {
     const edm::InputTag& inputTag = iConfig.getParameter<edm::InputTag>("InputTagTracklet");
     const std::string& branchTracks = iConfig.getParameter<std::string>("BranchTTTracks");
     // book in- and output ED products
@@ -244,9 +250,30 @@ namespace trklet {
         ttTrack = comb;
         ttTrack.setStubRefs(permutation);
       }
+      // prepare attributes for mva evaluation
+      const float nstubs = ttTrack.getStubRefs().size();
+      const float z0 =  ttTrack.z0();
+      const float tanL = ttTrack.tanL();
+      const float chi20 = ttTrack.chi2XY();
+      const float chi21 = ttTrack.chi2Z();
+      const float hitpattern = ttTrack.hitPattern();
+      float mva = 0;
+      // bdt evaluation
+      if (setup_->simNPar() == 4) {
+        std::vector<float> inputs = {nstubs, z0, tanL, chi20, chi21, hitpattern};
+        mva = bdt4_.decision_function(inputs).at(0);
+      } else if (setup_->simNPar() == 5) {
+        std::vector<float> inputs = {nstubs, z0, tanL, chi20, chi21, hitpattern};
+        mva = bdt5_.decision_function(inputs).at(0);
+      }
+      // apply activation function to mva
+      mva = 1. / (1. + exp(-mva));
+      // set mva value
+      ttTrack.settrkMVA1(mva);
       // finish TTTrack
       ttTrack.setChi2BendRed(StubPtConsistency::getConsistency(
           ttTrack, setup_->trackerGeometry(), setup_->trackerTopology(), setup_->sysBField(), setup_->simNPar()));
+      // set track word bits
       ttTrack.setTrackWordBits();
     }
     // store products
