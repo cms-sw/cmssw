@@ -362,6 +362,9 @@ class DQMPlotter:
             else:
                 legend_title_fontsize = 24
 
+        if self._is_tex_math(legend_title):
+            legend_title = fr'${legend_title}$'
+
         if place_outside:
             y_min, y_max = ax.get_ylim()
             y_range = y_max - y_min
