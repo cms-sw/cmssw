@@ -800,6 +800,8 @@ class DQMPlotter:
         title=None,
         xtitle=None,
         ytitle=None,
+        xtitle_fontsize=None,
+        ytitle_fontsize=None,
         xlim=None,
         ylim=None,
         ylim_ratio=None,
@@ -909,8 +911,8 @@ class DQMPlotter:
 
         xlabel, ylabel = self._apply_axis_scaling(ax_main, xlabel, ylabel, title, logy, xlim, has_negative_values)
 
-        ax_main.set_xlabel(xlabel, fontsize=label_size)
-        ax_main.set_ylabel(ylabel, fontsize=label_size)
+        ax_main.set_xlabel(xlabel, fontsize=label_size if xtitle_fontsize is None else xtitle_fontsize)
+        ax_main.set_ylabel(ylabel, fontsize=label_size if ytitle_fontsize is None else ytitle_fontsize)
         
         if has_labels: # Set custom labels if available
             ax_main.set_xticks(
@@ -979,9 +981,9 @@ class DQMPlotter:
                 )
                 ax_ratio.tick_params(axis="x", which="minor", bottom=False)
             else:
-                ax_ratio.set_xlabel(xlabel)
+                ax_ratio.set_xlabel(xlabel, fontsize=label_size if xtitle_fontsize is None else xtitle_fontsize)
 
-            ax_ratio.set_ylabel("Ratio")
+            ax_ratio.set_ylabel("Ratio", fontsize=label_size if ytitle_fontsize is None else ytitle_fontsize)
             ax_ratio.axhline(y=1, color="black", linestyle="--", alpha=0.7)
 
             if grid:
@@ -1471,8 +1473,16 @@ if __name__ == "__main__":
         help="Label of the y axis."
     )
     parser.add_argument(
+        '--xtitle-fontsize', type=int, required=False, default=None,
+        help="X axis label font size."
+    )
+    parser.add_argument(
         '--xlim', nargs=2, type=float, required=False,
         help="Numerical limits of the x axis of the main and ratio histograms."
+    )
+    parser.add_argument(
+        '--ytitle-fontsize', type=int, required=False, default=None,
+        help="Y axis label font size."
     )
     parser.add_argument(
         '--ylim', nargs=2, type=float, required=False,
@@ -1604,7 +1614,9 @@ if __name__ == "__main__":
         grid=not args.no_grid,
         title=args.title,
         xtitle=args.xtitle,
+        xtitle_fontsize=args.xtitle_fontsize,
         ytitle=args.ytitle,
+        ytitle_fontsize=args.ytitle_fontsize,
         xlim=args.xlim,
         ylim=args.ylim,
         ylim_ratio=args.ylim_ratio,
