@@ -35,6 +35,7 @@ ME0StubBuilderV2::ME0StubBuilderV2(const edm::ParameterSet& ps) {
   mseThreshold_ = ps.getParameter<double>("mseThreshold");
   bendAngleCut_ = ps.getParameter<double>("bendAngleCut");
   BXWindow_ = ps.getParameter<int32_t>("BXWindow");
+  enablePeaking_ = ps.getParameter<bool>("enablePeaking");
   debug_ = ps.getParameter<bool>("debug");
 }
 ME0StubBuilderV2::~ME0StubBuilderV2() {}
@@ -60,6 +61,7 @@ void ME0StubBuilderV2::fillDescription(edm::ParameterSetDescription& desc) {
   desc.add<double>("mseThreshold", 0.75);
   desc.add<double>("bendAngleCut", 1.0);
   desc.add<int32_t>("BXWindow", 3);
+  desc.add<bool>("enablePeaking", true);
   desc.add<bool>("debug", false);
 }
 
@@ -85,6 +87,7 @@ void ME0StubBuilderV2::build(const GEMPadDigiCollection* padDigis, GE0TriggerDig
   config.mseThreshold = mseThreshold_;
   config.bendAngleCut = bendAngleCut_;
   config.BXWindow = BXWindow_;
+  config.enablePeaking = enablePeaking_;
 
   if (config.numOutputs <= 0) 
     throw cms::Exception("ME0StubBuilder") << "numOutputs must be greater than 0";

@@ -116,30 +116,6 @@ std::vector<ME0StubPrimitive> l1t::me0::processPartition(const std::vector<UInt1
   const std::vector<ME0StubPrimitive> segments =
       patMux(partitionData, partitionBxData, partition, config, peakingManager);
 
-  // bool is_debug_seg_exist = false;
-  // int debug_seg_id = 17;
-  // int debug_seg_quality = 33624284;
-  // int debug_seg_strip = 13;
-  // std::vector<int> list_of_none_segs_idx;
-  // for (const ME0StubPrimitive& seg : segments) {
-  //   if (seg.quality() == debug_seg_quality && seg.strip() == debug_seg_strip && seg.patternId() == debug_seg_id) {
-  //     is_debug_seg_exist = true;
-  //     break;
-  //   }
-  // }
-  // if (is_debug_seg_exist) {
-  //   std::cout << "Found debug segment (after patMux): " << is_debug_seg_exist << std::endl;
-  //   std::cout << "segments: " << std::endl;
-  //   for (int i = 0; i < static_cast<int>(segments.size()); ++i) {
-  //     const ME0StubPrimitive& seg = segments[i];
-  //     if (seg.patternId() == 0) {
-  //       list_of_none_segs_idx.push_back(i);
-  //       continue;
-  //     }
-  //     std::cout << seg << std::endl;
-  //   }
-  // }
-
   if (config.deghostPre && config.deghostPost) {
     throw std::runtime_error("Both pre and post deghosting cannot be enabled at the same time");
   }
@@ -149,17 +125,6 @@ std::vector<ME0StubPrimitive> l1t::me0::processPartition(const std::vector<UInt1
   } else {
     tmp = segments;
   }
-
-  // if (is_debug_seg_exist) {
-  //   std::cout << "segments (after cancelEdges pre): " << std::endl;
-  //   for (int i = 0; i < static_cast<int>(tmp.size()); ++i) {
-  //     if (std::find(list_of_none_segs_idx.begin(), list_of_none_segs_idx.end(), i) != list_of_none_segs_idx.end()) {
-  //       continue;
-  //     }
-  //     const ME0StubPrimitive& seg = tmp[i];
-  //     std::cout << seg << std::endl;
-  //   }
-  // }
 
   std::vector<std::vector<ME0StubPrimitive>> chunked = chunk(tmp, config.groupWidth);
   for (const std::vector<ME0StubPrimitive>& segV : chunked) {

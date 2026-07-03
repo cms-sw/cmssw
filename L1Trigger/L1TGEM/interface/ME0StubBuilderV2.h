@@ -58,6 +58,7 @@ private:
   double mseThreshold_;
   double bendAngleCut_;
   int32_t BXWindow_;
+  bool enablePeaking_;
   bool debug_ = false;
 };
 

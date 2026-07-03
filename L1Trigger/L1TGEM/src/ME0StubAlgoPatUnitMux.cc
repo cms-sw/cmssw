@@ -81,37 +81,17 @@ std::vector<ME0StubPrimitive> l1t::me0::patMux(const std::vector<UInt192>& parti
                                           false);
     newSegs.push_back(seg);
   }
-  auto peakingSegs = peakingManager.processSegments(partition, newSegs);
-  // auto peakingSegs = newSegs;
 
-  // bool is_debug_seg_exist = false;
-  // int debug_seg_quality = 50378603;
-  // int debug_seg_strip = 118;
-  // int debug_seg_id = 11;
-  // bool is_debug_seg_exist_2 = false;
-  // int debug_seg_quality_2 = 33625914;
-  // int debug_seg_strip_2 = 115;
-  // int debug_seg_id_2 = 17;
-  // for (const auto& seg : peakingSegs) {
-  //   if (seg.quality() == debug_seg_quality && seg.strip() == debug_seg_strip && seg.patternId() == debug_seg_id) {
-  //     is_debug_seg_exist = true;
-  //   }
-  //   if (seg.quality() == debug_seg_quality_2 && seg.strip() == debug_seg_strip_2 && seg.patternId() == debug_seg_id_2) {
-  //     is_debug_seg_exist_2 = true;
-  //   }
-  // }
-  // if (is_debug_seg_exist) {
-  //   std::cout << "Partition = " << partition << std::endl;
-  //   std::cout << "Found a segment with quality " << debug_seg_quality << ", strip " << debug_seg_strip << ", and pattern ID " << debug_seg_id << " (after peakingManager)" << std::endl;
-  // }
-  // if (is_debug_seg_exist_2) {
-  //   std::cout << "Partition = " << partition << std::endl;
-  //   std::cout << "Found a segment with quality " << debug_seg_quality_2 << ", strip " << debug_seg_strip_2 << ", and pattern ID " << debug_seg_id_2 << " (after peakingManager)" << std::endl;
-  // }
+  std::vector<ME0StubPrimitive> outSegs;
+  if (config.enablePeaking) {
+    outSegs = peakingManager.processSegments(partition, newSegs);
+  } else {
+    outSegs = newSegs;
+  }
 
   if (debug) {
     // auto seg_print = newSegs;
-    auto seg_print = peakingSegs;
+    auto seg_print = outSegs;
     int num = 0;
     std::cout << "Partition = " << partition << std::endl;
     for (const auto& seg : seg_print) {
@@ -124,5 +104,5 @@ std::vector<ME0StubPrimitive> l1t::me0::patMux(const std::vector<UInt192>& parti
     std::cout << std::endl;
   }
 
-  return peakingSegs;
+  return outSegs;
 }

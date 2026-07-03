@@ -56,9 +56,7 @@ namespace l1t {
       double bendAngleCut;
       int32_t BXWindow;
       int32_t pulseStretchBx;
-      bool peakingEnabled;
-      // PeakingManager peakingManager;
-      // void initializePeakingManager();
+      bool enablePeaking;
     };
 
     int countOnes(uint64_t x);

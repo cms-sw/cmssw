@@ -11,7 +11,7 @@ std::vector<ME0StubPrimitive> l1t::me0::PeakingManager::processSegments(const in
   std::vector<ME0StubPrimitive> output;
 
   // peaking algorithm
-  // --> trigger is only set when (oldest, old, new) = (not exist, exist, exist), and privous trigger is not set.
+  // --> trigger is only set when (oldest, old, new) = (not exist, exist, exist), and previous trigger is not set.
   // --> output is old segment when trigged, or (oldest, old, new) = (not exist, exist, not exist). Otherwise, output is empty segment.
   // ex)
   //    BX | oldest | old | new | trigger | output

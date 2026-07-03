@@ -152,67 +152,10 @@ std::tuple<std::vector<ME0StubPrimitive>, Config> l1t::me0::processChamber(
     segments.push_back(segs);
   }
 
-  // bool is_debug_seg_exist = false;
-  // int debug_seg_quality = 50378603;
-  // int debug_seg_strip = 118;
-  // int debug_seg_partition = 11;
-  // int debug_seg_id = 11;
-  // int debug_seg_bx = 0;
-  // bool is_debug_seg_exist_2 = false;
-  // int debug_seg_quality_2 = 33625914;
-  // int debug_seg_strip_2 = 115;
-  // int debug_seg_partition_2 = 10;
-  // int debug_seg_id_2 = 17;
-  // int debug_seg_bx_2 = 0;
-  // for (const auto& segs : segments) {
-  //   for (const auto& seg : segs) {
-  //     if (seg.quality() == debug_seg_quality && seg.strip() == debug_seg_strip && seg.etaPartition() == debug_seg_partition && seg.patternId() == debug_seg_id) {
-  //       is_debug_seg_exist = true;
-  //       debug_seg_bx = seg.bx();
-  //     }
-  //     if (seg.quality() == debug_seg_quality_2 && seg.strip() == debug_seg_strip_2 && seg.etaPartition() == debug_seg_partition_2 && seg.patternId() == debug_seg_id_2) {
-  //       is_debug_seg_exist_2 = true;
-  //       debug_seg_bx_2 = seg.bx();
-  //     }
-  //   }
-  // }
-  // if (is_debug_seg_exist) {
-  //   std::cout << "Found a segment with quality " << debug_seg_quality << ", strip " << debug_seg_strip << ", eta partition " << debug_seg_partition << ", and pattern ID " << debug_seg_id << ", bx " << debug_seg_bx << " (after processPartition)" << std::endl;
-  // }
-  // if (is_debug_seg_exist_2) {
-  //   std::cout << "Found a segment with quality " << debug_seg_quality_2 << ", strip " << debug_seg_strip_2 << ", eta partition " << debug_seg_partition_2 << ", and pattern ID " << debug_seg_id_2 << ", bx " << debug_seg_bx_2 << " (after processPartition)" << std::endl;
-  // }
-
   if (config.crossPartitionSegmentWidth > 0)
     segments = crossPartitionCancellation(segments, config.crossPartitionSegmentWidth);
   if (config.clearanceWidth > 0)
     segments = deghostingClearance(segments, config.clearanceWidth);
-
-  // is_debug_seg_exist = false;
-  // is_debug_seg_exist_2 = false;
-  // debug_seg_bx = 0;
-  // debug_seg_bx_2 = 0;
-
-  // for (const auto& segs : segments) {
-  //   for (const auto& seg : segs) {
-  //     if (seg.quality() == debug_seg_quality && seg.strip() == debug_seg_strip && seg.etaPartition() == debug_seg_partition && seg.patternId() == debug_seg_id) {
-  //       is_debug_seg_exist = true;
-  //       debug_seg_bx = seg.bx();
-  //     }
-  //     if (seg.quality() == debug_seg_quality_2 && seg.strip() == debug_seg_strip_2 && seg.etaPartition() == debug_seg_partition_2 && seg.patternId() == debug_seg_id_2) {
-  //       is_debug_seg_exist_2 = true;
-  //       debug_seg_bx_2 = seg.bx();
-  //     }
-  //   }
-  // }
-  // if (is_debug_seg_exist) {
-  //   std::cout << "Found a segment with quality " << debug_seg_quality << ", strip " << debug_seg_strip << ", eta partition " << debug_seg_partition << ", and pattern ID " << debug_seg_id << ", bx " << debug_seg_bx << " (after deghostingClearance)" << std::endl;
-  //   std::cout << "crossPartitionSegmentWidth = " << config.crossPartitionSegmentWidth << ", clearanceWidth = " << config.clearanceWidth << std::endl;
-  // }
-  // if (is_debug_seg_exist_2) {
-  //   std::cout << "Found a segment with quality " << debug_seg_quality_2 << ", strip " << debug_seg_strip_2 << ", eta partition " << debug_seg_partition_2 << ", and pattern ID " << debug_seg_id_2 << ", bx " << debug_seg_bx_2 << " (after deghostingClearance)" << std::endl;
-  //   std::cout << "crossPartitionSegmentWidth = " << config.crossPartitionSegmentWidth << ", clearanceWidth = " << config.clearanceWidth << std::endl;
-  // }
 
   // pick the best N outputs from each partition
   for (int i = 0; i < static_cast<int>(segments.size()); ++i) {
