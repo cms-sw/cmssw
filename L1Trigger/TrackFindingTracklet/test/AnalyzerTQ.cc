@@ -18,7 +18,6 @@
 #include "L1Trigger/TrackFindingTracklet/interface/DataFormats.h"
 
 #include <TProfile.h>
-#include <TH1F.h>
 
 #include <vector>
 #include <deque>
@@ -129,6 +128,7 @@ namespace trklet {
       int nTracks(0);
       int nMatched(0);
       for (int region = 0; region < setup->sysNumRegion(); region++) {
+        const int offset = region * setup->kfNumLayers();
         const tt::StreamTrack& streamTrack = streamsTrack[region * 2 + 1];
         const int numFrames = streamTrack.size();
         for (int frame = 0; frame < numFrames; frame++) {
@@ -138,7 +138,6 @@ namespace trklet {
           if (trackTQ.mva() < mva)
             continue;
           nTracks++;
-          const int offset = region * setup->kfNumLayers();
           std::vector<TTStubRef> ttStubRefs;
           ttStubRefs.reserve(setup->kfNumLayers());
           for (int layer = 0; layer < setup->kfNumLayers(); layer++) {

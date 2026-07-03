@@ -122,6 +122,10 @@ namespace trklet {
       int tqWidthInvV1;
       // number of bits used for mva
       int tqWidthMVA;
+      // scale z0 by this power of 2 for BDT
+      int tqScalePowZ0;
+      // scale cot by this power of 2 for BDT
+      int tqScalePowCot;
       // f/w bin edge integer values to bin mva
       std::vector<int> tqBinEdges;
       // number of bits used for phi0
@@ -365,6 +369,10 @@ namespace trklet {
     int tqWidthInvV0() const { return config_.tqWidthInvV0; }
     // number of bits used for mva
     int tqWidthInvV1() const { return config_.tqWidthInvV1; }
+    // scale z0 by this factor for BDT
+    double tqScaleFactorZ0() const { return tqScaleFactorZ0_; }
+    // scale cot by this factor for BDT
+    double tqScaleFactorCot() const { return tqScaleFactorCot_; }
     // f/w bin edge integer values to bin mva
     const std::vector<int>& tqBinEdges() const { return config_.tqBinEdges; }
 
@@ -419,6 +427,10 @@ namespace trklet {
     int kfNumProj_;
     // minimum number of projection layers to form a track
     int kfMinProj_;
+    // scale z0 by this factor for BDT
+    double tqScaleFactorZ0_;
+    // scale cot by this factor for BDT
+    double tqScaleFactorCot_;
   };
 
 }  // namespace trklet

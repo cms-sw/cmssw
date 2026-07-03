@@ -10,6 +10,8 @@ Displaced Hybrid tracking can be run by setting L1TRKALGO=HYBRID_DISPLACED.
 
 The ROOT macros L1TrackNtuplePlot.C & L1TrackQualityPlot.C make track performance & BDT track quality performance plots from the TTree. Both can be run via makeHists.csh .
 
+Note that for the HYBRID algorithm, the BDT model lives under the `TrackerTFP/data` directory, called from [this](https://github.com/cms-data/L1Trigger-TrackTrigger) repository (L1Trigger-TrackTrigger). For the HYBRID_NEWKF, the BDT model lives under `TrackFindingTracklet/data` directory, called from [this](https://github.com/cms-data/L1Trigger-TrackFindingTracklet) repository (L1Trigger-TrackFindingTracklet).
+
 If you need to modify the cfg params of the algorithm, then TrackFindingTracklet/interface/Settings.h configures the pattern reco stage, (although some parameters there are overridden by l1tTTTracksFromTrackletEmulation_cfi.py). The old KF fit is configured by the constructor of TrackFindingTMTT/src/Settings.cc. The DTC and new KF fit are configured via TrackTrigger/python/ProducerSetup_cfi.py.
 
 For experts

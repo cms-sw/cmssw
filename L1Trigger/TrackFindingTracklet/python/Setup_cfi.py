@@ -98,14 +98,16 @@ TrackFindingTracklet_params = cms.PSet (
 
   # Parameter specifying Track Quality
   TQ = cms.PSet (
-    NumChannel     = cms.int32(   2 ), # number of output channel
-    WidthChi21     = cms.int32(   8 ), # Number of bits used to represent chi2rphi
-    WidthChi20     = cms.int32(   8 ), # Number of bits used to represent chi2rz
-    BaseShiftChi21 = cms.int32(  -3 ), # Base of chi2rphi gets shifted by that power of 2 w.r.t 1
-    BaseShiftChi20 = cms.int32(  -3 ), # Base of chi2rz gets shifted by that power of 2 w.r.t 1
-    WidthInvV0     = cms.int32(  16 ), # Number of bits used for looked up inverse phi uncertainty squared
-    WidthInvV1     = cms.int32(  16 ), # Number of bits used for looked up inverse z uncertainty squared
-    WidthMVA       = cms.int32(   3 ), # number of bits used for mva
+    NumChannel     = cms.int32(  2 ), # number of output channel
+    WidthChi21     = cms.int32(  8 ), # Number of bits used to represent chi2rphi
+    WidthChi20     = cms.int32(  8 ), # Number of bits used to represent chi2rz
+    BaseShiftChi21 = cms.int32( -3 ), # Base of chi2rphi gets shifted by that power of 2 w.r.t 1
+    BaseShiftChi20 = cms.int32( -3 ), # Base of chi2rz gets shifted by that power of 2 w.r.t 1
+    WidthInvV0     = cms.int32( 16 ), # Number of bits used for looked up inverse phi uncertainty squared
+    WidthInvV1     = cms.int32( 16 ), # Number of bits used for looked up inverse z uncertainty squared
+    WidthMVA       = cms.int32(  3 ), # number of bits used for mva
+    ScalePowZ0     = cms.int32(  3 ), # scale z0 by this power of 2 for BDT
+    ScalePowCot    = cms.int32(  7 ), # scale cot by this power of 2 for BDT
     BinEdges       = cms.vint32( -14142, -1990, -1126, -523, 0, 523, 1126, 1990, 14142 ) # f/w bin edge integer values to bin mva
   ),
 

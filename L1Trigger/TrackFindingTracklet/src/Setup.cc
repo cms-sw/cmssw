@@ -47,6 +47,8 @@ namespace trklet {
       const auto it = std::find(config_.tbSeedTypes.begin(), config_.tbSeedTypes.end(), seedType);
       tmMuxOrder_.push_back(std::distance(config_.tbSeedTypes.begin(), it));
     }
+    tqScaleFactorZ0_ = std::pow(2, config_.tqScalePowZ0);
+    tqScaleFactorCot_ = std::pow(2, config_.tqScalePowCot);
   }
 
   // returns radial position and phi, z residuals of a TB stub

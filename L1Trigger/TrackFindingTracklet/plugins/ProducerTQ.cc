@@ -48,7 +48,7 @@ namespace trklet {
     // Internal data formats
     TrackQuality::InternalFormats internalFormats_;
     // BDT modell
-    const EmulatorBDT bdt_;
+    const TrackQuality::BDT bdt_;
   };
 
   ProducerTQ::ProducerTQ(const edm::ParameterSet& iConfig)

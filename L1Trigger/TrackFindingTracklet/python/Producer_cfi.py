@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 TrackFindingTrackletProducer_params = cms.PSet (
 
-  BDT              = cms.FileInPath( "L1Trigger/TrackFindingTracklet/data/default_model.json" ), #
+  BDT              = cms.FileInPath( "L1Trigger/TrackFindingTracklet/data/HYBRID_NEW_KF_TQ_XGBOOST_v0.json" ), #
   InputTagTTDTC    = cms.InputTag  ( "ProducerDTC", "StubAccepted" ),
   InputTagTracklet = cms.InputTag  ( "l1tTTTracksFromExtendedTrackletEmulation", "Level1TTTracks" ), # Tracklet TTTracks
   InputLabelTFP    = cms.string( "ProducerTQ"      ),                  #

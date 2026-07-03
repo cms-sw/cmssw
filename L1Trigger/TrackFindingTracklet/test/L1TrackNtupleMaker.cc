@@ -56,6 +56,7 @@
 ////////////////
 // PHYSICS TOOLS
 #include "L1Trigger/TrackFindingTracklet/interface/Setup.h"
+#include "L1Trigger/TrackFindingTracklet/interface/DataFormats.h"
 #include "L1Trigger/TrackFindingTracklet/interface/HitPatternHelper.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -149,6 +150,7 @@ private:
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> getTokenBField_;
   edm::ESGetToken<hph::Setup, trackerDTC::SetupRcd> getTokenHPHSetup_;
   edm::ESGetToken<trklet::Setup, trackerDTC::SetupRcd> getTokenSetup_;
+  edm::ESGetToken<trklet::DataFormats, trackerDTC::SetupRcd> getTokenDataFormats_;
   //-----------------------------------------------------------------------------------------------
   // tree & branches for mini-ntuple
 
@@ -202,6 +204,16 @@ private:
   std::vector<int>* m_trk_unknown;
   std::vector<int>* m_trk_combinatoric;
   std::vector<float>* m_trk_MVA1;
+
+  // Track Quality BDT Training
+
+  std::vector<int>* m_tqbdt_nStubs_;
+  std::vector<double>* m_tqbdt_z0_;
+  std::vector<double>* m_tqbdt_cot_;
+  std::vector<double>* m_tqbdt_chi20_;
+  std::vector<double>* m_tqbdt_chi21_;
+  std::vector<int>* m_tqbdt_nGaps_;
+  std::vector<bool>* m_tqbdt_true_;
 
   //--- Matched TP info (filled if track genuine)
   // N.B. This TP not required to have stubs in at least 4 layers.
@@ -348,6 +360,7 @@ L1TrackNtupleMaker::L1TrackNtupleMaker(edm::ParameterSet const& iConfig) : confi
   getTokenBField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
   getTokenHPHSetup_ = esConsumes<hph::Setup, trackerDTC::SetupRcd>();
   getTokenSetup_ = esConsumes<trklet::Setup, trackerDTC::SetupRcd>();
+  getTokenDataFormats_ = esConsumes();
 }
 
 /////////////
@@ -418,6 +431,14 @@ void L1TrackNtupleMaker::endJob() {
   delete m_trk_injet_highpt;
   delete m_trk_injet_vhighpt;
   delete m_trk_layers;
+
+  delete m_tqbdt_nStubs_;
+  delete m_tqbdt_z0_;
+  delete m_tqbdt_cot_;
+  delete m_tqbdt_chi20_;
+  delete m_tqbdt_chi21_;
+  delete m_tqbdt_nGaps_;
+  delete m_tqbdt_true_;
 
   delete m_tp_pt;
   delete m_tp_eta;
@@ -559,6 +580,14 @@ void L1TrackNtupleMaker::beginJob() {
   m_trk_injet_vhighpt = new std::vector<int>;
   m_trk_layers = new std::vector<std::vector<int>>;
 
+  m_tqbdt_nStubs_ = new std::vector<int>;
+  m_tqbdt_z0_ = new std::vector<double>;
+  m_tqbdt_cot_ = new std::vector<double>;
+  m_tqbdt_chi20_ = new std::vector<double>;
+  m_tqbdt_chi21_ = new std::vector<double>;
+  m_tqbdt_nGaps_ = new std::vector<int>;
+  m_tqbdt_true_ = new std::vector<bool>;
+
   m_tp_pt = new std::vector<float>;
   m_tp_eta = new std::vector<float>;
   m_tp_phi = new std::vector<float>;
@@ -686,6 +715,13 @@ void L1TrackNtupleMaker::beginJob() {
     eventTree->Branch("trk_matchtp_z0", &m_trk_matchtp_z0);
     eventTree->Branch("trk_matchtp_lxy", &m_trk_matchtp_lxy);
     eventTree->Branch("trk_matchtp_d0", &m_trk_matchtp_d0);
+    eventTree->Branch("tqbdt_nStubs_", &m_tqbdt_nStubs_);
+    eventTree->Branch("tqbdt_z0_", &m_tqbdt_z0_);
+    eventTree->Branch("tqbdt_cot_", &m_tqbdt_cot_);
+    eventTree->Branch("tqbdt_chi20_", &m_tqbdt_chi20_);
+    eventTree->Branch("tqbdt_chi21_", &m_tqbdt_chi21_);
+    eventTree->Branch("tqbdt_nGaps_", &m_tqbdt_nGaps_);
+    eventTree->Branch("tqbdt_true", &m_tqbdt_true_);
     if (TrackingInJets) {
       eventTree->Branch("trk_injet", &m_trk_injet);
       eventTree->Branch("trk_injet_highpt", &m_trk_injet_highpt);
@@ -851,6 +887,13 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_trk_injet_highpt->clear();
     m_trk_injet_vhighpt->clear();
     m_trk_layers->clear();
+    m_tqbdt_nStubs_->clear();
+    m_tqbdt_z0_->clear();
+    m_tqbdt_cot_->clear();
+    m_tqbdt_chi20_->clear();
+    m_tqbdt_chi21_->clear();
+    m_tqbdt_nGaps_->clear();
+    m_tqbdt_true_->clear();
   }
 
   m_tp_pt->clear();
@@ -963,6 +1006,11 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   edm::ESHandle<hph::Setup> hphHandle = iSetup.getHandle(getTokenHPHSetup_);
   edm::ESHandle<trklet::Setup> handleSetup = iSetup.getHandle(getTokenSetup_);
+  const trklet::DataFormats* dataFormats = &iSetup.getData(getTokenDataFormats_);
+  const trklet::DataFormat& dfZ0 = dataFormats->format(trklet::Variable::z0, trklet::Process::tq);
+  const trklet::DataFormat& dfCot = dataFormats->format(trklet::Variable::cot, trklet::Process::tq);
+  const trklet::DataFormat& dfChi20 = dataFormats->format(trklet::Variable::chi20, trklet::Process::tq);
+  const trklet::DataFormat& dfChi21 = dataFormats->format(trklet::Variable::chi21, trklet::Process::tq);
 
   const TrackerTopology* const tTopo = tTopoHandle.product();
   const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
@@ -1394,6 +1442,17 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       m_trk_loose->push_back(tmp_trk_loose);
       m_trk_unknown->push_back(tmp_trk_unknown);
       m_trk_combinatoric->push_back(tmp_trk_combinatoric);
+
+      // Track Qualtity BDT training set
+
+      const TTBV tqbdt_hp(tmp_trk_hitpattern, TTTrack_TrackWord::TrackBitWidths::kHitPatternSize);
+      m_tqbdt_nStubs_->push_back(tqbdt_hp.count());
+      m_tqbdt_z0_->push_back(dfZ0.integer(iterL1Track->z0()) / setup->tqScaleFactorZ0());
+      m_tqbdt_cot_->push_back(dfCot.integer(iterL1Track->tanL()) / setup->tqScaleFactorCot());
+      m_tqbdt_chi20_->push_back(dfChi20.integer(iterL1Track->chi2XY()));
+      m_tqbdt_chi21_->push_back(dfChi21.integer(iterL1Track->chi2Z()));
+      m_tqbdt_nGaps_->push_back(tqbdt_hp.count(tqbdt_hp.plEncode(), tqbdt_hp.pmEncode(), false));
+      m_tqbdt_true_->push_back(tmp_trk_genuine);
 
       // ----------------------------------------------------------------------------------------------
       // for studying the fake rate

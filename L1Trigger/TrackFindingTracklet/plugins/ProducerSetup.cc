@@ -92,6 +92,8 @@ namespace trklet {
     config_.tqWidthInvV0 = pSetTQ.getParameter<int>("WidthInvV0");
     config_.tqWidthInvV1 = pSetTQ.getParameter<int>("WidthInvV1");
     config_.tqWidthMVA = pSetTQ.getParameter<int>("WidthMVA");
+    config_.tqScalePowZ0 = pSetTQ.getParameter<int>("ScalePowZ0");
+    config_.tqScalePowCot = pSetTQ.getParameter<int>("ScalePowCot");
     config_.tqBinEdges = pSetTQ.getParameter<std::vector<int>>("BinEdges");
     const edm::ParameterSet& pSetTFP = iConfig.getParameter<edm::ParameterSet>("TFP");
     config_.tfpWidthPhi0 = pSetTFP.getParameter<int>("WidthPhi0");

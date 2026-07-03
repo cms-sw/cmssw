@@ -12,10 +12,6 @@
 
 namespace trklet {
 
-  typedef ap_int<20> AP_INT_BDT;
-  typedef ap_fixed<20, 10> AP_FIXED_BDT;
-  typedef conifer::BDT<AP_FIXED_BDT, AP_FIXED_BDT> EmulatorBDT;
-
   /*! \class  trklet::TrackQuality
    *  \brief  Bit accurate emulation of the track quality BDT including calculation of chi2s.
    *  \author Thomas Schuh
@@ -23,6 +19,9 @@ namespace trklet {
    */
   class TrackQuality {
   public:
+    typedef ap_int<20> Int;
+    typedef ap_fixed<20, 10> Fixed;
+    typedef conifer::BDT<Fixed, Fixed> BDT;
     // various internal dataformats
     struct InternalFormats {
       DataFormat m02_;
@@ -30,7 +29,7 @@ namespace trklet {
       DataFormat invV0_;
       DataFormat invV1_;
     };
-    TrackQuality(const DataFormats* df, const InternalFormats& internal, int region, const EmulatorBDT* bdt)
+    TrackQuality(const DataFormats* df, const InternalFormats& internal, int region, const BDT* bdt)
         : setup_(df->setup()), dataFormats_(df), internalFormats_(&internal), region_(region), bdt_(bdt) {}
     ~TrackQuality() = default;
     // read in and organize input tracks and stubs
@@ -61,7 +60,7 @@ namespace trklet {
     // input data
     std::vector<Frame> input_;
     // bdt model
-    const EmulatorBDT* bdt_;
+    const BDT* bdt_;
     // copy of input track streams
     tt::StreamsTrack streams_;
   };
