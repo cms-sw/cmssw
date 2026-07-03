@@ -808,6 +808,7 @@ class DQMPlotter:
         xlim=None,
         ylim=None,
         ylim_ratio=None,
+        complement=False,
     ):
         """
         Create comparison plot with ratio panel.
@@ -890,6 +891,9 @@ class DQMPlotter:
                 bin_contents *= norm_factor
                 bin_errors *= norm_factor
 
+            if complement:
+                bin_contents = np.array([1-i for i in bin_contents])
+                
             # Use first histogram as reference
             if i == 0:
                 ref_centers, ref_contents, ref_errors = bin_centers, bin_contents, bin_errors
@@ -1555,6 +1559,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Disable creation of individual plots for collections that are overlaid (default: create both overlay and individual plots).",
     )
+    parser.add_argument(
+        "--complement",
+        action="store_true",
+        help="Apply the 1-j operation to every bin j of the histogram before plotting it. Useful for converting purity plots into fake rates.",
+    )
 
     parser.add_argument(
         "--debug",
@@ -1571,7 +1580,7 @@ if __name__ == "__main__":
         parser.error("Either --source or --operation must be specified")
         
     if len(args.legend) != len(args.files) and args.source is not None:
-        raise ValueError(f"Number of legend entries ({len(labels)}) must match number of files ({len(file_paths)})")
+        raise ValueError(f"Number of legend entries ({len(args.legend)}) must match number of files ({len(args.files)})")
 
     if args.nProcessors < 1:
         args.nProcessors = len(os.sched_getaffinity(0))
@@ -1598,7 +1607,6 @@ if __name__ == "__main__":
 
     # Parse overlay groups
     overlay_groups = plotter._parse_overlay_groups(args.overlay) if args.overlay else None
-
     plotter.compare_files(
         file_paths=args.files,
         hist_pattern=source_patterns,
@@ -1633,5 +1641,6 @@ if __name__ == "__main__":
         legend_fontsize=args.legend_fontsize,
         overlay_groups=overlay_groups,
         overlay_individual=not args.no_overlay_individual,
+        complement=args.complement,
         debug=args.debug,
     )
