@@ -421,7 +421,6 @@ void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
 }
 
 void Phase2OTMonitorCluster::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // rechitMonitorOT
   edm::ParameterSetDescription desc;
   {
     edm::ParameterSetDescription psd0;

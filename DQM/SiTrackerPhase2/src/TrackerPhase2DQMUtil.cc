@@ -98,7 +98,7 @@ std::string phase2tkutil::getITShell(uint32_t det_id, const TrackerTopology* tTo
     int side = tTopo->tidSide(det_id);
     Side = (side == 1) ? "m" : "p";
   }
-  Inner = (std::abs(phi) > 3.1415/2 ? "O" : "I");
+  Inner = (std::abs(phi) > 3.1415 / 2 ? "O" : "I");
   shellname << Side << Inner;
   return shellname.str();
 }
