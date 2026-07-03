@@ -243,7 +243,6 @@ hltPhase2PixelTracksSoA = cms.EDProducer('CAHitNtupletAlpakaPhase2OT@alpaka',
 
 _hltPhase2PixelTracksSoANonCAExtended = cms.EDProducer('CAHitNtupletAlpakaPhase2@alpaka',
     pixelRecHitsSoA = cms.InputTag('hltPhase2SiPixelRecHitsSoA'),
-    trackerRecHitsSoA = cms.InputTag('hltPhase2OtRecHitsSoA'), # TODO must be removed
     ptmin = cms.double(0.9),
     hardCurvCut = cms.double(0.01425), # corresponds to 800 MeV in 3.8T.
     earlyFishbone = cms.bool(True),

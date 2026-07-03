@@ -2,40 +2,34 @@
 #define DataFormats_Portable_interface_SoAMultiView_h
 
 #include <array>
-#include <concepts>
-#include <cstddef>
-#include <stdexcept>
-#include <string>
-#include <type_traits>
+#include <cassert>
+#include <cstdint>
 
 #include "SoACommon.h"
 
 /**
- * @brief Aggregates multiple views into a single combined view, similar to `MultiVectorManager`.
+ * @brief Aggregates multiple ConstViews into a single combined view.
  *
- * `SoAMultiView` stores multiple views as references within an `std::array`, 
+ * `SoAMultiView` stores multiple ConstViews within an `std::array`, 
  * accompanied by an offset array to enable access via a global index. 
- * Thanks to the use of `std::array`, instances of `SoAMultiView` can be passed 
- * directly by value to kernels without requiring device memory copies.
+ * An `SoAMultiView` can be passed directly by value to kernels without 
+ * requiring device memory copies.
  *
- * This manager does not own or copy the underlying data; instead, it maintains lightweight 
- * references to existing views, minimizing memory overhead and construction cost.
- * However, since the underlying SoA memories are not contiguous, cacheline inefficiencies 
- * may arise. Therefore, `SoAMultiView` is best suited for use with large SoA views 
- * where such overhead is amortized.
+ * Since the underlying SoA memories are not contiguous, cacheline inefficiencies 
+ * may arise. Therefore, `SoAMultiView` is best suited for use with ConstViews, 
+ * when the underlying buffer is large enough to amortize the overhead of 
+ * non-contiguous access patterns when iterating over all elements.
  *
- * To ensure clarity and performance, SoA views must be provided explicitly through the 
- * constructor—no dynamic addition of views is supported.
  */
 
-template <typename ConstView, uint8_t MaxSize = 5>
+template <typename ConstView, int MaxSize = 3>
 class SoAMultiView {
 public:
   using ConstElement = typename ConstView::const_element;
+  using size_type = cms::soa::size_type;
 
   SoAMultiView() = default;
 
-  // TODO try to get closer to MultiSpan
   template <typename Collections, typename Getter>
   explicit SoAMultiView(const Collections& collections, Getter getter) {
     size_type totalSize = 0;
@@ -48,8 +42,6 @@ public:
       offsets_[n_] = totalSize;
       n_++;
     }
-
-    totalSize_ = offset;
   }
 
   template <typename Collections, typename Getter, typename Sizes>
@@ -69,14 +61,14 @@ public:
   }
 
   SOA_HOST_DEVICE SOA_INLINE ConstElement operator[](const size_type globalIndex) const {
-    return viewIndex<0>(globalIndex);
+    return viewIndex<0>(globalIndex, 0);
   }
 
   template <typename Func, typename ReduceOp>
   SOA_HOST_DEVICE auto getScalar(Func func, ReduceOp reduceOp) {
     auto result = func(views_[0]);
 
-    for (std::size_t i = 1; i < n_; ++i) {
+    for (size_type i = 1; i < n_; ++i) {
       result = reduceOp(result, func(views_[i]));
     }
 
@@ -94,39 +86,28 @@ public:
     }
     return views_[i];
   }
- 
-  SOA_HOST_DEVICE SOA_INLINE size_type size() const {
-    return n_ == 0 ? static_cast<size_type>(0) : offsets_[n_ - 1];
-  }
+
+  SOA_HOST_DEVICE SOA_INLINE size_type size() const { return n_ == 0 ? static_cast<size_type>(0) : offsets_[n_ - 1]; }
 
   SOA_HOST_DEVICE SOA_INLINE size_type numViews() const { return n_; }
 
 private:
   template <int I>
-  SOA_HOST_DEVICE SOA_INLINE size_type viewStart() const {
-    if constexpr (I == 0) {
-      return static_cast<size_type>(0);
-    } else {
-      return offsets_[I - 1];
-    }
-  }
-
-  template <int I>
-  SOA_HOST_DEVICE SOA_INLINE ConstElement viewIndex(const size_type globalIndex) const {
+  SOA_HOST_DEVICE SOA_INLINE ConstElement viewIndex(const size_type globalIndex, const size_type currentOffset) const {
     if constexpr (I == MaxSize - 1) {
-      return views_[I][globalIndex - viewStart<I>()];
+      return views_[I][globalIndex - currentOffset];
     } else {
       if (globalIndex < offsets_[I]) {
-        return views_[I][globalIndex - viewStart<I>()];
+        return views_[I][globalIndex - currentOffset];
       }
-      return viewIndex<I + 1>(globalIndex);
+      return viewIndex<I + 1>(globalIndex, offsets_[I]);
     }
   }
 
   std::array<ConstView, MaxSize> views_;
   std::array<size_type, MaxSize> offsets_;
 
-  std::size_t n_{0};
+  size_type n_{0};
 };
 
 #endif  // DataFormats_Portable_interface_SoAMultiView_h

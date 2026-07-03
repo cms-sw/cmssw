@@ -1,25 +1,98 @@
+#ifndef RecoTracker_PixelSeeding_plugins_alpaka_HelixFit_h
+#define RecoTracker_PixelSeeding_plugins_alpaka_HelixFit_h
+
+#include <alpaka/alpaka.hpp>
+
+#include <Eigen/Core>
+
+#include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
+#include "RecoTracker/PixelTrackFitting/interface/FitResult.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HelixFit.h"
+#include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 
-namespace ALPAKA_ACCELERATOR_NAMESPACE {
-  template <typename TrackerTraits>
-  void HelixFit<TrackerTraits>::allocate(TupleMultiplicity const *tupleMultiplicity,
-                                         OutputSoAView &helix_fit_results,
-                                         Tuples const *__restrict__ foundNtuplets) {
-    tuples_ = foundNtuplets;
-    tupleMultiplicity_ = tupleMultiplicity;
-    outputSoa_ = helix_fit_results;
+#include "CAStructures.h"
 
-    ALPAKA_ASSERT_ACC(tuples_);
-    ALPAKA_ASSERT_ACC(tupleMultiplicity_);
-    ALPAKA_ASSERT_ACC(helix_fit_results.pt().data());
+namespace riemannFit {
+
+  // TODO: Can this be taken from TrackerTraits or somewhere else?
+  // in case of memory issue can be made smaller
+  constexpr uint32_t maxNumberOfConcurrentFits = 32 * 1024;
+  constexpr uint32_t stride = maxNumberOfConcurrentFits;
+  using Matrix3x4d = Eigen::Matrix<double, 3, 4>;
+  using Map3x4d = Eigen::Map<Matrix3x4d, 0, Eigen::Stride<3 * stride, stride> >;
+  using Matrix6x4f = Eigen::Matrix<float, 6, 4>;
+  using Map6x4f = Eigen::Map<Matrix6x4f, 0, Eigen::Stride<6 * stride, stride> >;
+
+  // hits
+  template <int N>
+  using Matrix3xNd = Eigen::Matrix<double, 3, N>;
+  template <int N>
+  using Map3xNd = Eigen::Map<Matrix3xNd<N>, 0, Eigen::Stride<3 * stride, stride> >;
+  // errors
+  template <int N>
+  using Matrix6xNf = Eigen::Matrix<float, 6, N>;
+  template <int N>
+  using Map6xNf = Eigen::Map<Matrix6xNf<N>, 0, Eigen::Stride<6 * stride, stride> >;
+  // fast fit
+  using Map4d = Eigen::Map<Vector4d, 0, Eigen::InnerStride<stride> >;
+
+  template <auto Start, auto End, auto Inc, class F>  //a compile-time bounded for loop
+  constexpr void rolling_fits(F &&f) {
+    if constexpr (Start < End) {
+      f(std::integral_constant<decltype(Start), Start>());
+      rolling_fits<Start + Inc, End, Inc>(f);
+    }
   }
 
-  template <typename TrackerTraits>
-  void HelixFit<TrackerTraits>::deallocate() {}
+}  // namespace riemannFit
 
-  template class HelixFit<pixelTopology::Phase1>;
-  template class HelixFit<pixelTopology::Phase2>;
-  template class HelixFit<pixelTopology::Phase2OT>;
-  template class HelixFit<pixelTopology::HIonPhase1>;
+namespace ALPAKA_ACCELERATOR_NAMESPACE {
+
+  template <typename TrackerTraits>
+  class HelixFit {
+  public:
+    using HitView = ::reco::TrackingRecHitView;
+    using HitConstView = ::reco::TrackingRecHitConstView;
+    using OutputSoAView = ::reco::TrackSoAView;
+    using OutputHitSoAView = ::reco::TrackHitSoAView;
+
+    using Tuples = caStructures::SequentialContainer;
+    using TupleMultiplicity = caStructures::GenericContainer;
+
+    explicit HelixFit(float bf, bool fitNas4) : bField_(bf), fitNas4_(fitNas4) {}
+    ~HelixFit() { deallocate(); }
+
+    void setBField(double bField) { bField_ = bField; }
+    void launchRiemannKernels(const caStructures::HitsMultiView &hv,
+                              const ::reco::CAModulesConstView &fr,
+                              uint32_t nhits,
+                              uint32_t maxNumberOfTuples,
+                              Queue &queue);
+    void launchBrokenLineKernels(const caStructures::HitsMultiView &hv,
+                                 const ::reco::CAModulesConstView &fr,
+                                 uint32_t nhits,
+                                 uint32_t maxNumberOfTuples,
+                                 Queue &queue);
+
+    void allocate(TupleMultiplicity const *tupleMultiplicity,
+                  OutputSoAView &helix_fit_results,
+                  Tuples const *__restrict__ foundNtuplets);
+    void deallocate();
+
+  private:
+    static constexpr uint32_t maxNumberOfConcurrentFits_ = riemannFit::maxNumberOfConcurrentFits;
+
+    // fowarded
+    Tuples const *tuples_ = nullptr;
+    TupleMultiplicity const *tupleMultiplicity_ = nullptr;
+    OutputSoAView outputSoa_;
+    float bField_;
+
+    const bool fitNas4_;
+  };
+
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+
+#endif  // RecoTracker_PixelSeeding_plugins_alpaka_HelixFit_h
