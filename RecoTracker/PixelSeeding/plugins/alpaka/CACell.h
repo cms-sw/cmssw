@@ -112,16 +112,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     ALPAKA_FN_ACC ALPAKA_FN_INLINE void setFishbone(Acc2D const& acc, hindex_type id, float z, const HitsConstView& hh) {
-      // make it deterministic: use the farther apart (in z)
+      // make it deterministic: use the farther apart (in z), breaking exact ties by the hit id so
+      // that concurrent updates converge to the same winner independently of their order
       auto old = theFishboneId_;
-      while (
-          old !=
-          alpaka::atomicCas(
-              acc,
-              &theFishboneId_,
-              old,
-              (invalidHitId == old || std::abs(z - theInnerZ_) > std::abs(hh[old].zGlobal() - theInnerZ_)) ? id : old,
-              alpaka::hierarchy::Blocks{}))
+      while (old != alpaka::atomicCas(
+                        acc,
+                        &theFishboneId_,
+                        old,
+                        (invalidHitId == old || std::abs(z - theInnerZ_) > std::abs(hh[old].zGlobal() - theInnerZ_) ||
+                         (std::abs(z - theInnerZ_) == std::abs(hh[old].zGlobal() - theInnerZ_) && id < old))
+                            ? id
+                            : old,
+                        alpaka::hierarchy::Blocks{}))
         old = theFishboneId_;
     }
 
