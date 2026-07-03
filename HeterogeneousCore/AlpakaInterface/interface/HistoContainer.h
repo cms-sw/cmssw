@@ -18,9 +18,13 @@
 namespace cms::alpakatools {
 
   struct countFromVector {
-    template <alpaka::concepts::Acc TAcc, typename Histo, typename View>
-    ALPAKA_FN_ACC void operator()(
-        const TAcc &acc, Histo *__restrict__ h, uint32_t nh, View v, uint32_t const *__restrict__ offsets) const {
+    template <alpaka::concepts::Acc TAcc, typename Histo, typename View, typename Accessor>
+    ALPAKA_FN_ACC void operator()(const TAcc &acc,
+                                  Histo *__restrict__ h,
+                                  uint32_t nh,
+                                  View v,
+                                  Accessor func,
+                                  uint32_t const *__restrict__ offsets) const {
       const uint32_t nt = offsets[nh];
       for (uint32_t i : uniform_elements(acc, nt)) {
         auto off = alpaka_std::upper_bound(offsets, offsets + nh + 1, i);
@@ -28,15 +32,36 @@ namespace cms::alpakatools {
         int32_t ih = off - offsets - 1;
         ALPAKA_ASSERT_ACC(ih >= 0);
         ALPAKA_ASSERT_ACC(ih < int(nh));
-        h->count(acc, v[i].iphi(), ih);
+        h->count(acc, func(v[i]), ih);
+      }
+    }
+
+    template <alpaka::concepts::Acc TAcc, typename Histo, typename T>
+    ALPAKA_FN_ACC void operator()(const TAcc &acc,
+                                  Histo *__restrict__ h,
+                                  uint32_t nh,
+                                  T const *__restrict__ v,
+                                  uint32_t const *__restrict__ offsets) const {
+      const uint32_t nt = offsets[nh];
+      for (uint32_t i : uniform_elements(acc, nt)) {
+        auto off = alpaka_std::upper_bound(offsets, offsets + nh + 1, i);
+        ALPAKA_ASSERT_ACC((*off) > 0);
+        int32_t ih = off - offsets - 1;
+        ALPAKA_ASSERT_ACC(ih >= 0);
+        ALPAKA_ASSERT_ACC(ih < int(nh));
+        h->count(acc, v[i], ih);
       }
     }
   };
 
   struct fillFromVector {
-    template <alpaka::concepts::Acc TAcc, typename Histo, typename View>
-    ALPAKA_FN_ACC void operator()(
-        const TAcc &acc, Histo *__restrict__ h, uint32_t nh, View v, uint32_t const *__restrict__ offsets) const {
+    template <alpaka::concepts::Acc TAcc, typename Histo, typename View, typename Accessor>
+    ALPAKA_FN_ACC void operator()(const TAcc &acc,
+                                  Histo *__restrict__ h,
+                                  uint32_t nh,
+                                  View v,
+                                  Accessor func,
+                                  uint32_t const *__restrict__ offsets) const {
       const uint32_t nt = offsets[nh];
       for (uint32_t i : uniform_elements(acc, nt)) {
         auto off = alpaka_std::upper_bound(offsets, offsets + nh + 1, i);
@@ -44,24 +69,75 @@ namespace cms::alpakatools {
         int32_t ih = off - offsets - 1;
         ALPAKA_ASSERT_ACC(ih >= 0);
         ALPAKA_ASSERT_ACC(ih < int(nh));
-        h->fill(acc, v[i].iphi(), i, ih);
+        h->fill(acc, func(v[i]), i, ih);
+      }
+    }
+
+    template <alpaka::concepts::Acc TAcc, typename Histo, typename T>
+    ALPAKA_FN_ACC void operator()(const TAcc &acc,
+                                  Histo *__restrict__ h,
+                                  uint32_t nh,
+                                  T const *__restrict__ v,
+                                  uint32_t const *__restrict__ offsets) const {
+      const uint32_t nt = offsets[nh];
+      for (uint32_t i : uniform_elements(acc, nt)) {
+        auto off = alpaka_std::upper_bound(offsets, offsets + nh + 1, i);
+        ALPAKA_ASSERT_ACC((*off) > 0);
+        int32_t ih = off - offsets - 1;
+        ALPAKA_ASSERT_ACC(ih >= 0);
+        ALPAKA_ASSERT_ACC(ih < int(nh));
+        h->fill(acc, v[i], i, ih);
       }
     }
   };
 
-  template <alpaka::concepts::Acc TAcc, typename Histo, typename View, typename TQueue>
+  template <alpaka::concepts::Acc TAcc, typename Histo, typename View, typename Accessor, typename TQueue>
   ALPAKA_FN_INLINE void fillManyFromVector(Histo *__restrict__ h,
                                            uint32_t nh,
                                            View v,
+                                           Accessor func,
                                            uint32_t const *__restrict__ offsets,
                                            uint32_t totSize,
                                            uint32_t nthreads,
                                            TQueue &queue) {
     Histo::template launchZero<TAcc>(h, queue);
+    const auto workDiv = make_workdiv<TAcc>(divide_up_by(totSize, nthreads), nthreads);
 
-    const auto threadsPerBlockOrElementsPerThread = nthreads;
-    const auto blocksPerGrid = divide_up_by(totSize, nthreads);
-    const auto workDiv = make_workdiv<TAcc>(blocksPerGrid, threadsPerBlockOrElementsPerThread);
+    alpaka::exec<TAcc>(queue, workDiv, countFromVector(), h, nh, v, func, offsets);
+    Histo::template launchFinalize<TAcc>(h, queue);
+
+    alpaka::exec<TAcc>(queue, workDiv, fillFromVector(), h, nh, v, func, offsets);
+  }
+
+  template <alpaka::concepts::Acc TAcc, typename Histo, typename View, typename Accessor, typename TQueue>
+  ALPAKA_FN_INLINE void fillManyFromVector(Histo *__restrict__ h,
+                                           typename Histo::View hv,
+                                           uint32_t nh,
+                                           View v,
+                                           Accessor func,
+                                           uint32_t const *__restrict__ offsets,
+                                           uint32_t totSize,
+                                           uint32_t nthreads,
+                                           TQueue &queue) {
+    Histo::template launchZero<TAcc>(hv, queue);
+    const auto workDiv = make_workdiv<TAcc>(divide_up_by(totSize, nthreads), nthreads);
+
+    alpaka::exec<TAcc>(queue, workDiv, countFromVector(), h, nh, v, func, offsets);
+    Histo::template launchFinalize<TAcc>(h, queue);
+
+    alpaka::exec<TAcc>(queue, workDiv, fillFromVector(), h, nh, v, func, offsets);
+  }
+
+  template <alpaka::concepts::Acc TAcc, typename Histo, typename T, typename TQueue>
+  ALPAKA_FN_INLINE void fillManyFromVector(Histo *__restrict__ h,
+                                           uint32_t nh,
+                                           T const *__restrict__ v,
+                                           uint32_t const *__restrict__ offsets,
+                                           uint32_t totSize,
+                                           uint32_t nthreads,
+                                           TQueue &queue) {
+    Histo::template launchZero<TAcc>(h, queue);
+    const auto workDiv = make_workdiv<TAcc>(divide_up_by(totSize, nthreads), nthreads);
 
     alpaka::exec<TAcc>(queue, workDiv, countFromVector(), h, nh, v, offsets);
     Histo::template launchFinalize<TAcc>(h, queue);
@@ -69,20 +145,17 @@ namespace cms::alpakatools {
     alpaka::exec<TAcc>(queue, workDiv, fillFromVector(), h, nh, v, offsets);
   }
 
-  template <alpaka::concepts::Acc TAcc, typename Histo, typename View, typename TQueue>
+  template <alpaka::concepts::Acc TAcc, typename Histo, typename T, typename TQueue>
   ALPAKA_FN_INLINE void fillManyFromVector(Histo *__restrict__ h,
                                            typename Histo::View hv,
                                            uint32_t nh,
-                                           View v,
+                                           T const *__restrict__ v,
                                            uint32_t const *__restrict__ offsets,
                                            uint32_t totSize,
                                            uint32_t nthreads,
                                            TQueue &queue) {
     Histo::template launchZero<TAcc>(hv, queue);
-
-    const auto threadsPerBlockOrElementsPerThread = nthreads;
-    const auto blocksPerGrid = divide_up_by(totSize, nthreads);
-    const auto workDiv = make_workdiv<TAcc>(blocksPerGrid, threadsPerBlockOrElementsPerThread);
+    const auto workDiv = make_workdiv<TAcc>(divide_up_by(totSize, nthreads), nthreads);
 
     alpaka::exec<TAcc>(queue, workDiv, countFromVector(), h, nh, v, offsets);
     Histo::template launchFinalize<TAcc>(h, queue);

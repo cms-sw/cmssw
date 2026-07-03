@@ -26,7 +26,6 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace ::caStructures;
-  using ModulesMultiView = MultiView<::reco::HitModuleSoAConstView, 2>;
 
   namespace caHitNtupletGenerator {
 

@@ -24,7 +24,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                   Tuples const *__restrict__ foundNtuplets,
                                   TupleMultiplicity const *__restrict__ tupleMultiplicity,
-                                  MultiView<::reco::TrackingRecHitConstView, 2> hh,
+                                  caStructures::HitsMultiView hh,
                                   ::reco::CAModulesConstView cm,
                                   typename caStructures::tindex_type *__restrict__ ptkids,
                                   double *__restrict__ phits,
@@ -251,7 +251,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };
 
   template <typename TrackerTraits>
-  void HelixFit<TrackerTraits>::launchBrokenLineKernels(const MultiView<::reco::TrackingRecHitConstView, 2> &hv,
+  void HelixFit<TrackerTraits>::launchBrokenLineKernels(const caStructures::HitsMultiView &hv,
                                                         const ::reco::CAModulesConstView &cm,
                                                         uint32_t hitsInFit,
                                                         uint32_t maxNumberOfTuples,
