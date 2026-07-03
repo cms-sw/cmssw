@@ -3,8 +3,7 @@
 
 #include <alpaka/alpaka.hpp>
 
-#include "DataFormats/Common/interface/RefProd.h"
-#include "DataFormats/Portable/interface/MultiView.h"
+#include "DataFormats/Common/interface/RefProdVector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
 #include "DataFormats/TrackSoA/interface/alpaka/TracksSoACollection.h"
@@ -33,10 +32,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     using HitsView = ::reco::TrackingRecHitView;
     using HitsConstView = ::reco::TrackingRecHitConstView;
-    using HitsMultiView = MultiView<HitsConstView, 2>;
-    using ModulesMultiView = MultiView<::reco::HitModuleSoAConstView, 2>;
     using HitsOnDevice = reco::TrackingRecHitsSoACollection;
     using HitsOnHost = ::reco::TrackingRecHitHost;
+
+    using HitsOnDeviceRefProdVector = edm::RefProdVector<HitsOnDevice>;
 
     using TkSoADevice = reco::TracksSoACollection;
     using Quality = ::pixelTrack::Quality;
@@ -60,7 +59,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // void beginJob();
     // void endJob();
 
-    TkSoADevice makeTuplesAsync(std::vector<::edm::RefProd<HitsOnDevice>> const& hits_d,
+    TkSoADevice makeTuplesAsync(HitsOnDeviceRefProdVector const& hitsRefProdVector,
                                 CAGeometryOnDevice const& params_d,
                                 float bfield,
                                 uint32_t maxDoublets,

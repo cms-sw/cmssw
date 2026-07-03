@@ -95,7 +95,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   uint32_t const *__restrict__ nCellTracks) const {
       if (cms::alpakatools::once_per_grid(acc))
         printf(
-            "nSizes: hh.metadata().size() %d; hh.metadata().size() - hh.offsetBPIX2() %d; nCells %d; nTrips %d; "
+            "nSizes: hh.size() %d; hh.size() - hh.getView(0).offsetBPIX2() %d; nCells %d; nTrips %d; "
             "nCellTracks %d; nTracks %d; tt.metadata().size() %d\n",
             static_cast<int>(hh.size()),
             static_cast<int>(hh.size()) - hh.getView(0).offsetBPIX2(),
@@ -601,7 +601,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
       // loop on outer cells
       for (uint32_t cellIndex : cms::alpakatools::uniform_elements_y(acc, *nCells)) {
         auto &thisCell = cells[cellIndex];
-        auto innerHitId = thisCell.inner_hit_id() - hh.getView(0).offsetBPIX2();
+        auto innerHitId = thisCell.inner_hit_id() - hh.view(0).offsetBPIX2();
 
         if (int(innerHitId) < 0)
           continue;

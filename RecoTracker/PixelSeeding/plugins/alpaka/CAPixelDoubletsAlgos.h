@@ -69,7 +69,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
   template <typename TrackerTraits, alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool zSizeCut(const TAcc& acc,
-                                               MultiView<HitsConstView, 2> hh,
+                                               caStructures::HitsMultiView hh,
                                                ::reco::CALayersSoAConstView ll,
                                                AlgoParams const& params,
                                                int i,
@@ -124,7 +124,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
 
   template <typename TrackerTraits, alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool clusterCut(const TAcc& acc,
-                                                 MultiView<HitsConstView, 2> hh,
+                                                 caStructures::HitsMultiView hh,
                                                  ::reco::CALayersSoAConstView ll,
                                                  AlgoParams const& params,
                                                  uint32_t i) {
@@ -170,7 +170,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
                                                         uint32_t maxNumOfDoublets,
                                                         CACell<TrackerTraits>* cells,
                                                         uint32_t* nCells,
-                                                        MultiView<HitsConstView, 2> hh,
+                                                        caStructures::HitsMultiView hh,
                                                         ::reco::CAGraphSoAConstView cc,
                                                         ::reco::CALayersSoAConstView ll,
                                                         uint32_t const* __restrict__ offsets,
@@ -437,7 +437,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
             break;
           }
 
-          outerHitHisto->count(acc, oi - hh.getView(0).offsetBPIX2());
+          outerHitHisto->count(acc, oi - hh.view(0).offsetBPIX2());
           cells[ind].init(hh, pairLayerId, inner, outer, i, oi);
 #ifdef DOUBLETS_DEBUG
           printf("doublet: %d layerPair: %d inner: %d outer: %d i: %d oi: %d\n", ind, pairLayerId, inner, outer, i, oi);

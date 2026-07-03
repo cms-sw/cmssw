@@ -10,7 +10,6 @@
 
 #include <alpaka/alpaka.hpp>
 
-#include "DataFormats/Portable/interface/MultiView.h"
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
 #include "DataFormats/TrackSoA/interface/TracksSoA.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
@@ -27,8 +26,6 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace ::caStructures;
-  // TODO: think of redifinition of the HitsMultiView
-  using HitsMultiView = MultiView<::reco::TrackingRecHitConstView, 2>;
 
   template <typename TrackerTraits>
   class CACell {
