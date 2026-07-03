@@ -95,6 +95,7 @@ namespace mtd {
       if (nSegment_ > 0) {
         segmentPathOvc_.erase(segmentPathOvc_.begin());
         segmentMom2_.erase(segmentMom2_.begin());
+        segmentSigmaMom_.erase(segmentSigmaMom_.begin());
         nSegment_--;
       }
       return nSegment_;
