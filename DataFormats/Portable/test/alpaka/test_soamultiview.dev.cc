@@ -14,25 +14,31 @@ using namespace ALPAKA_ACCELERATOR_NAMESPACE;
 
 GENERATE_SOA_LAYOUT(SoATemplate, SOA_COLUMN(float, x), SOA_COLUMN(float, y), SOA_COLUMN(float, z))
 
+constexpr int numViews = 2;
+
 using SoA = SoATemplate<>;
 using View = SoA::View;
-using ConstView = SoA::ConstView;
-using MultiView = SoAMultiView<ConstView, 4>;
+using ConstView = SoA::ConstViewTemplate<cms::soa::RestrictQualify::enabled, cms::soa::RangeChecking::enabled>;
+using MultiView = SoAMultiView<ConstView, numViews>;
 
 struct kernelSingleView {
-  ALPAKA_FN_ACC void operator()(Acc1D const& acc, ConstView const view, float* result) const {
-    for (auto i : cms::alpakatools::uniform_elements(acc, view.metadata().size())) {
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, ConstView const view, float* result, const int size) const {
+    for (auto i : cms::alpakatools::uniform_elements(acc, size)) {
+      for (int j = 0; j < 1000; ++j) {
         auto const& element = view[i];
-        result[i] = element.x() * element.y() + element.z();
+        result[i] += element.x() * element.y() + element.z();
+      }
     }
   }
 };
 
 struct kernelMultiView {
-  ALPAKA_FN_ACC void operator()(Acc1D const& acc, MultiView const view, float* result) const {
-    for (auto i : cms::alpakatools::uniform_elements(acc, view.size())) {
+  ALPAKA_FN_ACC void operator()(Acc1D const& acc, MultiView const view, float* result, const int size) const {
+    for (auto i : cms::alpakatools::uniform_elements(acc, size)) {
+      for (int j = 0; j < 1000; ++j) {
         auto const& element = view[i];
-      result[i] = element.x() * element.y() + element.z();
+        result[i] += element.x() * element.y() + element.z();
+      }
     }
   }
 };
@@ -47,9 +53,7 @@ double benchmark(F&& f, Queue& queue, const int iterations = 1000) {
   alpaka::wait(queue);
 
   auto start = std::chrono::high_resolution_clock::now();
-  for (int i = 0; i < iterations; ++i) {
-    f();
-  }
+  f();
   alpaka::wait(queue);
   auto stop = std::chrono::high_resolution_clock::now();
 
@@ -64,13 +68,14 @@ int main() {
     return EXIT_FAILURE;
   }
 
-  for (auto const& device : devices) {
-    std::cout << "Running on " << alpaka::getName(device) << std::endl;
-    Queue queue(device);
+  auto const& device = devices[0];
 
-    constexpr int totalElements = 1 << 22;
-    constexpr int numViews = 4;
-    constexpr int elementsPerView = totalElements / numViews;
+  std::cout << "Running on " << alpaka::getName(device) << std::endl;
+  Queue queue(device);
+
+  for (int potenz = 5; potenz < 26; ++potenz) {
+    const int totalElements = 1 << potenz;
+    const int elementsPerView = totalElements / numViews;
 
     PortableHostCollection<SoA> hostCollection(queue, totalElements);
     auto h_view = hostCollection.view();
@@ -85,7 +90,7 @@ int main() {
     }
 
     PortableCollection<Device, SoA> deviceCollection(queue, totalElements);
-    auto d_Constview = deviceCollection.const_view();
+    ConstView d_Constview = deviceCollection.const_view();
     alpaka::memcpy(queue, deviceCollection.buffer(), hostCollection.buffer());
 
     auto result_d = cms::alpakatools::make_device_buffer<float[]>(queue, totalElements);
@@ -118,6 +123,7 @@ int main() {
     MultiView multiView_h(
         hostCollections, [](const PortableHostCollection<SoA>& collection) -> auto { return collection.const_view(); });
 
+    std::cout << "Single View size: " << d_Constview.metadata().size() << std::endl;
     std::cout << "MultiView size: " << multiView_h.size() << std::endl;
 
     MultiView multiView_d(deviceCollections, [](const PortableCollection<Device, SoA>& collection) -> auto {
@@ -133,7 +139,8 @@ int main() {
     // Run benchmarks
 
     double singleTime = benchmark(
-        [&]() { alpaka::exec<Acc1D>(queue, workDiv, kernelSingleView{}, d_Constview, result_d.data()); }, queue);
+        [&]() { alpaka::exec<Acc1D>(queue, workDiv, kernelSingleView{}, d_Constview, result_d.data(), totalElements); },
+        queue);
 
     alpaka::memcpy(queue, result_h, result_d);
     alpaka::wait(queue);
@@ -144,7 +151,8 @@ int main() {
     alpaka::memcpy(queue, result_d, result_h);
 
     double multiTime = benchmark(
-        [&]() { alpaka::exec<Acc1D>(queue, workDiv, kernelMultiView{}, multiView_d, result_d.data()); }, queue);
+        [&]() { alpaka::exec<Acc1D>(queue, workDiv, kernelMultiView{}, multiView_d, result_d.data(), totalElements); },
+        queue);
 
     alpaka::memcpy(queue, result_h, result_d);
     alpaka::wait(queue);

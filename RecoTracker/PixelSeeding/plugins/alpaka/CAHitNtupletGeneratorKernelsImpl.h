@@ -95,10 +95,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
                                   uint32_t const *__restrict__ nCellTracks) const {
       if (cms::alpakatools::once_per_grid(acc))
         printf(
-            "nSizes: hh.size() %d; hh.size() - hh.getView(0).offsetBPIX2() %d; nCells %d; nTrips %d; "
+            "nSizes: hh.size() %d; hh.size() - hh.view(0).offsetBPIX2() %d; nCells %d; nTrips %d; "
             "nCellTracks %d; nTracks %d; tt.metadata().size() %d\n",
             static_cast<int>(hh.size()),
-            static_cast<int>(hh.size()) - hh.getView(0).offsetBPIX2(),
+            static_cast<int>(hh.size()) - hh.view(0).offsetBPIX2(),
             *nCells,
             *nTrips,
             *nCellTracks,
@@ -714,7 +714,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caHitNtupletGeneratorKernels {
   class Kernel_find_ntuplets {
   public:
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
-                                  HitsConstView hh,
+                                  HitsMultiView hh,
                                   const ::reco::CALayersSoAConstView &ll,
                                   const ::reco::CAGraphSoAConstView &cc,
                                   TkSoAView tracks_view,
