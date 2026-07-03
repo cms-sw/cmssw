@@ -12,6 +12,10 @@ else :
     exit
     
 import FWCore.ParameterSet.VarParsing as VarParsing
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+
+
 options = VarParsing.VarParsing("analysis")
 
 options.register ('outputRootFile',
@@ -21,7 +25,7 @@ options.register ('outputRootFile',
                   "output root file")
 
 options.register ('GlobalTag',
-                  'auto:phase1_2022_realistic',
+                  _PH2_GLOBAL_TAG,
                   VarParsing.VarParsing.multiplicity.singleton,  # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "Global Tag to be used")
@@ -32,9 +36,9 @@ print( "conditionGT       : ", options.GlobalTag)
 print( "outputFile        : ", options.outputRootFile)
 print( "maxEvents         : ", options.maxEvents)
 
+
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process("EnergyOverMomentumTree",Run3)
+process = cms.Process("EnergyOverMomentumTree", _PH2_ERA)
     
 #process.Tracer = cms.Service("Tracer")
 
@@ -49,15 +53,16 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
 # define input files
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-                                '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/4a1ae43b-f4b3-4ad9-b86e-a7d9f6fc5c40.root',
-                                '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/33565608-3cac-47fe-a1fc-aef60f866b3a.root',
-                                '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/87fa96e1-925f-4cd3-878d-98a735737e55.root',
-                                '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/ea3a1cc8-720f-4392-9f0b-bd04d7f236a8.root',
-                                '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/3b3e7330-6174-43f3-8a49-c12eeae4d7f2.root',
-                                '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/ddc48c68-781c-485b-887e-4fcd6f0e0772.root',
-                                '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/a366a7ca-b71c-457a-8b64-09040f5b5819.root',
-                                '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/4758604c-b0c1-4e09-a0d4-38dd0da16789.root',
-                                '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/48985150-6f47-4a7f-b09f-b6301b7ec6ff.root'))
+                                '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/028e09cc-784b-41ab-a712-511d5bb67724.root',
+                                '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/b1273478-d951-4915-b888-c5e73d49f39c.root',
+                                '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/649c30e1-8ec6-4e31-9f17-4c1dd1f6409d.root',
+                                '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/fd8de856-99a9-477c-bb0d-cd572582b004.root',
+                                '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/5aa81899-8d7d-46c9-8636-667de1facc9a.root',
+                                '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/af539472-e507-4896-bc6b-c9795e2def16.root',
+                                '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/0abaf7aa-c2ec-4bcb-96f1-d22d5c7bd937.root',
+                                '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/053a2340-040a-4be4-b335-7f546f24bab6.root',
+                                '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/cf187c8c-96e7-4949-9a75-67d4b7696cf8.root',
+                                '/store/relval/CMSSW_20_0_0_pre1/RelValZEE_14/GEN-SIM-RECO/150X_mcRun4_realistic_v1_STD_RegeneratedGS_D121_noPU-v1/2590000/0c2bfdc1-278c-4e60-8fa1-2ef58cc3a35b.root'))
                         
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.maxEvents)
@@ -76,8 +81,7 @@ process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 ###################################################################
 # Standard loads
 ###################################################################
-from Configuration.Geometry.GeometryRecoDB_cff import *
-process.load("Configuration.Geometry.GeometryRecoDB_cff")
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 
 ####################################################################
 # Get the BeamSpot
@@ -93,6 +97,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')
 
 # choose geometry
 if MISALIGN:
+    # TO-DO develop the Phase-2 version of these scenarios!
     print( "MISALIGN")
     from CondCore.CondDB.CondDB_cfi import CondDB
     CondDB.connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
