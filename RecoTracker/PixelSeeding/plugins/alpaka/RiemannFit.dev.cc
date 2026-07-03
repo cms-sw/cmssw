@@ -27,7 +27,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                   Tuples const *__restrict__ foundNtuplets,
                                   TupleMultiplicity const *__restrict__ tupleMultiplicity,
                                   uint32_t nHits,
-                                  MultiView<::reco::TrackingRecHitConstView, 2> hh,
+                                  caStructures::HitsMultiView hh,
                                   ::reco::CAModulesConstView cm,
                                   double *__restrict__ phits,
                                   float *__restrict__ phits_ge,
@@ -202,7 +202,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };
 
   template <typename TrackerTraits>
-  void HelixFit<TrackerTraits>::launchRiemannKernels(const MultiView<::reco::TrackingRecHitConstView, 2> &hv,
+  void HelixFit<TrackerTraits>::launchRiemannKernels(const caStructures::HitsMultiView &hv,
                                                      const ::reco::CAModulesConstView &cm,
                                                      uint32_t nhits,
                                                      uint32_t maxNumberOfTuples,
