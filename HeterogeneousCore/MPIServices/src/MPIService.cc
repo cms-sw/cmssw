@@ -53,6 +53,10 @@ MPIService::MPIService(edm::ParameterSet const& config) {
     setenv("OMPI_MCA_pmix_server_uri", uri.c_str(), false);
   }
 
+  // Overwrite the `OMPI_MCA_accelerator=null` set by scram (cmsdist #10211), to
+  // make OpenMPI understand GPU pointers.
+  setenv("OMPI_MCA_accelerator", "cuda,rocm,null", true);
+
   // initializes the MPI execution environment, requesting multi-threading support
   int provided;
   MPI_Init_thread(nullptr, nullptr, MPI_THREAD_MULTIPLE, &provided);
