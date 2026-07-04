@@ -1,11 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("testAlignmentStats") 
+import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
+_PH2_GLOBAL_TAG, _PH2_ERA = _settings.get_era_and_conditions(_settings.DEFAULT_VERSION)
+
+process = cms.Process("testAlignmentStats", _PH2_ERA)
 
 ###################################################################
 # Set the process to run multi-threaded
 ###################################################################
-process.options.numberOfThreads = 8
+process.options.numberOfThreads = 1
 
 ###################################################################
 # Messages
@@ -38,7 +41,7 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 ###################################################################
 # Standard loads
 ###################################################################
-process.load("Configuration.Geometry.GeometryRecoDB_cff")
+process.load('Configuration.Geometry.GeometryExtendedRun4DefaultReco_cff')
 
 ####################################################################
 # Produce the Transient Track Record in the event
@@ -48,9 +51,9 @@ process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 ###################################################################
 # Event source and run selection
 ###################################################################
-from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_TTBarPU
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_TTbarPhase2RECO
 process.source = cms.Source("PoolSource",
-                            fileNames = filesDefaultMC_TTBarPU,
+                            fileNames = filesDefaultMC_TTbarPhase2RECO,
                             duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
                             )
 
@@ -63,7 +66,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, _PH2_GLOBAL_TAG, '')
 
 ####################################################################
 # Get the BeamSpot
