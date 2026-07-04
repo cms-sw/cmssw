@@ -389,6 +389,7 @@ std::unique_ptr<RecoTrackSelectorBase> MTVHistoProducerAlgoForTracker::makeRecoT
   psetTrack.addParameter("invertRapidityCut", false);
   psetTrack.addParameter("minPhi", -3.2);
   psetTrack.addParameter("maxPhi", 3.2);
+  psetTrack.addParameter("passThrough", false);
   return std::make_unique<RecoTrackSelectorBase>(psetTrack);
 }
 
