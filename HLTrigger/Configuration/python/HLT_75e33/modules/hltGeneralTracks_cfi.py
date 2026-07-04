@@ -44,12 +44,16 @@ from Configuration.ProcessModifiers.trackingLST_cff import trackingLST
 _hltGeneralTracksNGTScouting = cms.EDProducer("RecoTrackSelector",
                                               src = cms.InputTag('hltPhase2PixelTracks'),
                                               copyExtras = cms.untracked.bool(True),
+                                              passThrough = cms.bool(True),
+                                              usePV = cms.bool(False),
                                               minHit = cms.int32(0),
                                               minLayer = cms.int32(0),
                                               min3DLayer = cms.int32(0),
                                               minPixelHit = cms.int32(0),
                                               ptMin = cms.double(0.0),
                                               maxChi2 = cms.double(10000.0),
+                                              beamSpot = cms.InputTag('hltOnlineBeamSpot'),
+                                              vertexTag = cms.InputTag(''),
                                               tip = cms.double(1e9),
                                               lip = cms.double(1e9),
                                               minRapidity = cms.double(-9.9),
@@ -57,8 +61,7 @@ _hltGeneralTracksNGTScouting = cms.EDProducer("RecoTrackSelector",
                                               minPhi = cms.double(-3.2),
                                               maxPhi = cms.double(3.2),
                                               quality = cms.vstring(),
-                                              algorithm = cms.vstring(),
-                                              )
+                                              algorithm = cms.vstring())
 
 _hltGeneralTracksNGTScoutingLST = hltGeneralTracks.clone(
     MinPT = cms.double(0.9),
