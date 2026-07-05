@@ -40,13 +40,14 @@ TMPDIR_WORK=$(mktemp -d)
 trap 'rm -rf "$TMPDIR_WORK"' EXIT
 
 # ── generate_cff ──────────────────────────────────────────────────────────────
-# Args: sherpa_process  sherpack_location  checksum  tmpdir  output_cff
+# Args: sherpa_process  sherpack_location  checksum  tmpdir  output_cff  new_format
 generate_cff() {
     local sherpa_process="$1"
     local sherpack_location="$2"
     local checksum="$3"
     local tmpdir="$4"
     local output_cff="$5"
+    local new_format="$6"
 
     echo "Generating ${output_cff} ..."
 
@@ -61,6 +62,7 @@ generate_cff() {
     CHECKSUM="$checksum" \
     RUN_DAT="${run_dat}" \
     OUTPUT_CFF="$output_cff" \
+    NEW_SHERPACK_FORMAT="$new_format" \
     python3 << 'PYEOF'
 import os
 
@@ -69,6 +71,7 @@ sherpack_location = os.environ['SHERPACK_LOCATION']
 checksum          = os.environ['CHECKSUM']
 run_dat_path      = os.environ.get('RUN_DAT', '')
 output_cff        = os.environ['OUTPUT_CFF']
+new_sherpack_format = os.environ['NEW_SHERPACK_FORMAT']
 
 def read_all_lines(path):
     if not path:
@@ -115,6 +118,7 @@ generator = cms.EDFilter("SherpaGeneratorFilter",
   SherpaProcess = cms.string('%s'),
   SherpackLocation = cms.string('%s'),
   SherpackChecksum = cms.string('%s'),
+  NewSherpackFormat = cms.bool(%s),
   FetchSherpack = cms.bool(True),
   SherpaPath = cms.string('./'),
   SherpaPathPiece = cms.string('./'),
@@ -136,6 +140,7 @@ ProductionFilterSequence = cms.Sequence(generator)
 """
 
 content = template % (sherpa_process, sherpack_location, checksum,
+                      new_sherpack_format,
                       mpi_vstring, run_vstring)
 
 with open(output_cff, 'w') as f:
@@ -199,7 +204,7 @@ if [[ "$MODE" == "new_to_old" ]]; then
     echo "  Saved to: $MD5FILE"
     echo ""
 
-    generate_cff "$SHERPA_PROC" "$SHERPACK_DIR" "$MD5" "$TMPDIR_WORK" "$CFF_PY"
+    generate_cff "$SHERPA_PROC" "$SHERPACK_DIR" "$MD5" "$TMPDIR_WORK" "$CFF_PY" "False"
 
     echo ""
     echo "=========================================================="
@@ -255,7 +260,7 @@ elif [[ "$MODE" == "old_to_new" ]]; then
     echo "  $MD5_LINE"
     echo ""
 
-    generate_cff "$SHERPA_PROC" "$OUTPUT_FULLPATH" "$MD5" "$TMPDIR_WORK" "$CFF_PY"
+    generate_cff "$SHERPA_PROC" "$OUTPUT_FULLPATH" "$MD5" "$TMPDIR_WORK" "$CFF_PY" "True"
 
     echo ""
     echo "=========================================================="
