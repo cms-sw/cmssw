@@ -117,21 +117,21 @@ namespace ticl {
     std::vector<float> layersPosZ_;  // cached once per run/IOV
     std::vector<int> tracksterSeedAlgoId_;
 
-    const std::vector<double> criticalDensity_;
-    const std::vector<double> criticalSelfDensity_;
+    const std::vector<float> criticalDensity_;
+    const std::vector<float> criticalSelfDensity_;
     const std::vector<int> densitySiblingLayers_;
-    const std::vector<double> densityEtaPhiDistanceSqr_;
-    const std::vector<double> densityXYDistanceSqr_;
-    const std::vector<double> kernelDensityFactor_;
+    const std::vector<float> densityEtaPhiDistanceSqr_;
+    const std::vector<float> densityXYDistanceSqr_;
+    const std::vector<float> kernelDensityFactor_;
     const bool densityOnSameLayer_;
     const bool nearestHigherOnSameLayer_;
     const bool useAbsoluteProjectiveScale_;
     const bool useClusterDimensionXY_;
     const bool rescaleDensityByZ_;
-    const std::vector<double> criticalEtaPhiDistance_;
-    const std::vector<double> criticalXYDistance_;
+    const std::vector<float> criticalEtaPhiDistance_;
+    const std::vector<float> criticalXYDistance_;
     const std::vector<int> criticalZDistanceLyr_;
-    const std::vector<double> outlierMultiplier_;
+    const std::vector<float> outlierMultiplier_;
     const std::vector<int> minNumLayerCluster_;
     const bool doPidCut_;
     const float cutHadProb_;

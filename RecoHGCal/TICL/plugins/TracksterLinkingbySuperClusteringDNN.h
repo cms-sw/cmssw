@@ -57,7 +57,7 @@ namespace ticl {
     // --- Configuration
     std::unique_ptr<AbstractSuperclusteringDNNInput> dnnInputs_;
     unsigned int inferenceBatchSize_;
-    double nnWorkingPoint_;
+    float nnWorkingPoint_;
     float deltaEtaWindow_;
     float deltaPhiWindow_;
     float seedPtThreshold_;
