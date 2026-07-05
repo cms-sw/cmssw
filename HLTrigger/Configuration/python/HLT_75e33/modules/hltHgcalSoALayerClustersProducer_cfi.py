@@ -7,8 +7,8 @@ hltHgcalSoALayerClustersProducer = cms.EDProducer("HGCalSoALayerClustersProducer
     ),
     hgcalRecHitsLayerClustersSoA = cms.InputTag("hltHgcalSoARecHitsLayerClustersProducer"),
     hgcalRecHitsSoA = cms.InputTag("hltHgcalSoARecHitsProducer"),
-    positionDeltaRho2 = cms.double(1.69),
-    thresholdW0 = cms.double(2.9)
+    positionDeltaRho2 = cms.float(1.69),
+    thresholdW0 = cms.float(2.9)
 )
 
 hltHgcalSoALayerClustersProducerSerialSync = makeSerialClone(hltHgcalSoALayerClustersProducer,
