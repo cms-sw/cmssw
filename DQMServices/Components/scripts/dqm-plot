@@ -879,6 +879,7 @@ class DQMPlotter:
         ytitle_ratio_fontsize=None,
         complement=False,
         rebin=None,
+        multiply_x_values=None,
     ):
         """
         Create comparison plot with ratio panel.
@@ -957,6 +958,10 @@ class DQMPlotter:
                 self.root_to_numpy(hist, rebin=rebin)
             )
 
+            if multiply_x_values is not None:
+                bin_centers = bin_centers * multiply_x_values
+                bin_edges = bin_edges * multiply_x_values
+
             if normalize and np.sum(bin_contents) > 0:
                 norm_factor = 1.0 / np.sum(bin_contents)
                 bin_contents *= norm_factor
@@ -991,7 +996,13 @@ class DQMPlotter:
 
         ax_main.set_xlabel(xlabel, fontsize=label_size if xtitle_fontsize is None else xtitle_fontsize)
         ax_main.set_ylabel(ylabel, fontsize=label_size if ytitle_fontsize is None else ytitle_fontsize)
-        
+
+        ha = "right"
+        if "KindOfSignalPV" in args.source[0][0]:
+            if rebin != None:
+                bin_labels = ['PV not Reco', 'PV Reco\nas Leading', 'PV Reco\nnot as Leading']
+                ha = "center"
+                
         if has_labels: # Set custom labels if available
             ax_main.set_xticks(
                 ref_centers,
@@ -1539,6 +1550,10 @@ if __name__ == "__main__":
         "--no-grid", action="store_true", help="Remove grid from all plots."
     )
     parser.add_argument(
+        '--multiply-x-values', type=float, required=False, default=None, dest='multiply_x_values',
+        help="Multiply all x-axis values (bin centers and edges) by this fixed factor."
+    )
+    parser.add_argument(
         '--title', required=False, default=None,
         help="Plot title."
     )
@@ -1626,8 +1641,8 @@ if __name__ == "__main__":
         "--overlay",
         action="append",
         help="Overlay histograms from different collections. Specify colon-separated patterns."
-             "(e.g., 'hltPhase2PixelTracks:hltPhase2PixelTracksCAExtension')."
-             "Can be used multiple times for different overlay groups.",
+        "(e.g., 'hltPhase2PixelTracks:hltPhase2PixelTracksCAExtension')."
+        "Can be used multiple times for different overlay groups.",
     )
     parser.add_argument(
         "--no-overlay-individual",
@@ -1644,12 +1659,12 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="Rebin histograms before plotting. Pass a single integer to merge "
-             "that many existing bins together (e.g. '--rebin 2' merges every 2 "
-             "bins into 1), or a comma-separated list of numbers to define new "
-             "variable-width bin edges (e.g. '--rebin 0,10,20,50,100'). Must be "
-             "a single shell argument (quote it if it contains spaces) since "
-             "this flag takes exactly one value - this keeps it from swallowing "
-             "the positional ROOT file arguments that follow it.",
+        "that many existing bins together (e.g. '--rebin 2' merges every 2 "
+        "bins into 1), or a comma-separated list of numbers to define new "
+        "variable-width bin edges (e.g. '--rebin 0,10,20,50,100'). Must be "
+        "a single shell argument (quote it if it contains spaces) since "
+        "this flag takes exactly one value - this keeps it from swallowing "
+        "the positional ROOT file arguments that follow it.",
     )
 
     parser.add_argument(
@@ -1749,5 +1764,6 @@ if __name__ == "__main__":
         overlay_individual=not args.no_overlay_individual,
         complement=args.complement,
         rebin=rebin_arg,
+        multiply_x_values=args.multiply_x_values,
         debug=args.debug,
     )
