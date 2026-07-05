@@ -120,17 +120,67 @@ class DQMPlotter:
             raise NotImplementedError(f"Operation '{operation_type}' not yet implemented!")
         
         raise ValueError(f"Unknown operation '{operation_type}'")
-        
-    def root_to_numpy(self, hist):
+
+    def _rebin_histogram(self, hist, rebin):
+        """
+        Rebin a ROOT histogram, leaving the original untouched.
+
+        Args:
+            hist: ROOT histogram
+            rebin: Either a single int/float, interpreted as the number of
+                existing bins to merge together (ROOT's "ngroup" rebinning,
+                e.g. rebin=2 merges every 2 bins into 1), or an array-like of
+                new bin edges to rebin into variable-width bins.
+
+        Returns:
+            A new, independent ROOT histogram with the requested binning.
+        """
+        rndstr = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+        hist_clone = hist.Clone(f"{hist.GetName()}_rebin_{rndstr}")
+        hist_clone.SetDirectory(0)
+
+        if isinstance(rebin, (int, np.integer)):
+            if rebin < 1:
+                raise ValueError(f"rebin group size must be >= 1, got {rebin}")
+            hist_clone.Rebin(int(rebin))
+            return hist_clone
+
+        # Otherwise treat as an array-like of new bin edges (variable rebinning)
+        edges = np.asarray(rebin, dtype=float)
+        if edges.ndim != 1 or len(edges) < 2:
+            raise ValueError(
+                "rebin must be either a single int (number of bins to merge) "
+                "or an array-like of at least 2 bin edges."
+            )
+        if np.any(np.diff(edges) <= 0):
+            raise ValueError("rebin bin edges must be strictly increasing.")
+
+        n_new_bins = len(edges) - 1
+        rebinned = hist_clone.Rebin(n_new_bins, f"{hist.GetName()}_rebin_var_{rndstr}", edges)
+        if not rebinned:
+            raise ValueError(
+                "Rebin failed - check that the provided bin edges are compatible "
+                "with the histogram's original binning."
+            )
+        rebinned.SetDirectory(0)
+        return rebinned
+
+    def root_to_numpy(self, hist, rebin=None):
         """
         Convert ROOT histogram to numpy arrays.
 
         Args:
             hist: ROOT histogram
+            rebin: Optional rebinning specification. Either a single int
+                (number of existing bins to merge together) or an array-like
+                of new bin edges for variable-width rebinning.
 
         Returns:
             tuple: (bin_centers, bin_contents, bin_errors, bin_edges, bin_labels, has_labels)
         """
+        if rebin is not None:
+            hist = self._rebin_histogram(hist, rebin)
+
         n_bins = hist.GetNbinsX()
         bin_edges = np.array([hist.GetBinLowEdge(i) for i in range(1, n_bins + 2)])
         bin_centers = np.array([hist.GetBinCenter(i) for i in range(1, n_bins + 1)])
@@ -211,7 +261,7 @@ class DQMPlotter:
                 linewidth=1.5,
             )
 
-    def _calculate_and_plot_ratio(self, ax_ratio, bin_centers, bin_contents, bin_errors,
+    def _calculate_and_plot_ratio(self, ax_ratio, bin_centers, bin_contents, bin_errors, bin_edges,
                                 ref_centers, ref_contents, ref_errors, color_idx, plot_histograms):
         """Calculate and plot ratio between current and reference histogram."""
         if ax_ratio is None:
@@ -252,12 +302,29 @@ class DQMPlotter:
         ratio_errors = np.nan_to_num(ratio_errors, nan=0.0, posinf=0.0, neginf=0.0)
 
         if plot_histograms and len(matching_centers) > 1:
-            bin_widths = np.diff(np.sort(matching_centers))
-            avg_width = np.mean(bin_widths)
-            matching_edges = np.concatenate([
-                [matching_centers[0] - avg_width / 2],
-                matching_centers + avg_width / 2,
-            ])
+            # Use the histogram's real bin edges for the matched bins instead
+            # of reconstructing fake uniform-width edges from the average bin
+            # spacing - the latter silently diverges from the main plot's
+            # (possibly variable-width, e.g. after a variable-edge rebin)
+            # bin_edges, so the two panels ended up drawing different bin
+            # boundaries.
+            curr_idx_arr = np.array(curr_idxs)
+            is_contiguous = np.all(np.diff(curr_idx_arr) == 1)
+            if is_contiguous:
+                matching_edges = np.concatenate([
+                    bin_edges[curr_idx_arr],
+                    [bin_edges[curr_idx_arr[-1] + 1]],
+                ])
+            else:
+                # Fallback for non-contiguous matches (gaps between matched
+                # bins): fall back to the previous approximation rather than
+                # constructing a misleading edges array.
+                bin_widths = np.diff(np.sort(matching_centers))
+                avg_width = np.mean(bin_widths)
+                matching_edges = np.concatenate([
+                    [matching_centers[0] - avg_width / 2],
+                    matching_centers + avg_width / 2,
+                ])
             hep.histplot(
                 ratio, bins=matching_edges, yerr=ratio_errors,
                 color=self.colors[color_idx % len(self.colors)],
@@ -809,6 +876,7 @@ class DQMPlotter:
         ylim=None,
         ylim_ratio=None,
         complement=False,
+        rebin=None,
     ):
         """
         Create comparison plot with ratio panel.
@@ -827,6 +895,7 @@ class DQMPlotter:
             pdf: Whether to save as PDF in addition to PNG
             legend_outside: Force legend to be placed outside the plot area
             overlay_groups: List of pattern groups to overlay
+            rebin: Optional rebinning specification, either a single int or an array-like of new bin edges
         """
         if len(histograms) != len(labels):
             raise ValueError("Number of histograms must match number of labels")
@@ -883,7 +952,7 @@ class DQMPlotter:
 
         for i, (hist, label) in enumerate(zip(histograms, labels)):
             bin_centers, bin_contents, bin_errors, bin_edges, bin_labels, has_labels = (
-                self.root_to_numpy(hist)
+                self.root_to_numpy(hist, rebin=rebin)
             )
 
             if normalize and np.sum(bin_contents) > 0:
@@ -903,7 +972,7 @@ class DQMPlotter:
 
             if i > 0:
                 valid_ratios = self._calculate_and_plot_ratio(
-                    ax_ratio, bin_centers, bin_contents, bin_errors,
+                    ax_ratio, bin_centers, bin_contents, bin_errors, bin_edges,
                     ref_centers, ref_contents, ref_errors, i, plot_histograms
                 )
                 all_ratios.extend(valid_ratios)
@@ -1564,6 +1633,18 @@ if __name__ == "__main__":
         action="store_true",
         help="Apply the 1-j operation to every bin j of the histogram before plotting it. Useful for converting purity plots into fake rates.",
     )
+    parser.add_argument(
+        "--rebin",
+        type=str,
+        default=None,
+        help="Rebin histograms before plotting. Pass a single integer to merge "
+             "that many existing bins together (e.g. '--rebin 2' merges every 2 "
+             "bins into 1), or a comma-separated list of numbers to define new "
+             "variable-width bin edges (e.g. '--rebin 0,10,20,50,100'). Must be "
+             "a single shell argument (quote it if it contains spaces) since "
+             "this flag takes exactly one value - this keeps it from swallowing "
+             "the positional ROOT file arguments that follow it.",
+    )
 
     parser.add_argument(
         "--debug",
@@ -1594,7 +1675,25 @@ if __name__ == "__main__":
         parser.error(f"--ylim: lower bound ({args.ylim[0]}) must be <= upper bound ({args.ylim[1]})")
     if args.ylim_ratio is not None and args.ylim_ratio[0] >= args.ylim_ratio[1]:
         parser.error(f"--ylim_ratio: lower bound ({args.ylim_ratio[0]}) must be <= upper bound ({args.ylim_ratio[1]})")
-        
+
+    rebin_arg = None
+    if args.rebin is not None:
+        rebin_tokens = [tok for tok in re.split(r"[,\s]+", args.rebin.strip()) if tok]
+        if not rebin_tokens:
+            parser.error("--rebin: no values found.")
+        try:
+            rebin_values = [float(tok) for tok in rebin_tokens]
+        except ValueError:
+            parser.error(f"--rebin: could not parse '{args.rebin}' as number(s).")
+
+        if len(rebin_values) == 1:
+            rebin_value = rebin_values[0]
+            if not rebin_value.is_integer():
+                parser.error("--rebin: a single value must be an integer number of bins to merge.")
+            rebin_arg = int(rebin_value)
+        else:
+            rebin_arg = rebin_values
+
     # Flatten list of patterns
     source_patterns = None
     if args.source:
@@ -1642,5 +1741,6 @@ if __name__ == "__main__":
         overlay_groups=overlay_groups,
         overlay_individual=not args.no_overlay_individual,
         complement=args.complement,
+        rebin=rebin_arg,
         debug=args.debug,
     )
