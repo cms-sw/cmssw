@@ -297,7 +297,7 @@ bool SherpaHepMC3Hadronizer::generatePartonsAndHadronize() {
     std::map<std::string, std::size_t> nameToIndex;
     for (std::size_t i = 0; i < weight_list.size(); ++i) {
       nameToIndex[weight_list[i]] = i;
-      std::cout << i << ", " << weight_list[i] << std::endl;
+      // std::cout << i << ", " << weight_list[i] << std::endl;
     }
     // Helper lambda: get weight by name, fall back to index
     auto getWeightByName = [&](const std::string &name, std::size_t fallbackIdx) -> double {
@@ -311,7 +311,7 @@ bool SherpaHepMC3Hadronizer::generatePartonsAndHadronize() {
 
     bool unweighted = false;
     double weight_normalization = -1;
-    std::cout << "EVENT MODE:" << ATOOLS::ToType<int>(ATOOLS::rpa->gen.Variable("EVENT_GENERATION_MODE")) << std::endl;
+    // std::cout << "EVENT MODE:" << ATOOLS::ToType<int>(ATOOLS::rpa->gen.Variable("EVENT_GENERATION_MODE")) << std::endl;
     int EVENT_GENERATION_MODE = ATOOLS::ToType<int>(ATOOLS::rpa->gen.Variable("EVENT_GENERATION_MODE"));
     if ((EVENT_GENERATION_MODE == 1) || (EVENT_GENERATION_MODE == 2)) {
       // EVENT_GENERATION_MODE: 1->Unweighted; 2->PartiallyUnweighted;
@@ -319,7 +319,7 @@ bool SherpaHepMC3Hadronizer::generatePartonsAndHadronize() {
       if (evt->weights().size() > 2) {
         unweighted = true;
         weight_normalization = getWeightByName("WeightNormalisation", 2);
-        std::cout << weight_normalization << std::endl;
+        // std::cout << weight_normalization << std::endl;
       } else {
         throw cms::Exception("SherpaInterface")
             << "Requested unweighted production. Missing normalization weight." << std::endl;
@@ -341,7 +341,7 @@ bool SherpaHepMC3Hadronizer::generatePartonsAndHadronize() {
         auto it = nameToIndex.find(i);
         if (it != nameToIndex.end()) {
           double w = evt->weights()[it->second];
-          std::cout << it->first << ", " << it->second << ", " << w << ", " << weight_normalization << std::endl;
+          // std::cout << it->first << ", " << it->second << ", " << w << ", " << weight_normalization << std::endl;
           newWeights.push_back(unweighted ? w / weight_normalization : w);
         } else {
           throw cms::Exception("SherpaInterface")
