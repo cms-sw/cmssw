@@ -578,22 +578,23 @@ class DQMPlotter:
 
             if "#sigma(" in title.lower():
                 core = left[left.find("(") + 1 : left.rfind(")")]
-                ylabel = r"$\delta$" + core + "/" + core
+                ylabel = r"\delta " + core + "/" + core
                 right_clean = right
                 if "Mean" in title:
                     ylabel = "<" + ylabel + ">"
                     right_clean = right_clean.replace("Mean", "")
                 elif "Sigma" in title:
-                    ylabel = r"$\sigma$(" + ylabel + ")"
+                    ylabel = r"\sigma\,(" + ylabel + ")"
                     right_clean = right_clean.replace("Sigma", "")
                 xlabel = right_clean.strip()
+
             elif "Mean" in title:
                 right_clean = right.replace("Mean", "").strip()
                 ylabel = "<" + left + ">"
                 xlabel = right_clean
             elif "Sigma" in title:
                 right_clean = right.replace("Sigma", "").strip()
-                ylabel = r"$\sigma$<" + left + ">"
+                ylabel = r"\sigma\,<" + left + ">"
                 xlabel = right_clean
             else:
                 # Default: "ylabel vs xlabel"
@@ -605,13 +606,13 @@ class DQMPlotter:
             # Pull plots
             if "pull" not in title.lower():
                 if "eta" in title.lower():
-                    xlabel = r"$\eta$"
+                    xlabel = r"\eta"
                 elif "pt2" in title.lower():
-                    xlabel = r"$p_{\text{T}}^2$"
+                    xlabel = r"p_{\text{T}}^2"
                 elif "pt" in title.lower():
-                    xlabel = r"$p_{\text{T}}$"
+                    xlabel = r"p_{\text{T}}"
                 elif "phi" in title.lower():
-                    xlabel = r"$\phi$"
+                    xlabel = r"\phi"
             # Efficiency and turn-on plots
             if "eff" in title.lower():
                 ylabel = "Efficiency"
@@ -875,6 +876,7 @@ class DQMPlotter:
         xlim=None,
         ylim=None,
         ylim_ratio=None,
+        ytitle_ratio_fontsize=None,
         complement=False,
         rebin=None,
     ):
@@ -1059,7 +1061,7 @@ class DQMPlotter:
             else:
                 ax_ratio.set_xlabel(xlabel, fontsize=label_size if xtitle_fontsize is None else xtitle_fontsize)
 
-            ax_ratio.set_ylabel("Ratio", fontsize=label_size if ytitle_fontsize is None else ytitle_fontsize)
+            ax_ratio.set_ylabel(f"Ratio wrt to {labels[0]}", fontsize=label_size if ytitle_ratio_fontsize is None else ytitle_ratio_fontsize)
             ax_ratio.axhline(y=1, color="black", linestyle="--", alpha=0.7)
 
             if grid:
@@ -1569,6 +1571,10 @@ if __name__ == "__main__":
         help="Numerical limits of the y axis of the ratio histogram."
     )
     parser.add_argument(
+        '--ytitle-ratio-fontsize', type=int, required=False, default=None,
+        help="Bottom ratio plot Y axis label font size."
+    )
+    parser.add_argument(
         "--histograms",
         action="store_true",
         help="Plot histograms instead of points (default: points with error bars).",
@@ -1730,6 +1736,7 @@ if __name__ == "__main__":
         xlim=args.xlim,
         ylim=args.ylim,
         ylim_ratio=args.ylim_ratio,
+        ytitle_ratio_fontsize=args.ytitle_ratio_fontsize,
         plot_histograms=args.histograms,
         save_as_pdf=args.pdf,
         more_files=args.more_files,
