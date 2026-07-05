@@ -11,9 +11,9 @@ GeneralInterpretationAlgo::~GeneralInterpretationAlgo() {}
 
 GeneralInterpretationAlgo::GeneralInterpretationAlgo(const edm::ParameterSet &conf, edm::ConsumesCollector cc)
     : TICLInterpretationAlgoBase(conf, cc),
-      del_tk_ts_layer1_(conf.getParameter<double>("delta_tk_ts_layer1")),
-      del_tk_ts_int_(conf.getParameter<double>("delta_tk_ts_interface")),
-      timing_quality_threshold_(conf.getParameter<double>("timing_quality_threshold")) {}
+      del_tk_ts_layer1_(conf.getParameter<float>("delta_tk_ts_layer1")),
+      del_tk_ts_int_(conf.getParameter<float>("delta_tk_ts_interface")),
+      timing_quality_threshold_(conf.getParameter<float>("timing_quality_threshold")) {}
 
 void GeneralInterpretationAlgo::initialize(const HGCalDDDConstants *hgcons,
                                            const hgcal::RecHitTools rhtools,
@@ -411,8 +411,8 @@ void GeneralInterpretationAlgo::makeCandidates(const Inputs &input,
 };
 
 void GeneralInterpretationAlgo::fillPSetDescription(edm::ParameterSetDescription &desc) {
-  desc.add<double>("delta_tk_ts_layer1", 0.02);
-  desc.add<double>("delta_tk_ts_interface", 0.03);
-  desc.add<double>("timing_quality_threshold", 0.5);
+  desc.add<float>("delta_tk_ts_layer1", 0.02);
+  desc.add<float>("delta_tk_ts_interface", 0.03);
+  desc.add<float>("timing_quality_threshold", 0.5);
   TICLInterpretationAlgoBase::fillPSetDescription(desc);
 }

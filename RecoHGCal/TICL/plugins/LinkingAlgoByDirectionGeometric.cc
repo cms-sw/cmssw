@@ -17,11 +17,11 @@ using namespace ticl;
 
 LinkingAlgoByDirectionGeometric::LinkingAlgoByDirectionGeometric(const edm::ParameterSet &conf)
     : LinkingAlgoBase(conf),
-      del_tk_ts_layer1_(conf.getParameter<double>("delta_tk_ts_layer1")),
-      del_tk_ts_int_(conf.getParameter<double>("delta_tk_ts_interface")),
-      del_ts_em_had_(conf.getParameter<double>("delta_ts_em_had")),
-      del_ts_had_had_(conf.getParameter<double>("delta_ts_had_had")),
-      timing_quality_threshold_(conf.getParameter<double>("track_time_quality_threshold")),
+      del_tk_ts_layer1_(conf.getParameter<float>("delta_tk_ts_layer1")),
+      del_tk_ts_int_(conf.getParameter<float>("delta_tk_ts_interface")),
+      del_ts_em_had_(conf.getParameter<float>("delta_ts_em_had")),
+      del_ts_had_had_(conf.getParameter<float>("delta_ts_had_had")),
+      timing_quality_threshold_(conf.getParameter<float>("track_time_quality_threshold")),
       cutTk_(conf.getParameter<std::string>("cutTk")) {}
 
 LinkingAlgoByDirectionGeometric::~LinkingAlgoByDirectionGeometric() {}
@@ -573,10 +573,10 @@ void LinkingAlgoByDirectionGeometric::fillPSetDescription(edm::ParameterSetDescr
   desc.add<std::string>("cutTk",
                         "1.48 < abs(eta) < 3.0 && pt > 1. && quality(\"highPurity\") && "
                         "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 5");
-  desc.add<double>("delta_tk_ts_layer1", 0.02);
-  desc.add<double>("delta_tk_ts_interface", 0.03);
-  desc.add<double>("delta_ts_em_had", 0.03);
-  desc.add<double>("delta_ts_had_had", 0.03);
-  desc.add<double>("track_time_quality_threshold", 0.5);
+  desc.add<float>("delta_tk_ts_layer1", 0.02);
+  desc.add<float>("delta_tk_ts_interface", 0.03);
+  desc.add<float>("delta_ts_em_had", 0.03);
+  desc.add<float>("delta_ts_had_had", 0.03);
+  desc.add<float>("track_time_quality_threshold", 0.5);
   LinkingAlgoBase::fillPSetDescription(desc);
 }

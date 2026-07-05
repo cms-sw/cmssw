@@ -20,8 +20,8 @@ GNNInterpretationAlgo::GNNInterpretationAlgo(const edm::ParameterSet& conf, edm:
           conf.getParameter<edm::FileInPath>("onnxTrkLinkingModelInterfaceDisk").fullPath().c_str())),
       inputNames_(conf.getParameter<std::vector<std::string>>("inputNames")),
       output_(conf.getParameter<std::vector<std::string>>("output")),
-      del_tk_ts_(conf.getParameter<double>("delta_tk_ts")),
-      threshold_(conf.getParameter<double>("thr_gnn")) {
+      del_tk_ts_(conf.getParameter<float>("delta_tk_ts")),
+      threshold_(conf.getParameter<float>("thr_gnn")) {
   onnxLinkingSessionFirstDisk_ = onnxLinkingRuntimeFirstDisk_.get();
   onnxLinkingSessionInterfaceDisk_ = onnxLinkingRuntimeInterfaceDisk_.get();
 }
@@ -576,8 +576,8 @@ void GNNInterpretationAlgo::fillPSetDescription(edm::ParameterSetDescription& de
       ->setComment("Path to ONNX tracks tracksters linking model at interface disk ");
   desc.add<std::vector<std::string>>("inputNames", {"x", "edge_index", "edge_attr"});
   desc.add<std::vector<std::string>>("output", {"output"});
-  desc.add<double>("delta_tk_ts", 0.1);
-  desc.add<double>("thr_gnn", 0.5);
+  desc.add<float>("delta_tk_ts", 0.1);
+  desc.add<float>("thr_gnn", 0.5);
 
   TICLInterpretationAlgoBase::fillPSetDescription(desc);
 }
