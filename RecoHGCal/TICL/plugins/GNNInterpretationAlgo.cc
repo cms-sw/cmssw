@@ -347,7 +347,8 @@ void GNNInterpretationAlgo::buildGraphFromNodes(const std::tuple<Vector, Algebra
 void GNNInterpretationAlgo::makeCandidates(const Inputs& input,
                                            edm::Handle<MtdHostCollection> inputTiming_h,
                                            std::vector<Trackster>& resultTracksters,
-                                           std::vector<int>& resultCandidate) {
+                                           std::vector<int>& resultCandidate,
+                                           std::vector<bool>& maskedTracksters) {
   const auto& tracks = *input.tracksHandle;
   const auto& maskTracks = input.maskedTracks;
   const auto& tracksters = input.tracksters;
@@ -445,6 +446,11 @@ void GNNInterpretationAlgo::makeCandidates(const Inputs& input,
   std::vector<std::vector<unsigned>> trackToTracksters(tracks.size());
   std::vector<std::vector<std::pair<unsigned, float>>> trackToScores(tracks.size());
   std::vector<bool> tracksterAvailable(tracksters.size(), true);
+  // Tracksters consumed by an earlier interpretation pass (e.g. muon MIP tracksters)
+  // are unavailable: they are neither re-linked to a track nor emitted as neutrals.
+  for (size_t i = 0; i < tracksters.size() && i < maskedTracksters.size(); ++i)
+    if (maskedTracksters[i])
+      tracksterAvailable[i] = false;
 
   auto runInferenceForTrack = [&](unsigned trkId,
                                   const std::vector<TrackPropInfo>& tkProps,
