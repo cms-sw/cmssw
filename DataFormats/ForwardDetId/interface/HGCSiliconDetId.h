@@ -3,6 +3,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <string_view>
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -97,7 +98,7 @@ public:
 
   /// get the type
   constexpr int32_t type() const { return (id_ >> kHGCalTypeOffset) & kHGCalTypeMask; }
-  constexpr std::string waferTypeX() const { return waferTypes[type()]; }
+  constexpr std::string_view waferTypeX() const { return waferTypes[type()]; }
   constexpr bool lowDensity() const { return ((type() == HGCalLD200) || (type() == HGCalLD300)); }
   constexpr bool highDensity() const { return ((type() == HGCalHD120) || (type() == HGCalHD200)); }
   constexpr int32_t depletion() const {
@@ -206,7 +207,7 @@ public:
   static constexpr uint32_t kHGCalTypeMask = 0x3;
 
 private:
-  static constexpr std::string waferTypes[4] = {"HD120", "LD200", "LD300", "HD200"};
+  static constexpr std::string_view waferTypes[4] = {"HD120", "LD200", "LD300", "HD200"};
 };
 
 std::ostream& operator<<(std::ostream&, const HGCSiliconDetId& id);
