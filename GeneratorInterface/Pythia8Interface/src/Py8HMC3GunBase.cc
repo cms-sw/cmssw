@@ -34,7 +34,7 @@ namespace gen {
 
   // specific to Py8GunHad !!!
   //
-  bool Py8HMC3GunBase::initializeForInternalPartons() {
+  bool Py8HMC3GunBase::initializeGen() {
     // NO MATTER what was this setting below, override it before init
     // - this is essencial for the PGun mode
 
